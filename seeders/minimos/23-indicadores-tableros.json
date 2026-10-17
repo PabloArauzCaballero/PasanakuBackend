@@ -1,0 +1,414 @@
+{
+  "descripcion": "Catálogo de definiciones de indicadores de los tableros por rol (CU-98): fórmula, fuente, familia, dueño y mínimo de casos. SIN metas: las metas son una decisión de negocio que se fija antes del período.",
+  "entorno": "minimo",
+  "estado": "CATÁLOGO INTERNO — fórmulas definidas por el equipo de producto en el trabajo tableros-por-rol (2026-10-16); mínimos de casos PROVISIONALES (privacidad R-SEG-03), revisar con riesgos.",
+  "revisar_con": "riesgos (mínimos de casos), dueño de cada familia (fórmulas y sentido de la meta)",
+  "bloques": [
+    {
+      "tabla": "definicion_indicador",
+      "conflicto": [
+        "version",
+        "codigo"
+      ],
+      "comentario": "vigente_desde 2025-01-01: la versión v1 rige también para el relleno de los últimos 13 meses. Cambiar una fórmula = versión nueva, nunca editar esta (CU-98 §6).",
+      "filas": [
+        {
+          "codigo": "SALDO_CARGADO",
+          "version": "v1",
+          "familia": "FINANZAS",
+          "dueno_familia": "Tesorería",
+          "sentido_meta": "MAYOR_ES_MEJOR",
+          "formula": "Suma del DEBE de los asientos cuya transacción es RECARGA aplicada, en el período",
+          "fuente": "nucleo-financiero · nucleo_financiero.asiento_contable + movimiento_contable, por transaccion_billetera.tipo",
+          "minimo_casos": 5,
+          "vigente_desde": "2025-01-01T00:00:00-04:00"
+        },
+        {
+          "codigo": "SALDO_RETIRADO",
+          "version": "v1",
+          "familia": "FINANZAS",
+          "dueno_familia": "Tesorería",
+          "sentido_meta": "MENOR_ES_MEJOR",
+          "formula": "Suma del DEBE de los asientos cuya transacción es RETIRO aplicada, en el período",
+          "fuente": "nucleo-financiero · nucleo_financiero.asiento_contable + movimiento_contable, por transaccion_billetera.tipo",
+          "minimo_casos": 5,
+          "vigente_desde": "2025-01-01T00:00:00-04:00"
+        },
+        {
+          "codigo": "INTERESES_MORA_COBRADOS",
+          "version": "v1",
+          "familia": "FINANZAS",
+          "dueno_familia": "Tesorería",
+          "sentido_meta": "MENOR_ES_MEJOR",
+          "formula": "Suma del DEBE de los asientos cuya transacción es RECARGO_MORA (recargo por mora cobrado, va al fondo de garantía)",
+          "fuente": "nucleo-financiero · nucleo_financiero.asiento_contable + movimiento_contable, por transaccion_billetera.tipo",
+          "minimo_casos": 5,
+          "vigente_desde": "2025-01-01T00:00:00-04:00"
+        },
+        {
+          "codigo": "COMISIONES_COBRADAS",
+          "version": "v1",
+          "familia": "FINANZAS",
+          "dueno_familia": "Tesorería",
+          "sentido_meta": "MAYOR_ES_MEJOR",
+          "formula": "Suma del DEBE de los asientos cuya transacción es COBRO_COMISION, en el período",
+          "fuente": "nucleo-financiero · nucleo_financiero.asiento_contable + movimiento_contable, por transaccion_billetera.tipo",
+          "minimo_casos": 5,
+          "vigente_desde": "2025-01-01T00:00:00-04:00"
+        },
+        {
+          "codigo": "PENDIENTES_COBRADOS_PROPIO",
+          "version": "v1",
+          "familia": "FINANZAS",
+          "dueno_familia": "Tesorería",
+          "sentido_meta": "MAYOR_ES_MEJOR",
+          "formula": "Pagos acreditados en el período sobre obligaciones que ya estaban vencidas (pagó tarde quien debía)",
+          "fuente": "aportes.pago + obligacion_aporte (fecha de pago > fin de gracia)",
+          "minimo_casos": 5,
+          "vigente_desde": "2025-01-01T00:00:00-04:00"
+        },
+        {
+          "codigo": "PENDIENTES_COBRADOS_RECUPERADO",
+          "version": "v1",
+          "familia": "FINANZAS",
+          "dueno_familia": "Tesorería",
+          "sentido_meta": "MAYOR_ES_MEJOR",
+          "formula": "Abonos de recuperación acreditados en el período sobre deudas que cubrió el fondo",
+          "fuente": "garantia.abono_recuperacion",
+          "minimo_casos": 5,
+          "vigente_desde": "2025-01-01T00:00:00-04:00"
+        },
+        {
+          "codigo": "SALDO_INVERTIDO",
+          "version": "v1",
+          "familia": "FINANZAS",
+          "dueno_familia": "Tesorería",
+          "sentido_meta": "MAYOR_ES_MEJOR",
+          "formula": "Suma del capital de las posiciones de inversión vigentes al cierre del período (aliado SIMULADO: dato sintético)",
+          "fuente": "inversiones.posicion_inversion",
+          "minimo_casos": 5,
+          "vigente_desde": "2025-01-01T00:00:00-04:00"
+        },
+        {
+          "codigo": "TURNOS_NORMALES",
+          "version": "v1",
+          "familia": "FINANZAS",
+          "dueno_familia": "Tesorería",
+          "sentido_meta": "MAYOR_ES_MEJOR",
+          "formula": "Turnos cobrados en el período que no son el último del grupo",
+          "fuente": "grupos.turno (estado COBRADO, orden_asignado < máximo del grupo)",
+          "minimo_casos": 0,
+          "vigente_desde": "2025-01-01T00:00:00-04:00"
+        },
+        {
+          "codigo": "TURNOS_CIERRE_CICLO",
+          "version": "v1",
+          "familia": "FINANZAS",
+          "dueno_familia": "Tesorería",
+          "sentido_meta": "MAYOR_ES_MEJOR",
+          "formula": "Turnos cobrados en el período que son el último del grupo (mayor orden_asignado): cierran el ciclo",
+          "fuente": "grupos.turno (estado COBRADO, orden_asignado = máximo del grupo)",
+          "minimo_casos": 0,
+          "vigente_desde": "2025-01-01T00:00:00-04:00"
+        },
+        {
+          "codigo": "DINERO_EN_MORA",
+          "version": "v1",
+          "familia": "RIESGO",
+          "dueno_familia": "Riesgos",
+          "sentido_meta": "MENOR_ES_MEJOR",
+          "formula": "Saldo pendiente de las obligaciones vencidas fuera de gracia y no cubiertas, al cierre del período",
+          "fuente": "aportes.obligacion_aporte (EN_MORA, VENCIDO)",
+          "minimo_casos": 5,
+          "vigente_desde": "2025-01-01T00:00:00-04:00"
+        },
+        {
+          "codigo": "IMPAGOS_CUBIERTOS",
+          "version": "v1",
+          "familia": "RIESGO",
+          "dueno_familia": "Riesgos",
+          "sentido_meta": "MENOR_ES_MEJOR",
+          "formula": "Monto cubierto por el fondo de garantía en el período",
+          "fuente": "garantia.cobertura_incumplimiento",
+          "minimo_casos": 5,
+          "vigente_desde": "2025-01-01T00:00:00-04:00"
+        },
+        {
+          "codigo": "TASA_MORA",
+          "version": "v1",
+          "familia": "RIESGO",
+          "dueno_familia": "Riesgos",
+          "sentido_meta": "MENOR_ES_MEJOR",
+          "formula": "Obligaciones en mora sobre obligaciones exigibles del período, en porcentaje",
+          "fuente": "aportes.obligacion_aporte",
+          "minimo_casos": 20,
+          "vigente_desde": "2025-01-01T00:00:00-04:00"
+        },
+        {
+          "codigo": "COBERTURA_FONDO",
+          "version": "v1",
+          "familia": "RIESGO",
+          "dueno_familia": "Riesgos",
+          "sentido_meta": "MAYOR_ES_MEJOR",
+          "formula": "Saldo disponible de los fondos de garantía sobre el dinero en mora vigente (veces)",
+          "fuente": "garantia.fondo_garantia / aportes (dinero en mora)",
+          "minimo_casos": 5,
+          "vigente_desde": "2025-01-01T00:00:00-04:00"
+        },
+        {
+          "codigo": "RECUPERACION_CUBIERTO",
+          "version": "v1",
+          "familia": "RIESGO",
+          "dueno_familia": "Riesgos",
+          "sentido_meta": "MAYOR_ES_MEJOR",
+          "formula": "Recuperado sobre cubierto, acumulado, en porcentaje",
+          "fuente": "garantia.cobertura_incumplimiento + abono_recuperacion",
+          "minimo_casos": 20,
+          "vigente_desde": "2025-01-01T00:00:00-04:00"
+        },
+        {
+          "codigo": "ENTREGAS_PENDIENTES",
+          "version": "v1",
+          "familia": "RIESGO",
+          "dueno_familia": "Riesgos",
+          "sentido_meta": "MENOR_ES_MEJOR",
+          "formula": "Entregas de turno que debían salir y no se desembolsaron al cierre del período",
+          "fuente": "entregas.entrega_fondo",
+          "minimo_casos": 0,
+          "vigente_desde": "2025-01-01T00:00:00-04:00"
+        },
+        {
+          "codigo": "TIEMPO_TURNO_DESEMBOLSO",
+          "version": "v1",
+          "familia": "RIESGO",
+          "dueno_familia": "Riesgos",
+          "sentido_meta": "MENOR_ES_MEJOR",
+          "formula": "Días promedio entre la fecha del turno y el desembolso confirmado, en el período",
+          "fuente": "entregas.entrega_fondo + historial_estado_entrega",
+          "minimo_casos": 5,
+          "vigente_desde": "2025-01-01T00:00:00-04:00"
+        },
+        {
+          "codigo": "USUARIOS_NUEVOS",
+          "version": "v1",
+          "familia": "NEGOCIO",
+          "dueno_familia": "Comercial",
+          "sentido_meta": "MAYOR_ES_MEJOR",
+          "formula": "Personas registradas en el período",
+          "fuente": "identidad.usuario.fecha_registro",
+          "minimo_casos": 0,
+          "vigente_desde": "2025-01-01T00:00:00-04:00"
+        },
+        {
+          "codigo": "USUARIOS_ACTIVOS",
+          "version": "v1",
+          "familia": "NEGOCIO",
+          "dueno_familia": "Comercial",
+          "sentido_meta": "MAYOR_ES_MEJOR",
+          "formula": "Personas con al menos un cupo en un grupo EN_CURSO al cierre del período",
+          "fuente": "grupos.participante + grupo",
+          "minimo_casos": 0,
+          "vigente_desde": "2025-01-01T00:00:00-04:00"
+        },
+        {
+          "codigo": "EMBUDO_REGISTRADOS",
+          "version": "v1",
+          "familia": "NEGOCIO",
+          "dueno_familia": "Comercial",
+          "sentido_meta": "MAYOR_ES_MEJOR",
+          "formula": "Paso 1 del embudo: registradas en el período",
+          "fuente": "identidad.usuario",
+          "minimo_casos": 0,
+          "vigente_desde": "2025-01-01T00:00:00-04:00"
+        },
+        {
+          "codigo": "EMBUDO_KYC_APROBADO",
+          "version": "v1",
+          "familia": "NEGOCIO",
+          "dueno_familia": "Comercial",
+          "sentido_meta": "MAYOR_ES_MEJOR",
+          "formula": "Paso 2: de las registradas en el período, con KYC aprobado",
+          "fuente": "identidad.verificacion_kyc",
+          "minimo_casos": 0,
+          "vigente_desde": "2025-01-01T00:00:00-04:00"
+        },
+        {
+          "codigo": "EMBUDO_EN_GRUPO",
+          "version": "v1",
+          "familia": "NEGOCIO",
+          "dueno_familia": "Comercial",
+          "sentido_meta": "MAYOR_ES_MEJOR",
+          "formula": "Paso 3: de las registradas en el período, dentro de un grupo",
+          "fuente": "grupos.participante",
+          "minimo_casos": 0,
+          "vigente_desde": "2025-01-01T00:00:00-04:00"
+        },
+        {
+          "codigo": "EMBUDO_PRIMER_APORTE",
+          "version": "v1",
+          "familia": "NEGOCIO",
+          "dueno_familia": "Comercial",
+          "sentido_meta": "MAYOR_ES_MEJOR",
+          "formula": "Paso 4: de las registradas en el período, con su primer aporte pagado",
+          "fuente": "aportes.pago",
+          "minimo_casos": 0,
+          "vigente_desde": "2025-01-01T00:00:00-04:00"
+        },
+        {
+          "codigo": "GRUPOS_NUEVOS",
+          "version": "v1",
+          "familia": "NEGOCIO",
+          "dueno_familia": "Comercial",
+          "sentido_meta": "MAYOR_ES_MEJOR",
+          "formula": "Grupos creados en el período",
+          "fuente": "grupos.grupo",
+          "minimo_casos": 0,
+          "vigente_desde": "2025-01-01T00:00:00-04:00"
+        },
+        {
+          "codigo": "GRUPOS_COMPLETOS",
+          "version": "v1",
+          "familia": "NEGOCIO",
+          "dueno_familia": "Comercial",
+          "sentido_meta": "MAYOR_ES_MEJOR",
+          "formula": "Grupos que completaron todos sus cupos en el período",
+          "fuente": "grupos.grupo + cupo",
+          "minimo_casos": 0,
+          "vigente_desde": "2025-01-01T00:00:00-04:00"
+        },
+        {
+          "codigo": "DIAS_LLENADO_GRUPO",
+          "version": "v1",
+          "familia": "NEGOCIO",
+          "dueno_familia": "Comercial",
+          "sentido_meta": "MENOR_ES_MEJOR",
+          "formula": "Días promedio desde la creación del grupo hasta ocupar todos los cupos",
+          "fuente": "grupos.grupo + cupo",
+          "minimo_casos": 3,
+          "vigente_desde": "2025-01-01T00:00:00-04:00"
+        },
+        {
+          "codigo": "RETENCION_60D",
+          "version": "v1",
+          "familia": "NEGOCIO",
+          "dueno_familia": "Comercial",
+          "sentido_meta": "MAYOR_ES_MEJOR",
+          "formula": "Participantes de grupos terminados en el período que entraron a otro grupo dentro de los 60 días, en porcentaje",
+          "fuente": "grupos.participante",
+          "minimo_casos": 20,
+          "vigente_desde": "2025-01-01T00:00:00-04:00"
+        },
+        {
+          "codigo": "VOLUMEN_COMPROMETIDO",
+          "version": "v1",
+          "familia": "NEGOCIO",
+          "dueno_familia": "Comercial",
+          "sentido_meta": "MAYOR_ES_MEJOR",
+          "formula": "Cupos × cuota × períodos restantes de los grupos EN_CURSO al cierre del período",
+          "fuente": "grupos.grupo + periodo",
+          "minimo_casos": 5,
+          "vigente_desde": "2025-01-01T00:00:00-04:00"
+        },
+        {
+          "codigo": "SOLICITUDES_TOTALES",
+          "version": "v1",
+          "familia": "OPERACION",
+          "dueno_familia": "Plataforma",
+          "sentido_meta": "MAYOR_ES_MEJOR",
+          "formula": "Solicitudes HTTP atendidas en el período, todos los servicios",
+          "fuente": "Prometheus · http_server_requests (OpenTelemetry)",
+          "minimo_casos": 0,
+          "vigente_desde": "2025-01-01T00:00:00-04:00"
+        },
+        {
+          "codigo": "SOLICITUDES_EXITOSAS",
+          "version": "v1",
+          "familia": "OPERACION",
+          "dueno_familia": "Plataforma",
+          "sentido_meta": "MAYOR_ES_MEJOR",
+          "formula": "Solicitudes con estado 2xx/3xx",
+          "fuente": "Prometheus · http_server_requests",
+          "minimo_casos": 0,
+          "vigente_desde": "2025-01-01T00:00:00-04:00"
+        },
+        {
+          "codigo": "SOLICITUDES_FALLIDAS_4XX",
+          "version": "v1",
+          "familia": "OPERACION",
+          "dueno_familia": "Plataforma",
+          "sentido_meta": "MENOR_ES_MEJOR",
+          "formula": "Solicitudes con estado 4xx",
+          "fuente": "Prometheus · http_server_requests",
+          "minimo_casos": 0,
+          "vigente_desde": "2025-01-01T00:00:00-04:00"
+        },
+        {
+          "codigo": "SOLICITUDES_FALLIDAS_5XX",
+          "version": "v1",
+          "familia": "OPERACION",
+          "dueno_familia": "Plataforma",
+          "sentido_meta": "MENOR_ES_MEJOR",
+          "formula": "Solicitudes con estado 5xx",
+          "fuente": "Prometheus · http_server_requests",
+          "minimo_casos": 0,
+          "vigente_desde": "2025-01-01T00:00:00-04:00"
+        },
+        {
+          "codigo": "TASA_ERROR",
+          "version": "v1",
+          "familia": "OPERACION",
+          "dueno_familia": "Plataforma",
+          "sentido_meta": "MENOR_ES_MEJOR",
+          "formula": "Solicitudes 5xx sobre el total, en porcentaje",
+          "fuente": "Prometheus · http_server_requests",
+          "minimo_casos": 0,
+          "vigente_desde": "2025-01-01T00:00:00-04:00"
+        },
+        {
+          "codigo": "LATENCIA_P50",
+          "version": "v1",
+          "familia": "OPERACION",
+          "dueno_familia": "Plataforma",
+          "sentido_meta": "MENOR_ES_MEJOR",
+          "formula": "Percentil 50 de la duración de las solicitudes, en milisegundos",
+          "fuente": "Prometheus · histograma http_server_requests",
+          "minimo_casos": 0,
+          "vigente_desde": "2025-01-01T00:00:00-04:00"
+        },
+        {
+          "codigo": "LATENCIA_P95",
+          "version": "v1",
+          "familia": "OPERACION",
+          "dueno_familia": "Plataforma",
+          "sentido_meta": "MENOR_ES_MEJOR",
+          "formula": "Percentil 95, en milisegundos",
+          "fuente": "Prometheus · histograma http_server_requests",
+          "minimo_casos": 0,
+          "vigente_desde": "2025-01-01T00:00:00-04:00"
+        },
+        {
+          "codigo": "LATENCIA_P99",
+          "version": "v1",
+          "familia": "OPERACION",
+          "dueno_familia": "Plataforma",
+          "sentido_meta": "MENOR_ES_MEJOR",
+          "formula": "Percentil 99, en milisegundos",
+          "fuente": "Prometheus · histograma http_server_requests",
+          "minimo_casos": 0,
+          "vigente_desde": "2025-01-01T00:00:00-04:00"
+        },
+        {
+          "codigo": "USUARIOS_ACTIVOS_HOY",
+          "version": "v1",
+          "familia": "OPERACION",
+          "dueno_familia": "Plataforma",
+          "sentido_meta": "MAYOR_ES_MEJOR",
+          "formula": "Personas distintas con una sesión usada en el período (desde identidad, nunca desde la telemetría)",
+          "fuente": "identidad.sesion",
+          "minimo_casos": 0,
+          "vigente_desde": "2025-01-01T00:00:00-04:00"
+        }
+      ]
+    }
+  ]
+}

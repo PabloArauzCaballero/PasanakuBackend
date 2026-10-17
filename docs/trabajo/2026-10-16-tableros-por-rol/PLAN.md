@@ -243,8 +243,8 @@ temas × 4 estados.
 
 | ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
 |---|---|---|---|---|
-| H4.S0.M1 | Catálogo `definicion_indicador` de los tableros en `seeders/minimos` (código, v1, familia, dueño, fórmula, fuente, mínimo de casos) | Siembra idempotente | Dos siembras (N → 0) pegadas | TODO |
-| H4.S0.M2 | `PublicadorDeIndicadores` en `plataforma`: `Indicador` → evento `<servicio>.indicador_calculado` por outbox; `SIN_DATOS` no emite | Correcto, límite (sin datos) e inválido (sin código) | Test unitario en verde | TODO |
+| H4.S0.M1 | Catálogo `definicion_indicador` de los tableros en `seeders/minimos` (código, v1, familia, dueño, fórmula, fuente, mínimo de casos) | Siembra idempotente | Dos siembras (N → 0) pegadas | HECHO — `evidencia/H4-S0-M1-definiciones.txt` (36 → 0) |
+| H4.S0.M2 | `PublicadorDeIndicadores` en `plataforma`: `Indicador` → evento `<servicio>.indicador_calculado` por outbox; `SIN_DATOS` no emite | Correcto, límite (sin datos) e inválido (sin código) | Test unitario en verde | EN CURSO |
 | H4.S0.M3 | `auditoria` consume los temas `*.indicador_calculado` y guarda en `indicador_kpi`; idempotente; recálculo reemplaza | Mismo evento dos veces → una fila; recálculo → valor nuevo | Test de integración en verde | TODO |
 | H4.S0.M4 | CU-98 autoriza por familia: `@PermisoAlternativo` con los tres permisos y filtro en el servidor | Sin permiso de la familia → no aparece; sin ninguno → 403 | Test de autorización negativa en verde | TODO |
 

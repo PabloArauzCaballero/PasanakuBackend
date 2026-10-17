@@ -1,0 +1,6 @@
+minimos corrida 1 exit=0 · 36 filas
+minimos corrida 2 exit=0 · 0 filas
+FINANZAS|9
+NEGOCIO|11
+OPERACION|9
+RIESGO|7
