@@ -199,10 +199,10 @@ y el contrato en el OpenAPI de cada servicio.
 
 | ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
 |---|---|---|---|---|
-| H3.S1.M1 | Tipos `DefinicionKpi` / `ResultadoKpi` / `MotivoSinValor` en `plataforma`, espejo de `kpi-definition.types.ts` de Atlas | Compila | `./gradlew :plataforma:<modulo>:compileJava` → exit 0 | TODO |
-| H3.S1.M2 | `Guardas` de publicación: muestra mínima, `emptySample`, moneda obligatoria en dinero | Tres casos (correcto, límite, inválido) | Test unitario nombrado en verde | TODO |
+| H3.S1.M1 | Tipos `DefinicionKpi` / `ResultadoKpi` / `MotivoSinValor` en `plataforma`, espejo de `kpi-definition.types.ts` de Atlas | Compila | `./gradlew :plataforma:<modulo>:compileJava` → exit 0 | HECHO — `IndicadorTest` 8/8; `:plataforma:comun-dominio:check` (cobertura 97/96) en verde |
+| H3.S1.M2 | `Guardas` de publicación: muestra mínima, `emptySample`, moneda obligatoria en dinero | Tres casos (correcto, límite, inválido) | Test unitario nombrado en verde | HECHO — `IndicadorTest` 8/8; `:plataforma:comun-dominio:check` (cobertura 97/96) en verde |
 | H3.S1.M3 | Esquema `ResultadoKpi` reutilizable en los OpenAPI | El lint de contratos pasa | Comando de lint de OpenAPI del repo → exit 0 | TODO |
-| H3.S1.M4 | Foto diaria: tabla `foto_kpi` por servicio dueño (PlantUML → DDL) y trabajo programado | Deriva en verde | `python3 scripts/generar_ddl.py` + verificación de deriva pegada | TODO |
+| H3.S1.M4 | Foto diaria: tabla `foto_kpi` por servicio dueño (PlantUML → DDL) y trabajo programado | Deriva en verde | `python3 scripts/generar_ddl.py` + verificación de deriva pegada | TODO — reordenada después de H6 (desvío): mientras no exista, los indicadores de saldo publican el anterior con `SIN_HISTORIA` |
 
 ## H4 — Tablero financiero
 
