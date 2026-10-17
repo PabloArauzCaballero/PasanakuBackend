@@ -27,6 +27,11 @@ aportaya:
   prometheus:
     url: ${PROMETHEUS_URL:}
     timeout: PT3S
+  # operacion/estado: a quien se le pregunta el readiness. Los nombres son los del compose (red interna, puerto 8080);
+  # la lista es la de la tabla de arquitectura (ADR-037). Vacia = la pantalla dice «sin fuente».
+  salud:
+    servicios: identidad,nucleo-financiero,aportes,tarifas,grupos,entregas,garantia,notificaciones,organizador,cumplimiento,auditoria,transparencia,erp,publicidad
+    plantilla: http://%s:8080/actuator/health/readiness
   indicadores:
     relleno:
       meses: ${INDICADORES_RELLENO_MESES:0}

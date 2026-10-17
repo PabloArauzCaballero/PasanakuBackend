@@ -52,6 +52,10 @@ class CatalogoDeDatosWebTest {
     @MockitoBean
     private bo.aportaya.auditoria.aplicacion.EndpointsDelDia endpointsDelDia;
 
+    // operacion/estado comparte controlador: no se llama aca.
+    @MockitoBean
+    private bo.aportaya.auditoria.aplicacion.SaludDeServicios saludDeServicios;
+
     @BeforeEach
     void catalogo() throws Exception {
         when(vigente.catalogo()).thenReturn(new ObjectMapper().readTree(CATALOGO));
