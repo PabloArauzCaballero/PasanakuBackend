@@ -31,7 +31,7 @@ aportaya:
   # la lista es la de la tabla de arquitectura (ADR-037). Vacia = la pantalla dice «sin fuente».
   salud:
     servicios: identidad,nucleo-financiero,aportes,tarifas,grupos,entregas,garantia,notificaciones,organizador,cumplimiento,auditoria,transparencia,erp,publicidad
-    plantilla: ${SALUD_PLANTILLA:http://%s:8080/actuator/health/readiness}
+    plantilla: http://%s:8080/actuator/health/readiness
   indicadores:
     relleno:
       meses: ${INDICADORES_RELLENO_MESES:0}
