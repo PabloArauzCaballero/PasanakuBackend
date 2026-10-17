@@ -1,6 +1,6 @@
 # Reporte — Tableros por rol, catálogos, pruebas con Faker y OpenTelemetry
 
-> **AVANCE: 78 / 90 — 86,7 %.** (2 descartadas con motivo, 2 a medias, 7 bloqueadas por la pila compartida con su simulación declarada, 1 por hacer: los PRs)
+> **AVANCE: 80 / 91 — 87,9 %.** (2 descartadas con motivo, 2 a medias, 7 bloqueadas por la pila compartida con su simulación declarada; PRs #115 y #116 mergeados)
 
 - Fecha: 2026-10-16 → 2026-10-17 · Plan: [PLAN.md](./PLAN.md) · Rama(s): `pablo/feat/tableros-por-rol-2026-10-16`
   (worktree `../Pasanaku-tableros`, desde `origin/dev` `d63e4fef`)
@@ -49,6 +49,8 @@
 | H9.S1.M1 | Regresión del backend | `./gradlew test webTest integrationTest contractTest sagaTest jacocoTestCoverageVerification` | 4.009 pruebas; rojos preexistentes/entorno resueltos tras el merge de `dev` — `evidencia/H9-S1-M1-regresion-backend.txt` |
 | H9.S1.M2 | Regresión del backoffice | `test:front` 818 · `test:a11y` 70 · lint · build | PASS — `evidencia/H9-S1-M2-regresion-backoffice.txt` |
 | H9.S1.M3 | Gate de seguridad y privacidad | revisión contra 90.6 | PASS — sección de abajo |
+| H9.S1.M5 | Rojos de la primera corrida del CI (barrido, Postman, OSV) corregidos | `spotlessCheck testBarrido` · `check` · suites tocadas | PASS — `evidencia/H9-S1-M5-rojos-del-ci.txt` |
+| H9.S1.M4 | PR #115 a `dev` y #116 a `test`, CI en verde, mergeados; `dev` y `test` con el mismo árbol; espejo `test` sincronizado | `gh pr checks` | PASS — `evidencia/H9-S1-M4-prs.txt` |
 
 ## A medias
 
@@ -72,7 +74,6 @@
 | H4.S2.M3 · H5.S2.M2 · H6.S3.M4 | BLOQUEADO | E2E contra el backend real sembrado. Simulado: 16 recorridos con `auditoria` como doble (datos, vacío, cargando, 500/403) |
 | H6.S1.M3 · H6.S2.M3 | BLOQUEADO | Series reales en Prometheus y apagar el Collector con la pila arriba. Simulado con `PrometheusDobleTest` y el estado «sin fuente» |
 | H6.S2.M2 | BLOQUEADO | Jaeger en dev (opcional, sin doble posible) |
-| H9.S1.M4 | TODO | PR a `dev` y PR a `test`, CI en verde y merge |
 | H3.S1.M3 · H3.S1.M4 | DESCARTADO | Redundantes tras el reencuadre en CU-98 (decidido por el agente con evidencia; confirmar con Pablo) |
 
 **Por qué está bloqueado lo que necesita la pila:** el compose fija los nombres `aportaya-postgres` y `aportaya-interna`, y
@@ -138,6 +139,8 @@ $ python3 -I scripts/verificar_narrativas.py
   fondeo → banco → asiento y se ejecutó.
 
 ## Riesgos residuales
+
+- **`dev` del espejo PasanakuFrontend sin sincronizar:** tiene PRs propios (#25, #26) y diverge de `origin/dev`; pisarlo podría perder trabajo. Decidir con Pablo.
 
 - **H8-01 (dinero, preexistente):** en producción nada instruye al proveedor un retiro AUTORIZADO: `RetirosConProveedor`
   y `CU11RetirarSaldo.instruirPago` no tienen llamador y `retiro_autorizado` no tiene consumidor. Una orden queda
