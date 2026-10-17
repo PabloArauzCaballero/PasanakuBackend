@@ -120,6 +120,9 @@ class EstadoDeVerificacionWebTest {
     @MockitoBean
     private bo.aportaya.identidad.aplicacion.ConsultarMiPerfil consultarMiPerfil;
 
+    @MockitoBean
+    private bo.aportaya.identidad.aplicacion.CU02IniciarVerificacion iniciarVerificacion;
+
     private String tokenDe(UUID usuario) {
         return new TokenDeAlta(PIMIENTA, reloj, Duration.ofMinutes(30))
                 .emitir(usuario)

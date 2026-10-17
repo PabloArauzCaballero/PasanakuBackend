@@ -72,6 +72,16 @@ class CU07MiPerfilTest {
     }
 
     @Test
+    void diceSiLaCuentaTodaviaNoEnvioSuDocumento() {
+        UUID usuario = fixtura.usuario(telefono());
+        dsl.execute("UPDATE identidad.usuario SET estado = 'INCOMPLETO_KYC' WHERE id = ?", usuario);
+
+        var perfil = tx.execute(s -> consulta.ejecutar(ctx(usuario)));
+
+        assertThat(perfil.estadoDeCuenta()).isEqualTo("INCOMPLETO_KYC");
+    }
+
+    @Test
     void unaSesionSinCuentaNoDevuelveDatos() {
         UUID fantasma = UUID.randomUUID();
         assertThatThrownBy(() -> tx.execute(s -> consulta.ejecutar(ctx(fantasma))))

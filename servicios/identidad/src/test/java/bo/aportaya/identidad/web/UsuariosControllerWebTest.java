@@ -120,6 +120,9 @@ class UsuariosControllerWebTest {
     private bo.aportaya.identidad.aplicacion.ConsultarMiPerfil consultarMiPerfil;
 
     @MockitoBean
+    private bo.aportaya.identidad.aplicacion.CU02IniciarVerificacion iniciarVerificacion;
+
+    @MockitoBean
     private ConsultarNivelKyc nivelesKyc;
 
     private org.springframework.test.web.servlet.ResultActions registrar(String cuerpo) throws Exception {

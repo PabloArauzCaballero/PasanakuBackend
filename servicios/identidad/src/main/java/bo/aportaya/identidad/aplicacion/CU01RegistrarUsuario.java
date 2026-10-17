@@ -104,9 +104,13 @@ public class CU01RegistrarUsuario {
     public SalidaRegistro ejecutar(EntradaRegistro entrada, ContextoSesion ctx) {
         OffsetDateTime ahora = reloj.ahora().atOffset(ZoneOffset.UTC);
 
+        // Sin documento la cuenta se abre igual, para conocer la app: la verificacion se
+        // pide cuando la persona quiere operar con dinero (CU02IniciarVerificacion).
+        boolean conDocumento = entrada.documento() != null;
+
         // Un documento vencido no abre cuenta: se valida aca y no solo en la app. El
         // ultimo dia todavia vale (DocumentoDeIdentidad.vencidoAl).
-        if (entrada.documento().vencidoAl(reloj.hoy())) {
+        if (conDocumento && entrada.documento().vencidoAl(reloj.hoy())) {
             throw new ErrorDeNegocio(
                     CodigoError.de(1, 7), "Tu documento esta vencido. Para abrir la cuenta hace falta uno vigente.");
         }
@@ -121,8 +125,9 @@ public class CU01RegistrarUsuario {
                         "Ya hay una cuenta con ese telefono. Podes recuperar el acceso.",
                         Map.of("campo", "telefono"));
             }
-            if (registros.documentoYaRegistrado(
-                    dsl, entrada.documento().hashNumero(), entrada.documento().lugarExpedicion())) {
+            if (conDocumento
+                    && registros.documentoYaRegistrado(
+                            dsl, entrada.documento().hashNumero(), entrada.documento().lugarExpedicion())) {
                 throw new ErrorDeNegocio(
                         CodigoError.de(1, 3),
                         "Ya hay una cuenta con ese documento. Podes recuperar el acceso.",
@@ -145,7 +150,7 @@ public class CU01RegistrarUsuario {
                     List.of(),
                     hasheador::coincide,
                     entrada.telefonoE164(),
-                    entrada.documento().hashNumero());
+                    conDocumento ? entrada.documento().hashNumero() : null);
             if (rechazo.isPresent()) {
                 throw new ErrorDeNegocio(CodigoError.de(1, 6), mensajeDe(rechazo.get()));
             }
@@ -159,6 +164,8 @@ public class CU01RegistrarUsuario {
             // que nunca se envio.
             entrada.canalVerificacion().exigirDestino(entrada.correo());
 
+            AperturaDeCuenta apertura =
+                    conDocumento ? AperturaDeCuenta.PENDIENTE_VERIFICACION : AperturaDeCuenta.INCOMPLETO_KYC;
             UUID usuario = registros.crearUsuario(
                     dsl,
                     codigoPublico(),
@@ -167,7 +174,7 @@ public class CU01RegistrarUsuario {
                     entrada.telefonoE164(),
                     entrada.correo(),
                     entrada.fechaNacimiento(),
-                    AperturaDeCuenta.PENDIENTE_VERIFICACION.name(),
+                    apertura.name(),
                     ahora);
 
             if (entrada.canalVerificacion() == CanalDeVerificacion.CORREO) {
@@ -188,8 +195,11 @@ public class CU01RegistrarUsuario {
             // cuanto dejo de hacer falta. Un `char[]` existe justamente para esto.
             Arrays.fill(entrada.contrasena(), '\0');
 
-            UUID documento = registros.guardarDocumento(dsl, usuario, entrada.documento(), entrada.numeroCifrado());
-            registros.iniciarVerificacion(dsl, usuario, documento, "BASICO", ahora);
+            if (conDocumento) {
+                UUID documento =
+                        registros.guardarDocumento(dsl, usuario, entrada.documento(), entrada.numeroCifrado());
+                registros.iniciarVerificacion(dsl, usuario, documento, "BASICO", ahora);
+            }
             registros.registrarConsentimientos(dsl, usuario, FINALIDADES, entrada.ip(), entrada.agente(), ahora);
 
             // Lo que sigue —diligencia, calificacion, expediente y billetera— lo hacen
@@ -201,10 +211,14 @@ public class CU01RegistrarUsuario {
                             "identidad.usuario_registrado",
                             "usuario",
                             usuario,
-                            Map.of("usuarioId", usuario.toString(), "nivelSolicitado", "BASICO"),
+                            Map.of(
+                                    "usuarioId",
+                                    usuario.toString(),
+                                    "nivelSolicitado",
+                                    conDocumento ? "BASICO" : "NINGUNO"),
                             UUID.fromString(ctx.traza().id())));
 
-            return new SalidaRegistro(usuario, AperturaDeCuenta.PENDIENTE_VERIFICACION);
+            return new SalidaRegistro(usuario, apertura);
         });
     }
 
@@ -230,6 +244,7 @@ public class CU01RegistrarUsuario {
             String correo,
             CanalDeVerificacion canalVerificacion,
             UUID verificacionCorreoId,
+            /** {@code null} cuando la persona abre la cuenta sin documento (INCOMPLETO_KYC). */
             DocumentoDeIdentidad documento,
             String numeroCifrado,
             /** En claro y como {@code char[]}: se borra en cuanto se hashea. */

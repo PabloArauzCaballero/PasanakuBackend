@@ -162,6 +162,10 @@ Dado una cuenta pendiente de aprobacion manual
 Cuando inicia sesion con credenciales correctas
 Entonces inicia sesion y su estado sigue pendiente
 
+Dada una cuenta sin documento
+Cuando inicia sesion con credenciales correctas
+Entonces inicia sesion y sigue INCOMPLETO_KYC
+
 Dado un usuario activo sin factor
 Cuando inicia sesion desde un dispositivo nuevo
 Entonces se exige segundo factor y no se crea sesion
