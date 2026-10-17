@@ -14,7 +14,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 /**
- * CU-04 · El segundo factor por correo para el participante que no enrolo ninguno.
+ * CU-04 · El segundo factor por correo para el participante que no enrolo ninguno,
+ * en la operacion que lo exige (al entrar ya no se le pide).
  *
  * <p>Contra PostgreSQL real; el envio va a un DOBLE ({@link CorreoEnMemoria}). Que Gmail
  * lo entregue no se prueba aca.
@@ -23,7 +24,7 @@ class CU04CodigoPorCorreoTest extends BaseDeCU04 {
 
     @Test
     @DisplayName(
-            "Dado un participante sin factor y con el correo confirmado en el alta · Cuando entra desde un telefono nuevo · Entonces se le pide el codigo y le llega por correo · Y con ese codigo abre la sesion")
+            "Dado un participante sin factor y con el correo confirmado en el alta · Cuando hace una operacion que exige MFA · Entonces se le pide el codigo y le llega por correo · Y con ese codigo abre la sesion")
     void codigoLlegaPorCorreoYEntra() {
         String telefono = telefono();
         String destino = destino();
@@ -69,7 +70,7 @@ class CU04CodigoPorCorreoTest extends BaseDeCU04 {
 
     @Test
     @DisplayName(
-            "Dado un participante cuyo correo actual NO es el que confirmo en el alta · Cuando entra desde un telefono nuevo · Entonces no se manda ningun correo")
+            "Dado un participante cuyo correo actual NO es el que confirmo en el alta · Cuando hace una operacion que exige MFA · Entonces no se manda ningun correo")
     void correoCambiadoNoRecibe() {
         String telefono = telefono();
         String confirmado = destino();
@@ -85,7 +86,7 @@ class CU04CodigoPorCorreoTest extends BaseDeCU04 {
 
     @Test
     @DisplayName(
-            "Dado un participante con TOTP enrolado y correo confirmado · Cuando entra desde un telefono nuevo · Entonces se le pide su factor enrolado y no se envia correo")
+            "Dado un participante con TOTP enrolado y correo confirmado · Cuando hace una operacion que exige MFA · Entonces se le pide su factor enrolado y no se envia correo")
     void factorEnroladoGana() {
         String telefono = telefono();
         String destino = destino();
@@ -136,7 +137,9 @@ class CU04CodigoPorCorreoTest extends BaseDeCU04 {
                 "prueba",
                 UUID.randomUUID().toString(),
                 codigo,
-                false,
+                // Desde el 2026-10-17 al participante no se le pide codigo para entrar
+                // (CU-04 paso 3): el codigo por correo solo sale en una operacion sensible.
+                true,
                 Duration.ofHours(12));
     }
 

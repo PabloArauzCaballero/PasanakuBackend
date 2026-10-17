@@ -1,0 +1,94 @@
+# Plan — Ingreso con correo, sin segundo factor para el usuario final, login del backoffice estilo Atlas y rediseño visual del backoffice
+
+- Fecha: 2026-10-17 · Repos afectados: Pasanaku (monorepo) · Rama: `pablo/feat/backoffice-login-y-acceso-2026-10-17` (desde `origin/test` 8a0131c6)
+- Predecesor: `2026-10-16-codigo-acceso-por-correo`, `2026-10-15-visual-bancario` (rediseño de la app móvil; el backoffice quedó OUT)
+- Resultado observable:
+  1. Una persona entra a la app o al backoffice escribiendo su **correo o su teléfono** y la contraseña.
+  2. El **usuario final** (participante) entra con contraseña desde cualquier teléfono, sin código de segundo factor. Retiro y cambio de cuenta siguen pidiéndolo (step-up). El operador del backoffice lo sigue teniendo siempre (R-SEG-10).
+  3. El login del backoffice tiene la anatomía del portal interno de Atlas (panel de marca + tarjeta), en claro y oscuro.
+  4. El resto del backoffice deja de verse igual que antes: rediseño visual transversal (H6).
+- Kill-test: `POST /sesiones` con `{correo, credencial}` de un participante desde una huella nueva devuelve 401/422 o `requiereFactorAdicional=true` → NO está hecho.
+
+## Pedido literal (2026-10-17, Pablo)
+1. «Sigue exactamente igual los visuales.» → aclaración: «backoffice totalmente».
+2. «Necesitamos esos tipos de usuarios… con sus opciones ultra detalladas como te pasé.» → «los que habíamos dicho».
+3. «Que se pueda logear también con correo. Que el portal backoffice tenga un login muchísimo más estético, fijate como está en atlas.»
+4. «El usuario final no quiero que tenga segundo factor.» → «lo más recomendado pero toma en cuenta la experiencia del usuario».
+
+## Hallazgos (fase 1)
+- Login backoffice: `apps/backoffice/src/app/rutas/ingreso/pantalla-de-ingreso.ts` — tarjeta sola centrada, solo teléfono (+591), TOTP.
+- Contrato: `servicios/identidad/src/main/resources/openapi/identidad.yaml:890` `EntradaAutenticacion` exige `telefonoE164`; no hay `correo`.
+- CU-04 busca por teléfono: `CU04Autenticar.java` `usuarios.porTelefono(...)`; el intento ya guarda `identificador_usado` genérico (`AccesoRepositorio.registrarIntento`).
+- `usuario.correo` es `UQ, NULL` (`sql/30_indices/01_identidad_usuarios.sql:13` `uq_usuario_correo`), sin normalizar (comparación exacta).
+- Segundo factor: `dominio/ExigeSegundoFactor.java` → `!dispositivoConfiable || permisoExigeMfa` para no operadores. Criterio 1 de `docs/CasosDeUso/CU-04 …md:169` lo exige en dispositivo desconocido; test `CU04Test.criterio1` y `cuentaActivaSinFactorNoOmiteMfaEnDispositivoNuevo`.
+- Step-up de operaciones sensibles: `CU04StepUp.java` (independiente del login) — no se toca.
+- Referencia Atlas: `atlas/AtlasAdminPortal/src/features/auth/login-page.tsx` y `login-hero.tsx`.
+- Roles existentes: 18 en `seeders/minimos/10-roles-y-permisos.json`. La lista «ultra detallada» de tipos de usuario **no está** en el repo, ni en `docs/`, ni en `Prompts/`, ni en las transcripciones locales.
+
+## Alcance
+- IN: contrato y CU-04 de `identidad`; `ExigeSegundoFactor` y su especificación; clientes generados de identidad; login del backoffice; login de la app móvil; rediseño visual del backoffice (H6).
+- OUT: step-up (`CU04StepUp`), recuperación de contraseña, esquema de base (no hace falta columna nueva), tipos de usuario (H5, decisión de negocio).
+- Ambigüedades registradas:
+  - A1 «sin segundo factor» — supuesto: se elimina al **iniciar sesión** para no operadores en cualquier dispositivo; se mantiene en operaciones con `permiso.requiere_mfa` (retiro, cambio de cuenta). Motivo: recomendado y es la práctica de banca móvil (fricción solo donde se mueve plata). Confirmar con Pablo.
+  - A2 Correo sin verificar como identificador — supuesto: se acepta (la contraseña es el secreto; el correo solo identifica). Si dos cuentas difieren solo en mayúsculas, el correo no identifica a nadie y se responde «credencial inválida». Confirmar con Pablo.
+  - A3 «Tipos de usuario … los que habíamos dicho» — la lista no está en ningún lado accesible. `DECISION_REQUIRED`: Pablo la vuelve a pasar.
+
+## H1 — Ingreso con correo (backend)
+**CA:** Dado un usuario con correo, cuando manda `{correo, credencial}` a `POST /sesiones`, entonces entra igual que con teléfono; con un correo inexistente recibe exactamente el mismo error que con contraseña mala.
+**DoD:** `./gradlew :servicios:identidad:test --tests '*CU04*'` en verde + web test del contrato.
+**Estado:** TODO
+
+| ID | Microtarea | CA (binario) | DoD | Estado |
+|---|---|---|---|---|
+| H1.S1.M1 | Contrato: `EntradaAutenticacion` acepta `correo` o `telefonoE164` (uno de los dos) | El YAML valida y el controlador rechaza ninguno/ambos con 422 | `./gradlew :servicios:identidad:webTest --tests '*Sesiones*'` | HECHO — `evidencia/H1-sesiones-web.txt` (18/18) |
+| H1.S1.M2 | `UsuarioRepositorio.porCorreo` sin distinguir mayúsculas, solo si identifica a una sola cuenta | Test de integración: encuentra; mayúsculas; ambiguo → vacío | `./gradlew :servicios:identidad:integrationTest --tests '*CU04*'` | HECHO — `evidencia/H1-H2-cu04-integracion.txt` |
+| H1.S1.M3 | `CU04Autenticar` resuelve por el identificador presentado | Login por correo PASS; correo inexistente = credencial inválida | idem | HECHO — idem (`ingresoConCorreo`, `correoInexistenteOAmbiguoEsCredencialInvalida`) |
+| H1.S1.M4 | Regenerar clientes Angular y Dart de identidad | Generador exit 0, `correo` en el modelo | `./gradlew :servicios:identidad:generarClientes` | HECHO — `evidencia/H1-S1-M4-clientes.txt` |
+
+## H2 — Sin segundo factor al iniciar sesión para el usuario final
+**CA:** Dado un participante con o sin factor enrolado, cuando entra desde un teléfono nuevo, entonces obtiene sesión sin código; dado un operador, se le sigue exigiendo siempre.
+**DoD:** `CU04Test` en verde con criterios actualizados; especificación CU-04 actualizada.
+**Estado:** TODO
+
+| ID | Microtarea | CA | DoD | Estado |
+|---|---|---|---|---|
+| H2.S1.M1 | Especificación CU-04: criterio 1 y flujo 3 cambian por pedido de Pablo (2026-10-17) | El `.md` dice el requisito nuevo | `grep -n "teléfono nuevo" "docs/CasosDeUso/CU-04 …md"` | HECHO — `evidencia/H2-S1-M1-especificacion.txt` |
+| H2.S1.M2 | `ExigeSegundoFactor`: no operador → solo si la operación exige MFA | Participante en huella nueva entra; operador sigue exigido | `./gradlew :servicios:identidad:integrationTest --tests '*CU04*'` | HECHO — `evidencia/H1-H2-cu04-integracion.txt` (CU04Test 18/18, CU04CodigoPorCorreoTest 5/5) |
+
+## H3 — Login del backoffice estilo Atlas
+**CA:** Dado un operador en `/ingreso`, ve panel de marca + tarjeta «Bienvenido de vuelta», puede escribir correo o teléfono, y el paso del código sigue funcionando; en móvil el panel se oculta y la tarjeta ocupa el ancho.
+**DoD:** specs del backoffice en verde · capturas 390/768/1440 en claro y oscuro, miradas.
+**Estado:** TODO
+
+| ID | Microtarea | CA | DoD | Estado |
+|---|---|---|---|---|
+| H3.S1.M1 | Identificador único: correo o teléfono, con su validación | Spec: correo → `correo`; 8 dígitos → `telefonoE164` | `yarn --cwd apps/backoffice test:front` (spec del ingreso) | TODO |
+| H3.S1.M2 | Layout partido estilo Atlas con tokens, claro/oscuro, movimiento reducido | Capturas en 3 viewports × 2 temas | capturas en `evidencia/H3/` | TODO |
+
+## H4 — App móvil: ingreso con correo
+**CA:** En la pantalla de ingreso de la app se puede escribir correo o teléfono.
+**DoD:** `flutter test` de identidad en verde.
+**Estado:** TODO
+
+| ID | Microtarea | CA | DoD | Estado |
+|---|---|---|---|---|
+| H4.S1.M1 | Campo identificador en el ingreso de la app | Test: correo → `correo`; teléfono → `telefonoE164` | `cd apps/movil && flutter test test/identidad` | TODO |
+
+## H5 — Tipos de usuario
+**Estado:** BLOQUEADO — `DECISION_REQUIRED`: la lista detallada no está en el repo ni en las transcripciones locales. Destraba: Pablo la vuelve a pasar. No se inventa (regla 00 §1).
+
+## H6 — Rediseño visual del backoffice
+**CA:** Dado cualquier ruta del backoffice, se ve con la misma familia visual que el login nuevo (shell, tablas, tarjetas), en claro y oscuro.
+**DoD:** capturas antes/después por ruta principal · specs y lint en verde.
+**Estado:** TODO
+
+| ID | Microtarea | CA | DoD | Estado |
+|---|---|---|---|---|
+| H6.S1.M1 | Auditoría visual con capturas de las rutas principales (antes) | Lista de hallazgos con captura | `evidencia/H6/antes/` | TODO |
+| H6.S1.M2 | Shell (barra lateral + cabecera) en la nueva familia visual | Capturas después | `evidencia/H6/despues/` + `yarn --cwd apps/backoffice lint` | TODO |
+
+## Riesgos
+| Riesgo | Impacto | Mitigación |
+|---|---|---|
+| Robo de contraseña = acceso sin segundo factor | Ver datos de la cuenta | Retiro y cambio de cuenta siguen con step-up; bloqueo por intentos sigue |
+| `lower(correo)` sin índice funcional | Escaneo secuencial en el ingreso | Tabla chica hoy; registrar como deuda |

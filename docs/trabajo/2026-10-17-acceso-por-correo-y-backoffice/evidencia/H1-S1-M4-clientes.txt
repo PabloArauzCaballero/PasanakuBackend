@@ -1,0 +1,9 @@
+$ ./gradlew :servicios:identidad:generarClientes -q
+exit=0
+$ grep -n correo clientes/angular/identidad/model/entradaAutenticacion.ts
+14: * Exactamente uno de `telefonoE164` o `correo` identifica la cuenta. Ninguno o los dos responde 400 AP-VAL-02. Un correo que no existe responde igual que una credencial mala (AP-CU04-01): el ingreso no dice qué cuentas existen.
+18:    correo?: string;
+$ grep -n correo clientes/dart/identidad/lib/src/model/entrada_autenticacion.dart | head -3
+24:     this.correo,
+49:    name: r'correo',
+55:  final String? correo;

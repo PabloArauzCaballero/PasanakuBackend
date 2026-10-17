@@ -1,6 +1,5 @@
 package bo.aportaya.identidad.aplicacion;
 
-import bo.aportaya.identidad.dominio.AperturaDeCuenta;
 import bo.aportaya.identidad.dominio.ExigeSegundoFactor;
 import bo.aportaya.identidad.dominio.FactorAdmisible;
 import bo.aportaya.identidad.dominio.PerfilDeAcceso;
@@ -88,13 +87,15 @@ public class CU04Autenticar {
 
     private ResultadoDeAutenticacion autenticar(
             DSLContext dsl, EntradaAutenticacion entrada, PoliticaDeIntentos politica, OffsetDateTime ahora) {
-        Optional<UUID> usuarioId = usuarios.porTelefono(dsl, entrada.telefonoE164());
+        Optional<UUID> usuarioId = entrada.esCorreo()
+                ? usuarios.porCorreo(dsl, entrada.identificador())
+                : usuarios.porTelefono(dsl, entrada.identificador());
         UUID intentoId = accesos.registrarIntento(
-                dsl, usuarioId, entrada.telefonoE164(), entrada.ip(), entrada.agente(), entrada.huella(), ahora);
+                dsl, usuarioId, entrada.identificador(), entrada.ip(), entrada.agente(), entrada.huella(), ahora);
 
         if (usuarioId.isEmpty()) {
-            // El mismo mensaje que para una credencial mala: decir «ese numero no
-            // existe» convierte el ingreso en un buscador de usuarios registrados.
+            // El mismo mensaje que para una credencial mala: decir «ese numero (o ese
+            // correo) no existe» convierte el ingreso en un buscador de usuarios registrados.
             return cerrar(dsl, intentoId, "CREDENCIAL_INVALIDA", credencialInvalida());
         }
         UUID usuario = usuarioId.get();
@@ -124,9 +125,6 @@ public class CU04Autenticar {
         }
 
         PerfilDeAcceso perfil = usuarios.perfilDe(dsl, usuario);
-        boolean pendienteDeAprobacion = usuarios.estadoDe(dsl, usuario)
-                .filter(AperturaDeCuenta.PENDIENTE_VERIFICACION.name()::equals)
-                .isPresent();
         var dispositivo = accesos.dispositivoPorHuella(dsl, usuario, entrada.huella(), entrada.plataforma(), ahora);
         Optional<String> enrolado = accesos.factorActivo(dsl, usuario);
 
@@ -160,14 +158,9 @@ public class CU04Autenticar {
                             CodigoError.de(4, 7), "Ese tipo de factor no se admite para tu rol."));
         }
 
-        // El alta ya verifico la credencial y crea la cuenta en revision manual. Si aun no
-        // existe un factor enrolado, permitir iniciar sesion sin confiar el dispositivo ni
-        // activar la cuenta; las operaciones sensibles siguen exigiendo segundo factor.
-        // Cuando hay factor, la politica normal de MFA sigue aplicando tambien a pendientes.
-        boolean accesoInicialPendienteSinFactor =
-                pendienteDeAprobacion && !perfil.esOperador() && factor.isEmpty() && !entrada.operacionSensible();
-        if (!accesoInicialPendienteSinFactor
-                && ExigeSegundoFactor.decidir(perfil, dispositivo.confiable(), entrada.operacionSensible())) {
+        // La cuenta pendiente de aprobacion entra sin confiar el dispositivo ni activarse:
+        // abrir la sesion no aprueba nada.
+        if (ExigeSegundoFactor.decidir(perfil, entrada.operacionSensible())) {
             if (entrada.factorPresentado().isEmpty()) {
                 factor.ifPresent(tipo -> desafio.emitir(usuario, tipo, correoDeAcceso.orElse(null)));
                 if (desafio.entregaPorCorreoConfirmada(usuario)) {
@@ -212,7 +205,7 @@ public class CU04Autenticar {
     }
 
     private ResultadoDeAutenticacion credencialInvalida() {
-        return ResultadoDeAutenticacion.rechazado(CodigoError.de(4, 1), "El telefono o la credencial no coinciden.");
+        return ResultadoDeAutenticacion.rechazado(CodigoError.de(4, 1), "El telefono, el correo o la contrasena no coinciden.");
     }
 
     private ResultadoDeAutenticacion cerrar(
