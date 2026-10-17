@@ -10,7 +10,7 @@ import {
   ExpedienteEnRevisionEstadoEnum,
   type ExpedienteEnRevision,
 } from 'clientes/angular/identidad'
-import { crearResolver, expedientesEnEstado, coincideConBusqueda, POR_DECIDIR, recortar, vencimientoDe } from '../dominio/cu02-expedientes'
+import { crearResolver, expedientesEnEstado, coincideConBusqueda, esPendiente, POR_DECIDIR, recortar, tonoDelExpediente, vencimientoDe } from '../dominio/cu02-expedientes'
 import type { ErrorTraducido } from '../../../nucleo/errores'
 import { textosCumplimiento } from '../textos'
 import { DecisionDeExpediente, type Decision } from './decision-de-expediente'
@@ -169,19 +169,9 @@ export class PantallaDeExpedientes {
   /** Lo decide el servidor (`documentoVigente`), no el reloj de quien mira. */
   protected readonly vencimientoDe = vencimientoDe
 
-  /** Un expediente ya resuelto no se vuelve a decidir desde acá. */
-  protected pendiente(e: ExpedienteEnRevision): boolean {
-    return (
-      e.estado === ExpedienteEnRevisionEstadoEnum.Pendiente ||
-      e.estado === ExpedienteEnRevisionEstadoEnum.EnRevision
-    )
-  }
-
-  protected tonoDe(e: ExpedienteEnRevision): 'ok' | 'error' | 'aviso' | 'neutro' {
-    if (e.estado === ExpedienteEnRevisionEstadoEnum.Aprobada) return 'ok'
-    if (e.estado === ExpedienteEnRevisionEstadoEnum.Rechazada) return 'error'
-    return e.estado === ExpedienteEnRevisionEstadoEnum.EnRevision ? 'aviso' : 'neutro'
-  }
+  /** Un expediente ya resuelto no se vuelve a decidir desde acá (regla pura en el dominio). */
+  protected readonly pendiente = esPendiente
+  protected readonly tonoDe = tonoDelExpediente
 
   protected resolver(e: ExpedienteEnRevision, { decision, motivo }: Decision): void {
     const id = e.verificacionId
