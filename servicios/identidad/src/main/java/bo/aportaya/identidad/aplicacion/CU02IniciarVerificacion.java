@@ -46,8 +46,7 @@ public class CU02IniciarVerificacion {
     @Transactional
     public UUID ejecutar(UUID usuarioId, DocumentoDeIdentidad documento, String numeroCifrado, String trazaId) {
         if (documento.fechaExpiracion() == null) {
-            throw new ErrorDeNegocio(
-                    CodigoError.de(1, 10), "Falta la fecha de vencimiento de tu documento.");
+            throw new ErrorDeNegocio(CodigoError.de(1, 10), "Falta la fecha de vencimiento de tu documento.");
         }
         if (documento.vencidoAl(reloj.hoy())) {
             throw new ErrorDeNegocio(

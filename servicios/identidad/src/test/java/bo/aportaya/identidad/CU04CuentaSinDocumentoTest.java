@@ -24,7 +24,8 @@ class CU04CuentaSinDocumentoTest extends BaseDeCU04 {
     void cuentaSinDocumentoPuedeIniciarSesion() {
         String telefono = "+59175" + ThreadLocalRandom.current().nextInt(100_000, 1_000_000);
         UUID usuario = participanteConCredencial(telefono);
-        dsl.execute("UPDATE identidad.usuario SET estado = 'INCOMPLETO_KYC', nivel_kyc = 'NINGUNO' WHERE id = ?", usuario);
+        dsl.execute(
+                "UPDATE identidad.usuario SET estado = 'INCOMPLETO_KYC', nivel_kyc = 'NINGUNO' WHERE id = ?", usuario);
 
         ResultadoDeAutenticacion resultado = autenticar(entrada(telefono, "clave-correcta", "huella-sin-documento"));
 

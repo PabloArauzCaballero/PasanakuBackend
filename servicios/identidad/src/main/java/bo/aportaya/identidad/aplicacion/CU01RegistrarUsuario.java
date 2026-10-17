@@ -127,7 +127,9 @@ public class CU01RegistrarUsuario {
             }
             if (conDocumento
                     && registros.documentoYaRegistrado(
-                            dsl, entrada.documento().hashNumero(), entrada.documento().lugarExpedicion())) {
+                            dsl,
+                            entrada.documento().hashNumero(),
+                            entrada.documento().lugarExpedicion())) {
                 throw new ErrorDeNegocio(
                         CodigoError.de(1, 3),
                         "Ya hay una cuenta con ese documento. Podes recuperar el acceso.",
@@ -196,8 +198,7 @@ public class CU01RegistrarUsuario {
             Arrays.fill(entrada.contrasena(), '\0');
 
             if (conDocumento) {
-                UUID documento =
-                        registros.guardarDocumento(dsl, usuario, entrada.documento(), entrada.numeroCifrado());
+                UUID documento = registros.guardarDocumento(dsl, usuario, entrada.documento(), entrada.numeroCifrado());
                 registros.iniciarVerificacion(dsl, usuario, documento, "BASICO", ahora);
             }
             registros.registrarConsentimientos(dsl, usuario, FINALIDADES, entrada.ip(), entrada.agente(), ahora);

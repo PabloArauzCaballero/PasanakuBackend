@@ -43,7 +43,8 @@ final class MapeoDelAlta {
     /** El documento del contrato al del dominio: el alta y {@code iniciarVerificacion} lo comparten. */
     static DocumentoDeIdentidad documentoDe(Documento documento, String pimienta) {
         return DocumentoDeIdentidad.de(
-                DocumentoDeIdentidad.Tipo.valueOf(tipoDelModelo(documento.getTipo().getValue())),
+                DocumentoDeIdentidad.Tipo.valueOf(
+                        tipoDelModelo(documento.getTipo().getValue())),
                 documento.getNumero(),
                 pimienta,
                 "BO",

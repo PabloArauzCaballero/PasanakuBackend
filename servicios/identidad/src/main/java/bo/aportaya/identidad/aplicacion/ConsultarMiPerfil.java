@@ -27,8 +27,7 @@ public class ConsultarMiPerfil {
         UUID usuarioId = ctx.usuarioId();
         return datos.conContexto(ctx, dsl -> {
             var fila = dsl.fetchOne(
-                    "SELECT correo, correo_verificado_en IS NOT NULL AS verificado, estado"
-                            + " FROM identidad.usuario WHERE id = ?",
+                    "SELECT correo, correo_verificado_en IS NOT NULL AS verificado, estado FROM identidad.usuario WHERE id = ?",
                     usuarioId);
             if (fila == null) {
                 throw new ErrorDeNegocio(CodigoError.de(7, 11), "No encontramos tu cuenta.");

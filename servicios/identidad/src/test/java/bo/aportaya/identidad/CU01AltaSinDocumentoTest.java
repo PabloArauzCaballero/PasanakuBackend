@@ -61,17 +61,27 @@ class CU01AltaSinDocumentoTest extends BaseDeCU01 {
     }
 
     private UUID enviar(UUID usuario, DocumentoDeIdentidad documento) {
-        return transaccion.execute(
-                e -> iniciar.ejecutar(usuario, documento, "cifrado:" + documento.hashNumero(), UUID.randomUUID().toString()));
+        return transaccion.execute(e -> iniciar.ejecutar(
+                usuario,
+                documento,
+                "cifrado:" + documento.hashNumero(),
+                UUID.randomUUID().toString()));
     }
 
     private String estadoDe(UUID usuario) {
-        return dsl.fetchOne("SELECT estado FROM identidad.usuario WHERE id = ?", usuario).get(0, String.class);
+        return dsl.fetchOne("SELECT estado FROM identidad.usuario WHERE id = ?", usuario)
+                .get(0, String.class);
     }
 
     private long filas(String tabla, UUID usuario) {
-        return dsl.fetchOne("SELECT count(*) FROM identidad." + tabla + " WHERE usuario_id = ?", usuario)
-                .get(0, Long.class);
+        String consulta =
+                switch (tabla) {
+                    case "documento_identidad" ->
+                        "SELECT count(*) FROM identidad.documento_identidad WHERE usuario_id = ?";
+                    case "verificacion_kyc" -> "SELECT count(*) FROM identidad.verificacion_kyc WHERE usuario_id = ?";
+                    default -> throw new IllegalArgumentException(tabla);
+                };
+        return dsl.fetchOne(consulta, usuario).get(0, Long.class);
     }
 
     @Test
@@ -114,7 +124,8 @@ class CU01AltaSinDocumentoTest extends BaseDeCU01 {
 
         assertThatThrownBy(() -> enviar(usuario, carnet("9090913", RELOJ.hoy().plusYears(3))))
                 .isInstanceOfSatisfying(
-                        ErrorDeNegocio.class, e -> assertThat(e.codigo().valor()).isEqualTo("AP-CU01-12"));
+                        ErrorDeNegocio.class,
+                        e -> assertThat(e.codigo().valor()).isEqualTo("AP-CU01-12"));
         assertThat(filas("verificacion_kyc", usuario)).isEqualTo(1);
         assertThat(filas("documento_identidad", usuario)).isEqualTo(1);
     }
@@ -143,10 +154,12 @@ class CU01AltaSinDocumentoTest extends BaseDeCU01 {
 
         assertThatThrownBy(() -> enviar(usuario, carnet("9090906", RELOJ.hoy().minusDays(1))))
                 .isInstanceOfSatisfying(
-                        ErrorDeNegocio.class, e -> assertThat(e.codigo().valor()).isEqualTo("AP-CU01-07"));
+                        ErrorDeNegocio.class,
+                        e -> assertThat(e.codigo().valor()).isEqualTo("AP-CU01-07"));
         assertThatThrownBy(() -> enviar(usuario, carnet("9090906", null)))
                 .isInstanceOfSatisfying(
-                        ErrorDeNegocio.class, e -> assertThat(e.codigo().valor()).isEqualTo("AP-CU01-10"));
+                        ErrorDeNegocio.class,
+                        e -> assertThat(e.codigo().valor()).isEqualTo("AP-CU01-10"));
         assertThat(estadoDe(usuario)).isEqualTo("INCOMPLETO_KYC");
     }
 
