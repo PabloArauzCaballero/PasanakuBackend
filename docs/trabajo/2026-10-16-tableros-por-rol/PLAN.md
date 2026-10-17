@@ -405,7 +405,7 @@ y con y sin flujo), más las pruebas de integración de los flujos de dinero en 
 | H8.S3.M1 | Prueba de integración del flujo de H8.S2.M1, contra Postgres y con Datafaker | Saldos finales = esperado, asientos cuadrados | Test nombrado en verde | HECHO — `evidencia/H8-S2-M1-S3-M1-aporte-mora-cobertura.txt` |
 | H8.S3.M2 | Prueba de integración del flujo de H8.S2.M2 | Ídem | Test nombrado en verde | HECHO — `evidencia/H8-S2-M2-S3-M2-entrega-del-turno.txt` |
 | H8.S3.M3 | Prueba de integración del flujo de H8.S2.M3 | Ídem | Test nombrado en verde | HECHO — `evidencia/H8-S2-M3-S3-M3-recarga-y-retiro.txt` |
-| H8.S3.M4 | Pruebas unitarias o web de los endpoints sin test en la matriz, limitadas a los servicios de dinero (`aportes`, `garantia`, `entregas`, `nucleo-financiero`); el resto pasa a un trabajo siguiente (D8) | Matriz sin huecos en esos cuatro | `scripts/matriz_de_pruebas.py --servicio …` pegado | TODO |
+| H8.S3.M4 | Pruebas unitarias o web de los endpoints sin test en la matriz, limitadas a los servicios de dinero (`aportes`, `garantia`, `entregas`, `nucleo-financiero`); el resto pasa a un trabajo siguiente (D8) | Matriz sin huecos en esos cuatro | `scripts/matriz_de_pruebas.py --servicio …` pegado | HECHO — `evidencia/H8-S3-M4-pruebas-web-dinero.txt` |
 
 ## H9 — Regresión, gates y entrega
 

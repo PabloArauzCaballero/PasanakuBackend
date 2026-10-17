@@ -7,22 +7,22 @@
 
 | Servicio | Endpoints | Con prueba web | Con CU | CU con prueba de integración | En algún flujo |
 |---|---:|---:|---:|---:|---:|
-| aportes | 12 | 10 | 11 | 10 | 2 |
+| aportes | 12 | 12 | 11 | 10 | 2 |
 | auditoria | 8 | 8 | 7 | 7 | 0 |
 | cumplimiento | 28 | 20 | 14 | 13 | 0 |
 | entregas | 16 | 16 | 11 | 11 | 5 |
 | erp | 24 | 16 | 24 | 24 | 0 |
-| garantia | 20 | 18 | 14 | 13 | 5 |
+| garantia | 20 | 20 | 14 | 13 | 5 |
 | grupos | 28 | 16 | 15 | 11 | 0 |
 | identidad | 23 | 21 | 12 | 11 | 0 |
 | inversiones | 20 | 16 | 20 | 20 | 0 |
 | notificaciones | 6 | 6 | 6 | 5 | 0 |
-| nucleo-financiero | 27 | 20 | 24 | 23 | 4 |
+| nucleo-financiero | 27 | 27 | 24 | 23 | 4 |
 | organizador | 22 | 15 | 16 | 15 | 0 |
 | publicidad | 17 | 9 | 14 | 14 | 0 |
 | tarifas | 13 | 9 | 13 | 13 | 0 |
 | transparencia | 18 | 9 | 18 | 15 | 0 |
-| **Total** | 282 | 209 | 219 | 205 | 16 |
+| **Total** | 282 | 220 | 219 | 205 | 16 |
 
 ## Por endpoint
 
@@ -34,10 +34,10 @@
 | aportes | POST | `/aportes/periodos/{periodoId}/obligaciones` | `generarObligacionesDelPeriodo` | sí | CU-21 | sí | aporte-mora-cobertura |
 | aportes | GET | `/aportes/periodos/{periodoId}/recaudo` | `consultarRecaudoDelPeriodo` | sí | CU-21 | sí | — |
 | aportes | GET | `/aportes/recaudo-diario` | `consultarRecaudoDiario` | sí | CU-51 | sí | — |
-| aportes | POST | `/pagos/enrutamiento` | `enrutarCobro` | **no** | CU-99 | sí | — |
+| aportes | POST | `/pagos/enrutamiento` | `enrutarCobro` | sí | CU-99 | sí | — |
 | aportes | POST | `/pagos/proveedores` | `darDeAltaProveedor` | sí | CU-99 | sí | — |
 | aportes | POST | `/pagos/reembolsos/{reembolsoId}/aprobacion` | `aprobarReembolso` | sí | CU-19 | sí | — |
-| aportes | POST | `/pagos/webhooks/{proveedorCodigo}` | `recibirWebhookPasarela` | **no** | — | — | — |
+| aportes | POST | `/pagos/webhooks/{proveedorCodigo}` | `recibirWebhookPasarela` | sí | — | — | — |
 | aportes | POST | `/pagos/{pagoId}/disputas` | `registrarDisputa` | sí | CU-19 | sí | — |
 | aportes | POST | `/pagos/{pagoId}/reembolsos` | `solicitarReembolso` | sí | CU-19 | sí | — |
 | auditoria | POST | `/auditoria/derechos` | `ejercerDerechos` | sí | CU-07 | sí | — |
@@ -127,14 +127,14 @@
 | garantia | POST | `/garantia/respaldo/coberturas/{coberturaId}/reversa` | `reversarCoberturaRespaldo` | sí | — | — | — |
 | garantia | POST | `/garantia/respaldo/recuperaciones` | `recuperarRespaldo` | sí | — | — | aporte-mora-cobertura |
 | garantia | POST | `/garantia/respaldo/reservas` | `reservarRespaldo` | sí | — | — | — |
-| garantia | POST | `/garantia/respaldo/reservas/{reservaId}/ampliacion` | `ampliarRespaldo` | **no** | — | — | — |
+| garantia | POST | `/garantia/respaldo/reservas/{reservaId}/ampliacion` | `ampliarRespaldo` | sí | — | — | — |
 | garantia | POST | `/garantia/respaldo/reservas/{reservaId}/liberacion` | `liberarRespaldo` | sí | — | — | entrega-del-turno |
 | garantia | POST | `/incumplimientos` | `declararIncumplimiento` | sí | CU-25 | sí | aporte-mora-cobertura |
 | garantia | POST | `/incumplimientos/{expedienteId}/aval/ejecucion` | `ejecutarAval` | sí | CU-26 | sí | — |
 | garantia | POST | `/incumplimientos/{expedienteId}/cobertura` | `cubrirIncumplimiento` | sí | CU-23 | sí | — |
 | garantia | POST | `/incumplimientos/{expedienteId}/descargo` | `presentarDescargo` | sí | CU-25 | sí | — |
 | garantia | POST | `/incumplimientos/{expedienteId}/descargo/resolucion` | `resolverDescargo` | sí | CU-25 | sí | — |
-| garantia | POST | `/incumplimientos/{expedienteId}/reemplazo` | `proponerReemplazo` | **no** | CU-66 | sí | — |
+| garantia | POST | `/incumplimientos/{expedienteId}/reemplazo` | `proponerReemplazo` | sí | CU-66 | sí | — |
 | garantia | POST | `/incumplimientos/{expedienteId}/restriccion` | `restringirDeudor` | sí | CU-27 | sí | — |
 | grupos | POST | `/acuerdos` | `proponerAcuerdo` | sí | CU-63 | sí | — |
 | grupos | POST | `/acuerdos/{acuerdoId}/votos` | `votarAcuerdo` | sí | CU-63 | sí | — |
@@ -214,7 +214,7 @@
 | notificaciones | POST | `/notificaciones/supresion/consultas` | `verificarSupresion` | sí | CU-80 | sí | — |
 | notificaciones | POST | `/notificaciones/webhooks/{proveedor}` | `procesarRespuestaEntrante` | sí | CU-82 | sí | — |
 | nucleo-financiero | POST | `/billetera/bloqueos` | `bloquearPorAutoridad` | sí | CU-17 | sí | — |
-| nucleo-financiero | POST | `/billetera/cierres` | `solicitarCierreBilletera` | **no** | CU-16 | sí | — |
+| nucleo-financiero | POST | `/billetera/cierres` | `solicitarCierreBilletera` | sí | CU-16 | sí | — |
 | nucleo-financiero | POST | `/billetera/cotizaciones` | `cotizarOperacion` | sí | CU-30 | **no** | — |
 | nucleo-financiero | GET | `/billetera/cuentas/propia` | `consultarCuentaPropia` | sí | — | — | — |
 | nucleo-financiero | POST | `/billetera/inversiones/acreditaciones` | `acreditarRescate` | sí | CU-12 | sí | — |
@@ -222,18 +222,18 @@
 | nucleo-financiero | POST | `/billetera/qr` | `emitirQr` | sí | CU-12 | sí | — |
 | nucleo-financiero | POST | `/billetera/qr/lecturas` | `leerQr` | sí | CU-12 | sí | — |
 | nucleo-financiero | POST | `/billetera/qr/pagos` | `pagarQr` | sí | CU-12 | sí | — |
-| nucleo-financiero | POST | `/billetera/recargas` | `solicitarRecarga` | **no** | CU-10 | sí | recarga-y-retiro |
+| nucleo-financiero | POST | `/billetera/recargas` | `solicitarRecarga` | sí | CU-10 | sí | recarga-y-retiro |
 | nucleo-financiero | POST | `/billetera/recargas/{ordenId}/acreditacion` | `acreditarRecarga` | sí | CU-10 | sí | recarga-y-retiro |
-| nucleo-financiero | POST | `/billetera/retenciones` | `retenerSaldo` | **no** | CU-13 | sí | — |
-| nucleo-financiero | POST | `/billetera/retenciones/{retencionId}/cierre` | `cerrarRetencion` | **no** | CU-13 | sí | — |
+| nucleo-financiero | POST | `/billetera/retenciones` | `retenerSaldo` | sí | CU-13 | sí | — |
+| nucleo-financiero | POST | `/billetera/retenciones/{retencionId}/cierre` | `cerrarRetencion` | sí | CU-13 | sí | — |
 | nucleo-financiero | POST | `/billetera/retenciones/{retencionId}/pago-a-tercero` | `pagarAlTercero` | sí | CU-13 | sí | — |
 | nucleo-financiero | GET | `/billetera/retiros` | `listarRetirosEnRevision` | sí | — | — | — |
-| nucleo-financiero | POST | `/billetera/retiros` | `solicitarRetiro` | **no** | CU-11 | sí | recarga-y-retiro |
+| nucleo-financiero | POST | `/billetera/retiros` | `solicitarRetiro` | sí | CU-11 | sí | recarga-y-retiro |
 | nucleo-financiero | POST | `/billetera/retiros/{ordenId}/aprobacion` | `aprobarRetiro` | sí | — | — | recarga-y-retiro |
 | nucleo-financiero | POST | `/billetera/reversos` | `reversarTransaccion` | sí | CU-14 | sí | — |
-| nucleo-financiero | POST | `/billetera/transferencias` | `transferirSaldo` | **no** | CU-12 | sí | — |
+| nucleo-financiero | POST | `/billetera/transferencias` | `transferirSaldo` | sí | CU-12 | sí | — |
 | nucleo-financiero | GET | `/billetera/{cuentaId}/extracto` | `emitirExtracto` | sí | CU-15 | sí | — |
-| nucleo-financiero | GET | `/billetera/{cuentaId}/movimientos` | `listarMovimientosBilletera` | **no** | CU-15 | sí | — |
+| nucleo-financiero | GET | `/billetera/{cuentaId}/movimientos` | `listarMovimientosBilletera` | sí | CU-15 | sí | — |
 | nucleo-financiero | GET | `/billetera/{cuentaId}/saldo` | `consultarSaldo` | sí | CU-13 | sí | — |
 | nucleo-financiero | GET | `/contabilidad/cierres-diarios` | `listarCierresDiarios` | sí | CU-51 | sí | — |
 | nucleo-financiero | POST | `/contabilidad/cierres-diarios` | `ejecutarCierreDiario` | sí | CU-50 | sí | — |
