@@ -19,8 +19,8 @@ CREATE TABLE IF NOT EXISTS nucleo_financiero.estado_cuenta_billetera (
   CONSTRAINT pk_estado_cuenta_billetera PRIMARY KEY (id)
 );
 
-COMMENT ON TABLE nucleo_financiero.estado_cuenta_billetera IS 'Módulo 10 — Billetera, Custodia y Dinero Electrónico. El saldo no se guarda: se deriva, y todos los días cuadra contra el banco';
-COMMENT ON COLUMN nucleo_financiero.estado_cuenta_billetera.id IS 'PK';
+COMMENT ON TABLE nucleo_financiero.estado_cuenta_billetera IS 'Módulo 10 — Billetera, Custodia y Dinero Electrónico. El extracto periódico emitido y archivado.';
+COMMENT ON COLUMN nucleo_financiero.estado_cuenta_billetera.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN nucleo_financiero.estado_cuenta_billetera.cuenta_billetera_id IS 'FK, IDX';
 COMMENT ON COLUMN nucleo_financiero.estado_cuenta_billetera.periodo_desde IS 'UQ+cuenta_billetera_id+periodo_hasta';
 COMMENT ON COLUMN nucleo_financiero.estado_cuenta_billetera.entregado_en IS 'NULL';

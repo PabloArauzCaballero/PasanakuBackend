@@ -13,8 +13,9 @@ CREATE TABLE IF NOT EXISTS publicidad.impresion_anuncio (
   CONSTRAINT pk_impresion_anuncio PRIMARY KEY (id)
 );
 
-COMMENT ON TABLE publicidad.impresion_anuncio IS 'Módulo 14 — Publicidad y Campañas. [append-only] Que un partner se anuncie dentro de la app sin inventar un segundo cobro';
-COMMENT ON COLUMN publicidad.impresion_anuncio.id IS 'PK';
+COMMENT ON TABLE publicidad.impresion_anuncio IS 'Módulo 14 — Publicidad y Campañas. [append-only] Un evento de exhibición.';
+COMMENT ON COLUMN publicidad.impresion_anuncio.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN publicidad.impresion_anuncio.anuncio_id IS 'FK, IDX';
 COMMENT ON COLUMN publicidad.impresion_anuncio.usuario_id IS 'FK, NULL, IDX, M1';
 COMMENT ON COLUMN publicidad.impresion_anuncio.mostrada_en IS 'IDX';
+COMMENT ON COLUMN publicidad.impresion_anuncio.moneda IS 'Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2).';

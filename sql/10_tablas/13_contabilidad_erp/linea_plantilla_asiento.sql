@@ -13,8 +13,8 @@ CREATE TABLE IF NOT EXISTS erp.linea_plantilla_asiento (
   CONSTRAINT ck_linea_plantilla_asiento_tipo_movimiento CHECK (tipo_movimiento IN ('DEBE', 'HABER'))
 );
 
-COMMENT ON TABLE erp.linea_plantilla_asiento IS 'Módulo 13 — Contabilidad Financiera y ERP. Que cerrar un mes no dependa de un Excel armado a mano';
-COMMENT ON COLUMN erp.linea_plantilla_asiento.id IS 'PK';
+COMMENT ON TABLE erp.linea_plantilla_asiento IS 'Módulo 13 — Contabilidad Financiera y ERP. Una plantilla de asiento recurrente (alquiler, planilla mensual) para no recapturar el mismo asiento a mano cada mes.';
+COMMENT ON COLUMN erp.linea_plantilla_asiento.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN erp.linea_plantilla_asiento.plantilla_id IS 'FK, IDX';
 COMMENT ON COLUMN erp.linea_plantilla_asiento.cuenta_contable_id IS 'FK, IDX, M3';
 COMMENT ON COLUMN erp.linea_plantilla_asiento.tipo_movimiento IS 'CK';

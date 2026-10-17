@@ -7,6 +7,7 @@ dependencies {
     api(libs.bundles.pruebas)
     api(libs.testcontainers.kafka)
     api(libs.jqwik)
+    api(libs.datafaker)
     api(libs.junit.jupiter)
     api(libs.snakeyaml)
     implementation(libs.spring.boot.jdbc)

@@ -22,8 +22,8 @@ CREATE TABLE IF NOT EXISTS garantia.abono_recuperacion (
   CONSTRAINT ck_abono_recuperacion_origen CHECK (origen IN ('ACUERDO_QUITA', 'COMPENSACION', 'DESCUENTO_DE_ENTREGA', 'EJECUCION_AVAL', 'PAGO_VOLUNTARIO'))
 );
 
-COMMENT ON TABLE garantia.abono_recuperacion IS 'Módulo 08 — Garantía, Incumplimiento, Cobranza y Sanciones. [append-only] El grupo no se detiene, pero la deuda no se perdona sola';
-COMMENT ON COLUMN garantia.abono_recuperacion.id IS 'PK';
+COMMENT ON TABLE garantia.abono_recuperacion IS 'Módulo 08 — Garantía, Incumplimiento, Cobranza y Sanciones. [append-only] Cada pago que reduce una deuda, con su origen y su imputación.';
+COMMENT ON COLUMN garantia.abono_recuperacion.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN garantia.abono_recuperacion.deuda_id IS 'FK, IDX';
 COMMENT ON COLUMN garantia.abono_recuperacion.pago_id IS 'FK, NULL, M3';
 COMMENT ON COLUMN garantia.abono_recuperacion.entrega_id IS 'FK, NULL, M4';

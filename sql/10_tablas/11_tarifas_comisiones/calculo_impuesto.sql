@@ -14,8 +14,8 @@ CREATE TABLE IF NOT EXISTS tarifas.calculo_impuesto (
   CONSTRAINT pk_calculo_impuesto PRIMARY KEY (id)
 );
 
-COMMENT ON TABLE tarifas.calculo_impuesto IS 'Módulo 11 — Tarifas, Comisiones, Impuestos y Facturación. La política de cobro es dato, no código: se cambia con un seeder';
-COMMENT ON COLUMN tarifas.calculo_impuesto.id IS 'PK';
+COMMENT ON TABLE tarifas.calculo_impuesto IS 'Módulo 11 — Tarifas, Comisiones, Impuestos y Facturación. Las alícuotas vigentes y su aplicación a cada devengo.';
+COMMENT ON COLUMN tarifas.calculo_impuesto.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN tarifas.calculo_impuesto.devengo_id IS 'FK, IDX';
 COMMENT ON COLUMN tarifas.calculo_impuesto.impuesto_id IS 'FK';
 COMMENT ON COLUMN tarifas.calculo_impuesto.periodo_fiscal IS 'IDX';

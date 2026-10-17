@@ -23,8 +23,8 @@ CREATE TABLE IF NOT EXISTS organizador.organizador (
   CONSTRAINT ck_organizador_nivel CHECK (nivel IN ('APRENDIZ', 'ESTANDAR', 'MAESTRO', 'SENIOR'))
 );
 
-COMMENT ON TABLE organizador.organizador IS 'Módulo 07 — Organizador y Automatización. Administrar es un rol, no un negocio: el organizador no cobra ni custodia';
-COMMENT ON COLUMN organizador.organizador.id IS 'PK';
+COMMENT ON TABLE organizador.organizador IS 'Módulo 07 — Organizador y Automatización. Un usuario habilitado para administrar grupos de terceros, con su nivel, sus límites y sus indicadores de cartera.';
+COMMENT ON COLUMN organizador.organizador.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN organizador.organizador.usuario_id IS 'FK, UQ';
 COMMENT ON COLUMN organizador.organizador.estado IS 'CK, IDX';
 COMMENT ON COLUMN organizador.organizador.nivel IS 'CK';

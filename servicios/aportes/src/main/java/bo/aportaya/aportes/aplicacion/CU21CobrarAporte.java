@@ -158,7 +158,12 @@ public class CU21CobrarAporte {
                                     "obligacionId", obligacion.id().toString(),
                                     "moneda", entrada.monto().moneda().name(),
                                     "canal", entrada.canal(),
-                                    "usuarioId", ctx.usuarioId().toString()),
+                                    "usuarioId", ctx.usuarioId().toString(),
+                                    // Tableros (H1.S2): sin el tipo, nucleo-financiero asienta TODO cobro al
+                                    // pozo del grupo, y un RECARGO_MORA terminaria repartido en vez de en el
+                                    // fondo de garantia. Campo sumado: los consumidores previos lo ignoran.
+                                    // Es el decimo par: Map.of no admite mas; el proximo campo pide Map.ofEntries.
+                                    "tipo", obligacion.tipo()),
                             UUID.fromString(ctx.traza().id())));
 
             return new SalidaCobro(pagoId, obligacion.id(), estadoNuevo, saldoDespues.pendiente(), true);

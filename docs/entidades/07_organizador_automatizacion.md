@@ -441,3 +441,23 @@ Y lo que sí existe hoy, para que no se confunda con lo anterior:
 | `OrganizadorDigital` + reglas | Todo grupo depende de que una persona esté disponible y sea confiable. |
 | `TareaAutomatizada` (idempotente) | Un cron ejecutado dos veces cobra dos veces. |
 | `EjecucionTarea` | La automatización es una caja negra que mueve plata sin poder explicarse. |
+
+
+---
+
+## Tablas incorporadas después de la redacción original
+
+> Fichas escritas para el catálogo de datos (trabajo `docs/trabajo/2026-10-16-tableros-por-rol`, H7). Cada
+> afirmación sale de la fuente que se cita al pie de la ficha: no agregan reglas, las explican.
+
+### `DecisionHabilitacion` / `decision_habilitacion`
+
+**Qué es.** Cada resolución sobre una postulación a organizador: aprobar, rechazar y, en revisión, confirmar o revocar.
+
+**Para qué sirve (negocio).** Que habilitar a alguien para administrar grupos de plata ajena sea una decisión registrada, con autor y motivo, y que una revocación posterior quede tan documentada como la aprobación.
+
+**Por qué debe existir.** Sin ella, la habilitación sería un estado en la solicitud: se perdería quién aprobó, con qué requisitos cumplidos y por qué se revocó después.
+
+**A nivel de sistema.** Append-only. `fase` ∈ RESOLUCION/REVISION y `decision` ∈ APROBAR/RECHAZAR/CONFIRMAR/REVOCAR. `revision` crece por solicitud. El motivo no puede ser vacío. `evidencia_requisitos` conserva qué se verificó. La escritura pasa por un solo lugar (`BitacoraDeHabilitacion`), así ninguna resolución queda fuera del historial.
+
+*Fuente: CU-90; `docs/Restricciones.md`; `servicios/organizador/.../BitacoraDeHabilitacion.java`.*

@@ -17,8 +17,8 @@ CREATE TABLE IF NOT EXISTS cumplimiento.capacitacion_cumplimiento (
   CONSTRAINT ck_capacitacion_cumplimiento_modalidad CHECK (modalidad IN ('AUTOESTUDIO', 'MIXTA', 'PRESENCIAL', 'VIRTUAL'))
 );
 
-COMMENT ON TABLE cumplimiento.capacitacion_cumplimiento IS 'Módulo 12 — Cumplimiento Regulatorio y Consumidor Financiero. Que una inspección se responda con consultas, no armando carpetas';
-COMMENT ON COLUMN cumplimiento.capacitacion_cumplimiento.id IS 'PK';
+COMMENT ON TABLE cumplimiento.capacitacion_cumplimiento IS 'Módulo 12 — Cumplimiento Regulatorio y Consumidor Financiero. La designación del responsable y la formación obligatoria del personal.';
+COMMENT ON COLUMN cumplimiento.capacitacion_cumplimiento.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN cumplimiento.capacitacion_cumplimiento.usuario_id IS 'FK, IDX, M1';
 COMMENT ON COLUMN cumplimiento.capacitacion_cumplimiento.modalidad IS 'CK';
 COMMENT ON COLUMN cumplimiento.capacitacion_cumplimiento.fecha IS 'IDX';

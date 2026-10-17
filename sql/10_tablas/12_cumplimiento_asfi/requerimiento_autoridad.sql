@@ -22,8 +22,8 @@ CREATE TABLE IF NOT EXISTS cumplimiento.requerimiento_autoridad (
   CONSTRAINT ck_requerimiento_autoridad_estado CHECK (estado IN ('ARCHIVADO', 'EN_PROCESO', 'RECIBIDO', 'RESPONDIDO', 'VENCIDO'))
 );
 
-COMMENT ON TABLE cumplimiento.requerimiento_autoridad IS 'Módulo 12 — Cumplimiento Regulatorio y Consumidor Financiero. Que una inspección se responda con consultas, no armando carpetas';
-COMMENT ON COLUMN cumplimiento.requerimiento_autoridad.id IS 'PK';
+COMMENT ON TABLE cumplimiento.requerimiento_autoridad IS 'Módulo 12 — Cumplimiento Regulatorio y Consumidor Financiero. Cada oficio recibido de una autoridad.';
+COMMENT ON COLUMN cumplimiento.requerimiento_autoridad.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN cumplimiento.requerimiento_autoridad.usuario_afectado_id IS 'FK, NULL, M1';
 COMMENT ON COLUMN cumplimiento.requerimiento_autoridad.bloqueo_saldo_id IS 'FK, NULL, M10';
 COMMENT ON COLUMN cumplimiento.requerimiento_autoridad.respondido_por IS 'FK, NULL';

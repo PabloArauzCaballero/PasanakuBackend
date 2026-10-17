@@ -20,8 +20,8 @@ CREATE TABLE IF NOT EXISTS garantia.plan_contingencia (
   CONSTRAINT ck_plan_contingencia_estado CHECK (estado IN ('APROBADO', 'DESCARTADO', 'EJECUTADO', 'PROPUESTO'))
 );
 
-COMMENT ON TABLE garantia.plan_contingencia IS 'Módulo 08 — Garantía, Incumplimiento, Cobranza y Sanciones. El grupo no se detiene, pero la deuda no se perdona sola';
-COMMENT ON COLUMN garantia.plan_contingencia.id IS 'PK';
+COMMENT ON TABLE garantia.plan_contingencia IS 'Módulo 08 — Garantía, Incumplimiento, Cobranza y Sanciones. La respuesta estructurada a una crisis del grupo.';
+COMMENT ON COLUMN garantia.plan_contingencia.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN garantia.plan_contingencia.grupo_id IS 'FK, IDX';
 COMMENT ON COLUMN garantia.plan_contingencia.acuerdo_grupo_id IS 'FK, NULL, M2';
 COMMENT ON COLUMN garantia.plan_contingencia.disparador IS 'CK';

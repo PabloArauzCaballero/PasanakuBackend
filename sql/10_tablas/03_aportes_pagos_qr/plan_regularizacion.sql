@@ -14,8 +14,8 @@ CREATE TABLE IF NOT EXISTS aportes.plan_regularizacion (
   CONSTRAINT ck_plan_regularizacion_estado CHECK (estado IN ('ANULADO', 'CUMPLIDO', 'INCUMPLIDO', 'VIGENTE'))
 );
 
-COMMENT ON TABLE aportes.plan_regularizacion IS 'Módulo 03 — Aportes, Pagos QR y Conciliación. Que "pagué" signifique "el banco lo confirmó"';
-COMMENT ON COLUMN aportes.plan_regularizacion.id IS 'PK';
+COMMENT ON TABLE aportes.plan_regularizacion IS 'Módulo 03 — Aportes, Pagos QR y Conciliación. El acuerdo de pago en cuotas para alguien que se atrasó.';
+COMMENT ON COLUMN aportes.plan_regularizacion.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN aportes.plan_regularizacion.participante_id IS 'FK, IDX';
 COMMENT ON COLUMN aportes.plan_regularizacion.estado IS 'CK';
 COMMENT ON COLUMN aportes.plan_regularizacion.aprobado_por IS 'FK';

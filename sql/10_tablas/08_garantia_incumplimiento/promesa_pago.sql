@@ -17,8 +17,8 @@ CREATE TABLE IF NOT EXISTS garantia.promesa_pago (
   CONSTRAINT ck_promesa_pago_estado CHECK (estado IN ('CUMPLIDA', 'INCUMPLIDA', 'PARCIAL', 'VIGENTE'))
 );
 
-COMMENT ON TABLE garantia.promesa_pago IS 'Módulo 08 — Garantía, Incumplimiento, Cobranza y Sanciones. El grupo no se detiene, pero la deuda no se perdona sola';
-COMMENT ON COLUMN garantia.promesa_pago.id IS 'PK';
+COMMENT ON TABLE garantia.promesa_pago IS 'Módulo 08 — Garantía, Incumplimiento, Cobranza y Sanciones. El compromiso del deudor de pagar cierto monto en cierta fecha.';
+COMMENT ON COLUMN garantia.promesa_pago.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN garantia.promesa_pago.gestion_id IS 'FK, IDX';
 COMMENT ON COLUMN garantia.promesa_pago.fecha_prometida IS 'IDX';
 COMMENT ON COLUMN garantia.promesa_pago.estado IS 'CK, IDX';

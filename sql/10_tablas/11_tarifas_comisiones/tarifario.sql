@@ -22,12 +22,12 @@ CREATE TABLE IF NOT EXISTS catalogo.tarifario (
   CONSTRAINT ck_tarifario_estado CHECK (estado IN ('ARCHIVADO', 'BORRADOR', 'EN_PREAVISO', 'SUSTITUIDO', 'VIGENTE'))
 );
 
-COMMENT ON TABLE catalogo.tarifario IS 'Módulo 11 — Tarifas, Comisiones, Impuestos y Facturación. La política de cobro es dato, no código: se cambia con un seeder';
-COMMENT ON COLUMN catalogo.tarifario.id IS 'PK';
+COMMENT ON TABLE catalogo.tarifario IS 'Módulo 11 — Tarifas, Comisiones, Impuestos y Facturación. Una versión completa y publicada de la política de precios.';
+COMMENT ON COLUMN catalogo.tarifario.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN catalogo.tarifario.codigo IS 'UQ+version';
 COMMENT ON COLUMN catalogo.tarifario.estado IS 'CK, IDX';
-COMMENT ON COLUMN catalogo.tarifario.vigente_desde IS 'IDX';
-COMMENT ON COLUMN catalogo.tarifario.vigente_hasta IS 'NULL';
+COMMENT ON COLUMN catalogo.tarifario.vigente_desde IS 'Desde cuándo rige esta versión de la fila: las condiciones se versionan, no se pisan.';
+COMMENT ON COLUMN catalogo.tarifario.vigente_hasta IS 'Hasta cuándo rigió esta versión; vacía mientras sigue vigente.';
 COMMENT ON COLUMN catalogo.tarifario.publicado_en IS 'NULL';
 COMMENT ON COLUMN catalogo.tarifario.url_publicacion IS 'NULL';
 COMMENT ON COLUMN catalogo.tarifario.hash_documento IS 'NULL';

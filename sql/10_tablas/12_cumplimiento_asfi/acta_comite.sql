@@ -18,8 +18,8 @@ CREATE TABLE IF NOT EXISTS cumplimiento.acta_comite (
   CONSTRAINT pk_acta_comite PRIMARY KEY (id)
 );
 
-COMMENT ON TABLE cumplimiento.acta_comite IS 'Módulo 12 — Cumplimiento Regulatorio y Consumidor Financiero. [append-only] Que una inspección se responda con consultas, no armando carpetas';
-COMMENT ON COLUMN cumplimiento.acta_comite.id IS 'PK';
+COMMENT ON TABLE cumplimiento.acta_comite IS 'Módulo 12 — Cumplimiento Regulatorio y Consumidor Financiero. [append-only] El aparato de gobierno: comités, actas, manuales y designaciones.';
+COMMENT ON COLUMN cumplimiento.acta_comite.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN cumplimiento.acta_comite.comite_gobierno_id IS 'FK, IDX';
 COMMENT ON COLUMN cumplimiento.acta_comite.elaborada_por IS 'FK, NULL';
 COMMENT ON COLUMN cumplimiento.acta_comite.numero IS 'UQ+comite_gobierno_id';

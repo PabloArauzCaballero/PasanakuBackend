@@ -14,7 +14,8 @@ CREATE TABLE IF NOT EXISTS auditoria.politica_retencion (
   CONSTRAINT ck_politica_retencion_accion_al_vencer CHECK (accion_al_vencer IN ('ANONIMIZAR', 'ARCHIVAR', 'ELIMINAR'))
 );
 
-COMMENT ON TABLE auditoria.politica_retencion IS 'Módulo 09 — Auditoría, Reportes y Cumplimiento. Poder demostrar todo lo anterior ante un reclamo o un regulador';
-COMMENT ON COLUMN auditoria.politica_retencion.id IS 'PK';
+COMMENT ON TABLE auditoria.politica_retencion IS 'Módulo 09 — Auditoría, Reportes y Cumplimiento. Cuánto tiempo se conserva cada tipo de dato y qué se hace al vencer: archivar, anonimizar o eliminar.';
+COMMENT ON COLUMN auditoria.politica_retencion.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN auditoria.politica_retencion.entidad IS 'UQ';
 COMMENT ON COLUMN auditoria.politica_retencion.accion_al_vencer IS 'CK';
+COMMENT ON COLUMN auditoria.politica_retencion.vigente_desde IS 'Desde cuándo rige esta versión de la fila: las condiciones se versionan, no se pisan.';

@@ -13,8 +13,8 @@ CREATE TABLE IF NOT EXISTS publicidad.revision_creativa (
   CONSTRAINT ck_revision_creativa_decision CHECK (decision IN ('APROBADA', 'RECHAZADA'))
 );
 
-COMMENT ON TABLE publicidad.revision_creativa IS 'Módulo 14 — Publicidad y Campañas. Que un partner se anuncie dentro de la app sin inventar un segundo cobro';
-COMMENT ON COLUMN publicidad.revision_creativa.id IS 'PK';
+COMMENT ON TABLE publicidad.revision_creativa IS 'Módulo 14 — Publicidad y Campañas. La aprobación o rechazo de una pieza, con motivo.';
+COMMENT ON COLUMN publicidad.revision_creativa.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN publicidad.revision_creativa.pieza_creativa_id IS 'FK, IDX';
 COMMENT ON COLUMN publicidad.revision_creativa.revisada_por IS 'FK';
 COMMENT ON COLUMN publicidad.revision_creativa.decision IS 'CK';

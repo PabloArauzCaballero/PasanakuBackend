@@ -19,8 +19,8 @@ CREATE TABLE IF NOT EXISTS cumplimiento.prueba_continuidad (
   CONSTRAINT ck_prueba_continuidad_resultado CHECK (resultado IN ('EXITOSA', 'FALLIDA', 'PARCIAL'))
 );
 
-COMMENT ON TABLE cumplimiento.prueba_continuidad IS 'Módulo 12 — Cumplimiento Regulatorio y Consumidor Financiero. Que una inspección se responda con consultas, no armando carpetas';
-COMMENT ON COLUMN cumplimiento.prueba_continuidad.id IS 'PK';
+COMMENT ON TABLE cumplimiento.prueba_continuidad IS 'Módulo 12 — Cumplimiento Regulatorio y Consumidor Financiero. Los planes de continuidad por proceso crítico y la evidencia de que se prueban.';
+COMMENT ON COLUMN cumplimiento.prueba_continuidad.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN cumplimiento.prueba_continuidad.plan_continuidad_id IS 'FK, IDX';
 COMMENT ON COLUMN cumplimiento.prueba_continuidad.acta_comite_id IS 'FK, NULL';
 COMMENT ON COLUMN cumplimiento.prueba_continuidad.ejecutada_por IS 'FK';

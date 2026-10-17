@@ -35,8 +35,8 @@ CREATE TABLE IF NOT EXISTS cumplimiento.reclamo_cliente (
   CONSTRAINT ck_reclamo_cliente_resultado CHECK (resultado IN ('DESFAVORABLE', 'DESISTIDO', 'FAVORABLE', 'PARCIAL'))
 );
 
-COMMENT ON TABLE cumplimiento.reclamo_cliente IS 'Módulo 12 — Cumplimiento Regulatorio y Consumidor Financiero. Que una inspección se responda con consultas, no armando carpetas';
-COMMENT ON COLUMN cumplimiento.reclamo_cliente.id IS 'PK';
+COMMENT ON TABLE cumplimiento.reclamo_cliente IS 'Módulo 12 — Cumplimiento Regulatorio y Consumidor Financiero. El canal de reclamos, el reclamo y su escalamiento.';
+COMMENT ON COLUMN cumplimiento.reclamo_cliente.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN cumplimiento.reclamo_cliente.usuario_id IS 'FK, IDX, M1';
 COMMENT ON COLUMN cumplimiento.reclamo_cliente.punto_reclamo_id IS 'FK';
 COMMENT ON COLUMN cumplimiento.reclamo_cliente.responsable_id IS 'FK, NULL';

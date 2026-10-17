@@ -18,8 +18,8 @@ CREATE TABLE IF NOT EXISTS cumplimiento.designacion_regulatoria (
   CONSTRAINT ck_designacion_regulatoria_tipo CHECK (tipo IN ('SUPLENTE', 'TITULAR'))
 );
 
-COMMENT ON TABLE cumplimiento.designacion_regulatoria IS 'Módulo 12 — Cumplimiento Regulatorio y Consumidor Financiero. Que una inspección se responda con consultas, no armando carpetas';
-COMMENT ON COLUMN cumplimiento.designacion_regulatoria.id IS 'PK';
+COMMENT ON TABLE cumplimiento.designacion_regulatoria IS 'Módulo 12 — Cumplimiento Regulatorio y Consumidor Financiero. El aparato de gobierno: comités, actas, manuales y designaciones.';
+COMMENT ON COLUMN cumplimiento.designacion_regulatoria.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN cumplimiento.designacion_regulatoria.usuario_id IS 'FK, IDX, M1';
 COMMENT ON COLUMN cumplimiento.designacion_regulatoria.acta_comite_id IS 'FK, NULL';
 COMMENT ON COLUMN cumplimiento.designacion_regulatoria.cargo IS 'CK, IDX';

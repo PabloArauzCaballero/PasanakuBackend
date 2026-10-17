@@ -25,15 +25,16 @@ CREATE TABLE IF NOT EXISTS garantia.reserva_respaldo (
   CONSTRAINT ck_reserva_respaldo_estado CHECK (estado IN ('VIGENTE', 'LIBERADA'))
 );
 
-COMMENT ON TABLE garantia.reserva_respaldo IS 'Módulo 08 — Garantía, Incumplimiento, Cobranza y Sanciones. El grupo no se detiene, pero la deuda no se perdona sola';
-COMMENT ON COLUMN garantia.reserva_respaldo.id IS 'PK';
+COMMENT ON TABLE garantia.reserva_respaldo IS 'Módulo 08 — Garantía, Incumplimiento, Cobranza y Sanciones. Lo que la empresa aparta de su capacidad para un grupo y un ciclo concretos, antes de activarlo.';
+COMMENT ON COLUMN garantia.reserva_respaldo.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN garantia.reserva_respaldo.capacidad_respaldo_id IS 'FK, IDX';
 COMMENT ON COLUMN garantia.reserva_respaldo.grupo_id IS 'FK, IDX';
 COMMENT ON COLUMN garantia.reserva_respaldo.ciclo_numero IS 'CK: >= 1, UQ+grupo_id';
+COMMENT ON COLUMN garantia.reserva_respaldo.moneda IS 'Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2).';
 COMMENT ON COLUMN garantia.reserva_respaldo.monto_reservado IS 'CK: > 0';
 COMMENT ON COLUMN garantia.reserva_respaldo.monto_aplicado IS 'CK: >= 0';
 COMMENT ON COLUMN garantia.reserva_respaldo.monto_recuperado IS 'CK: >= 0';
 COMMENT ON COLUMN garantia.reserva_respaldo.monto_liberado IS 'CK: >= 0';
 COMMENT ON COLUMN garantia.reserva_respaldo.estado IS 'CK: VIGENTE|LIBERADA, IDX';
 COMMENT ON COLUMN garantia.reserva_respaldo.responsable_id IS 'FK';
-COMMENT ON COLUMN garantia.reserva_respaldo.clave_idempotencia IS 'UQ';
+COMMENT ON COLUMN garantia.reserva_respaldo.clave_idempotencia IS 'Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4).';

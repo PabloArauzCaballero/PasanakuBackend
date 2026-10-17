@@ -66,6 +66,7 @@ package "Fondo de Garantia" {
     CASTIGO_INCOBRABLE
     AJUSTE_CONTABLE
     RENDIMIENTO
+    RECARGO_MORA
   }
 
   class FondoGarantia <<AR>> {

@@ -20,11 +20,12 @@ CREATE TABLE IF NOT EXISTS publicidad.campana_publicitaria (
   CONSTRAINT ck_campana_publicitaria_estado CHECK (estado IN ('ACTIVA', 'BORRADOR', 'EN_REVISION', 'FINALIZADA', 'PAUSADA', 'RECHAZADA'))
 );
 
-COMMENT ON TABLE publicidad.campana_publicitaria IS 'Módulo 14 — Publicidad y Campañas. Que un partner se anuncie dentro de la app sin inventar un segundo cobro';
-COMMENT ON COLUMN publicidad.campana_publicitaria.id IS 'PK';
+COMMENT ON TABLE publicidad.campana_publicitaria IS 'Módulo 14 — Publicidad y Campañas. Objetivo, presupuesto total y vigencia de una campaña.';
+COMMENT ON COLUMN publicidad.campana_publicitaria.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN publicidad.campana_publicitaria.cuenta_publicitaria_id IS 'FK, IDX';
 COMMENT ON COLUMN publicidad.campana_publicitaria.objetivo IS 'CK';
 COMMENT ON COLUMN publicidad.campana_publicitaria.presupuesto_total IS 'CK: > 0';
+COMMENT ON COLUMN publicidad.campana_publicitaria.moneda IS 'Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2).';
 COMMENT ON COLUMN publicidad.campana_publicitaria.fecha_fin IS 'NULL';
 COMMENT ON COLUMN publicidad.campana_publicitaria.estado IS 'CK, IDX';
 COMMENT ON COLUMN publicidad.campana_publicitaria.aprobada_por IS 'FK, NULL';

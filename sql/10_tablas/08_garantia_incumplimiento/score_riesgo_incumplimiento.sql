@@ -15,8 +15,8 @@ CREATE TABLE IF NOT EXISTS garantia.score_riesgo_incumplimiento (
   CONSTRAINT ck_score_riesgo_incumplimiento_nivel_riesgo CHECK (nivel_riesgo IN ('ALTO', 'BAJO', 'MEDIO', 'MUY_ALTO'))
 );
 
-COMMENT ON TABLE garantia.score_riesgo_incumplimiento IS 'Módulo 08 — Garantía, Incumplimiento, Cobranza y Sanciones. El grupo no se detiene, pero la deuda no se perdona sola';
-COMMENT ON COLUMN garantia.score_riesgo_incumplimiento.id IS 'PK';
+COMMENT ON TABLE garantia.score_riesgo_incumplimiento IS 'Módulo 08 — Garantía, Incumplimiento, Cobranza y Sanciones. La probabilidad estimada de que un participante incumpla, con sus factores.';
+COMMENT ON COLUMN garantia.score_riesgo_incumplimiento.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN garantia.score_riesgo_incumplimiento.usuario_id IS 'FK, IDX';
 COMMENT ON COLUMN garantia.score_riesgo_incumplimiento.grupo_id IS 'FK, NULL';
 COMMENT ON COLUMN garantia.score_riesgo_incumplimiento.nivel_riesgo IS 'CK, IDX';

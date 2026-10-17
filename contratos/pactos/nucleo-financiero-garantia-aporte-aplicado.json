@@ -1,0 +1,43 @@
+{
+ "productor": "nucleo-financiero",
+ "consumidor": "garantia",
+ "version": 1,
+ "descripcion": "Tableros por rol (H8.S3.M1). Pacto del aporte ya aplicado al libro: garantia lo consume para anotar en su fondo lo que entró como recargo por mora. El campo `destino` se sumó el 2026-10-16 (H1.S2.M1c). Productor: ConsumoDeAportes (nucleo-financiero) por su outbox, en la misma transacción que el asiento. Consumidor: IngresoAlFondo vía ConsumidorDeAportesAplicadosKafka. Lo comparten CUConsumoDeRecargoTest#cumpleElPactoConGarantia (productor) y ConsumidorDeAportesAplicadosKafkaTest#pactoConNucleo (consumidor).",
+ "topico": "aportaya.nucleo_financiero.aporte_aplicado",
+ "tipo": "nucleo_financiero.aporte_aplicado",
+ "agregado": "obligacion_aporte",
+ "cabeceras": [
+  "event_id",
+  "correlation_id"
+ ],
+ "campos": {
+  "pagoId": "uuid",
+  "obligacionId": "uuid",
+  "grupoId": "uuid",
+  "transaccionId": "uuid de la transacción de billetera",
+  "asientoId": "uuid del asiento del mayor",
+  "monto": "cadena decimal con dos decimales",
+  "moneda": "ISO-4217",
+  "destino": "FONDO_GARANTIA | GRUPO; sin él (eventos anteriores) el consumidor entiende GRUPO"
+ },
+ "consumidorExige": [
+  "transaccionId",
+  "grupoId",
+  "monto",
+  "moneda"
+ ],
+ "ejemplo": {
+  "pagoId": "e0000000-0000-4000-8000-000000000001",
+  "obligacionId": "e0000000-0000-4000-8000-000000000002",
+  "grupoId": "e0000000-0000-4000-8000-000000000003",
+  "transaccionId": "e0000000-0000-4000-8000-000000000004",
+  "asientoId": "e0000000-0000-4000-8000-000000000005",
+  "monto": "25.00",
+  "moneda": "BOB",
+  "destino": "FONDO_GARANTIA"
+ },
+ "garantias": [
+  "garantia anota UNA vez por evento y solo si destino es FONDO_GARANTIA",
+  "garantia no suma un importe de otra moneda que la de su fondo"
+ ]
+}

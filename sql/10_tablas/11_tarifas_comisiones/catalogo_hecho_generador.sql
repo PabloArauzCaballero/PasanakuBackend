@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS tarifas.catalogo_hecho_generador (
   CONSTRAINT pk_catalogo_hecho_generador PRIMARY KEY (id)
 );
 
-COMMENT ON TABLE tarifas.catalogo_hecho_generador IS 'Módulo 11 — Tarifas, Comisiones, Impuestos y Facturación. La política de cobro es dato, no código: se cambia con un seeder';
-COMMENT ON COLUMN tarifas.catalogo_hecho_generador.id IS 'PK';
+COMMENT ON TABLE tarifas.catalogo_hecho_generador IS 'Módulo 11 — Tarifas, Comisiones, Impuestos y Facturación. El catálogo de eventos del sistema sobre los que se puede cobrar.';
+COMMENT ON COLUMN tarifas.catalogo_hecho_generador.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN tarifas.catalogo_hecho_generador.codigo IS 'UQ';
 COMMENT ON COLUMN tarifas.catalogo_hecho_generador.campo_monto_base IS 'NULL';

@@ -11,12 +11,11 @@ import org.jooq.impl.DSL;
 import org.springframework.stereotype.Component;
 
 /**
- * Lee {@code auditoria.indicador_kpi}.
+ * Lee {@code auditoria.indicador_kpi}, y guarda lo que los servicios dueños calcularon.
  *
- * <p>Solo lectura: el valor lo escribe el trabajo que calcula los indicadores contra
- * la replica, no esta operacion. **El tablero publica, no calcula** — si publicara
- * calculando, habria dos lugares donde nace el mismo numero, y entonces hay dos
- * numeros.
+ * <p>El valor lo calcula el servicio dueño del dato y llega por evento ({@code <modulo>.indicador_calculado}); aca
+ * solo se guarda tal cual. **El tablero publica, no calcula** — si publicara calculando, habria dos lugares donde
+ * nace el mismo numero, y entonces hay dos numeros.
  */
 @Component
 public class IndicadorRepositorio {
@@ -122,6 +121,55 @@ public class IndicadorRepositorio {
         return serieDe(dsl, codigo, dimension, dimensionId, periodo, 1).stream()
                 .map(PuntoDeSerie::valor)
                 .findFirst();
+    }
+
+    /** Lo que un servicio dueño calculo para un periodo cerrado. */
+    public record Calculado(
+            UUID definicionId,
+            String codigo,
+            String nombre,
+            BigDecimal valor,
+            String unidad,
+            String periodo,
+            long casos,
+            boolean provisorio,
+            OffsetDateTime calculadoEn) {}
+
+    /**
+     * La definicion vigente al INICIO del periodo: el numero queda atado a la version con que se calculo (CU-98 §6).
+     */
+    public Optional<UUID> definicionVigente(DSLContext dsl, String codigo, OffsetDateTime inicioDelPeriodo) {
+        return dsl.select(DSL.field("id", UUID.class))
+                .from(DSL.table(DEFINICION))
+                .where(DSL.field("codigo").eq(codigo))
+                .and(DSL.field("vigente_desde", OffsetDateTime.class).le(inicioDelPeriodo))
+                .and(DSL.field("vigente_hasta")
+                        .isNull()
+                        .or(DSL.field("vigente_hasta", OffsetDateTime.class).gt(inicioDelPeriodo)))
+                .orderBy(DSL.field("vigente_desde").desc())
+                .limit(1)
+                .fetchOptional(DSL.field("id", UUID.class));
+    }
+
+    /**
+     * Guarda un valor GLOBAL. Si ese periodo ya tiene valor con esa definicion, no lo pisa: la tabla es append-only y
+     * la unicidad (codigo, dimension, periodo, definicion) es del modelo. Devuelve si inserto.
+     */
+    public boolean guardar(DSLContext dsl, Calculado c) {
+        return dsl.insertInto(DSL.table(TABLA))
+                        .set(DSL.field("definicion_indicador_id", UUID.class), c.definicionId())
+                        .set(DSL.field("codigo", String.class), c.codigo())
+                        .set(DSL.field("nombre", String.class), c.nombre())
+                        .set(DSL.field("valor", BigDecimal.class), c.valor())
+                        .set(DSL.field("unidad", String.class), c.unidad())
+                        .set(DSL.field("dimension", String.class), "GLOBAL")
+                        .set(DSL.field("periodo", String.class), c.periodo())
+                        .set(DSL.field("provisorio", Boolean.class), c.provisorio())
+                        .set(DSL.field("casos", Integer.class), Math.toIntExact(c.casos()))
+                        .set(DSL.field("calculado_en", OffsetDateTime.class), c.calculadoEn())
+                        .onConflictDoNothing()
+                        .execute()
+                == 1;
     }
 
     /**

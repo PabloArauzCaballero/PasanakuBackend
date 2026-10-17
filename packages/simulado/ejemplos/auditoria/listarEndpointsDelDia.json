@@ -1,0 +1,64 @@
+{
+  "servicio": "auditoria",
+  "operacion": "listarEndpointsDelDia",
+  "metodo": "get",
+  "ruta": "/indicadores/operacion/endpoints",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "desde": "2026-01-15T10:30:00Z",
+        "hasta": "2026-01-15T10:30:00Z",
+        "fuenteDisponible": true,
+        "endpoints": [
+          {
+            "servicio": "servicio",
+            "metodo": "metodo",
+            "ruta": "ruta",
+            "solicitudes": 1,
+            "errores4xx": 1,
+            "errores5xx": 1,
+            "p95Ms": "p95Ms"
+          }
+        ]
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "desde": "2026-01-15T10:30:00Z",
+        "hasta": "2026-01-15T10:30:00Z",
+        "fuenteDisponible": false,
+        "endpoints": []
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "desde": "2026-01-15T10:30:00Z",
+        "hasta": "2026-01-15T10:30:00Z",
+        "fuenteDisponible": true,
+        "endpoints": [
+          {
+            "servicio": "servicio",
+            "metodo": "metodo",
+            "ruta": "ruta",
+            "solicitudes": 1,
+            "errores4xx": 1,
+            "errores5xx": 1,
+            "p95Ms": "p95Ms"
+          }
+        ]
+      }
+    },
+    "rechazo": {
+      "estado": 401,
+      "cuerpo": {
+        "codigo": "AP-CU07-01",
+        "mensaje": "Identidad no verificada",
+        "detalle": {},
+        "trazaId": "traza-listarEndpointsDelDia-rechazo"
+      }
+    }
+  }
+}

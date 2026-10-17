@@ -15,8 +15,8 @@ CREATE TABLE IF NOT EXISTS cumplimiento.oficial_cumplimiento (
   CONSTRAINT ck_oficial_cumplimiento_tipo CHECK (tipo IN ('SUPLENTE', 'TITULAR'))
 );
 
-COMMENT ON TABLE cumplimiento.oficial_cumplimiento IS 'Módulo 12 — Cumplimiento Regulatorio y Consumidor Financiero. Que una inspección se responda con consultas, no armando carpetas';
-COMMENT ON COLUMN cumplimiento.oficial_cumplimiento.id IS 'PK';
+COMMENT ON TABLE cumplimiento.oficial_cumplimiento IS 'Módulo 12 — Cumplimiento Regulatorio y Consumidor Financiero. La designación del responsable y la formación obligatoria del personal.';
+COMMENT ON COLUMN cumplimiento.oficial_cumplimiento.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN cumplimiento.oficial_cumplimiento.usuario_id IS 'FK, IDX, M1';
 COMMENT ON COLUMN cumplimiento.oficial_cumplimiento.tipo IS 'CK';
 COMMENT ON COLUMN cumplimiento.oficial_cumplimiento.comunicada_al_regulador_en IS 'NULL';

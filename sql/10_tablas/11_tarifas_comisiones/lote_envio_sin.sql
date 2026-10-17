@@ -16,8 +16,8 @@ CREATE TABLE IF NOT EXISTS tarifas.lote_envio_sin (
   CONSTRAINT ck_lote_envio_sin_estado CHECK (estado IN ('ACEPTADO', 'ENVIADO', 'PARCIAL', 'PENDIENTE', 'RECHAZADO'))
 );
 
-COMMENT ON TABLE tarifas.lote_envio_sin IS 'Módulo 11 — Tarifas, Comisiones, Impuestos y Facturación. La política de cobro es dato, no código: se cambia con un seeder';
-COMMENT ON COLUMN tarifas.lote_envio_sin.id IS 'PK';
+COMMENT ON TABLE tarifas.lote_envio_sin IS 'Módulo 11 — Tarifas, Comisiones, Impuestos y Facturación. El documento fiscal y su ciclo de vida.';
+COMMENT ON COLUMN tarifas.lote_envio_sin.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN tarifas.lote_envio_sin.tipo_envio IS 'CK';
 COMMENT ON COLUMN tarifas.lote_envio_sin.fecha_envio IS 'IDX';
 COMMENT ON COLUMN tarifas.lote_envio_sin.codigo_recepcion IS 'UQ, NULL';

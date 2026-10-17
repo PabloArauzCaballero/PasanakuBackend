@@ -1,0 +1,16 @@
+H8.S2.M3 + H8.S3.M3 — flujo recarga y retiro · 2026-10-17
+
+$ python3 scripts/validar_flujos.py docs/catalogo-de-flujos/recarga-y-retiro.yaml   → exit 0
+  OK    · recarga-y-retiro.yaml: 6 pasos, 3 validos, 5 limite, 6 invalidos
+  AVISO · recarga-y-retiro.yaml: paso `instruir-pago` SIN CABLEAR — H8-01 · Ningún trabajo, endpoint ni consumidor llama a RetirosConProveedor.despachar ni a CU11RetirarSaldo.instruirPago en producción; el evento nucleo_financiero.retiro_autorizado se publica y nadie lo consume. Una orden AUTORIZADA queda retenida sin instruirse. Decisión pendiente (A9): instrucción automática o de un operador.
+
+Sin fallas.
+
+$ ./gradlew :servicios:nucleo-financiero:integrationTest --tests "*CUFlujoRecargaYRetiroTest"   → exit 0
+  tests="3" skipped="0" failures="0" errors="0"
+    testcase name="límite: retirar EXACTAMENTE todo el disponible se autoriza y deja la billetera en 0.00"
+    testcase name="rechaza retirar un centavo más que el disponible (AP-CU11-01): no retiene nada ni crea la orden"
+    testcase name="cuadre: recargar, confirmar, retirar y pagar deja recarga − retiro, cada transacción con patas que suman cero"
+
+Montos de Datafaker con semilla fija (DatosSinteticos). Doble declarado: el proveedor de pagos es ProveedorDeRetiroLocal/ConfirmacionesDePrueba (perfil test), no el real.
+No cubierto: la instrucción del pago en producción (H8-01, paso sin cablear); el mayor general (asiento_contable) no lo escriben recarga ni retiro: su libro es movimiento_billetera.

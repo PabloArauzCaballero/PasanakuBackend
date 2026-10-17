@@ -23,8 +23,8 @@ CREATE TABLE IF NOT EXISTS garantia.cobertura_incumplimiento (
   CONSTRAINT ck_cobertura_incumplimiento_estado CHECK (estado IN ('APLICADA', 'APROBADA', 'EN_RECUPERACION', 'INCOBRABLE', 'RECHAZADA', 'RECUPERADA_PARCIAL', 'RECUPERADA_TOTAL', 'REVERSADA', 'SOLICITADA'))
 );
 
-COMMENT ON TABLE garantia.cobertura_incumplimiento IS 'Módulo 08 — Garantía, Incumplimiento, Cobranza y Sanciones. El grupo no se detiene, pero la deuda no se perdona sola';
-COMMENT ON COLUMN garantia.cobertura_incumplimiento.id IS 'PK';
+COMMENT ON TABLE garantia.cobertura_incumplimiento IS 'Módulo 08 — Garantía, Incumplimiento, Cobranza y Sanciones. El acto de que el fondo ponga la plata que un participante no puso.';
+COMMENT ON COLUMN garantia.cobertura_incumplimiento.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN garantia.cobertura_incumplimiento.fondo_id IS 'FK, IDX';
 COMMENT ON COLUMN garantia.cobertura_incumplimiento.registro_id IS 'FK, UQ';
 COMMENT ON COLUMN garantia.cobertura_incumplimiento.obligacion_id IS 'FK, UQ, M3';

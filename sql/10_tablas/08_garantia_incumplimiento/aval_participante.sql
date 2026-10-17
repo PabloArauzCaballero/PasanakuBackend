@@ -20,8 +20,8 @@ CREATE TABLE IF NOT EXISTS garantia.aval_participante (
   CONSTRAINT ck_aval_participante_estado CHECK (estado IN ('EJECUTADO', 'LIBERADO', 'PENDIENTE', 'RECHAZADO', 'VIGENTE'))
 );
 
-COMMENT ON TABLE garantia.aval_participante IS 'Módulo 08 — Garantía, Incumplimiento, Cobranza y Sanciones. El grupo no se detiene, pero la deuda no se perdona sola';
-COMMENT ON COLUMN garantia.aval_participante.id IS 'PK';
+COMMENT ON TABLE garantia.aval_participante IS 'Módulo 08 — Garantía, Incumplimiento, Cobranza y Sanciones. El compromiso de una persona de responder por la deuda de otra, hasta cierto monto.';
+COMMENT ON COLUMN garantia.aval_participante.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN garantia.aval_participante.grupo_id IS 'FK, IDX';
 COMMENT ON COLUMN garantia.aval_participante.participante_avalado_id IS 'FK, IDX';
 COMMENT ON COLUMN garantia.aval_participante.avalista_usuario_id IS 'FK, IDX';

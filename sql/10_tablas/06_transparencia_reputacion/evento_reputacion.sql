@@ -24,8 +24,8 @@ CREATE TABLE IF NOT EXISTS transparencia.evento_reputacion (
   CONSTRAINT ck_evento_reputacion_referencia_tipo CHECK (referencia_tipo IN ('COBERTURA_INCUMPLIMIENTO', 'ENTREGA_FONDO', 'GRUPO', 'OBLIGACION_APORTE', 'PARTICIPANTE', 'REGISTRO_INCUMPLIMIENTO', 'RESENA_PARTICIPANTE', 'TRASPASO_CUPO'))
 );
 
-COMMENT ON TABLE transparencia.evento_reputacion IS 'Módulo 06 — Transparencia y Reputación. [append-only] Que nadie tenga que "creerle" al organizador';
-COMMENT ON COLUMN transparencia.evento_reputacion.id IS 'PK';
+COMMENT ON TABLE transparencia.evento_reputacion IS 'Módulo 06 — Transparencia y Reputación. [append-only] Un hecho reputacional inmutable: aportó puntual, abandonó el grupo, consumió cobertura, completó un ciclo, recibió una sanción.';
+COMMENT ON COLUMN transparencia.evento_reputacion.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN transparencia.evento_reputacion.usuario_id IS 'FK, IDX';
 COMMENT ON COLUMN transparencia.evento_reputacion.grupo_id IS 'FK, NULL, IDX';
 COMMENT ON COLUMN transparencia.evento_reputacion.participante_id IS 'FK, NULL';

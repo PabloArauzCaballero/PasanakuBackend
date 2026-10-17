@@ -46,7 +46,7 @@ DO $siembra$
 BEGIN
   IF current_setting('app.dev_sembrado', true) IS DISTINCT FROM 'si' THEN
     INSERT INTO transaccion_billetera (tipo, estado, moneda, monto_total, grupo_id, origen_tipo, origen_id, canal, clave_idempotencia, hash_registro, ocurrida_en, registrada_en) VALUES
-      ('COBERTURA_GARANTIA', 'APLICADA', 'BOB', 500.0, (SELECT id FROM grupo WHERE codigo_publico = 'GRP-DEMO-01'), 'COBERTURA_INCUMPLIMIENTO', (SELECT id FROM cobertura_incumplimiento LIMIT 1), 'BATCH', 'demo-cobertura-p2-04', '', now() - interval '3 days', now() - interval '3 days')
+      ('COBERTURA_GARANTIA', 'APLICADA', 'BOB', 500.0, (SELECT id FROM grupo WHERE codigo_publico = 'GRP-DEMO-01'), 'COBERTURA_INCUMPLIMIENTO', (SELECT c.id FROM cobertura_incumplimiento c JOIN fondo_garantia f ON f.id = c.fondo_id JOIN grupo g ON g.id = f.grupo_id WHERE g.codigo_publico = 'GRP-DEMO-01'), 'BATCH', 'demo-cobertura-p2-04', '', now() - interval '3 days', now() - interval '3 days')
     ON CONFLICT (COALESCE(iniciada_por, '00000000-0000-0000-0000-000000000000'::uuid), origen_tipo, clave_idempotencia) DO NOTHING;
   END IF;
 END $siembra$;

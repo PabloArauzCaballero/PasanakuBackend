@@ -17,8 +17,8 @@ CREATE TABLE IF NOT EXISTS notificaciones.lista_supresion (
   CONSTRAINT ck_lista_supresion_categoria CHECK (categoria IN ('COBRANZA', 'COMERCIAL', 'REGULATORIA', 'SEGURIDAD', 'SOPORTE', 'TODAS', 'TRANSACCIONAL'))
 );
 
-COMMENT ON TABLE notificaciones.lista_supresion IS 'Módulo 05 — Notificaciones y Comunicaciones. WhatsApp como canal real de cobro, sin spam ni doble aviso';
-COMMENT ON COLUMN notificaciones.lista_supresion.id IS 'PK';
+COMMENT ON TABLE notificaciones.lista_supresion IS 'Módulo 05 — Notificaciones y Comunicaciones. La lista negra de identificadores a los que no se les vuelve a escribir, por canal.';
+COMMENT ON COLUMN notificaciones.lista_supresion.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN notificaciones.lista_supresion.identificador IS 'UQ+canal';
 COMMENT ON COLUMN notificaciones.lista_supresion.canal IS 'CK';
 COMMENT ON COLUMN notificaciones.lista_supresion.motivo IS 'CK';

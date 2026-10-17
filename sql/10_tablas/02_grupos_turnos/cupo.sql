@@ -16,8 +16,8 @@ CREATE TABLE IF NOT EXISTS grupos.cupo (
   CONSTRAINT ck_cupo_fraccion CHECK (fraccion > 0 AND fraccion <= 1)
 );
 
-COMMENT ON TABLE grupos.cupo IS 'Módulo 02 — Grupos, Cupos, Turnos y Gobernanza. Reglas del juego, orden de cobro y decisiones colectivas';
-COMMENT ON COLUMN grupos.cupo.id IS 'PK';
+COMMENT ON TABLE grupos.cupo IS 'Módulo 02 — Grupos, Cupos, Turnos y Gobernanza. Una cuota económica del grupo. La "mano". Numerada del 1 al N.';
+COMMENT ON COLUMN grupos.cupo.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN grupos.cupo.grupo_id IS 'FK, IDX';
 COMMENT ON COLUMN grupos.cupo.numero IS 'UQ+grupo_id';
 COMMENT ON COLUMN grupos.cupo.participante_id IS 'FK, NULL';

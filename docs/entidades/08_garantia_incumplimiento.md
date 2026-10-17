@@ -899,3 +899,73 @@ inevitablemente.
 | `Sancion` con estados | La consecuencia es inmediata y sin recurso: arbitraria por construcción. |
 | `ApelacionSancion` | Un error del sistema es definitivo. |
 | `Reemplazo` / `PlanContingencia` / `Disolucion` | La crisis se improvisa por WhatsApp y el grupo se desarma con pérdidas mal repartidas. |
+
+
+---
+
+## Tablas incorporadas después de la redacción original: respaldo empresarial
+
+> Fichas escritas para el catálogo de datos (trabajo `docs/trabajo/2026-10-16-tableros-por-rol`, H7). Explican
+> el camino vigente de ADR-051 (D-15): el faltante del pozo lo cubre una **reserva empresarial por ciclo**, todo o
+> nada, y la deuda del incumplidor se conserva como derecho de recuperación. Fuente común: CU-23 (sección de
+> vigencia y reglas R-GAR-08 a R-GAR-12) y `docs/Restricciones.md`.
+
+### `CapacidadRespaldo` / `capacidad_respaldo`
+
+**Qué es.** El tope de dinero que la empresa está dispuesta a comprometer para cubrir faltantes de pozo, por moneda, y cuánto ya comprometió.
+
+**Para qué sirve (negocio).** Que la promesa «el pozo se entrega completo» tenga un límite conocido y gobernado: la empresa no puede respaldar más grupos de los que puede pagar.
+
+**Por qué debe existir.** Sin un tope explícito, cada grupo nuevo agregaría exposición sin que nadie la viera crecer. Dos grupos que se activan a la vez podrían comprometer la misma plata.
+
+**A nivel de sistema.** Una fila por ámbito y moneda. R-GAR-08: `monto_comprometido <= monto_tope`. Dos activaciones simultáneas compiten por la misma fila: se bloquea primero (`CU23ReservarRespaldo`) y la base lo vuelve a exigir. No hay capacidad por omisión: sin fila cargada por gobierno se deniega, y el tope es un dato (ambigüedad A2). `monto_comprometido` es caché del libro `movimiento_reserva`.
+
+### `ReservaRespaldo` / `reserva_respaldo`
+
+**Qué es.** Lo que la empresa aparta de su capacidad para un grupo y un ciclo concretos, antes de activarlo.
+
+**Para qué sirve (negocio).** Que cada grupo activo tenga su respaldo separado y visible: cuánto se reservó, cuánto se usó para cubrir, cuánto se recuperó de los deudores y cuánto se liberó al terminar.
+
+**Por qué debe existir.** La capacidad es global; la cobertura ocurre en un grupo. Sin la reserva por ciclo no se puede saber cuánto respaldo le queda a un grupo ni liberar lo que no se usó.
+
+**A nivel de sistema.** Una por grupo y ciclo. R-GAR-09: `monto_aplicado + monto_liberado <= monto_reservado` y `monto_recuperado <= monto_aplicado`. Los cuatro contadores son caché del libro `movimiento_reserva`, que mantiene la base por trigger. Una reserva `LIBERADA` no admite ampliación ni aplicación.
+
+### `MovimientoReserva` / `movimiento_reserva`
+
+**Qué es.** El libro inmutable de la reserva: cada reserva, ampliación, aplicación, reversa, recuperación o liberación, con el disponible y la exposición que dejó.
+
+**Para qué sirve (negocio).** Que cualquier número del respaldo se pueda explicar paso a paso: por qué hoy quedan X bolivianos disponibles y cuánto está expuesto la empresa.
+
+**Por qué debe existir.** Si los saldos de la reserva se editaran directo, un error o un reintento cambiaría el número sin dejar rastro. Con el libro, el saldo se reconstruye y se corrige con un movimiento inverso.
+
+**A nivel de sistema.** Append-only. `tipo` ∈ RESERVA/AMPLIACION/APLICACION/REVERSA_APLICACION/RECUPERACION/LIBERACION. El trigger `tg_movimiento_reserva_aplica` actualiza los contadores de `reserva_respaldo` y `capacidad_respaldo` (R-GAR-09). `clave_idempotencia` única. `referencia_tipo` y `referencia_id` dicen qué lo causó.
+
+### `CoberturaRespaldo` / `cobertura_respaldo`
+
+**Qué es.** El uso de la reserva de un grupo para completar el pozo de un turno, al corte, cuando no llegó toda la plata.
+
+**Para qué sirve (negocio).** Que quien cobra el turno reciba el pozo completo aunque alguien no haya pagado, y que se sepa cuánto puso la empresa y cuánto recuperó después.
+
+**Por qué debe existir.** La cobertura es todo o nada y genera un derecho de recuperación. Sin el registro no se distinguiría la plata puesta por la empresa de la pagada por los participantes.
+
+**A nivel de sistema.** R-GAR-10: una cobertura viva por turno (la `REVERSADA` deja de contar) y `monto_faltante = monto_pozo - monto_confirmado - monto_cubierto_mutual`. `RECUPERADA_TOTAL` si y solo si lo recuperado iguala el faltante. R-GAR-12: el turno es del grupo y del período que declara; la base lo comprueba con una consulta de alcance mínimo a `grupos`.
+
+### `CoberturaRespaldoLinea` / `cobertura_respaldo_linea`
+
+**Qué es.** Qué obligación impaga cubrió la cobertura y por cuánto, línea por línea.
+
+**Para qué sirve (negocio).** Saber a quién se le cubrió cuánto, y por lo tanto quién le debe cuánto a la empresa. Sin la línea, la deuda sería un total sin dueño.
+
+**Por qué debe existir.** La recuperación se cobra a cada incumplidor por lo que se le cubrió a él. Sin línea por obligación no se puede perseguir ni descontar la deuda correcta.
+
+**A nivel de sistema.** Una por cobertura y obligación. R-GAR-11: las líneas suman exactamente el faltante de la cobertura (trigger diferido `tg_cobertura_respaldo_linea_cuadra`, al confirmar) y cada línea recupera a lo sumo lo que cubrió.
+
+### `RecuperacionRespaldo` / `recuperacion_respaldo`
+
+**Qué es.** Cada pago del incumplidor que devuelve a la reserva lo que la empresa cubrió por él.
+
+**Para qué sirve (negocio).** Que la cobertura no sea un regalo: cuando el deudor paga, esa plata repone el respaldo y la deuda baja.
+
+**Por qué debe existir.** Sin ella, un pago tardío no se podría atribuir a la cobertura que lo originó, y un mismo pago podría contarse dos veces como recuperación.
+
+**A nivel de sistema.** Append-only. `pago_id` único: un pago recupera una sola vez (R-GAR-11). Apunta a la línea recuperada y al `movimiento_reserva` de tipo RECUPERACION que la registró en el libro.

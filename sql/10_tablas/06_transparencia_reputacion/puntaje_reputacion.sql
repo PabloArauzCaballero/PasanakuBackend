@@ -25,11 +25,12 @@ CREATE TABLE IF NOT EXISTS transparencia.puntaje_reputacion (
   CONSTRAINT ck_puntaje_reputacion_nivel_confianza CHECK (nivel_confianza IN ('BASICO', 'CONFIABLE', 'EN_OBSERVACION', 'MUY_CONFIABLE', 'REFERENTE', 'RESTRINGIDO', 'SIN_HISTORIAL'))
 );
 
-COMMENT ON TABLE transparencia.puntaje_reputacion IS 'Módulo 06 — Transparencia y Reputación. Que nadie tenga que "creerle" al organizador';
-COMMENT ON COLUMN transparencia.puntaje_reputacion.id IS 'PK';
+COMMENT ON TABLE transparencia.puntaje_reputacion IS 'Módulo 06 — Transparencia y Reputación. El puntaje vigente del usuario, con las métricas que lo componen.';
+COMMENT ON COLUMN transparencia.puntaje_reputacion.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN transparencia.puntaje_reputacion.usuario_id IS 'FK, UQ';
 COMMENT ON COLUMN transparencia.puntaje_reputacion.modelo_id IS 'FK';
 COMMENT ON COLUMN transparencia.puntaje_reputacion.puntaje IS 'IDX';
 COMMENT ON COLUMN transparencia.puntaje_reputacion.nivel_confianza IS 'CK, IDX';
-COMMENT ON COLUMN transparencia.puntaje_reputacion.vigente_hasta IS 'NULL';
+COMMENT ON COLUMN transparencia.puntaje_reputacion.vigente_desde IS 'Desde cuándo rige esta versión de la fila: las condiciones se versionan, no se pisan.';
+COMMENT ON COLUMN transparencia.puntaje_reputacion.vigente_hasta IS 'Hasta cuándo rigió esta versión; vacía mientras sigue vigente.';
 COMMENT ON COLUMN transparencia.puntaje_reputacion.proximo_recalculo_en IS 'IDX';

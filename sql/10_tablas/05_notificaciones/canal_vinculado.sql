@@ -20,8 +20,8 @@ CREATE TABLE IF NOT EXISTS notificaciones.canal_vinculado (
   CONSTRAINT ck_canal_vinculado_estado CHECK (estado IN ('ACTIVO', 'BLOQUEADO_POR_USUARIO', 'DADO_DE_BAJA', 'NO_ALCANZABLE'))
 );
 
-COMMENT ON TABLE notificaciones.canal_vinculado IS 'Módulo 05 — Notificaciones y Comunicaciones. WhatsApp como canal real de cobro, sin spam ni doble aviso';
-COMMENT ON COLUMN notificaciones.canal_vinculado.id IS 'PK';
+COMMENT ON TABLE notificaciones.canal_vinculado IS 'Módulo 05 — Notificaciones y Comunicaciones. Un canal concreto de un usuario —su WhatsApp, su SMS, su correo, su token push— con su estado de verificación y consentimiento.';
+COMMENT ON COLUMN notificaciones.canal_vinculado.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN notificaciones.canal_vinculado.usuario_id IS 'FK, IDX';
 COMMENT ON COLUMN notificaciones.canal_vinculado.tipo IS 'CK';
 COMMENT ON COLUMN notificaciones.canal_vinculado.identificador IS 'UQ+tipo';

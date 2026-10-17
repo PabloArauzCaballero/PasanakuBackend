@@ -24,8 +24,8 @@ CREATE TABLE IF NOT EXISTS identidad.documento_identidad (
   CONSTRAINT ck_documento_identidad_estado CHECK (estado IN ('APROBADA', 'EN_REVISION', 'NO_INICIADA', 'PENDIENTE', 'RECHAZADA', 'VENCIDA'))
 );
 
-COMMENT ON TABLE identidad.documento_identidad IS 'Módulo 01 — Identidad, Usuarios y Seguridad. Saber con certeza a quién le estás confiando plata ajena';
-COMMENT ON COLUMN identidad.documento_identidad.id IS 'PK';
+COMMENT ON TABLE identidad.documento_identidad IS 'Módulo 01 — Identidad, Usuarios y Seguridad. La cédula, pasaporte o carnet de extranjería del usuario, con imágenes.';
+COMMENT ON COLUMN identidad.documento_identidad.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN identidad.documento_identidad.usuario_id IS 'FK, IDX';
 COMMENT ON COLUMN identidad.documento_identidad.tipo IS 'CK';
 COMMENT ON COLUMN identidad.documento_identidad.hash_numero IS 'UQ+lugar_expedicion, busqueda sin descifrar';

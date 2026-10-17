@@ -16,10 +16,11 @@ CREATE TABLE IF NOT EXISTS cumplimiento.documento_publicado (
   CONSTRAINT ck_documento_publicado_tipo CHECK (tipo IN ('CANAL_RECLAMOS', 'CONTRATO', 'HORARIOS', 'POLITICA_PRIVACIDAD', 'TARIFARIO'))
 );
 
-COMMENT ON TABLE cumplimiento.documento_publicado IS 'Módulo 12 — Cumplimiento Regulatorio y Consumidor Financiero. Que una inspección se responda con consultas, no armando carpetas';
-COMMENT ON COLUMN cumplimiento.documento_publicado.id IS 'PK';
+COMMENT ON TABLE cumplimiento.documento_publicado IS 'Módulo 12 — Cumplimiento Regulatorio y Consumidor Financiero. El registro de qué documentos estuvieron publicados y desde cuándo.';
+COMMENT ON COLUMN cumplimiento.documento_publicado.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN cumplimiento.documento_publicado.tipo IS 'CK, IDX';
 COMMENT ON COLUMN cumplimiento.documento_publicado.referencia_tipo IS 'NULL';
 COMMENT ON COLUMN cumplimiento.documento_publicado.referencia_id IS 'NULL, polimorfica';
 COMMENT ON COLUMN cumplimiento.documento_publicado.publicado_por IS 'FK, NULL';
-COMMENT ON COLUMN cumplimiento.documento_publicado.vigente_hasta IS 'NULL';
+COMMENT ON COLUMN cumplimiento.documento_publicado.vigente_desde IS 'Desde cuándo rige esta versión de la fila: las condiciones se versionan, no se pisan.';
+COMMENT ON COLUMN cumplimiento.documento_publicado.vigente_hasta IS 'Hasta cuándo rigió esta versión; vacía mientras sigue vigente.';

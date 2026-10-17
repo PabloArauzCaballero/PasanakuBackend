@@ -15,8 +15,8 @@ CREATE TABLE IF NOT EXISTS organizador.ejecucion_tarea (
   CONSTRAINT ck_ejecucion_tarea_resultado CHECK (resultado IN ('ERROR', 'EXITO', 'PARCIAL'))
 );
 
-COMMENT ON TABLE organizador.ejecucion_tarea IS 'Módulo 07 — Organizador y Automatización. Administrar es un rol, no un negocio: el organizador no cobra ni custodia';
-COMMENT ON COLUMN organizador.ejecucion_tarea.id IS 'PK';
+COMMENT ON TABLE organizador.ejecucion_tarea IS 'Módulo 07 — Organizador y Automatización. El registro de cada ejecución: cuándo, con qué resultado, cuántos registros afectó.';
+COMMENT ON COLUMN organizador.ejecucion_tarea.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN organizador.ejecucion_tarea.tarea_id IS 'FK, IDX';
 COMMENT ON COLUMN organizador.ejecucion_tarea.finalizada_en IS 'NULL';
 COMMENT ON COLUMN organizador.ejecucion_tarea.resultado IS 'CK';

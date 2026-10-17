@@ -19,8 +19,10 @@ CREATE TABLE IF NOT EXISTS cumplimiento.perfil_transaccional (
   CONSTRAINT ck_perfil_transaccional_tipo CHECK (tipo IN ('DECLARADO', 'OBSERVADO'))
 );
 
-COMMENT ON TABLE cumplimiento.perfil_transaccional IS 'Módulo 12 — Cumplimiento Regulatorio y Consumidor Financiero. Que una inspección se responda con consultas, no armando carpetas';
-COMMENT ON COLUMN cumplimiento.perfil_transaccional.id IS 'PK';
+COMMENT ON TABLE cumplimiento.perfil_transaccional IS 'Módulo 12 — Cumplimiento Regulatorio y Consumidor Financiero. Lo que el cliente declaró que iba a mover, y lo que efectivamente movió.';
+COMMENT ON COLUMN cumplimiento.perfil_transaccional.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN cumplimiento.perfil_transaccional.usuario_id IS 'FK, IDX, M1';
 COMMENT ON COLUMN cumplimiento.perfil_transaccional.tipo IS 'CK';
 COMMENT ON COLUMN cumplimiento.perfil_transaccional.codigo_ciiu IS 'NULL';
+COMMENT ON COLUMN cumplimiento.perfil_transaccional.moneda IS 'Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2).';
+COMMENT ON COLUMN cumplimiento.perfil_transaccional.vigente_desde IS 'Desde cuándo rige esta versión de la fila: las condiciones se versionan, no se pisan.';

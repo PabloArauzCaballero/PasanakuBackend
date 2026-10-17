@@ -154,6 +154,7 @@ package "Libro de movimientos (append-only)" {
     INVERSION
     RESCATE_INVERSION
     COMPRA_EN_MERCADO
+    RECARGO_MORA
   }
 
   enum EstadoTransaccion {

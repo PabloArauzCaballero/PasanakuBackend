@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS cumplimiento.comite_gobierno (
   CONSTRAINT ck_comite_gobierno_periodicidad_minima CHECK (periodicidad_minima IN ('ANUAL', 'BIMESTRAL', 'CONTINUA', 'DIARIA', 'MENSUAL', 'QUINCENAL', 'SEMANAL', 'SEMESTRAL', 'TRIMESTRAL'))
 );
 
-COMMENT ON TABLE cumplimiento.comite_gobierno IS 'Módulo 12 — Cumplimiento Regulatorio y Consumidor Financiero. Que una inspección se responda con consultas, no armando carpetas';
-COMMENT ON COLUMN cumplimiento.comite_gobierno.id IS 'PK';
+COMMENT ON TABLE cumplimiento.comite_gobierno IS 'Módulo 12 — Cumplimiento Regulatorio y Consumidor Financiero. El aparato de gobierno: comités, actas, manuales y designaciones.';
+COMMENT ON COLUMN cumplimiento.comite_gobierno.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN cumplimiento.comite_gobierno.tipo IS 'CK, UQ';
 COMMENT ON COLUMN cumplimiento.comite_gobierno.periodicidad_minima IS 'CK';

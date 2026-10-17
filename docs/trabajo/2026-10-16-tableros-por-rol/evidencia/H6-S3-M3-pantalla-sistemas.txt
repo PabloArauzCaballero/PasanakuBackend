@@ -1,0 +1,17 @@
+H6.S3.M3 — Pantalla de sistemas (/tablero/sistemas) · 2026-10-16
+
+$ yarn --cwd apps/backoffice test:front
+ Test Files  120 passed (120)
+      Tests  798 passed (798)
+
+$ yarn --cwd apps/backoffice test:a11y
+ Test Files  33 passed (33)
+      Tests  68 passed (68)
+
+$ yarn --cwd apps/backoffice lint  (exit 1, falla PREEXISTENTE ajena al trabajo)
+  FALLA · ningún archivo de más de 200 líneas ['apps/backoffice/src/app/rutas/cumplimiento/verificaciones/pantalla-de-expedientes.ts (206)']
+1 FALLAS
+
+$ yarn ng build --configuration development → exit 0
+
+Casos: filasDeEndpoints correcto/límite; tabla: con tráfico (correcto), fuente sana sin llamadas (límite), fuenteDisponible=false (inválido: no dice «nadie llamó»); a11y axe en financiero, comercial y sistemas.

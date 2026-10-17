@@ -1,0 +1,4 @@
+FamiliasVisiblesTest 3/3 · IndicadoresControllerWebTest +4 (financiero, comercial, sistemas, 403 sin permiso)
+auditoria test=22 webTest=38 integrationTest=50, 0 fallas
+gates: verificar_seguridad/criterios/boveda/pruebas_web exit=0
+verificar_seguridad: tras reemplazar new Random por RandomGeneratorFactory+Random.from en DatosSinteticos -> exit=0 (decision declarada en REPORTE)

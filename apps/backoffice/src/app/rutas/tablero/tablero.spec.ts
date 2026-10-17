@@ -120,4 +120,11 @@ describe('Tablero · monitoreo y accesos', () => {
     expect(accesos.querySelector('[data-tutorial-id="tablero-contabilidad"]')).toBeNull()
     expect(accesos.querySelector('[data-tutorial-id="tablero-configuracion"]')).toBeNull()
   })
+
+  it('límite: un acceso con dos segmentos lleva a esa ruta, sin codificar la barra como %2F', () => {
+    const { raiz } = montar(['TABLERO_FINANCIERO_VER', 'TABLERO_SISTEMAS_VER'])
+    const href = (id: string) => raiz.querySelector<HTMLAnchorElement>(`[data-tutorial-id="tablero-${id}"]`)?.getAttribute('href')
+    expect(href('tablero/financiero')).toBe('/tablero/financiero')
+    expect(href('tablero/catalogo-de-datos')).toBe('/tablero/catalogo-de-datos')
+  })
 })

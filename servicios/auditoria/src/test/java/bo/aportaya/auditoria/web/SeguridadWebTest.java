@@ -27,6 +27,12 @@ class SeguridadWebTest extends SabanaDeSeguridadWeb {
     private CU07EjercerDerechos cu07EjercerDerechos;
 
     @MockitoBean
+    private bo.aportaya.auditoria.aplicacion.EndpointsDelDia endpointsDelDia;
+
+    @MockitoBean
+    private bo.aportaya.auditoria.aplicacion.CatalogoDeDatosVigente catalogoDeDatos;
+
+    @MockitoBean
     private CU58DescargarExportacion cu58DescargarExportacion;
 
     @MockitoBean

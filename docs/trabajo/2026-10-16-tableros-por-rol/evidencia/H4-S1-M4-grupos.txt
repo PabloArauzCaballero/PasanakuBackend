@@ -1,0 +1,3 @@
+CUIndicadoresDeTurnosTest 4/4 (2 normales+1 cierre, cero real de cierre, SIN_DATOS, ANULADO no es ultimo) · ArranqueTest 1/1
+grupos: test=70 webTest=89 integrationTest=232, 0 fallas; cobertura exit=0; gates exit=0
+Fecha del turno = periodo.fecha_entrega_prevista (la real es de entregas; no se lee otro esquema).

@@ -47,6 +47,7 @@ de cada entidad.
 | [12 — Cumplimiento Regulatorio y Consumidor Financiero](12_cumplimiento_asfi.md) | [`.puml`](12_cumplimiento_asfi.puml) | Que una inspección se responda con consultas, no armando carpetas |
 | [13 — Contabilidad Financiera y ERP](13_contabilidad_erp.md) | [`.puml`](13_contabilidad_erp.puml) | Que cerrar un mes no dependa de un Excel armado a mano |
 | [14 — Publicidad y Campañas](14_publicidad_campanas.md) | [`.puml`](14_publicidad_campanas.puml) | Que un partner se anuncie dentro de la app sin inventar un segundo cobro |
+| [15 — Inversiones](15_inversiones.md) | [`.puml`](15_inversiones.puml) | Invertir saldo propio y libre sin prometer una rentabilidad que no se controla |
 
 ## Cinco tesis que explican el 80% del modelo
 

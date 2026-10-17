@@ -1,0 +1,5 @@
+libs: micrometer-tracing -> io.micrometer:micrometer-tracing-bridge-otel; + io.opentelemetry:opentelemetry-exporter-otlp (BOM Spring Boot 3.5: OTel 1.49.0)
+DefaultsDeObservabilidad (EnvironmentPostProcessor, precedencia mas baja; registro META-INF/spring.factories verificado en docs Spring Boot 3.5): export OTLP ${TRAZAS_HABILITADAS:false}, endpoint ${OTEL_TRAZAS_URL:http://otel-collector:4318/v1/traces}, muestreo ${TRAZAS_MUESTREO:0.1}, histograma http.server.requests. DefaultsDeObservabilidadTest 3/3
+Lockfiles: 15 modulos reescritos (brave -> otel).
+compileJava+compileTestJava de todo el repo exit=0; ArranqueTest 15/15 servicios en verde; suites de integracion completas en verde salvo la falla PREEXISTENTE de identidad CU04 (documentada).
+gateway:test + comun-web:test exit=0

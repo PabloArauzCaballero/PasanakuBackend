@@ -20,13 +20,14 @@ CREATE TABLE IF NOT EXISTS tarifas.cargo_comision (
   CONSTRAINT ck_cargo_comision_estado CHECK (estado IN ('ANULADO', 'COBRADO', 'FALLIDO', 'PENDIENTE'))
 );
 
-COMMENT ON TABLE tarifas.cargo_comision IS 'Módulo 11 — Tarifas, Comisiones, Impuestos y Facturación. La política de cobro es dato, no código: se cambia con un seeder';
-COMMENT ON COLUMN tarifas.cargo_comision.id IS 'PK';
+COMMENT ON TABLE tarifas.cargo_comision IS 'Módulo 11 — Tarifas, Comisiones, Impuestos y Facturación. El intento —y el resultado— de cobrar efectivamente el devengo.';
+COMMENT ON COLUMN tarifas.cargo_comision.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN tarifas.cargo_comision.devengo_id IS 'FK, IDX';
 COMMENT ON COLUMN tarifas.cargo_comision.deduccion_entrega_id IS 'FK, NULL, M4';
 COMMENT ON COLUMN tarifas.cargo_comision.transaccion_id IS 'FK, NULL, M10';
 COMMENT ON COLUMN tarifas.cargo_comision.obligacion_id IS 'FK, NULL, M3';
 COMMENT ON COLUMN tarifas.cargo_comision.forma_cobro IS 'CK';
+COMMENT ON COLUMN tarifas.cargo_comision.moneda IS 'Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2).';
 COMMENT ON COLUMN tarifas.cargo_comision.estado IS 'CK, IDX';
 COMMENT ON COLUMN tarifas.cargo_comision.ultimo_error IS 'NULL';
 COMMENT ON COLUMN tarifas.cargo_comision.cobrado_en IS 'NULL';

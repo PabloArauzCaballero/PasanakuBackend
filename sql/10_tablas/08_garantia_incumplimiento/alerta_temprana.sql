@@ -17,8 +17,8 @@ CREATE TABLE IF NOT EXISTS garantia.alerta_temprana (
   CONSTRAINT ck_alerta_temprana_estado CHECK (estado IN ('ABIERTA', 'ATENDIDA', 'DESCARTADA'))
 );
 
-COMMENT ON TABLE garantia.alerta_temprana IS 'Módulo 08 — Garantía, Incumplimiento, Cobranza y Sanciones. El grupo no se detiene, pero la deuda no se perdona sola';
-COMMENT ON COLUMN garantia.alerta_temprana.id IS 'PK';
+COMMENT ON TABLE garantia.alerta_temprana IS 'Módulo 08 — Garantía, Incumplimiento, Cobranza y Sanciones. Señales de comportamiento que anticipan un problema.';
+COMMENT ON COLUMN garantia.alerta_temprana.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN garantia.alerta_temprana.usuario_id IS 'FK, IDX';
 COMMENT ON COLUMN garantia.alerta_temprana.grupo_id IS 'FK, NULL';
 COMMENT ON COLUMN garantia.alerta_temprana.codigo IS 'CK';

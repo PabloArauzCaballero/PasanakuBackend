@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS aportes.constancia_pago (
   CONSTRAINT pk_constancia_pago PRIMARY KEY (id)
 );
 
-COMMENT ON TABLE aportes.constancia_pago IS 'Módulo 03 — Aportes, Pagos QR y Conciliación. Que "pagué" signifique "el banco lo confirmó"';
-COMMENT ON COLUMN aportes.constancia_pago.id IS 'PK';
+COMMENT ON TABLE aportes.constancia_pago IS 'Módulo 03 — Aportes, Pagos QR y Conciliación. El comprobante que la plataforma emite, con código de verificación público.';
+COMMENT ON COLUMN aportes.constancia_pago.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN aportes.constancia_pago.pago_id IS 'FK, UQ';
 COMMENT ON COLUMN aportes.constancia_pago.codigo_verificacion IS 'UQ';

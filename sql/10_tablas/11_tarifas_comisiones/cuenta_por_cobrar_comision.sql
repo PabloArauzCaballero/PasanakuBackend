@@ -17,8 +17,8 @@ CREATE TABLE IF NOT EXISTS tarifas.cuenta_por_cobrar_comision (
   CONSTRAINT ck_cuenta_por_cobrar_comision_estado CHECK (estado IN ('CASTIGADA', 'EN_COBRANZA', 'PAGADA', 'VENCIDA', 'VIGENTE'))
 );
 
-COMMENT ON TABLE tarifas.cuenta_por_cobrar_comision IS 'Módulo 11 — Tarifas, Comisiones, Impuestos y Facturación. La política de cobro es dato, no código: se cambia con un seeder';
-COMMENT ON COLUMN tarifas.cuenta_por_cobrar_comision.id IS 'PK';
+COMMENT ON TABLE tarifas.cuenta_por_cobrar_comision IS 'Módulo 11 — Tarifas, Comisiones, Impuestos y Facturación. Los dos finales alternativos del devengo: se devuelve o queda por cobrar.';
+COMMENT ON COLUMN tarifas.cuenta_por_cobrar_comision.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN tarifas.cuenta_por_cobrar_comision.devengo_id IS 'FK, UQ';
 COMMENT ON COLUMN tarifas.cuenta_por_cobrar_comision.usuario_id IS 'FK, IDX, M1';
 COMMENT ON COLUMN tarifas.cuenta_por_cobrar_comision.gestion_cobranza_id IS 'FK, NULL, M8';

@@ -1,0 +1,25 @@
+H8.S1.M2 — scripts/matriz_de_pruebas.py · 2026-10-17
+Reusa inventario_endpoints.relevar() (282 endpoints, el mismo relevamiento que el CI vigila con --check).
+Detección de prueba web corregida: resuelve constantes (get(RUTA, id)), concatenaciones y plantillas {id}; la versión por prefijo daba 9 falsos positivos (p. ej. POST /billetera/recargas contado por /billetera/recargas/{id}/acreditacion).
+
+$ python3 scripts/matriz_de_pruebas.py   → exit 0
+| Servicio | Endpoints | Con prueba web | Con CU | CU con prueba de integración | En algún flujo |
+|---|---:|---:|---:|---:|---:|
+| aportes | 12 | 10 | 11 | 10 | 0 |
+| auditoria | 8 | 8 | 7 | 7 | 0 |
+| cumplimiento | 28 | 20 | 14 | 13 | 0 |
+| entregas | 16 | 16 | 11 | 11 | 0 |
+| erp | 24 | 16 | 24 | 24 | 0 |
+| garantia | 20 | 18 | 14 | 13 | 0 |
+| grupos | 28 | 16 | 15 | 11 | 0 |
+| identidad | 23 | 21 | 12 | 11 | 0 |
+| inversiones | 20 | 16 | 20 | 20 | 0 |
+| notificaciones | 6 | 6 | 6 | 5 | 0 |
+| nucleo-financiero | 27 | 20 | 24 | 23 | 0 |
+| organizador | 22 | 15 | 16 | 15 | 0 |
+| publicidad | 17 | 9 | 14 | 14 | 0 |
+| tarifas | 13 | 9 | 13 | 13 | 0 |
+| transparencia | 18 | 9 | 18 | 15 | 0 |
+| **Total** | 282 | 209 | 219 | 205 | 0 |
+
+282 endpoints → docs/catalogo-de-flujos/matriz.md

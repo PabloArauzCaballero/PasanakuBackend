@@ -17,8 +17,8 @@ CREATE TABLE IF NOT EXISTS garantia.descargo_participante (
   CONSTRAINT ck_descargo_participante_estado CHECK (estado IN ('ACEPTADO', 'EN_ANALISIS', 'PRESENTADO', 'RECHAZADO'))
 );
 
-COMMENT ON TABLE garantia.descargo_participante IS 'Módulo 08 — Garantía, Incumplimiento, Cobranza y Sanciones. El grupo no se detiene, pero la deuda no se perdona sola';
-COMMENT ON COLUMN garantia.descargo_participante.id IS 'PK';
+COMMENT ON TABLE garantia.descargo_participante IS 'Módulo 08 — Garantía, Incumplimiento, Cobranza y Sanciones. La versión del participante: su argumento y sus pruebas.';
+COMMENT ON COLUMN garantia.descargo_participante.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN garantia.descargo_participante.registro_id IS 'FK, IDX';
 COMMENT ON COLUMN garantia.descargo_participante.participante_id IS 'FK';
 COMMENT ON COLUMN garantia.descargo_participante.estado IS 'CK';

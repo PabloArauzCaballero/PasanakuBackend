@@ -17,8 +17,8 @@ CREATE TABLE IF NOT EXISTS garantia.acuerdo_quita (
   CONSTRAINT ck_acuerdo_quita_estado CHECK (estado IN ('APROBADO', 'EJECUTADO', 'PROPUESTO', 'RECHAZADO'))
 );
 
-COMMENT ON TABLE garantia.acuerdo_quita IS 'Módulo 08 — Garantía, Incumplimiento, Cobranza y Sanciones. El grupo no se detiene, pero la deuda no se perdona sola';
-COMMENT ON COLUMN garantia.acuerdo_quita.id IS 'PK';
+COMMENT ON TABLE garantia.acuerdo_quita IS 'Módulo 08 — Garantía, Incumplimiento, Cobranza y Sanciones. El acuerdo de condonar parte de la deuda a cambio del pago del resto.';
+COMMENT ON COLUMN garantia.acuerdo_quita.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN garantia.acuerdo_quita.registro_id IS 'FK, UQ';
 COMMENT ON COLUMN garantia.acuerdo_quita.aprobado_por IS 'FK';
 COMMENT ON COLUMN garantia.acuerdo_quita.acuerdo_grupo_id IS 'FK, NULL, M2';

@@ -21,8 +21,8 @@ CREATE TABLE IF NOT EXISTS nucleo_financiero.descuadre_custodia (
   CONSTRAINT ck_descuadre_custodia_estado CHECK (estado IN ('ABIERTO', 'EN_ANALISIS', 'ESCALADO', 'RESUELTO'))
 );
 
-COMMENT ON TABLE nucleo_financiero.descuadre_custodia IS 'Módulo 10 — Billetera, Custodia y Dinero Electrónico. El saldo no se guarda: se deriva, y todos los días cuadra contra el banco';
-COMMENT ON COLUMN nucleo_financiero.descuadre_custodia.id IS 'PK';
+COMMENT ON TABLE nucleo_financiero.descuadre_custodia IS 'Módulo 10 — Billetera, Custodia y Dinero Electrónico. El expediente de cada diferencia detectada.';
+COMMENT ON COLUMN nucleo_financiero.descuadre_custodia.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN nucleo_financiero.descuadre_custodia.conciliacion_custodia_id IS 'FK, IDX';
 COMMENT ON COLUMN nucleo_financiero.descuadre_custodia.incidente_operativo_id IS 'FK, NULL, M9';
 COMMENT ON COLUMN nucleo_financiero.descuadre_custodia.resuelto_por IS 'FK, NULL';

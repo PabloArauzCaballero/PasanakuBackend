@@ -1,7 +1,7 @@
 package bo.aportaya.nucleofinanciero.consumo;
 
+import bo.aportaya.nucleofinanciero.aplicacion.AporteCobrado;
 import bo.aportaya.nucleofinanciero.aplicacion.ConsumoDeAportes;
-import bo.aportaya.nucleofinanciero.aplicacion.ConsumoDeAportes.AporteCobrado;
 import bo.aportaya.plataforma.dominio.Dinero;
 import bo.aportaya.plataforma.dominio.ErrorDeDominio;
 import bo.aportaya.plataforma.dominio.Moneda;
@@ -9,6 +9,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.nio.charset.StandardCharsets;
+import java.util.Optional;
 import java.util.UUID;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.header.Header;
@@ -83,7 +84,9 @@ public class ConsumidorDeAportesKafka {
                     uuid(cuerpo, "grupoId"),
                     uuid(cuerpo, "usuarioId"),
                     Dinero.de(texto(cuerpo, "monto"), moneda),
-                    texto(cuerpo, "canal"));
+                    texto(cuerpo, "canal"),
+                    // Opcional a proposito: los eventos publicados antes de 2026-10-16 no lo traen.
+                    opcional(cuerpo, "tipo"));
         } catch (JsonProcessingException | IllegalArgumentException | ErrorDeDominio | ArithmeticException ilegible) {
             throw new IllegalArgumentException("El evento no se puede leer: " + ilegible.getMessage(), ilegible);
         }
@@ -94,6 +97,13 @@ public class ConsumidorDeAportesKafka {
             throw new IllegalArgumentException("El evento no trae " + campo);
         }
         return cuerpo.get(campo).asText();
+    }
+
+    private static Optional<String> opcional(JsonNode cuerpo, String campo) {
+        if (!cuerpo.hasNonNull(campo) || cuerpo.get(campo).asText().isBlank()) {
+            return Optional.empty();
+        }
+        return Optional.of(cuerpo.get(campo).asText());
     }
 
     private static UUID uuid(JsonNode cuerpo, String campo) {

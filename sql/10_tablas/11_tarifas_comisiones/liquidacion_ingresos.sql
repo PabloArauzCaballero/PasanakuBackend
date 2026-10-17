@@ -24,8 +24,8 @@ CREATE TABLE IF NOT EXISTS tarifas.liquidacion_ingresos (
   CONSTRAINT ck_liquidacion_ingresos_estado CHECK (estado IN ('ABIERTA', 'CERRADA', 'EN_CIERRE', 'REABIERTA'))
 );
 
-COMMENT ON TABLE tarifas.liquidacion_ingresos IS 'Módulo 11 — Tarifas, Comisiones, Impuestos y Facturación. La política de cobro es dato, no código: se cambia con un seeder';
-COMMENT ON COLUMN tarifas.liquidacion_ingresos.id IS 'PK';
+COMMENT ON TABLE tarifas.liquidacion_ingresos IS 'Módulo 11 — Tarifas, Comisiones, Impuestos y Facturación. El cierre mensual del ingreso: devengado, cobrado, exonerado, devuelto, incobrable, impuestos, costos de proveedores e ingreso neto.';
+COMMENT ON COLUMN tarifas.liquidacion_ingresos.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN tarifas.liquidacion_ingresos.periodo IS 'UQ';
 COMMENT ON COLUMN tarifas.liquidacion_ingresos.ingreso_neto IS 'GENERATED';
 COMMENT ON COLUMN tarifas.liquidacion_ingresos.estado IS 'CK, IDX';

@@ -14,6 +14,6 @@ CREATE TABLE IF NOT EXISTS identidad.perfil_financiero (
   CONSTRAINT pk_perfil_financiero PRIMARY KEY (id)
 );
 
-COMMENT ON TABLE identidad.perfil_financiero IS 'Módulo 01 — Identidad, Usuarios y Seguridad. Saber con certeza a quién le estás confiando plata ajena';
-COMMENT ON COLUMN identidad.perfil_financiero.id IS 'PK';
+COMMENT ON TABLE identidad.perfil_financiero IS 'Módulo 01 — Identidad, Usuarios y Seguridad. Lo que la persona declara sobre su capacidad económica: ocupación, ingreso mensual, cuánto puede aportar, de dónde sale la plata, y si es PEP (persona expuesta políticamente).';
+COMMENT ON COLUMN identidad.perfil_financiero.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN identidad.perfil_financiero.usuario_id IS 'FK, UQ';

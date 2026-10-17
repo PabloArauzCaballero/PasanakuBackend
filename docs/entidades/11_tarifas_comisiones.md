@@ -468,3 +468,23 @@ ganar, y por eso no tiene motivo para inflar el grupo ni para apurar una entrega
 3. *"¿Avisaron antes de subir la comisión?"* → [[cambio_tarifario]] con fecha, canal y cantidad de notificados.
 4. *"¿Cuánto ganó realmente la plataforma este mes?"* → [[liquidacion_ingresos]], neta de devoluciones, exenciones y costos de proveedor.
 5. *"¿Quién autorizó no cobrarle a este grupo?"* → [[exencion_comision]], con autorizante, motivo y vigencia.
+
+
+---
+
+## Tablas incorporadas después de la redacción original
+
+> Fichas escritas para el catálogo de datos (trabajo `docs/trabajo/2026-10-16-tableros-por-rol`, H7). Cada
+> afirmación sale de la fuente que se cita al pie de la ficha: no agregan reglas, las explican.
+
+### `EventoSignificativoSin` / `evento_significativo_sin`
+
+**Qué es.** Un período en que la facturación electrónica no pudo enviarse al SIN (por ejemplo, porque el servicio no respondió), declarado como evento significativo.
+
+**Para qué sirve (negocio).** Que las facturas emitidas sin conexión sigan siendo válidas: se registra el evento y después se envían en lote dentro del plazo que fija el SIN.
+
+**Por qué debe existir.** Sin el evento, las facturas emitidas fuera de línea quedarían sin respaldo ante el SIN y la plataforma incumpliría su obligación tributaria.
+
+**A nivel de sistema.** `codigo_evento` y `cufd_evento` identifican el evento ante el SIN. `fecha_inicio`, `fecha_fin` y `cantidad_documentos_offline` delimitan lo emitido sin conexión. `plazo_registro` es el límite para registrarlo. `codigo_recepcion_evento` es único cuando el SIN lo acepta.
+
+*Fuente: CU-32 (flujo 3a); `servicios/tarifas/.../CU32EmitirFactura.java`.*

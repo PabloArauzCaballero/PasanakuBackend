@@ -1,0 +1,6 @@
+$ yarn --cwd apps/backoffice test:front -> Test Files 119 passed · Tests 793 passed (incluye indicadores.spec y tablero-por-rol.spec 5/5)
+$ yarn --cwd apps/backoffice test:a11y (tablero) -> 33 files / 67 tests passed (axe sin violaciones, financiero y comercial con valor+suprimido+sin datos)
+$ yarn --cwd apps/backoffice ng build -> exit 0 (avisos de presupuesto del bundle inicial: el codigo de los tableros es lazy; en main solo entra el title de la ruta)
+$ yarn --cwd apps/backoffice lint -> 1 FALLA PREEXISTENTE ajena: pantalla-de-expedientes.ts 206 lineas (ya 206 en origin/dev d63e4fef); los archivos de este trabajo < 200 lineas y sin errores de eslint
+Fallas encontradas por los specs y corregidas: (1) ap-monto exige 2 decimales y indicador_kpi trae NUMERIC(16,4) -> montoExacto recorta solo ceros, si no muestra texto con moneda (sin redondeo silencioso); (2) leer value() de un recurso en error lanza -> computed sobre hasValue(); (3) whenStable esperaba la peticion pendiente del propio test -> ApplicationRef.tick().
+Entorno del worktree: se generaron tokens (yarn workspace @aportaya/tokens build), clientes Angular (./gradlew generarClienteAngular --no-parallel --rerun-tasks; la corrida en paralelo dejo un cliente incompleto) y contratos del simulado.

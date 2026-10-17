@@ -28,6 +28,8 @@ dependencies {
     api(libs.spring.boot.security)
     implementation(libs.spring.boot.oauth2)
     implementation(libs.micrometer.tracing)
+    implementation(libs.otel.exportador)
+    implementation(libs.micrometer.otlp)
 
     // El arnes de la capa web: se publica para los catorce servicios, asi que sus
     // dependencias son `api` — un servicio no vuelve a declarar como se arma un corte

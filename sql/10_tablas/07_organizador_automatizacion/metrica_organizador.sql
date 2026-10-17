@@ -13,6 +13,6 @@ CREATE TABLE IF NOT EXISTS organizador.metrica_organizador (
   CONSTRAINT pk_metrica_organizador PRIMARY KEY (id)
 );
 
-COMMENT ON TABLE organizador.metrica_organizador IS 'Módulo 07 — Organizador y Automatización. Administrar es un rol, no un negocio: el organizador no cobra ni custodia';
-COMMENT ON COLUMN organizador.metrica_organizador.id IS 'PK';
+COMMENT ON TABLE organizador.metrica_organizador IS 'Módulo 07 — Organizador y Automatización. El detalle de cada indicador dentro de la evaluación: valor, meta, si cumple y cuánto pesa.';
+COMMENT ON COLUMN organizador.metrica_organizador.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN organizador.metrica_organizador.evaluacion_id IS 'FK, IDX';

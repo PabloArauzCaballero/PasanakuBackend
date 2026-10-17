@@ -1,0 +1,155 @@
+# Catálogo de flujos · recarga y retiro de billetera (CU-10, CU-11). Lo valida scripts/validar_flujos.py.
+# Fuentes: nucleo-financiero.yaml (operaciones y códigos AP-CU10-*/AP-CU11-*), ADR-049 (doble aprobación),
+# ReconciliacionDeRetiros (TIMEOUT del proveedor) y las pruebas citadas en cada caso.
+id: recarga-y-retiro
+nombre: Recargar saldo y retirarlo a una cuenta propia
+objetivo: >-
+  Que la plata entre a la billetera solo cuando el proveedor la confirma con firma válida, y que salga
+  retenida primero y pagada después, una sola vez, hacia una cuenta verificada del titular.
+dinero: true
+casos_de_uso: [CU-10, CU-11]
+
+pasos:
+  - id: solicitar-recarga
+    actor: PARTICIPANTE
+    servicio: nucleo-financiero
+    operacion: solicitarRecarga
+    precondicion: Billetera operativa, instrumento de fondeo verificado y límite mensual de recarga cargado.
+    exito: confirmar-recarga
+    errores:
+      - { codigo: AP-CU10-01, http: 422, significa: Supera el límite de recarga del período, siguiente: FIN }
+      - { codigo: AP-CU10-03, http: 422, significa: El instrumento de fondeo no está verificado, siguiente: FIN }
+      - { codigo: AP-CU10-07, http: 422, significa: La cotización aceptada venció, siguiente: FIN }
+
+  - id: confirmar-recarga
+    actor: PROVEEDOR_DE_PAGOS
+    servicio: nucleo-financiero
+    operacion: acreditarRecarga
+    precondicion: La orden está PENDIENTE y no venció; la confirmación trae firma del proveedor.
+    exito: solicitar-retiro
+    errores:
+      - { codigo: AP-CU10-05, http: 422, significa: La orden ya venció; no se acredita, siguiente: FIN }
+    condiciones:
+      - si: La firma no verifica, o el monto o la referencia no coinciden con la orden
+        siguiente: FIN   # se registra discrepancia_proveedor y NO se acredita (RegistrarDiscrepancia)
+
+  - id: solicitar-retiro
+    actor: PARTICIPANTE
+    servicio: nucleo-financiero
+    operacion: solicitarRetiro
+    precondicion: Saldo disponible, MFA verificado y cuenta de destino del titular fuera de enfriamiento.
+    exito: instruir-pago
+    errores:
+      - { codigo: AP-CU11-01, http: 422, significa: El disponible no cubre el retiro, siguiente: FIN }
+      - { codigo: AP-CU11-02, http: 422, significa: Falta el segundo factor, siguiente: FIN }
+      - { codigo: AP-CU11-03, http: 422, significa: La cuenta de destino está en enfriamiento, siguiente: FIN }
+      - { codigo: AP-CU11-13, http: 422, significa: La clave de idempotencia ya identifica otro retiro, siguiente: FIN }
+    condiciones:
+      - si: El monto alcanza el umbral de doble aprobación (aportaya.retiro.doble-aprobacion-desde)
+        siguiente: aprobar-retiro   # la orden nace EN_REVISION y retiene igual
+
+  - id: aprobar-retiro
+    actor: TESORERIA
+    servicio: nucleo-financiero
+    operacion: aprobarRetiro
+    precondicion: Orden EN_REVISION; quien aprueba tiene RETIRO_APROBAR y NO es quien la solicitó (R-SEG-04).
+    exito: instruir-pago
+    errores:
+      - { codigo: AP-CU11-10, http: 422, significa: El solicitante no puede aprobar su propio retiro, siguiente: FIN }
+      - { codigo: AP-CU11-11, http: 422, significa: La orden ya fue resuelta por otro aprobador, siguiente: FIN }
+    condiciones:
+      - si: El aprobador la rechaza
+        siguiente: FIN   # la retención se libera y el saldo vuelve al disponible
+
+  - id: instruir-pago
+    actor: SISTEMA
+    servicio: nucleo-financiero
+    disparador: sin-cablear
+    componente: RetirosConProveedor
+    hallazgo: >-
+      H8-01 · Ningún trabajo, endpoint ni consumidor llama a RetirosConProveedor.despachar ni a
+      CU11RetirarSaldo.instruirPago en producción; el evento nucleo_financiero.retiro_autorizado se publica y nadie
+      lo consume. Una orden AUTORIZADA queda retenida sin instruirse. Decisión pendiente (A9): instrucción automática
+      o de un operador.
+    precondicion: Orden AUTORIZADA con su retención VIGENTE.
+    exito: FIN   # PAGADA: la retención se ejecuta y la transacción tiene dos patas que suman cero
+    condiciones:
+      - si: El proveedor rechaza en firme
+        siguiente: FIN   # RECHAZADA: la retención se libera
+      - si: El proveedor no contesta (TIMEOUT)
+        siguiente: reconciliar-retiro
+
+  - id: reconciliar-retiro
+    actor: SISTEMA
+    servicio: nucleo-financiero
+    disparador: programado
+    componente: ReconciliacionDeRetiros
+    precondicion: Orden EN_PROCESO sin respuesta firme del proveedor.
+    exito: FIN   # confirma o rechaza con el mismo camino que una respuesta a tiempo; si sigue TIMEOUT, no toca nada
+
+casos:
+  validos:
+    - nombre: Recargar, confirmar, retirar y pagar cuadra
+      dado: Una billetera vacía con límites cargados
+      entonces: El saldo final es recarga − retiro y cada transacción tiene dos patas que suman cero
+      prueba: servicios/nucleo-financiero/src/test/java/bo/aportaya/nucleofinanciero/CUFlujoRecargaYRetiroTest.java#cadenaCompleta
+    - nombre: Un webhook válido acredita una vez
+      dado: Una orden de recarga PENDIENTE
+      entonces: El disponible sube en lo acreditado, con dos movimientos que suman cero
+      prueba: servicios/nucleo-financiero/src/test/java/bo/aportaya/nucleofinanciero/CU10Test.java#criterio1
+    - nombre: Un retiro grande lo aprueba otra persona
+      dado: Un retiro EN_REVISION
+      entonces: Un aprobador distinto lo autoriza
+      prueba: servicios/nucleo-financiero/src/test/java/bo/aportaya/nucleofinanciero/CU11AprobacionTest.java#aprueba
+  limite:
+    - nombre: Retirar exactamente todo el disponible
+      dado: Una billetera con un único saldo recargado
+      entonces: Se autoriza y la billetera queda en 0.00, sin retenido
+      prueba: servicios/nucleo-financiero/src/test/java/bo/aportaya/nucleofinanciero/CUFlujoRecargaYRetiroTest.java#retirarTodo
+    - nombre: El mismo webhook tres veces
+      dado: Una confirmación reenviada tres veces
+      entonces: Una sola transacción; el saldo no cambia después de la primera
+      prueba: servicios/nucleo-financiero/src/test/java/bo/aportaya/nucleofinanciero/CU10Test.java#criterio2
+    - nombre: Dos confirmaciones a la vez
+      dado: La confirmación llega dos veces en paralelo
+      entonces: Un solo abono y el mismo comprobante
+      prueba: servicios/nucleo-financiero/src/test/java/bo/aportaya/nucleofinanciero/CU10DiscrepanciaTest.java#dobleConfirmacionConcurrenteAcreditaUnaVez
+    - nombre: El proveedor contesta después del timeout
+      dado: Una orden EN_PROCESO por TIMEOUT
+      entonces: La reconciliación la confirma con el camino normal
+      prueba: servicios/nucleo-financiero/src/test/java/bo/aportaya/nucleofinanciero/ReconciliacionDeRetirosTest.java#aceptaDespuesDelTimeout
+    - nombre: Rechazo definitivo del proveedor
+      dado: Un retiro instruido que el proveedor rechaza
+      entonces: La retención queda LIBERADA y el disponible vuelve a su valor
+      prueba: servicios/nucleo-financiero/src/test/java/bo/aportaya/nucleofinanciero/CU11Test.java#criterio2
+  invalidos:
+    - nombre: Un centavo más que el disponible
+      dado: Una billetera con saldo S
+      entonces: Se rechaza; no hay orden ni retención y el saldo sigue en S
+      codigo: AP-CU11-01
+      prueba: servicios/nucleo-financiero/src/test/java/bo/aportaya/nucleofinanciero/CUFlujoRecargaYRetiroTest.java#unCentavoDeMas
+    - nombre: Cuenta de destino recién agregada
+      dado: Un instrumento agregado hace una hora
+      entonces: Se rechaza por enfriamiento
+      codigo: AP-CU11-03
+      prueba: servicios/nucleo-financiero/src/test/java/bo/aportaya/nucleofinanciero/CU11Test.java#criterio3
+    - nombre: Autoaprobación
+      dado: El solicitante intenta aprobar su propio retiro
+      entonces: Se rechaza; la orden sigue EN_REVISION
+      codigo: AP-CU11-10
+      prueba: servicios/nucleo-financiero/src/test/java/bo/aportaya/nucleofinanciero/CU11AprobacionTest.java#autoAprobacionProhibida
+    - nombre: Firma del proveedor inválida
+      dado: Una confirmación con firma que no verifica
+      entonces: No acredita, la orden sigue PENDIENTE y se abre una discrepancia
+      codigo: FIRMA_INVALIDA
+      prueba: servicios/nucleo-financiero/src/test/java/bo/aportaya/nucleofinanciero/CU10DiscrepanciaTest.java#firmaInvalidaNoAcreditaYAbreDiscrepancia
+    - nombre: Monto informado distinto
+      dado: El proveedor informa otro importe
+      entonces: No acredita y queda la discrepancia MONTO_DISTINTO
+      codigo: MONTO_DISTINTO
+      prueba: servicios/nucleo-financiero/src/test/java/bo/aportaya/nucleofinanciero/CU10DiscrepanciaTest.java#montoDistintoQuedaRegistrado
+    - nombre: Misma clave, otro retiro
+      dado: Un reintento con la misma clave y otro importe o destino
+      entonces: Se rechaza; no retiene de más
+      codigo: AP-CU11-13
+      prueba: servicios/nucleo-financiero/src/test/java/bo/aportaya/nucleofinanciero/CU11IdempotenciaTest.java#cambiarLaSolicitudSeRechaza

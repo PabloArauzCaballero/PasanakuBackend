@@ -18,8 +18,8 @@ CREATE TABLE IF NOT EXISTS aportes.disputa_pago (
   CONSTRAINT ck_disputa_pago_estado CHECK (estado IN ('ABIERTA', 'EN_ANALISIS', 'RESUELTA_A_FAVOR', 'RESUELTA_EN_CONTRA'))
 );
 
-COMMENT ON TABLE aportes.disputa_pago IS 'Módulo 03 — Aportes, Pagos QR y Conciliación. Que "pagué" signifique "el banco lo confirmó"';
-COMMENT ON COLUMN aportes.disputa_pago.id IS 'PK';
+COMMENT ON TABLE aportes.disputa_pago IS 'Módulo 03 — Aportes, Pagos QR y Conciliación. El reclamo formal sobre un pago: contracargo, desconocimiento del cargo, monto incorrecto.';
+COMMENT ON COLUMN aportes.disputa_pago.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN aportes.disputa_pago.pago_id IS 'FK, IDX';
 COMMENT ON COLUMN aportes.disputa_pago.tipo IS 'CK';
 COMMENT ON COLUMN aportes.disputa_pago.estado IS 'CK';

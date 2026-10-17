@@ -19,8 +19,8 @@ CREATE TABLE IF NOT EXISTS garantia.disolucion_anticipada (
   CONSTRAINT ck_disolucion_anticipada_estado CHECK (estado IN ('CALCULADA', 'CERRADA', 'EJECUTADA', 'INICIADA'))
 );
 
-COMMENT ON TABLE garantia.disolucion_anticipada IS 'Módulo 08 — Garantía, Incumplimiento, Cobranza y Sanciones. El grupo no se detiene, pero la deuda no se perdona sola';
-COMMENT ON COLUMN garantia.disolucion_anticipada.id IS 'PK';
+COMMENT ON TABLE garantia.disolucion_anticipada IS 'Módulo 08 — Garantía, Incumplimiento, Cobranza y Sanciones. El cierre del grupo antes de completar el ciclo, con la liquidación de todos.';
+COMMENT ON COLUMN garantia.disolucion_anticipada.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN garantia.disolucion_anticipada.grupo_id IS 'FK, UQ';
 COMMENT ON COLUMN garantia.disolucion_anticipada.acuerdo_grupo_id IS 'FK, NULL, M2';
 COMMENT ON COLUMN garantia.disolucion_anticipada.causal IS 'CK';

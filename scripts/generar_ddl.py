@@ -45,6 +45,7 @@ from modelo import (MODULOS, FOCO, APPEND_ONLY, PARTICIONADAS, CK_AMPLIADOS,  # 
                     esquemas_de_servicio, tablas_infra_de,
                     esquema_de, rol_de,
                     cargar, resolver_fk, clase_de, a_camel)
+from catalogo_de_datos import CONVENCIONES, fichas  # noqa: E402
 
 OUT = pathlib.Path("sql")
 MAX_IDENT = 63
@@ -414,8 +415,17 @@ def defecto(col, tipo):
     return None
 
 
+def comentario(texto):
+    """Narrativa de una ficha como literal SQL: sin marcas de Markdown y con las comillas escapadas."""
+    plano = re.sub(r"\*\*|`", "", texto).strip()
+    return plano.replace("'", "''")
+
+
 def generar():
     mods, registro, _ = cargar()
+    # COMMENT ON lleva la narrativa de negocio de las fichas de docs/entidades/*.md (H7, D13): quien
+    # consulta la base con \d+ lee por qué existe la tabla, no solo «PK, FK».
+    narrativas = fichas()
 
     # El esquema de cada tabla se resuelve UNA vez, antes de emitir nada.
     TABLA_ESQUEMA.clear()
@@ -492,8 +502,10 @@ def generar():
                 if col["nulo"]:
                     OPCIONALES[tabla].add(n)
 
-                if col["anot"]:
-                    comentarios.append((n, col["anot"]))
+                ficha = narrativas.get(tabla, {}).get("columnas", {})
+                nota = ficha.get(a_camel(n)) or ficha.get(n) or CONVENCIONES.get(n)
+                if nota or col["anot"]:
+                    comentarios.append((n, comentario(nota) if nota else col["anot"]))
 
                 if col["fk"]:
                     destino = resolver_fk(col, k, registro)
@@ -569,7 +581,8 @@ def generar():
                     sql += [f"-- Evolucion: CHECK ampliado (ver CK_AMPLIADOS en modelo.py).",
                             f"ALTER TABLE {q(tabla)} DROP CONSTRAINT IF EXISTS {nombre_ck};",
                             f"ALTER TABLE {q(tabla)} ADD CONSTRAINT {nombre_ck} CHECK ({expr});", ""]
-            desc = FOCO[k].replace("'", "''")
+            que_es = narrativas.get(tabla, {}).get("queEs")
+            desc = comentario(que_es) if que_es else FOCO[k].replace("'", "''")
             marca = " [append-only]" if tabla in APPEND_ONLY else ""
             sql.append(f"COMMENT ON TABLE {q(tabla)} IS "
                        f"'Módulo {k} — {MODULOS[k][0]}.{marca} {desc}';")

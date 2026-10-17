@@ -14,8 +14,8 @@ CREATE TABLE IF NOT EXISTS garantia.subrogacion (
   CONSTRAINT pk_subrogacion PRIMARY KEY (id)
 );
 
-COMMENT ON TABLE garantia.subrogacion IS 'Módulo 08 — Garantía, Incumplimiento, Cobranza y Sanciones. El grupo no se detiene, pero la deuda no se perdona sola';
-COMMENT ON COLUMN garantia.subrogacion.id IS 'PK';
+COMMENT ON TABLE garantia.subrogacion IS 'Módulo 08 — Garantía, Incumplimiento, Cobranza y Sanciones. La formalización del cambio de acreedor: el fondo pagó, ahora el fondo es el acreedor.';
+COMMENT ON COLUMN garantia.subrogacion.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN garantia.subrogacion.cobertura_id IS 'FK, UQ';
 COMMENT ON COLUMN garantia.subrogacion.deuda_id IS 'FK, UQ';
 COMMENT ON COLUMN garantia.subrogacion.documento_respaldo_url IS 'NULL';

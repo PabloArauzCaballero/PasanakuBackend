@@ -17,8 +17,8 @@ CREATE TABLE IF NOT EXISTS entregas.deduccion_entrega (
   CONSTRAINT ck_deduccion_entrega_monto CHECK (monto > 0)
 );
 
-COMMENT ON TABLE entregas.deduccion_entrega IS 'Módulo 04 — Entregas de Fondo. Que la bolsa llegue completa, a la persona correcta, una sola vez';
-COMMENT ON COLUMN entregas.deduccion_entrega.id IS 'PK';
+COMMENT ON TABLE entregas.deduccion_entrega IS 'Módulo 04 — Entregas de Fondo. Cada descuento aplicado a la bolsa antes de entregarla, con su monto y su origen.';
+COMMENT ON COLUMN entregas.deduccion_entrega.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN entregas.deduccion_entrega.entrega_id IS 'FK, IDX';
 COMMENT ON COLUMN entregas.deduccion_entrega.tipo IS 'CK';
 COMMENT ON COLUMN entregas.deduccion_entrega.monto IS 'CK: > 0';

@@ -17,8 +17,8 @@ CREATE TABLE IF NOT EXISTS grupos.solicitud_ingreso (
   CONSTRAINT ck_solicitud_ingreso_estado CHECK (estado IN ('APROBADA', 'EXPIRADA', 'PENDIENTE', 'RECHAZADA'))
 );
 
-COMMENT ON TABLE grupos.solicitud_ingreso IS 'Módulo 02 — Grupos, Cupos, Turnos y Gobernanza. Reglas del juego, orden de cobro y decisiones colectivas';
-COMMENT ON COLUMN grupos.solicitud_ingreso.id IS 'PK';
+COMMENT ON TABLE grupos.solicitud_ingreso IS 'Módulo 02 — Grupos, Cupos, Turnos y Gobernanza. La postulación de un usuario a un grupo abierto.';
+COMMENT ON COLUMN grupos.solicitud_ingreso.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN grupos.solicitud_ingreso.grupo_id IS 'FK, IDX';
 COMMENT ON COLUMN grupos.solicitud_ingreso.usuario_id IS 'FK, IDX';
 COMMENT ON COLUMN grupos.solicitud_ingreso.mensaje IS 'NULL';

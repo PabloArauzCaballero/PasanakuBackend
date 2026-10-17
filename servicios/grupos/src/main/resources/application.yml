@@ -22,6 +22,12 @@ spring:
       auto-offset-reset: earliest
 
 aportaya:
+  # Tableros (CU-98): relleno de indicadores al arrancar. 0 = no rellena (produccion); dev y TEST lo piden en el compose
+  # para que el tablero tenga serie con la base sembrada. El diario corre siempre (aportaya.indicadores.cron).
+  indicadores:
+    relleno:
+      meses: ${INDICADORES_RELLENO_MESES:0}
+      dias: ${INDICADORES_RELLENO_DIAS:0}
   resiliencia:
     # Circuit breaker de los clientes hacia otros servicios (regla 98.2.3). Valores SINTETICOS del plan de
     # resiliencia (evidencia/carril-S2/DEUDA-circuit-breaker-clientes-http.md): no salen de medir trafico real.

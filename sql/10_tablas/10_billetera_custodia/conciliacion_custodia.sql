@@ -20,8 +20,8 @@ CREATE TABLE IF NOT EXISTS nucleo_financiero.conciliacion_custodia (
   CONSTRAINT ck_conciliacion_custodia_estado CHECK (estado IN ('CUADRADA', 'DESCUADRADA', 'EN_ANALISIS'))
 );
 
-COMMENT ON TABLE nucleo_financiero.conciliacion_custodia IS 'Módulo 10 — Billetera, Custodia y Dinero Electrónico. El saldo no se guarda: se deriva, y todos los días cuadra contra el banco';
-COMMENT ON COLUMN nucleo_financiero.conciliacion_custodia.id IS 'PK';
+COMMENT ON TABLE nucleo_financiero.conciliacion_custodia IS 'Módulo 10 — Billetera, Custodia y Dinero Electrónico. El cuadre diario entre lo que el sistema dice que la gente tiene y lo que el banco dice que hay.';
+COMMENT ON COLUMN nucleo_financiero.conciliacion_custodia.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN nucleo_financiero.conciliacion_custodia.cuenta_custodia_id IS 'FK, IDX';
 COMMENT ON COLUMN nucleo_financiero.conciliacion_custodia.cierre_diario_id IS 'FK, NULL, M3';
 COMMENT ON COLUMN nucleo_financiero.conciliacion_custodia.ejecutada_por IS 'FK, NULL';

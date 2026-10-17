@@ -38,8 +38,8 @@ CREATE TABLE IF NOT EXISTS identidad.token_verificacion (
   CONSTRAINT ck_token_verificacion_tipo_token CHECK (tipo_token IN ('OTP', 'ENLACE', 'REFRESCO'))
 );
 
-COMMENT ON TABLE identidad.token_verificacion IS 'Módulo 01 — Identidad, Usuarios y Seguridad. Saber con certeza a quién le estás confiando plata ajena';
-COMMENT ON COLUMN identidad.token_verificacion.id IS 'PK';
+COMMENT ON TABLE identidad.token_verificacion IS 'Módulo 01 — Identidad, Usuarios y Seguridad. Cualquier credencial de un solo uso y vida corta que el sistema emite para probar que alguien controla un canal (teléfono, correo) o para autorizar una acción puntual.';
+COMMENT ON COLUMN identidad.token_verificacion.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN identidad.token_verificacion.usuario_id IS 'FK, NULL, IDX';
 COMMENT ON COLUMN identidad.token_verificacion.politica_id IS 'FK';
 COMMENT ON COLUMN identidad.token_verificacion.dispositivo_id IS 'FK, NULL';
@@ -53,6 +53,7 @@ COMMENT ON COLUMN identidad.token_verificacion.consumido_en IS 'NULL';
 COMMENT ON COLUMN identidad.token_verificacion.invalidado_en IS 'NULL';
 COMMENT ON COLUMN identidad.token_verificacion.motivo_invalidacion IS 'NULL';
 COMMENT ON COLUMN identidad.token_verificacion.correlation_id IS 'IDX';
+COMMENT ON COLUMN identidad.token_verificacion.clave_idempotencia IS 'Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4).';
 COMMENT ON COLUMN identidad.token_verificacion.longitud IS 'NULL, subtipo OTP';
 COMMENT ON COLUMN identidad.token_verificacion.url_destino IS 'NULL, subtipo ENLACE';
 COMMENT ON COLUMN identidad.token_verificacion.firma_hmac IS 'NULL, subtipo ENLACE';

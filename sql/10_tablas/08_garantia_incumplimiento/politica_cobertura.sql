@@ -19,6 +19,12 @@ CREATE TABLE IF NOT EXISTS garantia.politica_cobertura (
   CONSTRAINT pk_politica_cobertura PRIMARY KEY (id)
 );
 
-COMMENT ON TABLE garantia.politica_cobertura IS 'Módulo 08 — Garantía, Incumplimiento, Cobranza y Sanciones. El grupo no se detiene, pero la deuda no se perdona sola';
-COMMENT ON COLUMN garantia.politica_cobertura.id IS 'PK';
+COMMENT ON TABLE garantia.politica_cobertura IS 'Módulo 08 — Garantía, Incumplimiento, Cobranza y Sanciones. Las reglas del fondo: cuánto se aporta, cuándo se activa la cobertura, cuánto cubre y con qué límites.';
+COMMENT ON COLUMN garantia.politica_cobertura.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN garantia.politica_cobertura.grupo_id IS 'FK, NULL';
+COMMENT ON COLUMN garantia.politica_cobertura.porcentaje_constitucion IS 'cuánto de cada aporte alimenta el fondo. Sube el costo del pasanaku, así que es un equilibrio entre seguridad y precio.';
+COMMENT ON COLUMN garantia.politica_cobertura.dias_mora_para_activar IS 'no se cubre al primer día de atraso. Si se cubriera de inmediato, el fondo pagaría por gente que simplemente se olvidó y va a pagar mañana, y se agotaría en meses.';
+COMMENT ON COLUMN garantia.politica_cobertura.tope_cobertura_por_periodo IS 'protege contra el colapso masivo. Si en un período fallan seis de doce, el fondo no puede vaciarse cubriéndolos a todos; ahí corresponde un plan de contingencia, no cobertura.';
+COMMENT ON COLUMN garantia.politica_cobertura.exige_aval_previo IS 'solo se cubre a quien tiene quién responda.';
+COMMENT ON COLUMN garantia.politica_cobertura.requiere_aprobacion_manual_desde IS 'montos grandes pasan por revisión humana.';
+COMMENT ON COLUMN garantia.politica_cobertura.vigente_desde IS 'Desde cuándo rige esta versión de la fila: las condiciones se versionan, no se pisan.';

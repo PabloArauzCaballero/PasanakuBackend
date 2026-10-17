@@ -14,5 +14,6 @@ CREATE TABLE IF NOT EXISTS grupos.criterio_emparejamiento (
   CONSTRAINT pk_criterio_emparejamiento PRIMARY KEY (id)
 );
 
-COMMENT ON TABLE grupos.criterio_emparejamiento IS 'Módulo 02 — Grupos, Cupos, Turnos y Gobernanza. Reglas del juego, orden de cobro y decisiones colectivas';
-COMMENT ON COLUMN grupos.criterio_emparejamiento.id IS 'PK';
+COMMENT ON TABLE grupos.criterio_emparejamiento IS 'Módulo 02 — Grupos, Cupos, Turnos y Gobernanza. Los pesos con los que el motor decide qué tan compatibles son dos postulaciones: reputación, monto, geografía, historial común.';
+COMMENT ON COLUMN grupos.criterio_emparejamiento.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
+COMMENT ON COLUMN grupos.criterio_emparejamiento.vigente_desde IS 'Desde cuándo rige esta versión de la fila: las condiciones se versionan, no se pisan.';

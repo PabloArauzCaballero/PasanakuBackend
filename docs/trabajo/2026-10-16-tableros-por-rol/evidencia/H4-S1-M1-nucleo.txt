@@ -1,0 +1,6 @@
+CUIndicadoresFinancierosTest 5/5 (cuadre del mayor, reverso descuenta, SIN_DATOS, otra moneda, outbox) · ArranqueTest 1/1
+nucleo-financiero: test=84 integrationTest=488, 0 fallas
+PeriodoDeTableroTest 4/4; comun-dominio check (cobertura) verde
+comun-mensajeria check exit=0 (PublicacionDeIndicadores autoconfigurada solo con CalculadorDeIndicadores)
+Mayor sembrado (volumen): RECARGA 96200.00 · comisiones 4.1.01 HABER 114.53 · sin RETIRO/RECARGO_MORA en semilla -> SIN_DATOS
+comun-mensajeria: test+integrationTest+jacocoTestCoverageVerification exit=0 tras PublicacionDeIndicadoresRepositorioTest 4/4 (antes: ramas 0.59 < 0.64, FAIL observado y corregido)

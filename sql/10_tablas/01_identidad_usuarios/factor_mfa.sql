@@ -20,8 +20,8 @@ CREATE TABLE IF NOT EXISTS identidad.factor_mfa (
 ALTER TABLE identidad.factor_mfa DROP CONSTRAINT IF EXISTS ck_factor_mfa_tipo;
 ALTER TABLE identidad.factor_mfa ADD CONSTRAINT ck_factor_mfa_tipo CHECK (tipo IN ('CORREO', 'RESPALDO', 'SMS', 'TOTP', 'WHATSAPP'));
 
-COMMENT ON TABLE identidad.factor_mfa IS 'Módulo 01 — Identidad, Usuarios y Seguridad. Saber con certeza a quién le estás confiando plata ajena';
-COMMENT ON COLUMN identidad.factor_mfa.id IS 'PK';
+COMMENT ON TABLE identidad.factor_mfa IS 'Módulo 01 — Identidad, Usuarios y Seguridad. El segundo factor: TOTP, SMS, WhatsApp o códigos de respaldo.';
+COMMENT ON COLUMN identidad.factor_mfa.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN identidad.factor_mfa.usuario_id IS 'FK, IDX';
 COMMENT ON COLUMN identidad.factor_mfa.tipo IS 'CK';
 COMMENT ON COLUMN identidad.factor_mfa.confirmado_en IS 'NULL';

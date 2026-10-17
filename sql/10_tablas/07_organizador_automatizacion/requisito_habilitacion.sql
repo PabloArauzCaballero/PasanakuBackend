@@ -16,8 +16,8 @@ CREATE TABLE IF NOT EXISTS organizador.requisito_habilitacion (
   CONSTRAINT ck_requisito_habilitacion_nivel_requerido CHECK (nivel_requerido IN ('APRENDIZ', 'ESTANDAR', 'MAESTRO', 'SENIOR'))
 );
 
-COMMENT ON TABLE organizador.requisito_habilitacion IS 'Módulo 07 — Organizador y Automatización. Administrar es un rol, no un negocio: el organizador no cobra ni custodia';
-COMMENT ON COLUMN organizador.requisito_habilitacion.id IS 'PK';
+COMMENT ON TABLE organizador.requisito_habilitacion IS 'Módulo 07 — Organizador y Automatización. El catálogo de requisitos por nivel: KYC, reputación, antigüedad, capacitación, garantía económica.';
+COMMENT ON COLUMN organizador.requisito_habilitacion.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN organizador.requisito_habilitacion.codigo IS 'UQ';
 COMMENT ON COLUMN organizador.requisito_habilitacion.tipo IS 'CK';
 COMMENT ON COLUMN organizador.requisito_habilitacion.nivel_requerido IS 'CK';

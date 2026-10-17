@@ -16,9 +16,10 @@ CREATE TABLE IF NOT EXISTS catalogo.impuesto (
   CONSTRAINT ck_impuesto_tipo_calculo CHECK (tipo_calculo IN ('INCLUIDO_EN_PRECIO', 'SOBRE_PRECIO'))
 );
 
-COMMENT ON TABLE catalogo.impuesto IS 'Módulo 11 — Tarifas, Comisiones, Impuestos y Facturación. La política de cobro es dato, no código: se cambia con un seeder';
-COMMENT ON COLUMN catalogo.impuesto.id IS 'PK';
+COMMENT ON TABLE catalogo.impuesto IS 'Módulo 11 — Tarifas, Comisiones, Impuestos y Facturación. Las alícuotas vigentes y su aplicación a cada devengo.';
+COMMENT ON COLUMN catalogo.impuesto.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN catalogo.impuesto.cuenta_contable_id IS 'FK, NULL, M3';
 COMMENT ON COLUMN catalogo.impuesto.codigo IS 'UQ+vigente_desde';
 COMMENT ON COLUMN catalogo.impuesto.tipo_calculo IS 'CK';
-COMMENT ON COLUMN catalogo.impuesto.vigente_hasta IS 'NULL';
+COMMENT ON COLUMN catalogo.impuesto.vigente_desde IS 'Desde cuándo rige esta versión de la fila: las condiciones se versionan, no se pisan.';
+COMMENT ON COLUMN catalogo.impuesto.vigente_hasta IS 'Hasta cuándo rigió esta versión; vacía mientras sigue vigente.';

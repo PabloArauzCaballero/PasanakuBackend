@@ -1,0 +1,33 @@
+H8.S2.M1 + H8.S3.M1 — flujo aporte → mora → recargo → cobertura → recuperación · 2026-10-17
+
+$ python3 scripts/validar_flujos.py   → exit 0
+  OK    · aporte-mora-cobertura.yaml: 12 pasos, 6 validos, 7 limite, 7 invalidos
+  OK    · recarga-y-retiro.yaml: 6 pasos, 3 validos, 5 limite, 6 invalidos
+  AVISO · recarga-y-retiro.yaml: paso `instruir-pago` SIN CABLEAR — H8-01 · Ningún trabajo, endpoint ni consumidor llama a RetirosConProveedor.despachar ni a CU11RetirarSaldo.instruirPago en producción; el evento nucleo_financiero.retiro_autorizado se publica y nadie lo consume. Una orden AUTORIZADA queda retenida sin instruirse. Decisión pendiente (A9): instrucción automática o de un operador.
+
+Sin fallas.
+
+Prueba de integración del flujo (D15): cada tramo en su servicio dueño contra Postgres real, y cada salto entre servicios con su PACTO verificado de los dos lados. Hallazgo: los eventos que H1 cambió (aporte_cobrado+tipo, aporte_aplicado+destino) y el nuevo consumo de transaccion_reversada en garantia NO tenían pacto (regla 98.1.4); se agregaron:
+  contratos/pactos/aportes-nucleo-financiero-aporte-cobrado.json
+  contratos/pactos/aportes-nucleo-financiero.json
+  contratos/pactos/inversiones-nucleo-financiero.json
+  contratos/pactos/nucleo-financiero-entregas.json
+  contratos/pactos/nucleo-financiero-garantia-aporte-aplicado.json
+  contratos/pactos/nucleo-financiero-garantia-transaccion-reversada.json
+
+$ ./gradlew (aportes, nucleo-financiero, garantia: pruebas tocadas)   → exit 0
+  TEST-bo.aportaya.aportes.CU21EventoDeAporteTest.xml: tests="4" skipped="0" failures="0" errors="0"
+      testcase name="cuadre: pacto con nucleo-financiero · productor: el cobro de un recargo publica TODOS los campos del pacto aporte_cobrado, con el importe en dos decimales y el tipo RECARGO_MORA del ejemplo"
+  TEST-bo.aportaya.nucleofinanciero.CUConsumoDeRecargoTest.xml: tests="9" skipped="0" failures="0" errors="0"
+      testcase name="pacto con garantia · productor: aplicar un recargo publica aporte_aplicado con TODOS los campos del pacto y destino FONDO_GARANTIA"
+      testcase name="pacto con garantia · productor: reversar un recargo publica transaccion_reversada con TODOS los campos del pacto, la original y el reverso"
+  TEST-bo.aportaya.nucleofinanciero.consumo.ConsumidorDeAportesKafkaTest.xml: tests="4" skipped="0" failures="0" errors="0"
+      testcase name="pacto con aportes · consumidor: lee el ejemplo de aporte_cobrado con su tipo RECARGO_MORA y todo lo que exige"
+  TEST-bo.aportaya.garantia.consumo.ConsumidorDeAportesAplicadosKafkaTest.xml: tests="4" skipped="0" failures="0" errors="0"
+      testcase name="pacto con nucleo-financiero · consumidor: lee el ejemplo de aporte_aplicado con destino FONDO_GARANTIA"
+  TEST-bo.aportaya.garantia.consumo.ConsumidorDeReversosKafkaTest.xml: tests="4" skipped="0" failures="0" errors="0"
+      testcase name="pacto con nucleo-financiero · consumidor: lee el ejemplo de transaccion_reversada con la original y el reverso"
+
+Fallo durante la verificación: cumpleElPactoConGarantia en rojo por 'El fondo de garantia no tiene billetera en BOB' → TEST_BUG (faltaba la fixtura fondo() que usan las demás pruebas de la clase); corregido y re-ejecutado.
+Corrección de datos: en el pacto de reverso el ejemplo decía tipo TOTAL (no existe); el modelo admite ANULACION | CONTRACARGO | ERROR_OPERATIVO | ORDEN_AUTORIDAD (sql/10_tablas/10_billetera_custodia/reverso_transaccion.sql:17).
+No cubierto: Kafka real con los procesos juntos (H9).

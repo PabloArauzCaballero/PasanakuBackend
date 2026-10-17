@@ -1,0 +1,138 @@
+{
+  "servicio": "auditoria",
+  "operacion": "obtenerCatalogoDeDatos",
+  "metodo": "get",
+  "ruta": "/indicadores/catalogo-de-datos",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "esquemas": [
+          "esquemas[0]"
+        ],
+        "tablas": [
+          {
+            "tabla": "tabla",
+            "esquema": "esquema",
+            "modulo": "modulo",
+            "nombreModulo": "nombreModulo",
+            "servicio": "servicio",
+            "appendOnly": true,
+            "negocio": {
+              "queEs": "queEs",
+              "negocio": "negocio",
+              "porQue": "porQue"
+            },
+            "notaDeSistema": "notaDeSistema",
+            "reglas": [
+              "reglas[0]"
+            ],
+            "columnas": [
+              {
+                "nombre": "nombre",
+                "tipo": "tipo",
+                "nulable": true,
+                "pk": true,
+                "referencia": "referencia",
+                "negocio": "negocio",
+                "origenNegocio": "ficha",
+                "sistema": "sistema",
+                "sensibilidad": "NINGUNA"
+              }
+            ],
+            "relaciones": {
+              "salientes": [
+                {
+                  "columna": "columna",
+                  "tabla": "tabla",
+                  "esquema": "esquema"
+                }
+              ],
+              "entrantes": [
+                {
+                  "columna": "columna",
+                  "tabla": "tabla",
+                  "esquema": "esquema"
+                }
+              ]
+            },
+            "sistema": "sistema"
+          }
+        ]
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "esquemas": [],
+        "tablas": []
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "esquemas": [
+          "esquemas[0]"
+        ],
+        "tablas": [
+          {
+            "tabla": "tabla",
+            "esquema": "esquema",
+            "modulo": "modulo",
+            "nombreModulo": "nombreModulo",
+            "servicio": "servicio",
+            "appendOnly": true,
+            "negocio": {
+              "queEs": "queEs",
+              "negocio": "negocio",
+              "porQue": "porQue"
+            },
+            "notaDeSistema": "notaDeSistema",
+            "reglas": [
+              "reglas[0]"
+            ],
+            "columnas": [
+              {
+                "nombre": "nombre",
+                "tipo": "tipo",
+                "nulable": true,
+                "pk": true,
+                "referencia": "referencia",
+                "negocio": "negocio",
+                "origenNegocio": "ficha",
+                "sistema": "sistema",
+                "sensibilidad": "NINGUNA"
+              }
+            ],
+            "relaciones": {
+              "salientes": [
+                {
+                  "columna": "columna",
+                  "tabla": "tabla",
+                  "esquema": "esquema"
+                }
+              ],
+              "entrantes": [
+                {
+                  "columna": "columna",
+                  "tabla": "tabla",
+                  "esquema": "esquema"
+                }
+              ]
+            },
+            "sistema": "sistema"
+          }
+        ]
+      }
+    },
+    "rechazo": {
+      "estado": 401,
+      "cuerpo": {
+        "codigo": "AP-CU07-01",
+        "mensaje": "Identidad no verificada",
+        "detalle": {},
+        "trazaId": "traza-obtenerCatalogoDeDatos-rechazo"
+      }
+    }
+  }
+}

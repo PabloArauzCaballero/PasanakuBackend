@@ -1,0 +1,13 @@
+$ ./gradlew :servicios:nucleo-financiero:integrationTest --tests "*CUConsumoDeRecargoTest"
+tests="6" skipped="0" failures="0" errors="0" 
+testcase name="cuadre: un recargo de Bs 25 cobrado baja la billetera del participante, sube la del fondo, NO mueve la del grupo, y el mayor asienta DEBE usuarios / HABER reserva del fondo por 25"
+testcase name="rechaza un recargo sin billetera activa del fondo (AP-CU12-02): el recargo no cae en el pozo, no se marca, y el reproceso lo aplica cuando el fondo existe"
+testcase name="rechaza un recargo sin mapeo contable del fondo (AP-CU24-02): no se mueve nada ni se marca el evento"
+testcase name="compatibilidad: un evento SIN tipo (productor anterior) sigue yendo al grupo, como siempre"
+testcase name="evento duplicado: el mismo recargo dos veces (mismo id de evento) mueve el dinero UNA vez"
+testcase name="reintento: el productor republica el mismo pago con OTRO id de evento · un solo asiento, misma transaccion"
+ASIENTO | recargo pago | DEBE SU.BOB.5e31f8 25.00 | HABER RR.BOB.5504dc 25.00 | participante 100.00 -> 75.00 | fondo +25.00 | grupo 0
+(los codigos de cuenta SU/RR son del plan de prueba; en TEST, RESERVA_RESPALDO -> 9.1.02 sintetico)
+
+$ ./gradlew :servicios:nucleo-financiero:test :servicios:nucleo-financiero:integrationTest
+BUILD SUCCESSFUL · test: 84/0 fallas · integrationTest: 482/0 fallas

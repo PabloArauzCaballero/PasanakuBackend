@@ -20,8 +20,8 @@ CREATE TABLE IF NOT EXISTS garantia.accion_cobranza (
   CONSTRAINT ck_accion_cobranza_resultado CHECK (resultado IN ('CONTACTADO_SE_COMPROMETE', 'CONTACTADO_SE_NIEGA', 'DISPUTA_LA_DEUDA', 'PAGO_INMEDIATO', 'SIN_RESPUESTA', 'SOLICITA_PLAN', 'TELEFONO_ERRONEO'))
 );
 
-COMMENT ON TABLE garantia.accion_cobranza IS 'Módulo 08 — Garantía, Incumplimiento, Cobranza y Sanciones. El grupo no se detiene, pero la deuda no se perdona sola';
-COMMENT ON COLUMN garantia.accion_cobranza.id IS 'PK';
+COMMENT ON TABLE garantia.accion_cobranza IS 'Módulo 08 — Garantía, Incumplimiento, Cobranza y Sanciones. Cada intento de contacto, con su resultado y su costo.';
+COMMENT ON COLUMN garantia.accion_cobranza.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN garantia.accion_cobranza.gestion_id IS 'FK, IDX';
 COMMENT ON COLUMN garantia.accion_cobranza.notificacion_id IS 'FK, NULL, M5';
 COMMENT ON COLUMN garantia.accion_cobranza.etapa IS 'CK';

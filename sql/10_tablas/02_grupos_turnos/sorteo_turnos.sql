@@ -21,8 +21,8 @@ CREATE TABLE IF NOT EXISTS grupos.sorteo_turnos (
   CONSTRAINT ck_sorteo_turnos_estado CHECK (estado IN ('ANULADO', 'COMPROMETIDO', 'REVELADO'))
 );
 
-COMMENT ON TABLE grupos.sorteo_turnos IS 'Módulo 02 — Grupos, Cupos, Turnos y Gobernanza. Reglas del juego, orden de cobro y decisiones colectivas';
-COMMENT ON COLUMN grupos.sorteo_turnos.id IS 'PK';
+COMMENT ON TABLE grupos.sorteo_turnos IS 'Módulo 02 — Grupos, Cupos, Turnos y Gobernanza. El sorteo del orden de cobro, con esquema criptográfico *commit-reveal* verificable.';
+COMMENT ON COLUMN grupos.sorteo_turnos.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN grupos.sorteo_turnos.grupo_id IS 'FK parcial';
 COMMENT ON COLUMN grupos.sorteo_turnos.estado IS 'CK, IDX';
 COMMENT ON COLUMN grupos.sorteo_turnos.aportes_entropia IS 'NULL';

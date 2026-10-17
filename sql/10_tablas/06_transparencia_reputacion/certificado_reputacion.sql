@@ -16,8 +16,8 @@ CREATE TABLE IF NOT EXISTS transparencia.certificado_reputacion (
   CONSTRAINT pk_certificado_reputacion PRIMARY KEY (id)
 );
 
-COMMENT ON TABLE transparencia.certificado_reputacion IS 'Módulo 06 — Transparencia y Reputación. Que nadie tenga que "creerle" al organizador';
-COMMENT ON COLUMN transparencia.certificado_reputacion.id IS 'PK';
+COMMENT ON TABLE transparencia.certificado_reputacion IS 'Módulo 06 — Transparencia y Reputación. Un documento firmado digitalmente que acredita el historial del usuario, verificable públicamente.';
+COMMENT ON COLUMN transparencia.certificado_reputacion.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN transparencia.certificado_reputacion.usuario_id IS 'FK, IDX';
 COMMENT ON COLUMN transparencia.certificado_reputacion.snapshot_id IS 'FK, UQ';
 COMMENT ON COLUMN transparencia.certificado_reputacion.codigo_verificacion IS 'UQ';

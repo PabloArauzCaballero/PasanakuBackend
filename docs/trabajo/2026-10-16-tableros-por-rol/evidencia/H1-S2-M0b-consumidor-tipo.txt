@@ -1,0 +1,6 @@
+name="bo.aportaya.nucleofinanciero.consumo.ConsumidorDeAportesKafkaTest" tests="3" skipped="0" failures="0" errors="0" 
+name="bo.aportaya.nucleofinanciero.CUConsumoDeAportesConcurrenciaTest" tests="2" skipped="0" failures="0" errors="0" 
+name="bo.aportaya.nucleofinanciero.CUConsumoDeAportesRechazosTest" tests="9" skipped="0" failures="0" errors="0" 
+name="bo.aportaya.nucleofinanciero.CUConsumoDeAportesTest" tests="6" skipped="0" failures="0" errors="0" 
+name="bo.aportaya.nucleofinanciero.CUAporteNoAplicadoTest" tests="5" skipped="0" failures="0" errors="0" 
+name="bo.aportaya.nucleofinanciero.CUAperturaYAporteTest" tests="2" skipped="0" failures="0" errors="0" 

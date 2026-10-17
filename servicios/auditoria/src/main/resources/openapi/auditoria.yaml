@@ -252,6 +252,60 @@ paths:
           # AP-CU98-01 PERIODO_NO_CERRADO   · AP-CU98-02 SIN_DEFINICION
           # AP-CU98-03 SIN_META_DEL_PERIODO · AP-CU98-04 MUESTRA_INSUFICIENTE
           # AP-CU98-05 INDICADOR_DUPLICADO
+        '403':
+          description: >-
+            Sin AUDITORIA_LEER ni ningun permiso de tablero. Con un permiso de tablero solo
+            vuelven sus familias (TABLERO_FINANCIERO_VER: FINANZAS y RIESGO;
+            TABLERO_COMERCIAL_VER: NEGOCIO; TABLERO_SISTEMAS_VER: OPERACION): el filtro es del servidor.
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+
+  /indicadores/operacion/endpoints:
+    get:
+      operationId: listarEndpointsDelDia      # tableros por rol · sistemas (D4)
+      summary: Los endpoints tocados hoy, con solicitudes, errores y p95
+      description: >-
+        Vista en VIVO (desde la medianoche de La Paz hasta ahora) del trafico HTTP que el Collector OpenTelemetry
+        entrega a Prometheus. No es un indicador del catalogo de CU-98: es el desglose que acompaña al tablero de
+        sistemas. La ruta es la PLANTILLA (/grupos/{id}), nunca la URL con identificadores. Orden determinista:
+        solicitudes descendente, despues servicio, metodo y ruta. `fuenteDisponible: false` significa que
+        Prometheus no respondio (no se sabe), distinto de una lista vacia (nadie llamo). Exige TABLERO_SISTEMAS_VER
+        o AUDITORIA_LEER.
+      parameters:
+        - name: limite
+          in: query
+          required: false
+          schema: { type: integer, minimum: 1, maximum: 100, default: 25 }
+      responses:
+        '200':
+          description: El desglose del dia
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaEndpointsDelDia' }
+        '403':
+          description: Sin TABLERO_SISTEMAS_VER ni AUDITORIA_LEER
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+
+  /indicadores/catalogo-de-datos:
+    get:
+      operationId: obtenerCatalogoDeDatos      # tableros por rol · H7 catalogo de datos (D14)
+      summary: El catalogo de datos de toda la plataforma
+      description: >-
+        Cada esquema, tabla y columna con su explicacion de negocio (las fichas de docs/entidades) y de sistema
+        (derivada del modelo: servicio dueño, append-only, claves, reglas nombradas), las relaciones y la
+        sensibilidad de cada columna. Lo genera scripts/catalogo_de_datos.py; no se calcula en la peticion. Vive bajo /indicadores, junto al
+        desglose de sistemas, porque es parte del tablero de sistemas y el gateway ya enruta ese prefijo a auditoria.
+        Describe el esquema completo de la base, por eso NO es un archivo estatico del backoffice: exige
+        TABLERO_SISTEMAS_VER o AUDITORIA_LEER. No contiene datos de personas, solo la estructura.
+      responses:
+        '200':
+          description: El catalogo vigente
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CatalogoDeDatos' }
+        '403':
+          description: Sin TABLERO_SISTEMAS_VER ni AUDITORIA_LEER
         '401':
           $ref: '#/components/responses/NoAutenticado'
 
@@ -266,6 +320,90 @@ components:
         seguro, y la clave se valida ANTES de escribir (invariante 7).
       schema: { type: string, format: uuid }
   schemas:
+    CatalogoDeDatos:
+      type: object
+      additionalProperties: false
+      required: [esquemas, tablas]
+      properties:
+        esquemas: { type: array, items: { type: string } }
+        tablas: { type: array, items: { $ref: '#/components/schemas/TablaDelCatalogo' } }
+    TablaDelCatalogo:
+      type: object
+      additionalProperties: false
+      required: [tabla, esquema, modulo, nombreModulo, appendOnly, negocio, reglas, columnas, relaciones, sistema]
+      properties:
+        tabla: { type: string }
+        esquema: { type: string }
+        modulo: { type: string, description: 'Modulo del modelo (01..15)' }
+        nombreModulo: { type: string }
+        servicio: { type: string, description: 'Servicio dueño; ausente en los esquemas compartidos catalogo y comun' }
+        appendOnly: { type: boolean }
+        negocio: { $ref: '#/components/schemas/NegocioDeTabla' }
+        notaDeSistema: { type: string, description: 'El parrafo «A nivel de sistema» de la ficha, si lo tiene' }
+        reglas: { type: array, items: { type: string }, description: 'Reglas nombradas de docs/Restricciones.md' }
+        columnas: { type: array, items: { $ref: '#/components/schemas/ColumnaDelCatalogo' } }
+        relaciones: { $ref: '#/components/schemas/RelacionesDeTabla' }
+        sistema: { type: string, description: 'Narrativa de sistema derivada del modelo' }
+    NegocioDeTabla:
+      type: object
+      additionalProperties: false
+      properties:
+        queEs: { type: string }
+        negocio: { type: string }
+        porQue: { type: string }
+    ColumnaDelCatalogo:
+      type: object
+      additionalProperties: false
+      required: [nombre, tipo, nulable, pk, sistema, sensibilidad]
+      properties:
+        nombre: { type: string }
+        tipo: { type: string }
+        nulable: { type: boolean }
+        pk: { type: boolean }
+        referencia: { type: string, description: 'Tabla a la que apunta la clave foranea' }
+        negocio: { type: string }
+        origenNegocio: { type: string, enum: [ficha, convencion] }
+        sistema: { type: string }
+        sensibilidad: { type: string, enum: [NINGUNA, PERSONAL, FINANCIERO, SECRETO, DERIVADO] }
+    RelacionesDeTabla:
+      type: object
+      additionalProperties: false
+      required: [salientes, entrantes]
+      properties:
+        salientes: { type: array, items: { $ref: '#/components/schemas/RelacionDelCatalogo' } }
+        entrantes: { type: array, items: { $ref: '#/components/schemas/RelacionDelCatalogo' } }
+    RelacionDelCatalogo:
+      type: object
+      additionalProperties: false
+      required: [columna, tabla, esquema]
+      properties:
+        columna: { type: string }
+        tabla: { type: string }
+        esquema: { type: string }
+    SalidaEndpointsDelDia:
+      type: object
+      additionalProperties: false
+      required: [desde, hasta, fuenteDisponible, endpoints]
+      properties:
+        desde: { type: string, format: date-time }
+        hasta: { type: string, format: date-time }
+        fuenteDisponible: { type: boolean }
+        endpoints:
+          type: array
+          maxItems: 100
+          items: { $ref: '#/components/schemas/EndpointDelDia' }
+    EndpointDelDia:
+      type: object
+      additionalProperties: false
+      required: [servicio, metodo, ruta, solicitudes, errores4xx, errores5xx]
+      properties:
+        servicio: { type: string, maxLength: 60 }
+        metodo: { type: string, maxLength: 10 }
+        ruta: { type: string, maxLength: 200, description: 'Plantilla de la ruta, sin identificadores' }
+        solicitudes: { type: integer, format: int64 }
+        errores4xx: { type: integer, format: int64 }
+        errores5xx: { type: integer, format: int64 }
+        p95Ms: { type: string, description: 'Percentil 95 en milisegundos, cadena decimal; ausente si no hay histograma' }
     PaginaDeDefinicionesDeReporte:
       type: object
       additionalProperties: false

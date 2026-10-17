@@ -18,8 +18,8 @@ CREATE TABLE IF NOT EXISTS aportes.excepcion_conciliacion (
   CONSTRAINT ck_excepcion_conciliacion_estado CHECK (estado IN ('ABIERTA', 'EN_GESTION', 'ESCALADA', 'RESUELTA'))
 );
 
-COMMENT ON TABLE aportes.excepcion_conciliacion IS 'Módulo 03 — Aportes, Pagos QR y Conciliación. Que "pagué" signifique "el banco lo confirmó"';
-COMMENT ON COLUMN aportes.excepcion_conciliacion.id IS 'PK';
+COMMENT ON TABLE aportes.excepcion_conciliacion IS 'Módulo 03 — Aportes, Pagos QR y Conciliación. Cada descuadre detectado, tipificado y asignado a alguien para resolver.';
+COMMENT ON COLUMN aportes.excepcion_conciliacion.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN aportes.excepcion_conciliacion.conciliacion_id IS 'FK, IDX';
 COMMENT ON COLUMN aportes.excepcion_conciliacion.tipo IS 'CK';
 COMMENT ON COLUMN aportes.excepcion_conciliacion.estado IS 'CK, IDX';
