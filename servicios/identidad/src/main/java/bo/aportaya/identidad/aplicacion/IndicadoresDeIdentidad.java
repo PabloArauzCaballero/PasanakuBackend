@@ -11,7 +11,10 @@ import java.util.List;
 import org.jooq.DSLContext;
 import org.springframework.stereotype.Component;
 
-/** Tableros · NEGOCIO: usuarios nuevos (paso 1 del embudo) y KYC aprobados (paso 2), por fecha del hecho. */
+/**
+ * Tableros · NEGOCIO: usuarios nuevos (paso 1 del embudo) y KYC aprobados (paso 2), por fecha del hecho; y OPERACION:
+ * personas con una sesion usada en el periodo.
+ */
 @Component
 public class IndicadoresDeIdentidad implements CalculadorDeIndicadores {
 
@@ -27,7 +30,9 @@ public class IndicadoresDeIdentidad implements CalculadorDeIndicadores {
         var hasta = periodo.rango().fin();
         return List.of(
                 conteo("USUARIOS_NUEVOS", "Usuarios nuevos", repositorio.registrados(dsl, desde, hasta)),
-                conteo("EMBUDO_KYC_APROBADO", "KYC aprobados", repositorio.kycAprobados(dsl, desde, hasta)));
+                conteo("EMBUDO_KYC_APROBADO", "KYC aprobados", repositorio.kycAprobados(dsl, desde, hasta)),
+                // OPERACION (tablero de sistemas, D5): quienes usaron la plataforma en el periodo.
+                conteo("USUARIOS_ACTIVOS_HOY", "Usuarios activos", repositorio.activos(dsl, desde, hasta)));
     }
 
     private static Calculado conteo(String codigo, String nombre, long cuantos) {
