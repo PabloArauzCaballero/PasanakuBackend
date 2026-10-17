@@ -11,7 +11,7 @@ const CATALOGO: Readonly<Record<string, string>> = {
   'AP-CU01-09': 'Faltan fotos. No se aprueba un expediente que no se puede mirar entero.',
   'AP-CU01-10': 'El documento no tiene fecha de vencimiento: no se puede comprobar que esté vigente.',
   'AP-CU01-11': 'El documento está vencido. No se aprueba con un documento vencido.',
-  'AP-CU04-01': 'El teléfono o la contraseña no coinciden.',
+  'AP-CU04-01': 'El correo, el teléfono o la contraseña no coinciden.',
   'AP-CU04-02': 'La cuenta está bloqueada por intentos fallidos. Esperá o pedí que la desbloqueen.',
   'AP-CU04-03': 'Ingresá el código de verificación para terminar de entrar.',
   // El backend usa el mismo código para un código equivocado y uno vencido (CU04Autenticar).

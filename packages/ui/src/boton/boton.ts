@@ -5,8 +5,8 @@ export type VarianteDeBoton = 'primario' | 'secundario' | 'fantasma' | 'peligro'
 export type TamanoDeBoton = 'sm' | 'base' | 'lg'
 
 /**
- * El único botón. **Naranja = acción** y hay uno por pantalla: el primario. Los demás
- * son verdes, fantasma o peligro. Cargando: mantiene el ancho, muestra el girador y
+ * El único botón. **El color de acción (`--accent`) = acción** y hay uno por pantalla: el
+ * primario. Los demás son verde sólido, fantasma o peligro; todos planos. Cargando: mantiene el ancho, muestra el girador y
  * queda deshabilitado; el texto se acorta antes que desbordar.
  */
 @Component({
@@ -33,38 +33,24 @@ export type TamanoDeBoton = 'sm' | 'base' | 'lg'
     :host(.t-sm) button { min-height: var(--area-tactil); padding: 0 var(--s3); font-size: .9em; }
     :host(.t-lg) button { min-height: calc(var(--s7) + var(--s2)); padding: 0 var(--s6); font-size: 1.05em; }
 
-    /* Con relleno: degradado sutil del mismo color, filo de luz arriba y sombra en dos
-       capas teñida con el color del botón. Al pasar el mouse se eleva; al apretar baja
-       y la sombra se recoge. */
+    /* Con relleno: color plano y una sombra neutra mínima, la identidad institucional que
+       ya tiene la app (2026-10-15-visual-bancario). Sin degradé, sin brillo que cruza y
+       sin sombra teñida: al pasar el mouse se oscurece apenas; al apretar, baja. */
     :host(.v-primario), :host(.v-secundario), :host(.v-peligro) { --relleno: 1; }
     :host(.v-primario) { --c: var(--accent); --tinta: var(--accent-ink); }
     :host(.v-peligro) { --c: var(--rojo-solido); --tinta: var(--sobre-rojo-solido); }
     :host(.v-primario) button:is(:not(:disabled), [aria-busy]), :host(.v-secundario) button:is(:not(:disabled), [aria-busy]), :host(.v-peligro) button:is(:not(:disabled), [aria-busy]) {
-      color: var(--tinta);
-      background: linear-gradient(to bottom, color-mix(in oklab, var(--c), var(--white) 10%), color-mix(in oklab, var(--c), var(--ink) 10%));
-      box-shadow: inset 0 var(--borde-fino) 0 color-mix(in oklab, var(--white) 28%, transparent), 0 var(--borde-desfase) var(--s1) color-mix(in oklab, var(--c) 30%, transparent), 0 var(--s2) calc(var(--s5) - var(--borde-desfase)) calc(-1 * var(--s1)) color-mix(in oklab, var(--c) 38%, transparent);
+      color: var(--tinta); background: var(--c); box-shadow: var(--sombra-1);
     }
     :host(.v-primario) button:hover:not(:disabled), :host(.v-secundario) button:hover:not(:disabled), :host(.v-peligro) button:hover:not(:disabled) {
-      transform: translateY(calc(-1 * var(--borde-fino))); filter: saturate(1.06);
-      box-shadow: inset 0 var(--borde-fino) 0 color-mix(in oklab, var(--white) 28%, transparent), 0 var(--borde-desfase) var(--s1) color-mix(in oklab, var(--c) 30%, transparent), 0 var(--s3) var(--s6) calc(-1 * var(--s1)) color-mix(in oklab, var(--c) 45%, transparent);
+      background: color-mix(in oklab, var(--c), var(--ink) 12%);
     }
     :host(.v-primario) button:active:not(:disabled), :host(.v-secundario) button:active:not(:disabled), :host(.v-peligro) button:active:not(:disabled) {
-      transform: translateY(var(--borde-fino)) scale(.985);
-      box-shadow: inset 0 var(--borde-fino) 0 color-mix(in oklab, var(--white) 18%, transparent), 0 var(--borde-fino) var(--borde-desfase) color-mix(in oklab, var(--c) 35%, transparent);
+      transform: scale(.985); box-shadow: none;
     }
-
-    /* El primario tiene un brillo que lo cruza unas pocas veces, espaciado; cargando,
-       cruza seguido. Con reducir movimiento lo apaga la regla global. */
-    :host(.v-primario) button:not(:disabled)::after, button[aria-busy]::after {
-      content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none;
-      background: linear-gradient(110deg, transparent 35%, color-mix(in oklab, var(--white) 32%, transparent) 50%, transparent 65%);
-      transform: translateX(-120%); animation: brillo var(--mov-brillo) var(--curva-llega) 600ms 4;
-    }
-    button[aria-busy]::after { animation: brillo calc(var(--mov-brillo) / 5) linear infinite; }
-    @keyframes brillo { 0% { transform: translateX(-120%); } 20%, 100% { transform: translateX(120%); } }
 
     :host(.v-fantasma) button { background: transparent; color: var(--brand-texto); border-color: var(--brand); }
-    :host(.v-fantasma) button:hover:not(:disabled) { background: var(--brand-bg); transform: translateY(calc(-1 * var(--borde-fino))); box-shadow: var(--sombra-1); }
+    :host(.v-fantasma) button:hover:not(:disabled) { background: var(--brand-bg); }
     :host(.v-fantasma) button:active:not(:disabled) { transform: scale(.985); box-shadow: none; }
     /* Sin esto el fantasma deshabilitado se pintaba igual que el habilitado: la regla de
        la variante gana en especificidad a la de :disabled de arriba. */

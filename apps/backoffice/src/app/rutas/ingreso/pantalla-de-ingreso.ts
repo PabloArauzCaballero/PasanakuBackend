@@ -5,75 +5,114 @@ import { Boton } from '@aportaya/ui/boton/boton'
 import { Campo } from '@aportaya/ui/campo/campo'
 import { CampoContrasena } from '@aportaya/ui/campo-contrasena/campo-contrasena'
 import { CampoOTP } from '@aportaya/ui/campo-otp/campo-otp'
+import { Icono } from '@aportaya/ui/icono/icono'
 import { EntradaAutenticacionPlataformaEnum, FactorPresentadoTipoEnum } from 'clientes/angular/identidad'
 import type { ErrorTraducido } from '../../nucleo/errores'
 import { Sesion } from '../../nucleo/sesion'
 import { crearAutenticar, huellaDeEstaPestana } from './dominio/cu04-autenticar'
+import { leerIdentificador } from './dominio/identificador'
+import { PanelDeMarca } from './panel-de-marca'
 
 type Paso = 'credencial' | 'codigo'
 
-/** Lo que el contrato exige al teléfono: `^\+591\d{8}$`. */
-const OCHO_DIGITOS = /^\d{8}$/
-
 /**
- * CU-04 · El ingreso de un operador al backoffice.
+ * CU-04 · El ingreso de un operador al backoffice, con la anatomía del portal interno
+ * de Atlas: panel de marca a la izquierda y tarjeta a la derecha.
  *
- * Dos pasos, porque así responde `identidad`: con teléfono y contraseña correctos
- * contesta `AP-CU04-03` («falta el factor»), y R-SEG-10 exige segundo factor a todo
- * operador sin excepción. El código se manda en un segundo `POST /sesiones` junto con
- * la credencial, que **vive solo en esta pantalla** y se borra al abrir la sesión.
+ * Dos pasos, porque así responde `identidad`: con la credencial correcta contesta
+ * `AP-CU04-03` («falta el factor»), y R-SEG-10 exige segundo factor a todo operador
+ * sin excepción. El código se manda en un segundo `POST /sesiones` junto con la
+ * credencial, que **vive solo en esta pantalla** y se borra al abrir la sesión.
  *
- * Nunca se distingue «el teléfono no existe» de «la contraseña no coincide»: el servidor
- * no lo dice y esta pantalla tampoco lo adivina.
+ * Se entra con el correo **o** el teléfono (un solo campo). Nunca se distingue «esa
+ * cuenta no existe» de «la contraseña no coincide»: el servidor no lo dice y esta
+ * pantalla tampoco lo adivina.
  */
 @Component({
   selector: 'ap-pantalla-de-ingreso',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [Alerta, Boton, Campo, CampoContrasena, CampoOTP],
+  imports: [Alerta, Boton, Campo, CampoContrasena, CampoOTP, Icono, PanelDeMarca],
   template: `
     <main>
-      <section class="tarjeta" aria-labelledby="titulo-ingreso">
-        <p class="marca">AportaYa · Backoffice</p>
-        <h1 id="titulo-ingreso">{{ paso() === 'credencial' ? 'Ingresá con tu cuenta de operador' : 'Confirmá que sos vos' }}</h1>
+      <ap-panel-de-marca />
 
-        @if (error(); as e) {
-          <ap-alerta tono="error">{{ e }}</ap-alerta>
-        }
+      <section class="lado" aria-labelledby="titulo-ingreso">
+        <div class="tarjeta">
+          <div class="cabecera">
+            <span class="monograma" aria-hidden="true">A</span>
+            <p class="ceja">{{ paso() === 'credencial' ? 'Acceso de operadores' : 'Segundo factor' }}</p>
+            <h1 id="titulo-ingreso">{{ paso() === 'credencial' ? 'Bienvenido de vuelta' : 'Confirmá que sos vos' }}</h1>
+            <p class="bajada">
+              {{ paso() === 'credencial' ? 'Ingresá con tu correo o tu teléfono para entrar al backoffice.' : 'Ingresá el código de 6 dígitos de tu aplicación de autenticación.' }}
+            </p>
+          </div>
 
-        <form (submit)="$event.preventDefault(); enviar()" novalidate>
-          @if (paso() === 'credencial') {
-            <ap-campo
-              etiqueta="Teléfono"
-              tipo="tel"
-              prefijo="+591"
-              marcador="71234567"
-              [(valor)]="telefono"
-              [error]="errorTelefono()"
-            />
-            <ap-campo-contrasena [(valor)]="credencial" />
-          } @else {
-            <p class="ayuda">Ingresá el código de 6 dígitos de tu segundo factor.</p>
-            <ap-campo-otp [(valor)]="codigo" (completado)="enviar()" />
+          @if (error(); as e) {
+            <ap-alerta tono="error">{{ e }}</ap-alerta>
           }
 
-          <ap-boton variante="primario" tipo="submit" [ancho]="true" [cargando]="enviando()" [deshabilitado]="enviando()">
-            {{ paso() === 'credencial' ? 'Continuar' : 'Entrar' }}
-          </ap-boton>
+          <form (submit)="$event.preventDefault(); enviar()" novalidate>
+            @if (paso() === 'credencial') {
+              <ap-campo
+                etiqueta="Correo o teléfono"
+                tipo="text"
+                marcador="nombre@aportaya.bo o 71234567"
+                autocompletar="username"
+                ayuda="El correo o el teléfono con el que te dieron de alta."
+                [(valor)]="identificador"
+                [error]="errorIdentificador()"
+              />
+              <ap-campo-contrasena [(valor)]="credencial" />
+            } @else {
+              <ap-campo-otp [(valor)]="codigo" (completado)="enviar()" />
+            }
 
-          @if (paso() === 'codigo') {
-            <ap-boton variante="enlace" [ancho]="true" (pulsado)="volver()">Usar otra cuenta</ap-boton>
-          }
-        </form>
+            <ap-boton variante="primario" tipo="submit" [ancho]="true" [cargando]="enviando()" [deshabilitado]="enviando()">
+              {{ paso() === 'credencial' ? 'Continuar' : 'Entrar' }}
+            </ap-boton>
+
+            @if (paso() === 'codigo') {
+              <ap-boton variante="enlace" [ancho]="true" (pulsado)="volver()">Usar otra cuenta</ap-boton>
+            }
+          </form>
+
+          <p class="nota">
+            <ap-icono nombre="candado" tamano="s4" />
+            La sesión se renueva con una cookie segura y el token nunca se guarda en el navegador. Todas las acciones quedan auditadas.
+          </p>
+        </div>
+        <p class="aviso">Acceso únicamente para personal autorizado de AportaYa.</p>
       </section>
     </main>
   `,
   styles: `
-    main { min-height: 100dvh; display: grid; place-items: center; padding: var(--s5); background: var(--g100); }
-    .tarjeta { width: 100%; max-width: 26rem; padding: var(--s5); border: var(--borde-fino) solid var(--border); border-radius: var(--r-lg); background: var(--surface); }
-    .marca { margin: 0 0 var(--s2); color: var(--brand-texto); font-weight: 600; }
-    h1 { margin: 0 0 var(--s4); font-size: 1.35rem; color: var(--text); }
-    form { display: grid; gap: var(--s4); margin-top: var(--s4); }
-    .ayuda { margin: 0; color: var(--text-2); }
+    main { min-height: 100dvh; display: flex; background: var(--bg); }
+    .lado {
+      flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--s4);
+      padding: var(--s5) var(--s4);
+      background: radial-gradient(circle at 85% 0%, color-mix(in srgb, var(--brand) 9%, transparent), transparent 45%);
+    }
+    .tarjeta {
+      width: 100%; max-width: 27rem; display: grid; gap: var(--s4); padding: var(--s6) var(--s5);
+      border: var(--borde-fino) solid var(--border); border-radius: var(--r-xl); background: var(--surface);
+      box-shadow: var(--sombra-2); animation: aparecer .45s cubic-bezier(.2, .8, .2, 1) both;
+    }
+    .monograma {
+      display: grid; place-items: center; width: 2.75rem; height: 2.75rem; margin-bottom: var(--s3);
+      border-radius: var(--r-md); font: var(--t-titulo-2); color: var(--white);
+      background: linear-gradient(140deg, var(--g500), var(--g900));
+    }
+    .ceja { margin: 0; font: var(--t-etiqueta); letter-spacing: .06em; text-transform: uppercase; color: var(--brand-texto); }
+    h1 { margin: 0; font: var(--t-titulo-1); letter-spacing: -.01em; color: var(--text); }
+    .bajada { margin: 0; font: var(--t-cuerpo); color: var(--text-2); }
+    .cabecera { display: grid; gap: var(--s1); } form { display: grid; gap: var(--s4); }
+    .nota {
+      display: flex; gap: var(--s2); align-items: flex-start; margin: 0; padding-top: var(--s4);
+      border-top: var(--borde-fino) solid var(--border); font: var(--t-cuerpo-chico); color: var(--text-3);
+    }
+    .nota ap-icono { margin-top: .1rem; color: var(--text-2); } .aviso { margin: 0; font: var(--t-cuerpo-chico); color: var(--text-3); text-align: center; }
+    @media (min-width: 64rem) { .monograma { display: none; } .tarjeta { padding: var(--s7) var(--s6); } }
+    @keyframes aparecer { from { opacity: 0; transform: translateY(.5rem); } } @media (prefers-reduced-motion: reduce) { .tarjeta { animation: none; } }
   `,
 })
 export class PantallaDeIngreso {
@@ -84,23 +123,23 @@ export class PantallaDeIngreso {
   private readonly huella = huellaDeEstaPestana()
 
   protected readonly paso = signal<Paso>('credencial')
-  protected readonly telefono = signal('')
+  protected readonly identificador = signal('')
   protected readonly credencial = signal('')
   protected readonly codigo = signal('')
   protected readonly enviando = signal(false)
   protected readonly error = signal<string | null>(null)
-  protected readonly errorTelefono = signal<string | undefined>(undefined)
+  protected readonly errorIdentificador = signal<string | undefined>(undefined)
 
   protected enviar(): void {
     if (this.enviando()) return
     this.error.set(null)
 
-    const digitos = this.telefono().replace(/\D/g, '').replace(/^591(?=\d{8}$)/, '')
-    if (!OCHO_DIGITOS.test(digitos)) {
-      this.errorTelefono.set('Son 8 dígitos, sin el +591.')
+    const lectura = leerIdentificador(this.identificador())
+    if (!lectura.ok) {
+      this.errorIdentificador.set(lectura.error)
       return
     }
-    this.errorTelefono.set(undefined)
+    this.errorIdentificador.set(undefined)
     if (this.credencial().length < 8) {
       this.error.set('La contraseña tiene al menos 8 caracteres.')
       return
@@ -112,7 +151,7 @@ export class PantallaDeIngreso {
 
     this.enviando.set(true)
     this.autenticar({
-      telefonoE164: `+591${digitos}`,
+      ...lectura.valor,
       credencial: this.credencial(),
       huellaDispositivo: this.huella,
       plataforma: EntradaAutenticacionPlataformaEnum.Web,

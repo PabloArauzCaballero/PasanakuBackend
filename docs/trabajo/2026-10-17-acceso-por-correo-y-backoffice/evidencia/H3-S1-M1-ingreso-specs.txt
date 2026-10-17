@@ -1,0 +1,9 @@
+$ npx ng test --include="src/app/rutas/ingreso/**/*.spec.ts" --watch=false
+ Test Files  1 passed (1)
+      Tests  6 passed (6)
+
+$ yarn --cwd apps/backoffice typecheck  → exit=0 (0 errores)
+Nota: la primera corrida dio 61 errores preexistentes, idénticos sin mis cambios (línea base medida con stash). Causa: clientes generados locales viejos (Gradle los daba UP-TO-DATE). Se resolvió con ./gradlew generarClientes --rerun-tasks. ENVIRONMENT, no producto.
+
+$ python3 scripts/verificar_frontend.py backoffice → exit=0
+$ npx ng lint → exit=0

@@ -62,8 +62,8 @@
 
 | ID | Microtarea | CA | DoD | Estado |
 |---|---|---|---|---|
-| H3.S1.M1 | Identificador único: correo o teléfono, con su validación | Spec: correo → `correo`; 8 dígitos → `telefonoE164` | `yarn --cwd apps/backoffice test:front` (spec del ingreso) | TODO |
-| H3.S1.M2 | Layout partido estilo Atlas con tokens, claro/oscuro, movimiento reducido | Capturas en 3 viewports × 2 temas | capturas en `evidencia/H3/` | TODO |
+| H3.S1.M1 | Identificador único: correo o teléfono, con su validación | Spec: correo → `correo`; 8 dígitos → `telefonoE164` | `npx ng test --include='src/app/rutas/ingreso/**/*.spec.ts'` | HECHO — `evidencia/H3-S1-M1-ingreso-specs.txt` (6/6; typecheck, ng lint y verificar_frontend en 0) |
+| H3.S1.M2 | Layout partido estilo Atlas con tokens, claro/oscuro, movimiento reducido | Capturas en 3 viewports × 2 temas | capturas en `evidencia/H3/` | HECHO — `evidencia/H6/despues/` (3 anchos × 2 temas + error por campo), miradas |
 
 ## H4 — App móvil: ingreso con correo
 **CA:** En la pantalla de ingreso de la app se puede escribir correo o teléfono.
@@ -85,7 +85,12 @@
 | ID | Microtarea | CA | DoD | Estado |
 |---|---|---|---|---|
 | H6.S1.M1 | Auditoría visual con capturas de las rutas principales (antes) | Lista de hallazgos con captura | `evidencia/H6/antes/` | TODO |
-| H6.S1.M2 | Shell (barra lateral + cabecera) en la nueva familia visual | Capturas después | `evidencia/H6/despues/` + `yarn --cwd apps/backoffice lint` | TODO |
+| H6.S1.M2 | Botón de `@aportaya/ui` con la identidad institucional ya decidida para la app (A2 de `2026-10-15-visual-bancario`): relleno plano, sin degradé, sin brillo animado, sin sombra teñida | Captura del ingreso con el botón plano | `yarn --cwd packages/ui test:front` (el botón no tiene spec propio: regresión del paquete) + captura | HECHO — 125/125 + `evidencia/H6/antes` vs `evidencia/H6/despues` |
+| H6.S1.M3 | Shell (barra lateral + cabecera) en la nueva familia visual | Capturas después | `evidencia/H6/despues/` + `yarn --cwd apps/backoffice lint` | TODO |
+
+## Hallazgo durante la ejecución (H3)
+- `packages/tokens/generado/tokens.css` no se versiona. Una copia local vieja pintaba el backoffice naranja y crema; regenerado (`yarn workspace @aportaya/tokens build`) sale verde institucional `#164A30` y fondo `#F4F6F5`. El Dockerfile del backoffice lo regenera al construir, así que lo que ve TEST depende de que la imagen se haya reconstruido.
+- El `Boton` Angular conserva degradé, brillo animado y sombra teñida: es el «videojuego» que la app ya dejó. Se agrega H6.S1.M2.
 
 ## Riesgos
 | Riesgo | Impacto | Mitigación |
