@@ -1,10 +1,10 @@
 # Reporte — Tableros por rol, catálogos, pruebas con Faker y OpenTelemetry
 
-> **AVANCE: 16 / 80 — 20,0 %.**
+> **AVANCE: 42 / 83 — 50,6 %.** (2 descartadas con motivo, 1 a medias)
 
 - Fecha: 2026-10-16 · Plan: [PLAN.md](./PLAN.md) · Rama(s): `pablo/feat/tableros-por-rol-2026-10-16`
   (worktree `../Pasanaku-tableros`, desde `origin/dev` `d63e4fef`)
-- Peldaño de evidencia alcanzado: H0 `DISCOVERED`; H1.S1 `TESTED` (integración contra Postgres real)
+- Peldaño de evidencia alcanzado: backend de H1, H2, H3, H4.S0-S1 y H5.S1 en `TESTED` (integración contra Postgres real, suites completas por servicio y pisos de cobertura en verde); frontend sin empezar; punta a punta por Kafka (H4.S1.M8) sin ejecutar
 
 ## Completado
 
@@ -23,6 +23,20 @@
 | H1.S2.M1c | `garantia` anota el ingreso en el fondo del grupo | `CUIngresoAlFondoTest` + regresión de garantia | PASS — 5/5; garantia 38+159 en verde; `evidencia/H1-S2-M1c-garantia-anota.txt` |
 | H1.S2.M2 | Idempotencia de punta a punta (duplicado y republicación) | tests `duplicado`/`reintento` en nucleo y garantia | PASS |
 
+
+
+### Hitos de backend cerrados en esta tanda (detalle en `evidencia/`)
+
+| ID | Qué se logró | Verificación |
+|---|---|---|
+| H1.S2.M4 | El reverso de un recargo se descuenta del fondo en `garantia` | `CUIngresoAlFondoTest` 8/8 · garantia 162 integración |
+| H2.S1 | Tres permisos de tablero y rol `COMERCIAL` | Siembra 863 → 0 · matriz consultada |
+| H2.S2 | Volumen sintético Faker (12 clones, uno por mes) | Base nueva: 325 asientos cuadrados, 0 huérfanos, 2da corrida 0, sha256 idéntico |
+| H2.S3 | `DatosSinteticos` (Datafaker, semilla fija) | 4/4 · lockfiles de 14 servicios |
+| H3.S1.M1-M2 | Contrato `Indicador` (null no es cero, tasa con num/den, muestra mínima) | 8/8 · cobertura de comun-dominio |
+| H4.S0.M1-M4 | Catálogo de 35 definiciones; publicador por outbox; `auditoria` guarda en `indicador_kpi`; CU-98 filtra familias por permiso | 36→0 siembra · 5/5 · 4/4+3/3 · web 4 nuevos (incluye 403) |
+| H4.S1.M1-M7 | Calculadores: nucleo (mayor), garantia, aportes, grupos, entregas, inversiones; disparo diario + relleno comunes | Suite completa y cobertura en verde en cada servicio |
+| H5.S1.M1-M3 | Comercial: identidad, grupos, aportes | Ídem (identidad con 1 falla preexistente ajena, abajo) |
 
 ## A medias
 
@@ -64,6 +78,12 @@ Corrección: en la sesión se le dijo a Pablo que no había fondo de inversión.
 - Pruebas de CU-21 renombradas con los prefijos que acepta `verificar_criterios.py`. El primer intento las dejó sin criterio en la bóveda (gate en rojo, corregido).
 
 ## Riesgos residuales
+
+- **Falla preexistente ajena (no de este trabajo):** `identidad` · `CU04CodigoPorCorreoTest.codigoLlegaPorCorreoYEntra` espera AP-CU04-03 y recibe AP-CU04-10; se reprodujo idéntica en `origin/dev` `d63e4fef` (evidencia `H5-preexistente-CU04-en-dev.xml`). Hay que corregir el test o el código en el trabajo de «código de acceso por correo».
+- **Semilla sin historial de grupos ni retiros/recargos/comisiones por transacción:** con la base sembrada, `GRUPOS_COMPLETOS`, `DIAS_LLENADO_GRUPO`, `RETENCION_60D`, `SALDO_RETIRADO`, `INTERESES_MORA_COBRADOS` salen sin datos (honesto, pero el tablero se ve con huecos). Mejora pendiente del generador de volumen.
+- **`provisorio` siempre falso:** cada servicio no sabe si cuadraron los cierres contables del período (CU-98 lo pide); se emiten solo períodos cerrados (A7).
+- **`DatosSinteticos` y la prohibición 6:** usa `RandomGeneratorFactory` + `Random.from` con semilla (datos de prueba, no seguridad); el regex del gate no lo detecta. Revisar con seguridad si se prefiere una excepción explícita en `verificar_seguridad.py`.
+- **Dos commits entraron con un gate en rojo y se corrigieron en el commit siguiente:** cobertura de `comun-mensajeria` (`665c3e0a` → `99b4f803`) y una medición de cobertura de identidad mal tomada (`3eeec2d8` → `0d596e11`, era un artefacto). Desde entonces el commit va encadenado al verde.
 
 - **Hallazgo H1-02 (dinero):** antes de este trabajo no existía ningún camino de dinero hacia el fondo de garantía (sin billetera sembrada; `consumo-de-asientos` apagado por omisión). Se armó solo para `RECARGO_MORA`. `APORTE_FONDO_GARANTIA` y `REPOSICION_COBERTURA` siguen cayendo al pozo del grupo: decisión aparte.
 - **Desplegar H1.S1 (el recargo diario) solo junto con H1.S2**, y con `RESERVA_RESPALDO` mapeada en el entorno. Sin mapeo, el pago del recargo se rechaza (AP-CU24-02) y queda reprocesándose. En TEST el mapeo es sintético (`9.1.02`).
