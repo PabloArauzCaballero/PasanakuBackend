@@ -105,6 +105,8 @@ export class Tablero {
   protected readonly consultando = computed(() => Object.values(this.estados()).some((e) => e?.tipo === 'cargando'))
 
   protected readonly accesos: Acceso[] = [
+    { ruta: 'tablero/financiero', texto: 'Tablero financiero', permiso: 'TABLERO_FINANCIERO_VER', descripcion: 'Dinero entrante y saliente, mora, fondo y turnos.' },
+    { ruta: 'tablero/comercial', texto: 'Tablero comercial', permiso: 'TABLERO_COMERCIAL_VER', descripcion: 'Altas, activos, embudo, grupos y retención.' },
     { ruta: 'operacion', texto: 'Operación', permiso: 'ver:operacion', descripcion: 'Billetera, cobranza, entregas y cierre.' },
     { ruta: 'operacion/estado', texto: 'Arquitectura y estado', permiso: 'ver:operacion', descripcion: 'Nivel de criticidad y réplicas por servicio.' },
     { ruta: 'operacion/retiros', texto: 'Aprobación de retiros', permiso: 'RETIRO_APROBAR', descripcion: 'Segunda firma de un retiro: autorizar o rechazar.' },

@@ -32,6 +32,21 @@ export const routes: Routes = [
       { path: '', pathMatch: 'full', redirectTo: 'tablero' },
       { path: 'tablero', loadComponent: () => import('./rutas/tablero/tablero').then((m) => m.Tablero), title: 'Tablero · AportaYa' },
       {
+        // Tableros por rol (CU-98): la guardia oculta, el servidor filtra las familias por el mismo permiso.
+        path: 'tablero/financiero',
+        canMatch: [requierePermiso('TABLERO_FINANCIERO_VER')],
+        loadComponent: () => import('./rutas/tablero/tablero-por-rol').then((m) => m.TableroPorRol),
+        data: { tipo: 'financiero' },
+        title: 'Tablero financiero · AportaYa',
+      },
+      {
+        path: 'tablero/comercial',
+        canMatch: [requierePermiso('TABLERO_COMERCIAL_VER')],
+        loadComponent: () => import('./rutas/tablero/tablero-por-rol').then((m) => m.TableroPorRol),
+        data: { tipo: 'comercial' },
+        title: 'Tablero comercial · AportaYa',
+      },
+      {
         path: 'operacion',
         canMatch: [requierePermiso('ver:operacion')],
         loadChildren: () => import('./rutas/operacion/operacion.routes').then((m) => m.rutasOperacion),

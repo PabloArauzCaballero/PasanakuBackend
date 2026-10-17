@@ -47,6 +47,9 @@ const ESPERADO: Record<string, string[]> = {
   PUNTO_RECLAMO: ['operacion'],
   OPERADOR_PUBLICIDAD: ['publicidad'],
   MODERADOR_CONTENIDO: ['publicidad'],
+  // Tableros por rol (2026-10-16): COMERCIAL solo ve su tablero (`/tablero/comercial`, TABLERO_COMERCIAL_VER), que no es
+  // una sección operativa. No abre operación, cumplimiento ni ninguna otra.
+  COMERCIAL: [],
   // Roles de la app: no son de backoffice. Un participante o un organizador que llegara con su token no abre NINGUNA sección.
   PARTICIPANTE: [],
   ORGANIZADOR: [],
@@ -57,8 +60,8 @@ const ESPERADO: Record<string, string[]> = {
 }
 
 describe('matriz de roles · qué secciones abre cada rol del catálogo', () => {
-  it('el catálogo parseado tiene los diecisiete roles y la prueba cubre cada uno (si se agrega un rol, hay que decidir qué ve)', () => {
-    expect(CATALOGO.roles.size).toBe(17)
+  it('el catálogo parseado tiene los dieciocho roles y la prueba cubre cada uno (si se agrega un rol, hay que decidir qué ve)', () => {
+    expect(CATALOGO.roles.size).toBe(18)
     expect([...CATALOGO.roles].sort()).toEqual(Object.keys(ESPERADO).sort())
   })
 

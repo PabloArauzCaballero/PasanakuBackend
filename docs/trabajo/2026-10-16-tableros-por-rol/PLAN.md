@@ -270,8 +270,8 @@ temas × 4 estados.
 
 | ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
 |---|---|---|---|---|
-| H4.S2.M1 | Tablero financiero: contenedor + presentacionales reusando los de `tablero/`; selector día/mes/año y serie; cuatro estados | Specs en verde | `yarn --cwd apps/backoffice test:front` (specs nombrados) | TODO |
-| H4.S2.M2 | Ruta con `requierePermiso('TABLERO_FINANCIERO_VER')` | Spec de la guardia en verde | Spec en verde | TODO |
+| H4.S2.M1 | Tablero financiero: contenedor + presentacionales reusando los de `tablero/`; selector día/mes/año y serie; cuatro estados | Specs en verde | `yarn --cwd apps/backoffice test:front` (specs nombrados) | HECHO — `evidencia/H4-S2-frontend.txt` |
+| H4.S2.M2 | Ruta con `requierePermiso('TABLERO_FINANCIERO_VER')` | Spec de la guardia en verde | Spec en verde | HECHO — ruta con `requierePermiso` + 403 del servidor probado en `tablero-por-rol.spec` |
 | H4.S2.M3 | E2E contra el stack real sembrado | Pantalla = cuadre | `yarn --cwd apps/backoffice test:e2e tablero-financiero` con trace | TODO |
 | H4.S2.M4 | Prueba visual | 3 viewports × 2 temas × 4 estados | Capturas en `evidencia/H4/` | TODO |
 
@@ -288,7 +288,7 @@ que H4.
 | H5.S1.M1 | `identidad`: usuarios nuevos (paso 1 del embudo) y KYC aprobados (paso 2) | Valores = cuadre | `./gradlew :servicios:identidad:integrationTest --tests '*Indicadores*'` en verde | HECHO — `evidencia/H5-S1-M1-identidad.txt` (1 falla PREEXISTENTE en dev, ajena, documentada) |
 | H5.S1.M2 | `grupos`: activos comerciales, grupos nuevos y completos, días de llenado, retención | Retención con num/den | `./gradlew :servicios:grupos:integrationTest --tests '*IndicadoresComerciales*'` en verde | HECHO — `evidencia/H5-S1-M2-grupos.txt` |
 | H5.S1.M3 | `aportes`: primer aporte (paso 4 del embudo); el volumen comprometido pasó a `grupos` (dueño de cupos, cuota y períodos) | Decimal con moneda | `./gradlew :servicios:aportes:integrationTest --tests '*IndicadoresComerciales*'` en verde | HECHO — `evidencia/H5-S1-M3-aportes.txt` |
-| H5.S2.M1 | Pantalla comercial con embudo y fichas | Specs en verde | `yarn --cwd apps/backoffice test:front` (specs nombrados) | TODO |
+| H5.S2.M1 | Pantalla comercial con embudo y fichas | Specs en verde | `yarn --cwd apps/backoffice test:front` (specs nombrados) | HECHO — misma pantalla parametrizada (`tipo: comercial`), embudo probado; `evidencia/H4-S2-frontend.txt` |
 | H5.S2.M2 | E2E real y prueba visual | Pantalla = cuadre; capturas | `test:e2e tablero-comercial` + `evidencia/H5/` | TODO |
 
 ## H6 — OpenTelemetry y tablero de sistemas
