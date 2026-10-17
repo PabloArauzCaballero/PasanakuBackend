@@ -66,7 +66,7 @@ type Acceso = { ruta: string; texto: string; permiso: string; descripcion: strin
           @for (a of accesos; track a.ruta) {
             @if (sesion.puede(a.permiso)) {
               <li>
-                <a [routerLink]="['/', a.ruta]" [attr.data-tutorial-id]="'tablero-' + a.ruta">
+                <a [routerLink]="'/' + a.ruta" [attr.data-tutorial-id]="'tablero-' + a.ruta">
                   <span class="texto">{{ a.texto }}</span>
                   <span class="descripcion">{{ a.descripcion }}</span>
                 </a>

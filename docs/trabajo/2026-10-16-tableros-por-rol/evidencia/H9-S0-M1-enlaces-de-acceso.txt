@@ -1,0 +1,11 @@
+H9.S0.M1 (agregada) — los accesos del tablero con dos segmentos llevaban a %2F · 2026-10-17
+Origen: hallazgo ya documentado en apps/backoffice/e2e/operacion-estado.e2e.ts («['/', a.ruta] codifica la barra»). Afectaba a las 4 tarjetas que agregó este trabajo y a 'operacion/estado'.
+
+Antes del cambio (la spec nueva en rojo):
+  AssertionError: expected '/tablero%2Ffinanciero' to be '/tablero/financiero'
+  Tests  1 failed | 8 passed (9)
+
+Cambio: tablero.ts, [routerLink]="['/', a.ruta]" → [routerLink]="'/' + a.ruta"
+
+$ yarn ng test --include='src/app/rutas/tablero/tablero.spec.ts'   → exit 0
+      Tests  9 passed (9)
