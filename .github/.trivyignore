@@ -12,3 +12,13 @@
 # docs/auditoria-produccion/carriles/PR5-ci-operacion.md — requieren decision
 # de version (Spring Boot/Spring Cloud/Netty), fuera del alcance de este
 # turno (regla 00 S3: ningun upgrade no solicitado).
+
+# 2026-10-16 · Espejo de la decision H17 (.github/osv-scanner.toml, b13eb18c) para el segundo escaner.
+# spring-webmvc 6.2.19: el unico arreglo publicado es 7.0.9 (Spring Boot 4); verificado en Maven Central
+# el 2026-10-16 que no existe 6.2.20 ni Spring Boot 3.5.17. Cada advisory exige un mecanismo que el
+# codigo NO usa, y SpringSinSuperficieVulnerableBarridoTest (plataforma/comun-pruebas) falla si empieza
+# a usarlo. Misma fecha de revision que OSV. Se quitan junto con las de OSV al migrar a Spring 7.
+# CVE-2026-47884: path traversal en XsltView con mapeo /** (el backend no usa XsltView ni ViewResolver).
+CVE-2026-47884 exp:2026-11-11
+# CVE-2026-47890: corrupcion de streams SSE al renderizar fragmentos de vistas (el backend no usa SSE ni vistas).
+CVE-2026-47890 exp:2026-11-11
