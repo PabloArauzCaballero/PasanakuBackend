@@ -49,8 +49,9 @@ Los demas casos de uso del modulo 03 siguen pendientes; ninguno esta a medias.
 | --- | --- | --- |
 | `aportes-recargos-mora` | diario | `CU21CobrarAporte.generarRecargos` — **uno por obligacion, no uno por corrida**: si el trabajo corre dos veces el mismo dia, el segundo no vuelve a cobrar. Sin politica de mora escrita no genera nada (denegar por omision, invariante 9) |
 
-> El disparo (`@Scheduled` + ShedLock) todavia no esta cableado: el metodo existe,
-> se prueba y no lo llama nadie. Declarado en el informe del carril.
+> El disparo es `trabajos/RecargosDeMoraDiarios` (`@Scheduled` 01:30 America/La_Paz + ShedLock
+> `aportes-recargos-mora`, contexto de sistema). Se apaga con `aportaya.aportes.trabajos.habilitados=false`.
+> Probado en `CU21RecargosDiariosTest` (correcto, dos corridas el mismo dia, grupo sin politica).
 
 ## Recaudo del pozo (carril C, H8)
 

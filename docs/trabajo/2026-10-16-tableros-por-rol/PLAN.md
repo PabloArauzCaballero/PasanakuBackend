@@ -1,0 +1,360 @@
+# Plan — Tableros por rol (financiero, comercial, sistemas), catálogo de datos y de flujos, pruebas con Faker y OpenTelemetry
+
+- Fecha: 2026-10-16 · Repos afectados: PasanakuBackend (+ espejo del frontend para `apps/backoffice`) ·
+  Rama: `pablo/feat/tableros-por-rol-2026-10-16` (worktree `../Pasanaku-tableros`, desde `origin/dev` `d63e4fef`) ·
+  Predecesor: ninguno
+- Resultado observable: una persona con rol `TESORERIA`/`CONTABILIDAD` entra al backoffice y ve el tablero
+  financiero; una con rol `COMERCIAL`, el comercial; una con `ADMIN_PLATAFORMA`, el de sistemas, el catálogo de
+  datos y el catálogo de flujos. Cada número sale del servicio dueño del dato (el dinero, del mayor), declara su
+  fórmula y su fuente, y con la base sembrada por el generador Faker muestra valores no nulos y coherentes.
+- Kill-test: con la base sembrada, `GET` del tablero financiero devuelve un KPI cuyo valor no coincide con la
+  consulta de cuadre sobre `asiento_contable`/`movimiento_contable`; o una persona sin el permiso obtiene 200.
+
+## Patrón de referencia (Atlas) y adaptación
+
+Se sigue lo ya resuelto en los repos de Atlas (clones en `~/Documents/GitHub/atlas`), con una adaptación forzada
+por la regla 98:
+
+| Pieza | En Atlas | En Pasanaku |
+|---|---|---|
+| Catálogo de KPI | En código, con `code, panel, unit, numerator, denominator, sources, freshness, minSample, emptySample, owner, thresholds`. Lo define `AtlasDashboardsBackend/src/modules/kpi-catalog/kpi-definition.types.ts` | Mismo contrato, en `plataforma` (módulo compartido); cada servicio declara los KPI de los que es dueño |
+| Honestidad del número | `null` + `reason` (`SIN_DATOS`, `MUESTRA_INSUFICIENTE`, `FUENTE_NO_CONFIGURADA`, `NO_IMPLEMENTADO`…); toda tasa viaja con numerador y denominador; `isSeed` (`AtlasDashboardsBackend/README.md`) | Igual. La semilla de Faker se marca, y el tablero lo muestra |
+| Historia | Foto diaria por KPI (`src/modules/snapshots`) | Foto diaria en el esquema del servicio dueño, escrita por un trabajo programado |
+| Origen de los datos | Un servicio de reporting que **lee las bases hermanas** con un rol de solo lectura | **No se puede**: la regla 98.1.1 prohíbe leer la base de otro servicio, «ni solo para un reporte». Cada servicio expone `GET /<prefijo>/indicadores` sobre sus propios datos, y el backoffice compone (un salto por servicio, en paralelo) |
+| Catálogo de entidades | Vivo en la base (`system_data_entity_catalog`), con la narrativa exigida por el gate `check:entity-narratives`, más `GET /systems/data-entities` | La narrativa vive en los PlantUML de `docs/Modelos` (fuente de verdad del esquema, `scripts/generar_ddl.py`). Se genera `COMMENT ON`, un `.md` y un JSON, y un gate exige narrativa en toda tabla y columna |
+| Catálogo de flujos | Declarado en código (`*.process.fixtures.ts`) y sincronizado de forma idempotente; etapas, pasos, dependencias y transiciones (`AtlasBackend/docs/endpoints/workflow-catalog.md`) | Declarado en archivos versionados, uno por flujo, con el mismo modelo; un generador cruza los pasos con los OpenAPI y los tests |
+| Observabilidad | Dominio → `TracingService` → OTel API → SDK → OTLP → Collector (memory_limiter, batch, redaction) (`AtlasBackend/docs/observability/01-architecture-design.md`) | Igual hasta el Collector. Métricas a Prometheus (decisión del 2026-10-16). Trazas: Jaeger efímero solo en dev, como en Atlas |
+
+## Decisiones tomadas con Pablo (2026-10-16)
+
+| # | Pregunta | Decisión |
+|---|---|---|
+| D1 | ¿De quién es la plata del recargo por mora? | **Del fondo de garantía.** La plataforma no gana con la mora |
+| D2 | «Turno de ciclo cerrado» | **El último turno del grupo** (mayor `orden_asignado`, `grupos.turno`) |
+| D3 | Roles | **Tres permisos** (`TABLERO_FINANCIERO_VER`, `TABLERO_COMERCIAL_VER`, `TABLERO_SISTEMAS_VER`): el financiero para `TESORERIA` y `CONTABILIDAD`, el de sistemas para `ADMIN_PLATAFORMA`, más el rol nuevo `COMERCIAL` |
+| D4 | Telemetría | **OTel + Collector + Prometheus.** Brave se cambia por el bridge de OTel |
+| D5 | «Usuarios activos» | **Distinto por tablero.** Comercial: persona con un cupo en un grupo en curso. Sistemas: persona distinta con una sesión usada hoy (desde `identidad`, nunca desde la telemetría) |
+| D6 | Período | **Selector de rango**: por defecto el mes en curso; atajos de hoy, 7 días, mes y año; rango libre; variación contra el período anterior del mismo largo |
+| D7 | KPI extra | Todos los recomendados (ver H4 y H5), más los de sistemas de H6 |
+| D8 | Alcance de flujos y pruebas | **Generador más cobertura por fases.** Matriz completa ahora; árboles de decisión de los flujos de dinero ahora; el resto en trabajos siguientes |
+| D9 | Catálogo de datos | **Narrativa en el PlantUML**, de donde salen `COMMENT ON`, el `.md`, el JSON y la pantalla |
+| D10 | Faker | **En dos lugares, con semilla fija**: un generador Python para `seeders/dev/volumen-*.json` y Datafaker en los fixtures Java |
+| D11 | «Pendientes de pago cobrados» | **Los dos casos**: lo que el mismo moroso pagó tarde, y lo recuperado después de que cubrió el fondo |
+| D12 | Fondo de inversión | Pablo lo dejó pendiente porque se le dijo que no existía. **Corrección (2026-10-16):** existe en `dev` como servicio `inversiones` (CU-120 a CU-129, `servicios/inversiones/README.md`): inversión voluntaria con el saldo libre del titular, sin dinero de grupos. «Saldo invertido» = suma de las posiciones vigentes (`inversiones.posicion_inversion`), calculada por `inversiones`. Sus parámetros son sintéticos y el aliado es un simulador (`README`, R-INV-01), así que el KPI sale con `isSeed`/«dato sintético» hasta tener un aliado real |
+
+## Alcance
+
+- IN:
+  - Penalización por mora completa: cableado del disparo diario de `CU21CobrarAporte.generarRecargos`, que según
+    `servicios/aportes/README.md:50` existe pero no lo llama nadie, y asiento del recargo cobrado al fondo de
+    garantía (D1).
+  - Permisos, rol `COMERCIAL` y su asignación en `seeders/minimos`.
+  - Generador Faker de volumen para dev, y Datafaker en los fixtures de prueba.
+  - Endpoints `GET /<prefijo>/indicadores` en los servicios dueños, con foto diaria, catálogo de KPI y
+    autorización.
+  - Tres pantallas de tablero en `apps/backoffice`, cableadas a los clientes generados.
+  - OpenTelemetry en todos los servicios y el gateway, el Collector y Prometheus en el compose, y el tablero de
+    sistemas.
+  - Catálogo de datos (PlantUML → `COMMENT ON`, `.md`, JSON y pantalla) con su gate.
+  - Catálogo de flujos: modelo, generador de la matriz endpoint → test, y árboles de los flujos de dinero.
+  - Pruebas de integración de los flujos de dinero.
+- OUT:
+  - Activar inversiones contra un núcleo o un aliado real (bloqueo propio de `inversiones`, fuera de alcance).
+  - Árboles de decisión y pruebas de integración de los flujos que no son de dinero, más allá de la matriz
+    (fases siguientes, D8).
+  - App móvil: los tableros son del backoffice.
+  - Tempo y Grafana en TEST.
+  - Cualquier cambio que no pida una microtarea: lo roto que se encuentre se anota en el reporte.
+- Ambigüedades registradas:
+  - A1 · RESUELTA (Pablo, 2026-10-16): «saldo cargado» = lo que la gente sube a su billetera para jugar;
+    «saldo retirado» = lo que saca de su billetera. H0.S1.M3 solo localiza las tablas.
+  - A2 · Cuenta del recargo en el fondo. Supuesto: el recargo cobrado acredita `2.1.03 Fondo de garantía —
+    recursos de los grupos` (`sql/60_semillas/01-plan-de-cuentas.sql:103`). Si contabilidad quiere ver el
+    recargo separado, se crea una subcuenta `2.1.03.x`. Confirmar con: responsable contable.
+  - A3 · Comisiones cobradas. Supuesto: comisiones de la plataforma devengadas y cobradas por `tarifas`
+    (CU-31), cuenta `4.1`. No existe comisión del organizador (regla 91.5). Confirmar con: Pablo.
+  - A4 · Muestra mínima por tasa: 20 casos en el denominador (mora, recuperación, retención). Es un parámetro de
+    presentación, no financiero. Confirmar con: Pablo.
+  - A5 · RESUELTA en H0.S1.M4: endpoints por servicio dueño (`transparencia` no proyecta dinero). Texto original: Composición de los KPI: llamadas desde el backoffice a cada servicio, o un modelo de lectura en
+    `transparencia` alimentado por eventos. Supuesto: llamadas directas (un salto, cumple 98.2.5). Se valida en
+    H0.S1.M4; si `transparencia` ya proyecta esos hechos, se usa esa vía y se registra el desvío.
+
+## H0 — Descubrimiento factual
+
+**CA:** Dado este plan, cuando se cierra H0, entonces cada KPI tiene identificados su servicio dueño, su tabla o
+cuenta de origen y su fórmula, citados con ruta y línea, y A1 y A5 quedan resueltas con evidencia.
+**DoD:** `evidencia/H0-01-asientos.md` y `evidencia/H0-02-a-06.md` (dueño y fuente de cada KPI con su ruta).
+**Estado:** HECHO
+
+### H0.S1 — Fuentes y patrones
+
+**CA:** Toda fuente de dato de los tableros está localizada; ninguna se supone.
+**DoD:** El mapa de H0 completo, sin celdas vacías.
+**Estado:** HECHO
+
+| ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
+|---|---|---|---|---|
+| H0.S1.M1 | Qué operaciones generan asientos en `nucleo-financiero`: aporte, recarga, retiro, cobertura, recuperación, entrega, comisión, recargo | Cada operación tiene asiento localizado o «sin asiento» declarado | `grep -rn "asiento" servicios/*/src/main` pegado en `evidencia/H0-01-asientos.txt` | HECHO — `evidencia/H0-01-asientos.md` |
+| H0.S1.M2 | Patrón de un endpoint de lectura con autorización por permiso (controlador, `ContextoSesion`, OpenAPI, cliente generado) | Dos ejemplos vecinos citados | `evidencia/H0-02-patron-lectura.md` con rutas | HECHO — `evidencia/H0-02-a-06.md` |
+| H0.S1.M3 | Resolver A1: billetera, recarga y retiro en el modelo | Tabla y estado de «recarga acreditada» y «retiro pagado» citados | `grep` sobre `docs/Modelos` y `sql/10_tablas` pegado | HECHO — `evidencia/H0-02-a-06.md` |
+| H0.S1.M4 | Resolver A5: qué proyecta hoy `transparencia` | Decisión registrada en «Decisiones» con evidencia | `evidencia/H0-04-transparencia.md` | HECHO — `evidencia/H0-02-a-06.md` |
+| H0.S1.M5 | Cómo el backoffice obtiene la sesión y los permisos, y cómo protege rutas (`guardia-rol-sistemas.ts`, `matriz-de-roles.spec.ts`) | Patrón citado | `evidencia/H0-05-guardias.md` | HECHO — `evidencia/H0-02-a-06.md` |
+| H0.S1.M6 | Versiones instaladas: Spring Boot, Micrometer, el bridge de OTel y Datafaker compatibles (catálogo `gradle/libs.versions.toml`), y Python Faker | Versiones verificadas en la documentación oficial, no supuestas | Enlaces y versiones en `evidencia/H0-06-versiones.md` | HECHO — `evidencia/H0-02-a-06.md` |
+
+## H1 — La penalización por mora se cobra y queda en el fondo de garantía
+
+**CA:** Dado un aporte vencido con política de mora del grupo, cuando corre el trabajo diario, entonces se genera
+un único `RECARGO_MORA`. Cuando el participante lo paga, el mayor registra débito en caja o banco y crédito en el
+fondo de garantía, y una segunda corrida no duplica nada.
+**DoD:** Tests de integración contra Postgres real en verde, con los cinco puntos de la regla 91.6 pegados en el
+reporte (asientos, idempotencia, cuadre, reversa y redondeo).
+**Estado:** TODO
+
+### H1.S1 — Disparo diario
+
+**CA:** El método existente se ejecuta una vez por día por instancia del clúster.
+**DoD:** Test con dos ejecuciones del mismo día → un recargo por obligación.
+**Estado:** HECHO
+
+| ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
+|---|---|---|---|---|
+| H1.S1.M1 | `@Scheduled` + ShedLock para `generarRecargos`, siguiendo el patrón de otro trabajo programado del repo (localizarlo antes) | El bean se registra con su bloqueo `aportes-recargos-mora` | `./gradlew :servicios:aportes:test --tests '*Recargo*'` en verde | HECHO — `evidencia/H1-S1-recargos-diarios.txt` (test renombrado a `CU21RecargosDiariosTest` por la convención de corredores; bean verificado en `ArranqueTest`) |
+| H1.S1.M2 | Test de la segunda corrida del mismo día | 0 recargos nuevos | Mismo comando, el test nombrado en verde | HECHO — `CU21RecargosDiariosTest.dosCorridasElMismoDia`, mismo archivo de evidencia |
+
+### H1.S2 — Contabilización del recargo cobrado
+
+**CA:** El pago de un `RECARGO_MORA` genera un asiento balanceado con crédito al fondo de garantía (D1, A2).
+**DoD:** Consulta de cuadre pegada: `SUM(debe)=SUM(haber)` por asiento, y saldo de `2.1.03` igual a la suma de
+recargos cobrados del escenario.
+**Estado:** TODO
+
+| ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
+|---|---|---|---|---|
+| H1.S2.M0a | (Agregada por el hallazgo H0-01) El evento `aportes.aporte_cobrado` publica `tipo` de la obligación (campo aditivo; versión del contrato documentada) | El payload trae `tipo` | Test de contrato del productor en `aportes` en verde | TODO |
+| H1.S2.M0b | (Agregada por el hallazgo H0-01) `ConsumoDeAportes` lee `tipo`; un evento sin `tipo` sigue el camino actual (compatibilidad) | Consumidor viejo y nuevo conviven | Test del consumidor con y sin `tipo` en verde | TODO |
+| H1.S2.M1 | `RECARGO_MORA` cobrado se asienta billetera del participante → `RESERVA_RESPALDO` (fondo de garantía), no al pozo del grupo | Asiento con dos líneas y la moneda; saldo del pozo sin cambio | Test de integración `*RecargoContabilizado*` en verde | TODO |
+| H1.S2.M2 | Idempotencia: el mismo pago confirmado dos veces | Un solo asiento (clave de idempotencia `UNIQUE`) | Test nombrado en verde, salida pegada | TODO |
+| H1.S2.M3 | Reversa: si se anula el pago, se genera un contra-asiento | Contra-asiento presente, sin `UPDATE` sobre el mayor | Test nombrado en verde | TODO |
+
+## H2 — Semillas: permisos, rol y volumen sintético
+
+**CA:** Dado `python3 scripts/generar_semillas.py` y la base aplicada, cuando se siembra dos veces, entonces
+existen los tres permisos, el rol `COMERCIAL` y un volumen sintético marcado como tal, y la segunda corrida no
+inserta nada.
+**DoD:** Salida de las dos corridas pegada, conteos por tabla y verificación de deriva (regla 97.7).
+**Estado:** TODO
+
+### H2.S1 — Permisos y rol (`seeders/minimos`)
+
+**CA:** La matriz rol × permiso coincide con D3.
+**DoD:** Consulta de la matriz pegada.
+**Estado:** TODO
+
+| ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
+|---|---|---|---|---|
+| H2.S1.M1 | Los tres permisos y el rol `COMERCIAL` en el JSON de mínimos (el mismo origen que `10-roles-y-permisos.sql`) | El generador no reporta error | `python3 scripts/generar_semillas.py` → exit 0 | TODO |
+| H2.S1.M2 | Asignaciones según D3 | La consulta devuelve las 4 filas esperadas | `psql -c "select r.codigo,p.codigo …"` pegado | TODO |
+| H2.S1.M3 | Idempotencia | 0 filas en la segunda corrida | Las dos corridas pegadas | TODO |
+
+### H2.S2 — Generador Faker de volumen (`seeders/dev`)
+
+**CA:** Con una semilla fija, el generador produce siempre el mismo JSON: ~300 personas, ~40 grupos en estados
+variados, 12 meses de aportes, moras, coberturas, recuperaciones, recargos, entregas, recargas y retiros. Todo
+importe es decimal con moneda, todo asiento cuadra, y cada registro lleva la marca de sintético.
+**DoD:** Dos corridas → `sha256` idéntico; el script de verificación de cuadre en verde.
+**Estado:** TODO
+
+| ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
+|---|---|---|---|---|
+| H2.S2.M1 | `scripts/generar_volumen_dev.py` con Faker (versión de H0.S1.M6), semilla fija y `Decimal` | Escribe `seeders/dev/volumen-*.json` con `entorno: dev` | `python3 -I scripts/generar_volumen_dev.py && sha256sum seeders/dev/volumen-*` dos veces, mismo hash | TODO |
+| H2.S2.M2 | Coherencia de dominio: estados de turnos y obligaciones válidos contra los `CHECK` | La guarda de `generar_semillas.py` acepta los archivos | `python3 scripts/generar_semillas.py` → exit 0 | TODO |
+| H2.S2.M3 | Siembra real en la base dev y cuadre del mayor | `SUM(debe)=SUM(haber)` por asiento, 0 huérfanos | Consultas de verificación pegadas | TODO |
+| H2.S2.M4 | Idempotencia de la siembra | 0 inserciones en la segunda corrida | Salida pegada | TODO |
+
+### H2.S3 — Datafaker en los fixtures Java
+
+**CA:** Los fixtures de los servicios tocados por este trabajo generan personas y montos con Datafaker y una
+semilla fija; el mismo test produce los mismos datos en cada corrida.
+**DoD:** Test de determinismo en verde.
+**Estado:** TODO
+
+| ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
+|---|---|---|---|---|
+| H2.S3.M1 | Dependencia `datafaker` de test en el catálogo de versiones (justificada según 90.4.2) | Compila | `./gradlew :plataforma:<modulo-test>:compileTestJava` → exit 0 | TODO |
+| H2.S3.M2 | Fábrica compartida `DatosSinteticos` con semilla fija | Dos instancias con la misma semilla dan los mismos valores | Test unitario nombrado en verde | TODO |
+
+## H3 — Contrato común de indicadores y catálogo de KPI
+
+**CA:** Todo endpoint de indicadores responde el mismo contrato:
+`{ code, value|null, reason?, numerator?, denominator?, unit, moneda?, periodo, comparacion, isSeed }`,
+con su ficha en el catálogo, y un KPI sin ficha no se publica.
+**DoD:** Tests unitarios del contrato (`null` ≠ 0, muestra mínima, tasa con numerador y denominador) en verde,
+y el contrato en el OpenAPI de cada servicio.
+**Estado:** TODO
+
+| ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
+|---|---|---|---|---|
+| H3.S1.M1 | Tipos `DefinicionKpi` / `ResultadoKpi` / `MotivoSinValor` en `plataforma`, espejo de `kpi-definition.types.ts` de Atlas | Compila | `./gradlew :plataforma:<modulo>:compileJava` → exit 0 | TODO |
+| H3.S1.M2 | `Guardas` de publicación: muestra mínima, `emptySample`, moneda obligatoria en dinero | Tres casos (correcto, límite, inválido) | Test unitario nombrado en verde | TODO |
+| H3.S1.M3 | Esquema `ResultadoKpi` reutilizable en los OpenAPI | El lint de contratos pasa | Comando de lint de OpenAPI del repo → exit 0 | TODO |
+| H3.S1.M4 | Foto diaria: tabla `foto_kpi` por servicio dueño (PlantUML → DDL) y trabajo programado | Deriva en verde | `python3 scripts/generar_ddl.py` + verificación de deriva pegada | TODO |
+
+## H4 — Tablero financiero
+
+**CA:** Dado un usuario con `TABLERO_FINANCIERO_VER` y un rango, cuando abre Tablero → Financiero, entonces ve:
+**dinero entrante** (saldo cargado; pendientes cobrados con sus dos componentes, D11), **dinero saliente** (saldo
+retirado; saldo invertido en el fondo de inversión, D12), **dinero en mora**, **impagos
+cubiertos**, **intereses cobrados** (recargos, H1), **comisiones cobradas**, **turnos normales** y **turnos que
+cierran ciclo** (D2), más **tasa de mora**, **cobertura del fondo**, **recuperación de lo cubierto**, **entregas
+pendientes** y **tiempo medio turno → desembolso**. Cada número cuadra con su consulta de origen. Sin el permiso:
+403 en la API y la ruta oculta.
+**DoD:** Por KPI, una consulta de cuadre pegada contra la base sembrada. Matriz de autorización negativa en
+verde. Capturas en 3 viewports × 2 temas × estados (cargando, datos, vacío, error), inspeccionadas.
+**Estado:** TODO
+
+### H4.S1 — Backend por servicio dueño (los dueños exactos se confirman en H0)
+
+**CA:** Cada servicio expone solo lo suyo; el dinero sale del mayor (regla 91.1.5).
+**DoD:** Por endpoint: test de integración contra Postgres con datos de Datafaker, más la matriz negativa (sin
+token, sin permiso, otro rol).
+**Estado:** TODO
+
+| ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
+|---|---|---|---|---|
+| H4.S1.M1 | `nucleo-financiero`: entrante, saliente, recargos cobrados y comisiones cobradas desde el mayor | Cada valor = consulta de cuadre | `./gradlew :servicios:nucleo-financiero:test --tests '*Indicadores*'` en verde | TODO |
+| H4.S1.M2 | `garantia`: mora vigente, impagos cubiertos, recuperación y cobertura del fondo | Tasas con numerador y denominador | `./gradlew :servicios:garantia:test --tests '*Indicadores*'` en verde | TODO |
+| H4.S1.M3 | `aportes`: pendientes cobrados (pago tarde propio) y tasa de mora | Dos componentes separados | `./gradlew :servicios:aportes:test --tests '*Indicadores*'` en verde | TODO |
+| H4.S1.M4 | `grupos`: turnos normales y turnos de cierre (D2) | El turno de cierre se cuenta una sola vez | `./gradlew :servicios:grupos:test --tests '*Indicadores*'` en verde | TODO |
+| H4.S1.M5 | `entregas`: entregas pendientes y tiempo medio | `null` + `SIN_DATOS` sin entregas | `./gradlew :servicios:entregas:test --tests '*Indicadores*'` en verde | TODO |
+| H4.S1.M8 | `inversiones`: saldo invertido (posiciones vigentes), con la marca de dato sintético (D12) | Valor = consulta de cuadre; `isSeed` true mientras el aliado sea simulado | `./gradlew :servicios:inversiones:test --tests '*Indicadores*'` en verde | TODO |
+| H4.S1.M6 | Matriz de autorización negativa de los seis endpoints | 401 sin token, 403 sin permiso | Tests nombrados en verde | TODO |
+| H4.S1.M7 | Regenerar los clientes Angular | Diff solo en los clientes tocados | Comando de generación del repo → exit 0 | TODO |
+
+### H4.S2 — Pantalla
+
+**CA:** Pantalla con selector de rango (D6), fichas con fórmula al pasar el mouse, `null` mostrado con su motivo,
+marca «datos sintéticos» cuando `isSeed`, y fallo parcial por servicio sin romper el resto.
+**DoD:** `yarn test:front` de los specs nuevos en verde, `yarn lint` limpio, E2E contra el backend real y
+capturas inspeccionadas.
+**Estado:** TODO
+
+| ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
+|---|---|---|---|---|
+| H4.S2.M1 | Contenedor más presentacionales, reusando los componentes existentes de `tablero/` y `contabilidad/` (buscar antes de crear) | Specs de los cuatro estados en verde | `yarn --cwd apps/backoffice test:front` (specs nombrados) | TODO |
+| H4.S2.M2 | Ruta protegida por el permiso | Guardia con spec en verde | Spec de la guardia en verde | TODO |
+| H4.S2.M3 | E2E contra el stack real sembrado | Valores en pantalla = consultas de cuadre | `yarn --cwd apps/backoffice test:e2e tablero-financiero` con trace | TODO |
+| H4.S2.M4 | Prueba visual | 3 viewports × 2 temas × 4 estados, inspeccionados | Capturas en `evidencia/H4/` | TODO |
+
+## H5 — Tablero comercial
+
+**CA:** Dado un usuario con `TABLERO_COMERCIAL_VER`, cuando abre el tablero comercial, entonces ve usuarios
+nuevos, usuarios activos (D5), embudo de alta (registrados → KYC aprobado → en un grupo → primer aporte), grupos
+nuevos y completos, días hasta llenarse, retención a 60 días y volumen comprometido, con la misma honestidad de
+H3. Sin permiso: 403.
+**DoD:** Igual que H4: cuadre por KPI, matriz negativa, E2E real y prueba visual.
+**Estado:** TODO
+
+| ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
+|---|---|---|---|---|
+| H5.S1.M1 | `identidad`: usuarios nuevos y etapas de registro y KYC del embudo | Valores = consulta de cuadre | `./gradlew :servicios:identidad:test --tests '*Indicadores*'` en verde | TODO |
+| H5.S1.M2 | `grupos`: activos comerciales, grupos nuevos y completos, días de llenado, retención | Retención con numerador y denominador | `./gradlew :servicios:grupos:test --tests '*IndicadoresComerciales*'` en verde | TODO |
+| H5.S1.M3 | `aportes`: primer aporte (embudo) y volumen comprometido | Decimal con moneda | `./gradlew :servicios:aportes:test --tests '*IndicadoresComerciales*'` en verde | TODO |
+| H5.S1.M4 | Matriz negativa y regeneración de clientes | 401 y 403 | Tests en verde y generación → exit 0 | TODO |
+| H5.S2.M1 | Pantalla con embudo (reparto) y fichas | Specs de los cuatro estados en verde | `yarn --cwd apps/backoffice test:front` (specs nombrados) | TODO |
+| H5.S2.M2 | E2E real y prueba visual | Valores = cuadre; capturas inspeccionadas | `yarn --cwd apps/backoffice test:e2e tablero-comercial` + `evidencia/H5/` | TODO |
+
+## H6 — OpenTelemetry y tablero de sistemas
+
+**CA:** Dado el stack levantado, cuando se hacen solicitudes, entonces cada servicio exporta métricas y trazas
+OTLP al Collector, Prometheus las guarda, y el tablero de sistemas (permiso `TABLERO_SISTEMAS_VER`) muestra
+solicitudes, exitosas, fallidas (4xx y 5xx separados), tasa de error, latencia p50/p95/p99, usuarios activos de
+hoy (D5) y el desglose de los endpoints tocados hoy (ruta plantilla, conteo, error y p95), sin ningún dato
+personal en etiquetas ni atributos.
+**DoD:** Una traza con el mismo `traceId` cruzando el gateway y un servicio. Consulta a Prometheus pegada,
+igual al tablero. Escaneo de etiquetas sin PII pegado. Prueba de caída: con el Collector apagado, los servicios
+siguen respondiendo.
+**Estado:** TODO
+
+| ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
+|---|---|---|---|---|
+| H6.S1.M1 | Cambiar `micrometer-tracing-bridge-brave` por el bridge de OTel más el exportador OTLP (versiones de H0.S1.M6) | Todos los módulos compilan | `./gradlew compileJava` → exit 0 | TODO |
+| H6.S1.M2 | Configuración común en `plataforma`: recurso (`service.name`, `version`), muestreo y redacción de atributos | Test de redacción: un atributo con documento o cuenta sale enmascarado | Test unitario nombrado en verde | TODO |
+| H6.S1.M3 | Etiqueta de ruta plantilla (`/grupos/{id}`), nunca la URL cruda | Ninguna serie con un UUID en la etiqueta | `curl prometheus/api/v1/series` filtrado, pegado | TODO |
+| H6.S2.M1 | Collector (`memory_limiter`, `batch`, `attributes/redaction`) y Prometheus en `docker-compose` dev y en Coolify, solo en la red interna | Contenedores sanos y puertos sin exponer | `docker compose ps` + `curl` desde afuera rechazado, pegados | TODO |
+| H6.S2.M2 | Jaeger efímero solo en dev (como Atlas) | Traza visible | Captura de la traza en `evidencia/H6/` | TODO |
+| H6.S2.M3 | Prueba de caída del Collector | El servicio sigue respondiendo 200 | Salida pegada | TODO |
+| H6.S3.M1 | Endpoint de indicadores de sistemas que consulta Prometheus por HTTP con timeout, consultas en lista blanca y degradación declarada (`FUENTE_NO_CONFIGURADA`). El servicio que lo hospeda se decide en H0 | Correcto, límite (sin tráfico) e inválido (Prometheus caído) | Test de integración con Prometheus real más un doble para «caído» | TODO |
+| H6.S3.M2 | Usuarios activos hoy desde las sesiones de `identidad` | Valor = consulta | Test nombrado en verde | TODO |
+| H6.S3.M3 | Pantalla de sistemas (Sistemas → Tráfico) | Specs de los cuatro estados en verde | `yarn --cwd apps/backoffice test:front` (specs nombrados) | TODO |
+| H6.S3.M4 | E2E real y prueba visual | Tablero = consulta a Prometheus | `yarn --cwd apps/backoffice test:e2e tablero-sistemas` + `evidencia/H6/` | TODO |
+
+## H7 — Catálogo de datos
+
+**CA:** Toda tabla y columna de todos los esquemas tiene en el PlantUML su narrativa de negocio («por qué
+existe») y de sistema («qué la escribe y quién la lee»). De ahí se generan `COMMENT ON`,
+`docs/catalogo-de-datos.md` y `catalogo-datos.json`, y la pantalla Sistemas → Catálogo de datos permite buscar
+por esquema, tabla y columna y ver las relaciones. Un gate falla si falta una narrativa.
+**DoD:** `python3 scripts/generar_ddl.py` → exit 0, el gate de narrativa en verde, verificación de deriva y
+prueba visual.
+**Estado:** TODO
+
+| ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
+|---|---|---|---|---|
+| H7.S1.M1 | Sintaxis de narrativa en el PlantUML que entienda `generar_ddl.py` (ver cómo hoy se leen `<<CK>>`, `<<FK>>`) | El generador la lee | Test del generador nombrado en verde | TODO |
+| H7.S1.M2 | El generador emite `COMMENT ON TABLE/COLUMN` con la narrativa | DDL aplicado; `obj_description` devuelve el texto | `psql` pegado | TODO |
+| H7.S1.M3 | Gate `verificar_narrativas.py` (equivalente a `check:entity-narratives` de Atlas) | Falla con una columna sin narrativa y pasa sin faltantes | Dos corridas pegadas | TODO |
+| H7.S1.M4 | Escribir las narrativas, módulo por módulo (una microtarea por módulo de `sql/10_tablas`; se desglosa al abrir H7) | El gate pasa en el módulo | Gate filtrado por módulo → exit 0 | TODO |
+| H7.S1.M5 | Generar `docs/catalogo-de-datos.md` y `catalogo-datos.json` (esquemas, tablas, columnas, tipos, nulabilidad, PK, FK, relaciones y sensibilidad PII) | Archivos regenerados idénticos en dos corridas | `sha256sum` dos veces, pegado | TODO |
+| H7.S2.M1 | Pantalla de catálogo (lista, búsqueda normalizada y ficha de tabla con relaciones) consumiendo el JSON publicado | Specs de los cuatro estados en verde | `yarn --cwd apps/backoffice test:front` (specs nombrados) | TODO |
+| H7.S2.M2 | Prueba visual | Capturas inspeccionadas | `evidencia/H7/` | TODO |
+
+## H8 — Catálogo de flujos y orquestación de pruebas
+
+**CA:** Existe un catálogo de flujos declarado en archivos versionados (etapas, pasos con endpoint, actor,
+precondición, transiciones de éxito, error y condición, y casos válidos, límite e inválidos) y un generador que
+cruza los 162 endpoints de los OpenAPI con sus tests y con los flujos. Los flujos de dinero (aporte → mora →
+cobertura → recuperación → entrega, más recarga y retiro) tienen árbol completo y prueba de integración de punta a
+punta.
+**DoD:** `docs/catalogo-de-flujos/matriz.md` generado con conteos reales (endpoints con y sin test unitario o web
+y con y sin flujo), más las pruebas de integración de los flujos de dinero en verde.
+**Estado:** TODO
+
+| ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
+|---|---|---|---|---|
+| H8.S1.M1 | Formato del flujo (YAML por flujo, modelo de `workflow-catalog.md` de Atlas: etapas, pasos, dependencias y transiciones) con su esquema de validación | Un flujo inválido se rechaza | `python3 -I scripts/validar_flujos.py` con un caso bueno y uno malo, pegado | TODO |
+| H8.S1.M2 | `scripts/matriz_de_pruebas.py`: OpenAPI × tests × flujos | Lista los 162 endpoints con su estado | Salida con totales pegada | TODO |
+| H8.S1.M3 | Gate: todo paso de un flujo apunta a un `operationId` existente | Falla con un paso huérfano | Dos corridas pegadas | TODO |
+| H8.S2.M1 | Árbol del flujo aporte → mora → recargo → cobertura → recuperación | Casos válidos, límite e inválidos con su código de error | Validador → exit 0 | TODO |
+| H8.S2.M2 | Árbol del flujo entrega del turno (normal y de cierre) | Ídem | Validador → exit 0 | TODO |
+| H8.S2.M3 | Árbol del flujo recarga y retiro de billetera | Ídem | Validador → exit 0 | TODO |
+| H8.S3.M1 | Prueba de integración del flujo de H8.S2.M1, contra Postgres y con Datafaker | Saldos finales = esperado, asientos cuadrados | Test nombrado en verde | TODO |
+| H8.S3.M2 | Prueba de integración del flujo de H8.S2.M2 | Ídem | Test nombrado en verde | TODO |
+| H8.S3.M3 | Prueba de integración del flujo de H8.S2.M3 | Ídem | Test nombrado en verde | TODO |
+| H8.S3.M4 | Pruebas unitarias o web de los endpoints sin test en la matriz, limitadas a los servicios de dinero (`aportes`, `garantia`, `entregas`, `nucleo-financiero`); el resto pasa a un trabajo siguiente (D8) | Matriz sin huecos en esos cuatro | `scripts/matriz_de_pruebas.py --servicio …` pegado | TODO |
+
+## H9 — Regresión, gates y entrega
+
+**CA:** Todo lo anterior en verde junto, y PRs a `dev` y a `test` mergeados (memoria `feedback_prs_dev_y_test`).
+**DoD:** Suite del backend y del backoffice en serie, `gh pr checks` sin rojos, gate de seguridad (sección 90.6)
+y `REPORTE.md`.
+**Estado:** TODO
+
+| ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
+|---|---|---|---|---|
+| H9.S1.M1 | Regresión del backend | Exit 0 | `./gradlew test` pegado | TODO |
+| H9.S1.M2 | Regresión del backoffice (unit, a11y y lint) | Exit 0, o rojos preexistentes demostrados (memoria `a11y-backoffice-vence-plazo`) | Salidas pegadas | TODO |
+| H9.S1.M3 | Gate de seguridad y privacidad: amenaza, control, test negativo y riesgo residual | Sección completa en el reporte | Revisión contra 90.6 | TODO |
+| H9.S1.M4 | PR a `dev` y PR a `test` | CI en verde y mergeados | `gh pr checks` pegado | TODO |
+
+## Riesgos y bloqueos previstos
+
+| Riesgo | Impacto | Mitigación |
+|---|---|---|
+| El trabajo es muy grande para una sola sesión | Cierre parcial | Se cierra por hito con reporte; el orden H0 → H1 → H2 → H3 → H4 → H5 → H6 → H7 → H8 → H9 deja valor en cada corte |
+| Alguna operación de dinero no genera asiento hoy (H0.S1.M1) | El KPI no puede salir del mayor | Microtarea nueva en el plan; mientras tanto el KPI responde `null` + `NO_IMPLEMENTADO`, nunca un `SUM` sobre pagos |
+| RAM del VPS de Contabo con el Collector y Prometheus | Inestabilidad en TEST | Límites de memoria en el compose, retención de Prometheus a 15 días, `memory_limiter` |
+| Cardinalidad de métricas por ruta cruda | Prometheus explota | Solo ruta plantilla (H6.S1.M3) |
+| PII en atributos de trazas | Violación de la regla 90.2.1 | Redacción en la app y en el Collector, más un escaneo en la evidencia |
+| Narrativas de ~300 tablas | Mucho volumen | Una microtarea por módulo; el gate impide declarar avance sin texto |
+| Inversiones con aliado simulado | El saldo invertido no es real | Se muestra como «dato sintético» (D12) |
+| «Intereses cobrados» se confunde con los intereses de inversión (`inversiones.distribucion_interes`, CU-126) | Dos números con el mismo nombre | El KPI se llama «Intereses por mora cobrados»; los intereses de inversión, si se piden, son otro KPI |
