@@ -67,6 +67,23 @@ public class IndicadoresDeAportesRepositorio {
                 hasta));
     }
 
+    /** Participaciones cuyo PRIMER aporte periodico acreditado cae en el rango (paso 4 del embudo comercial). */
+    public long primerAporte(DSLContext dsl, LocalDate desde, LocalDate hasta) {
+        return dsl.fetchOne(
+                        """
+                        SELECT count(*) FROM (
+                            SELECT o.participante_id,
+                                   min(COALESCE(p.fecha_hora_acreditacion, p.fecha_hora_pago)) AS primero
+                              FROM aportes.pago p JOIN aportes.obligacion_aporte o ON o.id = p.obligacion_id
+                             WHERE p.estado = 'ACREDITADO' AND o.tipo = 'APORTE_PERIODICO'
+                             GROUP BY o.participante_id) x
+                         WHERE (x.primero AT TIME ZONE 'America/La_Paz')::date BETWEEN ? AND ?
+                        """,
+                        desde,
+                        hasta)
+                .get(0, Long.class);
+    }
+
     private static Suma suma(Record r) {
         return new Suma(r.get(0, BigDecimal.class), r.get(1, Long.class));
     }
