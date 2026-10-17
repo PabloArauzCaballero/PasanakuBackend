@@ -19,8 +19,8 @@ por la regla 98:
 |---|---|---|
 | Catálogo de KPI | En código, con `code, panel, unit, numerator, denominator, sources, freshness, minSample, emptySample, owner, thresholds`. Lo define `AtlasDashboardsBackend/src/modules/kpi-catalog/kpi-definition.types.ts` | Mismo contrato, en `plataforma` (módulo compartido); cada servicio declara los KPI de los que es dueño |
 | Honestidad del número | `null` + `reason` (`SIN_DATOS`, `MUESTRA_INSUFICIENTE`, `FUENTE_NO_CONFIGURADA`, `NO_IMPLEMENTADO`…); toda tasa viaja con numerador y denominador; `isSeed` (`AtlasDashboardsBackend/README.md`) | Igual. La semilla de Faker se marca, y el tablero lo muestra |
-| Historia | Foto diaria por KPI (`src/modules/snapshots`) | Foto diaria en el esquema del servicio dueño, escrita por un trabajo programado |
-| Origen de los datos | Un servicio de reporting que **lee las bases hermanas** con un rol de solo lectura | **No se puede**: la regla 98.1.1 prohíbe leer la base de otro servicio, «ni solo para un reporte». Cada servicio expone `GET /<prefijo>/indicadores` sobre sus propios datos, y el backoffice compone (un salto por servicio, en paralelo) |
+| Historia | Foto diaria por KPI (`src/modules/snapshots`) | **Ya existe:** `auditoria.indicador_kpi` (CU-98) guarda cada indicador por período; es la foto |
+| Origen de los datos | Un servicio de reporting que **lee las bases hermanas** con un rol de solo lectura | **No se puede**: la regla 98.1.1 prohíbe leer la base de otro servicio, «ni solo para un reporte». **Rediseñado tras H3 (ver «Reencuadre CU-98»):** cada servicio dueño calcula sus indicadores y los publica por outbox (`<servicio>.indicador_calculado`); `auditoria` los guarda en `indicador_kpi` y `GET /indicadores` (CU-98) los publica |
 | Catálogo de entidades | Vivo en la base (`system_data_entity_catalog`), con la narrativa exigida por el gate `check:entity-narratives`, más `GET /systems/data-entities` | La narrativa vive en los PlantUML de `docs/Modelos` (fuente de verdad del esquema, `scripts/generar_ddl.py`). Se genera `COMMENT ON`, un `.md` y un JSON, y un gate exige narrativa en toda tabla y columna |
 | Catálogo de flujos | Declarado en código (`*.process.fixtures.ts`) y sincronizado de forma idempotente; etapas, pasos, dependencias y transiciones (`AtlasBackend/docs/endpoints/workflow-catalog.md`) | Declarado en archivos versionados, uno por flujo, con el mismo modelo; un generador cruza los pasos con los OpenAPI y los tests |
 | Observabilidad | Dominio → `TracingService` → OTel API → SDK → OTLP → Collector (memory_limiter, batch, redaction) (`AtlasBackend/docs/observability/01-architecture-design.md`) | Igual hasta el Collector. Métricas a Prometheus (decisión del 2026-10-16). Trazas: Jaeger efímero solo en dev, como en Atlas |
@@ -34,7 +34,7 @@ por la regla 98:
 | D3 | Roles | **Tres permisos** (`TABLERO_FINANCIERO_VER`, `TABLERO_COMERCIAL_VER`, `TABLERO_SISTEMAS_VER`): el financiero para `TESORERIA` y `CONTABILIDAD`, el de sistemas para `ADMIN_PLATAFORMA`, más el rol nuevo `COMERCIAL` |
 | D4 | Telemetría | **OTel + Collector + Prometheus.** Brave se cambia por el bridge de OTel |
 | D5 | «Usuarios activos» | **Distinto por tablero.** Comercial: persona con un cupo en un grupo en curso. Sistemas: persona distinta con una sesión usada hoy (desde `identidad`, nunca desde la telemetría) |
-| D6 | Período | **Selector de rango**: por defecto el mes en curso; atajos de hoy, 7 días, mes y año; rango libre; variación contra el período anterior del mismo largo |
+| D6 | Período | Decidido «selector de rango». **Desvío (2026-10-16):** CU-98 (fuente de mayor prioridad, regla 00 §8) define períodos `AAAA-MM-DD` / `AAAA-MM` / `AAAA` con serie de hasta 24 períodos; no hay rango libre. El selector ofrece día, mes y año más la serie. A informar a Pablo |
 | D7 | KPI extra | Todos los recomendados (ver H4 y H5), más los de sistemas de H6 |
 | D8 | Alcance de flujos y pruebas | **Generador más cobertura por fases.** Matriz completa ahora; árboles de decisión de los flujos de dinero ahora; el resto en trabajos siguientes |
 | D9 | Catálogo de datos | **Narrativa en el PlantUML**, de donde salen `COMMENT ON`, el `.md`, el JSON y la pantalla |
@@ -201,72 +201,90 @@ y el contrato en el OpenAPI de cada servicio.
 |---|---|---|---|---|
 | H3.S1.M1 | Tipos `DefinicionKpi` / `ResultadoKpi` / `MotivoSinValor` en `plataforma`, espejo de `kpi-definition.types.ts` de Atlas | Compila | `./gradlew :plataforma:<modulo>:compileJava` → exit 0 | HECHO — `IndicadorTest` 8/8; `:plataforma:comun-dominio:check` (cobertura 97/96) en verde |
 | H3.S1.M2 | `Guardas` de publicación: muestra mínima, `emptySample`, moneda obligatoria en dinero | Tres casos (correcto, límite, inválido) | Test unitario nombrado en verde | HECHO — `IndicadorTest` 8/8; `:plataforma:comun-dominio:check` (cobertura 97/96) en verde |
-| H3.S1.M3 | Esquema `ResultadoKpi` reutilizable en los OpenAPI | El lint de contratos pasa | Comando de lint de OpenAPI del repo → exit 0 | TODO |
-| H3.S1.M4 | Foto diaria: tabla `foto_kpi` por servicio dueño (PlantUML → DDL) y trabajo programado | Deriva en verde | `python3 scripts/generar_ddl.py` + verificación de deriva pegada | TODO — reordenada después de H6 (desvío): mientras no exista, los indicadores de saldo publican el anterior con `SIN_HISTORIA` |
+| H3.S1.M3 | Esquema `ResultadoKpi` reutilizable en los OpenAPI | El lint de contratos pasa | Comando de lint de OpenAPI del repo → exit 0 | DESCARTADO — por el reencuadre CU-98 el contrato HTTP ya existe (`SalidaTablero`/`Indicador` en `auditoria.yaml`); decidido por el agente con evidencia, a confirmar con Pablo |
+| H3.S1.M4 | Foto diaria: tabla `foto_kpi` por servicio dueño (PlantUML → DDL) y trabajo programado | Deriva en verde | `python3 scripts/generar_ddl.py` + verificación de deriva pegada | DESCARTADO — redundante: la foto es `auditoria.indicador_kpi` (CU-98) |
+
+## Reencuadre CU-98 (2026-10-16, tras H3)
+
+Al abrir H4 se encontró `docs/CasosDeUso/CU-98 Publicar el tablero de indicadores.md`, **implementado en
+`auditoria` solo del lado de la publicación**: `GET /indicadores` (`IndicadoresController`, `CU98PublicarTablero`) lee
+`auditoria.indicador_kpi` unido a `definicion_indicador`, y aplica meta, supresión por mínimo de casos, variación y
+serie. El README dice: «el valor lo deja el trabajo de cálculo en `indicador_kpi`», y **ese trabajo no existe**.
+Regla 96.1: se completa lo existente en lugar de crear endpoints paralelos por servicio.
+
+- Cada servicio dueño calcula sus indicadores con `Indicador` (H3) y los emite por outbox:
+  `<servicio>.indicador_calculado` `{codigo, nombre, valor, unidad, periodo, casos, provisorio}`. Si `Indicador` da
+  `SIN_DATOS`, no se emite: la tabla no admite `valor` nulo y CU-98 muestra el indicador ausente, no un cero.
+- `auditoria` consume esos temas y guarda el valor en `indicador_kpi` (idempotente por evento; un recálculo del mismo
+  período reemplaza el valor y deja constancia en su bitácora).
+- `definicion_indicador` se siembra en `minimos/` con el catálogo de tableros (fórmula, fuente, familia, dueño,
+  mínimo de casos). **Sin metas:** son una decisión de negocio (CU-98 «metas fijadas antes del período») y sin meta no
+  hay semáforo, que es lo correcto.
+- Autorización por familia en el servidor: `AUDITORIA_LEER` ve todo; `TABLERO_FINANCIERO_VER` ve `FINANZAS`+`RIESGO`;
+  `TABLERO_COMERCIAL_VER` ve `NEGOCIO`; `TABLERO_SISTEMAS_VER` ve `OPERACION`.
+- `provisorio`: el período en curso (día, mes, año sin terminar) se emite provisorio; uno cerrado, definitivo.
+- Los de saldo (stock: mora vigente, fondo, saldo invertido) solo se calculan para el período en curso; sin historia
+  previa, CU-98 los muestra sin variación («indicador nuevo sin historia»). H3.S1.M4 (foto propia) queda **DESCARTADA
+  por redundante**: la foto es `indicador_kpi`.
 
 ## H4 — Tablero financiero
 
-**CA:** Dado un usuario con `TABLERO_FINANCIERO_VER` y un rango, cuando abre Tablero → Financiero, entonces ve:
-**dinero entrante** (saldo cargado; pendientes cobrados con sus dos componentes, D11), **dinero saliente** (saldo
-retirado; saldo invertido en el fondo de inversión, D12), **dinero en mora**, **impagos
-cubiertos**, **intereses cobrados** (recargos, H1), **comisiones cobradas**, **turnos normales** y **turnos que
-cierran ciclo** (D2), más **tasa de mora**, **cobertura del fondo**, **recuperación de lo cubierto**, **entregas
-pendientes** y **tiempo medio turno → desembolso**. Cada número cuadra con su consulta de origen. Sin el permiso:
-403 en la API y la ruta oculta.
-**DoD:** Por KPI, una consulta de cuadre pegada contra la base sembrada. Matriz de autorización negativa en
-verde. Capturas en 3 viewports × 2 temas × estados (cargando, datos, vacío, error), inspeccionadas.
+**CA:** Dado un usuario con `TABLERO_FINANCIERO_VER` y un período (día, mes o año), cuando abre Tablero → Financiero,
+entonces ve los indicadores de `FINANZAS` y `RIESGO`: **saldo cargado**, **pendientes cobrados** (pago tarde propio y
+recuperación), **saldo retirado**, **saldo invertido**, **dinero en mora**, **impagos cubiertos**, **intereses por
+mora cobrados**, **comisiones cobradas**, **turnos normales** y **turnos que cierran ciclo**, **tasa de mora**,
+**cobertura del fondo**, **recuperación de lo cubierto**, **entregas pendientes** y **tiempo medio turno → desembolso**.
+Cada valor cuadra con su consulta de origen. Un usuario sin el permiso no recibe esas familias (servidor).
+**DoD:** Cuadre por KPI contra la base sembrada; matriz de autorización por familia; E2E y capturas en 3 viewports × 2
+temas × 4 estados.
 **Estado:** TODO
 
-### H4.S1 — Backend por servicio dueño (los dueños exactos se confirman en H0)
-
-**CA:** Cada servicio expone solo lo suyo; el dinero sale del mayor (regla 91.1.5).
-**DoD:** Por endpoint: test de integración contra Postgres con datos de Datafaker, más la matriz negativa (sin
-token, sin permiso, otro rol).
-**Estado:** TODO
+### H4.S0 — El sumidero en `auditoria` (común a H4, H5 y H6)
 
 | ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
 |---|---|---|---|---|
-| H4.S1.M1 | `nucleo-financiero`: entrante, saliente, recargos cobrados y comisiones cobradas desde el mayor | Cada valor = consulta de cuadre | `./gradlew :servicios:nucleo-financiero:test --tests '*Indicadores*'` en verde | TODO |
-| H4.S1.M2 | `garantia`: mora vigente, impagos cubiertos, recuperación y cobertura del fondo | Tasas con numerador y denominador | `./gradlew :servicios:garantia:test --tests '*Indicadores*'` en verde | TODO |
-| H4.S1.M3 | `aportes`: pendientes cobrados (pago tarde propio) y tasa de mora | Dos componentes separados | `./gradlew :servicios:aportes:test --tests '*Indicadores*'` en verde | TODO |
-| H4.S1.M4 | `grupos`: turnos normales y turnos de cierre (D2) | El turno de cierre se cuenta una sola vez | `./gradlew :servicios:grupos:test --tests '*Indicadores*'` en verde | TODO |
-| H4.S1.M5 | `entregas`: entregas pendientes y tiempo medio | `null` + `SIN_DATOS` sin entregas | `./gradlew :servicios:entregas:test --tests '*Indicadores*'` en verde | TODO |
-| H4.S1.M8 | `inversiones`: saldo invertido (posiciones vigentes), con la marca de dato sintético (D12) | Valor = consulta de cuadre; `isSeed` true mientras el aliado sea simulado | `./gradlew :servicios:inversiones:test --tests '*Indicadores*'` en verde | TODO |
-| H4.S1.M6 | Matriz de autorización negativa de los seis endpoints | 401 sin token, 403 sin permiso | Tests nombrados en verde | TODO |
-| H4.S1.M7 | Regenerar los clientes Angular | Diff solo en los clientes tocados | Comando de generación del repo → exit 0 | TODO |
+| H4.S0.M1 | Catálogo `definicion_indicador` de los tableros en `seeders/minimos` (código, v1, familia, dueño, fórmula, fuente, mínimo de casos) | Siembra idempotente | Dos siembras (N → 0) pegadas | TODO |
+| H4.S0.M2 | `PublicadorDeIndicadores` en `plataforma`: `Indicador` → evento `<servicio>.indicador_calculado` por outbox; `SIN_DATOS` no emite | Correcto, límite (sin datos) e inválido (sin código) | Test unitario en verde | TODO |
+| H4.S0.M3 | `auditoria` consume los temas `*.indicador_calculado` y guarda en `indicador_kpi`; idempotente; recálculo reemplaza | Mismo evento dos veces → una fila; recálculo → valor nuevo | Test de integración en verde | TODO |
+| H4.S0.M4 | CU-98 autoriza por familia: `@PermisoAlternativo` con los tres permisos y filtro en el servidor | Sin permiso de la familia → no aparece; sin ninguno → 403 | Test de autorización negativa en verde | TODO |
+
+### H4.S1 — Calculadores por servicio dueño (dinero desde el mayor)
+
+| ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
+|---|---|---|---|---|
+| H4.S1.M1 | `nucleo-financiero`: cargado, retirado, intereses por mora y comisiones cobradas, desde `asiento_contable`+`movimiento_contable` por tipo de transacción | Cada valor = consulta de cuadre | `./gradlew :servicios:nucleo-financiero:integrationTest --tests '*Indicadores*'` en verde | TODO |
+| H4.S1.M2 | `garantia`: mora vigente, impagos cubiertos, recuperación y cobertura del fondo | Tasas con numerador y denominador | `./gradlew :servicios:garantia:integrationTest --tests '*Indicadores*'` en verde | TODO |
+| H4.S1.M3 | `aportes`: pendientes cobrados (pago tarde propio) y tasa de mora | Dos componentes separados | `./gradlew :servicios:aportes:integrationTest --tests '*Indicadores*'` en verde | TODO |
+| H4.S1.M4 | `grupos`: turnos normales y turnos de cierre (D2) | El de cierre se cuenta una vez | `./gradlew :servicios:grupos:integrationTest --tests '*Indicadores*'` en verde | TODO |
+| H4.S1.M5 | `entregas`: entregas pendientes y tiempo medio | `SIN_DATOS` sin entregas | `./gradlew :servicios:entregas:integrationTest --tests '*Indicadores*'` en verde | TODO |
+| H4.S1.M6 | `inversiones`: saldo invertido (posiciones vigentes), marcado sintético (D12) | Valor = consulta | `./gradlew :servicios:inversiones:integrationTest --tests '*Indicadores*'` en verde | TODO |
+| H4.S1.M7 | Disparo: trabajo diario por servicio (ayer, mes y año en curso) y relleno de los últimos 13 meses para los de flujo | Corre una vez por día; relleno idempotente | Test del trabajo en verde | TODO |
+| H4.S1.M8 | Punta a punta con la base sembrada: calculadores → Kafka → `auditoria` → `GET /indicadores` | Valores = consultas de cuadre | Ensayo con el stack local pegado | TODO |
 
 ### H4.S2 — Pantalla
 
-**CA:** Pantalla con selector de rango (D6), fichas con fórmula al pasar el mouse, `null` mostrado con su motivo,
-marca «datos sintéticos» cuando `isSeed`, y fallo parcial por servicio sin romper el resto.
-**DoD:** `yarn test:front` de los specs nuevos en verde, `yarn lint` limpio, E2E contra el backend real y
-capturas inspeccionadas.
-**Estado:** TODO
-
 | ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
 |---|---|---|---|---|
-| H4.S2.M1 | Contenedor más presentacionales, reusando los componentes existentes de `tablero/` y `contabilidad/` (buscar antes de crear) | Specs de los cuatro estados en verde | `yarn --cwd apps/backoffice test:front` (specs nombrados) | TODO |
-| H4.S2.M2 | Ruta protegida por el permiso | Guardia con spec en verde | Spec de la guardia en verde | TODO |
-| H4.S2.M3 | E2E contra el stack real sembrado | Valores en pantalla = consultas de cuadre | `yarn --cwd apps/backoffice test:e2e tablero-financiero` con trace | TODO |
-| H4.S2.M4 | Prueba visual | 3 viewports × 2 temas × 4 estados, inspeccionados | Capturas en `evidencia/H4/` | TODO |
+| H4.S2.M1 | Tablero financiero: contenedor + presentacionales reusando los de `tablero/`; selector día/mes/año y serie; cuatro estados | Specs en verde | `yarn --cwd apps/backoffice test:front` (specs nombrados) | TODO |
+| H4.S2.M2 | Ruta con `requierePermiso('TABLERO_FINANCIERO_VER')` | Spec de la guardia en verde | Spec en verde | TODO |
+| H4.S2.M3 | E2E contra el stack real sembrado | Pantalla = cuadre | `yarn --cwd apps/backoffice test:e2e tablero-financiero` con trace | TODO |
+| H4.S2.M4 | Prueba visual | 3 viewports × 2 temas × 4 estados | Capturas en `evidencia/H4/` | TODO |
 
 ## H5 — Tablero comercial
 
-**CA:** Dado un usuario con `TABLERO_COMERCIAL_VER`, cuando abre el tablero comercial, entonces ve usuarios
-nuevos, usuarios activos (D5), embudo de alta (registrados → KYC aprobado → en un grupo → primer aporte), grupos
-nuevos y completos, días hasta llenarse, retención a 60 días y volumen comprometido, con la misma honestidad de
-H3. Sin permiso: 403.
-**DoD:** Igual que H4: cuadre por KPI, matriz negativa, E2E real y prueba visual.
+**CA:** Con `TABLERO_COMERCIAL_VER`, la familia `NEGOCIO`: usuarios nuevos, activos (D5), embudo de alta, grupos
+nuevos y completos, días hasta llenarse, retención a 60 días y volumen comprometido. Misma honestidad y autorización
+que H4.
+**DoD:** Igual que H4.
 **Estado:** TODO
 
 | ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
 |---|---|---|---|---|
-| H5.S1.M1 | `identidad`: usuarios nuevos y etapas de registro y KYC del embudo | Valores = consulta de cuadre | `./gradlew :servicios:identidad:test --tests '*Indicadores*'` en verde | TODO |
-| H5.S1.M2 | `grupos`: activos comerciales, grupos nuevos y completos, días de llenado, retención | Retención con numerador y denominador | `./gradlew :servicios:grupos:test --tests '*IndicadoresComerciales*'` en verde | TODO |
-| H5.S1.M3 | `aportes`: primer aporte (embudo) y volumen comprometido | Decimal con moneda | `./gradlew :servicios:aportes:test --tests '*IndicadoresComerciales*'` en verde | TODO |
-| H5.S1.M4 | Matriz negativa y regeneración de clientes | 401 y 403 | Tests en verde y generación → exit 0 | TODO |
-| H5.S2.M1 | Pantalla con embudo (reparto) y fichas | Specs de los cuatro estados en verde | `yarn --cwd apps/backoffice test:front` (specs nombrados) | TODO |
-| H5.S2.M2 | E2E real y prueba visual | Valores = cuadre; capturas inspeccionadas | `yarn --cwd apps/backoffice test:e2e tablero-comercial` + `evidencia/H5/` | TODO |
+| H5.S1.M1 | `identidad`: usuarios nuevos y etapas de registro y KYC del embudo | Valores = cuadre | `./gradlew :servicios:identidad:integrationTest --tests '*Indicadores*'` en verde | TODO |
+| H5.S1.M2 | `grupos`: activos comerciales, grupos nuevos y completos, días de llenado, retención | Retención con num/den | `./gradlew :servicios:grupos:integrationTest --tests '*IndicadoresComerciales*'` en verde | TODO |
+| H5.S1.M3 | `aportes`: primer aporte (embudo) y volumen comprometido | Decimal con moneda | `./gradlew :servicios:aportes:integrationTest --tests '*IndicadoresComerciales*'` en verde | TODO |
+| H5.S2.M1 | Pantalla comercial con embudo y fichas | Specs en verde | `yarn --cwd apps/backoffice test:front` (specs nombrados) | TODO |
+| H5.S2.M2 | E2E real y prueba visual | Pantalla = cuadre; capturas | `test:e2e tablero-comercial` + `evidencia/H5/` | TODO |
 
 ## H6 — OpenTelemetry y tablero de sistemas
 
