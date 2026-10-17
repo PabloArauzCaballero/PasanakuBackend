@@ -1,15 +1,16 @@
 # Reporte — Tableros por rol, catálogos, pruebas con Faker y OpenTelemetry
 
-> **AVANCE: 72 / 89 — 80,9 %.** (2 descartadas con motivo, 2 a medias, 13 por hacer: casi todas exigen la pila levantada, H9)
+> **AVANCE: 78 / 90 — 86,7 %.** (2 descartadas con motivo, 2 a medias, 7 bloqueadas por la pila compartida con su simulación declarada, 1 por hacer: los PRs)
 
 - Fecha: 2026-10-16 → 2026-10-17 · Plan: [PLAN.md](./PLAN.md) · Rama(s): `pablo/feat/tableros-por-rol-2026-10-16`
   (worktree `../Pasanaku-tableros`, desde `origin/dev` `d63e4fef`)
 - Peldaño de evidencia alcanzado, por área:
-  - Backend (H1–H8): `TESTED` — integración contra Postgres real, suites completas por servicio y pisos de cobertura.
-  - Frontend de los tres tableros y del catálogo de datos: `TESTED` (specs de los cuatro estados y axe); **sin prueba
-    visual ni E2E** → `VERIFIED_FUNCTIONAL_ONLY` no alcanzado todavía.
-  - Punta a punta por Kafka (calculadores → auditoria → `GET /indicadores`) y OpenTelemetry con spans reales: **sin
-    ejecutar** (H9).
+  - Backend (H1–H8): `TESTED` — regresión completa (4.009 pruebas, todos los runners y pisos de cobertura); los tres
+    rojos eran preexistentes o de entorno y quedaron resueltos o demostrados (ver H9.S1.M1).
+  - Frontend (tres tableros y catálogo): `VERIFIED_FUNCTIONAL_ONLY` **contra un backend doble** — E2E de 16 recorridos y
+    52 capturas inspeccionadas (3 viewports × 2 temas, con desborde y contraste medidos); falta contra el backend real.
+  - Punta a punta entre servicios (Kafka, OpenTelemetry): verificado por pactos de los dos lados; **sin corrida real**
+    (BLOQUEADO: levantar la pila pisaría la de otra sesión).
   - Peldaño del trabajo (el más bajo de sus áreas): `TESTED`.
 
 ## Completado
@@ -43,6 +44,11 @@
 | H8.S3.M2 | Cadena de la entrega con el asiento cuadrado (prueba existente, ejecutada) | `CU133*` + `CU28Test` 26/26 | PASS |
 | H8.S3.M3 | `CUFlujoRecargaYRetiroTest`: recargar → confirmar → retirar → pagar con Datafaker; retirar todo; un centavo de más (AP-CU11-01) | integrationTest 3/3 | PASS |
 | H8.S3.M4 | Prueba web de los 11 endpoints de dinero sin cubrir: aportes, garantia, entregas y nucleo quedan 75/75 | webTest de los 4 servicios: 46+50+79+60, 0 fallas | PASS — `evidencia/H8-S3-M4-pruebas-web-dinero.txt` |
+| H9.S0.M1 | (Agregada) Las tarjetas de acceso con dos segmentos llevaban a `/tablero%2Ffinanciero`; ahora a la ruta real | spec en rojo antes, verde después; E2E «acceso» | PASS — `evidencia/H9-S0-M1-enlaces-de-acceso.txt` |
+| H4.S2.M4 · H7.S2.M2 | Prueba visual de los tres tableros y del catálogo; corrigió desborde en móvil y tablet, orden del tablero de sistemas, cortes de ruta y Markdown crudo | `yarn test:e2e tableros-por-rol.e2e.ts --retries=0` 16/16 | PASS (backend doble declarado) — `evidencia/H9-visual/INFORME.txt` |
+| H9.S1.M1 | Regresión del backend | `./gradlew test webTest integrationTest contractTest sagaTest jacocoTestCoverageVerification` | 4.009 pruebas; rojos preexistentes/entorno resueltos tras el merge de `dev` — `evidencia/H9-S1-M1-regresion-backend.txt` |
+| H9.S1.M2 | Regresión del backoffice | `test:front` 818 · `test:a11y` 70 · lint · build | PASS — `evidencia/H9-S1-M2-regresion-backoffice.txt` |
+| H9.S1.M3 | Gate de seguridad y privacidad | revisión contra 90.6 | PASS — sección de abajo |
 
 ## A medias
 
@@ -62,14 +68,16 @@
 
 | ID | Estado | Qué lo destraba |
 |---|---|---|
-| H4.S1.M8 | TODO | Pila arriba con Kafka y `crear-topicos.sh`: calculadores → `auditoria` → `GET /indicadores` (H9) |
-| H4.S2.M3 · H5.S2.M2 · H6.S3.M4 | TODO | E2E de los tres tableros contra la pila sembrada (H9) |
-| H4.S2.M4 · H7.S2.M2 (y la parte visual de H5.S2.M2 / H6.S3.M4) | TODO | Prueba visual en 3 viewports × 2 temas con sesión real; el mock Prism no completa el login |
-| H6.S1.M3 | TODO | Series reales en Prometheus para comprobar la etiqueta de ruta plantilla |
-| H6.S2.M2 | TODO | Jaeger efímero en dev (opcional) |
-| H6.S2.M3 | TODO | Apagar el Collector con la pila arriba y comprobar que los servicios siguen respondiendo |
-| H9.S1.M1-M4 | TODO | Levantar la pila, regresión completa, gates, PRs a `dev` y `test` |
+| H4.S1.M8 | BLOQUEADO | Pila arriba: calculadores → Kafka → `auditoria` → `GET /indicadores`. Simulado con el pacto `servicios-auditoria-indicador-calculado.json` (productor y consumidor en verde) |
+| H4.S2.M3 · H5.S2.M2 · H6.S3.M4 | BLOQUEADO | E2E contra el backend real sembrado. Simulado: 16 recorridos con `auditoria` como doble (datos, vacío, cargando, 500/403) |
+| H6.S1.M3 · H6.S2.M3 | BLOQUEADO | Series reales en Prometheus y apagar el Collector con la pila arriba. Simulado con `PrometheusDobleTest` y el estado «sin fuente» |
+| H6.S2.M2 | BLOQUEADO | Jaeger en dev (opcional, sin doble posible) |
+| H9.S1.M4 | TODO | PR a `dev` y PR a `test`, CI en verde y merge |
 | H3.S1.M3 · H3.S1.M4 | DESCARTADO | Redundantes tras el reencuadre en CU-98 (decidido por el agente con evidencia; confirmar con Pablo) |
+
+**Por qué está bloqueado lo que necesita la pila:** el compose fija los nombres `aportaya-postgres` y `aportaya-interna`, y
+ese contenedor ya corre para otra sesión (worktree `backoffice-dominio`, 25 h arriba). Levantar la pila desde acá la
+recrearía con otro esquema: es una acción destructiva sobre algo compartido, que decide Pablo.
 
 ## Evidencia
 
@@ -140,10 +148,13 @@ $ python3 -I scripts/verificar_narrativas.py
   consumidor de `transaccion_reversada` sin pacto (regla 98.1.4). Se agregaron en H8.S3.M1.
 - **`proponerReemplazo` responde 200 en el reintento** y el contrato solo declara 201/422 (preexistente; está entre las
   «operaciones con el estado HTTP fuera de su contrato» que lista `verificar_pruebas_web.py`).
-- **Fallas preexistentes ajenas:** `identidad` `CU04CodigoPorCorreoTest.codigoLlegaPorCorreoYEntra` (AP-CU04-03 vs
-  AP-CU04-10, reproducida en `origin/dev`); `apps/backoffice` lint por `pantalla-de-expedientes.ts` (206 líneas);
-  `verificar_rutas_frontend.py` con la lista `CONOCIDAS_SIN_CONTRATO` desactualizada (reproducida sin los cambios de
-  este trabajo).
+- **Fallas preexistentes:** `CU04CodigoPorCorreoTest`, el lint de `pantalla-de-expedientes.ts` y la cobertura de
+  `comun-datos` venían de la base y los corrigió `dev` (traído con el merge `00183992`). Sigue sin corregir
+  `verificar_rutas_frontend.py` con la lista `CONOCIDAS_SIN_CONTRATO` desactualizada (reproducida sin estos cambios).
+- **Entorno:** las pruebas de contrato del aliado simulado de `inversiones` lanzan `python`; en esta máquina solo hay
+  `python3` (con un alias pasan 23/23). Hay que fijarlo en el CI o en el script.
+- **Capturas versionadas:** la prueba visual deja 14 MB en `evidencia/H9-visual/` (hay precedente: el carril F2 dejó 5 MB).
+- El selector de mes nativo de Chromium sale en inglés y `EstadoDePantalla` ofrece «Volver a intentar» ante un 403 (ajenos).
 - **Semilla sin historial de grupos ni retiros/recargos/comisiones por transacción:** `GRUPOS_COMPLETOS`,
   `DIAS_LLENADO_GRUPO`, `RETENCION_60D`, `SALDO_RETIRADO` e `INTERESES_MORA_COBRADOS` salen sin datos con la base
   sembrada.
