@@ -131,6 +131,9 @@ class UsuariosSubirDocumentoWebTest {
     private bo.aportaya.identidad.aplicacion.ActivarRolOrganizador activarRolOrganizador;
 
     @MockitoBean
+    private bo.aportaya.identidad.aplicacion.ConsultarMiPerfil consultarMiPerfil;
+
+    @MockitoBean
     private ConsultarNivelKyc nivelesKyc;
 
     private TokenDeAlta emisor() {
