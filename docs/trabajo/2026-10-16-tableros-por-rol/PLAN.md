@@ -215,14 +215,19 @@ Regla 96.1: se completa lo existente en lugar de crear endpoints paralelos por s
 - Cada servicio dueño calcula sus indicadores con `Indicador` (H3) y los emite por outbox:
   `<servicio>.indicador_calculado` `{codigo, nombre, valor, unidad, periodo, casos, provisorio}`. Si `Indicador` da
   `SIN_DATOS`, no se emite: la tabla no admite `valor` nulo y CU-98 muestra el indicador ausente, no un cero.
-- `auditoria` consume esos temas y guarda el valor en `indicador_kpi` (idempotente por evento; un recálculo del mismo
-  período reemplaza el valor y deja constancia en su bitácora).
+- `auditoria` consume esos temas y guarda el valor en `indicador_kpi`. **Corregido al abrir H4.S0.M3:** el modelo
+  (`docs/entidades/09_auditoria_reportes.puml:702-738`) define UN valor por período y versión de definición, en una
+  tabla append-only (una corrección = versión nueva de la definición). Por eso **solo se emiten períodos CERRADOS**
+  (ayer; el mes y el año al terminar), con `ON CONFLICT DO NOTHING`, y el tablero abre en el último período cerrado.
+- **Ambigüedad A7:** CU-98 (flujo 1a) habla de indicadores «provisorios» de un período abierto, pero la unicidad
+  (código, dimensión, período, definición) no permite actualizarlos. Supuesto: no se guardan períodos abiertos.
+  Confirmar con: Pablo (dueño de CU-98).
 - `definicion_indicador` se siembra en `minimos/` con el catálogo de tableros (fórmula, fuente, familia, dueño,
   mínimo de casos). **Sin metas:** son una decisión de negocio (CU-98 «metas fijadas antes del período») y sin meta no
   hay semáforo, que es lo correcto.
 - Autorización por familia en el servidor: `AUDITORIA_LEER` ve todo; `TABLERO_FINANCIERO_VER` ve `FINANZAS`+`RIESGO`;
   `TABLERO_COMERCIAL_VER` ve `NEGOCIO`; `TABLERO_SISTEMAS_VER` ve `OPERACION`.
-- `provisorio`: el período en curso (día, mes, año sin terminar) se emite provisorio; uno cerrado, definitivo.
+- `provisorio`: siempre `false`, porque solo se emiten períodos cerrados. No refleja si cuadraron los cierres contables, que cada servicio no conoce (riesgo anotado).
 - Los de saldo (stock: mora vigente, fondo, saldo invertido) solo se calculan para el período en curso; sin historia
   previa, CU-98 los muestra sin variación («indicador nuevo sin historia»). H3.S1.M4 (foto propia) queda **DESCARTADA
   por redundante**: la foto es `indicador_kpi`.
@@ -245,8 +250,8 @@ temas × 4 estados.
 |---|---|---|---|---|
 | H4.S0.M1 | Catálogo `definicion_indicador` de los tableros en `seeders/minimos` (código, v1, familia, dueño, fórmula, fuente, mínimo de casos) | Siembra idempotente | Dos siembras (N → 0) pegadas | HECHO — `evidencia/H4-S0-M1-definiciones.txt` (36 → 0) |
 | H4.S0.M2 | `PublicadorDeIndicadores` en `plataforma`: `Indicador` → evento `<servicio>.indicador_calculado` por outbox; `SIN_DATOS` no emite | Correcto, límite (sin datos) e inválido (sin código) | Test unitario en verde | HECHO — `PublicadorDeIndicadoresTest` 5/5 |
-| H4.S0.M3 | `auditoria` consume los temas `*.indicador_calculado` y guarda en `indicador_kpi`; idempotente; recálculo reemplaza | Mismo evento dos veces → una fila; recálculo → valor nuevo | Test de integración en verde | EN CURSO |
-| H4.S0.M4 | CU-98 autoriza por familia: `@PermisoAlternativo` con los tres permisos y filtro en el servidor | Sin permiso de la familia → no aparece; sin ninguno → 403 | Test de autorización negativa en verde | TODO |
+| H4.S0.M3 | `auditoria` consume los temas `*.indicador_calculado` y guarda en `indicador_kpi` con la definición vigente al inicio del período; idempotente; sin definición → se descarta con aviso (AP-CU98-02) | Mismo evento dos veces → una fila; mismo período otra vez → no pisa | Test de integración en verde | HECHO — `CURegistroDeIndicadoresTest` 4/4, `ConsumidorDeIndicadoresKafkaTest` 3/3, `ArranqueTest` 1/1 |
+| H4.S0.M4 | CU-98 autoriza por familia: `@PermisoAlternativo` con los tres permisos y filtro en el servidor | Sin permiso de la familia → no aparece; sin ninguno → 403 | Test de autorización negativa en verde | EN CURSO |
 
 ### H4.S1 — Calculadores por servicio dueño (dinero desde el mayor)
 
@@ -258,7 +263,7 @@ temas × 4 estados.
 | H4.S1.M4 | `grupos`: turnos normales y turnos de cierre (D2) | El de cierre se cuenta una vez | `./gradlew :servicios:grupos:integrationTest --tests '*Indicadores*'` en verde | TODO |
 | H4.S1.M5 | `entregas`: entregas pendientes y tiempo medio | `SIN_DATOS` sin entregas | `./gradlew :servicios:entregas:integrationTest --tests '*Indicadores*'` en verde | TODO |
 | H4.S1.M6 | `inversiones`: saldo invertido (posiciones vigentes), marcado sintético (D12) | Valor = consulta | `./gradlew :servicios:inversiones:integrationTest --tests '*Indicadores*'` en verde | TODO |
-| H4.S1.M7 | Disparo: trabajo diario por servicio (ayer, mes y año en curso) y relleno de los últimos 13 meses para los de flujo | Corre una vez por día; relleno idempotente | Test del trabajo en verde | TODO |
+| H4.S1.M7 | Disparo: trabajo diario por servicio (ayer; mes y año anteriores al cambiar) y relleno de los últimos 13 meses cerrados para los de flujo | Corre una vez por día; relleno idempotente | Test del trabajo en verde | TODO |
 | H4.S1.M8 | Punta a punta con la base sembrada: calculadores → Kafka → `auditoria` → `GET /indicadores` | Valores = consultas de cuadre | Ensayo con el stack local pegado | TODO |
 
 ### H4.S2 — Pantalla
