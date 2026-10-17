@@ -7,6 +7,7 @@ import { TarjetaKPI } from '@aportaya/ui/tarjeta-kpi/tarjeta-kpi'
 import {
   ESPERADOS_COMERCIAL,
   ESPERADOS_FINANCIERO,
+  ESPERADOS_SISTEMAS,
   embudo,
   periodoCerrado,
   recursoTablero,
@@ -15,9 +16,10 @@ import {
   type SalidaTablero,
   type Tarjeta,
 } from './dominio/indicadores'
+import { TablaEndpointsDelDia } from './tabla-endpoints-del-dia'
 import { textosTablero } from './textos'
 
-export type TipoDeTablero = 'financiero' | 'comercial'
+export type TipoDeTablero = 'financiero' | 'comercial' | 'sistemas'
 
 /**
  * Tableros por rol (H4.S2 · H5.S2) · el tablero financiero o el comercial, con los indicadores que publica CU-98
@@ -31,7 +33,7 @@ export type TipoDeTablero = 'financiero' | 'comercial'
 @Component({
   selector: 'ap-tablero-por-rol',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [BandaDeProposito, ChipEstado, EstadoDePantalla, SelectorSegmentado, TarjetaKPI],
+  imports: [BandaDeProposito, ChipEstado, EstadoDePantalla, SelectorSegmentado, TablaEndpointsDelDia, TarjetaKPI],
   template: `
     <ap-banda-de-proposito [texto]="encabezado().proposito" />
     <section class="pantalla">
@@ -55,6 +57,7 @@ export type TipoDeTablero = 'financiero' | 'comercial'
         </div>
       </form>
       @if (enCurso()) { <p role="status" class="aviso">{{ t.enCurso }}</p> }
+      @if (tipo() === 'sistemas') { <ap-tabla-endpoints-del-dia /> }
 
       <ap-estado-de-pantalla
         [recurso]="tablero"
@@ -165,7 +168,7 @@ export class TableroPorRol {
   protected readonly salida = computed(() => (this.tablero.hasValue() ? this.tablero.value() : undefined))
   protected readonly pasos = computed(() => embudo(this.salida()))
   protected readonly grupos = computed(() => {
-    const esperados = this.tipo() === 'financiero' ? ESPERADOS_FINANCIERO : ESPERADOS_COMERCIAL
+    const esperados = { financiero: ESPERADOS_FINANCIERO, comercial: ESPERADOS_COMERCIAL, sistemas: ESPERADOS_SISTEMAS }[this.tipo()]
     const lista = tarjetas(this.salida(), esperados)
     const nombres = [...new Set(lista.map((k) => k.grupo))]
     return nombres.map((nombre) => ({ nombre, tarjetas: lista.filter((k: Tarjeta) => k.grupo === nombre) }))

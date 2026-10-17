@@ -313,7 +313,7 @@ siguen respondiendo.
 | H6.S2.M3 | Prueba de caída del Collector | El servicio sigue respondiendo 200 | Salida pegada | TODO |
 | H6.S3.M1 | Endpoint de indicadores de sistemas que consulta Prometheus por HTTP con timeout, consultas en lista blanca y degradación declarada (`FUENTE_NO_CONFIGURADA`). El servicio que lo hospeda se decide en H0 | Correcto, límite (sin tráfico) e inválido (Prometheus caído) | Test de integración con Prometheus real más un doble para «caído» | HECHO contra doble — `evidencia/H6-S3-M1-sistemas.txt` (Prometheus real en H9) |
 | H6.S3.M2 | Usuarios activos hoy desde las sesiones de `identidad` | Valor = consulta | Test nombrado en verde | HECHO — `evidencia/H6-S3-M2-activos.txt` |
-| H6.S3.M3 | Pantalla de sistemas (Sistemas → Tráfico) | Specs de los cuatro estados en verde | `yarn --cwd apps/backoffice test:front` (specs nombrados) | EN CURSO |
+| H6.S3.M3 | Pantalla de sistemas (Sistemas → Tráfico) | Specs de los cuatro estados en verde | `yarn --cwd apps/backoffice test:front` (specs nombrados) | HECHO — `evidencia/H6-S3-M3-pantalla-sistemas.txt` |
 | H6.S3.M4 | E2E real y prueba visual | Tablero = consulta a Prometheus | `yarn --cwd apps/backoffice test:e2e tablero-sistemas` + `evidencia/H6/` | TODO |
 
 ## H7 — Catálogo de datos

@@ -40,6 +40,15 @@ export const routes: Routes = [
         title: 'Tablero financiero · AportaYa',
       },
       {
+        // Tablero de sistemas: NO bajo /sistemas, cuya guardia exige roles PLATAFORMA/SEGURIDAD que no existen en el
+        // catálogo (hallazgo H0-05 del trabajo tableros-por-rol); se protege por su permiso, como los otros dos.
+        path: 'tablero/sistemas',
+        canMatch: [requierePermiso('TABLERO_SISTEMAS_VER')],
+        loadComponent: () => import('./rutas/tablero/tablero-por-rol').then((m) => m.TableroPorRol),
+        data: { tipo: 'sistemas' },
+        title: 'Tablero de sistemas · AportaYa',
+      },
+      {
         path: 'tablero/comercial',
         canMatch: [requierePermiso('TABLERO_COMERCIAL_VER')],
         loadComponent: () => import('./rutas/tablero/tablero-por-rol').then((m) => m.TableroPorRol),

@@ -30,6 +30,10 @@ export const textosTablero = {
       titulo: 'Tablero financiero',
       proposito: 'Lo que entró, lo que salió, la mora y el fondo de garantía, calculado desde el mayor y cada servicio dueño.',
     },
+    sistemas: {
+      titulo: 'Tablero de sistemas',
+      proposito: 'Cuánto se usó la plataforma, cuánto falló y cuánto tardó, desde OpenTelemetry.',
+    },
     comercial: {
       titulo: 'Tablero comercial',
       proposito: 'Cuántas personas llegan, cuántas se quedan y cuánto dinero comprometen los grupos.',
@@ -57,5 +61,12 @@ export const textosTablero = {
       explicacion: 'Cuántas personas dieron cada paso en el período. Cada paso cuenta sus propios hechos: no es la misma cohorte.',
     },
     calculo: 'Cada número sale del servicio dueño del dato y declara su fórmula en el catálogo de indicadores.',
+    endpoints: {
+      titulo: 'Endpoints de hoy',
+      explicacion: 'Desde la medianoche hasta ahora: cuántas veces se llamó cada ruta, cuántas fallaron y cuánto tardó el 95 % de las llamadas.',
+      cargando: 'Consultando el tráfico de hoy',
+      vacio: 'Todavía nadie llamó a la plataforma hoy.',
+      sinFuente: 'No pudimos leer el tráfico: el colector de métricas no respondió. Esto no significa que no haya habido llamadas.',
+    },
   },
 }
