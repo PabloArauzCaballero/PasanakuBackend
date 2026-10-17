@@ -20,7 +20,10 @@ export default defineConfig({
   testDir: 'e2e',
   testMatch: /.*\.e2e\.ts/,
   // `produccion.e2e.ts` necesita el build de producción servido aparte: tiene su propia configuración.
-  testIgnore: /produccion\.e2e\.ts/,
+  // `aceptacion/` también: corre con `e2e/aceptacion/playwright.aceptacion.config.ts`, que necesita el doble
+  // con estado (puerto 5446) y los servidores que levanta `scripts/aceptacion.sh`. Bajo esta configuración
+  // no tiene a quién hablarle y falla con ECONNREFUSED: no es una falla del producto.
+  testIgnore: [/produccion\.e2e\.ts/, /aceptacion\//],
   outputDir: '../../.playwright/backoffice',
   reporter: [['list']],
   workers: 1,
