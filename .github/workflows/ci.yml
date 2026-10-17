@@ -178,6 +178,13 @@ jobs:
           python3 -m pip install --quiet pyyaml
           python3 scripts/verificar_pruebas_web.py
 
+      # Catálogo de flujos: cada paso apunta a una operación que existe, cada código está en su contrato y cada caso
+      # a una prueba que existe. PyYAML, como el paso 6f.
+      - name: 6j · validar_flujos.py — los árboles de decisión cierran contra el sistema real
+        run: |
+          python3 -m pip install --quiet pyyaml
+          python3 scripts/validar_flujos.py
+
       - name: 6e · generar_k8s.py — los descriptores cierran contra el pool
         run: python3 scripts/generar_k8s.py
 
