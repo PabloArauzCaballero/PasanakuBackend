@@ -1,11 +1,13 @@
 package bo.aportaya.auditoria.web;
 
 import bo.aportaya.auditoria.aplicacion.CU98PublicarTablero;
+import bo.aportaya.auditoria.dominio.FamiliasVisibles;
 import bo.aportaya.auditoria.web.generado.IndicadoresApi;
 import bo.aportaya.auditoria.web.generado.modelo.Indicador;
 import bo.aportaya.auditoria.web.generado.modelo.IndicadorSerieInner;
 import bo.aportaya.auditoria.web.generado.modelo.SalidaTablero;
 import bo.aportaya.plataforma.web.seguridad.Permiso;
+import bo.aportaya.plataforma.web.seguridad.PermisoAlternativo;
 import bo.aportaya.plataforma.web.seguridad.SesionDeLaPeticion;
 import bo.aportaya.plataforma.web.traza.Traza;
 import java.math.BigDecimal;
@@ -36,18 +38,22 @@ public class IndicadoresController implements IndicadoresApi {
 
     @Override
     @Permiso("AUDITORIA_LEER")
+    @PermisoAlternativo({"TABLERO_FINANCIERO_VER", "TABLERO_COMERCIAL_VER", "TABLERO_SISTEMAS_VER"})
     public ResponseEntity<SalidaTablero> publicarTablero(
             String periodo, String dimension, UUID dimensionId, Integer periodosDeSerie) {
 
         Traza.marcarCasoDeUso("CU-98", periodo);
 
+        var contexto = sesion.actual();
         var salida = cu98.ejecutar(
                 new CU98PublicarTablero.EntradaTablero(
                         periodo,
                         dimension,
                         Optional.ofNullable(dimensionId),
                         periodosDeSerie == null ? 6 : periodosDeSerie),
-                sesion.actual());
+                contexto,
+                // El permiso dejo pasar; QUE familias ve lo decide el servidor, no la pestaña del backoffice.
+                FamiliasVisibles.para(contexto.rol(), sesion.permisos()));
 
         return ResponseEntity.ok(mapear(salida));
     }

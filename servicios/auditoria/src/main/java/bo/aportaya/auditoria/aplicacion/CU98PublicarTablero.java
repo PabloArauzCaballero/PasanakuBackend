@@ -1,5 +1,6 @@
 package bo.aportaya.auditoria.aplicacion;
 
+import bo.aportaya.auditoria.dominio.FamiliasVisibles;
 import bo.aportaya.auditoria.dominio.SentidoDeMeta;
 import bo.aportaya.auditoria.dominio.Variacion;
 import bo.aportaya.auditoria.infraestructura.IndicadorRepositorio;
@@ -11,6 +12,7 @@ import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -46,6 +48,15 @@ public class CU98PublicarTablero {
 
     @Transactional(readOnly = true)
     public SalidaTablero ejecutar(EntradaTablero entrada, ContextoSesion ctx) {
+        return ejecutar(entrada, ctx, FamiliasVisibles.TODAS);
+    }
+
+    /**
+     * Tableros por rol: solo las familias que quien pregunta puede ver. El filtro es del servidor y va ANTES de decidir
+     * si el tablero es provisorio: lo que no se ve no condiciona la lectura de lo que si.
+     */
+    @Transactional(readOnly = true)
+    public SalidaTablero ejecutar(EntradaTablero entrada, ContextoSesion ctx, Set<String> familias) {
         Dimension dimension = Dimension.de(entrada.dimension());
 
         if (dimension != Dimension.GLOBAL && entrada.dimensionId().isEmpty()) {
@@ -58,6 +69,7 @@ public class CU98PublicarTablero {
         return datos.conContexto(ctx, dsl -> {
             List<Indicador> publicados =
                     indicadores.delPeriodo(dsl, entrada.periodo(), dimension.name(), dimensionId).stream()
+                            .filter(fila -> familias.contains(fila.familia()))
                             .map(fila -> publicar(dsl, fila, entrada, dimension, dimensionId))
                             .toList();
 

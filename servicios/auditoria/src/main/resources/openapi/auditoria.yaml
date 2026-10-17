@@ -252,6 +252,11 @@ paths:
           # AP-CU98-01 PERIODO_NO_CERRADO   · AP-CU98-02 SIN_DEFINICION
           # AP-CU98-03 SIN_META_DEL_PERIODO · AP-CU98-04 MUESTRA_INSUFICIENTE
           # AP-CU98-05 INDICADOR_DUPLICADO
+        '403':
+          description: >-
+            Sin AUDITORIA_LEER ni ningun permiso de tablero. Con un permiso de tablero solo
+            vuelven sus familias (TABLERO_FINANCIERO_VER: FINANZAS y RIESGO;
+            TABLERO_COMERCIAL_VER: NEGOCIO; TABLERO_SISTEMAS_VER: OPERACION): el filtro es del servidor.
         '401':
           $ref: '#/components/responses/NoAutenticado'
 
