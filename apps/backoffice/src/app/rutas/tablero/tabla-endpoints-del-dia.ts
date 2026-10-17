@@ -26,13 +26,20 @@ import { textosTablero } from './textos'
         @if (sinFuente()) {
           <p role="status" class="aviso">{{ t.sinFuente }}</p>
         } @else {
-          <ap-tabla-de-datos [titulo]="t.titulo" [columnas]="columnas" [filas]="filas()" [identidad]="porId" densidad="compacta" />
+          <ap-tabla-de-datos [titulo]="t.titulo" [columnas]="columnas" [filas]="filas()" [identidad]="porId" densidad="compacta">
+            <ng-template #celda let-f let-columna="columna">
+              @if (columna.clave === 'ruta') { <code class="ruta">@for (s of segmentos(f.ruta); track $index) {<span>{{ s }}</span><wbr />}</code> } @else { {{ f[columna.clave] }} }
+            </ng-template>
+          </ap-tabla-de-datos>
         }
       </ap-estado-de-pantalla>
     </section>
   `,
   styles: `
-    .bloque { display: grid; gap: var(--s3); }
+    .bloque { display: grid; gap: var(--s3); min-width: 0; }
+    .bloque > * { min-width: 0; }
+    /* Una ruta plantilla no tiene espacios: sin corte, en móvil ensancha la tarjeta (prueba visual H9). */
+    .ruta { min-width: 0; white-space: normal; overflow-wrap: anywhere; }
     h2 { margin: 0; font-size: 1.15em; }
     .explicacion, .aviso { margin: 0; color: var(--text-2); }
   `,
@@ -46,6 +53,8 @@ export class TablaEndpointsDelDia {
   /** Vacío solo si la fuente respondió y nadie llamó; sin fuente se dice otra cosa (rama de arriba). */
   protected readonly sinFilas = (s: { fuenteDisponible: boolean; endpoints: unknown[] }) => s.fuenteDisponible && s.endpoints.length === 0
   protected readonly porId = (f: FilaDeEndpoint) => f.id
+  /** La ruta cortada después de cada barra: en móvil corta entre segmentos, no a mitad de palabra. */
+  protected readonly segmentos = (ruta: string) => ruta.split(/(?<=\/)/)
   protected readonly columnas: Columna<FilaDeEndpoint>[] = [
     { clave: 'servicio', titulo: 'Servicio' },
     { clave: 'metodo', titulo: 'Método' },

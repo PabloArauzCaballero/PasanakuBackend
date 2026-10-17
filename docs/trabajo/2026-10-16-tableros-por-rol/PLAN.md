@@ -286,8 +286,8 @@ temas × 4 estados.
 |---|---|---|---|---|
 | H4.S2.M1 | Tablero financiero: contenedor + presentacionales reusando los de `tablero/`; selector día/mes/año y serie; cuatro estados | Specs en verde | `yarn --cwd apps/backoffice test:front` (specs nombrados) | HECHO — `evidencia/H4-S2-frontend.txt` |
 | H4.S2.M2 | Ruta con `requierePermiso('TABLERO_FINANCIERO_VER')` | Spec de la guardia en verde | Spec en verde | HECHO — ruta con `requierePermiso` + 403 del servidor probado en `tablero-por-rol.spec` |
-| H4.S2.M3 | E2E contra el stack real sembrado | Pantalla = cuadre | `yarn --cwd apps/backoffice test:e2e tablero-financiero` con trace | TODO |
-| H4.S2.M4 | Prueba visual | 3 viewports × 2 temas × 4 estados | Capturas en `evidencia/H4/` | TODO |
+| H4.S2.M3 | E2E contra el stack real sembrado | Pantalla = cuadre | `yarn --cwd apps/backoffice test:e2e tablero-financiero` con trace | BLOQUEADO — la pila real no se puede levantar sin pisar la de otra sesión (acción destructiva sobre algo compartido: `aportaya-postgres` del worktree `backoffice-dominio`). Simulado en tres niveles contra el contrato de `auditoria` (correcto: con datos; límite: vacío y cargando; inválido: 500/403), en `e2e/tableros-por-rol.e2e.ts`. Destraba: Pablo libera la pila o la corre él; falta verificar contra el backend real sembrado |
+| H4.S2.M4 | Prueba visual | 3 viewports × 2 temas × 4 estados | Capturas en `evidencia/H4/` | HECHO — `evidencia/H9-visual/INFORME.txt` (con el backend como doble declarado) |
 
 ## H5 — Tablero comercial
 
@@ -303,7 +303,7 @@ que H4.
 | H5.S1.M2 | `grupos`: activos comerciales, grupos nuevos y completos, días de llenado, retención | Retención con num/den | `./gradlew :servicios:grupos:integrationTest --tests '*IndicadoresComerciales*'` en verde | HECHO — `evidencia/H5-S1-M2-grupos.txt` |
 | H5.S1.M3 | `aportes`: primer aporte (paso 4 del embudo); el volumen comprometido pasó a `grupos` (dueño de cupos, cuota y períodos) | Decimal con moneda | `./gradlew :servicios:aportes:integrationTest --tests '*IndicadoresComerciales*'` en verde | HECHO — `evidencia/H5-S1-M3-aportes.txt` |
 | H5.S2.M1 | Pantalla comercial con embudo y fichas | Specs en verde | `yarn --cwd apps/backoffice test:front` (specs nombrados) | HECHO — misma pantalla parametrizada (`tipo: comercial`), embudo probado; `evidencia/H4-S2-frontend.txt` |
-| H5.S2.M2 | E2E real y prueba visual | Pantalla = cuadre; capturas | `test:e2e tablero-comercial` + `evidencia/H5/` | TODO |
+| H5.S2.M2 | E2E real y prueba visual | Pantalla = cuadre; capturas | `test:e2e tablero-comercial` + `evidencia/H5/` | BLOQUEADO — la pila real no se puede levantar sin pisar la de otra sesión (acción destructiva sobre algo compartido: `aportaya-postgres` del worktree `backoffice-dominio`). Simulado en tres niveles contra el contrato de `auditoria` (correcto: con datos; límite: vacío y cargando; inválido: 500/403), en `e2e/tableros-por-rol.e2e.ts`. Destraba: Pablo libera la pila o la corre él; falta verificar contra el backend real sembrado |
 
 ## H6 — OpenTelemetry y tablero de sistemas
 
@@ -328,7 +328,7 @@ siguen respondiendo.
 | H6.S3.M1 | Endpoint de indicadores de sistemas que consulta Prometheus por HTTP con timeout, consultas en lista blanca y degradación declarada (`FUENTE_NO_CONFIGURADA`). El servicio que lo hospeda se decide en H0 | Correcto, límite (sin tráfico) e inválido (Prometheus caído) | Test de integración con Prometheus real más un doble para «caído» | HECHO contra doble — `evidencia/H6-S3-M1-sistemas.txt` (Prometheus real en H9) |
 | H6.S3.M2 | Usuarios activos hoy desde las sesiones de `identidad` | Valor = consulta | Test nombrado en verde | HECHO — `evidencia/H6-S3-M2-activos.txt` |
 | H6.S3.M3 | Pantalla de sistemas (Sistemas → Tráfico) | Specs de los cuatro estados en verde | `yarn --cwd apps/backoffice test:front` (specs nombrados) | HECHO — `evidencia/H6-S3-M3-pantalla-sistemas.txt` |
-| H6.S3.M4 | E2E real y prueba visual | Tablero = consulta a Prometheus | `yarn --cwd apps/backoffice test:e2e tablero-sistemas` + `evidencia/H6/` | TODO |
+| H6.S3.M4 | E2E real y prueba visual | Tablero = consulta a Prometheus | `yarn --cwd apps/backoffice test:e2e tablero-sistemas` + `evidencia/H6/` | BLOQUEADO — la pila real no se puede levantar sin pisar la de otra sesión (acción destructiva sobre algo compartido: `aportaya-postgres` del worktree `backoffice-dominio`). Simulado en tres niveles contra el contrato de `auditoria` (correcto: con datos; límite: vacío y cargando; inválido: 500/403), en `e2e/tableros-por-rol.e2e.ts`. Destraba: Pablo libera la pila o la corre él; falta verificar contra el backend real sembrado |
 
 ## H7 — Catálogo de datos
 
@@ -370,7 +370,7 @@ prueba visual.
 | H7.S1.M6 | `GET /indicadores/catalogo-de-datos` en `auditoria` (contrato OpenAPI + controlador que sirve el recurso), con `TABLERO_SISTEMAS_VER` | 200 con permiso; 403 sin permiso; 401 sin token | Test web nombrado en verde | HECHO — `evidencia/H7-S1-M6-endpoint-catalogo.txt` |
 | H7.S1.M7 | Gate `verificar_narrativas.py` en el CI (paso 6i de `ci.yml`) | El paso existe y el gate pasa en el modelo completo | `grep` del paso + corrida local exit 0 | HECHO — `evidencia/H7-S1-M7-gate-en-ci.txt` |
 | H7.S2.M1 | Pantalla de catálogo (lista, búsqueda normalizada y ficha de tabla con relaciones) consumiendo el JSON publicado | Specs de los cuatro estados en verde | `yarn --cwd apps/backoffice test:front` (specs nombrados) | HECHO — `evidencia/H7-S2-M1-pantalla-catalogo.txt` |
-| H7.S2.M2 | Prueba visual | Capturas inspeccionadas | `evidencia/H7/` | TODO — se hace en H9 con la pila arriba y sesión real, junto con la prueba visual de los tres tableros (el mock Prism no completa el login) |
+| H7.S2.M2 | Prueba visual | Capturas inspeccionadas | `evidencia/H7/` | TODO — se hace en H9 con la pila arriba y sesión real, junto con la prueba visual de los tres tableros (el mock Prism no completa el login) || HECHO — `evidencia/H9-visual/INFORME.txt` (con el backend como doble declarado) |
 
 ## H8 — Catálogo de flujos y orquestación de pruebas
 

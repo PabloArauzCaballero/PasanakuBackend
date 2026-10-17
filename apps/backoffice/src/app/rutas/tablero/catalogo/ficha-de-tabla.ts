@@ -32,7 +32,11 @@ import { textosCatalogo } from './textos'
             @if (f.reglas.length) { <dt>{{ t.reglas }}</dt><dd>{{ f.reglas.join(' · ') }}</dd> }
           </dl>
           <h2>{{ t.columnas }}</h2>
-          <ap-tabla-de-datos [titulo]="t.columnas + ' de ' + f.tabla" [columnas]="columnas" [filas]="columnasDeLaFicha()" [identidad]="porNombre" densidad="compacta" />
+          <ap-tabla-de-datos [titulo]="t.columnas + ' de ' + f.tabla" [columnas]="columnas" [filas]="columnasDeLaFicha()" [identidad]="porNombre" densidad="compacta">
+            <ng-template #celda let-c let-columna="columna">
+              @if (columna.clave === 'negocio' || columna.clave === 'sistema') { <span class="largo">{{ c[columna.clave] }}</span> } @else { {{ c[columna.clave] }} }
+            </ng-template>
+          </ap-tabla-de-datos>
           <h2>{{ t.relaciones }}</h2>
           <div class="relaciones">
             <div>
@@ -60,6 +64,8 @@ import { textosCatalogo } from './textos'
   `,
   styles: `
     .pantalla { padding: var(--s5); max-width: 72rem; display: grid; gap: var(--s4); }
+    .pantalla > * { min-width: 0; }
+    .largo { display: block; min-width: 12rem; white-space: normal; overflow-wrap: anywhere; }
     h1 { margin: 0; overflow-wrap: anywhere; }
     h2, h3 { margin: 0; }
     .esquema { color: var(--text-2); font-weight: 400; font-size: .7em; }

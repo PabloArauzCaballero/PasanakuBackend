@@ -57,7 +57,6 @@ export type TipoDeTablero = 'financiero' | 'comercial' | 'sistemas'
         </div>
       </form>
       @if (enCurso()) { <p role="status" class="aviso">{{ t.enCurso }}</p> }
-      @if (tipo() === 'sistemas') { <ap-tabla-endpoints-del-dia /> }
 
       <ap-estado-de-pantalla
         [recurso]="tablero"
@@ -117,9 +116,11 @@ export type TipoDeTablero = 'financiero' | 'comercial' | 'sistemas'
         }
         <p class="explicacion">{{ t.calculo }}</p>
       </ap-estado-de-pantalla>
+      @if (tipo() === 'sistemas') { <ap-tabla-endpoints-del-dia /> }
     </section>
   `,
   styles: `
+    .pantalla > * { min-width: 0; }
     .pantalla { padding: var(--s5); display: grid; gap: var(--s5); }
     h1, h2 { margin: 0; }
     h2 { font-size: 1.15em; }

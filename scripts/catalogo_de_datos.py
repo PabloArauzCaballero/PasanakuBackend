@@ -232,11 +232,17 @@ def markdown(catalogo):
 
 
 def _sin_nulos(valor):
-    """El contrato (`CatalogoDeDatos`, auditoria.yaml) declara opcional lo que puede faltar: se omite, no viaja null."""
+    """El contrato (`CatalogoDeDatos`, auditoria.yaml) declara opcional lo que puede faltar: se omite, no viaja null.
+
+    Y viaja en texto plano: la pantalla no interpreta Markdown, así que las marcas de las fichas (`**`, comillas
+    invertidas) se verían en crudo (prueba visual de H9). El `.md` del catálogo sí las conserva.
+    """
     if isinstance(valor, dict):
         return {k: _sin_nulos(v) for k, v in valor.items() if v is not None}
     if isinstance(valor, list):
         return [_sin_nulos(v) for v in valor]
+    if isinstance(valor, str):
+        return re.sub(r"\*\*|`", "", valor)
     return valor
 
 

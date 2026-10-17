@@ -32,6 +32,8 @@ const POR_PAGINA = 20
           <ng-template #celda let-f let-columna="columna">
             @if (columna.clave === 'tabla') {
               <a [routerLink]="['/tablero/catalogo-de-datos', f.tabla]">{{ f.tabla }}</a>
+            } @else if (columna.clave === 'queEs') {
+              <span class="largo">{{ f.queEs }}</span>
             } @else {
               {{ f[columna.clave] }}
             }
@@ -45,6 +47,9 @@ const POR_PAGINA = 20
   `,
   styles: `
     .pantalla { padding: var(--s5); max-width: 72rem; display: grid; gap: var(--s4); }
+    /* Sin esto la tabla ensancha la grilla y la página entera desplaza en horizontal (prueba visual H9). */
+    .pantalla > * { min-width: 0; }
+    .largo { display: block; min-width: 14rem; white-space: normal; overflow-wrap: anywhere; }
     h1 { margin: 0; }
     .resultados { margin: 0; color: var(--text-2); }
     a { color: var(--text); }
