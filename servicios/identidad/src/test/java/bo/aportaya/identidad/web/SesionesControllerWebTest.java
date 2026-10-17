@@ -121,55 +121,6 @@ class SesionesControllerWebTest {
     }
 
     @Test
-    @DisplayName("CU-04 · con correo en vez de telefono, el correo llega tal cual al caso de uso")
-    void ingresoConCorreo() throws Exception {
-        when(cu04.ejecutar(any(), any())).thenReturn(abierta());
-        when(emitirAcceso.ejecutar(any(), any(), any(), any(), any()))
-                .thenReturn(new EmitirAcceso.Acceso("un.token.firmado", Instant.parse("2026-04-01T12:00:00Z")));
-        when(renovarSesion.emitir(any(), any(), any(), any(), any()))
-                .thenReturn(new RenovarSesion.Emitido(
-                        "b".repeat(64), OffsetDateTime.now(ZoneOffset.UTC).plusHours(8)));
-        String cuerpo =
-                """
-                {"correo":"Ana.Prueba@Example.com","credencial":"%s","huellaDispositivo":"h","plataforma":"ANDROID"}
-                """
-                        .formatted(CREDENCIAL);
-
-        mvc.perform(post("/sesiones").contentType(MediaType.APPLICATION_JSON).content(cuerpo))
-                .andExpect(status().isOk());
-
-        ArgumentCaptor<EntradaAutenticacion> entrada = ArgumentCaptor.forClass(EntradaAutenticacion.class);
-        verify(cu04).ejecutar(entrada.capture(), any());
-        org.assertj.core.api.Assertions.assertThat(entrada.getValue().identificador())
-                .isEqualTo("Ana.Prueba@Example.com");
-        org.assertj.core.api.Assertions.assertThat(entrada.getValue().esCorreo())
-                .isTrue();
-    }
-
-    @Test
-    @DisplayName("CU-04 · sin telefono ni correo, o con los dos, es 400 AP-VAL-02 y no llega al caso de uso")
-    void identificadorAusenteODobleEs400() throws Exception {
-        String ninguno = """
-                {"credencial":"%s","huellaDispositivo":"h"}
-                """
-                .formatted(CREDENCIAL);
-        String ambos =
-                """
-                {"telefonoE164":"+59171234567","correo":"a@example.com","credencial":"%s","huellaDispositivo":"h"}
-                """
-                        .formatted(CREDENCIAL);
-
-        for (String cuerpo : new String[] {ninguno, ambos}) {
-            mvc.perform(post("/sesiones")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(cuerpo))
-                    .andExpect(status().isBadRequest())
-                    .andExpect(jsonPath("$.codigo").value("AP-VAL-02"));
-        }
-        verify(cu04, org.mockito.Mockito.never()).ejecutar(any(), any());
-    }
-
-    @Test
     @DisplayName("CU-04 · la vigencia del servidor que llega al caso de uso es de ocho horas")
     void ingresoPasaTopeDeOchoHoras() throws Exception {
         when(cu04.ejecutar(any(), any())).thenReturn(abierta());

@@ -169,7 +169,7 @@ void main() {
     final resultado = await contenedor
         .read(autenticacionProvider)
         .conCredenciales(
-          telefonoE164: _telefonoSintetico,
+          identificador: _telefonoSintetico,
           credencial: _claveSintetica,
         );
 
@@ -201,7 +201,7 @@ void main() {
     final resultado = await contenedor
         .read(autenticacionProvider)
         .conCredenciales(
-          telefonoE164: _telefonoSintetico,
+          identificador: _telefonoSintetico,
           credencial: _claveSintetica,
         );
 

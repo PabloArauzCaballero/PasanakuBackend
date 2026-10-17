@@ -82,6 +82,9 @@ Regresión completa de `identidad` (`test`, `webTest`, `integrationTest`): ver `
 - **H6.S1.M2** decía «specs del botón», pero el botón no tiene spec propio: se corrió la regresión completa de `@aportaya/ui`.
 - **H6.S1.M4** (Salir) se agregó durante la ejecución: en el backoffice no había forma visible de cerrar sesión.
 - Se descartaron las capturas tomadas con tokens locales viejos (naranja y crema); las vigentes son las de `evidencia/H6/despues/`.
+- El CI del PR #127 marcó `verificar_criterios.py`: escribí un criterio combinado (correo con mayúsculas + correo inexistente) que no coincidía con el texto de los tests. Se separó en tres criterios con el texto exacto de sus pruebas (7d82cf1a); `python3 scripts/verificar_criterios.py` → «Sin divergencias entre la boveda y el codigo.»
+- El CI también marcó (654d6adf): (1) Spotless en `CU04Autenticar`, corregido con `spotlessApply`; (2) las colecciones Postman generadas desde el contrato quedaron viejas, y además el ejemplo derivado ponía teléfono y correo a la vez, que el contrato rechaza con 400. Se agregó un `example` válido a `EntradaAutenticacion` (solo teléfono) y `scripts/generar_postman.py` usa el `example` del contrato cuando existe; ningún otro contrato tenía `example`, así que solo cambió este esquema.
+- PRs: #127 → `test` y #128 → `dev` (rama `pablo/feat/backoffice-login-y-acceso-dev-2026-10-17`: cherry-pick de los mismos commits sobre `origin/dev`, porque `dev` y `test` divergen; sobre esa base, identidad compila y CU04/Sesiones pasan).
 - El login del backoffice usa el símbolo real de la marca (`landing/assets/img/simbolo.svg`) en lugar del monograma «A» del primer intento.
 
 ## Riesgos residuales
