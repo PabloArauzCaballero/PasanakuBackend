@@ -114,6 +114,9 @@ class UsuariosControllerWebTest {
     private ConfirmarVerificacionCorreo confirmarCorreo;
 
     @MockitoBean
+    private bo.aportaya.identidad.aplicacion.ActivarRolOrganizador activarRolOrganizador;
+
+    @MockitoBean
     private ConsultarNivelKyc nivelesKyc;
 
     private org.springframework.test.web.servlet.ResultActions registrar(String cuerpo) throws Exception {
