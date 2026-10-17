@@ -222,9 +222,9 @@ public class CU90HabilitacionBasica {
 
     private static Optional<UUID> pendienteDeFirma(org.jooq.DSLContext dsl, UUID organizadorId) {
         return dsl.fetchOptional(
-                        "SELECT id FROM organizador.contrato_organizador"
-                                + " WHERE organizador_id = ? AND firmado_en IS NULL AND rescindido_en IS NULL"
-                                + " ORDER BY vigente_desde DESC LIMIT 1",
+                        """
+                        SELECT id FROM organizador.contrato_organizador WHERE organizador_id = ? AND firmado_en IS NULL AND rescindido_en IS NULL ORDER BY vigente_desde DESC LIMIT 1
+                        """,
                         organizadorId)
                 .map(f -> f.get(0, UUID.class));
     }

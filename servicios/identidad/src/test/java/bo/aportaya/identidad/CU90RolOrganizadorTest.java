@@ -111,15 +111,17 @@ class CU90RolOrganizadorTest extends BaseDeCU04 {
 
         assertThat(nuevo).isTrue();
         assertThat(contar(
-                        "SELECT count(*) FROM identidad.asignacion_rol a JOIN identidad.rol r ON r.id=a.rol_id"
-                                + " WHERE a.usuario_id=? AND r.codigo='ORGANIZADOR' AND a.otorgada_por=?",
+                        """
+                        SELECT count(*) FROM identidad.asignacion_rol a JOIN identidad.rol r ON r.id=a.rol_id WHERE a.usuario_id=? AND r.codigo='ORGANIZADOR' AND a.otorgada_por=?
+                        """,
                         usuario,
                         revisor))
                 .isEqualTo(1);
         assertThat(organizador.tokensRecibidos).hasSize(1);
         assertThat(contar(
-                        "SELECT count(*) FROM identidad.token_verificacion WHERE id=? AND usuario_id=?"
-                                + " AND proposito='FIRMA_CONTRATO' AND estado='CONSUMIDO'",
+                        """
+                        SELECT count(*) FROM identidad.token_verificacion WHERE id=? AND usuario_id=? AND proposito='FIRMA_CONTRATO' AND estado='CONSUMIDO'
+                        """,
                         organizador.tokensRecibidos.get(0),
                         usuario))
                 .isEqualTo(1);
@@ -141,8 +143,9 @@ class CU90RolOrganizadorTest extends BaseDeCU04 {
         assertThat(otraVez).isFalse();
         assertThat(organizador.tokensRecibidos).hasSize(2).allMatch(t -> t.equals(organizador.tokensRecibidos.get(0)));
         assertThat(contar(
-                        "SELECT count(*) FROM identidad.asignacion_rol a JOIN identidad.rol r ON r.id=a.rol_id"
-                                + " WHERE a.usuario_id=? AND r.codigo='ORGANIZADOR'",
+                        """
+                        SELECT count(*) FROM identidad.asignacion_rol a JOIN identidad.rol r ON r.id=a.rol_id WHERE a.usuario_id=? AND r.codigo='ORGANIZADOR'
+                        """,
                         usuario))
                 .isEqualTo(1);
     }
@@ -176,8 +179,9 @@ class CU90RolOrganizadorTest extends BaseDeCU04 {
                 .isInstanceOf(ErrorDeNegocio.class)
                 .hasMessageContaining("No pudimos firmar");
         assertThat(contar(
-                        "SELECT count(*) FROM identidad.asignacion_rol a JOIN identidad.rol r ON r.id=a.rol_id"
-                                + " WHERE a.usuario_id=? AND r.codigo='ORGANIZADOR'",
+                        """
+                        SELECT count(*) FROM identidad.asignacion_rol a JOIN identidad.rol r ON r.id=a.rol_id WHERE a.usuario_id=? AND r.codigo='ORGANIZADOR'
+                        """,
                         usuario))
                 .isZero();
     }

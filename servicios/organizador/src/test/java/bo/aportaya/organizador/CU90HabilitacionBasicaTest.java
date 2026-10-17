@@ -48,7 +48,8 @@ class CU90HabilitacionBasicaTest extends BaseDeOrganizador {
     }
 
     @Test
-    @DisplayName("correcto: aceptar deja la ficha Aprendiz y el contrato pendiente; con la firma queda habilitado")
+    @DisplayName(
+            "Dado un participante con KYC aprobado y sin ficha de organizador · Cuando acepta el contrato Aprendiz y lo firma · Entonces queda organizador Aprendiz habilitado con el contrato firmado")
     void aceptaFirmaYQuedaHabilitado() {
         UUID usuario = fixtura.usuario();
         var ctx = contextoDe(usuario);
@@ -59,8 +60,9 @@ class CU90HabilitacionBasicaTest extends BaseDeOrganizador {
         assertThat(r.nivel()).isEqualTo("APRENDIZ");
         assertThat(r.contenidoHash()).hasSize(64);
         assertThat(contar(
-                        "SELECT count(*) FROM organizador.organizador WHERE id=? AND usuario_id=? AND estado='HABILITADO'"
-                                + " AND limite_grupos_simultaneos=? AND limite_monto_administrado=?",
+                        """
+                        SELECT count(*) FROM organizador.organizador WHERE id=? AND usuario_id=? AND estado='HABILITADO' AND limite_grupos_simultaneos=? AND limite_monto_administrado=?
+                        """,
                         r.organizadorId(),
                         usuario,
                         GRUPOS_APRENDIZ,
@@ -73,8 +75,9 @@ class CU90HabilitacionBasicaTest extends BaseDeOrganizador {
         assertThat(firmar(r.contratoId(), token, ctx)).isTrue();
 
         assertThat(contar(
-                        "SELECT count(*) FROM organizador.contrato_organizador WHERE id=? AND firmado_en IS NOT NULL"
-                                + " AND token_firma_id=? AND version=?",
+                        """
+                        SELECT count(*) FROM organizador.contrato_organizador WHERE id=? AND firmado_en IS NOT NULL AND token_firma_id=? AND version=?
+                        """,
                         r.contratoId(),
                         token,
                         CU90HabilitacionBasica.VERSION))
@@ -85,7 +88,8 @@ class CU90HabilitacionBasicaTest extends BaseDeOrganizador {
     }
 
     @Test
-    @DisplayName("límite: firmar dos veces no pisa la primera firma")
+    @DisplayName(
+            "Dado un contrato Aprendiz ya firmado · Cuando se intenta firmar otra vez · Entonces se conserva la primera firma")
     void firmaUnaSolaVez() {
         UUID usuario = fixtura.usuario();
         var ctx = contextoDe(usuario);
@@ -104,7 +108,8 @@ class CU90HabilitacionBasicaTest extends BaseDeOrganizador {
     }
 
     @Test
-    @DisplayName("inválido: nadie firma el contrato de otro (AP-CU91-04)")
+    @DisplayName(
+            "Dado el contrato Aprendiz de otra persona · Cuando alguien intenta firmarlo · Entonces se rechaza porque el contrato lo firma su titular")
     void firmaAjena() {
         UUID duenio = fixtura.usuario();
         var r = aceptar(contextoDe(duenio));
@@ -116,7 +121,8 @@ class CU90HabilitacionBasicaTest extends BaseDeOrganizador {
     }
 
     @Test
-    @DisplayName("límite: aceptar dos veces devuelve la misma habilitación y no emite otro contrato")
+    @DisplayName(
+            "Dado un participante que ya aceptó el contrato Aprendiz · Cuando lo acepta de nuevo · Entonces recibe la misma ficha y el mismo contrato")
     void idempotente() {
         UUID usuario = fixtura.usuario();
         var ctx = contextoDe(usuario);
@@ -134,7 +140,8 @@ class CU90HabilitacionBasicaTest extends BaseDeOrganizador {
     }
 
     @Test
-    @DisplayName("límite: antes de aceptar, el estado dice que no está habilitado")
+    @DisplayName(
+            "Dado un participante que todavía no aceptó el contrato Aprendiz · Cuando consulta su habilitación básica · Entonces no figura habilitado")
     void sinAceptarNoHabilitado() {
         var ctx = contextoDe(fixtura.usuario());
 
@@ -145,7 +152,8 @@ class CU90HabilitacionBasicaTest extends BaseDeOrganizador {
     }
 
     @Test
-    @DisplayName("inválido: sin aceptar el contrato no se habilita (AP-CU90-09) y no se escribe nada")
+    @DisplayName(
+            "Dado un participante que no marcó la aceptación del contrato · Cuando pide la habilitación básica · Entonces se rechaza y no se escribe nada")
     void sinAceptacion() {
         UUID usuario = fixtura.usuario();
         var ctx = contextoDe(usuario);
@@ -159,7 +167,8 @@ class CU90HabilitacionBasicaTest extends BaseDeOrganizador {
     }
 
     @Test
-    @DisplayName("inválido: aceptar una versión vieja del contrato se rechaza (AP-CU90-10)")
+    @DisplayName(
+            "Dado un participante que leyó una versión anterior del contrato · Cuando la acepta · Entonces se rechaza para que lea la vigente")
     void versionVieja() {
         var ctx = contextoDe(fixtura.usuario());
 
@@ -169,7 +178,8 @@ class CU90HabilitacionBasicaTest extends BaseDeOrganizador {
     }
 
     @Test
-    @DisplayName("inválido: una ficha suspendida no se reactiva aceptando el contrato (AP-CU90-11)")
+    @DisplayName(
+            "Dado un organizador suspendido · Cuando acepta el contrato Aprendiz · Entonces se rechaza y sigue suspendido")
     void suspendidoNoSeReactiva() {
         UUID usuario = fixtura.usuario();
         UUID organizadorId = fixtura.organizadorHabilitado(usuario);
