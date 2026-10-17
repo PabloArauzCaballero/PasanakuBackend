@@ -658,6 +658,10 @@ def main():
             # trae el segundo factor de desarrollo —codigo fijo— y esa es
             # exactamente la clase de decision que no se hornea en el repositorio.
             lineas.append("      SPRING_PROFILES_ACTIVE: ${PERFIL_SPRING}")
+            # Tableros (D4): OTLP apagado en TEST hasta que el host levante el Collector (perfil `observabilidad` de
+            # base.yml); encenderlo es una variable del entorno, no un cambio de este archivo.
+            lineas.append("      TRAZAS_HABILITADAS: ${TRAZAS_HABILITADAS:-false}")
+            lineas.append("      METRICAS_OTLP_HABILITADAS: ${METRICAS_OTLP_HABILITADAS:-false}")
             # TEST mantiene una réplica y un pool pequeño por servicio. Las réplicas
             # de producción y sus pools siguen definidos por descriptor.yml/Kubernetes.
             lineas.append("      SPRING_DATASOURCE_HIKARI_MAXIMUM_POOL_SIZE: \"5\"")
@@ -670,6 +674,9 @@ def main():
             # El perfil `local` enciende el simulador de pagos y la mensajeria
             # simulada, que son los defaults del contrato de implementacion.
             lineas.append("      SPRING_PROFILES_ACTIVE: local")
+            # El perfil `todo` levanta el Collector: en local las trazas y metricas viajan por OTLP.
+            lineas.append("      TRAZAS_HABILITADAS: \"true\"")
+            lineas.append("      METRICAS_OTLP_HABILITADAS: \"true\"")
             bloques.append(BLOQUE.format(nombre=servicio, ambiente="\n".join(lineas)))
 
     if sin_valor:

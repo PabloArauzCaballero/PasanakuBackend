@@ -14,6 +14,9 @@ import org.springframework.core.env.MapPropertySource;
  *   <li>Trazas por OpenTelemetry (bridge de Micrometer + exportador OTLP) hacia el Collector. APAGADAS por omision:
  *       las enciende el entorno ({@code TRAZAS_HABILITADAS=true}), asi un servicio sin Collector no queda reintentando
  *       contra la nada. Muestreo 10 % por omision ({@code TRAZAS_MUESTREO}).
+ *   <li>Metricas por OTLP al Collector, que las expone a Prometheus por la red interna: asi ningun servicio abre
+ *       {@code /actuator/prometheus} sin autenticar. APAGADAS por omision ({@code METRICAS_OTLP_HABILITADAS}): el
+ *       registro OTLP de Micrometer viene encendido y, sin Collector, reintentaria contra localhost cada paso.
  *   <li>Histograma de {@code http.server.requests}: sin cubetas, Prometheus no puede calcular p95 ni p99.
  * </ul>
  *
@@ -33,6 +36,10 @@ public class DefaultsDeObservabilidad implements EnvironmentPostProcessor {
                                 "management.otlp.tracing.endpoint",
                                         "${OTEL_TRAZAS_URL:http://otel-collector:4318/v1/traces}",
                                 "management.tracing.sampling.probability", "${TRAZAS_MUESTREO:0.1}",
+                                "management.otlp.metrics.export.enabled", "${METRICAS_OTLP_HABILITADAS:false}",
+                                "management.otlp.metrics.export.url",
+                                        "${OTEL_METRICAS_URL:http://otel-collector:4318/v1/metrics}",
+                                "management.otlp.metrics.export.step", "${METRICAS_OTLP_PASO:30s}",
                                 "management.metrics.distribution.percentiles-histogram.http.server.requests", "true")));
     }
 }

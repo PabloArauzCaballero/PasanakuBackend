@@ -90,6 +90,7 @@ resilience4j        = { module = "io.github.resilience4j:resilience4j-spring-boo
 micrometer          = { module = "io.micrometer:micrometer-registry-prometheus" }
 micrometer-tracing  = { module = "io.micrometer:micrometer-tracing-bridge-otel" }   # OpenTelemetry (tableros, D4); antes bridge-brave
 otel-exportador     = { module = "io.opentelemetry:opentelemetry-exporter-otlp" }   # version del BOM de Spring Boot
+micrometer-otlp     = { module = "io.micrometer:micrometer-registry-otlp" }   # metricas por OTLP al Collector (sin abrir /actuator/prometheus)
 
 # — Cripto —
 argon2 = { module = "de.mkammerer:argon2-jvm", version.ref = "argon2" }

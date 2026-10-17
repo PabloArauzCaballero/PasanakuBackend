@@ -29,6 +29,10 @@ class DefaultsDeObservabilidadTest {
         assertThat(e.getProperty("management.otlp.tracing.endpoint")).isEqualTo("http://otel-collector:4318/v1/traces");
         assertThat(e.getProperty("management.metrics.distribution.percentiles-histogram.http.server.requests"))
                 .isEqualTo("true");
+        assertThat(e.getProperty("management.otlp.metrics.export.enabled")).isEqualTo("false");
+        assertThat(e.getProperty("management.otlp.metrics.export.url"))
+                .isEqualTo("http://otel-collector:4318/v1/metrics");
+        assertThat(e.getProperty("management.otlp.metrics.export.step")).isEqualTo("30s");
     }
 
     @Test
