@@ -10,9 +10,9 @@
 | aportes | 12 | 10 | 11 | 10 | 2 |
 | auditoria | 8 | 8 | 7 | 7 | 0 |
 | cumplimiento | 28 | 20 | 14 | 13 | 0 |
-| entregas | 16 | 16 | 11 | 11 | 0 |
+| entregas | 16 | 16 | 11 | 11 | 5 |
 | erp | 24 | 16 | 24 | 24 | 0 |
-| garantia | 20 | 18 | 14 | 13 | 3 |
+| garantia | 20 | 18 | 14 | 13 | 5 |
 | grupos | 28 | 16 | 15 | 11 | 0 |
 | identidad | 23 | 21 | 12 | 11 | 0 |
 | inversiones | 20 | 16 | 20 | 20 | 0 |
@@ -22,7 +22,7 @@
 | publicidad | 17 | 9 | 14 | 14 | 0 |
 | tarifas | 13 | 9 | 13 | 13 | 0 |
 | transparencia | 18 | 9 | 18 | 15 | 0 |
-| **Total** | 282 | 209 | 219 | 205 | 9 |
+| **Total** | 282 | 209 | 219 | 205 | 16 |
 
 ## Por endpoint
 
@@ -81,17 +81,17 @@
 | entregas | POST | `/cuentas-bancarias/{cuentaId}/principal` | `designarCuentaPrincipal` | sí | CU-18 | sí | — |
 | entregas | POST | `/cuentas-bancarias/{cuentaId}/verificacion` | `verificarCuentaDestino` | sí | CU-18 | sí | — |
 | entregas | GET | `/desembolsos` | `listarDesembolsos` | sí | CU-28 | sí | — |
-| entregas | POST | `/desembolsos` | `emitirOrdenDesembolso` | sí | CU-28 | sí | — |
-| entregas | POST | `/desembolsos/{ordenId}/respuesta` | `anotarRespuestaDesembolso` | sí | CU-28 | sí | — |
+| entregas | POST | `/desembolsos` | `emitirOrdenDesembolso` | sí | CU-28 | sí | entrega-del-turno |
+| entregas | POST | `/desembolsos/{ordenId}/respuesta` | `anotarRespuestaDesembolso` | sí | CU-28 | sí | entrega-del-turno |
 | entregas | POST | `/entregas` | `liquidarEntrega` | sí | CU-22 | sí | — |
 | entregas | GET | `/entregas/mercado/ofertas` | `listarOfertas` | sí | — | — | — |
 | entregas | POST | `/entregas/mercado/ofertas` | `publicarOferta` | sí | — | — | — |
 | entregas | GET | `/entregas/mercado/ofertas/{ofertaId}` | `consultarOfertaParaPago` | sí | — | — | — |
 | entregas | POST | `/entregas/mercado/ofertas/{ofertaId}/cancelacion` | `cancelarOferta` | sí | — | — | — |
 | entregas | POST | `/entregas/mercado/ofertas/{ofertaId}/compra` | `comprarOferta` | sí | — | — | — |
-| entregas | POST | `/entregas/pozo-completo` | `fondearPozo` | sí | CU-22 | sí | — |
-| entregas | POST | `/entregas/{entregaId}/autorizacion` | `autorizarEntrega` | sí | CU-22 | sí | — |
-| entregas | POST | `/entregas/{entregaId}/ejecucion` | `ejecutarEntrega` | sí | CU-22 | sí | — |
+| entregas | POST | `/entregas/pozo-completo` | `fondearPozo` | sí | CU-22 | sí | entrega-del-turno |
+| entregas | POST | `/entregas/{entregaId}/autorizacion` | `autorizarEntrega` | sí | CU-22 | sí | entrega-del-turno |
+| entregas | POST | `/entregas/{entregaId}/ejecucion` | `ejecutarEntrega` | sí | CU-22 | sí | entrega-del-turno |
 | erp | GET | `/erp/activos` | `listarActivosFijos` | sí | CU-105 | sí | — |
 | erp | POST | `/erp/activos/{activoId}/depreciaciones` | `depreciarActivo` | **no** | CU-105 | sí | — |
 | erp | GET | `/erp/cuentas-por-cobrar` | `listarCuentasPorCobrar` | sí | CU-104 | sí | — |
@@ -119,7 +119,7 @@
 | garantia | GET | `/cobranza/restricciones/vigentes/{usuarioId}` | `consultarRestriccion` | sí | CU-68 | **no** | — |
 | garantia | POST | `/cobranza/restricciones/{restriccionId}/levantamiento` | `levantarRestriccion` | sí | CU-27 | sí | — |
 | garantia | POST | `/garantia/disoluciones/{disolucionId}/cierre` | `cerrarDisolucion` | sí | CU-67 | sí | — |
-| garantia | POST | `/garantia/fondos/{grupoId}/devolucion` | `devolverFondo` | sí | CU-29 | sí | — |
+| garantia | POST | `/garantia/fondos/{grupoId}/devolucion` | `devolverFondo` | sí | CU-29 | sí | entrega-del-turno |
 | garantia | POST | `/garantia/grupos/{grupoId}/disolucion` | `iniciarDisolucion` | sí | CU-67 | sí | — |
 | garantia | POST | `/garantia/reemplazos/{reemplazoId}/aprobacion` | `aprobarReemplazo` | sí | CU-66 | sí | — |
 | garantia | POST | `/garantia/reemplazos/{reemplazoId}/ejecucion` | `ejecutarReemplazo` | sí | CU-66 | sí | — |
@@ -128,7 +128,7 @@
 | garantia | POST | `/garantia/respaldo/recuperaciones` | `recuperarRespaldo` | sí | — | — | aporte-mora-cobertura |
 | garantia | POST | `/garantia/respaldo/reservas` | `reservarRespaldo` | sí | — | — | — |
 | garantia | POST | `/garantia/respaldo/reservas/{reservaId}/ampliacion` | `ampliarRespaldo` | **no** | — | — | — |
-| garantia | POST | `/garantia/respaldo/reservas/{reservaId}/liberacion` | `liberarRespaldo` | sí | — | — | — |
+| garantia | POST | `/garantia/respaldo/reservas/{reservaId}/liberacion` | `liberarRespaldo` | sí | — | — | entrega-del-turno |
 | garantia | POST | `/incumplimientos` | `declararIncumplimiento` | sí | CU-25 | sí | aporte-mora-cobertura |
 | garantia | POST | `/incumplimientos/{expedienteId}/aval/ejecucion` | `ejecutarAval` | sí | CU-26 | sí | — |
 | garantia | POST | `/incumplimientos/{expedienteId}/cobertura` | `cubrirIncumplimiento` | sí | CU-23 | sí | — |

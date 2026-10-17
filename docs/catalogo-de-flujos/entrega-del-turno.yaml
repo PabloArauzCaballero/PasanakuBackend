@@ -1,0 +1,167 @@
+# Catálogo de flujos · entrega del turno con pozo completo (CU-22, CU-28; ADR-051), normal y de cierre de ciclo.
+# Lo valida scripts/validar_flujos.py. Fuentes: entregas.yaml y garantia.yaml (operaciones y códigos), CU-22 (R-DES-03),
+# CU-23 (respaldo empresarial) y las pruebas citadas en cada caso.
+id: entrega-del-turno
+nombre: Entregar el pozo del turno, también el último del ciclo
+objetivo: >-
+  Que quien cobra el turno reciba el pozo completo una sola vez, en su cuenta verificada, con cada boliviano
+  explicado (confirmado por los aportes o adelantado por la empresa), y que el último turno cierre el ciclo sin
+  dejar reserva comprometida ni fondo sin devolver.
+dinero: true
+casos_de_uso: [CU-22, CU-23, CU-28]
+
+# El turno de cierre es el de mayor orden del grupo (misma definición que el indicador TURNOS_CIERRE,
+# IndicadoresDeTurnosRepositorio). Hasta el desembolso es igual a un turno normal; lo distinto viene después.
+hallazgos:
+  - >-
+    H8-02 · Ningún código lleva un grupo a FINALIZADO: el estado existe en el modelo (02_grupos_turnos.puml) y lo leen
+    los indicadores comerciales (GRUPOS_COMPLETOS no, pero RETENCION_60D sí: cuenta grupos FINALIZADOS), pero no hay
+    caso de uso, endpoint ni consumidor que haga la transición. Con datos reales RETENCION_60D no tendría base.
+    Decisión pendiente (A10).
+  - >-
+    La reserva del ciclo y el fondo de garantía se liberan y devuelven por operador (liberarRespaldo con
+    ADMIN_PLATAFORMA, devolverFondo con GRUPO_ADMINISTRAR); nada los dispara al terminar el último turno.
+
+pasos:
+  - id: fondear-pozo
+    actor: SISTEMA   # con ENTREGA_EJECUTAR, en la fecha del turno
+    servicio: entregas
+    operacion: fondearPozo
+    precondicion: El turno no tiene entrega; aportes confirma el pozo y lo confirmado del período.
+    exito: autorizar-entrega   # entrega PROGRAMADA con bruto = neto = pozo
+    errores:
+      - { codigo: AP-CU22-06, http: 422, significa: aportes no responde; no se escribe nada, siguiente: FIN }
+      - { codigo: AP-CU22-07, http: 422, significa: El período o el turno son de otro grupo, siguiente: FIN }
+      - { codigo: AP-CU22-08, http: 422, significa: garantia no responde o cubrió otro importe, siguiente: FIN }
+      - { codigo: AP-CU22-09, http: 422, significa: El turno ya se liquidó por el camino anterior, siguiente: FIN }
+    condiciones:
+      - si: Falta plata al corte y la reserva del ciclo no alcanza
+        siguiente: FIN   # entrega BLOQUEADA con el pozo completo; contingencia de caja y la deuda se conserva
+
+  - id: autorizar-entrega
+    actor: TESORERIA
+    servicio: entregas
+    operacion: autorizarEntrega
+    precondicion: Entrega PROGRAMADA; quien autoriza tiene ENTREGA_AUTORIZAR y no es quien la liquidó.
+    exito: ejecutar-entrega
+    errores:
+      - { codigo: AP-CU22-04, http: 422, significa: Segregación de funciones incumplida, siguiente: FIN }
+
+  - id: ejecutar-entrega
+    actor: TESORERIA
+    servicio: entregas
+    operacion: ejecutarEntrega
+    precondicion: Entrega AUTORIZADA.
+    exito: emitir-desembolso
+    errores:
+      - { codigo: AP-CU22-03, http: 422, significa: La entrega ya se ejecutó, siguiente: FIN }
+
+  - id: emitir-desembolso
+    actor: SISTEMA
+    servicio: entregas
+    operacion: emitirOrdenDesembolso
+    precondicion: Entrega autorizada con cuenta de destino VERIFICADA y fuera de enfriamiento (R-DES-02).
+    exito: respuesta-del-banco
+    errores:
+      - { codigo: AP-CU28-01, http: 422, significa: La entrega no está autorizada, siguiente: FIN }
+      - { codigo: AP-CU28-02, http: 422, significa: La cuenta de destino no está verificada, siguiente: FIN }
+      - { codigo: AP-CU28-05, http: 422, significa: La orden ya existe; se devuelve la misma, siguiente: FIN }
+
+  - id: respuesta-del-banco
+    actor: PROVEEDOR_DE_PAGOS
+    servicio: entregas
+    operacion: anotarRespuestaDesembolso
+    precondicion: Orden de desembolso emitida.
+    exito: FIN   # ENTREGADA; desembolso_acreditado lleva el asiento ENTREGA que cuadra el mayor
+    errores:
+      - { codigo: AP-CU28-06, http: 422, significa: Rechazo definitivo; no se reintenta solo, siguiente: FIN }
+    condiciones:
+      - si: Es el último turno del ciclo
+        siguiente: liberar-reserva
+
+  - id: liberar-reserva
+    actor: ADMIN_PLATAFORMA
+    servicio: garantia
+    operacion: liberarRespaldo
+    precondicion: El último turno del ciclo ya se desembolsó.
+    exito: devolver-fondo   # vuelve a la capacidad solo lo no usado, una vez
+    errores:
+      - { codigo: AP-CU23-07, http: 422, significa: La reserva no existe o ya se liberó, siguiente: FIN }
+
+  - id: devolver-fondo
+    actor: ORGANIZADOR   # GRUPO_ADMINISTRAR
+    servicio: garantia
+    operacion: devolverFondo
+    precondicion: Ciclo terminado; cada participante sin deuda con el fondo.
+    exito: FIN
+
+casos:
+  validos:
+    - nombre: Pozo con todos los aportes confirmados
+      dado: Todos los aportes del período confirmados
+      entonces: Nace la entrega PROGRAMADA con bruto = neto = pozo
+      prueba: servicios/entregas/src/test/java/bo/aportaya/entregas/CU133PozoCompletoTest.java#pozoCompletoSinFaltante
+    - nombre: La empresa adelanta el faltante
+      dado: Pozo Bs 6.000 y Bs 5.000 confirmados
+      entonces: Pide Bs 1.000 a la empresa y la entrega queda con el principal completo
+      prueba: servicios/entregas/src/test/java/bo/aportaya/entregas/CU133PozoCompletoTest.java#ejemploDelPlan
+    - nombre: Del fondeo al banco, el mayor cuadra
+      dado: Fondeo completo (5.000 confirmados + 1.000 de la empresa)
+      entonces: La entrega queda ENTREGADA, la orden por 6.000 y el asiento ENTREGA suma cero
+      prueba: servicios/entregas/src/test/java/bo/aportaya/entregas/CU133EntregaConsistenteTest.java#ledgerConfirmacionYComprobanteCoinciden
+    - nombre: Liberar la reserva al cerrar el ciclo
+      dado: Una reserva con parte aplicada
+      entonces: Vuelve a la capacidad solo lo no usado, una sola vez
+      prueba: servicios/garantia/src/test/java/bo/aportaya/garantia/CU131RespaldoTest.java#liberarDevuelveLoNoUsado
+  limite:
+    - nombre: Se entrega una sola vez
+      dado: Un pozo fondeado
+      entonces: Autorizar, ejecutar y volver a ejecutar entrega Bs 6.000 una vez
+      prueba: servicios/entregas/src/test/java/bo/aportaya/entregas/CU133PozoCompletoTest.java#seEntregaUnaSolaVez
+    - nombre: La misma clave de fondeo dos veces
+      dado: Un reintento con la misma clave
+      entonces: Una entrega, un fondeo y una cobertura
+      prueba: servicios/entregas/src/test/java/bo/aportaya/entregas/CU133PozoCompletoTest.java#idempotente
+    - nombre: El banco confirma dos veces
+      dado: Una confirmación duplicada del proveedor
+      entonces: No acredita dos veces ni emite un segundo asiento
+      prueba: servicios/entregas/src/test/java/bo/aportaya/entregas/CU133EntregaConsistenteTest.java#confirmacionDuplicada
+    - nombre: Grupo sin reserva vigente
+      dado: Un faltante sin reserva
+      entonces: El fondeo queda CON_PENDIENTE por el faltante completo
+      prueba: servicios/entregas/src/test/java/bo/aportaya/entregas/CU133PozoCompletoRechazosTest.java#sinReserva
+    - nombre: La reserva se amplía y se reintenta
+      dado: Una entrega bloqueada por falta de caja
+      entonces: El mismo pedido completa el mismo fondeo y la entrega se destraba
+      prueba: servicios/entregas/src/test/java/bo/aportaya/entregas/CU133PozoCompletoTest.java#contingenciaYReintento
+  invalidos:
+    - nombre: aportes caído al fondear
+      dado: aportes no responde
+      entonces: No se escribe nada; al volver, el mismo pedido funciona
+      codigo: AP-CU22-06
+      prueba: servicios/entregas/src/test/java/bo/aportaya/entregas/CU133PozoCompletoRechazosTest.java#aportesCaido
+    - nombre: garantia caída con faltante
+      dado: garantia no responde y hay faltante
+      entonces: No se escribe nada
+      codigo: AP-CU22-08
+      prueba: servicios/entregas/src/test/java/bo/aportaya/entregas/CU133PozoCompletoRechazosTest.java#garantiaCaida
+    - nombre: Período de otro grupo
+      dado: aportes dice que el período es de otro grupo
+      entonces: No se escribe nada
+      codigo: AP-CU22-07
+      prueba: servicios/entregas/src/test/java/bo/aportaya/entregas/CU133PozoCompletoRechazosTest.java#periodoAjeno
+    - nombre: Dos entregas del mismo turno
+      dado: Un turno ya liquidado por el camino anterior
+      entonces: No hay segunda entrega
+      codigo: AP-CU22-09
+      prueba: servicios/entregas/src/test/java/bo/aportaya/entregas/CU133PozoCompletoRechazosTest.java#turnoYaLiquidadoPorElCaminoAnterior
+    - nombre: Cuenta inexistente en el banco
+      dado: El proveedor responde cuenta inexistente
+      entonces: La orden queda RECHAZADA sin reintento programado
+      codigo: AP-CU28-06
+      prueba: servicios/entregas/src/test/java/bo/aportaya/entregas/CU28Test.java#criterio3
+    - nombre: Un fondeo que no cuadra
+      dado: Un fondeo escrito por fuera del caso de uso que no suma el pozo
+      entonces: La base lo rechaza (R-DES-03)
+      resultado: Rechazo de la base por ck_fondeo_entrega_cuadra
+      prueba: servicios/entregas/src/test/java/bo/aportaya/entregas/CU133PozoCompletoRechazosTest.java#laBaseExigeElCuadre
