@@ -262,8 +262,8 @@ temas × 4 estados.
 | H4.S1.M3 | `aportes`: dinero en mora, tasa de mora y pendientes cobrados (pago tarde propio) | Dos componentes separados | `./gradlew :servicios:aportes:integrationTest --tests '*Indicadores*'` en verde | HECHO — `evidencia/H4-S1-M3-aportes.txt` |
 | H4.S1.M4 | `grupos`: turnos normales y turnos de cierre (D2) | El de cierre se cuenta una vez | `./gradlew :servicios:grupos:integrationTest --tests '*Indicadores*'` en verde | HECHO — `evidencia/H4-S1-M4-grupos.txt` |
 | H4.S1.M5 | `entregas`: entregas pendientes y tiempo medio | `SIN_DATOS` sin entregas | `./gradlew :servicios:entregas:integrationTest --tests '*Indicadores*'` en verde | HECHO — `evidencia/H4-S1-M5-entregas.txt` |
-| H4.S1.M6 | `inversiones`: saldo invertido (posiciones vigentes), marcado sintético (D12) | Valor = consulta | `./gradlew :servicios:inversiones:integrationTest --tests '*Indicadores*'` en verde | EN CURSO |
-| H4.S1.M7 | Disparo: trabajo diario por servicio (ayer; mes y año anteriores al cambiar) y relleno de los últimos 13 meses cerrados para los de flujo | Corre una vez por día; relleno idempotente | Test del trabajo en verde | TODO |
+| H4.S1.M6 | `inversiones`: saldo invertido (posiciones vigentes), marcado sintético (D12) | Valor = consulta | `./gradlew :servicios:inversiones:integrationTest --tests '*Indicadores*'` en verde | HECHO — `evidencia/H4-S1-M6-inversiones.txt` |
+| H4.S1.M7 | Disparo: trabajo diario por servicio (ayer; mes y año anteriores al cambiar) y relleno de los últimos 13 meses cerrados para los de flujo | Corre una vez por día; relleno idempotente | Test del trabajo en verde | EN CURSO |
 | H4.S1.M8 | Punta a punta con la base sembrada: calculadores → Kafka → `auditoria` → `GET /indicadores` | Valores = consultas de cuadre | Ensayo con el stack local pegado | TODO |
 
 ### H4.S2 — Pantalla
