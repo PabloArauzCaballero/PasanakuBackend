@@ -355,8 +355,8 @@ prueba visual.
 | H7.S1.M5 | Generar `docs/catalogo-de-datos.md` y `servicios/auditoria/src/main/resources/catalogo/catalogo-datos.json` (esquemas, tablas, columnas, tipos, nulabilidad, PK, FK, relaciones, sensibilidad) — D14: NO en `public/` del backoffice, que se sirve sin sesión | Dos corridas idénticas | `shasum -a 256` dos veces, pegado | HECHO — `evidencia/H7-S1-M5-catalogo-generado.txt` |
 | H7.S1.M6 | `GET /indicadores/catalogo-de-datos` en `auditoria` (contrato OpenAPI + controlador que sirve el recurso), con `TABLERO_SISTEMAS_VER` | 200 con permiso; 403 sin permiso; 401 sin token | Test web nombrado en verde | HECHO — `evidencia/H7-S1-M6-endpoint-catalogo.txt` |
 | H7.S1.M7 | Gate `verificar_narrativas.py` en el CI (paso 6i de `ci.yml`) | El paso existe y el gate pasa en el modelo completo | `grep` del paso + corrida local exit 0 | HECHO — `evidencia/H7-S1-M7-gate-en-ci.txt` |
-| H7.S2.M1 | Pantalla de catálogo (lista, búsqueda normalizada y ficha de tabla con relaciones) consumiendo el JSON publicado | Specs de los cuatro estados en verde | `yarn --cwd apps/backoffice test:front` (specs nombrados) | TODO |
-| H7.S2.M2 | Prueba visual | Capturas inspeccionadas | `evidencia/H7/` | TODO |
+| H7.S2.M1 | Pantalla de catálogo (lista, búsqueda normalizada y ficha de tabla con relaciones) consumiendo el JSON publicado | Specs de los cuatro estados en verde | `yarn --cwd apps/backoffice test:front` (specs nombrados) | HECHO — `evidencia/H7-S2-M1-pantalla-catalogo.txt` |
+| H7.S2.M2 | Prueba visual | Capturas inspeccionadas | `evidencia/H7/` | TODO — se hace en H9 con la pila arriba y sesión real, junto con la prueba visual de los tres tableros (el mock Prism no completa el login) |
 
 ## H8 — Catálogo de flujos y orquestación de pruebas
 

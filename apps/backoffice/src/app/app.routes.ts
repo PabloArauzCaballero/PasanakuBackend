@@ -49,6 +49,19 @@ export const routes: Routes = [
         title: 'Tablero de sistemas · AportaYa',
       },
       {
+        // Catálogo de datos (H7): estructura y narrativa de cada tabla; el servidor lo sirve con el mismo permiso (D14).
+        path: 'tablero/catalogo-de-datos',
+        canMatch: [requierePermiso('TABLERO_SISTEMAS_VER')],
+        loadComponent: () => import('./rutas/tablero/catalogo/pantalla-catalogo').then((m) => m.PantallaCatalogo),
+        title: 'Catálogo de datos · AportaYa',
+      },
+      {
+        path: 'tablero/catalogo-de-datos/:tabla',
+        canMatch: [requierePermiso('TABLERO_SISTEMAS_VER')],
+        loadComponent: () => import('./rutas/tablero/catalogo/ficha-de-tabla').then((m) => m.FichaDeTabla),
+        title: 'Ficha de tabla · AportaYa',
+      },
+      {
         path: 'tablero/comercial',
         canMatch: [requierePermiso('TABLERO_COMERCIAL_VER')],
         loadComponent: () => import('./rutas/tablero/tablero-por-rol').then((m) => m.TableroPorRol),
