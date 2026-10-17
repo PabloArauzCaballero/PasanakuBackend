@@ -438,10 +438,9 @@ paths:
       operationId: consultarEstadoDeVerificacion
       summary: El estado de la verificacion de quien acaba de registrarse
       description: >-
-        Ruta sin sesion obligatoria, igual que `subirDocumento`: quien recien se registro
-        todavia no puede abrir sesion (su dispositivo es nuevo y `ExigeSegundoFactor` le
-        pide un MFA que todavia no tiene enrolado), y necesita saber si su cuenta quedo
-        verificada sin esperar a poder ingresar.
+        Ruta sin sesion obligatoria, igual que `subirDocumento`: el alta no abre sesion, y
+        quien recien se registro necesita saber si su cuenta quedo verificada sin tener
+        que ingresar primero.
 
         Pero el `usuarioId` de la URL NO autoriza nada: lo consulta solo la persona. O
         presenta el `tokenDeAlta` que devolvio SU alta (cabecera `Token-De-Alta`), o es su
@@ -890,9 +889,14 @@ components:
     EntradaAutenticacion:
       type: object
       additionalProperties: false
-      required: [telefonoE164, huellaDispositivo]
+      description: >-
+        Exactamente uno de `telefonoE164` o `correo` identifica la cuenta. Ninguno o los dos
+        responde 400 AP-VAL-02. Un correo que no existe responde igual que una credencial
+        mala (AP-CU04-01): el ingreso no dice qué cuentas existen.
+      required: [huellaDispositivo]
       properties:
         telefonoE164:      { type: string, pattern: '^\+591\d{8}$' }
+        correo:            { type: string, format: email, maxLength: 150 }
         credencial:        { type: string, minLength: 8, maxLength: 128 }
         huellaDispositivo: { type: string, maxLength: 128 }
         plataforma:        { type: string, enum: [ANDROID, IOS, WEB] }

@@ -9,7 +9,8 @@ import java.util.UUID;
  * capa web: es lo que permite probar el organismo sin levantar un servidor.
  */
 public record EntradaAutenticacion(
-        String telefonoE164,
+        /* El telefono E.164 o el correo con el que la persona dice quien es. */
+        String identificador,
         char[] credencial,
         String huella,
         String plataforma,
@@ -19,6 +20,11 @@ public record EntradaAutenticacion(
         Optional<String> factorPresentado,
         boolean operacionSensible,
         Duration vigenciaDeSesion) {
+
+    /** El contrato ya valido el formato: un correo es lo unico que lleva arroba. */
+    public boolean esCorreo() {
+        return identificador.indexOf('@') >= 0;
+    }
 
     /** El «usuario» del contexto mientras todavia no hay usuario autenticado. */
     public static final UUID PROCESO_INGRESO = UUID.fromString("00000000-0000-4000-8000-000000000004");
