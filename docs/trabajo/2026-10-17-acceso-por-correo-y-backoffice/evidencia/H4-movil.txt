@@ -1,0 +1,20 @@
+$ flutter test test/identidad/pantalla_sesion_prefijo_test.dart test/identidad/autenticar_test.dart test/unidad/refresco_movil_test.dart
+00:00 +14: All tests passed!
+
+$ flutter test --update-goldens (h10_ingreso_visual, h8_ingreso_oscuro, h10_texto_200) y luego sin --update-goldens
+00:01 +23: All tests passed!
+
+$ yarn --cwd apps/movil lint → exit=0
+$ flutter analyze lib test → No issues found!
+
+$ flutter test test/unidad test/widget test/contrato test/identidad test/pasanaku --timeout 60s
++641 -8: Some tests failed
+Los 8 fallos son goldens comparados en Linux; fallan IGUAL sin mis cambios (línea base con stash, misma lista):
+  test/identidad/componentes_de_fase_test.dart: captura la cabecera integrada de fase 2 a 360 por 800 [E]
+  test/identidad/h4_ci_icono_visual_test.dart: compara visualmente el carnet con tarjeta de pago [E]
+  test/identidad/motivo_de_salida_en_ingreso_test.dart: avisa una vez cuando la sesión caducó por el tope de 8 horas [E]
+  test/identidad/motivo_de_salida_en_ingreso_test.dart: informa una vez cuando la sesión se cerró por otra razón [E]
+  test/widget/ilustracion_de_pauta_golden_test.dart: golden de las nueve escenas de ejemplo [E]
+  test/widget/paso_capturas_test.dart: cinco láminas, avance tras guardar y puntos tocables [E]
+  test/widget/paso_capturas_test.dart: el marco conserva las dos elevaciones tokenizadas [E]
+  test/widget/pautas_publicas_golden_test.dart: captura pautas públicas en 360 dp [E]
