@@ -57,6 +57,12 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 @PruebaWeb(
         value = UsuariosController.class,
         properties = {"aportaya.seguridad.pimienta=pimienta-de-prueba-no-es-la-de-produccion"})
+@MockitoBean(
+        types = {
+            bo.aportaya.identidad.aplicacion.ActivarRolOrganizador.class,
+            bo.aportaya.identidad.aplicacion.ConsultarMiPerfil.class,
+            bo.aportaya.identidad.aplicacion.CU02IniciarVerificacion.class
+        })
 @DisplayName("GET /usuarios/{id}/verificacion — solo su titular, sin datos personales")
 class EstadoDeVerificacionWebTest {
 
@@ -113,15 +119,6 @@ class EstadoDeVerificacionWebTest {
 
     @MockitoBean
     private ConfirmarVerificacionCorreo confirmarCorreo;
-
-    @MockitoBean
-    private bo.aportaya.identidad.aplicacion.ActivarRolOrganizador activarRolOrganizador;
-
-    @MockitoBean
-    private bo.aportaya.identidad.aplicacion.ConsultarMiPerfil consultarMiPerfil;
-
-    @MockitoBean
-    private bo.aportaya.identidad.aplicacion.CU02IniciarVerificacion iniciarVerificacion;
 
     private String tokenDe(UUID usuario) {
         return new TokenDeAlta(PIMIENTA, reloj, Duration.ofMinutes(30))

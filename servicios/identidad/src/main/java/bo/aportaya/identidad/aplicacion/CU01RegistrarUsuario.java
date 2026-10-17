@@ -206,17 +206,15 @@ public class CU01RegistrarUsuario {
             // Lo que sigue —diligencia, calificacion, expediente y billetera— lo hacen
             // `cumplimiento` y `nucleo-financiero` al consumir este evento. Cada uno en
             // su esquema y con su transaccion.
+            // Sin documento todavia no se solicita ningun nivel: se pide al verificarse.
+            String nivelSolicitado = conDocumento ? "BASICO" : "NINGUNO";
             outbox.emitir(
                     dsl,
                     new EventoDominio(
                             "identidad.usuario_registrado",
                             "usuario",
                             usuario,
-                            Map.of(
-                                    "usuarioId",
-                                    usuario.toString(),
-                                    "nivelSolicitado",
-                                    conDocumento ? "BASICO" : "NINGUNO"),
+                            Map.of("usuarioId", usuario.toString(), "nivelSolicitado", nivelSolicitado),
                             UUID.fromString(ctx.traza().id())));
 
             return new SalidaRegistro(usuario, apertura);
