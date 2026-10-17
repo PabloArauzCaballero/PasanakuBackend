@@ -15,8 +15,8 @@ CREATE TABLE IF NOT EXISTS organizador.apelacion_sancion_org (
   CONSTRAINT ck_apelacion_sancion_org_estado CHECK (estado IN ('ACEPTADA', 'DESISTIDA', 'EN_REVISION', 'PRESENTADA', 'RECHAZADA'))
 );
 
-COMMENT ON TABLE organizador.apelacion_sancion_org IS 'Módulo 07 — Organizador y Automatización. Administrar es un rol, no un negocio: el organizador no cobra ni custodia';
-COMMENT ON COLUMN organizador.apelacion_sancion_org.id IS 'PK';
+COMMENT ON TABLE organizador.apelacion_sancion_org IS 'Módulo 07 — Organizador y Automatización. El recurso del organizador contra una sanción.';
+COMMENT ON COLUMN organizador.apelacion_sancion_org.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN organizador.apelacion_sancion_org.sancion_organizador_id IS 'FK';
 COMMENT ON COLUMN organizador.apelacion_sancion_org.estado IS 'CK';
 COMMENT ON COLUMN organizador.apelacion_sancion_org.resuelta_por IS 'FK, NULL';

@@ -72,6 +72,12 @@ traduccion en `RespaldoWeb` (el generador agrupa por primer segmento de la ruta)
 - Parametros SINTETICOS: el tope de capacidad lo carga gobierno (sin fila se deniega); ninguna
   tarifa ni politica de recuperacion esta decidida (ambiguedades A1-A4).
 
+## Eventos que consume
+
+| Tema | De quien | Efecto |
+| --- | --- | --- |
+| `aportaya.nucleo_financiero.aporte_aplicado` | `nucleo-financiero` | Solo con `destino = FONDO_GARANTIA` (hoy, el recargo por mora cobrado): suma al `saldo_disponible` del fondo del grupo y deja un `movimiento_fondo` `RECARGO_MORA` (`IngresoAlFondo`). Idempotente por `evento_consumido`. No suma a `total_aportado`: el recargo no se devuelve al cerrar el fondo. Grupo sin fondo propio: se rechaza sin marcar y el reproceso lo aplica. Se apaga con `aportaya.garantia.consumo-de-aportes-aplicados.habilitado=false` |
+
 ## Lo que este servicio NO puede hacer
 
 - Leer el esquema de otro servicio. No tiene `GRANT`, y jOOQ no le genero las

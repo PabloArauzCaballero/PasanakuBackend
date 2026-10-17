@@ -22,12 +22,13 @@ CREATE TABLE IF NOT EXISTS cumplimiento.politica_interna (
   CONSTRAINT ck_politica_interna_estado CHECK (estado IN ('BORRADOR', 'DEROGADA', 'EN_APROBACION', 'SUSTITUIDA', 'VIGENTE'))
 );
 
-COMMENT ON TABLE cumplimiento.politica_interna IS 'Módulo 12 — Cumplimiento Regulatorio y Consumidor Financiero. Que una inspección se responda con consultas, no armando carpetas';
-COMMENT ON COLUMN cumplimiento.politica_interna.id IS 'PK';
+COMMENT ON TABLE cumplimiento.politica_interna IS 'Módulo 12 — Cumplimiento Regulatorio y Consumidor Financiero. El aparato de gobierno: comités, actas, manuales y designaciones.';
+COMMENT ON COLUMN cumplimiento.politica_interna.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN cumplimiento.politica_interna.acta_comite_id IS 'FK, NULL';
 COMMENT ON COLUMN cumplimiento.politica_interna.responsable_id IS 'FK, NULL';
 COMMENT ON COLUMN cumplimiento.politica_interna.codigo IS 'UQ+version';
 COMMENT ON COLUMN cumplimiento.politica_interna.tipo IS 'CK';
 COMMENT ON COLUMN cumplimiento.politica_interna.materia IS 'CK, IDX';
 COMMENT ON COLUMN cumplimiento.politica_interna.estado IS 'CK, IDX';
+COMMENT ON COLUMN cumplimiento.politica_interna.vigente_desde IS 'Desde cuándo rige esta versión de la fila: las condiciones se versionan, no se pisan.';
 COMMENT ON COLUMN cumplimiento.politica_interna.proxima_revision IS 'IDX';

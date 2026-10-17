@@ -1,0 +1,14 @@
+aplicar exit=0
+siembra 1 exit=0 · filas insertadas: 863
+siembra 2 exit=0 · filas insertadas: 0
+ERROR:  relation "rol_permiso" does not exist
+LINE 1: ...codigo rol, p.codigo permiso, p.requiere_mfa from rol_permis...
+                                                             ^
+       rol        |        permiso         | requiere_mfa 
+------------------+------------------------+--------------
+ COMERCIAL        | TABLERO_COMERCIAL_VER  | f
+ CONTABILIDAD     | TABLERO_FINANCIERO_VER | f
+ TESORERIA        | TABLERO_FINANCIERO_VER | f
+ ADMIN_PLATAFORMA | TABLERO_SISTEMAS_VER   | f
+(4 rows)
+

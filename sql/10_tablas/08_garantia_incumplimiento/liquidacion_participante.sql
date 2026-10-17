@@ -15,8 +15,8 @@ CREATE TABLE IF NOT EXISTS garantia.liquidacion_participante (
   CONSTRAINT ck_liquidacion_participante_estado CHECK (estado IN ('CALCULADA', 'EN_COBRANZA', 'PAGADA'))
 );
 
-COMMENT ON TABLE garantia.liquidacion_participante IS 'Módulo 08 — Garantía, Incumplimiento, Cobranza y Sanciones. El grupo no se detiene, pero la deuda no se perdona sola';
-COMMENT ON COLUMN garantia.liquidacion_participante.id IS 'PK';
+COMMENT ON TABLE garantia.liquidacion_participante IS 'Módulo 08 — Garantía, Incumplimiento, Cobranza y Sanciones. La posición neta de cada participante en la disolución.';
+COMMENT ON COLUMN garantia.liquidacion_participante.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN garantia.liquidacion_participante.disolucion_id IS 'FK, IDX';
 COMMENT ON COLUMN garantia.liquidacion_participante.participante_id IS 'FK';
 COMMENT ON COLUMN garantia.liquidacion_participante.estado IS 'CK';

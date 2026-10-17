@@ -15,6 +15,6 @@ CREATE TABLE IF NOT EXISTS aportes.qr_cobro (
   CONSTRAINT pk_qr_cobro PRIMARY KEY (id)
 );
 
-COMMENT ON TABLE aportes.qr_cobro IS 'Módulo 03 — Aportes, Pagos QR y Conciliación. Que "pagué" signifique "el banco lo confirmó"';
-COMMENT ON COLUMN aportes.qr_cobro.id IS 'PK';
+COMMENT ON TABLE aportes.qr_cobro IS 'Módulo 03 — Aportes, Pagos QR y Conciliación. El código QR interoperable propiamente dicho: el payload EMVCo, la imagen, el CRC, el banco emisor.';
+COMMENT ON COLUMN aportes.qr_cobro.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN aportes.qr_cobro.orden_cobro_id IS 'FK, UQ';

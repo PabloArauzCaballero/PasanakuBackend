@@ -346,6 +346,9 @@ PARTICIONADAS = {
 CK_AMPLIADOS = {
     # 2026-10-16: segundo factor por correo para participantes.
     "factor_mfa": ["tipo"],
+    # 2026-10-16: el recargo por mora cobrado va al fondo de garantia (tableros-por-rol, H1.S2.M0d).
+    "transaccion_billetera": ["tipo"],
+    "movimiento_fondo": ["tipo"],
 }
 
 # --- FK -> tabla destino: overrides donde el nombre de columna no coincide ---

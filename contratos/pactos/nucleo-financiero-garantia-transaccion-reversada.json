@@ -1,0 +1,31 @@
+{
+ "productor": "nucleo-financiero",
+ "consumidor": "garantia",
+ "version": 1,
+ "descripcion": "Tableros por rol (H8.S3.M1). Pacto del reverso de una transacción de billetera (CU-14): garantia lo consume para restar de su fondo un recargo que había anotado (H1.S2.M4). Productor: CU14ReversarTransaccion por su outbox. Consumidor: IngresoAlFondo.revertir vía ConsumidorDeReversosKafka. Lo comparten CUConsumoDeRecargoTest#cumpleElPactoDeReverso (productor) y ConsumidorDeReversosKafkaTest#pactoConNucleo (consumidor).",
+ "topico": "aportaya.nucleo_financiero.transaccion_reversada",
+ "tipo": "nucleo_financiero.transaccion_reversada",
+ "agregado": "reverso_transaccion",
+ "cabeceras": [
+  "event_id",
+  "correlation_id"
+ ],
+ "campos": {
+  "transaccionOriginalId": "uuid de la transacción que se revierte",
+  "transaccionReversoId": "uuid de la transacción REVERSO",
+  "tipo": "tipo del reverso: ANULACION | CONTRACARGO | ERROR_OPERATIVO | ORDEN_AUTORIDAD (ck_reverso_transaccion_tipo)"
+ },
+ "consumidorExige": [
+  "transaccionOriginalId",
+  "transaccionReversoId"
+ ],
+ "ejemplo": {
+  "transaccionOriginalId": "f0000000-0000-4000-8000-000000000001",
+  "transaccionReversoId": "f0000000-0000-4000-8000-000000000002",
+  "tipo": "ERROR_OPERATIVO"
+ },
+ "garantias": [
+  "garantia resta UNA vez por reverso",
+  "un reverso de algo que no es un recargo anotado no toca ningún fondo"
+ ]
+}

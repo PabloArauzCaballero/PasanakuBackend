@@ -612,3 +612,59 @@ al momento de votar: un expulsado no vota su propia expulsión.
 | `SorteoTurnos` | El orden de cobro vuelve a ser "confiá en el organizador". |
 | Emparejamiento (RF-19) | El crecimiento tiene techo en las redes sociales ya existentes. |
 | `Acuerdo` + `Voto` | El organizador concentra un poder que en el pasanaku real nunca tuvo. |
+
+
+---
+
+## Tablas incorporadas después de la redacción original
+
+> Fichas escritas para el catálogo de datos (trabajo `docs/trabajo/2026-10-16-tableros-por-rol`, H7). Cada
+> afirmación sale de la fuente que se cita al pie de la ficha: no agregan reglas, las explican.
+
+### `AltaGrupo` / `alta_grupo`
+
+**Qué es.** El registro de que una persona creó un grupo con una clave de idempotencia dada.
+
+**Para qué sirve (negocio).** Que tocar dos veces «Crear grupo» (o que la app reintente por mala señal) deje un solo grupo, y que la segunda vez la persona vea el mismo grupo creado en lugar de un error.
+
+**Por qué debe existir.** Sin ella, un reintento duplicaría el grupo con sus cupos y su reglamento. Tampoco se podría distinguir un reintento legítimo de un pedido distinto mandado con la misma clave.
+
+**A nivel de sistema.** Append-only. `clave_idempotencia` única; `huella_solicitud` es el hash del pedido original y una clave repetida con otra huella se rechaza. El alta se serializa por creador con un `pg_advisory_xact_lock`. `fondo_por_periodo` guarda el importe pactado con que se creó. La política RLS de `participante` la consulta para que el creador vea a los participantes de su grupo (`Restricciones.md`, bloque de políticas por `usuario_id`).
+
+*Fuente: `servicios/grupos/.../CreacionRepositorio.java`; CU-68.*
+
+### `DecisionIngreso` / `decision_ingreso`
+
+**Qué es.** Cada decisión humana sobre una solicitud de ingreso a un grupo, en dos fases: la propuesta y la resolución.
+
+**Para qué sirve (negocio).** Que quién entra a un grupo de plata sea una decisión de una persona con nombre y motivo, no del algoritmo. Si la persona se aparta de lo que recomendó el motor, queda dicho.
+
+**Por qué debe existir.** Con la admisión humana obligatoria (ADR-052 DD-2), el organizador propone y backoffice resuelve. Sin esta tabla, la propuesta, la resolución y el motivo se pisarían en la solicitud y no habría forma de reconstruir por qué alguien quedó dentro o fuera.
+
+**A nivel de sistema.** Append-only (R-GRP-17). `fase` ∈ PROPUESTA/RESOLUCION y `decision` ∈ ACEPTAR/RECHAZAR. `revision` crece por solicitud y hay una sola RESOLUCION por solicitud (`uq_decision_ingreso_resolucion`). `recomendacion_algoritmo`, `evidencia_algoritmo`, `version_motor` y `apartamiento` conservan qué dijo el motor y si la persona se apartó. El motivo no puede ser vacío.
+
+*Fuente: CU-68; `docs/Restricciones.md` R-GRP-17; `AdmisionRepositorio.java`.*
+
+### `SnapshotSorteo` / `snapshot_sorteo`
+
+**Qué es.** La foto congelada del plantel, el calendario y las reglas de un grupo en el momento en que se compromete el sorteo de turnos.
+
+**Para qué sirve (negocio).** Que nadie pueda decir que el sorteo se hizo sobre otra lista de participantes o con otras reglas. Cualquiera puede reproducir el orden con la semilla revelada y esta foto.
+
+**Por qué debe existir.** El sorteo publica primero el hash de la semilla y después la revela (CU-60). Si el plantel o las reglas cambiaran entre esos dos momentos, el resultado dejaría de ser verificable. La foto es lo que hace que el sorteo sea reproducible.
+
+**A nivel de sistema.** Append-only (R-GRP-18). Una por sorteo (`sorteo_id` único). `roster`, `periodos` y `reglas` en texto; `hash_snapshot` es SHA-256 (64 caracteres) y `semilla_sellada` acompaña a la foto. Se escribe una sola vez (`SorteoRepositorio.guardarSnapshot`).
+
+*Fuente: CU-60; `docs/Restricciones.md` R-GRP-18.*
+
+### `SustitucionAdministrador` / `sustitucion_administrador`
+
+**Qué es.** El cambio de quién administra un grupo: quién sale, quién entra, por qué y qué obligaciones conserva el que sale.
+
+**Para qué sirve (negocio).** Que un grupo no quede sin administrador cuando el organizador se va o es inhabilitado, y que quien sale siga debiendo lo que debía: cambiar de rol no borra la deuda con el grupo.
+
+**Por qué debe existir.** Sin ella, el cambio de administrador sería un `UPDATE` sobre el participante y se perdería quién lo decidió, por qué y qué conservó el saliente.
+
+**A nivel de sistema.** Append-only (R-GRP-19). El saliente y el entrante son participantes distintos del mismo grupo. El motivo no puede ser vacío. `obligaciones_conservadas` guarda en texto la participación y los cupos que conserva el saliente. `clave_idempotencia` única.
+
+*Fuente: CU-68; `docs/Restricciones.md` R-GRP-19; `SustitucionRepositorio.java`.*

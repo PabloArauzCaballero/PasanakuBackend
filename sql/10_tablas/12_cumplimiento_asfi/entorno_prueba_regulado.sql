@@ -18,8 +18,8 @@ CREATE TABLE IF NOT EXISTS cumplimiento.entorno_prueba_regulado (
   CONSTRAINT ck_entorno_prueba_regulado_estado CHECK (estado IN ('ACTIVO', 'FINALIZADO', 'SOLICITADO', 'SUSPENDIDO'))
 );
 
-COMMENT ON TABLE cumplimiento.entorno_prueba_regulado IS 'Módulo 12 — Cumplimiento Regulatorio y Consumidor Financiero. Que una inspección se responda con consultas, no armando carpetas';
-COMMENT ON COLUMN cumplimiento.entorno_prueba_regulado.id IS 'PK';
+COMMENT ON TABLE cumplimiento.entorno_prueba_regulado IS 'Módulo 12 — Cumplimiento Regulatorio y Consumidor Financiero. El sandbox: probar un servicio nuevo bajo supervisión, con límites.';
+COMMENT ON COLUMN cumplimiento.entorno_prueba_regulado.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN cumplimiento.entorno_prueba_regulado.licencia_regulatoria_id IS 'FK, IDX';
 COMMENT ON COLUMN cumplimiento.entorno_prueba_regulado.limite_usuarios IS 'NULL';
 COMMENT ON COLUMN cumplimiento.entorno_prueba_regulado.limite_monto_operacion IS 'NULL';

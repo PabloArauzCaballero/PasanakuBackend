@@ -1,11 +1,12 @@
 package bo.aportaya.nucleofinanciero;
 
+import bo.aportaya.nucleofinanciero.aplicacion.AporteCobrado;
 import bo.aportaya.nucleofinanciero.aplicacion.CU24RegistrarAsiento;
 import bo.aportaya.nucleofinanciero.aplicacion.ConsumoDeAportes;
-import bo.aportaya.nucleofinanciero.aplicacion.ConsumoDeAportes.AporteCobrado;
 import bo.aportaya.nucleofinanciero.infraestructura.AsientoRepositorio;
 import bo.aportaya.nucleofinanciero.infraestructura.CuentaBilleteraRepositorio;
 import bo.aportaya.nucleofinanciero.infraestructura.CuentaContableRepositorio;
+import bo.aportaya.nucleofinanciero.infraestructura.CuentasDeSistemaRepositorio;
 import bo.aportaya.nucleofinanciero.infraestructura.DestinoRepositorio;
 import bo.aportaya.nucleofinanciero.infraestructura.LibroDeBilletera;
 import bo.aportaya.plataforma.datos.Datos;
@@ -59,6 +60,7 @@ abstract class BaseDeAportes extends BaseDeBilletera {
                         new Outbox("nucleo_financiero"),
                         Reloj.delSistema()),
                 (logica, moneda) -> Optional.ofNullable(mapeo.get(logica + "." + moneda.name())),
+                new CuentasDeSistemaRepositorio(),
                 new Outbox("nucleo_financiero"),
                 Reloj.delSistema());
     }
@@ -122,7 +124,8 @@ abstract class BaseDeAportes extends BaseDeBilletera {
                 a.grupo(),
                 a.usuario(),
                 Dinero.de(monto, Moneda.valueOf(moneda)),
-                canal);
+                canal,
+                Optional.empty());
     }
 
     /** El mismo hecho (mismo pago) con OTRO id de evento: lo que pasa si el productor republica. */
@@ -135,7 +138,8 @@ abstract class BaseDeAportes extends BaseDeBilletera {
                 original.grupoId(),
                 original.usuarioId(),
                 original.monto(),
-                original.canal());
+                original.canal(),
+                original.tipo());
     }
 
     protected ConsumoDeAportes.Salida procesar(AporteCobrado a) {

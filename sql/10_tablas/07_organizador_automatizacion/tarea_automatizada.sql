@@ -15,9 +15,10 @@ CREATE TABLE IF NOT EXISTS organizador.tarea_automatizada (
   CONSTRAINT ck_tarea_automatizada_estado CHECK (estado IN ('CANCELADA', 'COMPLETADA', 'EN_EJECUCION', 'FALLIDA', 'PROGRAMADA', 'REQUIERE_APROBACION'))
 );
 
-COMMENT ON TABLE organizador.tarea_automatizada IS 'Módulo 07 — Organizador y Automatización. Administrar es un rol, no un negocio: el organizador no cobra ni custodia';
-COMMENT ON COLUMN organizador.tarea_automatizada.id IS 'PK';
+COMMENT ON TABLE organizador.tarea_automatizada IS 'Módulo 07 — Organizador y Automatización. Una instancia concreta de trabajo programada por una regla.';
+COMMENT ON COLUMN organizador.tarea_automatizada.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN organizador.tarea_automatizada.regla_id IS 'FK, IDX';
 COMMENT ON COLUMN organizador.tarea_automatizada.grupo_id IS 'FK, IDX';
 COMMENT ON COLUMN organizador.tarea_automatizada.programada_para IS 'IDX';
 COMMENT ON COLUMN organizador.tarea_automatizada.estado IS 'CK, IDX';
+COMMENT ON COLUMN organizador.tarea_automatizada.clave_idempotencia IS 'Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4).';

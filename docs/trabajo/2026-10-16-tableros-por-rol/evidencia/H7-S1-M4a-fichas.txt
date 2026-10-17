@@ -1,0 +1,10 @@
+H7.S1.M4a — 14 fichas nuevas (módulos 01, 02, 04, 07, 10, 11) · 2026-10-16
+Fuentes citadas al pie de cada ficha (CU-04, 10, 11, 12, 22, 32, 60, 68, 69, 90; Restricciones.md; javadocs).
+Corrección durante la revisión: alta_grupo la consulta una política RLS de participante, no una regla de inserción.
+
+$ python3 -I scripts/verificar_narrativas.py --modulo 01 --modulo 02 --modulo 04 --modulo 07 --modulo 10 --modulo 11
+  OK    · tablas con ficha: 132/132
+  INFO  · columnas con explicación de negocio en el filtro: 210/1485
+
+Sin fallas.
+exit=0

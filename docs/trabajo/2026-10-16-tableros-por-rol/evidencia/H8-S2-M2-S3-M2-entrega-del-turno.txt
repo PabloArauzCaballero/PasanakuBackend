@@ -1,0 +1,17 @@
+H8.S2.M2 + H8.S3.M2 — flujo entrega del turno (normal y de cierre) · 2026-10-17
+
+$ python3 scripts/validar_flujos.py   → exit 0
+  OK    · aporte-mora-cobertura.yaml: 12 pasos, 6 validos, 7 limite, 7 invalidos
+  OK    · entrega-del-turno.yaml: 7 pasos, 4 validos, 5 limite, 6 invalidos
+  OK    · recarga-y-retiro.yaml: 6 pasos, 3 validos, 5 limite, 6 invalidos
+Sin fallas.
+
+Prueba de integración del flujo: la cadena fondeo → autorización → ejecución → desembolso → respuesta del banco → asiento ENTREGA ya existía y se ejecutó (no se escribió una nueva: duplicarla no agrega evidencia). El mayor es un doble declarado (MayorDeDoble), no nucleo-financiero real.
+$ ./gradlew :servicios:entregas:integrationTest --tests "*CU133PozoCompletoTest" --tests "*CU133EntregaConsistenteTest" --tests "*CU133PozoCompletoRechazosTest" --tests "*CU28Test"   → exit 0
+  TEST-bo.aportaya.entregas.CU133PozoCompletoTest.xml: tests="6" skipped="0" failures="0" errors="0"
+  TEST-bo.aportaya.entregas.CU133EntregaConsistenteTest.xml: tests="3" skipped="0" failures="0" errors="0"
+  TEST-bo.aportaya.entregas.CU133PozoCompletoRechazosTest.xml: tests="8" skipped="0" failures="0" errors="0"
+  TEST-bo.aportaya.entregas.CU28Test.xml: tests="9" skipped="0" failures="0" errors="0"
+
+Hallazgo H8-02 / A10: nada lleva un grupo a FINALIZADO; RETENCION_60D no tendría base con datos reales.
+No cubierto: el cierre del ciclo de punta a punta (liberar reserva y devolver fondo son operaciones manuales; sin finalización del grupo); el pacto entregas → nucleo de desembolso_acreditado contra el consumidor real (la prueba usa MayorDeDoble).

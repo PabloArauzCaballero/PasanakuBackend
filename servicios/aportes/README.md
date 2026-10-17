@@ -28,7 +28,7 @@ Los demas casos de uso del modulo 03 siguen pendientes; ninguno esta a medias.
 
 | Tema | Cuando |
 | --- | --- |
-| `aportes.aporte_cobrado` | Se acredito un pago contra una obligacion. Lleva `monto` y `participanteId`: sin ellos, `cumplimiento` no puede evaluar el umbral (R-UIF-02) ni `nucleo-financiero` cuadrar el asiento. Desde el carril I lleva tambien `moneda`, `canal`, `obligacionId` y `usuarioId` (quien paga): `nucleo-financiero` lo CONSUME y mueve billetera y mayor (campos sumados, compatible) |
+| `aportes.aporte_cobrado` | Se acredito un pago contra una obligacion. Lleva `monto` y `participanteId`: sin ellos, `cumplimiento` no puede evaluar el umbral (R-UIF-02) ni `nucleo-financiero` cuadrar el asiento. Desde el carril I lleva tambien `moneda`, `canal`, `obligacionId` y `usuarioId` (quien paga): `nucleo-financiero` lo CONSUME y mueve billetera y mayor (campos sumados, compatible). Desde 2026-10-16 lleva `tipo` de la obligacion (`APORTE_PERIODICO`, `RECARGO_MORA`…): sin el, un recargo terminaria en el pozo del grupo |
 | `aportes.reembolso_solicitado` | Alguien pidio devolver un pago. Todavia no salio plata |
 | `aportes.reembolso_ejecutado` | Se aprobo y ejecuto: `nucleo-financiero` mueve el dinero |
 | `aportes.disputa_abierta` | El proveedor abrio una disputa, con su `fechaLimiteRespuesta` ya guardada |
@@ -49,8 +49,9 @@ Los demas casos de uso del modulo 03 siguen pendientes; ninguno esta a medias.
 | --- | --- | --- |
 | `aportes-recargos-mora` | diario | `CU21CobrarAporte.generarRecargos` — **uno por obligacion, no uno por corrida**: si el trabajo corre dos veces el mismo dia, el segundo no vuelve a cobrar. Sin politica de mora escrita no genera nada (denegar por omision, invariante 9) |
 
-> El disparo (`@Scheduled` + ShedLock) todavia no esta cableado: el metodo existe,
-> se prueba y no lo llama nadie. Declarado en el informe del carril.
+> El disparo es `trabajos/RecargosDeMoraDiarios` (`@Scheduled` 01:30 America/La_Paz + ShedLock
+> `aportes-recargos-mora`, contexto de sistema). Se apaga con `aportaya.aportes.trabajos.habilitados=false`.
+> Probado en `CU21RecargosDiariosTest` (correcto, dos corridas el mismo dia, grupo sin politica).
 
 ## Recaudo del pozo (carril C, H8)
 

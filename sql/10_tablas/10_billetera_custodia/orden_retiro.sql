@@ -29,8 +29,8 @@ CREATE TABLE IF NOT EXISTS nucleo_financiero.orden_retiro (
   CONSTRAINT ck_orden_retiro_estado CHECK (estado IN ('AUTORIZADA', 'BORRADOR', 'EN_PROCESO', 'EN_REVISION', 'PAGADA', 'PENDIENTE', 'RECHAZADA', 'REVERSADA'))
 );
 
-COMMENT ON TABLE nucleo_financiero.orden_retiro IS 'Módulo 10 — Billetera, Custodia y Dinero Electrónico. El saldo no se guarda: se deriva, y todos los días cuadra contra el banco';
-COMMENT ON COLUMN nucleo_financiero.orden_retiro.id IS 'PK';
+COMMENT ON TABLE nucleo_financiero.orden_retiro IS 'Módulo 10 — Billetera, Custodia y Dinero Electrónico. El *cash-in* y el *cash-out*: los dos puntos donde el dinero cruza la frontera entre el mundo bancario y el saldo de la app.';
+COMMENT ON COLUMN nucleo_financiero.orden_retiro.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN nucleo_financiero.orden_retiro.cuenta_billetera_id IS 'FK, IDX';
 COMMENT ON COLUMN nucleo_financiero.orden_retiro.instrumento_destino_id IS 'FK';
 COMMENT ON COLUMN nucleo_financiero.orden_retiro.retencion_id IS 'FK, NULL, UQ';
@@ -39,8 +39,10 @@ COMMENT ON COLUMN nucleo_financiero.orden_retiro.solicitada_por IS 'FK, IDX';
 COMMENT ON COLUMN nucleo_financiero.orden_retiro.aprobada_por IS 'FK, NULL';
 COMMENT ON COLUMN nucleo_financiero.orden_retiro.proveedor_id IS 'FK, NULL, M3';
 COMMENT ON COLUMN nucleo_financiero.orden_retiro.monto_solicitado IS 'CK: > 0';
+COMMENT ON COLUMN nucleo_financiero.orden_retiro.moneda IS 'Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2).';
 COMMENT ON COLUMN nucleo_financiero.orden_retiro.estado IS 'CK, IDX';
 COMMENT ON COLUMN nucleo_financiero.orden_retiro.ventana_enfriamiento_hasta IS 'NULL';
 COMMENT ON COLUMN nucleo_financiero.orden_retiro.cotizacion_id IS 'NULL, polimorfica';
 COMMENT ON COLUMN nucleo_financiero.orden_retiro.referencia_proveedor IS 'UQ, NULL';
+COMMENT ON COLUMN nucleo_financiero.orden_retiro.clave_idempotencia IS 'Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4).';
 COMMENT ON COLUMN nucleo_financiero.orden_retiro.pagada_en IS 'NULL';

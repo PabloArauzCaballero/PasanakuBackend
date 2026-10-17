@@ -19,8 +19,8 @@ CREATE TABLE IF NOT EXISTS transparencia.resena_participante (
   CONSTRAINT ck_resena_participante_estado_moderacion CHECK (estado_moderacion IN ('OCULTA', 'PENDIENTE', 'PUBLICADA', 'RECHAZADA'))
 );
 
-COMMENT ON TABLE transparencia.resena_participante IS 'Módulo 06 — Transparencia y Reputación. Que nadie tenga que "creerle" al organizador';
-COMMENT ON COLUMN transparencia.resena_participante.id IS 'PK';
+COMMENT ON TABLE transparencia.resena_participante IS 'Módulo 06 — Transparencia y Reputación. La calificación de 1 a 5 que un participante le da a otro, por dimensión (puntualidad, comunicación, organización).';
+COMMENT ON COLUMN transparencia.resena_participante.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN transparencia.resena_participante.grupo_id IS 'FK, IDX';
 COMMENT ON COLUMN transparencia.resena_participante.autor_participante_id IS 'FK';
 COMMENT ON COLUMN transparencia.resena_participante.evaluado_usuario_id IS 'FK, IDX';

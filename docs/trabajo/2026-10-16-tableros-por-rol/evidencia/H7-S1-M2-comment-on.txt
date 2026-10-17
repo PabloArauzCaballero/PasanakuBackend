@@ -1,0 +1,18 @@
+H7.S1.M2 — COMMENT ON con la narrativa de las fichas · 2026-10-16
+
+$ python3 scripts/generar_ddl.py
+sql/ generado: 337 tablas · 680 claves foráneas · 775 índices · 525 CHECK
+Sin pendientes a nivel de datos.
+
+$ psql -d catalogo_h7 -v ON_ERROR_STOP=1 -f sql/aplicar.sql   (base descartable en el contenedor pg-tableros) → exit 0
+
+$ SELECT obj_description('aportes.obligacion_aporte'::regclass,'pg_class')
+Módulo 03 — Aportes, Pagos QR y Conciliación. Lo que un cupo debe, en un período, por un concepto. Es la deuda formal que la plataforma le reconoce a un participante.
+
+$ col_description(aportes.obligacion_aporte.monto_cubierto_garantia)
+lo que puso el fondo para que el grupo no se detenga (M8). Ojo: cubierto no es pagado. El participante sigue debiendo esa plata, pero ahora se la debe al fondo, no al grupo.
+
+$ tablas con comentario / tablas (sin particiones)
+386|386
+
+Ningún comentario contiene '*/' (rompería el javadoc que jOOQ genera de los comentarios): 0 coincidencias.

@@ -19,8 +19,8 @@ CREATE TABLE IF NOT EXISTS cumplimiento.catalogo_reporte_regulatorio (
   CONSTRAINT ck_catalogo_reporte_regulatorio_formato CHECK (formato IN ('CSV', 'JSON', 'TXT', 'WEB', 'XLSX', 'XML'))
 );
 
-COMMENT ON TABLE cumplimiento.catalogo_reporte_regulatorio IS 'Módulo 12 — Cumplimiento Regulatorio y Consumidor Financiero. Que una inspección se responda con consultas, no armando carpetas';
-COMMENT ON COLUMN cumplimiento.catalogo_reporte_regulatorio.id IS 'PK';
+COMMENT ON TABLE cumplimiento.catalogo_reporte_regulatorio IS 'Módulo 12 — Cumplimiento Regulatorio y Consumidor Financiero. La agenda de reportes obligatorios y el rastro de cada envío.';
+COMMENT ON COLUMN cumplimiento.catalogo_reporte_regulatorio.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN cumplimiento.catalogo_reporte_regulatorio.codigo IS 'UQ';
 COMMENT ON COLUMN cumplimiento.catalogo_reporte_regulatorio.organismo IS 'CK, IDX';
 COMMENT ON COLUMN cumplimiento.catalogo_reporte_regulatorio.periodicidad IS 'CK';

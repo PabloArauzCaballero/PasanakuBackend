@@ -1,0 +1,26 @@
+H8.S3.M4 — huecos de prueba web de los servicios de dinero · 2026-10-17
+
+Antes (matriz): aportes 10/12, garantia 18/20, entregas 16/16, nucleo-financiero 20/27.
+Pruebas nuevas: BilleteraOperacionesWebTest (nucleo, 11), PagosEnrutamientoYWebhookWebTest (aportes, 5), RespaldoAmpliacionWebTest (garantia, 2), IncumplimientosReemplazoWebTest (garantia, 2).
+
+$ python3 scripts/matriz_de_pruebas.py --servicio aportes
+| aportes | 12 | 12 | 11 | 10 | 2 |
+Sin prueba web (0):
+$ python3 scripts/matriz_de_pruebas.py --servicio garantia
+| garantia | 20 | 20 | 14 | 13 | 5 |
+Sin prueba web (0):
+$ python3 scripts/matriz_de_pruebas.py --servicio entregas
+| entregas | 16 | 16 | 11 | 11 | 5 |
+Sin prueba web (0):
+$ python3 scripts/matriz_de_pruebas.py --servicio nucleo-financiero
+| nucleo-financiero | 27 | 27 | 24 | 23 | 4 |
+Sin prueba web (0):
+
+$ ./gradlew :servicios:{aportes,garantia,nucleo-financiero,entregas}:webTest --no-parallel   → exit 0
+  aportes: 46 pruebas, 0 fallas, 0 errores
+  garantia: 50 pruebas, 0 fallas, 0 errores
+  nucleo-financiero: 79 pruebas, 0 fallas, 0 errores
+  entregas: 60 pruebas, 0 fallas, 0 errores
+
+Fallos durante la escritura (TEST_BUG, corregidos sin debilitar aserciones): (1) datos de MFA más cortos que el mínimo del contrato → el 400 era correcto, se corrigieron los datos; (2) la matriz no veía rutas pasadas por variable a un helper → el helper recibe post("/ruta") literal.
+Hallazgo no corregido (fuera de alcance): proponerReemplazo responde 200 en el reintento, y el contrato solo declara 201/422 (ver «operaciones con el estado HTTP fuera de su contrato» en verificar_pruebas_web).

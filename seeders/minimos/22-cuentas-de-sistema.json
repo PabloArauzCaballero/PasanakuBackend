@@ -1,5 +1,5 @@
 {
-  "descripcion": "Cuentas de sistema que los servicios necesitan para operar: custodia de inversion, ingresos de la plataforma, puente de custodia, y el mapeo SINTETICO de las cuentas logicas de garantia (CAJA_EMPRESA, RESERVA_RESPALDO, POZO_GRUPO) y de entregas (DESEMBOLSO_CONFIRMADO) a cuentas del plan, por moneda.",
+  "descripcion": "Cuentas de sistema que los servicios necesitan para operar: custodia de inversion, ingresos de la plataforma, puente de custodia, fondo de garantia, y el mapeo SINTETICO de las cuentas logicas de garantia (CAJA_EMPRESA, RESERVA_RESPALDO, POZO_GRUPO) y de entregas (DESEMBOLSO_CONFIRMADO) a cuentas del plan, por moneda.",
   "entorno": "minimo",
   "apto_produccion": false,
   "estado": "SINTETICO en lo contable — el mapeo de cuentas logicas (9.x) es una decision de contabilidad abierta (A5 del carril C). Las cuentas 9.x existen para que el consumidor de asientos de nucleo-financiero pueda encenderse en TEST; en produccion el arranque se niega mientras CUENTAS_LOGICAS_APTO_PRODUCCION no sea true. Las cuentas de billetera de sistema (custodia de inversion, ingresos, puente) NO son sinteticas: son las que el libro necesita, sin saldo inicial.",
@@ -169,7 +169,7 @@
     {
       "tabla": "cuenta_billetera",
       "conflicto": [],
-      "comentario": "Cuentas de billetera de sistema, en cero. Una custodia de inversion activa por moneda (R-BIL-25); una de ingresos por moneda, porque con dos nucleo-financiero no elige. Sin cuenta contable espejo donde contabilidad no la definio. Ids estables (…c0 puente, c1/c2 ingresos, c3/c4 custodia de inversion): la segunda corrida no inserta nada. Sin objetivo de conflicto a proposito: la segunda corrida, y una base donde ya hay una custodia de inversion con otro numero (R-BIL-25), no rompen el despliegue del esquema.",
+      "comentario": "Cuentas de billetera de sistema, en cero. Una custodia de inversion activa por moneda (R-BIL-25); una de ingresos por moneda, porque con dos nucleo-financiero no elige. Sin cuenta contable espejo donde contabilidad no la definio. Ids estables (…c0 puente, c1/c2 ingresos, c3/c4 custodia de inversion, c5/c6 fondo de garantia): la segunda corrida no inserta nada. Sin objetivo de conflicto a proposito: la segunda corrida, y una base donde ya hay una custodia de inversion con otro numero (R-BIL-25), no rompen el despliegue del esquema. El fondo de garantia es UNA billetera de sistema por moneda (R-BIL-05: sin grupo_id); el desglose por grupo lo lleva garantia en movimiento_fondo. Recibe lo que se cobra para el fondo (hoy, el recargo por mora); no admite saldo negativo.",
       "filas": [
         {
           "id": "00000000-0000-0000-0000-0000000000c0",
@@ -231,6 +231,34 @@
           "id": "00000000-0000-0000-0000-0000000000c4",
           "numero_cuenta": "SYS-CUSTINV-USD",
           "tipo": "CUSTODIA_INVERSION",
+          "moneda": "USD",
+          "estado": "ACTIVA",
+          "nivel_debida_diligencia": "REFORZADA",
+          "fecha_apertura": {
+            "$sql": "now()"
+          },
+          "permite_saldo_negativo": false
+        },
+        {
+          "id": "00000000-0000-0000-0000-0000000000c5",
+          "numero_cuenta": "SYS-FONDOGAR-BOB",
+          "tipo": "FONDO_GARANTIA",
+          "moneda": "BOB",
+          "estado": "ACTIVA",
+          "nivel_debida_diligencia": "REFORZADA",
+          "fecha_apertura": {
+            "$sql": "now()"
+          },
+          "cuenta_contable_id": {
+            "$ref": "cuenta_contable",
+            "codigo": "2.1.03"
+          },
+          "permite_saldo_negativo": false
+        },
+        {
+          "id": "00000000-0000-0000-0000-0000000000c6",
+          "numero_cuenta": "SYS-FONDOGAR-USD",
+          "tipo": "FONDO_GARANTIA",
           "moneda": "USD",
           "estado": "ACTIVA",
           "nivel_debida_diligencia": "REFORZADA",

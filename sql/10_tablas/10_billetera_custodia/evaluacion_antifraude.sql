@@ -18,8 +18,8 @@ CREATE TABLE IF NOT EXISTS nucleo_financiero.evaluacion_antifraude (
   CONSTRAINT ck_evaluacion_antifraude_decision CHECK (decision IN ('DESAFIAR_MFA', 'PERMITIR', 'RECHAZAR', 'REVISAR'))
 );
 
-COMMENT ON TABLE nucleo_financiero.evaluacion_antifraude IS 'Módulo 10 — Billetera, Custodia y Dinero Electrónico. El saldo no se guarda: se deriva, y todos los días cuadra contra el banco';
-COMMENT ON COLUMN nucleo_financiero.evaluacion_antifraude.id IS 'PK';
+COMMENT ON TABLE nucleo_financiero.evaluacion_antifraude IS 'Módulo 10 — Billetera, Custodia y Dinero Electrónico. El motor de decisión en tiempo real y el registro de cada decisión.';
+COMMENT ON COLUMN nucleo_financiero.evaluacion_antifraude.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN nucleo_financiero.evaluacion_antifraude.transaccion_id IS 'FK, NULL, IDX';
 COMMENT ON COLUMN nucleo_financiero.evaluacion_antifraude.cuenta_billetera_id IS 'FK, IDX';
 COMMENT ON COLUMN nucleo_financiero.evaluacion_antifraude.revisada_por IS 'FK, NULL';

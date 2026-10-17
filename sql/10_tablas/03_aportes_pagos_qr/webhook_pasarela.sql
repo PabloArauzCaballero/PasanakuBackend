@@ -20,11 +20,12 @@ CREATE TABLE IF NOT EXISTS aportes.webhook_pasarela (
   CONSTRAINT ck_webhook_pasarela_estado CHECK (estado IN ('DESCARTADO', 'DUPLICADO', 'FALLIDO', 'PROCESADO', 'RECIBIDO'))
 );
 
-COMMENT ON TABLE aportes.webhook_pasarela IS 'Módulo 03 — Aportes, Pagos QR y Conciliación. Que "pagué" signifique "el banco lo confirmó"';
-COMMENT ON COLUMN aportes.webhook_pasarela.id IS 'PK';
+COMMENT ON TABLE aportes.webhook_pasarela IS 'Módulo 03 — Aportes, Pagos QR y Conciliación. Cada notificación que la pasarela envía al sistema, guardada en crudo antes de procesarla.';
+COMMENT ON COLUMN aportes.webhook_pasarela.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN aportes.webhook_pasarela.proveedor_id IS 'FK, IDX';
 COMMENT ON COLUMN aportes.webhook_pasarela.recibido_en IS 'IDX';
 COMMENT ON COLUMN aportes.webhook_pasarela.procesado_en IS 'NULL';
 COMMENT ON COLUMN aportes.webhook_pasarela.estado IS 'CK, IDX';
+COMMENT ON COLUMN aportes.webhook_pasarela.clave_idempotencia IS 'Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4).';
 COMMENT ON COLUMN aportes.webhook_pasarela.error_procesamiento IS 'NULL';
 COMMENT ON COLUMN aportes.webhook_pasarela.pago_id IS 'FK, NULL';

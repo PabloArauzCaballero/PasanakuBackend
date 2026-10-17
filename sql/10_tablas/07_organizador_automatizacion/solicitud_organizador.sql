@@ -18,8 +18,8 @@ CREATE TABLE IF NOT EXISTS organizador.solicitud_organizador (
   CONSTRAINT ck_solicitud_organizador_estado CHECK (estado IN ('APROBADA', 'EN_REVISION', 'PENDIENTE', 'RECHAZADA'))
 );
 
-COMMENT ON TABLE organizador.solicitud_organizador IS 'Módulo 07 — Organizador y Automatización. Administrar es un rol, no un negocio: el organizador no cobra ni custodia';
-COMMENT ON COLUMN organizador.solicitud_organizador.id IS 'PK';
+COMMENT ON TABLE organizador.solicitud_organizador IS 'Módulo 07 — Organizador y Automatización. La postulación de un usuario para ser habilitado como organizador.';
+COMMENT ON COLUMN organizador.solicitud_organizador.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN organizador.solicitud_organizador.usuario_id IS 'FK, IDX';
 COMMENT ON COLUMN organizador.solicitud_organizador.kyc_reforzado_id IS 'FK, NULL, M1';
 COMMENT ON COLUMN organizador.solicitud_organizador.estado IS 'CK';

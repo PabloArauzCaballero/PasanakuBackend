@@ -160,6 +160,18 @@ public class FondoRepositorio {
         return id;
     }
 
+    /** El recargo por mora anotado por una transaccion de billetera, si lo hay (tableros, H1.S2.M4). */
+    public Optional<RecargoAnotado> recargoAnotado(DSLContext dsl, UUID transaccionBilleteraId) {
+        return dsl.select(DSL.field("fondo_id", UUID.class), DSL.field("monto", BigDecimal.class))
+                .from(DSL.table(DSL.name("garantia", "movimiento_fondo")))
+                .where(DSL.field("tipo", String.class).eq("RECARGO_MORA"))
+                .and(DSL.field("referencia_tipo", String.class).eq("TRANSACCION_BILLETERA"))
+                .and(DSL.field("referencia_id", UUID.class).eq(transaccionBilleteraId))
+                .fetchOptional(r -> new RecargoAnotado(r.value1(), r.value2()));
+    }
+
+    public record RecargoAnotado(UUID fondoId, BigDecimal monto) {}
+
     /** Mueve el saldo del fondo. La cabecera es cache; la verdad son los movimientos. */
     public boolean moverSaldo(DSLContext dsl, UUID fondoId, Dinero delta, Dinero cubiertoDelta, int versionLeida) {
         return dsl.update(DSL.table(DSL.name("garantia", "fondo_garantia")))

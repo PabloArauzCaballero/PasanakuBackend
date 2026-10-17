@@ -19,10 +19,12 @@ CREATE TABLE IF NOT EXISTS tarifas.campana_promocional (
   CONSTRAINT ck_campana_promocional_estado CHECK (estado IN ('ACTIVA', 'AGOTADA', 'BORRADOR', 'FINALIZADA', 'PAUSADA'))
 );
 
-COMMENT ON TABLE tarifas.campana_promocional IS 'Módulo 11 — Tarifas, Comisiones, Impuestos y Facturación. La política de cobro es dato, no código: se cambia con un seeder';
-COMMENT ON COLUMN tarifas.campana_promocional.id IS 'PK';
+COMMENT ON TABLE tarifas.campana_promocional IS 'Módulo 11 — Tarifas, Comisiones, Impuestos y Facturación. No cobrar, con nombre y apellido.';
+COMMENT ON COLUMN tarifas.campana_promocional.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN tarifas.campana_promocional.codigo IS 'UQ';
 COMMENT ON COLUMN tarifas.campana_promocional.tipo IS 'CK';
 COMMENT ON COLUMN tarifas.campana_promocional.presupuesto_maximo IS 'NULL';
+COMMENT ON COLUMN tarifas.campana_promocional.vigente_desde IS 'Desde cuándo rige esta versión de la fila: las condiciones se versionan, no se pisan.';
+COMMENT ON COLUMN tarifas.campana_promocional.vigente_hasta IS 'Hasta cuándo rigió esta versión; vacía mientras sigue vigente.';
 COMMENT ON COLUMN tarifas.campana_promocional.estado IS 'CK, IDX';
 COMMENT ON COLUMN tarifas.campana_promocional.aprobada_por IS 'FK';

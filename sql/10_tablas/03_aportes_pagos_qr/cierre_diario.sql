@@ -16,8 +16,8 @@ CREATE TABLE IF NOT EXISTS nucleo_financiero.cierre_diario (
   CONSTRAINT pk_cierre_diario PRIMARY KEY (id)
 );
 
-COMMENT ON TABLE nucleo_financiero.cierre_diario IS 'Módulo 03 — Aportes, Pagos QR y Conciliación. Que "pagué" signifique "el banco lo confirmó"';
-COMMENT ON COLUMN nucleo_financiero.cierre_diario.id IS 'PK';
+COMMENT ON TABLE nucleo_financiero.cierre_diario IS 'Módulo 03 — Aportes, Pagos QR y Conciliación. El corte del día: cuánto se recaudó, cuánto se concilió, cuánto quedó en excepción, y si el día cuadró.';
+COMMENT ON COLUMN nucleo_financiero.cierre_diario.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN nucleo_financiero.cierre_diario.fecha IS 'UQ';
 COMMENT ON COLUMN nucleo_financiero.cierre_diario.cerrado_por IS 'FK';
 COMMENT ON COLUMN nucleo_financiero.cierre_diario.reabierto_en IS 'NULL';

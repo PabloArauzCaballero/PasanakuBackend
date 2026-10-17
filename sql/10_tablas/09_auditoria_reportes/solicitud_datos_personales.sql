@@ -18,8 +18,8 @@ CREATE TABLE IF NOT EXISTS auditoria.solicitud_datos_personales (
   CONSTRAINT ck_solicitud_datos_personales_estado CHECK (estado IN ('ATENDIDA', 'EN_PROCESO', 'PARCIAL', 'RECHAZADA', 'RECIBIDA'))
 );
 
-COMMENT ON TABLE auditoria.solicitud_datos_personales IS 'Módulo 09 — Auditoría, Reportes y Cumplimiento. Poder demostrar todo lo anterior ante un reclamo o un regulador';
-COMMENT ON COLUMN auditoria.solicitud_datos_personales.id IS 'PK';
+COMMENT ON TABLE auditoria.solicitud_datos_personales IS 'Módulo 09 — Auditoría, Reportes y Cumplimiento. El ejercicio de los derechos ARCO: acceso, rectificación, cancelación, oposición, portabilidad.';
+COMMENT ON COLUMN auditoria.solicitud_datos_personales.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN auditoria.solicitud_datos_personales.usuario_id IS 'FK, IDX';
 COMMENT ON COLUMN auditoria.solicitud_datos_personales.atendida_por IS 'FK, NULL';
 COMMENT ON COLUMN auditoria.solicitud_datos_personales.tipo IS 'CK';

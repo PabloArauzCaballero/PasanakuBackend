@@ -19,8 +19,8 @@ CREATE TABLE IF NOT EXISTS garantia.estrategia_cobranza (
   CONSTRAINT ck_estrategia_cobranza_etapa CHECK (etapa IN ('ADMINISTRATIVA', 'CASTIGO', 'JUDICIAL', 'PREJUDICIAL', 'PREVENTIVA', 'TEMPRANA'))
 );
 
-COMMENT ON TABLE garantia.estrategia_cobranza IS 'Módulo 08 — Garantía, Incumplimiento, Cobranza y Sanciones. El grupo no se detiene, pero la deuda no se perdona sola';
-COMMENT ON COLUMN garantia.estrategia_cobranza.id IS 'PK';
+COMMENT ON TABLE garantia.estrategia_cobranza IS 'Módulo 08 — Garantía, Incumplimiento, Cobranza y Sanciones. Qué se hace en cada etapa: por qué canales, con qué frecuencia, con qué límite de contactos, si requiere gestor humano y si se puede negociar quita.';
+COMMENT ON COLUMN garantia.estrategia_cobranza.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN garantia.estrategia_cobranza.etapa IS 'CK, UQ+dias_mora_desde';
 COMMENT ON COLUMN garantia.estrategia_cobranza.plantilla_notificacion_codigo IS 'NULL, M5';
 COMMENT ON COLUMN garantia.estrategia_cobranza.siguiente_etapa IS 'NULL';

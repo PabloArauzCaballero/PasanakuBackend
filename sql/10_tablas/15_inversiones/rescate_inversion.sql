@@ -24,14 +24,14 @@ CREATE TABLE IF NOT EXISTS inversiones.rescate_inversion (
   CONSTRAINT ck_rescate_inversion_estado CHECK (estado IN ('SOLICITADO', 'PENDIENTE', 'INCIERTO', 'POR_ACREDITAR', 'LIQUIDADO', 'RECHAZADO'))
 );
 
-COMMENT ON TABLE inversiones.rescate_inversion IS 'Módulo 15 — Inversiones voluntarias. Que una inversion voluntaria nunca prometa rentabilidad ni duplique el saldo';
-COMMENT ON COLUMN inversiones.rescate_inversion.id IS 'PK';
+COMMENT ON TABLE inversiones.rescate_inversion IS 'Módulo 15 — Inversiones voluntarias. El pedido de sacar dinero de una posición: parcial, total, al vencimiento o anticipado, con sus estados hasta liquidarse.';
+COMMENT ON COLUMN inversiones.rescate_inversion.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN inversiones.rescate_inversion.posicion_inversion_id IS 'FK, IDX';
 COMMENT ON COLUMN inversiones.rescate_inversion.usuario_id IS 'IDX';
 COMMENT ON COLUMN inversiones.rescate_inversion.tipo IS 'CK: PARCIAL | TOTAL | VENCIMIENTO | ANTICIPADO';
 COMMENT ON COLUMN inversiones.rescate_inversion.cuotas IS 'NULL, CK: > 0';
 COMMENT ON COLUMN inversiones.rescate_inversion.estado IS 'CK: SOLICITADO | PENDIENTE | INCIERTO | POR_ACREDITAR | LIQUIDADO | RECHAZADO, IDX';
-COMMENT ON COLUMN inversiones.rescate_inversion.clave_idempotencia IS 'UQ+usuario_id';
+COMMENT ON COLUMN inversiones.rescate_inversion.clave_idempotencia IS 'Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4).';
 COMMENT ON COLUMN inversiones.rescate_inversion.fecha_valor IS 'NULL';
 COMMENT ON COLUMN inversiones.rescate_inversion.liquida_en IS 'NULL';
 COMMENT ON COLUMN inversiones.rescate_inversion.transaccion_externa IS 'NULL';

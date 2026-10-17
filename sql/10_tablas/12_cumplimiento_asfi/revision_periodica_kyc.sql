@@ -15,8 +15,8 @@ CREATE TABLE IF NOT EXISTS cumplimiento.revision_periodica_kyc (
   CONSTRAINT ck_revision_periodica_kyc_estado CHECK (estado IN ('EJECUTADA', 'EN_CURSO', 'PROGRAMADA', 'VENCIDA'))
 );
 
-COMMENT ON TABLE cumplimiento.revision_periodica_kyc IS 'Módulo 12 — Cumplimiento Regulatorio y Consumidor Financiero. Que una inspección se responda con consultas, no armando carpetas';
-COMMENT ON COLUMN cumplimiento.revision_periodica_kyc.id IS 'PK';
+COMMENT ON TABLE cumplimiento.revision_periodica_kyc IS 'Módulo 12 — Cumplimiento Regulatorio y Consumidor Financiero. La agenda de actualización y el legajo completo.';
+COMMENT ON COLUMN cumplimiento.revision_periodica_kyc.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN cumplimiento.revision_periodica_kyc.usuario_id IS 'FK, IDX, M1';
 COMMENT ON COLUMN cumplimiento.revision_periodica_kyc.calificacion_riesgo_id IS 'FK, NULL';
 COMMENT ON COLUMN cumplimiento.revision_periodica_kyc.ejecutada_por IS 'FK, NULL';

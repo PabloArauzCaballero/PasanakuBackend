@@ -18,12 +18,12 @@ CREATE TABLE IF NOT EXISTS garantia.lista_restriccion_interna (
   CONSTRAINT ck_lista_restriccion_interna_nivel_restriccion CHECK (nivel_restriccion IN ('LIMITADO', 'OBSERVACION', 'VETADO'))
 );
 
-COMMENT ON TABLE garantia.lista_restriccion_interna IS 'Módulo 08 — Garantía, Incumplimiento, Cobranza y Sanciones. El grupo no se detiene, pero la deuda no se perdona sola';
-COMMENT ON COLUMN garantia.lista_restriccion_interna.id IS 'PK';
+COMMENT ON TABLE garantia.lista_restriccion_interna IS 'Módulo 08 — Garantía, Incumplimiento, Cobranza y Sanciones. El registro de usuarios con restricciones activas por incumplimiento, con su nivel.';
+COMMENT ON COLUMN garantia.lista_restriccion_interna.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN garantia.lista_restriccion_interna.usuario_id IS 'FK, IDX';
 COMMENT ON COLUMN garantia.lista_restriccion_interna.registro_origen_id IS 'FK, NULL';
 COMMENT ON COLUMN garantia.lista_restriccion_interna.nivel_restriccion IS 'CK';
-COMMENT ON COLUMN garantia.lista_restriccion_interna.vigente_hasta IS 'NULL';
+COMMENT ON COLUMN garantia.lista_restriccion_interna.vigente_hasta IS 'Hasta cuándo rigió esta versión; vacía mientras sigue vigente.';
 COMMENT ON COLUMN garantia.lista_restriccion_interna.retirado_en IS 'NULL';
 COMMENT ON COLUMN garantia.lista_restriccion_interna.retirado_por IS 'FK, NULL';
 COMMENT ON COLUMN garantia.lista_restriccion_interna.motivo_retiro IS 'NULL';

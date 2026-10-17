@@ -24,18 +24,19 @@ CREATE TABLE IF NOT EXISTS entregas.cesion_derecho (
   CONSTRAINT ck_cesion_derecho_estado CHECK (estado IN ('CREADA', 'VALIDADA', 'FONDOS_RETENIDOS', 'TITULO_ASIGNADO', 'LIQUIDADA', 'FALLIDA'))
 );
 
-COMMENT ON TABLE entregas.cesion_derecho IS 'Módulo 04 — Entregas de Fondo. Que la bolsa llegue completa, a la persona correcta, una sola vez';
-COMMENT ON COLUMN entregas.cesion_derecho.id IS 'PK';
+COMMENT ON TABLE entregas.cesion_derecho IS 'Módulo 04 — Entregas de Fondo. La compra de un turno ofrecido: el paso del derecho a cobrar de un participante a otro, con sus estados hasta liquidarse.';
+COMMENT ON COLUMN entregas.cesion_derecho.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN entregas.cesion_derecho.oferta_turno_id IS 'FK, IDX';
 COMMENT ON COLUMN entregas.cesion_derecho.turno_id IS 'FK, IDX';
 COMMENT ON COLUMN entregas.cesion_derecho.participante_origen_id IS 'FK';
 COMMENT ON COLUMN entregas.cesion_derecho.participante_destino_id IS 'FK';
 COMMENT ON COLUMN entregas.cesion_derecho.comprador_usuario_id IS 'IDX';
+COMMENT ON COLUMN entregas.cesion_derecho.moneda IS 'Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2).';
 COMMENT ON COLUMN entregas.cesion_derecho.monto_precio IS 'CK: > 0';
 COMMENT ON COLUMN entregas.cesion_derecho.estado IS 'CK: CREADA|VALIDADA|FONDOS_RETENIDOS|TITULO_ASIGNADO|LIQUIDADA|FALLIDA, IDX';
 COMMENT ON COLUMN entregas.cesion_derecho.retencion_ref IS 'NULL';
 COMMENT ON COLUMN entregas.cesion_derecho.liquidacion_ref IS 'NULL';
 COMMENT ON COLUMN entregas.cesion_derecho.motivo_fallo IS 'NULL';
-COMMENT ON COLUMN entregas.cesion_derecho.clave_idempotencia IS 'UQ';
+COMMENT ON COLUMN entregas.cesion_derecho.clave_idempotencia IS 'Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4).';
 COMMENT ON COLUMN entregas.cesion_derecho.titulo_asignado_en IS 'NULL';
 COMMENT ON COLUMN entregas.cesion_derecho.liquidada_en IS 'NULL';

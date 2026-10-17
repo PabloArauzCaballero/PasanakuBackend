@@ -30,15 +30,17 @@ CREATE TABLE IF NOT EXISTS notificaciones.envio_notificacion (
   CONSTRAINT ck_envio_notificacion_estado CHECK (estado IN ('ACEPTADO_POR_PROVEEDOR', 'ENTREGADO', 'ENVIADO', 'EXPIRADO', 'FALLIDO', 'LEIDO', 'PENDIENTE', 'RECHAZADO'))
 );
 
-COMMENT ON TABLE notificaciones.envio_notificacion IS 'Módulo 05 — Notificaciones y Comunicaciones. WhatsApp como canal real de cobro, sin spam ni doble aviso';
-COMMENT ON COLUMN notificaciones.envio_notificacion.id IS 'PK';
+COMMENT ON TABLE notificaciones.envio_notificacion IS 'Módulo 05 — Notificaciones y Comunicaciones. Un intento de entregar una notificación por un canal concreto, con su costo y su estado.';
+COMMENT ON COLUMN notificaciones.envio_notificacion.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN notificaciones.envio_notificacion.notificacion_id IS 'FK, IDX';
 COMMENT ON COLUMN notificaciones.envio_notificacion.proveedor_id IS 'FK';
 COMMENT ON COLUMN notificaciones.envio_notificacion.version_plantilla_id IS 'FK';
 COMMENT ON COLUMN notificaciones.envio_notificacion.canal_vinculado_id IS 'FK, NULL';
 COMMENT ON COLUMN notificaciones.envio_notificacion.canal IS 'CK';
+COMMENT ON COLUMN notificaciones.envio_notificacion.clave_idempotencia IS 'Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4).';
 COMMENT ON COLUMN notificaciones.envio_notificacion.estado IS 'CK, IDX';
 COMMENT ON COLUMN notificaciones.envio_notificacion.id_mensaje_proveedor IS 'UQ, NULL';
+COMMENT ON COLUMN notificaciones.envio_notificacion.moneda IS 'Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2).';
 COMMENT ON COLUMN notificaciones.envio_notificacion.codigo_error IS 'NULL';
 COMMENT ON COLUMN notificaciones.envio_notificacion.enviado_en IS 'NULL';
 COMMENT ON COLUMN notificaciones.envio_notificacion.entregado_en IS 'NULL';

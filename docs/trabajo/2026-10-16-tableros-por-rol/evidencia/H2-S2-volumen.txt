@@ -1,0 +1,41 @@
+=== M1 · determinismo: dos corridas del generador, mismo sha256
+8cfbf1b2d41d5d466dfdb2492ad789822b11bd36aaa8a60f3be16f94c9445d80  -
+8cfbf1b2d41d5d466dfdb2492ad789822b11bd36aaa8a60f3be16f94c9445d80  -
+aplicar exit=0
+minimos exit=0
+=== M2/M3/M4 · siembra dev + volumen en base nueva, dos veces
+dev corrida 1 exit=0 · filas insertadas: 91
+volumen corrida 1 exit=0 · filas insertadas: 340
+dev corrida 2 exit=0 · filas insertadas: 0
+volumen corrida 2 exit=0 · filas insertadas: 0
+=== conteos
+usuarios|86
+grupos|15
+turnos|78
+obligaciones|235
+asientos|325
+recargas|78
+retiros|13
+coberturas|13
+entregas|13
+=== cuadre: asientos con debe <> haber (esperado 0)
+0
+=== asientos sin movimientos (esperado 0) · movimientos huerfanos (esperado 0)
+0
+0
+=== usuarios del volumen por mes de registro
+2025-11|6
+2025-12|6
+2026-01|6
+2026-02|6
+2026-03|6
+2026-04|6
+2026-05|6
+2026-06|6
+2026-07|6
+2026-08|6
+2026-09|6
+2026-10|6
+=== correos del volumen fuera del dominio sintetico (esperado 0)
+0
+(nota: "filas insertadas" suma solo las salidas INSERT de nivel superior; la guarda de dev/volumen envuelve bloques en DO. La medida real son los conteos por tabla y que la 2da corrida no cambie nada.)

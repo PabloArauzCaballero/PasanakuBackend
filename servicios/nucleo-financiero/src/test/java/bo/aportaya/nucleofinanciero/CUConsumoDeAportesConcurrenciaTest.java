@@ -53,7 +53,7 @@ class CUConsumoDeAportesConcurrenciaTest extends BaseDeAportes {
                 .isEqualTo(1);
     }
 
-    private String intentar(bo.aportaya.nucleofinanciero.aplicacion.ConsumoDeAportes.AporteCobrado e) {
+    private String intentar(bo.aportaya.nucleofinanciero.aplicacion.AporteCobrado e) {
         try {
             return procesar(e).resultado().name();
         } catch (ErrorDeNegocio rechazo) {

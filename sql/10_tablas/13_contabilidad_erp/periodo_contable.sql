@@ -14,8 +14,8 @@ CREATE TABLE IF NOT EXISTS erp.periodo_contable (
   CONSTRAINT ck_periodo_contable_estado CHECK (estado IN ('ABIERTO', 'CERRADO'))
 );
 
-COMMENT ON TABLE erp.periodo_contable IS 'Módulo 13 — Contabilidad Financiera y ERP. Que cerrar un mes no dependa de un Excel armado a mano';
-COMMENT ON COLUMN erp.periodo_contable.id IS 'PK';
+COMMENT ON TABLE erp.periodo_contable IS 'Módulo 13 — Contabilidad Financiera y ERP. Un mes dentro de un ejercicio.';
+COMMENT ON COLUMN erp.periodo_contable.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN erp.periodo_contable.ejercicio_fiscal_id IS 'FK, IDX';
 COMMENT ON COLUMN erp.periodo_contable.mes IS 'CK: 1-12';
 COMMENT ON COLUMN erp.periodo_contable.estado IS 'CK, IDX';

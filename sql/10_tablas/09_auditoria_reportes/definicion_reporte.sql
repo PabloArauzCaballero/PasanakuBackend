@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS auditoria.definicion_reporte (
   CONSTRAINT ck_definicion_reporte_tipo CHECK (tipo IN ('CARTERA_EN_MORA', 'CONCILIACION_DIARIA', 'DESEMPENO_ORGANIZADOR', 'ESTADO_DE_CUENTA_PARTICIPANTE', 'ESTADO_DE_GRUPO', 'HISTORICO_DE_PAGOS', 'INCUMPLIMIENTOS_Y_SANCIONES', 'KPI_PLATAFORMA', 'MOVIMIENTO_FONDO_GARANTIA', 'OPERACIONES_SOSPECHOSAS'))
 );
 
-COMMENT ON TABLE auditoria.definicion_reporte IS 'Módulo 09 — Auditoría, Reportes y Cumplimiento. Poder demostrar todo lo anterior ante un reclamo o un regulador';
-COMMENT ON COLUMN auditoria.definicion_reporte.id IS 'PK';
+COMMENT ON TABLE auditoria.definicion_reporte IS 'Módulo 09 — Auditoría, Reportes y Cumplimiento. El catálogo de reportes disponibles, con su consulta, parámetros, permiso requerido y si contiene datos sensibles.';
+COMMENT ON COLUMN auditoria.definicion_reporte.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN auditoria.definicion_reporte.tipo IS 'CK';
 COMMENT ON COLUMN auditoria.definicion_reporte.nombre IS 'UQ';

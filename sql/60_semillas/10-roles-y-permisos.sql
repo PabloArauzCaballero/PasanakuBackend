@@ -18,7 +18,8 @@ INSERT INTO rol (codigo, nombre, ambito, es_sistema) VALUES
   ('PARTICIPANTE', 'Participante de grupo', 'GRUPO', TRUE),
   ('OPERADOR_PUBLICIDAD', 'Operador de publicidad', 'GLOBAL', TRUE),
   ('MODERADOR_CONTENIDO', 'Moderador de contenido publicitario', 'GLOBAL', TRUE),
-  ('ANUNCIANTE', 'Anunciante', 'GLOBAL', TRUE)
+  ('ANUNCIANTE', 'Anunciante', 'GLOBAL', TRUE),
+  ('COMERCIAL', 'Comercial', 'GLOBAL', TRUE)
 ON CONFLICT (codigo) DO NOTHING;
 
 -- `requiere_mfa` marca los permisos que exigen segundo factor en el momento de usarlos, no solo al iniciar sesión: todo lo que mueve dinero, publica precios, edita catálogos o lee datos de terceros.
@@ -59,7 +60,10 @@ INSERT INTO permiso (codigo, descripcion, recurso, accion, requiere_mfa) VALUES
   ('VERIFICACION_RESOLVER', 'Aprobar o rechazar la verificación de identidad de una persona', 'verificacion_kyc', 'RESOLVER', TRUE),
   ('RECLAMO_VER', 'Ver el rastro de reclamos de una persona y su efecto sobre sanciones y deudas (CU-52)', 'reclamo_cliente', 'LEER', FALSE),
   ('SOLICITUD_INGRESO_VER', 'Ver las solicitudes de ingreso a un grupo escaladas a revision humana (CU-68)', 'solicitud_ingreso', 'LEER', FALSE),
-  ('SOLICITUD_INGRESO_RESOLVER', 'Resolver una solicitud de ingreso escalada; quien propone no resuelve (CU-68)', 'solicitud_ingreso', 'RESOLVER', TRUE)
+  ('SOLICITUD_INGRESO_RESOLVER', 'Resolver una solicitud de ingreso escalada; quien propone no resuelve (CU-68)', 'solicitud_ingreso', 'RESOLVER', TRUE),
+  ('TABLERO_FINANCIERO_VER', 'Ver el tablero financiero: totales agregados del mayor, la mora, el fondo y los turnos (tableros por rol). Solo agregados, nunca datos de una persona', 'tablero', 'LEER', FALSE),
+  ('TABLERO_COMERCIAL_VER', 'Ver el tablero comercial: altas, activos, embudo, llenado de grupos y retencion (tableros por rol). Solo conteos agregados', 'tablero', 'LEER', FALSE),
+  ('TABLERO_SISTEMAS_VER', 'Ver el tablero de sistemas: trafico, errores, latencia y endpoints del dia, y los catalogos de datos y de flujos (tableros por rol)', 'tablero', 'LEER', FALSE)
 ON CONFLICT (codigo) DO NOTHING;
 
 -- Sin esta matriz los roles no otorgan nada y el guard de denegar por omisión rechaza todo. Dos separaciones de funciones están cableadas acá y no se negocian: quien AUTORIZA una entrega o un reverso no puede EJECUTARLO, y quien edita catálogos no toca dinero ni datos sensibles (control CI-04).
@@ -128,5 +132,9 @@ INSERT INTO rol_permiso (rol_id, permiso_id) VALUES
   ((SELECT id FROM rol WHERE codigo = 'ADMIN_PLATAFORMA'), (SELECT id FROM permiso WHERE codigo = 'SOLICITUD_INGRESO_VER')),
   ((SELECT id FROM rol WHERE codigo = 'SOPORTE'), (SELECT id FROM permiso WHERE codigo = 'SOLICITUD_INGRESO_VER')),
   ((SELECT id FROM rol WHERE codigo = 'ADMIN_PLATAFORMA'), (SELECT id FROM permiso WHERE codigo = 'SOLICITUD_INGRESO_RESOLVER')),
-  ((SELECT id FROM rol WHERE codigo = 'ADMIN_PLATAFORMA'), (SELECT id FROM permiso WHERE codigo = 'RECLAMO_VER'))
+  ((SELECT id FROM rol WHERE codigo = 'ADMIN_PLATAFORMA'), (SELECT id FROM permiso WHERE codigo = 'RECLAMO_VER')),
+  ((SELECT id FROM rol WHERE codigo = 'TESORERIA'), (SELECT id FROM permiso WHERE codigo = 'TABLERO_FINANCIERO_VER')),
+  ((SELECT id FROM rol WHERE codigo = 'CONTABILIDAD'), (SELECT id FROM permiso WHERE codigo = 'TABLERO_FINANCIERO_VER')),
+  ((SELECT id FROM rol WHERE codigo = 'COMERCIAL'), (SELECT id FROM permiso WHERE codigo = 'TABLERO_COMERCIAL_VER')),
+  ((SELECT id FROM rol WHERE codigo = 'ADMIN_PLATAFORMA'), (SELECT id FROM permiso WHERE codigo = 'TABLERO_SISTEMAS_VER'))
 ON CONFLICT (rol_id, permiso_id) DO NOTHING;

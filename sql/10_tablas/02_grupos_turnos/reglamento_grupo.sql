@@ -16,9 +16,10 @@ CREATE TABLE IF NOT EXISTS grupos.reglamento_grupo (
   CONSTRAINT pk_reglamento_grupo PRIMARY KEY (id)
 );
 
-COMMENT ON TABLE grupos.reglamento_grupo IS 'Módulo 02 — Grupos, Cupos, Turnos y Gobernanza. Reglas del juego, orden de cobro y decisiones colectivas';
-COMMENT ON COLUMN grupos.reglamento_grupo.id IS 'PK';
+COMMENT ON TABLE grupos.reglamento_grupo IS 'Módulo 02 — Grupos, Cupos, Turnos y Gobernanza. El texto de las reglas del grupo, versionado y sellado con hash.';
+COMMENT ON COLUMN grupos.reglamento_grupo.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN grupos.reglamento_grupo.grupo_id IS 'FK, IDX';
 COMMENT ON COLUMN grupos.reglamento_grupo.version IS 'UQ+grupo_id';
-COMMENT ON COLUMN grupos.reglamento_grupo.vigente_hasta IS 'NULL';
+COMMENT ON COLUMN grupos.reglamento_grupo.vigente_desde IS 'Desde cuándo rige esta versión de la fila: las condiciones se versionan, no se pisan.';
+COMMENT ON COLUMN grupos.reglamento_grupo.vigente_hasta IS 'Hasta cuándo rigió esta versión; vacía mientras sigue vigente.';
 COMMENT ON COLUMN grupos.reglamento_grupo.redactado_por IS 'FK';

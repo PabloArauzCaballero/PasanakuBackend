@@ -15,8 +15,8 @@ CREATE TABLE IF NOT EXISTS aportes.comprobante_manual (
   CONSTRAINT ck_comprobante_manual_estado_revision CHECK (estado_revision IN ('APROBADO', 'OBSERVADO', 'PENDIENTE', 'RECHAZADO'))
 );
 
-COMMENT ON TABLE aportes.comprobante_manual IS 'Módulo 03 — Aportes, Pagos QR y Conciliación. Que "pagué" signifique "el banco lo confirmó"';
-COMMENT ON COLUMN aportes.comprobante_manual.id IS 'PK';
+COMMENT ON TABLE aportes.comprobante_manual IS 'Módulo 03 — Aportes, Pagos QR y Conciliación. La foto del comprobante que sube el participante cuando pagó por fuera del circuito automático.';
+COMMENT ON COLUMN aportes.comprobante_manual.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN aportes.comprobante_manual.pago_id IS 'FK, UQ';
 COMMENT ON COLUMN aportes.comprobante_manual.estado_revision IS 'CK';
 COMMENT ON COLUMN aportes.comprobante_manual.revisado_por IS 'FK, NULL';

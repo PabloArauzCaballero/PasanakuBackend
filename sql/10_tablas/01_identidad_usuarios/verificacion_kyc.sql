@@ -24,8 +24,8 @@ CREATE TABLE IF NOT EXISTS identidad.verificacion_kyc (
   CONSTRAINT ck_verificacion_kyc_estado CHECK (estado IN ('APROBADA', 'EN_REVISION', 'NO_INICIADA', 'PENDIENTE', 'RECHAZADA', 'VENCIDA'))
 );
 
-COMMENT ON TABLE identidad.verificacion_kyc IS 'Módulo 01 — Identidad, Usuarios y Seguridad. Saber con certeza a quién le estás confiando plata ajena';
-COMMENT ON COLUMN identidad.verificacion_kyc.id IS 'PK';
+COMMENT ON TABLE identidad.verificacion_kyc IS 'Módulo 01 — Identidad, Usuarios y Seguridad. El proceso de validar ese documento: envío al proveedor, comparación biométrica con selfie, resultado, y revisión manual si hace falta.';
+COMMENT ON COLUMN identidad.verificacion_kyc.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN identidad.verificacion_kyc.usuario_id IS 'FK, IDX';
 COMMENT ON COLUMN identidad.verificacion_kyc.documento_id IS 'FK, NULL';
 COMMENT ON COLUMN identidad.verificacion_kyc.nivel_solicitado IS 'CK';
@@ -39,4 +39,4 @@ COMMENT ON COLUMN identidad.verificacion_kyc.url_perfil_derecho IS 'NULL, perfil
 COMMENT ON COLUMN identidad.verificacion_kyc.motivo_rechazo IS 'NULL';
 COMMENT ON COLUMN identidad.verificacion_kyc.revisada_por IS 'FK, NULL';
 COMMENT ON COLUMN identidad.verificacion_kyc.resuelta_en IS 'NULL';
-COMMENT ON COLUMN identidad.verificacion_kyc.vigente_hasta IS 'NULL';
+COMMENT ON COLUMN identidad.verificacion_kyc.vigente_hasta IS 'Hasta cuándo rigió esta versión; vacía mientras sigue vigente.';

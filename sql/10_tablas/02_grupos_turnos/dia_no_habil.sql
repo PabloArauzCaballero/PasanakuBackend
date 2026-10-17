@@ -12,8 +12,8 @@ CREATE TABLE IF NOT EXISTS catalogo.dia_no_habil (
   CONSTRAINT ck_dia_no_habil_alcance CHECK (alcance IN ('DEPARTAMENTAL', 'GRUPO', 'NACIONAL'))
 );
 
-COMMENT ON TABLE catalogo.dia_no_habil IS 'Módulo 02 — Grupos, Cupos, Turnos y Gobernanza. Reglas del juego, orden de cobro y decisiones colectivas';
-COMMENT ON COLUMN catalogo.dia_no_habil.id IS 'PK';
+COMMENT ON TABLE catalogo.dia_no_habil IS 'Módulo 02 — Grupos, Cupos, Turnos y Gobernanza. El calendario de feriados nacionales, departamentales o propios del grupo.';
+COMMENT ON COLUMN catalogo.dia_no_habil.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN catalogo.dia_no_habil.fecha IS 'UQ+alcance+grupo_id';
 COMMENT ON COLUMN catalogo.dia_no_habil.alcance IS 'CK';
 COMMENT ON COLUMN catalogo.dia_no_habil.grupo_id IS 'FK, NULL';

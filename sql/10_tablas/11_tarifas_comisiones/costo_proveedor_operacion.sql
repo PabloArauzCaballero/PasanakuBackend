@@ -19,10 +19,11 @@ CREATE TABLE IF NOT EXISTS tarifas.costo_proveedor_operacion (
   CONSTRAINT ck_costo_proveedor_operacion_tipo_operacion CHECK (tipo_operacion IN ('COBRO_QR', 'DESEMBOLSO', 'MENSAJERIA', 'RECARGA', 'RETIRO', 'TRANSFERENCIA'))
 );
 
-COMMENT ON TABLE tarifas.costo_proveedor_operacion IS 'Módulo 11 — Tarifas, Comisiones, Impuestos y Facturación. La política de cobro es dato, no código: se cambia con un seeder';
-COMMENT ON COLUMN tarifas.costo_proveedor_operacion.id IS 'PK';
+COMMENT ON TABLE tarifas.costo_proveedor_operacion IS 'Módulo 11 — Tarifas, Comisiones, Impuestos y Facturación. Lo que cobra la pasarela, el banco o el agente por cada operación.';
+COMMENT ON COLUMN tarifas.costo_proveedor_operacion.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN tarifas.costo_proveedor_operacion.proveedor_id IS 'FK, IDX, M3';
 COMMENT ON COLUMN tarifas.costo_proveedor_operacion.transaccion_id IS 'FK, NULL, M10';
 COMMENT ON COLUMN tarifas.costo_proveedor_operacion.liquidacion_ingresos_id IS 'FK, NULL';
 COMMENT ON COLUMN tarifas.costo_proveedor_operacion.tipo_operacion IS 'CK';
+COMMENT ON COLUMN tarifas.costo_proveedor_operacion.moneda IS 'Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2).';
 COMMENT ON COLUMN tarifas.costo_proveedor_operacion.periodo IS 'IDX';

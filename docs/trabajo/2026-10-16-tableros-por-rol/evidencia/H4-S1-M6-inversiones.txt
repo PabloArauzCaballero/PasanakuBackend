@@ -1,0 +1,3 @@
+CUIndicadoresDeInversionTest 3/3 (abierta suma 1000, cerrada deja de contar, SIN_DATOS) · ArranqueTest 5/5
+inversiones: test=36 webTest=33 integrationTest=150, 0 fallas; cobertura exit=0; gates exit=0
+Dato sintetico: aliado simulado (servicios/inversiones/README.md, R-INV-01).

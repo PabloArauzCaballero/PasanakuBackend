@@ -1,0 +1,5 @@
+$ ./gradlew :plataforma:comun-pruebas:test -> BUILD SUCCESSFUL · DatosSinteticosTest tests=4 failures=0 errors=0
+$ ./gradlew :servicios:*:dependencies --write-locks -> exit 0; 14 lockfiles +3 lineas (datafaker 2.7.0, rgxgen 3.1, libphonenumber 9.0.33; solo testCompile/testRuntime)
+$ ./gradlew :servicios:aportes:compileTestJava :servicios:inversiones:compileTestJava -> exit 0
+Justificacion (90.4.2): datafaker = datos sinteticos deterministas para fixtures; licencias Apache-2.0 (datafaker, rgxgen, libphonenumber); solo classpath de test, no llega a ninguna imagen.
+Nota: servicios/inversiones no tiene gradle.lockfile en dev; --write-locks lo creaba y se descarto (fuera de alcance).

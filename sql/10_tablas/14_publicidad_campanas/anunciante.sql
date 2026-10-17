@@ -15,8 +15,8 @@ CREATE TABLE IF NOT EXISTS publicidad.anunciante (
   CONSTRAINT ck_anunciante_estado CHECK (estado IN ('ACTIVO', 'DADO_DE_BAJA', 'SUSPENDIDO'))
 );
 
-COMMENT ON TABLE publicidad.anunciante IS 'Módulo 14 — Publicidad y Campañas. Que un partner se anuncie dentro de la app sin inventar un segundo cobro';
-COMMENT ON COLUMN publicidad.anunciante.id IS 'PK';
+COMMENT ON TABLE publicidad.anunciante IS 'Módulo 14 — Publicidad y Campañas. la entidad que efectivamente contrata: tipo decide si el anunciante es un organizador existente (M07) o un socio_comercial nuevo, con un CHECK que exige exactamente una de las dos referencias según el tipo. Todo lo demás del módulo (cuenta publicitaria, campaña, factura) cuelga de anunciante, no de organizador ni de socio_comercial directamente — así el resto del modelo no necesita saber si detrás hay un organizador o un tercero.';
+COMMENT ON COLUMN publicidad.anunciante.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN publicidad.anunciante.tipo IS 'CK, IDX';
 COMMENT ON COLUMN publicidad.anunciante.organizador_id IS 'FK, NULL, IDX, M7';
 COMMENT ON COLUMN publicidad.anunciante.socio_comercial_id IS 'FK, NULL, IDX';

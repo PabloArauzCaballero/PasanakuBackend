@@ -18,11 +18,12 @@ CREATE TABLE IF NOT EXISTS erp.orden_compra (
   CONSTRAINT ck_orden_compra_estado CHECK (estado IN ('APROBADA', 'BORRADOR', 'CANCELADA', 'RECIBIDA_PARCIAL', 'RECIBIDA_TOTAL'))
 );
 
-COMMENT ON TABLE erp.orden_compra IS 'Módulo 13 — Contabilidad Financiera y ERP. Que cerrar un mes no dependa de un Excel armado a mano';
-COMMENT ON COLUMN erp.orden_compra.id IS 'PK';
+COMMENT ON TABLE erp.orden_compra IS 'Módulo 13 — Contabilidad Financiera y ERP. Una compra autorizada, previa a recibir la factura.';
+COMMENT ON COLUMN erp.orden_compra.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN erp.orden_compra.tercero_comercial_id IS 'FK, IDX';
 COMMENT ON COLUMN erp.orden_compra.centro_costo_id IS 'FK, NULL';
 COMMENT ON COLUMN erp.orden_compra.numero IS 'UQ';
 COMMENT ON COLUMN erp.orden_compra.monto_total IS 'CK: > 0';
+COMMENT ON COLUMN erp.orden_compra.moneda IS 'Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2).';
 COMMENT ON COLUMN erp.orden_compra.estado IS 'CK, IDX';
 COMMENT ON COLUMN erp.orden_compra.aprobada_por IS 'FK, NULL';

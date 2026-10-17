@@ -1,0 +1,13 @@
+H8.S1.M1 y H8.S1.M3 — formato de flujo y validador (paso huérfano incluido) · 2026-10-17
+Formato: docs/catalogo-de-flujos/<id>.yaml (documentado en el docstring de scripts/validar_flujos.py).
+
+$ python3 scripts/validar_flujos.py --self-test   → exit 0 (flujo bueno sin fallas; flujo malo con las cinco fallas esperadas, incluida la del paso huérfano)
+bueno: sin fallas
+malo:
+  malo.yaml: paso `a`: `operacionQueNoExiste` no existe en el contrato de `auditoria` (paso huérfano)
+  malo.yaml: paso `a`: el éxito lleva a `z`, que no es un paso ni FIN
+  malo.yaml: paso `b`: el componente `ClaseQueNoExiste` no existe en `auditoria`
+  malo.yaml: paso `b` no es alcanzable desde `a`
+  malo.yaml: faltan los casos `limite`: los tres niveles son obligatorios (regla 65)
+  malo.yaml: faltan los casos `invalidos`: los tres niveles son obligatorios (regla 65)
+self-test OK

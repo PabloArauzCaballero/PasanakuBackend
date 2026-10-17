@@ -15,10 +15,11 @@ CREATE TABLE IF NOT EXISTS aportes.movimiento_bancario (
   CONSTRAINT pk_movimiento_bancario PRIMARY KEY (id)
 );
 
-COMMENT ON TABLE aportes.movimiento_bancario IS 'Módulo 03 — Aportes, Pagos QR y Conciliación. Que "pagué" signifique "el banco lo confirmó"';
-COMMENT ON COLUMN aportes.movimiento_bancario.id IS 'PK';
+COMMENT ON TABLE aportes.movimiento_bancario IS 'Módulo 03 — Aportes, Pagos QR y Conciliación. Cada línea del extracto: fecha, monto, glosa, referencia del banco.';
+COMMENT ON COLUMN aportes.movimiento_bancario.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN aportes.movimiento_bancario.extracto_id IS 'FK, IDX';
 COMMENT ON COLUMN aportes.movimiento_bancario.fecha_movimiento IS 'IDX';
+COMMENT ON COLUMN aportes.movimiento_bancario.moneda IS 'Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2).';
 COMMENT ON COLUMN aportes.movimiento_bancario.glosa IS 'IDX full-text';
 COMMENT ON COLUMN aportes.movimiento_bancario.referencia_banco IS 'UQ+extracto_id';
 COMMENT ON COLUMN aportes.movimiento_bancario.cuenta_origen IS 'NULL';

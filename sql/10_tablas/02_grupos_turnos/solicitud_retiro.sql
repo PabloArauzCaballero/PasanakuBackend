@@ -17,8 +17,8 @@ CREATE TABLE IF NOT EXISTS grupos.solicitud_retiro (
   CONSTRAINT ck_solicitud_retiro_posicion CHECK (posicion IN ('ACREEDORA', 'DEUDORA', 'NEUTRA'))
 );
 
-COMMENT ON TABLE grupos.solicitud_retiro IS 'Módulo 02 — Grupos, Cupos, Turnos y Gobernanza. Reglas del juego, orden de cobro y decisiones colectivas';
-COMMENT ON COLUMN grupos.solicitud_retiro.id IS 'PK';
+COMMENT ON TABLE grupos.solicitud_retiro IS 'Módulo 02 — Grupos, Cupos, Turnos y Gobernanza. El pedido de un participante de salir del grupo antes de que termine.';
+COMMENT ON COLUMN grupos.solicitud_retiro.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN grupos.solicitud_retiro.participante_id IS 'FK, UQ parcial';
 COMMENT ON COLUMN grupos.solicitud_retiro.estado IS 'CK';
 COMMENT ON COLUMN grupos.solicitud_retiro.posicion IS 'CK, NULL';

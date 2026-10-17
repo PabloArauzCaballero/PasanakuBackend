@@ -17,8 +17,8 @@ CREATE TABLE IF NOT EXISTS grupos.propuesta_grupo (
   CONSTRAINT ck_propuesta_grupo_estado CHECK (estado IN ('ACEPTADA_PARCIAL', 'CONFIRMADA', 'DESCARTADA', 'PROPUESTA'))
 );
 
-COMMENT ON TABLE grupos.propuesta_grupo IS 'Módulo 02 — Grupos, Cupos, Turnos y Gobernanza. Reglas del juego, orden de cobro y decisiones colectivas';
-COMMENT ON COLUMN grupos.propuesta_grupo.id IS 'PK';
+COMMENT ON TABLE grupos.propuesta_grupo IS 'Módulo 02 — Grupos, Cupos, Turnos y Gobernanza. Un grupo candidato: un conjunto de postulaciones que el motor considera compatibles, todavía sin confirmar.';
+COMMENT ON COLUMN grupos.propuesta_grupo.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN grupos.propuesta_grupo.criterio_id IS 'FK';
 COMMENT ON COLUMN grupos.propuesta_grupo.estado IS 'CK';
 COMMENT ON COLUMN grupos.propuesta_grupo.grupo_materializado_id IS 'FK, NULL';

@@ -26,17 +26,19 @@ CREATE TABLE IF NOT EXISTS nucleo_financiero.orden_recarga (
   CONSTRAINT ck_orden_recarga_estado CHECK (estado IN ('ACREDITADA', 'EXPIRADA', 'PENDIENTE', 'RECHAZADA', 'REVERSADA'))
 );
 
-COMMENT ON TABLE nucleo_financiero.orden_recarga IS 'Módulo 10 — Billetera, Custodia y Dinero Electrónico. El saldo no se guarda: se deriva, y todos los días cuadra contra el banco';
-COMMENT ON COLUMN nucleo_financiero.orden_recarga.id IS 'PK';
+COMMENT ON TABLE nucleo_financiero.orden_recarga IS 'Módulo 10 — Billetera, Custodia y Dinero Electrónico. El *cash-in* y el *cash-out*: los dos puntos donde el dinero cruza la frontera entre el mundo bancario y el saldo de la app.';
+COMMENT ON COLUMN nucleo_financiero.orden_recarga.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN nucleo_financiero.orden_recarga.cuenta_billetera_id IS 'FK, IDX';
 COMMENT ON COLUMN nucleo_financiero.orden_recarga.instrumento_fondeo_id IS 'FK, NULL';
 COMMENT ON COLUMN nucleo_financiero.orden_recarga.proveedor_id IS 'FK, NULL, M3';
 COMMENT ON COLUMN nucleo_financiero.orden_recarga.pago_id IS 'FK, NULL, M3';
 COMMENT ON COLUMN nucleo_financiero.orden_recarga.transaccion_id IS 'FK, NULL';
 COMMENT ON COLUMN nucleo_financiero.orden_recarga.monto_bruto IS 'CK: > 0';
+COMMENT ON COLUMN nucleo_financiero.orden_recarga.moneda IS 'Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2).';
 COMMENT ON COLUMN nucleo_financiero.orden_recarga.estado IS 'CK, IDX';
 COMMENT ON COLUMN nucleo_financiero.orden_recarga.medio IS 'NULL';
 COMMENT ON COLUMN nucleo_financiero.orden_recarga.cotizacion_id IS 'NULL, polimorfica';
 COMMENT ON COLUMN nucleo_financiero.orden_recarga.referencia_externa IS 'NULL';
+COMMENT ON COLUMN nucleo_financiero.orden_recarga.clave_idempotencia IS 'Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4).';
 COMMENT ON COLUMN nucleo_financiero.orden_recarga.acreditada_en IS 'NULL';
 COMMENT ON COLUMN nucleo_financiero.orden_recarga.expira_en IS 'NULL';

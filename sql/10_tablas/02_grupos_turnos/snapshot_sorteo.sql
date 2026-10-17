@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS grupos.snapshot_sorteo (
   CONSTRAINT pk_snapshot_sorteo PRIMARY KEY (id)
 );
 
-COMMENT ON TABLE grupos.snapshot_sorteo IS 'Módulo 02 — Grupos, Cupos, Turnos y Gobernanza. [append-only] Reglas del juego, orden de cobro y decisiones colectivas';
-COMMENT ON COLUMN grupos.snapshot_sorteo.id IS 'PK';
+COMMENT ON TABLE grupos.snapshot_sorteo IS 'Módulo 02 — Grupos, Cupos, Turnos y Gobernanza. [append-only] La foto congelada del plantel, el calendario y las reglas de un grupo en el momento en que se compromete el sorteo de turnos.';
+COMMENT ON COLUMN grupos.snapshot_sorteo.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN grupos.snapshot_sorteo.sorteo_id IS 'UQ';
 COMMENT ON COLUMN grupos.snapshot_sorteo.grupo_id IS 'IDX';

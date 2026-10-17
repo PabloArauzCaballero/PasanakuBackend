@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS transparencia.verificacion_publica (
   CONSTRAINT ck_verificacion_publica_resultado CHECK (resultado IN ('COINCIDE', 'NO_COINCIDE', 'SIN_DATOS'))
 );
 
-COMMENT ON TABLE transparencia.verificacion_publica IS 'Módulo 06 — Transparencia y Reputación. Que nadie tenga que "creerle" al organizador';
+COMMENT ON TABLE transparencia.verificacion_publica IS 'Módulo 06 — Transparencia y Reputación. El endpoint de verificación de un código: constancia de pago, certificado de reputación o estado de grupo.';
 COMMENT ON COLUMN transparencia.verificacion_publica.codigo IS 'PK';
 COMMENT ON COLUMN transparencia.verificacion_publica.tipo_documento IS 'CK';
 COMMENT ON COLUMN transparencia.verificacion_publica.referencia_id IS 'IDX';

@@ -1,0 +1,41 @@
+H9 · prueba visual y recorrido E2E de los tres tableros y del catálogo de datos · 2026-10-17
+
+Backend: DOBLE declarado (apps/backoffice/e2e/apoyo/tableros-sinteticos.ts; cifras sintéticas; el catálogo es el JSON real). Login real de CU-04 contra Prism; guardas canMatch reales; 1 Chromium, --retries=0.
+Motivo del doble: la pila real no se puede levantar sin pisar la de otra sesión (aportaya-postgres del worktree backoffice-dominio; nombres de contenedor y red fijos en el compose).
+
+Primera corrida: 5 FALLAS reales → corregidas:
+  - sistemas (móvil, los 4 estados): la ruta plantilla sin espacios ensanchaba la tarjeta → <wbr> tras cada '/' y min-width:0
+  - catálogo (tablet): la columna «Qué es» sin corte empujaba la página → celda que corta línea y min-width:0 en la grilla
+Revisión de las capturas (hojas de contacto en esta carpeta): además se corrigió
+  - el orden del tablero de sistemas (indicadores primero, desglose del día después)
+  - la ruta cortada a mitad de palabra («sald/o») → corte entre segmentos
+  - el Markdown en crudo (**, comillas invertidas) en la ficha → el JSON del catálogo viaja en texto plano
+
+$ CAPTURAS_DIR=… yarn --cwd apps/backoffice test:e2e tableros-por-rol.e2e.ts --retries=0   → exit 0
+  ✓   1 [chromium] › e2e/tableros-por-rol.e2e.ts:33:9 › tablero financiero › con datos: las cifras del período, lo suprimido y lo que no llegó se distinguen (3.2s)
+  ✓   2 [chromium] › e2e/tableros-por-rol.e2e.ts:40:9 › tablero financiero › vacío: el período sin indicadores orienta, no muestra ceros (921ms)
+  ✓   3 [chromium] › e2e/tableros-por-rol.e2e.ts:47:9 › tablero financiero › error: un 500 no muestra el detalle interno y ofrece volver a intentar (1.2s)
+  ✓   4 [chromium] › e2e/tableros-por-rol.e2e.ts:55:9 › tablero financiero › cargando: dice qué consulta mientras espera (986ms)
+  ✓   5 [chromium] › e2e/tableros-por-rol.e2e.ts:33:9 › tablero comercial › con datos: las cifras del período, lo suprimido y lo que no llegó se distinguen (2.3s)
+  ✓   6 [chromium] › e2e/tableros-por-rol.e2e.ts:40:9 › tablero comercial › vacío: el período sin indicadores orienta, no muestra ceros (1.1s)
+  ✓   7 [chromium] › e2e/tableros-por-rol.e2e.ts:47:9 › tablero comercial › error: un 500 no muestra el detalle interno y ofrece volver a intentar (999ms)
+  ✓   8 [chromium] › e2e/tableros-por-rol.e2e.ts:55:9 › tablero comercial › cargando: dice qué consulta mientras espera (925ms)
+  ✓   9 [chromium] › e2e/tableros-por-rol.e2e.ts:33:9 › tablero sistemas › con datos: las cifras del período, lo suprimido y lo que no llegó se distinguen (2.5s)
+  ✓  10 [chromium] › e2e/tableros-por-rol.e2e.ts:40:9 › tablero sistemas › vacío: el período sin indicadores orienta, no muestra ceros (1.6s)
+  ✓  11 [chromium] › e2e/tableros-por-rol.e2e.ts:47:9 › tablero sistemas › error: un 500 no muestra el detalle interno y ofrece volver a intentar (1.9s)
+  ✓  12 [chromium] › e2e/tableros-por-rol.e2e.ts:55:9 › tablero sistemas › cargando: dice qué consulta mientras espera (1.6s)
+  ✓  13 [chromium] › e2e/tableros-por-rol.e2e.ts:65:7 › catálogo de datos › lista con datos y ficha de una tabla, con su sensibilidad y relaciones (8.6s)
+  ✓  14 [chromium] › e2e/tableros-por-rol.e2e.ts:79:7 › catálogo de datos › vacío de búsqueda y error del catálogo (1.7s)
+  ✓  15 [chromium] › e2e/tableros-por-rol.e2e.ts:88:7 › catálogo de datos › error: un 403 del catálogo no muestra el detalle interno (1.3s)
+  ✓  16 [chromium] › e2e/tableros-por-rol.e2e.ts:97:5 › acceso: la tarjeta del tablero financiero lleva a su ruta real (no a %2F) (923ms)
+  16 passed (1.2m)
+
+Cada captura verifica además: sin desborde horizontal y contraste (axe color-contrast) sin violaciones.
+Capturas: 52 en H9-visual/capturas (3 viewports × 2 temas con datos; vacío/error/cargando en móvil claro y escritorio oscuro).
+
+Anotado, no corregido (ajeno): el selector de mes nativo de Chromium sale en inglés; EstadoDePantalla ofrece «Volver a intentar» también ante un 403.
+
+Regresión del backoffice tras los cambios:
+      Tests  818 passed (818)
+      Tests  70 passed (70)
+  lint: solo la falla preexistente pantalla-de-expedientes.ts (206) · build exit 0

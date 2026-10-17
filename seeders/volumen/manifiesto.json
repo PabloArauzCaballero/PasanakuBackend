@@ -1,0 +1,23 @@
+{
+  "entorno": "dev",
+  "descripcion": "Volumen SINTETICO para los tableros por rol: clones del escenario demo de dev/, con personas de Faker. NO aplicar en produccion: la guarda de entorno es la misma de dev/.",
+  "marca": {
+    "tabla": "usuario",
+    "donde": "codigo_publico = 'USRV01001'",
+    "por_que": "El primer usuario del clon 01. Si existe, el volumen ya se sembro y no se repite."
+  },
+  "orden": [
+    "volumen-01.json",
+    "volumen-02.json",
+    "volumen-03.json",
+    "volumen-04.json",
+    "volumen-05.json",
+    "volumen-06.json",
+    "volumen-07.json",
+    "volumen-08.json",
+    "volumen-09.json",
+    "volumen-10.json",
+    "volumen-11.json",
+    "volumen-12.json"
+  ]
+}

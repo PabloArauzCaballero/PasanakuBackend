@@ -56,7 +56,7 @@ asiento inverso enlazado por `asiento_reversa_id` (R-AUD-06).
 | --- | --- |
 | `aportaya.nucleo_financiero.asiento_registrado` | Se confirmó un asiento cuadrado (CU-24) |
 | `aportaya.nucleo_financiero.asiento_reversado` | Se corrigió un asiento con su inverso (CU-24) |
-| `aportaya.nucleo_financiero.aporte_aplicado` | Un `aportes.aporte_cobrado` movió el dinero: lleva `pagoId`, `obligacionId`, `transaccionId`, `asientoId`, `monto` y `moneda` (carril I) |
+| `aportaya.nucleo_financiero.aporte_aplicado` | Un `aportes.aporte_cobrado` movió el dinero: lleva `pagoId`, `obligacionId`, `transaccionId`, `asientoId`, `monto` y `moneda` (carril I), y desde 2026-10-16 `destino` (`GRUPO` o `FONDO_GARANTIA`) |
 
 ## Eventos que consume
 
@@ -66,7 +66,7 @@ asiento inverso enlazado por `asiento_reversa_id` (R-AUD-06).
 | `aportaya.garantia.cobertura_empresarial_reversada` | `garantia` | Reversa el asiento de la cobertura con un contra-asiento enlazado (nunca un `UPDATE`) |
 | `aportaya.identidad.usuario_registrado` | `identidad` | Abre la billetera `USUARIO` de la persona (BOB, `SIMPLIFICADA`, con la politica vigente): una sola vez por evento y por titular (`AperturaDeBilleteras`, carril Q) |
 | `aportaya.grupos.grupo_creado` | `grupos` | Abre la billetera `GRUPO` (BOB, titular el grupo, R-GRP-04): una sola vez por evento y por grupo (`AperturaDeBilleteras`, carril Q). El diseno lo llama `grupo_activado`, que `grupos` nunca emite |
-| `aportaya.aportes.aporte_cobrado` | `aportes` | Con canal `BILLETERA_MOVIL`: debita la billetera del participante, acredita la del grupo (`APORTE_A_GRUPO`) y asienta DEBE `SALDO_USUARIOS` (2.1.01) / HABER `SALDO_GRUPOS` (2.1.02) en la MISMA transaccion (`ConsumoDeAportes`) |
+| `aportaya.aportes.aporte_cobrado` | `aportes` | Con canal `BILLETERA_MOVIL`: debita la billetera del participante, acredita la del grupo (`APORTE_A_GRUPO`) y asienta DEBE `SALDO_USUARIOS` (2.1.01) / HABER `SALDO_GRUPOS` (2.1.02) en la MISMA transaccion (`ConsumoDeAportes`). Con `tipo = RECARGO_MORA` (2026-10-16) la contrapartida es la billetera de sistema `FONDO_GARANTIA` y la cuenta logica `RESERVA_RESPALDO`: el recargo no entra al pozo |
 
 ### Aporte cobrado (carril I)
 

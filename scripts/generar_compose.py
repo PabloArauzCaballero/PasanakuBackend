@@ -37,6 +37,10 @@ SALIDA_DESPLEGADO = RAIZ / "docker-compose.coolify.yml"
 
 # Lo que vale igual para los catorce. Un valor por variable, y aca se ve entero.
 COMUNES = {
+    # Tableros: relleno de indicadores al arrancar (meses y dias cerrados hacia atras).
+    "INDICADORES_RELLENO_MESES": "13",
+    "INDICADORES_RELLENO_DIAS": "35",
+    "PROMETHEUS_URL": "http://prometheus:9090",
     "BD_URL": "jdbc:postgresql://pgbouncer:6432/pasanaku",
     "BD_CLAVE": "pasanaku",
     "KAFKA_URL": "kafka:9092",
@@ -156,6 +160,10 @@ DE_DESARROLLO = {
 # entorno, que en Coolify se editan en la interfaz y no viven en el repositorio.
 # Un `${...}` que Coolify no conozca lo crea el solo al leer el compose.
 COMUNES_DESPLEGADO = {
+    "INDICADORES_RELLENO_MESES": "${INDICADORES_RELLENO_MESES:-13}",
+    "INDICADORES_RELLENO_DIAS": "${INDICADORES_RELLENO_DIAS:-35}",
+    # Vacio por omision en TEST: sin Prometheus en el host, el tablero de sistemas dice «fuente no disponible».
+    "PROMETHEUS_URL": "${PROMETHEUS_URL:-}",
     "BD_URL": "jdbc:postgresql://pgbouncer:6432/pasanaku",
     "BD_CLAVE": "${BD_CLAVE}",
     "KAFKA_URL": "kafka:9092",
@@ -653,6 +661,10 @@ def main():
             # trae el segundo factor de desarrollo —codigo fijo— y esa es
             # exactamente la clase de decision que no se hornea en el repositorio.
             lineas.append("      SPRING_PROFILES_ACTIVE: ${PERFIL_SPRING}")
+            # Tableros (D4): OTLP apagado en TEST hasta que el host levante el Collector (perfil `observabilidad` de
+            # base.yml); encenderlo es una variable del entorno, no un cambio de este archivo.
+            lineas.append("      TRAZAS_HABILITADAS: ${TRAZAS_HABILITADAS:-false}")
+            lineas.append("      METRICAS_OTLP_HABILITADAS: ${METRICAS_OTLP_HABILITADAS:-false}")
             # TEST mantiene una réplica y un pool pequeño por servicio. Las réplicas
             # de producción y sus pools siguen definidos por descriptor.yml/Kubernetes.
             lineas.append("      SPRING_DATASOURCE_HIKARI_MAXIMUM_POOL_SIZE: \"5\"")
@@ -665,6 +677,9 @@ def main():
             # El perfil `local` enciende el simulador de pagos y la mensajeria
             # simulada, que son los defaults del contrato de implementacion.
             lineas.append("      SPRING_PROFILES_ACTIVE: local")
+            # El perfil `todo` levanta el Collector: en local las trazas y metricas viajan por OTLP.
+            lineas.append("      TRAZAS_HABILITADAS: \"true\"")
+            lineas.append("      METRICAS_OTLP_HABILITADAS: \"true\"")
             bloques.append(BLOQUE.format(nombre=servicio, ambiente="\n".join(lineas)))
 
     if sin_valor:

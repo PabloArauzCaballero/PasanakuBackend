@@ -1,0 +1,49 @@
+{
+ "productor": "aportes",
+ "consumidor": "nucleo-financiero",
+ "version": 1,
+ "descripcion": "Tableros por rol (H8.S3.M1). Pacto del cobro de un aporte: nucleo-financiero lo consume para debitar la billetera del participante y asentar el mayor. El campo `tipo` se sumó el 2026-10-16 (H1): un RECARGO_MORA va al fondo de garantía y no al pozo del grupo. Productor: CU21CobrarAporte (aportes) por su outbox. Consumidor: ConsumoDeAportes vía ConsumidorDeAportesKafka. Lo comparten CU21EventoDeAporteTest#cumpleElPactoConNucleo (productor) y ConsumidorDeAportesKafkaTest#pactoConAportes (consumidor). NO existe todavía una prueba contra Kafka con los dos procesos reales juntos.",
+ "topico": "aportaya.aportes.aporte_cobrado",
+ "tipo": "aportes.aporte_cobrado",
+ "agregado": "obligacion_aporte",
+ "cabeceras": [
+  "event_id",
+  "correlation_id"
+ ],
+ "campos": {
+  "pagoId": "uuid del pago de aportes",
+  "obligacionId": "uuid de la obligación cobrada",
+  "grupoId": "uuid",
+  "usuarioId": "uuid de quien paga (titular de la billetera que se debita)",
+  "participanteId": "uuid",
+  "monto": "cadena decimal con dos decimales",
+  "moneda": "ISO-4217",
+  "canal": "canal del cobro",
+  "tipo": "tipo de la obligación (APORTE_PERIODICO, RECARGO_MORA, …); opcional para el consumidor: sin él, va al pozo del grupo"
+ },
+ "consumidorExige": [
+  "pagoId",
+  "obligacionId",
+  "grupoId",
+  "usuarioId",
+  "monto",
+  "moneda",
+  "canal"
+ ],
+ "ejemplo": {
+  "pagoId": "d0000000-0000-4000-8000-000000000001",
+  "obligacionId": "d0000000-0000-4000-8000-000000000002",
+  "grupoId": "d0000000-0000-4000-8000-000000000003",
+  "usuarioId": "d0000000-0000-4000-8000-000000000004",
+  "participanteId": "d0000000-0000-4000-8000-000000000005",
+  "monto": "25.00",
+  "moneda": "BOB",
+  "canal": "BILLETERA_MOVIL",
+  "tipo": "RECARGO_MORA"
+ },
+ "garantias": [
+  "aportes publica UN evento por pago, en la misma transacción que registra el pago",
+  "nucleo aplica UNA vez por evento (Consumidos) y una vez por pago aunque se republique con otro event_id",
+  "un RECARGO_MORA nunca cae en la billetera del grupo"
+ ]
+}

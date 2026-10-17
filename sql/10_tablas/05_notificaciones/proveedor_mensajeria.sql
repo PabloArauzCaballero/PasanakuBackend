@@ -17,6 +17,6 @@ CREATE TABLE IF NOT EXISTS notificaciones.proveedor_mensajeria (
   CONSTRAINT pk_proveedor_mensajeria PRIMARY KEY (id)
 );
 
-COMMENT ON TABLE notificaciones.proveedor_mensajeria IS 'Módulo 05 — Notificaciones y Comunicaciones. WhatsApp como canal real de cobro, sin spam ni doble aviso';
-COMMENT ON COLUMN notificaciones.proveedor_mensajeria.id IS 'PK';
+COMMENT ON TABLE notificaciones.proveedor_mensajeria IS 'Módulo 05 — Notificaciones y Comunicaciones. Cada proveedor de mensajería con el que se opera, con su costo, su límite de tasa y su salud.';
+COMMENT ON COLUMN notificaciones.proveedor_mensajeria.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN notificaciones.proveedor_mensajeria.codigo IS 'UQ';

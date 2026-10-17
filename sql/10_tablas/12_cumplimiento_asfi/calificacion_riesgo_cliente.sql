@@ -21,13 +21,14 @@ CREATE TABLE IF NOT EXISTS cumplimiento.calificacion_riesgo_cliente (
   CONSTRAINT ck_calificacion_riesgo_cliente_nivel_dd_requerido CHECK (nivel_dd_requerido IN ('AMPLIADA', 'CONTINUA', 'ESTANDAR', 'REFORZADA', 'SIMPLIFICADA'))
 );
 
-COMMENT ON TABLE cumplimiento.calificacion_riesgo_cliente IS 'Módulo 12 — Cumplimiento Regulatorio y Consumidor Financiero. Que una inspección se responda con consultas, no armando carpetas';
-COMMENT ON COLUMN cumplimiento.calificacion_riesgo_cliente.id IS 'PK';
+COMMENT ON TABLE cumplimiento.calificacion_riesgo_cliente IS 'Módulo 12 — Cumplimiento Regulatorio y Consumidor Financiero. El nivel de riesgo vigente de un cliente y lo que ese nivel exige.';
+COMMENT ON COLUMN cumplimiento.calificacion_riesgo_cliente.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN cumplimiento.calificacion_riesgo_cliente.usuario_id IS 'FK, IDX, M1';
 COMMENT ON COLUMN cumplimiento.calificacion_riesgo_cliente.matriz_riesgo_id IS 'FK, NULL';
 COMMENT ON COLUMN cumplimiento.calificacion_riesgo_cliente.calificado_por IS 'FK, NULL';
 COMMENT ON COLUMN cumplimiento.calificacion_riesgo_cliente.nivel IS 'CK, IDX';
 COMMENT ON COLUMN cumplimiento.calificacion_riesgo_cliente.nivel_dd_requerido IS 'CK';
-COMMENT ON COLUMN cumplimiento.calificacion_riesgo_cliente.vigente_hasta IS 'NULL';
+COMMENT ON COLUMN cumplimiento.calificacion_riesgo_cliente.vigente_desde IS 'Desde cuándo rige esta versión de la fila: las condiciones se versionan, no se pisan.';
+COMMENT ON COLUMN cumplimiento.calificacion_riesgo_cliente.vigente_hasta IS 'Hasta cuándo rigió esta versión; vacía mientras sigue vigente.';
 COMMENT ON COLUMN cumplimiento.calificacion_riesgo_cliente.proxima_revision IS 'IDX';
 COMMENT ON COLUMN cumplimiento.calificacion_riesgo_cliente.motivo_cambio IS 'NULL';

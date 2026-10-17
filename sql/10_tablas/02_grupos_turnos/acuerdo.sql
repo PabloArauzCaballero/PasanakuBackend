@@ -23,8 +23,8 @@ CREATE TABLE IF NOT EXISTS grupos.acuerdo (
   CONSTRAINT ck_acuerdo_estado CHECK (estado IN ('ABIERTO', 'APROBADO', 'EJECUTADO', 'EXPIRADO', 'RECHAZADO'))
 );
 
-COMMENT ON TABLE grupos.acuerdo IS 'Módulo 02 — Grupos, Cupos, Turnos y Gobernanza. Reglas del juego, orden de cobro y decisiones colectivas';
-COMMENT ON COLUMN grupos.acuerdo.id IS 'PK';
+COMMENT ON TABLE grupos.acuerdo IS 'Módulo 02 — Grupos, Cupos, Turnos y Gobernanza. Una decisión colectiva sometida a votación: expulsar a alguien, cambiar la fecha de cobro, condonar una mora, disolver el grupo.';
+COMMENT ON COLUMN grupos.acuerdo.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN grupos.acuerdo.grupo_id IS 'FK, IDX';
 COMMENT ON COLUMN grupos.acuerdo.tipo IS 'CK';
 COMMENT ON COLUMN grupos.acuerdo.propuesto_por IS 'FK';

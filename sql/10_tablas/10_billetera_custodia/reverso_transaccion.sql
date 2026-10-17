@@ -18,8 +18,8 @@ CREATE TABLE IF NOT EXISTS nucleo_financiero.reverso_transaccion (
   CONSTRAINT ck_reverso_transaccion_estado CHECK (estado IN ('AUTORIZADO', 'EJECUTADO', 'RECHAZADO', 'SOLICITADO'))
 );
 
-COMMENT ON TABLE nucleo_financiero.reverso_transaccion IS 'Módulo 10 — Billetera, Custodia y Dinero Electrónico. El saldo no se guarda: se deriva, y todos los días cuadra contra el banco';
-COMMENT ON COLUMN nucleo_financiero.reverso_transaccion.id IS 'PK';
+COMMENT ON TABLE nucleo_financiero.reverso_transaccion IS 'Módulo 10 — Billetera, Custodia y Dinero Electrónico. El expediente de por qué se deshizo una operación.';
+COMMENT ON COLUMN nucleo_financiero.reverso_transaccion.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN nucleo_financiero.reverso_transaccion.transaccion_original_id IS 'FK, IDX';
 COMMENT ON COLUMN nucleo_financiero.reverso_transaccion.transaccion_reverso_id IS 'FK, NULL, UQ';
 COMMENT ON COLUMN nucleo_financiero.reverso_transaccion.autorizada_por IS 'FK';

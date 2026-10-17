@@ -1,0 +1,10 @@
+H7.S1.M7 — gate de narrativas en el CI · 2026-10-17
+
+$ grep -n "6i ·" .github/workflows/ci.yml
+165:      - name: 6i · verificar_narrativas.py — toda tabla con su ficha de negocio (catálogo de datos)
+
+$ python3 -I scripts/verificar_narrativas.py   → exit 0
+  OK    · tablas con ficha: 337/337
+  OK    · columnas con explicación de negocio: 524/3680 (piso 524)
+
+Sin fallas.

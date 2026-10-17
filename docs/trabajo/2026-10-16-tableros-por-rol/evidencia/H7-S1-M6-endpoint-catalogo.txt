@@ -1,0 +1,24 @@
+H7.S1.M6 — GET /indicadores/catalogo-de-datos (auditoria) · 2026-10-17
+Bajo /indicadores (prefijo que el gateway ya enruta a auditoria, scripts/modelo.py:203); no se agregó prefijo nuevo.
+
+$ ./gradlew :servicios:auditoria:webTest --tests "*CatalogoDeDatos*" --tests "*SeguridadWebTest" --tests "*IndicadoresControllerWebTest"   → exit 0
+  TEST-bo.aportaya.auditoria.web.CatalogoDeDatosWebTest.xml: tests="3" skipped="0" failures="0" errors="0"
+  TEST-bo.aportaya.auditoria.web.SeguridadWebTest.xml: tests="6" skipped="0" failures="0" errors="0"
+  TEST-bo.aportaya.auditoria.web.IndicadoresControllerWebTest.xml: tests="14" skipped="0" failures="0" errors="0"
+    testcase name="tableros · catálogo: lo que la ficha no dice se omite, no viaja como null"
+    testcase name="tableros · catálogo: con TABLERO_SISTEMAS_VER, 200 con la tabla, su narrativa y sus relaciones"
+    testcase name="tableros · catálogo: 403 con el permiso de otro tablero, sin leer el catálogo"
+
+$ ./gradlew :servicios:auditoria:test   → exit 0  (incluye CatalogoDeDatosVigenteTest: el recurso REAL cumple el contrato)
+  tests="1" skipped="0" failures="0" errors="0"
+
+$ ./gradlew :servicios:auditoria:integrationTest --tests "*ArranqueTest"   → exit 0 (el servicio arranca con el recurso real)
+
+401 sin sesión: lo cubre SabanaDeSeguridadWeb (recorre todas las rutas del RequestMappingHandlerMapping).
+
+$ python3 scripts/verificar_contratos_limites.py → exit 0
+$ python3 scripts/verificar_pruebas_web.py → exit 0
+$ python3 scripts/verificar_seguridad.py → exit 0
+$ python3 scripts/verificar_criterios.py → exit 0
+
+$ ./gradlew :servicios:auditoria:test :servicios:auditoria:webTest :servicios:auditoria:integrationTest :servicios:auditoria:jacocoTestCoverageVerification → BUILD SUCCESSFUL (exit 0), tras spotlessApply

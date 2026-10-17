@@ -699,3 +699,23 @@ puede explicar un score calculado con una versión anterior del modelo de scorin
 | RBAC | Todo se opera con cuentas de administrador. |
 | Consentimiento | No hay defensa ante un reclamo sobre las condiciones pactadas. |
 | RestricciónUsuario | El incumplimiento del módulo 8 no tiene consecuencia práctica. |
+
+
+---
+
+## Tablas incorporadas después de la redacción original
+
+> Fichas escritas para el catálogo de datos (trabajo `docs/trabajo/2026-10-16-tableros-por-rol`, H7). Cada
+> afirmación sale de la fuente que se cita al pie de la ficha: no agregan reglas, las explican.
+
+### `AlcanceInvitacion` / `alcance_invitacion`
+
+**Qué es.** El alcance de un token de invitación: quién lo emitió, a qué grupo invita y a qué teléfono va dirigido.
+
+**Para qué sirve (negocio).** Que una invitación sirva solo para lo que se emitió. Quien recibe el enlace entra al grupo que lo invitó, y nadie más puede usar ese enlace para entrar a otro grupo ni con otro número.
+
+**Por qué debe existir.** El token (`token_verificacion`) solo prueba que el secreto es válido; no dice para qué. Sin el alcance, un enlace reenviado o filtrado abriría la puerta de cualquier grupo, y una segunda emisión no podría revocar la anterior de forma explícita.
+
+**A nivel de sistema.** Una fila por token (`token_id` único). `clave_emision` hace idempotente la emisión y `huella_solicitud` detecta la misma clave reutilizada con otro pedido. `clave_consumo` y `consumidor_id` registran quién la usó. El límite diario de emisiones y la reemisión (`invalida_anteriores`) los decide la política vigente (`EmitirTokenDeInvitacion`). El secreto nunca se guarda (regla 90.2.9).
+
+*Fuente: CU-69; `servicios/identidad/.../EmitirTokenDeInvitacion.java`.*

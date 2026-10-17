@@ -16,8 +16,8 @@ CREATE TABLE IF NOT EXISTS entregas.intento_desembolso (
   CONSTRAINT ck_intento_desembolso_resultado CHECK (resultado IN ('EXITOSO', 'FALLIDO', 'PENDIENTE', 'TIMEOUT'))
 );
 
-COMMENT ON TABLE entregas.intento_desembolso IS 'Módulo 04 — Entregas de Fondo. Que la bolsa llegue completa, a la persona correcta, una sola vez';
-COMMENT ON COLUMN entregas.intento_desembolso.id IS 'PK';
+COMMENT ON TABLE entregas.intento_desembolso IS 'Módulo 04 — Entregas de Fondo. Cada ejecución de una orden de desembolso, con el resultado que devolvió el proveedor.';
+COMMENT ON COLUMN entregas.intento_desembolso.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN entregas.intento_desembolso.orden_desembolso_id IS 'FK, IDX';
 COMMENT ON COLUMN entregas.intento_desembolso.finalizado_en IS 'NULL';
 COMMENT ON COLUMN entregas.intento_desembolso.resultado IS 'CK';

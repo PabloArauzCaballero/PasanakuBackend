@@ -1,0 +1,16 @@
+H4.S1.M8 — cerrado contra un doble (regla 65) · 2026-10-17
+Pacto nuevo: contratos/pactos/servicios-auditoria-indicador-calculado.json
+$ ./gradlew :plataforma:comun-mensajeria:test --tests "*PublicadorDeIndicadoresTest" :servicios:auditoria:test --tests "*ConsumidorDeIndicadoresKafkaTest"   → exit 0
+  TEST-bo.aportaya.plataforma.mensajeria.PublicadorDeIndicadoresTest.xml: tests="6" skipped="0" failures="0" errors="0"
+      testcase name="límite: el mismo código y período dan el mismo agregado (un recálculo pisa, no duplica)"
+      testcase name="inválido: período fuera de AAAA[-MM[-DD]] o nombre vacío/largo se rechazan"
+      testcase name="límite: cada unidad tiene su nombre de 15 caracteres o menos"
+      testcase name="correcto: un indicador con valor se emite como &lt;modulo&gt;.indicador_calculado, con la moneda como unidad"
+      testcase name="pacto con auditoria · productor: el evento trae TODOS los campos del pacto con los valores del ejemplo"
+      testcase name="límite: sin datos no se emite nada — nunca un cero"
+  TEST-bo.aportaya.auditoria.consumo.ConsumidorDeIndicadoresKafkaTest.xml: tests="4" skipped="0" failures="0" errors="0"
+      testcase name="pacto con los servicios · consumidor: lee el ejemplo del pacto y todo lo que exige viene en él"
+      testcase name="límite: sin provisorio se lee como definitivo"
+      testcase name="inválido: período mal formado, sin casos o valor no numérico se rechazan"
+      testcase name="correcto: lee código, valor exacto, unidad, período y casos"
+Pendiente contra lo real: calculadores → Kafka → auditoria → GET /indicadores con la pila arriba.

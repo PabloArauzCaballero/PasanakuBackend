@@ -10,6 +10,6 @@ CREATE TABLE IF NOT EXISTS identidad.historial_credencial (
   CONSTRAINT pk_historial_credencial PRIMARY KEY (id)
 );
 
-COMMENT ON TABLE identidad.historial_credencial IS 'Módulo 01 — Identidad, Usuarios y Seguridad. Saber con certeza a quién le estás confiando plata ajena';
-COMMENT ON COLUMN identidad.historial_credencial.id IS 'PK';
+COMMENT ON TABLE identidad.historial_credencial IS 'Módulo 01 — Identidad, Usuarios y Seguridad. Los hashes de las contraseñas anteriores.';
+COMMENT ON COLUMN identidad.historial_credencial.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN identidad.historial_credencial.usuario_id IS 'FK, IDX';

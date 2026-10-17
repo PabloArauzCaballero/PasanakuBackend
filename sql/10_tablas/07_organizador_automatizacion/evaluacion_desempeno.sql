@@ -20,7 +20,11 @@ CREATE TABLE IF NOT EXISTS organizador.evaluacion_desempeno (
   CONSTRAINT ck_evaluacion_desempeno_nivel_sugerido CHECK (nivel_sugerido IN ('APRENDIZ', 'ESTANDAR', 'MAESTRO', 'SENIOR'))
 );
 
-COMMENT ON TABLE organizador.evaluacion_desempeno IS 'Módulo 07 — Organizador y Automatización. Administrar es un rol, no un negocio: el organizador no cobra ni custodia';
-COMMENT ON COLUMN organizador.evaluacion_desempeno.id IS 'PK';
+COMMENT ON TABLE organizador.evaluacion_desempeno IS 'Módulo 07 — Organizador y Automatización. La evaluación periódica del organizador sobre seis indicadores objetivos.';
+COMMENT ON COLUMN organizador.evaluacion_desempeno.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN organizador.evaluacion_desempeno.organizador_id IS 'FK, IDX';
+COMMENT ON COLUMN organizador.evaluacion_desempeno.indice_morosidad_cartera IS 'sus grupos, ¿pagan a tiempo?';
+COMMENT ON COLUMN organizador.evaluacion_desempeno.tasa_finalizacion_grupos IS 'sus grupos, ¿terminan o se caen?';
+COMMENT ON COLUMN organizador.evaluacion_desempeno.satisfaccion_participantes IS 'la gente que administró, ¿lo recomendaría?';
+COMMENT ON COLUMN organizador.evaluacion_desempeno.tiempo_respuesta_promedio_horas IS 'cuando alguien tiene un problema, ¿contesta?';
 COMMENT ON COLUMN organizador.evaluacion_desempeno.nivel_sugerido IS 'CK';

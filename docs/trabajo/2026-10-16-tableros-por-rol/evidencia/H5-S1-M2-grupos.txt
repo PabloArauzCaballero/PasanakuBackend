@@ -1,0 +1,3 @@
+CUIndicadoresComercialesTest 4/4 (creado D, conformado D+4, 4.00 dias; retencion 1 de 3; SIN_HISTORIA en activos/volumen; fuera de 60 dias no retiene). Primer intento: errores del TEST (assert ambiguo; grupos de 1-2 cupos violan num_periodos>=3), corregidos.
+grupos: suite completa + cobertura exit=0; gates ok
+Semilla: sin historial_estado_grupo -> completos/dias/retencion salen SIN_DATOS con la base sembrada (pendiente del generador de volumen).

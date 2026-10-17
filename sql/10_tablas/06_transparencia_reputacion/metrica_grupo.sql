@@ -15,8 +15,8 @@ CREATE TABLE IF NOT EXISTS transparencia.metrica_grupo (
   CONSTRAINT pk_metrica_grupo PRIMARY KEY (id)
 );
 
-COMMENT ON TABLE transparencia.metrica_grupo IS 'Módulo 06 — Transparencia y Reputación. Que nadie tenga que "creerle" al organizador';
-COMMENT ON COLUMN transparencia.metrica_grupo.id IS 'PK';
+COMMENT ON TABLE transparencia.metrica_grupo IS 'Módulo 06 — Transparencia y Reputación. Indicadores calculados del grupo: tasa de puntualidad, días de mora promedio, cobertura consumida, rotación.';
+COMMENT ON COLUMN transparencia.metrica_grupo.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN transparencia.metrica_grupo.grupo_id IS 'FK, IDX';
 COMMENT ON COLUMN transparencia.metrica_grupo.periodo_id IS 'FK, NULL';
 COMMENT ON COLUMN transparencia.metrica_grupo.codigo IS 'UQ+grupo_id+periodo_id';

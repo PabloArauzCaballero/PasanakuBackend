@@ -16,8 +16,8 @@ CREATE TABLE IF NOT EXISTS publicidad.socio_comercial (
   CONSTRAINT ck_socio_comercial_estado CHECK (estado IN ('ACTIVO', 'DADO_DE_BAJA', 'POSTULADO', 'SUSPENDIDO'))
 );
 
-COMMENT ON TABLE publicidad.socio_comercial IS 'Módulo 14 — Publicidad y Campañas. Que un partner se anuncie dentro de la app sin inventar un segundo cobro';
-COMMENT ON COLUMN publicidad.socio_comercial.id IS 'PK';
+COMMENT ON TABLE publicidad.socio_comercial IS 'Módulo 14 — Publicidad y Campañas. un negocio externo (una marca, un comercio) que no tiene rol operativo en la plataforma. No es usuario ni organizador: es alguien que quiere visibilidad ante la base de usuarios de AportaYa sin participar de ningún pasanaku.';
+COMMENT ON COLUMN publicidad.socio_comercial.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN publicidad.socio_comercial.numero_documento IS 'UQ';
 COMMENT ON COLUMN publicidad.socio_comercial.rubro IS 'NULL';
 COMMENT ON COLUMN publicidad.socio_comercial.telefono_contacto IS 'NULL';

@@ -15,8 +15,8 @@ CREATE TABLE IF NOT EXISTS identidad.referencia_personal (
   CONSTRAINT ck_referencia_personal_relacion CHECK (relacion IN ('FAMILIAR', 'LABORAL', 'VECINAL'))
 );
 
-COMMENT ON TABLE identidad.referencia_personal IS 'Módulo 01 — Identidad, Usuarios y Seguridad. Saber con certeza a quién le estás confiando plata ajena';
-COMMENT ON COLUMN identidad.referencia_personal.id IS 'PK';
+COMMENT ON TABLE identidad.referencia_personal IS 'Módulo 01 — Identidad, Usuarios y Seguridad. Un contacto de confianza declarado por el usuario, con la relación y si acepta ser avalista.';
+COMMENT ON COLUMN identidad.referencia_personal.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN identidad.referencia_personal.usuario_id IS 'FK, IDX';
 COMMENT ON COLUMN identidad.referencia_personal.relacion IS 'CK';
 COMMENT ON COLUMN identidad.referencia_personal.verificada_en IS 'NULL';

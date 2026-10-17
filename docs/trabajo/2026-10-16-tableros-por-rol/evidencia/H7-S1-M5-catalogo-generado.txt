@@ -1,0 +1,11 @@
+H7.S1.M5 — catálogo generado, determinista · 2026-10-17 (rehecho tras omitir null, contrato CatalogoDeDatos)
+
+$ python3 -I scripts/catalogo_de_datos.py --escribir ; shasum -a 256 docs/catalogo-de-datos.md servicios/auditoria/src/main/resources/catalogo/catalogo-datos.json   (corrida 1)
+f4a7054e6a2620fd7c031fb000f0ea81b8dce9438d52d3b08de521e4d8fb4cec  docs/catalogo-de-datos.md
+adee9558b1a40c3759f28a9873acb34e11548dc191029b8c2003032e33ba9673  servicios/auditoria/src/main/resources/catalogo/catalogo-datos.json
+$ (corrida 2)
+f4a7054e6a2620fd7c031fb000f0ea81b8dce9438d52d3b08de521e4d8fb4cec  docs/catalogo-de-datos.md
+adee9558b1a40c3759f28a9873acb34e11548dc191029b8c2003032e33ba9673  servicios/auditoria/src/main/resources/catalogo/catalogo-datos.json
+diff → sin diferencias
+
+D14: el JSON NO se publica en apps/backoffice/public (se serviría sin sesión); vive en los recursos de auditoria.

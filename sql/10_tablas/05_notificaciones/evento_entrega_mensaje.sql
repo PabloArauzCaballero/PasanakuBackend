@@ -15,8 +15,9 @@ CREATE TABLE IF NOT EXISTS notificaciones.evento_entrega_mensaje (
   CONSTRAINT ck_evento_entrega_mensaje_tipo_evento CHECK (tipo_evento IN ('ENTREGADO', 'ENVIADO', 'EXPIRADO', 'FALLIDO', 'LEIDO', 'RECHAZADO'))
 );
 
-COMMENT ON TABLE notificaciones.evento_entrega_mensaje IS 'Módulo 05 — Notificaciones y Comunicaciones. WhatsApp como canal real de cobro, sin spam ni doble aviso';
-COMMENT ON COLUMN notificaciones.evento_entrega_mensaje.id IS 'PK';
+COMMENT ON TABLE notificaciones.evento_entrega_mensaje IS 'Módulo 05 — Notificaciones y Comunicaciones. Cada callback del proveedor sobre el destino de un mensaje: enviado, entregado, leído, fallido, rechazado.';
+COMMENT ON COLUMN notificaciones.evento_entrega_mensaje.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN notificaciones.evento_entrega_mensaje.envio_id IS 'FK, IDX';
 COMMENT ON COLUMN notificaciones.evento_entrega_mensaje.tipo_evento IS 'CK';
 COMMENT ON COLUMN notificaciones.evento_entrega_mensaje.codigo_error IS 'NULL';
+COMMENT ON COLUMN notificaciones.evento_entrega_mensaje.clave_idempotencia IS 'Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4).';

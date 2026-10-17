@@ -25,15 +25,16 @@ CREATE TABLE IF NOT EXISTS inversiones.orden_inversion (
   CONSTRAINT ck_orden_inversion_estado CHECK (estado IN ('CREADA', 'RETENIDA', 'ENVIADA', 'INCIERTA', 'CONFIRMADA', 'RECHAZADA', 'CANCELADA'))
 );
 
-COMMENT ON TABLE inversiones.orden_inversion IS 'Módulo 15 — Inversiones voluntarias. Que una inversion voluntaria nunca prometa rentabilidad ni duplique el saldo';
-COMMENT ON COLUMN inversiones.orden_inversion.id IS 'PK';
+COMMENT ON TABLE inversiones.orden_inversion IS 'Módulo 15 — Inversiones voluntarias. El pedido de invertir un importe del saldo libre en un producto, con sus estados hasta que el aliado confirma o rechaza.';
+COMMENT ON COLUMN inversiones.orden_inversion.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN inversiones.orden_inversion.usuario_id IS 'IDX';
 COMMENT ON COLUMN inversiones.orden_inversion.producto_inversion_id IS 'FK, IDX';
 COMMENT ON COLUMN inversiones.orden_inversion.version_condiciones_id IS 'FK, IDX';
 COMMENT ON COLUMN inversiones.orden_inversion.consentimiento_inversion_id IS 'FK, UQ';
 COMMENT ON COLUMN inversiones.orden_inversion.monto IS 'CK: > 0';
+COMMENT ON COLUMN inversiones.orden_inversion.moneda IS 'Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2).';
 COMMENT ON COLUMN inversiones.orden_inversion.estado IS 'CK: CREADA | RETENIDA | ENVIADA | INCIERTA | CONFIRMADA | RECHAZADA | CANCELADA, IDX';
-COMMENT ON COLUMN inversiones.orden_inversion.clave_idempotencia IS 'UQ+usuario_id';
+COMMENT ON COLUMN inversiones.orden_inversion.clave_idempotencia IS 'Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4).';
 COMMENT ON COLUMN inversiones.orden_inversion.transaccion_externa IS 'NULL';
 COMMENT ON COLUMN inversiones.orden_inversion.fecha_valor IS 'NULL';
 COMMENT ON COLUMN inversiones.orden_inversion.motivo_rechazo IS 'NULL';

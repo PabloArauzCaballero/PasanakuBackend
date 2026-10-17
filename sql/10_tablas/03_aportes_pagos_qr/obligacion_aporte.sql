@@ -31,8 +31,8 @@ CREATE TABLE IF NOT EXISTS aportes.obligacion_aporte (
   CONSTRAINT ck_obligacion_aporte_estado CHECK (estado IN ('ANULADO', 'CONDONADO', 'CUBIERTO_POR_GARANTIA', 'EN_MORA', 'EN_VERIFICACION', 'EXONERADO', 'PAGADO', 'PAGADO_PARCIAL', 'PENDIENTE', 'PROGRAMADO', 'REPORTADO_POR_USUARIO', 'REPROGRAMADO', 'VENCIDO'))
 );
 
-COMMENT ON TABLE aportes.obligacion_aporte IS 'Módulo 03 — Aportes, Pagos QR y Conciliación. Que "pagué" signifique "el banco lo confirmó"';
-COMMENT ON COLUMN aportes.obligacion_aporte.id IS 'PK';
+COMMENT ON TABLE aportes.obligacion_aporte IS 'Módulo 03 — Aportes, Pagos QR y Conciliación. Lo que un cupo debe, en un período, por un concepto. Es la deuda formal que la plataforma le reconoce a un participante.';
+COMMENT ON COLUMN aportes.obligacion_aporte.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN aportes.obligacion_aporte.grupo_id IS 'FK, IDX';
 COMMENT ON COLUMN aportes.obligacion_aporte.periodo_id IS 'FK, IDX';
 COMMENT ON COLUMN aportes.obligacion_aporte.cupo_id IS 'FK, IDX';
@@ -41,7 +41,12 @@ COMMENT ON COLUMN aportes.obligacion_aporte.politica_mora_id IS 'FK, NULL';
 COMMENT ON COLUMN aportes.obligacion_aporte.obligacion_origen_id IS 'FK, NULL';
 COMMENT ON COLUMN aportes.obligacion_aporte.plan_regularizacion_id IS 'FK, NULL';
 COMMENT ON COLUMN aportes.obligacion_aporte.tipo IS 'CK';
-COMMENT ON COLUMN aportes.obligacion_aporte.monto_esperado IS 'CK: > 0';
+COMMENT ON COLUMN aportes.obligacion_aporte.monto_esperado IS 'lo que se pactó. Nunca cambia.';
+COMMENT ON COLUMN aportes.obligacion_aporte.moneda IS 'Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2).';
+COMMENT ON COLUMN aportes.obligacion_aporte.monto_pagado IS 'lo que efectivamente entró y se concilió.';
+COMMENT ON COLUMN aportes.obligacion_aporte.monto_recargo IS 'la mora acumulada.';
+COMMENT ON COLUMN aportes.obligacion_aporte.monto_condonado IS 'lo que el grupo decidió perdonar (por acuerdo, M2).';
+COMMENT ON COLUMN aportes.obligacion_aporte.monto_cubierto_garantia IS 'lo que puso el fondo para que el grupo no se detenga (M8). Ojo: cubierto no es pagado. El participante sigue debiendo esa plata, pero ahora se la debe al fondo, no al grupo.';
 COMMENT ON COLUMN aportes.obligacion_aporte.saldo_pendiente IS 'GENERATED';
 COMMENT ON COLUMN aportes.obligacion_aporte.estado IS 'CK, IDX';
 COMMENT ON COLUMN aportes.obligacion_aporte.fecha_vencimiento IS 'IDX';

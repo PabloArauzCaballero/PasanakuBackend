@@ -17,9 +17,10 @@ CREATE TABLE IF NOT EXISTS cumplimiento.matriz_riesgo_lft (
   CONSTRAINT ck_matriz_riesgo_lft_dimension CHECK (dimension IN ('CANAL', 'CLIENTE', 'PRODUCTO', 'ZONA_GEOGRAFICA'))
 );
 
-COMMENT ON TABLE cumplimiento.matriz_riesgo_lft IS 'Módulo 12 — Cumplimiento Regulatorio y Consumidor Financiero. Que una inspección se responda con consultas, no armando carpetas';
-COMMENT ON COLUMN cumplimiento.matriz_riesgo_lft.id IS 'PK';
+COMMENT ON TABLE cumplimiento.matriz_riesgo_lft IS 'Módulo 12 — Cumplimiento Regulatorio y Consumidor Financiero. Los factores con los que se puntúa el riesgo de un cliente y el resultado de evaluar cada uno.';
+COMMENT ON COLUMN cumplimiento.matriz_riesgo_lft.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN cumplimiento.matriz_riesgo_lft.version IS 'UQ+dimension+factor';
 COMMENT ON COLUMN cumplimiento.matriz_riesgo_lft.dimension IS 'CK';
-COMMENT ON COLUMN cumplimiento.matriz_riesgo_lft.vigente_hasta IS 'NULL';
+COMMENT ON COLUMN cumplimiento.matriz_riesgo_lft.vigente_desde IS 'Desde cuándo rige esta versión de la fila: las condiciones se versionan, no se pisan.';
+COMMENT ON COLUMN cumplimiento.matriz_riesgo_lft.vigente_hasta IS 'Hasta cuándo rigió esta versión; vacía mientras sigue vigente.';
 COMMENT ON COLUMN cumplimiento.matriz_riesgo_lft.aprobada_por IS 'FK, NULL';

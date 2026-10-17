@@ -14,8 +14,8 @@ CREATE TABLE IF NOT EXISTS tarifas.tarifa_congelada_grupo (
   CONSTRAINT pk_tarifa_congelada_grupo PRIMARY KEY (id)
 );
 
-COMMENT ON TABLE tarifas.tarifa_congelada_grupo IS 'Módulo 11 — Tarifas, Comisiones, Impuestos y Facturación. La política de cobro es dato, no código: se cambia con un seeder';
-COMMENT ON COLUMN tarifas.tarifa_congelada_grupo.id IS 'PK';
+COMMENT ON TABLE tarifas.tarifa_congelada_grupo IS 'Módulo 11 — Tarifas, Comisiones, Impuestos y Facturación. El snapshot del tarifario que aceptó un grupo al constituirse.';
+COMMENT ON COLUMN tarifas.tarifa_congelada_grupo.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN tarifas.tarifa_congelada_grupo.grupo_id IS 'FK, M2';
 COMMENT ON COLUMN tarifas.tarifa_congelada_grupo.tarifario_id IS 'FK';
 COMMENT ON COLUMN tarifas.tarifa_congelada_grupo.acuerdo_id IS 'FK, NULL, M2';

@@ -33,5 +33,6 @@ BEGIN;
 \ir 20-control-interno-y-continuidad.sql
 \ir 21-contabilidad-y-publicidad.sql
 \ir 22-cuentas-de-sistema.sql
+\ir 23-indicadores-tableros.sql
 
 COMMIT;

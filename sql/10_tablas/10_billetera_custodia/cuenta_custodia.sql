@@ -22,7 +22,8 @@ CREATE TABLE IF NOT EXISTS nucleo_financiero.cuenta_custodia (
   CONSTRAINT ck_cuenta_custodia_estado CHECK (estado IN ('ACTIVA', 'BLOQUEADA', 'CERRADA', 'INACTIVA'))
 );
 
-COMMENT ON TABLE nucleo_financiero.cuenta_custodia IS 'Módulo 10 — Billetera, Custodia y Dinero Electrónico. El saldo no se guarda: se deriva, y todos los días cuadra contra el banco';
-COMMENT ON COLUMN nucleo_financiero.cuenta_custodia.id IS 'PK';
+COMMENT ON TABLE nucleo_financiero.cuenta_custodia IS 'Módulo 10 — Billetera, Custodia y Dinero Electrónico. La cuenta bancaria real donde está depositado el dinero que respalda todo el saldo de todas las billeteras.';
+COMMENT ON COLUMN nucleo_financiero.cuenta_custodia.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN nucleo_financiero.cuenta_custodia.tipo IS 'CK';
+COMMENT ON COLUMN nucleo_financiero.cuenta_custodia.moneda IS 'Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2).';
 COMMENT ON COLUMN nucleo_financiero.cuenta_custodia.estado IS 'CK';

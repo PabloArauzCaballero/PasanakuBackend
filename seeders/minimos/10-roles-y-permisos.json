@@ -109,6 +109,12 @@
           "nombre": "Anunciante",
           "ambito": "GLOBAL",
           "es_sistema": true
+        },
+        {
+          "codigo": "COMERCIAL",
+          "nombre": "Comercial",
+          "ambito": "GLOBAL",
+          "es_sistema": true
         }
       ]
     },
@@ -376,6 +382,27 @@
           "recurso": "solicitud_ingreso",
           "accion": "RESOLVER",
           "requiere_mfa": true
+        },
+        {
+          "codigo": "TABLERO_FINANCIERO_VER",
+          "descripcion": "Ver el tablero financiero: totales agregados del mayor, la mora, el fondo y los turnos (tableros por rol). Solo agregados, nunca datos de una persona",
+          "recurso": "tablero",
+          "accion": "LEER",
+          "requiere_mfa": false
+        },
+        {
+          "codigo": "TABLERO_COMERCIAL_VER",
+          "descripcion": "Ver el tablero comercial: altas, activos, embudo, llenado de grupos y retencion (tableros por rol). Solo conteos agregados",
+          "recurso": "tablero",
+          "accion": "LEER",
+          "requiere_mfa": false
+        },
+        {
+          "codigo": "TABLERO_SISTEMAS_VER",
+          "descripcion": "Ver el tablero de sistemas: trafico, errores, latencia y endpoints del dia, y los catalogos de datos y de flujos (tableros por rol)",
+          "recurso": "tablero",
+          "accion": "LEER",
+          "requiere_mfa": false
         }
       ],
       "comentario": "`requiere_mfa` marca los permisos que exigen segundo factor en el momento de usarlos, no solo al iniciar sesión: todo lo que mueve dinero, publica precios, edita catálogos o lee datos de terceros."
@@ -1036,6 +1063,46 @@
           "permiso_id": {
             "$ref": "permiso",
             "codigo": "RECLAMO_VER"
+          }
+        },
+        {
+          "rol_id": {
+            "$ref": "rol",
+            "codigo": "TESORERIA"
+          },
+          "permiso_id": {
+            "$ref": "permiso",
+            "codigo": "TABLERO_FINANCIERO_VER"
+          }
+        },
+        {
+          "rol_id": {
+            "$ref": "rol",
+            "codigo": "CONTABILIDAD"
+          },
+          "permiso_id": {
+            "$ref": "permiso",
+            "codigo": "TABLERO_FINANCIERO_VER"
+          }
+        },
+        {
+          "rol_id": {
+            "$ref": "rol",
+            "codigo": "COMERCIAL"
+          },
+          "permiso_id": {
+            "$ref": "permiso",
+            "codigo": "TABLERO_COMERCIAL_VER"
+          }
+        },
+        {
+          "rol_id": {
+            "$ref": "rol",
+            "codigo": "ADMIN_PLATAFORMA"
+          },
+          "permiso_id": {
+            "$ref": "permiso",
+            "codigo": "TABLERO_SISTEMAS_VER"
           }
         }
       ]

@@ -19,8 +19,8 @@ CREATE TABLE IF NOT EXISTS nucleo_financiero.movimiento_billetera (
   CONSTRAINT ck_movimiento_billetera_monto CHECK (monto > 0)
 );
 
-COMMENT ON TABLE nucleo_financiero.movimiento_billetera IS 'Módulo 10 — Billetera, Custodia y Dinero Electrónico. [append-only] El saldo no se guarda: se deriva, y todos los días cuadra contra el banco';
-COMMENT ON COLUMN nucleo_financiero.movimiento_billetera.id IS 'PK';
+COMMENT ON TABLE nucleo_financiero.movimiento_billetera IS 'Módulo 10 — Billetera, Custodia y Dinero Electrónico. [append-only] Cada débito o crédito individual sobre una cuenta.';
+COMMENT ON COLUMN nucleo_financiero.movimiento_billetera.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN nucleo_financiero.movimiento_billetera.transaccion_id IS 'FK, IDX';
 COMMENT ON COLUMN nucleo_financiero.movimiento_billetera.cuenta_billetera_id IS 'FK, IDX';
 COMMENT ON COLUMN nucleo_financiero.movimiento_billetera.sentido IS 'CK: DEBITO|CREDITO';

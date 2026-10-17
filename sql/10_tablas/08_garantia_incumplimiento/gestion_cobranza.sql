@@ -20,8 +20,8 @@ CREATE TABLE IF NOT EXISTS garantia.gestion_cobranza (
   CONSTRAINT ck_gestion_cobranza_estado CHECK (estado IN ('ACTIVA', 'CERRADA_EXITOSA', 'CERRADA_SIN_EXITO', 'PAUSADA'))
 );
 
-COMMENT ON TABLE garantia.gestion_cobranza IS 'Módulo 08 — Garantía, Incumplimiento, Cobranza y Sanciones. El grupo no se detiene, pero la deuda no se perdona sola';
-COMMENT ON COLUMN garantia.gestion_cobranza.id IS 'PK';
+COMMENT ON TABLE garantia.gestion_cobranza IS 'Módulo 08 — Garantía, Incumplimiento, Cobranza y Sanciones. El proceso activo de cobrarle a alguien, con su etapa, su gestor y su próxima acción.';
+COMMENT ON COLUMN garantia.gestion_cobranza.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN garantia.gestion_cobranza.registro_id IS 'FK, UQ';
 COMMENT ON COLUMN garantia.gestion_cobranza.estrategia_id IS 'FK';
 COMMENT ON COLUMN garantia.gestion_cobranza.gestor_asignado_id IS 'FK, NULL, IDX';

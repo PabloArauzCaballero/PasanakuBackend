@@ -21,8 +21,8 @@ CREATE TABLE IF NOT EXISTS auditoria.incidente_operativo (
   CONSTRAINT ck_incidente_operativo_estado CHECK (estado IN ('DETECTADO', 'MITIGADO', 'POST_MORTEM', 'RESUELTO'))
 );
 
-COMMENT ON TABLE auditoria.incidente_operativo IS 'Módulo 09 — Auditoría, Reportes y Cumplimiento. Poder demostrar todo lo anterior ante un reclamo o un regulador';
-COMMENT ON COLUMN auditoria.incidente_operativo.id IS 'PK';
+COMMENT ON TABLE auditoria.incidente_operativo IS 'Módulo 09 — Auditoría, Reportes y Cumplimiento. Un fallo del sistema con impacto en usuarios o en dinero.';
+COMMENT ON COLUMN auditoria.incidente_operativo.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN auditoria.incidente_operativo.codigo IS 'UQ';
 COMMENT ON COLUMN auditoria.incidente_operativo.severidad IS 'CK';
 COMMENT ON COLUMN auditoria.incidente_operativo.estado IS 'CK';

@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS publicidad.espacio_publicitario (
   CONSTRAINT ck_espacio_publicitario_tipo CHECK (tipo IN ('BANNER_BILLETERA', 'BANNER_INICIO', 'LISTADO_GRUPOS_DESTACADO', 'PUSH_PATROCINADO'))
 );
 
-COMMENT ON TABLE publicidad.espacio_publicitario IS 'Módulo 14 — Publicidad y Campañas. Que un partner se anuncie dentro de la app sin inventar un segundo cobro';
-COMMENT ON COLUMN publicidad.espacio_publicitario.id IS 'PK';
+COMMENT ON TABLE publicidad.espacio_publicitario IS 'Módulo 14 — Publicidad y Campañas. El catálogo de inventario propio de la app: dónde puede aparecer un anuncio.';
+COMMENT ON COLUMN publicidad.espacio_publicitario.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN publicidad.espacio_publicitario.codigo IS 'UQ';
 COMMENT ON COLUMN publicidad.espacio_publicitario.tipo IS 'CK';

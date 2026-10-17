@@ -168,7 +168,7 @@ DO $siembra$
 BEGIN
   IF current_setting('app.dev_sembrado', true) IS DISTINCT FROM 'si' THEN
     INSERT INTO transaccion_billetera (tipo, estado, moneda, monto_total, grupo_id, origen_tipo, origen_id, canal, clave_idempotencia, hash_registro, ocurrida_en, registrada_en) VALUES
-      ('ENTREGA_DE_FONDO', 'APLICADA', 'BOB', 3000.0, (SELECT id FROM grupo WHERE codigo_publico = 'GRP-DEMO-01'), 'ENTREGA_FONDO', (SELECT e.id FROM entrega_fondo e JOIN periodo pe ON pe.id = e.periodo_id WHERE pe.numero = 1), 'BATCH', 'demo-entrega-p1', '', now() - interval '30 days', now() - interval '30 days')
+      ('ENTREGA_DE_FONDO', 'APLICADA', 'BOB', 3000.0, (SELECT id FROM grupo WHERE codigo_publico = 'GRP-DEMO-01'), 'ENTREGA_FONDO', (SELECT e.id FROM entrega_fondo e JOIN periodo pe ON pe.id = e.periodo_id JOIN grupo g ON g.id = pe.grupo_id WHERE pe.numero = 1 AND g.codigo_publico = 'GRP-DEMO-01'), 'BATCH', 'demo-entrega-p1', '', now() - interval '30 days', now() - interval '30 days')
     ON CONFLICT (COALESCE(iniciada_por, '00000000-0000-0000-0000-000000000000'::uuid), origen_tipo, clave_idempotencia) DO NOTHING;
   END IF;
 END $siembra$;
@@ -189,7 +189,7 @@ DO $siembra$
 BEGIN
   IF current_setting('app.dev_sembrado', true) IS DISTINCT FROM 'si' THEN
     INSERT INTO cargo_comision (devengo_id, deduccion_entrega_id, transaccion_id, obligacion_id, forma_cobro, monto_cobrado, moneda, estado, intentos, ultimo_error, cobrado_en) VALUES
-      ((SELECT id FROM devengo_comision WHERE clave_idempotencia = 'demo-devengo-entrega-p1'), (SELECT id FROM deduccion_entrega WHERE tipo = 'COMISION_PLATAFORMA' LIMIT 1), (SELECT id FROM transaccion_billetera WHERE clave_idempotencia = 'demo-entrega-p1'), NULL, 'DEDUCCION_DE_ENTREGA', 10.5, 'BOB', 'COBRADO', 1, NULL, now() - interval '30 days')
+      ((SELECT id FROM devengo_comision WHERE clave_idempotencia = 'demo-devengo-entrega-p1'), (SELECT d.id FROM deduccion_entrega d JOIN entrega_fondo e ON e.id = d.entrega_id JOIN grupo g ON g.id = e.grupo_id WHERE d.tipo = 'COMISION_PLATAFORMA' AND g.codigo_publico = 'GRP-DEMO-01'), (SELECT id FROM transaccion_billetera WHERE clave_idempotencia = 'demo-entrega-p1'), NULL, 'DEDUCCION_DE_ENTREGA', 10.5, 'BOB', 'COBRADO', 1, NULL, now() - interval '30 days')
     ON CONFLICT DO NOTHING;
   END IF;
 END $siembra$;

@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS nucleo_financiero.consumo_limite (
   CONSTRAINT pk_consumo_limite PRIMARY KEY (id)
 );
 
-COMMENT ON TABLE nucleo_financiero.consumo_limite IS 'Módulo 10 — Billetera, Custodia y Dinero Electrónico. El saldo no se guarda: se deriva, y todos los días cuadra contra el banco';
-COMMENT ON COLUMN nucleo_financiero.consumo_limite.id IS 'PK';
+COMMENT ON TABLE nucleo_financiero.consumo_limite IS 'Módulo 10 — Billetera, Custodia y Dinero Electrónico. Cuánto lleva consumido cada cuenta de cada límite en la ventana actual.';
+COMMENT ON COLUMN nucleo_financiero.consumo_limite.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN nucleo_financiero.consumo_limite.cuenta_billetera_id IS 'FK, IDX';
 COMMENT ON COLUMN nucleo_financiero.consumo_limite.limite_id IS 'FK, IDX';

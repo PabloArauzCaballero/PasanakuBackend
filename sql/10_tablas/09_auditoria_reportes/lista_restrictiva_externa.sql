@@ -11,6 +11,6 @@ CREATE TABLE IF NOT EXISTS auditoria.lista_restrictiva_externa (
   CONSTRAINT pk_lista_restrictiva_externa PRIMARY KEY (id)
 );
 
-COMMENT ON TABLE auditoria.lista_restrictiva_externa IS 'Módulo 09 — Auditoría, Reportes y Cumplimiento. Poder demostrar todo lo anterior ante un reclamo o un regulador';
-COMMENT ON COLUMN auditoria.lista_restrictiva_externa.id IS 'PK';
+COMMENT ON TABLE auditoria.lista_restrictiva_externa IS 'Módulo 09 — Auditoría, Reportes y Cumplimiento. Las listas de personas restringidas (PEP, OFAC, ONU, locales) y las coincidencias detectadas contra usuarios.';
+COMMENT ON COLUMN auditoria.lista_restrictiva_externa.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN auditoria.lista_restrictiva_externa.nombre_lista IS 'UQ+version';

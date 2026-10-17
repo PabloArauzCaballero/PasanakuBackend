@@ -75,4 +75,31 @@ public class ConfiguracionMensajeria {
             @Value("${aportaya.outbox.timeout-publicacion:PT10S}") Duration timeoutPublicacion) {
         return new Relevo(esquema, dsl, kafka, metricas, intentosMaximos, backoffBase, backoffTope, timeoutPublicacion);
     }
+
+    /**
+     * Tableros (CU-98): el disparo diario y el relleno de los indicadores, SOLO donde el servicio declaro un
+     * {@link CalculadorDeIndicadores}. Se apaga con {@code aportaya.indicadores.habilitado=false}.
+     */
+    @Bean
+    @ConditionalOnMissingBean
+    @ConditionalOnBean(CalculadorDeIndicadores.class)
+    @ConditionalOnProperty(name = "aportaya.indicadores.habilitado", havingValue = "true", matchIfMissing = true)
+    public PublicacionDeIndicadores publicacionDeIndicadores(
+            bo.aportaya.plataforma.datos.Datos datos,
+            org.springframework.transaction.PlatformTransactionManager transacciones,
+            Outbox outbox,
+            java.util.List<CalculadorDeIndicadores> calculadores,
+            bo.aportaya.plataforma.dominio.Reloj reloj,
+            @Value("${aportaya.esquema}") String esquema,
+            @Value("${aportaya.indicadores.relleno.meses:0}") int meses,
+            @Value("${aportaya.indicadores.relleno.dias:0}") int dias) {
+        return new PublicacionDeIndicadores(
+                datos,
+                new org.springframework.transaction.support.TransactionTemplate(transacciones),
+                new PublicadorDeIndicadores(outbox, esquema),
+                calculadores,
+                reloj,
+                meses,
+                dias);
+    }
 }

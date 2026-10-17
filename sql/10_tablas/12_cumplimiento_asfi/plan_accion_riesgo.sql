@@ -17,8 +17,8 @@ CREATE TABLE IF NOT EXISTS cumplimiento.plan_accion_riesgo (
   CONSTRAINT ck_plan_accion_riesgo_estado CHECK (estado IN ('CANCELADO', 'CUMPLIDO', 'EN_CURSO', 'PENDIENTE', 'VENCIDO'))
 );
 
-COMMENT ON TABLE cumplimiento.plan_accion_riesgo IS 'Módulo 12 — Cumplimiento Regulatorio y Consumidor Financiero. Que una inspección se responda con consultas, no armando carpetas';
-COMMENT ON COLUMN cumplimiento.plan_accion_riesgo.id IS 'PK';
+COMMENT ON TABLE cumplimiento.plan_accion_riesgo IS 'Módulo 12 — Cumplimiento Regulatorio y Consumidor Financiero. Lo que se encontró mal y lo que se va a hacer al respecto.';
+COMMENT ON COLUMN cumplimiento.plan_accion_riesgo.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN cumplimiento.plan_accion_riesgo.evento_riesgo_id IS 'FK, NULL';
 COMMENT ON COLUMN cumplimiento.plan_accion_riesgo.hallazgo_id IS 'FK, NULL';
 COMMENT ON COLUMN cumplimiento.plan_accion_riesgo.responsable_id IS 'FK';

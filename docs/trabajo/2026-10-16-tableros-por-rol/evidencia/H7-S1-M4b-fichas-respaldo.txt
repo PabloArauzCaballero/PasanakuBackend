@@ -1,0 +1,10 @@
+H7.S1.M4b — 6 fichas del respaldo empresarial (módulo 08) · 2026-10-16
+Fuente: CU-23 (vigencia ADR-051 D-15; R-GAR-08..12), docs/Restricciones.md, CU23ReservarRespaldo.java.
+Verificado: tg_cobertura_respaldo_linea_cuadra es DEFERRABLE INITIALLY DEFERRED (Restricciones.md:2524); movimiento_reserva y recuperacion_respaldo en APPEND_ONLY (scripts/modelo.py:297).
+
+$ python3 -I scripts/verificar_narrativas.py --modulo 08
+  OK    · tablas con ficha: 39/39
+  INFO  · columnas con explicación de negocio en el filtro: 60/448
+
+Sin fallas.
+exit=0

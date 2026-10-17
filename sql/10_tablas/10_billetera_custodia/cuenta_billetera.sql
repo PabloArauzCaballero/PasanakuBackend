@@ -26,14 +26,15 @@ CREATE TABLE IF NOT EXISTS nucleo_financiero.cuenta_billetera (
   CONSTRAINT ck_cuenta_billetera_nivel_debida_diligencia CHECK (nivel_debida_diligencia IN ('AMPLIADA', 'ESTANDAR', 'REFORZADA', 'SIMPLIFICADA'))
 );
 
-COMMENT ON TABLE nucleo_financiero.cuenta_billetera IS 'Módulo 10 — Billetera, Custodia y Dinero Electrónico. El saldo no se guarda: se deriva, y todos los días cuadra contra el banco';
-COMMENT ON COLUMN nucleo_financiero.cuenta_billetera.id IS 'PK';
+COMMENT ON TABLE nucleo_financiero.cuenta_billetera IS 'Módulo 10 — Billetera, Custodia y Dinero Electrónico. El contenedor de saldo. Una por titular y moneda.';
+COMMENT ON COLUMN nucleo_financiero.cuenta_billetera.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN nucleo_financiero.cuenta_billetera.numero_cuenta IS 'UQ';
 COMMENT ON COLUMN nucleo_financiero.cuenta_billetera.tipo IS 'CK, IDX';
 COMMENT ON COLUMN nucleo_financiero.cuenta_billetera.usuario_id IS 'FK, NULL, IDX';
 COMMENT ON COLUMN nucleo_financiero.cuenta_billetera.grupo_id IS 'FK, NULL, IDX';
 COMMENT ON COLUMN nucleo_financiero.cuenta_billetera.politica_billetera_id IS 'FK, NULL';
 COMMENT ON COLUMN nucleo_financiero.cuenta_billetera.cuenta_contable_id IS 'FK, NULL, M3';
+COMMENT ON COLUMN nucleo_financiero.cuenta_billetera.moneda IS 'Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2).';
 COMMENT ON COLUMN nucleo_financiero.cuenta_billetera.estado IS 'CK, IDX';
 COMMENT ON COLUMN nucleo_financiero.cuenta_billetera.nivel_debida_diligencia IS 'CK';
 COMMENT ON COLUMN nucleo_financiero.cuenta_billetera.saldo_total IS 'GENERATED';

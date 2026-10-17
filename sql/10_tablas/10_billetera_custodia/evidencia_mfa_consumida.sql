@@ -13,8 +13,8 @@ CREATE TABLE IF NOT EXISTS nucleo_financiero.evidencia_mfa_consumida (
   CONSTRAINT ck_evidencia_mfa_consumida_proposito CHECK (proposito IN ('ADMIN', 'CAMBIO_CUENTA', 'RETIRO'))
 );
 
-COMMENT ON TABLE nucleo_financiero.evidencia_mfa_consumida IS 'Módulo 10 — Billetera, Custodia y Dinero Electrónico. [append-only] El saldo no se guarda: se deriva, y todos los días cuadra contra el banco';
-COMMENT ON COLUMN nucleo_financiero.evidencia_mfa_consumida.id IS 'PK';
+COMMENT ON TABLE nucleo_financiero.evidencia_mfa_consumida IS 'Módulo 10 — Billetera, Custodia y Dinero Electrónico. [append-only] La marca de que una evidencia de segundo factor (el jti del JWT de step-up) ya se usó.';
+COMMENT ON COLUMN nucleo_financiero.evidencia_mfa_consumida.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN nucleo_financiero.evidencia_mfa_consumida.jti IS 'UQ, consumo de un solo uso';
 COMMENT ON COLUMN nucleo_financiero.evidencia_mfa_consumida.usuario_id IS 'FK, IDX';
 COMMENT ON COLUMN nucleo_financiero.evidencia_mfa_consumida.proposito IS 'CK';

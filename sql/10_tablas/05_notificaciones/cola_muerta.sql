@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS notificaciones.cola_muerta (
   CONSTRAINT pk_cola_muerta PRIMARY KEY (id)
 );
 
-COMMENT ON TABLE notificaciones.cola_muerta IS 'Módulo 05 — Notificaciones y Comunicaciones. WhatsApp como canal real de cobro, sin spam ni doble aviso';
-COMMENT ON COLUMN notificaciones.cola_muerta.id IS 'PK';
+COMMENT ON TABLE notificaciones.cola_muerta IS 'Módulo 05 — Notificaciones y Comunicaciones. Los envíos que fallaron definitivamente, con su payload, para revisión manual.';
+COMMENT ON COLUMN notificaciones.cola_muerta.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN notificaciones.cola_muerta.envio_id IS 'FK, IDX';
 COMMENT ON COLUMN notificaciones.cola_muerta.reprocesado_en IS 'NULL';

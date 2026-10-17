@@ -1,0 +1,21 @@
+H7.S2.M1 — Sistemas → Catálogo de datos (/tablero/catalogo-de-datos y /:tabla) · 2026-10-17
+Cliente Angular de auditoria regenerado (generarClienteAngular --rerun-tasks --no-parallel --no-build-cache).
+
+$ yarn ng test --include='src/app/rutas/tablero/catalogo/**/*.spec.ts'   → exit 0
+ Test Files  4 passed (4)
+      Tests  21 passed (21)
+  Casos: dominio (normalizada correcto/límite/inválido, página fuera de rango), lista (cargando, datos, búsqueda y página en la URL, vacío de búsqueda, 403 sin error crudo), ficha (negocio+regla+sensibilidad en palabras, relaciones navegables, sin relaciones, tabla inexistente, 500), a11y axe de lista y ficha.
+
+$ yarn --cwd apps/backoffice test:front
+ Test Files  123 passed (123)
+      Tests  817 passed (817)
+$ yarn --cwd apps/backoffice test:a11y
+ Test Files  34 passed (34)
+      Tests  70 passed (70)
+$ yarn --cwd apps/backoffice lint → exit 1, SOLO la falla preexistente:
+  FALLA · ningún archivo de más de 200 líneas ['apps/backoffice/src/app/rutas/cumplimiento/verificaciones/pantalla-de-expedientes.ts (206)']
+1 FALLAS
+$ yarn ng build --configuration development → exit 0
+
+$ python3 scripts/verificar_rutas_frontend.py → exit 1 PREEXISTENTE: la misma lista «CONOCIDAS_SIN_CONTRATO se pudrió» (erp, publicidad, reclamos) sale con git stash de mis cambios. Fuera de alcance: anotado, no tocado.
+$ python3 scripts/verificar_maqueta.py → exit 0
