@@ -161,6 +161,20 @@ $ python3 -I scripts/verificar_narrativas.py
 - El catálogo de datos (1,7 MB) viaja entero en una respuesta; si crece, conviene compresión o paginado.
 - El patrón de Atlas (un servicio de reporting que lee las bases hermanas) no se copió: contradice la regla 98.1.1.
 
+## Gate de seguridad y privacidad (regla 90.6)
+
+| Cambio sensible | Amenaza considerada | Control (dónde vive) | Prueba negativa | Resultado | Riesgo residual |
+|---|---|---|---|---|---|
+| `GET /indicadores` por rol | Un rol ve familias de indicadores que no le tocan (BFLA) | `FamiliasVisibles` filtra en el servidor por permiso; `@Permiso` + `@PermisoAlternativo` en `IndicadoresController` | `IndicadoresControllerWebTest`: 403 sin permiso de tablero; cada permiso pide SOLO sus familias | PASS (14/14) | La pantalla oculta lo que no corresponde, pero la barrera es el servidor |
+| Privacidad de los indicadores | Una cifra con pocos casos identifica a una persona | Mínimo de casos por definición; `suprimidoPorPrivacidad` viaja sin valor | `IndicadoresControllerWebTest` «suprimido viaja SIN valor»; specs del tablero | PASS | El mínimo (5) es un parámetro de negocio sintético a confirmar |
+| `GET /indicadores/operacion/endpoints` | Identificadores o datos de personas en las etiquetas de métricas o en la URL | Solo la ruta PLANTILLA (`/grupos/{id}`); el Collector redacta atributos sensibles (`otel-collector.yml`) | 403 con el permiso de otro tablero; spec «ruta plantilla» | PASS | La redacción no se vio con spans reales (H6.S1.M2 a medias) |
+| `GET /indicadores/catalogo-de-datos` | Publicar el esquema completo de la base sin sesión (reconocimiento para un atacante) | D14: lo sirve `auditoria` con `TABLERO_SISTEMAS_VER`; NO es un estático del backoffice; solo estructura, sin datos de personas | `CatalogoDeDatosWebTest`: 403 con otro tablero sin leer el catálogo; sábana: 401 sin sesión | PASS (3/3 + 6/6) | Quien tenga el permiso ve nombres de columnas sensibles (no sus valores) |
+| Recargo por mora al fondo (dinero) | Doble acreditación por reintento o evento duplicado; el recargo cae en el pozo | Idempotencia por evento (`Consumidos`) y por pago; `destino` en el evento; pactos | `CUConsumoDeRecargoTest` (duplicado, reintento, sin mapeo, sin billetera); `CUIngresoAlFondoTest` (duplicado, otra moneda) | PASS | Ver H1.S2.M3 (CU-14 no asienta el espejo) |
+| Webhook de la pasarela (público) | Acreditar dinero con un webhook falsificado; filtrar por qué falló | HMAC + ventana (CU-100); 401 sin cuerpo | `PagosEnrutamientoYWebhookWebTest`: firma inválida → 401 vacío; firma mal formada → 400 sin llegar al caso de uso | PASS | — |
+| Operaciones de billetera sin prueba web | Operar con el permiso de VER; campos de más (mass assignment); reintento sin clave | `@Permiso("BILLETERA_OPERAR")`; `fail-on-unknown-properties`; `Idempotency-Key` obligatoria | `BilleteraOperacionesWebTest`: 403 con BILLETERA_VER, 400 sin clave, 400 con campo no declarado | PASS (11/11) | — |
+| Datos de prueba (Faker) | Datos reales de personas en semillas o pruebas | `scripts/generar_volumen_dev.py` y `DatosSinteticos`: sintéticos, deterministas, marcados | Revisión del generador; semillas con marca `volumen` | PASS (revisión) | — |
+| Pantallas nuevas | Error crudo del backend o datos de personas en la URL | `EstadoDePantalla` traduce el error; la URL solo lleva búsqueda de nombres de tablas, esquemas y página | Specs y E2E: 403/500 no muestran el detalle interno | PASS | — |
+
 ## Decisiones y ambigüedades
 
 Ver «Decisiones tomadas con Pablo» (D1–D12), las correcciones D13–D15 y las ambigüedades A1–A10 en el PLAN. Las que
