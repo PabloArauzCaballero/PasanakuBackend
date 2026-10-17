@@ -114,6 +114,9 @@ class EstadoDeVerificacionWebTest {
     @MockitoBean
     private ConfirmarVerificacionCorreo confirmarCorreo;
 
+    @MockitoBean
+    private bo.aportaya.identidad.aplicacion.ActivarRolOrganizador activarRolOrganizador;
+
     private String tokenDe(UUID usuario) {
         return new TokenDeAlta(PIMIENTA, reloj, Duration.ofMinutes(30))
                 .emitir(usuario)

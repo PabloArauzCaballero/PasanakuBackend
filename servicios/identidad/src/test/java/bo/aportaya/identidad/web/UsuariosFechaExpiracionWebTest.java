@@ -109,6 +109,9 @@ class UsuariosFechaExpiracionWebTest {
     private ConfirmarVerificacionCorreo confirmarCorreo;
 
     @MockitoBean
+    private bo.aportaya.identidad.aplicacion.ActivarRolOrganizador activarRolOrganizador;
+
+    @MockitoBean
     private ConsultarNivelKyc nivelesKyc;
 
     private TokenDeAlta emisor() {

@@ -51,6 +51,9 @@ class SeguridadWebTest extends SabanaDeSeguridadWeb {
     private CU90ConsultarBandeja consultarBandeja;
 
     @MockitoBean
+    private bo.aportaya.organizador.aplicacion.CU90HabilitacionBasica habilitacionBasica;
+
+    @MockitoBean
     private CU95DefinirAutomatizacion cu95DefinirAutomatizacion;
 
     @MockitoBean

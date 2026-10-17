@@ -1,0 +1,50 @@
+{
+  "servicio": "auditoria",
+  "operacion": "consultarSaludDeServicios",
+  "metodo": "get",
+  "ruta": "/indicadores/operacion/servicios",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "consultadoEn": "2026-01-15T10:30:00Z",
+        "servicios": [
+          {
+            "servicio": "servicio",
+            "estado": "ARRIBA",
+            "latenciaMs": 1
+          }
+        ]
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "consultadoEn": "2026-01-15T10:30:00Z",
+        "servicios": []
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "consultadoEn": "2026-01-15T10:30:00Z",
+        "servicios": [
+          {
+            "servicio": "servicio",
+            "estado": "ARRIBA",
+            "latenciaMs": 1
+          }
+        ]
+      }
+    },
+    "rechazo": {
+      "estado": 401,
+      "cuerpo": {
+        "codigo": "AP-CU07-01",
+        "mensaje": "Identidad no verificada",
+        "detalle": {},
+        "trazaId": "traza-consultarSaludDeServicios-rechazo"
+      }
+    }
+  }
+}
