@@ -25,6 +25,8 @@ export 'package:aportaya_cliente_aportes/src/model/linea_del_calendario.dart';
 export 'package:aportaya_cliente_aportes/src/model/morosos.dart';
 export 'package:aportaya_cliente_aportes/src/model/obligacion_pendiente.dart';
 export 'package:aportaya_cliente_aportes/src/model/recaudo_del_periodo.dart';
+export 'package:aportaya_cliente_aportes/src/model/recaudo_diario.dart';
+export 'package:aportaya_cliente_aportes/src/model/recaudo_diario_por_moneda.dart';
 export 'package:aportaya_cliente_aportes/src/model/salida_cobro.dart';
 export 'package:aportaya_cliente_aportes/src/model/salida_disputa.dart';
 export 'package:aportaya_cliente_aportes/src/model/salida_ejecucion_reembolso.dart';

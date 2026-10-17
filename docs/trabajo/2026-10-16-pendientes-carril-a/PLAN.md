@@ -33,7 +33,7 @@
 **CA:** Dado el PR de este trabajo contra `dev`, cuando corre el CI, entonces «Formato, reglas propias y
 compilación», «Frontend — Flutter y Angular» y «La bóveda y el esquema no divergen» pasan.
 **DoD:** `gh pr checks <PR>` sin fallas (salida pegada en `evidencia/`).
-**Estado:** EN CURSO (local verde; falta el CI del PR)
+**Estado:** A MEDIAS (local verde; el CI de dev depende de H4)
 
 | ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
 |---|---|---|---|---|
@@ -64,10 +64,28 @@ comportamiento correcto queda probado.
 | ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
 |---|---|---|---|---|
 | H3.S1.M1 | Regresión de los servicios tocados y gates | 0 fallas | gradle por servicio + `verificar_*` + `generar_postman` | HECHO — `evidencia/H3-01-regresion-y-gates.txt` |
-| H3.S1.M2 | PR a `dev` con CI verde y merge | merge hecho | `gh pr view --json state` = MERGED | TODO |
-| H3.S1.M3 | Rama `-test` con los mismos commits, verificada, PR y merge | merge hecho | regresión sobre el árbol de `test` + `gh pr view` | TODO |
-| H3.S1.M4 | `test` del espejo sincronizado sin force | árbol = `origin/test` | `git diff --quiet` contra `origin/test` | TODO |
-| H3.S1.M5 | REPORTE.md | escrito | `report_gate` | TODO |
+| H3.S1.M2 | PR a `dev` con CI verde y merge | merge hecho | `gh pr view --json state` = MERGED | A MEDIAS — #97 mergeado (839c03bc, por el dueño); el CI de `dev` siguió rojo por causas que no eran de #97, que se atacan en H4 |
+| H3.S1.M3 | Rama `-test` con los mismos commits, verificada, PR y merge | merge hecho | regresión sobre el árbol de `test` + `gh pr view` | HECHO — `dev` y `test` quedaron con el mismo árbol tras la sincronización del dueño (#105); `git merge-base --is-ancestor 161284f4 origin/test` = sí |
+| H3.S1.M4 | `test` del espejo sincronizado sin force | árbol = `origin/test` | `git diff --quiet` contra `origin/test` | HECHO — espejo `test` = `origin/test` (b225a5b0, merge con el árbol de origin, sin force) |
+| H3.S1.M5 | REPORTE.md | escrito | `report_gate` | HECHO — `REPORTE.md` |
+
+## H4 — (descubierto) Auditoría del CI de `dev` y `test` tras los merges rápidos
+
+**CA:** Dado `dev` y `test` después de los merges del 2026-10-16, cuando corre el CI, entonces ningún job queda rojo por
+una causa conocida y sin PR.
+**DoD:** auditoría local de los 15 servicios + plataforma + frontend; un PR por causa; CI del PR revisado.
+**Estado:** EN CURSO
+
+| ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
+|---|---|---|---|---|
+| H4.S1.M1 | Regresión backend completa de `dev` | conteo y fallas por servicio | gradle de los 15 servicios + plataforma | HECHO — 3.721 pruebas, 1 falla (`CU04CodigoPorCorreoTest`); inversiones necesita `python` (ENVIRONMENT local, 23/23 con shim) |
+| H4.S1.M2 | `CU04CodigoPorCorreoTest` espera AP-CU04-10 + Postman de identidad regenerado | identidad verde | `:servicios:identidad` completo + `verificar_*` | HECHO local — PR #109 |
+| H4.S1.M3 | Trivy: espejar en `.trivyignore` las excepciones H17 de Spring 6.2.19 | sin CRITICAL bloqueante de esas CVE | doc de Trivy (`exp:`) + Maven Central sin 6.2.20 | HECHO local — PR #110 |
+| H4.S1.M4 | Trivy: openssl de la imagen runtime | `libssl3t64` 3.0.13-0ubuntu3.16 | contenedor del mismo digest: .15 → .16 | HECHO local — PR #110 |
+| H4.S1.M5 | `f1` lint frontend (tokens, backoffice 206 líneas) | `yarn lint` exit 0 | `yarn lint` | HECHO local — PR #110 |
+| H4.S1.M6 | simulado: ejemplos de identidad sin `telefono` | 307/307 | `vitest run` en simulado | HECHO local — PR #110 |
+| H4.S1.M7 | Clientes Dart versionados sin los modelos nuevos | `yarn typecheck` exit 0 | typecheck con clientes generados de a uno | HECHO local — PR #110 |
+| H4.S1.M8 | CI de #109 y #110 en verde | jobs sin falla | `gh pr checks` | A MEDIAS — CI de #110: Trivy, imagen, formato, contratos y `f1` en verde; corredores rojo solo por CU-04 (lo arregla #109); `f2` rojo por goldens móviles desactualizados en Linux (anverso-360 31,6 %, capturas_* ~1 %, pautas_publicas 4,7 %, cabecera_fase_2 0,8 %) |
 
 ## Riesgos y bloqueos previstos
 

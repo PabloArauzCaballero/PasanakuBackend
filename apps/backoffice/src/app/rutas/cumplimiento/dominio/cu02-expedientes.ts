@@ -68,6 +68,18 @@ export function vencimientoDe(e: ExpedienteEnRevision): Vencimiento {
   return e.documentoVigente ? 'vigente' : 'vencido'
 }
 
+/** Un expediente ya resuelto no se vuelve a decidir desde el portal. */
+export function esPendiente(e: ExpedienteEnRevision): boolean {
+  return e.estado === ExpedienteEnRevisionEstadoEnum.Pendiente || e.estado === ExpedienteEnRevisionEstadoEnum.EnRevision
+}
+
+/** El tono del chip de estado: el color acompaña al texto del estado, nunca lo reemplaza. */
+export function tonoDelExpediente(e: ExpedienteEnRevision): 'ok' | 'error' | 'aviso' | 'neutro' {
+  if (e.estado === ExpedienteEnRevisionEstadoEnum.Aprobada) return 'ok'
+  if (e.estado === ExpedienteEnRevisionEstadoEnum.Rechazada) return 'error'
+  return e.estado === ExpedienteEnRevisionEstadoEnum.EnRevision ? 'aviso' : 'neutro'
+}
+
 /** Una cola vacía es una cola vacía: no hay nada que revisar, y eso es una buena noticia. */
 export const colaVacia = (cola: ExpedienteEnRevision[]): boolean => cola.length === 0
 

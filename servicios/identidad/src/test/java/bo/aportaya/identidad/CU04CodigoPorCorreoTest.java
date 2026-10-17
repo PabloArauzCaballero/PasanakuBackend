@@ -33,7 +33,10 @@ class CU04CodigoPorCorreoTest extends BaseDeCU04 {
         ResultadoDeAutenticacion pedido = autenticar(entrada(telefono, "huella-nueva", Optional.empty()));
 
         assertThat(pedido.requiereFactorAdicional()).isTrue();
-        assertThat(pedido.codigo()).map(c -> c.valor()).contains("AP-CU04-03");
+        // 278dc8ca: cuando el codigo YA salio al correo verificado se contesta AP-CU04-10
+        // (FACTOR_ENVIADO_POR_CORREO, ver identidad.yaml), no el -03 generico: la app sabe que no debe pedirlo otra
+        // vez.
+        assertThat(pedido.codigo()).map(c -> c.valor()).contains("AP-CU04-10");
         List<CorreoEnMemoria.Enviado> enviados = enviadosA(destino);
         assertThat(enviados).hasSize(1);
         assertThat(enviados.get(0).deAcceso()).isTrue();
