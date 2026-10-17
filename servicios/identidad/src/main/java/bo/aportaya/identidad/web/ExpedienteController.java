@@ -3,12 +3,15 @@ package bo.aportaya.identidad.web;
 import bo.aportaya.identidad.aplicacion.CU02ActualizarFechaExpiracion;
 import bo.aportaya.identidad.aplicacion.CU02ConsultarEstadoDeVerificacion;
 import bo.aportaya.identidad.aplicacion.CU02GuardarFotoDelExpediente;
+import bo.aportaya.identidad.aplicacion.ConsultarMiPerfil;
 import bo.aportaya.identidad.aplicacion.ConsumirInvitacion;
 import bo.aportaya.identidad.web.generado.modelo.ArchivoDelExpediente;
 import bo.aportaya.identidad.web.generado.modelo.CaraDelExpediente;
 import bo.aportaya.identidad.web.generado.modelo.EstadoDeVerificacion;
 import bo.aportaya.identidad.web.generado.modelo.FechaExpiracionDocumento;
+import bo.aportaya.identidad.web.generado.modelo.MiPerfil;
 import bo.aportaya.plataforma.dominio.Reloj;
+import bo.aportaya.plataforma.web.seguridad.Permiso;
 import bo.aportaya.plataforma.web.seguridad.Publico;
 import bo.aportaya.plataforma.web.seguridad.SesionDeLaPeticion;
 import bo.aportaya.plataforma.web.traza.Traza;
@@ -33,6 +36,7 @@ public abstract class ExpedienteController extends InvitacionesController {
     private final SesionDeLaPeticion sesion;
     private final Reloj reloj;
     private final TitularDelExpediente titular;
+    private final ConsultarMiPerfil miPerfil;
 
     /** El token que devuelve el alta y autoriza las fotos de ESA persona; el alta lo emite desde la subclase. */
     protected final TokenDeAlta tokenDeAlta;
@@ -44,10 +48,12 @@ public abstract class ExpedienteController extends InvitacionesController {
             CU02GuardarFotoDelExpediente fotos,
             CU02ConsultarEstadoDeVerificacion estadoDeVerificacion,
             CU02ActualizarFechaExpiracion actualizarFechaExpiracion,
+            ConsultarMiPerfil miPerfil,
             String pimienta,
             Reloj reloj,
             Duration vigenciaTokenDeAlta) {
         super(consumo, sesion, peticion);
+        this.miPerfil = miPerfil;
         this.fotos = fotos;
         this.estadoDeVerificacion = estadoDeVerificacion;
         this.actualizarFechaExpiracion = actualizarFechaExpiracion;
@@ -129,5 +135,16 @@ public abstract class ExpedienteController extends InvitacionesController {
         titular.exigir(usuarioId, null);
         actualizarFechaExpiracion.ejecutar(usuarioId, cuerpo.getFechaExpiracionDocumento(), actor, reloj.hoy());
         return ResponseEntity.noContent().build();
+    }
+
+    /** CU-07: el correo de la propia cuenta. Sin id en la ruta: sale de la sesion. */
+    @Override
+    @Permiso("PARTICIPANTE")
+    public ResponseEntity<MiPerfil> consultarMiPerfil() {
+        Traza.marcarCasoDeUso("CU-07", "mi-perfil");
+        var p = miPerfil.ejecutar(sesion.actual());
+        var salida = new MiPerfil(p.usuarioId(), p.correoVerificado());
+        salida.setCorreo(p.correo());
+        return ResponseEntity.ok(salida);
     }
 }

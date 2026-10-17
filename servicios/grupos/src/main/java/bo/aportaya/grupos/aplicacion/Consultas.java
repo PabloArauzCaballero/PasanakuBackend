@@ -114,7 +114,14 @@ public class Consultas {
         return datos.conContexto(ctx, dsl -> consultas.participacionesDe(dsl, ctx.usuarioId()));
     }
 
-    public record Participacion(UUID grupoId, UUID participanteId, String estado) {}
+    public record Participacion(
+            UUID grupoId,
+            UUID participanteId,
+            String estado,
+            String nombreDelGrupo,
+            String montoAporte,
+            String moneda,
+            boolean esOrganizador) {}
 
     /** La admisibilidad de un pago: de quien es el participante y si el periodo sigue abierto. */
     @Transactional(readOnly = true)

@@ -85,6 +85,9 @@ class SeguridadWebTest extends SabanaDeSeguridadWeb {
     private bo.aportaya.identidad.aplicacion.ActivarRolOrganizador activarRolOrganizador;
 
     @MockitoBean
+    private bo.aportaya.identidad.aplicacion.ConsultarMiPerfil consultarMiPerfil;
+
+    @MockitoBean
     private CU04Autenticar cu04Autenticar;
 
     @MockitoBean
