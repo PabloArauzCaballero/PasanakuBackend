@@ -1,10 +1,16 @@
 # Reporte — Tableros por rol, catálogos, pruebas con Faker y OpenTelemetry
 
-> **AVANCE: 42 / 83 — 50,6 %.** (2 descartadas con motivo, 1 a medias)
+> **AVANCE: 72 / 89 — 80,9 %.** (2 descartadas con motivo, 2 a medias, 13 por hacer: casi todas exigen la pila levantada, H9)
 
-- Fecha: 2026-10-16 · Plan: [PLAN.md](./PLAN.md) · Rama(s): `pablo/feat/tableros-por-rol-2026-10-16`
+- Fecha: 2026-10-16 → 2026-10-17 · Plan: [PLAN.md](./PLAN.md) · Rama(s): `pablo/feat/tableros-por-rol-2026-10-16`
   (worktree `../Pasanaku-tableros`, desde `origin/dev` `d63e4fef`)
-- Peldaño de evidencia alcanzado: backend de H1, H2, H3, H4.S0-S1 y H5.S1 en `TESTED` (integración contra Postgres real, suites completas por servicio y pisos de cobertura en verde); frontend sin empezar; punta a punta por Kafka (H4.S1.M8) sin ejecutar
+- Peldaño de evidencia alcanzado, por área:
+  - Backend (H1–H8): `TESTED` — integración contra Postgres real, suites completas por servicio y pisos de cobertura.
+  - Frontend de los tres tableros y del catálogo de datos: `TESTED` (specs de los cuatro estados y axe); **sin prueba
+    visual ni E2E** → `VERIFIED_FUNCTIONAL_ONLY` no alcanzado todavía.
+  - Punta a punta por Kafka (calculadores → auditoria → `GET /indicadores`) y OpenTelemetry con spans reales: **sin
+    ejecutar** (H9).
+  - Peldaño del trabajo (el más bajo de sus áreas): `TESTED`.
 
 ## Completado
 
@@ -18,84 +24,152 @@
 | H1.S2.M0b | `nucleo-financiero` lee `tipo` opcional (compatibilidad con el productor viejo) | `ConsumidorDeAportesKafkaTest` + consumo de aportes | PASS — `evidencia/H1-S2-M0b-consumidor-tipo.txt` |
 | H1.S2.M0c | Billetera de sistema `FONDO_GARANTIA` por moneda, sembrada | siembra doble en Postgres descartable (855 → 0 filas) | PASS — `evidencia/H1-S2-M0c-semilla-fondo.txt` |
 | H1.S2.M0d | `RECARGO_MORA` en `TipoTransaccion` y `TipoMovimientoFondo`, con `CK_AMPLIADOS` | `generar_ddl.py` + reaplicar sobre base existente + gates del CI | PASS — `evidencia/H1-S2-M0d-esquema-recargo.txt` |
-| H1.S2.M1 | El recargo cobrado va a la billetera del fondo; asiento DEBE `SALDO_USUARIOS` / HABER `RESERVA_RESPALDO`; el pozo no se mueve | `CUConsumoDeRecargoTest` + regresión de nucleo | PASS — 7/7; nucleo 84+482 en verde; `evidencia/H1-S2-M1-recargo-al-fondo.txt` |
+| H1.S2.M1 | El recargo cobrado va a la billetera del fondo; asiento DEBE `SALDO_USUARIOS` / HABER `RESERVA_RESPALDO`; el pozo no se mueve | `CUConsumoDeRecargoTest` + regresión de nucleo | PASS — `evidencia/H1-S2-M1-recargo-al-fondo.txt` |
 | H1.S2.M1b | Sin billetera del fondo: AP-CU12-02 sin marcar (no cae en el pozo) | `sinBilleteraDelFondo` | PASS |
-| H1.S2.M1c | `garantia` anota el ingreso en el fondo del grupo | `CUIngresoAlFondoTest` + regresión de garantia | PASS — 5/5; garantia 38+159 en verde; `evidencia/H1-S2-M1c-garantia-anota.txt` |
+| H1.S2.M1c | `garantia` anota el ingreso en el fondo del grupo | `CUIngresoAlFondoTest` + regresión de garantia | PASS — `evidencia/H1-S2-M1c-garantia-anota.txt` |
 | H1.S2.M2 | Idempotencia de punta a punta (duplicado y republicación) | tests `duplicado`/`reintento` en nucleo y garantia | PASS |
-
-
-
-### Hitos de backend cerrados en esta tanda (detalle en `evidencia/`)
-
-| ID | Qué se logró | Verificación |
-|---|---|---|
-| H1.S2.M4 | El reverso de un recargo se descuenta del fondo en `garantia` | `CUIngresoAlFondoTest` 8/8 · garantia 162 integración |
-| H2.S1 | Tres permisos de tablero y rol `COMERCIAL` | Siembra 863 → 0 · matriz consultada |
-| H2.S2 | Volumen sintético Faker (12 clones, uno por mes) | Base nueva: 325 asientos cuadrados, 0 huérfanos, 2da corrida 0, sha256 idéntico |
-| H2.S3 | `DatosSinteticos` (Datafaker, semilla fija) | 4/4 · lockfiles de 14 servicios |
-| H3.S1.M1-M2 | Contrato `Indicador` (null no es cero, tasa con num/den, muestra mínima) | 8/8 · cobertura de comun-dominio |
-| H4.S0.M1-M4 | Catálogo de 35 definiciones; publicador por outbox; `auditoria` guarda en `indicador_kpi`; CU-98 filtra familias por permiso | 36→0 siembra · 5/5 · 4/4+3/3 · web 4 nuevos (incluye 403) |
-| H4.S1.M1-M7 | Calculadores: nucleo (mayor), garantia, aportes, grupos, entregas, inversiones; disparo diario + relleno comunes | Suite completa y cobertura en verde en cada servicio |
-| H5.S1.M1-M3 | Comercial: identidad, grupos, aportes | Ídem (identidad con 1 falla preexistente ajena, abajo) |
+| H1.S2.M4 | El reverso de un recargo se descuenta del fondo en `garantia` | `CUIngresoAlFondoTest` 8/8 | PASS — `evidencia/H1-S2-M4-reversa-en-garantia.txt` |
+| H2.S1–S3 | Permisos de tablero y rol `COMERCIAL`; volumen sintético con Faker (12 clones); `DatosSinteticos` (Datafaker, semilla fija) | siembra doble, sha256 de dos corridas, 4/4 | PASS — `evidencia/H2-*` |
+| H3.S1.M1-M2 | Contrato `Indicador` (null no es cero, tasa con num/den, muestra mínima) | 8/8 · cobertura de comun-dominio | PASS |
+| H4.S0.M1-M4 | 35 definiciones; publicador por outbox; `auditoria` guarda en `indicador_kpi`; CU-98 filtra familias por permiso | siembra 36→0 · tests web con 403 | PASS |
+| H4.S1.M1-M7 | Calculadores por servicio dueño (nucleo, garantia, aportes, grupos, entregas, inversiones) con disparo diario y relleno | suite completa y cobertura de cada servicio | PASS |
+| H4.S2.M1-M2 · H5.S1 · H5.S2.M1 | Tableros financiero y comercial en el backoffice; indicadores comerciales en identidad, grupos y aportes | `yarn --cwd apps/backoffice test:front` / `test:a11y` | PASS |
+| H6.S1.M1 · H6.S2.M1 · H6.S3.M1-M3 | OpenTelemetry (bridge OTel, exportadores OTLP), Collector + Prometheus en compose, endpoints del día en auditoria, tablero de sistemas | tests de auditoria + `test:front` 798 / `test:a11y` 68 | PASS — `evidencia/H6-*` |
+| H7.S1.M1-M7 | Catálogo de datos: lector de fichas, `COMMENT ON` con narrativa (386/386 tablas comentadas en una base aplicada), gate de narrativas (337/337 tablas con ficha; trinquete de 524 columnas), 66 fichas nuevas, catálogo generado determinista, `GET /indicadores/catalogo-de-datos` con permiso, gate en el CI | `verificar_narrativas.py` · `psql obj_description` · `shasum` ×2 · webTest | PASS — `evidencia/H7-S1-*` |
+| H7.S2.M1 | Sistemas → Catálogo de datos (lista con búsqueda normalizada, filtro y página en la URL; ficha con sensibilidad en palabras y relaciones navegables) | `ng test` del catálogo 21/21 · `test:front` 817 · `test:a11y` 70 | PASS — `evidencia/H7-S2-M1-pantalla-catalogo.txt` |
+| H8.S1.M1-M3 | Formato y validador del catálogo de flujos; matriz de pruebas por endpoint (282) que reusa `inventario_endpoints.py` | `validar_flujos.py --self-test` · `matriz_de_pruebas.py` | PASS — `evidencia/H8-S1-*` |
+| H8.S2.M1-M3 | Árboles de decisión de los tres flujos de dinero (aporte → mora → cobertura → recuperación; entrega del turno; recarga y retiro) | `python3 scripts/validar_flujos.py` → 3 OK | PASS |
+| H8.S3.M1 | Pactos productor/consumidor de los eventos que H1 cambió (`aporte_cobrado`, `aporte_aplicado`, `transaccion_reversada`), verificados de los dos lados | 6 pruebas en aportes, nucleo y garantia | PASS — `evidencia/H8-S2-M1-S3-M1-aporte-mora-cobertura.txt` |
+| H8.S3.M2 | Cadena de la entrega con el asiento cuadrado (prueba existente, ejecutada) | `CU133*` + `CU28Test` 26/26 | PASS |
+| H8.S3.M3 | `CUFlujoRecargaYRetiroTest`: recargar → confirmar → retirar → pagar con Datafaker; retirar todo; un centavo de más (AP-CU11-01) | integrationTest 3/3 | PASS |
+| H8.S3.M4 | Prueba web de los 11 endpoints de dinero sin cubrir: aportes, garantia, entregas y nucleo quedan 75/75 | webTest de los 4 servicios: 46+50+79+60, 0 fallas | PASS — `evidencia/H8-S3-M4-pruebas-web-dinero.txt` |
 
 ## A medias
 
 ### H1.S2.M3 — Reversa del recargo
-- Qué anda: CU-14 sobre una transacción `RECARGO_MORA` devuelve Bs 25 a la billetera del participante y los descuenta de la del fondo, con una transacción `REVERSO`; la original conserva sus 2 movimientos (`CUConsumoDeRecargoTest.reversaDelRecargo`, PASS).
-- Qué no anda: (a) CU-14 no genera contra-asiento en el mayor, para ninguna transacción (preexistente: `CU14ReversarTransaccion` no llama a CU-24); (b) `garantia` no se entera de la reversa y su `saldo_disponible` queda +25.
-- Qué falta exactamente: (b) es H1.S2.M4 (consumir `transaccion_reversada` en garantia). (a) necesita decidir si CU-14 asienta el espejo para todas las transacciones: cambia el comportamiento de todas las reversas y está fuera de este trabajo.
-- Dónde quedó: rama `pablo/feat/tableros-por-rol-2026-10-16`; compila; los tests en verde.
+- Qué anda: CU-14 sobre una transacción `RECARGO_MORA` devuelve Bs 25 a la billetera del participante y los descuenta de la del fondo, con una transacción `REVERSO`; `garantia` resta lo anotado (H1.S2.M4). Pacto del reverso verificado de los dos lados (H8.S3.M1).
+- Qué no anda: CU-14 no genera contra-asiento en el mayor, para ninguna transacción (preexistente: `CU14ReversarTransaccion` no llama a CU-24).
+- Qué falta exactamente: decidir si CU-14 asienta el espejo para todas las transacciones; cambia el comportamiento de todas las reversas y está fuera de este trabajo.
+- Dónde quedó: rama `pablo/feat/tableros-por-rol-2026-10-16`; compila; tests en verde.
+
+### H6.S1.M2 — Configuración común de OpenTelemetry y redacción
+- Qué anda: `DefaultsDeObservabilidad` fija recurso, muestreo e histogramas; el Collector redacta atributos sensibles (configuración validada).
+- Qué no anda: no se vio ningún span real pasar por la redacción.
+- Qué falta exactamente: levantar la pila con el perfil `observabilidad`, generar tráfico con un documento en un atributo y mirar el span en el Collector (H9).
+- Dónde quedó: `plataforma/comun-web/.../observabilidad`, `despliegue/observabilidad/otel-collector.yml`; compila.
 
 ## Pendiente
 
 | ID | Estado | Qué lo destraba |
 |---|---|---|
-| H1.S2.M4 y H2 a H9 (63 microtareas) | TODO | Siguiente: H1.S2.M4 (reversa en garantia) y después H2 (semillas y Faker) |
-
-Corrección: en la sesión se le dijo a Pablo que no había fondo de inversión. Existe en `dev` (servicio
-`inversiones`) y se agregó como H4.S1.M8.
+| H4.S1.M8 | TODO | Pila arriba con Kafka y `crear-topicos.sh`: calculadores → `auditoria` → `GET /indicadores` (H9) |
+| H4.S2.M3 · H5.S2.M2 · H6.S3.M4 | TODO | E2E de los tres tableros contra la pila sembrada (H9) |
+| H4.S2.M4 · H7.S2.M2 (y la parte visual de H5.S2.M2 / H6.S3.M4) | TODO | Prueba visual en 3 viewports × 2 temas con sesión real; el mock Prism no completa el login |
+| H6.S1.M3 | TODO | Series reales en Prometheus para comprobar la etiqueta de ruta plantilla |
+| H6.S2.M2 | TODO | Jaeger efímero en dev (opcional) |
+| H6.S2.M3 | TODO | Apagar el Collector con la pila arriba y comprobar que los servicios siguen respondiendo |
+| H9.S1.M1-M4 | TODO | Levantar la pila, regresión completa, gates, PRs a `dev` y `test` |
+| H3.S1.M3 · H3.S1.M4 | DESCARTADO | Redundantes tras el reencuadre en CU-98 (decidido por el agente con evidencia; confirmar con Pablo) |
 
 ## Evidencia
 
-- Decisiones D1 a D12, tomadas con Pablo una por una el 2026-10-16: registradas en el PLAN.
-- Patrón de referencia leído en los clones locales de Atlas (`~/Documents/GitHub/atlas`):
-  `AtlasDashboardsBackend/README.md`, `AtlasDashboardsBackend/src/modules/kpi-catalog/kpi-definition.types.ts`,
-  `AtlasBackend/docs/endpoints/workflow-catalog.md`, `AtlasBackend/docs/data/entity-catalog.md` y
-  `AtlasBackend/docs/observability/01-architecture-design.md`.
-- Hallazgos en Pasanaku citados en el PLAN: `servicios/aportes/src/main/java/bo/aportaya/aportes/dominio/RecargoDeMora.java`,
-  `servicios/aportes/README.md:50`, `sql/60_semillas/01-plan-de-cuentas.sql:103`,
-  `sql/60_semillas/10-roles-y-permisos.sql`, `sql/10_tablas/02_grupos_turnos/turno.sql` y `gradle/libs.versions.toml:89-90`.
+- Una salida por microtarea en `evidencia/` (índice: los nombres llevan el ID de la microtarea).
+- Decisiones D1 a D12 tomadas con Pablo el 2026-10-16; D13 a D15 tomadas en la ejecución por evidencia (PLAN).
+- Patrón de referencia de Atlas (`AtlasDashboardsBackend`, `AtlasBackend/docs/endpoints/workflow-catalog.md`,
+  `AtlasBackend/docs/data/entity-catalog.md`, `AtlasBackend/docs/observability/01-architecture-design.md`).
+- Matriz de pruebas por endpoint: `docs/catalogo-de-flujos/matriz.md` (282 endpoints; 220 con prueba web propia; 219
+  con CU; 205 con prueba de integración del CU; 16 en algún flujo).
+- Catálogo de datos: `docs/catalogo-de-datos.md` y `servicios/auditoria/src/main/resources/catalogo/catalogo-datos.json`.
+- Catálogo de flujos: `docs/catalogo-de-flujos/{aporte-mora-cobertura,entrega-del-turno,recarga-y-retiro}.yaml`.
+
+```text
+$ python3 scripts/validar_flujos.py
+  OK    · aporte-mora-cobertura.yaml: 12 pasos, 6 validos, 7 limite, 7 invalidos
+  OK    · entrega-del-turno.yaml: 7 pasos, 4 validos, 5 limite, 6 invalidos
+  OK    · recarga-y-retiro.yaml: 6 pasos, 3 validos, 5 limite, 6 invalidos
+  AVISO · recarga-y-retiro.yaml: paso `instruir-pago` SIN CABLEAR — H8-01 …
+Sin fallas.
+
+$ python3 -I scripts/verificar_narrativas.py
+  OK    · tablas con ficha: 337/337
+  OK    · columnas con explicación de negocio: 524/3680 (piso 524)
+```
 
 ## No cubierto
 
-- `RecargosDeMoraDiarios` se probó llamando a `correr()`, no esperando al reloj: el cron y el lock de ShedLock entre réplicas no se ejercitaron.
-- Hallazgo H0-05 (fuera de alcance): `guardia-rol-sistemas.ts` admite los roles `PLATAFORMA` y `SEGURIDAD`, que no existen en el catálogo.
+- Nada se ejercitó todavía con la pila completa: ni Kafka real entre servicios, ni spans de OpenTelemetry, ni los
+  tableros contra datos sembrados en el navegador. Los saltos entre servicios están probados por pacto (los dos
+  lados contra el mismo archivo), no con los procesos juntos.
+- La prueba de la entrega usa `MayorDeDoble` en vez de `nucleo-financiero` real; la de recarga y retiro usa los
+  proveedores locales del perfil test.
+- `RecargosDeMoraDiarios` se probó llamando a `correr()`, no esperando al reloj: el cron y el lock de ShedLock entre
+  réplicas no se ejercitaron.
+- Narrativa de negocio por columna: 524 de 3680 (14 %). El resto tiene descripción estructural y de sistema (A8).
+- Hallazgo H0-05 (fuera de alcance): `guardia-rol-sistemas.ts` admite los roles `PLATAFORMA` y `SEGURIDAD`, que no
+  existen en el catálogo.
 
 ## Desvíos del plan
 
-- H1.S2.M0c: el primer diseño (una billetera del fondo por grupo) violó R-BIL-05 y rompió 7 tests existentes de apertura. Se revirtió (volvieron a 9/9 y 2/2) y se rediseñó como billetera de sistema por moneda, que es lo que el modelo define.
-- H1.S2.M1b: sin billetera del fondo se rechaza sin marcar (AP-CU12-02), siguiendo el patrón de la billetera del grupo, en lugar de compensar.
-- Pruebas de CU-21 renombradas con los prefijos que acepta `verificar_criterios.py`. El primer intento las dejó sin criterio en la bóveda (gate en rojo, corregido).
+- H1.S2.M0c: el primer diseño (una billetera del fondo por grupo) violó R-BIL-05 y rompió 7 tests existentes. Se
+  revirtió y se rediseñó como billetera de sistema por moneda, que es lo que el modelo define.
+- H1.S2.M1b: sin billetera del fondo se rechaza sin marcar (AP-CU12-02), siguiendo el patrón de la billetera del grupo.
+- Pruebas de CU-21 renombradas con los prefijos que acepta `verificar_criterios.py` (el primer intento dejó el gate en
+  rojo; corregido). Lo mismo con la prueba de pacto de `CU21EventoDeAporteTest`.
+- **D13 (H7):** la narrativa de negocio se lee de las fichas existentes de `docs/entidades/*.md` en vez de agregar una
+  sintaxis nueva al PlantUML (habría dos fuentes de verdad). Los módulos 13 y 14 ya tenían su narrativa por grupo de
+  tablas: se extendió el lector en lugar de reescribirla.
+- **D14 (H7):** el JSON del catálogo NO va a `apps/backoffice/public/` (archivo estático sin sesión que publicaría el
+  esquema completo); lo sirve `auditoria` en `GET /indicadores/catalogo-de-datos` con `TABLERO_SISTEMAS_VER`. Se puso
+  bajo `/indicadores` porque el gateway ya enruta ese prefijo; el primer intento (`/catalogo-de-datos`) no lo habría
+  enrutado.
+- **D15 (H8):** el inventario ya relevaba 282 endpoints (el plan decía 162) y se reusó. Las «pruebas de integración de
+  flujo» son la cadena de cada servicio dueño contra Postgres más los pactos entre servicios; la cadena con todos los
+  procesos juntos queda para H9.
+- H8.S3.M2: no se escribió una prueba nueva de la entrega; la cadena existente (`CU133EntregaConsistenteTest`) ya cubre
+  fondeo → banco → asiento y se ejecutó.
 
 ## Riesgos residuales
 
-- **Falla preexistente ajena (no de este trabajo):** `identidad` · `CU04CodigoPorCorreoTest.codigoLlegaPorCorreoYEntra` espera AP-CU04-03 y recibe AP-CU04-10; se reprodujo idéntica en `origin/dev` `d63e4fef` (evidencia `H5-preexistente-CU04-en-dev.xml`). Hay que corregir el test o el código en el trabajo de «código de acceso por correo».
-- **Semilla sin historial de grupos ni retiros/recargos/comisiones por transacción:** con la base sembrada, `GRUPOS_COMPLETOS`, `DIAS_LLENADO_GRUPO`, `RETENCION_60D`, `SALDO_RETIRADO`, `INTERESES_MORA_COBRADOS` salen sin datos (honesto, pero el tablero se ve con huecos). Mejora pendiente del generador de volumen.
-- **`provisorio` siempre falso:** cada servicio no sabe si cuadraron los cierres contables del período (CU-98 lo pide); se emiten solo períodos cerrados (A7).
-- **`DatosSinteticos` y la prohibición 6:** usa `RandomGeneratorFactory` + `Random.from` con semilla (datos de prueba, no seguridad); el regex del gate no lo detecta. Revisar con seguridad si se prefiere una excepción explícita en `verificar_seguridad.py`.
-- **Dos commits entraron con un gate en rojo y se corrigieron en el commit siguiente:** cobertura de `comun-mensajeria` (`665c3e0a` → `99b4f803`) y una medición de cobertura de identidad mal tomada (`3eeec2d8` → `0d596e11`, era un artefacto). Desde entonces el commit va encadenado al verde.
-
-- **Hallazgo H1-02 (dinero):** antes de este trabajo no existía ningún camino de dinero hacia el fondo de garantía (sin billetera sembrada; `consumo-de-asientos` apagado por omisión). Se armó solo para `RECARGO_MORA`. `APORTE_FONDO_GARANTIA` y `REPOSICION_COBERTURA` siguen cayendo al pozo del grupo: decisión aparte.
-- **Desplegar H1.S1 (el recargo diario) solo junto con H1.S2**, y con `RESERVA_RESPALDO` mapeada en el entorno. Sin mapeo, el pago del recargo se rechaza (AP-CU24-02) y queda reprocesándose. En TEST el mapeo es sintético (`9.1.02`).
-- CU-14 no asienta el espejo en el mayor (ver A medias).
-- **Hallazgo H1-03:** el índice `uq_cuenta_billetera_titular_moneda` que nombran `scripts/generar_errores.py` y los comentarios de `DestinoRepositorio` no existe en `sql/`. Existen `uq_cuenta_grupo_moneda` y el de usuario. Solo se anota.
-
-- **Hallazgo H0-01 (dinero, `DISCOVERED`, sin reproducir en runtime):** el evento `aportes.aporte_cobrado` no publica el `tipo` de la obligación, y `ConsumoDeAportes` asienta todo cobro hacia la billetera del grupo. Un `RECARGO_MORA`, `APORTE_FONDO_GARANTIA`, `REPOSICION_COBERTURA` o `COMISION_PLATAFORMA` cobrado por esa vía terminaría en el pozo del grupo. `RECARGO_MORA` se corrige en H1.S2. Los otros tres quedan fuera de alcance y necesitan una decisión aparte.
-
-- El patrón de Atlas (un servicio de reporting que lee las bases hermanas) **no se puede copiar** porque
-  contradice la regla 98.1.1. El PLAN lo adapta a endpoints por servicio dueño; ver A5.
-- El recargo ya se genera todos los días, pero hasta cerrar H1.S2, al pagarlo **iría al pozo del grupo** (hallazgo H0-01). No hay que desplegar H1.S1 sin H1.S2.
+- **H8-01 (dinero, preexistente):** en producción nada instruye al proveedor un retiro AUTORIZADO: `RetirosConProveedor`
+  y `CU11RetirarSaldo.instruirPago` no tienen llamador y `retiro_autorizado` no tiene consumidor. Una orden queda
+  retenida sin pagarse. Declarado `sin-cablear` en el catálogo de flujos (el validador lo avisa). A9.
+- **H8-02 (preexistente):** nada lleva un grupo a `FINALIZADO`. `RETENCION_60D` (tablero comercial) cuenta grupos
+  FINALIZADOS: con datos reales no tendrá base y saldrá «sin datos». La reserva del ciclo y el fondo se liberan y
+  devuelven por operador. A10.
+- **Pactos que faltaban (corregido en este trabajo):** H1 cambió `aporte_cobrado` y `aporte_aplicado` y agregó un
+  consumidor de `transaccion_reversada` sin pacto (regla 98.1.4). Se agregaron en H8.S3.M1.
+- **`proponerReemplazo` responde 200 en el reintento** y el contrato solo declara 201/422 (preexistente; está entre las
+  «operaciones con el estado HTTP fuera de su contrato» que lista `verificar_pruebas_web.py`).
+- **Fallas preexistentes ajenas:** `identidad` `CU04CodigoPorCorreoTest.codigoLlegaPorCorreoYEntra` (AP-CU04-03 vs
+  AP-CU04-10, reproducida en `origin/dev`); `apps/backoffice` lint por `pantalla-de-expedientes.ts` (206 líneas);
+  `verificar_rutas_frontend.py` con la lista `CONOCIDAS_SIN_CONTRATO` desactualizada (reproducida sin los cambios de
+  este trabajo).
+- **Semilla sin historial de grupos ni retiros/recargos/comisiones por transacción:** `GRUPOS_COMPLETOS`,
+  `DIAS_LLENADO_GRUPO`, `RETENCION_60D`, `SALDO_RETIRADO` e `INTERESES_MORA_COBRADOS` salen sin datos con la base
+  sembrada.
+- **`provisorio` siempre falso:** se emiten solo períodos cerrados (A7).
+- **`DatosSinteticos` y la prohibición 6:** usa `RandomGeneratorFactory` + `Random.from` con semilla (datos de prueba,
+  no seguridad); revisar con seguridad si se prefiere una excepción explícita en `verificar_seguridad.py`.
+- **Dos commits entraron con un gate en rojo** y se corrigieron en el siguiente (`665c3e0a` → `99b4f803`,
+  `3eeec2d8` → `0d596e11`). Desde entonces el commit va encadenado al verde.
+- **H1-02:** el único camino de dinero hacia el fondo de garantía es `RECARGO_MORA`. `APORTE_FONDO_GARANTIA` y
+  `REPOSICION_COBERTURA` siguen cayendo al pozo del grupo (H0-01): decisión aparte.
+- **Desplegar H1.S1 solo junto con H1.S2**, y con `RESERVA_RESPALDO` mapeada en el entorno. Sin mapeo, el pago del
+  recargo se rechaza (AP-CU24-02) y queda reprocesándose.
+- **H1-03:** el índice `uq_cuenta_billetera_titular_moneda` que nombran `scripts/generar_errores.py` y
+  `DestinoRepositorio` no existe en `sql/`. Solo se anota.
+- El catálogo de datos (1,7 MB) viaja entero en una respuesta; si crece, conviene compresión o paginado.
+- El patrón de Atlas (un servicio de reporting que lee las bases hermanas) no se copió: contradice la regla 98.1.1.
 
 ## Decisiones y ambigüedades
 
-Ver «Decisiones tomadas con Pablo» y «Ambigüedades registradas» (A1 a A5) en el PLAN.
+Ver «Decisiones tomadas con Pablo» (D1–D12), las correcciones D13–D15 y las ambigüedades A1–A10 en el PLAN. Las que
+esperan confirmación:
+
+| # | Qué | Supuesto tomado | Confirmar con |
+|---|---|---|---|
+| A7 | Indicadores de períodos abiertos | Solo se guardan períodos cerrados | Pablo |
+| A8 | Narrativa de negocio por columna | Ficha cuando existe, convención o estructural; trinquete | Pablo |
+| A9 | Quién instruye un retiro autorizado (H8-01) | Nada; no se arregla aquí | Pablo y Tesorería |
+| A10 | Qué finaliza un grupo (H8-02) | Nada; no se arregla aquí | Pablo |
+| H3.S1.M3/M4 | Descartadas por el reencuadre CU-98 | Redundantes | Pablo |
