@@ -18,6 +18,7 @@ class IndicadorTest {
     private static final Definicion REVERSOS = new Definicion("REVERSOS", Unidad.CONTEO, 0, true);
     private static final Definicion COBERTURA = new Definicion("COBERTURA_FONDO", Unidad.RAZON, 0, false);
     private static final Definicion DIAS = new Definicion("DIAS_PAGO", Unidad.DIAS, 0, false);
+    private static final Definicion LATENCIA = new Definicion("LATENCIA_P95", Unidad.MILISEGUNDOS, 0, false);
 
     @Test
     @DisplayName("correcto: un importe se publica con su moneda, su muestra y la variación contra el período anterior")
@@ -86,6 +87,15 @@ class IndicadorTest {
 
         assertThat(i.valor()).isNull();
         assertThat(i.motivo()).isEqualTo(Motivo.SIN_DATOS);
+    }
+
+    @Test
+    @DisplayName("correcto: una latencia en milisegundos se publica como su numerador, sin denominador")
+    void latencia() {
+        var i = Indicador.publicar(LATENCIA, new Medicion(new BigDecimal("182.5"), null, null, 1200), null);
+
+        assertThat(i.valor()).isEqualByComparingTo("182.5");
+        assertThat(i.unidad()).isEqualTo(Unidad.MILISEGUNDOS);
     }
 
     @Test

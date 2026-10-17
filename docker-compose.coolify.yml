@@ -141,8 +141,11 @@ services:
     environment:
       BD_CLAVE: ${BD_CLAVE}
       BD_URL: jdbc:postgresql://pgbouncer:6432/pasanaku
+      INDICADORES_RELLENO_DIAS: ${INDICADORES_RELLENO_DIAS:-35}
+      INDICADORES_RELLENO_MESES: ${INDICADORES_RELLENO_MESES:-13}
       JWKS_URI: http://identidad:8080/.well-known/jwks.json
       KAFKA_URL: kafka:9092
+      PROMETHEUS_URL: ${PROMETHEUS_URL:-}
       SPRING_PROFILES_ACTIVE: ${PERFIL_SPRING}
       TRAZAS_HABILITADAS: ${TRAZAS_HABILITADAS:-false}
       METRICAS_OTLP_HABILITADAS: ${METRICAS_OTLP_HABILITADAS:-false}

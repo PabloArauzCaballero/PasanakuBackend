@@ -1,10 +1,13 @@
 package bo.aportaya.auditoria.web;
 
 import bo.aportaya.auditoria.aplicacion.CU98PublicarTablero;
+import bo.aportaya.auditoria.aplicacion.EndpointsDelDia;
 import bo.aportaya.auditoria.dominio.FamiliasVisibles;
 import bo.aportaya.auditoria.web.generado.IndicadoresApi;
+import bo.aportaya.auditoria.web.generado.modelo.EndpointDelDia;
 import bo.aportaya.auditoria.web.generado.modelo.Indicador;
 import bo.aportaya.auditoria.web.generado.modelo.IndicadorSerieInner;
+import bo.aportaya.auditoria.web.generado.modelo.SalidaEndpointsDelDia;
 import bo.aportaya.auditoria.web.generado.modelo.SalidaTablero;
 import bo.aportaya.plataforma.web.seguridad.Permiso;
 import bo.aportaya.plataforma.web.seguridad.PermisoAlternativo;
@@ -29,10 +32,12 @@ import org.springframework.web.bind.annotation.RestController;
 public class IndicadoresController implements IndicadoresApi {
 
     private final CU98PublicarTablero cu98;
+    private final EndpointsDelDia endpointsDelDia;
     private final SesionDeLaPeticion sesion;
 
-    public IndicadoresController(CU98PublicarTablero cu98, SesionDeLaPeticion sesion) {
+    public IndicadoresController(CU98PublicarTablero cu98, EndpointsDelDia endpointsDelDia, SesionDeLaPeticion sesion) {
         this.cu98 = cu98;
+        this.endpointsDelDia = endpointsDelDia;
         this.sesion = sesion;
     }
 
@@ -56,6 +61,32 @@ public class IndicadoresController implements IndicadoresApi {
                 FamiliasVisibles.para(contexto.rol(), sesion.permisos()));
 
         return ResponseEntity.ok(mapear(salida));
+    }
+
+    @Override
+    @Permiso("TABLERO_SISTEMAS_VER")
+    @PermisoAlternativo({"AUDITORIA_LEER"})
+    public ResponseEntity<SalidaEndpointsDelDia> listarEndpointsDelDia(Integer limite) {
+        Traza.marcarCasoDeUso("TABLERO-SISTEMAS", "endpoints-del-dia");
+        var salida = endpointsDelDia.consultar(limite == null ? 25 : limite);
+        var cuerpo = new SalidaEndpointsDelDia(
+                salida.desde().atOffset(java.time.ZoneOffset.UTC),
+                salida.hasta().atOffset(java.time.ZoneOffset.UTC),
+                salida.fuenteDisponible(),
+                salida.endpoints().stream()
+                        .map(e -> {
+                            var fila = new EndpointDelDia(
+                                    e.servicio(),
+                                    e.metodo(),
+                                    e.ruta(),
+                                    e.solicitudes(),
+                                    e.errores4xx(),
+                                    e.errores5xx());
+                            e.p95Ms().map(BigDecimal::toPlainString).ifPresent(fila::setP95Ms);
+                            return fila;
+                        })
+                        .toList());
+        return ResponseEntity.ok(cuerpo);
     }
 
     private static SalidaTablero mapear(CU98PublicarTablero.SalidaTablero salida) {

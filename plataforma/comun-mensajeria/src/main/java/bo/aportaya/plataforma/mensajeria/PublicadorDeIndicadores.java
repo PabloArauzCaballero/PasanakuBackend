@@ -82,6 +82,7 @@ public final class PublicadorDeIndicadores {
             case PORCENTAJE -> "PORCENTAJE";
             case DIAS -> "DIAS";
             case RAZON -> "VECES";
+            case MILISEGUNDOS -> "MILISEGUNDOS";
         };
     }
 }

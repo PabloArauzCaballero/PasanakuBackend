@@ -39,7 +39,9 @@ public record Indicador(
         CONTEO,
         PORCENTAJE,
         DIAS,
-        RAZON
+        RAZON,
+        /** Latencias del tablero de sistemas (p50, p95, p99). */
+        MILISEGUNDOS
     }
 
     /** Por que un indicador no tiene valor. Nunca se reemplaza por un cero. */

@@ -119,6 +119,7 @@ describe('formato · exacto, sin pasar por number', () => {
     expect(conUnidad('4.50', 'DIAS')).toBe('4,5 días')
     expect(conUnidad('2.1000', 'VECES')).toBe('2,1 veces')
     expect(conUnidad('7', 'CONTEO')).toBe('7')
+    expect(conUnidad('182.5000', 'MILISEGUNDOS')).toBe('182,5 ms')
   })
 
   it('límite: sin variación, cero y negativa se dicen distinto', () => {

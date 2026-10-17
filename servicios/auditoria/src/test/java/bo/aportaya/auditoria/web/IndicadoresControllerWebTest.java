@@ -43,6 +43,9 @@ class IndicadoresControllerWebTest {
     @MockitoBean
     private CU98PublicarTablero cu98;
 
+    @MockitoBean
+    private bo.aportaya.auditoria.aplicacion.EndpointsDelDia endpointsDelDia;
+
     private static CU98PublicarTablero.Indicador indicador(
             String codigo, Optional<BigDecimal> valor, boolean suprimido, boolean provisorio) {
         return new CU98PublicarTablero.Indicador(
@@ -211,5 +214,40 @@ class IndicadoresControllerWebTest {
                         .param("dimension", "GLOBAL")
                         .with(Sesiones.como("PARTICIPANTE", "BILLETERA_VER")))
                 .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @DisplayName("tableros · sistemas: con TABLERO_SISTEMAS_VER, 200 con la ruta plantilla y el p95 como cadena")
+    void endpointsConPermiso() throws Exception {
+        when(endpointsDelDia.consultar(25))
+                .thenReturn(new bo.aportaya.auditoria.aplicacion.EndpointsDelDia.Salida(
+                        java.time.Instant.parse("2026-10-16T04:00:00Z"),
+                        java.time.Instant.parse("2026-10-16T18:00:00Z"),
+                        true,
+                        List.of(new bo.aportaya.auditoria.aplicacion.EndpointsDelDia.Endpoint(
+                                "grupos", "GET", "/grupos/{id}", 300, 0, 1, Optional.of(new BigDecimal("120.50"))))));
+
+        mvc.perform(get("/indicadores/operacion/endpoints")
+                        .with(Sesiones.como("ADMIN_PLATAFORMA", "TABLERO_SISTEMAS_VER")))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.fuenteDisponible").value(true))
+                .andExpect(jsonPath("$.endpoints[0].ruta").value("/grupos/{id}"))
+                .andExpect(jsonPath("$.endpoints[0].p95Ms").value("120.50"));
+    }
+
+    @Test
+    @DisplayName("tableros · sistemas: 403 con un permiso de otro tablero")
+    void endpointsSinPermiso() throws Exception {
+        mvc.perform(get("/indicadores/operacion/endpoints").with(Sesiones.como("COMERCIAL", "TABLERO_COMERCIAL_VER")))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @DisplayName("tableros · sistemas: 400 con un límite fuera de rango (máximo 100)")
+    void endpointsLimiteInvalido() throws Exception {
+        mvc.perform(get("/indicadores/operacion/endpoints")
+                        .param("limite", "101")
+                        .with(Sesiones.como("ADMIN_PLATAFORMA", "TABLERO_SISTEMAS_VER")))
+                .andExpect(status().isBadRequest());
     }
 }

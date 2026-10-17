@@ -150,6 +150,8 @@ export function conUnidad(valor: string, unidad: string): string {
       return `${n} días`
     case 'VECES':
       return `${n} veces`
+    case 'MILISEGUNDOS':
+      return `${n} ms`
     default:
       return n
   }

@@ -23,6 +23,14 @@ spring:
     bootstrap-servers: ${KAFKA_URL}
 
 aportaya:
+  # Tableros (D4): Prometheus lee del Collector OTel. Sin URL, el tablero de sistemas dice «fuente no disponible».
+  prometheus:
+    url: ${PROMETHEUS_URL:}
+    timeout: PT3S
+  indicadores:
+    relleno:
+      meses: ${INDICADORES_RELLENO_MESES:0}
+      dias: ${INDICADORES_RELLENO_DIAS:0}
   esquema: auditoria
   outbox:
     intervalo: PT1S                 # relevo: lee el outbox y publica DESPUES del commit
