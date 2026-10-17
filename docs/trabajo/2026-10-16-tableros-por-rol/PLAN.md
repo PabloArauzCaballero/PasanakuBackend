@@ -138,7 +138,7 @@ recargos cobrados del escenario.
 | H1.S2.M1b | Sin billetera de fondo: `aporte_no_aplicado` con motivo `FONDO_SIN_BILLETERA` (aportes compensa); nunca se acredita al pozo | 0 movimientos y evento de compensación | Test nombrado en verde | HECHO con desvío — se sigue el patrón existente de la billetera del grupo: AP-CU12-02 SIN marcar (el reproceso lo aplica), no compensación. Test `sinBilleteraDelFondo` |
 | H1.S2.M1c | `aporte_aplicado` lleva `tipo`; `garantia` lo consume y, si es `RECARGO_MORA`, registra `movimiento_fondo` `RECARGO_MORA` y suma a `saldo_disponible` del fondo del grupo (idempotente por evento) | Fondo +monto una sola vez | Test del consumidor en `garantia` en verde | HECHO — `evidencia/H1-S2-M1c-garantia-anota.txt` (primer consumidor Kafka de garantia; regresión 38+159 en verde) |
 | H1.S2.M2 | Idempotencia: el mismo pago confirmado dos veces | Un solo asiento (clave de idempotencia `UNIQUE`) | Test nombrado en verde, salida pegada | HECHO — cubierta por `CUConsumoDeRecargoTest.duplicado`/`reintento` (nucleo) y `CUIngresoAlFondoTest.duplicado` (garantia), en las evidencias de M1 y M1c |
-| H1.S2.M3 | Reversa: si se anula el pago, se genera un contra-asiento | Contra-asiento presente, sin `UPDATE` sobre el mayor | Test nombrado en verde | A MEDIAS — anda: CU-14 sobre el recargo devuelve Bs 25 al participante y se los quita al fondo (`CUConsumoDeRecargoTest.reversaDelRecargo`, 7/7). No anda: (a) CU-14 no escribe contra-asiento en el mayor para NINGUNA transacción (preexistente, fuera de alcance); (b) garantia no se entera de la reversa (→ H1.S2.M4) |
+| H1.S2.M3 | Reversa: si se anula el pago, se genera un contra-asiento | Contra-asiento presente, sin `UPDATE` sobre el mayor | Test nombrado en verde | A MEDIAS — anda: CU-14 sobre el recargo devuelve Bs 25 al participante y se los quita al fondo (`CUConsumoDeRecargoTest.reversaDelRecargo`, 7/7). No anda: (a) CU-14 no escribe contra-asiento en el mayor para NINGUNA transacción (preexistente, fuera de alcance); (b) ~~garantia no se entera de la reversa~~ resuelto en H1.S2.M4 |
 | H1.S2.M4 | (Agregada) `garantia` consume `nucleo_financiero.transaccion_reversada`: si la original es un `RECARGO_MORA` anotado, resta del `saldo_disponible` y deja un `movimiento_fondo` de ajuste que referencia el reverso | Tras reversar, fondo = saldo previo; idempotente | Test del consumidor en garantia en verde | HECHO — `evidencia/H1-S2-M4-reversa-en-garantia.txt` |
 
 ## H2 — Semillas: permisos, rol y volumen sintético
@@ -369,11 +369,22 @@ punta.
 y con y sin flujo), más las pruebas de integración de los flujos de dinero en verde.
 **Estado:** TODO
 
+> **Corrección del plan (H8, 2026-10-17, D15).** Descubrimiento: `scripts/inventario_endpoints.py` (carril
+> PR4-seguridad) ya releva **282** endpoints —no 162— cruzando contrato, controlador y `*WebTest`, y corre en el CI
+> con `--check`. La matriz NO lo duplica: importa `relevar()` y agrega, por endpoint, (1) si algún `*WebTest` pide esa
+> ruta, (2) el CU que declara el contrato y si existe su prueba de integración `CU<nn>*Test`, y (3) qué flujos del
+> catálogo lo usan. Los flujos viven en `docs/catalogo-de-flujos/*.yaml` y los valida `scripts/validar_flujos.py`
+> (PyYAML, que el CI ya instala en el paso 6f). Pruebas de integración de los flujos de dinero (H8.S3): Pasanaku son
+> microservicios con una base por servicio; una prueba de integración corre dentro de UN servicio contra su Postgres
+> real. Cada flujo se prueba como la cadena de pasos de su servicio dueño, con los saltos a otro servicio entrando
+> por el payload real del evento (doble declarado, regla 65); la cadena completa entre servicios se ejercita en H9
+> con la pila arriba.
+
 | ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
 |---|---|---|---|---|
-| H8.S1.M1 | Formato del flujo (YAML por flujo, modelo de `workflow-catalog.md` de Atlas: etapas, pasos, dependencias y transiciones) con su esquema de validación | Un flujo inválido se rechaza | `python3 -I scripts/validar_flujos.py` con un caso bueno y uno malo, pegado | TODO |
-| H8.S1.M2 | `scripts/matriz_de_pruebas.py`: OpenAPI × tests × flujos | Lista los 162 endpoints con su estado | Salida con totales pegada | TODO |
-| H8.S1.M3 | Gate: todo paso de un flujo apunta a un `operationId` existente | Falla con un paso huérfano | Dos corridas pegadas | TODO |
+| H8.S1.M1 | Formato del flujo (YAML por flujo, modelo de `workflow-catalog.md` de Atlas: etapas, pasos, dependencias y transiciones) con su esquema de validación | Un flujo inválido se rechaza | `python3 scripts/validar_flujos.py` con un caso bueno y uno malo, pegado | HECHO — `evidencia/H8-S1-M1-M3-validador-de-flujos.txt` |
+| H8.S1.M2 | `scripts/matriz_de_pruebas.py`: reusa `inventario_endpoints.relevar()` y agrega prueba web por ruta, CU con su prueba de integración y flujos | Lista los 282 endpoints con su estado | Salida con totales pegada | HECHO — `evidencia/H8-S1-M2-matriz.txt` |
+| H8.S1.M3 | Gate: todo paso de un flujo apunta a un `operationId` existente | Falla con un paso huérfano | Dos corridas pegadas | HECHO — `evidencia/H8-S1-M1-M3-validador-de-flujos.txt` |
 | H8.S2.M1 | Árbol del flujo aporte → mora → recargo → cobertura → recuperación | Casos válidos, límite e inválidos con su código de error | Validador → exit 0 | TODO |
 | H8.S2.M2 | Árbol del flujo entrega del turno (normal y de cierre) | Ídem | Validador → exit 0 | TODO |
 | H8.S2.M3 | Árbol del flujo recarga y retiro de billetera | Ídem | Validador → exit 0 | TODO |
