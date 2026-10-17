@@ -36,7 +36,7 @@
 ## H1 — Ingreso con correo (backend)
 **CA:** Dado un usuario con correo, cuando manda `{correo, credencial}` a `POST /sesiones`, entonces entra igual que con teléfono; con un correo inexistente recibe exactamente el mismo error que con contraseña mala.
 **DoD:** `./gradlew :servicios:identidad:test --tests '*CU04*'` en verde + web test del contrato.
-**Estado:** TODO
+**Estado:** HECHO — regresión de identidad 330/330 (`evidencia/H1-H2-regresion-identidad.txt`)
 
 | ID | Microtarea | CA (binario) | DoD | Estado |
 |---|---|---|---|---|
@@ -48,7 +48,7 @@
 ## H2 — Sin segundo factor al iniciar sesión para el usuario final
 **CA:** Dado un participante con o sin factor enrolado, cuando entra desde un teléfono nuevo, entonces obtiene sesión sin código; dado un operador, se le sigue exigiendo siempre.
 **DoD:** `CU04Test` en verde con criterios actualizados; especificación CU-04 actualizada.
-**Estado:** TODO
+**Estado:** HECHO — regresión de identidad 330/330 (`evidencia/H1-H2-regresion-identidad.txt`)
 
 | ID | Microtarea | CA | DoD | Estado |
 |---|---|---|---|---|
@@ -58,7 +58,7 @@
 ## H3 — Login del backoffice estilo Atlas
 **CA:** Dado un operador en `/ingreso`, ve panel de marca + tarjeta «Bienvenido de vuelta», puede escribir correo o teléfono, y el paso del código sigue funcionando; en móvil el panel se oculta y la tarjeta ocupa el ancho.
 **DoD:** specs del backoffice en verde · capturas 390/768/1440 en claro y oscuro, miradas.
-**Estado:** TODO
+**Estado:** HECHO (VERIFIED_FUNCTIONAL_ONLY contra el mock Prism; e2e 157/157)
 
 | ID | Microtarea | CA | DoD | Estado |
 |---|---|---|---|---|
@@ -68,7 +68,7 @@
 ## H4 — App móvil: ingreso con correo
 **CA:** En la pantalla de ingreso de la app se puede escribir correo o teléfono.
 **DoD:** `flutter test` de identidad en verde.
-**Estado:** TODO
+**Estado:** A MEDIAS — anda: ingreso por correo o celular, 14/14 tests y goldens macOS. No anda: los 2 goldens Linux de `motivo_de_salida_en_ingreso_test` van a fallar en el CI. Falta: regenerarlos en Linux con Flutter 3.44.8 y probar en un teléfono.
 
 | ID | Microtarea | CA | DoD | Estado |
 |---|---|---|---|---|
@@ -77,16 +77,21 @@
 ## H5 — Tipos de usuario
 **Estado:** BLOQUEADO — `DECISION_REQUIRED`: la lista detallada no está en el repo ni en las transcripciones locales. Destraba: Pablo la vuelve a pasar. No se inventa (regla 00 §1).
 
+| ID | Microtarea | CA | DoD | Estado |
+|---|---|---|---|---|
+| H5.S1.M1 | Roles y permisos de los tipos de usuario «que habíamos dicho» en `seeders/minimos` | Cada tipo con sus opciones, tal como Pablo los definió | `python3 scripts/generar_semillas.py` + segunda corrida idempotente | BLOQUEADO — `DECISION_REQUIRED` (decisión de negocio, regla 65 §1): falta la lista; no se simula porque lo que falta es el QUÉ, no un contrato |
+
 ## H6 — Rediseño visual del backoffice
 **CA:** Dado cualquier ruta del backoffice, se ve con la misma familia visual que el login nuevo (shell, tablas, tarjetas), en claro y oscuro.
 **DoD:** capturas antes/después por ruta principal · specs y lint en verde.
-**Estado:** TODO
+**Estado:** A MEDIAS — anda: ingreso, shell (lateral, cabecera, Salir) y botón compartido con la identidad institucional, en claro y oscuro y en 3 anchos. No anda: tablas, tarjetas y formularios de cada pantalla siguen con su diseño (solo heredan los tokens). Falta: una pasada pantalla por pantalla (operación, cumplimiento, contabilidad, publicidad, sistemas).
 
 | ID | Microtarea | CA | DoD | Estado |
 |---|---|---|---|---|
-| H6.S1.M1 | Auditoría visual con capturas de las rutas principales (antes) | Lista de hallazgos con captura | `evidencia/H6/antes/` | TODO |
+| H6.S1.M1 | Auditoría visual con capturas de las rutas principales (antes) | Lista de hallazgos con captura | `evidencia/H6/antes/` | HECHO — 9 rutas contra el mock Prism; hallazgos: marca en texto plano, menú sin íconos ni grupos, rol como código crudo (`ADMIN_PLATAFORMA`), sin salida visible |
 | H6.S1.M2 | Botón de `@aportaya/ui` con la identidad institucional ya decidida para la app (A2 de `2026-10-15-visual-bancario`): relleno plano, sin degradé, sin brillo animado, sin sombra teñida | Captura del ingreso con el botón plano | `yarn --cwd packages/ui test:front` (el botón no tiene spec propio: regresión del paquete) + captura | HECHO — 125/125 + `evidencia/H6/antes` vs `evidencia/H6/despues` |
-| H6.S1.M3 | Shell (barra lateral + cabecera) en la nueva familia visual | Capturas después | `evidencia/H6/despues/` + `yarn --cwd apps/backoffice lint` | TODO |
+| H6.S1.M3 | Shell: barra lateral oscura con el símbolo real de la marca (`landing/assets/img/simbolo.svg`), menú con íconos y agrupado, cabecera con el rol legible (sin código crudo) | Capturas después en claro y oscuro, 3 anchos | `evidencia/H6/despues/` + lint + specs del shell | HECHO — `evidencia/H6-S1-M3-M4-shell.txt`; capturas en `evidencia/H6/despues/` (9 rutas claro/oscuro, celular y tablet), miradas |
+| H6.S1.M4 | «Salir» en el shell: `DELETE /sesion` (contrato `cerrarSesion`) y vuelta a `/ingreso`; si la red falla, igual se cierra en el navegador | Spec: llama al endpoint y cierra la sesión local | `npx ng test --include='src/app/layout/**/*.spec.ts'` | HECHO — 14/14 (incluye «si el servidor falla, igual sale») |
 
 ## Hallazgo durante la ejecución (H3)
 - `packages/tokens/generado/tokens.css` no se versiona. Una copia local vieja pintaba el backoffice naranja y crema; regenerado (`yarn workspace @aportaya/tokens build`) sale verde institucional `#164A30` y fondo `#F4F6F5`. El Dockerfile del backoffice lo regenera al construir, así que lo que ve TEST depende de que la imagen se haya reconstruido.

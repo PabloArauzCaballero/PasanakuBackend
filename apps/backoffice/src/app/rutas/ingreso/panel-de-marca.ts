@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core'
 import { Icono } from '@aportaya/ui/icono/icono'
+import { SimboloDeMarca } from '../../layout/simbolo-de-marca'
 
 /** Lo que se hace adentro, en la voz del producto: un titular solo no alcanza a decirlo. */
 const CAPACIDADES = [
@@ -19,10 +20,10 @@ const CAPACIDADES = [
 @Component({
   selector: 'ap-panel-de-marca',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [Icono],
+  imports: [Icono, SimboloDeMarca],
   template: `
     <div class="identidad">
-      <span class="monograma" aria-hidden="true">A</span>
+      <ap-simbolo-de-marca class="simbolo" [sobreOscuro]="true" />
       <div>
         <p class="nombre">AportaYa</p>
         <p class="sub">Backoffice</p>
@@ -60,11 +61,7 @@ const CAPACIDADES = [
     @media (min-width: 64rem) { :host { display: flex; width: 46%; } }
     p, h2, ul { margin: 0; }
     .identidad { display: flex; align-items: center; gap: var(--s3); }
-    .monograma {
-      display: grid; place-items: center; width: 2.75rem; height: 2.75rem; border-radius: var(--r-md);
-      font: var(--t-titulo-2); background: color-mix(in srgb, var(--white) 12%, transparent);
-      border: var(--borde-fino) solid color-mix(in srgb, var(--white) 18%, transparent);
-    }
+    .simbolo { --tamano-simbolo: 2.75rem; }
     .nombre { font: var(--t-cuerpo-fuerte); letter-spacing: .08em; text-transform: uppercase; }
     .sub, .pie { font: var(--t-cuerpo-chico); color: color-mix(in srgb, var(--white) 68%, transparent); }
     .mensaje { max-width: 28rem; }
