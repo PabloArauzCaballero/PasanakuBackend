@@ -205,7 +205,8 @@ public class CU04Autenticar {
     }
 
     private ResultadoDeAutenticacion credencialInvalida() {
-        return ResultadoDeAutenticacion.rechazado(CodigoError.de(4, 1), "El telefono, el correo o la contrasena no coinciden.");
+        return ResultadoDeAutenticacion.rechazado(
+                CodigoError.de(4, 1), "El telefono, el correo o la contrasena no coinciden.");
     }
 
     private ResultadoDeAutenticacion cerrar(

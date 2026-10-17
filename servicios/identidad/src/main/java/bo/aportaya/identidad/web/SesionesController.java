@@ -170,8 +170,7 @@ public class SesionesController implements SesionesApi {
      * Ninguno o los dos es una entrada mal formada: sale 400 AP-VAL-02 por el manejador
      * global, nunca un 500 ni un 422 que parezca una credencial mala.
      */
-    private static String identificador(
-            bo.aportaya.identidad.web.generado.modelo.EntradaAutenticacion cuerpo) {
+    private static String identificador(bo.aportaya.identidad.web.generado.modelo.EntradaAutenticacion cuerpo) {
         boolean hayTelefono = cuerpo.getTelefonoE164() != null;
         boolean hayCorreo = cuerpo.getCorreo() != null && !cuerpo.getCorreo().isBlank();
         if (hayTelefono == hayCorreo) {
