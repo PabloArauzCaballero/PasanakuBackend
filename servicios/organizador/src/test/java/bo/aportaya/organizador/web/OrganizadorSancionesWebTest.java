@@ -78,6 +78,9 @@ class OrganizadorSancionesWebTest {
     @MockitoBean
     private CU90ConsultarBandeja consultarBandeja;
 
+    @MockitoBean
+    private bo.aportaya.organizador.aplicacion.CU90HabilitacionBasica habilitacionBasica;
+
     @Nested
     @DisplayName("CU-93 · sancionar, apelar y resolver")
     class DebidoProceso {

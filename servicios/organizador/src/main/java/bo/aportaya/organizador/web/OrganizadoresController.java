@@ -1,6 +1,7 @@
 package bo.aportaya.organizador.web;
 
 import bo.aportaya.organizador.aplicacion.CU90ConsultarBandeja;
+import bo.aportaya.organizador.aplicacion.CU90HabilitacionBasica;
 import bo.aportaya.organizador.aplicacion.CU90PostularOrganizador;
 import bo.aportaya.organizador.aplicacion.CU90ResolverHabilitacion;
 import bo.aportaya.organizador.aplicacion.CU91FirmarContrato;
@@ -12,17 +13,20 @@ import bo.aportaya.organizador.web.generado.modelo.EntradaApelacion;
 import bo.aportaya.organizador.web.generado.modelo.EntradaAprobacion;
 import bo.aportaya.organizador.web.generado.modelo.EntradaContrato;
 import bo.aportaya.organizador.web.generado.modelo.EntradaEvaluacion;
+import bo.aportaya.organizador.web.generado.modelo.EntradaHabilitacionBasica;
 import bo.aportaya.organizador.web.generado.modelo.EntradaPostulacion;
 import bo.aportaya.organizador.web.generado.modelo.EntradaResolucion;
 import bo.aportaya.organizador.web.generado.modelo.EntradaSancion;
 import bo.aportaya.organizador.web.generado.modelo.FirmarContratoRequest;
 import bo.aportaya.organizador.web.generado.modelo.Habilitacion;
+import bo.aportaya.organizador.web.generado.modelo.HabilitacionBasica;
 import bo.aportaya.organizador.web.generado.modelo.RescindirContratoRequest;
 import bo.aportaya.organizador.web.generado.modelo.SalidaApelacion;
 import bo.aportaya.organizador.web.generado.modelo.SalidaContrato;
 import bo.aportaya.organizador.web.generado.modelo.SalidaEvaluacion;
 import bo.aportaya.organizador.web.generado.modelo.SalidaFirma;
 import bo.aportaya.organizador.web.generado.modelo.SalidaHabilitacion;
+import bo.aportaya.organizador.web.generado.modelo.SalidaHabilitacionBasica;
 import bo.aportaya.organizador.web.generado.modelo.SalidaPostulacion;
 import bo.aportaya.organizador.web.generado.modelo.SalidaRescision;
 import bo.aportaya.organizador.web.generado.modelo.SalidaResolucion;
@@ -65,6 +69,7 @@ public class OrganizadoresController extends RutasDeHabilitacion {
     private final CU92EvaluarDesempeno cu92;
     private final CU93SancionarOrganizador cu93;
     private final ReclamosEnCurso reclamos;
+    private final CU90HabilitacionBasica basica;
     private final SesionDeLaPeticion sesion;
 
     public OrganizadoresController(
@@ -76,6 +81,7 @@ public class OrganizadoresController extends RutasDeHabilitacion {
             ReclamosEnCurso reclamos,
             CU90ResolverHabilitacion resolutor,
             CU90ConsultarBandeja bandeja,
+            CU90HabilitacionBasica basica,
             SesionDeLaPeticion sesion) {
         super(resolutor, bandeja, sesion);
         this.habilitaciones = habilitaciones;
@@ -84,7 +90,61 @@ public class OrganizadoresController extends RutasDeHabilitacion {
         this.cu92 = cu92;
         this.cu93 = cu93;
         this.reclamos = reclamos;
+        this.basica = basica;
         this.sesion = sesion;
+    }
+
+    /** El contrato Aprendiz y si la persona ya lo aceptó. Solo lo propio: el usuario sale del token. */
+    @Override
+    @Permiso("PARTICIPANTE")
+    public ResponseEntity<HabilitacionBasica> consultarHabilitacionBasica() {
+        var contexto = sesion.actual();
+        Traza.marcarCasoDeUso("CU-90", contexto.usuarioId().toString());
+        var contrato = basica.contrato();
+        var estado = basica.estado(contexto);
+        var salida = new HabilitacionBasica();
+        salida.setVersion(contrato.version());
+        salida.setTitulo(contrato.titulo());
+        salida.setObligaciones(contrato.obligaciones());
+        salida.setCausalesRescision(contrato.causalesRescision());
+        salida.setLimiteDeGrupos(contrato.limiteDeGrupos());
+        salida.setLimiteDeMonto(contrato.limiteDeMonto()
+                .setScale(2, java.math.RoundingMode.HALF_EVEN)
+                .toPlainString());
+        salida.setHabilitado(estado.habilitado());
+        salida.setOrganizadorId(estado.organizadorId());
+        salida.setNivel(estado.nivel());
+        return ResponseEntity.ok(salida);
+    }
+
+    /** Aceptar el contrato y quedar habilitado como Aprendiz (KYC aprobado = rol PARTICIPANTE). */
+    @Override
+    @Permiso("PARTICIPANTE")
+    public ResponseEntity<SalidaHabilitacionBasica> aceptarHabilitacionBasica(
+            UUID idempotencyKey, EntradaHabilitacionBasica cuerpo) {
+        var contexto = sesion.actual();
+        Traza.marcarCasoDeUso("CU-90", contexto.usuarioId().toString());
+        var resultado =
+                basica.habilitar(Boolean.TRUE.equals(cuerpo.getAceptaContrato()), cuerpo.getVersion(), contexto);
+        var salida = new SalidaHabilitacionBasica();
+        salida.setOrganizadorId(resultado.organizadorId());
+        salida.setContratoId(resultado.contratoId());
+        salida.setContenidoHash(resultado.contenidoHash());
+        salida.setNivel(resultado.nivel());
+        salida.setEsNueva(resultado.esNueva());
+        return ResponseEntity.ok(salida);
+    }
+
+    /** La firma del contrato Aprendiz, con el token FIRMA_CONTRATO que emitió identidad. */
+    @Override
+    @Permiso("PARTICIPANTE")
+    public ResponseEntity<bo.aportaya.organizador.web.generado.modelo.SalidaFirmaBasica> firmarHabilitacionBasica(
+            bo.aportaya.organizador.web.generado.modelo.EntradaFirmaBasica cuerpo) {
+        var contexto = sesion.actual();
+        Traza.marcarCasoDeUso("CU-91", cuerpo.getContratoId().toString());
+        var salida = new bo.aportaya.organizador.web.generado.modelo.SalidaFirmaBasica();
+        salida.setFirmadoAhora(basica.firmar(cuerpo.getContratoId(), cuerpo.getTokenFirmaId(), contexto));
+        return ResponseEntity.ok(salida);
     }
 
     @Override

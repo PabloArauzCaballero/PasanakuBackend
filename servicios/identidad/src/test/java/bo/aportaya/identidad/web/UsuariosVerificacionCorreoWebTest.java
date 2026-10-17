@@ -73,6 +73,9 @@ class UsuariosVerificacionCorreoWebTest {
     private ConfirmarVerificacionCorreo confirmarCorreo;
 
     @MockitoBean
+    private bo.aportaya.identidad.aplicacion.ActivarRolOrganizador activarRolOrganizador;
+
+    @MockitoBean
     private ConsultarNivelKyc nivelesKyc;
 
     @Test

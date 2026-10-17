@@ -68,6 +68,7 @@ public class UsuariosController extends ExpedienteController {
     private final HttpServletRequest peticion;
     private final String pimienta;
     private final LimiteDeConsultas limiteDeTitularidad;
+    private final bo.aportaya.identidad.aplicacion.ActivarRolOrganizador rolOrganizador;
 
     public UsuariosController(
             CU01RegistrarUsuario cu01,
@@ -82,6 +83,7 @@ public class UsuariosController extends ExpedienteController {
             ConsultarNivelKyc nivelesKyc,
             SolicitarVerificacionCorreo solicitarCorreo,
             ConfirmarVerificacionCorreo confirmarCorreo,
+            bo.aportaya.identidad.aplicacion.ActivarRolOrganizador rolOrganizador,
             SesionDeLaPeticion sesion,
             HttpServletRequest peticion,
             @Value("${aportaya.seguridad.pimienta}") String pimienta,
@@ -110,6 +112,27 @@ public class UsuariosController extends ExpedienteController {
         this.peticion = peticion;
         this.pimienta = pimienta;
         this.limiteDeTitularidad = new LimiteDeConsultas(reloj, titularidadPorMinuto, Duration.ofMinutes(1));
+        this.rolOrganizador = rolOrganizador;
+    }
+
+    /** CU-90 vía básica: el rol ORGANIZADOR para quien ya aceptó el contrato. Solo para uno mismo. */
+    @Override
+    @Permiso("PARTICIPANTE")
+    public ResponseEntity<bo.aportaya.identidad.web.generado.modelo.RolOrganizadorActivado> activarRolOrganizador(
+            UUID usuarioId, bo.aportaya.identidad.web.generado.modelo.EntradaRolOrganizador cuerpo) {
+        Traza.marcarCasoDeUso("CU-90", usuarioId.toString());
+        String agente = java.util.Objects.requireNonNullElse(peticion.getHeader("User-Agent"), "desconocido");
+        boolean nuevo = rolOrganizador.ejecutar(
+                usuarioId,
+                cuerpo.getContratoId(),
+                cuerpo.getContenidoHash(),
+                peticion.getRemoteAddr(),
+                agente.length() > 255 ? agente.substring(0, 255) : agente,
+                sesion.actual());
+        var salida = new bo.aportaya.identidad.web.generado.modelo.RolOrganizadorActivado();
+        salida.setActivo(true);
+        salida.setEsNuevo(nuevo);
+        return ResponseEntity.ok(salida);
     }
 
     /**
