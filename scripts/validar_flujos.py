@@ -8,7 +8,8 @@ Valida el catálogo de flujos: cada recorrido es un árbol de decisión que cier
 
 Un flujo (`docs/catalogo-de-flujos/<id>.yaml`) declara sus pasos. Cada paso es una operación HTTP del contrato
 (`operacion: <operationId>`) o un disparo asíncrono (`disparador: evento | programado`, con el `componente` Java que lo
-atiende), con su transición de éxito, sus errores (código del contrato, HTTP y a dónde lleva) y sus condiciones. Al
+atiende; `sin-cablear` si el código existe pero nada lo dispara en producción, con su `hallazgo`, y se avisa en cada
+corrida), con su transición de éxito, sus errores (código del contrato, HTTP y a dónde lleva) y sus condiciones. Al
 final, los casos válidos, límite e inválidos, cada uno con la prueba que lo ejercita.
 
 Devuelve 1 si:
@@ -41,6 +42,7 @@ RAIZ = pathlib.Path(__file__).resolve().parent.parent
 CARPETA = RAIZ / "docs" / "catalogo-de-flujos"
 FIN = "FIN"
 NIVELES = ("validos", "limite", "invalidos")
+AVISOS: list[str] = []
 
 
 def operaciones_por_servicio() -> dict[str, set[str]]:
@@ -93,9 +95,15 @@ def validar(flujo: dict, origen: str, operaciones: dict[str, set[str]]) -> list[
         if p.get("operacion"):
             if p["operacion"] not in operaciones.get(servicio, set()):
                 falla(f"paso `{pid}`: `{p['operacion']}` no existe en el contrato de `{servicio}` (paso huérfano)")
-        elif p.get("disparador") in ("evento", "programado"):
+        elif p.get("disparador") in ("evento", "programado", "sin-cablear"):
             if not p.get("componente") or not componente_existe(servicio, p["componente"]):
                 falla(f"paso `{pid}`: el componente `{p.get('componente')}` no existe en `{servicio}`")
+            # El código existe pero nada lo dispara en producción: se declara con su hallazgo, no se disimula.
+            if p.get("disparador") == "sin-cablear":
+                if not p.get("hallazgo"):
+                    falla(f"paso `{pid}`: un paso `sin-cablear` necesita su `hallazgo` escrito")
+                else:
+                    AVISOS.append(f"{origen}: paso `{pid}` SIN CABLEAR — {p['hallazgo']}")
         else:
             falla(f"paso `{pid}`: necesita `operacion` o `disparador: evento|programado` con `componente`")
         destino(pid, p.get("exito"), "el éxito")
@@ -172,6 +180,8 @@ def main(argv: list[str] | None = None) -> int:
         fallas += propias
         print(f"  {'OK   ' if not propias else 'FALLA'} · {archivo.name}: {len(flujo.get('pasos') or [])} pasos, "
               + ", ".join(f"{len((flujo.get('casos') or {}).get(n) or [])} {n}" for n in NIVELES))
+    for a in AVISOS:
+        print(f"  AVISO · {a}")
     for f in fallas:
         print(f"  FALLA · {f}")
     print(f"\n{len(fallas)} FALLAS" if fallas else "\nSin fallas.")

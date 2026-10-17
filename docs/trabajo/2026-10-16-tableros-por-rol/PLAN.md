@@ -222,6 +222,13 @@ Regla 96.1: se completa lo existente en lugar de crear endpoints paralelos por s
 - **Ambigüedad A7:** CU-98 (flujo 1a) habla de indicadores «provisorios» de un período abierto, pero la unicidad
   (código, dimensión, período, definición) no permite actualizarlos. Supuesto: no se guardan períodos abiertos.
   Confirmar con: Pablo (dueño de CU-98).
+- **Ambigüedad A9 (hallazgo H8-01, 2026-10-17):** en `nucleo-financiero` ningún trabajo, endpoint ni consumidor llama a
+  `RetirosConProveedor.despachar` ni a `CU11RetirarSaldo.instruirPago`; el evento `nucleo_financiero.retiro_autorizado`
+  se publica (`ResolucionDeRetiro.java:274`) y nadie lo consume (búsqueda en `servicios/*/src/main`). Una orden
+  AUTORIZADA queda retenida sin instruirse al proveedor. Es preexistente y está fuera del alcance de este trabajo:
+  **no se arregla**. Falta decidir si la instrucción es automática (trabajo o consumidor) o de un operador (endpoint
+  con permiso). Confirmar con: Pablo (dueño de CU-11) y Tesorería. En el catálogo de flujos el paso queda declarado
+  `sin-cablear` y el validador lo avisa en cada corrida.
 - `definicion_indicador` se siembra en `minimos/` con el catálogo de tableros (fórmula, fuente, familia, dueño,
   mínimo de casos). **Sin metas:** son una decisión de negocio (CU-98 «metas fijadas antes del período») y sin meta no
   hay semáforo, que es lo correcto.
@@ -387,10 +394,10 @@ y con y sin flujo), más las pruebas de integración de los flujos de dinero en 
 | H8.S1.M3 | Gate: todo paso de un flujo apunta a un `operationId` existente | Falla con un paso huérfano | Dos corridas pegadas | HECHO — `evidencia/H8-S1-M1-M3-validador-de-flujos.txt` |
 | H8.S2.M1 | Árbol del flujo aporte → mora → recargo → cobertura → recuperación | Casos válidos, límite e inválidos con su código de error | Validador → exit 0 | TODO |
 | H8.S2.M2 | Árbol del flujo entrega del turno (normal y de cierre) | Ídem | Validador → exit 0 | TODO |
-| H8.S2.M3 | Árbol del flujo recarga y retiro de billetera | Ídem | Validador → exit 0 | TODO |
+| H8.S2.M3 | Árbol del flujo recarga y retiro de billetera | Ídem | Validador → exit 0 | HECHO — `evidencia/H8-S2-M3-S3-M3-recarga-y-retiro.txt` |
 | H8.S3.M1 | Prueba de integración del flujo de H8.S2.M1, contra Postgres y con Datafaker | Saldos finales = esperado, asientos cuadrados | Test nombrado en verde | TODO |
 | H8.S3.M2 | Prueba de integración del flujo de H8.S2.M2 | Ídem | Test nombrado en verde | TODO |
-| H8.S3.M3 | Prueba de integración del flujo de H8.S2.M3 | Ídem | Test nombrado en verde | TODO |
+| H8.S3.M3 | Prueba de integración del flujo de H8.S2.M3 | Ídem | Test nombrado en verde | HECHO — `evidencia/H8-S2-M3-S3-M3-recarga-y-retiro.txt` |
 | H8.S3.M4 | Pruebas unitarias o web de los endpoints sin test en la matriz, limitadas a los servicios de dinero (`aportes`, `garantia`, `entregas`, `nucleo-financiero`); el resto pasa a un trabajo siguiente (D8) | Matriz sin huecos en esos cuatro | `scripts/matriz_de_pruebas.py --servicio …` pegado | TODO |
 
 ## H9 — Regresión, gates y entrega
