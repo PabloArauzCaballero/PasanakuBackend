@@ -1,0 +1,3 @@
+CUIndicadoresDeMoraTest 4/4 (vencida suma a mora y tasa, pago tarde suma y saca de mora, SIN_HISTORIA, no vencida no cuenta) · ArranqueTest 2/2
+aportes: test=49 webTest=41 integrationTest=115, 0 fallas; jacocoTestCoverageVerification exit=0
+gates: verificar_seguridad/criterios/boveda exit=0
