@@ -132,9 +132,9 @@ recargos cobrados del escenario.
 |---|---|---|---|---|
 | H1.S2.M0a | (Agregada por el hallazgo H0-01) El evento `aportes.aporte_cobrado` publica `tipo` de la obligación (campo aditivo; versión del contrato documentada) | El payload trae `tipo` | Test de contrato del productor en `aportes` en verde | HECHO — `evidencia/H1-S2-M0a-tipo-en-evento.txt` (consumidor ignora campos extra: compatible) |
 | H1.S2.M0b | (H0-01) `ConsumoDeAportes` lee `tipo` opcional; un evento sin `tipo` sigue el camino actual (compatibilidad) | Consumidor viejo y nuevo conviven | Test del lector Kafka con y sin `tipo` en verde | HECHO — `evidencia/H1-S2-M0b-consumidor-tipo.txt` |
-| H1.S2.M0c | (H1-02) `AperturaDeBilleteras.abrirLaDeGrupo` abre también la billetera `FONDO_GARANTIA` del grupo (prefijo propio), idempotente | Un `grupo_creado` → 2 billeteras; repetido → sigue en 2 | Test de integración de la apertura en verde | EN CURSO |
-| H1.S2.M0d | (H1-02) Esquema: valor `RECARGO_MORA` en `transaccion_billetera.tipo` y en `garantia.movimiento_fondo.tipo` (PlantUML → `generar_ddl.py`) | DDL regenerado, deriva en verde | `python3 scripts/generar_ddl.py` → exit 0 + verificación de deriva pegada | TODO |
-| H1.S2.M1 | `RECARGO_MORA` cobrado: débito a la billetera del participante y crédito a la `FONDO_GARANTIA` del grupo; asiento DEBE `SALDO_USUARIOS` / HABER `RESERVA_RESPALDO`; el pozo del grupo no cambia | Asiento cuadrado con moneda; saldo del pozo sin cambio | Test de integración `*RecargoContabilizado*` en verde | TODO |
+| H1.S2.M0c | (H1-02, rediseñada) Billetera de sistema `FONDO_GARANTIA` única por moneda (`SYS-FONDO-GARANTIA`, `SYS-FONDO-GARANTIA-USD`) sembrada en `seeders/minimos/22-cuentas-de-sistema.json`, más `CuentasDeSistemaRepositorio.fondoDeGarantia` | Una activa por moneda; segunda siembra = 0 filas | `python3 scripts/generar_semillas.py` → exit 0 + test del repositorio en verde | HECHO — `evidencia/H1-S2-M0c-semilla-fondo.txt` (855 → 0 filas; la búsqueda `fondoDeGarantia` se ejercita en M1) |
+| H1.S2.M0d | (H1-02) Esquema: valor `RECARGO_MORA` en `transaccion_billetera.tipo` y en `garantia.movimiento_fondo.tipo` (PlantUML → `generar_ddl.py`) | DDL regenerado, deriva en verde | `python3 scripts/generar_ddl.py` → exit 0 + verificación de deriva pegada | HECHO — `evidencia/H1-S2-M0d-esquema-recargo.txt` (CK_AMPLIADOS; base existente actualizada; gates del CI en verde) |
+| H1.S2.M1 | `RECARGO_MORA` cobrado: débito a la billetera del participante y crédito a la `FONDO_GARANTIA` del grupo; asiento DEBE `SALDO_USUARIOS` / HABER `RESERVA_RESPALDO`; el pozo del grupo no cambia | Asiento cuadrado con moneda; saldo del pozo sin cambio | Test de integración `*RecargoContabilizado*` en verde | EN CURSO |
 | H1.S2.M1b | Sin billetera de fondo: `aporte_no_aplicado` con motivo `FONDO_SIN_BILLETERA` (aportes compensa); nunca se acredita al pozo | 0 movimientos y evento de compensación | Test nombrado en verde | TODO |
 | H1.S2.M1c | `aporte_aplicado` lleva `tipo`; `garantia` lo consume y, si es `RECARGO_MORA`, registra `movimiento_fondo` `RECARGO_MORA` y suma a `saldo_disponible` del fondo del grupo (idempotente por evento) | Fondo +monto una sola vez | Test del consumidor en `garantia` en verde | TODO |
 | H1.S2.M2 | Idempotencia: el mismo pago confirmado dos veces | Un solo asiento (clave de idempotencia `UNIQUE`) | Test nombrado en verde, salida pegada | TODO |
@@ -357,7 +357,12 @@ y `REPORTE.md`.
   `consumo-de-asientos.habilitado=true` (apagado por omisión, `nucleo-financiero/application.yml`). Hoy no existe
   ningún camino de dinero hacia el fondo. Para el recargo se agregan H1.S2.M0c, M0d, M1b y M1c.
   `APORTE_FONDO_GARANTIA` tiene el mismo problema y queda fuera de alcance (riesgo en el reporte).
-- **A6 (supuesto):** el recargo va al fondo **del grupo** (`ambito POR_GRUPO`, el único sembrado:
+- **Desvío (2026-10-16):** el primer diseño de M0c (una billetera `FONDO_GARANTIA` por grupo) violó R-BIL-05
+  (`sql/40_reglas/restricciones.sql:251-257`: una billetera que no es `USUARIO` ni `GRUPO` no lleva `grupo_id`).
+  Rompió 7 tests existentes de apertura (FAIL observado), se revirtió y volvieron a verde (9/9 y 2/2). El modelo
+  define el fondo como **una billetera de sistema por moneda**; el desglose por grupo vive en
+  `garantia.fondo_garantia` y `garantia.movimiento_fondo` (M1c).
+- **A6 (supuesto):** el recargo se atribuye al fondo **del grupo** (`ambito POR_GRUPO`, el único sembrado:
   `seeders/dev/04-fondo-y-cuenta-del-grupo.json`). El fondo `MUTUAL_PLATAFORMA` no tiene datos ni billetera; si un
   grupo usa el mutual, el recargo se rechaza y se compensa (M1b) hasta que se defina. Confirmar con: Pablo.
 

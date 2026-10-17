@@ -72,8 +72,10 @@ class CU21EventoDeAporteTest extends BaseDeAportes {
 
     private String tipoEnElEvento(UUID obligacionId) {
         return dsl.fetchOne(
-                        "SELECT payload->>'tipo' FROM aportes.evento_dominio"
-                                + " WHERE tipo = 'aportes.aporte_cobrado' AND agregado_id = ?",
+                        """
+                        SELECT payload->>'tipo' FROM aportes.evento_dominio
+                         WHERE tipo = 'aportes.aporte_cobrado' AND agregado_id = ?
+                        """,
                         obligacionId)
                 .get(0, String.class);
     }
@@ -94,7 +96,7 @@ class CU21EventoDeAporteTest extends BaseDeAportes {
     }
 
     @Test
-    @DisplayName("tableros: el evento lleva el tipo de la obligación — un aporte periódico viaja como APORTE_PERIODICO")
+    @DisplayName("cuadre: el evento lleva el tipo de la obligación — un aporte periódico viaja como APORTE_PERIODICO")
     void elEventoTrae_elTipo_deUnAporte() {
         var usuario = fixtura.usuario();
         var obligacion = fixtura.obligacion(usuario, "500.00", 10);
@@ -105,7 +107,7 @@ class CU21EventoDeAporteTest extends BaseDeAportes {
     }
 
     @Test
-    @DisplayName("tableros: pagar un recargo por mora publica tipo RECARGO_MORA — es lo que lo separa del pozo")
+    @DisplayName("cuadre: pagar un recargo por mora publica tipo RECARGO_MORA — es lo que lo separa del pozo")
     void elEventoTrae_elTipo_deUnRecargo() {
         var usuario = fixtura.usuario();
         var vencida = fixtura.obligacion(usuario, "500.00", -10);

@@ -29,8 +29,8 @@ class CU21RecargosDiariosTest extends BaseDeAportes {
     }
 
     @Test
-    @DisplayName("Dado un aporte vencido con política de mora · Cuando corre el trabajo diario con contexto de sistema"
-            + " · Entonces se crea un RECARGO_MORA")
+    @DisplayName(
+            "rls: el trabajo diario corre con contexto de sistema y ve la vencida · Entonces se crea un RECARGO_MORA")
     void correcto() {
         var obligacion = fixtura.obligacion(fixtura.usuario(), "500.00", -10);
         fixtura.politicaDeMora(obligacion.grupoId(), 0, "PORCENTUAL", "0.05", "100.00");
@@ -41,7 +41,8 @@ class CU21RecargosDiariosTest extends BaseDeAportes {
     }
 
     @Test
-    @DisplayName("límite: el trabajo corre dos veces el mismo día · Entonces sigue habiendo un solo recargo por atraso")
+    @DisplayName(
+            "reintento: el trabajo corre dos veces el mismo día · Entonces sigue habiendo un solo recargo por atraso")
     void dosCorridasElMismoDia() {
         var obligacion = fixtura.obligacion(fixtura.usuario(), "500.00", -10);
         fixtura.politicaDeMora(obligacion.grupoId(), 0, "PORCENTUAL", "0.05", "100.00");
@@ -53,7 +54,7 @@ class CU21RecargosDiariosTest extends BaseDeAportes {
     }
 
     @Test
-    @DisplayName("inválido: un grupo sin política de mora · Entonces el trabajo no inventa un recargo y no falla")
+    @DisplayName("rechaza inventar un recargo: un grupo sin política de mora no genera nada y el trabajo no falla")
     void sinPolitica() {
         var obligacion = fixtura.obligacion(fixtura.usuario(), "500.00", -10);
 

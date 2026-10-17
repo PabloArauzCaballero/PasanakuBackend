@@ -16,8 +16,12 @@ CREATE TABLE IF NOT EXISTS garantia.movimiento_fondo (
   fecha                              TIMESTAMPTZ NOT NULL,
   registrado_por                     UUID,
   CONSTRAINT pk_movimiento_fondo PRIMARY KEY (id),
-  CONSTRAINT ck_movimiento_fondo_tipo CHECK (tipo IN ('AJUSTE_CONTABLE', 'APORTE_PERIODICO', 'CASTIGO_INCOBRABLE', 'COBERTURA_APLICADA', 'CONSTITUCION', 'DEVOLUCION_A_PARTICIPANTES', 'EJECUCION_AVAL', 'RECUPERACION_ACREDITADA', 'RENDIMIENTO'))
+  CONSTRAINT ck_movimiento_fondo_tipo CHECK (tipo IN ('AJUSTE_CONTABLE', 'APORTE_PERIODICO', 'CASTIGO_INCOBRABLE', 'COBERTURA_APLICADA', 'CONSTITUCION', 'DEVOLUCION_A_PARTICIPANTES', 'EJECUCION_AVAL', 'RECARGO_MORA', 'RECUPERACION_ACREDITADA', 'RENDIMIENTO'))
 );
+
+-- Evolucion: CHECK ampliado (ver CK_AMPLIADOS en modelo.py).
+ALTER TABLE garantia.movimiento_fondo DROP CONSTRAINT IF EXISTS ck_movimiento_fondo_tipo;
+ALTER TABLE garantia.movimiento_fondo ADD CONSTRAINT ck_movimiento_fondo_tipo CHECK (tipo IN ('AJUSTE_CONTABLE', 'APORTE_PERIODICO', 'CASTIGO_INCOBRABLE', 'COBERTURA_APLICADA', 'CONSTITUCION', 'DEVOLUCION_A_PARTICIPANTES', 'EJECUCION_AVAL', 'RECARGO_MORA', 'RECUPERACION_ACREDITADA', 'RENDIMIENTO'));
 
 COMMENT ON TABLE garantia.movimiento_fondo IS 'Módulo 08 — Garantía, Incumplimiento, Cobranza y Sanciones. [append-only] El grupo no se detiene, pero la deuda no se perdona sola';
 COMMENT ON COLUMN garantia.movimiento_fondo.id IS 'PK';

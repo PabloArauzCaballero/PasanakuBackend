@@ -25,12 +25,16 @@ CREATE TABLE IF NOT EXISTS nucleo_financiero.transaccion_billetera (
   ocurrida_en                        TIMESTAMPTZ DEFAULT now() NOT NULL,
   registrada_en                      TIMESTAMPTZ DEFAULT now() NOT NULL,
   CONSTRAINT pk_transaccion_billetera PRIMARY KEY (id),
-  CONSTRAINT ck_transaccion_billetera_tipo CHECK (tipo IN ('AJUSTE_OPERATIVO', 'APORTE_A_GRUPO', 'COBERTURA_GARANTIA', 'COBRO_COMISION', 'COBRO_IMPUESTO', 'COMPRA_EN_MERCADO', 'DEVOLUCION', 'ENTREGA_DE_FONDO', 'INVERSION', 'RECARGA', 'REPOSICION_GARANTIA', 'RESCATE_INVERSION', 'RETIRO', 'REVERSO', 'TRANSFERENCIA_P2P')),
+  CONSTRAINT ck_transaccion_billetera_tipo CHECK (tipo IN ('AJUSTE_OPERATIVO', 'APORTE_A_GRUPO', 'COBERTURA_GARANTIA', 'COBRO_COMISION', 'COBRO_IMPUESTO', 'COMPRA_EN_MERCADO', 'DEVOLUCION', 'ENTREGA_DE_FONDO', 'INVERSION', 'RECARGA', 'RECARGO_MORA', 'REPOSICION_GARANTIA', 'RESCATE_INVERSION', 'RETIRO', 'REVERSO', 'TRANSFERENCIA_P2P')),
   CONSTRAINT ck_transaccion_billetera_estado CHECK (estado IN ('APLICADA', 'AUTORIZADA', 'EN_REVISION_FRAUDE', 'INICIADA', 'RECHAZADA', 'REVERSADA')),
   CONSTRAINT ck_transaccion_billetera_monto_total CHECK (monto_total > 0),
   CONSTRAINT ck_transaccion_billetera_origen_tipo CHECK (origen_tipo IN ('AJUSTE', 'COBERTURA_INCUMPLIMIENTO', 'DEVENGO_COMISION', 'ENTREGA_FONDO', 'OBLIGACION_APORTE', 'OFERTA_MERCADO', 'ORDEN_INVERSION', 'ORDEN_RECARGA', 'ORDEN_RETIRO', 'RESCATE_INVERSION', 'TRANSFERENCIA_P2P')),
   CONSTRAINT ck_transaccion_billetera_canal CHECK (canal IN ('API', 'APP', 'BATCH', 'WEB'))
 );
+
+-- Evolucion: CHECK ampliado (ver CK_AMPLIADOS en modelo.py).
+ALTER TABLE nucleo_financiero.transaccion_billetera DROP CONSTRAINT IF EXISTS ck_transaccion_billetera_tipo;
+ALTER TABLE nucleo_financiero.transaccion_billetera ADD CONSTRAINT ck_transaccion_billetera_tipo CHECK (tipo IN ('AJUSTE_OPERATIVO', 'APORTE_A_GRUPO', 'COBERTURA_GARANTIA', 'COBRO_COMISION', 'COBRO_IMPUESTO', 'COMPRA_EN_MERCADO', 'DEVOLUCION', 'ENTREGA_DE_FONDO', 'INVERSION', 'RECARGA', 'RECARGO_MORA', 'REPOSICION_GARANTIA', 'RESCATE_INVERSION', 'RETIRO', 'REVERSO', 'TRANSFERENCIA_P2P'));
 
 COMMENT ON TABLE nucleo_financiero.transaccion_billetera IS 'Módulo 10 — Billetera, Custodia y Dinero Electrónico. [append-only] El saldo no se guarda: se deriva, y todos los días cuadra contra el banco';
 COMMENT ON COLUMN nucleo_financiero.transaccion_billetera.id IS 'PK';

@@ -37,6 +37,15 @@ public class CuentasDeSistemaRepositorio {
         return unicaActiva(dsl, "PLATAFORMA_INGRESOS", moneda);
     }
 
+    /**
+     * El fondo de garantia: UNA billetera de sistema por moneda (R-BIL-05, sin grupo). Recibe lo que se cobra para el
+     * fondo —hoy, el recargo por mora—; a que grupo corresponde lo lleva {@code garantia} en {@code movimiento_fondo}.
+     * Con dos activas no se elige, igual que con los ingresos.
+     */
+    public Optional<UUID> fondoDeGarantia(DSLContext dsl, Moneda moneda) {
+        return unicaActiva(dsl, "FONDO_GARANTIA", moneda);
+    }
+
     /** La cuenta {@code USUARIO} activa de una persona en esa moneda. */
     public Optional<UUID> cuentaOperativaDe(DSLContext dsl, UUID usuarioId, Moneda moneda) {
         List<UUID> cuentas = Datos.comoSistema(dsl, () -> dsl.select(DSL.field("id", UUID.class))

@@ -1,0 +1,13 @@
+# aplicar.sql: 1ra corrida exit=2 (entorno: la base se reinicia tras su init, pg_isready respondio antes); 2da exit=0, 33 tablas en nucleo_financiero
+--- siembra 1
+exit=0
+filas insertadas: 855
+--- siembra 2
+exit=0
+filas insertadas: 0
+  numero_cuenta   |      tipo      | moneda | estado | permite_saldo_negativo | sin_grupo | cuenta 
+------------------+----------------+--------+--------+------------------------+-----------+--------
+ SYS-FONDOGAR-BOB | FONDO_GARANTIA | BOB    | ACTIVA | f                      | t         | 2.1.03
+ SYS-FONDOGAR-USD | FONDO_GARANTIA | USD    | ACTIVA | f                      | t         | 
+(2 rows)
+
