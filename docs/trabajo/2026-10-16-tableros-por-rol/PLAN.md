@@ -147,7 +147,7 @@ recargos cobrados del escenario.
 existen los tres permisos, el rol `COMERCIAL` y un volumen sintético marcado como tal, y la segunda corrida no
 inserta nada.
 **DoD:** Salida de las dos corridas pegada, conteos por tabla y verificación de deriva (regla 97.7).
-**Estado:** TODO
+**Estado:** HECHO
 
 ### H2.S1 — Permisos y rol (`seeders/minimos`)
 
@@ -181,12 +181,12 @@ importe es decimal con moneda, todo asiento cuadra, y cada registro lleva la mar
 **CA:** Los fixtures de los servicios tocados por este trabajo generan personas y montos con Datafaker y una
 semilla fija; el mismo test produce los mismos datos en cada corrida.
 **DoD:** Test de determinismo en verde.
-**Estado:** TODO
+**Estado:** HECHO
 
 | ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
 |---|---|---|---|---|
-| H2.S3.M1 | Dependencia `datafaker` de test en el catálogo de versiones (justificada según 90.4.2) | Compila | `./gradlew :plataforma:<modulo-test>:compileTestJava` → exit 0 | TODO |
-| H2.S3.M2 | Fábrica compartida `DatosSinteticos` con semilla fija | Dos instancias con la misma semilla dan los mismos valores | Test unitario nombrado en verde | TODO |
+| H2.S3.M1 | Dependencia `datafaker` de test en el catálogo de versiones (justificada según 90.4.2) | Compila | `./gradlew :plataforma:<modulo-test>:compileTestJava` → exit 0 | HECHO — `evidencia/H2-S3-datafaker.txt` |
+| H2.S3.M2 | Fábrica compartida `DatosSinteticos` con semilla fija | Dos instancias con la misma semilla dan los mismos valores | Test unitario nombrado en verde | HECHO — `evidencia/H2-S3-datafaker.txt` |
 
 ## H3 — Contrato común de indicadores y catálogo de KPI
 
