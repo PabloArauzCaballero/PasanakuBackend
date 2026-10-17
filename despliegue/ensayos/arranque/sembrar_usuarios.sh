@@ -7,7 +7,8 @@
 #   bash despliegue/ensayos/arranque/sembrar_usuarios.sh [archivo-de-salida]
 #
 # Crea: admin (ADMIN_PLATAFORMA), backoffice (OFICIAL_CUMPLIMIENTO, el que decide expedientes),
-# participante A y participante B (PARTICIPANTE) para el ensayo de «aceptar y rechazar».
+# participante A y participante B (PARTICIPANTE) para el ensayo de «aceptar y rechazar», y tesoreria (TESORERIA) y
+# comercial (COMERCIAL) para los tableros por rol.
 # Requiere el stack arriba (postgres del ensayo) y, para el hash, argon2-cffi (se instala solo en
 # $D3_DIR/pylib). El segundo factor en perfil `local` es `000000` para cualquiera (DesafioDeDesarrollo).
 source "$(dirname "${BASH_SOURCE[0]}")/lib.sh"
@@ -31,6 +32,10 @@ usuarios = [  # codigo, rol, nombre, telefono
     ("USRE2E02", "OFICIAL_CUMPLIMIENTO", "Backoffice", "+59172000002"),
     ("USRE2E03", "PARTICIPANTE", "ParticipanteA", "+59172000003"),
     ("USRE2E04", "PARTICIPANTE", "ParticipanteB", "+59172000004"),
+    # Tableros por rol: los duenos del tablero financiero (TESORERIA) y del comercial (COMERCIAL). El de sistemas es
+    # ADMIN_PLATAFORMA (USRE2E01). Ver sql/60_semillas/10-roles-y-permisos.sql.
+    ("USRE2E05", "TESORERIA", "Tesoreria", "+59172000005"),
+    ("USRE2E06", "COMERCIAL", "Comercial", "+59172000006"),
 ]
 # R-ROL: nadie se asigna un rol a si mismo (ck_asignacion_no_autoasignada): un otorgante sintetico sin rol.
 out = ["""INSERT INTO identidad.usuario (codigo_publico, nombres, apellidos, telefono_e164, correo, fecha_nacimiento, estado, nivel_kyc, idioma, zona_horaria, fecha_registro)

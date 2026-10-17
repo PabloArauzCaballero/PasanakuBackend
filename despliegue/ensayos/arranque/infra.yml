@@ -92,9 +92,12 @@ services:
     environment:
       MINIO_ROOT_USER: ${ARCHIVOS_USUARIO}
       MINIO_ROOT_PASSWORD: ${ARCHIVOS_CLAVE}
+      # Para el `mc ready` del chequeo, en imagenes sin wget (D3_IMAGEN_MINIO=cgr.dev/chainguard/minio:latest en macOS,
+      # donde quay.io responde 401 y MinIO ya no publica en Docker Hub).
+      MC_HOST_local: http://${ARCHIVOS_USUARIO}:${ARCHIVOS_CLAVE}@127.0.0.1:9000
     entrypoint: ["/bin/sh", "-c", "mkdir -p /data/aportaya-archivos && exec minio server /data --console-address :9001"]
     healthcheck:
-      test: ["CMD-SHELL", "wget -q --spider http://127.0.0.1:9000/minio/health/live || exit 1"]
+      test: ["CMD-SHELL", "wget -q --spider http://127.0.0.1:9000/minio/health/live 2>/dev/null || mc ready local >/dev/null 2>&1 || exit 1"]
       interval: 5s
       timeout: 3s
       retries: 20
@@ -144,3 +147,35 @@ services:
       timeout: 10s
       retries: 20
       start_period: 30s
+
+  # Tableros (D4) · perfil `observabilidad`, apagado por omision: el ensayo de arranque no lo necesita. Las mismas
+  # imagenes y las mismas configs que despliegue/compose/base.yml, en la red del ensayo y con los nombres que los
+  # servicios esperan (`otel-collector`, `prometheus`). Se enciende con `--profile observabilidad`.
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.115.1
+    profiles: [observabilidad]
+    networks:
+      interna:
+        aliases: [otel-collector]
+    mem_limit: 256m
+    command: ["--config=/etc/otelcol/config.yml"]
+    volumes:
+      - ../../observabilidad/otel-collector.yml:/etc/otelcol/config.yml:ro
+
+  prometheus:
+    image: prom/prometheus:v3.1.0
+    profiles: [observabilidad]
+    networks:
+      interna:
+        aliases: [prometheus]
+    mem_limit: 256m
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.retention.time=1d
+    volumes:
+      - ../../observabilidad/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:9090/-/ready || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12

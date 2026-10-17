@@ -31,6 +31,10 @@
 #   D3_ETIQUETA=nombre                        sufijo de los archivos de evidencia.
 #   D3_TOPE_S=900                             segundos maximos de espera de readiness.
 #   D3_XMX=144m D3_MEM=320m                   heap y limite de cada JVM.
+#   D3_IMAGEN_MINIO=cgr.dev/chainguard/minio:latest   en macOS (quay.io 401, sin MinIO en Docker Hub).
+#   COMPOSE_PROFILES=observabilidad           suma el Collector OTel y Prometheus a la infra (tableros, D4); con
+#                                             METRICAS_OTLP_HABILITADAS=true y PROMETHEUS_URL=http://prometheus:9090
+#                                             exportadas, los servicios empujan OTLP y auditoria lee Prometheus.
 HEAVY=C:/Users/Usuario/.claude/ram-guard/heavy.sh
 if [ -z "${D3_BAJO_HEAVY:-}" ] && [ -f "$HEAVY" ]; then
   export D3_BAJO_HEAVY=1

@@ -423,6 +423,28 @@ y `REPORTE.md`.
 | H9.S1.M5 | (Agregada) Rojos de la primera corrida del CI del PR #115: barrido (literal y tamaño de archivo), Postman y OSV (OpenTelemetry 1.49) | Los cuatro gates en verde en local | `spotlessCheck testBarrido` + `check` + suites tocadas, pegado | HECHO — `evidencia/H9-S1-M5-rojos-del-ci.txt` |
 | H9.S1.M4 | PR a `dev` y PR a `test` | CI en verde y mergeados | `gh pr checks` pegado | HECHO — `evidencia/H9-S1-M4-prs.txt` (#115 y #116 mergeados con CI en verde) |
 
+### H9.S2 — (Agregada 2026-10-17) Destrabar los bloqueados con la pila aislada D3
+
+**Por qué:** los siete `BLOQUEADO` se declararon porque `despliegue/compose/base.yml` fija los nombres
+(`aportaya-postgres`, `aportaya-interna`) que usa la sesión del worktree `backoffice-dominio`. El repo **ya tenía**
+una pila aislada con nombres propios: `despliegue/ensayos/arranque_completo.sh` (proyecto `aportaya-d3`, red
+`aportaya-d3-interna`, Postgres en 5444, gateway en 18080). No la busqué antes de bloquear: desvío registrado en el
+reporte. Se usa esa, sin tocar nada con prefijo `aportaya-` que no sea `aportaya-d3`.
+**CA:** Dado el stack D3 arriba en esta máquina, cuando se corren los DoD de H4.S1.M8, H4.S2.M3, H5.S2.M2,
+H6.S1.M2/M3, H6.S2.M2/M3 y H6.S3.M4, entonces cada uno queda con su salida real, y `aportaya-postgres` sigue con el
+mismo tiempo de vida que antes de empezar.
+**DoD:** `docker ps` antes y después (uptime de `aportaya-postgres` intacto) + evidencia por microtarea.
+**Estado:** EN CURSO
+
+| ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
+|---|---|---|---|---|
+| H9.S2.M1 | D3 corre en macOS: `sed -i` sin sufijo es GNU-only (BSD exige uno) y el guardián de RAM / PowerShell son de Windows | `entorno_de_escenario` funciona en macOS y en Git Bash | `bash -c 'source lib.sh; generar_entorno; entorno_de_escenario PERFIL_SPRING=local'` exit 0, pegado | HECHO — antes: `PERFIL_SPRING` duplicado y `OMITIR` sin efecto (sed BSD toma la ruta como script); después 1 y 0, `evidencia/H9-S2/M1-entorno-en-macos.txt` |
+| H9.S2.M2 | D3 con perfil `observabilidad`: Collector OTel y Prometheus en `aportaya-d3-interna`, con las configs de `despliegue/observabilidad/` | Los dos sanos, alias `otel-collector` y `prometheus` | `infra --profile observabilidad up -d --wait` + `docker ps` pegado | HECHO — 7 contenedores sanos, `aportaya-postgres` intacto; MinIO por `cgr.dev/chainguard/minio` en un override local (quay.io 401), `evidencia/H9-S2/M2-infra-observabilidad.txt` |
+| H9.S2.M3 | Imágenes `aportaya/<servicio>:test` construidas con `construir_imagenes.sh` | 17 imágenes (esquema, gateway y 15) | log de construcción pegado | A MEDIAS — anda: esquema, gateway, identidad, aportes, auditoria, cumplimiento, entregas, erp, garantia y grupos construidas (`OK` en el log). No anda: `inversiones` compiló pero Docker no pudo exportar la imagen («mount callback failed… failed to commit»): **el disco de la Mac está al 100 % (1,3 GB libres)**. Falta: liberar ≥ 10 GB y relanzar `construir_imagenes.sh inversiones notificaciones nucleo-financiero organizador publicidad tarifas transparencia`. Arreglado en el camino: `construir_imagenes.sh` inyectaba un `--max-workers` duplicado (Gradle abortaba). |
+| H9.S2.M4 | Stack D3 completo arriba, con OTLP encendido y `PROMETHEUS_URL` | 16 contenedores sanos; `aportaya-postgres` intacto | `docker ps` antes/después pegado | BLOQUEADO — por disco lleno (ENVIRONMENT, de la máquina, no del código). Destraba: Pablo libera espacio. La infra D3 (7 contenedores) sí quedó sana con `infra.yml` del repo, sin override. |
+| H9.S2.M5 | `sembrar_usuarios.sh` siembra también TESORERIA y COMERCIAL (dueños de los tableros financiero y comercial; sistemas ya es ADMIN_PLATAFORMA) | Los tres ingresan con su segundo factor | ingreso real de los tres pegado | TODO |
+| H9.S2.M6 | Base del ensayo sembrada con `sql/61_dev/sembrar_dev.sql` (fechas relativas, en periodos cerrados), como el escenario `actualizacion` del ensayo | Movimientos en el mayor, aportes, mora y turnos | conteos por tabla pegados | TODO |
+
 ## Hallazgos durante la ejecución
 
 - **H1-02 (dinero):** el tipo de billetera `FONDO_GARANTIA` existe (`sql/10_tablas/10_billetera_custodia/cuenta_billetera.sql:24`),

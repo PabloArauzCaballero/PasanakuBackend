@@ -1,0 +1,4 @@
+rc=0
+PERFIL_SPRING=1 (esperado 1)
+QR_INTERNO_CLAVE=0 (esperado 0)
+0

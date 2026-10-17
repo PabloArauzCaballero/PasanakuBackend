@@ -25,7 +25,13 @@ QUE=("$@"); [ "${#QUE[@]}" -eq 0 ] && QUE=(esquema gateway "${SERVICIOS_NEGOCIO[
 
 # --- Dockerfile de Gradle acotado ---
 DF="$D3_DIR/Dockerfile.ensayo"
-sed 's#\./gradlew --no-daemon #./gradlew --no-daemon --max-workers=2 -Dorg.gradle.parallel=false "-Dorg.gradle.jvmargs=-Xmx1g -XX:MaxMetaspaceSize=512m -Dfile.encoding=UTF-8" #' despliegue/Dockerfile > "$DF"
+# El Dockerfile ya acota Gradle desde H2 (`--no-parallel --max-workers=2`, heap explicito): repetir `--max-workers` hace
+# que Gradle aborte («Multiple arguments were provided for command-line option '--max-workers'»). Solo se inyecta si falta.
+if grep -q -- '--max-workers' despliegue/Dockerfile; then
+  cp despliegue/Dockerfile "$DF"
+else
+  sed 's#\./gradlew --no-daemon #./gradlew --no-daemon --max-workers=2 -Dorg.gradle.parallel=false "-Dorg.gradle.jvmargs=-Xmx1g -XX:MaxMetaspaceSize=512m -Dfile.encoding=UTF-8" #' despliegue/Dockerfile > "$DF"
+fi
 grep -q 'max-workers=2' "$DF" || { log "no pude acotar la linea de Gradle del Dockerfile"; exit 4; }
 diff <(cat despliegue/Dockerfile) "$DF" | head -5 > "$EVID/dockerfile-ensayo.diff" || true
 

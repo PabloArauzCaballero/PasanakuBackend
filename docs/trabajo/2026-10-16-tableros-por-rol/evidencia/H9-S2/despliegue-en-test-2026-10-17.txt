@@ -1,0 +1,16 @@
+# Verificación del despliegue en TEST (Contabo) — 2026-10-17 ~11:00 -04, solo lectura en el host
+origin/dev  66aa2f3e (incluye #115 y #117)   origin/test a76d0799 (incluye #116 y #118, más #114 y #119 de otras sesiones)
+Archivos del trabajo presentes en las dos ramas: catalogo-datos.json, ficha-de-tabla.ts, evidencia H9-S1-M4 → si/si
+dev vs test: 38 archivos distintos, todos de los PRs #114 (organizador básico) y #119 (pubspec.lock), que entraron solo a test.
+
+Host: /opt/aportaya/repo en a76d0799 · autodespliegue.log: "[2026-10-17T08:16:07] listo en a76d079"
+Imágenes :test reconstruidas después del merge de #116 (02:39:58): gateway 02:45 … transparencia 03:09, identidad 03:50,
+organizador 03:51, esquema 03:51, backoffice 04:07, web 04:08, movil-web 08:16 (la de 04:40 FALLÓ y se rehízo a las 07:46: OK en 776 s)
+16 contenedores de aportaya-api: Up 3 hours (healthy)
+auditoria desplegado contiene /app/BOOT-INF/classes/catalogo/catalogo-datos.json
+backoffice desplegado (main-DI7ESWIP.js, last-modified 08:07 GMT) contiene la ruta catalogo-de-datos
+GET /api/v1/indicadores/catalogo-de-datos sin sesión → 401 (protegido)
+En TEST: METRICAS_OTLP_HABILITADAS=false y PROMETHEUS_URL vacío (por diseño del compose): el tablero de sistemas
+muestra «fuente no disponible» para tráfico y latencia hasta que el host levante el Collector.
+
+Espejo: frontend-mirror/test 85582c76..ad391d58 (merge sin force, árbol == origin/test a76d0799)

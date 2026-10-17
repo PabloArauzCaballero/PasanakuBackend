@@ -1,0 +1,28 @@
+# H9.S2.M2 — infra D3 con perfil observabilidad (2026-10-17, macOS)
+## antes
+aportaya-postgres	Up 34 hours (healthy)
+mantra-redesa-postgres-1	Up 35 hours (healthy)
+mantra-redesa-redis-1	Up 35 hours (healthy)
+## comando
+docker compose -p aportaya-d3-infra --env-file $D3_DIR/entorno.env -f despliegue/ensayos/arranque/infra.yml -f $D3_DIR/infra.macos.yml --profile observabilidad up -d --wait
+## override local (solo MinIO: quay.io 401, sin MinIO en Docker Hub)
+# Solo para esta maquina (macOS): quay.io responde 401 y MinIO ya no publica en Docker Hub.
+# cgr.dev/chainguard/minio trae el mismo `minio server` pero sin wget: el chequeo usa `mc ready`.
+services:
+  minio:
+    image: cgr.dev/chainguard/minio:latest
+    environment:
+      MC_HOST_local: http://${ARCHIVOS_USUARIO}:${ARCHIVOS_CLAVE}@127.0.0.1:9000
+    healthcheck:
+      test: ["CMD-SHELL", "mc ready local >/dev/null 2>&1 || exit 1"]
+## despues
+aportaya-d3-infra-pgbouncer-1	Up 21 seconds (healthy)
+aportaya-d3-infra-postgres-1	Up 29 seconds (healthy)
+aportaya-d3-infra-redis-1	Up 29 seconds (healthy)
+aportaya-d3-infra-kafka-1	Up 29 seconds (healthy)
+aportaya-d3-infra-prometheus-1	Up 28 seconds (healthy)
+aportaya-d3-infra-minio-1	Up 29 seconds (healthy)
+aportaya-d3-infra-otel-collector-1	Up 28 seconds
+aportaya-postgres	Up 35 hours (healthy)
+mantra-redesa-postgres-1	Up 35 hours (healthy)
+mantra-redesa-redis-1	Up 35 hours (healthy)

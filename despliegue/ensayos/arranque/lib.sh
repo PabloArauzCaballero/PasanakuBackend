@@ -80,10 +80,12 @@ entorno_de_escenario() {
   cp "$ENVF" "$destino"
   for par in "$@"; do
     case "$par" in
-      OMITIR=*) local v; for v in $(echo "${par#OMITIR=}" | tr ',' ' '); do sed -i "/^$v=/d" "$destino"; done ;;
-      *=*) local k="${par%%=*}"; sed -i "/^$k=/d" "$destino"; echo "$par" >> "$destino" ;;
+      OMITIR=*) local v; for v in $(echo "${par#OMITIR=}" | tr ',' ' '); do sed -i.bak "/^$v=/d" "$destino"; done ;;
+      *=*) local k="${par%%=*}"; sed -i.bak "/^$k=/d" "$destino"; echo "$par" >> "$destino" ;;
     esac
   done
+  # `-i.bak` y no `-i` a secas: sin sufijo es solo de GNU sed; en macOS (BSD) toma la ruta como script y no borra nada.
+  rm -f "$destino.bak"
   ENVF="$destino"
 }
 
