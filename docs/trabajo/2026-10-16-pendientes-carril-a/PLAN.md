@@ -85,7 +85,7 @@ una causa conocida y sin PR.
 | H4.S1.M5 | `f1` lint frontend (tokens, backoffice 206 líneas) | `yarn lint` exit 0 | `yarn lint` | HECHO local — PR #110 |
 | H4.S1.M6 | simulado: ejemplos de identidad sin `telefono` | 307/307 | `vitest run` en simulado | HECHO local — PR #110 |
 | H4.S1.M7 | Clientes Dart versionados sin los modelos nuevos | `yarn typecheck` exit 0 | typecheck con clientes generados de a uno | HECHO local — PR #110 |
-| H4.S1.M8 | CI de #109 y #110 en verde | jobs sin falla | `gh pr checks` | EN CURSO — falta el CI; golden `anverso-360.png` solo verificable en Linux |
+| H4.S1.M8 | CI de #109 y #110 en verde | jobs sin falla | `gh pr checks` | A MEDIAS — CI de #110: Trivy, imagen, formato, contratos y `f1` en verde; corredores rojo solo por CU-04 (lo arregla #109); `f2` rojo por goldens móviles desactualizados en Linux (anverso-360 31,6 %, capturas_* ~1 %, pautas_publicas 4,7 %, cabecera_fase_2 0,8 %) |
 
 ## Riesgos y bloqueos previstos
 

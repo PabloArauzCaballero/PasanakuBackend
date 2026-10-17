@@ -1,4 +1,4 @@
-> **AVANCE: 22 / 24 — 91,7 %.** Lo que falta no es código: el CI de los PR #109 y #110 (H4.S1.M8, EN CURSO) y,
+> **AVANCE: 22 / 24 — 91,7 %.** CI de #110: Trivy, imagen, formato, contratos y lint en verde; quedan rojos CU-04 (#109) y goldens móviles desactualizados (decisión visual). Lo que falta no es código: el CI de los PR #109 y #110 (H4.S1.M8, EN CURSO) y,
 > por consecuencia, que el CI de `dev` quede verde (H3.S1.M2, A MEDIAS). Hasta que esos dos PR pasen y se mergeen, el
 > CI de `dev`/`test` sigue rojo.
 
@@ -42,7 +42,7 @@
 
 | ID | Estado | Qué lo destraba |
 |---|---|---|
-| H4.S1.M8 · CI de #109 y #110 | EN CURSO | que terminen los jobs; si `h4_ci_icono_visual_test` falla en Linux, decidir si el golden se regenera (cambio visual intencional) o si el cambio visual es un error |
+| H4.S1.M8 · CI de #109 y #110 | A MEDIAS: `f2` corrió por primera vez hoy y falla por goldens móviles desactualizados en Linux (anverso-360 31,6 %, capturas_* ~1 %, pautas_publicas_360 4,7 %, cabecera_fase_2_360 0,8 %, ilustracion_de_pauta 0,1 %): vienen de los cambios visuales del día (pautas de foto, identidad institucional). Regenerarlos es aceptar el cambio visual: lo decide quien los hizo, revisando la captura | que terminen los jobs; si `h4_ci_icono_visual_test` falla en Linux, decidir si el golden se regenera (cambio visual intencional) o si el cambio visual es un error |
 | Bóveda CU-04: códigos `-08`, `-09` y `-10` | `DECISION_REQUIRED` | lo decide el dueño de CU-04 (`-08` tiene dos sentidos en el código y `-10` solo vive en el YAML); quedó anotado también en el reporte de otra sesión |
 | Migrar a Spring Boot 4 (CVE-2026-47884/47890) | `DECISION_REQUIRED` | la excepción vence el 2026-11-11 en OSV y en Trivy |
 | `dev` del espejo del frontend | `DECISION_REQUIRED` | ~467 archivos distintos con PR propios; pisarlo es destructivo |
