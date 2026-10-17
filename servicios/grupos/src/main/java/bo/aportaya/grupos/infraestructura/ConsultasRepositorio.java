@@ -221,15 +221,24 @@ public class ConsultasRepositorio {
     public List<Consultas.Participacion> participacionesDe(DSLContext dsl, UUID usuarioId) {
         return dsl.fetch(
                         """
-                        SELECT grupo_id, id, estado FROM grupos.participante
-                         WHERE usuario_id = ?
-                           AND estado NOT IN ('RETIRADO','EXPULSADO','REEMPLAZADO')
-                         ORDER BY fecha_ingreso DESC, id
+                        SELECT p.grupo_id, p.id, p.estado, p.es_organizador,
+                               g.nombre, g.monto_aporte::text AS monto_aporte, g.moneda
+                          FROM grupos.participante p
+                          LEFT JOIN grupos.grupo g ON g.id = p.grupo_id
+                         WHERE p.usuario_id = ?
+                           AND p.estado NOT IN ('RETIRADO','EXPULSADO','REEMPLAZADO')
+                         ORDER BY p.fecha_ingreso DESC, p.id
                          LIMIT 50
                         """,
                         usuarioId)
                 .map(r -> new Consultas.Participacion(
-                        r.get("grupo_id", UUID.class), r.get("id", UUID.class), r.get("estado", String.class)));
+                        r.get("grupo_id", UUID.class),
+                        r.get("id", UUID.class),
+                        r.get("estado", String.class),
+                        r.get("nombre", String.class),
+                        r.get("monto_aporte", String.class),
+                        r.get("moneda", String.class),
+                        Boolean.TRUE.equals(r.get("es_organizador", Boolean.class))));
     }
 
     /** Si ese participante es la persona de la sesion. */
