@@ -1,0 +1,4 @@
+CUIndicadoresDeIdentidadTest 4/4 (nuevo suma, KYC por fecha de resolucion, SIN_DATOS, RECHAZADA no cuenta) · ArranqueTest 1/1
+identidad: test=35 webTest=123 integrationTest=155 con 1 falla PREEXISTENTE: CU04CodigoPorCorreoTest.codigoLlegaPorCorreoYEntra espera AP-CU04-03 y recibe AP-CU04-10.
+Clasificacion (regla 80.4): no es de este trabajo. Reproducida en origin/dev d63e4fef limpio (worktree aparte): misma falla, mismo AP-CU04-10. Salida: H5-preexistente-CU04-en-dev.xml. Fuera de alcance: se registra, no se toca.
+cobertura identidad (tras test+webTest+integrationTest): exit=1

@@ -285,8 +285,8 @@ que H4.
 
 | ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
 |---|---|---|---|---|
-| H5.S1.M1 | `identidad`: usuarios nuevos y etapas de registro y KYC del embudo | Valores = cuadre | `./gradlew :servicios:identidad:integrationTest --tests '*Indicadores*'` en verde | TODO |
-| H5.S1.M2 | `grupos`: activos comerciales, grupos nuevos y completos, días de llenado, retención | Retención con num/den | `./gradlew :servicios:grupos:integrationTest --tests '*IndicadoresComerciales*'` en verde | TODO |
+| H5.S1.M1 | `identidad`: usuarios nuevos (paso 1 del embudo) y KYC aprobados (paso 2) | Valores = cuadre | `./gradlew :servicios:identidad:integrationTest --tests '*Indicadores*'` en verde | HECHO — `evidencia/H5-S1-M1-identidad.txt` (1 falla PREEXISTENTE en dev, ajena, documentada) |
+| H5.S1.M2 | `grupos`: activos comerciales, grupos nuevos y completos, días de llenado, retención | Retención con num/den | `./gradlew :servicios:grupos:integrationTest --tests '*IndicadoresComerciales*'` en verde | EN CURSO |
 | H5.S1.M3 | `aportes`: primer aporte (embudo) y volumen comprometido | Decimal con moneda | `./gradlew :servicios:aportes:integrationTest --tests '*IndicadoresComerciales*'` en verde | TODO |
 | H5.S2.M1 | Pantalla comercial con embudo y fichas | Specs en verde | `yarn --cwd apps/backoffice test:front` (specs nombrados) | TODO |
 | H5.S2.M2 | E2E real y prueba visual | Pantalla = cuadre; capturas | `test:e2e tablero-comercial` + `evidencia/H5/` | TODO |

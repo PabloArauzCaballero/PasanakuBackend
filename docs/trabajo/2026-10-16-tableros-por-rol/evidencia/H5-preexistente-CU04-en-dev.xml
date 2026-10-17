@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="bo.aportaya.identidad.CU04CodigoPorCorreoTest" tests="5" skipped="0" failures="1" errors="0" timestamp="2026-10-17T03:08:02.808Z" hostname="MacBook-Air-de-Pablo.local" time="9.278">
+  <properties/>
+  <testcase name="Dado un participante sin factor y con el correo confirmado en el alta · Cuando entra desde un telefono nuevo · Entonces se le pide el codigo y le llega por correo · Y con ese codigo abre la sesion" classname="bo.aportaya.identidad.CU04CodigoPorCorreoTest" time="0.83">
+    <failure message="org.opentest4j.AssertionFailedError: &#10;Expecting actual:&#10;  Optional[AP-CU04-10]&#10;to contain:&#10;  &quot;AP-CU04-03&quot;&#10;but did not." type="org.opentest4j.AssertionFailedError">org.opentest4j.AssertionFailedError: 
+Expecting actual:
+  Optional[AP-CU04-10]
+to contain:
+  &quot;AP-CU04-03&quot;
+but did not.
+	at bo.aportaya.identidad.CU04CodigoPorCorreoTest.codigoLlegaPorCorreoYEntra(CU04CodigoPorCorreoTest.java:36)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+</failure>
+  </testcase>
+  <testcase name="Dado un participante con TOTP enrolado y correo confirmado · Cuando entra desde un telefono nuevo · Entonces se le pide su factor enrolado y no se envia correo" classname="bo.aportaya.identidad.CU04CodigoPorCorreoTest" time="0.153"/>
+  <testcase name="Dado un participante cuyo correo actual NO es el que confirmo en el alta · Cuando entra desde un telefono nuevo · Entonces no se manda ningun correo" classname="bo.aportaya.identidad.CU04CodigoPorCorreoTest" time="0.127"/>
+  <testcase name="Dado un participante sin factor que recibio el codigo por correo · Cuando escribe un codigo que no es el enviado · Entonces se rechaza con AP-CU04-04 y no abre sesion" classname="bo.aportaya.identidad.CU04CodigoPorCorreoTest" time="0.238"/>
+  <testcase name="Dado un operador sin factor y con correo confirmado · Cuando entra · Entonces sigue rechazado con AP-CU04-06 y no se envia correo (R-SEG-10)" classname="bo.aportaya.identidad.CU04CodigoPorCorreoTest" time="0.145"/>
+  <system-out><![CDATA[23:08:02.873 [Test worker] INFO org.testcontainers.images.PullPolicy -- Image pull policy will be performed by: DefaultPullPolicy()
+23:08:02.875 [Test worker] INFO org.testcontainers.utility.ImageNameSubstitutor -- Image name substitution will be performed by: DefaultImageNameSubstitutor (composite of 'ConfigurationFileImageNameSubstitutor' and 'PrefixingImageNameSubstitutor')
+23:08:02.908 [Test worker] INFO org.testcontainers.DockerClientFactory -- Testcontainers version: 1.21.4
+23:08:03.487 [Test worker] INFO org.testcontainers.dockerclient.DockerClientProviderStrategy -- Found Docker environment with Environment variables, system properties and defaults. Resolved dockerHost=unix:///Users/pablo/.docker/run/docker.sock
+23:08:03.488 [Test worker] INFO org.testcontainers.DockerClientFactory -- Docker host IP address is localhost
+23:08:03.507 [Test worker] INFO org.testcontainers.DockerClientFactory -- Connected to docker: 
+  Server Version: 29.6.2
+  API Version: 1.55
+  Operating System: Docker Desktop
+  Total Memory: 11947 MB
+  Labels: 
+    com.docker.desktop.address=unix:///Users/pablo/Library/Containers/com.docker.docker/Data/docker-cli.sock
+23:08:03.619 [Test worker] INFO tc.testcontainers/ryuk:0.12.0 -- Creating container for image: testcontainers/ryuk:0.12.0
+23:08:03.864 [Test worker] INFO tc.testcontainers/ryuk:0.12.0 -- Container testcontainers/ryuk:0.12.0 is starting: 334bcfa0ed2e7f43288c880b2a14f6420c0e33d7c002e5796cb05573e5509ee8
+23:08:04.210 [Test worker] INFO tc.testcontainers/ryuk:0.12.0 -- Container testcontainers/ryuk:0.12.0 started in PT0.590639S
+23:08:04.214 [Test worker] INFO org.testcontainers.utility.RyukResourceReaper -- Ryuk started - will monitor and terminate Testcontainers containers on JVM exit
+23:08:04.215 [Test worker] INFO org.testcontainers.DockerClientFactory -- Checking the system...
+23:08:04.215 [Test worker] INFO org.testcontainers.DockerClientFactory -- ✔︎ Docker server version should be at least 1.6.0
+23:08:04.216 [Test worker] INFO tc.postgres:16 -- Creating container for image: postgres:16
+23:08:04.683 [Test worker] INFO tc.postgres:16 -- Container postgres:16 is starting: 8efed91ec77449ea925f5f586544d0c97bd0b3c7213903fc5d10d35e959bb2bb
+23:08:05.977 [Test worker] INFO tc.postgres:16 -- Container postgres:16 started in PT1.761379S
+23:08:05.978 [Test worker] INFO tc.postgres:16 -- Container is started (JDBC URL: jdbc:postgresql://localhost:58764/pasanaku?loggerLevel=OFF)
+23:08:10.615 [Test worker] INFO org.jooq.Constants -- 
+                                      
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@  @@        @@@@@@@@@@
+@@@@@@@@@@@@@@@@@@@@        @@@@@@@@@@
+@@@@@@@@@@@@@@@@  @@  @@    @@@@@@@@@@
+@@@@@@@@@@  @@@@  @@  @@    @@@@@@@@@@
+@@@@@@@@@@        @@        @@@@@@@@@@
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@@@@@@@@@@        @@        @@@@@@@@@@
+@@@@@@@@@@    @@  @@  @@@@  @@@@@@@@@@
+@@@@@@@@@@    @@  @@  @@@@  @@@@@@@@@@
+@@@@@@@@@@        @@  @  @  @@@@@@@@@@
+@@@@@@@@@@        @@        @@@@@@@@@@
+@@@@@@@@@@@@@@@@@@@@@@@  @@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@  Thank you for using jOOQ 3.20.5 (Build date: 2025-06-11T08:25:54Z)
+                                      
+23:08:10.616 [Test worker] INFO org.jooq.Constants -- 
+
+jOOQ tip of the day: In order to improve cardinality estimates, it can be valuable to auto-inline bind variables on certain columns, e.g. on enum types: https://www.jooq.org/doc/latest/manual/sql-building/dsl-context/custom-settings/settings-auto-inline-bind-values/
+
+23:08:10.806 [Test worker] WARN org.jooq.impl.DefaultExecuteContext.logVersionSupport -- Version mismatch         : Database version is older than what dialect POSTGRES supports: 16.15 (Debian 16.15-1.pgdg13+2). Consider https://www.jooq.org/download/support-matrix to see what jOOQ version and edition supports which RDBMS versions.
+23:08:11.345 [Test worker] INFO bo.aportaya.identidad.infraestructura.DesafioLocal -- desafio c003c4f3-364b-4c44-94ae-08e82001ea66 emitido para el usuario c6f2a439-2c8a-4515-8cdd-06a5e412212d (6 digitos)
+23:08:11.567 [Test worker] INFO bo.aportaya.identidad.infraestructura.DesafioLocal -- desafio a66aed28-6875-4f47-9073-017817eb9deb emitido para el usuario 167c29ed-b1f2-4c0e-95e0-cdf946642f59 (6 digitos)
+23:08:11.819 [Test worker] INFO bo.aportaya.identidad.infraestructura.DesafioLocal -- desafio 7716f482-ed61-43b9-9827-44c8ad227524 emitido para el usuario af24f7fc-77f1-46eb-8ed5-27b171308811 (6 digitos)
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
