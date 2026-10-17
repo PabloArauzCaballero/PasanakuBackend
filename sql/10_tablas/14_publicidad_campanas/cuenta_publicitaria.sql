@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS publicidad.cuenta_publicitaria (
   CONSTRAINT ck_cuenta_publicitaria_estado CHECK (estado IN ('ACTIVA', 'CERRADA', 'SUSPENDIDA'))
 );
 
-COMMENT ON TABLE publicidad.cuenta_publicitaria IS 'Módulo 14 — Publicidad y Campañas. Que un partner se anuncie dentro de la app sin inventar un segundo cobro';
+COMMENT ON TABLE publicidad.cuenta_publicitaria IS 'Módulo 14 — Publicidad y Campañas. La cuenta de facturación de un anunciante: límite de gasto mensual, saldo consumido, estado.';
 COMMENT ON COLUMN publicidad.cuenta_publicitaria.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN publicidad.cuenta_publicitaria.anunciante_id IS 'FK';
 COMMENT ON COLUMN publicidad.cuenta_publicitaria.limite_gasto_mensual IS 'NULL';

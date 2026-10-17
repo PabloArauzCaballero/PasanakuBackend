@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS erp.categoria_activo_fijo (
   CONSTRAINT ck_categoria_activo_fijo_metodo_depreciacion CHECK (metodo_depreciacion IN ('LINEA_RECTA'))
 );
 
-COMMENT ON TABLE erp.categoria_activo_fijo IS 'Módulo 13 — Contabilidad Financiera y ERP. Que cerrar un mes no dependa de un Excel armado a mano';
+COMMENT ON TABLE erp.categoria_activo_fijo IS 'Módulo 13 — Contabilidad Financiera y ERP. Catálogo: tipo de bien, vida útil, método de depreciación y las tres cuentas contables que le corresponden.';
 COMMENT ON COLUMN erp.categoria_activo_fijo.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN erp.categoria_activo_fijo.codigo IS 'UQ';
 COMMENT ON COLUMN erp.categoria_activo_fijo.vida_util_meses IS 'CK: > 0';

@@ -31,12 +31,16 @@ if hasattr(sys.stdout, "reconfigure"):
 
 DOCS = pathlib.Path("docs")
 SALIDA_MD = DOCS / "catalogo-de-datos.md"
-SALIDA_JSON = pathlib.Path("apps/backoffice/public/catalogo-datos.json")
+# No va en `apps/backoffice/public/`: un archivo estático se sirve sin sesión y publicaría el esquema completo.
+# Lo sirve `auditoria` en GET /catalogo-de-datos, con TABLERO_SISTEMAS_VER (D14 del trabajo de tableros).
+SALIDA_JSON = pathlib.Path("servicios/auditoria/src/main/resources/catalogo/catalogo-datos.json")
 
+# Las fichas escriben la etiqueta con matices («**Por qué debe existir, y por qué no es lo mismo…**:»):
+# se reconoce el comienzo y se tolera el resto hasta el cierre del negrita.
 ETIQUETAS = {
     "queEs": r"Qué (?:es|son)",
     "negocio": r"Para qué sirven? \(negocio\)",
-    "porQue": r"Por qué deben? existir",
+    "porQue": r"Por qué (?:deben?|son)\b",
     "sistema": r"A nivel de sistema",
 }
 
@@ -61,28 +65,45 @@ FINANCIERO = re.compile(r"monto|saldo|importe|bolsa|deuda")
 
 
 def fichas():
-    """{tabla: {queEs, negocio, porQue, sistema, columnas: {nombre_o_camel: texto}}} desde los .md."""
-    resultado = {}
+    """{tabla: {queEs, negocio, porQue, sistema, columnas: {nombre_o_camel: texto}}} desde los .md.
+
+    Dos formas de ficha conviven. La de la mayoría de los módulos: un `### `Clase` / `tabla`` por tabla. La
+    de los módulos 13 y 14: un `##` por grupo de tablas, con una fila `| `tabla` | Qué es |` por tabla y los
+    párrafos del grupo («Para qué sirve», «Por qué debe existir», «A nivel de sistema») que valen para todas.
+    La ficha propia de la tabla gana sobre la del grupo.
+    """
+    resultado, de_grupo = {}, {}
     for md in sorted((DOCS / "entidades").glob("[0-9][0-9]_*.md")):
         texto = md.read_text(encoding="utf-8")
-        for seccion in re.split(r"^(?=#{2,3} )", texto, flags=re.M):
-            encabezado = seccion.split("\n", 1)[0]
-            if not encabezado.startswith("### "):
-                continue
-            tablas = re.findall(r"`([a-z][a-z0-9_]*)`", encabezado)
-            if not tablas:
-                continue
-            ficha = _ficha(seccion)
-            for t in tablas:
-                resultado.setdefault(t, ficha)
+        for grupo in re.split(r"^(?=## )", texto, flags=re.M):
+            partes = re.split(r"^(?=### )", grupo, flags=re.M)
+            for seccion in partes[1:]:
+                tablas = re.findall(r"`([a-z][a-z0-9_]*)`", seccion.split("\n", 1)[0])
+                ficha = _ficha(seccion)
+                for t in tablas:
+                    resultado.setdefault(t, ficha)
+            _fichas_de_grupo(partes[0], de_grupo)
+    for t, ficha in de_grupo.items():
+        resultado.setdefault(t, ficha)
     return resultado
+
+
+def _fichas_de_grupo(seccion, destino):
+    comun = _ficha(seccion)
+    # La definición de cada tabla del grupo: una fila `| `tabla` | Qué es |` o una viñeta `- **`tabla`** — …`.
+    filas = re.finditer(r"^\|\s*((?:`[a-z][a-z0-9_]*`\s*/?\s*)+)\|\s*(.+?)\s*\|\s*$", seccion, re.M)
+    vinetas = re.finditer(r"^[-*]\s+\*\*((?:`[a-z][a-z0-9_]*`\s*/?\s*)+)\*\*\s*[—–-]\s*(.+(?:\n\s{2,}\S.*)*)",
+                          seccion, re.M)
+    for fila in [*filas, *vinetas]:
+        for t in re.findall(r"`([a-z][a-z0-9_]*)`", fila.group(1)):
+            destino.setdefault(t, {**comun, "queEs": _limpio(fila.group(2)), "columnas": comun["columnas"]})
 
 
 def _ficha(seccion):
     cuerpo = seccion.split("\n", 1)[1] if "\n" in seccion else ""
     ficha = {"columnas": {}}
     marcas = [(m.start(), m.end(), clave) for clave, rx in ETIQUETAS.items()
-              for m in re.finditer(r"^\*\*" + rx + r"\.?\*\*", cuerpo, re.M)]
+              for m in re.finditer(r"^\*\*" + rx + r"[^*]*\*\*:?", cuerpo, re.M)]
     marcas.sort()
     for i, (_, fin, clave) in enumerate(marcas):
         hasta = marcas[i + 1][0] if i + 1 < len(marcas) else len(cuerpo)
@@ -210,6 +231,15 @@ def markdown(catalogo):
     return "\n".join(L)
 
 
+def _sin_nulos(valor):
+    """El contrato (`CatalogoDeDatos`, auditoria.yaml) declara opcional lo que puede faltar: se omite, no viaja null."""
+    if isinstance(valor, dict):
+        return {k: _sin_nulos(v) for k, v in valor.items() if v is not None}
+    if isinstance(valor, list):
+        return [_sin_nulos(v) for v in valor]
+    return valor
+
+
 def main():
     p = argparse.ArgumentParser()
     p.add_argument("--tabla")
@@ -222,8 +252,9 @@ def main():
             raise SystemExit(f"No existe la tabla {a.tabla} en el modelo")
         print(json.dumps(t, ensure_ascii=False, indent=2))
     if a.escribir:
+        SALIDA_JSON.parent.mkdir(parents=True, exist_ok=True)
         SALIDA_MD.write_text(markdown(catalogo) + "\n", encoding="utf-8")
-        SALIDA_JSON.write_text(json.dumps(catalogo, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+        SALIDA_JSON.write_text(json.dumps(_sin_nulos(catalogo), ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
         print(f"{len(catalogo['tablas'])} tablas → {SALIDA_MD} y {SALIDA_JSON}")
 
 

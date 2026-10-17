@@ -29,7 +29,7 @@ CREATE TABLE IF NOT EXISTS garantia.cobertura_respaldo (
   CONSTRAINT ck_cobertura_respaldo_estado CHECK (estado IN ('APLICADA', 'RECUPERADA_PARCIAL', 'RECUPERADA_TOTAL', 'REVERSADA'))
 );
 
-COMMENT ON TABLE garantia.cobertura_respaldo IS 'Módulo 08 — Garantía, Incumplimiento, Cobranza y Sanciones. El grupo no se detiene, pero la deuda no se perdona sola';
+COMMENT ON TABLE garantia.cobertura_respaldo IS 'Módulo 08 — Garantía, Incumplimiento, Cobranza y Sanciones. El uso de la reserva de un grupo para completar el pozo de un turno, al corte, cuando no llegó toda la plata.';
 COMMENT ON COLUMN garantia.cobertura_respaldo.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN garantia.cobertura_respaldo.reserva_respaldo_id IS 'FK, IDX';
 COMMENT ON COLUMN garantia.cobertura_respaldo.grupo_id IS 'FK, IDX';

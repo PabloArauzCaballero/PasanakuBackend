@@ -1,9 +1,11 @@
 package bo.aportaya.auditoria.web;
 
 import bo.aportaya.auditoria.aplicacion.CU98PublicarTablero;
+import bo.aportaya.auditoria.aplicacion.CatalogoDeDatosVigente;
 import bo.aportaya.auditoria.aplicacion.EndpointsDelDia;
 import bo.aportaya.auditoria.dominio.FamiliasVisibles;
 import bo.aportaya.auditoria.web.generado.IndicadoresApi;
+import bo.aportaya.auditoria.web.generado.modelo.CatalogoDeDatos;
 import bo.aportaya.auditoria.web.generado.modelo.EndpointDelDia;
 import bo.aportaya.auditoria.web.generado.modelo.Indicador;
 import bo.aportaya.auditoria.web.generado.modelo.IndicadorSerieInner;
@@ -13,6 +15,8 @@ import bo.aportaya.plataforma.web.seguridad.Permiso;
 import bo.aportaya.plataforma.web.seguridad.PermisoAlternativo;
 import bo.aportaya.plataforma.web.seguridad.SesionDeLaPeticion;
 import bo.aportaya.plataforma.web.traza.Traza;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
@@ -33,11 +37,20 @@ public class IndicadoresController implements IndicadoresApi {
 
     private final CU98PublicarTablero cu98;
     private final EndpointsDelDia endpointsDelDia;
+    private final CatalogoDeDatosVigente catalogoDeDatos;
+    private final ObjectMapper mapper;
     private final SesionDeLaPeticion sesion;
 
-    public IndicadoresController(CU98PublicarTablero cu98, EndpointsDelDia endpointsDelDia, SesionDeLaPeticion sesion) {
+    public IndicadoresController(
+            CU98PublicarTablero cu98,
+            EndpointsDelDia endpointsDelDia,
+            CatalogoDeDatosVigente catalogoDeDatos,
+            ObjectMapper mapper,
+            SesionDeLaPeticion sesion) {
         this.cu98 = cu98;
         this.endpointsDelDia = endpointsDelDia;
+        this.catalogoDeDatos = catalogoDeDatos;
+        this.mapper = mapper;
         this.sesion = sesion;
     }
 
@@ -87,6 +100,22 @@ public class IndicadoresController implements IndicadoresApi {
                         })
                         .toList());
         return ResponseEntity.ok(cuerpo);
+    }
+
+    /**
+     * Tableros · H7 — el catalogo de datos. El recurso se lee al arrancar y se pasa por el modelo generado del
+     * contrato: un catalogo que no cumple {@code CatalogoDeDatos} falla aca y no en el navegador.
+     */
+    @Override
+    @Permiso("TABLERO_SISTEMAS_VER")
+    @PermisoAlternativo({"AUDITORIA_LEER"})
+    public ResponseEntity<CatalogoDeDatos> obtenerCatalogoDeDatos() {
+        Traza.marcarCasoDeUso("TABLERO-SISTEMAS", "catalogo-de-datos");
+        try {
+            return ResponseEntity.ok(mapper.treeToValue(catalogoDeDatos.catalogo(), CatalogoDeDatos.class));
+        } catch (JsonProcessingException e) {
+            throw new IllegalStateException("El catalogo de datos no cumple el contrato CatalogoDeDatos", e);
+        }
     }
 
     private static SalidaTablero mapear(CU98PublicarTablero.SalidaTablero salida) {

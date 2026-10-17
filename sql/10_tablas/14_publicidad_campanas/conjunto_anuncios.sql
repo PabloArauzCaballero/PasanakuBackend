@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS publicidad.conjunto_anuncios (
   CONSTRAINT ck_conjunto_anuncios_estado CHECK (estado IN ('ACTIVO', 'AGOTADO', 'FINALIZADO', 'PAUSADO'))
 );
 
-COMMENT ON TABLE publicidad.conjunto_anuncios IS 'Módulo 14 — Publicidad y Campañas. Que un partner se anuncie dentro de la app sin inventar un segundo cobro';
+COMMENT ON TABLE publicidad.conjunto_anuncios IS 'Módulo 14 — Publicidad y Campañas. Une una campaña con un segmento, un espacio y un presupuesto/puja concretos — el equivalente al *ad set* de Meta.';
 COMMENT ON COLUMN publicidad.conjunto_anuncios.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN publicidad.conjunto_anuncios.campana_publicitaria_id IS 'FK, IDX';
 COMMENT ON COLUMN publicidad.conjunto_anuncios.segmento_audiencia_id IS 'FK, IDX';

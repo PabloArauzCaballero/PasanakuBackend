@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS erp.depreciacion_activo (
   CONSTRAINT ck_depreciacion_activo_monto CHECK (monto > 0)
 );
 
-COMMENT ON TABLE erp.depreciacion_activo IS 'Módulo 13 — Contabilidad Financiera y ERP. [append-only] Que cerrar un mes no dependa de un Excel armado a mano';
+COMMENT ON TABLE erp.depreciacion_activo IS 'Módulo 13 — Contabilidad Financiera y ERP. [append-only] Una corrida mensual de depreciación de un activo.';
 COMMENT ON COLUMN erp.depreciacion_activo.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN erp.depreciacion_activo.activo_fijo_id IS 'FK, IDX';
 COMMENT ON COLUMN erp.depreciacion_activo.periodo_contable_id IS 'FK, IDX';

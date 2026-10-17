@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS inversiones.valor_cuota (
   CONSTRAINT ck_valor_cuota_origen_datos CHECK (origen_datos IN ('SINTETICO', 'VERIFICADO'))
 );
 
-COMMENT ON TABLE inversiones.valor_cuota IS 'Módulo 15 — Inversiones voluntarias. [append-only] Que una inversion voluntaria nunca prometa rentabilidad ni duplique el saldo';
+COMMENT ON TABLE inversiones.valor_cuota IS 'Módulo 15 — Inversiones voluntarias. [append-only] El valor de la cuota de un fondo en una fecha, según el aliado.';
 COMMENT ON COLUMN inversiones.valor_cuota.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN inversiones.valor_cuota.producto_inversion_id IS 'FK, IDX';
 COMMENT ON COLUMN inversiones.valor_cuota.fecha IS 'UQ+producto_inversion_id';

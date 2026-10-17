@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS inversiones.devengo_dpf (
   CONSTRAINT ck_devengo_dpf_monto CHECK (monto >= 0)
 );
 
-COMMENT ON TABLE inversiones.devengo_dpf IS 'Módulo 15 — Inversiones voluntarias. [append-only] Que una inversion voluntaria nunca prometa rentabilidad ni duplique el saldo';
+COMMENT ON TABLE inversiones.devengo_dpf IS 'Módulo 15 — Inversiones voluntarias. [append-only] El interés acumulado de un depósito a plazo fijo, día por día, calculado por la plataforma.';
 COMMENT ON COLUMN inversiones.devengo_dpf.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN inversiones.devengo_dpf.posicion_inversion_id IS 'FK, IDX';
 COMMENT ON COLUMN inversiones.devengo_dpf.fecha IS 'UQ+posicion_inversion_id';

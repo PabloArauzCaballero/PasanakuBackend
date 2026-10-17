@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS erp.factura_proveedor (
   CONSTRAINT ck_factura_proveedor_estado CHECK (estado IN ('ANULADA', 'APROBADA', 'PAGADA', 'PAGADA_PARCIAL', 'REGISTRADA'))
 );
 
-COMMENT ON TABLE erp.factura_proveedor IS 'Módulo 13 — Contabilidad Financiera y ERP. [append-only] Que cerrar un mes no dependa de un Excel armado a mano';
+COMMENT ON TABLE erp.factura_proveedor IS 'Módulo 13 — Contabilidad Financiera y ERP. [append-only] La cuenta por pagar: una factura recibida.';
 COMMENT ON COLUMN erp.factura_proveedor.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN erp.factura_proveedor.tercero_comercial_id IS 'FK, IDX';
 COMMENT ON COLUMN erp.factura_proveedor.orden_compra_id IS 'FK, NULL, IDX';

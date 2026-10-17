@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS inversiones.instruccion_libro (
   CONSTRAINT ck_instruccion_libro_estado CHECK (estado IN ('PENDIENTE', 'APLICADA', 'FALLIDA'))
 );
 
-COMMENT ON TABLE inversiones.instruccion_libro IS 'Módulo 15 — Inversiones voluntarias. Que una inversion voluntaria nunca prometa rentabilidad ni duplique el saldo';
+COMMENT ON TABLE inversiones.instruccion_libro IS 'Módulo 15 — Inversiones voluntarias. La intención persistida de un efecto sobre la billetera del titular: retener, liberar, debitar o acreditar.';
 COMMENT ON COLUMN inversiones.instruccion_libro.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN inversiones.instruccion_libro.origen_tipo IS 'CK: ORDEN | RESCATE, IDX';
 COMMENT ON COLUMN inversiones.instruccion_libro.origen_id IS 'IDX, polimorfica';

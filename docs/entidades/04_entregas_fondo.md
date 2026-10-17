@@ -336,3 +336,47 @@ que un organizador tenga que acordarse. Como todo grupo tiene un organizador hum
 | `IntentoDesembolso` | El beneficiario no sabe qué debe corregir para que le llegue. |
 | `ConfirmacionRecepcion` | "Entregado" significa "lo mandamos", que no es lo mismo. |
 | `IncidenciaEntrega` | La emergencia máxima de la plataforma queda sin dueño y sin plazo. |
+
+
+---
+
+## Tablas incorporadas después de la redacción original
+
+> Fichas escritas para el catálogo de datos (trabajo `docs/trabajo/2026-10-16-tableros-por-rol`, H7). Cada
+> afirmación sale de la fuente que se cita al pie de la ficha: no agregan reglas, las explican.
+
+### `FondeoEntrega` / `fondeo_entrega`
+
+**Qué es.** De dónde sale cada boliviano del pozo de una entrega: cuánto está confirmado, cuánto cubrió el fondo mutual, cuánto faltó, cuánto cubrió la empresa y cuánto queda pendiente.
+
+**Para qué sirve (negocio).** Que la persona que cobra su turno reciba el pozo completo (ADR-051) y que se sepa, al centavo, quién puso la plata que faltó y quién la sigue debiendo.
+
+**Por qué debe existir.** El pozo completo exige separar la entrega (lo que recibe la persona) del fondeo (de dónde salió). Sin esta tabla, una cobertura empresarial se confundiría con un aporte pagado y la deuda que se conserva desaparecería.
+
+**A nivel de sistema.** Una por entrega y por turno. R-DES-03: `monto_pozo = monto_confirmado + monto_cubierto_mutual + monto_faltante`; `monto_pendiente = monto_faltante - monto_cubierto_empresa`; el estado es `FONDEADO` solo con pendiente cero. `cobertura_respaldo_id` apunta a la cobertura empresarial del módulo 8 cuando la hubo.
+
+*Fuente: CU-22 (R-DES-03, ADR-051); `docs/Restricciones.md`.*
+
+### `OfertaTurno` / `oferta_turno`
+
+**Qué es.** La publicación de un participante que ofrece vender su derecho a cobrar un turno.
+
+**Para qué sirve (negocio).** Que quien necesita la plata antes (o después) pueda ceder su turno a otra persona por un precio, dentro de la plataforma y con reglas, en lugar de arreglos de palabra fuera del grupo.
+
+**Por qué debe existir.** El derecho a cobrar un turno vale dinero. Sin una oferta registrada no hay forma de impedir que el mismo turno se venda dos veces ni de saber qué se ofreció, a qué precio y con qué cargos.
+
+**A nivel de sistema.** R-DES-04: una sola oferta viva por turno (PUBLICADA, RESERVADA o LIQUIDANDO; `uq_oferta_turno_activa`). Los cargos no superan el precio. `monto_derecho` es lo que vale el turno y `monto_precio` lo que se pide. Vence en `vigente_hasta`.
+
+*Fuente: CU-22 (R-DES-04); `docs/Restricciones.md`.*
+
+### `CesionDerecho` / `cesion_derecho`
+
+**Qué es.** La compra de un turno ofrecido: el paso del derecho a cobrar de un participante a otro, con sus estados hasta liquidarse.
+
+**Para qué sirve (negocio).** Que el comprador no pierda su plata si la cesión falla, y que el vendedor no pierda su turno sin haber cobrado: primero se retienen los fondos, después se asigna el título y al final se liquida.
+
+**Por qué debe existir.** La cesión mueve dinero y cambia quién cobra. Sin un registro con estados no hay forma de saber en qué paso quedó una cesión interrumpida ni de compensarla.
+
+**A nivel de sistema.** R-DES-05: una cesión viva por turno, entre partes distintas. Sin `retencion_ref` no hay `FONDOS_RETENIDOS`, `TITULO_ASIGNADO` ni `LIQUIDADA`. `LIQUIDADA` exige `liquidacion_ref` y fecha, y `FALLIDA` exige motivo. `clave_idempotencia` única.
+
+*Fuente: CU-22 (R-DES-05); `docs/Restricciones.md`.*

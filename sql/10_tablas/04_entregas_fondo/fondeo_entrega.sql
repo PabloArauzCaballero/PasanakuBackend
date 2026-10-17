@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS entregas.fondeo_entrega (
   CONSTRAINT ck_fondeo_entrega_estado CHECK (estado IN ('FONDEADO', 'CON_PENDIENTE'))
 );
 
-COMMENT ON TABLE entregas.fondeo_entrega IS 'Módulo 04 — Entregas de Fondo. Que la bolsa llegue completa, a la persona correcta, una sola vez';
+COMMENT ON TABLE entregas.fondeo_entrega IS 'Módulo 04 — Entregas de Fondo. De dónde sale cada boliviano del pozo de una entrega: cuánto está confirmado, cuánto cubrió el fondo mutual, cuánto faltó, cuánto cubrió la empresa y cuánto queda pendiente.';
 COMMENT ON COLUMN entregas.fondeo_entrega.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN entregas.fondeo_entrega.entrega_id IS 'FK, UQ';
 COMMENT ON COLUMN entregas.fondeo_entrega.turno_id IS 'FK, UQ';

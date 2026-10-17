@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS grupos.alta_grupo (
   CONSTRAINT pk_alta_grupo PRIMARY KEY (id)
 );
 
-COMMENT ON TABLE grupos.alta_grupo IS 'Módulo 02 — Grupos, Cupos, Turnos y Gobernanza. [append-only] Reglas del juego, orden de cobro y decisiones colectivas';
+COMMENT ON TABLE grupos.alta_grupo IS 'Módulo 02 — Grupos, Cupos, Turnos y Gobernanza. [append-only] El registro de que una persona creó un grupo con una clave de idempotencia dada.';
 COMMENT ON COLUMN grupos.alta_grupo.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN grupos.alta_grupo.grupo_id IS 'UQ';
 COMMENT ON COLUMN grupos.alta_grupo.creador_id IS 'IDX';

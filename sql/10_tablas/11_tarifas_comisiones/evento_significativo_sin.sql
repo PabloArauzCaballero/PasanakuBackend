@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS tarifas.evento_significativo_sin (
   CONSTRAINT ck_evento_significativo_sin_estado CHECK (estado IN ('ABIERTO', 'CERRADO', 'REGISTRADO', 'VENCIDO'))
 );
 
-COMMENT ON TABLE tarifas.evento_significativo_sin IS 'Módulo 11 — Tarifas, Comisiones, Impuestos y Facturación. La política de cobro es dato, no código: se cambia con un seeder';
+COMMENT ON TABLE tarifas.evento_significativo_sin IS 'Módulo 11 — Tarifas, Comisiones, Impuestos y Facturación. Un período en que la facturación electrónica no pudo enviarse al SIN (por ejemplo, porque el servicio no respondió), declarado como evento significativo.';
 COMMENT ON COLUMN tarifas.evento_significativo_sin.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN tarifas.evento_significativo_sin.registrado_por IS 'FK, NULL';
 COMMENT ON COLUMN tarifas.evento_significativo_sin.codigo_evento IS 'CK, IDX';

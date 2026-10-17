@@ -162,6 +162,14 @@ jobs:
       - name: 6d · verificar_criterios.py — cada gherkin con su prueba
         run: python3 scripts/verificar_criterios.py
 
+      # El catálogo se genera de las fichas y del modelo: si alguien edita una y no regenera, el JSON que sirve
+      # auditoria miente. Regenerar no puede cambiar nada.
+      - name: 6i · verificar_narrativas.py — toda tabla con su ficha, y el catálogo de datos al día
+        run: |
+          python3 -I scripts/verificar_narrativas.py
+          python3 -I scripts/catalogo_de_datos.py --escribir
+          git diff --exit-code -- docs/catalogo-de-datos.md servicios/auditoria/src/main/resources/catalogo/catalogo-datos.json
+
       # `verificar_pruebas_web.py` lee los contratos con PyYAML, que el runner no trae:
       # el paso moria con ModuleNotFoundError antes de verificar nada. El workflow de la
       # boveda ya lo instalaba; este no.

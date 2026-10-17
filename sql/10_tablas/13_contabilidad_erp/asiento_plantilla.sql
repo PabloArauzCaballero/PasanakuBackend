@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS erp.asiento_plantilla (
   CONSTRAINT ck_asiento_plantilla_periodicidad CHECK (periodicidad IN ('ANUAL', 'MANUAL', 'MENSUAL', 'TRIMESTRAL'))
 );
 
-COMMENT ON TABLE erp.asiento_plantilla IS 'Módulo 13 — Contabilidad Financiera y ERP. Que cerrar un mes no dependa de un Excel armado a mano';
+COMMENT ON TABLE erp.asiento_plantilla IS 'Módulo 13 — Contabilidad Financiera y ERP. Una plantilla de asiento recurrente (alquiler, planilla mensual) para no recapturar el mismo asiento a mano cada mes.';
 COMMENT ON COLUMN erp.asiento_plantilla.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN erp.asiento_plantilla.codigo IS 'UQ';
 COMMENT ON COLUMN erp.asiento_plantilla.periodicidad IS 'CK';

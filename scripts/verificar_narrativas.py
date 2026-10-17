@@ -35,10 +35,12 @@ def main():
     tablas = [t for t in construir()["tablas"] if not a.modulo or t["modulo"] in a.modulo]
     fallas = 0
 
-    sin_ficha = [t for t in tablas if not (t["negocio"]["queEs"] and t["negocio"]["negocio"])]
+    # Explicación de negocio = «Para qué sirve» o «Por qué debe existir»: los módulos 13 y 14 escriben por grupo
+    # y no siempre traen las dos; las dos son narrativa de negocio (D13 del trabajo de tableros).
+    sin_ficha = [t for t in tablas if not (t["negocio"]["queEs"] and (t["negocio"]["negocio"] or t["negocio"]["porQue"]))]
     for t in sin_ficha:
-        print(f"  FALLA · {t['modulo']} {t['esquema']}.{t['tabla']}: sin «Qué es» y «Para qué sirve (negocio)» "
-              f"en docs/entidades/")
+        print(f"  FALLA · {t['modulo']} {t['esquema']}.{t['tabla']}: sin «Qué es» y «Para qué sirve» o «Por qué "
+              f"debe existir» en docs/entidades/")
     fallas += len(sin_ficha)
     print(f"  {'OK   ' if not sin_ficha else 'FALLA'} · tablas con ficha: {len(tablas) - len(sin_ficha)}/{len(tablas)}")
 

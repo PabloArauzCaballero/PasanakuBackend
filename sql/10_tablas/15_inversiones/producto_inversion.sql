@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS inversiones.producto_inversion (
   CONSTRAINT ck_producto_inversion_estado CHECK (estado IN ('ACTIVO', 'SUSPENDIDO'))
 );
 
-COMMENT ON TABLE inversiones.producto_inversion IS 'Módulo 15 — Inversiones voluntarias. Que una inversion voluntaria nunca prometa rentabilidad ni duplique el saldo';
+COMMENT ON TABLE inversiones.producto_inversion IS 'Módulo 15 — Inversiones voluntarias. Un producto que ofrece un aliado: un depósito a plazo fijo (DPF) o un fondo (FONDO), con su emisor, su moneda y su nivel de riesgo.';
 COMMENT ON COLUMN inversiones.producto_inversion.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN inversiones.producto_inversion.codigo IS 'UQ';
 COMMENT ON COLUMN inversiones.producto_inversion.tipo IS 'CK: DPF | FONDO, IDX';

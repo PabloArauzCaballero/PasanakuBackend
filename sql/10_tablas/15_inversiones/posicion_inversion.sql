@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS inversiones.posicion_inversion (
   CONSTRAINT ck_posicion_inversion_estado CHECK (estado IN ('ABIERTA', 'CERRADA'))
 );
 
-COMMENT ON TABLE inversiones.posicion_inversion IS 'Módulo 15 — Inversiones voluntarias. Que una inversion voluntaria nunca prometa rentabilidad ni duplique el saldo';
+COMMENT ON TABLE inversiones.posicion_inversion IS 'Módulo 15 — Inversiones voluntarias. Lo que la persona tiene invertido en un producto: un depósito con su vencimiento o una cantidad de cuotas de un fondo.';
 COMMENT ON COLUMN inversiones.posicion_inversion.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN inversiones.posicion_inversion.usuario_id IS 'IDX';
 COMMENT ON COLUMN inversiones.posicion_inversion.producto_inversion_id IS 'FK, IDX';

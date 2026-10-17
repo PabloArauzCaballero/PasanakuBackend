@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS grupos.sustitucion_administrador (
   CONSTRAINT pk_sustitucion_administrador PRIMARY KEY (id)
 );
 
-COMMENT ON TABLE grupos.sustitucion_administrador IS 'Módulo 02 — Grupos, Cupos, Turnos y Gobernanza. [append-only] Reglas del juego, orden de cobro y decisiones colectivas';
+COMMENT ON TABLE grupos.sustitucion_administrador IS 'Módulo 02 — Grupos, Cupos, Turnos y Gobernanza. [append-only] El cambio de quién administra un grupo: quién sale, quién entra, por qué y qué obligaciones conserva el que sale.';
 COMMENT ON COLUMN grupos.sustitucion_administrador.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN grupos.sustitucion_administrador.grupo_id IS 'IDX';
 COMMENT ON COLUMN grupos.sustitucion_administrador.clave_idempotencia IS 'Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4).';

@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS erp.presupuesto (
   CONSTRAINT ck_presupuesto_estado CHECK (estado IN ('APROBADO', 'BORRADOR', 'CERRADO'))
 );
 
-COMMENT ON TABLE erp.presupuesto IS 'Módulo 13 — Contabilidad Financiera y ERP. Que cerrar un mes no dependa de un Excel armado a mano';
+COMMENT ON TABLE erp.presupuesto IS 'Módulo 13 — Contabilidad Financiera y ERP. Cabecera de presupuesto de un centro de costo para un ejercicio.';
 COMMENT ON COLUMN erp.presupuesto.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN erp.presupuesto.centro_costo_id IS 'FK, IDX';
 COMMENT ON COLUMN erp.presupuesto.ejercicio_fiscal_id IS 'FK, IDX';

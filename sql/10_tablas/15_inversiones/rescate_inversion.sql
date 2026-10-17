@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS inversiones.rescate_inversion (
   CONSTRAINT ck_rescate_inversion_estado CHECK (estado IN ('SOLICITADO', 'PENDIENTE', 'INCIERTO', 'POR_ACREDITAR', 'LIQUIDADO', 'RECHAZADO'))
 );
 
-COMMENT ON TABLE inversiones.rescate_inversion IS 'Módulo 15 — Inversiones voluntarias. Que una inversion voluntaria nunca prometa rentabilidad ni duplique el saldo';
+COMMENT ON TABLE inversiones.rescate_inversion IS 'Módulo 15 — Inversiones voluntarias. El pedido de sacar dinero de una posición: parcial, total, al vencimiento o anticipado, con sus estados hasta liquidarse.';
 COMMENT ON COLUMN inversiones.rescate_inversion.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN inversiones.rescate_inversion.posicion_inversion_id IS 'FK, IDX';
 COMMENT ON COLUMN inversiones.rescate_inversion.usuario_id IS 'IDX';

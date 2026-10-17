@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS entregas.oferta_turno (
   CONSTRAINT ck_oferta_turno_estado CHECK (estado IN ('PUBLICADA', 'RESERVADA', 'LIQUIDANDO', 'VENDIDA', 'CANCELADA', 'VENCIDA'))
 );
 
-COMMENT ON TABLE entregas.oferta_turno IS 'Módulo 04 — Entregas de Fondo. Que la bolsa llegue completa, a la persona correcta, una sola vez';
+COMMENT ON TABLE entregas.oferta_turno IS 'Módulo 04 — Entregas de Fondo. La publicación de un participante que ofrece vender su derecho a cobrar un turno.';
 COMMENT ON COLUMN entregas.oferta_turno.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN entregas.oferta_turno.grupo_id IS 'FK, IDX';
 COMMENT ON COLUMN entregas.oferta_turno.turno_id IS 'FK, IDX';

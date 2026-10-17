@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS erp.pago_a_proveedor (
   CONSTRAINT ck_pago_a_proveedor_forma_pago CHECK (forma_pago IN ('CHEQUE', 'EFECTIVO', 'TRANSFERENCIA'))
 );
 
-COMMENT ON TABLE erp.pago_a_proveedor IS 'Módulo 13 — Contabilidad Financiera y ERP. [append-only] Que cerrar un mes no dependa de un Excel armado a mano';
+COMMENT ON TABLE erp.pago_a_proveedor IS 'Módulo 13 — Contabilidad Financiera y ERP. [append-only] El egreso que la cancela, total o parcial.';
 COMMENT ON COLUMN erp.pago_a_proveedor.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN erp.pago_a_proveedor.factura_proveedor_id IS 'FK, IDX';
 COMMENT ON COLUMN erp.pago_a_proveedor.monto IS 'CK: > 0';

@@ -25,7 +25,7 @@ CREATE TABLE IF NOT EXISTS garantia.reserva_respaldo (
   CONSTRAINT ck_reserva_respaldo_estado CHECK (estado IN ('VIGENTE', 'LIBERADA'))
 );
 
-COMMENT ON TABLE garantia.reserva_respaldo IS 'Módulo 08 — Garantía, Incumplimiento, Cobranza y Sanciones. El grupo no se detiene, pero la deuda no se perdona sola';
+COMMENT ON TABLE garantia.reserva_respaldo IS 'Módulo 08 — Garantía, Incumplimiento, Cobranza y Sanciones. Lo que la empresa aparta de su capacidad para un grupo y un ciclo concretos, antes de activarlo.';
 COMMENT ON COLUMN garantia.reserva_respaldo.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN garantia.reserva_respaldo.capacidad_respaldo_id IS 'FK, IDX';
 COMMENT ON COLUMN garantia.reserva_respaldo.grupo_id IS 'FK, IDX';

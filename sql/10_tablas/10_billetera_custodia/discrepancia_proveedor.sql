@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS nucleo_financiero.discrepancia_proveedor (
   CONSTRAINT ck_discrepancia_proveedor_tipo CHECK (tipo IN ('FIRMA_INVALIDA', 'ESTADO_CONTRADICTORIO', 'MONTO_DISTINTO', 'REFERENCIA_DISTINTA', 'RESPUESTA_INVALIDA'))
 );
 
-COMMENT ON TABLE nucleo_financiero.discrepancia_proveedor IS 'Módulo 10 — Billetera, Custodia y Dinero Electrónico. [append-only] El saldo no se guarda: se deriva, y todos los días cuadra contra el banco';
+COMMENT ON TABLE nucleo_financiero.discrepancia_proveedor IS 'Módulo 10 — Billetera, Custodia y Dinero Electrónico. [append-only] Una respuesta del proveedor de pagos que no se puede creer: firma inválida, estado que contradice al libro, monto o referencia distintos, o una respuesta mal formada.';
 COMMENT ON COLUMN nucleo_financiero.discrepancia_proveedor.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN nucleo_financiero.discrepancia_proveedor.referencia_tipo IS 'CK: ORDEN_RECARGA|ORDEN_RETIRO';
 COMMENT ON COLUMN nucleo_financiero.discrepancia_proveedor.referencia_id IS 'IDX, polimorfica';

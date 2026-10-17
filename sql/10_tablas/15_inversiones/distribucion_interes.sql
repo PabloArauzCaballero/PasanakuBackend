@@ -29,7 +29,7 @@ CREATE TABLE IF NOT EXISTS inversiones.distribucion_interes (
   CONSTRAINT ck_distribucion_interes_estado CHECK (estado IN ('CONCILIADA', 'DISCREPANCIA'))
 );
 
-COMMENT ON TABLE inversiones.distribucion_interes IS 'Módulo 15 — Inversiones voluntarias. [append-only] Que una inversion voluntaria nunca prometa rentabilidad ni duplique el saldo';
+COMMENT ON TABLE inversiones.distribucion_interes IS 'Módulo 15 — Inversiones voluntarias. [append-only] El reparto al titular del interés pagado por el emisor, por el período de su posición y con la retención del comprobante.';
 COMMENT ON COLUMN inversiones.distribucion_interes.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN inversiones.distribucion_interes.posicion_inversion_id IS 'FK, IDX';
 COMMENT ON COLUMN inversiones.distribucion_interes.rescate_inversion_id IS 'FK, UQ';

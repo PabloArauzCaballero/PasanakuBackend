@@ -32,7 +32,7 @@ CREATE TABLE IF NOT EXISTS inversiones.comprobante_inversion (
   CONSTRAINT ck_comprobante_inversion_origen_datos CHECK (origen_datos IN ('SINTETICO', 'VERIFICADO'))
 );
 
-COMMENT ON TABLE inversiones.comprobante_inversion IS 'Módulo 15 — Inversiones voluntarias. [append-only] Que una inversion voluntaria nunca prometa rentabilidad ni duplique el saldo';
+COMMENT ON TABLE inversiones.comprobante_inversion IS 'Módulo 15 — Inversiones voluntarias. [append-only] El comprobante de una suscripción o de una liquidación, con el dinero descompuesto en principal, interés, impuesto, comisión y pérdida realizada.';
 COMMENT ON COLUMN inversiones.comprobante_inversion.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN inversiones.comprobante_inversion.posicion_inversion_id IS 'FK, IDX';
 COMMENT ON COLUMN inversiones.comprobante_inversion.usuario_id IS 'IDX';

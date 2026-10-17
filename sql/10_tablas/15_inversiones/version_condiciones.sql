@@ -37,7 +37,7 @@ CREATE TABLE IF NOT EXISTS inversiones.version_condiciones (
   CONSTRAINT ck_version_condiciones_origen_datos CHECK (origen_datos IN ('SINTETICO', 'VERIFICADO'))
 );
 
-COMMENT ON TABLE inversiones.version_condiciones IS 'Módulo 15 — Inversiones voluntarias. [append-only] Que una inversion voluntaria nunca prometa rentabilidad ni duplique el saldo';
+COMMENT ON TABLE inversiones.version_condiciones IS 'Módulo 15 — Inversiones voluntarias. [append-only] Cada cotización de las condiciones de un producto: plazo, tasa, mínimo, costos, retención, comisión de éxito y el texto que la persona acepta.';
 COMMENT ON COLUMN inversiones.version_condiciones.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN inversiones.version_condiciones.producto_inversion_id IS 'FK, IDX';
 COMMENT ON COLUMN inversiones.version_condiciones.numero IS 'UQ+producto_inversion_id';

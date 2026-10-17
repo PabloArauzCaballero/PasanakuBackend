@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS nucleo_financiero.qr_transferencia (
   CONSTRAINT ck_qr_transferencia_estado CHECK (estado IN ('VIGENTE', 'USADO', 'ANULADO'))
 );
 
-COMMENT ON TABLE nucleo_financiero.qr_transferencia IS 'Módulo 10 — Billetera, Custodia y Dinero Electrónico. El saldo no se guarda: se deriva, y todos los días cuadra contra el banco';
+COMMENT ON TABLE nucleo_financiero.qr_transferencia IS 'Módulo 10 — Billetera, Custodia y Dinero Electrónico. Un QR de cobro que publica una billetera de Pasanaku, para que otra billetera le pague.';
 COMMENT ON COLUMN nucleo_financiero.qr_transferencia.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN nucleo_financiero.qr_transferencia.cuenta_billetera_id IS 'FK, IDX';
 COMMENT ON COLUMN nucleo_financiero.qr_transferencia.transaccion_id IS 'FK, NULL, UQ';

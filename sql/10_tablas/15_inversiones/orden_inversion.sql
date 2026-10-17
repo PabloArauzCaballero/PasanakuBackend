@@ -25,7 +25,7 @@ CREATE TABLE IF NOT EXISTS inversiones.orden_inversion (
   CONSTRAINT ck_orden_inversion_estado CHECK (estado IN ('CREADA', 'RETENIDA', 'ENVIADA', 'INCIERTA', 'CONFIRMADA', 'RECHAZADA', 'CANCELADA'))
 );
 
-COMMENT ON TABLE inversiones.orden_inversion IS 'Módulo 15 — Inversiones voluntarias. Que una inversion voluntaria nunca prometa rentabilidad ni duplique el saldo';
+COMMENT ON TABLE inversiones.orden_inversion IS 'Módulo 15 — Inversiones voluntarias. El pedido de invertir un importe del saldo libre en un producto, con sus estados hasta que el aliado confirma o rechaza.';
 COMMENT ON COLUMN inversiones.orden_inversion.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN inversiones.orden_inversion.usuario_id IS 'IDX';
 COMMENT ON COLUMN inversiones.orden_inversion.producto_inversion_id IS 'FK, IDX';

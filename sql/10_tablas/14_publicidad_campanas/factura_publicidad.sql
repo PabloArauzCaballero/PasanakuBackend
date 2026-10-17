@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS publicidad.factura_publicidad (
   CONSTRAINT ck_factura_publicidad_estado CHECK (estado IN ('ANULADA', 'COBRADA', 'FACTURADA', 'GENERADA'))
 );
 
-COMMENT ON TABLE publicidad.factura_publicidad IS 'Módulo 14 — Publicidad y Campañas. [append-only] Que un partner se anuncie dentro de la app sin inventar un segundo cobro';
+COMMENT ON TABLE publicidad.factura_publicidad IS 'Módulo 14 — Publicidad y Campañas. [append-only] La liquidación periódica de gasto de una cuenta publicitaria.';
 COMMENT ON COLUMN publicidad.factura_publicidad.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN publicidad.factura_publicidad.cuenta_publicitaria_id IS 'FK, IDX';
 COMMENT ON COLUMN publicidad.factura_publicidad.monto_total IS 'CK: > 0';

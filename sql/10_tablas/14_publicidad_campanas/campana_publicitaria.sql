@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS publicidad.campana_publicitaria (
   CONSTRAINT ck_campana_publicitaria_estado CHECK (estado IN ('ACTIVA', 'BORRADOR', 'EN_REVISION', 'FINALIZADA', 'PAUSADA', 'RECHAZADA'))
 );
 
-COMMENT ON TABLE publicidad.campana_publicitaria IS 'Módulo 14 — Publicidad y Campañas. Que un partner se anuncie dentro de la app sin inventar un segundo cobro';
+COMMENT ON TABLE publicidad.campana_publicitaria IS 'Módulo 14 — Publicidad y Campañas. Objetivo, presupuesto total y vigencia de una campaña.';
 COMMENT ON COLUMN publicidad.campana_publicitaria.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN publicidad.campana_publicitaria.cuenta_publicitaria_id IS 'FK, IDX';
 COMMENT ON COLUMN publicidad.campana_publicitaria.objetivo IS 'CK';

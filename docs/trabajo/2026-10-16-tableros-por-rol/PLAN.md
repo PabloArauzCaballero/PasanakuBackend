@@ -336,18 +336,25 @@ prueba visual.
 > con la ficha cuando existe, un diccionario de convenciones del proyecto para los nombres repetidos (`id`,
 > `estado`, `moneda`, `clave_idempotencia`, `vigente_desde`…) y la descripción estructural; el gate exige ficha en
 > el 100 % de las tablas y trinquete (no baja) en la cobertura de columnas.
+>
+> **D14 (2026-10-17).** El catálogo en JSON describe el esquema completo de la base. Servido como archivo estático
+> del backoffice quedaría accesible sin sesión (regla 90.5, superficie pública no autenticada). Se sirve desde
+> `auditoria` con `TABLERO_SISTEMAS_VER`. Los módulos 13 y 14 ya tenían su narrativa, escrita por grupo de
+> tablas: se extendió el lector en lugar de reescribirla, y el gate acepta «Para qué sirve» o «Por qué debe existir».
 
 | ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
 |---|---|---|---|---|
 | H7.S1.M1 | `scripts/catalogo_de_datos.py`: lee las fichas `docs/entidades/*.md` por tabla y por columna (sin sintaxis nueva en el PlantUML, D13) | Devuelve la ficha de `obligacion_aporte` y la nota de `monto_esperado` | `python3 -I scripts/catalogo_de_datos.py --tabla obligacion_aporte` pegado | HECHO — `evidencia/H7-S1-M1-lector-de-fichas.txt` |
 | H7.S1.M2 | El generador emite `COMMENT ON TABLE/COLUMN` con la narrativa (en lugar de la anotación cruda) | DDL regenerado; `obj_description` devuelve el texto en una base aplicada | `psql` pegado | HECHO — `evidencia/H7-S1-M2-comment-on.txt` |
 | H7.S1.M3 | Gate `scripts/verificar_narrativas.py`: 100 % de tablas con ficha y trinquete de cobertura de columnas | Falla con una tabla sin ficha y pasa sin faltantes | Dos corridas pegadas | HECHO — `evidencia/H7-S1-M3-gate-narrativas.txt` (entra al CI cuando el modelo completo pase, H7.S1.M5) |
-| H7.S1.M4a | Fichas faltantes de los módulos 01, 02, 04, 07, 10 y 11 (14 tablas) | Gate filtrado por esos módulos → exit 0 | `verificar_narrativas.py --modulo …` pegado | TODO |
-| H7.S1.M4b | Fichas faltantes del módulo 08 (6 tablas) | Ídem | Ídem | TODO |
-| H7.S1.M4c | Fichas faltantes del módulo 13 (18 tablas) | Ídem | Ídem | TODO |
-| H7.S1.M4d | Fichas faltantes del módulo 14 (14 tablas) | Ídem | Ídem | TODO |
-| H7.S1.M4e | Fichas del módulo 15 (inversiones, sin `.md`; 14 tablas) | Ídem | Ídem | TODO |
-| H7.S1.M5 | Generar `docs/catalogo-de-datos.md` y `apps/backoffice/public/catalogo-datos.json` (esquemas, tablas, columnas, tipos, nulabilidad, PK, FK, relaciones, sensibilidad) | Dos corridas idénticas | `shasum -a 256` dos veces, pegado | TODO |
+| H7.S1.M4a | Fichas faltantes de los módulos 01, 02, 04, 07, 10 y 11 (14 tablas) | Gate filtrado por esos módulos → exit 0 | `verificar_narrativas.py --modulo …` pegado | HECHO — `evidencia/H7-S1-M4a-fichas.txt` |
+| H7.S1.M4b | Fichas faltantes del módulo 08 (6 tablas) | Ídem | Ídem | HECHO — `evidencia/H7-S1-M4b-fichas-respaldo.txt` |
+| H7.S1.M4c | Fichas faltantes del módulo 13 (18 tablas) | Ídem | Ídem | HECHO — `evidencia/H7-S1-M4cd-fichas-13-14.txt` (narrativa existente, lector extendido) |
+| H7.S1.M4d | Fichas faltantes del módulo 14 (14 tablas) | Ídem | Ídem | HECHO — `evidencia/H7-S1-M4cd-fichas-13-14.txt` (narrativa existente, lector extendido) |
+| H7.S1.M4e | Fichas del módulo 15 (inversiones, sin `.md`; 14 tablas) | Ídem | Ídem | HECHO — `evidencia/H7-S1-M4e-fichas-inversiones.txt` |
+| H7.S1.M5 | Generar `docs/catalogo-de-datos.md` y `servicios/auditoria/src/main/resources/catalogo/catalogo-datos.json` (esquemas, tablas, columnas, tipos, nulabilidad, PK, FK, relaciones, sensibilidad) — D14: NO en `public/` del backoffice, que se sirve sin sesión | Dos corridas idénticas | `shasum -a 256` dos veces, pegado | HECHO — `evidencia/H7-S1-M5-catalogo-generado.txt` |
+| H7.S1.M6 | `GET /indicadores/catalogo-de-datos` en `auditoria` (contrato OpenAPI + controlador que sirve el recurso), con `TABLERO_SISTEMAS_VER` | 200 con permiso; 403 sin permiso; 401 sin token | Test web nombrado en verde | HECHO — `evidencia/H7-S1-M6-endpoint-catalogo.txt` |
+| H7.S1.M7 | Gate `verificar_narrativas.py` en el CI (paso 6i de `ci.yml`) | El paso existe y el gate pasa en el modelo completo | `grep` del paso + corrida local exit 0 | HECHO — `evidencia/H7-S1-M7-gate-en-ci.txt` |
 | H7.S2.M1 | Pantalla de catálogo (lista, búsqueda normalizada y ficha de tabla con relaciones) consumiendo el JSON publicado | Specs de los cuatro estados en verde | `yarn --cwd apps/backoffice test:front` (specs nombrados) | TODO |
 | H7.S2.M2 | Prueba visual | Capturas inspeccionadas | `evidencia/H7/` | TODO |
 

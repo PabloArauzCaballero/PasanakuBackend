@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS entregas.cesion_derecho (
   CONSTRAINT ck_cesion_derecho_estado CHECK (estado IN ('CREADA', 'VALIDADA', 'FONDOS_RETENIDOS', 'TITULO_ASIGNADO', 'LIQUIDADA', 'FALLIDA'))
 );
 
-COMMENT ON TABLE entregas.cesion_derecho IS 'Módulo 04 — Entregas de Fondo. Que la bolsa llegue completa, a la persona correcta, una sola vez';
+COMMENT ON TABLE entregas.cesion_derecho IS 'Módulo 04 — Entregas de Fondo. La compra de un turno ofrecido: el paso del derecho a cobrar de un participante a otro, con sus estados hasta liquidarse.';
 COMMENT ON COLUMN entregas.cesion_derecho.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN entregas.cesion_derecho.oferta_turno_id IS 'FK, IDX';
 COMMENT ON COLUMN entregas.cesion_derecho.turno_id IS 'FK, IDX';

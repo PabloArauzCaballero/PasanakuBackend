@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS erp.partida_presupuestaria (
   CONSTRAINT ck_partida_presupuestaria_monto_presupuestado CHECK (monto_presupuestado > 0)
 );
 
-COMMENT ON TABLE erp.partida_presupuestaria IS 'Módulo 13 — Contabilidad Financiera y ERP. Que cerrar un mes no dependa de un Excel armado a mano';
+COMMENT ON TABLE erp.partida_presupuestaria IS 'Módulo 13 — Contabilidad Financiera y ERP. Línea de presupuesto: cuánto se autorizó gastar en una cuenta contable, en un período, y cuánto se ejecutó.';
 COMMENT ON COLUMN erp.partida_presupuestaria.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN erp.partida_presupuestaria.presupuesto_id IS 'FK, IDX';
 COMMENT ON COLUMN erp.partida_presupuestaria.cuenta_contable_id IS 'FK, IDX, M3';

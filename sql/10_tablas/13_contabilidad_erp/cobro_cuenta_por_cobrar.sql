@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS erp.cobro_cuenta_por_cobrar (
   CONSTRAINT ck_cobro_cuenta_por_cobrar_forma_cobro CHECK (forma_cobro IN ('EFECTIVO', 'QR', 'TARJETA', 'TRANSFERENCIA'))
 );
 
-COMMENT ON TABLE erp.cobro_cuenta_por_cobrar IS 'Módulo 13 — Contabilidad Financiera y ERP. [append-only] Que cerrar un mes no dependa de un Excel armado a mano';
+COMMENT ON TABLE erp.cobro_cuenta_por_cobrar IS 'Módulo 13 — Contabilidad Financiera y ERP. [append-only] El ingreso que la cancela.';
 COMMENT ON COLUMN erp.cobro_cuenta_por_cobrar.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN erp.cobro_cuenta_por_cobrar.cuenta_por_cobrar_id IS 'FK, IDX';
 COMMENT ON COLUMN erp.cobro_cuenta_por_cobrar.monto IS 'CK: > 0';

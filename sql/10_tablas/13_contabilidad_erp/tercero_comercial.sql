@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS erp.tercero_comercial (
   CONSTRAINT ck_tercero_comercial_estado CHECK (estado IN ('ACTIVO', 'BLOQUEADO', 'INACTIVO'))
 );
 
-COMMENT ON TABLE erp.tercero_comercial IS 'Módulo 13 — Contabilidad Financiera y ERP. Que cerrar un mes no dependa de un Excel armado a mano';
+COMMENT ON TABLE erp.tercero_comercial IS 'Módulo 13 — Contabilidad Financiera y ERP. Un proveedor o cliente comercial: a quién la empresa le compra o le vende fuera del circuito del pasanaku.';
 COMMENT ON COLUMN erp.tercero_comercial.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN erp.tercero_comercial.tipo IS 'CK';
 COMMENT ON COLUMN erp.tercero_comercial.numero_documento IS 'UQ';

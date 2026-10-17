@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS organizador.decision_habilitacion (
   CONSTRAINT pk_decision_habilitacion PRIMARY KEY (id)
 );
 
-COMMENT ON TABLE organizador.decision_habilitacion IS 'Módulo 07 — Organizador y Automatización. [append-only] Administrar es un rol, no un negocio: el organizador no cobra ni custodia';
+COMMENT ON TABLE organizador.decision_habilitacion IS 'Módulo 07 — Organizador y Automatización. [append-only] Cada resolución sobre una postulación a organizador: aprobar, rechazar y, en revisión, confirmar o revocar.';
 COMMENT ON COLUMN organizador.decision_habilitacion.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN organizador.decision_habilitacion.solicitud_id IS 'IDX';
 COMMENT ON COLUMN organizador.decision_habilitacion.clave_idempotencia IS 'Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4).';

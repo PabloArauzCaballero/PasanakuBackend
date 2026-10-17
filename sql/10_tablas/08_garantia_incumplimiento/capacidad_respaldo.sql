@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS garantia.capacidad_respaldo (
   CONSTRAINT ck_capacidad_respaldo_monto_comprometido CHECK (monto_comprometido >= 0)
 );
 
-COMMENT ON TABLE garantia.capacidad_respaldo IS 'Módulo 08 — Garantía, Incumplimiento, Cobranza y Sanciones. El grupo no se detiene, pero la deuda no se perdona sola';
+COMMENT ON TABLE garantia.capacidad_respaldo IS 'Módulo 08 — Garantía, Incumplimiento, Cobranza y Sanciones. El tope de dinero que la empresa está dispuesta a comprometer para cubrir faltantes de pozo, por moneda, y cuánto ya comprometió.';
 COMMENT ON COLUMN garantia.capacidad_respaldo.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN garantia.capacidad_respaldo.ambito IS 'UQ+moneda';
 COMMENT ON COLUMN garantia.capacidad_respaldo.moneda IS 'Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2).';

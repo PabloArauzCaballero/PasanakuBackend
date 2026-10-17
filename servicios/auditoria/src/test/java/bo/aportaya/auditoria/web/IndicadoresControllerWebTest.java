@@ -46,6 +46,9 @@ class IndicadoresControllerWebTest {
     @MockitoBean
     private bo.aportaya.auditoria.aplicacion.EndpointsDelDia endpointsDelDia;
 
+    @MockitoBean
+    private bo.aportaya.auditoria.aplicacion.CatalogoDeDatosVigente catalogoDeDatos;
+
     private static CU98PublicarTablero.Indicador indicador(
             String codigo, Optional<BigDecimal> valor, boolean suprimido, boolean provisorio) {
         return new CU98PublicarTablero.Indicador(

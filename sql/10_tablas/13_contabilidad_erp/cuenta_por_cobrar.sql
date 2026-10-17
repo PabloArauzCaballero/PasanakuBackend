@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS erp.cuenta_por_cobrar (
   CONSTRAINT ck_cuenta_por_cobrar_estado CHECK (estado IN ('COBRADA', 'COBRADA_PARCIAL', 'INCOBRABLE', 'PENDIENTE'))
 );
 
-COMMENT ON TABLE erp.cuenta_por_cobrar IS 'Módulo 13 — Contabilidad Financiera y ERP. [append-only] Que cerrar un mes no dependa de un Excel armado a mano';
+COMMENT ON TABLE erp.cuenta_por_cobrar IS 'Módulo 13 — Contabilidad Financiera y ERP. [append-only] Un cobro pendiente a un tercero, de origen polimórfico.';
 COMMENT ON COLUMN erp.cuenta_por_cobrar.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN erp.cuenta_por_cobrar.origen_tipo IS 'CK, IDX';
 COMMENT ON COLUMN erp.cuenta_por_cobrar.origen_id IS 'IDX, polimorfica';

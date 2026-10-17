@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS garantia.movimiento_reserva (
   CONSTRAINT ck_movimiento_reserva_exposicion_resultante CHECK (exposicion_resultante >= 0)
 );
 
-COMMENT ON TABLE garantia.movimiento_reserva IS 'Módulo 08 — Garantía, Incumplimiento, Cobranza y Sanciones. [append-only] El grupo no se detiene, pero la deuda no se perdona sola';
+COMMENT ON TABLE garantia.movimiento_reserva IS 'Módulo 08 — Garantía, Incumplimiento, Cobranza y Sanciones. [append-only] El libro inmutable de la reserva: cada reserva, ampliación, aplicación, reversa, recuperación o liberación, con el disponible y la exposición que dejó.';
 COMMENT ON COLUMN garantia.movimiento_reserva.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN garantia.movimiento_reserva.reserva_respaldo_id IS 'FK, IDX';
 COMMENT ON COLUMN garantia.movimiento_reserva.tipo IS 'CK: RESERVA|AMPLIACION|APLICACION|REVERSA_APLICACION|RECUPERACION|LIBERACION, IDX';

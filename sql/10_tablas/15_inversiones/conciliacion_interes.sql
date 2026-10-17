@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS inversiones.conciliacion_interes (
   CONSTRAINT ck_conciliacion_interes_estado CHECK (estado IN ('CONCILIADA', 'DISCREPANCIA'))
 );
 
-COMMENT ON TABLE inversiones.conciliacion_interes IS 'Módulo 15 — Inversiones voluntarias. [append-only] Que una inversion voluntaria nunca prometa rentabilidad ni duplique el saldo';
+COMMENT ON TABLE inversiones.conciliacion_interes IS 'Módulo 15 — Inversiones voluntarias. [append-only] La comparación, por rescate, entre el interés y la retención que calculó la plataforma y los que informó el aliado.';
 COMMENT ON COLUMN inversiones.conciliacion_interes.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN inversiones.conciliacion_interes.posicion_inversion_id IS 'FK, IDX';
 COMMENT ON COLUMN inversiones.conciliacion_interes.rescate_inversion_id IS 'FK, UQ';

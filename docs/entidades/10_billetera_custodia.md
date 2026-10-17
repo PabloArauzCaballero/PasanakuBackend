@@ -565,3 +565,59 @@ Y el costo, dicho con todas las letras: **desde el momento en que hay saldo, la
 plataforma custodia dinero de terceros.** Eso exige licencia, encaje, límites,
 reportes y supervisión. Este módulo, junto con el 11 y el 12, existe para que ese
 costo sea un requisito cumplido y no una sorpresa.
+
+
+---
+
+## Tablas incorporadas después de la redacción original
+
+> Fichas escritas para el catálogo de datos (trabajo `docs/trabajo/2026-10-16-tableros-por-rol`, H7). Cada
+> afirmación sale de la fuente que se cita al pie de la ficha: no agregan reglas, las explican.
+
+### `DiscrepanciaProveedor` / `discrepancia_proveedor`
+
+**Qué es.** Una respuesta del proveedor de pagos que no se puede creer: firma inválida, estado que contradice al libro, monto o referencia distintos, o una respuesta mal formada.
+
+**Para qué sirve (negocio).** Que una recarga o un retiro dudoso ni se acredite ni se descarte en silencio: queda para que una persona lo revise.
+
+**Por qué debe existir.** No es lo mismo que un proveedor que no contesta. Un timeout deja el resultado desconocido y se vuelve a consultar; una firma que no coincide es evidencia y se conserva.
+
+**A nivel de sistema.** Apunta a una `ORDEN_RECARGA` u `ORDEN_RETIRO`. `huella` es el SHA-256 de lo recibido: identifica la evidencia sin guardarla entera, y con `referencia_id` y `tipo` evita registrar dos veces la misma. Append-only.
+
+*Fuente: CU-10, CU-11; `servicios/nucleo-financiero/.../DiscrepanciaDelProveedor.java`.*
+
+### `EvidenciaMfaConsumida` / `evidencia_mfa_consumida`
+
+**Qué es.** La marca de que una evidencia de segundo factor (el `jti` del JWT de step-up) ya se usó.
+
+**Para qué sirve (negocio).** Que una verificación de segundo factor autorice una sola operación sensible (un retiro, un cambio de cuenta): quien robe esa evidencia no puede reusarla.
+
+**Por qué debe existir.** El JWT de evidencia es válido hasta que vence. Sin registrar su consumo, podría presentarse dos veces dentro de su vigencia.
+
+**A nivel de sistema.** `jti` único: el `INSERT ... ON CONFLICT (jti) DO NOTHING` es la barrera, y de dos verificaciones simultáneas con el mismo `jti` solo una gana. Append-only con `UPDATE` y `DELETE` revocados. `proposito` ∈ RETIRO/CAMBIO_CUENTA/ADMIN.
+
+*Fuente: CU-04; `servicios/nucleo-financiero/.../EvidenciaMfaConsumidaRepositorio.java`.*
+
+### `QrTransferencia` / `qr_transferencia`
+
+**Qué es.** Un QR de cobro que publica una billetera de Pasanaku, para que otra billetera le pague.
+
+**Para qué sirve (negocio).** Cobrar entre personas o a un comercio dentro de la plataforma. El dinámico fija importe y vencimiento y se paga una sola vez; el estático no fija importe, no vence y se puede pagar muchas veces.
+
+**Por qué debe existir.** Sin él, cobrar dentro de la plataforma exigiría pasar el número de billetera a mano. Además no se podría impedir que un QR dinámico se pague dos veces ni por un importe distinto del que se mostró.
+
+**A nivel de sistema.** `modalidad` ∈ ESTATICO/DINAMICO; `estado` ∈ VIGENTE/USADO/ANULADO. El pago es una transferencia común (CU-12) en la misma transacción que marca el QR como usado (`transaccion_id`). No es un QR bancario: ese es el de `orden_cobro`.
+
+*Fuente: CU-12; `servicios/nucleo-financiero/.../QrInterno.java`.*
+
+### `RespuestaIdempotente` / `respuesta_idempotente`
+
+**Qué es.** La respuesta guardada de una operación de dinero, indexada por usuario, operación y clave de idempotencia.
+
+**Para qué sirve (negocio).** Que si la app reintenta una recarga, un retiro o una aprobación porque se cortó la conexión, la persona reciba la misma respuesta y la plata no se mueva dos veces.
+
+**Por qué debe existir.** La regla 91.1.4 exige idempotencia en toda operación de dinero. Sin la respuesta guardada, el reintento solo podría rechazarse, y la app no sabría si la primera vez salió bien.
+
+**A nivel de sistema.** Única por (`usuario_id`, `operacion`, `clave_idempotencia`). `hash_solicitud` detecta la misma clave usada con otro pedido. Guarda `codigo_http` y `cuerpo_respuesta` para devolverlos tal cual. Vence en `expira_en`, con índice para la purga.
+
+*Fuente: CU-10, CU-11; `docs/Restricciones.md`.*

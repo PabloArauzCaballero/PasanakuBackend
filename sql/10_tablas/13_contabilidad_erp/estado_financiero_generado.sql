@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS erp.estado_financiero_generado (
   CONSTRAINT ck_estado_financiero_generado_tipo CHECK (tipo IN ('BALANCE_GENERAL', 'ESTADO_RESULTADOS'))
 );
 
-COMMENT ON TABLE erp.estado_financiero_generado IS 'Módulo 13 — Contabilidad Financiera y ERP. [append-only] Que cerrar un mes no dependa de un Excel armado a mano';
+COMMENT ON TABLE erp.estado_financiero_generado IS 'Módulo 13 — Contabilidad Financiera y ERP. [append-only] Una fotografía de balance general o estado de resultados de un período, ya calculada y guardada.';
 COMMENT ON COLUMN erp.estado_financiero_generado.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN erp.estado_financiero_generado.periodo_contable_id IS 'FK, IDX';
 COMMENT ON COLUMN erp.estado_financiero_generado.tipo IS 'CK';
