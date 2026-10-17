@@ -1,0 +1,6 @@
+$ ./gradlew :servicios:identidad:check :servicios:identidad:integrationTest --continue   (rama desde origin/test 2444abf5)
+exit=0 · BUILD SUCCESSFUL in 39s
+integrationTest 151/151 · test 35/35 · testBarrido 2/2 · webTest 120/120 (mismo total que antes de separar) · spotless OK
+
+Antes: compileTestJava FALLA (VerificacionesControllerWebTest.java:61) · spotless FALLA (ExpedienteDeIdentidad.java) · barrido FALLA (RevisionRepositorio 313, UsuariosControllerWebTest 300)
+Ahora: RevisionRepositorio 262 + FilaDeExpediente 75 · UsuariosControllerWebTest 118 + UsuariosControllerConsultasWebTest 123 + ArnesDeUsuariosController 99

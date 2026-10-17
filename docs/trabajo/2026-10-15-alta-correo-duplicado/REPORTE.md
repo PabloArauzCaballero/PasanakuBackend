@@ -1,6 +1,6 @@
 # Reporte — Alta CU-01: 500 por correo duplicado, catálogo de errores de la base y pantalla legal
 
-> **AVANCE: 8 / 8 — 100 %.** Hito H1 en A MEDIAS: el arreglo **no está desplegado en TEST**; el iPhone sigue mostrando el error viejo hasta reconstruir imágenes.
+> **AVANCE: 8 / 8 — 100 %.** Backend desplegado y verificado en TEST (`evidencia/12`). Build de TestFlight 202610151849 (commit dbfbf35b) subido: `Upload succeeded · EXPORT SUCCEEDED`.
 
 - Fecha: 2026-10-15 · Plan: [PLAN.md](./PLAN.md) · Rama: `pablo/fix/alta-correo-duplicado-2026-10-15` (sin commit, sin push)
 - Peldaño de evidencia alcanzado: backend `TESTED` · móvil `TESTED` + prueba visual · de punta a punta contra TEST: **no alcanzado**
@@ -45,6 +45,13 @@ Regresión: `comun-web` webTest 40/40 · `identidad` webTest 46/46 · `identidad
   `disparar-despliegue.sh` y un build nuevo de TestFlight para el iPhone. Por último, repetir el alta con un correo
   existente y ver `422 AP-CU01-03 campo=correo` en el log de `identidad`.
 - **Dónde quedó:** rama `pablo/fix/alta-correo-duplicado-2026-10-15`, sin commit. Compila y los tests pasan.
+
+## Actualización 2026-10-15 22:24 UTC
+- PR #72 mergeado a `test` (PasanakuBackend). El temporizador del VPS reconstruyó `identidad` (imagen `fdaaca842586`, contiene `FallaDeLaBase`).
+- **VERIFIED en TEST:** alta con un correo ya registrado → `HTTP 422 AP-CU01-03 detalle.campo=correo` (`evidencia/12`). Antes: 500.
+- La construcción del backoffice falló en el VPS (`TS2339 'telefono' en ExpedienteEnRevision`, cambios de backoffice de otra rama): sigue con la imagen anterior. No es de este trabajo.
+- Los PRs #21 y #22 de PasanakuFrontend se abrieron solos contra `dev` y traen unos 4.900 archivos con conflictos, porque el espejo tiene otra historia. No se mergearon; falta que Pablo decida.
+- TestFlight: `testflight_ios.sh` compiló, pero falló al firmar (`Failed to Use Accounts`): Xcode no tenía ninguna cuenta cargada. Se subió con la clave de API de App Store Connect (`xcodebuild -exportArchive … -authenticationKeyPath/-ID/-IssuerID`, variables `EXPO_ASC_*` de `~/.appstoreconnect/env`). Resultado: `Upload succeeded`, `** EXPORT SUCCEEDED **`, build 202610151849.
 
 ## Pendiente
 

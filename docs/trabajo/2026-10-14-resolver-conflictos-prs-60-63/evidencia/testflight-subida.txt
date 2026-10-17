@@ -1,0 +1,2 @@
+2026-10-14 20:31:21.972 xcodebuild[32621:790955] Progress 100%: Upload succeeded.
+** EXPORT SUCCEEDED **

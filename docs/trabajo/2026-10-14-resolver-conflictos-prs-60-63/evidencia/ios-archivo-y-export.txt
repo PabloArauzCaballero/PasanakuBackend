@@ -1,0 +1,4 @@
+✓ Built build/ios/archive/Runner.xcarchive (245.1MB)
+archivo: /private/tmp/claude-501/-Users-pablo-Documents-GitHub-Pasanaku/fd54af8f-bc49-428f-b3d8-4b65a8168f82/scratchpad/wt-release/apps/movil/build/ios/archive/Runner.xcarchive
+error: exportArchive Failed to Use Accounts
+** EXPORT FAILED **
