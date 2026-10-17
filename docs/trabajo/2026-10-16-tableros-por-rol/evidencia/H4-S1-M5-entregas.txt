@@ -1,0 +1,2 @@
+CUIndicadoresDeEntregasTest 3/3 (pendiente en D y no en D+3, tarda 3.00 dias; cero real y SIN_DATOS; ANULADA no cuenta). Primer intento: FAIL por bind de fecha en el TEST (no del producto) y una asercion tautologica: corregidas.
+entregas: test=40 webTest=60 integrationTest=114, 0 fallas; cobertura exit=0; gates exit=0
