@@ -1,0 +1,7 @@
+H9.S1.M2 — regresión del backoffice tras el merge de dev · 2026-10-17
+ Test Files  123 passed (123)
+      Tests  818 passed (818)
+ Test Files  34 passed (34)
+      Tests  70 passed (70)
+lint exit=0 (la falla preexistente de pantalla-de-expedientes.ts la corrigió dev en 85b41427) · build exit=0
+E2E de los tableros: 16/16 (evidencia/H9-visual/INFORME.txt)

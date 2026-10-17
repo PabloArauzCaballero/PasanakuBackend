@@ -417,8 +417,8 @@ y `REPORTE.md`.
 | ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
 |---|---|---|---|---|
 | H9.S0.M1 | (Agregada) Las tarjetas de acceso con dos segmentos (`tablero/financiero`…) llevaban a `/tablero%2Ffinanciero` (`['/', a.ruta]`); hallazgo ya anotado en `e2e/operacion-estado.e2e.ts` | El `href` es la ruta real | `ng test` de `tablero.spec.ts`: rojo antes, verde después | HECHO — `evidencia/H9-S0-M1-enlaces-de-acceso.txt` |
-| H9.S1.M1 | Regresión del backend | Exit 0 | `./gradlew test` pegado | TODO |
-| H9.S1.M2 | Regresión del backoffice (unit, a11y y lint) | Exit 0, o rojos preexistentes demostrados (memoria `a11y-backoffice-vence-plazo`) | Salidas pegadas | TODO |
+| H9.S1.M1 | Regresión del backend | Exit 0 | `./gradlew test` pegado | HECHO — `evidencia/H9-S1-M1-regresion-backend.txt` |
+| H9.S1.M2 | Regresión del backoffice (unit, a11y y lint) | Exit 0, o rojos preexistentes demostrados (memoria `a11y-backoffice-vence-plazo`) | Salidas pegadas | HECHO — `evidencia/H9-S1-M2-regresion-backoffice.txt` |
 | H9.S1.M3 | Gate de seguridad y privacidad: amenaza, control, test negativo y riesgo residual | Sección completa en el reporte | Revisión contra 90.6 | HECHO — sección «Gate de seguridad y privacidad» del `REPORTE.md` (cada fila cita su prueba negativa en verde) |
 | H9.S1.M4 | PR a `dev` y PR a `test` | CI en verde y mergeados | `gh pr checks` pegado | TODO |
 
