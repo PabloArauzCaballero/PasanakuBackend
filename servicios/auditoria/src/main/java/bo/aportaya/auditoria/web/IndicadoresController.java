@@ -3,6 +3,7 @@ package bo.aportaya.auditoria.web;
 import bo.aportaya.auditoria.aplicacion.CU98PublicarTablero;
 import bo.aportaya.auditoria.aplicacion.CatalogoDeDatosVigente;
 import bo.aportaya.auditoria.aplicacion.EndpointsDelDia;
+import bo.aportaya.auditoria.aplicacion.SaludDeServicios;
 import bo.aportaya.auditoria.dominio.FamiliasVisibles;
 import bo.aportaya.auditoria.web.generado.IndicadoresApi;
 import bo.aportaya.auditoria.web.generado.modelo.CatalogoDeDatos;
@@ -10,6 +11,7 @@ import bo.aportaya.auditoria.web.generado.modelo.EndpointDelDia;
 import bo.aportaya.auditoria.web.generado.modelo.Indicador;
 import bo.aportaya.auditoria.web.generado.modelo.IndicadorSerieInner;
 import bo.aportaya.auditoria.web.generado.modelo.SalidaEndpointsDelDia;
+import bo.aportaya.auditoria.web.generado.modelo.SalidaSaludDeServicios;
 import bo.aportaya.auditoria.web.generado.modelo.SalidaTablero;
 import bo.aportaya.plataforma.web.seguridad.Permiso;
 import bo.aportaya.plataforma.web.seguridad.PermisoAlternativo;
@@ -38,6 +40,7 @@ public class IndicadoresController implements IndicadoresApi {
     private final CU98PublicarTablero cu98;
     private final EndpointsDelDia endpointsDelDia;
     private final CatalogoDeDatosVigente catalogoDeDatos;
+    private final SaludDeServicios saludDeServicios;
     private final ObjectMapper mapper;
     private final SesionDeLaPeticion sesion;
 
@@ -45,11 +48,13 @@ public class IndicadoresController implements IndicadoresApi {
             CU98PublicarTablero cu98,
             EndpointsDelDia endpointsDelDia,
             CatalogoDeDatosVigente catalogoDeDatos,
+            SaludDeServicios saludDeServicios,
             ObjectMapper mapper,
             SesionDeLaPeticion sesion) {
         this.cu98 = cu98;
         this.endpointsDelDia = endpointsDelDia;
         this.catalogoDeDatos = catalogoDeDatos;
+        this.saludDeServicios = saludDeServicios;
         this.mapper = mapper;
         this.sesion = sesion;
     }
@@ -96,6 +101,28 @@ public class IndicadoresController implements IndicadoresApi {
                                     e.errores4xx(),
                                     e.errores5xx());
                             e.p95Ms().map(BigDecimal::toPlainString).ifPresent(fila::setP95Ms);
+                            return fila;
+                        })
+                        .toList());
+        return ResponseEntity.ok(cuerpo);
+    }
+
+    /** operacion/estado · la salud de cada servicio, preguntada ahora (o hace menos de 10 s). */
+    @Override
+    @Permiso("TABLERO_SISTEMAS_VER")
+    @PermisoAlternativo({"AUDITORIA_LEER"})
+    public ResponseEntity<SalidaSaludDeServicios> consultarSaludDeServicios() {
+        Traza.marcarCasoDeUso("TABLERO-SISTEMAS", "salud-de-servicios");
+        var salida = saludDeServicios.consultar();
+        var cuerpo = new SalidaSaludDeServicios(
+                salida.consultadoEn().atOffset(java.time.ZoneOffset.UTC),
+                salida.servicios().stream()
+                        .map(r -> {
+                            var fila = new bo.aportaya.auditoria.web.generado.modelo.SaludDeServicio(
+                                    r.servicio(),
+                                    bo.aportaya.auditoria.web.generado.modelo.SaludDeServicio.EstadoEnum.fromValue(
+                                            r.estado().name()));
+                            r.latenciaMs().ifPresent(fila::setLatenciaMs);
                             return fila;
                         })
                         .toList());

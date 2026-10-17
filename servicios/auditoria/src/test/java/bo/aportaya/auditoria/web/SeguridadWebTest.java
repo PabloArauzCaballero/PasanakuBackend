@@ -32,6 +32,10 @@ class SeguridadWebTest extends SabanaDeSeguridadWeb {
     @MockitoBean
     private bo.aportaya.auditoria.aplicacion.CatalogoDeDatosVigente catalogoDeDatos;
 
+    // operacion/estado comparte controlador: no se llama aca.
+    @MockitoBean
+    private bo.aportaya.auditoria.aplicacion.SaludDeServicios saludDeServicios;
+
     @MockitoBean
     private CU58DescargarExportacion cu58DescargarExportacion;
 
