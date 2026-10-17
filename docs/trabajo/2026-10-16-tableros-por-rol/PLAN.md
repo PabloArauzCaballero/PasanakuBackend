@@ -153,13 +153,13 @@ inserta nada.
 
 **CA:** La matriz rol × permiso coincide con D3.
 **DoD:** Consulta de la matriz pegada.
-**Estado:** TODO
+**Estado:** HECHO
 
 | ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
 |---|---|---|---|---|
-| H2.S1.M1 | Los tres permisos y el rol `COMERCIAL` en el JSON de mínimos (el mismo origen que `10-roles-y-permisos.sql`) | El generador no reporta error | `python3 scripts/generar_semillas.py` → exit 0 | TODO |
-| H2.S1.M2 | Asignaciones según D3 | La consulta devuelve las 4 filas esperadas | `psql -c "select r.codigo,p.codigo …"` pegado | TODO |
-| H2.S1.M3 | Idempotencia | 0 filas en la segunda corrida | Las dos corridas pegadas | TODO |
+| H2.S1.M1 | Los tres permisos y el rol `COMERCIAL` en el JSON de mínimos (el mismo origen que `10-roles-y-permisos.sql`) | El generador no reporta error | `python3 scripts/generar_semillas.py` → exit 0 | HECHO — `evidencia/H2-S1-permisos-y-rol.txt` |
+| H2.S1.M2 | Asignaciones según D3 | La consulta devuelve las 4 filas esperadas | `psql -c "select r.codigo,p.codigo …"` pegado | HECHO — `evidencia/H2-S1-permisos-y-rol.txt` |
+| H2.S1.M3 | Idempotencia | 0 filas en la segunda corrida | Las dos corridas pegadas | HECHO — `evidencia/H2-S1-permisos-y-rol.txt` |
 
 ### H2.S2 — Generador Faker de volumen (`seeders/dev`)
 
