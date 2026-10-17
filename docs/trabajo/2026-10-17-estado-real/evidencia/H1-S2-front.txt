@@ -1,0 +1,19 @@
+# H1.S2 — frontend (2026-10-17)
+npx ng test --include='src/app/rutas/operacion/estado/pantalla-de-estado.spec.ts' --watch=false
+  Test Files  1 passed (1) · Tests  7 passed (7)
+  (los 3 casos previos + 4 nuevos: datos con un caído, consultando, 403, 500 con reintento)
+npx ng test --include='src/app/rutas/operacion/estado/*.a11y.spec.ts'  → FAIL «Test timed out in 5000ms» (42 s)
+  ENVIRONMENT, preexistente: el MISMO spec sin mis cambios (worktree Pasanaku-tableros, estado/ == origin/test)
+  también vence: «Test timed out in 5000ms», 17 s. No se subió el plazo. La accesibilidad del cambio la mide el
+  E2E (contraste por captura) — ver memoria del proyecto «test:a11y del backoffice vence por plazo».
+npx eslint src/app/rutas/operacion/estado e2e/operacion-estado.e2e.ts → exit 0
+python3 scripts/generar_postman.py → cambian postman/coleccion/auditoria y postman/humo/auditoria (operación nueva)
+
+Hallazgos de la propia verificación (corregidos):
+ 1. PRODUCT_BUG: un 403 se mostraba como «no se pudo consultar»: en la app el interceptor entrega ErrorTraducido
+    (`estado`), no HttpErrorResponse (`status`). Lo encontró el E2E; el unitario no monta el interceptor.
+ 2. PRODUCT_BUG visual: en escritorio «Salud ahora» y «Tardó» quedaban fuera de la tarjeta (cortadas). Se movieron
+    junto al servicio y «Por qué» se parte; el E2E ahora exige que el chip esté en la vista (móvil y escritorio).
+ 3. PRODUCT_BUG visual: `min-width` en la columna larga hacía desplazar la página 61 px en móvil; solo desde 40rem.
+ 4. TEST_BUG: una corrida escribió capturas en la carpeta por omisión (otro trabajo) por no pasar CAPTURAS_DIR;
+    se movieron a evidencia/capturas (eran archivos nuevos, sin rastrear).

@@ -49,6 +49,10 @@ class IndicadoresControllerWebTest {
     @MockitoBean
     private bo.aportaya.auditoria.aplicacion.CatalogoDeDatosVigente catalogoDeDatos;
 
+    // operacion/estado comparte controlador: no se llama aca.
+    @MockitoBean
+    private bo.aportaya.auditoria.aplicacion.SaludDeServicios saludDeServicios;
+
     private static CU98PublicarTablero.Indicador indicador(
             String codigo, Optional<BigDecimal> valor, boolean suprimido, boolean provisorio) {
         return new CU98PublicarTablero.Indicador(

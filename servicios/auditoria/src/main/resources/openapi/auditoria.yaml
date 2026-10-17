@@ -287,6 +287,26 @@ paths:
         '401':
           $ref: '#/components/responses/NoAutenticado'
 
+  /indicadores/operacion/servicios:
+    get:
+      operationId: consultarSaludDeServicios      # operacion/estado: la salud REAL, no una constante
+      summary: La salud de cada servicio, consultada ahora
+      description: >-
+        auditoria pregunta el readiness (/actuator/health/readiness) de cada servicio por la red interna, en paralelo
+        y con timeout de 2 s, y devuelve lo que contesto cada uno: ARRIBA (200), DEGRADADO (respondio con otro estado,
+        tipicamente 503 OUT_OF_SERVICE) o CAIDO (no respondio a tiempo o rechazo la conexion). El resultado se reusa
+        10 s: abrir la pantalla muchas veces no multiplica las consultas. Exige TABLERO_SISTEMAS_VER o AUDITORIA_LEER.
+      responses:
+        '200':
+          description: La salud consultada
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaSaludDeServicios' }
+        '403':
+          description: Sin TABLERO_SISTEMAS_VER ni AUDITORIA_LEER
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+
   /indicadores/catalogo-de-datos:
     get:
       operationId: obtenerCatalogoDeDatos      # tableros por rol · H7 catalogo de datos (D14)
@@ -392,6 +412,24 @@ components:
           type: array
           maxItems: 100
           items: { $ref: '#/components/schemas/EndpointDelDia' }
+    SalidaSaludDeServicios:
+      type: object
+      additionalProperties: false
+      required: [consultadoEn, servicios]
+      properties:
+        consultadoEn: { type: string, format: date-time }
+        servicios:
+          type: array
+          maxItems: 40
+          items: { $ref: '#/components/schemas/SaludDeServicio' }
+    SaludDeServicio:
+      type: object
+      additionalProperties: false
+      required: [servicio, estado]
+      properties:
+        servicio: { type: string, maxLength: 60 }
+        estado: { type: string, enum: [ARRIBA, DEGRADADO, CAIDO] }
+        latenciaMs: { type: integer, format: int64, description: 'Cuanto tardo en contestar; ausente si no contesto' }
     EndpointDelDia:
       type: object
       additionalProperties: false
