@@ -1,0 +1,4 @@
+Disparo comun: PublicacionDeIndicadores (comun-mensajeria) @Scheduled 02:15 La Paz + ShedLock indicadores-diarios; relleno al arrancar con aportaya.indicadores.relleno.{meses,dias}.
+PublicacionDeIndicadoresRepositorioTest 4/4 (diario cierra dia y mes el 1ro, relleno solo si se pide, un periodo que falla no arrastra) — ver H4-S1-M1-nucleo.txt
+ArranqueTest en verde en nucleo, garantia, aportes, grupos, entregas, inversiones (el bean existe donde hay calculador).
+Config: INDICADORES_RELLENO_MESES=13 / INDICADORES_RELLENO_DIAS=35 en compose local y TEST (generar_compose.py y --coolify); default 0 en application.yml.

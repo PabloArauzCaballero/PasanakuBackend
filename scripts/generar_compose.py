@@ -37,6 +37,9 @@ SALIDA_DESPLEGADO = RAIZ / "docker-compose.coolify.yml"
 
 # Lo que vale igual para los catorce. Un valor por variable, y aca se ve entero.
 COMUNES = {
+    # Tableros: relleno de indicadores al arrancar (meses y dias cerrados hacia atras).
+    "INDICADORES_RELLENO_MESES": "13",
+    "INDICADORES_RELLENO_DIAS": "35",
     "BD_URL": "jdbc:postgresql://pgbouncer:6432/pasanaku",
     "BD_CLAVE": "pasanaku",
     "KAFKA_URL": "kafka:9092",
@@ -156,6 +159,8 @@ DE_DESARROLLO = {
 # entorno, que en Coolify se editan en la interfaz y no viven en el repositorio.
 # Un `${...}` que Coolify no conozca lo crea el solo al leer el compose.
 COMUNES_DESPLEGADO = {
+    "INDICADORES_RELLENO_MESES": "${INDICADORES_RELLENO_MESES:-13}",
+    "INDICADORES_RELLENO_DIAS": "${INDICADORES_RELLENO_DIAS:-35}",
     "BD_URL": "jdbc:postgresql://pgbouncer:6432/pasanaku",
     "BD_CLAVE": "${BD_CLAVE}",
     "KAFKA_URL": "kafka:9092",
