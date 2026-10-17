@@ -257,7 +257,7 @@ temas × 4 estados.
 
 | ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
 |---|---|---|---|---|
-| H4.S1.M1 | `nucleo-financiero`: cargado, retirado, intereses por mora y comisiones cobradas, desde `asiento_contable`+`movimiento_contable` por tipo de transacción | Cada valor = consulta de cuadre | `./gradlew :servicios:nucleo-financiero:integrationTest --tests '*Indicadores*'` en verde | TODO |
+| H4.S1.M1 | `nucleo-financiero`: cargado, retirado, intereses por mora y comisiones cobradas, desde `asiento_contable`+`movimiento_contable` por tipo de transacción | Cada valor = consulta de cuadre | `./gradlew :servicios:nucleo-financiero:integrationTest --tests '*Indicadores*'` en verde | HECHO — `evidencia/H4-S1-M1-nucleo.txt` |
 | H4.S1.M2 | `garantia`: mora vigente, impagos cubiertos, recuperación y cobertura del fondo | Tasas con numerador y denominador | `./gradlew :servicios:garantia:integrationTest --tests '*Indicadores*'` en verde | TODO |
 | H4.S1.M3 | `aportes`: pendientes cobrados (pago tarde propio) y tasa de mora | Dos componentes separados | `./gradlew :servicios:aportes:integrationTest --tests '*Indicadores*'` en verde | TODO |
 | H4.S1.M4 | `grupos`: turnos normales y turnos de cierre (D2) | El de cierre se cuenta una vez | `./gradlew :servicios:grupos:integrationTest --tests '*Indicadores*'` en verde | TODO |
