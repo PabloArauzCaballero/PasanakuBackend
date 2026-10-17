@@ -18,8 +18,8 @@ CREATE TABLE IF NOT EXISTS grupos.periodo (
   CONSTRAINT ck_periodo_estado CHECK (estado IN ('ABIERTO', 'CANCELADO', 'CERRADO', 'EN_GRACIA', 'LIQUIDADO', 'PROGRAMADO'))
 );
 
-COMMENT ON TABLE grupos.periodo IS 'Módulo 02 — Grupos, Cupos, Turnos y Gobernanza. Reglas del juego, orden de cobro y decisiones colectivas';
-COMMENT ON COLUMN grupos.periodo.id IS 'PK';
+COMMENT ON TABLE grupos.periodo IS 'Módulo 02 — Grupos, Cupos, Turnos y Gobernanza. Un ciclo de aporte del grupo: del 1 al N, con sus fechas de vencimiento y gracia, y cuánto se recaudó.';
+COMMENT ON COLUMN grupos.periodo.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN grupos.periodo.grupo_id IS 'FK, IDX';
 COMMENT ON COLUMN grupos.periodo.numero IS 'UQ+grupo_id';
 COMMENT ON COLUMN grupos.periodo.fecha_limite_pago IS 'IDX';

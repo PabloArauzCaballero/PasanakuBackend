@@ -41,8 +41,8 @@ CREATE TABLE IF NOT EXISTS garantia.registro_incumplimiento (
   CONSTRAINT ck_registro_incumplimiento_origen_deteccion CHECK (origen_deteccion IN ('ALERTA_DE_RIESGO', 'AUDITORIA_INTERNA', 'AUTOMATICO_CONCILIACION', 'AUTOMATICO_VENCIMIENTO', 'REPORTE_DE_ORGANIZADOR', 'REPORTE_DE_PARTICIPANTE'))
 );
 
-COMMENT ON TABLE garantia.registro_incumplimiento IS 'Módulo 08 — Garantía, Incumplimiento, Cobranza y Sanciones. [append-only] El grupo no se detiene, pero la deuda no se perdona sola';
-COMMENT ON COLUMN garantia.registro_incumplimiento.id IS 'PK';
+COMMENT ON TABLE garantia.registro_incumplimiento IS 'Módulo 08 — Garantía, Incumplimiento, Cobranza y Sanciones. [append-only] El expediente completo de un hecho de incumplimiento.';
+COMMENT ON COLUMN garantia.registro_incumplimiento.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN garantia.registro_incumplimiento.codigo_expediente IS 'UQ';
 COMMENT ON COLUMN garantia.registro_incumplimiento.usuario_id IS 'FK, IDX';
 COMMENT ON COLUMN garantia.registro_incumplimiento.participante_id IS 'FK, IDX';

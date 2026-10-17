@@ -18,9 +18,10 @@ CREATE TABLE IF NOT EXISTS inversiones.devengo_dpf (
 );
 
 COMMENT ON TABLE inversiones.devengo_dpf IS 'Módulo 15 — Inversiones voluntarias. [append-only] Que una inversion voluntaria nunca prometa rentabilidad ni duplique el saldo';
-COMMENT ON COLUMN inversiones.devengo_dpf.id IS 'PK';
+COMMENT ON COLUMN inversiones.devengo_dpf.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN inversiones.devengo_dpf.posicion_inversion_id IS 'FK, IDX';
 COMMENT ON COLUMN inversiones.devengo_dpf.fecha IS 'UQ+posicion_inversion_id';
 COMMENT ON COLUMN inversiones.devengo_dpf.dias_acumulados IS 'CK: >= 0';
 COMMENT ON COLUMN inversiones.devengo_dpf.interes_acumulado IS 'CK: >= 0';
 COMMENT ON COLUMN inversiones.devengo_dpf.monto IS 'CK: >= 0';
+COMMENT ON COLUMN inversiones.devengo_dpf.moneda IS 'Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2).';

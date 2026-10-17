@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS identidad.alcance_invitacion (
 );
 
 COMMENT ON TABLE identidad.alcance_invitacion IS 'Módulo 01 — Identidad, Usuarios y Seguridad. Saber con certeza a quién le estás confiando plata ajena';
-COMMENT ON COLUMN identidad.alcance_invitacion.id IS 'PK';
+COMMENT ON COLUMN identidad.alcance_invitacion.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN identidad.alcance_invitacion.token_id IS 'FK, UQ';
 COMMENT ON COLUMN identidad.alcance_invitacion.clave_emision IS 'UQ';
 COMMENT ON COLUMN identidad.alcance_invitacion.clave_consumo IS 'NULL';

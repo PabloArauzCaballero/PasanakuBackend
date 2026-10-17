@@ -17,8 +17,8 @@ CREATE TABLE IF NOT EXISTS entregas.validacion_pre_entrega (
   CONSTRAINT ck_validacion_pre_entrega_resultado CHECK (resultado IN ('ADVERTENCIA', 'APROBADA', 'OMITIDA', 'RECHAZADA'))
 );
 
-COMMENT ON TABLE entregas.validacion_pre_entrega IS 'Módulo 04 — Entregas de Fondo. Que la bolsa llegue completa, a la persona correcta, una sola vez';
-COMMENT ON COLUMN entregas.validacion_pre_entrega.id IS 'PK';
+COMMENT ON TABLE entregas.validacion_pre_entrega IS 'Módulo 04 — Entregas de Fondo. El resultado de aplicar cada regla de control antes de autorizar la entrega.';
+COMMENT ON COLUMN entregas.validacion_pre_entrega.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN entregas.validacion_pre_entrega.entrega_id IS 'FK, IDX';
 COMMENT ON COLUMN entregas.validacion_pre_entrega.regla_id IS 'FK';
 COMMENT ON COLUMN entregas.validacion_pre_entrega.resultado IS 'CK';

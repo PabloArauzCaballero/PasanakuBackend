@@ -29,13 +29,14 @@ CREATE TABLE IF NOT EXISTS inversiones.posicion_inversion (
 );
 
 COMMENT ON TABLE inversiones.posicion_inversion IS 'Módulo 15 — Inversiones voluntarias. Que una inversion voluntaria nunca prometa rentabilidad ni duplique el saldo';
-COMMENT ON COLUMN inversiones.posicion_inversion.id IS 'PK';
+COMMENT ON COLUMN inversiones.posicion_inversion.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN inversiones.posicion_inversion.usuario_id IS 'IDX';
 COMMENT ON COLUMN inversiones.posicion_inversion.producto_inversion_id IS 'FK, IDX';
 COMMENT ON COLUMN inversiones.posicion_inversion.version_condiciones_id IS 'FK, IDX';
 COMMENT ON COLUMN inversiones.posicion_inversion.orden_inversion_id IS 'FK, UQ';
 COMMENT ON COLUMN inversiones.posicion_inversion.tipo IS 'CK: DPF | FONDO';
 COMMENT ON COLUMN inversiones.posicion_inversion.principal IS 'CK: > 0';
+COMMENT ON COLUMN inversiones.posicion_inversion.moneda IS 'Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2).';
 COMMENT ON COLUMN inversiones.posicion_inversion.cuotas IS 'NULL, CK: >= 0';
 COMMENT ON COLUMN inversiones.posicion_inversion.valor_cuota_entrada IS 'NULL';
 COMMENT ON COLUMN inversiones.posicion_inversion.marca_maxima IS 'NULL';

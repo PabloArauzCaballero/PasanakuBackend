@@ -15,8 +15,9 @@ CREATE TABLE IF NOT EXISTS erp.partida_presupuestaria (
 );
 
 COMMENT ON TABLE erp.partida_presupuestaria IS 'Módulo 13 — Contabilidad Financiera y ERP. Que cerrar un mes no dependa de un Excel armado a mano';
-COMMENT ON COLUMN erp.partida_presupuestaria.id IS 'PK';
+COMMENT ON COLUMN erp.partida_presupuestaria.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN erp.partida_presupuestaria.presupuesto_id IS 'FK, IDX';
 COMMENT ON COLUMN erp.partida_presupuestaria.cuenta_contable_id IS 'FK, IDX, M3';
 COMMENT ON COLUMN erp.partida_presupuestaria.periodo_contable_id IS 'FK, IDX';
 COMMENT ON COLUMN erp.partida_presupuestaria.monto_presupuestado IS 'CK: > 0';
+COMMENT ON COLUMN erp.partida_presupuestaria.moneda IS 'Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2).';

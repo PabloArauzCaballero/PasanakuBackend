@@ -18,8 +18,8 @@ CREATE TABLE IF NOT EXISTS cumplimiento.evaluacion_riesgo_producto (
   CONSTRAINT ck_evaluacion_riesgo_producto_estado CHECK (estado IN ('APROBADA', 'BORRADOR', 'EN_EVALUACION', 'RECHAZADA'))
 );
 
-COMMENT ON TABLE cumplimiento.evaluacion_riesgo_producto IS 'Módulo 12 — Cumplimiento Regulatorio y Consumidor Financiero. Que una inspección se responda con consultas, no armando carpetas';
-COMMENT ON COLUMN cumplimiento.evaluacion_riesgo_producto.id IS 'PK';
+COMMENT ON TABLE cumplimiento.evaluacion_riesgo_producto IS 'Módulo 12 — Cumplimiento Regulatorio y Consumidor Financiero. El análisis de riesgo previo al lanzamiento de un producto o canal nuevo.';
+COMMENT ON COLUMN cumplimiento.evaluacion_riesgo_producto.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN cumplimiento.evaluacion_riesgo_producto.aprobada_por IS 'FK, NULL';
 COMMENT ON COLUMN cumplimiento.evaluacion_riesgo_producto.nivel_riesgo_lft IS 'CK';
 COMMENT ON COLUMN cumplimiento.evaluacion_riesgo_producto.estado IS 'CK';

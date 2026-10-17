@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS erp.presupuesto (
 );
 
 COMMENT ON TABLE erp.presupuesto IS 'Módulo 13 — Contabilidad Financiera y ERP. Que cerrar un mes no dependa de un Excel armado a mano';
-COMMENT ON COLUMN erp.presupuesto.id IS 'PK';
+COMMENT ON COLUMN erp.presupuesto.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN erp.presupuesto.centro_costo_id IS 'FK, IDX';
 COMMENT ON COLUMN erp.presupuesto.ejercicio_fiscal_id IS 'FK, IDX';
 COMMENT ON COLUMN erp.presupuesto.estado IS 'CK, IDX';

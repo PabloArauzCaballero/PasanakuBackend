@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS erp.tercero_comercial (
 );
 
 COMMENT ON TABLE erp.tercero_comercial IS 'Módulo 13 — Contabilidad Financiera y ERP. Que cerrar un mes no dependa de un Excel armado a mano';
-COMMENT ON COLUMN erp.tercero_comercial.id IS 'PK';
+COMMENT ON COLUMN erp.tercero_comercial.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN erp.tercero_comercial.tipo IS 'CK';
 COMMENT ON COLUMN erp.tercero_comercial.numero_documento IS 'UQ';
 COMMENT ON COLUMN erp.tercero_comercial.email IS 'NULL';

@@ -22,8 +22,8 @@ CREATE TABLE IF NOT EXISTS cumplimiento.reporte_regulatorio (
   CONSTRAINT ck_reporte_regulatorio_estado CHECK (estado IN ('APROBADO', 'ENVIADO', 'GENERADO', 'OBSERVADO', 'PENDIENTE', 'RECHAZADO', 'REVISADO'))
 );
 
-COMMENT ON TABLE cumplimiento.reporte_regulatorio IS 'Módulo 12 — Cumplimiento Regulatorio y Consumidor Financiero. Que una inspección se responda con consultas, no armando carpetas';
-COMMENT ON COLUMN cumplimiento.reporte_regulatorio.id IS 'PK';
+COMMENT ON TABLE cumplimiento.reporte_regulatorio IS 'Módulo 12 — Cumplimiento Regulatorio y Consumidor Financiero. La agenda de reportes obligatorios y el rastro de cada envío.';
+COMMENT ON COLUMN cumplimiento.reporte_regulatorio.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN cumplimiento.reporte_regulatorio.catalogo_reporte_id IS 'FK, IDX';
 COMMENT ON COLUMN cumplimiento.reporte_regulatorio.generado_por IS 'FK, NULL';
 COMMENT ON COLUMN cumplimiento.reporte_regulatorio.revisado_por IS 'FK, NULL';

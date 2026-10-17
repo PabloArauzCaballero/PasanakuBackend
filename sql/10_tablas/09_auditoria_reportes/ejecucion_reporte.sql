@@ -19,8 +19,8 @@ CREATE TABLE IF NOT EXISTS auditoria.ejecucion_reporte (
   CONSTRAINT ck_ejecucion_reporte_estado CHECK (estado IN ('COMPLETADA', 'EJECUTANDO', 'EN_COLA', 'EXPIRADA', 'FALLIDA'))
 );
 
-COMMENT ON TABLE auditoria.ejecucion_reporte IS 'Módulo 09 — Auditoría, Reportes y Cumplimiento. Poder demostrar todo lo anterior ante un reclamo o un regulador';
-COMMENT ON COLUMN auditoria.ejecucion_reporte.id IS 'PK';
+COMMENT ON TABLE auditoria.ejecucion_reporte IS 'Módulo 09 — Auditoría, Reportes y Cumplimiento. Cada corrida de un reporte, con parámetros, resultado y quién la pidió.';
+COMMENT ON COLUMN auditoria.ejecucion_reporte.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN auditoria.ejecucion_reporte.definicion_id IS 'FK, IDX';
 COMMENT ON COLUMN auditoria.ejecucion_reporte.grupo_id IS 'FK, NULL';
 COMMENT ON COLUMN auditoria.ejecucion_reporte.solicitado_por IS 'FK, IDX';

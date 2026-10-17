@@ -30,8 +30,8 @@ CREATE TABLE IF NOT EXISTS tarifas.devengo_comision (
   CONSTRAINT ck_devengo_comision_estado CHECK (estado IN ('COBRADO', 'COBRADO_PARCIAL', 'DEVENGADO', 'DEVUELTO', 'EXONERADO', 'INCOBRABLE', 'REVERSADO'))
 );
 
-COMMENT ON TABLE tarifas.devengo_comision IS 'Módulo 11 — Tarifas, Comisiones, Impuestos y Facturación. [append-only] La política de cobro es dato, no código: se cambia con un seeder';
-COMMENT ON COLUMN tarifas.devengo_comision.id IS 'PK';
+COMMENT ON TABLE tarifas.devengo_comision IS 'Módulo 11 — Tarifas, Comisiones, Impuestos y Facturación. [append-only] El hecho económico: la plataforma ganó esta comisión, por esta operación, en esta fecha.';
+COMMENT ON COLUMN tarifas.devengo_comision.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN tarifas.devengo_comision.concepto_tarifa_id IS 'FK, IDX';
 COMMENT ON COLUMN tarifas.devengo_comision.tarifario_id IS 'FK, IDX';
 COMMENT ON COLUMN tarifas.devengo_comision.cotizacion_id IS 'FK, NULL, UQ';
@@ -42,6 +42,8 @@ COMMENT ON COLUMN tarifas.devengo_comision.asiento_contable_id IS 'FK, NULL, M3'
 COMMENT ON COLUMN tarifas.devengo_comision.referencia_tipo IS 'CK';
 COMMENT ON COLUMN tarifas.devengo_comision.referencia_id IS 'IDX, polimorfica';
 COMMENT ON COLUMN tarifas.devengo_comision.monto_comision IS 'CK: >= 0';
+COMMENT ON COLUMN tarifas.devengo_comision.moneda IS 'Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2).';
 COMMENT ON COLUMN tarifas.devengo_comision.estado IS 'CK, IDX';
 COMMENT ON COLUMN tarifas.devengo_comision.fecha_devengo IS 'IDX';
 COMMENT ON COLUMN tarifas.devengo_comision.periodo_contable IS 'IDX';
+COMMENT ON COLUMN tarifas.devengo_comision.clave_idempotencia IS 'Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4).';

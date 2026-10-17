@@ -19,9 +19,10 @@ CREATE TABLE IF NOT EXISTS auditoria.definicion_indicador (
   CONSTRAINT ck_definicion_indicador_sentido_meta CHECK (sentido_meta IN ('MAYOR_ES_MEJOR', 'MENOR_ES_MEJOR'))
 );
 
-COMMENT ON TABLE auditoria.definicion_indicador IS 'Módulo 09 — Auditoría, Reportes y Cumplimiento. Poder demostrar todo lo anterior ante un reclamo o un regulador';
-COMMENT ON COLUMN auditoria.definicion_indicador.id IS 'PK';
+COMMENT ON TABLE auditoria.definicion_indicador IS 'Módulo 09 — Auditoría, Reportes y Cumplimiento. Qué mide cada indicador, cómo se calcula, de dónde sale el dato, quién responde por él y para qué lado se cumple su meta. Versionada y con vigencia.';
+COMMENT ON COLUMN auditoria.definicion_indicador.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN auditoria.definicion_indicador.codigo IS 'UQ+version';
 COMMENT ON COLUMN auditoria.definicion_indicador.familia IS 'CK';
 COMMENT ON COLUMN auditoria.definicion_indicador.sentido_meta IS 'CK';
-COMMENT ON COLUMN auditoria.definicion_indicador.vigente_hasta IS 'NULL';
+COMMENT ON COLUMN auditoria.definicion_indicador.vigente_desde IS 'Desde cuándo rige esta versión de la fila: las condiciones se versionan, no se pisan.';
+COMMENT ON COLUMN auditoria.definicion_indicador.vigente_hasta IS 'Hasta cuándo rigió esta versión; vacía mientras sigue vigente.';

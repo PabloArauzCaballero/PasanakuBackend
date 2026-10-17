@@ -12,6 +12,6 @@ CREATE TABLE IF NOT EXISTS identidad.permiso (
   CONSTRAINT pk_permiso PRIMARY KEY (id)
 );
 
-COMMENT ON TABLE identidad.permiso IS 'Módulo 01 — Identidad, Usuarios y Seguridad. Saber con certeza a quién le estás confiando plata ajena';
-COMMENT ON COLUMN identidad.permiso.id IS 'PK';
+COMMENT ON TABLE identidad.permiso IS 'Módulo 01 — Identidad, Usuarios y Seguridad. Una acción concreta y autorizable: grupo.crear, aporte.exonerar, entrega.autorizar.';
+COMMENT ON COLUMN identidad.permiso.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN identidad.permiso.codigo IS 'UQ';

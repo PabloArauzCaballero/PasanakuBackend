@@ -20,11 +20,12 @@ CREATE TABLE IF NOT EXISTS nucleo_financiero.cuenta_contable (
   CONSTRAINT ck_cuenta_contable_naturaleza CHECK (naturaleza IN ('ACREEDORA', 'DEUDORA'))
 );
 
-COMMENT ON TABLE nucleo_financiero.cuenta_contable IS 'Módulo 03 — Aportes, Pagos QR y Conciliación. Que "pagué" signifique "el banco lo confirmó"';
-COMMENT ON COLUMN nucleo_financiero.cuenta_contable.id IS 'PK';
+COMMENT ON TABLE nucleo_financiero.cuenta_contable IS 'Módulo 03 — Aportes, Pagos QR y Conciliación. Cada bolsillo del sistema: la caja del grupo, la cuenta corriente de cada participante y el fondo de garantía.';
+COMMENT ON COLUMN nucleo_financiero.cuenta_contable.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN nucleo_financiero.cuenta_contable.codigo IS 'UQ';
 COMMENT ON COLUMN nucleo_financiero.cuenta_contable.tipo IS 'CK';
 COMMENT ON COLUMN nucleo_financiero.cuenta_contable.naturaleza IS 'CK';
+COMMENT ON COLUMN nucleo_financiero.cuenta_contable.moneda IS 'Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2).';
 COMMENT ON COLUMN nucleo_financiero.cuenta_contable.cuenta_padre_id IS 'FK, NULL, IDX';
 COMMENT ON COLUMN nucleo_financiero.cuenta_contable.grupo_id IS 'FK, NULL';
 COMMENT ON COLUMN nucleo_financiero.cuenta_contable.participante_id IS 'FK, NULL';

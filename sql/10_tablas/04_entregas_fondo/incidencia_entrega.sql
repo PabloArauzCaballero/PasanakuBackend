@@ -23,8 +23,8 @@ CREATE TABLE IF NOT EXISTS entregas.incidencia_entrega (
   CONSTRAINT ck_incidencia_entrega_estado CHECK (estado IN ('ABIERTA', 'CERRADA', 'EN_GESTION', 'ESCALADA', 'RESUELTA'))
 );
 
-COMMENT ON TABLE entregas.incidencia_entrega IS 'Módulo 04 — Entregas de Fondo. Que la bolsa llegue completa, a la persona correcta, una sola vez';
-COMMENT ON COLUMN entregas.incidencia_entrega.id IS 'PK';
+COMMENT ON TABLE entregas.incidencia_entrega IS 'Módulo 04 — Entregas de Fondo. Cualquier problema con una entrega, tipificado, con severidad, responsable y SLA.';
+COMMENT ON COLUMN entregas.incidencia_entrega.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN entregas.incidencia_entrega.entrega_id IS 'FK, IDX';
 COMMENT ON COLUMN entregas.incidencia_entrega.tipo IS 'CK';
 COMMENT ON COLUMN entregas.incidencia_entrega.severidad IS 'CK';

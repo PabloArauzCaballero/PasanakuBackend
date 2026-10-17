@@ -15,8 +15,8 @@ CREATE TABLE IF NOT EXISTS cumplimiento.aceptacion_contrato (
   CONSTRAINT pk_aceptacion_contrato PRIMARY KEY (id)
 );
 
-COMMENT ON TABLE cumplimiento.aceptacion_contrato IS 'Módulo 12 — Cumplimiento Regulatorio y Consumidor Financiero. Que una inspección se responda con consultas, no armando carpetas';
-COMMENT ON COLUMN cumplimiento.aceptacion_contrato.id IS 'PK';
+COMMENT ON TABLE cumplimiento.aceptacion_contrato IS 'Módulo 12 — Cumplimiento Regulatorio y Consumidor Financiero. El contrato modelo y la prueba de que cada usuario lo aceptó.';
+COMMENT ON COLUMN cumplimiento.aceptacion_contrato.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN cumplimiento.aceptacion_contrato.contrato_adhesion_id IS 'FK, IDX';
 COMMENT ON COLUMN cumplimiento.aceptacion_contrato.usuario_id IS 'FK, IDX, M1';
 COMMENT ON COLUMN cumplimiento.aceptacion_contrato.dispositivo_id IS 'FK, NULL, M1';

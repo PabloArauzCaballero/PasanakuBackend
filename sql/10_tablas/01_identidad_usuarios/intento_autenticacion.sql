@@ -16,8 +16,8 @@ CREATE TABLE IF NOT EXISTS identidad.intento_autenticacion (
   CONSTRAINT pk_intento_autenticacion PRIMARY KEY (id)
 );
 
-COMMENT ON TABLE identidad.intento_autenticacion IS 'Módulo 01 — Identidad, Usuarios y Seguridad. Saber con certeza a quién le estás confiando plata ajena';
-COMMENT ON COLUMN identidad.intento_autenticacion.id IS 'PK';
+COMMENT ON TABLE identidad.intento_autenticacion IS 'Módulo 01 — Identidad, Usuarios y Seguridad. El log de cada intento de inicio de sesión, exitoso o no, con un puntaje de riesgo.';
+COMMENT ON COLUMN identidad.intento_autenticacion.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN identidad.intento_autenticacion.usuario_id IS 'FK, NULL, IDX';
 COMMENT ON COLUMN identidad.intento_autenticacion.identificador_usado IS 'IDX';
 COMMENT ON COLUMN identidad.intento_autenticacion.fecha_hora IS 'IDX';

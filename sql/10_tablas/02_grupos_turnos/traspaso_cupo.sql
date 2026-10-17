@@ -17,8 +17,8 @@ CREATE TABLE IF NOT EXISTS grupos.traspaso_cupo (
   CONSTRAINT ck_traspaso_cupo_motivo CHECK (motivo IN ('REEMPLAZO_POR_MORA', 'RETIRO', 'VENTA'))
 );
 
-COMMENT ON TABLE grupos.traspaso_cupo IS 'Módulo 02 — Grupos, Cupos, Turnos y Gobernanza. Reglas del juego, orden de cobro y decisiones colectivas';
-COMMENT ON COLUMN grupos.traspaso_cupo.id IS 'PK';
+COMMENT ON TABLE grupos.traspaso_cupo IS 'Módulo 02 — Grupos, Cupos, Turnos y Gobernanza. El cambio de manos de un cupo, de un participante a otro, con lo que se transfiere y lo que no.';
+COMMENT ON COLUMN grupos.traspaso_cupo.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN grupos.traspaso_cupo.cupo_id IS 'FK, IDX';
 COMMENT ON COLUMN grupos.traspaso_cupo.participante_origen_id IS 'FK';
 COMMENT ON COLUMN grupos.traspaso_cupo.participante_destino_id IS 'FK';

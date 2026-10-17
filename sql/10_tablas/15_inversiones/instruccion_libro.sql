@@ -25,12 +25,13 @@ CREATE TABLE IF NOT EXISTS inversiones.instruccion_libro (
 );
 
 COMMENT ON TABLE inversiones.instruccion_libro IS 'Módulo 15 — Inversiones voluntarias. Que una inversion voluntaria nunca prometa rentabilidad ni duplique el saldo';
-COMMENT ON COLUMN inversiones.instruccion_libro.id IS 'PK';
+COMMENT ON COLUMN inversiones.instruccion_libro.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN inversiones.instruccion_libro.origen_tipo IS 'CK: ORDEN | RESCATE, IDX';
 COMMENT ON COLUMN inversiones.instruccion_libro.origen_id IS 'IDX, polimorfica';
 COMMENT ON COLUMN inversiones.instruccion_libro.tipo IS 'CK: RETENER | LIBERAR | DEBITAR | ACREDITAR';
 COMMENT ON COLUMN inversiones.instruccion_libro.monto IS 'CK: > 0';
-COMMENT ON COLUMN inversiones.instruccion_libro.clave_idempotencia IS 'UQ';
+COMMENT ON COLUMN inversiones.instruccion_libro.moneda IS 'Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2).';
+COMMENT ON COLUMN inversiones.instruccion_libro.clave_idempotencia IS 'Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4).';
 COMMENT ON COLUMN inversiones.instruccion_libro.estado IS 'CK: PENDIENTE | APLICADA | FALLIDA, IDX';
 COMMENT ON COLUMN inversiones.instruccion_libro.referencia_libro IS 'NULL';
 COMMENT ON COLUMN inversiones.instruccion_libro.ultimo_error IS 'NULL';

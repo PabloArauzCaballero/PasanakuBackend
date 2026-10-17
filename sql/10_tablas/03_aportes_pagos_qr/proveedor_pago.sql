@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS aportes.proveedor_pago (
   CONSTRAINT ck_proveedor_pago_tipo CHECK (tipo IN ('BANCO', 'BILLETERA', 'PASARELA'))
 );
 
-COMMENT ON TABLE aportes.proveedor_pago IS 'Módulo 03 — Aportes, Pagos QR y Conciliación. Que "pagué" signifique "el banco lo confirmó"';
-COMMENT ON COLUMN aportes.proveedor_pago.id IS 'PK';
+COMMENT ON TABLE aportes.proveedor_pago IS 'Módulo 03 — Aportes, Pagos QR y Conciliación. Cada pasarela, banco o billetera con la que la plataforma opera.';
+COMMENT ON COLUMN aportes.proveedor_pago.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN aportes.proveedor_pago.codigo IS 'UQ';
 COMMENT ON COLUMN aportes.proveedor_pago.tipo IS 'CK';

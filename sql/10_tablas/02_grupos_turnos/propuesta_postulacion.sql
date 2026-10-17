@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS grupos.propuesta_postulacion (
   CONSTRAINT pk_propuesta_postulacion PRIMARY KEY (propuesta_id, postulacion_id)
 );
 
-COMMENT ON TABLE grupos.propuesta_postulacion IS 'Módulo 02 — Grupos, Cupos, Turnos y Gobernanza. Reglas del juego, orden de cobro y decisiones colectivas';
+COMMENT ON TABLE grupos.propuesta_postulacion IS 'Módulo 02 — Grupos, Cupos, Turnos y Gobernanza. La relación entre una propuesta y cada postulación invitada, con su respuesta.';
 COMMENT ON COLUMN grupos.propuesta_postulacion.propuesta_id IS 'PK, FK';
 COMMENT ON COLUMN grupos.propuesta_postulacion.postulacion_id IS 'PK, FK';
 COMMENT ON COLUMN grupos.propuesta_postulacion.respondido_en IS 'NULL';

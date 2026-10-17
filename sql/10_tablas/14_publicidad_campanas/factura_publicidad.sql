@@ -19,9 +19,10 @@ CREATE TABLE IF NOT EXISTS publicidad.factura_publicidad (
 );
 
 COMMENT ON TABLE publicidad.factura_publicidad IS 'Módulo 14 — Publicidad y Campañas. [append-only] Que un partner se anuncie dentro de la app sin inventar un segundo cobro';
-COMMENT ON COLUMN publicidad.factura_publicidad.id IS 'PK';
+COMMENT ON COLUMN publicidad.factura_publicidad.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN publicidad.factura_publicidad.cuenta_publicitaria_id IS 'FK, IDX';
 COMMENT ON COLUMN publicidad.factura_publicidad.monto_total IS 'CK: > 0';
+COMMENT ON COLUMN publicidad.factura_publicidad.moneda IS 'Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2).';
 COMMENT ON COLUMN publicidad.factura_publicidad.factura_electronica_id IS 'FK, NULL, M11';
 COMMENT ON COLUMN publicidad.factura_publicidad.cuenta_por_cobrar_id IS 'FK, NULL, M13';
 COMMENT ON COLUMN publicidad.factura_publicidad.estado IS 'CK, IDX';

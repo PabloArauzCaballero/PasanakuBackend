@@ -17,8 +17,8 @@ CREATE TABLE IF NOT EXISTS garantia.ejecucion_aval (
   CONSTRAINT ck_ejecucion_aval_estado CHECK (estado IN ('ACEPTADA', 'EN_DISPUTA', 'NOTIFICADA', 'PAGADA', 'RECHAZADA'))
 );
 
-COMMENT ON TABLE garantia.ejecucion_aval IS 'Módulo 08 — Garantía, Incumplimiento, Cobranza y Sanciones. El grupo no se detiene, pero la deuda no se perdona sola';
-COMMENT ON COLUMN garantia.ejecucion_aval.id IS 'PK';
+COMMENT ON TABLE garantia.ejecucion_aval IS 'Módulo 08 — Garantía, Incumplimiento, Cobranza y Sanciones. El acto de exigirle al avalista que pague.';
+COMMENT ON COLUMN garantia.ejecucion_aval.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN garantia.ejecucion_aval.aval_id IS 'FK, IDX';
 COMMENT ON COLUMN garantia.ejecucion_aval.registro_id IS 'FK, IDX';
 COMMENT ON COLUMN garantia.ejecucion_aval.deuda_id IS 'FK';

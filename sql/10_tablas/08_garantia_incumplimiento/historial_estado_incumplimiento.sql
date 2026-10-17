@@ -16,8 +16,8 @@ CREATE TABLE IF NOT EXISTS garantia.historial_estado_incumplimiento (
   CONSTRAINT pk_historial_estado_incumplimiento PRIMARY KEY (id)
 );
 
-COMMENT ON TABLE garantia.historial_estado_incumplimiento IS 'Módulo 08 — Garantía, Incumplimiento, Cobranza y Sanciones. [append-only] El grupo no se detiene, pero la deuda no se perdona sola';
-COMMENT ON COLUMN garantia.historial_estado_incumplimiento.id IS 'PK';
+COMMENT ON TABLE garantia.historial_estado_incumplimiento IS 'Módulo 08 — Garantía, Incumplimiento, Cobranza y Sanciones. [append-only] La línea de tiempo del expediente: cada transición, con motivo, monto y autor.';
+COMMENT ON COLUMN garantia.historial_estado_incumplimiento.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN garantia.historial_estado_incumplimiento.registro_id IS 'FK, IDX';
 COMMENT ON COLUMN garantia.historial_estado_incumplimiento.estado_anterior IS 'NULL';
 COMMENT ON COLUMN garantia.historial_estado_incumplimiento.monto_asociado IS 'NULL';

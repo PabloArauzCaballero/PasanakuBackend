@@ -22,11 +22,12 @@ CREATE TABLE IF NOT EXISTS erp.activo_fijo (
 );
 
 COMMENT ON TABLE erp.activo_fijo IS 'Módulo 13 — Contabilidad Financiera y ERP. Que cerrar un mes no dependa de un Excel armado a mano';
-COMMENT ON COLUMN erp.activo_fijo.id IS 'PK';
+COMMENT ON COLUMN erp.activo_fijo.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN erp.activo_fijo.categoria_activo_fijo_id IS 'FK, IDX';
 COMMENT ON COLUMN erp.activo_fijo.centro_costo_id IS 'FK, NULL';
 COMMENT ON COLUMN erp.activo_fijo.codigo_inventario IS 'UQ';
 COMMENT ON COLUMN erp.activo_fijo.costo_adquisicion IS 'CK: > 0';
+COMMENT ON COLUMN erp.activo_fijo.moneda IS 'Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2).';
 COMMENT ON COLUMN erp.activo_fijo.valor_en_libros IS 'GENERATED';
 COMMENT ON COLUMN erp.activo_fijo.estado IS 'CK, IDX';
 COMMENT ON COLUMN erp.activo_fijo.factura_proveedor_id IS 'FK, NULL';

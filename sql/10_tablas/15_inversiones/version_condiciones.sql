@@ -38,7 +38,7 @@ CREATE TABLE IF NOT EXISTS inversiones.version_condiciones (
 );
 
 COMMENT ON TABLE inversiones.version_condiciones IS 'Módulo 15 — Inversiones voluntarias. [append-only] Que una inversion voluntaria nunca prometa rentabilidad ni duplique el saldo';
-COMMENT ON COLUMN inversiones.version_condiciones.id IS 'PK';
+COMMENT ON COLUMN inversiones.version_condiciones.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN inversiones.version_condiciones.producto_inversion_id IS 'FK, IDX';
 COMMENT ON COLUMN inversiones.version_condiciones.numero IS 'UQ+producto_inversion_id';
 COMMENT ON COLUMN inversiones.version_condiciones.plazo_dias IS 'NULL, CK: > 0';
@@ -51,3 +51,4 @@ COMMENT ON COLUMN inversiones.version_condiciones.monto_minimo IS 'CK: > 0';
 COMMENT ON COLUMN inversiones.version_condiciones.tasa_retencion IS 'NULL, CK: >= 0';
 COMMENT ON COLUMN inversiones.version_condiciones.tasa_comision_exito IS 'NULL, CK: >= 0';
 COMMENT ON COLUMN inversiones.version_condiciones.origen_datos IS 'CK: SINTETICO | VERIFICADO';
+COMMENT ON COLUMN inversiones.version_condiciones.vigente_desde IS 'Desde cuándo rige esta versión de la fila: las condiciones se versionan, no se pisan.';

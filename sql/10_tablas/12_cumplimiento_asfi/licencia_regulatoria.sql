@@ -24,15 +24,15 @@ CREATE TABLE IF NOT EXISTS catalogo.licencia_regulatoria (
   CONSTRAINT ck_licencia_regulatoria_estado CHECK (estado IN ('CONDICIONADA', 'EN_TRAMITE', 'OTORGADA', 'REVOCADA', 'SUSPENDIDA'))
 );
 
-COMMENT ON TABLE catalogo.licencia_regulatoria IS 'Módulo 12 — Cumplimiento Regulatorio y Consumidor Financiero. Que una inspección se responda con consultas, no armando carpetas';
-COMMENT ON COLUMN catalogo.licencia_regulatoria.id IS 'PK';
+COMMENT ON TABLE catalogo.licencia_regulatoria IS 'Módulo 12 — Cumplimiento Regulatorio y Consumidor Financiero. El estado de habilitación de la empresa ante el regulador.';
+COMMENT ON COLUMN catalogo.licencia_regulatoria.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN catalogo.licencia_regulatoria.organismo IS 'CK, IDX';
 COMMENT ON COLUMN catalogo.licencia_regulatoria.tipo IS 'CK';
 COMMENT ON COLUMN catalogo.licencia_regulatoria.categoria_actividad IS 'CK';
 COMMENT ON COLUMN catalogo.licencia_regulatoria.numero_resolucion IS 'UQ, NULL';
 COMMENT ON COLUMN catalogo.licencia_regulatoria.estado IS 'CK, IDX';
 COMMENT ON COLUMN catalogo.licencia_regulatoria.fecha_otorgamiento IS 'NULL';
-COMMENT ON COLUMN catalogo.licencia_regulatoria.vigente_hasta IS 'NULL';
+COMMENT ON COLUMN catalogo.licencia_regulatoria.vigente_hasta IS 'Hasta cuándo rigió esta versión; vacía mientras sigue vigente.';
 COMMENT ON COLUMN catalogo.licencia_regulatoria.garantia_seriedad IS 'NULL';
 COMMENT ON COLUMN catalogo.licencia_regulatoria.documento_url IS 'NULL';
 COMMENT ON COLUMN catalogo.licencia_regulatoria.hash_documento IS 'NULL';

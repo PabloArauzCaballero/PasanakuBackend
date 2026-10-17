@@ -25,8 +25,8 @@ CREATE TABLE IF NOT EXISTS cumplimiento.caso_investigacion_lft (
   CONSTRAINT ck_caso_investigacion_lft_decision CHECK (decision IN ('DESCARTAR', 'MONITOREO_REFORZADO', 'REPORTAR', 'TERMINAR_RELACION'))
 );
 
-COMMENT ON TABLE cumplimiento.caso_investigacion_lft IS 'Módulo 12 — Cumplimiento Regulatorio y Consumidor Financiero. Que una inspección se responda con consultas, no armando carpetas';
-COMMENT ON COLUMN cumplimiento.caso_investigacion_lft.id IS 'PK';
+COMMENT ON TABLE cumplimiento.caso_investigacion_lft IS 'Módulo 12 — Cumplimiento Regulatorio y Consumidor Financiero. La detección y la investigación.';
+COMMENT ON COLUMN cumplimiento.caso_investigacion_lft.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN cumplimiento.caso_investigacion_lft.codigo IS 'UQ';
 COMMENT ON COLUMN cumplimiento.caso_investigacion_lft.usuario_id IS 'FK, IDX, M1';
 COMMENT ON COLUMN cumplimiento.caso_investigacion_lft.analista_id IS 'FK';

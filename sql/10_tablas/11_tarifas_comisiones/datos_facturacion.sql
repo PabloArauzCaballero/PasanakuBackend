@@ -16,8 +16,8 @@ CREATE TABLE IF NOT EXISTS tarifas.datos_facturacion (
   CONSTRAINT ck_datos_facturacion_tipo_documento CHECK (tipo_documento IN ('CEX', 'CI', 'NIT'))
 );
 
-COMMENT ON TABLE tarifas.datos_facturacion IS 'Módulo 11 — Tarifas, Comisiones, Impuestos y Facturación. La política de cobro es dato, no código: se cambia con un seeder';
-COMMENT ON COLUMN tarifas.datos_facturacion.id IS 'PK';
+COMMENT ON TABLE tarifas.datos_facturacion IS 'Módulo 11 — Tarifas, Comisiones, Impuestos y Facturación. El documento fiscal y su ciclo de vida.';
+COMMENT ON COLUMN tarifas.datos_facturacion.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN tarifas.datos_facturacion.usuario_id IS 'FK, IDX, M1';
 COMMENT ON COLUMN tarifas.datos_facturacion.tipo_documento IS 'CK';
 COMMENT ON COLUMN tarifas.datos_facturacion.numero_documento IS 'UQ+usuario_id';

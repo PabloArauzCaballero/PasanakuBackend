@@ -15,8 +15,8 @@ CREATE TABLE IF NOT EXISTS garantia.candidato_reemplazo (
   CONSTRAINT ck_candidato_reemplazo_estado CHECK (estado IN ('ACEPTADO', 'DESCARTADO', 'PROPUESTO'))
 );
 
-COMMENT ON TABLE garantia.candidato_reemplazo IS 'Módulo 08 — Garantía, Incumplimiento, Cobranza y Sanciones. El grupo no se detiene, pero la deuda no se perdona sola';
-COMMENT ON COLUMN garantia.candidato_reemplazo.id IS 'PK';
+COMMENT ON TABLE garantia.candidato_reemplazo IS 'Módulo 08 — Garantía, Incumplimiento, Cobranza y Sanciones. Cada persona evaluada para ocupar el cupo vacante.';
+COMMENT ON COLUMN garantia.candidato_reemplazo.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN garantia.candidato_reemplazo.reemplazo_id IS 'FK, IDX';
 COMMENT ON COLUMN garantia.candidato_reemplazo.usuario_id IS 'FK';
 COMMENT ON COLUMN garantia.candidato_reemplazo.fuente_candidato IS 'CK';

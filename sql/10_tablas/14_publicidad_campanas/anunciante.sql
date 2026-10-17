@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS publicidad.anunciante (
 );
 
 COMMENT ON TABLE publicidad.anunciante IS 'Módulo 14 — Publicidad y Campañas. Que un partner se anuncie dentro de la app sin inventar un segundo cobro';
-COMMENT ON COLUMN publicidad.anunciante.id IS 'PK';
+COMMENT ON COLUMN publicidad.anunciante.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN publicidad.anunciante.tipo IS 'CK, IDX';
 COMMENT ON COLUMN publicidad.anunciante.organizador_id IS 'FK, NULL, IDX, M7';
 COMMENT ON COLUMN publicidad.anunciante.socio_comercial_id IS 'FK, NULL, IDX';

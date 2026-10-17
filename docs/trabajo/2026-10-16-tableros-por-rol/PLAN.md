@@ -326,13 +326,28 @@ por esquema, tabla y columna y ver las relaciones. Un gate falla si falta una na
 prueba visual.
 **Estado:** TODO
 
+> **Corrección del plan (H7, 2026-10-16, D13).** El descubrimiento encontró que la narrativa de negocio por tabla
+> YA existe, escrita a mano, en `docs/entidades/*.md` (secciones «Qué es», «Para qué sirve (negocio)», «Por qué
+> debe existir», «A nivel de sistema»; ver `docs/entidades/README.md:17-26`): 271 de 337 tablas tienen ficha. Poner
+> la narrativa además en el PlantUML crearía dos fuentes de verdad (regla 97.1.1). Se lee de las fichas. La
+> narrativa de SISTEMA se deriva del modelo (servicio dueño, append-only, FK salientes y entrantes, CHECK, índices).
+> La clasificación de sensibilidad reusa el vocabulario de `SalidasSensibles.java:74-80`. Ambigüedad A8 (columnas):
+> 490 de 3680 columnas tienen nota en su ficha; escribir a mano las otras ~3200 no cabe en este trabajo. Se cubren
+> con la ficha cuando existe, un diccionario de convenciones del proyecto para los nombres repetidos (`id`,
+> `estado`, `moneda`, `clave_idempotencia`, `vigente_desde`…) y la descripción estructural; el gate exige ficha en
+> el 100 % de las tablas y trinquete (no baja) en la cobertura de columnas.
+
 | ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
 |---|---|---|---|---|
-| H7.S1.M1 | Sintaxis de narrativa en el PlantUML que entienda `generar_ddl.py` (ver cómo hoy se leen `<<CK>>`, `<<FK>>`) | El generador la lee | Test del generador nombrado en verde | TODO |
-| H7.S1.M2 | El generador emite `COMMENT ON TABLE/COLUMN` con la narrativa | DDL aplicado; `obj_description` devuelve el texto | `psql` pegado | TODO |
-| H7.S1.M3 | Gate `verificar_narrativas.py` (equivalente a `check:entity-narratives` de Atlas) | Falla con una columna sin narrativa y pasa sin faltantes | Dos corridas pegadas | TODO |
-| H7.S1.M4 | Escribir las narrativas, módulo por módulo (una microtarea por módulo de `sql/10_tablas`; se desglosa al abrir H7) | El gate pasa en el módulo | Gate filtrado por módulo → exit 0 | TODO |
-| H7.S1.M5 | Generar `docs/catalogo-de-datos.md` y `catalogo-datos.json` (esquemas, tablas, columnas, tipos, nulabilidad, PK, FK, relaciones y sensibilidad PII) | Archivos regenerados idénticos en dos corridas | `sha256sum` dos veces, pegado | TODO |
+| H7.S1.M1 | `scripts/catalogo_de_datos.py`: lee las fichas `docs/entidades/*.md` por tabla y por columna (sin sintaxis nueva en el PlantUML, D13) | Devuelve la ficha de `obligacion_aporte` y la nota de `monto_esperado` | `python3 -I scripts/catalogo_de_datos.py --tabla obligacion_aporte` pegado | HECHO — `evidencia/H7-S1-M1-lector-de-fichas.txt` |
+| H7.S1.M2 | El generador emite `COMMENT ON TABLE/COLUMN` con la narrativa (en lugar de la anotación cruda) | DDL regenerado; `obj_description` devuelve el texto en una base aplicada | `psql` pegado | HECHO — `evidencia/H7-S1-M2-comment-on.txt` |
+| H7.S1.M3 | Gate `scripts/verificar_narrativas.py`: 100 % de tablas con ficha y trinquete de cobertura de columnas | Falla con una tabla sin ficha y pasa sin faltantes | Dos corridas pegadas | HECHO — `evidencia/H7-S1-M3-gate-narrativas.txt` (entra al CI cuando el modelo completo pase, H7.S1.M5) |
+| H7.S1.M4a | Fichas faltantes de los módulos 01, 02, 04, 07, 10 y 11 (14 tablas) | Gate filtrado por esos módulos → exit 0 | `verificar_narrativas.py --modulo …` pegado | TODO |
+| H7.S1.M4b | Fichas faltantes del módulo 08 (6 tablas) | Ídem | Ídem | TODO |
+| H7.S1.M4c | Fichas faltantes del módulo 13 (18 tablas) | Ídem | Ídem | TODO |
+| H7.S1.M4d | Fichas faltantes del módulo 14 (14 tablas) | Ídem | Ídem | TODO |
+| H7.S1.M4e | Fichas del módulo 15 (inversiones, sin `.md`; 14 tablas) | Ídem | Ídem | TODO |
+| H7.S1.M5 | Generar `docs/catalogo-de-datos.md` y `apps/backoffice/public/catalogo-datos.json` (esquemas, tablas, columnas, tipos, nulabilidad, PK, FK, relaciones, sensibilidad) | Dos corridas idénticas | `shasum -a 256` dos veces, pegado | TODO |
 | H7.S2.M1 | Pantalla de catálogo (lista, búsqueda normalizada y ficha de tabla con relaciones) consumiendo el JSON publicado | Specs de los cuatro estados en verde | `yarn --cwd apps/backoffice test:front` (specs nombrados) | TODO |
 | H7.S2.M2 | Prueba visual | Capturas inspeccionadas | `evidencia/H7/` | TODO |
 

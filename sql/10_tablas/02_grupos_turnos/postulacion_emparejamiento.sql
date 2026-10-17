@@ -19,8 +19,9 @@ CREATE TABLE IF NOT EXISTS grupos.postulacion_emparejamiento (
   CONSTRAINT ck_postulacion_emparejamiento_estado CHECK (estado IN ('ACTIVA', 'CANCELADA', 'EMPAREJADA', 'EXPIRADA'))
 );
 
-COMMENT ON TABLE grupos.postulacion_emparejamiento IS 'Módulo 02 — Grupos, Cupos, Turnos y Gobernanza. Reglas del juego, orden de cobro y decisiones colectivas';
-COMMENT ON COLUMN grupos.postulacion_emparejamiento.id IS 'PK';
+COMMENT ON TABLE grupos.postulacion_emparejamiento IS 'Módulo 02 — Grupos, Cupos, Turnos y Gobernanza. La declaración de un usuario de que quiere entrar a *algún* grupo con ciertas características, sin tener uno concreto en mente.';
+COMMENT ON COLUMN grupos.postulacion_emparejamiento.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN grupos.postulacion_emparejamiento.usuario_id IS 'FK, IDX';
 COMMENT ON COLUMN grupos.postulacion_emparejamiento.preferencia_turno IS 'CK';
 COMMENT ON COLUMN grupos.postulacion_emparejamiento.estado IS 'CK, IDX';
+COMMENT ON COLUMN grupos.postulacion_emparejamiento.vigente_hasta IS 'Hasta cuándo rigió esta versión; vacía mientras sigue vigente.';

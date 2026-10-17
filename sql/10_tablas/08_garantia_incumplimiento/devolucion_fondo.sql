@@ -16,8 +16,8 @@ CREATE TABLE IF NOT EXISTS garantia.devolucion_fondo (
   CONSTRAINT ck_devolucion_fondo_estado CHECK (estado IN ('CALCULADA', 'PAGADA', 'RETENIDA'))
 );
 
-COMMENT ON TABLE garantia.devolucion_fondo IS 'Módulo 08 — Garantía, Incumplimiento, Cobranza y Sanciones. El grupo no se detiene, pero la deuda no se perdona sola';
-COMMENT ON COLUMN garantia.devolucion_fondo.id IS 'PK';
+COMMENT ON TABLE garantia.devolucion_fondo IS 'Módulo 08 — Garantía, Incumplimiento, Cobranza y Sanciones. El cálculo de cuánto le toca devolver a cada participante del fondo sobrante al cerrar el grupo.';
+COMMENT ON COLUMN garantia.devolucion_fondo.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN garantia.devolucion_fondo.fondo_id IS 'FK, IDX';
 COMMENT ON COLUMN garantia.devolucion_fondo.participante_id IS 'FK';
 COMMENT ON COLUMN garantia.devolucion_fondo.estado IS 'CK';

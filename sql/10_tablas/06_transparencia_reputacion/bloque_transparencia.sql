@@ -17,8 +17,8 @@ CREATE TABLE IF NOT EXISTS transparencia.bloque_transparencia (
   CONSTRAINT pk_bloque_transparencia PRIMARY KEY (id)
 );
 
-COMMENT ON TABLE transparencia.bloque_transparencia IS 'Módulo 06 — Transparencia y Reputación. Que nadie tenga que "creerle" al organizador';
-COMMENT ON COLUMN transparencia.bloque_transparencia.id IS 'PK';
+COMMENT ON TABLE transparencia.bloque_transparencia IS 'Módulo 06 — Transparencia y Reputación. Un bloque sellado de la historia del grupo, encadenado por hash al anterior y con raíz Merkle de los eventos que contiene.';
+COMMENT ON COLUMN transparencia.bloque_transparencia.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN transparencia.bloque_transparencia.grupo_id IS 'FK, IDX';
 COMMENT ON COLUMN transparencia.bloque_transparencia.hash_bloque IS 'UQ';
 COMMENT ON COLUMN transparencia.bloque_transparencia.sello_externo IS 'NULL';

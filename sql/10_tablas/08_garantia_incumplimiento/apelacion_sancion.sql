@@ -20,8 +20,8 @@ CREATE TABLE IF NOT EXISTS garantia.apelacion_sancion (
   CONSTRAINT ck_apelacion_sancion_instancia CHECK (instancia IN ('COMITE_GRUPO', 'ORGANIZADOR', 'SOPORTE_PLATAFORMA'))
 );
 
-COMMENT ON TABLE garantia.apelacion_sancion IS 'Módulo 08 — Garantía, Incumplimiento, Cobranza y Sanciones. El grupo no se detiene, pero la deuda no se perdona sola';
-COMMENT ON COLUMN garantia.apelacion_sancion.id IS 'PK';
+COMMENT ON TABLE garantia.apelacion_sancion IS 'Módulo 08 — Garantía, Incumplimiento, Cobranza y Sanciones. El recurso del sancionado, con instancia y plazo.';
+COMMENT ON COLUMN garantia.apelacion_sancion.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN garantia.apelacion_sancion.sancion_id IS 'FK, IDX';
 COMMENT ON COLUMN garantia.apelacion_sancion.apelante_id IS 'FK';
 COMMENT ON COLUMN garantia.apelacion_sancion.resuelta_por IS 'FK, NULL';

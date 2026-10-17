@@ -18,11 +18,12 @@ CREATE TABLE IF NOT EXISTS aportes.intento_pago (
   CONSTRAINT ck_intento_pago_estado CHECK (estado IN ('APROBADA', 'DESCONOCIDA', 'EXPIRADA', 'PENDIENTE', 'RECHAZADA'))
 );
 
-COMMENT ON TABLE aportes.intento_pago IS 'Módulo 03 — Aportes, Pagos QR y Conciliación. Que "pagué" signifique "el banco lo confirmó"';
-COMMENT ON COLUMN aportes.intento_pago.id IS 'PK';
+COMMENT ON TABLE aportes.intento_pago IS 'Módulo 03 — Aportes, Pagos QR y Conciliación. Cada vez que se trata de ejecutar el cobro de una orden, con su resultado.';
+COMMENT ON COLUMN aportes.intento_pago.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN aportes.intento_pago.orden_cobro_id IS 'FK, IDX';
 COMMENT ON COLUMN aportes.intento_pago.canal IS 'CK';
 COMMENT ON COLUMN aportes.intento_pago.finalizado_en IS 'NULL';
 COMMENT ON COLUMN aportes.intento_pago.estado IS 'CK';
 COMMENT ON COLUMN aportes.intento_pago.codigo_error IS 'NULL';
 COMMENT ON COLUMN aportes.intento_pago.mensaje_proveedor IS 'NULL';
+COMMENT ON COLUMN aportes.intento_pago.clave_idempotencia IS 'Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4).';

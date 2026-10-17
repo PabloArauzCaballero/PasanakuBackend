@@ -19,9 +19,9 @@ CREATE TABLE IF NOT EXISTS inversiones.corrida_trabajo (
 );
 
 COMMENT ON TABLE inversiones.corrida_trabajo IS 'Módulo 15 — Inversiones voluntarias. Que una inversion voluntaria nunca prometa rentabilidad ni duplique el saldo';
-COMMENT ON COLUMN inversiones.corrida_trabajo.id IS 'PK';
+COMMENT ON COLUMN inversiones.corrida_trabajo.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN inversiones.corrida_trabajo.operacion IS 'CK: SINCRONIZAR_CATALOGO | SINCRONIZAR_VALORES | DEVENGAR | REINTENTAR_INSTRUCCIONES, IDX';
-COMMENT ON COLUMN inversiones.corrida_trabajo.clave_idempotencia IS 'UQ+operacion';
+COMMENT ON COLUMN inversiones.corrida_trabajo.clave_idempotencia IS 'Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4).';
 COMMENT ON COLUMN inversiones.corrida_trabajo.origen IS 'CK: API | PROGRAMADO';
 COMMENT ON COLUMN inversiones.corrida_trabajo.estado IS 'CK: EN_CURSO | OK | PARCIAL | FALLIDA, IDX';
 COMMENT ON COLUMN inversiones.corrida_trabajo.resultado IS 'NULL';

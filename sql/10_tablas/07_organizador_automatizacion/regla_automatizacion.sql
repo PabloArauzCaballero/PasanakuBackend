@@ -18,8 +18,8 @@ CREATE TABLE IF NOT EXISTS organizador.regla_automatizacion (
   CONSTRAINT ck_regla_automatizacion_accion CHECK (accion IN ('APLICAR_MORA', 'EJECUTAR_ENTREGA', 'ENVIAR_RECORDATORIO', 'ESCALAR_COBRANZA', 'GENERAR_COBROS', 'LIQUIDAR_PERIODO'))
 );
 
-COMMENT ON TABLE organizador.regla_automatizacion IS 'Módulo 07 — Organizador y Automatización. Administrar es un rol, no un negocio: el organizador no cobra ni custodia';
-COMMENT ON COLUMN organizador.regla_automatizacion.id IS 'PK';
+COMMENT ON TABLE organizador.regla_automatizacion IS 'Módulo 07 — Organizador y Automatización. Qué se automatiza, cuándo se dispara, bajo qué condición y qué acción ejecuta.';
+COMMENT ON COLUMN organizador.regla_automatizacion.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN organizador.regla_automatizacion.codigo IS 'UQ';
 COMMENT ON COLUMN organizador.regla_automatizacion.disparador IS 'CK';
 COMMENT ON COLUMN organizador.regla_automatizacion.accion IS 'CK';

@@ -16,9 +16,10 @@ CREATE TABLE IF NOT EXISTS cumplimiento.plan_continuidad (
   CONSTRAINT pk_plan_continuidad PRIMARY KEY (id)
 );
 
-COMMENT ON TABLE cumplimiento.plan_continuidad IS 'Módulo 12 — Cumplimiento Regulatorio y Consumidor Financiero. Que una inspección se responda con consultas, no armando carpetas';
-COMMENT ON COLUMN cumplimiento.plan_continuidad.id IS 'PK';
+COMMENT ON TABLE cumplimiento.plan_continuidad IS 'Módulo 12 — Cumplimiento Regulatorio y Consumidor Financiero. Los planes de continuidad por proceso crítico y la evidencia de que se prueban.';
+COMMENT ON COLUMN cumplimiento.plan_continuidad.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN cumplimiento.plan_continuidad.politica_interna_id IS 'FK, NULL';
 COMMENT ON COLUMN cumplimiento.plan_continuidad.responsable_id IS 'FK, NULL';
 COMMENT ON COLUMN cumplimiento.plan_continuidad.proceso_critico IS 'UQ';
+COMMENT ON COLUMN cumplimiento.plan_continuidad.vigente_desde IS 'Desde cuándo rige esta versión de la fila: las condiciones se versionan, no se pisan.';
 COMMENT ON COLUMN cumplimiento.plan_continuidad.proxima_prueba IS 'IDX';

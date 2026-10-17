@@ -15,8 +15,8 @@ CREATE TABLE IF NOT EXISTS transparencia.registro_sellado (
   CONSTRAINT ck_registro_sellado_tipo_entidad CHECK (tipo_entidad IN ('ACUERDO', 'COBERTURA', 'ENTREGA', 'PAGO', 'SANCION'))
 );
 
-COMMENT ON TABLE transparencia.registro_sellado IS 'Módulo 06 — Transparencia y Reputación. [append-only] Que nadie tenga que "creerle" al organizador';
-COMMENT ON COLUMN transparencia.registro_sellado.id IS 'PK';
+COMMENT ON TABLE transparencia.registro_sellado IS 'Módulo 06 — Transparencia y Reputación. [append-only] Cada hecho incluido en un bloque: un pago, una entrega, una cobertura, un acuerdo, una sanción — con su hash y un resumen público.';
+COMMENT ON COLUMN transparencia.registro_sellado.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN transparencia.registro_sellado.bloque_id IS 'FK, IDX';
 COMMENT ON COLUMN transparencia.registro_sellado.tipo_entidad IS 'CK';
 COMMENT ON COLUMN transparencia.registro_sellado.entidad_id IS 'IDX, polimorfica';

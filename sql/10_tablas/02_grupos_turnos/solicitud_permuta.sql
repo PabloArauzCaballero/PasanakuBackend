@@ -18,8 +18,8 @@ CREATE TABLE IF NOT EXISTS grupos.solicitud_permuta (
   CONSTRAINT ck_solicitud_permuta_estado CHECK (estado IN ('ACEPTADA', 'APROBADA_ORG', 'EJECUTADA', 'PENDIENTE', 'RECHAZADA'))
 );
 
-COMMENT ON TABLE grupos.solicitud_permuta IS 'Módulo 02 — Grupos, Cupos, Turnos y Gobernanza. Reglas del juego, orden de cobro y decisiones colectivas';
-COMMENT ON COLUMN grupos.solicitud_permuta.id IS 'PK';
+COMMENT ON TABLE grupos.solicitud_permuta IS 'Módulo 02 — Grupos, Cupos, Turnos y Gobernanza. El pedido de intercambiar turnos entre dos cupos, con la compensación que se ofrece.';
+COMMENT ON COLUMN grupos.solicitud_permuta.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN grupos.solicitud_permuta.turno_origen_id IS 'FK, IDX';
 COMMENT ON COLUMN grupos.solicitud_permuta.turno_destino_id IS 'FK';
 COMMENT ON COLUMN grupos.solicitud_permuta.solicitante_id IS 'FK';

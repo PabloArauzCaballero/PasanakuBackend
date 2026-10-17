@@ -18,8 +18,9 @@ CREATE TABLE IF NOT EXISTS inversiones.valor_cuota (
 );
 
 COMMENT ON TABLE inversiones.valor_cuota IS 'Módulo 15 — Inversiones voluntarias. [append-only] Que una inversion voluntaria nunca prometa rentabilidad ni duplique el saldo';
-COMMENT ON COLUMN inversiones.valor_cuota.id IS 'PK';
+COMMENT ON COLUMN inversiones.valor_cuota.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN inversiones.valor_cuota.producto_inversion_id IS 'FK, IDX';
 COMMENT ON COLUMN inversiones.valor_cuota.fecha IS 'UQ+producto_inversion_id';
 COMMENT ON COLUMN inversiones.valor_cuota.valor IS 'CK: > 0';
+COMMENT ON COLUMN inversiones.valor_cuota.moneda IS 'Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2).';
 COMMENT ON COLUMN inversiones.valor_cuota.origen_datos IS 'CK: SINTETICO | VERIFICADO';

@@ -29,9 +29,10 @@ CREATE TABLE IF NOT EXISTS entregas.fondeo_entrega (
 );
 
 COMMENT ON TABLE entregas.fondeo_entrega IS 'Módulo 04 — Entregas de Fondo. Que la bolsa llegue completa, a la persona correcta, una sola vez';
-COMMENT ON COLUMN entregas.fondeo_entrega.id IS 'PK';
+COMMENT ON COLUMN entregas.fondeo_entrega.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN entregas.fondeo_entrega.entrega_id IS 'FK, UQ';
 COMMENT ON COLUMN entregas.fondeo_entrega.turno_id IS 'FK, UQ';
+COMMENT ON COLUMN entregas.fondeo_entrega.moneda IS 'Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2).';
 COMMENT ON COLUMN entregas.fondeo_entrega.monto_pozo IS 'CK: > 0';
 COMMENT ON COLUMN entregas.fondeo_entrega.monto_confirmado IS 'CK: >= 0';
 COMMENT ON COLUMN entregas.fondeo_entrega.monto_cubierto_mutual IS 'CK: >= 0';
@@ -41,4 +42,4 @@ COMMENT ON COLUMN entregas.fondeo_entrega.monto_pendiente IS 'CK: >= 0';
 COMMENT ON COLUMN entregas.fondeo_entrega.cobertura_respaldo_id IS 'NULL';
 COMMENT ON COLUMN entregas.fondeo_entrega.estado IS 'CK: FONDEADO|CON_PENDIENTE, IDX';
 COMMENT ON COLUMN entregas.fondeo_entrega.fondeada_en IS 'NULL';
-COMMENT ON COLUMN entregas.fondeo_entrega.clave_idempotencia IS 'UQ';
+COMMENT ON COLUMN entregas.fondeo_entrega.clave_idempotencia IS 'Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4).';

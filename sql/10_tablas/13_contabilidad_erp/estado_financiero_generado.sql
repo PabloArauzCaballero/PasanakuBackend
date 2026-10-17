@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS erp.estado_financiero_generado (
 );
 
 COMMENT ON TABLE erp.estado_financiero_generado IS 'Módulo 13 — Contabilidad Financiera y ERP. [append-only] Que cerrar un mes no dependa de un Excel armado a mano';
-COMMENT ON COLUMN erp.estado_financiero_generado.id IS 'PK';
+COMMENT ON COLUMN erp.estado_financiero_generado.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN erp.estado_financiero_generado.periodo_contable_id IS 'FK, IDX';
 COMMENT ON COLUMN erp.estado_financiero_generado.tipo IS 'CK';
 COMMENT ON COLUMN erp.estado_financiero_generado.generado_por IS 'FK';

@@ -12,6 +12,6 @@ CREATE TABLE IF NOT EXISTS transparencia.insignia_logro (
   CONSTRAINT pk_insignia_logro PRIMARY KEY (id)
 );
 
-COMMENT ON TABLE transparencia.insignia_logro IS 'Módulo 06 — Transparencia y Reputación. Que nadie tenga que "creerle" al organizador';
-COMMENT ON COLUMN transparencia.insignia_logro.id IS 'PK';
+COMMENT ON TABLE transparencia.insignia_logro IS 'Módulo 06 — Transparencia y Reputación. Reconocimientos concretos: PUNTUAL_12_MESES, PRIMER_GRUPO, SIN_MORA, ORGANIZADOR_5_ESTRELLAS.';
+COMMENT ON COLUMN transparencia.insignia_logro.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN transparencia.insignia_logro.codigo IS 'UQ';

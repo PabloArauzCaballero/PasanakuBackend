@@ -17,11 +17,12 @@ CREATE TABLE IF NOT EXISTS organizador.sancion_organizador (
   CONSTRAINT ck_sancion_organizador_estado CHECK (estado IN ('APELADA', 'CUMPLIDA', 'REVOCADA', 'VIGENTE'))
 );
 
-COMMENT ON TABLE organizador.sancion_organizador IS 'Módulo 07 — Organizador y Automatización. Administrar es un rol, no un negocio: el organizador no cobra ni custodia';
-COMMENT ON COLUMN organizador.sancion_organizador.id IS 'PK';
+COMMENT ON TABLE organizador.sancion_organizador IS 'Módulo 07 — Organizador y Automatización. La consecuencia por mal desempeño: advertencia, reducción de límite, suspensión o inhabilitación.';
+COMMENT ON COLUMN organizador.sancion_organizador.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN organizador.sancion_organizador.organizador_id IS 'FK, IDX';
 COMMENT ON COLUMN organizador.sancion_organizador.evaluacion_id IS 'FK, NULL';
 COMMENT ON COLUMN organizador.sancion_organizador.tipo IS 'CK';
-COMMENT ON COLUMN organizador.sancion_organizador.vigente_hasta IS 'NULL';
+COMMENT ON COLUMN organizador.sancion_organizador.vigente_desde IS 'Desde cuándo rige esta versión de la fila: las condiciones se versionan, no se pisan.';
+COMMENT ON COLUMN organizador.sancion_organizador.vigente_hasta IS 'Hasta cuándo rigió esta versión; vacía mientras sigue vigente.';
 COMMENT ON COLUMN organizador.sancion_organizador.estado IS 'CK, IDX';
 COMMENT ON COLUMN organizador.sancion_organizador.aplicada_por IS 'FK';

@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS publicidad.pieza_creativa (
 );
 
 COMMENT ON TABLE publicidad.pieza_creativa IS 'Módulo 14 — Publicidad y Campañas. Que un partner se anuncie dentro de la app sin inventar un segundo cobro';
-COMMENT ON COLUMN publicidad.pieza_creativa.id IS 'PK';
+COMMENT ON COLUMN publicidad.pieza_creativa.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN publicidad.pieza_creativa.anunciante_id IS 'FK, IDX';
 COMMENT ON COLUMN publicidad.pieza_creativa.texto IS 'NULL';
 COMMENT ON COLUMN publicidad.pieza_creativa.tipo_recurso IS 'CK';

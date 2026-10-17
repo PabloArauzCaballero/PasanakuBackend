@@ -13,5 +13,5 @@ CREATE TABLE IF NOT EXISTS publicidad.segmento_audiencia (
 );
 
 COMMENT ON TABLE publicidad.segmento_audiencia IS 'Módulo 14 — Publicidad y Campañas. Que un partner se anuncie dentro de la app sin inventar un segundo cobro';
-COMMENT ON COLUMN publicidad.segmento_audiencia.id IS 'PK';
+COMMENT ON COLUMN publicidad.segmento_audiencia.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN publicidad.segmento_audiencia.creado_por IS 'FK';

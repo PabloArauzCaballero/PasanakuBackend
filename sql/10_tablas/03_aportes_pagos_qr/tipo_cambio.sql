@@ -15,8 +15,8 @@ CREATE TABLE IF NOT EXISTS catalogo.tipo_cambio (
   CONSTRAINT ck_tipo_cambio_fuente CHECK (fuente IN ('BCB', 'MANUAL', 'PROVEEDOR'))
 );
 
-COMMENT ON TABLE catalogo.tipo_cambio IS 'Módulo 03 — Aportes, Pagos QR y Conciliación. Que "pagué" signifique "el banco lo confirmó"';
-COMMENT ON COLUMN catalogo.tipo_cambio.id IS 'PK';
+COMMENT ON TABLE catalogo.tipo_cambio IS 'Módulo 03 — Aportes, Pagos QR y Conciliación. El tipo de cambio por moneda y fecha, con su fuente.';
+COMMENT ON COLUMN catalogo.tipo_cambio.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN catalogo.tipo_cambio.moneda_origen IS 'UQ+moneda_destino+fecha';
 COMMENT ON COLUMN catalogo.tipo_cambio.fecha IS 'IDX';
 COMMENT ON COLUMN catalogo.tipo_cambio.tipo_cambio IS 'CK: > 0';

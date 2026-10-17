@@ -20,11 +20,11 @@ CREATE TABLE IF NOT EXISTS nucleo_financiero.discrepancia_proveedor (
 );
 
 COMMENT ON TABLE nucleo_financiero.discrepancia_proveedor IS 'Módulo 10 — Billetera, Custodia y Dinero Electrónico. [append-only] El saldo no se guarda: se deriva, y todos los días cuadra contra el banco';
-COMMENT ON COLUMN nucleo_financiero.discrepancia_proveedor.id IS 'PK';
+COMMENT ON COLUMN nucleo_financiero.discrepancia_proveedor.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN nucleo_financiero.discrepancia_proveedor.referencia_tipo IS 'CK: ORDEN_RECARGA|ORDEN_RETIRO';
 COMMENT ON COLUMN nucleo_financiero.discrepancia_proveedor.referencia_id IS 'IDX, polimorfica';
 COMMENT ON COLUMN nucleo_financiero.discrepancia_proveedor.tipo IS 'CK: FIRMA_INVALIDA|ESTADO_CONTRADICTORIO|MONTO_DISTINTO|REFERENCIA_DISTINTA|RESPUESTA_INVALIDA';
 COMMENT ON COLUMN nucleo_financiero.discrepancia_proveedor.monto_esperado IS 'NULL';
 COMMENT ON COLUMN nucleo_financiero.discrepancia_proveedor.monto_informado IS 'NULL';
-COMMENT ON COLUMN nucleo_financiero.discrepancia_proveedor.moneda IS 'NULL';
+COMMENT ON COLUMN nucleo_financiero.discrepancia_proveedor.moneda IS 'Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2).';
 COMMENT ON COLUMN nucleo_financiero.discrepancia_proveedor.huella IS 'UQ+referencia_id+tipo';

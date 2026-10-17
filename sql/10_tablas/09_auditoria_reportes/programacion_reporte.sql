@@ -18,8 +18,8 @@ CREATE TABLE IF NOT EXISTS auditoria.programacion_reporte (
   CONSTRAINT ck_programacion_reporte_formato CHECK (formato IN ('CSV', 'JSON', 'PDF', 'XLSX'))
 );
 
-COMMENT ON TABLE auditoria.programacion_reporte IS 'Módulo 09 — Auditoría, Reportes y Cumplimiento. Poder demostrar todo lo anterior ante un reclamo o un regulador';
-COMMENT ON COLUMN auditoria.programacion_reporte.id IS 'PK';
+COMMENT ON TABLE auditoria.programacion_reporte IS 'Módulo 09 — Auditoría, Reportes y Cumplimiento. Reportes que se generan y envían solos según un cron.';
+COMMENT ON COLUMN auditoria.programacion_reporte.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN auditoria.programacion_reporte.definicion_id IS 'FK, IDX';
 COMMENT ON COLUMN auditoria.programacion_reporte.canal_entrega IS 'CK';
 COMMENT ON COLUMN auditoria.programacion_reporte.formato IS 'CK';

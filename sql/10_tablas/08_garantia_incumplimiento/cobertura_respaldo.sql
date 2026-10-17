@@ -30,17 +30,18 @@ CREATE TABLE IF NOT EXISTS garantia.cobertura_respaldo (
 );
 
 COMMENT ON TABLE garantia.cobertura_respaldo IS 'Módulo 08 — Garantía, Incumplimiento, Cobranza y Sanciones. El grupo no se detiene, pero la deuda no se perdona sola';
-COMMENT ON COLUMN garantia.cobertura_respaldo.id IS 'PK';
+COMMENT ON COLUMN garantia.cobertura_respaldo.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN garantia.cobertura_respaldo.reserva_respaldo_id IS 'FK, IDX';
 COMMENT ON COLUMN garantia.cobertura_respaldo.grupo_id IS 'FK, IDX';
 COMMENT ON COLUMN garantia.cobertura_respaldo.periodo_id IS 'FK';
 COMMENT ON COLUMN garantia.cobertura_respaldo.turno_id IS 'FK, IDX';
+COMMENT ON COLUMN garantia.cobertura_respaldo.moneda IS 'Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2).';
 COMMENT ON COLUMN garantia.cobertura_respaldo.monto_pozo IS 'CK: > 0';
 COMMENT ON COLUMN garantia.cobertura_respaldo.monto_confirmado IS 'CK: >= 0';
 COMMENT ON COLUMN garantia.cobertura_respaldo.monto_cubierto_mutual IS 'CK: >= 0';
 COMMENT ON COLUMN garantia.cobertura_respaldo.monto_faltante IS 'CK: > 0';
 COMMENT ON COLUMN garantia.cobertura_respaldo.monto_recuperado IS 'CK: >= 0';
 COMMENT ON COLUMN garantia.cobertura_respaldo.estado IS 'CK: APLICADA|RECUPERADA_PARCIAL|RECUPERADA_TOTAL|REVERSADA, IDX';
-COMMENT ON COLUMN garantia.cobertura_respaldo.clave_idempotencia IS 'UQ';
+COMMENT ON COLUMN garantia.cobertura_respaldo.clave_idempotencia IS 'Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4).';
 COMMENT ON COLUMN garantia.cobertura_respaldo.solicitada_por IS 'FK';
 COMMENT ON COLUMN garantia.cobertura_respaldo.responsable_id IS 'FK';

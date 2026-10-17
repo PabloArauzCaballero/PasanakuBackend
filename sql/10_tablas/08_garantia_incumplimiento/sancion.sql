@@ -24,8 +24,8 @@ CREATE TABLE IF NOT EXISTS garantia.sancion (
   CONSTRAINT ck_sancion_estado CHECK (estado IN ('CUMPLIDA', 'EN_APELACION', 'EN_DESCARGO', 'FIRME', 'NOTIFICADA', 'PRESCRITA', 'PROPUESTA', 'REVOCADA'))
 );
 
-COMMENT ON TABLE garantia.sancion IS 'Módulo 08 — Garantía, Incumplimiento, Cobranza y Sanciones. El grupo no se detiene, pero la deuda no se perdona sola';
-COMMENT ON COLUMN garantia.sancion.id IS 'PK';
+COMMENT ON TABLE garantia.sancion IS 'Módulo 08 — Garantía, Incumplimiento, Cobranza y Sanciones. La sanción concreta aplicada a una persona por un expediente.';
+COMMENT ON COLUMN garantia.sancion.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN garantia.sancion.registro_id IS 'FK, IDX';
 COMMENT ON COLUMN garantia.sancion.usuario_id IS 'FK, IDX';
 COMMENT ON COLUMN garantia.sancion.participante_id IS 'FK, NULL';
@@ -35,7 +35,8 @@ COMMENT ON COLUMN garantia.sancion.aplicada_por IS 'FK, NULL';
 COMMENT ON COLUMN garantia.sancion.tipo IS 'CK, IDX';
 COMMENT ON COLUMN garantia.sancion.monto_recargo IS 'NULL';
 COMMENT ON COLUMN garantia.sancion.impacto_reputacion IS 'NULL';
-COMMENT ON COLUMN garantia.sancion.vigente_hasta IS 'NULL';
+COMMENT ON COLUMN garantia.sancion.vigente_desde IS 'Desde cuándo rige esta versión de la fila: las condiciones se versionan, no se pisan.';
+COMMENT ON COLUMN garantia.sancion.vigente_hasta IS 'Hasta cuándo rigió esta versión; vacía mientras sigue vigente.';
 COMMENT ON COLUMN garantia.sancion.estado IS 'CK, IDX';
 COMMENT ON COLUMN garantia.sancion.notificada_en IS 'NULL';
 COMMENT ON COLUMN garantia.sancion.firme_en IS 'NULL';

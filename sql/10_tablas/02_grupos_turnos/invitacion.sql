@@ -24,8 +24,8 @@ CREATE TABLE IF NOT EXISTS grupos.invitacion (
   CONSTRAINT ck_invitacion_estado CHECK (estado IN ('ACEPTADA', 'ENVIADA', 'EXPIRADA', 'PENDIENTE', 'RECHAZADA', 'REVOCADA'))
 );
 
-COMMENT ON TABLE grupos.invitacion IS 'Módulo 02 — Grupos, Cupos, Turnos y Gobernanza. Reglas del juego, orden de cobro y decisiones colectivas';
-COMMENT ON COLUMN grupos.invitacion.id IS 'PK';
+COMMENT ON TABLE grupos.invitacion IS 'Módulo 02 — Grupos, Cupos, Turnos y Gobernanza. La invitación a un teléfono concreto para unirse a un grupo, con su enlace firmado.';
+COMMENT ON COLUMN grupos.invitacion.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN grupos.invitacion.grupo_id IS 'FK, IDX';
 COMMENT ON COLUMN grupos.invitacion.telefono_invitado IS 'IDX';
 COMMENT ON COLUMN grupos.invitacion.nombre_sugerido IS 'NULL';

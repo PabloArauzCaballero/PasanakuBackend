@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS cumplimiento.beneficiario_final (
   CONSTRAINT ck_beneficiario_final_tipo_control CHECK (tipo_control IN ('CONTROL_EFECTIVO', 'OTRO', 'PARTICIPACION_ACCIONARIA', 'REPRESENTACION_LEGAL'))
 );
 
-COMMENT ON TABLE cumplimiento.beneficiario_final IS 'Módulo 12 — Cumplimiento Regulatorio y Consumidor Financiero. Que una inspección se responda con consultas, no armando carpetas';
-COMMENT ON COLUMN cumplimiento.beneficiario_final.id IS 'PK';
+COMMENT ON TABLE cumplimiento.beneficiario_final IS 'Módulo 12 — Cumplimiento Regulatorio y Consumidor Financiero. Las tres declaraciones que el marco de prevención exige y que casi ningún sistema casero modela.';
+COMMENT ON COLUMN cumplimiento.beneficiario_final.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN cumplimiento.beneficiario_final.usuario_id IS 'FK, IDX, M1';
 COMMENT ON COLUMN cumplimiento.beneficiario_final.tipo_control IS 'CK';

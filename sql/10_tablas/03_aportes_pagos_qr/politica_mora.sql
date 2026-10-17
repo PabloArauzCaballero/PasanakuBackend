@@ -17,7 +17,8 @@ CREATE TABLE IF NOT EXISTS aportes.politica_mora (
   CONSTRAINT ck_politica_mora_tipo_recargo CHECK (tipo_recargo IN ('DIARIO_COMPUESTO', 'FIJO', 'PORCENTUAL'))
 );
 
-COMMENT ON TABLE aportes.politica_mora IS 'Módulo 03 — Aportes, Pagos QR y Conciliación. Que "pagué" signifique "el banco lo confirmó"';
-COMMENT ON COLUMN aportes.politica_mora.id IS 'PK';
+COMMENT ON TABLE aportes.politica_mora IS 'Módulo 03 — Aportes, Pagos QR y Conciliación. Las reglas de recargo por atraso: cuántos días de gracia, qué tipo de recargo, cuánto, con qué tope, y a partir de cuántos días se considera mora grave o incumplimiento.';
+COMMENT ON COLUMN aportes.politica_mora.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN aportes.politica_mora.grupo_id IS 'FK, NULL';
 COMMENT ON COLUMN aportes.politica_mora.tipo_recargo IS 'CK';
+COMMENT ON COLUMN aportes.politica_mora.vigente_desde IS 'Desde cuándo rige esta versión de la fila: las condiciones se versionan, no se pisan.';

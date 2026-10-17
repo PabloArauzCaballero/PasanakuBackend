@@ -26,13 +26,14 @@ CREATE TABLE IF NOT EXISTS cumplimiento.contrato_tercero (
   CONSTRAINT ck_contrato_tercero_estado CHECK (estado IN ('EN_NEGOCIACION', 'SUSPENDIDO', 'TERMINADO', 'VIGENTE'))
 );
 
-COMMENT ON TABLE cumplimiento.contrato_tercero IS 'Módulo 12 — Cumplimiento Regulatorio y Consumidor Financiero. Que una inspección se responda con consultas, no armando carpetas';
-COMMENT ON COLUMN cumplimiento.contrato_tercero.id IS 'PK';
+COMMENT ON TABLE cumplimiento.contrato_tercero IS 'Módulo 12 — Cumplimiento Regulatorio y Consumidor Financiero. La tercerización y su seguimiento.';
+COMMENT ON COLUMN cumplimiento.contrato_tercero.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN cumplimiento.contrato_tercero.responsable_id IS 'FK, NULL';
 COMMENT ON COLUMN cumplimiento.contrato_tercero.nit IS 'NULL';
 COMMENT ON COLUMN cumplimiento.contrato_tercero.es_critico IS 'IDX';
 COMMENT ON COLUMN cumplimiento.contrato_tercero.accede_a_datos_personales IS 'IDX';
 COMMENT ON COLUMN cumplimiento.contrato_tercero.nivel_riesgo IS 'CK';
 COMMENT ON COLUMN cumplimiento.contrato_tercero.evaluacion_riesgo_url IS 'NULL';
-COMMENT ON COLUMN cumplimiento.contrato_tercero.vigente_hasta IS 'NULL';
+COMMENT ON COLUMN cumplimiento.contrato_tercero.vigente_desde IS 'Desde cuándo rige esta versión de la fila: las condiciones se versionan, no se pisan.';
+COMMENT ON COLUMN cumplimiento.contrato_tercero.vigente_hasta IS 'Hasta cuándo rigió esta versión; vacía mientras sigue vigente.';
 COMMENT ON COLUMN cumplimiento.contrato_tercero.estado IS 'CK, IDX';

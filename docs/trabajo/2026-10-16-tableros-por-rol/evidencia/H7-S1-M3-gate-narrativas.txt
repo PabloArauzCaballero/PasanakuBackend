@@ -1,0 +1,22 @@
+H7.S1.M3 — gate scripts/verificar_narrativas.py · 2026-10-16
+
+$ python3 -I scripts/verificar_narrativas.py   → exit 1 (66 tablas sin ficha; se escriben en H7.S1.M4a-e)
+  FALLA · 04 entregas.cesion_derecho: sin «Qué es» y «Para qué sirve (negocio)» en docs/entidades/
+  FALLA · 04 entregas.fondeo_entrega: sin «Qué es» y «Para qué sirve (negocio)» en docs/entidades/
+  FALLA · 04 entregas.oferta_turno: sin «Qué es» y «Para qué sirve (negocio)» en docs/entidades/
+  …
+  FALLA · tablas con ficha: 271/337
+  OK    · columnas con explicación de negocio: 524/3680 (piso 524)
+
+66 FALLAS
+
+$ python3 -I scripts/verificar_narrativas.py --modulo 03   → exit 0
+  OK    · tablas con ficha: 23/23
+  INFO  · columnas con explicación de negocio en el filtro: 39/239
+
+Sin fallas.
+
+$ (mismo gate con PISO_COLUMNAS=525: el trinquete de columnas falla)   → exit 1
+  FALLA · columnas con explicación de negocio: 524/3680, bajó del piso 525
+
+67 FALLAS

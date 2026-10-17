@@ -23,9 +23,9 @@ CREATE TABLE IF NOT EXISTS grupos.decision_ingreso (
 );
 
 COMMENT ON TABLE grupos.decision_ingreso IS 'Módulo 02 — Grupos, Cupos, Turnos y Gobernanza. [append-only] Reglas del juego, orden de cobro y decisiones colectivas';
-COMMENT ON COLUMN grupos.decision_ingreso.id IS 'PK';
+COMMENT ON COLUMN grupos.decision_ingreso.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN grupos.decision_ingreso.solicitud_id IS 'IDX';
-COMMENT ON COLUMN grupos.decision_ingreso.clave_idempotencia IS 'UQ';
+COMMENT ON COLUMN grupos.decision_ingreso.clave_idempotencia IS 'Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4).';
 COMMENT ON COLUMN grupos.decision_ingreso.propuesta_id IS 'NULL';
 COMMENT ON COLUMN grupos.decision_ingreso.participante_id IS 'NULL';
 COMMENT ON COLUMN grupos.decision_ingreso.revision IS 'UQ+solicitud_id';

@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS erp.cierre_periodo_contable (
 );
 
 COMMENT ON TABLE erp.cierre_periodo_contable IS 'Módulo 13 — Contabilidad Financiera y ERP. [append-only] Que cerrar un mes no dependa de un Excel armado a mano';
-COMMENT ON COLUMN erp.cierre_periodo_contable.id IS 'PK';
+COMMENT ON COLUMN erp.cierre_periodo_contable.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN erp.cierre_periodo_contable.periodo_contable_id IS 'FK, UQ';
 COMMENT ON COLUMN erp.cierre_periodo_contable.cerrado_por IS 'FK';
 COMMENT ON COLUMN erp.cierre_periodo_contable.diferencia IS 'GENERATED';

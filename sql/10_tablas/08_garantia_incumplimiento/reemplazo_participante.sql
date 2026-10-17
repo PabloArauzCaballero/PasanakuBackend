@@ -19,12 +19,13 @@ CREATE TABLE IF NOT EXISTS garantia.reemplazo_participante (
   CONSTRAINT ck_reemplazo_participante_estado CHECK (estado IN ('APROBADO', 'BUSCANDO', 'EJECUTADO', 'FALLIDO', 'PROPUESTO'))
 );
 
-COMMENT ON TABLE garantia.reemplazo_participante IS 'Módulo 08 — Garantía, Incumplimiento, Cobranza y Sanciones. El grupo no se detiene, pero la deuda no se perdona sola';
-COMMENT ON COLUMN garantia.reemplazo_participante.id IS 'PK';
+COMMENT ON TABLE garantia.reemplazo_participante IS 'Módulo 08 — Garantía, Incumplimiento, Cobranza y Sanciones. La sustitución de un participante que salió por otro que entra al mismo cupo.';
+COMMENT ON COLUMN garantia.reemplazo_participante.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN garantia.reemplazo_participante.grupo_id IS 'FK, IDX';
 COMMENT ON COLUMN garantia.reemplazo_participante.cupo_id IS 'FK';
 COMMENT ON COLUMN garantia.reemplazo_participante.registro_id IS 'FK, NULL';
 COMMENT ON COLUMN garantia.reemplazo_participante.participante_saliente_id IS 'FK';
 COMMENT ON COLUMN garantia.reemplazo_participante.participante_entrante_id IS 'FK, NULL';
 COMMENT ON COLUMN garantia.reemplazo_participante.acuerdo_grupo_id IS 'FK, NULL, M2';
+COMMENT ON COLUMN garantia.reemplazo_participante.conserva_orden_de_turno IS 'el entrante hereda la posición del cupo en el calendario. Es lo que permite que el resto del grupo no se vea afectado.';
 COMMENT ON COLUMN garantia.reemplazo_participante.estado IS 'CK';

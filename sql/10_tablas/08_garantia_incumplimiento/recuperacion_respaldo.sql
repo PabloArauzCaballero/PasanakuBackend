@@ -15,8 +15,9 @@ CREATE TABLE IF NOT EXISTS garantia.recuperacion_respaldo (
 );
 
 COMMENT ON TABLE garantia.recuperacion_respaldo IS 'Módulo 08 — Garantía, Incumplimiento, Cobranza y Sanciones. [append-only] El grupo no se detiene, pero la deuda no se perdona sola';
-COMMENT ON COLUMN garantia.recuperacion_respaldo.id IS 'PK';
+COMMENT ON COLUMN garantia.recuperacion_respaldo.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN garantia.recuperacion_respaldo.cobertura_respaldo_linea_id IS 'FK, IDX';
 COMMENT ON COLUMN garantia.recuperacion_respaldo.pago_id IS 'FK, UQ';
 COMMENT ON COLUMN garantia.recuperacion_respaldo.movimiento_reserva_id IS 'FK';
 COMMENT ON COLUMN garantia.recuperacion_respaldo.monto IS 'CK: > 0';
+COMMENT ON COLUMN garantia.recuperacion_respaldo.moneda IS 'Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2).';

@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS garantia.cobertura_respaldo_linea (
 );
 
 COMMENT ON TABLE garantia.cobertura_respaldo_linea IS 'Módulo 08 — Garantía, Incumplimiento, Cobranza y Sanciones. El grupo no se detiene, pero la deuda no se perdona sola';
-COMMENT ON COLUMN garantia.cobertura_respaldo_linea.id IS 'PK';
+COMMENT ON COLUMN garantia.cobertura_respaldo_linea.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN garantia.cobertura_respaldo_linea.cobertura_respaldo_id IS 'FK, IDX';
 COMMENT ON COLUMN garantia.cobertura_respaldo_linea.obligacion_id IS 'FK, IDX, UQ+cobertura_respaldo_id';
 COMMENT ON COLUMN garantia.cobertura_respaldo_linea.monto_cubierto IS 'CK: > 0';

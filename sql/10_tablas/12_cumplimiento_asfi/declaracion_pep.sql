@@ -19,8 +19,8 @@ CREATE TABLE IF NOT EXISTS cumplimiento.declaracion_pep (
   CONSTRAINT ck_declaracion_pep_tipo_pep CHECK (tipo_pep IN ('ALLEGADO', 'EXTRANJERO', 'FAMILIAR', 'NACIONAL', 'ORG_INTERNACIONAL'))
 );
 
-COMMENT ON TABLE cumplimiento.declaracion_pep IS 'Módulo 12 — Cumplimiento Regulatorio y Consumidor Financiero. Que una inspección se responda con consultas, no armando carpetas';
-COMMENT ON COLUMN cumplimiento.declaracion_pep.id IS 'PK';
+COMMENT ON TABLE cumplimiento.declaracion_pep IS 'Módulo 12 — Cumplimiento Regulatorio y Consumidor Financiero. Las tres declaraciones que el marco de prevención exige y que casi ningún sistema casero modela.';
+COMMENT ON COLUMN cumplimiento.declaracion_pep.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN cumplimiento.declaracion_pep.usuario_id IS 'FK, IDX, M1';
 COMMENT ON COLUMN cumplimiento.declaracion_pep.verificada_por IS 'FK, NULL';
 COMMENT ON COLUMN cumplimiento.declaracion_pep.es_pep IS 'IDX';

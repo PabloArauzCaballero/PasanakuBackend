@@ -20,8 +20,8 @@ CREATE TABLE IF NOT EXISTS identidad.preferencia_notificacion (
   CONSTRAINT ck_preferencia_notificacion_canal_respaldo CHECK (canal_respaldo IN ('APP_AUTENTICADORA', 'CORREO', 'LLAMADA_VOZ', 'PUSH_APP', 'SMS', 'WHATSAPP'))
 );
 
-COMMENT ON TABLE identidad.preferencia_notificacion IS 'Módulo 01 — Identidad, Usuarios y Seguridad. Saber con certeza a quién le estás confiando plata ajena';
-COMMENT ON COLUMN identidad.preferencia_notificacion.id IS 'PK';
+COMMENT ON TABLE identidad.preferencia_notificacion IS 'Módulo 01 — Identidad, Usuarios y Seguridad. Por dónde y cuándo quiere el usuario que le escriban.';
+COMMENT ON COLUMN identidad.preferencia_notificacion.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN identidad.preferencia_notificacion.usuario_id IS 'FK, UQ';
 COMMENT ON COLUMN identidad.preferencia_notificacion.canal_primario IS 'CK';
 COMMENT ON COLUMN identidad.preferencia_notificacion.canal_respaldo IS 'CK, NULL';

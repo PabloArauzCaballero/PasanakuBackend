@@ -12,8 +12,8 @@ CREATE TABLE IF NOT EXISTS aportes.enlace_pago_rapido (
   CONSTRAINT pk_enlace_pago_rapido PRIMARY KEY (id)
 );
 
-COMMENT ON TABLE aportes.enlace_pago_rapido IS 'Módulo 03 — Aportes, Pagos QR y Conciliación. Que "pagué" signifique "el banco lo confirmó"';
-COMMENT ON COLUMN aportes.enlace_pago_rapido.id IS 'PK';
+COMMENT ON TABLE aportes.enlace_pago_rapido IS 'Módulo 03 — Aportes, Pagos QR y Conciliación. El enlace corto y firmado que lleva directo al pago de una obligación concreta.';
+COMMENT ON COLUMN aportes.enlace_pago_rapido.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN aportes.enlace_pago_rapido.orden_cobro_id IS 'FK, UQ';
 COMMENT ON COLUMN aportes.enlace_pago_rapido.token_id IS 'FK, UQ, M1';
 COMMENT ON COLUMN aportes.enlace_pago_rapido.url_corta IS 'UQ';

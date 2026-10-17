@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS garantia.historial_incumplimiento_usuario (
   CONSTRAINT pk_historial_incumplimiento_usuario PRIMARY KEY (usuario_id)
 );
 
-COMMENT ON TABLE garantia.historial_incumplimiento_usuario IS 'Módulo 08 — Garantía, Incumplimiento, Cobranza y Sanciones. El grupo no se detiene, pero la deuda no se perdona sola';
+COMMENT ON TABLE garantia.historial_incumplimiento_usuario IS 'Módulo 08 — Garantía, Incumplimiento, Cobranza y Sanciones. La proyección agregada del comportamiento de un usuario a través de todos los grupos.';
 COMMENT ON COLUMN garantia.historial_incumplimiento_usuario.usuario_id IS 'PK, FK';
 COMMENT ON COLUMN garantia.historial_incumplimiento_usuario.incumplimientos_abiertos IS 'IDX';
 COMMENT ON COLUMN garantia.historial_incumplimiento_usuario.ultimo_incumplimiento_en IS 'NULL';

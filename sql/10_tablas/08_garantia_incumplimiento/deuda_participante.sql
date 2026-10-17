@@ -27,8 +27,8 @@ CREATE TABLE IF NOT EXISTS garantia.deuda_participante (
   CONSTRAINT ck_deuda_participante_estado CHECK (estado IN ('CASTIGADA', 'CONDONADA', 'EN_MORA', 'EN_PLAN_DE_PAGO', 'JUDICIALIZADA', 'PAGADA', 'VIGENTE'))
 );
 
-COMMENT ON TABLE garantia.deuda_participante IS 'Módulo 08 — Garantía, Incumplimiento, Cobranza y Sanciones. El grupo no se detiene, pero la deuda no se perdona sola';
-COMMENT ON COLUMN garantia.deuda_participante.id IS 'PK';
+COMMENT ON TABLE garantia.deuda_participante IS 'Módulo 08 — Garantía, Incumplimiento, Cobranza y Sanciones. Lo que un participante debe, como obligación exigible con vida propia.';
+COMMENT ON COLUMN garantia.deuda_participante.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN garantia.deuda_participante.usuario_id IS 'FK, IDX';
 COMMENT ON COLUMN garantia.deuda_participante.participante_id IS 'FK';
 COMMENT ON COLUMN garantia.deuda_participante.grupo_id IS 'FK, IDX';
@@ -36,5 +36,6 @@ COMMENT ON COLUMN garantia.deuda_participante.registro_id IS 'FK, UQ';
 COMMENT ON COLUMN garantia.deuda_participante.cobertura_id IS 'FK, NULL, UQ';
 COMMENT ON COLUMN garantia.deuda_participante.acreedor IS 'CK';
 COMMENT ON COLUMN garantia.deuda_participante.saldo_actual IS 'CK: >= 0, IDX';
+COMMENT ON COLUMN garantia.deuda_participante.moneda IS 'Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2).';
 COMMENT ON COLUMN garantia.deuda_participante.estado IS 'CK, IDX';
 COMMENT ON COLUMN garantia.deuda_participante.fecha_prescripcion IS 'IDX';

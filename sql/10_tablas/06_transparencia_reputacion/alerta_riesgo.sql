@@ -20,8 +20,8 @@ CREATE TABLE IF NOT EXISTS transparencia.alerta_riesgo (
   CONSTRAINT ck_alerta_riesgo_estado CHECK (estado IN ('ABIERTA', 'CONFIRMADA', 'DESCARTADA', 'EN_REVISION'))
 );
 
-COMMENT ON TABLE transparencia.alerta_riesgo IS 'Módulo 06 — Transparencia y Reputación. Que nadie tenga que "creerle" al organizador';
-COMMENT ON COLUMN transparencia.alerta_riesgo.id IS 'PK';
+COMMENT ON TABLE transparencia.alerta_riesgo IS 'Módulo 06 — Transparencia y Reputación. Una señal automática de que algo anda mal con un usuario, un grupo o un organizador.';
+COMMENT ON COLUMN transparencia.alerta_riesgo.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN transparencia.alerta_riesgo.ambito IS 'CK';
 COMMENT ON COLUMN transparencia.alerta_riesgo.ambito_id IS 'IDX';
 COMMENT ON COLUMN transparencia.alerta_riesgo.codigo IS 'CK';

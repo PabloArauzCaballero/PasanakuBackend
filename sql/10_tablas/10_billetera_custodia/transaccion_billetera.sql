@@ -36,11 +36,12 @@ CREATE TABLE IF NOT EXISTS nucleo_financiero.transaccion_billetera (
 ALTER TABLE nucleo_financiero.transaccion_billetera DROP CONSTRAINT IF EXISTS ck_transaccion_billetera_tipo;
 ALTER TABLE nucleo_financiero.transaccion_billetera ADD CONSTRAINT ck_transaccion_billetera_tipo CHECK (tipo IN ('AJUSTE_OPERATIVO', 'APORTE_A_GRUPO', 'COBERTURA_GARANTIA', 'COBRO_COMISION', 'COBRO_IMPUESTO', 'COMPRA_EN_MERCADO', 'DEVOLUCION', 'ENTREGA_DE_FONDO', 'INVERSION', 'RECARGA', 'RECARGO_MORA', 'REPOSICION_GARANTIA', 'RESCATE_INVERSION', 'RETIRO', 'REVERSO', 'TRANSFERENCIA_P2P'));
 
-COMMENT ON TABLE nucleo_financiero.transaccion_billetera IS 'Módulo 10 — Billetera, Custodia y Dinero Electrónico. [append-only] El saldo no se guarda: se deriva, y todos los días cuadra contra el banco';
-COMMENT ON COLUMN nucleo_financiero.transaccion_billetera.id IS 'PK';
+COMMENT ON TABLE nucleo_financiero.transaccion_billetera IS 'Módulo 10 — Billetera, Custodia y Dinero Electrónico. [append-only] El sobre atómico que agrupa los movimientos de una operación.';
+COMMENT ON COLUMN nucleo_financiero.transaccion_billetera.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN nucleo_financiero.transaccion_billetera.secuencia IS 'UQ';
 COMMENT ON COLUMN nucleo_financiero.transaccion_billetera.tipo IS 'CK, IDX';
 COMMENT ON COLUMN nucleo_financiero.transaccion_billetera.estado IS 'CK, IDX';
+COMMENT ON COLUMN nucleo_financiero.transaccion_billetera.moneda IS 'Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2).';
 COMMENT ON COLUMN nucleo_financiero.transaccion_billetera.monto_total IS 'CK: > 0';
 COMMENT ON COLUMN nucleo_financiero.transaccion_billetera.grupo_id IS 'FK, NULL, IDX';
 COMMENT ON COLUMN nucleo_financiero.transaccion_billetera.asiento_contable_id IS 'FK, NULL, M3';
@@ -51,5 +52,6 @@ COMMENT ON COLUMN nucleo_financiero.transaccion_billetera.origen_tipo IS 'CK';
 COMMENT ON COLUMN nucleo_financiero.transaccion_billetera.origen_id IS 'IDX, polimorfica';
 COMMENT ON COLUMN nucleo_financiero.transaccion_billetera.canal IS 'CK';
 COMMENT ON COLUMN nucleo_financiero.transaccion_billetera.ip_origen IS 'NULL';
+COMMENT ON COLUMN nucleo_financiero.transaccion_billetera.clave_idempotencia IS 'Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4).';
 COMMENT ON COLUMN nucleo_financiero.transaccion_billetera.hash_anterior IS 'NULL';
 COMMENT ON COLUMN nucleo_financiero.transaccion_billetera.ocurrida_en IS 'IDX';

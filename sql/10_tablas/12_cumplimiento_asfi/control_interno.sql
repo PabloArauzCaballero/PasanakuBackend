@@ -18,8 +18,8 @@ CREATE TABLE IF NOT EXISTS cumplimiento.control_interno (
   CONSTRAINT ck_control_interno_frecuencia CHECK (frecuencia IN ('ANUAL', 'BIMESTRAL', 'CONTINUA', 'DIARIA', 'MENSUAL', 'QUINCENAL', 'SEMANAL', 'SEMESTRAL', 'TRIMESTRAL'))
 );
 
-COMMENT ON TABLE cumplimiento.control_interno IS 'Módulo 12 — Cumplimiento Regulatorio y Consumidor Financiero. Que una inspección se responda con consultas, no armando carpetas';
-COMMENT ON COLUMN cumplimiento.control_interno.id IS 'PK';
+COMMENT ON TABLE cumplimiento.control_interno IS 'Módulo 12 — Cumplimiento Regulatorio y Consumidor Financiero. El inventario de controles y la evidencia de que se ejecutan.';
+COMMENT ON COLUMN cumplimiento.control_interno.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN cumplimiento.control_interno.codigo IS 'UQ';
 COMMENT ON COLUMN cumplimiento.control_interno.proceso IS 'IDX';
 COMMENT ON COLUMN cumplimiento.control_interno.tipo IS 'CK';

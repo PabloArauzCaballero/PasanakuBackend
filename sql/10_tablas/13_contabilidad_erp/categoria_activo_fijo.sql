@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS erp.categoria_activo_fijo (
 );
 
 COMMENT ON TABLE erp.categoria_activo_fijo IS 'Módulo 13 — Contabilidad Financiera y ERP. Que cerrar un mes no dependa de un Excel armado a mano';
-COMMENT ON COLUMN erp.categoria_activo_fijo.id IS 'PK';
+COMMENT ON COLUMN erp.categoria_activo_fijo.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN erp.categoria_activo_fijo.codigo IS 'UQ';
 COMMENT ON COLUMN erp.categoria_activo_fijo.vida_util_meses IS 'CK: > 0';
 COMMENT ON COLUMN erp.categoria_activo_fijo.metodo_depreciacion IS 'CK';

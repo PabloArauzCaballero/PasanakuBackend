@@ -14,6 +14,7 @@ CREATE TABLE IF NOT EXISTS garantia.politica_sancion (
   CONSTRAINT pk_politica_sancion PRIMARY KEY (id)
 );
 
-COMMENT ON TABLE garantia.politica_sancion IS 'Módulo 08 — Garantía, Incumplimiento, Cobranza y Sanciones. El grupo no se detiene, pero la deuda no se perdona sola';
-COMMENT ON COLUMN garantia.politica_sancion.id IS 'PK';
+COMMENT ON TABLE garantia.politica_sancion IS 'Módulo 08 — Garantía, Incumplimiento, Cobranza y Sanciones. Las reglas del proceso sancionatorio: si requiere acuerdo del grupo, plazos de descargo y apelación, y prescripción.';
+COMMENT ON COLUMN garantia.politica_sancion.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN garantia.politica_sancion.grupo_id IS 'FK, NULL';
+COMMENT ON COLUMN garantia.politica_sancion.vigente_desde IS 'Desde cuándo rige esta versión de la fila: las condiciones se versionan, no se pisan.';

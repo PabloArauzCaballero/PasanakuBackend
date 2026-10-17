@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS nucleo_financiero.saldo_diario_billetera (
   CONSTRAINT pk_saldo_diario_billetera PRIMARY KEY (id)
 );
 
-COMMENT ON TABLE nucleo_financiero.saldo_diario_billetera IS 'Módulo 10 — Billetera, Custodia y Dinero Electrónico. [append-only] El saldo no se guarda: se deriva, y todos los días cuadra contra el banco';
-COMMENT ON COLUMN nucleo_financiero.saldo_diario_billetera.id IS 'PK';
+COMMENT ON TABLE nucleo_financiero.saldo_diario_billetera IS 'Módulo 10 — Billetera, Custodia y Dinero Electrónico. [append-only] La foto del saldo de cada cuenta al cierre de cada día, encadenada por hash.';
+COMMENT ON COLUMN nucleo_financiero.saldo_diario_billetera.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN nucleo_financiero.saldo_diario_billetera.cuenta_billetera_id IS 'FK, IDX';
 COMMENT ON COLUMN nucleo_financiero.saldo_diario_billetera.hash_anterior IS 'NULL';

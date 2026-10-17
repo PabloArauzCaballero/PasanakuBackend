@@ -25,15 +25,16 @@ CREATE TABLE IF NOT EXISTS entregas.oferta_turno (
 );
 
 COMMENT ON TABLE entregas.oferta_turno IS 'Módulo 04 — Entregas de Fondo. Que la bolsa llegue completa, a la persona correcta, una sola vez';
-COMMENT ON COLUMN entregas.oferta_turno.id IS 'PK';
+COMMENT ON COLUMN entregas.oferta_turno.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN entregas.oferta_turno.grupo_id IS 'FK, IDX';
 COMMENT ON COLUMN entregas.oferta_turno.turno_id IS 'FK, IDX';
 COMMENT ON COLUMN entregas.oferta_turno.cupo_id IS 'FK';
 COMMENT ON COLUMN entregas.oferta_turno.participante_origen_id IS 'FK';
 COMMENT ON COLUMN entregas.oferta_turno.vendedor_usuario_id IS 'IDX';
+COMMENT ON COLUMN entregas.oferta_turno.moneda IS 'Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2).';
 COMMENT ON COLUMN entregas.oferta_turno.monto_derecho IS 'CK: > 0';
 COMMENT ON COLUMN entregas.oferta_turno.monto_precio IS 'CK: > 0';
 COMMENT ON COLUMN entregas.oferta_turno.monto_cargos IS 'CK: >= 0';
 COMMENT ON COLUMN entregas.oferta_turno.estado IS 'CK: PUBLICADA|RESERVADA|LIQUIDANDO|VENDIDA|CANCELADA|VENCIDA, IDX';
-COMMENT ON COLUMN entregas.oferta_turno.vigente_hasta IS 'IDX';
-COMMENT ON COLUMN entregas.oferta_turno.clave_idempotencia IS 'UQ';
+COMMENT ON COLUMN entregas.oferta_turno.vigente_hasta IS 'Hasta cuándo rigió esta versión; vacía mientras sigue vigente.';
+COMMENT ON COLUMN entregas.oferta_turno.clave_idempotencia IS 'Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4).';

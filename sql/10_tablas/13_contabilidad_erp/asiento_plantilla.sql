@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS erp.asiento_plantilla (
 );
 
 COMMENT ON TABLE erp.asiento_plantilla IS 'Módulo 13 — Contabilidad Financiera y ERP. Que cerrar un mes no dependa de un Excel armado a mano';
-COMMENT ON COLUMN erp.asiento_plantilla.id IS 'PK';
+COMMENT ON COLUMN erp.asiento_plantilla.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN erp.asiento_plantilla.codigo IS 'UQ';
 COMMENT ON COLUMN erp.asiento_plantilla.periodicidad IS 'CK';
 COMMENT ON COLUMN erp.asiento_plantilla.creada_por IS 'FK';

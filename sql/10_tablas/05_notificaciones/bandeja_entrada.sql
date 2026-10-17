@@ -15,8 +15,8 @@ CREATE TABLE IF NOT EXISTS notificaciones.bandeja_entrada (
   CONSTRAINT pk_bandeja_entrada PRIMARY KEY (id)
 );
 
-COMMENT ON TABLE notificaciones.bandeja_entrada IS 'Módulo 05 — Notificaciones y Comunicaciones. WhatsApp como canal real de cobro, sin spam ni doble aviso';
-COMMENT ON COLUMN notificaciones.bandeja_entrada.id IS 'PK';
+COMMENT ON TABLE notificaciones.bandeja_entrada IS 'Módulo 05 — Notificaciones y Comunicaciones. El espejo de las notificaciones dentro de la app.';
+COMMENT ON COLUMN notificaciones.bandeja_entrada.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN notificaciones.bandeja_entrada.usuario_id IS 'FK, IDX';
 COMMENT ON COLUMN notificaciones.bandeja_entrada.notificacion_id IS 'FK, UQ';
 COMMENT ON COLUMN notificaciones.bandeja_entrada.url_accion IS 'NULL';

@@ -18,8 +18,8 @@ CREATE TABLE IF NOT EXISTS notificaciones.plantilla_mensaje (
   CONSTRAINT ck_plantilla_mensaje_estado_aprobacion CHECK (estado_aprobacion IN ('APROBADA', 'BORRADOR', 'ENVIADA', 'PAUSADA', 'RECHAZADA'))
 );
 
-COMMENT ON TABLE notificaciones.plantilla_mensaje IS 'Módulo 05 — Notificaciones y Comunicaciones. WhatsApp como canal real de cobro, sin spam ni doble aviso';
-COMMENT ON COLUMN notificaciones.plantilla_mensaje.id IS 'PK';
+COMMENT ON TABLE notificaciones.plantilla_mensaje IS 'Módulo 05 — Notificaciones y Comunicaciones. Una plantilla de mensaje para un evento y un canal, con su estado de aprobación ante el proveedor.';
+COMMENT ON COLUMN notificaciones.plantilla_mensaje.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN notificaciones.plantilla_mensaje.codigo IS 'UQ';
 COMMENT ON COLUMN notificaciones.plantilla_mensaje.evento_id IS 'FK, IDX';
 COMMENT ON COLUMN notificaciones.plantilla_mensaje.canal IS 'CK';

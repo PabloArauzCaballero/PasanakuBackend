@@ -19,10 +19,11 @@ CREATE TABLE IF NOT EXISTS erp.pago_a_proveedor (
 );
 
 COMMENT ON TABLE erp.pago_a_proveedor IS 'Módulo 13 — Contabilidad Financiera y ERP. [append-only] Que cerrar un mes no dependa de un Excel armado a mano';
-COMMENT ON COLUMN erp.pago_a_proveedor.id IS 'PK';
+COMMENT ON COLUMN erp.pago_a_proveedor.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN erp.pago_a_proveedor.factura_proveedor_id IS 'FK, IDX';
 COMMENT ON COLUMN erp.pago_a_proveedor.monto IS 'CK: > 0';
+COMMENT ON COLUMN erp.pago_a_proveedor.moneda IS 'Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2).';
 COMMENT ON COLUMN erp.pago_a_proveedor.forma_pago IS 'CK';
 COMMENT ON COLUMN erp.pago_a_proveedor.autorizado_por IS 'FK';
-COMMENT ON COLUMN erp.pago_a_proveedor.clave_idempotencia IS 'NULL';
+COMMENT ON COLUMN erp.pago_a_proveedor.clave_idempotencia IS 'Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4).';
 COMMENT ON COLUMN erp.pago_a_proveedor.asiento_contable_id IS 'FK, NULL, M3';

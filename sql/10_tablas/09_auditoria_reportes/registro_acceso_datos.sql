@@ -35,8 +35,8 @@ BEGIN
   END LOOP;
 END $$;
 
-COMMENT ON TABLE comun.registro_acceso_datos IS 'Módulo 09 — Auditoría, Reportes y Cumplimiento. [append-only] Poder demostrar todo lo anterior ante un reclamo o un regulador';
-COMMENT ON COLUMN comun.registro_acceso_datos.id IS 'PK';
+COMMENT ON TABLE comun.registro_acceso_datos IS 'Módulo 09 — Auditoría, Reportes y Cumplimiento. [append-only] El registro de quién consultó datos sensibles de quién, con qué justificación.';
+COMMENT ON COLUMN comun.registro_acceso_datos.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN comun.registro_acceso_datos.usuario_consultor_id IS 'FK, IDX';
 COMMENT ON COLUMN comun.registro_acceso_datos.usuario_afectado_id IS 'FK, IDX';
 COMMENT ON COLUMN comun.registro_acceso_datos.tipo_dato IS 'CK';

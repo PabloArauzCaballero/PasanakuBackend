@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS transparencia.regla_impacto_evento (
   CONSTRAINT pk_regla_impacto_evento PRIMARY KEY (id)
 );
 
-COMMENT ON TABLE transparencia.regla_impacto_evento IS 'Módulo 06 — Transparencia y Reputación. Que nadie tenga que "creerle" al organizador';
-COMMENT ON COLUMN transparencia.regla_impacto_evento.id IS 'PK';
+COMMENT ON TABLE transparencia.regla_impacto_evento IS 'Módulo 06 — Transparencia y Reputación. Cuánto suma o resta cada tipo de evento, y sobre qué factor.';
+COMMENT ON COLUMN transparencia.regla_impacto_evento.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN transparencia.regla_impacto_evento.modelo_id IS 'FK, IDX';
 COMMENT ON COLUMN transparencia.regla_impacto_evento.tipo_evento IS 'UQ+modelo_id';

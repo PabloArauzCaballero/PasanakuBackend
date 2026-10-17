@@ -15,8 +15,8 @@ CREATE TABLE IF NOT EXISTS notificaciones.programacion_recordatorio (
   CONSTRAINT pk_programacion_recordatorio PRIMARY KEY (id)
 );
 
-COMMENT ON TABLE notificaciones.programacion_recordatorio IS 'Módulo 05 — Notificaciones y Comunicaciones. WhatsApp como canal real de cobro, sin spam ni doble aviso';
-COMMENT ON COLUMN notificaciones.programacion_recordatorio.id IS 'PK';
+COMMENT ON TABLE notificaciones.programacion_recordatorio IS 'Módulo 05 — Notificaciones y Comunicaciones. La regla de cuándo mandar cada recordatorio, relativa a una fecha de referencia.';
+COMMENT ON COLUMN notificaciones.programacion_recordatorio.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN notificaciones.programacion_recordatorio.grupo_id IS 'FK, NULL';
 COMMENT ON COLUMN notificaciones.programacion_recordatorio.evento_id IS 'FK';
 COMMENT ON COLUMN notificaciones.programacion_recordatorio.repetir_cada IS 'NULL';

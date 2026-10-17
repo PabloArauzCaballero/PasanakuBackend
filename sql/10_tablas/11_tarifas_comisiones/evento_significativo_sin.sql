@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS tarifas.evento_significativo_sin (
 );
 
 COMMENT ON TABLE tarifas.evento_significativo_sin IS 'Módulo 11 — Tarifas, Comisiones, Impuestos y Facturación. La política de cobro es dato, no código: se cambia con un seeder';
-COMMENT ON COLUMN tarifas.evento_significativo_sin.id IS 'PK';
+COMMENT ON COLUMN tarifas.evento_significativo_sin.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN tarifas.evento_significativo_sin.registrado_por IS 'FK, NULL';
 COMMENT ON COLUMN tarifas.evento_significativo_sin.codigo_evento IS 'CK, IDX';
 COMMENT ON COLUMN tarifas.evento_significativo_sin.fecha_inicio IS 'IDX';

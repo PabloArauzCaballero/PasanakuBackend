@@ -34,8 +34,8 @@ CREATE TABLE IF NOT EXISTS cumplimiento.registro_operacion_relevante (
   CONSTRAINT ck_registro_operacion_relevante_concepto_operacion CHECK (concepto_operacion IN ('ACTIVO_VIRTUAL', 'CAMBIO_MONEDA', 'CARGA_BILLETERA', 'EFECTIVO', 'ELECTRONICA', 'GIRO', 'REMESA', 'RETIRO_BILLETERA', 'TRANSFERENCIA_BILLETERA'))
 );
 
-COMMENT ON TABLE cumplimiento.registro_operacion_relevante IS 'Módulo 12 — Cumplimiento Regulatorio y Consumidor Financiero. [append-only] Que una inspección se responda con consultas, no armando carpetas';
-COMMENT ON COLUMN cumplimiento.registro_operacion_relevante.id IS 'PK';
+COMMENT ON TABLE cumplimiento.registro_operacion_relevante IS 'Módulo 12 — Cumplimiento Regulatorio y Consumidor Financiero. [append-only] El registro de toda operación que activa una obligación de reporte por umbral.';
+COMMENT ON COLUMN cumplimiento.registro_operacion_relevante.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN cumplimiento.registro_operacion_relevante.usuario_id IS 'FK, IDX, M1';
 COMMENT ON COLUMN cumplimiento.registro_operacion_relevante.transaccion_id IS 'FK, IDX, M10';
 COMMENT ON COLUMN cumplimiento.registro_operacion_relevante.umbral_reporte_id IS 'FK, IDX';
@@ -46,6 +46,7 @@ COMMENT ON COLUMN cumplimiento.registro_operacion_relevante.formulario IS 'CK, I
 COMMENT ON COLUMN cumplimiento.registro_operacion_relevante.concepto_operacion IS 'CK';
 COMMENT ON COLUMN cumplimiento.registro_operacion_relevante.ventana_desde IS 'NULL';
 COMMENT ON COLUMN cumplimiento.registro_operacion_relevante.ventana_hasta IS 'NULL';
+COMMENT ON COLUMN cumplimiento.registro_operacion_relevante.moneda IS 'Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2).';
 COMMENT ON COLUMN cumplimiento.registro_operacion_relevante.monto_equivalente_usd IS 'IDX';
 COMMENT ON COLUMN cumplimiento.registro_operacion_relevante.origen_declarado IS 'NULL';
 COMMENT ON COLUMN cumplimiento.registro_operacion_relevante.destino_declarado IS 'NULL';

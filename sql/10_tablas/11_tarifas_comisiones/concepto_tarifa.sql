@@ -33,8 +33,8 @@ CREATE TABLE IF NOT EXISTS tarifas.concepto_tarifa (
   CONSTRAINT ck_concepto_tarifa_momento_cobro CHECK (momento_cobro IN ('AL_CIERRE_DE_CICLO', 'AL_DEVENGAR', 'AL_LIQUIDAR_ENTREGA', 'DIFERIDO_MENSUAL'))
 );
 
-COMMENT ON TABLE tarifas.concepto_tarifa IS 'Módulo 11 — Tarifas, Comisiones, Impuestos y Facturación. La política de cobro es dato, no código: se cambia con un seeder';
-COMMENT ON COLUMN tarifas.concepto_tarifa.id IS 'PK';
+COMMENT ON TABLE tarifas.concepto_tarifa IS 'Módulo 11 — Tarifas, Comisiones, Impuestos y Facturación. Un cobro concreto: nombre comercial, fórmula, sujeto, vía y momento.';
+COMMENT ON COLUMN tarifas.concepto_tarifa.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN tarifas.concepto_tarifa.tarifario_id IS 'FK, IDX';
 COMMENT ON COLUMN tarifas.concepto_tarifa.hecho_generador_id IS 'FK, IDX';
 COMMENT ON COLUMN tarifas.concepto_tarifa.politica_redondeo_id IS 'FK, NULL';

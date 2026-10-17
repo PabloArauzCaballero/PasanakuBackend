@@ -14,8 +14,8 @@ CREATE TABLE IF NOT EXISTS grupos.voto_participante (
   CONSTRAINT ck_voto_participante_sentido CHECK (sentido IN ('ABSTENCION', 'A_FAVOR', 'EN_CONTRA'))
 );
 
-COMMENT ON TABLE grupos.voto_participante IS 'Módulo 02 — Grupos, Cupos, Turnos y Gobernanza. Reglas del juego, orden de cobro y decisiones colectivas';
-COMMENT ON COLUMN grupos.voto_participante.id IS 'PK';
+COMMENT ON TABLE grupos.voto_participante IS 'Módulo 02 — Grupos, Cupos, Turnos y Gobernanza. El voto individual sobre un acuerdo, con su peso.';
+COMMENT ON COLUMN grupos.voto_participante.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN grupos.voto_participante.acuerdo_id IS 'FK, IDX';
 COMMENT ON COLUMN grupos.voto_participante.participante_id IS 'FK';
 COMMENT ON COLUMN grupos.voto_participante.sentido IS 'CK';

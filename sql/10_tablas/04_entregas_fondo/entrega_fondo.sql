@@ -31,14 +31,18 @@ CREATE TABLE IF NOT EXISTS entregas.entrega_fondo (
   CONSTRAINT ck_entrega_fondo_metodo_desembolso CHECK (metodo_desembolso IN ('BILLETERA_MOVIL', 'COMPENSACION_INTERNA', 'EFECTIVO_ORGANIZADOR', 'QR_ENVIO', 'TRANSFERENCIA_BANCARIA'))
 );
 
-COMMENT ON TABLE entregas.entrega_fondo IS 'Módulo 04 — Entregas de Fondo. Que la bolsa llegue completa, a la persona correcta, una sola vez';
-COMMENT ON COLUMN entregas.entrega_fondo.id IS 'PK';
+COMMENT ON TABLE entregas.entrega_fondo IS 'Módulo 04 — Entregas de Fondo. El acto de entregar la bolsa de un período al beneficiario del turno.';
+COMMENT ON COLUMN entregas.entrega_fondo.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN entregas.entrega_fondo.grupo_id IS 'FK, IDX';
 COMMENT ON COLUMN entregas.entrega_fondo.periodo_id IS 'FK';
 COMMENT ON COLUMN entregas.entrega_fondo.turno_id IS 'FK';
 COMMENT ON COLUMN entregas.entrega_fondo.cupo_id IS 'FK';
 COMMENT ON COLUMN entregas.entrega_fondo.beneficiario_participante_id IS 'FK, IDX';
 COMMENT ON COLUMN entregas.entrega_fondo.cuenta_destino_id IS 'FK, NULL';
+COMMENT ON COLUMN entregas.entrega_fondo.monto_bolsa_bruto IS 'lo que se juntó entre todos.';
+COMMENT ON COLUMN entregas.entrega_fondo.total_deducciones IS 'lo que se le descuenta (y que hay que poder explicar línea por línea).';
+COMMENT ON COLUMN entregas.entrega_fondo.monto_neto_a_entregar IS 'lo que efectivamente recibe.';
+COMMENT ON COLUMN entregas.entrega_fondo.moneda IS 'Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2).';
 COMMENT ON COLUMN entregas.entrega_fondo.estado IS 'CK, IDX';
 COMMENT ON COLUMN entregas.entrega_fondo.metodo_desembolso IS 'CK';
 COMMENT ON COLUMN entregas.entrega_fondo.fecha_programada IS 'IDX';

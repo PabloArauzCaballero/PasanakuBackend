@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS publicidad.conversion_anuncio (
 );
 
 COMMENT ON TABLE publicidad.conversion_anuncio IS 'Módulo 14 — Publicidad y Campañas. [append-only] Que un partner se anuncie dentro de la app sin inventar un segundo cobro';
-COMMENT ON COLUMN publicidad.conversion_anuncio.id IS 'PK';
+COMMENT ON COLUMN publicidad.conversion_anuncio.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN publicidad.conversion_anuncio.clic_id IS 'FK, NULL, IDX';
 COMMENT ON COLUMN publicidad.conversion_anuncio.impresion_id IS 'FK, NULL, IDX';
 COMMENT ON COLUMN publicidad.conversion_anuncio.tipo IS 'CK';

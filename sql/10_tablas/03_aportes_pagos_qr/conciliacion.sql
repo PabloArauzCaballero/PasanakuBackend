@@ -16,8 +16,8 @@ CREATE TABLE IF NOT EXISTS aportes.conciliacion (
   CONSTRAINT ck_conciliacion_metodo CHECK (metodo IN ('MANUAL', 'MONTO_FECHA', 'REFERENCIA_EXACTA'))
 );
 
-COMMENT ON TABLE aportes.conciliacion IS 'Módulo 03 — Aportes, Pagos QR y Conciliación. Que "pagué" signifique "el banco lo confirmó"';
-COMMENT ON COLUMN aportes.conciliacion.id IS 'PK';
+COMMENT ON TABLE aportes.conciliacion IS 'Módulo 03 — Aportes, Pagos QR y Conciliación. El cruce entre un pago del sistema y un movimiento del banco.';
+COMMENT ON COLUMN aportes.conciliacion.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN aportes.conciliacion.pago_id IS 'FK, UQ';
 COMMENT ON COLUMN aportes.conciliacion.movimiento_bancario_id IS 'FK, NULL, UQ';
 COMMENT ON COLUMN aportes.conciliacion.estado IS 'CK, IDX';

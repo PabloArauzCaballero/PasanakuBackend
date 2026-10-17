@@ -18,8 +18,8 @@ CREATE TABLE IF NOT EXISTS garantia.matriz_sancion (
   CONSTRAINT ck_matriz_sancion_tipo_sancion CHECK (tipo_sancion IN ('ADVERTENCIA', 'AFECTACION_REPUTACION', 'EXPULSION_DEL_GRUPO', 'INHABILITACION_PLATAFORMA', 'PERDIDA_DE_PRIORIDAD_DE_TURNO', 'RECARGO_MONETARIO', 'RESTRICCION_NUEVOS_GRUPOS', 'RETENCION_DE_ENTREGA', 'SUSPENSION_DE_VOTO'))
 );
 
-COMMENT ON TABLE garantia.matriz_sancion IS 'Módulo 08 — Garantía, Incumplimiento, Cobranza y Sanciones. El grupo no se detiene, pero la deuda no se perdona sola';
-COMMENT ON COLUMN garantia.matriz_sancion.id IS 'PK';
+COMMENT ON TABLE garantia.matriz_sancion IS 'Módulo 08 — Garantía, Incumplimiento, Cobranza y Sanciones. La tabla que determina qué sanción corresponde a cada combinación de tipo de incumplimiento × severidad × número de reincidencia.';
+COMMENT ON COLUMN garantia.matriz_sancion.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN garantia.matriz_sancion.politica_id IS 'FK, IDX';
 COMMENT ON COLUMN garantia.matriz_sancion.tipo_incumplimiento IS 'UQ+severidad+numero_reincidencia';
 COMMENT ON COLUMN garantia.matriz_sancion.severidad IS 'CK';

@@ -23,8 +23,8 @@ CREATE TABLE IF NOT EXISTS tarifas.exencion_comision (
   CONSTRAINT ck_exencion_comision_porcentaje_exencion CHECK (porcentaje_exencion BETWEEN 0 AND 100)
 );
 
-COMMENT ON TABLE tarifas.exencion_comision IS 'Módulo 11 — Tarifas, Comisiones, Impuestos y Facturación. La política de cobro es dato, no código: se cambia con un seeder';
-COMMENT ON COLUMN tarifas.exencion_comision.id IS 'PK';
+COMMENT ON TABLE tarifas.exencion_comision IS 'Módulo 11 — Tarifas, Comisiones, Impuestos y Facturación. No cobrar, con nombre y apellido.';
+COMMENT ON COLUMN tarifas.exencion_comision.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN tarifas.exencion_comision.usuario_id IS 'FK, NULL, M1';
 COMMENT ON COLUMN tarifas.exencion_comision.grupo_id IS 'FK, NULL, M2';
 COMMENT ON COLUMN tarifas.exencion_comision.concepto_tarifa_id IS 'FK, NULL';
@@ -34,5 +34,6 @@ COMMENT ON COLUMN tarifas.exencion_comision.alcance IS 'CK, IDX';
 COMMENT ON COLUMN tarifas.exencion_comision.motivo IS 'CK';
 COMMENT ON COLUMN tarifas.exencion_comision.porcentaje_exencion IS 'CK: 0-100';
 COMMENT ON COLUMN tarifas.exencion_comision.monto_tope IS 'NULL';
-COMMENT ON COLUMN tarifas.exencion_comision.vigente_hasta IS 'NULL';
+COMMENT ON COLUMN tarifas.exencion_comision.vigente_desde IS 'Desde cuándo rige esta versión de la fila: las condiciones se versionan, no se pisan.';
+COMMENT ON COLUMN tarifas.exencion_comision.vigente_hasta IS 'Hasta cuándo rigió esta versión; vacía mientras sigue vigente.';
 COMMENT ON COLUMN tarifas.exencion_comision.activa IS 'IDX';

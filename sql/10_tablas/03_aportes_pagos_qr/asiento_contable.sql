@@ -20,8 +20,8 @@ CREATE TABLE IF NOT EXISTS nucleo_financiero.asiento_contable (
   CONSTRAINT ck_asiento_contable_estado CHECK (estado IN ('BORRADOR', 'CONFIRMADO', 'REVERSADO'))
 );
 
-COMMENT ON TABLE nucleo_financiero.asiento_contable IS 'Módulo 03 — Aportes, Pagos QR y Conciliación. [append-only] Que "pagué" signifique "el banco lo confirmó"';
-COMMENT ON COLUMN nucleo_financiero.asiento_contable.id IS 'PK';
+COMMENT ON TABLE nucleo_financiero.asiento_contable IS 'Módulo 03 — Aportes, Pagos QR y Conciliación. [append-only] El registro de un hecho económico, compuesto por movimientos que suman igual en el debe y en el haber.';
+COMMENT ON COLUMN nucleo_financiero.asiento_contable.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN nucleo_financiero.asiento_contable.numero IS 'UQ';
 COMMENT ON COLUMN nucleo_financiero.asiento_contable.fecha IS 'IDX';
 COMMENT ON COLUMN nucleo_financiero.asiento_contable.origen_tipo IS 'CK';

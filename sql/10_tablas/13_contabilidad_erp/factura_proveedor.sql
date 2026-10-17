@@ -24,11 +24,12 @@ CREATE TABLE IF NOT EXISTS erp.factura_proveedor (
 );
 
 COMMENT ON TABLE erp.factura_proveedor IS 'Módulo 13 — Contabilidad Financiera y ERP. [append-only] Que cerrar un mes no dependa de un Excel armado a mano';
-COMMENT ON COLUMN erp.factura_proveedor.id IS 'PK';
+COMMENT ON COLUMN erp.factura_proveedor.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN erp.factura_proveedor.tercero_comercial_id IS 'FK, IDX';
 COMMENT ON COLUMN erp.factura_proveedor.orden_compra_id IS 'FK, NULL, IDX';
 COMMENT ON COLUMN erp.factura_proveedor.centro_costo_id IS 'FK, NULL';
 COMMENT ON COLUMN erp.factura_proveedor.monto IS 'CK: > 0';
+COMMENT ON COLUMN erp.factura_proveedor.moneda IS 'Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2).';
 COMMENT ON COLUMN erp.factura_proveedor.saldo_pendiente IS 'GENERATED';
 COMMENT ON COLUMN erp.factura_proveedor.estado IS 'CK, IDX';
 COMMENT ON COLUMN erp.factura_proveedor.aprobada_por IS 'FK, NULL';

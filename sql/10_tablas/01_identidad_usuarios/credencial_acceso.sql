@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS identidad.credencial_acceso (
   CONSTRAINT pk_credencial_acceso PRIMARY KEY (id)
 );
 
-COMMENT ON TABLE identidad.credencial_acceso IS 'Módulo 01 — Identidad, Usuarios y Seguridad. Saber con certeza a quién le estás confiando plata ajena';
-COMMENT ON COLUMN identidad.credencial_acceso.id IS 'PK';
+COMMENT ON TABLE identidad.credencial_acceso IS 'Módulo 01 — Identidad, Usuarios y Seguridad. La contraseña, guardada como hash con Argon2id/bcrypt.';
+COMMENT ON COLUMN identidad.credencial_acceso.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN identidad.credencial_acceso.usuario_id IS 'FK, UQ';
 COMMENT ON COLUMN identidad.credencial_acceso.expira_en IS 'NULL';
