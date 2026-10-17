@@ -40,6 +40,11 @@ def tipos_de_evento() -> set[str]:
             if "EventoDominio" not in texto and "Outbox" not in texto and "evento" not in texto.lower():
                 continue
             encontrados.update(literal.findall(texto))
+        # Tableros (CU-98): `PublicacionDeIndicadores` publica en `<esquema>.indicador_calculado`, un tipo que se arma en
+        # tiempo de ejecucion y NO aparece como literal. Todo servicio que declara un calculador lo publica.
+        if any("implements CalculadorDeIndicadores" in a.read_text(encoding="utf-8", errors="replace")
+               for a in main.rglob("*.java")):
+            encontrados.add(servicio.name.replace("-", "_") + ".indicador_calculado")
     # Una columna o una tabla tambien es `esquema.nombre` entre comillas (p. ej. "aportes.obligacion_aporte" en SQL):
     # se descartan los que solo aparecen como identificador de tabla del esquema del propio servicio.
     return encontrados
