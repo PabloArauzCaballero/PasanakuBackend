@@ -20,7 +20,7 @@ Devuelve 1 si:
     `inventario_endpoints.py`, que ya cruza contrato e implementación);
   - un código de error no está declarado en el contrato de su servicio;
   - un componente asíncrono no existe en el servicio;
-  - falta alguno de los tres niveles de casos, o un caso inválido no dice qué código o HTTP espera;
+  - falta alguno de los tres niveles de casos, o un caso inválido no dice qué código, HTTP o resultado espera;
   - la prueba de un caso no existe, o el método nombrado no está en ese archivo.
 """
 
@@ -144,8 +144,10 @@ def validar(flujo: dict, origen: str, operaciones: dict[str, set[str]]) -> list[
             for campo in ("nombre", "dado", "entonces", "prueba"):
                 if not caso.get(campo):
                     falla(f"caso `{nombre}`: falta `{campo}`")
-            if nivel == "invalidos" and not (caso.get("codigo") or caso.get("http")):
-                falla(f"caso inválido `{nombre}`: tiene que decir qué código o HTTP espera")
+            # Un rechazo sin código de contrato (un trabajo que no hace nada, una decisión de dominio) declara el
+            # resultado observable; nunca un código inventado.
+            if nivel == "invalidos" and not (caso.get("codigo") or caso.get("http") or caso.get("resultado")):
+                falla(f"caso inválido `{nombre}`: tiene que decir qué código, HTTP o resultado observable espera")
             if caso.get("prueba"):
                 fallas += [f"{origen}: caso `{nombre}`: {m}" for m in _prueba(caso["prueba"])]
     return fallas

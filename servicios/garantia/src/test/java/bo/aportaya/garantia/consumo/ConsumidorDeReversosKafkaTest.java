@@ -3,7 +3,12 @@ package bo.aportaya.garantia.consumo;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.UUID;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.junit.jupiter.api.DisplayName;
@@ -51,5 +56,32 @@ class ConsumidorDeReversosKafkaTest {
                         registro("{\"transaccionOriginalId\":\"%s\"}".formatted(UUID.randomUUID()))))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("transaccionReversoId");
+    }
+
+    @Test
+    @DisplayName(
+            "pacto con nucleo-financiero · consumidor: lee el ejemplo de transaccion_reversada con la original y el reverso")
+    void pactoConNucleo() throws IOException {
+        JsonNode pacto = pacto("contratos/pactos/nucleo-financiero-garantia-transaccion-reversada.json");
+        JsonNode ejemplo = pacto.path("ejemplo");
+
+        var e = ConsumidorDeReversosKafka.leer(registro(ejemplo.toString()));
+
+        assertThat(e.transaccionOriginalId().toString())
+                .isEqualTo(ejemplo.path("transaccionOriginalId").asText());
+        assertThat(e.transaccionReversoId().toString())
+                .isEqualTo(ejemplo.path("transaccionReversoId").asText());
+        for (JsonNode campo : pacto.path("consumidorExige")) {
+            assertThat(ejemplo.has(campo.asText())).as(campo.asText()).isTrue();
+        }
+        assertThat(pacto.path("topico").asText()).isEqualTo("aportaya.nucleo_financiero.transaccion_reversada");
+    }
+
+    private static JsonNode pacto(String archivo) throws IOException {
+        Path raiz = Path.of("").toAbsolutePath();
+        while (raiz != null && !Files.isRegularFile(raiz.resolve(archivo))) {
+            raiz = raiz.getParent();
+        }
+        return new ObjectMapper().readTree(Files.readString(raiz.resolve(archivo), StandardCharsets.UTF_8));
     }
 }

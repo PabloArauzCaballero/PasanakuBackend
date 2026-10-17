@@ -5,6 +5,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import bo.aportaya.aportes.aplicacion.CU21CobrarAporte.EntradaCobro;
 import bo.aportaya.plataforma.dominio.Dinero;
 import bo.aportaya.plataforma.dominio.Moneda;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -118,5 +125,42 @@ class CU21EventoDeAporteTest extends BaseDeAportes {
         pagar(recargoId, "25.00", "cob-tipo-recargo", usuario);
 
         assertThat(tipoEnElEvento(recargoId)).isEqualTo("RECARGO_MORA");
+    }
+
+    @Test
+    @DisplayName(
+            "cuadre: pacto con nucleo-financiero · productor: el cobro de un recargo publica TODOS los campos del pacto"
+                    + " aporte_cobrado, con el importe en dos decimales y el tipo RECARGO_MORA del ejemplo")
+    void cumpleElPactoConNucleo() throws IOException {
+        Path raiz = Path.of("").toAbsolutePath();
+        String archivo = "contratos/pactos/aportes-nucleo-financiero-aporte-cobrado.json";
+        while (raiz != null && !Files.isRegularFile(raiz.resolve(archivo))) {
+            raiz = raiz.getParent();
+        }
+        JsonNode pacto = new ObjectMapper().readTree(Files.readString(raiz.resolve(archivo), StandardCharsets.UTF_8));
+        var usuario = fixtura.usuario();
+        var vencida = fixtura.obligacion(usuario, "500.00", -10);
+        fixtura.politicaDeMora(vencida.grupoId(), 0, "PORCENTUAL", "0.05", "100.00");
+        UUID recargoId = transaccion
+                .execute(t -> cobroCU.generarRecargos(contextoDe(usuario)))
+                .obligacionesDeRecargo()
+                .get(0);
+        pagar(recargoId, "25.00", "cob-pacto-nucleo", usuario);
+
+        String payload = dsl.fetchOne(
+                        "SELECT payload::text FROM aportes.evento_dominio WHERE tipo = ? AND agregado_id = ?",
+                        pacto.path("tipo").asText(),
+                        recargoId)
+                .get(0, String.class);
+        JsonNode emitido = new ObjectMapper().readTree(payload);
+        var campos = new ArrayList<String>();
+        pacto.path("campos").fieldNames().forEachRemaining(campos::add);
+        for (String campo : campos) {
+            assertThat(emitido.has(campo)).as("el evento trae " + campo).isTrue();
+        }
+        assertThat(emitido.path("monto").asText()).matches("^[0-9]+[.][0-9]{2}$");
+        assertThat(emitido.path("tipo").asText())
+                .isEqualTo(pacto.path("ejemplo").path("tipo").asText());
+        assertThat(pacto.path("agregado").asText()).isEqualTo("obligacion_aporte");
     }
 }

@@ -392,10 +392,10 @@ y con y sin flujo), más las pruebas de integración de los flujos de dinero en 
 | H8.S1.M1 | Formato del flujo (YAML por flujo, modelo de `workflow-catalog.md` de Atlas: etapas, pasos, dependencias y transiciones) con su esquema de validación | Un flujo inválido se rechaza | `python3 scripts/validar_flujos.py` con un caso bueno y uno malo, pegado | HECHO — `evidencia/H8-S1-M1-M3-validador-de-flujos.txt` |
 | H8.S1.M2 | `scripts/matriz_de_pruebas.py`: reusa `inventario_endpoints.relevar()` y agrega prueba web por ruta, CU con su prueba de integración y flujos | Lista los 282 endpoints con su estado | Salida con totales pegada | HECHO — `evidencia/H8-S1-M2-matriz.txt` |
 | H8.S1.M3 | Gate: todo paso de un flujo apunta a un `operationId` existente | Falla con un paso huérfano | Dos corridas pegadas | HECHO — `evidencia/H8-S1-M1-M3-validador-de-flujos.txt` |
-| H8.S2.M1 | Árbol del flujo aporte → mora → recargo → cobertura → recuperación | Casos válidos, límite e inválidos con su código de error | Validador → exit 0 | TODO |
+| H8.S2.M1 | Árbol del flujo aporte → mora → recargo → cobertura → recuperación | Casos válidos, límite e inválidos con su código de error | Validador → exit 0 | HECHO — `evidencia/H8-S2-M1-S3-M1-aporte-mora-cobertura.txt` |
 | H8.S2.M2 | Árbol del flujo entrega del turno (normal y de cierre) | Ídem | Validador → exit 0 | TODO |
 | H8.S2.M3 | Árbol del flujo recarga y retiro de billetera | Ídem | Validador → exit 0 | HECHO — `evidencia/H8-S2-M3-S3-M3-recarga-y-retiro.txt` |
-| H8.S3.M1 | Prueba de integración del flujo de H8.S2.M1, contra Postgres y con Datafaker | Saldos finales = esperado, asientos cuadrados | Test nombrado en verde | TODO |
+| H8.S3.M1 | Prueba de integración del flujo de H8.S2.M1, contra Postgres y con Datafaker | Saldos finales = esperado, asientos cuadrados | Test nombrado en verde | HECHO — `evidencia/H8-S2-M1-S3-M1-aporte-mora-cobertura.txt` |
 | H8.S3.M2 | Prueba de integración del flujo de H8.S2.M2 | Ídem | Test nombrado en verde | TODO |
 | H8.S3.M3 | Prueba de integración del flujo de H8.S2.M3 | Ídem | Test nombrado en verde | HECHO — `evidencia/H8-S2-M3-S3-M3-recarga-y-retiro.txt` |
 | H8.S3.M4 | Pruebas unitarias o web de los endpoints sin test en la matriz, limitadas a los servicios de dinero (`aportes`, `garantia`, `entregas`, `nucleo-financiero`); el resto pasa a un trabajo siguiente (D8) | Matriz sin huecos en esos cuatro | `scripts/matriz_de_pruebas.py --servicio …` pegado | TODO |

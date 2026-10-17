@@ -3,7 +3,12 @@ package bo.aportaya.nucleofinanciero.consumo;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.UUID;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.junit.jupiter.api.DisplayName;
@@ -60,5 +65,33 @@ class ConsumidorDeAportesKafkaTest {
         assertThatThrownBy(() -> ConsumidorDeAportesKafka.leer(registro(sinMonto)))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("monto");
+    }
+
+    @Test
+    @DisplayName(
+            "pacto con aportes · consumidor: lee el ejemplo de aporte_cobrado con su tipo RECARGO_MORA y todo lo que exige")
+    void pactoConAportes() throws IOException {
+        JsonNode pacto = pacto("contratos/pactos/aportes-nucleo-financiero-aporte-cobrado.json");
+        JsonNode ejemplo = pacto.path("ejemplo");
+
+        var e = ConsumidorDeAportesKafka.leer(registro(ejemplo.toString()));
+
+        assertThat(e.pagoId().toString()).isEqualTo(ejemplo.path("pagoId").asText());
+        assertThat(e.obligacionId().toString())
+                .isEqualTo(ejemplo.path("obligacionId").asText());
+        assertThat(e.monto().monto()).isEqualByComparingTo(ejemplo.path("monto").asText());
+        assertThat(e.tipo()).contains("RECARGO_MORA");
+        for (JsonNode campo : pacto.path("consumidorExige")) {
+            assertThat(ejemplo.has(campo.asText())).as(campo.asText()).isTrue();
+        }
+        assertThat(pacto.path("topico").asText()).isEqualTo("aportaya.aportes.aporte_cobrado");
+    }
+
+    private static JsonNode pacto(String archivo) throws IOException {
+        Path raiz = Path.of("").toAbsolutePath();
+        while (raiz != null && !Files.isRegularFile(raiz.resolve(archivo))) {
+            raiz = raiz.getParent();
+        }
+        return new ObjectMapper().readTree(Files.readString(raiz.resolve(archivo), StandardCharsets.UTF_8));
     }
 }

@@ -1,0 +1,235 @@
+# Catálogo de flujos · aporte → mora → recargo → cobertura → recuperación (CU-21, CU-23, CU-25).
+# Lo valida scripts/validar_flujos.py. Fuentes: aportes.yaml y garantia.yaml (operaciones y códigos), ADR-051
+# (pozo completo con respaldo empresarial), los pactos de contratos/pactos/ y las pruebas citadas en cada caso.
+# Cruza tres servicios: cada salto entre ellos es un evento con su pacto (regla 98.1.4).
+id: aporte-mora-cobertura
+nombre: Del aporte del período a la mora, el recargo, la cobertura y la recuperación
+objetivo: >-
+  Que el pozo se entregue completo aunque alguien no pague, que la mora tenga el recargo que fija la política del
+  grupo (y vaya al fondo de garantía, no al pozo), y que lo que la empresa adelantó vuelva cuando el deudor paga,
+  sin cobrarle dos veces a nadie.
+dinero: true
+casos_de_uso: [CU-21, CU-23, CU-25]
+
+pasos:
+  - id: generar-obligaciones
+    actor: ADMIN_PLATAFORMA
+    servicio: aportes
+    operacion: generarObligacionesDelPeriodo
+    precondicion: El período existe en grupos con sus cupos e importes, y hay calendario de feriados del año.
+    exito: cobrar-aporte
+    errores:
+      - { codigo: AP-CU21-08, http: 422, significa: grupos no confirmó el período, siguiente: FIN }
+      - { codigo: AP-CU21-09, http: 422, significa: Sin calendario no se calcula el vencimiento, siguiente: FIN }
+
+  - id: cobrar-aporte
+    actor: PARTICIPANTE
+    servicio: aportes
+    operacion: cobrarAporte
+    precondicion: Obligación PENDIENTE del propio participante, en un período abierto.
+    exito: aplicar-al-pozo
+    errores:
+      - { codigo: AP-CU21-01, http: 422, significa: La obligación no admite pago en su estado, siguiente: FIN }
+      - { codigo: AP-CU21-02, http: 422, significa: El monto no cuadra con lo que se debe, siguiente: FIN }
+      - { codigo: AP-CU21-04, http: 422, significa: El período ya no admite cobros, siguiente: FIN }
+      - { codigo: AP-CU21-06, http: 422, significa: La obligación no es de quien paga, siguiente: FIN }
+    condiciones:
+      - si: La obligación vence sin pagarse y el grupo tiene política de mora
+        siguiente: recargo-diario
+      - si: Al corte del pozo el aporte sigue impago
+        siguiente: cubrir-faltante
+
+  - id: aplicar-al-pozo
+    actor: SISTEMA
+    servicio: nucleo-financiero
+    disparador: evento   # aportes.aporte_cobrado · pacto aportes-nucleo-financiero-aporte-cobrado.json
+    componente: ConsumidorDeAportesKafka
+    precondicion: Llega aporte_cobrado; el evento no fue consumido antes.
+    exito: FIN   # debita la billetera del participante, acredita la del grupo y asienta el mayor
+    condiciones:
+      - si: La billetera no tiene saldo al debitar
+        siguiente: compensar-aporte
+
+  - id: compensar-aporte
+    actor: SISTEMA
+    servicio: aportes
+    disparador: evento   # nucleo_financiero.aporte_no_aplicado · pacto aportes-nucleo-financiero.json
+    componente: ConsumidorDeAportesNoAplicadosKafka
+    precondicion: nucleo avisó que el pago no se pudo aplicar.
+    exito: FIN   # el pago se compensa y la obligación vuelve a deberse
+
+  - id: recargo-diario
+    actor: SISTEMA
+    servicio: aportes
+    disparador: programado   # 01:30 America/La_Paz, ShedLock aportes-recargos-mora
+    componente: RecargosDeMoraDiarios
+    precondicion: Obligación vencida, impaga, en un grupo con política de mora escrita y con tope.
+    exito: cobrar-recargo   # una obligación RECARGO_MORA por atraso, aunque corra dos veces el mismo día
+    condiciones:
+      - si: El grupo no tiene política de mora
+        siguiente: FIN   # no se inventa un recargo
+
+  - id: cobrar-recargo
+    actor: PARTICIPANTE
+    servicio: aportes
+    operacion: cobrarAporte
+    precondicion: Obligación RECARGO_MORA pendiente del participante.
+    exito: aplicar-recargo
+    errores:
+      - { codigo: AP-CU21-01, http: 422, significa: El recargo no admite pago en su estado, siguiente: FIN }
+
+  - id: aplicar-recargo
+    actor: SISTEMA
+    servicio: nucleo-financiero
+    disparador: evento   # aportes.aporte_cobrado con tipo RECARGO_MORA
+    componente: ConsumidorDeAportesKafka
+    precondicion: El evento trae tipo RECARGO_MORA y existe la billetera del fondo en esa moneda.
+    exito: ingreso-al-fondo   # DEBE usuarios / HABER reserva de respaldo; el pozo del grupo no se mueve
+
+  - id: ingreso-al-fondo
+    actor: SISTEMA
+    servicio: garantia
+    disparador: evento   # nucleo_financiero.aporte_aplicado · pacto nucleo-financiero-garantia-aporte-aplicado.json
+    componente: ConsumidorDeAportesAplicadosKafka
+    precondicion: destino FONDO_GARANTIA y el grupo tiene fondo propio en esa moneda.
+    exito: FIN
+    condiciones:
+      - si: El recargo se reversa (CU-14)
+        siguiente: reverso-en-fondo
+
+  - id: reverso-en-fondo
+    actor: SISTEMA
+    servicio: garantia
+    disparador: evento   # nucleo_financiero.transaccion_reversada · pacto nucleo-financiero-garantia-transaccion-reversada.json
+    componente: ConsumidorDeReversosKafka
+    precondicion: La transacción reversada es un recargo que el fondo anotó.
+    exito: FIN   # AJUSTE_CONTABLE que resta lo anotado, una vez
+
+  - id: cubrir-faltante
+    actor: SISTEMA   # entregas, con ENTREGA_EJECUTAR, al corte del pozo (RespaldoPorHttp)
+    servicio: garantia
+    operacion: cubrirConRespaldo
+    precondicion: aportes confirma el faltante del período; el grupo tiene reserva del ciclo.
+    exito: recuperar-respaldo
+    errores:
+      - { codigo: AP-CU23-07, http: 422, significa: La reserva no existe, está liberada o toda aplicada, siguiente: FIN }
+      - { codigo: AP-CU23-09, http: 422, significa: No hay faltante, o las líneas no lo suman, siguiente: FIN }
+      - { codigo: AP-CU23-12, http: 422, significa: aportes no responde; se deniega por omisión, siguiente: FIN }
+      - { codigo: AP-CU23-13, http: 422, significa: Período o turno de otro grupo, o faltante inflado, siguiente: FIN }
+    condiciones:
+      - si: La reserva no alcanza (todo o nada)
+        siguiente: FIN   # INSUFICIENTE con 200: contingencia de caja, la deuda se conserva (CU-23 R-GAR-13)
+
+  - id: recuperar-respaldo
+    actor: ADMIN_PLATAFORMA
+    servicio: garantia
+    operacion: recuperarRespaldo
+    precondicion: El deudor pagó tarde una obligación que la empresa cubrió.
+    exito: FIN   # vuelve a la empresa lo adelantado; el excedente no es de la empresa
+    errores:
+      - { codigo: AP-CU23-06, http: 422, significa: La clave ya identifica otra operación, siguiente: FIN }
+    condiciones:
+      - si: El deudor no regulariza
+        siguiente: declarar-incumplimiento
+
+  - id: declarar-incumplimiento
+    actor: ORGANIZADOR
+    servicio: garantia
+    operacion: declararIncumplimiento
+    precondicion: Obligación vencida con recordatorios acusados (debido proceso, regla 91.4).
+    exito: FIN   # PRESUNTO, con plazo de descargo; la sanción espera a FIRME
+    errores:
+      - { codigo: AP-CU25-01, http: 422, significa: Sin evidencia de la obligación vencida, siguiente: FIN }
+      - { codigo: AP-CU25-02, http: 422, significa: Sin aviso probado al deudor, siguiente: FIN }
+
+casos:
+  validos:
+    - nombre: Pagar el aporte con saldo
+      dado: Una obligación de Bs 500 pendiente
+      entonces: Queda PAGADA y la cuenta del grupo recibe los 500
+      prueba: servicios/aportes/src/test/java/bo/aportaya/aportes/CU21Test.java#criterio1
+    - nombre: El recargo va al fondo, no al pozo
+      dado: Un recargo de Bs 25 cobrado
+      entonces: Baja la billetera del participante, sube la del fondo y el mayor asienta DEBE usuarios / HABER reserva
+      prueba: servicios/nucleo-financiero/src/test/java/bo/aportaya/nucleofinanciero/CUConsumoDeRecargoTest.java#elRecargoVaAlFondo
+    - nombre: El fondo anota el recargo
+      dado: Un aporte_aplicado con destino FONDO_GARANTIA
+      entonces: El saldo del fondo sube 25 con un movimiento RECARGO_MORA
+      prueba: servicios/garantia/src/test/java/bo/aportaya/garantia/CUIngresoAlFondoTest.java#anotaElRecargo
+    - nombre: La empresa cubre el faltante del corte
+      dado: Pozo 6.000 con 5.000 confirmados
+      entonces: Cubre Bs 1.000 con una línea por obligación impaga
+      prueba: servicios/garantia/src/test/java/bo/aportaya/garantia/CU131FaltanteDelCorteTest.java#elFaltanteSaleDeAportes
+    - nombre: El aporte tardío recupera lo adelantado
+      dado: Una cobertura de Bs 1.000 en dos líneas
+      entonces: Un pago de 500 de la primera recupera 500 y baja la exposición
+      prueba: servicios/garantia/src/test/java/bo/aportaya/garantia/CU131RecuperacionTest.java#aporteTardioRecuperaLaEmpresa
+    - nombre: El evento del recargo cumple el pacto con nucleo
+      dado: El cobro de un recargo
+      entonces: aporte_cobrado trae todos los campos del pacto y tipo RECARGO_MORA
+      prueba: servicios/aportes/src/test/java/bo/aportaya/aportes/CU21EventoDeAporteTest.java#cumpleElPactoConNucleo
+  limite:
+    - nombre: El trabajo de recargos corre dos veces el mismo día
+      dado: Una obligación vencida
+      entonces: Sigue habiendo un solo recargo por atraso
+      prueba: servicios/aportes/src/test/java/bo/aportaya/aportes/CU21RecargosDiariosTest.java#dosCorridasElMismoDia
+    - nombre: El mismo recargo dos veces en nucleo
+      dado: El mismo evento con el mismo id
+      entonces: El dinero se mueve una vez
+      prueba: servicios/nucleo-financiero/src/test/java/bo/aportaya/nucleofinanciero/CUConsumoDeRecargoTest.java#duplicado
+    - nombre: Faltante exactamente igual al disponible de la reserva
+      dado: Un faltante igual a lo que queda reservado
+      entonces: Cubre justo
+      prueba: servicios/garantia/src/test/java/bo/aportaya/garantia/dominio/RespaldoEmpresarialTest.java#limiteExacto
+    - nombre: Recuperar un centavo
+      dado: Un pago de Bs 0,01 de una línea cubierta
+      entonces: Recupera un centavo y la cobertura queda RECUPERADA_PARCIAL
+      prueba: servicios/garantia/src/test/java/bo/aportaya/garantia/CU131RecuperacionTest.java#unCentavo
+    - nombre: Pago tardío mayor a lo adelantado
+      dado: Un pago que supera lo cubierto
+      entonces: Vuelve solo lo adelantado; el excedente no es de la empresa
+      prueba: servicios/garantia/src/test/java/bo/aportaya/garantia/CU131RecuperacionTest.java#pagoConExcedente
+    - nombre: El reverso de un recargo anotado
+      dado: Un recargo de 25 anotado en el fondo
+      entonces: El reverso le resta 25 con un ajuste que referencia el reverso
+      prueba: servicios/garantia/src/test/java/bo/aportaya/garantia/CUIngresoAlFondoTest.java#reversoDelRecargo
+    - nombre: Sin reserva también escala a contingencia
+      dado: Un grupo sin reserva con faltante
+      entonces: Se abre la contingencia de caja y la deuda se conserva
+      prueba: servicios/garantia/src/test/java/bo/aportaya/garantia/CU133ContingenciaTest.java#sinReservaTambienEscala
+  invalidos:
+    - nombre: Recargo sin política escrita
+      dado: Un grupo sin política de mora
+      entonces: No se genera recargo y el trabajo no falla
+      resultado: Cero obligaciones RECARGO_MORA y el trabajo termina sin error
+      prueba: servicios/aportes/src/test/java/bo/aportaya/aportes/CU21RecargosDiariosTest.java#sinPolitica
+    - nombre: Faltante inflado por el cliente
+      dado: Un pedido que dice que faltan 5.000 cuando aportes confirma 1.000
+      entonces: Se rechaza y no se cubre ni un centavo
+      codigo: AP-CU23-13
+      prueba: servicios/garantia/src/test/java/bo/aportaya/garantia/CU131FaltanteDelCorteTest.java#montoInflado
+    - nombre: aportes caído al pedir la cobertura
+      dado: aportes no responde
+      entonces: Se deniega por omisión y no se escribe nada
+      codigo: AP-CU23-12
+      prueba: servicios/garantia/src/test/java/bo/aportaya/garantia/CU131FaltanteDelCorteTest.java#aportesCaido
+    - nombre: Pozo ya completo
+      dado: aportes confirma que no falta nada
+      entonces: No hay faltante que cubrir
+      codigo: AP-CU23-09
+      prueba: servicios/garantia/src/test/java/bo/aportaya/garantia/CU131FaltanteDelCorteTest.java#sinFaltante
+    - nombre: Un centavo más que la reserva
+      dado: Un faltante un centavo mayor que lo disponible
+      entonces: NO cubre una parte y dice cuánto falta
+      resultado: La decisión no cubre (cubre=false) y dice el faltante sin cubrir, Bs 0,01
+      prueba: servicios/garantia/src/test/java/bo/aportaya/garantia/dominio/RespaldoEmpresarialTest.java#unCentavoDeMas
+    - nombre: Declarar sin aviso probado
+      dado: Un registro presunto sin recordatorios acusados
+      entonces: Se rechaza
+      codigo: AP-CU25-02
+      prueba: servicios/garantia/src/test/java/bo/aportaya/garantia/CU25Test.java#criterio2
+    - nombre: Recargo en otra moneda que el fondo
+      dado: Un ingreso en USD a un fondo en BOB
+      entonces: No se suma sin tipo de cambio
+      resultado: Se rechaza por falta de tipo de cambio; el saldo del fondo y la marca del evento no cambian
+      prueba: servicios/garantia/src/test/java/bo/aportaya/garantia/CUIngresoAlFondoTest.java#otraMoneda
