@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 
 import '../dominio/pautas_de_fotos.dart';
 import 'escena_de_rostro.dart';
+import 'persona_ilustrada.dart';
 
 /// Ilustración geométrica original: no contiene ni depende de fotos personales.
 ///
@@ -123,7 +124,7 @@ class _PintorDePauta extends CustomPainter {
     Radius.circular(carnet.width * 3.18 / 85.6),
   );
 
-  /// Anverso esquemático: franja de encabezado, foto con busto y renglones de datos.
+  /// Anverso esquemático: franja de encabezado, foto con la persona y renglones.
   void _pintarCarnet(Canvas canvas, Rect carnet) {
     final u = carnet.width / 100;
     final contorno = _contorno(carnet);
@@ -145,25 +146,12 @@ class _PintorDePauta extends CustomPainter {
       RRect.fromRectAndRadius(foto, Radius.circular(1.5 * u)),
       Paint()..color = Paleta.line,
     );
-    final busto = Paint()..color = Paleta.muted;
-    canvas.drawOval(
-      Rect.fromCenter(
-        center: Offset(foto.center.dx, foto.top + 12 * u),
-        width: 10 * u,
-        height: 12.5 * u,
-      ),
-      busto,
-    );
     canvas.save();
-    canvas.clipRect(foto);
-    canvas.drawOval(
-      Rect.fromCenter(
-        center: Offset(foto.center.dx, foto.bottom + 2 * u),
-        width: 21 * u,
-        height: 17 * u,
-      ),
-      busto,
-    );
+    canvas.clipRRect(RRect.fromRectAndRadius(foto, Radius.circular(1.5 * u)));
+    final escala = foto.height / 250;
+    canvas.translate(foto.center.dx - 150 * escala, foto.top - 30 * escala);
+    canvas.scale(escala);
+    pintarPersonaIlustrada(canvas);
     canvas.restore();
     final x = foto.right + 6 * u;
     final renglones = [(18.0, 34.0), (25.0, 52.0), (35.0, 26.0), (42.0, 44.0)];

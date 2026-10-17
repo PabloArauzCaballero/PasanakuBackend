@@ -7,6 +7,7 @@
 
 ## Alcance
 - IN: `ilustraciones/ilustracion_de_pauta.dart`, `pantalla_pautas_de_fotos.dart` (marco de color del ejemplo), `pasos_alta/consejos_para_la_foto.dart` (ícono por consejo), `pasos_alta/hoja_antes_de_escanear.dart` (ilustración), sus tests y goldens.
+- IN (H2): `ilustraciones/persona_ilustrada.dart`, `pasos_alta/esquema_de_captura.dart`, `guia_de_encuadre.dart`.
 - OUT: textos de las pautas (no se cambian), dominio `pautas_de_fotos.dart`, lógica de captura.
 - Ambigüedades: A1 «horripilante» no dice qué parte; supuesto: las tres piezas de guía de foto. Confirmar con Pablo en el dispositivo.
 
@@ -23,6 +24,20 @@
 | H1.S2.M1 | Consejos de cámara con un ícono por consejo | no son 4 tildes iguales | `flutter test test/widget/roles_color_acento_test.dart test/widget/pantalla_camara_de_respaldo_test.dart` | HECHO |
 | H1.S2.M2 | «Antes de escanear» con la ilustración del carnet | la hoja muestra el ejemplo | `flutter test test/widget/hoja_antes_de_escanear_test.dart` | HECHO |
 | H1.S3.M1 | Análisis + regresión de la app | sin rojos nuevos vs. `fallos-final.lst` del trabajo anterior | `dart analyze --fatal-infos` + `flutter test` | HECHO |
+
+## H2 — Persona ilustrada en las imágenes de ayuda (reclamo de Pablo, 2026-10-15 noche)
+Pedido literal: «sigue viéndose como un huevo las imágenes de la cara de las personas EN LA IMAGEN DE AYUDA».
+Hallazgo: la tarjeta de captura de selfie/perfiles dibuja solo un óvalo vacío (`guia_de_encuadre.dart`, `esquemaDe: selfie` no pinta nada) y las pautas dibujan un óvalo gris como cabeza (`escena_de_rostro.dart`).
+**CA:** Dado el paso de fotos y las pautas, cuando la persona ve una imagen de ayuda de rostro, entonces ve una persona reconocible (pelo, orejas, mandíbula, ojos, cejas, nariz, boca, cuello y camisa), no un óvalo.
+**DoD:** goldens regenerados y mirados · tests dirigidos verdes · `dart analyze` limpio · regresión sin rojos nuevos.
+**Estado:** EN CURSO
+
+| ID | Microtarea | CA (binario) | DoD | Estado |
+|---|---|---|---|---|
+| H2.S1.M1 | `persona_ilustrada.dart`: busto frontal con rasgos | golden muestra una cara, no un óvalo | golden de escenas regenerado + inspección | TODO |
+| H2.S1.M2 | Pautas de rostro usan la persona (frente, ladeada, lentes+gorra, contraluz) | ídem | `flutter test test/widget/ilustracion_de_pauta_golden_test.dart test/widget/pautas_publicas_test.dart` | TODO |
+| H2.S1.M3 | Tarjeta de selfie/perfiles pinta la persona dentro del óvalo (extraer el esquema a `esquema_de_captura.dart` por la regla de 200 líneas) | golden de capturas muestra la persona | `flutter test test/widget test/goldens` (capturas) + inspección | TODO |
+| H2.S1.M4 | Regresión + nuevos builds | sin rojos nuevos | `flutter test` + builds | TODO |
 
 ## Riesgos
 | Riesgo | Impacto | Mitigación |
