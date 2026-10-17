@@ -25,7 +25,6 @@ import org.springframework.stereotype.Service;
 public class EndpointsDelDia {
 
     private static final ZoneId LA_PAZ = ZoneId.of("America/La_Paz");
-    public static final int LIMITE_MAXIMO = 100;
 
     public record Endpoint(
             String servicio,
@@ -81,7 +80,7 @@ public class EndpointsDelDia {
                         .thenComparing(Endpoint::servicio)
                         .thenComparing(Endpoint::metodo)
                         .thenComparing(Endpoint::ruta))
-                .limit(Math.min(Math.max(1, limite), LIMITE_MAXIMO))
+                .limit(Math.max(1, limite)) // el tope (100) lo valida el contrato en el borde: 101 es 400
                 .toList();
         return new Salida(desde, ahora, true, lista);
     }

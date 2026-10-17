@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "AportaYa · auditoria",
-    "description": "# AportaYa · auditoria\n\nGenerado por `scripts/generar_postman.py` desde `servicios/*/src/main/resources/openapi/`.\n**No se edita a mano**: la proxima generacion lo pisa, y una coleccion editada a mano\nprueba una API que ya no existe.\n\n**6 operaciones.** Cada peticion trae su cuerpo de ejemplo derivado del\nesquema, la clave de idempotencia donde el contrato la exige, el permiso que pide\n—leido de los `@Permiso` del codigo— y los rechazos `AP-CU` que declara.\n\nElegi un entorno de `postman/entornos/` antes de disparar nada.\n",
+    "description": "# AportaYa · auditoria\n\nGenerado por `scripts/generar_postman.py` desde `servicios/*/src/main/resources/openapi/`.\n**No se edita a mano**: la proxima generacion lo pisa, y una coleccion editada a mano\nprueba una API que ya no existe.\n\n**8 operaciones.** Cada peticion trae su cuerpo de ejemplo derivado del\nesquema, la clave de idempotencia donde el contrato la exige, el permiso que pide\n—leido de los `@Permiso` del codigo— y los rechazos `AP-CU` que declara.\n\nElegi un entorno de `postman/entornos/` antes de disparar nada.\n",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
@@ -482,7 +482,7 @@
             }
           ]
         },
-        "description": "## Los indicadores del periodo, con su meta, su variacion y su serie\n\n[CONTRATO] Que la direccion mire siempre los mismos numeros, calculados de la misma forma: un indicador es una DEFINICION, no una consulta, y si dos lugares lo recalculan ya hay dos indicadores.\nSe lee de `auditoria.indicador_kpi`, que es donde el calculo los deja. Esta operacion NO calcula: publica.\nLa `dimension` es la del modelo —GLOBAL, POR_GRUPO, POR_ORGANIZADOR— y no la que enumera el texto de CU-98. Donde el caso de uso y la tabla no coinciden, manda la tabla: es la que rechaza.\n\n| | |\n| --- | --- |\n| **Servicio** | `auditoria` |\n| **Operacion** | `publicarTablero` |\n| **Ruta** | `GET /api/v1/indicadores` |\n| **Permiso** | `AUDITORIA_LEER` |\n| **Respuestas** | `200`, `422`, `401` |\n\n### Rechazos que declara el contrato\n\n| Codigo | Motivo |\n| --- | --- |\n| `AP-CU98-01` | Periodo no cerrado |\n| `AP-CU98-02` | Sin definicion |\n| `AP-CU98-03` | Sin meta del periodo |\n| `AP-CU98-04` | Muestra insuficiente |\n| `AP-CU98-05` | Indicador duplicado |\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos."
+        "description": "## Los indicadores del periodo, con su meta, su variacion y su serie\n\n[CONTRATO] Que la direccion mire siempre los mismos numeros, calculados de la misma forma: un indicador es una DEFINICION, no una consulta, y si dos lugares lo recalculan ya hay dos indicadores.\nSe lee de `auditoria.indicador_kpi`, que es donde el calculo los deja. Esta operacion NO calcula: publica.\nLa `dimension` es la del modelo —GLOBAL, POR_GRUPO, POR_ORGANIZADOR— y no la que enumera el texto de CU-98. Donde el caso de uso y la tabla no coinciden, manda la tabla: es la que rechaza.\n\n| | |\n| --- | --- |\n| **Servicio** | `auditoria` |\n| **Operacion** | `publicarTablero` |\n| **Ruta** | `GET /api/v1/indicadores` |\n| **Permiso** | `AUDITORIA_LEER` |\n| **Respuestas** | `200`, `422`, `403`, `401` |\n\n### Rechazos que declara el contrato\n\n| Codigo | Motivo |\n| --- | --- |\n| `AP-CU98-01` | Periodo no cerrado |\n| `AP-CU98-02` | Sin definicion |\n| `AP-CU98-03` | Sin meta del periodo |\n| `AP-CU98-04` | Muestra insuficiente |\n| `AP-CU98-05` | Indicador duplicado |\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos."
       },
       "response": [],
       "event": [
@@ -492,7 +492,148 @@
             "type": "text/javascript",
             "exec": [
               "// Lo que se le exige a TODA respuesta del sistema, sin excepcion.",
-              "const esperadas = [200, 401, 422];",
+              "const esperadas = [200, 401, 403, 422];",
+              "",
+              "pm.test(\"responde con un codigo que el contrato declara\", () => {",
+              "    pm.expect(esperadas).to.include(pm.response.code);",
+              "});",
+              "",
+              "pm.test(\"no filtra la traza al cliente\", () => {",
+              "    const cuerpo = pm.response.text();",
+              "    // Un stack trace en la respuesta le cuenta al atacante como esta hecho el",
+              "    // servidor. Es una de las dieciocho prohibiciones del contrato.",
+              "    pm.expect(cuerpo).to.not.match(/at bo\\.aportaya\\./);",
+              "    pm.expect(cuerpo).to.not.include(\"java.lang.\");",
+              "});",
+              "",
+              "if (pm.response.code === 422) {",
+              "    pm.test(\"el rechazo trae su codigo AP-CU\", () => {",
+              "        pm.expect(pm.response.json()).to.have.property(\"codigo\").that.matches(/^AP-CU\\d+-\\d+$/);",
+              "    });",
+              "}",
+              "",
+              "// Encadena: lo que devuelve esta peticion queda disponible para la siguiente.",
+              "if (pm.response.code < 300) {",
+              "    const cuerpo = pm.response.json();",
+              "    for (const [clave, valor] of Object.entries(cuerpo || {})) {",
+              "        if (typeof valor === \"string\" && /^[0-9a-f]{8}-[0-9a-f]{4}-/i.test(valor)) {",
+              "            pm.collectionVariables.set(clave, valor);",
+              "        }",
+              "    }",
+              "}",
+              ""
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "listarEndpointsDelDia · Los endpoints tocados hoy, con solicitudes, errores y p95",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}{{prefijo_api}}/indicadores/operacion/endpoints",
+          "host": [
+            "{{base_url}}{{prefijo_api}}"
+          ],
+          "path": [
+            "indicadores",
+            "operacion",
+            "endpoints"
+          ],
+          "variable": [],
+          "query": [
+            {
+              "key": "limite",
+              "value": "1",
+              "description": "",
+              "disabled": true
+            }
+          ]
+        },
+        "description": "## Los endpoints tocados hoy, con solicitudes, errores y p95\n\nVista en VIVO (desde la medianoche de La Paz hasta ahora) del trafico HTTP que el Collector OpenTelemetry entrega a Prometheus. No es un indicador del catalogo de CU-98: es el desglose que acompaña al tablero de sistemas. La ruta es la PLANTILLA (/grupos/{id}), nunca la URL con identificadores. Orden determinista: solicitudes descendente, despues servicio, metodo y ruta. `fuenteDisponible: false` significa que Prometheus no respondio (no se sabe), distinto de una lista vacia (nadie llamo). Exige TABLERO_SISTEMAS_VER o AUDITORIA_LEER.\n\n| | |\n| --- | --- |\n| **Servicio** | `auditoria` |\n| **Operacion** | `listarEndpointsDelDia` |\n| **Ruta** | `GET /api/v1/indicadores/operacion/endpoints` |\n| **Permiso** | `TABLERO_SISTEMAS_VER` |\n| **Respuestas** | `200`, `403`, `401` |\n\n### Rechazos que declara el contrato\n\n_El contrato no declara rechazos de negocio para esta operacion._\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos."
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// Lo que se le exige a TODA respuesta del sistema, sin excepcion.",
+              "const esperadas = [200, 401, 403];",
+              "",
+              "pm.test(\"responde con un codigo que el contrato declara\", () => {",
+              "    pm.expect(esperadas).to.include(pm.response.code);",
+              "});",
+              "",
+              "pm.test(\"no filtra la traza al cliente\", () => {",
+              "    const cuerpo = pm.response.text();",
+              "    // Un stack trace en la respuesta le cuenta al atacante como esta hecho el",
+              "    // servidor. Es una de las dieciocho prohibiciones del contrato.",
+              "    pm.expect(cuerpo).to.not.match(/at bo\\.aportaya\\./);",
+              "    pm.expect(cuerpo).to.not.include(\"java.lang.\");",
+              "});",
+              "",
+              "if (pm.response.code === 422) {",
+              "    pm.test(\"el rechazo trae su codigo AP-CU\", () => {",
+              "        pm.expect(pm.response.json()).to.have.property(\"codigo\").that.matches(/^AP-CU\\d+-\\d+$/);",
+              "    });",
+              "}",
+              "",
+              "// Encadena: lo que devuelve esta peticion queda disponible para la siguiente.",
+              "if (pm.response.code < 300) {",
+              "    const cuerpo = pm.response.json();",
+              "    for (const [clave, valor] of Object.entries(cuerpo || {})) {",
+              "        if (typeof valor === \"string\" && /^[0-9a-f]{8}-[0-9a-f]{4}-/i.test(valor)) {",
+              "            pm.collectionVariables.set(clave, valor);",
+              "        }",
+              "    }",
+              "}",
+              ""
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "obtenerCatalogoDeDatos · El catalogo de datos de toda la plataforma",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}{{prefijo_api}}/indicadores/catalogo-de-datos",
+          "host": [
+            "{{base_url}}{{prefijo_api}}"
+          ],
+          "path": [
+            "indicadores",
+            "catalogo-de-datos"
+          ],
+          "variable": []
+        },
+        "description": "## El catalogo de datos de toda la plataforma\n\nCada esquema, tabla y columna con su explicacion de negocio (las fichas de docs/entidades) y de sistema (derivada del modelo: servicio dueño, append-only, claves, reglas nombradas), las relaciones y la sensibilidad de cada columna. Lo genera scripts/catalogo_de_datos.py; no se calcula en la peticion. Vive bajo /indicadores, junto al desglose de sistemas, porque es parte del tablero de sistemas y el gateway ya enruta ese prefijo a auditoria. Describe el esquema completo de la base, por eso NO es un archivo estatico del backoffice: exige TABLERO_SISTEMAS_VER o AUDITORIA_LEER. No contiene datos de personas, solo la estructura.\n\n| | |\n| --- | --- |\n| **Servicio** | `auditoria` |\n| **Operacion** | `obtenerCatalogoDeDatos` |\n| **Ruta** | `GET /api/v1/indicadores/catalogo-de-datos` |\n| **Permiso** | `TABLERO_SISTEMAS_VER` |\n| **Respuestas** | `200`, `403`, `401` |\n\n### Rechazos que declara el contrato\n\n_El contrato no declara rechazos de negocio para esta operacion._\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos."
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// Lo que se le exige a TODA respuesta del sistema, sin excepcion.",
+              "const esperadas = [200, 401, 403];",
               "",
               "pm.test(\"responde con un codigo que el contrato declara\", () => {",
               "    pm.expect(esperadas).to.include(pm.response.code);",

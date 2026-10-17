@@ -1,7 +1,7 @@
 package bo.aportaya.nucleofinanciero.consumo;
 
+import bo.aportaya.nucleofinanciero.aplicacion.AporteCobrado;
 import bo.aportaya.nucleofinanciero.aplicacion.ConsumoDeAportes;
-import bo.aportaya.nucleofinanciero.aplicacion.ConsumoDeAportes.AporteCobrado;
 import bo.aportaya.plataforma.dominio.Dinero;
 import bo.aportaya.plataforma.dominio.ErrorDeDominio;
 import bo.aportaya.plataforma.dominio.Moneda;

@@ -140,7 +140,7 @@ public record Indicador(
         }
         // Redondeo declarado: HALF_EVEN, dos decimales en porcentaje y cuatro en razon. Es presentacion, no dinero.
         BigDecimal valor = d.unidad() == Unidad.PORCENTAJE
-                ? m.numerador().multiply(BigDecimal.valueOf(100)).divide(m.denominador(), 2, RoundingMode.HALF_EVEN)
+                ? m.numerador().movePointRight(2).divide(m.denominador(), 2, RoundingMode.HALF_EVEN)
                 : m.numerador().divide(m.denominador(), 4, RoundingMode.HALF_EVEN);
         return new Resuelto(valor, null);
     }

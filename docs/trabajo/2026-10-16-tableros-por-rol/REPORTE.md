@@ -133,6 +133,7 @@ $ python3 -I scripts/verificar_narrativas.py
 - **D15 (H8):** el inventario ya relevaba 282 endpoints (el plan decía 162) y se reusó. Las «pruebas de integración de
   flujo» son la cadena de cada servicio dueño contra Postgres más los pactos entre servicios; la cadena con todos los
   procesos juntos queda para H9.
+- **Primera corrida del CI del PR #115 en rojo (H9.S1.M5):** el barrido por servicio (que no había corrido en local) marcó un literal y tres archivos de más de 300 líneas, faltaba regenerar Postman y OSV marcó OpenTelemetry 1.49 (que trajo H6). Corregido; ver `evidencia/H9-S1-M5-rojos-del-ci.txt`.
 - H8.S3.M2: no se escribió una prueba nueva de la entrega; la cadena existente (`CU133EntregaConsistenteTest`) ya cubre
   fondeo → banco → asiento y se ejecutó.
 

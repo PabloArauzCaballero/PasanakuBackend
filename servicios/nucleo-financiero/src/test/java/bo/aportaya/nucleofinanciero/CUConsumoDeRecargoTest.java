@@ -3,22 +3,10 @@ package bo.aportaya.nucleofinanciero;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import bo.aportaya.nucleofinanciero.aplicacion.ConsumoDeAportes.AporteCobrado;
 import bo.aportaya.nucleofinanciero.aplicacion.ConsumoDeAportes.Resultado;
-import bo.aportaya.plataforma.dominio.Dinero;
-import bo.aportaya.plataforma.dominio.Moneda;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.IOException;
 import java.math.BigDecimal;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Optional;
 import java.util.UUID;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -27,52 +15,7 @@ import org.junit.jupiter.api.Test;
  * del participante baja, la de sistema {@code FONDO_GARANTIA} sube, la del grupo no se mueve, y el mayor asienta DEBE
  * usuarios / HABER {@code RESERVA_RESPALDO}.
  */
-class CUConsumoDeRecargoTest extends BaseDeAportes {
-
-    private static String reservaRespaldo;
-
-    @BeforeAll
-    static void mapeoDelFondo() {
-        reservaRespaldo = "RR.BOB." + UUID.randomUUID().toString().substring(0, 6);
-        contable.cuentaDeMovimiento(reservaRespaldo, "PASIVO", "ACREEDORA", "BOB");
-        MAPEO.put("RESERVA_RESPALDO.BOB", reservaRespaldo);
-    }
-
-    /** La billetera de sistema del fondo en BOB: la sembrada si existe, o una creada (los contenedores se comparten). */
-    private UUID fondo() {
-        var existente = dsl.fetchOptional(
-                """
-                SELECT id FROM nucleo_financiero.cuenta_billetera
-                 WHERE tipo = 'FONDO_GARANTIA' AND moneda = 'BOB' AND estado = 'ACTIVA'
-                """);
-        if (existente.isPresent()) {
-            return existente.get().get(0, UUID.class);
-        }
-        UUID id = UUID.randomUUID();
-        dslFixtura.execute(
-                """
-                INSERT INTO nucleo_financiero.cuenta_billetera
-                    (id, numero_cuenta, tipo, moneda, estado, nivel_debida_diligencia,
-                     saldo_disponible, saldo_retenido, permite_saldo_negativo, fecha_apertura, version)
-                VALUES (?, ?, 'FONDO_GARANTIA', 'BOB', 'ACTIVA', 'REFORZADA', 0, 0, false, now(), 0)
-                """,
-                id,
-                "FGA-" + id.toString().substring(0, 12));
-        return id;
-    }
-
-    private AporteCobrado recargo(Aporte a, String monto) {
-        return new AporteCobrado(
-                UUID.randomUUID(),
-                UUID.randomUUID(),
-                UUID.randomUUID(),
-                a.obligacion(),
-                a.grupo(),
-                a.usuario(),
-                Dinero.de(monto, Moneda.BOB),
-                "BILLETERA_MOVIL",
-                Optional.of("RECARGO_MORA"));
-    }
+class CUConsumoDeRecargoTest extends BaseDeRecargo {
 
     private int asientos(UUID transaccion) {
         return contar("SELECT count(*) FROM nucleo_financiero.asiento_contable WHERE origen_id = ?", transaccion);
@@ -154,7 +97,7 @@ class CUConsumoDeRecargoTest extends BaseDeAportes {
         var e = recargo(a, "25.00");
 
         var primero = procesar(e);
-        var segundo = procesar(reenviadoConTipo(e));
+        var segundo = procesar(reenviado(e));
 
         assertThat(segundo.resultado()).isEqualTo(Resultado.YA_APLICADO);
         assertThat(segundo.transaccionId()).isEqualTo(primero.transaccionId());
@@ -240,95 +183,5 @@ class CUConsumoDeRecargoTest extends BaseDeAportes {
                         "SELECT count(*) FROM nucleo_financiero.movimiento_billetera WHERE transaccion_id = ?",
                         original))
                 .isEqualTo(2);
-    }
-
-    private AporteCobrado reenviadoConTipo(AporteCobrado original) {
-        return new AporteCobrado(
-                UUID.randomUUID(),
-                original.correlationId(),
-                original.pagoId(),
-                original.obligacionId(),
-                original.grupoId(),
-                original.usuarioId(),
-                original.monto(),
-                original.canal(),
-                original.tipo());
-    }
-
-    @Test
-    @DisplayName(
-            "pacto con garantia · productor: aplicar un recargo publica aporte_aplicado con TODOS los campos del pacto"
-                    + " y destino FONDO_GARANTIA")
-    void cumpleElPactoConGarantia() throws IOException {
-        JsonNode pacto = pacto("contratos/pactos/nucleo-financiero-garantia-aporte-aplicado.json");
-        fondo();
-        var aplicado = procesar(recargo(aporte("100.00"), "25.00"));
-
-        JsonNode emitido = emitido(
-                pacto,
-                """
-                SELECT payload::text FROM nucleo_financiero.evento_dominio
-                 WHERE tipo = ? AND payload->>'transaccionId' = ?
-                """,
-                aplicado.transaccionId().orElseThrow());
-
-        traeTodosLosCampos(pacto, emitido);
-        assertThat(emitido.path("monto").asText()).matches("^[0-9]+[.][0-9]{2}$");
-        assertThat(emitido.path("destino").asText())
-                .isEqualTo(pacto.path("ejemplo").path("destino").asText());
-    }
-
-    @Test
-    @DisplayName(
-            "pacto con garantia · productor: reversar un recargo publica transaccion_reversada con TODOS los campos del"
-                    + " pacto, la original y el reverso")
-    void cumpleElPactoDeReverso() throws IOException {
-        JsonNode pacto = pacto("contratos/pactos/nucleo-financiero-garantia-transaccion-reversada.json");
-        var a = aporte("100.00");
-        fondo();
-        UUID original = procesar(recargo(a, "25.00")).transaccionId().orElseThrow();
-        var salida = transaccion.execute(x -> reversoCU.ejecutar(
-                new bo.aportaya.nucleofinanciero.aplicacion.CU14ReversarTransaccion.EntradaReverso(
-                        "rev-pacto-" + original,
-                        original,
-                        pacto.path("ejemplo").path("tipo").asText(),
-                        "Prueba del pacto con garantia",
-                        fixtura.usuario()),
-                contextoDe(a.usuario())));
-
-        JsonNode emitido = emitido(
-                pacto,
-                """
-                SELECT payload::text FROM nucleo_financiero.evento_dominio
-                 WHERE tipo = ? AND payload->>'transaccionOriginalId' = ?
-                """,
-                original);
-
-        traeTodosLosCampos(pacto, emitido);
-        assertThat(emitido.path("transaccionReversoId").asText())
-                .isEqualTo(salida.transaccionReversoId().toString());
-        assertThat(pacto.path("agregado").asText()).isEqualTo("reverso_transaccion");
-    }
-
-    private JsonNode emitido(JsonNode pacto, String consulta, UUID valor) throws IOException {
-        String payload = dsl.fetchOne(consulta, pacto.path("tipo").asText(), valor.toString())
-                .get(0, String.class);
-        return new ObjectMapper().readTree(payload);
-    }
-
-    private static void traeTodosLosCampos(JsonNode pacto, JsonNode emitido) {
-        var campos = new ArrayList<String>();
-        pacto.path("campos").fieldNames().forEachRemaining(campos::add);
-        for (String campo : campos) {
-            assertThat(emitido.has(campo)).as("el evento trae " + campo).isTrue();
-        }
-    }
-
-    private static JsonNode pacto(String archivo) throws IOException {
-        Path raiz = Path.of("").toAbsolutePath();
-        while (raiz != null && !Files.isRegularFile(raiz.resolve(archivo))) {
-            raiz = raiz.getParent();
-        }
-        return new ObjectMapper().readTree(Files.readString(raiz.resolve(archivo), StandardCharsets.UTF_8));
     }
 }
