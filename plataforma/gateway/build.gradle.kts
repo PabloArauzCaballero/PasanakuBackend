@@ -32,6 +32,7 @@ dependencies {
     // gateway no sabe de permisos porque no le toca.
     implementation(libs.micrometer)
     implementation(libs.micrometer.tracing)
+    implementation(libs.otel.exportador)
     // H3.S1 (AMB-6): RequestRateLimiter necesita Redis reactivo. Coordenada
     // literal y no `libs.spring.boot.redis`: esa entrada del catalogo vive en
     // el micro-PR troncal (PR #2, pablo/troncal/cyclonedx), todavia sin

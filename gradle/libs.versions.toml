@@ -88,7 +88,8 @@ shedlock-jdbc        = { module = "net.javacrumbs.shedlock:shedlock-provider-jdb
 # — Resiliencia y observabilidad —
 resilience4j        = { module = "io.github.resilience4j:resilience4j-spring-boot3", version.ref = "resilience4j" }
 micrometer          = { module = "io.micrometer:micrometer-registry-prometheus" }
-micrometer-tracing  = { module = "io.micrometer:micrometer-tracing-bridge-brave" }
+micrometer-tracing  = { module = "io.micrometer:micrometer-tracing-bridge-otel" }   # OpenTelemetry (tableros, D4); antes bridge-brave
+otel-exportador     = { module = "io.opentelemetry:opentelemetry-exporter-otlp" }   # version del BOM de Spring Boot
 
 # — Cripto —
 argon2 = { module = "de.mkammerer:argon2-jvm", version.ref = "argon2" }

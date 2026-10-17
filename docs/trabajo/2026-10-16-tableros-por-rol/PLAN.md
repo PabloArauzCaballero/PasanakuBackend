@@ -305,8 +305,8 @@ siguen respondiendo.
 
 | ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
 |---|---|---|---|---|
-| H6.S1.M1 | Cambiar `micrometer-tracing-bridge-brave` por el bridge de OTel más el exportador OTLP (versiones de H0.S1.M6) | Todos los módulos compilan | `./gradlew compileJava` → exit 0 | TODO |
-| H6.S1.M2 | Configuración común en `plataforma`: recurso (`service.name`, `version`), muestreo y redacción de atributos | Test de redacción: un atributo con documento o cuenta sale enmascarado | Test unitario nombrado en verde | TODO |
+| H6.S1.M1 | Cambiar `micrometer-tracing-bridge-brave` por el bridge de OTel más el exportador OTLP (versiones de H0.S1.M6) | Todos los módulos compilan | `./gradlew compileJava` → exit 0 | HECHO — `evidencia/H6-S1-M1-otel.txt` |
+| H6.S1.M2 | Configuración común en `plataforma`: recurso (`service.name`, `version`), muestreo y redacción de atributos | Test de redacción: un atributo con documento o cuenta sale enmascarado | Test unitario nombrado en verde | EN CURSO — defaults comunes HECHOS (`DefaultsDeObservabilidad`); falta la redacción en el Collector (H6.S2.M1) |
 | H6.S1.M3 | Etiqueta de ruta plantilla (`/grupos/{id}`), nunca la URL cruda | Ninguna serie con un UUID en la etiqueta | `curl prometheus/api/v1/series` filtrado, pegado | TODO |
 | H6.S2.M1 | Collector (`memory_limiter`, `batch`, `attributes/redaction`) y Prometheus en `docker-compose` dev y en Coolify, solo en la red interna | Contenedores sanos y puertos sin exponer | `docker compose ps` + `curl` desde afuera rechazado, pegados | TODO |
 | H6.S2.M2 | Jaeger efímero solo en dev (como Atlas) | Traza visible | Captura de la traza en `evidencia/H6/` | TODO |
