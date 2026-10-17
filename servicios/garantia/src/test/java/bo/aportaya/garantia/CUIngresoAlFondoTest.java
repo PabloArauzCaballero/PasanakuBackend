@@ -145,4 +145,70 @@ class CUIngresoAlFondoTest extends BaseDeGarantia {
         assertThat(saldoDisponible(f.fondoId())).isEqualByComparingTo("200.00");
         assertThat(marcas(e.eventoId())).isZero();
     }
+
+    private int ajustesDelFondo(UUID fondo) {
+        return contar(
+                "SELECT count(*)::int FROM garantia.movimiento_fondo WHERE fondo_id = ? AND tipo = 'AJUSTE_CONTABLE'",
+                fondo);
+    }
+
+    private Resultado revertir(IngresoAlFondo.TransaccionReversada r) {
+        return transaccion.execute(t -> ingreso.revertir(r));
+    }
+
+    @Test
+    @DisplayName("compensa: el reverso de un recargo anotado le resta los Bs 25 al fondo con un AJUSTE_CONTABLE que"
+            + " referencia el reverso, y el saldo vuelve a 200")
+    void reversoDelRecargo() {
+        var f = fondoCon("200.00");
+        var e = alFondo(f.grupoId(), "25.00", Moneda.BOB);
+        anotar(e);
+        UUID reverso = UUID.randomUUID();
+
+        var r = new IngresoAlFondo.TransaccionReversada(
+                UUID.randomUUID(), UUID.randomUUID(), e.transaccionId(), reverso);
+        assertThat(revertir(r)).isEqualTo(Resultado.REVERTIDO);
+
+        assertThat(saldoDisponible(f.fondoId())).isEqualByComparingTo("200.00");
+        assertThat(ajustesDelFondo(f.fondoId())).isEqualTo(1);
+        var mov = dsl.fetchOne(
+                """
+                SELECT monto, saldo_resultante, referencia_tipo, referencia_id FROM garantia.movimiento_fondo
+                 WHERE fondo_id = ? AND tipo = 'AJUSTE_CONTABLE'
+                """,
+                f.fondoId());
+        assertThat((BigDecimal) mov.get(0)).isEqualByComparingTo("25.00");
+        assertThat((BigDecimal) mov.get(1)).isEqualByComparingTo("200.00");
+        assertThat(mov.get(2)).isEqualTo("REVERSO_TRANSACCION");
+        assertThat(mov.get(3)).isEqualTo(reverso);
+        // El RECARGO_MORA original sigue ahi: append-only, se corrige con otro movimiento.
+        assertThat(recargosDelFondo(f.fondoId())).isEqualTo(1);
+    }
+
+    @Test
+    @DisplayName("evento duplicado: el mismo reverso dos veces resta UNA vez")
+    void reversoDuplicado() {
+        var f = fondoCon("200.00");
+        var e = alFondo(f.grupoId(), "25.00", Moneda.BOB);
+        anotar(e);
+        var r = new IngresoAlFondo.TransaccionReversada(
+                UUID.randomUUID(), UUID.randomUUID(), e.transaccionId(), UUID.randomUUID());
+
+        revertir(r);
+        assertThat(revertir(r)).isEqualTo(Resultado.DUPLICADO);
+
+        assertThat(saldoDisponible(f.fondoId())).isEqualByComparingTo("200.00");
+        assertThat(ajustesDelFondo(f.fondoId())).isEqualTo(1);
+    }
+
+    @Test
+    @DisplayName("compatibilidad: el reverso de una transacción que no es un recargo anotado no toca ningún fondo ni"
+            + " marca el evento")
+    void reversoAjeno() {
+        var r = new IngresoAlFondo.TransaccionReversada(
+                UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID());
+
+        assertThat(revertir(r)).isEqualTo(Resultado.NO_ES_DEL_FONDO);
+        assertThat(marcas(r.eventoId())).isZero();
+    }
 }

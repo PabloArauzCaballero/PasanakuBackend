@@ -34,14 +34,21 @@ public class IngresoAlFondo {
 
     public static final String CONSUMIDOR = "garantia.aportes-aplicados";
 
+    public static final String CONSUMIDOR_REVERSOS = "garantia.transacciones-reversadas";
+
     /** El identificador de proceso del actor Sistema; no es una persona ni una fila de usuario. */
     private static final UUID PROCESO = UUID.fromString("00000000-0000-4000-8000-0000000000f0");
 
     public enum Resultado {
         ANOTADO,
         DUPLICADO,
-        NO_ES_DEL_FONDO
+        NO_ES_DEL_FONDO,
+        REVERTIDO
     }
+
+    /** Lo que {@code nucleo_financiero.transaccion_reversada} trae: la original y su espejo. */
+    public record TransaccionReversada(
+            UUID eventoId, UUID correlationId, UUID transaccionOriginalId, UUID transaccionReversoId) {}
 
     /** Lo que {@code nucleo_financiero.aporte_aplicado} trae, ya con tipos: el borde con Kafka valida y convierte. */
     public record AporteAplicado(
@@ -97,6 +104,49 @@ public class IngresoAlFondo {
                     null,
                     ahora);
             return Resultado.ANOTADO;
+        });
+    }
+
+    /**
+     * H1.S2.M4 · el reverso (CU-14) de un recargo ya anotado le devuelve la plata al participante desde la billetera del
+     * fondo; aca el fondo la descuenta con un {@code AJUSTE_CONTABLE} que referencia el reverso. Un reverso de otra
+     * cosa —la gran mayoria— no encuentra recargo anotado y no toca nada ni se marca.
+     */
+    @Transactional
+    public Resultado revertir(TransaccionReversada e) {
+        ContextoSesion ctx =
+                ContextoSesion.deSistema(PROCESO, new Traza(e.correlationId().toString()));
+        return datos.conContexto(ctx, dsl -> {
+            var anotado = fondos.recargoAnotado(dsl, e.transaccionOriginalId());
+            if (anotado.isEmpty()) {
+                return Resultado.NO_ES_DEL_FONDO;
+            }
+            if (!consumidos.registrar(dsl, e.eventoId(), CONSUMIDOR_REVERSOS)) {
+                return Resultado.DUPLICADO;
+            }
+            var fondo = fondos.bloquear(dsl, anotado.get().fondoId()).orElseThrow();
+            Dinero monto = Dinero.de(anotado.get().monto(), fondo.moneda());
+            Dinero saldoDespues = fondo.saldoDisponible().menos(monto);
+            if (!fondos.moverSaldo(
+                    dsl,
+                    fondo.id(),
+                    Dinero.cero(fondo.moneda()).menos(monto),
+                    Dinero.cero(fondo.moneda()),
+                    fondo.version())) {
+                throw new IllegalStateException("El fondo " + fondo.id() + " cambio de version bajo candado.");
+            }
+            fondos.registrarMovimiento(
+                    dsl,
+                    fondo.id(),
+                    "AJUSTE_CONTABLE",
+                    monto,
+                    saldoDespues,
+                    "REVERSO_TRANSACCION",
+                    e.transaccionReversoId(),
+                    "Reverso de un recargo por mora",
+                    null,
+                    reloj.ahora().atOffset(ZoneOffset.UTC));
+            return Resultado.REVERTIDO;
         });
     }
 }
