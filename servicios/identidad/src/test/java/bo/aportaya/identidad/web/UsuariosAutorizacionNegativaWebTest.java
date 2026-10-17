@@ -91,6 +91,9 @@ class UsuariosAutorizacionNegativaWebTest {
     private bo.aportaya.identidad.aplicacion.ActivarRolOrganizador activarRolOrganizador;
 
     @MockitoBean
+    private bo.aportaya.identidad.aplicacion.ConsultarMiPerfil consultarMiPerfil;
+
+    @MockitoBean
     private ConsultarNivelKyc nivelesKyc;
 
     private org.springframework.test.web.servlet.ResultActions buscar(RequestPostProcessor sesion, String cuerpo)
@@ -264,5 +267,21 @@ class UsuariosAutorizacionNegativaWebTest {
                         .content(cuerpo))
                 .andExpect(status().isForbidden());
         verifyNoInteractions(activarRolOrganizador);
+    }
+
+    @Test
+    @DisplayName("CU-07 · mi perfil: sin sesión 401; con sesión devuelve el correo de la cuenta de ESA sesión")
+    void miPerfilSaleDeLaSesion() throws Exception {
+        var ruta = "/usuarios/yo/perfil";
+        mvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get(ruta))
+                .andExpect(status().isUnauthorized());
+        var yo = UUID.fromString("b8000000-0000-4000-8000-000000000077");
+        when(consultarMiPerfil.ejecutar(any()))
+                .thenReturn(new bo.aportaya.identidad.aplicacion.ConsultarMiPerfil.Perfil(yo, "ana@correo.test", true));
+        mvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get(ruta)
+                        .with(Sesiones.como("PARTICIPANTE")))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.correo").value("ana@correo.test"))
+                .andExpect(jsonPath("$.correoVerificado").value(true));
     }
 }

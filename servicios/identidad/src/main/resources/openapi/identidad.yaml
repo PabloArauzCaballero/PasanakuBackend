@@ -661,6 +661,19 @@ paths:
             application/json:
               schema: { $ref: '#/components/schemas/RolOrganizadorActivado' }
         '422': { $ref: '#/components/responses/ReglaDeNegocio' }
+  /usuarios/yo/perfil:
+    get:
+      operationId: consultarMiPerfil          # CU-07
+      summary: Los datos de contacto de la cuenta de la sesion
+      description: >-
+        Lo que la pantalla de perfil muestra: el correo de la propia cuenta. Se resuelve con
+        la sesion, nunca con un id del cliente, asi que nadie lee el de otra persona.
+      responses:
+        '200':
+          description: El perfil de quien pregunta
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/MiPerfil' }
   /usuarios/{usuarioId}/kyc:
     get:
       operationId: consultarNivelKyc
@@ -732,6 +745,14 @@ components:
       required: [verificada]
       properties:
         verificada: { type: boolean }
+    MiPerfil:
+      type: object
+      additionalProperties: false
+      required: [usuarioId, correoVerificado]
+      properties:
+        usuarioId:        { type: string, format: uuid }
+        correo:           { type: [string, 'null'], maxLength: 150 }
+        correoVerificado: { type: boolean }
     NivelKyc:
       type: object
       additionalProperties: false
