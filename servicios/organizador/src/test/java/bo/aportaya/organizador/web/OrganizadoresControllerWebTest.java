@@ -1,6 +1,7 @@
 package bo.aportaya.organizador.web;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -92,6 +93,9 @@ class OrganizadoresControllerWebTest {
 
     @MockitoBean
     private CU90ConsultarBandeja consultarBandeja;
+
+    @MockitoBean
+    private bo.aportaya.organizador.aplicacion.CU90HabilitacionBasica habilitacionBasica;
 
     @Nested
     @DisplayName("CU-90 · postularse y ser habilitado son dos actos de dos personas")
@@ -203,6 +207,69 @@ class OrganizadoresControllerWebTest {
                     .andExpect(jsonPath("$.contratoId").value(CONTRATO.toString()))
                     // Sin la fecha, no hay forma de saber desde cuando obliga.
                     .andExpect(jsonPath("$.firmadoEn").exists());
+        }
+    }
+
+    @Nested
+    @DisplayName("CU-90 vía básica · el contrato Aprendiz es solo de quien tiene KYC aprobado y solo propio")
+    class HabilitacionBasica {
+
+        private static final String ACEPTO = "{\"aceptaContrato\":true,\"version\":\"APR-PROV-TEST-2610\"}";
+        private static final String FIRMA = "{\"contratoId\":\"b8000000-0000-4000-8000-000000000003\","
+                + "\"tokenFirmaId\":\"b8000000-0000-4000-8000-00000000000a\"}";
+
+        @Test
+        @DisplayName("401 · sin sesión no se lee el contrato ni el estado")
+        void sinSesion() throws Exception {
+            mvc.perform(get("/organizadores/yo/habilitacion-basica")).andExpect(status().isUnauthorized());
+            verifyNoInteractions(habilitacionBasica);
+        }
+
+        @Test
+        @DisplayName("403 · un rol sin PARTICIPANTE no acepta ni firma")
+        void rolInsuficiente() throws Exception {
+            mvc.perform(post("/organizadores/yo/habilitacion-basica")
+                            .with(Sesiones.como("SOPORTE"))
+                            .header("Idempotency-Key", "b8000000-0000-4000-8000-0000000000aa")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(ACEPTO))
+                    .andExpect(status().isForbidden());
+            mvc.perform(post("/organizadores/yo/habilitacion-basica/firma")
+                            .with(Sesiones.como("SOPORTE"))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(FIRMA))
+                    .andExpect(status().isForbidden());
+            verifyNoInteractions(habilitacionBasica);
+        }
+
+        @Test
+        @DisplayName("200 · el participante acepta y recibe el contrato pendiente con su hash")
+        void participanteAcepta() throws Exception {
+            when(habilitacionBasica.habilitar(eq(true), eq("APR-PROV-TEST-2610"), any()))
+                    .thenReturn(new bo.aportaya.organizador.aplicacion.CU90HabilitacionBasica.Resultado(
+                            ORGANIZADOR, CONTRATO, "a".repeat(64), "APRENDIZ", true));
+
+            mvc.perform(post("/organizadores/yo/habilitacion-basica")
+                            .with(Sesiones.como("PARTICIPANTE"))
+                            .header("Idempotency-Key", "b8000000-0000-4000-8000-0000000000ab")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(ACEPTO))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.contratoId").value(CONTRATO.toString()))
+                    .andExpect(jsonPath("$.contenidoHash").value("a".repeat(64)))
+                    .andExpect(jsonPath("$.nivel").value("APRENDIZ"));
+        }
+
+        @Test
+        @DisplayName("400 · un campo de más no llega al caso de uso")
+        void campoDeMas() throws Exception {
+            mvc.perform(post("/organizadores/yo/habilitacion-basica")
+                            .with(Sesiones.como("PARTICIPANTE"))
+                            .header("Idempotency-Key", "b8000000-0000-4000-8000-0000000000ac")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content("{\"aceptaContrato\":true,\"version\":\"x\",\"nivel\":\"MAESTRO\"}"))
+                    .andExpect(status().isBadRequest());
+            verifyNoInteractions(habilitacionBasica);
         }
     }
 }

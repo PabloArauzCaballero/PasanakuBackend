@@ -635,6 +635,32 @@ paths:
             application/json:
               schema: { $ref: '#/components/schemas/UsuarioEncontrado' }
 
+  /usuarios/{usuarioId}/roles/organizador:
+    post:
+      operationId: activarRolOrganizador
+      summary: Firmar el contrato de organizador Aprendiz y conceder el rol ORGANIZADOR
+      description: >-
+        Solo para uno mismo. Registra la firma como token FIRMA_CONTRATO, pide a
+        organizador que firme el contrato aceptado y, si queda habilitado, concede el rol.
+        Idempotente. AP-CU90-12 si el usuario no es quien llama, AP-CU90-13 si la firma
+        no se pudo completar, AP-CU90-14 si el KYC todavia no esta aprobado.
+      parameters:
+        - name: usuarioId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaRolOrganizador' }
+      responses:
+        '200':
+          description: El rol queda activo (nuevo o ya existente)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/RolOrganizadorActivado' }
+        '422': { $ref: '#/components/responses/ReglaDeNegocio' }
   /usuarios/{usuarioId}/kyc:
     get:
       operationId: consultarNivelKyc
@@ -665,6 +691,20 @@ components:
         seguro, y la clave se valida ANTES de escribir (invariante 7).
       schema: { type: string, format: uuid }
   schemas:
+    EntradaRolOrganizador:
+      type: object
+      additionalProperties: false
+      required: [contratoId, contenidoHash]
+      properties:
+        contratoId: { type: string, format: uuid }
+        contenidoHash: { type: string, maxLength: 64 }
+    RolOrganizadorActivado:
+      type: object
+      additionalProperties: false
+      required: [activo, esNuevo]
+      properties:
+        activo: { type: boolean }
+        esNuevo: { type: boolean }
     SolicitudVerificacionCorreo:
       type: object
       additionalProperties: false

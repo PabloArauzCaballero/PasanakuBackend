@@ -88,6 +88,9 @@ class UsuariosAutorizacionNegativaWebTest {
     private ConfirmarVerificacionCorreo confirmarCorreo;
 
     @MockitoBean
+    private bo.aportaya.identidad.aplicacion.ActivarRolOrganizador activarRolOrganizador;
+
+    @MockitoBean
     private ConsultarNivelKyc nivelesKyc;
 
     private org.springframework.test.web.servlet.ResultActions buscar(RequestPostProcessor sesion, String cuerpo)
@@ -241,5 +244,25 @@ class UsuariosAutorizacionNegativaWebTest {
                     .andExpect(status().isForbidden());
         }
         verifyNoInteractions(tokens);
+    }
+
+    @Test
+    @org.junit.jupiter.api.DisplayName(
+            "CU-90 vía básica · sin sesión 401 y un rol sin PARTICIPANTE 403: nadie firma ni se lleva el rol ORGANIZADOR")
+    void rolOrganizadorNoSeRegala() throws Exception {
+        String ruta = "/usuarios/b8000000-0000-4000-8000-000000000099/roles/organizador";
+        String cuerpo = "{\"contratoId\":\"b8000000-0000-4000-8000-000000000003\",\"contenidoHash\":\"" + "a".repeat(64)
+                + "\"}";
+
+        mvc.perform(post(ruta)
+                        .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                        .content(cuerpo))
+                .andExpect(status().isUnauthorized());
+        mvc.perform(post(ruta)
+                        .with(Sesiones.como("SOPORTE"))
+                        .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                        .content(cuerpo))
+                .andExpect(status().isForbidden());
+        verifyNoInteractions(activarRolOrganizador);
     }
 }
