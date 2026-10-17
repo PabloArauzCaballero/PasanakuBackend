@@ -6,6 +6,7 @@ import bo.aportaya.nucleofinanciero.aplicacion.ConsumoDeAportes.AporteCobrado;
 import bo.aportaya.nucleofinanciero.infraestructura.AsientoRepositorio;
 import bo.aportaya.nucleofinanciero.infraestructura.CuentaBilleteraRepositorio;
 import bo.aportaya.nucleofinanciero.infraestructura.CuentaContableRepositorio;
+import bo.aportaya.nucleofinanciero.infraestructura.CuentasDeSistemaRepositorio;
 import bo.aportaya.nucleofinanciero.infraestructura.DestinoRepositorio;
 import bo.aportaya.nucleofinanciero.infraestructura.LibroDeBilletera;
 import bo.aportaya.plataforma.datos.Datos;
@@ -59,6 +60,7 @@ abstract class BaseDeAportes extends BaseDeBilletera {
                         new Outbox("nucleo_financiero"),
                         Reloj.delSistema()),
                 (logica, moneda) -> Optional.ofNullable(mapeo.get(logica + "." + moneda.name())),
+                new CuentasDeSistemaRepositorio(),
                 new Outbox("nucleo_financiero"),
                 Reloj.delSistema());
     }

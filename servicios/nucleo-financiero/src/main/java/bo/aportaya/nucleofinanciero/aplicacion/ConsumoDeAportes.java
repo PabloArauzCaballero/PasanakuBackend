@@ -6,6 +6,7 @@ import bo.aportaya.nucleofinanciero.dominio.Partida;
 import bo.aportaya.nucleofinanciero.dominio.puertos.CuentasLogicas;
 import bo.aportaya.nucleofinanciero.infraestructura.CuentaBilleteraRepositorio;
 import bo.aportaya.nucleofinanciero.infraestructura.CuentaBilleteraRepositorio.Cuenta;
+import bo.aportaya.nucleofinanciero.infraestructura.CuentasDeSistemaRepositorio;
 import bo.aportaya.nucleofinanciero.infraestructura.DestinoRepositorio;
 import bo.aportaya.nucleofinanciero.infraestructura.LibroDeBilletera;
 import bo.aportaya.nucleofinanciero.infraestructura.LibroDeBilletera.Pata;
@@ -74,6 +75,12 @@ public class ConsumoDeAportes {
 
     public static final String SALDO_GRUPOS = "SALDO_GRUPOS";
 
+    /** La cuenta logica del fondo de garantia: la misma que usa {@code garantia} para sus coberturas. */
+    public static final String RESERVA_RESPALDO = "RESERVA_RESPALDO";
+
+    /** El tipo de obligacion que NO es del grupo: el recargo por mora es del fondo de garantia (tableros, D1). */
+    static final String RECARGO_MORA = "RECARGO_MORA";
+
     static final String CANAL_BILLETERA = "BILLETERA_MOVIL";
     private static final String ORIGEN_TRANSACCION = "OBLIGACION_APORTE";
     private static final String TIPO_TRANSACCION = "APORTE_A_GRUPO";
@@ -131,6 +138,7 @@ public class ConsumoDeAportes {
     private final LibroDeBilletera libro;
     private final CU24RegistrarAsiento cu24;
     private final CuentasLogicas logicas;
+    private final CuentasDeSistemaRepositorio sistema;
     private final Outbox outbox;
     private final Reloj reloj;
     private final Consumidos consumidos = new Consumidos("nucleo_financiero");
@@ -142,6 +150,7 @@ public class ConsumoDeAportes {
             LibroDeBilletera libro,
             CU24RegistrarAsiento cu24,
             CuentasLogicas logicas,
+            CuentasDeSistemaRepositorio sistema,
             Outbox outbox,
             Reloj reloj) {
         this.datos = datos;
@@ -150,6 +159,7 @@ public class ConsumoDeAportes {
         this.libro = libro;
         this.cu24 = cu24;
         this.logicas = logicas;
+        this.sistema = sistema;
         this.outbox = outbox;
         this.reloj = reloj;
     }
@@ -183,15 +193,25 @@ public class ConsumoDeAportes {
         String moneda = aporte.monto().moneda().name();
         Dinero monto = aporte.monto();
 
+        // El recargo por mora no es del grupo: va al fondo de garantia (tableros, D1). Repartirlo en el pozo seria
+        // premiar a todos con la mora de uno. Un evento sin tipo (anterior al campo) sigue el camino de siempre.
+        boolean alFondo = aporte.tipo().filter(RECARGO_MORA::equals).isPresent();
+
         // 1. El plan de cuentas EN ESA moneda (sin mapeo no se asienta ni se mueve nada: AP-CU24-02).
         String deUsuarios = codigoDelPlan(SALDO_USUARIOS, aporte);
-        String deGrupos = codigoDelPlan(SALDO_GRUPOS, aporte);
+        String deGrupos = codigoDelPlan(alFondo ? RESERVA_RESPALDO : SALDO_GRUPOS, aporte);
 
         // 2. Las dos billeteras EN ESA moneda, bloqueadas en orden de identificador (como CU-12: sin abrazo mortal).
+        // Sin la del fondo se rechaza SIN marcar, igual que sin la del grupo: el reproceso lo aplica cuando exista, y
+        // mientras tanto el recargo no cae en ninguna otra cuenta.
         UUID cuentaUsuario = destinos.cuentaDeUsuarioEn(dsl, aporte.usuarioId(), moneda)
                 .orElseThrow(() -> sinCuenta("El participante no tiene billetera en " + moneda + ".", aporte));
-        UUID cuentaGrupo = destinos.cuentaDeGrupoEn(dsl, aporte.grupoId(), moneda)
-                .orElseThrow(() -> sinCuenta("El grupo no tiene billetera en " + moneda + ".", aporte));
+        UUID cuentaGrupo = (alFondo
+                        ? sistema.fondoDeGarantia(dsl, monto.moneda())
+                        : destinos.cuentaDeGrupoEn(dsl, aporte.grupoId(), moneda))
+                .orElseThrow(() -> sinCuenta(
+                        (alFondo ? "El fondo de garantia" : "El grupo") + " no tiene billetera en " + moneda + ".",
+                        aporte));
         List<UUID> enOrden =
                 List.of(cuentaUsuario, cuentaGrupo).stream().sorted().toList();
         enOrden.forEach(id -> cuentas.bloquear(dsl, id));
@@ -206,7 +226,10 @@ public class ConsumoDeAportes {
         }
         if (!destino.operativa()) {
             throw new ErrorDeNegocio(
-                    CodigoError.de(12, 3), "La billetera del grupo esta " + destino.estado() + ".", detalle(aporte));
+                    CodigoError.de(12, 3),
+                    (alFondo ? "La billetera del fondo de garantia" : "La billetera del grupo") + " esta "
+                            + destino.estado() + ".",
+                    detalle(aporte));
         }
         // El saldo sale del LIBRO, no de la cache: lo que autoriza un debito es lo que el libro dice ahora.
         if (monto.esMayorQue(origen.disponible()) && !origen.permiteNegativo()) {
@@ -219,7 +242,7 @@ public class ConsumoDeAportes {
         // 3. El asiento PRIMERO (apunta a la transaccion que va a existir) y la transaccion con el asiento ya enlazado.
         UUID transaccionId = UUID.randomUUID();
         OffsetDateTime ahora = reloj.ahora().atOffset(ZoneOffset.UTC);
-        String glosa = "Aporte cobrado, pago " + aporte.pagoId();
+        String glosa = (alFondo ? "Recargo por mora cobrado, pago " : "Aporte cobrado, pago ") + aporte.pagoId();
         var asiento = cu24.ejecutar(
                 dsl,
                 new EntradaAsiento(
@@ -234,7 +257,7 @@ public class ConsumoDeAportes {
         libro.registrarVinculada(
                 dsl,
                 transaccionId,
-                TIPO_TRANSACCION,
+                alFondo ? RECARGO_MORA : TIPO_TRANSACCION,
                 ORIGEN_TRANSACCION,
                 aporte.obligacionId(),
                 "API",
@@ -258,7 +281,9 @@ public class ConsumoDeAportes {
                                 "transaccionId", transaccionId.toString(),
                                 "asientoId", asiento.asientoId().toString(),
                                 "monto", monto.toString(),
-                                "moneda", moneda),
+                                "moneda", moneda,
+                                // garantia lo lee para anotar el ingreso en su fondo (H1.S2.M1c). Campo sumado.
+                                "destino", alFondo ? "FONDO_GARANTIA" : "GRUPO"),
                         aporte.correlationId()));
         return new Salida(Resultado.APLICADO, Optional.of(transaccionId), Optional.of(asiento.asientoId()));
     }
