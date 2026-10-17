@@ -11,6 +11,7 @@ import type { ErrorTraducido } from '../../nucleo/errores'
 import { Sesion } from '../../nucleo/sesion'
 import { crearAutenticar, huellaDeEstaPestana } from './dominio/cu04-autenticar'
 import { leerIdentificador } from './dominio/identificador'
+import { SimboloDeMarca } from '../../layout/simbolo-de-marca'
 import { PanelDeMarca } from './panel-de-marca'
 
 type Paso = 'credencial' | 'codigo'
@@ -31,7 +32,7 @@ type Paso = 'credencial' | 'codigo'
 @Component({
   selector: 'ap-pantalla-de-ingreso',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [Alerta, Boton, Campo, CampoContrasena, CampoOTP, Icono, PanelDeMarca],
+  imports: [Alerta, Boton, Campo, CampoContrasena, CampoOTP, Icono, PanelDeMarca, SimboloDeMarca],
   template: `
     <main>
       <ap-panel-de-marca />
@@ -39,7 +40,7 @@ type Paso = 'credencial' | 'codigo'
       <section class="lado" aria-labelledby="titulo-ingreso">
         <div class="tarjeta">
           <div class="cabecera">
-            <span class="monograma" aria-hidden="true">A</span>
+            <ap-simbolo-de-marca class="simbolo" />
             <p class="ceja">{{ paso() === 'credencial' ? 'Acceso de operadores' : 'Segundo factor' }}</p>
             <h1 id="titulo-ingreso">{{ paso() === 'credencial' ? 'Bienvenido de vuelta' : 'Confirmá que sos vos' }}</h1>
             <p class="bajada">
@@ -97,11 +98,7 @@ type Paso = 'credencial' | 'codigo'
       border: var(--borde-fino) solid var(--border); border-radius: var(--r-xl); background: var(--surface);
       box-shadow: var(--sombra-2); animation: aparecer .45s cubic-bezier(.2, .8, .2, 1) both;
     }
-    .monograma {
-      display: grid; place-items: center; width: 2.75rem; height: 2.75rem; margin-bottom: var(--s3);
-      border-radius: var(--r-md); font: var(--t-titulo-2); color: var(--white);
-      background: linear-gradient(140deg, var(--g500), var(--g900));
-    }
+    .simbolo { --tamano-simbolo: 3rem; margin-bottom: var(--s3); }
     .ceja { margin: 0; font: var(--t-etiqueta); letter-spacing: .06em; text-transform: uppercase; color: var(--brand-texto); }
     h1 { margin: 0; font: var(--t-titulo-1); letter-spacing: -.01em; color: var(--text); }
     .bajada { margin: 0; font: var(--t-cuerpo); color: var(--text-2); }
@@ -111,7 +108,7 @@ type Paso = 'credencial' | 'codigo'
       border-top: var(--borde-fino) solid var(--border); font: var(--t-cuerpo-chico); color: var(--text-3);
     }
     .nota ap-icono { margin-top: .1rem; color: var(--text-2); } .aviso { margin: 0; font: var(--t-cuerpo-chico); color: var(--text-3); text-align: center; }
-    @media (min-width: 64rem) { .monograma { display: none; } .tarjeta { padding: var(--s7) var(--s6); } }
+    @media (min-width: 64rem) { .simbolo { display: none; } .tarjeta { padding: var(--s7) var(--s6); } }
     @keyframes aparecer { from { opacity: 0; transform: translateY(.5rem); } } @media (prefers-reduced-motion: reduce) { .tarjeta { animation: none; } }
   `,
 })

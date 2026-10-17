@@ -1,0 +1,15 @@
+$ npx ng test --include="src/app/layout/**/*.spec.ts" --watch=false
+ Test Files  3 passed (3)
+      Tests  14 passed (14)
+Primera corrida: 1 FAIL (TEST_BUG: el test esperaba que «Ayuda» no se muestre; ver:ayuda es de todos). Se corrigió la expectativa.
+
+$ yarn --cwd apps/backoffice test:front
+ Test Files  125 passed (125)
+      Tests  832 passed (832)
+
+$ npx playwright test e2e/f2-red-y-teclado.e2e.ts e2e/admisiones.e2e.ts e2e/caso-de-cumplimiento.e2e.ts --workers=1
+  31 passed (38.8s)
+$ npx playwright test --workers=1   (regresión e2e completa, contra el mock Prism)
+  157 passed (2.7m)
+
+$ yarn --cwd apps/backoffice typecheck → exit=0 · npx ng lint → exit=0 · verificar_frontend.py backoffice → exit=0
