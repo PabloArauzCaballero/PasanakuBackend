@@ -203,6 +203,38 @@ class CUConsumoDeRecargoTest extends BaseDeAportes {
         assertThat(saldoDelLibro(a.billetera())).isEqualByComparingTo("75.00");
     }
 
+    @Test
+    @DisplayName("compensa: reversar (CU-14) el recargo cobrado devuelve los Bs 25 al participante y se los descuenta"
+            + " a la billetera del fondo, con una transaccion REVERSO; la original queda intacta")
+    void reversaDelRecargo() {
+        var a = aporte("100.00");
+        UUID fondo = fondo();
+        BigDecimal fondoAntes = saldoDelLibro(fondo);
+        var aplicado = procesar(recargo(a, "25.00"));
+        UUID original = aplicado.transaccionId().orElseThrow();
+
+        var salida = transaccion.execute(x -> reversoCU.ejecutar(
+                new bo.aportaya.nucleofinanciero.aplicacion.CU14ReversarTransaccion.EntradaReverso(
+                        "rev-recargo-" + original,
+                        original,
+                        "ERROR_OPERATIVO",
+                        "El recargo se cobro sobre una cuota que estaba en gracia",
+                        fixtura.usuario()),
+                contextoDe(a.usuario())));
+
+        assertThat(salida.generaObligacionDeRestitucion()).isFalse();
+        assertThat(saldoDelLibro(a.billetera())).isEqualByComparingTo("100.00");
+        assertThat(saldoDelLibro(fondo).subtract(fondoAntes)).isEqualByComparingTo("0.00");
+        assertThat(contar(
+                        "SELECT count(*) FROM nucleo_financiero.transaccion_billetera WHERE id = ? AND tipo = 'REVERSO'",
+                        salida.transaccionReversoId()))
+                .isEqualTo(1);
+        assertThat(contar(
+                        "SELECT count(*) FROM nucleo_financiero.movimiento_billetera WHERE transaccion_id = ?",
+                        original))
+                .isEqualTo(2);
+    }
+
     private AporteCobrado reenviadoConTipo(AporteCobrado original) {
         return new AporteCobrado(
                 UUID.randomUUID(),
