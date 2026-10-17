@@ -46,7 +46,7 @@ import org.springframework.web.bind.annotation.RestController;
  * rutas es lo que permite exigirlo.
  */
 @RestController
-public class OrganizadoresController extends RutasDeHabilitacionBasica {
+public class OrganizadoresController extends HabilitacionBasicaController {
 
     @Override
     @Permiso("GRUPO_CREAR")

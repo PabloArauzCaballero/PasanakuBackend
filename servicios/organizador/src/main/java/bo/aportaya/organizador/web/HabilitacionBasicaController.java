@@ -16,11 +16,11 @@ import org.springframework.http.ResponseEntity;
  * CU-90 vía básica: el contrato de organizador Aprendiz que la persona acepta desde la app.
  * Rutas propias para que {@link OrganizadoresController} no pase el límite de tamaño.
  */
-abstract class RutasDeHabilitacionBasica extends RutasDeHabilitacion {
+abstract class HabilitacionBasicaController extends RutasDeHabilitacion {
     private final CU90HabilitacionBasica basica;
     private final SesionDeLaPeticion sesion;
 
-    protected RutasDeHabilitacionBasica(
+    protected HabilitacionBasicaController(
             CU90ResolverHabilitacion resolutor,
             CU90ConsultarBandeja bandeja,
             CU90HabilitacionBasica basica,
