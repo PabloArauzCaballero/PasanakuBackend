@@ -1095,6 +1095,10 @@ components:
         grupoId:        { type: string, format: uuid }
         participanteId: { type: string, format: uuid }
         estado:         { type: string, maxLength: 40 }
+        nombreDelGrupo: { type: [string, 'null'], maxLength: 120, description: Para que la app muestre cada grupo por su nombre }
+        montoAporte:    { type: [string, 'null'], description: Aporte por periodo, cadena decimal }
+        moneda:         { type: [string, 'null'], maxLength: 3 }
+        esOrganizador:  { type: boolean, description: Si quien pregunta administra ese grupo }
     SolicitudDeIngreso:
       type: object
       additionalProperties: false

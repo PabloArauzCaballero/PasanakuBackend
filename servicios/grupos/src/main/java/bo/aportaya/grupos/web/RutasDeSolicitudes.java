@@ -66,6 +66,10 @@ abstract class RutasDeSolicitudes extends RutasDeAdmision {
                     o.setGrupoId(p.grupoId());
                     o.setParticipanteId(p.participanteId());
                     o.setEstado(p.estado());
+                    o.setNombreDelGrupo(p.nombreDelGrupo());
+                    o.setMontoAporte(p.montoAporte());
+                    o.setMoneda(p.moneda());
+                    o.setEsOrganizador(p.esOrganizador());
                     return o;
                 })
                 .toList();
