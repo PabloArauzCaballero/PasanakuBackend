@@ -76,8 +76,10 @@ class CU04Test extends BaseDeCU04 {
             "Dado un correo que no es de ninguna cuenta, o que dos cuentas comparten salvo mayúsculas · Cuando se intenta entrar con él · Entonces se responde AP-CU04-01, igual que una contraseña mala")
     void correoInexistenteOAmbiguoEsCredencialInvalida() {
         String sufijo = UUID.randomUUID().toString().substring(0, 8);
-        UUID una = participanteConCredencial("+59177" + ThreadLocalRandom.current().nextInt(100_000, 1_000_000));
-        UUID otra = participanteConCredencial("+59178" + ThreadLocalRandom.current().nextInt(100_000, 1_000_000));
+        UUID una =
+                participanteConCredencial("+59177" + ThreadLocalRandom.current().nextInt(100_000, 1_000_000));
+        UUID otra =
+                participanteConCredencial("+59178" + ThreadLocalRandom.current().nextInt(100_000, 1_000_000));
         dsl.execute("UPDATE identidad.usuario SET correo = ? WHERE id = ?", "Doble-" + sufijo + "@example.com", una);
         dsl.execute("UPDATE identidad.usuario SET correo = ? WHERE id = ?", "doble-" + sufijo + "@example.com", otra);
 
@@ -312,8 +314,16 @@ class CU04Test extends BaseDeCU04 {
     /** La misma entrada, para una operacion con {@code permiso.requiere_mfa}. */
     private static EntradaAutenticacion sensible(EntradaAutenticacion e) {
         return new EntradaAutenticacion(
-                e.identificador(), e.credencial(), e.huella(), e.plataforma(), e.ip(), e.agente(), e.trazaId(),
-                e.factorPresentado(), true, e.vigenciaDeSesion());
+                e.identificador(),
+                e.credencial(),
+                e.huella(),
+                e.plataforma(),
+                e.ip(),
+                e.agente(),
+                e.trazaId(),
+                e.factorPresentado(),
+                true,
+                e.vigenciaDeSesion());
     }
 
     private ResultadoDeAutenticacion autenticar(EntradaAutenticacion entrada) {

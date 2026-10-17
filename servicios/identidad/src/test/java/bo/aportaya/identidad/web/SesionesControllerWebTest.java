@@ -142,7 +142,8 @@ class SesionesControllerWebTest {
         verify(cu04).ejecutar(entrada.capture(), any());
         org.assertj.core.api.Assertions.assertThat(entrada.getValue().identificador())
                 .isEqualTo("Ana.Prueba@Example.com");
-        org.assertj.core.api.Assertions.assertThat(entrada.getValue().esCorreo()).isTrue();
+        org.assertj.core.api.Assertions.assertThat(entrada.getValue().esCorreo())
+                .isTrue();
     }
 
     @Test
@@ -150,13 +151,18 @@ class SesionesControllerWebTest {
     void identificadorAusenteODobleEs400() throws Exception {
         String ninguno = """
                 {"credencial":"%s","huellaDispositivo":"h"}
-                """.formatted(CREDENCIAL);
-        String ambos = """
+                """
+                .formatted(CREDENCIAL);
+        String ambos =
+                """
                 {"telefonoE164":"+59171234567","correo":"a@example.com","credencial":"%s","huellaDispositivo":"h"}
-                """.formatted(CREDENCIAL);
+                """
+                        .formatted(CREDENCIAL);
 
         for (String cuerpo : new String[] {ninguno, ambos}) {
-            mvc.perform(post("/sesiones").contentType(MediaType.APPLICATION_JSON).content(cuerpo))
+            mvc.perform(post("/sesiones")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(cuerpo))
                     .andExpect(status().isBadRequest())
                     .andExpect(jsonPath("$.codigo").value("AP-VAL-02"));
         }

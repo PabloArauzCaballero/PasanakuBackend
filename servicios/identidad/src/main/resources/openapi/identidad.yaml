@@ -894,6 +894,11 @@ components:
         responde 400 AP-VAL-02. Un correo que no existe responde igual que una credencial
         mala (AP-CU04-01): el ingreso no dice qué cuentas existen.
       required: [huellaDispositivo]
+      example:
+        telefonoE164: '+59178123456'
+        credencial: credencial-de-prueba
+        huellaDispositivo: huellaDispositivo-de-prueba
+        plataforma: ANDROID
       properties:
         telefonoE164:      { type: string, pattern: '^\+591\d{8}$' }
         correo:            { type: string, format: email, maxLength: 150 }
