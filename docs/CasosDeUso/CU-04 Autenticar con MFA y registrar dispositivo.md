@@ -174,10 +174,17 @@ Cuando inicia sesión desde un teléfono nuevo
 Entonces obtiene su sesión sin que se le pida código
 Y queda registrado el dispositivo con es_confiable = false
 
+Dado un participante con MFA activo
+Cuando la operación exige MFA (requiere_mfa)
+Entonces se le sigue pidiendo el factor y no se crea sesión
+
 Dado un usuario con correo en su cuenta
-Cuando inicia sesión con ese correo (sin importar mayúsculas) y su contraseña
+Cuando inicia sesión con ese correo en otras mayúsculas y su contraseña
 Entonces entra igual que con su teléfono
-Y con un correo que no existe recibe el mismo error que con una contraseña mala
+
+Dado un correo que no es de ninguna cuenta, o que dos cuentas comparten salvo mayúsculas
+Cuando se intenta entrar con él
+Entonces se responde AP-CU04-01, igual que una contraseña mala
 
 Dado un retiro que supera el umbral de MFA
 Cuando el usuario no completa el desafío
