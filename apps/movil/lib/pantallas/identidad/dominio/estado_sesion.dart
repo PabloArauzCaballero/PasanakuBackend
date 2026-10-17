@@ -14,7 +14,7 @@ enum PasoSesion { credenciales, mfa, dispositivo }
 class EstadoSesion {
   const EstadoSesion({
     this.paso = PasoSesion.credenciales,
-    this.telefono = '',
+    this.identificador = '',
     this.contrasena = '',
     this.codigoMfa = '',
     this.confiarEnDispositivo = false,
@@ -25,7 +25,7 @@ class EstadoSesion {
   });
 
   final PasoSesion paso;
-  final String telefono;
+  final String identificador;
   final String contrasena;
   final String codigoMfa;
   final bool confiarEnDispositivo;
@@ -36,7 +36,7 @@ class EstadoSesion {
 
   EstadoSesion copiarCon({
     PasoSesion? paso,
-    String? telefono,
+    String? identificador,
     String? contrasena,
     String? codigoMfa,
     bool? confiarEnDispositivo,
@@ -46,7 +46,7 @@ class EstadoSesion {
     bool? credencialesRechazadas,
   }) => EstadoSesion(
     paso: paso ?? this.paso,
-    telefono: telefono ?? this.telefono,
+    identificador: identificador ?? this.identificador,
     contrasena: contrasena ?? this.contrasena,
     codigoMfa: codigoMfa ?? this.codigoMfa,
     confiarEnDispositivo: confiarEnDispositivo ?? this.confiarEnDispositivo,
@@ -65,9 +65,9 @@ class SesionIdentidadNotifier extends Notifier<EstadoSesion> {
     return const EstadoSesion();
   }
 
-  void actualizarCredenciales({String? telefono, String? contrasena}) =>
+  void actualizarCredenciales({String? identificador, String? contrasena}) =>
       state = state.copiarCon(
-        telefono: telefono,
+        identificador: identificador,
         contrasena: contrasena,
         credencialesRechazadas: false,
       );
@@ -82,7 +82,7 @@ class SesionIdentidadNotifier extends Notifier<EstadoSesion> {
     () => ref
         .read(autenticacionProvider)
         .conCredenciales(
-          telefonoE164: state.telefono,
+          identificador: state.identificador,
           credencial: state.contrasena,
         ),
     credenciales: true,
@@ -95,7 +95,7 @@ class SesionIdentidadNotifier extends Notifier<EstadoSesion> {
       () => ref
           .read(autenticacionProvider)
           .conFactor(
-            telefonoE164: state.telefono,
+            identificador: state.identificador,
             credencial: state.contrasena,
             codigo: codigo,
           ),

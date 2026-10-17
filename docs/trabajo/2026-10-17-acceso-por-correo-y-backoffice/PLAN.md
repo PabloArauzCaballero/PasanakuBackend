@@ -72,7 +72,7 @@
 
 | ID | Microtarea | CA | DoD | Estado |
 |---|---|---|---|---|
-| H4.S1.M1 | Campo identificador en el ingreso de la app | Test: correo → `correo`; teléfono → `telefonoE164` | `cd apps/movil && flutter test test/identidad` | TODO |
+| H4.S1.M1 | Campo identificador en el ingreso de la app | Test: correo → `correo`; teléfono → `telefonoE164` | `flutter test` de ingreso + goldens macOS + `test:front` contra línea base | HECHO — `evidencia/H4-movil.txt` (14/14; goldens del ingreso regenerados y mirados; test:front +641 −8 = línea base). Diseño: celular por omisión con teclado numérico y enlace «Entrar con mi correo» |
 
 ## H5 — Tipos de usuario
 **Estado:** BLOQUEADO — `DECISION_REQUIRED`: la lista detallada no está en el repo ni en las transcripciones locales. Destraba: Pablo la vuelve a pasar. No se inventa (regla 00 §1).

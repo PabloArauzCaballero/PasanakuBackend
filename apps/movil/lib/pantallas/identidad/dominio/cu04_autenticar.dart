@@ -26,33 +26,35 @@ class Autenticacion {
 
   DefaultApi get _api => DefaultApi(_ref.read(dioProvider));
 
-  /// Paso 1: teléfono y contraseña.
+  /// Paso 1: celular (`+591…`) o correo, y contraseña.
   Future<ResultadoDeAutenticacion> conCredenciales({
-    required String telefonoE164,
+    required String identificador,
     required String credencial,
-  }) => _pedir(telefonoE164: telefonoE164, credencial: credencial);
+  }) => _pedir(identificador: identificador, credencial: credencial);
 
   /// Paso 2: el código del segundo factor. Se manda la credencial de nuevo porque el
   /// contrato la sigue pidiendo: la sesión no está abierta hasta que el factor pasa.
   Future<ResultadoDeAutenticacion> conFactor({
-    required String telefonoE164,
+    required String identificador,
     required String credencial,
     required String codigo,
   }) => _pedir(
-    telefonoE164: telefonoE164,
+    identificador: identificador,
     credencial: credencial,
     factor: FactorPresentado(tipo: FactorPresentadoTipoEnum.OTP, valor: codigo),
   );
 
   Future<ResultadoDeAutenticacion> _pedir({
-    required String telefonoE164,
+    required String identificador,
     required String credencial,
     FactorPresentado? factor,
   }) async {
     try {
       final r = await _api.autenticar(
         entradaAutenticacion: EntradaAutenticacion(
-          telefonoE164: telefonoE164,
+          // El contrato pide exactamente uno: un correo es lo único con arroba.
+          telefonoE164: identificador.contains('@') ? null : identificador,
+          correo: identificador.contains('@') ? identificador : null,
           credencial: credencial,
           huellaDispositivo: await _ref
               .read(huellaDeDispositivoProvider)
