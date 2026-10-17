@@ -28,7 +28,7 @@ Los demas casos de uso del modulo 03 siguen pendientes; ninguno esta a medias.
 
 | Tema | Cuando |
 | --- | --- |
-| `aportes.aporte_cobrado` | Se acredito un pago contra una obligacion. Lleva `monto` y `participanteId`: sin ellos, `cumplimiento` no puede evaluar el umbral (R-UIF-02) ni `nucleo-financiero` cuadrar el asiento. Desde el carril I lleva tambien `moneda`, `canal`, `obligacionId` y `usuarioId` (quien paga): `nucleo-financiero` lo CONSUME y mueve billetera y mayor (campos sumados, compatible) |
+| `aportes.aporte_cobrado` | Se acredito un pago contra una obligacion. Lleva `monto` y `participanteId`: sin ellos, `cumplimiento` no puede evaluar el umbral (R-UIF-02) ni `nucleo-financiero` cuadrar el asiento. Desde el carril I lleva tambien `moneda`, `canal`, `obligacionId` y `usuarioId` (quien paga): `nucleo-financiero` lo CONSUME y mueve billetera y mayor (campos sumados, compatible). Desde 2026-10-16 lleva `tipo` de la obligacion (`APORTE_PERIODICO`, `RECARGO_MORA`…): sin el, un recargo terminaria en el pozo del grupo |
 | `aportes.reembolso_solicitado` | Alguien pidio devolver un pago. Todavia no salio plata |
 | `aportes.reembolso_ejecutado` | Se aprobo y ejecuto: `nucleo-financiero` mueve el dinero |
 | `aportes.disputa_abierta` | El proveedor abrio una disputa, con su `fechaLimiteRespuesta` ya guardada |

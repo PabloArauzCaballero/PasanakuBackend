@@ -149,7 +149,7 @@ export const ErroresCU21 = {
 | `aporte_compensado` | Aviso a la persona de que su aporte no se aplicó por falta de saldo | — (consume `nucleo_financiero.aporte_no_aplicado`) |
 
 > **Cómo se mueve el dinero (carril I).** `aportes` no escribe el libro (invariante 12): al acreditar emite
-> `aportes.aporte_cobrado` (`pagoId`, `obligacionId`, `grupoId`, `participanteId`, `usuarioId`, `monto`, `moneda`, `canal`) por outbox y
+> `aportes.aporte_cobrado` (`pagoId`, `obligacionId`, `grupoId`, `participanteId`, `usuarioId`, `monto`, `moneda`, `canal`, `tipo`) por outbox y
 > `nucleo-financiero` lo CONSUME (`ConsumoDeAportes`). Con canal `BILLETERA_MOVIL` debita la billetera del participante, acredita la
 > del grupo (`APORTE_A_GRUPO`) y asienta DEBE 2.1.01 / HABER 2.1.02 en la misma transacción; el consumidor es idempotente por evento y
 > por pago, y un rechazo (sin cuenta, sin saldo, moneda sin cuenta en el plan) no escribe nada ni marca el evento. Con saldo insuficiente (`AP-CU12-01`) el rechazo es
@@ -158,7 +158,7 @@ export const ErroresCU21 = {
 > límites por concepto de [[CU-40 Evaluar límites antes de una operación]] sobre el aporte (decisión de Riesgos).
 
 > **Cómo se mueve el dinero (carril I).** `aportes` no escribe el libro (invariante 12): al acreditar emite
-> `aportes.aporte_cobrado` (`pagoId`, `obligacionId`, `grupoId`, `participanteId`, `usuarioId`, `monto`, `moneda`, `canal`) por outbox y
+> `aportes.aporte_cobrado` (`pagoId`, `obligacionId`, `grupoId`, `participanteId`, `usuarioId`, `monto`, `moneda`, `canal`, `tipo`) por outbox y
 > `nucleo-financiero` lo CONSUME (`ConsumoDeAportes`). Con canal `BILLETERA_MOVIL` debita la billetera del participante, acredita la
 > del grupo (`APORTE_A_GRUPO`) y asienta DEBE 2.1.01 / HABER 2.1.02 en la misma transacción; el consumidor es idempotente por evento y
 > por pago, y un rechazo (sin cuenta, sin saldo, moneda sin cuenta en el plan) no escribe nada ni marca el evento. Queda como decisión

@@ -99,7 +99,25 @@ public class ConsumoDeAportes {
             UUID grupoId,
             UUID usuarioId,
             Dinero monto,
-            String canal) {}
+            String canal,
+            Optional<String> tipo) {
+
+        /**
+         * Un evento anterior al campo {@code tipo} (2026-10-16). Sin tipo, el cobro sigue el camino de siempre: billetera
+         * del participante -> billetera del grupo. Asi conviven el productor viejo y el nuevo durante el despliegue.
+         */
+        public AporteCobrado(
+                UUID eventoId,
+                UUID correlationId,
+                UUID pagoId,
+                UUID obligacionId,
+                UUID grupoId,
+                UUID usuarioId,
+                Dinero monto,
+                String canal) {
+            this(eventoId, correlationId, pagoId, obligacionId, grupoId, usuarioId, monto, canal, Optional.empty());
+        }
+    }
 
     public record Salida(Resultado resultado, Optional<UUID> transaccionId, Optional<UUID> asientoId) {
         static Salida sinEfecto(Resultado r) {

@@ -7,6 +7,7 @@ import bo.aportaya.plataforma.dominio.Dinero;
 import bo.aportaya.plataforma.dominio.Moneda;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -67,5 +68,53 @@ class CU21EventoDeAporteTest extends BaseDeAportes {
                         salida.pagoId().toString(),
                         obligacion.grupoId().toString());
         assertThat(carga.get(7)).isNotNull();
+    }
+
+    private String tipoEnElEvento(UUID obligacionId) {
+        return dsl.fetchOne(
+                        "SELECT payload->>'tipo' FROM aportes.evento_dominio"
+                                + " WHERE tipo = 'aportes.aporte_cobrado' AND agregado_id = ?",
+                        obligacionId)
+                .get(0, String.class);
+    }
+
+    private void pagar(UUID obligacionId, String monto, String clave, UUID usuario) {
+        transaccion.execute(t -> cobroCU.acreditar(
+                new EntradaCobro(
+                        clave,
+                        obligacionId,
+                        Dinero.de(monto, Moneda.BOB),
+                        Dinero.de("0.00", Moneda.BOB),
+                        "BILLETERA_MOVIL",
+                        "ref-" + clave,
+                        Optional.empty(),
+                        false,
+                        true),
+                contextoDe(usuario)));
+    }
+
+    @Test
+    @DisplayName("tableros: el evento lleva el tipo de la obligación — un aporte periódico viaja como APORTE_PERIODICO")
+    void elEventoTrae_elTipo_deUnAporte() {
+        var usuario = fixtura.usuario();
+        var obligacion = fixtura.obligacion(usuario, "500.00", 10);
+
+        pagar(obligacion.id(), "500.00", "cob-tipo-aporte", usuario);
+
+        assertThat(tipoEnElEvento(obligacion.id())).isEqualTo("APORTE_PERIODICO");
+    }
+
+    @Test
+    @DisplayName("tableros: pagar un recargo por mora publica tipo RECARGO_MORA — es lo que lo separa del pozo")
+    void elEventoTrae_elTipo_deUnRecargo() {
+        var usuario = fixtura.usuario();
+        var vencida = fixtura.obligacion(usuario, "500.00", -10);
+        fixtura.politicaDeMora(vencida.grupoId(), 0, "PORCENTUAL", "0.05", "100.00");
+        var recargos = transaccion.execute(t -> cobroCU.generarRecargos(contextoDe(usuario)));
+        UUID recargoId = recargos.obligacionesDeRecargo().get(0);
+
+        pagar(recargoId, "25.00", "cob-tipo-recargo", usuario);
+
+        assertThat(tipoEnElEvento(recargoId)).isEqualTo("RECARGO_MORA");
     }
 }
