@@ -258,8 +258,8 @@ temas × 4 estados.
 | ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
 |---|---|---|---|---|
 | H4.S1.M1 | `nucleo-financiero`: cargado, retirado, intereses por mora y comisiones cobradas, desde `asiento_contable`+`movimiento_contable` por tipo de transacción | Cada valor = consulta de cuadre | `./gradlew :servicios:nucleo-financiero:integrationTest --tests '*Indicadores*'` en verde | HECHO — `evidencia/H4-S1-M1-nucleo.txt` |
-| H4.S1.M2 | `garantia`: mora vigente, impagos cubiertos, recuperación y cobertura del fondo | Tasas con numerador y denominador | `./gradlew :servicios:garantia:integrationTest --tests '*Indicadores*'` en verde | TODO |
-| H4.S1.M3 | `aportes`: pendientes cobrados (pago tarde propio) y tasa de mora | Dos componentes separados | `./gradlew :servicios:aportes:integrationTest --tests '*Indicadores*'` en verde | TODO |
+| H4.S1.M2 | `garantia`: impagos cubiertos, recuperado, recuperación y cobertura del fondo (redefinida dentro de garantia; la mora pasa a `aportes`, H4.S1.M3) | Tasas con numerador y denominador | `./gradlew :servicios:garantia:integrationTest --tests '*Indicadores*'` en verde | HECHO — `evidencia/H4-S1-M2-garantia.txt` |
+| H4.S1.M3 | `aportes`: dinero en mora, tasa de mora y pendientes cobrados (pago tarde propio) | Dos componentes separados | `./gradlew :servicios:aportes:integrationTest --tests '*Indicadores*'` en verde | TODO |
 | H4.S1.M4 | `grupos`: turnos normales y turnos de cierre (D2) | El de cierre se cuenta una vez | `./gradlew :servicios:grupos:integrationTest --tests '*Indicadores*'` en verde | TODO |
 | H4.S1.M5 | `entregas`: entregas pendientes y tiempo medio | `SIN_DATOS` sin entregas | `./gradlew :servicios:entregas:integrationTest --tests '*Indicadores*'` en verde | TODO |
 | H4.S1.M6 | `inversiones`: saldo invertido (posiciones vigentes), marcado sintético (D12) | Valor = consulta | `./gradlew :servicios:inversiones:integrationTest --tests '*Indicadores*'` en verde | TODO |

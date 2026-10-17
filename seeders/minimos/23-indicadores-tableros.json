@@ -150,8 +150,8 @@
           "familia": "RIESGO",
           "dueno_familia": "Riesgos",
           "sentido_meta": "MAYOR_ES_MEJOR",
-          "formula": "Saldo disponible de los fondos de garantía sobre el dinero en mora vigente (veces)",
-          "fuente": "garantia.fondo_garantia / aportes (dinero en mora)",
+          "formula": "Saldo disponible de los fondos de garantía (último saldo_resultante de movimiento_fondo al cierre) sobre lo cubierto pendiente de recuperar (cubierto − recuperado), en veces",
+          "fuente": "garantia.movimiento_fondo + cobertura_incumplimiento + abono_recuperacion",
           "minimo_casos": 5,
           "vigente_desde": "2025-01-01T00:00:00-04:00"
         },
@@ -162,7 +162,7 @@
           "dueno_familia": "Riesgos",
           "sentido_meta": "MAYOR_ES_MEJOR",
           "formula": "Recuperado sobre cubierto, acumulado, en porcentaje",
-          "fuente": "garantia.cobertura_incumplimiento + abono_recuperacion",
+          "fuente": "garantia.cobertura_incumplimiento + abono_recuperacion (acumulado al cierre del período)",
           "minimo_casos": 20,
           "vigente_desde": "2025-01-01T00:00:00-04:00"
         },
