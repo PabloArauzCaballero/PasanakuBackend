@@ -1,0 +1,46 @@
+{
+ "productor": "servicios con calculador (PublicadorDeIndicadores de comun-mensajeria)",
+ "consumidor": "auditoria",
+ "version": 1,
+ "descripcion": "Tableros por rol (H4.S1.M8, cerrado contra este doble mientras la pila real no se pueda levantar). Pacto del indicador calculado por cada servicio dueño: auditoria lo guarda en indicador_kpi (CU-98). Productor: PublicadorDeIndicadores.evento (comun-mensajeria) por el outbox de cada servicio. Consumidor: RegistroDeIndicadores vía ConsumidorDeIndicadoresKafka (topicPattern aportaya.<esquema>.indicador_calculado). Lo comparten PublicadorDeIndicadoresTest#cumpleElPactoConAuditoria y ConsumidorDeIndicadoresKafkaTest#pactoConLosServicios. NO existe todavía una corrida con Kafka y los procesos reales.",
+ "topico": "aportaya.<esquema>.indicador_calculado",
+ "tipo": "<esquema>.indicador_calculado",
+ "agregado": "indicador",
+ "cabeceras": [
+  "event_id",
+  "correlation_id"
+ ],
+ "campos": {
+  "codigo": "código de la definición (definicion_indicador)",
+  "nombre": "nombre legible, hasta 80",
+  "valor": "cadena decimal exacta (nunca double)",
+  "unidad": "moneda ISO-4217 si es dinero; si no CONTEO | PORCENTAJE | DIAS | VECES | MILISEGUNDOS",
+  "periodo": "AAAA | AAAA-MM | AAAA-MM-DD",
+  "casos": "entero: la muestra",
+  "provisorio": "booleano; ausente = definitivo",
+  "dimension": "GLOBAL"
+ },
+ "consumidorExige": [
+  "codigo",
+  "nombre",
+  "valor",
+  "unidad",
+  "periodo",
+  "casos"
+ ],
+ "ejemplo": {
+  "codigo": "SALDO_CARGADO",
+  "nombre": "Saldo cargado",
+  "valor": "1500.00",
+  "unidad": "BOB",
+  "periodo": "2026-09",
+  "casos": 6,
+  "provisorio": false,
+  "dimension": "GLOBAL"
+ },
+ "garantias": [
+  "un indicador sin valor NO se emite (null no es cero)",
+  "el mismo módulo, código y período dan el mismo agregado: un recálculo no duplica",
+  "auditoria ignora un código sin definición vigente (AP-CU98-02) y lo deja en bitácora"
+ ]
+}

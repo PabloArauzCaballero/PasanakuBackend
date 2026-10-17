@@ -3,7 +3,12 @@ package bo.aportaya.auditoria.consumo;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.UUID;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.junit.jupiter.api.DisplayName;
@@ -52,5 +57,31 @@ class ConsumidorDeIndicadoresKafkaTest {
                 .isInstanceOf(IllegalArgumentException.class);
         assertThatThrownBy(() -> ConsumidorDeIndicadoresKafka.leer(registro(BUENO.replace("\"1500.00\"", "\"mucho\""))))
                 .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    @DisplayName("pacto con los servicios · consumidor: lee el ejemplo del pacto y todo lo que exige viene en él")
+    void pactoConLosServicios() throws IOException {
+        JsonNode pacto = pacto();
+        JsonNode ejemplo = pacto.path("ejemplo");
+
+        var e = ConsumidorDeIndicadoresKafka.leer(registro(ejemplo.toString()));
+
+        assertThat(e.codigo()).isEqualTo(ejemplo.path("codigo").asText());
+        assertThat(e.valor()).isEqualByComparingTo(ejemplo.path("valor").asText());
+        assertThat(e.unidad()).isEqualTo(ejemplo.path("unidad").asText());
+        assertThat(e.casos()).isEqualTo(ejemplo.path("casos").asLong());
+        for (JsonNode campo : pacto.path("consumidorExige")) {
+            assertThat(ejemplo.has(campo.asText())).as(campo.asText()).isTrue();
+        }
+    }
+
+    private static JsonNode pacto() throws IOException {
+        Path raiz = Path.of("").toAbsolutePath();
+        String archivo = "contratos/pactos/servicios-auditoria-indicador-calculado.json";
+        while (raiz != null && !Files.isRegularFile(raiz.resolve(archivo))) {
+            raiz = raiz.getParent();
+        }
+        return new ObjectMapper().readTree(Files.readString(raiz.resolve(archivo), StandardCharsets.UTF_8));
     }
 }

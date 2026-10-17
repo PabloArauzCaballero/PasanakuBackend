@@ -9,6 +9,12 @@ import bo.aportaya.plataforma.dominio.Indicador.Definicion;
 import bo.aportaya.plataforma.dominio.Indicador.Medicion;
 import bo.aportaya.plataforma.dominio.Indicador.Unidad;
 import bo.aportaya.plataforma.dominio.Moneda;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -94,5 +100,36 @@ class PublicadorDeIndicadoresTest {
         assertThatThrownBy(
                         () -> PublicadorDeIndicadores.evento("x_y", cargado("1.00", 1), "N", null, true, CORRELACION))
                 .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    @DisplayName(
+            "pacto con auditoria · productor: el evento trae TODOS los campos del pacto con los valores del ejemplo")
+    void cumpleElPactoConAuditoria() throws IOException {
+        JsonNode pacto = pacto();
+        JsonNode ejemplo = pacto.path("ejemplo");
+        var e = PublicadorDeIndicadores.evento(
+                        "nucleo_financiero", cargado("1500.00", 6), "Saldo cargado", "2026-09", false, CORRELACION)
+                .orElseThrow();
+
+        pacto.path("campos").fieldNames().forEachRemaining(c -> assertThat(e.carga())
+                .containsKey(c));
+        for (String campo : java.util.List.of("codigo", "nombre", "valor", "unidad", "periodo", "dimension")) {
+            assertThat(String.valueOf(e.carga().get(campo)))
+                    .isEqualTo(ejemplo.path(campo).asText());
+        }
+        assertThat(((Number) e.carga().get("casos")).longValue())
+                .isEqualTo(ejemplo.path("casos").asLong());
+        assertThat(e.carga()).containsEntry("provisorio", false);
+        assertThat(e.tipo()).endsWith(".indicador_calculado");
+    }
+
+    private static JsonNode pacto() throws IOException {
+        Path raiz = Path.of("").toAbsolutePath();
+        String archivo = "contratos/pactos/servicios-auditoria-indicador-calculado.json";
+        while (raiz != null && !Files.isRegularFile(raiz.resolve(archivo))) {
+            raiz = raiz.getParent();
+        }
+        return new ObjectMapper().readTree(Files.readString(raiz.resolve(archivo), StandardCharsets.UTF_8));
     }
 }
