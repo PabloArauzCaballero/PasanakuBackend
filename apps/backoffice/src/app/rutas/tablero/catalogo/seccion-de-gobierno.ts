@@ -59,11 +59,13 @@ import { textosGobierno as t } from './textos-gobierno'
     </section>
   `,
   styles: `
-    .gobierno { display: grid; gap: var(--s3); padding: var(--s4); border: var(--borde-fino) solid var(--border); border-radius: var(--r-lg); background: var(--surface); }
+    .gobierno { min-width: 0; display: grid; gap: var(--s3); padding: var(--s4); border: var(--borde-fino) solid var(--border); border-radius: var(--r-lg); background: var(--surface); }
     h2 { margin: 0; }
     .estado { display: flex; flex-wrap: wrap; gap: var(--s2); align-items: center; margin: 0; }
     .version { color: var(--text-3); font-size: .9em; }
-    .formulario { display: grid; gap: var(--s4); grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); align-items: start; }
+    .formulario { display: grid; gap: var(--s4); grid-template-columns: repeat(auto-fit, minmax(min(16rem, 100%), 1fr)); align-items: start; }
+    /* Un <select> mide lo que su opción más larga: sin esto empuja la página en un celular (prueba visual en Linux). */
+    .formulario > * { min-width: 0; }
     .ancho { grid-column: 1 / -1; }
     .acciones { display: flex; justify-content: flex-end; }
     dl { display: grid; gap: var(--s2); margin: 0; }
