@@ -1,6 +1,6 @@
 # Reporte — Catálogo de metadata del backoffice, con estado y revisión como el portal de Atlas
 
-> **AVANCE: 11 / 12 — 91,7 %.** H1, H2 y H3 HECHO. H4 (verificación en TEST) en curso: depende del CI de #137 y de la reconstrucción del host.
+> **AVANCE: 11 / 12 — 91,7 %.** H1, H2 y H3 HECHO; #137 y #138 mergeados y desplegados en TEST (`fceaf81`). H4 A MEDIAS: falta guardar una ficha con el admin de TEST en la pantalla (no tengo acceso a sus credenciales).
 
 - Fecha: 2026-10-18 · Plan: [PLAN.md](./PLAN.md) · Ramas: `pablo/feat/catalogo-de-metadata-2026-10-18` (#137 → test), `pablo/feat/catalogo-de-metadata-dev-2026-10-18` (#138 → dev)
 - Peldaño de evidencia alcanzado:
@@ -23,10 +23,11 @@
 
 ## A medias
 ### H4.S1.M1 — Verificado en TEST
-- Qué anda: todo lo anterior, en local y en CI.
-- Qué no anda: todavía no está desplegado; TEST sigue sin la tabla nueva.
-- Qué falta exactamente: CI de #137 en verde → merge → el host reconstruye `esquema`, `auditoria` y backoffice → cambiar el estado de una tabla en `backoffice.aportaya…` y recargar.
-- Dónde quedó: #137 (test) y #138 (dev), ramas subidas a los dos remotos; compila.
+- Qué anda: #137 (test) y #138 (dev) mergeados con el CI en verde (salvo iOS, que ya fallaba). En TEST: `auditoria.ficha_gobierno_tabla` existe (0 fichas), `CATALOGO_DATOS_EDITAR` existe y está otorgado a ADMIN_PLATAFORMA, y el contenedor de auditoria corre la imagen nueva (`sha256:fc3adbf0…`, «Started Aplicacion»). Los cuatro despliegues de Coolify quedaron `finished`.
+- Qué no anda: no se ejercitó el guardado en vivo. El gateway responde 401 a toda ruta sin sesión, así que eso no prueba el PUT.
+- Qué falta exactamente: entrar a `backoffice.aportaya…` con el admin de TEST, abrir Catálogo de datos → una tabla → «Guardar ficha» con estado «Candidata a retiro», recargar y ver que se mantiene.
+- Dónde quedó: `test` y `dev` en origin; espejo `test` sincronizado.
+- Incidente del despliegue: el temporizador del host marcó `fceaf81` «SIN DESPLEGAR» porque `construir.sh auditoria` no pudo conectar a Postgres (`172.28.0.10:5432 refused`). El host se había reiniciado unas 5 horas antes y la base todavía no estaba arriba cuando se construyó. Se reconstruyó auditoria a mano (`construir.sh auditoria servicios`, exit 0) y se disparó el despliegue.
 
 ## Pendiente
 | ID | Estado | Qué lo destraba |
