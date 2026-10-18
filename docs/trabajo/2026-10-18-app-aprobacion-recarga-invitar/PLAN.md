@@ -35,9 +35,9 @@
 ## H4 — Invitar de verdad
 | ID | Microtarea | CA | DoD | Estado |
 |---|---|---|---|---|
-| H4.M1 | Enlace https a la app web (`#/pasanaku/unirse/<código>`) armado desde el del servidor | WhatsApp lo muestra como enlace | test unitario (correcto / sin esquema / inválido) | TODO |
-| H4.M2 | Canal nativo `bo.aportaya/compartir`: WhatsApp al número, SMS al número, hoja de compartir | Abre la app elegida con el mensaje | compila en el APK; prueba en teléfono | TODO |
-| H4.M3 | Textos honestos: sin «Le va a llegar»; botones Enviar por WhatsApp / SMS / otra app / Copiar | Texto nuevo visible | test de widget de `InvitacionCreada` | TODO |
+| H4.M1 | Enlace https a la app web (`#/pasanaku/unirse/<código>`) armado desde el del servidor | WhatsApp lo muestra como enlace | `flutter test test/pasanaku/enlace_para_compartir_test.dart test/unidad/lectura_de_qr_test.dart` → PASS (correcto / límite / inválido) | HECHO |
+| H4.M2 | Canal nativo `bo.aportaya/compartir`: WhatsApp al número, SMS al número, hoja de compartir | Abre la app elegida con el mensaje | compila en el APK (ver H5.M2); prueba en teléfono pendiente del usuario | EN CURSO |
+| H4.M3 | Textos honestos: sin «Le va a llegar»; botones Enviar por WhatsApp / SMS / otra app / Copiar | Texto nuevo visible | `flutter test test/pasanaku` → +74 con desborde (WhatsApp / canal primero / app que no abre) | HECHO |
 
 ## H5 — CI y entrega
 | ID | Microtarea | CA | DoD | Estado |

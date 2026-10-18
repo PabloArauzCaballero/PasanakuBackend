@@ -7,6 +7,11 @@ import 'package:aportaya_diseno/moviles/mostrar_snackbar.dart';
 import 'package:aportaya_diseno/tokens/tokens.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../dominio/cliente.dart' show baseDelGateway;
+import '../../proveedores/compartir.dart';
+import 'dominio/enlace_para_compartir.dart';
 
 import 'textos_invitacion.dart';
 
@@ -16,17 +21,20 @@ import 'textos_invitacion.dart';
 /// escribe en un log ni en la ruta de navegación (regla 90.2.9). Por eso no hay un
 /// `print` ni un `debugPrint` en este archivo.
 ///
-/// **Sin botón «Compartir» a propósito (decisión registrada, carril T).** La hoja nativa de
-/// compartir necesita un plugin (`share_plus`) y `pubspec.yaml` no trae ninguno que la ofrezca:
-/// sumarlo es una dependencia nueva que abre superficie nativa en Android e iOS (regla 90.4,
-/// `dependency-management`). Mientras producto no apruebe la dependencia, el enlace se **copia**
-/// y se pega en el chat que la persona elija. Ver `evidencia/carril-T/INFORME.md`.
-class InvitacionCreada extends StatefulWidget {
+/// **Compartir sin dependencias nuevas (2026-10-18).** AportaYa no tiene SMS ni WhatsApp
+/// conectados del lado del servidor: el enlace sale del teléfono de quien invita. Los
+/// botones abren WhatsApp o el SMS con el número y el mensaje ya escritos, o la hoja de
+/// compartir del sistema, por intents nativos (`CompartirMensaje.kt`), sin `share_plus`.
+/// El enlace que se comparte es https (la app web), porque `aportaya://` no es tocable
+/// en un chat. Si la app elegida no abre, se ofrece copiarlo.
+class InvitacionCreada extends ConsumerStatefulWidget {
   const InvitacionCreada({
     super.key,
     required this.resultado,
     required this.telefono,
     required this.alInvitarOtra,
+    this.canal = 'ENLACE',
+    this.appWeb,
   });
 
   final SalidaInvitacion resultado;
@@ -35,12 +43,24 @@ class InvitacionCreada extends StatefulWidget {
   final String telefono;
   final VoidCallback alInvitarOtra;
 
+  /// El canal elegido en el formulario (`ENLACE`, `SMS`, `WHATSAPP`): su botón va primero.
+  final String canal;
+
+  /// La dirección de la app web; sin ella se deriva de la API (`enlace_para_compartir`).
+  final String? appWeb;
+
   @override
-  State<InvitacionCreada> createState() => _InvitacionCreadaState();
+  ConsumerState<InvitacionCreada> createState() => _InvitacionCreadaState();
 }
 
-class _InvitacionCreadaState extends State<InvitacionCreada> {
+class _InvitacionCreadaState extends ConsumerState<InvitacionCreada> {
   bool _copiado = false;
+
+  Future<void> _mandar(Future<bool> Function() abrir) async {
+    final abierto = await abrir();
+    if (!mounted || abierto) return;
+    mostrarSnackbar(context, TextosInvitacion.noSePudoAbrir);
+  }
 
   Future<void> _copiar(String enlace) async {
     await Clipboard.setData(ClipboardData(text: enlace));
@@ -52,7 +72,14 @@ class _InvitacionCreadaState extends State<InvitacionCreada> {
   @override
   Widget build(BuildContext context) {
     final t = Tokens.of(context);
-    final enlace = widget.resultado.enlace;
+    final delServidor = widget.resultado.enlace;
+    final enlace = delServidor == null
+        ? null
+        : enlaceParaCompartir(
+            delServidor,
+            baseWeb: widget.appWeb ?? baseDeLaAppWeb(api: baseDelGateway),
+          );
+    final compartir = ref.read(compartirProvider);
     final vence = widget.resultado.expiraEn;
     return ListView(
       padding: const EdgeInsets.all(Espacio.s4),
@@ -118,12 +145,49 @@ class _InvitacionCreadaState extends State<InvitacionCreada> {
             ),
           ),
           const SizedBox(height: Espacio.s4),
+          for (final (indice, opcion) in _ordenDeCanales(
+            widget.canal,
+          ).indexed) ...[
+            if (indice > 0) const SizedBox(height: Espacio.s2),
+            Boton(
+              key: ValueKey('compartir-$opcion'),
+              texto: switch (opcion) {
+                'WHATSAPP' => TextosInvitacion.enviarPorWhatsApp,
+                'SMS' => TextosInvitacion.enviarPorSms,
+                _ => TextosInvitacion.compartirConOtraApp,
+              },
+              icono: switch (opcion) {
+                'WHATSAPP' => Icons.chat_rounded,
+                'SMS' => Icons.sms_rounded,
+                _ => Icons.ios_share_rounded,
+              },
+              variante: indice == 0
+                  ? BotonVariante.primario
+                  : BotonVariante.secundario,
+              expandido: true,
+              onPressed: () => _mandar(() {
+                final texto = mensajeDeInvitacion(enlace);
+                return switch (opcion) {
+                  'WHATSAPP' => compartir.porWhatsApp(
+                    telefono: widget.telefono,
+                    texto: texto,
+                  ),
+                  'SMS' => compartir.porSms(
+                    telefono: widget.telefono,
+                    texto: texto,
+                  ),
+                  _ => compartir.conOtraApp(texto: texto),
+                };
+              }),
+            ),
+          ],
+          const SizedBox(height: Espacio.s2),
           Boton(
             texto: _copiado
                 ? TextosInvitacion.copiado
                 : TextosInvitacion.copiarEnlace,
             icono: _copiado ? Icons.check_rounded : Icons.copy_rounded,
-            variante: BotonVariante.primario,
+            variante: BotonVariante.fantasma,
             expandido: true,
             onPressed: () => _copiar(enlace),
           ),
@@ -138,4 +202,15 @@ class _InvitacionCreadaState extends State<InvitacionCreada> {
       ],
     );
   }
+}
+
+/// El canal elegido primero; después los otros dos.
+List<String> _ordenDeCanales(String elegido) {
+  const todos = ['WHATSAPP', 'SMS', 'OTRA'];
+  final primero = switch (elegido) {
+    'WHATSAPP' => 'WHATSAPP',
+    'SMS' => 'SMS',
+    _ => 'OTRA',
+  };
+  return [primero, ...todos.where((c) => c != primero)];
 }

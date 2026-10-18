@@ -22,6 +22,7 @@ class MainActivity : FlutterFragmentActivity() {
     private val canalProteccionPantalla = "bo.aportaya/proteccion_pantalla"
     private val canalCamara = "bo.aportaya/camara"
     private val desbloqueo by lazy { DesbloqueoLocal(this) }
+    private val compartir by lazy { CompartirMensaje(this) }
 
     @Deprecated("La pantalla de PIN del sistema en Android 10 o anterior responde por acá")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -41,6 +42,18 @@ class MainActivity : FlutterFragmentActivity() {
                         call.argument<String>("motivo") ?: "Confirmá la operación",
                         result,
                     )
+                    else -> result.notImplemented()
+                }
+            }
+
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "bo.aportaya/compartir")
+            .setMethodCallHandler { call, result ->
+                val telefono = call.argument<String>("telefono") ?: ""
+                val texto = call.argument<String>("texto") ?: ""
+                when (call.method) {
+                    "whatsapp" -> result.success(compartir.porWhatsApp(telefono, texto))
+                    "sms" -> result.success(compartir.porSms(telefono, texto))
+                    "otra" -> result.success(compartir.conOtraApp(texto))
                     else -> result.notImplemented()
                 }
             }
