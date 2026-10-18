@@ -31,7 +31,7 @@ void main() {
       await contenedor
           .read(autenticacionProvider)
           .conCredenciales(
-            telefonoE164: '+59178123456',
+            identificador: '+59178123456',
             credencial: 'Secreta123',
           );
 
@@ -66,7 +66,7 @@ void main() {
       await contenedor
           .read(autenticacionProvider)
           .conCredenciales(
-            telefonoE164: '+59178123456',
+            identificador: '+59178123456',
             credencial: 'Secreta123',
           );
 

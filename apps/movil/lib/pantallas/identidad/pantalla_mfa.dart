@@ -83,7 +83,11 @@ class _PantallaDeMfaState extends ConsumerState<PantallaDeMfa> {
             ),
             BarraDeAccion(
               hijo: Boton(
-                texto: TextosIdentidad.confirmarMfa,
+                // Mientras se verifica, el botón dice qué está pasando (0922bade; se
+                // había perdido en el merge 6f88a950).
+                texto: estado.enviando
+                    ? TextosIdentidad.verificandoCodigo
+                    : TextosIdentidad.confirmarMfa,
                 variante: BotonVariante.primario,
                 expandido: true,
                 cargando: estado.enviando,

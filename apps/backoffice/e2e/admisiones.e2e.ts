@@ -65,7 +65,7 @@ async function simular(page: Page, mundo: Mundo, permisos: string[]): Promise<vo
 
 async function ingresar(page: Page, yaEnElIngreso = false): Promise<void> {
   if (!yaEnElIngreso) await page.goto('/ingreso')
-  await page.getByLabel(/Teléfono/).fill('71234567')
+  await page.getByLabel('Correo o teléfono').fill('71234567')
   await page.getByLabel(/Contraseña/).fill('contrasena-de-prueba')
   await page.getByRole('button', { name: 'Continuar' }).click()
   // Entra al tablero, o a la ruta que se pidió antes de perder la sesión (`volverA`).
@@ -106,7 +106,7 @@ test.describe('[UI con red simulada] admisión humana en backoffice', () => {
   test('arranque en frío: el ingreso carga', async ({ page }) => {
     test.setTimeout(150_000)
     await page.goto('/ingreso', { timeout: 120_000 })
-    await expect(page.getByRole('heading', { name: /Ingresá con tu cuenta de operador/ })).toBeVisible({ timeout: 60_000 })
+    await expect(page.getByRole('heading', { name: /Bienvenido de vuelta/ })).toBeVisible({ timeout: 60_000 })
   })
 
   test('BO con permiso: ve la propuesta y la evidencia, resuelve, y la resolución persiste tras recargar', async ({ page }) => {

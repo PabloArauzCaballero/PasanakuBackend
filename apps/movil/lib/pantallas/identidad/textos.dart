@@ -148,6 +148,9 @@ class TextosIdentidad {
   static const sesionSaludo = 'Hola de nuevo';
   static const sesionTitular = 'Entrá a tu billetera';
   static const sesionCelularAyuda = 'El mismo con el que abriste tu cuenta';
+  static const sesionCorreoAyuda = 'El correo que pusiste al abrir tu cuenta';
+  static const sesionUsarCorreo = 'Entrar con mi correo';
+  static const sesionUsarCelular = 'Entrar con mi celular';
   static const sesionOlvide = '¿Olvidaste tu contraseña?';
   // Sin número ni canal inventado: cuál es el de AportaYa es dato de producto, y
   // poner uno falso acá lo copiaría alguien.

@@ -83,7 +83,7 @@
         "description": "Paso 2 del recorrido. Servicio `identidad`, operacion `autenticar`.",
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"telefonoE164\": \"+59178123456\",\n  \"credencial\": \"credencial-de-prueba\",\n  \"huellaDispositivo\": \"huellaDispositivo-de-prueba\",\n  \"plataforma\": \"ANDROID\",\n  \"factor\": {\n    \"tipo\": \"OTP\",\n    \"valor\": \"valor-de-prueba\"\n  }\n}",
+          "raw": "{\n  \"telefonoE164\": \"+59178123456\",\n  \"credencial\": \"credencial-de-prueba\",\n  \"plataforma\": \"ANDROID\",\n  \"campoQueNoExiste\": \"additionalProperties: false tiene que rechazarlo\"\n}",
           "options": {
             "raw": {
               "language": "json"

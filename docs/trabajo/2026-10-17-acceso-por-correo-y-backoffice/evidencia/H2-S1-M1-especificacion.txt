@@ -1,0 +1,6 @@
+40:   iniciar sesión**, ni en un teléfono nuevo (decisión de Pablo, 2026-10-17): la
+169:Cuando inicia sesion desde un teléfono nuevo
+173:Cuando inicia sesión desde un teléfono nuevo
+249:Cuando hace una operacion que exige MFA
+258:Cuando hace una operacion que exige MFA
+262:Cuando hace una operacion que exige MFA

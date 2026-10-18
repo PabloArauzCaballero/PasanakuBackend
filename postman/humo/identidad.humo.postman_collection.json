@@ -34,7 +34,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"telefonoE164\": \"+59178123456\",\n  \"credencial\": \"credencial-de-prueba\",\n  \"huellaDispositivo\": \"huellaDispositivo-de-prueba\",\n  \"plataforma\": \"ANDROID\",\n  \"factor\": {\n    \"tipo\": \"OTP\",\n    \"valor\": \"valor-de-prueba\"\n  }\n}",
+              "raw": "{\n  \"telefonoE164\": \"+59178123456\",\n  \"credencial\": \"credencial-de-prueba\",\n  \"plataforma\": \"ANDROID\",\n  \"campoQueNoExiste\": \"additionalProperties: false tiene que rechazarlo\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -788,7 +788,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"telefonoE164\": \"+59178123456\",\n  \"credencial\": \"credencial-de-prueba\",\n  \"huellaDispositivo\": \"huellaDispositivo-de-prueba\",\n  \"plataforma\": \"ANDROID\",\n  \"factor\": {\n    \"tipo\": \"OTP\",\n    \"valor\": \"valor-de-prueba\"\n  }\n}",
+              "raw": "{\n  \"telefonoE164\": \"+59178123456\",\n  \"credencial\": \"credencial-de-prueba\",\n  \"huellaDispositivo\": \"huellaDispositivo-de-prueba\",\n  \"plataforma\": \"ANDROID\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -875,7 +875,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"telefonoE164\": \"+59178123456\",\n  \"credencial\": \"LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL\",\n  \"huellaDispositivo\": \"LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL\",\n  \"plataforma\": \"WEB\",\n  \"factor\": {\n    \"tipo\": \"TOTP\",\n    \"valor\": \"LLLLLLLLLLLL\"\n  }\n}",
+              "raw": "{\n  \"telefonoE164\": \"+59178123456\",\n  \"correo\": \"LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL\",\n  \"credencial\": \"LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL\",\n  \"huellaDispositivo\": \"LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL\",\n  \"plataforma\": \"WEB\",\n  \"factor\": {\n    \"tipo\": \"TOTP\",\n    \"valor\": \"LLLLLLLLLLLL\"\n  }\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -932,7 +932,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"credencial\": \"credencial-de-prueba\",\n  \"huellaDispositivo\": \"huellaDispositivo-de-prueba\",\n  \"plataforma\": \"ANDROID\",\n  \"factor\": {\n    \"tipo\": \"OTP\",\n    \"valor\": \"valor-de-prueba\"\n  },\n  \"campoQueNoExiste\": \"additionalProperties: false tiene que rechazarlo\"\n}",
+              "raw": "{\n  \"telefonoE164\": \"+59178123456\",\n  \"credencial\": \"credencial-de-prueba\",\n  \"plataforma\": \"ANDROID\",\n  \"campoQueNoExiste\": \"additionalProperties: false tiene que rechazarlo\"\n}",
               "options": {
                 "raw": {
                   "language": "json"

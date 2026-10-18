@@ -1,0 +1,23 @@
+$ ./gradlew :servicios:identidad:webTest --tests "*SesionesControllerWebTest"
+BUILD SUCCESSFUL in 9s
+testsuite name="bo.aportaya.identidad.web.SesionesControllerWebTest" tests="18" skipped="0" failures="0" errors="0"
+  testcase name="CU-04 · la vigencia del servidor que llega al caso de uso es de ocho horas"
+  testcase name="CU-04 · el rechazo no dice si el telefono existe"
+  testcase name="CU-04 · sin telefono ni correo, o con los dos, es 400 AP-VAL-02 y no llega al caso de uso"
+  testcase name="CU-04 · 400: JSON corrupto en el endpoint mas expuesto no es un 500"
+  testcase name="ADR-010 · ingreso WEB: el refresh sale en una cookie HttpOnly, Secure, SameSite=Strict, solo para /api/v1/sesion"
+  testcase name="CU-04 · 200 con la sesion abierta: sale el token y sale el identificador de sesion"
+  testcase name="telefono invalido: «»"
+  testcase name="telefono invalido: «71234567»"
+  testcase name="telefono invalido: «+5917123456»"
+  testcase name="telefono invalido: «+591712345678»"
+  testcase name="telefono invalido: «+1555123456»"
+  testcase name="telefono invalido: «no-es-un-numero»"
+  testcase name="ADR-010 · la app (ANDROID) recibe el refresh en el cuerpo y nunca en cookie"
+  testcase name="ADR-010 · la app (IOS) recibe el refresh en el cuerpo y nunca en cookie"
+  testcase name="CU-04 · 400: falta la huella del dispositivo, que el contrato exige"
+  testcase name="CU-04 · la credencial no vuelve NUNCA, ni en el error"
+  testcase name="CU-04 · con correo en vez de telefono, el correo llega tal cual al caso de uso"
+  testcase name="CU-04 · si falta el segundo factor NO se emite token"
+
+Primera corrida: 1 FAIL (TEST_BUG: el test mandaba un correo con espacios, que el contrato rechaza con 400 AP-VAL-01). Se corrigió el test.

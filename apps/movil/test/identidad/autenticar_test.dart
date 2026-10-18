@@ -53,7 +53,7 @@ void main() {
       final r = await c
           .read(autenticacionProvider)
           .conCredenciales(
-            telefonoE164: '+59178123456',
+            identificador: '+59178123456',
             credencial: '12345678',
           );
 
@@ -85,7 +85,7 @@ void main() {
       await c
           .read(autenticacionProvider)
           .conCredenciales(
-            telefonoE164: '+59178123456',
+            identificador: '+59178123456',
             credencial: List.filled(128, 'x').join(),
           );
       final bodyMaximo = jsonDecode(cuerpo) as Map<String, dynamic>;
@@ -109,7 +109,7 @@ void main() {
       final r = await c
           .read(autenticacionProvider)
           .conCredenciales(
-            telefonoE164: '+59178123456',
+            identificador: '+59178123456',
             credencial: 'Secreta123',
           );
 
@@ -139,7 +139,7 @@ void main() {
       final r = await c
           .read(autenticacionProvider)
           .conCredenciales(
-            telefonoE164: '+59178123456',
+            identificador: '+59178123456',
             credencial: 'Secreta123',
           );
 
@@ -162,7 +162,7 @@ void main() {
     final r = await c
         .read(autenticacionProvider)
         .conFactor(
-          telefonoE164: '+59178123456',
+          identificador: '+59178123456',
           credencial: 'Secreta123',
           codigo: '000000',
         );
@@ -170,6 +170,41 @@ void main() {
     expect(r, ResultadoDeAutenticacion.entro);
     expect(await c.read(sesionProvider).tokenDeAcceso(), 'tokenAcceso');
   });
+
+  test(
+    'con correo, el cuerpo lleva `correo` y no `telefonoE164`: el contrato pide uno solo',
+    () async {
+      final (:dio, :adaptador) = dioSimulado();
+      late String cuerpo;
+      adaptador.onPost(
+        ruta,
+        (s) =>
+            s.reply(200, ejemplo('identidad', 'autenticar', 'vacio')['cuerpo']),
+        data: Matchers.any,
+      );
+      dio.interceptors.add(
+        InterceptorsWrapper(
+          onRequest: (o, h) {
+            if (o.path == ruta) cuerpo = '${o.data}';
+            h.next(o);
+          },
+        ),
+      );
+      final c = contenedorCon(dio);
+      addTearDown(c.dispose);
+
+      await c
+          .read(autenticacionProvider)
+          .conCredenciales(
+            identificador: 'ana@ejemplo.invalid',
+            credencial: 'Secreta123',
+          );
+
+      final body = jsonDecode(cuerpo) as Map<String, dynamic>;
+      expect(body['correo'], 'ana@ejemplo.invalid');
+      expect(body.containsKey('telefonoE164'), isFalse);
+    },
+  );
 
   test(
     'un rechazo del servidor no abre sesión y se cuenta en voz de marca',
@@ -189,7 +224,7 @@ void main() {
 
       final n = c.read(sesionIdentidadProvider.notifier);
       n.actualizarCredenciales(
-        telefono: '+59178123456',
+        identificador: '+59178123456',
         contrasena: 'Secreta123',
       );
       final avanzo = await n.enviarCredenciales();
@@ -233,11 +268,11 @@ void main() {
 
     final api = c.read(autenticacionProvider);
     await api.conCredenciales(
-      telefonoE164: '+59178123456',
+      identificador: '+59178123456',
       credencial: 'Secreta123',
     );
     await api.conCredenciales(
-      telefonoE164: '+59178123456',
+      identificador: '+59178123456',
       credencial: 'Secreta123',
     );
 
