@@ -1,6 +1,8 @@
 import 'package:aportaya_cliente_identidad/aportaya_cliente_identidad.dart';
 import 'package:aportaya_diseno/atomos/boton.dart';
 import 'package:aportaya_diseno/atomos/boton_variante.dart';
+import 'package:aportaya_diseno/atomos/tono.dart';
+import 'package:aportaya_diseno/moleculas/alerta.dart';
 import 'package:aportaya_diseno/moleculas/campo_de_fecha.dart';
 import 'package:aportaya_diseno/moleculas/referencia_de_error.dart';
 import 'package:aportaya_diseno/tokens/tokens.dart';
@@ -183,12 +185,7 @@ class _PantallaCompletarKycState extends ConsumerState<PantallaCompletarKyc> {
         ],
         if (_error != null) ...[
           const SizedBox(height: Espacio.s2),
-          Text(
-            _error!,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: Theme.of(context).colorScheme.error,
-            ),
-          ),
+          Alerta(tono: Tono.error, titulo: _error!),
           ReferenciaDeError(trazaId: _trazaId),
         ],
         if (todoCompleto) ...[

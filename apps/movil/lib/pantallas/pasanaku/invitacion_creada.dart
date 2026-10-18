@@ -10,7 +10,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../dominio/cliente.dart' show baseDelGateway;
-import '../../proveedores/compartir.dart';
+import 'botones_de_compartir.dart';
 import 'dominio/enlace_para_compartir.dart';
 
 import 'textos_invitacion.dart';
@@ -56,12 +56,6 @@ class InvitacionCreada extends ConsumerStatefulWidget {
 class _InvitacionCreadaState extends ConsumerState<InvitacionCreada> {
   bool _copiado = false;
 
-  Future<void> _mandar(Future<bool> Function() abrir) async {
-    final abierto = await abrir();
-    if (!mounted || abierto) return;
-    mostrarSnackbar(context, TextosInvitacion.noSePudoAbrir);
-  }
-
   Future<void> _copiar(String enlace) async {
     await Clipboard.setData(ClipboardData(text: enlace));
     if (!mounted) return;
@@ -79,7 +73,6 @@ class _InvitacionCreadaState extends ConsumerState<InvitacionCreada> {
             delServidor,
             baseWeb: widget.appWeb ?? baseDeLaAppWeb(api: baseDelGateway),
           );
-    final compartir = ref.read(compartirProvider);
     final vence = widget.resultado.expiraEn;
     return ListView(
       padding: const EdgeInsets.all(Espacio.s4),
@@ -145,42 +138,11 @@ class _InvitacionCreadaState extends ConsumerState<InvitacionCreada> {
             ),
           ),
           const SizedBox(height: Espacio.s4),
-          for (final (indice, opcion) in _ordenDeCanales(
-            widget.canal,
-          ).indexed) ...[
-            if (indice > 0) const SizedBox(height: Espacio.s2),
-            Boton(
-              key: ValueKey('compartir-$opcion'),
-              texto: switch (opcion) {
-                'WHATSAPP' => TextosInvitacion.enviarPorWhatsApp,
-                'SMS' => TextosInvitacion.enviarPorSms,
-                _ => TextosInvitacion.compartirConOtraApp,
-              },
-              icono: switch (opcion) {
-                'WHATSAPP' => Icons.chat_rounded,
-                'SMS' => Icons.sms_rounded,
-                _ => Icons.ios_share_rounded,
-              },
-              variante: indice == 0
-                  ? BotonVariante.primario
-                  : BotonVariante.secundario,
-              expandido: true,
-              onPressed: () => _mandar(() {
-                final texto = mensajeDeInvitacion(enlace);
-                return switch (opcion) {
-                  'WHATSAPP' => compartir.porWhatsApp(
-                    telefono: widget.telefono,
-                    texto: texto,
-                  ),
-                  'SMS' => compartir.porSms(
-                    telefono: widget.telefono,
-                    texto: texto,
-                  ),
-                  _ => compartir.conOtraApp(texto: texto),
-                };
-              }),
-            ),
-          ],
+          BotonesDeCompartir(
+            enlace: enlace,
+            telefono: widget.telefono,
+            canal: widget.canal,
+          ),
           const SizedBox(height: Espacio.s2),
           Boton(
             texto: _copiado
@@ -202,15 +164,4 @@ class _InvitacionCreadaState extends ConsumerState<InvitacionCreada> {
       ],
     );
   }
-}
-
-/// El canal elegido primero; después los otros dos.
-List<String> _ordenDeCanales(String elegido) {
-  const todos = ['WHATSAPP', 'SMS', 'OTRA'];
-  final primero = switch (elegido) {
-    'WHATSAPP' => 'WHATSAPP',
-    'SMS' => 'SMS',
-    _ => 'OTRA',
-  };
-  return [primero, ...todos.where((c) => c != primero)];
 }

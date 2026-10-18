@@ -9,6 +9,9 @@ import '../../../dominio/cliente.dart';
 import '../../../proveedores/idempotencia.dart';
 import '../../../proveedores/sesion.dart' show almacenSeguroProvider;
 import 'estado_sesion.dart' show mensajeDeError;
+import 'verificacion_correo_guardada.dart';
+
+export 'verificacion_correo_guardada.dart' show VerificacionSolicitada;
 
 /// Cliente del codigo de correo previo al alta. El codigo nunca se valida en la app.
 class VerificacionCorreo {
@@ -69,7 +72,7 @@ class VerificacionCorreo {
       if (cuerpo == null) {
         throw StateError('El servidor no devolvio la verificacion.');
       }
-      final guardada = _Guardada(
+      final guardada = VerificacionGuardada(
         correo: _normalizar(correo),
         clave: clave,
         id: cuerpo.verificacionId,
@@ -107,14 +110,14 @@ class VerificacionCorreo {
     }
   }
 
-  Future<_Guardada?> _leer(String correo) async {
+  Future<VerificacionGuardada?> _leer(String correo) async {
     try {
       final crudo = await _ref
           .read(almacenSeguroProvider)
           .leer(claveGuardada)
           .timeout(_topeAlmacen);
       if (crudo == null || crudo.isEmpty) return null;
-      final g = _Guardada.desdeJson(jsonDecode(crudo));
+      final g = VerificacionGuardada.desdeJson(jsonDecode(crudo));
       if (g == null || g.correo != _normalizar(correo)) return null;
       if (!DateTime.now().toUtc().isBefore(g.expiraEn.toUtc())) {
         await olvidar();
@@ -126,7 +129,7 @@ class VerificacionCorreo {
     }
   }
 
-  Future<void> _escribir(_Guardada g) async {
+  Future<void> _escribir(VerificacionGuardada g) async {
     try {
       await _ref
           .read(almacenSeguroProvider)
@@ -163,80 +166,6 @@ class VerificacionCorreo {
         problema is ErrorPresentable ? problema.trazaId : null,
       );
     }
-  }
-}
-
-class VerificacionSolicitada {
-  const VerificacionSolicitada({
-    required this.id,
-    required this.destino,
-    this.confirmada = false,
-  });
-  final String id;
-  final String destino;
-
-  /// `true` cuando la persona ya había confirmado el código antes de cerrar la app.
-  final bool confirmada;
-}
-
-class _Guardada {
-  const _Guardada({
-    required this.correo,
-    required this.clave,
-    required this.id,
-    required this.destino,
-    required this.expiraEn,
-    required this.confirmada,
-  });
-
-  final String correo;
-  final String clave;
-  final String id;
-  final String destino;
-  final DateTime expiraEn;
-  final bool confirmada;
-
-  VerificacionSolicitada comoSolicitada() =>
-      VerificacionSolicitada(id: id, destino: destino, confirmada: confirmada);
-
-  _Guardada confirmar() => _Guardada(
-    correo: correo,
-    clave: clave,
-    id: id,
-    destino: destino,
-    expiraEn: expiraEn,
-    confirmada: true,
-  );
-
-  Map<String, Object> aJson() => {
-    'correo': correo,
-    'clave': clave,
-    'id': id,
-    'destino': destino,
-    'expiraEn': expiraEn.toUtc().toIso8601String(),
-    'confirmada': confirmada,
-  };
-
-  static _Guardada? desdeJson(Object? json) {
-    if (json is! Map) return null;
-    final expira = DateTime.tryParse('${json['expiraEn']}');
-    final correo = json['correo'], clave = json['clave'];
-    final id = json['id'], destino = json['destino'];
-    if (expira == null ||
-        correo is! String ||
-        clave is! String ||
-        id is! String ||
-        destino is! String) {
-      return null;
-    }
-    return _Guardada(
-      correo: correo,
-      clave: clave,
-      id: id,
-      destino: destino,
-      expiraEn: expira,
-      confirmada: json['confirmada'] == true,
-    );
   }
 }
 

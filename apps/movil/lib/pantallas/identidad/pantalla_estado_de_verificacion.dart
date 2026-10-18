@@ -9,8 +9,8 @@ import 'package:go_router/go_router.dart';
 
 import 'dominio/estado_alta.dart';
 import 'dominio/estado_de_verificacion.dart';
+import 'activar_cuenta.dart';
 import 'textos_de_verificacion.dart';
-import '../../proveedores/renovar_acceso.dart';
 import '../../proveedores/sesion.dart';
 
 /// El estado de la verificación, igual que Atlas: PENDIENTE/EN_REVISION siguen
@@ -136,21 +136,7 @@ class _Contenido extends ConsumerWidget {
             texto: TextosDeVerificacion.activarCuenta,
             variante: BotonVariante.primario,
             expandido: true,
-            onPressed: () async {
-              // El token nuevo trae los permisos de la identidad aprobada: no hace
-              // falta cerrar sesión ni volver a ingresar.
-              final listo = await ref.read(renovarAccesoProvider)();
-              if (!context.mounted) return;
-              if (listo) {
-                context.go('/billetera/inicio');
-              } else {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text(TextosDeVerificacion.noSePudoActivar),
-                  ),
-                );
-              }
-            },
+            onPressed: () => activarCuentaAprobada(context, ref),
           )
         else if (sesionActiva && rechazada)
           Boton(

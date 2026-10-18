@@ -5,6 +5,9 @@ library;
 import 'package:aportaya_diseno/errores.dart';
 
 import 'errores_catalogados.dart';
+import 'contexto_de_error.dart';
+
+export 'contexto_de_error.dart';
 
 export 'errores_catalogados.dart' show campoDelDetalle;
 
@@ -89,21 +92,6 @@ const Map<String, String> _catalogo = {
 /// Campos que el contrato permite deducir sin interpretar el `detalle` opaco.
 enum CampoDeErrorApi { contrasena, fechaExpiracion }
 
-/// Algunos códigos CU-01 se reutilizan por contrato en operaciones distintas.
-/// El endpoint permite traducirlos sin mostrar a la persona un error de otro flujo.
-enum ContextoErrorApi {
-  general,
-  registro,
-  verificacionCorreo,
-
-  /// `POST /grupos`: el 403 significa que la cuenta todavía no es organizador.
-  crearGrupo,
-
-  /// `GET /usuarios/{id}/verificacion`: el 403 llega mientras la cuenta recién
-  /// creada todavía no tiene sesión.
-  estadoDeVerificacion,
-}
-
 /// ¿La app tiene un texto propio para este código? Las pantallas lo usan para no tapar un rechazo
 /// explicable con el genérico por estado.
 bool tieneMensajePropio(String codigo) =>
@@ -137,14 +125,8 @@ String mensajeDe(
   }
   final conocido = _catalogo[codigo] ?? fallasDeLaBase[codigo];
   if (conocido != null) return conocido;
-  if (estado == 403 && contexto == ContextoErrorApi.crearGrupo) {
-    return 'Para crear un grupo necesitás estar habilitado como organizador. '
-        'Mientras tanto, podés sumarte a un grupo con una invitación.';
-  }
-  if (estado == 403 && contexto == ContextoErrorApi.estadoDeVerificacion) {
-    return 'Tu cuenta está en verificación. Ingresá con tu celular y tu '
-        'contraseña para ver cómo avanza.';
-  }
+  final porContexto = mensajePorContexto(estado, contexto);
+  if (porContexto != null) return porContexto;
   return switch (estado) {
     401 => 'Tu sesión venció. Volvé a ingresar.',
     403 => 'Esta acción todavía no está disponible para tu cuenta.',
