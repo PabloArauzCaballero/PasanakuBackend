@@ -56,6 +56,10 @@ class _CapaDeBloqueoState extends ConsumerState<CapaDeBloqueo>
   bool? _bloqueadaAnteriormente;
   bool _pidioBiometriaEnEsteEpisodio = false;
   bool _biometriaEnCurso = false;
+
+  /// Cada pedido al diálogo nativo lleva su número: un pedido nuevo (el toque del
+  /// botón) reemplaza al que hubiera quedado colgado, y solo el último libera la marca.
+  int _intentoBiometrico = 0;
   bool _reintentoBiometricoPendiente = false;
   int _episodiosBiometricosVistos = 0;
   int _episodio = 0;
@@ -106,17 +110,47 @@ class _CapaDeBloqueoState extends ConsumerState<CapaDeBloqueo>
     // Se marca antes del primer await: un rebuild o una cancelación no vuelve a
     // abrir el diálogo nativo durante el mismo episodio de bloqueo.
     _pidioBiometriaEnEsteEpisodio = true;
-    _iniciarBiometria(_episodio);
+    _iniciarBiometriaCuandoSeVea(_episodio);
   }
 
-  void _iniciarBiometria(int episodio) {
-    if (_biometriaEnCurso) {
+  /// El diálogo nativo se abre recién cuando la app está al frente. En el arranque en
+  /// frío el candado se pone antes del primer cuadro; pedir la huella en ese momento
+  /// puede caer en un error del sistema (la actividad todavía no está visible) y dejar
+  /// la pantalla de bloqueo esperando un toque. Se espera por condición, no por tiempo.
+  void _iniciarBiometriaCuandoSeVea(int episodio) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!_sigueBloqueadoEn(episodio)) return;
+      final estado = WidgetsBinding.instance.lifecycleState;
+      // Sin dato del sistema (null) se pide como siempre; solo se espera cuando el
+      // sistema dice explícitamente que la app no está al frente.
+      if (estado == null || estado == AppLifecycleState.resumed) {
+        _iniciarBiometria(episodio);
+        return;
+      }
+      late final AppLifecycleListener oyente;
+      oyente = AppLifecycleListener(
+        onResume: () {
+          oyente.dispose();
+          if (_sigueBloqueadoEn(episodio)) _iniciarBiometria(episodio);
+        },
+      );
+    });
+    // Un callback de fin de cuadro no pide un cuadro por sí solo: sin esto, un pedido
+    // que llega sin cambios visibles (al reanudar) quedaría esperando para siempre.
+    WidgetsBinding.instance.scheduleFrame();
+  }
+
+  void _iniciarBiometria(int episodio, {bool reemplazar = false}) {
+    if (_biometriaEnCurso && !reemplazar) {
       _reintentoBiometricoPendiente = true;
       return;
     }
     _biometriaEnCurso = true;
+    final intento = ++_intentoBiometrico;
     unawaited(
       _intentarDesbloqueoBiometrico(episodio).whenComplete(() {
+        // Un pedido más nuevo lo reemplazó: ese es el que decide.
+        if (intento != _intentoBiometrico) return;
         _biometriaEnCurso = false;
         if (!_reintentoBiometricoPendiente || !mounted) return;
         _reintentoBiometricoPendiente = false;
@@ -147,11 +181,14 @@ class _CapaDeBloqueoState extends ConsumerState<CapaDeBloqueo>
   bool _sigueBloqueadoEn(int episodio) =>
       mounted && episodio == _episodio && ref.read(bloqueoProvider).bloqueada;
 
+  /// El botón «Entrar con huella o PIN» nunca queda sin efecto: si un pedido anterior
+  /// quedó colgado, este lo reemplaza (el lado nativo cancela el viejo y abre uno
+  /// nuevo, con el PIN del teléfono si la huella no se puede usar).
   void _solicitarBiometriaManual() {
-    if (_biometriaEnCurso) return;
     _episodio++;
     _pidioBiometriaEnEsteEpisodio = true;
-    _iniciarBiometria(_episodio);
+    _reintentoBiometricoPendiente = false;
+    _iniciarBiometria(_episodio, reemplazar: true);
   }
 
   @override

@@ -5,7 +5,9 @@ import 'package:aportaya_diseno/tokens/tokens.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'contrato_de_organizador.dart';
 import 'dominio/cu20_crear_grupo.dart';
+import 'dominio/habilitacion_basica.dart';
 import 'no_habilitado.dart';
 import 'organismos_crear_grupo.dart';
 import 'textos.dart';
@@ -110,15 +112,36 @@ class _PantallaCrearGrupoState extends ConsumerState<PantallaCrearGrupo>
       );
     }
 
+    // Sin `organizadorId` en la ruta: es la persona la que quiere organizar. Si todavía
+    // no es organizadora, primero ve y acepta el contrato Aprendiz (CU-90 vía básica).
+    final basica = ref.watch(habilitacionBasicaProvider);
     return _ConCabecera(
-      hijo: FormularioCrearGrupo(
-        estado: estado,
-        resultado: resultado,
-        onEnviar: _enviar,
-        controles: this,
+      hijo: EstadoDePantalla(
+        valor: basica,
+        etiquetaDeCarga: TextosPasanaku.cargando,
+        mensajeVacio: TextosPasanaku.requisitosAyuda,
+        reintentar: () => ref.invalidate(habilitacionBasicaProvider),
+        exito: (h) {
+          if (!h.habilitado) {
+            return ContratoDeOrganizadorVista(
+              contrato: h,
+              onAceptado: () => ref.invalidate(habilitacionBasicaProvider),
+            );
+          }
+          _organizadorPropio = h.organizadorId;
+          return FormularioCrearGrupo(
+            estado: estado,
+            resultado: resultado,
+            onEnviar: _enviar,
+            controles: this,
+          );
+        },
       ),
     );
   }
+
+  /// El `organizadorId` de quien crea, cuando no vino en la ruta.
+  String? _organizadorPropio;
 
   Future<void> _enviar() async {
     if (!completo) return;
@@ -136,7 +159,7 @@ class _PantallaCrearGrupoState extends ConsumerState<PantallaCrearGrupo>
             modalidad,
           ),
           fechaDeInicio: fechaDeInicio!,
-          organizadorId: widget.organizadorId,
+          organizadorId: widget.organizadorId ?? _organizadorPropio,
           permitePermutaDeTurnos: permitePermutas,
         );
   }

@@ -75,13 +75,15 @@ void main() {
         final contexto = tester.element(capa);
         expect(Theme.of(contexto).brightness, brillo);
         expect(MediaQuery.textScalerOf(contexto).scale(10), closeTo(13, 0.001));
-        expect(find.text('AportaYa está bloqueada'), findsOneWidget);
+        expect(find.text('Hola de nuevo'), findsOneWidget);
         expect(
-          find.text('Para ver tu plata, confirmá que sos vos.'),
+          find.text(
+            'Por tu seguridad, confirmá que sos vos para ver tu cuenta.',
+          ),
           findsOneWidget,
         );
-        expect(find.text('Desbloquear con biometría'), findsOneWidget);
-        expect(find.text('Ingresar de nuevo'), findsOneWidget);
+        expect(find.text('Entrar con huella o PIN'), findsOneWidget);
+        expect(find.text('Entrar con mi contraseña'), findsOneWidget);
         expect(tester.takeException(), isNull);
 
         await expectLater(

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:aportaya_movil/dominio/vigilante_de_sesion.dart';
 import 'package:aportaya_movil/dominio/puertos/biometria.dart';
 import 'package:aportaya_movil/pantallas/identidad/capa_de_bloqueo.dart';
@@ -10,6 +12,45 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  // La app ya está al frente: es la condición para que la capa pida la huella.
+  setUp(
+    () => TestWidgetsFlutterBinding.instance.handleAppLifecycleStateChanged(
+      AppLifecycleState.resumed,
+    ),
+  );
+
+  testWidgets(
+    'arranque en frío: la huella se pide recién cuando la app queda al frente',
+    (tester) async {
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
+      final biometria = _BiometriaFalsa();
+      final control = ControlDeBloqueo(esWeb: false)
+        ..bloquear(MotivoDeBloqueo.arranque);
+
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            bloqueoProvider.overrideWith((_) => control),
+            biometriaProvider.overrideWithValue(biometria),
+          ],
+          child: MaterialApp(
+            theme: temaDesde(Tokens.claro, Brightness.light),
+            home: CapaDeBloqueo(
+              hijo: const Scaffold(body: Text('Contenido')),
+              onIngresarDeNuevo: () {},
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(biometria.llamadas, 0);
+
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+      await tester.pumpAndSettle();
+      expect(biometria.llamadas, 1);
+    },
+  );
+
   testWidgets('candado absorbe toques y oculta el hijo de semántica', (
     tester,
   ) async {
@@ -52,7 +93,7 @@ void main() {
 
     await tester.tapAt(tester.getCenter(find.text('Saldo privado')));
     expect(toquesDelHijo, 0);
-    expect(find.text('Ingresar de nuevo'), findsOneWidget);
+    expect(find.text('Entrar con mi contraseña'), findsOneWidget);
     semantics.dispose();
   });
 
@@ -127,11 +168,51 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(biometria.llamadas, 0);
-    await tester.tap(find.text('Desbloquear con biometría'));
+    await tester.tap(find.text('Entrar con huella o PIN'));
     await tester.pumpAndSettle();
 
     expect(biometria.llamadas, 1);
     expect(control.bloqueada, isFalse);
+  });
+
+  testWidgets('un pedido colgado no deja el botón sin efecto: el toque abre uno '
+      'nuevo y desbloquea', (tester) async {
+    // El primer diálogo nunca responde (el caso del teléfono con la huella rota o
+    // el pedido del arranque que quedó colgado); el segundo confirma con el PIN.
+    final colgado = Completer<bool>();
+    final biometria = _BiometriaFalsa()
+      ..respuestas = [colgado.future, Future.value(true)];
+    final control = ControlDeBloqueo(esWeb: false)
+      ..bloquear(MotivoDeBloqueo.inactividad);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          bloqueoProvider.overrideWith((_) => control),
+          biometriaProvider.overrideWithValue(biometria),
+        ],
+        child: MaterialApp(
+          theme: temaDesde(Tokens.claro, Brightness.light),
+          home: CapaDeBloqueo(
+            hijo: const Scaffold(body: Text('Contenido')),
+            onIngresarDeNuevo: () {},
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Entrar con huella o PIN'));
+    await tester.pump();
+    expect(biometria.llamadas, 1);
+    expect(control.bloqueada, isTrue);
+
+    await tester.tap(find.text('Entrar con huella o PIN'));
+    await tester.pumpAndSettle();
+
+    expect(biometria.llamadas, 2);
+    expect(control.bloqueada, isFalse);
+    colgado.complete(false);
   });
 }
 
@@ -143,10 +224,14 @@ class _BiometriaFalsa implements Biometria {
   @override
   Future<bool> disponible() async => true;
 
+  /// Si hay respuestas preparadas, cada llamada toma la siguiente.
+  List<Future<bool>> respuestas = [];
+
   @override
-  Future<bool> confirmar(String motivo) async {
+  Future<bool> confirmar(String motivo) {
     llamadas++;
     motivos.add(motivo);
-    return resultado;
+    if (respuestas.isNotEmpty) return respuestas.removeAt(0);
+    return Future.value(resultado);
   }
 }

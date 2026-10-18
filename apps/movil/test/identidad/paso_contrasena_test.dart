@@ -3,6 +3,7 @@ import 'package:aportaya_movil/dominio/errores.dart';
 import 'package:aportaya_movil/pantallas/identidad/dominio/estado_alta.dart';
 import 'package:aportaya_movil/pantallas/identidad/pasos_alta/paso_cuenta.dart';
 import 'package:aportaya_movil/pantallas/identidad/pasos_alta/tarjeta_de_confianza.dart';
+import 'package:aportaya_movil/proveedores/sesion.dart';
 import 'package:aportaya_diseno/tema.dart';
 import 'package:aportaya_diseno/tokens/tokens.dart';
 import 'package:flutter/material.dart';
@@ -30,7 +31,10 @@ void main() {
     );
     final contenedor = ProviderContainer(
       retry: (r, e) => null,
-      overrides: [dioProvider.overrideWithValue(dio)],
+      overrides: [
+        dioProvider.overrideWithValue(dio),
+        almacenSeguroProvider.overrideWithValue(AlmacenEnMemoria()),
+      ],
     );
     addTearDown(contenedor.dispose);
     // Los datos personales ya cargados: la política rechaza claves derivadas de ellos

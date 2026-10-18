@@ -46,6 +46,8 @@ void main() {
         ),
       );
       await asentar(tester);
+      expect(find.textContaining('1.240,00'), findsOneWidget);
+      expect(find.text('Movimientos'), findsOneWidget);
       await expectLater(
         find.byType(PantallaDeSaldo),
         matchesGoldenFile('imagenes/pantalla_de_saldo_$nombre.png'),

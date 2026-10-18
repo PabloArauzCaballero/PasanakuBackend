@@ -148,6 +148,35 @@ void main() {
     },
   );
 
+  test(
+    'confirma por separado cuando el correo de segundo factor fue aceptado',
+    () async {
+      final (:dio, :adaptador) = dioSimulado();
+      adaptador.onPost(
+        ruta,
+        (s) => s.reply(422, {
+          'codigo': 'AP-CU04-10',
+          'mensaje': 'Enviamos el codigo al correo confirmado de tu cuenta.',
+          'detalle': <String, dynamic>{},
+          'trazaId': 'traza-correo-mfa',
+        }),
+        data: Matchers.any,
+      );
+      final c = contenedorCon(dio);
+      addTearDown(c.dispose);
+
+      final r = await c
+          .read(autenticacionProvider)
+          .conCredenciales(
+            identificador: '+59178123456',
+            credencial: 'Secreta123',
+          );
+
+      expect(r, ResultadoDeAutenticacion.factorEnviadoPorCorreo);
+      expect(await c.read(sesionProvider).tokenDeAcceso(), isNull);
+    },
+  );
+
   test('el segundo factor abre la sesión', () async {
     final (:dio, :adaptador) = dioSimulado();
     adaptador.onPost(

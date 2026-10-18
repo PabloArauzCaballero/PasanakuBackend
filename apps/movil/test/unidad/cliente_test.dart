@@ -30,10 +30,53 @@ void main() {
       }
       expect(capturado, isA<ErrorDeApi>());
       final error = capturado! as ErrorDeApi;
-      expect(error.mensaje, 'No tenés acceso a esto.');
+      expect(
+        error.mensaje,
+        'Esta acción todavía no está disponible para tu cuenta.',
+      );
       expect(error.trazaId, 't-1');
     },
   );
+
+  Future<ErrorDeApi> rechazo403(String metodo, String ruta) async {
+    final (:dio, :adaptador) = dioSimulado();
+    final cuerpo = {'codigo': 'AP-SEG-03', 'mensaje': 'x', 'trazaId': 't-2'};
+    if (metodo == 'POST') {
+      adaptador.onPost(ruta, (s) => s.reply(403, cuerpo), data: Matchers.any);
+    } else {
+      adaptador.onGet(ruta, (s) => s.reply(403, cuerpo));
+    }
+    try {
+      metodo == 'POST'
+          ? await dio.post<Map<String, dynamic>>(ruta, data: const {})
+          : await dio.get<Map<String, dynamic>>(ruta);
+    } catch (e) {
+      return errorDeDominio(e) as ErrorDeApi;
+    }
+    fail('se esperaba un 403');
+  }
+
+  test('403 al crear grupo explica que hace falta ser organizador', () async {
+    final error = await rechazo403('POST', '/grupos');
+    expect(error.mensaje, contains('habilitado como organizador'));
+    expect(error.trazaId, 't-2');
+  });
+
+  test(
+    '403 al consultar el expediente dice que la cuenta está en verificación',
+    () async {
+      final error = await rechazo403('GET', '/usuarios/u-1/verificacion');
+      expect(error.mensaje, startsWith('Tu cuenta está en verificación'));
+    },
+  );
+
+  test('el 403 de otra ruta no hereda esos textos', () async {
+    final error = await rechazo403('GET', '/grupos/g-1');
+    expect(
+      error.mensaje,
+      'Esta acción todavía no está disponible para tu cuenta.',
+    );
+  });
 
   test(
     'un 422 de cuenta repetida dice cuál dato ya tiene cuenta (detalle.campo)',

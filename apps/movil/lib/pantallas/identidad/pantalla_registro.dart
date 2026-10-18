@@ -85,6 +85,23 @@ class _PantallaDeRegistroState extends ConsumerState<PantallaDeRegistro>
           await mostrarCelebracionDeAlta(context);
           if (!context.mounted) return;
 
+          final retorno = retornoDeInvitacion(
+            GoRouterState.of(context).uri.queryParameters['volver'],
+          );
+          // Quien saltó la verificación no tiene fotos que subir: entra directo.
+          // La verificación se le pide cuando quiera mover dinero o entrar a un grupo.
+          if (ref.read(altaProvider).sinVerificacion) {
+            _capturasTransferidas = true;
+            notifier.reiniciar();
+            ref.read(contratoProvider.notifier).reiniciar();
+            context.go(
+              retorno == null
+                  ? '/ingreso'
+                  : '/ingreso?volver=${Uri.encodeComponent(retorno)}',
+            );
+            return;
+          }
+
           // El alta no abre sesión: las cinco fotos se suben con este `usuarioId`
           // antes de llegar al login, igual que Atlas sube apenas captura — acá se
           // sube en lote porque la persona no existe hasta este punto.
@@ -99,9 +116,6 @@ class _PantallaDeRegistroState extends ConsumerState<PantallaDeRegistro>
           _capturasTransferidas = true;
           notifier.reiniciar();
           ref.read(contratoProvider.notifier).reiniciar();
-          final retorno = retornoDeInvitacion(
-            GoRouterState.of(context).uri.queryParameters['volver'],
-          );
           context.go(
             retorno == null
                 ? '/registro/subida?usuario=$usuarioId'

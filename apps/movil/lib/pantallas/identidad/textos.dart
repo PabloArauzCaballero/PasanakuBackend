@@ -166,8 +166,8 @@ class TextosIdentidad {
   static const mfaIndicacion =
       'Ingresá el código de seis dígitos solicitado para proteger tu ingreso.';
   static const mfaSinCodigoAyuda =
-      'Si no recibiste un código o no podés acceder, comunicate con soporte de '
-      'AportaYa.';
+      'El código se envía al correo verificado de tu cuenta. Si no tenés acceso a '
+      'ese correo, comunicate con soporte de AportaYa.';
   static const explicacionMfa =
       'Para cuidar tu cuenta te pedimos un código más. Escribí los 6 dígitos de '
       'tu segundo factor y confirmá para terminar de ingresar.';

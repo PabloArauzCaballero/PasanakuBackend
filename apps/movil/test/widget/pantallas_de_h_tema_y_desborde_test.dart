@@ -180,14 +180,27 @@ void main() {
       });
 
       testWidgets('organizar un grupo · formulario', (tester) async {
-        final (:dio, adaptador: _) = dioSimulado();
+        final (:dio, :adaptador) = dioSimulado();
+        organizadorHabilitado(adaptador);
         await montar(tester, const PantallaCrearGrupo(), dio: dio);
         expect(find.text('Organizar un grupo'), findsOneWidget);
         sinDesborde(tester);
       });
 
+      testWidgets('organizar un grupo · contrato de organizador', (
+        tester,
+      ) async {
+        final (:dio, :adaptador) = dioSimulado();
+        organizadorHabilitado(adaptador, habilitado: false);
+        await montar(tester, const PantallaCrearGrupo(), dio: dio);
+        expect(find.text('Organizá tu primer grupo'), findsOneWidget);
+        expect(find.text('Aceptar y organizar'), findsOneWidget);
+        sinDesborde(tester);
+      });
+
       testWidgets('organizar un grupo · grupo creado', (tester) async {
         final (:dio, :adaptador) = dioSimulado();
+        organizadorHabilitado(adaptador);
         adaptador.onPost(
           '/grupos',
           (s) => s.reply(201, ejemplo('grupos', 'crearGrupo', 'ok')['cuerpo']),

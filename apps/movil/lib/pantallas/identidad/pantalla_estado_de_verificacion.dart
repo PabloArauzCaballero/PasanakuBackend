@@ -10,6 +10,7 @@ import 'package:go_router/go_router.dart';
 import 'dominio/estado_alta.dart';
 import 'dominio/estado_de_verificacion.dart';
 import 'textos_de_verificacion.dart';
+import '../../proveedores/renovar_acceso.dart';
 import '../../proveedores/sesion.dart';
 
 /// El estado de la verificación, igual que Atlas: PENDIENTE/EN_REVISION siguen
@@ -130,17 +131,43 @@ class _Contenido extends ConsumerWidget {
           style: Theme.of(context).textTheme.bodySmall,
         ),
         const Spacer(),
-        if (sesionActiva)
+        if (sesionActiva && aprobada)
           Boton(
-            texto: aprobada
-                ? TextosDeVerificacion.actualizarAcceso
-                : TextosDeVerificacion.salirDeCuenta,
+            texto: TextosDeVerificacion.activarCuenta,
+            variante: BotonVariante.primario,
+            expandido: true,
+            onPressed: () async {
+              // El token nuevo trae los permisos de la identidad aprobada: no hace
+              // falta cerrar sesión ni volver a ingresar.
+              final listo = await ref.read(renovarAccesoProvider)();
+              if (!context.mounted) return;
+              if (listo) {
+                context.go('/billetera/inicio');
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text(TextosDeVerificacion.noSePudoActivar),
+                  ),
+                );
+              }
+            },
+          )
+        else if (sesionActiva && rechazada)
+          Boton(
+            texto: TextosDeVerificacion.salirDeCuenta,
             variante: BotonVariante.primario,
             expandido: true,
             onPressed: () async {
               await ref.read(sesionProvider).cerrar();
               if (context.mounted) context.go('/ingreso');
             },
+          )
+        else if (sesionActiva)
+          Boton(
+            texto: TextosDeVerificacion.irALaApp,
+            variante: BotonVariante.primario,
+            expandido: true,
+            onPressed: () => context.go('/billetera/inicio'),
           )
         else if (rechazada)
           Boton(

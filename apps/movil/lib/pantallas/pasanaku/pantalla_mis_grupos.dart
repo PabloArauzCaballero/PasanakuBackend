@@ -1,0 +1,137 @@
+import 'package:aportaya_diseno/atomos/avatar.dart';
+import 'package:aportaya_diseno/atomos/chip_estado.dart';
+import 'package:aportaya_diseno/atomos/tono.dart';
+import 'package:aportaya_diseno/dinero/formatear.dart';
+import 'package:aportaya_diseno/moleculas/tarjeta.dart';
+import 'package:aportaya_diseno/moviles/anclas_de_tutorial.dart';
+import 'package:aportaya_diseno/organismos/estado_de_pantalla.dart';
+import 'package:aportaya_diseno/tokens/tokens.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+
+import '../../proveedores/sesion.dart';
+import 'acciones_de_grupo.dart';
+import 'dominio/mis_grupos.dart';
+import 'textos.dart';
+
+/// La pestaña «Grupos»: una tarjeta por cada grupo en el que participo, con su nombre.
+/// Tocar una abre el estado del aporte de ESE grupo.
+class PantallaMisGrupos extends ConsumerWidget {
+  const PantallaMisGrupos({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final grupos = ref.watch(misGruposProvider);
+    return Scaffold(
+      appBar: AppBar(title: const Text(TextosPasanaku.tituloMisGrupos)),
+      body: SafeArea(
+        child: ListView(
+          padding: const EdgeInsets.all(Espacio.s4),
+          children: [
+            MarcaDeTutorial(
+              id: 'pasanaku.mi-estado',
+              hijo: EstadoDePantalla<List<GrupoMio>>(
+                valor: grupos,
+                etiquetaDeCarga: TextosPasanaku.cargando,
+                mensajeVacio: TextosPasanaku.sinParticipacion,
+                vacio: (l) => l.isEmpty,
+                reintentar: () => ref.invalidate(misGruposProvider),
+                exito: (lista) => Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    for (final g in lista) ...[
+                      TarjetaDeMiGrupo(grupo: g),
+                      const SizedBox(height: Espacio.s3),
+                    ],
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: Espacio.s4),
+            const AccionesDeGrupo(),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class TarjetaDeMiGrupo extends ConsumerWidget {
+  const TarjetaDeMiGrupo({super.key, required this.grupo});
+  final GrupoMio grupo;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final t = Tokens.of(context);
+    final texto = Theme.of(context).textTheme;
+    final nombre = grupo.nombre ?? TextosPasanaku.grupoSinNombre;
+    final (etiqueta, tono) = _estado(grupo.estado);
+    final monto = grupo.montoAporte;
+    return Tarjeta(
+      etiqueta: 'Grupo $nombre, $etiqueta',
+      onTap: () async {
+        final usuarioId = await ref.read(sesionProvider).usuarioId() ?? '';
+        if (!context.mounted) return;
+        context.push(
+          Uri(
+            path: '/pasanaku/mi-estado',
+            queryParameters: {
+              'participante': grupo.participanteId,
+              'usuario': usuarioId,
+              'grupo': grupo.grupoId,
+              'nombre': nombre,
+            },
+          ).toString(),
+        );
+      },
+      child: Row(
+        children: [
+          Avatar(nombre: nombre),
+          const SizedBox(width: Espacio.s3),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  nombre,
+                  style: texto.titleMedium?.copyWith(color: t.text),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                Text(
+                  grupo.esOrganizador
+                      ? TextosPasanaku.organizasEsteGrupo
+                      : TextosPasanaku.participasEnEsteGrupo,
+                  style: texto.bodySmall?.copyWith(color: t.text3),
+                ),
+                if (monto != null) ...[
+                  const SizedBox(height: Espacio.s1),
+                  Text(
+                    TextosPasanaku.aportePorPeriodo(
+                      formatearMonto(
+                        monto: monto,
+                        moneda: grupo.moneda ?? 'BOB',
+                      ).replaceAll(' ', ' '),
+                    ),
+                    style: texto.bodySmall?.copyWith(color: t.text2),
+                  ),
+                ],
+              ],
+            ),
+          ),
+          const SizedBox(width: Espacio.s3),
+          ChipEstado(texto: etiqueta, tono: tono),
+        ],
+      ),
+    );
+  }
+}
+
+(String, Tono) _estado(String estado) => switch (estado) {
+  'ACTIVO' => ('Activo', Tono.ok),
+  'ACEPTADO_PENDIENTE_FIRMA' => ('Falta firmar', Tono.aviso),
+  'EN_MORA' => ('Con deuda', Tono.aviso),
+  'SUSPENDIDO' => ('Suspendido', Tono.aviso),
+  _ => ('En proceso', Tono.info),
+};

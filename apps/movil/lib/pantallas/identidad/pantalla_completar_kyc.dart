@@ -2,15 +2,16 @@ import 'package:aportaya_cliente_identidad/aportaya_cliente_identidad.dart';
 import 'package:aportaya_diseno/atomos/boton.dart';
 import 'package:aportaya_diseno/atomos/boton_variante.dart';
 import 'package:aportaya_diseno/moleculas/campo_de_fecha.dart';
+import 'package:aportaya_diseno/moleculas/referencia_de_error.dart';
 import 'package:aportaya_diseno/tokens/tokens.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../dominio/cliente.dart';
+import 'dominio/cu02_actualizar_fecha_expiracion.dart';
 import 'dominio/capturas_del_expediente.dart';
 import 'dominio/cu02_subir_foto.dart';
 import 'dominio/kyc_del_titular.dart';
-import 'dominio/estado_sesion.dart' show mensajeDeError;
+import 'dominio/estado_sesion.dart' show mensajeDeError, trazaDeError;
 import 'foto_pendiente_kyc.dart';
 import 'pasos_alta/sacar_captura.dart';
 import 'texto_completar_kyc.dart';
@@ -30,6 +31,15 @@ class _PantallaCompletarKycState extends ConsumerState<PantallaCompletarKyc> {
   bool _guardandoFecha = false;
   final Set<CaraDelCarril> _subiendo = {};
   String? _error;
+  String? _trazaId;
+
+  void _mostrarError(Object error, {required String mensajeDesconocido}) {
+    if (!mounted) return;
+    setState(() {
+      _error = mensajeDeError(error, mensajeDesconocido: mensajeDesconocido);
+      _trazaId = trazaDeError(error);
+    });
+  }
 
   Future<void> _guardarFecha() async {
     final fecha = _fecha;
@@ -37,18 +47,19 @@ class _PantallaCompletarKycState extends ConsumerState<PantallaCompletarKyc> {
     setState(() {
       _guardandoFecha = true;
       _error = null;
+      _trazaId = null;
     });
     try {
-      final entrada = FechaExpiracionDocumento(fechaExpiracionDocumento: fecha);
-      await DefaultApi(
-        ref.read(dioProvider),
-      ).actualizarFechaExpiracionDocumento(
-        usuarioId: widget.usuarioId,
-        fechaExpiracionDocumento: entrada,
-      );
+      await ref
+          .read(actualizarFechaExpiracionDocumentoProvider)
+          .ejecutar(usuarioId: widget.usuarioId, fecha: fecha);
       ref.invalidate(kycDelTitularProvider(widget.usuarioId));
     } on Object catch (error) {
-      setState(() => _error = mensajeDeError(error));
+      _mostrarError(
+        error,
+        mensajeDesconocido:
+            'No pudimos guardar la fecha del documento. Probá de nuevo en un momento.',
+      );
     } finally {
       if (mounted) setState(() => _guardandoFecha = false);
     }
@@ -63,6 +74,7 @@ class _PantallaCompletarKycState extends ConsumerState<PantallaCompletarKyc> {
     setState(() {
       _subiendo.add(cara);
       _error = null;
+      _trazaId = null;
     });
     try {
       await ref
@@ -76,7 +88,11 @@ class _PantallaCompletarKycState extends ConsumerState<PantallaCompletarKyc> {
       await captura.eliminarArchivoLocal();
       ref.invalidate(kycDelTitularProvider(widget.usuarioId));
     } on Object catch (error) {
-      setState(() => _error = mensajeDeError(error));
+      _mostrarError(
+        error,
+        mensajeDesconocido:
+            'No pudimos subir la foto. Probá de nuevo en un momento.',
+      );
     } finally {
       if (mounted) setState(() => _subiendo.remove(cara));
     }
@@ -149,8 +165,8 @@ class _PantallaCompletarKycState extends ConsumerState<PantallaCompletarKyc> {
           CampoDeFecha(
             etiqueta: 'Vencimiento del documento',
             valor: fechaVisible,
-            primera: DateTime(hoy.year, hoy.month, hoy.day),
-            ultima: DateTime(hoy.year + 30, hoy.month, hoy.day),
+            primera: DateTime(1950),
+            ultima: DateTime(2100, 12, 31),
             inicial: DateTime(hoy.year + 1, hoy.month, hoy.day),
             ayuda: 'Ingresá la fecha que aparece en tu documento.',
             icono: Icons.event_available_outlined,
@@ -173,6 +189,7 @@ class _PantallaCompletarKycState extends ConsumerState<PantallaCompletarKyc> {
               color: Theme.of(context).colorScheme.error,
             ),
           ),
+          ReferenciaDeError(trazaId: _trazaId),
         ],
         if (todoCompleto) ...[
           const SizedBox(height: Espacio.s4),

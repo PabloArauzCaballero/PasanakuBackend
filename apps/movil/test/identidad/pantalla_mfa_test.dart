@@ -23,12 +23,15 @@ void main() {
     group('360 px · texto 130 % · tema $nombreTema', () {
       var pedidos = 0;
 
-      Future<void> montar(WidgetTester tester) async {
+      Future<void> montar(
+        WidgetTester tester, {
+        String codigoRespuesta = 'AP-CU04-04',
+      }) async {
         pedidos = 0;
         final (:dio, :adaptador) = dioSimulado();
         adaptador.onPost('/sesiones', (s) {
           return s.reply(422, {
-            'codigo': 'AP-CU04-04',
+            'codigo': codigoRespuesta,
             'mensaje': 'x',
             'detalle': <String, dynamic>{},
             'trazaId': 'traza-mfa',
@@ -123,6 +126,56 @@ void main() {
         await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
         await expectLater(tester, meetsGuideline(labeledTapTargetGuideline));
       });
+
+      testWidgets('permite solicitar otro codigo al correo verificado', (
+        tester,
+      ) async {
+        await montar(tester, codigoRespuesta: 'AP-CU04-10');
+        await tester.scrollUntilVisible(
+          find.text('Reenviar código por correo'),
+          180,
+          scrollable: find.byType(Scrollable).first,
+        );
+        expect(find.text('Reenviar código por correo'), findsOneWidget);
+        await tester.tap(find.text('Reenviar código por correo'));
+        await asentar(tester);
+        expect(pedidos, 1);
+        await tester.scrollUntilVisible(
+          find.textContaining('correo de verificacion fue aceptado'),
+          180,
+          scrollable: find.byType(Scrollable).first,
+        );
+        expect(
+          find.textContaining('correo de verificacion fue aceptado'),
+          findsOneWidget,
+        );
+        expect(tester.takeException(), isNull);
+      });
+
+      testWidgets(
+        'no afirma que envio el correo si el servidor solo pide MFA',
+        (tester) async {
+          await montar(tester, codigoRespuesta: 'AP-CU04-03');
+          await tester.scrollUntilVisible(
+            find.text('Reenviar código por correo'),
+            180,
+            scrollable: find.byType(Scrollable).first,
+          );
+          await tester.tap(find.text('Reenviar código por correo'));
+          await asentar(tester);
+          await tester.scrollUntilVisible(
+            find.textContaining('no confirmo un envio al correo'),
+            180,
+            scrollable: find.byType(Scrollable).first,
+          );
+          expect(
+            find.textContaining('no confirmo un envio al correo'),
+            findsOneWidget,
+          );
+          expect(find.textContaining('fue aceptado para envio'), findsNothing);
+          expect(tester.takeException(), isNull);
+        },
+      );
     });
   }
 }

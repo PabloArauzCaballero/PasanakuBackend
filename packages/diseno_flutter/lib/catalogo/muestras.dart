@@ -689,7 +689,7 @@ final List<({String grupo, List<Muestra> muestras})> catalogo = [
       (
         nombre: 'Estado vacío por permiso',
         widget: () => const EstadoVacio(
-          mensaje: 'No tenés acceso a esto.',
+          mensaje: 'Esta acción todavía no está disponible para tu cuenta.',
           motivo: MotivoVacio.porPermiso,
         ),
       ),
