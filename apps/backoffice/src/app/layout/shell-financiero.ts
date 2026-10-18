@@ -104,8 +104,9 @@ type Grupo = { titulo: string | null; secciones: Seccion[] }
     @media (max-width: 40rem) {
       .shell { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto 1fr; grid-template-areas: 'lateral' 'cabecera' 'contenido'; }
       /* Una sola fila que se desliza: el menú no puede comerse media pantalla antes del contenido. */
-      .lateral { position: static; height: auto; display: grid; grid-template-columns: 1fr auto; gap: var(--s2); padding: var(--s3); }
-      .menu { grid-column: 1 / -1; grid-row: 2; display: flex; overflow-x: auto; scrollbar-width: none; }
+      .lateral { position: static; height: auto; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--s2); padding: var(--s3); min-width: 0; }
+      /* min-width 0: sin esto la fila mide lo que todos sus enlaces juntos y empuja la página (visto en Linux, 14 px a 360). */
+      .menu { grid-column: 1 / -1; grid-row: 2; display: flex; min-width: 0; overflow-x: auto; scrollbar-width: none; }
       .grupo { display: none; } ul { display: flex; flex-wrap: nowrap; } .menu a { white-space: nowrap; }
       .salir { grid-column: 2; grid-row: 1; width: auto; border-top: 0; padding-top: var(--s2); }
     }
