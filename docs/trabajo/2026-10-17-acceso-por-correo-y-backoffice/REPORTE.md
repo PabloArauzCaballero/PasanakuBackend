@@ -100,7 +100,7 @@ Regresión completa de `identidad` (`test`, `webTest`, `integrationTest`): ver `
   - Goldens de `packages/diseno_flutter` y de `apps/movil/test/goldens` regenerados en linux/amd64 con Flutter 3.44.8 (la plataforma con la que compara el job) y verificados sin `--update-goldens`: 18/18 y 274/274. `test:front` de la app en el mismo Linux: 649/649.
   - `PRODUCT_BUG` encontrado: el botón del MFA había dejado de decir «Comprobando código…» mientras verifica (se perdió en el merge 6f88a950). Restaurado en `pantalla_mfa.dart`.
   - `TEST_BUG`: `h8_break_ui_test` arrastraba un `ListView` que la pantalla de saldo ya no tiene; ahora arrastra solo si hay algo desplazable y la aserción no cambia.
-  - Los checks iOS (macOS) del #127 dependen de runners macOS; ver su estado en el PR.
+  - **«Release iOS (macOS)» sigue en rojo, y ya fallaba antes** (corrida del 2026-10-17 en `pablo/sync/test-a-dev`): `patrol test` en el simulador termina con `ld: framework 'Pods_Runner' not found` (TEST BUILD FAILED, xcodebuild 65). La reproducción local se cortó antes: `patrol_cli 3.11.0` (el que fija el CI) rechaza el `patrol: ^3.15.0` del `pubspec.yaml` (el lock resuelve 3.20.0). **No resuelto**: queda como trabajo aparte (alinear `patrol`/`patrol_cli` según su tabla de compatibilidad y volver a compilar el target `RunnerUITests`). No lo causan estos cambios.
   - **Propuesta pendiente de confirmación:** borrar las 4 ramas superadas o de ruido en los dos remotos. No se borró nada.
 
 ## Riesgos residuales
