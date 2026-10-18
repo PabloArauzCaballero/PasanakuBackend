@@ -1,6 +1,6 @@
 # Reporte — Ingreso con correo, sin segundo factor para el usuario final, login del backoffice estilo Atlas y rediseño visual del backoffice
 
-> **AVANCE: 13 / 14 — 92,9 %.** Hitos H4 y H6 A MEDIAS. H5 (tipos de usuario) queda `BLOQUEADO` por decisión de negocio: la lista detallada no está en ningún lado accesible. Riesgo abierto: 2 goldens Linux del ingreso móvil van a fallar en el CI hasta regenerarlos en Linux.
+> **AVANCE: 13 / 14 — 92,9 %.** Hitos H4 y H6 A MEDIAS. H5 (tipos de usuario) queda `BLOQUEADO` por decisión de negocio: la lista detallada no está en ningún lado accesible. Los 2 goldens Linux del ingreso móvil se regeneraron en Linux (71103e17).
 
 - Fecha: 2026-10-17 · Plan: [PLAN.md](./PLAN.md) · Rama: `pablo/feat/backoffice-login-y-acceso-2026-10-17` (desde `origin/test` 8a0131c6), subida a `origin`.
 - Peldaño de evidencia alcanzado:
@@ -86,6 +86,22 @@ Regresión completa de `identidad` (`test`, `webTest`, `integrationTest`): ver `
 - El CI también marcó (654d6adf): (1) Spotless en `CU04Autenticar`, corregido con `spotlessApply`; (2) las colecciones Postman generadas desde el contrato quedaron viejas, y además el ejemplo derivado ponía teléfono y correo a la vez, que el contrato rechaza con 400. Se agregó un `example` válido a `EntradaAutenticacion` (solo teléfono) y `scripts/generar_postman.py` usa el `example` del contrato cuando existe; ningún otro contrato tenía `example`, así que solo cambió este esquema.
 - PRs: #127 → `test` y #128 → `dev` (rama `pablo/feat/backoffice-login-y-acceso-dev-2026-10-17`: cherry-pick de los mismos commits sobre `origin/dev`, porque `dev` y `test` divergen; sobre esa base, identidad compila y CU04/Sesiones pasan).
 - El login del backoffice usa el símbolo real de la marca (`landing/assets/img/simbolo.svg`) en lugar del monograma «A» del primer intento.
+
+## Ramas y PRs (pedido de Pablo, 2026-10-17 noche)
+- **Conflicto del #127 con `test`** (entró el #126, KYC diferido): resuelto en f0b0b91f. El caso especial de cuenta pendiente/`INCOMPLETO_KYC` queda cubierto por la regla nueva (el participante entra sin factor); el criterio «cuenta sin documento» de `test` se conserva. Regresión de identidad sobre el merge: test 35 · barrido 2 · webTest 131 · integrationTest 176, sin fallos.
+- **Goldens Linux del ingreso**: regenerados en un contenedor linux/amd64 (ubuntu 24.04) con Flutter 3.44.8 y verificados sin `--update-goldens` (71103e17). Llevados a `dev` con el #129 (mergeado).
+- **Reportes que no habían llegado a `test`/`dev`**: #130 (`test`, mergeado) y #131 (`dev`).
+- **Ramas del espejo frontend sin PR**:
+  - `codex/mobile-design-handoff-2026-10-07`, `marcelo/frontend/fronteras-commits-locales`, `pablo/frontend/catalogo-ui`, `pablo/frontend/contratos`: PRs en **borrador** PasanakuFrontend #27–#30. Base del 21-sep; dos de ellas traen más de 1.600 clientes generados que hoy no se versionan. No se mergean tal cual: hay que decidir qué se rescata.
+  - `pablo/fix/alta-correo-duplicado-2026-10-15` y `pablo/fix/arreglos-test-backoffice-identidad-2026-10-16`: **superadas**, porque su código ya está en `test` por otros PRs (verificado archivo por archivo). Lo único que faltaba (reportes) va en #130/#131.
+  - `wip/alta-correo-test-2026-10-17` (solo `Podfile.lock`/`pbxproj` de un `pod install` local) y `wip/backoffice-dominio-2026-10-17` (solo capturas regeneradas por e2e): **ruido**, sin valor para mergear.
+  - Las ramas de este trabajo tienen sus PRs en el repo canónico (#127, #128, #129); en el espejo están solo como copia.
+- **Job «App — goldens (Linux)»** (fallaba ya en `test` antes de este trabajo: 15 goldens de `diseno_flutter` y nunca llegaba a los de la app):
+  - Goldens de `packages/diseno_flutter` y de `apps/movil/test/goldens` regenerados en linux/amd64 con Flutter 3.44.8 (la plataforma con la que compara el job) y verificados sin `--update-goldens`: 18/18 y 274/274. `test:front` de la app en el mismo Linux: 649/649.
+  - `PRODUCT_BUG` encontrado: el botón del MFA había dejado de decir «Comprobando código…» mientras verifica (se perdió en el merge 6f88a950). Restaurado en `pantalla_mfa.dart`.
+  - `TEST_BUG`: `h8_break_ui_test` arrastraba un `ListView` que la pantalla de saldo ya no tiene; ahora arrastra solo si hay algo desplazable y la aserción no cambia.
+  - Los checks iOS (macOS) del #127 dependen de runners macOS; ver su estado en el PR.
+  - **Propuesta pendiente de confirmación:** borrar las 4 ramas superadas o de ruido en los dos remotos. No se borró nada.
 
 ## Riesgos residuales
 - **Sin segundo factor al entrar:** quien obtiene la contraseña de un participante ve su cuenta. Mitigación vigente: retiro y cambio de cuenta siguen pidiendo step-up (`requiere_mfa`), y el bloqueo por intentos sigue activo.

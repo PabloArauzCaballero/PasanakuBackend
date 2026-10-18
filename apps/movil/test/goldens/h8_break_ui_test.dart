@@ -191,8 +191,13 @@ void main() {
       find.byType(PantallaDeSaldo),
       matchesGoldenFile('$_evidencia/billetera-saldo-cero-200.png'),
     );
-    await tester.drag(find.byType(ListView).first, const Offset(0, -560));
-    await tester.pumpAndSettle();
+    // Sin movimientos la pantalla puede no tener nada que desplazar: el vacío ya se
+    // ve entero. Se arrastra solo si hay algo desplazable; la aserción no cambia.
+    final desplazable = find.byType(Scrollable);
+    if (desplazable.evaluate().isNotEmpty) {
+      await tester.drag(desplazable.first, const Offset(0, -560));
+      await tester.pumpAndSettle();
+    }
     expect(find.textContaining('Todavía no tenés movimientos'), findsOneWidget);
   });
 
