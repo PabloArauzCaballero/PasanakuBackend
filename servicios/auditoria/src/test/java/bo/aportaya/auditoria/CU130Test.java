@@ -71,10 +71,15 @@ class CU130Test extends BaseDeAuditoria {
         assertThat(vista.fichas().get("auditoria.regla_cumplimiento").estado()).isEqualTo("CANDIDATA_A_RETIRO");
 
         Number eventos = (Number) dslFixtura
-                .fetchOne("SELECT count(*) FROM comun.bitacora_evento b JOIN auditoria.ficha_gobierno_tabla f"
-                        + " ON f.id = b.entidad_id WHERE f.esquema = 'auditoria'"
-                        + " AND f.tabla = 'regla_cumplimiento' AND b.accion = 'CAMBIO_CONFIGURACION'"
-                        + " AND b.valor_nuevo ->> 'estado' = 'CANDIDATA_A_RETIRO'")
+                .fetchOne(
+                        """
+                        SELECT count(*) FROM comun.bitacora_evento b
+                        JOIN auditoria.ficha_gobierno_tabla f ON f.id = b.entidad_id
+                        WHERE f.esquema = ? AND f.tabla = ? AND b.accion = 'CAMBIO_CONFIGURACION'
+                          AND b.valor_nuevo ->> 'estado' = 'CANDIDATA_A_RETIRO'
+                        """,
+                        "auditoria",
+                        "regla_cumplimiento")
                 .get(0);
         assertThat(eventos.intValue()).isEqualTo(1);
     }
