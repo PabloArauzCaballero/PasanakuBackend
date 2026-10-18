@@ -67,7 +67,9 @@ import { textosCatalogo } from './textos'
   styles: `
     .pantalla { padding: var(--s5); max-width: 72rem; display: grid; gap: var(--s4); }
     .pantalla > * { min-width: 0; }
-    .largo { display: block; min-width: 12rem; white-space: normal; overflow-wrap: anywhere; }
+    .largo { display: block; min-width: min(12rem, 100%); white-space: normal; overflow-wrap: anywhere; }
+    /* Nombres como fecha_hora_acreditacion no tienen dónde cortar: en el celular empujaban la página. */
+    ap-tabla-de-datos { overflow-wrap: anywhere; }
     h1 { margin: 0; overflow-wrap: anywhere; }
     h2, h3 { margin: 0; }
     .esquema { color: var(--text-2); font-weight: 400; font-size: .7em; }
