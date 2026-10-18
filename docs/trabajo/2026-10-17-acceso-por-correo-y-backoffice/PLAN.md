@@ -96,13 +96,13 @@
 ## H7 — La app web de TEST arranca (hallazgo 2026-10-18)
 **CA:** Dado `https://app.aportaya.161.97.85.216.sslip.io/ingreso`, cuando se abre en el navegador, entonces muestra el ingreso y no «AportaYa no puede arrancar».
 **DoD:** imagen reconstruida en el host + captura del sitio en vivo mirada.
-**Estado:** EN CURSO
+**Estado:** HECHO
 
 Causa: `Dockerfile.movil-web` compila con `--dart-define=API=/api/v1` (relativa) desde el 2026-09-16; `validarGateway` (`apps/movil/lib/dominio/configuracion.dart`, desde ff4a5a4d del 2026-09-22) exige `https://` y un host de `HOSTS_PERMITIDOS`. La app web de TEST está bloqueada desde entonces; no lo introdujo este trabajo.
 
 | ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
 |---|---|---|---|---|
-| H7.S1.M1 | `Dockerfile.movil-web`: `API` y `HOSTS_PERMITIDOS` como `ARG`, con el origen de TEST por omisión (mismo origen que sirve la app; nginx reenvía `/api`) | La app en vivo muestra el ingreso | reconstruir en el host + captura | EN CURSO |
+| H7.S1.M1 | `Dockerfile.movil-web`: `API` y `HOSTS_PERMITIDOS` como `ARG`, con el origen de TEST por omisión (mismo origen que sirve la app; nginx reenvía `/api`) | La app en vivo muestra el ingreso | reconstruir en el host + captura | HECHO — #133/#134; host `OK movil-web en 899s`, `listo en d293ca7`; `evidencia/test-vivo-app-ingreso-form.png` y `-correo.png`, miradas |
 
 ## Hallazgo durante la ejecución (H3)
 - `packages/tokens/generado/tokens.css` no se versiona. Una copia local vieja pintaba el backoffice naranja y crema; regenerado (`yarn workspace @aportaya/tokens build`) sale verde institucional `#164A30` y fondo `#F4F6F5`. El Dockerfile del backoffice lo regenera al construir, así que lo que ve TEST depende de que la imagen se haya reconstruido.

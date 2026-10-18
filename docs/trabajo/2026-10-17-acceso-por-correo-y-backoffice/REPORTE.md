@@ -1,6 +1,6 @@
 # Reporte — Ingreso con correo, sin segundo factor para el usuario final, login del backoffice estilo Atlas y rediseño visual del backoffice
 
-> **AVANCE: 13 / 14 — 92,9 %.** Hitos H4 y H6 A MEDIAS. H5 (tipos de usuario) queda `BLOQUEADO` por decisión de negocio: la lista detallada no está en ningún lado accesible. Los 2 goldens Linux del ingreso móvil se regeneraron en Linux (71103e17).
+> **AVANCE: 14 / 15 — 93,3 %.** Hitos H4 y H6 A MEDIAS. Desde 2026-10-18 todo está desplegado en TEST (`d293ca7`) y mirado en vivo. H5 (tipos de usuario) queda `BLOQUEADO` por decisión de negocio: la lista detallada no está en ningún lado accesible. Los 2 goldens Linux del ingreso móvil se regeneraron en Linux (71103e17).
 
 - Fecha: 2026-10-17 · Plan: [PLAN.md](./PLAN.md) · Rama: `pablo/feat/backoffice-login-y-acceso-2026-10-17` (desde `origin/test` 8a0131c6), subida a `origin`.
 - Peldaño de evidencia alcanzado:
@@ -23,6 +23,7 @@
 | H6.S1.M1 | Auditoría visual de 9 rutas (antes) | capturas | `evidencia/H6/antes/` |
 | H6.S1.M2 | `@aportaya/ui` Boton: plano, sin degradé, sin brillo animado, sin sombra teñida | `yarn --cwd packages/ui test:front` | PASS 125/125 · `evidencia/H6-S1-M2-boton.txt` |
 | H6.S1.M3 | Shell: barra lateral oscura con el símbolo, menú agrupado con íconos, rol legible; en el celular, una fila que se desliza | specs + capturas | PASS · `evidencia/H6-S1-M3-M4-shell.txt`, `evidencia/H6/despues/` |
+| H7.S1.M1 | La app web de TEST arranca: estaba en «AportaYa no puede arrancar» desde el 2026-09-22 (`Dockerfile.movil-web` compilaba con `API=/api/v1` relativa, que `validarGateway` rechaza en release) | reconstrucción en el host + captura en vivo | PASS · #133/#134; `OK movil-web en 899s`, `listo en d293ca7`; `evidencia/test-vivo-app-ingreso-form.png`, `-correo.png` |
 | H6.S1.M4 | «Salir»: `DELETE /sesion` y vuelta a `/ingreso`; si la red falla, igual sale | `npx ng test --include='src/app/layout/**/*.spec.ts'` | PASS 14/14 |
 
 ## A medias
@@ -102,6 +103,13 @@ Regresión completa de `identidad` (`test`, `webTest`, `integrationTest`): ver `
   - `TEST_BUG`: `h8_break_ui_test` arrastraba un `ListView` que la pantalla de saldo ya no tiene; ahora arrastra solo si hay algo desplazable y la aserción no cambia.
   - Los checks iOS (macOS) del #127 dependen de runners macOS; ver su estado en el PR.
   - **Propuesta pendiente de confirmación:** borrar las 4 ramas superadas o de ruido en los dos remotos. No se borró nada.
+
+## Despliegue en TEST (2026-10-18)
+Hasta el 18 a la madrugada, TEST seguía en `0eb3881`: el #127 no estaba mergeado a `test`, que es la rama que despliega el VPS. Por eso no se veía ningún cambio.
+- #127 → `test` (`24f0444`) y #132 → `dev`. El host reconstruyó `identidad`, los clientes, el backoffice, la web y la app (`listo en 24f0444`); en Coolify, `aportaya-api`, `-web`, `-backoffice` y `-movil` quedaron `finished`.
+- API en vivo: `POST /api/v1/sesiones` con `correo` de una cuenta inexistente → `422 AP-CU04-01 «El telefono, el correo o la contrasena no coinciden.»`; sin teléfono ni correo → `400 AP-VAL-02`.
+- Capturas en vivo, miradas: `evidencia/test-vivo-backoffice-escritorio.png`, `test-vivo-backoffice-movil.png`, `test-vivo-app-ingreso-form.png`, `test-vivo-app-ingreso-correo.png`. La consola del backoffice solo muestra el 401 esperado de `/sesion/refrescar` sin sesión.
+- No cubierto en vivo: ingreso completo con una cuenta real (no se usaron credenciales de TEST).
 
 ## Riesgos residuales
 - **Sin segundo factor al entrar:** quien obtiene la contraseña de un participante ve su cuenta. Mitigación vigente: retiro y cambio de cuenta siguen pidiendo step-up (`requiere_mfa`), y el bloqueo por intentos sigue activo.
