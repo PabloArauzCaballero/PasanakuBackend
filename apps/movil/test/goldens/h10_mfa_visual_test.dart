@@ -100,7 +100,7 @@ void main() {
             // un frame estable sin esperar que la animación termine.
             await tester.pump();
             expect(
-              find.bySemanticsLabel('Confirmar, enviando'),
+              find.bySemanticsLabel('Comprobando código..., enviando'),
               findsOneWidget,
             );
             expect(find.byType(CircularProgressIndicator), findsOneWidget);

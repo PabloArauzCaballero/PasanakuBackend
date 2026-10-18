@@ -57,7 +57,9 @@ const _casos = [
     clave: 'sesion-en-revision',
     estado: EstadoDeVerificacionEstadoEnum.EN_REVISION,
     titulo: TextosDeVerificacion.cuentaEnVerificacionTitulo,
-    accion: TextosDeVerificacion.salirDeCuenta,
+    // Con sesión y la identidad en revisión se entra a la app (2026-10-17): ya no
+    // queda «Salir de esta cuenta» como única salida.
+    accion: TextosDeVerificacion.irALaApp,
     sesionActiva: true,
   ),
   (
