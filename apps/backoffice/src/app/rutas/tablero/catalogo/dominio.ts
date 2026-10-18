@@ -2,6 +2,8 @@ import { httpResource } from '@angular/common/http'
 import { Injectable, inject } from '@angular/core'
 import { ColumnaDelCatalogoOrigenNegocioEnum, type CatalogoDeDatos, type ColumnaDelCatalogo, type TablaDelCatalogo } from 'clientes/angular/auditoria'
 import { GATEWAY } from '../../../nucleo/gateway'
+import { ESTADOS, REVISIONES, gobiernoDe, tieneDatosFinancieros, tieneDatosPersonales, tonoDeEstado, tonoDeRevision } from './gobierno'
+import type { Tono } from '@aportaya/ui/tono/tono'
 
 /**
  * Catálogo de datos (H7) · el contrato `obtenerCatalogoDeDatos` de auditoria.yaml, con los tipos del cliente generado.
@@ -26,7 +28,23 @@ export function normalizar(valor: string): string {
 }
 
 /** Una fila de la lista, ya en texto (la tabla no formatea). */
-export type FilaDeTabla = { id: string; tabla: string; esquema: string; servicio: string; columnas: string; queEs: string }
+export type FilaDeTabla = {
+  id: string
+  tabla: string
+  esquema: string
+  servicio: string
+  columnas: string
+  queEs: string
+  modulo: string
+  responsable: string
+  personales: string
+  financieros: string
+  retencion: string
+  estado: string
+  tonoEstado: Tono
+  revision: string
+  tonoRevision: Tono
+}
 
 /**
  * Busca por nombre de tabla, de columna, esquema y por lo que la ficha dice que es. Con esquemas elegidos, solo esos.
@@ -46,15 +64,27 @@ function textoBuscable(t: TablaDelCatalogo): string {
   return [t.esquema, ...nombres, t.negocio.queEs ?? ''].join(' ')
 }
 
-export function filasDeTablas(tablas: readonly TablaDelCatalogo[]): FilaDeTabla[] {
-  return tablas.map((t) => ({
+export function filasDeTablas(tablas: readonly TablaDelCatalogo[], retenciones: ReadonlyMap<string, string> = new Map()): FilaDeTabla[] {
+  return tablas.map((t) => {
+    const g = gobiernoDe(t)
+    return {
     id: `${t.esquema}.${t.tabla}`,
     tabla: t.tabla,
     esquema: t.esquema,
     servicio: t.servicio ?? 'Compartido',
     columnas: String(t.columnas.length),
     queEs: t.negocio.queEs ?? 'Sin ficha',
-  }))
+    modulo: `${t.modulo} · ${t.nombreModulo}`,
+    responsable: g.responsable ?? 'Sin asignar',
+    personales: tieneDatosPersonales(t) ? 'Sí' : 'No',
+    financieros: tieneDatosFinancieros(t) ? 'Sí' : 'No',
+    retencion: g.politicaRetencionId ? (retenciones.get(g.politicaRetencionId) ?? 'Asignada') : 'Sin política',
+    estado: ESTADOS[g.estado] ?? g.estado,
+    tonoEstado: tonoDeEstado(g.estado),
+    revision: REVISIONES[g.estadoRevision] ?? g.estadoRevision,
+    tonoRevision: tonoDeRevision(g.estadoRevision),
+    }
+  })
 }
 
 /** La página pedida dentro de la lista filtrada (20 por página); fuera de rango, la última que existe. */

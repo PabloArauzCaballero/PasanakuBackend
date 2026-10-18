@@ -9,7 +9,8 @@ import { crearCerrarSesion, rolLegible } from './dominio/cerrar-sesion'
 import { IconoDeSeccion, type Seccion as NombreDeSeccion } from './icono-de-seccion'
 import { SimboloDeMarca } from './simbolo-de-marca'
 
-type Seccion = { ruta: NombreDeSeccion; texto: string; permiso: string }
+/** `destino` cuando la ruta no es `/<ruta>` (el catálogo vive bajo el tablero). */
+type Seccion = { ruta: NombreDeSeccion; texto: string; permiso: string; destino?: string }
 type Grupo = { titulo: string | null; secciones: Seccion[] }
 
 /**
@@ -39,7 +40,7 @@ type Grupo = { titulo: string | null; secciones: Seccion[] }
               <ul>
                 @for (s of visibles(g); track s.ruta) {
                   <li>
-                    <a [routerLink]="['/', s.ruta]" [attr.data-tutorial-id]="'menu-' + s.ruta" routerLinkActive="activo" ariaCurrentWhenActive="page">
+                    <a [routerLink]="s.destino ?? ['/', s.ruta]" [attr.data-tutorial-id]="'menu-' + s.ruta" routerLinkActive="activo" ariaCurrentWhenActive="page">
                       <ap-icono-de-seccion [nombre]="s.ruta" />{{ s.texto }}
                     </a>
                   </li>
@@ -129,6 +130,7 @@ export class ShellFinanciero {
     { titulo: 'Control', secciones: [
       { ruta: 'cumplimiento', texto: 'Cumplimiento', permiso: 'ver:cumplimiento' },
       { ruta: 'sistemas', texto: 'Sistemas', permiso: 'ver:sistemas' },
+      { ruta: 'catalogo', destino: '/tablero/catalogo-de-datos', texto: 'Catálogo de datos', permiso: 'ver:catalogo' },
     ] },
     { titulo: 'Finanzas', secciones: [
       { ruta: 'contabilidad', texto: 'Contabilidad', permiso: 'ver:contabilidad' },
