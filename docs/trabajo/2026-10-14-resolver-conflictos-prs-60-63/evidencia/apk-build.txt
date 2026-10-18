@@ -1,0 +1,4 @@
+Please check the changelogs of these plugins and upgrade to a version that supports Built-in Kotlin.
+If you are a plugin author, please migrate your plugin to Built-in Kotlin using this guide: https://docs.flutter.dev/release/breaking-changes/migrate-to-built-i
+✓ Built build/app/outputs/flutter-apk/app-release.apk (110.5MB)
+sha256 aportaya-test-6-TEST.apk: 373dd9a1b8ada9c53de1f88398a405a9d9a9c18e1251b598fc4a36c2c4e9fb69 | package bo.aportaya.aportaya_movil versionCode 26101420
