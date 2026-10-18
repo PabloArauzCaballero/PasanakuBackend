@@ -9,9 +9,11 @@ import static bo.aportaya.identidad.generado.Tables.USUARIO;
 import bo.aportaya.identidad.dominio.PerfilDeAcceso;
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.UUID;
 import org.jooq.DSLContext;
+import org.jooq.impl.DSL;
 import org.springframework.stereotype.Component;
 
 /**
@@ -26,6 +28,23 @@ public class UsuarioRepositorio {
                 .where(USUARIO.TELEFONO_E164.eq(telefonoE164))
                 .and(USUARIO.ELIMINADO_EN.isNull())
                 .fetchOptional(USUARIO.ID);
+    }
+
+    /**
+     * La cuenta de ese correo, sin importar mayusculas ni espacios de los bordes.
+     *
+     * <p>{@code uq_usuario_correo} compara exacto, asi que dos cuentas pueden diferir solo
+     * en mayusculas. En ese caso el correo no identifica a nadie y se responde vacio: el
+     * ingreso lo trata igual que un correo que no existe, nunca elige una al azar.
+     */
+    public Optional<UUID> porCorreo(DSLContext dsl, String correo) {
+        List<UUID> cuentas = dsl.select(USUARIO.ID)
+                .from(USUARIO)
+                .where(DSL.lower(USUARIO.CORREO).eq(correo.strip().toLowerCase(Locale.ROOT)))
+                .and(USUARIO.ELIMINADO_EN.isNull())
+                .limit(2)
+                .fetch(USUARIO.ID);
+        return cuentas.size() == 1 ? Optional.of(cuentas.get(0)) : Optional.empty();
     }
 
     public Optional<String> estadoDe(DSLContext dsl, UUID usuarioId) {

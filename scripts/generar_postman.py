@@ -123,6 +123,11 @@ def ejemplo(nodo, esquemas: dict, nombre: str = "", visto: frozenset = frozenset
     nodo, visto = resolver(nodo, esquemas, visto)
     if not isinstance(nodo, dict):
         return None
+    # El `example` del contrato manda cuando existe: hay esquemas que el ejemplo derivado
+    # no puede satisfacer, como `EntradaAutenticacion` (exactamente uno de telefonoE164
+    # o correo; con los dos, el servidor contesta 400).
+    if "example" in nodo:
+        return nodo["example"]
     if "enum" in nodo:
         return nodo["enum"][0]
     if "const" in nodo:

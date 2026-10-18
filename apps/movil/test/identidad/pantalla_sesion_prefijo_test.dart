@@ -51,6 +51,32 @@ void main() {
     expect(ingresar(tester).onPressed, isNull);
   });
 
+  testWidgets(
+    'con «Entrar con mi correo» el celular se cambia por el correo y entra con él',
+    (tester) async {
+      final (:dio, :adaptador) = dioSimulado();
+      await tester.pumpWidget(conApp(const PantallaDeSesion(), dio: dio));
+      // Deja terminar la aparición escalonada: a mitad de camino el toque cae corrido.
+      await tester.pump(const Duration(seconds: 1));
+
+      await tester.tap(find.text('Entrar con mi correo'));
+      await tester.pump();
+      expect(find.byKey(const Key('campo-correo-de-ingreso')), findsOneWidget);
+      expect(find.text('+591'), findsNothing);
+      expect(find.text('Entrar con mi celular'), findsOneWidget);
+
+      final campos = find.byType(EditableText);
+      await tester.enterText(campos.at(0), 'ana@ejemplo');
+      await tester.enterText(campos.at(1), 'Clave-Segura-123');
+      await tester.pump();
+      expect(ingresar(tester).onPressed, isNull, reason: 'correo incompleto');
+
+      await tester.enterText(campos.at(0), 'ana@ejemplo.invalid');
+      await tester.pump();
+      expect(ingresar(tester).onPressed, isNotNull);
+    },
+  );
+
   testWidgets('credencial incorrecta tiembla tres veces y da haptic ligero', (
     tester,
   ) async {

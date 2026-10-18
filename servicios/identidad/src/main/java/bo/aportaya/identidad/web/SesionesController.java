@@ -152,7 +152,7 @@ public class SesionesController implements SesionesApi {
 
     private EntradaAutenticacion mapear(bo.aportaya.identidad.web.generado.modelo.EntradaAutenticacion cuerpo) {
         return new EntradaAutenticacion(
-                cuerpo.getTelefonoE164(),
+                identificador(cuerpo),
                 cuerpo.getCredencial() != null ? cuerpo.getCredencial().toCharArray() : new char[0],
                 cuerpo.getHuellaDispositivo(),
                 cuerpo.getPlataforma() != null ? cuerpo.getPlataforma().getValue() : "ANDROID",
@@ -163,6 +163,21 @@ public class SesionesController implements SesionesApi {
                         .map(bo.aportaya.identidad.web.generado.modelo.FactorPresentado::getValor),
                 false,
                 vigenciaDeSesion);
+    }
+
+    /**
+     * El telefono o el correo, exactamente uno (contrato {@code EntradaAutenticacion}).
+     * Ninguno o los dos es una entrada mal formada: sale 400 AP-VAL-02 por el manejador
+     * global, nunca un 500 ni un 422 que parezca una credencial mala.
+     */
+    private static String identificador(bo.aportaya.identidad.web.generado.modelo.EntradaAutenticacion cuerpo) {
+        boolean hayTelefono = cuerpo.getTelefonoE164() != null;
+        boolean hayCorreo = cuerpo.getCorreo() != null && !cuerpo.getCorreo().isBlank();
+        if (hayTelefono == hayCorreo) {
+            throw new jakarta.validation.ConstraintViolationException(
+                    "telefonoE164 o correo, exactamente uno", java.util.Set.of());
+        }
+        return hayTelefono ? cuerpo.getTelefonoE164() : cuerpo.getCorreo();
     }
 
     /**

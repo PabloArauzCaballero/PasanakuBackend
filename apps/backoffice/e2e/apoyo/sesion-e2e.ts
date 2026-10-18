@@ -73,7 +73,7 @@ export async function iniciarSesionDePrueba(page: Page, permisos: readonly strin
   })
 
   await page.goto('/ingreso')
-  await page.getByLabel('Teléfono').fill('71234567')
+  await page.getByLabel('Correo o teléfono').fill('71234567')
   await page.getByLabel('Contraseña', { exact: true }).fill('contrasena-e2e')
   await page.getByRole('button', { name: 'Continuar' }).click()
 

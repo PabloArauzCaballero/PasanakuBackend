@@ -22,16 +22,19 @@ class CU04Test extends BaseDeCU04 {
 
     @Test
     @DisplayName(
-            "Dado un usuario con MFA activo · Cuando inicia sesión desde un dispositivo desconocido · Entonces se le exige un factor adicional · Y queda registrado el dispositivo con es_confiable = false")
+            "Dado un participante con MFA activo · Cuando inicia sesión desde un teléfono nuevo · Entonces obtiene su sesión sin que se le pida código · Y queda registrado el dispositivo con es_confiable = false")
     void criterio1() {
-        UUID usuario = participanteConCredencial("+59171000001");
+        String telefono = "+59171" + ThreadLocalRandom.current().nextInt(100_000, 1_000_000);
+        UUID usuario = participanteConCredencial(telefono);
         fixtura.factor(usuario, "TOTP", true, true);
 
-        ResultadoDeAutenticacion resultado = autenticar(entrada("+59171000001", "clave-correcta", "huella-nueva"));
+        ResultadoDeAutenticacion resultado = autenticar(entrada(telefono, "clave-correcta", "huella-nueva"));
 
-        assertThat(resultado.exitoso()).isFalse();
-        assertThat(resultado.requiereFactorAdicional()).isTrue();
-        assertThat(resultado.codigo()).map(c -> c.valor()).contains("AP-CU04-03");
+        assertThat(resultado.exitoso())
+                .as("rechazo: %s (%s)", resultado.codigo(), resultado.mensaje())
+                .isTrue();
+        assertThat(resultado.requiereFactorAdicional()).isFalse();
+        assertThat(sesionesDe(usuario)).isEqualTo(1);
         assertThat(dispositivoConfiable(usuario, "huella-nueva")).isFalse();
     }
 
@@ -58,16 +61,18 @@ class CU04Test extends BaseDeCU04 {
 
     @Test
     @DisplayName(
-            "Dado un usuario activo sin factor · Cuando inicia sesion desde un dispositivo nuevo · Entonces se exige segundo factor y no se crea sesion")
-    void cuentaActivaSinFactorNoOmiteMfaEnDispositivoNuevo() {
+            "Dado un participante activo sin factor · Cuando inicia sesion desde un teléfono nuevo · Entonces obtiene su sesión sin que se le pida código")
+    void cuentaActivaSinFactorEntraEnTelefonoNuevo() {
         String telefono = "+59174" + ThreadLocalRandom.current().nextInt(100_000, 1_000_000);
         UUID usuario = participanteConCredencial(telefono);
 
         ResultadoDeAutenticacion resultado = autenticar(entrada(telefono, "clave-correcta", "huella-activa-nueva"));
 
-        assertThat(resultado.requiereFactorAdicional()).isTrue();
-        assertThat(resultado.codigo()).map(c -> c.valor()).contains("AP-CU04-03");
-        assertThat(sesionesDe(usuario)).isZero();
+        assertThat(resultado.exitoso())
+                .as("rechazo: %s (%s)", resultado.codigo(), resultado.mensaje())
+                .isTrue();
+        assertThat(resultado.requiereFactorAdicional()).isFalse();
+        assertThat(sesionesDe(usuario)).isEqualTo(1);
     }
 
     @Test

@@ -26,6 +26,7 @@ export 'package:aportaya_cliente_identidad/src/model/entrada_busqueda_por_telefo
 export 'package:aportaya_cliente_identidad/src/model/entrada_desafio_de_step_up.dart';
 export 'package:aportaya_cliente_identidad/src/model/entrada_registro.dart';
 export 'package:aportaya_cliente_identidad/src/model/entrada_renovacion.dart';
+export 'package:aportaya_cliente_identidad/src/model/entrada_rol_organizador.dart';
 export 'package:aportaya_cliente_identidad/src/model/entrada_titularidad.dart';
 export 'package:aportaya_cliente_identidad/src/model/entrada_token_de_invitacion.dart';
 export 'package:aportaya_cliente_identidad/src/model/entrada_validacion_invitacion.dart';
@@ -36,7 +37,9 @@ export 'package:aportaya_cliente_identidad/src/model/expediente_en_revision.dart
 export 'package:aportaya_cliente_identidad/src/model/factor_presentado.dart';
 export 'package:aportaya_cliente_identidad/src/model/fecha_expiracion_documento.dart';
 export 'package:aportaya_cliente_identidad/src/model/limite_aplicable.dart';
+export 'package:aportaya_cliente_identidad/src/model/mi_perfil.dart';
 export 'package:aportaya_cliente_identidad/src/model/nivel_kyc.dart';
+export 'package:aportaya_cliente_identidad/src/model/rol_organizador_activado.dart';
 export 'package:aportaya_cliente_identidad/src/model/salida_autenticacion.dart';
 export 'package:aportaya_cliente_identidad/src/model/salida_desafio_de_step_up.dart';
 export 'package:aportaya_cliente_identidad/src/model/salida_evidencia_de_step_up.dart';
