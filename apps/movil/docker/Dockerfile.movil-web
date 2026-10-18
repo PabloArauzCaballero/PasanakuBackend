@@ -46,10 +46,15 @@ WORKDIR /construccion/apps/movil
 # `--enforce-lockfile`: se compila con las versiones del pubspec.lock versionado, no con
 # las que resuelva el día del build.
 RUN flutter pub get --enforce-lockfile
-# API relativa: la app habla con el gateway por el MISMO origen que la sirve, y nginx
-# reenvía /api. Sin esto `baseDelGateway` cae a http://localhost/api/v1 — la máquina de
-# quien abre la página.
-RUN flutter build web --release --dart-define=API=/api/v1
+# La app habla con el gateway por el MISMO origen que la sirve, y nginx reenvía /api.
+# Va absoluta y con su host en HOSTS_PERMITIDOS: en release `validarGateway`
+# (lib/dominio/configuracion.dart) rechaza una ruta relativa, y con `API=/api/v1` la app
+# quedaba en «AportaYa no puede arrancar». Por omisión, el origen de TEST.
+ARG ORIGEN=https://app.aportaya.161.97.85.216.sslip.io
+ARG HOSTS_PERMITIDOS=app.aportaya.161.97.85.216.sslip.io
+RUN flutter build web --release \
+      --dart-define=API=${ORIGEN}/api/v1 \
+      --dart-define=HOSTS_PERMITIDOS=${HOSTS_PERMITIDOS}
 
 # ---------------------------------------------------------------- ejecucion ---
 FROM nginxinc/nginx-unprivileged:1.27-alpine AS ejecucion

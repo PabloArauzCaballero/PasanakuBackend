@@ -93,6 +93,17 @@
 | H6.S1.M3 | Shell: barra lateral oscura con el símbolo real de la marca (`landing/assets/img/simbolo.svg`), menú con íconos y agrupado, cabecera con el rol legible (sin código crudo) | Capturas después en claro y oscuro, 3 anchos | `evidencia/H6/despues/` + lint + specs del shell | HECHO — `evidencia/H6-S1-M3-M4-shell.txt`; capturas en `evidencia/H6/despues/` (9 rutas claro/oscuro, celular y tablet), miradas |
 | H6.S1.M4 | «Salir» en el shell: `DELETE /sesion` (contrato `cerrarSesion`) y vuelta a `/ingreso`; si la red falla, igual se cierra en el navegador | Spec: llama al endpoint y cierra la sesión local | `npx ng test --include='src/app/layout/**/*.spec.ts'` | HECHO — 14/14 (incluye «si el servidor falla, igual sale») |
 
+## H7 — La app web de TEST arranca (hallazgo 2026-10-18)
+**CA:** Dado `https://app.aportaya.161.97.85.216.sslip.io/ingreso`, cuando se abre en el navegador, entonces muestra el ingreso y no «AportaYa no puede arrancar».
+**DoD:** imagen reconstruida en el host + captura del sitio en vivo mirada.
+**Estado:** EN CURSO
+
+Causa: `Dockerfile.movil-web` compila con `--dart-define=API=/api/v1` (relativa) desde el 2026-09-16; `validarGateway` (`apps/movil/lib/dominio/configuracion.dart`, desde ff4a5a4d del 2026-09-22) exige `https://` y un host de `HOSTS_PERMITIDOS`. La app web de TEST está bloqueada desde entonces; no lo introdujo este trabajo.
+
+| ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
+|---|---|---|---|---|
+| H7.S1.M1 | `Dockerfile.movil-web`: `API` y `HOSTS_PERMITIDOS` como `ARG`, con el origen de TEST por omisión (mismo origen que sirve la app; nginx reenvía `/api`) | La app en vivo muestra el ingreso | reconstruir en el host + captura | EN CURSO |
+
 ## Hallazgo durante la ejecución (H3)
 - `packages/tokens/generado/tokens.css` no se versiona. Una copia local vieja pintaba el backoffice naranja y crema; regenerado (`yarn workspace @aportaya/tokens build`) sale verde institucional `#164A30` y fondo `#F4F6F5`. El Dockerfile del backoffice lo regenera al construir, así que lo que ve TEST depende de que la imagen se haya reconstruido.
 - El `Boton` Angular conserva degradé, brillo animado y sombra teñida: es el «videojuego» que la app ya dejó. Se agrega H6.S1.M2.
