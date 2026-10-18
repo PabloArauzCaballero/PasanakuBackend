@@ -160,6 +160,23 @@ package "Bitacora y Trazabilidad" {
     --
     + registrosVencidos(): List<UUID>
   }
+
+  class FichaGobiernoTabla <<Pol>> {
+    - id: UUID
+    - esquema: String
+    - tabla: String
+    - estado: String <<ACTIVA | PLANIFICADA | CANDIDATA_A_RETIRO | RETIRADA | DESHABILITADA>>
+    - estadoRevision: String <<DETECTADA | NECESITA_REVISION | APROBADA | RECHAZADA>>
+    - responsable: String
+    - politicaRetencionId: UUID
+    - criticaParaAuditoria: Boolean
+    - notaRevision: String
+    - revisadoPor: UUID
+    - actualizadoEn: Instant
+    - version: Integer
+    --
+    + estaVigente(): Boolean
+  }
 }
 
 ' ============================================================
@@ -611,6 +628,22 @@ entity "politica_retencion" as polret {
   vigente_desde : DATE
 }
 
+entity "ficha_gobierno_tabla" as fichagob {
+  * id : UUID <<PK>>
+  --
+  esquema : VARCHAR(63) <<UQ+tabla>>
+  tabla : VARCHAR(63)
+  estado : VARCHAR(20) <<CK>>
+  estado_revision : VARCHAR(20) <<CK>>
+  responsable : VARCHAR(80) <<NULL>>
+  # politica_retencion_id : UUID <<FK, NULL>>
+  critica_para_auditoria : BOOLEAN
+  nota_revision : VARCHAR(500) <<NULL>>
+  revisado_por : UUID <<NULL>>
+  actualizado_en : TIMESTAMPTZ
+  version : INTEGER
+}
+
 entity "definicion_reporte" as defrep {
   * id : UUID <<PK>>
   --
@@ -884,6 +917,7 @@ ros ||--o{ alertcump : "consolida"
 listaext ||--o{ coinc : "coincide en"
 soldatos ||--o| anonim : "ejecuta"
 polret ||--o{ bit : "retiene"
+polret ||--o{ fichagob : "fija la retencion de"
 
 note top of bit
   <b>Cadena de integridad</b>

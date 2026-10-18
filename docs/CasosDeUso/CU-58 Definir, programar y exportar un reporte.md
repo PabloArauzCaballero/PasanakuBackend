@@ -198,4 +198,4 @@ Entonces ve las dos completadas, de la más reciente a la más antigua, con su h
 
 ## Ver también
 
-[[CU-15 Emitir extracto y certificado de saldo]] · [[CU-43 Remitir los reportes mensuales a la UIF]] · [[CU-45 Atender un requerimiento de autoridad]] · [[CU-98 Publicar el tablero de indicadores]]
+[[CU-15 Emitir extracto y certificado de saldo]] · [[CU-43 Remitir los reportes mensuales a la UIF]] · [[CU-45 Atender un requerimiento de autoridad]] · [[CU-98 Publicar el tablero de indicadores]] · [[CU-130 Gobernar la ficha de cada tabla del catálogo de datos]]

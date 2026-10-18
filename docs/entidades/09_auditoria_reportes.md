@@ -176,6 +176,26 @@ evidencia que la ley obliga a tener).
 
 ---
 
+### `FichaGobiernoTabla` / `ficha_gobierno_tabla` — Política configurable
+
+**Qué es.** La ficha de gobierno de cada tabla del modelo: si está en uso
+(estado), si alguien ya revisó su descripción (revisión), quién responde por
+ella y qué política de retención le aplica.
+
+**Para qué sirve (negocio).** El catálogo de datos dice qué es cada tabla, pero
+no si sigue en uso ni quién la cuida. Con esta ficha el equipo de sistemas y
+auditoría ve de un vistazo qué tablas están activas, cuáles se proponen retirar
+y cuáles nadie revisó todavía, igual que en el portal interno de Atlas.
+
+Una tabla sin ficha se muestra **activa y detectada**: está en el modelo y nadie
+la revisó. La sensibilidad no se guarda acá: se deriva de las columnas del
+modelo, para no tener dos fuentes de verdad.
+
+**Por qué debe existir.** Sin ella, retirar una tabla o confirmar que una tabla
+con datos personales tiene dueño y retención depende de la memoria de alguien.
+
+---
+
 ## Paquete: Reportes y Explotación
 
 ### `DefinicionReporte` / `definicion_reporte`

@@ -43,6 +43,10 @@ class SaludDeServiciosWebTest {
     @MockitoBean
     private bo.aportaya.auditoria.aplicacion.CatalogoDeDatosVigente catalogoDeDatos;
 
+    // CU-130: el mismo controlador guarda la ficha de gobierno.
+    @MockitoBean
+    private bo.aportaya.auditoria.aplicacion.CU130GobernarFichaDeTabla cu130;
+
     @Test
     @DisplayName(
             "estado · con TABLERO_SISTEMAS_VER: 200 con ARRIBA, DEGRADADO y CAIDO, y sin latencia el que no contestó")
