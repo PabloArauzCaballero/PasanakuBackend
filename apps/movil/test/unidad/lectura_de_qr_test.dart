@@ -6,6 +6,50 @@ final _hash = 'ab' * 32;
 
 void main() {
   group('rutaDeInvitacionDesdeQr', () {
+    group('el enlace https que se comparte por WhatsApp o SMS', () {
+      const web = 'https://app.aportaya.161.97.85.216.sslip.io';
+
+      test(
+        'correcto: el de la app web propia lleva a la pantalla de unirse',
+        () {
+          expect(
+            rutaDeInvitacionDesdeQr(
+              '$web/#/pasanaku/unirse/$_uuid.$_hash',
+              appWeb: web,
+            ),
+            '/pasanaku/unirse/$_uuid.$_hash',
+          );
+        },
+      );
+
+      test(
+        'límite: sin la dirección web conocida no se acepta ningún https',
+        () {
+          expect(
+            rutaDeInvitacionDesdeQr('$web/#/pasanaku/unirse/$_uuid.$_hash'),
+            isNull,
+          );
+        },
+      );
+
+      test('inválido: el mismo camino en otro dominio no es una invitación', () {
+        expect(
+          rutaDeInvitacionDesdeQr(
+            'https://app.otro-sitio.com/#/pasanaku/unirse/$_uuid.$_hash',
+            appWeb: web,
+          ),
+          isNull,
+        );
+        expect(
+          rutaDeInvitacionDesdeQr(
+            'http://app.aportaya.161.97.85.216.sslip.io/#/pasanaku/unirse/$_uuid.$_hash',
+            appWeb: web,
+          ),
+          isNull,
+        );
+      });
+    });
+
     test('correcto: invitación válida lleva a la pantalla de unirse', () {
       expect(
         rutaDeInvitacionDesdeQr('aportaya://unirse/$_uuid.$_hash'),
