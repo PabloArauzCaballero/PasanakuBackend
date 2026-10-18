@@ -1,5 +1,7 @@
+import 'package:dio/dio.dart';
 import 'package:aportaya_movil/pantallas/pasanaku/pantalla_mi_estado.dart';
 import 'package:aportaya_movil/pantallas/pasanaku/pantalla_mis_grupos.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../comun.dart';
@@ -60,6 +62,43 @@ void main() {
     expect(find.text('Grupo'), findsOneWidget);
     expect(find.text('Falta firmar'), findsOneWidget);
     expect(find.textContaining('por período'), findsNothing);
+  });
+
+  testWidgets('deslizar hacia abajo vuelve a pedir los grupos y muestra el '
+      'nuevo, sin salir de la pestaña', (tester) async {
+    final (:dio, :adaptador) = dioSimulado();
+    var pedidos = 0;
+    dio.interceptors.add(
+      InterceptorsWrapper(
+        onRequest: (o, h) {
+          if (o.path.endsWith(_ruta)) pedidos++;
+          h.next(o);
+        },
+      ),
+    );
+    adaptador.onGet(
+      _ruta,
+      (s) => s.reply(200, [_grupo('1', nombre: 'Pasanaku de la oficina')]),
+    );
+
+    await tester.pumpWidget(conApp(const PantallaMisGrupos(), dio: dio));
+    await asentar(tester);
+    expect(pedidos, 1);
+    expect(find.text('Grupo recién creado'), findsNothing);
+
+    // Mientras tanto se creó un grupo: el servidor ya lo devuelve.
+    adaptador.onGet(
+      _ruta,
+      (s) => s.reply(200, [
+        _grupo('1', nombre: 'Pasanaku de la oficina'),
+        _grupo('2', nombre: 'Grupo recién creado'),
+      ]),
+    );
+    await tester.fling(find.byType(ListView), const Offset(0, 400), 1000);
+    await asentar(tester);
+
+    expect(pedidos, 2);
+    expect(find.text('Grupo recién creado'), findsOneWidget);
   });
 
   testWidgets('vacío: sin grupos lo dice y deja organizar uno', (tester) async {

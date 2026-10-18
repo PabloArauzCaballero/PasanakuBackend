@@ -26,31 +26,37 @@ class PantallaMisGrupos extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(title: const Text(TextosPasanaku.tituloMisGrupos)),
       body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.all(Espacio.s4),
-          children: [
-            MarcaDeTutorial(
-              id: 'pasanaku.mi-estado',
-              hijo: EstadoDePantalla<List<GrupoMio>>(
-                valor: grupos,
-                etiquetaDeCarga: TextosPasanaku.cargando,
-                mensajeVacio: TextosPasanaku.sinParticipacion,
-                vacio: (l) => l.isEmpty,
-                reintentar: () => ref.invalidate(misGruposProvider),
-                exito: (lista) => Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    for (final g in lista) ...[
-                      TarjetaDeMiGrupo(grupo: g),
-                      const SizedBox(height: Espacio.s3),
+        // Deslizar hacia abajo vuelve a pedir los grupos: después de crear uno o de que
+        // te acepten en otro, la lista se pone al día sin salir de la pestaña.
+        child: RefreshIndicator(
+          onRefresh: () => ref.refresh(misGruposProvider.future),
+          child: ListView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: const EdgeInsets.all(Espacio.s4),
+            children: [
+              MarcaDeTutorial(
+                id: 'pasanaku.mi-estado',
+                hijo: EstadoDePantalla<List<GrupoMio>>(
+                  valor: grupos,
+                  etiquetaDeCarga: TextosPasanaku.cargando,
+                  mensajeVacio: TextosPasanaku.sinParticipacion,
+                  vacio: (l) => l.isEmpty,
+                  reintentar: () => ref.invalidate(misGruposProvider),
+                  exito: (lista) => Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      for (final g in lista) ...[
+                        TarjetaDeMiGrupo(grupo: g),
+                        const SizedBox(height: Espacio.s3),
+                      ],
                     ],
-                  ],
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(height: Espacio.s4),
-            const AccionesDeGrupo(),
-          ],
+              const SizedBox(height: Espacio.s4),
+              const AccionesDeGrupo(),
+            ],
+          ),
         ),
       ),
     );

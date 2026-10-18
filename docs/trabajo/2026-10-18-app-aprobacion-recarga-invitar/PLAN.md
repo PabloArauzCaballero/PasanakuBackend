@@ -30,7 +30,7 @@
 ## H3 — Recargar pantallas
 | ID | Microtarea | CA | DoD | Estado |
 |---|---|---|---|---|
-| H3.M1 | Deslizar hacia abajo recarga Grupos (y el resto de pantallas con datos) | Al soltar, vuelve a pedir los datos | test de widget: `fling` → segunda llamada | TODO |
+| H3.M1 | Deslizar hacia abajo recarga Grupos (y el resto de pantallas con datos) | Al soltar, vuelve a pedir los datos | `flutter test test/pasanaku` → +27 (incluye «deslizar hacia abajo vuelve a pedir los grupos y muestra el nuevo») | HECHO |
 
 ## H4 — Invitar de verdad
 | ID | Microtarea | CA | DoD | Estado |

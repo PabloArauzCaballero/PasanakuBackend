@@ -52,35 +52,46 @@ class PantallaMiEstado extends ConsumerWidget {
         ),
       ),
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(Espacio.s4),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              MarcaDeTutorial(
-                id: 'pasanaku.mi-estado',
-                hijo: EstadoDePantalla<EstadoDelParticipante>(
-                  valor: estado,
-                  etiquetaDeCarga: TextosPasanaku.cargando,
-                  mensajeVacio: TextosPasanaku.alDia,
-                  reintentar: () => ref.invalidate(
-                    estadoDelParticipanteProvider(participanteId),
+        // Deslizar hacia abajo vuelve a pedir el estado del aporte y la restricción.
+        child: RefreshIndicator(
+          onRefresh: () async {
+            ref.invalidate(estadoDelParticipanteProvider(participanteId));
+            ref.invalidate(restriccionVigenteProvider(usuarioId));
+            await ref
+                .read(estadoDelParticipanteProvider(participanteId).future)
+                .then((_) {}, onError: (Object _) {});
+          },
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: const EdgeInsets.all(Espacio.s4),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                MarcaDeTutorial(
+                  id: 'pasanaku.mi-estado',
+                  hijo: EstadoDePantalla<EstadoDelParticipante>(
+                    valor: estado,
+                    etiquetaDeCarga: TextosPasanaku.cargando,
+                    mensajeVacio: TextosPasanaku.alDia,
+                    reintentar: () => ref.invalidate(
+                      estadoDelParticipanteProvider(participanteId),
+                    ),
+                    exito: (e) => _Aportes(e: e),
                   ),
-                  exito: (e) => _Aportes(e: e),
                 ),
-              ),
-              const SizedBox(height: Espacio.s5),
-              EstadoDePantalla(
-                valor: restriccion,
-                etiquetaDeCarga: TextosPasanaku.cargando,
-                mensajeVacio: TextosPasanaku.sinRestriccion,
-                reintentar: () =>
-                    ref.invalidate(restriccionVigenteProvider(usuarioId)),
-                exito: (r) => _Restriccion(r: r),
-              ),
-              const SizedBox(height: Espacio.s5),
-              AccionesDeGrupo(grupoId: grupoId),
-            ],
+                const SizedBox(height: Espacio.s5),
+                EstadoDePantalla(
+                  valor: restriccion,
+                  etiquetaDeCarga: TextosPasanaku.cargando,
+                  mensajeVacio: TextosPasanaku.sinRestriccion,
+                  reintentar: () =>
+                      ref.invalidate(restriccionVigenteProvider(usuarioId)),
+                  exito: (r) => _Restriccion(r: r),
+                ),
+                const SizedBox(height: Espacio.s5),
+                AccionesDeGrupo(grupoId: grupoId),
+              ],
+            ),
           ),
         ),
       ),

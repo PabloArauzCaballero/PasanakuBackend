@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'contrato_de_organizador.dart';
 import 'dominio/cu20_crear_grupo.dart';
+import 'dominio/mis_grupos.dart';
 import 'dominio/habilitacion_basica.dart';
 import 'no_habilitado.dart';
 import 'organismos_crear_grupo.dart';
@@ -162,6 +163,11 @@ class _PantallaCrearGrupoState extends ConsumerState<PantallaCrearGrupo>
           organizadorId: widget.organizadorId ?? _organizadorPropio,
           permitePermutaDeTurnos: permitePermutas,
         );
+    // El grupo nuevo aparece en «Grupos» sin tener que recargar a mano.
+    final creado = ref.read(crearGrupoProvider);
+    if (!creado.hasError && creado.value != null) {
+      ref.invalidate(misGruposProvider);
+    }
   }
 }
 
