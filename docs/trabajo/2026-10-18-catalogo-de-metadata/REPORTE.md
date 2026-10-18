@@ -60,7 +60,7 @@ Test Files 127 passed (127) · Tests 839 passed (839)
 - `generar_boveda.py` actualizó fichas de la bóveda que estaban atrasadas respecto de commits anteriores (p. ej. `cuenta_contable.moneda`); es salida del generador, no cambio de modelo.
 
 ## Riesgos residuales
-- **Hallazgo, fuera de alcance:** la tabla de columnas de la ficha (`ficha-de-tabla.ts`, previa a este trabajo) desborda en horizontal por debajo de ~340 px (22 px a 320). El gate visual mide a 360 px y ahí no desborda.
+- **Hallazgo, fuera de alcance:** el colapso a tarjetas de `@aportaya/ui/tabla-de-datos` desborda por debajo de ~340 px en tablas con nombres de columna largos (p. ej. `usuario`: 34 px a 320). En la ficha se agregó `overflow-wrap: anywhere` (a 360 px ninguna desborda; `pago` y `obligacion_aporte` tampoco a 320). El resto queda para `packages/ui`.
 - Una tabla renombrada en el modelo deja su ficha huérfana (la fila sigue con el nombre viejo); el catálogo no la muestra. Impacto bajo; se ve al revisar.
 - `marketing-ideas` (pedido de Pablo como referencia de diseño) es una skill de estrategias de adquisición, no de diseño de interfaz: no se aplicó al backoffice.
 
