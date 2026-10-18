@@ -55,10 +55,12 @@ Test Files 127 passed (127) · Tests 839 passed (839)
 - Errores de regla con 422 (convención del proyecto, `ManejadorGlobalDeErrores`), no 409/404 como decía el plan.
 - Se agregó AP-CU130-03 (política de retención inexistente), no previsto.
 - La sección de gobierno se subió al principio de la ficha y las columnas de estado y revisión van segundas, tras mirar las capturas: en la primera versión quedaban cortadas.
+- El shell en celular desbordaba 14 px en Linux con el tercer enlace del menú: `.lateral` usaba `1fr` y `.menu` tenía `min-width: auto`; corregido con `minmax(0, 1fr)` y `min-width: 0`.
 - `ap-lista-de-opciones` (cumplimiento/compartido) recibió `textoVacio` para que un filtro diga «Todos».
 - `generar_boveda.py` actualizó fichas de la bóveda que estaban atrasadas respecto de commits anteriores (p. ej. `cuenta_contable.moneda`); es salida del generador, no cambio de modelo.
 
 ## Riesgos residuales
+- **Hallazgo, fuera de alcance:** la tabla de columnas de la ficha (`ficha-de-tabla.ts`, previa a este trabajo) desborda en horizontal por debajo de ~340 px (22 px a 320). El gate visual mide a 360 px y ahí no desborda.
 - Una tabla renombrada en el modelo deja su ficha huérfana (la fila sigue con el nombre viejo); el catálogo no la muestra. Impacto bajo; se ve al revisar.
 - `marketing-ideas` (pedido de Pablo como referencia de diseño) es una skill de estrategias de adquisición, no de diseño de interfaz: no se aplicó al backoffice.
 
