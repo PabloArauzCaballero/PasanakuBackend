@@ -29,7 +29,7 @@ Las **26 tablas** de este módulo. Justificación de negocio en [[01_identidad_u
 | [[bloqueo_cuenta]] | 7 | 2 | 0 |
 | [[restriccion_usuario]] | 10 | 2 | 0 |
 | [[documento_identidad]] | 15 | 1 | 1 |
-| [[verificacion_kyc]] | 14 | 3 | 2 |
+| [[verificacion_kyc]] | 16 | 3 | 2 |
 | [[alcance_invitacion]] | 10 | 1 | 0 |
 | [[referencia_personal]] | 8 | 1 | 0 |
 | [[rol]] | 5 | 0 | 2 |

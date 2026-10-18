@@ -329,6 +329,37 @@ paths:
         '401':
           $ref: '#/components/responses/NoAutenticado'
 
+  /indicadores/catalogo-de-datos/{esquema}/{tabla}/gobierno:
+    put:
+      operationId: guardarFichaDeGobierno      # CU-130
+      summary: Guarda la ficha de gobierno de una tabla del catalogo de datos
+      description: >-
+        Estado (en uso o no), revision, responsable, retencion y si es critica para auditoria.
+        Se manda la `version` leida; si otra persona guardo antes, responde 422 AP-CU130-01 y
+        la ficha no cambia. La sensibilidad no se edita: se deriva de las columnas del modelo.
+        Deja un evento CAMBIO_CONFIGURACION en la bitacora.
+      parameters:
+        - { name: esquema, in: path, required: true, schema: { type: string, maxLength: 63, pattern: '^[a-z_][a-z0-9_]*$' } }
+        - { name: tabla, in: path, required: true, schema: { type: string, maxLength: 63, pattern: '^[a-z_][a-z0-9_]*$' } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaFichaDeGobierno' }
+      responses:
+        '200':
+          description: La ficha guardada, con su version nueva
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/FichaDeGobierno' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU130-01 VERSION_VIEJA · AP-CU130-02 TABLA_DESCONOCIDA · AP-CU130-03 RETENCION_DESCONOCIDA
+        '403':
+          description: Sin CATALOGO_DATOS_EDITAR
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+
 components:
   parameters:
     ClaveIdempotencia:
@@ -347,6 +378,10 @@ components:
       properties:
         esquemas: { type: array, items: { type: string } }
         tablas: { type: array, items: { $ref: '#/components/schemas/TablaDelCatalogo' } }
+        politicasDeRetencion:
+          type: array
+          description: CU-130 · las politicas de retencion que se pueden asignar a una tabla
+          items: { $ref: '#/components/schemas/OpcionDeRetencion' }
     TablaDelCatalogo:
       type: object
       additionalProperties: false
@@ -364,6 +399,57 @@ components:
         columnas: { type: array, items: { $ref: '#/components/schemas/ColumnaDelCatalogo' } }
         relaciones: { $ref: '#/components/schemas/RelacionesDeTabla' }
         sistema: { type: string, description: 'Narrativa de sistema derivada del modelo' }
+        gobierno: { $ref: '#/components/schemas/FichaDeGobierno' }
+    EstadoDeTabla:
+      type: string
+      enum: [ACTIVA, PLANIFICADA, CANDIDATA_A_RETIRO, RETIRADA, DESHABILITADA]
+    EstadoDeRevision:
+      type: string
+      enum: [DETECTADA, NECESITA_REVISION, APROBADA, RECHAZADA]
+    FichaDeGobierno:
+      type: object
+      additionalProperties: false
+      description: >-
+        CU-130 · la ficha de gobierno de la tabla. Sin ficha guardada vale ACTIVA, DETECTADA,
+        version 0.
+      required: [estado, estadoRevision, criticaParaAuditoria, version]
+      properties:
+        estado: { $ref: '#/components/schemas/EstadoDeTabla' }
+        estadoRevision: { $ref: '#/components/schemas/EstadoDeRevision' }
+        responsable: { type: string, maxLength: 80 }
+        politicaRetencionId: { type: string, format: uuid }
+        criticaParaAuditoria: { type: boolean }
+        notaRevision: { type: string, maxLength: 500 }
+        revisadoPor: { type: string, format: uuid }
+        actualizadoEn: { type: string, format: date-time }
+        version: { type: integer, minimum: 0 }
+    EntradaFichaDeGobierno:
+      type: object
+      additionalProperties: false
+      required: [estado, estadoRevision, criticaParaAuditoria, version]
+      example:
+        estado: CANDIDATA_A_RETIRO
+        estadoRevision: APROBADA
+        responsable: Sistemas
+        criticaParaAuditoria: false
+        version: 0
+      properties:
+        estado: { $ref: '#/components/schemas/EstadoDeTabla' }
+        estadoRevision: { $ref: '#/components/schemas/EstadoDeRevision' }
+        responsable: { type: string, minLength: 1, maxLength: 80 }
+        politicaRetencionId: { type: string, format: uuid }
+        criticaParaAuditoria: { type: boolean }
+        notaRevision: { type: string, minLength: 1, maxLength: 500 }
+        version: { type: integer, minimum: 0, description: 'La version leida; 0 si la tabla no tenia ficha' }
+    OpcionDeRetencion:
+      type: object
+      additionalProperties: false
+      required: [id, entidad, mesesRetencionActiva, accionAlVencer]
+      properties:
+        id: { type: string, format: uuid }
+        entidad: { type: string }
+        mesesRetencionActiva: { type: integer }
+        accionAlVencer: { type: string }
     NegocioDeTabla:
       type: object
       additionalProperties: false

@@ -53,6 +53,10 @@ class IndicadoresControllerWebTest {
     @MockitoBean
     private bo.aportaya.auditoria.aplicacion.SaludDeServicios saludDeServicios;
 
+    // CU-130: el mismo controlador guarda la ficha de gobierno.
+    @MockitoBean
+    private bo.aportaya.auditoria.aplicacion.CU130GobernarFichaDeTabla cu130;
+
     private static CU98PublicarTablero.Indicador indicador(
             String codigo, Optional<BigDecimal> valor, boolean suprimido, boolean provisorio) {
         return new CU98PublicarTablero.Indicador(

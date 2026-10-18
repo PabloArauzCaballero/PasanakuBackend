@@ -42,13 +42,15 @@ describe('PantallaCatalogo · cargando, con datos, vacío de búsqueda y error',
     req.flush(catalogo())
   })
 
-  it('correcto: lista las tablas con su esquema, su servicio y un enlace a la ficha', async () => {
+  it('correcto: lista las tablas con módulo, estado y revisión (activa y detectada sin ficha) y un enlace a la ficha', async () => {
     const { arnes, http } = await abrir('/')
     http.expectOne(URL).flush(catalogo())
     const t = await texto(arnes)
     expect(t).toContain('3 tablas')
-    expect(t).toContain('Lo que un cupo debe en un período')
-    expect(t).toContain('Compartido')
+    expect(t).toContain('03 · Aportes')
+    expect(t).toContain('Activa')
+    expect(t).toContain('Detectada')
+    expect(t).toContain('Sin asignar')
     const enlace = arnes.routeNativeElement?.querySelector<HTMLAnchorElement>('a[href="/tablero/catalogo-de-datos/obligacion_aporte"]')
     expect(enlace?.textContent?.trim()).toBe('obligacion_aporte')
   })

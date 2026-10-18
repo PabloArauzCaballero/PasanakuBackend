@@ -2,13 +2,13 @@
 tags:
   - moc
   - indice
-relaciones_fk: 662
+relaciones_fk: 663
 cross_modulo: 347
 ---
 
 # Índice de relaciones (claves foráneas)
 
-Las **662 claves foráneas** del modelo. **347** cruzan módulos.
+Las **663 claves foráneas** del modelo. **347** cruzan módulos.
 
 [[Index|← Índice general]] · [[_Entidades|Entidades →]]
 
@@ -784,6 +784,7 @@ Son las que acoplan el sistema: conviene revisarlas antes de tocar un módulo.
 | [[ejecucion_reporte.grupo_id → grupo]] | [[grupo]] | ↗ | sí |
 | [[ejecucion_reporte.solicitado_por → usuario]] | [[usuario]] | ↗ | no |
 | [[exportacion_reporte.ejecucion_id → ejecucion_reporte]] | [[ejecucion_reporte]] | — | no |
+| [[ficha_gobierno_tabla.politica_retencion_id → politica_retencion]] | [[politica_retencion]] | — | sí |
 | [[indicador_kpi.definicion_indicador_id → definicion_indicador]] | [[definicion_indicador]] | — | no |
 | [[proceso_anonimizacion.solicitud_id → solicitud_datos_personales]] | [[solicitud_datos_personales]] | — | sí |
 | [[proceso_anonimizacion.usuario_id → usuario]] | [[usuario]] | ↗ | no |
