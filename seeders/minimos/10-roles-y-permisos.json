@@ -167,6 +167,13 @@
           "requiere_mfa": true
         },
         {
+          "codigo": "CATALOGO_DATOS_EDITAR",
+          "descripcion": "Editar la ficha de gobierno de las tablas del catálogo de datos: estado, revisión, responsable y retención (CU-130)",
+          "recurso": "catalogo",
+          "accion": "ESCRIBIR",
+          "requiere_mfa": true
+        },
+        {
           "codigo": "CONTABILIDAD_ERP_ACTIVOS_FIJOS",
           "descripcion": "Dar de alta y de baja activos fijos",
           "recurso": "activo_fijo",
@@ -423,6 +430,16 @@
           "permiso_id": {
             "$ref": "permiso",
             "codigo": "CATALOGO_EDITAR"
+          }
+        },
+        {
+          "rol_id": {
+            "$ref": "rol",
+            "codigo": "ADMIN_PLATAFORMA"
+          },
+          "permiso_id": {
+            "$ref": "permiso",
+            "codigo": "CATALOGO_DATOS_EDITAR"
           }
         },
         {

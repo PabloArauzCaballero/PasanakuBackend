@@ -9,7 +9,7 @@ estereotipo: Política configurable
 clave_primaria: [id]
 columnas: 7
 fk_salientes: 0
-fk_entrantes: 0
+fk_entrantes: 1
 append_only: false
 ---
 
@@ -28,6 +28,16 @@ append_only: false
 | `accion_al_vencer` | VARCHAR(15) | — | no | CK |
 | `base_legal` | VARCHAR(200) | — | no | — |
 | `vigente_desde` | DATE | — | no | — |
+
+## Referenciada por
+
+| Entidad | Columna | Módulo | Relación |
+| --- | --- | :-: | --- |
+| [[ficha_gobierno_tabla]] | `politica_retencion_id` | 09 | [[ficha_gobierno_tabla.politica_retencion_id → politica_retencion]] |
+
+## Entidades vecinas
+
+[[ficha_gobierno_tabla]]
 
 ## Ver también
 

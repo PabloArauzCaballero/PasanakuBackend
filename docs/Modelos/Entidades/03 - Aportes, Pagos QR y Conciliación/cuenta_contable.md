@@ -6,7 +6,7 @@ tabla: cuenta_contable
 clase: CuentaContable
 modulo: "03 — Aportes, Pagos QR y Conciliación"
 clave_primaria: [id]
-columnas: 11
+columnas: 12
 fk_salientes: 3
 fk_entrantes: 12
 append_only: false
@@ -25,6 +25,7 @@ append_only: false
 | `nombre` | VARCHAR(80) | — | no | — |
 | `tipo` | VARCHAR(15) | — | no | CK |
 | `naturaleza` | VARCHAR(12) | — | no | CK |
+| `moneda` | CHAR(3) | — | no | — |
 | `cuenta_padre_id` | UUID | FK IDX | sí | FK, NULL, IDX |
 | `nivel` | SMALLINT | — | no | — |
 | `es_cuenta_de_movimiento` | BOOLEAN | — | no | — |

@@ -56,9 +56,16 @@ class CatalogoDeDatosWebTest {
     @MockitoBean
     private bo.aportaya.auditoria.aplicacion.SaludDeServicios saludDeServicios;
 
+    // CU-130: el GET superpone la ficha de gobierno; aca, ninguna guardada.
+    @MockitoBean
+    private bo.aportaya.auditoria.aplicacion.CU130GobernarFichaDeTabla cu130;
+
     @BeforeEach
     void catalogo() throws Exception {
         when(vigente.catalogo()).thenReturn(new ObjectMapper().readTree(CATALOGO));
+        when(cu130.consultar(org.mockito.ArgumentMatchers.any()))
+                .thenReturn(new bo.aportaya.auditoria.aplicacion.CU130GobernarFichaDeTabla.Vista(
+                        java.util.Map.of(), java.util.List.of()));
     }
 
     @Test

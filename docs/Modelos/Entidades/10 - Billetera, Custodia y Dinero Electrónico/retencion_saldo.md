@@ -40,6 +40,7 @@ append_only: false
 | Regla | Tipo | Columnas |
 | --- | :-: | --- |
 | `ck_retencion_expira` | CHECK | `expira_en`, `motivo` |
+| `ck_retencion_referencia_motivo` | CHECK | `motivo`, `referencia_id`, `referencia_tipo` |
 
 ## Claves foráneas salientes
 

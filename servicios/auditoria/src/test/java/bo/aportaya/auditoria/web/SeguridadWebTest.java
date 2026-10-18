@@ -36,6 +36,10 @@ class SeguridadWebTest extends SabanaDeSeguridadWeb {
     @MockitoBean
     private bo.aportaya.auditoria.aplicacion.SaludDeServicios saludDeServicios;
 
+    // CU-130: el mismo controlador guarda la ficha de gobierno.
+    @MockitoBean
+    private bo.aportaya.auditoria.aplicacion.CU130GobernarFichaDeTabla cu130;
+
     @MockitoBean
     private CU58DescargarExportacion cu58DescargarExportacion;
 

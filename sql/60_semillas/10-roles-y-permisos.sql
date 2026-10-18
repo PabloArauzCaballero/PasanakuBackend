@@ -30,6 +30,7 @@ INSERT INTO permiso (codigo, descripcion, recurso, accion, requiere_mfa) VALUES
   ('BILLETERA_VER', 'Ver saldo y movimientos propios', 'billetera', 'LEER', FALSE),
   ('BILLETERA_VER_TERCEROS', 'Ver billeteras de terceros (backoffice)', 'billetera', 'LEER_TERCEROS', TRUE),
   ('CATALOGO_EDITAR', 'Editar catálogos regulatorios', 'catalogo', 'ESCRIBIR', TRUE),
+  ('CATALOGO_DATOS_EDITAR', 'Editar la ficha de gobierno de las tablas del catálogo de datos: estado, revisión, responsable y retención (CU-130)', 'catalogo', 'ESCRIBIR', TRUE),
   ('CONTABILIDAD_ERP_ACTIVOS_FIJOS', 'Dar de alta y de baja activos fijos', 'activo_fijo', 'GESTIONAR', FALSE),
   ('CONTABILIDAD_ERP_CERRAR', 'Cerrar un período o ejercicio contable', 'periodo_contable', 'CERRAR', TRUE),
   ('CONTABILIDAD_ERP_COBRAR', 'Registrar cobros de cuentas por cobrar', 'cuenta_por_cobrar', 'GESTIONAR', TRUE),
@@ -69,6 +70,7 @@ ON CONFLICT (codigo) DO NOTHING;
 -- Sin esta matriz los roles no otorgan nada y el guard de denegar por omisión rechaza todo. Dos separaciones de funciones están cableadas acá y no se negocian: quien AUTORIZA una entrega o un reverso no puede EJECUTARLO, y quien edita catálogos no toca dinero ni datos sensibles (control CI-04).
 INSERT INTO rol_permiso (rol_id, permiso_id) VALUES
   ((SELECT id FROM rol WHERE codigo = 'ADMIN_PLATAFORMA'), (SELECT id FROM permiso WHERE codigo = 'CATALOGO_EDITAR')),
+  ((SELECT id FROM rol WHERE codigo = 'ADMIN_PLATAFORMA'), (SELECT id FROM permiso WHERE codigo = 'CATALOGO_DATOS_EDITAR')),
   ((SELECT id FROM rol WHERE codigo = 'ADMIN_PLATAFORMA'), (SELECT id FROM permiso WHERE codigo = 'ACCESOS_ADMINISTRAR')),
   ((SELECT id FROM rol WHERE codigo = 'ADMIN_PLATAFORMA'), (SELECT id FROM permiso WHERE codigo = 'TARIFARIO_PUBLICAR')),
   ((SELECT id FROM rol WHERE codigo = 'ADMIN_PLATAFORMA'), (SELECT id FROM permiso WHERE codigo = 'AUDITORIA_LEER')),

@@ -1,0 +1,10 @@
+$ ./gradlew :servicios:auditoria:webTest   → BUILD SUCCESSFUL
+testsuite name="bo.aportaya.auditoria.web.CatalogoDeDatosWebTest" tests="3" skipped="0" failures="0" errors="0"
+testsuite name="bo.aportaya.auditoria.web.CuerpoEstrictoWebTest" tests="1" skipped="0" failures="0" errors="0"
+testsuite name="bo.aportaya.auditoria.web.DerechosControllerWebTest" tests="8" skipped="0" failures="0" errors="0"
+testsuite name="bo.aportaya.auditoria.web.FichaDeGobiernoWebTest" tests="4" skipped="0" failures="0" errors="0"
+testsuite name="bo.aportaya.auditoria.web.IndicadoresControllerWebTest" tests="14" skipped="0" failures="0" errors="0"
+testsuite name="bo.aportaya.auditoria.web.ReportesControllerWebTest" tests="6" skipped="0" failures="0" errors="0"
+testsuite name="bo.aportaya.auditoria.web.ReportesHistorialWebTest" tests="6" skipped="0" failures="0" errors="0"
+testsuite name="bo.aportaya.auditoria.web.SaludDeServiciosWebTest" tests="3" skipped="0" failures="0" errors="0"
+testsuite name="bo.aportaya.auditoria.web.SeguridadWebTest" tests="6" skipped="0" failures="0" errors="0"

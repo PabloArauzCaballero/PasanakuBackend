@@ -202,6 +202,7 @@ SET search_path TO aportes, auditoria, cumplimiento, entregas, erp, garantia, gr
 \ir 10_tablas/09_auditoria_reportes/bitacora_evento.sql
 \ir 10_tablas/09_auditoria_reportes/registro_acceso_datos.sql
 \ir 10_tablas/09_auditoria_reportes/politica_retencion.sql
+\ir 10_tablas/09_auditoria_reportes/ficha_gobierno_tabla.sql
 \ir 10_tablas/09_auditoria_reportes/definicion_reporte.sql
 \ir 10_tablas/09_auditoria_reportes/ejecucion_reporte.sql
 \ir 10_tablas/09_auditoria_reportes/exportacion_reporte.sql
