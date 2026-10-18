@@ -1,8 +1,10 @@
 package bo.aportaya.auditoria.infraestructura;
 
+import bo.aportaya.auditoria.dominio.OpcionDeRetencion;
 import bo.aportaya.auditoria.dominio.RetencionLegal;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.UUID;
 import org.jooq.DSLContext;
 import org.jooq.impl.DSL;
 import org.springframework.stereotype.Component;
@@ -36,5 +38,28 @@ public class PoliticaRetencionRepositorio {
                         f.get("meses_retencion_historica", Integer.class),
                         f.get("accion_al_vencer", String.class),
                         f.get("base_legal", String.class)));
+    }
+
+    /** CU-130 · las politicas que se pueden asignar a una tabla del catalogo de datos. */
+    public List<OpcionDeRetencion> opciones(DSLContext dsl) {
+        return dsl.select(
+                        DSL.field("id", UUID.class),
+                        DSL.field("entidad", String.class),
+                        DSL.field("meses_retencion_activa", Integer.class),
+                        DSL.field("accion_al_vencer", String.class))
+                .from(DSL.table(TABLA))
+                .orderBy(DSL.field("entidad").asc(), DSL.field("id").asc())
+                .fetch()
+                .map(f -> new OpcionDeRetencion(
+                        f.get("id", UUID.class),
+                        f.get("entidad", String.class),
+                        f.get("meses_retencion_activa", Integer.class),
+                        f.get("accion_al_vencer", String.class)));
+    }
+
+    public boolean existe(DSLContext dsl, UUID id) {
+        return dsl.fetchExists(DSL.selectOne()
+                .from(DSL.table(TABLA))
+                .where(DSL.field("id", UUID.class).eq(id)));
     }
 }

@@ -48,6 +48,7 @@ append_only: false
 | `ck_cuenta_retenido_no_negativo` | CHECK | `saldo_retenido` |
 | `ck_cuenta_saldo_no_negativo` | CHECK | `permite_saldo_negativo`, `saldo_disponible` |
 | `ck_cuenta_titularidad` | CHECK | `grupo_id`, `tipo`, `usuario_id` |
+| `uq_cuenta_custodia_inversion_moneda` | UNIQUE parcial | `moneda` |
 | `uq_cuenta_grupo_moneda` | UNIQUE parcial | `grupo_id`, `moneda` |
 | `uq_cuenta_usuario_moneda` | UNIQUE parcial | `usuario_id`, `moneda`, `tipo` |
 

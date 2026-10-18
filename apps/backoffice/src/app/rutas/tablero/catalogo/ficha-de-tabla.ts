@@ -3,6 +3,7 @@ import { RouterLink } from '@angular/router'
 import { EstadoDePantalla } from '@aportaya/ui/estado-de-pantalla/estado-de-pantalla'
 import { TablaDeDatos, type Columna } from '@aportaya/ui/tabla-de-datos/tabla-de-datos'
 import { CatalogoDeDatosRemoto, filasDeColumnas, type FilaDeColumna } from './dominio'
+import { SeccionDeGobierno } from './seccion-de-gobierno'
 import { textosCatalogo } from './textos'
 
 /**
@@ -12,13 +13,14 @@ import { textosCatalogo } from './textos'
 @Component({
   selector: 'ap-ficha-de-tabla',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [EstadoDePantalla, RouterLink, TablaDeDatos],
+  imports: [EstadoDePantalla, RouterLink, SeccionDeGobierno, TablaDeDatos],
   template: `
     <section class="pantalla">
       <a routerLink="/tablero/catalogo-de-datos" class="volver">{{ t.volver }}</a>
       <ap-estado-de-pantalla [recurso]="remoto.recurso" [mensajeVacio]="t.noExiste(tabla())" [etiquetaDeCarga]="'Consultando el catálogo'" (reintentar)="remoto.recurso.reload()">
         @if (ficha(); as f) {
           <h1>{{ f.tabla }} <span class="esquema">{{ f.esquema }}</span></h1>
+          <ap-seccion-de-gobierno [tabla]="f" [politicas]="remoto.recurso.value()?.politicasDeRetencion ?? []" (cambio)="remoto.recurso.reload()" />
           <dl>
             @if (f.negocio.queEs) { <dt>{{ t.queEs }}</dt><dd>{{ f.negocio.queEs }}</dd> }
             @if (f.negocio.negocio) { <dt>{{ t.negocio }}</dt><dd>{{ f.negocio.negocio }}</dd> }
@@ -65,7 +67,9 @@ import { textosCatalogo } from './textos'
   styles: `
     .pantalla { padding: var(--s5); max-width: 72rem; display: grid; gap: var(--s4); }
     .pantalla > * { min-width: 0; }
-    .largo { display: block; min-width: 12rem; white-space: normal; overflow-wrap: anywhere; }
+    .largo { display: block; min-width: min(12rem, 100%); white-space: normal; overflow-wrap: anywhere; }
+    /* Nombres como fecha_hora_acreditacion no tienen dónde cortar: en el celular empujaban la página. */
+    ap-tabla-de-datos { overflow-wrap: anywhere; }
     h1 { margin: 0; overflow-wrap: anywhere; }
     h2, h3 { margin: 0; }
     .esquema { color: var(--text-2); font-weight: 400; font-size: .7em; }

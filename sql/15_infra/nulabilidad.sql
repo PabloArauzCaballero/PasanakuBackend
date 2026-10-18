@@ -60,6 +60,10 @@ ALTER TABLE auditoria.ejecucion_reporte ALTER COLUMN finalizada_en DROP NOT NULL
 ALTER TABLE auditoria.ejecucion_reporte ALTER COLUMN grupo_id DROP NOT NULL;
 ALTER TABLE auditoria.ejecucion_reporte ALTER COLUMN hash_resultado DROP NOT NULL;
 ALTER TABLE auditoria.ejecucion_reporte ALTER COLUMN mensaje_error DROP NOT NULL;
+ALTER TABLE auditoria.ficha_gobierno_tabla ALTER COLUMN nota_revision DROP NOT NULL;
+ALTER TABLE auditoria.ficha_gobierno_tabla ALTER COLUMN politica_retencion_id DROP NOT NULL;
+ALTER TABLE auditoria.ficha_gobierno_tabla ALTER COLUMN responsable DROP NOT NULL;
+ALTER TABLE auditoria.ficha_gobierno_tabla ALTER COLUMN revisado_por DROP NOT NULL;
 ALTER TABLE auditoria.incidente_operativo ALTER COLUMN acciones_correctivas DROP NOT NULL;
 ALTER TABLE auditoria.incidente_operativo ALTER COLUMN causa_raiz DROP NOT NULL;
 ALTER TABLE auditoria.incidente_operativo ALTER COLUMN resuelto_en DROP NOT NULL;

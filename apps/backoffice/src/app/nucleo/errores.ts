@@ -71,6 +71,9 @@ const CATALOGO: Readonly<Record<string, string>> = {
   'AP-CU112-01': 'Esta pieza ya fue revisada por otra persona. Actualizá la cola.',
   'AP-CU112-02': 'El rechazo exige un motivo escrito.',
   'AP-CU112-03': 'Quien subió esta pieza no puede moderarla. La tiene que revisar otra persona.',
+  'AP-CU130-01': 'Otra persona guardó esta ficha antes que vos. Recargá la página para ver lo último; tu borrador sigue acá.',
+  'AP-CU130-02': 'Esa tabla ya no está en el catálogo de datos. Volvé a la lista y buscala de nuevo.',
+  'AP-CU130-03': 'Esa política de retención ya no existe. Elegí otra de la lista.',
 }
 
 export function mensajeDe(codigo: string | undefined, estado: number): string {

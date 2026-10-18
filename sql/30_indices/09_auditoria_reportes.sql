@@ -40,6 +40,9 @@ CREATE INDEX IF NOT EXISTS ix_registro_acceso_datos_fecha_hora
 CREATE UNIQUE INDEX IF NOT EXISTS uq_politica_retencion_entidad
   ON auditoria.politica_retencion (entidad);
 
+CREATE UNIQUE INDEX IF NOT EXISTS uq_ficha_gobierno_tabla_tabla_esquema
+  ON auditoria.ficha_gobierno_tabla (tabla, esquema);
+
 CREATE UNIQUE INDEX IF NOT EXISTS uq_definicion_reporte_nombre
   ON auditoria.definicion_reporte (nombre);
 

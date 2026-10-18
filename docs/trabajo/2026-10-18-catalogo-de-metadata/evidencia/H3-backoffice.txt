@@ -1,0 +1,10 @@
+$ yarn test:front
+[2m Test Files [22m [1m[32m127 passed[39m[22m[90m (127)[39m
+[2m      Tests [22m [1m[32m839 passed[39m[22m[90m (839)[39m
+$ npx ng lint
+All files pass linting.
+
+$ tsc
+tsc exit 0
+$ verificar_frontend.py
+TODO OK

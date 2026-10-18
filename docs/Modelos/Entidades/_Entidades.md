@@ -2,12 +2,12 @@
 tags:
   - moc
   - indice
-entidades: 323
+entidades: 324
 ---
 
 # Índice de entidades
 
-Las **323 tablas** del modelo, agrupadas por módulo. «Sal.» y «Ent.» son claves foráneas salientes y entrantes.
+Las **324 tablas** del modelo, agrupadas por módulo. «Sal.» y «Ent.» son claves foráneas salientes y entrantes.
 
 [[Index|← Índice general]] · [[_Relaciones|Relaciones →]]
 
@@ -32,7 +32,7 @@ Las **323 tablas** del modelo, agrupadas por módulo. «Sal.» y «Ent.» son cl
 | [[bloqueo_cuenta]] | 7 | 2 | 0 | — |
 | [[restriccion_usuario]] | 10 | 2 | 0 | — |
 | [[documento_identidad]] | 15 | 1 | 1 | — |
-| [[verificacion_kyc]] | 14 | 3 | 2 | — |
+| [[verificacion_kyc]] | 16 | 3 | 2 | — |
 | [[alcance_invitacion]] | 10 | 1 | 0 | — |
 | [[referencia_personal]] | 8 | 1 | 0 | — |
 | [[rol]] | 5 | 0 | 2 | — |
@@ -102,9 +102,9 @@ Las **323 tablas** del modelo, agrupadas por módulo. «Sal.» y «Ent.» son cl
 | [[excepcion_conciliacion]] | 10 | 2 | 0 | — |
 | [[webhook_pasarela]] | 13 | 2 | 0 | — |
 | [[tipo_cambio]] | 7 | 0 | 0 | — |
-| [[cuenta_contable]] | 11 | 3 | 12 | muy conectada |
+| [[cuenta_contable]] | 12 | 3 | 12 | muy conectada |
 | [[asiento_contable]] | 11 | 4 | 12 | append-only, muy conectada |
-| [[movimiento_contable]] | 6 | 2 | 0 | append-only |
+| [[movimiento_contable]] | 7 | 2 | 0 | append-only |
 | [[cierre_diario]] | 10 | 1 | 1 | — |
 
 ## 04 — Entregas de Fondo
@@ -246,7 +246,8 @@ Las **323 tablas** del modelo, agrupadas por módulo. «Sal.» y «Ent.» son cl
 | --- | --: | --: | --: | --- |
 | [[bitacora_evento]] | 21 | 3 | 0 | append-only |
 | [[registro_acceso_datos]] | 10 | 2 | 0 | append-only |
-| [[politica_retencion]] | 7 | 0 | 0 | — |
+| [[politica_retencion]] | 7 | 0 | 1 | — |
+| [[ficha_gobierno_tabla]] | 12 | 1 | 0 | — |
 | [[definicion_reporte]] | 11 | 0 | 2 | — |
 | [[ejecucion_reporte]] | 12 | 3 | 1 | — |
 | [[exportacion_reporte]] | 11 | 1 | 0 | — |

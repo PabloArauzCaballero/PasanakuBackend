@@ -579,6 +579,31 @@
 | `expira_en` | TIMESTAMPTZ | el enlace de descarga caduca. Un CSV con datos de 500 usuarios no puede quedar accesible indefinidamente en una URL. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 | `generada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
 
+### `ficha_gobierno_tabla`
+
+**Qué es.** La ficha de gobierno de cada tabla del modelo: si está en uso (estado), si alguien ya revisó su descripción (revisión), quién responde por ella y qué política de retención le aplica.
+
+**Para qué sirve.** El catálogo de datos dice qué es cada tabla, pero no si sigue en uso ni quién la cuida. Con esta ficha el equipo de sistemas y auditoría ve de un vistazo qué tablas están activas, cuáles se proponen retirar y cuáles nadie revisó todavía, igual que en el portal interno de Atlas. Una tabla sin ficha se muestra **activa y detectada**: está en el modelo y nadie la revisó. La sensibilidad no se guarda acá: se deriva de las columnas del modelo, para no tener dos fuentes de verdad.
+
+**Por qué existe.** Sin ella, retirar una tabla o confirmar que una tabla con datos personales tiene dueño y retención depende de la memoria de alguien. ---
+
+**Sistema.** Vive en el esquema `auditoria`; la escribe y la lee solo el servicio `auditoria` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `politica_retencion`.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
+| `esquema` | VARCHAR(63) | — | VARCHAR(63), obligatoria. | NINGUNA |
+| `tabla` | VARCHAR(63) | — | VARCHAR(63), obligatoria. | NINGUNA |
+| `estado` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
+| `estado_revision` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
+| `responsable` | VARCHAR(80) | — | VARCHAR(80), opcional. | NINGUNA |
+| `politica_retencion_id` | UUID | — | UUID, opcional, referencia a `politica_retencion`. | NINGUNA |
+| `critica_para_auditoria` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
+| `nota_revision` | VARCHAR(500) | — | VARCHAR(500), opcional. | NINGUNA |
+| `revisado_por` | UUID | — | UUID, opcional. | NINGUNA |
+| `actualizado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `version` | INTEGER | — | INTEGER, obligatoria. | NINGUNA |
+
 ### `incidente_operativo`
 
 **Qué es.** Un fallo del sistema con impacto en usuarios o en dinero.
@@ -658,7 +683,7 @@
 
 **Por qué existe.** Sin política de retención, o se guarda todo para siempre (riesgo regulatorio y costo creciente) o se borra sin criterio (y se pierde evidencia que la ley obliga a tener). ---
 
-**Sistema.** Vive en el esquema `auditoria`; la escribe y la lee solo el servicio `auditoria` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos.
+**Sistema.** Vive en el esquema `auditoria`; la escribe y la lee solo el servicio `auditoria` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. La referencian `ficha_gobierno_tabla`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|

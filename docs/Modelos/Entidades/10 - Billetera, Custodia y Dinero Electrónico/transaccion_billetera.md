@@ -50,7 +50,10 @@ append_only: true
 | Regla | Tipo | Columnas |
 | --- | :-: | --- |
 | `ix_transaccion_ocurrida` | INDEX | `ocurrida_en` |
+| `uq_tx_compra_mercado_origen` | UNIQUE parcial | `origen_id` |
 | `uq_tx_idem` | UNIQUE | expresión |
+| `uq_tx_inversion_origen` | UNIQUE parcial | `origen_id` |
+| `uq_tx_rescate_origen` | UNIQUE parcial | `origen_id` |
 
 ## Claves foráneas salientes
 
