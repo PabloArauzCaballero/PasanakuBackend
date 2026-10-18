@@ -124,8 +124,11 @@ public class CU04Autenticar {
         }
 
         PerfilDeAcceso perfil = usuarios.perfilDe(dsl, usuario);
+        // La cuenta abierta sin documento (INCOMPLETO_KYC) entra igual que la que espera
+        // revision: conoce la app y no tiene permisos de dinero hasta que la aprueben.
         boolean pendienteDeAprobacion = usuarios.estadoDe(dsl, usuario)
-                .filter(AperturaDeCuenta.PENDIENTE_VERIFICACION.name()::equals)
+                .filter(estado -> AperturaDeCuenta.PENDIENTE_VERIFICACION.name().equals(estado)
+                        || AperturaDeCuenta.INCOMPLETO_KYC.name().equals(estado))
                 .isPresent();
         var dispositivo = accesos.dispositivoPorHuella(dsl, usuario, entrada.huella(), entrada.plataforma(), ahora);
         Optional<String> enrolado = accesos.factorActivo(dsl, usuario);

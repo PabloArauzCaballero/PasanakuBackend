@@ -79,6 +79,9 @@ class UsuariosVerificacionCorreoWebTest {
     private bo.aportaya.identidad.aplicacion.ConsultarMiPerfil consultarMiPerfil;
 
     @MockitoBean
+    private bo.aportaya.identidad.aplicacion.CU02IniciarVerificacion iniciarVerificacion;
+
+    @MockitoBean
     private ConsultarNivelKyc nivelesKyc;
 
     @Test

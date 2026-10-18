@@ -180,5 +180,11 @@ final class PoliticaDeAcceso {
                     Ambito.control(
                             "servicios/identidad/src/main/java/bo/aportaya/identidad/aplicacion/ActivarRolOrganizador.java",
                             "usuarioId.equals\\(ctx.usuarioId\\(\\)\\)",
-                            "CU-90 vía básica: cada quien firma su propio contrato de organizador")));
+                            "CU-90 vía básica: cada quien firma su propio contrato de organizador")),
+            Map.entry(
+                    "iniciarVerificacion",
+                    Ambito.control(
+                            "servicios/identidad/src/main/java/bo/aportaya/identidad/web/ExpedienteController.java",
+                            "titular.exigir\\(usuarioId, null\\)",
+                            "CU-02 diferido: cada quien envia su propio documento; la sesion de otra persona es 403")));
 }
