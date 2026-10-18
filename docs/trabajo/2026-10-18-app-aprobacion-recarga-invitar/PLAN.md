@@ -25,7 +25,7 @@
 ## H2 — Aprobación sin reingresar
 | ID | Microtarea | CA | DoD | Estado |
 |---|---|---|---|---|
-| H2.M1 | Vigilante: con la cuenta sin habilitar, consulta el estado cada 30 s y al volver a la app; si está verificada renueva el acceso solo | Aprobada → el aviso desaparece sin tocar nada | test de widget con reloj falso (correcto / sigue en revisión / falla de red) | TODO |
+| H2.M1 | Vigilante: con la cuenta sin habilitar, consulta el estado cada 30 s y al volver a la app; si está verificada renueva el acceso solo | Aprobada → el aviso desaparece sin tocar nada | `flutter test test/navegacion/vigilante_de_aprobacion_test.dart` → +4 (aprobada / en revisión / sin red / ya habilitada) | HECHO |
 
 ## H3 — Recargar pantallas
 | ID | Microtarea | CA | DoD | Estado |

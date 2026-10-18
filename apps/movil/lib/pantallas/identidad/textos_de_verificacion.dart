@@ -49,6 +49,8 @@ class TextosDeVerificacion {
   static const enviarVerificacionDetalle =
       'Vamos a enviar tu carnet y tus fotos para que una persona los revise. '
       'Mientras tanto podés seguir usando la app.';
+  static const cuentaActivada =
+      'Tu identidad fue verificada. Ya podés usar la billetera y los grupos.';
   static const avisoVerificando =
       'Estamos verificando tu identidad. La billetera y los grupos se activan al terminar.';
   static const avisoAprobada =
