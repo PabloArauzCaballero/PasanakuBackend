@@ -1,0 +1,7 @@
+# 2026-10-15 22:24 UTC · TEST (Contabo) · identidad imagen fdaaca842586 (contiene FallaDeLaBase)
+# POST /api/v1/usuarios con un correo YA registrado (leído en el VPS, no impreso),
+# teléfono y documento sintéticos al azar. Nada se creó: el rechazo es antes del insert.
+HTTP 422
+{'codigo': 'AP-CU01-03', 'mensaje': 'Ya hay una cuenta con ese correo. Usa otro o recupera el acceso.', 'detalle': {'campo': 'correo'}, 'trazaId': 'c832703b-b26e-4fd0-806f-5ae340152483'}
+log identidad: INFO ManejadorGlobalDeErrores : regla de negocio AP-CU01-03: Ya hay una cuenta con ese correo.
+# Antes (17:06 UTC, trazaId cfa6d668-…): HTTP 500 AP-INT-01 por uq_usuario_correo.

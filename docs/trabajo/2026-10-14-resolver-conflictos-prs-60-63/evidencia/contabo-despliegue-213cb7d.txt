@@ -1,0 +1,8 @@
+aportaya-web|finished|213cb7d3
+aportaya-api|finished|213cb7d3
+aportaya-movil|finished|213cb7d3
+aportaya-backoffice|finished|213cb7d3
+api.aportaya/actuator/health -> 200
+backoffice.aportaya -> 200
+aportaya -> 200
+app.aportaya -> 200

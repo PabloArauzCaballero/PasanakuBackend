@@ -1,0 +1,27 @@
+== Despliegue en Contabo (VPS TEST), 2026-10-16
+$ autodespliegue.log
+[17:30:45] test avanzo: d7d707f -> 04970ec   (#85)
+[17:39:55] listo en 04970ec
+[17:43:57] test avanzo: 04970ec -> 5e5ecfa   (#88)
+[17:50:42] FALLA construyendo docker  <- backoffice (Angular): TS2339 Property 'correo' does not exist on type 'ExpedienteEnRevision' (viene de #90, no de este trabajo)
+$ cola Coolify (application_id 13): finished|04970ece|2026-10-16 21:59:04
+$ docker ps: identidad-n3wymuuo076w9prwo5i293bx-20261016T214909  Up (healthy)
+$ imagen aportaya/identidad:test creada 2026-10-16T17:46:14-04:00 (corrida de 5e5ecfa)
+$ clases en el contenedor:
+VerificacionCorreoRepositorio.class: "correoConCuenta" 2 apariciones (#88)
+CorreoDeAccesoRepositorio.class: "correoVerificadoDe" 2 apariciones (#85)
+$ ck_factor_mfa_tipo en TEST: CHECK (tipo IN ('CORREO','RESPALDO','SMS','TOTP','WHATSAPP'))
+$ entorno: SPRING_PROFILES_ACTIVE=local · NOTIFICATION_EMAIL_PROVIDER=gmail_api · 0 líneas ERROR · Started Aplicacion in 68.224 seconds
+
+== Prueba de #88 contra el servicio real (desde el contenedor, 127.0.0.1:8080)
+$ POST /usuarios/verificaciones/correo  {correo de SINT-E2E-A, dominio sintético @example.invalid — enmascarado}
+HTTP 422
+"codigo":"AP-CU01-03"
+"campo":"correo"
+$ POST /usuarios/verificaciones/correo  {sonda-<epoch>@example.invalid}
+correo libre: HTTP 202     (Gmail rebotará: dominio .invalid)
+
+== #85 en TEST
+intentos de login desde el despliegue (21:49 UTC) hasta 22:08 UTC: 0
+"por correo no se pudo enviar": 0 · "por correo sin destino": 0
+El correo real llegando a una bandeja NO está observado todavía (depende de la prueba de Pablo).
