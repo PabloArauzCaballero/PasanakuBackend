@@ -1,0 +1,4 @@
+  ✓  1 [chromium] › e2e/catalogo-gobierno.e2e.ts:40:5 › lista: cifras del inventario, chips de estado y revisión, y filtro por estado desde la URL (7.2s)
+  ✓  2 [chromium] › e2e/catalogo-gobierno.e2e.ts:54:5 › ficha: quien tiene permiso edita el gobierno y guarda con la versión leída (9.6s)
+  ✓  3 [chromium] › e2e/catalogo-gobierno.e2e.ts:74:5 › ficha sin permiso de edición: se lee, no se edita (2.6s)
+  3 passed (1.3m)

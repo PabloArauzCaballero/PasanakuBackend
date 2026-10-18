@@ -51,14 +51,14 @@
 ## H3 — Backoffice
 **CA:** Dado el operador en el backoffice, cuando abre «Catálogo de datos» desde el menú, entonces ve métricas (tablas, activas, a revisar, con datos personales), filtra por estado, revisión y módulo, y edita la ficha de gobierno desde la ficha de tabla.
 **DoD:** specs verdes, typecheck, lint, `verificar_frontend.py`, capturas en 3 anchos × 2 temas miradas.
-**Estado:** TODO
+**Estado:** HECHO
 
 | ID | Microtarea | CA (binario) | DoD (comando) | Estado |
 |---|---|---|---|---|
-| H3.S1.M1 | Dominio: filtros por estado/revisión/módulo y métricas | Spec de dominio verde | `npx ng test --include='src/app/rutas/tablero/catalogo/**'` | TODO |
-| H3.S1.M2 | Lista estilo Atlas: métricas, barra de filtros, columnas con insignias de estado y revisión | Spec + captura | idem + capturas | TODO |
-| H3.S1.M3 | Ficha: sección «Gobierno» y formulario de edición (errores por campo, sin doble envío, 409 explicado) | Spec: guarda, muestra 409 y 403 | idem | TODO |
-| H3.S1.M4 | Entrada «Catálogo de datos» en el menú (grupo Sistemas) | Spec del shell | `npx ng test --include='src/app/layout/**'` | TODO |
+| H3.S1.M1 | Dominio: filtros por estado/revisión/módulo y métricas | Spec de dominio verde | `npx ng test --include='src/app/rutas/tablero/catalogo/**'` | HECHO — `gobierno.spec.ts` 3/3 |
+| H3.S1.M2 | Lista estilo Atlas: métricas, barra de filtros, columnas con insignias de estado y revisión | Spec + captura | idem + capturas | HECHO — e2e `catalogo-gobierno` 3/3 (contra doble declarado de auditoria) + `evidencia/capturas/cu130-lista-*` (3 anchos × 2 temas, miradas; axe y desborde en verde) |
+| H3.S1.M3 | Ficha: sección «Gobierno» y formulario de edición (errores por campo, sin doble envío, 409 explicado) | Spec: guarda, muestra 409 y 403 | idem | HECHO — `seccion-de-gobierno.spec.ts` 4/4 (guarda con versión, sin doble envío, AP-CU130-01 conserva borrador, solo lectura) + `cu130-ficha-*` |
+| H3.S1.M4 | Entrada «Catálogo de datos» en el menú (grupo Sistemas) | Spec del shell | `npx ng test --include='src/app/layout/**'` | HECHO — `evidencia/H3-backoffice.txt`: test:front 839/839, lint, tsc, verificar_frontend OK |
 
 ## H4 — En TEST
 **CA:** El kill-test pasa en `backoffice.aportaya…`.

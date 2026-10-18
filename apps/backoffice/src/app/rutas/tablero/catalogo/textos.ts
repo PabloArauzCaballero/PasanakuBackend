@@ -2,12 +2,24 @@
 export const textosCatalogo = {
   titulo: 'Catálogo de datos',
   proposito:
-    'Cada tabla de la plataforma con por qué existe, qué servicio la escribe y cómo se relaciona con las demás. Es la estructura, nunca los datos de las personas.',
+    'Cada tabla de la plataforma con su estado, quién responde por ella, si alguien ya la revisó y qué retención le aplica. Es la estructura, nunca los datos de las personas.',
+  metricas: { total: 'Tablas', activas: 'Activas', aRevisar: 'Sin revisar', personales: 'Con datos personales', retiro: 'Hacia el retiro' },
+  filtros: { estado: 'Estado', revision: 'Revisión', modulo: 'Módulo' },
   busqueda: 'Buscar tabla, columna o concepto',
   filtroEsquemas: 'Esquema',
   cargando: 'Consultando el catálogo',
-  vacio: 'Ninguna tabla coincide con la búsqueda. Probá con otra palabra o quitá el filtro de esquema.',
-  columnasLista: { tabla: 'Tabla', esquema: 'Esquema', servicio: 'Servicio dueño', columnas: 'Columnas', queEs: 'Qué es' },
+  vacio: 'Ninguna tabla coincide con la búsqueda. Probá con otra palabra o quitá los filtros.',
+  columnasLista: {
+    tabla: 'Tabla',
+    esquema: 'Esquema',
+    modulo: 'Módulo',
+    responsable: 'Responsable',
+    personales: 'Datos personales',
+    financieros: 'Financiera',
+    retencion: 'Retención',
+    revision: 'Revisión',
+    estado: 'Estado',
+  },
   resultados: (n: number, total: number) => (n === total ? `${total} tablas` : `${n} de ${total} tablas`),
   ficha: {
     volver: 'Volver al catálogo',

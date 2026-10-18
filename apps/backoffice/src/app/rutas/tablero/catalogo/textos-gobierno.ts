@@ -1,0 +1,21 @@
+/** Los textos de la ficha de gobierno (CU-130), en voz de marca. */
+export const textosGobierno = {
+  titulo: 'Gobierno de la tabla',
+  version: (n: number) => (n === 0 ? 'Nadie la revisó todavía' : `Revisión ${n}`),
+  estado: 'Estado',
+  ayudaEstado: 'Si la tabla sigue en uso, se propone retirar o ya no se usa.',
+  revision: 'Revisión',
+  responsable: 'Responsable',
+  ayudaResponsable: 'El área o la persona que responde por esta tabla.',
+  sinAsignar: 'Sin asignar',
+  retencion: 'Política de retención',
+  ayudaRetencion: 'Cuánto se conserva y qué se hace al vencer.',
+  opcionRetencion: (entidad: string, meses: number, accion: string) => `${entidad} · ${meses} meses · ${accion.toLowerCase()}`,
+  critica: 'Crítica para auditoría',
+  nota: 'Nota de revisión',
+  guardar: 'Guardar ficha',
+  guardando: 'Guardando…',
+  guardado: 'Ficha guardada. El cambio quedó en la bitácora.',
+  noSeGuardo: 'No se guardó',
+  soloLectura: 'Para editar esta ficha hace falta el permiso de edición del catálogo de datos.',
+}

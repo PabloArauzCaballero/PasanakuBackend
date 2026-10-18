@@ -72,7 +72,7 @@ export type Opcion = { valor: string; texto: string }
   template: `
     <label [for]="id">{{ etiqueta() }}</label>
     <select [id]="id" [attr.aria-invalid]="error() ? 'true' : null" [attr.aria-describedby]="error() ? id + '-error' : ayuda() ? id + '-ayuda' : null" (change)="valor.set($any($event.target).value)">
-      <option value="" [selected]="!valor()">Elegí una opción</option>
+      <option value="" [selected]="!valor()">{{ textoVacio() }}</option>
       @for (o of opciones(); track o.valor) { <option [value]="o.valor" [selected]="o.valor === valor()">{{ o.texto }}</option> }
     </select>
     @if (error()) { <p class="error" [id]="id + '-error'" role="alert">{{ error() }}</p> }
@@ -84,6 +84,8 @@ export class ListaDeOpciones {
   readonly id = `ap-lista-${++secuencia}`
   readonly etiqueta = input.required<string>()
   readonly opciones = input.required<readonly Opcion[]>()
+  /** El texto de la opción vacía: en un formulario pide elegir; en un filtro, vacío es «Todos». */
+  readonly textoVacio = input('Elegí una opción')
   readonly valor = model('')
   readonly ayuda = input<string>()
   readonly error = input<string>()
