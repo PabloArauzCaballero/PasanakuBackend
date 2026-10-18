@@ -165,6 +165,10 @@ Dado una cuenta pendiente de aprobacion manual
 Cuando inicia sesion con credenciales correctas
 Entonces inicia sesion y su estado sigue pendiente
 
+Dada una cuenta sin documento
+Cuando inicia sesion con credenciales correctas
+Entonces inicia sesion y sigue INCOMPLETO_KYC
+
 Dado un participante activo sin factor
 Cuando inicia sesion desde un teléfono nuevo
 Entonces obtiene su sesión sin que se le pida código

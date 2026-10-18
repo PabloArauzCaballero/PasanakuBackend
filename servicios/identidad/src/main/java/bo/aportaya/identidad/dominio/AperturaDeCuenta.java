@@ -14,6 +14,11 @@ package bo.aportaya.identidad.dominio;
  * nadie evaluo.
  */
 public enum AperturaDeCuenta {
+    /**
+     * Creado sin documento (2026-10-17): conoce la app, pero no opera con dinero hasta
+     * enviar su documento y que lo aprueben. Pasa a {@code PENDIENTE_VERIFICACION} al enviarlo.
+     */
+    INCOMPLETO_KYC,
     /** Creado, sin diligencia ni billetera todavia. */
     PENDIENTE_VERIFICACION,
     /** Diligencia completa y billetera abierta: recien aca opera. */

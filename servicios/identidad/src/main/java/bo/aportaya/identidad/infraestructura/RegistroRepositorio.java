@@ -140,6 +140,20 @@ public class RegistroRepositorio {
                 .fetchOne(VERIFICACION_KYC.ID);
     }
 
+    /**
+     * La cuenta abierta sin documento pasa a revision. La precondicion va en el UPDATE: dos
+     * envios simultaneos no abren dos verificaciones, el segundo no cambia ninguna fila.
+     */
+    public boolean pasarARevisionSiFaltabaDocumento(DSLContext dsl, UUID usuarioId) {
+        return dsl.update(USUARIO)
+                        .set(USUARIO.ESTADO, "PENDIENTE_VERIFICACION")
+                        .set(USUARIO.VERSION, USUARIO.VERSION.plus(1))
+                        .where(USUARIO.ID.eq(usuarioId))
+                        .and(USUARIO.ESTADO.eq("INCOMPLETO_KYC"))
+                        .execute()
+                == 1;
+    }
+
     /** Cada finalidad por separado: aceptar el contrato no es aceptar publicidad. */
     public void registrarConsentimientos(
             DSLContext dsl, UUID usuarioId, List<String> finalidades, String ip, String agente, OffsetDateTime ahora) {

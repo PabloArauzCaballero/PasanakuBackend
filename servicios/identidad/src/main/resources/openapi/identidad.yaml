@@ -89,7 +89,11 @@ paths:
       responses:
         '202':
           description: >-
-            Alta aceptada. El usuario queda PENDIENTE_VERIFICACION y NO opera
+            Alta aceptada. Sin `documento`, la cuenta queda INCOMPLETO_KYC: puede
+            ingresar y conocer la app, y envia su documento despues con
+            `POST /usuarios/{usuarioId}/verificacion`, cuando quiere operar (2026-10-17).
+
+            Con `documento`, el usuario queda PENDIENTE_VERIFICACION y NO opera
             todavia: la debida diligencia la hace `cumplimiento` y la billetera la
             abre `nucleo-financiero` al consumir `identidad.usuario_registrado`.
 
@@ -108,6 +112,7 @@ paths:
           # AP-CU01-05 SERVICIO_NO_AUTORIZADO (R-LIC-01)
           # AP-CU01-06 CLAVE_RECHAZADA: corta, o derivada del telefono o del documento
           # AP-CU01-07 DOCUMENTO_VENCIDO: la fecha de vencimiento ya paso
+          # AP-CU01-12 VERIFICACION_YA_INICIADA (solo en POST /usuarios/{id}/verificacion)
           # AP-CU01-03 lleva detalle.campo = telefono | documento | correo: el dato
           # que ya tiene cuenta, para que el cliente diga CUAL (2026-10-15).
           # Si dos altas con el mismo dato se cruzan, la segunda rebota en el indice
@@ -469,6 +474,47 @@ paths:
           description: No es la persona ni presenta el token de su alta (idéntico exista o no el usuario)
         '422': { $ref: '#/components/responses/ReglaDeNegocio' }
           # AP-CU02-xx NO_HAY_EXPEDIENTE
+    post:
+      operationId: iniciarVerificacion
+      summary: La persona ya registrada envia su documento y abre su verificacion
+      description: >-
+        Para la cuenta que se abrio sin documento (INCOMPLETO_KYC): la verificacion de
+        identidad se pide recien cuando la persona quiere operar con dinero (crear o
+        unirse a un grupo, mover su billetera), no al crear la cuenta (2026-10-17).
+
+        Solo el titular con su propia sesion; el `usuarioId` de la ruta debe coincidir con
+        el sujeto de la sesion (el mismo 403 en cualquier otro caso). Guarda el documento,
+        abre la verificacion BASICO y pasa la cuenta a PENDIENTE_VERIFICACION en la misma
+        transaccion. Despues, las fotos se suben con `POST /usuarios/{usuarioId}/documentos`
+        y la aprobacion sigue siendo de una persona revisora.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: usuarioId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/Documento' }
+      responses:
+        '202':
+          description: Verificacion abierta, sin fotos todavia
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/EstadoDeVerificacion' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '403':
+          description: La sesión pertenece a otra persona
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '422': { $ref: '#/components/responses/ReglaDeNegocio' }
+          # AP-CU01-03 CUENTA_YA_EXISTE (detalle.campo = documento)
+          # AP-CU01-07 DOCUMENTO_VENCIDO · AP-CU01-10 sin fecha de vencimiento
+          # AP-CU01-12 VERIFICACION_YA_INICIADA: la cuenta ya tiene su verificacion
 
   /usuarios/{usuarioId}/titularidad/verificacion:
     post:
@@ -747,11 +793,18 @@ components:
     MiPerfil:
       type: object
       additionalProperties: false
-      required: [usuarioId, correoVerificado]
+      required: [usuarioId, correoVerificado, estadoDeCuenta]
       properties:
         usuarioId:        { type: string, format: uuid }
         correo:           { type: [string, 'null'], maxLength: 150 }
         correoVerificado: { type: boolean }
+        estadoDeCuenta:
+          type: string
+          description: >-
+            INCOMPLETO_KYC: todavia no envio su documento. PENDIENTE_VERIFICACION: lo
+            envio y esta en revision. ACTIVO: verificada. La app decide con esto que le
+            ofrece a la persona antes de una operacion con dinero.
+          enum: [ACTIVO, BAJA_VOLUNTARIA, BLOQUEADO_SEGURIDAD, ELIMINADO, INCOMPLETO_KYC, PENDIENTE_VERIFICACION, PRE_REGISTRO, SUSPENDIDO]
     NivelKyc:
       type: object
       additionalProperties: false
@@ -1071,7 +1124,9 @@ components:
     EntradaRegistro:
       type: object
       additionalProperties: false      # strict(): lista blanca, no lista negra
-      required: [telefonoE164, nombres, apellidos, fechaNacimiento, correo, documento, aceptaContratos, contrasena, verificacionCorreoId]
+      # `documento` es opcional desde 2026-10-17: sin el, la cuenta se abre para conocer la
+      # app y la verificacion se pide cuando la persona quiere operar con dinero.
+      required: [telefonoE164, nombres, apellidos, fechaNacimiento, correo, aceptaContratos, contrasena, verificacionCorreoId]
       properties:
         telefonoE164:    { type: string, pattern: '^\+591\d{8}$' }
         nombres:         { type: string, minLength: 2, maxLength: 60 }
@@ -1134,7 +1189,7 @@ components:
         usuarioId: { type: string, format: uuid }
         estado:
           type: string
-          enum: [PENDIENTE_VERIFICACION, ACTIVO]
+          enum: [INCOMPLETO_KYC, PENDIENTE_VERIFICACION, ACTIVO]
         cuentaBilleteraId: { type: string, format: uuid }
         nivelDiligencia:
           type: string

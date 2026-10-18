@@ -85,6 +85,7 @@ public class UsuariosController extends ExpedienteController {
             ConfirmarVerificacionCorreo confirmarCorreo,
             bo.aportaya.identidad.aplicacion.ActivarRolOrganizador rolOrganizador,
             bo.aportaya.identidad.aplicacion.ConsultarMiPerfil miPerfil,
+            bo.aportaya.identidad.aplicacion.CU02IniciarVerificacion iniciarVerificacion,
             SesionDeLaPeticion sesion,
             HttpServletRequest peticion,
             @Value("${aportaya.seguridad.pimienta}") String pimienta,
@@ -99,6 +100,7 @@ public class UsuariosController extends ExpedienteController {
                 estadoDeVerificacion,
                 actualizarFechaExpiracion,
                 miPerfil,
+                iniciarVerificacion,
                 pimienta,
                 reloj,
                 vigenciaTokenDeAlta);

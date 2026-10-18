@@ -57,6 +57,12 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
  * Ahora exige el token que devolvio el alta de ESE usuario, o su propia sesion. La prueba usa dos
  * personas: la titular y otra que conoce su identificador.
  */
+@MockitoBean(
+        types = {
+            bo.aportaya.identidad.aplicacion.ActivarRolOrganizador.class,
+            bo.aportaya.identidad.aplicacion.ConsultarMiPerfil.class,
+            bo.aportaya.identidad.aplicacion.CU02IniciarVerificacion.class
+        })
 @PruebaWeb(
         value = UsuariosController.class,
         properties = {"aportaya.seguridad.pimienta=pimienta-de-prueba-no-es-la-de-produccion"})
@@ -126,12 +132,6 @@ class UsuariosSubirDocumentoWebTest {
 
     @MockitoBean
     private ConfirmarVerificacionCorreo confirmarCorreo;
-
-    @MockitoBean
-    private bo.aportaya.identidad.aplicacion.ActivarRolOrganizador activarRolOrganizador;
-
-    @MockitoBean
-    private bo.aportaya.identidad.aplicacion.ConsultarMiPerfil consultarMiPerfil;
 
     @MockitoBean
     private ConsultarNivelKyc nivelesKyc;
