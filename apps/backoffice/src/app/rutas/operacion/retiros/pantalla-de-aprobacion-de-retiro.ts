@@ -1,11 +1,12 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal } from '@angular/core'
 import { Router } from '@angular/router'
 import { Alerta } from '@aportaya/ui/alerta/alerta'
-import { BandaDeProposito } from '@aportaya/ui/banda-de-proposito/banda-de-proposito'
 import { Boton } from '@aportaya/ui/boton/boton'
+import { CabeceraDePagina } from '@aportaya/ui/cabecera-de-pagina/cabecera-de-pagina'
 import { Campo } from '@aportaya/ui/campo/campo'
 import { GrupoRadio, type OpcionDeRadio } from '@aportaya/ui/grupo-radio/grupo-radio'
 import { Monto } from '@aportaya/ui/monto/monto'
+import { ExplicadorDeVista } from '../../../nucleo/explicador-de-vista'
 import type { ErrorTraducido } from '../../../nucleo/errores'
 import { senalDeRed } from '../../../nucleo/senal-de-red'
 import { Sesion } from '../../../nucleo/sesion'
@@ -21,30 +22,18 @@ import { textosRetiros } from './textos'
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
-/** Lo que se sabe del envío. `sinConfirmar` es el estado que NO se puede tratar como un fallo. */
 type Envio = 'inactivo' | 'enviando' | 'confirmado' | 'sinConfirmar' | 'rechazado'
 
 /**
  * CU-11 · la segunda firma de un retiro (`aprobarRetiro`, permiso `RETIRO_APROBAR`).
- *
- * Quien pidió el retiro no lo aprueba (R-SEG-04): el servidor lo rechaza con `AP-CU11-10` y la base lo vuelve a exigir.
- * Ocultar o mostrar acá no protege nada; la pantalla solo evita ofrecer una acción que siempre falla y explica cada
- * rechazo con lo que la persona puede hacer. Dos aprobadores simultáneos producen una sola transición: el segundo
- * recibe 409 y la pantalla lo cuenta sin dar a entender que «falló» algo.
- *
- * Una decisión no se duplica ni se pierde: la clave de idempotencia la gobierna el contenido (orden + desenlace + motivo),
- * así que reintentar tras perder la respuesta sale con la misma clave. Sin respuesta (sin red, tiempo agotado, 5xx) el
- * estado es «sin confirmar», no «falló». El contrato no tiene una consulta de la orden: el reintento con la misma clave es
- * la verificación. Lo escrito se conserva ante cualquier fallo y el formulario se bloquea mientras el envío está en curso.
  */
 @Component({
   selector: 'ap-pantalla-de-aprobacion-de-retiro',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [Alerta, BandaDeProposito, Boton, Campo, GrupoRadio, Monto],
+  imports: [Alerta, Boton, CabeceraDePagina, Campo, GrupoRadio, Monto],
   template: `
-    <ap-banda-de-proposito [texto]="t.proposito" />
     <section class="pantalla" aria-labelledby="titulo-retiro">
-      <h1 id="titulo-retiro">{{ t.titulo }}</h1>
+      <ap-cabecera-de-pagina id="titulo-retiro" [titulo]="t.titulo" [descripcion]="t.proposito" icono="retiro" />
       <p class="aviso">{{ t.sinListado }}</p>
       @if (resumen; as r) {
         <dl class="resumen" [attr.aria-label]="t.resumen">
@@ -139,6 +128,7 @@ export class PantallaDeAprobacionDeRetiro {
   protected readonly bloqueado = computed(() => this.envio() === 'enviando')
 
   constructor() {
+    inject(ExplicadorDeVista).fijar(this.t.proposito)
     effect(() => {
       const orden = this.ordenId()
       if (orden) this.ordenEscrita.set(orden)

@@ -1,9 +1,10 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core'
 import { ActivatedRoute, Router } from '@angular/router'
-import { BandaDeProposito } from '@aportaya/ui/banda-de-proposito/banda-de-proposito'
 import { Boton } from '@aportaya/ui/boton/boton'
+import { CabeceraDePagina } from '@aportaya/ui/cabecera-de-pagina/cabecera-de-pagina'
 import { Fecha } from '@aportaya/ui/fecha/fecha'
 import { Monto } from '@aportaya/ui/monto/monto'
+import { ExplicadorDeVista } from '../../../nucleo/explicador-de-vista'
 import { TablaDeDatosVirtualizada } from '../../../nucleo/tabla/tabla-de-datos-virtualizada'
 import type { ColumnaVirtual } from '../../../nucleo/tabla/tipos'
 import { EstadoDeBandejaVista } from '../comun/estado-de-bandeja'
@@ -22,19 +23,15 @@ const COLUMNAS: ColumnaVirtual<RetiroEnRevision>[] = [
 ]
 
 /**
- * CU-11 · bandeja de retiros en revisión. Reemplaza el ingreso manual del identificador: cada fila abre la ficha
- * `retiros/:ordenId` (la misma pantalla de decisión, que sigue sirviendo para enlaces profundos). Con
- * `puedeDecidir = false` (quien consulta pidió el retiro, R-SEG-04) la fila no ofrece decidir y lo explica: el
- * servidor igual lo rechazaría con `AP-CU11-10`.
+ * CU-11 · bandeja de retiros en revisión.
  */
 @Component({
   selector: 'ap-bandeja-de-retiros',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [BandaDeProposito, Boton, Fecha, Monto, TablaDeDatosVirtualizada, EstadoDeBandejaVista],
+  imports: [Boton, CabeceraDePagina, Fecha, Monto, TablaDeDatosVirtualizada, EstadoDeBandejaVista],
   template: `
-    <ap-banda-de-proposito [texto]="t.proposito" />
     <section class="pantalla">
-      <h1>{{ t.titulo }}</h1>
+      <ap-cabecera-de-pagina [titulo]="t.titulo" [descripcion]="t.proposito" icono="retiro" />
       <ap-estado-de-bandeja [estado]="b.estado()" [error]="b.error()" [vacio]="t.vacio" [explicacionVacio]="t.explicacionVacio" [denegado]="t.denegado" (reintentar)="b.reintentar()" />
       @if (b.estado() !== 'denegado') {
         @for (v of [b.version()]; track v) {
@@ -62,11 +59,13 @@ const COLUMNAS: ColumnaVirtual<RetiroEnRevision>[] = [
   `,
   styles: `
     .pantalla { padding: var(--s5); max-width: 72rem; display: grid; gap: var(--s4); }
-    h1 { margin: 0; }
     .propia { color: var(--text-2); white-space: normal; }
   `,
 })
 export class BandejaDeRetiros {
+  constructor() {
+    inject(ExplicadorDeVista).fijar(this.t.proposito)
+  }
   protected readonly t = T
   protected readonly COLUMNAS = COLUMNAS
   protected readonly b = bandejaDeRetiros()
