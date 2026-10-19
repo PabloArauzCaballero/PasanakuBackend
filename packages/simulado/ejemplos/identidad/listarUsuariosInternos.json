@@ -1,0 +1,69 @@
+{
+  "servicio": "identidad",
+  "operacion": "listarUsuariosInternos",
+  "metodo": "get",
+  "ruta": "/usuarios-internos",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": [
+        {
+          "id": "1e68f59c-dd80-4ba8-83c1-7f1ccfbe9f14",
+          "usuarioId": "1759ea7e-4c76-439c-8b2f-69e263d06e1a",
+          "codigoPublico": "codigoPublico",
+          "nombres": "nombres",
+          "apellidos": "apellidos",
+          "correo": "persona@ejemplo.bo",
+          "telefono": "telefono",
+          "departamento": "departamento",
+          "cargo": "cargo",
+          "estado": "estado",
+          "debeCambiarContrasena": true,
+          "tieneSegundoFactor": true,
+          "bloqueadoHasta": "2026-01-15T10:30:00Z",
+          "motivoBloqueo": "motivoBloqueo",
+          "roles": [
+            "roles[0]"
+          ]
+        }
+      ]
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": []
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": [
+        {
+          "id": "1e68f59c-dd80-4ba8-83c1-7f1ccfbe9f14",
+          "usuarioId": "1759ea7e-4c76-439c-8b2f-69e263d06e1a",
+          "codigoPublico": "codigoPublico",
+          "nombres": "nombres",
+          "apellidos": "apellidos",
+          "correo": "persona@ejemplo.bo",
+          "telefono": "telefono",
+          "departamento": "departamento",
+          "cargo": "cargo",
+          "estado": "estado",
+          "debeCambiarContrasena": true,
+          "tieneSegundoFactor": true,
+          "bloqueadoHasta": "2026-01-15T10:30:00Z",
+          "motivoBloqueo": "motivoBloqueo",
+          "roles": [
+            "roles[0]"
+          ]
+        }
+      ]
+    },
+    "rechazo": {
+      "estado": 401,
+      "cuerpo": {
+        "codigo": "AP-CU01-03",
+        "mensaje": "Cuenta ya existe",
+        "detalle": {},
+        "trazaId": "traza-listarUsuariosInternos-rechazo"
+      }
+    }
+  }
+}

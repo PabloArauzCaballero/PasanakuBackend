@@ -80,7 +80,7 @@ class AvisosInternosWebTest {
         mvc.perform(get("/notificaciones/avisos-internos")
                         .param("soloNoLeidos", "true")
                         .param("limite", "10")
-                        .with(Sesiones.como("BACKOFFICE")))
+                        .with(Sesiones.como("ADMIN_PLATAFORMA", "AUDITORIA_LEER")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.totalNoLeidos").value(1))
                 .andExpect(jsonPath("$.elementos[0].id").value(AVISO_ID.toString()))
@@ -162,7 +162,7 @@ class AvisosInternosWebTest {
                 .thenReturn(Optional.of(aviso));
 
         mvc.perform(post("/notificaciones/avisos-internos/" + AVISO_ID + "/leido")
-                        .with(Sesiones.como("BACKOFFICE")))
+                        .with(Sesiones.como("ADMIN_PLATAFORMA", "AUDITORIA_LEER")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(AVISO_ID.toString()))
                 .andExpect(jsonPath("$.leidoEn").isNotEmpty());
@@ -175,7 +175,7 @@ class AvisosInternosWebTest {
                 .thenReturn(Optional.empty());
 
         mvc.perform(post("/notificaciones/avisos-internos/" + AVISO_ID + "/leido")
-                        .with(Sesiones.como("BACKOFFICE")))
+                        .with(Sesiones.como("ADMIN_PLATAFORMA", "AUDITORIA_LEER")))
                 .andExpect(status().isNotFound());
     }
 
@@ -186,7 +186,7 @@ class AvisosInternosWebTest {
                 .thenReturn(new SalidaMarcarTodosLeidos().modificados(5));
 
         mvc.perform(post("/notificaciones/avisos-internos/marcar-todos-leidos")
-                        .with(Sesiones.como("BACKOFFICE")))
+                        .with(Sesiones.como("ADMIN_PLATAFORMA", "AUDITORIA_LEER")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.modificados").value(5));
     }

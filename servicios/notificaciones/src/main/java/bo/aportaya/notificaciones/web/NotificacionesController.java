@@ -191,7 +191,7 @@ public class NotificacionesController implements NotificacionesApi {
     }
 
     @Override
-    @Permiso("BACKOFFICE")
+    @Permiso("AUDITORIA_LEER")
     @PermisoAlternativo({"ADMIN_PLATAFORMA"})
     public ResponseEntity<PaginaDeAvisosInternos> consultarAvisosInternos(Boolean soloNoLeidos, Integer limite) {
         Traza.marcarCasoDeUso("CU-80", "avisos-internos");
@@ -215,7 +215,7 @@ public class NotificacionesController implements NotificacionesApi {
     }
 
     @Override
-    @Permiso("BACKOFFICE")
+    @Permiso("AUDITORIA_LEER")
     @PermisoAlternativo({"ADMIN_PLATAFORMA"})
     public ResponseEntity<AvisoInterno> marcarAvisoLeido(UUID id) {
         Traza.marcarCasoDeUso("CU-80", "marcar-aviso-leido");
@@ -225,7 +225,7 @@ public class NotificacionesController implements NotificacionesApi {
     }
 
     @Override
-    @Permiso("BACKOFFICE")
+    @Permiso("AUDITORIA_LEER")
     @PermisoAlternativo({"ADMIN_PLATAFORMA"})
     public ResponseEntity<SalidaMarcarTodosLeidos> marcarTodosAvisosLeidos() {
         Traza.marcarCasoDeUso("CU-80", "marcar-todos-avisos-leidos");

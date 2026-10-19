@@ -30,7 +30,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 @PruebaWeb(CatalogosOperativosController.class)
-class CatalogosOperativosWebTest {
+class CatalogosOperativosControllerWebTest {
 
     private static final OffsetDateTime FECHA = OffsetDateTime.of(2026, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC);
 

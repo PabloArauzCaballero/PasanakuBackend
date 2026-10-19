@@ -1,0 +1,90 @@
+{
+  "servicio": "auditoria",
+  "operacion": "actualizarEstadoElementoCatalogo",
+  "metodo": "patch",
+  "ruta": "/auditoria/catalogos/{codigo}/elementos/{id}",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "id": "id",
+        "catalogoCodigo": "catalogoCodigo",
+        "codigo": "codigo",
+        "nombre": "nombre",
+        "descripcion": "descripcion",
+        "activo": true,
+        "atributos": {},
+        "orden": 1,
+        "vigenteDesde": "2026-01-15T10:30:00Z",
+        "actualizadoEn": "2026-01-15T10:30:00Z",
+        "actualizadoPor": "actualizadoPor"
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "id": "id",
+        "catalogoCodigo": "catalogoCodigo",
+        "codigo": "codigo",
+        "nombre": "nombre",
+        "descripcion": "descripcion",
+        "activo": false,
+        "atributos": {},
+        "orden": 0,
+        "vigenteDesde": "2026-01-15T10:30:00Z",
+        "actualizadoEn": "2026-01-15T10:30:00Z",
+        "actualizadoPor": "actualizadoPor"
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "id": "id",
+        "catalogoCodigo": "catalogoCodigo",
+        "codigo": "codigo",
+        "nombre": "nombre",
+        "descripcion": "descripcion",
+        "activo": true,
+        "atributos": {},
+        "orden": 1,
+        "vigenteDesde": "2026-01-15T10:30:00Z",
+        "actualizadoEn": "2026-01-15T10:30:00Z",
+        "actualizadoPor": "actualizadoPor"
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "id": "id",
+        "catalogoCodigo": "catalogoCodigo",
+        "codigo": "codigo",
+        "nombre": "nombre",
+        "descripcion": "descripcion",
+        "activo": true,
+        "atributos": {},
+        "orden": 1,
+        "vigenteDesde": "2026-01-15T10:30:00Z",
+        "actualizadoEn": "2026-01-15T10:30:00Z",
+        "actualizadoPor": "actualizadoPor"
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 404,
+      "cuerpo": {
+        "codigo": "AP-CU07-01",
+        "mensaje": "Identidad no verificada",
+        "detalle": {},
+        "trazaId": "traza-actualizarEstadoElementoCatalogo-rechazo"
+      }
+    }
+  }
+}

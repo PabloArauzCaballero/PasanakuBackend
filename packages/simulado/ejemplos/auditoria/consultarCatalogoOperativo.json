@@ -1,0 +1,65 @@
+{
+  "servicio": "auditoria",
+  "operacion": "consultarCatalogoOperativo",
+  "metodo": "get",
+  "ruta": "/auditoria/catalogos/{codigo}",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "codigo": "codigo",
+        "nombre": "nombre",
+        "dueno": "dueno",
+        "version": "version",
+        "totalElementos": 1,
+        "elementosActivos": 1,
+        "vigenteDesde": "2026-01-15T10:30:00Z",
+        "estado": "VIGENTE",
+        "descripcion": "descripcion",
+        "tablaFisica": "tablaFisica",
+        "baseNormativa": "baseNormativa"
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "codigo": "codigo",
+        "nombre": "nombre",
+        "dueno": "dueno",
+        "version": "version",
+        "totalElementos": 0,
+        "elementosActivos": 0,
+        "vigenteDesde": "2026-01-15T10:30:00Z",
+        "estado": "VIGENTE",
+        "descripcion": "descripcion",
+        "tablaFisica": "tablaFisica",
+        "baseNormativa": "baseNormativa"
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "codigo": "codigo",
+        "nombre": "nombre",
+        "dueno": "dueno",
+        "version": "version",
+        "totalElementos": 1,
+        "elementosActivos": 1,
+        "vigenteDesde": "2026-01-15T10:30:00Z",
+        "estado": "VIGENTE",
+        "descripcion": "descripcion",
+        "tablaFisica": "tablaFisica",
+        "baseNormativa": "baseNormativa"
+      }
+    },
+    "rechazo": {
+      "estado": 404,
+      "cuerpo": {
+        "codigo": "AP-CU07-01",
+        "mensaje": "Identidad no verificada",
+        "detalle": {},
+        "trazaId": "traza-consultarCatalogoOperativo-rechazo"
+      }
+    }
+  }
+}

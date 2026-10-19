@@ -25,7 +25,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 @PruebaWeb(BitacoraController.class)
-class BitacoraWebTest {
+class BitacoraControllerWebTest {
 
     private static final UUID EVENTO_ID = UUID.fromString("b17a0000-0000-4000-8000-000000000001");
     private static final UUID ENTIDAD_ID = UUID.fromString("e17a0000-0000-4000-8000-000000000001");
