@@ -21,7 +21,7 @@ import { Boton } from '../boton/boton'
       <div class="cuerpo"><ng-content /></div>
       <div class="acciones">
         <ap-boton variante="fantasma" (pulsado)="intentarCerrar()">{{ textoDeCancelar() }}</ap-boton>
-        <ap-boton [variante]="destructivo() ? 'peligro' : 'primario'" [cargando]="cargando()" (pulsado)="confirmar.emit()">{{ textoDeConfirmar() }}</ap-boton>
+        <ap-boton [variante]="destructivo() ? 'peligro' : 'primario'" [cargando]="cargando()" [deshabilitado]="confirmarDeshabilitado()" (pulsado)="confirmar.emit()">{{ textoDeConfirmar() }}</ap-boton>
       </div>
     </dialog>
   `,
@@ -44,6 +44,8 @@ export class Dialogo implements AfterViewInit, OnDestroy {
   readonly textoDeCancelar = input('Cancelar')
   readonly destructivo = input(false)
   readonly cargando = input(false)
+  /** Mientras falte una condición (una frase escrita, un motivo), confirmar no se puede pulsar. */
+  readonly confirmarDeshabilitado = input(false)
   readonly abierto = model(false)
   /** El consumidor puede aplicar su propia política de descarte al cerrar. */
   readonly puedeDescartar = input<() => boolean>(() => true)

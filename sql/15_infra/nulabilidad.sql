@@ -79,6 +79,8 @@ ALTER TABLE auditoria.regla_cumplimiento ALTER COLUMN ventana_horas DROP NOT NUL
 ALTER TABLE auditoria.reporte_operacion_sospechosa ALTER COLUMN aprobado_por DROP NOT NULL;
 ALTER TABLE auditoria.reporte_operacion_sospechosa ALTER COLUMN enviado_en DROP NOT NULL;
 ALTER TABLE auditoria.reporte_operacion_sospechosa ALTER COLUMN numero_radicado DROP NOT NULL;
+ALTER TABLE auditoria.revision_columna ALTER COLUMN confianza DROP NOT NULL;
+ALTER TABLE auditoria.revision_columna ALTER COLUMN motivo DROP NOT NULL;
 ALTER TABLE auditoria.solicitud_datos_personales ALTER COLUMN atendida_en DROP NOT NULL;
 ALTER TABLE auditoria.solicitud_datos_personales ALTER COLUMN atendida_por DROP NOT NULL;
 ALTER TABLE auditoria.solicitud_datos_personales ALTER COLUMN respuesta DROP NOT NULL;
@@ -499,6 +501,8 @@ ALTER TABLE identidad.restriccion_usuario ALTER COLUMN motivo_levantamiento DROP
 ALTER TABLE identidad.restriccion_usuario ALTER COLUMN referencia_origen_id DROP NOT NULL;
 ALTER TABLE identidad.restriccion_usuario ALTER COLUMN valor_limite DROP NOT NULL;
 ALTER TABLE identidad.restriccion_usuario ALTER COLUMN vigente_hasta DROP NOT NULL;
+ALTER TABLE identidad.rol ALTER COLUMN departamento DROP NOT NULL;
+ALTER TABLE identidad.rol ALTER COLUMN descripcion DROP NOT NULL;
 ALTER TABLE identidad.sesion ALTER COLUMN geolocalizacion_aprox DROP NOT NULL;
 ALTER TABLE identidad.sesion ALTER COLUMN motivo_revocacion DROP NOT NULL;
 ALTER TABLE identidad.sesion ALTER COLUMN refresco_familia_id DROP NOT NULL;
@@ -523,6 +527,8 @@ ALTER TABLE identidad.usuario ALTER COLUMN eliminado_en DROP NOT NULL;
 ALTER TABLE identidad.usuario ALTER COLUMN telefono_verificado_en DROP NOT NULL;
 ALTER TABLE identidad.usuario ALTER COLUMN ultimo_acceso_en DROP NOT NULL;
 ALTER TABLE identidad.usuario ALTER COLUMN url_avatar DROP NOT NULL;
+ALTER TABLE identidad.usuario_interno ALTER COLUMN bloqueado_hasta DROP NOT NULL;
+ALTER TABLE identidad.usuario_interno ALTER COLUMN motivo_bloqueo DROP NOT NULL;
 ALTER TABLE identidad.verificacion_kyc ALTER COLUMN documento_id DROP NOT NULL;
 ALTER TABLE identidad.verificacion_kyc ALTER COLUMN motivo_rechazo DROP NOT NULL;
 ALTER TABLE identidad.verificacion_kyc ALTER COLUMN proveedor DROP NOT NULL;
@@ -562,6 +568,10 @@ ALTER TABLE inversiones.version_condiciones ALTER COLUMN plazo_dias DROP NOT NUL
 ALTER TABLE inversiones.version_condiciones ALTER COLUMN tasa_comision_exito DROP NOT NULL;
 ALTER TABLE inversiones.version_condiciones ALTER COLUMN tasa_nominal_anual DROP NOT NULL;
 ALTER TABLE inversiones.version_condiciones ALTER COLUMN tasa_retencion DROP NOT NULL;
+ALTER TABLE notificaciones.aviso_interno ALTER COLUMN enlace DROP NOT NULL;
+ALTER TABLE notificaciones.aviso_interno ALTER COLUMN leido_en DROP NOT NULL;
+ALTER TABLE notificaciones.aviso_interno ALTER COLUMN rol_destinatario DROP NOT NULL;
+ALTER TABLE notificaciones.aviso_interno ALTER COLUMN usuario_id DROP NOT NULL;
 ALTER TABLE notificaciones.bandeja_entrada ALTER COLUMN leida_en DROP NOT NULL;
 ALTER TABLE notificaciones.bandeja_entrada ALTER COLUMN url_accion DROP NOT NULL;
 ALTER TABLE notificaciones.canal_vinculado ALTER COLUMN motivo_opt_out DROP NOT NULL;

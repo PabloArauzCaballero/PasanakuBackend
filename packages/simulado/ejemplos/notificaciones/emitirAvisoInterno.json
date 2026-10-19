@@ -1,0 +1,82 @@
+{
+  "servicio": "notificaciones",
+  "operacion": "emitirAvisoInterno",
+  "metodo": "post",
+  "ruta": "/notificaciones/avisos-internos",
+  "escenarios": {
+    "ok": {
+      "estado": 201,
+      "cuerpo": {
+        "id": "6863df8a-f8d8-44a2-86f4-434d8613bf42",
+        "usuarioId": "2020cadc-9ac2-424a-8451-d576abae32d2",
+        "rolDestinatario": "rolDestinatario",
+        "titulo": "titulo",
+        "mensaje": "mensaje",
+        "tipo": "INFO",
+        "enlace": "enlace",
+        "leidoEn": "2026-01-15T10:30:00Z",
+        "creadoEn": "2026-01-15T10:30:00Z"
+      }
+    },
+    "vacio": {
+      "estado": 201,
+      "cuerpo": {
+        "id": "6863df8a-f8d8-44a2-86f4-434d8613bf42",
+        "usuarioId": "2020cadc-9ac2-424a-8451-d576abae32d2",
+        "rolDestinatario": "rolDestinatario",
+        "titulo": "titulo",
+        "mensaje": "mensaje",
+        "tipo": "INFO",
+        "enlace": "enlace",
+        "leidoEn": "2026-01-15T10:30:00Z",
+        "creadoEn": "2026-01-15T10:30:00Z"
+      }
+    },
+    "adverso": {
+      "estado": 201,
+      "cuerpo": {
+        "id": "6863df8a-f8d8-44a2-86f4-434d8613bf42",
+        "usuarioId": "2020cadc-9ac2-424a-8451-d576abae32d2",
+        "rolDestinatario": "rolDestinatario",
+        "titulo": "titulo",
+        "mensaje": "mensaje",
+        "tipo": "INFO",
+        "enlace": "enlace",
+        "leidoEn": "2026-01-15T10:30:00Z",
+        "creadoEn": "2026-01-15T10:30:00Z"
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "id": "6863df8a-f8d8-44a2-86f4-434d8613bf42",
+        "usuarioId": "2020cadc-9ac2-424a-8451-d576abae32d2",
+        "rolDestinatario": "rolDestinatario",
+        "titulo": "titulo",
+        "mensaje": "mensaje",
+        "tipo": "INFO",
+        "enlace": "enlace",
+        "leidoEn": "2026-01-15T10:30:00Z",
+        "creadoEn": "2026-01-15T10:30:00Z"
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU82-01",
+        "mensaje": "Firma invalida",
+        "detalle": {},
+        "trazaId": "traza-emitirAvisoInterno-rechazo"
+      }
+    }
+  }
+}

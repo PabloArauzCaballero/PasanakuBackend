@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, input } from '@angular/co
 import { Icono } from '../icono/icono'
 import { coloresDe, Tono } from '../tono/tono'
 
-const ICONOS = { ok: 'verificado', aviso: 'alerta', error: 'alerta', info: 'info', neutro: 'info' } as const
+const ICONOS = { ok: 'verificado', aviso: 'alerta', error: 'alerta', info: 'info', neutro: 'info', pii: 'persona', apagado: 'info' } as const
 
 /** Aviso en línea. Dice qué pasó y qué hacer; el ícono acompaña al color. `error` se anuncia como alerta. */
 @Component({

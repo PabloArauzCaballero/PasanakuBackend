@@ -1,11 +1,12 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core'
 import { toSignal } from '@angular/core/rxjs-interop'
 import { ActivatedRoute } from '@angular/router'
-import { BandaDeProposito } from '@aportaya/ui/banda-de-proposito/banda-de-proposito'
+import { CabeceraDePagina } from '@aportaya/ui/cabecera-de-pagina/cabecera-de-pagina'
 import { ChipEstado } from '@aportaya/ui/chip-estado/chip-estado'
 import { Paginacion } from '@aportaya/ui/paginacion/paginacion'
 import { TablaDeDatos, type Columna, type EstadoColeccion, type Orden } from '@aportaya/ui/tabla-de-datos/tabla-de-datos'
 import { BarraDeFiltros } from '../../../nucleo/filtros/barra-de-filtros'
+import { ExplicadorDeVista } from '../../../nucleo/explicador-de-vista'
 import { Exportador } from '../../../nucleo/exportador'
 import { filasConSalud, horaDeConsulta, NIVELES, recursoSaludDeServicios, type FilaDeEstado, type SinSalud } from './dominio/estado-del-sistema'
 
@@ -20,37 +21,28 @@ const COLUMNAS: Columna<FilaDeEstado>[] = [
 ]
 const TAMANO_DE_PAGINA = 20
 
+const PROPOSITO_ESTADO =
+  'Qué hay debajo y en qué estado está de verdad: cada servicio contesta ahora si está arriba, y al lado su nivel de criticidad y las réplicas que exige en producción.'
+
 /**
- * `operacion/estado` de la maqueta («Arquitectura y estado del proyecto»): el nivel de
- * criticidad de cada servicio (ADR-037) y cuántas réplicas exige. Migrada al organismo
- * canónico `@aportaya/ui/tabla-de-datos` (PR7 §H4.S1.M1) — antes usaba
- * `TablaDeDatosVirtualizada`, pero `SERVICIOS` es una constante local (no hay red de por
- * medio, ver JSDoc de `dominio/estado-del-sistema.ts`), así que pagina y ordena con un
- * `computed` síncrono en vez de con el `effect`+`cargador` asíncrono que esa pieza exige.
- *
- * **Corrección de un defecto preexistente, encontrado al migrar:** la versión anterior no
- * pasaba `[filtros]` a `ap-tabla-de-datos-virtualizada`, así que el filtro por nivel de la
- * URL nunca llegaba al cargador — el tercer caso de `pantalla-de-estado.spec.ts`
- * ("pegar la URL con un filtro ya aplicado") pasaba solo porque nunca leyó el DOM filtrado
- * de verdad. Acá el filtro se lee de la misma `queryParamMap` que ya usa `BarraDeFiltros`
- * y sí llega a los datos mostrados; además, `paginaAcotada` evita una página vacía cuando
- * un filtro reduce el total por debajo de la página en la que el operador estaba parado.
+ * `operacion/estado` de la maqueta («Arquitectura y estado del proyecto»).
  */
 @Component({
   selector: 'ap-pantalla-de-estado',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [BandaDeProposito, BarraDeFiltros, TablaDeDatos, ChipEstado, Paginacion],
+  imports: [BarraDeFiltros, CabeceraDePagina, TablaDeDatos, ChipEstado, Paginacion],
   template: `
-    <ap-banda-de-proposito
-      texto="Qué hay debajo y en qué estado está de verdad: cada servicio contesta ahora si está arriba, y al lado su nivel de criticidad y las réplicas que exige en producción."
-    />
     <section class="pantalla">
-      <div class="cabecera">
-        <h1>Arquitectura y estado del proyecto</h1>
+      <ap-cabecera-de-pagina
+        class="cabecera"
+        titulo="Arquitectura y estado del proyecto"
+        [descripcion]="proposito"
+        icono="baseDeDatos"
+      >
         @if (exportador.puedeExportar('estado-plataforma')) {
-          <button type="button" (click)="exportar()">Exportar</button>
+          <button acciones type="button" (click)="exportar()">Exportar</button>
         }
-      </div>
+      </ap-cabecera-de-pagina>
       <div class="consulta" role="status" aria-live="polite">
         <span>{{ leyenda() }}</span>
         @if (!salud.isLoading()) {
@@ -82,8 +74,6 @@ const TAMANO_DE_PAGINA = 20
   `,
   styles: `
     .pantalla { padding: var(--s5); display: flex; flex-direction: column; gap: var(--s4); }
-    .cabecera { display: flex; align-items: center; justify-content: space-between; gap: var(--s3); }
-    h1 { margin: 0; }
     button { min-height: var(--area-tactil); padding: 0 var(--s5); border: 0; border-radius: var(--r-md); background: var(--verde-solido); color: var(--sobre-verde-solido); font: inherit; font-weight: 600; cursor: pointer; }
     .pantalla > * { min-width: 0; }
     .largo { display: block; white-space: normal; overflow-wrap: anywhere; }
@@ -95,6 +85,10 @@ const TAMANO_DE_PAGINA = 20
   `,
 })
 export class PantallaDeEstado {
+  protected readonly proposito = PROPOSITO_ESTADO
+  constructor() {
+    inject(ExplicadorDeVista).fijar(PROPOSITO_ESTADO)
+  }
   protected readonly exportador = inject(Exportador)
   private readonly ruta = inject(ActivatedRoute)
   protected readonly columnas = COLUMNAS

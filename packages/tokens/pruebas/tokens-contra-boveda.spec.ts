@@ -68,7 +68,7 @@ const MAPA_DE_ROLES: Record<string, string> = {
   accentInk: '--accent-ink', accentTexto: '--accent-texto', field: '--field', fieldBorder: '--field-border',
   verdeSolido: '--verde-solido', sobreVerdeSolido: '--sobre-verde-solido', okBg: '--okbg', okTexto: '--ok-texto',
   warnBg: '--warnbg', avisoTexto: '--aviso-texto', errBg: '--errbg', errTexto: '--err-texto', infoBg: '--infobg',
-  infoTexto: '--info-texto', sombra1: '--sh-1', sombra2: '--sh-2', sombra3: '--sh-3',
+  infoTexto: '--info-texto', piiBg: '--piibg', piiTexto: '--pii-texto', sombra1: '--sh-1', sombra2: '--sh-2', sombra3: '--sh-3',
 }
 
 describe('los tokens salen de la bóveda, no de la memoria de nadie', () => {

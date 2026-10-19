@@ -1,15 +1,20 @@
 package bo.aportaya.auditoria.web;
 
 import bo.aportaya.auditoria.aplicacion.CU07EjercerDerechos;
-import bo.aportaya.auditoria.web.generado.AuditoriaApi;
 import bo.aportaya.auditoria.web.generado.modelo.EntradaDerechos;
 import bo.aportaya.auditoria.web.generado.modelo.SalidaDerechos;
 import bo.aportaya.plataforma.web.seguridad.Permiso;
 import bo.aportaya.plataforma.web.seguridad.SesionDeLaPeticion;
 import bo.aportaya.plataforma.web.traza.Traza;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import java.util.UUID;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -21,7 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
  * registro, y se registro.
  */
 @RestController
-public class DerechosController implements AuditoriaApi {
+public class DerechosController {
 
     private final CU07EjercerDerechos cu07;
     private final SesionDeLaPeticion sesion;
@@ -31,9 +36,14 @@ public class DerechosController implements AuditoriaApi {
         this.sesion = sesion;
     }
 
-    @Override
+    @PostMapping(
+            value = "/auditoria/derechos",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
     @Permiso("DATOS_SENSIBLES_LEER")
-    public ResponseEntity<SalidaDerechos> ejercerDerechos(UUID idempotencyKey, EntradaDerechos cuerpo) {
+    public ResponseEntity<SalidaDerechos> ejercerDerechos(
+            @NotNull @RequestHeader(value = "Idempotency-Key", required = true) UUID idempotencyKey,
+            @Valid @RequestBody EntradaDerechos cuerpo) {
         Traza.marcarCasoDeUso("CU-07", String.valueOf(cuerpo.getUsuarioId()));
 
         var salida = cu07.ejecutar(

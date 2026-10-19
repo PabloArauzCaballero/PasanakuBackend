@@ -1,0 +1,82 @@
+{
+  "servicio": "auditoria",
+  "operacion": "guardarFichaDeGobierno",
+  "metodo": "put",
+  "ruta": "/indicadores/catalogo-de-datos/{esquema}/{tabla}/gobierno",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "estado": "ACTIVA",
+        "estadoRevision": "DETECTADA",
+        "responsable": "responsable",
+        "politicaRetencionId": "e290f817-83ad-49f1-813d-a1e6663e5208",
+        "criticaParaAuditoria": true,
+        "notaRevision": "notaRevision",
+        "revisadoPor": "7aa48dba-4c39-45f4-869d-584ec6de63ae",
+        "actualizadoEn": "2026-01-15T10:30:00Z",
+        "version": 0
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "estado": "ACTIVA",
+        "estadoRevision": "DETECTADA",
+        "responsable": "responsable",
+        "politicaRetencionId": "e290f817-83ad-49f1-813d-a1e6663e5208",
+        "criticaParaAuditoria": false,
+        "notaRevision": "notaRevision",
+        "revisadoPor": "7aa48dba-4c39-45f4-869d-584ec6de63ae",
+        "actualizadoEn": "2026-01-15T10:30:00Z",
+        "version": 0
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "estado": "ACTIVA",
+        "estadoRevision": "DETECTADA",
+        "responsable": "responsable",
+        "politicaRetencionId": "e290f817-83ad-49f1-813d-a1e6663e5208",
+        "criticaParaAuditoria": true,
+        "notaRevision": "notaRevision",
+        "revisadoPor": "7aa48dba-4c39-45f4-869d-584ec6de63ae",
+        "actualizadoEn": "2026-01-15T10:30:00Z",
+        "version": 0
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "estado": "ACTIVA",
+        "estadoRevision": "DETECTADA",
+        "responsable": "responsable",
+        "politicaRetencionId": "e290f817-83ad-49f1-813d-a1e6663e5208",
+        "criticaParaAuditoria": true,
+        "notaRevision": "notaRevision",
+        "revisadoPor": "7aa48dba-4c39-45f4-869d-584ec6de63ae",
+        "actualizadoEn": "2026-01-15T10:30:00Z",
+        "version": 0
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU130-01",
+        "mensaje": "Version vieja",
+        "detalle": {},
+        "trazaId": "traza-guardarFichaDeGobierno-rechazo"
+      }
+    }
+  }
+}

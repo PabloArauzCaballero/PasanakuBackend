@@ -1,8 +1,9 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core'
-import { BandaDeProposito } from '@aportaya/ui/banda-de-proposito/banda-de-proposito'
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core'
+import { CabeceraDePagina } from '@aportaya/ui/cabecera-de-pagina/cabecera-de-pagina'
 import { ChipEstado } from '@aportaya/ui/chip-estado/chip-estado'
 import { Fecha } from '@aportaya/ui/fecha/fecha'
 import type { Tono } from '@aportaya/ui/tono/tono'
+import { ExplicadorDeVista } from '../../../nucleo/explicador-de-vista'
 import { BarraDeFiltros } from '../../../nucleo/filtros/barra-de-filtros'
 import { TablaDeDatosVirtualizada } from '../../../nucleo/tabla/tabla-de-datos-virtualizada'
 import type { ColumnaVirtual } from '../../../nucleo/tabla/tipos'
@@ -33,11 +34,10 @@ const TONO: Record<TarifarioEnLista['estado'], Tono> = { VIGENTE: 'ok', EN_PREAV
 @Component({
   selector: 'ap-pantalla-de-tarifario',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [AvisoDeListado, BandaDeProposito, BarraDeFiltros, ChipEstado, Fecha, TablaDeDatosVirtualizada],
+  imports: [AvisoDeListado, CabeceraDePagina, BarraDeFiltros, ChipEstado, Fecha, TablaDeDatosVirtualizada],
   template: `
-    <ap-banda-de-proposito [texto]="t.proposito" />
     <section class="pantalla">
-      <h1>{{ t.titulo }}</h1>
+      <ap-cabecera-de-pagina [titulo]="t.titulo" [descripcion]="t.proposito" icono="comision" />
       <p class="nota">{{ comun.soloLectura }}</p>
       <ap-barra-de-filtros [etiqueta]="comun.estado" [incluirBusqueda]="false" [definiciones]="chips" />
       <ap-aviso-de-listado [error]="lectura.error()" [vacio]="lectura.vacio()" [conFiltro]="!!filtros()['estado']" [mensajeVacio]="t.vacio" (reintentar)="lectura.reintentar()" />
@@ -60,11 +60,14 @@ const TONO: Record<TarifarioEnLista['estado'], Tono> = { VIGENTE: 'ok', EN_PREAV
   `,
   styles: `
     .pantalla { padding: var(--s5); display: grid; gap: var(--s4); }
-    h1, .nota { margin: 0; }
-    .nota { color: var(--text-2); }
+    .nota { margin: 0; color: var(--text-2); }
   `,
 })
 export class PantallaDeTarifario {
+  constructor() {
+    inject(ExplicadorDeVista).fijar(this.t.proposito)
+  }
+
   protected readonly t = textosConfiguracion.tarifario
   protected readonly comun = textosConfiguracion.comun
   protected readonly columnas = COLUMNAS

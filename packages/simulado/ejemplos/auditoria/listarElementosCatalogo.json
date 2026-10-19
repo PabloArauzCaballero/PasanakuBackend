@@ -1,0 +1,57 @@
+{
+  "servicio": "auditoria",
+  "operacion": "listarElementosCatalogo",
+  "metodo": "get",
+  "ruta": "/auditoria/catalogos/{codigo}/elementos",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": [
+        {
+          "id": "id",
+          "catalogoCodigo": "catalogoCodigo",
+          "codigo": "codigo",
+          "nombre": "nombre",
+          "descripcion": "descripcion",
+          "activo": true,
+          "atributos": {},
+          "orden": 1,
+          "vigenteDesde": "2026-01-15T10:30:00Z",
+          "actualizadoEn": "2026-01-15T10:30:00Z",
+          "actualizadoPor": "actualizadoPor"
+        }
+      ]
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": []
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": [
+        {
+          "id": "id",
+          "catalogoCodigo": "catalogoCodigo",
+          "codigo": "codigo",
+          "nombre": "nombre",
+          "descripcion": "descripcion",
+          "activo": true,
+          "atributos": {},
+          "orden": 1,
+          "vigenteDesde": "2026-01-15T10:30:00Z",
+          "actualizadoEn": "2026-01-15T10:30:00Z",
+          "actualizadoPor": "actualizadoPor"
+        }
+      ]
+    },
+    "rechazo": {
+      "estado": 404,
+      "cuerpo": {
+        "codigo": "AP-CU07-01",
+        "mensaje": "Identidad no verificada",
+        "detalle": {},
+        "trazaId": "traza-listarElementosCatalogo-rechazo"
+      }
+    }
+  }
+}

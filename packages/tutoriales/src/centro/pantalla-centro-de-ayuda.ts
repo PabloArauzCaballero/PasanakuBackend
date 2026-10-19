@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, linkedSignal } from '@angular/core'
 import { Router } from '@angular/router'
 import { Alerta } from '@aportaya/ui/alerta/alerta'
-import { BandaDeProposito } from '@aportaya/ui/banda-de-proposito/banda-de-proposito'
+import { CabeceraDePagina } from '@aportaya/ui/cabecera-de-pagina/cabecera-de-pagina'
 import { EstadoVacio } from '@aportaya/ui/estado-vacio/estado-vacio'
 import { MotorDeTutoriales } from '../motor'
 import { ProgresoDeTutoriales } from '../progreso'
@@ -24,11 +24,10 @@ import { PRESENTACION_DEL_CENTRO, presentacionPorOmision, textosAyuda } from './
 @Component({
   selector: 'ap-pantalla-centro-de-ayuda',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [BandaDeProposito, EstadoVacio, Alerta, FiltrosDeAyuda, ResumenDeAvance, TarjetaDeTutorial],
+  imports: [Alerta, CabeceraDePagina, EstadoVacio, FiltrosDeAyuda, ResumenDeAvance, TarjetaDeTutorial],
   template: `
-    <ap-banda-de-proposito [texto]="presentacion.proposito" />
     <main>
-      <h1>{{ presentacion.titulo }}</h1>
+      <ap-cabecera-de-pagina [titulo]="presentacion.titulo" [descripcion]="presentacion.proposito" icono="libro" />
 
       @if (registro.problemas().length > 0) {
         <ap-alerta tono="error" [titulo]="t.problemasTitulo">{{ t.problemasAyuda }}</ap-alerta>

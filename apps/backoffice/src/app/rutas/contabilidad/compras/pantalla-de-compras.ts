@@ -1,7 +1,8 @@
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core'
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core'
 import { Alerta } from '@aportaya/ui/alerta/alerta'
-import { BandaDeProposito } from '@aportaya/ui/banda-de-proposito/banda-de-proposito'
+import { CabeceraDePagina } from '@aportaya/ui/cabecera-de-pagina/cabecera-de-pagina'
 import { Pestanas, type Pestana } from '@aportaya/ui/pestanas/pestanas'
+import { ExplicadorDeVista } from '../../../nucleo/explicador-de-vista'
 import { TablaDeOrdenes } from './tabla-de-ordenes'
 import { TablaDeFacturas } from './tabla-de-facturas'
 import { textosContabilidad } from '../textos'
@@ -27,11 +28,10 @@ const PESTANAS: Pestana[] = [
 @Component({
   selector: 'ap-pantalla-de-compras',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [Alerta, BandaDeProposito, Pestanas, TablaDeOrdenes, TablaDeFacturas],
+  imports: [Alerta, CabeceraDePagina, Pestanas, TablaDeOrdenes, TablaDeFacturas],
   template: `
-    <ap-banda-de-proposito [texto]="t.proposito" />
     <section class="pantalla">
-      <h1>{{ t.titulo }}</h1>
+      <ap-cabecera-de-pagina [titulo]="t.titulo" [descripcion]="t.proposito" icono="libro" />
       <ap-alerta tono="info" titulo="Registrar no es pagar">{{ t.segregacion }}</ap-alerta>
       <ap-pestanas etiqueta="Compras y cuentas por pagar" [pestanas]="PESTANAS" [(elegida)]="pestana" />
       <div role="tabpanel" [id]="'panel-' + pestana()" [attr.aria-labelledby]="'pestana-' + pestana()">
@@ -45,10 +45,13 @@ const PESTANAS: Pestana[] = [
   `,
   styles: `
     .pantalla { padding: var(--s5); max-width: 80rem; display: grid; gap: var(--s4); }
-    h1 { margin: 0; }
   `,
 })
 export class PantallaDeCompras {
+  constructor() {
+    inject(ExplicadorDeVista).fijar(this.t.proposito)
+  }
+
   protected readonly t = textosContabilidad.compras
   protected readonly PESTANAS = PESTANAS
   protected readonly pestana = signal('ordenes')

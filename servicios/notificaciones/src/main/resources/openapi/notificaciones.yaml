@@ -237,6 +237,81 @@ paths:
             application/json:
               schema: { $ref: '#/components/schemas/Supresion' }
 
+  /notificaciones/avisos-internos:
+    get:
+      operationId: consultarAvisosInternos
+      summary: Consulta los avisos internos dirigidos al operador o a sus roles
+      description: Devuelve la lista de avisos con el conteo total de no leídos
+      parameters:
+        - name: soloNoLeidos
+          in: query
+          required: false
+          schema: { type: boolean, default: false }
+        - name: limite
+          in: query
+          required: false
+          schema: { type: integer, minimum: 1, maximum: 100, default: 20 }
+      responses:
+        '200':
+          description: Pagina de avisos internos
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PaginaDeAvisosInternos' }
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+    post:
+      operationId: emitirAvisoInterno
+      summary: Emite un aviso interno para operadores
+      description: Crea un registro de aviso dirigido a un operador o a un rol
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaAvisoInterno' }
+      responses:
+        '201':
+          description: Aviso creado exitosamente
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AvisoInterno' }
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+
+  /notificaciones/avisos-internos/{id}/leido:
+    post:
+      operationId: marcarAvisoLeido
+      summary: Marca un aviso interno como leído
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: Aviso marcado como leído
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AvisoInterno' }
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '404':
+          description: Aviso no encontrado
+
+  /notificaciones/avisos-internos/marcar-todos-leidos:
+    post:
+      operationId: marcarTodosAvisosLeidos
+      summary: Marca todos los avisos no leídos como leídos para el operador
+      responses:
+        '200':
+          description: Cantidad de avisos actualizados
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaMarcarTodosLeidos' }
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+
 components:
   parameters:
     ClaveIdempotencia:
@@ -404,6 +479,47 @@ components:
         canales:
           type: array
           items: { type: string, enum: [IN_APP, PUSH, CORREO] }
+
+    AvisoInterno:
+      type: object
+      required: [id, titulo, mensaje, tipo, creadoEn]
+      properties:
+        id: { type: string, format: uuid }
+        usuarioId: { type: string, format: uuid, nullable: true }
+        rolDestinatario: { type: string, nullable: true }
+        titulo: { type: string }
+        mensaje: { type: string }
+        tipo: { type: string, enum: [INFO, ALERTA, CASO, REVISION, DESPLIEGUE, SISTEMA] }
+        enlace: { type: string, nullable: true }
+        leidoEn: { type: string, format: date-time, nullable: true }
+        creadoEn: { type: string, format: date-time }
+
+    PaginaDeAvisosInternos:
+      type: object
+      required: [totalNoLeidos, elementos]
+      properties:
+        totalNoLeidos: { type: integer }
+        elementos:
+          type: array
+          items: { $ref: '#/components/schemas/AvisoInterno' }
+
+    EntradaAvisoInterno:
+      type: object
+      required: [titulo, mensaje, tipo]
+      properties:
+        usuarioId: { type: string, format: uuid, nullable: true }
+        rolDestinatario: { type: string, nullable: true }
+        titulo: { type: string }
+        mensaje: { type: string }
+        tipo: { type: string, enum: [INFO, ALERTA, CASO, REVISION, DESPLIEGUE, SISTEMA] }
+        enlace: { type: string, nullable: true }
+
+    SalidaMarcarTodosLeidos:
+      type: object
+      required: [modificados]
+      properties:
+        modificados: { type: integer }
+
   responses:
     ReglaDeNegocio:
       description: Regla de negocio de la aplicacion (422, no 400)

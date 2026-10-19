@@ -65,6 +65,7 @@ test('roles de texto y estado superan 4.5:1 en ambos temas', () => {
       ['avisoTexto', 'warnBg'],
       ['errTexto', 'errBg'],
       ['infoTexto', 'infoBg'],
+      ['piiTexto', 'piiBg'],
     ]) {
       const ratio = contraste(resolver(tema, texto), fondoRenderizado(tema, fondo))
       assert.ok(ratio >= 4.5, `${tema}: ${texto} sobre ${fondo} = ${ratio.toFixed(2)}:1`)

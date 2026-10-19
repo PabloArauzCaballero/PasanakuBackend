@@ -47,6 +47,9 @@ class SaludDeServiciosWebTest {
     @MockitoBean
     private bo.aportaya.auditoria.aplicacion.CU130GobernarFichaDeTabla cu130;
 
+    @MockitoBean
+    private bo.aportaya.auditoria.aplicacion.CU131RevisarColumna cu131;
+
     @Test
     @DisplayName(
             "estado · con TABLERO_SISTEMAS_VER: 200 con ARRIBA, DEGRADADO y CAIDO, y sin latencia el que no contestó")

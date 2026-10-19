@@ -56,6 +56,13 @@ export const routes: Routes = [
         title: 'Catálogo de datos · AportaYa',
       },
       {
+        // CU-130: la edición de la ficha de gobierno en su propia página; el permiso de edición lo exige el servidor también.
+        path: 'tablero/catalogo-de-datos/:tabla/ficha',
+        canMatch: [requierePermiso('CATALOGO_DATOS_EDITAR')],
+        loadComponent: () => import('./rutas/tablero/catalogo/pantalla-de-ficha-de-gobierno').then((m) => m.PantallaDeFichaDeGobierno),
+        title: 'Configurar tabla · AportaYa',
+      },
+      {
         path: 'tablero/catalogo-de-datos/:tabla',
         canMatch: [requierePermiso('TABLERO_SISTEMAS_VER')],
         loadComponent: () => import('./rutas/tablero/catalogo/ficha-de-tabla').then((m) => m.FichaDeTabla),

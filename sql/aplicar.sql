@@ -40,6 +40,7 @@ SET search_path TO aportes, auditoria, cumplimiento, entregas, erp, garantia, gr
 \ir 10_tablas/01_identidad_usuarios/referencia_personal.sql
 \ir 10_tablas/01_identidad_usuarios/rol.sql
 \ir 10_tablas/01_identidad_usuarios/permiso.sql
+\ir 10_tablas/01_identidad_usuarios/usuario_interno.sql
 \ir 10_tablas/01_identidad_usuarios/rol_permiso.sql
 \ir 10_tablas/01_identidad_usuarios/asignacion_rol.sql
 \ir 10_tablas/01_identidad_usuarios/consentimiento.sql
@@ -127,6 +128,7 @@ SET search_path TO aportes, auditoria, cumplimiento, entregas, erp, garantia, gr
 \ir 10_tablas/05_notificaciones/respuesta_entrante.sql
 \ir 10_tablas/05_notificaciones/programacion_recordatorio.sql
 \ir 10_tablas/05_notificaciones/bandeja_entrada.sql
+\ir 10_tablas/05_notificaciones/aviso_interno.sql
 --    módulo 06 — Transparencia y Reputación
 \ir 10_tablas/06_transparencia_reputacion/modelo_scoring.sql
 \ir 10_tablas/06_transparencia_reputacion/peso_factor.sql
@@ -203,6 +205,7 @@ SET search_path TO aportes, auditoria, cumplimiento, entregas, erp, garantia, gr
 \ir 10_tablas/09_auditoria_reportes/registro_acceso_datos.sql
 \ir 10_tablas/09_auditoria_reportes/politica_retencion.sql
 \ir 10_tablas/09_auditoria_reportes/ficha_gobierno_tabla.sql
+\ir 10_tablas/09_auditoria_reportes/revision_columna.sql
 \ir 10_tablas/09_auditoria_reportes/definicion_reporte.sql
 \ir 10_tablas/09_auditoria_reportes/ejecucion_reporte.sql
 \ir 10_tablas/09_auditoria_reportes/exportacion_reporte.sql

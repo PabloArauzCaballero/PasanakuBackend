@@ -6,7 +6,7 @@ tabla: permiso
 clase: Permiso
 modulo: "01 — Identidad, Usuarios y Seguridad"
 clave_primaria: [id]
-columnas: 6
+columnas: 8
 fk_salientes: 0
 fk_entrantes: 1
 append_only: false
@@ -25,6 +25,8 @@ append_only: false
 | `descripcion` | VARCHAR(160) | — | no | — |
 | `recurso` | VARCHAR(40) | — | no | — |
 | `accion` | VARCHAR(30) | — | no | — |
+| `nivel_riesgo` | VARCHAR(10) | — | no | CK: BAJO|MEDIO|ALTO|CRITICO |
+| `exige_motivo` | BOOLEAN | — | no | — |
 | `requiere_mfa` | BOOLEAN | — | no | — |
 
 ## Reglas del catálogo

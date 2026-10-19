@@ -1,8 +1,9 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core'
 import { Alerta } from '@aportaya/ui/alerta/alerta'
-import { BandaDeProposito } from '@aportaya/ui/banda-de-proposito/banda-de-proposito'
+import { CabeceraDePagina } from '@aportaya/ui/cabecera-de-pagina/cabecera-de-pagina'
 import { ChipEstado } from '@aportaya/ui/chip-estado/chip-estado'
 import { Fecha, formatearDia } from '@aportaya/ui/fecha/fecha'
+import { ExplicadorDeVista } from '../../../nucleo/explicador-de-vista'
 import { Sesion } from '../../../nucleo/sesion'
 import { TablaDeDatosVirtualizada } from '../../../nucleo/tabla/tabla-de-datos-virtualizada'
 import type { ColumnaVirtual } from '../../../nucleo/tabla/tipos'
@@ -17,17 +18,15 @@ const CLAVES = ['fecha', 'totalRecaudado', 'totalConciliado', 'totalExcepciones'
 const COLUMNAS: ColumnaVirtual<CierreDiarioEnLista>[] = CLAVES.map((clave) => ({ clave, titulo: T.columnas[clave], numerica: clave.startsWith('total') || clave === 'cantidadPagos' }))
 
 /**
- * CU-51 · historial de cierres diarios (AUDITORIA_LEER) y, para Contabilidad (rol CONTABILIDAD en el token, el mismo
- * `@Permiso` del servidor), el cierre de un día. Los totales no traen moneda (A-7) y se dice en texto.
+ * CU-51 · historial de cierres diarios (AUDITORIA_LEER).
  */
 @Component({
   selector: 'ap-pantalla-de-cierres',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [Alerta, BandaDeProposito, ChipEstado, Fecha, TablaDeDatosVirtualizada, EstadoDeBandejaVista, ImporteSinMoneda, FormularioDeCierre],
+  imports: [Alerta, CabeceraDePagina, ChipEstado, Fecha, TablaDeDatosVirtualizada, EstadoDeBandejaVista, ImporteSinMoneda, FormularioDeCierre],
   template: `
-    <ap-banda-de-proposito [texto]="t.proposito" />
     <section class="pantalla">
-      <h1>{{ t.titulo }}</h1>
+      <ap-cabecera-de-pagina [titulo]="t.titulo" [descripcion]="t.proposito" icono="calendario" />
       @if (puedeCerrar()) {
         <ap-formulario-de-cierre (cerrado)="b.reintentar()" />
       } @else {
@@ -56,11 +55,13 @@ const COLUMNAS: ColumnaVirtual<CierreDiarioEnLista>[] = CLAVES.map((clave) => ({
   `,
   styles: `
     .pantalla { padding: var(--s5); max-width: 80rem; display: grid; gap: var(--s5); }
-    h1 { margin: 0; }
     .nota { display: block; color: var(--text-2); font-size: .875rem; }
   `,
 })
 export class PantallaDeCierres {
+  constructor() {
+    inject(ExplicadorDeVista).fijar(this.t.proposito)
+  }
   private readonly sesion = inject(Sesion)
   protected readonly t = T
   protected readonly COLUMNAS = COLUMNAS

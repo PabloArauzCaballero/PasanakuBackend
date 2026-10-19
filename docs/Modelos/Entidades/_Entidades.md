@@ -2,12 +2,12 @@
 tags:
   - moc
   - indice
-entidades: 324
+entidades: 327
 ---
 
 # Índice de entidades
 
-Las **324 tablas** del modelo, agrupadas por módulo. «Sal.» y «Ent.» son claves foráneas salientes y entrantes.
+Las **327 tablas** del modelo, agrupadas por módulo. «Sal.» y «Ent.» son claves foráneas salientes y entrantes.
 
 [[Index|← Índice general]] · [[_Relaciones|Relaciones →]]
 
@@ -17,7 +17,7 @@ Las **324 tablas** del modelo, agrupadas por módulo. «Sal.» y «Ent.» son cl
 
 | Tabla | Columnas | Sal. | Ent. | Notas |
 | --- | --: | --: | --: | --- |
-| [[usuario]] | 18 | 0 | 216 | muy conectada |
+| [[usuario]] | 18 | 0 | 218 | muy conectada |
 | [[direccion_usuario]] | 8 | 1 | 0 | — |
 | [[perfil_financiero]] | 8 | 1 | 0 | — |
 | [[credencial_acceso]] | 8 | 1 | 0 | — |
@@ -35,8 +35,9 @@ Las **324 tablas** del modelo, agrupadas por módulo. «Sal.» y «Ent.» son cl
 | [[verificacion_kyc]] | 16 | 3 | 2 | — |
 | [[alcance_invitacion]] | 10 | 1 | 0 | — |
 | [[referencia_personal]] | 8 | 1 | 0 | — |
-| [[rol]] | 5 | 0 | 2 | — |
-| [[permiso]] | 6 | 0 | 1 | — |
+| [[rol]] | 7 | 0 | 2 | — |
+| [[permiso]] | 8 | 0 | 1 | — |
+| [[usuario_interno]] | 7 | 1 | 0 | — |
 | [[rol_permiso]] | 2 | 2 | 0 | — |
 | [[asignacion_rol]] | 10 | 3 | 0 | — |
 | [[consentimiento]] | 10 | 1 | 0 | — |
@@ -148,6 +149,7 @@ Las **324 tablas** del modelo, agrupadas por módulo. «Sal.» y «Ent.» son cl
 | [[respuesta_entrante]] | 8 | 2 | 0 | — |
 | [[programacion_recordatorio]] | 9 | 2 | 0 | — |
 | [[bandeja_entrada]] | 9 | 2 | 0 | — |
+| [[aviso_interno]] | 9 | 1 | 0 | — |
 
 ## 06 — Transparencia y Reputación
 
@@ -248,6 +250,7 @@ Las **324 tablas** del modelo, agrupadas por módulo. «Sal.» y «Ent.» son cl
 | [[registro_acceso_datos]] | 10 | 2 | 0 | append-only |
 | [[politica_retencion]] | 7 | 0 | 1 | — |
 | [[ficha_gobierno_tabla]] | 12 | 1 | 0 | — |
+| [[revision_columna]] | 10 | 0 | 0 | — |
 | [[definicion_reporte]] | 11 | 0 | 2 | — |
 | [[ejecucion_reporte]] | 12 | 3 | 1 | — |
 | [[exportacion_reporte]] | 11 | 1 | 0 | — |

@@ -1,7 +1,8 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core'
 import { Alerta } from '@aportaya/ui/alerta/alerta'
-import { BandaDeProposito } from '@aportaya/ui/banda-de-proposito/banda-de-proposito'
+import { CabeceraDePagina } from '@aportaya/ui/cabecera-de-pagina/cabecera-de-pagina'
 import { EstadoDePantalla } from '@aportaya/ui/estado-de-pantalla/estado-de-pantalla'
+import { ExplicadorDeVista } from '../../nucleo/explicador-de-vista'
 import { Sesion } from '../../nucleo/sesion'
 import { historialDe, propuestaVigente, resolucionDe, revisionActual, type DecisionDeIngreso } from './dominio/cu68-admision'
 import { FormularioDeResolucion } from './formulario-de-resolucion'
@@ -24,11 +25,10 @@ const PERMISO_DE_RESOLUCION = 'ADMIN_PLATAFORMA'
 @Component({
   selector: 'ap-pantalla-de-admision',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [EstadoDePantalla, BandaDeProposito, Alerta, HistorialDeAdmision, FormularioDeResolucion],
+  imports: [Alerta, CabeceraDePagina, EstadoDePantalla, FormularioDeResolucion, HistorialDeAdmision],
   template: `
-    <ap-banda-de-proposito [texto]="t.proposito" />
     <section class="pantalla">
-      <h1>{{ t.titulo }}</h1>
+      <ap-cabecera-de-pagina [titulo]="t.titulo" [descripcion]="t.proposito" icono="grupo" />
       <ap-estado-de-pantalla [recurso]="historial" [vacio]="sinDecisiones" [mensajeVacio]="t.sinDecisiones" [etiquetaDeCarga]="t.cargando" (reintentar)="historial.reload()">
         @if (historial.hasValue()) {
           <div class="cuerpo">
@@ -65,6 +65,10 @@ export class PantallaDeAdmision {
   protected readonly t = textosAdmisiones
   private readonly sesion = inject(Sesion)
   readonly solicitudId = input.required<string>()
+
+  constructor() {
+    inject(ExplicadorDeVista).fijar(textosAdmisiones.proposito)
+  }
 
   protected readonly historial = historialDe(this.solicitudId)
   protected readonly sinDecisiones = (h: DecisionDeIngreso[]): boolean => h.length === 0

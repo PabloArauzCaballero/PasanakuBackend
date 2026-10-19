@@ -1,8 +1,9 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core'
 import { RouterLink } from '@angular/router'
-import { BandaDeProposito } from '@aportaya/ui/banda-de-proposito/banda-de-proposito'
 import { Boton } from '@aportaya/ui/boton/boton'
+import { CabeceraDePagina } from '@aportaya/ui/cabecera-de-pagina/cabecera-de-pagina'
 import { ChipEstado } from '@aportaya/ui/chip-estado/chip-estado'
+import { ExplicadorDeVista } from '../../nucleo/explicador-de-vista'
 import { Sesion } from '../../nucleo/sesion'
 import { BANDEJAS, lectorDeBandejas, type DefinicionDeBandeja } from './dominio/bandejas'
 import { TarjetaDeBandeja, type EstadoDeTarjeta } from './tarjeta-de-bandeja'
@@ -21,11 +22,10 @@ type Acceso = { ruta: string; texto: string; permiso: string; descripcion: strin
 @Component({
   selector: 'ap-tablero',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [BandaDeProposito, Boton, ChipEstado, RouterLink, TarjetaDeBandeja],
+  imports: [Boton, CabeceraDePagina, ChipEstado, RouterLink, TarjetaDeBandeja],
   template: `
-    <ap-banda-de-proposito [texto]="t.proposito" />
     <section class="pantalla">
-      <h1>{{ t.titulo }}</h1>
+      <ap-cabecera-de-pagina [titulo]="t.titulo" [descripcion]="t.proposito" icono="casa" />
 
       <section class="bloque" aria-labelledby="tablero-accion">
         <div class="cabecera">
@@ -121,6 +121,7 @@ export class Tablero {
   ]
 
   constructor() {
+    inject(ExplicadorDeVista).fijar(textosTablero.proposito)
     this.actualizar()
   }
 

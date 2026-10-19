@@ -1,9 +1,10 @@
-import { ChangeDetectionStrategy, Component, computed, input, signal } from '@angular/core'
-import { BandaDeProposito } from '@aportaya/ui/banda-de-proposito/banda-de-proposito'
+import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal } from '@angular/core'
+import { CabeceraDePagina } from '@aportaya/ui/cabecera-de-pagina/cabecera-de-pagina'
 import { ChipEstado } from '@aportaya/ui/chip-estado/chip-estado'
 import { EstadoDePantalla } from '@aportaya/ui/estado-de-pantalla/estado-de-pantalla'
 import { SelectorSegmentado } from '@aportaya/ui/selector-segmentado/selector-segmentado'
 import { TarjetaKPI } from '@aportaya/ui/tarjeta-kpi/tarjeta-kpi'
+import { ExplicadorDeVista } from '../../nucleo/explicador-de-vista'
 import {
   ESPERADOS_COMERCIAL,
   ESPERADOS_FINANCIERO,
@@ -33,11 +34,10 @@ export type TipoDeTablero = 'financiero' | 'comercial' | 'sistemas'
 @Component({
   selector: 'ap-tablero-por-rol',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [BandaDeProposito, ChipEstado, EstadoDePantalla, SelectorSegmentado, TablaEndpointsDelDia, TarjetaKPI],
+  imports: [CabeceraDePagina, ChipEstado, EstadoDePantalla, SelectorSegmentado, TablaEndpointsDelDia, TarjetaKPI],
   template: `
-    <ap-banda-de-proposito [texto]="encabezado().proposito" />
     <section class="pantalla">
-      <h1>{{ encabezado().titulo }}</h1>
+      <ap-cabecera-de-pagina [titulo]="encabezado().titulo" [descripcion]="encabezado().proposito" [icono]="icono()" />
 
       <form class="periodo" (submit)="$event.preventDefault()">
         <ap-selector-segmentado [etiqueta]="t.granularidad" [segmentos]="t.segmentos" [(elegido)]="granularidad" />
@@ -149,6 +149,18 @@ export class TableroPorRol {
 
   protected readonly t = textosTablero.porRol
   private readonly hoy = new Date()
+  private readonly explicador = inject(ExplicadorDeVista)
+  protected readonly icono = computed(() => {
+    switch (this.tipo()) {
+      case 'financiero': return 'comision' as const
+      case 'sistemas': return 'baseDeDatos' as const
+      case 'comercial': return 'grupo' as const
+    }
+  })
+
+  constructor() {
+    effect(() => this.explicador.fijar(this.encabezado().proposito))
+  }
 
   protected readonly granularidad = signal<string>('mes')
   protected readonly granularidadElegida = computed(() => this.granularidad() as Granularidad)

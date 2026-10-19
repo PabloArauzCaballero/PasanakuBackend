@@ -1,25 +1,24 @@
-import { ChangeDetectionStrategy, Component, input } from '@angular/core'
+import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core'
 import { DatePipe } from '@angular/common'
 import { EstadoDePantalla } from '@aportaya/ui/estado-de-pantalla/estado-de-pantalla'
 import { PosicionesDeSaldo } from '@aportaya/ui/posiciones-de-saldo/posiciones-de-saldo'
 import { Alerta } from '@aportaya/ui/alerta/alerta'
-import { BandaDeProposito } from '@aportaya/ui/banda-de-proposito/banda-de-proposito'
+import { CabeceraDePagina } from '@aportaya/ui/cabecera-de-pagina/cabecera-de-pagina'
+import { ExplicadorDeVista } from '../../../nucleo/explicador-de-vista'
 import { posicionesDe, saldoDe, saldoEnCero } from '../dominio/cu13-consultar-saldo'
 import { textosOperacion } from '../textos'
 
 /**
  * La pantalla real de la fase F0: compone organismos, sin lógica. `cuentaId` entra por
- * la URL (`withComponentInputBinding`), para que un oficial pueda pegar el enlace en un
- * expediente. Sus cuatro estados los pinta `EstadoDePantalla`; el importe, `Monto`.
+ * la URL (`withComponentInputBinding`).
  */
 @Component({
   selector: 'ap-pantalla-de-billetera',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [EstadoDePantalla, PosicionesDeSaldo, Alerta, BandaDeProposito, DatePipe],
+  imports: [EstadoDePantalla, PosicionesDeSaldo, Alerta, CabeceraDePagina, DatePipe],
   template: `
-    <ap-banda-de-proposito [texto]="t.proposito" />
     <section class="pantalla">
-      <h1 data-tutorial-id="operacion-billetera">{{ t.titulo }}</h1>
+      <ap-cabecera-de-pagina data-tutorial-id="operacion-billetera" [titulo]="t.titulo" [descripcion]="t.proposito" icono="recarga" />
       <ap-estado-de-pantalla
         data-tutorial-id="operacion-saldo"
         [recurso]="saldo"
@@ -43,11 +42,13 @@ import { textosOperacion } from '../textos'
   `,
   styles: `
     .pantalla { padding: var(--s5); max-width: 40rem; }
-    h1 { margin-bottom: var(--s4); }
     .corte { margin: var(--s3) 0 0; color: var(--text-2); font-size: .875rem; }
   `,
 })
 export class PantallaDeBilletera {
+  constructor() {
+    inject(ExplicadorDeVista).fijar(this.t.proposito)
+  }
   readonly cuentaId = input.required<string>()
   protected readonly t = textosOperacion.billetera
   protected readonly saldo = saldoDe(this.cuentaId)

@@ -57,6 +57,9 @@ class IndicadoresControllerWebTest {
     @MockitoBean
     private bo.aportaya.auditoria.aplicacion.CU130GobernarFichaDeTabla cu130;
 
+    @MockitoBean
+    private bo.aportaya.auditoria.aplicacion.CU131RevisarColumna cu131;
+
     private static CU98PublicarTablero.Indicador indicador(
             String codigo, Optional<BigDecimal> valor, boolean suprimido, boolean provisorio) {
         return new CU98PublicarTablero.Indicador(

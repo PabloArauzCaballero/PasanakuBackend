@@ -43,6 +43,9 @@ CREATE UNIQUE INDEX IF NOT EXISTS uq_politica_retencion_entidad
 CREATE UNIQUE INDEX IF NOT EXISTS uq_ficha_gobierno_tabla_tabla_esquema
   ON auditoria.ficha_gobierno_tabla (tabla, esquema);
 
+CREATE UNIQUE INDEX IF NOT EXISTS uq_revision_columna_tabla_columna_esquema
+  ON auditoria.revision_columna (tabla, columna, esquema);
+
 CREATE UNIQUE INDEX IF NOT EXISTS uq_definicion_reporte_nombre
   ON auditoria.definicion_reporte (nombre);
 

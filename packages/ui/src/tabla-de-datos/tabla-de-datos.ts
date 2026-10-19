@@ -1,9 +1,11 @@
 import { ChangeDetectionStrategy, Component, computed, input, model, output, TemplateRef, contentChild } from '@angular/core'
 import { NgTemplateOutlet } from '@angular/common'
+import { BotonCopiar } from '../boton-copiar/boton-copiar'
 import { Casilla } from '../casilla/casilla'
 import { Icono } from '../icono/icono'
 
-export type Columna<T> = { clave: keyof T & string; titulo: string; ordenable?: boolean; numerica?: boolean }
+/** `fijaDerecha`: la columna (de acciones) queda pegada al borde derecho al desplazar; `mono`: identificadores y códigos. */
+export type Columna<T> = { clave: keyof T & string; titulo: string; ordenable?: boolean; numerica?: boolean; fijaDerecha?: boolean; mono?: boolean }
 export type Orden = { clave: string; sentido: 'asc' | 'desc' }
 export type Densidad = 'confortable' | 'compacta'
 
@@ -52,10 +54,16 @@ export type EstadoColeccion<T> =
 @Component({
   selector: 'ap-tabla-de-datos',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [Casilla, Icono, NgTemplateOutlet],
+  imports: [BotonCopiar, Casilla, Icono, NgTemplateOutlet],
   host: { '[class.densidad-compacta]': "densidad() === 'compacta'" },
   template: `
-    <div class="marco">
+    <div class="marco" [class.con-cabecera]="cabecera()">
+      @if (cabecera()) {
+        <div class="cabecera-tabla">
+          <span class="registros">{{ textoRegistros() }}</span>
+          <span class="cuenta"><ap-boton-copiar [valor]="comoTexto" etiqueta="Copiar la tabla" /><span class="total">{{ totalDeRegistros() ?? filasVisibles().length }}</span></span>
+        </div>
+      }
       @if (estado(); as e) {
         @if (e.tipo === 'cargando') {
           <p class="mensaje-estado" role="status" aria-live="polite">{{ textoCargando() }}</p>
@@ -69,6 +77,7 @@ export type EstadoColeccion<T> =
         }
       }
       @if (!ocultarTabla()) {
+        <div class="desplazable" [class.acotada]="altoMaximo()" [attr.role]="altoMaximo() ? 'region' : null" [attr.aria-label]="altoMaximo() ? titulo() : null" [attr.tabindex]="altoMaximo() ? 0 : null">
         <table role="table" [attr.aria-label]="titulo()">
           <caption>{{ titulo() }}</caption>
           <thead role="rowgroup">
@@ -79,7 +88,7 @@ export type EstadoColeccion<T> =
                 </th>
               }
               @for (c of columnas(); track c.clave) {
-                <th scope="col" role="columnheader" [class.numerica]="c.numerica" [attr.aria-sort]="ariaSort(c.clave)">
+                <th scope="col" role="columnheader" [class.numerica]="c.numerica" [class.fija]="c.fijaDerecha" [attr.aria-sort]="ariaSort(c.clave)">
                   @if (c.ordenable) {
                     <button type="button" (click)="ordenarPor(c.clave)">
                       {{ c.titulo }}
@@ -104,7 +113,7 @@ export type EstadoColeccion<T> =
                   </td>
                 }
                 @for (c of columnas(); track c.clave) {
-                  <td role="cell" [class.numerica]="c.numerica">
+                  <td role="cell" [class.numerica]="c.numerica" [class.fija]="c.fijaDerecha" [class.mono]="c.mono">
                     <span class="etiqueta-movil" aria-hidden="true">{{ c.titulo }}</span>
                     @if (celda()) {
                       <ng-container *ngTemplateOutlet="celda()!; context: { $implicit: f, columna: c }" />
@@ -117,6 +126,7 @@ export type EstadoColeccion<T> =
             }
           </tbody>
         </table>
+        </div>
       }
     </div>
   `,
@@ -140,6 +150,15 @@ export class TablaDeDatos<T extends object> {
   readonly textoVacio = input('Sin resultados.')
   readonly textoCargando = input('Cargando…')
   readonly textoActualizando = input('Actualizando…')
+  /** Anatomía del portal de Atlas: cabecera «Registros · n» con copiar, y alto acotado con desplazamiento propio. */
+  readonly cabecera = input(false)
+  readonly textoRegistros = input('Registros')
+  /** El total del servidor cuando la página es una parte; sin él, cuenta las filas visibles. */
+  readonly totalDeRegistros = input<number>()
+  readonly altoMaximo = input(false)
+  /** La tabla como texto tabulado (encabezados + valores crudos), para el botón de copiar. */
+  readonly comoTexto = (): string =>
+    [this.columnas().map((c) => c.titulo), ...this.filasVisibles().map((f) => this.columnas().map((c) => String(f[c.clave] ?? '')))].map((l) => l.join('\t')).join('\n')
 
   readonly filasVisibles = computed<T[]>(() => {
     const e = this.estado()

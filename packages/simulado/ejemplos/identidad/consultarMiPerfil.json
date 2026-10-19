@@ -1,0 +1,32 @@
+{
+  "servicio": "identidad",
+  "operacion": "consultarMiPerfil",
+  "metodo": "get",
+  "ruta": "/usuarios/yo/perfil",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "usuarioId": "bc2e3b27-0085-45a9-8435-42172bcb420d",
+        "correo": "correo",
+        "correoVerificado": true
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "usuarioId": "bc2e3b27-0085-45a9-8435-42172bcb420d",
+        "correo": "correo",
+        "correoVerificado": false
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "usuarioId": "bc2e3b27-0085-45a9-8435-42172bcb420d",
+        "correo": "correo",
+        "correoVerificado": true
+      }
+    }
+  }
+}
