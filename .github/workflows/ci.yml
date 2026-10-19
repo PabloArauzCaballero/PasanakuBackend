@@ -56,10 +56,10 @@ jobs:
       dependencies: ${{ steps.impacto.outputs.dependencies }}
       categories: ${{ steps.impacto.outputs.categories }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
       - name: Dependencia del mapa de impacto
@@ -98,16 +98,16 @@ jobs:
           --health-cmd "pg_isready -U pasanaku -d pasanaku"
           --health-interval 5s --health-timeout 5s --health-retries 20
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: 0 · el esquema, que es lo que jOOQ introspecciona
         env:
           PGPASSWORD: pasanaku
         run: cd sql && psql -v ON_ERROR_STOP=1 -h localhost -U pasanaku -d pasanaku -q -f aplicar.sql
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v6
         with:
           distribution: temurin
           java-version: "21"
-      - uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@v6
 
       - name: 1 · toolchain Java 21
         run: ./gradlew --version
@@ -137,8 +137,8 @@ jobs:
     needs: [detectar-cambios]
     if: ${{ needs.detectar-cambios.outputs.backend == 'true' }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
 
@@ -200,8 +200,8 @@ jobs:
       PGPASSWORD: pasanaku
       PSQL: psql -v ON_ERROR_STOP=1 -h localhost -U pasanaku -d pasanaku -q
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
 
@@ -245,12 +245,12 @@ jobs:
     needs: [detectar-cambios]
     if: ${{ needs.detectar-cambios.outputs.contracts == 'true' || needs.detectar-cambios.outputs.frontend == 'true' }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-java@v6
         with:
           distribution: temurin
           java-version: "21"
-      - uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@v6
 
       - name: 12 · generateOpenApiClients — Angular y Dart, sin error y sin salir vacíos
         run: |
@@ -267,7 +267,7 @@ jobs:
           git diff --exit-code -- postman/
 
       - name: Publicar clientes generados para los jobs frontend
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: clientes-openapi-${{ github.sha }}
           path: clientes/
@@ -280,12 +280,12 @@ jobs:
     needs: [detectar-cambios, contratos]
     if: ${{ !cancelled() && needs.detectar-cambios.outputs.frontend == 'true' && needs.contratos.result == 'success' }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v4
+      - uses: actions/checkout@v7
+      - uses: actions/download-artifact@v8
         with:
           name: clientes-openapi-${{ github.sha }}
           path: clientes/
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: "22"
       - uses: subosito/flutter-action@v2
@@ -295,7 +295,7 @@ jobs:
           cache: true
 
       - name: f0a · compartir clientes Dart con los trabajos de macOS
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: clientes-dart-${{ github.sha }}
           path: clientes/
@@ -357,7 +357,7 @@ jobs:
         run: |
           yarn workspace @aportaya/web playwright install --with-deps chromium
           yarn workspace @aportaya/web test:e2e
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: catalogo-capturas
@@ -374,7 +374,7 @@ jobs:
         run: |
           yarn workspace @aportaya/backoffice playwright install --with-deps chromium
           yarn workspace @aportaya/backoffice test:e2e
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: failure()
         with:
           name: backoffice-e2e-reporte
@@ -415,8 +415,8 @@ jobs:
     needs: [detectar-cambios, frontend]
     if: ${{ !cancelled() && needs.detectar-cambios.outputs.mobile == 'true' && needs.frontend.result == 'success' }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v4
+      - uses: actions/checkout@v7
+      - uses: actions/download-artifact@v8
         with:
           name: clientes-dart-${{ github.sha }}
           path: clientes/
@@ -425,7 +425,7 @@ jobs:
           flutter-version: 3.44.8
           channel: stable
           cache: true
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: "22"
 
@@ -443,7 +443,7 @@ jobs:
       - name: goldens · la app
         run: yarn workspace @aportaya/movil test:goldens
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: failure()
         with:
           name: goldens-diferencias
@@ -471,12 +471,12 @@ jobs:
     env:
       DEVELOPER_DIR: /Applications/Xcode_26.3.app/Contents/Developer
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v4
+      - uses: actions/checkout@v7
+      - uses: actions/download-artifact@v8
         with:
           name: clientes-dart-${{ github.sha }}
           path: clientes/
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v6
         with:
           distribution: temurin
           java-version: "21"
@@ -485,7 +485,7 @@ jobs:
           flutter-version: 3.44.8
           channel: stable
           cache: true
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: "22"
 
@@ -555,12 +555,12 @@ jobs:
     env:
       DEVELOPER_DIR: /Applications/Xcode_26.3.app/Contents/Developer
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v4
+      - uses: actions/checkout@v7
+      - uses: actions/download-artifact@v8
         with:
           name: clientes-dart-${{ github.sha }}
           path: clientes/
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v6
         with:
           distribution: temurin
           java-version: "21"
@@ -569,7 +569,7 @@ jobs:
           flutter-version: 3.44.8
           channel: stable
           cache: true
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: "22"
 
@@ -653,7 +653,7 @@ jobs:
             --build-number="${{ github.run_number }}" \
             --dart-define=API="${{ vars.APORTAYA_API_URL || 'https://api.aportaya.bo/api/v1' }}"
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: aportaya-release-ios-${{ github.run_number }}
           path: apps/movil/build/ios/archive/Runner.xcarchive
@@ -744,12 +744,12 @@ jobs:
           --health-cmd "pg_isready -U pasanaku -d pasanaku"
           --health-interval 5s --health-timeout 5s --health-retries 20
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-java@v6
         with:
           distribution: temurin
           java-version: "21"
-      - uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@v6
 
       - name: 0 · el esquema, que es lo que jOOQ introspecciona
         env:
@@ -788,7 +788,7 @@ jobs:
 
       - name: 16d · publicar desglose de cobertura si falla
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: cobertura-java-${{ github.sha }}
           path: '**/build/reports/jacoco/test/jacocoTestReport.xml'
@@ -814,12 +814,12 @@ jobs:
           --health-cmd "pg_isready -U pasanaku -d pasanaku"
           --health-interval 5s --health-timeout 5s --health-retries 20
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-java@v6
         with:
           distribution: temurin
           java-version: "21"
-      - uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@v6
 
       - name: 0 · el esquema, que es lo que jOOQ introspecciona
         env:
@@ -872,7 +872,7 @@ jobs:
 
       - name: 17d · conservar el informe de Trivy aunque el gate falle
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: trivy-results-${{ github.sha }}
           path: trivy-results.sarif
@@ -929,12 +929,12 @@ jobs:
           --health-cmd "kafka-broker-api-versions --bootstrap-server localhost:9092"
           --health-interval 10s --health-timeout 10s --health-retries 20
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-java@v6
         with:
           distribution: temurin
           java-version: "21"
-      - uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@v6
 
       - name: 0 · el esquema, que es lo que jOOQ introspecciona
         env:
@@ -951,12 +951,12 @@ jobs:
     needs: [detectar-cambios, pruebas, base]
     if: ${{ !cancelled() && needs.detectar-cambios.outputs.backend == 'true' && needs.pruebas.result == 'success' && needs.base.result == 'success' && github.ref == 'refs/heads/main' }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-java@v6
         with:
           distribution: temurin
           java-version: "21"
-      - uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@v6
 
       - name: 18 · e2eTest
         run: ./gradlew e2eTest
@@ -968,7 +968,7 @@ jobs:
     needs: [detectar-cambios]
     if: ${{ needs.detectar-cambios.outputs.security == 'true' }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
@@ -980,22 +980,22 @@ jobs:
             echo "Una dependencia nueva es un micro-PR al troncal, no un cambio de carril"; exit 1; }
 
       - name: 19b · escaneo de secretos
-        uses: gitleaks/gitleaks-action@v2
+        uses: gitleaks/gitleaks-action@v3
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: 19d · SBOM CycloneDX por modulo desplegable (H2.S3)
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v6
         with:
           distribution: temurin
           java-version: "21"
-      - uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@v6
       - run: |
           set -e
           modulos="$(./gradlew -q projects | grep -oE "servicios:[a-z-]+|plataforma:gateway" | sort -u)"
           for m in $modulos; do ./gradlew ":$m:cyclonedxBom"; done
           echo "SBOM generado en $(echo "$modulos" | wc -w) modulos"
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: sbom-${{ github.sha }}
           path: |
@@ -1022,7 +1022,7 @@ jobs:
       contents: read
       security-events: write
       actions: read
-    uses: "google/osv-scanner-action/.github/workflows/osv-scanner-reusable.yml@v2.6.0"
+    uses: "google/osv-scanner-action/.github/workflows/osv-scanner-reusable.yml@v2.7.0"
     with:
       scan-args: |-
         --config=.github/osv-scanner.toml

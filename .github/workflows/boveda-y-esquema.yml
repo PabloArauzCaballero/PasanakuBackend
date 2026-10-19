@@ -31,8 +31,8 @@ jobs:
     name: Bóveda, seguridad, carriles y despliegue coherentes
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
 
@@ -111,7 +111,7 @@ jobs:
       PGOPTIONS: >-
         -c search_path=aportes,auditoria,cumplimiento,entregas,erp,garantia,grupos,identidad,notificaciones,nucleo_financiero,organizador,publicidad,tarifas,transparencia,catalogo,comun,public
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Instalar cliente de PostgreSQL
         run: sudo apt-get update && sudo apt-get install -y postgresql-client
