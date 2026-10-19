@@ -28,34 +28,34 @@
 ## H1 — identidad: nombre visible en «mi perfil»
 | ID | Microtarea | CA | DoD | Estado |
 |---|---|---|---|---|
-| H1.M1 | `MiPerfil.nombreVisible` («Rosa Q.», o null sin nombre) | `GET /usuarios/yo/perfil` lo devuelve | test web de identidad | TODO |
+| H1.M1 | `MiPerfil.nombreVisible` («Rosa Q.», o null sin nombre) | `GET /usuarios/yo/perfil` lo devuelve | test web de identidad | HECHO |
 
 ## H2 — grupos: modelo y caso de uso
 | ID | Microtarea | CA | DoD | Estado |
 |---|---|---|---|---|
-| H2.M1 | Caso de uso del enlace de grupo (criterios Gherkin) | `verificar_criterios.py` OK | comando | TODO |
-| H2.M2 | Tabla `enlace_grupo` + columnas de `solicitud_ingreso` (`enlace_grupo_id`, `nombre_visible`) en el `.puml` | generadores y `verificar_boveda.py` OK | comandos | TODO |
+| H2.M1 | Caso de uso del enlace de grupo (criterios Gherkin) | `verificar_criterios.py` OK | comando | HECHO |
+| H2.M2 | Tabla `enlace_grupo` + columnas de `solicitud_ingreso` (`enlace_grupo_id`, `nombre_visible`) en el `.puml` | generadores y `verificar_boveda.py` OK | comandos | HECHO |
 
 ## H3 — grupos: contrato y casos de uso
 | ID | Microtarea | CA | DoD | Estado |
 |---|---|---|---|---|
-| H3.M1 | Contrato: emitir/anular (organizador), consultar/solicitar (participante); `SolicitudDeIngreso.nombreVisible` | clientes generados compilan | `generateOpenApiClients` | TODO |
-| H3.M2 | Emitir: uno activo por grupo (el nuevo anula el anterior), token aleatorio guardado como hash, 7 días | test | `./gradlew :servicios:grupos:test` | TODO |
-| H3.M3 | Consultar y solicitar: vigente, no lleno, no participante, sin solicitud pendiente; crea solicitud PENDIENTE con nombre visible | test con los tres niveles | igual | TODO |
-| H3.M4 | Autorización negativa: no organizador no emite/anula; sin sesión no consulta | test | igual | TODO |
+| H3.M1 | Contrato: emitir/anular (organizador), consultar/solicitar (participante); `SolicitudDeIngreso.nombreVisible` | clientes generados compilan | `generateOpenApiClients` | HECHO |
+| H3.M2 | Emitir: uno activo por grupo (el nuevo anula el anterior), token aleatorio guardado como hash, 7 días | test | `./gradlew :servicios:grupos:test` | HECHO |
+| H3.M3 | Consultar y solicitar: vigente, no lleno, no participante, sin solicitud pendiente; crea solicitud PENDIENTE con nombre visible | test con los tres niveles | igual | HECHO |
+| H3.M4 | Autorización negativa: no organizador no emite/anula; sin sesión no consulta | test | igual | HECHO |
 
 ## H4 — app
 | ID | Microtarea | CA | DoD | Estado |
 |---|---|---|---|---|
-| H4.M1 | «Invitar»: QR + compartir por WhatsApp + copiar + anular | prueba de widget | `flutter test` | TODO |
-| H4.M2 | «Solicitudes»: lista con nombre, aceptar/rechazar | prueba de widget | igual | TODO |
-| H4.M3 | `/g/<código>`: ver grupo y pedir unirse (con identidad verificada) | prueba de widget | igual | TODO |
-| H4.M4 | Enlaces `https://…/g/<código>` llevan a esa pantalla | prueba unitaria | igual | TODO |
+| H4.M1 | «Invitar»: QR + compartir por WhatsApp + copiar + anular | prueba de widget | `flutter test` | HECHO |
+| H4.M2 | «Solicitudes»: lista con nombre, aceptar/rechazar | prueba de widget | igual | HECHO |
+| H4.M3 | `/g/<código>`: ver grupo y pedir unirse (con identidad verificada) | prueba de widget | igual | HECHO |
+| H4.M4 | Enlaces `https://…/g/<código>` llevan a esa pantalla | prueba unitaria | igual | HECHO |
 
 ## H5 — abrir la app desde WhatsApp
 | ID | Microtarea | CA | DoD | Estado |
 |---|---|---|---|---|
-| H5.M1 | `intent-filter` https con `autoVerify` + `assetlinks.json` + nginx `/g/` | `adb shell pm get-app-links` → verified; `/g/x` en el navegador → `#/g/x` | emulador + curl | TODO |
+| H5.M1 | `intent-filter` https con `autoVerify` + `assetlinks.json` + nginx `/g/` | `adb shell pm get-app-links` → verified; `/g/x` en el navegador → `#/g/x` | emulador + curl | A MEDIAS — escrito y nginx -t OK; falta verificar tras desplegar |
 
 ## H6 — entrega
 | ID | Microtarea | CA | DoD | Estado |
