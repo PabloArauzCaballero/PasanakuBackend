@@ -1,0 +1,10 @@
+Pruebas de integracion contra PostgreSQL 18 local con sql/aplicar.sql recien aplicado (una base nueva por clase;
+sin Docker en esta maquina, las clases CU*Test se corrieron como copias temporales que cambian solo el DataSource):
+  CU69EnlaceDeGrupoTest   tests=9  failures=0   (primera corrida: 7 fallas reales "fecha_anulacion is of type timestamptz but expression is varchar" -> CAST(? AS timestamptz))
+  CU68AceptarIngresoTest  tests=7  failures=0
+  CU68AdmisionTest        tests=10 failures=0
+  CU68Test                tests=16 failures=0
+  CU69CanjeTest           tests=9  failures=0
+webTest grupos: 95 tests, 0 fallas (GruposEnlaceDelGrupoWebTest 6/6) · webTest identidad: 144, 0 fallas
+simulado test:front: 340 passed · verificar_boveda TODO OK · verificar_criterios exit 0 · verificar_seguridad TODO OK · spotlessCheck OK
+CI de test con rojos previos ajenos: testBarrido (CatalogosOperativosRepositorio 570 lineas, UsuariosInternosRepositorio 374) y prueba_humo R-BIL-01.

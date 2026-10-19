@@ -78,7 +78,7 @@ public class CU69EnlaceDeGrupo {
                     """
                     INSERT INTO grupos.enlace_grupo
                       (id, grupo_id, emisor_id, token_hash, estado, fecha_creacion, fecha_expiracion)
-                    VALUES (?, ?, ?, ?, 'ACTIVO', ?, ?)
+                    VALUES (?, ?, ?, ?, 'ACTIVO', CAST(? AS timestamptz), CAST(? AS timestamptz))
                     """,
                     id,
                     grupoId,
@@ -166,7 +166,7 @@ public class CU69EnlaceDeGrupo {
                        (SELECT count(*) FROM grupos.cupo c WHERE c.grupo_id = g.id AND c.estado = 'LIBRE')::int AS cupos_libres
                   FROM grupos.enlace_grupo e
                   JOIN grupos.grupo g ON g.id = e.grupo_id
-                 WHERE e.id = ? AND e.estado = 'ACTIVO' AND e.fecha_expiracion > ?
+                 WHERE e.id = ? AND e.estado = 'ACTIVO' AND e.fecha_expiracion > CAST(? AS timestamptz)
                    AND g.estado IN ('CONFORMADO','ABIERTO_A_INSCRIPCION')
                 """,
                 enlaceId,
@@ -198,7 +198,7 @@ public class CU69EnlaceDeGrupo {
 
     private static void anularActivo(DSLContext dsl, UUID grupoId, OffsetDateTime ahora) {
         dsl.execute(
-                "UPDATE grupos.enlace_grupo SET estado = 'ANULADO', fecha_anulacion = ? WHERE grupo_id = ? AND estado = 'ACTIVO'",
+                "UPDATE grupos.enlace_grupo SET estado = 'ANULADO', fecha_anulacion = CAST(? AS timestamptz) WHERE grupo_id = ? AND estado = 'ACTIVO'",
                 ahora,
                 grupoId);
     }
