@@ -1,10 +1,12 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core'
-import { BandaDeProposito } from '@aportaya/ui/banda-de-proposito/banda-de-proposito'
 import { Boton } from '@aportaya/ui/boton/boton'
+import { CabeceraDePagina } from '@aportaya/ui/cabecera-de-pagina/cabecera-de-pagina'
 import { ChipEstado } from '@aportaya/ui/chip-estado/chip-estado'
 import { Dialogo } from '@aportaya/ui/dialogo/dialogo'
+import { ErrorDeEnvio } from '@aportaya/ui/error-de-envio/error-de-envio'
 import { EstadoDePantalla } from '@aportaya/ui/estado-de-pantalla/estado-de-pantalla'
 import { Fecha } from '@aportaya/ui/fecha/fecha'
+import { ExplicadorDeVista } from '../../../nucleo/explicador-de-vista'
 import { Sesion } from '../../../nucleo/sesion'
 import {
   crearCierreDePeriodo,
@@ -21,35 +23,18 @@ import { errorDelRecurso } from '../dominio/contrato-erp'
 import { textosContabilidad } from '../textos'
 import { PeriodoDeHoy } from './periodo-de-hoy'
 import { SelectorDeEjercicios } from './selector-de-ejercicios'
-import { ErrorDeEnvio } from '@aportaya/ui/error-de-envio/error-de-envio'
 import type { ErrorTraducido } from '../../../nucleo/errores'
 
 const EJERCICIO_INEXISTENTE = 'AP-CU100-05'
 
-/**
- * CU-100 · Abrir y cerrar el período contable. Es donde aterriza la sección Contabilidad.
- *
- * **Sin identificador de demostración.** Sin `:ejercicioId` en la URL, la pantalla pregunta al ERP cuál es el período de
- * HOY (`GET /erp/periodos/vigente`) y muestra su ejercicio. Si el ERP responde `AP-CU100-04` (ningún período contiene hoy)
- * la pantalla lo dice y **no elige otro**: la persona puede consultar un ejercicio de la lista, que es una elección suya
- * y queda en la URL (`periodo/:ejercicioId`), pegable en un expediente.
- *
- * **Gate propio del carril: un período cerrado se ve cerrado.** La acción de asentar no aparece sobre un período
- * `CERRADO` —ausente y con el motivo escrito al lado—. La regla vive en `dominio/cu100-periodos.ts` (`puedeAsentarEn`).
- *
- * Los totales SELLADOS del cierre viajan SIN moneda en el contrato: se muestra el veredicto del cuadre, nunca un importe
- * con moneda supuesta (regla 91.1.2). Pedido a carril A en el reporte de L3.
- *
- * Cerrar es irreversible, así que pasa por `Dialogo` con el nombre del mes delante.
- */
+/** CU-100 · Abrir y cerrar el período contable (Contabilidad). */
 @Component({
   selector: 'ap-pantalla-de-periodo',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ErrorDeEnvio, BandaDeProposito, Boton, ChipEstado, Dialogo, EstadoDePantalla, Fecha, PeriodoDeHoy, SelectorDeEjercicios],
+  imports: [ErrorDeEnvio, Boton, CabeceraDePagina, ChipEstado, Dialogo, EstadoDePantalla, Fecha, PeriodoDeHoy, SelectorDeEjercicios],
   template: `
-    <ap-banda-de-proposito [texto]="t.proposito" />
     <section class="pantalla">
-      <h1 data-tutorial-id="contabilidad-periodo">{{ t.titulo }}</h1>
+      <ap-cabecera-de-pagina data-tutorial-id="contabilidad-periodo" [titulo]="t.titulo" [descripcion]="t.proposito" icono="calendario" />
       <p class="aviso">{{ t.cerrarIrreversible }}</p>
 
       <ap-periodo-de-hoy [periodo]="valorVigente()" [error]="errorVigente()" />
@@ -134,6 +119,10 @@ const EJERCICIO_INEXISTENTE = 'AP-CU100-05'
   `,
 })
 export class PantallaDePeriodo {
+  constructor() {
+    inject(ExplicadorDeVista).fijar(this.t.proposito)
+  }
+
   protected readonly t = textosContabilidad.periodo
   protected readonly EJERCICIO_INEXISTENTE = EJERCICIO_INEXISTENTE
   /** De la URL (`periodo/:ejercicioId`). Ausente en la ruta raíz de Contabilidad: ahí manda el período de hoy. */
