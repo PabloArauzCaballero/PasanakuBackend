@@ -1,9 +1,10 @@
 # Reporte — App: arreglos que el usuario encontró en su teléfono
 
-> **AVANCE: 13 / 20 — 65,0 %.**
+> **AVANCE: 19 / 20 — 95,0 %.**
 
 - Fecha: 2026-10-19 · Plan: [PLAN.md](./PLAN.md) · Rama: `claude/app-kyc-diferido-y-pin-20261018` (PR #139 a `test`)
-- Peldaño: `TESTED` (pruebas dirigidas en verde; candado ejercitado en emulador). Falta CI de goldens, despliegue y prueba en el teléfono.
+- Peldaño: `VERIFIED` para el backoffice en TEST (sonda Playwright) y `TESTED` para la app (pruebas + emulador); falta la prueba en el teléfono del usuario.
+- Unido a `test` en el PR #147 (por el dueño del repo) y desplegado en Contabo: `evidencia/h7-h8-despliegue.txt`.
 
 ## Completado
 | ID | Qué se logró | Comando | Resultado |
@@ -29,16 +30,12 @@
 - Qué falta: que el usuario pruebe el APK v9. Se blindaron dos caminos que pierden el pedido sin aviso (`authenticate` con la actividad detenida; error del sistema contestado como «canceló») y, si el sistema falla, el candado ahora muestra el código del error para diagnosticarlo.
 - Dónde quedó: `DesbloqueoLocal.kt`, `capa_de_bloqueo*.dart`, `biometria_android.dart`. Compila (APK debug x64).
 
-### H7.M1 — prueba contra TEST
-- Qué falta: desplegar y repetir la sonda Playwright sobre `/arranque?volverA=%2F`.
 
 ## Pendiente
 | ID | Estado | Qué lo destraba |
 |---|---|---|
-| H1.M2 | TODO (código hecho) | Verificar `application-label:'Aporteo'` con `aapt` en el APK v9 |
-| H8.M2 | TODO | Regenerar goldens en Linux (flujo temporal de GitHub) |
-| H8.M3 | TODO | CI verde → merge a `test` → despliegue Coolify |
-| H8.M4 | TODO | Compilar APK v9 |
+| Prueba en el teléfono | TODO | El usuario instala el APK v9 |
+| Postman | TODO | PR aparte con la colección regenerada (9911798b) |
 
 ## Evidencia
 Ver `evidencia/`.
@@ -55,6 +52,7 @@ Ver `evidencia/`.
 - Error mío: en la regeneración de goldens excluí `docs/`, pero muchas pruebas (`h10_*`, `capturas`, `motivo_de_salida`) comparan contra imágenes guardadas en `docs/.../evidencia/` con `matchesGoldenFile`: son referencias, no solo evidencia. El CI del #147 falló por eso (2 pruebas); se regeneró de nuevo incluyéndolas. En el #139 también se habían revertido esas imágenes.
 
 ## Riesgos residuales
+- `prueba_humo.sql` (R-BIL-01, transacción descuadrada) está rojo en `test` desde el #145; no es de este trabajo y no se tocó.
 - Si el fallo del PIN es del teléfono (no del pedido perdido), el usuario verá el mensaje con el código del sistema en vez del PIN: hace falta esa captura para seguir.
 - Jobs iOS del CI rojos por `Pods_Runner not found` (entorno de macOS); ajeno a estos cambios.
 

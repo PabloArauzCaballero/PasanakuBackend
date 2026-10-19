@@ -80,14 +80,14 @@
 ## H7 — Backoffice atascado en «Restaurando tu sesión…»
 | ID | Microtarea | CA (binario) | DoD | Estado |
 |---|---|---|---|---|
-| H7.M1 | `RestaurandoSesion` navega al resolver la sesión | Abrir `/arranque?volverA=%2F` sin sesión termina en `/ingreso` | spec de Angular + sonda Playwright contra TEST tras desplegar | TODO |
+| H7.M1 | `RestaurandoSesion` navega al resolver la sesión | Abrir `/arranque?volverA=%2F` sin sesión termina en `/ingreso` | spec de Angular + sonda Playwright contra TEST tras desplegar | HECHO |
 
 ## H8 — Entrega
 | ID | Microtarea | CA (binario) | DoD | Estado |
 |---|---|---|---|---|
 | H8.M1 | Suite no visual + analyze + reglas de frontend | Todo verde salvo píxeles | `flutter analyze`, `flutter test`, `python scripts/verificar_frontend.py` | HECHO |
-| H8.M2 | Goldens regenerados en Linux | Job «App — goldens (Linux)» en verde | CI del PR #139 | TODO |
-| H8.M3 | Merge a `test` y despliegue | Contabo con el commit nuevo | `gh pr view` + estado del despliegue | TODO |
+| H8.M2 | Goldens regenerados en Linux | Job «App — goldens (Linux)» en verde | CI del PR #139 | HECHO |
+| H8.M3 | Merge a `test` y despliegue | Contabo con el commit nuevo | `gh pr view` + estado del despliegue | HECHO |
 | H8.M4 | APK v9 | APK en `Downloads` | `flutter build apk` + `aapt` | HECHO |
 
 ## Desvío registrado
