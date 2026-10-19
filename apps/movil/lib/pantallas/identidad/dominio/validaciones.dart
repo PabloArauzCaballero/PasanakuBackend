@@ -92,11 +92,24 @@ String? errorDocumento(String valor) {
   return null;
 }
 
+const errorSoloEspacios = 'La contraseña no puede ser solo espacios.';
+
 String? errorContrasena(String valor) {
+  // Ocho espacios cumplían «ocho caracteres» (2026-10-19).
+  if (valor.isNotEmpty && valor.trim().isEmpty) return errorSoloEspacios;
+  if (valor != valor.trim()) return 'Sin espacios al principio ni al final.';
   if (valor.length < 8) return 'Ocho caracteres como mínimo.';
   if (!RegExp(r'[0-9]').hasMatch(valor)) return 'Sumale al menos un número.';
   return null;
 }
+
+/// Al ingresar solo se descarta lo que nunca puede ser una contraseña: vacía o de
+/// puros espacios. Lo demás lo decide el servidor.
+String? errorContrasenaDeIngreso(String valor) =>
+    valor.isNotEmpty && valor.trim().isEmpty ? errorSoloEspacios : null;
+
+bool contrasenaDeIngresoValida(String valor) =>
+    valor.length >= 8 && errorContrasenaDeIngreso(valor) == null;
 
 double fortalezaContrasena(String valor) {
   var puntos = 0;

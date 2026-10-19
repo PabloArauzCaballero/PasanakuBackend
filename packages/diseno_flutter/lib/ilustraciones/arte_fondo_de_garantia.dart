@@ -34,7 +34,7 @@ class ArteFondoDeGarantia extends ArteDeMaqueta {
     );
 
     // La moneda de la cuota, con su signo.
-    c.drawCircle(const Offset(44, 104), 15, relleno(Paleta.g700));
+    c.drawCircle(const Offset(44, 104), 15, relleno(Paleta.o500));
     final signo = trazo(Paleta.white, 2.8);
     c
       ..drawLine(const Offset(44, 96), const Offset(44, 112), signo)

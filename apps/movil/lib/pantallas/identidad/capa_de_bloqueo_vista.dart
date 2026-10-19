@@ -9,6 +9,7 @@ class _VistaDeBloqueo extends StatelessWidget {
     required this.escala,
     required this.biometriaDisponible,
     required this.onIngresarDeNuevo,
+    this.falloBiometrico,
     this.onDesbloquear,
   });
 
@@ -18,6 +19,7 @@ class _VistaDeBloqueo extends StatelessWidget {
   final Animation<double> opacidad;
   final Animation<double> escala;
   final bool biometriaDisponible;
+  final String? falloBiometrico;
   final VoidCallback onIngresarDeNuevo;
   final VoidCallback? onDesbloquear;
 
@@ -36,6 +38,7 @@ class _VistaDeBloqueo extends StatelessWidget {
                 motivo: motivo,
                 escala: escala,
                 biometriaDisponible: biometriaDisponible,
+                falloBiometrico: falloBiometrico,
                 onDesbloquear: onDesbloquear,
                 onIngresarDeNuevo: onIngresarDeNuevo,
               ),
@@ -52,12 +55,14 @@ class _ContenidoDeBloqueo extends StatelessWidget {
     required this.escala,
     required this.biometriaDisponible,
     required this.onIngresarDeNuevo,
+    this.falloBiometrico,
     this.onDesbloquear,
   });
 
   final MotivoDeBloqueo motivo;
   final Animation<double> escala;
   final bool biometriaDisponible;
+  final String? falloBiometrico;
   final VoidCallback onIngresarDeNuevo;
   final VoidCallback? onDesbloquear;
 
@@ -110,6 +115,20 @@ class _ContenidoDeBloqueo extends StatelessWidget {
                         expandido: true,
                         onPressed: onDesbloquear,
                       ),
+                    if (biometriaDisponible && falloBiometrico != null) ...[
+                      const SizedBox(height: Espacio.s2),
+                      Semantics(
+                        liveRegion: true,
+                        child: Text(
+                          'No se pudo abrir la huella o el PIN del teléfono '
+                          '($falloBiometrico). Probá de nuevo o entrá con tu '
+                          'contraseña.',
+                          key: const ValueKey('candado-fallo-biometrico'),
+                          textAlign: TextAlign.center,
+                          style: Tipo.cuerpo.copyWith(color: tokens.text2),
+                        ),
+                      ),
+                    ],
                     const SizedBox(height: Espacio.s2),
                     Boton(
                       texto: 'Entrar con mi contraseña',

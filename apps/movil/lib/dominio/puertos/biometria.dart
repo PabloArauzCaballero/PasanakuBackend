@@ -10,3 +10,10 @@ abstract interface class Biometria {
   /// «Confirmá el envío de Bs 150»). `true` si la persona confirmó.
   Future<bool> confirmar(String motivo);
 }
+
+/// Lo que contestó el sistema la última vez que no pudo abrir el diálogo de huella o
+/// PIN (código y mensaje del propio sistema), para que el candado lo diga en vez de
+/// quedarse quieto (2026-10-19). `null` si la última vez no hubo fallo.
+abstract interface class DiagnosticoDeBiometria {
+  String? get ultimoFallo;
+}

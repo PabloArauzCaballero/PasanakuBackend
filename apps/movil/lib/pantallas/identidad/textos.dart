@@ -181,6 +181,8 @@ class TextosIdentidad {
   // CU-07 / CU-09.
   static const tituloPerfil = 'Tu perfil';
   static const guardar = 'Guardar';
+  static const correoNoEditable =
+      'El correo identifica tu cuenta y no se puede cambiar desde la app.';
   static const tituloContrasenaNueva = 'Cambiar contraseña';
   static const contrasenaActual = 'Contraseña actual';
   static const contrasenaNueva = 'Contraseña nueva';

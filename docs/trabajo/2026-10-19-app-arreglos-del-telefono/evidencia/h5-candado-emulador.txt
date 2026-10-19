@@ -1,0 +1,19 @@
+Emulador Samsung_A06-L (Android 13, x86_64), banco temporal lib/main_prueba_candado.dart (no versionado)
+con CapaDeBloqueo + DesbloqueoLocal.kt reales. Foco de ventana leído con `adb shell dumpsys window | grep mCurrentFocus`
+(el diálogo del sistema es ventana segura: la captura sale vacía).
+
+Con huella enrolada (código v8):
+  tocar «Entrar con huella o PIN" -> mCurrentFocus=BiometricPrompt ; `adb emu finger touch 1` -> "ADENTRO"
+  apagar/prender + PIN del teléfono -> BiometricPrompt automático; cancelar + tocar -> BiometricPrompt
+Huella borrada (dumpsys fingerprint "count":0) -> solo PIN, como el teléfono del usuario:
+  código v8:   arranque -> BiometricPrompt (CredentialRequested: true) ; PIN 1234 -> ADENTRO
+               apagar/prender -> BiometricPrompt ; cancelar + tocar -> BiometricPrompt (requestId 7 y 8)
+  código nuevo (DesbloqueoLocal endurecido):
+    1) arranque: BiometricPrompt  2) tras PIN: MainActivity, "ADENTRO · salidas=0"
+    3) al volver de pantalla apagada: BiometricPrompt  4) cancelado: MainActivity
+    5) dos toques seguidos: el segundo cae sobre el fondo del diálogo del sistema y lo cierra (comportamiento de Android)
+    7) un toque: BiometricPrompt  8) tras PIN: "ADENTRO · salidas=0"
+    9) volver desde el inicio del teléfono: BiometricPrompt
+No reproducido: el fallo del teléfono del usuario (Samsung con PIN y rostro). Ver REPORTE.
+flutter test test/widget/capa_de_bloqueo_fallo_test.dart capa_de_bloqueo_interaccion_test.dart capa_de_bloqueo_test.dart -> 00:11 +15: All tests passed!
+flutter test test/unidad/cierre_de_sesion_test.dart -> 00:00 +2: All tests passed!

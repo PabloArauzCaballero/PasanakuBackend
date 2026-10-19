@@ -55,9 +55,11 @@ extension _PedidoBiometrico on _CapaDeBloqueoState {
     try {
       final disponible = await ref.read(biometriaDisponibleProvider.future);
       if (!disponible || !_sigueBloqueadoEn(episodio)) return;
-      final confirmado = await ref
-          .read(biometriaProvider)
-          .confirmar('Desbloqueá AportaYa');
+      final biometria = ref.read(biometriaProvider);
+      final confirmado = await biometria.confirmar('Desbloqueá AportaYa');
+      if (biometria is DiagnosticoDeBiometria) {
+        _mostrarFallo((biometria as DiagnosticoDeBiometria).ultimoFallo);
+      }
       if (confirmado && _sigueBloqueadoEn(episodio)) {
         // Confirma identidad local para quitar el candado; no autentica ni crea
         // una sesión ante el servidor.
@@ -76,6 +78,7 @@ extension _PedidoBiometrico on _CapaDeBloqueoState {
   /// quedó colgado, este lo reemplaza (el lado nativo cancela el viejo y abre uno
   /// nuevo, con el PIN del teléfono si la huella no se puede usar).
   void _solicitarBiometriaManual() {
+    _mostrarFallo(null);
     _episodio++;
     _pidioBiometriaEnEsteEpisodio = true;
     _reintentoBiometricoPendiente = false;

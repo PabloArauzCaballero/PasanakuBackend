@@ -49,7 +49,7 @@ class ArteEnCustodia extends ArteDeMaqueta {
         ..cubicTo(31.6, 49.4, 26, 44, 26, 37)
         ..lineTo(26, 28)
         ..close(),
-      relleno(Paleta.g700),
+      relleno(Paleta.o500),
     );
   }
 }

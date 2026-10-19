@@ -49,7 +49,7 @@ class ArteSinCuaderno extends ArteDeMaqueta {
         const Rect.fromLTWH(46, 92, 48, 30),
         const Radius.circular(7),
       ),
-      relleno(Paleta.g700),
+      relleno(Paleta.o500),
     );
     final signo = trazo(Paleta.white, 3.4);
     c

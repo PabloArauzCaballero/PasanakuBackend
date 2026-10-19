@@ -8,6 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../dominio/cu15_emitir_extracto.dart';
 import '../../dominio/proteccion_de_pantalla_dinero.dart';
+import 'recargable.dart';
 import 'textos.dart';
 import 'package:aportaya_diseno/moviles/anclas_de_tutorial.dart';
 
@@ -53,47 +54,64 @@ class _PantallaExtractoState extends ConsumerState<PantallaExtracto>
                 ),
               ),
               const SizedBox(height: Espacio.s4),
+              // Deslizar hacia abajo vuelve a pedir el extracto elegido (2026-10-19).
               Expanded(
-                child: rango == null
-                    ? const Center(child: Text(TextosBilletera.sinExtracto))
-                    : EstadoDePantalla(
-                        valor: ref.watch(
-                          extractoProvider(
-                            ParametrosExtracto(
-                              cuentaId: widget.cuentaId,
-                              desde: rango.start,
-                              hasta: rango.end,
+                child: Recargable(
+                  alRecargar: () async {
+                    if (rango == null) return;
+                    final parametros = ParametrosExtracto(
+                      cuentaId: widget.cuentaId,
+                      desde: rango.start,
+                      hasta: rango.end,
+                    );
+                    ref.invalidate(extractoProvider(parametros));
+                    try {
+                      await ref.read(extractoProvider(parametros).future);
+                    } on Object {
+                      // El error ya lo pinta la pantalla.
+                    }
+                  },
+                  hijo: rango == null
+                      ? const Text(TextosBilletera.sinExtracto)
+                      : EstadoDePantalla(
+                          valor: ref.watch(
+                            extractoProvider(
+                              ParametrosExtracto(
+                                cuentaId: widget.cuentaId,
+                                desde: rango.start,
+                                hasta: rango.end,
+                              ),
                             ),
                           ),
-                        ),
-                        etiquetaDeCarga: TextosBilletera.cargandoSaldo,
-                        mensajeVacio: TextosBilletera.sinMovimientos,
-                        vacio: (e) => (e.cantidadMovimientos ?? 0) == 0,
-                        reintentar: () => ref.invalidate(
-                          extractoProvider(
-                            ParametrosExtracto(
-                              cuentaId: widget.cuentaId,
-                              desde: rango.start,
-                              hasta: rango.end,
+                          etiquetaDeCarga: TextosBilletera.cargandoSaldo,
+                          mensajeVacio: TextosBilletera.sinMovimientos,
+                          vacio: (e) => (e.cantidadMovimientos ?? 0) == 0,
+                          reintentar: () => ref.invalidate(
+                            extractoProvider(
+                              ParametrosExtracto(
+                                cuentaId: widget.cuentaId,
+                                desde: rango.start,
+                                hasta: rango.end,
+                              ),
                             ),
                           ),
+                          exito: (e) => Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                '${TextosBilletera.desde} ${e.desde.toLocal()} · '
+                                '${TextosBilletera.hasta} ${e.hasta.toLocal()}',
+                              ),
+                              const SizedBox(height: Espacio.s2),
+                              Monto(
+                                monto: e.saldoFinal.monto,
+                                moneda: e.saldoFinal.moneda.value,
+                                etiqueta: TextosBilletera.saldoDisponible,
+                              ),
+                            ],
+                          ),
                         ),
-                        exito: (e) => Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              '${TextosBilletera.desde} ${e.desde.toLocal()} · '
-                              '${TextosBilletera.hasta} ${e.hasta.toLocal()}',
-                            ),
-                            const SizedBox(height: Espacio.s2),
-                            Monto(
-                              monto: e.saldoFinal.monto,
-                              moneda: e.saldoFinal.moneda.value,
-                              etiqueta: TextosBilletera.saldoDisponible,
-                            ),
-                          ],
-                        ),
-                      ),
+                ),
               ),
             ],
           ),

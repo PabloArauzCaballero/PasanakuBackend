@@ -64,7 +64,11 @@ class VerificacionNotifier extends AsyncNotifier<EstadoDeVerificacion> {
   Future<void> actualizar() async {
     final usuarioId = ref.read(usuarioEnVerificacionProvider);
     if (usuarioId == null) return;
-    state = const AsyncLoading<EstadoDeVerificacion>();
+    // Con un estado ya mostrado, la consulta va por detrás: antes cada vuelta del
+    // sondeo (cada 2 s) borraba la pantalla y ponía el círculo de carga, y se veía
+    // parpadear en bucle (2026-10-19).
+    final yaHabiaEstado = state.hasValue;
+    if (!yaHabiaEstado) state = const AsyncLoading<EstadoDeVerificacion>();
     try {
       final expediente = await ref
           .read(consultarVerificacionProvider)
@@ -76,7 +80,17 @@ class VerificacionNotifier extends AsyncNotifier<EstadoDeVerificacion> {
         _temporizador = Timer(_intervalo, () => unawaited(actualizar()));
       }
     } catch (e, trazado) {
-      state = AsyncError(e, trazado);
+      // Un corte de red en medio del sondeo no tapa el estado que ya se veía: se
+      // sigue mostrando y se vuelve a consultar en la próxima vuelta.
+      if (!yaHabiaEstado) {
+        state = AsyncError(e, trazado);
+        return;
+      }
+      _intentos++;
+      _temporizador?.cancel();
+      if (_intentos < _maximoDeIntentos) {
+        _temporizador = Timer(_intervalo, () => unawaited(actualizar()));
+      }
     }
   }
 }

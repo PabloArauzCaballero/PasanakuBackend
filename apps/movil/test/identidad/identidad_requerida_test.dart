@@ -102,8 +102,37 @@ void main() {
       await asentar(tester);
 
       expect(find.text('Estamos verificando tu identidad'), findsOneWidget);
-      expect(find.text('Ver el estado'), findsOneWidget);
+      // 2026-10-19: «Consultar estado» pregunta ahí mismo, sin otra pantalla.
+      expect(find.text('Consultar estado'), findsOneWidget);
       expect(find.text('Verificar mi identidad'), findsNothing);
+    },
+  );
+
+  testWidgets(
+    'correcto: «Consultar estado» en revisión avisa sin borrar la pantalla',
+    (tester) async {
+      final (:dio, :adaptador) = dioSimulado();
+      adaptador.onGet(
+        perfil,
+        (s) => s.reply(200, cuenta('PENDIENTE_VERIFICACION')),
+      );
+
+      await tester.pumpWidget(
+        conApp(const PantallaIdentidadRequerida(), dio: dio),
+      );
+      await asentar(tester);
+      await tester.tap(find.text('Consultar estado'));
+      await tester.pump();
+      // Mientras consulta, lo que se veía sigue ahí (antes parpadeaba).
+      expect(find.text('Estamos verificando tu identidad'), findsOneWidget);
+      await asentar(tester);
+      expect(
+        find.text(
+          'Tu identidad sigue en revisión. Te avisamos apenas la aprueben.',
+        ),
+        findsOneWidget,
+      );
+      expect(find.text('Estamos verificando tu identidad'), findsOneWidget);
     },
   );
 

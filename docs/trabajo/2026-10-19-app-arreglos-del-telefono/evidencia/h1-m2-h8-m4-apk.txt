@@ -1,0 +1,1 @@
+aapt dump badging app-release.apk -> application-label:'Aporteo' versionCode='2026101901' (69352996 bytes) -> Downloads/Aporteo-test-2026-10-19-v9.apk

@@ -46,8 +46,10 @@ export async function contraste(page: Page): Promise<Hallazgo[]> {
 export async function capturar(page: Page, prefijo: string, nombre: string, viewport: Viewport, tema: Tema): Promise<void> {
   await page.setViewportSize(VIEWPORTS[viewport])
   await page.evaluate((t) => document.documentElement.setAttribute('data-theme', t), tema)
-  // Sin transiciones: capturar con un color a mitad de camino entre un tema y el otro da texto «pálido» que no es del producto.
-  await page.addStyleTag({ content: '*,*::before,*::after{transition:none !important}' })
+  // Sin transiciones ni animaciones: capturar con un color a mitad de camino (entre un tema y el otro, o con la tarjeta
+  // todavía apareciendo con opacidad) da texto «pálido» que no es del producto. 2026-10-19: con el acento naranja, la
+  // entrada de la tarjeta del ingreso daba 3,2–4,1:1 según el cuadro; en reposo el botón da 4,62:1.
+  await page.addStyleTag({ content: '*,*::before,*::after{transition:none !important;animation:none !important}' })
   await page.evaluate(() => document.fonts.ready)
   await page.screenshot({ path: path.join(CAPTURAS, `${prefijo}-${nombre}-${viewport}-${tema}.png`), fullPage: true })
   const desborde = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)
