@@ -60,5 +60,6 @@ RUN flutter build web --release \
 FROM nginxinc/nginx-unprivileged:1.27-alpine AS ejecucion
 COPY apps/movil/docker/nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=construccion /construccion/apps/movil/build/web /usr/share/nginx/html
+COPY apps/movil/docker/assetlinks.json /usr/share/nginx/html/assetlinks.json
 EXPOSE 8080
 HEALTHCHECK --interval=30s --timeout=3s CMD wget -qO- http://127.0.0.1:8080/ > /dev/null || exit 1
