@@ -201,11 +201,11 @@ Atlas define 20 roles con departamento y descripción (SUPER_ADMIN, SYSTEMS_ADMI
 
 | ID | Microtarea | CA (binario) | DoD | Estado |
 |---|---|---|---|---|
-| H2.S1.M1 | Menú con grupos plegables y subrutas (`nucleo/secciones.ts` → árbol: Inicio · Operación[…] · Control[Cumplimiento, Admisiones] · Datos[Catálogo de datos, Catálogo de flujos] · Sistemas[servicios, despliegues, base de datos, respaldos, proveedores, outbox, webhooks, accesos, incidentes] · Finanzas[Contabilidad…, Publicidad…] · Plataforma[Configuración…, Ayuda]); estado abierto recordado por sesión; grupo abierto si contiene la ruta activa | Spec: el grupo de la ruta activa arranca abierto | `ng test layout/**` + capturas | TODO |
-| H2.S1.M2 | Cabecera fija: migas + título de la vista; menú de usuario (nombre/rol, Perfil → `/configuracion`, Salir) | Spec | idem | TODO |
-| H2.S1.M3 | Buscador global (`⌘K`): combobox sobre un índice local de pantallas + tablas del catálogo; recientes en `sessionStorage` | Spec: teclado ↑↓ Enter Esc; abre la ruta | idem | TODO |
-| H2.S1.M4 | Campana de avisos internos: lista no leídos, marcar leído, enlace al destino; consume H5.S0 | Spec + e2e | idem | TODO |
-| H2.S1.M5 | Explicador de la vista reemplaza a `banda-de-proposito` en el shell: plegable, texto de negocio + «Cómo funciona esta pantalla» (tutorial) | Spec: la banda ya no existe en ninguna ruta | `grep -rc banda-de-proposito rutas` → 0 | TODO |
+| H2.S1.M1 | Menú con grupos plegables y subrutas (`nucleo/secciones.ts` → árbol: Inicio · Operación[…] · Control[Cumplimiento, Admisiones] · Datos[Catálogo de datos, Catálogo de flujos] · Sistemas[servicios, despliegues, base de datos, respaldos, proveedores, outbox, webhooks, accesos, incidentes] · Finanzas[Contabilidad…, Publicidad…] · Plataforma[Configuración…, Ayuda]); estado abierto recordado por sesión; grupo abierto si contiene la ruta activa | Spec: el grupo de la ruta activa arranca abierto | `ng test layout/**` + capturas | HECHO — `nucleo/menu.ts` (árbol, `migasDe`) + `layout/menu-lateral.ts`; `menu.spec.ts` 4/4, `menu-lateral.spec.ts` 3/3 |
+| H2.S1.M2 | Cabecera fija: migas + título de la vista; menú de usuario (nombre/rol, Perfil → `/configuracion`, Salir) | Spec | idem | HECHO — `shell-financiero.ts` + `menu-de-usuario.ts`; spec del shell 4/4 |
+| H2.S1.M3 | Buscador global (`⌘K`): combobox sobre un índice local de pantallas + tablas del catálogo; recientes en `sessionStorage` | Spec: teclado ↑↓ Enter Esc; abre la ruta | idem | HECHO — `nucleo/indice-de-busqueda.ts` + `layout/buscador-global.ts`; `buscador-global.spec.ts` 3/3 |
+| H2.S1.M4 | Campana de avisos internos: lista no leídos, marcar leído, enlace al destino; consume H5.S0 | Spec + e2e | idem | TODO — se construye junto con H5.S0 (backend real), no como fachada |
+| H2.S1.M5 | Explicador de la vista en el shell (`nucleo/explicador-de-vista.ts` + `ap-nota-de-vista`); cada pantalla fija su texto al migrar (H4) y pierde la banda | Spec: la banda ya no existe en ninguna ruta | `grep -rc banda-de-proposito rutas` → 0 al cerrar H4 | A MEDIAS — el shell ya muestra la nota; las 48 bandas se retiran pantalla por pantalla en H4 |
 | H2.S1.M6 | Cajón móvil con foco atrapado; `main` con fade-in (reducido con `prefers-reduced-motion`) | e2e móvil sin desborde | `playwright` shell | TODO |
 
 ## H3 — Catálogo de datos exactamente como Atlas

@@ -5,12 +5,14 @@ import { Icono } from '../icono/icono'
  * Un panel que entra desde la derecha para una acción sobre una fila («Revisar columna X»), sin
  * abandonar el listado. Es un `<dialog>` modal: foco atrapado, `Escape` y el fondo cierran, y
  * el foco vuelve a quien lo abrió. Cabecera fija con el título y el botón de cerrar (con nombre);
- * el cuerpo se desplaza. En el celular ocupa todo el ancho.
+ * el cuerpo se desplaza. En el celular ocupa todo el ancho. `lado="izquierda"` es el menú de
+ * navegación del celular, que entra desde la izquierda.
  */
 @Component({
   selector: 'ap-cajon-lateral',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [Icono],
+  host: { '[class.izquierda]': 'lado() === "izquierda"' },
   template: `
     <dialog #caja [attr.aria-labelledby]="id + '-titulo'" (close)="abierto.set(false)" (cancel)="$event.preventDefault(); cerrar()">
       <header>
@@ -22,6 +24,9 @@ import { Icono } from '../icono/icono'
     </dialog>
   `,
   styles: `
+    :host(.izquierda) dialog { inset: 0 auto 0 0; border-left: 0; border-right: var(--borde-fino) solid var(--border); }
+    :host(.izquierda) dialog[open] { animation-name: entrar-izquierda; }
+    @keyframes entrar-izquierda { from { transform: translateX(calc(var(--s6) * -1)); opacity: 0; } }
     dialog { position: fixed; inset: 0 0 0 auto; width: min(100%, calc(var(--s7) * 12)); max-width: 100%; height: 100%; max-height: none; margin: 0; padding: 0; display: none; flex-direction: column; border: 0; border-left: var(--borde-fino) solid var(--border); background: var(--surface); color: var(--text); box-shadow: var(--sombra-3); }
     dialog[open] { display: flex; animation: entrar var(--mov-entrada) var(--curva-llega); }
     dialog::backdrop { background: color-mix(in srgb, var(--ink) 45%, transparent); }
@@ -41,6 +46,7 @@ export class CajonLateral implements AfterViewInit, OnDestroy {
   private static secuencia = 0
   readonly id = `ap-cajon-${++CajonLateral.secuencia}`
   readonly titulo = input.required<string>()
+  readonly lado = input<'derecha' | 'izquierda'>('derecha')
   readonly abierto = model(false)
   readonly cerrado = output<void>()
   private readonly caja = viewChild.required<ElementRef<HTMLDialogElement>>('caja')
