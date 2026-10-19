@@ -1,0 +1,58 @@
+{
+  "servicio": "grupos",
+  "operacion": "generarEnlaceDelGrupo",
+  "metodo": "post",
+  "ruta": "/grupos/{grupoId}/enlace-del-grupo",
+  "escenarios": {
+    "ok": {
+      "estado": 201,
+      "cuerpo": {
+        "enlaceId": "dab8a9eb-923a-4a3f-8882-c3d46cf3142a",
+        "codigo": "888888888888888888888888888888888888.7777777777777777777777777777777777777777777777777777777777777777",
+        "expiraEn": "2026-01-15T10:30:00Z"
+      }
+    },
+    "vacio": {
+      "estado": 201,
+      "cuerpo": {
+        "enlaceId": "dab8a9eb-923a-4a3f-8882-c3d46cf3142a",
+        "codigo": "000000000000000000000000000000000000.0000000000000000000000000000000000000000000000000000000000000000",
+        "expiraEn": "2026-01-15T10:30:00Z"
+      }
+    },
+    "adverso": {
+      "estado": 201,
+      "cuerpo": {
+        "enlaceId": "dab8a9eb-923a-4a3f-8882-c3d46cf3142a",
+        "codigo": "888888888888888888888888888888888888.7777777777777777777777777777777777777777777777777777777777777777",
+        "expiraEn": "2026-01-15T10:30:00Z"
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "enlaceId": "dab8a9eb-923a-4a3f-8882-c3d46cf3142a",
+        "codigo": "888888888888888888888888888888888888.7777777777777777777777777777777777777777777777777777777777777777",
+        "expiraEn": "2026-01-15T10:30:00Z"
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU69-07",
+        "mensaje": "Emisor no habilitado",
+        "detalle": {},
+        "trazaId": "traza-generarEnlaceDelGrupo-rechazo"
+      }
+    }
+  }
+}

@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS grupos.enlace_grupo (
   CONSTRAINT ck_enlace_grupo_estado CHECK (estado IN ('ACTIVO', 'ANULADO'))
 );
 
-COMMENT ON TABLE grupos.enlace_grupo IS 'Módulo 02 — Grupos, Cupos, Turnos y Gobernanza. Reglas del juego, orden de cobro y decisiones colectivas';
+COMMENT ON TABLE grupos.enlace_grupo IS 'Módulo 02 — Grupos, Cupos, Turnos y Gobernanza. El enlace —y su QR— que el organizador comparte para que cualquier persona pida unirse al grupo, sin tener que invitar teléfono por teléfono.';
 COMMENT ON COLUMN grupos.enlace_grupo.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN grupos.enlace_grupo.grupo_id IS 'FK, IDX';
 COMMENT ON COLUMN grupos.enlace_grupo.emisor_id IS 'FK';
