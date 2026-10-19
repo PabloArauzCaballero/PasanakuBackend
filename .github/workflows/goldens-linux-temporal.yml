@@ -4,7 +4,7 @@
 # billetera en cero). Mismo mecanismo que goldens-macos.yml. Corre SOLO con un push a la
 # rama del PR que toque este archivo, verifica las referencias nuevas sin
 # `--update-goldens` y las commitea en la misma rama. Se borra antes de fusionar.
-# Corrida 3 (2026-10-19): acento naranja de vuelta y pantallas de verificación nuevas.
+# Corrida 4 (2026-10-19, tras corregir textos de PENDIENTE). Corrida 3: acento naranja de vuelta y pantallas de verificación nuevas.
 # Las imágenes de evidencia de docs/ no se tocan.
 name: Goldens Linux (regenerar, temporal)
 

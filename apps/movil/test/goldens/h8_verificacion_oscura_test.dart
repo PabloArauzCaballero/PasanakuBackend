@@ -54,7 +54,8 @@ void main() {
       (
         clave: 'pendiente',
         estado: EstadoDeVerificacionEstadoEnum.PENDIENTE,
-        titulo: TextosDeVerificacion.pendienteTitulo,
+        // 2026-10-19: PENDIENTE se dice igual que EN_REVISION (sin «No cierres la app»).
+        titulo: TextosDeVerificacion.enRevisionTitulo,
         accion: TextosDeVerificacion.seguirConElRegistro,
       ),
       (
