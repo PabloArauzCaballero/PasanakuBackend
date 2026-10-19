@@ -1,0 +1,1 @@
+bash apps/movil/scripts/generar-clientes.sh (Windows) -> 11 clientes con '! json_serializable 6.14.1 (overridden in .\pubspec_overrides.yaml)', build_runner OK en todos

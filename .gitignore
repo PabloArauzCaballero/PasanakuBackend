@@ -80,3 +80,4 @@ despliegue/compose/base.local.yml
 
 # Puntos de entrada temporales para verificación visual en el simulador.
 apps/movil/ver_*_tmp.dart
+clientes/dart/*/pubspec_overrides.yaml
