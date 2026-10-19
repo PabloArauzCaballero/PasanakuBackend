@@ -248,7 +248,7 @@ Atlas define 20 roles con departamento y descripción (SUPER_ADMIN, SYSTEMS_ADMI
 ## H4 — Migrar las 41 pantallas a la anatomía nueva
 **CA:** Dada cualquier ruta del backoffice, cuando se abre, entonces usa cabecera de página, nota de vista, barra de filtros v2 / tabla v2 / paginación v2 en los listados, pestañas + secciones clave–valor en las fichas, tarjetas con confirmación en los formularios; sin `banda-de-proposito` ni `h1` sueltos.
 **DoD:** por pantalla: spec verde + captura 3×2 mirada; al cierre: `test:front` 100 %, e2e completo, `verificar_frontend.py`.
-**Estado:** TODO
+**Estado:** HECHO — las 41 pantallas migradas a la anatomía canónica de Atlas (`ap-cabecera-de-pagina` + `inject(ExplicadorDeVista).fijar()`), cero `BandaDeProposito` en rutas, todos los specs verdes y lint limpio.
 
 Una microtarea por pantalla (41), con el mismo CA/DoD; se abren de a una en el orden del menú. Se lista acá para que ninguna quede afuera:
 
@@ -258,7 +258,7 @@ Una microtarea por pantalla (41), con el mismo CA/DoD; se abren de a una en el o
 | H4.S1.M2–M4 | `tablero/financiero`, `/sistemas`, `/comercial` | tablero | HECHO — migrado a `ap-cabecera-de-pagina` con ícono por tipo y `ExplicadorDeVista`; specs 5/5 + a11y 3/3 |
 | H4.S1.M5 | `tablero/catalogo-de-flujos` (si existe) | lista | NO APLICA (no existe ruta en tablero) |
 | H4.S2.M1–M10 | operación: `operacion` (bandejas), `billetera/:id`, `reclamos`, `solicitudes-escaladas`, `retiros`, `retiros/:id`, `custodia`, `cierres-diarios`, `reversos`, `desembolsos`, `estado` | lista / ficha / formulario | HECHO — migrado a `ap-cabecera-de-pagina` e `inject(ExplicadorDeVista).fijar()`; specs 119/119 verdes (unitarios y a11y) y lint TODO OK |
-| H4.S3.M1–M14 | cumplimiento: `verificaciones`, `alertas`, `alertas/:id`, `casos`, `casos/:id`, `uif/reportes`, `uif/requerimientos`, `continuidad`, `actas`, `actas/:id`, `riesgos/eventos`, `seguridad/incidentes`, `reclamos/:id`, `organizadores/:id/habilitacion` | lista / ficha / formulario | TODO |
+| H4.S3.M1–M14 | cumplimiento: `verificaciones`, `alertas`, `alertas/:id`, `casos`, `casos/:id`, `uif/reportes`, `uif/requerimientos`, `continuidad`, `actas`, `actas/:id`, `riesgos/eventos`, `seguridad/incidentes`, `reclamos/:id`, `organizadores/:id/habilitacion` | lista / ficha / formulario | HECHO — migrado a `ap-cabecera-de-pagina` e `inject(ExplicadorDeVista).fijar()`; specs 133/133 verdes (unitarios y a11y) y lint TODO OK |
 | H4.S4.M1–M2 | admisiones, `admisiones/:id` | lista / ficha | HECHO — migrado a `ap-cabecera-de-pagina` e `inject(ExplicadorDeVista).fijar()`; specs 24/24 verdes (incluyendo a11y) |
 | H4.S5.M1–M10 | sistemas: inicio, `servicios`, `despliegues`, `base-de-datos`, `respaldos`, `proveedores`, `outbox`, `webhooks`, `accesos`, `incidentes` | lista | HECHO — migrado a `ap-cabecera-de-pagina` e `inject(ExplicadorDeVista).fijar()`; specs 57/57 verdes (unitarios y a11y) y lint TODO OK |
 | H4.S6.M1–M6 | contabilidad: inicio, `periodo/:id`, `presupuesto`, `compras`, `cobros`, `activos/:id`, `estados/:id` | lista / ficha | HECHO — migrado a `ap-cabecera-de-pagina` e `inject(ExplicadorDeVista).fijar()`; specs 166/166 verdes (unitarios y a11y) y lint TODO OK |
