@@ -206,7 +206,9 @@ public class CU68AceptarIngreso {
             String mensaje,
             java.math.BigDecimal puntaje,
             String estado,
-            OffsetDateTime fecha) {}
+            OffsetDateTime fecha,
+            String nombreVisible,
+            boolean porEnlace) {}
 
     public record Resultado(UUID solicitudId, String estado, UUID participanteId, UUID cupoId) {}
 

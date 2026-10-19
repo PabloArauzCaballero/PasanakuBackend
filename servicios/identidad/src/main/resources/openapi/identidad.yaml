@@ -998,6 +998,12 @@ components:
         usuarioId:        { type: string, format: uuid }
         correo:           { type: [string, 'null'], maxLength: 150 }
         correoVerificado: { type: boolean }
+        nombreVisible:
+          type: [string, 'null']
+          maxLength: 60
+          description: >-
+            Primer nombre e inicial del apellido («Rosa Q.»): lo que ve el organizador de
+            un grupo cuando la persona pide unirse. Null si la cuenta todavia no tiene nombre.
         estadoDeCuenta:
           type: string
           description: >-

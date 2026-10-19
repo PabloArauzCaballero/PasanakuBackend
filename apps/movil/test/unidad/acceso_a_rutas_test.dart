@@ -107,7 +107,7 @@ void main() {
   });
 
   test(
-    'sesión sin permiso de billetera va a verificación y no puede salir',
+    'sesión con la identidad en revisión entra a la app y puede abrir el estado de su verificación',
     () {
       expect(
         decidirRuta(
@@ -115,7 +115,9 @@ void main() {
           destino: Uri.parse('/billetera/inicio'),
           requiereVerificacion: true,
         ),
-        '/sesion/verificacion',
+        isNull,
+        reason:
+            'con la identidad en revisión se entra a la app; el aviso del shell lo dice',
       );
       expect(
         decidirRuta(
@@ -143,6 +145,69 @@ void main() {
       );
     },
   );
+
+  group('sin la identidad verificada, mover dinero o entrar a un grupo pide la '
+      'verificación', () {
+    const operaciones = [
+      '/billetera/recargar',
+      '/billetera/retirar',
+      '/billetera/transferir',
+      '/pasanaku/grupos/nuevo',
+      '/pasanaku/grupos/c6900000-0000-4000-8000-000000000001/pedir-cupo',
+      '/pasanaku/obligaciones/c6900000-0000-4000-8000-000000000009/aportar',
+    ];
+
+    test('correcto: cada operación lleva a «Verificá tu identidad» y recuerda '
+        'adónde iba', () {
+      for (final ruta in operaciones) {
+        final r = decidirRuta(
+          estado: EstadoDeSesion.activa,
+          destino: Uri.parse(ruta),
+          requiereVerificacion: true,
+        );
+        expect(
+          r,
+          startsWith('$rutaDeIdentidadRequerida?volver='),
+          reason: ruta,
+        );
+        expect(Uri.parse(r!).queryParameters['volver'], ruta);
+      }
+    });
+
+    test('límite: mirar no exige identidad (inicio, extracto, mis grupos, una '
+        'invitación, el estado de la verificación)', () {
+      for (final ruta in [
+        '/billetera/inicio',
+        '/billetera/extracto',
+        '/pasanaku/mi-estado',
+        '/pasanaku/unirse/ABC123',
+        '/sesion/verificacion',
+        rutaDeVerificarIdentidad,
+        '/billetera/recargar-algo',
+      ]) {
+        expect(
+          decidirRuta(
+            estado: EstadoDeSesion.activa,
+            destino: Uri.parse(ruta),
+            requiereVerificacion: true,
+          ),
+          isNull,
+          reason: ruta,
+        );
+      }
+    });
+
+    test('inválido para la regla: con la identidad verificada las operaciones '
+        'abren directo', () {
+      for (final ruta in operaciones) {
+        expect(
+          decidirRuta(estado: EstadoDeSesion.activa, destino: Uri.parse(ruta)),
+          isNull,
+          reason: ruta,
+        );
+      }
+    });
+  });
 
   test(
     'volver rechaza redirecciones externas y conserva destinos privados',

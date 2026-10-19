@@ -33,6 +33,7 @@ class PantallaDeMfa extends ConsumerStatefulWidget {
 
 class _PantallaDeMfaState extends ConsumerState<PantallaDeMfa> {
   String _codigo = '';
+  String? _avisoReenvio;
 
   Future<void> _confirmar(String codigo) async {
     final ok = await ref
@@ -43,6 +44,22 @@ class _PantallaDeMfaState extends ConsumerState<PantallaDeMfa> {
       GoRouterState.of(context).uri.queryParameters['volver'],
     );
     context.go(retorno ?? '/billetera/inicio');
+  }
+
+  Future<void> _reenviar() async {
+    setState(() => _avisoReenvio = null);
+    final ok = await ref
+        .read(sesionIdentidadProvider.notifier)
+        .reenviarCodigoMfa();
+    if (!mounted) return;
+    final envioConfirmado = ref.read(sesionIdentidadProvider).correoMfaEnviado;
+    setState(() {
+      _avisoReenvio = !ok
+          ? null
+          : envioConfirmado
+          ? 'El correo de verificacion fue aceptado para envio. Revisa Recibidos y Spam.'
+          : 'El servidor no confirmo un envio al correo. Revisa el metodo configurado o contacta a soporte.';
+    });
   }
 
   @override
@@ -78,6 +95,19 @@ class _PantallaDeMfaState extends ConsumerState<PantallaDeMfa> {
                     TextosIdentidad.mfaSinCodigoAyuda,
                     style: Theme.of(context).textTheme.bodyMedium,
                   ),
+                  const SizedBox(height: Espacio.s2),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: TextButton(
+                      onPressed: estado.enviando ? null : _reenviar,
+                      child: const Text('Reenviar código por correo'),
+                    ),
+                  ),
+                  if (_avisoReenvio != null)
+                    Text(
+                      _avisoReenvio!,
+                      style: Tipo.cuerpo.copyWith(color: t.text2),
+                    ),
                 ],
               ),
             ),

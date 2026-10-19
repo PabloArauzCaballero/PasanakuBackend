@@ -61,6 +61,7 @@ SET search_path TO aportes, auditoria, cumplimiento, entregas, erp, garantia, gr
 \ir 10_tablas/02_grupos_turnos/solicitud_ingreso.sql
 \ir 10_tablas/02_grupos_turnos/decision_ingreso.sql
 \ir 10_tablas/02_grupos_turnos/sustitucion_administrador.sql
+\ir 10_tablas/02_grupos_turnos/enlace_grupo.sql
 \ir 10_tablas/02_grupos_turnos/invitacion.sql
 \ir 10_tablas/02_grupos_turnos/periodo.sql
 \ir 10_tablas/02_grupos_turnos/turno.sql

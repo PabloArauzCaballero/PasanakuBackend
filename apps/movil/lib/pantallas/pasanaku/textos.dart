@@ -107,6 +107,12 @@ class TextosPasanaku {
 
   // Mora / incumplimiento — SIEMPRE en hechos, nunca en probabilidad
   static const tituloMora = 'Estado de tu aporte';
+  static const tituloMisGrupos = 'Tus grupos';
+  static const grupoSinNombre = 'Grupo';
+  static const organizasEsteGrupo = 'Organizás este grupo';
+  static const participasEnEsteGrupo = 'Participás en este grupo';
+  static String aportePorPeriodo(String monto) =>
+      'Aporte de $monto por período';
   static String diasDesdeVencimiento(int dias) => dias <= 0
       ? 'Tu aporte vence hoy.'
       : 'Tu aporte está a $dias día${dias == 1 ? '' : 's'} de su plazo, vencido el';

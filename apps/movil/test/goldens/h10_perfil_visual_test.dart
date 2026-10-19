@@ -53,7 +53,8 @@ void main() {
         expect(MediaQuery.textScalerOf(contexto).scale(10), closeTo(13, 0.001));
         expect(find.text(TextosIdentidad.tituloPerfil), findsOneWidget);
         expect(find.text('Correo'), findsOneWidget);
-        expect(find.text(TextosIdentidad.guardar), findsOneWidget);
+        // 2026-10-19: el correo no se edita; no hay «Guardar».
+        expect(find.text(TextosIdentidad.guardar), findsNothing);
         expect(
           find.text(TextosIdentidad.tituloContrasenaNueva),
           findsOneWidget,

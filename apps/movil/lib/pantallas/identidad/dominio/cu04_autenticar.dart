@@ -18,7 +18,11 @@ import '../../../proveedores/sesion.dart';
 /// El mismo endpoint atiende los dos pasos: primero con la credencial, después con el
 /// factor. Así el servidor puede pedir MFA cuando quiera —dispositivo nuevo, monto
 /// alto, señal rara— sin que la app tenga que adivinar de antemano.
-enum ResultadoDeAutenticacion { entro, faltaSegundoFactor }
+enum ResultadoDeAutenticacion {
+  entro,
+  faltaSegundoFactor,
+  factorEnviadoPorCorreo,
+}
 
 class Autenticacion {
   Autenticacion(this._ref);
@@ -93,8 +97,10 @@ class Autenticacion {
       // veía «algo salió mal» y no podía entrar (hallazgo B31 de la campaña de CU principales).
       if (factor == null &&
           error is ErrorDeApi &&
-          error.codigo == 'AP-CU04-03') {
-        return ResultadoDeAutenticacion.faltaSegundoFactor;
+          (error.codigo == 'AP-CU04-03' || error.codigo == 'AP-CU04-10')) {
+        return error.codigo == 'AP-CU04-10'
+            ? ResultadoDeAutenticacion.factorEnviadoPorCorreo
+            : ResultadoDeAutenticacion.faltaSegundoFactor;
       }
       throw error;
     }

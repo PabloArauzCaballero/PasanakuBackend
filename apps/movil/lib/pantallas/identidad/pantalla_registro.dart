@@ -85,27 +85,34 @@ class _PantallaDeRegistroState extends ConsumerState<PantallaDeRegistro>
           await mostrarCelebracionDeAlta(context);
           if (!context.mounted) return;
 
-          // El alta no abre sesión: las cinco fotos se suben con este `usuarioId`
-          // antes de llegar al login, igual que Atlas sube apenas captura — acá se
-          // sube en lote porque la persona no existe hasta este punto.
-          // Las capturas se copian ANTES de `reiniciar()`, que las vacía.
-          ref
-              .read(seguimientoDelAltaProvider.notifier)
-              .fijar(
-                usuarioId,
-                ref.read(altaProvider).capturas,
-                tokenDeAlta: resultado.tokenDeAlta,
-              );
-          _capturasTransferidas = true;
-          notifier.reiniciar();
-          ref.read(contratoProvider.notifier).reiniciar();
           final retorno = retornoDeInvitacion(
             GoRouterState.of(context).uri.queryParameters['volver'],
           );
+          // Quien saltó la verificación no tiene fotos que subir: entra directo, y la
+          // verificación se le pide cuando quiera mover dinero o entrar a un grupo.
+          // Si no la saltó, las cinco fotos se suben con este `usuarioId` antes del
+          // login (el alta no abre sesión). Se copian ANTES de `reiniciar()`, que las vacía.
+          final sinVerificacion = ref.read(altaProvider).sinVerificacion;
+          if (!sinVerificacion) {
+            ref
+                .read(seguimientoDelAltaProvider.notifier)
+                .fijar(
+                  usuarioId,
+                  ref.read(altaProvider).capturas,
+                  tokenDeAlta: resultado.tokenDeAlta,
+                );
+          }
+          _capturasTransferidas = true;
+          notifier.reiniciar();
+          ref.read(contratoProvider.notifier).reiniciar();
+          final destino = sinVerificacion
+              ? '/ingreso'
+              : '/registro/subida?usuario=$usuarioId';
+          final unir = destino.contains('?') ? '&' : '?';
           context.go(
             retorno == null
-                ? '/registro/subida?usuario=$usuarioId'
-                : '/registro/subida?usuario=$usuarioId&volver=${Uri.encodeComponent(retorno)}',
+                ? destino
+                : '$destino${unir}volver=${Uri.encodeComponent(retorno)}',
           );
         },
       ),

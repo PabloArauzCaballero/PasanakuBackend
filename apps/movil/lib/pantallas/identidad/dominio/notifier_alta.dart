@@ -42,7 +42,7 @@ class AltaNotifier extends Notifier<EstadoAlta> {
       state = state.copiarCon(
         verificacionCorreoId: solicitud.id,
         destinoVerificacion: solicitud.destino,
-        codigoConfirmado: false,
+        codigoConfirmado: solicitud.confirmada,
       );
       return true;
     } on VerificacionCorreoException catch (e) {
@@ -115,7 +115,7 @@ class AltaNotifier extends Notifier<EstadoAlta> {
   void reiniciar() => state = const EstadoAlta();
 
   void siguiente() {
-    const orden = PasoAlta.values;
+    final orden = state.orden;
     final i = orden.indexOf(state.paso);
     if (i < orden.length - 1) {
       state = state.copiarCon(paso: orden[i + 1]);
@@ -132,10 +132,38 @@ class AltaNotifier extends Notifier<EstadoAlta> {
   }
 
   void atras() {
-    const orden = PasoAlta.values;
+    // Quien saltó la verificación y vuelve desde sus datos reencuentra el paso del
+    // carnet: puede cambiar de idea y verificarse ahora.
+    if (state.sinVerificacion && state.paso == PasoAlta.datos) {
+      state = state.copiarCon(
+        paso: PasoAlta.documento,
+        modo: ModoDelAlta.completo,
+      );
+      return;
+    }
+    final orden = state.orden;
     final i = orden.indexOf(state.paso);
     if (i > 0) state = state.copiarCon(paso: orden[i - 1]);
   }
+
+  /// «Saltar por ahora» en el paso del carnet: la cuenta se crea sin verificar y la
+  /// verificación se pide cuando la persona quiera operar con dinero. Las fotos que
+  /// ya hubiera sacado se borran: no se van a subir.
+  Future<void> saltarVerificacion() async {
+    final capturas = state.capturas;
+    state = state.copiarCon(
+      modo: ModoDelAlta.sinVerificacion,
+      paso: PasoAlta.datos,
+      capturas: const CapturasDelExpediente(),
+    );
+    await capturas.eliminarArchivosLocales();
+  }
+
+  /// La verificación desde adentro de la app, para una cuenta ya creada.
+  void empezarSoloVerificacion() => state = const EstadoAlta(
+    paso: PasoAlta.documento,
+    modo: ModoDelAlta.soloVerificacion,
+  );
 
   /// CU-01 · `POST /usuarios`. La petición la arma [enviarElAlta]; acá solo vive el
   /// estado de envío, que es lo único que mira la pantalla.

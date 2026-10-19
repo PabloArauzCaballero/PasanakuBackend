@@ -10,11 +10,18 @@ class TextosInvitacion {
   static const accionCrearGrupo = 'Organizar un grupo nuevo';
   static const telefonoInvitado = 'Celular de la persona';
   static const nombreSugerido = 'Cómo la conocés (opcional)';
-  static const canalInvitacion = 'Por dónde le llega';
+  static const canalInvitacion = 'Por dónde se la vas a mandar';
   static const enviarInvitacion = 'Invitar';
   static const invitacionCreadaTitulo = 'Invitación creada';
+  // AportaYa no manda SMS ni WhatsApp por su cuenta: el enlace sale del teléfono de
+  // quien invita (2026-10-18). Decir «le va a llegar» prometía un envío que no existe.
   static String invitacionCreadaPara(String telefono) =>
-      'Le va a llegar a $telefono. Solo esa persona puede usar el enlace.';
+      'Mandale el enlace a $telefono. Solo esa persona puede usarlo para unirse.';
+  static const enviarPorWhatsApp = 'Enviar por WhatsApp';
+  static const enviarPorSms = 'Enviar por SMS';
+  static const compartirConOtraApp = 'Compartir con otra app';
+  static const noSePudoAbrir =
+      'No pudimos abrir esa app. Copiá el enlace y pegalo en el chat que quieras.';
   static String invitacionVence(String cuando) => 'Vence el $cuando.';
   static const enlaceDeInvitacion = 'Enlace de la invitación';
   static const copiarEnlace = 'Copiar enlace';

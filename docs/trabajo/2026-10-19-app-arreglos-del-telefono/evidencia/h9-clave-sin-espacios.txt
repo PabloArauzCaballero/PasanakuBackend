@@ -1,0 +1,1 @@
+H9.M1: flutter test test/identidad/paso_contrasena_test.dart test/identidad/login_validacion_test.dart -> 00:02 +11: All tests passed! (incluye: con espacios avisa al instante, sugiere una válida que pasa errorContrasena y con ella avanza; 200 sugerencias al azar válidas). verificar_frontend.py -> TODO OK. Captura local del aviso revisada (no versionada).

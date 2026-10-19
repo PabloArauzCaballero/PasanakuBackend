@@ -7,6 +7,8 @@ import '../pantallas/alianzas/rutas.dart';
 import '../pantallas/billetera/rutas.dart';
 import '../pantallas/identidad/rutas.dart';
 import '../pantallas/identidad/pantalla_estado_de_verificacion.dart';
+import '../pantallas/identidad/pantalla_identidad_requerida.dart';
+import '../pantallas/identidad/pantalla_verificar_identidad.dart';
 import '../pantallas/notificaciones/rutas.dart';
 import '../pantallas/pasanaku/rutas.dart';
 import '../pantallas/soporte/rutas.dart';
@@ -100,6 +102,19 @@ GoRouter crearEnrutador({
         usuarioId: sesion.usuarioIdActual!,
         sesionActiva: true,
       ),
+    ),
+    // Verificación diferida (2026-10-17): fuera del shell, a pantalla completa.
+    GoRoute(
+      path: rutaDeIdentidadRequerida,
+      name: 'identidad.requerida',
+      builder: (context, state) => PantallaIdentidadRequerida(
+        volver: state.uri.queryParameters['volver'],
+      ),
+    ),
+    GoRoute(
+      path: rutaDeVerificarIdentidad,
+      name: 'identidad.verificar',
+      builder: (context, state) => const PantallaVerificarIdentidad(),
     ),
     ...rutasDeInvitacion,
     ...rutasAlianzas,

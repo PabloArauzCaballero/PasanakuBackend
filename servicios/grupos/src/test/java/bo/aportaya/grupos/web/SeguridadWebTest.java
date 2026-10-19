@@ -33,6 +33,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
             "aportaya.grupo.tope-de-reenvios-de-invitacion=3",
             "aportaya.tarifas.codigo-tarifario=TAR-2026",
         })
+@MockitoBean(types = bo.aportaya.grupos.aplicacion.CU69EnlaceDeGrupo.class)
 class SeguridadWebTest extends SabanaDeSeguridadWeb {
 
     @MockitoBean

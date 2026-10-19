@@ -5,6 +5,27 @@ enum AccesoDeRuta { soloSinSesion, publica, privada }
 const _soloSinSesion = <String>{'/portada', '/tour', '/ingreso', '/registro'};
 const rutaDeVerificacionDeSesion = '/sesion/verificacion';
 
+/// Se interpone cuando una cuenta sin identidad verificada intenta mover dinero o
+/// participar en un pasanaku. Desde ahí se verifica (o se ve en qué va la revisión).
+const rutaDeIdentidadRequerida = '/identidad/requerida';
+
+/// La verificación de identidad desde adentro de la app (carnet, fotos, actividad).
+const rutaDeVerificarIdentidad = '/identidad/verificar';
+
+/// Lo que mueve dinero o compromete a la persona en un grupo. Ver la billetera, un
+/// grupo o una invitación sigue libre: la identidad se pide al operar, no al mirar.
+final _exigenIdentidad = <RegExp>[
+  RegExp(r'^/billetera/(recargar|retirar|transferir)$'),
+  RegExp(r'^/pasanaku/grupos/nuevo$'),
+  RegExp(r'^/pasanaku/grupos/[^/]+/pedir-cupo$'),
+  RegExp(r'^/pasanaku/obligaciones/[^/]+/aportar$'),
+];
+
+bool exigeIdentidadVerificada(String ruta) {
+  final camino = Uri.parse(ruta).path;
+  return _exigenIdentidad.any((r) => r.hasMatch(camino));
+}
+
 const _publicas = <String>{
   '/identidad/mfa',
   '/identidad/verificacion-basica',
@@ -42,10 +63,18 @@ String? decidirRuta({
         queryParameters: {'volver': destino.toString()},
       ).toString();
     case EstadoDeSesion.activa:
-      if (requiereVerificacion && destino.path != rutaDeVerificacionDeSesion) {
-        return rutaDeVerificacionDeSesion;
-      }
+      // Sin la identidad verificada se entra igual a la app: el aviso del shell lo
+      // dice. Encerrar a la persona en una pantalla con «Salir» como única salida
+      // era lo que la hacía desinstalar la app. La verificación se pide recién al
+      // operar con dinero o entrar a un grupo (2026-10-17).
       if (acceso == AccesoDeRuta.soloSinSesion) return '/billetera/inicio';
+      if (requiereVerificacion &&
+          exigeIdentidadVerificada(destino.toString())) {
+        return Uri(
+          path: rutaDeIdentidadRequerida,
+          queryParameters: {'volver': destino.toString()},
+        ).toString();
+      }
       return null;
   }
 }

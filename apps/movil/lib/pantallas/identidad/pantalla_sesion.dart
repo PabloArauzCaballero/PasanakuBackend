@@ -16,6 +16,7 @@ import 'avisos_de_sesion.dart';
 import 'sesion_pie.dart';
 import 'sacudida_de_credenciales.dart';
 import 'campos_de_sesion.dart';
+import 'dominio/validaciones.dart';
 import 'textos.dart';
 import '../../navegacion/acceso_a_rutas.dart';
 import '../../navegacion/retorno_de_invitacion.dart';
@@ -67,7 +68,8 @@ class _PantallaDeSesionState extends ConsumerState<PantallaDeSesion>
   /// El formato mínimo que el contrato acepta: la contraseña no baja de ocho. Es
   /// ayuda para no gastar un viaje al servidor, no la decisión — la de verdad la
   /// toma el servidor. El `+591` del celular ya está puesto en el campo.
-  bool get _valido => _identificador.valido && _contrasena.text.length >= 8;
+  bool get _valido =>
+      _identificador.valido && contrasenaDeIngresoValida(_contrasena.text);
 
   Future<void> _ingresar() async {
     final n = ref.read(sesionIdentidadProvider.notifier);

@@ -5,6 +5,9 @@ library;
 import 'package:aportaya_diseno/errores.dart';
 
 import 'errores_catalogados.dart';
+import 'contexto_de_error.dart';
+
+export 'contexto_de_error.dart';
 
 export 'errores_catalogados.dart' show campoDelDetalle;
 
@@ -44,6 +47,8 @@ const Map<String, String> _catalogo = {
   'AP-CU04-07':
       'Ese tipo de segundo factor no sirve para tu cuenta. Pedí ayuda a soporte.',
   'AP-CU04-08': 'No pudimos mantener tu sesión. Volvé a entrar.',
+  'AP-CU04-09':
+      'No pudimos enviar el código al correo verificado. Esperá un minuto y volvé a pedirlo.',
   // CU-13 · el saldo. Con TEST real, la cuenta que la app consulta no existe (422) y se leía como falla del servidor.
   'AP-CU13-01': 'Tu billetera todavía no está activa.',
   // CU-20 · crear grupo. Con el servidor TEST real, AP-CU20-04 (licencia sin otorgar, R-LIC-01) llegaba como
@@ -57,8 +62,7 @@ const Map<String, String> _catalogo = {
       'Organizar grupos todavía no está disponible en AportaYa. Probá más adelante.',
   'AP-CU20-05':
       'Necesitás subir tu nivel de verificación antes de organizar un grupo.',
-  // CU-69 · invitar y unirse por enlace (grupos.yaml: 01 cupos, 03 ya participa, 04 reenvíos, 05 enlace
-  // inválido/revocado/vencido, 07 emisor, 08 límite diario, 09 vigente, 10 ingreso con revisión humana).
+  // CU-69 · invitar y unirse por enlace: los códigos y su significado están en grupos.yaml.
   'AP-CU69-01': 'Ya no hay cupos libres en este grupo.',
   'AP-CU69-03': 'Esa persona ya forma parte del grupo.',
   'AP-CU69-04': 'Ya reenviaste esta invitación demasiadas veces.',
@@ -71,6 +75,7 @@ const Map<String, String> _catalogo = {
       'Ya hay una invitación vigente para ese celular. Revocala antes de enviar otra.',
   'AP-CU69-10':
       'Este grupo revisa cada ingreso antes de aceptarlo y por enlace no se puede entrar todavía. Pedile ayuda a quien te invitó.',
+  'AP-CU69-11': 'Este enlace del grupo ya no sirve. Pedile uno nuevo.',
   // CU-12 · QR interno. Cada rechazo del QR dice una cosa distinta; en particular el bancario/interoperable
   // NO se presenta como «QR inválido» ni como si pudiera pagarse acá: todavía no hay proveedor habilitado.
   'AP-CU12-07':
@@ -86,10 +91,6 @@ const Map<String, String> _catalogo = {
 
 /// Campos que el contrato permite deducir sin interpretar el `detalle` opaco.
 enum CampoDeErrorApi { contrasena, fechaExpiracion }
-
-/// Algunos códigos CU-01 se reutilizan por contrato en operaciones distintas.
-/// El endpoint permite traducirlos sin mostrar a la persona un error de otro flujo.
-enum ContextoErrorApi { general, registro, verificacionCorreo }
 
 /// ¿La app tiene un texto propio para este código? Las pantallas lo usan para no tapar un rechazo
 /// explicable con el genérico por estado.
@@ -124,9 +125,11 @@ String mensajeDe(
   }
   final conocido = _catalogo[codigo] ?? fallasDeLaBase[codigo];
   if (conocido != null) return conocido;
+  final porContexto = mensajePorContexto(estado, contexto);
+  if (porContexto != null) return porContexto;
   return switch (estado) {
     401 => 'Tu sesión venció. Volvé a ingresar.',
-    403 => 'No tenés acceso a esto.',
+    403 => 'Esta acción todavía no está disponible para tu cuenta.',
     404 => 'No encontramos lo que buscabas.',
     409 =>
       'Esta operación ya se hizo o cambió mientras tanto. Revisá el estado antes de repetirla.',

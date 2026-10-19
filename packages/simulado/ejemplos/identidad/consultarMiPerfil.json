@@ -8,27 +8,30 @@
       "estado": 200,
       "cuerpo": {
         "usuarioId": "bc2e3b27-0085-45a9-8435-42172bcb420d",
-        "correo": "usuario@aportaya.bo",
+        "correo": "correo",
         "correoVerificado": true,
-        "estadoDeCuenta": "ACTIVO"
+        "estadoDeCuenta": "ACTIVO",
+        "nombreVisible": "Rosa Q."
       }
     },
     "vacio": {
       "estado": 200,
       "cuerpo": {
         "usuarioId": "bc2e3b27-0085-45a9-8435-42172bcb420d",
-        "correo": "usuario@aportaya.bo",
+        "correo": "correo",
         "correoVerificado": false,
-        "estadoDeCuenta": "INCOMPLETO_KYC"
+        "estadoDeCuenta": "INCOMPLETO_KYC",
+        "nombreVisible": null
       }
     },
     "adverso": {
       "estado": 200,
       "cuerpo": {
         "usuarioId": "bc2e3b27-0085-45a9-8435-42172bcb420d",
-        "correo": "usuario@aportaya.bo",
+        "correo": "correo",
         "correoVerificado": true,
-        "estadoDeCuenta": "SUSPENDIDO"
+        "estadoDeCuenta": "PENDIENTE_VERIFICACION",
+        "nombreVisible": "Rosa Q."
       }
     }
   }

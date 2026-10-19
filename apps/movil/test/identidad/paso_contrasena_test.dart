@@ -1,8 +1,10 @@
 import 'package:aportaya_movil/dominio/cliente.dart';
 import 'package:aportaya_movil/dominio/errores.dart';
 import 'package:aportaya_movil/pantallas/identidad/dominio/estado_alta.dart';
+import 'package:aportaya_movil/pantallas/identidad/dominio/validaciones.dart';
 import 'package:aportaya_movil/pantallas/identidad/pasos_alta/paso_cuenta.dart';
 import 'package:aportaya_movil/pantallas/identidad/pasos_alta/tarjeta_de_confianza.dart';
+import 'package:aportaya_movil/proveedores/sesion.dart';
 import 'package:aportaya_diseno/tema.dart';
 import 'package:aportaya_diseno/tokens/tokens.dart';
 import 'package:flutter/material.dart';
@@ -30,7 +32,10 @@ void main() {
     );
     final contenedor = ProviderContainer(
       retry: (r, e) => null,
-      overrides: [dioProvider.overrideWithValue(dio)],
+      overrides: [
+        dioProvider.overrideWithValue(dio),
+        almacenSeguroProvider.overrideWithValue(AlmacenEnMemoria()),
+      ],
     );
     addTearDown(contenedor.dispose);
     // Los datos personales ya cargados: la política rechaza claves derivadas de ellos
@@ -102,6 +107,31 @@ void main() {
     expect(c.read(altaProvider).paso, PasoAlta.cuenta);
     expect(find.textContaining('ocho'), findsWidgets);
   });
+
+  // 2026-10-19: el alta aceptaba espacios y el login después no; ahora el campo lo
+  // dice apenas se escribe el espacio y sugiere una contraseña válida.
+  testWidgets(
+    'con espacios avisa al instante, sugiere una válida y no avanza',
+    (tester) async {
+      final c = await montar(tester);
+      final campos = find.byType(TextField);
+      await tester.enterText(campos.at(2), 'mi clave 2026');
+      await tester.pump();
+      // Sin tocar «Continuar» ya se ve el aviso.
+      final aviso = find.textContaining('no puede llevar espacios');
+      expect(aviso, findsOneWidget);
+      final texto = tester.widget<Text>(aviso).data!;
+      final sugerencia = texto.split('por ejemplo: ').last;
+      expect(errorContrasena(sugerencia), isNull, reason: sugerencia);
+
+      await escribir(tester, 'mi clave 2026', 'mi clave 2026');
+      expect(c.read(altaProvider).paso, PasoAlta.cuenta);
+
+      // Con la sugerida, sí avanza.
+      await escribir(tester, sugerencia, sugerencia);
+      expect(c.read(altaProvider).paso, PasoAlta.correo);
+    },
+  );
 
   testWidgets('si las dos no coinciden, no avanza', (tester) async {
     final c = await montar(tester);

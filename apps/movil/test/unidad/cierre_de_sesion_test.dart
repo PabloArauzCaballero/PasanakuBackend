@@ -52,4 +52,32 @@ void main() {
       sesion.dispose();
     },
   );
+
+  test('desde el candado: cierra localmente sin esperar al servidor colgado '
+      '(2026-10-19)', () async {
+    final sesion = Sesion(AlmacenEnMemoria());
+    await sesion.abrir(acceso: 'acceso', refresco: 'refresco');
+    final dio = Dio(BaseOptions(baseUrl: 'https://api.pruebas.test/api/v1'));
+    final adaptador = _AdaptadorColgado();
+    dio.httpClientAdapter = adaptador;
+    final cierre = CierreDeSesion(sesion, dio);
+    var terminado = false;
+
+    fakeAsync((reloj) {
+      cierre
+          .ejecutar(motivo: null, esperarAlServidor: false)
+          .then((_) => terminado = true);
+      reloj.flushMicrotasks();
+      // Sin que pase el tiempo: ya está cerrada aunque el servidor no contestó.
+      expect(terminado, isTrue);
+      expect(sesion.estado, EstadoDeSesion.anonima);
+      // La revocación sigue por detrás y respeta su tope.
+      reloj.elapse(const Duration(seconds: 5));
+      reloj.flushMicrotasks();
+    });
+
+    expect(adaptador.llamadas, 2);
+    dio.close(force: true);
+    sesion.dispose();
+  });
 }

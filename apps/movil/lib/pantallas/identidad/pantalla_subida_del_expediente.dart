@@ -7,6 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../navegacion/acceso_a_rutas.dart';
+import '../../proveedores/sesion.dart';
 import 'dominio/capturas_del_expediente.dart';
 import 'dominio/seguimiento_del_alta.dart';
 import 'dominio/subida_del_expediente.dart';
@@ -57,7 +59,7 @@ class _PantallaDeSubidaDelExpedienteState
 
   Future<void> _borrarSiCompleta() async {
     if (_estadoDeSubida.completa) {
-      await _seguimientoDelAlta.limpiar();
+      await _seguimientoDelAlta.liberarCapturas();
     }
   }
 
@@ -102,7 +104,7 @@ class _PantallaDeSubidaDelExpedienteState
       _notificadorDeSubida.cancelarPendientes();
     }
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      unawaited(_seguimientoDelAlta.limpiar());
+      unawaited(_seguimientoDelAlta.liberarCapturas());
     });
     super.dispose();
   }
@@ -162,8 +164,13 @@ class _PantallaDeSubidaDelExpedienteState
                 expandido: true,
                 onPressed: subida.subiendoAlguna
                     ? null
+                    // Con sesión (la verificación se hizo desde adentro de la
+                    // app) el estado es el de la sesión, que lleva de vuelta a
+                    // la app; en el registro, el del alta.
                     : () => context.go(
-                        '/registro/estado?usuario=${widget.usuarioId}',
+                        ref.read(sesionProvider).estado == EstadoDeSesion.activa
+                            ? rutaDeVerificacionDeSesion
+                            : '/registro/estado?usuario=${widget.usuarioId}',
                       ),
               ),
             ],
