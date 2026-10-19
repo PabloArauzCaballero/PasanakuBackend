@@ -17,7 +17,7 @@ export type ClaveValor = { etiqueta: string; valor: string | number | boolean | 
   host: { role: 'region', '[attr.aria-label]': 'titulo()' },
   template: `
     <div class="cabecera">
-      <h3>{{ titulo() }}</h3>
+      <h2>{{ titulo() }}</h2>
       @if (descripcion()) { <p>{{ descripcion() }}</p> }
     </div>
     <dl>
@@ -35,7 +35,7 @@ export type ClaveValor = { etiqueta: string; valor: string | number | boolean | 
   styles: `
     :host { display: block; border: var(--borde-fino) solid var(--border); border-radius: var(--r-lg); background: var(--surface); box-shadow: var(--sombra-1); overflow: hidden; }
     .cabecera { padding: var(--s3) var(--s4); border-bottom: var(--borde-fino) solid var(--border); background: var(--surface-2); }
-    h3 { margin: 0; font: var(--t-cuerpo-fuerte); color: var(--text); }
+    h2 { margin: 0; font: var(--t-cuerpo-fuerte); color: var(--text); }
     .cabecera p { margin: var(--s1) 0 0; font: var(--t-cuerpo-chico); color: var(--text-3); }
     dl { margin: 0; }
     .fila { display: grid; gap: var(--s1); padding: var(--s3) var(--s4); }

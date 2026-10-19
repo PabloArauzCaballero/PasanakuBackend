@@ -25,7 +25,7 @@ import { Tooltip } from '../tooltip/tooltip'
   styles: `
     :host { display: block; }
     .rotulo { display: flex; align-items: center; gap: var(--s1); margin-bottom: var(--s1); }
-    label { font-weight: 600; color: var(--text-2); }
+    label { font: var(--t-campo-etiqueta); color: var(--text-2); }
     .ayuda-boton { display: inline-flex; align-items: center; justify-content: center; width: var(--s5); height: var(--s5); padding: 0; border: 0; border-radius: var(--r-pill); background: transparent; color: var(--text-3); cursor: help; }
     .ayuda-boton:focus-visible { outline: var(--borde-foco) solid var(--g300); outline-offset: var(--borde-desfase); }
     textarea { width: 100%; min-height: calc(var(--s7) * 2 + var(--s6)); padding: var(--s2) var(--s3); border: var(--borde-fino) solid var(--borde-control); border-radius: var(--r-md); background: var(--field); color: var(--text); font: inherit; resize: vertical; }

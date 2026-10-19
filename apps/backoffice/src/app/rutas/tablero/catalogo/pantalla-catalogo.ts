@@ -1,128 +1,136 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core'
 import { toSignal } from '@angular/core/rxjs-interop'
 import { ActivatedRoute, Router, RouterLink } from '@angular/router'
-import { BandaDeProposito } from '@aportaya/ui/banda-de-proposito/banda-de-proposito'
+import { BarraDeFiltros, type Selector } from '@aportaya/ui/barra-de-filtros/barra-de-filtros'
 import { ChipEstado } from '@aportaya/ui/chip-estado/chip-estado'
+import { CabeceraDePagina } from '@aportaya/ui/cabecera-de-pagina/cabecera-de-pagina'
 import { EstadoDePantalla } from '@aportaya/ui/estado-de-pantalla/estado-de-pantalla'
+import { EstadoVacio } from '@aportaya/ui/estado-vacio/estado-vacio'
 import { Paginacion } from '@aportaya/ui/paginacion/paginacion'
 import { TablaDeDatos, type Columna } from '@aportaya/ui/tabla-de-datos/tabla-de-datos'
 import { TarjetaKPI } from '@aportaya/ui/tarjeta-kpi/tarjeta-kpi'
-import { BarraDeFiltros } from '../../../nucleo/filtros/barra-de-filtros'
-import { ListaDeOpciones, opcionesDe } from '../../cumplimiento/compartido/campos'
+import { ExplicadorDeVista } from '../../../nucleo/explicador-de-vista'
 import { CatalogoDeDatosRemoto, filasDeTablas, filtrarTablas, pagina, type FilaDeTabla } from './dominio'
 import { ESTADOS, REVISIONES, aplicarGobierno, metricas, modulos } from './gobierno'
 import { textosCatalogo } from './textos'
 
-const POR_PAGINA = 20
+const FILAS = [10, 20, 50]
 
 /**
- * Sistemas → Catálogo de datos, con la ficha de gobierno de cada tabla (CU-130), como el portal de Atlas: cifras del
- * inventario, filtros por estado, revisión y módulo, y columnas de estado y revisión dichas en palabras (no solo
- * color). Búsqueda, filtros y página viven en la URL, así un enlace lleva a la misma vista.
+ * Datos → Catálogo de datos, con la anatomía del catálogo del portal de Atlas: cabecera, cifras del
+ * inventario, barra de filtros (esquema y módulo con conteo, estado, revisión), tabla con estado y
+ * revisión en palabras y paginación completa. Todo el estado vive en la URL, así un enlace lleva a
+ * la misma vista. «Ninguna coincide» (los filtros) es distinto de un catálogo que no se pudo leer.
  */
 @Component({
   selector: 'ap-pantalla-catalogo',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [BandaDeProposito, BarraDeFiltros, ChipEstado, EstadoDePantalla, ListaDeOpciones, Paginacion, RouterLink, TablaDeDatos, TarjetaKPI],
+  imports: [BarraDeFiltros, CabeceraDePagina, ChipEstado, EstadoDePantalla, EstadoVacio, Paginacion, RouterLink, TablaDeDatos, TarjetaKPI],
   template: `
-    <ap-banda-de-proposito [texto]="t.proposito" />
-    <section class="pantalla">
-      <h1>{{ t.titulo }}</h1>
-      <ap-estado-de-pantalla [recurso]="remoto.recurso" [mensajeVacio]="t.vacio" [etiquetaDeCarga]="t.cargando" (reintentar)="remoto.recurso.reload()">
-        <div class="cifras">
-          <ap-tarjeta-kpi [etiqueta]="t.metricas.total" [valor]="'' + cifras().total" />
-          <ap-tarjeta-kpi [etiqueta]="t.metricas.activas" [valor]="'' + cifras().activas" />
-          <ap-tarjeta-kpi [etiqueta]="t.metricas.aRevisar" [valor]="'' + cifras().aRevisar" />
-          <ap-tarjeta-kpi [etiqueta]="t.metricas.personales" [valor]="'' + cifras().conDatosPersonales" />
-          <ap-tarjeta-kpi [etiqueta]="t.metricas.retiro" [valor]="'' + cifras().haciaElRetiro" />
-        </div>
-        <ap-barra-de-filtros [etiquetaDeBusqueda]="t.busqueda" [definiciones]="[]" />
-        <div class="selectores">
-          <ap-lista-de-opciones [etiqueta]="t.filtroEsquemas" textoVacio="Todos" [opciones]="esquemas()" [valor]="elegidos()[0] ?? ''" (valorChange)="filtrar('filtro', $event)" />
-          <ap-lista-de-opciones [etiqueta]="t.filtros.estado" textoVacio="Todos" [opciones]="estados" [valor]="filtros().estado" (valorChange)="filtrar('estado', $event)" />
-          <ap-lista-de-opciones [etiqueta]="t.filtros.revision" textoVacio="Todos" [opciones]="revisiones" [valor]="filtros().revision" (valorChange)="filtrar('revision', $event)" />
-          <ap-lista-de-opciones [etiqueta]="t.filtros.modulo" textoVacio="Todos" [opciones]="opcionesDeModulo()" [valor]="filtros().modulo" (valorChange)="filtrar('modulo', $event)" />
-        </div>
-        <p class="resultados" role="status">{{ t.resultados(encontradas().length, total()) }}</p>
-        <ap-tabla-de-datos [titulo]="t.titulo" [columnas]="columnas" [estado]="{ tipo: 'lista', filas: filas() }" [textoVacio]="t.vacio" [identidad]="porId" densidad="compacta">
+    <ap-cabecera-de-pagina icono="baseDeDatos" [eyebrow]="t.eyebrow" [titulo]="t.titulo" [descripcion]="t.descripcion" />
+    <ap-estado-de-pantalla [recurso]="remoto.recurso" [mensajeVacio]="t.vacio" [etiquetaDeCarga]="t.cargando" (reintentar)="remoto.recurso.reload()">
+      <div class="cifras">
+        <ap-tarjeta-kpi [etiqueta]="t.metricas.total" [valor]="'' + cifras().total" icono="baseDeDatos" />
+        <ap-tarjeta-kpi [etiqueta]="t.metricas.activas" [valor]="'' + cifras().activas" icono="verificado" tono="ok" [pista]="t.metricas.pista(cifras().activas, cifras().total)" />
+        <ap-tarjeta-kpi [etiqueta]="t.metricas.aRevisar" [valor]="'' + cifras().aRevisar" icono="alerta" [tono]="cifras().aRevisar ? 'aviso' : 'ok'" />
+        <ap-tarjeta-kpi [etiqueta]="t.metricas.personales" [valor]="'' + cifras().conDatosPersonales" icono="persona" tono="pii" />
+        <ap-tarjeta-kpi [etiqueta]="t.metricas.retiro" [valor]="'' + cifras().haciaElRetiro" icono="reloj" [tono]="cifras().haciaElRetiro ? 'aviso' : 'neutro'" />
+      </div>
+      <ap-barra-de-filtros [etiquetaDeBusqueda]="t.busqueda" [ayudaDeBusqueda]="t.ayudaDeBusqueda" [busqueda]="filtros().q" [selectores]="selectores()" [textoLimpiar]="t.limpiar" (busquedaChange)="filtrar('q', $event)" (selectorChange)="filtrar($event.nombre, $event.valor)" (limpiar)="limpiarTodo()" />
+      @if (encontradas().length === 0) {
+        <ap-estado-vacio motivo="porFiltro" [titulo]="t.vacio" [explicacion]="t.vacioExplicacion" (actuar)="limpiarTodo()" />
+      } @else {
+        <ap-tabla-de-datos [titulo]="t.titulo" [columnas]="columnas" [estado]="{ tipo: 'lista', filas: filas() }" [identidad]="porId" densidad="compacta" [cabecera]="true" [textoRegistros]="t.registros" [totalDeRegistros]="encontradas().length">
           <ng-template #celda let-f let-columna="columna">
-            @if (columna.clave === 'tabla') {
-              <a [routerLink]="['/tablero/catalogo-de-datos', f.tabla]">{{ f.tabla }}</a>
-            } @else if (columna.clave === 'estado') {
-              <ap-chip-estado [tono]="f.tonoEstado">{{ f.estado }}</ap-chip-estado>
-            } @else if (columna.clave === 'revision') {
-              <ap-chip-estado [tono]="f.tonoRevision">{{ f.revision }}</ap-chip-estado>
-            } @else {
-              {{ f[columna.clave] }}
+            @switch (columna.clave) {
+              @case ('tabla') { <a [routerLink]="['/tablero/catalogo-de-datos', f.tabla]">{{ f.tabla }}</a> }
+              @case ('estado') { <ap-chip-estado [tono]="f.tonoEstado">{{ f.estado }}</ap-chip-estado> }
+              @case ('revision') { <ap-chip-estado [tono]="f.tonoRevision">{{ f.revision }}</ap-chip-estado> }
+              @case ('personales') { @if (f.personales === 'Sí') { <ap-chip-estado tono="pii">{{ t.columnasLista.personales }}</ap-chip-estado> } @else { {{ f.personales }} } }
+              @default { {{ f[columna.clave] }} }
             }
           </ng-template>
         </ap-tabla-de-datos>
-        @if (encontradas().length > porPagina) {
-          <ap-paginacion [pagina]="paginaActual()" [totalDeFilas]="encontradas().length" [porPagina]="porPagina" (paginaChange)="irA($event)" />
-        }
-      </ap-estado-de-pantalla>
-    </section>
+        <ap-paginacion etiqueta="Paginación de tablas" [pagina]="paginaActual()" (paginaChange)="filtrar('pagina', '' + $event)" [totalDeFilas]="encontradas().length" [porPagina]="porPagina()" (porPaginaChange)="filtrar('filas', '' + $event)" [opcionesPorPagina]="opcionesDeFilas" nombreDeRegistros="tablas" />
+      }
+    </ap-estado-de-pantalla>
   `,
   styles: `
-    .pantalla { padding: var(--s5); max-width: 80rem; display: grid; gap: var(--s4); }
-    /* Sin esto la tabla ensancha la grilla y la página entera desplaza en horizontal (prueba visual H9). */
-    .pantalla > * { min-width: 0; }
+    :host { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s4); min-width: 0; }
+    ap-estado-de-pantalla { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s4); min-width: 0; }
     .cifras { display: grid; gap: var(--s3); grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr)); }
-    .selectores { display: grid; gap: var(--s3); grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr)); }
-    ap-barra-de-filtros { display: block; }
-    h1 { margin: 0; }
-    .resultados { margin: 0; color: var(--text-2); }
-    a { color: var(--text); font-weight: 600; }
+    a { color: var(--text); font-family: var(--mono); font-size: .92em; font-weight: 600; }
     a:focus-visible { outline: var(--borde-foco) solid var(--g300); outline-offset: var(--borde-desfase); }
   `,
 })
 export class PantallaCatalogo {
   protected readonly t = textosCatalogo
   protected readonly remoto = inject(CatalogoDeDatosRemoto)
-  protected readonly porPagina = POR_PAGINA
-  protected readonly estados = opcionesDe(ESTADOS)
-  protected readonly revisiones = opcionesDe(REVISIONES)
+  protected readonly opcionesDeFilas = FILAS
   private readonly router = inject(Router)
   private readonly ruta = inject(ActivatedRoute)
   private readonly consulta = toSignal(this.ruta.queryParamMap)
 
+  constructor() {
+    inject(ExplicadorDeVista).fijar(textosCatalogo.proposito)
+  }
+
   private readonly catalogo = computed(() => (this.remoto.recurso.hasValue() ? this.remoto.recurso.value() : undefined))
-  protected readonly total = computed(() => this.catalogo()?.tablas.length ?? 0)
   protected readonly cifras = computed(() => metricas(this.catalogo()?.tablas ?? []))
-  protected readonly opcionesDeModulo = computed(() => modulos(this.catalogo()?.tablas ?? []))
-  protected readonly esquemas = computed(() => (this.catalogo()?.esquemas ?? []).map((e) => ({ valor: e, texto: e })))
-  protected readonly filtros = computed(() => ({
-    estado: this.consulta()?.get('estado') ?? '',
-    revision: this.consulta()?.get('revision') ?? '',
-    modulo: this.consulta()?.get('modulo') ?? '',
-  }))
-  protected readonly elegidos = computed(() => this.consulta()?.get('filtro')?.split(',').filter(Boolean) ?? [])
-  protected readonly encontradas = computed(() =>
-    aplicarGobierno(filtrarTablas(this.catalogo(), this.consulta()?.get('q') ?? '', this.elegidos()), this.filtros()),
-  )
-  private readonly retenciones = computed(() => new Map((this.catalogo()?.politicasDeRetencion ?? []).map((p) => [p.id, p.entidad])))
+  protected readonly filtros = computed(() => {
+    const q = this.consulta()
+    return { q: q?.get('q') ?? '', esquema: q?.get('esquema') ?? '', modulo: q?.get('modulo') ?? '', estado: q?.get('estado') ?? '', revision: q?.get('revision') ?? '' }
+  })
   protected readonly paginaActual = computed(() => Number(this.consulta()?.get('pagina') ?? 1) || 1)
-  protected readonly filas = computed(() => filasDeTablas(pagina(this.encontradas(), this.paginaActual(), POR_PAGINA), this.retenciones()))
+  protected readonly porPagina = computed(() => {
+    const n = Number(this.consulta()?.get('filas') ?? 20)
+    return FILAS.includes(n) ? n : 20
+  })
+  protected readonly encontradas = computed(() => {
+    const f = this.filtros()
+    return aplicarGobierno(filtrarTablas(this.catalogo(), f.q, f.esquema ? [f.esquema] : []), { estado: f.estado, revision: f.revision, modulo: f.modulo })
+  })
+  private readonly retenciones = computed(() => new Map((this.catalogo()?.politicasDeRetencion ?? []).map((p) => [p.id, p.entidad])))
+  protected readonly filas = computed(() => filasDeTablas(pagina(this.encontradas(), this.paginaActual(), this.porPagina()), this.retenciones()))
+
+  /** El conteo va en la opción a propósito: delata de un vistazo qué esquema o módulo no aporta nada. */
+  protected readonly selectores = computed<Selector[]>(() => {
+    const tablas = this.catalogo()?.tablas ?? []
+    const f = this.filtros()
+    const t = textosCatalogo.filtros
+    const porEsquema = (this.catalogo()?.esquemas ?? []).map((e) => ({ valor: e, texto: `${e} (${tablas.filter((x) => x.esquema === e).length})` }))
+    const porModulo = modulos(tablas).map((m) => ({ valor: m.valor, texto: `${m.texto} (${tablas.filter((x) => x.modulo === m.valor).length})` }))
+    const de = (d: Readonly<Record<string, string>>) => Object.entries(d).map(([valor, texto]) => ({ valor, texto }))
+    return [
+      { nombre: 'esquema', etiqueta: t.esquema, valor: f.esquema, opciones: porEsquema, ayuda: t.ayudaEsquema },
+      { nombre: 'modulo', etiqueta: t.modulo, valor: f.modulo, opciones: porModulo, ayuda: t.ayudaModulo },
+      { nombre: 'estado', etiqueta: t.estado, valor: f.estado, opciones: de(ESTADOS), ayuda: t.ayudaEstado },
+      { nombre: 'revision', etiqueta: t.revision, valor: f.revision, opciones: de(REVISIONES), ayuda: t.ayudaRevision },
+    ]
+  })
 
   protected readonly porId = (f: FilaDeTabla) => f.id
-  // Estado y revisión van primero: es lo que se viene a mirar (como en el portal de Atlas) y no puede quedar cortado.
+  // Estado y revisión van primero: es lo que se viene a mirar (como en el portal de Atlas).
   protected readonly columnas: Columna<FilaDeTabla>[] = [
-    { clave: 'tabla', titulo: textosCatalogo.columnasLista.tabla },
+    { clave: 'tabla', titulo: textosCatalogo.columnasLista.tabla, mono: true },
     { clave: 'estado', titulo: textosCatalogo.columnasLista.estado },
     { clave: 'revision', titulo: textosCatalogo.columnasLista.revision },
     { clave: 'responsable', titulo: textosCatalogo.columnasLista.responsable },
     { clave: 'personales', titulo: textosCatalogo.columnasLista.personales },
     { clave: 'financieros', titulo: textosCatalogo.columnasLista.financieros },
     { clave: 'retencion', titulo: textosCatalogo.columnasLista.retencion },
-    { clave: 'esquema', titulo: textosCatalogo.columnasLista.esquema },
+    { clave: 'esquema', titulo: textosCatalogo.columnasLista.esquema, mono: true },
     { clave: 'modulo', titulo: textosCatalogo.columnasLista.modulo },
   ]
 
-  protected filtrar(clave: 'filtro' | 'estado' | 'revision' | 'modulo', valor: string): void {
-    void this.router.navigate([], { relativeTo: this.ruta, queryParams: { [clave]: valor || null, pagina: null }, queryParamsHandling: 'merge' })
+  /** Cambiar un filtro o el tamaño vuelve a la primera página; cambiar la página, no. */
+  protected filtrar(clave: string, valor: string): void {
+    const cambios: Record<string, string | null> = { [clave]: valor || null }
+    if (clave !== 'pagina') cambios['pagina'] = null
+    void this.router.navigate([], { relativeTo: this.ruta, queryParams: cambios, queryParamsHandling: 'merge' })
   }
 
-  protected irA(n: number): void {
-    void this.router.navigate([], { relativeTo: this.ruta, queryParams: { pagina: n }, queryParamsHandling: 'merge' })
+  protected limpiarTodo(): void {
+    void this.router.navigate([], { relativeTo: this.ruta, queryParams: { q: null, esquema: null, modulo: null, estado: null, revision: null, pagina: null }, queryParamsHandling: 'merge' })
   }
 }

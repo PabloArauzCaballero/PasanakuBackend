@@ -26,7 +26,7 @@ import { coloresDe, Tono } from '../tono/tono'
     </div>
   `,
   styles: `
-    :host { position: relative; display: flex; gap: var(--s3); overflow: hidden; padding: var(--s4); border: var(--borde-fino) solid var(--border); border-radius: var(--r-lg); background: var(--surface); box-shadow: var(--sombra-1); transition: transform var(--mov-micro) var(--curva-llega), box-shadow var(--mov-micro) ease-out, border-color var(--mov-micro) ease-out; }
+    :host { position: relative; display: flex; gap: var(--s3); min-width: 0; overflow: hidden; padding: var(--s4); border: var(--borde-fino) solid var(--border); border-radius: var(--r-lg); background: var(--surface); box-shadow: var(--sombra-1); transition: transform var(--mov-micro) var(--curva-llega), box-shadow var(--mov-micro) ease-out, border-color var(--mov-micro) ease-out; }
     :host(:hover) { transform: translateY(calc(var(--borde-desfase) * -1)); box-shadow: var(--sombra-2); border-color: var(--borde-control); }
     .loseta { display: inline-flex; flex: none; align-items: center; justify-content: center; width: calc(var(--s6) + var(--s1)); height: calc(var(--s6) + var(--s1)); border-radius: var(--r-md); background: var(--fondo); color: var(--frente); transition: transform var(--mov-micro) var(--curva-llega); }
     :host(:hover) .loseta { transform: scale(1.08); }

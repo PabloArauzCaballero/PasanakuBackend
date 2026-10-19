@@ -211,7 +211,7 @@ Atlas define 20 roles con departamento y descripción (SUPER_ADMIN, SYSTEMS_ADMI
 ## H3 — Catálogo de datos exactamente como Atlas
 **CA:** Dado un operador con `TABLERO_SISTEMAS_VER`, cuando abre Catálogo de datos, entonces ve lista, ficha con 4 pestañas y edición en página aparte con confirmación, con las piezas enumeradas en §4; con `CATALOGO_DATOS_EDITAR` guarda ficha y revisa columnas.
 **DoD:** specs + e2e con capturas · `verificar_criterios` del CU-130 y del CU nuevo de revisión por columna · en TEST, kill-test.
-**Estado:** TODO
+**Estado:** HECHO — backend CU-131 verificado (60 tests de integración), frontend con los 8 specs del catálogo verdes (34/34), suite de packages/ui (162/162), e2e `catalogo-gobierno.e2e.ts` (4/4) con capturas en `evidencia/H3/` (3 anchos × 2 temas) y lint TODO OK.
 
 ### H3.S1 — Backend que falta
 | ID | Microtarea | CA (binario) | DoD | Estado |
@@ -223,27 +223,27 @@ Atlas define 20 roles con departamento y descripción (SUPER_ADMIN, SYSTEMS_ADMI
 ### H3.S2 — Lista
 | ID | Microtarea | CA (binario) | DoD | Estado |
 |---|---|---|---|---|
-| H3.S2.M1 | Cabecera de página (ícono base de datos, «Catálogo de datos», descripción) + nota de la vista | Captura = anatomía Atlas | e2e + captura | TODO |
-| H3.S2.M2 | Cifras: Tablas · Activas · Sin revisar · Con datos personales · Hacia el retiro, con ícono y tono | Spec de métricas (ya existe) + captura | idem | TODO |
-| H3.S2.M3 | Barra de filtros v2: buscador con tooltip; **Esquema (n)** · Módulo (n) · Estado · Revisión; Limpiar | Spec: conteos por opción | idem | TODO |
-| H3.S2.M4 | Tabla v2: Esquema · Tabla (mono, enlace) · Módulo (insignia) · Responsable · Datos personales (insignia pii) · Financiera · Crítica · Retención (mono) · Revisión (insignia) · Estado (insignia); paginación v2 | Spec de columnas + captura 3×2 | idem | TODO |
+| H3.S2.M1 | Cabecera de página (ícono base de datos, «Catálogo de datos», descripción) + nota de la vista | Captura = anatomía Atlas | e2e + captura | HECHO — `pantalla-catalogo.ts`: cabecera `ap-cabecera-de-pagina` + `ap-nota-de-vista` |
+| H3.S2.M2 | Cifras: Tablas · Activas · Sin revisar · Con datos personales · Hacia el retiro, con ícono y tono | Spec de métricas (ya existe) + captura | idem | HECHO — 5 tarjetas KPI con tonos e íconos (`pantalla-catalogo.spec.ts`) |
+| H3.S2.M3 | Barra de filtros v2: buscador con tooltip; **Esquema (n)** · Módulo (n) · Estado · Revisión; Limpiar | Spec: conteos por opción | idem | HECHO — barra de filtros con conteo dinámico por esquema y módulo |
+| H3.S2.M4 | Tabla v2: Esquema · Tabla (mono, enlace) · Módulo (insignia) · Responsable · Datos personales (insignia pii) · Financiera · Crítica · Retención (mono) · Revisión (insignia) · Estado (insignia); paginación v2 | Spec de columnas + captura 3×2 | idem | HECHO — tabla con columnas semánticas, paginación completa, enlaces mono |
 
 ### H3.S3 — Ficha
 | ID | Microtarea | CA (binario) | DoD | Estado |
 |---|---|---|---|---|
-| H3.S3.M1 | Cabecera: eyebrow «Catálogo de datos», título `esquema.tabla`, descripción = qué es; acciones: «Editar ficha» (solo con permiso) + insignias PII/Revisión/Estado | Spec + captura | e2e | TODO |
-| H3.S3.M2 | Pestañas «Vista general · Columnas · Relaciones · Gobierno» en `?vista=` | Spec de URL | idem | TODO |
-| H3.S3.M3 | Vista general: 4 secciones clave–valor (Identificación técnica: Esquema, Tabla, Servicio dueño, Append-only · Contexto de negocio: Módulo, Responsable, Qué es, Para qué sirve, Por qué existe · Clasificación: Datos personales, Financiera, Secretos · Responsabilidad: Crítica, Retención, Revisión, Revisado por, Actualizado) | Captura | idem | TODO |
-| H3.S3.M4 | Columnas: cifras (Columnas, Datos personales, Financieras, Descritas, Aprobadas) + filtros (buscador, Sensibilidad, Revisión) + tabla (Columna mono · Tipo insignia · Negocio · Sistema · Sensibilidad insignia · Nulos · Revisión · Acciones «Revisar») | Spec + captura | idem | TODO |
-| H3.S3.M5 | Cajón «Revisar columna X»: Decisión, Confianza, Motivo (obligatorio al rechazar) → PUT de H3.S1.M2 | Spec: rechazar sin motivo no envía | idem | TODO |
-| H3.S3.M6 | Relaciones: dos tablas (apunta a / apuntan a) con enlace; Gobierno: 3 secciones clave–valor | Captura | idem | TODO |
+| H3.S3.M1 | Cabecera: eyebrow «Catálogo de datos», título `esquema.tabla`, descripción = qué es; acciones: «Editar ficha» (solo con permiso) + insignias PII/Revisión/Estado | Spec + captura | e2e | HECHO — `ficha-de-tabla.ts`: cabecera con botón de acción «Editar ficha» condicionado por permiso |
+| H3.S3.M2 | Pestañas «Vista general · Columnas · Relaciones · Gobierno» en `?vista=` | Spec de URL | idem | HECHO — selector segmentado con sincronización bidireccional en la URL |
+| H3.S3.M3 | Vista general: 4 secciones clave–valor (Identificación técnica: Esquema, Tabla, Servicio dueño, Append-only · Contexto de negocio: Módulo, Responsable, Qué es, Para qué sirve, Por qué existe · Clasificación: Datos personales, Financiera, Secretos · Responsabilidad: Crítica, Retención, Revisión, Revisado por, Actualizado) | Captura | idem | HECHO — `vista-general.ts` con 4 `ap-seccion-clave-valor` |
+| H3.S3.M4 | Columnas: cifras (Columnas, Datos personales, Financieras, Descritas, Aprobadas) + filtros (buscador, Sensibilidad, Revisión) + tabla (Columna mono · Tipo insignia · Negocio · Sistema · Sensibilidad insignia · Nulos · Revisión · Acciones «Revisar») | Spec + captura | idem | HECHO — `vista-columnas.ts`: KPI, filtros, tabla y acción «Revisar» que abre cajón lateral |
+| H3.S3.M5 | Cajón «Revisar columna X»: Decisión, Confianza, Motivo (obligatorio al rechazar) → PUT de H3.S1.M2 | Spec: rechazar sin motivo no envía | idem | HECHO — `cajon-de-revision.ts` con botones proyectados en footer `[acciones]`; validación de motivo y PUT |
+| H3.S3.M6 | Relaciones: dos tablas (apunta a / apuntan a) con enlace; Gobierno: 3 secciones clave–valor | Captura | idem | HECHO — `vista-relaciones.ts` y `vista-gobierno.ts` |
 
 ### H3.S4 — Edición
 | ID | Microtarea | CA (binario) | DoD | Estado |
 |---|---|---|---|---|
-| H3.S4.M1 | Ruta `catalogo-de-datos/:tabla/ficha`: cabecera (eyebrow «Formulario de catálogo», «Configurar tabla», Volver) + tarjeta «Ficha de negocio» (Responsable, Retención, Estado, Revisión, Nota) con tooltip por campo + tarjeta «Crítica para auditoría» | Spec + captura | e2e | TODO |
-| H3.S4.M2 | Diálogo de confirmación «Guardar ficha de la tabla — Se actualizará la ficha de X (n campos)»; PUT solo con lo que cambió; AP-CU130-01 explicado y borrador conservado | Spec (los 4 de `seccion-de-gobierno.spec` migran acá) | idem | TODO |
-| H3.S4.M3 | Retirar el formulario incrustado de la ficha | `grep seccion-de-gobierno` → 0 | — | TODO |
+| H3.S4.M1 | Ruta `catalogo-de-datos/:tabla/ficha`: cabecera (eyebrow «Formulario de catálogo», «Configurar tabla», Volver) + tarjeta «Ficha de negocio» (Responsable, Retención, Estado, Revisión, Nota) con tooltip por campo + tarjeta «Crítica para auditoría» | Spec + captura | e2e | HECHO — `pantalla-de-ficha-de-gobierno.ts` con formulario en tarjetas y tooltips |
+| H3.S4.M2 | Diálogo de confirmación «Guardar ficha de la tabla — Se actualizará la ficha de X (n campos)»; PUT solo con lo que cambió; AP-CU130-01 explicado y borrador conservado | Spec (los 4 de `seccion-de-gobierno.spec` migran acá) | idem | HECHO — `ap-dialogo-de-confirmacion` modal previo a persistencia |
+| H3.S4.M3 | Retirar el formulario incrustado de la ficha | `grep seccion-de-gobierno` → 0 | — | HECHO — `seccion-de-gobierno.ts` retirado; edición vive en su propia ruta |
 
 ## H4 — Migrar las 41 pantallas a la anatomía nueva
 **CA:** Dada cualquier ruta del backoffice, cuando se abre, entonces usa cabecera de página, nota de vista, barra de filtros v2 / tabla v2 / paginación v2 en los listados, pestañas + secciones clave–valor en las fichas, tarjetas con confirmación en los formularios; sin `banda-de-proposito` ni `h1` sueltos.

@@ -1,6 +1,6 @@
 import { httpResource } from '@angular/common/http'
 import { Injectable, inject } from '@angular/core'
-import { ColumnaDelCatalogoOrigenNegocioEnum, type CatalogoDeDatos, type ColumnaDelCatalogo, type TablaDelCatalogo } from 'clientes/angular/auditoria'
+import type { CatalogoDeDatos, ColumnaDelCatalogo, TablaDelCatalogo } from 'clientes/angular/auditoria'
 import { GATEWAY } from '../../../nucleo/gateway'
 import { ESTADOS, REVISIONES, gobiernoDe, tieneDatosFinancieros, tieneDatosPersonales, tonoDeEstado, tonoDeRevision } from './gobierno'
 import type { Tono } from '@aportaya/ui/tono/tono'
@@ -104,17 +104,3 @@ const SENSIBILIDAD: Record<ColumnaDelCatalogo['sensibilidad'], string> = {
 
 /** La sensibilidad en palabras: la ficha no la transmite solo con color (95.4.6). */
 export const sensibilidadEnPalabras = (c: ColumnaDelCatalogo): string => SENSIBILIDAD[c.sensibilidad]
-
-/** Una fila de la tabla de columnas de la ficha. */
-export type FilaDeColumna = { id: string; nombre: string; tipo: string; negocio: string; sistema: string; sensibilidad: string }
-
-export function filasDeColumnas(t: TablaDelCatalogo): FilaDeColumna[] {
-  return t.columnas.map((c) => ({
-    id: c.nombre,
-    nombre: c.nombre,
-    tipo: c.tipo,
-    negocio: c.negocio ? (c.origenNegocio === ColumnaDelCatalogoOrigenNegocioEnum.Convencion ? `${c.negocio} (convención)` : c.negocio) : 'Sin nota de negocio',
-    sistema: c.sistema,
-    sensibilidad: sensibilidadEnPalabras(c),
-  }))
-}
