@@ -102,6 +102,15 @@ Hallazgo: el paso «Cómo entrás» del alta (`pasos_alta/paso_cuenta.dart`) val
 |---|---|---|---|---|
 | H9.M1 | Regla «sin espacios» + sugerencia en `validaciones.dart`, conectada al alta y al cambio de contraseña | Con «mi clave 2026» el alta no avanza y muestra el aviso con una sugerencia que cumple todas las reglas | `flutter test test/identidad/paso_contrasena_test.dart test/identidad/login_validacion_test.dart` | HECHO |
 
+## H10 — Despliegue de TEST frenado por `json_serializable 6.15.0`
+Hallazgo: `/opt/aportaya/logs/autodespliegue.log` — 12:30 `construir-movil-web.sh` OK en d36c3a0; 14:23 FALLA en 5402d23 (#149) en `apps/movil/scripts/generar-clientes.sh`: `json_serializable-6.15.0 … 'createSortedFieldSet' is imported from both …source_helper`. Los `pubspec.yaml` de `clientes/dart/*` son generados y no tienen lockfile; en local resolvía 6.14.1.
+**Estado:** EN CURSO
+
+| ID | Microtarea | CA (binario) | DoD | Estado |
+|---|---|---|---|---|
+| H10.M1 | `generar-clientes.sh` fija `json_serializable: 6.14.1` con `pubspec_overrides.yaml` | Los 11 clientes compilan | `bash apps/movil/scripts/generar-clientes.sh` → 11 «overridden in», sin error | HECHO |
+| H10.M2 | TEST despliega el commit con #149 | `autodespliegue.log` dice «listo en <sha>» | log del servidor | TODO |
+
 ## Riesgos y bloqueos previstos
 | Riesgo | Impacto | Mitigación |
 |---|---|---|
