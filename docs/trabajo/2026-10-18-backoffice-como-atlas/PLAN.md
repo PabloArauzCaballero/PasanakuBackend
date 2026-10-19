@@ -167,11 +167,11 @@ Atlas define 20 roles con departamento y descripción (SUPER_ADMIN, SYSTEMS_ADMI
 ### H1.S1 — Estructura de página
 | ID | Microtarea | CA (binario) | DoD | Estado |
 |---|---|---|---|---|
-| H1.S1.M1 | `ap-cabecera-de-pagina`: ícono en loseta, eyebrow, título, descripción, carril de acciones (scroll horizontal en móvil) | Spec: renderiza las 5 partes; sin desborde a 360 px | `ng test` del paquete + captura | TODO |
-| H1.S1.M2 | `ap-cabecera-de-seccion`: h2 con ícono y descripción | Spec | idem | TODO |
-| H1.S1.M3 | `ap-nota-de-vista`: plegable, `aria-expanded`, chevron, recuerda estado por sesión | Spec: abre/cierra con teclado; cerrado no es tarjeta | idem | TODO |
-| H1.S1.M4 | `ap-migas`: lista `nav[aria-label=Breadcrumb]` desde las rutas | Spec: `Inicio › Sistemas › Catálogo de datos` | idem | TODO |
-| H1.S1.M5 | `ap-tooltip`: por hover y foco, Escape cierra, `aria-describedby` | Spec de teclado | idem | TODO |
+| H1.S1.M1 | `ap-cabecera-de-pagina`: ícono en loseta, eyebrow, título, descripción, carril de acciones (scroll horizontal en móvil) | Spec: renderiza las 5 partes; sin desborde a 360 px | `ng test` del paquete + captura | HECHO — `cabecera-de-pagina.spec.ts` 3/3 (captura en H3) |
+| H1.S1.M2 | `ap-cabecera-de-seccion`: h2 con ícono y descripción | Spec | idem | HECHO — en el mismo spec |
+| H1.S1.M3 | `ap-nota-de-vista`: plegable, `aria-expanded`, chevron, recuerda estado por sesión | Spec: abre/cierra con teclado; cerrado no es tarjeta | idem | HECHO — `nota-de-vista.spec.ts` 4/4 (incluye almacenamiento roto) |
+| H1.S1.M4 | `ap-migas`: lista `nav[aria-label=Breadcrumb]` desde las rutas | Spec: `Inicio › Sistemas › Catálogo de datos` | idem | HECHO — `migas.spec.ts` 3/3 |
+| H1.S1.M5 | `ap-tooltip`: por hover y foco, Escape cierra, `aria-describedby` | Spec de teclado | idem | HECHO — `tooltip.spec.ts` 2/2 (Escape descarta hasta salir y volver) |
 
 ### H1.S2 — Listados
 | ID | Microtarea | CA (binario) | DoD | Estado |
