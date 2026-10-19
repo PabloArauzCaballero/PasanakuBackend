@@ -281,12 +281,13 @@ class UsuariosAutorizacionNegativaWebTest {
         var yo = UUID.fromString("b8000000-0000-4000-8000-000000000077");
         when(consultarMiPerfil.ejecutar(any()))
                 .thenReturn(new bo.aportaya.identidad.aplicacion.ConsultarMiPerfil.Perfil(
-                        yo, "ana@correo.test", true, "ACTIVO"));
+                        yo, "ana@correo.test", true, "ACTIVO", "Ana M."));
         mvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get(ruta)
                         .with(Sesiones.como("PARTICIPANTE")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.correo").value("ana@correo.test"))
                 .andExpect(jsonPath("$.correoVerificado").value(true))
-                .andExpect(jsonPath("$.estadoDeCuenta").value("ACTIVO"));
+                .andExpect(jsonPath("$.estadoDeCuenta").value("ACTIVO"))
+                .andExpect(jsonPath("$.nombreVisible").value("Ana M."));
     }
 }

@@ -32,8 +32,7 @@ public class GestionarUsuariosInternos {
         this.reloj = reloj;
     }
 
-    public List<UsuarioInternoResumen> listar(
-            String estado, String rol, String busqueda, ContextoSesion ctx) {
+    public List<UsuarioInternoResumen> listar(String estado, String rol, String busqueda, ContextoSesion ctx) {
         OffsetDateTime ahora = reloj.ahora().atOffset(ZoneOffset.UTC);
         return datos.conContexto(ctx, dsl -> repositorio.listar(dsl, estado, rol, busqueda, ahora));
     }
@@ -50,15 +49,13 @@ public class GestionarUsuariosInternos {
     }
 
     @Transactional
-    public UsuarioInternoDetalle actualizar(
-            UUID id, EntradaActualizarUsuarioInterno entrada, ContextoSesion ctx) {
+    public UsuarioInternoDetalle actualizar(UUID id, EntradaActualizarUsuarioInterno entrada, ContextoSesion ctx) {
         OffsetDateTime ahora = reloj.ahora().atOffset(ZoneOffset.UTC);
         return datos.conContexto(ctx, dsl -> repositorio.actualizar(dsl, id, entrada, ctx.usuarioId(), ahora));
     }
 
     @Transactional
-    public UsuarioInternoDetalle asignarRoles(
-            UUID id, EntradaAsignarRolesUsuarioInterno entrada, ContextoSesion ctx) {
+    public UsuarioInternoDetalle asignarRoles(UUID id, EntradaAsignarRolesUsuarioInterno entrada, ContextoSesion ctx) {
         OffsetDateTime ahora = reloj.ahora().atOffset(ZoneOffset.UTC);
         return datos.conContexto(ctx, dsl -> repositorio.asignarRoles(dsl, id, entrada, ctx.usuarioId(), ahora));
     }

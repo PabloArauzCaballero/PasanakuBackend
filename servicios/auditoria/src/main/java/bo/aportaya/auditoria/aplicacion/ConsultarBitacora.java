@@ -49,7 +49,8 @@ public class ConsultarBitacora {
                 dsl -> bitacoraRepositorio.listar(
                         dsl, entidad, accion, actorUsuarioId, desde, hasta, antesDe, antesDeId, limite));
 
-        List<EventoBitacora> items = registros.stream().map(this::aEventoBitacora).toList();
+        List<EventoBitacora> items =
+                registros.stream().map(this::aEventoBitacora).toList();
 
         PaginaDeBitacora pagina = new PaginaDeBitacora(items);
         if (registros.size() == limite) {

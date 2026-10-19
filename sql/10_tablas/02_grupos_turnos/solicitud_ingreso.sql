@@ -10,6 +10,8 @@ CREATE TABLE IF NOT EXISTS grupos.solicitud_ingreso (
   mensaje                            VARCHAR(300),
   estado                             VARCHAR(15) NOT NULL,
   puntaje_compatibilidad             NUMERIC(5,2),
+  enlace_grupo_id                    UUID,
+  nombre_visible                     VARCHAR(60),
   revisada_por                       UUID,
   fecha_solicitud                    TIMESTAMPTZ NOT NULL,
   fecha_resolucion                   TIMESTAMPTZ,
@@ -24,5 +26,7 @@ COMMENT ON COLUMN grupos.solicitud_ingreso.usuario_id IS 'FK, IDX';
 COMMENT ON COLUMN grupos.solicitud_ingreso.mensaje IS 'NULL';
 COMMENT ON COLUMN grupos.solicitud_ingreso.estado IS 'CK';
 COMMENT ON COLUMN grupos.solicitud_ingreso.puntaje_compatibilidad IS 'NULL';
+COMMENT ON COLUMN grupos.solicitud_ingreso.enlace_grupo_id IS 'FK, NULL, IDX';
+COMMENT ON COLUMN grupos.solicitud_ingreso.nombre_visible IS 'NULL';
 COMMENT ON COLUMN grupos.solicitud_ingreso.revisada_por IS 'FK, NULL';
 COMMENT ON COLUMN grupos.solicitud_ingreso.fecha_resolucion IS 'NULL';

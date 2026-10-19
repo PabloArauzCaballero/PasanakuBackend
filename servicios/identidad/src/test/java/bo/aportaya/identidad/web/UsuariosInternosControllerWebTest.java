@@ -14,8 +14,6 @@ import bo.aportaya.identidad.aplicacion.GestionarUsuariosInternos;
 import bo.aportaya.identidad.web.generado.modelo.EntradaActualizarUsuarioInterno;
 import bo.aportaya.identidad.web.generado.modelo.EntradaAltaUsuarioInterno;
 import bo.aportaya.identidad.web.generado.modelo.EntradaAsignarRolesUsuarioInterno;
-import bo.aportaya.identidad.web.generado.modelo.PermisoCatalogo;
-import bo.aportaya.identidad.web.generado.modelo.RolCatalogo;
 import bo.aportaya.identidad.web.generado.modelo.UsuarioInternoDetalle;
 import bo.aportaya.identidad.web.generado.modelo.UsuarioInternoResumen;
 import bo.aportaya.plataforma.pruebas.web.PruebaWeb;
@@ -57,8 +55,7 @@ class UsuariosInternosControllerWebTest {
 
         when(casoDeUso.listar(any(), any(), any(), any())).thenReturn(List.of(u));
 
-        mvc.perform(get("/usuarios-internos")
-                        .with(Sesiones.como("SISTEMAS_ADMIN", "USUARIOS_INTERNOS_LEER")))
+        mvc.perform(get("/usuarios-internos").with(Sesiones.como("SISTEMAS_ADMIN", "USUARIOS_INTERNOS_LEER")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").value(PERFIL_ID.toString()))
                 .andExpect(jsonPath("$[0].correo").value("carlos.mamani@aportaya.bo"))
@@ -109,10 +106,10 @@ class UsuariosInternosControllerWebTest {
         creado.setCorreo("nuevo.operador@aportaya.bo");
         creado.setDepartamento("OPERACIONES");
 
-        when(casoDeUso.crear(any(EntradaAltaUsuarioInterno.class), any()))
-                .thenReturn(creado);
+        when(casoDeUso.crear(any(EntradaAltaUsuarioInterno.class), any())).thenReturn(creado);
 
-        String json = """
+        String json =
+                """
                 {
                   "telefono": "+59178901234",
                   "nombres": "Laura",
@@ -144,7 +141,8 @@ class UsuariosInternosControllerWebTest {
         when(casoDeUso.actualizar(any(), any(EntradaActualizarUsuarioInterno.class), any()))
                 .thenReturn(modificado);
 
-        String json = """
+        String json =
+                """
                 {
                   "cargo": "Líder de Riesgo",
                   "motivo": "Promocion interna aprobada en comite"
@@ -169,7 +167,8 @@ class UsuariosInternosControllerWebTest {
         when(casoDeUso.asignarRoles(any(), any(EntradaAsignarRolesUsuarioInterno.class), any()))
                 .thenReturn(actualizado);
 
-        String json = """
+        String json =
+                """
                 {
                   "roles": ["RISK_ANALYST", "FRAUD_ANALYST"],
                   "motivo": "Asignacion de funciones de monitoreo antifraude"
@@ -193,7 +192,8 @@ class UsuariosInternosControllerWebTest {
 
         when(casoDeUso.desbloquear(any(), any(), any())).thenReturn(desbloqueado);
 
-        String json = """
+        String json =
+                """
                 {
                   "motivo": "Verificacion de identidad por canal seguro completada"
                 }
@@ -209,16 +209,14 @@ class UsuariosInternosControllerWebTest {
     @Test
     @DisplayName("seguridad: 401 si no hay sesion autenticada")
     void sinSesionRechaza401() throws Exception {
-        mvc.perform(get("/usuarios-internos"))
-                .andExpect(status().isUnauthorized());
+        mvc.perform(get("/usuarios-internos")).andExpect(status().isUnauthorized());
         verifyNoInteractions(casoDeUso);
     }
 
     @Test
     @DisplayName("seguridad: 403 si el rol no tiene el permiso necesario")
     void rolInsuficienteRechaza403() throws Exception {
-        mvc.perform(get("/usuarios-internos")
-                        .with(Sesiones.como("PARTICIPANTE")))
+        mvc.perform(get("/usuarios-internos").with(Sesiones.como("PARTICIPANTE")))
                 .andExpect(status().isForbidden());
 
         mvc.perform(post("/usuarios-internos")

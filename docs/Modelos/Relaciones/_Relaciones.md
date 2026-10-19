@@ -2,13 +2,13 @@
 tags:
   - moc
   - indice
-relaciones_fk: 665
-cross_modulo: 348
+relaciones_fk: 668
+cross_modulo: 349
 ---
 
 # Índice de relaciones (claves foráneas)
 
-Las **665 claves foráneas** del modelo. **348** cruzan módulos.
+Las **668 claves foráneas** del modelo. **349** cruzan módulos.
 
 [[Index|← Índice general]] · [[_Entidades|Entidades →]]
 
@@ -23,6 +23,7 @@ Son las que acoplan el sistema: conviene revisarlas antes de tocar un módulo.
 | [[acuerdo]] | `propuesto_por` | [[usuario]] | 02 → 01 | no | [[acuerdo.propuesto_por → usuario\|ver]] |
 | [[configuracion_grupo]] | `politica_mora_id` | [[politica_mora]] | 02 → 03 | sí | [[configuracion_grupo.politica_mora_id → politica_mora\|ver]] |
 | [[configuracion_grupo]] | `politica_sancion_id` | [[politica_sancion]] | 02 → 08 | sí | [[configuracion_grupo.politica_sancion_id → politica_sancion\|ver]] |
+| [[enlace_grupo]] | `emisor_id` | [[usuario]] | 02 → 01 | no | [[enlace_grupo.emisor_id → usuario\|ver]] |
 | [[grupo]] | `organizador_id` | [[organizador]] | 02 → 07 | sí | [[grupo.organizador_id → organizador\|ver]] |
 | [[historial_estado_grupo]] | `ejecutado_por` | [[usuario]] | 02 → 01 | no | [[historial_estado_grupo.ejecutado_por → usuario\|ver]] |
 | [[invitacion]] | `emisor_id` | [[usuario]] | 02 → 01 | no | [[invitacion.emisor_id → usuario\|ver]] |
@@ -425,6 +426,8 @@ Son las que acoplan el sistema: conviene revisarlas antes de tocar un módulo.
 | [[cupo.grupo_id → grupo]] | [[grupo]] | — | no |
 | [[cupo.participante_id → participante]] | [[participante]] | — | sí |
 | [[dia_no_habil.grupo_id → grupo]] | [[grupo]] | — | sí |
+| [[enlace_grupo.emisor_id → usuario]] | [[usuario]] | ↗ | no |
+| [[enlace_grupo.grupo_id → grupo]] | [[grupo]] | — | no |
 | [[grupo.organizador_id → organizador]] | [[organizador]] | ↗ | sí |
 | [[historial_estado_grupo.ejecutado_por → usuario]] | [[usuario]] | ↗ | no |
 | [[historial_estado_grupo.grupo_id → grupo]] | [[grupo]] | — | no |
@@ -442,6 +445,7 @@ Son las que acoplan el sistema: conviene revisarlas antes de tocar un módulo.
 | [[propuesta_postulacion.propuesta_id → propuesta_grupo]] | [[propuesta_grupo]] | — | no |
 | [[reglamento_grupo.grupo_id → grupo]] | [[grupo]] | — | no |
 | [[reglamento_grupo.redactado_por → usuario]] | [[usuario]] | ↗ | no |
+| [[solicitud_ingreso.enlace_grupo_id → enlace_grupo]] | [[enlace_grupo]] | — | sí |
 | [[solicitud_ingreso.grupo_id → grupo]] | [[grupo]] | — | no |
 | [[solicitud_ingreso.revisada_por → usuario]] | [[usuario]] | ↗ | sí |
 | [[solicitud_ingreso.usuario_id → usuario]] | [[usuario]] | ↗ | no |

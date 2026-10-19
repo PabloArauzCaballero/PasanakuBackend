@@ -90,6 +90,8 @@ abstract class RutasDeSolicitudes extends RutasDeAdmision {
                     o.setPuntaje(s.puntaje() == null ? null : s.puntaje().toPlainString());
                     o.setEstado(SolicitudDeIngreso.EstadoEnum.fromValue(s.estado()));
                     o.setFechaSolicitud(s.fecha());
+                    o.setNombreVisible(s.nombreVisible());
+                    o.setPorEnlace(s.porEnlace());
                     return o;
                 })
                 .toList();

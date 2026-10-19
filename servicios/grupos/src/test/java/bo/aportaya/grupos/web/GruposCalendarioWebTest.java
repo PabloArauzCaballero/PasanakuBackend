@@ -45,6 +45,7 @@ import org.springframework.test.web.servlet.MockMvc;
             "aportaya.grupo.servicio-de-licencia=http://cumplimiento:8080",
             "aportaya.grupo.tope-de-reenvios-de-invitacion=3",
         })
+@MockitoBean(types = bo.aportaya.grupos.aplicacion.CU69EnlaceDeGrupo.class)
 class GruposCalendarioWebTest {
 
     private static final String RUTA = "/grupos/calendario/vencimiento";

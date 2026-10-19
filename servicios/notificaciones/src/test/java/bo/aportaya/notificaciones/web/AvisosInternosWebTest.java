@@ -4,7 +4,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -70,9 +69,8 @@ class AvisosInternosWebTest {
                 .tipo(AvisoInterno.TipoEnum.ALERTA)
                 .creadoEn(AHORA);
 
-        PaginaDeAvisosInternos pagina = new PaginaDeAvisosInternos()
-                .totalNoLeidos(1)
-                .elementos(List.of(aviso));
+        PaginaDeAvisosInternos pagina =
+                new PaginaDeAvisosInternos().totalNoLeidos(1).elementos(List.of(aviso));
 
         when(gestionarAvisosInternos.consultar(any(), any(), anyBoolean(), anyInt(), any()))
                 .thenReturn(pagina);
@@ -91,11 +89,9 @@ class AvisosInternosWebTest {
     @Test
     @DisplayName("GET /notificaciones/avisos-internos: 401 sin sesión, 403 sin rol de operador")
     void consultarAvisosSeguridad() throws Exception {
-        mvc.perform(get("/notificaciones/avisos-internos"))
-                .andExpect(status().isUnauthorized());
+        mvc.perform(get("/notificaciones/avisos-internos")).andExpect(status().isUnauthorized());
 
-        mvc.perform(get("/notificaciones/avisos-internos")
-                        .with(Sesiones.sinPermisos()))
+        mvc.perform(get("/notificaciones/avisos-internos").with(Sesiones.sinPermisos()))
                 .andExpect(status().isForbidden());
     }
 
@@ -112,7 +108,8 @@ class AvisosInternosWebTest {
         when(gestionarAvisosInternos.emitir(any(EntradaAvisoInterno.class), any()))
                 .thenReturn(aviso);
 
-        String cuerpo = """
+        String cuerpo =
+                """
                 {
                     "titulo": "Nuevo aviso",
                     "mensaje": "Mensaje operativo",
@@ -132,7 +129,8 @@ class AvisosInternosWebTest {
     @Test
     @DisplayName("POST /notificaciones/avisos-internos: 403 si no es ADMIN_PLATAFORMA")
     void emitirAvisoForbidden() throws Exception {
-        String cuerpo = """
+        String cuerpo =
+                """
                 {
                     "titulo": "Nuevo aviso",
                     "mensaje": "Mensaje operativo",
@@ -158,8 +156,7 @@ class AvisosInternosWebTest {
                 .leidoEn(AHORA)
                 .creadoEn(AHORA);
 
-        when(gestionarAvisosInternos.marcarLeido(eq(AVISO_ID), any()))
-                .thenReturn(Optional.of(aviso));
+        when(gestionarAvisosInternos.marcarLeido(eq(AVISO_ID), any())).thenReturn(Optional.of(aviso));
 
         mvc.perform(post("/notificaciones/avisos-internos/" + AVISO_ID + "/leido")
                         .with(Sesiones.como("ADMIN_PLATAFORMA", "AUDITORIA_LEER")))
@@ -171,8 +168,7 @@ class AvisosInternosWebTest {
     @Test
     @DisplayName("POST /notificaciones/avisos-internos/{id}/leido: 404 si no existe")
     void marcarAvisoLeidoNoExiste() throws Exception {
-        when(gestionarAvisosInternos.marcarLeido(eq(AVISO_ID), any()))
-                .thenReturn(Optional.empty());
+        when(gestionarAvisosInternos.marcarLeido(eq(AVISO_ID), any())).thenReturn(Optional.empty());
 
         mvc.perform(post("/notificaciones/avisos-internos/" + AVISO_ID + "/leido")
                         .with(Sesiones.como("ADMIN_PLATAFORMA", "AUDITORIA_LEER")))

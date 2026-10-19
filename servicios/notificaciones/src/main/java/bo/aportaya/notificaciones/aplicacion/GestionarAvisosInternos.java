@@ -40,9 +40,7 @@ public class GestionarAvisosInternos {
             int noLeidos = repo.contarNoLeidos(dsl, usuarioId, roles);
             List<AvisoInternoRecord> registros = repo.listarPara(dsl, usuarioId, roles, soloNoLeidos, limite);
             List<AvisoInterno> elementos = registros.stream().map(this::mapear).toList();
-            return new PaginaDeAvisosInternos()
-                    .totalNoLeidos(noLeidos)
-                    .elementos(elementos);
+            return new PaginaDeAvisosInternos().totalNoLeidos(noLeidos).elementos(elementos);
         });
     }
 
@@ -53,8 +51,7 @@ public class GestionarAvisosInternos {
     }
 
     @Transactional
-    public SalidaMarcarTodosLeidos marcarTodosLeidos(
-            UUID usuarioId, Collection<String> roles, ContextoSesion ctx) {
+    public SalidaMarcarTodosLeidos marcarTodosLeidos(UUID usuarioId, Collection<String> roles, ContextoSesion ctx) {
         OffsetDateTime ahora = reloj.ahora().atZone(Reloj.ZONA).toOffsetDateTime();
         int cant = datos.conContexto(ctx, dsl -> repo.marcarTodosLeidos(dsl, usuarioId, roles, ahora));
         return new SalidaMarcarTodosLeidos().modificados(cant);

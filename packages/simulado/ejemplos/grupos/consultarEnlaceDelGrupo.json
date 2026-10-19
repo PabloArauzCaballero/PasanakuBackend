@@ -1,0 +1,74 @@
+{
+  "servicio": "grupos",
+  "operacion": "consultarEnlaceDelGrupo",
+  "metodo": "post",
+  "ruta": "/grupos/enlace-del-grupo/consultar",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "grupoId": "d7732694-f092-4068-87e1-76fcc80576fc",
+        "nombre": "nombre",
+        "montoAporte": "montoAporte",
+        "moneda": "moneda",
+        "periodicidad": "periodicidad",
+        "cuposLibres": 0,
+        "expiraEn": "2026-01-15T10:30:00Z"
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "grupoId": "d7732694-f092-4068-87e1-76fcc80576fc",
+        "nombre": "nombre",
+        "montoAporte": "montoAporte",
+        "moneda": "moneda",
+        "periodicidad": "periodicidad",
+        "cuposLibres": 0,
+        "expiraEn": "2026-01-15T10:30:00Z"
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "grupoId": "d7732694-f092-4068-87e1-76fcc80576fc",
+        "nombre": "nombre",
+        "montoAporte": "montoAporte",
+        "moneda": "moneda",
+        "periodicidad": "periodicidad",
+        "cuposLibres": 0,
+        "expiraEn": "2026-01-15T10:30:00Z"
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "grupoId": "d7732694-f092-4068-87e1-76fcc80576fc",
+        "nombre": "nombre",
+        "montoAporte": "montoAporte",
+        "moneda": "moneda",
+        "periodicidad": "periodicidad",
+        "cuposLibres": 0,
+        "expiraEn": "2026-01-15T10:30:00Z"
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU69-11",
+        "mensaje": "Enlace invalido",
+        "detalle": {},
+        "trazaId": "traza-consultarEnlaceDelGrupo-rechazo"
+      }
+    }
+  }
+}
