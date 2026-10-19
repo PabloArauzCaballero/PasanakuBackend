@@ -26,8 +26,7 @@ public class CatalogosOperativosRepositorio {
 
     private final BitacoraRepositorio bitacora;
 
-    private static final OffsetDateTime VIGENCIA_DEFECTO =
-            OffsetDateTime.of(2026, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC);
+    private static final OffsetDateTime VIGENCIA_DEFECTO = OffsetDateTime.of(2026, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC);
 
     private final Map<String, CatalogoDefinicion> catalogos = new LinkedHashMap<>();
     private final Map<String, Map<String, ElementoCatalogoOperativo>> elementosPorCatalogo = new ConcurrentHashMap<>();
@@ -147,105 +146,274 @@ public class CatalogosOperativosRepositorio {
 
     private void inicializarElementosEjemplo() {
         // HECHOS_GENERADORES
-        agregarElemento("HECHOS_GENERADORES", "hg-1", "ENTREGA_FONDO_ACREDITADA", "Entrega de fondo acreditada",
-                "Acreditación de la bolsa de pasanaku al beneficiario del turno.", true, 1,
+        agregarElemento(
+                "HECHOS_GENERADORES",
+                "hg-1",
+                "ENTREGA_FONDO_ACREDITADA",
+                "Entrega de fondo acreditada",
+                "Acreditación de la bolsa de pasanaku al beneficiario del turno.",
+                true,
+                1,
                 Map.of("entidad", "entrega_fondo", "modulo", "11", "campoBase", "monto"));
-        agregarElemento("HECHOS_GENERADORES", "hg-2", "APORTE_ACREDITADO", "Aporte ordinario acreditado",
-                "Aporte de cuota de un participante acreditado al fondo común del grupo.", true, 2,
+        agregarElemento(
+                "HECHOS_GENERADORES",
+                "hg-2",
+                "APORTE_ACREDITADO",
+                "Aporte ordinario acreditado",
+                "Aporte de cuota de un participante acreditado al fondo común del grupo.",
+                true,
+                2,
                 Map.of("entidad", "pago", "modulo", "03", "campoBase", "monto"));
-        agregarElemento("HECHOS_GENERADORES", "hg-3", "RETIRO_BILLETERA_BANCARIO", "Retiro de fondos a cuenta bancaria",
-                "Transferencia bancaria de fondos desde la billetera hacia cuenta externa.", true, 3,
+        agregarElemento(
+                "HECHOS_GENERADORES",
+                "hg-3",
+                "RETIRO_BILLETERA_BANCARIO",
+                "Retiro de fondos a cuenta bancaria",
+                "Transferencia bancaria de fondos desde la billetera hacia cuenta externa.",
+                true,
+                3,
                 Map.of("entidad", "orden_retiro", "modulo", "04", "campoBase", "importe"));
-        agregarElemento("HECHOS_GENERADORES", "hg-4", "RECARGA_QR_PROVEEDOR", "Recarga de saldo por pasarela QR",
-                "Acreditación de saldo en la billetera mediante pago QR interbancario.", true, 4,
+        agregarElemento(
+                "HECHOS_GENERADORES",
+                "hg-4",
+                "RECARGA_QR_PROVEEDOR",
+                "Recarga de saldo por pasarela QR",
+                "Acreditación de saldo en la billetera mediante pago QR interbancario.",
+                true,
+                4,
                 Map.of("entidad", "recarga", "modulo", "03", "campoBase", "monto"));
 
         // REPORTES_REGULATORIOS
-        agregarElemento("REPORTES_REGULATORIOS", "rr-1", "PCC-01", "Posición de Cuentas y Custodia",
-                "Reporte mensual de saldos en cuentas de custodia y cuadre de billeteras.", true, 1,
+        agregarElemento(
+                "REPORTES_REGULATORIOS",
+                "rr-1",
+                "PCC-01",
+                "Posición de Cuentas y Custodia",
+                "Reporte mensual de saldos en cuentas de custodia y cuadre de billeteras.",
+                true,
+                1,
                 Map.of("organismo", "ASFI", "periodicidad", "MENSUAL", "plazoDias", 10));
-        agregarElemento("REPORTES_REGULATORIOS", "rr-2", "ROG", "Reporte de Operaciones en Efectivo o Relevantes",
-                "Operaciones individuales o acumuladas que superan los umbrales de reporte normativo.", true, 2,
+        agregarElemento(
+                "REPORTES_REGULATORIOS",
+                "rr-2",
+                "ROG",
+                "Reporte de Operaciones en Efectivo o Relevantes",
+                "Operaciones individuales o acumuladas que superan los umbrales de reporte normativo.",
+                true,
+                2,
                 Map.of("organismo", "UIF", "periodicidad", "MENSUAL", "plazoDias", 15));
-        agregarElemento("REPORTES_REGULATORIOS", "rr-3", "ROS", "Reporte de Operaciones Sospechosas",
-                "Operaciones inusuales sin justificación económica o jurídica aparente.", true, 3,
+        agregarElemento(
+                "REPORTES_REGULATORIOS",
+                "rr-3",
+                "ROS",
+                "Reporte de Operaciones Sospechosas",
+                "Operaciones inusuales sin justificación económica o jurídica aparente.",
+                true,
+                3,
                 Map.of("organismo", "UIF", "periodicidad", "EVENTUAL", "plazoDias", 3));
 
         // UMBRALES_UIF
-        agregarElemento("UMBRALES_UIF", "uif-1", "UMBRAL_ROG_INDIVIDUAL", "Umbral ROG Transacción Individual",
-                "Límite a partir del cual una transacción se reporta obligatoriamente a la UIF (BOB 70.000).", true, 1,
+        agregarElemento(
+                "UMBRALES_UIF",
+                "uif-1",
+                "UMBRAL_ROG_INDIVIDUAL",
+                "Umbral ROG Transacción Individual",
+                "Límite a partir del cual una transacción se reporta obligatoriamente a la UIF (BOB 70.000).",
+                true,
+                1,
                 Map.of("moneda", "BOB", "monto", "70000.00", "tipo", "INDIVIDUAL"));
-        agregarElemento("UMBRALES_UIF", "uif-2", "UMBRAL_ROG_ACUMULADO_MES", "Umbral ROG Acumulado Mensual",
-                "Monto total acumulado mensual por cliente para reporte obligatorio (BOB 350.000).", true, 2,
+        agregarElemento(
+                "UMBRALES_UIF",
+                "uif-2",
+                "UMBRAL_ROG_ACUMULADO_MES",
+                "Umbral ROG Acumulado Mensual",
+                "Monto total acumulado mensual por cliente para reporte obligatorio (BOB 350.000).",
+                true,
+                2,
                 Map.of("moneda", "BOB", "monto", "350000.00", "tipo", "ACUMULADO"));
-        agregarElemento("UMBRALES_UIF", "uif-3", "UMBRAL_DILIGENCIA_INTENSIFICADA", "Umbral Debida Diligencia Intensificada",
-                "Nivel transaccional que exige verificación presencial o documental de origen de fondos.", true, 3,
+        agregarElemento(
+                "UMBRALES_UIF",
+                "uif-3",
+                "UMBRAL_DILIGENCIA_INTENSIFICADA",
+                "Umbral Debida Diligencia Intensificada",
+                "Nivel transaccional que exige verificación presencial o documental de origen de fondos.",
+                true,
+                3,
                 Map.of("moneda", "BOB", "monto", "50000.00", "tipo", "DILIGENCIA"));
 
         // LIMITES_OPERATIVOS
-        agregarElemento("LIMITES_OPERATIVOS", "lim-1", "CUOTA_MINIMA_GRUPO", "Cuota Mínima por Participante",
-                "Monto mínimo permitido para la cuota periódica de un grupo de pasanaku.", true, 1,
+        agregarElemento(
+                "LIMITES_OPERATIVOS",
+                "lim-1",
+                "CUOTA_MINIMA_GRUPO",
+                "Cuota Mínima por Participante",
+                "Monto mínimo permitido para la cuota periódica de un grupo de pasanaku.",
+                true,
+                1,
                 Map.of("moneda", "BOB", "valor", "50.00", "categoria", "GRUPOS"));
-        agregarElemento("LIMITES_OPERATIVOS", "lim-2", "CUOTA_MAXIMA_GRUPO", "Cuota Máxima por Participante",
-                "Monto máximo permitido para la cuota ordinaria de un pasanaku estándar.", true, 2,
+        agregarElemento(
+                "LIMITES_OPERATIVOS",
+                "lim-2",
+                "CUOTA_MAXIMA_GRUPO",
+                "Cuota Máxima por Participante",
+                "Monto máximo permitido para la cuota ordinaria de un pasanaku estándar.",
+                true,
+                2,
                 Map.of("moneda", "BOB", "valor", "10000.00", "categoria", "GRUPOS"));
-        agregarElemento("LIMITES_OPERATIVOS", "lim-3", "MAX_GRUPOS_POR_USUARIO", "Máximo de Grupos Activos por Usuario",
-                "Cantidad máxima de grupos en los que un participante puede estar simultáneamente.", true, 3,
+        agregarElemento(
+                "LIMITES_OPERATIVOS",
+                "lim-3",
+                "MAX_GRUPOS_POR_USUARIO",
+                "Máximo de Grupos Activos por Usuario",
+                "Cantidad máxima de grupos en los que un participante puede estar simultáneamente.",
+                true,
+                3,
                 Map.of("valor", "5", "categoria", "RIESGO"));
 
         // CALENDARIO_HABIL
-        agregarElemento("CALENDARIO_HABIL", "cal-1", "FERIADO_ANO_NUEVO", "Año Nuevo",
-                "1 de enero · Feriado nacional inamovible.", true, 1,
+        agregarElemento(
+                "CALENDARIO_HABIL",
+                "cal-1",
+                "FERIADO_ANO_NUEVO",
+                "Año Nuevo",
+                "1 de enero · Feriado nacional inamovible.",
+                true,
+                1,
                 Map.of("fecha", "2026-01-01", "alcance", "NACIONAL"));
-        agregarElemento("CALENDARIO_HABIL", "cal-2", "FERIADO_ESTADO_PLURINACIONAL", "Día del Estado Plurinacional",
-                "22 de enero · Feriado nacional.", true, 2,
+        agregarElemento(
+                "CALENDARIO_HABIL",
+                "cal-2",
+                "FERIADO_ESTADO_PLURINACIONAL",
+                "Día del Estado Plurinacional",
+                "22 de enero · Feriado nacional.",
+                true,
+                2,
                 Map.of("fecha", "2026-01-22", "alcance", "NACIONAL"));
-        agregarElemento("CALENDARIO_HABIL", "cal-3", "FERIADO_CARNAVAL_LUNES", "Lunes de Carnaval",
-                "Feriado nacional de Carnaval.", true, 3,
+        agregarElemento(
+                "CALENDARIO_HABIL",
+                "cal-3",
+                "FERIADO_CARNAVAL_LUNES",
+                "Lunes de Carnaval",
+                "Feriado nacional de Carnaval.",
+                true,
+                3,
                 Map.of("fecha", "2026-02-16", "alcance", "NACIONAL"));
-        agregarElemento("CALENDARIO_HABIL", "cal-4", "FERIADO_CARNAVAL_MARTES", "Martes de Carnaval",
-                "Feriado nacional de Carnaval.", true, 4,
+        agregarElemento(
+                "CALENDARIO_HABIL",
+                "cal-4",
+                "FERIADO_CARNAVAL_MARTES",
+                "Martes de Carnaval",
+                "Feriado nacional de Carnaval.",
+                true,
+                4,
                 Map.of("fecha", "2026-02-17", "alcance", "NACIONAL"));
-        agregarElemento("CALENDARIO_HABIL", "cal-5", "FERIADO_INDEPENDENCIA", "Día de la Independencia",
-                "6 de agosto · Fiesta Patria nacional.", true, 5,
+        agregarElemento(
+                "CALENDARIO_HABIL",
+                "cal-5",
+                "FERIADO_INDEPENDENCIA",
+                "Día de la Independencia",
+                "6 de agosto · Fiesta Patria nacional.",
+                true,
+                5,
                 Map.of("fecha", "2026-08-06", "alcance", "NACIONAL"));
 
         // PROVEEDORES_EXTERNOS
-        agregarElemento("PROVEEDORES_EXTERNOS", "prov-1", "PASARELA_SINTESIS_QR", "Síntesis Pasarela QR Simple",
-                "Servicio de cobro mediante QR interbancario de la red Enlace / Asoban.", true, 1,
+        agregarElemento(
+                "PROVEEDORES_EXTERNOS",
+                "prov-1",
+                "PASARELA_SINTESIS_QR",
+                "Síntesis Pasarela QR Simple",
+                "Servicio de cobro mediante QR interbancario de la red Enlace / Asoban.",
+                true,
+                1,
                 Map.of("tipo", "PAGOS_QR", "pais", "BO", "protocolo", "REST"));
-        agregarElemento("PROVEEDORES_EXTERNOS", "prov-2", "SMS_INFOBIP", "Infobip SMS Gateway",
-                "Envío de códigos OTP y mensajes de verificación a líneas bolivianas.", true, 2,
+        agregarElemento(
+                "PROVEEDORES_EXTERNOS",
+                "prov-2",
+                "SMS_INFOBIP",
+                "Infobip SMS Gateway",
+                "Envío de códigos OTP y mensajes de verificación a líneas bolivianas.",
+                true,
+                2,
                 Map.of("tipo", "SMS_OTP", "protocolo", "REST", "backup", false));
-        agregarElemento("PROVEEDORES_EXTERNOS", "prov-3", "DISPERSION_BANCO_UNION", "Banco Unión SPI Dispersión",
-                "Conexión directa para transferencias y desembolsos automáticos de fondos.", true, 3,
+        agregarElemento(
+                "PROVEEDORES_EXTERNOS",
+                "prov-3",
+                "DISPERSION_BANCO_UNION",
+                "Banco Unión SPI Dispersión",
+                "Conexión directa para transferencias y desembolsos automáticos de fondos.",
+                true,
+                3,
                 Map.of("tipo", "DISPERSION_BANCARIA", "entidad", "BANCO_UNION", "canal", "SPI"));
 
         // EVENTOS_NOTIFICABLES
-        agregarElemento("EVENTOS_NOTIFICABLES", "evt-1", "NOTIF_TURNO_PROXIMO", "Aviso de turno próximo de cobro",
-                "Alerta al participante informando que su turno de recibir el fondo está por llegar.", true, 1,
+        agregarElemento(
+                "EVENTOS_NOTIFICABLES",
+                "evt-1",
+                "NOTIF_TURNO_PROXIMO",
+                "Aviso de turno próximo de cobro",
+                "Alerta al participante informando que su turno de recibir el fondo está por llegar.",
+                true,
+                1,
                 Map.of("canal", "PUSH_SMS", "frecuencia", "RECORDATORIO"));
-        agregarElemento("EVENTOS_NOTIFICABLES", "evt-2", "NOTIF_PAGO_CONFIRMADO", "Confirmación de aporte recibido",
-                "Comprobante digital enviado al participante tras registrarse su pago.", true, 2,
+        agregarElemento(
+                "EVENTOS_NOTIFICABLES",
+                "evt-2",
+                "NOTIF_PAGO_CONFIRMADO",
+                "Confirmación de aporte recibido",
+                "Comprobante digital enviado al participante tras registrarse su pago.",
+                true,
+                2,
                 Map.of("canal", "PUSH_EMAIL", "inmediato", true));
-        agregarElemento("EVENTOS_NOTIFICABLES", "evt-3", "NOTIF_ALERTA_MORA", "Aviso de cuota vencida / mora",
-                "Notificación preventiva previa a la ejecución de sanciones o fondo de garantía.", true, 3,
+        agregarElemento(
+                "EVENTOS_NOTIFICABLES",
+                "evt-3",
+                "NOTIF_ALERTA_MORA",
+                "Aviso de cuota vencida / mora",
+                "Notificación preventiva previa a la ejecución de sanciones o fondo de garantía.",
+                true,
+                3,
                 Map.of("canal", "SMS_WHATSAPP", "prioridad", "ALTA"));
 
         // PLAN_CUENTAS
-        agregarElemento("PLAN_CUENTAS", "puc-1", "111.01", "Cuentas Corrientes Bancarias de Custodia",
-                "Fondos de participantes bajo custodia fiduciaria en entidades autorizadas.", true, 1,
+        agregarElemento(
+                "PLAN_CUENTAS",
+                "puc-1",
+                "111.01",
+                "Cuentas Corrientes Bancarias de Custodia",
+                "Fondos de participantes bajo custodia fiduciaria en entidades autorizadas.",
+                true,
+                1,
                 Map.of("naturaleza", "DEUDORA", "nivel", 3, "moneda", "BOB"));
-        agregarElemento("PLAN_CUENTAS", "puc-2", "211.01", "Obligaciones Billeteras Electrónicas de Clientes",
-                "Saldos disponibles de los usuarios en sus billeteras AportaYa.", true, 2,
+        agregarElemento(
+                "PLAN_CUENTAS",
+                "puc-2",
+                "211.01",
+                "Obligaciones Billeteras Electrónicas de Clientes",
+                "Saldos disponibles de los usuarios en sus billeteras AportaYa.",
+                true,
+                2,
                 Map.of("naturaleza", "ACREEDORA", "nivel", 3, "moneda", "BOB"));
-        agregarElemento("PLAN_CUENTAS", "puc-3", "411.01", "Ingresos por Comisiones de Pasanaku",
-                "Comisiones devengadas por la gestión y custodia de grupos digitales.", true, 3,
+        agregarElemento(
+                "PLAN_CUENTAS",
+                "puc-3",
+                "411.01",
+                "Ingresos por Comisiones de Pasanaku",
+                "Comisiones devengadas por la gestión y custodia de grupos digitales.",
+                true,
+                3,
                 Map.of("naturaleza", "ACREEDORA", "nivel", 3, "moneda", "BOB"));
     }
 
     private void agregarElemento(
-            String cat, String id, String cod, String nom, String desc, boolean act, int ord, Map<String, Object> attrs) {
+            String cat,
+            String id,
+            String cod,
+            String nom,
+            String desc,
+            boolean act,
+            int ord,
+            Map<String, Object> attrs) {
         ElementoCatalogoOperativo elem = new ElementoCatalogoOperativo();
         elem.setId(id);
         elem.setCatalogoCodigo(cat);
@@ -264,9 +432,12 @@ public class CatalogosOperativosRepositorio {
     public List<CatalogoOperativoResumen> listarCatalogos() {
         List<CatalogoOperativoResumen> lista = new ArrayList<>();
         for (CatalogoDefinicion def : catalogos.values()) {
-            Map<String, ElementoCatalogoOperativo> map = elementosPorCatalogo.getOrDefault(def.codigo(), Collections.emptyMap());
+            Map<String, ElementoCatalogoOperativo> map =
+                    elementosPorCatalogo.getOrDefault(def.codigo(), Collections.emptyMap());
             int total = map.size();
-            int activos = (int) map.values().stream().filter(ElementoCatalogoOperativo::getActivo).count();
+            int activos = (int) map.values().stream()
+                    .filter(ElementoCatalogoOperativo::getActivo)
+                    .count();
 
             CatalogoOperativoResumen r = new CatalogoOperativoResumen();
             r.setCodigo(def.codigo());
@@ -289,7 +460,9 @@ public class CatalogosOperativosRepositorio {
 
         Map<String, ElementoCatalogoOperativo> map = elementosPorCatalogo.getOrDefault(codigo, Collections.emptyMap());
         int total = map.size();
-        int activos = (int) map.values().stream().filter(ElementoCatalogoOperativo::getActivo).count();
+        int activos = (int) map.values().stream()
+                .filter(ElementoCatalogoOperativo::getActivo)
+                .count();
 
         CatalogoOperativoDetalle d = new CatalogoOperativoDetalle();
         d.setCodigo(def.codigo());
@@ -350,11 +523,17 @@ public class CatalogosOperativosRepositorio {
         if (dsl != null) {
             try {
                 if ("HECHOS_GENERADORES".equals(codigo)) {
-                    dsl.execute("UPDATE tarifas.catalogo_hecho_generador SET activo = ? WHERE codigo = ? OR id::varchar = ?",
-                            nuevoActivo, actual.getCodigo(), id);
+                    dsl.execute(
+                            "UPDATE tarifas.catalogo_hecho_generador SET activo = ? WHERE codigo = ? OR id::varchar = ?",
+                            nuevoActivo,
+                            actual.getCodigo(),
+                            id);
                 } else if ("REPORTES_REGULATORIOS".equals(codigo)) {
-                    dsl.execute("UPDATE cumplimiento.catalogo_reporte_regulatorio SET activo = ? WHERE codigo = ? OR id::varchar = ?",
-                            nuevoActivo, actual.getCodigo(), id);
+                    dsl.execute(
+                            "UPDATE cumplimiento.catalogo_reporte_regulatorio SET activo = ? WHERE codigo = ? OR id::varchar = ?",
+                            nuevoActivo,
+                            actual.getCodigo(),
+                            id);
                 }
             } catch (Exception e) {
                 // Si la tabla no está en el esquema actual de pruebas, continúa sin abortar
@@ -363,8 +542,10 @@ public class CatalogosOperativosRepositorio {
             // Registrar evento inmutable en comun.bitacora_evento
             try {
                 String accion = nuevoActivo ? "ACTIVAR_ELEMENTO_CATALOGO" : "DESACTIVAR_ELEMENTO_CATALOGO";
-                String valAnt = "{\"catalogo\":\"" + codigo + "\",\"id\":\"" + id + "\",\"codigo\":\"" + actual.getCodigo() + "\",\"activo\":" + estadoAnterior + "}";
-                String valNue = "{\"catalogo\":\"" + codigo + "\",\"id\":\"" + id + "\",\"codigo\":\"" + actual.getCodigo() + "\",\"activo\":" + nuevoActivo + ",\"motivo\":\"" + motivo + "\"}";
+                String valAnt = "{\"catalogo\":\"" + codigo + "\",\"id\":\"" + id + "\",\"codigo\":\""
+                        + actual.getCodigo() + "\",\"activo\":" + estadoAnterior + "}";
+                String valNue = "{\"catalogo\":\"" + codigo + "\",\"id\":\"" + id + "\",\"codigo\":\""
+                        + actual.getCodigo() + "\",\"activo\":" + nuevoActivo + ",\"motivo\":\"" + motivo + "\"}";
                 UUID entidadId = UUID.nameUUIDFromBytes((codigo + ":" + id).getBytes());
 
                 bitacora.registrarCambioDeCatalogo(

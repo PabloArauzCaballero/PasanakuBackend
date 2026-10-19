@@ -11,7 +11,6 @@ import bo.aportaya.plataforma.web.seguridad.SesionDeLaPeticion;
 import bo.aportaya.plataforma.web.traza.Traza;
 import jakarta.validation.Valid;
 import java.util.List;
-import java.util.UUID;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -32,9 +31,7 @@ public class CatalogosOperativosController {
     private final GestionarCatalogosOperativos casoDeUso;
     private final SesionDeLaPeticion sesion;
 
-    public CatalogosOperativosController(
-            GestionarCatalogosOperativos casoDeUso,
-            SesionDeLaPeticion sesion) {
+    public CatalogosOperativosController(GestionarCatalogosOperativos casoDeUso, SesionDeLaPeticion sesion) {
         this.casoDeUso = casoDeUso;
         this.sesion = sesion;
     }
@@ -50,9 +47,8 @@ public class CatalogosOperativosController {
     @Permiso("AUDITORIA_LEER")
     @PermisoAlternativo({"CATALOGO_EDITAR", "CATALOGO_DATOS_EDITAR"})
     public ResponseEntity<CatalogoOperativoDetalle> consultarCatalogoOperativo(@PathVariable("codigo") String codigo) {
-        return casoDeUso.consultarCatalogo(codigo)
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+        return casoDeUso.consultarCatalogo(codigo).map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound()
+                .build());
     }
 
     @GetMapping(value = "/auditoria/catalogos/{codigo}/elementos", produces = "application/json")
@@ -79,17 +75,20 @@ public class CatalogosOperativosController {
             @PathVariable("id") String id,
             @Valid @RequestBody EntradaActualizarElementoCatalogo entrada) {
         if (entrada.getMotivo() == null || entrada.getMotivo().trim().length() < 5) {
-            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "El motivo del cambio es obligatorio y debe tener al menos 5 caracteres.");
+            throw new ResponseStatusException(
+                    HttpStatus.UNPROCESSABLE_ENTITY,
+                    "El motivo del cambio es obligatorio y debe tener al menos 5 caracteres.");
         }
 
         Traza.marcarCasoDeUso("H5.S2", codigo + ":" + id);
 
-        return casoDeUso.actualizarEstado(
-                codigo,
-                id,
-                Boolean.TRUE.equals(entrada.getActivo()),
-                entrada.getMotivo().trim(),
-                sesion.actual())
+        return casoDeUso
+                .actualizarEstado(
+                        codigo,
+                        id,
+                        Boolean.TRUE.equals(entrada.getActivo()),
+                        entrada.getMotivo().trim(),
+                        sesion.actual())
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }

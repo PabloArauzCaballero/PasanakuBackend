@@ -17,9 +17,7 @@ public class RolesController implements RolesApi {
     private final GestionarUsuariosInternos casoDeUso;
     private final SesionDeLaPeticion sesion;
 
-    public RolesController(
-            GestionarUsuariosInternos casoDeUso,
-            SesionDeLaPeticion sesion) {
+    public RolesController(GestionarUsuariosInternos casoDeUso, SesionDeLaPeticion sesion) {
         this.casoDeUso = casoDeUso;
         this.sesion = sesion;
     }

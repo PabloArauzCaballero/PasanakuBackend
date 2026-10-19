@@ -219,7 +219,8 @@ public class NotificacionesController implements NotificacionesApi {
     @PermisoAlternativo({"ADMIN_PLATAFORMA"})
     public ResponseEntity<AvisoInterno> marcarAvisoLeido(UUID id) {
         Traza.marcarCasoDeUso("CU-80", "marcar-aviso-leido");
-        return avisosInternos.marcarLeido(id, sesion.actual())
+        return avisosInternos
+                .marcarLeido(id, sesion.actual())
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }

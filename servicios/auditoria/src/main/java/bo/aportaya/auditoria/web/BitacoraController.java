@@ -42,10 +42,19 @@ public class BitacoraController {
             @Size(max = 50) @RequestParam(value = "entidad", required = false) @Nullable String entidad,
             @Size(max = 30) @RequestParam(value = "accion", required = false) @Nullable String accion,
             @RequestParam(value = "actorUsuarioId", required = false) @Nullable UUID actorUsuarioId,
-            @RequestParam(value = "desde", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @Nullable OffsetDateTime desde,
-            @RequestParam(value = "hasta", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @Nullable OffsetDateTime hasta,
+            @RequestParam(value = "desde", required = false)
+                    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+                    @Nullable
+                    OffsetDateTime desde,
+            @RequestParam(value = "hasta", required = false)
+                    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+                    @Nullable
+                    OffsetDateTime hasta,
             @Min(1) @Max(100) @RequestParam(value = "limite", required = false, defaultValue = "25") Integer limite,
-            @RequestParam(value = "antesDe", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @Nullable OffsetDateTime antesDe,
+            @RequestParam(value = "antesDe", required = false)
+                    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+                    @Nullable
+                    OffsetDateTime antesDe,
             @RequestParam(value = "antesDeId", required = false) @Nullable UUID antesDeId) {
         PaginaDeBitacora pagina = casoDeUso.listar(
                 entidad, accion, actorUsuarioId, desde, hasta, limite, antesDe, antesDeId, sesion.actual());
@@ -54,7 +63,8 @@ public class BitacoraController {
 
     @GetMapping(value = "/auditoria/bitacora/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<EventoBitacora> consultarEventoBitacora(@PathVariable("id") UUID id) {
-        return casoDeUso.buscarPorId(id, sesion.actual())
+        return casoDeUso
+                .buscarPorId(id, sesion.actual())
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }

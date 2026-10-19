@@ -119,12 +119,19 @@ public class BitacoraRepositorio {
                  ORDER BY fecha_hora DESC, id DESC
                  LIMIT ?
                 """,
-                        entidad, entidad,
-                        accion, accion,
-                        actorUsuarioId, actorUsuarioId,
-                        desde, desde,
-                        hasta, hasta,
-                        antesDe, antesDe, antesDeId,
+                        entidad,
+                        entidad,
+                        accion,
+                        accion,
+                        actorUsuarioId,
+                        actorUsuarioId,
+                        desde,
+                        desde,
+                        hasta,
+                        hasta,
+                        antesDe,
+                        antesDe,
+                        antesDeId,
                         limite)
                 .map(this::mapearRegistro);
     }
