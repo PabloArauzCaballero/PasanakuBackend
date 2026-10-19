@@ -109,6 +109,7 @@ Hallazgo: `/opt/aportaya/logs/autodespliegue.log` — 12:30 `construir-movil-web
 | ID | Microtarea | CA (binario) | DoD | Estado |
 |---|---|---|---|---|
 | H10.M1 | `generar-clientes.sh` fija `json_serializable: 6.14.1` con `pubspec_overrides.yaml` | Los 11 clientes compilan | `bash apps/movil/scripts/generar-clientes.sh` → 11 «overridden in», sin error | HECHO |
+| H10.M1b | La causa era `source_helper 1.4.0` (publicada 2026-10-19 18:07Z), no `json_serializable`: el despliegue de d449cf2 falló igual con 6.14.1. Se fija también `source_helper: 1.3.13` | Sin fijarlo, local reproduce el error; fijado, compila | `dart run build_runner build` en `clientes/dart/identidad` con y sin el override | HECHO |
 | H10.M2 | TEST despliega el commit con #149 | `autodespliegue.log` dice «listo en <sha>» | log del servidor | TODO |
 
 ## Riesgos y bloqueos previstos
