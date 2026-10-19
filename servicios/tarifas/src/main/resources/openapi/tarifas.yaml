@@ -41,6 +41,8 @@
 #   AP-CU34-02  TARIFARIO_VIGENTE_INMUTABLE · se publica la version siguiente (R-TAR-02)
 #   AP-CU34-03  SIN_ACTA_DE_APROBACION · falta el acta del comite (R-LIC-03)
 #   AP-CU34-04  VIGENCIAS_SOLAPADAS    · lo rechaza el EXCLUDE de la base (R-TAR-01)
+#   AP-CU34-05  FILTRO_DE_LISTADO_INVALIDO · estado desconocido o cursor a medias en
+#                                        GET /tarifas/tarifarios (backoffice carril A · A6)
 #
 # CU-35 · Cerrar la liquidacion mensual de ingresos
 #   AP-CU35-01  DIAS_SIN_CERRAR        · el mes se apoya en dias cuadrados
@@ -212,6 +214,46 @@ paths:
         '422': { $ref: '#/components/responses/ReglaDeNegocio' }
 
   /tarifas/tarifarios:
+    get:
+      operationId: listarTarifarios            # CU-34 (backoffice carril A · A6)
+      summary: Tarifarios y sus versiones, del mas reciente al mas antiguo
+      description: >-
+        Cada version con su estado, vigencia, dias de preaviso, el expediente del cambio que la
+        publico y la ultima simulacion de impacto. Sin filtro trae todos los estados. Cursor
+        (vigenteDesde, id) descendente. El delta de la simulacion viaja SIN moneda porque
+        simulacion_tarifa no la modela. Exige TARIFARIO_PUBLICAR o AUDITORIA_LEER.
+      parameters:
+        - { name: codigo, in: query, required: false, schema: { type: string, maxLength: 30 } }
+        - name: estados
+          in: query
+          required: false
+          style: form
+          explode: true
+          schema:
+            type: array
+            items: { type: string }
+        - { name: limite, in: query, required: false, schema: { type: integer, minimum: 1, maximum: 100, default: 25 } }
+        - { name: antesDe, in: query, required: false, schema: { type: string, format: date-time } }
+        - { name: antesDeId, in: query, required: false, schema: { type: string, format: uuid } }
+      responses:
+        '200':
+          description: Pagina (vacia si no hay nada)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PaginaDeTarifarios' }
+        '422':
+          # AP-CU34-05
+          $ref: '#/components/responses/ReglaDeNegocio'
+        '403':
+          description: Sin TARIFARIO_PUBLICAR ni AUDITORIA_LEER
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '401':
+          description: Sin token valido
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
     post:
       operationId: publicarTarifario           # CU-34
       summary: Publicar la version siguiente de un tarifario
@@ -621,6 +663,63 @@ components:
         evaluable:
           type: boolean
           description: false cuando falto un hecho. No se adivina en ninguna direccion
+    PaginaDeTarifarios:
+      type: object
+      additionalProperties: false
+      required: [items]
+      properties:
+        items:
+          type: array
+          items: { $ref: '#/components/schemas/TarifarioEnLista' }
+        proximoAntesDe: { type: string, format: date-time }
+        proximoAntesDeId: { type: string, format: uuid }
+    TarifarioEnLista:
+      type: object
+      additionalProperties: false
+      required: [tarifarioId, codigo, version, nombre, estado, monedaBase, vigenteDesde, diasPreaviso]
+      properties:
+        tarifarioId: { type: string, format: uuid }
+        codigo: { type: string }
+        version: { type: integer }
+        nombre: { type: string }
+        estado:
+          type: string
+          enum: [ARCHIVADO, BORRADOR, EN_PREAVISO, SUSTITUIDO, VIGENTE]
+        monedaBase: { type: string, enum: [BOB, USD] }
+        vigenteDesde: { type: string, format: date-time }
+        vigenteHasta: { type: string, format: date-time }
+        diasPreaviso: { type: integer }
+        publicadoEn: { type: string, format: date-time }
+        tarifarioAnteriorId: { type: string, format: uuid }
+        aprobadoPor: { type: string, format: uuid }
+        actaAprobacion: { type: string }
+        cambio: { $ref: '#/components/schemas/CambioDeTarifario' }
+        simulacion: { $ref: '#/components/schemas/SimulacionDeTarifario' }
+    CambioDeTarifario:
+      type: object
+      additionalProperties: false
+      required: [cambioId, tipoCambio, requierePreaviso, diasPreaviso, usuariosNotificados, permiteRescisionSinCosto]
+      properties:
+        cambioId: { type: string, format: uuid }
+        tipoCambio:
+          type: string
+          enum: [ELIMINACION, INCREMENTO, NUEVO_CONCEPTO, REDUCCION]
+        requierePreaviso: { type: boolean }
+        diasPreaviso: { type: integer }
+        fechaAviso: { type: string, format: date-time }
+        canalAviso: { type: string }
+        usuariosNotificados: { type: integer }
+        permiteRescisionSinCosto: { type: boolean }
+    SimulacionDeTarifario:
+      type: object
+      additionalProperties: false
+      required: [deltaIngresoEstimado, usuariosImpactados, ejecutadaEn]
+      properties:
+        deltaIngresoEstimado:
+          type: string
+          pattern: '^-?\d+\.\d{2}$'     # CADENA y SIN moneda: simulacion_tarifa no la modela
+        usuariosImpactados: { type: integer }
+        ejecutadaEn: { type: string, format: date-time }
     Dinero:
       type: object
       additionalProperties: false

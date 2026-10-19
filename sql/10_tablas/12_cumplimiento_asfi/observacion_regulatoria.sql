@@ -22,8 +22,8 @@ CREATE TABLE IF NOT EXISTS cumplimiento.observacion_regulatoria (
   CONSTRAINT ck_observacion_regulatoria_estado CHECK (estado IN ('EN_RESPUESTA', 'FIRME', 'RECIBIDA', 'RESPONDIDA', 'SUBSANADA'))
 );
 
-COMMENT ON TABLE cumplimiento.observacion_regulatoria IS 'Módulo 12 — Cumplimiento Regulatorio y Consumidor Financiero. Que una inspección se responda con consultas, no armando carpetas';
-COMMENT ON COLUMN cumplimiento.observacion_regulatoria.id IS 'PK';
+COMMENT ON TABLE cumplimiento.observacion_regulatoria IS 'Módulo 12 — Cumplimiento Regulatorio y Consumidor Financiero. La agenda de reportes obligatorios y el rastro de cada envío.';
+COMMENT ON COLUMN cumplimiento.observacion_regulatoria.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN cumplimiento.observacion_regulatoria.envio_regulatorio_id IS 'FK, NULL';
 COMMENT ON COLUMN cumplimiento.observacion_regulatoria.responsable_id IS 'FK, NULL';
 COMMENT ON COLUMN cumplimiento.observacion_regulatoria.organismo IS 'CK';

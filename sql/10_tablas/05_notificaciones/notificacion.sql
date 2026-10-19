@@ -19,8 +19,8 @@ CREATE TABLE IF NOT EXISTS notificaciones.notificacion (
   CONSTRAINT ck_notificacion_estado CHECK (estado IN ('CANCELADA', 'CREADA', 'ENTREGADA', 'ENVIADA', 'EN_COLA', 'FALLIDA', 'LEIDA', 'PROGRAMADA', 'SUPRIMIDA'))
 );
 
-COMMENT ON TABLE notificaciones.notificacion IS 'Módulo 05 — Notificaciones y Comunicaciones. WhatsApp como canal real de cobro, sin spam ni doble aviso';
-COMMENT ON COLUMN notificaciones.notificacion.id IS 'PK';
+COMMENT ON TABLE notificaciones.notificacion IS 'Módulo 05 — Notificaciones y Comunicaciones. El hecho a comunicar a una persona. Una por evento y destinatario.';
+COMMENT ON COLUMN notificaciones.notificacion.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN notificaciones.notificacion.usuario_id IS 'FK, IDX';
 COMMENT ON COLUMN notificaciones.notificacion.evento_id IS 'FK';
 COMMENT ON COLUMN notificaciones.notificacion.prioridad IS 'CK';

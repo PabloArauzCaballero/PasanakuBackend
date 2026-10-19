@@ -17,8 +17,8 @@ CREATE TABLE IF NOT EXISTS identidad.sesion (
   CONSTRAINT pk_sesion PRIMARY KEY (id)
 );
 
-COMMENT ON TABLE identidad.sesion IS 'Módulo 01 — Identidad, Usuarios y Seguridad. Saber con certeza a quién le estás confiando plata ajena';
-COMMENT ON COLUMN identidad.sesion.id IS 'PK';
+COMMENT ON TABLE identidad.sesion IS 'Módulo 01 — Identidad, Usuarios y Seguridad. Una sesión activa: usuario, dispositivo, desde cuándo, desde dónde.';
+COMMENT ON COLUMN identidad.sesion.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN identidad.sesion.usuario_id IS 'FK, IDX';
 COMMENT ON COLUMN identidad.sesion.dispositivo_id IS 'FK';
 COMMENT ON COLUMN identidad.sesion.refresco_familia_id IS 'NULL';

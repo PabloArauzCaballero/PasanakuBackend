@@ -18,8 +18,8 @@ CREATE TABLE IF NOT EXISTS nucleo_financiero.solicitud_cierre_billetera (
   CONSTRAINT ck_solicitud_cierre_billetera_estado CHECK (estado IN ('APROBADA', 'EJECUTADA', 'EN_VALIDACION', 'RECHAZADA', 'SOLICITADA'))
 );
 
-COMMENT ON TABLE nucleo_financiero.solicitud_cierre_billetera IS 'Módulo 10 — Billetera, Custodia y Dinero Electrónico. El saldo no se guarda: se deriva, y todos los días cuadra contra el banco';
-COMMENT ON COLUMN nucleo_financiero.solicitud_cierre_billetera.id IS 'PK';
+COMMENT ON TABLE nucleo_financiero.solicitud_cierre_billetera IS 'Módulo 10 — Billetera, Custodia y Dinero Electrónico. El proceso de cerrar la cuenta y devolver el saldo.';
+COMMENT ON COLUMN nucleo_financiero.solicitud_cierre_billetera.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN nucleo_financiero.solicitud_cierre_billetera.cuenta_billetera_id IS 'FK, UQ';
 COMMENT ON COLUMN nucleo_financiero.solicitud_cierre_billetera.orden_retiro_id IS 'FK, NULL';
 COMMENT ON COLUMN nucleo_financiero.solicitud_cierre_billetera.aprobada_por IS 'FK, NULL';

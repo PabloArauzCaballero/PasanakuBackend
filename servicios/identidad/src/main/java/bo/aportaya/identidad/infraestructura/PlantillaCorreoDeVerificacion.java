@@ -2,16 +2,63 @@ package bo.aportaya.identidad.infraestructura;
 
 import java.time.Duration;
 
-/** HTML autocontenido del OTP. La animacion tiene una presentacion estatica segura. */
+/**
+ * HTML autocontenido del OTP. La animacion tiene una presentacion estatica segura.
+ *
+ * <p>El mismo correo sirve para dos cosas distintas, y el texto tiene que decir cual:
+ * confirmar el correo en el alta, o entrar a la cuenta. Un aviso de "confirma que este
+ * correo te pertenece" que llega cuando nadie se esta registrando hace que la persona
+ * lo ignore justo cuando alguien esta usando su contrasena.
+ */
 public final class PlantillaCorreoDeVerificacion {
+
+    /** Para que se pide el codigo. Cambia el texto, nunca el formato. */
+    public enum Motivo {
+        VERIFICACION(
+                "Tu codigo de verificacion de AportaYa",
+                "Verificacion segura",
+                "Una combinacion, tu cuenta",
+                "Escribe estos seis digitos en AportaYa para confirmar que este correo te pertenece.",
+                "Recibiste este correo porque se inicio un registro con esta direccion.<br>"
+                        + "Si no fuiste tu, puedes ignorarlo con seguridad."),
+        ACCESO(
+                "Tu codigo para entrar a AportaYa",
+                "Inicio de sesion",
+                "Tu codigo para entrar",
+                "Escribe estos seis digitos en AportaYa para terminar de iniciar sesion.",
+                "Recibiste este correo porque alguien escribio la contrasena de tu cuenta.<br>"
+                        + "Si no fuiste tu, cambia tu contrasena: sin este codigo nadie puede entrar.");
+
+        private final String asunto;
+        private final String etiqueta;
+        private final String titulo;
+        private final String instruccion;
+        private final String pie;
+
+        Motivo(String asunto, String etiqueta, String titulo, String instruccion, String pie) {
+            this.asunto = asunto;
+            this.etiqueta = etiqueta;
+            this.titulo = titulo;
+            this.instruccion = instruccion;
+            this.pie = pie;
+        }
+    }
 
     private PlantillaCorreoDeVerificacion() {}
 
     public static String asunto() {
-        return "Tu codigo de verificacion de AportaYa";
+        return asunto(Motivo.VERIFICACION);
+    }
+
+    public static String asunto(Motivo motivo) {
+        return motivo.asunto;
     }
 
     public static String html(String codigo, Duration vigencia) {
+        return html(codigo, vigencia, Motivo.VERIFICACION);
+    }
+
+    public static String html(String codigo, Duration vigencia, Motivo motivo) {
         if (codigo == null || !codigo.matches("\\d{6}")) {
             throw new IllegalArgumentException("El codigo de correo debe tener seis digitos");
         }
@@ -43,9 +90,9 @@ public final class PlantillaCorreoDeVerificacion {
                       <table role="presentation" class="card" width="520" cellspacing="0" cellpadding="0" style="width:520px;max-width:100%;background:#ffffff;border-radius:28px;overflow:hidden;box-shadow:0 20px 55px rgba(18,60,53,.14)">
                         <tr><td style="height:9px;background:linear-gradient(90deg,#11a683,#65d4b8,#f6b94a)"></td></tr>
                         <tr><td style="padding:38px 34px 12px;text-align:center">
-                          <div style="display:inline-block;padding:9px 14px;border-radius:999px;background:#e7f7f2;color:#08745e;font-size:12px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase">Verificacion segura</div>
-                          <h1 style="margin:22px 0 10px;font-size:30px;line-height:1.15;color:#123c35">Una combinacion, tu cuenta</h1>
-                          <p style="margin:0 auto;max-width:400px;color:#5d746f;font-size:16px;line-height:1.6">Escribe estos seis digitos en AportaYa para confirmar que este correo te pertenece.</p>
+                          <div style="display:inline-block;padding:9px 14px;border-radius:999px;background:#e7f7f2;color:#08745e;font-size:12px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase">{{ETIQUETA}}</div>
+                          <h1 style="margin:22px 0 10px;font-size:30px;line-height:1.15;color:#123c35">{{TITULO}}</h1>
+                          <p style="margin:0 auto;max-width:400px;color:#5d746f;font-size:16px;line-height:1.6">{{INSTRUCCION}}</p>
                         </td></tr>
                         <tr><td align="center" style="padding:24px 12px">
                           <table role="presentation" cellspacing="0" cellpadding="0"><tr>{{DIGITOS}}</tr></table>
@@ -58,7 +105,7 @@ public final class PlantillaCorreoDeVerificacion {
                           </div>
                         </td></tr>
                         <tr><td style="padding:22px 34px;background:#123c35;color:#cce5df;text-align:center;font-size:12px;line-height:1.6">
-                          Recibiste este correo porque se inicio un registro con esta direccion.<br>Si no fuiste tu, puedes ignorarlo con seguridad.
+                          {{PIE}}
                         </td></tr>
                       </table>
                       <p style="margin:20px 0 0;color:#79908b;font-size:11px">AportaYa · confianza que se mueve contigo</p>
@@ -66,6 +113,10 @@ public final class PlantillaCorreoDeVerificacion {
                   </table>
                 </body></html>
                 """
+                .replace("{{ETIQUETA}}", motivo.etiqueta)
+                .replace("{{TITULO}}", motivo.titulo)
+                .replace("{{INSTRUCCION}}", motivo.instruccion)
+                .replace("{{PIE}}", motivo.pie)
                 .replace("{{DIGITOS}}", digitos)
                 .replace("{{MINUTOS}}", Long.toString(minutos));
     }

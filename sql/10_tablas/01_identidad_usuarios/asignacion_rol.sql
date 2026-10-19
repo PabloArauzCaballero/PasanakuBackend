@@ -17,13 +17,13 @@ CREATE TABLE IF NOT EXISTS identidad.asignacion_rol (
   CONSTRAINT ck_asignacion_rol_ambito CHECK (ambito IN ('GLOBAL', 'GRUPO', 'ORGANIZACION'))
 );
 
-COMMENT ON TABLE identidad.asignacion_rol IS 'Módulo 01 — Identidad, Usuarios y Seguridad. Saber con certeza a quién le estás confiando plata ajena';
-COMMENT ON COLUMN identidad.asignacion_rol.id IS 'PK';
+COMMENT ON TABLE identidad.asignacion_rol IS 'Módulo 01 — Identidad, Usuarios y Seguridad. El vínculo usuario–rol, acotado a un ámbito, con vigencia y rastro de quién lo otorgó.';
+COMMENT ON COLUMN identidad.asignacion_rol.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN identidad.asignacion_rol.usuario_id IS 'FK, IDX';
 COMMENT ON COLUMN identidad.asignacion_rol.rol_id IS 'FK';
 COMMENT ON COLUMN identidad.asignacion_rol.ambito IS 'CK';
 COMMENT ON COLUMN identidad.asignacion_rol.ambito_id IS 'NULL, grupo_id (M2)';
 COMMENT ON COLUMN identidad.asignacion_rol.otorgada_por IS 'FK';
-COMMENT ON COLUMN identidad.asignacion_rol.vigente_hasta IS 'NULL';
+COMMENT ON COLUMN identidad.asignacion_rol.vigente_hasta IS 'Hasta cuándo rigió esta versión; vacía mientras sigue vigente.';
 COMMENT ON COLUMN identidad.asignacion_rol.revocada_en IS 'NULL';
 COMMENT ON COLUMN identidad.asignacion_rol.motivo_revocacion IS 'NULL';

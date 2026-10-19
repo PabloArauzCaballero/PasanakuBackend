@@ -31,6 +31,7 @@ void main() {
     '/identidad/contrasena',
     '/identidad/baja',
     '/soporte/ayuda',
+    '/sesion/verificacion',
   ];
   const soloSinSesion = ['/portada', '/tour', '/ingreso', '/registro'];
   const publicas = [
@@ -50,7 +51,7 @@ void main() {
   test(
     'todas las rutas inventariadas tienen acceso predeterminado explícito',
     () {
-      expect(rutas, hasLength(41));
+      expect(rutas, hasLength(42));
       for (final ruta in privadas) {
         expect(accesoDe(ruta), AccesoDeRuta.privada, reason: ruta);
       }
@@ -103,6 +104,109 @@ void main() {
       ),
       isNull,
     );
+  });
+
+  test(
+    'sesión con la identidad en revisión entra a la app y puede abrir el estado de su verificación',
+    () {
+      expect(
+        decidirRuta(
+          estado: EstadoDeSesion.activa,
+          destino: Uri.parse('/billetera/inicio'),
+          requiereVerificacion: true,
+        ),
+        isNull,
+        reason:
+            'con la identidad en revisión se entra a la app; el aviso del shell lo dice',
+      );
+      expect(
+        decidirRuta(
+          estado: EstadoDeSesion.activa,
+          destino: Uri.parse('/sesion/verificacion'),
+          requiereVerificacion: true,
+        ),
+        isNull,
+      );
+      expect(
+        decidirRuta(
+          estado: EstadoDeSesion.activa,
+          destino: Uri.parse('/billetera/inicio'),
+          requiereVerificacion: false,
+        ),
+        isNull,
+      );
+      expect(
+        decidirRuta(
+          estado: EstadoDeSesion.anonima,
+          destino: Uri.parse('/sesion/verificacion'),
+          requiereVerificacion: true,
+        ),
+        startsWith('/ingreso?volver='),
+      );
+    },
+  );
+
+  group('sin la identidad verificada, mover dinero o entrar a un grupo pide la '
+      'verificación', () {
+    const operaciones = [
+      '/billetera/recargar',
+      '/billetera/retirar',
+      '/billetera/transferir',
+      '/pasanaku/grupos/nuevo',
+      '/pasanaku/grupos/c6900000-0000-4000-8000-000000000001/pedir-cupo',
+      '/pasanaku/obligaciones/c6900000-0000-4000-8000-000000000009/aportar',
+    ];
+
+    test('correcto: cada operación lleva a «Verificá tu identidad» y recuerda '
+        'adónde iba', () {
+      for (final ruta in operaciones) {
+        final r = decidirRuta(
+          estado: EstadoDeSesion.activa,
+          destino: Uri.parse(ruta),
+          requiereVerificacion: true,
+        );
+        expect(
+          r,
+          startsWith('$rutaDeIdentidadRequerida?volver='),
+          reason: ruta,
+        );
+        expect(Uri.parse(r!).queryParameters['volver'], ruta);
+      }
+    });
+
+    test('límite: mirar no exige identidad (inicio, extracto, mis grupos, una '
+        'invitación, el estado de la verificación)', () {
+      for (final ruta in [
+        '/billetera/inicio',
+        '/billetera/extracto',
+        '/pasanaku/mi-estado',
+        '/pasanaku/unirse/ABC123',
+        '/sesion/verificacion',
+        rutaDeVerificarIdentidad,
+        '/billetera/recargar-algo',
+      ]) {
+        expect(
+          decidirRuta(
+            estado: EstadoDeSesion.activa,
+            destino: Uri.parse(ruta),
+            requiereVerificacion: true,
+          ),
+          isNull,
+          reason: ruta,
+        );
+      }
+    });
+
+    test('inválido para la regla: con la identidad verificada las operaciones '
+        'abren directo', () {
+      for (final ruta in operaciones) {
+        expect(
+          decidirRuta(estado: EstadoDeSesion.activa, destino: Uri.parse(ruta)),
+          isNull,
+          reason: ruta,
+        );
+      }
+    });
   });
 
   test(

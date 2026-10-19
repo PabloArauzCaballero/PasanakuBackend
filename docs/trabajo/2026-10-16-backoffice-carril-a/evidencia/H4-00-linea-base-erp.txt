@@ -1,0 +1,6 @@
+$ ./gradlew :servicios:erp:spotlessCheck test webTest testBarrido integrationTest contractTest --continue   (LÍNEA BASE, sin cambios en erp)
+test             clases   1  pruebas    5  fallas 0  omitidas 0
+webTest          clases   5  pruebas   37  fallas 0  omitidas 0
+testBarrido      clases   1  pruebas    2  fallas 0  omitidas 0
+integrationTest  clases  16  pruebas   91  fallas 0  omitidas 0
+contractTest     clases   0  pruebas    0  fallas 0  omitidas 0

@@ -1,0 +1,2 @@
+CUIngresoAlFondoTest 8/8 (reversoDelRecargo, reversoDuplicado, reversoAjeno incluidos) · ConsumidorDeReversosKafkaTest 3/3 · ArranqueTest 1/1
+gates: verificar_seguridad/criterios/boveda exit=0

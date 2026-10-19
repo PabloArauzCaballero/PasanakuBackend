@@ -1,8 +1,9 @@
 import { ChangeDetectionStrategy, Component, inject, resource } from '@angular/core'
-import { BandaDeProposito } from '@aportaya/ui/banda-de-proposito/banda-de-proposito'
+import { CabeceraDePagina } from '@aportaya/ui/cabecera-de-pagina/cabecera-de-pagina'
 import { ChipEstado } from '@aportaya/ui/chip-estado/chip-estado'
 import { EstadoDePantalla } from '@aportaya/ui/estado-de-pantalla/estado-de-pantalla'
 import { TablaDeDatos, type Columna } from '@aportaya/ui/tabla-de-datos/tabla-de-datos'
+import { ExplicadorDeVista } from '../../../nucleo/explicador-de-vista'
 import { PUERTO_OUTBOX, type MensajeDescartado, type MensajeOutbox, type OutboxYDescartados } from '../dominio/puertos'
 import { textosSistemas } from '../textos'
 
@@ -10,11 +11,10 @@ import { textosSistemas } from '../textos'
 @Component({
   selector: 'ap-pantalla-outbox',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [BandaDeProposito, TablaDeDatos, ChipEstado, EstadoDePantalla],
+  imports: [CabeceraDePagina, TablaDeDatos, ChipEstado, EstadoDePantalla],
   template: `
-    <ap-banda-de-proposito [texto]="t.proposito" />
     <section class="pantalla">
-      <h1>{{ t.titulo }}</h1>
+      <ap-cabecera-de-pagina [titulo]="t.titulo" [descripcion]="t.proposito" icono="campana" />
       <ap-estado-de-pantalla [recurso]="outbox" [vacio]="esVacio" [mensajeVacio]="t.vacio" [etiquetaDeCarga]="t.cargando" (reintentar)="outbox.reload()">
         @if (outbox.hasValue() && outbox.value(); as datos) {
           <section>
@@ -40,9 +40,13 @@ import { textosSistemas } from '../textos'
       </ap-estado-de-pantalla>
     </section>
   `,
-  styles: `.pantalla { padding: 0; max-width: 60rem; display: flex; flex-direction: column; gap: var(--s5); } h1 { margin-bottom: 0; }`,
+  styles: `.pantalla { padding: 0; max-width: 60rem; display: flex; flex-direction: column; gap: var(--s5); }`,
 })
 export class PantallaOutbox {
+  constructor() {
+    inject(ExplicadorDeVista).fijar(this.t.proposito)
+  }
+
   protected readonly t = textosSistemas.outbox
   private readonly puerto = inject(PUERTO_OUTBOX)
   protected readonly outbox = resource({ loader: () => this.puerto.obtener() })

@@ -1,0 +1,6 @@
+$ ./gradlew :servicios:erp:integrationTest --tests '*CU106DescargaTest*'  &&  ./gradlew :servicios:erp:webTest
+   PASS CU106DescargaTest · rechaza entregar un documento cuyo contenido ya no da su hash sellado: AP-CU106-04
+   PASS CU106DescargaTest · rechaza descargar un estado financiero inexistente: AP-CU106-03
+   PASS CU106DescargaTest · Dado un balance general generado sobre un mes cerrado · Cuando Contabilidad descarga su documento · Entonces el contenido entregado hashea al hash sellado al generarlo
+   PASS ErpPeriodosWebTest · 200: el documento sellado con su hash repetido en X-Hash-Contenido; 422 si la integridad no cierra
+webTest total 45 fallas 0

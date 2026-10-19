@@ -15,8 +15,8 @@ CREATE TABLE IF NOT EXISTS notificaciones.enlace_pago_notificado (
   CONSTRAINT pk_enlace_pago_notificado PRIMARY KEY (id)
 );
 
-COMMENT ON TABLE notificaciones.enlace_pago_notificado IS 'Módulo 05 — Notificaciones y Comunicaciones. WhatsApp como canal real de cobro, sin spam ni doble aviso';
-COMMENT ON COLUMN notificaciones.enlace_pago_notificado.id IS 'PK';
+COMMENT ON TABLE notificaciones.enlace_pago_notificado IS 'Módulo 05 — Notificaciones y Comunicaciones. El enlace de pago que viaja dentro de una notificación, con su seguimiento de clics y conversión.';
+COMMENT ON COLUMN notificaciones.enlace_pago_notificado.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN notificaciones.enlace_pago_notificado.notificacion_id IS 'FK, UQ';
 COMMENT ON COLUMN notificaciones.enlace_pago_notificado.orden_cobro_id IS 'FK, M3';
 COMMENT ON COLUMN notificaciones.enlace_pago_notificado.token_id IS 'FK, UQ, M1';

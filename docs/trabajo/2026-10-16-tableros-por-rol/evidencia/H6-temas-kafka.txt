@@ -1,0 +1,12 @@
+$ python3 scripts/listar_topicos.py | grep -E "indicador_calculado|aporte_aplicado|transaccion_reversada"
+aportaya.aportes.indicador_calculado
+aportaya.entregas.indicador_calculado
+aportaya.garantia.indicador_calculado
+aportaya.grupos.indicador_calculado
+aportaya.identidad.indicador_calculado
+aportaya.inversiones.indicador_calculado
+aportaya.nucleo_financiero.aporte_aplicado
+aportaya.nucleo_financiero.indicador_calculado
+aportaya.nucleo_financiero.transaccion_reversada
+total temas:      255
+Hallazgo: el broker corre con KAFKA_AUTO_CREATE_TOPICS_ENABLE=false; el listador solo veia literales y omitia los 7 temas indicador_calculado (tipo armado en runtime). Sin este arreglo, el relevo los dejaba FALLIDO. En TEST hay que correr despliegue/host/crear-topicos.sh despues de desplegar.

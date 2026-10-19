@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS identidad.solicitud_baja (
   CONSTRAINT pk_solicitud_baja PRIMARY KEY (id)
 );
 
-COMMENT ON TABLE identidad.solicitud_baja IS 'Módulo 01 — Identidad, Usuarios y Seguridad. Saber con certeza a quién le estás confiando plata ajena';
-COMMENT ON COLUMN identidad.solicitud_baja.id IS 'PK';
+COMMENT ON TABLE identidad.solicitud_baja IS 'Módulo 01 — Identidad, Usuarios y Seguridad. El pedido formal de un usuario de dejar la plataforma.';
+COMMENT ON COLUMN identidad.solicitud_baja.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN identidad.solicitud_baja.usuario_id IS 'FK, IDX';
 COMMENT ON COLUMN identidad.solicitud_baja.fecha_efectiva IS 'NULL';

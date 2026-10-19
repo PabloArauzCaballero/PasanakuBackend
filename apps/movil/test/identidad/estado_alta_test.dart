@@ -342,4 +342,64 @@ void main() {
     expect(c.read(altaProvider).error, contains('vencido'));
     expect(c.read(altaProvider).trazaId, 'traza-vencimiento');
   });
+
+  test(
+    'confirmar código restaura borrador y paso pendiente si el onboarding estaba incompleto',
+    () async {
+      final (:dio, :adaptador) = dioSimulado();
+      const verificacionId = 'dddddddd-0000-4000-8000-000000000003';
+      adaptador.onPost(
+        '/usuarios/verificaciones/correo',
+        (s) => s.reply(202, {
+          'verificacionId': verificacionId,
+          'destinoEnmascarado': 'ca***@example.com',
+          'expiraEn': '2026-10-07T20:10:00Z',
+        }),
+        data: Matchers.any,
+      );
+      adaptador.onPost(
+        '/usuarios/verificaciones/correo/$verificacionId/confirmacion',
+        (s) => s.reply(200, {
+          'verificada': true,
+          'onboardingIncompleto': true,
+          'borrador': {
+            'correo': 'carlos@example.com',
+            'telefonoE164': '+59178123456',
+            'nombres': 'Carlos',
+            'apellidos': 'Perez',
+            'tipoDocumento': 'CI',
+            'numeroDocumento': '9876543',
+            'lugarExpedicion': 'CB',
+            'actividadEconomica': 'SERVICIOS',
+            'pasoPendiente': 'documento',
+          },
+        }),
+        data: Matchers.any,
+      );
+
+      final c = ProviderContainer(
+        overrides: [
+          almacenSeguroProvider.overrideWithValue(AlmacenEnMemoria()),
+          dioProvider.overrideWithValue(dio),
+        ],
+      );
+      addTearDown(c.dispose);
+
+      c
+          .read(altaProvider.notifier)
+          .actualizarDatos(const DatosPersonales(correo: 'carlos@example.com'));
+      await c.read(altaProvider.notifier).solicitarCodigoCorreo();
+      await c.read(altaProvider.notifier).confirmarCodigoCorreo('654321');
+
+      final estado = c.read(altaProvider);
+      expect(estado.codigoConfirmado, true);
+      expect(estado.datos.nombres, 'Carlos');
+      expect(estado.datos.apellidos, 'Perez');
+      expect(estado.datos.telefono, '+59178123456');
+      expect(estado.datos.numeroDocumento, '9876543');
+      expect(estado.datos.lugarExpedicion, 'CB');
+      expect(estado.actividadEconomica, 'SERVICIOS');
+      expect(estado.paso, PasoAlta.documento);
+    },
+  );
 }

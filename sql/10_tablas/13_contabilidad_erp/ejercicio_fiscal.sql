@@ -14,8 +14,8 @@ CREATE TABLE IF NOT EXISTS erp.ejercicio_fiscal (
   CONSTRAINT ck_ejercicio_fiscal_estado CHECK (estado IN ('ABIERTO', 'CERRADO'))
 );
 
-COMMENT ON TABLE erp.ejercicio_fiscal IS 'Módulo 13 — Contabilidad Financiera y ERP. Que cerrar un mes no dependa de un Excel armado a mano';
-COMMENT ON COLUMN erp.ejercicio_fiscal.id IS 'PK';
+COMMENT ON TABLE erp.ejercicio_fiscal IS 'Módulo 13 — Contabilidad Financiera y ERP. El año contable completo, con apertura y cierre.';
+COMMENT ON COLUMN erp.ejercicio_fiscal.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN erp.ejercicio_fiscal.anio IS 'UQ';
 COMMENT ON COLUMN erp.ejercicio_fiscal.estado IS 'CK, IDX';
 COMMENT ON COLUMN erp.ejercicio_fiscal.cerrado_en IS 'NULL';

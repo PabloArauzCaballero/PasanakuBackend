@@ -1,0 +1,11 @@
+$ python3 scripts/generar_semillas.py   # primera
+         → despliegue/ensayos/sandbox_licencia_test.sh: bloque SQL-GENERADO al dia (12 lineas)
+         → despliegue/ensayos/politica_invitacion_test.sh: bloque SQL-GENERADO al dia (39 lineas)
+total: 7525 filas de semilla · validadas contra el modelo
+ sql/60_semillas/10-roles-y-permisos.sql | 2 ++
+ 1 file changed, 2 insertions(+)
+$ python3 scripts/generar_semillas.py   # segunda: no cambia nada
+total: 7525 filas de semilla · validadas contra el modelo
+72f114b1814ccd1d2836c7c53db4d65a
+72f114b1814ccd1d2836c7c53db4d65a
+2

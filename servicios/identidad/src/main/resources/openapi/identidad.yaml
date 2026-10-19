@@ -41,7 +41,10 @@ paths:
           content:
             application/json:
               schema: { $ref: '#/components/schemas/VerificacionCorreoSolicitada' }
-        '422': { $ref: '#/components/responses/ReglaDeNegocio' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU01-03 CUENTA_YA_EXISTE (detalle.campo = correo): ese correo ya tiene
+          # cuenta; se corta aca y no al final del alta · AP-CU01-07 envio fallido
 
   /usuarios/verificaciones/correo/{verificacionId}/confirmacion:
     post:
@@ -68,6 +71,31 @@ paths:
               schema: { $ref: '#/components/schemas/VerificacionCorreoConfirmada' }
         '422': { $ref: '#/components/responses/ReglaDeNegocio' }
 
+  /usuarios/verificaciones/correo/{verificacionId}/borrador:
+    put:
+      operationId: guardarBorradorOnboarding
+      summary: Guardar avance del onboarding incompleto
+      description: >-
+        Permite persistir los datos ingresados en el formulario de alta para que la
+        persona pueda retomar su proceso tras validar nuevamente su correo.
+      parameters:
+        - name: verificacionId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/BorradorOnboarding' }
+      responses:
+        '200':
+          description: Borrador guardado exitosamente
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/BorradorOnboarding' }
+        '422': { $ref: '#/components/responses/ReglaDeNegocio' }
+
   /usuarios:
     post:
       operationId: registrarUsuario          # CU-01
@@ -86,7 +114,11 @@ paths:
       responses:
         '202':
           description: >-
-            Alta aceptada. El usuario queda PENDIENTE_VERIFICACION y NO opera
+            Alta aceptada. Sin `documento`, la cuenta queda INCOMPLETO_KYC: puede
+            ingresar y conocer la app, y envia su documento despues con
+            `POST /usuarios/{usuarioId}/verificacion`, cuando quiere operar (2026-10-17).
+
+            Con `documento`, el usuario queda PENDIENTE_VERIFICACION y NO opera
             todavia: la debida diligencia la hace `cumplimiento` y la billetera la
             abre `nucleo-financiero` al consumir `identidad.usuario_registrado`.
 
@@ -105,6 +137,7 @@ paths:
           # AP-CU01-05 SERVICIO_NO_AUTORIZADO (R-LIC-01)
           # AP-CU01-06 CLAVE_RECHAZADA: corta, o derivada del telefono o del documento
           # AP-CU01-07 DOCUMENTO_VENCIDO: la fecha de vencimiento ya paso
+          # AP-CU01-12 VERIFICACION_YA_INICIADA (solo en POST /usuarios/{id}/verificacion)
           # AP-CU01-03 lleva detalle.campo = telefono | documento | correo: el dato
           # que ya tiene cuenta, para que el cliente diga CUAL (2026-10-15).
           # Si dos altas con el mismo dato se cruzan, la segunda rebota en el indice
@@ -135,6 +168,7 @@ paths:
           # AP-CU04-03 FACTOR_REQUERIDO   · AP-CU04-04 TOKEN_VENCIDO
           # AP-CU04-05 DEMASIADOS_INTENTOS · AP-CU04-06 FACTOR_NO_ENROLADO
           # AP-CU04-07 FACTOR_NO_ADMISIBLE (R-SEG-10)
+          # AP-CU04-10 FACTOR_ENVIADO_POR_CORREO: el codigo ya salio al correo verificado (vence en 10 minutos)
       # Con `plataforma: WEB` la respuesta 200 trae ademas `Set-Cookie: aportaya_refresco`
       # (HttpOnly; Secure; SameSite=Strict; Path=/api/v1/sesion), el refresh de ADR-010.
       # Android/iOS reciben el refresh rotatorio en tokenRefresco (cuerpo); WEB lo recibe
@@ -397,15 +431,46 @@ paths:
         '403':
           description: No es la persona ni presenta el token de su alta (idéntico exista o no el usuario)
         '422': { $ref: '#/components/responses/ReglaDeNegocio' }
+
+  /usuarios/{usuarioId}/documento/fecha-expiracion:
+    put:
+      operationId: actualizarFechaExpiracionDocumento
+      summary: Completa la fecha de vencimiento del documento propio
+      description: >-
+        Solo el titular autenticado puede completar o corregir la fecha de su documento.
+        Se admite mientras el expediente siga PENDIENTE o EN_REVISION; la persona revisora
+        valida la fecha contra el documento fotografiado y esta operacion no aprueba el KYC.
+        El usuarioId de la ruta debe coincidir con el sujeto de la sesion.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: usuarioId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/FechaExpiracionDocumento' }
+      responses:
+        '204':
+          description: Fecha guardada; la aprobacion sigue siendo manual
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '403':
+          description: La sesión pertenece a otra persona
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '422': { $ref: '#/components/responses/ReglaDeNegocio' }
   /usuarios/{usuarioId}/verificacion:
     get:
       operationId: consultarEstadoDeVerificacion
       summary: El estado de la verificacion de quien acaba de registrarse
       description: >-
-        Ruta sin sesion obligatoria, igual que `subirDocumento`: quien recien se registro
-        todavia no puede abrir sesion (su dispositivo es nuevo y `ExigeSegundoFactor` le
-        pide un MFA que todavia no tiene enrolado), y necesita saber si su cuenta quedo
-        verificada sin esperar a poder ingresar.
+        Ruta sin sesion obligatoria, igual que `subirDocumento`: el alta no abre sesion, y
+        quien recien se registro necesita saber si su cuenta quedo verificada sin tener
+        que ingresar primero.
 
         Pero el `usuarioId` de la URL NO autoriza nada: lo consulta solo la persona. O
         presenta el `tokenDeAlta` que devolvio SU alta (cabecera `Token-De-Alta`), o es su
@@ -434,6 +499,47 @@ paths:
           description: No es la persona ni presenta el token de su alta (idéntico exista o no el usuario)
         '422': { $ref: '#/components/responses/ReglaDeNegocio' }
           # AP-CU02-xx NO_HAY_EXPEDIENTE
+    post:
+      operationId: iniciarVerificacion
+      summary: La persona ya registrada envia su documento y abre su verificacion
+      description: >-
+        Para la cuenta que se abrio sin documento (INCOMPLETO_KYC): la verificacion de
+        identidad se pide recien cuando la persona quiere operar con dinero (crear o
+        unirse a un grupo, mover su billetera), no al crear la cuenta (2026-10-17).
+
+        Solo el titular con su propia sesion; el `usuarioId` de la ruta debe coincidir con
+        el sujeto de la sesion (el mismo 403 en cualquier otro caso). Guarda el documento,
+        abre la verificacion BASICO y pasa la cuenta a PENDIENTE_VERIFICACION en la misma
+        transaccion. Despues, las fotos se suben con `POST /usuarios/{usuarioId}/documentos`
+        y la aprobacion sigue siendo de una persona revisora.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: usuarioId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/Documento' }
+      responses:
+        '202':
+          description: Verificacion abierta, sin fotos todavia
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/EstadoDeVerificacion' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '403':
+          description: La sesión pertenece a otra persona
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '422': { $ref: '#/components/responses/ReglaDeNegocio' }
+          # AP-CU01-03 CUENTA_YA_EXISTE (detalle.campo = documento)
+          # AP-CU01-07 DOCUMENTO_VENCIDO · AP-CU01-10 sin fecha de vencimiento
+          # AP-CU01-12 VERIFICACION_YA_INICIADA: la cuenta ya tiene su verificacion
 
   /usuarios/{usuarioId}/titularidad/verificacion:
     post:
@@ -599,6 +705,45 @@ paths:
             application/json:
               schema: { $ref: '#/components/schemas/UsuarioEncontrado' }
 
+  /usuarios/{usuarioId}/roles/organizador:
+    post:
+      operationId: activarRolOrganizador
+      summary: Firmar el contrato de organizador Aprendiz y conceder el rol ORGANIZADOR
+      description: >-
+        Solo para uno mismo. Registra la firma como token FIRMA_CONTRATO, pide a
+        organizador que firme el contrato aceptado y, si queda habilitado, concede el rol.
+        Idempotente. AP-CU90-12 si el usuario no es quien llama, AP-CU90-13 si la firma
+        no se pudo completar, AP-CU90-14 si el KYC todavia no esta aprobado.
+      parameters:
+        - name: usuarioId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaRolOrganizador' }
+      responses:
+        '200':
+          description: El rol queda activo (nuevo o ya existente)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/RolOrganizadorActivado' }
+        '422': { $ref: '#/components/responses/ReglaDeNegocio' }
+  /usuarios/yo/perfil:
+    get:
+      operationId: consultarMiPerfil          # CU-07
+      summary: Los datos de contacto de la cuenta de la sesion
+      description: >-
+        Lo que la pantalla de perfil muestra: el correo de la propia cuenta. Se resuelve con
+        la sesion, nunca con un id del cliente, asi que nadie lee el de otra persona.
+      responses:
+        '200':
+          description: El perfil de quien pregunta
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/MiPerfil' }
   /usuarios/{usuarioId}/kyc:
     get:
       operationId: consultarNivelKyc
@@ -618,6 +763,160 @@ paths:
         '403':
           description: Quien pregunta no es la persona ni un rol que pueda leer el de otra
 
+  /usuarios-internos:
+    get:
+      operationId: listarUsuariosInternos
+      summary: Lista de usuarios internos con sus roles y estado
+      description: >-
+        Permite filtrar por estado, codigo de rol y busqueda libre.
+      parameters:
+        - name: estado
+          in: query
+          required: false
+          schema: { type: string }
+        - name: rol
+          in: query
+          required: false
+          schema: { type: string }
+        - name: busqueda
+          in: query
+          required: false
+          schema: { type: string }
+      responses:
+        '200':
+          description: Lista de usuarios internos
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/UsuarioInternoResumen' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '403': { $ref: '#/components/responses/ReglaDeNegocio' }
+    post:
+      operationId: crearUsuarioInterno
+      summary: Alta de usuario interno con contrasena provisional
+      parameters:
+        - $ref: '#/components/parameters/ClaveIdempotencia'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaAltaUsuarioInterno' }
+      responses:
+        '201':
+          description: Usuario interno creado exitosamente
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/UsuarioInternoDetalle' }
+        '422': { $ref: '#/components/responses/ReglaDeNegocio' }
+
+  /usuarios-internos/{id}:
+    get:
+      operationId: consultarUsuarioInterno
+      summary: Ficha completa de un usuario interno
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: Detalle del usuario interno
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/UsuarioInternoDetalle' }
+        '404': { $ref: '#/components/responses/ReglaDeNegocio' }
+    patch:
+      operationId: actualizarUsuarioInterno
+      summary: Actualizar departamento, cargo o suspender con motivo
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaActualizarUsuarioInterno' }
+      responses:
+        '200':
+          description: Usuario interno actualizado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/UsuarioInternoDetalle' }
+        '422': { $ref: '#/components/responses/ReglaDeNegocio' }
+
+  /usuarios-internos/{id}/roles:
+    put:
+      operationId: asignarRolesUsuarioInterno
+      summary: Actualizar roles de un usuario interno con motivo (CU-08)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaAsignarRolesUsuarioInterno' }
+      responses:
+        '200':
+          description: Roles actualizados
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/UsuarioInternoDetalle' }
+        '422': { $ref: '#/components/responses/ReglaDeNegocio' }
+
+  /usuarios-internos/{id}/desbloquear:
+    post:
+      operationId: desbloquearUsuarioInterno
+      summary: Desbloquear usuario interno con motivo
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaDesbloqueoUsuarioInterno' }
+      responses:
+        '200':
+          description: Usuario desbloqueado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/UsuarioInternoDetalle' }
+        '422': { $ref: '#/components/responses/ReglaDeNegocio' }
+
+  /roles:
+    get:
+      operationId: listarRoles
+      summary: Catalogo de roles con departamento, descripcion y permisos
+      responses:
+        '200':
+          description: Catalogo de roles
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/RolCatalogo' }
+
+  /permisos:
+    get:
+      operationId: listarPermisos
+      summary: Catalogo de permisos
+      responses:
+        '200':
+          description: Catalogo de permisos
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/PermisoCatalogo' }
+
 components:
   parameters:
     ClaveIdempotencia:
@@ -629,6 +928,20 @@ components:
         seguro, y la clave se valida ANTES de escribir (invariante 7).
       schema: { type: string, format: uuid }
   schemas:
+    EntradaRolOrganizador:
+      type: object
+      additionalProperties: false
+      required: [contratoId, contenidoHash]
+      properties:
+        contratoId: { type: string, format: uuid }
+        contenidoHash: { type: string, maxLength: 64 }
+    RolOrganizadorActivado:
+      type: object
+      additionalProperties: false
+      required: [activo, esNuevo]
+      properties:
+        activo: { type: boolean }
+        esNuevo: { type: boolean }
     SolicitudVerificacionCorreo:
       type: object
       additionalProperties: false
@@ -656,6 +969,48 @@ components:
       required: [verificada]
       properties:
         verificada: { type: boolean }
+        onboardingIncompleto: { type: boolean }
+        borrador: { $ref: '#/components/schemas/BorradorOnboarding' }
+    BorradorOnboarding:
+      type: object
+      additionalProperties: false
+      properties:
+        correo: { type: string, format: email, maxLength: 150 }
+        telefonoE164: { type: string, pattern: '^\+591[67]\d{7}$' }
+        nombres: { type: string, maxLength: 80 }
+        apellidos: { type: string, maxLength: 80 }
+        fechaNacimiento: { type: string, format: date }
+        tipoDocumento: { type: string, enum: [CI, PASAPORTE, CARNET_EXTRANJERO] }
+        numeroDocumento: { type: string, maxLength: 30 }
+        lugarExpedicion: { type: string, maxLength: 5 }
+        fechaExpiracion: { type: string, format: date }
+        actividadEconomica: { type: string, maxLength: 10 }
+        detalleActividad: { type: string, maxLength: 100 }
+        origenDeFondos: { type: string, maxLength: 20 }
+        detalleOrigen: { type: string, maxLength: 100 }
+        montoMensualEstimado: { type: string }
+        pasoPendiente: { type: string, enum: [cuenta, correo, documento, datos, actividad, contrato] }
+    MiPerfil:
+      type: object
+      additionalProperties: false
+      required: [usuarioId, correoVerificado, estadoDeCuenta]
+      properties:
+        usuarioId:        { type: string, format: uuid }
+        correo:           { type: [string, 'null'], maxLength: 150 }
+        correoVerificado: { type: boolean }
+        nombreVisible:
+          type: [string, 'null']
+          maxLength: 60
+          description: >-
+            Primer nombre e inicial del apellido («Rosa Q.»): lo que ve el organizador de
+            un grupo cuando la persona pide unirse. Null si la cuenta todavia no tiene nombre.
+        estadoDeCuenta:
+          type: string
+          description: >-
+            INCOMPLETO_KYC: todavia no envio su documento. PENDIENTE_VERIFICACION: lo
+            envio y esta en revision. ACTIVO: verificada. La app decide con esto que le
+            ofrece a la persona antes de una operacion con dinero.
+          enum: [ACTIVO, BAJA_VOLUNTARIA, BLOQUEADO_SEGURIDAD, ELIMINADO, INCOMPLETO_KYC, PENDIENTE_VERIFICACION, PRE_REGISTRO, SUSPENDIDO]
     NivelKyc:
       type: object
       additionalProperties: false
@@ -793,9 +1148,19 @@ components:
     EntradaAutenticacion:
       type: object
       additionalProperties: false
-      required: [telefonoE164, huellaDispositivo]
+      description: >-
+        Exactamente uno de `telefonoE164` o `correo` identifica la cuenta. Ninguno o los dos
+        responde 400 AP-VAL-02. Un correo que no existe responde igual que una credencial
+        mala (AP-CU04-01): el ingreso no dice qué cuentas existen.
+      required: [huellaDispositivo]
+      example:
+        telefonoE164: '+59178123456'
+        credencial: credencial-de-prueba
+        huellaDispositivo: huellaDispositivo-de-prueba
+        plataforma: ANDROID
       properties:
         telefonoE164:      { type: string, pattern: '^\+591\d{8}$' }
+        correo:            { type: string, format: email, maxLength: 150 }
         credencial:        { type: string, minLength: 8, maxLength: 128 }
         huellaDispositivo: { type: string, maxLength: 128 }
         plataforma:        { type: string, enum: [ANDROID, IOS, WEB] }
@@ -859,6 +1224,7 @@ components:
         usuarioId:      { type: string, format: uuid }
         nombreCompleto: { type: string }
         telefono:      { type: string, description: 'Telefono E.164 de la persona para localizar el expediente en el backoffice.' }
+        correo:        { type: string, description: 'Correo declarado por la persona para contacto del operador de verificacion. Ausente en cuentas antiguas sin correo.' }
         documento:      { type: string, description: 'Tipo y lugar de expedicion; el numero NUNCA viaja.' }
         estado:         { type: string, enum: [PENDIENTE, EN_REVISION, APROBADA, RECHAZADA] }
         iniciadaEn:     { type: string, format: date-time }
@@ -903,10 +1269,23 @@ components:
         verificacionId: { type: string, format: uuid }
         estado:         { type: string, enum: [PENDIENTE, EN_REVISION, APROBADA, RECHAZADA] }
         motivoRechazo:  { type: string, maxLength: 160 }
+        fechaExpiracionDocumento:
+          type: string
+          format: date
+          description: Fecha declarada por el titular; solo se muestra en su expediente para completar datos faltantes.
         fotos:
           type: array
           description: Que caras tiene cargadas hasta ahora.
           items: { $ref: '#/components/schemas/CaraDelExpediente' }
+    FechaExpiracionDocumento:
+      type: object
+      additionalProperties: false
+      required: [fechaExpiracionDocumento]
+      properties:
+        fechaExpiracionDocumento:
+          type: string
+          format: date
+          description: Fecha que figura en el documento; una persona la verificará antes de aprobar.
     ArchivoDelExpediente:
       type: object
       additionalProperties: false
@@ -951,7 +1330,9 @@ components:
     EntradaRegistro:
       type: object
       additionalProperties: false      # strict(): lista blanca, no lista negra
-      required: [telefonoE164, nombres, apellidos, fechaNacimiento, correo, documento, aceptaContratos, contrasena, verificacionCorreoId]
+      # `documento` es opcional desde 2026-10-17: sin el, la cuenta se abre para conocer la
+      # app y la verificacion se pide cuando la persona quiere operar con dinero.
+      required: [telefonoE164, nombres, apellidos, fechaNacimiento, correo, aceptaContratos, contrasena, verificacionCorreoId]
       properties:
         telefonoE164:    { type: string, pattern: '^\+591\d{8}$' }
         nombres:         { type: string, minLength: 2, maxLength: 60 }
@@ -1014,7 +1395,7 @@ components:
         usuarioId: { type: string, format: uuid }
         estado:
           type: string
-          enum: [PENDIENTE_VERIFICACION, ACTIVO]
+          enum: [INCOMPLETO_KYC, PENDIENTE_VERIFICACION, ACTIVO]
         cuentaBilleteraId: { type: string, format: uuid }
         nivelDiligencia:
           type: string
@@ -1029,6 +1410,129 @@ components:
             corto. Se manda en la cabecera `Token-De-Alta` de `POST /usuarios/{usuarioId}/documentos`.
             No es una sesion: no sirve para nada mas.
         tokenDeAltaVenceEn: { type: string, format: date-time }
+
+    UsuarioInternoResumen:
+      type: object
+      additionalProperties: false
+      required: [id, usuarioId, nombres, apellidos, correo, departamento, cargo, estado, debeCambiarContrasena, tieneSegundoFactor, roles]
+      properties:
+        id: { type: string, format: uuid }
+        usuarioId: { type: string, format: uuid }
+        codigoPublico: { type: string }
+        nombres: { type: string }
+        apellidos: { type: string }
+        correo: { type: string, format: email }
+        telefono: { type: string }
+        departamento: { type: string }
+        cargo: { type: string }
+        estado: { type: string }
+        debeCambiarContrasena: { type: boolean }
+        tieneSegundoFactor: { type: boolean }
+        bloqueadoHasta: { type: string, format: date-time, nullable: true }
+        motivoBloqueo: { type: string, nullable: true }
+        roles:
+          type: array
+          items: { type: string }
+
+    UsuarioInternoDetalle:
+      type: object
+      additionalProperties: false
+      required: [id, usuarioId, nombres, apellidos, correo, departamento, cargo, estado, debeCambiarContrasena, tieneSegundoFactor, roles, permisosEfectivos]
+      properties:
+        id: { type: string, format: uuid }
+        usuarioId: { type: string, format: uuid }
+        codigoPublico: { type: string }
+        nombres: { type: string }
+        apellidos: { type: string }
+        correo: { type: string, format: email }
+        telefono: { type: string }
+        departamento: { type: string }
+        cargo: { type: string }
+        estado: { type: string }
+        debeCambiarContrasena: { type: boolean }
+        tieneSegundoFactor: { type: boolean }
+        bloqueadoHasta: { type: string, format: date-time, nullable: true }
+        motivoBloqueo: { type: string, nullable: true }
+        roles:
+          type: array
+          items: { type: string }
+        permisosEfectivos:
+          type: array
+          items: { type: string }
+        creadoEn: { type: string, format: date-time }
+        actualizadoEn: { type: string, format: date-time }
+
+    EntradaAltaUsuarioInterno:
+      type: object
+      additionalProperties: false
+      required: [nombres, apellidos, correo, telefono, departamento, cargo, rolCodigo]
+      properties:
+        nombres: { type: string, minLength: 2, maxLength: 80 }
+        apellidos: { type: string, minLength: 2, maxLength: 80 }
+        correo: { type: string, format: email, maxLength: 150 }
+        telefono: { type: string, minLength: 8, maxLength: 20 }
+        departamento: { type: string, minLength: 2, maxLength: 60 }
+        cargo: { type: string, minLength: 2, maxLength: 80 }
+        rolCodigo: { type: string, minLength: 2, maxLength: 30 }
+
+    EntradaActualizarUsuarioInterno:
+      type: object
+      additionalProperties: false
+      required: [motivo]
+      properties:
+        departamento: { type: string, maxLength: 60, nullable: true }
+        cargo: { type: string, maxLength: 80, nullable: true }
+        estado: { type: string, enum: [ACTIVO, SUSPENDIDO], nullable: true }
+        motivo: { type: string, minLength: 5, maxLength: 200 }
+
+    EntradaAsignarRolesUsuarioInterno:
+      type: object
+      additionalProperties: false
+      required: [roles, motivo]
+      properties:
+        roles:
+          type: array
+          minItems: 1
+          items: { type: string }
+        motivo: { type: string, minLength: 5, maxLength: 200 }
+
+    EntradaDesbloqueoUsuarioInterno:
+      type: object
+      additionalProperties: false
+      required: [motivo]
+      properties:
+        motivo: { type: string, minLength: 5, maxLength: 200 }
+
+    RolCatalogo:
+      type: object
+      additionalProperties: false
+      required: [id, codigo, nombre, ambito, departamento, descripcion, esSistema, permisos]
+      properties:
+        id: { type: string, format: uuid }
+        codigo: { type: string }
+        nombre: { type: string }
+        ambito: { type: string }
+        departamento: { type: string, nullable: true }
+        descripcion: { type: string, nullable: true }
+        esSistema: { type: boolean }
+        permisos:
+          type: array
+          items: { type: string }
+
+    PermisoCatalogo:
+      type: object
+      additionalProperties: false
+      required: [id, codigo, descripcion, recurso, accion, nivelRiesgo, exigeMotivo, requiereMfa]
+      properties:
+        id: { type: string, format: uuid }
+        codigo: { type: string }
+        descripcion: { type: string }
+        recurso: { type: string }
+        accion: { type: string }
+        nivelRiesgo: { type: string, enum: [BAJO, MEDIO, ALTO, CRITICO] }
+        exigeMotivo: { type: boolean }
+        requiereMfa: { type: boolean }
+
   responses:
     ReglaDeNegocio:
       description: Regla de negocio de la aplicacion (422, no 400)

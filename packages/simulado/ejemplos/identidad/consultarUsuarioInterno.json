@@ -1,0 +1,94 @@
+{
+  "servicio": "identidad",
+  "operacion": "consultarUsuarioInterno",
+  "metodo": "get",
+  "ruta": "/usuarios-internos/{id}",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "id": "c123f524-9781-4726-86a2-a20258a54c4a",
+        "usuarioId": "36aeb2b6-fe0c-4756-8375-d3a2034bb2a0",
+        "codigoPublico": "codigoPublico",
+        "nombres": "nombres",
+        "apellidos": "apellidos",
+        "correo": "persona@ejemplo.bo",
+        "telefono": "telefono",
+        "departamento": "departamento",
+        "cargo": "cargo",
+        "estado": "estado",
+        "debeCambiarContrasena": true,
+        "tieneSegundoFactor": true,
+        "bloqueadoHasta": "2026-01-15T10:30:00Z",
+        "motivoBloqueo": "motivoBloqueo",
+        "roles": [
+          "roles[0]"
+        ],
+        "permisosEfectivos": [
+          "permisosEfectivos[0]"
+        ],
+        "creadoEn": "2026-01-15T10:30:00Z",
+        "actualizadoEn": "2026-01-15T10:30:00Z"
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "id": "c123f524-9781-4726-86a2-a20258a54c4a",
+        "usuarioId": "36aeb2b6-fe0c-4756-8375-d3a2034bb2a0",
+        "codigoPublico": "codigoPublico",
+        "nombres": "nombres",
+        "apellidos": "apellidos",
+        "correo": "persona@ejemplo.bo",
+        "telefono": "telefono",
+        "departamento": "departamento",
+        "cargo": "cargo",
+        "estado": "estado",
+        "debeCambiarContrasena": false,
+        "tieneSegundoFactor": false,
+        "bloqueadoHasta": "2026-01-15T10:30:00Z",
+        "motivoBloqueo": "motivoBloqueo",
+        "roles": [],
+        "permisosEfectivos": [],
+        "creadoEn": "2026-01-15T10:30:00Z",
+        "actualizadoEn": "2026-01-15T10:30:00Z"
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "id": "c123f524-9781-4726-86a2-a20258a54c4a",
+        "usuarioId": "36aeb2b6-fe0c-4756-8375-d3a2034bb2a0",
+        "codigoPublico": "codigoPublico",
+        "nombres": "nombres",
+        "apellidos": "apellidos",
+        "correo": "persona@ejemplo.bo",
+        "telefono": "telefono",
+        "departamento": "departamento",
+        "cargo": "cargo",
+        "estado": "estado",
+        "debeCambiarContrasena": true,
+        "tieneSegundoFactor": true,
+        "bloqueadoHasta": "2026-01-15T10:30:00Z",
+        "motivoBloqueo": "motivoBloqueo",
+        "roles": [
+          "roles[0]"
+        ],
+        "permisosEfectivos": [
+          "permisosEfectivos[0]"
+        ],
+        "creadoEn": "2026-01-15T10:30:00Z",
+        "actualizadoEn": "2026-01-15T10:30:00Z"
+      }
+    },
+    "rechazo": {
+      "estado": 404,
+      "cuerpo": {
+        "codigo": "AP-CU01-03",
+        "mensaje": "Cuenta ya existe",
+        "detalle": {},
+        "trazaId": "traza-consultarUsuarioInterno-rechazo"
+      }
+    }
+  }
+}

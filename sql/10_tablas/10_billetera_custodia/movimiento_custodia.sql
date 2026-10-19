@@ -21,8 +21,8 @@ CREATE TABLE IF NOT EXISTS nucleo_financiero.movimiento_custodia (
   CONSTRAINT ck_movimiento_custodia_monto CHECK (monto > 0)
 );
 
-COMMENT ON TABLE nucleo_financiero.movimiento_custodia IS 'Módulo 10 — Billetera, Custodia y Dinero Electrónico. [append-only] El saldo no se guarda: se deriva, y todos los días cuadra contra el banco';
-COMMENT ON COLUMN nucleo_financiero.movimiento_custodia.id IS 'PK';
+COMMENT ON TABLE nucleo_financiero.movimiento_custodia IS 'Módulo 10 — Billetera, Custodia y Dinero Electrónico. [append-only] Cada movimiento real de esa cuenta bancaria.';
+COMMENT ON COLUMN nucleo_financiero.movimiento_custodia.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN nucleo_financiero.movimiento_custodia.cuenta_custodia_id IS 'FK, IDX';
 COMMENT ON COLUMN nucleo_financiero.movimiento_custodia.movimiento_bancario_id IS 'FK, NULL, UQ, M3';
 COMMENT ON COLUMN nucleo_financiero.movimiento_custodia.fecha_valor IS 'IDX';

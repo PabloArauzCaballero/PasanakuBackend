@@ -1,0 +1,60 @@
+{
+  "servicio": "aportes",
+  "operacion": "consultarRecaudoDiario",
+  "metodo": "get",
+  "ruta": "/aportes/recaudo-diario",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "fecha": "2026-01-15",
+        "zonaHoraria": "zonaHoraria",
+        "porMoneda": [
+          {
+            "moneda": "MMM",
+            "totalRecaudado": "4.44",
+            "totalConciliado": "4.44",
+            "totalExcepciones": "4.44",
+            "cantidadPagos": 0
+          }
+        ],
+        "excepcionesAbiertas": 0
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "fecha": "2026-01-15",
+        "zonaHoraria": "zonaHoraria",
+        "porMoneda": [],
+        "excepcionesAbiertas": 0
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "fecha": "2026-01-15",
+        "zonaHoraria": "zonaHoraria",
+        "porMoneda": [
+          {
+            "moneda": "MMM",
+            "totalRecaudado": "4.44",
+            "totalConciliado": "4.44",
+            "totalExcepciones": "4.44",
+            "cantidadPagos": 0
+          }
+        ],
+        "excepcionesAbiertas": 0
+      }
+    },
+    "rechazo": {
+      "estado": 401,
+      "cuerpo": {
+        "codigo": "AP-CU51-05",
+        "mensaje": "Filtro de listado invalido",
+        "detalle": {},
+        "trazaId": "traza-consultarRecaudoDiario-rechazo"
+      }
+    }
+  }
+}

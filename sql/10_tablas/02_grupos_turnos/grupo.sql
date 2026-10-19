@@ -40,11 +40,12 @@ CREATE TABLE IF NOT EXISTS grupos.grupo (
   CONSTRAINT ck_grupo_visibilidad CHECK (visibilidad IN ('ENLACE_DIRECTO', 'PRIVADO', 'PUBLICO_DIRECTORIO'))
 );
 
-COMMENT ON TABLE grupos.grupo IS 'Módulo 02 — Grupos, Cupos, Turnos y Gobernanza. Reglas del juego, orden de cobro y decisiones colectivas';
-COMMENT ON COLUMN grupos.grupo.id IS 'PK';
+COMMENT ON TABLE grupos.grupo IS 'Módulo 02 — Grupos, Cupos, Turnos y Gobernanza. El pasanaku en sí: monto del aporte, cada cuánto se aporta, cuántos cupos, cuándo empieza, con qué reglas.';
+COMMENT ON COLUMN grupos.grupo.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN grupos.grupo.codigo_publico IS 'UQ';
 COMMENT ON COLUMN grupos.grupo.descripcion IS 'NULL';
 COMMENT ON COLUMN grupos.grupo.monto_aporte IS 'CK: > 0';
+COMMENT ON COLUMN grupos.grupo.moneda IS 'Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2).';
 COMMENT ON COLUMN grupos.grupo.periodicidad IS 'CK';
 COMMENT ON COLUMN grupos.grupo.num_periodos IS 'CK: >= 3';
 COMMENT ON COLUMN grupos.grupo.estado IS 'CK, IDX';

@@ -6,6 +6,7 @@ import bo.aportaya.nucleofinanciero.dominio.Partida;
 import bo.aportaya.nucleofinanciero.dominio.puertos.CuentasLogicas;
 import bo.aportaya.nucleofinanciero.infraestructura.CuentaBilleteraRepositorio;
 import bo.aportaya.nucleofinanciero.infraestructura.CuentaBilleteraRepositorio.Cuenta;
+import bo.aportaya.nucleofinanciero.infraestructura.CuentasDeSistemaRepositorio;
 import bo.aportaya.nucleofinanciero.infraestructura.DestinoRepositorio;
 import bo.aportaya.nucleofinanciero.infraestructura.LibroDeBilletera;
 import bo.aportaya.nucleofinanciero.infraestructura.LibroDeBilletera.Pata;
@@ -76,7 +77,6 @@ public class ConsumoDeAportes {
 
     static final String CANAL_BILLETERA = "BILLETERA_MOVIL";
     private static final String ORIGEN_TRANSACCION = "OBLIGACION_APORTE";
-    private static final String TIPO_TRANSACCION = "APORTE_A_GRUPO";
 
     /** El identificador de proceso del actor Sistema; no es una persona ni una fila de usuario. */
     private static final UUID PROCESO = UUID.fromString("00000000-0000-0000-0000-00000000a5e2");
@@ -90,17 +90,6 @@ public class ConsumoDeAportes {
         RECHAZADO_POR_SALDO
     }
 
-    /** Lo que {@code aportes.aporte_cobrado} trae, ya con tipos: el borde con Kafka valida y convierte. */
-    public record AporteCobrado(
-            UUID eventoId,
-            UUID correlationId,
-            UUID pagoId,
-            UUID obligacionId,
-            UUID grupoId,
-            UUID usuarioId,
-            Dinero monto,
-            String canal) {}
-
     public record Salida(Resultado resultado, Optional<UUID> transaccionId, Optional<UUID> asientoId) {
         static Salida sinEfecto(Resultado r) {
             return new Salida(r, Optional.empty(), Optional.empty());
@@ -113,6 +102,7 @@ public class ConsumoDeAportes {
     private final LibroDeBilletera libro;
     private final CU24RegistrarAsiento cu24;
     private final CuentasLogicas logicas;
+    private final CuentasDeSistemaRepositorio sistema;
     private final Outbox outbox;
     private final Reloj reloj;
     private final Consumidos consumidos = new Consumidos("nucleo_financiero");
@@ -124,6 +114,7 @@ public class ConsumoDeAportes {
             LibroDeBilletera libro,
             CU24RegistrarAsiento cu24,
             CuentasLogicas logicas,
+            CuentasDeSistemaRepositorio sistema,
             Outbox outbox,
             Reloj reloj) {
         this.datos = datos;
@@ -132,6 +123,7 @@ public class ConsumoDeAportes {
         this.libro = libro;
         this.cu24 = cu24;
         this.logicas = logicas;
+        this.sistema = sistema;
         this.outbox = outbox;
         this.reloj = reloj;
     }
@@ -165,15 +157,19 @@ public class ConsumoDeAportes {
         String moneda = aporte.monto().moneda().name();
         Dinero monto = aporte.monto();
 
+        var hacia = DestinoDelCobro.de(aporte.tipo());
+
         // 1. El plan de cuentas EN ESA moneda (sin mapeo no se asienta ni se mueve nada: AP-CU24-02).
         String deUsuarios = codigoDelPlan(SALDO_USUARIOS, aporte);
-        String deGrupos = codigoDelPlan(SALDO_GRUPOS, aporte);
+        String deGrupos = codigoDelPlan(hacia.cuentaLogica, aporte);
 
         // 2. Las dos billeteras EN ESA moneda, bloqueadas en orden de identificador (como CU-12: sin abrazo mortal).
+        // Sin la del fondo se rechaza SIN marcar, igual que sin la del grupo: el reproceso lo aplica cuando exista, y
+        // mientras tanto el recargo no cae en ninguna otra cuenta.
         UUID cuentaUsuario = destinos.cuentaDeUsuarioEn(dsl, aporte.usuarioId(), moneda)
                 .orElseThrow(() -> sinCuenta("El participante no tiene billetera en " + moneda + ".", aporte));
-        UUID cuentaGrupo = destinos.cuentaDeGrupoEn(dsl, aporte.grupoId(), moneda)
-                .orElseThrow(() -> sinCuenta("El grupo no tiene billetera en " + moneda + ".", aporte));
+        UUID cuentaGrupo = hacia.cuenta(dsl, destinos, sistema, aporte.grupoId(), monto.moneda())
+                .orElseThrow(() -> sinCuenta(hacia.quien + " no tiene billetera en " + moneda + ".", aporte));
         List<UUID> enOrden =
                 List.of(cuentaUsuario, cuentaGrupo).stream().sorted().toList();
         enOrden.forEach(id -> cuentas.bloquear(dsl, id));
@@ -188,7 +184,7 @@ public class ConsumoDeAportes {
         }
         if (!destino.operativa()) {
             throw new ErrorDeNegocio(
-                    CodigoError.de(12, 3), "La billetera del grupo esta " + destino.estado() + ".", detalle(aporte));
+                    CodigoError.de(12, 3), hacia.billetera + " esta " + destino.estado() + ".", detalle(aporte));
         }
         // El saldo sale del LIBRO, no de la cache: lo que autoriza un debito es lo que el libro dice ahora.
         if (monto.esMayorQue(origen.disponible()) && !origen.permiteNegativo()) {
@@ -201,7 +197,7 @@ public class ConsumoDeAportes {
         // 3. El asiento PRIMERO (apunta a la transaccion que va a existir) y la transaccion con el asiento ya enlazado.
         UUID transaccionId = UUID.randomUUID();
         OffsetDateTime ahora = reloj.ahora().atOffset(ZoneOffset.UTC);
-        String glosa = "Aporte cobrado, pago " + aporte.pagoId();
+        String glosa = hacia.glosa + aporte.pagoId();
         var asiento = cu24.ejecutar(
                 dsl,
                 new EntradaAsiento(
@@ -216,7 +212,7 @@ public class ConsumoDeAportes {
         libro.registrarVinculada(
                 dsl,
                 transaccionId,
-                TIPO_TRANSACCION,
+                hacia.tipoTransaccion,
                 ORIGEN_TRANSACCION,
                 aporte.obligacionId(),
                 "API",
@@ -240,7 +236,9 @@ public class ConsumoDeAportes {
                                 "transaccionId", transaccionId.toString(),
                                 "asientoId", asiento.asientoId().toString(),
                                 "monto", monto.toString(),
-                                "moneda", moneda),
+                                "moneda", moneda,
+                                // garantia lo lee para anotar el ingreso en su fondo (H1.S2.M1c). Campo sumado.
+                                "destino", hacia.name()),
                         aporte.correlationId()));
         return new Salida(Resultado.APLICADO, Optional.of(transaccionId), Optional.of(asiento.asientoId()));
     }

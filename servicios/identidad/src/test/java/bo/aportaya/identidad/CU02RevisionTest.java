@@ -63,6 +63,7 @@ class CU02RevisionTest {
     @Test
     void colaDistingueFotosCargadasDeRellenosYFiltraPorEstado() {
         UUID usuario = usuario();
+        dsl.execute("UPDATE identidad.usuario SET correo = ? WHERE id = ?", "ana@example.test", usuario);
         UUID verificacion = expediente(usuario, "PENDIENTE", true);
         String reverso = clave(usuario, "reverso");
         dsl.execute(
@@ -81,6 +82,7 @@ class CU02RevisionTest {
                 .findFirst()
                 .orElseThrow();
         assertThat(fila.nombreCompleto()).isEqualTo("Ana Quispe");
+        assertThat(fila.correo()).isEqualTo("ana@example.test");
         assertThat(fila.documento()).isEqualTo("CI LP");
         assertThat(fila.fotos()).containsExactly("REVERSO", "SELFIE");
         assertThat(pendientes).noneMatch(it -> it.verificacionId().equals(otraVerificacion));
@@ -215,16 +217,17 @@ class CU02RevisionTest {
                 .containsEntry("nivel_kyc", "COMPLETO");
         ContextoSesion titularAprobado = ContextoSesion.de(
                 aprobado, "PARTICIPANTE", new Traza(UUID.randomUUID().toString()));
-        var asignacion = transaccion.execute(tx -> new Datos(dsl).conContexto(
-                titularAprobado,
-                conSesion -> conSesion.fetchOne(
-                        """
+        var asignacion = transaccion.execute(tx -> new Datos(dsl)
+                .conContexto(
+                        titularAprobado,
+                        conSesion -> conSesion.fetchOne(
+                                """
                         SELECT r.codigo, a.ambito, a.otorgada_por
                           FROM identidad.asignacion_rol a
                           JOIN identidad.rol r ON r.id = a.rol_id
                          WHERE a.usuario_id = ? AND a.revocada_en IS NULL
                         """,
-                        aprobado)));
+                                aprobado)));
         assertThat(asignacion.intoMap())
                 .containsEntry("codigo", "PARTICIPANTE")
                 .containsEntry("ambito", "GLOBAL")
@@ -233,11 +236,9 @@ class CU02RevisionTest {
                 .isEqualTo("PENDIENTE_VERIFICACION");
         ContextoSesion titularRechazado = ContextoSesion.de(
                 rechazado, "PARTICIPANTE", new Traza(UUID.randomUUID().toString()));
-        Integer asignacionesDelRechazado = transaccion.execute(tx -> new Datos(dsl).conContexto(
-                titularRechazado,
-                conSesion -> conSesion.fetchOne(
-                                "SELECT count(*) FROM identidad.asignacion_rol WHERE usuario_id = ?",
-                                rechazado)
+        Integer asignacionesDelRechazado =
+                transaccion.execute(tx -> new Datos(dsl).conContexto(titularRechazado, conSesion -> conSesion
+                        .fetchOne("SELECT count(*) FROM identidad.asignacion_rol WHERE usuario_id = ?", rechazado)
                         .get(0, Integer.class)));
         assertThat(asignacionesDelRechazado).isEqualTo(0);
         assertThat(dsl.fetchOne("SELECT estado, nivel_kyc FROM identidad.usuario WHERE id = ?", yaActivo)

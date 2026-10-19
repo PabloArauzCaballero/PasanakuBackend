@@ -1,0 +1,2 @@
+CUIndicadoresDeIdentidadTest 6/6 (+2: una persona con dos sesiones cuenta 1 y la que venia del dia anterior suma; sesiones fuera del dia no cuentan)
+identidad: test=35 webTest=123 integrationTest=157 con la unica falla PREEXISTENTE CU04CodigoPorCorreoTest; cobertura exit=0

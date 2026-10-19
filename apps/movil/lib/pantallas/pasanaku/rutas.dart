@@ -3,7 +3,10 @@ import 'package:go_router/go_router.dart';
 
 import 'pantalla_aportar.dart';
 import 'pantalla_crear_grupo.dart';
+import 'pantalla_enlace_del_grupo.dart';
 import 'pantalla_invitar.dart';
+import 'pantalla_solicitudes_del_grupo.dart';
+import 'pantalla_unirse_al_grupo.dart';
 import 'pantalla_mi_estado.dart';
 import 'pantalla_mi_puntaje.dart';
 import 'pantalla_pedir_cupo.dart';
@@ -36,11 +39,37 @@ final List<RouteBase> rutasPasanaku = [
     builder: (context, state) =>
         PantallaPedirCupo(grupoId: state.pathParameters['grupoId']!),
   ),
+  // «Invitar» es el enlace del grupo con su QR (2026-10-19): sirve para cualquiera y el
+  // organizador aprueba cada pedido. Invitar a un número en particular sigue abajo.
   GoRoute(
     path: '/pasanaku/grupos/:grupoId/invitar',
     name: 'pasanaku.invitar',
+    builder: (context, state) => PantallaEnlaceDelGrupo(
+      grupoId: state.pathParameters['grupoId']!,
+      nombre: state.uri.queryParameters['nombre'],
+    ),
+  ),
+  GoRoute(
+    path: '/pasanaku/grupos/:grupoId/invitar/numero',
+    name: 'pasanaku.invitarANumero',
     builder: (context, state) =>
         PantallaInvitar(grupoId: state.pathParameters['grupoId']!),
+  ),
+  GoRoute(
+    path: '/pasanaku/grupos/:grupoId/solicitudes',
+    name: 'pasanaku.solicitudes',
+    builder: (context, state) =>
+        PantallaSolicitudesDelGrupo(grupoId: state.pathParameters['grupoId']!),
+  ),
+  // El enlace del grupo: `https://<app web>/g/<código>` (App Links) o el QR. Con sesión:
+  // sin ella, el ingreso vuelve acá.
+  GoRoute(
+    path: '/g/:codigo',
+    name: 'pasanaku.unirseAlGrupo',
+    builder: (context, state) {
+      final codigo = state.pathParameters['codigo']!;
+      return PantallaUnirseAlGrupo(key: ValueKey(codigo), codigo: codigo);
+    },
   ),
   GoRoute(
     path: '/pasanaku/grupos/:grupoId/retiro',
@@ -77,6 +106,8 @@ final List<RouteBase> rutasPasanaku = [
     builder: (context, state) => PantallaMiEstadoDeLaSesion(
       participanteId: state.uri.queryParameters['participante'],
       usuarioId: state.uri.queryParameters['usuario'],
+      grupoId: state.uri.queryParameters['grupo'],
+      nombreDelGrupo: state.uri.queryParameters['nombre'],
     ),
   ),
   GoRoute(

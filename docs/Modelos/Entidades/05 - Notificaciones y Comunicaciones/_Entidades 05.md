@@ -3,12 +3,12 @@ tags:
   - moc
   - modulo/05-notificaciones-y-comunicaciones
 modulo: "05 — Notificaciones y Comunicaciones"
-entidades: 15
+entidades: 16
 ---
 
 # 05 — Notificaciones y Comunicaciones · entidades
 
-Las **15 tablas** de este módulo. Justificación de negocio en [[05_notificaciones]].
+Las **16 tablas** de este módulo. Justificación de negocio en [[05_notificaciones]].
 
 [[_Entidades|← Todas las entidades]] · [[Index]]
 
@@ -29,3 +29,4 @@ Las **15 tablas** de este módulo. Justificación de negocio en [[05_notificacio
 | [[respuesta_entrante]] | 8 | 2 | 0 |
 | [[programacion_recordatorio]] | 9 | 2 | 0 |
 | [[bandeja_entrada]] | 9 | 2 | 0 |
+| [[aviso_interno]] | 9 | 1 | 0 |

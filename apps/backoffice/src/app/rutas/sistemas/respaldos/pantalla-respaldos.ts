@@ -1,8 +1,9 @@
 import { ChangeDetectionStrategy, Component, inject, resource } from '@angular/core'
-import { BandaDeProposito } from '@aportaya/ui/banda-de-proposito/banda-de-proposito'
+import { CabeceraDePagina } from '@aportaya/ui/cabecera-de-pagina/cabecera-de-pagina'
 import { ChipEstado } from '@aportaya/ui/chip-estado/chip-estado'
 import { EstadoDePantalla } from '@aportaya/ui/estado-de-pantalla/estado-de-pantalla'
 import { TablaDeDatos, type Columna } from '@aportaya/ui/tabla-de-datos/tabla-de-datos'
+import { ExplicadorDeVista } from '../../../nucleo/explicador-de-vista'
 import { restauracionVencida } from '../dominio/datos-simulados'
 import { PUERTO_RESPALDOS, type Respaldo } from '../dominio/puertos'
 import { textosSistemas } from '../textos'
@@ -11,11 +12,10 @@ import { textosSistemas } from '../textos'
 @Component({
   selector: 'ap-pantalla-respaldos',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [BandaDeProposito, TablaDeDatos, ChipEstado, EstadoDePantalla],
+  imports: [CabeceraDePagina, TablaDeDatos, ChipEstado, EstadoDePantalla],
   template: `
-    <ap-banda-de-proposito [texto]="t.proposito" />
     <section class="pantalla">
-      <h1>{{ t.titulo }}</h1>
+      <ap-cabecera-de-pagina [titulo]="t.titulo" [descripcion]="t.proposito" icono="candado" />
       <ap-estado-de-pantalla [recurso]="respaldos" [vacio]="esVacio" [mensajeVacio]="t.vacio" [etiquetaDeCarga]="t.cargando" (reintentar)="respaldos.reload()">
         @if (respaldos.hasValue() && respaldos.value(); as filas) {
           <ap-tabla-de-datos [titulo]="t.titulo" [columnas]="columnas" [filas]="filas">
@@ -35,9 +35,13 @@ import { textosSistemas } from '../textos'
       </ap-estado-de-pantalla>
     </section>
   `,
-  styles: `.pantalla { padding: 0; max-width: 60rem; } h1 { margin-bottom: var(--s4); }`,
+  styles: `.pantalla { padding: 0; max-width: 60rem; display: flex; flex-direction: column; gap: var(--s4); }`,
 })
 export class PantallaRespaldos {
+  constructor() {
+    inject(ExplicadorDeVista).fijar(this.t.proposito)
+  }
+
   protected readonly t = textosSistemas.respaldos
   private readonly puerto = inject(PUERTO_RESPALDOS)
   protected readonly respaldos = resource({ loader: () => this.puerto.obtener() })

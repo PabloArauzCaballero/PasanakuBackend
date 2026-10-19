@@ -1,9 +1,9 @@
 import 'package:aportaya_cliente_identidad/aportaya_cliente_identidad.dart';
 import 'package:dio/dio.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../dominio/cliente.dart';
+import '../../../dominio/diagnostico_api.dart';
 import '../../../dominio/errores.dart';
 import '../../../proveedores/huella_de_dispositivo.dart';
 import '../../../proveedores/sesion.dart';
@@ -18,7 +18,11 @@ import '../../../proveedores/sesion.dart';
 /// El mismo endpoint atiende los dos pasos: primero con la credencial, después con el
 /// factor. Así el servidor puede pedir MFA cuando quiera —dispositivo nuevo, monto
 /// alto, señal rara— sin que la app tenga que adivinar de antemano.
-enum ResultadoDeAutenticacion { entro, faltaSegundoFactor }
+enum ResultadoDeAutenticacion {
+  entro,
+  faltaSegundoFactor,
+  factorEnviadoPorCorreo,
+}
 
 class Autenticacion {
   Autenticacion(this._ref);
@@ -26,33 +30,35 @@ class Autenticacion {
 
   DefaultApi get _api => DefaultApi(_ref.read(dioProvider));
 
-  /// Paso 1: teléfono y contraseña.
+  /// Paso 1: celular (`+591…`) o correo, y contraseña.
   Future<ResultadoDeAutenticacion> conCredenciales({
-    required String telefonoE164,
+    required String identificador,
     required String credencial,
-  }) => _pedir(telefonoE164: telefonoE164, credencial: credencial);
+  }) => _pedir(identificador: identificador, credencial: credencial);
 
   /// Paso 2: el código del segundo factor. Se manda la credencial de nuevo porque el
   /// contrato la sigue pidiendo: la sesión no está abierta hasta que el factor pasa.
   Future<ResultadoDeAutenticacion> conFactor({
-    required String telefonoE164,
+    required String identificador,
     required String credencial,
     required String codigo,
   }) => _pedir(
-    telefonoE164: telefonoE164,
+    identificador: identificador,
     credencial: credencial,
     factor: FactorPresentado(tipo: FactorPresentadoTipoEnum.OTP, valor: codigo),
   );
 
   Future<ResultadoDeAutenticacion> _pedir({
-    required String telefonoE164,
+    required String identificador,
     required String credencial,
     FactorPresentado? factor,
   }) async {
     try {
       final r = await _api.autenticar(
         entradaAutenticacion: EntradaAutenticacion(
-          telefonoE164: telefonoE164,
+          // El contrato pide exactamente uno: un correo es lo único con arroba.
+          telefonoE164: identificador.contains('@') ? null : identificador,
+          correo: identificador.contains('@') ? identificador : null,
           credencial: credencial,
           huellaDispositivo: await _ref
               .read(huellaDeDispositivoProvider)
@@ -80,9 +86,7 @@ class Autenticacion {
       if (refresco == null || refresco.isEmpty) {
         // Nunca usar sesionId como refresh: es un identificador, no una credencial.
         // Sin refresh la sesión se conserva hasta que venza el acceso (15 min).
-        debugPrint(
-          'El servidor no entregó tokenRefresco para la sesión móvil.',
-        );
+        registrarAvisoRefrescoAusente();
       }
       await _ref.read(sesionProvider).abrir(acceso: token, refresco: refresco);
       return ResultadoDeAutenticacion.entro;
@@ -93,8 +97,10 @@ class Autenticacion {
       // veía «algo salió mal» y no podía entrar (hallazgo B31 de la campaña de CU principales).
       if (factor == null &&
           error is ErrorDeApi &&
-          error.codigo == 'AP-CU04-03') {
-        return ResultadoDeAutenticacion.faltaSegundoFactor;
+          (error.codigo == 'AP-CU04-03' || error.codigo == 'AP-CU04-10')) {
+        return error.codigo == 'AP-CU04-10'
+            ? ResultadoDeAutenticacion.factorEnviadoPorCorreo
+            : ResultadoDeAutenticacion.faltaSegundoFactor;
       }
       throw error;
     }

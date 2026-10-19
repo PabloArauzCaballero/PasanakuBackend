@@ -12,8 +12,8 @@ CREATE TABLE IF NOT EXISTS transparencia.insignia_otorgada (
   CONSTRAINT pk_insignia_otorgada PRIMARY KEY (id)
 );
 
-COMMENT ON TABLE transparencia.insignia_otorgada IS 'Módulo 06 — Transparencia y Reputación. Que nadie tenga que "creerle" al organizador';
-COMMENT ON COLUMN transparencia.insignia_otorgada.id IS 'PK';
+COMMENT ON TABLE transparencia.insignia_otorgada IS 'Módulo 06 — Transparencia y Reputación. Reconocimientos concretos: PUNTUAL_12_MESES, PRIMER_GRUPO, SIN_MORA, ORGANIZADOR_5_ESTRELLAS.';
+COMMENT ON COLUMN transparencia.insignia_otorgada.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN transparencia.insignia_otorgada.usuario_id IS 'FK, IDX';
 COMMENT ON COLUMN transparencia.insignia_otorgada.insignia_id IS 'FK';
 COMMENT ON COLUMN transparencia.insignia_otorgada.revocada_en IS 'NULL';

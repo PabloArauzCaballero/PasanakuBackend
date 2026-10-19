@@ -1,0 +1,15 @@
+$ ./gradlew :servicios:identidad:integrationTest --tests '*CU04*'   (1ra corrida)
+exit=1 · 4 fallas en CU04CodigoPorCorreoTest: uq_token_verificacion_hash_token — TEST_BUG: la fixture insertaba un hash_token fijo. Corregido a gen_random_uuid()::text.
+
+$ ./gradlew :servicios:identidad:integrationTest --tests '*CU04*'   (2da corrida)
+exit=0 · BUILD SUCCESSFUL in 16s
+testsuite name="bo.aportaya.identidad.CU04CodigoPorCorreoTest" tests="5" skipped="0" failures="0" errors="0"
+testsuite name="bo.aportaya.identidad.CU04RechazosTest" tests="9" skipped="0" failures="0" errors="0"
+testsuite name="bo.aportaya.identidad.CU04RenovacionTest" tests="9" skipped="0" failures="0" errors="0"
+testsuite name="bo.aportaya.identidad.CU04Test" tests="15" skipped="0" failures="0" errors="0"
+testcase name="Dado un participante sin factor y con el correo confirmado en el alta · Cuando entra desde un telefono nuevo · Entonces se le pide el codigo y le llega por correo · Y con ese codigo abre la sesion"
+testcase name="Dado un participante con TOTP enrolado y correo confirmado · Cuando entra desde un telefono nuevo · Entonces manda su factor enrolado y no se envia correo"
+testcase name="Dado un participante cuyo correo actual NO es el que confirmo en el alta · Cuando entra desde un telefono nuevo · Entonces no se manda ningun correo"
+testcase name="Dado el mismo participante · Cuando escribe un codigo que no es el enviado · Entonces se rechaza con AP-CU04-04 y no abre sesion"
+testcase name="Dado un operador sin factor y con correo confirmado · Cuando entra · Entonces sigue rechazado con AP-CU04-06 y no se envia correo (R-SEG-10)"
+(PostgreSQL real; envío contra DOBLE CorreoEnMemoria)

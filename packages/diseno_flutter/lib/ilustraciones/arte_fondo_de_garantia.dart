@@ -10,11 +10,7 @@ class ArteFondoDeGarantia extends ArteDeMaqueta {
 
   @override
   void dibujar(Canvas c) {
-    c.drawLine(
-      const Offset(70, 24),
-      const Offset(70, 34),
-      trazo(t.text2, 5),
-    );
+    c.drawLine(const Offset(70, 24), const Offset(70, 34), trazo(t.text2, 5));
 
     // La copa del paraguas: el semicírculo relleno y su borde más oscuro.
     final copa = Path()
@@ -38,7 +34,7 @@ class ArteFondoDeGarantia extends ArteDeMaqueta {
     );
 
     // La moneda de la cuota, con su signo.
-    c.drawCircle(const Offset(44, 104), 15, relleno(Paleta.g700));
+    c.drawCircle(const Offset(44, 104), 15, relleno(Paleta.o500));
     final signo = trazo(Paleta.white, 2.8);
     c
       ..drawLine(const Offset(44, 96), const Offset(44, 112), signo)

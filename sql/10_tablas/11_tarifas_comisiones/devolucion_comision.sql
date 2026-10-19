@@ -22,8 +22,8 @@ CREATE TABLE IF NOT EXISTS tarifas.devolucion_comision (
   CONSTRAINT ck_devolucion_comision_estado CHECK (estado IN ('AUTORIZADA', 'EJECUTADA', 'RECHAZADA', 'SOLICITADA'))
 );
 
-COMMENT ON TABLE tarifas.devolucion_comision IS 'Módulo 11 — Tarifas, Comisiones, Impuestos y Facturación. La política de cobro es dato, no código: se cambia con un seeder';
-COMMENT ON COLUMN tarifas.devolucion_comision.id IS 'PK';
+COMMENT ON TABLE tarifas.devolucion_comision IS 'Módulo 11 — Tarifas, Comisiones, Impuestos y Facturación. Los dos finales alternativos del devengo: se devuelve o queda por cobrar.';
+COMMENT ON COLUMN tarifas.devolucion_comision.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN tarifas.devolucion_comision.devengo_id IS 'FK, IDX';
 COMMENT ON COLUMN tarifas.devolucion_comision.transaccion_id IS 'FK, NULL, M10';
 COMMENT ON COLUMN tarifas.devolucion_comision.reclamo_id IS 'FK, NULL, M12';

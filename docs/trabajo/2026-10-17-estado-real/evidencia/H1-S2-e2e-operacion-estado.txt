@@ -1,0 +1,13 @@
+
+Running 8 tests using 1 worker
+
+  ✓  1 [chromium] › e2e/operacion-estado.e2e.ts:35:7 › operacion/estado — tabla canónica › carga la tabla con filas reales, sin estado mudo (1.0s)
+  ✓  2 [chromium] › e2e/operacion-estado.e2e.ts:44:7 › operacion/estado — tabla canónica › ordenar por una columna ordenable cambia aria-sort (738ms)
+  ✓  3 [chromium] › e2e/operacion-estado.e2e.ts:51:7 › operacion/estado — tabla canónica › filtrar por nivel reduce las filas mostradas (986ms)
+  ✓  4 [chromium] › e2e/operacion-estado.e2e.ts:61:5 › sin el permiso de operación, la ruta redirige a /tablero (canMatch real) (1.2s)
+  ✓  5 [chromium] › e2e/operacion-estado.e2e.ts:96:7 › operacion/estado — salud consultada › con datos: cada servicio dice lo que contestó, con la hora de la consulta (5.9s)
+  ✓  6 [chromium] › e2e/operacion-estado.e2e.ts:114:7 › operacion/estado — salud consultada › sin permiso (403): lo dice y ninguna fila inventa «arriba» (3.2s)
+  ✓  7 [chromium] › e2e/operacion-estado.e2e.ts:122:7 › operacion/estado — salud consultada › error (500): «sin dato», sin el detalle interno, y se puede volver a consultar (3.0s)
+  ✓  8 [chromium] › e2e/operacion-estado.e2e.ts:131:7 › operacion/estado — salud consultada › consultando: lo dice mientras espera, sin «arriba» (2.1s)
+
+  8 passed (47.7s)

@@ -12,6 +12,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import bo.aportaya.identidad.aplicacion.BuscarPorTelefono;
 import bo.aportaya.identidad.aplicacion.CU01RegistrarUsuario;
+import bo.aportaya.identidad.aplicacion.CU02ActualizarFechaExpiracion;
 import bo.aportaya.identidad.aplicacion.CU02ConsultarEstadoDeVerificacion;
 import bo.aportaya.identidad.aplicacion.CU02GuardarFotoDelExpediente;
 import bo.aportaya.identidad.aplicacion.ConfirmarVerificacionCorreo;
@@ -64,6 +65,9 @@ class UsuariosInvitacionesKycWebTest {
     private CU02ConsultarEstadoDeVerificacion estadoDeVerificacion;
 
     @MockitoBean
+    private CU02ActualizarFechaExpiracion actualizarFechaExpiracion;
+
+    @MockitoBean
     private CU01RegistrarUsuario cu01;
 
     @MockitoBean
@@ -80,6 +84,18 @@ class UsuariosInvitacionesKycWebTest {
 
     @MockitoBean
     private ConfirmarVerificacionCorreo confirmarCorreo;
+
+    @MockitoBean
+    private bo.aportaya.identidad.aplicacion.ActivarRolOrganizador activarRolOrganizador;
+
+    @MockitoBean
+    private bo.aportaya.identidad.aplicacion.GuardarBorradorOnboarding guardarBorrador;
+
+    @MockitoBean
+    private bo.aportaya.identidad.aplicacion.ConsultarMiPerfil consultarMiPerfil;
+
+    @MockitoBean
+    private bo.aportaya.identidad.aplicacion.CU02IniciarVerificacion iniciarVerificacion;
 
     @MockitoBean
     private ConsultarNivelKyc nivelesKyc;

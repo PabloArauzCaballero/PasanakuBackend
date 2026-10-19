@@ -14,9 +14,8 @@ import org.springframework.transaction.annotation.Transactional;
  * CU-02 · el estado de la verificacion, para quien todavia no puede abrir sesion.
  *
  * <p>Corre con el contexto del sistema, igual que {@link AnotarFotoEnExpediente}: el
- * dispositivo de alguien recien registrado es nuevo y {@code ExigeSegundoFactor} le
- * pide un MFA que todavia no tiene enrolado — no hay sesion que presentar, y esta
- * consulta es publica por el mismo motivo que {@code subirDocumento}.
+ * alta no abre sesion, asi que no hay sesion que presentar, y esta consulta es publica
+ * por el mismo motivo que {@code subirDocumento}.
  *
  * <p>Devuelve el {@link ExpedienteDeIdentidad} completo porque eso es lo que ya sabe
  * mapear la pagina; la respuesta minima (sin nombre ni documento) la recorta el

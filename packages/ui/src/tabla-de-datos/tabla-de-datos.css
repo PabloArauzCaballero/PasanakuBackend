@@ -1,8 +1,22 @@
-.marco { overflow-x: auto; border: var(--borde-fino) solid var(--border); border-radius: var(--r-lg); background: var(--surface); }
+.marco { border: var(--borde-fino) solid var(--border); border-radius: var(--r-lg); background: var(--surface); }
 table { width: 100%; border-collapse: collapse; color: var(--text); }
 caption { text-align: left; padding: var(--s3) var(--s4); font-weight: 600; color: var(--text-2); }
 th, td { padding: var(--s3) var(--s4); text-align: left; border-top: var(--borde-fino) solid var(--border); white-space: nowrap; }
-th { color: var(--text-2); font-size: .9em; background: var(--surface-2); }
+th { position: sticky; top: 0; z-index: 1; color: var(--text-3); font: var(--t-cabecera-tabla); letter-spacing: var(--t-cabecera-tabla-track); text-transform: uppercase; background: var(--surface-2); box-shadow: 0 var(--borde-fino) 0 0 var(--border); }
+tbody tr { transition: background-color var(--mov-micro) ease-out; }
+tbody tr:hover td { background: color-mix(in srgb, var(--surface-2) 60%, var(--surface)); }
+.mono { font-family: var(--mono); font-size: .92em; }
+/* La columna de acciones queda a la vista al desplazar una tabla ancha; la sombra dice que hay más a la izquierda. */
+.fija { position: sticky; right: 0; z-index: 2; background: var(--surface); box-shadow: calc(var(--s2) * -1) 0 var(--s2) calc(var(--s2) * -1) color-mix(in srgb, var(--ink) 15%, transparent); }
+th.fija { z-index: 3; }
+.cabecera-tabla { display: flex; align-items: center; justify-content: space-between; gap: var(--s2); padding: var(--s2) var(--s3) var(--s2) var(--s4); border-bottom: var(--borde-fino) solid var(--border); }
+.registros { font: var(--t-cabecera-tabla); letter-spacing: var(--t-cabecera-tabla-track); text-transform: uppercase; color: var(--text-3); }
+.cuenta { display: inline-flex; align-items: center; gap: var(--s1); }
+.total { padding: 0 var(--s2); border-radius: var(--r-sm); background: var(--surface-2); color: var(--text); font-family: var(--mono); font-size: .85em; font-weight: 600; }
+.con-cabecera caption { position: absolute; width: var(--borde-fino); height: var(--borde-fino); overflow: hidden; clip: rect(0 0 0 0); }
+.desplazable { overflow-x: auto; }
+.desplazable.acotada { max-height: calc(var(--s7) * 12); overflow: auto; }
+.desplazable:focus-visible { outline: var(--borde-foco) solid var(--g300); outline-offset: calc(var(--borde-desfase) * -1); }
 .numerica { text-align: right; font-variant-numeric: tabular-nums; }
 .marca { width: var(--s7); }
 tr.marcada td { background: var(--brand-bg); }

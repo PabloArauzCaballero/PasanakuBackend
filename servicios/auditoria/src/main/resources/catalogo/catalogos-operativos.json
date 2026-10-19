@@ -1,0 +1,343 @@
+{
+  "catalogos": [
+    {
+      "codigo": "HECHOS_GENERADORES",
+      "nombre": "Hechos generadores de comisiones",
+      "dueno": "Tarifas y Comisiones",
+      "version": "2026.1",
+      "estado": "VIGENTE",
+      "descripcion": "Eventos del negocio que devengan comisiones según el tarifario oficial (entrega de fondo, abono, retiro).",
+      "tablaFisica": "tarifas.catalogo_hecho_generador",
+      "baseNormativa": "Circular ASFI/123/2025 · Tarifario Oficial",
+      "elementos": [
+        {
+          "id": "hg-1",
+          "codigo": "ENTREGA_FONDO_ACREDITADA",
+          "nombre": "Entrega de fondo acreditada",
+          "descripcion": "Acreditación de la bolsa de pasanaku al beneficiario del turno.",
+          "activo": true,
+          "orden": 1,
+          "atributos": { "entidad": "entrega_fondo", "modulo": "11", "campoBase": "monto" }
+        },
+        {
+          "id": "hg-2",
+          "codigo": "APORTE_ACREDITADO",
+          "nombre": "Aporte ordinario acreditado",
+          "descripcion": "Aporte de cuota de un participante acreditado al fondo común del grupo.",
+          "activo": true,
+          "orden": 2,
+          "atributos": { "entidad": "pago", "modulo": "03", "campoBase": "monto" }
+        },
+        {
+          "id": "hg-3",
+          "codigo": "RETIRO_BILLETERA_BANCARIO",
+          "nombre": "Retiro de fondos a cuenta bancaria",
+          "descripcion": "Transferencia bancaria de fondos desde la billetera hacia cuenta externa.",
+          "activo": true,
+          "orden": 3,
+          "atributos": { "entidad": "orden_retiro", "modulo": "04", "campoBase": "importe" }
+        },
+        {
+          "id": "hg-4",
+          "codigo": "RECARGA_QR_PROVEEDOR",
+          "nombre": "Recarga de saldo por pasarela QR",
+          "descripcion": "Acreditación de saldo en la billetera mediante pago QR interbancario.",
+          "activo": true,
+          "orden": 4,
+          "atributos": { "entidad": "recarga", "modulo": "03", "campoBase": "monto" }
+        }
+      ]
+    },
+    {
+      "codigo": "REPORTES_REGULATORIOS",
+      "nombre": "Catálogo de reportes regulatorios ASFI y UIF",
+      "dueno": "Cumplimiento y Regulación",
+      "version": "2026.1",
+      "estado": "VIGENTE",
+      "descripcion": "Informes periódicos obligatorios remitidos a la ASFI y la UIF (PCC-01, ROG, ROS, estadísticas).",
+      "tablaFisica": "cumplimiento.catalogo_reporte_regulatorio",
+      "baseNormativa": "Ley 393 de Servicios Financieros · RNSF ASFI",
+      "elementos": [
+        {
+          "id": "rr-1",
+          "codigo": "PCC-01",
+          "nombre": "Posición de Cuentas y Custodia",
+          "descripcion": "Reporte mensual de saldos en cuentas de custodia y cuadre de billeteras.",
+          "activo": true,
+          "orden": 1,
+          "atributos": { "organismo": "ASFI", "periodicidad": "MENSUAL", "plazoDias": 10 }
+        },
+        {
+          "id": "rr-2",
+          "codigo": "ROG",
+          "nombre": "Reporte de Operaciones en Efectivo o Relevantes",
+          "descripcion": "Operaciones individuales o acumuladas que superan los umbrales de reporte normativo.",
+          "activo": true,
+          "orden": 2,
+          "atributos": { "organismo": "UIF", "periodicidad": "MENSUAL", "plazoDias": 15 }
+        },
+        {
+          "id": "rr-3",
+          "codigo": "ROS",
+          "nombre": "Reporte de Operaciones Sospechosas",
+          "descripcion": "Operaciones inusuales sin justificación económica o jurídica aparente.",
+          "activo": true,
+          "orden": 3,
+          "atributos": { "organismo": "UIF", "periodicidad": "EVENTUAL", "plazoDias": 3 }
+        }
+      ]
+    },
+    {
+      "codigo": "UMBRALES_UIF",
+      "nombre": "Umbrales de prevención de legitimación de ganancias (UIF)",
+      "dueno": "Oficialía de Cumplimiento",
+      "version": "2026.2",
+      "estado": "VIGENTE",
+      "descripcion": "Límites en bolivianos (BOB) para disparar debida diligencia intensificada y monitoreo acumulado.",
+      "tablaFisica": "seeders/minimos/06-umbrales-uif.json",
+      "baseNormativa": "Instructivo Específico UIF para Fintechs",
+      "elementos": [
+        {
+          "id": "uif-1",
+          "codigo": "UMBRAL_ROG_INDIVIDUAL",
+          "nombre": "Umbral ROG Transacción Individual",
+          "descripcion": "Límite a partir del cual una transacción se reporta obligatoriamente a la UIF (BOB 70.000).",
+          "activo": true,
+          "orden": 1,
+          "atributos": { "moneda": "BOB", "monto": "70000.00", "tipo": "INDIVIDUAL" }
+        },
+        {
+          "id": "uif-2",
+          "codigo": "UMBRAL_ROG_ACUMULADO_MES",
+          "nombre": "Umbral ROG Acumulado Mensual",
+          "descripcion": "Monto total acumulado mensual por cliente para reporte obligatorio (BOB 350.000).",
+          "activo": true,
+          "orden": 2,
+          "atributos": { "moneda": "BOB", "monto": "350000.00", "tipo": "ACUMULADO" }
+        },
+        {
+          "id": "uif-3",
+          "codigo": "UMBRAL_DILIGENCIA_INTENSIFICADA",
+          "nombre": "Umbral Debida Diligencia Intensificada",
+          "descripcion": "Nivel transaccional que exige verificación presencial o documental de origen de fondos.",
+          "activo": true,
+          "orden": 3,
+          "atributos": { "moneda": "BOB", "monto": "50000.00", "tipo": "DILIGENCIA" }
+        }
+      ]
+    },
+    {
+      "codigo": "LIMITES_OPERATIVOS",
+      "nombre": "Límites operativos de pasanaku y billetera",
+      "dueno": "Riesgos y Operaciones",
+      "version": "2026.1",
+      "estado": "VIGENTE",
+      "descripcion": "Montos mínimos y máximos por cuota de pasanaku, saldo máximo en billetera y topes por nivel KYC.",
+      "tablaFisica": "seeders/minimos/03-limites-operativos.json",
+      "baseNormativa": "Reglamento de Cuentas de Pago y Billeteras BCB",
+      "elementos": [
+        {
+          "id": "lim-1",
+          "codigo": "CUOTA_MINIMA_GRUPO",
+          "nombre": "Cuota Mínima por Participante",
+          "descripcion": "Monto mínimo permitido para la cuota periódica de un grupo de pasanaku.",
+          "activo": true,
+          "orden": 1,
+          "atributos": { "moneda": "BOB", "valor": "50.00", "categoria": "GRUPOS" }
+        },
+        {
+          "id": "lim-2",
+          "codigo": "CUOTA_MAXIMA_GRUPO",
+          "nombre": "Cuota Máxima por Participante",
+          "descripcion": "Monto máximo permitido para la cuota ordinaria de un pasanaku estándar.",
+          "activo": true,
+          "orden": 2,
+          "atributos": { "moneda": "BOB", "valor": "10000.00", "categoria": "GRUPOS" }
+        },
+        {
+          "id": "lim-3",
+          "codigo": "MAX_GRUPOS_POR_USUARIO",
+          "nombre": "Máximo de Grupos Activos por Usuario",
+          "descripcion": "Cantidad máxima de grupos en los que un participante puede estar simultáneamente.",
+          "activo": true,
+          "orden": 3,
+          "atributos": { "valor": "5", "categoria": "RIESGO" }
+        }
+      ]
+    },
+    {
+      "codigo": "CALENDARIO_HABIL",
+      "nombre": "Calendario de feriados y días no hábiles (Bolivia)",
+      "dueno": "Sistemas y Operaciones",
+      "version": "2026.1",
+      "estado": "VIGENTE",
+      "descripcion": "Días festivos nacionales, departamentales y asuetos bancarios para cómputo de plazos y vencimientos.",
+      "tablaFisica": "comun.dia_no_habil",
+      "baseNormativa": "Decretos Supremos de Feriados Nacionales",
+      "elementos": [
+        {
+          "id": "cal-1",
+          "codigo": "FERIADO_ANO_NUEVO",
+          "nombre": "Año Nuevo",
+          "descripcion": "1 de enero · Feriado nacional inamovible.",
+          "activo": true,
+          "orden": 1,
+          "atributos": { "fecha": "2026-01-01", "alcance": "NACIONAL" }
+        },
+        {
+          "id": "cal-2",
+          "codigo": "FERIADO_ESTADO_PLURINACIONAL",
+          "nombre": "Día del Estado Plurinacional",
+          "descripcion": "22 de enero · Feriado nacional.",
+          "activo": true,
+          "orden": 2,
+          "atributos": { "fecha": "2026-01-22", "alcance": "NACIONAL" }
+        },
+        {
+          "id": "cal-3",
+          "codigo": "FERIADO_CARNAVAL_LUNES",
+          "nombre": "Lunes de Carnaval",
+          "descripcion": "Feriado nacional de Carnaval.",
+          "activo": true,
+          "orden": 3,
+          "atributos": { "fecha": "2026-02-16", "alcance": "NACIONAL" }
+        },
+        {
+          "id": "cal-4",
+          "codigo": "FERIADO_CARNAVAL_MARTES",
+          "nombre": "Martes de Carnaval",
+          "descripcion": "Feriado nacional de Carnaval.",
+          "activo": true,
+          "orden": 4,
+          "atributos": { "fecha": "2026-02-17", "alcance": "NACIONAL" }
+        },
+        {
+          "id": "cal-5",
+          "codigo": "FERIADO_INDEPENDENCIA",
+          "nombre": "Día de la Independencia",
+          "descripcion": "6 de agosto · Fiesta Patria nacional.",
+          "activo": true,
+          "orden": 5,
+          "atributos": { "fecha": "2026-08-06", "alcance": "NACIONAL" }
+        }
+      ]
+    },
+    {
+      "codigo": "PROVEEDORES_EXTERNOS",
+      "nombre": "Catálogo de proveedores externos y pasarelas",
+      "dueno": "Sistemas e Infraestructura",
+      "version": "2026.1",
+      "estado": "VIGENTE",
+      "descripcion": "Pasarelas de cobro QR, proveedores de SMS/WhatsApp OTP y servicios bancarios de dispersión.",
+      "tablaFisica": "seeders/minimos/14-proveedores-externos.json",
+      "baseNormativa": "Política de Gestión de Terceros e ISO 27001",
+      "elementos": [
+        {
+          "id": "prov-1",
+          "codigo": "PASARELA_SINTESIS_QR",
+          "nombre": "Síntesis Pasarela QR Simple",
+          "descripcion": "Servicio de cobro mediante QR interbancario de la red Enlace / Asoban.",
+          "activo": true,
+          "orden": 1,
+          "atributos": { "tipo": "PAGOS_QR", "pais": "BO", "protocolo": "REST" }
+        },
+        {
+          "id": "prov-2",
+          "codigo": "SMS_INFOBIP",
+          "nombre": "Infobip SMS Gateway",
+          "descripcion": "Envío de códigos OTP y mensajes de verificación a líneas bolivianas.",
+          "activo": true,
+          "orden": 2,
+          "atributos": { "tipo": "SMS_OTP", "protocolo": "REST", "backup": false }
+        },
+        {
+          "id": "prov-3",
+          "codigo": "DISPERSION_BANCO_UNION",
+          "nombre": "Banco Unión SPI Dispersión",
+          "descripcion": "Conexión directa para transferencias y desembolsos automáticos de fondos.",
+          "activo": true,
+          "orden": 3,
+          "atributos": { "tipo": "DISPERSION_BANCARIA", "entidad": "BANCO_UNION", "canal": "SPI" }
+        }
+      ]
+    },
+    {
+      "codigo": "EVENTOS_NOTIFICABLES",
+      "nombre": "Catálogo de eventos notificables y plantillas",
+      "dueno": "Notificaciones y Producto",
+      "version": "2026.1",
+      "estado": "VIGENTE",
+      "descripcion": "Eventos del ciclo del grupo que disparan avisos automáticos a los participantes y operadores.",
+      "tablaFisica": "seeders/minimos/15-eventos-y-plantillas.json",
+      "baseNormativa": "Reglamento de Protección al Consumidor Financiero",
+      "elementos": [
+        {
+          "id": "evt-1",
+          "codigo": "NOTIF_TURNO_PROXIMO",
+          "nombre": "Aviso de turno próximo de cobro",
+          "descripcion": "Alerta al participante informando que su turno de recibir el fondo está por llegar.",
+          "activo": true,
+          "orden": 1,
+          "atributos": { "canal": "PUSH_SMS", "frecuencia": "RECORDATORIO" }
+        },
+        {
+          "id": "evt-2",
+          "codigo": "NOTIF_PAGO_CONFIRMADO",
+          "nombre": "Confirmación de aporte recibido",
+          "descripcion": "Comprobante digital enviado al participante tras registrarse su pago.",
+          "activo": true,
+          "orden": 2,
+          "atributos": { "canal": "PUSH_EMAIL", "inmediato": true }
+        },
+        {
+          "id": "evt-3",
+          "codigo": "NOTIF_ALERTA_MORA",
+          "nombre": "Aviso de cuota vencida / mora",
+          "descripcion": "Notificación preventiva previa a la ejecución de sanciones o fondo de garantía.",
+          "activo": true,
+          "orden": 3,
+          "atributos": { "canal": "SMS_WHATSAPP", "prioridad": "ALTA" }
+        }
+      ]
+    },
+    {
+      "codigo": "PLAN_CUENTAS",
+      "nombre": "Plan único de cuentas contables (PUC)",
+      "dueno": "Contabilidad Financiera",
+      "version": "2026.1",
+      "estado": "VIGENTE",
+      "descripcion": "Nomenclador contable con partidas de custodia, billetera, ingresos por comisión e impuestos.",
+      "tablaFisica": "seeders/minimos/01-plan-de-cuentas.json",
+      "baseNormativa": "Manual de Cuentas para Entidades Financieras ASFI",
+      "elementos": [
+        {
+          "id": "puc-1",
+          "codigo": "111.01",
+          "nombre": "Cuentas Corrientes Bancarias de Custodia",
+          "descripcion": "Fondos de participantes bajo custodia fiduciaria en entidades autorizadas.",
+          "activo": true,
+          "orden": 1,
+          "atributos": { "naturaleza": "DEUDORA", "nivel": 3, "moneda": "BOB" }
+        },
+        {
+          "id": "puc-2",
+          "codigo": "211.01",
+          "nombre": "Obligaciones Billeteras Electrónicas de Clientes",
+          "descripcion": "Saldos disponibles de los usuarios en sus billeteras AportaYa.",
+          "activo": true,
+          "orden": 2,
+          "atributos": { "naturaleza": "ACREEDORA", "nivel": 3, "moneda": "BOB" }
+        },
+        {
+          "id": "puc-3",
+          "codigo": "411.01",
+          "nombre": "Ingresos por Comisiones de Pasanaku",
+          "descripcion": "Comisiones devengadas por la gestión y custodia de grupos digitales.",
+          "activo": true,
+          "orden": 3,
+          "atributos": { "naturaleza": "ACREEDORA", "nivel": 3, "moneda": "BOB" }
+        }
+      ]
+    }
+  ]
+}

@@ -2,20 +2,22 @@ import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/c
 import { toSignal } from '@angular/core/rxjs-interop'
 import { ActivatedRoute } from '@angular/router'
 import { ChipEstado } from '@aportaya/ui/chip-estado/chip-estado'
+import { Fecha } from '@aportaya/ui/fecha/fecha'
 import { Monto } from '@aportaya/ui/monto/monto'
 import type { Filtro } from '@aportaya/ui/chips-de-filtro/chips-de-filtro'
 import { BarraDeFiltros } from '../../../nucleo/filtros/barra-de-filtros'
 import { TablaDeDatosVirtualizada } from '../../../nucleo/tabla/tabla-de-datos-virtualizada'
 import type { ColumnaVirtual } from '../../../nucleo/tabla/tipos'
 import { cargadorDeOrdenes, motivoParaNoFacturar, puedeFacturarse, type OrdenDeCompra } from '../dominio/cu102-compras'
+import { EstadoDeListado, observarListado } from '../listado/estado-de-listado'
 import { textosContabilidad } from '../textos'
 
 const COLUMNAS: ColumnaVirtual<OrdenDeCompra>[] = [
-  { clave: 'numero', titulo: 'Número', ordenable: true },
-  { clave: 'terceroRazonSocial', titulo: 'Proveedor', ordenable: true },
+  { clave: 'numero', titulo: 'Número' },
+  { clave: 'terceroRazonSocial', titulo: 'Proveedor', ancho: '2' },
   { clave: 'centroCostoNombre', titulo: 'Centro de costo' },
-  { clave: 'descripcion', titulo: 'Descripción', ancho: '2' },
-  { clave: 'monto', titulo: 'Monto', numerica: true, ordenable: true },
+  { clave: 'creadaEn', titulo: 'Creada' },
+  { clave: 'monto', titulo: 'Monto', numerica: true },
   { clave: 'estado', titulo: 'Estado' },
   { clave: 'ordenCompraId', titulo: 'Facturable' },
 ]
@@ -25,27 +27,37 @@ const COLUMNAS: ColumnaVirtual<OrdenDeCompra>[] = [
  * por estado vive en la `querystring` vía `BarraDeFiltros`, así que el enlace de una
  * bandeja filtrada se puede pegar en un expediente.
  *
+ * Paginada por cursor en el orden del servidor (de la más reciente a la más antigua): no se ordena por columna, porque
+ * ordenar una página sola mentiría sobre el resto. El contrato no trae la descripción libre de la orden.
+ *
  * Una orden en `BORRADOR` no se puede facturar: la columna lo dice con el motivo escrito,
  * en vez de dejar que el `AP-CU102-03` del backend sea la primera explicación.
  */
 @Component({
   selector: 'ap-tabla-de-ordenes',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [BarraDeFiltros, ChipEstado, Monto, TablaDeDatosVirtualizada],
+  imports: [BarraDeFiltros, ChipEstado, EstadoDeListado, Fecha, Monto, TablaDeDatosVirtualizada],
   template: `
     <section aria-labelledby="ordenes">
       <h2 id="ordenes">{{ t.ordenes }}</h2>
       <ap-barra-de-filtros etiqueta="Estado de la orden" [incluirBusqueda]="false" [definiciones]="filtros" />
+      <ap-estado-de-listado [error]="listado.error()" [vacio]="listado.vacio()" [mensajeVacio]="t.enCeroOrdenes" [filtrado]="!!filtrosActivos()['estado']" />
       <ap-tabla-de-datos-virtualizada
         [titulo]="t.ordenes"
         [columnas]="COLUMNAS"
-        [cargador]="cargador"
-        [ordenPermitido]="['numero', 'terceroRazonSocial', 'monto']"
+        [cargador]="listado.cargador"
+        [ordenPermitido]="[]"
         [identidad]="identidad"
         [filtros]="filtrosActivos()"
       >
         <ng-template #celda let-o let-columna="columna">
           @switch (columna.clave) {
+            @case ('centroCostoNombre') {
+              {{ o.centroCostoNombre ?? t.sinCentroDeCosto }}
+            }
+            @case ('creadaEn') {
+              <ap-fecha [iso]="o.creadaEn" [conHora]="false" />
+            }
             @case ('monto') {
               <ap-monto [monto]="o.monto.monto" [moneda]="o.monto.moneda" etiqueta="Monto de la orden" />
             }
@@ -77,7 +89,7 @@ const COLUMNAS: ColumnaVirtual<OrdenDeCompra>[] = [
 export class TablaDeOrdenes {
   protected readonly t = textosContabilidad.compras
   protected readonly COLUMNAS = COLUMNAS
-  protected readonly cargador = cargadorDeOrdenes()
+  protected readonly listado = observarListado(cargadorDeOrdenes(), textosContabilidad.erroresDeListado)
   protected readonly identidad = (o: OrdenDeCompra) => o.ordenCompraId
   protected readonly facturable = puedeFacturarse
   protected readonly motivo = motivoParaNoFacturar
@@ -85,7 +97,8 @@ export class TablaDeOrdenes {
   protected readonly filtros: Filtro[] = [
     { valor: 'BORRADOR', texto: 'Borrador' },
     { valor: 'APROBADA', texto: 'Aprobada' },
-    { valor: 'RECIBIDA', texto: 'Recibida' },
+    { valor: 'RECIBIDA_PARCIAL', texto: 'Recibida en parte' },
+    { valor: 'RECIBIDA_TOTAL', texto: 'Recibida' },
     { valor: 'CANCELADA', texto: 'Cancelada' },
   ]
   private readonly ruta = inject(ActivatedRoute)

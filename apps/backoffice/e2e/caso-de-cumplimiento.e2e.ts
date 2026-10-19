@@ -39,7 +39,7 @@ async function entrarConPermiso(page: Page): Promise<void> {
     route.fulfill({ status: 200, json: { requiereFactorAdicional: false, dispositivoConfiable: true, tokenAcceso: TOKEN_CUMPLIMIENTO } }),
   )
   await page.goto('/ingreso')
-  await page.getByRole('textbox', { name: 'Teléfono' }).fill('71234567')
+  await page.getByRole('textbox', { name: 'Correo o teléfono' }).fill('71234567')
   await page.getByRole('textbox', { name: 'Contraseña' }).fill('una-contrasena-larga')
   await page.getByRole('button', { name: 'Continuar' }).click()
   await expect(page).toHaveURL(/\/tablero$/)

@@ -14,8 +14,9 @@ CREATE TABLE IF NOT EXISTS nucleo_financiero.respuesta_idempotente (
   CONSTRAINT pk_respuesta_idempotente PRIMARY KEY (id)
 );
 
-COMMENT ON TABLE nucleo_financiero.respuesta_idempotente IS 'Módulo 10 — Billetera, Custodia y Dinero Electrónico. El saldo no se guarda: se deriva, y todos los días cuadra contra el banco';
-COMMENT ON COLUMN nucleo_financiero.respuesta_idempotente.id IS 'PK';
+COMMENT ON TABLE nucleo_financiero.respuesta_idempotente IS 'Módulo 10 — Billetera, Custodia y Dinero Electrónico. La respuesta guardada de una operación de dinero, indexada por usuario, operación y clave de idempotencia.';
+COMMENT ON COLUMN nucleo_financiero.respuesta_idempotente.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN nucleo_financiero.respuesta_idempotente.usuario_id IS 'FK, IDX';
 COMMENT ON COLUMN nucleo_financiero.respuesta_idempotente.operacion IS 'UQ+usuario_id+clave_idempotencia';
+COMMENT ON COLUMN nucleo_financiero.respuesta_idempotente.clave_idempotencia IS 'Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4).';
 COMMENT ON COLUMN nucleo_financiero.respuesta_idempotente.expira_en IS 'IDX';

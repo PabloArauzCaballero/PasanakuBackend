@@ -1,0 +1,71 @@
+{
+  "servicio": "erp",
+  "operacion": "listarOrdenesDeCompra",
+  "metodo": "get",
+  "ruta": "/erp/ordenes-de-compra",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "items": [
+          {
+            "ordenCompraId": "7bbf1760-7feb-4bd0-8454-1cb0fbaa2330",
+            "numero": "numero",
+            "terceroComercialId": "4241a253-56b1-4ae7-84f0-08b498f34d3a",
+            "terceroRazonSocial": "terceroRazonSocial",
+            "centroCostoId": "93f8aa9b-3e51-4c27-8525-69944d24a76c",
+            "centroCostoNombre": "centroCostoNombre",
+            "estado": "BORRADOR",
+            "monto": {
+              "monto": "4.44",
+              "moneda": "BOB"
+            },
+            "creadaEn": "2026-01-15T10:30:00Z"
+          }
+        ],
+        "proximoAntesDe": "2026-01-15T10:30:00Z",
+        "proximoAntesDeId": "341a660c-371a-4344-8300-d5486b351950"
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "items": [],
+        "proximoAntesDe": "2026-01-15T10:30:00Z",
+        "proximoAntesDeId": "341a660c-371a-4344-8300-d5486b351950"
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "items": [
+          {
+            "ordenCompraId": "7bbf1760-7feb-4bd0-8454-1cb0fbaa2330",
+            "numero": "numero",
+            "terceroComercialId": "4241a253-56b1-4ae7-84f0-08b498f34d3a",
+            "terceroRazonSocial": "terceroRazonSocial",
+            "centroCostoId": "93f8aa9b-3e51-4c27-8525-69944d24a76c",
+            "centroCostoNombre": "centroCostoNombre",
+            "estado": "BORRADOR",
+            "monto": {
+              "monto": "4.44",
+              "moneda": "BOB"
+            },
+            "creadaEn": "2026-01-15T10:30:00Z"
+          }
+        ],
+        "proximoAntesDe": "2026-01-15T10:30:00Z",
+        "proximoAntesDeId": "341a660c-371a-4344-8300-d5486b351950"
+      }
+    },
+    "rechazo": {
+      "estado": 400,
+      "cuerpo": {
+        "codigo": "AP-CU102-04",
+        "mensaje": "Filtro de listado invalido",
+        "detalle": {},
+        "trazaId": "traza-listarOrdenesDeCompra-rechazo"
+      }
+    }
+  }
+}

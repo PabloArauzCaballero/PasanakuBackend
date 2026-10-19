@@ -329,7 +329,7 @@ package "Tokens de Verificacion y Credenciales" {
   class FactorMFA {
     - id: UUID
     - usuarioId: UUID
-    - tipo: String <<TOTP | SMS | WHATSAPP | RESPALDO>>
+    - tipo: String <<TOTP | SMS | WHATSAPP | RESPALDO | CORREO>>
     - secretoCifrado: String
     - activo: Boolean
     - esPrincipal: Boolean
@@ -508,11 +508,20 @@ package "Autorizacion (RBAC) y Cumplimiento" {
     ORGANIZACION
   }
 
+  enum NivelRiesgoPermiso {
+    BAJO
+    MEDIO
+    ALTO
+    CRITICO
+  }
+
   class Rol {
     - id: UUID
     - codigo: String <<ADMIN | SOPORTE | AUDITOR | ORGANIZADOR | PARTICIPANTE | INVITADO>>
     - nombre: String
     - ambito: AmbitoRol
+    - departamento: String
+    - descripcion: String
     - esSistema: Boolean
     --
     + permisos(): List<Permiso>
@@ -524,7 +533,19 @@ package "Autorizacion (RBAC) y Cumplimiento" {
     - descripcion: String
     - recurso: String
     - accion: String
+    - nivelRiesgo: NivelRiesgoPermiso
+    - exigeMotivo: Boolean
     - requiereMFA: Boolean
+  }
+
+  class UsuarioInterno {
+    - id: UUID
+    - usuarioId: UUID
+    - departamento: String
+    - cargo: String
+    - debeCambiarContrasena: Boolean
+    - bloqueadoHasta: DateTime
+    - motivoBloqueo: String
   }
 
   class AsignacionRol {
@@ -622,6 +643,7 @@ Usuario "1" *-- "0..*" AsignacionRol
 Usuario "1" *-- "0..*" Consentimiento
 Usuario "1" *-- "1" PreferenciaNotificacion
 Usuario "1" *-- "1" ReputacionUsuario
+Usuario "1" *-- "0..1" UsuarioInterno
 
 TokenVerificacion "1" *-- "0..*" IntentoValidacionToken
 TokenVerificacion "*" --> "1" PoliticaToken : se rige por >
@@ -996,6 +1018,8 @@ entity "rol" as rol {
   codigo : VARCHAR(30) <<UQ>>
   nombre : VARCHAR(60)
   ambito : VARCHAR(15) <<CK>>
+  departamento : VARCHAR(60) <<NULL>>
+  descripcion : VARCHAR(255) <<NULL>>
   es_sistema : BOOLEAN
 }
 
@@ -1006,7 +1030,20 @@ entity "permiso" as perm {
   descripcion : VARCHAR(160)
   recurso : VARCHAR(40)
   accion : VARCHAR(30)
+  nivel_riesgo : VARCHAR(10) <<CK: BAJO|MEDIO|ALTO|CRITICO>>
+  exige_motivo : BOOLEAN
   requiere_mfa : BOOLEAN
+}
+
+entity "usuario_interno" as usuint {
+  * id : UUID <<PK>>
+  --
+  # usuario_id : UUID <<FK, UQ>>
+  departamento : VARCHAR(60)
+  cargo : VARCHAR(80)
+  debe_cambiar_contrasena : BOOLEAN
+  bloqueado_hasta : TIMESTAMPTZ <<NULL>>
+  motivo_bloqueo : VARCHAR(160) <<NULL>>
 }
 
 entity "rol_permiso" as rolperm {
@@ -1102,6 +1139,7 @@ usuario ||--o{ cons : "consiente"
 usuario ||--|| pref : "configura"
 usuario ||--|| reput : "acumula"
 usuario ||--o| baja : "solicita"
+usuario ||--o| usuint : "perfil interno"
 
 poltok ||--o{ token : "parametriza"
 token ||--o{ intok : "registra"

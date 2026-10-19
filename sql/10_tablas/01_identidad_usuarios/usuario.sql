@@ -26,8 +26,8 @@ CREATE TABLE IF NOT EXISTS identidad.usuario (
   CONSTRAINT ck_usuario_nivel_kyc CHECK (nivel_kyc IN ('BASICO', 'COMPLETO', 'INTERMEDIO', 'NINGUNO'))
 );
 
-COMMENT ON TABLE identidad.usuario IS 'Módulo 01 — Identidad, Usuarios y Seguridad. Saber con certeza a quién le estás confiando plata ajena';
-COMMENT ON COLUMN identidad.usuario.id IS 'PK';
+COMMENT ON TABLE identidad.usuario IS 'Módulo 01 — Identidad, Usuarios y Seguridad. La persona real detrás de la cuenta. Una sola por número de teléfono.';
+COMMENT ON COLUMN identidad.usuario.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN identidad.usuario.codigo_publico IS 'UQ';
 COMMENT ON COLUMN identidad.usuario.telefono_e164 IS 'UQ, IDX';
 COMMENT ON COLUMN identidad.usuario.correo IS 'UQ, NULL';

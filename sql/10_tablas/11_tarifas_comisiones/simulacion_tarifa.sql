@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS tarifas.simulacion_tarifa (
   CONSTRAINT pk_simulacion_tarifa PRIMARY KEY (id)
 );
 
-COMMENT ON TABLE tarifas.simulacion_tarifa IS 'Módulo 11 — Tarifas, Comisiones, Impuestos y Facturación. La política de cobro es dato, no código: se cambia con un seeder';
-COMMENT ON COLUMN tarifas.simulacion_tarifa.id IS 'PK';
+COMMENT ON TABLE tarifas.simulacion_tarifa IS 'Módulo 11 — Tarifas, Comisiones, Impuestos y Facturación. El ensayo previo y el expediente del cambio.';
+COMMENT ON COLUMN tarifas.simulacion_tarifa.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN tarifas.simulacion_tarifa.tarifario_id IS 'FK, IDX';
 COMMENT ON COLUMN tarifas.simulacion_tarifa.ejecutada_por IS 'FK';

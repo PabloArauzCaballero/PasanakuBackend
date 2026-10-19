@@ -14,8 +14,8 @@ CREATE TABLE IF NOT EXISTS identidad.bloqueo_cuenta (
   CONSTRAINT ck_bloqueo_cuenta_motivo CHECK (motivo IN ('FRAUDE', 'INTENTOS_FALLIDOS', 'ORDEN_ADMIN', 'SOLICITUD_USUARIO'))
 );
 
-COMMENT ON TABLE identidad.bloqueo_cuenta IS 'Módulo 01 — Identidad, Usuarios y Seguridad. Saber con certeza a quién le estás confiando plata ajena';
-COMMENT ON COLUMN identidad.bloqueo_cuenta.id IS 'PK';
+COMMENT ON TABLE identidad.bloqueo_cuenta IS 'Módulo 01 — Identidad, Usuarios y Seguridad. El bloqueo de acceso, temporal o indefinido, con su motivo.';
+COMMENT ON COLUMN identidad.bloqueo_cuenta.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN identidad.bloqueo_cuenta.usuario_id IS 'FK, IDX';
 COMMENT ON COLUMN identidad.bloqueo_cuenta.motivo IS 'CK';
 COMMENT ON COLUMN identidad.bloqueo_cuenta.desbloquea_en IS 'NULL';

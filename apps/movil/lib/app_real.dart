@@ -38,7 +38,7 @@ class AppAportaYaReal extends StatelessWidget {
     return AlcanceHaptica(
       haptica: ref.read(hapticaProvider),
       child: MaterialApp.router(
-        title: 'AportaYa',
+        title: 'Aporteo',
         locale: localeDeAportaYa,
         supportedLocales: localesDeAportaYa,
         localizationsDelegates: delegadosDeLocalizacionDeAportaYa,
@@ -62,8 +62,10 @@ class AppAportaYaReal extends StatelessWidget {
               ),
             ),
           ),
-          onIngresarDeNuevo: () =>
-              ref.read(cierreDeSesionProvider).ejecutar(motivo: null).ignore(),
+          onIngresarDeNuevo: () => ref
+              .read(cierreDeSesionProvider)
+              .ejecutar(motivo: null, esperarAlServidor: false)
+              .ignore(),
         ),
       ),
     );

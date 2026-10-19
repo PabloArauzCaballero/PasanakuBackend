@@ -1,0 +1,21 @@
+$ ./gradlew :servicios:nucleo-financiero:spotlessApply :servicios:nucleo-financiero:webTest :servicios:nucleo-financiero:integrationTest --tests '*CU11*'  -> BUILD SUCCESSFUL
+webTest TOTAL 51 fallas 0 omitidas 0
+  CU11AprobacionConcurrenciaTest tests 2 fallas 0 omitidas 0
+  CU11AprobacionIdempotenciaTest tests 6 fallas 0 omitidas 0
+      PASS rechaza la misma clave con OTRO desenlace: AP-CU11-13, la clave no se recicla para otra decision
+      PASS Dado un rechazo ya registrado · Cuando se repite con la misma clave · Entonces devuelve el mismo recibo y
+      PASS concurrencia: dos envios simultaneos con la misma clave producen UNA transicion y el mismo recibo
+      PASS limite: la auto-aprobacion sigue prohibida aunque traiga clave, y no deja la clave reservada
+      PASS Dado un aprobador que autorizo una orden y perdio la respuesta · Cuando reintenta con la MISMA clave · En
+      PASS rechaza OTRA clave sobre una orden ya resuelta: sigue siendo AP-CU11-11 (otra operacion, no un reintento)
+  CU11AprobacionTest tests 7 fallas 0 omitidas 0
+  CU11BandejaTest tests 5 fallas 0 omitidas 0
+  CU11CondicionesTest tests 3 fallas 0 omitidas 0
+  CU11IdempotenciaTest tests 5 fallas 0 omitidas 0
+  CU11MetricasTest tests 2 fallas 0 omitidas 0
+  CU11ProveedorSimuladoTest tests 10 fallas 0 omitidas 0
+  CU11ProveedorTest tests 1 fallas 0 omitidas 0
+  CU11RechazosTest tests 14 fallas 0 omitidas 0
+  CU11ServidorRealTest tests 5 fallas 0 omitidas 0
+  CU11Test tests 11 fallas 0 omitidas 0
+integrationTest TOTAL 71 fallas 0 omitidas 0

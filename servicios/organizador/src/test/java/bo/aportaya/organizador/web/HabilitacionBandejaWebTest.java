@@ -78,6 +78,9 @@ class HabilitacionBandejaWebTest {
     @MockitoBean
     private CU90ConsultarBandeja consultarBandeja;
 
+    @MockitoBean
+    private bo.aportaya.organizador.aplicacion.CU90HabilitacionBasica habilitacionBasica;
+
     private ExpedienteDeHabilitacion solicitud() {
         return new ExpedienteDeHabilitacion(
                 SOLICITUD, USUARIO, "PENDIENTE", new BigDecimal("82.50"), UUID.randomUUID(), null, FECHA, null, 0);

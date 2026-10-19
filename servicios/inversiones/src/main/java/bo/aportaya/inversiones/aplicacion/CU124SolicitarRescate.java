@@ -190,7 +190,7 @@ public class CU124SolicitarRescate {
 
     private static String huella(EntradaRescate e) {
         String canon =
-                e.posicionId() + "|" + e.cuotas().map(BigDecimal::toPlainString).orElse("TODO");
+                e.posicionId() + "|" + e.cuotas().map(BigDecimal::toPlainString).orElse("RESCATE_TOTAL");
         try {
             return HexFormat.of()
                     .formatHex(MessageDigest.getInstance("SHA-256").digest(canon.getBytes(StandardCharsets.UTF_8)));

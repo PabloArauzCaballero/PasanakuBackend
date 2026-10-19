@@ -18,8 +18,8 @@ CREATE TABLE IF NOT EXISTS grupos.turno (
   CONSTRAINT ck_turno_estado CHECK (estado IN ('ANULADO', 'COBRADO', 'CONFIRMADO', 'DIFERIDO', 'EN_CURSO', 'PERMUTADO', 'PROGRAMADO'))
 );
 
-COMMENT ON TABLE grupos.turno IS 'Módulo 02 — Grupos, Cupos, Turnos y Gobernanza. Reglas del juego, orden de cobro y decisiones colectivas';
-COMMENT ON COLUMN grupos.turno.id IS 'PK';
+COMMENT ON TABLE grupos.turno IS 'Módulo 02 — Grupos, Cupos, Turnos y Gobernanza. El derecho de un cupo a cobrar la bolsa en un período determinado.';
+COMMENT ON COLUMN grupos.turno.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN grupos.turno.grupo_id IS 'FK, IDX';
 COMMENT ON COLUMN grupos.turno.periodo_id IS 'FK';
 COMMENT ON COLUMN grupos.turno.cupo_id IS 'FK';

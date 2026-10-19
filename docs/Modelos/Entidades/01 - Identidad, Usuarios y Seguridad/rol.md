@@ -6,7 +6,7 @@ tabla: rol
 clase: Rol
 modulo: "01 — Identidad, Usuarios y Seguridad"
 clave_primaria: [id]
-columnas: 5
+columnas: 7
 fk_salientes: 0
 fk_entrantes: 2
 append_only: false
@@ -24,6 +24,8 @@ append_only: false
 | `codigo` | VARCHAR(30) | UQ | no | UQ |
 | `nombre` | VARCHAR(60) | — | no | — |
 | `ambito` | VARCHAR(15) | — | no | CK |
+| `departamento` | VARCHAR(60) | — | sí | NULL |
+| `descripcion` | VARCHAR(255) | — | sí | NULL |
 | `es_sistema` | BOOLEAN | — | no | — |
 
 ## Referenciada por

@@ -14,8 +14,8 @@ CREATE TABLE IF NOT EXISTS cumplimiento.punto_reclamo (
   CONSTRAINT ck_punto_reclamo_tipo CHECK (tipo IN ('APP', 'CORREO', 'PRESENCIAL', 'TELEFONO', 'WEB'))
 );
 
-COMMENT ON TABLE cumplimiento.punto_reclamo IS 'Módulo 12 — Cumplimiento Regulatorio y Consumidor Financiero. Que una inspección se responda con consultas, no armando carpetas';
-COMMENT ON COLUMN cumplimiento.punto_reclamo.id IS 'PK';
+COMMENT ON TABLE cumplimiento.punto_reclamo IS 'Módulo 12 — Cumplimiento Regulatorio y Consumidor Financiero. El canal de reclamos, el reclamo y su escalamiento.';
+COMMENT ON COLUMN cumplimiento.punto_reclamo.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN cumplimiento.punto_reclamo.codigo IS 'UQ';
 COMMENT ON COLUMN cumplimiento.punto_reclamo.tipo IS 'CK';
 COMMENT ON COLUMN cumplimiento.punto_reclamo.responsable_id IS 'FK, NULL';

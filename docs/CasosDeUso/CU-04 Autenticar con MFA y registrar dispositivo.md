@@ -36,7 +36,10 @@ normas: [ASFI Seguridad de la Información, ISO/IEC 27001 A.5.15-A.5.18, ISO/IEC
 2. Se valida la credencial contra [[credencial_acceso]] (hash con *pepper*, nunca
    la contraseña en claro).
 3. Se identifica el [[dispositivo]] por huella; si es nuevo, se marca
-   `es_confiable=false` y se exige factor adicional.
+   `es_confiable=false`. **Al participante no se le exige factor adicional para
+   iniciar sesión**, ni en un teléfono nuevo (decisión de Pablo, 2026-10-17): la
+   fricción va donde se mueve plata, en el step-up de cada operación con
+   `permiso.requiere_mfa` (retiro, cambio de cuenta), no en la puerta de entrada.
    **El dispositivo de confianza no exime al operador**: para quien tiene rol de ámbito
    `GLOBAL` el segundo factor se exige en **todo** acceso, en su equipo de siempre y en
    cualquier otro. Lo que para el participante es una comodidad razonable —arriesga lo
@@ -138,7 +141,7 @@ export const ErroresCU04 = {
 
 ## Interfaz
 
-- **App:** Ingreso con teléfono y PIN o biometría; el dispositivo nuevo pide siempre segundo factor.
+- **App:** Ingreso con teléfono **o correo** y contraseña; sin segundo factor al entrar. Las operaciones sensibles lo piden en su paso (step-up).
 - **Backoffice:** ingreso en dos pasos —credencial y TOTP— en `acceso/ingreso` y
   `acceso/desafio` ([[Flujo de pantallas · backoffice administrador]] §2.0), sin atajo
   biométrico y sin «recordar este equipo». Y la auditoría de accesos por usuario, con
@@ -158,10 +161,34 @@ export const ErroresCU04 = {
 ## Criterios de aceptación
 
 ```gherkin
-Dado un usuario con MFA activo
-Cuando inicia sesión desde un dispositivo desconocido
-Entonces se le exige un factor adicional
+Dado una cuenta pendiente de aprobacion manual
+Cuando inicia sesion con credenciales correctas
+Entonces inicia sesion y su estado sigue pendiente
+
+Dada una cuenta sin documento
+Cuando inicia sesion con credenciales correctas
+Entonces inicia sesion y sigue INCOMPLETO_KYC
+
+Dado un participante activo sin factor
+Cuando inicia sesion desde un teléfono nuevo
+Entonces obtiene su sesión sin que se le pida código
+
+Dado un participante con MFA activo
+Cuando inicia sesión desde un teléfono nuevo
+Entonces obtiene su sesión sin que se le pida código
 Y queda registrado el dispositivo con es_confiable = false
+
+Dado un participante con MFA activo
+Cuando la operación exige MFA (requiere_mfa)
+Entonces se le sigue pidiendo el factor y no se crea sesión
+
+Dado un usuario con correo en su cuenta
+Cuando inicia sesión con ese correo en otras mayúsculas y su contraseña
+Entonces entra igual que con su teléfono
+
+Dado un correo que no es de ninguna cuenta, o que dos cuentas comparten salvo mayúsculas
+Cuando se intenta entrar con él
+Entonces se responde AP-CU04-01, igual que una contraseña mala
 
 Dado un retiro que supera el umbral de MFA
 Cuando el usuario no completa el desafío
@@ -215,11 +242,40 @@ Entonces se rechaza
 Dado un refresh vencido
 Entonces se rechaza
 
+Dado el limite absoluto de ocho horas
+Cuando una sesion expirada renueva su refresh
+Entonces se rechaza
+
+Dado una sesion con refresh vivo
+Cuando otro titular intenta cerrarla y luego su dueno la cierra
+Entonces se revoca la familia y se invalida el refresh siguiente
+
 Dado una sesion revocada (p. ej. cambio de credencial)
 Entonces su refresh ya no renueva
 
 Dado un refresh emitido
 Entonces en la base solo queda su SHA-256 y nunca el valor en claro
+
+Dado un participante sin factor y con el correo confirmado en el alta
+Cuando hace una operacion que exige MFA
+Entonces se le pide el codigo y le llega por correo
+Y con ese codigo abre la sesion
+
+Dado un participante sin factor que recibio el codigo por correo
+Cuando escribe un codigo que no es el enviado
+Entonces se rechaza con AP-CU04-04 y no abre sesion
+
+Dado un participante cuyo correo actual NO es el que confirmo en el alta
+Cuando hace una operacion que exige MFA
+Entonces no se manda ningun correo
+
+Dado un participante con TOTP enrolado y correo confirmado
+Cuando hace una operacion que exige MFA
+Entonces se le pide su factor enrolado y no se envia correo
+
+Dado un operador sin factor y con correo confirmado
+Cuando entra
+Entonces sigue rechazado con AP-CU04-06 y no se envia correo (R-SEG-10)
 ```
 
 ## Ver también

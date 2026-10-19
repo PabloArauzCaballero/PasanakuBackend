@@ -19,12 +19,13 @@ CREATE TABLE IF NOT EXISTS nucleo_financiero.transferencia_p2p (
   CONSTRAINT ck_transferencia_p2p_estado CHECK (estado IN ('EJECUTADA', 'PENDIENTE', 'RECHAZADA', 'REVERSADA'))
 );
 
-COMMENT ON TABLE nucleo_financiero.transferencia_p2p IS 'Módulo 10 — Billetera, Custodia y Dinero Electrónico. El saldo no se guarda: se deriva, y todos los días cuadra contra el banco';
-COMMENT ON COLUMN nucleo_financiero.transferencia_p2p.id IS 'PK';
+COMMENT ON TABLE nucleo_financiero.transferencia_p2p IS 'Módulo 10 — Billetera, Custodia y Dinero Electrónico. Movimiento de saldo entre dos billeteras.';
+COMMENT ON COLUMN nucleo_financiero.transferencia_p2p.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN nucleo_financiero.transferencia_p2p.transaccion_id IS 'FK, UQ';
 COMMENT ON COLUMN nucleo_financiero.transferencia_p2p.cuenta_billetera_origen_id IS 'FK, IDX';
 COMMENT ON COLUMN nucleo_financiero.transferencia_p2p.cuenta_billetera_destino_id IS 'FK, IDX';
 COMMENT ON COLUMN nucleo_financiero.transferencia_p2p.grupo_id IS 'FK, NULL';
 COMMENT ON COLUMN nucleo_financiero.transferencia_p2p.obligacion_id IS 'FK, NULL, M3';
 COMMENT ON COLUMN nucleo_financiero.transferencia_p2p.monto IS 'CK: > 0';
+COMMENT ON COLUMN nucleo_financiero.transferencia_p2p.moneda IS 'Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2).';
 COMMENT ON COLUMN nucleo_financiero.transferencia_p2p.estado IS 'CK';

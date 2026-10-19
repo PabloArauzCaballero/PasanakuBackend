@@ -61,6 +61,10 @@ void main() {
     expect(tester.takeException(), isNull);
     expect(find.text('Buscar en departamento'), findsOneWidget);
     expect(
+      tester.getRect(find.byType(TextField)).bottom,
+      lessThanOrEqualTo(340),
+    );
+    expect(
       tester.getTopLeft(find.text('Buscar en departamento')).dy,
       lessThan(340),
     );

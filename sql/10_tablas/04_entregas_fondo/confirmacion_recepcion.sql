@@ -17,8 +17,8 @@ CREATE TABLE IF NOT EXISTS entregas.confirmacion_recepcion (
   CONSTRAINT ck_confirmacion_recepcion_estado CHECK (estado IN ('CONFIRMADA_AUTOMATICAMENTE', 'CONFIRMADA_POR_BENEFICIARIO', 'OBJETADA', 'PENDIENTE', 'VENCIDA'))
 );
 
-COMMENT ON TABLE entregas.confirmacion_recepcion IS 'Módulo 04 — Entregas de Fondo. Que la bolsa llegue completa, a la persona correcta, una sola vez';
-COMMENT ON COLUMN entregas.confirmacion_recepcion.id IS 'PK';
+COMMENT ON TABLE entregas.confirmacion_recepcion IS 'Módulo 04 — Entregas de Fondo. La confirmación del beneficiario de que efectivamente recibió su plata.';
+COMMENT ON COLUMN entregas.confirmacion_recepcion.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN entregas.confirmacion_recepcion.entrega_id IS 'FK, UQ';
 COMMENT ON COLUMN entregas.confirmacion_recepcion.estado IS 'CK, IDX';
 COMMENT ON COLUMN entregas.confirmacion_recepcion.monto_confirmado IS 'NULL';

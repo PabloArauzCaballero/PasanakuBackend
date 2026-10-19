@@ -4,6 +4,9 @@ abstract final class TextosSoporte {
   static const proposito =
       'Aprendé a usar AportaYa haciéndolo, sobre las pantallas de verdad. Ningún tutorial mueve tu plata ni confirma nada por vos.';
   static const buscar = 'Buscar un tutorial';
+  static const temaDelTutorial = 'Tema del tutorial';
+  static const todosLosTemas = 'Todos los temas';
+  static const filtrarAyuda = 'Elegí un tema para ver sus tutoriales.';
   static const todos = 'Todos';
   static const pendientes = 'Pendientes';
   static const enProgreso = 'En progreso';

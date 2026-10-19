@@ -16,8 +16,8 @@ CREATE TABLE IF NOT EXISTS auditoria.proceso_anonimizacion (
   CONSTRAINT ck_proceso_anonimizacion_estado CHECK (estado IN ('EJECUTADO', 'PLANIFICADO', 'REVERTIDO'))
 );
 
-COMMENT ON TABLE auditoria.proceso_anonimizacion IS 'Módulo 09 — Auditoría, Reportes y Cumplimiento. Poder demostrar todo lo anterior ante un reclamo o un regulador';
-COMMENT ON COLUMN auditoria.proceso_anonimizacion.id IS 'PK';
+COMMENT ON TABLE auditoria.proceso_anonimizacion IS 'Módulo 09 — Auditoría, Reportes y Cumplimiento. La ejecución técnica del borrado o seudonimización, con lo que se afecta y lo que se retiene por ley.';
+COMMENT ON COLUMN auditoria.proceso_anonimizacion.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN auditoria.proceso_anonimizacion.usuario_id IS 'FK, UQ';
 COMMENT ON COLUMN auditoria.proceso_anonimizacion.solicitud_id IS 'FK, NULL';
 COMMENT ON COLUMN auditoria.proceso_anonimizacion.estrategia IS 'CK';

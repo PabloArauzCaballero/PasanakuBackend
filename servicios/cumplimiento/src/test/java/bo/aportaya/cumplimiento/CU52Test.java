@@ -118,9 +118,18 @@ class CU52Test extends BaseDeCumplimiento {
         var salida = transaccion.execute(t -> reclamoCU.ingresar(reclamo(null), ctx));
         var respuesta = new EntradaRespuesta(salida.reclamoId(), "DESFAVORABLE", "El cobro esta en el tarifario", null);
 
-        transaccion.execute(t -> reclamoCU.responder(respuesta, ctx));
-        assertThatThrownBy(() -> transaccion.execute(t -> reclamoCU.responder(respuesta, ctx)))
-                .hasMessageContaining("ya estaba cerrado");
+        var primera = transaccion.execute(t -> reclamoCU.responder(respuesta, ctx));
+        // Backoffice carril A · H3: el reintento identico del mismo responsable es el recibo de antes,
+        // no un error (antes lanzaba "ya estaba cerrado", contra lo que dice el nombre de esta prueba).
+        var repetida = transaccion.execute(t -> reclamoCU.responder(respuesta, ctx));
+        assertThat(repetida).isEqualTo(primera);
+        assertThat(contar(
+                        """
+                        SELECT count(*)::int FROM cumplimiento.evento_dominio
+                         WHERE tipo = 'cumplimiento.reclamo_respondido' AND agregado_id = ?
+                        """,
+                        salida.reclamoId()))
+                .isEqualTo(1);
         assertThat(contar(
                         "SELECT count(*)::int FROM cumplimiento.reclamo_cliente WHERE id = ? AND estado = 'CERRADO'",
                         salida.reclamoId()))
@@ -131,12 +140,18 @@ class CU52Test extends BaseDeCumplimiento {
     @DisplayName("concurrencia: dos transacciones sobre el mismo agregado, una gana y nunca hay doble efecto")
     void concurrencia() throws Exception {
         var salida = transaccion.execute(t -> reclamoCU.ingresar(reclamo(null), ctx));
-        var respuesta = new EntradaRespuesta(salida.reclamoId(), "DESFAVORABLE", "El cobro esta en el tarifario", null);
+        // Dos respuestas DISTINTAS a la vez: una gana y la otra es AP-CU52-06. Dos identicas ya no chocan
+        // (son el mismo recibo, CU52RespuestaTest): para seguir probando el conflicto, difieren en el texto.
+        var respuestas = java.util.List.of(
+                new EntradaRespuesta(salida.reclamoId(), "DESFAVORABLE", "El cobro esta en el tarifario", null),
+                new EntradaRespuesta(salida.reclamoId(), "DESFAVORABLE", "El cobro figura en el tarifario", null));
+        var turno = new java.util.concurrent.atomic.AtomicInteger();
 
         var barrera = new java.util.concurrent.CyclicBarrier(2);
         var errores = java.util.Collections.synchronizedList(new java.util.ArrayList<Throwable>());
         Runnable intento = () -> {
             try {
+                var respuesta = respuestas.get(turno.getAndIncrement());
                 barrera.await();
                 transaccion.execute(t -> reclamoCU.responder(respuesta, ctx));
             } catch (Exception e) {

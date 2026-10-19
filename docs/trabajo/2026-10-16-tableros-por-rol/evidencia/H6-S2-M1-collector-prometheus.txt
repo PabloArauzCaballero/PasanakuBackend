@@ -1,0 +1,10 @@
+$ docker run otel/opentelemetry-collector-contrib:0.115.1 validate --config=despliegue/observabilidad/otel-collector.yml
+Status: Downloaded newer image for otel/opentelemetry-collector-contrib:0.115.1
+otelcol validate exit=0
+$ promtool check config despliegue/observabilidad/prometheus.yml
+
+$ docker compose -f despliegue/compose/base.yml --profile observabilidad config --quiet -> valido
+$ docker compose -f base.yml -f servicios.yml --profile todo config --quiet -> valido
+Tags verificados en Docker Hub: collector-contrib 0.115.1 (push 2024-12-04), prometheus v3.1.0 (push 2025-01-02).
+Diseno: metricas por OTLP (micrometer-registry-otlp 1.15.12) al Collector -> exporter prometheus :8889 -> Prometheus. Ningun servicio abre /actuator/prometheus (hoy NO esta expuesto y la seguridad solo abre health/info).
+TEST: TRAZAS/METRICAS_OTLP_HABILITADAS por omision false en docker-compose.coolify.yml; levantar el perfil observabilidad en /opt/aportaya/infra es operacion pendiente (no se toco el servidor).

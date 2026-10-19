@@ -1,0 +1,65 @@
+{
+  "servicio": "auditoria",
+  "operacion": "listarEjecucionesDeReporte",
+  "metodo": "get",
+  "ruta": "/reportes/ejecuciones",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "items": [
+          {
+            "ejecucionId": "aec1ab39-487c-41b1-8194-24578f73dbce",
+            "definicionId": "0b2e439a-0abe-4952-8190-3ac815ecbcec",
+            "solicitadoPor": "06cca1bf-7781-4f4f-814d-cef07e4e110e",
+            "estado": "EN_COLA",
+            "filasGeneradas": 1,
+            "duracionMs": 1,
+            "hashResultado": "hashResultado",
+            "iniciadaEn": "2026-01-15T10:30:00Z",
+            "finalizadaEn": "2026-01-15T10:30:00Z"
+          }
+        ],
+        "proximoAntesDe": "2026-01-15T10:30:00Z",
+        "proximoAntesDeId": "19d040a8-159d-4088-8c4d-90202f6e1130"
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "items": [],
+        "proximoAntesDe": "2026-01-15T10:30:00Z",
+        "proximoAntesDeId": "19d040a8-159d-4088-8c4d-90202f6e1130"
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "items": [
+          {
+            "ejecucionId": "aec1ab39-487c-41b1-8194-24578f73dbce",
+            "definicionId": "0b2e439a-0abe-4952-8190-3ac815ecbcec",
+            "solicitadoPor": "06cca1bf-7781-4f4f-814d-cef07e4e110e",
+            "estado": "EN_COLA",
+            "filasGeneradas": 1,
+            "duracionMs": 1,
+            "hashResultado": "hashResultado",
+            "iniciadaEn": "2026-01-15T10:30:00Z",
+            "finalizadaEn": "2026-01-15T10:30:00Z"
+          }
+        ],
+        "proximoAntesDe": "2026-01-15T10:30:00Z",
+        "proximoAntesDeId": "19d040a8-159d-4088-8c4d-90202f6e1130"
+      }
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU58-07",
+        "mensaje": "Filtro de listado invalido",
+        "detalle": {},
+        "trazaId": "traza-listarEjecucionesDeReporte-rechazo"
+      }
+    }
+  }
+}

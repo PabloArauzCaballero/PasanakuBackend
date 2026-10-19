@@ -23,7 +23,7 @@ class EstadoDePantalla<T> extends StatelessWidget {
     this.esqueleto,
     this.etiquetaDeCarga = 'Cargando',
     this.etiquetaDeTraza = 'Referencia',
-    this.omitirSkeletonAlActualizar = false,
+    this.omitirSkeletonAlActualizar = true,
   });
 
   final AsyncValue<T> valor;
@@ -35,6 +35,11 @@ class EstadoDePantalla<T> extends StatelessWidget {
   final Widget? esqueleto;
   final String etiquetaDeCarga;
   final String etiquetaDeTraza;
+
+  /// Al volver a pedir un dato que ya se ve (deslizar para recargar, una consulta
+  /// periódica), se sigue mostrando el anterior hasta que llega el nuevo. Antes, por
+  /// defecto, cada refresco borraba la pantalla y la volvía a pintar: parpadeaba
+  /// (2026-10-19). `false` solo donde mostrar el esqueleto al refrescar sea a propósito.
   final bool omitirSkeletonAlActualizar;
 
   @override

@@ -1,6 +1,5 @@
 package bo.aportaya.identidad.aplicacion;
 
-import bo.aportaya.identidad.dominio.AperturaDeCuenta;
 import bo.aportaya.identidad.dominio.ExigeSegundoFactor;
 import bo.aportaya.identidad.dominio.FactorAdmisible;
 import bo.aportaya.identidad.dominio.PerfilDeAcceso;
@@ -9,6 +8,7 @@ import bo.aportaya.identidad.dominio.ResultadoDeAutenticacion;
 import bo.aportaya.identidad.dominio.puertos.DesafioDeFactor;
 import bo.aportaya.identidad.dominio.puertos.HasheadorDeCredencial;
 import bo.aportaya.identidad.infraestructura.AccesoRepositorio;
+import bo.aportaya.identidad.infraestructura.CorreoDeAccesoRepositorio;
 import bo.aportaya.identidad.infraestructura.UsuarioRepositorio;
 import bo.aportaya.plataforma.datos.Datos;
 import bo.aportaya.plataforma.dominio.CodigoError;
@@ -43,11 +43,14 @@ public class CU04Autenticar {
     /** Ventana en la que se cuentan los fallidos consecutivos. */
     private static final Duration VENTANA_DE_INTENTOS = Duration.ofMinutes(15);
 
+    private static final String FACTOR_CORREO = "CORREO";
+
     private final Datos datos;
     private final UsuarioRepositorio usuarios;
     private final AccesoRepositorio accesos;
     private final HasheadorDeCredencial hasheador;
     private final DesafioDeFactor desafio;
+    private final CorreoDeAccesoRepositorio correos;
     private final Outbox outbox;
     private final Reloj reloj;
 
@@ -57,6 +60,7 @@ public class CU04Autenticar {
             AccesoRepositorio accesos,
             HasheadorDeCredencial hasheador,
             DesafioDeFactor desafio,
+            CorreoDeAccesoRepositorio correos,
             Outbox outbox,
             Reloj reloj) {
         this.datos = datos;
@@ -64,6 +68,7 @@ public class CU04Autenticar {
         this.accesos = accesos;
         this.hasheador = hasheador;
         this.desafio = desafio;
+        this.correos = correos;
         this.outbox = outbox;
         this.reloj = reloj;
     }
@@ -82,13 +87,15 @@ public class CU04Autenticar {
 
     private ResultadoDeAutenticacion autenticar(
             DSLContext dsl, EntradaAutenticacion entrada, PoliticaDeIntentos politica, OffsetDateTime ahora) {
-        Optional<UUID> usuarioId = usuarios.porTelefono(dsl, entrada.telefonoE164());
+        Optional<UUID> usuarioId = entrada.esCorreo()
+                ? usuarios.porCorreo(dsl, entrada.identificador())
+                : usuarios.porTelefono(dsl, entrada.identificador());
         UUID intentoId = accesos.registrarIntento(
-                dsl, usuarioId, entrada.telefonoE164(), entrada.ip(), entrada.agente(), entrada.huella(), ahora);
+                dsl, usuarioId, entrada.identificador(), entrada.ip(), entrada.agente(), entrada.huella(), ahora);
 
         if (usuarioId.isEmpty()) {
-            // El mismo mensaje que para una credencial mala: decir «ese numero no
-            // existe» convierte el ingreso en un buscador de usuarios registrados.
+            // El mismo mensaje que para una credencial mala: decir «ese numero (o ese
+            // correo) no existe» convierte el ingreso en un buscador de usuarios registrados.
             return cerrar(dsl, intentoId, "CREDENCIAL_INVALIDA", credencialInvalida());
         }
         UUID usuario = usuarioId.get();
@@ -118,11 +125,19 @@ public class CU04Autenticar {
         }
 
         PerfilDeAcceso perfil = usuarios.perfilDe(dsl, usuario);
-        boolean pendienteDeAprobacion = usuarios.estadoDe(dsl, usuario)
-                .filter(AperturaDeCuenta.PENDIENTE_VERIFICACION.name()::equals)
-                .isPresent();
         var dispositivo = accesos.dispositivoPorHuella(dsl, usuario, entrada.huella(), entrada.plataforma(), ahora);
-        Optional<String> factor = accesos.factorActivo(dsl, usuario);
+        Optional<String> enrolado = accesos.factorActivo(dsl, usuario);
+
+        // El participante que no enrolo ningun factor pero confirmo su correo en el alta
+        // recibe el codigo por ese correo. Antes se le pedia un codigo que nunca se
+        // emitia y que ninguno validaba: no podia entrar desde un telefono nuevo. Al
+        // operador no le alcanza el correo (R-SEG-10): sigue exigiendo TOTP enrolado.
+        Optional<String> correoDeAcceso =
+                !perfil.esOperador() && enrolado.map(FACTOR_CORREO::equals).orElse(true)
+                        ? correos.correoVerificadoDe(dsl, usuario)
+                        : Optional.empty();
+        Optional<String> factor =
+                enrolado.isEmpty() && correoDeAcceso.isPresent() ? Optional.of(FACTOR_CORREO) : enrolado;
 
         if (perfil.esOperador() && factor.isEmpty()) {
             // Una asignacion de rol sin factor deja al operador afuera, y eso es lo
@@ -143,16 +158,18 @@ public class CU04Autenticar {
                             CodigoError.de(4, 7), "Ese tipo de factor no se admite para tu rol."));
         }
 
-        // El alta ya verifico la credencial y crea la cuenta en revision manual. Si aun no
-        // existe un factor enrolado, permitir iniciar sesion sin confiar el dispositivo ni
-        // activar la cuenta; las operaciones sensibles siguen exigiendo segundo factor.
-        // Cuando hay factor, la politica normal de MFA sigue aplicando tambien a pendientes.
-        boolean accesoInicialPendienteSinFactor =
-                pendienteDeAprobacion && !perfil.esOperador() && factor.isEmpty() && !entrada.operacionSensible();
-        if (!accesoInicialPendienteSinFactor
-                && ExigeSegundoFactor.decidir(perfil, dispositivo.confiable(), entrada.operacionSensible())) {
+        // La cuenta pendiente de aprobacion entra sin confiar el dispositivo ni activarse:
+        // abrir la sesion no aprueba nada.
+        if (ExigeSegundoFactor.decidir(perfil, entrada.operacionSensible())) {
             if (entrada.factorPresentado().isEmpty()) {
-                factor.ifPresent(tipo -> desafio.emitir(usuario, tipo));
+                factor.ifPresent(tipo -> desafio.emitir(usuario, tipo, correoDeAcceso.orElse(null)));
+                if (desafio.entregaPorCorreoConfirmada(usuario)) {
+                    return cerrar(
+                            dsl,
+                            intentoId,
+                            "FACTOR_REQUERIDO",
+                            ResultadoDeAutenticacion.factorEnviadoPorCorreo(dispositivo.confiable()));
+                }
                 return cerrar(
                         dsl,
                         intentoId,
@@ -188,7 +205,8 @@ public class CU04Autenticar {
     }
 
     private ResultadoDeAutenticacion credencialInvalida() {
-        return ResultadoDeAutenticacion.rechazado(CodigoError.de(4, 1), "El telefono o la credencial no coinciden.");
+        return ResultadoDeAutenticacion.rechazado(
+                CodigoError.de(4, 1), "El telefono, el correo o la contrasena no coinciden.");
     }
 
     private ResultadoDeAutenticacion cerrar(

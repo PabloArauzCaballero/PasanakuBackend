@@ -1,0 +1,6 @@
+PrometheusDobleTest 5/5 (doble HTTP de /api/v1/query: con series, sin trafico=cero real y NaN sin publicar, 500/caido/sin URL -> FUENTE_NO_CONFIGURADA; endpoints ordenados con plantilla y p95; sin fuente -> fuenteDisponible=false)
+IndicadoresControllerWebTest 14/14 (+3: 200 con TABLERO_SISTEMAS_VER, 403 con otro tablero, 400 limite>100)
+SeguridadWebTest en verde con la ruta nueva incluida en el barrido (primer intento: faltaba el MockitoBean de EndpointsDelDia; corregido)
+auditoria: test+webTest+integrationTest+cobertura exit=0; gates seguridad/criterios/boveda/pruebas_web ok
+Nueva unidad MILISEGUNDOS en Indicador (comun-dominio check verde) y en el publicador y el front.
+Prometheus REAL sin ejercitar todavia: H9 con el stack (nombre de metrica configurable aportaya.prometheus.metrica-http).

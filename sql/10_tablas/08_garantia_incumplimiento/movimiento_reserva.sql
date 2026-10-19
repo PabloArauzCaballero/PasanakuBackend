@@ -23,15 +23,16 @@ CREATE TABLE IF NOT EXISTS garantia.movimiento_reserva (
   CONSTRAINT ck_movimiento_reserva_exposicion_resultante CHECK (exposicion_resultante >= 0)
 );
 
-COMMENT ON TABLE garantia.movimiento_reserva IS 'Módulo 08 — Garantía, Incumplimiento, Cobranza y Sanciones. [append-only] El grupo no se detiene, pero la deuda no se perdona sola';
-COMMENT ON COLUMN garantia.movimiento_reserva.id IS 'PK';
+COMMENT ON TABLE garantia.movimiento_reserva IS 'Módulo 08 — Garantía, Incumplimiento, Cobranza y Sanciones. [append-only] El libro inmutable de la reserva: cada reserva, ampliación, aplicación, reversa, recuperación o liberación, con el disponible y la exposición que dejó.';
+COMMENT ON COLUMN garantia.movimiento_reserva.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN garantia.movimiento_reserva.reserva_respaldo_id IS 'FK, IDX';
 COMMENT ON COLUMN garantia.movimiento_reserva.tipo IS 'CK: RESERVA|AMPLIACION|APLICACION|REVERSA_APLICACION|RECUPERACION|LIBERACION, IDX';
 COMMENT ON COLUMN garantia.movimiento_reserva.monto IS 'CK: > 0';
+COMMENT ON COLUMN garantia.movimiento_reserva.moneda IS 'Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2).';
 COMMENT ON COLUMN garantia.movimiento_reserva.disponible_resultante IS 'CK: >= 0';
 COMMENT ON COLUMN garantia.movimiento_reserva.exposicion_resultante IS 'CK: >= 0';
 COMMENT ON COLUMN garantia.movimiento_reserva.referencia_id IS 'IDX';
-COMMENT ON COLUMN garantia.movimiento_reserva.clave_idempotencia IS 'UQ';
+COMMENT ON COLUMN garantia.movimiento_reserva.clave_idempotencia IS 'Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4).';
 COMMENT ON COLUMN garantia.movimiento_reserva.registrado_por IS 'FK';
 COMMENT ON COLUMN garantia.movimiento_reserva.responsable_id IS 'FK';
 COMMENT ON COLUMN garantia.movimiento_reserva.fecha IS 'IDX';

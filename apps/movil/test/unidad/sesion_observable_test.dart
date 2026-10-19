@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:aportaya_movil/dominio/puertos/almacen_seguro.dart';
 import 'package:aportaya_movil/proveedores/sesion.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -127,6 +129,76 @@ void main() {
     expect(await sesion.inicioConCredencial(), ahora);
     expect(notificaciones, 1);
     container.dispose();
+  });
+
+  test('solo trata permisos explícitos del token como señal de navegación', () {
+    String token(Map<String, Object?> carga) {
+      String parte(Object valor) =>
+          base64Url.encode(utf8.encode(jsonEncode(valor))).replaceAll('=', '');
+      return '${parte({'alg': 'none'})}.${parte(carga)}.';
+    }
+
+    expect(
+      billeteraPermitidaDelToken(
+        token({
+          'sub': 'usuario-sintetico',
+          'permisos': ['BILLETERA_VER'],
+        }),
+      ),
+      isTrue,
+    );
+    expect(
+      billeteraPermitidaDelToken(
+        token({'sub': 'usuario-sintetico', 'permisos': <String>[]}),
+      ),
+      isFalse,
+    );
+    expect(
+      billeteraPermitidaDelToken(token({'sub': 'usuario-sintetico'})),
+      isNull,
+    );
+    expect(billeteraPermitidaDelToken('token-malformado'), isNull);
+  });
+
+  test(
+    'si faltan permisos pero hay sub, permite consultar el estado propio',
+    () async {
+      String parte(Object valor) =>
+          base64Url.encode(utf8.encode(jsonEncode(valor))).replaceAll('=', '');
+      final token =
+          '${parte({'alg': 'none'})}.${parte({'sub': 'usuario-sintetico'})}.';
+      final sesion = Sesion(_AlmacenEnMemoria(), () => ahora);
+
+      await sesion.abrir(acceso: token);
+
+      expect(sesion.requiereVerificacion, isTrue);
+      expect(sesion.usuarioIdActual, 'usuario-sintetico');
+      sesion.dispose();
+    },
+  );
+
+  test('la sesión mantiene id y puerta UX según el permiso explícito', () async {
+    String token(List<String> permisos) {
+      String parte(Object valor) =>
+          base64Url.encode(utf8.encode(jsonEncode(valor))).replaceAll('=', '');
+      return '${parte({'alg': 'none'})}.${parte({'sub': 'usuario-sintetico', 'permisos': permisos})}.';
+    }
+
+    final sesion = Sesion(_AlmacenEnMemoria(), () => ahora);
+    await sesion.abrir(acceso: token([]));
+    expect(sesion.usuarioIdActual, 'usuario-sintetico');
+    expect(sesion.requiereVerificacion, isTrue);
+
+    await sesion.renovar(
+      acceso: token(['BILLETERA_VER']),
+      refresco: 'refresco-sintetico',
+    );
+    expect(sesion.requiereVerificacion, isFalse);
+
+    await sesion.cerrar();
+    expect(sesion.usuarioIdActual, isNull);
+    expect(sesion.requiereVerificacion, isFalse);
+    sesion.dispose();
   });
 
   test('renovar rota tokens sin cambiar inicio ni notificar estado', () async {

@@ -97,9 +97,12 @@ ENV SERVICIO=${SERVICIO}
 
 # Un proceso que corre como root dentro del contenedor convierte cualquier escape en
 # un compromiso de la maquina.
+# libssl3t64 se nombra para que tome el parche de seguridad de Ubuntu aunque la imagen base fijada
+# traiga una version anterior (CVE-2026-84782, HIGH, corregida en 3.0.13-0ubuntu3.16; verificado el
+# 2026-10-16 sobre este mismo digest: de ...3.15 pasa a ...3.16).
 RUN groupadd --system app && useradd --system --gid app app \
     && apt-get update \
-    && apt-get install -y --no-install-recommends wget \
+    && apt-get install -y --no-install-recommends wget libssl3t64 \
     && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 

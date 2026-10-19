@@ -17,7 +17,9 @@ CREATE TABLE IF NOT EXISTS nucleo_financiero.politica_billetera (
   CONSTRAINT pk_politica_billetera PRIMARY KEY (id)
 );
 
-COMMENT ON TABLE nucleo_financiero.politica_billetera IS 'Módulo 10 — Billetera, Custodia y Dinero Electrónico. El saldo no se guarda: se deriva, y todos los días cuadra contra el banco';
-COMMENT ON COLUMN nucleo_financiero.politica_billetera.id IS 'PK';
+COMMENT ON TABLE nucleo_financiero.politica_billetera IS 'Módulo 10 — Billetera, Custodia y Dinero Electrónico. Los parámetros de comportamiento de las billeteras, versionados.';
+COMMENT ON COLUMN nucleo_financiero.politica_billetera.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN nucleo_financiero.politica_billetera.codigo IS 'UQ';
+COMMENT ON COLUMN nucleo_financiero.politica_billetera.moneda IS 'Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2).';
+COMMENT ON COLUMN nucleo_financiero.politica_billetera.vigente_desde IS 'Desde cuándo rige esta versión de la fila: las condiciones se versionan, no se pisan.';
 COMMENT ON COLUMN nucleo_financiero.politica_billetera.aprobada_por IS 'FK, NULL';

@@ -83,6 +83,7 @@ export const ErroresCU34 = {
   TARIFARIO_VIGENTE_INMUTABLE: 'AP-CU34-02',
   SIN_ACTA_DE_APROBACION: 'AP-CU34-03',
   VIGENCIAS_SOLAPADAS: 'AP-CU34-04',
+  FILTRO_DE_LISTADO_INVALIDO: 'AP-CU34-05',
 } as const
 ```
 
@@ -92,6 +93,14 @@ export const ErroresCU34 = {
 | `TARIFARIO_VIGENTE_INMUTABLE` | Se intentó editar uno ya vigente (R-TAR-02) |
 | `SIN_ACTA_DE_APROBACION` | Falta el acta del comité (R-LIC-03) |
 | `VIGENCIAS_SOLAPADAS` | Ya hay un tarifario vigente en ese rango (R-TAR-01) |
+| `FILTRO_DE_LISTADO_INVALIDO` | El historial recibió un estado desconocido, o `antesDe` sin `antesDeId` (o al revés) |
+
+**Historial de tarifarios (backoffice carril A · A6).** `GET /tarifas/tarifarios` (`listarTarifarios`,
+`TARIFARIO_PUBLICAR` o `AUDITORIA_LEER`) lista las versiones de los tarifarios —filtrables por `codigo` y
+`estados`, sin filtro todos los estados— con su vigencia, días de preaviso, el expediente del cambio que
+las publicó y la última simulación de impacto. El delta de la simulación viaja **sin moneda** porque
+`simulacion_tarifa` no la modela; no se infiere de `moneda_base`. No devuelve el escenario ni el
+resultado JSON de la simulación. Pagina por `(vigenteDesde, id)` de la más reciente a la más antigua.
 
 ## Descomposición atómica
 
@@ -140,6 +149,15 @@ Entonces existe en estado SUSTITUIDO con su vigencia cerrada
 Dado un grupo con tarifa congelada de la versión anterior
 Cuando se liquida una entrega tras el cambio
 Entonces la comisión se calcula con el snapshot congelado
+
+# Historial de tarifarios (backoffice carril A)
+Dado un tarifario VIGENTE y su versión siguiente publicada con preaviso
+Cuando Plataforma abre el historial de ese código
+Entonces ve las dos versiones, la nueva primero, con su cambio y su simulación
+
+Dado un tarifario con dos versiones
+Cuando Plataforma recorre el historial de a una
+Entonces ve cada versión una sola vez, de la más reciente a la más antigua, y la última página cierra sin cursor
 ```
 
 ## Ver también

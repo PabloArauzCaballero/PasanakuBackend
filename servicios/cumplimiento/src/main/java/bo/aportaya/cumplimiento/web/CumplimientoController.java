@@ -1,16 +1,25 @@
 package bo.aportaya.cumplimiento.web;
 
+import bo.aportaya.cumplimiento.aplicacion.CU44DecidirComoRevisor;
+import bo.aportaya.cumplimiento.aplicacion.CU44InvestigarYReportar;
 import bo.aportaya.cumplimiento.aplicacion.CU54RegistrarRiesgoOperativo;
 import bo.aportaya.cumplimiento.aplicacion.CU55GestionarIncidente;
-import bo.aportaya.cumplimiento.web.generado.CumplimientoApi;
+import bo.aportaya.cumplimiento.aplicacion.ConsultarBandejasLft;
+import bo.aportaya.cumplimiento.web.generado.modelo.EntradaCasoLft;
+import bo.aportaya.cumplimiento.web.generado.modelo.EntradaDecisionCasoLft;
 import bo.aportaya.cumplimiento.web.generado.modelo.EntradaIncidente;
 import bo.aportaya.cumplimiento.web.generado.modelo.EntradaRiesgoOperativo;
+import bo.aportaya.cumplimiento.web.generado.modelo.PaginaDeAlertas;
+import bo.aportaya.cumplimiento.web.generado.modelo.PaginaDeCasos;
+import bo.aportaya.cumplimiento.web.generado.modelo.SalidaCasoLft;
+import bo.aportaya.cumplimiento.web.generado.modelo.SalidaDecisionCasoLft;
 import bo.aportaya.cumplimiento.web.generado.modelo.SalidaIncidente;
 import bo.aportaya.cumplimiento.web.generado.modelo.SalidaRiesgoOperativo;
 import bo.aportaya.plataforma.web.seguridad.Permiso;
 import bo.aportaya.plataforma.web.seguridad.Publico;
 import bo.aportaya.plataforma.web.seguridad.SesionDeLaPeticion;
 import bo.aportaya.plataforma.web.traza.Traza;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -31,12 +40,15 @@ import org.springframework.web.bind.annotation.RestController;
  * un {@code if} sobre una regla del pasanaku aca, esta mal ubicado.
  */
 @RestController
-public class CumplimientoController implements CumplimientoApi {
+public class CumplimientoController extends ColasDeCumplimientoWeb {
 
     private final CU54RegistrarRiesgoOperativo cu54;
     private final CU55GestionarIncidente cu55;
     private final SesionDeLaPeticion sesion;
     private final AdhesionController adhesion;
+    private final ConsultarBandejasLft bandejasLft;
+    private final CU44InvestigarYReportar cu44;
+    private final CU44DecidirComoRevisor decisionLft;
 
     public CumplimientoController(
             CU54RegistrarRiesgoOperativo cu54,
@@ -45,12 +57,93 @@ public class CumplimientoController implements CumplimientoApi {
             bo.aportaya.cumplimiento.aplicacion.CU03DeclararPep cu03,
             bo.aportaya.cumplimiento.aplicacion.CU05AceptarContrato cu05,
             bo.aportaya.cumplimiento.aplicacion.CU05ConsultarContratosVigentes vigentes,
+            ConsultarBandejasLft bandejasLft,
+            CU44InvestigarYReportar cu44,
+            CU44DecidirComoRevisor decisionLft,
             SesionDeLaPeticion sesion,
-            jakarta.servlet.http.HttpServletRequest peticion) {
+            jakarta.servlet.http.HttpServletRequest peticion,
+            TableroDeCumplimientoWeb tablero,
+            AccionesDeCumplimientoWeb acciones) {
+        super(tablero, acciones);
         this.cu54 = cu54;
         this.cu55 = cu55;
         this.sesion = sesion;
         this.adhesion = new AdhesionController(cu02, cu03, cu05, vigentes, sesion, peticion);
+        this.bandejasLft = bandejasLft;
+        this.cu44 = cu44;
+        this.decisionLft = decisionLft;
+    }
+
+    // CU-44 · paso 4: el oficial agrupa alertas de un titular y asigna analista. Reintento = mismo caso.
+    @Override
+    @Permiso("CUMPLIMIENTO_CASOS")
+    public ResponseEntity<SalidaCasoLft> abrirCasoLft(UUID idempotencyKey, EntradaCasoLft cuerpo) {
+        Traza.marcarCasoDeUso("CU-44", "abrir-caso");
+        var salida = cu44.abrirCaso(
+                new CU44InvestigarYReportar.EntradaCaso(
+                        cuerpo.getAlertaIds(), cuerpo.getAnalistaId(), cuerpo.getResumen()),
+                sesion.actual());
+        var respuesta = new SalidaCasoLft();
+        respuesta.setCasoId(salida.casoId());
+        respuesta.setEstado(SalidaCasoLft.EstadoEnum.fromValue(salida.estado()));
+        respuesta.setPlazoLimite(salida.plazoLimite());
+        return ResponseEntity.status(HttpStatus.CREATED).body(respuesta);
+    }
+
+    // CU-44 · pasos 5-8: el revisor es la SESION; el analista y las alertas salen del caso guardado.
+    @Override
+    @Permiso("CUMPLIMIENTO_CASOS")
+    public ResponseEntity<SalidaDecisionCasoLft> decidirCasoLft(
+            UUID casoId, UUID idempotencyKey, EntradaDecisionCasoLft cuerpo) {
+        Traza.marcarCasoDeUso("CU-44", casoId.toString());
+        var decision = decisionLft.decidir(
+                new CU44DecidirComoRevisor.Entrada(
+                        casoId,
+                        cuerpo.getDecision().getValue(),
+                        cuerpo.getConclusion(),
+                        cuerpo.getReporteSospechosoId()),
+                sesion.actual());
+        var respuesta = new SalidaDecisionCasoLft();
+        respuesta.setCasoId(decision.casoId());
+        respuesta.setDecision(SalidaDecisionCasoLft.DecisionEnum.fromValue(decision.decision()));
+        respuesta.setRevisadoPor(decision.revisadoPor());
+        respuesta.setAlertasCerradas(decision.alertasCerradas());
+        respuesta.setFueraDePlazo(decision.fueraDePlazo());
+        respuesta.setReporteSospechosoId(decision.reporteSospechosoId());
+        return ResponseEntity.ok(respuesta);
+    }
+
+    // CU-44 · la cola del analista: sin persona, monto ni detalle (deber de reserva, regla 90.2.7).
+    @Override
+    @Permiso("CUMPLIMIENTO_ALERTAS")
+    public ResponseEntity<PaginaDeAlertas> listarBandejaDeAlertas(
+            List<String> estados,
+            List<String> severidades,
+            Integer limite,
+            OffsetDateTime despuesDeFecha,
+            UUID despuesDeId) {
+        Traza.marcarCasoDeUso("CU-44", "alertas");
+        return ResponseEntity.ok(MapeoDeLft.alertas(bandejasLft.alertas(
+                estados,
+                severidades,
+                Optional.ofNullable(despuesDeFecha),
+                Optional.ofNullable(despuesDeId),
+                limite,
+                sesion.actual())));
+    }
+
+    // CU-44 · la cola de casos, el que vence antes primero: sin persona, resumen ni hallazgos.
+    @Override
+    @Permiso("CUMPLIMIENTO_CASOS")
+    public ResponseEntity<PaginaDeCasos> listarBandejaDeCasos(
+            List<String> estados, Integer limite, OffsetDateTime despuesDePlazo, UUID despuesDeId) {
+        Traza.marcarCasoDeUso("CU-44", "casos");
+        return ResponseEntity.ok(MapeoDeLft.casos(bandejasLft.casos(
+                estados,
+                Optional.ofNullable(despuesDePlazo),
+                Optional.ofNullable(despuesDeId),
+                limite,
+                sesion.actual())));
     }
 
     @Override

@@ -1,0 +1,38 @@
+$ ./gradlew :servicios:cumplimiento:spotlessCheck test webTest integrationTest testBarrido contractTest --no-build-cache --continue
+BUILD SUCCESSFUL (exit=0)
+  test             tests=14 skipped=0 failures=0 errors=0
+  webTest          tests=87 skipped=0 failures=0 errors=0
+  integrationTest  tests=332 skipped=0 failures=0 errors=0
+  testBarrido      tests=2 skipped=0 failures=0 errors=0
+  contractTest     tests=0 skipped=0 failures=0 errors=0
+
+bo.aportaya.cumplimiento.CU43AccionesTest tests=6 failures=0 errors=0
+   PASS · rechaza con AP-CU43-03 un segundo aprobador sobre un reporte ya enviado
+   PASS · rechaza con AP-CU43-01 un catalogo que no existe
+   PASS · Dado un periodo sin reporte · Cuando el oficial lo genera desde el backoffice dos veces · Entonces el segundo pedido devuelve el mismo reporte marcado como ya existente
+   PASS · reintento: el mismo aprobador enviando otra vez recibe el envio que ya hay y no se registra un segundo
+   PASS · rechaza que quien genero el reporte lo apruebe, con AP-CU43-02 (R-SEG-04)
+   PASS · Dado un reporte generado por otra persona · Cuando el oficial lo aprueba y envía desde el backoffice · Entonces el aprobador registrado es quien lo pidió, nunca un id enviado por el cliente
+bo.aportaya.cumplimiento.CU45AccionesTest tests=6 failures=0 errors=0
+   PASS · rechaza con AP-CU45-01 que otra persona responda un oficio ya respondido
+   PASS · reintento: el mismo oficial respondiendo con la misma respuesta recibe la que ya hay
+   PASS · rechaza con AP-CU45-01 el mismo numero de oficio con OTRO documento
+   PASS · reintento: el mismo oficio con el mismo documento devuelve el registrado y no crea otro
+   PASS · rechaza con AP-CU45-01 responder un requerimiento que no existe
+   PASS · Dado un oficio registrado con plazo vencido · Cuando el oficial responde desde el backoffice · Entonces se usa el plazo guardado y se abre el hallazgo aunque el cliente no mande plazo
+bo.aportaya.cumplimiento.CU56AccionesTest tests=2 failures=0 errors=0
+   PASS · rechaza con AP-CU56-03 una prueba de un plan que no existe
+   PASS · Dada una prueba que no alcanzó el RTO ya registrada · Cuando Riesgos la registra otra vez desde el backoffice · Entonces no se duplica ni se abre un segundo plan de acción
+bo.aportaya.cumplimiento.web.AccionesDeCumplimientoWebTest tests=9 failures=0 errors=0
+   PASS · 400: un plazo en el cuerpo de la respuesta se rechaza: el plazo es el registrado
+   PASS · 201: Riesgos registra una prueba de continuidad
+   PASS · 201: CUMPLIMIENTO_REPORTAR genera el reporte del periodo
+   PASS · 400: un aprobadoPor en el cuerpo se rechaza: el aprobador es la sesion
+   PASS · 201: el oficial responde un requerimiento solo con la URL de la respuesta
+   PASS · 422: la autoaprobacion sale con AP-CU43-02, nunca como 500
+   PASS · 401: sin token no hay accion
+   PASS · 200: el envio repetido por el mismo aprobador devuelve el que ya hay
+   PASS · 403: AUDITORIA_LEER lee las colas pero no ejecuta ninguna accion
+
+Gates: verificar_criterios -> Sin divergencias · verificar_boveda -> TODO OK · verificar_seguridad -> TODO OK · 6 aviso(s)
+CU-94 (sesionar el comite) NO se expuso: exige GOBIERNO_SESIONAR, que no esta sembrado (S-8, DECISION_REQUIRED).

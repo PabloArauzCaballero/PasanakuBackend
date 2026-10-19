@@ -86,6 +86,61 @@ paths:
             application/json:
               schema: { $ref: '#/components/schemas/HabilitacionPersonal' }
         '422': { $ref: '#/components/responses/ReglaDeNegocio' }
+  /organizadores/yo/habilitacion-basica:
+    get:
+      operationId: consultarHabilitacionBasica   # CU-90 via basica
+      summary: El contrato de organizador Aprendiz y si la persona ya lo acepto
+      description: >-
+        Lo que la app muestra antes de dejar crear el primer grupo. Solo informa lo
+        propio: el usuario sale del token, no de la ruta.
+      responses:
+        '200':
+          description: El texto vigente del contrato y el estado de la persona
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/HabilitacionBasica' }
+        '422': { $ref: '#/components/responses/ReglaDeNegocio' }
+    post:
+      operationId: aceptarHabilitacionBasica     # CU-90 via basica
+      summary: Aceptar el contrato y quedar habilitado como organizador Aprendiz
+      description: >-
+        Idempotente por persona. Exige rol PARTICIPANTE (KYC aprobado) y la aceptacion
+        expresa de la version leida. Deja el contrato emitido y pendiente de firma: lo
+        firma identidad con un token FIRMA_CONTRATO. AP-CU90-09 sin aceptacion,
+        AP-CU90-10 si la version cambio, AP-CU90-11 si la habilitacion existente no esta activa.
+      parameters:
+        - $ref: '#/components/parameters/ClaveIdempotencia'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaHabilitacionBasica' }
+      responses:
+        '200':
+          description: Contrato aceptado (nuevo o ya existente), pendiente de firma si todavia no se firmo
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaHabilitacionBasica' }
+        '422': { $ref: '#/components/responses/ReglaDeNegocio' }
+  /organizadores/yo/habilitacion-basica/firma:
+    post:
+      operationId: firmarHabilitacionBasica      # CU-90 via basica / CU-91
+      summary: Firmar el contrato Aprendiz con el token FIRMA_CONTRATO emitido por identidad
+      description: >-
+        Solo el titular. Idempotente por naturaleza: firmar dos veces no pisa la primera
+        firma (R-ORG-03), por eso no pide clave de idempotencia. La llama identidad.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaFirmaBasica' }
+      responses:
+        '200':
+          description: El contrato queda firmado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaFirmaBasica' }
+        '422': { $ref: '#/components/responses/ReglaDeNegocio' }
   /organizadores/postulaciones:
     post:
       operationId: postularOrganizador          # CU-90
@@ -579,6 +634,50 @@ components:
         seguro, y la clave se valida ANTES de escribir (invariante 7).
       schema: { type: string, format: uuid }
   schemas:
+    HabilitacionBasica:
+      type: object
+      additionalProperties: false
+      required: [version, titulo, obligaciones, causalesRescision, limiteDeGrupos, limiteDeMonto, habilitado]
+      properties:
+        version: { type: string }
+        titulo: { type: string }
+        obligaciones: { type: string }
+        causalesRescision: { type: string }
+        limiteDeGrupos: { type: integer }
+        limiteDeMonto: { type: string, description: 'Bs, cadena decimal' }
+        habilitado: { type: boolean }
+        organizadorId: { type: string, format: uuid }
+        nivel: { type: string }
+    EntradaHabilitacionBasica:
+      type: object
+      additionalProperties: false
+      required: [aceptaContrato, version]
+      properties:
+        aceptaContrato: { type: boolean }
+        version: { type: string, maxLength: 20 }
+    SalidaHabilitacionBasica:
+      type: object
+      additionalProperties: false
+      required: [organizadorId, contratoId, contenidoHash, nivel, esNueva]
+      properties:
+        organizadorId: { type: string, format: uuid }
+        contratoId: { type: string, format: uuid }
+        contenidoHash: { type: string }
+        nivel: { type: string }
+        esNueva: { type: boolean }
+    EntradaFirmaBasica:
+      type: object
+      additionalProperties: false
+      required: [contratoId, tokenFirmaId]
+      properties:
+        contratoId: { type: string, format: uuid }
+        tokenFirmaId: { type: string, format: uuid }
+    SalidaFirmaBasica:
+      type: object
+      additionalProperties: false
+      required: [firmadoAhora]
+      properties:
+        firmadoAhora: { type: boolean }
     HabilitacionPersonal:
       type: object
       required: [usuarioId, habilitado]

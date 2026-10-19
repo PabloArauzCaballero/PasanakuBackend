@@ -84,6 +84,11 @@ ALTER TABLE auditoria.exportacion_reporte
   ADD CONSTRAINT fk_exportacion_reporte_ejecucion_id
   FOREIGN KEY (ejecucion_id) REFERENCES auditoria.ejecucion_reporte (id) ON DELETE RESTRICT ON UPDATE CASCADE;
 
+ALTER TABLE auditoria.ficha_gobierno_tabla DROP CONSTRAINT IF EXISTS fk_ficha_gobierno_tabla_politica_retencion_id;
+ALTER TABLE auditoria.ficha_gobierno_tabla
+  ADD CONSTRAINT fk_ficha_gobierno_tabla_politica_retencion_id
+  FOREIGN KEY (politica_retencion_id) REFERENCES auditoria.politica_retencion (id) ON DELETE SET NULL ON UPDATE CASCADE;
+
 ALTER TABLE auditoria.indicador_kpi DROP CONSTRAINT IF EXISTS fk_indicador_kpi_definicion_indicador_id;
 ALTER TABLE auditoria.indicador_kpi
   ADD CONSTRAINT fk_indicador_kpi_definicion_indicador_id

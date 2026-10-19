@@ -81,7 +81,7 @@ export { expect }
 /** Ingreso de un operador por la pantalla real: teléfono + contraseña y, si la API lo pide, el segundo factor. */
 export async function ingresarBackoffice(page: Page, cuenta: Cuenta, destino = '/ingreso'): Promise<void> {
   await page.goto(destino.startsWith('/ingreso') ? destino : `/ingreso?volverA=${encodeURIComponent(destino)}`)
-  await page.getByLabel(/Teléfono/).fill(cuenta.telefono.replace('+591', ''))
+  await page.getByLabel('Correo o teléfono').fill(cuenta.telefono.replace('+591', ''))
   await page.getByLabel(/Contraseña/).fill(cuenta.clave)
   await page.getByRole('button', { name: 'Continuar' }).click()
   if (cuenta.factor) {

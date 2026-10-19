@@ -2,6 +2,8 @@ import { NgTemplateOutlet } from '@angular/common'
 import { ChangeDetectionStrategy, Component, computed, contentChild, input, output, TemplateRef } from '@angular/core'
 import type { ResourceRef, ResourceStatus } from '@angular/core'
 import { EstadoVacio } from '../estado-vacio/estado-vacio'
+import { EstadoDeError } from '../estado-de-error/estado-de-error'
+import { Esqueleto } from '../esqueleto/esqueleto'
 
 export type MotivoVacio = 'sinDatos' | 'porFiltro' | 'porPermiso'
 
@@ -28,25 +30,19 @@ export const RAMA_DE: Record<ResourceStatus, 'cargando' | 'obsoleto' | 'error' |
 @Component({
   selector: 'ap-estado-de-pantalla',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [NgTemplateOutlet, EstadoVacio],
+  imports: [NgTemplateOutlet, EstadoVacio, EstadoDeError, Esqueleto],
   host: { 'aria-live': 'polite' },
   template: `
     @switch (rama()) {
     @case ('cargando') {
-      <div class="esqueleto" role="status" aria-live="polite" [attr.aria-label]="etiquetaDeCarga()">
-        <span></span><span></span><span></span>
-      </div>
+      <ap-esqueleto class="esqueleto" forma="filas" [lineas]="5" [etiqueta]="etiquetaDeCarga()" />
     }
     @case ('error') {
       <section class="error" role="alert" aria-live="assertive">
         @if (plantillaError(); as tpl) {
           <ng-container *ngTemplateOutlet="tpl; context: { $implicit: error() }" />
         } @else {
-          <p class="mensaje">{{ error().mensaje }}</p>
-          @if (error().trazaId) { <p class="traza">Código de seguimiento: {{ error().trazaId }}</p> }
-          @if (!esNoEncontrado()) {
-            <button type="button" (click)="reintentar.emit()">Volver a intentar</button>
-          }
+          <ap-estado-de-error [titulo]="error().mensaje" [trazaId]="error().trazaId" [conReintento]="!esNoEncontrado()" (reintentar)="reintentar.emit()" />
         }
       </section>
     }
@@ -69,9 +65,7 @@ export const RAMA_DE: Record<ResourceStatus, 'cargando' | 'obsoleto' | 'error' |
   `,
   styles: `
     :host { display: block; }
-    .esqueleto span { display: block; height: var(--s5); margin-bottom: var(--s3); border-radius: var(--r-sm); background: var(--esqueleto); }
-    .esqueleto span:nth-child(1) { width: 40%; } .esqueleto span:nth-child(2) { width: 60%; } .esqueleto span:nth-child(3) { width: 30%; }
-    .error, .vacio { padding: var(--s5); text-align: center; }
+    .error { text-align: left; } .vacio { padding: var(--s5); text-align: center; }
     .mensaje { color: var(--text); margin: 0 0 var(--s2); }
     .traza { color: var(--text-3); font-size: 0.85em; margin: 0 0 var(--s4); }
     .vacio p { color: var(--text-2); margin: 0; }

@@ -13,8 +13,8 @@ CREATE TABLE IF NOT EXISTS identidad.direccion_usuario (
   CONSTRAINT pk_direccion_usuario PRIMARY KEY (id)
 );
 
-COMMENT ON TABLE identidad.direccion_usuario IS 'Módulo 01 — Identidad, Usuarios y Seguridad. Saber con certeza a quién le estás confiando plata ajena';
-COMMENT ON COLUMN identidad.direccion_usuario.id IS 'PK';
+COMMENT ON TABLE identidad.direccion_usuario IS 'Módulo 01 — Identidad, Usuarios y Seguridad. Dónde vive o trabaja la persona, con coordenadas opcionales.';
+COMMENT ON COLUMN identidad.direccion_usuario.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN identidad.direccion_usuario.usuario_id IS 'FK, UQ';
 COMMENT ON COLUMN identidad.direccion_usuario.latitud IS 'NULL';
 COMMENT ON COLUMN identidad.direccion_usuario.longitud IS 'NULL';

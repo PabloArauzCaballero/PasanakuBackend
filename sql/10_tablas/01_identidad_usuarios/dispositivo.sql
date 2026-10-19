@@ -18,8 +18,8 @@ CREATE TABLE IF NOT EXISTS identidad.dispositivo (
   CONSTRAINT ck_dispositivo_plataforma CHECK (plataforma IN ('ANDROID', 'IOS', 'WEB'))
 );
 
-COMMENT ON TABLE identidad.dispositivo IS 'Módulo 01 — Identidad, Usuarios y Seguridad. Saber con certeza a quién le estás confiando plata ajena';
-COMMENT ON COLUMN identidad.dispositivo.id IS 'PK';
+COMMENT ON TABLE identidad.dispositivo IS 'Módulo 01 — Identidad, Usuarios y Seguridad. Cada teléfono o navegador desde el que se ha usado la cuenta.';
+COMMENT ON COLUMN identidad.dispositivo.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN identidad.dispositivo.usuario_id IS 'FK, IDX';
 COMMENT ON COLUMN identidad.dispositivo.huella IS 'UQ+usuario_id';
 COMMENT ON COLUMN identidad.dispositivo.plataforma IS 'CK';

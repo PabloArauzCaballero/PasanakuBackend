@@ -13,7 +13,8 @@ import '../../dominio/tutoriales/avance.dart';
 import '../../dominio/tutoriales/modelo.dart';
 import '../../proveedores/tutoriales.dart';
 import 'resumen_de_avance.dart';
-import 'tarjeta_de_tutorial.dart';
+import 'selector_de_tema.dart';
+import 'tarjeta_de_tutorial_en_lista.dart';
 import 'textos.dart';
 import 'vista_de_tutoriales.dart';
 
@@ -31,6 +32,7 @@ class PantallaCentroDeAyuda extends ConsumerStatefulWidget {
 class _PantallaCentroDeAyudaState extends ConsumerState<PantallaCentroDeAyuda> {
   final _busqueda = TextEditingController();
   FiltroDeEstado _filtro = FiltroDeEstado.todos;
+  String? _categoria;
 
   @override
   void initState() {
@@ -47,18 +49,23 @@ class _PantallaCentroDeAyudaState extends ConsumerState<PantallaCentroDeAyuda> {
   @override
   Widget build(BuildContext context) {
     final t = Tokens.of(context);
-    final disponibles = ref.watch(registroDeTutorialesProvider).disponibles;
+    final registro = ref.watch(registroDeTutorialesProvider);
+    final disponibles = registro.disponibles;
+    final categorias = registro.categorias;
     final progresos = ref.watch(progresoDeTutorialesProvider);
     final lista = componerLista(
       disponibles,
       progresos,
       texto: _busqueda.text,
       filtro: _filtro,
+      categoria: _categoria,
     );
     // El sugerido se esconde mientras se busca o se filtra: quien escribe «zzz» y no
     // encuentra nada tiene que ver que no encontró nada, no una tarjeta que no pidió.
     final hayFiltro =
-        _busqueda.text.trim().isNotEmpty || _filtro != FiltroDeEstado.todos;
+        _busqueda.text.trim().isNotEmpty ||
+        _filtro != FiltroDeEstado.todos ||
+        _categoria != null;
     final sugerido = hayFiltro
         ? null
         : recomendado(componerLista(disponibles, progresos));
@@ -106,6 +113,14 @@ class _PantallaCentroDeAyudaState extends ConsumerState<PantallaCentroDeAyuda> {
               ),
             ),
             const SizedBox(height: Espacio.s3),
+            if (categorias.isNotEmpty) ...[
+              SelectorDeTemaDeAyuda(
+                categorias: categorias,
+                valor: _categoria,
+                onChanged: (valor) => setState(() => _categoria = valor),
+              ),
+              const SizedBox(height: Espacio.s3),
+            ],
             ChipsDeFiltro<FiltroDeEstado>(
               opciones: const [
                 (
@@ -135,7 +150,7 @@ class _PantallaCentroDeAyudaState extends ConsumerState<PantallaCentroDeAyuda> {
             if (sugerido != null) ...[
               const SizedBox(height: Espacio.s5),
               const TituloDeSeccion(titulo: TextosSoporte.recomendado),
-              _Tarjeta(fila: sugerido),
+              TarjetaDeTutorialEnLista(fila: sugerido),
             ],
             const SizedBox(height: Espacio.s5),
             MarcaDeTutorial(
@@ -152,7 +167,7 @@ class _PantallaCentroDeAyudaState extends ConsumerState<PantallaCentroDeAyuda> {
                   : Column(
                       children: [
                         for (final fila in resto) ...[
-                          _Tarjeta(fila: fila),
+                          TarjetaDeTutorialEnLista(fila: fila),
                           const SizedBox(height: Espacio.s3),
                         ],
                       ],
@@ -161,29 +176,6 @@ class _PantallaCentroDeAyudaState extends ConsumerState<PantallaCentroDeAyuda> {
           ],
         ),
       ),
-    );
-  }
-}
-
-class _Tarjeta extends ConsumerWidget {
-  const _Tarjeta({required this.fila});
-
-  final TutorialEnLista fila;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final motor = ref.read(motorDeTutorialesProvider.notifier);
-    final progresos = ref.read(progresoDeTutorialesProvider.notifier);
-    return TarjetaDeTutorial(
-      fila: fila,
-      alComenzar: () => motor.iniciar(
-        fila.tutorial.id,
-        repeticiones: fila.progreso?.repeticiones ?? 0,
-      ),
-      alContinuar: () => fila.progreso == null
-          ? motor.iniciar(fila.tutorial.id)
-          : motor.continuar(fila.tutorial.id, fila.progreso!),
-      alReiniciar: () => progresos.reiniciar(fila.tutorial.id),
     );
   }
 }

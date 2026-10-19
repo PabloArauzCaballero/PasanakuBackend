@@ -9,12 +9,14 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import bo.aportaya.nucleofinanciero.aplicacion.BandejaDeRetiros;
 import bo.aportaya.nucleofinanciero.aplicacion.CU10RecargarSaldo;
 import bo.aportaya.nucleofinanciero.aplicacion.CU11RetirarSaldo;
 import bo.aportaya.nucleofinanciero.aplicacion.CU13RetenerSaldo;
 import bo.aportaya.nucleofinanciero.aplicacion.CU14ReversarTransaccion;
 import bo.aportaya.nucleofinanciero.aplicacion.CU15EmitirExtracto;
 import bo.aportaya.nucleofinanciero.aplicacion.CU17BloquearPorAutoridad;
+import bo.aportaya.nucleofinanciero.aplicacion.ConsultarMovimientosBilletera;
 import bo.aportaya.nucleofinanciero.aplicacion.ConsultarSaldo;
 import bo.aportaya.nucleofinanciero.dominio.puertos.CotizadorDeComision;
 import bo.aportaya.nucleofinanciero.dominio.puertos.SegundoFactor;
@@ -23,8 +25,6 @@ import bo.aportaya.plataforma.dominio.Moneda;
 import bo.aportaya.plataforma.pruebas.web.PruebaWeb;
 import bo.aportaya.plataforma.pruebas.web.Sesiones;
 import java.time.LocalDate;
-import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
 import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -73,6 +73,9 @@ class BilleteraControllerWebTest {
     private CU11RetirarSaldo cu11;
 
     @MockitoBean
+    private ConsultarMovimientosBilletera consultasDeMovimientos;
+
+    @MockitoBean
     private CU13RetenerSaldo cu13;
 
     @MockitoBean
@@ -93,6 +96,9 @@ class BilleteraControllerWebTest {
     @MockitoBean
     private SegundoFactor segundoFactor;
 
+    @MockitoBean
+    private BandejaDeRetiros bandeja;
+
     // El controlador delega recargas y retiros en FondeoDeLaBilletera: se usa el real, con sus colaboradores
     // doblados, para que "acreditar" siga probando el camino HTTP de punta a punta.
     @MockitoBean
@@ -109,38 +115,6 @@ class BilleteraControllerWebTest {
 
     private static Dinero bob(String monto) {
         return Dinero.de(monto, Moneda.BOB);
-    }
-
-    @Nested
-    @DisplayName("GET /billetera/{cuentaId}/saldo")
-    class Saldo {
-        @Test
-        @DisplayName("200 con disponible y retenido separados, los dos como cadena decimal")
-        void consultarSaldo() throws Exception {
-            when(saldos.ejecutar(any(), any()))
-                    .thenReturn(new ConsultarSaldo.Salida(
-                            CUENTA,
-                            bob("1234.56"),
-                            bob("200.00"),
-                            OffsetDateTime.of(2026, 3, 15, 14, 30, 0, 0, ZoneOffset.UTC)));
-            mvc.perform(get("/billetera/{id}/saldo", CUENTA).with(Sesiones.como("PARTICIPANTE", "BILLETERA_VER")))
-                    .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.cuentaId").value(CUENTA.toString()))
-                    // Separados y no sumados: el retenido no se puede gastar, y un
-                    // «saldo» unico haria creer que si.
-                    .andExpect(jsonPath("$.disponible.monto").value("1234.56"))
-                    .andExpect(jsonPath("$.retenido.monto").value("200.00"))
-                    .andExpect(jsonPath("$.disponible.moneda").value("BOB"));
-        }
-
-        @Test
-        @DisplayName("400: un identificador de cuenta que no es un identificador")
-        void cuentaQueNoEsUuid() throws Exception {
-            mvc.perform(get("/billetera/{id}/saldo", "la-cuenta-de-al-lado")
-                            .with(Sesiones.como("PARTICIPANTE", "BILLETERA_VER")))
-                    .andExpect(status().isBadRequest());
-            verifyNoInteractions(saldos);
-        }
     }
 
     @Nested

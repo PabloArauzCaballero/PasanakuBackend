@@ -13,8 +13,8 @@ CREATE TABLE IF NOT EXISTS publicidad.anuncio (
   CONSTRAINT ck_anuncio_estado CHECK (estado IN ('EN_ENTREGA', 'FINALIZADO', 'PAUSADO', 'PROGRAMADO', 'RECHAZADO'))
 );
 
-COMMENT ON TABLE publicidad.anuncio IS 'Módulo 14 — Publicidad y Campañas. Que un partner se anuncie dentro de la app sin inventar un segundo cobro';
-COMMENT ON COLUMN publicidad.anuncio.id IS 'PK';
+COMMENT ON TABLE publicidad.anuncio IS 'Módulo 14 — Publicidad y Campañas. Une un conjunto de anuncios con una pieza creativa aprobada.';
+COMMENT ON COLUMN publicidad.anuncio.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN publicidad.anuncio.conjunto_anuncios_id IS 'FK, IDX';
 COMMENT ON COLUMN publicidad.anuncio.pieza_creativa_id IS 'FK, IDX';
 COMMENT ON COLUMN publicidad.anuncio.estado IS 'CK, IDX';

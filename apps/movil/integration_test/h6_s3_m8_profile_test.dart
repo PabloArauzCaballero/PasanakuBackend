@@ -11,6 +11,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
+const _omitirStreamMl = bool.fromEnvironment('H6_PROFILE_OMITIR_STREAM_ML');
+
 /// Keeps the native preview and ML stream active while forcing the documented
 /// no-detector fallback, since the AVD has no person in front of its camera.
 class _CamaraDePerfil implements CamaraEnVivo {
@@ -33,7 +35,7 @@ class _CamaraDePerfil implements CamaraEnVivo {
 
   @override
   Future<bool> escucharRostros(void Function(LecturaDeRostro?) alLeer) async {
-    await _real.escucharRostros((_) {});
+    if (!_omitirStreamMl) await _real.escucharRostros((_) {});
     return false;
   }
 
@@ -50,6 +52,8 @@ void main() {
   testWidgets('H6.S3.M8 overlay de rendimiento durante la cuenta atrás', (
     tester,
   ) async {
+    // ignore: avoid_print
+    print('H6_S3_M8_STREAM_ML_OMITIDO=$_omitirStreamMl');
     var midiendoCuenta = false;
     final cuadrosDeCuenta = <FrameTiming>[];
     void registrarCuadros(List<FrameTiming> cuadros) {
@@ -76,7 +80,10 @@ void main() {
       await tester.runAsync(
         () => Future<void>.delayed(const Duration(milliseconds: 100)),
       );
-      await tester.pump();
+      // `runAsync` waits for the native camera, but does not advance the
+      // integration test's fake clock. Advance one frame too, so the periodic
+      // pose ticker can leave its 1.6 s breathing phase and reach the fallback.
+      await tester.pump(const Duration(milliseconds: 100));
       if (find.byKey(const ValueKey(3)).evaluate().isNotEmpty ||
           find.byKey(const ValueKey(2)).evaluate().isNotEmpty ||
           find.byKey(const ValueKey(1)).evaluate().isNotEmpty) {
@@ -89,11 +96,25 @@ void main() {
       isTrue,
       reason: 'La cámara no llegó a mostrar la cuenta atrás en perfil.',
     );
-    midiendoCuenta = true;
-    await tester.runAsync(
-      () => Future<void>.delayed(const Duration(milliseconds: 1500)),
-    );
+    // Take the visual proof as soon as the countdown appears. Waiting through
+    // the measurement window may auto-capture the photo and replace the state
+    // the screenshot is supposed to document.
+    await binding.convertFlutterSurfaceToImage();
     await tester.pump();
+    final bytes = await binding.takeScreenshot('h6-s3-m8-rendimiento');
+    // ignore: avoid_print
+    print('H6_S3_M8_SCREENSHOT=${bytes.length} bytes');
+
+    midiendoCuenta = true;
+    // Keep the native camera alive while pumping regularly. One long
+    // `runAsync` followed by one `pump` collected only a single FrameTiming,
+    // which cannot validate a continuous 16 ms budget.
+    for (var frame = 0; frame < 15; frame++) {
+      await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 100)),
+      );
+      await tester.pump(const Duration(milliseconds: 100));
+    }
     midiendoCuenta = false;
     binding.removeTimingsCallback(registrarCuadros);
     expect(cuadrosDeCuenta, isNotEmpty, reason: 'No hubo cuadros medibles.');
@@ -120,12 +141,6 @@ void main() {
           '${(cuadro.buildDuration.inMicroseconds / 1000).toStringAsFixed(2)}/'
           '${(cuadro.rasterDuration.inMicroseconds / 1000).toStringAsFixed(2)}').join(',')}',
     );
-
-    await binding.convertFlutterSurfaceToImage();
-    await tester.pump();
-    final bytes = await binding.takeScreenshot('h6-s3-m8-rendimiento');
-    // ignore: avoid_print
-    print('H6_S3_M8_SCREENSHOT=${bytes.length} bytes');
 
     await tester.tap(find.text('Cancelar'));
     await tester.pump(const Duration(seconds: 1));

@@ -23,8 +23,8 @@ CREATE TABLE IF NOT EXISTS auditoria.alerta_cumplimiento (
   CONSTRAINT ck_alerta_cumplimiento_estado CHECK (estado IN ('ABIERTA', 'DESCARTADA', 'EN_ANALISIS', 'ESCALADA', 'REPORTADA'))
 );
 
-COMMENT ON TABLE auditoria.alerta_cumplimiento IS 'Módulo 09 — Auditoría, Reportes y Cumplimiento. Poder demostrar todo lo anterior ante un reclamo o un regulador';
-COMMENT ON COLUMN auditoria.alerta_cumplimiento.id IS 'PK';
+COMMENT ON TABLE auditoria.alerta_cumplimiento IS 'Módulo 09 — Auditoría, Reportes y Cumplimiento. Cada detección concreta, con su evidencia y su análisis.';
+COMMENT ON COLUMN auditoria.alerta_cumplimiento.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN auditoria.alerta_cumplimiento.regla_id IS 'FK, IDX';
 COMMENT ON COLUMN auditoria.alerta_cumplimiento.usuario_id IS 'FK, IDX';
 COMMENT ON COLUMN auditoria.alerta_cumplimiento.grupo_id IS 'FK, NULL';

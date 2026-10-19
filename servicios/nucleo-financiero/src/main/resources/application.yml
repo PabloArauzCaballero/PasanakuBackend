@@ -26,6 +26,12 @@ spring:
       fail-on-unknown-properties: true
 
 aportaya:
+  # Tableros (CU-98): relleno de indicadores al arrancar. 0 = no rellena (produccion); dev y TEST lo piden en el compose
+  # para que el tablero tenga serie con la base sembrada. El diario corre siempre (aportaya.indicadores.cron).
+  indicadores:
+    relleno:
+      meses: ${INDICADORES_RELLENO_MESES:0}
+      dias: ${INDICADORES_RELLENO_DIAS:0}
   # H2.S1: aportaya.mfa.doble-local vive SOLO en application-{local,test}.yml —
   # declararla aca (comun a todo perfil) la haria "tener efecto" en produccion si
   # alguien la copia sin pensar. Fuera de local/test no hay SegundoFactorLocal que
@@ -64,6 +70,9 @@ aportaya:
     cuenta-puente: ${CUENTA_PUENTE_CUSTODIA}
 
   billetera:
+    # Cuantas lineas del libro devuelve, como maximo, la consulta de movimientos recientes.
+    # El contrato tambien lo acota (1..100); esto es el tope del caso de uso, no del esquema.
+    tope-de-movimientos: 100
     apertura:
       # Carril Q: quien abre las billeteras. identidad.usuario_registrado -> la de la persona (BOB, SIMPLIFICADA);
       # grupos.grupo_creado -> la del grupo (BOB, titular el GRUPO, R-GRP-04). ENCENDIDOS: sin ellos nadie tiene billetera.

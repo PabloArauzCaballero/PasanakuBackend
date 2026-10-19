@@ -1,5 +1,6 @@
 package bo.aportaya.auditoria.web;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -42,6 +43,23 @@ class IndicadoresControllerWebTest {
     @MockitoBean
     private CU98PublicarTablero cu98;
 
+    @MockitoBean
+    private bo.aportaya.auditoria.aplicacion.EndpointsDelDia endpointsDelDia;
+
+    @MockitoBean
+    private bo.aportaya.auditoria.aplicacion.CatalogoDeDatosVigente catalogoDeDatos;
+
+    // operacion/estado comparte controlador: no se llama aca.
+    @MockitoBean
+    private bo.aportaya.auditoria.aplicacion.SaludDeServicios saludDeServicios;
+
+    // CU-130: el mismo controlador guarda la ficha de gobierno.
+    @MockitoBean
+    private bo.aportaya.auditoria.aplicacion.CU130GobernarFichaDeTabla cu130;
+
+    @MockitoBean
+    private bo.aportaya.auditoria.aplicacion.CU131RevisarColumna cu131;
+
     private static CU98PublicarTablero.Indicador indicador(
             String codigo, Optional<BigDecimal> valor, boolean suprimido, boolean provisorio) {
         return new CU98PublicarTablero.Indicador(
@@ -74,7 +92,7 @@ class IndicadoresControllerWebTest {
     @Test
     @DisplayName("CU-98 · 200 con las cifras como cadena decimal y lo provisorio marcado")
     void caminoFeliz() throws Exception {
-        when(cu98.ejecutar(any(), any()))
+        when(cu98.ejecutar(any(), any(), any()))
                 .thenReturn(new CU98PublicarTablero.SalidaTablero(
                         "2026-01",
                         "GLOBAL",
@@ -97,7 +115,7 @@ class IndicadoresControllerWebTest {
     @Test
     @DisplayName("CU-98 · un indicador suprimido por privacidad viaja SIN valor y sin casos")
     void supresionPorMinimoDeCasos() throws Exception {
-        when(cu98.ejecutar(any(), any()))
+        when(cu98.ejecutar(any(), any(), any()))
                 .thenReturn(new CU98PublicarTablero.SalidaTablero(
                         "2026-01",
                         "POR_GRUPO",
@@ -118,14 +136,14 @@ class IndicadoresControllerWebTest {
     @Test
     @DisplayName("CU-98 · sin periodosDeSerie, la serie tiene el largo por omisión")
     void largoDeSeriePorOmision() throws Exception {
-        when(cu98.ejecutar(any(), any()))
+        when(cu98.ejecutar(any(), any(), any()))
                 .thenReturn(
                         new CU98PublicarTablero.SalidaTablero("2026-01", "GLOBAL", Optional.empty(), false, List.of()));
 
         pedir("2026-01", "GLOBAL").andExpect(status().isOk());
 
         var capturada = ArgumentCaptor.forClass(CU98PublicarTablero.EntradaTablero.class);
-        verify(cu98).ejecutar(capturada.capture(), any());
+        verify(cu98).ejecutar(capturada.capture(), any(), any());
         org.assertj.core.api.Assertions.assertThat(capturada.getValue().periodosDeSerie())
                 .isEqualTo(6);
         org.assertj.core.api.Assertions.assertThat(capturada.getValue().dimensionId())
@@ -144,14 +162,14 @@ class IndicadoresControllerWebTest {
         // La prueba pina ese reparto. Si algun dia el generador empieza a validarlo,
         // esta prueba falla y hay que decidir a proposito quien rechaza, en vez de
         // descubrirlo cuando un valor invalido llegue a una consulta.
-        when(cu98.ejecutar(any(), any()))
+        when(cu98.ejecutar(any(), any(), any()))
                 .thenReturn(
                         new CU98PublicarTablero.SalidaTablero("2026-01", "GLOBAL", Optional.empty(), false, List.of()));
 
         pedir("2026-01", dimension).andExpect(status().isOk());
 
         var capturada = ArgumentCaptor.forClass(CU98PublicarTablero.EntradaTablero.class);
-        verify(cu98).ejecutar(capturada.capture(), any());
+        verify(cu98).ejecutar(capturada.capture(), any(), any());
         org.assertj.core.api.Assertions.assertThat(capturada.getValue().dimension())
                 .as("el valor llega sin tocar, para que el caso de uso pueda rechazarlo")
                 .isEqualTo(dimension);
@@ -165,5 +183,85 @@ class IndicadoresControllerWebTest {
                         .with(Sesiones.como("AUDITOR_INTERNO", "AUDITORIA_LEER")))
                 .andExpect(status().isBadRequest());
         verifyNoInteractions(cu98);
+    }
+
+    @SuppressWarnings("unchecked")
+    private java.util.Set<String> familiasPedidasCon(String rol, String permiso) throws Exception {
+        when(cu98.ejecutar(any(), any(), any()))
+                .thenReturn(
+                        new CU98PublicarTablero.SalidaTablero("2026-09", "GLOBAL", Optional.empty(), false, List.of()));
+        mvc.perform(get("/indicadores")
+                        .param("periodo", "2026-09")
+                        .param("dimension", "GLOBAL")
+                        .with(Sesiones.como(rol, permiso)))
+                .andExpect(status().isOk());
+        var familias = ArgumentCaptor.forClass(java.util.Set.class);
+        verify(cu98).ejecutar(any(), any(), familias.capture());
+        return familias.getValue();
+    }
+
+    @Test
+    @DisplayName("tableros · TABLERO_FINANCIERO_VER entra y el servidor le pide SOLO finanzas y riesgo")
+    void financiero() throws Exception {
+        assertThat(familiasPedidasCon("TESORERIA", "TABLERO_FINANCIERO_VER"))
+                .containsExactlyInAnyOrder("FINANZAS", "RIESGO");
+    }
+
+    @Test
+    @DisplayName("tableros · TABLERO_COMERCIAL_VER entra y el servidor le pide SOLO negocio")
+    void comercial() throws Exception {
+        assertThat(familiasPedidasCon("COMERCIAL", "TABLERO_COMERCIAL_VER")).containsExactly("NEGOCIO");
+    }
+
+    @Test
+    @DisplayName("tableros · TABLERO_SISTEMAS_VER entra y el servidor le pide SOLO operacion")
+    void sistemas() throws Exception {
+        assertThat(familiasPedidasCon("ADMIN_PLATAFORMA", "TABLERO_SISTEMAS_VER"))
+                .containsExactly("OPERACION");
+    }
+
+    @Test
+    @DisplayName("tableros · 403 sin ningún permiso de tablero ni AUDITORIA_LEER")
+    void sinPermiso() throws Exception {
+        mvc.perform(get("/indicadores")
+                        .param("periodo", "2026-09")
+                        .param("dimension", "GLOBAL")
+                        .with(Sesiones.como("PARTICIPANTE", "BILLETERA_VER")))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @DisplayName("tableros · sistemas: con TABLERO_SISTEMAS_VER, 200 con la ruta plantilla y el p95 como cadena")
+    void endpointsConPermiso() throws Exception {
+        when(endpointsDelDia.consultar(25))
+                .thenReturn(new bo.aportaya.auditoria.aplicacion.EndpointsDelDia.Salida(
+                        java.time.Instant.parse("2026-10-16T04:00:00Z"),
+                        java.time.Instant.parse("2026-10-16T18:00:00Z"),
+                        true,
+                        List.of(new bo.aportaya.auditoria.aplicacion.EndpointsDelDia.Endpoint(
+                                "grupos", "GET", "/grupos/{id}", 300, 0, 1, Optional.of(new BigDecimal("120.50"))))));
+
+        mvc.perform(get("/indicadores/operacion/endpoints")
+                        .with(Sesiones.como("ADMIN_PLATAFORMA", "TABLERO_SISTEMAS_VER")))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.fuenteDisponible").value(true))
+                .andExpect(jsonPath("$.endpoints[0].ruta").value("/grupos/{id}"))
+                .andExpect(jsonPath("$.endpoints[0].p95Ms").value("120.50"));
+    }
+
+    @Test
+    @DisplayName("tableros · sistemas: 403 con un permiso de otro tablero")
+    void endpointsSinPermiso() throws Exception {
+        mvc.perform(get("/indicadores/operacion/endpoints").with(Sesiones.como("COMERCIAL", "TABLERO_COMERCIAL_VER")))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @DisplayName("tableros · sistemas: 400 con un límite fuera de rango (máximo 100)")
+    void endpointsLimiteInvalido() throws Exception {
+        mvc.perform(get("/indicadores/operacion/endpoints")
+                        .param("limite", "101")
+                        .with(Sesiones.como("ADMIN_PLATAFORMA", "TABLERO_SISTEMAS_VER")))
+                .andExpect(status().isBadRequest());
     }
 }

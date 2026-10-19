@@ -1,0 +1,7 @@
+BUILD SUCCESSFUL in 1m 30s
+test: 34 tests, 0 fallas
+testBarrido: 2 tests, 0 fallas
+webTest: 51 tests, 0 fallas
+integrationTest: 55 tests, 0 fallas
+casos de uso implementados y verificados: 4
+Sin divergencias entre la boveda y el codigo.

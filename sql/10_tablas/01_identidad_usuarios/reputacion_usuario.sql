@@ -17,6 +17,6 @@ CREATE TABLE IF NOT EXISTS identidad.reputacion_usuario (
   CONSTRAINT pk_reputacion_usuario PRIMARY KEY (id)
 );
 
-COMMENT ON TABLE identidad.reputacion_usuario IS 'Módulo 01 — Identidad, Usuarios y Seguridad. Saber con certeza a quién le estás confiando plata ajena';
-COMMENT ON COLUMN identidad.reputacion_usuario.id IS 'PK';
+COMMENT ON TABLE identidad.reputacion_usuario IS 'Módulo 01 — Identidad, Usuarios y Seguridad. La caché de lectura rápida del puntaje de reputación del usuario.';
+COMMENT ON COLUMN identidad.reputacion_usuario.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN identidad.reputacion_usuario.usuario_id IS 'FK, UQ';

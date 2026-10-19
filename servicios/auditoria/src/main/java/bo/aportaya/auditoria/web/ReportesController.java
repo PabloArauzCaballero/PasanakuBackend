@@ -2,12 +2,17 @@ package bo.aportaya.auditoria.web;
 
 import bo.aportaya.auditoria.aplicacion.CU58DescargarExportacion;
 import bo.aportaya.auditoria.aplicacion.CU58EjecutarReporte;
+import bo.aportaya.auditoria.aplicacion.ConsultarHistorialDeReportes;
 import bo.aportaya.auditoria.web.generado.ReportesApi;
 import bo.aportaya.auditoria.web.generado.modelo.EntradaReporte;
+import bo.aportaya.auditoria.web.generado.modelo.PaginaDeDefinicionesDeReporte;
+import bo.aportaya.auditoria.web.generado.modelo.PaginaDeEjecucionesDeReporte;
 import bo.aportaya.auditoria.web.generado.modelo.SalidaReporte;
 import bo.aportaya.plataforma.web.seguridad.Permiso;
 import bo.aportaya.plataforma.web.seguridad.SesionDeLaPeticion;
 import bo.aportaya.plataforma.web.traza.Traza;
+import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.http.HttpStatus;
@@ -32,11 +37,46 @@ public class ReportesController implements ReportesApi {
     private final CU58EjecutarReporte cu58;
     private final CU58DescargarExportacion descargas;
     private final SesionDeLaPeticion sesion;
+    private final ConsultarHistorialDeReportes historial;
 
-    public ReportesController(CU58EjecutarReporte cu58, CU58DescargarExportacion descargas, SesionDeLaPeticion sesion) {
+    public ReportesController(
+            CU58EjecutarReporte cu58,
+            CU58DescargarExportacion descargas,
+            SesionDeLaPeticion sesion,
+            ConsultarHistorialDeReportes historial) {
         this.cu58 = cu58;
         this.descargas = descargas;
         this.sesion = sesion;
+        this.historial = historial;
+    }
+
+    // Catalogo e historial (backoffice carril A · A6). El permiso de CADA reporte lo verifica la ejecucion.
+    @Override
+    @Permiso("AUDITORIA_LEER")
+    public ResponseEntity<PaginaDeDefinicionesDeReporte> listarDefinicionesDeReporte(
+            Integer limite, String despuesDe, UUID despuesDeId) {
+        Traza.marcarCasoDeUso("CU-58", "catalogo");
+        var p = historial.definiciones(
+                Optional.ofNullable(despuesDe), Optional.ofNullable(despuesDeId), limite, sesion.actual());
+        var salida = new PaginaDeDefinicionesDeReporte();
+        salida.setItems(p.items().stream().map(MapeoDeReportes::definicion).toList());
+        salida.setProximoDespuesDe(p.proximo().orElse(null));
+        salida.setProximoDespuesDeId(p.proximoId().orElse(null));
+        return ResponseEntity.ok(salida);
+    }
+
+    @Override
+    @Permiso("AUDITORIA_LEER")
+    public ResponseEntity<PaginaDeEjecucionesDeReporte> listarEjecucionesDeReporte(
+            List<String> estados, Integer limite, OffsetDateTime antesDe, UUID antesDeId) {
+        Traza.marcarCasoDeUso("CU-58", "historial");
+        var p = historial.ejecuciones(
+                estados, Optional.ofNullable(antesDe), Optional.ofNullable(antesDeId), limite, sesion.actual());
+        var salida = new PaginaDeEjecucionesDeReporte();
+        salida.setItems(p.items().stream().map(MapeoDeReportes::ejecucion).toList());
+        salida.setProximoAntesDe(p.proximo().orElse(null));
+        salida.setProximoAntesDeId(p.proximoId().orElse(null));
+        return ResponseEntity.ok(salida);
     }
 
     /**

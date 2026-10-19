@@ -16,7 +16,10 @@ CREATE TABLE IF NOT EXISTS grupos.configuracion_grupo (
   CONSTRAINT pk_configuracion_grupo PRIMARY KEY (grupo_id)
 );
 
-COMMENT ON TABLE grupos.configuracion_grupo IS 'Módulo 02 — Grupos, Cupos, Turnos y Gobernanza. Reglas del juego, orden de cobro y decisiones colectivas';
+COMMENT ON TABLE grupos.configuracion_grupo IS 'Módulo 02 — Grupos, Cupos, Turnos y Gobernanza. Los parámetros operativos finos del grupo, separados de su definición económica.';
 COMMENT ON COLUMN grupos.configuracion_grupo.grupo_id IS 'PK, FK';
+COMMENT ON COLUMN grupos.configuracion_grupo.permite_permuta_turnos IS '¿pueden dos participantes intercambiar posiciones? Permitirlo da flexibilidad real (a alguien se le enfermó un familiar y necesita cobrar antes); prohibirlo evita el mercado gris de compra-venta de turnos.';
+COMMENT ON COLUMN grupos.configuracion_grupo.requiere_avalista IS 'exige que cada participante tenga quién responda por él (M8). Sube la fricción de entrada y baja drásticamente la morosidad.';
+COMMENT ON COLUMN grupos.configuracion_grupo.permite_ingreso_tardio IS '¿puede entrar alguien con el grupo ya empezado? Tiene implicaciones económicas serias (debe ponerse al día con los períodos ya transcurridos).';
 COMMENT ON COLUMN grupos.configuracion_grupo.politica_mora_id IS 'FK, NULL';
 COMMENT ON COLUMN grupos.configuracion_grupo.politica_sancion_id IS 'FK, NULL';

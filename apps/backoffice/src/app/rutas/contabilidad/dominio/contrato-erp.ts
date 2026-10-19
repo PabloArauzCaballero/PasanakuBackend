@@ -1,27 +1,20 @@
-import { HttpClient, HttpContext } from '@angular/common/http'
+import { HttpClient, HttpContext, HttpParams } from '@angular/common/http'
 import { firstValueFrom } from 'rxjs'
+import { mensajeDe, type ErrorTraducido } from '../../../nucleo/errores'
 import { contextoIdempotente } from '../../../nucleo/idempotencia.interceptor'
+import { cargadorPorCursor, type PaginaPorCursor, type PedidoPorCursor } from '../../../nucleo/tabla/cursor'
 import type { CargadorDePagina, PaginaServidor, PedidoDePagina } from '../../../nucleo/tabla/tipos'
 
 /**
- * Lo que `servicios/erp/src/main/resources/openapi/erp.yaml` comparte entre sus quince
- * operaciones, más el adaptador de lectura que este carril necesita y el contrato
- * todavía no tiene.
+ * Lo que `servicios/erp/src/main/resources/openapi/erp.yaml` comparte entre sus operaciones, y el adaptador de LISTADO
+ * por cursor que usan las cinco bandejas del ERP (CU-101 a CU-105).
  *
- * **Hueco declarado — pedido pendiente al carril `5A` (backend `erp`).** Las quince
- * rutas de `erp.yaml` son de ESCRITURA (catorce `POST` y un `GET` de validación de
- * plantilla). No existe ninguna operación de listado: ni `GET /erp/periodos`, ni
- * `/erp/presupuestos`, ni `/erp/ordenes-de-compra`, ni `/erp/facturas-de-proveedor`,
- * ni `/erp/cuentas-por-cobrar`, ni `/erp/activos`, ni `/erp/estados-financieros`. Las
- * seis pantallas de este carril son, en su mayor parte, pantallas de listado: sin esas
- * operaciones no hay nada que mostrar. Se piden al carril de backend con la forma de
- * abajo; hasta que existan, cada pantalla llama al gateway con esta forma y el contrato
- * real puede diferir en el nombre exacto de la ruta o del campo.
- *
- * Ninguna de esas rutas pagina ni ordena del lado del servidor todavía, así que el
- * adaptador pide la lista completa una vez y pagina, ordena y filtra acá — **nunca**
- * dentro de `TablaDeDatosVirtualizada`, que sigue sin saber de HTTP ni de memoria.
- * Cuando el backend publique paginación real, este archivo es el único que cambia.
+ * **Contrato de listado (carril A · A6).** `listarPartidasPresupuestarias`, `listarOrdenesDeCompra`,
+ * `listarFacturasDeProveedor`, `listarCuentasPorCobrar` y `listarActivosFijos` responden
+ * `{ items, proximoAntesDe, proximoAntesDeId }`, en orden descendente fijo del servidor; aceptan `limite` (1–100),
+ * `estados` (lista separada por comas) y el cursor `antesDe` + `antesDeId`, que van **juntos o ninguno** (a medias es un
+ * 422 `FILTRO_DE_LISTADO_INVALIDO`). No traen total ni ordenan por columna: la tabla pagina con `cargadorPorCursor`
+ * (`nucleo/tabla/cursor.ts`) y no ofrece ordenar, porque ordenar una sola página sería mentir sobre el resto.
  */
 export type Moneda = 'BOB' | 'USD'
 
@@ -41,7 +34,10 @@ function comparar<T>(a: T, b: T, clave: keyof T): number {
   return String(va ?? '').localeCompare(String(vb ?? ''))
 }
 
-/** Pagina, ordena y filtra en el adaptador una lista que el servidor todavía entrega entera. */
+/**
+ * Pagina, ordena y filtra en memoria una lista ya cargada. Ninguna bandeja del ERP la usa desde que el contrato pagina
+ * por cursor; queda porque su comportamiento tiene prueba propia (`cu103-facturas.spec.ts`).
+ */
 export function paginarEnElAdaptador<T extends object>(
   todos: readonly T[],
   pedido: PedidoDePagina,
@@ -61,17 +57,42 @@ export function paginarEnElAdaptador<T extends object>(
   return { filas: ordenados.slice(inicio, inicio + pedido.tamano), total: ordenados.length }
 }
 
-/** El `cargador` que pide `TablaDeDatosVirtualizada`, sobre una lista completa del gateway. */
-export function cargadorDeLista<T extends object>(
-  http: HttpClient,
-  url: string,
-  filtrar: (fila: T, filtros: Readonly<Record<string, string>>) => boolean,
-  ordenPorOmision?: (a: T, b: T) => number,
-): CargadorDePagina<T> {
-  return async (pedido) => {
-    const todos = await firstValueFrom(http.get<T[]>(url))
-    return paginarEnElAdaptador(todos ?? [], pedido, filtrar, ordenPorOmision)
-  }
+/** El cursor de los listados del ERP: fecha (o fecha-hora) e identificador de la última fila, siempre juntos. */
+export type CursorErp = { antesDe: string; antesDeId: string }
+
+/** La forma común de `PaginaDePartidas`, `PaginaDeOrdenes`, `PaginaDeFacturas`, `PaginaDeCuentasPorCobrar` y `PaginaDeActivos`. */
+export type PaginaErp<T> = { items: T[]; proximoAntesDe?: string | null; proximoAntesDeId?: string | null }
+
+/**
+ * Una página del contrato a la forma de `cargadorPorCursor`. Solo hay siguiente si el servidor mandó LAS DOS mitades del
+ * cursor: con una sola no se puede pedir la próxima página sin un 422, así que se trata como el final.
+ */
+export function aPaginaPorCursor<T>(pagina: PaginaErp<T>): PaginaPorCursor<T, CursorErp> {
+  const siguiente = pagina.proximoAntesDe && pagina.proximoAntesDeId ? { antesDe: pagina.proximoAntesDe, antesDeId: pagina.proximoAntesDeId } : null
+  return { items: pagina.items ?? [], siguiente }
+}
+
+/** Los parámetros de la consulta: `limite`, el filtro `estado` de la URL como `estados`, y el cursor completo si hay. */
+export function parametrosDeListado(pedido: PedidoPorCursor<CursorErp>): HttpParams {
+  let params = new HttpParams().set('limite', pedido.limite)
+  const estado = pedido.filtros['estado']
+  if (estado) params = params.set('estados', estado)
+  if (pedido.cursor) params = params.set('antesDe', pedido.cursor.antesDe).set('antesDeId', pedido.cursor.antesDeId)
+  return params
+}
+
+/** El `cargador` que pide `TablaDeDatosVirtualizada`, sobre un listado por cursor del ERP. */
+export function cargadorErpPorCursor<T>(http: HttpClient, url: string): CargadorDePagina<T> {
+  return cargadorPorCursor<T, CursorErp>(async (pedido) =>
+    aPaginaPorCursor(await firstValueFrom(http.get<PaginaErp<T>>(url, { params: parametrosDeListado(pedido) }))),
+  )
+}
+
+/** El error ya traducido por `erroresInterceptor` de un `httpResource`, o `null`. Nunca el cuerpo crudo del backend. */
+export function errorDelRecurso(recurso: { error: () => unknown }): ErrorTraducido | null {
+  const e = recurso.error()
+  if (!e) return null
+  return e && typeof e === 'object' && 'mensaje' in e ? (e as ErrorTraducido) : { mensaje: mensajeDe(undefined, 500) }
 }
 
 /** Filtro por un campo de estado, con el valor que la `BarraDeFiltros` dejó en la URL. */

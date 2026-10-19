@@ -148,6 +148,9 @@ class TextosIdentidad {
   static const sesionSaludo = 'Hola de nuevo';
   static const sesionTitular = 'Entrá a tu billetera';
   static const sesionCelularAyuda = 'El mismo con el que abriste tu cuenta';
+  static const sesionCorreoAyuda = 'El correo que pusiste al abrir tu cuenta';
+  static const sesionUsarCorreo = 'Entrar con mi correo';
+  static const sesionUsarCelular = 'Entrar con mi celular';
   static const sesionOlvide = '¿Olvidaste tu contraseña?';
   // Sin número ni canal inventado: cuál es el de AportaYa es dato de producto, y
   // poner uno falso acá lo copiaría alguien.
@@ -163,8 +166,8 @@ class TextosIdentidad {
   static const mfaIndicacion =
       'Ingresá el código de seis dígitos solicitado para proteger tu ingreso.';
   static const mfaSinCodigoAyuda =
-      'Si no recibiste un código o no podés acceder, comunicate con soporte de '
-      'AportaYa.';
+      'El código se envía al correo verificado de tu cuenta. Si no tenés acceso a '
+      'ese correo, comunicate con soporte de AportaYa.';
   static const explicacionMfa =
       'Para cuidar tu cuenta te pedimos un código más. Escribí los 6 dígitos de '
       'tu segundo factor y confirmá para terminar de ingresar.';
@@ -178,6 +181,8 @@ class TextosIdentidad {
   // CU-07 / CU-09.
   static const tituloPerfil = 'Tu perfil';
   static const guardar = 'Guardar';
+  static const correoNoEditable =
+      'El correo identifica tu cuenta y no se puede cambiar desde la app.';
   static const tituloContrasenaNueva = 'Cambiar contraseña';
   static const contrasenaActual = 'Contraseña actual';
   static const contrasenaNueva = 'Contraseña nueva';

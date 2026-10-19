@@ -74,6 +74,13 @@ final class PoliticaDeAcceso {
                     "servicios/identidad/src/main/java/bo/aportaya/identidad/web/TitularDelExpediente.java",
                     "AccessDeniedException",
                     "las fotos se suben durante el alta, sin sesion; exige el token de alta de ESE usuario o su sesion"),
+            "actualizarFechaExpiracionDocumento",
+            new ControlCompensatorio(
+                    "servicios/identidad/src/main/java/bo/aportaya/identidad/web/TitularDelExpediente.java",
+                    "AccessDeniedException",
+                    "@Publico porque quien todavia no tiene rol no tiene permiso que declarar (CU-02); el control es "
+                            + "la sesion del PROPIO titular (TitularDelExpediente.exigir con token nulo): ni el UUID de "
+                            + "la ruta ni el token de alta alcanzan. Prueba: UsuariosFechaExpiracionWebTest"),
             "renovarSesion",
             new ControlCompensatorio(
                     "servicios/identidad/src/main/java/bo/aportaya/identidad/web/CookieDeRefresco.java",
@@ -115,47 +122,69 @@ final class PoliticaDeAcceso {
      * ajeno sigue siendo acceso indebido (regla 90.1.2). Las de funcion —soporte,
      * analista, administrador— se autorizan por el permiso mismo y no figuran.
      */
-    static final Map<String, Ambito> AMBITO = Map.of(
-            "declararPep",
-            Ambito.control(
-                    "servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/web/AdhesionController.java",
-                    "soloElPropio",
-                    "H13.S1.M2: cada quien declara lo suyo; el analista no declara por el usuario"),
-            "aceptarContrato",
-            Ambito.control(
-                    "servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/web/AdhesionController.java",
-                    "soloElPropio",
-                    "H13.S1.M2: la aceptacion es evidencia legal de quien acepta"),
-            "consultarRestriccion",
-            Ambito.control(
-                    "servicios/garantia/src/main/java/bo/aportaya/garantia/web/CobranzaController.java",
-                    "usuarioId.equals\\(sesion.actual\\(\\).usuarioId\\(\\)\\)",
-                    "consulta lo suyo; consultar a otro exige GRUPO_ADMINISTRAR"),
-            "consultarNivelKyc",
-            Ambito.control(
-                    "servicios/identidad/src/main/java/bo/aportaya/identidad/aplicacion/ConsultarNivelKyc.java",
-                    "usuarioId.equals\\(ctx.usuarioId\\(\\)\\)",
-                    "lo suyo, o un rol lector declarado"),
-            "emitirCertificado",
-            Ambito.control(
-                    "servicios/transparencia/src/main/java/bo/aportaya/transparencia/aplicacion/CU75EmitirCertificado.java",
-                    "usuarioId\\(\\).equals\\(ctx.usuarioId\\(\\)\\)",
-                    "el certificado es del titular"),
-            "consultarHabilitacionPersonal",
-            Ambito.control(
-                    "servicios/organizador/src/main/java/bo/aportaya/organizador/aplicacion/ConsultarHabilitacion.java",
-                    "usuarioId.equals\\(ctx.usuarioId\\(\\)\\)",
-                    "solo la propia habilitacion; el backoffice consulta la de otros"),
-            "consultarPuntaje",
-            Ambito.filaDeLaBase(
-                    "transparencia.puntaje_reputacion lleva usuario_id: la politica de fila lo acota al titular"),
-            "solicitarRetiro",
-            Ambito.filaDeLaBase(
-                    "grupos.participante lleva usuario_id: el participante ajeno no existe para quien pregunta"),
-            "consultarActividad",
-            Ambito.filaDeLaBase(
-                    "cuenta solo las filas que la politica de fila le deja ver: otro usuario devuelve cero"),
-            "consultarEstadoDelParticipante",
-            Ambito.filaDeLaBase(
-                    "obligacion_aporte no lleva usuario_id: la base la niega por omision a un participante"));
+    static final Map<String, Ambito> AMBITO = Map.ofEntries(
+            Map.entry(
+                    "declararPep",
+                    Ambito.control(
+                            "servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/web/AdhesionController.java",
+                            "soloElPropio",
+                            "H13.S1.M2: cada quien declara lo suyo; el analista no declara por el usuario")),
+            Map.entry(
+                    "aceptarContrato",
+                    Ambito.control(
+                            "servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/web/AdhesionController.java",
+                            "soloElPropio",
+                            "H13.S1.M2: la aceptacion es evidencia legal de quien acepta")),
+            Map.entry(
+                    "consultarRestriccion",
+                    Ambito.control(
+                            "servicios/garantia/src/main/java/bo/aportaya/garantia/web/CobranzaController.java",
+                            "usuarioId.equals\\(sesion.actual\\(\\).usuarioId\\(\\)\\)",
+                            "consulta lo suyo; consultar a otro exige GRUPO_ADMINISTRAR")),
+            Map.entry(
+                    "consultarNivelKyc",
+                    Ambito.control(
+                            "servicios/identidad/src/main/java/bo/aportaya/identidad/aplicacion/ConsultarNivelKyc.java",
+                            "usuarioId.equals\\(ctx.usuarioId\\(\\)\\)",
+                            "lo suyo, o un rol lector declarado")),
+            Map.entry(
+                    "emitirCertificado",
+                    Ambito.control(
+                            "servicios/transparencia/src/main/java/bo/aportaya/transparencia/aplicacion/CU75EmitirCertificado.java",
+                            "usuarioId\\(\\).equals\\(ctx.usuarioId\\(\\)\\)",
+                            "el certificado es del titular")),
+            Map.entry(
+                    "consultarHabilitacionPersonal",
+                    Ambito.control(
+                            "servicios/organizador/src/main/java/bo/aportaya/organizador/aplicacion/ConsultarHabilitacion.java",
+                            "usuarioId.equals\\(ctx.usuarioId\\(\\)\\)",
+                            "solo la propia habilitacion; el backoffice consulta la de otros")),
+            Map.entry(
+                    "consultarPuntaje",
+                    Ambito.filaDeLaBase(
+                            "transparencia.puntaje_reputacion lleva usuario_id: la politica de fila lo acota al titular")),
+            Map.entry(
+                    "solicitarRetiro",
+                    Ambito.filaDeLaBase(
+                            "grupos.participante lleva usuario_id: el participante ajeno no existe para quien pregunta")),
+            Map.entry(
+                    "consultarActividad",
+                    Ambito.filaDeLaBase(
+                            "cuenta solo las filas que la politica de fila le deja ver: otro usuario devuelve cero")),
+            Map.entry(
+                    "consultarEstadoDelParticipante",
+                    Ambito.filaDeLaBase(
+                            "obligacion_aporte no lleva usuario_id: la base la niega por omision a un participante")),
+            Map.entry(
+                    "activarRolOrganizador",
+                    Ambito.control(
+                            "servicios/identidad/src/main/java/bo/aportaya/identidad/aplicacion/ActivarRolOrganizador.java",
+                            "usuarioId.equals\\(ctx.usuarioId\\(\\)\\)",
+                            "CU-90 vía básica: cada quien firma su propio contrato de organizador")),
+            Map.entry(
+                    "iniciarVerificacion",
+                    Ambito.control(
+                            "servicios/identidad/src/main/java/bo/aportaya/identidad/web/ExpedienteController.java",
+                            "titular.exigir\\(usuarioId, null\\)",
+                            "CU-02 diferido: cada quien envia su propio documento; la sesion de otra persona es 403")));
 }

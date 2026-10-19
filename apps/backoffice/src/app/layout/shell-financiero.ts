@@ -1,92 +1,127 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core'
-import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router'
-import { Sesion } from '../nucleo/sesion'
+import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signal } from '@angular/core'
+import { Title } from '@angular/platform-browser'
+import { NavigationEnd, Router, RouterLink, RouterOutlet } from '@angular/router'
+import { toSignal } from '@angular/core/rxjs-interop'
+import { filter, finalize, map, startWith } from 'rxjs'
+import { CajonLateral } from '@aportaya/ui/cajon-lateral/cajon-lateral'
+import { Icono } from '@aportaya/ui/icono/icono'
+import { Migas } from '@aportaya/ui/migas/migas'
+import { NotaDeVista } from '@aportaya/ui/nota-de-vista/nota-de-vista'
 import { EncendidoDeTutorial } from '@aportaya/tutoriales/encendido'
 import { AnfitrionDeTutorial } from '@aportaya/tutoriales/anfitrion-de-tutorial'
 import { LanzadorDeTutorial } from '@aportaya/tutoriales/lanzador-de-tutorial'
+import { ExplicadorDeVista } from '../nucleo/explicador-de-vista'
+import { migasDe } from '../nucleo/menu'
+import { Sesion } from '../nucleo/sesion'
+import { BuscadorGlobal } from './buscador-global'
+import { CampanaDeNotificaciones } from './campana-de-notificaciones'
+import { crearCerrarSesion } from './dominio/cerrar-sesion'
+import { IconoDeSeccion } from './icono-de-seccion'
+import { MenuDeUsuario } from './menu-de-usuario'
+import { MenuLateral } from './menu-lateral'
+import { SimboloDeMarca } from './simbolo-de-marca'
 
-type Seccion = { ruta: string; texto: string; permiso: string }
+const ANGOSTO = '(max-width: 40rem)'
 
 /**
- * El shell «financiero»: menú de dominios, cabecera con el rol de quien opera, y el
- * `router-outlet` de las pantallas. **El menú oculta por comodidad**; el permiso real
- * lo exige `canMatch` en cada ruta y lo verifica el servidor — este componente no es la
- * barrera de seguridad, solo evita ofrecer un enlace que va a terminar en un 403.
+ * El shell del backoffice con la anatomía del portal interno de Atlas: barra lateral oscura con la
+ * marca y el menú por grupos (`ap-menu-lateral`), cabecera fija con migas, título de la vista,
+ * buscador global, lanzador del tutorial y menú de quien opera; abajo, las «Notas de la vista»
+ * plegadas y el `router-outlet`. En el celular la barra es un cajón que abre la hamburguesa.
+ *
+ * **El menú oculta por comodidad**; el permiso real lo exige `canMatch` en cada ruta y lo verifica
+ * el servidor — este componente no es la barrera de seguridad.
  */
 @Component({
   selector: 'ap-shell-financiero',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, LanzadorDeTutorial, AnfitrionDeTutorial],
+  imports: [RouterOutlet, RouterLink, CajonLateral, Icono, Migas, NotaDeVista, LanzadorDeTutorial, AnfitrionDeTutorial, BuscadorGlobal, CampanaDeNotificaciones, IconoDeSeccion, MenuDeUsuario, MenuLateral, SimboloDeMarca],
   template: `
-    <div class="shell">
+    <div class="shell" [class.angosto]="angosto()">
+      @if (!angosto()) {
+        <aside class="lateral">
+          <a class="marca" routerLink="/tablero"><ap-simbolo-de-marca [sobreOscuro]="true" /><span><strong>AportaYa</strong><small>Backoffice</small></span></a>
+          <ap-menu-lateral class="menu" />
+          <button type="button" class="salir" [disabled]="saliendo()" (click)="salir()"><ap-icono-de-seccion nombre="salir" />{{ saliendo() ? 'Saliendo…' : 'Salir' }}</button>
+        </aside>
+      } @else {
+        <ap-cajon-lateral lado="izquierda" titulo="Secciones" [(abierto)]="menuAbierto">
+          @if (menuAbierto()) { <ap-menu-lateral (navegado)="menuAbierto.set(false)" /> }
+          <ap-lanzador-de-tutorial acciones data-tutorial-id="lanzador-de-tutorial" />
+          <button acciones type="button" class="salir" [disabled]="saliendo()" (click)="salir()"><ap-icono-de-seccion nombre="salir" />{{ saliendo() ? 'Saliendo…' : 'Salir' }}</button>
+        </ap-cajon-lateral>
+      }
       <header class="cabecera">
-        <p class="marca">AportaYa · Backoffice</p>
-        <div class="derecha">
-          @defer (on idle) {
-            <ap-lanzador-de-tutorial data-tutorial-id="lanzador-de-tutorial" />
-          }
-          @if (sesion.rol(); as rol) {
-            <p class="rol" data-tutorial-id="cabecera-rol">{{ rol }}</p>
-          }
+        @if (angosto()) {
+          <button type="button" class="hamburguesa" aria-label="Abrir el menú" (click)="menuAbierto.set(true)"><ap-icono nombre="menu" tamano="s5" /></button>
+          <a class="marca-chica" routerLink="/tablero" aria-label="Inicio"><ap-simbolo-de-marca /></a>
+        }
+        <div class="vista">
+          @if (migas().length) { <ap-migas [migas]="migas()" (navegar)="ir($event)" /> }
+          <p class="titulo-vista">{{ tituloDeVista() }}</p>
         </div>
+        <ap-buscador-global class="buscador" />
+        <!-- En el celular el lanzador vive en el cajón del menú: la cabecera no tiene lugar para su texto. -->
+        @if (!angosto()) { <ap-lanzador-de-tutorial data-tutorial-id="lanzador-de-tutorial" /> }
+        <ap-campana-de-notificaciones />
+        <ap-menu-de-usuario [saliendo]="saliendo()" (salir)="salir()" />
       </header>
-      <nav class="menu" data-tutorial-id="menu-principal" aria-label="Secciones del backoffice">
-        <ul>
-          @for (s of secciones; track s.ruta) {
-            @if (sesion.puede(s.permiso)) {
-              <li><a [routerLink]="['/', s.ruta]" [attr.data-tutorial-id]="'menu-' + s.ruta" routerLinkActive="activo">{{ s.texto }}</a></li>
-            }
-          }
-        </ul>
-      </nav>
       <main id="contenido">
+        @if (explicador.texto(); as texto) { <ap-nota-de-vista clave="vista">{{ texto }}</ap-nota-de-vista> }
         <router-outlet />
       </main>
-      <!--
-        El anfitrión del tutorial (velo, globo, teclado) se trae recién cuando alguien
-        enciende un recorrido: el shell se monta en todas las pantallas y nadie debería
-        pagar el peso de la ayuda para mirar un saldo.
-      -->
-      @defer (when tutorial.activo()) {
-        <ap-anfitrion-de-tutorial />
-      }
+      @defer (when tutorial.activo()) { <ap-anfitrion-de-tutorial /> }
     </div>
   `,
-  styles: `
-    .shell { display: grid; grid-template-columns: minmax(12rem, 16rem) 1fr; grid-template-rows: auto 1fr; grid-template-areas: 'cabecera cabecera' 'menu contenido'; min-height: 100dvh; background: var(--bg); }
-    .cabecera { grid-area: cabecera; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--s2) var(--s3); padding: var(--s3) var(--s5); border-bottom: var(--borde-fino) solid var(--border); background: var(--surface); }
-    .marca { margin: 0; font-weight: 700; color: var(--text); white-space: nowrap; }
-    .derecha { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s2) var(--s3); min-width: 0; }
-    .rol { margin: 0; color: var(--text-2); font-size: .9em; overflow-wrap: anywhere; }
-    .menu { grid-area: menu; border-right: var(--borde-fino) solid var(--border); background: var(--surface); padding: var(--s4); }
-    .menu ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--s1); }
-    .menu a { display: block; min-height: var(--area-tactil); padding: var(--s2) var(--s3); border-radius: var(--r-md); color: var(--text-2); text-decoration: none; }
-    /* Tokens de tema y no la paleta fija (--g100 + --brand-texto): en oscuro quedaba una
-       pastilla clara con texto verde claro, 2,9:1. Con --brand-bg + --text pasa AA en los dos. */
-    .menu a:hover, .menu a.activo { background: var(--brand-bg); color: var(--text); font-weight: 600; }
-    .menu a:focus-visible { outline: var(--borde-foco) solid var(--g300); outline-offset: var(--borde-desfase); }
-    main { grid-area: contenido; min-width: 0; }
-    @media (max-width: 40rem) {
-      /* minmax(0, 1fr): con 1fr a secas la columna no bajaba del mínimo de la cabecera y
-         en 390 px la página entera desbordaba 39 px hacia el costado. */
-      .shell { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto 1fr; grid-template-areas: 'cabecera' 'menu' 'contenido'; }
-      .menu ul { flex-direction: row; flex-wrap: wrap; }
-    }
-  `,
+  styleUrl: './shell-financiero.css',
 })
 export class ShellFinanciero {
   protected readonly sesion = inject(Sesion)
   protected readonly tutorial = inject(EncendidoDeTutorial)
-  protected readonly secciones: Seccion[] = [
-    { ruta: 'tablero', texto: 'Tablero', permiso: 'ver:tablero' },
-    { ruta: 'operacion', texto: 'Operación', permiso: 'ver:operacion' },
-    { ruta: 'cumplimiento', texto: 'Cumplimiento', permiso: 'ver:cumplimiento' },
-    { ruta: 'admisiones', texto: 'Admisiones', permiso: 'ver:admisiones' },
-    { ruta: 'sistemas', texto: 'Sistemas', permiso: 'ver:sistemas' },
-    { ruta: 'contabilidad', texto: 'Contabilidad', permiso: 'ver:contabilidad' },
-    { ruta: 'publicidad', texto: 'Publicidad', permiso: 'ver:publicidad' },
-    // Última a propósito: es la sección a la que se vuelve, no por la que se empieza.
-    { ruta: 'ayuda', texto: 'Ayuda', permiso: 'ver:ayuda' },
-  ]
+  protected readonly explicador = inject(ExplicadorDeVista)
+  private readonly router = inject(Router)
+  private readonly titulo = inject(Title)
+  private readonly cerrarSesion = crearCerrarSesion()
+  protected readonly saliendo = signal(false)
+  protected readonly menuAbierto = signal(false)
+  protected readonly angosto = signal(typeof matchMedia === 'function' && matchMedia(ANGOSTO).matches)
+  private readonly url = toSignal(
+    this.router.events.pipe(
+      filter((e): e is NavigationEnd => e instanceof NavigationEnd),
+      map((e) => e.urlAfterRedirects),
+      startWith(this.router.url),
+    ),
+    { initialValue: this.router.url },
+  )
+  protected readonly migas = computed(() => migasDe(this.url(), this.titulo.getTitle()))
+  protected readonly tituloDeVista = computed(() => this.migas().at(-1)?.texto ?? this.titulo.getTitle().replace(/\s*·\s*AportaYa\s*$/, ''))
 
+  constructor() {
+    if (typeof matchMedia !== 'function') return
+    const consulta = matchMedia(ANGOSTO)
+    const alCambiar = (e: MediaQueryListEvent) => {
+      this.angosto.set(e.matches)
+      if (!e.matches) this.menuAbierto.set(false)
+    }
+    consulta.addEventListener('change', alCambiar)
+    inject(DestroyRef).onDestroy(() => consulta.removeEventListener('change', alCambiar))
+  }
+
+  protected ir(ruta: string): void {
+    void this.router.navigateByUrl(ruta)
+  }
+
+  /** La sesión se cierra en el navegador aunque el servidor no conteste: quien pide salir, sale. */
+  protected salir(): void {
+    if (this.saliendo()) return
+    this.saliendo.set(true)
+    this.cerrarSesion()
+      .pipe(
+        finalize(() => {
+          this.sesion.cerrar()
+          void this.router.navigateByUrl('/ingreso')
+        }),
+      )
+      .subscribe({ error: () => undefined })
+  }
 }

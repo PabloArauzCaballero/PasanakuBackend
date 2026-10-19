@@ -16,6 +16,7 @@ import 'campos_del_carnet.dart';
 import 'departamentos.dart';
 import 'formateadores_del_alta.dart';
 import 'paso_capturas.dart';
+import 'saltar_verificacion.dart';
 import 'tarjeta_de_confianza.dart';
 
 /// Fase «Tu identidad»: las capturas y los datos legibles del documento van juntos.
@@ -144,8 +145,8 @@ class _PasoDocumentoState extends ConsumerState<PasoDocumento> {
               valor: _vence,
               foco: _focoVence,
               icono: Icons.event_available_outlined,
-              primera: DateTime(hoy.year, hoy.month, hoy.day),
-              ultima: DateTime(hoy.year + 30, hoy.month, hoy.day),
+              primera: DateTime(1950),
+              ultima: DateTime(2100, 12, 31),
               inicial: DateTime(hoy.year + 1, hoy.month, hoy.day),
               ayuda: TextosIdentidad.fechaExpiracionAyuda,
               error: errorRemoto ?? _errores['vence'],
@@ -170,6 +171,14 @@ class _PasoDocumentoState extends ConsumerState<PasoDocumento> {
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        // Desde adentro de la app (verificación diferida) no hay nada que saltar.
+        if (ref.watch(altaProvider).modo != ModoDelAlta.soloVerificacion) ...[
+          SaltarVerificacion(
+            onSaltar: () =>
+                ref.read(altaProvider.notifier).saltarVerificacion(),
+          ),
+          const SizedBox(height: Espacio.s4),
+        ],
         PasoCapturas(
           onContinuar: _continuar,
           contenidoAdicional: _datosDelDocumento(),

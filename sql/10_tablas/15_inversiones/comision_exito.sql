@@ -29,8 +29,8 @@ CREATE TABLE IF NOT EXISTS inversiones.comision_exito (
   CONSTRAINT ck_comision_exito_origen_datos CHECK (origen_datos IN ('SINTETICO', 'VERIFICADO'))
 );
 
-COMMENT ON TABLE inversiones.comision_exito IS 'Módulo 15 — Inversiones voluntarias. [append-only] Que una inversion voluntaria nunca prometa rentabilidad ni duplique el saldo';
-COMMENT ON COLUMN inversiones.comision_exito.id IS 'PK';
+COMMENT ON TABLE inversiones.comision_exito IS 'Módulo 15 — Inversiones voluntarias. [append-only] La comisión por resultado cobrada en el rescate de un fondo, con la marca máxima antes y después.';
+COMMENT ON COLUMN inversiones.comision_exito.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN inversiones.comision_exito.posicion_inversion_id IS 'FK, IDX';
 COMMENT ON COLUMN inversiones.comision_exito.rescate_inversion_id IS 'FK, UQ';
 COMMENT ON COLUMN inversiones.comision_exito.cuotas IS 'CK: > 0';
@@ -41,4 +41,5 @@ COMMENT ON COLUMN inversiones.comision_exito.base_elegible IS 'CK: >= 0';
 COMMENT ON COLUMN inversiones.comision_exito.comision IS 'CK: >= 0';
 COMMENT ON COLUMN inversiones.comision_exito.cuota_neta IS 'CK: > 0';
 COMMENT ON COLUMN inversiones.comision_exito.marca_maxima_nueva IS 'CK: > 0';
+COMMENT ON COLUMN inversiones.comision_exito.moneda IS 'Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2).';
 COMMENT ON COLUMN inversiones.comision_exito.origen_datos IS 'CK: SINTETICO | VERIFICADO';

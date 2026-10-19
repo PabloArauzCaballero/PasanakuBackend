@@ -1,5 +1,6 @@
 package bo.aportaya.identidad.aplicacion;
 
+import bo.aportaya.identidad.dominio.ResultadoConfirmacionCorreo;
 import bo.aportaya.identidad.infraestructura.VerificacionCorreoRepositorio;
 import bo.aportaya.plataforma.dominio.ContextoSesion;
 import bo.aportaya.plataforma.dominio.Reloj;
@@ -19,7 +20,9 @@ public class ConfirmarVerificacionCorreo {
         this.reloj = reloj;
     }
 
-    public void ejecutar(UUID id, String correo, String codigo, String ip, String agente, ContextoSesion ctx) {
-        repositorio.confirmar(id, correo, codigo, ip, agente, reloj.ahora().atOffset(ZoneOffset.UTC), ctx);
+    public ResultadoConfirmacionCorreo ejecutar(
+            UUID id, String correo, String codigo, String ip, String agente, ContextoSesion ctx) {
+        return repositorio.confirmar(
+                id, correo, codigo, ip, agente, reloj.ahora().atOffset(ZoneOffset.UTC), ctx);
     }
 }

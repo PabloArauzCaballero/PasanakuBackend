@@ -1,0 +1,17 @@
+$ git merge --no-ff origin/codex/backoffice-a6-tarifas-mensajeria   (55e966c4, subagente) -> 49299219
+Verificacion del agente principal (regla 70.4.8), sobre el arbol integrado:
+
+$ ./gradlew :servicios:tarifas:spotlessCheck test webTest integrationTest testBarrido --no-build-cache --rerun-tasks --continue
+BUILD SUCCESSFUL (exit=0)
+  test             tests=7 skipped=0 failures=0 errors=0
+  webTest          tests=34 skipped=0 failures=0 errors=0
+  integrationTest  tests=106 skipped=0 failures=0 errors=0
+  testBarrido      tests=2 skipped=0 failures=0 errors=0
+
+$ ./gradlew :servicios:notificaciones:spotlessCheck test webTest integrationTest testBarrido --no-build-cache --rerun-tasks --continue
+BUILD SUCCESSFUL (exit=0)
+  test             tests=5 skipped=0 failures=0 errors=0
+  webTest          tests=36 skipped=0 failures=0 errors=0
+  integrationTest  tests=66 skipped=0 failures=0 errors=0
+  testBarrido      tests=2 skipped=0 failures=0 errors=0
+

@@ -30,35 +30,51 @@ const CATALOGO = leerCatalogo()
 
 /** El token de un rol: su código más los permisos del catálogo que ese rol concede. */
 const tokenDe = (rol: string): string[] => [rol, ...(CATALOGO.concedidos.get(rol) ?? [])]
-const SECCIONES = ['ver:operacion', 'ver:cumplimiento', 'ver:admisiones', 'ver:sistemas', 'ver:contabilidad', 'ver:publicidad'] as const
+const SECCIONES = ['ver:operacion', 'ver:cumplimiento', 'ver:admisiones', 'ver:sistemas', 'ver:contabilidad', 'ver:publicidad', 'ver:configuracion'] as const
 const seccionesDe = (rol: string) => SECCIONES.filter((s) => alcanza(s, tokenDe(rol), true)).map((s) => s.slice(4))
 
 /** Lo que cada rol debe ver. Escrito a mano desde las concesiones del catálogo, para que un cambio en cualquiera de los dos se note. */
 const ESPERADO: Record<string, string[]> = {
-  ADMIN_PLATAFORMA: ['operacion', 'cumplimiento', 'admisiones', 'sistemas'],
-  OFICIAL_CUMPLIMIENTO: ['operacion', 'cumplimiento'],
+  ADMIN_PLATAFORMA: ['operacion', 'cumplimiento', 'admisiones', 'sistemas', 'configuracion'],
+  OFICIAL_CUMPLIMIENTO: ['operacion', 'cumplimiento', 'configuracion'],
   ANALISTA_CUMPLIMIENTO: ['operacion', 'cumplimiento'],
-  AUDITOR_INTERNO: ['operacion', 'contabilidad'],
-  RESPONSABLE_RIESGOS: ['operacion'],
-  RESPONSABLE_SEGURIDAD: ['sistemas'],
+  AUDITOR_INTERNO: ['operacion', 'cumplimiento', 'contabilidad', 'configuracion'],
+  RESPONSABLE_RIESGOS: ['operacion', 'cumplimiento', 'configuracion'],
+  RESPONSABLE_SEGURIDAD: ['cumplimiento', 'sistemas'],
   TESORERIA: ['operacion', 'contabilidad'],
   CONTABILIDAD: ['operacion', 'contabilidad'],
   SOPORTE: ['operacion'],
   PUNTO_RECLAMO: ['operacion'],
   OPERADOR_PUBLICIDAD: ['publicidad'],
   MODERADOR_CONTENIDO: ['publicidad'],
+  // Tableros por rol (2026-10-16): COMERCIAL solo ve su tablero (`/tablero/comercial`, TABLERO_COMERCIAL_VER), que no es
+  // una sección operativa. No abre operación, cumplimiento ni ninguna otra.
+  COMERCIAL: [],
   // Roles de la app: no son de backoffice. Un participante o un organizador que llegara con su token no abre NINGUNA sección.
   PARTICIPANTE: [],
   ORGANIZADOR: [],
   ANUNCIANTE: [],
-  // Identidades de servicio (otro agente las sumó al catálogo): no son personas ni abren pantallas del backoffice.
+  // Identidades de servicio: no son personas ni abren pantallas del backoffice.
   SERVICIO_ENTREGAS: [],
   SERVICIO_INVERSIONES: [],
+  // Roles internos de Atlas adaptados a Pasanaku (H6):
+  INTERNAL_IDENTITY_ADMIN: ['sistemas'],
+  SYSTEMS_ADMIN: [],
+  OPERATIONS_MANAGER: ['operacion'],
+  OPERATIONS_ANALYST: ['operacion'],
+  RISK_ANALYST: [],
+  FRAUD_ANALYST: ['cumplimiento'],
+  COLLECTIONS_MANAGER: ['operacion'],
+  COLLECTIONS_AGENT: ['operacion'],
+  DATA_GOVERNANCE_MANAGER: [],
+  DATA_QUALITY_ANALYST: [],
+  QA_ENGINEER: [],
+  EXECUTIVE_READONLY: [],
 }
 
 describe('matriz de roles · qué secciones abre cada rol del catálogo', () => {
-  it('el catálogo parseado tiene los diecisiete roles y la prueba cubre cada uno (si se agrega un rol, hay que decidir qué ve)', () => {
-    expect(CATALOGO.roles.size).toBe(17)
+  it('el catálogo parseado tiene los treinta roles y la prueba cubre cada uno (si se agrega un rol, hay que decidir qué ve)', () => {
+    expect(CATALOGO.roles.size).toBe(30)
     expect([...CATALOGO.roles].sort()).toEqual(Object.keys(ESPERADO).sort())
   })
 
@@ -141,10 +157,18 @@ describe('contrato de permisos · lo que el backoffice pide existe en el catálo
   it('los tres permisos que antes faltaban (RECLAMO_VER y SOLICITUD_INGRESO_*) están sembrados y los concede el rol que corresponde', () => {
     const quienes = (permiso: string) => [...CATALOGO.roles].filter((r) => tokenDe(r).includes(permiso)).sort()
     expect(CATALOGO.permisos.has('RECLAMO_VER')).toBe(true)
-    expect(quienes('RECLAMO_VER')).toEqual(['ADMIN_PLATAFORMA', 'OFICIAL_CUMPLIMIENTO', 'PUNTO_RECLAMO', 'SOPORTE'])
-    expect(quienes('SOLICITUD_INGRESO_VER')).toEqual(['ADMIN_PLATAFORMA', 'SOPORTE'])
-    // Resolver es de quien resuelve admisiones (ADMIN_PLATAFORMA) y de nadie más: quien solo mira no decide.
-    expect(quienes('SOLICITUD_INGRESO_RESOLVER')).toEqual(['ADMIN_PLATAFORMA'])
+    expect(quienes('RECLAMO_VER')).toEqual([
+      'ADMIN_PLATAFORMA',
+      'COLLECTIONS_AGENT',
+      'COLLECTIONS_MANAGER',
+      'OFICIAL_CUMPLIMIENTO',
+      'OPERATIONS_ANALYST',
+      'OPERATIONS_MANAGER',
+      'PUNTO_RECLAMO',
+      'SOPORTE',
+    ])
+    expect(quienes('SOLICITUD_INGRESO_VER')).toEqual(['ADMIN_PLATAFORMA', 'OPERATIONS_ANALYST', 'OPERATIONS_MANAGER', 'SOPORTE'])
+    expect(quienes('SOLICITUD_INGRESO_RESOLVER')).toEqual(['ADMIN_PLATAFORMA', 'OPERATIONS_MANAGER'])
   })
 
   it('cada ruta de operación que pide uno de esos permisos queda alcanzable desde la sección: quien lo tiene ve «operacion»', () => {

@@ -28,8 +28,8 @@ CREATE TABLE IF NOT EXISTS cumplimiento.evento_riesgo_operativo (
   CONSTRAINT ck_evento_riesgo_operativo_estado CHECK (estado IN ('CERRADO', 'EN_ANALISIS', 'EN_REMEDIACION', 'REGISTRADO'))
 );
 
-COMMENT ON TABLE cumplimiento.evento_riesgo_operativo IS 'Módulo 12 — Cumplimiento Regulatorio y Consumidor Financiero. [append-only] Que una inspección se responda con consultas, no armando carpetas';
-COMMENT ON COLUMN cumplimiento.evento_riesgo_operativo.id IS 'PK';
+COMMENT ON TABLE cumplimiento.evento_riesgo_operativo IS 'Módulo 12 — Cumplimiento Regulatorio y Consumidor Financiero. [append-only] La base de datos de pérdidas por errores, fallas y fraudes.';
+COMMENT ON COLUMN cumplimiento.evento_riesgo_operativo.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN cumplimiento.evento_riesgo_operativo.codigo IS 'UQ';
 COMMENT ON COLUMN cumplimiento.evento_riesgo_operativo.incidente_operativo_id IS 'FK, NULL, M9';
 COMMENT ON COLUMN cumplimiento.evento_riesgo_operativo.registrado_por IS 'FK';
@@ -39,5 +39,6 @@ COMMENT ON COLUMN cumplimiento.evento_riesgo_operativo.reportado_central_riesgo_
 COMMENT ON COLUMN cumplimiento.evento_riesgo_operativo.fecha_ocurrencia IS 'IDX';
 COMMENT ON COLUMN cumplimiento.evento_riesgo_operativo.fecha_contabilizacion IS 'NULL';
 COMMENT ON COLUMN cumplimiento.evento_riesgo_operativo.perdida_neta IS 'GENERATED';
+COMMENT ON COLUMN cumplimiento.evento_riesgo_operativo.moneda IS 'Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2).';
 COMMENT ON COLUMN cumplimiento.evento_riesgo_operativo.causa_raiz IS 'NULL';
 COMMENT ON COLUMN cumplimiento.evento_riesgo_operativo.estado IS 'CK, IDX';

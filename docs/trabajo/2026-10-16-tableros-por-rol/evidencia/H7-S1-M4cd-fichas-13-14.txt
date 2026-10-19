@@ -1,0 +1,18 @@
+H7.S1.M4c y M4d — módulos 13 (ERP) y 14 (publicidad) · 2026-10-16
+No se escribieron fichas nuevas: la narrativa YA existía, agrupada por tema (## con fila «| `tabla` | Qué es |» o viñeta «- **`tabla`** — …», y párrafos del grupo). Se extendió el lector (scripts/catalogo_de_datos.py:_fichas_de_grupo) y el gate acepta «Para qué sirve» o «Por qué debe existir» como explicación de negocio (D13).
+
+$ python3 -I scripts/verificar_narrativas.py --modulo 13
+  OK    · tablas con ficha: 18/18
+  INFO  · columnas con explicación de negocio en el filtro: 27/147
+
+Sin fallas.
+exit=0
+
+$ python3 -I scripts/verificar_narrativas.py --modulo 14
+  OK    · tablas con ficha: 14/14
+  INFO  · columnas con explicación de negocio en el filtro: 20/103
+
+Sin fallas.
+exit=0
+
+Muestra revisada a mano: ejercicio_fiscal, tercero_comercial, espacio_publicitario, anunciante, socio_comercial, asiento_plantilla, impresion_anuncio — queEs correcto por tabla; la nota de sistema es la del grupo (riesgo: puede hablar de otra tabla del grupo).

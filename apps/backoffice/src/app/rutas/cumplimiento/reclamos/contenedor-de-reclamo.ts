@@ -1,27 +1,21 @@
-import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core'
-import type { ReclamoDelConsumidor } from '../dominio/cu52-reclamo'
-import { PantallaDeReclamo } from './pantalla-de-reclamo'
+import { ChangeDetectionStrategy, Component, input } from '@angular/core'
+import { Indisponible } from '../compartido/indisponible'
+import { textosCumplimiento } from '../textos'
 
 /**
- * Conecta la ruta con `PantallaDeReclamo`. **Supuesto declarado:** sin ruta HTTP para
- * CU-52/CU-53 en `cumplimiento.yaml` (ver `dominio/cu52-reclamo.ts`), arma un reclamo
- * de ejemplo con un plazo guardado fijo (10 días hábiles desde el registro, como
- * exige `R-CON-03`), para que la pantalla se pueda probar de punta a punta. Cuando el
- * contrato exista, solo este archivo cambia.
+ * CU-52 · un reclamo del consumidor. La atención de reclamos (bandeja, ficha y respuesta,
+ * `GET /reclamos`, `GET /reclamos/{id}`, `POST /reclamos/{id}/respuesta`) vive en
+ * `operacion/reclamos`, con el permiso RECLAMO_VER / RECLAMO_ATENDER. Antes este contenedor
+ * armaba un reclamo de ejemplo y su botón no enviaba nada: ahora dice adónde ir, para no tener
+ * dos lugares que respondan el mismo reclamo.
  */
 @Component({
   selector: 'ap-contenedor-de-reclamo',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [PantallaDeReclamo],
-  template: `<ap-pantalla-de-reclamo [reclamo]="reclamo()" />`,
+  imports: [Indisponible],
+  template: `<ap-indisponible [titulo]="t.titulo" [proposito]="t.proposito" [motivo]="t.indisponible" destino="/operacion/reclamos" [textoDestino]="t.irAOperacion" />`,
 })
 export class ContenedorDeReclamo {
-  readonly reclamoId = input.required<string>()
-  protected readonly reclamo = computed<ReclamoDelConsumidor>(() => ({
-    id: this.reclamoId(),
-    registradoEn: '2026-09-01T10:00:00-04:00',
-    plazoVenceEn: '2026-09-15T10:00:00-04:00',
-    norma: 'ASFI · Reglamento de atención al consumidor financiero',
-    respuesta: null,
-  }))
+  readonly reclamoId = input<string>()
+  protected readonly t = textosCumplimiento.reclamos
 }

@@ -144,7 +144,7 @@ void main() {
   );
 
   testWidgets(
-    'vacío: una cuenta en cero dice por qué no hay nada y qué hacer',
+    'vacío: una cuenta en cero muestra su saldo, cómo recargar y por qué no hay movimientos',
     (tester) async {
       final (:dio, :adaptador) = dioSimulado();
       final cero = {
@@ -154,10 +154,15 @@ void main() {
         'alCorteDe': '2026-01-15T10:30:00Z',
       };
       adaptador.onGet(ruta, (s) => s.reply(200, cero));
+      adaptador.onGet(
+        '/billetera/$cuenta/movimientos',
+        (s) => s.reply(200, {'cuentaId': cuenta, 'movimientos': <Object>[]}),
+      );
       await tester.pumpWidget(
         conApp(const PantallaDeSaldo(cuentaId: cuenta), dio: dio),
       );
       await asentar(tester);
+      expect(find.text('Recargar'), findsOneWidget);
       expect(
         find.textContaining('Todavía no tenés movimientos'),
         findsOneWidget,
@@ -228,7 +233,10 @@ void main() {
       conApp(const PantallaDeSaldo(cuentaId: cuenta), dio: dio),
     );
     await asentar(tester);
-    expect(find.text('No tenés acceso a esto.'), findsOneWidget);
+    expect(
+      find.text('Esta acción todavía no está disponible para tu cuenta.'),
+      findsOneWidget,
+    );
   });
 
   testWidgets(

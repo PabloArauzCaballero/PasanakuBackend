@@ -2,12 +2,12 @@
 tags:
   - moc
   - indice
-entidades: 323
+entidades: 328
 ---
 
 # Índice de entidades
 
-Las **323 tablas** del modelo, agrupadas por módulo. «Sal.» y «Ent.» son claves foráneas salientes y entrantes.
+Las **328 tablas** del modelo, agrupadas por módulo. «Sal.» y «Ent.» son claves foráneas salientes y entrantes.
 
 [[Index|← Índice general]] · [[_Relaciones|Relaciones →]]
 
@@ -17,7 +17,7 @@ Las **323 tablas** del modelo, agrupadas por módulo. «Sal.» y «Ent.» son cl
 
 | Tabla | Columnas | Sal. | Ent. | Notas |
 | --- | --: | --: | --: | --- |
-| [[usuario]] | 18 | 0 | 216 | muy conectada |
+| [[usuario]] | 18 | 0 | 219 | muy conectada |
 | [[direccion_usuario]] | 8 | 1 | 0 | — |
 | [[perfil_financiero]] | 8 | 1 | 0 | — |
 | [[credencial_acceso]] | 8 | 1 | 0 | — |
@@ -32,11 +32,12 @@ Las **323 tablas** del modelo, agrupadas por módulo. «Sal.» y «Ent.» son cl
 | [[bloqueo_cuenta]] | 7 | 2 | 0 | — |
 | [[restriccion_usuario]] | 10 | 2 | 0 | — |
 | [[documento_identidad]] | 15 | 1 | 1 | — |
-| [[verificacion_kyc]] | 14 | 3 | 2 | — |
+| [[verificacion_kyc]] | 16 | 3 | 2 | — |
 | [[alcance_invitacion]] | 10 | 1 | 0 | — |
 | [[referencia_personal]] | 8 | 1 | 0 | — |
-| [[rol]] | 5 | 0 | 2 | — |
-| [[permiso]] | 6 | 0 | 1 | — |
+| [[rol]] | 7 | 0 | 2 | — |
+| [[permiso]] | 8 | 0 | 1 | — |
+| [[usuario_interno]] | 7 | 1 | 0 | — |
 | [[rol_permiso]] | 2 | 2 | 0 | — |
 | [[asignacion_rol]] | 10 | 3 | 0 | — |
 | [[consentimiento]] | 10 | 1 | 0 | — |
@@ -50,7 +51,7 @@ Las **323 tablas** del modelo, agrupadas por módulo. «Sal.» y «Ent.» son cl
 
 | Tabla | Columnas | Sal. | Ent. | Notas |
 | --- | --: | --: | --: | --- |
-| [[grupo]] | 27 | 1 | 48 | muy conectada |
+| [[grupo]] | 27 | 1 | 49 | muy conectada |
 | [[alta_grupo]] | 7 | 0 | 0 | — |
 | [[configuracion_grupo]] | 10 | 3 | 0 | — |
 | [[reglamento_grupo]] | 10 | 2 | 1 | — |
@@ -60,9 +61,10 @@ Las **323 tablas** del modelo, agrupadas por módulo. «Sal.» y «Ent.» son cl
 | [[cupo]] | 8 | 2 | 7 | muy conectada |
 | [[traspaso_cupo]] | 10 | 4 | 0 | — |
 | [[solicitud_retiro]] | 9 | 2 | 0 | — |
-| [[solicitud_ingreso]] | 10 | 3 | 0 | — |
+| [[solicitud_ingreso]] | 12 | 4 | 0 | — |
 | [[decision_ingreso]] | 16 | 0 | 0 | — |
 | [[sustitucion_administrador]] | 10 | 0 | 0 | — |
+| [[enlace_grupo]] | 8 | 2 | 1 | — |
 | [[invitacion]] | 16 | 3 | 0 | — |
 | [[periodo]] | 11 | 1 | 7 | muy conectada |
 | [[turno]] | 11 | 4 | 8 | muy conectada |
@@ -102,9 +104,9 @@ Las **323 tablas** del modelo, agrupadas por módulo. «Sal.» y «Ent.» son cl
 | [[excepcion_conciliacion]] | 10 | 2 | 0 | — |
 | [[webhook_pasarela]] | 13 | 2 | 0 | — |
 | [[tipo_cambio]] | 7 | 0 | 0 | — |
-| [[cuenta_contable]] | 11 | 3 | 12 | muy conectada |
+| [[cuenta_contable]] | 12 | 3 | 12 | muy conectada |
 | [[asiento_contable]] | 11 | 4 | 12 | append-only, muy conectada |
-| [[movimiento_contable]] | 6 | 2 | 0 | append-only |
+| [[movimiento_contable]] | 7 | 2 | 0 | append-only |
 | [[cierre_diario]] | 10 | 1 | 1 | — |
 
 ## 04 — Entregas de Fondo
@@ -148,6 +150,7 @@ Las **323 tablas** del modelo, agrupadas por módulo. «Sal.» y «Ent.» son cl
 | [[respuesta_entrante]] | 8 | 2 | 0 | — |
 | [[programacion_recordatorio]] | 9 | 2 | 0 | — |
 | [[bandeja_entrada]] | 9 | 2 | 0 | — |
+| [[aviso_interno]] | 9 | 1 | 0 | — |
 
 ## 06 — Transparencia y Reputación
 
@@ -246,7 +249,9 @@ Las **323 tablas** del modelo, agrupadas por módulo. «Sal.» y «Ent.» son cl
 | --- | --: | --: | --: | --- |
 | [[bitacora_evento]] | 21 | 3 | 0 | append-only |
 | [[registro_acceso_datos]] | 10 | 2 | 0 | append-only |
-| [[politica_retencion]] | 7 | 0 | 0 | — |
+| [[politica_retencion]] | 7 | 0 | 1 | — |
+| [[ficha_gobierno_tabla]] | 12 | 1 | 0 | — |
+| [[revision_columna]] | 10 | 0 | 0 | — |
 | [[definicion_reporte]] | 11 | 0 | 2 | — |
 | [[ejecucion_reporte]] | 12 | 3 | 1 | — |
 | [[exportacion_reporte]] | 11 | 1 | 0 | — |

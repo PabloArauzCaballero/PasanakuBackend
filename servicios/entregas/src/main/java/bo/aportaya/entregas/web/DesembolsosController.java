@@ -1,14 +1,21 @@
 package bo.aportaya.entregas.web;
 
 import bo.aportaya.entregas.aplicacion.CU28EmitirDesembolso;
+import bo.aportaya.entregas.aplicacion.ConsultarDesembolsos;
 import bo.aportaya.entregas.web.generado.DesembolsosApi;
+import bo.aportaya.entregas.web.generado.modelo.DesembolsoEnLista;
 import bo.aportaya.entregas.web.generado.modelo.EntradaOrdenDesembolso;
 import bo.aportaya.entregas.web.generado.modelo.EntradaRespuestaDesembolso;
+import bo.aportaya.entregas.web.generado.modelo.PaginaDeDesembolsos;
 import bo.aportaya.entregas.web.generado.modelo.SalidaIntentoDesembolso;
 import bo.aportaya.entregas.web.generado.modelo.SalidaOrdenDesembolso;
 import bo.aportaya.plataforma.web.seguridad.Permiso;
+import bo.aportaya.plataforma.web.seguridad.PermisoAlternativo;
 import bo.aportaya.plataforma.web.seguridad.SesionDeLaPeticion;
 import bo.aportaya.plataforma.web.traza.Traza;
+import java.time.OffsetDateTime;
+import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,11 +31,47 @@ import org.springframework.web.bind.annotation.RestController;
 public class DesembolsosController implements DesembolsosApi {
 
     private final CU28EmitirDesembolso cu28;
+    private final ConsultarDesembolsos consultas;
     private final SesionDeLaPeticion sesion;
 
-    public DesembolsosController(CU28EmitirDesembolso cu28, SesionDeLaPeticion sesion) {
+    public DesembolsosController(CU28EmitirDesembolso cu28, ConsultarDesembolsos consultas, SesionDeLaPeticion sesion) {
         this.cu28 = cu28;
+        this.consultas = consultas;
         this.sesion = sesion;
+    }
+
+    // Tesoreria la opera (ENTREGA_EJECUTAR) y Auditoria la lee: ninguno de los dos mueve plata desde aca.
+    @Override
+    @Permiso("ENTREGA_EJECUTAR")
+    @PermisoAlternativo({"AUDITORIA_LEER"})
+    public ResponseEntity<PaginaDeDesembolsos> listarDesembolsos(
+            List<String> estados, Integer limite, OffsetDateTime antesDe, UUID antesDeId) {
+        Traza.marcarCasoDeUso("CU-28", "bandeja");
+        var pagina = consultas.listar(
+                estados, Optional.ofNullable(antesDe), Optional.ofNullable(antesDeId), limite, sesion.actual());
+        var salida = new PaginaDeDesembolsos();
+        salida.setItems(pagina.items().stream()
+                .map(d -> {
+                    var r = new DesembolsoEnLista();
+                    r.setOrdenId(d.ordenId());
+                    r.setEntregaId(d.entregaId());
+                    r.setProveedorId(d.proveedorId());
+                    r.setMonto(MapeoDeEntregas.dinero(d.monto()));
+                    r.setEstado(DesembolsoEnLista.EstadoEnum.fromValue(d.estado()));
+                    r.setIntentos(d.intentos());
+                    r.setUltimoResultado(d.ultimoResultado()
+                            .map(DesembolsoEnLista.UltimoResultadoEnum::fromValue)
+                            .orElse(null));
+                    r.setUltimoCodigoError(d.ultimoCodigoError().orElse(null));
+                    r.setReintentableEn(d.reintentableEn().orElse(null));
+                    r.setCreadaEn(d.creadaEn());
+                    r.setAcreditadaEn(d.acreditadaEn().orElse(null));
+                    return r;
+                })
+                .toList());
+        salida.setProximoAntesDe(pagina.proximoAntesDe().orElse(null));
+        salida.setProximoAntesDeId(pagina.proximoAntesDeId().orElse(null));
+        return ResponseEntity.ok(salida);
     }
 
     @Override

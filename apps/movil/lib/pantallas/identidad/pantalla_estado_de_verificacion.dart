@@ -9,14 +9,21 @@ import 'package:go_router/go_router.dart';
 
 import 'dominio/estado_alta.dart';
 import 'dominio/estado_de_verificacion.dart';
+import 'activar_cuenta.dart';
 import 'textos_de_verificacion.dart';
+import '../../proveedores/sesion.dart';
 
 /// El estado de la verificación, igual que Atlas: PENDIENTE/EN_REVISION siguen
 /// sondeando solas, APROBADA y RECHAZADA son finales. Siempre "Caso `&lt;id&gt;`" y
 /// "Actualizar estado".
 class PantallaDeEstadoDeVerificacion extends ConsumerStatefulWidget {
-  const PantallaDeEstadoDeVerificacion({super.key, required this.usuarioId});
+  const PantallaDeEstadoDeVerificacion({
+    super.key,
+    required this.usuarioId,
+    this.sesionActiva = false,
+  });
   final String usuarioId;
+  final bool sesionActiva;
 
   @override
   ConsumerState<PantallaDeEstadoDeVerificacion> createState() =>
@@ -48,6 +55,7 @@ class _PantallaDeEstadoDeVerificacionState
                 ref.read(verificacionProvider.notifier).actualizar(),
             exito: (expediente) => _Contenido(
               expediente: expediente,
+              sesionActiva: widget.sesionActiva,
               onActualizar: () =>
                   ref.read(verificacionProvider.notifier).actualizar(),
             ),
@@ -59,24 +67,33 @@ class _PantallaDeEstadoDeVerificacionState
 }
 
 class _Contenido extends ConsumerWidget {
-  const _Contenido({required this.expediente, required this.onActualizar});
+  const _Contenido({
+    required this.expediente,
+    required this.sesionActiva,
+    required this.onActualizar,
+  });
   final EstadoDeVerificacion expediente;
+  final bool sesionActiva;
   final VoidCallback onActualizar;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final (titulo, detalle) = switch (expediente.estado) {
-      EstadoDeVerificacionEstadoEnum.PENDIENTE => (
-        TextosDeVerificacion.pendienteTitulo,
-        TextosDeVerificacion.pendienteDetalle,
-      ),
+      // PENDIENTE y EN_REVISION se dicen igual: la revisión es humana y puede tardar,
+      // así que nunca «No cierres la app». Recién creada la cuenta, decir eso dejaba
+      // a la persona mirando esta pantalla como si tuviera que esperar (2026-10-19).
+      EstadoDeVerificacionEstadoEnum.PENDIENTE ||
       EstadoDeVerificacionEstadoEnum.EN_REVISION => (
-        TextosDeVerificacion.enRevisionTitulo,
-        TextosDeVerificacion.enRevisionDetalle,
+        sesionActiva
+            ? TextosDeVerificacion.cuentaEnVerificacionTitulo
+            : TextosDeVerificacion.enRevisionTitulo,
+        sesionActiva
+            ? TextosDeVerificacion.cuentaEnVerificacionDetalle
+            : TextosDeVerificacion.enRevisionDetalle,
       ),
       EstadoDeVerificacionEstadoEnum.APROBADA => (
         TextosDeVerificacion.aprobadaTitulo,
-        '',
+        sesionActiva ? TextosDeVerificacion.accesoAunNoHabilitado : '',
       ),
       EstadoDeVerificacionEstadoEnum.RECHAZADA => (
         TextosDeVerificacion.rechazadaTitulo,
@@ -110,7 +127,31 @@ class _Contenido extends ConsumerWidget {
           style: Theme.of(context).textTheme.bodySmall,
         ),
         const Spacer(),
-        if (rechazada)
+        if (sesionActiva && aprobada)
+          Boton(
+            texto: TextosDeVerificacion.activarCuenta,
+            variante: BotonVariante.primario,
+            expandido: true,
+            onPressed: () => activarCuentaAprobada(context, ref),
+          )
+        else if (sesionActiva && rechazada)
+          Boton(
+            texto: TextosDeVerificacion.salirDeCuenta,
+            variante: BotonVariante.primario,
+            expandido: true,
+            onPressed: () async {
+              await ref.read(sesionProvider).cerrar();
+              if (context.mounted) context.go('/ingreso');
+            },
+          )
+        else if (sesionActiva)
+          Boton(
+            texto: TextosDeVerificacion.irALaApp,
+            variante: BotonVariante.primario,
+            expandido: true,
+            onPressed: () => context.go('/billetera/inicio'),
+          )
+        else if (rechazada)
           Boton(
             texto: TextosDeVerificacion.intentarDeNuevo,
             variante: BotonVariante.primario,

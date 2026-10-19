@@ -41,4 +41,7 @@ class SeguridadWebTest extends SabanaDeSeguridadWeb {
 
     @MockitoBean
     private TitularDeLaBilletera titularDeLaBilletera;
+
+    @org.springframework.test.context.bean.override.mockito.MockitoBean
+    private bo.aportaya.entregas.aplicacion.ConsultarDesembolsos consultarDesembolsos;
 }

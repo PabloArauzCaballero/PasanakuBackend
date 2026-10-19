@@ -17,11 +17,12 @@ CREATE TABLE IF NOT EXISTS notificaciones.version_plantilla (
   CONSTRAINT pk_version_plantilla PRIMARY KEY (id)
 );
 
-COMMENT ON TABLE notificaciones.version_plantilla IS 'Módulo 05 — Notificaciones y Comunicaciones. WhatsApp como canal real de cobro, sin spam ni doble aviso';
-COMMENT ON COLUMN notificaciones.version_plantilla.id IS 'PK';
+COMMENT ON TABLE notificaciones.version_plantilla IS 'Módulo 05 — Notificaciones y Comunicaciones. El texto concreto de una plantilla, en un idioma, en una versión.';
+COMMENT ON COLUMN notificaciones.version_plantilla.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN notificaciones.version_plantilla.plantilla_id IS 'FK, IDX';
 COMMENT ON COLUMN notificaciones.version_plantilla.version IS 'UQ+plantilla_id+idioma';
 COMMENT ON COLUMN notificaciones.version_plantilla.asunto IS 'NULL';
 COMMENT ON COLUMN notificaciones.version_plantilla.botones IS 'NULL';
 COMMENT ON COLUMN notificaciones.version_plantilla.url_encabezado_media IS 'NULL';
-COMMENT ON COLUMN notificaciones.version_plantilla.vigente_hasta IS 'NULL';
+COMMENT ON COLUMN notificaciones.version_plantilla.vigente_desde IS 'Desde cuándo rige esta versión de la fila: las condiciones se versionan, no se pisan.';
+COMMENT ON COLUMN notificaciones.version_plantilla.vigente_hasta IS 'Hasta cuándo rigió esta versión; vacía mientras sigue vigente.';

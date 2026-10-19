@@ -5,8 +5,10 @@ import bo.aportaya.cumplimiento.aplicacion.CU03DeclararPep;
 import bo.aportaya.cumplimiento.aplicacion.CU05AceptarContrato;
 import bo.aportaya.cumplimiento.aplicacion.CU05ConsultarContratosVigentes;
 import bo.aportaya.cumplimiento.aplicacion.CU46VerificarAlcance;
+import bo.aportaya.cumplimiento.aplicacion.CU52AtenderReclamo;
 import bo.aportaya.cumplimiento.aplicacion.CU54RegistrarRiesgoOperativo;
 import bo.aportaya.cumplimiento.aplicacion.CU55GestionarIncidente;
+import bo.aportaya.cumplimiento.aplicacion.ConsultarBandejaDeReclamos;
 import bo.aportaya.cumplimiento.aplicacion.ConsultarEfectoDelReclamo;
 import bo.aportaya.plataforma.pruebas.web.PruebaWeb;
 import bo.aportaya.plataforma.pruebas.web.SabanaDeSeguridadWeb;
@@ -49,5 +51,29 @@ class SeguridadWebTest extends SabanaDeSeguridadWeb {
     private CU55GestionarIncidente cu55GestionarIncidente;
 
     @MockitoBean
+    private bo.aportaya.cumplimiento.aplicacion.ConsultarBandejasLft bandejasLft;
+
+    @MockitoBean
+    private bo.aportaya.cumplimiento.aplicacion.CU44InvestigarYReportar cu44;
+
+    @MockitoBean
+    private bo.aportaya.cumplimiento.aplicacion.CU44DecidirComoRevisor decisionLft;
+
+    @MockitoBean
     private ConsultarEfectoDelReclamo consultarEfectoDelReclamo;
+
+    // La bandeja, la ficha y la respuesta de CU-52 (backoffice carril A · H3) viven en el mismo controlador.
+    @MockitoBean
+    private ConsultarBandejaDeReclamos bandejaDeReclamos;
+
+    @MockitoBean
+    private CU52AtenderReclamo cu52;
+
+    // Las colas del backoffice (carril A · H9) cuelgan del controlador: sin este doble no carga.
+    @org.springframework.test.context.bean.override.mockito.MockitoBean
+    private TableroDeCumplimientoWeb tableroDeCumplimiento;
+
+    // Las acciones del backoffice (carril A · H9) cuelgan de los controladores: sin este doble no cargan.
+    @org.springframework.test.context.bean.override.mockito.MockitoBean
+    private AccionesDeCumplimientoWeb accionesDeCumplimiento;
 }

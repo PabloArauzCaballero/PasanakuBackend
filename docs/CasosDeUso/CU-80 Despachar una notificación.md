@@ -91,6 +91,7 @@ export const ErroresCU80 = {
   CANAL_NO_VERIFICADO:    'AP-CU80-02',
   DESTINATARIO_SUPRIMIDO: 'AP-CU80-03',
   EVENTO_RESERVADO:       'AP-CU80-04',
+  FILTRO_DE_LISTADO_INVALIDO: 'AP-CU80-05',
 } as const
 ```
 
@@ -100,6 +101,17 @@ export const ErroresCU80 = {
 | `CANAL_NO_VERIFICADO` | El teléfono o el correo del destinatario no está verificado |
 | `DESTINATARIO_SUPRIMIDO` | Está en [[lista_supresion]] para esa categoría; **nunca se fuerza el envío** |
 | `EVENTO_RESERVADO` | Otra réplica lo tomó con `SKIP LOCKED`; no es falla, es concurrencia sana |
+| `FILTRO_DE_LISTADO_INVALIDO` | El listado de plantillas recibió un estado de aprobación desconocido, o `antesDe` sin `antesDeId` (o al revés) |
+
+**Plantillas para Auditoría (backoffice carril A · A6).** `GET /notificaciones/plantillas`
+(`listarPlantillas`, `AUDITORIA_LEER`) lista una fila por versión de plantilla con su código, evento,
+canal, categoría y estado de aprobación del proveedor, si está activa, idioma y vigencia. Sin filtro trae
+todos los estados de aprobación. **No devuelve asunto, cuerpo, botones ni media**: dice qué plantilla rige,
+no lo que dice. Pagina por `(vigenteDesde, versionId)` de la más reciente a la más antigua. No hay permiso de
+mensajería sembrado; `AUDITORIA_LEER` es el único que aplica.
+
+**Avisos internos para operadores (campana del backoffice).** `GET /avisos-internos`, `POST /avisos-internos/{id}/leido`, `POST /avisos-internos/marcar-todos-leidos`, `POST /avisos-internos`.
+Gestiona los avisos persistentes en [[aviso_interno]] dirigidos a un operador o a su rol (ej. alertas de cumplimiento, revisiones de catálogo pendientes o fallas de despliegue).
 
 ## Descomposición atómica
 
@@ -107,10 +119,10 @@ export const ErroresCU80 = {
 | --- | --- | --- |
 | Átomo | `renderizarPlantilla(version, variables)` | Interpolación pura, con escape; falla si falta una variable |
 | Átomo | `ventanaDeEnvio(preferencia, ahora)` | Devuelve enviar ahora o cuándo; puro |
-| Molécula | `NotificacionRepositorio` · `SupresionRepositorio` | |
+| Molécula | `NotificacionRepositorio` · `SupresionRepositorio` · `AvisoInternoRepositorio` | |
 | Molécula | `AdaptadorWhatsApp` · `AdaptadorPush` | Un adaptador por proveedor, detrás de la misma interfaz |
-| Organismo | `CU80DespacharNotificacion` | Consumidor idempotente del outbox |
-| Página | — | Sin endpoint: **solo por evento de dominio** |
+| Organismo | `CU80DespacharNotificacion` · `GestionarAvisosInternos` | Consumidor del outbox y gestor de avisos internos |
+| Página | `AvisosInternosController` | Campana y bandeja de avisos en backoffice |
 
 ## Eventos, trabajos y permisos
 
@@ -123,7 +135,7 @@ export const ErroresCU80 = {
 ## Interfaz
 
 - **App:** [[bandeja_entrada]] con el histórico y el detalle de cada aviso.
-- **Backoffice:** monitor de envíos con tasa de entrega por canal y la cola muerta.
+- **Backoffice:** campana de avisos en el shell y monitor de envíos con tasa de entrega por canal y la cola muerta.
 
 ## Restricciones aplicables
 
@@ -132,7 +144,7 @@ export const ErroresCU80 = {
 ## Evidencia que deja
 
 [[notificacion]] · [[envio_notificacion]] · [[evento_entrega_mensaje]] ·
-[[cola_muerta]] si agota reintentos · [[lista_supresion]] consultada
+[[cola_muerta]] si agota reintentos · [[lista_supresion]] consultada · [[aviso_interno]]
 
 ## Criterios de aceptación
 
@@ -153,6 +165,15 @@ Entonces el estado es SUPRIMIDA con su motivo y no hay envío
 Dado un evento fuera del horario permitido
 Cuando se procesa
 Entonces queda REPROGRAMADA para la primera hora hábil
+
+# Plantillas para Auditoría (backoffice carril A)
+Dada una plantilla aprobada y otra en borrador, cada una con su versión
+Cuando Auditoría abre las plantillas
+Entonces ve las dos con su estado de aprobación y su versión, sin cuerpo ni asunto
+
+Dadas dos versiones de plantilla
+Cuando Auditoría recorre las plantillas de a una
+Entonces ve cada versión una sola vez, de la más reciente a la más antigua, y la última página cierra sin cursor
 ```
 
 ## Ver también

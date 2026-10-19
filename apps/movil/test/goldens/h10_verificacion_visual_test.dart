@@ -42,26 +42,40 @@ const _casos = [
   (
     clave: 'pendiente',
     estado: EstadoDeVerificacionEstadoEnum.PENDIENTE,
-    titulo: TextosDeVerificacion.pendienteTitulo,
+    // 2026-10-19: PENDIENTE se dice igual que EN_REVISION (sin «No cierres la app»).
+    titulo: TextosDeVerificacion.enRevisionTitulo,
     accion: TextosDeVerificacion.seguirConElRegistro,
+    sesionActiva: false,
   ),
   (
     clave: 'en-revision',
     estado: EstadoDeVerificacionEstadoEnum.EN_REVISION,
     titulo: TextosDeVerificacion.enRevisionTitulo,
     accion: TextosDeVerificacion.seguirConElRegistro,
+    sesionActiva: false,
+  ),
+  (
+    clave: 'sesion-en-revision',
+    estado: EstadoDeVerificacionEstadoEnum.EN_REVISION,
+    titulo: TextosDeVerificacion.cuentaEnVerificacionTitulo,
+    // Con sesión y la identidad en revisión se entra a la app (2026-10-17): ya no
+    // queda «Salir de esta cuenta» como única salida.
+    accion: TextosDeVerificacion.irALaApp,
+    sesionActiva: true,
   ),
   (
     clave: 'aprobada',
     estado: EstadoDeVerificacionEstadoEnum.APROBADA,
     titulo: TextosDeVerificacion.aprobadaTitulo,
     accion: TextosDeVerificacion.entrar,
+    sesionActiva: false,
   ),
   (
     clave: 'rechazada',
     estado: EstadoDeVerificacionEstadoEnum.RECHAZADA,
     titulo: TextosDeVerificacion.rechazadaTitulo,
     accion: TextosDeVerificacion.intentarDeNuevo,
+    sesionActiva: false,
   ),
 ];
 
@@ -104,8 +118,9 @@ void main() {
                   themeMode: brillo == Brightness.light
                       ? ThemeMode.light
                       : ThemeMode.dark,
-                  home: const PantallaDeEstadoDeVerificacion(
+                  home: PantallaDeEstadoDeVerificacion(
                     usuarioId: _usuarioSintetico,
+                    sesionActiva: caso.sesionActiva,
                   ),
                 ),
               ),
@@ -137,7 +152,8 @@ void main() {
             }
             expect(tester.takeException(), isNull);
 
-            final ruta = ancho == 360 && brillo == Brightness.dark
+            final ruta =
+                ancho == 360 && brillo == Brightness.dark && !caso.sesionActiva
                 ? '$_h8${caso.clave}-oscura-360-130.png'
                 : '$_evidencia'
                       'h10-verificacion-${caso.clave}-$tema-$ancho-130.png';

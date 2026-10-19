@@ -66,6 +66,10 @@ abstract class RutasDeSolicitudes extends RutasDeAdmision {
                     o.setGrupoId(p.grupoId());
                     o.setParticipanteId(p.participanteId());
                     o.setEstado(p.estado());
+                    o.setNombreDelGrupo(p.nombreDelGrupo());
+                    o.setMontoAporte(p.montoAporte());
+                    o.setMoneda(p.moneda());
+                    o.setEsOrganizador(p.esOrganizador());
                     return o;
                 })
                 .toList();
@@ -86,6 +90,8 @@ abstract class RutasDeSolicitudes extends RutasDeAdmision {
                     o.setPuntaje(s.puntaje() == null ? null : s.puntaje().toPlainString());
                     o.setEstado(SolicitudDeIngreso.EstadoEnum.fromValue(s.estado()));
                     o.setFechaSolicitud(s.fecha());
+                    o.setNombreVisible(s.nombreVisible());
+                    o.setPorEnlace(s.porEnlace());
                     return o;
                 })
                 .toList();

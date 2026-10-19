@@ -23,7 +23,7 @@ import org.junit.jupiter.api.Test;
 class CUConsumoDeAportesRechazosTest extends BaseDeAportes {
 
     /** Nada quedo escrito para este aporte. */
-    private void sinEfectos(Aporte a, bo.aportaya.nucleofinanciero.aplicacion.ConsumoDeAportes.AporteCobrado e) {
+    private void sinEfectos(Aporte a, bo.aportaya.nucleofinanciero.aplicacion.AporteCobrado e) {
         assertThat(transacciones(a.obligacion())).isZero();
         assertThat(asientosDeAportes(a.grupo())).isZero();
         assertThat(marcas(e.eventoId())).isZero();

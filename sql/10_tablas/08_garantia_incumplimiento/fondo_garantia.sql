@@ -23,11 +23,12 @@ CREATE TABLE IF NOT EXISTS garantia.fondo_garantia (
   CONSTRAINT ck_fondo_garantia_estado CHECK (estado IN ('ACTIVO', 'AGOTADO', 'CERRADO', 'EN_LIQUIDACION'))
 );
 
-COMMENT ON TABLE garantia.fondo_garantia IS 'Módulo 08 — Garantía, Incumplimiento, Cobranza y Sanciones. El grupo no se detiene, pero la deuda no se perdona sola';
-COMMENT ON COLUMN garantia.fondo_garantia.id IS 'PK';
+COMMENT ON TABLE garantia.fondo_garantia IS 'Módulo 08 — Garantía, Incumplimiento, Cobranza y Sanciones. El colchón económico que cubre los aportes impagos para que el grupo no se detenga.';
+COMMENT ON COLUMN garantia.fondo_garantia.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN garantia.fondo_garantia.ambito IS 'CK';
 COMMENT ON COLUMN garantia.fondo_garantia.grupo_id IS 'FK, NULL, UQ parcial';
 COMMENT ON COLUMN garantia.fondo_garantia.politica_cobertura_id IS 'FK';
 COMMENT ON COLUMN garantia.fondo_garantia.cuenta_contable_id IS 'FK, M3';
+COMMENT ON COLUMN garantia.fondo_garantia.moneda IS 'Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2).';
 COMMENT ON COLUMN garantia.fondo_garantia.saldo_disponible IS 'CK: >= 0';
 COMMENT ON COLUMN garantia.fondo_garantia.estado IS 'CK';

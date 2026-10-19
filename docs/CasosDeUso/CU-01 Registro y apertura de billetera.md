@@ -218,6 +218,44 @@ Entonces la fecha queda guardada
 Dado un documento vencido
 Cuando se registra
 Entonces AP-CU01-07 y no se crea nada
+
+Dado un correo que ya tiene cuenta
+Cuando otra persona se registra con ese correo
+Entonces se rechaza con AP-CU01-03 y campo correo, sin crear nada
+
+Dado un telefono que ya tiene cuenta
+Cuando otra persona se registra con ese telefono
+Entonces se rechaza con AP-CU01-03 y campo telefono
+
+Dado un correo que ya tiene cuenta
+Cuando se pide el código para ese correo
+Entonces se rechaza con AP-CU01-03 y campo correo
+Y no se envía ningún correo
+Y otro correo libre sí recibe su código
+
+Dado un alta sin documento
+Cuando se crea
+Entonces la cuenta queda INCOMPLETO_KYC, con credencial y sin documento ni verificacion
+
+Dada una cuenta sin documento
+Cuando envia su carnet vigente
+Entonces pasa a PENDIENTE_VERIFICACION con una verificacion EN_REVISION
+
+Dada una verificacion ya iniciada
+Cuando se envia otra vez
+Entonces AP-CU01-12 y sigue habiendo una sola
+
+Dado un carnet que ya tiene otra cuenta
+Cuando se envia
+Entonces AP-CU01-03 campo documento y la cuenta sigue INCOMPLETO_KYC
+
+Dado un carnet vencido o sin fecha
+Cuando se envia
+Entonces se rechaza (AP-CU01-07 / AP-CU01-10) sin tocar la cuenta
+
+Dado un carnet que vence hoy
+Cuando se envia
+Entonces abre la verificacion porque el ultimo dia todavia vale
 ```
 
 ## Ver también

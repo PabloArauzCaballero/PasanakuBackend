@@ -2,6 +2,7 @@ package bo.aportaya.identidad.web;
 
 import bo.aportaya.identidad.aplicacion.BuscarPorTelefono;
 import bo.aportaya.identidad.aplicacion.CU01RegistrarUsuario;
+import bo.aportaya.identidad.aplicacion.CU02ActualizarFechaExpiracion;
 import bo.aportaya.identidad.aplicacion.CU02ConsultarEstadoDeVerificacion;
 import bo.aportaya.identidad.aplicacion.CU02GuardarFotoDelExpediente;
 import bo.aportaya.identidad.aplicacion.CU02RevisarExpediente;
@@ -66,6 +67,9 @@ class SeguridadWebTest extends SabanaDeSeguridadWeb {
     private CU02ConsultarEstadoDeVerificacion estadoDeVerificacion;
 
     @MockitoBean
+    private CU02ActualizarFechaExpiracion actualizarFechaExpiracion;
+
+    @MockitoBean
     private BuscarPorTelefono buscarPorTelefono;
 
     @MockitoBean
@@ -76,6 +80,18 @@ class SeguridadWebTest extends SabanaDeSeguridadWeb {
 
     @MockitoBean
     private ConfirmarVerificacionCorreo confirmarVerificacionCorreo;
+
+    @MockitoBean
+    private bo.aportaya.identidad.aplicacion.ActivarRolOrganizador activarRolOrganizador;
+
+    @MockitoBean
+    private bo.aportaya.identidad.aplicacion.GuardarBorradorOnboarding guardarBorrador;
+
+    @MockitoBean
+    private bo.aportaya.identidad.aplicacion.ConsultarMiPerfil consultarMiPerfil;
+
+    @MockitoBean
+    private bo.aportaya.identidad.aplicacion.CU02IniciarVerificacion iniciarVerificacion;
 
     @MockitoBean
     private CU04Autenticar cu04Autenticar;
@@ -97,4 +113,7 @@ class SeguridadWebTest extends SabanaDeSeguridadWeb {
 
     @MockitoBean
     private ConsultarNivelKyc consultarNivelKyc;
+
+    @MockitoBean
+    private bo.aportaya.identidad.aplicacion.GestionarUsuariosInternos gestionarUsuariosInternos;
 }

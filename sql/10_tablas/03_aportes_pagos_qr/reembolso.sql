@@ -18,8 +18,8 @@ CREATE TABLE IF NOT EXISTS aportes.reembolso (
   CONSTRAINT ck_reembolso_estado CHECK (estado IN ('APROBADO', 'EJECUTADO', 'RECHAZADO', 'SOLICITADO'))
 );
 
-COMMENT ON TABLE aportes.reembolso IS 'Módulo 03 — Aportes, Pagos QR y Conciliación. Que "pagué" signifique "el banco lo confirmó"';
-COMMENT ON COLUMN aportes.reembolso.id IS 'PK';
+COMMENT ON TABLE aportes.reembolso IS 'Módulo 03 — Aportes, Pagos QR y Conciliación. La devolución de un pago, total o parcial.';
+COMMENT ON COLUMN aportes.reembolso.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN aportes.reembolso.pago_id IS 'FK, IDX';
 COMMENT ON COLUMN aportes.reembolso.motivo IS 'CK';
 COMMENT ON COLUMN aportes.reembolso.estado IS 'CK';

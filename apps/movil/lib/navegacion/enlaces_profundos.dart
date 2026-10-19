@@ -1,3 +1,5 @@
+import '../pantallas/pasanaku/dominio/enlace_para_compartir.dart';
+
 /// Traduce un *deep link* de esquema propio (`aportaya://unirse/ABC123`) a una ruta
 /// interna de `go_router` (`/pasanaku/unirse/ABC123`). Vive en `navegacion/` porque
 /// es el shell quien decide cómo entra un enlace externo — **no** una tabla que cada
@@ -23,6 +25,12 @@ Iterable<String> get rutasBaseDeEnlaces => _prefijosPorHost.values;
 /// caso `go_router` la trata como una ruta interna normal (o cae en el `errorBuilder`,
 /// nunca en pantalla en blanco).
 String? rutaInternaDesde(Uri uri) {
+  // El enlace del grupo llega como https (App Links de Android, 2026-10-19). El sistema
+  // ya filtró el dominio con el intent-filter; acá solo se acepta un código bien formado.
+  if (uri.scheme == 'https' || uri.scheme == 'http') {
+    final codigo = codigoDeEnlaceDelGrupo(uri);
+    return codigo == null ? null : '/g/$codigo';
+  }
   if (uri.scheme != 'aportaya') return null;
   final prefijo = _prefijosPorHost[uri.host];
   if (prefijo == null) return null;

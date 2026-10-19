@@ -20,8 +20,8 @@ CREATE TABLE IF NOT EXISTS cumplimiento.desvio_perfil (
   CONSTRAINT ck_desvio_perfil_estado CHECK (estado IN ('DETECTADO', 'EN_ANALISIS', 'ESCALADO', 'JUSTIFICADO'))
 );
 
-COMMENT ON TABLE cumplimiento.desvio_perfil IS 'Módulo 12 — Cumplimiento Regulatorio y Consumidor Financiero. Que una inspección se responda con consultas, no armando carpetas';
-COMMENT ON COLUMN cumplimiento.desvio_perfil.id IS 'PK';
+COMMENT ON TABLE cumplimiento.desvio_perfil IS 'Módulo 12 — Cumplimiento Regulatorio y Consumidor Financiero. Lo que el cliente declaró que iba a mover, y lo que efectivamente movió.';
+COMMENT ON COLUMN cumplimiento.desvio_perfil.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN cumplimiento.desvio_perfil.usuario_id IS 'FK, IDX, M1';
 COMMENT ON COLUMN cumplimiento.desvio_perfil.perfil_transaccional_id IS 'FK';
 COMMENT ON COLUMN cumplimiento.desvio_perfil.alerta_monitoreo_id IS 'FK, NULL';

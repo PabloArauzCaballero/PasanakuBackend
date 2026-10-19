@@ -15,8 +15,8 @@ CREATE TABLE IF NOT EXISTS auditoria.coincidencia_lista (
   CONSTRAINT ck_coincidencia_lista_estado CHECK (estado IN ('CONFIRMADA', 'FALSO_POSITIVO', 'PENDIENTE'))
 );
 
-COMMENT ON TABLE auditoria.coincidencia_lista IS 'Módulo 09 — Auditoría, Reportes y Cumplimiento. Poder demostrar todo lo anterior ante un reclamo o un regulador';
-COMMENT ON COLUMN auditoria.coincidencia_lista.id IS 'PK';
+COMMENT ON TABLE auditoria.coincidencia_lista IS 'Módulo 09 — Auditoría, Reportes y Cumplimiento. Las listas de personas restringidas (PEP, OFAC, ONU, locales) y las coincidencias detectadas contra usuarios.';
+COMMENT ON COLUMN auditoria.coincidencia_lista.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN auditoria.coincidencia_lista.lista_id IS 'FK, IDX';
 COMMENT ON COLUMN auditoria.coincidencia_lista.usuario_id IS 'FK, IDX';
 COMMENT ON COLUMN auditoria.coincidencia_lista.revisada_por IS 'FK, NULL';

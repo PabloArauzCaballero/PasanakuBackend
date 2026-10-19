@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS transparencia.peso_factor (
   CONSTRAINT pk_peso_factor PRIMARY KEY (id)
 );
 
-COMMENT ON TABLE transparencia.peso_factor IS 'Módulo 06 — Transparencia y Reputación. Que nadie tenga que "creerle" al organizador';
-COMMENT ON COLUMN transparencia.peso_factor.id IS 'PK';
+COMMENT ON TABLE transparencia.peso_factor IS 'Módulo 06 — Transparencia y Reputación. Cuánto pesa cada dimensión dentro del modelo: puntualidad, permanencia, severidad de incumplimientos, volumen, antigüedad, comportamiento social.';
+COMMENT ON COLUMN transparencia.peso_factor.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN transparencia.peso_factor.modelo_id IS 'FK, IDX';
 COMMENT ON COLUMN transparencia.peso_factor.codigo_factor IS 'UQ+modelo_id';

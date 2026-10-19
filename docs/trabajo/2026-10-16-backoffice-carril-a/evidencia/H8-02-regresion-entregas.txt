@@ -1,0 +1,32 @@
+$ ./gradlew :servicios:entregas:spotlessCheck test webTest integrationTest testBarrido contractTest --no-build-cache --continue
+BUILD SUCCESSFUL (exit=0)
+
+test             tests=40 skipped=0 failures=0 errors=0
+webTest          tests=60 skipped=0 failures=0 errors=0
+integrationTest  tests=111 skipped=0 failures=0 errors=0
+testBarrido      tests=2 skipped=0 failures=0 errors=0
+contractTest     tests=9 skipped=0 failures=0 errors=0
+
+CU28DesembolsosTest tests="4" skipped="0" failures="0" errors="0"
+   PASS · Dadas dos órdenes rechazadas · Cuando Tesorería recorre la bandeja de a una · Entonces ve cada una una sola vez, de la más reciente a la más antigua, y la última página cierra sin cursor
+   PASS · Dadas una orden RECHAZADA y una ACREDITADA · Cuando Tesorería abre la bandeja de desembolsos sin filtro · Entonces ve solo la rechazada, con su último código de error
+   PASS · rechaza un estado que el contrato no conoce con AP-CU28-07
+   PASS · rechaza un cursor a medias en la bandeja de desembolsos con AP-CU28-07
+web.DesembolsosBandejaWebTest tests="6" skipped="0" failures="0" errors="0"
+   PASS · 200: ENTREGA_EJECUTAR ve la bandeja con monto y moneda, ultimo error y cursor, sin cuenta destino
+   PASS · 200: AUDITORIA_LEER tambien la lee; sin estados pasa la lista vacia y el default 25
+   PASS · 401: sin token no hay bandeja
+   PASS · 400: limite fuera de 1..100 o cursor que no es UUID lo corta el contrato
+   PASS · 422: un estado desconocido sale con AP-CU28-07, nunca como 500
+   PASS · 403: quien no opera entregas ni audita no ve la bandeja
+web.SeguridadWebTest tests="6" skipped="0" failures="0" errors="0"
+   PASS · seguridad: 401 y 403 no distinguen entre un recurso que existe y uno que no
+   PASS · seguridad: autenticado sin el permiso, toda ruta con @Permiso responde 403
+   PASS · seguridad: el servicio expone al menos una ruta, y todas se pueden inspeccionar
+   PASS · seguridad: el permiso de UNA operacion no abre las de al lado
+   PASS · seguridad: sin Idempotency-Key, ninguna operacion con efecto se ejecuta
+   PASS · seguridad: sin sesion, toda ruta que no sea @Publico responde 401
+
+$ python3 scripts/verificar_criterios.py  → Sin divergencias entre la boveda y el codigo.
+$ python3 scripts/verificar_boveda.py     → TODO OK
+$ python3 scripts/verificar_seguridad.py  → TODO OK · 6 aviso(s)

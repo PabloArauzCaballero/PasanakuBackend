@@ -1,16 +1,17 @@
-import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/core'
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core'
 import { FormsModule } from '@angular/forms'
 import { Boton } from '@aportaya/ui/boton/boton'
+import { CabeceraDePagina } from '@aportaya/ui/cabecera-de-pagina/cabecera-de-pagina'
 import { ChipEstado } from '@aportaya/ui/chip-estado/chip-estado'
 import { EstadoDePantalla } from '@aportaya/ui/estado-de-pantalla/estado-de-pantalla'
-import { BandaDeProposito } from '@aportaya/ui/banda-de-proposito/banda-de-proposito'
 import { ErrorDeEnvio } from '@aportaya/ui/error-de-envio/error-de-envio'
 import {
   CaraDelExpediente,
   ExpedienteEnRevisionEstadoEnum,
   type ExpedienteEnRevision,
 } from 'clientes/angular/identidad'
-import { crearResolver, expedientesEnEstado, POR_DECIDIR, recortar, vencimientoDe } from '../dominio/cu02-expedientes'
+import { ExplicadorDeVista } from '../../../nucleo/explicador-de-vista'
+import { crearResolver, expedientesEnEstado, coincideConBusqueda, esPendiente, POR_DECIDIR, recortar, tonoDelExpediente, vencimientoDe } from '../dominio/cu02-expedientes'
 import type { ErrorTraducido } from '../../../nucleo/errores'
 import { textosCumplimiento } from '../textos'
 import { DecisionDeExpediente, type Decision } from './decision-de-expediente'
@@ -19,29 +20,14 @@ import { TiraDeFotos } from './tira-de-fotos'
 
 /**
  * CU-02 · el portal de riesgo: la cola de expedientes de identidad y la decisión.
- *
- * **La decisión es de una persona, y queda con su nombre.** Empieza siendo manual a
- * propósito: un motor que rechaza sin que nadie mire deja a alguien sin cuenta y sin
- * explicación, y el día que se equivoca nadie sabe por qué.
- *
- * Las fotos **no se cargan al listar**: se piden al abrir el expediente, y el enlace
- * vive diez minutos. Cada foto de una cédula es un dato personal sensible y cada
- * lectura queda registrada — una grilla que las precarga todas es una filtración
- * cómoda.
- *
- * Abierto un expediente, las cinco se piden juntas y se muestran **una al lado de la
- * otra**: la prueba de vida se decide cotejando la cara contra el documento, y
- * cotejar es mirar las dos a la vez. Antes cada foto pisaba a la anterior y había que
- * decidir de memoria.
  */
 @Component({
   selector: 'ap-pantalla-de-expedientes',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ErrorDeEnvio, EstadoDePantalla, BandaDeProposito, ChipEstado, Boton, FormsModule, TiraDeFotos, DecisionDeExpediente, VencimientoDelDocumento],
+  imports: [ErrorDeEnvio, EstadoDePantalla, CabeceraDePagina, ChipEstado, Boton, FormsModule, TiraDeFotos, DecisionDeExpediente, VencimientoDelDocumento],
   template: `
-    <ap-banda-de-proposito [texto]="t.proposito" />
     <section class="pantalla">
-      <h1>{{ t.titulo }}</h1>
+      <ap-cabecera-de-pagina [titulo]="t.titulo" [descripcion]="t.proposito" icono="verificado" />
 
       <div class="filtros" role="group" data-tutorial-id="cumplimiento-filtros" [attr.aria-label]="t.filtrar">
         @for (e of estados; track e) {
@@ -72,6 +58,7 @@ import { TiraDeFotos } from './tira-de-fotos'
                   <div>
                     <h2>{{ e.nombreCompleto }}</h2>
                     <p class="telefono">{{ t.telefono }}: {{ e.telefono }}</p>
+                    <p class="correo">{{ t.correo }}: {{ e.correo || t.sinCorreo }}</p>
                     <p class="doc">{{ e.documento ?? t.sinDocumento }}</p>
                     <ap-vencimiento-del-documento [expediente]="e" />
                   </div>
@@ -110,10 +97,14 @@ import { TiraDeFotos } from './tira-de-fotos'
     h2 { margin: 0; font-size: 1.05rem; }
     .doc { margin: 0; color: var(--text-2); font-size: .875rem; }
     .telefono { margin: 0; color: var(--text-2); font-size: .875rem; }
+    .correo { margin: 0; color: var(--text-2); font-size: .875rem; }
     .aviso { margin: 0; color: var(--aviso-texto); font-size: .875rem; }
   `,
 })
 export class PantallaDeExpedientes {
+  constructor() {
+    inject(ExplicadorDeVista).fijar(this.t.proposito)
+  }
   protected readonly t = textosCumplimiento.verificaciones
   /**
    * La cola de trabajo primero y por omisión; después los del contrato, no una lista
@@ -137,9 +128,8 @@ export class PantallaDeExpedientes {
    * estado y los que esperan una persona son dos.
    */
   protected readonly visibles = computed(() => {
-    const termino = this.normalizar(this.busqueda())
     return recortar(this.cola.value() ?? [], this.estado()).filter((e) =>
-      !termino || this.normalizar(`${e.nombreCompleto} ${e.telefono ?? ''}`).includes(termino),
+      coincideConBusqueda(e, this.busqueda()),
     )
   })
 
@@ -148,14 +138,10 @@ export class PantallaDeExpedientes {
    * también los resueltos, y decir «no hay nada» porque el recorte los sacó sería
    * mentir al revés — mostrar la lista vacía sin explicar por qué.
    */
-  protected readonly vacio = (_c: ExpedienteEnRevision[]): boolean => this.visibles().length === 0
+  protected readonly vacio = (): boolean => this.visibles().length === 0
   protected readonly mensajeVacio = computed(() =>
     this.busqueda().trim() ? this.t.sinCoincidencias : this.t.sinPendientes,
   )
-
-  private normalizar(valor: string): string {
-    return valor.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase('es').trim()
-  }
 
   /** `POR_DECIDIR` no es un estado del contrato: se nombra en castellano, no en mayúsculas. */
   protected etiquetaDeFiltro(estado: string): string {
@@ -172,19 +158,9 @@ export class PantallaDeExpedientes {
   /** Lo decide el servidor (`documentoVigente`), no el reloj de quien mira. */
   protected readonly vencimientoDe = vencimientoDe
 
-  /** Un expediente ya resuelto no se vuelve a decidir desde acá. */
-  protected pendiente(e: ExpedienteEnRevision): boolean {
-    return (
-      e.estado === ExpedienteEnRevisionEstadoEnum.Pendiente ||
-      e.estado === ExpedienteEnRevisionEstadoEnum.EnRevision
-    )
-  }
-
-  protected tonoDe(e: ExpedienteEnRevision): 'ok' | 'error' | 'aviso' | 'neutro' {
-    if (e.estado === ExpedienteEnRevisionEstadoEnum.Aprobada) return 'ok'
-    if (e.estado === ExpedienteEnRevisionEstadoEnum.Rechazada) return 'error'
-    return e.estado === ExpedienteEnRevisionEstadoEnum.EnRevision ? 'aviso' : 'neutro'
-  }
+  /** Un expediente ya resuelto no se vuelve a decidir desde acá (regla pura en el dominio). */
+  protected readonly pendiente = esPendiente
+  protected readonly tonoDe = tonoDelExpediente
 
   protected resolver(e: ExpedienteEnRevision, { decision, motivo }: Decision): void {
     const id = e.verificacionId

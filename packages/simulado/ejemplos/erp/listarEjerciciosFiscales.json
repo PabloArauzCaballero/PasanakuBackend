@@ -1,0 +1,76 @@
+{
+  "servicio": "erp",
+  "operacion": "listarEjerciciosFiscales",
+  "metodo": "get",
+  "ruta": "/erp/ejercicios",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "items": [
+          {
+            "ejercicioId": "340513ec-258c-471e-8189-04f259912b0a",
+            "anio": 1,
+            "estado": "ABIERTO",
+            "fechaInicio": "2026-01-15",
+            "fechaFin": "2026-01-15",
+            "periodos": [
+              {
+                "periodoId": "be5f1022-dbbe-4388-85e1-43aa9a1d63aa",
+                "ejercicioId": "b491becd-79a8-4891-832c-629a42e3a275",
+                "anio": 1,
+                "mes": 1,
+                "estado": "ABIERTO",
+                "fechaInicio": "2026-01-15",
+                "fechaFin": "2026-01-15"
+              }
+            ]
+          }
+        ],
+        "proximoAntesDeAnio": 1
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "items": [],
+        "proximoAntesDeAnio": 0
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "items": [
+          {
+            "ejercicioId": "340513ec-258c-471e-8189-04f259912b0a",
+            "anio": 1,
+            "estado": "ABIERTO",
+            "fechaInicio": "2026-01-15",
+            "fechaFin": "2026-01-15",
+            "periodos": [
+              {
+                "periodoId": "be5f1022-dbbe-4388-85e1-43aa9a1d63aa",
+                "ejercicioId": "b491becd-79a8-4891-832c-629a42e3a275",
+                "anio": 1,
+                "mes": 1,
+                "estado": "ABIERTO",
+                "fechaInicio": "2026-01-15",
+                "fechaFin": "2026-01-15"
+              }
+            ]
+          }
+        ],
+        "proximoAntesDeAnio": 1
+      }
+    },
+    "rechazo": {
+      "estado": 401,
+      "cuerpo": {
+        "codigo": "AP-CU100-01",
+        "mensaje": "Periodo ya cerrado",
+        "detalle": {},
+        "trazaId": "traza-listarEjerciciosFiscales-rechazo"
+      }
+    }
+  }
+}

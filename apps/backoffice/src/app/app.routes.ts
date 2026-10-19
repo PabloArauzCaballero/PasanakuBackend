@@ -32,6 +32,50 @@ export const routes: Routes = [
       { path: '', pathMatch: 'full', redirectTo: 'tablero' },
       { path: 'tablero', loadComponent: () => import('./rutas/tablero/tablero').then((m) => m.Tablero), title: 'Tablero · AportaYa' },
       {
+        // Tableros por rol (CU-98): la guardia oculta, el servidor filtra las familias por el mismo permiso.
+        path: 'tablero/financiero',
+        canMatch: [requierePermiso('TABLERO_FINANCIERO_VER')],
+        loadComponent: () => import('./rutas/tablero/tablero-por-rol').then((m) => m.TableroPorRol),
+        data: { tipo: 'financiero' },
+        title: 'Tablero financiero · AportaYa',
+      },
+      {
+        // Tablero de sistemas: NO bajo /sistemas, cuya guardia exige roles PLATAFORMA/SEGURIDAD que no existen en el
+        // catálogo (hallazgo H0-05 del trabajo tableros-por-rol); se protege por su permiso, como los otros dos.
+        path: 'tablero/sistemas',
+        canMatch: [requierePermiso('TABLERO_SISTEMAS_VER')],
+        loadComponent: () => import('./rutas/tablero/tablero-por-rol').then((m) => m.TableroPorRol),
+        data: { tipo: 'sistemas' },
+        title: 'Tablero de sistemas · AportaYa',
+      },
+      {
+        // Catálogo de datos (H7): estructura y narrativa de cada tabla; el servidor lo sirve con el mismo permiso (D14).
+        path: 'tablero/catalogo-de-datos',
+        canMatch: [requierePermiso('TABLERO_SISTEMAS_VER')],
+        loadComponent: () => import('./rutas/tablero/catalogo/pantalla-catalogo').then((m) => m.PantallaCatalogo),
+        title: 'Catálogo de datos · AportaYa',
+      },
+      {
+        // CU-130: la edición de la ficha de gobierno en su propia página; el permiso de edición lo exige el servidor también.
+        path: 'tablero/catalogo-de-datos/:tabla/ficha',
+        canMatch: [requierePermiso('CATALOGO_DATOS_EDITAR')],
+        loadComponent: () => import('./rutas/tablero/catalogo/pantalla-de-ficha-de-gobierno').then((m) => m.PantallaDeFichaDeGobierno),
+        title: 'Configurar tabla · AportaYa',
+      },
+      {
+        path: 'tablero/catalogo-de-datos/:tabla',
+        canMatch: [requierePermiso('TABLERO_SISTEMAS_VER')],
+        loadComponent: () => import('./rutas/tablero/catalogo/ficha-de-tabla').then((m) => m.FichaDeTabla),
+        title: 'Ficha de tabla · AportaYa',
+      },
+      {
+        path: 'tablero/comercial',
+        canMatch: [requierePermiso('TABLERO_COMERCIAL_VER')],
+        loadComponent: () => import('./rutas/tablero/tablero-por-rol').then((m) => m.TableroPorRol),
+        data: { tipo: 'comercial' },
+        title: 'Tablero comercial · AportaYa',
+      },
+      {
         path: 'operacion',
         canMatch: [requierePermiso('ver:operacion')],
         loadChildren: () => import('./rutas/operacion/operacion.routes').then((m) => m.rutasOperacion),
@@ -66,6 +110,12 @@ export const routes: Routes = [
         path: 'publicidad',
         canMatch: [requierePermiso('ver:publicidad')],
         loadChildren: () => import('./rutas/publicidad/publicidad.routes').then((m) => m.rutasPublicidad),
+      },
+      {
+        // Carril B · L4: tarifario (CU-34), mensajería (CU-80/83) y reportes (CU-58), de solo lectura.
+        path: 'configuracion',
+        canMatch: [requierePermiso('ver:configuracion')],
+        loadChildren: () => import('./rutas/configuracion/configuracion.routes').then((m) => m.rutasConfiguracion),
       },
     ],
   },

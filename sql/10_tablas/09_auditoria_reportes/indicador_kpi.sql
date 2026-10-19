@@ -22,8 +22,8 @@ CREATE TABLE IF NOT EXISTS auditoria.indicador_kpi (
   CONSTRAINT ck_indicador_kpi_dimension CHECK (dimension IN ('GLOBAL', 'POR_GRUPO', 'POR_ORGANIZADOR'))
 );
 
-COMMENT ON TABLE auditoria.indicador_kpi IS 'Módulo 09 — Auditoría, Reportes y Cumplimiento. [append-only] Poder demostrar todo lo anterior ante un reclamo o un regulador';
-COMMENT ON COLUMN auditoria.indicador_kpi.id IS 'PK';
+COMMENT ON TABLE auditoria.indicador_kpi IS 'Módulo 09 — Auditoría, Reportes y Cumplimiento. [append-only] Los indicadores de negocio de la plataforma, por dimensión y período.';
+COMMENT ON COLUMN auditoria.indicador_kpi.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN auditoria.indicador_kpi.definicion_indicador_id IS 'FK, IDX';
 COMMENT ON COLUMN auditoria.indicador_kpi.codigo IS 'UQ+dimension+dimension_id+periodo+definicion_indicador_id';
 COMMENT ON COLUMN auditoria.indicador_kpi.dimension IS 'CK';

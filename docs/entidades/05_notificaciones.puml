@@ -366,6 +366,29 @@ package "Interaccion y accion directa" {
     + archivar()
   }
 
+  enum TipoAvisoInterno {
+    INFO
+    ALERTA
+    CASO
+    REVISION
+    DESPLIEGUE
+    SISTEMA
+  }
+
+  class AvisoInterno {
+    - id: UUID
+    - usuarioId: UUID
+    - rolDestinatario: String
+    - titulo: String
+    - mensaje: String
+    - tipo: TipoAvisoInterno
+    - enlace: String
+    - leidoEn: DateTime
+    - creadoEn: DateTime
+    --
+    + marcarLeido()
+  }
+
   class ServicioNotificaciones <<Svc>> {
     --
     + emitir(evento, usuario, contexto): Notificacion
@@ -679,6 +702,19 @@ entity "bandeja_entrada" as bandeja {
   leida : BOOLEAN <<IDX>>
   leida_en : TIMESTAMPTZ <<NULL>>
   archivada : BOOLEAN
+}
+
+entity "aviso_interno" as avint {
+  * id : UUID <<PK>>
+  --
+  # usuario_id : UUID <<FK, NULL, IDX>>
+  rol_destinatario : VARCHAR(50) <<NULL, IDX>>
+  titulo : VARCHAR(150)
+  mensaje : TEXT
+  tipo : VARCHAR(20) <<CK: INFO|ALERTA|CASO|REVISION|DESPLIEGUE|SISTEMA>>
+  enlace : VARCHAR(300) <<NULL>>
+  leido_en : TIMESTAMPTZ <<NULL, IDX>>
+  creado_en : TIMESTAMPTZ <<IDX>>
 }
 
 evt ||--o{ plant : "se comunica con"

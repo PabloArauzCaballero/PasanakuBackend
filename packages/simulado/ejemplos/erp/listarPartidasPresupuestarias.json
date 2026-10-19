@@ -1,0 +1,85 @@
+{
+  "servicio": "erp",
+  "operacion": "listarPartidasPresupuestarias",
+  "metodo": "get",
+  "ruta": "/erp/partidas-presupuestarias",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "items": [
+          {
+            "partidaId": "5aeace1e-56ca-4234-8c20-2c2ab1b5b052",
+            "presupuestoId": "3f5f9eba-c588-49e0-8528-58a604e7d89a",
+            "presupuestoNombre": "presupuestoNombre",
+            "estado": "BORRADOR",
+            "centroCostoId": "b3dd2a24-9e22-4a8a-8dff-10ae51ff64ae",
+            "centroCostoNombre": "centroCostoNombre",
+            "cuentaContableId": "5090e58d-c4a9-4d47-86bc-67736153a52d",
+            "periodoContableId": "3b627307-96cc-45c5-8525-1293ed22f18c",
+            "anio": 1,
+            "mes": 1,
+            "fechaInicioPeriodo": "2026-01-15",
+            "montoPresupuestado": {
+              "monto": "4.44",
+              "moneda": "BOB"
+            },
+            "montoEjecutado": {
+              "monto": "4.44",
+              "moneda": "BOB"
+            }
+          }
+        ],
+        "proximoAntesDe": "2026-01-15",
+        "proximoAntesDeId": "bd698ab7-1351-4caf-851c-7a9e8d0bb676"
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "items": [],
+        "proximoAntesDe": "2026-01-15",
+        "proximoAntesDeId": "bd698ab7-1351-4caf-851c-7a9e8d0bb676"
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "items": [
+          {
+            "partidaId": "5aeace1e-56ca-4234-8c20-2c2ab1b5b052",
+            "presupuestoId": "3f5f9eba-c588-49e0-8528-58a604e7d89a",
+            "presupuestoNombre": "presupuestoNombre",
+            "estado": "BORRADOR",
+            "centroCostoId": "b3dd2a24-9e22-4a8a-8dff-10ae51ff64ae",
+            "centroCostoNombre": "centroCostoNombre",
+            "cuentaContableId": "5090e58d-c4a9-4d47-86bc-67736153a52d",
+            "periodoContableId": "3b627307-96cc-45c5-8525-1293ed22f18c",
+            "anio": 1,
+            "mes": 1,
+            "fechaInicioPeriodo": "2026-01-15",
+            "montoPresupuestado": {
+              "monto": "4.44",
+              "moneda": "BOB"
+            },
+            "montoEjecutado": {
+              "monto": "4.44",
+              "moneda": "BOB"
+            }
+          }
+        ],
+        "proximoAntesDe": "2026-01-15",
+        "proximoAntesDeId": "bd698ab7-1351-4caf-851c-7a9e8d0bb676"
+      }
+    },
+    "rechazo": {
+      "estado": 400,
+      "cuerpo": {
+        "codigo": "AP-CU101-04",
+        "mensaje": "Filtro de listado invalido",
+        "detalle": {},
+        "trazaId": "traza-listarPartidasPresupuestarias-rechazo"
+      }
+    }
+  }
+}

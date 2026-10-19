@@ -27,7 +27,7 @@ normas: [ASFI Seguridad de la Información, ASFI control interno, segregación d
 2. Quien otorga tiene `ACCESOS_ADMINISTRAR` y **no es** el destinatario de la
    asignación (`R-SEG-07`, `ck_asignacion_no_autoasignada`). `R-SEG-04` es otra cosa
    —quien autoriza no ejecuta— y confundirlas produce la prueba equivocada.
-3. El destinatario tiene [[usuario]] activo. **Si el rol es de ámbito `GLOBAL`, el
+3. El destinatario tiene [[usuario]] activo y perfil en [[usuario_interno]]. **Si el rol es de ámbito `GLOBAL`, el
    alta no termina en la asignación**: hasta que enrole su [[factor_mfa]] `TOTP` no
    puede abrir sesión, porque `R-SEG-10` no deja insertar la [[sesion]]
    ([[ADR-038 Acceso administrativo · segundo factor y recuperación asistida]]).

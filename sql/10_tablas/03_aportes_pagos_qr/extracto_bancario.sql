@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS aportes.extracto_bancario (
   CONSTRAINT pk_extracto_bancario PRIMARY KEY (id)
 );
 
-COMMENT ON TABLE aportes.extracto_bancario IS 'Módulo 03 — Aportes, Pagos QR y Conciliación. Que "pagué" signifique "el banco lo confirmó"';
-COMMENT ON COLUMN aportes.extracto_bancario.id IS 'PK';
+COMMENT ON TABLE aportes.extracto_bancario IS 'Módulo 03 — Aportes, Pagos QR y Conciliación. El estado de cuenta de un período, importado desde el banco.';
+COMMENT ON COLUMN aportes.extracto_bancario.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN aportes.extracto_bancario.proveedor_id IS 'FK';
 COMMENT ON COLUMN aportes.extracto_bancario.importado_por IS 'FK';

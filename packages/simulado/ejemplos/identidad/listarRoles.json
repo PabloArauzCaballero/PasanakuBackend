@@ -1,0 +1,46 @@
+{
+  "servicio": "identidad",
+  "operacion": "listarRoles",
+  "metodo": "get",
+  "ruta": "/roles",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": [
+        {
+          "id": "4db09f9e-3bac-4b42-861c-d4dc895ceae0",
+          "codigo": "codigo",
+          "nombre": "nombre",
+          "ambito": "ambito",
+          "departamento": "departamento",
+          "descripcion": "descripcion",
+          "esSistema": true,
+          "permisos": [
+            "permisos[0]"
+          ]
+        }
+      ]
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": []
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": [
+        {
+          "id": "4db09f9e-3bac-4b42-861c-d4dc895ceae0",
+          "codigo": "codigo",
+          "nombre": "nombre",
+          "ambito": "ambito",
+          "departamento": "departamento",
+          "descripcion": "descripcion",
+          "esSistema": true,
+          "permisos": [
+            "permisos[0]"
+          ]
+        }
+      ]
+    }
+  }
+}

@@ -17,8 +17,8 @@ CREATE TABLE IF NOT EXISTS garantia.evidencia_incumplimiento (
   CONSTRAINT ck_evidencia_incumplimiento_tipo CHECK (tipo IN ('ACTA_ACUERDO', 'CAPTURA_ESTADO', 'COMUNICACION', 'DOCUMENTO', 'EXTRACTO', 'LOG_SISTEMA'))
 );
 
-COMMENT ON TABLE garantia.evidencia_incumplimiento IS 'Módulo 08 — Garantía, Incumplimiento, Cobranza y Sanciones. El grupo no se detiene, pero la deuda no se perdona sola';
-COMMENT ON COLUMN garantia.evidencia_incumplimiento.id IS 'PK';
+COMMENT ON TABLE garantia.evidencia_incumplimiento IS 'Módulo 08 — Garantía, Incumplimiento, Cobranza y Sanciones. Los respaldos del expediente: captura del estado, extracto, comunicaciones, actas, logs del sistema, documentos.';
+COMMENT ON COLUMN garantia.evidencia_incumplimiento.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN garantia.evidencia_incumplimiento.registro_id IS 'FK, IDX';
 COMMENT ON COLUMN garantia.evidencia_incumplimiento.tipo IS 'CK';
 COMMENT ON COLUMN garantia.evidencia_incumplimiento.url_archivo IS 'NULL';

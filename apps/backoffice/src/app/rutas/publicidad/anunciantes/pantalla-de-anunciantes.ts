@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, PendingTasks, effect, inject, signal, untracked } from '@angular/core'
-import { BandaDeProposito } from '@aportaya/ui/banda-de-proposito/banda-de-proposito'
 import { Boton } from '@aportaya/ui/boton/boton'
+import { CabeceraDePagina } from '@aportaya/ui/cabecera-de-pagina/cabecera-de-pagina'
 import { Dialogo } from '@aportaya/ui/dialogo/dialogo'
 import { Campo } from '@aportaya/ui/campo/campo'
 import { CampoMonto, aCadenaDelContrato } from '@aportaya/ui/campo-monto/campo-monto'
@@ -8,6 +8,7 @@ import { ChipEstado } from '@aportaya/ui/chip-estado/chip-estado'
 import { Monto } from '@aportaya/ui/monto/monto'
 import { Paginacion } from '@aportaya/ui/paginacion/paginacion'
 import { TablaDeDatos, type Columna, type EstadoColeccion, type Orden } from '@aportaya/ui/tabla-de-datos/tabla-de-datos'
+import { ExplicadorDeVista } from '../../../nucleo/explicador-de-vista'
 import { Sesion } from '../../../nucleo/sesion'
 import type { ErrorTraducido } from '../../../nucleo/errores'
 import { accionesDeAnunciante, cargadorDeAnunciantes, type Anunciante } from '../dominio/cu110-anunciantes'
@@ -15,7 +16,7 @@ import { textosPublicidad } from '../textos'
 import { EntradaAnuncianteMonedaEnum, EntradaAnuncianteTipoEnum } from 'clientes/angular/publicidad/model/entradaAnunciante'
 
 const COLUMNAS: Columna<Anunciante>[] = [
-  { clave: 'razonSocialFacturacion', titulo: 'Razón social', ordenable: true },
+  { clave: 'razonSocialFacturacion', titulo: 'Razón social' },
   { clave: 'tipo', titulo: 'Tipo' },
   { clave: 'estado', titulo: 'Estado' },
   { clave: 'limiteGastoMensual', titulo: 'Límite mensual', numerica: true },
@@ -24,29 +25,19 @@ const TAMANO_DE_PAGINA = 50
 
 /**
  * CU-110 · Anunciantes. Migrada al organismo canónico `@aportaya/ui/tabla-de-datos`
- * (PR7 §H4.S1.M2) — antes usaba `TablaDeDatosVirtualizada`. `cargadorDeAnunciantes()` trae
- * la lista completa por HTTP y esta pantalla es quien pagina y ordena en memoria (ya lo
- * hacía así el propio adaptador, ver `dominio/cu110-anunciantes.ts:29-43`).
- *
- * **Petición atrasada (PR7 §H2.S2.M3).** Cambiar de página dispara una nueva petición; si
- * una respuesta anterior llega después de una más nueva, se descarta con un contador de
- * petición — nunca pisa los datos vigentes ni resucita una fila que ya no está. Mientras
- * hay una petición más nueva en vuelo se sigue mostrando la última página válida con
- * `obsoleta: true`, no una tabla vacía parpadeando.
+ * (PR7 §H4.S1.M2) — antes usaba `TablaDeDatosVirtualizada`.
  */
 @Component({
   selector: 'ap-pantalla-de-anunciantes',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [BandaDeProposito, Boton, Dialogo, Campo, CampoMonto, ChipEstado, Monto, TablaDeDatos, Paginacion],
+  imports: [Boton, CabeceraDePagina, Dialogo, Campo, CampoMonto, ChipEstado, Monto, TablaDeDatos, Paginacion],
   template: `
-    <ap-banda-de-proposito [texto]="t.proposito" />
     <section class="pantalla">
-      <header>
-        <h1>{{ t.titulo }}</h1>
+      <ap-cabecera-de-pagina [titulo]="t.titulo" [descripcion]="t.proposito" icono="persona">
         @if (puedeGestionar()) {
-          <ap-boton (pulsado)="abrir()">{{ t.nuevoAnunciante }}</ap-boton>
+          <ap-boton acciones (pulsado)="abrir()">{{ t.nuevoAnunciante }}</ap-boton>
         }
-      </header>
+      </ap-cabecera-de-pagina>
       <ap-tabla-de-datos
         [titulo]="t.titulo"
         [columnas]="COLUMNAS"
@@ -61,13 +52,13 @@ const TAMANO_DE_PAGINA = 50
               {{ a.tipo === 'ORGANIZADOR' ? 'Organizador' : 'Socio comercial' }}
             }
             @case ('estado') {
-              <ap-chip-estado [tono]="a.estado === 'ACTIVA' ? 'ok' : 'neutro'">{{ a.estado === 'ACTIVA' ? 'Activa' : 'Suspendida' }}</ap-chip-estado>
+              <ap-chip-estado [tono]="a.estado === 'ACTIVO' ? 'ok' : a.estado === 'DADO_DE_BAJA' ? 'error' : 'neutro'">{{ textoDeEstado(a) }}</ap-chip-estado>
             }
             @case ('limiteGastoMensual') {
               @if (a.limiteGastoMensual) {
-                <ap-monto [monto]="a.limiteGastoMensual" [moneda]="a.moneda" />
+                <ap-monto [monto]="a.limiteGastoMensual.monto" [moneda]="a.limiteGastoMensual.moneda" [etiqueta]="t.columnaLimite" />
               } @else {
-                Sin límite
+                {{ t.sinLimite }}
               }
             }
             @default {
@@ -88,8 +79,6 @@ const TAMANO_DE_PAGINA = 50
   `,
   styles: `
     .pantalla { padding: var(--s5); max-width: 68rem; display: grid; gap: var(--s4); }
-    header { display: flex; align-items: center; justify-content: space-between; gap: var(--s3); }
-    h1 { margin: 0; }
     .formulario { display: grid; gap: var(--s3); }
   `,
 })
@@ -103,6 +92,7 @@ export class PantallaDeAnunciantes {
   protected readonly tamanoDePagina = TAMANO_DE_PAGINA
   protected readonly identidad = (a: Anunciante) => a.anuncianteId
   protected readonly puedeGestionar = () => this.sesion.puede('PUBLICIDAD_ANUNCIANTES')
+  protected readonly textoDeEstado = (a: Anunciante) => this.t.estados[a.estado]
 
   protected readonly pagina = signal(1)
   protected readonly orden = signal<Orden | null>(null)
@@ -117,6 +107,7 @@ export class PantallaDeAnunciantes {
   protected readonly limite = signal('')
 
   constructor() {
+    inject(ExplicadorDeVista).fijar(this.t.proposito)
     effect(() => {
       const pedido = { pagina: this.pagina(), tamano: this.tamanoDePagina, orden: this.orden(), filtros: {} }
       // `cargar` resuelve por `firstValueFrom` fuera de la petición HTTP misma: sin registrarla
@@ -191,7 +182,7 @@ function aEstadoDeError(error: unknown, idLocal: number): { idPeticion: string; 
   const e = error as Partial<ErrorTraducido> | null
   if (e && typeof e.mensaje === 'string') {
     const motivo = e.estado === 403 ? 'sin-permiso' : e.estado === 404 ? 'no-encontrado' : 'desconocido'
-    return { idPeticion: e.trazaId ?? String(idLocal), motivo, mensaje: e.mensaje }
+    return { idPeticion: e.trazaId ?? String(idLocal), motivo, mensaje: (e.codigo && textosPublicidad.errores[e.codigo]) || e.mensaje }
   }
   return { idPeticion: String(idLocal), motivo: 'desconocido', mensaje: 'No se pudo cargar la lista de anunciantes.' }
 }

@@ -109,6 +109,7 @@ export const ErroresCU58 = {
   TIEMPO_EXCEDIDO:        'AP-CU58-04',
   EXPORTACION_VENCIDA:    'AP-CU58-05',
   TOPE_DESCARGAS:         'AP-CU58-06',
+  FILTRO_DE_LISTADO_INVALIDO: 'AP-CU58-07',
 } as const
 ```
 
@@ -120,6 +121,13 @@ export const ErroresCU58 = {
 | `TIEMPO_EXCEDIDO` | La consulta superó el tiempo máximo y se canceló |
 | `EXPORTACION_VENCIDA` | Se intenta descargar pasado `expira_en` |
 | `TOPE_DESCARGAS` | Se agotaron las descargas permitidas del archivo |
+| `FILTRO_DE_LISTADO_INVALIDO` | El historial recibió un estado desconocido, o el cursor llegó a medias |
+
+**Catálogo e historial para el backoffice (carril A · A6).** `GET /reportes` (`listarDefinicionesDeReporte`)
+devuelve las definiciones **activas** con su `permisoRequerido` y si contienen datos sensibles, sin la
+consulta base; el permiso de cada reporte lo sigue verificando la ejecución. `GET /reportes/ejecuciones`
+(`listarEjecucionesDeReporte`) devuelve quién pidió qué, cuándo, el estado, las filas y el hash, sin
+parámetros ni mensaje de error (pueden llevar datos de una persona). Ambos con `AUDITORIA_LEER`.
 
 ## Descomposición atómica
 
@@ -177,8 +185,17 @@ Entonces esta_cifrado es true y expira_en no es nulo
 Dada una misma ejecución con los mismos parámetros y datos
 Cuando se repite
 Entonces hash_resultado coincide con el de la primera
+
+# Catálogo e historial (backoffice carril A)
+Dada una definición activa y otra inactiva
+Cuando el backoffice lista el catálogo de reportes
+Entonces ve la activa con su permiso requerido y sin la consulta base
+
+Dadas dos ejecuciones completadas y una fallida por permiso
+Cuando el backoffice lista el historial filtrando por COMPLETADA
+Entonces ve las dos completadas, de la más reciente a la más antigua, con su hash
 ```
 
 ## Ver también
 
-[[CU-15 Emitir extracto y certificado de saldo]] · [[CU-43 Remitir los reportes mensuales a la UIF]] · [[CU-45 Atender un requerimiento de autoridad]] · [[CU-98 Publicar el tablero de indicadores]]
+[[CU-15 Emitir extracto y certificado de saldo]] · [[CU-43 Remitir los reportes mensuales a la UIF]] · [[CU-45 Atender un requerimiento de autoridad]] · [[CU-98 Publicar el tablero de indicadores]] · [[CU-130 Gobernar la ficha de cada tabla del catálogo de datos]]

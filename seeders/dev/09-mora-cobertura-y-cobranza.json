@@ -245,7 +245,7 @@
           },
           "origen_tipo": "COBERTURA_INCUMPLIMIENTO",
           "origen_id": {
-            "$sql": "(SELECT id FROM cobertura_incumplimiento LIMIT 1)"
+            "$sql": "(SELECT c.id FROM cobertura_incumplimiento c JOIN fondo_garantia f ON f.id = c.fondo_id JOIN grupo g ON g.id = f.grupo_id WHERE g.codigo_publico = 'GRP-DEMO-01')"
           },
           "canal": "BATCH",
           "clave_idempotencia": "demo-cobertura-p2-04",

@@ -105,6 +105,11 @@ ON CONFLICT (proposito, vigente_desde) DO NOTHING;
 INSERT INTO politica_token (proposito, ttl_segundos, longitud_codigo, max_intentos_validacion, max_reenvios_por_hora, cooldown_reenvio_segundos, max_emisiones_por_dia, canales_permitidos, exige_dispositivo_conocido, invalida_anteriores, vigente_desde) VALUES
   ('REFRESCO_SESION', 43200, 64, 1, 0, 0, 200, 'COOKIE_HTTPONLY', FALSE, FALSE, '2026-01-01T00:00:00-04:00')
 ON CONFLICT (proposito, vigente_desde) DO NOTHING;
+
+-- Firma de contratos dentro de la app con sesión autenticada (clic de aceptación): el token no viaja a ningún buzón, queda como evidencia de quién aceptó qué texto y cuándo. Lo usa el contrato de organizador Aprendiz (CU-90 vía básica).
+INSERT INTO politica_token (proposito, ttl_segundos, longitud_codigo, max_intentos_validacion, max_reenvios_por_hora, cooldown_reenvio_segundos, max_emisiones_por_dia, canales_permitidos, exige_dispositivo_conocido, invalida_anteriores, vigente_desde) VALUES
+  ('FIRMA_CONTRATO', 900, 32, 1, 5, 0, 10, 'APP', FALSE, FALSE, '2026-10-17T00:00:00-04:00')
+ON CONFLICT (proposito, vigente_desde) DO NOTHING;
 SQL_SEMILLA_POLITICA
 # <<< SQL-GENERADO
   local SP; SP="$(printf '%s\n' "$SEMILLA_SQL" | grep -m1 '^SET search_path')"

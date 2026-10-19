@@ -98,7 +98,7 @@ class CU48RechazosTest extends BaseDeCumplimiento {
                 .isEqualTo(1);
 
         transaccion.execute(t -> {
-            reglaCU.activar(new EntradaActivacion(reglaId, oficial.usuarioId(), true, false, "0.0120"), oficial);
+            reglaCU.activar(new EntradaActivacion(reglaId, true, false, "0.0120"), oficial);
             return null;
         });
         assertThat(contar(
@@ -116,7 +116,7 @@ class CU48RechazosTest extends BaseDeCumplimiento {
                 t -> reglaCU.crear(regla("monto_usd >= umbral('PCC01_CARGA')", "ALTA", "SOLO_ALERTAR"), oficial));
 
         assertThatThrownBy(() -> transaccion.execute(t -> {
-                    reglaCU.activar(new EntradaActivacion(reglaId, oficial.usuarioId(), false, false, "0"), oficial);
+                    reglaCU.activar(new EntradaActivacion(reglaId, false, false, "0"), oficial);
                     return null;
                 }))
                 .hasMessageContaining("simulacion previa");

@@ -85,6 +85,7 @@ paths:
   #         evento; el despacho lo hace el consumidor.
   #         AP-CU80-01 SIN_PLANTILLA_APROBADA - AP-CU80-02 CANAL_NO_VERIFICADO
   #         AP-CU80-03 DESTINATARIO_SUPRIMIDO - AP-CU80-04 EVENTO_RESERVADO
+  #         AP-CU80-05 FILTRO_DE_LISTADO_INVALIDO (GET /notificaciones/plantillas)
   #
   #   CU-81 Programar recordatorios — trabajo diario del planificador.
   #         AP-CU81-01 PERIODO_NO_ABIERTO - AP-CU81-02 SIN_PROGRAMACION
@@ -93,9 +94,86 @@ paths:
   #         AP-CU83-01 SIN_PROVEEDOR_PARA_CANAL - AP-CU83-02 ENVIO_YA_PROCESADO
   #         AP-CU83-03 RITMO_EXCEDIDO           - AP-CU83-04 PROVEEDOR_DEGRADADO
   #         AP-CU83-05 AGOTADOS_LOS_REINTENTOS
+  #         AP-CU83-06 FILTRO_DE_LISTADO_INVALIDO (GET /notificaciones/envios)
   #
   # Sus codigos quedan declarados igual: el catalogo de errores es del contrato, no
   # del transporte.
+
+  /notificaciones/plantillas:
+    get:
+      operationId: listarPlantillas             # CU-80 (backoffice carril A · A6)
+      summary: Plantillas de mensaje y sus versiones, de la mas reciente a la mas antigua
+      description: >-
+        Una fila por version de plantilla, con el codigo, el evento, el canal, el estado de
+        aprobacion del proveedor y la vigencia. SIN asunto, cuerpo, botones ni media: la lista dice
+        que plantilla rige, no lo que dice. Sin filtro trae todos los estados de aprobacion. Cursor
+        (vigenteDesde, versionId) descendente. Exige AUDITORIA_LEER.
+      parameters:
+        - name: estados
+          in: query
+          required: false
+          style: form
+          explode: true
+          schema:
+            type: array
+            items: { type: string }
+        - { name: limite, in: query, required: false, schema: { type: integer, minimum: 1, maximum: 100, default: 25 } }
+        - { name: antesDe, in: query, required: false, schema: { type: string, format: date-time } }
+        - { name: antesDeId, in: query, required: false, schema: { type: string, format: uuid } }
+      responses:
+        '200':
+          description: Pagina (vacia si no hay nada)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PaginaDePlantillas' }
+        '422':
+          # AP-CU80-05
+          $ref: '#/components/responses/ReglaDeNegocio'
+        '403':
+          description: Sin AUDITORIA_LEER
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+
+  /notificaciones/envios:
+    get:
+      operationId: listarEnvios                 # CU-83 (backoffice carril A · A6)
+      summary: Intentos de envio y su estado de entrega, del mas reciente al mas antiguo
+      description: >-
+        Auditoria operativa de la mensajeria: estado, intentos, proveedor, costo con su moneda y el
+        ultimo acuse del proveedor. SIN destinatario, contenido enviado, identificador del mensaje en
+        el proveedor ni carga cruda del acuse: telefono y correo son datos personales (regla 90.2).
+        Sin filtro trae todos los estados. Cursor (encoladoEn, id) descendente. Exige AUDITORIA_LEER.
+      parameters:
+        - name: estados
+          in: query
+          required: false
+          style: form
+          explode: true
+          schema:
+            type: array
+            items: { type: string }
+        - { name: limite, in: query, required: false, schema: { type: integer, minimum: 1, maximum: 100, default: 25 } }
+        - { name: antesDe, in: query, required: false, schema: { type: string, format: date-time } }
+        - { name: antesDeId, in: query, required: false, schema: { type: string, format: uuid } }
+      responses:
+        '200':
+          description: Pagina (vacia si no hay nada)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PaginaDeEnvios' }
+        '422':
+          # AP-CU83-06
+          $ref: '#/components/responses/ReglaDeNegocio'
+        '403':
+          description: Sin AUDITORIA_LEER
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
 
   /notificaciones/supresion/consultas:
     post:
@@ -159,6 +237,81 @@ paths:
             application/json:
               schema: { $ref: '#/components/schemas/Supresion' }
 
+  /notificaciones/avisos-internos:
+    get:
+      operationId: consultarAvisosInternos
+      summary: Consulta los avisos internos dirigidos al operador o a sus roles
+      description: Devuelve la lista de avisos con el conteo total de no leídos
+      parameters:
+        - name: soloNoLeidos
+          in: query
+          required: false
+          schema: { type: boolean, default: false }
+        - name: limite
+          in: query
+          required: false
+          schema: { type: integer, minimum: 1, maximum: 100, default: 20 }
+      responses:
+        '200':
+          description: Pagina de avisos internos
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PaginaDeAvisosInternos' }
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+    post:
+      operationId: emitirAvisoInterno
+      summary: Emite un aviso interno para operadores
+      description: Crea un registro de aviso dirigido a un operador o a un rol
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaAvisoInterno' }
+      responses:
+        '201':
+          description: Aviso creado exitosamente
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AvisoInterno' }
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+
+  /notificaciones/avisos-internos/{id}/leido:
+    post:
+      operationId: marcarAvisoLeido
+      summary: Marca un aviso interno como leído
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: Aviso marcado como leído
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AvisoInterno' }
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '404':
+          description: Aviso no encontrado
+
+  /notificaciones/avisos-internos/marcar-todos-leidos:
+    post:
+      operationId: marcarTodosAvisosLeidos
+      summary: Marca todos los avisos no leídos como leídos para el operador
+      responses:
+        '200':
+          description: Cantidad de avisos actualizados
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaMarcarTodosLeidos' }
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+
 components:
   parameters:
     ClaveIdempotencia:
@@ -209,6 +362,82 @@ components:
           enum: [PAGO_CONFIRMADO, COMPROBANTE_SOLICITADO, PROMESA_REGISTRADA,
                  SUPRESION_APLICADA, RECLAMO_ABIERTO, TICKET_ABIERTO]
         referenciaId: { type: string, format: uuid, nullable: true }
+    PaginaDePlantillas:
+      type: object
+      additionalProperties: false
+      required: [items]
+      properties:
+        items:
+          type: array
+          items: { $ref: '#/components/schemas/PlantillaEnLista' }
+        proximoAntesDe: { type: string, format: date-time }
+        proximoAntesDeId: { type: string, format: uuid }
+    PlantillaEnLista:
+      type: object
+      additionalProperties: false
+      required: [plantillaId, codigo, evento, canal, categoriaProveedor, estadoAprobacion, activa,
+                 versionId, version, idioma, vigenteDesde]
+      properties:
+        plantillaId: { type: string, format: uuid }
+        codigo: { type: string }
+        evento: { type: string, description: Tipo del evento_notificable que la usa }
+        canal: { type: string, enum: [CORREO, IN_APP, LLAMADA_VOZ, PUSH, SMS, WHATSAPP] }
+        categoriaProveedor: { type: string, enum: [AUTHENTICATION, MARKETING, UTILITY] }
+        estadoAprobacion: { type: string, enum: [APROBADA, BORRADOR, ENVIADA, PAUSADA, RECHAZADA] }
+        activa: { type: boolean }
+        versionId: { type: string, format: uuid }
+        version: { type: integer }
+        idioma: { type: string }
+        vigenteDesde: { type: string, format: date-time }
+        vigenteHasta: { type: string, format: date-time }
+    PaginaDeEnvios:
+      type: object
+      additionalProperties: false
+      required: [items]
+      properties:
+        items:
+          type: array
+          items: { $ref: '#/components/schemas/EnvioEnLista' }
+        proximoAntesDe: { type: string, format: date-time }
+        proximoAntesDeId: { type: string, format: uuid }
+    EnvioEnLista:
+      type: object
+      additionalProperties: false
+      required: [envioId, notificacionId, proveedorId, proveedor, versionPlantillaId, canal, estado,
+                 orden, intentos, maxIntentos, costo, moneda, encoladoEn]
+      properties:
+        envioId: { type: string, format: uuid }
+        notificacionId: { type: string, format: uuid }
+        proveedorId: { type: string, format: uuid }
+        proveedor: { type: string, description: Codigo del proveedor de mensajeria }
+        versionPlantillaId: { type: string, format: uuid }
+        canal: { type: string, enum: [CORREO, IN_APP, LLAMADA_VOZ, PUSH, SMS, WHATSAPP] }
+        estado:
+          type: string
+          enum: [ACEPTADO_POR_PROVEEDOR, ENTREGADO, ENVIADO, EXPIRADO, FALLIDO, LEIDO, PENDIENTE, RECHAZADO]
+        orden: { type: integer }
+        intentos: { type: integer }
+        maxIntentos: { type: integer }
+        costo:
+          type: string
+          pattern: '^\d+\.\d{4}$'     # CADENA con la escala de la columna (NUMERIC(10,4))
+        moneda: { type: string, pattern: '^[A-Z]{3}$', description: ISO-4217 de la columna CHAR(3) }
+        codigoError: { type: string }
+        encoladoEn: { type: string, format: date-time }
+        enviadoEn: { type: string, format: date-time }
+        entregadoEn: { type: string, format: date-time }
+        leidoEn: { type: string, format: date-time }
+        proximoReintentoEn: { type: string, format: date-time }
+        ultimoAcuse: { $ref: '#/components/schemas/AcuseDeEntrega' }
+    AcuseDeEntrega:
+      type: object
+      additionalProperties: false
+      required: [tipoEvento, fechaHoraProveedor, recibidoEn]
+      properties:
+        tipoEvento: { type: string, enum: [ENTREGADO, ENVIADO, EXPIRADO, FALLIDO, LEIDO, RECHAZADO] }
+        fechaHoraProveedor: { type: string, format: date-time }
+        recibidoEn: { type: string, format: date-time }
+        codigoError: { type: string }
     Dinero:
       type: object
       additionalProperties: false
@@ -250,6 +479,47 @@ components:
         canales:
           type: array
           items: { type: string, enum: [IN_APP, PUSH, CORREO] }
+
+    AvisoInterno:
+      type: object
+      required: [id, titulo, mensaje, tipo, creadoEn]
+      properties:
+        id: { type: string, format: uuid }
+        usuarioId: { type: string, format: uuid, nullable: true }
+        rolDestinatario: { type: string, nullable: true }
+        titulo: { type: string }
+        mensaje: { type: string }
+        tipo: { type: string, enum: [INFO, ALERTA, CASO, REVISION, DESPLIEGUE, SISTEMA] }
+        enlace: { type: string, nullable: true }
+        leidoEn: { type: string, format: date-time, nullable: true }
+        creadoEn: { type: string, format: date-time }
+
+    PaginaDeAvisosInternos:
+      type: object
+      required: [totalNoLeidos, elementos]
+      properties:
+        totalNoLeidos: { type: integer }
+        elementos:
+          type: array
+          items: { $ref: '#/components/schemas/AvisoInterno' }
+
+    EntradaAvisoInterno:
+      type: object
+      required: [titulo, mensaje, tipo]
+      properties:
+        usuarioId: { type: string, format: uuid, nullable: true }
+        rolDestinatario: { type: string, nullable: true }
+        titulo: { type: string }
+        mensaje: { type: string }
+        tipo: { type: string, enum: [INFO, ALERTA, CASO, REVISION, DESPLIEGUE, SISTEMA] }
+        enlace: { type: string, nullable: true }
+
+    SalidaMarcarTodosLeidos:
+      type: object
+      required: [modificados]
+      properties:
+        modificados: { type: integer }
+
   responses:
     ReglaDeNegocio:
       description: Regla de negocio de la aplicacion (422, no 400)

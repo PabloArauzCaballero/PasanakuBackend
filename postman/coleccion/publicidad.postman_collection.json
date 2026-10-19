@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "AportaYa · publicidad",
-    "description": "# AportaYa · publicidad\n\nGenerado por `scripts/generar_postman.py` desde `servicios/*/src/main/resources/openapi/`.\n**No se edita a mano**: la proxima generacion lo pisa, y una coleccion editada a mano\nprueba una API que ya no existe.\n\n**14 operaciones.** Cada peticion trae su cuerpo de ejemplo derivado del\nesquema, la clave de idempotencia donde el contrato la exige, el permiso que pide\n—leido de los `@Permiso` del codigo— y los rechazos `AP-CU` que declara.\n\nElegi un entorno de `postman/entornos/` antes de disparar nada.\n",
+    "description": "# AportaYa · publicidad\n\nGenerado por `scripts/generar_postman.py` desde `servicios/*/src/main/resources/openapi/`.\n**No se edita a mano**: la proxima generacion lo pisa, y una coleccion editada a mano\nprueba una API que ya no existe.\n\n**17 operaciones.** Cada peticion trae su cuerpo de ejemplo derivado del\nesquema, la clave de idempotencia donde el contrato la exige, el permiso que pide\n—leido de los `@Permiso` del codigo— y los rechazos `AP-CU` que declara.\n\nElegi un entorno de `postman/entornos/` antes de disparar nada.\n",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
@@ -169,6 +169,98 @@
       ]
     },
     {
+      "name": "listarAnunciantes · Anunciantes con su cuenta publicitaria, del mas nuevo al mas viejo",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}{{prefijo_api}}/publicidad/anunciantes",
+          "host": [
+            "{{base_url}}{{prefijo_api}}"
+          ],
+          "path": [
+            "publicidad",
+            "anunciantes"
+          ],
+          "variable": [],
+          "query": [
+            {
+              "key": "estados",
+              "value": "['ACTIVO']",
+              "description": "Sin filtro, todos.",
+              "disabled": true
+            },
+            {
+              "key": "limite",
+              "value": "1",
+              "description": "",
+              "disabled": true
+            },
+            {
+              "key": "despuesDeFecha",
+              "value": "{{momento_ahora}}",
+              "description": "",
+              "disabled": true
+            },
+            {
+              "key": "despuesDeId",
+              "value": "{{despuesDeId}}",
+              "description": "",
+              "disabled": true
+            }
+          ]
+        },
+        "description": "## Anunciantes con su cuenta publicitaria, del mas nuevo al mas viejo\n\nPara la pantalla publicidad/anunciantes. Cursor (creadoEn, id) descendente. Trae la razon social de facturacion (dato comercial que la pantalla necesita) y la cuenta publicitaria con su limite; no trae datos personales del organizador ni del socio. Exige PUBLICIDAD_ANUNCIANTES.\n\n| | |\n| --- | --- |\n| **Servicio** | `publicidad` |\n| **Operacion** | `listarAnunciantes` |\n| **Ruta** | `GET /api/v1/publicidad/anunciantes` |\n| **Permiso** | `PUBLICIDAD_ANUNCIANTES` |\n| **Respuestas** | `200`, `422`, `403`, `401` |\n\n### Rechazos que declara el contrato\n\n| Codigo | Motivo |\n| --- | --- |\n| `AP-CU110-04` | Filtro de listado invalido |\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos."
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// Lo que se le exige a TODA respuesta del sistema, sin excepcion.",
+              "const esperadas = [200, 401, 403, 422];",
+              "",
+              "pm.test(\"responde con un codigo que el contrato declara\", () => {",
+              "    pm.expect(esperadas).to.include(pm.response.code);",
+              "});",
+              "",
+              "pm.test(\"no filtra la traza al cliente\", () => {",
+              "    const cuerpo = pm.response.text();",
+              "    // Un stack trace en la respuesta le cuenta al atacante como esta hecho el",
+              "    // servidor. Es una de las dieciocho prohibiciones del contrato.",
+              "    pm.expect(cuerpo).to.not.match(/at bo\\.aportaya\\./);",
+              "    pm.expect(cuerpo).to.not.include(\"java.lang.\");",
+              "});",
+              "",
+              "if (pm.response.code === 422) {",
+              "    pm.test(\"el rechazo trae su codigo AP-CU\", () => {",
+              "        pm.expect(pm.response.json()).to.have.property(\"codigo\").that.matches(/^AP-CU\\d+-\\d+$/);",
+              "    });",
+              "}",
+              "",
+              "// Encadena: lo que devuelve esta peticion queda disponible para la siguiente.",
+              "if (pm.response.code < 300) {",
+              "    const cuerpo = pm.response.json();",
+              "    for (const [clave, valor] of Object.entries(cuerpo || {})) {",
+              "        if (typeof valor === \"string\" && /^[0-9a-f]{8}-[0-9a-f]{4}-/i.test(valor)) {",
+              "            pm.collectionVariables.set(clave, valor);",
+              "        }",
+              "    }",
+              "}",
+              ""
+            ]
+          }
+        }
+      ]
+    },
+    {
       "name": "darDeAltaAnunciante · CU-110 · Da de alta el anunciante y abre su cuenta publicitaria",
       "request": {
         "method": "POST",
@@ -253,6 +345,98 @@
       ]
     },
     {
+      "name": "listarCampanas · Campanas, la que empieza antes primero",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}{{prefijo_api}}/publicidad/campanas",
+          "host": [
+            "{{base_url}}{{prefijo_api}}"
+          ],
+          "path": [
+            "publicidad",
+            "campanas"
+          ],
+          "variable": [],
+          "query": [
+            {
+              "key": "estados",
+              "value": "['BORRADOR']",
+              "description": "Sin filtro, EN_REVISION.",
+              "disabled": true
+            },
+            {
+              "key": "limite",
+              "value": "1",
+              "description": "",
+              "disabled": true
+            },
+            {
+              "key": "despuesDeFecha",
+              "value": "{{momento_ahora}}",
+              "description": "",
+              "disabled": true
+            },
+            {
+              "key": "despuesDeId",
+              "value": "{{despuesDeId}}",
+              "description": "",
+              "disabled": true
+            }
+          ]
+        },
+        "description": "## Campanas, la que empieza antes primero\n\nCola de aprobacion de publicidad/campanas. Sin estados devuelve EN_REVISION. Cursor (fechaInicio, id). Importes como Dinero con su moneda. Exige PUBLICIDAD_APROBAR_CAMPANA: es la vista de Operaciones, no la del anunciante.\n\n| | |\n| --- | --- |\n| **Servicio** | `publicidad` |\n| **Operacion** | `listarCampanas` |\n| **Ruta** | `GET /api/v1/publicidad/campanas` |\n| **Permiso** | `PUBLICIDAD_APROBAR_CAMPANA` |\n| **Respuestas** | `200`, `422`, `403`, `401` |\n\n### Rechazos que declara el contrato\n\n| Codigo | Motivo |\n| --- | --- |\n| `AP-CU111-04` | Filtro de listado invalido |\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos."
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// Lo que se le exige a TODA respuesta del sistema, sin excepcion.",
+              "const esperadas = [200, 401, 403, 422];",
+              "",
+              "pm.test(\"responde con un codigo que el contrato declara\", () => {",
+              "    pm.expect(esperadas).to.include(pm.response.code);",
+              "});",
+              "",
+              "pm.test(\"no filtra la traza al cliente\", () => {",
+              "    const cuerpo = pm.response.text();",
+              "    // Un stack trace en la respuesta le cuenta al atacante como esta hecho el",
+              "    // servidor. Es una de las dieciocho prohibiciones del contrato.",
+              "    pm.expect(cuerpo).to.not.match(/at bo\\.aportaya\\./);",
+              "    pm.expect(cuerpo).to.not.include(\"java.lang.\");",
+              "});",
+              "",
+              "if (pm.response.code === 422) {",
+              "    pm.test(\"el rechazo trae su codigo AP-CU\", () => {",
+              "        pm.expect(pm.response.json()).to.have.property(\"codigo\").that.matches(/^AP-CU\\d+-\\d+$/);",
+              "    });",
+              "}",
+              "",
+              "// Encadena: lo que devuelve esta peticion queda disponible para la siguiente.",
+              "if (pm.response.code < 300) {",
+              "    const cuerpo = pm.response.json();",
+              "    for (const [clave, valor] of Object.entries(cuerpo || {})) {",
+              "        if (typeof valor === \"string\" && /^[0-9a-f]{8}-[0-9a-f]{4}-/i.test(valor)) {",
+              "            pm.collectionVariables.set(clave, valor);",
+              "        }",
+              "    }",
+              "}",
+              ""
+            ]
+          }
+        }
+      ]
+    },
+    {
       "name": "crearCampana · CU-111 · Crea la campana con sus conjuntos y la manda a revision",
       "request": {
         "method": "POST",
@@ -282,7 +466,7 @@
           ],
           "variable": []
         },
-        "description": "## CU-111 · Crea la campana con sus conjuntos y la manda a revision\n\nExige PUBLICIDAD_APROBAR_CAMPANA para el anunciante autenticado.\n\n| | |\n| --- | --- |\n| **Servicio** | `publicidad` |\n| **Operacion** | `crearCampana` |\n| **Ruta** | `POST /api/v1/publicidad/campanas` |\n| **Permiso** | `PUBLICIDAD_CAMPANA_GESTIONAR` |\n| **Idempotencia** | exige `Idempotency-Key`; se manda un `{{$guid}}` nuevo por intento |\n| **Respuestas** | `201`, `422` |\n\n### Rechazos que declara el contrato\n\n_El contrato no declara rechazos de negocio para esta operacion._\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos.",
+        "description": "## CU-111 · Crea la campana con sus conjuntos y la manda a revision\n\nExige PUBLICIDAD_CAMPANA_GESTIONAR para el anunciante autenticado (el mismo permiso que declara el codigo).\n\n| | |\n| --- | --- |\n| **Servicio** | `publicidad` |\n| **Operacion** | `crearCampana` |\n| **Ruta** | `POST /api/v1/publicidad/campanas` |\n| **Permiso** | `PUBLICIDAD_CAMPANA_GESTIONAR` |\n| **Idempotencia** | exige `Idempotency-Key`; se manda un `{{$guid}}` nuevo por intento |\n| **Respuestas** | `201`, `422` |\n\n### Rechazos que declara el contrato\n\n_El contrato no declara rechazos de negocio para esta operacion._\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos.",
         "body": {
           "mode": "raw",
           "raw": "{\n  \"cuentaPublicitariaId\": \"{{cuentaPublicitariaId}}\",\n  \"nombre\": \"nombre-de-prueba\",\n  \"objetivo\": \"VISIBILIDAD_MARCA\",\n  \"presupuestoTotal\": \"100.00\",\n  \"moneda\": \"BOB\",\n  \"fechaInicio\": \"{{momento_ahora}}\",\n  \"fechaFin\": \"{{momento_ahora}}\",\n  \"conjuntos\": [\n    {\n      \"segmentoAudienciaId\": \"{{segmentoAudienciaId}}\",\n      \"espacioPublicitarioId\": \"{{espacioPublicitarioId}}\",\n      \"nombre\": \"nombre-de-prueba\",\n      \"presupuestoDiario\": \"100.00\",\n      \"pujaMaxima\": \"100.00\",\n      \"modeloPuja\": \"CPM\"\n    }\n  ]\n}",
@@ -473,6 +657,98 @@
             "exec": [
               "// Lo que se le exige a TODA respuesta del sistema, sin excepcion.",
               "const esperadas = [200, 422];",
+              "",
+              "pm.test(\"responde con un codigo que el contrato declara\", () => {",
+              "    pm.expect(esperadas).to.include(pm.response.code);",
+              "});",
+              "",
+              "pm.test(\"no filtra la traza al cliente\", () => {",
+              "    const cuerpo = pm.response.text();",
+              "    // Un stack trace en la respuesta le cuenta al atacante como esta hecho el",
+              "    // servidor. Es una de las dieciocho prohibiciones del contrato.",
+              "    pm.expect(cuerpo).to.not.match(/at bo\\.aportaya\\./);",
+              "    pm.expect(cuerpo).to.not.include(\"java.lang.\");",
+              "});",
+              "",
+              "if (pm.response.code === 422) {",
+              "    pm.test(\"el rechazo trae su codigo AP-CU\", () => {",
+              "        pm.expect(pm.response.json()).to.have.property(\"codigo\").that.matches(/^AP-CU\\d+-\\d+$/);",
+              "    });",
+              "}",
+              "",
+              "// Encadena: lo que devuelve esta peticion queda disponible para la siguiente.",
+              "if (pm.response.code < 300) {",
+              "    const cuerpo = pm.response.json();",
+              "    for (const [clave, valor] of Object.entries(cuerpo || {})) {",
+              "        if (typeof valor === \"string\" && /^[0-9a-f]{8}-[0-9a-f]{4}-/i.test(valor)) {",
+              "            pm.collectionVariables.set(clave, valor);",
+              "        }",
+              "    }",
+              "}",
+              ""
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "listarPiezasCreativas · Cola de moderacion de piezas creativas, la mas antigua primero",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}{{prefijo_api}}/publicidad/piezas-creativas",
+          "host": [
+            "{{base_url}}{{prefijo_api}}"
+          ],
+          "path": [
+            "publicidad",
+            "piezas-creativas"
+          ],
+          "variable": [],
+          "query": [
+            {
+              "key": "estadoModeracion",
+              "value": "PENDIENTE",
+              "description": "Sin filtro, PENDIENTE.",
+              "disabled": true
+            },
+            {
+              "key": "limite",
+              "value": "1",
+              "description": "",
+              "disabled": true
+            },
+            {
+              "key": "despuesDeFecha",
+              "value": "{{momento_ahora}}",
+              "description": "",
+              "disabled": true
+            },
+            {
+              "key": "despuesDeId",
+              "value": "{{despuesDeId}}",
+              "description": "",
+              "disabled": true
+            }
+          ]
+        },
+        "description": "## Cola de moderacion de piezas creativas, la mas antigua primero\n\nPara publicidad/moderacion. Sin estadoModeracion devuelve PENDIENTE. Cursor (creadaEn, id). Quien subio la pieza no la puede moderar (R-PUB-05): lo vuelve a exigir moderarPiezaCreativa. Exige PUBLICIDAD_MODERAR.\n\n| | |\n| --- | --- |\n| **Servicio** | `publicidad` |\n| **Operacion** | `listarPiezasCreativas` |\n| **Ruta** | `GET /api/v1/publicidad/piezas-creativas` |\n| **Permiso** | `PUBLICIDAD_MODERAR` |\n| **Respuestas** | `200`, `422`, `403`, `401` |\n\n### Rechazos que declara el contrato\n\n| Codigo | Motivo |\n| --- | --- |\n| `AP-CU112-04` | Filtro de listado invalido |\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos."
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// Lo que se le exige a TODA respuesta del sistema, sin excepcion.",
+              "const esperadas = [200, 401, 403, 422];",
               "",
               "pm.test(\"responde con un codigo que el contrato declara\", () => {",
               "    pm.expect(esperadas).to.include(pm.response.code);",
@@ -1243,6 +1519,10 @@
     },
     {
       "key": "cuentaPublicitariaId",
+      "value": ""
+    },
+    {
+      "key": "despuesDeId",
       "value": ""
     },
     {

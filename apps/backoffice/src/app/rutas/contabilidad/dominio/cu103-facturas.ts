@@ -4,14 +4,14 @@ import type { Observable } from 'rxjs'
 import { GATEWAY } from '../../../nucleo/gateway'
 import type { CargadorDePagina } from '../../../nucleo/tabla/tipos'
 import { aCentavos } from './cu101-presupuestos'
-import { cargadorDeLista, contextoConClave, filtroPorEstado, type Importe, type Moneda } from './contrato-erp'
+import { cargadorErpPorCursor, contextoConClave, type Importe, type Moneda } from './contrato-erp'
 
 /**
  * CU-103 · Registrar y pagar una factura de proveedor.
  *
  * Contrato real: `POST /erp/facturas-de-proveedor` (`registrarFacturaDeProveedor`) y
- * `POST /erp/facturas-de-proveedor/{facturaId}/pagos` (`pagarFacturaDeProveedor`). El
- * listado no existe todavía (hueco declarado en `contrato-erp.ts`).
+ * `POST /erp/facturas-de-proveedor/{facturaId}/pagos` (`pagarFacturaDeProveedor`), y el
+ * listado `GET /erp/facturas-de-proveedor` (`listarFacturasDeProveedor`, cursor (fechaEmision, id) descendente).
  *
  * **Segregación de funciones (`R-CTB-05`, `AP-CU103-02`).** Quien aprobó la factura no
  * puede autorizar su pago. La regla vive acá y la pantalla la consulta: el 422 del
@@ -20,9 +20,11 @@ import { cargadorDeLista, contextoConClave, filtroPorEstado, type Importe, type 
 export type EstadoFactura = 'REGISTRADA' | 'APROBADA' | 'PAGADA_PARCIAL' | 'PAGADA' | 'ANULADA'
 export type FormaDePago = 'TRANSFERENCIA' | 'CHEQUE' | 'EFECTIVO'
 
+/** `FacturaEnLista` de `erp.yaml`. El contrato NO expone quién aprobó: solo `aprobadaPorLaSesion`. */
 export type FacturaDeProveedor = {
   facturaProveedorId: string
   numeroFactura: string
+  terceroComercialId: string
   terceroRazonSocial: string
   ordenCompraId: string | null
   fechaEmision: string
@@ -31,7 +33,6 @@ export type FacturaDeProveedor = {
   monto: Importe
   montoPagado: Importe
   saldoPendiente: Importe
-  aprobadaPor: string | null
   /**
    * Lo resuelve el BACKEND contra la sesión: cierto si esta misma cuenta aprobó la
    * factura. No se compara en el cliente porque el cliente no tiene —ni debe tener— la
@@ -83,15 +84,9 @@ export function vencida(factura: FacturaDeProveedor, hoyIso: string): boolean {
   return factura.fechaVencimiento < hoyIso.slice(0, 10) && aCentavos(factura.saldoPendiente.monto) > 0
 }
 
-/** Las facturas de proveedor, para la tabla. Pedido pendiente: `GET /erp/facturas-de-proveedor`. */
+/** Las facturas de proveedor, para la tabla: `GET /erp/facturas-de-proveedor` por cursor, de la emisión más reciente. */
 export function cargadorDeFacturas(): CargadorDePagina<FacturaDeProveedor> {
-  const gateway = inject(GATEWAY)
-  return cargadorDeLista<FacturaDeProveedor>(
-    inject(HttpClient),
-    `${gateway}/erp/facturas-de-proveedor`,
-    filtroPorEstado,
-    (a, b) => a.fechaVencimiento.localeCompare(b.fechaVencimiento),
-  )
+  return cargadorErpPorCursor<FacturaDeProveedor>(inject(HttpClient), `${inject(GATEWAY)}/erp/facturas-de-proveedor`)
 }
 
 /** `POST /erp/facturas-de-proveedor/{facturaId}/pagos`, con clave nueva por intento. */

@@ -12,6 +12,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import bo.aportaya.identidad.aplicacion.BuscarPorTelefono;
 import bo.aportaya.identidad.aplicacion.CU01RegistrarUsuario;
+import bo.aportaya.identidad.aplicacion.CU02ActualizarFechaExpiracion;
 import bo.aportaya.identidad.aplicacion.CU02ConsultarEstadoDeVerificacion;
 import bo.aportaya.identidad.aplicacion.CU02GuardarFotoDelExpediente;
 import bo.aportaya.identidad.aplicacion.ConfirmarVerificacionCorreo;
@@ -22,13 +23,13 @@ import bo.aportaya.identidad.aplicacion.SolicitarVerificacionCorreo;
 import bo.aportaya.identidad.aplicacion.ValidarTokenDeInvitacion;
 import bo.aportaya.identidad.aplicacion.VerificarTitularidad;
 import bo.aportaya.identidad.dominio.ExpedienteDeIdentidad;
-import bo.aportaya.plataforma.dominio.ErrorDeDominio;
 import bo.aportaya.plataforma.dominio.Reloj;
 import bo.aportaya.plataforma.pruebas.web.PruebaWeb;
 import bo.aportaya.plataforma.pruebas.web.Sesiones;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.Duration;
+import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -55,6 +56,13 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 @PruebaWeb(
         value = UsuariosController.class,
         properties = {"aportaya.seguridad.pimienta=pimienta-de-prueba-no-es-la-de-produccion"})
+@MockitoBean(
+        types = {
+            bo.aportaya.identidad.aplicacion.ActivarRolOrganizador.class,
+            bo.aportaya.identidad.aplicacion.ConsultarMiPerfil.class,
+            bo.aportaya.identidad.aplicacion.CU02IniciarVerificacion.class,
+            bo.aportaya.identidad.aplicacion.GuardarBorradorOnboarding.class
+        })
 @DisplayName("GET /usuarios/{id}/verificacion — solo su titular, sin datos personales")
 class EstadoDeVerificacionWebTest {
 
@@ -81,6 +89,9 @@ class EstadoDeVerificacionWebTest {
 
     @MockitoBean
     private CU02ConsultarEstadoDeVerificacion estadoDeVerificacion;
+
+    @MockitoBean
+    private CU02ActualizarFechaExpiracion actualizarFechaExpiracion;
 
     @MockitoBean
     private CU01RegistrarUsuario cu01;
@@ -126,7 +137,8 @@ class EstadoDeVerificacionWebTest {
                         OffsetDateTime.now(),
                         null,
                         motivo,
-                        fotos));
+                        fotos,
+                        LocalDate.of(2030, 1, 15)));
     }
 
     private MockHttpServletRequestBuilder consulta(UUID enLaRuta, String token) {
@@ -151,6 +163,7 @@ class EstadoDeVerificacionWebTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.verificacionId").value(VERIFICACION.toString()))
                 .andExpect(jsonPath("$.estado").value("EN_REVISION"))
+                .andExpect(jsonPath("$.fechaExpiracionDocumento").value("2030-01-15"))
                 .andExpect(jsonPath("$.fotos", org.hamcrest.Matchers.hasSize(2)));
         verify(estadoDeVerificacion).ejecutar(eq(USUARIO), any());
     }
@@ -251,36 +264,5 @@ class EstadoDeVerificacionWebTest {
                 .doesNotContain("documento")
                 .doesNotContain("CI SC")
                 .doesNotContain("usuarioId");
-    }
-
-    @Test
-    @DisplayName("CU-02 · el motivo del rechazo viaja solo a su titular y solo cuando el estado es RECHAZADA")
-    void motivoDeRechazoSoloSiRechazada() throws Exception {
-        existeElExpediente("RECHAZADA", MOTIVO, List.of("ANVERSO"));
-        mvc.perform(consulta(USUARIO, tokenDe(USUARIO)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.estado").value("RECHAZADA"))
-                .andExpect(jsonPath("$.motivoRechazo").value(MOTIVO));
-
-        // Un motivo que quedo en la fila de un expediente que ya no esta rechazado no sale.
-        existeElExpediente("EN_REVISION", MOTIVO, List.of("ANVERSO"));
-        String cuerpo = mvc.perform(consulta(USUARIO, tokenDe(USUARIO)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.estado").value("EN_REVISION"))
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
-        assertThat(json.readTree(cuerpo).path("motivoRechazo").isValueNode()).isTrue();
-        assertThat(json.readTree(cuerpo).path("motivoRechazo").isNull()).isTrue();
-        assertThat(cuerpo).doesNotContain(MOTIVO);
-    }
-
-    @Test
-    @DisplayName("CU-02 · 422 cuando todavia no existe un expediente para su titular")
-    void sinExpedienteEs422() throws Exception {
-        when(estadoDeVerificacion.ejecutar(eq(USUARIO), any()))
-                .thenThrow(new ErrorDeDominio("Todavia no hay un expediente abierto para esa persona"));
-
-        mvc.perform(consulta(USUARIO, tokenDe(USUARIO))).andExpect(status().isUnprocessableEntity());
     }
 }

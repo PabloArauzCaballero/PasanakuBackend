@@ -71,6 +71,7 @@ export const ErroresCU56 = {
   SIN_ACTA_DE_COMITE: 'AP-CU56-01',
   OBJETIVOS_NO_ALCANZADOS: 'AP-CU56-02',
   PLAN_INEXISTENTE: 'AP-CU56-03',
+  FILTRO_DE_LISTADO_INVALIDO: 'AP-CU56-04',
 } as const
 ```
 
@@ -79,6 +80,15 @@ export const ErroresCU56 = {
 | `SIN_ACTA_DE_COMITE` | Una prueba exitosa exige acta que la reporte |
 | `OBJETIVOS_NO_ALCANZADOS` | El RTO obtenido supera el comprometido |
 | `PLAN_INEXISTENTE` | El proceso crítico no tiene plan: es un hallazgo |
+| `FILTRO_DE_LISTADO_INVALIDO` | La cola recibió `antesDe` sin `antesDeId` (o al revés) |
+
+**Cola del backoffice (carril A · H9).** `GET /cumplimiento/continuidad/pruebas` (`listarPruebasDeContinuidad`, el rol RESPONSABLE_RIESGOS, con `AUDITORIA_LEER` como
+alternativa) pagina por cursor de la más reciente a la más antigua y devuelve tipo, RTO y RPO obtenidos y resultado; sin hallazgos ni evidencia.
+
+**Registro desde el backoffice (carril A · H9).** `POST /cumplimiento/continuidad/pruebas`
+(`registrarPruebaDeContinuidad`, rol `RESPONSABLE_RIESGOS`, `Idempotency-Key`). `ejecutadaPor` es el dato
+que se registra (quién de TI ejecutó), no el actor de la petición. La misma prueba (plan, fecha, tipo,
+ejecutor) dos veces es una sola: el reintento devuelve la registrada (200) sin abrir otro plan de acción.
 
 ## Descomposición atómica
 
@@ -130,6 +140,16 @@ Entonces existe además un evento_riesgo_operativo con la pérdida cuantificada
 Dado un proceso crítico sin plan_continuidad
 Cuando corre el control de cobertura
 Entonces existe un hallazgo_auditoria que lo identifica por nombre
+
+# Cola del backoffice (carril A)
+Dadas dos pruebas de continuidad en fechas distintas
+Cuando Riesgos lista las pruebas
+Entonces las ve de la más reciente a la más antigua con su RTO, RPO y resultado
+
+# Acciones desde el backoffice (carril A)
+Dada una prueba que no alcanzó el RTO ya registrada
+Cuando Riesgos la registra otra vez desde el backoffice
+Entonces no se duplica ni se abre un segundo plan de acción
 ```
 
 ## Ver también

@@ -1,0 +1,59 @@
+{
+  "servicio": "auditoria",
+  "operacion": "listarDefinicionesDeReporte",
+  "metodo": "get",
+  "ruta": "/reportes",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "items": [
+          {
+            "definicionId": "51401085-fe20-42eb-8509-f6d924f60937",
+            "tipo": "tipo",
+            "nombre": "nombre",
+            "descripcion": "descripcion",
+            "permisoRequerido": "permisoRequerido",
+            "contieneDatosSensibles": true
+          }
+        ],
+        "proximoDespuesDe": "proximoDespuesDe",
+        "proximoDespuesDeId": "2fa8bf1f-5090-4e37-8f38-312880394d56"
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "items": [],
+        "proximoDespuesDe": "proximoDespuesDe",
+        "proximoDespuesDeId": "2fa8bf1f-5090-4e37-8f38-312880394d56"
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "items": [
+          {
+            "definicionId": "51401085-fe20-42eb-8509-f6d924f60937",
+            "tipo": "tipo",
+            "nombre": "nombre",
+            "descripcion": "descripcion",
+            "permisoRequerido": "permisoRequerido",
+            "contieneDatosSensibles": true
+          }
+        ],
+        "proximoDespuesDe": "proximoDespuesDe",
+        "proximoDespuesDeId": "2fa8bf1f-5090-4e37-8f38-312880394d56"
+      }
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU58-07",
+        "mensaje": "Filtro de listado invalido",
+        "detalle": {},
+        "trazaId": "traza-listarDefinicionesDeReporte-rechazo"
+      }
+    }
+  }
+}

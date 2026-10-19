@@ -28,12 +28,13 @@ CREATE TABLE IF NOT EXISTS aportes.pago (
   CONSTRAINT ck_pago_estado CHECK (estado IN ('ACREDITADO', 'ANULADO', 'EN_DISPUTA', 'EN_PROCESO', 'INICIADO', 'RECHAZADO', 'REVERSADO'))
 );
 
-COMMENT ON TABLE aportes.pago IS 'Módulo 03 — Aportes, Pagos QR y Conciliación. Que "pagué" signifique "el banco lo confirmó"';
-COMMENT ON COLUMN aportes.pago.id IS 'PK';
+COMMENT ON TABLE aportes.pago IS 'Módulo 03 — Aportes, Pagos QR y Conciliación. Plata que efectivamente se movió. El hecho económico.';
+COMMENT ON COLUMN aportes.pago.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN aportes.pago.obligacion_id IS 'FK, IDX';
 COMMENT ON COLUMN aportes.pago.intento_pago_id IS 'FK, NULL, UQ';
 COMMENT ON COLUMN aportes.pago.proveedor_id IS 'FK, NULL, IDX';
 COMMENT ON COLUMN aportes.pago.monto IS 'CK: > 0';
+COMMENT ON COLUMN aportes.pago.moneda IS 'Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2).';
 COMMENT ON COLUMN aportes.pago.canal IS 'CK';
 COMMENT ON COLUMN aportes.pago.estado IS 'CK, IDX';
 COMMENT ON COLUMN aportes.pago.fecha_hora_pago IS 'IDX';
@@ -43,3 +44,4 @@ COMMENT ON COLUMN aportes.pago.pagador_nombre IS 'NULL';
 COMMENT ON COLUMN aportes.pago.pagador_documento IS 'NULL';
 COMMENT ON COLUMN aportes.pago.cuenta_origen_enmascarada IS 'NULL';
 COMMENT ON COLUMN aportes.pago.registrado_por IS 'FK, NULL';
+COMMENT ON COLUMN aportes.pago.clave_idempotencia IS 'Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4).';

@@ -18,6 +18,7 @@ resilience4j       = "2.3.0"       # timeout y cortacircuitos en cada cliente
 argon2             = "2.12"        # contrasenas y PIN (nunca un hash rapido)
 archunit           = "1.4.0"       # la direccion de dependencia se verifica
 jqwik              = "1.9.3"       # propiedades: cuadre de dinero
+datafaker          = "2.7.0"       # datos sinteticos deterministas en los fixtures (tableros, H2.S3); Java 17+, verificado en Maven Central 2026-10-16
 spotless           = "7.0.4"
 openapi-generator  = "7.14.0"
 jooq               = "3.20.5"      # generador Y libreria: separarlos genera codigo que no compila
@@ -87,7 +88,9 @@ shedlock-jdbc        = { module = "net.javacrumbs.shedlock:shedlock-provider-jdb
 # — Resiliencia y observabilidad —
 resilience4j        = { module = "io.github.resilience4j:resilience4j-spring-boot3", version.ref = "resilience4j" }
 micrometer          = { module = "io.micrometer:micrometer-registry-prometheus" }
-micrometer-tracing  = { module = "io.micrometer:micrometer-tracing-bridge-brave" }
+micrometer-tracing  = { module = "io.micrometer:micrometer-tracing-bridge-otel" }   # OpenTelemetry (tableros, D4); antes bridge-brave
+otel-exportador     = { module = "io.opentelemetry:opentelemetry-exporter-otlp" }   # version del BOM de Spring Boot
+micrometer-otlp     = { module = "io.micrometer:micrometer-registry-otlp" }   # metricas por OTLP al Collector (sin abrir /actuator/prometheus)
 
 # — Cripto —
 argon2 = { module = "de.mkammerer:argon2-jvm", version.ref = "argon2" }
@@ -101,6 +104,7 @@ testcontainers-junit   = { module = "org.testcontainers:junit-jupiter" }
 testcontainers-postgres = { module = "org.testcontainers:postgresql" }
 testcontainers-kafka   = { module = "org.testcontainers:kafka" }
 archunit               = { module = "com.tngtech.archunit:archunit-junit5", version.ref = "archunit" }
+datafaker              = { module = "net.datafaker:datafaker", version.ref = "datafaker" }
 mockito                = { module = "org.mockito:mockito-core" }
 # La extension oficial de Mockito para Jupiter: inicializa los dobles y aplica
 # stubbing estricto, que es lo que convierte un `when(...)` que sobro en un fallo y

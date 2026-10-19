@@ -1,0 +1,13 @@
+$ corepack yarn workspace @aportaya/backoffice test:front --watch=false   (HEAD 356ce2f3)
+✔ Building...
+Application bundle generation complete. [4.771 seconds] - 2026-10-16T22:04:33.412Z
+(!) Your Vite config uses features that are unsupported by `configLoader: 'native'`, which is planned to become the default in a future major version of Vite:
+  - ESM syntax in a file loaded as CommonJS (vitest-base.config.ts:1:1). Use a `.mjs` extension or set `"type": "module"` in the closest package.json
+Set `VITE_CONFIG_NATIVE_IGNORE_WARNING=true` to suppress this warning.
+ RUN  v4.1.11 /Users/pablo/Documents/GitHub/Pasanaku/.claude/worktrees/bo-l3-contabilidad/apps/backoffice
+Not implemented: Window's confirm() method
+Not implemented: Window's confirm() method
+ Test Files  83 passed (83)
+      Tests  590 passed (590)
+   Start at  18:04:33
+   Duration  4.20s (transform 652ms, setup 282ms, import 864ms, tests 2.44s, environment 462ms)

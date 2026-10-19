@@ -23,8 +23,8 @@ CREATE TABLE IF NOT EXISTS cumplimiento.activo_informacion (
   CONSTRAINT ck_activo_informacion_criticidad CHECK (criticidad IN ('ALTA', 'BAJA', 'CRITICA', 'MEDIA'))
 );
 
-COMMENT ON TABLE cumplimiento.activo_informacion IS 'Módulo 12 — Cumplimiento Regulatorio y Consumidor Financiero. Que una inspección se responda con consultas, no armando carpetas';
-COMMENT ON COLUMN cumplimiento.activo_informacion.id IS 'PK';
+COMMENT ON TABLE cumplimiento.activo_informacion IS 'Módulo 12 — Cumplimiento Regulatorio y Consumidor Financiero. El inventario clasificado de activos y los incidentes que los afectan.';
+COMMENT ON COLUMN cumplimiento.activo_informacion.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN cumplimiento.activo_informacion.propietario_id IS 'FK, NULL';
 COMMENT ON COLUMN cumplimiento.activo_informacion.custodio_id IS 'FK, NULL';
 COMMENT ON COLUMN cumplimiento.activo_informacion.contrato_tercero_id IS 'FK, NULL';

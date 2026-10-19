@@ -12,6 +12,6 @@ CREATE TABLE IF NOT EXISTS tarifas.segmento_comercial (
   CONSTRAINT pk_segmento_comercial PRIMARY KEY (id)
 );
 
-COMMENT ON TABLE tarifas.segmento_comercial IS 'Módulo 11 — Tarifas, Comisiones, Impuestos y Facturación. La política de cobro es dato, no código: se cambia con un seeder';
-COMMENT ON COLUMN tarifas.segmento_comercial.id IS 'PK';
+COMMENT ON TABLE tarifas.segmento_comercial IS 'Módulo 11 — Tarifas, Comisiones, Impuestos y Facturación. A quién se le aplica cada tarifario y con qué prioridad.';
+COMMENT ON COLUMN tarifas.segmento_comercial.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN tarifas.segmento_comercial.codigo IS 'UQ';

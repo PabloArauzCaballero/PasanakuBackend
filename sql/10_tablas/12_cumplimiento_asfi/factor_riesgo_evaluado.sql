@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS cumplimiento.factor_riesgo_evaluado (
   CONSTRAINT pk_factor_riesgo_evaluado PRIMARY KEY (id)
 );
 
-COMMENT ON TABLE cumplimiento.factor_riesgo_evaluado IS 'Módulo 12 — Cumplimiento Regulatorio y Consumidor Financiero. Que una inspección se responda con consultas, no armando carpetas';
-COMMENT ON COLUMN cumplimiento.factor_riesgo_evaluado.id IS 'PK';
+COMMENT ON TABLE cumplimiento.factor_riesgo_evaluado IS 'Módulo 12 — Cumplimiento Regulatorio y Consumidor Financiero. Los factores con los que se puntúa el riesgo de un cliente y el resultado de evaluar cada uno.';
+COMMENT ON COLUMN cumplimiento.factor_riesgo_evaluado.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN cumplimiento.factor_riesgo_evaluado.usuario_id IS 'FK, IDX, M1';
 COMMENT ON COLUMN cumplimiento.factor_riesgo_evaluado.matriz_riesgo_id IS 'FK';

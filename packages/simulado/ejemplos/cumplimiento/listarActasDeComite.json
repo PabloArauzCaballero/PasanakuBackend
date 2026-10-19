@@ -1,0 +1,59 @@
+{
+  "servicio": "cumplimiento",
+  "operacion": "listarActasDeComite",
+  "metodo": "get",
+  "ruta": "/cumplimiento/comites/actas",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "items": [
+          {
+            "actaId": "53cb6132-07aa-4e38-8461-df0a5b761f6a",
+            "comiteGobiernoId": "208590c5-50a9-4c81-802c-ac44712ecd46",
+            "numero": "numero",
+            "fecha": "2026-01-15",
+            "cumpleQuorum": true,
+            "hashDocumento": "hashDocumento"
+          }
+        ],
+        "proximoAntesDe": "2026-01-15",
+        "proximoAntesDeId": "145b9f5f-2d5a-46cb-8901-899441b5b62a"
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "items": [],
+        "proximoAntesDe": "2026-01-15",
+        "proximoAntesDeId": "145b9f5f-2d5a-46cb-8901-899441b5b62a"
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "items": [
+          {
+            "actaId": "53cb6132-07aa-4e38-8461-df0a5b761f6a",
+            "comiteGobiernoId": "208590c5-50a9-4c81-802c-ac44712ecd46",
+            "numero": "numero",
+            "fecha": "2026-01-15",
+            "cumpleQuorum": true,
+            "hashDocumento": "hashDocumento"
+          }
+        ],
+        "proximoAntesDe": "2026-01-15",
+        "proximoAntesDeId": "145b9f5f-2d5a-46cb-8901-899441b5b62a"
+      }
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU94-07",
+        "mensaje": "Filtro de listado invalido",
+        "detalle": {},
+        "trazaId": "traza-listarActasDeComite-rechazo"
+      }
+    }
+  }
+}

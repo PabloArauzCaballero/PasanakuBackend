@@ -1,3 +1,5 @@
+import 'aviso_de_verificacion.dart';
+import 'vigilante_de_aprobacion.dart';
 import 'dart:async';
 
 import 'package:aportaya_diseno/moviles/alcance_haptica.dart';
@@ -75,9 +77,14 @@ class ShellPrincipal extends ConsumerWidget {
       // arriba lo cuenta sin hacer esperar —180 ms, menos que el tiempo de sacar el
       // dedo—. La clave es el índice de rama: sin ella, Flutter reusa el mismo
       // elemento y no hay nada que fundir.
-      body: _RamaConTransicion(
-        indice: navigationShell.currentIndex,
-        child: navigationShell,
+      // El vigilante se entera solo de que aprobaron la identidad y activa la cuenta.
+      body: VigilanteDeAprobacion(
+        hijo: AvisoDeVerificacion(
+          hijo: _RamaConTransicion(
+            indice: navigationShell.currentIndex,
+            child: navigationShell,
+          ),
+        ),
       ),
       bottomNavigationBar: MarcaDeTutorial(
         id: 'shell.pestanas',

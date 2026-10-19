@@ -484,6 +484,88 @@ paths:
           # AP-CU69-08 LIMITE_DIARIO_DE_INVITACIONES (emitido por identidad)
           # AP-CU69-09 INVITACION_VIGENTE_EXISTENTE (revocarla antes de emitir otra)
 
+  /grupos/{grupoId}/enlace-del-grupo:
+    post:
+      operationId: generarEnlaceDelGrupo       # CU-69 · enlace del grupo
+      summary: El organizador genera el enlace (y QR) del grupo; anula el anterior
+      description: >-
+        Un enlace para CUALQUIER persona: no da entrada, cada pedido es una solicitud que el
+        organizador aprueba (CU-68). Vence a los 7 dias. Un grupo tiene un solo enlace
+        activo: generar otro anula el anterior. El codigo viaja solo en esta respuesta; la
+        base guarda su hash.
+      parameters:
+        - name: grupoId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '201':
+          description: Enlace generado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaEnlaceDelGrupo' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU69-07 EMISOR_NO_HABILITADO · AP-CU69-01 SIN_CUPOS_LIBRES
+
+  /grupos/{grupoId}/enlace-del-grupo/anulacion:
+    post:
+      operationId: anularEnlaceDelGrupo
+      summary: El organizador anula el enlace activo del grupo; deja de servir
+      parameters:
+        - name: grupoId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '204':
+          description: Anulado (o no habia enlace activo)
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU69-07 EMISOR_NO_HABILITADO
+
+  /grupos/enlace-del-grupo/consultar:
+    post:
+      operationId: consultarEnlaceDelGrupo
+      summary: Ver el grupo de un enlace vigente, sin datos de sus integrantes
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaCodigoDeEnlace' }
+      responses:
+        '200':
+          description: Lo necesario para decidir si pedir unirse
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DetalleEnlaceDelGrupo' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU69-11 ENLACE_INVALIDO
+
+  /grupos/enlace-del-grupo/solicitudes:
+    post:
+      operationId: solicitarIngresoPorEnlace
+      summary: Pedir unirse al grupo con su enlace; queda PENDIENTE de que el organizador apruebe
+      description: >-
+        Mismas precondiciones que postular (CU-68): KYC, restricciones, reputacion, cupos.
+        Repetir devuelve la misma solicitud pendiente.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaSolicitudPorEnlace' }
+      responses:
+        '201':
+          description: Solicitud pendiente
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaSolicitudPorEnlace' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU69-11 ENLACE_INVALIDO · AP-CU69-03 YA_ES_PARTICIPANTE
+          # AP-CU68-02 KYC_INSUFICIENTE · AP-CU68-04 SIN_CUPOS_LIBRES · AP-CU68-01 RESTRICCION_VIGENTE
+
   /grupos/invitaciones/enlace/consultar:
     post:
       operationId: consultarInvitacionPorEnlace
@@ -998,6 +1080,50 @@ components:
         enlace:       { type: [string, 'null'], description: Enlace para compartir por el canal elegido }
         token: { type: string, description: Secreto para compartir; no registrar ni incluir en URL de consulta }
         expiraEn: { type: string, format: date-time }
+    SalidaEnlaceDelGrupo:
+      type: object
+      additionalProperties: false
+      required: [enlaceId, codigo, expiraEn]
+      properties:
+        enlaceId: { type: string, format: uuid }
+        codigo:
+          type: string
+          pattern: '^[0-9a-f-]{36}\.[0-9a-f]{64}$'
+          description: Secreto para compartir (en el enlace y el QR); no registrar
+        expiraEn: { type: string, format: date-time }
+    EntradaCodigoDeEnlace:
+      type: object
+      additionalProperties: false
+      required: [codigo]
+      properties:
+        codigo: { type: string, pattern: '^[0-9a-f-]{36}\.[0-9a-f]{64}$' }
+    DetalleEnlaceDelGrupo:
+      type: object
+      additionalProperties: false
+      required: [grupoId, nombre, montoAporte, moneda, periodicidad, cuposLibres, expiraEn]
+      properties:
+        grupoId: { type: string, format: uuid }
+        nombre: { type: string }
+        montoAporte: { type: string }
+        moneda: { type: string }
+        periodicidad: { type: string }
+        cuposLibres: { type: integer, minimum: 0 }
+        expiraEn: { type: string, format: date-time }
+    EntradaSolicitudPorEnlace:
+      type: object
+      additionalProperties: false
+      required: [codigo]
+      properties:
+        codigo: { type: string, pattern: '^[0-9a-f-]{36}\.[0-9a-f]{64}$' }
+        mensaje: { type: [string, 'null'], maxLength: 300 }
+    SalidaSolicitudPorEnlace:
+      type: object
+      additionalProperties: false
+      required: [solicitudId, grupoId, estado]
+      properties:
+        solicitudId: { type: string, format: uuid }
+        grupoId: { type: string, format: uuid }
+        estado: { type: string, enum: [PENDIENTE] }
     EntradaEnlaceInvitacion:
       type: object
       additionalProperties: false
@@ -1095,6 +1221,10 @@ components:
         grupoId:        { type: string, format: uuid }
         participanteId: { type: string, format: uuid }
         estado:         { type: string, maxLength: 40 }
+        nombreDelGrupo: { type: [string, 'null'], maxLength: 120, description: Para que la app muestre cada grupo por su nombre }
+        montoAporte:    { type: [string, 'null'], description: Aporte por periodo, cadena decimal }
+        moneda:         { type: [string, 'null'], maxLength: 3 }
+        esOrganizador:  { type: boolean, description: Si quien pregunta administra ese grupo }
     SolicitudDeIngreso:
       type: object
       additionalProperties: false
@@ -1105,6 +1235,8 @@ components:
         cuposSolicitados: { type: integer, minimum: 1 }
         mensaje:          { type: [string, 'null'], maxLength: 500 }
         puntaje:          { type: [string, 'null'] }
+        nombreVisible:    { type: [string, 'null'], maxLength: 60, description: 'Primer nombre e inicial del apellido de quien pide entrar' }
+        porEnlace:        { type: boolean, description: 'La pidio con el enlace del grupo' }
         estado:           { type: string, enum: [PENDIENTE, APROBADA, RECHAZADA, EXPIRADA] }
         fechaSolicitud:   { type: string, format: date-time }
     EntradaDecisionDeIngreso:

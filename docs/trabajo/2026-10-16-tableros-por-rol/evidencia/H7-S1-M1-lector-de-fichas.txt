@@ -1,0 +1,14 @@
+H7.S1.M1 — scripts/catalogo_de_datos.py lee las fichas de docs/entidades/*.md · 2026-10-16
+
+$ python3 -I scripts/catalogo_de_datos.py --tabla obligacion_aporte  (recortado)
+esquema: aportes · servicio: aportes · appendOnly: False
+queEs: Lo que un cupo debe, en un período, por un concepto. Es la deuda formal que la plataforma le reconoce a un participante.
+negocio: Es **el eje de todo el sistema financiero**. La cubre el fondo de garantía (M8), la deduce la entrega (M4), la puntúa la reputación (M6) y l
+porQue: Sin obligación explícita, "quién debe cuánto" sería un cálculo derivado del calendario, y no habría dónde registrar recargos, condonaciones,
+sistema: Vive en el esquema `aportes`; la escribe y la lee solo el servicio `aportes` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `grupos.cupo`, `grupos.grupo`, `grupos.participante`, `grupos.periodo`, `obligacion_aporte`, `plan_reg …
+  id | convencion | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios | UUID, obligatoria, clave primaria. | NINGUNA
+  grupo_id | None | — | UUID, obligatoria, referencia a `grupo`. | NINGUNA
+  monto_esperado | ficha | lo que se pactó. **Nunca cambia.** | DECIMAL(14,2), obligatoria. | FINANCIERO
+  moneda | convencion | Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2) | CHAR(3), obligatoria. | NINGUNA
+  monto_cubierto_garantia | ficha | lo que puso el fondo para que el grupo no se detenga (M8). **Ojo: cubierto no es pagado.** | DECIMAL(14,2), obligatoria. | FINANCIERO
+exit=0

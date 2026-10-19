@@ -1,16 +1,19 @@
 package bo.aportaya.tarifas.web;
 
 import bo.aportaya.plataforma.web.seguridad.Permiso;
+import bo.aportaya.plataforma.web.seguridad.PermisoAlternativo;
 import bo.aportaya.plataforma.web.seguridad.SesionDeLaPeticion;
 import bo.aportaya.plataforma.web.traza.Traza;
 import bo.aportaya.tarifas.aplicacion.CU34PublicarTarifario;
 import bo.aportaya.tarifas.aplicacion.CU35CerrarLiquidacion;
 import bo.aportaya.tarifas.aplicacion.CU36ResolverPrecio;
 import bo.aportaya.tarifas.aplicacion.ConsultarTarifarioVigente;
+import bo.aportaya.tarifas.aplicacion.ConsultarTarifarios;
 import bo.aportaya.tarifas.web.generado.TarifasApi;
 import bo.aportaya.tarifas.web.generado.modelo.EntradaLiquidacion;
 import bo.aportaya.tarifas.web.generado.modelo.EntradaPublicacion;
 import bo.aportaya.tarifas.web.generado.modelo.EntradaSegmento;
+import bo.aportaya.tarifas.web.generado.modelo.PaginaDeTarifarios;
 import bo.aportaya.tarifas.web.generado.modelo.PonerTarifarioVigente200Response;
 import bo.aportaya.tarifas.web.generado.modelo.ResolverPrecioRequest;
 import bo.aportaya.tarifas.web.generado.modelo.SalidaLiquidacion;
@@ -19,6 +22,9 @@ import bo.aportaya.tarifas.web.generado.modelo.SalidaSegmento;
 import bo.aportaya.tarifas.web.generado.modelo.SalidaSegmentoAplicado;
 import bo.aportaya.tarifas.web.generado.modelo.TarifarioVigente;
 import java.math.BigDecimal;
+import java.time.OffsetDateTime;
+import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -36,6 +42,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class TarifasController implements TarifasApi {
 
     private final ConsultarTarifarioVigente vigentes;
+    private final ConsultarTarifarios historial;
     private final CU34PublicarTarifario cu34;
     private final CU35CerrarLiquidacion cu35;
     private final CU36ResolverPrecio cu36;
@@ -43,11 +50,13 @@ public class TarifasController implements TarifasApi {
 
     public TarifasController(
             ConsultarTarifarioVigente vigentes,
+            ConsultarTarifarios historial,
             CU34PublicarTarifario cu34,
             CU35CerrarLiquidacion cu35,
             CU36ResolverPrecio cu36,
             SesionDeLaPeticion sesion) {
         this.vigentes = vigentes;
+        this.historial = historial;
         this.cu34 = cu34;
         this.cu35 = cu35;
         this.cu36 = cu36;
@@ -72,6 +81,27 @@ public class TarifasController implements TarifasApi {
         respuesta.setVigente(encontrado.isPresent());
         encontrado.ifPresent(respuesta::setTarifarioId);
         return ResponseEntity.ok(respuesta);
+    }
+
+    // Plataforma lo publica (TARIFARIO_PUBLICAR) y Auditoria lo lee: ninguno de los dos cambia un precio desde aca.
+    @Override
+    @Permiso("TARIFARIO_PUBLICAR")
+    @PermisoAlternativo({"AUDITORIA_LEER"})
+    public ResponseEntity<PaginaDeTarifarios> listarTarifarios(
+            String codigo, List<String> estados, Integer limite, OffsetDateTime antesDe, UUID antesDeId) {
+        Traza.marcarCasoDeUso("CU-34", "historial");
+        var pagina = historial.listar(
+                Optional.ofNullable(codigo),
+                estados,
+                Optional.ofNullable(antesDe),
+                Optional.ofNullable(antesDeId),
+                limite,
+                sesion.actual());
+        var salida = new PaginaDeTarifarios();
+        salida.setItems(pagina.items().stream().map(MapeoDeTarifarios::aLista).toList());
+        salida.setProximoAntesDe(pagina.proximoAntesDe().orElse(null));
+        salida.setProximoAntesDeId(pagina.proximoAntesDeId().orElse(null));
+        return ResponseEntity.ok(salida);
     }
 
     @Override

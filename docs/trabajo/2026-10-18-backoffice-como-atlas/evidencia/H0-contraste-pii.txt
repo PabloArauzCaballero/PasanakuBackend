@@ -1,0 +1,3 @@
+H0.S1.M2 · contraste de los roles pii (WCAG: texto ≥ 4,5:1; no texto ≥ 3:1)
+claro: --pii-texto #5A2F8C sobre --pii-bg #F1EAF8 (renderizado #F1EAF8) = 8.05:1 · --pii #6B3FA0 sobre --surface #FFFFFF = 7.38:1
+oscuro: --pii-texto #CDB3F0 sobre --pii-bg rgba(107,63,160,.18) (renderizado #202f35) = 7.44:1 · --pii #B48CE6 sobre --surface #0F2B1D = 5.66:1

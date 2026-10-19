@@ -1,0 +1,13 @@
+H9.S1.M5 (agregada) — rojos de la primera corrida del CI del PR #115 · 2026-10-17
+
+1. testBarrido sin-umbral-literal: Indicador.java:143 BigDecimal.valueOf(100) (conversión a porcentaje) → movePointRight(2); EndpointsDelDia.LIMITE_MAXIMO = 100 → se quitó: el contrato acota 1..100 en el borde (101 → 400, probado), como BandejaDeRetiros.
+2. testBarrido tamano-archivo (no lo había corrido por servicio en local): ConsumoDeAportes.java 341 → 296 (DestinoDelCobro concentra grupo/fondo; AporteCobrado a su archivo, sin el constructor viejo); CUConsumoDeRecargoTest 334 → 199 + CUPactosDelRecargoTest + BaseDeRecargo; BilleteraOperacionesWebTest 348 → BaseDeOperacionesWeb + BilleteraFondeoWebTest + BilleteraMovimientosWebTest.
+   De paso: BaseDeAportes.reenviado() perdía el tipo del evento (usaba el constructor viejo); ahora lo conserva.
+3. Postman: colección de auditoria regenerada (python3 scripts/generar_postman.py) con las dos operaciones nuevas.
+4. OSV GHSA-rcgg-9c38-7xpx (opentelemetry-api 1.49.0, traído por H6): extra["opentelemetry.version"] = "1.62.0" en aportaya.servicio; 15 lockfiles regenerados (solo cambia la familia OTel y okhttp/okio que exige el exportador).
+
+Verificación local:
+  ./gradlew spotlessCheck testBarrido --continue → exit 0
+  ./gradlew check -x test -x jacocoTestCoverageVerification -x jacocoTestReport → exit 0
+  nucleo-financiero webTest 79/0 · integrationTest (consumo, recargo, flujo) 34/0 · test 85/0 · auditoria test 29/0 · webTest 44/0
+  comun-dominio test + cobertura, auditoria y aportes ArranqueTest (con OTel 1.62) → exit 0

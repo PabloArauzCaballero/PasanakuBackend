@@ -1,0 +1,6 @@
+$ ./gradlew :servicios:garantia:test --tests "*ConsumidorDeAportesAplicadosKafkaTest" :servicios:garantia:integrationTest --tests "*CUIngresoAlFondoTest" --tests "*ArranqueTest"
+ConsumidorDeAportesAplicadosKafkaTest tests=3 failures=0 · CUIngresoAlFondoTest tests=5 failures=0 · ArranqueTest tests=1 failures=0
+$ ./gradlew :servicios:garantia:test :servicios:garantia:integrationTest  -> BUILD SUCCESSFUL
+garantia test: tests=38 skipped=0 failures=0 errors=0
+garantia integrationTest: tests=159 skipped=0 failures=0 errors=0
+verificar_seguridad exit=0 (TODO OK, 6 avisos) · verificar_criterios exit=0 · verificar_boveda exit=0 · spotlessCheck sin violaciones

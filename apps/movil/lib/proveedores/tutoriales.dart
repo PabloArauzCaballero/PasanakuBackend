@@ -10,6 +10,8 @@ import '../infraestructura/almacen_de_progreso_seguro.dart';
 import '../pantallas/soporte/catalogo/catalogo.dart';
 import 'sesion.dart';
 
+export '../dominio/tutoriales/motor.dart' show AccionesMotorDeTutoriales;
+
 /// **El enchufe del motor de tutoriales.** Todo lo que hay que cambiar para apuntar a
 /// otro catálogo, a otro almacén o a otro origen de capacidades está en este archivo.
 
@@ -130,7 +132,7 @@ final autolanzarGuiaDeInicioProvider = Provider<Future<bool> Function()>((ref) {
       if (!debeAutolanzar(tutorial, progreso)) return false;
       await ref
           .read(motorDeTutorialesProvider.notifier)
-          .iniciar(guiaDeInicioId);
+          .iniciar(guiaDeInicioId, requiereSesionActiva: true);
       return true;
     } on Object {
       return false;

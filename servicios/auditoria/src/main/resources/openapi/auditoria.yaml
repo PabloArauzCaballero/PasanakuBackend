@@ -70,6 +70,252 @@ paths:
         '401':
           $ref: '#/components/responses/NoAutenticado'
 
+  /auditoria/bitacora:
+    get:
+      operationId: consultarBitacora
+      tags: [bitacora]
+      summary: Consulta el registro inmutable del sistema (bitacora de auditoria)
+      description: >-
+        Registro de auditoria inmutable de comun.bitacora_evento paginado por cursor descendente.
+        Permite filtrar por entidad, accion, actorUsuarioId, y rango de fechaHora. Exige AUDITORIA_LEER.
+      parameters:
+        - name: entidad
+          in: query
+          required: false
+          schema: { type: string, maxLength: 50 }
+        - name: accion
+          in: query
+          required: false
+          schema: { type: string, maxLength: 30 }
+        - name: actorUsuarioId
+          in: query
+          required: false
+          schema: { type: string, format: uuid }
+        - name: desde
+          in: query
+          required: false
+          schema: { type: string, format: date-time }
+        - name: hasta
+          in: query
+          required: false
+          schema: { type: string, format: date-time }
+        - name: limite
+          in: query
+          required: false
+          schema: { type: integer, minimum: 1, maximum: 100, default: 25 }
+        - name: antesDe
+          in: query
+          required: false
+          schema: { type: string, format: date-time }
+        - name: antesDeId
+          in: query
+          required: false
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: Pagina de eventos de bitacora
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PaginaDeBitacora' }
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '403':
+          description: Sin permiso AUDITORIA_LEER
+
+  /auditoria/bitacora/{id}:
+    get:
+      operationId: consultarEventoBitacora
+      tags: [bitacora]
+      summary: Obtiene el detalle completo de un evento de bitacora por ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: Evento de bitacora
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/EventoBitacora' }
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '403':
+          description: Sin permiso AUDITORIA_LEER
+        '404':
+          description: Evento de bitacora no encontrado
+
+  /auditoria/catalogos:
+    get:
+      operationId: listarCatalogosOperativos
+      tags: [catalogosOperativos]
+      summary: Consulta la lista de catálogos operativos del sistema
+      description: >-
+        Catálogos operativos de AportaYa con su versión vigente, dueño, conteo de elementos y estado.
+        Exige AUDITORIA_LEER o CATALOGO_EDITAR.
+      responses:
+        '200':
+          description: Lista de catálogos operativos
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/CatalogoOperativoResumen' }
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '403':
+          description: Sin permiso AUDITORIA_LEER
+
+  /auditoria/catalogos/{codigo}:
+    get:
+      operationId: consultarCatalogoOperativo
+      tags: [catalogosOperativos]
+      summary: Obtiene la cabecera y metadatos de un catálogo operativo por su código
+      parameters:
+        - name: codigo
+          in: path
+          required: true
+          schema: { type: string, maxLength: 50 }
+      responses:
+        '200':
+          description: Detalle del catálogo operativo
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CatalogoOperativoDetalle' }
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '403':
+          description: Sin permiso AUDITORIA_LEER
+        '404':
+          description: Catálogo operativo desconocido
+
+  /auditoria/catalogos/{codigo}/elementos:
+    get:
+      operationId: listarElementosCatalogo
+      tags: [catalogosOperativos]
+      summary: Lista los elementos de un catálogo operativo
+      parameters:
+        - name: codigo
+          in: path
+          required: true
+          schema: { type: string, maxLength: 50 }
+        - name: activo
+          in: query
+          required: false
+          schema: { type: boolean }
+        - name: termino
+          in: query
+          required: false
+          schema: { type: string, maxLength: 80 }
+      responses:
+        '200':
+          description: Lista de elementos del catálogo
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/ElementoCatalogoOperativo' }
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '403':
+          description: Sin permiso AUDITORIA_LEER
+        '404':
+          description: Catálogo no encontrado
+
+  /auditoria/catalogos/{codigo}/elementos/{id}:
+    patch:
+      operationId: actualizarEstadoElementoCatalogo
+      tags: [catalogosOperativos]
+      summary: Activa o desactiva un elemento del catálogo operativo con registro inmutable en bitácora
+      parameters:
+        - name: codigo
+          in: path
+          required: true
+          schema: { type: string, maxLength: 50 }
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaActualizarElementoCatalogo' }
+      responses:
+        '200':
+          description: Elemento de catálogo actualizado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ElementoCatalogoOperativo' }
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '403':
+          description: Sin permiso CATALOGO_EDITAR o AUDITORIA_GESTIONAR
+        '404':
+          description: Elemento no encontrado
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+
+  /reportes:
+    get:
+      operationId: listarDefinicionesDeReporte   # CU-58 (backoffice carril A · A6)
+      summary: Catalogo de reportes activos, por nombre
+      description: >-
+        Lo que el backoffice ofrece para ejecutar: tipo, nombre, descripcion, el permiso que cada uno exige y si
+        contiene datos sensibles (pide justificacion). Sin la consulta base. El permiso de cada reporte lo
+        verifica la ejecucion, no este listado. Cursor (nombre, id) ascendente. Exige AUDITORIA_LEER.
+      parameters:
+        - { name: limite, in: query, required: false, schema: { type: integer, minimum: 1, maximum: 100, default: 25 } }
+        - { name: despuesDe, in: query, required: false, schema: { type: string, maxLength: 80 } }
+        - { name: despuesDeId, in: query, required: false, schema: { type: string, format: uuid } }
+      responses:
+        '200':
+          description: Pagina (vacia si no hay nada)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PaginaDeDefinicionesDeReporte' }
+        '422':
+          # AP-CU58-07 FILTRO_DE_LISTADO_INVALIDO
+          $ref: '#/components/responses/ReglaDeNegocio'
+        '403':
+          description: Sin AUDITORIA_LEER
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+
+  /reportes/ejecuciones:
+    get:
+      operationId: listarEjecucionesDeReporte    # CU-58 (backoffice carril A · A6)
+      summary: Historial de ejecuciones, de la mas reciente a la mas antigua
+      description: >-
+        Quien pidio que reporte, cuando, en que estado termino, cuantas filas y con que hash. Sin parametros ni
+        mensaje de error (pueden llevar datos de una persona). Cursor (iniciadaEn, id) descendente. Exige
+        AUDITORIA_LEER.
+      parameters:
+        - name: estados
+          in: query
+          required: false
+          style: form
+          explode: true
+          schema:
+            type: array
+            items: { type: string }
+        - { name: limite, in: query, required: false, schema: { type: integer, minimum: 1, maximum: 100, default: 25 } }
+        - { name: antesDe, in: query, required: false, schema: { type: string, format: date-time } }
+        - { name: antesDeId, in: query, required: false, schema: { type: string, format: uuid } }
+      responses:
+        '200':
+          description: Pagina (vacia si no hay nada)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PaginaDeEjecucionesDeReporte' }
+        '422':
+          # AP-CU58-07 FILTRO_DE_LISTADO_INVALIDO
+          $ref: '#/components/responses/ReglaDeNegocio'
+        '403':
+          description: Sin AUDITORIA_LEER
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+
   /reportes/{definicionId}/ejecuciones:
     post:
       operationId: ejecutarReporte            # CU-58
@@ -142,6 +388,7 @@ paths:
         '422':
           $ref: '#/components/responses/ReglaDeNegocio'
           # AP-CU58-05 EXPORTACION_VENCIDA · AP-CU58-06 TOPE_DESCARGAS
+          # AP-CU58-07 FILTRO_DE_LISTADO_INVALIDO (listados del backoffice, carril A · A6)
         '401':
           $ref: '#/components/responses/NoAutenticado'
 
@@ -191,6 +438,142 @@ paths:
           # AP-CU98-01 PERIODO_NO_CERRADO   · AP-CU98-02 SIN_DEFINICION
           # AP-CU98-03 SIN_META_DEL_PERIODO · AP-CU98-04 MUESTRA_INSUFICIENTE
           # AP-CU98-05 INDICADOR_DUPLICADO
+        '403':
+          description: >-
+            Sin AUDITORIA_LEER ni ningun permiso de tablero. Con un permiso de tablero solo
+            vuelven sus familias (TABLERO_FINANCIERO_VER: FINANZAS y RIESGO;
+            TABLERO_COMERCIAL_VER: NEGOCIO; TABLERO_SISTEMAS_VER: OPERACION): el filtro es del servidor.
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+
+  /indicadores/operacion/endpoints:
+    get:
+      operationId: listarEndpointsDelDia      # tableros por rol · sistemas (D4)
+      summary: Los endpoints tocados hoy, con solicitudes, errores y p95
+      description: >-
+        Vista en VIVO (desde la medianoche de La Paz hasta ahora) del trafico HTTP que el Collector OpenTelemetry
+        entrega a Prometheus. No es un indicador del catalogo de CU-98: es el desglose que acompaña al tablero de
+        sistemas. La ruta es la PLANTILLA (/grupos/{id}), nunca la URL con identificadores. Orden determinista:
+        solicitudes descendente, despues servicio, metodo y ruta. `fuenteDisponible: false` significa que
+        Prometheus no respondio (no se sabe), distinto de una lista vacia (nadie llamo). Exige TABLERO_SISTEMAS_VER
+        o AUDITORIA_LEER.
+      parameters:
+        - name: limite
+          in: query
+          required: false
+          schema: { type: integer, minimum: 1, maximum: 100, default: 25 }
+      responses:
+        '200':
+          description: El desglose del dia
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaEndpointsDelDia' }
+        '403':
+          description: Sin TABLERO_SISTEMAS_VER ni AUDITORIA_LEER
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+
+  /indicadores/operacion/servicios:
+    get:
+      operationId: consultarSaludDeServicios      # operacion/estado: la salud REAL, no una constante
+      summary: La salud de cada servicio, consultada ahora
+      description: >-
+        auditoria pregunta el readiness (/actuator/health/readiness) de cada servicio por la red interna, en paralelo
+        y con timeout de 2 s, y devuelve lo que contesto cada uno: ARRIBA (200), DEGRADADO (respondio con otro estado,
+        tipicamente 503 OUT_OF_SERVICE) o CAIDO (no respondio a tiempo o rechazo la conexion). El resultado se reusa
+        10 s: abrir la pantalla muchas veces no multiplica las consultas. Exige TABLERO_SISTEMAS_VER o AUDITORIA_LEER.
+      responses:
+        '200':
+          description: La salud consultada
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaSaludDeServicios' }
+        '403':
+          description: Sin TABLERO_SISTEMAS_VER ni AUDITORIA_LEER
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+
+  /indicadores/catalogo-de-datos:
+    get:
+      operationId: obtenerCatalogoDeDatos      # tableros por rol · H7 catalogo de datos (D14)
+      summary: El catalogo de datos de toda la plataforma
+      description: >-
+        Cada esquema, tabla y columna con su explicacion de negocio (las fichas de docs/entidades) y de sistema
+        (derivada del modelo: servicio dueño, append-only, claves, reglas nombradas), las relaciones y la
+        sensibilidad de cada columna. Lo genera scripts/catalogo_de_datos.py; no se calcula en la peticion. Vive bajo /indicadores, junto al
+        desglose de sistemas, porque es parte del tablero de sistemas y el gateway ya enruta ese prefijo a auditoria.
+        Describe el esquema completo de la base, por eso NO es un archivo estatico del backoffice: exige
+        TABLERO_SISTEMAS_VER o AUDITORIA_LEER. No contiene datos de personas, solo la estructura.
+      responses:
+        '200':
+          description: El catalogo vigente
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CatalogoDeDatos' }
+        '403':
+          description: Sin TABLERO_SISTEMAS_VER ni AUDITORIA_LEER
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+
+  /indicadores/catalogo-de-datos/{esquema}/{tabla}/gobierno:
+    put:
+      operationId: guardarFichaDeGobierno      # CU-130
+      summary: Guarda la ficha de gobierno de una tabla del catalogo de datos
+      description: >-
+        Estado (en uso o no), revision, responsable, retencion y si es critica para auditoria.
+        Se manda la `version` leida; si otra persona guardo antes, responde 422 AP-CU130-01 y
+        la ficha no cambia. La sensibilidad no se edita: se deriva de las columnas del modelo.
+        Deja un evento CAMBIO_CONFIGURACION en la bitacora.
+      parameters:
+        - { name: esquema, in: path, required: true, schema: { type: string, maxLength: 63, pattern: '^[a-z_][a-z0-9_]*$' } }
+        - { name: tabla, in: path, required: true, schema: { type: string, maxLength: 63, pattern: '^[a-z_][a-z0-9_]*$' } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaFichaDeGobierno' }
+      responses:
+        '200':
+          description: La ficha guardada, con su version nueva
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/FichaDeGobierno' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU130-01 VERSION_VIEJA · AP-CU130-02 TABLA_DESCONOCIDA · AP-CU130-03 RETENCION_DESCONOCIDA
+        '403':
+          description: Sin CATALOGO_DATOS_EDITAR
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+
+  /indicadores/catalogo-de-datos/{esquema}/{tabla}/columnas/{columna}/revision:
+    put:
+      operationId: revisarColumna                # CU-131
+      summary: Guarda la revision de una columna del catalogo de datos
+      description: >-
+        El veredicto de una persona sobre lo que el catalogo dice de la columna: aprobada,
+        rechazada (con motivo obligatorio) o pendiente, con que confianza. Se manda la `version`
+        leida; si otra persona guardo antes, 422 AP-CU131-03. Deja CAMBIO_CONFIGURACION en la bitacora.
+      parameters:
+        - { name: esquema, in: path, required: true, schema: { type: string, maxLength: 63, pattern: '^[a-z_][a-z0-9_]*$' } }
+        - { name: tabla, in: path, required: true, schema: { type: string, maxLength: 63, pattern: '^[a-z_][a-z0-9_]*$' } }
+        - { name: columna, in: path, required: true, schema: { type: string, maxLength: 63, pattern: '^[a-z_][a-z0-9_]*$' } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaRevisionDeColumna' }
+      responses:
+        '200':
+          description: La revision guardada, con su version nueva
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/RevisionDeColumna' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU131-01 COLUMNA_DESCONOCIDA · AP-CU131-02 RECHAZO_SIN_MOTIVO · AP-CU131-03 VERSION_VIEJA
+        '403':
+          description: Sin CATALOGO_DATOS_EDITAR
         '401':
           $ref: '#/components/responses/NoAutenticado'
 
@@ -205,6 +588,240 @@ components:
         seguro, y la clave se valida ANTES de escribir (invariante 7).
       schema: { type: string, format: uuid }
   schemas:
+    CatalogoDeDatos:
+      type: object
+      additionalProperties: false
+      required: [esquemas, tablas]
+      properties:
+        esquemas: { type: array, items: { type: string } }
+        tablas: { type: array, items: { $ref: '#/components/schemas/TablaDelCatalogo' } }
+        politicasDeRetencion:
+          type: array
+          description: CU-130 · las politicas de retencion que se pueden asignar a una tabla
+          items: { $ref: '#/components/schemas/OpcionDeRetencion' }
+    TablaDelCatalogo:
+      type: object
+      additionalProperties: false
+      required: [tabla, esquema, modulo, nombreModulo, appendOnly, negocio, reglas, columnas, relaciones, sistema]
+      properties:
+        tabla: { type: string }
+        esquema: { type: string }
+        modulo: { type: string, description: 'Modulo del modelo (01..15)' }
+        nombreModulo: { type: string }
+        servicio: { type: string, description: 'Servicio dueño; ausente en los esquemas compartidos catalogo y comun' }
+        appendOnly: { type: boolean }
+        negocio: { $ref: '#/components/schemas/NegocioDeTabla' }
+        notaDeSistema: { type: string, description: 'El parrafo «A nivel de sistema» de la ficha, si lo tiene' }
+        reglas: { type: array, items: { type: string }, description: 'Reglas nombradas de docs/Restricciones.md' }
+        columnas: { type: array, items: { $ref: '#/components/schemas/ColumnaDelCatalogo' } }
+        relaciones: { $ref: '#/components/schemas/RelacionesDeTabla' }
+        sistema: { type: string, description: 'Narrativa de sistema derivada del modelo' }
+        gobierno: { $ref: '#/components/schemas/FichaDeGobierno' }
+    EstadoDeTabla:
+      type: string
+      enum: [ACTIVA, PLANIFICADA, CANDIDATA_A_RETIRO, RETIRADA, DESHABILITADA]
+    EstadoDeRevision:
+      type: string
+      enum: [DETECTADA, NECESITA_REVISION, APROBADA, RECHAZADA]
+    FichaDeGobierno:
+      type: object
+      additionalProperties: false
+      description: >-
+        CU-130 · la ficha de gobierno de la tabla. Sin ficha guardada vale ACTIVA, DETECTADA,
+        version 0.
+      required: [estado, estadoRevision, criticaParaAuditoria, version]
+      properties:
+        estado: { $ref: '#/components/schemas/EstadoDeTabla' }
+        estadoRevision: { $ref: '#/components/schemas/EstadoDeRevision' }
+        responsable: { type: string, maxLength: 80 }
+        politicaRetencionId: { type: string, format: uuid }
+        criticaParaAuditoria: { type: boolean }
+        notaRevision: { type: string, maxLength: 500 }
+        revisadoPor: { type: string, format: uuid }
+        actualizadoEn: { type: string, format: date-time }
+        version: { type: integer, minimum: 0 }
+    EntradaFichaDeGobierno:
+      type: object
+      additionalProperties: false
+      required: [estado, estadoRevision, criticaParaAuditoria, version]
+      example:
+        estado: CANDIDATA_A_RETIRO
+        estadoRevision: APROBADA
+        responsable: Sistemas
+        criticaParaAuditoria: false
+        version: 0
+      properties:
+        estado: { $ref: '#/components/schemas/EstadoDeTabla' }
+        estadoRevision: { $ref: '#/components/schemas/EstadoDeRevision' }
+        responsable: { type: string, minLength: 1, maxLength: 80 }
+        politicaRetencionId: { type: string, format: uuid }
+        criticaParaAuditoria: { type: boolean }
+        notaRevision: { type: string, minLength: 1, maxLength: 500 }
+        version: { type: integer, minimum: 0, description: 'La version leida; 0 si la tabla no tenia ficha' }
+    OpcionDeRetencion:
+      type: object
+      additionalProperties: false
+      required: [id, entidad, mesesRetencionActiva, accionAlVencer]
+      properties:
+        id: { type: string, format: uuid }
+        entidad: { type: string }
+        mesesRetencionActiva: { type: integer }
+        accionAlVencer: { type: string }
+    NegocioDeTabla:
+      type: object
+      additionalProperties: false
+      properties:
+        queEs: { type: string }
+        negocio: { type: string }
+        porQue: { type: string }
+    ColumnaDelCatalogo:
+      type: object
+      additionalProperties: false
+      required: [nombre, tipo, nulable, pk, sistema, sensibilidad]
+      properties:
+        nombre: { type: string }
+        tipo: { type: string }
+        nulable: { type: boolean }
+        pk: { type: boolean }
+        referencia: { type: string, description: 'Tabla a la que apunta la clave foranea' }
+        negocio: { type: string }
+        origenNegocio: { type: string, enum: [ficha, convencion] }
+        sistema: { type: string }
+        sensibilidad: { type: string, enum: [NINGUNA, PERSONAL, FINANCIERO, SECRETO, DERIVADO] }
+        revision: { $ref: '#/components/schemas/RevisionDeColumna' }
+    DecisionDeRevision:
+      type: string
+      enum: [APROBADA, RECHAZADA, NECESITA_REVISION]
+    ConfianzaDeRevision:
+      type: string
+      enum: [BAJA, MEDIA, ALTA]
+    RevisionDeColumna:
+      type: object
+      additionalProperties: false
+      description: CU-131 · el veredicto guardado sobre una columna. Ausente, la columna no se reviso.
+      required: [decision, version]
+      properties:
+        decision: { $ref: '#/components/schemas/DecisionDeRevision' }
+        confianza: { $ref: '#/components/schemas/ConfianzaDeRevision' }
+        motivo: { type: string, maxLength: 500 }
+        revisadoPor: { type: string, format: uuid }
+        revisadoEn: { type: string, format: date-time }
+        version: { type: integer, minimum: 0 }
+    EntradaRevisionDeColumna:
+      type: object
+      additionalProperties: false
+      required: [decision, version]
+      example:
+        decision: APROBADA
+        confianza: ALTA
+        version: 0
+      properties:
+        decision: { $ref: '#/components/schemas/DecisionDeRevision' }
+        confianza: { $ref: '#/components/schemas/ConfianzaDeRevision' }
+        motivo: { type: string, minLength: 1, maxLength: 500 }
+        version: { type: integer, minimum: 0, description: 'La version leida; 0 si la columna no tenia revision' }
+    RelacionesDeTabla:
+      type: object
+      additionalProperties: false
+      required: [salientes, entrantes]
+      properties:
+        salientes: { type: array, items: { $ref: '#/components/schemas/RelacionDelCatalogo' } }
+        entrantes: { type: array, items: { $ref: '#/components/schemas/RelacionDelCatalogo' } }
+    RelacionDelCatalogo:
+      type: object
+      additionalProperties: false
+      required: [columna, tabla, esquema]
+      properties:
+        columna: { type: string }
+        tabla: { type: string }
+        esquema: { type: string }
+    SalidaEndpointsDelDia:
+      type: object
+      additionalProperties: false
+      required: [desde, hasta, fuenteDisponible, endpoints]
+      properties:
+        desde: { type: string, format: date-time }
+        hasta: { type: string, format: date-time }
+        fuenteDisponible: { type: boolean }
+        endpoints:
+          type: array
+          maxItems: 100
+          items: { $ref: '#/components/schemas/EndpointDelDia' }
+    SalidaSaludDeServicios:
+      type: object
+      additionalProperties: false
+      required: [consultadoEn, servicios]
+      properties:
+        consultadoEn: { type: string, format: date-time }
+        servicios:
+          type: array
+          maxItems: 40
+          items: { $ref: '#/components/schemas/SaludDeServicio' }
+    SaludDeServicio:
+      type: object
+      additionalProperties: false
+      required: [servicio, estado]
+      properties:
+        servicio: { type: string, maxLength: 60 }
+        estado: { type: string, enum: [ARRIBA, DEGRADADO, CAIDO] }
+        latenciaMs: { type: integer, format: int64, description: 'Cuanto tardo en contestar; ausente si no contesto' }
+    EndpointDelDia:
+      type: object
+      additionalProperties: false
+      required: [servicio, metodo, ruta, solicitudes, errores4xx, errores5xx]
+      properties:
+        servicio: { type: string, maxLength: 60 }
+        metodo: { type: string, maxLength: 10 }
+        ruta: { type: string, maxLength: 200, description: 'Plantilla de la ruta, sin identificadores' }
+        solicitudes: { type: integer, format: int64 }
+        errores4xx: { type: integer, format: int64 }
+        errores5xx: { type: integer, format: int64 }
+        p95Ms: { type: string, description: 'Percentil 95 en milisegundos, cadena decimal; ausente si no hay histograma' }
+    PaginaDeDefinicionesDeReporte:
+      type: object
+      additionalProperties: false
+      required: [items]
+      properties:
+        items:
+          type: array
+          items: { $ref: '#/components/schemas/DefinicionDeReporteEnLista' }
+        proximoDespuesDe: { type: string }
+        proximoDespuesDeId: { type: string, format: uuid }
+    DefinicionDeReporteEnLista:
+      type: object
+      additionalProperties: false
+      required: [definicionId, tipo, nombre, descripcion, permisoRequerido, contieneDatosSensibles]
+      properties:
+        definicionId: { type: string, format: uuid }
+        tipo: { type: string }
+        nombre: { type: string }
+        descripcion: { type: string }
+        permisoRequerido: { type: string }
+        contieneDatosSensibles: { type: boolean }
+    PaginaDeEjecucionesDeReporte:
+      type: object
+      additionalProperties: false
+      required: [items]
+      properties:
+        items:
+          type: array
+          items: { $ref: '#/components/schemas/EjecucionDeReporteEnLista' }
+        proximoAntesDe: { type: string, format: date-time }
+        proximoAntesDeId: { type: string, format: uuid }
+    EjecucionDeReporteEnLista:
+      type: object
+      additionalProperties: false
+      required: [ejecucionId, definicionId, solicitadoPor, estado, filasGeneradas, duracionMs, iniciadaEn]
+      properties:
+        ejecucionId: { type: string, format: uuid }
+        definicionId: { type: string, format: uuid }
+        solicitadoPor: { type: string, format: uuid }
+        estado: { type: string, enum: [EN_COLA, EJECUTANDO, COMPLETADA, FALLIDA, EXPIRADA] }
+        filasGeneradas: { type: integer }
+        duracionMs: { type: integer }
+        hashResultado: { type: string }
+        iniciadaEn: { type: string, format: date-time }
+        finalizadaEn: { type: string, format: date-time }
     EntradaDerechos:
       type: object
       additionalProperties: false
@@ -400,6 +1017,106 @@ components:
           type: integer
           description: El piso que fija la definicion del indicador.
         calculadoEn: { type: string, format: date-time }
+
+    PaginaDeBitacora:
+      type: object
+      additionalProperties: false
+      required: [items]
+      properties:
+        items:
+          type: array
+          items: { $ref: '#/components/schemas/EventoBitacora' }
+        proximoAntesDe: { type: string, format: date-time }
+        proximoAntesDeId: { type: string, format: uuid }
+        totalAproximado: { type: integer }
+
+    EventoBitacora:
+      type: object
+      additionalProperties: false
+      required: [id, secuencia, entidad, entidadId, accion, origen, correlationId, hashRegistro, fechaHora]
+      properties:
+        id: { type: string, format: uuid }
+        secuencia: { type: integer, format: int64 }
+        entidad: { type: string }
+        entidadId: { type: string, format: uuid }
+        accion: { type: string }
+        actorUsuarioId: { type: string, format: uuid }
+        actorRol: { type: string }
+        origen: { type: string }
+        ipOrigen: { type: string }
+        agenteUsuario: { type: string }
+        correlationId: { type: string, format: uuid }
+        valorAnterior: { type: object }
+        valorNuevo: { type: object }
+        camposModificados: { type: string }
+        motivo: { type: string }
+        hashRegistro: { type: string }
+        hashAnterior: { type: string }
+        fechaHora: { type: string, format: date-time }
+
+    CatalogoOperativoResumen:
+      type: object
+      additionalProperties: false
+      required: [codigo, nombre, dueno, version, totalElementos, elementosActivos, vigenteDesde, estado, descripcion]
+      properties:
+        codigo: { type: string }
+        nombre: { type: string }
+        dueno: { type: string }
+        version: { type: string }
+        totalElementos: { type: integer }
+        elementosActivos: { type: integer }
+        vigenteDesde: { type: string, format: date-time }
+        estado:
+          type: string
+          enum: [VIGENTE, EN_REVISION, OBSOLETO]
+        descripcion: { type: string }
+
+    CatalogoOperativoDetalle:
+      type: object
+      additionalProperties: false
+      required: [codigo, nombre, dueno, version, totalElementos, elementosActivos, vigenteDesde, estado, descripcion, tablaFisica, baseNormativa]
+      properties:
+        codigo: { type: string }
+        nombre: { type: string }
+        dueno: { type: string }
+        version: { type: string }
+        totalElementos: { type: integer }
+        elementosActivos: { type: integer }
+        vigenteDesde: { type: string, format: date-time }
+        estado:
+          type: string
+          enum: [VIGENTE, EN_REVISION, OBSOLETO]
+        descripcion: { type: string }
+        tablaFisica: { type: string }
+        baseNormativa: { type: string }
+
+    ElementoCatalogoOperativo:
+      type: object
+      additionalProperties: false
+      required: [id, catalogoCodigo, codigo, nombre, descripcion, activo, orden, actualizadoEn]
+      properties:
+        id: { type: string }
+        catalogoCodigo: { type: string }
+        codigo: { type: string }
+        nombre: { type: string }
+        descripcion: { type: string }
+        activo: { type: boolean }
+        atributos:
+          type: object
+          additionalProperties: true
+        orden: { type: integer }
+        vigenteDesde: { type: string, format: date-time }
+        actualizadoEn: { type: string, format: date-time }
+        actualizadoPor: { type: string }
+
+    EntradaActualizarElementoCatalogo:
+      type: object
+      additionalProperties: false
+      required: [activo, motivo]
+      properties:
+        activo: { type: boolean }
+        motivo: { type: string, minLength: 5, maxLength: 500 }
+
   responses:
     ReglaDeNegocio:
       description: Regla de negocio de la aplicacion (422, no 400)

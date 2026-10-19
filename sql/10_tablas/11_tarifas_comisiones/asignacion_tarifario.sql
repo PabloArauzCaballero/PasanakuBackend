@@ -18,8 +18,8 @@ CREATE TABLE IF NOT EXISTS tarifas.asignacion_tarifario (
   CONSTRAINT ck_asignacion_tarifario_ambito CHECK (ambito IN ('GLOBAL', 'GRUPO', 'SEGMENTO', 'USUARIO'))
 );
 
-COMMENT ON TABLE tarifas.asignacion_tarifario IS 'Módulo 11 — Tarifas, Comisiones, Impuestos y Facturación. La política de cobro es dato, no código: se cambia con un seeder';
-COMMENT ON COLUMN tarifas.asignacion_tarifario.id IS 'PK';
+COMMENT ON TABLE tarifas.asignacion_tarifario IS 'Módulo 11 — Tarifas, Comisiones, Impuestos y Facturación. A quién se le aplica cada tarifario y con qué prioridad.';
+COMMENT ON COLUMN tarifas.asignacion_tarifario.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN tarifas.asignacion_tarifario.tarifario_id IS 'FK, IDX';
 COMMENT ON COLUMN tarifas.asignacion_tarifario.segmento_id IS 'FK, NULL';
 COMMENT ON COLUMN tarifas.asignacion_tarifario.grupo_id IS 'FK, NULL, M2';
@@ -27,4 +27,5 @@ COMMENT ON COLUMN tarifas.asignacion_tarifario.usuario_id IS 'FK, NULL, M1';
 COMMENT ON COLUMN tarifas.asignacion_tarifario.autorizado_por IS 'FK, NULL';
 COMMENT ON COLUMN tarifas.asignacion_tarifario.ambito IS 'CK, IDX';
 COMMENT ON COLUMN tarifas.asignacion_tarifario.motivo IS 'NULL';
-COMMENT ON COLUMN tarifas.asignacion_tarifario.vigente_hasta IS 'NULL';
+COMMENT ON COLUMN tarifas.asignacion_tarifario.vigente_desde IS 'Desde cuándo rige esta versión de la fila: las condiciones se versionan, no se pisan.';
+COMMENT ON COLUMN tarifas.asignacion_tarifario.vigente_hasta IS 'Hasta cuándo rigió esta versión; vacía mientras sigue vigente.';

@@ -11,6 +11,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import bo.aportaya.identidad.aplicacion.BuscarPorTelefono;
 import bo.aportaya.identidad.aplicacion.CU01RegistrarUsuario;
+import bo.aportaya.identidad.aplicacion.CU02ActualizarFechaExpiracion;
 import bo.aportaya.identidad.aplicacion.CU02ConsultarEstadoDeVerificacion;
 import bo.aportaya.identidad.aplicacion.CU02GuardarFotoDelExpediente;
 import bo.aportaya.identidad.aplicacion.ConfirmarVerificacionCorreo;
@@ -63,6 +64,9 @@ class UsuariosAutorizacionNegativaWebTest {
     private CU02ConsultarEstadoDeVerificacion estadoDeVerificacion;
 
     @MockitoBean
+    private CU02ActualizarFechaExpiracion actualizarFechaExpiracion;
+
+    @MockitoBean
     private CU01RegistrarUsuario cu01;
 
     @MockitoBean
@@ -82,6 +86,18 @@ class UsuariosAutorizacionNegativaWebTest {
 
     @MockitoBean
     private ConfirmarVerificacionCorreo confirmarCorreo;
+
+    @MockitoBean
+    private bo.aportaya.identidad.aplicacion.ActivarRolOrganizador activarRolOrganizador;
+
+    @MockitoBean
+    private bo.aportaya.identidad.aplicacion.GuardarBorradorOnboarding guardarBorrador;
+
+    @MockitoBean
+    private bo.aportaya.identidad.aplicacion.ConsultarMiPerfil consultarMiPerfil;
+
+    @MockitoBean
+    private bo.aportaya.identidad.aplicacion.CU02IniciarVerificacion iniciarVerificacion;
 
     @MockitoBean
     private ConsultarNivelKyc nivelesKyc;
@@ -237,5 +253,44 @@ class UsuariosAutorizacionNegativaWebTest {
                     .andExpect(status().isForbidden());
         }
         verifyNoInteractions(tokens);
+    }
+
+    @Test
+    @org.junit.jupiter.api.DisplayName(
+            "CU-90 vía básica · sin sesión 401 y un rol sin PARTICIPANTE 403: nadie firma ni se lleva el rol ORGANIZADOR")
+    void rolOrganizadorNoSeRegala() throws Exception {
+        String ruta = "/usuarios/b8000000-0000-4000-8000-000000000099/roles/organizador";
+        String cuerpo = "{\"contratoId\":\"b8000000-0000-4000-8000-000000000003\",\"contenidoHash\":\"" + "a".repeat(64)
+                + "\"}";
+
+        mvc.perform(post(ruta)
+                        .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                        .content(cuerpo))
+                .andExpect(status().isUnauthorized());
+        mvc.perform(post(ruta)
+                        .with(Sesiones.como("SOPORTE"))
+                        .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                        .content(cuerpo))
+                .andExpect(status().isForbidden());
+        verifyNoInteractions(activarRolOrganizador);
+    }
+
+    @Test
+    @DisplayName("CU-07 · mi perfil: sin sesión 401; con sesión devuelve el correo de la cuenta de ESA sesión")
+    void miPerfilSaleDeLaSesion() throws Exception {
+        var ruta = "/usuarios/yo/perfil";
+        mvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get(ruta))
+                .andExpect(status().isUnauthorized());
+        var yo = UUID.fromString("b8000000-0000-4000-8000-000000000077");
+        when(consultarMiPerfil.ejecutar(any()))
+                .thenReturn(new bo.aportaya.identidad.aplicacion.ConsultarMiPerfil.Perfil(
+                        yo, "ana@correo.test", true, "ACTIVO", "Ana M."));
+        mvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get(ruta)
+                        .with(Sesiones.como("PARTICIPANTE")))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.correo").value("ana@correo.test"))
+                .andExpect(jsonPath("$.correoVerificado").value(true))
+                .andExpect(jsonPath("$.estadoDeCuenta").value("ACTIVO"))
+                .andExpect(jsonPath("$.nombreVisible").value("Ana M."));
     }
 }

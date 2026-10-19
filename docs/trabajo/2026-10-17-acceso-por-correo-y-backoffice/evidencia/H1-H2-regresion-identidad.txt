@@ -1,0 +1,8 @@
+$ TESTCONTAINERS_RYUK_DISABLED=true ./gradlew :servicios:identidad:test :servicios:identidad:webTest :servicios:identidad:integrationTest --continue
+> Task :servicios:identidad:test
+> Task :servicios:identidad:webTest
+> Task :servicios:identidad:integrationTest
+BUILD SUCCESSFUL in 27s
+test: tests=35 failures=0 errors=0
+webTest: tests=127 failures=0 errors=0
+integrationTest: tests=168 failures=0 errors=0

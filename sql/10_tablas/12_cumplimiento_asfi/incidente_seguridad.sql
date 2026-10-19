@@ -27,8 +27,8 @@ CREATE TABLE IF NOT EXISTS cumplimiento.incidente_seguridad (
   CONSTRAINT ck_incidente_seguridad_estado CHECK (estado IN ('CERRADO', 'CONTENIDO', 'DETECTADO', 'EN_CONTENCION', 'ERRADICADO'))
 );
 
-COMMENT ON TABLE cumplimiento.incidente_seguridad IS 'Módulo 12 — Cumplimiento Regulatorio y Consumidor Financiero. Que una inspección se responda con consultas, no armando carpetas';
-COMMENT ON COLUMN cumplimiento.incidente_seguridad.id IS 'PK';
+COMMENT ON TABLE cumplimiento.incidente_seguridad IS 'Módulo 12 — Cumplimiento Regulatorio y Consumidor Financiero. El inventario clasificado de activos y los incidentes que los afectan.';
+COMMENT ON COLUMN cumplimiento.incidente_seguridad.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN cumplimiento.incidente_seguridad.codigo IS 'UQ';
 COMMENT ON COLUMN cumplimiento.incidente_seguridad.activo_informacion_id IS 'FK, NULL, IDX';
 COMMENT ON COLUMN cumplimiento.incidente_seguridad.incidente_operativo_id IS 'FK, NULL, M9';

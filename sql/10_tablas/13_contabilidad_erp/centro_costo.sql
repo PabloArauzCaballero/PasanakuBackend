@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS erp.centro_costo (
   CONSTRAINT ck_centro_costo_tipo CHECK (tipo IN ('AREA', 'CAMPANA', 'PRODUCTO', 'PROYECTO'))
 );
 
-COMMENT ON TABLE erp.centro_costo IS 'Módulo 13 — Contabilidad Financiera y ERP. Que cerrar un mes no dependa de un Excel armado a mano';
-COMMENT ON COLUMN erp.centro_costo.id IS 'PK';
+COMMENT ON TABLE erp.centro_costo IS 'Módulo 13 — Contabilidad Financiera y ERP. Unidad de costeo: un área, un producto, una campaña.';
+COMMENT ON COLUMN erp.centro_costo.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN erp.centro_costo.codigo IS 'UQ';
 COMMENT ON COLUMN erp.centro_costo.tipo IS 'CK';

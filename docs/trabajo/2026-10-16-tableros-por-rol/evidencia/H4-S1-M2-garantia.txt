@@ -1,0 +1,3 @@
+CUIndicadoresDeGarantiaTest 4/4 (cubierto suma, tasas con num/den, SIN_DATOS, RECHAZADA no cuenta) · ArranqueTest 1/1
+garantia: test=41 webTest=46 integrationTest=166, 0 fallas; jacocoTestCoverageVerification exit=0
+Redefinida COBERTURA_FONDO dentro de garantia (saldo fondos / cubierto pendiente): la original cruzaba garantia y aportes (regla 98.1.1).

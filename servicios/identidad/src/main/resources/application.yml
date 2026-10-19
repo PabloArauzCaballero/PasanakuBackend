@@ -24,6 +24,11 @@ spring:
     bootstrap-servers: ${KAFKA_URL}
 
 aportaya:
+  # Tableros (CU-98): relleno de indicadores al arrancar. 0 = no rellena (produccion); dev y TEST lo piden en el compose.
+  indicadores:
+    relleno:
+      meses: ${INDICADORES_RELLENO_MESES:0}
+      dias: ${INDICADORES_RELLENO_DIAS:0}
   esquema: identidad
   outbox:
     intervalo: PT1S                 # relevo: lee el outbox y publica DESPUES del commit

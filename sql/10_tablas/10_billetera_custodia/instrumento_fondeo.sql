@@ -24,12 +24,13 @@ CREATE TABLE IF NOT EXISTS nucleo_financiero.instrumento_fondeo (
   CONSTRAINT ck_instrumento_fondeo_estado_verificacion CHECK (estado_verificacion IN ('PENDIENTE', 'RECHAZADO', 'VENCIDO', 'VERIFICADO'))
 );
 
-COMMENT ON TABLE nucleo_financiero.instrumento_fondeo IS 'Módulo 10 — Billetera, Custodia y Dinero Electrónico. El saldo no se guarda: se deriva, y todos los días cuadra contra el banco';
-COMMENT ON COLUMN nucleo_financiero.instrumento_fondeo.id IS 'PK';
+COMMENT ON TABLE nucleo_financiero.instrumento_fondeo IS 'Módulo 10 — Billetera, Custodia y Dinero Electrónico. El medio por el que entra o sale plata: cuenta bancaria, tarjeta, QR, agente, efectivo.';
+COMMENT ON COLUMN nucleo_financiero.instrumento_fondeo.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN nucleo_financiero.instrumento_fondeo.usuario_id IS 'FK, IDX';
 COMMENT ON COLUMN nucleo_financiero.instrumento_fondeo.tipo IS 'CK';
 COMMENT ON COLUMN nucleo_financiero.instrumento_fondeo.token_proveedor IS 'NULL';
 COMMENT ON COLUMN nucleo_financiero.instrumento_fondeo.hash_identificador IS 'UQ+usuario_id';
+COMMENT ON COLUMN nucleo_financiero.instrumento_fondeo.moneda IS 'Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2).';
 COMMENT ON COLUMN nucleo_financiero.instrumento_fondeo.estado_verificacion IS 'CK';
 COMMENT ON COLUMN nucleo_financiero.instrumento_fondeo.metodo_verificacion IS 'NULL';
 COMMENT ON COLUMN nucleo_financiero.instrumento_fondeo.verificado_en IS 'NULL';

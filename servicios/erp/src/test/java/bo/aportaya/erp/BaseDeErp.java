@@ -7,9 +7,12 @@ import bo.aportaya.erp.aplicacion.CU103FacturaDeProveedor;
 import bo.aportaya.erp.aplicacion.CU104CobrarCuenta;
 import bo.aportaya.erp.aplicacion.CU105DepreciarActivo;
 import bo.aportaya.erp.aplicacion.CU106GenerarEstadoFinanciero;
+import bo.aportaya.erp.aplicacion.ConsultarListadosDeErp;
 import bo.aportaya.erp.infraestructura.ActivosRepositorio;
 import bo.aportaya.erp.infraestructura.CobranzasRepositorio;
 import bo.aportaya.erp.infraestructura.ComprasRepositorio;
+import bo.aportaya.erp.infraestructura.ListadosDeErpRepositorio;
+import bo.aportaya.erp.infraestructura.ListadosDeTercerosRepositorio;
 import bo.aportaya.erp.infraestructura.PeriodoRepositorio;
 import bo.aportaya.erp.infraestructura.PresupuestoRepositorio;
 import bo.aportaya.plataforma.datos.Datos;
@@ -46,6 +49,7 @@ abstract class BaseDeErp {
     static CU104CobrarCuenta cobroCU;
     static CU105DepreciarActivo depreciacionCU;
     static CU106GenerarEstadoFinanciero estadoCU;
+    static ConsultarListadosDeErp listadosCU;
 
     @BeforeAll
     static void armar() {
@@ -73,6 +77,13 @@ abstract class BaseDeErp {
         cobroCU = new CU104CobrarCuenta(datos, cobranzas, outbox, Reloj.delSistema());
         depreciacionCU = new CU105DepreciarActivo(datos, activos, periodos, outbox, Reloj.delSistema());
         estadoCU = new CU106GenerarEstadoFinanciero(datos, presupuestos, periodos, outbox, Reloj.delSistema());
+        listadosCU = listados(Reloj.delSistema());
+    }
+
+    /** Los listados del backoffice (carril A · A6) con el reloj que la prueba necesite. */
+    static ConsultarListadosDeErp listados(Reloj reloj) {
+        return new ConsultarListadosDeErp(
+                new Datos(dsl), new ListadosDeErpRepositorio(), new ListadosDeTercerosRepositorio(), reloj);
     }
 
     protected ContextoSesion contextoDe(UUID usuarioId) {

@@ -10,6 +10,8 @@ CREATE TABLE IF NOT EXISTS grupos.solicitud_ingreso (
   mensaje                            VARCHAR(300),
   estado                             VARCHAR(15) NOT NULL,
   puntaje_compatibilidad             NUMERIC(5,2),
+  enlace_grupo_id                    UUID,
+  nombre_visible                     VARCHAR(60),
   revisada_por                       UUID,
   fecha_solicitud                    TIMESTAMPTZ NOT NULL,
   fecha_resolucion                   TIMESTAMPTZ,
@@ -17,12 +19,14 @@ CREATE TABLE IF NOT EXISTS grupos.solicitud_ingreso (
   CONSTRAINT ck_solicitud_ingreso_estado CHECK (estado IN ('APROBADA', 'EXPIRADA', 'PENDIENTE', 'RECHAZADA'))
 );
 
-COMMENT ON TABLE grupos.solicitud_ingreso IS 'Módulo 02 — Grupos, Cupos, Turnos y Gobernanza. Reglas del juego, orden de cobro y decisiones colectivas';
-COMMENT ON COLUMN grupos.solicitud_ingreso.id IS 'PK';
+COMMENT ON TABLE grupos.solicitud_ingreso IS 'Módulo 02 — Grupos, Cupos, Turnos y Gobernanza. La postulación de un usuario a un grupo abierto.';
+COMMENT ON COLUMN grupos.solicitud_ingreso.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN grupos.solicitud_ingreso.grupo_id IS 'FK, IDX';
 COMMENT ON COLUMN grupos.solicitud_ingreso.usuario_id IS 'FK, IDX';
 COMMENT ON COLUMN grupos.solicitud_ingreso.mensaje IS 'NULL';
 COMMENT ON COLUMN grupos.solicitud_ingreso.estado IS 'CK';
 COMMENT ON COLUMN grupos.solicitud_ingreso.puntaje_compatibilidad IS 'NULL';
+COMMENT ON COLUMN grupos.solicitud_ingreso.enlace_grupo_id IS 'FK, NULL, IDX';
+COMMENT ON COLUMN grupos.solicitud_ingreso.nombre_visible IS 'NULL';
 COMMENT ON COLUMN grupos.solicitud_ingreso.revisada_por IS 'FK, NULL';
 COMMENT ON COLUMN grupos.solicitud_ingreso.fecha_resolucion IS 'NULL';

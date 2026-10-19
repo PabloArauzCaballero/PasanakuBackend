@@ -22,8 +22,8 @@ CREATE TABLE IF NOT EXISTS cumplimiento.debida_diligencia (
   CONSTRAINT ck_debida_diligencia_estado CHECK (estado IN ('COMPLETA', 'EN_PROCESO', 'OBSERVADA', 'PENDIENTE', 'RECHAZADA', 'VENCIDA'))
 );
 
-COMMENT ON TABLE cumplimiento.debida_diligencia IS 'Módulo 12 — Cumplimiento Regulatorio y Consumidor Financiero. Que una inspección se responda con consultas, no armando carpetas';
-COMMENT ON COLUMN cumplimiento.debida_diligencia.id IS 'PK';
+COMMENT ON TABLE cumplimiento.debida_diligencia IS 'Módulo 12 — Cumplimiento Regulatorio y Consumidor Financiero. El expediente de conocimiento del cliente, por nivel.';
+COMMENT ON COLUMN cumplimiento.debida_diligencia.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN cumplimiento.debida_diligencia.usuario_id IS 'FK, IDX, M1';
 COMMENT ON COLUMN cumplimiento.debida_diligencia.verificacion_kyc_id IS 'FK, NULL, M1';
 COMMENT ON COLUMN cumplimiento.debida_diligencia.calificacion_riesgo_id IS 'FK, NULL';

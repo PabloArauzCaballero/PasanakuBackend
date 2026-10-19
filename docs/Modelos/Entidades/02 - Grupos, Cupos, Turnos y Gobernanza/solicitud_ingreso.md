@@ -6,8 +6,8 @@ tabla: solicitud_ingreso
 clase: SolicitudIngreso
 modulo: "02 — Grupos, Cupos, Turnos y Gobernanza"
 clave_primaria: [id]
-columnas: 10
-fk_salientes: 3
+columnas: 12
+fk_salientes: 4
 fk_entrantes: 0
 append_only: false
 ---
@@ -27,6 +27,8 @@ append_only: false
 | `mensaje` | VARCHAR(300) | — | sí | NULL |
 | `estado` | VARCHAR(15) | — | no | CK |
 | `puntaje_compatibilidad` | DECIMAL(5,2) | — | sí | NULL |
+| `enlace_grupo_id` | UUID | FK IDX | sí | FK, NULL, IDX |
+| `nombre_visible` | VARCHAR(60) | — | sí | NULL |
 | `revisada_por` | UUID | FK | sí | FK, NULL |
 | `fecha_solicitud` | TIMESTAMPTZ | — | no | — |
 | `fecha_resolucion` | TIMESTAMPTZ | — | sí | NULL |
@@ -44,13 +46,14 @@ append_only: false
 
 | Columna | Referencia a | Módulo | Opcional | Relación |
 | --- | --- | :-: | :-: | --- |
+| `enlace_grupo_id` | [[enlace_grupo]] | 02 | sí | [[solicitud_ingreso.enlace_grupo_id → enlace_grupo]] |
 | `grupo_id` | [[grupo]] | 02 | no | [[solicitud_ingreso.grupo_id → grupo]] |
 | `revisada_por` | [[usuario]] | ↗ 01 | sí | [[solicitud_ingreso.revisada_por → usuario]] |
 | `usuario_id` | [[usuario]] | ↗ 01 | no | [[solicitud_ingreso.usuario_id → usuario]] |
 
 ## Entidades vecinas
 
-[[grupo]] · [[usuario]]
+[[enlace_grupo]] · [[grupo]] · [[usuario]]
 
 ## Ver también
 

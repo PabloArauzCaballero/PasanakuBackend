@@ -22,8 +22,8 @@ CREATE TABLE IF NOT EXISTS cumplimiento.alerta_monitoreo_lft (
   CONSTRAINT ck_alerta_monitoreo_lft_estado CHECK (estado IN ('ABIERTA', 'DESCARTADA', 'EN_ANALISIS', 'ESCALADA'))
 );
 
-COMMENT ON TABLE cumplimiento.alerta_monitoreo_lft IS 'Módulo 12 — Cumplimiento Regulatorio y Consumidor Financiero. Que una inspección se responda con consultas, no armando carpetas';
-COMMENT ON COLUMN cumplimiento.alerta_monitoreo_lft.id IS 'PK';
+COMMENT ON TABLE cumplimiento.alerta_monitoreo_lft IS 'Módulo 12 — Cumplimiento Regulatorio y Consumidor Financiero. La detección y la investigación.';
+COMMENT ON COLUMN cumplimiento.alerta_monitoreo_lft.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN cumplimiento.alerta_monitoreo_lft.regla_monitoreo_id IS 'FK, IDX';
 COMMENT ON COLUMN cumplimiento.alerta_monitoreo_lft.usuario_id IS 'FK, IDX, M1';
 COMMENT ON COLUMN cumplimiento.alerta_monitoreo_lft.cuenta_billetera_id IS 'FK, NULL, M10';

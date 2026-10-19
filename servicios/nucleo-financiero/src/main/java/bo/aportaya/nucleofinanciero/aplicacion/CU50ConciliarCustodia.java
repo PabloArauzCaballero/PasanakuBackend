@@ -3,6 +3,7 @@ package bo.aportaya.nucleofinanciero.aplicacion;
 import bo.aportaya.nucleofinanciero.dominio.RatioDeCobertura;
 import bo.aportaya.nucleofinanciero.dominio.RatioDeCobertura.Resultado;
 import bo.aportaya.nucleofinanciero.infraestructura.ConciliacionRepositorio;
+import bo.aportaya.nucleofinanciero.infraestructura.TesoreriaRepositorio;
 import bo.aportaya.plataforma.datos.Datos;
 import bo.aportaya.plataforma.dominio.CodigoError;
 import bo.aportaya.plataforma.dominio.ContextoSesion;
@@ -37,6 +38,7 @@ public class CU50ConciliarCustodia {
 
     private final Datos datos;
     private final ConciliacionRepositorio conciliaciones;
+    private final TesoreriaRepositorio tesoreria = new TesoreriaRepositorio();
     private final Outbox outbox;
     private final Reloj reloj;
 
@@ -115,6 +117,51 @@ public class CU50ConciliarCustodia {
                     resultado.cumpleEncaje(),
                     resultado.diferencia(),
                     resultado.cumpleEncaje() ? "CUADRADA" : "DESCUADRADA");
+        });
+    }
+
+    /**
+     * La conciliacion que dispara Tesoreria desde el backoffice (carril A · H8).
+     *
+     * <p>El saldo emitido NO lo manda el cliente: se calcula aca, en la misma transaccion, como pide
+     * el paso 1 del CU (suma de {@code saldo_total} de USUARIO, GRUPO y FONDO_GARANTIA en la moneda
+     * de la custodia). Tesoreria informa el saldo del extracto bancario y el transito. Reintentar con
+     * los mismos saldos devuelve la conciliacion ya registrada; otros saldos para el mismo dia son
+     * AP-CU50-03 (una conciliacion por cuenta y dia).
+     */
+    @Transactional
+    public SalidaConciliacion conciliarDesdeTesoreria(
+            UUID cuentaCustodiaId, LocalDate fecha, Dinero saldoCustodia, Dinero saldoEnTransito, ContextoSesion ctx) {
+        return datos.conContexto(ctx, dsl -> {
+            String moneda = tesoreria
+                    .monedaDeLaCustodia(dsl, cuentaCustodiaId)
+                    .orElseThrow(() -> new ErrorDeNegocio(CodigoError.de(50, 6), "Esa cuenta de custodia no existe."));
+            if (!saldoCustodia.moneda().name().equals(moneda)
+                    || !saldoEnTransito.moneda().name().equals(moneda)) {
+                throw new ErrorDeNegocio(
+                        CodigoError.de(50, 5), "Los saldos van en la moneda de la custodia (" + moneda + ").");
+            }
+            var previa = tesoreria.conciliacionDelDia(dsl, cuentaCustodiaId, fecha);
+            if (previa.isPresent()) {
+                var p = previa.get();
+                boolean mismaPeticion = p.saldoCustodia().compareTo(saldoCustodia.monto()) == 0
+                        && p.saldoEnTransito().compareTo(saldoEnTransito.monto()) == 0
+                        && ctx.usuarioId().equals(p.ejecutadaPor());
+                if (!mismaPeticion) {
+                    throw new ErrorDeNegocio(
+                            CodigoError.de(50, 3),
+                            "Ya hay una conciliacion de esa cuenta de custodia para el " + fecha + ".");
+                }
+                // Se recalcula con el MISMO atomo que la primera vez: la columna generada de la tabla
+                // no suma el transito, y el reintento tiene que devolver la misma respuesta.
+                Moneda m = Moneda.valueOf(moneda);
+                var r = bo.aportaya.nucleofinanciero.dominio.RatioDeCobertura.calcular(
+                        Dinero.de(p.saldoEmitido(), m), saldoCustodia, saldoEnTransito);
+                return new SalidaConciliacion(p.id(), r.ratio(), r.cumpleEncaje(), r.diferencia(), p.estado());
+            }
+            Dinero emitido = Dinero.de(tesoreria.saldoEmitido(dsl, moneda), Moneda.valueOf(moneda));
+            return ejecutar(
+                    new EntradaConciliacion(cuentaCustodiaId, fecha, emitido, saldoCustodia, saldoEnTransito), ctx);
         });
     }
 

@@ -27,6 +27,23 @@ class SeguridadWebTest extends SabanaDeSeguridadWeb {
     private CU07EjercerDerechos cu07EjercerDerechos;
 
     @MockitoBean
+    private bo.aportaya.auditoria.aplicacion.EndpointsDelDia endpointsDelDia;
+
+    @MockitoBean
+    private bo.aportaya.auditoria.aplicacion.CatalogoDeDatosVigente catalogoDeDatos;
+
+    // operacion/estado comparte controlador: no se llama aca.
+    @MockitoBean
+    private bo.aportaya.auditoria.aplicacion.SaludDeServicios saludDeServicios;
+
+    // CU-130: el mismo controlador guarda la ficha de gobierno.
+    @MockitoBean
+    private bo.aportaya.auditoria.aplicacion.CU130GobernarFichaDeTabla cu130;
+
+    @MockitoBean
+    private bo.aportaya.auditoria.aplicacion.CU131RevisarColumna cu131;
+
+    @MockitoBean
     private CU58DescargarExportacion cu58DescargarExportacion;
 
     @MockitoBean
@@ -34,4 +51,14 @@ class SeguridadWebTest extends SabanaDeSeguridadWeb {
 
     @MockitoBean
     private CU98PublicarTablero cu98PublicarTablero;
+
+    // El controlador tambien lista el catalogo y el historial (CU-58, carril A · A6).
+    @org.springframework.test.context.bean.override.mockito.MockitoBean
+    private bo.aportaya.auditoria.aplicacion.ConsultarHistorialDeReportes historialDeReportes;
+
+    @MockitoBean
+    private bo.aportaya.auditoria.aplicacion.ConsultarBitacora consultarBitacora;
+
+    @MockitoBean
+    private bo.aportaya.auditoria.aplicacion.GestionarCatalogosOperativos catalogosOperativos;
 }

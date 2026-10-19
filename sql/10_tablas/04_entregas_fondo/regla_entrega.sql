@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS entregas.regla_entrega (
   CONSTRAINT pk_regla_entrega PRIMARY KEY (id)
 );
 
-COMMENT ON TABLE entregas.regla_entrega IS 'Módulo 04 — Entregas de Fondo. Que la bolsa llegue completa, a la persona correcta, una sola vez';
-COMMENT ON COLUMN entregas.regla_entrega.id IS 'PK';
+COMMENT ON TABLE entregas.regla_entrega IS 'Módulo 04 — Entregas de Fondo. El catálogo de controles previos, con su orden, si bloquean y quién puede omitirlos.';
+COMMENT ON COLUMN entregas.regla_entrega.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN entregas.regla_entrega.codigo IS 'UQ';
 COMMENT ON COLUMN entregas.regla_entrega.rol_que_puede_omitir IS 'NULL';

@@ -191,7 +191,7 @@ PREFIJOS = {
     # validez; CU-04 y el flujo del backoffice usan `POST /sesiones` para abrirla.
     # La reserva listaba solo el primero, y por eso el contrato de identidad no
     # pasaba su propia prueba de prefijos.
-    "identidad":         ["/identidad", "/usuarios", "/sesion", "/sesiones", "/roles"],
+    "identidad":         ["/identidad", "/usuarios", "/usuarios-internos", "/sesion", "/sesiones", "/roles", "/permisos"],
     "grupos":            ["/grupos", "/turnos", "/acuerdos"],
     "nucleo_financiero": ["/billetera", "/custodia", "/puntos-atencion", "/contabilidad"],
     "aportes":           ["/aportes", "/pagos", "/qr", "/conciliacion"],
@@ -336,6 +336,19 @@ APPEND_ONLY = {
 PARTICIONADAS = {
     "bitacora_evento": "fecha_hora",
     "registro_acceso_datos": "fecha_hora",
+}
+
+# CHECK de enumerado que se AMPLIO despues de que existieran bases. El CREATE TABLE
+# IF NOT EXISTS saltea una tabla que ya esta, asi que su CHECK viejo quedaria vivo
+# en TEST para siempre. Para estas columnas el generador emite ademas el DROP/ADD
+# idempotente, igual que la evolucion del outbox (ADR-027). Solo se AMPLIA: ninguna
+# fila existente queda invalida.
+CK_AMPLIADOS = {
+    # 2026-10-16: segundo factor por correo para participantes.
+    "factor_mfa": ["tipo"],
+    # 2026-10-16: el recargo por mora cobrado va al fondo de garantia (tableros-por-rol, H1.S2.M0d).
+    "transaccion_billetera": ["tipo"],
+    "movimiento_fondo": ["tipo"],
 }
 
 # --- FK -> tabla destino: overrides donde el nombre de columna no coincide ---

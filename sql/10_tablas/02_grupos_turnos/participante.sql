@@ -20,8 +20,8 @@ CREATE TABLE IF NOT EXISTS grupos.participante (
   CONSTRAINT ck_participante_estado CHECK (estado IN ('ACEPTADO_PENDIENTE_FIRMA', 'ACTIVO', 'EN_MORA', 'EXPULSADO', 'INVITADO', 'POSTULANTE', 'REEMPLAZADO', 'RETIRADO', 'SUSPENDIDO'))
 );
 
-COMMENT ON TABLE grupos.participante IS 'Módulo 02 — Grupos, Cupos, Turnos y Gobernanza. Reglas del juego, orden de cobro y decisiones colectivas';
-COMMENT ON COLUMN grupos.participante.id IS 'PK';
+COMMENT ON TABLE grupos.participante IS 'Módulo 02 — Grupos, Cupos, Turnos y Gobernanza. Una persona dentro de un grupo específico, con su estado y su historia en ese grupo.';
+COMMENT ON COLUMN grupos.participante.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN grupos.participante.grupo_id IS 'FK, IDX';
 COMMENT ON COLUMN grupos.participante.usuario_id IS 'FK, IDX';
 COMMENT ON COLUMN grupos.participante.alias IS 'NULL';

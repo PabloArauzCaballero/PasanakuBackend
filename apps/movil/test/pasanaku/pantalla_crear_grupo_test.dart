@@ -22,7 +22,9 @@ void main() {
 
   testWidgets('sin monto el botón sigue apagado', (tester) async {
     final (:dio, :adaptador) = dioSimulado();
+    organizadorHabilitado(adaptador);
     await tester.pumpWidget(conApp(const PantallaCrearGrupo(), dio: dio));
+    await asentar(tester);
     await tester.pump();
     await tester.enterText(find.byType(EditableText).first, 'Grupo de prueba');
     await tester.pump();
@@ -33,6 +35,7 @@ void main() {
     'con nombre y monto el botón se habilita y envía una sola petición con fecha de inicio',
     (tester) async {
       final (:dio, :adaptador) = dioSimulado();
+      organizadorHabilitado(adaptador);
       final cuerpos = <Map<String, dynamic>>[];
       dio.interceptors.add(
         InterceptorsWrapper(
@@ -56,6 +59,7 @@ void main() {
       );
 
       await tester.pumpWidget(conApp(const PantallaCrearGrupo(), dio: dio));
+      await asentar(tester);
       await tester.pump();
       final campos = find.byType(EditableText);
       await tester.enterText(campos.at(0), 'Grupo de prueba');
@@ -78,7 +82,9 @@ void main() {
   // se mostraba en ningún lado: la persona apretaba y no pasaba nada.
   testWidgets('límite: un monto en cero deja el botón apagado', (tester) async {
     final (:dio, :adaptador) = dioSimulado();
+    organizadorHabilitado(adaptador);
     await tester.pumpWidget(conApp(const PantallaCrearGrupo(), dio: dio));
+    await asentar(tester);
     await tester.pump();
     final campos = find.byType(EditableText);
     await tester.enterText(campos.at(0), 'Grupo de prueba');
@@ -94,6 +100,7 @@ void main() {
     'rechaza el servidor (422 AP-CU20-04): el motivo se ve y lo escrito se conserva',
     (tester) async {
       final (:dio, :adaptador) = dioSimulado();
+      organizadorHabilitado(adaptador);
       adaptador.onPost(
         '/grupos',
         (s) => s.reply(422, {
@@ -104,6 +111,7 @@ void main() {
         data: Matchers.any,
       );
       await tester.pumpWidget(conApp(const PantallaCrearGrupo(), dio: dio));
+      await asentar(tester);
       await tester.pump();
       final campos = find.byType(EditableText);
       await tester.enterText(campos.at(0), 'Grupo de prueba');

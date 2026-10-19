@@ -1,0 +1,54 @@
+# OpenTelemetry Collector de AportaYa (tableros, D4). Los servicios EMPUJAN trazas y metricas por OTLP; Prometheus lee
+# las metricas de aca por la red interna. Asi ningun servicio abre /actuator/prometheus sin autenticar.
+#
+# La redaccion va ACA y no solo en cada servicio: es el ultimo lugar por donde pasa todo antes de guardarse, y una
+# libreria que mañana agregue un atributo con datos de una persona no deberia poder filtrarlo (regla 90.2.1).
+receivers:
+  otlp:
+    protocols:
+      http:
+        endpoint: 0.0.0.0:4318
+      grpc:
+        endpoint: 0.0.0.0:4317
+
+processors:
+  memory_limiter:
+    check_interval: 1s
+    limit_mib: 200
+    spike_limit_mib: 50
+  batch: {}
+  # Fuera todo lo que puede llevar datos de una persona: la URL cruda (puede traer ids o consultas), el agente de
+  # usuario, la IP de quien llama y el usuario final. La ruta queda como PLANTILLA (http.route / uri), que es lo que mide.
+  attributes/redaccion:
+    actions:
+      - { key: http.url, action: delete }
+      - { key: url.full, action: delete }
+      - { key: url.query, action: delete }
+      - { key: http.target, action: delete }
+      - { key: http.user_agent, action: delete }
+      - { key: user_agent.original, action: delete }
+      - { key: client.address, action: delete }
+      - { key: net.sock.peer.addr, action: delete }
+      - { key: network.peer.address, action: delete }
+      - { key: enduser.id, action: delete }
+
+exporters:
+  prometheus:
+    endpoint: 0.0.0.0:8889
+    resource_to_telemetry_conversion:
+      enabled: true
+  # Sin almacen de trazas en TEST (Tempo se descarto por memoria, D4): se ven en el log del Collector. En desarrollo
+  # se puede sumar Jaeger sin tocar los servicios.
+  debug:
+    verbosity: basic
+
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [memory_limiter, attributes/redaccion, batch]
+      exporters: [debug]
+    metrics:
+      receivers: [otlp]
+      processors: [memory_limiter, attributes/redaccion, batch]
+      exporters: [prometheus]

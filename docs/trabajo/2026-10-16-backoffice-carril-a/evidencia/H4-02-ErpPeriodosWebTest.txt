@@ -1,0 +1,8 @@
+$ ./gradlew :servicios:erp:webTest
+   PASS ErpPeriodosWebTest · 401 sin sesion, y 400 si el limite pasa de 20
+   PASS ErpPeriodosWebTest · 200: el cursor antesDeAnio llega al caso de uso
+   PASS ErpPeriodosWebTest · 422: sin periodo que contenga hoy la respuesta es AP-CU100-04, no un periodo inventado
+   PASS ErpPeriodosWebTest · 200: quien solo paga facturas tambien puede elegir el periodo (permiso alternativo de la seccion)
+   PASS ErpPeriodosWebTest · 200: con CONTABILIDAD_ERP_REPORTES lista los ejercicios con sus periodos y el cursor por anio
+   PASS ErpPeriodosWebTest · 403: un participante no ve la contabilidad de la empresa
+TOTAL webTest 43 fallas 0

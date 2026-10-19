@@ -24,10 +24,11 @@ CREATE TABLE IF NOT EXISTS entregas.cuenta_bancaria_beneficiario (
   CONSTRAINT ck_cuenta_bancaria_beneficiario_estado_verificacion CHECK (estado_verificacion IN ('PENDIENTE', 'RECHAZADA', 'VERIFICADA'))
 );
 
-COMMENT ON TABLE entregas.cuenta_bancaria_beneficiario IS 'Módulo 04 — Entregas de Fondo. Que la bolsa llegue completa, a la persona correcta, una sola vez';
-COMMENT ON COLUMN entregas.cuenta_bancaria_beneficiario.id IS 'PK';
+COMMENT ON TABLE entregas.cuenta_bancaria_beneficiario IS 'Módulo 04 — Entregas de Fondo. La cuenta bancaria o billetera donde el usuario quiere recibir su plata, verificada.';
+COMMENT ON COLUMN entregas.cuenta_bancaria_beneficiario.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN entregas.cuenta_bancaria_beneficiario.usuario_id IS 'FK, IDX';
 COMMENT ON COLUMN entregas.cuenta_bancaria_beneficiario.tipo_cuenta IS 'CK';
+COMMENT ON COLUMN entregas.cuenta_bancaria_beneficiario.moneda IS 'Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2).';
 COMMENT ON COLUMN entregas.cuenta_bancaria_beneficiario.estado_verificacion IS 'CK';
 COMMENT ON COLUMN entregas.cuenta_bancaria_beneficiario.metodo_verificacion IS 'NULL';
 COMMENT ON COLUMN entregas.cuenta_bancaria_beneficiario.verificada_en IS 'NULL';

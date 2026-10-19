@@ -6,8 +6,10 @@ export const textosCumplimiento = {
       'Mirar el documento y la cara de quien abre una cuenta, y decidir. La decisión es de una persona y queda con su nombre.',
     cargando: 'Cargando los expedientes',
     filtrar: 'Filtrar por estado',
-    buscarExpediente: 'Buscar por nombre o teléfono',
+    buscarExpediente: 'Buscar por nombre, teléfono o correo',
     telefono: 'Teléfono',
+    correo: 'Correo',
+    sinCorreo: 'No registrado',
     sinCoincidencias: 'No hay expedientes que coincidan con la búsqueda.',
     sinPendientes: 'No hay expedientes esperando. Cuando alguien termine su alta, aparece acá.',
     filtroPorDecidir: 'Por decidir',
@@ -42,6 +44,8 @@ export const textosCumplimiento = {
     aviso: 'Esto no es un veredicto sobre el grupo. Separa lo que ya pasó (hechos registrados) de lo que el modelo estima.',
     hechos: 'Hechos registrados',
     estimaciones: 'Estimaciones del modelo',
+    indisponible: 'El contrato de cumplimiento todavía no publica la consulta de alertas de riesgo temprano de un grupo. Las alertas de monitoreo LFT sí están disponibles en su bandeja.',
+    irALaBandeja: 'Ir a la bandeja de alertas de monitoreo',
   },
   casos: {
     titulo: 'Caso de cumplimiento',
@@ -63,6 +67,8 @@ export const textosCumplimiento = {
     cerrar: 'Cerrar acta',
     abstencion: 'Abstención',
     motivoAbstencion: 'Motivo de la abstención',
+    indisponible: 'El contrato publica solo la lista de actas (número, fecha, quórum y huella del documento), no el detalle de asistentes y votos ni su cierre.',
+    irALaLista: 'Ir a la lista de actas de comité',
   },
   reclamos: {
     titulo: 'Reclamo del consumidor',
@@ -71,6 +77,8 @@ export const textosCumplimiento = {
     norma: 'ASFI · Reglamento de atención al consumidor financiero',
     respuesta: 'Respuesta',
     enviar: 'Enviar respuesta',
+    indisponible: 'Los reclamos se atienden desde Operación › Reclamos, con su plazo guardado y la respuesta que los cierra.',
+    irAOperacion: 'Ir a la bandeja de reclamos',
   },
   organizadores: {
     titulo: 'Habilitación de organizador',

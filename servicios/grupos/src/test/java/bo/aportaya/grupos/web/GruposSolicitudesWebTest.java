@@ -38,6 +38,7 @@ import org.springframework.test.web.servlet.MockMvc;
             // GruposAdmisionHumanaWebTest.
             "aportaya.grupos.admision.humana-obligatoria=false",
         })
+@MockitoBean(types = bo.aportaya.grupos.aplicacion.CU69EnlaceDeGrupo.class)
 class GruposSolicitudesWebTest {
 
     private static final UUID GRUPO = UUID.fromString("c4000000-0000-4000-8000-000000000001");
@@ -182,13 +183,16 @@ class GruposSolicitudesWebTest {
             var grupo = java.util.UUID.fromString("c6900000-0000-4000-8000-000000000001");
             var participante = java.util.UUID.fromString("c6900000-0000-4000-8000-000000000002");
             when(consultas.participacionesDe(any()))
-                    .thenReturn(java.util.List.of(
-                            new bo.aportaya.grupos.aplicacion.Consultas.Participacion(grupo, participante, "ACTIVO")));
+                    .thenReturn(java.util.List.of(new bo.aportaya.grupos.aplicacion.Consultas.Participacion(
+                            grupo, participante, "ACTIVO", "Pasanaku de la oficina", "500.00", "BOB", true)));
 
             mvc.perform(get("/grupos/participaciones").with(Sesiones.como("PARTICIPANTE")))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$[0].participanteId").value(participante.toString()))
-                    .andExpect(jsonPath("$[0].estado").value("ACTIVO"));
+                    .andExpect(jsonPath("$[0].estado").value("ACTIVO"))
+                    .andExpect(jsonPath("$[0].nombreDelGrupo").value("Pasanaku de la oficina"))
+                    .andExpect(jsonPath("$[0].montoAporte").value("500.00"))
+                    .andExpect(jsonPath("$[0].esOrganizador").value(true));
         }
 
         @Test

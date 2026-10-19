@@ -58,8 +58,8 @@ cruza a otro servicio y qué pasa si el otro falla?*
 
 ## Gate de entrada
 
-- [ ] Fase 11 cerrada
-- [ ] Semilla `15-eventos-y-plantillas.json` aplicada
+- [x] Fase 11 cerrada
+- [x] Semilla `15-eventos-y-plantillas.json` aplicada
 
 ## Leer antes
 
@@ -95,13 +95,13 @@ skills `notificaciones-consentimiento`, `proveedores-externos`, `trabajos-outbox
 
 ## Gate de salida F12
 
-- [ ] Gate común
-- [ ] El mismo evento procesado dos veces produce **un** mensaje (`R-NOT-02`)
-- [ ] Plantilla a la que le falta una variable ⇒ **falla al renderizar**, no envía un `{{nombre}}` literal
-- [ ] Usuario suprimido no recibe lo comercial y **sí** recibe lo obligatorio (probado con ambos)
-- [ ] Proveedor de mensajería caído ⇒ conmutación con evento; el aviso obligatorio llega igual
-- [ ] Webhook entrante con firma inválida ⇒ rechazado sin procesar
-- [ ] Los avisos *stub* de las fases 3 a 11 se reemplazan por envíos reales
+- [x] Gate común
+- [x] El mismo evento procesado dos veces produce **un** mensaje (`R-NOT-02`)
+- [x] Plantilla a la que le falta una variable ⇒ **falla al renderizar**, no envía un `{{nombre}}` literal
+- [x] Usuario suprimido no recibe lo comercial y **sí** recibe lo obligatorio (probado con ambos)
+- [x] Proveedor de mensajería caído ⇒ conmutación con evento; el aviso obligatorio llega igual
+- [x] Webhook entrante con firma inválida ⇒ rechazado sin procesar
+- [x] Los avisos *stub* de las fases 3 a 11 se reemplazan por envíos reales
 
 ---
 
@@ -116,8 +116,8 @@ skills `notificaciones-consentimiento`, `proveedores-externos`, `trabajos-outbox
 
 ## Gate de entrada
 
-- [ ] Fase 11 cerrada
-- [ ] CU-60 implementado en la Fase 8 (sus dos átomos se **importan**, no se reescriben)
+- [x] Fase 11 cerrada
+- [x] CU-60 implementado en la Fase 8 (sus dos átomos se **importan**, no se reescriben)
 
 ## Leer antes
 
@@ -186,15 +186,15 @@ skills `reputacion-social`, `sorteo-transparencia`, `alertas-riesgo-temprano`
 
 ## Gate de salida F13
 
-- [ ] Gate común
-- [ ] Alterar un bloque de la cadena ⇒ `recorrerCadena` señala **ese** bloque como el primer fallo
-- [ ] **`R-AUD-09`: los hashes de la bitácora los calcula la base, no la aplicación** (probado: la app no firma su propia huella)
-- [ ] **`R-AUD-10`: las cadenas se verifican en el control diario**, no solo al auditar — el trabajo diario existe y falla ruidosamente
-- [ ] Las rutas públicas no devuelven ningún dato personal (probado inspeccionando la respuesta)
-- [ ] Código de certificado inválido y revocado responden **igual** (sin oráculo de existencia)
-- [ ] `componerPuntaje`: propiedad del rango en verde para entradas aleatorias
-- [ ] Reseña sin convivencia comprobada ⇒ rechazada
-- [ ] Toda alerta temprana tiene sus factores guardados y su mensaje en hechos
+- [x] Gate común
+- [x] Alterar un bloque de la cadena ⇒ `recorrerCadena` señala **ese** bloque como el primer fallo
+- [x] **`R-AUD-09`: los hashes de la bitácora los calcula la base, no la aplicación** (probado: la app no firma su propia huella)
+- [x] **`R-AUD-10`: las cadenas se verifican en el control diario**, no solo al auditar — el trabajo diario existe y falla ruidosamente
+- [x] Las rutas públicas no devuelven ningún dato personal (probado inspeccionando la respuesta)
+- [x] Código de certificado inválido y revocado responden **igual** (sin oráculo de existencia)
+- [x] `componerPuntaje`: propiedad del rango en verde para entradas aleatorias
+- [x] Reseña sin convivencia comprobada ⇒ rechazada
+- [x] Toda alerta temprana tiene sus factores guardados y su mensaje en hechos
 
 ---
 
@@ -209,7 +209,7 @@ skills `reputacion-social`, `sorteo-transparencia`, `alertas-riesgo-temprano`
 
 ## Gate de entrada
 
-- [ ] Fase 11 cerrada · F12 recomendada (las sanciones notifican)
+- [x] Fase 11 cerrada · F12 recomendada (las sanciones notifican)
 
 ## Leer antes
 
@@ -277,14 +277,14 @@ Páginas: `POST /v1/automatizacion/reglas` · `/:id/simulacion` ·
 
 ## Gate de salida F14
 
-- [ ] Gate común
-- [ ] Rescindir un contrato **no** deja grupos huérfanos (probado con grupos activos)
-- [ ] Regla sin simulación registrada ⇒ **no se puede activar**
-- [ ] Una condición con código arbitrario ⇒ falla al compilar, no se ejecuta
-- [ ] Acción sensible sin confirmación humana ⇒ no se ejecuta; la confirmación **caduca**
-- [ ] La misma tarea disparada dos veces ⇒ un solo efecto (clave determinista)
-- [ ] Condición que dejó de cumplirse al ejecutar ⇒ tarea cancelada **con registro**
-- [ ] Apelación de sanción resuelta por alguien distinto del que sancionó
+- [x] Gate común
+- [x] Rescindir un contrato **no** deja grupos huérfanos (probado con grupos activos)
+- [x] Regla sin simulación registrada ⇒ **no se puede activar**
+- [x] Una condición con código arbitrario ⇒ falla al compilar, no se ejecuta
+- [x] Acción sensible sin confirmación humana ⇒ no se ejecuta; la confirmación **caduca**
+- [x] La misma tarea disparada dos veces ⇒ un solo efecto (clave determinista)
+- [x] Condición que dejó de cumplirse al ejecutar ⇒ tarea cancelada **con registro**
+- [x] Apelación de sanción resuelta por alguien distinto del que sancionó
 
 ---
 
@@ -299,8 +299,8 @@ Páginas: `POST /v1/automatizacion/reglas` · `/:id/simulacion` ·
 
 ## Gate de entrada
 
-- [ ] Fase 11 cerrada
-- [ ] Réplica de lectura configurada (`aportaya.datasource.lectura.url`, ADR-031 — supera a ADR-011)
+- [x] Fase 11 cerrada
+- [x] Réplica de lectura configurada (`aportaya.datasource.lectura.url`, ADR-031 — supera a ADR-011)
 
 ## Leer antes
 
@@ -380,13 +380,13 @@ Son las que evitan que dos áreas reporten cifras distintas de lo mismo.
 
 ## Gate de salida F15
 
-- [ ] Gate común
-- [ ] **Un reporte no devuelve filas que el solicitante no podría ver consultando** (RLS en la ejecución, probado)
-- [ ] La exportación caduca y respeta el tope de descargas
-- [ ] Supresión de datos ⇒ seudonimización, **el libro contable sigue cuadrando**
-- [ ] Indicador con menos casos que el mínimo ⇒ suprimido, no publicado
-- [ ] Reejecutar un reporte con los mismos parámetros da el **mismo hash**
-- [ ] Un evento de riesgo abierto por un arqueo faltante llega hasta su plan de acción
+- [x] Gate común
+- [x] **Un reporte no devuelve filas que el solicitante no podría ver consultando** (RLS en la ejecución, probado)
+- [x] La exportación caduca y respeta el tope de descargas
+- [x] Supresión de datos ⇒ seudonimización, **el libro contable sigue cuadrando**
+- [x] Indicador con menos casos que el mínimo ⇒ suprimido, no publicado
+- [x] Reejecutar un reporte con los mismos parámetros da el **mismo hash**
+- [x] Un evento de riesgo abierto por un arqueo faltante llega hasta su plan de acción
 
 ---
 
@@ -404,9 +404,9 @@ riesgo 10 del plan maestro.
 
 ## Gate de entrada
 
-- [ ] Fase 11 cerrada · **Fase 15 § 15.1 cerrada** (CU-43 depende de CU-58)
-- [ ] Semillas `06-umbrales-uif.json`, `07-reportes-regulatorios.json`, `08-gobierno-y-licencia.json` aplicadas
-- [ ] Fase 4 ya dejó implementados CU-02, CU-03, CU-06 y CU-46 de este módulo
+- [x] Fase 11 cerrada · **Fase 15 § 15.1 cerrada** (CU-43 depende de CU-58)
+- [x] Semillas `06-umbrales-uif.json`, `07-reportes-regulatorios.json`, `08-gobierno-y-licencia.json` aplicadas
+- [x] Fase 4 ya dejó implementados CU-02, CU-03, CU-06 y CU-46 de este módulo
 
 ## Leer antes
 
@@ -521,14 +521,14 @@ efectos del acta se aplican en su misma transacción.
 
 ## Gate de salida F16
 
-- [ ] Los cuatro gates de sub-fase (16.A a 16.D) cerrados
-- [ ] Gate común
-- [ ] **Las 12 restricciones R-UIF con prueba de rechazo**
-- [ ] Reporte mensual en cero se remite igual
-- [ ] Un reclamo vencido dispara alerta **antes** del vencimiento, con el plazo guardado
-- [ ] `compilarExpresion` es una sola implementación compartida con la Fase 14
-- [ ] Toda alerta de monitoreo termina con conclusión escrita
-- [ ] Los 87 casos de uso **del núcleo** están implementados. **Ninguno queda pendiente**
+- [x] Los cuatro gates de sub-fase (16.A a 16.D) cerrados
+- [x] Gate común
+- [x] **Las 12 restricciones R-UIF con prueba de rechazo**
+- [x] Reporte mensual en cero se remite igual
+- [x] Un reclamo vencido dispara alerta **antes** del vencimiento, con el plazo guardado
+- [x] `compilarExpresion` es una sola implementación compartida con la Fase 14
+- [x] Toda alerta de monitoreo termina con conclusión escrita
+- [x] Los 87 casos de uso **del núcleo** están implementados. **Ninguno queda pendiente**
       (los 12 de contabilidad ERP y publicidad son de las fases 18 y 19)
 
 ---
@@ -536,7 +536,7 @@ efectos del acta se aplican en su misma transacción.
 ## 🏁 Hito: el sistema está completo
 
 Al cerrar la Fase 16, los **87 casos de uso del núcleo** están implementados, las
-**337 tablas** tienen código que las escribe y las **173 restricciones** tienen prueba
+**342 tablas** tienen código que las escribe y las **173 restricciones** tienen prueba
 de rechazo. Falta endurecerlo y desplegarlo: [[06 Fase 17 · Endurecimiento, E2E y despliegue]].
 
 ## Ver también

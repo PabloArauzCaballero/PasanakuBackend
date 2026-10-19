@@ -1,0 +1,23 @@
+aplicar sobre base existente exit=0
+ ck_movimiento_fondo_tipo      | t
+ ck_transaccion_billetera_tipo | t
+
+--- verificar_boveda.py
+
+=== CIFRAS CITADAS ===
+  OK    · ninguna cifra desfasada en los planes 
+          cifras vigentes: 109 casos de uso · 337 tablas · 323 entidades · 173 restricciones · 50 ADR
+
+TODO OK
+exit=0
+--- paso 5: generar_ddl deja diff vacio (sobre lo ya generado)
+ M sql/10_tablas/08_garantia_incumplimiento/movimiento_fondo.sql
+ M sql/10_tablas/10_billetera_custodia/transaccion_billetera.sql
+ M sql/60_semillas/22-cuentas-de-sistema.sql
+verificar_seguridad exit=1 · 1 FALLAS
+verificar_carriles exit=0 · TODO OK (con avisos)
+verificar_criterios exit=1 ·   - CU-21 · aportes: prueba sin criterio en la boveda — «tableros: pagar un recargo por mora publica tipo RECARGO_MORA — es lo que lo separa del pozo»
+verificar_seguridad exit=0 · TODO OK · 6 aviso(s)
+verificar_criterios exit=0 · Sin divergencias entre la boveda y el codigo.
+verificar_boveda exit=0 · TODO OK
+verificar_carriles exit=0 · TODO OK (con avisos)

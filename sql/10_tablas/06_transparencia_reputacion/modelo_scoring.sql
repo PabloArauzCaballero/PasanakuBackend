@@ -18,7 +18,8 @@ CREATE TABLE IF NOT EXISTS transparencia.modelo_scoring (
   CONSTRAINT pk_modelo_scoring PRIMARY KEY (id)
 );
 
-COMMENT ON TABLE transparencia.modelo_scoring IS 'Módulo 06 — Transparencia y Reputación. Que nadie tenga que "creerle" al organizador';
-COMMENT ON COLUMN transparencia.modelo_scoring.id IS 'PK';
+COMMENT ON TABLE transparencia.modelo_scoring IS 'Módulo 06 — Transparencia y Reputación. La versión del algoritmo que convierte eventos en un puntaje: puntaje base, mínimo, máximo, decaimiento y ventana histórica.';
+COMMENT ON COLUMN transparencia.modelo_scoring.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN transparencia.modelo_scoring.version IS 'UQ';
-COMMENT ON COLUMN transparencia.modelo_scoring.vigente_hasta IS 'NULL';
+COMMENT ON COLUMN transparencia.modelo_scoring.vigente_desde IS 'Desde cuándo rige esta versión de la fila: las condiciones se versionan, no se pisan.';
+COMMENT ON COLUMN transparencia.modelo_scoring.vigente_hasta IS 'Hasta cuándo rigió esta versión; vacía mientras sigue vigente.';

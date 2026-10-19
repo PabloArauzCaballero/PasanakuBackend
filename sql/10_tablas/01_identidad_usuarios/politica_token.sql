@@ -18,6 +18,7 @@ CREATE TABLE IF NOT EXISTS identidad.politica_token (
   CONSTRAINT pk_politica_token PRIMARY KEY (id)
 );
 
-COMMENT ON TABLE identidad.politica_token IS 'Módulo 01 — Identidad, Usuarios y Seguridad. Saber con certeza a quién le estás confiando plata ajena';
-COMMENT ON COLUMN identidad.politica_token.id IS 'PK';
+COMMENT ON TABLE identidad.politica_token IS 'Módulo 01 — Identidad, Usuarios y Seguridad. Los parámetros de seguridad de cada tipo de token: cuánto dura, cuántos intentos, cuántos reenvíos por hora, por qué canales puede salir.';
+COMMENT ON COLUMN identidad.politica_token.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN identidad.politica_token.proposito IS 'UQ+vigente_desde';
+COMMENT ON COLUMN identidad.politica_token.vigente_desde IS 'Desde cuándo rige esta versión de la fila: las condiciones se versionan, no se pisan.';

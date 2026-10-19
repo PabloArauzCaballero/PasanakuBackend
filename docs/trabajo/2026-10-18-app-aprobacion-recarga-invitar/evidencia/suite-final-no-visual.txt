@@ -1,0 +1,2 @@
+01:41 +727 ~1 -7: Some tests failed.
+7 fallas = comparaciones de pixeles (Windows vs referencias Linux), las mismas de antes.

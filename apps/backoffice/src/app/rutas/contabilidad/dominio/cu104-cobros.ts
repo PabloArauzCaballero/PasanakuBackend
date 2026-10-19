@@ -4,14 +4,14 @@ import type { Observable } from 'rxjs'
 import { GATEWAY } from '../../../nucleo/gateway'
 import type { CargadorDePagina } from '../../../nucleo/tabla/tipos'
 import { aCentavos, deCentavos } from './cu101-presupuestos'
-import { cargadorDeLista, contextoConClave, filtroPorEstado, type Importe } from './contrato-erp'
+import { cargadorErpPorCursor, contextoConClave, type Importe } from './contrato-erp'
 
 /**
  * CU-104 · Cobrar una cuenta por cobrar.
  *
  * Contrato real: `POST /erp/cuentas-por-cobrar` (`abrirCuentaPorCobrar`) y
- * `POST /erp/cuentas-por-cobrar/{cuentaId}/cobros` (`registrarCobro`). El listado no
- * existe todavía (hueco declarado en `contrato-erp.ts`).
+ * `POST /erp/cuentas-por-cobrar/{cuentaId}/cobros` (`registrarCobro`), y el listado
+ * `GET /erp/cuentas-por-cobrar` (`listarCuentasPorCobrar`, cursor (fechaVencimiento, id) descendente).
  *
  * `erp.yaml` declara además que **no hay operación para marcar una cuenta como
  * incobrable**: la tabla es append-only y el estado se decide al insertar. La pantalla
@@ -20,11 +20,15 @@ import { cargadorDeLista, contextoConClave, filtroPorEstado, type Importe } from
 export type EstadoCuentaPorCobrar = 'PENDIENTE' | 'COBRADA_PARCIAL' | 'COBRADA' | 'INCOBRABLE'
 export type FormaDeCobro = 'TRANSFERENCIA' | 'QR' | 'TARJETA' | 'EFECTIVO'
 
+export type OrigenCuentaPorCobrar = 'FACTURA_PUBLICIDAD' | 'OTRO' | 'VENTA_SERVICIO'
+
+/** `CuentaPorCobrarEnLista` de `erp.yaml`. Una cuenta puede no tener tercero: ambos campos son nulables. */
 export type CuentaPorCobrar = {
   cuentaPorCobrarId: string
-  origenTipo: string
+  origenTipo: OrigenCuentaPorCobrar
   origenId: string
-  terceroRazonSocial: string
+  terceroComercialId?: string | null
+  terceroRazonSocial?: string | null
   fechaVencimiento: string
   estado: EstadoCuentaPorCobrar
   monto: Importe
@@ -54,15 +58,9 @@ export function cobroExcedeElSaldo(cuenta: CuentaPorCobrar, monto: string): bool
   return aCentavos(monto) > aCentavos(cuenta.saldoPendiente.monto)
 }
 
-/** Las cuentas por cobrar, para la tabla. Pedido pendiente: `GET /erp/cuentas-por-cobrar`. */
+/** Las cuentas por cobrar, para la tabla: `GET /erp/cuentas-por-cobrar` por cursor, en el orden del servidor. */
 export function cargadorDeCuentas(): CargadorDePagina<CuentaPorCobrar> {
-  const gateway = inject(GATEWAY)
-  return cargadorDeLista<CuentaPorCobrar>(
-    inject(HttpClient),
-    `${gateway}/erp/cuentas-por-cobrar`,
-    filtroPorEstado,
-    (a, b) => a.fechaVencimiento.localeCompare(b.fechaVencimiento),
-  )
+  return cargadorErpPorCursor<CuentaPorCobrar>(inject(HttpClient), `${inject(GATEWAY)}/erp/cuentas-por-cobrar`)
 }
 
 /** `POST /erp/cuentas-por-cobrar/{cuentaId}/cobros`, con clave nueva por intento. */

@@ -19,8 +19,8 @@ CREATE TABLE IF NOT EXISTS tarifas.cambio_tarifario (
   CONSTRAINT ck_cambio_tarifario_tipo_cambio CHECK (tipo_cambio IN ('ELIMINACION', 'INCREMENTO', 'NUEVO_CONCEPTO', 'REDUCCION'))
 );
 
-COMMENT ON TABLE tarifas.cambio_tarifario IS 'Módulo 11 — Tarifas, Comisiones, Impuestos y Facturación. La política de cobro es dato, no código: se cambia con un seeder';
-COMMENT ON COLUMN tarifas.cambio_tarifario.id IS 'PK';
+COMMENT ON TABLE tarifas.cambio_tarifario IS 'Módulo 11 — Tarifas, Comisiones, Impuestos y Facturación. El ensayo previo y el expediente del cambio.';
+COMMENT ON COLUMN tarifas.cambio_tarifario.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN tarifas.cambio_tarifario.tarifario_anterior_id IS 'FK';
 COMMENT ON COLUMN tarifas.cambio_tarifario.tarifario_nuevo_id IS 'FK, UQ';
 COMMENT ON COLUMN tarifas.cambio_tarifario.aprobado_por IS 'FK';

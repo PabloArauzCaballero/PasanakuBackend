@@ -1,0 +1,14 @@
+H9.S1.M1 — regresión del backend · 2026-10-17
+
+$ ./gradlew test webTest integrationTest contractTest sagaTest jacocoTestCoverageVerification --continue --no-parallel   (antes del merge de dev)
+  BUILD FAILED in 22m 15s — 4009 pruebas: test 612/0 fallas · integrationTest 2443/1 · webTest 867/0 · contractTest 79/9 · sagaTest 8/0 · testBarrido 2/0
+  Rojos y su clase:
+   1. identidad CU04CodigoPorCorreoTest — PREEXISTENTE (AP-CU04-03 vs -10), corregido en dev por 3cb70274
+   2. inversiones AliadoSimulado*ContratoTest (9) — ENVIRONMENT: «Cannot run program "python"» (la máquina solo tiene python3). Con un alias python→python3 en el scratchpad: 23/23 en verde
+   3. plataforma:comun-datos jacoco — PREEXISTENTE: «lines covered ratio is 0.28, but expected minimum is 0.38»; Datos.comoSistema entró en 63dd5280 (antes de la base) sin prueba; dev lo cubre en e67820e9
+
+Merge de origin/dev (00183992), sin conflictos; generadores al día (generar_ddl, catalogo_de_datos sin cambios; narrativas, flujos, inventario, pruebas web y criterios en verde).
+$ ./gradlew :plataforma:comun-datos:test :plataforma:comun-datos:integrationTest :plataforma:comun-datos:jacocoTestCoverageVerification :servicios:identidad:integrationTest   → exit 0
+  CU04CodigoPorCorreoTest: tests="5" skipped="0" failures="0" errors="0"
+
+No cubierto: la suite completa no se volvió a correr entera después del merge; dev solo cambió pruebas de identidad y comun-datos, backoffice, móvil, CI, imagen y simulado (git log d63e4fef..origin/dev), y esos módulos sí se re-ejecutaron.

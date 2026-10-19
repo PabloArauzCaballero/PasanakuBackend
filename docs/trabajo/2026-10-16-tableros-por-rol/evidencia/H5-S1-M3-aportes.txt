@@ -1,0 +1,2 @@
+CUIndicadoresComercialesDeAportesTest 3/3 (primer aporte suma 1, SIN_DATOS, reversado no cuenta)
+aportes: suite completa (test+webTest+integrationTest) + cobertura exit=0; gates verificar_seguridad/criterios ok

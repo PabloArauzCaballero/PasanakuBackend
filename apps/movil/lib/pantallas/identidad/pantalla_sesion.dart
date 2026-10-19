@@ -12,11 +12,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'dominio/estado_sesion.dart';
-import 'dominio/validaciones.dart';
 import 'avisos_de_sesion.dart';
 import 'sesion_pie.dart';
 import 'sacudida_de_credenciales.dart';
 import 'campos_de_sesion.dart';
+import 'dominio/validaciones.dart';
 import 'textos.dart';
 import '../../navegacion/acceso_a_rutas.dart';
 import '../../navegacion/retorno_de_invitacion.dart';
@@ -45,7 +45,7 @@ class PantallaDeSesion extends ConsumerStatefulWidget {
 
 class _PantallaDeSesionState extends ConsumerState<PantallaDeSesion>
     with ConProteccionDePantalla<PantallaDeSesion> {
-  final _telefono = TextEditingController();
+  final _identificador = IdentificadorDeIngreso();
   final _contrasena = TextEditingController();
   MotivoDeSalida? _motivoDeSalida;
   final _sacudida = GlobalKey<SacudidaDeCredencialesState>();
@@ -60,29 +60,23 @@ class _PantallaDeSesionState extends ConsumerState<PantallaDeSesion>
 
   @override
   void dispose() {
-    _telefono.dispose();
+    _identificador.dispose();
     _contrasena.dispose();
     super.dispose();
   }
 
   /// El formato mínimo que el contrato acepta: la contraseña no baja de ocho. Es
   /// ayuda para no gastar un viaje al servidor, no la decisión — la de verdad la
-  /// toma el servidor.
-  /// El prefijo `+591` ya está puesto en el campo (como en el alta): se escriben los ocho
-  /// dígitos. Antes había que tipear el `+591` y, sin él, «Ingresar» quedaba apagado
-  /// sin decir por qué (hallazgo del carril H en emulador).
-  static const _prefijoBolivia = '+591';
-  String get _celular {
-    final digitos = _telefono.text.trim();
-    return digitos.isEmpty ? '' : '$_prefijoBolivia$digitos';
-  }
-
+  /// toma el servidor. El `+591` del celular ya está puesto en el campo.
   bool get _valido =>
-      errorTelefono(_celular) == null && _contrasena.text.length >= 8;
+      _identificador.valido && contrasenaDeIngresoValida(_contrasena.text);
 
   Future<void> _ingresar() async {
     final n = ref.read(sesionIdentidadProvider.notifier);
-    n.actualizarCredenciales(telefono: _celular, contrasena: _contrasena.text);
+    n.actualizarCredenciales(
+      identificador: _identificador.valor,
+      contrasena: _contrasena.text,
+    );
     final avanzo = await n.enviarCredenciales();
     if (!avanzo || !mounted) return;
     // A dónde ir lo dijo el servidor, no esta pantalla.
@@ -162,7 +156,7 @@ class _PantallaDeSesionState extends ConsumerState<PantallaDeSesion>
                       SacudidaDeCredenciales(
                         key: _sacudida,
                         child: CamposDeSesion(
-                          telefono: _telefono,
+                          identificador: _identificador,
                           contrasena: _contrasena,
                           onChanged: () => setState(() {}),
                         ),

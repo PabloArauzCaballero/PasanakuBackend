@@ -6,7 +6,7 @@ import '../../dominio/puertos/biometria.dart';
 /// de pub nuevo (`pubspec.yaml` está congelado para este carril). El canal lo
 /// atiende `MainActivity.kt` con `androidx.biometric`, agregado en
 /// `android/app/build.gradle.kts` (ese archivo no está en la lista de「no tocás」).
-class BiometriaAndroid implements Biometria {
+class BiometriaAndroid implements Biometria, DiagnosticoDeBiometria {
   BiometriaAndroid([MethodChannel? canal])
     : _canal = canal ?? const MethodChannel('bo.aportaya/biometria');
 
@@ -26,11 +26,20 @@ class BiometriaAndroid implements Biometria {
   }
 
   @override
+  String? ultimoFallo;
+
+  @override
   Future<bool> confirmar(String motivo) async {
     try {
-      return await _canal.invokeMethod<bool>('confirmar', {'motivo': motivo}) ??
+      final confirmado =
+          await _canal.invokeMethod<bool>('confirmar', {'motivo': motivo}) ??
           false;
-    } on PlatformException {
+      ultimoFallo = null;
+      return confirmado;
+    } on PlatformException catch (e) {
+      // El lado nativo devuelve error solo cuando el sistema no pudo abrir el
+      // diálogo (no cuando la persona lo cerró).
+      ultimoFallo = e.message ?? e.code;
       return false;
     } on MissingPluginException {
       return false;

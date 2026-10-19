@@ -14,8 +14,8 @@ CREATE TABLE IF NOT EXISTS transparencia.snapshot_reputacion (
   CONSTRAINT ck_snapshot_reputacion_motivo CHECK (motivo IN ('AUDITORIA', 'CIERRE_DE_GRUPO', 'INGRESO_A_GRUPO', 'PERIODICO'))
 );
 
-COMMENT ON TABLE transparencia.snapshot_reputacion IS 'Módulo 06 — Transparencia y Reputación. Que nadie tenga que "creerle" al organizador';
-COMMENT ON COLUMN transparencia.snapshot_reputacion.id IS 'PK';
+COMMENT ON TABLE transparencia.snapshot_reputacion IS 'Módulo 06 — Transparencia y Reputación. Una fotografía del puntaje en un momento concreto, con el detalle de sus factores.';
+COMMENT ON COLUMN transparencia.snapshot_reputacion.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN transparencia.snapshot_reputacion.usuario_id IS 'FK, IDX';
 COMMENT ON COLUMN transparencia.snapshot_reputacion.motivo IS 'CK';
 COMMENT ON COLUMN transparencia.snapshot_reputacion.tomado_en IS 'IDX';

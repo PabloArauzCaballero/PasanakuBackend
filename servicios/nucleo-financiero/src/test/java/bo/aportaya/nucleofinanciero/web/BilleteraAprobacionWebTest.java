@@ -9,13 +9,19 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import bo.aportaya.nucleofinanciero.aplicacion.BandejaDeRetiros;
 import bo.aportaya.nucleofinanciero.aplicacion.CU10RecargarSaldo;
 import bo.aportaya.nucleofinanciero.aplicacion.CU11RetirarSaldo;
 import bo.aportaya.nucleofinanciero.aplicacion.CU13RetenerSaldo;
 import bo.aportaya.nucleofinanciero.aplicacion.CU14ReversarTransaccion;
 import bo.aportaya.nucleofinanciero.aplicacion.CU15EmitirExtracto;
 import bo.aportaya.nucleofinanciero.aplicacion.CU17BloquearPorAutoridad;
+import bo.aportaya.nucleofinanciero.aplicacion.ConsultarMovimientosBilletera;
 import bo.aportaya.nucleofinanciero.aplicacion.ConsultarSaldo;
+import bo.aportaya.nucleofinanciero.aplicacion.CotizarOperacion;
+import bo.aportaya.nucleofinanciero.aplicacion.CuentaPropia;
+import bo.aportaya.nucleofinanciero.aplicacion.OrdenesExistentes;
+import bo.aportaya.nucleofinanciero.aplicacion.RecargasConProveedor;
 import bo.aportaya.nucleofinanciero.dominio.puertos.CotizadorDeComision;
 import bo.aportaya.nucleofinanciero.dominio.puertos.SegundoFactor;
 import bo.aportaya.plataforma.dominio.Dinero;
@@ -27,6 +33,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -47,6 +54,7 @@ import org.springframework.test.web.servlet.MockMvc;
 @PruebaWeb(
         value = BilleteraController.class,
         properties = {"aportaya.retiro.doble-aprobacion-desde=5000.00"})
+@Import(FondeoDeLaBilletera.class)
 class BilleteraAprobacionWebTest {
     private static final UUID CUENTA = UUID.fromString("eeeeeeee-0000-4000-8000-000000000001");
     private static final UUID TRANSACCION = UUID.fromString("eeeeeeee-0000-4000-8000-000000000002");
@@ -63,6 +71,10 @@ class BilleteraAprobacionWebTest {
 
     @MockitoBean
     private CU11RetirarSaldo cu11;
+
+    // El controlador tambien lee los movimientos recientes: sin este doble el contexto no carga.
+    @MockitoBean
+    private ConsultarMovimientosBilletera consultasDeMovimientos;
 
     @MockitoBean
     private CU13RetenerSaldo cu13;
@@ -85,9 +97,22 @@ class BilleteraAprobacionWebTest {
     @MockitoBean
     private SegundoFactor segundoFactor;
 
-    // El controlador delega recargas/retiros y QR en estos dos colaboradores (arreglos de la integracion).
+    // FondeoDeLaBilletera va REAL (@Import): es quien traduce la aprobacion y la bandeja. Se doblan sus
+    // colaboradores, como al resto de los casos de uso del corte.
     @MockitoBean
-    private FondeoDeLaBilletera fondeo;
+    private RecargasConProveedor recargas;
+
+    @MockitoBean
+    private CotizarOperacion cotizaciones;
+
+    @MockitoBean
+    private CuentaPropia cuentaPropia;
+
+    @MockitoBean
+    private OrdenesExistentes existentes;
+
+    @MockitoBean
+    private BandejaDeRetiros bandeja;
 
     @MockitoBean
     private QrDeLaBilletera qrDeLaBilletera;
@@ -95,7 +120,6 @@ class BilleteraAprobacionWebTest {
     private static Dinero bob(String monto) {
         return Dinero.de(monto, Moneda.BOB);
     }
-
     /**
      * H3.S2 (ADR-049) · POST /billetera/retiros/{ordenId}/aprobacion.
      *
@@ -131,7 +155,7 @@ class BilleteraAprobacionWebTest {
         @Test
         @DisplayName("200 AUTORIZADA: desenlace AUTORIZADA llama a cu11.aprobar, no a rechazarRevision")
         void aprueba() throws Exception {
-            when(cu11.aprobar(any(), any()))
+            when(cu11.aprobar(any(), any(), any()))
                     .thenReturn(new CU11RetirarSaldo.SalidaAprobacion(ORDEN, "AUTORIZADA", APROBADOR));
             mvc.perform(
                             post("/billetera/retiros/{id}/aprobacion", ORDEN)
@@ -146,14 +170,15 @@ class BilleteraAprobacionWebTest {
                     .andExpect(jsonPath("$.ordenRetiroId").value(ORDEN.toString()))
                     .andExpect(jsonPath("$.estado").value("AUTORIZADA"))
                     .andExpect(jsonPath("$.aprobadaPor").value(APROBADOR.toString()));
-            verify(cu11).aprobar(eq(ORDEN), any());
-            verify(cu11, org.mockito.Mockito.never()).rechazarRevision(any(), any());
+            // La Idempotency-Key llega al caso de uso: es lo que hace seguro reintentar (H2.S3).
+            verify(cu11).aprobar(eq(ORDEN), eq(CLAVE), any());
+            verify(cu11, org.mockito.Mockito.never()).rechazarRevision(any(), any(), any(), any());
         }
 
         @Test
         @DisplayName("200 RECHAZADA: desenlace RECHAZADA llama a cu11.rechazarRevision, no a aprobar")
         void rechaza() throws Exception {
-            when(cu11.rechazarRevision(any(), any()))
+            when(cu11.rechazarRevision(any(), any(), any(), any()))
                     .thenReturn(new CU11RetirarSaldo.SalidaAprobacion(ORDEN, "RECHAZADA", APROBADOR));
             mvc.perform(
                             post("/billetera/retiros/{id}/aprobacion", ORDEN)
@@ -166,14 +191,14 @@ class BilleteraAprobacionWebTest {
                                     """))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.estado").value("RECHAZADA"));
-            verify(cu11).rechazarRevision(eq(ORDEN), any());
-            verify(cu11, org.mockito.Mockito.never()).aprobar(any(), any());
+            verify(cu11).rechazarRevision(eq(ORDEN), eq("Documentacion insuficiente"), eq(CLAVE), any());
+            verify(cu11, org.mockito.Mockito.never()).aprobar(any(), any(), any());
         }
 
         @Test
         @DisplayName("422: el caso de uso rechaza la auto-aprobacion, el controlador no la esconde")
         void propagaElErrorDeNegocio() throws Exception {
-            when(cu11.aprobar(any(), any()))
+            when(cu11.aprobar(any(), any(), any()))
                     .thenThrow(new bo.aportaya.plataforma.dominio.ErrorDeNegocio(
                             bo.aportaya.plataforma.dominio.CodigoError.de(11, 10),
                             "Quien solicito el retiro no puede aprobar su propia solicitud."));

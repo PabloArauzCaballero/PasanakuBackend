@@ -20,11 +20,13 @@ CREATE TABLE IF NOT EXISTS catalogo.limite_operativo_billetera (
   CONSTRAINT ck_limite_operativo_billetera_ventana CHECK (ventana IN ('ANIO', 'DIA', 'MES', 'OPERACION', 'SEMANA'))
 );
 
-COMMENT ON TABLE catalogo.limite_operativo_billetera IS 'Módulo 10 — Billetera, Custodia y Dinero Electrónico. El saldo no se guarda: se deriva, y todos los días cuadra contra el banco';
-COMMENT ON COLUMN catalogo.limite_operativo_billetera.id IS 'PK';
+COMMENT ON TABLE catalogo.limite_operativo_billetera IS 'Módulo 10 — Billetera, Custodia y Dinero Electrónico. Los techos de operación por nivel de debida diligencia y ventana de tiempo.';
+COMMENT ON COLUMN catalogo.limite_operativo_billetera.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN catalogo.limite_operativo_billetera.concepto IS 'CK';
 COMMENT ON COLUMN catalogo.limite_operativo_billetera.nivel_debida_diligencia IS 'CK';
 COMMENT ON COLUMN catalogo.limite_operativo_billetera.ventana IS 'CK';
 COMMENT ON COLUMN catalogo.limite_operativo_billetera.monto_maximo IS 'NULL';
 COMMENT ON COLUMN catalogo.limite_operativo_billetera.cantidad_maxima IS 'NULL';
-COMMENT ON COLUMN catalogo.limite_operativo_billetera.vigente_hasta IS 'NULL';
+COMMENT ON COLUMN catalogo.limite_operativo_billetera.moneda IS 'Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2).';
+COMMENT ON COLUMN catalogo.limite_operativo_billetera.vigente_desde IS 'Desde cuándo rige esta versión de la fila: las condiciones se versionan, no se pisan.';
+COMMENT ON COLUMN catalogo.limite_operativo_billetera.vigente_hasta IS 'Hasta cuándo rigió esta versión; vacía mientras sigue vigente.';

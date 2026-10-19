@@ -1,26 +1,24 @@
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core'
-import { BandaDeProposito } from '@aportaya/ui/banda-de-proposito/banda-de-proposito'
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core'
 import { Boton } from '@aportaya/ui/boton/boton'
+import { CabeceraDePagina } from '@aportaya/ui/cabecera-de-pagina/cabecera-de-pagina'
 import { Campo } from '@aportaya/ui/campo/campo'
 import { Monto } from '@aportaya/ui/monto/monto'
 import { EstadoDePantalla } from '@aportaya/ui/estado-de-pantalla/estado-de-pantalla'
+import { ExplicadorDeVista } from '../../../nucleo/explicador-de-vista'
 import { recursoDeConsumo } from '../dominio/cu113-cu114-consumo'
 import { textosPublicidad } from '../textos'
 
 /**
  * CU-113 · Panel de desempeño (lectura). **Gate del carril**: usa exactamente el mismo
- * `recursoDeConsumo` (dominio compartido) que `PantallaDeLiquidacion` — un solo origen
- * de dato para las dos pantallas, nunca dos cálculos separados. Todo importe pasa por
- * `ap-monto`.
+ * `recursoDeConsumo` (dominio compartido) que `PantallaDeLiquidacion`.
  */
 @Component({
   selector: 'ap-pantalla-de-desempeno',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [BandaDeProposito, Boton, Campo, Monto, EstadoDePantalla],
+  imports: [Boton, CabeceraDePagina, Campo, Monto, EstadoDePantalla],
   template: `
-    <ap-banda-de-proposito [texto]="t.proposito" />
     <section class="pantalla">
-      <h1>{{ t.titulo }}</h1>
+      <ap-cabecera-de-pagina [titulo]="t.titulo" [descripcion]="t.proposito" icono="comision" />
       <div class="filtros">
         <ap-campo [etiqueta]="t.cuenta" [(valor)]="cuentaId" />
         <ap-campo [etiqueta]="t.periodo" [(valor)]="periodo" marcador="2026-09" />
@@ -40,7 +38,6 @@ import { textosPublicidad } from '../textos'
   `,
   styles: `
     .pantalla { padding: var(--s5); max-width: 48rem; display: grid; gap: var(--s4); }
-    h1 { margin: 0; }
     .filtros { display: flex; flex-wrap: wrap; align-items: flex-end; gap: var(--s3); }
     .resultado { display: grid; gap: var(--s2); }
     .etiqueta { color: var(--text-2); margin: 0; }
@@ -48,6 +45,9 @@ import { textosPublicidad } from '../textos'
   `,
 })
 export class PantallaDeDesempeno {
+  constructor() {
+    inject(ExplicadorDeVista).fijar(this.t.proposito)
+  }
   protected readonly t = textosPublicidad.desempeno
   protected readonly cuentaId = signal('')
   protected readonly periodo = signal('')

@@ -17,8 +17,8 @@ CREATE TABLE IF NOT EXISTS cumplimiento.instancia_reclamo (
   CONSTRAINT ck_instancia_reclamo_estado CHECK (estado IN ('DESISTIDA', 'EN_TRAMITE', 'PRESENTADA', 'RESUELTA'))
 );
 
-COMMENT ON TABLE cumplimiento.instancia_reclamo IS 'Módulo 12 — Cumplimiento Regulatorio y Consumidor Financiero. Que una inspección se responda con consultas, no armando carpetas';
-COMMENT ON COLUMN cumplimiento.instancia_reclamo.id IS 'PK';
+COMMENT ON TABLE cumplimiento.instancia_reclamo IS 'Módulo 12 — Cumplimiento Regulatorio y Consumidor Financiero. El canal de reclamos, el reclamo y su escalamiento.';
+COMMENT ON COLUMN cumplimiento.instancia_reclamo.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN cumplimiento.instancia_reclamo.reclamo_id IS 'FK, IDX';
 COMMENT ON COLUMN cumplimiento.instancia_reclamo.instancia IS 'CK';
 COMMENT ON COLUMN cumplimiento.instancia_reclamo.numero_expediente IS 'NULL';

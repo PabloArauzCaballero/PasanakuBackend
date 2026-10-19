@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS tarifas.aplicacion_promocion (
   CONSTRAINT pk_aplicacion_promocion PRIMARY KEY (id)
 );
 
-COMMENT ON TABLE tarifas.aplicacion_promocion IS 'Módulo 11 — Tarifas, Comisiones, Impuestos y Facturación. La política de cobro es dato, no código: se cambia con un seeder';
-COMMENT ON COLUMN tarifas.aplicacion_promocion.id IS 'PK';
+COMMENT ON TABLE tarifas.aplicacion_promocion IS 'Módulo 11 — Tarifas, Comisiones, Impuestos y Facturación. No cobrar, con nombre y apellido.';
+COMMENT ON COLUMN tarifas.aplicacion_promocion.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN tarifas.aplicacion_promocion.campana_id IS 'FK, IDX';
 COMMENT ON COLUMN tarifas.aplicacion_promocion.devengo_id IS 'FK, IDX';

@@ -12,102 +12,240 @@
           "codigo": "ADMIN_PLATAFORMA",
           "nombre": "Administrador de plataforma",
           "ambito": "GLOBAL",
-          "es_sistema": true
+          "es_sistema": true,
+          "departamento": "SISTEMAS",
+          "descripcion": "Superadministrador con acceso de bootstrap y soporte a la plataforma"
         },
         {
           "codigo": "OFICIAL_CUMPLIMIENTO",
           "nombre": "Oficial de cumplimiento",
           "ambito": "GLOBAL",
-          "es_sistema": true
+          "es_sistema": true,
+          "departamento": "CUMPLIMIENTO",
+          "descripcion": "Jefatura de cumplimiento, gestión de casos, ROS y normativas ASFI/UIF"
         },
         {
           "codigo": "ANALISTA_CUMPLIMIENTO",
           "nombre": "Analista de cumplimiento",
           "ambito": "GLOBAL",
-          "es_sistema": true
+          "es_sistema": true,
+          "departamento": "CUMPLIMIENTO",
+          "descripcion": "Analista de cumplimiento, revisión de expedientes KYC y monitoreo de alertas"
         },
         {
           "codigo": "AUDITOR_INTERNO",
           "nombre": "Auditor interno",
           "ambito": "GLOBAL",
-          "es_sistema": true
+          "es_sistema": true,
+          "departamento": "AUDITORIA",
+          "descripcion": "Auditor interno con acceso de solo lectura y revisión de trazabilidad"
         },
         {
           "codigo": "RESPONSABLE_RIESGOS",
           "nombre": "Responsable de gestión de riesgos",
           "ambito": "GLOBAL",
-          "es_sistema": true
+          "es_sistema": true,
+          "departamento": "RIESGOS",
+          "descripcion": "Jefatura de gestión integral de riesgos y scoring de garantías"
         },
         {
           "codigo": "RESPONSABLE_SEGURIDAD",
           "nombre": "Responsable de seguridad de la información",
           "ambito": "GLOBAL",
-          "es_sistema": true
+          "es_sistema": true,
+          "departamento": "SISTEMAS",
+          "descripcion": "Responsable de seguridad de la información, incidentes y continuidad"
         },
         {
           "codigo": "SOPORTE",
           "nombre": "Soporte y atención al cliente",
           "ambito": "GLOBAL",
-          "es_sistema": true
+          "es_sistema": true,
+          "departamento": "SOPORTE",
+          "descripcion": "Agente de soporte y atención a incidencias de participantes"
         },
         {
           "codigo": "PUNTO_RECLAMO",
           "nombre": "Responsable del Punto de Reclamo",
           "ambito": "GLOBAL",
-          "es_sistema": true
+          "es_sistema": true,
+          "departamento": "CUMPLIMIENTO",
+          "descripcion": "Responsable del Punto de Reclamo ASFI y atención en segunda instancia"
         },
         {
           "codigo": "TESORERIA",
           "nombre": "Tesorería y conciliación",
           "ambito": "GLOBAL",
-          "es_sistema": true
+          "es_sistema": true,
+          "departamento": "FINANZAS",
+          "descripcion": "Tesorería, conciliación de custodia bancaria y desembolsos"
         },
         {
           "codigo": "SERVICIO_ENTREGAS",
           "nombre": "Identidad de servicio: entregas (pagos del mercado)",
           "ambito": "GLOBAL",
-          "es_sistema": true
+          "es_sistema": true,
+          "departamento": "SISTEMAS",
+          "descripcion": "Identidad de servicio: entregas y liquidación automática"
         },
         {
           "codigo": "SERVICIO_INVERSIONES",
           "nombre": "Identidad de servicio: inversiones (debita y acredita)",
           "ambito": "GLOBAL",
-          "es_sistema": true
+          "es_sistema": true,
+          "departamento": "SISTEMAS",
+          "descripcion": "Identidad de servicio: inversiones y fondos voluntarios"
         },
         {
           "codigo": "CONTABILIDAD",
           "nombre": "Contabilidad",
           "ambito": "GLOBAL",
-          "es_sistema": true
+          "es_sistema": true,
+          "departamento": "FINANZAS",
+          "descripcion": "Jefatura contable, ERP, balances, proveedores y estados financieros"
         },
         {
           "codigo": "ORGANIZADOR",
           "nombre": "Organizador de grupo",
           "ambito": "GRUPO",
-          "es_sistema": true
+          "es_sistema": true,
+          "departamento": "OPERACIONES",
+          "descripcion": "Organizador de grupo de pasanaku"
         },
         {
           "codigo": "PARTICIPANTE",
           "nombre": "Participante de grupo",
           "ambito": "GRUPO",
-          "es_sistema": true
+          "es_sistema": true,
+          "departamento": "OPERACIONES",
+          "descripcion": "Participante regular de grupo de pasanaku"
         },
         {
           "codigo": "OPERADOR_PUBLICIDAD",
           "nombre": "Operador de publicidad",
           "ambito": "GLOBAL",
-          "es_sistema": true
+          "es_sistema": true,
+          "departamento": "COMERCIAL",
+          "descripcion": "Operador de pauta publicitaria, campañas y liquidación de convenios"
         },
         {
           "codigo": "MODERADOR_CONTENIDO",
           "nombre": "Moderador de contenido publicitario",
           "ambito": "GLOBAL",
-          "es_sistema": true
+          "es_sistema": true,
+          "departamento": "COMERCIAL",
+          "descripcion": "Moderador de piezas creativas y pautas comerciales"
         },
         {
           "codigo": "ANUNCIANTE",
           "nombre": "Anunciante",
           "ambito": "GLOBAL",
+          "es_sistema": true,
+          "departamento": "COMERCIAL",
+          "descripcion": "Socio comercial o anunciante externo en la plataforma"
+        },
+        {
+          "codigo": "COMERCIAL",
+          "nombre": "Comercial",
+          "ambito": "GLOBAL",
+          "es_sistema": true,
+          "departamento": "COMERCIAL",
+          "descripcion": "Ejecutivo comercial para onboarding de empresas y alianzas"
+        },
+        {
+          "codigo": "INTERNAL_IDENTITY_ADMIN",
+          "nombre": "Administrador de identidades internas",
+          "ambito": "GLOBAL",
+          "departamento": "SISTEMAS",
+          "descripcion": "Administrador de identidad interna",
+          "es_sistema": true
+        },
+        {
+          "codigo": "SYSTEMS_ADMIN",
+          "nombre": "Administrador técnico de servicios",
+          "ambito": "GLOBAL",
+          "departamento": "SISTEMAS",
+          "descripcion": "Administrador técnico de sistemas",
+          "es_sistema": true
+        },
+        {
+          "codigo": "OPERATIONS_MANAGER",
+          "nombre": "Jefatura de operaciones",
+          "ambito": "GLOBAL",
+          "departamento": "OPERACIONES",
+          "descripcion": "Jefatura de operaciones",
+          "es_sistema": true
+        },
+        {
+          "codigo": "OPERATIONS_ANALYST",
+          "nombre": "Analista de operaciones para revisión de solicitudes",
+          "ambito": "GLOBAL",
+          "departamento": "OPERACIONES",
+          "descripcion": "Analista de operaciones",
+          "es_sistema": true
+        },
+        {
+          "codigo": "RISK_ANALYST",
+          "nombre": "Analista de riesgos",
+          "ambito": "GLOBAL",
+          "departamento": "RIESGOS",
+          "descripcion": "Analista de riesgos",
+          "es_sistema": true
+        },
+        {
+          "codigo": "FRAUD_ANALYST",
+          "nombre": "Analista de prevención de fraude",
+          "ambito": "GLOBAL",
+          "departamento": "RIESGOS",
+          "descripcion": "Analista de prevención de fraude",
+          "es_sistema": true
+        },
+        {
+          "codigo": "COLLECTIONS_MANAGER",
+          "nombre": "Jefatura de mora",
+          "ambito": "GLOBAL",
+          "departamento": "OPERACIONES",
+          "descripcion": "Jefatura de mora y cobranzas",
+          "es_sistema": true
+        },
+        {
+          "codigo": "COLLECTIONS_AGENT",
+          "nombre": "Agente de recuperación de mora",
+          "ambito": "GLOBAL",
+          "departamento": "OPERACIONES",
+          "descripcion": "Agente de recuperación de mora",
+          "es_sistema": true
+        },
+        {
+          "codigo": "DATA_GOVERNANCE_MANAGER",
+          "nombre": "Jefatura de gobierno de datos",
+          "ambito": "GLOBAL",
+          "departamento": "SISTEMAS",
+          "descripcion": "Jefatura de gobierno de datos",
+          "es_sistema": true
+        },
+        {
+          "codigo": "DATA_QUALITY_ANALYST",
+          "nombre": "Analista de calidad de datos",
+          "ambito": "GLOBAL",
+          "departamento": "SISTEMAS",
+          "descripcion": "Analista de calidad de datos",
+          "es_sistema": true
+        },
+        {
+          "codigo": "QA_ENGINEER",
+          "nombre": "Ingeniería de aseguramiento QA",
+          "ambito": "GLOBAL",
+          "departamento": "SISTEMAS",
+          "descripcion": "Ingeniería de aseguramiento QA",
+          "es_sistema": true
+        },
+        {
+          "codigo": "EXECUTIVE_READONLY",
+          "nombre": "Acceso ejecutivo solo lectura",
+          "ambito": "GLOBAL",
+          "departamento": "EJECUTIVO",
+          "descripcion": "Acceso ejecutivo solo lectura",
           "es_sistema": true
         }
       ]
@@ -123,259 +261,414 @@
           "descripcion": "Asignar y revocar roles de operador (CU-08); nadie se lo aplica a sí mismo (R-SEG-07)",
           "recurso": "asignacion_rol",
           "accion": "ADMINISTRAR",
-          "requiere_mfa": true
+          "requiere_mfa": true,
+          "nivel_riesgo": "ALTO",
+          "exige_motivo": true
         },
         {
           "codigo": "AUDITORIA_LEER",
           "descripcion": "Consultar la bitácora y los registros de acceso",
           "recurso": "bitacora_evento",
           "accion": "LEER",
-          "requiere_mfa": false
+          "requiere_mfa": false,
+          "nivel_riesgo": "MEDIO",
+          "exige_motivo": false
         },
         {
           "codigo": "BILLETERA_OPERAR",
           "descripcion": "Recargar, transferir y retirar",
           "recurso": "billetera",
           "accion": "ESCRIBIR",
-          "requiere_mfa": true
+          "requiere_mfa": true,
+          "nivel_riesgo": "CRITICO",
+          "exige_motivo": true
         },
         {
           "codigo": "BILLETERA_VER",
           "descripcion": "Ver saldo y movimientos propios",
           "recurso": "billetera",
           "accion": "LEER",
-          "requiere_mfa": false
+          "requiere_mfa": false,
+          "nivel_riesgo": "BAJO",
+          "exige_motivo": false
         },
         {
           "codigo": "BILLETERA_VER_TERCEROS",
           "descripcion": "Ver billeteras de terceros (backoffice)",
           "recurso": "billetera",
           "accion": "LEER_TERCEROS",
-          "requiere_mfa": true
+          "requiere_mfa": true,
+          "nivel_riesgo": "ALTO",
+          "exige_motivo": true
         },
         {
           "codigo": "CATALOGO_EDITAR",
           "descripcion": "Editar catálogos regulatorios",
           "recurso": "catalogo",
           "accion": "ESCRIBIR",
-          "requiere_mfa": true
+          "requiere_mfa": true,
+          "nivel_riesgo": "ALTO",
+          "exige_motivo": true
+        },
+        {
+          "codigo": "CATALOGO_DATOS_EDITAR",
+          "descripcion": "Editar la ficha de gobierno de las tablas del catálogo de datos: estado, revisión, responsable y retención (CU-130)",
+          "recurso": "catalogo",
+          "accion": "ESCRIBIR",
+          "requiere_mfa": true,
+          "nivel_riesgo": "ALTO",
+          "exige_motivo": true
         },
         {
           "codigo": "CONTABILIDAD_ERP_ACTIVOS_FIJOS",
           "descripcion": "Dar de alta y de baja activos fijos",
           "recurso": "activo_fijo",
           "accion": "GESTIONAR",
-          "requiere_mfa": false
+          "requiere_mfa": false,
+          "nivel_riesgo": "MEDIO",
+          "exige_motivo": false
         },
         {
           "codigo": "CONTABILIDAD_ERP_CERRAR",
           "descripcion": "Cerrar un período o ejercicio contable",
           "recurso": "periodo_contable",
           "accion": "CERRAR",
-          "requiere_mfa": true
+          "requiere_mfa": true,
+          "nivel_riesgo": "CRITICO",
+          "exige_motivo": true
         },
         {
           "codigo": "CONTABILIDAD_ERP_COBRAR",
           "descripcion": "Registrar cobros de cuentas por cobrar",
           "recurso": "cuenta_por_cobrar",
           "accion": "GESTIONAR",
-          "requiere_mfa": true
+          "requiere_mfa": true,
+          "nivel_riesgo": "ALTO",
+          "exige_motivo": true
         },
         {
           "codigo": "CONTABILIDAD_ERP_COMPRAS",
           "descripcion": "Dar de alta terceros comerciales y aprobar órdenes de compra",
           "recurso": "orden_compra",
           "accion": "GESTIONAR",
-          "requiere_mfa": false
+          "requiere_mfa": false,
+          "nivel_riesgo": "MEDIO",
+          "exige_motivo": false
         },
         {
           "codigo": "CONTABILIDAD_ERP_CUENTAS_POR_PAGAR",
           "descripcion": "Registrar y aprobar facturas de proveedor",
           "recurso": "factura_proveedor",
           "accion": "APROBAR",
-          "requiere_mfa": true
+          "requiere_mfa": true,
+          "nivel_riesgo": "ALTO",
+          "exige_motivo": true
         },
         {
           "codigo": "CONTABILIDAD_ERP_PAGAR",
           "descripcion": "Autorizar el pago de una factura de proveedor",
           "recurso": "pago_a_proveedor",
           "accion": "AUTORIZAR",
-          "requiere_mfa": true
+          "requiere_mfa": true,
+          "nivel_riesgo": "CRITICO",
+          "exige_motivo": true
         },
         {
           "codigo": "CONTABILIDAD_ERP_PRESUPUESTO",
           "descripcion": "Crear y aprobar presupuestos por centro de costo",
           "recurso": "presupuesto",
           "accion": "GESTIONAR",
-          "requiere_mfa": false
+          "requiere_mfa": false,
+          "nivel_riesgo": "MEDIO",
+          "exige_motivo": false
         },
         {
           "codigo": "CONTABILIDAD_ERP_REPORTES",
           "descripcion": "Generar y consultar estados financieros",
           "recurso": "estado_financiero_generado",
           "accion": "LEER",
-          "requiere_mfa": false
+          "requiere_mfa": false,
+          "nivel_riesgo": "BAJO",
+          "exige_motivo": false
         },
         {
           "codigo": "CUMPLIMIENTO_ALERTAS",
           "descripcion": "Ver y tratar alertas de monitoreo",
           "recurso": "alerta_monitoreo_lft",
           "accion": "GESTIONAR",
-          "requiere_mfa": false
+          "requiere_mfa": false,
+          "nivel_riesgo": "MEDIO",
+          "exige_motivo": false
         },
         {
           "codigo": "CUMPLIMIENTO_CASOS",
           "descripcion": "Abrir y decidir casos de investigación",
           "recurso": "caso_investigacion_lft",
           "accion": "GESTIONAR",
-          "requiere_mfa": false
+          "requiere_mfa": false,
+          "nivel_riesgo": "ALTO",
+          "exige_motivo": true
         },
         {
           "codigo": "CUMPLIMIENTO_REPORTAR",
           "descripcion": "Generar y enviar reportes regulatorios",
           "recurso": "reporte_regulatorio",
           "accion": "ENVIAR",
-          "requiere_mfa": true
+          "requiere_mfa": true,
+          "nivel_riesgo": "CRITICO",
+          "exige_motivo": true
         },
         {
           "codigo": "DATOS_SENSIBLES_LEER",
           "descripcion": "Consultar documentos y cuentas de clientes",
           "recurso": "documento_identidad",
           "accion": "LEER",
-          "requiere_mfa": true
+          "requiere_mfa": true,
+          "nivel_riesgo": "ALTO",
+          "exige_motivo": true
         },
         {
           "codigo": "ENTREGA_AUTORIZAR",
           "descripcion": "Autorizar una entrega de fondo",
           "recurso": "entrega_fondo",
           "accion": "AUTORIZAR",
-          "requiere_mfa": true
+          "requiere_mfa": true,
+          "nivel_riesgo": "CRITICO",
+          "exige_motivo": true
         },
         {
           "codigo": "ENTREGA_EJECUTAR",
           "descripcion": "Ejecutar una entrega de fondo",
           "recurso": "entrega_fondo",
           "accion": "EJECUTAR",
-          "requiere_mfa": true
+          "requiere_mfa": true,
+          "nivel_riesgo": "CRITICO",
+          "exige_motivo": true
         },
         {
           "codigo": "GRUPO_ADMINISTRAR",
           "descripcion": "Administrar un grupo",
           "recurso": "grupo",
           "accion": "ADMINISTRAR",
-          "requiere_mfa": false
+          "requiere_mfa": false,
+          "nivel_riesgo": "MEDIO",
+          "exige_motivo": false
         },
         {
           "codigo": "GRUPO_CREAR",
           "descripcion": "Crear un grupo de pasanaku",
           "recurso": "grupo",
           "accion": "CREAR",
-          "requiere_mfa": false
+          "requiere_mfa": false,
+          "nivel_riesgo": "BAJO",
+          "exige_motivo": false
         },
         {
           "codigo": "PUBLICIDAD_ANUNCIANTES",
           "descripcion": "Dar de alta y verificar anunciantes y socios comerciales",
           "recurso": "anunciante",
           "accion": "GESTIONAR",
-          "requiere_mfa": false
+          "requiere_mfa": false,
+          "nivel_riesgo": "MEDIO",
+          "exige_motivo": false
         },
         {
           "codigo": "PUBLICIDAD_APROBAR_CAMPANA",
           "descripcion": "Aprobar o rechazar una campaña publicitaria",
           "recurso": "campana_publicitaria",
           "accion": "APROBAR",
-          "requiere_mfa": true
+          "requiere_mfa": true,
+          "nivel_riesgo": "ALTO",
+          "exige_motivo": true
         },
         {
           "codigo": "PUBLICIDAD_CAMPANA_GESTIONAR",
           "descripcion": "Crear y editar campañas propias",
           "recurso": "campana_publicitaria",
           "accion": "GESTIONAR",
-          "requiere_mfa": false
+          "requiere_mfa": false,
+          "nivel_riesgo": "MEDIO",
+          "exige_motivo": false
         },
         {
           "codigo": "PUBLICIDAD_LIQUIDAR",
           "descripcion": "Liquidar y facturar el gasto publicitario",
           "recurso": "factura_publicidad",
           "accion": "GESTIONAR",
-          "requiere_mfa": true
+          "requiere_mfa": true,
+          "nivel_riesgo": "CRITICO",
+          "exige_motivo": true
         },
         {
           "codigo": "PUBLICIDAD_MODERAR",
           "descripcion": "Aprobar o rechazar piezas creativas",
           "recurso": "pieza_creativa",
           "accion": "MODERAR",
-          "requiere_mfa": false
+          "requiere_mfa": false,
+          "nivel_riesgo": "MEDIO",
+          "exige_motivo": false
         },
         {
           "codigo": "RECLAMO_ATENDER",
           "descripcion": "Atender y responder reclamos",
           "recurso": "reclamo_cliente",
           "accion": "GESTIONAR",
-          "requiere_mfa": false
+          "requiere_mfa": false,
+          "nivel_riesgo": "MEDIO",
+          "exige_motivo": false
         },
         {
           "codigo": "RETIRO_APROBAR",
           "descripcion": "Aprobar o rechazar un retiro que necesita doble aprobación (H3, ADR-049)",
           "recurso": "orden_retiro",
           "accion": "APROBAR",
-          "requiere_mfa": true
+          "requiere_mfa": true,
+          "nivel_riesgo": "CRITICO",
+          "exige_motivo": true
         },
         {
           "codigo": "REVERSO_AUTORIZAR",
           "descripcion": "Autorizar el reverso de una transacción",
           "recurso": "transaccion_billetera",
           "accion": "REVERSAR",
-          "requiere_mfa": true
+          "requiere_mfa": true,
+          "nivel_riesgo": "CRITICO",
+          "exige_motivo": true
         },
         {
           "codigo": "SEGURIDAD_ACCESO_RESTABLECER",
           "descripcion": "Aprobar el restablecimiento de la credencial de un operador (ADR-038, R-SEG-11)",
           "recurso": "acceso_operador",
           "accion": "APROBAR",
-          "requiere_mfa": true
+          "requiere_mfa": true,
+          "nivel_riesgo": "CRITICO",
+          "exige_motivo": true
         },
         {
           "codigo": "SEGURIDAD_FACTOR_REINSCRIBIR",
           "descripcion": "Dar de baja y volver a enrolar el segundo factor de un operador (ADR-038)",
           "recurso": "factor_mfa",
           "accion": "EJECUTAR",
-          "requiere_mfa": true
+          "requiere_mfa": true,
+          "nivel_riesgo": "CRITICO",
+          "exige_motivo": true
         },
         {
           "codigo": "TARIFARIO_PUBLICAR",
           "descripcion": "Publicar un tarifario nuevo",
           "recurso": "tarifario",
           "accion": "PUBLICAR",
-          "requiere_mfa": true
+          "requiere_mfa": true,
+          "nivel_riesgo": "CRITICO",
+          "exige_motivo": true
         },
         {
           "codigo": "VERIFICACION_RESOLVER",
           "descripcion": "Aprobar o rechazar la verificación de identidad de una persona",
           "recurso": "verificacion_kyc",
           "accion": "RESOLVER",
-          "requiere_mfa": true
+          "requiere_mfa": true,
+          "nivel_riesgo": "ALTO",
+          "exige_motivo": true
         },
         {
           "codigo": "RECLAMO_VER",
           "descripcion": "Ver el rastro de reclamos de una persona y su efecto sobre sanciones y deudas (CU-52)",
           "recurso": "reclamo_cliente",
           "accion": "LEER",
-          "requiere_mfa": false
+          "requiere_mfa": false,
+          "nivel_riesgo": "BAJO",
+          "exige_motivo": false
         },
         {
           "codigo": "SOLICITUD_INGRESO_VER",
           "descripcion": "Ver las solicitudes de ingreso a un grupo escaladas a revision humana (CU-68)",
           "recurso": "solicitud_ingreso",
           "accion": "LEER",
-          "requiere_mfa": false
+          "requiere_mfa": false,
+          "nivel_riesgo": "BAJO",
+          "exige_motivo": false
         },
         {
           "codigo": "SOLICITUD_INGRESO_RESOLVER",
           "descripcion": "Resolver una solicitud de ingreso escalada; quien propone no resuelve (CU-68)",
           "recurso": "solicitud_ingreso",
           "accion": "RESOLVER",
+          "requiere_mfa": true,
+          "nivel_riesgo": "ALTO",
+          "exige_motivo": true
+        },
+        {
+          "codigo": "TABLERO_FINANCIERO_VER",
+          "descripcion": "Ver el tablero financiero: totales agregados del mayor, la mora, el fondo y los turnos (tableros por rol). Solo agregados, nunca datos de una persona",
+          "recurso": "tablero",
+          "accion": "LEER",
+          "requiere_mfa": false,
+          "nivel_riesgo": "BAJO",
+          "exige_motivo": false
+        },
+        {
+          "codigo": "TABLERO_COMERCIAL_VER",
+          "descripcion": "Ver el tablero comercial: altas, activos, embudo, llenado de grupos y retencion (tableros por rol). Solo conteos agregados",
+          "recurso": "tablero",
+          "accion": "LEER",
+          "requiere_mfa": false,
+          "nivel_riesgo": "BAJO",
+          "exige_motivo": false
+        },
+        {
+          "codigo": "TABLERO_SISTEMAS_VER",
+          "descripcion": "Ver el tablero de sistemas: trafico, errores, latencia y endpoints del dia, y los catalogos de datos y de flujos (tableros por rol)",
+          "recurso": "tablero",
+          "accion": "LEER",
+          "requiere_mfa": false,
+          "nivel_riesgo": "BAJO",
+          "exige_motivo": false
+        },
+        {
+          "codigo": "USUARIOS_INTERNOS_LEER",
+          "descripcion": "Consultar usuarios internos y sus asignaciones de rol",
+          "recurso": "usuario_interno",
+          "accion": "LEER",
+          "nivel_riesgo": "MEDIO",
+          "exige_motivo": false,
+          "requiere_mfa": false
+        },
+        {
+          "codigo": "USUARIOS_INTERNOS_GESTIONAR",
+          "descripcion": "Dar de alta, suspender, desbloquear y gestionar usuarios internos con motivo justificado",
+          "recurso": "usuario_interno",
+          "accion": "GESTIONAR",
+          "nivel_riesgo": "CRITICO",
+          "exige_motivo": true,
           "requiere_mfa": true
+        },
+        {
+          "codigo": "ROLES_INTERNOS_LEER",
+          "descripcion": "Consultar roles internos y su matriz de permisos",
+          "recurso": "rol",
+          "accion": "LEER",
+          "nivel_riesgo": "BAJO",
+          "exige_motivo": false,
+          "requiere_mfa": false
+        },
+        {
+          "codigo": "ROLES_INTERNOS_GESTIONAR",
+          "descripcion": "Administrar roles internos y sus permisos con motivo auditado",
+          "recurso": "rol",
+          "accion": "GESTIONAR",
+          "nivel_riesgo": "CRITICO",
+          "exige_motivo": true,
+          "requiere_mfa": true
+        },
+        {
+          "codigo": "PERMISOS_INTERNOS_LEER",
+          "descripcion": "Consultar permisos internos y su nivel de riesgo",
+          "recurso": "permiso",
+          "accion": "LEER",
+          "nivel_riesgo": "BAJO",
+          "exige_motivo": false,
+          "requiere_mfa": false
         }
       ],
       "comentario": "`requiere_mfa` marca los permisos que exigen segundo factor en el momento de usarlos, no solo al iniciar sesión: todo lo que mueve dinero, publica precios, edita catálogos o lee datos de terceros."
@@ -396,6 +689,16 @@
           "permiso_id": {
             "$ref": "permiso",
             "codigo": "CATALOGO_EDITAR"
+          }
+        },
+        {
+          "rol_id": {
+            "$ref": "rol",
+            "codigo": "ADMIN_PLATAFORMA"
+          },
+          "permiso_id": {
+            "$ref": "permiso",
+            "codigo": "CATALOGO_DATOS_EDITAR"
           }
         },
         {
@@ -1036,6 +1339,436 @@
           "permiso_id": {
             "$ref": "permiso",
             "codigo": "RECLAMO_VER"
+          }
+        },
+        {
+          "rol_id": {
+            "$ref": "rol",
+            "codigo": "TESORERIA"
+          },
+          "permiso_id": {
+            "$ref": "permiso",
+            "codigo": "TABLERO_FINANCIERO_VER"
+          }
+        },
+        {
+          "rol_id": {
+            "$ref": "rol",
+            "codigo": "CONTABILIDAD"
+          },
+          "permiso_id": {
+            "$ref": "permiso",
+            "codigo": "TABLERO_FINANCIERO_VER"
+          }
+        },
+        {
+          "rol_id": {
+            "$ref": "rol",
+            "codigo": "COMERCIAL"
+          },
+          "permiso_id": {
+            "$ref": "permiso",
+            "codigo": "TABLERO_COMERCIAL_VER"
+          }
+        },
+        {
+          "rol_id": {
+            "$ref": "rol",
+            "codigo": "ADMIN_PLATAFORMA"
+          },
+          "permiso_id": {
+            "$ref": "permiso",
+            "codigo": "TABLERO_SISTEMAS_VER"
+          }
+        },
+        {
+          "rol_id": {
+            "$ref": "rol",
+            "codigo": "ADMIN_PLATAFORMA"
+          },
+          "permiso_id": {
+            "$ref": "permiso",
+            "codigo": "USUARIOS_INTERNOS_LEER"
+          }
+        },
+        {
+          "rol_id": {
+            "$ref": "rol",
+            "codigo": "ADMIN_PLATAFORMA"
+          },
+          "permiso_id": {
+            "$ref": "permiso",
+            "codigo": "USUARIOS_INTERNOS_GESTIONAR"
+          }
+        },
+        {
+          "rol_id": {
+            "$ref": "rol",
+            "codigo": "ADMIN_PLATAFORMA"
+          },
+          "permiso_id": {
+            "$ref": "permiso",
+            "codigo": "ROLES_INTERNOS_LEER"
+          }
+        },
+        {
+          "rol_id": {
+            "$ref": "rol",
+            "codigo": "ADMIN_PLATAFORMA"
+          },
+          "permiso_id": {
+            "$ref": "permiso",
+            "codigo": "ROLES_INTERNOS_GESTIONAR"
+          }
+        },
+        {
+          "rol_id": {
+            "$ref": "rol",
+            "codigo": "ADMIN_PLATAFORMA"
+          },
+          "permiso_id": {
+            "$ref": "permiso",
+            "codigo": "PERMISOS_INTERNOS_LEER"
+          }
+        },
+        {
+          "rol_id": {
+            "$ref": "rol",
+            "codigo": "INTERNAL_IDENTITY_ADMIN"
+          },
+          "permiso_id": {
+            "$ref": "permiso",
+            "codigo": "USUARIOS_INTERNOS_LEER"
+          }
+        },
+        {
+          "rol_id": {
+            "$ref": "rol",
+            "codigo": "INTERNAL_IDENTITY_ADMIN"
+          },
+          "permiso_id": {
+            "$ref": "permiso",
+            "codigo": "USUARIOS_INTERNOS_GESTIONAR"
+          }
+        },
+        {
+          "rol_id": {
+            "$ref": "rol",
+            "codigo": "INTERNAL_IDENTITY_ADMIN"
+          },
+          "permiso_id": {
+            "$ref": "permiso",
+            "codigo": "ROLES_INTERNOS_LEER"
+          }
+        },
+        {
+          "rol_id": {
+            "$ref": "rol",
+            "codigo": "INTERNAL_IDENTITY_ADMIN"
+          },
+          "permiso_id": {
+            "$ref": "permiso",
+            "codigo": "ROLES_INTERNOS_GESTIONAR"
+          }
+        },
+        {
+          "rol_id": {
+            "$ref": "rol",
+            "codigo": "INTERNAL_IDENTITY_ADMIN"
+          },
+          "permiso_id": {
+            "$ref": "permiso",
+            "codigo": "PERMISOS_INTERNOS_LEER"
+          }
+        },
+        {
+          "rol_id": {
+            "$ref": "rol",
+            "codigo": "INTERNAL_IDENTITY_ADMIN"
+          },
+          "permiso_id": {
+            "$ref": "permiso",
+            "codigo": "ACCESOS_ADMINISTRAR"
+          }
+        },
+        {
+          "rol_id": {
+            "$ref": "rol",
+            "codigo": "INTERNAL_IDENTITY_ADMIN"
+          },
+          "permiso_id": {
+            "$ref": "permiso",
+            "codigo": "AUDITORIA_LEER"
+          }
+        },
+        {
+          "rol_id": {
+            "$ref": "rol",
+            "codigo": "SYSTEMS_ADMIN"
+          },
+          "permiso_id": {
+            "$ref": "permiso",
+            "codigo": "TABLERO_SISTEMAS_VER"
+          }
+        },
+        {
+          "rol_id": {
+            "$ref": "rol",
+            "codigo": "SYSTEMS_ADMIN"
+          },
+          "permiso_id": {
+            "$ref": "permiso",
+            "codigo": "AUDITORIA_LEER"
+          }
+        },
+        {
+          "rol_id": {
+            "$ref": "rol",
+            "codigo": "SYSTEMS_ADMIN"
+          },
+          "permiso_id": {
+            "$ref": "permiso",
+            "codigo": "CATALOGO_DATOS_EDITAR"
+          }
+        },
+        {
+          "rol_id": {
+            "$ref": "rol",
+            "codigo": "OPERATIONS_MANAGER"
+          },
+          "permiso_id": {
+            "$ref": "permiso",
+            "codigo": "SOLICITUD_INGRESO_VER"
+          }
+        },
+        {
+          "rol_id": {
+            "$ref": "rol",
+            "codigo": "OPERATIONS_MANAGER"
+          },
+          "permiso_id": {
+            "$ref": "permiso",
+            "codigo": "SOLICITUD_INGRESO_RESOLVER"
+          }
+        },
+        {
+          "rol_id": {
+            "$ref": "rol",
+            "codigo": "OPERATIONS_MANAGER"
+          },
+          "permiso_id": {
+            "$ref": "permiso",
+            "codigo": "RETIRO_APROBAR"
+          }
+        },
+        {
+          "rol_id": {
+            "$ref": "rol",
+            "codigo": "OPERATIONS_MANAGER"
+          },
+          "permiso_id": {
+            "$ref": "permiso",
+            "codigo": "RECLAMO_VER"
+          }
+        },
+        {
+          "rol_id": {
+            "$ref": "rol",
+            "codigo": "OPERATIONS_MANAGER"
+          },
+          "permiso_id": {
+            "$ref": "permiso",
+            "codigo": "RECLAMO_ATENDER"
+          }
+        },
+        {
+          "rol_id": {
+            "$ref": "rol",
+            "codigo": "OPERATIONS_ANALYST"
+          },
+          "permiso_id": {
+            "$ref": "permiso",
+            "codigo": "SOLICITUD_INGRESO_VER"
+          }
+        },
+        {
+          "rol_id": {
+            "$ref": "rol",
+            "codigo": "OPERATIONS_ANALYST"
+          },
+          "permiso_id": {
+            "$ref": "permiso",
+            "codigo": "RECLAMO_VER"
+          }
+        },
+        {
+          "rol_id": {
+            "$ref": "rol",
+            "codigo": "OPERATIONS_ANALYST"
+          },
+          "permiso_id": {
+            "$ref": "permiso",
+            "codigo": "RECLAMO_ATENDER"
+          }
+        },
+        {
+          "rol_id": {
+            "$ref": "rol",
+            "codigo": "RISK_ANALYST"
+          },
+          "permiso_id": {
+            "$ref": "permiso",
+            "codigo": "DATOS_SENSIBLES_LEER"
+          }
+        },
+        {
+          "rol_id": {
+            "$ref": "rol",
+            "codigo": "RISK_ANALYST"
+          },
+          "permiso_id": {
+            "$ref": "permiso",
+            "codigo": "TABLERO_FINANCIERO_VER"
+          }
+        },
+        {
+          "rol_id": {
+            "$ref": "rol",
+            "codigo": "FRAUD_ANALYST"
+          },
+          "permiso_id": {
+            "$ref": "permiso",
+            "codigo": "CUMPLIMIENTO_ALERTAS"
+          }
+        },
+        {
+          "rol_id": {
+            "$ref": "rol",
+            "codigo": "FRAUD_ANALYST"
+          },
+          "permiso_id": {
+            "$ref": "permiso",
+            "codigo": "CUMPLIMIENTO_CASOS"
+          }
+        },
+        {
+          "rol_id": {
+            "$ref": "rol",
+            "codigo": "FRAUD_ANALYST"
+          },
+          "permiso_id": {
+            "$ref": "permiso",
+            "codigo": "DATOS_SENSIBLES_LEER"
+          }
+        },
+        {
+          "rol_id": {
+            "$ref": "rol",
+            "codigo": "FRAUD_ANALYST"
+          },
+          "permiso_id": {
+            "$ref": "permiso",
+            "codigo": "AUDITORIA_LEER"
+          }
+        },
+        {
+          "rol_id": {
+            "$ref": "rol",
+            "codigo": "COLLECTIONS_MANAGER"
+          },
+          "permiso_id": {
+            "$ref": "permiso",
+            "codigo": "TABLERO_FINANCIERO_VER"
+          }
+        },
+        {
+          "rol_id": {
+            "$ref": "rol",
+            "codigo": "COLLECTIONS_MANAGER"
+          },
+          "permiso_id": {
+            "$ref": "permiso",
+            "codigo": "RECLAMO_VER"
+          }
+        },
+        {
+          "rol_id": {
+            "$ref": "rol",
+            "codigo": "COLLECTIONS_AGENT"
+          },
+          "permiso_id": {
+            "$ref": "permiso",
+            "codigo": "RECLAMO_VER"
+          }
+        },
+        {
+          "rol_id": {
+            "$ref": "rol",
+            "codigo": "DATA_GOVERNANCE_MANAGER"
+          },
+          "permiso_id": {
+            "$ref": "permiso",
+            "codigo": "CATALOGO_DATOS_EDITAR"
+          }
+        },
+        {
+          "rol_id": {
+            "$ref": "rol",
+            "codigo": "DATA_GOVERNANCE_MANAGER"
+          },
+          "permiso_id": {
+            "$ref": "permiso",
+            "codigo": "TABLERO_SISTEMAS_VER"
+          }
+        },
+        {
+          "rol_id": {
+            "$ref": "rol",
+            "codigo": "DATA_QUALITY_ANALYST"
+          },
+          "permiso_id": {
+            "$ref": "permiso",
+            "codigo": "TABLERO_SISTEMAS_VER"
+          }
+        },
+        {
+          "rol_id": {
+            "$ref": "rol",
+            "codigo": "QA_ENGINEER"
+          },
+          "permiso_id": {
+            "$ref": "permiso",
+            "codigo": "TABLERO_SISTEMAS_VER"
+          }
+        },
+        {
+          "rol_id": {
+            "$ref": "rol",
+            "codigo": "EXECUTIVE_READONLY"
+          },
+          "permiso_id": {
+            "$ref": "permiso",
+            "codigo": "TABLERO_FINANCIERO_VER"
+          }
+        },
+        {
+          "rol_id": {
+            "$ref": "rol",
+            "codigo": "EXECUTIVE_READONLY"
+          },
+          "permiso_id": {
+            "$ref": "permiso",
+            "codigo": "TABLERO_COMERCIAL_VER"
+          }
+        },
+        {
+          "rol_id": {
+            "$ref": "rol",
+            "codigo": "EXECUTIVE_READONLY"
+          },
+          "permiso_id": {
+            "$ref": "permiso",
+            "codigo": "TABLERO_SISTEMAS_VER"
           }
         }
       ]

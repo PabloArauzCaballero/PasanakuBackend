@@ -12,8 +12,8 @@ CREATE TABLE IF NOT EXISTS notificaciones.cola_envio (
   CONSTRAINT pk_cola_envio PRIMARY KEY (id)
 );
 
-COMMENT ON TABLE notificaciones.cola_envio IS 'Módulo 05 — Notificaciones y Comunicaciones. WhatsApp como canal real de cobro, sin spam ni doble aviso';
-COMMENT ON COLUMN notificaciones.cola_envio.id IS 'PK';
+COMMENT ON TABLE notificaciones.cola_envio IS 'Módulo 05 — Notificaciones y Comunicaciones. La cola de trabajo de los envíos pendientes.';
+COMMENT ON COLUMN notificaciones.cola_envio.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN notificaciones.cola_envio.envio_id IS 'FK, UQ';
 COMMENT ON COLUMN notificaciones.cola_envio.particion IS 'IDX';
 COMMENT ON COLUMN notificaciones.cola_envio.disponible_en IS 'IDX';

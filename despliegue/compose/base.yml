@@ -193,6 +193,37 @@ services:
       retries: 20
       start_period: 30s
 
+  # Tableros (D4) · OpenTelemetry: los servicios EMPUJAN trazas y metricas por OTLP al Collector; Prometheus lee del
+  # Collector. Perfil propio (y en `todo`): una maquina de carril no los necesita para trabajar. Sin puertos publicados:
+  # el tablero de sistemas consulta Prometheus por la red interna. Configuracion validada con `otelcol-contrib validate`
+  # y `promtool check config` (evidencia del trabajo tableros-por-rol).
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.115.1
+    container_name: aportaya-otel-collector
+    profiles: [observabilidad, todo]
+    networks: [interna]
+    command: ["--config=/etc/otelcol/config.yml"]
+    volumes:
+      - ../observabilidad/otel-collector.yml:/etc/otelcol/config.yml:ro
+    mem_limit: 256m
+
+  prometheus:
+    image: prom/prometheus:v3.1.0
+    container_name: aportaya-prometheus
+    profiles: [observabilidad, todo]
+    networks: [interna]
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.retention.time=15d
+    volumes:
+      - ../observabilidad/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    mem_limit: 512m
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:9090/-/ready || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+
   # El gateway va en `base` y no en un perfil aparte por una razon practica: NGINX
   # sin gateway no lleva a ningun lado, y un carril que prueba su servicio a traves
   # de la entrada publica necesita los dos. No tiene logica de negocio ni toca la

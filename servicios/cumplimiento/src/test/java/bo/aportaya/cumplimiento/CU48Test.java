@@ -59,12 +59,7 @@ class CU48Test extends BaseDeCumplimiento {
 
         transaccion.execute(t -> {
             reglaCU.activar(
-                    new EntradaActivacion(
-                            reglaId,
-                            oficial.usuarioId(),
-                            true,
-                            simulacion.superaTecho(),
-                            simulacion.porcentajeTrafico()),
+                    new EntradaActivacion(reglaId, true, simulacion.superaTecho(), simulacion.porcentajeTrafico()),
                     oficial);
             return null;
         });
@@ -72,9 +67,10 @@ class CU48Test extends BaseDeCumplimiento {
         assertThat(contar(
                         """
                         SELECT count(*)::int FROM cumplimiento.regla_monitoreo_lft
-                         WHERE id = ? AND activa = true AND aprobada_por IS NOT NULL AND vigente_desde IS NOT NULL
+                         WHERE id = ? AND activa = true AND aprobada_por = ? AND vigente_desde IS NOT NULL
                         """,
-                        reglaId))
+                        reglaId,
+                        oficial.usuarioId()))
                 .isEqualTo(1);
     }
 
@@ -156,7 +152,7 @@ class CU48Test extends BaseDeCumplimiento {
     void concurrencia() throws Exception {
         UUID reglaId = transaccion.execute(
                 t -> reglaCU.crear(regla("monto_usd >= umbral('PCC01_CARGA')", "ALTA", "SOLO_ALERTAR"), oficial));
-        var activacion = new EntradaActivacion(reglaId, oficial.usuarioId(), true, false, "0.0120");
+        var activacion = new EntradaActivacion(reglaId, true, false, "0.0120");
 
         var barrera = new java.util.concurrent.CyclicBarrier(2);
         var errores = java.util.Collections.synchronizedList(new java.util.ArrayList<Throwable>());
@@ -250,12 +246,12 @@ class CU48Test extends BaseDeCumplimiento {
 
         // Paso fallido: activar sin simulacion, y activar con simulacion que satura.
         assertThatThrownBy(() -> transaccion.execute(t -> {
-                    reglaCU.activar(new EntradaActivacion(reglaId, oficial.usuarioId(), false, false, "0"), oficial);
+                    reglaCU.activar(new EntradaActivacion(reglaId, false, false, "0"), oficial);
                     return null;
                 }))
                 .hasMessageContaining("simulacion previa");
         assertThatThrownBy(() -> transaccion.execute(t -> {
-                    reglaCU.activar(new EntradaActivacion(reglaId, oficial.usuarioId(), true, true, "0.4000"), oficial);
+                    reglaCU.activar(new EntradaActivacion(reglaId, true, true, "0.4000"), oficial);
                     return null;
                 }))
                 .hasMessageContaining("saturaria la bandeja");
@@ -266,7 +262,7 @@ class CU48Test extends BaseDeCumplimiento {
 
         // Con simulacion bajo el techo, el mismo camino cierra.
         transaccion.execute(t -> {
-            reglaCU.activar(new EntradaActivacion(reglaId, oficial.usuarioId(), true, false, "0.0120"), oficial);
+            reglaCU.activar(new EntradaActivacion(reglaId, true, false, "0.0120"), oficial);
             return null;
         });
         assertThat(contar(

@@ -1,0 +1,21 @@
+$ ./gradlew :servicios:auditoria:spotlessCheck test webTest integrationTest testBarrido contractTest --no-build-cache --continue
+BUILD SUCCESSFUL (exit=0)
+  test             tests=16 skipped=0 failures=0 errors=0
+  webTest          tests=34 skipped=0 failures=0 errors=0
+  integrationTest  tests=46 skipped=0 failures=0 errors=0
+  testBarrido      tests=2 skipped=0 failures=0 errors=0
+  contractTest     tests=0 skipped=0 failures=0 errors=0
+
+bo.aportaya.auditoria.CU58HistorialTest tests=3 failures=0 errors=0
+   PASS · Dadas dos ejecuciones completadas y una fallida por permiso · Cuando el backoffice lista el historial filtrando por COMPLETADA · Entonces ve las dos completadas, de la más reciente a la más antigua, con su hash
+   PASS · Dada una definición activa y otra inactiva · Cuando el backoffice lista el catálogo de reportes · Entonces ve la activa con su permiso requerido y sin la consulta base
+   PASS · rechaza un estado desconocido o un cursor a medias con AP-CU58-07
+bo.aportaya.auditoria.web.ReportesHistorialWebTest tests=6 failures=0 errors=0
+   PASS · 400: limite fuera de 1..100 lo corta el contrato
+   PASS · 200: el catalogo trae el permiso de cada reporte y NO la consulta base
+   PASS · 401: sin token no hay catalogo
+   PASS · 422: un estado desconocido sale con AP-CU58-07, nunca como 500
+   PASS · 200: el historial trae quien pidio, estado y hash, sin parametros ni mensaje de error
+   PASS · 403: sin AUDITORIA_LEER no hay catalogo ni historial
+
+Gates: verificar_criterios -> Sin divergencias · verificar_boveda -> TODO OK · verificar_seguridad -> TODO OK · 6 aviso(s)

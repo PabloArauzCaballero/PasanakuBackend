@@ -62,4 +62,14 @@ class ArranqueTest {
                 .as("la ruta %s no cae en ningun prefijo reservado", ruta)
                 .anySatisfy(prefijo -> assertThat(ruta).startsWith(prefijo)));
     }
+
+    @Autowired
+    private org.springframework.context.ApplicationContext contexto;
+
+    @Test
+    @DisplayName("arranque: el trabajo diario de recargos por mora existe (sin el bean, ningun atraso genera recargo)")
+    void elTrabajoDeRecargosEstaCableado() {
+        assertThat(contexto.getBeansOfType(bo.aportaya.aportes.trabajos.RecargosDeMoraDiarios.class))
+                .hasSize(1);
+    }
 }

@@ -108,3 +108,15 @@ CREATE UNIQUE INDEX IF NOT EXISTS uq_bandeja_entrada_notificacion_id
 
 CREATE INDEX IF NOT EXISTS ix_bandeja_entrada_leida
   ON notificaciones.bandeja_entrada (leida);
+
+CREATE INDEX IF NOT EXISTS ix_aviso_interno_usuario_id
+  ON notificaciones.aviso_interno (usuario_id);
+
+CREATE INDEX IF NOT EXISTS ix_aviso_interno_rol_destinatario
+  ON notificaciones.aviso_interno (rol_destinatario);
+
+CREATE INDEX IF NOT EXISTS ix_aviso_interno_leido_en
+  ON notificaciones.aviso_interno (leido_en);
+
+CREATE INDEX IF NOT EXISTS ix_aviso_interno_creado_en
+  ON notificaciones.aviso_interno (creado_en);

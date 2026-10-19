@@ -68,6 +68,7 @@ export const ErroresCU112 = {
   PIEZA_YA_REVISADA: 'AP-CU112-01',
   MOTIVO_OBLIGATORIO_EN_RECHAZO: 'AP-CU112-02',
   MODERADOR_ES_EL_ANUNCIANTE: 'AP-CU112-03',
+  FILTRO_DE_LISTADO_INVALIDO: 'AP-CU112-04',
 } as const
 ```
 
@@ -76,6 +77,9 @@ export const ErroresCU112 = {
 | `PIEZA_YA_REVISADA` | La pieza ya tiene una `revision_creativa` |
 | `MOTIVO_OBLIGATORIO_EN_RECHAZO` | `decision = 'RECHAZADA'` sin `motivo` |
 | `MODERADOR_ES_EL_ANUNCIANTE` | Quien revisa es el mismo anunciante dueño de la pieza |
+| `FILTRO_DE_LISTADO_INVALIDO` | La cola recibió un estado de moderación que no existe o un cursor a medias |
+
+**Cola de moderación (backoffice carril A).** `GET /publicidad/piezas-creativas` (`listarPiezasCreativas`, `PUBLICIDAD_MODERAR`): sin filtro devuelve `PENDIENTE`, la más antigua primero. Quien subió la pieza no la modera (R-PUB-05): lo exige `moderarPiezaCreativa`.
 
 ## Descomposición atómica
 
@@ -126,6 +130,11 @@ Entonces el sistema devuelve MOTIVO_OBLIGATORIO_EN_RECHAZO
 Dada una pieza_creativa con estado_moderacion PENDIENTE
 Cuando se intenta crear un anuncio que la usa
 Entonces el sistema rechaza la operación
+
+# Listado del backoffice (carril A)
+Dada una pieza pendiente y otra ya moderada
+Cuando el moderador abre su cola
+Entonces solo ve la pendiente, la mas antigua primero
 ```
 
 ## Ver también

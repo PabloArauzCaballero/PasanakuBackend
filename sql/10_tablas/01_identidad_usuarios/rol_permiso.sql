@@ -7,6 +7,6 @@ CREATE TABLE IF NOT EXISTS identidad.rol_permiso (
   CONSTRAINT pk_rol_permiso PRIMARY KEY (rol_id, permiso_id)
 );
 
-COMMENT ON TABLE identidad.rol_permiso IS 'Módulo 01 — Identidad, Usuarios y Seguridad. Saber con certeza a quién le estás confiando plata ajena';
+COMMENT ON TABLE identidad.rol_permiso IS 'Módulo 01 — Identidad, Usuarios y Seguridad. La relación muchos-a-muchos entre roles y permisos.';
 COMMENT ON COLUMN identidad.rol_permiso.rol_id IS 'PK, FK';
 COMMENT ON COLUMN identidad.rol_permiso.permiso_id IS 'PK, FK';

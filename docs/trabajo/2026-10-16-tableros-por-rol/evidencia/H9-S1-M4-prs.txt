@@ -1,0 +1,30 @@
+H9.S1.M4 — PRs a dev y a test · 2026-10-17
+
+PR #115 (→ dev): primera corrida con 3 rojos (barrido, Postman, OSV) → corregidos en 72f3561b (H9.S1.M5).
+$ gh pr checks 115
+  pass	Base efimera, semillas y permisos
+  pass	Bóveda, seguridad, carriles y despliegue coherentes
+  pass	Contratos y clientes generados
+  pass	Dependencias vulnerables (OSV-Scanner) / osv-scan
+  pass	Dependencias, secretos e imagen
+  pass	Detectar impacto del cambio
+  pass	Esquema, semillas y prueba de humo sobre PostgreSQL real
+  pass	Formato, reglas propias y compilacion
+  pass	Frontend — Flutter y Angular (ADR-044)
+  pass	La boveda y el esquema no divergen
+  pass	Los cinco corredores
+  pass	Trivy
+  pass	bootJar y docker build, multietapa y sin root
+  pass	osv-scanner
+  skipping	App — goldens (Linux)
+  skipping	App — navegación en simulador iOS (macOS)
+  skipping	Punta a punta financiero — nucleo-financiero y outbox
+  skipping	Punta a punta — solo en main
+  skipping	Release iOS (macOS)
+  Salteados por diseño: punta a punta (solo main) y los de la app móvil.
+  MERGED 2026-10-17T06:39:44Z · d56bd713
+
+PR #116 (→ test), misma cabeza 72f3561b: 14 pass · 5 skipping · MERGED 2026-10-17T06:39:59Z
+
+$ git diff --stat origin/dev origin/test   → vacío (mismo árbol; solo difieren los commits de merge)
+Espejo PasanakuFrontend: test sincronizado con merge sin forzar (b225a5b0..f00f181a), árbol igual a origin/test. dev del espejo NO se tocó (tiene PRs propios; decidir con Pablo).

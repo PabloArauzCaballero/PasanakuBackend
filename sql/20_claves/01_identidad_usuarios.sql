@@ -159,6 +159,11 @@ ALTER TABLE identidad.token_verificacion
   ADD CONSTRAINT fk_token_verificacion_usuario_id
   FOREIGN KEY (usuario_id) REFERENCES identidad.usuario (id) ON DELETE SET NULL ON UPDATE CASCADE;
 
+ALTER TABLE identidad.usuario_interno DROP CONSTRAINT IF EXISTS fk_usuario_interno_usuario_id;
+ALTER TABLE identidad.usuario_interno
+  ADD CONSTRAINT fk_usuario_interno_usuario_id
+  FOREIGN KEY (usuario_id) REFERENCES identidad.usuario (id) ON DELETE RESTRICT ON UPDATE CASCADE;
+
 ALTER TABLE identidad.verificacion_kyc DROP CONSTRAINT IF EXISTS fk_verificacion_kyc_documento_id;
 ALTER TABLE identidad.verificacion_kyc
   ADD CONSTRAINT fk_verificacion_kyc_documento_id
