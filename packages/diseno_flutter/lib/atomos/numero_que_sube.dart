@@ -95,16 +95,18 @@ class _NumeroQueSubeState extends State<NumeroQueSube>
           ? '${widget.prefijo}${widget.valor}${widget.sufijo}'
           : '$etiqueta: ${widget.prefijo}${widget.valor}${widget.sufijo}',
       excludeSemantics: true,
-      child: AnimatedBuilder(
-        animation: _control,
-        builder: (context, _) => Text(
-          '${widget.prefijo}$_visible${widget.sufijo}',
-          style: widget.cifrasTabulares
-              ? base.copyWith(
-                  fontFamily: Fuente.display,
-                  fontFeatures: const [FontFeature.tabularFigures()],
-                )
-              : base,
+      child: RepaintBoundary(
+        child: AnimatedBuilder(
+          animation: _control,
+          builder: (context, _) => Text(
+            '${widget.prefijo}$_visible${widget.sufijo}',
+            style: widget.cifrasTabulares
+                ? base.copyWith(
+                    fontFamily: Fuente.display,
+                    fontFeatures: const [FontFeature.tabularFigures()],
+                  )
+                : base,
+          ),
         ),
       ),
     );

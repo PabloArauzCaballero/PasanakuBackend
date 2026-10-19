@@ -38,8 +38,8 @@ class _AppAportaYaState extends ConsumerState<AppAportaYa> {
   late final Vigilante _vigilante;
   late final TopeDeSesion _tope;
   late final AppLifecycleListener _cicloDeVida;
-  Timer? _timerDeInactividad;
-  Timer? _timerDelTope;
+  Timer? _timerDeMantenimiento;
+  int _ticksDeMantenimiento = 0;
   bool _estuvoEnSegundoPlano = false;
 
   @override
@@ -61,15 +61,19 @@ class _AppAportaYaState extends ConsumerState<AppAportaYa> {
     );
     _sesion.addListener(_alCambiarSesion);
     _cicloDeVida = AppLifecycleListener(onStateChange: _alCambiarEstado);
-    _timerDeInactividad = Timer.periodic(
+    _timerDeMantenimiento = Timer.periodic(
       revisionDeInactividad,
-      (_) => _vigilante.revisar(),
-    );
-    _timerDelTope = Timer.periodic(
-      const Duration(minutes: 1),
-      (_) => unawaited(_tope.revisar()),
+      (_) => _revisarMantenimiento(),
     );
     _hidratarSesion();
+  }
+
+  void _revisarMantenimiento() {
+    _vigilante.revisar();
+    _ticksDeMantenimiento++;
+    if (_ticksDeMantenimiento % 4 == 0) {
+      unawaited(_tope.revisar());
+    }
   }
 
   Future<void> _hidratarSesion() async {
@@ -119,8 +123,7 @@ class _AppAportaYaState extends ConsumerState<AppAportaYa> {
 
   @override
   void dispose() {
-    _timerDeInactividad?.cancel();
-    _timerDelTope?.cancel();
+    _timerDeMantenimiento?.cancel();
     _cicloDeVida.dispose();
     _sesion.removeListener(_alCambiarSesion);
     _enrutador?.dispose();

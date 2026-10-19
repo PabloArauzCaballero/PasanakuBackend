@@ -167,15 +167,19 @@ class _PantallaDePruebaDeVidaState extends ConsumerState<PantallaDePruebaDeVida>
       fit: StackFit.expand,
       children: [
         RepaintBoundary(child: _prueba.vista),
-        SiluetaDeCara(
-          pose: pose,
-          progreso: _prueba.estado.progreso,
-          tomada: _prueba.fotoTomada,
+        RepaintBoundary(
+          child: SiluetaDeCara(
+            pose: pose,
+            progreso: _prueba.estado.progreso,
+            tomada: _prueba.fotoTomada,
+          ),
         ),
-        CuentaAtrasGrande(
-          segundos: _prueba.estado.fase == FaseDePose.cuentaAtras
-              ? _prueba.estado.segundos
-              : null,
+        RepaintBoundary(
+          child: CuentaAtrasGrande(
+            segundos: _prueba.estado.fase == FaseDePose.cuentaAtras
+                ? _prueba.estado.segundos
+                : null,
+          ),
         ),
         AnimatedBuilder(
           key: const ValueKey('destello-de-captura'),

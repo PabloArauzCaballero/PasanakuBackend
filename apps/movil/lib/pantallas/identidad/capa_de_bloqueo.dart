@@ -130,7 +130,9 @@ class _CapaDeBloqueoState extends ConsumerState<CapaDeBloqueo>
       _observarBloqueo(siguiente);
     });
     final bloqueo = ref.watch(bloqueoProvider);
-    _observarBloqueo(bloqueo);
+    if (_bloqueadaAnteriormente == null) {
+      _observarBloqueo(bloqueo);
+    }
     if (!bloqueo.bloqueada && !_conservarCapa) return widget.hijo;
 
     final motivo = bloqueo.motivo ?? MotivoDeBloqueo.arranque;
