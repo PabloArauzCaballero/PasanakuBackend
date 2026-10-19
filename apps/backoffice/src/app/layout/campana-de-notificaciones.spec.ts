@@ -7,7 +7,7 @@ import { beforeEach, describe, expect, it } from 'vitest'
 import { GATEWAY } from '../nucleo/gateway'
 import { AvisosInternosServicio } from '../nucleo/avisos-internos'
 import { CampanaDeNotificaciones } from './campana-de-notificaciones'
-import type { AvisoInterno, PaginaDeAvisosInternos } from 'clientes/angular/notificaciones'
+import { AvisoInternoTipoEnum, type AvisoInterno, type PaginaDeAvisosInternos } from 'clientes/angular/notificaciones'
 
 const GATEWAY_TEST = 'https://gateway.test/api/v1'
 
@@ -19,7 +19,7 @@ describe('CampanaDeNotificaciones', () => {
     id: '11111111-1111-4111-8111-111111111111',
     titulo: 'Alerta de prueba',
     mensaje: 'Mensaje descriptivo',
-    tipo: 'ALERTA' as any,
+    tipo: AvisoInternoTipoEnum.Alerta,
     enlace: '/operacion/reclamos',
     creadoEn: '2026-10-19T10:00:00Z',
   }

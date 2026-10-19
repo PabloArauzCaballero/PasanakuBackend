@@ -7,8 +7,8 @@ import { describe, expect, it } from 'vitest'
 import { axe } from 'vitest-axe'
 import { GATEWAY } from '../nucleo/gateway'
 import { AvisosInternosServicio } from '../nucleo/avisos-internos'
+import { AvisoInternoTipoEnum, type AvisoInterno } from 'clientes/angular/notificaciones'
 import { CampanaDeNotificaciones } from './campana-de-notificaciones'
-import type { AvisoInterno } from 'clientes/angular/notificaciones'
 
 describe('CampanaDeNotificaciones · accesibilidad', () => {
   it('sin violaciones WCAG serias en estado cerrado y abierto', async () => {
@@ -34,7 +34,7 @@ describe('CampanaDeNotificaciones · accesibilidad', () => {
       id: '11111111-1111-4111-8111-111111111111',
       titulo: 'Alerta crítica de seguridad',
       mensaje: 'Revisión obligatoria de permisos asignados',
-      tipo: 'ALERTA' as any,
+      tipo: AvisoInternoTipoEnum.Alerta,
       creadoEn: '2026-10-19T10:00:00Z',
     }
     servicio.cargar().subscribe()

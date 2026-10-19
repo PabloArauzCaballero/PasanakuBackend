@@ -55,4 +55,7 @@ class SeguridadWebTest extends SabanaDeSeguridadWeb {
     // El controlador tambien lista el catalogo y el historial (CU-58, carril A · A6).
     @org.springframework.test.context.bean.override.mockito.MockitoBean
     private bo.aportaya.auditoria.aplicacion.ConsultarHistorialDeReportes historialDeReportes;
+
+    @MockitoBean
+    private bo.aportaya.auditoria.aplicacion.ConsultarBitacora consultarBitacora;
 }

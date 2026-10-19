@@ -115,4 +115,17 @@ export const textosSistemas = {
     cargando: 'Cargando los incidentes',
     vacio: 'No hay incidentes registrados.',
   },
+  bitacora: {
+    titulo: 'Registro del sistema',
+    proposito: 'Bitácora inmutable de eventos y cambios del sistema (comun.bitacora_evento), encadenada por hash SHA-256.',
+    cargando: 'Cargando registro del sistema',
+    vacio: 'No se encontraron eventos de bitácora registrados.',
+    buscar: 'Buscar por entidad o acción',
+    filtrarEntidad: 'Filtrar por entidad',
+    filtrarAccion: 'Filtrar por acción',
+    verDetalle: 'Ver detalle',
+    detalleTitulo: 'Detalle del evento',
+    cargarMas: 'Cargar siguientes',
+    sinCambios: 'Sin cambios JSON registrados.',
+  },
 } as const

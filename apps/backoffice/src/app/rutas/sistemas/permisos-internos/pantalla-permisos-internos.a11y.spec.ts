@@ -4,10 +4,7 @@ import { provideZonelessChangeDetection } from '@angular/core'
 import { TestBed } from '@angular/core/testing'
 import { describe, expect, it } from 'vitest'
 import { axe } from 'vitest-axe'
-import {
-  PermisoCatalogoNivelRiesgoEnum,
-  type PermisoCatalogo,
-} from 'clientes/angular/identidad'
+import { PermisoCatalogoNivelRiesgoEnum } from 'clientes/angular/identidad'
 import { GATEWAY } from '../../../nucleo/gateway'
 import { PantallaPermisosInternos } from './pantalla-permisos-internos'
 

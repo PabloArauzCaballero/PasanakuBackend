@@ -70,6 +70,81 @@ paths:
         '401':
           $ref: '#/components/responses/NoAutenticado'
 
+  /auditoria/bitacora:
+    get:
+      operationId: consultarBitacora
+      tags: [bitacora]
+      summary: Consulta el registro inmutable del sistema (bitacora de auditoria)
+      description: >-
+        Registro de auditoria inmutable de comun.bitacora_evento paginado por cursor descendente.
+        Permite filtrar por entidad, accion, actorUsuarioId, y rango de fechaHora. Exige AUDITORIA_LEER.
+      parameters:
+        - name: entidad
+          in: query
+          required: false
+          schema: { type: string, maxLength: 50 }
+        - name: accion
+          in: query
+          required: false
+          schema: { type: string, maxLength: 30 }
+        - name: actorUsuarioId
+          in: query
+          required: false
+          schema: { type: string, format: uuid }
+        - name: desde
+          in: query
+          required: false
+          schema: { type: string, format: date-time }
+        - name: hasta
+          in: query
+          required: false
+          schema: { type: string, format: date-time }
+        - name: limite
+          in: query
+          required: false
+          schema: { type: integer, minimum: 1, maximum: 100, default: 25 }
+        - name: antesDe
+          in: query
+          required: false
+          schema: { type: string, format: date-time }
+        - name: antesDeId
+          in: query
+          required: false
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: Pagina de eventos de bitacora
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PaginaDeBitacora' }
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '403':
+          description: Sin permiso AUDITORIA_LEER
+
+  /auditoria/bitacora/{id}:
+    get:
+      operationId: consultarEventoBitacora
+      tags: [bitacora]
+      summary: Obtiene el detalle completo de un evento de bitacora por ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: Evento de bitacora
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/EventoBitacora' }
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '403':
+          description: Sin permiso AUDITORIA_LEER
+        '404':
+          description: Evento de bitacora no encontrado
+
   /reportes:
     get:
       operationId: listarDefinicionesDeReporte   # CU-58 (backoffice carril A · A6)
@@ -831,6 +906,43 @@ components:
           type: integer
           description: El piso que fija la definicion del indicador.
         calculadoEn: { type: string, format: date-time }
+
+    PaginaDeBitacora:
+      type: object
+      additionalProperties: false
+      required: [items]
+      properties:
+        items:
+          type: array
+          items: { $ref: '#/components/schemas/EventoBitacora' }
+        proximoAntesDe: { type: string, format: date-time }
+        proximoAntesDeId: { type: string, format: uuid }
+        totalAproximado: { type: integer }
+
+    EventoBitacora:
+      type: object
+      additionalProperties: false
+      required: [id, secuencia, entidad, entidadId, accion, origen, correlationId, hashRegistro, fechaHora]
+      properties:
+        id: { type: string, format: uuid }
+        secuencia: { type: integer, format: int64 }
+        entidad: { type: string }
+        entidadId: { type: string, format: uuid }
+        accion: { type: string }
+        actorUsuarioId: { type: string, format: uuid }
+        actorRol: { type: string }
+        origen: { type: string }
+        ipOrigen: { type: string }
+        agenteUsuario: { type: string }
+        correlationId: { type: string, format: uuid }
+        valorAnterior: { type: object }
+        valorNuevo: { type: object }
+        camposModificados: { type: string }
+        motivo: { type: string }
+        hashRegistro: { type: string }
+        hashAnterior: { type: string }
+        fechaHora: { type: string, format: date-time }
+
   responses:
     ReglaDeNegocio:
       description: Regla de negocio de la aplicacion (422, no 400)

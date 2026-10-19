@@ -2,7 +2,12 @@ import { provideHttpClient } from '@angular/common/http'
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing'
 import { TestBed } from '@angular/core/testing'
 import { describe, expect, it, beforeEach, afterEach } from 'vitest'
-import type { AvisoInterno, PaginaDeAvisosInternos, SalidaMarcarTodosLeidos } from 'clientes/angular/notificaciones'
+import {
+  AvisoInternoTipoEnum,
+  type AvisoInterno,
+  type PaginaDeAvisosInternos,
+  type SalidaMarcarTodosLeidos,
+} from 'clientes/angular/notificaciones'
 import { GATEWAY } from './gateway'
 import { AvisosInternosServicio } from './avisos-internos'
 
@@ -14,7 +19,7 @@ describe('AvisosInternosServicio', () => {
     id: '11111111-1111-4111-8111-111111111111',
     titulo: 'Alerta de mora',
     mensaje: 'Grupo #12 con mora alta',
-    tipo: 'ALERTA' as any,
+    tipo: AvisoInternoTipoEnum.Alerta,
     creadoEn: '2026-10-19T10:00:00Z',
   }
 
@@ -22,7 +27,7 @@ describe('AvisosInternosServicio', () => {
     id: '22222222-2222-4222-8222-222222222222',
     titulo: 'Despliegue completado',
     mensaje: 'Versión 2.4 lista',
-    tipo: 'DESPLIEGUE' as any,
+    tipo: AvisoInternoTipoEnum.Despliegue,
     leidoEn: '2026-10-19T10:05:00Z',
     creadoEn: '2026-10-19T09:00:00Z',
   }

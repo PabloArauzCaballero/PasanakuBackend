@@ -2,7 +2,6 @@ import { ChangeDetectionStrategy, Component, ElementRef, computed, inject, signa
 import { Router } from '@angular/router'
 import { Icono } from '@aportaya/ui/icono/icono'
 import { AvisosInternosServicio } from '../nucleo/avisos-internos'
-import type { AvisoInterno } from 'clientes/angular/notificaciones'
 
 /**
  * H5.S0 · Campana de notificaciones y avisos internos para operadores.

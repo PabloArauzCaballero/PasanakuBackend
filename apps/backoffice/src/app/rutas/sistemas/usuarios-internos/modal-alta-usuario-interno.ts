@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, output, signal } from '@angular/core'
+import { ChangeDetectionStrategy, Component, HostListener, output, signal } from '@angular/core'
 import { FormsModule } from '@angular/forms'
 import { Boton } from '@aportaya/ui/boton/boton'
 import { ErrorDeEnvio, type ErrorParaVista } from '@aportaya/ui/error-de-envio/error-de-envio'
@@ -10,8 +10,8 @@ import { catalogoRoles, creadorUsuarioInterno } from '../dominio/usuarios-intern
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [Boton, FormsModule, ErrorDeEnvio],
   template: `
-    <div class="telon" (click)="cerrar.emit()">
-      <div class="caja" (click)="$event.stopPropagation()" role="dialog" aria-modal="true" aria-labelledby="modal-alta-titulo">
+    <div class="telon">
+      <div class="caja" role="dialog" aria-modal="true" aria-labelledby="modal-alta-titulo">
         <header>
           <h2 id="modal-alta-titulo">Dar de alta usuario interno</h2>
           <ap-boton variante="fantasma" (pulsado)="cerrar.emit()" aria-label="Cerrar modal">✕</ap-boton>
@@ -98,6 +98,13 @@ import { catalogoRoles, creadorUsuarioInterno } from '../dominio/usuarios-intern
 export class ModalAltaUsuarioInterno {
   readonly cerrar = output<void>()
   readonly guardado = output<void>()
+
+  @HostListener('document:keydown.escape')
+  protected alPresionarEscape(): void {
+    if (!this.enviando()) {
+      this.cerrar.emit()
+    }
+  }
 
   private readonly ejecutarCreacion = creadorUsuarioInterno()
 
