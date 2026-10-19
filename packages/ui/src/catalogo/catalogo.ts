@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core'
 import { CatalogoAtomos } from './catalogo-atomos'
+import { CatalogoBackoffice } from './catalogo-backoffice'
 import { CatalogoMoleculas } from './catalogo-moleculas'
 import { CatalogoOrganismos } from './catalogo-organismos'
 
@@ -10,7 +11,7 @@ import { CatalogoOrganismos } from './catalogo-organismos'
 @Component({
   selector: 'ap-catalogo',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CatalogoAtomos, CatalogoMoleculas, CatalogoOrganismos],
+  imports: [CatalogoAtomos, CatalogoBackoffice, CatalogoMoleculas, CatalogoOrganismos],
   template: `
     <nav aria-label="Secciones del catálogo">
       <a href="#botones">Botones</a><a href="#campos">Campos</a><a href="#seleccion">Selección</a><a href="#indicadores">Indicadores</a>
@@ -19,6 +20,7 @@ import { CatalogoOrganismos } from './catalogo-organismos'
     <ap-catalogo-atomos />
     <ap-catalogo-moleculas />
     <ap-catalogo-organismos />
+    <ap-catalogo-backoffice />
   `,
   styles: `
     :host { display: block; }

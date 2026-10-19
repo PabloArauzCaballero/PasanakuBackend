@@ -176,13 +176,13 @@ Atlas define 20 roles con departamento y descripción (SUPER_ADMIN, SYSTEMS_ADMI
 ### H1.S2 — Listados
 | ID | Microtarea | CA (binario) | DoD | Estado |
 |---|---|---|---|---|
-| H1.S2.M1 | `ap-barra-de-filtros` v2: tarjeta, buscador con debounce 350 ms y tooltip, selectores con «Todos», botón Limpiar; estado en la URL | Spec: cambiar filtro vuelve a página 1; Limpiar borra q/filtros | `ng test` + captura | TODO |
-| H1.S2.M2 | `ap-tabla-de-datos` v2: tarjeta con «Registros · n» y copiar, `thead` fijo, hover de fila, columna de acciones fijada a la derecha, alto máximo con scroll; conserva colapso móvil y orden | Spec: las 3 piezas nuevas + los specs viejos siguen verdes | idem | TODO |
-| H1.S2.M3 | `ap-paginacion` v2: «Página x de y · n registros», filas por página, ir a página, Anterior/Siguiente | Spec: ir a página fuera de rango se acota | idem | TODO |
-| H1.S2.M4 | `ap-esqueleto-de-filas`: n filas con shimmer por `transform`; sin movimiento con `prefers-reduced-motion` | Spec + captura | idem | TODO |
-| H1.S2.M5 | `ap-estado-vacio` / `ap-estado-de-error` / `ap-estado-denegado` con la anatomía de Atlas (ícono en loseta, título, texto, acción; error con código de seguimiento) | Spec | idem | TODO |
-| H1.S2.M6 | `ap-chip-estado`: tonos `pii` y `apagado`, punto vivo opcional (`animate` solo en ok) | Spec | idem | TODO |
-| H1.S2.M7 | `ap-tarjeta-kpi` v2: ícono con tono, pista, hover eleva | Spec | idem | TODO |
+| H1.S2.M1 | `ap-barra-de-filtros` v2: tarjeta, buscador con debounce 350 ms y tooltip, selectores con «Todos», botón Limpiar; estado en la URL | Spec: debounce 350 ms, Limpiar solo con filtros, borrar avisa al instante, destruir no emite | `ng test` + captura | HECHO — `barra-de-filtros.spec.ts` 4/4 (presentacional; la URL la maneja el backoffice) |
+| H1.S2.M2 | `ap-tabla-de-datos` v2: tarjeta con «Registros · n» y copiar, `thead` fijo, hover de fila, columna de acciones fijada a la derecha, alto máximo con scroll; conserva colapso móvil y orden | Spec: las 3 piezas nuevas + los specs viejos siguen verdes | idem | HECHO — `cabecera`, `totalDeRegistros`, `altoMaximo`, `fijaDerecha`, `mono`, copiar; specs viejos 11/11; backoffice 839/839 |
+| H1.S2.M3 | `ap-paginacion` v2: «Página x de y · n registros», filas por página, ir a página, Anterior/Siguiente | Spec: ir a página fuera de rango se acota | idem | HECHO — `paginacion.spec.ts` 4/4 |
+| H1.S2.M4 | `ap-esqueleto` forma `filas`: n filas con brillo por `transform`; sin movimiento con `prefers-reduced-motion`; `estado-de-pantalla` lo usa | Spec + captura | idem | HECHO — en `lista-de-opciones.spec.ts` |
+| H1.S2.M5 | `ap-estado-vacio` (ícono por motivo, borde punteado) / `ap-estado-de-error` (nuevo; `estado-de-pantalla` lo usa) / denegado = `estado-vacio` motivo `porPermiso` con ícono prohibido | Spec | idem | HECHO — `estado-de-error.spec.ts` |
+| H1.S2.M6 | `ap-chip-estado`: tonos `pii` y `apagado`, punto `vivo` opcional | Spec | idem | HECHO — tonos en `tono.ts`; muestra en el catálogo (axe OK en claro y oscuro) |
+| H1.S2.M7 | `ap-tarjeta-kpi` v2: ícono con tono, pista, hover eleva | Spec | idem | HECHO — `estado-de-error.spec.ts` (kpi) |
 
 ### H1.S3 — Fichas y formularios
 | ID | Microtarea | CA (binario) | DoD | Estado |
@@ -191,8 +191,8 @@ Atlas define 20 roles con departamento y descripción (SUPER_ADMIN, SYSTEMS_ADMI
 | H1.S3.M2 | `ap-seccion-clave-valor` + `ap-codigo-copiable`: cabecera gris, lista cebra, rótulo uppercase, valor mono copiable, tono por fila | Spec: copia al portapapeles con aviso accesible | idem | TODO |
 | H1.S3.M3 | `ap-cajon-lateral`: derecho, cabecera fija, Escape y velo cierran, foco atrapado y restaurado | Spec de foco (95.4.2) | idem | TODO |
 | H1.S3.M4 | `ap-dialogo-de-confirmacion`: ámbar, frase escrita opcional, botón cargando | Spec: no confirma hasta escribir la frase | idem | TODO |
-| H1.S3.M5 | Mover `ap-lista-de-opciones` y `ap-area-de-texto` de `cumplimiento/compartido` a `packages/ui` con tooltip de ayuda por campo; `ap-campo` con tooltip | Specs de cumplimiento siguen verdes | `test:front` del backoffice | TODO |
-| H1.S3.M6 | `ap-boton`: variantes `fantasma` y `peligro`; `cargando` con texto | Spec | `ng test` | TODO |
+| H1.S3.M5 | `ap-lista-de-opciones` en `packages/ui` con tooltip de ayuda (hecho en H1.S2); mover `ap-area-de-texto` y que `cumplimiento/compartido` reexporte; `ap-campo` con tooltip | Specs de cumplimiento siguen verdes | `test:front` del backoffice | A MEDIAS — la lista ya está en `packages/ui` con spec 2/2; falta el área de texto, el tooltip en `ap-campo` y retirar la copia de cumplimiento |
+| H1.S3.M6 | `ap-boton`: variantes `fantasma` y `peligro`; `cargando` con texto | Spec | `ng test` | DESCARTADO — ya existían las dos variantes y el estado cargando con girador + texto (`boton.ts`) |
 
 ## H2 — Shell del backoffice
 **CA:** Dado un operador con sesión, cuando abre el backoffice, entonces ve la barra lateral con grupos plegables e íconos, la cabecera fija con migas, buscador global, (campana) y menú de usuario; en el celular, hamburguesa y cajón.
