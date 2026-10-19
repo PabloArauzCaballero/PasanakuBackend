@@ -57,3 +57,26 @@ String enlaceParaCompartir(String enlaceDelServidor, {String? baseWeb}) {
 /// El mensaje que se manda con el enlace.
 String mensajeDeInvitacion(String enlace) =>
     'Te invito a mi pasanaku en AportaYa. Entrá con este enlace para unirte: $enlace';
+
+// El enlace del grupo (2026-10-19): `https://<app web>/g/<tokenId>.<64 hex>`.
+final _formaDelCodigo = RegExp(
+  r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.[0-9a-f]{64}$',
+);
+
+bool esCodigoDeEnlaceDelGrupo(String? codigo) =>
+    codigo != null && _formaDelCodigo.hasMatch(codigo);
+
+/// El código dentro de un enlace del grupo, también si viene con `#/g/…` (app web).
+String? codigoDeEnlaceDelGrupo(Uri uri) {
+  final fragmento = uri.fragment.isEmpty
+      ? const <String>[]
+      : Uri.tryParse(uri.fragment)?.pathSegments ?? const <String>[];
+  for (final partes in [uri.pathSegments, fragmento]) {
+    final i = partes.indexOf('g');
+    if (i >= 0 && i + 1 < partes.length) {
+      final codigo = partes[i + 1];
+      if (esCodigoDeEnlaceDelGrupo(codigo)) return codigo;
+    }
+  }
+  return null;
+}

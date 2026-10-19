@@ -62,8 +62,7 @@ const Map<String, String> _catalogo = {
       'Organizar grupos todavía no está disponible en AportaYa. Probá más adelante.',
   'AP-CU20-05':
       'Necesitás subir tu nivel de verificación antes de organizar un grupo.',
-  // CU-69 · invitar y unirse por enlace (grupos.yaml: 01 cupos, 03 ya participa, 04 reenvíos, 05 enlace
-  // inválido/revocado/vencido, 07 emisor, 08 límite diario, 09 vigente, 10 ingreso con revisión humana).
+  // CU-69 · invitar y unirse por enlace: los códigos y su significado están en grupos.yaml.
   'AP-CU69-01': 'Ya no hay cupos libres en este grupo.',
   'AP-CU69-03': 'Esa persona ya forma parte del grupo.',
   'AP-CU69-04': 'Ya reenviaste esta invitación demasiadas veces.',
@@ -76,6 +75,7 @@ const Map<String, String> _catalogo = {
       'Ya hay una invitación vigente para ese celular. Revocala antes de enviar otra.',
   'AP-CU69-10':
       'Este grupo revisa cada ingreso antes de aceptarlo y por enlace no se puede entrar todavía. Pedile ayuda a quien te invitó.',
+  'AP-CU69-11': 'Este enlace del grupo ya no sirve. Pedile uno nuevo.',
   // CU-12 · QR interno. Cada rechazo del QR dice una cosa distinta; en particular el bancario/interoperable
   // NO se presenta como «QR inválido» ni como si pudiera pagarse acá: todavía no hay proveedor habilitado.
   'AP-CU12-07':
