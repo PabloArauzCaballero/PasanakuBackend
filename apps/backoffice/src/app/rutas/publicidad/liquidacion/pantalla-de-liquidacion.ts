@@ -1,29 +1,25 @@
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core'
-import { BandaDeProposito } from '@aportaya/ui/banda-de-proposito/banda-de-proposito'
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core'
 import { Boton } from '@aportaya/ui/boton/boton'
+import { CabeceraDePagina } from '@aportaya/ui/cabecera-de-pagina/cabecera-de-pagina'
 import { Dialogo } from '@aportaya/ui/dialogo/dialogo'
 import { Campo } from '@aportaya/ui/campo/campo'
 import { Monto } from '@aportaya/ui/monto/monto'
 import { EstadoDePantalla } from '@aportaya/ui/estado-de-pantalla/estado-de-pantalla'
+import { ExplicadorDeVista } from '../../../nucleo/explicador-de-vista'
 import { accionesDeLiquidacion, recursoDeConsumo } from '../dominio/cu113-cu114-consumo'
 import { textosPublicidad } from '../textos'
 
 /**
  * CU-114 · Liquidación. **Gate del carril**: consulta el mismo `recursoDeConsumo` que
- * `PantallaDeDesempeno` antes de liquidar — el monto que se factura es el mismo que ya
- * se le mostró al operador en desempeño, nunca un cálculo aparte. `liquidarPeriodo`
- * exige `EntradaLiquidacion.periodo`; `facturaElectronicaId` y `cuentaPorCobrarId`
- * quedan nulos (declarado en el propio contrato: los emite otro módulo por fuera de
- * esta transacción, ver la nota de divergencias en `publicidad.yaml`).
+ * `PantallaDeDesempeno` antes de liquidar.
  */
 @Component({
   selector: 'ap-pantalla-de-liquidacion',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [BandaDeProposito, Boton, Dialogo, Campo, Monto, EstadoDePantalla],
+  imports: [Boton, CabeceraDePagina, Dialogo, Campo, Monto, EstadoDePantalla],
   template: `
-    <ap-banda-de-proposito [texto]="t.proposito" />
     <section class="pantalla">
-      <h1>{{ t.titulo }}</h1>
+      <ap-cabecera-de-pagina [titulo]="t.titulo" [descripcion]="t.proposito" icono="comision" />
       <div class="filtros">
         <ap-campo [etiqueta]="t.cuenta" [(valor)]="cuentaId" />
         <ap-campo [etiqueta]="t.periodo" [(valor)]="periodo" marcador="2026-09" />
@@ -51,7 +47,6 @@ import { textosPublicidad } from '../textos'
   `,
   styles: `
     .pantalla { padding: var(--s5); max-width: 48rem; display: grid; gap: var(--s4); }
-    h1 { margin: 0; }
     .filtros { display: flex; flex-wrap: wrap; align-items: flex-end; gap: var(--s3); }
     .resultado { display: grid; gap: var(--s3); }
     .etiqueta { color: var(--text-2); margin: 0; }
@@ -59,6 +54,9 @@ import { textosPublicidad } from '../textos'
   `,
 })
 export class PantallaDeLiquidacion {
+  constructor() {
+    inject(ExplicadorDeVista).fijar(this.t.proposito)
+  }
   private readonly acciones = accionesDeLiquidacion()
   protected readonly t = textosPublicidad.liquidacion
   protected readonly cuentaId = signal('')

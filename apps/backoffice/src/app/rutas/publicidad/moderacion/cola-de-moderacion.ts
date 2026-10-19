@@ -1,11 +1,12 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core'
-import { BandaDeProposito } from '@aportaya/ui/banda-de-proposito/banda-de-proposito'
 import { Boton } from '@aportaya/ui/boton/boton'
+import { CabeceraDePagina } from '@aportaya/ui/cabecera-de-pagina/cabecera-de-pagina'
 import { Dialogo } from '@aportaya/ui/dialogo/dialogo'
 import { Campo } from '@aportaya/ui/campo/campo'
 import { ChipEstado } from '@aportaya/ui/chip-estado/chip-estado'
 import { ErrorDeEnvio } from '@aportaya/ui/error-de-envio/error-de-envio'
 import { Fecha } from '@aportaya/ui/fecha/fecha'
+import { ExplicadorDeVista } from '../../../nucleo/explicador-de-vista'
 import type { ErrorTraducido } from '../../../nucleo/errores'
 import { Sesion } from '../../../nucleo/sesion'
 import { TablaDeDatosVirtualizada } from '../../../nucleo/tabla/tabla-de-datos-virtualizada'
@@ -26,22 +27,15 @@ const COLUMNAS: ColumnaVirtual<PiezaCreativa>[] = [
 
 /**
  * CU-112 · **Cola de moderación — gate de entrada del carril.** Toda pieza nace PENDIENTE y solo pasa a
- * APROBADA/RECHAZADA acá (`moderarPieza`). La cola es `GET /publicidad/piezas-creativas` por cursor (la más antigua
- * primero, orden del servidor).
- *
- * **Identidad separada.** La ruta ya exige `PUBLICIDAD_MODERAR`, y la pantalla vuelve a preguntarlo antes de dibujar
- * los botones: sin el permiso no hay aprobar ni rechazar. Quién subió cada pieza NO viaja en el contrato, así que
- * R-PUB-05 lo decide el servidor (`AP-CU112-03`) y la pantalla muestra ese rechazo dentro del diálogo, sin afirmar
- * nada antes del 2xx. Una pieza resuelta muestra su resultado en la fila (la tabla del shell no se recarga sola).
+ * APROBADA/RECHAZADA acá (`moderarPieza`).
  */
 @Component({
   selector: 'ap-cola-de-moderacion',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [BandaDeProposito, Boton, Dialogo, Campo, ChipEstado, ErrorDeEnvio, EstadoDeListado, Fecha, TablaDeDatosVirtualizada],
+  imports: [Boton, CabeceraDePagina, Dialogo, Campo, ChipEstado, ErrorDeEnvio, EstadoDeListado, Fecha, TablaDeDatosVirtualizada],
   template: `
-    <ap-banda-de-proposito [texto]="t.proposito" />
     <section class="pantalla">
-      <h1>{{ t.titulo }}</h1>
+      <ap-cabecera-de-pagina [titulo]="t.titulo" [descripcion]="t.proposito" icono="ojo" />
       <ap-estado-de-listado [error]="listado.error()" [vacio]="listado.vacio()" [mensajeVacio]="t.sinPiezas" />
       <ap-tabla-de-datos-virtualizada [titulo]="t.titulo" [columnas]="COLUMNAS" [cargador]="listado.cargador" [ordenPermitido]="[]" [identidad]="identidad">
         <ng-template #celda let-p let-columna="columna">
@@ -93,7 +87,6 @@ const COLUMNAS: ColumnaVirtual<PiezaCreativa>[] = [
   `,
   styles: `
     .pantalla { padding: var(--s5); max-width: 68rem; display: grid; gap: var(--s4); }
-    h1 { margin: 0; }
     .acciones { display: flex; gap: var(--s2); }
     .ver { margin-left: var(--s2); color: var(--text); }
     .ver:focus-visible { outline: var(--borde-foco) solid var(--g300); outline-offset: var(--borde-desfase); }
@@ -101,6 +94,9 @@ const COLUMNAS: ColumnaVirtual<PiezaCreativa>[] = [
   `,
 })
 export class ColaDeModeracion {
+  constructor() {
+    inject(ExplicadorDeVista).fijar(this.t.proposito)
+  }
   private readonly sesion = inject(Sesion)
   private readonly acciones = accionesDeModeracion()
   protected readonly t = textosPublicidad.moderacion

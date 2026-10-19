@@ -262,7 +262,7 @@ Una microtarea por pantalla (41), con el mismo CA/DoD; se abren de a una en el o
 | H4.S4.M1–M2 | admisiones, `admisiones/:id` | lista / ficha | HECHO — migrado a `ap-cabecera-de-pagina` e `inject(ExplicadorDeVista).fijar()`; specs 24/24 verdes (incluyendo a11y) |
 | H4.S5.M1–M10 | sistemas: inicio, `servicios`, `despliegues`, `base-de-datos`, `respaldos`, `proveedores`, `outbox`, `webhooks`, `accesos`, `incidentes` | lista | HECHO — migrado a `ap-cabecera-de-pagina` e `inject(ExplicadorDeVista).fijar()`; specs 57/57 verdes (unitarios y a11y) y lint TODO OK |
 | H4.S6.M1–M6 | contabilidad: inicio, `periodo/:id`, `presupuesto`, `compras`, `cobros`, `activos/:id`, `estados/:id` | lista / ficha | HECHO — migrado a `ap-cabecera-de-pagina` e `inject(ExplicadorDeVista).fijar()`; specs 166/166 verdes (unitarios y a11y) y lint TODO OK |
-| H4.S7.M1–M6 | publicidad: `anunciantes`, `campanas`, `campanas/:id/aprobacion`, `moderacion`, `desempeno`, `liquidacion` | lista / ficha | TODO |
+| H4.S7.M1–M6 | publicidad: `anunciantes`, `campanas`, `campanas/:id/aprobacion`, `moderacion`, `desempeno`, `liquidacion` | lista / ficha | HECHO — migrado a `ap-cabecera-de-pagina` e `inject(ExplicadorDeVista).fijar()`; specs 50/50 verdes (unitarios y a11y) y lint TODO OK |
 | H4.S8.M1–M4 | configuración: inicio, `tarifario`, `mensajeria`, `reportes` | formulario / lista | HECHO — migrado a `ap-cabecera-de-pagina` e `inject(ExplicadorDeVista).fijar()`; specs 25/25 verdes y lint TODO OK |
 | H4.S9.M1 | ayuda | índice | HECHO — migrado a `ap-cabecera-de-pagina` con ícono libro; specs 26/26 verdes (incluyendo a11y) |
 
