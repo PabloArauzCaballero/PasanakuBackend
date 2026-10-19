@@ -58,6 +58,8 @@ const CLAVE = 'ap-menu:plegados'
     .chevron { transition: transform var(--mov-entrada) var(--curva-llega); }
     .chevron.plegado { transform: rotate(-90deg); }
     ul { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--s1); }
+    /* El atributo hidden pierde contra un display propio: un grupo plegado se vería igual que abierto. */
+    ul[hidden] { display: none; }
     a { display: flex; align-items: center; gap: var(--s3); min-height: var(--area-tactil); padding: var(--s2) var(--s3); border-radius: var(--r-md); font: var(--t-cuerpo); color: color-mix(in srgb, var(--white) 78%, transparent); text-decoration: none; transition: background-color var(--mov-micro) ease-out, color var(--mov-micro) ease-out; }
     a:hover { background: color-mix(in srgb, var(--white) 8%, transparent); color: var(--white); }
     a.activo { background: color-mix(in srgb, var(--white) 14%, transparent); color: var(--white); font-weight: 600; box-shadow: inset var(--borde-desfase) 0 0 var(--g300); }

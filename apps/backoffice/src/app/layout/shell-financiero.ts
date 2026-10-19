@@ -46,6 +46,7 @@ const ANGOSTO = '(max-width: 40rem)'
       } @else {
         <ap-cajon-lateral lado="izquierda" titulo="Secciones" [(abierto)]="menuAbierto">
           @if (menuAbierto()) { <ap-menu-lateral (navegado)="menuAbierto.set(false)" /> }
+          <ap-lanzador-de-tutorial acciones data-tutorial-id="lanzador-de-tutorial" />
           <button acciones type="button" class="salir" [disabled]="saliendo()" (click)="salir()"><ap-icono-de-seccion nombre="salir" />{{ saliendo() ? 'Saliendo…' : 'Salir' }}</button>
         </ap-cajon-lateral>
       }
@@ -59,7 +60,8 @@ const ANGOSTO = '(max-width: 40rem)'
           <p class="titulo-vista">{{ tituloDeVista() }}</p>
         </div>
         <ap-buscador-global class="buscador" />
-        <ap-lanzador-de-tutorial data-tutorial-id="lanzador-de-tutorial" />
+        <!-- En el celular el lanzador vive en el cajón del menú: la cabecera no tiene lugar para su texto. -->
+        @if (!angosto()) { <ap-lanzador-de-tutorial data-tutorial-id="lanzador-de-tutorial" /> }
         <ap-menu-de-usuario [saliendo]="saliendo()" (salir)="salir()" />
       </header>
       <main id="contenido">
