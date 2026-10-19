@@ -30,6 +30,14 @@ public interface HechosDeOtrosServicios {
         return java.util.Optional.empty();
     }
 
+    /**
+     * El nombre visible («Rosa Q.») de quien hace la peticion, segun {@code identidad} (su propio perfil, con su
+     * token). Lo ve el organizador en la solicitud que entra por el enlace del grupo. Vacio si no hay respuesta.
+     */
+    default java.util.Optional<String> nombreVisibleDeLaSesion() {
+        return java.util.Optional.empty();
+    }
+
     /** El tarifario vigente de un codigo, o vacio si no hay. Lo dice {@code tarifas}. */
     java.util.Optional<UUID> tarifarioVigente(String codigo);
 

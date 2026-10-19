@@ -76,6 +76,9 @@ aportaya:
       # directa del organizador) se cierran con 422 y apuntan al camino con expediente (canje / propuesta).
       # false: comportamiento de TEST sin cambios.
       humana-obligatoria: ${ADMISION_HUMANA_OBLIGATORIA:true}
+    enlace-del-grupo:
+      # Decision del dueño (2026-10-19): el enlace del grupo sirve hasta llenarse o 7 dias.
+      vigencia-dias: ${ENLACE_DEL_GRUPO_VIGENCIA_DIAS:7}
     sustitucion:
       # DECISION PENDIENTE (negocio y cumplimiento): al revocarse la habilitacion del organizador, sustituye al
       # administrador una PERSONA de backoffice (false, supuesto vigente) o el proceso con una regla sintetica (true)?

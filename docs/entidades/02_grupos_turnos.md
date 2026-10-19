@@ -324,6 +324,28 @@ en la URL para colarse a otro grupo.
 
 ---
 
+### `EnlaceGrupo` / `enlace_grupo`
+
+**Qué es.** El enlace —y su QR— que el organizador comparte para que **cualquier
+persona** pida unirse al grupo, sin tener que invitar teléfono por teléfono.
+
+**Para qué sirve (negocio).** Es como se arma un pasanaku en la práctica: el
+organizador pega un enlace en el grupo de WhatsApp de la familia o muestra el QR en
+persona. Como el enlace se puede reenviar a desconocidos, **no da entrada**: cada
+pedido es una `solicitud_ingreso` que el organizador aprueba (decisión del dueño,
+2026-10-19). Vence a los 7 días o al llenarse el grupo, y el organizador lo puede
+anular cuando quiera.
+
+**Por qué debe existir.** Sin entidad propia no se podría anular un enlace que se
+filtró, ni saber por qué enlace llegó cada solicitud (`solicitud_ingreso.enlace_grupo_id`),
+ni garantizar que el grupo tenga un solo enlace vivo.
+
+**A nivel de sistema.** Se guarda **solo el hash** del código (`token_hash`, único):
+con la base en la mano no se reconstruyen enlaces vivos. `estado` es `ACTIVO` o
+`ANULADO`; generar uno nuevo anula el anterior en la misma transacción.
+
+---
+
 ## Paquete: Calendario y Turnos
 
 ### `Periodo` / `periodo`

@@ -3,12 +3,12 @@ tags:
   - moc
   - modulo/02-grupos-cupos-turnos-y-gobernanza
 modulo: "02 — Grupos, Cupos, Turnos y Gobernanza"
-relaciones_fk: 49
+relaciones_fk: 52
 ---
 
 # 02 — Grupos, Cupos, Turnos y Gobernanza · relaciones
 
-Las **49 claves foráneas** que salen de las tablas de este módulo.
+Las **52 claves foráneas** que salen de las tablas de este módulo.
 
 [[_Relaciones|← Todas las relaciones]] · [[Index]]
 
@@ -25,6 +25,8 @@ Las **49 claves foráneas** que salen de las tablas de este módulo.
 | [[cupo.grupo_id → grupo]] | [[grupo]] | — | no |
 | [[cupo.participante_id → participante]] | [[participante]] | — | sí |
 | [[dia_no_habil.grupo_id → grupo]] | [[grupo]] | — | sí |
+| [[enlace_grupo.emisor_id → usuario]] | [[usuario]] | ↗ 01 | no |
+| [[enlace_grupo.grupo_id → grupo]] | [[grupo]] | — | no |
 | [[grupo.organizador_id → organizador]] | [[organizador]] | ↗ 07 | sí |
 | [[historial_estado_grupo.ejecutado_por → usuario]] | [[usuario]] | ↗ 01 | no |
 | [[historial_estado_grupo.grupo_id → grupo]] | [[grupo]] | — | no |
@@ -42,6 +44,7 @@ Las **49 claves foráneas** que salen de las tablas de este módulo.
 | [[propuesta_postulacion.propuesta_id → propuesta_grupo]] | [[propuesta_grupo]] | — | no |
 | [[reglamento_grupo.grupo_id → grupo]] | [[grupo]] | — | no |
 | [[reglamento_grupo.redactado_por → usuario]] | [[usuario]] | ↗ 01 | no |
+| [[solicitud_ingreso.enlace_grupo_id → enlace_grupo]] | [[enlace_grupo]] | — | sí |
 | [[solicitud_ingreso.grupo_id → grupo]] | [[grupo]] | — | no |
 | [[solicitud_ingreso.revisada_por → usuario]] | [[usuario]] | ↗ 01 | sí |
 | [[solicitud_ingreso.usuario_id → usuario]] | [[usuario]] | ↗ 01 | no |
