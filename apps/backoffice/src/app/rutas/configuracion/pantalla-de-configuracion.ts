@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core'
 import { RouterLink } from '@angular/router'
-import { BandaDeProposito } from '@aportaya/ui/banda-de-proposito/banda-de-proposito'
+import { CabeceraDePagina } from '@aportaya/ui/cabecera-de-pagina/cabecera-de-pagina'
+import { ExplicadorDeVista } from '../../nucleo/explicador-de-vista'
 import { Sesion } from '../../nucleo/sesion'
 import { textosConfiguracion } from './textos'
 
@@ -8,11 +9,10 @@ import { textosConfiguracion } from './textos'
 @Component({
   selector: 'ap-pantalla-de-configuracion',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [BandaDeProposito, RouterLink],
+  imports: [CabeceraDePagina, RouterLink],
   template: `
-    <ap-banda-de-proposito [texto]="t.proposito" />
     <section class="pantalla">
-      <h1>{{ t.titulo }}</h1>
+      <ap-cabecera-de-pagina [titulo]="t.titulo" [descripcion]="t.proposito" icono="candado" />
       @if (secciones().length === 0) {
         <p role="status" class="vacio">{{ t.sinSecciones }}</p>
       } @else {
@@ -31,8 +31,7 @@ import { textosConfiguracion } from './textos'
   `,
   styles: `
     .pantalla { padding: var(--s5); display: grid; gap: var(--s4); }
-    h1, .vacio { margin: 0; }
-    .vacio { color: var(--text-2); }
+    .vacio { margin: 0; color: var(--text-2); }
     .accesos { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr)); gap: var(--s4); }
     a { display: block; min-height: var(--area-tactil); padding: var(--s4); border: var(--borde-fino) solid var(--border); border-radius: var(--r-lg); background: var(--surface); text-decoration: none; }
     a:focus-visible { outline: var(--borde-foco) solid var(--g300); outline-offset: var(--borde-desfase); }
@@ -44,4 +43,8 @@ export class PantallaDeConfiguracion {
   private readonly sesion = inject(Sesion)
   protected readonly t = textosConfiguracion.inicio
   protected readonly secciones = computed(() => this.t.secciones.filter((s) => s.permisos.some((p) => this.sesion.puede(p))))
+
+  constructor() {
+    inject(ExplicadorDeVista).fijar(this.t.proposito)
+  }
 }

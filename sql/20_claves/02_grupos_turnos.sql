@@ -64,6 +64,16 @@ ALTER TABLE catalogo.dia_no_habil
   ADD CONSTRAINT fk_dia_no_habil_grupo_id
   FOREIGN KEY (grupo_id) REFERENCES grupos.grupo (id) ON DELETE SET NULL ON UPDATE CASCADE;
 
+ALTER TABLE grupos.enlace_grupo DROP CONSTRAINT IF EXISTS fk_enlace_grupo_emisor_id;
+ALTER TABLE grupos.enlace_grupo
+  ADD CONSTRAINT fk_enlace_grupo_emisor_id
+  FOREIGN KEY (emisor_id) REFERENCES identidad.usuario (id) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+ALTER TABLE grupos.enlace_grupo DROP CONSTRAINT IF EXISTS fk_enlace_grupo_grupo_id;
+ALTER TABLE grupos.enlace_grupo
+  ADD CONSTRAINT fk_enlace_grupo_grupo_id
+  FOREIGN KEY (grupo_id) REFERENCES grupos.grupo (id) ON DELETE RESTRICT ON UPDATE CASCADE;
+
 ALTER TABLE grupos.grupo DROP CONSTRAINT IF EXISTS fk_grupo_organizador_id;
 ALTER TABLE grupos.grupo
   ADD CONSTRAINT fk_grupo_organizador_id
@@ -148,6 +158,11 @@ ALTER TABLE grupos.reglamento_grupo DROP CONSTRAINT IF EXISTS fk_reglamento_grup
 ALTER TABLE grupos.reglamento_grupo
   ADD CONSTRAINT fk_reglamento_grupo_redactado_por
   FOREIGN KEY (redactado_por) REFERENCES identidad.usuario (id) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+ALTER TABLE grupos.solicitud_ingreso DROP CONSTRAINT IF EXISTS fk_solicitud_ingreso_enlace_grupo_id;
+ALTER TABLE grupos.solicitud_ingreso
+  ADD CONSTRAINT fk_solicitud_ingreso_enlace_grupo_id
+  FOREIGN KEY (enlace_grupo_id) REFERENCES grupos.enlace_grupo (id) ON DELETE SET NULL ON UPDATE CASCADE;
 
 ALTER TABLE grupos.solicitud_ingreso DROP CONSTRAINT IF EXISTS fk_solicitud_ingreso_grupo_id;
 ALTER TABLE grupos.solicitud_ingreso

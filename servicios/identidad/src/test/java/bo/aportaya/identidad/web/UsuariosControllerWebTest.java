@@ -117,7 +117,13 @@ class UsuariosControllerWebTest {
     private bo.aportaya.identidad.aplicacion.ActivarRolOrganizador activarRolOrganizador;
 
     @MockitoBean
+    private bo.aportaya.identidad.aplicacion.GuardarBorradorOnboarding guardarBorrador;
+
+    @MockitoBean
     private bo.aportaya.identidad.aplicacion.ConsultarMiPerfil consultarMiPerfil;
+
+    @MockitoBean
+    private bo.aportaya.identidad.aplicacion.CU02IniciarVerificacion iniciarVerificacion;
 
     @MockitoBean
     private ConsultarNivelKyc nivelesKyc;

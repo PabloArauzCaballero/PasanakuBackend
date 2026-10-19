@@ -1,0 +1,86 @@
+{
+  "servicio": "auditoria",
+  "operacion": "consultarEventoBitacora",
+  "metodo": "get",
+  "ruta": "/auditoria/bitacora/{id}",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "id": "c4734f4b-421f-45bf-8799-3750c0693150",
+        "secuencia": 1,
+        "entidad": "entidad",
+        "entidadId": "51546416-cac2-4cfe-8646-9d7181c16b11",
+        "accion": "accion",
+        "actorUsuarioId": "6868b0f4-28ee-422a-8086-a2de9156c31e",
+        "actorRol": "actorRol",
+        "origen": "origen",
+        "ipOrigen": "ipOrigen",
+        "agenteUsuario": "agenteUsuario",
+        "correlationId": "5e5f9c73-b861-4001-819c-1f38e16c12c7",
+        "valorAnterior": {},
+        "valorNuevo": {},
+        "camposModificados": "camposModificados",
+        "motivo": "motivo",
+        "hashRegistro": "hashRegistro",
+        "hashAnterior": "hashAnterior",
+        "fechaHora": "2026-01-15T10:30:00Z"
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "id": "c4734f4b-421f-45bf-8799-3750c0693150",
+        "secuencia": 0,
+        "entidad": "entidad",
+        "entidadId": "51546416-cac2-4cfe-8646-9d7181c16b11",
+        "accion": "accion",
+        "actorUsuarioId": "6868b0f4-28ee-422a-8086-a2de9156c31e",
+        "actorRol": "actorRol",
+        "origen": "origen",
+        "ipOrigen": "ipOrigen",
+        "agenteUsuario": "agenteUsuario",
+        "correlationId": "5e5f9c73-b861-4001-819c-1f38e16c12c7",
+        "valorAnterior": {},
+        "valorNuevo": {},
+        "camposModificados": "camposModificados",
+        "motivo": "motivo",
+        "hashRegistro": "hashRegistro",
+        "hashAnterior": "hashAnterior",
+        "fechaHora": "2026-01-15T10:30:00Z"
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "id": "c4734f4b-421f-45bf-8799-3750c0693150",
+        "secuencia": 1,
+        "entidad": "entidad",
+        "entidadId": "51546416-cac2-4cfe-8646-9d7181c16b11",
+        "accion": "accion",
+        "actorUsuarioId": "6868b0f4-28ee-422a-8086-a2de9156c31e",
+        "actorRol": "actorRol",
+        "origen": "origen",
+        "ipOrigen": "ipOrigen",
+        "agenteUsuario": "agenteUsuario",
+        "correlationId": "5e5f9c73-b861-4001-819c-1f38e16c12c7",
+        "valorAnterior": {},
+        "valorNuevo": {},
+        "camposModificados": "camposModificados",
+        "motivo": "motivo",
+        "hashRegistro": "hashRegistro",
+        "hashAnterior": "hashAnterior",
+        "fechaHora": "2026-01-15T10:30:00Z"
+      }
+    },
+    "rechazo": {
+      "estado": 404,
+      "cuerpo": {
+        "codigo": "AP-CU07-01",
+        "mensaje": "Identidad no verificada",
+        "detalle": {},
+        "trazaId": "traza-consultarEventoBitacora-rechazo"
+      }
+    }
+  }
+}

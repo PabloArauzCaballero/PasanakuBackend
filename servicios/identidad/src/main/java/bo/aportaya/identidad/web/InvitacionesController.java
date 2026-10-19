@@ -49,6 +49,14 @@ public abstract class InvitacionesController implements UsuariosApi {
         return ResponseEntity.noContent().build();
     }
 
+    protected String ip() {
+        return Optional.ofNullable(peticion.getRemoteAddr()).orElse("0.0.0.0");
+    }
+
+    protected String agente() {
+        return Optional.ofNullable(peticion.getHeader("User-Agent")).orElse("desconocido");
+    }
+
     private ErrorDeNegocio invalida() {
         return new ErrorDeNegocio(CodigoError.de(69, 5), "Esa invitacion ya no es valida.");
     }

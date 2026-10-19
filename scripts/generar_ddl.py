@@ -1172,6 +1172,8 @@ def escribir_orquestador(mods):
           "--     Solo afloja lo que el modelo declara opcional; no es un sistema de",
           "--     migraciones. Sobre una base recién creada no hace nada.",
           "\\ir 15_infra/nulabilidad.sql"]
+    L += ["", "-- 2d) Borradores de onboarding incompleto.",
+          "\\ir 15_infra/borradores.sql"]
     L += ["", "-- 3) Claves foráneas (después de todas las tablas)"]
     for k in sorted(mods):
         L.append(f"\\ir 20_claves/{k}_{MODULOS[k][1].split('_', 1)[1]}.sql")

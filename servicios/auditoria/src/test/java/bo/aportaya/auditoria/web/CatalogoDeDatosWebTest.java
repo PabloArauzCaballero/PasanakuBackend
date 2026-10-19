@@ -60,12 +60,16 @@ class CatalogoDeDatosWebTest {
     @MockitoBean
     private bo.aportaya.auditoria.aplicacion.CU130GobernarFichaDeTabla cu130;
 
+    @MockitoBean
+    private bo.aportaya.auditoria.aplicacion.CU131RevisarColumna cu131;
+
     @BeforeEach
     void catalogo() throws Exception {
         when(vigente.catalogo()).thenReturn(new ObjectMapper().readTree(CATALOGO));
         when(cu130.consultar(org.mockito.ArgumentMatchers.any()))
                 .thenReturn(new bo.aportaya.auditoria.aplicacion.CU130GobernarFichaDeTabla.Vista(
                         java.util.Map.of(), java.util.List.of()));
+        when(cu131.consultar(org.mockito.ArgumentMatchers.any())).thenReturn(java.util.Map.of());
     }
 
     @Test

@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject, linkedSignal, resource, signal } from '@angular/core'
-import { BandaDeProposito } from '@aportaya/ui/banda-de-proposito/banda-de-proposito'
+import { CabeceraDePagina } from '@aportaya/ui/cabecera-de-pagina/cabecera-de-pagina'
 import { TablaDeDatos, type Columna } from '@aportaya/ui/tabla-de-datos/tabla-de-datos'
 import { ChipEstado } from '@aportaya/ui/chip-estado/chip-estado'
 import { Interruptor as InterruptorUI } from '@aportaya/ui/interruptor/interruptor'
@@ -7,6 +7,7 @@ import { Alerta } from '@aportaya/ui/alerta/alerta'
 import { Dialogo } from '@aportaya/ui/dialogo/dialogo'
 import { Campo } from '@aportaya/ui/campo/campo'
 import { EstadoDePantalla } from '@aportaya/ui/estado-de-pantalla/estado-de-pantalla'
+import { ExplicadorDeVista } from '../../../nucleo/explicador-de-vista'
 import { puedeConfirmar } from '../dominio/datos-simulados'
 import { PUERTO_DESPLIEGUES, type Despliegue, type DespliguesEInterruptores, type Interruptor } from '../dominio/puertos'
 import { textosSistemas } from '../textos'
@@ -23,11 +24,10 @@ import { textosSistemas } from '../textos'
 @Component({
   selector: 'ap-pantalla-despliegues',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [BandaDeProposito, TablaDeDatos, ChipEstado, InterruptorUI, Alerta, Dialogo, Campo, EstadoDePantalla],
+  imports: [CabeceraDePagina, TablaDeDatos, ChipEstado, InterruptorUI, Alerta, Dialogo, Campo, EstadoDePantalla],
   template: `
-    <ap-banda-de-proposito [texto]="t.proposito" />
     <section class="pantalla">
-      <h1>{{ t.titulo }}</h1>
+      <ap-cabecera-de-pagina [titulo]="t.titulo" [descripcion]="t.proposito" icono="alerta" />
 
       <ap-estado-de-pantalla [recurso]="despliegues" [vacio]="esVacio" [mensajeVacio]="t.vacio" [etiquetaDeCarga]="t.cargando" (reintentar)="despliegues.reload()">
         @if (despliegues.hasValue() && despliegues.value(); as datos) {
@@ -69,9 +69,13 @@ import { textosSistemas } from '../textos'
       </ap-dialogo>
     </section>
   `,
-  styles: `.pantalla { padding: 0; max-width: 60rem; display: flex; flex-direction: column; gap: var(--s5); } h1 { margin-bottom: 0; } .fila { display: flex; align-items: center; gap: var(--s3); } button { background: transparent; border: var(--borde-fino) solid var(--border); border-radius: var(--r-md); padding: 0 var(--s3); min-height: var(--area-tactil); cursor: pointer; }`,
+  styles: `.pantalla { padding: 0; max-width: 60rem; display: flex; flex-direction: column; gap: var(--s5); } .fila { display: flex; align-items: center; gap: var(--s3); } button { background: transparent; border: var(--borde-fino) solid var(--border); border-radius: var(--r-md); padding: 0 var(--s3); min-height: var(--area-tactil); cursor: pointer; }`,
 })
 export class PantallaDespliegues {
+  constructor() {
+    inject(ExplicadorDeVista).fijar(this.t.proposito)
+  }
+
   protected readonly t = textosSistemas.despliegues
   private readonly puerto = inject(PUERTO_DESPLIEGUES)
   protected readonly despliegues = resource({ loader: () => this.puerto.obtener() })

@@ -1,7 +1,8 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core'
-import { BandaDeProposito } from '@aportaya/ui/banda-de-proposito/banda-de-proposito'
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core'
+import { CabeceraDePagina } from '@aportaya/ui/cabecera-de-pagina/cabecera-de-pagina'
 import { ChipEstado } from '@aportaya/ui/chip-estado/chip-estado'
 import { Fecha } from '@aportaya/ui/fecha/fecha'
+import { ExplicadorDeVista } from '../../../nucleo/explicador-de-vista'
 import { BarraDeFiltros } from '../../../nucleo/filtros/barra-de-filtros'
 import { TablaDeDatosVirtualizada } from '../../../nucleo/tabla/tabla-de-datos-virtualizada'
 import type { ColumnaVirtual } from '../../../nucleo/tabla/tipos'
@@ -42,11 +43,10 @@ const COLUMNAS_ENVIOS: ColumnaVirtual<EnvioEnLista>[] = [
 @Component({
   selector: 'ap-pantalla-de-mensajeria',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [AvisoDeListado, BandaDeProposito, BarraDeFiltros, ChipEstado, Fecha, TablaDeDatosVirtualizada],
+  imports: [AvisoDeListado, CabeceraDePagina, BarraDeFiltros, ChipEstado, Fecha, TablaDeDatosVirtualizada],
   template: `
-    <ap-banda-de-proposito [texto]="t.proposito" />
     <section class="pantalla">
-      <h1>{{ t.titulo }}</h1>
+      <ap-cabecera-de-pagina [titulo]="t.titulo" [descripcion]="t.proposito" icono="campana" />
       <p class="nota">{{ comun.soloLectura }}</p>
 
       <ap-aviso-de-listado [error]="plantillas.error()" [vacio]="plantillas.vacio()" [mensajeVacio]="t.plantillas.vacio" (reintentar)="plantillas.reintentar()" />
@@ -84,11 +84,14 @@ const COLUMNAS_ENVIOS: ColumnaVirtual<EnvioEnLista>[] = [
   `,
   styles: `
     .pantalla { padding: var(--s5); display: grid; gap: var(--s4); }
-    h1, .nota { margin: 0; }
-    .nota { color: var(--text-2); }
+    .nota { margin: 0; color: var(--text-2); }
   `,
 })
 export class PantallaDeMensajeria {
+  constructor() {
+    inject(ExplicadorDeVista).fijar(this.t.proposito)
+  }
+
   protected readonly t = textosConfiguracion.mensajeria
   protected readonly comun = textosConfiguracion.comun
   protected readonly noDisponible = NO_DISPONIBLE

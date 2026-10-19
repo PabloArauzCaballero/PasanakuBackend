@@ -2,7 +2,6 @@ package bo.aportaya.cumplimiento.infraestructura;
 
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -27,26 +26,24 @@ public class BandejaDeReclamosRepositorio {
                COALESCE(r.plazo_prorrogado_hasta, r.plazo_respuesta) AS limite_vigente, r.responsable_id
         """;
 
+    private static final String SQL_BASE =
+            COLUMNAS + " FROM cumplimiento.reclamo_cliente r WHERE r.estado = ANY(?::varchar[])";
+    private static final String SQL_CON_CURSOR = SQL_BASE
+            + " AND (COALESCE(r.plazo_prorrogado_hasta, r.plazo_respuesta), r.id) > (?::timestamptz, ?::uuid) ORDER BY limite_vigente, r.id LIMIT ?";
+    private static final String SQL_SIN_CURSOR = SQL_BASE + " ORDER BY limite_vigente, r.id LIMIT ?";
+
     public List<EnBandeja> pagina(
             DSLContext dsl,
             List<String> estados,
             Optional<OffsetDateTime> despuesDeLimite,
             Optional<UUID> despuesDeId,
             int limite) {
-        var parametros = new ArrayList<Object>();
-        parametros.add(estados.toArray(String[]::new));
-        String cursor = "";
+        String[] estadosArr = estados.toArray(String[]::new);
         if (despuesDeLimite.isPresent() && despuesDeId.isPresent()) {
-            cursor = " AND (COALESCE(r.plazo_prorrogado_hasta, r.plazo_respuesta), r.id) > (?::timestamptz, ?::uuid)";
-            parametros.add(despuesDeLimite.get());
-            parametros.add(despuesDeId.get());
+            return dsl.fetch(SQL_CON_CURSOR, estadosArr, despuesDeLimite.get(), despuesDeId.get(), limite)
+                    .map(BandejaDeReclamosRepositorio::enBandeja);
         }
-        parametros.add(limite);
-        return dsl.fetch(
-                        COLUMNAS + " FROM cumplimiento.reclamo_cliente r WHERE r.estado = ANY(?::varchar[])" + cursor
-                                + " ORDER BY limite_vigente, r.id LIMIT ?",
-                        parametros.toArray())
-                .map(BandejaDeReclamosRepositorio::enBandeja);
+        return dsl.fetch(SQL_SIN_CURSOR, estadosArr, limite).map(BandejaDeReclamosRepositorio::enBandeja);
     }
 
     public Optional<Ficha> ficha(DSLContext dsl, UUID reclamoId) {

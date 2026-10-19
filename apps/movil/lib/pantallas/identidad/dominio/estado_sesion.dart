@@ -1,6 +1,7 @@
 import 'package:aportaya_diseno/errores.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../dominio/cliente.dart';
 import '../../../dominio/cierre_de_sesion.dart';
 import '../../../dominio/errores.dart' as errores;
 import '../../../proveedores/sesion.dart';
@@ -22,6 +23,7 @@ class EstadoSesion {
     this.error,
     this.trazaId,
     this.credencialesRechazadas = false,
+    this.correoMfaEnviado = false,
   });
 
   final PasoSesion paso;
@@ -33,6 +35,7 @@ class EstadoSesion {
   final String? error;
   final String? trazaId;
   final bool credencialesRechazadas;
+  final bool correoMfaEnviado;
 
   EstadoSesion copiarCon({
     PasoSesion? paso,
@@ -44,6 +47,7 @@ class EstadoSesion {
     String? error,
     String? trazaId,
     bool? credencialesRechazadas,
+    bool? correoMfaEnviado,
   }) => EstadoSesion(
     paso: paso ?? this.paso,
     identificador: identificador ?? this.identificador,
@@ -55,6 +59,7 @@ class EstadoSesion {
     trazaId: trazaId,
     credencialesRechazadas:
         credencialesRechazadas ?? this.credencialesRechazadas,
+    correoMfaEnviado: correoMfaEnviado ?? this.correoMfaEnviado,
   );
 }
 
@@ -102,6 +107,21 @@ class SesionIdentidadNotifier extends Notifier<EstadoSesion> {
     );
   }
 
+  /// Revalida las credenciales y solicita una emisión nueva al correo confirmado;
+  /// el destino nunca se acepta desde la app.
+  Future<bool> reenviarCodigoMfa() {
+    state = state.copiarCon(correoMfaEnviado: false);
+    return _intentar(
+      () => ref
+          .read(autenticacionProvider)
+          .conCredenciales(
+            identificador: state.identificador,
+            credencial: state.contrasena,
+          ),
+      credenciales: true,
+    );
+  }
+
   Future<bool> _intentar(
     Future<ResultadoDeAutenticacion> Function() llamada, {
     bool credenciales = false,
@@ -111,10 +131,14 @@ class SesionIdentidadNotifier extends Notifier<EstadoSesion> {
     try {
       final resultado = await llamada();
       state = state.copiarCon(
-        paso: resultado == ResultadoDeAutenticacion.faltaSegundoFactor
+        paso:
+            resultado == ResultadoDeAutenticacion.faltaSegundoFactor ||
+                resultado == ResultadoDeAutenticacion.factorEnviadoPorCorreo
             ? PasoSesion.mfa
             : PasoSesion.dispositivo,
         credencialesRechazadas: false,
+        correoMfaEnviado:
+            resultado == ResultadoDeAutenticacion.factorEnviadoPorCorreo,
       );
       return true;
     } on Object catch (e) {
@@ -141,9 +165,17 @@ class SesionIdentidadNotifier extends Notifier<EstadoSesion> {
 
 /// El texto que ve una persona. Los errores de dominio ya traen su mensaje en voz de
 /// marca; cualquier otra cosa cae en una frase que no culpa a quien está mirando.
-String mensajeDeError(Object e) => e is ErrorPresentable
-    ? e.mensaje
-    : 'No pudimos completar el ingreso. Probá de nuevo en un momento.';
+String mensajeDeError(Object e, {String? mensajeDesconocido}) {
+  final problema = errorDeDominio(e);
+  if (problema is ErrorPresentable) return problema.mensaje;
+  return mensajeDesconocido ??
+      'No pudimos completar el ingreso. Probá de nuevo en un momento.';
+}
+
+String? trazaDeError(Object e) {
+  final problema = errorDeDominio(e);
+  return problema is ErrorPresentable ? problema.trazaId : null;
+}
 
 final sesionIdentidadProvider =
     NotifierProvider<SesionIdentidadNotifier, EstadoSesion>(

@@ -1,12 +1,13 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core'
 import { toSignal } from '@angular/core/rxjs-interop'
 import { ActivatedRoute, Router } from '@angular/router'
-import { BandaDeProposito } from '@aportaya/ui/banda-de-proposito/banda-de-proposito'
+import { CabeceraDePagina } from '@aportaya/ui/cabecera-de-pagina/cabecera-de-pagina'
 import { ChipEstado } from '@aportaya/ui/chip-estado/chip-estado'
 import type { Filtro } from '@aportaya/ui/chips-de-filtro/chips-de-filtro'
 import { Fecha } from '@aportaya/ui/fecha/fecha'
 import { Monto } from '@aportaya/ui/monto/monto'
 import { BarraDeFiltros } from '../../../nucleo/filtros/barra-de-filtros'
+import { ExplicadorDeVista } from '../../../nucleo/explicador-de-vista'
 import { TablaDeDatosVirtualizada } from '../../../nucleo/tabla/tabla-de-datos-virtualizada'
 import type { ColumnaVirtual } from '../../../nucleo/tabla/tipos'
 import { EstadoDeBandejaVista } from '../comun/estado-de-bandeja'
@@ -22,17 +23,15 @@ const CLAVES = ['creadaEn', 'monto', 'estado', 'intentos', 'ultimoResultado', 'u
 const COLUMNAS: ColumnaVirtual<DesembolsoEnLista>[] = CLAVES.map((clave) => ({ clave, titulo: T.columnas[clave], numerica: clave === 'monto' || clave === 'intentos' }))
 
 /**
- * CU-28 · bandeja de desembolsos (solo lectura): por omisión, las excepciones que alguien tiene que mirar. La fila no
- * muestra cuenta destino (el contrato no la trae: respuesta mínima). El filtro de estados vive en la URL.
+ * CU-28 · bandeja de desembolsos (solo lectura).
  */
 @Component({
   selector: 'ap-bandeja-de-desembolsos',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [BandaDeProposito, ChipEstado, Fecha, Monto, BarraDeFiltros, TablaDeDatosVirtualizada, EstadoDeBandejaVista],
+  imports: [CabeceraDePagina, ChipEstado, Fecha, Monto, BarraDeFiltros, TablaDeDatosVirtualizada, EstadoDeBandejaVista],
   template: `
-    <ap-banda-de-proposito [texto]="t.proposito" />
     <section class="pantalla">
-      <h1>{{ t.titulo }}</h1>
+      <ap-cabecera-de-pagina [titulo]="t.titulo" [descripcion]="t.proposito" icono="entrega" />
       <ap-barra-de-filtros [etiqueta]="t.filtroEtiqueta" [incluirBusqueda]="false" [definiciones]="filtrosDeEstado" />
       <ap-estado-de-bandeja [estado]="b.estado()" [error]="b.error()" [vacio]="t.vacio" [explicacionVacio]="t.explicacionVacio" [denegado]="t.denegado" [conFiltro]="!!filtrosActivos()['estados']" (reintentar)="b.reintentar()" (quitarFiltros)="quitarFiltros()" />
       @if (b.estado() !== 'denegado') {
@@ -55,10 +54,12 @@ const COLUMNAS: ColumnaVirtual<DesembolsoEnLista>[] = CLAVES.map((clave) => ({ c
   `,
   styles: `
     .pantalla { padding: var(--s5); max-width: 80rem; display: grid; gap: var(--s4); }
-    h1 { margin: 0; }
   `,
 })
 export class BandejaDeDesembolsos {
+  constructor() {
+    inject(ExplicadorDeVista).fijar(this.t.proposito)
+  }
   private readonly router = inject(Router)
   private readonly ruta = inject(ActivatedRoute)
   protected readonly t = T

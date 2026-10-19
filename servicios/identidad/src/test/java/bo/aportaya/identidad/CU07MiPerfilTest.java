@@ -72,9 +72,39 @@ class CU07MiPerfilTest {
     }
 
     @Test
+    void diceSiLaCuentaTodaviaNoEnvioSuDocumento() {
+        UUID usuario = fixtura.usuario(telefono());
+        dsl.execute("UPDATE identidad.usuario SET estado = 'INCOMPLETO_KYC' WHERE id = ?", usuario);
+
+        var perfil = tx.execute(s -> consulta.ejecutar(ctx(usuario)));
+
+        assertThat(perfil.estadoDeCuenta()).isEqualTo("INCOMPLETO_KYC");
+    }
+
+    @Test
     void unaSesionSinCuentaNoDevuelveDatos() {
         UUID fantasma = UUID.randomUUID();
         assertThatThrownBy(() -> tx.execute(s -> consulta.ejecutar(ctx(fantasma))))
                 .isInstanceOf(ErrorDeNegocio.class);
+    }
+
+    @Test
+    void elNombreVisibleEsElPrimerNombreYLaInicialDelApellido() {
+        UUID usuario = fixtura.usuario(telefono());
+        dsl.execute(
+                "UPDATE identidad.usuario SET nombres = 'Rosa Maria', apellidos = 'quispe mamani' WHERE id = ?",
+                usuario);
+
+        var perfil = tx.execute(s -> consulta.ejecutar(ctx(usuario)));
+
+        assertThat(perfil.nombreVisible()).isEqualTo("Rosa Q.");
+    }
+
+    @Test
+    void sinNombreNoSeInventaUno() {
+        assertThat(ConsultarMiPerfil.nombreVisible(null, "Quispe")).isNull();
+        assertThat(ConsultarMiPerfil.nombreVisible("  ", "Quispe")).isNull();
+        assertThat(ConsultarMiPerfil.nombreVisible("Rosa", null)).isEqualTo("Rosa");
+        assertThat(ConsultarMiPerfil.nombreVisible("  Ana\tLucia ", " mendoza")).isEqualTo("Ana M.");
     }
 }

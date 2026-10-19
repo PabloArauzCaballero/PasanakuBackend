@@ -62,6 +62,7 @@ class _PantallaInvitarState extends ConsumerState<PantallaInvitar> {
                   ? InvitacionCreada(
                       resultado: resultado,
                       telefono: _telefono,
+                      canal: _canal,
                       alInvitarOtra: () {
                         setState(() {
                           _digitos = '';

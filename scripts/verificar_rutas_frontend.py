@@ -22,13 +22,6 @@ METODOS = ("get", "post", "put", "patch", "delete")
 
 # ruta usada -> por qué no tiene contrato todavía (a quién se le pide). Clave: "MÉTODO /ruta/{x}".
 CONOCIDAS_SIN_CONTRATO: dict[str, str] = {
-    "GET /erp/activos": "listado de activos fijos: erp.yaml solo publica la depreciación (pedido a erp)",
-    "GET /erp/cuentas-por-cobrar": "listado de cuentas por cobrar: erp.yaml solo publica abrir y cobrar (pedido a erp)",
-    "GET /erp/facturas-de-proveedor": "listado de facturas: erp.yaml solo publica registrar y pagar (pedido a erp)",
-    "GET /erp/ordenes-de-compra": "listado de órdenes: erp.yaml solo publica crear y aprobar (pedido a erp)",
-    "GET /erp/partidas-presupuestarias": "listado de partidas: sin operación en erp.yaml (pedido a erp)",
-    "GET /erp/ejercicios/{x}/periodos": "períodos de un ejercicio: sin operación en erp.yaml (pedido a erp)",
-    "GET /erp/estados-financieros/{x}/documento": "descarga del documento generado: pedido pendiente al backend (cu106-estados-financieros.ts)",
     "POST /extraccion/accesos": "registro de lecturas del backoffice: sin servicio `extraccion` en este repositorio",
     "POST /extraccion/exportaciones": "exportaciones: sin servicio `extraccion` en este repositorio",
     "GET /grupos/solicitudes-escaladas": "cola de solicitudes escaladas: CU-68 no publica el listado (d15-solicitudes-escaladas.ts)",
@@ -36,10 +29,6 @@ CONOCIDAS_SIN_CONTRATO: dict[str, str] = {
     "PUT /identidad/tutoriales/progreso/{x}": "progreso de tutoriales en servidor: sin operación en identidad.yaml (ADR-045)",
     "DELETE /identidad/tutoriales/progreso/{x}": "progreso de tutoriales en servidor: sin operación en identidad.yaml (ADR-045)",
     "GET /publicidad/socios-comerciales/{x}": "consulta de un socio: publicidad.yaml solo publica postular y verificar",
-    "GET /publicidad/anunciantes": "listado de anunciantes: publicidad.yaml solo publica el alta",
-    "GET /publicidad/campanas": "listado de campañas: publicidad.yaml solo publica crear, aprobar y rechazar",
-    "GET /publicidad/piezas-creativas": "cola de piezas por moderar: publicidad.yaml solo publica la revisión",
-    "GET /reclamos": "bandeja de reclamos: cumplimiento no publica el listado (cu52-reclamos.ts)",
 }
 
 PLANTILLA = re.compile(r"`\$\{(?:this\.)?(gateway|base|GW|api)\}(/[^`?\s]*)")

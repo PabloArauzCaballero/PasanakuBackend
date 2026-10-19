@@ -163,3 +163,25 @@ Future<void> asentar(WidgetTester tester) async {
   await tester.pump(const Duration(milliseconds: 250));
   await tester.pumpAndSettle();
 }
+
+/// La persona ya aceptó el contrato de organizador Aprendiz (CU-90 vía básica): la
+/// pantalla de crear grupo muestra el formulario directo, con su `organizadorId`.
+const organizadorDePrueba = 'b8000000-0000-4000-8000-000000000001';
+
+void organizadorHabilitado(DioAdapter adaptador, {bool habilitado = true}) {
+  adaptador.onGet(
+    '/organizadores/yo/habilitacion-basica',
+    (s) => s.reply(200, {
+      'version': 'APR-PROV-TEST-2610',
+      'titulo':
+          'Contrato de organizador (nivel Aprendiz) — PROVISIONAL DE PRUEBA',
+      'obligaciones': '1. Administrás el grupo según su reglamento.',
+      'causalesRescision': 'Incumplir el reglamento del grupo.',
+      'limiteDeGrupos': 2,
+      'limiteDeMonto': '30000.00',
+      'habilitado': habilitado,
+      if (habilitado) 'organizadorId': organizadorDePrueba,
+      'nivel': 'APRENDIZ',
+    }),
+  );
+}

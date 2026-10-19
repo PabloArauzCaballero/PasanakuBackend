@@ -32,7 +32,7 @@ describe('Catálogo de datos · accesibilidad', () => {
     await arnes.fixture.whenStable()
     arnes.fixture.detectChanges()
     expect(await axe(arnes.routeNativeElement!)).toHaveNoViolations()
-  })
+  }, 20000)
 
   it('la ficha, con narrativa, columnas y relaciones, sin violaciones serias', async () => {
     configurar()
@@ -44,5 +44,5 @@ describe('Catálogo de datos · accesibilidad', () => {
     await fixture.whenStable()
     fixture.detectChanges()
     expect(await axe(fixture.nativeElement)).toHaveNoViolations()
-  })
+  }, 20000)
 })

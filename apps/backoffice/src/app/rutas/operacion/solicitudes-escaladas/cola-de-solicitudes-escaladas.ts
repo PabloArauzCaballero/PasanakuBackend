@@ -1,10 +1,11 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core'
-import { BandaDeProposito } from '@aportaya/ui/banda-de-proposito/banda-de-proposito'
 import { RelojDePlazo } from '@aportaya/ui/reloj-de-plazo/reloj-de-plazo'
 import { Alerta } from '@aportaya/ui/alerta/alerta'
 import { Boton } from '@aportaya/ui/boton/boton'
+import { CabeceraDePagina } from '@aportaya/ui/cabecera-de-pagina/cabecera-de-pagina'
 import { Dialogo } from '@aportaya/ui/dialogo/dialogo'
 import { Campo } from '@aportaya/ui/campo/campo'
+import { ExplicadorDeVista } from '../../../nucleo/explicador-de-vista'
 import { Sesion } from '../../../nucleo/sesion'
 import { TablaDeDatosVirtualizada } from '../../../nucleo/tabla/tabla-de-datos-virtualizada'
 import type { ColumnaVirtual } from '../../../nucleo/tabla/tipos'
@@ -22,23 +23,15 @@ const COLUMNAS: ColumnaVirtual<SolicitudEscalada>[] = [
 ]
 
 /**
- * D-15 · La cola de solicitudes de ingreso que el organizador dejó vencer (48 horas),
- * sobre `TablaDeDatosVirtualizada` (del shell, no se duplica) ordenada por
- * `fechaLimiteOrganizador` desde el `cargador` (`cargarSolicitudesEscaladas`, dominio).
- * Segregación de funciones: quien **registró** la postulación (el propio postulante o
- * el organizador que la generó) nunca es quien resuelve acá — esta cola solo existe
- * porque el organizador *no* resolvió; solo `SOLICITUD_INGRESO_RESOLVER` monta las
- * acciones. Rechazar exige motivo escrito: el botón de confirmar queda deshabilitado
- * en blanco (regla del CU-68 / debido proceso).
+ * D-15 · La cola de solicitudes de ingreso que el organizador dejó vencer (48 horas).
  */
 @Component({
   selector: 'ap-cola-de-solicitudes-escaladas',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [Alerta, BandaDeProposito, RelojDePlazo, Boton, Dialogo, Campo, TablaDeDatosVirtualizada],
+  imports: [Alerta, Boton, CabeceraDePagina, Campo, Dialogo, RelojDePlazo, TablaDeDatosVirtualizada],
   template: `
-    <ap-banda-de-proposito [texto]="t.proposito" />
     <section class="pantalla">
-      <h1>{{ t.titulo }}</h1>
+      <ap-cabecera-de-pagina [titulo]="t.titulo" [descripcion]="t.proposito" icono="grupo" />
       @if (sinEnviar()) { <ap-alerta tono="aviso">{{ t.sinEnviar }}</ap-alerta> }
       <ap-tabla-de-datos-virtualizada [titulo]="t.titulo" [columnas]="COLUMNAS" [cargador]="cargador" [ordenPermitido]="['fechaLimiteOrganizador', 'usuarioNombre']" [identidad]="identidad">
         <ng-template #celda let-s let-columna="columna">
@@ -88,7 +81,6 @@ const COLUMNAS: ColumnaVirtual<SolicitudEscalada>[] = [
   `,
   styles: `
     .pantalla { padding: var(--s5); max-width: 68rem; display: grid; gap: var(--s4); }
-    h1 { margin: 0; }
     .factores { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--s1); font-size: .9em; white-space: normal; }
     .factores .favor { color: var(--ok); }
     .factores .contra { color: var(--err); }
@@ -96,6 +88,9 @@ const COLUMNAS: ColumnaVirtual<SolicitudEscalada>[] = [
   `,
 })
 export class ColaDeSolicitudesEscaladas {
+  constructor() {
+    inject(ExplicadorDeVista).fijar(this.t.proposito)
+  }
   private readonly sesion = inject(Sesion)
   protected readonly t = textosOperacion.solicitudesEscaladas
   protected readonly ahoraIso = new Date().toISOString()

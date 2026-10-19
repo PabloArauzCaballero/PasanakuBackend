@@ -1,10 +1,11 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core'
 import { toSignal } from '@angular/core/rxjs-interop'
 import { ActivatedRoute } from '@angular/router'
-import { BandaDeProposito } from '@aportaya/ui/banda-de-proposito/banda-de-proposito'
+import { CabeceraDePagina } from '@aportaya/ui/cabecera-de-pagina/cabecera-de-pagina'
 import { ChipEstado } from '@aportaya/ui/chip-estado/chip-estado'
 import { Monto } from '@aportaya/ui/monto/monto'
 import type { Filtro } from '@aportaya/ui/chips-de-filtro/chips-de-filtro'
+import { ExplicadorDeVista } from '../../../nucleo/explicador-de-vista'
 import { BarraDeFiltros } from '../../../nucleo/filtros/barra-de-filtros'
 import { TablaDeDatosVirtualizada } from '../../../nucleo/tabla/tabla-de-datos-virtualizada'
 import type { ColumnaVirtual } from '../../../nucleo/tabla/tipos'
@@ -35,11 +36,10 @@ const COLUMNAS: ColumnaVirtual<PartidaPresupuestaria>[] = [
 @Component({
   selector: 'ap-pantalla-de-presupuesto',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [BandaDeProposito, BarraDeFiltros, ChipEstado, EstadoDeListado, Monto, TablaDeDatosVirtualizada],
+  imports: [BarraDeFiltros, CabeceraDePagina, ChipEstado, EstadoDeListado, Monto, TablaDeDatosVirtualizada],
   template: `
-    <ap-banda-de-proposito [texto]="t.proposito" />
     <section class="pantalla">
-      <h1>{{ t.titulo }}</h1>
+      <ap-cabecera-de-pagina [titulo]="t.titulo" [descripcion]="t.proposito" icono="comision" />
       <p class="aviso">{{ t.noBloquea }}</p>
       <ap-barra-de-filtros etiqueta="Estado" [incluirBusqueda]="false" [definiciones]="filtros" />
       <ap-estado-de-listado [error]="listado.error()" [vacio]="listado.vacio()" [mensajeVacio]="t.enCero" [filtrado]="!!filtrosActivos()['estado']" />
@@ -81,7 +81,6 @@ const COLUMNAS: ColumnaVirtual<PartidaPresupuestaria>[] = [
   `,
   styles: `
     .pantalla { padding: var(--s5); max-width: 72rem; display: grid; gap: var(--s4); }
-    h1 { margin: 0; }
     .aviso { color: var(--text-2); margin: 0; }
     .desviacion { display: inline-flex; align-items: center; gap: var(--s2); justify-content: flex-end; }
     .desviacion.sobre { color: var(--err-texto); }
@@ -89,6 +88,10 @@ const COLUMNAS: ColumnaVirtual<PartidaPresupuestaria>[] = [
   `,
 })
 export class PantallaDePresupuesto {
+  constructor() {
+    inject(ExplicadorDeVista).fijar(this.t.proposito)
+  }
+
   protected readonly t = textosContabilidad.presupuesto
   protected readonly COLUMNAS = COLUMNAS
   protected readonly listado = observarListado(cargadorDePartidas(), textosContabilidad.erroresDeListado)

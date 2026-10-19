@@ -1,7 +1,8 @@
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core'
-import { BandaDeProposito } from '@aportaya/ui/banda-de-proposito/banda-de-proposito'
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core'
+import { CabeceraDePagina } from '@aportaya/ui/cabecera-de-pagina/cabecera-de-pagina'
 import { ChipEstado } from '@aportaya/ui/chip-estado/chip-estado'
 import { Fecha } from '@aportaya/ui/fecha/fecha'
+import { ExplicadorDeVista } from '../../../nucleo/explicador-de-vista'
 import { BarraDeFiltros } from '../../../nucleo/filtros/barra-de-filtros'
 import { TablaDeDatosVirtualizada } from '../../../nucleo/tabla/tabla-de-datos-virtualizada'
 import type { CargadorDePagina, ColumnaVirtual } from '../../../nucleo/tabla/tipos'
@@ -37,11 +38,10 @@ const COLUMNAS_EJECUCIONES: ColumnaVirtual<EjecucionDeReporteEnLista>[] = [
 @Component({
   selector: 'ap-pantalla-de-reportes',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [AvisoDeListado, BandaDeProposito, BarraDeFiltros, ChipEstado, Fecha, TablaDeDatosVirtualizada],
+  imports: [AvisoDeListado, CabeceraDePagina, BarraDeFiltros, ChipEstado, Fecha, TablaDeDatosVirtualizada],
   template: `
-    <ap-banda-de-proposito [texto]="t.proposito" />
     <section class="pantalla">
-      <h1>{{ t.titulo }}</h1>
+      <ap-cabecera-de-pagina [titulo]="t.titulo" [descripcion]="t.proposito" icono="libro" />
       <p class="nota">{{ comun.soloLectura }}</p>
 
       <ap-aviso-de-listado [error]="catalogo.error()" [vacio]="catalogo.vacio()" [mensajeVacio]="t.definiciones.vacio" (reintentar)="catalogo.reintentar()" />
@@ -78,11 +78,14 @@ const COLUMNAS_EJECUCIONES: ColumnaVirtual<EjecucionDeReporteEnLista>[] = [
   `,
   styles: `
     .pantalla { padding: var(--s5); display: grid; gap: var(--s4); }
-    h1, .nota { margin: 0; }
-    .nota { color: var(--text-2); }
+    .nota { margin: 0; color: var(--text-2); }
   `,
 })
 export class PantallaDeReportes {
+  constructor() {
+    inject(ExplicadorDeVista).fijar(this.t.proposito)
+  }
+
   protected readonly t = textosConfiguracion.reportes
   protected readonly comun = textosConfiguracion.comun
   protected readonly noDisponible = NO_DISPONIBLE

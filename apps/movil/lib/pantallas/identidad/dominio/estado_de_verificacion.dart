@@ -21,7 +21,6 @@ class VerificacionNotifier extends AsyncNotifier<EstadoDeVerificacion> {
   static const _intervalo = Duration(seconds: 2);
   static const _maximoDeIntentos = 20;
 
-  String? _usuarioId;
   Timer? _temporizador;
   int _intentos = 0;
 
@@ -29,11 +28,12 @@ class VerificacionNotifier extends AsyncNotifier<EstadoDeVerificacion> {
   Future<EstadoDeVerificacion> build() {
     ref.watch(generacionDeSesionProvider);
     ref.onDispose(() => _temporizador?.cancel());
-    final usuarioId = _usuarioId;
+    final usuarioId = ref.read(usuarioEnVerificacionProvider);
     if (usuarioId == null) {
-      // No hay nada que consultar todavía: `iniciar` lo fija antes de la primera
-      // pantalla que lo mira.
-      return Future.error(StateError('Todavía no hay usuario para consultar.'));
+      // Todavía no hay a quién consultar: la pantalla queda cargando hasta que
+      // `iniciar` lo fije. Antes era un `StateError`, que se pintaba como «Algo
+      // salió mal de nuestro lado» si el provider se reconstruía en ese momento.
+      return Completer<EstadoDeVerificacion>().future;
     }
     return ref
         .read(consultarVerificacionProvider)
@@ -54,7 +54,7 @@ class VerificacionNotifier extends AsyncNotifier<EstadoDeVerificacion> {
   /// Arranca el sondeo para un usuario. Se llama una sola vez, al entrar a la
   /// pantalla de estado.
   void iniciar(String usuarioId) {
-    _usuarioId = usuarioId;
+    ref.read(usuarioEnVerificacionProvider.notifier).fijar(usuarioId);
     _intentos = 0;
     unawaited(actualizar());
   }
@@ -62,9 +62,13 @@ class VerificacionNotifier extends AsyncNotifier<EstadoDeVerificacion> {
   /// "Actualizar estado": lo dispara el sondeo automático y también el botón
   /// que muestra la pantalla, igual que en Atlas.
   Future<void> actualizar() async {
-    final usuarioId = _usuarioId;
+    final usuarioId = ref.read(usuarioEnVerificacionProvider);
     if (usuarioId == null) return;
-    state = const AsyncLoading<EstadoDeVerificacion>();
+    // Con un estado ya mostrado, la consulta va por detrás: antes cada vuelta del
+    // sondeo (cada 2 s) borraba la pantalla y ponía el círculo de carga, y se veía
+    // parpadear en bucle (2026-10-19).
+    final yaHabiaEstado = state.hasValue;
+    if (!yaHabiaEstado) state = const AsyncLoading<EstadoDeVerificacion>();
     try {
       final expediente = await ref
           .read(consultarVerificacionProvider)
@@ -76,10 +80,33 @@ class VerificacionNotifier extends AsyncNotifier<EstadoDeVerificacion> {
         _temporizador = Timer(_intervalo, () => unawaited(actualizar()));
       }
     } catch (e, trazado) {
-      state = AsyncError(e, trazado);
+      // Un corte de red en medio del sondeo no tapa el estado que ya se veía: se
+      // sigue mostrando y se vuelve a consultar en la próxima vuelta.
+      if (!yaHabiaEstado) {
+        state = AsyncError(e, trazado);
+        return;
+      }
+      _intentos++;
+      _temporizador?.cancel();
+      if (_intentos < _maximoDeIntentos) {
+        _temporizador = Timer(_intervalo, () => unawaited(actualizar()));
+      }
     }
   }
 }
+
+/// A quién consulta la pantalla de estado. Vive aparte del notifier porque Riverpod 3
+/// recrea el notifier al reconstruir el provider (cambio de sesión): guardado en un
+/// campo, el usuario se perdía y la pantalla caía en error.
+class UsuarioEnVerificacion extends Notifier<String?> {
+  @override
+  String? build() => null;
+
+  void fijar(String usuarioId) => state = usuarioId;
+}
+
+final usuarioEnVerificacionProvider =
+    NotifierProvider<UsuarioEnVerificacion, String?>(UsuarioEnVerificacion.new);
 
 final verificacionProvider =
     AsyncNotifierProvider<VerificacionNotifier, EstadoDeVerificacion>(

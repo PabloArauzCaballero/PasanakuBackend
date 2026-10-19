@@ -1,0 +1,1 @@
+playwright f2-red-y-teclado 'ingreso: se completa' local: antes contraste #c57d45 3.22:1 (varía por cuadro: CI #bc6724 4.07) -> con animation:none en capturas-f2.ts: 1 passed; suite completa chromium: 157 passed (3.7m)

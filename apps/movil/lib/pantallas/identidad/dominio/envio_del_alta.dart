@@ -5,6 +5,7 @@ import 'cu01_registrar.dart';
 import 'estado_alta.dart';
 import 'estado_contrato.dart';
 import 'estado_sesion.dart' show mensajeDeError;
+import 'verificacion_correo.dart';
 
 /// El cierre del alta: `POST /usuarios` con todo junto.
 ///
@@ -41,7 +42,8 @@ Future<ResultadoDelAlta> enviarElAlta(Ref ref, EstadoAlta estado) async {
           nombres: d.nombres,
           apellidos: d.apellidos,
           fechaNacimiento: nacimiento,
-          tipoDocumento: d.tipoDocumento,
+          // Quien saltó la verificación abre la cuenta sin documento.
+          tipoDocumento: estado.sinVerificacion ? null : d.tipoDocumento,
           numeroDocumento: d.numeroDocumento,
           lugarExpedicion: d.lugarExpedicion,
           fechaExpiracion: d.fechaExpiracion,
@@ -51,6 +53,8 @@ Future<ResultadoDelAlta> enviarElAlta(Ref ref, EstadoAlta estado) async {
           contrasena: estado.contrasena,
           contratosAceptados: contratos,
         );
+    // La cuenta ya existe: la verificación guardada para rescatar el alta sobra.
+    await ref.read(verificacionCorreoProvider).olvidar();
     return ResultadoDelAlta(
       usuarioId: r.usuarioId,
       // Sin sesion durante el alta, este token es lo que autoriza subir las fotos.

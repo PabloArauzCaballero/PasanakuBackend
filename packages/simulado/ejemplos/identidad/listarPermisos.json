@@ -1,0 +1,42 @@
+{
+  "servicio": "identidad",
+  "operacion": "listarPermisos",
+  "metodo": "get",
+  "ruta": "/permisos",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": [
+        {
+          "id": "d3d2cf1b-483c-41ed-8641-1710a1c0f110",
+          "codigo": "codigo",
+          "descripcion": "descripcion",
+          "recurso": "recurso",
+          "accion": "accion",
+          "nivelRiesgo": "BAJO",
+          "exigeMotivo": true,
+          "requiereMfa": true
+        }
+      ]
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": []
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": [
+        {
+          "id": "d3d2cf1b-483c-41ed-8641-1710a1c0f110",
+          "codigo": "codigo",
+          "descripcion": "descripcion",
+          "recurso": "recurso",
+          "accion": "accion",
+          "nivelRiesgo": "BAJO",
+          "exigeMotivo": true,
+          "requiereMfa": true
+        }
+      ]
+    }
+  }
+}

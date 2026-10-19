@@ -3,10 +3,12 @@ package bo.aportaya.identidad.web;
 import bo.aportaya.identidad.aplicacion.CU02ActualizarFechaExpiracion;
 import bo.aportaya.identidad.aplicacion.CU02ConsultarEstadoDeVerificacion;
 import bo.aportaya.identidad.aplicacion.CU02GuardarFotoDelExpediente;
+import bo.aportaya.identidad.aplicacion.CU02IniciarVerificacion;
 import bo.aportaya.identidad.aplicacion.ConsultarMiPerfil;
 import bo.aportaya.identidad.aplicacion.ConsumirInvitacion;
 import bo.aportaya.identidad.web.generado.modelo.ArchivoDelExpediente;
 import bo.aportaya.identidad.web.generado.modelo.CaraDelExpediente;
+import bo.aportaya.identidad.web.generado.modelo.Documento;
 import bo.aportaya.identidad.web.generado.modelo.EstadoDeVerificacion;
 import bo.aportaya.identidad.web.generado.modelo.FechaExpiracionDocumento;
 import bo.aportaya.identidad.web.generado.modelo.MiPerfil;
@@ -37,6 +39,8 @@ public abstract class ExpedienteController extends InvitacionesController {
     private final Reloj reloj;
     private final TitularDelExpediente titular;
     private final ConsultarMiPerfil miPerfil;
+    private final CU02IniciarVerificacion iniciarVerificacion;
+    private final String pimienta;
 
     /** El token que devuelve el alta y autoriza las fotos de ESA persona; el alta lo emite desde la subclase. */
     protected final TokenDeAlta tokenDeAlta;
@@ -49,11 +53,14 @@ public abstract class ExpedienteController extends InvitacionesController {
             CU02ConsultarEstadoDeVerificacion estadoDeVerificacion,
             CU02ActualizarFechaExpiracion actualizarFechaExpiracion,
             ConsultarMiPerfil miPerfil,
+            CU02IniciarVerificacion iniciarVerificacion,
             String pimienta,
             Reloj reloj,
             Duration vigenciaTokenDeAlta) {
         super(consumo, sesion, peticion);
         this.miPerfil = miPerfil;
+        this.iniciarVerificacion = iniciarVerificacion;
+        this.pimienta = pimienta;
         this.fotos = fotos;
         this.estadoDeVerificacion = estadoDeVerificacion;
         this.actualizarFechaExpiracion = actualizarFechaExpiracion;
@@ -137,14 +144,36 @@ public abstract class ExpedienteController extends InvitacionesController {
         return ResponseEntity.noContent().build();
     }
 
+    /**
+     * CU-02 diferido: quien abrio la cuenta sin documento lo envia cuando quiere operar con
+     * dinero. Exige la sesion del titular (el mismo 403 para cualquier otra persona) antes de
+     * tocar nada; la aprobacion sigue en manos de la revision humana.
+     */
+    @Override
+    @Permiso("PARTICIPANTE")
+    public ResponseEntity<EstadoDeVerificacion> iniciarVerificacion(UUID usuarioId, Documento cuerpo) {
+        // Solo la propia: el token de alta no alcanza y el UUID de la ruta no autoriza nada.
+        titular.exigir(usuarioId, null);
+        Traza.marcarCasoDeUso("CU-02", usuarioId.toString());
+        var documento = MapeoDelAlta.documentoDe(cuerpo, pimienta);
+        UUID verificacionId = iniciarVerificacion.ejecutar(
+                usuarioId, documento, MapeoDelAlta.numeroCifradoDe(documento), Traza.actual());
+        return ResponseEntity.accepted()
+                .body(new EstadoDeVerificacion()
+                        .verificacionId(verificacionId)
+                        .estado(EstadoDeVerificacion.EstadoEnum.EN_REVISION));
+    }
+
     /** CU-07: el correo de la propia cuenta. Sin id en la ruta: sale de la sesion. */
     @Override
     @Permiso("PARTICIPANTE")
     public ResponseEntity<MiPerfil> consultarMiPerfil() {
         Traza.marcarCasoDeUso("CU-07", "mi-perfil");
         var p = miPerfil.ejecutar(sesion.actual());
-        var salida = new MiPerfil(p.usuarioId(), p.correoVerificado());
+        var salida = new MiPerfil(
+                p.usuarioId(), p.correoVerificado(), MiPerfil.EstadoDeCuentaEnum.fromValue(p.estadoDeCuenta()));
         salida.setCorreo(p.correo());
+        salida.setNombreVisible(p.nombreVisible());
         return ResponseEntity.ok(salida);
     }
 }

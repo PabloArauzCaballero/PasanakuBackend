@@ -60,7 +60,7 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.text('AportaYa está bloqueada'), findsOneWidget);
+      expect(find.text('Hola de nuevo'), findsOneWidget);
       await expectLater(
         find.byType(CapaDeBloqueo),
         matchesGoldenFile(

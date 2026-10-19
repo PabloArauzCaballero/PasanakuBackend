@@ -3,17 +3,18 @@ tags:
   - moc
   - modulo/05-notificaciones-y-comunicaciones
 modulo: "05 — Notificaciones y Comunicaciones"
-relaciones_fk: 21
+relaciones_fk: 22
 ---
 
 # 05 — Notificaciones y Comunicaciones · relaciones
 
-Las **21 claves foráneas** que salen de las tablas de este módulo.
+Las **22 claves foráneas** que salen de las tablas de este módulo.
 
 [[_Relaciones|← Todas las relaciones]] · [[Index]]
 
 | Relación | Destino | Cruza | Opcional |
 | --- | --- | :-: | :-: |
+| [[aviso_interno.usuario_id → usuario]] | [[usuario]] | ↗ 01 | sí |
 | [[bandeja_entrada.notificacion_id → notificacion]] | [[notificacion]] | — | no |
 | [[bandeja_entrada.usuario_id → usuario]] | [[usuario]] | ↗ 01 | no |
 | [[canal_vinculado.usuario_id → usuario]] | [[usuario]] | ↗ 01 | no |

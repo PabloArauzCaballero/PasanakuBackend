@@ -20,6 +20,11 @@ android {
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId = "bo.aportaya.aportaya_movil"
+        // El dominio de la app web: los enlaces https://<este>/g/<codigo> (enlace del grupo)
+        // abren esta app (App Links). Por omision, TEST; otro entorno lo pasa con
+        // -PhostDeLaAppWeb=... y publica su propio assetlinks.json.
+        manifestPlaceholders["hostDeLaAppWeb"] =
+            (project.findProperty("hostDeLaAppWeb") as String?) ?: "app.aportaya.161.97.85.216.sslip.io"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion

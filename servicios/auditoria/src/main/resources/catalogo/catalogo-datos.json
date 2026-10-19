@@ -4271,6 +4271,109 @@
    "sistema": "Vive en el esquema auditoria; la escribe y la lee solo el servicio auditoria (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de identidad.usuario. La referencian alerta_cumplimiento, cumplimiento.caso_investigacion_lft."
   },
   {
+   "tabla": "revision_columna",
+   "esquema": "auditoria",
+   "modulo": "09",
+   "nombreModulo": "Auditoría, Reportes y Cumplimiento",
+   "servicio": "auditoria",
+   "appendOnly": false,
+   "negocio": {
+    "queEs": "El veredicto de una persona sobre lo que el modelo dice de una columna: aprobada, rechazada o pendiente, con qué confianza y por qué.",
+    "negocio": "El catálogo describe cada columna desde el modelo (tipo, sensibilidad, nota de negocio). Esa descripción la escribió alguien una vez; que otra persona la revise y lo deje dicho es lo que convierte una ficha en un dato en el que se puede confiar, igual que en el catálogo del portal interno de Atlas. Un rechazo sin motivo no sirve a quien tiene que corregir: por eso el motivo es obligatorio al rechazar.",
+    "porQue": "Sin ella, «esta columna ya se revisó» vive en la cabeza de quien la revisó, y una columna con datos personales mal clasificada pasa años sin que nadie lo note. ---"
+   },
+   "reglas": [],
+   "columnas": [
+    {
+     "nombre": "id",
+     "tipo": "UUID",
+     "nulable": false,
+     "pk": true,
+     "negocio": "Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.",
+     "origenNegocio": "convencion",
+     "sistema": "UUID, obligatoria, clave primaria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "esquema",
+     "tipo": "VARCHAR(63)",
+     "nulable": false,
+     "pk": false,
+     "sistema": "VARCHAR(63), obligatoria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "tabla",
+     "tipo": "VARCHAR(63)",
+     "nulable": false,
+     "pk": false,
+     "sistema": "VARCHAR(63), obligatoria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "columna",
+     "tipo": "VARCHAR(63)",
+     "nulable": false,
+     "pk": false,
+     "sistema": "VARCHAR(63), obligatoria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "decision",
+     "tipo": "VARCHAR(20)",
+     "nulable": false,
+     "pk": false,
+     "sistema": "VARCHAR(20), obligatoria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "confianza",
+     "tipo": "VARCHAR(10)",
+     "nulable": true,
+     "pk": false,
+     "sistema": "VARCHAR(10), opcional.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "motivo",
+     "tipo": "VARCHAR(500)",
+     "nulable": true,
+     "pk": false,
+     "sistema": "VARCHAR(500), opcional.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "revisado_por",
+     "tipo": "UUID",
+     "nulable": false,
+     "pk": false,
+     "sistema": "UUID, obligatoria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "revisado_en",
+     "tipo": "TIMESTAMPTZ",
+     "nulable": false,
+     "pk": false,
+     "sistema": "TIMESTAMPTZ, obligatoria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "version",
+     "tipo": "INTEGER",
+     "nulable": false,
+     "pk": false,
+     "sistema": "INTEGER, obligatoria.",
+     "sensibilidad": "NINGUNA"
+    }
+   ],
+   "relaciones": {
+    "salientes": [],
+    "entrantes": []
+   },
+   "sistema": "Vive en el esquema auditoria; la escribe y la lee solo el servicio auditoria (regla 98.1.1): otro servicio la conoce por su API o por sus eventos."
+  },
+  {
    "tabla": "solicitud_datos_personales",
    "esquema": "auditoria",
    "modulo": "09",
@@ -22504,6 +22607,113 @@
    "sistema": "Vive en el esquema grupos; la escribe y la lee solo el servicio grupos (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Es append-only: UPDATE y DELETE revocados al rol del servicio; se corrige con una fila nueva. Reglas nombradas: ck_decision_ingreso_fase, ck_decision_ingreso_resultado, ck_decision_ingreso_revision, ck_decision_ingreso_motivo, ck_decision_ingreso_recomendacion, ck_decision_ingreso_propuesta, uq_decision_ingreso_resolucion."
   },
   {
+   "tabla": "enlace_grupo",
+   "esquema": "grupos",
+   "modulo": "02",
+   "nombreModulo": "Grupos, Cupos, Turnos y Gobernanza",
+   "servicio": "grupos",
+   "appendOnly": false,
+   "negocio": {
+    "queEs": "El enlace —y su QR— que el organizador comparte para que cualquier persona pida unirse al grupo, sin tener que invitar teléfono por teléfono.",
+    "negocio": "Es como se arma un pasanaku en la práctica: el organizador pega un enlace en el grupo de WhatsApp de la familia o muestra el QR en persona. Como el enlace se puede reenviar a desconocidos, no da entrada: cada pedido es una solicitud_ingreso que el organizador aprueba (decisión del dueño, 2026-10-19). Vence a los 7 días o al llenarse el grupo, y el organizador lo puede anular cuando quiera.",
+    "porQue": "Sin entidad propia no se podría anular un enlace que se filtró, ni saber por qué enlace llegó cada solicitud (solicitud_ingreso.enlace_grupo_id), ni garantizar que el grupo tenga un solo enlace vivo."
+   },
+   "notaDeSistema": "Se guarda solo el hash del código (token_hash, único): con la base en la mano no se reconstruyen enlaces vivos. estado es ACTIVO o ANULADO; generar uno nuevo anula el anterior en la misma transacción. ---",
+   "reglas": [],
+   "columnas": [
+    {
+     "nombre": "id",
+     "tipo": "UUID",
+     "nulable": false,
+     "pk": true,
+     "negocio": "Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.",
+     "origenNegocio": "convencion",
+     "sistema": "UUID, obligatoria, clave primaria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "grupo_id",
+     "tipo": "UUID",
+     "nulable": false,
+     "pk": false,
+     "referencia": "grupo",
+     "sistema": "UUID, obligatoria, referencia a grupo.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "emisor_id",
+     "tipo": "UUID",
+     "nulable": false,
+     "pk": false,
+     "referencia": "usuario",
+     "sistema": "UUID, obligatoria, referencia a usuario.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "token_hash",
+     "tipo": "VARCHAR(64)",
+     "nulable": false,
+     "pk": false,
+     "sistema": "VARCHAR(64), obligatoria.",
+     "sensibilidad": "DERIVADO"
+    },
+    {
+     "nombre": "estado",
+     "tipo": "VARCHAR(15)",
+     "nulable": false,
+     "pk": false,
+     "sistema": "VARCHAR(15), obligatoria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "fecha_creacion",
+     "tipo": "TIMESTAMPTZ",
+     "nulable": false,
+     "pk": false,
+     "sistema": "TIMESTAMPTZ, obligatoria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "fecha_expiracion",
+     "tipo": "TIMESTAMPTZ",
+     "nulable": false,
+     "pk": false,
+     "sistema": "TIMESTAMPTZ, obligatoria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "fecha_anulacion",
+     "tipo": "TIMESTAMPTZ",
+     "nulable": true,
+     "pk": false,
+     "sistema": "TIMESTAMPTZ, opcional.",
+     "sensibilidad": "NINGUNA"
+    }
+   ],
+   "relaciones": {
+    "salientes": [
+     {
+      "columna": "grupo_id",
+      "tabla": "grupo",
+      "esquema": "grupos"
+     },
+     {
+      "columna": "emisor_id",
+      "tabla": "usuario",
+      "esquema": "identidad"
+     }
+    ],
+    "entrantes": [
+     {
+      "tabla": "solicitud_ingreso",
+      "columna": "enlace_grupo_id",
+      "esquema": "grupos"
+     }
+    ]
+   },
+   "sistema": "Vive en el esquema grupos; la escribe y la lee solo el servicio grupos (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de grupo, identidad.usuario. La referencian solicitud_ingreso."
+  },
+  {
    "tabla": "grupo",
    "esquema": "grupos",
    "modulo": "02",
@@ -22780,6 +22990,11 @@
       "esquema": "grupos"
      },
      {
+      "tabla": "enlace_grupo",
+      "columna": "grupo_id",
+      "esquema": "grupos"
+     },
+     {
       "tabla": "invitacion",
       "columna": "grupo_id",
       "esquema": "grupos"
@@ -22991,7 +23206,7 @@
      }
     ]
    },
-   "sistema": "Vive en el esquema grupos; la escribe y la lee solo el servicio grupos (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de organizador.organizador. La referencian acuerdo, aportes.obligacion_aporte, aportes.politica_mora, auditoria.alerta_cumplimiento, auditoria.ejecucion_reporte, catalogo.dia_no_habil, comun.bitacora_evento, configuracion_grupo, cupo, entregas.entrega_fondo, entregas.oferta_turno, garantia.alerta_temprana, garantia.aval_participante, garantia.cobertura_respaldo, garantia.deuda_participante, garantia.disolucion_anticipada, garantia.fondo_garantia, garantia.plan_contingencia, garantia.politica_cobertura, garantia.politica_sancion, garantia.reemplazo_participante, garantia.registro_incumplimiento, garantia.reserva_respaldo, garantia.score_riesgo_incumplimiento, historial_estado_grupo, invitacion, notificaciones.programacion_recordatorio, nucleo_financiero.asiento_contable, nucleo_financiero.cuenta_billetera, nucleo_financiero.cuenta_contable, nucleo_financiero.transaccion_billetera, nucleo_financiero.transferencia_p2p, organizador.tarea_automatizada, participante, periodo, propuesta_grupo, reglamento_grupo, solicitud_ingreso, sorteo_turnos, tarifas.asignacion_tarifario, tarifas.devengo_comision, tarifas.exencion_comision, tarifas.tarifa_congelada_grupo, transparencia.bloque_transparencia, transparencia.evento_reputacion, transparencia.metrica_grupo, transparencia.resena_participante, turno."
+   "sistema": "Vive en el esquema grupos; la escribe y la lee solo el servicio grupos (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de organizador.organizador. La referencian acuerdo, aportes.obligacion_aporte, aportes.politica_mora, auditoria.alerta_cumplimiento, auditoria.ejecucion_reporte, catalogo.dia_no_habil, comun.bitacora_evento, configuracion_grupo, cupo, enlace_grupo, entregas.entrega_fondo, entregas.oferta_turno, garantia.alerta_temprana, garantia.aval_participante, garantia.cobertura_respaldo, garantia.deuda_participante, garantia.disolucion_anticipada, garantia.fondo_garantia, garantia.plan_contingencia, garantia.politica_cobertura, garantia.politica_sancion, garantia.reemplazo_participante, garantia.registro_incumplimiento, garantia.reserva_respaldo, garantia.score_riesgo_incumplimiento, historial_estado_grupo, invitacion, notificaciones.programacion_recordatorio, nucleo_financiero.asiento_contable, nucleo_financiero.cuenta_billetera, nucleo_financiero.cuenta_contable, nucleo_financiero.transaccion_billetera, nucleo_financiero.transferencia_p2p, organizador.tarea_automatizada, participante, periodo, propuesta_grupo, reglamento_grupo, solicitud_ingreso, sorteo_turnos, tarifas.asignacion_tarifario, tarifas.devengo_comision, tarifas.exencion_comision, tarifas.tarifa_congelada_grupo, transparencia.bloque_transparencia, transparencia.evento_reputacion, transparencia.metrica_grupo, transparencia.resena_participante, turno."
   },
   {
    "tabla": "historial_estado_grupo",
@@ -24331,6 +24546,23 @@
      "sensibilidad": "NINGUNA"
     },
     {
+     "nombre": "enlace_grupo_id",
+     "tipo": "UUID",
+     "nulable": true,
+     "pk": false,
+     "referencia": "enlace_grupo",
+     "sistema": "UUID, opcional, referencia a enlace_grupo.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "nombre_visible",
+     "tipo": "VARCHAR(60)",
+     "nulable": true,
+     "pk": false,
+     "sistema": "VARCHAR(60), opcional.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
      "nombre": "revisada_por",
      "tipo": "UUID",
      "nulable": true,
@@ -24369,6 +24601,11 @@
       "esquema": "identidad"
      },
      {
+      "columna": "enlace_grupo_id",
+      "tabla": "enlace_grupo",
+      "esquema": "grupos"
+     },
+     {
       "columna": "revisada_por",
       "tabla": "usuario",
       "esquema": "identidad"
@@ -24376,7 +24613,7 @@
     ],
     "entrantes": []
    },
-   "sistema": "Vive en el esquema grupos; la escribe y la lee solo el servicio grupos (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de grupo, identidad.usuario. Reglas nombradas: uq_solicitud_ingreso_pendiente, ck_solicitud_ingreso_resuelta."
+   "sistema": "Vive en el esquema grupos; la escribe y la lee solo el servicio grupos (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de enlace_grupo, grupo, identidad.usuario. Reglas nombradas: uq_solicitud_ingreso_pendiente, ck_solicitud_ingreso_resuelta."
   },
   {
    "tabla": "solicitud_permuta",
@@ -25303,7 +25540,7 @@
     "negocio": "Que una invitación sirva solo para lo que se emitió. Quien recibe el enlace entra al grupo que lo invitó, y nadie más puede usar ese enlace para entrar a otro grupo ni con otro número.",
     "porQue": "El token (token_verificacion) solo prueba que el secreto es válido; no dice para qué. Sin el alcance, un enlace reenviado o filtrado abriría la puerta de cualquier grupo, y una segunda emisión no podría revocar la anterior de forma explícita."
    },
-   "notaDeSistema": "Una fila por token (token_id único). clave_emision hace idempotente la emisión y huella_solicitud detecta la misma clave reutilizada con otro pedido. clave_consumo y consumidor_id registran quién la usó. El límite diario de emisiones y la reemisión (invalida_anteriores) los decide la política vigente (EmitirTokenDeInvitacion). El secreto nunca se guarda (regla 90.2.9). *Fuente: CU-69; servicios/identidad/.../EmitirTokenDeInvitacion.java.*",
+   "notaDeSistema": "Una fila por token (token_id único). clave_emision hace idempotente la emisión y huella_solicitud detecta la misma clave reutilizada con otro pedido. clave_consumo y consumidor_id registran quién la usó. El límite diario de emisiones y la reemisión (invalida_anteriores) los decide la política vigente (EmitirTokenDeInvitacion). El secreto nunca se guarda (regla 90.2.9). *Fuente: CU-69; servicios/identidad/.../EmitirTokenDeInvitacion.java.* ---",
    "reglas": [],
    "columnas": [
     {
@@ -26741,6 +26978,22 @@
      "sensibilidad": "NINGUNA"
     },
     {
+     "nombre": "nivel_riesgo",
+     "tipo": "VARCHAR(10)",
+     "nulable": false,
+     "pk": false,
+     "sistema": "VARCHAR(10), obligatoria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "exige_motivo",
+     "tipo": "BOOLEAN",
+     "nulable": false,
+     "pk": false,
+     "sistema": "BOOLEAN, obligatoria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
      "nombre": "requiere_mfa",
      "tipo": "BOOLEAN",
      "nulable": false,
@@ -27398,6 +27651,22 @@
      "nulable": false,
      "pk": false,
      "sistema": "VARCHAR(15), obligatoria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "departamento",
+     "tipo": "VARCHAR(60)",
+     "nulable": true,
+     "pk": false,
+     "sistema": "VARCHAR(60), opcional.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "descripcion",
+     "tipo": "VARCHAR(255)",
+     "nulable": true,
+     "pk": false,
+     "sistema": "VARCHAR(255), opcional.",
      "sensibilidad": "NINGUNA"
     },
     {
@@ -28295,6 +28564,11 @@
       "esquema": "identidad"
      },
      {
+      "tabla": "usuario_interno",
+      "columna": "usuario_id",
+      "esquema": "identidad"
+     },
+     {
       "tabla": "asignacion_rol",
       "columna": "usuario_id",
       "esquema": "identidad"
@@ -28347,6 +28621,11 @@
      {
       "tabla": "solicitud_ingreso",
       "columna": "revisada_por",
+      "esquema": "grupos"
+     },
+     {
+      "tabla": "enlace_grupo",
+      "columna": "emisor_id",
       "esquema": "grupos"
      },
      {
@@ -28471,6 +28750,11 @@
      },
      {
       "tabla": "bandeja_entrada",
+      "columna": "usuario_id",
+      "esquema": "notificaciones"
+     },
+     {
+      "tabla": "aviso_interno",
       "columna": "usuario_id",
       "esquema": "notificaciones"
      },
@@ -29291,7 +29575,94 @@
      }
     ]
    },
-   "sistema": "Vive en el esquema identidad; la escribe y la lee solo el servicio identidad (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. La referencian aportes.comprobante_manual, aportes.conciliacion, aportes.excepcion_conciliacion, aportes.extracto_bancario, aportes.pago, aportes.plan_regularizacion, aportes.reembolso, asignacion_rol, auditoria.alerta_cumplimiento, auditoria.coincidencia_lista, auditoria.ejecucion_reporte, auditoria.proceso_anonimizacion, auditoria.reporte_operacion_sospechosa, auditoria.solicitud_datos_personales, auditoria.ticket_soporte, bloqueo_cuenta, catalogo.licencia_regulatoria, catalogo.tarifario, comun.bitacora_evento, comun.registro_acceso_datos, consentimiento, credencial_acceso, cumplimiento.aceptacion_contrato, cumplimiento.acta_comite, cumplimiento.activo_informacion, cumplimiento.alerta_monitoreo_lft, cumplimiento.beneficiario_final, cumplimiento.calificacion_riesgo_cliente, cumplimiento.capacitacion_cumplimiento, cumplimiento.caso_investigacion_lft, cumplimiento.contrato_adhesion, cumplimiento.contrato_tercero, cumplimiento.control_interno, cumplimiento.debida_diligencia, cumplimiento.declaracion_origen_fondos, cumplimiento.declaracion_pep, cumplimiento.designacion_regulatoria, cumplimiento.desvio_perfil, cumplimiento.documento_publicado, cumplimiento.envio_regulatorio, cumplimiento.evaluacion_riesgo_producto, cumplimiento.evaluacion_tercero, cumplimiento.evento_riesgo_operativo, cumplimiento.expediente_cliente, cumplimiento.factor_riesgo_evaluado, cumplimiento.hallazgo_auditoria, cumplimiento.incidente_seguridad, cumplimiento.matriz_riesgo_lft, cumplimiento.observacion_regulatoria, cumplimiento.oficial_cumplimiento, cumplimiento.perfil_transaccional, cumplimiento.plan_accion_riesgo, cumplimiento.plan_continuidad, cumplimiento.politica_interna, cumplimiento.prueba_continuidad, cumplimiento.prueba_control, cumplimiento.punto_reclamo, cumplimiento.reclamo_cliente, cumplimiento.registro_operacion_relevante, cumplimiento.regla_monitoreo_lft, cumplimiento.reporte_regulatorio, cumplimiento.requerimiento_autoridad, cumplimiento.revision_periodica_kyc, direccion_usuario, dispositivo, documento_identidad, entregas.cuenta_bancaria_beneficiario, entregas.entrega_fondo, entregas.historial_estado_entrega, entregas.incidencia_entrega, entregas.validacion_pre_entrega, erp.asiento_plantilla, erp.cierre_periodo_contable, erp.ejercicio_fiscal, erp.estado_financiero_generado, erp.factura_proveedor, erp.orden_compra, erp.pago_a_proveedor, erp.presupuesto, factor_mfa, garantia.abono_recuperacion, garantia.accion_cobranza, garantia.acuerdo_quita, garantia.alerta_temprana, garantia.apelacion_sancion, garantia.aval_participante, garantia.candidato_reemplazo, garantia.capacidad_respaldo, garantia.castigo_deuda, garantia.cobertura_incumplimiento, garantia.cobertura_respaldo, garantia.descargo_participante, garantia.deuda_participante, garantia.evidencia_incumplimiento, garantia.gestion_cobranza, garantia.historial_estado_incumplimiento, garantia.historial_incumplimiento_usuario, garantia.lista_restriccion_interna, garantia.movimiento_fondo, garantia.movimiento_reserva, garantia.promesa_pago, garantia.registro_incumplimiento, garantia.reserva_respaldo, garantia.sancion, garantia.score_riesgo_incumplimiento, grupos.acuerdo, grupos.historial_estado_grupo, grupos.invitacion, grupos.participante, grupos.postulacion_emparejamiento, grupos.reglamento_grupo, grupos.solicitud_ingreso, grupos.sorteo_turnos, historial_credencial, intento_autenticacion, notificaciones.bandeja_entrada, notificaciones.canal_vinculado, notificaciones.notificacion, nucleo_financiero.asiento_contable, nucleo_financiero.bloqueo_saldo, nucleo_financiero.certificado_saldo, nucleo_financiero.cierre_diario, nucleo_financiero.conciliacion_custodia, nucleo_financiero.cuenta_billetera, nucleo_financiero.descuadre_custodia, nucleo_financiero.evaluacion_antifraude, nucleo_financiero.evidencia_mfa_consumida, nucleo_financiero.instrumento_fondeo, nucleo_financiero.orden_retiro, nucleo_financiero.politica_billetera, nucleo_financiero.regla_antifraude, nucleo_financiero.respuesta_idempotente, nucleo_financiero.retencion_saldo, nucleo_financiero.reverso_transaccion, nucleo_financiero.solicitud_cierre_billetera, nucleo_financiero.transaccion_billetera, organizador.apelacion_sancion_org, organizador.organizador, organizador.sancion_organizador, organizador.solicitud_organizador, perfil_financiero, preferencia_notificacion, publicidad.campana_publicitaria, publicidad.clic_anuncio, publicidad.impresion_anuncio, publicidad.revision_creativa, publicidad.segmento_audiencia, publicidad.socio_comercial, referencia_personal, reputacion_usuario, restriccion_usuario, sesion, solicitud_baja, tarifas.asignacion_tarifario, tarifas.cambio_tarifario, tarifas.campana_promocional, tarifas.cuenta_por_cobrar_comision, tarifas.datos_facturacion, tarifas.devengo_comision, tarifas.devolucion_comision, tarifas.evento_significativo_sin, tarifas.exencion_comision, tarifas.factura_electronica, tarifas.liquidacion_ingresos, tarifas.simulacion_tarifa, token_verificacion, transparencia.certificado_reputacion, transparencia.evento_reputacion, transparencia.insignia_otorgada, transparencia.puntaje_reputacion, transparencia.resena_participante, transparencia.snapshot_reputacion, verificacion_kyc."
+   "sistema": "Vive en el esquema identidad; la escribe y la lee solo el servicio identidad (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. La referencian aportes.comprobante_manual, aportes.conciliacion, aportes.excepcion_conciliacion, aportes.extracto_bancario, aportes.pago, aportes.plan_regularizacion, aportes.reembolso, asignacion_rol, auditoria.alerta_cumplimiento, auditoria.coincidencia_lista, auditoria.ejecucion_reporte, auditoria.proceso_anonimizacion, auditoria.reporte_operacion_sospechosa, auditoria.solicitud_datos_personales, auditoria.ticket_soporte, bloqueo_cuenta, catalogo.licencia_regulatoria, catalogo.tarifario, comun.bitacora_evento, comun.registro_acceso_datos, consentimiento, credencial_acceso, cumplimiento.aceptacion_contrato, cumplimiento.acta_comite, cumplimiento.activo_informacion, cumplimiento.alerta_monitoreo_lft, cumplimiento.beneficiario_final, cumplimiento.calificacion_riesgo_cliente, cumplimiento.capacitacion_cumplimiento, cumplimiento.caso_investigacion_lft, cumplimiento.contrato_adhesion, cumplimiento.contrato_tercero, cumplimiento.control_interno, cumplimiento.debida_diligencia, cumplimiento.declaracion_origen_fondos, cumplimiento.declaracion_pep, cumplimiento.designacion_regulatoria, cumplimiento.desvio_perfil, cumplimiento.documento_publicado, cumplimiento.envio_regulatorio, cumplimiento.evaluacion_riesgo_producto, cumplimiento.evaluacion_tercero, cumplimiento.evento_riesgo_operativo, cumplimiento.expediente_cliente, cumplimiento.factor_riesgo_evaluado, cumplimiento.hallazgo_auditoria, cumplimiento.incidente_seguridad, cumplimiento.matriz_riesgo_lft, cumplimiento.observacion_regulatoria, cumplimiento.oficial_cumplimiento, cumplimiento.perfil_transaccional, cumplimiento.plan_accion_riesgo, cumplimiento.plan_continuidad, cumplimiento.politica_interna, cumplimiento.prueba_continuidad, cumplimiento.prueba_control, cumplimiento.punto_reclamo, cumplimiento.reclamo_cliente, cumplimiento.registro_operacion_relevante, cumplimiento.regla_monitoreo_lft, cumplimiento.reporte_regulatorio, cumplimiento.requerimiento_autoridad, cumplimiento.revision_periodica_kyc, direccion_usuario, dispositivo, documento_identidad, entregas.cuenta_bancaria_beneficiario, entregas.entrega_fondo, entregas.historial_estado_entrega, entregas.incidencia_entrega, entregas.validacion_pre_entrega, erp.asiento_plantilla, erp.cierre_periodo_contable, erp.ejercicio_fiscal, erp.estado_financiero_generado, erp.factura_proveedor, erp.orden_compra, erp.pago_a_proveedor, erp.presupuesto, factor_mfa, garantia.abono_recuperacion, garantia.accion_cobranza, garantia.acuerdo_quita, garantia.alerta_temprana, garantia.apelacion_sancion, garantia.aval_participante, garantia.candidato_reemplazo, garantia.capacidad_respaldo, garantia.castigo_deuda, garantia.cobertura_incumplimiento, garantia.cobertura_respaldo, garantia.descargo_participante, garantia.deuda_participante, garantia.evidencia_incumplimiento, garantia.gestion_cobranza, garantia.historial_estado_incumplimiento, garantia.historial_incumplimiento_usuario, garantia.lista_restriccion_interna, garantia.movimiento_fondo, garantia.movimiento_reserva, garantia.promesa_pago, garantia.registro_incumplimiento, garantia.reserva_respaldo, garantia.sancion, garantia.score_riesgo_incumplimiento, grupos.acuerdo, grupos.enlace_grupo, grupos.historial_estado_grupo, grupos.invitacion, grupos.participante, grupos.postulacion_emparejamiento, grupos.reglamento_grupo, grupos.solicitud_ingreso, grupos.sorteo_turnos, historial_credencial, intento_autenticacion, notificaciones.aviso_interno, notificaciones.bandeja_entrada, notificaciones.canal_vinculado, notificaciones.notificacion, nucleo_financiero.asiento_contable, nucleo_financiero.bloqueo_saldo, nucleo_financiero.certificado_saldo, nucleo_financiero.cierre_diario, nucleo_financiero.conciliacion_custodia, nucleo_financiero.cuenta_billetera, nucleo_financiero.descuadre_custodia, nucleo_financiero.evaluacion_antifraude, nucleo_financiero.evidencia_mfa_consumida, nucleo_financiero.instrumento_fondeo, nucleo_financiero.orden_retiro, nucleo_financiero.politica_billetera, nucleo_financiero.regla_antifraude, nucleo_financiero.respuesta_idempotente, nucleo_financiero.retencion_saldo, nucleo_financiero.reverso_transaccion, nucleo_financiero.solicitud_cierre_billetera, nucleo_financiero.transaccion_billetera, organizador.apelacion_sancion_org, organizador.organizador, organizador.sancion_organizador, organizador.solicitud_organizador, perfil_financiero, preferencia_notificacion, publicidad.campana_publicitaria, publicidad.clic_anuncio, publicidad.impresion_anuncio, publicidad.revision_creativa, publicidad.segmento_audiencia, publicidad.socio_comercial, referencia_personal, reputacion_usuario, restriccion_usuario, sesion, solicitud_baja, tarifas.asignacion_tarifario, tarifas.cambio_tarifario, tarifas.campana_promocional, tarifas.cuenta_por_cobrar_comision, tarifas.datos_facturacion, tarifas.devengo_comision, tarifas.devolucion_comision, tarifas.evento_significativo_sin, tarifas.exencion_comision, tarifas.factura_electronica, tarifas.liquidacion_ingresos, tarifas.simulacion_tarifa, token_verificacion, transparencia.certificado_reputacion, transparencia.evento_reputacion, transparencia.insignia_otorgada, transparencia.puntaje_reputacion, transparencia.resena_participante, transparencia.snapshot_reputacion, usuario_interno, verificacion_kyc."
+  },
+  {
+   "tabla": "usuario_interno",
+   "esquema": "identidad",
+   "modulo": "01",
+   "nombreModulo": "Identidad, Usuarios y Seguridad",
+   "servicio": "identidad",
+   "appendOnly": false,
+   "negocio": {
+    "queEs": "El perfil laboral y operativo del usuario que desempeña funciones internas en la plataforma.",
+    "negocio": "Separa al cliente o participante final del personal operativo de AportaYa. Asocia al empleado con su departamento corporativo (Sistemas, Operaciones, Riesgos, Cumplimiento, Finanzas, Comercial, Soporte, Auditoría), su cargo formal, si debe cambiar la contraseña provisional enviada por correo al ingresar por primera vez, y el bloqueo temporal administrativo con su motivo justificado.",
+    "porQue": "La segregación de responsabilidades y las directrices de control interno de ASFI e ISO/IEC 27001 exigen que los atributos laborales y las restricciones administrativas de los operadores no contaminen la entidad general de usuario ni se gestionen de manera informal."
+   },
+   "notaDeSistema": "usuario_id es clave foránea única hacia usuario(id), garantizando una relación 1 a 0..1. Lleva bloqueado_hasta y motivo_bloqueo auditables, y debe_cambiar_contrasena para exigir la rotación de credenciales temporales. *Fuente: CU-08; docs/trabajo/2026-10-18-backoffice-como-atlas/PLAN.md (H6).*",
+   "reglas": [],
+   "columnas": [
+    {
+     "nombre": "id",
+     "tipo": "UUID",
+     "nulable": false,
+     "pk": true,
+     "negocio": "Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.",
+     "origenNegocio": "convencion",
+     "sistema": "UUID, obligatoria, clave primaria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "usuario_id",
+     "tipo": "UUID",
+     "nulable": false,
+     "pk": false,
+     "referencia": "usuario",
+     "sistema": "UUID, obligatoria, referencia a usuario.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "departamento",
+     "tipo": "VARCHAR(60)",
+     "nulable": false,
+     "pk": false,
+     "sistema": "VARCHAR(60), obligatoria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "cargo",
+     "tipo": "VARCHAR(80)",
+     "nulable": false,
+     "pk": false,
+     "sistema": "VARCHAR(80), obligatoria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "debe_cambiar_contrasena",
+     "tipo": "BOOLEAN",
+     "nulable": false,
+     "pk": false,
+     "sistema": "BOOLEAN, obligatoria.",
+     "sensibilidad": "SECRETO"
+    },
+    {
+     "nombre": "bloqueado_hasta",
+     "tipo": "TIMESTAMPTZ",
+     "nulable": true,
+     "pk": false,
+     "sistema": "TIMESTAMPTZ, opcional.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "motivo_bloqueo",
+     "tipo": "VARCHAR(160)",
+     "nulable": true,
+     "pk": false,
+     "sistema": "VARCHAR(160), opcional.",
+     "sensibilidad": "NINGUNA"
+    }
+   ],
+   "relaciones": {
+    "salientes": [
+     {
+      "columna": "usuario_id",
+      "tabla": "usuario",
+      "esquema": "identidad"
+     }
+    ],
+    "entrantes": []
+   },
+   "sistema": "Vive en el esquema identidad; la escribe y la lee solo el servicio identidad (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de usuario."
   },
   {
    "tabla": "verificacion_kyc",
@@ -31593,6 +31964,108 @@
     ]
    },
    "sistema": "Vive en el esquema inversiones; la escribe y la lee solo el servicio inversiones (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Es append-only: UPDATE y DELETE revocados al rol del servicio; se corrige con una fila nueva. Depende de producto_inversion. La referencian consentimiento_inversion, orden_inversion, posicion_inversion. Reglas nombradas: ck_version_condiciones_sintetico, ck_version_condiciones_hora_corte."
+  },
+  {
+   "tabla": "aviso_interno",
+   "esquema": "notificaciones",
+   "modulo": "05",
+   "nombreModulo": "Notificaciones y Comunicaciones",
+   "servicio": "notificaciones",
+   "appendOnly": false,
+   "negocio": {
+    "queEs": "El registro persistente de avisos dirigidos a operadores internos o a roles funcionales en el backoffice.",
+    "negocio": "Alerta a operadores sobre hechos operativos críticos: una nueva alerta de monitoreo, un caso asignado, una ficha técnica pendiente de revisión o un fallo de despliegue. Puede dirigirse a un operador específico o a todo un rol (ej. ADMIN_PLATAFORMA, OFICIAL_CUMPLIMIENTO).",
+    "porQue": "Sin este registro, los operadores no tendrían una campana de notificaciones real que les informe de eventos urgentes con enlace directo a la pantalla de resolución. ---"
+   },
+   "reglas": [],
+   "columnas": [
+    {
+     "nombre": "id",
+     "tipo": "UUID",
+     "nulable": false,
+     "pk": true,
+     "negocio": "Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.",
+     "origenNegocio": "convencion",
+     "sistema": "UUID, obligatoria, clave primaria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "usuario_id",
+     "tipo": "UUID",
+     "nulable": true,
+     "pk": false,
+     "referencia": "usuario",
+     "sistema": "UUID, opcional, referencia a usuario.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "rol_destinatario",
+     "tipo": "VARCHAR(50)",
+     "nulable": true,
+     "pk": false,
+     "sistema": "VARCHAR(50), opcional.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "titulo",
+     "tipo": "VARCHAR(150)",
+     "nulable": false,
+     "pk": false,
+     "sistema": "VARCHAR(150), obligatoria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "mensaje",
+     "tipo": "TEXT",
+     "nulable": false,
+     "pk": false,
+     "sistema": "TEXT, obligatoria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "tipo",
+     "tipo": "VARCHAR(20)",
+     "nulable": false,
+     "pk": false,
+     "sistema": "VARCHAR(20), obligatoria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "enlace",
+     "tipo": "VARCHAR(300)",
+     "nulable": true,
+     "pk": false,
+     "sistema": "VARCHAR(300), opcional.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "leido_en",
+     "tipo": "TIMESTAMPTZ",
+     "nulable": true,
+     "pk": false,
+     "sistema": "TIMESTAMPTZ, opcional.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "creado_en",
+     "tipo": "TIMESTAMPTZ",
+     "nulable": false,
+     "pk": false,
+     "sistema": "TIMESTAMPTZ, obligatoria.",
+     "sensibilidad": "NINGUNA"
+    }
+   ],
+   "relaciones": {
+    "salientes": [
+     {
+      "columna": "usuario_id",
+      "tabla": "usuario",
+      "esquema": "identidad"
+     }
+    ],
+    "entrantes": []
+   },
+   "sistema": "Vive en el esquema notificaciones; la escribe y la lee solo el servicio notificaciones (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de identidad.usuario."
   },
   {
    "tabla": "bandeja_entrada",

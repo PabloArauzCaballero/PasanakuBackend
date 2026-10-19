@@ -52,6 +52,9 @@ CREATE INDEX IF NOT EXISTS ix_solicitud_ingreso_grupo_id
 CREATE INDEX IF NOT EXISTS ix_solicitud_ingreso_usuario_id
   ON grupos.solicitud_ingreso (usuario_id);
 
+CREATE INDEX IF NOT EXISTS ix_solicitud_ingreso_enlace_grupo_id
+  ON grupos.solicitud_ingreso (enlace_grupo_id);
+
 CREATE INDEX IF NOT EXISTS ix_decision_ingreso_solicitud_id
   ON grupos.decision_ingreso (solicitud_id);
 
@@ -66,6 +69,12 @@ CREATE INDEX IF NOT EXISTS ix_sustitucion_administrador_grupo_id
 
 CREATE UNIQUE INDEX IF NOT EXISTS uq_sustitucion_administrador_clave_idempotencia
   ON grupos.sustitucion_administrador (clave_idempotencia);
+
+CREATE INDEX IF NOT EXISTS ix_enlace_grupo_grupo_id
+  ON grupos.enlace_grupo (grupo_id);
+
+CREATE UNIQUE INDEX IF NOT EXISTS uq_enlace_grupo_token_hash
+  ON grupos.enlace_grupo (token_hash);
 
 CREATE INDEX IF NOT EXISTS ix_invitacion_grupo_id
   ON grupos.invitacion (grupo_id);

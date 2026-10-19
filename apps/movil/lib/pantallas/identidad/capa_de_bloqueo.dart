@@ -10,12 +10,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../dominio/puertos/biometria.dart';
 import '../../dominio/vigilante_de_sesion.dart';
 import '../../proveedores/biometria.dart';
 import '../../proveedores/bloqueo.dart';
 
 part 'capa_de_bloqueo_vista.dart';
 part 'capa_de_bloqueo_animacion.dart';
+part 'capa_de_bloqueo_biometria.dart';
 
 /// Cubre el contenido completo mientras la sesión requiere confirmación local.
 /// El cierre y la navegación de «Ingresar de nuevo» los decide quien integra
@@ -56,9 +58,22 @@ class _CapaDeBloqueoState extends ConsumerState<CapaDeBloqueo>
   bool? _bloqueadaAnteriormente;
   bool _pidioBiometriaEnEsteEpisodio = false;
   bool _biometriaEnCurso = false;
+
+  /// Cada pedido al diálogo nativo lleva su número: un pedido nuevo (el toque del
+  /// botón) reemplaza al que hubiera quedado colgado, y solo el último libera la marca.
+  int _intentoBiometrico = 0;
   bool _reintentoBiometricoPendiente = false;
   int _episodiosBiometricosVistos = 0;
   int _episodio = 0;
+
+  /// Lo que contestó el sistema si no pudo abrir el diálogo; se muestra en el candado.
+  String? _falloBiometrico;
+
+  void _mostrarFallo(String? fallo) {
+    if (mounted && fallo != _falloBiometrico) {
+      setState(() => _falloBiometrico = fallo);
+    }
+  }
 
   void _alCambiarEstadoDeAnimacion(AnimationStatus estado) {
     if (estado != AnimationStatus.dismissed || !_conservarCapa) return;
@@ -106,52 +121,7 @@ class _CapaDeBloqueoState extends ConsumerState<CapaDeBloqueo>
     // Se marca antes del primer await: un rebuild o una cancelación no vuelve a
     // abrir el diálogo nativo durante el mismo episodio de bloqueo.
     _pidioBiometriaEnEsteEpisodio = true;
-    _iniciarBiometria(_episodio);
-  }
-
-  void _iniciarBiometria(int episodio) {
-    if (_biometriaEnCurso) {
-      _reintentoBiometricoPendiente = true;
-      return;
-    }
-    _biometriaEnCurso = true;
-    unawaited(
-      _intentarDesbloqueoBiometrico(episodio).whenComplete(() {
-        _biometriaEnCurso = false;
-        if (!_reintentoBiometricoPendiente || !mounted) return;
-        _reintentoBiometricoPendiente = false;
-        _pidioBiometriaEnEsteEpisodio = false;
-        _observarBloqueo(ref.read(bloqueoProvider));
-      }),
-    );
-  }
-
-  Future<void> _intentarDesbloqueoBiometrico(int episodio) async {
-    try {
-      final disponible = await ref.read(biometriaDisponibleProvider.future);
-      if (!disponible || !_sigueBloqueadoEn(episodio)) return;
-      final confirmado = await ref
-          .read(biometriaProvider)
-          .confirmar('Desbloqueá AportaYa');
-      if (confirmado && _sigueBloqueadoEn(episodio)) {
-        // Confirma identidad local para quitar el candado; no autentica ni crea
-        // una sesión ante el servidor.
-        ref.read(bloqueoProvider).desbloquear();
-      }
-    } on Object {
-      // Si el sistema cancela o falla, el candado queda puesto y no reintenta
-      // hasta un nuevo episodio (otra salida/entrada o arranque).
-    }
-  }
-
-  bool _sigueBloqueadoEn(int episodio) =>
-      mounted && episodio == _episodio && ref.read(bloqueoProvider).bloqueada;
-
-  void _solicitarBiometriaManual() {
-    if (_biometriaEnCurso) return;
-    _episodio++;
-    _pidioBiometriaEnEsteEpisodio = true;
-    _iniciarBiometria(_episodio);
+    _iniciarBiometriaCuandoSeVea(_episodio);
   }
 
   @override
@@ -176,6 +146,7 @@ class _CapaDeBloqueoState extends ConsumerState<CapaDeBloqueo>
         opacidad: _opacidad,
         escala: _escala,
         biometriaDisponible: biometriaDisponible,
+        falloBiometrico: _falloBiometrico,
         onDesbloquear: widget.onDesbloquear ?? _solicitarBiometriaManual,
         onIngresarDeNuevo: widget.onIngresarDeNuevo,
       ),

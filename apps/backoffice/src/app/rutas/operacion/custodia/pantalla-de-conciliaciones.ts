@@ -1,9 +1,10 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core'
 import { Alerta } from '@aportaya/ui/alerta/alerta'
-import { BandaDeProposito } from '@aportaya/ui/banda-de-proposito/banda-de-proposito'
+import { CabeceraDePagina } from '@aportaya/ui/cabecera-de-pagina/cabecera-de-pagina'
 import { ChipEstado } from '@aportaya/ui/chip-estado/chip-estado'
 import { formatearDia } from '@aportaya/ui/fecha/fecha'
 import { Monto } from '@aportaya/ui/monto/monto'
+import { ExplicadorDeVista } from '../../../nucleo/explicador-de-vista'
 import { Sesion } from '../../../nucleo/sesion'
 import { TablaDeDatosVirtualizada } from '../../../nucleo/tabla/tabla-de-datos-virtualizada'
 import type { ColumnaVirtual } from '../../../nucleo/tabla/tipos'
@@ -17,18 +18,15 @@ const CLAVES = ['fecha', 'saldoEmitido', 'saldoCustodia', 'saldoEnTransito', 'di
 const COLUMNAS: ColumnaVirtual<ConciliacionEnLista>[] = CLAVES.map((clave) => ({ clave, titulo: T.columnas[clave], numerica: clave.startsWith('saldo') || clave === 'diferencia' }))
 
 /**
- * CU-50 · historial de conciliaciones de custodia (AUDITORIA_LEER) con las cifras enfrentadas por corte y, para
- * Tesorería (rol TESORERIA en el token, el mismo `@Permiso` del servidor), el formulario para registrar una nueva.
- * La diferencia se destaca con texto («Descuadre») además del tono: nunca solo por color (regla 95.4.6).
+ * CU-50 · historial de conciliaciones de custodia (AUDITORIA_LEER).
  */
 @Component({
   selector: 'ap-pantalla-de-conciliaciones',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [Alerta, BandaDeProposito, ChipEstado, Monto, TablaDeDatosVirtualizada, EstadoDeBandejaVista, FormularioDeConciliacion],
+  imports: [Alerta, CabeceraDePagina, ChipEstado, Monto, TablaDeDatosVirtualizada, EstadoDeBandejaVista, FormularioDeConciliacion],
   template: `
-    <ap-banda-de-proposito [texto]="t.proposito" />
     <section class="pantalla">
-      <h1>{{ t.titulo }}</h1>
+      <ap-cabecera-de-pagina [titulo]="t.titulo" [descripcion]="t.proposito" icono="candado" />
       @if (puedeConciliar()) {
         <ap-formulario-de-conciliacion (registrada)="b.reintentar()" />
       } @else {
@@ -57,11 +55,13 @@ const COLUMNAS: ColumnaVirtual<ConciliacionEnLista>[] = CLAVES.map((clave) => ({
   `,
   styles: `
     .pantalla { padding: var(--s5); max-width: 80rem; display: grid; gap: var(--s5); }
-    h1 { margin: 0; }
     .descuadre { color: var(--err-texto); }
   `,
 })
 export class PantallaDeConciliaciones {
+  constructor() {
+    inject(ExplicadorDeVista).fijar(this.t.proposito)
+  }
   private readonly sesion = inject(Sesion)
   protected readonly t = T
   protected readonly COLUMNAS = COLUMNAS

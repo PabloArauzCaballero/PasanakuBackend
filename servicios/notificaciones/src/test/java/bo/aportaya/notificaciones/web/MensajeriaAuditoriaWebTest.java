@@ -58,6 +58,9 @@ class MensajeriaAuditoriaWebTest {
     @MockitoBean
     private ConsultarMensajeria mensajeria;
 
+    @MockitoBean
+    private bo.aportaya.notificaciones.aplicacion.GestionarAvisosInternos gestionarAvisosInternos;
+
     private static ConsultarMensajeria.Pagina<ConsultarMensajeria.Envio> unFallido(boolean llena) {
         var e = new ConsultarMensajeria.Envio(
                 ENVIO,

@@ -1,23 +1,20 @@
-import { ChangeDetectionStrategy, Component, input } from '@angular/core'
-import { BandaDeProposito } from '@aportaya/ui/banda-de-proposito/banda-de-proposito'
+import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core'
+import { CabeceraDePagina } from '@aportaya/ui/cabecera-de-pagina/cabecera-de-pagina'
 import { PanelDeFactores } from '@aportaya/ui/panel-de-factores/panel-de-factores'
+import { ExplicadorDeVista } from '../../../nucleo/explicador-de-vista'
 import { factoresDeEstimaciones, factoresDeHechos, type AlertaDeRiesgo } from '../dominio/cu97-alertas'
 import { textosCumplimiento } from '../textos'
 
 /**
- * CU-97 · Anticipar el riesgo con alertas tempranas. Una alerta es una razón para
- * ACOMPAÑAR, nunca una condena: la pantalla separa, en dos `PanelDeFactores`
- * distintos, los hechos ya registrados de las estimaciones del modelo, y nunca los
- * mezcla en un solo veredicto de "probablemente incumplirá".
+ * CU-97 · Anticipar el riesgo con alertas tempranas.
  */
 @Component({
   selector: 'ap-pantalla-de-alertas',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [BandaDeProposito, PanelDeFactores],
+  imports: [CabeceraDePagina, PanelDeFactores],
   template: `
-    <ap-banda-de-proposito [texto]="t.proposito" />
     <section class="pantalla">
-      <h1>{{ t.titulo }}</h1>
+      <ap-cabecera-de-pagina [titulo]="t.titulo" [descripcion]="t.proposito" icono="alerta" />
       <p class="aviso">{{ t.aviso }}</p>
 
       <section aria-labelledby="hechos">
@@ -38,6 +35,9 @@ import { textosCumplimiento } from '../textos'
   `,
 })
 export class PantallaDeAlertas {
+  constructor() {
+    inject(ExplicadorDeVista).fijar(this.t.proposito)
+  }
   protected readonly t = textosCumplimiento.alertas
   protected readonly factoresDeHechos = factoresDeHechos
   protected readonly factoresDeEstimaciones = factoresDeEstimaciones

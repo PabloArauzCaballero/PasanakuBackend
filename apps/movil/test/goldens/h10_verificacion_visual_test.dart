@@ -42,7 +42,8 @@ const _casos = [
   (
     clave: 'pendiente',
     estado: EstadoDeVerificacionEstadoEnum.PENDIENTE,
-    titulo: TextosDeVerificacion.pendienteTitulo,
+    // 2026-10-19: PENDIENTE se dice igual que EN_REVISION (sin «No cierres la app»).
+    titulo: TextosDeVerificacion.enRevisionTitulo,
     accion: TextosDeVerificacion.seguirConElRegistro,
     sesionActiva: false,
   ),
@@ -57,7 +58,9 @@ const _casos = [
     clave: 'sesion-en-revision',
     estado: EstadoDeVerificacionEstadoEnum.EN_REVISION,
     titulo: TextosDeVerificacion.cuentaEnVerificacionTitulo,
-    accion: TextosDeVerificacion.salirDeCuenta,
+    // Con sesión y la identidad en revisión se entra a la app (2026-10-17): ya no
+    // queda «Salir de esta cuenta» como única salida.
+    accion: TextosDeVerificacion.irALaApp,
     sesionActiva: true,
   ),
   (

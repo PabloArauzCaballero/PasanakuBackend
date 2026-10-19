@@ -1,0 +1,70 @@
+{
+  "servicio": "auditoria",
+  "operacion": "revisarColumna",
+  "metodo": "put",
+  "ruta": "/indicadores/catalogo-de-datos/{esquema}/{tabla}/columnas/{columna}/revision",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "decision": "APROBADA",
+        "confianza": "BAJA",
+        "motivo": "motivo",
+        "revisadoPor": "87d54ba2-97a0-4a20-8075-81821f7615c2",
+        "revisadoEn": "2026-01-15T10:30:00Z",
+        "version": 0
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "decision": "APROBADA",
+        "confianza": "BAJA",
+        "motivo": "motivo",
+        "revisadoPor": "87d54ba2-97a0-4a20-8075-81821f7615c2",
+        "revisadoEn": "2026-01-15T10:30:00Z",
+        "version": 0
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "decision": "APROBADA",
+        "confianza": "BAJA",
+        "motivo": "motivo",
+        "revisadoPor": "87d54ba2-97a0-4a20-8075-81821f7615c2",
+        "revisadoEn": "2026-01-15T10:30:00Z",
+        "version": 0
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "decision": "APROBADA",
+        "confianza": "BAJA",
+        "motivo": "motivo",
+        "revisadoPor": "87d54ba2-97a0-4a20-8075-81821f7615c2",
+        "revisadoEn": "2026-01-15T10:30:00Z",
+        "version": 0
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU131-01",
+        "mensaje": "Columna desconocida",
+        "detalle": {},
+        "trazaId": "traza-revisarColumna-rechazo"
+      }
+    }
+  }
+}

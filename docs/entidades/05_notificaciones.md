@@ -417,6 +417,16 @@ plataforma.
 
 ---
 
+### `AvisoInterno` / `aviso_interno`
+
+**Qué es.** El registro persistente de avisos dirigidos a operadores internos o a roles funcionales en el backoffice.
+
+**Para qué sirve (negocio).** Alerta a operadores sobre hechos operativos críticos: una nueva alerta de monitoreo, un caso asignado, una ficha técnica pendiente de revisión o un fallo de despliegue. Puede dirigirse a un operador específico o a todo un rol (ej. `ADMIN_PLATAFORMA`, `OFICIAL_CUMPLIMIENTO`).
+
+**Por qué debe existir.** Sin este registro, los operadores no tendrían una campana de notificaciones real que les informe de eventos urgentes con enlace directo a la pantalla de resolución.
+
+---
+
 ### `ServicioNotificaciones` — Servicio de dominio
 
 **Qué es.** El orquestador: emite, emite en lote, procesa webhooks de entrega,

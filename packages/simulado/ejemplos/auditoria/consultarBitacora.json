@@ -1,0 +1,86 @@
+{
+  "servicio": "auditoria",
+  "operacion": "consultarBitacora",
+  "metodo": "get",
+  "ruta": "/auditoria/bitacora",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "items": [
+          {
+            "id": "44a2520a-5541-4472-81e3-067899e3a67c",
+            "secuencia": 1,
+            "entidad": "entidad",
+            "entidadId": "e523b5d9-a209-4137-872a-84ee872ce710",
+            "accion": "accion",
+            "actorUsuarioId": "f0dd5bf9-bac8-400d-8a15-1bf4aba59c06",
+            "actorRol": "actorRol",
+            "origen": "origen",
+            "ipOrigen": "ipOrigen",
+            "agenteUsuario": "agenteUsuario",
+            "correlationId": "88a5cb10-04a8-486a-873f-23c868d4dd37",
+            "valorAnterior": {},
+            "valorNuevo": {},
+            "camposModificados": "camposModificados",
+            "motivo": "motivo",
+            "hashRegistro": "hashRegistro",
+            "hashAnterior": "hashAnterior",
+            "fechaHora": "2026-01-15T10:30:00Z"
+          }
+        ],
+        "proximoAntesDe": "2026-01-15T10:30:00Z",
+        "proximoAntesDeId": "5b22b31a-9449-4de4-8309-49102ef6c90f",
+        "totalAproximado": 1
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "items": [],
+        "proximoAntesDe": "2026-01-15T10:30:00Z",
+        "proximoAntesDeId": "5b22b31a-9449-4de4-8309-49102ef6c90f",
+        "totalAproximado": 0
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "items": [
+          {
+            "id": "44a2520a-5541-4472-81e3-067899e3a67c",
+            "secuencia": 1,
+            "entidad": "entidad",
+            "entidadId": "e523b5d9-a209-4137-872a-84ee872ce710",
+            "accion": "accion",
+            "actorUsuarioId": "f0dd5bf9-bac8-400d-8a15-1bf4aba59c06",
+            "actorRol": "actorRol",
+            "origen": "origen",
+            "ipOrigen": "ipOrigen",
+            "agenteUsuario": "agenteUsuario",
+            "correlationId": "88a5cb10-04a8-486a-873f-23c868d4dd37",
+            "valorAnterior": {},
+            "valorNuevo": {},
+            "camposModificados": "camposModificados",
+            "motivo": "motivo",
+            "hashRegistro": "hashRegistro",
+            "hashAnterior": "hashAnterior",
+            "fechaHora": "2026-01-15T10:30:00Z"
+          }
+        ],
+        "proximoAntesDe": "2026-01-15T10:30:00Z",
+        "proximoAntesDeId": "5b22b31a-9449-4de4-8309-49102ef6c90f",
+        "totalAproximado": 1
+      }
+    },
+    "rechazo": {
+      "estado": 401,
+      "cuerpo": {
+        "codigo": "AP-CU07-01",
+        "mensaje": "Identidad no verificada",
+        "detalle": {},
+        "trazaId": "traza-consultarBitacora-rechazo"
+      }
+    }
+  }
+}

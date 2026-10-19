@@ -1,15 +1,16 @@
-import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/core'
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core'
 import { FormsModule } from '@angular/forms'
 import { Boton } from '@aportaya/ui/boton/boton'
+import { CabeceraDePagina } from '@aportaya/ui/cabecera-de-pagina/cabecera-de-pagina'
 import { ChipEstado } from '@aportaya/ui/chip-estado/chip-estado'
 import { EstadoDePantalla } from '@aportaya/ui/estado-de-pantalla/estado-de-pantalla'
-import { BandaDeProposito } from '@aportaya/ui/banda-de-proposito/banda-de-proposito'
 import { ErrorDeEnvio } from '@aportaya/ui/error-de-envio/error-de-envio'
 import {
   CaraDelExpediente,
   ExpedienteEnRevisionEstadoEnum,
   type ExpedienteEnRevision,
 } from 'clientes/angular/identidad'
+import { ExplicadorDeVista } from '../../../nucleo/explicador-de-vista'
 import { crearResolver, expedientesEnEstado, coincideConBusqueda, esPendiente, POR_DECIDIR, recortar, tonoDelExpediente, vencimientoDe } from '../dominio/cu02-expedientes'
 import type { ErrorTraducido } from '../../../nucleo/errores'
 import { textosCumplimiento } from '../textos'
@@ -19,29 +20,14 @@ import { TiraDeFotos } from './tira-de-fotos'
 
 /**
  * CU-02 · el portal de riesgo: la cola de expedientes de identidad y la decisión.
- *
- * **La decisión es de una persona, y queda con su nombre.** Empieza siendo manual a
- * propósito: un motor que rechaza sin que nadie mire deja a alguien sin cuenta y sin
- * explicación, y el día que se equivoca nadie sabe por qué.
- *
- * Las fotos **no se cargan al listar**: se piden al abrir el expediente, y el enlace
- * vive diez minutos. Cada foto de una cédula es un dato personal sensible y cada
- * lectura queda registrada — una grilla que las precarga todas es una filtración
- * cómoda.
- *
- * Abierto un expediente, las cinco se piden juntas y se muestran **una al lado de la
- * otra**: la prueba de vida se decide cotejando la cara contra el documento, y
- * cotejar es mirar las dos a la vez. Antes cada foto pisaba a la anterior y había que
- * decidir de memoria.
  */
 @Component({
   selector: 'ap-pantalla-de-expedientes',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ErrorDeEnvio, EstadoDePantalla, BandaDeProposito, ChipEstado, Boton, FormsModule, TiraDeFotos, DecisionDeExpediente, VencimientoDelDocumento],
+  imports: [ErrorDeEnvio, EstadoDePantalla, CabeceraDePagina, ChipEstado, Boton, FormsModule, TiraDeFotos, DecisionDeExpediente, VencimientoDelDocumento],
   template: `
-    <ap-banda-de-proposito [texto]="t.proposito" />
     <section class="pantalla">
-      <h1>{{ t.titulo }}</h1>
+      <ap-cabecera-de-pagina [titulo]="t.titulo" [descripcion]="t.proposito" icono="verificado" />
 
       <div class="filtros" role="group" data-tutorial-id="cumplimiento-filtros" [attr.aria-label]="t.filtrar">
         @for (e of estados; track e) {
@@ -116,6 +102,9 @@ import { TiraDeFotos } from './tira-de-fotos'
   `,
 })
 export class PantallaDeExpedientes {
+  constructor() {
+    inject(ExplicadorDeVista).fijar(this.t.proposito)
+  }
   protected readonly t = textosCumplimiento.verificaciones
   /**
    * La cola de trabajo primero y por omisión; después los del contrato, no una lista

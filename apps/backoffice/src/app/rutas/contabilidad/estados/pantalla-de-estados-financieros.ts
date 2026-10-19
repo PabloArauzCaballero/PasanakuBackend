@@ -1,10 +1,11 @@
-import { ChangeDetectionStrategy, Component, computed, input, signal } from '@angular/core'
+import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core'
 import { Alerta } from '@aportaya/ui/alerta/alerta'
-import { BandaDeProposito } from '@aportaya/ui/banda-de-proposito/banda-de-proposito'
 import { Boton } from '@aportaya/ui/boton/boton'
+import { CabeceraDePagina } from '@aportaya/ui/cabecera-de-pagina/cabecera-de-pagina'
 import { Fecha } from '@aportaya/ui/fecha/fecha'
 import { GrupoRadio } from '@aportaya/ui/grupo-radio/grupo-radio'
 import { SeccionDeExpediente } from '@aportaya/ui/seccion-de-expediente/seccion-de-expediente'
+import { ExplicadorDeVista } from '../../../nucleo/explicador-de-vista'
 import {
   crearDescarga,
   crearGeneracion,
@@ -31,11 +32,10 @@ import type { ErrorTraducido } from '../../../nucleo/errores'
 @Component({
   selector: 'ap-pantalla-de-estados-financieros',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ErrorDeEnvio, Alerta, BandaDeProposito, Boton, Fecha, GrupoRadio, SeccionDeExpediente],
+  imports: [ErrorDeEnvio, Alerta, Boton, CabeceraDePagina, Fecha, GrupoRadio, SeccionDeExpediente],
   template: `
-    <ap-banda-de-proposito [texto]="t.proposito" />
     <section class="pantalla">
-      <h1>{{ t.titulo }}</h1>
+      <ap-cabecera-de-pagina [titulo]="t.titulo" [descripcion]="t.proposito" icono="libro" />
       <ap-alerta [tono]="provisorio() ? 'aviso' : 'info'">{{ provisorio() ? t.provisorio : t.definitivo }}</ap-alerta>
 
       <ap-grupo-radio nombre="tipo-de-estado" etiqueta="Tipo de estado financiero" [opciones]="tipos" [(elegido)]="tipo" />
@@ -63,14 +63,17 @@ import type { ErrorTraducido } from '../../../nucleo/errores'
   `,
   styles: `
     .pantalla { padding: var(--s5); max-width: 48rem; display: grid; gap: var(--s4); justify-items: start; }
-    h1, h2 { margin: 0; }
-    h2 { font-size: 1.05em; }
+    h2 { margin: 0; font-size: 1.05em; }
     .hash-ayuda { color: var(--text-2); margin: 0; }
     .listo { margin: 0; }
     .sinVerificar { display: block; color: var(--aviso-texto); }
   `,
 })
 export class PantallaDeEstadosFinancieros {
+  constructor() {
+    inject(ExplicadorDeVista).fijar(this.t.proposito)
+  }
+
   protected readonly t = textosContabilidad.estados
   readonly periodoId = input.required<string>()
   readonly periodoNombre = input('Período')

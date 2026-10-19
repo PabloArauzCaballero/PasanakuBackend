@@ -1,24 +1,21 @@
-import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core'
+import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core'
 import { Boton } from '@aportaya/ui/boton/boton'
-import { BandaDeProposito } from '@aportaya/ui/banda-de-proposito/banda-de-proposito'
+import { CabeceraDePagina } from '@aportaya/ui/cabecera-de-pagina/cabecera-de-pagina'
 import { ChipEstado } from '@aportaya/ui/chip-estado/chip-estado'
+import { ExplicadorDeVista } from '../../../nucleo/explicador-de-vista'
 import { motivoDeBloqueo, puedeCerrarActa, type ActaDeComite } from '../dominio/cu94-acta'
 import { textosCumplimiento } from '../textos'
 
 /**
- * CU-94 · Elevar una decisión al comité de gobierno. El acta registra voto nominal y
- * abstención con su motivo, y NO SE CIERRA SIN QUÓRUM: el botón de cerrar queda
- * deshabilitado — y muestra por qué — mientras falte quórum, falte un rol de la
- * composición requerida, o haya una abstención sin motivo escrito.
+ * CU-94 · Elevar una decisión al comité de gobierno.
  */
 @Component({
   selector: 'ap-pantalla-de-acta',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [BandaDeProposito, ChipEstado, Boton],
+  imports: [Boton, CabeceraDePagina, ChipEstado],
   template: `
-    <ap-banda-de-proposito [texto]="t.proposito" />
     <section class="pantalla">
-      <h1>{{ t.titulo }}</h1>
+      <ap-cabecera-de-pagina [titulo]="t.titulo" [descripcion]="t.proposito" icono="libro" />
 
       <p>{{ t.quorum }}: {{ acta().asistentes.length }} / {{ acta().quorumMinimo }}</p>
 
@@ -48,6 +45,9 @@ import { textosCumplimiento } from '../textos'
   `,
 })
 export class PantallaDeActa {
+  constructor() {
+    inject(ExplicadorDeVista).fijar(this.t.proposito)
+  }
   protected readonly t = textosCumplimiento.actas
   readonly acta = input.required<ActaDeComite>()
   protected readonly puedeCerrar = computed(() => puedeCerrarActa(this.acta()))

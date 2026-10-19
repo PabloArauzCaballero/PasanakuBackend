@@ -9,6 +9,7 @@ import 'package:go_router/go_router.dart';
 
 import 'dominio/estado_alta.dart';
 import 'dominio/estado_de_verificacion.dart';
+import 'activar_cuenta.dart';
 import 'textos_de_verificacion.dart';
 import '../../proveedores/sesion.dart';
 
@@ -78,14 +79,10 @@ class _Contenido extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final (titulo, detalle) = switch (expediente.estado) {
-      EstadoDeVerificacionEstadoEnum.PENDIENTE => (
-        sesionActiva
-            ? TextosDeVerificacion.cuentaEnVerificacionTitulo
-            : TextosDeVerificacion.pendienteTitulo,
-        sesionActiva
-            ? TextosDeVerificacion.cuentaEnVerificacionDetalle
-            : TextosDeVerificacion.pendienteDetalle,
-      ),
+      // PENDIENTE y EN_REVISION se dicen igual: la revisión es humana y puede tardar,
+      // así que nunca «No cierres la app». Recién creada la cuenta, decir eso dejaba
+      // a la persona mirando esta pantalla como si tuviera que esperar (2026-10-19).
+      EstadoDeVerificacionEstadoEnum.PENDIENTE ||
       EstadoDeVerificacionEstadoEnum.EN_REVISION => (
         sesionActiva
             ? TextosDeVerificacion.cuentaEnVerificacionTitulo
@@ -130,17 +127,29 @@ class _Contenido extends ConsumerWidget {
           style: Theme.of(context).textTheme.bodySmall,
         ),
         const Spacer(),
-        if (sesionActiva)
+        if (sesionActiva && aprobada)
           Boton(
-            texto: aprobada
-                ? TextosDeVerificacion.actualizarAcceso
-                : TextosDeVerificacion.salirDeCuenta,
+            texto: TextosDeVerificacion.activarCuenta,
+            variante: BotonVariante.primario,
+            expandido: true,
+            onPressed: () => activarCuentaAprobada(context, ref),
+          )
+        else if (sesionActiva && rechazada)
+          Boton(
+            texto: TextosDeVerificacion.salirDeCuenta,
             variante: BotonVariante.primario,
             expandido: true,
             onPressed: () async {
               await ref.read(sesionProvider).cerrar();
               if (context.mounted) context.go('/ingreso');
             },
+          )
+        else if (sesionActiva)
+          Boton(
+            texto: TextosDeVerificacion.irALaApp,
+            variante: BotonVariante.primario,
+            expandido: true,
+            onPressed: () => context.go('/billetera/inicio'),
           )
         else if (rechazada)
           Boton(

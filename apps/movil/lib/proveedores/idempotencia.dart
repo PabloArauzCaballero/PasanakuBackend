@@ -16,6 +16,12 @@ class Idempotencia extends Notifier<Map<String, String>> {
     return nueva;
   }
 
+  /// Vuelve a usar una clave que sobrevivió a un cierre de la app: el servidor
+  /// reconoce la misma operación y no la repite.
+  void restaurar(String formularioId, String clave) {
+    state = {...state, formularioId: clave};
+  }
+
   /// Solo cuando el efecto se confirmó: la próxima vez es otra operación.
   void cerrar(String formularioId) {
     state = {...state}..remove(formularioId);

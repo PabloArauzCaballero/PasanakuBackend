@@ -1,0 +1,4 @@
+flutter test test/identidad/consultar_estado_test.dart        -> 00:00 +6: All tests passed!
+flutter test test/identidad/resolver_cuenta_kyc_test.dart     -> 00:00 +4: All tests passed!
+flutter test test/identidad/identidad_requerida_test.dart     -> 00:01 +7: All tests passed!
+flutter test test/pasanaku/aviso_de_revision_en_grupos_test.dart test/pasanaku/pantalla_mis_grupos_test.dart -> 00:01 +8: All tests passed!

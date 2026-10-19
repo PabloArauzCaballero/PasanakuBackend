@@ -89,6 +89,7 @@ class CamposDeSesion extends StatelessWidget {
         etiqueta: TextosIdentidad.contrasena,
         ejemplo: TextosDelAlta.ejemploContrasena,
         controlador: contrasena,
+        error: errorContrasenaDeIngreso(contrasena.text),
         onChanged: (_) => onChanged(),
       ),
     ],

@@ -16,6 +16,18 @@ class ParametrosExtracto {
   final String cuentaId;
   final DateTime desde;
   final DateTime hasta;
+
+  // Es la clave del proveedor: sin igualdad por valor, cada redibujo pedía el
+  // extracto de nuevo y «deslizar para recargar» no alcanzaba al que se ve.
+  @override
+  bool operator ==(Object other) =>
+      other is ParametrosExtracto &&
+      other.cuentaId == cuentaId &&
+      other.desde == desde &&
+      other.hasta == hasta;
+
+  @override
+  int get hashCode => Object.hash(cuentaId, desde, hasta);
 }
 
 final extractoProvider = FutureProvider.autoDispose

@@ -1,0 +1,4 @@
+flutter analyze -> No issues found! (ran in 73.1s)
+python scripts/verificar_frontend.py -> TODO OK
+flutter test (suite completa, Windows) -> 01:34 +754 ~1 -311
+Las 311: todas en test/goldens, test/capturas o comparaciones de imagen (Pixel test failed). Fuera de esas carpetas, las mismas 7 de pixel que ya fallaban antes (componentes_de_fase, h4_ci_icono_visual, motivo_de_salida x2, paso_capturas x2, pautas_publicas).

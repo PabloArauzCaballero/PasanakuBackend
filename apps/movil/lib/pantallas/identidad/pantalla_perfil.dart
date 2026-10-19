@@ -15,9 +15,9 @@ import 'package:aportaya_diseno/moviles/anclas_de_tutorial.dart';
 import '../../proveedores/tutoriales.dart';
 import 'seccion_verificacion_kyc.dart';
 
-/// CU-07 — ejercer derechos sobre datos personales: ver y corregir el correo de
-/// contacto. La identidad verificada (nombre, documento) no se edita acá; para eso
-/// hace falta un trámite con nuevo KYC, fuera del alcance de esta pantalla.
+/// El perfil: estado de la verificación, el correo de la cuenta (solo lectura) y las
+/// acciones de la cuenta. Nada de la identidad se edita acá; para cambiar el correo o
+/// los datos verificados hace falta un trámite con soporte.
 class PantallaDePerfil extends ConsumerStatefulWidget {
   const PantallaDePerfil({super.key});
 
@@ -28,6 +28,16 @@ class PantallaDePerfil extends ConsumerStatefulWidget {
 class _PantallaDePerfilState extends ConsumerState<PantallaDePerfil> {
   final _correo = TextEditingController();
   bool _cerrandoSesion = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // El correo de la cuenta llena el campo una vez; lo que la persona ya escribió no se pisa.
+    ref.listenManual<AsyncValue<String?>>(correoDeLaCuentaProvider, (_, valor) {
+      final correo = valor.asData?.value;
+      if (correo != null && _correo.text.isEmpty) _correo.text = correo;
+    }, fireImmediately: true);
+  }
 
   @override
   void dispose() {
@@ -51,21 +61,16 @@ class _PantallaDePerfilState extends ConsumerState<PantallaDePerfil> {
               const SizedBox(height: Espacio.s4),
               const SeccionVerificacionKyc(),
               const SizedBox(height: Espacio.s3),
+              // El correo identifica la cuenta: se muestra, no se edita. Cambiarlo
+              // desde acá rompía la relación con la verificación hecha; lo único
+              // editable del perfil es la contraseña (2026-10-19).
               Campo(
                 etiqueta: 'Correo',
                 controlador: _correo,
-                tipoDeTeclado: TextInputType.emailAddress,
+                habilitado: false,
+                ayuda: TextosIdentidad.correoNoEditable,
               ),
               const SizedBox(height: Espacio.s5),
-              Boton(
-                texto: TextosIdentidad.guardar,
-                variante: BotonVariante.primario,
-                expandido: true,
-                onPressed: () => ref
-                    .read(perfilProvider.notifier)
-                    .actualizarCorreo(_correo.text),
-              ),
-              const SizedBox(height: Espacio.s3),
               FilaDeAccionDePerfil(
                 claveSemantica: const ValueKey('perfil-fila-contrasena'),
                 texto: TextosIdentidad.tituloContrasenaNueva,

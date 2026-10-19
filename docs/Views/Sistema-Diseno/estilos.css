@@ -8,6 +8,7 @@
   --ink:#10231A;--slate:#38473F;--muted:#6C7B72;--line:#DCE4DE;--cloud:#F3F6F2;--crema:#F6F4EC;--white:#FFF;
   /* ===== Semánticos ===== */
   --ok:#1F9D57;--okbg:#E7F5EC;--warn:#F0B429;--warnbg:#FEF4DA;--err:#D64545;--errbg:#FBECEC;--info:#2E7FB8;--infobg:#E7F1F8;
+  --pii:#6B3FA0;--piibg:#F1EAF8; /* datos personales: señal propia, ni aviso ni error (como el portal de Atlas) */
   /* ===== Escalas ===== */
   --s1:4px;--s2:8px;--s3:12px;--s4:16px;--s5:24px;--s6:32px;--s7:48px;
   --r-sm:8px;--r-md:12px;--r-lg:16px;--r-xl:24px;--r-pill:999px;
@@ -27,6 +28,8 @@
   --t-titulo-3:600 17px/1.25 var(--font-d);    --t-titulo-3-track:-0.01em;
   --t-boton:600 15px/1 var(--font-d);          --t-boton-track:0em;
   --t-etiqueta:600 12px/1.2 var(--font-d);     --t-etiqueta-track:0.06em;
+  --t-eyebrow:700 11px/1.2 var(--font-d);      --t-eyebrow-track:0.16em;
+  --t-cabecera-tabla:600 11px/1.2 var(--font-d);--t-cabecera-tabla-track:0.08em;
   --t-cuerpo:400 15px/1.5 var(--font-b);       --t-cuerpo-track:0em;
   --t-cuerpo-fuerte:600 15px/1.4 var(--font-b);--t-cuerpo-fuerte-track:0em;
   --t-cuerpo-chico:400 13px/1.45 var(--font-b);--t-cuerpo-chico-track:0em;
@@ -35,7 +38,7 @@
   /* ===== Tema claro ===== */
   --bg:#F4F6F5;--surface:var(--white);--surface-2:var(--cloud);
   --text:var(--ink);--text-2:var(--slate);--border:var(--line);
-  --brand:var(--g600);--brand-ink:var(--g800);--accent:var(--g700);--accent-ink:var(--white);
+  --brand:var(--g600);--brand-ink:var(--g800);--accent:var(--o700);--accent-ink:var(--white);
   --field:var(--white);--field-border:#C9D4CD;
   /* Relleno sólido contextual: en oscuro sube a g300 y usa tinta para conservar
      ≥4,5:1 de texto y ≥3:1 contra las superficies del tema. */
@@ -47,22 +50,23 @@
      logotipo, donde el requisito es 3:1 o no aplica (logotipos exentos). */
   --text-3:#647169;          /* 4.64:1 sobre crema */
   --brand-texto:var(--g600); /* 8.16:1 sobre blanco */
-  --accent-texto:var(--g600);    /* 4.62:1 sobre crema */
+  --accent-texto:#A65B14;    /* 4.62:1 sobre crema */
   --ok-texto:#197C45;        /* 4.66:1 sobre --okbg */
   --aviso-texto:#AA5915;     /* 4.62:1 sobre --warnbg */
   --err-texto:#C13A3A;       /* sobre --errbg */
   --info-texto:#256C9E;      /* sobre --infobg */
+  --pii-texto:#5A2F8C;       /* sobre --piibg */
 }
 @media (prefers-color-scheme:dark){:root{
   --bg:#0A1F15;--surface:#0F2B1D;--surface-2:#0C2418;--text:#EAF3ED;--text-2:#B7CCC0;--text-3:#89998E;--border:#1C3A2A;
-  --brand:var(--g300);--brand-ink:#EAF3ED;--accent:var(--g300);--accent-ink:var(--ink);
+  --brand:var(--g300);--brand-ink:#EAF3ED;--accent:var(--o400);--accent-ink:#3A1E02;
   --field:#0C2418;--field-border:#2A4A38;--verde-solido:var(--g300);--sobre-verde-solido:var(--ink);
-  --brand-texto:var(--g300);--accent-texto:var(--g300);--ok-texto:var(--g300);--aviso-texto:var(--warn);--err-texto:#F08C8C;--info-texto:#8FC2E4;
-  --cloud:#0C2418;--crema:#0A1F15;--okbg:rgba(31,157,87,.14);--warnbg:rgba(240,180,41,.14);--errbg:rgba(214,69,69,.14);--infobg:rgba(46,127,184,.14);
+  --brand-texto:var(--g300);--accent-texto:var(--o400);--ok-texto:var(--g300);--aviso-texto:var(--warn);--err-texto:#F08C8C;--info-texto:#8FC2E4;--pii:#B48CE6;--pii-texto:#CDB3F0;
+  --cloud:#0C2418;--crema:#0A1F15;--okbg:rgba(31,157,87,.14);--warnbg:rgba(240,180,41,.14);--errbg:rgba(214,69,69,.14);--infobg:rgba(46,127,184,.14);--piibg:rgba(107,63,160,.18);
   --sh-1:0 1px 2px rgba(0,0,0,.3);--sh-2:0 6px 20px rgba(0,0,0,.32);--sh-3:0 20px 46px rgba(0,0,0,.4);
 }}
-:root[data-theme="light"]{--bg:#F4F6F5;--surface:#fff;--surface-2:#F3F6F2;--text:#10231A;--text-2:#38473F;--border:#DCE4DE;--brand:#1C5A3A;--brand-ink:#123A26;--accent:var(--g700);--accent-ink:var(--white);--text-3:#647169;--brand-texto:#1C5A3A;--accent-texto:var(--g600);--ok-texto:#197C45;--aviso-texto:#AA5915;--err-texto:#C13A3A;--info-texto:#256C9E;--field:#fff;--field-border:#C9D4CD;--cloud:#F3F6F2;--crema:#F6F4EC;--okbg:#E7F5EC;--warnbg:#FEF4DA;--errbg:#FBECEC;--infobg:#E7F1F8}
-:root[data-theme="dark"]{--bg:#0A1F15;--surface:#0F2B1D;--surface-2:#0C2418;--text:#EAF3ED;--text-2:#B7CCC0;--text-3:#89998E;--border:#1C3A2A;--brand:#7CBE9C;--brand-ink:#EAF3ED;--accent:#7CBE9C;--accent-ink:var(--ink);--verde-solido:var(--g300);--sobre-verde-solido:var(--ink);--brand-texto:var(--g300);--accent-texto:var(--g300);--ok-texto:var(--g300);--aviso-texto:var(--warn);--err-texto:#F08C8C;--info-texto:#8FC2E4;--field:#0C2418;--field-border:#2A4A38;--cloud:#0C2418;--crema:#0A1F15;--okbg:rgba(31,157,87,.14);--warnbg:rgba(240,180,41,.14);--errbg:rgba(214,69,69,.14);--infobg:rgba(46,127,184,.14);--sh-1:0 1px 2px rgba(0,0,0,.3);--sh-2:0 6px 20px rgba(0,0,0,.32);--sh-3:0 20px 46px rgba(0,0,0,.4)}
+:root[data-theme="light"]{--bg:#F4F6F5;--surface:#fff;--surface-2:#F3F6F2;--text:#10231A;--text-2:#38473F;--border:#DCE4DE;--brand:#1C5A3A;--brand-ink:#123A26;--accent:var(--o700);--accent-ink:var(--white);--text-3:#647169;--brand-texto:#1C5A3A;--accent-texto:#A65B14;--ok-texto:#197C45;--aviso-texto:#AA5915;--err-texto:#C13A3A;--info-texto:#256C9E;--pii-texto:#5A2F8C;--field:#fff;--field-border:#C9D4CD;--cloud:#F3F6F2;--crema:#F6F4EC;--okbg:#E7F5EC;--warnbg:#FEF4DA;--errbg:#FBECEC;--infobg:#E7F1F8;--piibg:#F1EAF8}
+:root[data-theme="dark"]{--bg:#0A1F15;--surface:#0F2B1D;--surface-2:#0C2418;--text:#EAF3ED;--text-2:#B7CCC0;--text-3:#89998E;--border:#1C3A2A;--brand:#7CBE9C;--brand-ink:#EAF3ED;--accent:#EF9E4E;--accent-ink:#3A1E02;--verde-solido:var(--g300);--sobre-verde-solido:var(--ink);--brand-texto:var(--g300);--accent-texto:var(--o400);--ok-texto:var(--g300);--aviso-texto:var(--warn);--err-texto:#F08C8C;--info-texto:#8FC2E4;--pii:#B48CE6;--pii-texto:#CDB3F0;--field:#0C2418;--field-border:#2A4A38;--cloud:#0C2418;--crema:#0A1F15;--okbg:rgba(31,157,87,.14);--warnbg:rgba(240,180,41,.14);--errbg:rgba(214,69,69,.14);--infobg:rgba(46,127,184,.14);--piibg:rgba(107,63,160,.18);--sh-1:0 1px 2px rgba(0,0,0,.3);--sh-2:0 6px 20px rgba(0,0,0,.32);--sh-3:0 20px 46px rgba(0,0,0,.4)}
 
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font-b);line-height:1.55;font-size:15px;-webkit-font-smoothing:antialiased}

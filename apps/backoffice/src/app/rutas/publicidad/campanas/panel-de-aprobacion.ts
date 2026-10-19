@@ -2,11 +2,12 @@ import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/cor
 import { ActivatedRoute } from '@angular/router'
 import { toSignal } from '@angular/core/rxjs-interop'
 import { map } from 'rxjs'
-import { BandaDeProposito } from '@aportaya/ui/banda-de-proposito/banda-de-proposito'
+import { CabeceraDePagina } from '@aportaya/ui/cabecera-de-pagina/cabecera-de-pagina'
 import { Boton } from '@aportaya/ui/boton/boton'
 import { Dialogo } from '@aportaya/ui/dialogo/dialogo'
 import { confirmarDescarteSiSucio } from '@aportaya/ui/dialogo/politica-de-descarte'
 import { Campo } from '@aportaya/ui/campo/campo'
+import { ExplicadorDeVista } from '../../../nucleo/explicador-de-vista'
 import { accionesDeCampana } from '../dominio/cu111-campanas'
 import { textosPublicidad } from '../textos'
 
@@ -14,18 +15,19 @@ type Decision = 'APROBAR' | 'RECHAZAR'
 
 /**
  * CU-111 · Lado **aprobación**. Solo la monta el `canMatch` de
- * `PUBLICIDAD_APROBAR_CAMPANA` en `publicidad.routes.ts` — quien no tiene ese permiso
- * ni siquiera llega a esta ruta (segregación de funciones al nivel de ruta, no de UI
- * condicional). Un rechazo exige motivo escrito.
+ * `PUBLICIDAD_APROBAR_CAMPANA` en `publicidad.routes.ts`.
  */
 @Component({
   selector: 'ap-panel-de-aprobacion-de-campana',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [BandaDeProposito, Boton, Dialogo, Campo],
+  imports: [Boton, CabeceraDePagina, Dialogo, Campo],
   template: `
-    <ap-banda-de-proposito [texto]="t.propositoAprobacion" />
     <section class="pantalla">
-      <h1>{{ t.tituloAprobacion }}</h1>
+      <ap-cabecera-de-pagina
+        [titulo]="t.tituloAprobacion"
+        [descripcion]="t.propositoAprobacion"
+        icono="estrella"
+      />
       <p>Campaña <strong>{{ campanaId() }}</strong></p>
       <div class="acciones">
         <ap-boton (pulsado)="abrir('APROBAR')">{{ t.aprobar }}</ap-boton>
@@ -54,11 +56,13 @@ type Decision = 'APROBAR' | 'RECHAZAR'
   `,
   styles: `
     .pantalla { padding: var(--s5); max-width: 68rem; display: grid; gap: var(--s4); }
-    h1 { margin: 0; }
     .acciones { display: flex; gap: var(--s2); }
   `,
 })
 export class PanelDeAprobacionDeCampana {
+  constructor() {
+    inject(ExplicadorDeVista).fijar(this.t.propositoAprobacion)
+  }
   private readonly acciones = accionesDeCampana()
   private readonly ruta = inject(ActivatedRoute)
   protected readonly t = textosPublicidad.campanas

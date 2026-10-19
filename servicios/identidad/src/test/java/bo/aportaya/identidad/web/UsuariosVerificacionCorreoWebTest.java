@@ -76,7 +76,13 @@ class UsuariosVerificacionCorreoWebTest {
     private bo.aportaya.identidad.aplicacion.ActivarRolOrganizador activarRolOrganizador;
 
     @MockitoBean
+    private bo.aportaya.identidad.aplicacion.GuardarBorradorOnboarding guardarBorrador;
+
+    @MockitoBean
     private bo.aportaya.identidad.aplicacion.ConsultarMiPerfil consultarMiPerfil;
+
+    @MockitoBean
+    private bo.aportaya.identidad.aplicacion.CU02IniciarVerificacion iniciarVerificacion;
 
     @MockitoBean
     private ConsultarNivelKyc nivelesKyc;
@@ -103,14 +109,79 @@ class UsuariosVerificacionCorreoWebTest {
     @DisplayName("200: confirma el codigo mediante el caso de uso")
     void confirmarCodigo() throws Exception {
         UUID verificacion = UUID.fromString("dddddddd-0000-4000-8000-000000000003");
+        when(confirmarCorreo.ejecutar(any(), any(), any(), any(), any(), any()))
+                .thenReturn(new bo.aportaya.identidad.dominio.ResultadoConfirmacionCorreo(true, false, null));
 
         mvc.perform(post("/usuarios/verificaciones/correo/{id}/confirmacion", verificacion)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"correo\":\"pablo@example.com\",\"codigo\":\"482019\"}"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.verificada").value(true));
+                .andExpect(jsonPath("$.verificada").value(true))
+                .andExpect(jsonPath("$.onboardingIncompleto").value(false));
 
         verify(confirmarCorreo).ejecutar(any(), any(), any(), any(), any(), any());
+    }
+
+    @Test
+    @DisplayName("200: confirma codigo con onboarding incompleto y devuelve borrador previo")
+    void confirmarCodigoConOnboardingIncompleto() throws Exception {
+        UUID verificacion = UUID.fromString("dddddddd-0000-4000-8000-000000000003");
+        var borrador = new bo.aportaya.identidad.dominio.BorradorOnboardingDatos(
+                "pablo@example.com",
+                "+59171234567",
+                "Pablo",
+                "Arauz",
+                java.time.LocalDate.parse("1995-06-15"),
+                "CI",
+                "1234567",
+                "SC",
+                null,
+                "DEPENDIENTE",
+                "Ingeniero",
+                "SUELDO",
+                "1000",
+                "2",
+                "DOCUMENTO");
+
+        when(confirmarCorreo.ejecutar(any(), any(), any(), any(), any(), any()))
+                .thenReturn(new bo.aportaya.identidad.dominio.ResultadoConfirmacionCorreo(true, true, borrador));
+
+        mvc.perform(post("/usuarios/verificaciones/correo/{id}/confirmacion", verificacion)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"correo\":\"pablo@example.com\",\"codigo\":\"482019\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.verificada").value(true))
+                .andExpect(jsonPath("$.onboardingIncompleto").value(true))
+                .andExpect(jsonPath("$.borrador.nombres").value("Pablo"))
+                .andExpect(jsonPath("$.borrador.pasoPendiente").value("documento"));
+    }
+
+    @Test
+    @DisplayName("200: guarda borrador de onboarding exitosamente")
+    void guardarBorrador() throws Exception {
+        UUID verificacion = UUID.fromString("dddddddd-0000-4000-8000-000000000003");
+        when(guardarBorrador.ejecutar(any(), any(), any())).thenAnswer(inv -> inv.getArgument(1));
+
+        org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder peticion =
+                org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put(
+                                "/usuarios/verificaciones/correo/{id}/borrador", verificacion)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(
+                                """
+                        {
+                          "correo": "pablo@example.com",
+                          "telefonoE164": "+59171234567",
+                          "nombres": "Pablo",
+                          "apellidos": "Arauz",
+                          "pasoPendiente": "documento"
+                        }
+                        """);
+
+        mvc.perform(peticion)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.nombres").value("Pablo"));
+
+        verify(guardarBorrador).ejecutar(any(), any(), any());
     }
 
     @Test

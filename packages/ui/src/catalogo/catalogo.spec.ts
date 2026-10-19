@@ -16,7 +16,7 @@ describe('catálogo de @aportaya/ui', () => {
     for (const pieza of PIEZAS) {
       expect(readdirSync(join(SRC, pieza)), `${pieza} sin ${pieza}.ts`).toContain(`${pieza}.ts`)
     }
-    const catalogo = ['catalogo-atomos.ts', 'catalogo-moleculas.ts', 'catalogo-organismos.ts'].map((f) => readFileSync(join(__dirname, f), 'utf8')).join('\n')
+    const catalogo = ['catalogo-atomos.ts', 'catalogo-backoffice.ts', 'catalogo-moleculas.ts', 'catalogo-organismos.ts'].map((f) => readFileSync(join(__dirname, f), 'utf8')).join('\n')
     for (const pieza of PIEZAS) {
       if (pieza === 'estado-de-pantalla' || pieza === 'toast' || pieza === 'icono') continue
       expect(catalogo, `${pieza} no está en el catálogo`).toContain(`<ap-${pieza}`)

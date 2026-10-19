@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core'
+import { ChangeDetectionStrategy, Component, computed, effect, inject, untracked } from '@angular/core'
 import { ActivatedRoute, Router } from '@angular/router'
 import { Boton } from '@aportaya/ui/boton/boton'
 import { restaurarSesion } from './auth-bootstrap'
@@ -55,15 +55,29 @@ export class RestaurandoSesion {
   protected readonly esError = computed(() => this.sesion.estado() === 'ERROR')
   protected readonly reintentando = computed(() => this.sesion.estado() === 'RESTORING')
 
+  constructor() {
+    // Apenas la sesión queda resuelta, se sale de acá. Antes solo navegaba «Reintentar»:
+    // abriendo `/arranque?volverA=…` directo (recargar la pestaña, un marcador), el
+    // arranque resolvía la sesión pero nadie salía y la pantalla quedaba en
+    // «Restaurando tu sesión…» para siempre (2026-10-19).
+    effect(() => {
+      const estado = this.sesion.estado()
+      if (estado === 'AUTHENTICATED' || estado === 'ANONYMOUS') untracked(() => this.salir(estado))
+    })
+  }
+
   protected async reintentar(): Promise<void> {
+    // El resultado lo toma el `effect` de arriba; si sigue en ERROR, esta misma pantalla
+    // ya lo muestra.
     await restaurarSesion(this.sesion, this.refresco)
+  }
+
+  private salir(estado: 'AUTHENTICATED' | 'ANONYMOUS'): void {
     const volverA = this.route.snapshot.queryParamMap.get('volverA')
-    const estado = this.sesion.estado()
     if (estado === 'AUTHENTICATED') {
       void this.router.navigateByUrl(rutaInternaOTablero(volverA))
-    } else if (estado === 'ANONYMOUS') {
+    } else {
       void this.router.navigate(['/ingreso'], { queryParams: volverA ? { volverA } : {} })
     }
-    // Si sigue en ERROR, esta misma pantalla ya lo muestra: nada más que hacer.
   }
 }

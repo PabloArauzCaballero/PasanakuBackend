@@ -1,0 +1,106 @@
+{
+  "servicio": "identidad",
+  "operacion": "guardarBorradorOnboarding",
+  "metodo": "put",
+  "ruta": "/usuarios/verificaciones/correo/{verificacionId}/borrador",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "correo": "persona@ejemplo.bo",
+        "telefonoE164": "+59164444444",
+        "nombres": "nombres",
+        "apellidos": "apellidos",
+        "fechaNacimiento": "2026-01-15",
+        "tipoDocumento": "CI",
+        "numeroDocumento": "numeroDocumento",
+        "lugarExpedicion": "lugar",
+        "fechaExpiracion": "2026-01-15",
+        "actividadEconomica": "actividadE",
+        "detalleActividad": "detalleActividad",
+        "origenDeFondos": "origenDeFondos",
+        "detalleOrigen": "detalleOrigen",
+        "montoMensualEstimado": "montoMensualEstimado",
+        "pasoPendiente": "cuenta"
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "correo": "persona@ejemplo.bo",
+        "telefonoE164": "+59160000000",
+        "nombres": "nombres",
+        "apellidos": "apellidos",
+        "fechaNacimiento": "2026-01-15",
+        "tipoDocumento": "CI",
+        "numeroDocumento": "numeroDocumento",
+        "lugarExpedicion": "lugar",
+        "fechaExpiracion": "2026-01-15",
+        "actividadEconomica": "actividadE",
+        "detalleActividad": "detalleActividad",
+        "origenDeFondos": "origenDeFondos",
+        "detalleOrigen": "detalleOrigen",
+        "montoMensualEstimado": "montoMensualEstimado",
+        "pasoPendiente": "cuenta"
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "correo": "persona@ejemplo.bo",
+        "telefonoE164": "+59164444444",
+        "nombres": "nombres",
+        "apellidos": "apellidos",
+        "fechaNacimiento": "2026-01-15",
+        "tipoDocumento": "CI",
+        "numeroDocumento": "numeroDocumento",
+        "lugarExpedicion": "lugar",
+        "fechaExpiracion": "2026-01-15",
+        "actividadEconomica": "actividadE",
+        "detalleActividad": "detalleActividad",
+        "origenDeFondos": "origenDeFondos",
+        "detalleOrigen": "detalleOrigen",
+        "montoMensualEstimado": "montoMensualEstimado",
+        "pasoPendiente": "cuenta"
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "correo": "persona@ejemplo.bo",
+        "telefonoE164": "+59164444444",
+        "nombres": "nombres",
+        "apellidos": "apellidos",
+        "fechaNacimiento": "2026-01-15",
+        "tipoDocumento": "CI",
+        "numeroDocumento": "numeroDocumento",
+        "lugarExpedicion": "lugar",
+        "fechaExpiracion": "2026-01-15",
+        "actividadEconomica": "actividadE",
+        "detalleActividad": "detalleActividad",
+        "origenDeFondos": "origenDeFondos",
+        "detalleOrigen": "detalleOrigen",
+        "montoMensualEstimado": "montoMensualEstimado",
+        "pasoPendiente": "cuenta"
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU01-03",
+        "mensaje": "Cuenta ya existe",
+        "detalle": {},
+        "trazaId": "traza-guardarBorradorOnboarding-rechazo"
+      }
+    }
+  }
+}
