@@ -21,6 +21,8 @@ export type FormaDeEsqueleto = 'lineas' | 'filas'
     :host { display: block; }
     span { position: relative; display: block; overflow: hidden; height: var(--s4); margin-bottom: var(--s3); border-radius: var(--r-sm); background: var(--esqueleto); animation: latir 1.4s ease-in-out infinite; }
     span:last-child { margin-bottom: 0; }
+    /* Las filas ocupan el ancho del listado que reemplazan, aunque las aloje una caja flexible. */
+    :host(.forma-filas) { width: 100%; }
     :host(.forma-filas) span { height: calc(var(--s6) + var(--s3)); margin-bottom: var(--s2); border: var(--borde-fino) solid var(--border); border-radius: var(--r-md); animation: none; }
     :host(.forma-filas) i { position: absolute; inset: 0 auto 0 0; width: 50%; background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--surface) 70%, transparent), transparent); animation: barrer 1.6s linear infinite; animation-delay: inherit; }
     @keyframes latir { 50% { opacity: .55; } }

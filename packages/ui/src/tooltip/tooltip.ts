@@ -27,8 +27,10 @@ import { ChangeDetectionStrategy, Component, input, signal } from '@angular/core
   styles: `
     :host { position: relative; display: inline-flex; }
     .disparador { display: inline-flex; }
-    .globo { position: absolute; top: calc(100% + var(--s1)); left: 50%; z-index: 20; transform: translateX(-50%) translateY(calc(var(--s1) * -1)); width: max-content; max-width: min(18rem, 80vw); padding: var(--s2) var(--s3); border-radius: var(--r-md); background: var(--ink); color: var(--white); font: var(--t-ayuda); line-height: 1.4; box-shadow: var(--sombra-2); opacity: 0; visibility: hidden; pointer-events: none; transition: opacity var(--mov-micro) ease-out, transform var(--mov-micro) var(--curva-llega), visibility 0s linear var(--mov-micro); }
-    :host(.visible) .globo { opacity: 1; visibility: visible; transform: translateX(-50%) translateY(0); transition-delay: 0s; }
+    .globo { position: absolute; top: calc(100% + var(--s1)); left: 50%; z-index: 20; transform: translateX(-50%) translateY(calc(var(--s1) * -1)); width: max-content; max-width: min(18rem, 80vw); padding: var(--s2) var(--s3); border-radius: var(--r-md); background: var(--ink); color: var(--white); font: var(--t-ayuda); line-height: 1.4; box-shadow: var(--sombra-2); display: none; opacity: 0; pointer-events: none; transition: opacity var(--mov-micro) ease-out, transform var(--mov-micro) var(--curva-llega); }
+    /* Oculto sale del flujo (display: none): un globo invisible pero presente ensanchaba la página en el celular. */
+    @starting-style { :host(.visible) .globo { opacity: 0; transform: translateX(-50%) translateY(calc(var(--s1) * -1)); } }
+    :host(.visible) .globo { display: block; opacity: 1; transform: translateX(-50%) translateY(0); }
   `,
 })
 export class Tooltip {
