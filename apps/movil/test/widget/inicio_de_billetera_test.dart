@@ -153,20 +153,32 @@ void main() {
         },
       );
 
-      testWidgets('vacío: cuenta propia en cero dice por qué y qué esperar', (
-        tester,
-      ) async {
-        final (:dio, :adaptador) = dioSimulado();
-        _propiaOk(adaptador);
-        adaptador.onGet(_rutaSaldo, (s) => s.reply(200, _saldoEnCero()));
-        await montar(tester, const PantallaDeSaldo(), dio);
-        await asentar(tester);
-        expect(
-          find.textContaining('Todavía no tenés movimientos'),
-          findsOneWidget,
-        );
-        sinDesborde(tester);
-      });
+      testWidgets(
+        'vacío: cuenta propia en cero muestra su saldo, recargar y qué esperar',
+        (tester) async {
+          final (:dio, :adaptador) = dioSimulado();
+          _propiaOk(adaptador);
+          adaptador.onGet(_rutaSaldo, (s) => s.reply(200, _saldoEnCero()));
+          adaptador.onGet(
+            '/billetera/$_propia/movimientos',
+            (s) =>
+                s.reply(200, {'cuentaId': _propia, 'movimientos': <Object>[]}),
+          );
+          await montar(tester, const PantallaDeSaldo(), dio);
+          await asentar(tester);
+          expect(find.text('Recargar'), findsOneWidget);
+          await tester.scrollUntilVisible(
+            find.textContaining('Todavía no tenés movimientos'),
+            200,
+            scrollable: find.byType(Scrollable).first,
+          );
+          expect(
+            find.textContaining('Todavía no tenés movimientos'),
+            findsOneWidget,
+          );
+          sinDesborde(tester);
+        },
+      );
 
       testWidgets(
         'AP-CU13-01: «tu billetera todavía no está activa», no una falla genérica; revisar de nuevo la encuentra',

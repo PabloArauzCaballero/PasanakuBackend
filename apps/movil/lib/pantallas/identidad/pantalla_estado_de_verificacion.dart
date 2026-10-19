@@ -9,6 +9,7 @@ import 'package:go_router/go_router.dart';
 
 import 'dominio/estado_alta.dart';
 import 'dominio/estado_de_verificacion.dart';
+import 'activar_cuenta.dart';
 import 'textos_de_verificacion.dart';
 import '../../proveedores/sesion.dart';
 
@@ -130,17 +131,29 @@ class _Contenido extends ConsumerWidget {
           style: Theme.of(context).textTheme.bodySmall,
         ),
         const Spacer(),
-        if (sesionActiva)
+        if (sesionActiva && aprobada)
           Boton(
-            texto: aprobada
-                ? TextosDeVerificacion.actualizarAcceso
-                : TextosDeVerificacion.salirDeCuenta,
+            texto: TextosDeVerificacion.activarCuenta,
+            variante: BotonVariante.primario,
+            expandido: true,
+            onPressed: () => activarCuentaAprobada(context, ref),
+          )
+        else if (sesionActiva && rechazada)
+          Boton(
+            texto: TextosDeVerificacion.salirDeCuenta,
             variante: BotonVariante.primario,
             expandido: true,
             onPressed: () async {
               await ref.read(sesionProvider).cerrar();
               if (context.mounted) context.go('/ingreso');
             },
+          )
+        else if (sesionActiva)
+          Boton(
+            texto: TextosDeVerificacion.irALaApp,
+            variante: BotonVariante.primario,
+            expandido: true,
+            onPressed: () => context.go('/billetera/inicio'),
           )
         else if (rechazada)
           Boton(

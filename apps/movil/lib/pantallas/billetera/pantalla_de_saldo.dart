@@ -83,8 +83,8 @@ class _SaldoDeLaCuenta extends ConsumerWidget {
             child: Esqueleto(filas: 5, alto: Espacio.s5),
           ),
         ),
-        vacio: (s) =>
-            s.disponible.monto == '0.00' && s.retenido.monto == '0.00',
+        // Una cuenta en cero también muestra su saldo y sus acciones: es justo cuando
+        // hace falta «Recargar», y la guía señala esa cifra en su primer paso.
         mensajeVacio: TextosBilletera.sinMovimientos,
         reintentar: () {
           ref.invalidate(saldoProvider(cuentaId));

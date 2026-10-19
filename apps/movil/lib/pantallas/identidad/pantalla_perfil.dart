@@ -30,6 +30,16 @@ class _PantallaDePerfilState extends ConsumerState<PantallaDePerfil> {
   bool _cerrandoSesion = false;
 
   @override
+  void initState() {
+    super.initState();
+    // El correo de la cuenta llena el campo una vez; lo que la persona ya escribió no se pisa.
+    ref.listenManual<AsyncValue<String?>>(correoDeLaCuentaProvider, (_, valor) {
+      final correo = valor.asData?.value;
+      if (correo != null && _correo.text.isEmpty) _correo.text = correo;
+    }, fireImmediately: true);
+  }
+
+  @override
   void dispose() {
     _correo.dispose();
     super.dispose();

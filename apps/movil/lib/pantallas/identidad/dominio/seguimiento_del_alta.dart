@@ -55,6 +55,21 @@ class SeguimientoDelAlta extends Notifier<AltaEnSeguimiento?> {
     );
   }
 
+  /// Las fotos ya subieron: se borran del teléfono, pero el `usuarioId` y el token
+  /// del alta se conservan. La pantalla de estado los necesita para consultar el
+  /// expediente sin sesión; sin el token, el servidor respondía 403 y la persona veía
+  /// «No tenés acceso» justo al terminar de crear su cuenta.
+  Future<void> liberarCapturas() async {
+    final actual = state;
+    if (actual == null) return;
+    state = AltaEnSeguimiento(
+      usuarioId: actual.usuarioId,
+      tokenDeAlta: actual.tokenDeAlta,
+      capturas: const CapturasDelExpediente(),
+    );
+    await actual.capturas.eliminarArchivosLocales();
+  }
+
   Future<void> limpiar() async {
     final actual = state;
     if (actual == null) return;

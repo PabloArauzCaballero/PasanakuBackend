@@ -77,6 +77,8 @@ final List<RouteBase> rutasPasanaku = [
     builder: (context, state) => PantallaMiEstadoDeLaSesion(
       participanteId: state.uri.queryParameters['participante'],
       usuarioId: state.uri.queryParameters['usuario'],
+      grupoId: state.uri.queryParameters['grupo'],
+      nombreDelGrupo: state.uri.queryParameters['nombre'],
     ),
   ),
   GoRoute(

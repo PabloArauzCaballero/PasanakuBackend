@@ -12,6 +12,21 @@ export 'capturas_del_expediente.dart' show CaraDelCarril, CapturasDelExpediente;
 /// ocho porque contaba las tres fotos como pasos propios).
 enum PasoAlta { cuenta, correo, documento, datos, actividad, contrato }
 
+/// Qué recorre el asistente. La verificación de identidad (carnet, fotos y
+/// actividad) es opcional al crear la cuenta: quien la salta la completa después,
+/// cuando quiere mover dinero o participar en un pasanaku (2026-10-17).
+enum ModoDelAlta {
+  /// El registro con la verificación incluida.
+  completo,
+
+  /// El registro sin carnet ni actividad: la cuenta se crea sin verificar.
+  sinVerificacion,
+
+  /// Solo la verificación, desde adentro de la app, para una cuenta ya creada.
+  /// El paso «contrato» es ahí el envío.
+  soloVerificacion,
+}
+
 /// Las cuatro fases de orientación del alta; varios pasos internos pueden
 /// pertenecer a una misma fase sin cambiar el contrato enviado al servidor.
 enum FaseAlta {
@@ -36,6 +51,7 @@ extension FaseDePasoAlta on PasoAlta {
 class EstadoAlta {
   const EstadoAlta({
     this.paso = PasoAlta.cuenta,
+    this.modo = ModoDelAlta.completo,
     this.datos = const DatosPersonales(),
     this.contrasena = '',
     this.codigoConfirmado = false,
@@ -58,6 +74,7 @@ class EstadoAlta {
   });
 
   final PasoAlta paso;
+  final ModoDelAlta modo;
   final DatosPersonales datos;
 
   /// La clave elegida, en memoria y solo mientras dura el alta. No se persiste en
@@ -92,14 +109,30 @@ class EstadoAlta {
   final CampoDeErrorApi? campoError;
   final String? trazaId;
 
-  static const _orden = PasoAlta.values;
-  int get numeroDePaso => _orden.indexOf(paso) + 1;
-  int get totalDePasos => _orden.length;
+  /// Los pasos que recorre este modo, en orden.
+  List<PasoAlta> get orden => switch (modo) {
+    ModoDelAlta.completo => PasoAlta.values,
+    ModoDelAlta.sinVerificacion => const [
+      PasoAlta.cuenta,
+      PasoAlta.correo,
+      PasoAlta.datos,
+      PasoAlta.contrato,
+    ],
+    ModoDelAlta.soloVerificacion => const [
+      PasoAlta.documento,
+      PasoAlta.actividad,
+      PasoAlta.contrato,
+    ],
+  };
+  bool get sinVerificacion => modo == ModoDelAlta.sinVerificacion;
+  int get numeroDePaso => orden.indexOf(paso) + 1;
+  int get totalDePasos => orden.length;
   int get numeroDeFase => FaseAlta.values.indexOf(paso.fase) + 1;
   int get totalDeFases => FaseAlta.values.length;
 
   EstadoAlta copiarCon({
     PasoAlta? paso,
+    ModoDelAlta? modo,
     DatosPersonales? datos,
     String? contrasena,
     bool? codigoConfirmado,
@@ -122,6 +155,7 @@ class EstadoAlta {
     String? trazaId,
   }) => EstadoAlta(
     paso: paso ?? this.paso,
+    modo: modo ?? this.modo,
     datos: datos ?? this.datos,
     contrasena: contrasena ?? this.contrasena,
     codigoConfirmado: limpiarVerificacion

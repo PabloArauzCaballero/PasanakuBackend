@@ -5,6 +5,13 @@
 /// frontend permite. El corte no es arbitrario — lo que está acá es lo que se lee
 /// mientras se crea una cuenta, y solo lo leen los pasos del asistente.
 class TextosDelAlta {
+  // «Saltar por ahora» en el paso del carnet (2026-10-17).
+  static const saltarTitulo = '¿Preferís verificar tu identidad después?';
+  static const saltarDetalle =
+      'Podés crear tu cuenta ahora y conocer AportaYa. Te vamos a pedir tu carnet '
+      'cuando quieras mover dinero o entrar a un pasanaku.';
+  static const saltarBoton = 'Saltar por ahora';
+
   TextosDelAlta._();
 
   // Paso 2: la contraseña. Las reglas son las que aplica el servidor
@@ -13,7 +20,7 @@ class TextosDelAlta {
       'Con esta contraseña vas a entrar a tu billetera. Elegí una que puedas '
       'recordar y que no uses en otro lado.';
   static const claveNueva = 'Contraseña';
-  static const claveRepetir = 'Repetila';
+  static const claveRepetir = 'Confirmar contraseña';
   static const claveAyuda = 'Ocho caracteres o más.';
   static const ejemploPrimerNombre = 'Ej.: María';
   static const ejemploSegundoNombre = 'Ej.: Fernanda';

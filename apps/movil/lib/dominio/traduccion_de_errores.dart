@@ -55,5 +55,11 @@ ContextoErrorApi _contextoError(RequestOptions request) {
   if (request.method.toUpperCase() == 'POST' && path.endsWith('/usuarios')) {
     return ContextoErrorApi.registro;
   }
+  if (request.method.toUpperCase() == 'POST' && path.endsWith('/grupos')) {
+    return ContextoErrorApi.crearGrupo;
+  }
+  if (RegExp(r'/usuarios/[^/]+/verificacion$').hasMatch(path)) {
+    return ContextoErrorApi.estadoDeVerificacion;
+  }
   return ContextoErrorApi.general;
 }

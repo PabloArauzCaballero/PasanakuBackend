@@ -1,9 +1,7 @@
 package bo.aportaya.aportaya_movil
 
+import android.content.Intent
 import android.view.WindowManager
-import androidx.biometric.BiometricManager
-import androidx.biometric.BiometricPrompt
-import androidx.core.content.ContextCompat
 import io.flutter.embedding.android.FlutterFragmentActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
@@ -23,6 +21,15 @@ class MainActivity : FlutterFragmentActivity() {
     private val canalBiometria = "bo.aportaya/biometria"
     private val canalProteccionPantalla = "bo.aportaya/proteccion_pantalla"
     private val canalCamara = "bo.aportaya/camara"
+    private val desbloqueo by lazy { DesbloqueoLocal(this) }
+    private val compartir by lazy { CompartirMensaje(this) }
+
+    @Deprecated("La pantalla de PIN del sistema en Android 10 o anterior responde por acá")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (desbloqueo.alVolverDeLaCredencial(requestCode, resultCode)) return
+        @Suppress("DEPRECATION")
+        super.onActivityResult(requestCode, resultCode, data)
+    }
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
@@ -30,47 +37,23 @@ class MainActivity : FlutterFragmentActivity() {
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, canalBiometria)
             .setMethodCallHandler { call, result ->
                 when (call.method) {
-                    "disponible" -> {
-                        val gestor = BiometricManager.from(this)
-                        val estado = gestor.canAuthenticate(
-                            BiometricManager.Authenticators.BIOMETRIC_WEAK or
-                                BiometricManager.Authenticators.DEVICE_CREDENTIAL,
-                        )
-                        result.success(estado == BiometricManager.BIOMETRIC_SUCCESS)
-                    }
-                    "confirmar" -> {
-                        val motivo = call.argument<String>("motivo") ?: "Confirmá la operación"
-                        val ejecutor = ContextCompat.getMainExecutor(this)
-                        val prompt = BiometricPrompt(
-                            this,
-                            ejecutor,
-                            object : BiometricPrompt.AuthenticationCallback() {
-                                override fun onAuthenticationSucceeded(
-                                    resultado: BiometricPrompt.AuthenticationResult,
-                                ) {
-                                    result.success(true)
-                                }
+                    "disponible" -> result.success(desbloqueo.disponible())
+                    "confirmar" -> desbloqueo.confirmar(
+                        call.argument<String>("motivo") ?: "Confirmá la operación",
+                        result,
+                    )
+                    else -> result.notImplemented()
+                }
+            }
 
-                                override fun onAuthenticationError(codigo: Int, mensaje: CharSequence) {
-                                    result.success(false)
-                                }
-
-                                override fun onAuthenticationFailed() {
-                                    // Un intento fallido no cierra el diálogo; se espera el
-                                    // resultado final (éxito, error o cancelación).
-                                }
-                            },
-                        )
-                        val info = BiometricPrompt.PromptInfo.Builder()
-                            .setTitle("AportaYa")
-                            .setSubtitle(motivo)
-                            .setAllowedAuthenticators(
-                                BiometricManager.Authenticators.BIOMETRIC_WEAK or
-                                    BiometricManager.Authenticators.DEVICE_CREDENTIAL,
-                            )
-                            .build()
-                        prompt.authenticate(info)
-                    }
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "bo.aportaya/compartir")
+            .setMethodCallHandler { call, result ->
+                val telefono = call.argument<String>("telefono") ?: ""
+                val texto = call.argument<String>("texto") ?: ""
+                when (call.method) {
+                    "whatsapp" -> result.success(compartir.porWhatsApp(telefono, texto))
+                    "sms" -> result.success(compartir.porSms(telefono, texto))
+                    "otra" -> result.success(compartir.conOtraApp(texto))
                     else -> result.notImplemented()
                 }
             }

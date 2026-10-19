@@ -1,6 +1,24 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../dominio/cliente.dart';
 import '../../../proveedores/sesion.dart';
+
+/// CU-07 — el correo de la propia cuenta (`GET /usuarios/yo/perfil`). La operación es
+/// nueva en el contrato de `identidad` y todavía no está en el cliente Dart generado de
+/// esta rama: se llama con el mismo `Dio` de la app. `null` si la cuenta no tiene correo.
+final correoDeLaCuentaProvider = FutureProvider.autoDispose<String?>((
+  ref,
+) async {
+  ref.watch(generacionDeSesionProvider);
+  try {
+    final r = await ref
+        .read(dioProvider)
+        .get<Map<String, dynamic>>('/usuarios/yo/perfil');
+    return r.data?['correo'] as String?;
+  } catch (e) {
+    throw errorDeDominio(e);
+  }
+});
 
 /// CU-03 — declaración PEP y beneficiario final. Una pregunta binaria y, si es
 /// afirmativa, el detalle del cargo; la debida diligencia reforzada la decide el

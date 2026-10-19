@@ -1,3 +1,5 @@
+import '../dominio/cliente.dart' show baseDelGateway;
+import '../pantallas/pasanaku/dominio/enlace_para_compartir.dart';
 import 'enlaces_profundos.dart';
 import 'retorno_de_invitacion.dart';
 
@@ -12,14 +14,27 @@ const int _largoMaximoDelQr = 512;
 ///
 /// Escanear no mueve plata ni acredita nada (regla 91.3): solo lleva a la pantalla donde
 /// la persona confirma. El texto del QR nunca se registra en logs.
-String? rutaDeInvitacionDesdeQr(String? texto) {
+///
+/// También se acepta el enlace https que se comparte por WhatsApp o SMS (2026-10-18),
+/// **solo** si es de la app web propia ([appWeb]); cualquier otra URL sigue siendo `null`.
+String? rutaDeInvitacionDesdeQr(String? texto, {String? appWeb}) {
   if (texto == null) return null;
   final limpio = texto.trim();
   if (limpio.isEmpty || limpio.length > _largoMaximoDelQr) return null;
   final uri = Uri.tryParse(limpio);
   if (uri == null) return null;
-  final interna = rutaInternaDesde(uri);
+  final interna = rutaInternaDesde(uri) ?? _desdeLaAppWeb(uri, appWeb);
   return interna == null ? null : retornoDeInvitacion(interna);
+}
+
+String? _desdeLaAppWeb(Uri uri, String? appWeb) {
+  final propia = Uri.tryParse(
+    appWeb ?? baseDeLaAppWeb(api: baseDelGateway) ?? '',
+  );
+  if (propia == null || propia.host.isEmpty) return null;
+  if (uri.scheme != 'https' || uri.host != propia.host) return null;
+  final codigo = codigoDeInvitacion(uri.toString());
+  return codigo == null ? null : '/pasanaku/unirse/$codigo';
 }
 
 /// **El cerrojo anti multi-lectura.** La cámara detecta el mismo QR decenas de veces por

@@ -5,6 +5,9 @@ library;
 import 'package:aportaya_diseno/errores.dart';
 
 import 'errores_catalogados.dart';
+import 'contexto_de_error.dart';
+
+export 'contexto_de_error.dart';
 
 export 'errores_catalogados.dart' show campoDelDetalle;
 
@@ -44,6 +47,8 @@ const Map<String, String> _catalogo = {
   'AP-CU04-07':
       'Ese tipo de segundo factor no sirve para tu cuenta. Pedí ayuda a soporte.',
   'AP-CU04-08': 'No pudimos mantener tu sesión. Volvé a entrar.',
+  'AP-CU04-09':
+      'No pudimos enviar el código al correo verificado. Esperá un minuto y volvé a pedirlo.',
   // CU-13 · el saldo. Con TEST real, la cuenta que la app consulta no existe (422) y se leía como falla del servidor.
   'AP-CU13-01': 'Tu billetera todavía no está activa.',
   // CU-20 · crear grupo. Con el servidor TEST real, AP-CU20-04 (licencia sin otorgar, R-LIC-01) llegaba como
@@ -87,10 +92,6 @@ const Map<String, String> _catalogo = {
 /// Campos que el contrato permite deducir sin interpretar el `detalle` opaco.
 enum CampoDeErrorApi { contrasena, fechaExpiracion }
 
-/// Algunos códigos CU-01 se reutilizan por contrato en operaciones distintas.
-/// El endpoint permite traducirlos sin mostrar a la persona un error de otro flujo.
-enum ContextoErrorApi { general, registro, verificacionCorreo }
-
 /// ¿La app tiene un texto propio para este código? Las pantallas lo usan para no tapar un rechazo
 /// explicable con el genérico por estado.
 bool tieneMensajePropio(String codigo) =>
@@ -124,9 +125,11 @@ String mensajeDe(
   }
   final conocido = _catalogo[codigo] ?? fallasDeLaBase[codigo];
   if (conocido != null) return conocido;
+  final porContexto = mensajePorContexto(estado, contexto);
+  if (porContexto != null) return porContexto;
   return switch (estado) {
     401 => 'Tu sesión venció. Volvé a ingresar.',
-    403 => 'No tenés acceso a esto.',
+    403 => 'Esta acción todavía no está disponible para tu cuenta.',
     404 => 'No encontramos lo que buscabas.',
     409 =>
       'Esta operación ya se hizo o cambió mientras tanto. Revisá el estado antes de repetirla.',

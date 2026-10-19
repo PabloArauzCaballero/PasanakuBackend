@@ -91,7 +91,7 @@ class _ContenidoDeBloqueo extends StatelessWidget {
                     Semantics(
                       header: true,
                       child: Text(
-                        'AportaYa está bloqueada',
+                        'Hola de nuevo',
                         textAlign: TextAlign.center,
                         style: Tipo.titulo1.copyWith(color: tokens.text),
                       ),
@@ -105,14 +105,14 @@ class _ContenidoDeBloqueo extends StatelessWidget {
                     const SizedBox(height: Espacio.s6),
                     if (biometriaDisponible)
                       Boton(
-                        texto: 'Desbloquear con biometría',
+                        texto: 'Entrar con huella o PIN',
                         variante: BotonVariante.primario,
                         expandido: true,
                         onPressed: onDesbloquear,
                       ),
                     const SizedBox(height: Espacio.s2),
                     Boton(
-                      texto: 'Ingresar de nuevo',
+                      texto: 'Entrar con mi contraseña',
                       variante: BotonVariante.fantasma,
                       expandido: true,
                       onPressed: onIngresarDeNuevo,
@@ -129,7 +129,8 @@ class _ContenidoDeBloqueo extends StatelessWidget {
 }
 
 String _detalleDelBloqueo(MotivoDeBloqueo motivo) => switch (motivo) {
-  MotivoDeBloqueo.arranque => 'Para ver tu plata, confirmá que sos vos.',
+  MotivoDeBloqueo.arranque =>
+    'Por tu seguridad, confirmá que sos vos para ver tu cuenta.',
   MotivoDeBloqueo.segundoPlano =>
     'Saliste de la app un rato. Confirmá que sos vos para seguir.',
   MotivoDeBloqueo.inactividad =>
