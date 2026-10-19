@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component, computed, input, model } from '@angular/core'
+import { ChangeDetectionStrategy, Component, input, model } from '@angular/core'
+import type { Opcion } from '@aportaya/ui/lista-de-opciones/lista-de-opciones'
 
 let secuencia = 0
 
@@ -14,34 +15,9 @@ const ESTILOS = `
   .contador { margin: var(--s1) 0 0; color: var(--text-3); font-size: .85em; font-variant-numeric: tabular-nums; }
 `
 
-/**
- * Área de texto con la misma anatomía que `ap-campo` de `@aportaya/ui` (etiqueta, ayuda, error
- * vinculado por `aria-describedby`): `@aportaya/ui` no tiene una, y este lote no toca `packages/`.
- */
-@Component({
-  selector: 'ap-area-de-texto',
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { '[class.con-error]': '!!error()' },
-  template: `
-    <label [for]="id">{{ etiqueta() }}</label>
-    <textarea [id]="id" [value]="valor()" [attr.maxlength]="maximo() ?? null" [attr.aria-invalid]="error() ? 'true' : null" [attr.aria-describedby]="descriptor()" (input)="valor.set($any($event.target).value)"></textarea>
-    @if (maximo()) { <p class="contador" [id]="id + '-contador'">{{ valor().trim().length }} / {{ maximo() }}</p> }
-    @if (error()) { <p class="error" [id]="id + '-error'" role="alert">{{ error() }}</p> }
-    @else if (ayuda()) { <p class="ayuda" [id]="id + '-ayuda'">{{ ayuda() }}</p> }
-  `,
-  styles: ESTILOS,
-})
-export class AreaDeTexto {
-  readonly id = `ap-area-${++secuencia}`
-  readonly etiqueta = input.required<string>()
-  readonly valor = model('')
-  readonly ayuda = input<string>()
-  readonly error = input<string>()
-  readonly maximo = input<number>()
-  protected readonly descriptor = computed(() =>
-    [this.error() ? `${this.id}-error` : this.ayuda() ? `${this.id}-ayuda` : null, this.maximo() ? `${this.id}-contador` : null].filter(Boolean).join(' ') || null,
-  )
-}
+/** Área de texto y lista desplegable: viven en `@aportaya/ui` desde el plan backoffice-como-atlas (H1.S3.M5); acá se reexportan para no tocar a quien ya las importa. */
+export { AreaDeTexto } from '@aportaya/ui/area-de-texto/area-de-texto'
+export { ListaDeOpciones, type Opcion } from '@aportaya/ui/lista-de-opciones/lista-de-opciones'
 
 /** Fecha y hora local (`datetime-local`): `ap-campo` no admite ese tipo. La zona la fija el dominio (`aIsoLaPaz`). */
 @Component({
@@ -59,35 +35,6 @@ export class FechaYHora {
   readonly id = `ap-fecha-hora-${++secuencia}`
   readonly etiqueta = input.required<string>()
   readonly valor = model('')
-  readonly error = input<string>()
-}
-
-export type Opcion = { valor: string; texto: string }
-
-/** Lista desplegable nativa (teclado y lector de pantalla de serie), con la anatomía de `ap-campo`. */
-@Component({
-  selector: 'ap-lista-de-opciones',
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { '[class.con-error]': '!!error()' },
-  template: `
-    <label [for]="id">{{ etiqueta() }}</label>
-    <select [id]="id" [attr.aria-invalid]="error() ? 'true' : null" [attr.aria-describedby]="error() ? id + '-error' : ayuda() ? id + '-ayuda' : null" (change)="valor.set($any($event.target).value)">
-      <option value="" [selected]="!valor()">{{ textoVacio() }}</option>
-      @for (o of opciones(); track o.valor) { <option [value]="o.valor" [selected]="o.valor === valor()">{{ o.texto }}</option> }
-    </select>
-    @if (error()) { <p class="error" [id]="id + '-error'" role="alert">{{ error() }}</p> }
-    @else if (ayuda()) { <p class="ayuda" [id]="id + '-ayuda'">{{ ayuda() }}</p> }
-  `,
-  styles: ESTILOS,
-})
-export class ListaDeOpciones {
-  readonly id = `ap-lista-${++secuencia}`
-  readonly etiqueta = input.required<string>()
-  readonly opciones = input.required<readonly Opcion[]>()
-  /** El texto de la opción vacía: en un formulario pide elegir; en un filtro, vacío es «Todos». */
-  readonly textoVacio = input('Elegí una opción')
-  readonly valor = model('')
-  readonly ayuda = input<string>()
   readonly error = input<string>()
 }
 

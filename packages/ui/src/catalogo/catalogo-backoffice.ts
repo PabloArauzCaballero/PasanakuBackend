@@ -1,5 +1,12 @@
 import { ChangeDetectionStrategy, Component, signal } from '@angular/core'
+import { AreaDeTexto } from '../area-de-texto/area-de-texto'
 import { BarraDeFiltros } from '../barra-de-filtros/barra-de-filtros'
+import { Boton } from '../boton/boton'
+import { CajonLateral } from '../cajon-lateral/cajon-lateral'
+import { CodigoCopiable } from '../codigo-copiable/codigo-copiable'
+import { DialogoDeConfirmacion } from '../dialogo-de-confirmacion/dialogo-de-confirmacion'
+import { Pestanas } from '../pestanas/pestanas'
+import { SeccionClaveValor } from '../seccion-clave-valor/seccion-clave-valor'
 import { BotonCopiar } from '../boton-copiar/boton-copiar'
 import { CabeceraDePagina } from '../cabecera-de-pagina/cabecera-de-pagina'
 import { CabeceraDeSeccion } from '../cabecera-de-seccion/cabecera-de-seccion'
@@ -22,7 +29,7 @@ import { SeccionDeCatalogo } from './seccion'
 @Component({
   selector: 'ap-catalogo-backoffice',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [BarraDeFiltros, BotonCopiar, CabeceraDePagina, CabeceraDeSeccion, ChipEstado, Esqueleto, EstadoDeError, ListaDeOpciones, Migas, NotaDeVista, Paginacion, TarjetaKPI, Tooltip, SeccionDeCatalogo],
+  imports: [AreaDeTexto, BarraDeFiltros, Boton, BotonCopiar, CajonLateral, CodigoCopiable, DialogoDeConfirmacion, Pestanas, SeccionClaveValor, CabeceraDePagina, CabeceraDeSeccion, ChipEstado, Esqueleto, EstadoDeError, ListaDeOpciones, Migas, NotaDeVista, Paginacion, TarjetaKPI, Tooltip, SeccionDeCatalogo],
   template: `
     <ap-seccion-de-catalogo nombre="Anatomía del backoffice" ancla="backoffice">
       <ap-migas [migas]="[{ texto: 'Inicio', ruta: '/' }, { texto: 'Sistemas', ruta: '/sistemas' }, { texto: 'Catálogo de datos' }]" />
@@ -48,6 +55,22 @@ import { SeccionDeCatalogo } from './seccion'
       <ap-esqueleto forma="filas" [lineas]="4" etiqueta="Consultando el catálogo" />
       <ap-estado-de-error mensaje="Probá de nuevo en un momento." trazaId="9cfecf77-a16b" />
       <ap-paginacion etiqueta="Paginación del catálogo" [totalDeFilas]="338" [pagina]="1" [opcionesPorPagina]="[10, 20, 50]" />
+      <ap-pestanas etiqueta="Vista de la ficha" estilo="segmentada" [pestanas]="[{ valor: 'general', texto: 'Vista general' }, { valor: 'columnas', texto: 'Columnas', cuenta: 18 }, { valor: 'gobierno', texto: 'Gobierno' }]" [(elegida)]="vista" />
+      @for (v of ['general', 'columnas', 'gobierno']; track v) {
+        <div role="tabpanel" [id]="'panel-' + v" [attr.aria-labelledby]="'pestana-' + v" [hidden]="vista() !== v">Panel «{{ v }}»: lo dibuja quien usa las pestañas.</div>
+      }
+      <ap-seccion-clave-valor titulo="Identificación técnica" descripcion="Cómo existe la tabla en la base y en el código." [items]="[{ etiqueta: 'Esquema', valor: 'aportes', mono: true }, { etiqueta: 'Tabla', valor: 'pago', mono: true }, { etiqueta: 'Append-only', valor: false }, { etiqueta: 'Crítica para auditoría', valor: true, tono: 'aviso' }]" style="width: 100%; max-width: calc(var(--s7) * 10)" />
+      <ap-codigo-copiable valor="9cfecf77-a16b-4726" nombre="el código de seguimiento" />
+      <ap-area-de-texto etiqueta="Nota de revisión" [maximo]="500" ayuda="Por qué se decidió así." tooltip="Queda en la bitácora con tu nombre." style="width: 100%; max-width: calc(var(--s7) * 8)" />
+      <div class="chips">
+        <ap-boton variante="secundario" (pulsado)="cajon.set(true)">Abrir el cajón lateral</ap-boton>
+        <ap-boton variante="secundario" (pulsado)="confirmacion.set(true)">Abrir la confirmación</ap-boton>
+      </div>
+      <ap-cajon-lateral titulo="Revisar columna monto" [(abierto)]="cajon">
+        <p>Tu veredicto sobre lo que el sistema dedujo de este campo.</p>
+        <ap-boton acciones variante="primario" (pulsado)="cajon.set(false)">Guardar revisión</ap-boton>
+      </ap-cajon-lateral>
+      <ap-dialogo-de-confirmacion titulo="Retirar la tabla" descripcion="Se marcará aportes.pago como retirada. Las pantallas que la usan dejarán de verla." textoDeConfirmar="Retirar" fraseDeConfirmacion="RETIRAR" [destructivo]="true" [(abierto)]="confirmacion" />
     </ap-seccion-de-catalogo>
   `,
   styles: `
@@ -58,6 +81,9 @@ import { SeccionDeCatalogo } from './seccion'
 })
 export class CatalogoBackoffice {
   readonly busqueda = signal('')
+  readonly vista = signal('general')
+  readonly cajon = signal(false)
+  readonly confirmacion = signal(false)
   readonly selectores = [
     { nombre: 'estado', etiqueta: 'Estado', valor: '', opciones: [{ valor: 'ACTIVA', texto: 'Activa' }, { valor: 'RETIRADA', texto: 'Retirada' }], ayuda: 'Si la tabla sigue en uso.' },
     { nombre: 'revision', etiqueta: 'Revisión', valor: 'APROBADA', opciones: [{ valor: 'APROBADA', texto: 'Aprobada' }] },

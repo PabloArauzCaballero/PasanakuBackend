@@ -162,7 +162,7 @@ Atlas define 20 roles con departamento y descripción (SUPER_ADMIN, SYSTEMS_ADMI
 ## H1 — Componentes compartidos en `packages/ui`
 **CA:** Dado `packages/ui`, cuando se corre su suite, entonces cada componente de §3 marcado «Crear/Rehacer/Ampliar» existe con spec, funciona en claro y oscuro, con teclado, y sin literales de diseño.
 **DoD:** `yarn --cwd packages/ui test:front` verde · `verificar_frontend.py` TODO OK · captura de cada componente en claro/oscuro en `evidencia/H1/`.
-**Estado:** TODO
+**Estado:** HECHO — packages/ui 171/171 (37 archivos, axe en claro y oscuro), lint, reglas; capturas `evidencia/H1/catalogo-backoffice-*`
 
 ### H1.S1 — Estructura de página
 | ID | Microtarea | CA (binario) | DoD | Estado |
@@ -187,11 +187,11 @@ Atlas define 20 roles con departamento y descripción (SUPER_ADMIN, SYSTEMS_ADMI
 ### H1.S3 — Fichas y formularios
 | ID | Microtarea | CA (binario) | DoD | Estado |
 |---|---|---|---|---|
-| H1.S3.M1 | `ap-pestanas` v2: estado en `?vista=`, teclado (flechas, Inicio, Fin), estilo segmentado | Spec de URL y teclado | `ng test` + captura | TODO |
-| H1.S3.M2 | `ap-seccion-clave-valor` + `ap-codigo-copiable`: cabecera gris, lista cebra, rótulo uppercase, valor mono copiable, tono por fila | Spec: copia al portapapeles con aviso accesible | idem | TODO |
-| H1.S3.M3 | `ap-cajon-lateral`: derecho, cabecera fija, Escape y velo cierran, foco atrapado y restaurado | Spec de foco (95.4.2) | idem | TODO |
-| H1.S3.M4 | `ap-dialogo-de-confirmacion`: ámbar, frase escrita opcional, botón cargando | Spec: no confirma hasta escribir la frase | idem | TODO |
-| H1.S3.M5 | `ap-lista-de-opciones` en `packages/ui` con tooltip de ayuda (hecho en H1.S2); mover `ap-area-de-texto` y que `cumplimiento/compartido` reexporte; `ap-campo` con tooltip | Specs de cumplimiento siguen verdes | `test:front` del backoffice | A MEDIAS — la lista ya está en `packages/ui` con spec 2/2; falta el área de texto, el tooltip en `ap-campo` y retirar la copia de cumplimiento |
+| H1.S3.M1 | `ap-pestanas` v2: estado en `?vista=`, teclado (flechas, Inicio, Fin), estilo segmentado | Spec de teclado | `ng test` + captura | HECHO — `estilo="segmentada"`, Inicio/Fin; la URL la enlaza el consumidor (`area-de-texto.spec.ts`) |
+| H1.S3.M2 | `ap-seccion-clave-valor` + `ap-codigo-copiable`: cabecera gris, lista cebra, rótulo uppercase, valor mono copiable, tono por fila | Spec: copia al portapapeles con aviso accesible | idem | HECHO — `seccion-clave-valor.spec.ts` 2/2 + `ap-codigo-copiable` |
+| H1.S3.M3 | `ap-cajon-lateral`: derecho, cabecera fija, Escape y velo cierran, foco atrapado y restaurado | Spec de foco (95.4.2) | idem | HECHO — `cajon-lateral.spec.ts` 2/2 (cerrar, Escape, foco de vuelta) |
+| H1.S3.M4 | `ap-dialogo-de-confirmacion`: ámbar, frase escrita opcional, botón cargando | Spec: no confirma hasta escribir la frase | idem | HECHO — `dialogo-de-confirmacion.spec.ts` 3/3; `ap-dialogo` ganó `confirmarDeshabilitado` |
+| H1.S3.M5 | `ap-lista-de-opciones` en `packages/ui` con tooltip de ayuda (hecho en H1.S2); mover `ap-area-de-texto` y que `cumplimiento/compartido` reexporte; `ap-campo` con tooltip | Specs de cumplimiento siguen verdes | `test:front` del backoffice | HECHO — `ap-area-de-texto` y `ap-lista-de-opciones` en `packages/ui` con tooltip; `ap-campo` con tooltip; `cumplimiento/compartido/campos.ts` reexporta; backoffice 839/839, lint y reglas OK |
 | H1.S3.M6 | `ap-boton`: variantes `fantasma` y `peligro`; `cargando` con texto | Spec | `ng test` | DESCARTADO — ya existían las dos variantes y el estado cargando con girador + texto (`boton.ts`) |
 
 ## H2 — Shell del backoffice
