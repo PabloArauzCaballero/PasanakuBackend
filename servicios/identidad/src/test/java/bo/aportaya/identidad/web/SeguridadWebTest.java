@@ -110,4 +110,7 @@ class SeguridadWebTest extends SabanaDeSeguridadWeb {
 
     @MockitoBean
     private ConsultarNivelKyc consultarNivelKyc;
+
+    @MockitoBean
+    private bo.aportaya.identidad.aplicacion.GestionarUsuariosInternos gestionarUsuariosInternos;
 }

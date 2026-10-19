@@ -273,7 +273,7 @@ exige un comando ejecutado o un informe con evidencia. La skill
 ### Funcionalidad
 - [ ] **94 de los 99 casos del alcance original** implementados (todos salvo la fase 19, publicidad), cada uno con sus criterios de aceptación como pruebas nombradas
 - [ ] Las **173 restricciones** con prueba de rechazo
-- [ ] Las **339 tablas** tienen código que las escribe — verificable recién con las fases 18 y 19 cerradas; el verificador vive en `verificar_criterios.py` sobre las clases jOOQ usadas
+- [ ] Las **340 tablas** tienen código que las escribe — verificable recién con las fases 18 y 19 cerradas; el verificador vive en `verificar_criterios.py` sobre las clases jOOQ usadas
 - [ ] Los seis recorridos E2E en verde
 
 ### Calidad

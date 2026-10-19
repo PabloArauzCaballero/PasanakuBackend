@@ -1,0 +1,54 @@
+{
+  "servicio": "identidad",
+  "operacion": "activarRolOrganizador",
+  "metodo": "post",
+  "ruta": "/usuarios/{usuarioId}/roles/organizador",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "activo": true,
+        "esNuevo": true
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "activo": false,
+        "esNuevo": false
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "activo": true,
+        "esNuevo": true
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "activo": true,
+        "esNuevo": true
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU90-12",
+        "mensaje": "La operación fue rechazada por la regla AP-CU90-12.",
+        "detalle": {},
+        "trazaId": "traza-activarRolOrganizador-rechazo"
+      }
+    }
+  }
+}

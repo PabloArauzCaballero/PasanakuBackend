@@ -501,6 +501,8 @@ ALTER TABLE identidad.restriccion_usuario ALTER COLUMN motivo_levantamiento DROP
 ALTER TABLE identidad.restriccion_usuario ALTER COLUMN referencia_origen_id DROP NOT NULL;
 ALTER TABLE identidad.restriccion_usuario ALTER COLUMN valor_limite DROP NOT NULL;
 ALTER TABLE identidad.restriccion_usuario ALTER COLUMN vigente_hasta DROP NOT NULL;
+ALTER TABLE identidad.rol ALTER COLUMN departamento DROP NOT NULL;
+ALTER TABLE identidad.rol ALTER COLUMN descripcion DROP NOT NULL;
 ALTER TABLE identidad.sesion ALTER COLUMN geolocalizacion_aprox DROP NOT NULL;
 ALTER TABLE identidad.sesion ALTER COLUMN motivo_revocacion DROP NOT NULL;
 ALTER TABLE identidad.sesion ALTER COLUMN refresco_familia_id DROP NOT NULL;
@@ -525,6 +527,8 @@ ALTER TABLE identidad.usuario ALTER COLUMN eliminado_en DROP NOT NULL;
 ALTER TABLE identidad.usuario ALTER COLUMN telefono_verificado_en DROP NOT NULL;
 ALTER TABLE identidad.usuario ALTER COLUMN ultimo_acceso_en DROP NOT NULL;
 ALTER TABLE identidad.usuario ALTER COLUMN url_avatar DROP NOT NULL;
+ALTER TABLE identidad.usuario_interno ALTER COLUMN bloqueado_hasta DROP NOT NULL;
+ALTER TABLE identidad.usuario_interno ALTER COLUMN motivo_bloqueo DROP NOT NULL;
 ALTER TABLE identidad.verificacion_kyc ALTER COLUMN documento_id DROP NOT NULL;
 ALTER TABLE identidad.verificacion_kyc ALTER COLUMN motivo_rechazo DROP NOT NULL;
 ALTER TABLE identidad.verificacion_kyc ALTER COLUMN proveedor DROP NOT NULL;

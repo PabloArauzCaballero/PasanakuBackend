@@ -1,0 +1,59 @@
+{
+  "servicio": "organizador",
+  "operacion": "consultarHabilitacionBasica",
+  "metodo": "get",
+  "ruta": "/organizadores/yo/habilitacion-basica",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "version": "version",
+        "titulo": "titulo",
+        "obligaciones": "obligaciones",
+        "causalesRescision": "causalesRescision",
+        "limiteDeGrupos": 1,
+        "limiteDeMonto": "limiteDeMonto",
+        "habilitado": true,
+        "organizadorId": "6f021597-4475-47e1-8b77-9276b3779d78",
+        "nivel": "nivel"
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "version": "version",
+        "titulo": "titulo",
+        "obligaciones": "obligaciones",
+        "causalesRescision": "causalesRescision",
+        "limiteDeGrupos": 0,
+        "limiteDeMonto": "limiteDeMonto",
+        "habilitado": false,
+        "organizadorId": "6f021597-4475-47e1-8b77-9276b3779d78",
+        "nivel": "nivel"
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "version": "version",
+        "titulo": "titulo",
+        "obligaciones": "obligaciones",
+        "causalesRescision": "causalesRescision",
+        "limiteDeGrupos": 1,
+        "limiteDeMonto": "limiteDeMonto",
+        "habilitado": true,
+        "organizadorId": "6f021597-4475-47e1-8b77-9276b3779d78",
+        "nivel": "nivel"
+      }
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU90-12",
+        "mensaje": "La operación fue rechazada por la regla AP-CU90-12.",
+        "detalle": {},
+        "trazaId": "traza-consultarHabilitacionBasica-rechazo"
+      }
+    }
+  }
+}

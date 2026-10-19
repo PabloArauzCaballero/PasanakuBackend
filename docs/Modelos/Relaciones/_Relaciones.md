@@ -2,13 +2,13 @@
 tags:
   - moc
   - indice
-relaciones_fk: 663
+relaciones_fk: 664
 cross_modulo: 347
 ---
 
 # Índice de relaciones (claves foráneas)
 
-Las **663 claves foráneas** del modelo. **347** cruzan módulos.
+Las **664 claves foráneas** del modelo. **347** cruzan módulos.
 
 [[Index|← Índice general]] · [[_Entidades|Entidades →]]
 
@@ -402,6 +402,7 @@ Son las que acoplan el sistema: conviene revisarlas antes de tocar un módulo.
 | [[token_verificacion.politica_id → politica_sancion]] | [[politica_sancion]] | ↗ | no |
 | [[token_verificacion.rotado_de_id → token_verificacion]] | [[token_verificacion]] | — | sí |
 | [[token_verificacion.usuario_id → usuario]] | [[usuario]] | — | sí |
+| [[usuario_interno.usuario_id → usuario]] | [[usuario]] | — | no |
 | [[verificacion_kyc.documento_id → documento_identidad]] | [[documento_identidad]] | — | sí |
 | [[verificacion_kyc.revisada_por → usuario]] | [[usuario]] | — | sí |
 | [[verificacion_kyc.usuario_id → usuario]] | [[usuario]] | — | no |
