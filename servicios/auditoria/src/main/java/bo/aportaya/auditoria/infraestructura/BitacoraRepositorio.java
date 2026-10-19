@@ -63,6 +63,36 @@ public class BitacoraRepositorio {
                 .execute();
     }
 
+    public void registrarCambioDeCatalogo(
+            DSLContext dsl,
+            String entidad,
+            UUID entidadId,
+            String accion,
+            UUID actorUsuarioId,
+            String actorRol,
+            UUID correlationId,
+            String valorAnteriorJson,
+            String valorNuevoJson,
+            String motivo,
+            OffsetDateTime ahora) {
+        dsl.insertInto(DSL.table(DSL.name("comun", "bitacora_evento")))
+                .set(DSL.field("id", UUID.class), UUID.randomUUID())
+                .set(DSL.field("entidad", String.class), entidad)
+                .set(DSL.field("entidad_id", UUID.class), entidadId)
+                .set(DSL.field("accion", String.class), accion)
+                .set(DSL.field("actor_usuario_id", UUID.class), actorUsuarioId)
+                .set(DSL.field("actor_rol", String.class), actorRol)
+                .set(DSL.field("origen", String.class), "PANEL_ADMIN")
+                .set(DSL.field("correlation_id", UUID.class), correlationId)
+                .set(
+                        DSL.field("valor_anterior", JSONB.class),
+                        valorAnteriorJson == null ? null : JSONB.valueOf(valorAnteriorJson))
+                .set(DSL.field("valor_nuevo", JSONB.class), JSONB.valueOf(valorNuevoJson))
+                .set(DSL.field("motivo", String.class), motivo)
+                .set(DSL.field("fecha_hora", OffsetDateTime.class), ahora)
+                .execute();
+    }
+
     public List<RegistroEvento> listar(
             DSLContext dsl,
             String entidad,

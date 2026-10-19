@@ -79,6 +79,7 @@ export const MENU: readonly Grupo[] = [
           { ruta: 'roles-internos', texto: 'Roles internos' },
           { ruta: 'permisos-internos', texto: 'Permisos internos' },
           { ruta: 'bitacora', texto: 'Registro del sistema' },
+          { ruta: 'catalogos-operativos', texto: 'Catálogos operativos' },
         ],
       },
     ],

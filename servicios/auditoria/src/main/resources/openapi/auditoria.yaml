@@ -145,6 +145,117 @@ paths:
         '404':
           description: Evento de bitacora no encontrado
 
+  /auditoria/catalogos:
+    get:
+      operationId: listarCatalogosOperativos
+      tags: [catalogosOperativos]
+      summary: Consulta la lista de catálogos operativos del sistema
+      description: >-
+        Catálogos operativos de AportaYa con su versión vigente, dueño, conteo de elementos y estado.
+        Exige AUDITORIA_LEER o CATALOGO_EDITAR.
+      responses:
+        '200':
+          description: Lista de catálogos operativos
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/CatalogoOperativoResumen' }
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '403':
+          description: Sin permiso AUDITORIA_LEER
+
+  /auditoria/catalogos/{codigo}:
+    get:
+      operationId: consultarCatalogoOperativo
+      tags: [catalogosOperativos]
+      summary: Obtiene la cabecera y metadatos de un catálogo operativo por su código
+      parameters:
+        - name: codigo
+          in: path
+          required: true
+          schema: { type: string, maxLength: 50 }
+      responses:
+        '200':
+          description: Detalle del catálogo operativo
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CatalogoOperativoDetalle' }
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '403':
+          description: Sin permiso AUDITORIA_LEER
+        '404':
+          description: Catálogo operativo desconocido
+
+  /auditoria/catalogos/{codigo}/elementos:
+    get:
+      operationId: listarElementosCatalogo
+      tags: [catalogosOperativos]
+      summary: Lista los elementos de un catálogo operativo
+      parameters:
+        - name: codigo
+          in: path
+          required: true
+          schema: { type: string, maxLength: 50 }
+        - name: activo
+          in: query
+          required: false
+          schema: { type: boolean }
+        - name: termino
+          in: query
+          required: false
+          schema: { type: string, maxLength: 80 }
+      responses:
+        '200':
+          description: Lista de elementos del catálogo
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/ElementoCatalogoOperativo' }
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '403':
+          description: Sin permiso AUDITORIA_LEER
+        '404':
+          description: Catálogo no encontrado
+
+  /auditoria/catalogos/{codigo}/elementos/{id}:
+    patch:
+      operationId: actualizarEstadoElementoCatalogo
+      tags: [catalogosOperativos]
+      summary: Activa o desactiva un elemento del catálogo operativo con registro inmutable en bitácora
+      parameters:
+        - name: codigo
+          in: path
+          required: true
+          schema: { type: string, maxLength: 50 }
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaActualizarElementoCatalogo' }
+      responses:
+        '200':
+          description: Elemento de catálogo actualizado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ElementoCatalogoOperativo' }
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '403':
+          description: Sin permiso CATALOGO_EDITAR o AUDITORIA_GESTIONAR
+        '404':
+          description: Elemento no encontrado
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+
   /reportes:
     get:
       operationId: listarDefinicionesDeReporte   # CU-58 (backoffice carril A · A6)
@@ -942,6 +1053,69 @@ components:
         hashRegistro: { type: string }
         hashAnterior: { type: string }
         fechaHora: { type: string, format: date-time }
+
+    CatalogoOperativoResumen:
+      type: object
+      additionalProperties: false
+      required: [codigo, nombre, dueno, version, totalElementos, elementosActivos, vigenteDesde, estado, descripcion]
+      properties:
+        codigo: { type: string }
+        nombre: { type: string }
+        dueno: { type: string }
+        version: { type: string }
+        totalElementos: { type: integer }
+        elementosActivos: { type: integer }
+        vigenteDesde: { type: string, format: date-time }
+        estado:
+          type: string
+          enum: [VIGENTE, EN_REVISION, OBSOLETO]
+        descripcion: { type: string }
+
+    CatalogoOperativoDetalle:
+      type: object
+      additionalProperties: false
+      required: [codigo, nombre, dueno, version, totalElementos, elementosActivos, vigenteDesde, estado, descripcion, tablaFisica, baseNormativa]
+      properties:
+        codigo: { type: string }
+        nombre: { type: string }
+        dueno: { type: string }
+        version: { type: string }
+        totalElementos: { type: integer }
+        elementosActivos: { type: integer }
+        vigenteDesde: { type: string, format: date-time }
+        estado:
+          type: string
+          enum: [VIGENTE, EN_REVISION, OBSOLETO]
+        descripcion: { type: string }
+        tablaFisica: { type: string }
+        baseNormativa: { type: string }
+
+    ElementoCatalogoOperativo:
+      type: object
+      additionalProperties: false
+      required: [id, catalogoCodigo, codigo, nombre, descripcion, activo, orden, actualizadoEn]
+      properties:
+        id: { type: string }
+        catalogoCodigo: { type: string }
+        codigo: { type: string }
+        nombre: { type: string }
+        descripcion: { type: string }
+        activo: { type: boolean }
+        atributos:
+          type: object
+          additionalProperties: true
+        orden: { type: integer }
+        vigenteDesde: { type: string, format: date-time }
+        actualizadoEn: { type: string, format: date-time }
+        actualizadoPor: { type: string }
+
+    EntradaActualizarElementoCatalogo:
+      type: object
+      additionalProperties: false
+      required: [activo, motivo]
+      properties:
+        activo: { type: boolean }
+        motivo: { type: string, minLength: 5, maxLength: 500 }
 
   responses:
     ReglaDeNegocio:

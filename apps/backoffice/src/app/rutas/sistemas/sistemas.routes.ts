@@ -43,6 +43,8 @@ export const rutasSistemas: Routes = [
       { path: 'roles-internos', loadComponent: () => import('./roles-internos/pantalla-roles-internos').then((m) => m.PantallaRolesInternos), title: 'Roles internos · Sistemas · AportaYa' },
       { path: 'permisos-internos', loadComponent: () => import('./permisos-internos/pantalla-permisos-internos').then((m) => m.PantallaPermisosInternos), title: 'Permisos internos · Sistemas · AportaYa' },
       { path: 'bitacora', loadComponent: () => import('./bitacora/pantalla-bitacora').then((m) => m.PantallaBitacora), title: 'Registro del sistema · Sistemas · AportaYa' },
+      { path: 'catalogos-operativos', loadComponent: () => import('./catalogos-operativos/pantalla-catalogos-operativos').then((m) => m.PantallaCatalogosOperativos), title: 'Catálogos operativos · Sistemas · AportaYa' },
+      { path: 'catalogos-operativos/:codigo', loadComponent: () => import('./catalogos-operativos/pantalla-catalogo-operativo-detalle').then((m) => m.PantallaCatalogoOperativoDetalle), title: 'Ficha de catálogo operativo · Sistemas · AportaYa' },
     ],
   },
 ]
