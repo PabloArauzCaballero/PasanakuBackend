@@ -93,6 +93,15 @@
 ## Desvío registrado
 - H2.M1: además del sondeo, `EstadoDePantalla` (sistema de diseño) borraba la pantalla en cada refresco por defecto (`omitirSkeletonAlActualizar = false`). Se cambió el valor por defecto a `true`: al refrescar se conserva lo que se ve. Afecta a todas las pantallas que lo usan; lo cubre la suite completa (H8.M1).
 
+## H9 — Registro: contraseña sin espacios (pedido del usuario, tarde del 2026-10-19)
+Hallazgo: el paso «Cómo entrás» del alta (`pasos_alta/paso_cuenta.dart`) valida con su propia regla (largo, celular, carnet) y aceptaba espacios; el arreglo de H6 solo había cubierto login y cambio de contraseña. El usuario pidió no tocar el diseño.
+**CA:** Dado el alta, cuando escribo un espacio en la contraseña, entonces el campo lo dice al instante, sugiere una contraseña válida y «Continuar» no avanza.
+**Estado:** HECHO
+
+| ID | Microtarea | CA (binario) | DoD | Estado |
+|---|---|---|---|---|
+| H9.M1 | Regla «sin espacios» + sugerencia en `validaciones.dart`, conectada al alta y al cambio de contraseña | Con «mi clave 2026» el alta no avanza y muestra el aviso con una sugerencia que cumple todas las reglas | `flutter test test/identidad/paso_contrasena_test.dart test/identidad/login_validacion_test.dart` | HECHO |
+
 ## Riesgos y bloqueos previstos
 | Riesgo | Impacto | Mitigación |
 |---|---|---|

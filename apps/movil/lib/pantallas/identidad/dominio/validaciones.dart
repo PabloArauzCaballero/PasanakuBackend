@@ -4,6 +4,8 @@
 /// resuelve `identidad.yaml` y su implementación en `servicios/identidad`.
 library;
 
+import 'dart:math';
+
 String? errorNombre(String valor) {
   final v = valor.trim();
   if (v.length < 2) return 'Escribí al menos dos letras.';
@@ -97,7 +99,7 @@ const errorSoloEspacios = 'La contraseña no puede ser solo espacios.';
 String? errorContrasena(String valor) {
   // Ocho espacios cumplían «ocho caracteres» (2026-10-19).
   if (valor.isNotEmpty && valor.trim().isEmpty) return errorSoloEspacios;
-  if (valor != valor.trim()) return 'Sin espacios al principio ni al final.';
+  if (tieneEspacios(valor)) return 'La contraseña no puede llevar espacios.';
   if (valor.length < 8) return 'Ocho caracteres como mínimo.';
   if (!RegExp(r'[0-9]').hasMatch(valor)) return 'Sumale al menos un número.';
   return null;
@@ -140,4 +142,38 @@ String? errorCorreo(String valor) {
     return 'Revisá el correo: le falta el arroba o el punto.';
   }
   return null;
+}
+
+/// Una contraseña nueva no lleva espacios en ningún lado (2026-10-19): el alta los
+/// aceptaba y después se entraba con otra cosa sin darse cuenta.
+bool tieneEspacios(String valor) => RegExp(r'\s').hasMatch(valor);
+
+/// El aviso del alta cuando la contraseña lleva espacios, con una [sugerencia] que
+/// cumple todas las reglas. `null` si no hay espacios.
+String? errorEspaciosEnClave(String valor, {required String sugerencia}) =>
+    tieneEspacios(valor)
+    ? 'La contraseña no puede llevar espacios. Juntá las palabras, por '
+          'ejemplo: $sugerencia'
+    : null;
+
+const _palabrasDeSugerencia = [
+  'Ahorro',
+  'Turno',
+  'Cuota',
+  'Grupo',
+  'Meta',
+  'Aporte',
+  'Plan',
+  'Futuro',
+];
+
+/// Una contraseña de ejemplo válida: dos palabras y cuatro cifras al azar, todo junto
+/// para que no se parta en dos renglones (por ej. `Turno4821Meta`). Cuatro cifras nunca alcanzan para contener el celular ni el
+/// carnet, así que siempre pasa las reglas del alta.
+String sugerirContrasena([Random? azar]) {
+  final r = azar ?? Random.secure();
+  String palabra() =>
+      _palabrasDeSugerencia[r.nextInt(_palabrasDeSugerencia.length)];
+  final cifras = (1000 + r.nextInt(9000)).toString();
+  return '${palabra()}$cifras${palabra()}';
 }
