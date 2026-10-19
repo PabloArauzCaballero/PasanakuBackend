@@ -14,6 +14,7 @@ import { ExplicadorDeVista } from '../nucleo/explicador-de-vista'
 import { migasDe } from '../nucleo/menu'
 import { Sesion } from '../nucleo/sesion'
 import { BuscadorGlobal } from './buscador-global'
+import { CampanaDeNotificaciones } from './campana-de-notificaciones'
 import { crearCerrarSesion } from './dominio/cerrar-sesion'
 import { IconoDeSeccion } from './icono-de-seccion'
 import { MenuDeUsuario } from './menu-de-usuario'
@@ -34,7 +35,7 @@ const ANGOSTO = '(max-width: 40rem)'
 @Component({
   selector: 'ap-shell-financiero',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterOutlet, RouterLink, CajonLateral, Icono, Migas, NotaDeVista, LanzadorDeTutorial, AnfitrionDeTutorial, BuscadorGlobal, IconoDeSeccion, MenuDeUsuario, MenuLateral, SimboloDeMarca],
+  imports: [RouterOutlet, RouterLink, CajonLateral, Icono, Migas, NotaDeVista, LanzadorDeTutorial, AnfitrionDeTutorial, BuscadorGlobal, CampanaDeNotificaciones, IconoDeSeccion, MenuDeUsuario, MenuLateral, SimboloDeMarca],
   template: `
     <div class="shell" [class.angosto]="angosto()">
       @if (!angosto()) {
@@ -62,6 +63,7 @@ const ANGOSTO = '(max-width: 40rem)'
         <ap-buscador-global class="buscador" />
         <!-- En el celular el lanzador vive en el cajón del menú: la cabecera no tiene lugar para su texto. -->
         @if (!angosto()) { <ap-lanzador-de-tutorial data-tutorial-id="lanzador-de-tutorial" /> }
+        <ap-campana-de-notificaciones />
         <ap-menu-de-usuario [saliendo]="saliendo()" (salir)="salir()" />
       </header>
       <main id="contenido">

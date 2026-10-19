@@ -2,12 +2,12 @@
 tags:
   - moc
   - indice
-entidades: 326
+entidades: 327
 ---
 
 # Índice de entidades
 
-Las **326 tablas** del modelo, agrupadas por módulo. «Sal.» y «Ent.» son claves foráneas salientes y entrantes.
+Las **327 tablas** del modelo, agrupadas por módulo. «Sal.» y «Ent.» son claves foráneas salientes y entrantes.
 
 [[Index|← Índice general]] · [[_Relaciones|Relaciones →]]
 
@@ -17,7 +17,7 @@ Las **326 tablas** del modelo, agrupadas por módulo. «Sal.» y «Ent.» son cl
 
 | Tabla | Columnas | Sal. | Ent. | Notas |
 | --- | --: | --: | --: | --- |
-| [[usuario]] | 18 | 0 | 217 | muy conectada |
+| [[usuario]] | 18 | 0 | 218 | muy conectada |
 | [[direccion_usuario]] | 8 | 1 | 0 | — |
 | [[perfil_financiero]] | 8 | 1 | 0 | — |
 | [[credencial_acceso]] | 8 | 1 | 0 | — |
@@ -149,6 +149,7 @@ Las **326 tablas** del modelo, agrupadas por módulo. «Sal.» y «Ent.» son cl
 | [[respuesta_entrante]] | 8 | 2 | 0 | — |
 | [[programacion_recordatorio]] | 9 | 2 | 0 | — |
 | [[bandeja_entrada]] | 9 | 2 | 0 | — |
+| [[aviso_interno]] | 9 | 1 | 0 | — |
 
 ## 06 — Transparencia y Reputación
 

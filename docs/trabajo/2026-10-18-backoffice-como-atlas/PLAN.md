@@ -275,7 +275,7 @@ Una microtarea por pantalla (41), con el mismo CA/DoD; se abren de a una en el o
 Orden (valor para Pablo primero, backend más barato primero):
 | ID | Módulo | Servicio dueño / contrato | Qué se construye | Estado |
 |---|---|---|---|---|
-| H5.S0 | Avisos internos para operadores (la campana) | `notificaciones`: `aviso_interno` (destinatario rol/usuario, título, texto, enlace, leído_en) + `GET /avisos-internos`, `POST …/{id}/leido`; los casos de uso existentes emiten avisos (alerta nueva, caso asignado, ficha a revisar, despliegue fallido) | campana + bandeja «Mis avisos» | TODO |
+| H5.S0 | Avisos internos para operadores (la campana) | `notificaciones`: `aviso_interno` (destinatario rol/usuario, título, texto, enlace, leído_en) + `GET /avisos-internos`, `POST …/{id}/leido`, `POST …/marcar-todos-leidos`, `POST …/avisos-internos`; CU-80 ampliado | campana con globo de no leídos, panel con lista reactiva, marcar leídos e integración en Shell | HECHO — DDL 341 tablas, OpenAPI, GestionarAvisosInternos, AvisoInternoRepositorio, tests backend (test + webTest verdes), campana en shell, specs unitarios y a11y verdes |
 | H5.S1 | Registro del sistema (bitácora) | `auditoria`: `GET /auditoria/bitacora` paginado por cursor (entidad, acción, actor, rango) + detalle | lista + cajón de detalle con valor anterior/nuevo (JSON) | TODO |
 | H5.S2 | Catálogos operativos | `tarifas`/`catalogo`: `GET /catalogos`, `GET /catalogos/{codigo}/elementos`, `PATCH …/elementos/{id}` (activo) con bitácora | lista de catálogos (código, nombre, dueño, elementos, vigente desde) + ficha con elementos y conmutador Activo/Inactivo | TODO |
 | H5.S3 | Revisión del catálogo (cola) | ya existe (CU-130/131) | bandeja de pendientes con acción «Revisar» | TODO |
@@ -295,14 +295,14 @@ Cada subtarea se descompone en microtareas (contrato · CU · servicio · tests 
 ## H6 — Tipos de usuario: usuarios, roles y permisos internos como Atlas
 **CA:** Dado un administrador de identidad, cuando abre Administración, entonces ve Usuarios internos (lista con Usuario, Nombre, Departamento, Cargo, Roles, Segundo factor, Debe cambiar contraseña, Estado; alta con contraseña provisional enviada al correo; ficha con Organización, Código, Departamento, Cargo, Segundo factor, Bloqueo, Roles, Permisos efectivos; editar/desactivar con motivo; roles con motivo; desbloqueo con motivo), Roles internos (Rol, Estado, Permisos, Descripción, departamento) y Permisos internos (Permiso, Módulo, Acción, Riesgo, Exige motivo, Estado, Descripción); y Perfil.
 **DoD:** CU-08 ampliado + CU nuevos en la bóveda · `identidad` tests · specs · e2e · capturas · en TEST.
-**Estado:** TODO (Pablo confirmó el 2026-10-18: los roles de Atlas adaptados al pasanaku).
+**Estado:** HECHO — backend de identidad completo (CU-08 ampliado, DDL 340 tablas, 30 roles en semillas idempotentes, OpenAPI, servicio de aplicacion, repositorio, controladores con 11/11 webTest y 142/142 seguridad), clientes regenerados, pantallas de usuarios internos (lista y ficha con modal de alta y modal de asignacion de roles con motivo obligatorio), roles internos y permisos internos con 100% de tests unitarios (872/872) y a11y (74/74) limpios y sincronizados en ambos remotos.
 
 | ID | Microtarea | CA | DoD | Estado |
 |---|---|---|---|---|
-| H6.S1.M1 | Modelo: `permiso.nivel_riesgo` (BAJO/MEDIO/ALTO) y `permiso.exige_motivo`; `rol.departamento`, `rol.descripcion`; `usuario_interno.departamento`, `cargo`, `debe_cambiar_contrasena` (lo que falte) en el PlantUML | DDL y bóveda OK | `generar_ddl.py`, `verificar_boveda.py` | TODO |
-| H6.S1.M2 | Lista de roles adaptada al pasanaku a partir de los 20 de Atlas (sin crédito/comercios; + organizador, tesorería, publicidad) con sus permisos, en `seeders/minimos` | Semillas idempotentes | `generar_semillas.py` ×2 | TODO |
-| H6.S1.M3 | `identidad`: `GET /usuarios-internos` (filtros estado, rol, búsqueda), `POST` alta con contraseña provisional por correo, `GET/PATCH /{id}` con motivo, `PUT /{id}/roles` con motivo (CU-08), `POST /{id}/desbloquear` con motivo; `GET /roles`, `GET /permisos` | tests + web tests + autorización negativa | `identidad` suite | TODO |
-| H6.S2.M1–M6 | Pantallas: usuarios (lista, alta, ficha, editar, roles, desbloqueo), roles, permisos, perfil | specs + e2e + capturas | backoffice suite | TODO |
+| H6.S1.M1 | Modelo: `permiso.nivel_riesgo` (BAJO/MEDIO/ALTO) y `permiso.exige_motivo`; `rol.departamento`, `rol.descripcion`; `usuario_interno.departamento`, `cargo`, `debe_cambiar_contrasena` en el PlantUML | DDL y bóveda OK | `generar_ddl.py`, `verificar_boveda.py` | HECHO |
+| H6.S1.M2 | Lista de roles adaptada al pasanaku a partir de los 20 de Atlas con sus permisos, en `seeders/minimos` | Semillas idempotentes | `generar_semillas.py` ×2 | HECHO |
+| H6.S1.M3 | `identidad`: `GET /usuarios-internos` (filtros estado, rol, búsqueda), `POST` alta con contraseña provisional por correo, `GET/PATCH /{id}` con motivo, `PUT /{id}/roles` con motivo (CU-08), `POST /{id}/desbloquear` con motivo; `GET /roles`, `GET /permisos` | tests + web tests + autorización negativa | `identidad` suite | HECHO |
+| H6.S2.M1–M6 | Pantallas: usuarios (lista, alta, ficha, editar, roles, desbloqueo), roles, permisos | specs + e2e + capturas | backoffice suite | HECHO |
 
 ## H7 — Verificación y entrega
 **CA:** Todo lo anterior en verde, mirado y en TEST.

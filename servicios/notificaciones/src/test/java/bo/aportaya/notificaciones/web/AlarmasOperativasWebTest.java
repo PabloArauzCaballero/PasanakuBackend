@@ -61,6 +61,9 @@ class AlarmasOperativasWebTest {
     @MockitoBean
     private bo.aportaya.notificaciones.aplicacion.ConsultarMensajeria consultarMensajeria;
 
+    @MockitoBean
+    private bo.aportaya.notificaciones.aplicacion.GestionarAvisosInternos gestionarAvisosInternos;
+
     private ResultActions emitir(RequestPostProcessor sesion, String cuerpo) throws Exception {
         var peticion = post("/notificaciones")
                 .header("Idempotency-Key", CLAVE)

@@ -128,6 +128,7 @@ SET search_path TO aportes, auditoria, cumplimiento, entregas, erp, garantia, gr
 \ir 10_tablas/05_notificaciones/respuesta_entrante.sql
 \ir 10_tablas/05_notificaciones/programacion_recordatorio.sql
 \ir 10_tablas/05_notificaciones/bandeja_entrada.sql
+\ir 10_tablas/05_notificaciones/aviso_interno.sql
 --    módulo 06 — Transparencia y Reputación
 \ir 10_tablas/06_transparencia_reputacion/modelo_scoring.sql
 \ir 10_tablas/06_transparencia_reputacion/peso_factor.sql

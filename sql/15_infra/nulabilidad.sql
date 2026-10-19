@@ -568,6 +568,10 @@ ALTER TABLE inversiones.version_condiciones ALTER COLUMN plazo_dias DROP NOT NUL
 ALTER TABLE inversiones.version_condiciones ALTER COLUMN tasa_comision_exito DROP NOT NULL;
 ALTER TABLE inversiones.version_condiciones ALTER COLUMN tasa_nominal_anual DROP NOT NULL;
 ALTER TABLE inversiones.version_condiciones ALTER COLUMN tasa_retencion DROP NOT NULL;
+ALTER TABLE notificaciones.aviso_interno ALTER COLUMN enlace DROP NOT NULL;
+ALTER TABLE notificaciones.aviso_interno ALTER COLUMN leido_en DROP NOT NULL;
+ALTER TABLE notificaciones.aviso_interno ALTER COLUMN rol_destinatario DROP NOT NULL;
+ALTER TABLE notificaciones.aviso_interno ALTER COLUMN usuario_id DROP NOT NULL;
 ALTER TABLE notificaciones.bandeja_entrada ALTER COLUMN leida_en DROP NOT NULL;
 ALTER TABLE notificaciones.bandeja_entrada ALTER COLUMN url_accion DROP NOT NULL;
 ALTER TABLE notificaciones.canal_vinculado ALTER COLUMN motivo_opt_out DROP NOT NULL;

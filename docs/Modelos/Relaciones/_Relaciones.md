@@ -2,13 +2,13 @@
 tags:
   - moc
   - indice
-relaciones_fk: 664
-cross_modulo: 347
+relaciones_fk: 665
+cross_modulo: 348
 ---
 
 # Índice de relaciones (claves foráneas)
 
-Las **664 claves foráneas** del modelo. **347** cruzan módulos.
+Las **665 claves foráneas** del modelo. **348** cruzan módulos.
 
 [[Index|← Índice general]] · [[_Entidades|Entidades →]]
 
@@ -78,6 +78,7 @@ Son las que acoplan el sistema: conviene revisarlas antes de tocar un módulo.
 | [[oferta_turno]] | `turno_id` | [[turno]] | 04 → 02 | no | [[oferta_turno.turno_id → turno\|ver]] |
 | [[orden_desembolso]] | `proveedor_id` | [[proveedor_pago]] | 04 → 03 | no | [[orden_desembolso.proveedor_id → proveedor_pago\|ver]] |
 | [[validacion_pre_entrega]] | `omitida_por` | [[usuario]] | 04 → 01 | sí | [[validacion_pre_entrega.omitida_por → usuario\|ver]] |
+| [[aviso_interno]] | `usuario_id` | [[usuario]] | 05 → 01 | sí | [[aviso_interno.usuario_id → usuario\|ver]] |
 | [[bandeja_entrada]] | `usuario_id` | [[usuario]] | 05 → 01 | no | [[bandeja_entrada.usuario_id → usuario\|ver]] |
 | [[canal_vinculado]] | `usuario_id` | [[usuario]] | 05 → 01 | no | [[canal_vinculado.usuario_id → usuario\|ver]] |
 | [[enlace_pago_notificado]] | `orden_cobro_id` | [[orden_cobro]] | 05 → 03 | no | [[enlace_pago_notificado.orden_cobro_id → orden_cobro\|ver]] |
@@ -565,6 +566,7 @@ Son las que acoplan el sistema: conviene revisarlas antes de tocar un módulo.
 
 | Relación | Destino | Cruza | Opcional |
 | --- | --- | :-: | :-: |
+| [[aviso_interno.usuario_id → usuario]] | [[usuario]] | ↗ | sí |
 | [[bandeja_entrada.notificacion_id → notificacion]] | [[notificacion]] | — | no |
 | [[bandeja_entrada.usuario_id → usuario]] | [[usuario]] | ↗ | no |
 | [[canal_vinculado.usuario_id → usuario]] | [[usuario]] | ↗ | no |

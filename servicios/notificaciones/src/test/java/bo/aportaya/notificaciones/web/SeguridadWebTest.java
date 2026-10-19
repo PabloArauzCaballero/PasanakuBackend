@@ -33,4 +33,7 @@ class SeguridadWebTest extends SabanaDeSeguridadWeb {
 
     @MockitoBean
     private SolicitarAviso solicitarAviso;
+
+    @MockitoBean
+    private bo.aportaya.notificaciones.aplicacion.GestionarAvisosInternos gestionarAvisosInternos;
 }
