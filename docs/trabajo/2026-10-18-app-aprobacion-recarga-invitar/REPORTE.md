@@ -24,6 +24,7 @@
 - Dónde quedó: `apps/movil/android/app/src/main/kotlin/bo/aportaya/aportaya_movil/CompartirMensaje.kt`, `lib/pantallas/pasanaku/botones_de_compartir.dart`.
 
 ### H5.M1 — CI del PR #139 y goldens
+- 2026-10-19: la corrida del CI quedó con «App — goldens (Linux)» en rojo (pantallas cambiadas a propósito) y los dos jobs iOS en rojo por `ld: framework 'Pods_Runner' not found` (entorno de macOS). La regeneración sigue en `docs/trabajo/2026-10-19-app-arreglos-del-telefono/` (H8.M2), junto con los arreglos nuevos del teléfono.
 - Qué anda: el PR está abierto; `verificar_frontend.py` y `dart format` en verde localmente.
 - Qué falta: que el CI termine. Si el job de goldens (Linux) falla por las pantallas cambiadas a propósito (candado, paso del carnet, invitación, billetera en cero), tomar del artefacto `goldens-diferencias` la imagen nueva de esas pantallas, revisarla y dejarla como referencia.
 

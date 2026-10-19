@@ -29,7 +29,7 @@
 | ID | Microtarea | CA (binario) | DoD | Estado |
 |---|---|---|---|---|
 | H1.M1 | Acento naranja en tokens, bóveda e ilustraciones | `Tokens.claro.accent == 0xFFB85B13` y `Tokens.oscuro.accent == 0xFFEF9E4E` | `yarn workspace @aportaya/tokens build` + `flutter test test/widget/roles_de_color_accion_test.dart` (diseno) | HECHO |
-| H1.M2 | Nombre «Aporteo» | `android:label="Aporteo"` y `CFBundleDisplayName` = Aporteo | `aapt dump badging` del APK muestra `application-label:'Aporteo'` | TODO |
+| H1.M2 | Nombre «Aporteo» | `android:label="Aporteo"` y `CFBundleDisplayName` = Aporteo | `aapt dump badging` del APK muestra `application-label:'Aporteo'` | HECHO |
 
 ## H2 — Verificación sin esperas ni parpadeos
 **CA:** Dado que mandé todo, cuando entro a Inicio, Grupos o a una operación, entonces veo «Consultar estado» (no «Completar verificación»), nada parpadea, y si ya me aprobaron se activa la cuenta ahí mismo.
@@ -85,10 +85,10 @@
 ## H8 — Entrega
 | ID | Microtarea | CA (binario) | DoD | Estado |
 |---|---|---|---|---|
-| H8.M1 | Suite no visual + analyze + reglas de frontend | Todo verde salvo píxeles | `flutter analyze`, `flutter test`, `python scripts/verificar_frontend.py` | TODO |
+| H8.M1 | Suite no visual + analyze + reglas de frontend | Todo verde salvo píxeles | `flutter analyze`, `flutter test`, `python scripts/verificar_frontend.py` | HECHO |
 | H8.M2 | Goldens regenerados en Linux | Job «App — goldens (Linux)» en verde | CI del PR #139 | TODO |
 | H8.M3 | Merge a `test` y despliegue | Contabo con el commit nuevo | `gh pr view` + estado del despliegue | TODO |
-| H8.M4 | APK v9 | APK en `Downloads` | `flutter build apk` + `aapt` | TODO |
+| H8.M4 | APK v9 | APK en `Downloads` | `flutter build apk` + `aapt` | HECHO |
 
 ## Desvío registrado
 - H2.M1: además del sondeo, `EstadoDePantalla` (sistema de diseño) borraba la pantalla en cada refresco por defecto (`omitirSkeletonAlActualizar = false`). Se cambió el valor por defecto a `true`: al refrescar se conserva lo que se ve. Afecta a todas las pantallas que lo usan; lo cubre la suite completa (H8.M1).
