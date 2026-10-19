@@ -5,12 +5,12 @@ import { ComponentFixture, TestBed } from '@angular/core/testing'
 import { ejemploDe } from '@aportaya/simulado'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { erroresInterceptor } from '../../../nucleo/errores.interceptor'
-import { GATEWAY } from '../../../nucleo/gateway'
+import { GATEWAY, GW } from '../../../nucleo/gateway'
 import { idempotenciaInterceptor, olvidarIntentos } from '../../../nucleo/idempotencia.interceptor'
 import { FormularioDeConciliacion } from './formulario-de-conciliacion'
 
 /** **UI contra HTTP simulado** de `conciliarCustodia` (CU-50). Identificadores e importes sintéticos. */
-const URL = 'http://gw/api/v1/custodia/conciliaciones'
+const URL = `${GW}/custodia/conciliaciones`
 const CUENTA = '66d81a5c-e974-4f02-8705-39aa2504c995'
 const OK = ejemploDe('nucleo-financiero', 'conciliarCustodia', 'ok').cuerpo as { conciliacionId: string }
 const DESCUADRE = { ...OK, estado: 'DESCUADRADA', cumpleEncaje: false, ratioCobertura: '0.982000', diferencia: { monto: '-1250.00', moneda: 'BOB' } }
@@ -20,7 +20,7 @@ describe('FormularioDeConciliacion · [UI contra HTTP simulado] CU-50', () => {
   beforeEach(() => {
     olvidarIntentos()
     TestBed.configureTestingModule({
-      providers: [provideZonelessChangeDetection(), provideHttpClient(withInterceptors([idempotenciaInterceptor, erroresInterceptor])), provideHttpClientTesting(), { provide: GATEWAY, useValue: 'http://gw/api/v1' }],
+      providers: [provideZonelessChangeDetection(), provideHttpClient(withInterceptors([idempotenciaInterceptor, erroresInterceptor])), provideHttpClientTesting(), { provide: GATEWAY, useValue: GW }],
     })
     http = TestBed.inject(HttpTestingController)
   })

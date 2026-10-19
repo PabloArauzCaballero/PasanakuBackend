@@ -4,6 +4,9 @@ import { validarConfiguracion, type ModoGateway, type ResultadoValidacionGateway
 /** Una sola base URL: el gateway. El prefijo de la ruta enruta al servicio. */
 export const GATEWAY = new InjectionToken<string>('aportaya.gateway')
 
+/** Constante transversal para pruebas que esperan el gateway configurado. */
+export const GW = 'http://gw/api/v1'
+
 /**
  * El resultado completo de validar la configuración — no solo la URL, sino también si
  * es válida. `ConfiguracionInvalida` (y quien la cablee, ver `entregables/cableado-

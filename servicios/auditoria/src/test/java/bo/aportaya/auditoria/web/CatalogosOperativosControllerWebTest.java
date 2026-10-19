@@ -28,7 +28,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-@PruebaWeb(CatalogosOperativosController.class)
+@PruebaWeb(AuditoriaController.class)
 class CatalogosOperativosControllerWebTest {
 
     private static final OffsetDateTime FECHA = OffsetDateTime.of(2026, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC);
@@ -38,6 +38,12 @@ class CatalogosOperativosControllerWebTest {
 
     @MockitoBean
     private GestionarCatalogosOperativos casoDeUso;
+
+    @MockitoBean
+    private bo.aportaya.auditoria.aplicacion.ConsultarBitacora bitacoraCasoDeUso;
+
+    @MockitoBean
+    private bo.aportaya.auditoria.aplicacion.CU07EjercerDerechos cu07;
 
     @Test
     @DisplayName("401: sin sesion rechaza la consulta de catalogos")

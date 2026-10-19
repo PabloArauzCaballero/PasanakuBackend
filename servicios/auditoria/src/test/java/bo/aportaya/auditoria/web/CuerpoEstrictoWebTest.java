@@ -20,7 +20,7 @@ import org.springframework.test.web.servlet.MockMvc;
  * ignora en silencio (96.2.2, mass assignment). Sin {@code spring.jackson.deserialization.fail-on-unknown-properties}
  * el servidor aceptaba el cuerpo con el campo de mas y contestaba como si nada.
  */
-@PruebaWeb(DerechosController.class)
+@PruebaWeb(AuditoriaController.class)
 class CuerpoEstrictoWebTest {
 
     private static final String CLAVE = "a0000000-0000-4000-8000-0000000000fd";
@@ -30,6 +30,12 @@ class CuerpoEstrictoWebTest {
 
     @MockitoBean
     private CU07EjercerDerechos cu07;
+
+    @MockitoBean
+    private bo.aportaya.auditoria.aplicacion.GestionarCatalogosOperativos catalogosCasoDeUso;
+
+    @MockitoBean
+    private bo.aportaya.auditoria.aplicacion.ConsultarBitacora bitacoraCasoDeUso;
 
     @Test
     @DisplayName("rechaza: un campo que el contrato no declara devuelve 400 y el caso de uso ni se entera")
