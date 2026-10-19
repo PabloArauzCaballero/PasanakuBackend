@@ -23,7 +23,7 @@ describe('PantallaUsuariosInternos · accesibilidad', () => {
     const fixture = TestBed.createComponent(PantallaUsuariosInternos)
     fixture.detectChanges()
 
-    http.expectOne('http://gw/api/v1/identidad/usuarios-internos').flush([
+    http.expectOne('http://gw/api/v1/usuarios-internos').flush([
       {
         id: 'u-1',
         usuarioId: 'usr-1',

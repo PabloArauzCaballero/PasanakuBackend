@@ -22,7 +22,7 @@ describe('PantallaPermisosInternos · accesibilidad', () => {
     const fixture = TestBed.createComponent(PantallaPermisosInternos)
     fixture.detectChanges()
 
-    http.expectOne('http://gw/api/v1/identidad/permisos').flush([
+    http.expectOne('http://gw/api/v1/permisos').flush([
       {
         id: 'p-1',
         codigo: 'ALERTAS_RIESGO_LEER',

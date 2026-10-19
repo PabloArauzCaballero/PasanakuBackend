@@ -51,7 +51,7 @@ describe('PantallaRolesInternos', () => {
     const fixture = TestBed.createComponent(PantallaRolesInternos)
     fixture.detectChanges()
 
-    http.expectOne('http://gw/api/v1/identidad/roles').flush(ROLES_EJEMPLO)
+    http.expectOne('http://gw/api/v1/roles').flush(ROLES_EJEMPLO)
     await fixture.whenStable()
     fixture.detectChanges()
 

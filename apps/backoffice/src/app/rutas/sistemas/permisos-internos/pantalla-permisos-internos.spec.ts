@@ -54,7 +54,7 @@ describe('PantallaPermisosInternos', () => {
     const fixture = TestBed.createComponent(PantallaPermisosInternos)
     fixture.detectChanges()
 
-    http.expectOne('http://gw/api/v1/identidad/permisos').flush(PERMISOS_EJEMPLO)
+    http.expectOne('http://gw/api/v1/permisos').flush(PERMISOS_EJEMPLO)
     await fixture.whenStable()
     fixture.detectChanges()
 

@@ -51,7 +51,7 @@ describe('PantallaUsuarioInternoDetalle', () => {
     const fixture = TestBed.createComponent(PantallaUsuarioInternoDetalle)
     fixture.detectChanges()
 
-    http.expectOne('http://gw/api/v1/identidad/usuarios-internos/u-1').flush(USUARIO_DETALLE)
+    http.expectOne('http://gw/api/v1/usuarios-internos/u-1').flush(USUARIO_DETALLE)
     await fixture.whenStable()
     fixture.detectChanges()
 

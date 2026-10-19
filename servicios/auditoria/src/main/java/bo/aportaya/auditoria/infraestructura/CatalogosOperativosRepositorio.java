@@ -196,45 +196,25 @@ public class CatalogosOperativosRepositorio {
         actual.setActualizadoPor(actorUsuarioId != null ? actorUsuarioId.toString() : "ADMIN");
 
         if (dsl != null) {
-            try {
-                if ("HECHOS_GENERADORES".equals(codigo)) {
-                    dsl.execute(
-                            "UPDATE tarifas.catalogo_hecho_generador SET activo = ? WHERE codigo = ? OR id::varchar = ?",
-                            nuevoActivo,
-                            actual.getCodigo(),
-                            id);
-                } else if ("REPORTES_REGULATORIOS".equals(codigo)) {
-                    dsl.execute(
-                            "UPDATE cumplimiento.catalogo_reporte_regulatorio SET activo = ? WHERE codigo = ? OR id::varchar = ?",
-                            nuevoActivo,
-                            actual.getCodigo(),
-                            id);
-                }
-            } catch (Exception ignored) {
-            }
+            String accion = nuevoActivo ? "ACTIVAR_ELEMENTO_CATALOGO" : "DESACTIVAR_ELEMENTO_CATALOGO";
+            String valAnt = "{\"catalogo\":\"" + codigo + "\",\"id\":\"" + id + "\",\"codigo\":\"" + actual.getCodigo()
+                    + "\",\"activo\":" + estadoAnterior + "}";
+            String valNue = "{\"catalogo\":\"" + codigo + "\",\"id\":\"" + id + "\",\"codigo\":\"" + actual.getCodigo()
+                    + "\",\"activo\":" + nuevoActivo + ",\"motivo\":\"" + motivo + "\"}";
+            UUID entidadId = UUID.nameUUIDFromBytes((codigo + ":" + id).getBytes());
 
-            try {
-                String accion = nuevoActivo ? "ACTIVAR_ELEMENTO_CATALOGO" : "DESACTIVAR_ELEMENTO_CATALOGO";
-                String valAnt = "{\"catalogo\":\"" + codigo + "\",\"id\":\"" + id + "\",\"codigo\":\""
-                        + actual.getCodigo() + "\",\"activo\":" + estadoAnterior + "}";
-                String valNue = "{\"catalogo\":\"" + codigo + "\",\"id\":\"" + id + "\",\"codigo\":\""
-                        + actual.getCodigo() + "\",\"activo\":" + nuevoActivo + ",\"motivo\":\"" + motivo + "\"}";
-                UUID entidadId = UUID.nameUUIDFromBytes((codigo + ":" + id).getBytes());
-
-                bitacora.registrarCambioDeCatalogo(
-                        dsl,
-                        "catalogo_operativo",
-                        entidadId,
-                        accion,
-                        actorUsuarioId,
-                        actorRol != null ? actorRol : "ADMINISTRADOR",
-                        correlationId != null ? correlationId : UUID.randomUUID(),
-                        valAnt,
-                        valNue,
-                        motivo,
-                        ahora);
-            } catch (Exception ignored) {
-            }
+            bitacora.registrarCambioDeCatalogo(
+                    dsl,
+                    "catalogo_operativo",
+                    entidadId,
+                    accion,
+                    actorUsuarioId,
+                    actorRol != null ? actorRol : "ADMINISTRADOR",
+                    correlationId != null ? correlationId : UUID.randomUUID(),
+                    valAnt,
+                    valNue,
+                    motivo,
+                    ahora);
         }
 
         return Optional.of(actual);

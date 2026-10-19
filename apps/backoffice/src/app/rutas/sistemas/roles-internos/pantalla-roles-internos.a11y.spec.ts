@@ -21,7 +21,7 @@ describe('PantallaRolesInternos · accesibilidad', () => {
     const fixture = TestBed.createComponent(PantallaRolesInternos)
     fixture.detectChanges()
 
-    http.expectOne('http://gw/api/v1/identidad/roles').flush([
+    http.expectOne('http://gw/api/v1/roles').flush([
       {
         id: 'r-1',
         codigo: 'RISK_ANALYST',

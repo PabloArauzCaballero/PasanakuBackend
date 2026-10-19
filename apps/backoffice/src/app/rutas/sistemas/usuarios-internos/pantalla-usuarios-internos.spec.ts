@@ -48,7 +48,7 @@ describe('PantallaUsuariosInternos', () => {
     const fixture = TestBed.createComponent(PantallaUsuariosInternos)
     fixture.detectChanges()
 
-    const req = http.expectOne('http://gw/api/v1/identidad/usuarios-internos')
+    const req = http.expectOne('http://gw/api/v1/usuarios-internos')
     req.flush(USUARIOS_EJEMPLO)
     await fixture.whenStable()
     fixture.detectChanges()
@@ -66,7 +66,7 @@ describe('PantallaUsuariosInternos', () => {
     const fixture = TestBed.createComponent(PantallaUsuariosInternos)
     fixture.detectChanges()
 
-    http.expectOne('http://gw/api/v1/identidad/usuarios-internos').flush([])
+    http.expectOne('http://gw/api/v1/usuarios-internos').flush([])
     await fixture.whenStable()
     fixture.detectChanges()
 
