@@ -8,6 +8,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../navegacion/acceso_a_rutas.dart';
 import '../../proveedores/renovar_acceso.dart';
+import 'boton_consultar_estado.dart';
 import 'dominio/verificacion_diferida.dart';
 import 'textos_de_verificacion.dart';
 
@@ -46,6 +47,7 @@ class PantallaIdentidadRequerida extends ConsumerWidget {
                   context.pushReplacement(rutaDeVerificarIdentidad),
               onVerEstado: () =>
                   context.pushReplacement(rutaDeVerificacionDeSesion),
+              onContinuar: () => context.go(volver ?? '/billetera/inicio'),
               onActivar: () async {
                 final listo = await ref.read(renovarAccesoProvider)();
                 if (!context.mounted) return;
@@ -74,12 +76,14 @@ class _Contenido extends StatelessWidget {
     required this.onVerificar,
     required this.onVerEstado,
     required this.onActivar,
+    required this.onContinuar,
   });
   final EstadoDeCuenta cuenta;
   final VoidCallback onCerrar;
   final VoidCallback onVerificar;
   final VoidCallback onVerEstado;
   final VoidCallback onActivar;
+  final VoidCallback onContinuar;
 
   @override
   Widget build(BuildContext context) {
@@ -123,7 +127,12 @@ class _Contenido extends StatelessWidget {
         const SizedBox(height: Espacio.s2),
         Text(detalle),
         const Spacer(),
-        if (accion != null && alTocar != null) ...[
+        // En revisión, lo útil es preguntar si ya la aprobaron, ahí mismo: si la
+        // aprobaron, la cuenta se activa y se sigue con la operación (2026-10-19).
+        if (cuenta == EstadoDeCuenta.enRevision) ...[
+          BotonConsultarEstado(expandido: true, alActivar: onContinuar),
+          const SizedBox(height: Espacio.s2),
+        ] else if (accion != null && alTocar != null) ...[
           Boton(
             key: const ValueKey('identidad-requerida-accion'),
             texto: accion,

@@ -35,7 +35,7 @@
   /* ===== Tema claro ===== */
   --bg:#F4F6F5;--surface:var(--white);--surface-2:var(--cloud);
   --text:var(--ink);--text-2:var(--slate);--border:var(--line);
-  --brand:var(--g600);--brand-ink:var(--g800);--accent:var(--g700);--accent-ink:var(--white);
+  --brand:var(--g600);--brand-ink:var(--g800);--accent:var(--o700);--accent-ink:var(--white);
   --field:var(--white);--field-border:#C9D4CD;
   /* Relleno sólido contextual: en oscuro sube a g300 y usa tinta para conservar
      ≥4,5:1 de texto y ≥3:1 contra las superficies del tema. */
@@ -47,7 +47,7 @@
      logotipo, donde el requisito es 3:1 o no aplica (logotipos exentos). */
   --text-3:#647169;          /* 4.64:1 sobre crema */
   --brand-texto:var(--g600); /* 8.16:1 sobre blanco */
-  --accent-texto:var(--g600);    /* 4.62:1 sobre crema */
+  --accent-texto:#A65B14;    /* 4.62:1 sobre crema */
   --ok-texto:#197C45;        /* 4.66:1 sobre --okbg */
   --aviso-texto:#AA5915;     /* 4.62:1 sobre --warnbg */
   --err-texto:#C13A3A;       /* sobre --errbg */
@@ -55,14 +55,14 @@
 }
 @media (prefers-color-scheme:dark){:root{
   --bg:#0A1F15;--surface:#0F2B1D;--surface-2:#0C2418;--text:#EAF3ED;--text-2:#B7CCC0;--text-3:#89998E;--border:#1C3A2A;
-  --brand:var(--g300);--brand-ink:#EAF3ED;--accent:var(--g300);--accent-ink:var(--ink);
+  --brand:var(--g300);--brand-ink:#EAF3ED;--accent:var(--o400);--accent-ink:#3A1E02;
   --field:#0C2418;--field-border:#2A4A38;--verde-solido:var(--g300);--sobre-verde-solido:var(--ink);
-  --brand-texto:var(--g300);--accent-texto:var(--g300);--ok-texto:var(--g300);--aviso-texto:var(--warn);--err-texto:#F08C8C;--info-texto:#8FC2E4;
+  --brand-texto:var(--g300);--accent-texto:var(--o400);--ok-texto:var(--g300);--aviso-texto:var(--warn);--err-texto:#F08C8C;--info-texto:#8FC2E4;
   --cloud:#0C2418;--crema:#0A1F15;--okbg:rgba(31,157,87,.14);--warnbg:rgba(240,180,41,.14);--errbg:rgba(214,69,69,.14);--infobg:rgba(46,127,184,.14);
   --sh-1:0 1px 2px rgba(0,0,0,.3);--sh-2:0 6px 20px rgba(0,0,0,.32);--sh-3:0 20px 46px rgba(0,0,0,.4);
 }}
-:root[data-theme="light"]{--bg:#F4F6F5;--surface:#fff;--surface-2:#F3F6F2;--text:#10231A;--text-2:#38473F;--border:#DCE4DE;--brand:#1C5A3A;--brand-ink:#123A26;--accent:var(--g700);--accent-ink:var(--white);--text-3:#647169;--brand-texto:#1C5A3A;--accent-texto:var(--g600);--ok-texto:#197C45;--aviso-texto:#AA5915;--err-texto:#C13A3A;--info-texto:#256C9E;--field:#fff;--field-border:#C9D4CD;--cloud:#F3F6F2;--crema:#F6F4EC;--okbg:#E7F5EC;--warnbg:#FEF4DA;--errbg:#FBECEC;--infobg:#E7F1F8}
-:root[data-theme="dark"]{--bg:#0A1F15;--surface:#0F2B1D;--surface-2:#0C2418;--text:#EAF3ED;--text-2:#B7CCC0;--text-3:#89998E;--border:#1C3A2A;--brand:#7CBE9C;--brand-ink:#EAF3ED;--accent:#7CBE9C;--accent-ink:var(--ink);--verde-solido:var(--g300);--sobre-verde-solido:var(--ink);--brand-texto:var(--g300);--accent-texto:var(--g300);--ok-texto:var(--g300);--aviso-texto:var(--warn);--err-texto:#F08C8C;--info-texto:#8FC2E4;--field:#0C2418;--field-border:#2A4A38;--cloud:#0C2418;--crema:#0A1F15;--okbg:rgba(31,157,87,.14);--warnbg:rgba(240,180,41,.14);--errbg:rgba(214,69,69,.14);--infobg:rgba(46,127,184,.14);--sh-1:0 1px 2px rgba(0,0,0,.3);--sh-2:0 6px 20px rgba(0,0,0,.32);--sh-3:0 20px 46px rgba(0,0,0,.4)}
+:root[data-theme="light"]{--bg:#F4F6F5;--surface:#fff;--surface-2:#F3F6F2;--text:#10231A;--text-2:#38473F;--border:#DCE4DE;--brand:#1C5A3A;--brand-ink:#123A26;--accent:var(--o700);--accent-ink:var(--white);--text-3:#647169;--brand-texto:#1C5A3A;--accent-texto:#A65B14;--ok-texto:#197C45;--aviso-texto:#AA5915;--err-texto:#C13A3A;--info-texto:#256C9E;--field:#fff;--field-border:#C9D4CD;--cloud:#F3F6F2;--crema:#F6F4EC;--okbg:#E7F5EC;--warnbg:#FEF4DA;--errbg:#FBECEC;--infobg:#E7F1F8}
+:root[data-theme="dark"]{--bg:#0A1F15;--surface:#0F2B1D;--surface-2:#0C2418;--text:#EAF3ED;--text-2:#B7CCC0;--text-3:#89998E;--border:#1C3A2A;--brand:#7CBE9C;--brand-ink:#EAF3ED;--accent:#EF9E4E;--accent-ink:#3A1E02;--verde-solido:var(--g300);--sobre-verde-solido:var(--ink);--brand-texto:var(--g300);--accent-texto:var(--o400);--ok-texto:var(--g300);--aviso-texto:var(--warn);--err-texto:#F08C8C;--info-texto:#8FC2E4;--field:#0C2418;--field-border:#2A4A38;--cloud:#0C2418;--crema:#0A1F15;--okbg:rgba(31,157,87,.14);--warnbg:rgba(240,180,41,.14);--errbg:rgba(214,69,69,.14);--infobg:rgba(46,127,184,.14);--sh-1:0 1px 2px rgba(0,0,0,.3);--sh-2:0 6px 20px rgba(0,0,0,.32);--sh-3:0 20px 46px rgba(0,0,0,.4)}
 
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font-b);line-height:1.55;font-size:15px;-webkit-font-smoothing:antialiased}

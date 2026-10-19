@@ -12,6 +12,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../proveedores/sesion.dart';
 import 'acciones_de_grupo.dart';
+import 'aviso_de_revision_en_grupos.dart';
 import 'dominio/mis_grupos.dart';
 import 'textos.dart';
 
@@ -34,6 +35,7 @@ class PantallaMisGrupos extends ConsumerWidget {
             physics: const AlwaysScrollableScrollPhysics(),
             padding: const EdgeInsets.all(Espacio.s4),
             children: [
+              const AvisoDeRevisionEnGrupos(),
               MarcaDeTutorial(
                 id: 'pasanaku.mi-estado',
                 hijo: EstadoDePantalla<List<GrupoMio>>(

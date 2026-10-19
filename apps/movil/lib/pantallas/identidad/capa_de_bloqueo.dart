@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../dominio/puertos/biometria.dart';
 import '../../dominio/vigilante_de_sesion.dart';
 import '../../proveedores/biometria.dart';
 import '../../proveedores/bloqueo.dart';
@@ -64,6 +65,15 @@ class _CapaDeBloqueoState extends ConsumerState<CapaDeBloqueo>
   bool _reintentoBiometricoPendiente = false;
   int _episodiosBiometricosVistos = 0;
   int _episodio = 0;
+
+  /// Lo que contestó el sistema si no pudo abrir el diálogo; se muestra en el candado.
+  String? _falloBiometrico;
+
+  void _mostrarFallo(String? fallo) {
+    if (mounted && fallo != _falloBiometrico) {
+      setState(() => _falloBiometrico = fallo);
+    }
+  }
 
   void _alCambiarEstadoDeAnimacion(AnimationStatus estado) {
     if (estado != AnimationStatus.dismissed || !_conservarCapa) return;
@@ -136,6 +146,7 @@ class _CapaDeBloqueoState extends ConsumerState<CapaDeBloqueo>
         opacidad: _opacidad,
         escala: _escala,
         biometriaDisponible: biometriaDisponible,
+        falloBiometrico: _falloBiometrico,
         onDesbloquear: widget.onDesbloquear ?? _solicitarBiometriaManual,
         onIngresarDeNuevo: widget.onIngresarDeNuevo,
       ),

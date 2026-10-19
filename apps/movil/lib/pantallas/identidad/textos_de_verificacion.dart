@@ -58,6 +58,20 @@ class TextosDeVerificacion {
   static const avisoRechazada =
       'No pudimos verificar tu identidad. Tocá para ver qué pasó.';
   static const entrar = 'Entrar';
+  // «Consultar estado» (2026-10-19): la persona pregunta si ya la aprobaron sin salir
+  // de donde está.
+  static const consultarEstado = 'Consultar estado';
+  static const consultando = 'Consultando…';
+  static const aprobadaConsultar =
+      'Tu identidad ya está verificada. Tocá «Consultar estado» para activar la '
+      'billetera y los grupos.';
+  static const sigueEnRevision =
+      'Tu identidad sigue en revisión. Te avisamos apenas la aprueben.';
+  static const noSePudoConsultar =
+      'No pudimos consultar el estado. Revisá tu conexión y probá de nuevo.';
+  static const enRevisionGrupos =
+      'Mientras revisamos tu identidad podés ver tus grupos e invitaciones. Para '
+      'crear un grupo o unirte a uno necesitamos terminar la revisión.';
   static const actualizarEstado = 'Actualizar estado';
   static const salirDeCuenta = 'Salir de esta cuenta';
   static const actualizarAcceso = 'Cerrar sesión para actualizar el acceso';

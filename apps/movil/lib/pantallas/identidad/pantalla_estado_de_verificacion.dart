@@ -79,14 +79,10 @@ class _Contenido extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final (titulo, detalle) = switch (expediente.estado) {
-      EstadoDeVerificacionEstadoEnum.PENDIENTE => (
-        sesionActiva
-            ? TextosDeVerificacion.cuentaEnVerificacionTitulo
-            : TextosDeVerificacion.pendienteTitulo,
-        sesionActiva
-            ? TextosDeVerificacion.cuentaEnVerificacionDetalle
-            : TextosDeVerificacion.pendienteDetalle,
-      ),
+      // PENDIENTE y EN_REVISION se dicen igual: la revisión es humana y puede tardar,
+      // así que nunca «No cierres la app». Recién creada la cuenta, decir eso dejaba
+      // a la persona mirando esta pantalla como si tuviera que esperar (2026-10-19).
+      EstadoDeVerificacionEstadoEnum.PENDIENTE ||
       EstadoDeVerificacionEstadoEnum.EN_REVISION => (
         sesionActiva
             ? TextosDeVerificacion.cuentaEnVerificacionTitulo

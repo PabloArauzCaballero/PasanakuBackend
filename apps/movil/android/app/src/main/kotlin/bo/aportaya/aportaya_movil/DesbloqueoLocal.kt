@@ -4,12 +4,17 @@ import android.app.Activity
 import android.app.KeyguardManager
 import android.content.Context
 import android.os.Build
+import android.os.Handler
+import android.os.Looper
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricManager.Authenticators.BIOMETRIC_WEAK
 import androidx.biometric.BiometricManager.Authenticators.DEVICE_CREDENTIAL
 import androidx.biometric.BiometricPrompt
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
 import io.flutter.plugin.common.MethodChannel
 
 /// Desbloqueo local con la huella **o el PIN/patrón del teléfono** (2026-10-17).
@@ -21,6 +26,13 @@ import io.flutter.plugin.common.MethodChannel
 /// - cada pedido nuevo reemplaza al anterior (que responde `false` y se cancela);
 /// - sin huella usable, o si la huella falla por el sensor o por bloqueo, se pide el
 ///   PIN/patrón del teléfono (BiometricPrompt en Android 11+, KeyguardManager antes).
+/// 2026-10-19: en un Samsung con PIN y rostro el botón seguía sin hacer nada. Dos
+/// caminos en los que el pedido se perdía sin respuesta:
+/// - `BiometricPrompt.authenticate` se ignora en silencio si la actividad ya guardó su
+///   estado (pantalla apagándose, volviendo de la pantalla de bloqueo): ahora se
+///   espera a que la actividad vuelva al frente y recién ahí se abre;
+/// - un error del sistema se contestaba igual que «la persona canceló»: ahora vuelve
+///   como error con su código, y la app lo muestra.
 /// Confirma presencia local; no autentica ante el servidor.
 class DesbloqueoLocal(private val actividad: FragmentActivity) {
 
@@ -32,7 +44,15 @@ class DesbloqueoLocal(private val actividad: FragmentActivity) {
             respondido = true
             resultado.success(valor)
         }
+
+        fun fallar(codigo: Int, mensaje: CharSequence) {
+            if (respondido) return
+            respondido = true
+            resultado.error("DESBLOQUEO", "$codigo: $mensaje", null)
+        }
     }
+
+    private val principal = Handler(Looper.getMainLooper())
 
     private var intentoActual: Intento? = null
     private var promptActual: BiometricPrompt? = null
@@ -41,15 +61,42 @@ class DesbloqueoLocal(private val actividad: FragmentActivity) {
 
     fun confirmar(motivo: String, resultado: MethodChannel.Result) {
         intentoActual?.responder(false)
+        val habiaUnDialogo = promptActual != null
         promptActual?.cancelAuthentication()
         promptActual = null
         val intento = Intento(resultado, motivo)
         intentoActual = intento
+        val abrir = Runnable { cuandoEsteAlFrente(intento) { abrir(intento) } }
+        // El diálogo anterior tarda un instante en irse: abrir el nuevo en el mismo
+        // instante puede perderse. Se abre en la próxima vuelta del hilo principal.
+        if (habiaUnDialogo) principal.post(abrir) else abrir.run()
+    }
+
+    private fun abrir(intento: Intento) {
+        if (intento !== intentoActual) return
         when {
             biometriaLista() -> conBiometria(intento)
             credencialLista() -> conCredencial(intento)
-            else -> intento.responder(false)
+            else -> intento.fallar(-1, "Sin huella ni PIN configurados en el teléfono")
         }
+    }
+
+    /// `authenticate` con la actividad detenida no hace nada y no avisa: se espera a
+    /// que vuelva al frente (por ejemplo, después de la pantalla de bloqueo).
+    private fun cuandoEsteAlFrente(intento: Intento, accion: () -> Unit) {
+        val ciclo = actividad.lifecycle
+        if (ciclo.currentState.isAtLeast(Lifecycle.State.RESUMED) &&
+            !actividad.supportFragmentManager.isStateSaved
+        ) {
+            accion()
+            return
+        }
+        ciclo.addObserver(object : DefaultLifecycleObserver {
+            override fun onResume(owner: LifecycleOwner) {
+                ciclo.removeObserver(this)
+                if (intento === intentoActual) principal.post { accion() }
+            }
+        })
     }
 
     /// Respuesta de la pantalla de PIN del sistema en Android 10 o anterior.
@@ -99,7 +146,7 @@ class DesbloqueoLocal(private val actividad: FragmentActivity) {
         @Suppress("DEPRECATION")
         val pantalla = guardia?.createConfirmDeviceCredentialIntent("AportaYa", intento.motivo)
         if (pantalla == null) {
-            intento.responder(false)
+            intento.fallar(-3, "El teléfono no ofreció la pantalla de PIN")
             return
         }
         @Suppress("DEPRECATION")
@@ -120,8 +167,10 @@ class DesbloqueoLocal(private val actividad: FragmentActivity) {
                     if (intento !== intentoActual) return
                     if (alFallarElSensor && codigo in ERRORES_DEL_SENSOR && credencialLista()) {
                         conCredencial(intento)
-                    } else {
+                    } else if (codigo in CANCELACIONES) {
                         intento.responder(false)
+                    } else {
+                        intento.fallar(codigo, mensaje)
                     }
                 }
 
@@ -131,7 +180,11 @@ class DesbloqueoLocal(private val actividad: FragmentActivity) {
             },
         )
         promptActual = prompt
-        prompt.authenticate(info)
+        try {
+            prompt.authenticate(info)
+        } catch (e: RuntimeException) {
+            intento.fallar(-2, e.message ?: e.javaClass.simpleName)
+        }
     }
 
     private companion object {
@@ -139,6 +192,15 @@ class DesbloqueoLocal(private val actividad: FragmentActivity) {
 
         /// La huella no se pudo usar por el sensor o por bloqueo (no porque la persona
         /// canceló): ahí se pasa al PIN del teléfono.
+        /// La persona (o el sistema al apagar la pantalla) cerró el diálogo: no es un
+        /// fallo que haya que mostrar.
+        val CANCELACIONES = setOf(
+            BiometricPrompt.ERROR_USER_CANCELED,
+            BiometricPrompt.ERROR_NEGATIVE_BUTTON,
+            BiometricPrompt.ERROR_CANCELED,
+            BiometricPrompt.ERROR_TIMEOUT,
+        )
+
         val ERRORES_DEL_SENSOR = setOf(
             BiometricPrompt.ERROR_HW_UNAVAILABLE,
             BiometricPrompt.ERROR_UNABLE_TO_PROCESS,

@@ -109,6 +109,56 @@ void main() {
     );
   }
 
+  testWidgets('en revisión con el expediente completo: «Consultar estado», no '
+      '«Completar verificación» (2026-10-19)', (tester) async {
+    final sesion = Sesion(_AlmacenEnMemoria());
+    await sesion.abrir(acceso: _tokenDeSesion());
+    addTearDown(sesion.dispose);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          sesionProvider.overrideWithValue(sesion),
+          cuentaPropiaProvider.overrideWith(
+            (ref) => Future.error(
+              ErrorDeApi(
+                codigo: 'AP-SEG-01',
+                trazaId: 'traza-sintetica',
+                estado: 403,
+              ),
+            ),
+          ),
+          consultarVerificacionProvider.overrideWith(
+            (ref) => _ConsultaFalsa(
+              ref,
+              EstadoDeVerificacion(
+                verificacionId: 'caso-sintetico',
+                estado: EstadoDeVerificacionEstadoEnum.EN_REVISION,
+                fechaExpiracionDocumento: DateTime.utc(2030, 12, 17),
+                fotos: const [
+                  CaraDelExpediente.ANVERSO,
+                  CaraDelExpediente.PERFIL_IZQUIERDO,
+                  CaraDelExpediente.PERFIL_DERECHO,
+                ],
+              ),
+            ),
+          ),
+        ],
+        child: MaterialApp(
+          theme: temaDesde(Tokens.claro, Brightness.light),
+          home: Scaffold(
+            body: ResolverCuenta(construir: (_) => const Text('Billetera')),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text(TextosDeVerificacion.consultarEstado), findsOneWidget);
+    expect(find.text('Completar verificación'), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('si KYC figura aprobada no presenta el caso como en revisión', (
     tester,
   ) async {
@@ -150,10 +200,10 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(
-      find.text(TextosDeVerificacion.accesoAunNoHabilitado),
-      findsOneWidget,
-    );
+    // 2026-10-19: con la identidad aprobada la cuenta se activa ahí mismo con
+    // «Consultar estado»; antes el botón cerraba la sesión.
+    expect(find.text(TextosDeVerificacion.aprobadaConsultar), findsOneWidget);
+    expect(find.text(TextosDeVerificacion.consultarEstado), findsOneWidget);
     expect(find.text('Completar verificación'), findsNothing);
     expect(find.text('Billetera'), findsNothing);
     expect(tester.takeException(), isNull);
