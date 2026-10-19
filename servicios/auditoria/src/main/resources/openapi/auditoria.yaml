@@ -360,6 +360,37 @@ paths:
         '401':
           $ref: '#/components/responses/NoAutenticado'
 
+  /indicadores/catalogo-de-datos/{esquema}/{tabla}/columnas/{columna}/revision:
+    put:
+      operationId: revisarColumna                # CU-131
+      summary: Guarda la revision de una columna del catalogo de datos
+      description: >-
+        El veredicto de una persona sobre lo que el catalogo dice de la columna: aprobada,
+        rechazada (con motivo obligatorio) o pendiente, con que confianza. Se manda la `version`
+        leida; si otra persona guardo antes, 422 AP-CU131-03. Deja CAMBIO_CONFIGURACION en la bitacora.
+      parameters:
+        - { name: esquema, in: path, required: true, schema: { type: string, maxLength: 63, pattern: '^[a-z_][a-z0-9_]*$' } }
+        - { name: tabla, in: path, required: true, schema: { type: string, maxLength: 63, pattern: '^[a-z_][a-z0-9_]*$' } }
+        - { name: columna, in: path, required: true, schema: { type: string, maxLength: 63, pattern: '^[a-z_][a-z0-9_]*$' } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaRevisionDeColumna' }
+      responses:
+        '200':
+          description: La revision guardada, con su version nueva
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/RevisionDeColumna' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU131-01 COLUMNA_DESCONOCIDA · AP-CU131-02 RECHAZO_SIN_MOTIVO · AP-CU131-03 VERSION_VIEJA
+        '403':
+          description: Sin CATALOGO_DATOS_EDITAR
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+
 components:
   parameters:
     ClaveIdempotencia:
@@ -471,6 +502,38 @@ components:
         origenNegocio: { type: string, enum: [ficha, convencion] }
         sistema: { type: string }
         sensibilidad: { type: string, enum: [NINGUNA, PERSONAL, FINANCIERO, SECRETO, DERIVADO] }
+        revision: { $ref: '#/components/schemas/RevisionDeColumna' }
+    DecisionDeRevision:
+      type: string
+      enum: [APROBADA, RECHAZADA, NECESITA_REVISION]
+    ConfianzaDeRevision:
+      type: string
+      enum: [BAJA, MEDIA, ALTA]
+    RevisionDeColumna:
+      type: object
+      additionalProperties: false
+      description: CU-131 · el veredicto guardado sobre una columna. Ausente, la columna no se reviso.
+      required: [decision, version]
+      properties:
+        decision: { $ref: '#/components/schemas/DecisionDeRevision' }
+        confianza: { $ref: '#/components/schemas/ConfianzaDeRevision' }
+        motivo: { type: string, maxLength: 500 }
+        revisadoPor: { type: string, format: uuid }
+        revisadoEn: { type: string, format: date-time }
+        version: { type: integer, minimum: 0 }
+    EntradaRevisionDeColumna:
+      type: object
+      additionalProperties: false
+      required: [decision, version]
+      example:
+        decision: APROBADA
+        confianza: ALTA
+        version: 0
+      properties:
+        decision: { $ref: '#/components/schemas/DecisionDeRevision' }
+        confianza: { $ref: '#/components/schemas/ConfianzaDeRevision' }
+        motivo: { type: string, minLength: 1, maxLength: 500 }
+        version: { type: integer, minimum: 0, description: 'La version leida; 0 si la columna no tenia revision' }
     RelacionesDeTabla:
       type: object
       additionalProperties: false

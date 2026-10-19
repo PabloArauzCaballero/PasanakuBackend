@@ -59,6 +59,9 @@ class FichaDeGobiernoWebTest {
     private CU130GobernarFichaDeTabla cu130;
 
     @MockitoBean
+    private bo.aportaya.auditoria.aplicacion.CU131RevisarColumna cu131;
+
+    @MockitoBean
     private bo.aportaya.auditoria.aplicacion.CU98PublicarTablero cu98;
 
     @MockitoBean
@@ -70,6 +73,7 @@ class FichaDeGobiernoWebTest {
     @BeforeEach
     void catalogo() throws Exception {
         when(vigente.catalogo()).thenReturn(new ObjectMapper().readTree(CATALOGO));
+        when(cu131.consultar(any())).thenReturn(Map.of());
     }
 
     @Test

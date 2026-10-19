@@ -79,6 +79,8 @@ ALTER TABLE auditoria.regla_cumplimiento ALTER COLUMN ventana_horas DROP NOT NUL
 ALTER TABLE auditoria.reporte_operacion_sospechosa ALTER COLUMN aprobado_por DROP NOT NULL;
 ALTER TABLE auditoria.reporte_operacion_sospechosa ALTER COLUMN enviado_en DROP NOT NULL;
 ALTER TABLE auditoria.reporte_operacion_sospechosa ALTER COLUMN numero_radicado DROP NOT NULL;
+ALTER TABLE auditoria.revision_columna ALTER COLUMN confianza DROP NOT NULL;
+ALTER TABLE auditoria.revision_columna ALTER COLUMN motivo DROP NOT NULL;
 ALTER TABLE auditoria.solicitud_datos_personales ALTER COLUMN atendida_en DROP NOT NULL;
 ALTER TABLE auditoria.solicitud_datos_personales ALTER COLUMN atendida_por DROP NOT NULL;
 ALTER TABLE auditoria.solicitud_datos_personales ALTER COLUMN respuesta DROP NOT NULL;

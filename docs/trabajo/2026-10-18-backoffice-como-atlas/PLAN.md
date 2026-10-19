@@ -216,8 +216,8 @@ Atlas define 20 roles con departamento y descripción (SUPER_ADMIN, SYSTEMS_ADMI
 ### H3.S1 — Backend que falta
 | ID | Microtarea | CA (binario) | DoD | Estado |
 |---|---|---|---|---|
-| H3.S1.M1 | Entidad `revision_columna` (esquema, tabla, columna, decisión, confianza, motivo, revisado_por, en) en el PlantUML + CU-131 en la bóveda | `generar_ddl.py` y `verificar_boveda.py` OK | comandos | TODO |
-| H3.S1.M2 | `PUT /indicadores/catalogo-de-datos/{esquema}/{tabla}/columnas/{columna}/revision` + `GET` incluye `revision` por columna (aditivo); bitácora | `CU131Test` + web test | `integrationTest`, `webTest`, `verificar_criterios` | TODO |
+| H3.S1.M1 | Entidad `revision_columna` (esquema, tabla, columna, decisión, confianza, motivo, revisado_por, en) en el PlantUML + CU-131 en la bóveda | `generar_ddl.py` y `verificar_boveda.py` OK | comandos | HECHO — `revision_columna` (UQ esquema+tabla+columna, CK decisión/confianza), CU-131 en la bóveda (TODO OK), catálogo regenerado (339 tablas) |
+| H3.S1.M2 | `PUT /indicadores/catalogo-de-datos/{esquema}/{tabla}/columnas/{columna}/revision` + `GET` incluye `revision` por columna (aditivo); bitácora | `CU131Test` + web test | `integrationTest`, `webTest`, `verificar_criterios` | HECHO — `evidencia/H3-S1-auditoria.txt`: test 34, barrido 2, web 54, integración 60 (CU131Test 5/5 contra PostgreSQL), criterios sin divergencias; Postman y clientes regenerados |
 | H3.S1.M3 | Conteo por esquema/módulo para el filtro «Bloque (n)» y total por estado para las cifras → ya viene todo el catálogo; se calcula en el cliente. **No hace falta endpoint.** | — | — | DESCARTADO (el catálogo viaja entero) |
 
 ### H3.S2 — Lista

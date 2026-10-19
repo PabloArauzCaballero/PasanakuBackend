@@ -196,6 +196,24 @@ con datos personales tiene dueño y retención depende de la memoria de alguien.
 
 ---
 
+### `RevisionColumna` / `revision_columna` — Política configurable
+
+**Qué es.** El veredicto de una persona sobre lo que el modelo dice de una columna:
+aprobada, rechazada o pendiente, con qué confianza y por qué.
+
+**Para qué sirve (negocio).** El catálogo describe cada columna desde el modelo
+(tipo, sensibilidad, nota de negocio). Esa descripción la escribió alguien una vez;
+que otra persona la revise y lo deje dicho es lo que convierte una ficha en un dato
+en el que se puede confiar, igual que en el catálogo del portal interno de Atlas.
+Un rechazo sin motivo no sirve a quien tiene que corregir: por eso el motivo es
+obligatorio al rechazar.
+
+**Por qué debe existir.** Sin ella, «esta columna ya se revisó» vive en la cabeza de
+quien la revisó, y una columna con datos personales mal clasificada pasa años sin
+que nadie lo note.
+
+---
+
 ## Paquete: Reportes y Explotación
 
 ### `DefinicionReporte` / `definicion_reporte`

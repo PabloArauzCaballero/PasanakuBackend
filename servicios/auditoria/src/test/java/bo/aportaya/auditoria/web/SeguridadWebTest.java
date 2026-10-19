@@ -41,6 +41,9 @@ class SeguridadWebTest extends SabanaDeSeguridadWeb {
     private bo.aportaya.auditoria.aplicacion.CU130GobernarFichaDeTabla cu130;
 
     @MockitoBean
+    private bo.aportaya.auditoria.aplicacion.CU131RevisarColumna cu131;
+
+    @MockitoBean
     private CU58DescargarExportacion cu58DescargarExportacion;
 
     @MockitoBean

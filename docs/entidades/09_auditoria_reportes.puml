@@ -177,6 +177,21 @@ package "Bitacora y Trazabilidad" {
     --
     + estaVigente(): Boolean
   }
+
+  class RevisionColumna <<Pol>> {
+    - id: UUID
+    - esquema: String
+    - tabla: String
+    - columna: String
+    - decision: String <<APROBADA | RECHAZADA | NECESITA_REVISION>>
+    - confianza: String <<BAJA | MEDIA | ALTA>>
+    - motivo: String
+    - revisadoPor: UUID
+    - revisadoEn: Instant
+    - version: Integer
+    --
+    + exigeMotivo(): Boolean
+  }
 }
 
 ' ============================================================
@@ -641,6 +656,20 @@ entity "ficha_gobierno_tabla" as fichagob {
   nota_revision : VARCHAR(500) <<NULL>>
   revisado_por : UUID <<NULL>>
   actualizado_en : TIMESTAMPTZ
+  version : INTEGER
+}
+
+entity "revision_columna" as revcol {
+  * id : UUID <<PK>>
+  --
+  esquema : VARCHAR(63) <<UQ+tabla+columna>>
+  tabla : VARCHAR(63)
+  columna : VARCHAR(63)
+  decision : VARCHAR(20) <<CK>>
+  confianza : VARCHAR(10) <<CK, NULL>>
+  motivo : VARCHAR(500) <<NULL>>
+  revisado_por : UUID
+  revisado_en : TIMESTAMPTZ
   version : INTEGER
 }
 

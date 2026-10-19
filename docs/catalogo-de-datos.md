@@ -785,6 +785,29 @@
 | `numero_radicado` | VARCHAR(40) | — | VARCHAR(40), opcional. | NINGUNA |
 | `enviado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
 
+### `revision_columna`
+
+**Qué es.** El veredicto de una persona sobre lo que el modelo dice de una columna: aprobada, rechazada o pendiente, con qué confianza y por qué.
+
+**Para qué sirve.** El catálogo describe cada columna desde el modelo (tipo, sensibilidad, nota de negocio). Esa descripción la escribió alguien una vez; que otra persona la revise y lo deje dicho es lo que convierte una ficha en un dato en el que se puede confiar, igual que en el catálogo del portal interno de Atlas. Un rechazo sin motivo no sirve a quien tiene que corregir: por eso el motivo es obligatorio al rechazar.
+
+**Por qué existe.** Sin ella, «esta columna ya se revisó» vive en la cabeza de quien la revisó, y una columna con datos personales mal clasificada pasa años sin que nadie lo note. ---
+
+**Sistema.** Vive en el esquema `auditoria`; la escribe y la lee solo el servicio `auditoria` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
+| `esquema` | VARCHAR(63) | — | VARCHAR(63), obligatoria. | NINGUNA |
+| `tabla` | VARCHAR(63) | — | VARCHAR(63), obligatoria. | NINGUNA |
+| `columna` | VARCHAR(63) | — | VARCHAR(63), obligatoria. | NINGUNA |
+| `decision` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
+| `confianza` | VARCHAR(10) | — | VARCHAR(10), opcional. | NINGUNA |
+| `motivo` | VARCHAR(500) | — | VARCHAR(500), opcional. | NINGUNA |
+| `revisado_por` | UUID | — | UUID, obligatoria. | NINGUNA |
+| `revisado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `version` | INTEGER | — | INTEGER, obligatoria. | NINGUNA |
+
 ### `solicitud_datos_personales`
 
 **Qué es.** El ejercicio de los derechos ARCO: acceso, rectificación, cancelación, oposición, portabilidad.

@@ -124,4 +124,4 @@ Entonces se rechaza con AP-CU130-02 y no se crea ninguna fila
 
 ## Ver también
 
-[[CU-58 Definir, programar y exportar un reporte]]
+[[CU-58 Definir, programar y exportar un reporte]] · [[CU-131 Revisar cada columna del catálogo de datos]]
