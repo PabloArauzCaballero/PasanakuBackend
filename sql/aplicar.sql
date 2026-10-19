@@ -384,6 +384,9 @@ SET search_path TO aportes, auditoria, cumplimiento, entregas, erp, garantia, gr
 --     migraciones. Sobre una base recién creada no hace nada.
 \ir 15_infra/nulabilidad.sql
 
+-- 2d) Borradores de onboarding incompleto.
+\ir 15_infra/borradores.sql
+
 -- 3) Claves foráneas (después de todas las tablas)
 \ir 20_claves/01_identidad_usuarios.sql
 \ir 20_claves/02_grupos_turnos.sql

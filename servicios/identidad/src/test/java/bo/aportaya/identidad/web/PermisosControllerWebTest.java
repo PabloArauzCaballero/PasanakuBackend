@@ -40,8 +40,7 @@ class PermisosControllerWebTest {
 
         when(casoDeUso.listarPermisos(any())).thenReturn(List.of(pc));
 
-        mvc.perform(get("/permisos")
-                        .with(Sesiones.como("SISTEMAS_ADMIN", "PERMISOS_INTERNOS_LEER")))
+        mvc.perform(get("/permisos").with(Sesiones.como("SISTEMAS_ADMIN", "PERMISOS_INTERNOS_LEER")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].codigo").value("ALERTAS_RIESGO_LEER"))
                 .andExpect(jsonPath("$[0].nivelRiesgo").value("MEDIO"));

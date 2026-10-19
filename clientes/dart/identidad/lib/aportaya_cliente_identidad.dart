@@ -13,6 +13,7 @@ export 'package:aportaya_cliente_identidad/src/api/default_api.dart';
 export 'package:aportaya_cliente_identidad/src/api/invitaciones_api.dart';
 
 export 'package:aportaya_cliente_identidad/src/model/archivo_del_expediente.dart';
+export 'package:aportaya_cliente_identidad/src/model/borrador_onboarding.dart';
 export 'package:aportaya_cliente_identidad/src/model/canje_invitacion.dart';
 export 'package:aportaya_cliente_identidad/src/model/cara_del_expediente.dart';
 export 'package:aportaya_cliente_identidad/src/model/confirmacion_verificacion_correo.dart';

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../dominio/errores.dart';
@@ -59,10 +61,15 @@ class AltaNotifier extends Notifier<EstadoAlta> {
     if (id == null || state.verificandoCodigo) return;
     state = state.copiarCon(verificandoCodigo: true);
     try {
-      await ref
+      final confirmacion = await ref
           .read(verificacionCorreoProvider)
           .confirmar(id: id, correo: state.datos.correo, codigo: codigo);
-      state = state.copiarCon(codigoConfirmado: true);
+      if (confirmacion.onboardingIncompleto == true &&
+          confirmacion.borrador != null) {
+        state = state.restaurarDesdeBorrador(confirmacion.borrador!);
+      } else {
+        state = state.copiarCon(codigoConfirmado: true);
+      }
     } on VerificacionCorreoException catch (e) {
       state = state.copiarCon(errorCodigo: e.mensaje, trazaId: e.trazaId);
     } on Object {
@@ -110,7 +117,18 @@ class AltaNotifier extends Notifier<EstadoAlta> {
   void siguiente() {
     const orden = PasoAlta.values;
     final i = orden.indexOf(state.paso);
-    if (i < orden.length - 1) state = state.copiarCon(paso: orden[i + 1]);
+    if (i < orden.length - 1) {
+      state = state.copiarCon(paso: orden[i + 1]);
+      unawaited(guardarBorrador());
+    }
+  }
+
+  Future<void> guardarBorrador() async {
+    final id = state.verificacionCorreoId;
+    if (id == null) return;
+    await ref
+        .read(verificacionCorreoProvider)
+        .guardarBorrador(id: id, borrador: aBorradorOnboarding(state));
   }
 
   void atras() {

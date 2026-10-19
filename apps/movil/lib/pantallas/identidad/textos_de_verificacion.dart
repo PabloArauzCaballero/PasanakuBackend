@@ -22,6 +22,7 @@ class TextosDeVerificacion {
   static const entrar = 'Entrar';
   static const actualizarEstado = 'Actualizar estado';
   static const salirDeCuenta = 'Salir de esta cuenta';
+  static const continuarRegistro = 'Continuar registro / verificación';
   static const actualizarAcceso = 'Cerrar sesión para actualizar el acceso';
   static String caso(String verificacionId) =>
       'Caso ${verificacionId.length > 8 ? verificacionId.substring(0, 8) : verificacionId}';

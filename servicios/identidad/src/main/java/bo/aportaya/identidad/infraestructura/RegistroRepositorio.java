@@ -37,6 +37,48 @@ public class RegistroRepositorio {
     }
 
     /**
+     * Cuenta activa o completada: no incluye cuentas con onboarding incompleto
+     * (INCOMPLETO_KYC o PRE_REGISTRO), para permitirles retomar su alta tras validar correo.
+     */
+    public boolean correoConCuentaActiva(DSLContext dsl, String correo) {
+        return dsl.fetchExists(dsl.selectFrom(USUARIO)
+                .where(USUARIO.CORREO.eq(correo))
+                .and(USUARIO.ESTADO.notIn("INCOMPLETO_KYC", "PRE_REGISTRO")));
+    }
+
+    public UUID usuarioIncompletoPorCorreo(DSLContext dsl, String correo) {
+        return dsl.select(USUARIO.ID)
+                .from(USUARIO)
+                .where(USUARIO.CORREO.eq(correo))
+                .and(USUARIO.ESTADO.in("INCOMPLETO_KYC", "PRE_REGISTRO"))
+                .fetchOne(USUARIO.ID);
+    }
+
+    public boolean telefonoYaRegistradoPorOtro(DSLContext dsl, String telefono, UUID exceptoUsuarioId) {
+        var query = dsl.selectFrom(USUARIO)
+                .where(USUARIO.TELEFONO_E164.eq(telefono))
+                .and(USUARIO.ELIMINADO_EN.isNull());
+        if (exceptoUsuarioId != null) {
+            query = query.and(USUARIO.ID.ne(exceptoUsuarioId));
+        }
+        return dsl.fetchExists(query);
+    }
+
+    public boolean documentoYaRegistradoPorOtro(
+            DSLContext dsl, String hashNumero, String lugarExpedicion, UUID exceptoUsuarioId) {
+        var query = dsl.selectFrom(DOCUMENTO_IDENTIDAD)
+                .where(DOCUMENTO_IDENTIDAD.HASH_NUMERO.eq(hashNumero))
+                .and(
+                        lugarExpedicion == null
+                                ? DOCUMENTO_IDENTIDAD.LUGAR_EXPEDICION.isNull()
+                                : DOCUMENTO_IDENTIDAD.LUGAR_EXPEDICION.eq(lugarExpedicion));
+        if (exceptoUsuarioId != null) {
+            query = query.and(DOCUMENTO_IDENTIDAD.USUARIO_ID.ne(exceptoUsuarioId));
+        }
+        return dsl.fetchExists(query);
+    }
+
+    /**
      * El duplicado se mide por numero Y lugar de expedicion: el mismo numero de CI
      * existe en dos departamentos y pertenece a dos personas distintas. Preguntar
      * solo por el numero le negaba la cuenta a la segunda.
@@ -178,6 +220,46 @@ public class RegistroRepositorio {
                             comoInet(ip),
                             DSL.val(agente))
                     .execute();
+        }
+    }
+
+    public void actualizarUsuarioIncompleto(
+            DSLContext dsl,
+            UUID usuarioId,
+            String nombres,
+            String apellidos,
+            String telefono,
+            LocalDate fechaNacimiento,
+            String estado,
+            OffsetDateTime ahora) {
+        dsl.update(USUARIO)
+                .set(USUARIO.NOMBRES, nombres)
+                .set(USUARIO.APELLIDOS, apellidos)
+                .set(USUARIO.TELEFONO_E164, telefono)
+                .set(USUARIO.FECHA_NACIMIENTO, fechaNacimiento)
+                .set(USUARIO.ESTADO, estado)
+                .set(USUARIO.VERSION, USUARIO.VERSION.plus(1))
+                .where(USUARIO.ID.eq(usuarioId))
+                .execute();
+    }
+
+    public void actualizarCredencial(
+            DSLContext dsl,
+            UUID usuarioId,
+            String hashContrasena,
+            String algoritmo,
+            String parametrosKdf,
+            OffsetDateTime ahora) {
+        int updated = dsl.update(CREDENCIAL_ACCESO)
+                .set(CREDENCIAL_ACCESO.HASH_CONTRASENA, hashContrasena)
+                .set(CREDENCIAL_ACCESO.ALGORITMO, algoritmo)
+                .set(CREDENCIAL_ACCESO.PARAMETROS_KDF, org.jooq.JSONB.valueOf(parametrosKdf))
+                .set(CREDENCIAL_ACCESO.REQUIERE_CAMBIO, false)
+                .set(CREDENCIAL_ACCESO.CAMBIADA_EN, ahora)
+                .where(CREDENCIAL_ACCESO.USUARIO_ID.eq(usuarioId))
+                .execute();
+        if (updated == 0) {
+            guardarCredencial(dsl, usuarioId, hashContrasena, algoritmo, parametrosKdf, ahora);
         }
     }
 

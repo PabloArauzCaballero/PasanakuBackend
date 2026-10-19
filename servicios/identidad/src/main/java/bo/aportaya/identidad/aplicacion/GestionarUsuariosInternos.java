@@ -1,5 +1,6 @@
 package bo.aportaya.identidad.aplicacion;
 
+import bo.aportaya.identidad.infraestructura.RolesYPermisosRepositorio;
 import bo.aportaya.identidad.infraestructura.UsuariosInternosRepositorio;
 import bo.aportaya.identidad.web.generado.modelo.EntradaActualizarUsuarioInterno;
 import bo.aportaya.identidad.web.generado.modelo.EntradaAltaUsuarioInterno;
@@ -24,16 +25,21 @@ public class GestionarUsuariosInternos {
 
     private final Datos datos;
     private final UsuariosInternosRepositorio repositorio;
+    private final RolesYPermisosRepositorio rolesYPermisos;
     private final Reloj reloj;
 
-    public GestionarUsuariosInternos(Datos datos, UsuariosInternosRepositorio repositorio, Reloj reloj) {
+    public GestionarUsuariosInternos(
+            Datos datos,
+            UsuariosInternosRepositorio repositorio,
+            RolesYPermisosRepositorio rolesYPermisos,
+            Reloj reloj) {
         this.datos = datos;
         this.repositorio = repositorio;
+        this.rolesYPermisos = rolesYPermisos;
         this.reloj = reloj;
     }
 
-    public List<UsuarioInternoResumen> listar(
-            String estado, String rol, String busqueda, ContextoSesion ctx) {
+    public List<UsuarioInternoResumen> listar(String estado, String rol, String busqueda, ContextoSesion ctx) {
         OffsetDateTime ahora = reloj.ahora().atOffset(ZoneOffset.UTC);
         return datos.conContexto(ctx, dsl -> repositorio.listar(dsl, estado, rol, busqueda, ahora));
     }
@@ -50,15 +56,13 @@ public class GestionarUsuariosInternos {
     }
 
     @Transactional
-    public UsuarioInternoDetalle actualizar(
-            UUID id, EntradaActualizarUsuarioInterno entrada, ContextoSesion ctx) {
+    public UsuarioInternoDetalle actualizar(UUID id, EntradaActualizarUsuarioInterno entrada, ContextoSesion ctx) {
         OffsetDateTime ahora = reloj.ahora().atOffset(ZoneOffset.UTC);
         return datos.conContexto(ctx, dsl -> repositorio.actualizar(dsl, id, entrada, ctx.usuarioId(), ahora));
     }
 
     @Transactional
-    public UsuarioInternoDetalle asignarRoles(
-            UUID id, EntradaAsignarRolesUsuarioInterno entrada, ContextoSesion ctx) {
+    public UsuarioInternoDetalle asignarRoles(UUID id, EntradaAsignarRolesUsuarioInterno entrada, ContextoSesion ctx) {
         OffsetDateTime ahora = reloj.ahora().atOffset(ZoneOffset.UTC);
         return datos.conContexto(ctx, dsl -> repositorio.asignarRoles(dsl, id, entrada, ctx.usuarioId(), ahora));
     }
@@ -70,10 +74,10 @@ public class GestionarUsuariosInternos {
     }
 
     public List<RolCatalogo> listarRoles(ContextoSesion ctx) {
-        return datos.conContexto(ctx, repositorio::listarRoles);
+        return datos.conContexto(ctx, rolesYPermisos::listarRoles);
     }
 
     public List<PermisoCatalogo> listarPermisos(ContextoSesion ctx) {
-        return datos.conContexto(ctx, repositorio::listarPermisos);
+        return datos.conContexto(ctx, rolesYPermisos::listarPermisos);
     }
 }

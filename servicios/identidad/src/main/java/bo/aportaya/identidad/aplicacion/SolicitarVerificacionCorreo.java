@@ -32,7 +32,7 @@ public class SolicitarVerificacionCorreo {
         // El mismo rechazo que da CU-01 al final del alta (AP-CU01-03 con el campo), pero
         // en el paso donde se escribe el correo: mandar un codigo a un correo que ya
         // tiene cuenta hace llenar el formulario entero para rebotar en el ultimo boton.
-        if (repositorio.correoConCuenta(destino, ctx)) {
+        if (repositorio.correoConCuentaActiva(destino, ctx)) {
             throw new ErrorDeNegocio(
                     CodigoError.de(1, 3),
                     "Ya hay una cuenta con ese correo. Usa otro o recupera el acceso.",

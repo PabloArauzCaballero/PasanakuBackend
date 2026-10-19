@@ -4722,6 +4722,8 @@
 | `descripcion` | VARCHAR(160) | — | VARCHAR(160), obligatoria. | NINGUNA |
 | `recurso` | VARCHAR(40) | — | VARCHAR(40), obligatoria. | NINGUNA |
 | `accion` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
+| `nivel_riesgo` | VARCHAR(10) | — | VARCHAR(10), obligatoria. | NINGUNA |
+| `exige_motivo` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
 | `requiere_mfa` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
 
 ### `politica_token`
@@ -4858,6 +4860,8 @@
 | `codigo` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
 | `nombre` | VARCHAR(60) | — | VARCHAR(60), obligatoria. | NINGUNA |
 | `ambito` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
+| `departamento` | VARCHAR(60) | — | VARCHAR(60), opcional. | NINGUNA |
+| `descripcion` | VARCHAR(255) | — | VARCHAR(255), opcional. | NINGUNA |
 | `es_sistema` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
 
 ### `rol_permiso`
@@ -4968,7 +4972,7 @@
 
 **Por qué existe.** Es el ancla de todo el sistema. Sin ella no hay reputación portable entre grupos, que es justamente la propuesta de valor: que tu buen historial en un pasanaku te sirva para entrar al siguiente.
 
-**Sistema.** Vive en el esquema `identidad`; la escribe y la lee solo el servicio `identidad` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. La referencian `aportes.comprobante_manual`, `aportes.conciliacion`, `aportes.excepcion_conciliacion`, `aportes.extracto_bancario`, `aportes.pago`, `aportes.plan_regularizacion`, `aportes.reembolso`, `asignacion_rol`, `auditoria.alerta_cumplimiento`, `auditoria.coincidencia_lista`, `auditoria.ejecucion_reporte`, `auditoria.proceso_anonimizacion`, `auditoria.reporte_operacion_sospechosa`, `auditoria.solicitud_datos_personales`, `auditoria.ticket_soporte`, `bloqueo_cuenta`, `catalogo.licencia_regulatoria`, `catalogo.tarifario`, `comun.bitacora_evento`, `comun.registro_acceso_datos`, `consentimiento`, `credencial_acceso`, `cumplimiento.aceptacion_contrato`, `cumplimiento.acta_comite`, `cumplimiento.activo_informacion`, `cumplimiento.alerta_monitoreo_lft`, `cumplimiento.beneficiario_final`, `cumplimiento.calificacion_riesgo_cliente`, `cumplimiento.capacitacion_cumplimiento`, `cumplimiento.caso_investigacion_lft`, `cumplimiento.contrato_adhesion`, `cumplimiento.contrato_tercero`, `cumplimiento.control_interno`, `cumplimiento.debida_diligencia`, `cumplimiento.declaracion_origen_fondos`, `cumplimiento.declaracion_pep`, `cumplimiento.designacion_regulatoria`, `cumplimiento.desvio_perfil`, `cumplimiento.documento_publicado`, `cumplimiento.envio_regulatorio`, `cumplimiento.evaluacion_riesgo_producto`, `cumplimiento.evaluacion_tercero`, `cumplimiento.evento_riesgo_operativo`, `cumplimiento.expediente_cliente`, `cumplimiento.factor_riesgo_evaluado`, `cumplimiento.hallazgo_auditoria`, `cumplimiento.incidente_seguridad`, `cumplimiento.matriz_riesgo_lft`, `cumplimiento.observacion_regulatoria`, `cumplimiento.oficial_cumplimiento`, `cumplimiento.perfil_transaccional`, `cumplimiento.plan_accion_riesgo`, `cumplimiento.plan_continuidad`, `cumplimiento.politica_interna`, `cumplimiento.prueba_continuidad`, `cumplimiento.prueba_control`, `cumplimiento.punto_reclamo`, `cumplimiento.reclamo_cliente`, `cumplimiento.registro_operacion_relevante`, `cumplimiento.regla_monitoreo_lft`, `cumplimiento.reporte_regulatorio`, `cumplimiento.requerimiento_autoridad`, `cumplimiento.revision_periodica_kyc`, `direccion_usuario`, `dispositivo`, `documento_identidad`, `entregas.cuenta_bancaria_beneficiario`, `entregas.entrega_fondo`, `entregas.historial_estado_entrega`, `entregas.incidencia_entrega`, `entregas.validacion_pre_entrega`, `erp.asiento_plantilla`, `erp.cierre_periodo_contable`, `erp.ejercicio_fiscal`, `erp.estado_financiero_generado`, `erp.factura_proveedor`, `erp.orden_compra`, `erp.pago_a_proveedor`, `erp.presupuesto`, `factor_mfa`, `garantia.abono_recuperacion`, `garantia.accion_cobranza`, `garantia.acuerdo_quita`, `garantia.alerta_temprana`, `garantia.apelacion_sancion`, `garantia.aval_participante`, `garantia.candidato_reemplazo`, `garantia.capacidad_respaldo`, `garantia.castigo_deuda`, `garantia.cobertura_incumplimiento`, `garantia.cobertura_respaldo`, `garantia.descargo_participante`, `garantia.deuda_participante`, `garantia.evidencia_incumplimiento`, `garantia.gestion_cobranza`, `garantia.historial_estado_incumplimiento`, `garantia.historial_incumplimiento_usuario`, `garantia.lista_restriccion_interna`, `garantia.movimiento_fondo`, `garantia.movimiento_reserva`, `garantia.promesa_pago`, `garantia.registro_incumplimiento`, `garantia.reserva_respaldo`, `garantia.sancion`, `garantia.score_riesgo_incumplimiento`, `grupos.acuerdo`, `grupos.historial_estado_grupo`, `grupos.invitacion`, `grupos.participante`, `grupos.postulacion_emparejamiento`, `grupos.reglamento_grupo`, `grupos.solicitud_ingreso`, `grupos.sorteo_turnos`, `historial_credencial`, `intento_autenticacion`, `notificaciones.bandeja_entrada`, `notificaciones.canal_vinculado`, `notificaciones.notificacion`, `nucleo_financiero.asiento_contable`, `nucleo_financiero.bloqueo_saldo`, `nucleo_financiero.certificado_saldo`, `nucleo_financiero.cierre_diario`, `nucleo_financiero.conciliacion_custodia`, `nucleo_financiero.cuenta_billetera`, `nucleo_financiero.descuadre_custodia`, `nucleo_financiero.evaluacion_antifraude`, `nucleo_financiero.evidencia_mfa_consumida`, `nucleo_financiero.instrumento_fondeo`, `nucleo_financiero.orden_retiro`, `nucleo_financiero.politica_billetera`, `nucleo_financiero.regla_antifraude`, `nucleo_financiero.respuesta_idempotente`, `nucleo_financiero.retencion_saldo`, `nucleo_financiero.reverso_transaccion`, `nucleo_financiero.solicitud_cierre_billetera`, `nucleo_financiero.transaccion_billetera`, `organizador.apelacion_sancion_org`, `organizador.organizador`, `organizador.sancion_organizador`, `organizador.solicitud_organizador`, `perfil_financiero`, `preferencia_notificacion`, `publicidad.campana_publicitaria`, `publicidad.clic_anuncio`, `publicidad.impresion_anuncio`, `publicidad.revision_creativa`, `publicidad.segmento_audiencia`, `publicidad.socio_comercial`, `referencia_personal`, `reputacion_usuario`, `restriccion_usuario`, `sesion`, `solicitud_baja`, `tarifas.asignacion_tarifario`, `tarifas.cambio_tarifario`, `tarifas.campana_promocional`, `tarifas.cuenta_por_cobrar_comision`, `tarifas.datos_facturacion`, `tarifas.devengo_comision`, `tarifas.devolucion_comision`, `tarifas.evento_significativo_sin`, `tarifas.exencion_comision`, `tarifas.factura_electronica`, `tarifas.liquidacion_ingresos`, `tarifas.simulacion_tarifa`, `token_verificacion`, `transparencia.certificado_reputacion`, `transparencia.evento_reputacion`, `transparencia.insignia_otorgada`, `transparencia.puntaje_reputacion`, `transparencia.resena_participante`, `transparencia.snapshot_reputacion`, `verificacion_kyc`.
+**Sistema.** Vive en el esquema `identidad`; la escribe y la lee solo el servicio `identidad` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. La referencian `aportes.comprobante_manual`, `aportes.conciliacion`, `aportes.excepcion_conciliacion`, `aportes.extracto_bancario`, `aportes.pago`, `aportes.plan_regularizacion`, `aportes.reembolso`, `asignacion_rol`, `auditoria.alerta_cumplimiento`, `auditoria.coincidencia_lista`, `auditoria.ejecucion_reporte`, `auditoria.proceso_anonimizacion`, `auditoria.reporte_operacion_sospechosa`, `auditoria.solicitud_datos_personales`, `auditoria.ticket_soporte`, `bloqueo_cuenta`, `catalogo.licencia_regulatoria`, `catalogo.tarifario`, `comun.bitacora_evento`, `comun.registro_acceso_datos`, `consentimiento`, `credencial_acceso`, `cumplimiento.aceptacion_contrato`, `cumplimiento.acta_comite`, `cumplimiento.activo_informacion`, `cumplimiento.alerta_monitoreo_lft`, `cumplimiento.beneficiario_final`, `cumplimiento.calificacion_riesgo_cliente`, `cumplimiento.capacitacion_cumplimiento`, `cumplimiento.caso_investigacion_lft`, `cumplimiento.contrato_adhesion`, `cumplimiento.contrato_tercero`, `cumplimiento.control_interno`, `cumplimiento.debida_diligencia`, `cumplimiento.declaracion_origen_fondos`, `cumplimiento.declaracion_pep`, `cumplimiento.designacion_regulatoria`, `cumplimiento.desvio_perfil`, `cumplimiento.documento_publicado`, `cumplimiento.envio_regulatorio`, `cumplimiento.evaluacion_riesgo_producto`, `cumplimiento.evaluacion_tercero`, `cumplimiento.evento_riesgo_operativo`, `cumplimiento.expediente_cliente`, `cumplimiento.factor_riesgo_evaluado`, `cumplimiento.hallazgo_auditoria`, `cumplimiento.incidente_seguridad`, `cumplimiento.matriz_riesgo_lft`, `cumplimiento.observacion_regulatoria`, `cumplimiento.oficial_cumplimiento`, `cumplimiento.perfil_transaccional`, `cumplimiento.plan_accion_riesgo`, `cumplimiento.plan_continuidad`, `cumplimiento.politica_interna`, `cumplimiento.prueba_continuidad`, `cumplimiento.prueba_control`, `cumplimiento.punto_reclamo`, `cumplimiento.reclamo_cliente`, `cumplimiento.registro_operacion_relevante`, `cumplimiento.regla_monitoreo_lft`, `cumplimiento.reporte_regulatorio`, `cumplimiento.requerimiento_autoridad`, `cumplimiento.revision_periodica_kyc`, `direccion_usuario`, `dispositivo`, `documento_identidad`, `entregas.cuenta_bancaria_beneficiario`, `entregas.entrega_fondo`, `entregas.historial_estado_entrega`, `entregas.incidencia_entrega`, `entregas.validacion_pre_entrega`, `erp.asiento_plantilla`, `erp.cierre_periodo_contable`, `erp.ejercicio_fiscal`, `erp.estado_financiero_generado`, `erp.factura_proveedor`, `erp.orden_compra`, `erp.pago_a_proveedor`, `erp.presupuesto`, `factor_mfa`, `garantia.abono_recuperacion`, `garantia.accion_cobranza`, `garantia.acuerdo_quita`, `garantia.alerta_temprana`, `garantia.apelacion_sancion`, `garantia.aval_participante`, `garantia.candidato_reemplazo`, `garantia.capacidad_respaldo`, `garantia.castigo_deuda`, `garantia.cobertura_incumplimiento`, `garantia.cobertura_respaldo`, `garantia.descargo_participante`, `garantia.deuda_participante`, `garantia.evidencia_incumplimiento`, `garantia.gestion_cobranza`, `garantia.historial_estado_incumplimiento`, `garantia.historial_incumplimiento_usuario`, `garantia.lista_restriccion_interna`, `garantia.movimiento_fondo`, `garantia.movimiento_reserva`, `garantia.promesa_pago`, `garantia.registro_incumplimiento`, `garantia.reserva_respaldo`, `garantia.sancion`, `garantia.score_riesgo_incumplimiento`, `grupos.acuerdo`, `grupos.historial_estado_grupo`, `grupos.invitacion`, `grupos.participante`, `grupos.postulacion_emparejamiento`, `grupos.reglamento_grupo`, `grupos.solicitud_ingreso`, `grupos.sorteo_turnos`, `historial_credencial`, `intento_autenticacion`, `notificaciones.aviso_interno`, `notificaciones.bandeja_entrada`, `notificaciones.canal_vinculado`, `notificaciones.notificacion`, `nucleo_financiero.asiento_contable`, `nucleo_financiero.bloqueo_saldo`, `nucleo_financiero.certificado_saldo`, `nucleo_financiero.cierre_diario`, `nucleo_financiero.conciliacion_custodia`, `nucleo_financiero.cuenta_billetera`, `nucleo_financiero.descuadre_custodia`, `nucleo_financiero.evaluacion_antifraude`, `nucleo_financiero.evidencia_mfa_consumida`, `nucleo_financiero.instrumento_fondeo`, `nucleo_financiero.orden_retiro`, `nucleo_financiero.politica_billetera`, `nucleo_financiero.regla_antifraude`, `nucleo_financiero.respuesta_idempotente`, `nucleo_financiero.retencion_saldo`, `nucleo_financiero.reverso_transaccion`, `nucleo_financiero.solicitud_cierre_billetera`, `nucleo_financiero.transaccion_billetera`, `organizador.apelacion_sancion_org`, `organizador.organizador`, `organizador.sancion_organizador`, `organizador.solicitud_organizador`, `perfil_financiero`, `preferencia_notificacion`, `publicidad.campana_publicitaria`, `publicidad.clic_anuncio`, `publicidad.impresion_anuncio`, `publicidad.revision_creativa`, `publicidad.segmento_audiencia`, `publicidad.socio_comercial`, `referencia_personal`, `reputacion_usuario`, `restriccion_usuario`, `sesion`, `solicitud_baja`, `tarifas.asignacion_tarifario`, `tarifas.cambio_tarifario`, `tarifas.campana_promocional`, `tarifas.cuenta_por_cobrar_comision`, `tarifas.datos_facturacion`, `tarifas.devengo_comision`, `tarifas.devolucion_comision`, `tarifas.evento_significativo_sin`, `tarifas.exencion_comision`, `tarifas.factura_electronica`, `tarifas.liquidacion_ingresos`, `tarifas.simulacion_tarifa`, `token_verificacion`, `transparencia.certificado_reputacion`, `transparencia.evento_reputacion`, `transparencia.insignia_otorgada`, `transparencia.puntaje_reputacion`, `transparencia.resena_participante`, `transparencia.snapshot_reputacion`, `usuario_interno`, `verificacion_kyc`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
@@ -4990,6 +4994,26 @@
 | `fecha_registro` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
 | `eliminado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
 | `version` | INTEGER | — | INTEGER, obligatoria. | NINGUNA |
+
+### `usuario_interno`
+
+**Qué es.** El perfil laboral y operativo del usuario que desempeña funciones internas en la plataforma.
+
+**Para qué sirve.** Separa al cliente o participante final del personal operativo de AportaYa. Asocia al empleado con su departamento corporativo (Sistemas, Operaciones, Riesgos, Cumplimiento, Finanzas, Comercial, Soporte, Auditoría), su cargo formal, si debe cambiar la contraseña provisional enviada por correo al ingresar por primera vez, y el bloqueo temporal administrativo con su motivo justificado.
+
+**Por qué existe.** La segregación de responsabilidades y las directrices de control interno de ASFI e ISO/IEC 27001 exigen que los atributos laborales y las restricciones administrativas de los operadores no contaminen la entidad general de usuario ni se gestionen de manera informal.
+
+**Sistema.** Vive en el esquema `identidad`; la escribe y la lee solo el servicio `identidad` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `usuario`.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
+| `usuario_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
+| `departamento` | VARCHAR(60) | — | VARCHAR(60), obligatoria. | NINGUNA |
+| `cargo` | VARCHAR(80) | — | VARCHAR(80), obligatoria. | NINGUNA |
+| `debe_cambiar_contrasena` | BOOLEAN | — | BOOLEAN, obligatoria. | SECRETO |
+| `bloqueado_hasta` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `motivo_bloqueo` | VARCHAR(160) | — | VARCHAR(160), opcional. | NINGUNA |
 
 ### `verificacion_kyc`
 
@@ -5392,6 +5416,28 @@
 | `vigente_desde` | TIMESTAMPTZ | Desde cuándo rige esta versión de la fila: las condiciones se versionan, no se pisan. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 
 ## Esquema `notificaciones`
+
+### `aviso_interno`
+
+**Qué es.** El registro persistente de avisos dirigidos a operadores internos o a roles funcionales en el backoffice.
+
+**Para qué sirve.** Alerta a operadores sobre hechos operativos críticos: una nueva alerta de monitoreo, un caso asignado, una ficha técnica pendiente de revisión o un fallo de despliegue. Puede dirigirse a un operador específico o a todo un rol (ej. `ADMIN_PLATAFORMA`, `OFICIAL_CUMPLIMIENTO`).
+
+**Por qué existe.** Sin este registro, los operadores no tendrían una campana de notificaciones real que les informe de eventos urgentes con enlace directo a la pantalla de resolución. ---
+
+**Sistema.** Vive en el esquema `notificaciones`; la escribe y la lee solo el servicio `notificaciones` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `identidad.usuario`.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
+| `usuario_id` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
+| `rol_destinatario` | VARCHAR(50) | — | VARCHAR(50), opcional. | NINGUNA |
+| `titulo` | VARCHAR(150) | — | VARCHAR(150), obligatoria. | NINGUNA |
+| `mensaje` | TEXT | — | TEXT, obligatoria. | NINGUNA |
+| `tipo` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
+| `enlace` | VARCHAR(300) | — | VARCHAR(300), opcional. | NINGUNA |
+| `leido_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `creado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
 
 ### `bandeja_entrada`
 

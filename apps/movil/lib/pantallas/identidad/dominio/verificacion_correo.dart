@@ -49,25 +49,45 @@ class VerificacionCorreo {
   void reiniciar() =>
       _ref.read(idempotenciaProvider.notifier).cerrar(_formulario);
 
-  Future<void> confirmar({
+  Future<VerificacionCorreoConfirmada> confirmar({
     required String id,
     required String correo,
     required String codigo,
   }) async {
     try {
-      await DefaultApi(_ref.read(dioProvider)).confirmarVerificacionCorreo(
-        verificacionId: id,
-        confirmacionVerificacionCorreo: ConfirmacionVerificacionCorreo(
-          correo: correo,
-          codigo: codigo,
-        ),
-      );
+      final respuesta = await DefaultApi(_ref.read(dioProvider))
+          .confirmarVerificacionCorreo(
+            verificacionId: id,
+            confirmacionVerificacionCorreo: ConfirmacionVerificacionCorreo(
+              correo: correo,
+              codigo: codigo,
+            ),
+          );
+      final cuerpo = respuesta.data;
+      if (cuerpo == null) {
+        throw StateError('El servidor no devolvio la confirmacion.');
+      }
+      return cuerpo;
     } on DioException catch (e) {
       final problema = errorDeDominio(e);
       throw VerificacionCorreoException(
         mensajeDeError(problema),
         problema is ErrorPresentable ? problema.trazaId : null,
       );
+    }
+  }
+
+  Future<void> guardarBorrador({
+    required String id,
+    required BorradorOnboarding borrador,
+  }) async {
+    try {
+      await DefaultApi(_ref.read(dioProvider)).guardarBorradorOnboarding(
+        verificacionId: id,
+        borradorOnboarding: borrador,
+      );
+    } catch (_) {
+      // Guardado transparente; no interrumpe el flujo si falla.
     }
   }
 }

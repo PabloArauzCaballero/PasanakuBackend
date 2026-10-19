@@ -42,8 +42,7 @@ class RolesControllerWebTest {
 
         when(casoDeUso.listarRoles(any())).thenReturn(List.of(rc));
 
-        mvc.perform(get("/roles")
-                        .with(Sesiones.como("SISTEMAS_ADMIN", "ROLES_INTERNOS_LEER")))
+        mvc.perform(get("/roles").with(Sesiones.como("SISTEMAS_ADMIN", "ROLES_INTERNOS_LEER")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].codigo").value("RISK_ANALYST"))
                 .andExpect(jsonPath("$[0].departamento").value("RIESGOS"));

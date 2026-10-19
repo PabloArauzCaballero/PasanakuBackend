@@ -61,7 +61,8 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
         types = {
             bo.aportaya.identidad.aplicacion.ActivarRolOrganizador.class,
             bo.aportaya.identidad.aplicacion.ConsultarMiPerfil.class,
-            bo.aportaya.identidad.aplicacion.CU02IniciarVerificacion.class
+            bo.aportaya.identidad.aplicacion.CU02IniciarVerificacion.class,
+            bo.aportaya.identidad.aplicacion.GuardarBorradorOnboarding.class
         })
 @PruebaWeb(
         value = UsuariosController.class,

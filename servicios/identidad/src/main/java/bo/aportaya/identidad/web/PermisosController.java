@@ -17,9 +17,7 @@ public class PermisosController implements PermisosApi {
     private final GestionarUsuariosInternos casoDeUso;
     private final SesionDeLaPeticion sesion;
 
-    public PermisosController(
-            GestionarUsuariosInternos casoDeUso,
-            SesionDeLaPeticion sesion) {
+    public PermisosController(GestionarUsuariosInternos casoDeUso, SesionDeLaPeticion sesion) {
         this.casoDeUso = casoDeUso;
         this.sesion = sesion;
     }

@@ -119,23 +119,29 @@ public class CU01RegistrarUsuario {
             // Un solo codigo para «la cuenta ya existe» (AP-CU01-03, CUENTA_YA_EXISTE) y el
             // campo en el detalle: la app le dice a la persona CUAL dato ya tiene cuenta,
             // que es lo unico que le permite corregirlo o ir a recuperar el acceso.
-            if (registros.telefonoYaRegistrado(dsl, entrada.telefonoE164())) {
+            UUID incompletoExistente =
+                    entrada.correo() != null ? registros.usuarioIncompletoPorCorreo(dsl, entrada.correo()) : null;
+
+            if (registros.telefonoYaRegistradoPorOtro(dsl, entrada.telefonoE164(), incompletoExistente)) {
                 throw new ErrorDeNegocio(
                         CodigoError.de(1, 3),
                         "Ya hay una cuenta con ese telefono. Podes recuperar el acceso.",
                         Map.of("campo", "telefono"));
             }
             if (conDocumento
-                    && registros.documentoYaRegistrado(
+                    && registros.documentoYaRegistradoPorOtro(
                             dsl,
                             entrada.documento().hashNumero(),
-                            entrada.documento().lugarExpedicion())) {
+                            entrada.documento().lugarExpedicion(),
+                            incompletoExistente)) {
                 throw new ErrorDeNegocio(
                         CodigoError.de(1, 3),
                         "Ya hay una cuenta con ese documento. Podes recuperar el acceso.",
                         Map.of("campo", "documento"));
             }
-            if (entrada.correo() != null && registros.correoYaRegistrado(dsl, entrada.correo())) {
+            if (entrada.correo() != null
+                    && incompletoExistente == null
+                    && registros.correoYaRegistrado(dsl, entrada.correo())) {
                 throw new ErrorDeNegocio(
                         CodigoError.de(1, 3),
                         "Ya hay una cuenta con ese correo. Usa otro o recupera el acceso.",
@@ -168,16 +174,30 @@ public class CU01RegistrarUsuario {
 
             AperturaDeCuenta apertura =
                     conDocumento ? AperturaDeCuenta.PENDIENTE_VERIFICACION : AperturaDeCuenta.INCOMPLETO_KYC;
-            UUID usuario = registros.crearUsuario(
-                    dsl,
-                    codigoPublico(),
-                    entrada.nombres(),
-                    entrada.apellidos(),
-                    entrada.telefonoE164(),
-                    entrada.correo(),
-                    entrada.fechaNacimiento(),
-                    apertura.name(),
-                    ahora);
+            UUID usuario;
+            if (incompletoExistente != null) {
+                usuario = incompletoExistente;
+                registros.actualizarUsuarioIncompleto(
+                        dsl,
+                        usuario,
+                        entrada.nombres(),
+                        entrada.apellidos(),
+                        entrada.telefonoE164(),
+                        entrada.fechaNacimiento(),
+                        apertura.name(),
+                        ahora);
+            } else {
+                usuario = registros.crearUsuario(
+                        dsl,
+                        codigoPublico(),
+                        entrada.nombres(),
+                        entrada.apellidos(),
+                        entrada.telefonoE164(),
+                        entrada.correo(),
+                        entrada.fechaNacimiento(),
+                        apertura.name(),
+                        ahora);
+            }
 
             if (entrada.canalVerificacion() == CanalDeVerificacion.CORREO) {
                 if (entrada.verificacionCorreoId() == null) {
@@ -191,8 +211,13 @@ public class CU01RegistrarUsuario {
             // instante —o un fallo— con la persona creada y sin con que entrar, y
             // recuperarse de eso exige intervencion manual sobre la cuenta de alguien.
             var kdf = hasheador.parametros();
-            registros.guardarCredencial(
-                    dsl, usuario, hasheador.hashear(entrada.contrasena()), kdf.algoritmo(), kdf.comoJson(), ahora);
+            if (incompletoExistente != null) {
+                registros.actualizarCredencial(
+                        dsl, usuario, hasheador.hashear(entrada.contrasena()), kdf.algoritmo(), kdf.comoJson(), ahora);
+            } else {
+                registros.guardarCredencial(
+                        dsl, usuario, hasheador.hashear(entrada.contrasena()), kdf.algoritmo(), kdf.comoJson(), ahora);
+            }
             // La clave en claro no sobrevive a la transaccion: el arreglo se borra en
             // cuanto dejo de hacer falta. Un `char[]` existe justamente para esto.
             Arrays.fill(entrada.contrasena(), '\0');
@@ -202,6 +227,10 @@ public class CU01RegistrarUsuario {
                 registros.iniciarVerificacion(dsl, usuario, documento, "BASICO", ahora);
             }
             registros.registrarConsentimientos(dsl, usuario, FINALIDADES, entrada.ip(), entrada.agente(), ahora);
+
+            if (entrada.correo() != null) {
+                verificacionesCorreo.eliminarBorrador(dsl, entrada.correo());
+            }
 
             // Lo que sigue —diligencia, calificacion, expediente y billetera— lo hacen
             // `cumplimiento` y `nucleo-financiero` al consumir este evento. Cada uno en

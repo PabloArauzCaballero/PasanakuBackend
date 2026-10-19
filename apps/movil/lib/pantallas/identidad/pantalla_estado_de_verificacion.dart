@@ -130,19 +130,33 @@ class _Contenido extends ConsumerWidget {
           style: Theme.of(context).textTheme.bodySmall,
         ),
         const Spacer(),
-        if (sesionActiva)
+        if (sesionActiva) ...[
+          if (!aprobada) ...[
+            Boton(
+              texto: TextosDeVerificacion.continuarRegistro,
+              variante: BotonVariante.primario,
+              expandido: true,
+              onPressed: () {
+                ref.read(altaProvider.notifier).reiniciar();
+                context.go('/registro');
+              },
+            ),
+            const SizedBox(height: Espacio.s2),
+          ],
           Boton(
             texto: aprobada
                 ? TextosDeVerificacion.actualizarAcceso
                 : TextosDeVerificacion.salirDeCuenta,
-            variante: BotonVariante.primario,
+            variante: aprobada
+                ? BotonVariante.primario
+                : BotonVariante.fantasma,
             expandido: true,
             onPressed: () async {
               await ref.read(sesionProvider).cerrar();
               if (context.mounted) context.go('/ingreso');
             },
-          )
-        else if (rechazada)
+          ),
+        ] else if (rechazada)
           Boton(
             texto: TextosDeVerificacion.intentarDeNuevo,
             variante: BotonVariante.primario,

@@ -1,8 +1,13 @@
+import 'package:aportaya_cliente_identidad/aportaya_cliente_identidad.dart';
+
 import '../../../dominio/errores.dart';
 
+import 'borrador_alta.dart';
 import 'capturas_del_expediente.dart';
 import 'datos_del_alta.dart';
 
+export 'borrador_alta.dart'
+    show aBorradorOnboarding, restaurarEstadoDesdeBorrador;
 export 'datos_del_alta.dart' show DatosLeidosDelDocumento, DatosPersonales;
 export 'capturas_del_expediente.dart' show CaraDelCarril, CapturasDelExpediente;
 
@@ -148,4 +153,7 @@ class EstadoAlta {
     campoError: campoError,
     trazaId: trazaId,
   );
+
+  EstadoAlta restaurarDesdeBorrador(BorradorOnboarding borrador) =>
+      restaurarEstadoDesdeBorrador(this, borrador);
 }
