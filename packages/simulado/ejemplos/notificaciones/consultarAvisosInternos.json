@@ -1,0 +1,62 @@
+{
+  "servicio": "notificaciones",
+  "operacion": "consultarAvisosInternos",
+  "metodo": "get",
+  "ruta": "/notificaciones/avisos-internos",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "totalNoLeidos": 1,
+        "elementos": [
+          {
+            "id": "ea51c106-3b29-47b4-82e8-7394e257ac8b",
+            "usuarioId": "abea4be8-ef0a-4040-84e0-8ba89af50c28",
+            "rolDestinatario": "rolDestinatario",
+            "titulo": "titulo",
+            "mensaje": "mensaje",
+            "tipo": "INFO",
+            "enlace": "enlace",
+            "leidoEn": "2026-01-15T10:30:00Z",
+            "creadoEn": "2026-01-15T10:30:00Z"
+          }
+        ]
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "totalNoLeidos": 0,
+        "elementos": []
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "totalNoLeidos": 1,
+        "elementos": [
+          {
+            "id": "ea51c106-3b29-47b4-82e8-7394e257ac8b",
+            "usuarioId": "abea4be8-ef0a-4040-84e0-8ba89af50c28",
+            "rolDestinatario": "rolDestinatario",
+            "titulo": "titulo",
+            "mensaje": "mensaje",
+            "tipo": "INFO",
+            "enlace": "enlace",
+            "leidoEn": "2026-01-15T10:30:00Z",
+            "creadoEn": "2026-01-15T10:30:00Z"
+          }
+        ]
+      }
+    },
+    "rechazo": {
+      "estado": 401,
+      "cuerpo": {
+        "codigo": "AP-CU82-01",
+        "mensaje": "Firma invalida",
+        "detalle": {},
+        "trazaId": "traza-consultarAvisosInternos-rechazo"
+      }
+    }
+  }
+}

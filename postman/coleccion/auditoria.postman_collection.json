@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "AportaYa · auditoria",
-    "description": "# AportaYa · auditoria\n\nGenerado por `scripts/generar_postman.py` desde `servicios/*/src/main/resources/openapi/`.\n**No se edita a mano**: la proxima generacion lo pisa, y una coleccion editada a mano\nprueba una API que ya no existe.\n\n**9 operaciones.** Cada peticion trae su cuerpo de ejemplo derivado del\nesquema, la clave de idempotencia donde el contrato la exige, el permiso que pide\n—leido de los `@Permiso` del codigo— y los rechazos `AP-CU` que declara.\n\nElegi un entorno de `postman/entornos/` antes de disparar nada.\n",
+    "description": "# AportaYa · auditoria\n\nGenerado por `scripts/generar_postman.py` desde `servicios/*/src/main/resources/openapi/`.\n**No se edita a mano**: la proxima generacion lo pisa, y una coleccion editada a mano\nprueba una API que ya no existe.\n\n**11 operaciones.** Cada peticion trae su cuerpo de ejemplo derivado del\nesquema, la clave de idempotencia donde el contrato la exige, el permiso que pide\n—leido de los `@Permiso` del codigo— y los rechazos `AP-CU` que declara.\n\nElegi un entorno de `postman/entornos/` antes de disparar nada.\n",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
@@ -734,6 +734,199 @@
           }
         }
       ]
+    },
+    {
+      "name": "guardarFichaDeGobierno · Guarda la ficha de gobierno de una tabla del catalogo de datos",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}{{prefijo_api}}/indicadores/catalogo-de-datos/:esquema/:tabla/gobierno",
+          "host": [
+            "{{base_url}}{{prefijo_api}}"
+          ],
+          "path": [
+            "indicadores",
+            "catalogo-de-datos",
+            ":esquema",
+            ":tabla",
+            "gobierno"
+          ],
+          "variable": [
+            {
+              "key": "esquema",
+              "value": "{{esquema}}",
+              "description": "Identificador; se encadena desde una peticion anterior."
+            },
+            {
+              "key": "tabla",
+              "value": "{{tabla}}",
+              "description": "Identificador; se encadena desde una peticion anterior."
+            }
+          ]
+        },
+        "description": "## Guarda la ficha de gobierno de una tabla del catalogo de datos\n\nEstado (en uso o no), revision, responsable, retencion y si es critica para auditoria. Se manda la `version` leida; si otra persona guardo antes, responde 422 AP-CU130-01 y la ficha no cambia. La sensibilidad no se edita: se deriva de las columnas del modelo. Deja un evento CAMBIO_CONFIGURACION en la bitacora.\n\n| | |\n| --- | --- |\n| **Servicio** | `auditoria` |\n| **Operacion** | `guardarFichaDeGobierno` |\n| **Ruta** | `PUT /api/v1/indicadores/catalogo-de-datos/{esquema}/{tabla}/gobierno` |\n| **Permiso** | `CATALOGO_DATOS_EDITAR` |\n| **Respuestas** | `200`, `422`, `403`, `401` |\n\n### Rechazos que declara el contrato\n\n| Codigo | Motivo |\n| --- | --- |\n| `AP-CU130-01` | Version vieja |\n| `AP-CU130-02` | Tabla desconocida |\n| `AP-CU130-03` | Retencion desconocida |\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"estado\": \"CANDIDATA_A_RETIRO\",\n  \"estadoRevision\": \"APROBADA\",\n  \"responsable\": \"Sistemas\",\n  \"criticaParaAuditoria\": false,\n  \"version\": 0\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// Lo que se le exige a TODA respuesta del sistema, sin excepcion.",
+              "const esperadas = [200, 401, 403, 422];",
+              "",
+              "pm.test(\"responde con un codigo que el contrato declara\", () => {",
+              "    pm.expect(esperadas).to.include(pm.response.code);",
+              "});",
+              "",
+              "pm.test(\"no filtra la traza al cliente\", () => {",
+              "    const cuerpo = pm.response.text();",
+              "    // Un stack trace en la respuesta le cuenta al atacante como esta hecho el",
+              "    // servidor. Es una de las dieciocho prohibiciones del contrato.",
+              "    pm.expect(cuerpo).to.not.match(/at bo\\.aportaya\\./);",
+              "    pm.expect(cuerpo).to.not.include(\"java.lang.\");",
+              "});",
+              "",
+              "if (pm.response.code === 422) {",
+              "    pm.test(\"el rechazo trae su codigo AP-CU\", () => {",
+              "        pm.expect(pm.response.json()).to.have.property(\"codigo\").that.matches(/^AP-CU\\d+-\\d+$/);",
+              "    });",
+              "}",
+              "",
+              "// Encadena: lo que devuelve esta peticion queda disponible para la siguiente.",
+              "if (pm.response.code < 300) {",
+              "    const cuerpo = pm.response.json();",
+              "    for (const [clave, valor] of Object.entries(cuerpo || {})) {",
+              "        if (typeof valor === \"string\" && /^[0-9a-f]{8}-[0-9a-f]{4}-/i.test(valor)) {",
+              "            pm.collectionVariables.set(clave, valor);",
+              "        }",
+              "    }",
+              "}",
+              ""
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "revisarColumna · Guarda la revision de una columna del catalogo de datos",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}{{prefijo_api}}/indicadores/catalogo-de-datos/:esquema/:tabla/columnas/:columna/revision",
+          "host": [
+            "{{base_url}}{{prefijo_api}}"
+          ],
+          "path": [
+            "indicadores",
+            "catalogo-de-datos",
+            ":esquema",
+            ":tabla",
+            "columnas",
+            ":columna",
+            "revision"
+          ],
+          "variable": [
+            {
+              "key": "esquema",
+              "value": "{{esquema}}",
+              "description": "Identificador; se encadena desde una peticion anterior."
+            },
+            {
+              "key": "tabla",
+              "value": "{{tabla}}",
+              "description": "Identificador; se encadena desde una peticion anterior."
+            },
+            {
+              "key": "columna",
+              "value": "{{columna}}",
+              "description": "Identificador; se encadena desde una peticion anterior."
+            }
+          ]
+        },
+        "description": "## Guarda la revision de una columna del catalogo de datos\n\nEl veredicto de una persona sobre lo que el catalogo dice de la columna: aprobada, rechazada (con motivo obligatorio) o pendiente, con que confianza. Se manda la `version` leida; si otra persona guardo antes, 422 AP-CU131-03. Deja CAMBIO_CONFIGURACION en la bitacora.\n\n| | |\n| --- | --- |\n| **Servicio** | `auditoria` |\n| **Operacion** | `revisarColumna` |\n| **Ruta** | `PUT /api/v1/indicadores/catalogo-de-datos/{esquema}/{tabla}/columnas/{columna}/revision` |\n| **Permiso** | `CATALOGO_DATOS_EDITAR` |\n| **Respuestas** | `200`, `422`, `403`, `401` |\n\n### Rechazos que declara el contrato\n\n| Codigo | Motivo |\n| --- | --- |\n| `AP-CU131-01` | Columna desconocida |\n| `AP-CU131-02` | Rechazo sin motivo |\n| `AP-CU131-03` | Version vieja |\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"decision\": \"APROBADA\",\n  \"confianza\": \"ALTA\",\n  \"version\": 0\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// Lo que se le exige a TODA respuesta del sistema, sin excepcion.",
+              "const esperadas = [200, 401, 403, 422];",
+              "",
+              "pm.test(\"responde con un codigo que el contrato declara\", () => {",
+              "    pm.expect(esperadas).to.include(pm.response.code);",
+              "});",
+              "",
+              "pm.test(\"no filtra la traza al cliente\", () => {",
+              "    const cuerpo = pm.response.text();",
+              "    // Un stack trace en la respuesta le cuenta al atacante como esta hecho el",
+              "    // servidor. Es una de las dieciocho prohibiciones del contrato.",
+              "    pm.expect(cuerpo).to.not.match(/at bo\\.aportaya\\./);",
+              "    pm.expect(cuerpo).to.not.include(\"java.lang.\");",
+              "});",
+              "",
+              "if (pm.response.code === 422) {",
+              "    pm.test(\"el rechazo trae su codigo AP-CU\", () => {",
+              "        pm.expect(pm.response.json()).to.have.property(\"codigo\").that.matches(/^AP-CU\\d+-\\d+$/);",
+              "    });",
+              "}",
+              "",
+              "// Encadena: lo que devuelve esta peticion queda disponible para la siguiente.",
+              "if (pm.response.code < 300) {",
+              "    const cuerpo = pm.response.json();",
+              "    for (const [clave, valor] of Object.entries(cuerpo || {})) {",
+              "        if (typeof valor === \"string\" && /^[0-9a-f]{8}-[0-9a-f]{4}-/i.test(valor)) {",
+              "            pm.collectionVariables.set(clave, valor);",
+              "        }",
+              "    }",
+              "}",
+              ""
+            ]
+          }
+        }
+      ]
     }
   ],
   "event": [
@@ -769,6 +962,10 @@
       "value": ""
     },
     {
+      "key": "columna",
+      "value": ""
+    },
+    {
       "key": "definicionId",
       "value": ""
     },
@@ -778,6 +975,10 @@
     },
     {
       "key": "dimensionId",
+      "value": ""
+    },
+    {
+      "key": "esquema",
       "value": ""
     },
     {
@@ -794,6 +995,10 @@
     },
     {
       "key": "prefijo_api",
+      "value": ""
+    },
+    {
+      "key": "tabla",
       "value": ""
     },
     {

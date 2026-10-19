@@ -1,0 +1,50 @@
+{
+  "servicio": "organizador",
+  "operacion": "firmarHabilitacionBasica",
+  "metodo": "post",
+  "ruta": "/organizadores/yo/habilitacion-basica/firma",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "firmadoAhora": true
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "firmadoAhora": false
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "firmadoAhora": true
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "firmadoAhora": true
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU90-12",
+        "mensaje": "La operación fue rechazada por la regla AP-CU90-12.",
+        "detalle": {},
+        "trazaId": "traza-firmarHabilitacionBasica-rechazo"
+      }
+    }
+  }
+}

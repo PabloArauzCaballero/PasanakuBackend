@@ -7,7 +7,7 @@ tabla: movimiento_contable
 clase: MovimientoContable
 modulo: "03 — Aportes, Pagos QR y Conciliación"
 clave_primaria: [id]
-columnas: 6
+columnas: 7
 fk_salientes: 2
 fk_entrantes: 0
 append_only: true
@@ -26,6 +26,7 @@ append_only: true
 | `cuenta_id` | UUID | FK IDX | no | FK, IDX |
 | `debe` | DECIMAL(16,2) | — | no | — |
 | `haber` | DECIMAL(16,2) | — | no | — |
+| `moneda` | CHAR(3) | — | no | — |
 | `descripcion` | VARCHAR(160) | — | no | — |
 
 ## Claves foráneas salientes

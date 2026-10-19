@@ -9,6 +9,11 @@
 -- saltear si ya está— es lo que hace que un ON DELETE cambiado en el
 -- modelo quede corregido al reaplicar.
 
+ALTER TABLE notificaciones.aviso_interno DROP CONSTRAINT IF EXISTS fk_aviso_interno_usuario_id;
+ALTER TABLE notificaciones.aviso_interno
+  ADD CONSTRAINT fk_aviso_interno_usuario_id
+  FOREIGN KEY (usuario_id) REFERENCES identidad.usuario (id) ON DELETE SET NULL ON UPDATE CASCADE;
+
 ALTER TABLE notificaciones.bandeja_entrada DROP CONSTRAINT IF EXISTS fk_bandeja_entrada_notificacion_id;
 ALTER TABLE notificaciones.bandeja_entrada
   ADD CONSTRAINT fk_bandeja_entrada_notificacion_id

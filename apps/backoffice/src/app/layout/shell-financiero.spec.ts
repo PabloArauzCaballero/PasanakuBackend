@@ -6,6 +6,7 @@ import { provideRouter, Router } from '@angular/router'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { GATEWAY } from '../nucleo/gateway'
 import { Sesion } from '../nucleo/sesion'
+import { proveerTutoriales } from '../rutas/ayuda/catalogo/proveer'
 import { rolLegible } from './dominio/cerrar-sesion'
 import { ShellFinanciero } from './shell-financiero'
 
@@ -23,6 +24,8 @@ describe('ShellFinanciero · salir y rol legible', () => {
         provideHttpClient(),
         provideHttpClientTesting(),
         { provide: GATEWAY, useValue: GATEWAY_TEST },
+        // El lanzador del tutorial de la cabecera necesita el motor de tutoriales entero, como en la app.
+        ...proveerTutoriales(),
       ],
     })
     http = TestBed.inject(HttpTestingController)
@@ -62,8 +65,8 @@ describe('ShellFinanciero · salir y rol legible', () => {
 
   it('el menú solo ofrece lo que el permiso habilita y la cabecera muestra el rol legible', () => {
     const el = montar()
-    const enlaces = Array.from(el.querySelectorAll('nav a')).map((a) => a.textContent?.trim())
-    expect(enlaces).toEqual(['Tablero', 'Operación', 'Ayuda']) // Ayuda es de todos
+    const enlaces = Array.from(el.querySelectorAll('ap-menu-lateral a')).map((a) => a.textContent?.trim())
+    expect(enlaces).toEqual(['Inicio', 'Operación', 'Ayuda']) // Ayuda es de todos
     expect(el.querySelector('[data-tutorial-id="cabecera-rol"]')?.textContent?.trim()).toBe('Administración de plataforma')
   })
 

@@ -1,26 +1,22 @@
 import { ChangeDetectionStrategy, Component, inject, input, OnInit, signal } from '@angular/core'
 import { Boton } from '@aportaya/ui/boton/boton'
-import { BandaDeProposito } from '@aportaya/ui/banda-de-proposito/banda-de-proposito'
+import { CabeceraDePagina } from '@aportaya/ui/cabecera-de-pagina/cabecera-de-pagina'
 import { RelojDePlazo } from '@aportaya/ui/reloj-de-plazo/reloj-de-plazo'
+import { ExplicadorDeVista } from '../../../nucleo/explicador-de-vista'
 import { ServicioBorrador } from '../../../nucleo/borrador'
 import { claveDeBorrador, type ReclamoDelConsumidor } from '../dominio/cu52-reclamo'
 import { textosCumplimiento } from '../textos'
 
 /**
- * CU-52 · Atender un reclamo en plazo. `RelojDePlazo` recibe `venceIso` directamente
- * de `reclamo().plazoVenceEn` — el valor que trajo el servidor al registrar el
- * reclamo — y `ahoraIso` se inyecta desde afuera para que la pantalla nunca calcule el
- * plazo por su cuenta (skill `plazos-habiles`: se guarda al notificar, no se
- * recalcula al consultar).
+ * CU-52 · Atender un reclamo en plazo.
  */
 @Component({
   selector: 'ap-pantalla-de-reclamo',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [BandaDeProposito, RelojDePlazo, Boton],
+  imports: [Boton, CabeceraDePagina, RelojDePlazo],
   template: `
-    <ap-banda-de-proposito [texto]="t.proposito" />
     <section class="pantalla">
-      <h1>{{ t.titulo }}</h1>
+      <ap-cabecera-de-pagina [titulo]="t.titulo" [descripcion]="t.proposito" icono="advertencia" />
       <ap-reloj-de-plazo [etiqueta]="t.plazo" [venceIso]="reclamo().plazoVenceEn" [ahoraIso]="ahoraIso()" [norma]="t.norma" />
 
       <label for="respuesta">{{ t.respuesta }}</label>
@@ -35,6 +31,9 @@ import { textosCumplimiento } from '../textos'
   `,
 })
 export class PantallaDeReclamo implements OnInit {
+  constructor() {
+    inject(ExplicadorDeVista).fijar(this.t.proposito)
+  }
   private readonly servicioBorrador = inject(ServicioBorrador)
   protected readonly t = textosCumplimiento.reclamos
 

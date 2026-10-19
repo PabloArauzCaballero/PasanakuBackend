@@ -1,11 +1,12 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core'
 import { toSignal } from '@angular/core/rxjs-interop'
 import { ActivatedRoute, Router } from '@angular/router'
-import { BandaDeProposito } from '@aportaya/ui/banda-de-proposito/banda-de-proposito'
+import { CabeceraDePagina } from '@aportaya/ui/cabecera-de-pagina/cabecera-de-pagina'
 import { ChipEstado } from '@aportaya/ui/chip-estado/chip-estado'
 import type { Filtro } from '@aportaya/ui/chips-de-filtro/chips-de-filtro'
 import { Fecha } from '@aportaya/ui/fecha/fecha'
 import { BarraDeFiltros } from '../../../nucleo/filtros/barra-de-filtros'
+import { ExplicadorDeVista } from '../../../nucleo/explicador-de-vista'
 import { TablaDeDatosVirtualizada } from '../../../nucleo/tabla/tabla-de-datos-virtualizada'
 import type { ColumnaVirtual } from '../../../nucleo/tabla/tipos'
 import { EstadoDeBandejaVista } from '../comun/estado-de-bandeja'
@@ -20,17 +21,15 @@ const CLAVES = ['solicitadaEn', 'tipo', 'estado', 'montoReversado', 'motivo', 'a
 const COLUMNAS: ColumnaVirtual<ReversoEnLista>[] = CLAVES.map((clave) => ({ clave, titulo: T.columnas[clave], numerica: clave === 'montoReversado' }))
 
 /**
- * CU-14 · listado de reversos de solo lectura para Tesorería y Auditoría (AUDITORIA_LEER). El filtro de estados vive
- * en la URL (`BarraDeFiltros`) y viaja como `estados` CSV; el orden es el del servidor (más reciente primero).
+ * CU-14 · listado de reversos de solo lectura para Tesorería y Auditoría (AUDITORIA_LEER).
  */
 @Component({
   selector: 'ap-listado-de-reversos',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [BandaDeProposito, ChipEstado, Fecha, BarraDeFiltros, TablaDeDatosVirtualizada, EstadoDeBandejaVista, ImporteSinMoneda],
+  imports: [CabeceraDePagina, ChipEstado, Fecha, BarraDeFiltros, TablaDeDatosVirtualizada, EstadoDeBandejaVista, ImporteSinMoneda],
   template: `
-    <ap-banda-de-proposito [texto]="t.proposito" />
     <section class="pantalla">
-      <h1>{{ t.titulo }}</h1>
+      <ap-cabecera-de-pagina [titulo]="t.titulo" [descripcion]="t.proposito" icono="recarga" />
       <ap-barra-de-filtros [etiqueta]="t.filtroEtiqueta" [incluirBusqueda]="false" [definiciones]="filtrosDeEstado" />
       <ap-estado-de-bandeja [estado]="b.estado()" [error]="b.error()" [vacio]="t.vacio" [explicacionVacio]="t.explicacionVacio" [denegado]="t.denegado" [conFiltro]="!!filtrosActivos()['estados']" (reintentar)="b.reintentar()" (quitarFiltros)="quitarFiltros()" />
       @if (b.estado() !== 'denegado') {
@@ -53,10 +52,12 @@ const COLUMNAS: ColumnaVirtual<ReversoEnLista>[] = CLAVES.map((clave) => ({ clav
   `,
   styles: `
     .pantalla { padding: var(--s5); max-width: 80rem; display: grid; gap: var(--s4); }
-    h1 { margin: 0; }
   `,
 })
 export class ListadoDeReversos {
+  constructor() {
+    inject(ExplicadorDeVista).fijar(this.t.proposito)
+  }
   private readonly router = inject(Router)
   private readonly ruta = inject(ActivatedRoute)
   protected readonly t = T

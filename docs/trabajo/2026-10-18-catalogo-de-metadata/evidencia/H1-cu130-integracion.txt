@@ -1,0 +1,2 @@
+BUILD SUCCESSFUL in 44s
+tests="5" skipped="0" failures="0" errors="0"

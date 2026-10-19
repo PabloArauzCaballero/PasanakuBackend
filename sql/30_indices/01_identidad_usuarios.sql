@@ -106,6 +106,9 @@ CREATE UNIQUE INDEX IF NOT EXISTS uq_rol_codigo
 CREATE UNIQUE INDEX IF NOT EXISTS uq_permiso_codigo
   ON identidad.permiso (codigo);
 
+CREATE UNIQUE INDEX IF NOT EXISTS uq_usuario_interno_usuario_id
+  ON identidad.usuario_interno (usuario_id);
+
 CREATE INDEX IF NOT EXISTS ix_asignacion_rol_usuario_id
   ON identidad.asignacion_rol (usuario_id);
 

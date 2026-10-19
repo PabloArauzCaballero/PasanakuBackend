@@ -2,12 +2,13 @@ import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@a
 import { toSignal } from '@angular/core/rxjs-interop'
 import { ActivatedRoute, Router } from '@angular/router'
 import { Alerta } from '@aportaya/ui/alerta/alerta'
-import { BandaDeProposito } from '@aportaya/ui/banda-de-proposito/banda-de-proposito'
 import { Boton } from '@aportaya/ui/boton/boton'
+import { CabeceraDePagina } from '@aportaya/ui/cabecera-de-pagina/cabecera-de-pagina'
 import { ChipEstado } from '@aportaya/ui/chip-estado/chip-estado'
 import type { Filtro } from '@aportaya/ui/chips-de-filtro/chips-de-filtro'
 import { RelojDePlazo } from '@aportaya/ui/reloj-de-plazo/reloj-de-plazo'
 import { BarraDeFiltros } from '../../../nucleo/filtros/barra-de-filtros'
+import { ExplicadorDeVista } from '../../../nucleo/explicador-de-vista'
 import { Sesion } from '../../../nucleo/sesion'
 import { TablaDeDatosVirtualizada } from '../../../nucleo/tabla/tabla-de-datos-virtualizada'
 import type { ColumnaVirtual } from '../../../nucleo/tabla/tipos'
@@ -26,18 +27,15 @@ const COLUMNAS: ColumnaVirtual<ReclamoEnBandeja>[] = (['codigo', 'categoria', 'c
 }))
 
 /**
- * D-18 · Bandeja de reclamos (CU-52) sobre `listarBandejaDeReclamos`: el servidor ordena por límite vigente y pagina
- * por cursor; `BarraDeFiltros` guarda los estados elegidos en la URL y viajan como `estados` (CSV). Cualquier operador
- * con RECLAMO_VER la ve; solo quien tiene RECLAMO_ATENDER abre la respuesta (el mismo permiso que exige el servidor).
+ * D-18 · Bandeja de reclamos (CU-52) sobre `listarBandejaDeReclamos`.
  */
 @Component({
   selector: 'ap-bandeja-de-reclamos',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [Alerta, BandaDeProposito, Boton, ChipEstado, RelojDePlazo, TablaDeDatosVirtualizada, BarraDeFiltros, EstadoDeBandejaVista, ImporteSinMoneda, RespuestaAReclamo],
+  imports: [Alerta, Boton, CabeceraDePagina, ChipEstado, RelojDePlazo, TablaDeDatosVirtualizada, BarraDeFiltros, EstadoDeBandejaVista, ImporteSinMoneda, RespuestaAReclamo],
   template: `
-    <ap-banda-de-proposito [texto]="t.proposito" />
     <section class="pantalla">
-      <h1 data-tutorial-id="operacion-reclamos">{{ t.titulo }}</h1>
+      <ap-cabecera-de-pagina data-tutorial-id="operacion-reclamos" [titulo]="t.titulo" [descripcion]="t.proposito" icono="advertencia" />
       @if (hecho(); as h) { <ap-alerta tono="ok">{{ h }}</ap-alerta> }
       <ap-barra-de-filtros [etiqueta]="t.filtroEtiqueta" [incluirBusqueda]="false" [definiciones]="filtrosDeEstado" />
       <ap-estado-de-bandeja [estado]="b.estado()" [error]="b.error()" [vacio]="t.vacio" [explicacionVacio]="t.explicacionVacio" [denegado]="t.denegado" [conFiltro]="!!filtrosActivos()['estados']" (reintentar)="b.reintentar()" (quitarFiltros)="quitarFiltros()" />
@@ -70,11 +68,13 @@ const COLUMNAS: ColumnaVirtual<ReclamoEnBandeja>[] = (['codigo', 'categoria', 'c
   `,
   styles: `
     .pantalla { padding: var(--s5); max-width: 72rem; display: grid; gap: var(--s4); }
-    h1 { margin: 0; }
     .vencido { display: block; color: var(--err-texto); font-weight: 600; }
   `,
 })
 export class BandejaDeReclamos {
+  constructor() {
+    inject(ExplicadorDeVista).fijar(this.t.proposito)
+  }
   private readonly sesion = inject(Sesion)
   private readonly router = inject(Router)
   private readonly ruta = inject(ActivatedRoute)

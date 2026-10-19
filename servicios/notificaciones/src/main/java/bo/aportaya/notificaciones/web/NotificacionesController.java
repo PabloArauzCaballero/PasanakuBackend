@@ -3,26 +3,34 @@ package bo.aportaya.notificaciones.web;
 import bo.aportaya.notificaciones.aplicacion.CU82ProcesarRespuesta;
 import bo.aportaya.notificaciones.aplicacion.ConsultarMensajeria;
 import bo.aportaya.notificaciones.aplicacion.ConsultarSupresion;
+import bo.aportaya.notificaciones.aplicacion.GestionarAvisosInternos;
 import bo.aportaya.notificaciones.aplicacion.SolicitarAviso;
 import bo.aportaya.notificaciones.web.generado.NotificacionesApi;
+import bo.aportaya.notificaciones.web.generado.modelo.AvisoInterno;
+import bo.aportaya.notificaciones.web.generado.modelo.EntradaAvisoInterno;
 import bo.aportaya.notificaciones.web.generado.modelo.EntradaConsultaSupresion;
 import bo.aportaya.notificaciones.web.generado.modelo.EntradaNotificacion;
 import bo.aportaya.notificaciones.web.generado.modelo.EntradaRespuesta;
+import bo.aportaya.notificaciones.web.generado.modelo.PaginaDeAvisosInternos;
 import bo.aportaya.notificaciones.web.generado.modelo.PaginaDeEnvios;
 import bo.aportaya.notificaciones.web.generado.modelo.PaginaDePlantillas;
+import bo.aportaya.notificaciones.web.generado.modelo.SalidaMarcarTodosLeidos;
 import bo.aportaya.notificaciones.web.generado.modelo.SalidaNotificacion;
 import bo.aportaya.notificaciones.web.generado.modelo.SalidaRespuesta;
 import bo.aportaya.notificaciones.web.generado.modelo.Supresion;
 import bo.aportaya.plataforma.dominio.ContextoSesion;
 import bo.aportaya.plataforma.dominio.Reloj;
 import bo.aportaya.plataforma.web.seguridad.Permiso;
+import bo.aportaya.plataforma.web.seguridad.PermisoAlternativo;
 import bo.aportaya.plataforma.web.seguridad.Publico;
 import bo.aportaya.plataforma.web.seguridad.SesionDeLaPeticion;
 import bo.aportaya.plataforma.web.traza.Traza;
 import java.time.Duration;
 import java.time.OffsetDateTime;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -51,6 +59,7 @@ public class NotificacionesController implements NotificacionesApi {
     private final ConsultarSupresion supresiones;
     private final CU82ProcesarRespuesta cu82;
     private final ConsultarMensajeria mensajeria;
+    private final GestionarAvisosInternos avisosInternos;
     private final SesionDeLaPeticion sesion;
     private final LimiteDeConsultas limiteDeConsultas;
 
@@ -59,6 +68,7 @@ public class NotificacionesController implements NotificacionesApi {
             ConsultarSupresion supresiones,
             CU82ProcesarRespuesta cu82,
             ConsultarMensajeria mensajeria,
+            GestionarAvisosInternos avisosInternos,
             SesionDeLaPeticion sesion,
             Reloj reloj,
             @Value("${aportaya.supresion.consultas-por-minuto:30}") int consultasPorMinuto) {
@@ -66,6 +76,7 @@ public class NotificacionesController implements NotificacionesApi {
         this.supresiones = supresiones;
         this.cu82 = cu82;
         this.mensajeria = mensajeria;
+        this.avisosInternos = avisosInternos;
         this.sesion = sesion;
         this.limiteDeConsultas = new LimiteDeConsultas(reloj, consultasPorMinuto, Duration.ofMinutes(1));
     }
@@ -177,5 +188,53 @@ public class NotificacionesController implements NotificacionesApi {
         var pagina = mensajeria.envios(
                 estados, Optional.ofNullable(antesDe), Optional.ofNullable(antesDeId), limite, sesion.actual());
         return ResponseEntity.ok(MapeoDeMensajeria.envios(pagina));
+    }
+
+    @Override
+    @Permiso("AUDITORIA_LEER")
+    @PermisoAlternativo({"ADMIN_PLATAFORMA"})
+    public ResponseEntity<PaginaDeAvisosInternos> consultarAvisosInternos(Boolean soloNoLeidos, Integer limite) {
+        Traza.marcarCasoDeUso("CU-80", "avisos-internos");
+        var contexto = sesion.actual();
+        Set<String> roles = new HashSet<>(sesion.permisos());
+        if (contexto.rol() != null) {
+            roles.add(contexto.rol());
+        }
+        boolean noLeidos = Boolean.TRUE.equals(soloNoLeidos);
+        int lim = limite != null ? limite : 20;
+        var pagina = avisosInternos.consultar(contexto.usuarioId(), roles, noLeidos, lim, contexto);
+        return ResponseEntity.ok(pagina);
+    }
+
+    @Override
+    @Permiso("ADMIN_PLATAFORMA")
+    public ResponseEntity<AvisoInterno> emitirAvisoInterno(EntradaAvisoInterno entrada) {
+        Traza.marcarCasoDeUso("CU-80", "emitir-aviso-interno");
+        var creado = avisosInternos.emitir(entrada, sesion.actual());
+        return ResponseEntity.status(HttpStatus.CREATED).body(creado);
+    }
+
+    @Override
+    @Permiso("AUDITORIA_LEER")
+    @PermisoAlternativo({"ADMIN_PLATAFORMA"})
+    public ResponseEntity<AvisoInterno> marcarAvisoLeido(UUID id) {
+        Traza.marcarCasoDeUso("CU-80", "marcar-aviso-leido");
+        return avisosInternos.marcarLeido(id, sesion.actual())
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @Override
+    @Permiso("AUDITORIA_LEER")
+    @PermisoAlternativo({"ADMIN_PLATAFORMA"})
+    public ResponseEntity<SalidaMarcarTodosLeidos> marcarTodosAvisosLeidos() {
+        Traza.marcarCasoDeUso("CU-80", "marcar-todos-avisos-leidos");
+        var contexto = sesion.actual();
+        Set<String> roles = new HashSet<>(sesion.permisos());
+        if (contexto.rol() != null) {
+            roles.add(contexto.rol());
+        }
+        var salida = avisosInternos.marcarTodosLeidos(contexto.usuarioId(), roles, contexto);
+        return ResponseEntity.ok(salida);
     }
 }

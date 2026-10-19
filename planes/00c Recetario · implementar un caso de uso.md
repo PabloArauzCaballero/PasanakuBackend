@@ -5,7 +5,7 @@ tags:
   - recetario
 titulo: "Recetario — implementar un caso de uso, paso a paso"
 fecha: 2026-08-14
-aplica_a: los 109 casos de uso, sin excepción
+aplica_a: los 111 casos de uso, sin excepción
 ---
 
 # Recetario — implementar un caso de uso

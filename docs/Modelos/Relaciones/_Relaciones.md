@@ -2,13 +2,13 @@
 tags:
   - moc
   - indice
-relaciones_fk: 662
-cross_modulo: 347
+relaciones_fk: 665
+cross_modulo: 348
 ---
 
 # Índice de relaciones (claves foráneas)
 
-Las **662 claves foráneas** del modelo. **347** cruzan módulos.
+Las **665 claves foráneas** del modelo. **348** cruzan módulos.
 
 [[Index|← Índice general]] · [[_Entidades|Entidades →]]
 
@@ -78,6 +78,7 @@ Son las que acoplan el sistema: conviene revisarlas antes de tocar un módulo.
 | [[oferta_turno]] | `turno_id` | [[turno]] | 04 → 02 | no | [[oferta_turno.turno_id → turno\|ver]] |
 | [[orden_desembolso]] | `proveedor_id` | [[proveedor_pago]] | 04 → 03 | no | [[orden_desembolso.proveedor_id → proveedor_pago\|ver]] |
 | [[validacion_pre_entrega]] | `omitida_por` | [[usuario]] | 04 → 01 | sí | [[validacion_pre_entrega.omitida_por → usuario\|ver]] |
+| [[aviso_interno]] | `usuario_id` | [[usuario]] | 05 → 01 | sí | [[aviso_interno.usuario_id → usuario\|ver]] |
 | [[bandeja_entrada]] | `usuario_id` | [[usuario]] | 05 → 01 | no | [[bandeja_entrada.usuario_id → usuario\|ver]] |
 | [[canal_vinculado]] | `usuario_id` | [[usuario]] | 05 → 01 | no | [[canal_vinculado.usuario_id → usuario\|ver]] |
 | [[enlace_pago_notificado]] | `orden_cobro_id` | [[orden_cobro]] | 05 → 03 | no | [[enlace_pago_notificado.orden_cobro_id → orden_cobro\|ver]] |
@@ -402,6 +403,7 @@ Son las que acoplan el sistema: conviene revisarlas antes de tocar un módulo.
 | [[token_verificacion.politica_id → politica_sancion]] | [[politica_sancion]] | ↗ | no |
 | [[token_verificacion.rotado_de_id → token_verificacion]] | [[token_verificacion]] | — | sí |
 | [[token_verificacion.usuario_id → usuario]] | [[usuario]] | — | sí |
+| [[usuario_interno.usuario_id → usuario]] | [[usuario]] | — | no |
 | [[verificacion_kyc.documento_id → documento_identidad]] | [[documento_identidad]] | — | sí |
 | [[verificacion_kyc.revisada_por → usuario]] | [[usuario]] | — | sí |
 | [[verificacion_kyc.usuario_id → usuario]] | [[usuario]] | — | no |
@@ -564,6 +566,7 @@ Son las que acoplan el sistema: conviene revisarlas antes de tocar un módulo.
 
 | Relación | Destino | Cruza | Opcional |
 | --- | --- | :-: | :-: |
+| [[aviso_interno.usuario_id → usuario]] | [[usuario]] | ↗ | sí |
 | [[bandeja_entrada.notificacion_id → notificacion]] | [[notificacion]] | — | no |
 | [[bandeja_entrada.usuario_id → usuario]] | [[usuario]] | ↗ | no |
 | [[canal_vinculado.usuario_id → usuario]] | [[usuario]] | ↗ | no |
@@ -784,6 +787,7 @@ Son las que acoplan el sistema: conviene revisarlas antes de tocar un módulo.
 | [[ejecucion_reporte.grupo_id → grupo]] | [[grupo]] | ↗ | sí |
 | [[ejecucion_reporte.solicitado_por → usuario]] | [[usuario]] | ↗ | no |
 | [[exportacion_reporte.ejecucion_id → ejecucion_reporte]] | [[ejecucion_reporte]] | — | no |
+| [[ficha_gobierno_tabla.politica_retencion_id → politica_retencion]] | [[politica_retencion]] | — | sí |
 | [[indicador_kpi.definicion_indicador_id → definicion_indicador]] | [[definicion_indicador]] | — | no |
 | [[proceso_anonimizacion.solicitud_id → solicitud_datos_personales]] | [[solicitud_datos_personales]] | — | sí |
 | [[proceso_anonimizacion.usuario_id → usuario]] | [[usuario]] | ↗ | no |

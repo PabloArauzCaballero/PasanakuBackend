@@ -1,4 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, input, model } from '@angular/core'
+import { Icono } from '../icono/icono'
+import { Tooltip } from '../tooltip/tooltip'
 
 let secuencia = 0
 
@@ -9,9 +11,13 @@ let secuencia = 0
 @Component({
   selector: 'ap-campo',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [Icono, Tooltip],
   host: { '[class.con-error]': '!!error()', '[class.con-exito]': 'exito()' },
   template: `
-    <label [for]="id">{{ etiqueta() }}</label>
+    <span class="rotulo">
+      <label [for]="id">{{ etiqueta() }}</label>
+      @if (tooltip()) { <ap-tooltip [texto]="tooltip()!"><button type="button" class="ayuda-boton" [attr.aria-label]="'Ayuda sobre ' + etiqueta()"><ap-icono nombre="info" tamano="s4" /></button></ap-tooltip> }
+    </span>
     <div class="caja">
       @if (prefijo()) { <span class="prefijo" aria-hidden="true">{{ prefijo() }}</span> }
       <input
@@ -33,7 +39,10 @@ let secuencia = 0
   `,
   styles: `
     :host { display: block; }
-    label { display: block; margin-bottom: var(--s1); font-weight: 600; color: var(--text-2); }
+    .rotulo { display: flex; align-items: center; gap: var(--s1); margin-bottom: var(--s1); }
+    label { display: block; font-weight: 600; color: var(--text-2); }
+    .ayuda-boton { display: inline-flex; align-items: center; justify-content: center; width: var(--s5); height: var(--s5); padding: 0; border: 0; border-radius: var(--r-pill); background: transparent; color: var(--text-3); cursor: help; }
+    .ayuda-boton:focus-visible { outline: var(--borde-foco) solid var(--g300); outline-offset: var(--borde-desfase); }
     .caja { display: flex; align-items: center; gap: var(--s2); min-height: var(--area-tactil); padding: 0 var(--s3); border: var(--borde-fino) solid var(--borde-control); border-radius: var(--r-md); background: var(--field); color: var(--text); }
     .caja:focus-within { border-color: var(--brand); box-shadow: 0 0 0 var(--borde-foco) var(--g300); }
     :host(.con-error) .caja { border-color: var(--err); }
@@ -54,6 +63,8 @@ export class Campo {
   readonly tipo = input<'text' | 'email' | 'tel' | 'password' | 'search' | 'date' | 'number'>('text')
   readonly marcador = input<string>()
   readonly ayuda = input<string>()
+  /** Ayuda ampliada por hover/foco; lo imprescindible va en `ayuda`, que siempre se ve. */
+  readonly tooltip = input<string>()
   readonly error = input<string>()
   readonly exito = input(false)
   readonly prefijo = input<string>()

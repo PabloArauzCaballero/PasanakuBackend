@@ -1,0 +1,31 @@
+$ python3 scripts/generar_ddl.py
+sql/ generado: 338 tablas · 681 claves foráneas · 776 índices · 527 CHECK
+Sin pendientes a nivel de datos.
+
+CREATE TABLE IF NOT EXISTS auditoria.ficha_gobierno_tabla (
+  id                                 UUID DEFAULT gen_random_uuid() NOT NULL,
+  esquema                            VARCHAR(63) NOT NULL,
+  tabla                              VARCHAR(63) NOT NULL,
+  estado                             VARCHAR(20) NOT NULL,
+  estado_revision                    VARCHAR(20) NOT NULL,
+  responsable                        VARCHAR(80),
+  politica_retencion_id              UUID,
+  critica_para_auditoria             BOOLEAN DEFAULT FALSE NOT NULL,
+  nota_revision                      VARCHAR(500),
+  revisado_por                       UUID,
+  actualizado_en                     TIMESTAMPTZ NOT NULL,
+  version                            INTEGER DEFAULT 0 NOT NULL,
+  CONSTRAINT pk_ficha_gobierno_tabla PRIMARY KEY (id),
+  CONSTRAINT ck_ficha_gobierno_tabla_estado CHECK (estado IN ('ACTIVA', 'CANDIDATA_A_RETIRO', 'DESHABILITADA', 'PLANIFICADA', 'RETIRADA')),
+  CONSTRAINT ck_ficha_gobierno_tabla_estado_revision CHECK (estado_revision IN ('APROBADA', 'DETECTADA', 'NECESITA_REVISION', 'RECHAZADA'))
+);
+sql/20_claves/09_auditoria_reportes.sql:87:ALTER TABLE auditoria.ficha_gobierno_tabla DROP CONSTRAINT IF EXISTS fk_ficha_gobierno_tabla_politica_retencion_id;
+sql/20_claves/09_auditoria_reportes.sql:88:ALTER TABLE auditoria.ficha_gobierno_tabla
+sql/20_claves/09_auditoria_reportes.sql:89:  ADD CONSTRAINT fk_ficha_gobierno_tabla_politica_retencion_id
+sql/30_indices/09_auditoria_reportes.sql:43:CREATE UNIQUE INDEX IF NOT EXISTS uq_ficha_gobierno_tabla_tabla_esquema
+sql/30_indices/09_auditoria_reportes.sql:44:  ON auditoria.ficha_gobierno_tabla (tabla, esquema);
+
+$ python3 scripts/verificar_boveda.py
+TODO OK
+$ python3 scripts/catalogo_de_datos.py --escribir
+338 tablas → docs/catalogo-de-datos.md y servicios/auditoria/src/main/resources/catalogo/catalogo-datos.json

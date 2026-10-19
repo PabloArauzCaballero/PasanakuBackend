@@ -110,16 +110,19 @@ todos los estados de aprobación. **No devuelve asunto, cuerpo, botones ni media
 no lo que dice. Pagina por `(vigenteDesde, versionId)` de la más reciente a la más antigua. No hay permiso de
 mensajería sembrado; `AUDITORIA_LEER` es el único que aplica.
 
+**Avisos internos para operadores (campana del backoffice).** `GET /avisos-internos`, `POST /avisos-internos/{id}/leido`, `POST /avisos-internos/marcar-todos-leidos`, `POST /avisos-internos`.
+Gestiona los avisos persistentes en [[aviso_interno]] dirigidos a un operador o a su rol (ej. alertas de cumplimiento, revisiones de catálogo pendientes o fallas de despliegue).
+
 ## Descomposición atómica
 
 | Nivel | Pieza | Responsabilidad |
 | --- | --- | --- |
 | Átomo | `renderizarPlantilla(version, variables)` | Interpolación pura, con escape; falla si falta una variable |
 | Átomo | `ventanaDeEnvio(preferencia, ahora)` | Devuelve enviar ahora o cuándo; puro |
-| Molécula | `NotificacionRepositorio` · `SupresionRepositorio` | |
+| Molécula | `NotificacionRepositorio` · `SupresionRepositorio` · `AvisoInternoRepositorio` | |
 | Molécula | `AdaptadorWhatsApp` · `AdaptadorPush` | Un adaptador por proveedor, detrás de la misma interfaz |
-| Organismo | `CU80DespacharNotificacion` | Consumidor idempotente del outbox |
-| Página | — | Sin endpoint: **solo por evento de dominio** |
+| Organismo | `CU80DespacharNotificacion` · `GestionarAvisosInternos` | Consumidor del outbox y gestor de avisos internos |
+| Página | `AvisosInternosController` | Campana y bandeja de avisos en backoffice |
 
 ## Eventos, trabajos y permisos
 
@@ -132,7 +135,7 @@ mensajería sembrado; `AUDITORIA_LEER` es el único que aplica.
 ## Interfaz
 
 - **App:** [[bandeja_entrada]] con el histórico y el detalle de cada aviso.
-- **Backoffice:** monitor de envíos con tasa de entrega por canal y la cola muerta.
+- **Backoffice:** campana de avisos en el shell y monitor de envíos con tasa de entrega por canal y la cola muerta.
 
 ## Restricciones aplicables
 
@@ -141,7 +144,7 @@ mensajería sembrado; `AUDITORIA_LEER` es el único que aplica.
 ## Evidencia que deja
 
 [[notificacion]] · [[envio_notificacion]] · [[evento_entrega_mensaje]] ·
-[[cola_muerta]] si agota reintentos · [[lista_supresion]] consultada
+[[cola_muerta]] si agota reintentos · [[lista_supresion]] consultada · [[aviso_interno]]
 
 ## Criterios de aceptación
 

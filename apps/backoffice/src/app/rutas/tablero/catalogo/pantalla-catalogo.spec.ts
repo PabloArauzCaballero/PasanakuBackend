@@ -42,13 +42,16 @@ describe('PantallaCatalogo · cargando, con datos, vacío de búsqueda y error',
     req.flush(catalogo())
   })
 
-  it('correcto: lista las tablas con su esquema, su servicio y un enlace a la ficha', async () => {
+  it('correcto: lista las tablas con módulo, estado y revisión (activa y detectada sin ficha) y un enlace a la ficha', async () => {
     const { arnes, http } = await abrir('/')
     http.expectOne(URL).flush(catalogo())
     const t = await texto(arnes)
     expect(t).toContain('3 tablas')
-    expect(t).toContain('Lo que un cupo debe en un período')
-    expect(t).toContain('Compartido')
+    expect(t).toContain('03 · Aportes')
+    expect(arnes.routeNativeElement?.querySelector('.total')?.textContent?.trim()).toBe('3')
+    expect(t).toContain('Activa')
+    expect(t).toContain('Detectada')
+    expect(t).toContain('Sin asignar')
     const enlace = arnes.routeNativeElement?.querySelector<HTMLAnchorElement>('a[href="/tablero/catalogo-de-datos/obligacion_aporte"]')
     expect(enlace?.textContent?.trim()).toBe('obligacion_aporte')
   })
@@ -56,13 +59,14 @@ describe('PantallaCatalogo · cargando, con datos, vacío de búsqueda y error',
   it('límite: la búsqueda de la URL filtra sin acentos; la página 2 trae las que sobran de veinte', async () => {
     const { arnes, http } = await abrir('/?q=Per%C3%ADodo')
     http.expectOne(URL).flush(catalogo())
-    expect(await texto(arnes)).toContain('1 de 3 tablas')
+    await texto(arnes)
+    expect(arnes.routeNativeElement?.querySelector('.total')?.textContent?.trim()).toBe('1')
 
     TestBed.resetTestingModule()
-    const otra = await abrir('/?filtro=erp&pagina=2')
+    const otra = await abrir('/?esquema=erp&pagina=2')
     otra.http.expectOne(URL).flush(catalogo(25))
     const t = await texto(otra.arnes)
-    expect(t).toContain('25 de 28 tablas')
+    expect(otra.arnes.routeNativeElement?.querySelector('.total')?.textContent?.trim()).toBe('25')
     expect(t).toContain('tabla_24')
     expect(t).not.toContain('tabla_00')
     expect(t).toContain('Página 2 de 2')

@@ -3,7 +3,7 @@ tags:
   - moc
   - caso-uso
 titulo: "Casos de uso — AportaYa"
-total_casos: 109
+total_casos: 111
 fecha: 2026-08-14
 ---
 
@@ -193,6 +193,8 @@ Norma (docs/Cumplimiento.md)  →  Caso de uso (esta carpeta)  →  Restricción
 | [[CU-97 Anticipar el riesgo con alertas tempranas]] | Ver el problema antes, para ayudar y no castigar | Sistema · Riesgos | ASFI gestión de riesgo |
 | [[CU-98 Publicar el tablero de indicadores]] | Los mismos números para todos, con su meta | Operaciones · Directorio | ASFI gobierno corporativo |
 | [[CU-99 Dar de alta un proveedor de pago y enrutar el cobro]] | No depender de una sola pasarela | Operaciones · Tesorería | ASFI tercerización · BCB |
+| [[CU-130 Gobernar la ficha de cada tabla del catálogo de datos]] | Saber qué tabla está activa, quién la cuida y si alguien la revisó | Sistemas · Auditoría | ISO 27001 inventario · control interno |
+| [[CU-131 Revisar cada columna del catálogo de datos]] | Que lo que el catálogo dice de cada columna lleve el veredicto de una persona | Sistemas · Auditoría | ISO 27001 inventario · control interno |
 
 ### Contabilidad financiera y ERP
 
@@ -250,7 +252,7 @@ CU-110..119 (publicidad y campañas, módulo 14) se abrieron por la misma razón
 módulos nuevos del modelo sin especificación de flujo todavía. CU-120..129 es el rango
 del módulo 15 (inversiones voluntarias): CU-120 a CU-129 están escritos. CU-126 reparte y concilia
 el interés, CU-127 estima y cobra la comisión por resultado, CU-128 informa comprobantes y el reporte
-fiscal separables, y CU-129 simula la caja sin tocar saldos. Los códigos de tres
+fiscal separables, y CU-129 simula la caja sin tocar saldos. CU-130 y CU-131 abren el rango siguiente: la ficha de gobierno de cada tabla y la revisión de cada columna del catálogo de datos (módulo 09). Los códigos de tres
 dígitos rompían un supuesto de ancho fijo en `scripts/verificar_boveda.py`
 (`stem[3:5]`); se corrigió para extraer el número con una expresión regular en vez
 de asumir dos dígitos.

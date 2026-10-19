@@ -738,6 +738,160 @@ paths:
         '403':
           description: Quien pregunta no es la persona ni un rol que pueda leer el de otra
 
+  /usuarios-internos:
+    get:
+      operationId: listarUsuariosInternos
+      summary: Lista de usuarios internos con sus roles y estado
+      description: >-
+        Permite filtrar por estado, codigo de rol y busqueda libre.
+      parameters:
+        - name: estado
+          in: query
+          required: false
+          schema: { type: string }
+        - name: rol
+          in: query
+          required: false
+          schema: { type: string }
+        - name: busqueda
+          in: query
+          required: false
+          schema: { type: string }
+      responses:
+        '200':
+          description: Lista de usuarios internos
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/UsuarioInternoResumen' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '403': { $ref: '#/components/responses/ReglaDeNegocio' }
+    post:
+      operationId: crearUsuarioInterno
+      summary: Alta de usuario interno con contrasena provisional
+      parameters:
+        - $ref: '#/components/parameters/ClaveIdempotencia'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaAltaUsuarioInterno' }
+      responses:
+        '201':
+          description: Usuario interno creado exitosamente
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/UsuarioInternoDetalle' }
+        '422': { $ref: '#/components/responses/ReglaDeNegocio' }
+
+  /usuarios-internos/{id}:
+    get:
+      operationId: consultarUsuarioInterno
+      summary: Ficha completa de un usuario interno
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: Detalle del usuario interno
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/UsuarioInternoDetalle' }
+        '404': { $ref: '#/components/responses/ReglaDeNegocio' }
+    patch:
+      operationId: actualizarUsuarioInterno
+      summary: Actualizar departamento, cargo o suspender con motivo
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaActualizarUsuarioInterno' }
+      responses:
+        '200':
+          description: Usuario interno actualizado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/UsuarioInternoDetalle' }
+        '422': { $ref: '#/components/responses/ReglaDeNegocio' }
+
+  /usuarios-internos/{id}/roles:
+    put:
+      operationId: asignarRolesUsuarioInterno
+      summary: Actualizar roles de un usuario interno con motivo (CU-08)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaAsignarRolesUsuarioInterno' }
+      responses:
+        '200':
+          description: Roles actualizados
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/UsuarioInternoDetalle' }
+        '422': { $ref: '#/components/responses/ReglaDeNegocio' }
+
+  /usuarios-internos/{id}/desbloquear:
+    post:
+      operationId: desbloquearUsuarioInterno
+      summary: Desbloquear usuario interno con motivo
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaDesbloqueoUsuarioInterno' }
+      responses:
+        '200':
+          description: Usuario desbloqueado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/UsuarioInternoDetalle' }
+        '422': { $ref: '#/components/responses/ReglaDeNegocio' }
+
+  /roles:
+    get:
+      operationId: listarRoles
+      summary: Catalogo de roles con departamento, descripcion y permisos
+      responses:
+        '200':
+          description: Catalogo de roles
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/RolCatalogo' }
+
+  /permisos:
+    get:
+      operationId: listarPermisos
+      summary: Catalogo de permisos
+      responses:
+        '200':
+          description: Catalogo de permisos
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/PermisoCatalogo' }
+
 components:
   parameters:
     ClaveIdempotencia:
@@ -1204,6 +1358,129 @@ components:
             corto. Se manda en la cabecera `Token-De-Alta` de `POST /usuarios/{usuarioId}/documentos`.
             No es una sesion: no sirve para nada mas.
         tokenDeAltaVenceEn: { type: string, format: date-time }
+
+    UsuarioInternoResumen:
+      type: object
+      additionalProperties: false
+      required: [id, usuarioId, nombres, apellidos, correo, departamento, cargo, estado, debeCambiarContrasena, tieneSegundoFactor, roles]
+      properties:
+        id: { type: string, format: uuid }
+        usuarioId: { type: string, format: uuid }
+        codigoPublico: { type: string }
+        nombres: { type: string }
+        apellidos: { type: string }
+        correo: { type: string, format: email }
+        telefono: { type: string }
+        departamento: { type: string }
+        cargo: { type: string }
+        estado: { type: string }
+        debeCambiarContrasena: { type: boolean }
+        tieneSegundoFactor: { type: boolean }
+        bloqueadoHasta: { type: string, format: date-time, nullable: true }
+        motivoBloqueo: { type: string, nullable: true }
+        roles:
+          type: array
+          items: { type: string }
+
+    UsuarioInternoDetalle:
+      type: object
+      additionalProperties: false
+      required: [id, usuarioId, nombres, apellidos, correo, departamento, cargo, estado, debeCambiarContrasena, tieneSegundoFactor, roles, permisosEfectivos]
+      properties:
+        id: { type: string, format: uuid }
+        usuarioId: { type: string, format: uuid }
+        codigoPublico: { type: string }
+        nombres: { type: string }
+        apellidos: { type: string }
+        correo: { type: string, format: email }
+        telefono: { type: string }
+        departamento: { type: string }
+        cargo: { type: string }
+        estado: { type: string }
+        debeCambiarContrasena: { type: boolean }
+        tieneSegundoFactor: { type: boolean }
+        bloqueadoHasta: { type: string, format: date-time, nullable: true }
+        motivoBloqueo: { type: string, nullable: true }
+        roles:
+          type: array
+          items: { type: string }
+        permisosEfectivos:
+          type: array
+          items: { type: string }
+        creadoEn: { type: string, format: date-time }
+        actualizadoEn: { type: string, format: date-time }
+
+    EntradaAltaUsuarioInterno:
+      type: object
+      additionalProperties: false
+      required: [nombres, apellidos, correo, telefono, departamento, cargo, rolCodigo]
+      properties:
+        nombres: { type: string, minLength: 2, maxLength: 80 }
+        apellidos: { type: string, minLength: 2, maxLength: 80 }
+        correo: { type: string, format: email, maxLength: 150 }
+        telefono: { type: string, minLength: 8, maxLength: 20 }
+        departamento: { type: string, minLength: 2, maxLength: 60 }
+        cargo: { type: string, minLength: 2, maxLength: 80 }
+        rolCodigo: { type: string, minLength: 2, maxLength: 30 }
+
+    EntradaActualizarUsuarioInterno:
+      type: object
+      additionalProperties: false
+      required: [motivo]
+      properties:
+        departamento: { type: string, maxLength: 60, nullable: true }
+        cargo: { type: string, maxLength: 80, nullable: true }
+        estado: { type: string, enum: [ACTIVO, SUSPENDIDO], nullable: true }
+        motivo: { type: string, minLength: 5, maxLength: 200 }
+
+    EntradaAsignarRolesUsuarioInterno:
+      type: object
+      additionalProperties: false
+      required: [roles, motivo]
+      properties:
+        roles:
+          type: array
+          minItems: 1
+          items: { type: string }
+        motivo: { type: string, minLength: 5, maxLength: 200 }
+
+    EntradaDesbloqueoUsuarioInterno:
+      type: object
+      additionalProperties: false
+      required: [motivo]
+      properties:
+        motivo: { type: string, minLength: 5, maxLength: 200 }
+
+    RolCatalogo:
+      type: object
+      additionalProperties: false
+      required: [id, codigo, nombre, ambito, departamento, descripcion, esSistema, permisos]
+      properties:
+        id: { type: string, format: uuid }
+        codigo: { type: string }
+        nombre: { type: string }
+        ambito: { type: string }
+        departamento: { type: string, nullable: true }
+        descripcion: { type: string, nullable: true }
+        esSistema: { type: boolean }
+        permisos:
+          type: array
+          items: { type: string }
+
+    PermisoCatalogo:
+      type: object
+      additionalProperties: false
+      required: [id, codigo, descripcion, recurso, accion, nivelRiesgo, exigeMotivo, requiereMfa]
+      properties:
+        id: { type: string, format: uuid }
+        codigo: { type: string }
+        descripcion: { type: string }
+        recurso: { type: string }
+        accion: { type: string }
+        nivelRiesgo: { type: string, enum: [BAJO, MEDIO, ALTO, CRITICO] }
+        exigeMotivo: { type: boolean }
+        requiereMfa: { type: boolean }
+
   responses:
     ReglaDeNegocio:
       description: Regla de negocio de la aplicacion (422, no 400)

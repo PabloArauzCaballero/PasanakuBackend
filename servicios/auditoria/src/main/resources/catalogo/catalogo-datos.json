@@ -3258,6 +3258,132 @@
    "sistema": "Vive en el esquema auditoria; la escribe y la lee solo el servicio auditoria (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de ejecucion_reporte. Reglas nombradas: ck_exportacion_version_llave."
   },
   {
+   "tabla": "ficha_gobierno_tabla",
+   "esquema": "auditoria",
+   "modulo": "09",
+   "nombreModulo": "Auditoría, Reportes y Cumplimiento",
+   "servicio": "auditoria",
+   "appendOnly": false,
+   "negocio": {
+    "queEs": "La ficha de gobierno de cada tabla del modelo: si está en uso (estado), si alguien ya revisó su descripción (revisión), quién responde por ella y qué política de retención le aplica.",
+    "negocio": "El catálogo de datos dice qué es cada tabla, pero no si sigue en uso ni quién la cuida. Con esta ficha el equipo de sistemas y auditoría ve de un vistazo qué tablas están activas, cuáles se proponen retirar y cuáles nadie revisó todavía, igual que en el portal interno de Atlas. Una tabla sin ficha se muestra activa y detectada: está en el modelo y nadie la revisó. La sensibilidad no se guarda acá: se deriva de las columnas del modelo, para no tener dos fuentes de verdad.",
+    "porQue": "Sin ella, retirar una tabla o confirmar que una tabla con datos personales tiene dueño y retención depende de la memoria de alguien. ---"
+   },
+   "reglas": [],
+   "columnas": [
+    {
+     "nombre": "id",
+     "tipo": "UUID",
+     "nulable": false,
+     "pk": true,
+     "negocio": "Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.",
+     "origenNegocio": "convencion",
+     "sistema": "UUID, obligatoria, clave primaria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "esquema",
+     "tipo": "VARCHAR(63)",
+     "nulable": false,
+     "pk": false,
+     "sistema": "VARCHAR(63), obligatoria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "tabla",
+     "tipo": "VARCHAR(63)",
+     "nulable": false,
+     "pk": false,
+     "sistema": "VARCHAR(63), obligatoria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "estado",
+     "tipo": "VARCHAR(20)",
+     "nulable": false,
+     "pk": false,
+     "sistema": "VARCHAR(20), obligatoria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "estado_revision",
+     "tipo": "VARCHAR(20)",
+     "nulable": false,
+     "pk": false,
+     "sistema": "VARCHAR(20), obligatoria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "responsable",
+     "tipo": "VARCHAR(80)",
+     "nulable": true,
+     "pk": false,
+     "sistema": "VARCHAR(80), opcional.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "politica_retencion_id",
+     "tipo": "UUID",
+     "nulable": true,
+     "pk": false,
+     "referencia": "politica_retencion",
+     "sistema": "UUID, opcional, referencia a politica_retencion.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "critica_para_auditoria",
+     "tipo": "BOOLEAN",
+     "nulable": false,
+     "pk": false,
+     "sistema": "BOOLEAN, obligatoria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "nota_revision",
+     "tipo": "VARCHAR(500)",
+     "nulable": true,
+     "pk": false,
+     "sistema": "VARCHAR(500), opcional.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "revisado_por",
+     "tipo": "UUID",
+     "nulable": true,
+     "pk": false,
+     "sistema": "UUID, opcional.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "actualizado_en",
+     "tipo": "TIMESTAMPTZ",
+     "nulable": false,
+     "pk": false,
+     "sistema": "TIMESTAMPTZ, obligatoria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "version",
+     "tipo": "INTEGER",
+     "nulable": false,
+     "pk": false,
+     "sistema": "INTEGER, obligatoria.",
+     "sensibilidad": "NINGUNA"
+    }
+   ],
+   "relaciones": {
+    "salientes": [
+     {
+      "columna": "politica_retencion_id",
+      "tabla": "politica_retencion",
+      "esquema": "auditoria"
+     }
+    ],
+    "entrantes": []
+   },
+   "sistema": "Vive en el esquema auditoria; la escribe y la lee solo el servicio auditoria (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de politica_retencion."
+  },
+  {
    "tabla": "incidente_operativo",
    "esquema": "auditoria",
    "modulo": "09",
@@ -3688,9 +3814,15 @@
    ],
    "relaciones": {
     "salientes": [],
-    "entrantes": []
+    "entrantes": [
+     {
+      "tabla": "ficha_gobierno_tabla",
+      "columna": "politica_retencion_id",
+      "esquema": "auditoria"
+     }
+    ]
    },
-   "sistema": "Vive en el esquema auditoria; la escribe y la lee solo el servicio auditoria (regla 98.1.1): otro servicio la conoce por su API o por sus eventos."
+   "sistema": "Vive en el esquema auditoria; la escribe y la lee solo el servicio auditoria (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. La referencian ficha_gobierno_tabla."
   },
   {
    "tabla": "proceso_anonimizacion",
@@ -4137,6 +4269,109 @@
     ]
    },
    "sistema": "Vive en el esquema auditoria; la escribe y la lee solo el servicio auditoria (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de identidad.usuario. La referencian alerta_cumplimiento, cumplimiento.caso_investigacion_lft."
+  },
+  {
+   "tabla": "revision_columna",
+   "esquema": "auditoria",
+   "modulo": "09",
+   "nombreModulo": "Auditoría, Reportes y Cumplimiento",
+   "servicio": "auditoria",
+   "appendOnly": false,
+   "negocio": {
+    "queEs": "El veredicto de una persona sobre lo que el modelo dice de una columna: aprobada, rechazada o pendiente, con qué confianza y por qué.",
+    "negocio": "El catálogo describe cada columna desde el modelo (tipo, sensibilidad, nota de negocio). Esa descripción la escribió alguien una vez; que otra persona la revise y lo deje dicho es lo que convierte una ficha en un dato en el que se puede confiar, igual que en el catálogo del portal interno de Atlas. Un rechazo sin motivo no sirve a quien tiene que corregir: por eso el motivo es obligatorio al rechazar.",
+    "porQue": "Sin ella, «esta columna ya se revisó» vive en la cabeza de quien la revisó, y una columna con datos personales mal clasificada pasa años sin que nadie lo note. ---"
+   },
+   "reglas": [],
+   "columnas": [
+    {
+     "nombre": "id",
+     "tipo": "UUID",
+     "nulable": false,
+     "pk": true,
+     "negocio": "Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.",
+     "origenNegocio": "convencion",
+     "sistema": "UUID, obligatoria, clave primaria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "esquema",
+     "tipo": "VARCHAR(63)",
+     "nulable": false,
+     "pk": false,
+     "sistema": "VARCHAR(63), obligatoria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "tabla",
+     "tipo": "VARCHAR(63)",
+     "nulable": false,
+     "pk": false,
+     "sistema": "VARCHAR(63), obligatoria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "columna",
+     "tipo": "VARCHAR(63)",
+     "nulable": false,
+     "pk": false,
+     "sistema": "VARCHAR(63), obligatoria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "decision",
+     "tipo": "VARCHAR(20)",
+     "nulable": false,
+     "pk": false,
+     "sistema": "VARCHAR(20), obligatoria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "confianza",
+     "tipo": "VARCHAR(10)",
+     "nulable": true,
+     "pk": false,
+     "sistema": "VARCHAR(10), opcional.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "motivo",
+     "tipo": "VARCHAR(500)",
+     "nulable": true,
+     "pk": false,
+     "sistema": "VARCHAR(500), opcional.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "revisado_por",
+     "tipo": "UUID",
+     "nulable": false,
+     "pk": false,
+     "sistema": "UUID, obligatoria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "revisado_en",
+     "tipo": "TIMESTAMPTZ",
+     "nulable": false,
+     "pk": false,
+     "sistema": "TIMESTAMPTZ, obligatoria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "version",
+     "tipo": "INTEGER",
+     "nulable": false,
+     "pk": false,
+     "sistema": "INTEGER, obligatoria.",
+     "sensibilidad": "NINGUNA"
+    }
+   ],
+   "relaciones": {
+    "salientes": [],
+    "entrantes": []
+   },
+   "sistema": "Vive en el esquema auditoria; la escribe y la lee solo el servicio auditoria (regla 98.1.1): otro servicio la conoce por su API o por sus eventos."
   },
   {
    "tabla": "solicitud_datos_personales",

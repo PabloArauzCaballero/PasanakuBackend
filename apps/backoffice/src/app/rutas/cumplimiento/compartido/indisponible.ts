@@ -1,7 +1,8 @@
-import { ChangeDetectionStrategy, Component, input } from '@angular/core'
+import { ChangeDetectionStrategy, Component, effect, inject, input } from '@angular/core'
 import { RouterLink } from '@angular/router'
-import { BandaDeProposito } from '@aportaya/ui/banda-de-proposito/banda-de-proposito'
+import { CabeceraDePagina } from '@aportaya/ui/cabecera-de-pagina/cabecera-de-pagina'
 import { EstadoVacio } from '@aportaya/ui/estado-vacio/estado-vacio'
+import { ExplicadorDeVista } from '../../../nucleo/explicador-de-vista'
 
 /**
  * Indisponibilidad honesta (plan B4): cuando `cumplimiento.yaml` no publica la operación que
@@ -11,11 +12,10 @@ import { EstadoVacio } from '@aportaya/ui/estado-vacio/estado-vacio'
 @Component({
   selector: 'ap-indisponible',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [BandaDeProposito, EstadoVacio, RouterLink],
+  imports: [CabeceraDePagina, EstadoVacio, RouterLink],
   template: `
-    <ap-banda-de-proposito [texto]="proposito()" />
     <section class="pantalla">
-      <h1>{{ titulo() }}</h1>
+      <ap-cabecera-de-pagina [titulo]="titulo()" [descripcion]="proposito()" icono="advertencia" />
       <ap-estado-vacio titulo="Esta consulta todavía no está disponible." [explicacion]="motivo()" />
       @if (destino()) { <a [routerLink]="destino()">{{ textoDestino() }}</a> }
     </section>
@@ -32,4 +32,11 @@ export class Indisponible {
   readonly motivo = input.required<string>()
   readonly destino = input<string>()
   readonly textoDestino = input('')
+  private readonly explicador = inject(ExplicadorDeVista)
+
+  constructor() {
+    effect(() => {
+      this.explicador.fijar(this.proposito())
+    })
+  }
 }

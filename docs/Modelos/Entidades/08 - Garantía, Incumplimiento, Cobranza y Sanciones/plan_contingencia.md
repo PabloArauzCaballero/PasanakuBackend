@@ -32,6 +32,14 @@ append_only: false
 | `propuesto_en` | TIMESTAMPTZ | — | no | — |
 | `ejecutado_en` | TIMESTAMPTZ | — | sí | NULL |
 
+## Reglas del catálogo
+
+> Declaradas en [[Restricciones]], no en el modelo. El nombre es el que devuelve la base al rechazar.
+
+| Regla | Tipo | Columnas |
+| --- | :-: | --- |
+| `uq_plan_contingencia_vivo` | UNIQUE parcial | `grupo_id`, `disparador` |
+
 ## Claves foráneas salientes
 
 | Columna | Referencia a | Módulo | Opcional | Relación |

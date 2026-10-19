@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { catalogo, OBLIGACION } from './catalogo-sintetico'
-import { filasDeColumnas, filasDeTablas, filtrarTablas, normalizar, pagina } from './dominio'
+import { filasDeTablas, filtrarTablas, normalizar, pagina } from './dominio'
+import { filasDeColumnas } from './revision'
 
 describe('filtrarTablas · búsqueda normalizada por tabla, columna, esquema y concepto', () => {
   it('correcto: sin acentos ni mayúsculas, «Período» encuentra la ficha que dice «período»', () => {

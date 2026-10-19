@@ -1,8 +1,9 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core'
 import { Router } from '@angular/router'
-import { BandaDeProposito } from '@aportaya/ui/banda-de-proposito/banda-de-proposito'
 import { Boton } from '@aportaya/ui/boton/boton'
+import { CabeceraDePagina } from '@aportaya/ui/cabecera-de-pagina/cabecera-de-pagina'
 import { Campo } from '@aportaya/ui/campo/campo'
+import { ExplicadorDeVista } from '../../nucleo/explicador-de-vista'
 import { textosAdmisiones } from './textos'
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
@@ -15,11 +16,10 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 @Component({
   selector: 'ap-entrada-de-admision',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [BandaDeProposito, Boton, Campo],
+  imports: [Boton, CabeceraDePagina, Campo],
   template: `
-    <ap-banda-de-proposito [texto]="t.buscarProposito" />
     <section class="pantalla">
-      <h1>{{ t.buscarTitulo }}</h1>
+      <ap-cabecera-de-pagina [titulo]="t.buscarTitulo" [descripcion]="t.buscarProposito" icono="grupo" />
       <p class="aviso">{{ t.buscarSinListado }}</p>
       <form (submit)="$event.preventDefault(); abrir()" novalidate>
         <ap-campo [etiqueta]="t.buscarEtiqueta" [ayuda]="t.buscarAyuda" [error]="error()" [(valor)]="id" />
@@ -41,6 +41,10 @@ export class EntradaDeAdmision {
   private readonly router = inject(Router)
   protected readonly id = signal('')
   protected readonly error = signal('')
+
+  constructor() {
+    inject(ExplicadorDeVista).fijar(textosAdmisiones.buscarProposito)
+  }
 
   protected abrir(): void {
     const valor = this.id().trim()

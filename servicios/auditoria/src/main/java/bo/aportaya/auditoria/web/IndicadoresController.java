@@ -1,5 +1,7 @@
 package bo.aportaya.auditoria.web;
 
+import bo.aportaya.auditoria.aplicacion.CU130GobernarFichaDeTabla;
+import bo.aportaya.auditoria.aplicacion.CU131RevisarColumna;
 import bo.aportaya.auditoria.aplicacion.CU98PublicarTablero;
 import bo.aportaya.auditoria.aplicacion.CatalogoDeDatosVigente;
 import bo.aportaya.auditoria.aplicacion.EndpointsDelDia;
@@ -8,8 +10,12 @@ import bo.aportaya.auditoria.dominio.FamiliasVisibles;
 import bo.aportaya.auditoria.web.generado.IndicadoresApi;
 import bo.aportaya.auditoria.web.generado.modelo.CatalogoDeDatos;
 import bo.aportaya.auditoria.web.generado.modelo.EndpointDelDia;
+import bo.aportaya.auditoria.web.generado.modelo.EntradaFichaDeGobierno;
+import bo.aportaya.auditoria.web.generado.modelo.EntradaRevisionDeColumna;
+import bo.aportaya.auditoria.web.generado.modelo.FichaDeGobierno;
 import bo.aportaya.auditoria.web.generado.modelo.Indicador;
 import bo.aportaya.auditoria.web.generado.modelo.IndicadorSerieInner;
+import bo.aportaya.auditoria.web.generado.modelo.RevisionDeColumna;
 import bo.aportaya.auditoria.web.generado.modelo.SalidaEndpointsDelDia;
 import bo.aportaya.auditoria.web.generado.modelo.SalidaSaludDeServicios;
 import bo.aportaya.auditoria.web.generado.modelo.SalidaTablero;
@@ -43,6 +49,8 @@ public class IndicadoresController implements IndicadoresApi {
     private final SaludDeServicios saludDeServicios;
     private final ObjectMapper mapper;
     private final SesionDeLaPeticion sesion;
+    private final CU130GobernarFichaDeTabla cu130;
+    private final CU131RevisarColumna cu131;
 
     public IndicadoresController(
             CU98PublicarTablero cu98,
@@ -50,13 +58,17 @@ public class IndicadoresController implements IndicadoresApi {
             CatalogoDeDatosVigente catalogoDeDatos,
             SaludDeServicios saludDeServicios,
             ObjectMapper mapper,
-            SesionDeLaPeticion sesion) {
+            SesionDeLaPeticion sesion,
+            CU130GobernarFichaDeTabla cu130,
+            CU131RevisarColumna cu131) {
         this.cu98 = cu98;
         this.endpointsDelDia = endpointsDelDia;
         this.catalogoDeDatos = catalogoDeDatos;
         this.saludDeServicios = saludDeServicios;
         this.mapper = mapper;
         this.sesion = sesion;
+        this.cu130 = cu130;
+        this.cu131 = cu131;
     }
 
     @Override
@@ -139,10 +151,35 @@ public class IndicadoresController implements IndicadoresApi {
     public ResponseEntity<CatalogoDeDatos> obtenerCatalogoDeDatos() {
         Traza.marcarCasoDeUso("TABLERO-SISTEMAS", "catalogo-de-datos");
         try {
-            return ResponseEntity.ok(mapper.treeToValue(catalogoDeDatos.catalogo(), CatalogoDeDatos.class));
+            CatalogoDeDatos catalogo = mapper.treeToValue(catalogoDeDatos.catalogo(), CatalogoDeDatos.class);
+            // CU-130: a cada tabla se le superpone su ficha de gobierno (o la de omision).
+            // CU-131: y a cada columna, su revision (si la tiene).
+            return ResponseEntity.ok(MapeoDeCatalogo.conRevisiones(
+                    MapeoDeCatalogo.conGobierno(catalogo, cu130.consultar(sesion.actual())),
+                    cu131.consultar(sesion.actual())));
         } catch (JsonProcessingException e) {
             throw new IllegalStateException("El catalogo de datos no cumple el contrato CatalogoDeDatos", e);
         }
+    }
+
+    /** CU-130 · guarda la ficha de gobierno de una tabla. Traduce y delega. */
+    @Override
+    @Permiso("CATALOGO_DATOS_EDITAR")
+    public ResponseEntity<FichaDeGobierno> guardarFichaDeGobierno(
+            String esquema, String tabla, EntradaFichaDeGobierno cuerpo) {
+        Traza.marcarCasoDeUso("CU-130", esquema + "." + tabla);
+        var guardada = cu130.guardar(esquema, tabla, MapeoDeCatalogo.aDominio(cuerpo), sesion.actual());
+        return ResponseEntity.ok(MapeoDeCatalogo.aContrato(guardada));
+    }
+
+    /** CU-131 · guarda la revision de una columna. Traduce y delega. */
+    @Override
+    @Permiso("CATALOGO_DATOS_EDITAR")
+    public ResponseEntity<RevisionDeColumna> revisarColumna(
+            String esquema, String tabla, String columna, EntradaRevisionDeColumna cuerpo) {
+        Traza.marcarCasoDeUso("CU-131", esquema + "." + tabla + "." + columna);
+        var guardada = cu131.guardar(esquema, tabla, columna, MapeoDeCatalogo.aDominio(cuerpo), sesion.actual());
+        return ResponseEntity.ok(MapeoDeCatalogo.aContrato(guardada));
     }
 
     private static SalidaTablero mapear(CU98PublicarTablero.SalidaTablero salida) {

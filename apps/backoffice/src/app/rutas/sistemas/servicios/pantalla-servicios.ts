@@ -1,8 +1,9 @@
 import { ChangeDetectionStrategy, Component, inject, resource } from '@angular/core'
-import { BandaDeProposito } from '@aportaya/ui/banda-de-proposito/banda-de-proposito'
+import { CabeceraDePagina } from '@aportaya/ui/cabecera-de-pagina/cabecera-de-pagina'
 import { ChipEstado } from '@aportaya/ui/chip-estado/chip-estado'
 import { EstadoDePantalla } from '@aportaya/ui/estado-de-pantalla/estado-de-pantalla'
 import { TablaDeDatos, type Columna } from '@aportaya/ui/tabla-de-datos/tabla-de-datos'
+import { ExplicadorDeVista } from '../../../nucleo/explicador-de-vista'
 import { PUERTO_SERVICIOS, type EstadoServicio } from '../dominio/puertos'
 import { textosSistemas } from '../textos'
 
@@ -17,11 +18,10 @@ const TONO: Record<EstadoServicio['estado'], 'ok' | 'aviso' | 'error'> = { opera
 @Component({
   selector: 'ap-pantalla-servicios',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [BandaDeProposito, TablaDeDatos, ChipEstado, EstadoDePantalla],
+  imports: [CabeceraDePagina, TablaDeDatos, ChipEstado, EstadoDePantalla],
   template: `
-    <ap-banda-de-proposito [texto]="t.proposito" />
     <section class="pantalla">
-      <h1 data-tutorial-id="sistemas-servicios">{{ t.titulo }}</h1>
+      <ap-cabecera-de-pagina data-tutorial-id="sistemas-servicios" [titulo]="t.titulo" [descripcion]="t.proposito" icono="baseDeDatos" />
       <ap-estado-de-pantalla
         data-tutorial-id="sistemas-servicios-estado"
         [recurso]="servicios"
@@ -44,9 +44,13 @@ const TONO: Record<EstadoServicio['estado'], 'ok' | 'aviso' | 'error'> = { opera
       </ap-estado-de-pantalla>
     </section>
   `,
-  styles: `.pantalla { padding: 0; max-width: 60rem; } h1 { margin-bottom: var(--s4); }`,
+  styles: `.pantalla { padding: 0; max-width: 60rem; display: flex; flex-direction: column; gap: var(--s4); }`,
 })
 export class PantallaServicios {
+  constructor() {
+    inject(ExplicadorDeVista).fijar(this.t.proposito)
+  }
+
   protected readonly t = textosSistemas.servicios
   private readonly puerto = inject(PUERTO_SERVICIOS)
   protected readonly servicios = resource({ loader: () => this.puerto.obtener() })

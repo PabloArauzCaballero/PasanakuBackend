@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core'
 import { Boton } from '../boton/boton'
+import { Icono, NombreDeIcono } from '../icono/icono'
 import type { MotivoVacio } from '../estado-de-pantalla/estado-de-pantalla'
 
 /**
@@ -9,15 +10,17 @@ import type { MotivoVacio } from '../estado-de-pantalla/estado-de-pantalla'
 @Component({
   selector: 'ap-estado-vacio',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [Boton],
+  imports: [Boton, Icono],
   host: { role: 'status' },
   template: `
+    <span class="loseta" aria-hidden="true"><ap-icono [nombre]="iconoVisible()" tamano="s5" /></span>
     <p class="titulo">{{ titulo() }}</p>
     @if (porque()) { <p class="porque">{{ porque() }}</p> }
     @if (accion()) { <ap-boton [variante]="motivo() === 'porFiltro' ? 'fantasma' : 'secundario'" (pulsado)="actuar.emit()">{{ accion() }}</ap-boton> }
   `,
   styles: `
-    :host { display: flex; flex-direction: column; align-items: center; gap: var(--s2); padding: var(--s6) var(--s4); text-align: center; }
+    :host { display: flex; flex-direction: column; align-items: center; gap: var(--s2); padding: var(--s6) var(--s4); text-align: center; border: var(--borde-fino) dashed var(--borde-control); border-radius: var(--r-lg); background: var(--surface); }
+    .loseta { display: inline-flex; align-items: center; justify-content: center; width: calc(var(--s6) + var(--s2)); height: calc(var(--s6) + var(--s2)); margin-bottom: var(--s1); border: var(--borde-fino) solid var(--border); border-radius: var(--r-md); background: var(--surface-2); color: var(--text-3); }
     p { margin: 0; max-width: 40ch; }
     .titulo { font-weight: 600; color: var(--text); }
     .porque { color: var(--text-2); }
@@ -35,6 +38,9 @@ export class EstadoVacio {
    * (lo usa `EstadoDePantalla` para no duplicar el mensaje que ya pasó como título). */
   readonly porque = computed(() => (this.explicacion() !== undefined ? this.explicacion() : PORQUE[this.motivo()]))
   readonly accion = computed(() => this.accionPropia() ?? ACCION[this.motivo()])
+  /** Ícono por motivo (sin resultados, prohibido) salvo que quien aloja pase otro. */
+  readonly icono = input<NombreDeIcono>()
+  readonly iconoVisible = computed(() => this.icono() ?? ICONO[this.motivo()])
 }
 
 const PORQUE: Record<MotivoVacio, string> = {
@@ -42,6 +48,7 @@ const PORQUE: Record<MotivoVacio, string> = {
   porFiltro: 'Con estos filtros no aparece nada.',
   porPermiso: 'Tu rol no puede ver esta información.',
 }
+const ICONO: Record<MotivoVacio, NombreDeIcono> = { sinDatos: 'sinResultados', porFiltro: 'sinResultados', porPermiso: 'prohibido' }
 const ACCION: Record<MotivoVacio, string | undefined> = {
   sinDatos: undefined,
   porFiltro: 'Quitar los filtros',

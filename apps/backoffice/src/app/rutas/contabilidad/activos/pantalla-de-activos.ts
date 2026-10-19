@@ -1,11 +1,12 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core'
 import { toSignal } from '@angular/core/rxjs-interop'
 import { ActivatedRoute } from '@angular/router'
-import { BandaDeProposito } from '@aportaya/ui/banda-de-proposito/banda-de-proposito'
 import { Boton } from '@aportaya/ui/boton/boton'
+import { CabeceraDePagina } from '@aportaya/ui/cabecera-de-pagina/cabecera-de-pagina'
 import { ChipEstado } from '@aportaya/ui/chip-estado/chip-estado'
 import { Monto } from '@aportaya/ui/monto/monto'
 import type { Filtro } from '@aportaya/ui/chips-de-filtro/chips-de-filtro'
+import { ExplicadorDeVista } from '../../../nucleo/explicador-de-vista'
 import { BarraDeFiltros } from '../../../nucleo/filtros/barra-de-filtros'
 import { Sesion } from '../../../nucleo/sesion'
 import { TablaDeDatosVirtualizada } from '../../../nucleo/tabla/tabla-de-datos-virtualizada'
@@ -39,11 +40,10 @@ const COLUMNAS: ColumnaVirtual<ActivoFijo>[] = [
 @Component({
   selector: 'ap-pantalla-de-activos',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ErrorDeEnvio, BandaDeProposito, BarraDeFiltros, Boton, ChipEstado, EstadoDeListado, Monto, TablaDeDatosVirtualizada],
+  imports: [ErrorDeEnvio, BarraDeFiltros, Boton, CabeceraDePagina, ChipEstado, EstadoDeListado, Monto, TablaDeDatosVirtualizada],
   template: `
-    <ap-banda-de-proposito [texto]="t.proposito" />
     <section class="pantalla">
-      <h1>{{ t.titulo }}</h1>
+      <ap-cabecera-de-pagina [titulo]="t.titulo" [descripcion]="t.proposito" icono="casa" />
       <ap-error-de-envio [error]="errorDeEnvio()" />
       <ap-barra-de-filtros etiqueta="Estado" [incluirBusqueda]="false" [definiciones]="filtros" />
       <ap-estado-de-listado [error]="listado.error()" [vacio]="listado.vacio()" [mensajeVacio]="t.enCero" [filtrado]="!!filtrosActivos()['estado']" />
@@ -86,11 +86,14 @@ const COLUMNAS: ColumnaVirtual<ActivoFijo>[] = [
   `,
   styles: `
     .pantalla { padding: var(--s5); max-width: 84rem; display: grid; gap: var(--s4); }
-    h1 { margin: 0; }
     .motivo { color: var(--text-2); white-space: normal; }
   `,
 })
 export class PantallaDeActivos {
+  constructor() {
+    inject(ExplicadorDeVista).fijar(this.t.proposito)
+  }
+
   protected readonly t = textosContabilidad.activos
   protected readonly COLUMNAS = COLUMNAS
   readonly periodoVigenteId = input.required<string>()
