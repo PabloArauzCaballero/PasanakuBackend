@@ -51,7 +51,8 @@ Ver `evidencia/`.
 ## Desvíos del plan
 - `EstadoDePantalla` (sistema de diseño) borraba la pantalla en cada refresco por defecto; se cambió el valor por defecto para conservar el dato (afecta a todas las pantallas; cubierto por la suite).
 - `ParametrosExtracto` no tenía igualdad por valor: cada redibujo pedía el extracto de nuevo. Se agregó (hacía falta para recargar).
-- El backoffice va en el mismo PR #139 para no abrir otro ciclo de CI.
+- El PR #139 ya estaba unido a `test` (por otra persona) cuando terminé: los cambios van en el PR #147.
+- Error mío: en la regeneración de goldens excluí `docs/`, pero muchas pruebas (`h10_*`, `capturas`, `motivo_de_salida`) comparan contra imágenes guardadas en `docs/.../evidencia/` con `matchesGoldenFile`: son referencias, no solo evidencia. El CI del #147 falló por eso (2 pruebas); se regeneró de nuevo incluyéndolas. En el #139 también se habían revertido esas imágenes.
 
 ## Riesgos residuales
 - Si el fallo del PIN es del teléfono (no del pedido perdido), el usuario verá el mensaje con el código del sistema en vez del PIN: hace falta esa captura para seguir.
