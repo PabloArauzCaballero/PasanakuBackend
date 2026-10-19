@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:aportaya_diseno/atomos/boton.dart';
 import 'package:aportaya_movil/pantallas/identidad/dominio/validaciones.dart';
 import 'package:aportaya_movil/pantallas/identidad/pantalla_sesion.dart';
@@ -12,14 +14,28 @@ void main() {
   group('reglas', () {
     test('correcto: una contraseña común pasa', () {
       expect(contrasenaDeIngresoValida('Clave-Segura-123'), isTrue);
-      expect(errorContrasena('Clave segura 123'), isNull);
+      expect(errorContrasena('Clave-Segura-123'), isNull);
     });
 
-    test('límite: espacios en el medio sí; al principio o al final, no al '
-        'crearla', () {
+    test('límite: una contraseña nueva no lleva espacios en ningún lado; al '
+        'ingresar no se le rechaza a quien ya la tenía', () {
       expect(contrasenaDeIngresoValida('mi clave 2026'), isTrue);
+      expect(errorContrasena('Clave segura 123'), isNotNull);
       expect(errorContrasena(' Clave123'), isNotNull);
       expect(errorContrasena('Clave123 '), isNotNull);
+    });
+
+    test('la sugerencia siempre es una contraseña válida', () {
+      for (var semilla = 0; semilla < 200; semilla++) {
+        final s = sugerirContrasena(Random(semilla));
+        expect(errorContrasena(s), isNull, reason: s);
+        expect(tieneEspacios(s), isFalse, reason: s);
+      }
+      expect(
+        errorEspaciosEnClave('mi clave', sugerencia: 'Turno-4821-Meta'),
+        contains('Turno-4821-Meta'),
+      );
+      expect(errorEspaciosEnClave('MiClave2026', sugerencia: 'x'), isNull);
     });
 
     test('inválido: puros espacios no son una contraseña', () {
