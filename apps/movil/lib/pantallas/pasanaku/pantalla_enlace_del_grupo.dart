@@ -11,8 +11,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:aportaya_diseno/errores.dart';
-import '../../proveedores/compartir.dart';
-import '../../proveedores/imagen_del_qr.dart';
+import 'compartir_invitacion.dart';
 import 'dominio/enlace_del_grupo.dart';
 import 'textos_enlace_del_grupo.dart';
 import 'vista_enlace_del_grupo.dart';
@@ -90,40 +89,9 @@ class _PantallaEnlaceDelGrupoState
     });
   }
 
-  Future<void> _compartirEnlace(String enlace) async {
-    final texto = mensajeDelEnlaceDelGrupo(
-      enlace,
-      nombreDelGrupo: widget.nombre,
-    );
-    final compartir = ref.read(compartirProvider);
-    // Sin número: WhatsApp abre la lista de chats para elegir a quién o a qué grupo.
-    final abrio =
-        await compartir.porWhatsApp(telefono: '', texto: texto) ||
-        await compartir.conOtraApp(texto: texto);
-    if (!abrio && mounted) {
-      mostrarSnackbar(context, TextosEnlaceDelGrupo.noSePudoAbrir);
-    }
-  }
-
-  Future<void> _compartirQr(String enlace) async {
-    final String ruta;
-    try {
-      ruta = await ref.read(imagenDelQrProvider)(enlace, titulo: widget.nombre);
-    } on Object {
-      if (mounted) {
-        mostrarSnackbar(context, TextosEnlaceDelGrupo.noSePudoArmarQr);
-      }
-      return;
-    }
-    final abrio = await ref
-        .read(compartirProvider)
-        .imagen(
-          ruta: ruta,
-          texto: TextosEnlaceDelGrupo.mensajeDelQr(widget.nombre),
-        );
-    if (!abrio && mounted) {
-      mostrarSnackbar(context, TextosEnlaceDelGrupo.noSePudoAbrir);
-    }
+  Future<void> _avisar(Future<String?> envio) async {
+    final aviso = await envio;
+    if (aviso != null && mounted) mostrarSnackbar(context, aviso);
   }
 
   Future<void> _copiar(String enlace) async {
@@ -162,8 +130,12 @@ class _PantallaEnlaceDelGrupoState
                   expiraEn: guardado?.expiraEn,
                   trabajando: _trabajando || esperando,
                   alCrear: _crear,
-                  alCompartirQr: _compartirQr,
-                  alCompartirEnlace: _compartirEnlace,
+                  alCompartirQr: (e) => _avisar(
+                    compartirQrDelGrupo(ref, e, nombre: widget.nombre),
+                  ),
+                  alCompartirEnlace: (e) => _avisar(
+                    compartirEnlaceDelGrupo(ref, e, nombre: widget.nombre),
+                  ),
                   alCopiar: _copiar,
                   alGenerarOtro: () => _confirmar(
                     TextosEnlaceDelGrupo.generarOtroConfirmar,

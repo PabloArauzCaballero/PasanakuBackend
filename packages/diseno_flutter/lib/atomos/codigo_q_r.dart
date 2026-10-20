@@ -85,8 +85,10 @@ Future<Uint8List> codigoQrComoPng(String contenido, {String? titulo}) async {
     final texto = TextPainter(
       text: TextSpan(
         text: titulo.trim(),
-        style: Tipo.titulo2.copyWith(color: Paleta.ink, fontSize: 44),
+        style: Tipo.titulo2.copyWith(color: Paleta.ink),
       ),
+      // La imagen mide lo que tres pantallas de 360: el título se ve como en el teléfono.
+      textScaler: const TextScaler.linear(lado / 360),
       textAlign: TextAlign.center,
       textDirection: TextDirection.ltr,
       maxLines: 2,

@@ -40,15 +40,18 @@ class AccionesDeGrupo extends StatelessWidget {
           expandido: true,
           onPressed: () => context.push('/pasanaku/grupos/nuevo'),
         ),
-        const SizedBox(height: Espacio.s2),
-        // Con el QR o el enlace que mandó el organizador (2026-10-20).
-        Boton(
-          key: const ValueKey('unirse-a-un-grupo'),
-          texto: TextosInvitacion.accionUnirseAGrupo,
-          variante: BotonVariante.fantasma,
-          expandido: true,
-          onPressed: () => context.push('/pasanaku/unirse-a-un-grupo'),
-        ),
+        // Con el QR o el enlace que mandó el organizador (2026-10-20). Solo en la lista
+        // de grupos: dentro de un grupo no tiene sentido ofrecer unirse a otro.
+        if (id == null || id.isEmpty) ...[
+          const SizedBox(height: Espacio.s2),
+          Boton(
+            key: const ValueKey('unirse-a-un-grupo'),
+            texto: TextosInvitacion.accionUnirseAGrupo,
+            variante: BotonVariante.fantasma,
+            expandido: true,
+            onPressed: () => context.push('/pasanaku/unirse-a-un-grupo'),
+          ),
+        ],
       ],
     );
   }

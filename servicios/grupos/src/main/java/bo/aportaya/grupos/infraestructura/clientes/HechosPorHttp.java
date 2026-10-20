@@ -94,6 +94,15 @@ public class HechosPorHttp implements HechosDeOtrosServicios {
     }
 
     @Override
+    public java.util.OptionalInt limiteDeGruposDelOrganizador(UUID organizadorId) {
+        return organizadores
+                .consultar("/organizadores/" + organizadorId + "/habilitacion", Habilitacion.class)
+                .filter(h -> h.habilitado() && h.limiteDeGrupos() != null)
+                .map(h -> java.util.OptionalInt.of(h.limiteDeGrupos()))
+                .orElse(java.util.OptionalInt.empty());
+    }
+
+    @Override
     public Optional<UUID> organizadorHabilitadoDelUsuario(UUID usuarioId) {
         return organizadores
                 .consultar("/organizadores/usuarios/" + usuarioId + "/habilitacion", HabilitacionPersonal.class)
@@ -237,7 +246,8 @@ public class HechosPorHttp implements HechosDeOtrosServicios {
 
     private record Encontrado(boolean existe, UUID usuarioId) {}
 
-    private record Habilitacion(boolean habilitado) {}
+    @com.fasterxml.jackson.annotation.JsonIgnoreProperties(ignoreUnknown = true)
+    private record Habilitacion(boolean habilitado, Integer limiteDeGrupos) {}
 
     private record Tarifario(boolean vigente, UUID tarifarioId) {}
 

@@ -96,15 +96,19 @@ export const ErroresCU20 = {
   ORGANIZADOR_NO_HABILITADO: 'AP-CU20-02',
   TARIFA_YA_CONGELADA: 'AP-CU20-03',
   SERVICIO_NO_AUTORIZADO: 'AP-CU20-04',
+  KYC_INSUFICIENTE_DEL_CREADOR: 'AP-CU20-05',
+  LIMITE_DE_GRUPOS_ALCANZADO: 'AP-CU20-06',
 } as const
 ```
 
 | Error | Cuándo se devuelve |
 | --- | --- |
 | `SIN_TARIFARIO_VIGENTE` | No hay tarifario publicado que congelar (R-CON-07) |
-| `ORGANIZADOR_NO_HABILITADO` | El organizador no está habilitado o superó su límite |
+| `ORGANIZADOR_NO_HABILITADO` | El organizador no está habilitado, o su servicio no confirma su límite de grupos |
 | `TARIFA_YA_CONGELADA` | El grupo ya tiene su snapshot (R-TAR-07) |
 | `SERVICIO_NO_AUTORIZADO` | La licencia no habilita grupos (R-LIC-01) |
+| `KYC_INSUFICIENTE_DEL_CREADOR` | Quien crea no tiene el nivel de verificación mínimo que el grupo le va a exigir a los demás (BASICO) |
+| `LIMITE_DE_GRUPOS_ALCANZADO` | El organizador ya tiene tantos grupos vivos (no finalizados, cancelados ni disueltos) como su `limite_grupos_simultaneos` |
 
 ## Descomposición atómica
 
@@ -161,6 +165,14 @@ Entonces el grupo pasa a ABIERTO_A_INSCRIPCION y queda el historial de su estado
 Dado un grupo que ya salió de BORRADOR
 Cuando la respuesta de tarifas llega otra vez o fuera de orden
 Entonces el estado no cambia y no se escribe otro historial
+
+Dado un organizador que ya llego a su limite de grupos simultaneos
+Cuando crea otro grupo
+Entonces recibe AP-CU20-06 y no se crea nada
+
+Dado un organizador con un lugar libre en su limite
+Cuando crea un grupo
+Entonces se crea y el siguiente ya no entra
 ```
 
 ## Ver también

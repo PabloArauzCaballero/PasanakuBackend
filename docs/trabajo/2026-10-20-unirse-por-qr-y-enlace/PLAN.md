@@ -53,3 +53,16 @@
 |---|---|---|---|---|
 | H1.M4 | AP-CU69-12: no crear el enlace de un grupo en BORRADOR | el servidor lo rechaza y no queda enlace | `CU69EnlaceDeGrupoTest.rechazaGenerarSiElGrupoTodaviaNoEstaAbierto` (CI) + `verificar_criterios.py` | A MEDIAS (criterio verificado; la prueba con base real corre en CI) |
 | H2.M6 | Goldens de la pestaña Grupos regenerados en Linux | `app-goldens` verde | flujo `goldens-linux-temporal.yml` | EN CURSO |
+
+## H3 — Correcciones tras probar en el teléfono (2026-10-20, 10:03)
+**CA:** Dentro de un grupo no aparece «Unirse a un grupo»; «Organizar un grupo nuevo» siempre abre el formulario vacío; un organizador no puede tener más grupos vivos que su `limite_grupos_simultaneos`; el QR se lee después de pasar por WhatsApp.
+**DoD:** tests de widget + `CU20Test` (CI, base real) + `HechosPorHttpTest` + decodificación del PNG con compresión.
+**Estado:** EN CURSO
+
+| ID | Microtarea | CA (binario) | DoD | Estado |
+|---|---|---|---|---|
+| H3.M1 | «Unirse a un grupo» solo en la lista de grupos | con `grupoId` no se ve | `acciones_de_grupo_test.dart` | HECHO |
+| H3.M2 | `crearGrupoProvider` autoDispose | volver a entrar muestra el formulario | `pantalla_crear_grupo_test.dart` (nuevo caso) | HECHO |
+| H3.M3 | Límite de grupos simultáneos en CU-20 (AP-CU20-06) | al tope se rechaza y no se crea | `CU20Test` (CI) · `GruposControllerWebTest` 96/96 · `HechosPorHttpTest` 9/9 | A MEDIAS (integración en CI) |
+| H3.M4 | QR legible tras compresión | 8/8 decodificaciones exactas | `decodificar_qr.py` (OpenCV) | HECHO |
+| H3.M5 | Goldens de «mi estado» regenerados en Linux | `app-goldens` verde | flujo temporal | TODO |

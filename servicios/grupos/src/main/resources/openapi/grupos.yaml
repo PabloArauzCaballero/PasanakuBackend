@@ -809,7 +809,7 @@ paths:
           $ref: '#/components/responses/ReglaDeNegocio'
           # AP-CU20-01 SIN_TARIFARIO_VIGENTE     · AP-CU20-02 ORGANIZADOR_NO_HABILITADO
           # AP-CU20-03 TARIFA_YA_CONGELADA       · AP-CU20-04 SERVICIO_NO_AUTORIZADO
-          # AP-CU20-05 KYC_INSUFICIENTE_DEL_CREADOR
+          # AP-CU20-05 KYC_INSUFICIENTE_DEL_CREADOR · AP-CU20-06 LIMITE_DE_GRUPOS_ALCANZADO
 
   /grupos/participantes/alias/{alias}:
     get:
