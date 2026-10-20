@@ -18,6 +18,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import org.jooq.DSLContext;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -46,6 +47,7 @@ public class CatalogosOperativosRepositorio {
             String baseNormativa,
             OffsetDateTime vigenteDesde) {}
 
+    @Autowired
     public CatalogosOperativosRepositorio(BitacoraRepositorio bitacora, ObjectMapper mapper) {
         this.bitacora = bitacora;
         cargarDesdeRecurso(mapper != null ? mapper : new ObjectMapper().findAndRegisterModules());
