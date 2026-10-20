@@ -27,24 +27,24 @@
 ## H1 — Servidor
 **CA:** Dado un grupo de N cupos, cuando el organizador y N-1 aceptados firman, entonces el grupo queda CONFORMADO con N periodos, el detalle lo dice y el sorteo crea N turnos.
 **DoD:** `:servicios:grupos:webTest` y `:servicios:grupos:test` verdes; `integrationTest` de grupos en GitHub (flujo temporal); bóveda y criterios OK.
-**Estado:** TODO
+**Estado:** HECHO — webTest 102/102 local; GitHub run 39457949551 (test + webTest + integrationTest con PostgreSQL real) success; `verificar_boveda` TODO OK; `verificar_criterios` sin divergencias. `HechosCaidaTest` falla solo en Windows (ENVIRONMENT: pasa en Linux).
 
 | ID | Microtarea | CA | DoD | Estado |
 |---|---|---|---|---|
-| H1.M1 | Organizador ocupa el cupo 1 (RESERVADO) con su nombre en `alias` | al crear, cupos ocupados = 1 | `CU20Test` (CI) | TODO |
-| H1.M2 | Aprobar una solicitud copia el nombre al `alias` | el participante nace con nombre | `CU68`/`CU69EnlaceDeGrupoTest` (CI) | TODO |
-| H1.M3 | Firmar el reglamento (AP-CU69-05/13): ACTIVO + cupo OCUPADO; con todos, CONFORMADO + calendario | firma idempotente; última firma conforma | `CU69FirmaTest` (CI) + webTest | TODO |
-| H1.M4 | `GET /grupos/{id}/detalle` solo para integrantes | ajeno → 422; tarjetas con nombre/estado/turno | webTest + `DetalleDelGrupoTest` (CI) | TODO |
-| H1.M5 | Sorteo de punta a punta con el calendario generado | comprometer + revelar crea N turnos | `CU69FirmaTest` (CI) | TODO |
+| H1.M1 | Organizador ocupa el cupo 1 (RESERVADO) con su nombre en `alias` | al crear, cupos ocupados = 1 | `CU20Test` (CI) | HECHO |
+| H1.M2 | Aprobar una solicitud copia el nombre al `alias` | el participante nace con nombre | `CU68`/`CU69EnlaceDeGrupoTest` (CI) | HECHO |
+| H1.M3 | Firmar el reglamento (AP-CU69-05/13): ACTIVO + cupo OCUPADO; con todos, CONFORMADO + calendario | firma idempotente; última firma conforma | `CU69FirmaTest` (CI) + webTest | HECHO |
+| H1.M4 | `GET /grupos/{id}/detalle` solo para integrantes | ajeno → 422; tarjetas con nombre/estado/turno | webTest + `DetalleDelGrupoTest` (CI) | HECHO |
+| H1.M5 | Sorteo de punta a punta con el calendario generado | comprometer + revelar crea N turnos | `CU69FirmaTest` (CI) | HECHO |
 
 ## H2 — App
 **CA:** Dentro del grupo se ven resumen y tarjetas; «Firmar el reglamento» si me toca; «Iniciar sorteo» para el organizador con el grupo completo; la ruleta gira y muestra el orden.
 **DoD:** `flutter analyze` sin problemas; tests de pantalla (correcto, límite, inválido); goldens regenerados en Linux; APK.
-**Estado:** TODO
+**Estado:** EN CURSO — analyze «No issues found»; `flutter test test/pasanaku/` +76 verde (11 nuevas); reglas de frontend sin FALLA. Falta el APK y verlo en el teléfono. Goldens: ninguno dibuja estas pantallas (la lista de grupos solo cambia a dónde navega).
 
 | ID | Microtarea | CA | DoD | Estado |
 |---|---|---|---|---|
-| H2.M1 | Detalle del grupo: resumen + tarjetas + hoja de información | N tarjetas, libres incluidas | test de pantalla | TODO |
-| H2.M2 | Firmar el reglamento | firma y refresca | test de pantalla | TODO |
-| H2.M3 | Iniciar sorteo + ruleta + orden | comprometer→revelar→ruleta→orden | test de pantalla | TODO |
+| H2.M1 | Detalle del grupo: resumen + tarjetas + hoja de información | N tarjetas, libres incluidas | test de pantalla | HECHO |
+| H2.M2 | Firmar el reglamento | firma y refresca | test de pantalla | HECHO |
+| H2.M3 | Iniciar sorteo + ruleta + orden | comprometer→revelar→ruleta→orden | test de pantalla | HECHO |
 | H2.M4 | APK | APK en Descargas | `flutter build apk` exit 0 | TODO |
