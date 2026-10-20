@@ -34,7 +34,7 @@ public class ConsultarDetalleDelGrupo {
         return datos.conContexto(interno, dsl -> {
             Record yo = dsl.fetchOne(
                     """
-                    SELECT estado, es_organizador FROM grupos.participante
+                    SELECT id, estado, es_organizador FROM grupos.participante
                      WHERE grupo_id = ? AND usuario_id = ?
                        AND estado NOT IN ('RETIRADO', 'EXPULSADO', 'REEMPLAZADO', 'POSTULANTE', 'INVITADO')
                      ORDER BY fecha_ingreso DESC LIMIT 1
@@ -97,6 +97,18 @@ public class ConsultarDetalleDelGrupo {
                     && "CONFORMADO".equals(estado)
                     && "SORTEO_ALEATORIO".equals(g.get("modalidad_turnos", String.class))
                     && sorteo == null;
+            // Tambien firma quien quedo ACTIVO sin cupo mientras el grupo recibe integrantes: firmar le da uno.
+            boolean sinCupo = !Boolean.TRUE.equals(dsl.fetchOne(
+                            """
+                            SELECT EXISTS (SELECT 1 FROM grupos.cupo
+                                            WHERE participante_id = ? AND estado IN ('RESERVADO', 'OCUPADO')) AS si
+                            """,
+                            yo.get("id", UUID.class))
+                    .get("si", Boolean.class));
+            boolean debeFirmar = "ACEPTADO_PENDIENTE_FIRMA".equals(yo.get("estado", String.class))
+                    || ("ACTIVO".equals(yo.get("estado", String.class))
+                            && "ABIERTO_A_INSCRIPCION".equals(estado)
+                            && sinCupo);
             return new Detalle(
                     grupoId,
                     g.get("nombre", String.class),
@@ -107,7 +119,7 @@ public class ConsultarDetalleDelGrupo {
                     g.get("cupos_totales", Integer.class),
                     g.get("cupos_ocupados", Integer.class),
                     soyOrganizador,
-                    "ACEPTADO_PENDIENTE_FIRMA".equals(yo.get("estado", String.class)),
+                    debeFirmar,
                     puedeSortear,
                     reglamento == null ? null : reglamento.get("contenido", String.class),
                     reglamento == null ? null : reglamento.get("hash_contenido", String.class),

@@ -58,9 +58,14 @@ public class CU69FirmarReglamento {
                     ctx.usuarioId());
             if (yo == null) throw sinFirmaPendiente();
             UUID participante = yo.get("id", UUID.class);
-            // Firmar dos veces es un reintento: no se repite la firma ni se mueve nada.
+            String estadoDelGrupo = grupo.get("estado", String.class);
+            // Firmar dos veces es un reintento: no se repite la firma. Solo se completa lo que falte: quien firmo
+            // y quedo sin cupo (el organizador de un grupo creado antes de que se le reservara el cupo 1) lo toma.
             if ("ACTIVO".equals(yo.get("estado", String.class))) {
-                return new Firmado(participante, grupo.get("estado", String.class), false);
+                if (tieneCupo(dsl, participante)) return new Firmado(participante, estadoDelGrupo, false);
+                tomarCupoLibre(dsl, grupoId, participante, estadoDelGrupo);
+                boolean conformado = conformarSiCorresponde(dsl, grupoId, estadoDelGrupo, ctx, ahora);
+                return new Firmado(participante, conformado ? "CONFORMADO" : estadoDelGrupo, conformado);
             }
             Record reglamento = dsl.fetchOne(
                     "SELECT id, hash_contenido FROM grupos.reglamento_grupo WHERE grupo_id = ? ORDER BY version DESC LIMIT 1",
@@ -83,12 +88,60 @@ public class CU69FirmarReglamento {
             dsl.execute(
                     "UPDATE grupos.participante SET estado = 'ACTIVO' WHERE id = ? AND estado = 'ACEPTADO_PENDIENTE_FIRMA'",
                     participante);
-            dsl.execute(
+            int reservado = dsl.execute(
                     "UPDATE grupos.cupo SET estado = 'OCUPADO' WHERE participante_id = ? AND estado = 'RESERVADO'",
                     participante);
-            boolean conformado = conformarSiCorresponde(dsl, grupoId, grupo.get("estado", String.class), ctx, ahora);
-            return new Firmado(participante, conformado ? "CONFORMADO" : grupo.get("estado", String.class), conformado);
+            if (reservado == 0 && !tieneCupo(dsl, participante)) {
+                tomarCupoLibre(dsl, grupoId, participante, estadoDelGrupo);
+            }
+            boolean conformado = conformarSiCorresponde(dsl, grupoId, estadoDelGrupo, ctx, ahora);
+            return new Firmado(participante, conformado ? "CONFORMADO" : estadoDelGrupo, conformado);
         });
+    }
+
+    private static boolean tieneCupo(DSLContext dsl, UUID participante) {
+        return Boolean.TRUE.equals(dsl.fetchOne(
+                        """
+                        SELECT EXISTS (SELECT 1 FROM grupos.cupo
+                                        WHERE participante_id = ? AND estado IN ('RESERVADO', 'OCUPADO')) AS si
+                        """,
+                        participante)
+                .get("si", Boolean.class));
+    }
+
+    /**
+     * Firmar sin cupo toma el primer cupo LIBRE y lo deja OCUPADO. La fila del grupo ya esta tomada, asi que dos
+     * firmas a la vez no se llevan el mismo cupo. Sin cupo libre, o con el grupo ya cerrado, no hay firma.
+     */
+    private static void tomarCupoLibre(DSLContext dsl, UUID grupoId, UUID participante, String estadoDelGrupo) {
+        Record cupo = "ABIERTO_A_INSCRIPCION".equals(estadoDelGrupo)
+                ? dsl.fetchOne(
+                        """
+                        SELECT id FROM grupos.cupo
+                         WHERE grupo_id = ? AND estado = 'LIBRE'
+                         ORDER BY numero LIMIT 1 FOR UPDATE
+                        """,
+                        grupoId)
+                : null;
+        if (cupo == null) {
+            throw new ErrorDeNegocio(CodigoError.de(69, 1), "Ya no hay cupos libres en este grupo.");
+        }
+        dsl.execute(
+                """
+                UPDATE grupos.cupo SET participante_id = ?, estado = 'OCUPADO', asignado_en = now()
+                 WHERE id = ? AND estado = 'LIBRE'
+                """,
+                participante,
+                cupo.get("id", UUID.class));
+        dsl.execute(
+                """
+                UPDATE grupos.grupo
+                   SET cupos_ocupados = (SELECT count(*) FROM grupos.cupo
+                                          WHERE grupo_id = ? AND estado IN ('OCUPADO', 'RESERVADO'))
+                 WHERE id = ?
+                """,
+                grupoId,
+                grupoId);
     }
 
     /** Con todos los cupos ocupados (y por lo tanto firmados) el grupo deja de recibir y se arma su calendario. */
