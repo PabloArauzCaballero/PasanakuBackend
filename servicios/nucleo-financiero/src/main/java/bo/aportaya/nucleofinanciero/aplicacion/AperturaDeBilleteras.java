@@ -152,7 +152,9 @@ public class AperturaDeBilleteras {
             Optional<UUID> politica) {
         UUID id = UUID.randomUUID();
         // Determinista por titular: un reintento del mismo alta propone el mismo numero.
-        String numero = prefijo + titular.toString().replace("-", "").substring(0, 15);
+        String sinGuiones = titular.toString().replace("-", "");
+        String sufijo = sinGuiones.length() > 16 ? sinGuiones.substring(sinGuiones.length() - 16) : sinGuiones;
+        String numero = prefijo + sufijo;
         OffsetDateTime ahora = reloj.ahora().atOffset(ZoneOffset.UTC);
         boolean abierta =
                 cuentas.abrir(dsl, new Apertura(id, numero, tipo, titular, MONEDA, estado, nivel, politica, ahora));
