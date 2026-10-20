@@ -127,6 +127,10 @@ class _PantallaSorteoState extends ConsumerState<PantallaSorteo>
       for (final i in d.integrantes)
         i.cupoId: i.nombre ?? TextosDetalleDelGrupo.sinNombre,
     };
+    final yo = d.integrantes
+        .where((i) => i.soyYo)
+        .map((i) => i.cupoId)
+        .firstOrNull;
     // Sorteo ya revelado: el orden sale de los turnos del detalle.
     final yaSorteado = [...d.integrantes.where((i) => i.turno != null)]
       ..sort((a, b) => a.turno!.compareTo(b.turno!));
@@ -168,9 +172,12 @@ class _PantallaSorteoState extends ConsumerState<PantallaSorteo>
           ),
         if (orden.isNotEmpty) ...[
           OrdenDeCobro(
-            nombres: [
+            puestos: [
               for (final cupo in orden)
-                nombres[cupo] ?? TextosDetalleDelGrupo.sinNombre,
+                (
+                  nombre: nombres[cupo] ?? TextosDetalleDelGrupo.sinNombre,
+                  soyYo: yo == cupo,
+                ),
             ],
           ),
           if (!_sorteando) ...[

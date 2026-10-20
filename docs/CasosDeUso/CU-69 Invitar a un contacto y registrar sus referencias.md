@@ -93,9 +93,9 @@ anule.
 3. Quien lo abre, con sesión, ve el grupo (nombre, aporte, periodicidad, cupos libres) **sin datos
    de los integrantes**, y pide unirse.
 4. Pedir unirse crea una [[solicitud_ingreso]] `PENDIENTE` con `enlace_grupo_id` y el
-   nombre completo (`nombre_visible`), `telefono_contacto` y `correo_contacto` de quien pide (de
-   su cuenta en `identidad`; decisión del dueño 2026-10-20: el organizador decide si lo conoce
-   con esos datos, y la app se lo avisa a quien pide antes de tocar «Pedir unirme»), con las mismas
+   nombre completo (`nombre_visible`) de quien pide, de su cuenta en `identidad`. Solo el nombre:
+   ni teléfono ni correo (decisión del dueño 2026-10-20; `telefono_contacto` y `correo_contacto`
+   quedan sin uso), y la app se lo avisa a quien pide antes de tocar «Pedir unirme». Con las mismas
    precondiciones de [[CU-68 Postular a un grupo y ser emparejado]] (KYC, restricciones,
    reputación, cupos). El organizador la acepta o la rechaza (CU-68).
 5. Repetir el pedido devuelve la misma solicitud pendiente: no se crean dos.
@@ -154,6 +154,7 @@ export const ErroresCU69 = {
   GRUPO_TODAVIA_NO_ABIERTO: 'AP-CU69-12',
   SIN_FIRMA_PENDIENTE:   'AP-CU69-13',
   NO_ES_INTEGRANTE:      'AP-CU69-14',
+  LIMITE_DE_PARTICIPACIONES: 'AP-CU69-15',
 } as const
 ```
 
@@ -171,6 +172,7 @@ export const ErroresCU69 = {
 | `ADMISION_HUMANA_OBLIGATORIA` | Con el interruptor de admisión humana encendido, la aceptación directa se cierra |
 | `ENLACE_INVALIDO` | El enlace del grupo venció, fue anulado o no existe |
 | `SIN_FIRMA_PENDIENTE` | Quien firma no es integrante del grupo o no tiene una firma pendiente en él |
+| `LIMITE_DE_PARTICIPACIONES` | Quien pide entrar (o a quien se acepta) ya participa, sin organizarlos, en tantos grupos vivos como el tope `aportaya.grupos.maximo-de-participaciones` (4, decisión del dueño 2026-10-20) |
 | `NO_ES_INTEGRANTE` | Quien pide el detalle del grupo no es integrante: no ve sus cupos ni sus nombres |
 | `GRUPO_TODAVIA_NO_ABIERTO` | El organizador quiere crear el enlace de un grupo que todavía no está abierto a inscripción (sigue en `BORRADOR` mientras se fija su precio); un enlace así no le serviría a nadie |
 
@@ -223,6 +225,14 @@ Entonces recibe un código que vence a los 7 días y la base guarda solo su hash
 Dado un grupo que todavia esta en BORRADOR
 Cuando el organizador genera el enlace
 Entonces recibe AP-CU69-12 y no queda ningun enlace
+
+Dada una persona que ya participa en el maximo de grupos vivos
+Cuando intenta entrar a otro
+Entonces recibe AP-CU69-15
+
+Dada una persona que organiza grupos o ya salio de otros
+Cuando se cuentan sus participaciones
+Entonces solo cuentan los grupos vivos donde participa sin organizar
 
 Dado un integrante aceptado que todavia no firmo
 Cuando firma el reglamento vigente

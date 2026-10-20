@@ -58,6 +58,13 @@ abstract class RutasDelGrupo extends RutasDeEnlaceDeGrupo {
 
     @Override
     @Permiso("PARTICIPANTE")
+    public ResponseEntity<bo.aportaya.grupos.web.generado.modelo.MisLimites> consultarMisLimites() {
+        Traza.marcarCasoDeUso("CU-69", sesion.actual().usuarioId().toString());
+        return ResponseEntity.ok(integrantes.misLimites(sesion.actual()));
+    }
+
+    @Override
+    @Permiso("PARTICIPANTE")
     public ResponseEntity<DetalleDelGrupo> consultarDetalleDelGrupo(UUID grupoId) {
         Traza.marcarCasoDeUso("CU-69", grupoId.toString());
         return ResponseEntity.ok(integrantes.detalle(grupoId, sesion.actual()));

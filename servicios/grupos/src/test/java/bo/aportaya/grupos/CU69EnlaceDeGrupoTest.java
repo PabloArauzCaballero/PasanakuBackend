@@ -111,8 +111,9 @@ class CU69EnlaceDeGrupoTest extends BaseDeCU68 {
                 s1.solicitudId());
         assertThat(fila.get("estado", String.class)).isEqualTo("PENDIENTE");
         assertThat(fila.get("nombre_visible", String.class)).isEqualTo("Rosa Quispe");
-        assertThat(fila.get("telefono_contacto", String.class)).isEqualTo("+59170000001");
-        assertThat(fila.get("correo_contacto", String.class)).isEqualTo("rosa@correo.test");
+        // Solo el nombre: telefono y correo no se guardan (decision del dueño 2026-10-20).
+        assertThat(fila.get("telefono_contacto", String.class)).isNull();
+        assertThat(fila.get("correo_contacto", String.class)).isNull();
         assertThat(fila.get("enlace_grupo_id", UUID.class)).isEqualTo(g.enlaceId());
         // Pedir no da entrada: nadie se vuelve participante sin la decision del organizador.
         assertThat(contar(

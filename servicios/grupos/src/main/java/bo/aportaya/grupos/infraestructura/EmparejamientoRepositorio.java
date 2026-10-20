@@ -19,6 +19,54 @@ import org.springframework.stereotype.Component;
 @Component
 public class EmparejamientoRepositorio {
 
+    /**
+     * En cuantos grupos vivos puede participar una persona a la vez sin organizarlos (decision del dueño 2026-10-20:
+     * 4). Viene de configuracion ({@code aportaya.grupos.maximo-de-participaciones}), no del codigo.
+     */
+    private final int maximoDeParticipaciones;
+
+    /** Sin tope: para las pruebas que no miran esta regla. En la aplicacion lo fija la configuracion. */
+    public EmparejamientoRepositorio() {
+        this(Integer.MAX_VALUE);
+    }
+
+    @org.springframework.beans.factory.annotation.Autowired
+    public EmparejamientoRepositorio(
+            @org.springframework.beans.factory.annotation.Value("${aportaya.grupos.maximo-de-participaciones}")
+                    int maximoDeParticipaciones) {
+        this.maximoDeParticipaciones = maximoDeParticipaciones;
+    }
+
+    public int maximoDeParticipaciones() {
+        return maximoDeParticipaciones;
+    }
+
+    /**
+     * Grupos vivos en los que la persona participa sin organizarlos: aceptada (firmo o no) y el grupo no termino, no
+     * se cancelo ni se disolvio. Los que organiza tienen su propio tope (CU-20, AP-CU20-06).
+     */
+    public int participacionesVivas(DSLContext dsl, UUID usuarioId) {
+        return dsl.fetchOne(
+                        """
+                        SELECT count(DISTINCT p.grupo_id)::int
+                          FROM grupos.participante p
+                          JOIN grupos.grupo g ON g.id = p.grupo_id
+                         WHERE p.usuario_id = ? AND NOT p.es_organizador
+                           AND p.estado IN ('ACEPTADO_PENDIENTE_FIRMA', 'ACTIVO', 'EN_MORA', 'SUSPENDIDO')
+                           AND g.estado NOT IN ('FINALIZADO', 'CANCELADO', 'DISUELTO_ANTICIPADAMENTE')
+                        """,
+                        usuarioId)
+                .get(0, Integer.class);
+    }
+
+    /** AP-CU69-15 si ya llego al tope de participaciones. */
+    public void exigirLugarParaParticipar(DSLContext dsl, UUID usuarioId, String mensaje) {
+        if (participacionesVivas(dsl, usuarioId) >= maximoDeParticipaciones) {
+            throw new bo.aportaya.plataforma.dominio.ErrorDeNegocio(
+                    bo.aportaya.plataforma.dominio.CodigoError.de(69, 15), mensaje);
+        }
+    }
+
     /** El criterio VIGENTE: el mas reciente cuya vigencia ya empezo. */
     public Optional<CriterioDeEmparejamiento> criterioVigente(DSLContext dsl, OffsetDateTime ahora) {
         Record fila = dsl.selectFrom(CRITERIO_EMPAREJAMIENTO)

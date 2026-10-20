@@ -662,6 +662,21 @@ paths:
         '422':
           $ref: '#/components/responses/ReglaDeNegocio'
 
+  /grupos/mis-limites:
+    get:
+      operationId: consultarMisLimites          # CU-69
+      summary: Cuantos grupos organizo y en cuantos participo, contra su tope
+      description: >-
+        Para que la app muestre los contadores y no ofrezca lo que el servidor va a rechazar. Los topes se
+        aplican al crear (AP-CU20-06) y al entrar a un grupo (AP-CU69-15); esto solo los informa.
+        `limiteDeOrganizar` es nulo si la persona no esta habilitada como organizadora.
+      responses:
+        '200':
+          description: Mis contadores
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/MisLimites' }
+
   /grupos/participaciones:
     get:
       operationId: listarMisParticipaciones      # CU-68
@@ -1288,12 +1303,19 @@ components:
         cuposSolicitados: { type: integer, minimum: 1 }
         mensaje:          { type: [string, 'null'], maxLength: 500 }
         puntaje:          { type: [string, 'null'] }
-        nombreVisible:    { type: [string, 'null'], maxLength: 60, description: 'Nombre completo de quien pide entrar por el enlace del grupo' }
-        telefono:         { type: [string, 'null'], maxLength: 20, description: 'Telefono E.164 de quien pide entrar por el enlace del grupo' }
-        correo:           { type: [string, 'null'], maxLength: 150, description: 'Correo de quien pide entrar por el enlace del grupo' }
+        nombreVisible:    { type: [string, 'null'], maxLength: 60, description: 'Nombre completo de quien pide entrar por el enlace del grupo (sin telefono ni correo)' }
         porEnlace:        { type: boolean, description: 'La pidio con el enlace del grupo' }
         estado:           { type: string, enum: [PENDIENTE, APROBADA, RECHAZADA, EXPIRADA] }
         fechaSolicitud:   { type: string, format: date-time }
+    MisLimites:
+      type: object
+      additionalProperties: false
+      required: [organizados, participaciones, limiteDeParticipar]
+      properties:
+        organizados:        { type: integer, minimum: 0 }
+        limiteDeOrganizar:  { type: [integer, 'null'], minimum: 0 }
+        participaciones:    { type: integer, minimum: 0 }
+        limiteDeParticipar: { type: integer, minimum: 0 }
     DetalleDelGrupo:
       type: object
       additionalProperties: false

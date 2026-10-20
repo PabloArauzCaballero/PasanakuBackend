@@ -14,6 +14,8 @@ import '../../proveedores/sesion.dart';
 import 'acciones_de_grupo.dart';
 import 'aviso_de_revision_en_grupos.dart';
 import 'dominio/mis_grupos.dart';
+import 'dominio/mis_limites.dart';
+import 'secciones_de_mis_grupos.dart';
 import 'textos.dart';
 
 /// La pestaña «Grupos»: una tarjeta por cada grupo en el que participo, con su nombre.
@@ -24,6 +26,7 @@ class PantallaMisGrupos extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final grupos = ref.watch(misGruposProvider);
+    final limites = ref.watch(misLimitesProvider).value;
     return Scaffold(
       appBar: AppBar(title: const Text(TextosPasanaku.tituloMisGrupos)),
       body: SafeArea(
@@ -44,19 +47,12 @@ class PantallaMisGrupos extends ConsumerWidget {
                   mensajeVacio: TextosPasanaku.sinParticipacion,
                   vacio: (l) => l.isEmpty,
                   reintentar: () => ref.invalidate(misGruposProvider),
-                  exito: (lista) => Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      for (final g in lista) ...[
-                        TarjetaDeMiGrupo(grupo: g),
-                        const SizedBox(height: Espacio.s3),
-                      ],
-                    ],
-                  ),
+                  exito: (lista) =>
+                      SeccionesDeMisGrupos(grupos: lista, limites: limites),
                 ),
               ),
               const SizedBox(height: Espacio.s4),
-              const AccionesDeGrupo(),
+              AccionesDeGrupo(limites: limites),
             ],
           ),
         ),
