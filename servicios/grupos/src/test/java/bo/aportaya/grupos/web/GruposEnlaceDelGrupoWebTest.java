@@ -149,8 +149,9 @@ class GruposEnlaceDelGrupoWebTest {
         when(afuera.restriccion(any())).thenReturn(new HechosDeOtrosServicios.Restriccion(false, BigDecimal.ZERO));
         when(afuera.reputacion(any())).thenReturn(new HechosDeOtrosServicios.Reputacion(false, BigDecimal.ZERO));
         when(afuera.nivelDeKyc(any())).thenReturn("BASICO");
-        when(afuera.nombreVisibleDeLaSesion()).thenReturn(Optional.of("Rosa Q."));
-        when(enlaces.solicitar(eq(CODIGO), any(), eq("Rosa Q."), any()))
+        var rosa = new HechosDeOtrosServicios.Contacto("Rosa Quispe", "+59170000001", "rosa@correo.test");
+        when(afuera.contactoDeLaSesion()).thenReturn(Optional.of(rosa));
+        when(enlaces.solicitar(eq(CODIGO), any(), eq(rosa), any()))
                 .thenReturn(new CU69EnlaceDeGrupo.Solicitada(solicitud, GRUPO));
         mvc.perform(post("/grupos/enlace-del-grupo/solicitudes")
                         .with(Sesiones.como("PARTICIPANTE"))

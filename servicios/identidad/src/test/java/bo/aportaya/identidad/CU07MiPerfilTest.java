@@ -98,6 +98,7 @@ class CU07MiPerfilTest {
         var perfil = tx.execute(s -> consulta.ejecutar(ctx(usuario)));
 
         assertThat(perfil.nombreVisible()).isEqualTo("Rosa Q.");
+        assertThat(perfil.nombreCompleto()).isEqualTo("Rosa Maria quispe mamani");
     }
 
     @Test
@@ -106,5 +107,9 @@ class CU07MiPerfilTest {
         assertThat(ConsultarMiPerfil.nombreVisible("  ", "Quispe")).isNull();
         assertThat(ConsultarMiPerfil.nombreVisible("Rosa", null)).isEqualTo("Rosa");
         assertThat(ConsultarMiPerfil.nombreVisible("  Ana\tLucia ", " mendoza")).isEqualTo("Ana M.");
+        assertThat(ConsultarMiPerfil.nombreCompleto(null, "Quispe")).isNull();
+        assertThat(ConsultarMiPerfil.nombreCompleto("  Ana\tLucia ", " mendoza  "))
+                .isEqualTo("Ana Lucia mendoza");
+        assertThat(ConsultarMiPerfil.nombreCompleto("Rosa", " ")).isEqualTo("Rosa");
     }
 }

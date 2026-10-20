@@ -25,6 +25,13 @@ void main() {
           },
         ),
         GoRoute(
+          path: '/pasanaku/unirse-a-un-grupo',
+          builder: (c, s) {
+            visitadas.add(s.uri.path);
+            return const Scaffold(body: Text('destino-unirse'));
+          },
+        ),
+        GoRoute(
           path: '/pasanaku/grupos/:grupoId/invitar',
           builder: (c, s) {
             visitadas.add(s.uri.path);
@@ -52,6 +59,15 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('destino-crear'), findsOneWidget);
     expect(visitadas, ['/pasanaku/grupos/nuevo']);
+  });
+
+  testWidgets('debajo de organizar, «Unirse a un grupo» lleva a subir el QR o '
+      'pegar el enlace', (tester) async {
+    final visitadas = await montar(tester);
+    await tester.tap(find.text('Unirse a un grupo'));
+    await tester.pumpAndSettle();
+    expect(find.text('destino-unirse'), findsOneWidget);
+    expect(visitadas, ['/pasanaku/unirse-a-un-grupo']);
   });
 
   testWidgets('con grupo, invitar lleva a la pantalla de ese grupo', (

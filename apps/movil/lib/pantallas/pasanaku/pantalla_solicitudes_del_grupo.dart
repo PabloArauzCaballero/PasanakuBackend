@@ -132,6 +132,17 @@ class _TarjetaDeSolicitudState extends ConsumerState<_TarjetaDeSolicitud> {
                           : TextosEnlaceDelGrupo.pidioEl(cuando),
                       style: Tipo.cuerpoChico.copyWith(color: t.text3),
                     ),
+                    // Para que el organizador decida si conoce a la persona (2026-10-20).
+                    if (s.telefono case final telefono?)
+                      Text(
+                        '${TextosEnlaceDelGrupo.telefono}: $telefono',
+                        style: Tipo.cuerpoChico.copyWith(color: t.text2),
+                      ),
+                    if (s.correo case final correo?)
+                      Text(
+                        '${TextosEnlaceDelGrupo.correo}: $correo',
+                        style: Tipo.cuerpoChico.copyWith(color: t.text2),
+                      ),
                   ],
                 ),
               ),

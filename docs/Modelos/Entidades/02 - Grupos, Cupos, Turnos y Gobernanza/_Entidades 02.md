@@ -24,7 +24,7 @@ Las **27 tablas** de este módulo. Justificación de negocio en [[02_grupos_turn
 | [[cupo]] | 8 | 2 | 7 |
 | [[traspaso_cupo]] | 10 | 4 | 0 |
 | [[solicitud_retiro]] | 9 | 2 | 0 |
-| [[solicitud_ingreso]] | 12 | 4 | 0 |
+| [[solicitud_ingreso]] | 14 | 4 | 0 |
 | [[decision_ingreso]] | 16 | 0 | 0 |
 | [[sustitucion_administrador]] | 10 | 0 | 0 |
 | [[enlace_grupo]] | 8 | 2 | 1 |

@@ -204,12 +204,15 @@ public class HechosPorHttp implements HechosDeOtrosServicios {
     private record Kyc(String nivel) {}
 
     @Override
-    public Optional<String> nombreVisibleDeLaSesion() {
-        return identidad.consultar("/usuarios/yo/perfil", Perfil.class).map(Perfil::nombreVisible);
+    public Optional<Contacto> contactoDeLaSesion() {
+        return identidad
+                .consultar("/usuarios/yo/perfil", Perfil.class)
+                .map(p -> new Contacto(
+                        p.nombreCompleto() != null ? p.nombreCompleto() : p.nombreVisible(), p.telefono(), p.correo()));
     }
 
     @com.fasterxml.jackson.annotation.JsonIgnoreProperties(ignoreUnknown = true)
-    private record Perfil(String nombreVisible) {}
+    private record Perfil(String nombreVisible, String nombreCompleto, String telefono, String correo) {}
 
     /**
      * El telefono viaja en el CUERPO de {@code POST /usuarios/busquedas/por-telefono}, no en la URL (regla 90.2.2).

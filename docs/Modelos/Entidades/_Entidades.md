@@ -61,7 +61,7 @@ Las **328 tablas** del modelo, agrupadas por módulo. «Sal.» y «Ent.» son cl
 | [[cupo]] | 8 | 2 | 7 | muy conectada |
 | [[traspaso_cupo]] | 10 | 4 | 0 | — |
 | [[solicitud_retiro]] | 9 | 2 | 0 | — |
-| [[solicitud_ingreso]] | 12 | 4 | 0 | — |
+| [[solicitud_ingreso]] | 14 | 4 | 0 | — |
 | [[decision_ingreso]] | 16 | 0 | 0 | — |
 | [[sustitucion_administrador]] | 10 | 0 | 0 | — |
 | [[enlace_grupo]] | 8 | 2 | 1 | — |

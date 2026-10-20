@@ -60,6 +60,17 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+        <!-- Compartir la imagen del QR del grupo (2026-10-20): solo la carpeta
+             cache/compartir, con permiso de lectura temporal para la app elegida. -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.compartir"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/archivos_compartidos"/>
+        </provider>
     </application>
     <!-- Required to query activities that can process text, see:
          https://developer.android.com/training/package-visibility and

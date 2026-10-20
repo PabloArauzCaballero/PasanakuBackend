@@ -11,4 +11,12 @@ abstract interface class Compartir {
 
   /// Abre la hoja de compartir del sistema con el [texto].
   Future<bool> conOtraApp({required String texto});
+
+  /// Comparte la imagen PNG de [ruta] con el [texto] al pie: con [porWhatsApp], abre
+  /// WhatsApp para elegir el chat o el grupo; si no está, la hoja de compartir.
+  Future<bool> imagen({
+    required String ruta,
+    required String texto,
+    bool porWhatsApp = true,
+  });
 }

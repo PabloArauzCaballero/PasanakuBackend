@@ -10,9 +10,27 @@ class TextosEnlaceDelGrupo {
       'Creá un enlace y compartilo por WhatsApp o mostrá su QR. Quien lo abra pide '
       'unirse y vos decidís a quién aceptar. Sirve 7 días o hasta que se llene el grupo.';
   static const crearEnlace = 'Crear enlace del grupo';
+  static const preparando = 'Preparando la invitación…';
   static const qrEtiqueta = 'Código QR para unirse al grupo';
-  static const escaneaElQr =
-      'Que lo escaneen con la cámara o con «Escanear» en Aporteo.';
+  static const porQr = 'Por QR';
+  static const porQrDetalle =
+      'Mandá esta imagen al grupo de WhatsApp. Quien la reciba la guarda y la sube '
+      'en Aporteo: Grupos → Unirse a un grupo.';
+  static const compartirQr = 'Compartir QR por WhatsApp';
+  static const porEnlaceTitulo = 'Por enlace';
+  static const porEnlaceDetalle =
+      'Quien lo reciba lo copia y lo pega en Aporteo: Grupos → Unirse a un grupo.';
+  static const compartirEnlace = 'Compartir enlace por WhatsApp';
+  static const noSePudoArmarQr =
+      'No pudimos preparar la imagen del QR. Compartí el enlace.';
+  static String mensajeDelQr(String? nombreDelGrupo) {
+    final grupo = nombreDelGrupo == null || nombreDelGrupo.trim().isEmpty
+        ? 'mi pasanaku'
+        : 'mi pasanaku «${nombreDelGrupo.trim()}»';
+    return 'Te invito a $grupo en Aporteo. Guardá esta imagen y subila en '
+        'Grupos → Unirse a un grupo.';
+  }
+
   static String vence(String cuando) =>
       'Sirve hasta el $cuando o hasta que se llene el grupo.';
   static const compartirPorWhatsApp = 'Compartir por WhatsApp';
@@ -40,6 +58,8 @@ class TextosEnlaceDelGrupo {
   static const sinNombre = 'Persona todavía sin nombre';
   static const porEnlace = 'Pidió con el enlace del grupo';
   static String pidioEl(String cuando) => 'Pidió el $cuando';
+  static const telefono = 'Teléfono';
+  static const correo = 'Correo';
   static const aceptar = 'Aceptar';
   static const rechazar = 'Rechazar';
   static const aceptada = 'Aceptada: ya tiene su cupo en el grupo.';
@@ -54,6 +74,9 @@ class TextosEnlaceDelGrupo {
   static const grupoLleno =
       'Este grupo ya está completo. Pedile al organizador que te avise si se libera un cupo.';
   static const pedirUnirme = 'Pedir unirme';
+  static const avisoDeDatos =
+      'Al pedir unirte, el organizador ve tu nombre, tu teléfono y tu correo para '
+      'saber quién sos.';
   static const pedidoEnviado = 'Listo, le avisamos al organizador';
   static const pedidoEnviadoDetalle =
       'El organizador revisa tu pedido y te acepta o no. Cuando te acepte, el grupo '
@@ -64,4 +87,28 @@ class TextosEnlaceDelGrupo {
   static const verificarMiIdentidad = 'Verificar mi identidad';
   static const enlaceInvalido =
       'Este enlace ya no sirve: venció o el organizador lo cambió. Pedile uno nuevo.';
+}
+
+/// «Unirse a un grupo» (2026-10-20): con la imagen del QR que llegó por WhatsApp o con
+/// el enlace pegado. La app valida el código con el servidor antes de pedir unirse.
+class TextosUnirseAUnGrupo {
+  TextosUnirseAUnGrupo._();
+
+  static const titulo = 'Unirse a un grupo';
+  static const ayuda =
+      'Pedile al organizador el QR o el enlace del grupo. Después él decide si te acepta.';
+  static const conQr = 'Con el QR';
+  static const conQrDetalle =
+      'Elegí de tu galería la imagen del QR que te mandaron por WhatsApp.';
+  static const subirQr = 'Subir la imagen del QR';
+  static const conEnlace = 'Con el enlace';
+  static const enlaceEtiqueta = 'Enlace del grupo';
+  static const buscar = 'Buscar el grupo';
+  static const usarCamara = 'Escanear con la cámara';
+  static const sinQr =
+      'No encontramos un QR en esa imagen. Probá con otra o pegá el enlace.';
+  static const qrAjeno = 'Ese QR no es de un grupo de Aporteo.';
+  static const enlaceVacio = 'Pegá el enlace que te mandó el organizador.';
+  static const enlaceAjeno =
+      'Ese enlace no es de un grupo de Aporteo. Copialo entero del mensaje del organizador.';
 }

@@ -31,12 +31,16 @@ public interface HechosDeOtrosServicios {
     }
 
     /**
-     * El nombre visible («Rosa Q.») de quien hace la peticion, segun {@code identidad} (su propio perfil, con su
-     * token). Lo ve el organizador en la solicitud que entra por el enlace del grupo. Vacio si no hay respuesta.
+     * Nombre completo, telefono y correo de quien hace la peticion, segun {@code identidad} (su propio perfil, con
+     * su token). Los ve el organizador en la solicitud que entra por el enlace del grupo, para decidir si conoce a
+     * la persona (decision del dueño 2026-10-20). Vacio si no hay respuesta.
      */
-    default java.util.Optional<String> nombreVisibleDeLaSesion() {
+    default java.util.Optional<Contacto> contactoDeLaSesion() {
         return java.util.Optional.empty();
     }
+
+    /** Lo que el organizador ve de quien pide unirse. Cualquier campo puede faltar. */
+    record Contacto(String nombre, String telefono, String correo) {}
 
     /** El tarifario vigente de un codigo, o vacio si no hay. Lo dice {@code tarifas}. */
     java.util.Optional<UUID> tarifarioVigente(String codigo);
