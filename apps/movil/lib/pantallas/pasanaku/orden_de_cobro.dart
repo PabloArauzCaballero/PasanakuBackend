@@ -4,13 +4,18 @@ import 'package:flutter/material.dart';
 
 import 'textos_detalle_del_grupo.dart';
 
-/// El orden de cobro que salió del sorteo (2026-10-20): una fila por turno, con el
-/// color de esa posición en la rueda del grupo.
-class OrdenDeCobro extends StatelessWidget {
-  const OrdenDeCobro({super.key, required this.nombres});
+/// Una fila del orden de cobro: el nombre completo, y si es quien mira.
+typedef PuestoDeCobro = ({String nombre, bool soyYo});
 
-  /// Los nombres en el orden de cobro: el primero cobra primero.
-  final List<String> nombres;
+/// El orden de cobro que salió del sorteo (2026-10-20): una fila por turno, con el
+/// color de esa posición en la rueda del grupo. La fila propia dice «Tú» en rojo (pedido
+/// del dueño); las demás, el nombre completo. Así cada uno ve el mismo orden, pero se
+/// encuentra a sí mismo de un vistazo.
+class OrdenDeCobro extends StatelessWidget {
+  const OrdenDeCobro({super.key, required this.puestos});
+
+  /// En el orden de cobro: el primero cobra primero.
+  final List<PuestoDeCobro> puestos;
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +28,7 @@ class OrdenDeCobro extends StatelessWidget {
           style: Tipo.titulo3.copyWith(color: t.text),
         ),
         const SizedBox(height: Espacio.s2),
-        for (var k = 0; k < nombres.length; k++)
+        for (var k = 0; k < puestos.length; k++)
           Padding(
             padding: const EdgeInsets.symmetric(vertical: Espacio.s1),
             child: Row(
@@ -37,9 +42,18 @@ class OrdenDeCobro extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: Espacio.s2),
-                Text(
-                  TextosDetalleDelGrupo.posicion(k + 1, nombres[k]),
-                  style: Tipo.cuerpo.copyWith(color: t.text),
+                Expanded(
+                  child: Text(
+                    TextosDetalleDelGrupo.posicion(
+                      k + 1,
+                      puestos[k].soyYo
+                          ? TextosDetalleDelGrupo.tu
+                          : puestos[k].nombre,
+                    ),
+                    style: puestos[k].soyYo
+                        ? Tipo.titulo3.copyWith(color: t.errTexto)
+                        : Tipo.cuerpo.copyWith(color: t.text),
+                  ),
                 ),
               ],
             ),

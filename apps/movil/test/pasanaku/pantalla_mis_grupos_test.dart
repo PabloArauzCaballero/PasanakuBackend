@@ -47,6 +47,65 @@ void main() {
     expect(find.text('Organizar un grupo nuevo'), findsOneWidget);
   });
 
+  testWidgets(
+    'correcto: los grupos se separan en «Organizás» y «Participás», cada uno con su tope',
+    (tester) async {
+      final (:dio, :adaptador) = dioSimulado();
+      adaptador
+        ..onGet(
+          _ruta,
+          (s) => s.reply(200, [
+            _grupo('1', nombre: 'Pasanaku de la oficina', organiza: true),
+            _grupo('2', nombre: 'Ahorro familiar'),
+          ]),
+        )
+        ..onGet(
+          '/grupos/mis-limites',
+          (s) => s.reply(200, {
+            'organizados': 1,
+            'limiteDeOrganizar': 2,
+            'participaciones': 1,
+            'limiteDeParticipar': 4,
+          }),
+        );
+      await tester.pumpWidget(conApp(const PantallaMisGrupos(), dio: dio));
+      await asentar(tester);
+      expect(find.text('Organizás · 1 de 2'), findsOneWidget);
+      expect(find.text('Participás · 1 de 4'), findsOneWidget);
+      expect(find.textContaining('el máximo'), findsNothing);
+    },
+  );
+
+  testWidgets('límite: al tope de cada uno, el botón se apaga y dice por qué', (
+    tester,
+  ) async {
+    final (:dio, :adaptador) = dioSimulado();
+    adaptador
+      ..onGet(_ruta, (s) => s.reply(200, <Object>[]))
+      ..onGet(
+        '/grupos/mis-limites',
+        (s) => s.reply(200, {
+          'organizados': 2,
+          'limiteDeOrganizar': 2,
+          'participaciones': 4,
+          'limiteDeParticipar': 4,
+        }),
+      );
+    await tester.pumpWidget(conApp(const PantallaMisGrupos(), dio: dio));
+    await asentar(tester);
+    expect(
+      find.textContaining('Ya organizás 2 grupos, el máximo'),
+      findsOneWidget,
+    );
+    expect(
+      find.textContaining('Ya participás en 4 grupos, el máximo'),
+      findsOneWidget,
+    );
+    await tester.tap(find.text('Organizar un grupo nuevo'));
+    await asentar(tester);
+    expect(find.text('Organizar un grupo nuevo'), findsOneWidget);
+  });
+
   testWidgets('límite: si el servidor todavía no manda el nombre, la tarjeta '
       'igual aparece y no inventa uno', (tester) async {
     final (:dio, :adaptador) = dioSimulado();

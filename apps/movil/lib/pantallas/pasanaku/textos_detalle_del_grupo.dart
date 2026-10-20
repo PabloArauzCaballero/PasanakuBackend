@@ -21,7 +21,8 @@ class TextosDetalleDelGrupo {
   static const cupoLibre = 'Cupo libre';
   static String cupo(int numero) => 'Cupo $numero';
   static const organiza = 'Organiza';
-  static const vos = 'Vos';
+  static const vos = 'Tú';
+  static const tu = 'Tú';
   static const firmo = 'Firmó';
   static const faltaFirmar = 'Falta firmar';
   static const libre = 'Libre';

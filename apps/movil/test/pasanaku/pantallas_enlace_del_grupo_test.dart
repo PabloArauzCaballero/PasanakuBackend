@@ -184,7 +184,7 @@ void main() {
       expect(find.text('Crear enlace del grupo'), findsOneWidget);
     });
 
-    testWidgets('la solicitud muestra nombre, teléfono y correo, y se acepta', (
+    testWidgets('la solicitud muestra solo el nombre completo, y se acepta', (
       tester,
     ) async {
       final (:dio, :adaptador) = dioSimulado();
@@ -197,8 +197,6 @@ void main() {
               'usuarioId': 'c6800000-0000-4000-8000-000000000002',
               'cuposSolicitados': 1,
               'nombreVisible': 'Rosa Quispe',
-              'telefono': '+59170000001',
-              'correo': 'rosa@correo.test',
               'porEnlace': true,
               'estado': 'PENDIENTE',
               'fechaSolicitud': '2026-10-19T20:00:00Z',
@@ -219,8 +217,9 @@ void main() {
         dio,
       );
       expect(find.text('Rosa Quispe'), findsOneWidget);
-      expect(find.text('Teléfono: +59170000001'), findsOneWidget);
-      expect(find.text('Correo: rosa@correo.test'), findsOneWidget);
+      // Sin teléfono ni correo (decisión del dueño 2026-10-20).
+      expect(find.textContaining('+591'), findsNothing);
+      expect(find.textContaining('@'), findsNothing);
       expect(
         find.textContaining('Pidió con el enlace del grupo'),
         findsOneWidget,
@@ -376,10 +375,7 @@ void main() {
         await montar(tester, const PantallaUnirseAlGrupo(codigo: _codigo), dio);
         expect(find.text('Pasanaku del barrio'), findsOneWidget);
         expect(find.text('Quedan 2 cupos libres'), findsOneWidget);
-        expect(
-          find.textContaining('tu nombre, tu teléfono y tu correo'),
-          findsOneWidget,
-        );
+        expect(find.textContaining('tu nombre completo'), findsOneWidget);
         await tester.tap(find.text('Pedir unirme'));
         await asentar(tester);
         expect(find.text('Listo, le avisamos al organizador'), findsOneWidget);

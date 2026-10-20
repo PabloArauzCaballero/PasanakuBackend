@@ -348,7 +348,9 @@ void main() {
           await tester.tap(find.text('Girar la ruleta'));
           await tester.pumpAndSettle(const Duration(milliseconds: 100));
           expect(find.text('1.º  Ana Choque'), findsOneWidget);
-          expect(find.text('2.º  Rosa Quispe'), findsOneWidget);
+          // Rosa es quien mira: su fila dice «Tú».
+          expect(find.text('2.º  Tú'), findsOneWidget);
+          expect(find.text('2.º  Rosa Quispe'), findsNothing);
           expect(find.text('3.º  Juan Mamani'), findsOneWidget);
           expect(find.text('Girar la ruleta'), findsNothing);
           // Se vacía el reloj antes de desmontar: el último giro deja su cuadro final.
