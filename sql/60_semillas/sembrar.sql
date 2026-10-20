@@ -34,5 +34,6 @@ BEGIN;
 \ir 21-contabilidad-y-publicidad.sql
 \ir 22-cuentas-de-sistema.sql
 \ir 23-indicadores-tableros.sql
+\ir 24-metadata-comentarios.sql
 
 COMMIT;

@@ -4,7 +4,6 @@ import { CabeceraDePagina } from '@aportaya/ui/cabecera-de-pagina/cabecera-de-pa
 import { ChipEstado } from '@aportaya/ui/chip-estado/chip-estado'
 import { formatearDia } from '@aportaya/ui/fecha/fecha'
 import { Monto } from '@aportaya/ui/monto/monto'
-import { ExplicadorDeVista } from '../../../nucleo/explicador-de-vista'
 import { Sesion } from '../../../nucleo/sesion'
 import { TablaDeDatosVirtualizada } from '../../../nucleo/tabla/tabla-de-datos-virtualizada'
 import type { ColumnaVirtual } from '../../../nucleo/tabla/tipos'
@@ -59,9 +58,6 @@ const COLUMNAS: ColumnaVirtual<ConciliacionEnLista>[] = CLAVES.map((clave) => ({
   `,
 })
 export class PantallaDeConciliaciones {
-  constructor() {
-    inject(ExplicadorDeVista).fijar(this.t.proposito)
-  }
   private readonly sesion = inject(Sesion)
   protected readonly t = T
   protected readonly COLUMNAS = COLUMNAS

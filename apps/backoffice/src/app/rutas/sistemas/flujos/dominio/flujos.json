@@ -1,0 +1,168 @@
+[
+  {
+    "id": "aporte-mora-cobertura",
+    "nombre": "Del aporte del período a la mora, el recargo, la cobertura y la recuperación",
+    "objetivo": "Asegurar que el pozo se entregue completo aun ante mora, aplicando recargos reglamentarios y cobertura del fondo de garantía.",
+    "dinero": true,
+    "cus": [
+      "CU-21",
+      "CU-23",
+      "CU-25"
+    ]
+  },
+  {
+    "id": "recarga-y-retiro",
+    "nombre": "Recarga de billetera, custodia y desembolso de retiro bancario",
+    "objetivo": "Movimiento de fondos entre el sistema financiero boliviano y la billetera digital bajo encaje y partida doble.",
+    "dinero": true,
+    "cus": [
+      "CU-17",
+      "CU-18",
+      "CU-19",
+      "CU-100"
+    ]
+  },
+  {
+    "id": "entrega-del-turno",
+    "nombre": "Conformación del pozo, adjudicación del turno y entrega de fondos",
+    "objetivo": "Validar la identidad del beneficiario, liberar las retenciones y ejecutar la transferencia del fondo del turno.",
+    "dinero": true,
+    "cus": [
+      "CU-26",
+      "CU-27",
+      "CU-28"
+    ]
+  },
+  {
+    "id": "onboarding-kyc-cuenta",
+    "nombre": "Registro de usuario, verificación de identidad KYC y seguridad MFA",
+    "objetivo": "Alta de participantes, validación de cédula de identidad, nivel de debida diligencia y configuración de factores seguros.",
+    "dinero": false,
+    "cus": [
+      "CU-01",
+      "CU-02",
+      "CU-04",
+      "CU-05",
+      "CU-06"
+    ]
+  },
+  {
+    "id": "creacion-y-sorteo-grupo",
+    "nombre": "Creación del grupo pasanaku, asignación de cupos y sorteo verificable",
+    "objetivo": "Configurar las reglas del círculo de ahorro, reclutar miembros y definir el orden de turnos mediante sorteo criptográfico.",
+    "dinero": false,
+    "cus": [
+      "CU-11",
+      "CU-12",
+      "CU-13",
+      "CU-15",
+      "CU-91"
+    ]
+  },
+  {
+    "id": "garantia-incumplimiento-cobranza",
+    "nombre": "Gestión del fondo de garantía, subrogación de deuda y cobranza",
+    "objetivo": "Proteger los fondos colectivos ante impago, subrogar derechos de cobro y activar la gestión extrajudicial y judicial.",
+    "dinero": true,
+    "cus": [
+      "CU-31",
+      "CU-32",
+      "CU-33",
+      "CU-34"
+    ]
+  },
+  {
+    "id": "administracion-usuarios-y-permisos",
+    "nombre": "Gobierno de identidades internas, roles de backoffice y sesiones",
+    "objetivo": "Garantizar la segregación de funciones, control de acceso basado en roles (RBAC) y auditoría de operadores.",
+    "dinero": false,
+    "cus": [
+      "CU-08",
+      "CU-14",
+      "CU-56"
+    ]
+  },
+  {
+    "id": "gobierno-catalogo-y-metadatos",
+    "nombre": "Gobernanza del catálogo de datos, retención y revisiones",
+    "objetivo": "Mantener al día las fichas de gobierno de cada tabla y columna del modelo con trazabilidad y versionado.",
+    "dinero": false,
+    "cus": [
+      "CU-130",
+      "CU-131"
+    ]
+  },
+  {
+    "id": "reportes-y-cumplimiento-uif",
+    "nombre": "Monitoreo transaccional, detección de alertas y reportes UIF/ASFI",
+    "objetivo": "Identificar operaciones inusuales o sospechosas, emitir reportes regulatorios (ROS/ROG) y atender requerimientos.",
+    "dinero": true,
+    "cus": [
+      "CU-44",
+      "CU-58",
+      "CU-98"
+    ]
+  },
+  {
+    "id": "contabilidad-y-cierre",
+    "nombre": "Cierres diarios, conciliación de custodia y estados financieros",
+    "objetivo": "Garantizar el cuadre diario de saldos bancarios vs libro de billeteras y asentar la contabilidad corporativa.",
+    "dinero": true,
+    "cus": [
+      "CU-51",
+      "CU-52"
+    ]
+  },
+  {
+    "id": "inversiones-reserva-custodia",
+    "nombre": "Rentabilización de fondos de reserva y rendimientos",
+    "objetivo": "Inversión autorizada de excedentes de liquidez en títulos de bajo riesgo y distribución de rendimientos.",
+    "dinero": true,
+    "cus": [
+      "CU-61",
+      "CU-62",
+      "CU-63"
+    ]
+  },
+  {
+    "id": "publicidad-y-campanas",
+    "nombre": "Campañas de fidelización, referidos e incentivos comunitarios",
+    "objetivo": "Gestionar promociones y beneficios por puntualidad y recomendación de la plataforma.",
+    "dinero": false,
+    "cus": [
+      "CU-71",
+      "CU-72"
+    ]
+  },
+  {
+    "id": "tarifas-y-comisiones",
+    "nombre": "Tarifario oficial, comisiones de pasarela y facturación",
+    "objetivo": "Calcular y liquidar comisiones de servicio e impuestos de ley con cotización inmutable.",
+    "dinero": true,
+    "cus": [
+      "CU-81",
+      "CU-82"
+    ]
+  },
+  {
+    "id": "transparencia-y-reputacion",
+    "nombre": "Scoring crediticio alternativo, insignias y cadena de hashes",
+    "objetivo": "Publicar compromisos criptográficos reproducibles y generar historial de cumplimiento del participante.",
+    "dinero": false,
+    "cus": [
+      "CU-91",
+      "CU-92",
+      "CU-93"
+    ]
+  },
+  {
+    "id": "notificaciones-y-mensajeria",
+    "nombre": "Notificaciones omnicanal, recordatorios de cuota y alertas",
+    "objetivo": "Comunicación oportuna a participantes sobre vencimientos, turnos, verificaciones y eventos de seguridad.",
+    "dinero": false,
+    "cus": [
+      "CU-95",
+      "CU-96"
+    ]
+  }
+]

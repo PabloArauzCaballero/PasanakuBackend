@@ -48,7 +48,7 @@ export const textosCatalogo = {
     editar: 'Editar ficha',
     sinDescripcion: 'Tabla pendiente de completar con su propósito de negocio, su responsable y sus reglas operativas.',
     noExiste: (tabla: string) => `La tabla «${tabla}» no está en el catálogo. Puede que se haya renombrado: buscala en la lista.`,
-    vistas: { general: 'Vista general', columnas: 'Columnas', relaciones: 'Relaciones', gobierno: 'Gobierno' },
+    vistas: { general: 'Vista general', columnas: 'Columnas', operaciones: 'Operaciones', relaciones: 'Relaciones', gobierno: 'Gobierno' },
     etiquetaDeVistas: 'Vista de la ficha',
     identificacion: { titulo: 'Identificación técnica', descripcion: 'Cómo existe la tabla en la base y en el código.', esquema: 'Esquema', tabla: 'Tabla', servicio: 'Servicio dueño', compartido: 'Compartido (ningún servicio es dueño)', appendOnly: 'Solo se agregan filas', modulo: 'Módulo' },
     contexto: { titulo: 'Contexto de negocio', descripcion: 'Lo que hace falta para que sistemas y negocio hablen el mismo idioma.', queEs: 'Qué es', negocio: 'Para qué sirve', porQue: 'Por qué existe', responsable: 'Responsable', reglas: 'Reglas nombradas' },

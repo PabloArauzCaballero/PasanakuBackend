@@ -52,6 +52,8 @@ const TRAZOS = {
   permisosInternos: 'M12 15a3 3 0 100-6 3 3 0 000 6zm0 0v3M12 3a9 9 0 100 18 9 9 0 000-18z',
   bitacora: 'M4 17l6-6-6-6M12 19h8M2 3h20a1 1 0 011 1v16a1 1 0 01-1 1H2a1 1 0 01-1-1V4a1 1 0 011-1z',
   catalogosOperativos: 'M4 19.5A2.5 2.5 0 016.5 17H20M4 4.5A2.5 2.5 0 016.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15z',
+  operaciones: 'M22 12h-4l-3 9L9 3l-3 9H2',
+  flujos: 'M6 3v12M18 9a3 3 0 100-6 3 3 0 000 6zM6 21a3 3 0 100-6 3 3 0 000 6zm0-6a9 9 0 019-9h3',
 
   // Finanzas: subrutas
   periodos: 'M8 2v4M16 2v4M3 10h18M5 4h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V6a2 2 0 012-2zM12 14v4M10 16h4',
