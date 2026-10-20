@@ -1,0 +1,67 @@
+# TEMPORAL (2026-10-20, corrida 2): regenera en Linux —donde las compara ci.yml— solo las dos
+# referencias que este trabajo cambia a propósito (la pestaña Grupos suma «Unirse a un
+# grupo»). Mismo mecanismo que en #139/#147. Se borra antes de fusionar.
+name: Goldens Linux (regenerar, temporal)
+
+on:
+  push:
+    branches: [claude/unirse-por-qr-y-enlace-20261019]
+    paths: [".github/workflows/goldens-linux-temporal.yml"]
+
+permissions:
+  contents: write
+
+jobs:
+  regenerar:
+    name: Goldens · regenerar y verificar (Linux)
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+      - uses: gradle/actions/setup-gradle@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.44.8
+          channel: stable
+          cache: true
+
+      - name: clientes generados (Dart), igual que el job frontend de ci.yml
+        run: ./gradlew generateOpenApiClients --no-parallel --no-build-cache -q
+
+      - name: tokens y paquetes Flutter, igual que el job app-goldens de ci.yml
+        run: |
+          corepack enable
+          yarn install --immutable
+          yarn workspace @aportaya/tokens build
+          yarn workspace @aportaya/diseno-flutter build
+          yarn workspace @aportaya/movil build
+
+      - name: regenerar las referencias de la pestaña Grupos
+        run: |
+          cd apps/movil && flutter test --update-goldens --timeout 60s test/goldens/h10_grupos_mi_estado_visual_test.dart test/goldens/h8_grupos_mi_estado_oscuro_test.dart
+
+      - name: verificar las referencias nuevas (sin --update-goldens)
+        run: |
+          cd apps/movil && flutter test --timeout 60s test/goldens/h10_grupos_mi_estado_visual_test.dart test/goldens/h8_grupos_mi_estado_oscuro_test.dart test/pasanaku
+
+      - name: commitear las referencias en la rama
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A -- '*.png'
+          if git diff --cached --quiet; then
+            echo "Las referencias ya estaban al dia."
+          else
+            git diff --cached --stat
+            git commit -m "chore(goldens): referencias regeneradas en Linux (runner de GitHub Actions)"
+            git push origin HEAD:${{ github.ref_name }}
+          fi
