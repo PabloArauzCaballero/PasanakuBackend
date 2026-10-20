@@ -22,36 +22,34 @@ class AccionesDeGrupo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final id = grupoId;
+    // Dentro de un grupo solo se invita a ESE grupo; organizar otro o unirse a otro se
+    // ofrece en la lista de grupos (pedido del dueño, 2026-10-20).
+    if (id != null && id.isNotEmpty) {
+      return Boton(
+        texto: TextosInvitacion.accionInvitar,
+        variante: BotonVariante.primario,
+        expandido: true,
+        onPressed: () => context.push('/pasanaku/grupos/$id/invitar'),
+      );
+    }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        if (id != null && id.isNotEmpty) ...[
-          Boton(
-            texto: TextosInvitacion.accionInvitar,
-            variante: BotonVariante.primario,
-            expandido: true,
-            onPressed: () => context.push('/pasanaku/grupos/$id/invitar'),
-          ),
-          const SizedBox(height: Espacio.s2),
-        ],
         Boton(
           texto: TextosInvitacion.accionCrearGrupo,
           variante: BotonVariante.fantasma,
           expandido: true,
           onPressed: () => context.push('/pasanaku/grupos/nuevo'),
         ),
-        // Con el QR o el enlace que mandó el organizador (2026-10-20). Solo en la lista
-        // de grupos: dentro de un grupo no tiene sentido ofrecer unirse a otro.
-        if (id == null || id.isEmpty) ...[
-          const SizedBox(height: Espacio.s2),
-          Boton(
-            key: const ValueKey('unirse-a-un-grupo'),
-            texto: TextosInvitacion.accionUnirseAGrupo,
-            variante: BotonVariante.fantasma,
-            expandido: true,
-            onPressed: () => context.push('/pasanaku/unirse-a-un-grupo'),
-          ),
-        ],
+        const SizedBox(height: Espacio.s2),
+        // Con el QR o el enlace que mandó el organizador (2026-10-20).
+        Boton(
+          key: const ValueKey('unirse-a-un-grupo'),
+          texto: TextosInvitacion.accionUnirseAGrupo,
+          variante: BotonVariante.fantasma,
+          expandido: true,
+          onPressed: () => context.push('/pasanaku/unirse-a-un-grupo'),
+        ),
       ],
     );
   }

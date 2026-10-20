@@ -77,6 +77,7 @@ void main() {
     final visitadas = await montar(tester, grupoId: id);
     // Dentro de un grupo no se ofrece unirse a otro (pedido del dueño, 2026-10-20).
     expect(find.text('Unirse a un grupo'), findsNothing);
+    expect(find.text('Organizar un grupo nuevo'), findsNothing);
     await tester.tap(find.text('Invitar a alguien a mi grupo'));
     await tester.pumpAndSettle();
     expect(find.text('destino-invitar'), findsOneWidget);

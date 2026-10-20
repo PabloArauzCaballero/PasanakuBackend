@@ -1,4 +1,4 @@
-# TEMPORAL (2026-10-20, corrida 2): regenera en Linux —donde las compara ci.yml— solo las dos
+# TEMPORAL (2026-10-20, corrida 3): regenera en Linux —donde las compara ci.yml— solo las dos
 # referencias que este trabajo cambia a propósito (la pestaña Grupos suma «Unirse a un
 # grupo»). Mismo mecanismo que en #139/#147. Se borra antes de fusionar.
 name: Goldens Linux (regenerar, temporal)
