@@ -769,7 +769,7 @@ paths:
               schema: { $ref: '#/components/schemas/SalidaFirmaDeReglamento' }
         '422':
           $ref: '#/components/responses/ReglaDeNegocio'
-          # AP-CU69-05 REGLAMENTO_CAMBIO · AP-CU69-13 SIN_FIRMA_PENDIENTE
+          # AP-CU69-05 REGLAMENTO_CAMBIO · AP-CU69-13 SIN_FIRMA_PENDIENTE · AP-CU69-01 SIN_CUPOS_LIBRES
 
   /grupos/solicitudes/{solicitudId}/decision:
     post:
