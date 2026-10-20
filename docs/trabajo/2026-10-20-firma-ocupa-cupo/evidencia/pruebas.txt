@@ -1,0 +1,23 @@
+# PostgreSQL 16 desechable (docker, puerto 5433) con sql/aplicar.sql -> exit 0 (para generateJooq).
+# Testcontainers para las pruebas de integracion. Datos sinteticos.
+
+$ gradlew :servicios:grupos:integrationTest --tests bo.aportaya.grupos.CU69FirmaYSorteoTest
+tests="8" skipped="0" failures="0" errors="0"
+   Dado el organizador de un grupo viejo, pendiente de firma y sin cupo · Cuando firma · Entonces ocupa el primer cupo libre ...   (nuevo)
+   Dado el organizador que ya firmo y quedo ACTIVO sin cupo · Cuando abre el grupo y vuelve a firmar ...                          (nuevo)
+   Dado un grupo sin cupos libres y el organizador sin cupo · Cuando firma · Entonces se rechaza con AP-CU69-01 ...                (nuevo)
+   Dado un integrante aceptado que todavia no firmo · Cuando firma el reglamento vigente ...                                        (existente)
+   Dado un grupo con todos sus cupos reservados · Cuando firma el ultimo integrante ...                                            (existente)
+   Dado un grupo conformado por las firmas · Cuando el organizador compromete y revela el sorteo ...                               (existente)
+   firmarOtroTextoNoFirma()                                                                                                        (existente)
+   quienNoEsIntegranteNiFirmaNiVeElDetalle()                                                                                       (existente)
+
+$ gradlew :servicios:grupos:spotlessCheck :servicios:grupos:test :servicios:grupos:webTest :servicios:grupos:integrationTest
+exit=0
+test: 72 tests, 0 fallos, 0 errores, 0 omitidos
+webTest: 103 tests, 0 fallos, 0 errores, 0 omitidos
+integrationTest: 258 tests, 0 fallos, 0 errores, 0 omitidos
+
+$ python scripts/generar_postman.py   -> solo cambia la descripcion de firmarReglamentoDelGrupo (AP-CU69-01)
+$ python scripts/inventario_endpoints.py --check -> 0
+$ python scripts/verificar_contratos_limites.py   -> 0
