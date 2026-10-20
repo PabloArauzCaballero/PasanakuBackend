@@ -117,15 +117,17 @@ final class OrganizadorDecideIngreso {
                 dsl.execute(
                         """
                         INSERT INTO grupos.participante
-                          (id, grupo_id, usuario_id, estado, es_organizador, invitado_por_id,
+                          (id, grupo_id, usuario_id, alias, estado, es_organizador, invitado_por_id,
                            fecha_ingreso, reputacion_al_ingresar, aportes_realizados, aportes_en_mora)
-                        VALUES (?, ?, ?, 'ACEPTADO_PENDIENTE_FIRMA', false,
+                        VALUES (?, ?, ?, (SELECT nombre_visible FROM grupos.solicitud_ingreso WHERE id = ?),
+                          'ACEPTADO_PENDIENTE_FIRMA', false,
                           (SELECT id FROM grupos.participante WHERE grupo_id = ? AND usuario_id = ?
                               AND es_organizador LIMIT 1), now(), ?, 0, 0)
                         """,
                         participanteId,
                         grupoId,
                         s.get("usuario_id", UUID.class),
+                        solicitudId,
                         grupoId,
                         ctx.usuarioId(),
                         reputacion);

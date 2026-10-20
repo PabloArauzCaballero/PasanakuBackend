@@ -152,6 +152,8 @@ export const ErroresCU69 = {
   ADMISION_HUMANA_OBLIGATORIA:   'AP-CU69-10',
   ENLACE_INVALIDO:       'AP-CU69-11',
   GRUPO_TODAVIA_NO_ABIERTO: 'AP-CU69-12',
+  SIN_FIRMA_PENDIENTE:   'AP-CU69-13',
+  NO_ES_INTEGRANTE:      'AP-CU69-14',
 } as const
 ```
 
@@ -168,6 +170,8 @@ export const ErroresCU69 = {
 | `INVITACION_VIGENTE_EXISTENTE` | Ese teléfono ya tiene una invitación vigente: revocarla antes de emitir otra |
 | `ADMISION_HUMANA_OBLIGATORIA` | Con el interruptor de admisión humana encendido, la aceptación directa se cierra |
 | `ENLACE_INVALIDO` | El enlace del grupo venció, fue anulado o no existe |
+| `SIN_FIRMA_PENDIENTE` | Quien firma no es integrante del grupo o no tiene una firma pendiente en él |
+| `NO_ES_INTEGRANTE` | Quien pide el detalle del grupo no es integrante: no ve sus cupos ni sus nombres |
 | `GRUPO_TODAVIA_NO_ABIERTO` | El organizador quiere crear el enlace de un grupo que todavía no está abierto a inscripción (sigue en `BORRADOR` mientras se fija su precio); un enlace así no le serviría a nadie |
 
 ## Descomposición atómica
@@ -219,6 +223,18 @@ Entonces recibe un código que vence a los 7 días y la base guarda solo su hash
 Dado un grupo que todavia esta en BORRADOR
 Cuando el organizador genera el enlace
 Entonces recibe AP-CU69-12 y no queda ningun enlace
+
+Dado un integrante aceptado que todavia no firmo
+Cuando firma el reglamento vigente
+Entonces queda ACTIVO, su cupo OCUPADO y el detalle lo muestra FIRMADO
+
+Dado un grupo con todos sus cupos reservados
+Cuando firma el ultimo integrante
+Entonces el grupo queda CONFORMADO con un periodo por cupo y el organizador puede sortear
+
+Dado un grupo conformado por las firmas
+Cuando el organizador compromete y revela el sorteo
+Entonces cada integrante tiene un turno distinto en el detalle
 
 Dado un grupo con un enlace activo
 Cuando el organizador genera otro

@@ -56,7 +56,22 @@ import org.springframework.test.web.servlet.MockMvc;
             "aportaya.grupo.servicio-de-licencia=http://cumplimiento:8080",
             "aportaya.grupo.tope-de-reenvios-de-invitacion=3",
         })
-@MockitoBean(types = bo.aportaya.grupos.aplicacion.CU69EnlaceDeGrupo.class)
+@MockitoBean(
+        types = {
+            bo.aportaya.grupos.aplicacion.CU69EnlaceDeGrupo.class,
+            bo.aportaya.grupos.aplicacion.CanjearInvitacion.class,
+            CU64TraspasarCupo.class,
+            CU65Retirarse.class,
+            CU68Postular.class,
+            bo.aportaya.grupos.aplicacion.CU68AceptarIngreso.class,
+            InvitacionesWeb.class,
+            AdmisionDelGrupo.class,
+            CU69Invitar.class,
+            Consultas.class,
+            RespuestasAOtrosServicios.class,
+            SorteoDelGrupo.class,
+            IntegrantesDelGrupo.class,
+        })
 class GruposControllerWebTest {
 
     private static final UUID GRUPO = UUID.fromString("c4000000-0000-4000-8000-000000000001");
@@ -75,46 +90,13 @@ class GruposControllerWebTest {
     private MockMvc mvc;
 
     @MockitoBean
-    private bo.aportaya.grupos.aplicacion.CanjearInvitacion canjearInvitacion;
-
-    @MockitoBean
     private CU20CrearGrupo cu20;
 
     @MockitoBean
     private CU59CalcularPlazo cu59;
 
     @MockitoBean
-    private CU64TraspasarCupo cu64;
-
-    @MockitoBean
-    private CU65Retirarse cu65;
-
-    @MockitoBean
-    private CU68Postular cu68;
-
-    @MockitoBean
-    private bo.aportaya.grupos.aplicacion.CU68AceptarIngreso cu68Decision;
-
-    @MockitoBean
-    private InvitacionesWeb invitaciones;
-
-    @MockitoBean
-    private AdmisionDelGrupo admision;
-
-    @MockitoBean
-    private CU69Invitar cu69;
-
-    @MockitoBean
-    private Consultas consultas;
-
-    @MockitoBean
     private HechosDeOtrosServicios afuera;
-
-    @MockitoBean
-    private RespuestasAOtrosServicios respuestas;
-
-    @MockitoBean
-    private SorteoDelGrupo sorteo;
 
     @Nested
     @DisplayName("CU-20 · crear el grupo")

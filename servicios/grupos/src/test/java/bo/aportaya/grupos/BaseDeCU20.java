@@ -99,7 +99,8 @@ abstract class BaseDeCU20 {
                 conLicencia,
                 true,
                 UUID.randomUUID(),
-                limiteDeGrupos);
+                limiteDeGrupos,
+                "Rosa Quispe");
     }
 
     protected int gruposVivosDelOrganizador() {
