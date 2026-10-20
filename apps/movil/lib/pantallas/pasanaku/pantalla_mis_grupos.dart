@@ -81,13 +81,13 @@ class TarjetaDeMiGrupo extends ConsumerWidget {
       onTap: () async {
         final usuarioId = await ref.read(sesionProvider).usuarioId() ?? '';
         if (!context.mounted) return;
+        // El grupo entero —integrantes, firma y sorteo— y desde ahí mis aportes (2026-10-20).
         context.push(
           Uri(
-            path: '/pasanaku/mi-estado',
+            path: '/pasanaku/grupos/${grupo.grupoId}',
             queryParameters: {
               'participante': grupo.participanteId,
               'usuario': usuarioId,
-              'grupo': grupo.grupoId,
               'nombre': nombre,
             },
           ).toString(),

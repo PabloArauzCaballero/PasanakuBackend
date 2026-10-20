@@ -83,4 +83,7 @@ class SeguridadWebTest extends SabanaDeSeguridadWeb {
 
     @MockitoBean
     private SorteoDelGrupo sorteoDelGrupo;
+
+    @MockitoBean
+    private IntegrantesDelGrupo integrantesDelGrupo;
 }

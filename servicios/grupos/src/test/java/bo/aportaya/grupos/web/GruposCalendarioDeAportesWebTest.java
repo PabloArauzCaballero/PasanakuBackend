@@ -107,6 +107,9 @@ class GruposCalendarioDeAportesWebTest {
     @MockitoBean
     private SorteoDelGrupo sorteo;
 
+    @MockitoBean
+    private IntegrantesDelGrupo integrantesDelGrupo;
+
     private static CalendarioDeAportes calendario(List<CalendarioDeAportes.Cupo> cupos) {
         return new CalendarioDeAportes(
                 PERIODO,
