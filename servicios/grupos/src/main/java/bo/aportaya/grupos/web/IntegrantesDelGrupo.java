@@ -25,11 +25,25 @@ class IntegrantesDelGrupo {
     private final ConsultarDetalleDelGrupo detalle;
     private final CU69FirmarReglamento firma;
     private final HttpServletRequest peticion;
+    private final bo.aportaya.grupos.aplicacion.ConsultarMisLimites limites;
 
-    IntegrantesDelGrupo(ConsultarDetalleDelGrupo detalle, CU69FirmarReglamento firma, HttpServletRequest peticion) {
+    IntegrantesDelGrupo(
+            ConsultarDetalleDelGrupo detalle,
+            CU69FirmarReglamento firma,
+            HttpServletRequest peticion,
+            bo.aportaya.grupos.aplicacion.ConsultarMisLimites limites) {
         this.detalle = detalle;
         this.firma = firma;
         this.peticion = peticion;
+        this.limites = limites;
+    }
+
+    bo.aportaya.grupos.web.generado.modelo.MisLimites misLimites(ContextoSesion ctx) {
+        var l = limites.consultar(ctx);
+        var salida = new bo.aportaya.grupos.web.generado.modelo.MisLimites(
+                l.organizados(), l.participaciones(), l.limiteDeParticipar());
+        salida.setLimiteDeOrganizar(l.limiteDeOrganizar());
+        return salida;
     }
 
     DetalleDelGrupo detalle(UUID grupoId, ContextoSesion ctx) {

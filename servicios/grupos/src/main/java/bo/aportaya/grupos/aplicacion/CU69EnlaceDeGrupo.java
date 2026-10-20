@@ -151,13 +151,13 @@ public class CU69EnlaceDeGrupo {
                     () -> dsl.execute(
                             """
                             UPDATE grupos.solicitud_ingreso
-                               SET enlace_grupo_id = ?, nombre_visible = ?, telefono_contacto = ?, correo_contacto = ?
+                               SET enlace_grupo_id = ?, nombre_visible = ?
                              WHERE id = ?
                             """,
                             enlace.enlaceId(),
+                            // Solo el nombre completo: el organizador no ve telefono ni correo (decision del
+                            // dueño 2026-10-20), y lo que no se muestra tampoco se guarda.
                             recortar(contacto == null ? null : contacto.nombre(), 60),
-                            recortar(contacto == null ? null : contacto.telefono(), 20),
-                            recortar(contacto == null ? null : contacto.correo(), 150),
                             solicitud));
             return new Solicitada(solicitud, enlace.grupoId());
         });

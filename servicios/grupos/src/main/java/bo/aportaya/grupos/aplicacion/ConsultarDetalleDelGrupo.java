@@ -63,7 +63,12 @@ public class ConsultarDetalleDelGrupo {
                     grupoId);
             List<Integrante> integrantes = dsl.fetch(
                             """
-                            SELECT c.numero, c.id AS cupo_id, c.estado AS estado_cupo, p.alias, p.estado,
+                            SELECT c.numero, c.id AS cupo_id, c.estado AS estado_cupo,
+                                   coalesce(p.alias, (SELECT s.nombre_visible FROM grupos.solicitud_ingreso s
+                                                       WHERE s.grupo_id = c.grupo_id AND s.usuario_id = p.usuario_id
+                                                         AND s.nombre_visible IS NOT NULL
+                                                       ORDER BY s.fecha_solicitud DESC LIMIT 1)) AS alias,
+                                   p.estado,
                                    coalesce(p.es_organizador, false) AS es_organizador,
                                    coalesce(p.usuario_id = ?, false) AS soy_yo,
                                    (SELECT t.orden_asignado FROM grupos.turno t

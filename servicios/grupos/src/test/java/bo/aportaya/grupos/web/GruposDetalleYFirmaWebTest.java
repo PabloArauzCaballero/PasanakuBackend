@@ -71,6 +71,9 @@ class GruposDetalleYFirmaWebTest {
     @MockitoBean
     private CU69FirmarReglamento firma;
 
+    @MockitoBean
+    private bo.aportaya.grupos.aplicacion.ConsultarMisLimites limites;
+
     private static ConsultarDetalleDelGrupo.Detalle unDetalle() {
         return new ConsultarDetalleDelGrupo.Detalle(
                 GRUPO,
@@ -156,6 +159,20 @@ class GruposDetalleYFirmaWebTest {
                         .content("{\"hashReglamento\":\"abc\",\"aceptaReglamento\":true}"))
                 .andExpect(status().isBadRequest());
         verifyNoInteractions(firma);
+    }
+
+    @Test
+    @DisplayName("CU-69 · 200: mis limites dicen cuantos grupos organizo y en cuantos participo")
+    void misLimites() throws Exception {
+        when(limites.consultar(any()))
+                .thenReturn(new bo.aportaya.grupos.aplicacion.ConsultarMisLimites.Limites(1, 2, 3, 4));
+        mvc.perform(get("/grupos/mis-limites").with(Sesiones.como("PARTICIPANTE")))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.organizados").value(1))
+                .andExpect(jsonPath("$.limiteDeOrganizar").value(2))
+                .andExpect(jsonPath("$.participaciones").value(3))
+                .andExpect(jsonPath("$.limiteDeParticipar").value(4));
+        mvc.perform(get("/grupos/mis-limites")).andExpect(status().isUnauthorized());
     }
 
     @Test

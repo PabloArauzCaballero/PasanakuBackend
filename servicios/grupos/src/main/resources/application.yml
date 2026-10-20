@@ -76,6 +76,9 @@ aportaya:
       # directa del organizador) se cierran con 422 y apuntan al camino con expediente (canje / propuesta).
       # false: comportamiento de TEST sin cambios.
       humana-obligatoria: ${ADMISION_HUMANA_OBLIGATORIA:true}
+    # Decision del dueño (2026-10-20): en cuantos grupos vivos se participa a la vez sin organizarlos. Los que se
+    # organizan tienen su propio tope (limite_grupos_simultaneos de la habilitacion, CU-20).
+    maximo-de-participaciones: ${MAXIMO_DE_PARTICIPACIONES:4}
     enlace-del-grupo:
       # Decision del dueño (2026-10-19): el enlace del grupo sirve hasta llenarse o 7 dias.
       vigencia-dias: 7
