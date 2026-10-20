@@ -1364,6 +1364,7 @@ components:
       properties:
         numero:        { type: integer, minimum: 1 }
         cupoId:        { type: string, format: uuid }
+        usuarioId:     { type: [string, 'null'], format: uuid }
         nombre:        { type: [string, 'null'], maxLength: 60 }
         estado:        { type: string, enum: [LIBRE, PENDIENTE_FIRMA, FIRMADO] }
         esOrganizador: { type: boolean }

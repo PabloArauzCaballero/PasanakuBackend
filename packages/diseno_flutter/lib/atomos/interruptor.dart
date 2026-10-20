@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
+import '../moviles/alcance_haptica.dart';
 import '../tokens/tokens.dart';
 
 /// Interruptor: activo en `ok` (es un estado, no una acción).
@@ -22,7 +25,12 @@ class Interruptor extends StatelessWidget {
     final t = Tokens.of(context);
     return SwitchListTile(
       value: valor,
-      onChanged: onChanged,
+      onChanged: onChanged == null
+          ? null
+          : (v) {
+              unawaited(AlcanceHaptica.maybeOf(context)?.seleccion());
+              onChanged!(v);
+            },
       title: Text(etiqueta),
       subtitle: detalle == null ? null : Text(detalle!),
       activeTrackColor: t.ok,

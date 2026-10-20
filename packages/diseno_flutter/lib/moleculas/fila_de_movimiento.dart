@@ -56,7 +56,7 @@ class FilaDeMovimiento extends StatelessWidget {
                     color: t.surface2,
                     borderRadius: BorderRadius.circular(Radios.md),
                   ),
-                  child: Icon(tipo.icono, color: t.text2),
+                  child: Icon(tipo.icono, color: t.text2, size: 20),
                 ),
                 const SizedBox(width: Espacio.s3),
                 Expanded(
@@ -65,7 +65,10 @@ class FilaDeMovimiento extends StatelessWidget {
                     children: [
                       Text(
                         concepto,
-                        style: texto.bodyLarge?.copyWith(color: t.text),
+                        style: texto.bodyMedium?.copyWith(
+                          color: t.text,
+                          fontWeight: FontWeight.w600,
+                        ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),

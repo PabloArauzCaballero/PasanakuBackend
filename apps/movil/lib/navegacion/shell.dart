@@ -146,7 +146,7 @@ class _RamaConTransicionState extends State<_RamaConTransicion>
     with SingleTickerProviderStateMixin {
   late final AnimationController _control = AnimationController(
     vsync: this,
-    duration: const Duration(milliseconds: 180),
+    duration: Movimiento.entrada,
     value: 1,
   );
 
@@ -169,12 +169,12 @@ class _RamaConTransicionState extends State<_RamaConTransicion>
 
   @override
   Widget build(BuildContext context) {
-    final curva = CurvedAnimation(parent: _control, curve: Curves.easeOut);
+    final curva = CurvedAnimation(parent: _control, curve: Movimiento.llega);
     return FadeTransition(
       opacity: curva,
       child: SlideTransition(
         position: Tween(
-          begin: const Offset(0, 0.012),
+          begin: const Offset(0, 0.015),
           end: Offset.zero,
         ).animate(curva),
         child: widget.child,

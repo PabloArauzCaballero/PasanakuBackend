@@ -22,6 +22,7 @@ import 'pantalla_turno.dart';
 import 'pantalla_escanear.dart';
 import 'pantalla_unirse.dart';
 import 'pantalla_verificar_sorteo.dart';
+import 'pantalla_detalle_miembro.dart';
 
 /// Las rutas del dominio pasanaku. Sigue el mismo patrón que `billetera` (M2) e
 /// `identidad` (M1): un archivo por pantalla, todo registrado acá, nada en el
@@ -87,6 +88,25 @@ final List<RouteBase> rutasPasanaku = [
       participanteId: state.uri.queryParameters['participante'],
       usuarioId: state.uri.queryParameters['usuario'],
     ),
+  ),
+  GoRoute(
+    path: '/pasanaku/grupos/:grupoId/integrante/:cupoId',
+    name: 'pasanaku.integrante',
+    builder: (context, state) {
+      final q = state.uri.queryParameters;
+      return PantallaDetalleMiembro(
+        grupoId: state.pathParameters['grupoId']!,
+        cupoId: state.pathParameters['cupoId']!,
+        nombre: q['nombre'] ?? '',
+        numero: int.tryParse(q['numero'] ?? '1') ?? 1,
+        turno: q['turno'] != null ? int.tryParse(q['turno']!) : null,
+        esOrganizador: q['organizador'] == 'true',
+        soyYo: q['soyYo'] == 'true',
+        estado: q['estado'] ?? 'FIRMADO',
+        nombreGrupo: q['nombreGrupo'],
+        usuarioId: q['usuarioId'],
+      );
+    },
   ),
   GoRoute(
     path: '/pasanaku/unirse-a-un-grupo',

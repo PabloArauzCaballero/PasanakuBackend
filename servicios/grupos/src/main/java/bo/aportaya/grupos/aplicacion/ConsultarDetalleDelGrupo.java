@@ -64,6 +64,7 @@ public class ConsultarDetalleDelGrupo {
             List<Integrante> integrantes = dsl.fetch(
                             """
                             SELECT c.numero, c.id AS cupo_id, c.estado AS estado_cupo,
+                                   p.usuario_id,
                                    coalesce(p.alias, (SELECT s.nombre_visible FROM grupos.solicitud_ingreso s
                                                        WHERE s.grupo_id = c.grupo_id AND s.usuario_id = p.usuario_id
                                                          AND s.nombre_visible IS NOT NULL
@@ -84,6 +85,7 @@ public class ConsultarDetalleDelGrupo {
                     .map(f -> new Integrante(
                             f.get("numero", Integer.class),
                             f.get("cupo_id", UUID.class),
+                            f.get("usuario_id", UUID.class),
                             f.get("alias", String.class),
                             estadoDelCupo(f.get("estado_cupo", String.class), f.get("estado", String.class)),
                             Boolean.TRUE.equals(f.get("es_organizador", Boolean.class)),
@@ -124,11 +126,23 @@ public class ConsultarDetalleDelGrupo {
     public record Integrante(
             int numero,
             UUID cupoId,
+            UUID usuarioId,
             String nombre,
             String estado,
             boolean esOrganizador,
             boolean soyYo,
-            Integer turno) {}
+            Integer turno) {
+        public Integrante(
+                int numero,
+                UUID cupoId,
+                String nombre,
+                String estado,
+                boolean esOrganizador,
+                boolean soyYo,
+                Integer turno) {
+            this(numero, cupoId, null, nombre, estado, esOrganizador, soyYo, turno);
+        }
+    }
 
     public record Detalle(
             UUID grupoId,

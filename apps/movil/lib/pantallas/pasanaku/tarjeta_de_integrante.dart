@@ -7,14 +7,26 @@ import 'package:aportaya_diseno/moleculas/tarjeta.dart';
 import 'package:aportaya_diseno/tokens/tokens.dart';
 import 'package:flutter/material.dart';
 
+import 'package:go_router/go_router.dart';
+
+import 'pantalla_detalle_miembro.dart';
 import 'textos_detalle_del_grupo.dart';
 
 /// Un cupo del grupo como tarjeta (2026-10-20): quién lo ocupa, si firmó y su turno.
-/// Un cupo libre se ve libre, no se esconde: así se entiende cuánto falta. Tocarla abre
-/// la hoja con la información de esa persona. Sin teléfono ni correo de nadie.
+/// Un cupo libre se ve libre, no se esconde: así se entiende cuánto falta.
+/// Tocarla abre la pantalla completa del detalle del participante con sus métricas
+/// fácticas de reputación, riesgo, puntos y trofeos sin romper su privacidad.
 class TarjetaDeIntegrante extends StatelessWidget {
-  const TarjetaDeIntegrante({super.key, required this.integrante});
+  const TarjetaDeIntegrante({
+    super.key,
+    required this.integrante,
+    this.grupoId,
+    this.nombreGrupo,
+  });
+
   final IntegranteDelGrupo integrante;
+  final String? grupoId;
+  final String? nombreGrupo;
 
   String get _nombre => integrante.nombre ?? TextosDetalleDelGrupo.sinNombre;
 
@@ -35,7 +47,7 @@ class TarjetaDeIntegrante extends StatelessWidget {
       etiqueta: _libre
           ? '${TextosDetalleDelGrupo.cupo(integrante.numero)}, ${TextosDetalleDelGrupo.cupoLibre}'
           : TextosDetalleDelGrupo.etiquetaDeTarjeta(_nombre, _estado, turno),
-      onTap: _libre ? null : () => _mostrarInformacion(context),
+      onTap: _libre ? null : () => _abrirPerfil(context),
       child: Row(
         children: [
           if (_libre)
@@ -85,48 +97,43 @@ class TarjetaDeIntegrante extends StatelessWidget {
     );
   }
 
-  Future<void> _mostrarInformacion(BuildContext context) =>
-      showModalBottomSheet<void>(
-        context: context,
-        showDragHandle: true,
-        builder: (contexto) {
-          final t = Tokens.of(contexto);
-          final turno = integrante.turno;
-          final fila = Tipo.cuerpo.copyWith(color: t.text2);
-          return SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(
-                Espacio.s4,
-                0,
-                Espacio.s4,
-                Espacio.s5,
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Avatar(nombre: _nombre, tamano: Espacio.s7 + Espacio.s3),
-                  const SizedBox(height: Espacio.s3),
-                  Text(_nombre, style: Tipo.titulo2.copyWith(color: t.text)),
-                  const SizedBox(height: Espacio.s3),
-                  Text(
-                    TextosDetalleDelGrupo.cupo(integrante.numero),
-                    style: fila,
-                  ),
-                  if (integrante.esOrganizador)
-                    Text(TextosDetalleDelGrupo.organiza, style: fila),
-                  Text(_estado, style: fila),
-                  Text(
-                    turno == null
-                        ? TextosDetalleDelGrupo.sinTurno
-                        : TextosDetalleDelGrupo.turno(turno),
-                    style: fila,
-                  ),
-                ],
-              ),
-            ),
-          );
-        },
+  void _abrirPerfil(BuildContext context) {
+    final cupoId = integrante.cupoId ?? integrante.numero.toString();
+    final gid = grupoId ?? '';
+    final uri = Uri(
+      path: '/pasanaku/grupos/$gid/integrante/$cupoId',
+      queryParameters: {
+        'nombre': _nombre,
+        'numero': integrante.numero.toString(),
+        if (integrante.turno != null) 'turno': integrante.turno.toString(),
+        'organizador': integrante.esOrganizador.toString(),
+        'soyYo': integrante.soyYo.toString(),
+        'estado': integrante.estado.name,
+        'nombreGrupo': ?nombreGrupo,
+        'usuarioId': ?integrante.usuarioId,
+      },
+    );
+    try {
+      context.push(uri.toString());
+    } catch (_) {
+      Navigator.of(context).push(
+        MaterialPageRoute<void>(
+          builder: (_) => PantallaDetalleMiembro(
+            grupoId: gid,
+            cupoId: cupoId,
+            nombre: _nombre,
+            numero: integrante.numero,
+            turno: integrante.turno,
+            esOrganizador: integrante.esOrganizador,
+            soyYo: integrante.soyYo,
+            estado: integrante.estado.name,
+            nombreGrupo: nombreGrupo,
+            usuarioId: integrante.usuarioId,
+          ),
+        ),
       );
+    }
+  }
 }
 
 /// El turno con el color de esa posición en la rueda: el mismo que ve en la ruleta.

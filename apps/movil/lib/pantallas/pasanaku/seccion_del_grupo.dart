@@ -140,7 +140,11 @@ class VistaDelGrupo extends StatelessWidget {
         ),
         const SizedBox(height: Espacio.s3),
         for (final integrante in d.integrantes) ...[
-          TarjetaDeIntegrante(integrante: integrante),
+          TarjetaDeIntegrante(
+            integrante: integrante,
+            grupoId: d.grupoId,
+            nombreGrupo: d.nombre,
+          ),
           const SizedBox(height: Espacio.s2),
         ],
       ],

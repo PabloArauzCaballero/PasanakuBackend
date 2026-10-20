@@ -84,6 +84,7 @@ class IntegrantesDelGrupo {
         var salida = new IntegranteDelGrupo(
                 i.numero(), IntegranteDelGrupo.EstadoEnum.fromValue(i.estado()), i.esOrganizador(), i.soyYo());
         salida.setCupoId(i.cupoId());
+        salida.setUsuarioId(i.usuarioId());
         salida.setNombre(i.nombre());
         salida.setTurno(i.turno());
         return salida;

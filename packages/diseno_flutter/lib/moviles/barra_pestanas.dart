@@ -28,23 +28,28 @@ class BarraPestanas extends StatelessWidget {
     );
     return Material(
       color: t.surface,
-      child: SafeArea(
-        top: false,
-        child: SizedBox(
-          height: Tactil.minimo + Espacio.s5,
-          child: Row(
-            children: [
-              for (var i = 0; i < destinos.length; i++)
-                Expanded(
-                  child: _DestinoDePestanas(
-                    destino: destinos[i],
-                    seleccionado: i == actual,
-                    tokens: t,
-                    duracionIcono: duracion(context, Movimiento.tildeDeValidez),
-                    alTocar: () => onChanged(i),
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          border: Border(top: BorderSide(color: t.border, width: Borde.fino)),
+        ),
+        child: SafeArea(
+          top: false,
+          child: SizedBox(
+            height: Tactil.minimo + Espacio.s5,
+            child: Row(
+              children: [
+                for (var i = 0; i < destinos.length; i++)
+                  Expanded(
+                    child: _DestinoDePestanas(
+                      destino: destinos[i],
+                      seleccionado: i == actual,
+                      tokens: t,
+                      duracionIcono: duracion(context, Movimiento.tildeDeValidez),
+                      alTocar: () => onChanged(i),
+                    ),
                   ),
-                ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -91,7 +96,9 @@ class _DestinoDePestanas extends StatelessWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    DecoratedBox(
+                    AnimatedContainer(
+                      duration: duracion(context, Movimiento.cambioDeEstado),
+                      curve: Movimiento.llega,
                       decoration: BoxDecoration(
                         color: seleccionado
                             ? tokens.brandBg
@@ -158,12 +165,24 @@ class _DestinoDePestanas extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: Espacio.s1),
-                    Text(
-                      destino.texto,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                        color: seleccionado ? tokens.brandTexto : tokens.text2,
+                    AnimatedDefaultTextStyle(
+                      duration: duracion(context, Movimiento.cambioDeEstado),
+                      curve: Movimiento.llega,
+                      style: (Theme.of(context).textTheme.labelSmall ??
+                              const TextStyle())
+                          .copyWith(
+                            color: seleccionado
+                                ? tokens.brandTexto
+                                : tokens.text2,
+                            fontWeight: seleccionado
+                                ? FontWeight.w600
+                                : FontWeight.w500,
+                            letterSpacing: 0.1,
+                          ),
+                      child: Text(
+                        destino.texto,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                   ],

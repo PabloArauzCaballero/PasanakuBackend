@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../tokens/tokens.dart';
 import 'hundido_al_tocar.dart';
+import 'movimiento.dart';
 import 'normalizar_para_buscar.dart';
 
 class FilaDeSeleccion extends StatelessWidget {
@@ -56,13 +57,15 @@ class FilaDeSeleccion extends StatelessWidget {
         child: HundidoAlTocar(
           child: InkWell(
             onTap: onTap,
-            child: Container(
+            child: AnimatedContainer(
+              duration: duracion(context, Movimiento.cambioDeEstado),
+              curve: Movimiento.llega,
               constraints: const BoxConstraints(minHeight: Tactil.minimo),
               // La hoja reserva 48 dp por fila. El detalle ya suma una segunda
               // línea, así que el padding vertical haría que la columna exceda
               // el alto táctil disponible y provoque un overflow de 6 dp.
               padding: const EdgeInsets.symmetric(horizontal: Espacio.s4),
-              color: elegida ? t.brandBg : null,
+              color: elegida ? t.brandBg : Colors.transparent,
               child: Row(
                 children: [
                   Expanded(
@@ -84,7 +87,12 @@ class FilaDeSeleccion extends StatelessWidget {
                       ],
                     ),
                   ),
-                  if (elegida) Icon(Icons.check_rounded, color: t.brandTexto),
+                  AnimatedScale(
+                    scale: elegida ? 1.0 : 0.0,
+                    duration: duracion(context, Movimiento.tildeDeValidez),
+                    curve: Movimiento.llega,
+                    child: Icon(Icons.check_rounded, color: t.brandTexto),
+                  ),
                 ],
               ),
             ),

@@ -95,18 +95,42 @@ class FilaDeMovimiento extends StatelessWidget {
       child: ExcludeSemantics(
         child: ListTile(
           contentPadding: EdgeInsets.zero,
-          leading: Icon(
-            esCredito ? Icons.south_west : Icons.north_east,
-            // El sentido identifica el tipo de movimiento, no su estado.
-            color: t.text2,
+          leading: Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: t.surface2,
+              borderRadius: BorderRadius.circular(Radios.md),
+            ),
+            child: Icon(
+              esCredito ? Icons.south_west : Icons.north_east,
+              // El sentido identifica el tipo de movimiento, no su estado.
+              color: t.text2,
+              size: 20,
+            ),
           ),
           title: Text(
             movimiento.glosa,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
+            style: Tipo.cuerpo.copyWith(
+              color: t.text,
+              fontWeight: FontWeight.w600,
+            ),
           ),
-          subtitle: Text(fecha),
-          trailing: Text('${esCredito ? '+' : '−'}$importe'),
+          subtitle: Text(
+            fecha,
+            style: Tipo.cuerpoChico.copyWith(color: t.text3),
+          ),
+          trailing: Text(
+            '${esCredito ? '+' : '−'}$importe',
+            style: Tipo.cuerpo.copyWith(
+              color: t.text,
+              fontWeight: FontWeight.w600,
+              fontFamily: Fuente.display,
+              fontFeatures: const [FontFeature.tabularFigures()],
+            ),
+          ),
           minTileHeight: 56,
         ),
       ),

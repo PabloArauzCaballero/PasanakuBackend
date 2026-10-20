@@ -53,7 +53,10 @@ class EncabezadoDeSaldo extends StatelessWidget {
                 ExcludeSemantics(
                   child: Text(
                     etiqueta,
-                    style: Tipo.cuerpoChico.copyWith(color: t.text2),
+                    style: Tipo.cuerpoChico.copyWith(
+                      color: t.text3,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
                 ),
                 const SizedBox(height: Espacio.s1),
@@ -66,7 +69,10 @@ class EncabezadoDeSaldo extends StatelessWidget {
                     monto: monto,
                     moneda: moneda,
                     etiqueta: etiquetaHablada ?? etiqueta,
-                    estilo: Tipo.cifraGrande.copyWith(color: t.text),
+                    estilo: Tipo.cifraGrande.copyWith(
+                      color: t.text,
+                      letterSpacing: -1.2,
+                    ),
                   ),
                 ),
               ],

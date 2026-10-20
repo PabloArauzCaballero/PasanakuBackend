@@ -45,20 +45,30 @@ class DbRunner:
         self.password = password
 
     def query(self, sql):
-        env = os.environ.copy()
-        env["PGPASSWORD"] = self.password
-        cmd = [
-            "psql",
-            "-h", self.host,
-            "-p", self.port,
-            "-U", self.user,
-            "-d", self.db,
-            "-t",
-            "-A",
-            "-F", "|",
-            "-c", sql,
-        ]
-        res = subprocess.run(cmd, env=env, capture_output=True, text=True)
+        import shutil
+        if shutil.which("psql"):
+            env = os.environ.copy()
+            env["PGPASSWORD"] = self.password
+            cmd = [
+                "psql",
+                "-h", self.host,
+                "-p", self.port,
+                "-U", self.user,
+                "-d", self.db,
+                "-t",
+                "-A",
+                "-F", "|",
+                "-c", sql,
+            ]
+            res = subprocess.run(cmd, env=env, capture_output=True, text=True)
+        else:
+            cmd = [
+                "docker", "exec", "-i", "aportaya-postgres",
+                "psql", "-U", self.user, "-d", self.db,
+                "-t", "-A", "-F", "|", "-c", sql,
+            ]
+            res = subprocess.run(cmd, capture_output=True, text=True)
+
         if res.returncode != 0:
             raise RuntimeError(res.stderr.strip() or "Error ejecutando psql")
         lineas = [l.strip() for l in res.stdout.strip().split("\n") if l.strip()]
