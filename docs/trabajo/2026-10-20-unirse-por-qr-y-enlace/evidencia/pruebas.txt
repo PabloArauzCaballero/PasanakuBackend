@@ -1,0 +1,45 @@
+Evidencia — unirse por QR o enlace (2026-10-20). Salidas recortadas, literales.
+
+== TEST: causa de «Crear enlace no hace nada»
+grupos.enlace_grupo: 5 filas del grupo Ramadanaku creadas 23:21–23:22 (4 ANULADO, 1 ACTIVO)
+logs de grupos: «regla de negocio AP-CU69-11: Ese enlace del grupo ya no sirve» en cada creación
+grupos.grupo: Ramadanaku|BORRADOR · Cumpleaños de paye|BORRADOR
+tarifas: tarifas.tarifa_congelada|TOMADO|0 · «{aportaya.tarifas.tarifa_congelada=UNKNOWN_TOPIC_OR_PARTITION}»
+aportaya-kafka: KAFKA_AUTO_CREATE_TOPICS_ENABLE=false
+
+== TEST: arreglo (paso documentado en despliegue/TEST.md)
+$ bash despliegue/host/crear-topicos.sh aportaya-kafka
+crear-topicos: 257 topicos en aportaya-kafka (kafka:9092), 3 a la vez
+crear-topicos: rc=0, topicos aportaya.* existentes: 257 de 257
+grupos.grupo después: Cumpleaños de paye|ABIERTO_A_INSCRIPCION · Ramadanaku|ABIERTO_A_INSCRIPCION
+tarifas.tarifa_congelada|PUBLICADO|1 (x2)
+
+== Backend
+$ ./gradlew :servicios:identidad:webTest :servicios:grupos:webTest
+identidad tests=144 fallas=0 errores=0
+grupos tests=95 fallas=0 errores=0
+(después de AP-CU69-12) grupos tests=95 fallas=0 errores=0
+
+$ python scripts/generar_ddl.py
+sql/ generado: 342 tablas · 686 claves foráneas · 785 índices · 532 CHECK
+Sin pendientes a nivel de datos.
+$ python scripts/verificar_boveda.py
+TODO OK
+$ python scripts/verificar_criterios.py
+Sin divergencias entre la boveda y el codigo.
+$ python -I scripts/catalogo_de_datos.py --escribir
+342 tablas → docs\catalogo-de-datos.md y servicios\auditoria\src\main\resources\catalogo\catalogo-datos.json
+$ python scripts/generar_postman.py  → sin cambios en postman/
+
+== App
+$ flutter analyze lib test
+No issues found! (ran in 7.2s)
+
+$ flutter test test/pasanaku/pantallas_enlace_del_grupo_test.dart test/pasanaku/acciones_de_grupo_test.dart \
+    test/pasanaku/invitacion_creada_test.dart test/pasanaku/enlace_del_grupo_test.dart test/pasanaku/imagen_del_qr_test.dart
+00:03 +32: All tests passed!
+
+$ flutter test --concurrency=2   (suite completa, Windows)
++781 ~1 -311: Some tests failed
+  314 «Pixel test failed» (referencias regeneradas en Linux, a4bcfafe; en Windows dan otros píxeles)
+  5 UnmountedRefException en SeguimientoDelAlta.liberarCapturas (pantalla_subida_del_expediente.dart:107) — no tocado
