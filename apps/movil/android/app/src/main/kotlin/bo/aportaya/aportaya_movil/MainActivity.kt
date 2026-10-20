@@ -54,6 +54,13 @@ class MainActivity : FlutterFragmentActivity() {
                     "whatsapp" -> result.success(compartir.porWhatsApp(telefono, texto))
                     "sms" -> result.success(compartir.porSms(telefono, texto))
                     "otra" -> result.success(compartir.conOtraApp(texto))
+                    "imagen" -> result.success(
+                        compartir.imagen(
+                            call.argument<String>("ruta") ?: "",
+                            texto,
+                            call.argument<String>("whatsapp") == "si",
+                        ),
+                    )
                     else -> result.notImplemented()
                 }
             }

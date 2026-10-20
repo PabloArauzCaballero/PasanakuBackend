@@ -105,6 +105,7 @@ public class CU20CrearGrupo {
                 }
                 return new SalidaCreacion(alta.grupoId(), alta.fondo());
             }
+            exigirCupoDeOrganizador(dsl, entrada.organizador().orElseThrow(), entrada.limiteDeGrupos());
             UUID grupo = creacion.crear(
                     dsl, entrada.datos(), codigoPublico(), entrada.organizador(), quorumPorOmision, ahora);
             creacion.configurar(dsl, grupo, entrada.permitePermutaDeTurnos());
@@ -136,6 +137,31 @@ public class CU20CrearGrupo {
 
             return new SalidaCreacion(grupo, entrada.datos().fondoPorPeriodo().toString());
         });
+    }
+
+    /**
+     * Limite de grupos simultaneos de la habilitacion (CU-20, {@code AP-CU20-06}). Cuentan los
+     * grupos que siguen vivos; los finalizados, cancelados o disueltos no. Un candado por organizador dentro de la
+     * transaccion: sin el, dos altas al mismo tiempo cuentan lo mismo y pasan las dos.
+     */
+    private static void exigirCupoDeOrganizador(org.jooq.DSLContext dsl, UUID organizador, int limite) {
+        int vivos = Datos.comoSistema(dsl, () -> {
+            dsl.fetch("SELECT pg_advisory_xact_lock(hashtext(?))", "cu20-organizador-" + organizador);
+            return dsl.fetchOne(
+                            """
+                            SELECT count(*)::int FROM grupos.grupo
+                             WHERE organizador_id = ?
+                               AND estado NOT IN ('FINALIZADO', 'CANCELADO', 'DISUELTO_ANTICIPADAMENTE')
+                            """,
+                            organizador)
+                    .get(0, Integer.class);
+        });
+        if (vivos >= limite) {
+            throw new ErrorDeNegocio(
+                    CodigoError.de(20, 6),
+                    "Ya organizas %d grupos, el maximo que te permite tu habilitacion. Termina o cancela uno antes de crear otro."
+                            .formatted(vivos));
+        }
     }
 
     /**
@@ -184,7 +210,8 @@ public class CU20CrearGrupo {
             Optional<UUID> tarifarioVigenteId,
             boolean licenciaHabilitaElServicio,
             boolean permitePermutaDeTurnos,
-            UUID claveIdempotencia) {}
+            UUID claveIdempotencia,
+            int limiteDeGrupos) {}
 
     public record SalidaCreacion(UUID grupoId, String fondoPorPeriodo) {}
 }

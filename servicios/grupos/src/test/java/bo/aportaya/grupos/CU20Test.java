@@ -47,7 +47,8 @@ class CU20Test extends BaseDeCU20 {
                 pedido.tarifarioVigenteId(),
                 true,
                 true,
-                UUID.randomUUID());
+                UUID.randomUUID(),
+                100);
         assertThatThrownBy(() -> transaccion.execute(tx -> crearGrupo.ejecutar(sinOrganizador, contexto())))
                 .isInstanceOf(ErrorDeNegocio.class)
                 .hasMessageContaining("habilitado");
@@ -78,10 +79,42 @@ class CU20Test extends BaseDeCU20 {
                 pedido.tarifarioVigenteId(),
                 true,
                 false,
-                pedido.claveIdempotencia());
+                pedido.claveIdempotencia(),
+                100);
         assertThatThrownBy(() -> transaccion.execute(tx -> crearGrupo.ejecutar(diferente, contexto())))
                 .isInstanceOf(ErrorDeNegocio.class)
                 .hasMessageContaining("idempotencia");
+    }
+
+    @Test
+    @DisplayName("Dado un organizador que ya llego a su limite de grupos simultaneos · Cuando crea otro grupo · "
+            + "Entonces recibe AP-CU20-06 y no se crea nada")
+    void noSuperaElLimiteDeGruposSimultaneos() {
+        UUID tarifa = UUID.randomUUID();
+        dobles.publicarTarifario(tarifa);
+        int vivos = gruposVivosDelOrganizador();
+        var alTope = entrada(tarifa, true, true, vivos);
+        assertThatThrownBy(() -> transaccion.execute(tx -> crearGrupo.ejecutar(alTope, contexto())))
+                .isInstanceOf(ErrorDeNegocio.class)
+                .satisfies(
+                        e -> assertThat(((ErrorDeNegocio) e).codigo().valor()).isEqualTo("AP-CU20-06"))
+                .hasMessageContaining("maximo");
+        assertThat(gruposVivosDelOrganizador()).isEqualTo(vivos);
+    }
+
+    @Test
+    @DisplayName("Dado un organizador con un lugar libre en su limite · Cuando crea un grupo · "
+            + "Entonces se crea y el siguiente ya no entra")
+    void elUltimoLugarDelLimiteSeUsaUnaSolaVez() {
+        UUID tarifa = UUID.randomUUID();
+        dobles.publicarTarifario(tarifa);
+        int limite = gruposVivosDelOrganizador() + 1;
+        transaccion.execute(tx -> crearGrupo.ejecutar(entrada(tarifa, true, true, limite), contexto()));
+        assertThat(gruposVivosDelOrganizador()).isEqualTo(limite);
+        assertThatThrownBy(() ->
+                        transaccion.execute(tx -> crearGrupo.ejecutar(entrada(tarifa, true, true, limite), contexto())))
+                .isInstanceOf(ErrorDeNegocio.class)
+                .hasMessageContaining("maximo");
     }
 
     @Test

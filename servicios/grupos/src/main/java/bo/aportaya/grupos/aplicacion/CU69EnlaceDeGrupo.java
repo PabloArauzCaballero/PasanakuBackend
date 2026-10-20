@@ -1,5 +1,6 @@
 package bo.aportaya.grupos.aplicacion;
 
+import bo.aportaya.grupos.dominio.puertos.HechosDeOtrosServicios;
 import bo.aportaya.grupos.infraestructura.AdmisionRepositorio;
 import bo.aportaya.grupos.infraestructura.EmparejamientoRepositorio;
 import bo.aportaya.plataforma.datos.Datos;
@@ -67,6 +68,15 @@ public class CU69EnlaceDeGrupo {
         OffsetDateTime ahora = ahora();
         return datos.conContexto(ctx, dsl -> {
             exigirAdministrador(dsl, grupoId, ctx);
+            // Un enlace de un grupo que no esta abierto nace inservible (vigente() lo rechaza): se avisa ya.
+            String estado = dsl.fetchValue("SELECT estado FROM grupos.grupo WHERE id = ?", grupoId) instanceof String s
+                    ? s
+                    : null;
+            if (!"CONFORMADO".equals(estado) && !"ABIERTO_A_INSCRIPCION".equals(estado)) {
+                throw new ErrorDeNegocio(
+                        CodigoError.de(69, 12),
+                        "Tu grupo todavia se esta abriendo para inscripciones. Proba de nuevo en unos segundos.");
+            }
             if (!emparejamientos.hayCuposLibres(dsl, grupoId)) {
                 throw new ErrorDeNegocio(CodigoError.de(69, 1), "El grupo ya no tiene cupos libres.");
             }
@@ -113,7 +123,10 @@ public class CU69EnlaceDeGrupo {
      */
     @Transactional
     public Solicitada solicitar(
-            String codigo, CU68Postular.EntradaPostulacion entrada, String nombreVisible, ContextoSesion ctx) {
+            String codigo,
+            CU68Postular.EntradaPostulacion entrada,
+            HechosDeOtrosServicios.Contacto contacto,
+            ContextoSesion ctx) {
         return datos.conContexto(ctx, dsl -> {
             Detalle enlace = vigente(dsl, codigo, ahora());
             if (!enlace.grupoId().equals(entrada.grupoId())) throw invalido();
@@ -136,9 +149,15 @@ public class CU69EnlaceDeGrupo {
             Datos.comoSistema(
                     dsl,
                     () -> dsl.execute(
-                            "UPDATE grupos.solicitud_ingreso SET enlace_grupo_id = ?, nombre_visible = ? WHERE id = ?",
+                            """
+                            UPDATE grupos.solicitud_ingreso
+                               SET enlace_grupo_id = ?, nombre_visible = ?, telefono_contacto = ?, correo_contacto = ?
+                             WHERE id = ?
+                            """,
                             enlace.enlaceId(),
-                            nombreVisible,
+                            recortar(contacto == null ? null : contacto.nombre(), 60),
+                            recortar(contacto == null ? null : contacto.telefono(), 20),
+                            recortar(contacto == null ? null : contacto.correo(), 150),
                             solicitud));
             return new Solicitada(solicitud, enlace.grupoId());
         });
@@ -148,6 +167,13 @@ public class CU69EnlaceDeGrupo {
     @Transactional(readOnly = true)
     public UUID grupoDe(String codigo, ContextoSesion ctx) {
         return consultar(codigo, ctx).grupoId();
+    }
+
+    /** Lo que viene de otro servicio se ajusta al largo de la columna en vez de hacer fallar el pedido. */
+    private static String recortar(String valor, int largo) {
+        if (valor == null || valor.isBlank()) return null;
+        String limpio = valor.trim();
+        return limpio.length() <= largo ? limpio : limpio.substring(0, largo);
     }
 
     private Detalle vigente(DSLContext dsl, String codigo, OffsetDateTime ahora) {

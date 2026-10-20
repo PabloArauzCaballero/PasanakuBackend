@@ -34,7 +34,8 @@ final class OrganizadorDecideIngreso {
             return dsl.fetch(
                             """
                             SELECT id, usuario_id, cupos_solicitados, mensaje, puntaje_compatibilidad,
-                                   estado, fecha_solicitud, nombre_visible, enlace_grupo_id IS NOT NULL AS por_enlace
+                                   estado, fecha_solicitud, nombre_visible, telefono_contacto, correo_contacto,
+                                   enlace_grupo_id IS NOT NULL AS por_enlace
                               FROM grupos.solicitud_ingreso
                              WHERE grupo_id = ? AND estado = 'PENDIENTE'
                              ORDER BY fecha_solicitud, id
@@ -50,6 +51,8 @@ final class OrganizadorDecideIngreso {
                             r.get("estado", String.class),
                             r.get("fecha_solicitud", OffsetDateTime.class),
                             r.get("nombre_visible", String.class),
+                            r.get("telefono_contacto", String.class),
+                            r.get("correo_contacto", String.class),
                             Boolean.TRUE.equals(r.get("por_enlace", Boolean.class))));
         });
     }

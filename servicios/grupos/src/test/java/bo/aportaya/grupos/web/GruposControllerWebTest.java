@@ -163,9 +163,21 @@ class GruposControllerWebTest {
         }
 
         @Test
+        @DisplayName("CU-20 · sin respuesta de organizador sobre el limite de grupos no se abre grupo")
+        void sinLimiteConocidoNoInvocaElAlta() throws Exception {
+            when(afuera.organizadorHabilitadoDelUsuario(any())).thenReturn(java.util.Optional.of(UUID.randomUUID()));
+            when(afuera.nivelDeKyc(any())).thenReturn("BASICO");
+            crear(GRUPO_NUEVO)
+                    .andExpect(status().isUnprocessableEntity())
+                    .andExpect(jsonPath("$.codigo").value("AP-CU20-02"));
+            verifyNoInteractions(cu20);
+        }
+
+        @Test
         @DisplayName("CU-20 · 202: el grupo queda PEDIDO, no armado")
         void crearGrupo() throws Exception {
             when(afuera.organizadorHabilitadoDelUsuario(any())).thenReturn(java.util.Optional.of(UUID.randomUUID()));
+            when(afuera.limiteDeGruposDelOrganizador(any())).thenReturn(java.util.OptionalInt.of(2));
             when(afuera.nivelDeKyc(any())).thenReturn("BASICO");
             when(cu20.ejecutar(any(), any())).thenReturn(new CU20CrearGrupo.SalidaCreacion(GRUPO, "250.00"));
 

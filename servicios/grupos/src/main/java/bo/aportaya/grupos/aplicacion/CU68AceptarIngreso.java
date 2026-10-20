@@ -208,6 +208,8 @@ public class CU68AceptarIngreso {
             String estado,
             OffsetDateTime fecha,
             String nombreVisible,
+            String telefono,
+            String correo,
             boolean porEnlace) {}
 
     public record Resultado(UUID solicitudId, String estado, UUID participanteId, UUID cupoId) {}

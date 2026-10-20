@@ -174,6 +174,8 @@ public abstract class ExpedienteController extends InvitacionesController {
                 p.usuarioId(), p.correoVerificado(), MiPerfil.EstadoDeCuentaEnum.fromValue(p.estadoDeCuenta()));
         salida.setCorreo(p.correo());
         salida.setNombreVisible(p.nombreVisible());
+        salida.setNombreCompleto(p.nombreCompleto());
+        salida.setTelefono(p.telefono());
         return ResponseEntity.ok(salida);
     }
 }

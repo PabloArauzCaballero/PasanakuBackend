@@ -1004,6 +1004,16 @@ components:
           description: >-
             Primer nombre e inicial del apellido («Rosa Q.»): lo que ve el organizador de
             un grupo cuando la persona pide unirse. Null si la cuenta todavia no tiene nombre.
+        nombreCompleto:
+          type: [string, 'null']
+          maxLength: 120
+          description: >-
+            Nombres y apellidos de la propia cuenta. Lo ve el organizador de un grupo en la
+            solicitud de quien pide unirse por el enlace. Null si la cuenta no tiene nombre.
+        telefono:
+          type: [string, 'null']
+          maxLength: 20
+          description: Telefono E.164 de la propia cuenta. Null si todavia no lo cargo.
         estadoDeCuenta:
           type: string
           description: >-
