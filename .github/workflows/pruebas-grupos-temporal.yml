@@ -1,0 +1,58 @@
+# TEMPORAL (2026-10-20): corre las pruebas con PostgreSQL real de grupos e identidad para
+# esta rama. En ci.yml el job «Los cinco corredores» depende de «codigo», que hoy está rojo
+# en test por testBarrido (ajeno a este trabajo), así que integrationTest no llega a correr.
+# Mismo armado que el job `pruebas` de ci.yml. Se borra antes de fusionar.
+name: Pruebas grupos e identidad (temporal)
+
+on:
+  push:
+    branches: [claude/detalle-firma-sorteo-20261020]
+    paths: [".github/workflows/pruebas-grupos-temporal.yml"]
+
+env:
+  BD_URL_ADMIN: jdbc:postgresql://localhost:5432/pasanaku
+  BD_USUARIO_ADMIN: pasanaku
+  BD_CLAVE_ADMIN: pasanaku
+
+jobs:
+  pruebas:
+    name: grupos e identidad · test, webTest, integrationTest
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: pasanaku
+          POSTGRES_USER: pasanaku
+          POSTGRES_PASSWORD: pasanaku
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U pasanaku -d pasanaku"
+          --health-interval 5s --health-timeout 5s --health-retries 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: el esquema, que es lo que jOOQ introspecciona
+        env:
+          PGPASSWORD: pasanaku
+        run: cd sql && psql -v ON_ERROR_STOP=1 -h localhost -U pasanaku -d pasanaku -q -f aplicar.sql
+
+      - name: grupos e identidad · test y webTest
+        run: ./gradlew :servicios:grupos:test :servicios:grupos:webTest
+
+      - name: grupos e identidad · integrationTest (Testcontainers, PostgreSQL real)
+        run: ./gradlew :servicios:grupos:integrationTest --continue
+
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: reportes-pruebas-grupos-identidad
+          path: |
+            servicios/grupos/build/reports/tests/
+            servicios/identidad/build/reports/tests/
