@@ -29,6 +29,15 @@ public final class Outbox {
     }
 
     public void emitir(DSLContext dsl, EventoDominio evento) {
+        java.util.Map<String, Object> metadatos = new java.util.HashMap<>();
+        metadatos.put("tema", evento.tema());
+        String trazaId = org.slf4j.MDC.get("trazaId");
+        if (trazaId != null && !trazaId.isBlank() && !"sin-traza".equals(trazaId)) {
+            metadatos.put("trace_id", trazaId);
+        } else {
+            metadatos.put("trace_id", evento.correlationId().toString());
+        }
+
         dsl.insertInto(DSL.table(DSL.name(esquema, "evento_dominio")))
                 .columns(
                         DSL.field("id"),
@@ -49,7 +58,7 @@ public final class Outbox {
                         DSL.val(evento.agregado()),
                         DSL.val(evento.agregadoId()),
                         DSL.val(comoJson(evento.carga())),
-                        DSL.val(comoJson(Map.of("tema", evento.tema()))),
+                        DSL.val(comoJson(metadatos)),
                         DSL.val(evento.correlationId()),
                         DSL.field("now()"),
                         DSL.val("PENDIENTE"),

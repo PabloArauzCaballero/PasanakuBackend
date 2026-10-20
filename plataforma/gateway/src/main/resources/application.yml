@@ -21,11 +21,18 @@ spring:
     import: classpath:rutas.yml
   cloud:
     gateway:
+      httpclient:
+        connect-timeout: 3000
+        response-timeout: 15s
+        pool:
+          type: ELASTIC
+          max-idle-time: 15s
+          max-life-time: 60s
       server:
         webflux:
           httpclient:
-            connect-timeout: 2000
-            response-timeout: 10s
+            connect-timeout: 3000
+            response-timeout: 15s
           default-filters:
             - DedupeResponseHeader=Access-Control-Allow-Origin
   # H3.S1: sin host/puerto explicitos — SPRING_DATA_REDIS_HOST/PORT llegan por
