@@ -9,6 +9,11 @@ on:
     branches: [claude/unirse-por-qr-y-enlace-20261019]
     paths: [".github/workflows/pruebas-grupos-temporal.yml"]
 
+env:
+  BD_URL_ADMIN: jdbc:postgresql://localhost:5432/pasanaku
+  BD_USUARIO_ADMIN: pasanaku
+  BD_CLAVE_ADMIN: pasanaku
+
 jobs:
   pruebas:
     name: grupos e identidad · test, webTest, integrationTest
