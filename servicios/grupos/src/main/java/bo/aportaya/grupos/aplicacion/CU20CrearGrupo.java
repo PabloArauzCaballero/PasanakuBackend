@@ -119,7 +119,8 @@ public class CU20CrearGrupo {
                     ctx.usuarioId(),
                     entrada.claveIdempotencia(),
                     huella,
-                    entrada.datos().fondoPorPeriodo().toString());
+                    entrada.datos().fondoPorPeriodo().toString(),
+                    entrada.nombreDelCreador());
 
             outbox.emitir(
                     dsl,
@@ -211,7 +212,8 @@ public class CU20CrearGrupo {
             boolean licenciaHabilitaElServicio,
             boolean permitePermutaDeTurnos,
             UUID claveIdempotencia,
-            int limiteDeGrupos) {}
+            int limiteDeGrupos,
+            String nombreDelCreador) {}
 
     public record SalidaCreacion(UUID grupoId, String fondoPorPeriodo) {}
 }

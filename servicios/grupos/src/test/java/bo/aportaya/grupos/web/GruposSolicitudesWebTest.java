@@ -98,6 +98,9 @@ class GruposSolicitudesWebTest {
     @MockitoBean
     private SorteoDelGrupo sorteo;
 
+    @MockitoBean
+    private IntegrantesDelGrupo integrantesDelGrupo;
+
     @Nested
     @DisplayName("CU-68 · decisión del organizador sobre una solicitud de ingreso")
     class DecisionDeIngreso {

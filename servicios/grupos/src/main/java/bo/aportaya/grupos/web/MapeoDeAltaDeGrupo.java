@@ -76,6 +76,9 @@ final class MapeoDeAltaDeGrupo {
                 afuera.licenciaHabilita(servicioDeLicencia),
                 Boolean.TRUE.equals(cuerpo.getPermitePermutaDeTurnos()),
                 clave,
-                limite.getAsInt());
+                limite.getAsInt(),
+                afuera.contactoDeLaSesion()
+                        .map(HechosDeOtrosServicios.Contacto::nombre)
+                        .orElse(null));
     }
 }

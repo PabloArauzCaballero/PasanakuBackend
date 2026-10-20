@@ -102,6 +102,9 @@ class GruposPostulacionWebTest {
     @MockitoBean
     private SorteoDelGrupo sorteo;
 
+    @MockitoBean
+    private IntegrantesDelGrupo integrantesDelGrupo;
+
     @Nested
     @DisplayName("CU-68 · postularse a un grupo")
     class Postular {

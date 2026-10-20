@@ -662,6 +662,21 @@ paths:
         '422':
           $ref: '#/components/responses/ReglaDeNegocio'
 
+  /grupos/mis-limites:
+    get:
+      operationId: consultarMisLimites          # CU-69
+      summary: Cuantos grupos organizo y en cuantos participo, contra su tope
+      description: >-
+        Para que la app muestre los contadores y no ofrezca lo que el servidor va a rechazar. Los topes se
+        aplican al crear (AP-CU20-06) y al entrar a un grupo (AP-CU69-15); esto solo los informa.
+        `limiteDeOrganizar` es nulo si la persona no esta habilitada como organizadora.
+      responses:
+        '200':
+          description: Mis contadores
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/MisLimites' }
+
   /grupos/participaciones:
     get:
       operationId: listarMisParticipaciones      # CU-68
@@ -702,6 +717,59 @@ paths:
                 items: { $ref: '#/components/schemas/SolicitudDeIngreso' }
         '422':
           $ref: '#/components/responses/ReglaDeNegocio'
+
+  /grupos/{grupoId}/detalle:
+    get:
+      operationId: consultarDetalleDelGrupo     # CU-69
+      summary: El grupo visto por uno de sus integrantes
+      description: >-
+        Resumen del grupo y una fila por cupo: quien lo ocupa (nombre visible), si ya firmo el
+        reglamento y su turno cuando hubo sorteo. Solo para integrantes del grupo. No lleva telefono
+        ni correo de nadie (decision del dueño 2026-10-20). Dice ademas si quien consulta tiene que
+        firmar y si puede iniciar el sorteo.
+      parameters:
+        - name: grupoId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: El grupo y sus cupos
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DetalleDelGrupo' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU69-14 NO_ES_INTEGRANTE
+
+  /grupos/{grupoId}/reglamento/firma:
+    post:
+      operationId: firmarReglamentoDelGrupo     # CU-69
+      summary: Firmar el reglamento y ocupar el cupo reservado
+      description: >-
+        Quien fue aceptado (o el organizador) firma el texto EXACTO del reglamento, identificado por
+        su hash: queda ACTIVO y su cupo pasa de RESERVADO a OCUPADO. Con la ultima firma, si todos los
+        cupos estan ocupados, el grupo pasa a CONFORMADO y se arma su calendario de periodos, que es lo
+        que el sorteo necesita. Firmar otra vez no repite nada.
+      parameters:
+        - name: grupoId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaFirmaDeReglamento' }
+      responses:
+        '200':
+          description: La firma y el estado del grupo despues de ella
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaFirmaDeReglamento' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU69-05 REGLAMENTO_CAMBIO · AP-CU69-13 SIN_FIRMA_PENDIENTE
 
   /grupos/solicitudes/{solicitudId}/decision:
     post:
@@ -1235,12 +1303,87 @@ components:
         cuposSolicitados: { type: integer, minimum: 1 }
         mensaje:          { type: [string, 'null'], maxLength: 500 }
         puntaje:          { type: [string, 'null'] }
-        nombreVisible:    { type: [string, 'null'], maxLength: 60, description: 'Nombre completo de quien pide entrar por el enlace del grupo' }
-        telefono:         { type: [string, 'null'], maxLength: 20, description: 'Telefono E.164 de quien pide entrar por el enlace del grupo' }
-        correo:           { type: [string, 'null'], maxLength: 150, description: 'Correo de quien pide entrar por el enlace del grupo' }
+        nombreVisible:    { type: [string, 'null'], maxLength: 60, description: 'Nombre completo de quien pide entrar por el enlace del grupo (sin telefono ni correo)' }
         porEnlace:        { type: boolean, description: 'La pidio con el enlace del grupo' }
         estado:           { type: string, enum: [PENDIENTE, APROBADA, RECHAZADA, EXPIRADA] }
         fechaSolicitud:   { type: string, format: date-time }
+    MisLimites:
+      type: object
+      additionalProperties: false
+      required: [organizados, participaciones, limiteDeParticipar]
+      properties:
+        organizados:        { type: integer, minimum: 0 }
+        limiteDeOrganizar:  { type: [integer, 'null'], minimum: 0 }
+        participaciones:    { type: integer, minimum: 0 }
+        limiteDeParticipar: { type: integer, minimum: 0 }
+    DetalleDelGrupo:
+      type: object
+      additionalProperties: false
+      required: [grupoId, nombre, estado, montoAporte, moneda, periodicidad, cuposTotales, cuposOcupados,
+                 soyOrganizador, debeFirmar, puedeSortear, integrantes]
+      properties:
+        grupoId:        { type: string, format: uuid }
+        nombre:         { type: string, maxLength: 120 }
+        estado:         { type: string }
+        montoAporte:    { type: string, pattern: '^\d+\.\d{2}$' }
+        moneda:         { type: string, minLength: 3, maxLength: 3 }
+        periodicidad:   { type: string }
+        cuposTotales:   { type: integer, minimum: 1 }
+        cuposOcupados:  { type: integer, minimum: 0 }
+        soyOrganizador: { type: boolean }
+        debeFirmar:
+          type: boolean
+          description: Quien consulta fue aceptado y todavia no firmo el reglamento
+        puedeSortear:
+          type: boolean
+          description: Quien consulta organiza el grupo, todos firmaron y todavia no hubo sorteo
+        reglamento: { $ref: '#/components/schemas/ReglamentoParaFirmar' }
+        sorteo:     { $ref: '#/components/schemas/SorteoDelDetalle' }
+        integrantes:
+          type: array
+          maxItems: 60
+          items: { $ref: '#/components/schemas/IntegranteDelGrupo' }
+    ReglamentoParaFirmar:
+      type: object
+      additionalProperties: false
+      required: [texto, hash]
+      properties:
+        texto: { type: string }
+        hash:  { type: string, pattern: '^[0-9a-f]{64}$' }
+    SorteoDelDetalle:
+      type: object
+      additionalProperties: false
+      required: [sorteoId, estado]
+      properties:
+        sorteoId: { type: string, format: uuid }
+        estado:   { type: string, enum: [COMPROMETIDO, REVELADO] }
+    IntegranteDelGrupo:
+      type: object
+      additionalProperties: false
+      required: [numero, estado, esOrganizador, soyYo]
+      properties:
+        numero:        { type: integer, minimum: 1 }
+        cupoId:        { type: string, format: uuid }
+        nombre:        { type: [string, 'null'], maxLength: 60 }
+        estado:        { type: string, enum: [LIBRE, PENDIENTE_FIRMA, FIRMADO] }
+        esOrganizador: { type: boolean }
+        soyYo:         { type: boolean }
+        turno:         { type: [integer, 'null'], minimum: 1 }
+    EntradaFirmaDeReglamento:
+      type: object
+      additionalProperties: false
+      required: [hashReglamento, aceptaReglamento]
+      properties:
+        hashReglamento:   { type: string, pattern: '^[0-9a-f]{64}$' }
+        aceptaReglamento: { type: boolean }
+    SalidaFirmaDeReglamento:
+      type: object
+      additionalProperties: false
+      required: [participanteId, estadoDelGrupo, grupoConformado]
+      properties:
+        participanteId:  { type: string, format: uuid }
+        estadoDelGrupo:  { type: string }
+        grupoConformado: { type: boolean }
     EntradaDecisionDeIngreso:
       type: object
       additionalProperties: false

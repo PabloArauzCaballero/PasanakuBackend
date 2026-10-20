@@ -58,8 +58,6 @@ class TextosEnlaceDelGrupo {
   static const sinNombre = 'Persona todavía sin nombre';
   static const porEnlace = 'Pidió con el enlace del grupo';
   static String pidioEl(String cuando) => 'Pidió el $cuando';
-  static const telefono = 'Teléfono';
-  static const correo = 'Correo';
   static const aceptar = 'Aceptar';
   static const rechazar = 'Rechazar';
   static const aceptada = 'Aceptada: ya tiene su cupo en el grupo.';
@@ -75,8 +73,7 @@ class TextosEnlaceDelGrupo {
       'Este grupo ya está completo. Pedile al organizador que te avise si se libera un cupo.';
   static const pedirUnirme = 'Pedir unirme';
   static const avisoDeDatos =
-      'Al pedir unirte, el organizador ve tu nombre, tu teléfono y tu correo para '
-      'saber quién sos.';
+      'Al pedir unirte, el organizador ve tu nombre completo para saber quién sos.';
   static const pedidoEnviado = 'Listo, le avisamos al organizador';
   static const pedidoEnviadoDetalle =
       'El organizador revisa tu pedido y te acepta o no. Cuando te acepte, el grupo '

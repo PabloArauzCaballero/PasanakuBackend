@@ -29,7 +29,8 @@ public class CreacionRepositorio {
                         f.get("fondo_por_periodo", String.class)));
     }
 
-    public void guardarAlta(DSLContext dsl, UUID grupo, UUID creador, UUID clave, String huella, String fondo) {
+    public void guardarAlta(
+            DSLContext dsl, UUID grupo, UUID creador, UUID clave, String huella, String fondo, String nombre) {
         dsl.execute(
                 "INSERT INTO grupos.alta_grupo (grupo_id, creador_id, clave_idempotencia, huella_solicitud, fondo_por_periodo, creada_en) VALUES (?,?,?,?,?,now())",
                 grupo,
@@ -39,12 +40,36 @@ public class CreacionRepositorio {
                 fondo);
         // La politica de fila reserva `participante` al sistema: el creador no escribe su propia membresia.
         // El permiso de crear grupos ya se autorizo en la ruta, y la fila es solo del grupo recien creado.
-        bo.aportaya.plataforma.datos.Datos.comoSistema(
-                dsl,
-                () -> dsl.execute(
-                        "INSERT INTO grupos.participante (grupo_id, usuario_id, estado, es_organizador, fecha_ingreso, reputacion_al_ingresar, aportes_realizados, aportes_en_mora) VALUES (?,?,'ACEPTADO_PENDIENTE_FIRMA',true,now(),0,0,0)",
-                        grupo,
-                        creador));
+        // El organizador tambien aporta y cobra: ocupa el cupo 1, reservado hasta que firme (decision del
+        // dueño 2026-10-20). Su nombre visible queda en `alias` para la lista de integrantes.
+        bo.aportaya.plataforma.datos.Datos.comoSistema(dsl, () -> {
+            UUID participante = dsl.fetchOne(
+                            """
+                            INSERT INTO grupos.participante
+                              (grupo_id, usuario_id, alias, estado, es_organizador, fecha_ingreso,
+                               reputacion_al_ingresar, aportes_realizados, aportes_en_mora)
+                            VALUES (?, ?, ?, 'ACEPTADO_PENDIENTE_FIRMA', true, now(), 0, 0, 0)
+                            RETURNING id
+                            """,
+                            grupo,
+                            creador,
+                            recortar(nombre))
+                    .get(0, UUID.class);
+            dsl.execute(
+                    "UPDATE grupos.cupo SET participante_id = ?, estado = 'RESERVADO', asignado_en = now() WHERE grupo_id = ? AND numero = 1 AND estado = 'LIBRE'",
+                    participante,
+                    grupo);
+            return dsl.execute(
+                    "UPDATE grupos.grupo SET cupos_ocupados = (SELECT count(*) FROM grupos.cupo WHERE grupo_id = ? AND estado IN ('OCUPADO','RESERVADO')) WHERE id = ?",
+                    grupo,
+                    grupo);
+        });
+    }
+
+    private static String recortar(String nombre) {
+        if (nombre == null || nombre.isBlank()) return null;
+        String limpio = nombre.trim();
+        return limpio.length() <= 60 ? limpio : limpio.substring(0, 60);
     }
 
     public record Alta(UUID grupoId, UUID creadorId, String huella, String fondo) {}

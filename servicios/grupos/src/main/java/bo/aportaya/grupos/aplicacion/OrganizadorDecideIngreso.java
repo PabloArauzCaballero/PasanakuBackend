@@ -22,9 +22,13 @@ final class OrganizadorDecideIngreso {
     private final Datos datos;
     private final Outbox outbox;
 
-    OrganizadorDecideIngreso(Datos datos, Outbox outbox) {
+    private final bo.aportaya.grupos.infraestructura.EmparejamientoRepositorio emparejamientos;
+
+    OrganizadorDecideIngreso(
+            Datos datos, Outbox outbox, bo.aportaya.grupos.infraestructura.EmparejamientoRepositorio emparejamientos) {
         this.datos = datos;
         this.outbox = outbox;
+        this.emparejamientos = emparejamientos;
     }
 
     /** La cola del organizador: solo PENDIENTES, la mas antigua primero. */
@@ -34,8 +38,7 @@ final class OrganizadorDecideIngreso {
             return dsl.fetch(
                             """
                             SELECT id, usuario_id, cupos_solicitados, mensaje, puntaje_compatibilidad,
-                                   estado, fecha_solicitud, nombre_visible, telefono_contacto, correo_contacto,
-                                   enlace_grupo_id IS NOT NULL AS por_enlace
+                                   estado, fecha_solicitud, nombre_visible, enlace_grupo_id IS NOT NULL AS por_enlace
                               FROM grupos.solicitud_ingreso
                              WHERE grupo_id = ? AND estado = 'PENDIENTE'
                              ORDER BY fecha_solicitud, id
@@ -51,8 +54,6 @@ final class OrganizadorDecideIngreso {
                             r.get("estado", String.class),
                             r.get("fecha_solicitud", OffsetDateTime.class),
                             r.get("nombre_visible", String.class),
-                            r.get("telefono_contacto", String.class),
-                            r.get("correo_contacto", String.class),
                             Boolean.TRUE.equals(r.get("por_enlace", Boolean.class))));
         });
     }
@@ -112,20 +113,27 @@ final class OrganizadorDecideIngreso {
                 if (cupo == null) {
                     throw new ErrorDeNegocio(CodigoError.de(68, 4), "Ya no hay cupos libres.");
                 }
+                // Entre que pidio y que la aceptan pudo entrar a otros grupos: el tope se mira al aceptar.
+                emparejamientos.exigirLugarParaParticipar(
+                        dsl,
+                        s.get("usuario_id", UUID.class),
+                        "Esa persona ya participa en el maximo de grupos permitido.");
                 cupoId = cupo.get("id", UUID.class);
                 participanteId = UUID.randomUUID();
                 dsl.execute(
                         """
                         INSERT INTO grupos.participante
-                          (id, grupo_id, usuario_id, estado, es_organizador, invitado_por_id,
+                          (id, grupo_id, usuario_id, alias, estado, es_organizador, invitado_por_id,
                            fecha_ingreso, reputacion_al_ingresar, aportes_realizados, aportes_en_mora)
-                        VALUES (?, ?, ?, 'ACEPTADO_PENDIENTE_FIRMA', false,
+                        VALUES (?, ?, ?, (SELECT nombre_visible FROM grupos.solicitud_ingreso WHERE id = ?),
+                          'ACEPTADO_PENDIENTE_FIRMA', false,
                           (SELECT id FROM grupos.participante WHERE grupo_id = ? AND usuario_id = ?
                               AND es_organizador LIMIT 1), now(), ?, 0, 0)
                         """,
                         participanteId,
                         grupoId,
                         s.get("usuario_id", UUID.class),
+                        solicitudId,
                         grupoId,
                         ctx.usuarioId(),
                         reputacion);

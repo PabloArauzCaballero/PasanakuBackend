@@ -6,6 +6,9 @@ import 'pantalla_crear_grupo.dart';
 import 'pantalla_enlace_del_grupo.dart';
 import 'pantalla_invitar.dart';
 import 'pantalla_solicitudes_del_grupo.dart';
+import 'pantalla_del_grupo.dart';
+import 'pantalla_firmar_reglamento.dart';
+import 'pantalla_sorteo.dart';
 import 'pantalla_unirse_a_un_grupo.dart';
 import 'pantalla_unirse_al_grupo.dart';
 import 'pantalla_mi_estado.dart';
@@ -62,7 +65,29 @@ final List<RouteBase> rutasPasanaku = [
     builder: (context, state) =>
         PantallaSolicitudesDelGrupo(grupoId: state.pathParameters['grupoId']!),
   ),
-  // «Unirse a un grupo» (2026-10-20): subir la imagen del QR o pegar el enlace.
+  GoRoute(
+    path: '/pasanaku/grupos/:grupoId/reglamento',
+    name: 'pasanaku.firmarReglamento',
+    builder: (context, state) =>
+        PantallaFirmarReglamento(grupoId: state.pathParameters['grupoId']!),
+  ),
+  GoRoute(
+    path: '/pasanaku/grupos/:grupoId/sorteo',
+    name: 'pasanaku.sorteo',
+    builder: (context, state) =>
+        PantallaSorteo(grupoId: state.pathParameters['grupoId']!),
+  ),
+  GoRoute(
+    path: '/pasanaku/grupos/:grupoId',
+    name: 'pasanaku.grupo',
+    builder: (context, state) => PantallaDelGrupo(
+      key: ValueKey(state.pathParameters['grupoId']),
+      grupoId: state.pathParameters['grupoId']!,
+      nombre: state.uri.queryParameters['nombre'],
+      participanteId: state.uri.queryParameters['participante'],
+      usuarioId: state.uri.queryParameters['usuario'],
+    ),
+  ),
   GoRoute(
     path: '/pasanaku/unirse-a-un-grupo',
     name: 'pasanaku.unirseAUnGrupo',

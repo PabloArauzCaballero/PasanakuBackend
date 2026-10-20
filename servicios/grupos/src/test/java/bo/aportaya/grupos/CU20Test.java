@@ -48,7 +48,8 @@ class CU20Test extends BaseDeCU20 {
                 true,
                 true,
                 UUID.randomUUID(),
-                100);
+                100,
+                null);
         assertThatThrownBy(() -> transaccion.execute(tx -> crearGrupo.ejecutar(sinOrganizador, contexto())))
                 .isInstanceOf(ErrorDeNegocio.class)
                 .hasMessageContaining("habilitado");
@@ -80,7 +81,8 @@ class CU20Test extends BaseDeCU20 {
                 true,
                 false,
                 pedido.claveIdempotencia(),
-                100);
+                100,
+                null);
         assertThatThrownBy(() -> transaccion.execute(tx -> crearGrupo.ejecutar(diferente, contexto())))
                 .isInstanceOf(ErrorDeNegocio.class)
                 .hasMessageContaining("idempotencia");
@@ -233,12 +235,12 @@ class CU20Test extends BaseDeCU20 {
     @Test
     @DisplayName("concurrencia: dos transacciones sobre el mismo agregado, una gana y nunca hay doble efecto")
     void concurrencia() {
-        // Un grupo nace BORRADOR y con todos sus cupos LIBRES: no recibe a nadie
-        // hasta que el precio este congelado.
+        // Un grupo nace BORRADOR: no recibe a nadie hasta que el precio este congelado. El
+        // organizador ya ocupa el cupo 1 (decision del dueño 2026-10-20); los demas siguen LIBRES.
         SalidaCreacion salida = crear(UUID.randomUUID());
 
         assertThat(estadoDelGrupo(salida.grupoId())).isEqualTo("BORRADOR");
-        assertThat(cuposLibres(salida.grupoId())).isEqualTo(4);
+        assertThat(cuposLibres(salida.grupoId())).isEqualTo(3);
     }
 
     @Test
