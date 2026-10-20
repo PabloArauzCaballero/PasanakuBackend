@@ -4273,6 +4273,8 @@
 | `puntaje_compatibilidad` | DECIMAL(5,2) | — | DECIMAL(5,2), opcional. | NINGUNA |
 | `enlace_grupo_id` | UUID | — | UUID, opcional, referencia a `enlace_grupo`. | NINGUNA |
 | `nombre_visible` | VARCHAR(60) | — | VARCHAR(60), opcional. | NINGUNA |
+| `telefono_contacto` | VARCHAR(20) | — | VARCHAR(20), opcional. | PERSONAL |
+| `correo_contacto` | VARCHAR(150) | — | VARCHAR(150), opcional. | PERSONAL |
 | `revisada_por` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
 | `fecha_solicitud` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
 | `fecha_resolucion` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |

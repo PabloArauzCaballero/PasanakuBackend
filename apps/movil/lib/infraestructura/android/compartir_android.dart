@@ -32,4 +32,15 @@ class CompartirAndroid implements Compartir {
   @override
   Future<bool> conOtraApp({required String texto}) =>
       _invocar('otra', {'texto': texto});
+
+  @override
+  Future<bool> imagen({
+    required String ruta,
+    required String texto,
+    bool porWhatsApp = true,
+  }) => _invocar('imagen', {
+    'ruta': ruta,
+    'texto': texto,
+    'whatsapp': porWhatsApp ? 'si' : 'no',
+  });
 }

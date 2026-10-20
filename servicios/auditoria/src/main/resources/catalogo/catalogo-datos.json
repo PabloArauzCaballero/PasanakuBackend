@@ -24563,6 +24563,22 @@
      "sensibilidad": "NINGUNA"
     },
     {
+     "nombre": "telefono_contacto",
+     "tipo": "VARCHAR(20)",
+     "nulable": true,
+     "pk": false,
+     "sistema": "VARCHAR(20), opcional.",
+     "sensibilidad": "PERSONAL"
+    },
+    {
+     "nombre": "correo_contacto",
+     "tipo": "VARCHAR(150)",
+     "nulable": true,
+     "pk": false,
+     "sistema": "VARCHAR(150), opcional.",
+     "sensibilidad": "PERSONAL"
+    },
+    {
      "nombre": "revisada_por",
      "tipo": "UUID",
      "nulable": true,

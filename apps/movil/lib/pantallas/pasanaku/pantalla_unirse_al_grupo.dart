@@ -104,7 +104,12 @@ class _PantallaUnirseAlGrupoState extends ConsumerState<PantallaUnirseAlGrupo> {
                         expandido: true,
                         onPressed: () => context.push(rutaDeVerificarIdentidad),
                       ),
-                    ] else
+                    ] else ...[
+                      const Alerta(
+                        titulo: TextosEnlaceDelGrupo.avisoDeDatos,
+                        tono: Tono.info,
+                      ),
+                      const SizedBox(height: Espacio.s3),
                       Boton(
                         key: const ValueKey('pedir-unirme'),
                         texto: TextosEnlaceDelGrupo.pedirUnirme,
@@ -113,6 +118,7 @@ class _PantallaUnirseAlGrupoState extends ConsumerState<PantallaUnirseAlGrupo> {
                         cargando: _pidiendo,
                         onPressed: _pedir,
                       ),
+                    ],
                   ],
                 ),
               ),

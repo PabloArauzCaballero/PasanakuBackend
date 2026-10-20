@@ -51,16 +51,20 @@ class CrearGrupo extends AsyncNotifier<SalidaGrupo?> {
         ),
       );
       ref.read(idempotenciaProvider.notifier).cerrar(formularioId);
+      if (!ref.mounted) return;
       state = AsyncData(r.data);
     } catch (e) {
+      if (!ref.mounted) return;
       state = AsyncError(errorDeDominio(e), StackTrace.current);
     }
   }
 }
 
-final crearGrupoProvider = AsyncNotifierProvider<CrearGrupo, SalidaGrupo?>(
-  CrearGrupo.new,
-);
+/// `autoDispose` (2026-10-20): al salir de la pantalla el resultado se olvida. Antes era
+/// global y «Organizar un grupo nuevo» volvía a mostrar «Grupo creado» del anterior en
+/// vez del formulario vacío.
+final crearGrupoProvider =
+    AsyncNotifierProvider.autoDispose<CrearGrupo, SalidaGrupo?>(CrearGrupo.new);
 
 /// **Hueco declarado (D-16):** el contrato de `organizador`
 /// (`GET /organizadores/{id}/habilitacion`) devuelve `habilitado`, `nivel` y los

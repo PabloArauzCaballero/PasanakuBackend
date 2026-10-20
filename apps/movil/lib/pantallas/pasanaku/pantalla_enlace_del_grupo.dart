@@ -11,14 +11,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:aportaya_diseno/errores.dart';
-import '../../proveedores/compartir.dart';
+import 'compartir_invitacion.dart';
 import 'dominio/enlace_del_grupo.dart';
 import 'textos_enlace_del_grupo.dart';
 import 'vista_enlace_del_grupo.dart';
 
-/// «Invitar al grupo» (CU-69, 2026-10-19): el organizador crea el enlace del grupo, lo
-/// comparte por WhatsApp o muestra su QR, y ve quién pidió unirse. Invitar a un número
-/// en particular sigue a mano, abajo.
+/// «Invitar al grupo» (CU-69): dos formas, por QR y por enlace (decisión del dueño,
+/// 2026-10-20). El enlace se crea solo al entrar si no hay uno vigente; el QR sale como
+/// imagen para el grupo de WhatsApp. Desde acá se ve quién pidió unirse.
 class PantallaEnlaceDelGrupo extends ConsumerStatefulWidget {
   const PantallaEnlaceDelGrupo({
     super.key,
@@ -40,6 +40,7 @@ class PantallaEnlaceDelGrupo extends ConsumerStatefulWidget {
 class _PantallaEnlaceDelGrupoState
     extends ConsumerState<PantallaEnlaceDelGrupo> {
   bool _trabajando = false;
+  bool _yaIntentoCrear = false;
   Object? _error;
 
   Future<void> _hacer(Future<void> Function() accion) async {
@@ -78,19 +79,19 @@ class _PantallaEnlaceDelGrupoState
         ),
       );
 
-  Future<void> _compartir(String enlace, {required bool porWhatsApp}) async {
-    final texto = mensajeDelEnlaceDelGrupo(
-      enlace,
-      nombreDelGrupo: widget.nombre,
-    );
-    final compartir = ref.read(compartirProvider);
-    // Sin número: WhatsApp abre la lista de chats para elegir a quién o a qué grupo.
-    final abrio = porWhatsApp
-        ? await compartir.porWhatsApp(telefono: '', texto: texto)
-        : await compartir.conOtraApp(texto: texto);
-    if (!abrio && mounted) {
-      mostrarSnackbar(context, TextosEnlaceDelGrupo.noSePudoAbrir);
-    }
+  /// Sin enlace vigente, se crea uno una sola vez al entrar: invitar no debería pedir
+  /// un paso más. Si falla, queda el error y el botón para reintentar.
+  void _crearSiHaceFalta(EnlaceGuardado? guardado) {
+    if (guardado != null || _yaIntentoCrear) return;
+    _yaIntentoCrear = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _crear();
+    });
+  }
+
+  Future<void> _avisar(Future<String?> envio) async {
+    final aviso = await envio;
+    if (aviso != null && mounted) mostrarSnackbar(context, aviso);
   }
 
   Future<void> _copiar(String enlace) async {
@@ -118,18 +119,23 @@ class _PantallaEnlaceDelGrupoState
               reintentar: () =>
                   ref.invalidate(enlaceVigenteProvider(widget.grupoId)),
               exito: (guardado) {
+                // Primera vez sin enlace: se ve «preparando» mientras se crea solo.
+                final esperando = guardado == null && !_yaIntentoCrear;
+                _crearSiHaceFalta(guardado);
                 final enlace = guardado == null
                     ? null
                     : enlaceDelGrupo(guardado.codigo, baseWeb: widget.appWeb);
                 return VistaEnlaceDelGrupo(
                   enlace: enlace,
                   expiraEn: guardado?.expiraEn,
-                  trabajando: _trabajando,
+                  trabajando: _trabajando || esperando,
                   alCrear: _crear,
-                  alCompartirPorWhatsApp: (e) =>
-                      _compartir(e, porWhatsApp: true),
-                  alCompartirConOtraApp: (e) =>
-                      _compartir(e, porWhatsApp: false),
+                  alCompartirQr: (e) => _avisar(
+                    compartirQrDelGrupo(ref, e, nombre: widget.nombre),
+                  ),
+                  alCompartirEnlace: (e) => _avisar(
+                    compartirEnlaceDelGrupo(ref, e, nombre: widget.nombre),
+                  ),
                   alCopiar: _copiar,
                   alGenerarOtro: () => _confirmar(
                     TextosEnlaceDelGrupo.generarOtroConfirmar,
@@ -153,9 +159,6 @@ class _PantallaEnlaceDelGrupoState
                   ),
                   alVerSolicitudes: () => context.push(
                     '/pasanaku/grupos/${widget.grupoId}/solicitudes',
-                  ),
-                  alInvitarAUnNumero: () => context.push(
-                    '/pasanaku/grupos/${widget.grupoId}/invitar/numero',
                   ),
                 );
               },

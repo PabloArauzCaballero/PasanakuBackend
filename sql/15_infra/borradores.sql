@@ -1,3 +1,4 @@
+-- Generado por scripts/generar_ddl.py — no editar a mano.
 -- Borrador del alta incompleta (identidad): lo que la persona ya cargo para
 -- retomar el alta en otro momento. Lo usa BorradorOnboardingRepositorio.
 -- Una fila por correo; vence a los 7 dias (expira_en) y se borra al terminar

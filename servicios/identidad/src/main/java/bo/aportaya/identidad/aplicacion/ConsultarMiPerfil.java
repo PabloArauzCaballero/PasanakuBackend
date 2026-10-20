@@ -28,7 +28,7 @@ public class ConsultarMiPerfil {
         return datos.conContexto(ctx, dsl -> {
             var fila = dsl.fetchOne(
                     """
-                    SELECT correo, correo_verificado_en IS NOT NULL AS verificado, estado, nombres, apellidos
+                    SELECT correo, correo_verificado_en IS NOT NULL AS verificado, estado, nombres, apellidos, telefono_e164
                       FROM identidad.usuario WHERE id = ?
                     """,
                     usuarioId);
@@ -40,7 +40,9 @@ public class ConsultarMiPerfil {
                     fila.get("correo", String.class),
                     Boolean.TRUE.equals(fila.get("verificado", Boolean.class)),
                     fila.get("estado", String.class),
-                    nombreVisible(fila.get("nombres", String.class), fila.get("apellidos", String.class)));
+                    nombreVisible(fila.get("nombres", String.class), fila.get("apellidos", String.class)),
+                    nombreCompleto(fila.get("nombres", String.class), fila.get("apellidos", String.class)),
+                    fila.get("telefono_e164", String.class));
         });
     }
 
@@ -55,7 +57,23 @@ public class ConsultarMiPerfil {
         return primero + " " + Character.toUpperCase(apellidos.trim().charAt(0)) + ".";
     }
 
+    /**
+     * Nombres y apellidos tal como se cargaron, con los espacios normalizados: lo que ve el organizador en la
+     * solicitud de quien pide unirse (decision del dueño 2026-10-20). Null si no hay nombre.
+     */
+    public static String nombreCompleto(String nombres, String apellidos) {
+        if (nombres == null || nombres.isBlank()) return null;
+        String completo = nombres.trim() + (apellidos == null || apellidos.isBlank() ? "" : " " + apellidos.trim());
+        return completo.replaceAll("\\s+", " ");
+    }
+
     /** {@code estadoDeCuenta}: si todavia falta verificar la identidad, si esta en revision o si opera. */
     public record Perfil(
-            UUID usuarioId, String correo, boolean correoVerificado, String estadoDeCuenta, String nombreVisible) {}
+            UUID usuarioId,
+            String correo,
+            boolean correoVerificado,
+            String estadoDeCuenta,
+            String nombreVisible,
+            String nombreCompleto,
+            String telefono) {}
 }

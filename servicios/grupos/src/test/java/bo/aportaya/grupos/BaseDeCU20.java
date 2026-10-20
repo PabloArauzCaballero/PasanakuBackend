@@ -87,6 +87,10 @@ abstract class BaseDeCU20 {
     }
 
     protected EntradaCreacion entrada(UUID tarifario, boolean conLicencia, boolean conTarifario) {
+        return entrada(tarifario, conLicencia, conTarifario, 100);
+    }
+
+    protected EntradaCreacion entrada(UUID tarifario, boolean conLicencia, boolean conTarifario, int limiteDeGrupos) {
         return new EntradaCreacion(
                 datos(),
                 Optional.of(organizador),
@@ -94,7 +98,15 @@ abstract class BaseDeCU20 {
                 conTarifario ? Optional.of(tarifario) : Optional.empty(),
                 conLicencia,
                 true,
-                UUID.randomUUID());
+                UUID.randomUUID(),
+                limiteDeGrupos);
+    }
+
+    protected int gruposVivosDelOrganizador() {
+        return dsl.fetchOne(
+                        "SELECT count(*)::int FROM grupos.grupo WHERE organizador_id = ? AND estado NOT IN ('FINALIZADO','CANCELADO','DISUELTO_ANTICIPADAMENTE')",
+                        organizador)
+                .get(0, Integer.class);
     }
 
     protected SalidaCreacion crear(UUID tarifario) {

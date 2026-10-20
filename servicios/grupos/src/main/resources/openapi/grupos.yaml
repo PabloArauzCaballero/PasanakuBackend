@@ -506,7 +506,7 @@ paths:
               schema: { $ref: '#/components/schemas/SalidaEnlaceDelGrupo' }
         '422':
           $ref: '#/components/responses/ReglaDeNegocio'
-          # AP-CU69-07 EMISOR_NO_HABILITADO · AP-CU69-01 SIN_CUPOS_LIBRES
+          # AP-CU69-07 EMISOR_NO_HABILITADO · AP-CU69-01 SIN_CUPOS_LIBRES · AP-CU69-12 GRUPO_TODAVIA_NO_ABIERTO
 
   /grupos/{grupoId}/enlace-del-grupo/anulacion:
     post:
@@ -809,7 +809,7 @@ paths:
           $ref: '#/components/responses/ReglaDeNegocio'
           # AP-CU20-01 SIN_TARIFARIO_VIGENTE     · AP-CU20-02 ORGANIZADOR_NO_HABILITADO
           # AP-CU20-03 TARIFA_YA_CONGELADA       · AP-CU20-04 SERVICIO_NO_AUTORIZADO
-          # AP-CU20-05 KYC_INSUFICIENTE_DEL_CREADOR
+          # AP-CU20-05 KYC_INSUFICIENTE_DEL_CREADOR · AP-CU20-06 LIMITE_DE_GRUPOS_ALCANZADO
 
   /grupos/participantes/alias/{alias}:
     get:
@@ -1235,7 +1235,9 @@ components:
         cuposSolicitados: { type: integer, minimum: 1 }
         mensaje:          { type: [string, 'null'], maxLength: 500 }
         puntaje:          { type: [string, 'null'] }
-        nombreVisible:    { type: [string, 'null'], maxLength: 60, description: 'Primer nombre e inicial del apellido de quien pide entrar' }
+        nombreVisible:    { type: [string, 'null'], maxLength: 60, description: 'Nombre completo de quien pide entrar por el enlace del grupo' }
+        telefono:         { type: [string, 'null'], maxLength: 20, description: 'Telefono E.164 de quien pide entrar por el enlace del grupo' }
+        correo:           { type: [string, 'null'], maxLength: 150, description: 'Correo de quien pide entrar por el enlace del grupo' }
         porEnlace:        { type: boolean, description: 'La pidio con el enlace del grupo' }
         estado:           { type: string, enum: [PENDIENTE, APROBADA, RECHAZADA, EXPIRADA] }
         fechaSolicitud:   { type: string, format: date-time }

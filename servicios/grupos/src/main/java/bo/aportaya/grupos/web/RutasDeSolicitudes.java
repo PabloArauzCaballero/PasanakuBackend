@@ -91,6 +91,8 @@ abstract class RutasDeSolicitudes extends RutasDeAdmision {
                     o.setEstado(SolicitudDeIngreso.EstadoEnum.fromValue(s.estado()));
                     o.setFechaSolicitud(s.fecha());
                     o.setNombreVisible(s.nombreVisible());
+                    o.setTelefono(s.telefono());
+                    o.setCorreo(s.correo());
                     o.setPorEnlace(s.porEnlace());
                     return o;
                 })
