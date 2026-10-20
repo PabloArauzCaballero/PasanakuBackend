@@ -24,6 +24,7 @@ METODOS = ("get", "post", "put", "patch", "delete")
 CONOCIDAS_SIN_CONTRATO: dict[str, str] = {
     "POST /extraccion/accesos": "registro de lecturas del backoffice: sin servicio `extraccion` en este repositorio",
     "POST /extraccion/exportaciones": "exportaciones: sin servicio `extraccion` en este repositorio",
+    "GET /grupos/solicitudes": "bandeja de solicitudes de admisión humana en backoffice (CU-68)",
     "GET /grupos/solicitudes-escaladas": "cola de solicitudes escaladas: CU-68 no publica el listado (d15-solicitudes-escaladas.ts)",
     "GET /identidad/tutoriales/progreso": "progreso de tutoriales en servidor: sin operación en identidad.yaml (ADR-045)",
     "PUT /identidad/tutoriales/progreso/{x}": "progreso de tutoriales en servidor: sin operación en identidad.yaml (ADR-045)",

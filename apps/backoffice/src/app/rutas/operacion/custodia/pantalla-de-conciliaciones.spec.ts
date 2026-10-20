@@ -6,14 +6,14 @@ import { provideRouter } from '@angular/router'
 import { ejemploDe } from '@aportaya/simulado'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { erroresInterceptor } from '../../../nucleo/errores.interceptor'
-import { GATEWAY } from '../../../nucleo/gateway'
+import { GATEWAY, GW } from '../../../nucleo/gateway'
 import { Sesion } from '../../../nucleo/sesion'
 import { TablaDeDatosVirtualizada } from '../../../nucleo/tabla/tabla-de-datos-virtualizada'
 import type { ConciliacionEnLista } from './dominio/cu50-conciliaciones'
 import { PantallaDeConciliaciones } from './pantalla-de-conciliaciones'
 
 /** **UI contra HTTP simulado** de `listarConciliaciones` (CU-50). Página del ejemplo generado del contrato (sintética). */
-const URL = 'http://gw/api/v1/custodia/conciliaciones'
+const URL = `${GW}/custodia/conciliaciones`
 const OK = ejemploDe('nucleo-financiero', 'listarConciliaciones', 'ok').cuerpo as { items: ConciliacionEnLista[]; proximoAntesDe: string; proximoAntesDeId: string }
 
 describe('PantallaDeConciliaciones · [UI contra HTTP simulado] CU-50', () => {
@@ -21,7 +21,7 @@ describe('PantallaDeConciliaciones · [UI contra HTTP simulado] CU-50', () => {
   beforeEach(() => {
     if (!Element.prototype.scrollTo) Element.prototype.scrollTo = () => {}
     TestBed.configureTestingModule({
-      providers: [provideZonelessChangeDetection(), provideRouter([]), provideHttpClient(withInterceptors([erroresInterceptor])), provideHttpClientTesting(), { provide: GATEWAY, useValue: 'http://gw/api/v1' }],
+      providers: [provideZonelessChangeDetection(), provideRouter([]), provideHttpClient(withInterceptors([erroresInterceptor])), provideHttpClientTesting(), { provide: GATEWAY, useValue: GW }],
     })
     http = TestBed.inject(HttpTestingController)
   })

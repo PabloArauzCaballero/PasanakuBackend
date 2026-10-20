@@ -8,6 +8,7 @@ class TextosInvitacion {
   static const tituloInvitar = 'Invitar a un contacto';
   static const accionInvitar = 'Invitar a alguien a mi grupo';
   static const accionCrearGrupo = 'Organizar un grupo nuevo';
+  static const accionUnirseAGrupo = 'Unirse a un grupo';
   static const telefonoInvitado = 'Celular de la persona';
   static const nombreSugerido = 'Cómo la conocés (opcional)';
   static const canalInvitacion = 'Por dónde se la vas a mandar';

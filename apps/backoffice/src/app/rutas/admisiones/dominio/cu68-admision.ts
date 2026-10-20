@@ -93,3 +93,26 @@ export function esMiResolucion(historial: readonly DecisionDeIngreso[], propuest
   const r = resolucionDe(historial)
   return r !== null && r.propuestaId === propuestaId && r.decision === decision && r.motivo === motivo
 }
+
+/** Resumen de una solicitud de ingreso para la bandeja del backoffice. */
+export type SolicitudDeAdmision = {
+  solicitudId: string
+  usuarioId: string
+  postulante: string
+  grupoId: string
+  grupoCodigo: string
+  cuposSolicitados: number
+  mensaje?: string
+  puntaje?: string | number
+  porEnlace?: boolean
+  estado: 'PENDIENTE' | 'ACEPTADA' | 'RECHAZADA' | 'CANCELADA' | 'EXPIRADA' | string
+  fechaSolicitud: string
+}
+
+/**
+ * `GET /grupos/solicitudes`: Bandeja general de solicitudes de ingreso del backoffice.
+ */
+export function solicitudesDeAdmision() {
+  const gateway = inject(GATEWAY)
+  return httpResource<SolicitudDeAdmision[]>(() => `${gateway}/grupos/solicitudes`)
+}

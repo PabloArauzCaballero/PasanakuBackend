@@ -172,4 +172,15 @@ class _CompartirFalso implements Compartir {
     ultimoTexto = texto;
     return abre;
   }
+
+  @override
+  Future<bool> imagen({
+    required String ruta,
+    required String texto,
+    bool porWhatsApp = true,
+  }) async {
+    llamadas.add('imagen $ruta');
+    ultimoTexto = texto;
+    return abre;
+  }
 }

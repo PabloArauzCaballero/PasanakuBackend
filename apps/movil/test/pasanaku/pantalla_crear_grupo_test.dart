@@ -78,6 +78,52 @@ void main() {
       expect(cuerpos.single['fechaDeInicio'], isNotNull);
     },
   );
+  // Hallazgo del dueño en el teléfono (2026-10-20): después de crear un grupo, volver a
+  // «Organizar un grupo nuevo» mostraba «Grupo creado» del anterior y no el formulario.
+  testWidgets(
+    'después de crear un grupo, volver a entrar muestra el formulario vacío',
+    (tester) async {
+      final (:dio, :adaptador) = dioSimulado();
+      organizadorHabilitado(adaptador);
+      adaptador.onPost(
+        '/grupos',
+        (s) => s.reply(201, ejemplo('grupos', 'crearGrupo', 'ok')['cuerpo']),
+        data: Matchers.any,
+      );
+      final mostrar = ValueNotifier(true);
+      addTearDown(mostrar.dispose);
+      await tester.pumpWidget(
+        conApp(
+          ValueListenableBuilder<bool>(
+            valueListenable: mostrar,
+            builder: (_, visible, _) => visible
+                ? const PantallaCrearGrupo()
+                : const Text('pestaña Grupos'),
+          ),
+          dio: dio,
+        ),
+      );
+      await asentar(tester);
+      await tester.pump();
+      final campos = find.byType(EditableText);
+      await tester.enterText(campos.at(0), 'Grupo de prueba');
+      await tester.enterText(campos.at(1), '100,00');
+      await tester.pump();
+      await tester.tap(find.widgetWithText(Boton, 'Crear grupo'));
+      await asentar(tester);
+      expect(find.widgetWithText(Boton, 'Crear grupo'), findsNothing);
+
+      mostrar.value = false;
+      await asentar(tester);
+      mostrar.value = true;
+      await asentar(tester);
+      await tester.pump();
+
+      expect(find.widgetWithText(Boton, 'Crear grupo'), findsOneWidget);
+      expect(find.text('Grupo de prueba'), findsNothing);
+    },
+  );
+
   // Carril H3 (servidor TEST real): «00,00» encendía el botón, y el 422 AP-CU20-04 (licencia sin otorgar) no
   // se mostraba en ningún lado: la persona apretaba y no pasaba nada.
   testWidgets('límite: un monto en cero deja el botón apagado', (tester) async {

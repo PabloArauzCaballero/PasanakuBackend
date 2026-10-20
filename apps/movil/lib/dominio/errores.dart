@@ -51,8 +51,7 @@ const Map<String, String> _catalogo = {
       'No pudimos enviar el código al correo verificado. Esperá un minuto y volvé a pedirlo.',
   // CU-13 · el saldo. Con TEST real, la cuenta que la app consulta no existe (422) y se leía como falla del servidor.
   'AP-CU13-01': 'Tu billetera todavía no está activa.',
-  // CU-20 · crear grupo. Con el servidor TEST real, AP-CU20-04 (licencia sin otorgar, R-LIC-01) llegaba como
-  // «Algo salió mal de nuestro lado»: era un rechazo de negocio explicable, no una falla.
+  // CU-20 · crear grupo: rechazos de negocio explicables, no «algo salió mal» (carril H3, TEST real).
   'AP-CU20-01':
       'Todavía no hay una tarifa vigente para crear grupos. Probá más adelante.',
   'AP-CU20-02': 'Tu cuenta todavía no está habilitada para organizar grupos.',
@@ -62,6 +61,7 @@ const Map<String, String> _catalogo = {
       'Organizar grupos todavía no está disponible en AportaYa. Probá más adelante.',
   'AP-CU20-05':
       'Necesitás subir tu nivel de verificación antes de organizar un grupo.',
+  'AP-CU20-06': 'Ya organizás el máximo de grupos que permite tu cuenta.',
   // CU-69 · invitar y unirse por enlace: los códigos y su significado están en grupos.yaml.
   'AP-CU69-01': 'Ya no hay cupos libres en este grupo.',
   'AP-CU69-03': 'Esa persona ya forma parte del grupo.',

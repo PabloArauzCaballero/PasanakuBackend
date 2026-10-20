@@ -6,7 +6,7 @@ tabla: solicitud_ingreso
 clase: SolicitudIngreso
 modulo: "02 — Grupos, Cupos, Turnos y Gobernanza"
 clave_primaria: [id]
-columnas: 12
+columnas: 14
 fk_salientes: 4
 fk_entrantes: 0
 append_only: false
@@ -29,6 +29,8 @@ append_only: false
 | `puntaje_compatibilidad` | DECIMAL(5,2) | — | sí | NULL |
 | `enlace_grupo_id` | UUID | FK IDX | sí | FK, NULL, IDX |
 | `nombre_visible` | VARCHAR(60) | — | sí | NULL |
+| `telefono_contacto` | VARCHAR(20) | — | sí | NULL |
+| `correo_contacto` | VARCHAR(150) | — | sí | NULL |
 | `revisada_por` | UUID | FK | sí | FK, NULL |
 | `fecha_solicitud` | TIMESTAMPTZ | — | no | — |
 | `fecha_resolucion` | TIMESTAMPTZ | — | sí | NULL |

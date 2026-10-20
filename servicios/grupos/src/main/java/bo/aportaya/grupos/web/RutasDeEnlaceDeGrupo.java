@@ -91,8 +91,8 @@ abstract class RutasDeEnlaceDeGrupo extends RutasDeInvitacion {
         Traza.marcarCasoDeUso("CU-69", grupoId.toString());
         var postulacion = new EntradaPostulacion(1).mensaje(cuerpo.getMensaje());
         var entrada = MapeoDePostulacion.entrada(grupoId, postulacion, consultas, afuera, afinidad, ctx);
-        String nombre = afuera.nombreVisibleDeLaSesion().orElse(null);
-        var s = enlacesDeGrupo.solicitar(cuerpo.getCodigo(), entrada, nombre, ctx);
+        var contacto = afuera.contactoDeLaSesion().orElse(null);
+        var s = enlacesDeGrupo.solicitar(cuerpo.getCodigo(), entrada, contacto, ctx);
         return ResponseEntity.status(201)
                 .body(new SalidaSolicitudPorEnlace(
                         s.solicitudId(), s.grupoId(), SalidaSolicitudPorEnlace.EstadoEnum.PENDIENTE));

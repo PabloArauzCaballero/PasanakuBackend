@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import bo.aportaya.grupos.aplicacion.CU68Postular;
 import bo.aportaya.grupos.aplicacion.CU69EnlaceDeGrupo;
+import bo.aportaya.grupos.dominio.puertos.HechosDeOtrosServicios;
 import bo.aportaya.grupos.infraestructura.AdmisionRepositorio;
 import bo.aportaya.grupos.infraestructura.EmparejamientoRepositorio;
 import bo.aportaya.plataforma.datos.Datos;
@@ -21,6 +22,10 @@ import org.junit.jupiter.api.Test;
 
 /** CU-69 · El enlace del grupo (2026-10-19): un enlace para cualquiera; cada pedido lo aprueba el organizador. */
 class CU69EnlaceDeGrupoTest extends BaseDeCU68 {
+    // Datos sinteticos.
+    private static final HechosDeOtrosServicios.Contacto ROSA =
+            new HechosDeOtrosServicios.Contacto("Rosa Quispe", "+59170000001", "rosa@correo.test");
+
     private CU69EnlaceDeGrupo enlaces;
     private UUID grupo;
     private ContextoSesion organizador;
@@ -96,13 +101,18 @@ class CU69EnlaceDeGrupoTest extends BaseDeCU68 {
         var detalle = transaccion.execute(s -> enlaces.consultar(g.codigo(), contexto()));
         assertThat(detalle.cuposLibres()).isEqualTo(1);
 
-        var s1 = transaccion.execute(s -> enlaces.solicitar(g.codigo(), entrada(true), "Rosa Q.", contexto()));
+        var s1 = transaccion.execute(s -> enlaces.solicitar(g.codigo(), entrada(true), ROSA, contexto()));
 
         var fila = dslFixtura.fetchOne(
-                "SELECT estado, nombre_visible, enlace_grupo_id FROM grupos.solicitud_ingreso WHERE id = ?",
+                """
+                SELECT estado, nombre_visible, telefono_contacto, correo_contacto, enlace_grupo_id
+                  FROM grupos.solicitud_ingreso WHERE id = ?
+                """,
                 s1.solicitudId());
         assertThat(fila.get("estado", String.class)).isEqualTo("PENDIENTE");
-        assertThat(fila.get("nombre_visible", String.class)).isEqualTo("Rosa Q.");
+        assertThat(fila.get("nombre_visible", String.class)).isEqualTo("Rosa Quispe");
+        assertThat(fila.get("telefono_contacto", String.class)).isEqualTo("+59170000001");
+        assertThat(fila.get("correo_contacto", String.class)).isEqualTo("rosa@correo.test");
         assertThat(fila.get("enlace_grupo_id", UUID.class)).isEqualTo(g.enlaceId());
         // Pedir no da entrada: nadie se vuelve participante sin la decision del organizador.
         assertThat(contar(
@@ -117,8 +127,8 @@ class CU69EnlaceDeGrupoTest extends BaseDeCU68 {
             + "Entonces recibe la misma solicitud y no se crea otra")
     void repetirElPedidoNoDuplica() {
         var g = transaccion.execute(s -> enlaces.generar(grupo, organizador));
-        var uno = transaccion.execute(s -> enlaces.solicitar(g.codigo(), entrada(true), "Rosa Q.", contexto()));
-        var dos = transaccion.execute(s -> enlaces.solicitar(g.codigo(), entrada(true), "Rosa Q.", contexto()));
+        var uno = transaccion.execute(s -> enlaces.solicitar(g.codigo(), entrada(true), ROSA, contexto()));
+        var dos = transaccion.execute(s -> enlaces.solicitar(g.codigo(), entrada(true), ROSA, contexto()));
 
         assertThat(dos.solicitudId()).isEqualTo(uno.solicitudId());
         assertThat(contar("SELECT count(*)::int FROM grupos.solicitud_ingreso WHERE grupo_id = ?", grupo))
@@ -190,6 +200,19 @@ class CU69EnlaceDeGrupoTest extends BaseDeCU68 {
                 .isInstanceOf(ErrorDeNegocio.class)
                 .satisfies(
                         e -> assertThat(((ErrorDeNegocio) e).codigo().valor()).isEqualTo("AP-CU69-01"));
+    }
+
+    @Test
+    @DisplayName("Dado un grupo que todavia esta en BORRADOR · Cuando el organizador genera el enlace · "
+            + "Entonces recibe AP-CU69-12 y no queda ningun enlace")
+    void rechazaGenerarSiElGrupoTodaviaNoEstaAbierto() {
+        dslFixtura.execute("UPDATE grupos.grupo SET estado = 'BORRADOR' WHERE id = ?", grupo);
+        assertThatThrownBy(() -> transaccion.execute(s -> enlaces.generar(grupo, organizador)))
+                .isInstanceOf(ErrorDeNegocio.class)
+                .satisfies(
+                        e -> assertThat(((ErrorDeNegocio) e).codigo().valor()).isEqualTo("AP-CU69-12"));
+        assertThat(contar("SELECT count(*)::int FROM grupos.enlace_grupo WHERE grupo_id = ?", grupo))
+                .isZero();
     }
 
     @Test
