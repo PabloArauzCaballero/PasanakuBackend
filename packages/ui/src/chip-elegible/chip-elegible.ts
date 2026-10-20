@@ -41,15 +41,15 @@ import { Icono, NombreDeIcono } from '../icono/icono'
     button:hover:not(:disabled):not([aria-pressed="true"]) {
       background: var(--surface-2);
       border-color: var(--g400);
-      transform: translateY(-1px);
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      transform: translateY(-0.0625rem);
+      box-shadow: var(--sombra-2);
     }
     button[aria-pressed="true"] {
       background: var(--verde-solido);
       color: var(--sobre-verde-solido);
       border-color: var(--verde-solido);
       font-weight: 600;
-      box-shadow: 0 2px 10px rgba(60, 147, 102, 0.35);
+      box-shadow: var(--sombra-2);
     }
     button:disabled { opacity: .5; cursor: not-allowed; }
     button:focus-visible { outline: var(--borde-foco) solid var(--g300); outline-offset: var(--borde-desfase); }

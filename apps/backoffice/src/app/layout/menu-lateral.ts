@@ -66,14 +66,14 @@ import { IconoDeSeccion } from './icono-de-seccion'
       text-transform: uppercase;
       user-select: none;
     }
-    ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+    ul { list-style: none; margin: 0; padding: 0; display: grid; gap: calc(var(--s1) / 2); }
     .entrada-fila { display: flex; align-items: center; width: 100%; border-radius: var(--r-md); position: relative; }
     .entrada-fila a { flex: 1; min-width: 0; }
     a {
       display: flex;
       align-items: center;
       gap: var(--s2);
-      min-height: calc(var(--area-tactil) - 6px);
+      min-height: calc(var(--area-tactil) - var(--s2));
       padding: var(--s2) var(--s3);
       border-radius: var(--r-md);
       font: var(--t-cuerpo-chico);
@@ -88,13 +88,13 @@ import { IconoDeSeccion } from './icono-de-seccion'
     a:hover {
       background: color-mix(in srgb, var(--white) 9%, transparent);
       color: var(--white);
-      transform: translateX(2px);
+      transform: translateX(calc(var(--s1) / 2));
     }
     a.activo {
       background: color-mix(in srgb, var(--g400) 24%, transparent);
       color: var(--white);
       font-weight: 600;
-      box-shadow: inset 3px 0 0 var(--g300), 0 0 16px rgba(60, 147, 102, 0.16);
+      box-shadow: inset var(--borde-foco) 0 0 var(--g300), var(--sombra-2);
     }
     a.activo .icono-padre,
     a.activo .icono-hijo {
@@ -107,11 +107,11 @@ import { IconoDeSeccion } from './icono-de-seccion'
     a:hover .icono-padre { opacity: 1; transform: scale(1.08); }
 
     .hijos {
-      margin: 2px 0 6px var(--s3);
+      margin: calc(var(--s1) / 2) 0 var(--s2) var(--s3);
       padding-left: var(--s2);
-      border-left: 1.5px solid color-mix(in srgb, var(--white) 12%, transparent);
+      border-left: var(--borde-fino) solid color-mix(in srgb, var(--white) 12%, transparent);
       display: grid;
-      gap: 2px;
+      gap: calc(var(--s1) / 2);
     }
     .hijos a {
       min-height: 2.125rem;
@@ -123,13 +123,13 @@ import { IconoDeSeccion } from './icono-de-seccion'
     .hijos a:hover {
       color: var(--white);
       background: color-mix(in srgb, var(--white) 7%, transparent);
-      transform: translateX(2px);
+      transform: translateX(calc(var(--s1) / 2));
     }
     .hijos a.activo {
       color: var(--white);
       background: color-mix(in srgb, var(--g400) 28%, transparent);
       font-weight: 600;
-      box-shadow: inset 2.5px 0 0 var(--g300);
+      box-shadow: inset var(--borde-desfase) 0 0 var(--g300);
     }
     .texto-hijo { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .icono-hijo {

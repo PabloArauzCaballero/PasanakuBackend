@@ -43,7 +43,7 @@ import { Icono } from '../icono/icono'
       width: 100%;
       align-items: center;
       gap: var(--s2);
-      min-height: calc(var(--area-tactil) - 4px);
+      min-height: calc(var(--area-tactil) - var(--s1));
       padding: 0 var(--s3);
       border: 0;
       border-radius: var(--r-lg);

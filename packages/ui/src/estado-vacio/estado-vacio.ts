@@ -42,7 +42,7 @@ import type { MotivoVacio } from '../estado-de-pantalla/estado-de-pantalla'
       border-radius: var(--r-pill);
       background: linear-gradient(135deg, var(--surface-2), var(--surface));
       color: var(--brand-texto);
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+      box-shadow: var(--sombra-2);
     }
     p { margin: 0; max-width: 48ch; }
     .titulo { font-size: 1.05rem; font-weight: 600; color: var(--text); letter-spacing: -0.01em; }

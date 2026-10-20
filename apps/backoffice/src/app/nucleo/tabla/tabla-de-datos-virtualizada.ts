@@ -14,9 +14,7 @@ import {
   untracked,
 } from '@angular/core'
 import { DOCUMENT, NgTemplateOutlet } from '@angular/common'
-import { Casilla } from '@aportaya/ui/casilla/casilla'
-import { Icono } from '@aportaya/ui/icono/icono'
-import { Paginacion } from '@aportaya/ui/paginacion/paginacion'
+import { Casilla } from '@aportaya/ui/casilla/casilla'; import { Icono } from '@aportaya/ui/icono/icono'; import { Paginacion } from '@aportaya/ui/paginacion/paginacion'
 import type { CargadorDePagina, ColumnaVirtual, OrdenVirtual } from './tipos'
 import { accionParaTecla, enfocarFilaPorId } from './navegacion-por-teclado'
 
@@ -95,8 +93,7 @@ import { accionParaTecla, enfocarFilaPorId } from './navegacion-por-teclado'
     .cargando { color: var(--text-3); font-size: .85em; }
     .error { color: var(--rojo-texto, var(--text)); background: var(--surface-2); border-radius: var(--r-md); padding: var(--s3) var(--s4); margin: 0 0 var(--s3); }
     .marco { border: var(--borde-fino) solid var(--border); border-radius: var(--r-lg); background: var(--surface); overflow: hidden; box-shadow: var(--sombra-2); }
-    .fila { display: flex; align-items: center; border-top: var(--borde-fino) solid var(--border); transition: background-color var(--mov-micro) ease; }
-    .fila:hover:not(.fila-cabecera) { background: color-mix(in srgb, var(--surface-2) 65%, transparent); }
+    .fila { display: flex; align-items: center; border-top: var(--borde-fino) solid var(--border); transition: background-color var(--mov-micro) ease; } .fila:hover:not(.fila-cabecera) { background: color-mix(in srgb, var(--surface-2) 65%, transparent); }
     .fila-cabecera { border-top: 0; background: color-mix(in srgb, var(--surface-2) 85%, var(--surface)); font-weight: 600; font-size: 0.8125rem; letter-spacing: 0.02em; color: var(--text-2); } .fila:first-child { border-top: 0; }
     .celda { padding: var(--s3) var(--s4); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.875rem; }
     .celda.numerica { text-align: right; font-variant-numeric: tabular-nums; } .celda.marca { flex: 0 0 var(--s7); }
