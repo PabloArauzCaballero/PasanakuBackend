@@ -8,6 +8,7 @@ import static bo.aportaya.identidad.generado.Tables.USUARIO;
 import static bo.aportaya.identidad.generado.Tables.USUARIO_INTERNO;
 
 import bo.aportaya.identidad.dominio.PermisosEfectivos;
+import bo.aportaya.identidad.dominio.SegregacionDeFunciones;
 import bo.aportaya.identidad.dominio.puertos.HasheadorDeCredencial;
 import bo.aportaya.identidad.web.generado.modelo.EntradaActualizarUsuarioInterno;
 import bo.aportaya.identidad.web.generado.modelo.EntradaAltaUsuarioInterno;
@@ -138,6 +139,13 @@ public class UsuariosInternosRepositorio {
 
     public UsuarioInternoDetalle crear(
             DSLContext dsl, EntradaAltaUsuarioInterno entrada, UUID operadorId, OffsetDateTime ahora) {
+        if (dsl.fetchExists(dsl.selectOne().from(USUARIO).where(USUARIO.CORREO.eq(entrada.getCorreo())))) {
+            throw new ErrorDeNegocio(CodigoError.de(1, 2), "Ya existe un usuario registrado con ese correo.");
+        }
+        if (dsl.fetchExists(dsl.selectOne().from(USUARIO).where(USUARIO.TELEFONO_E164.eq(entrada.getTelefono())))) {
+            throw new ErrorDeNegocio(CodigoError.de(1, 3), "Ya existe un usuario registrado con ese telefono.");
+        }
+
         UUID rolId = dsl.select(ROL.ID)
                 .from(ROL)
                 .where(ROL.CODIGO.eq(entrada.getRolCodigo()))
@@ -145,7 +153,8 @@ public class UsuariosInternosRepositorio {
                 .orElseThrow(() -> new ErrorDeNegocio(CodigoError.de(8, 1), "El rol especificado no existe."));
 
         UUID usuarioId = UUID.randomUUID();
-        String codigoPublico = "OP-" + String.format("%04d", RANDOM.nextInt(10000));
+        String codigoPublico =
+                "OP-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase(java.util.Locale.ROOT);
 
         dsl.insertInto(USUARIO)
                 .set(USUARIO.ID, usuarioId)
@@ -210,10 +219,19 @@ public class UsuariosInternosRepositorio {
                     .execute();
         }
         if (entrada.getEstado() != null) {
+            String nuevoEstado = entrada.getEstado().getValue();
             dsl.update(USUARIO)
-                    .set(USUARIO.ESTADO, entrada.getEstado().getValue())
+                    .set(USUARIO.ESTADO, nuevoEstado)
                     .where(USUARIO.ID.eq(uId))
                     .execute();
+
+            if (!"ACTIVO".equalsIgnoreCase(nuevoEstado)) {
+                String motivo =
+                        entrada.getMotivo() != null && !entrada.getMotivo().isBlank()
+                                ? entrada.getMotivo()
+                                : "Cambio de estado a " + nuevoEstado;
+                accesos.cerrarSesionesDe(dsl, uId, motivo, ahora);
+            }
         }
 
         return consultar(dsl, uId, ahora).orElseThrow();
@@ -227,7 +245,30 @@ public class UsuariosInternosRepositorio {
             OffsetDateTime ahora) {
         UUID uId = resolverUsuarioId(dsl, usuarioId);
 
-        // Revocar asignaciones vivas existentes
+        if (uId.equals(operadorId)) {
+            throw new ErrorDeNegocio(CodigoError.de(8, 4), "Nadie se amplia sus propios permisos.");
+        }
+
+        Set<String> resultantes = new java.util.TreeSet<>();
+        List<UUID> nuevosRolIds = new ArrayList<>();
+        for (String codRol : entrada.getRoles()) {
+            UUID rId = dsl.select(ROL.ID)
+                    .from(ROL)
+                    .where(ROL.CODIGO.eq(codRol))
+                    .fetchOptional(ROL.ID)
+                    .orElseThrow(() -> new ErrorDeNegocio(CodigoError.de(8, 1), "El rol " + codRol + " no existe."));
+            nuevosRolIds.add(rId);
+            resultantes.addAll(accesos.permisosDelRol(dsl, rId));
+        }
+
+        SegregacionDeFunciones.conflicto(resultantes).ifPresent(par -> {
+            throw new ErrorDeNegocio(
+                    CodigoError.de(8, 3),
+                    "Nadie autoriza y ejecuta la misma operacion.",
+                    java.util.Map.of("parIncompatible", par));
+        });
+
+        // Revocar asignaciones vivas existentes garantizando permanencia de administracion de accesos
         List<UUID> asignacionesVivas = dsl.select(ASIGNACION_ROL.ID)
                 .from(ASIGNACION_ROL)
                 .where(ASIGNACION_ROL.USUARIO_ID.eq(uId))
@@ -235,17 +276,21 @@ public class UsuariosInternosRepositorio {
                 .fetch(ASIGNACION_ROL.ID);
 
         for (UUID asigId : asignacionesVivas) {
+            boolean otorgaLaAdministracion = accesos.rolDe(dsl, asigId)
+                    .map(rol -> accesos.permisosDelRol(dsl, rol).contains("ACCESOS_ADMINISTRAR"))
+                    .orElse(false);
+            if (otorgaLaAdministracion && accesos.cuantosConservan(dsl, "ACCESOS_ADMINISTRAR", asigId) == 0) {
+                throw new ErrorDeNegocio(
+                        CodigoError.de(8, 6), "La plataforma no puede quedarse sin quien administre accesos.");
+            }
             accesos.revocar(dsl, asigId, entrada.getMotivo(), ahora);
         }
 
-        // Asignar los nuevos roles
-        for (String codRol : entrada.getRoles()) {
-            UUID rId = dsl.select(ROL.ID)
-                    .from(ROL)
-                    .where(ROL.CODIGO.eq(codRol))
-                    .fetchOptional(ROL.ID)
-                    .orElseThrow(() -> new ErrorDeNegocio(CodigoError.de(8, 1), "El rol " + codRol + " no existe."));
+        // Invalidar sesiones activas del usuario al revocar/rotar roles
+        accesos.cerrarSesionesDe(dsl, uId, entrada.getMotivo(), ahora);
 
+        // Asignar los nuevos roles
+        for (UUID rId : nuevosRolIds) {
             accesos.asignar(dsl, uId, rId, "GLOBAL", Optional.empty(), operadorId, Optional.empty(), ahora);
         }
 
