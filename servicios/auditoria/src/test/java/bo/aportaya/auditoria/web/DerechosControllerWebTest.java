@@ -35,7 +35,7 @@ import org.springframework.test.web.servlet.MockMvc;
  * hay datos retenidos por obligación regulatoria es una respuesta que incumple mientras
  * dice que cumple.
  */
-@PruebaWeb(DerechosController.class)
+@PruebaWeb(AuditoriaController.class)
 class DerechosControllerWebTest {
 
     private static final UUID USUARIO = UUID.fromString("a0000000-0000-4000-8000-000000000001");
@@ -54,6 +54,12 @@ class DerechosControllerWebTest {
 
     @MockitoBean
     private CU07EjercerDerechos cu07;
+
+    @MockitoBean
+    private bo.aportaya.auditoria.aplicacion.GestionarCatalogosOperativos catalogosCasoDeUso;
+
+    @MockitoBean
+    private bo.aportaya.auditoria.aplicacion.ConsultarBitacora bitacoraCasoDeUso;
 
     private org.springframework.test.web.servlet.ResultActions pedir(String cuerpo) throws Exception {
         return mvc.perform(post("/auditoria/derechos")

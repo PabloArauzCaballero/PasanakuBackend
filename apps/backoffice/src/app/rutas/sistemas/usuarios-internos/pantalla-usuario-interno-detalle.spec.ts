@@ -5,7 +5,7 @@ import { TestBed } from '@angular/core/testing'
 import { ActivatedRoute, provideRouter } from '@angular/router'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import type { UsuarioInternoDetalle } from 'clientes/angular/identidad'
-import { GATEWAY } from '../../../nucleo/gateway'
+import { GATEWAY, GW } from '../../../nucleo/gateway'
 import { PantallaUsuarioInternoDetalle } from './pantalla-usuario-interno-detalle'
 
 const USUARIO_DETALLE: UsuarioInternoDetalle = {
@@ -35,7 +35,7 @@ describe('PantallaUsuarioInternoDetalle', () => {
         provideRouter([]),
         provideHttpClient(),
         provideHttpClientTesting(),
-        { provide: GATEWAY, useValue: 'http://gw/api/v1' },
+        { provide: GATEWAY, useValue: GW },
         {
           provide: ActivatedRoute,
           useValue: { snapshot: { paramMap: { get: () => 'u-1' } } },
@@ -51,7 +51,7 @@ describe('PantallaUsuarioInternoDetalle', () => {
     const fixture = TestBed.createComponent(PantallaUsuarioInternoDetalle)
     fixture.detectChanges()
 
-    http.expectOne('http://gw/api/v1/usuarios-internos/u-1').flush(USUARIO_DETALLE)
+    http.expectOne(`${GW}/usuarios-internos/u-1`).flush(USUARIO_DETALLE)
     await fixture.whenStable()
     fixture.detectChanges()
 
