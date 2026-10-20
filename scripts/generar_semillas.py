@@ -522,6 +522,12 @@ def main():
         if lineas:
             print(f"{'':8} → {script.as_posix()}: bloque SQL-GENERADO al dia ({lineas} lineas)")
     print(f"total: {total} filas de semilla · validadas contra el modelo")
+
+    # procesar() vacía sql/60_semillas/ y con eso borraba los COMMENT ON del
+    # catálogo (24-metadata-comentarios.sql y su \ir en sembrar.sql). Se
+    # reescriben acá para que cada corrida deje la carpeta completa.
+    import inyectar_metadata
+    inyectar_metadata.generar()
     return 0
 
 
