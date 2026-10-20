@@ -1,34 +1,44 @@
 /* El shell: barra lateral oscura fija, cabecera fija «de vidrio» y el lienzo del contenido. Sin literales: todo por tokens. */
-.shell { display: grid; grid-template-columns: 17rem minmax(0, 1fr); grid-template-rows: auto 1fr; grid-template-areas: 'lateral cabecera' 'lateral contenido'; min-height: 100dvh; background: var(--bg); }
+.shell { display: grid; grid-template-columns: 17.5rem minmax(0, 1fr); grid-template-rows: auto 1fr; grid-template-areas: 'lateral cabecera' 'lateral contenido'; min-height: 100dvh; background: var(--bg); }
 .shell.angosto { grid-template-columns: minmax(0, 1fr); grid-template-areas: 'cabecera' 'contenido'; }
 
 .lateral {
-  grid-area: lateral; position: sticky; top: 0; height: 100dvh; display: flex; flex-direction: column; gap: var(--s4); padding: var(--s4) var(--s3); min-width: 0;
+  grid-area: lateral; position: sticky; top: 0; height: 100dvh; display: flex; flex-direction: column; gap: var(--s3); padding: var(--s4) var(--s3); min-width: 0;
   color: var(--white); overflow-y: auto; scrollbar-width: thin;
-  background: radial-gradient(circle at 0% 0%, color-mix(in srgb, var(--g400) 22%, transparent), transparent 45%), linear-gradient(180deg, var(--g800), var(--g900));
+  scrollbar-color: color-mix(in srgb, var(--white) 16%, transparent) transparent;
+  background: radial-gradient(ellipse at 15% 0%, color-mix(in srgb, var(--g400) 26%, transparent) 0%, transparent 60%), linear-gradient(180deg, #0d2b1d 0%, #06160f 100%);
+  border-right: 1px solid color-mix(in srgb, var(--white) 9%, transparent);
+  box-shadow: 4px 0 24px rgba(0, 0, 0, 0.16);
 }
-.marca { display: flex; align-items: center; gap: var(--s3); padding: var(--s1) var(--s2) var(--s3); border-bottom: var(--borde-fino) solid color-mix(in srgb, var(--white) 12%, transparent); color: inherit; text-decoration: none; }
+.lateral::-webkit-scrollbar { width: 6px; }
+.lateral::-webkit-scrollbar-track { background: transparent; }
+.lateral::-webkit-scrollbar-thumb { background: color-mix(in srgb, var(--white) 18%, transparent); border-radius: var(--r-pill); }
+.lateral::-webkit-scrollbar-thumb:hover { background: color-mix(in srgb, var(--white) 30%, transparent); }
+
+.marca { display: flex; align-items: center; gap: var(--s3); padding: var(--s2) var(--s3) var(--s3); border-bottom: 1px solid color-mix(in srgb, var(--white) 10%, transparent); color: inherit; text-decoration: none; border-radius: var(--r-md); transition: background-color var(--mov-micro) ease; }
+.marca:hover { background: color-mix(in srgb, var(--white) 5%, transparent); }
 .marca span { display: grid; line-height: 1.2; }
-.marca strong { font: var(--t-cuerpo-fuerte); letter-spacing: .06em; text-transform: uppercase; }
-.marca small { font: var(--t-cuerpo-chico); color: color-mix(in srgb, var(--white) 65%, transparent); }
+.marca strong { font: var(--t-cuerpo-fuerte); letter-spacing: .08em; text-transform: uppercase; color: var(--white); }
+.marca small { font-size: 0.75rem; letter-spacing: 0.04em; color: var(--g300); font-weight: 600; }
 .marca:focus-visible, .salir:focus-visible, .hamburguesa:focus-visible, .marca-chica:focus-visible { outline: var(--borde-foco) solid var(--g300); outline-offset: var(--borde-desfase); }
 .menu { flex: 1; }
-.salir { display: flex; align-items: center; gap: var(--s3); width: 100%; min-height: var(--area-tactil); padding: var(--s3) var(--s3) var(--s2); border: 0; border-top: var(--borde-fino) solid color-mix(in srgb, var(--white) 12%, transparent); background: transparent; color: color-mix(in srgb, var(--white) 78%, transparent); font: var(--t-cuerpo); cursor: pointer; transition: color var(--mov-micro) ease-out; }
-.salir:hover:not(:disabled) { color: var(--white); }
+.salir { display: flex; align-items: center; gap: var(--s3); width: 100%; min-height: var(--area-tactil); padding: var(--s3) var(--s3) var(--s2); border: 0; border-top: 1px solid color-mix(in srgb, var(--white) 10%, transparent); border-radius: var(--r-md); background: transparent; color: color-mix(in srgb, var(--white) 72%, transparent); font: var(--t-cuerpo-chico); font-weight: 500; cursor: pointer; transition: all var(--mov-micro) ease-out; margin-top: auto; }
+.salir:hover:not(:disabled) { color: #FFA3A3; background: color-mix(in srgb, var(--err) 18%, transparent); }
 .salir:disabled { cursor: progress; opacity: .7; }
 /* En el cajón del celular, «Salir» va sobre superficie clara. */
 ap-cajon-lateral .salir { width: auto; border: 0; color: var(--text); }
-ap-cajon-lateral ap-menu-lateral { display: block; margin: calc(var(--s4) * -1); padding: var(--s3); background: linear-gradient(180deg, var(--g800), var(--g900)); min-height: 100%; }
+ap-cajon-lateral ap-menu-lateral { display: block; margin: calc(var(--s4) * -1); padding: var(--s3); background: linear-gradient(180deg, #0d2b1d, #06160f); min-height: 100%; }
 
 .cabecera {
   grid-area: cabecera; position: sticky; top: 0; z-index: 10; display: flex; align-items: center; gap: var(--s3); padding: var(--s2) var(--s4);
-  border-bottom: var(--borde-fino) solid var(--border); background: color-mix(in srgb, var(--surface) 82%, transparent); backdrop-filter: blur(var(--s4)) saturate(1.1); -webkit-backdrop-filter: blur(var(--s4)) saturate(1.1);
+  border-bottom: 1px solid var(--border); background: color-mix(in srgb, var(--surface) 86%, transparent); backdrop-filter: blur(18px) saturate(1.25); -webkit-backdrop-filter: blur(18px) saturate(1.25);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
 }
 .hamburguesa { display: inline-flex; align-items: center; justify-content: center; width: var(--area-tactil); height: var(--area-tactil); margin-left: calc(var(--s2) * -1); border: 0; border-radius: var(--r-md); background: transparent; color: var(--text); cursor: pointer; }
 .hamburguesa:hover { background: var(--surface-2); }
 .marca-chica { display: inline-flex; }
 .vista { flex: 1; min-width: 0; display: grid; gap: calc(var(--s1) / 2); }
-.titulo-vista { margin: 0; font: var(--t-cuerpo-fuerte); color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.titulo-vista { margin: 0; font: var(--t-cuerpo-fuerte); letter-spacing: -0.01em; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .buscador { flex: 0 1 calc(var(--s7) * 8); }
 
 main { grid-area: contenido; min-width: 0; display: grid; grid-template-columns: minmax(0, 1fr); align-content: start; gap: var(--s4); padding: var(--s4) var(--s4) calc(var(--s7) + var(--s4)); }

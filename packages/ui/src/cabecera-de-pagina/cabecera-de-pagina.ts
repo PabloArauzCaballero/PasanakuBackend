@@ -32,12 +32,12 @@ import { Icono, NombreDeIcono } from '../icono/icono'
     :host { display: block; }
     header { display: flex; flex-direction: column; gap: var(--s4); }
     .identidad { display: flex; align-items: flex-start; gap: var(--s3); min-width: 0; }
-    .loseta { display: none; flex: none; width: calc(var(--s6) + var(--s2)); height: calc(var(--s6) + var(--s2)); align-items: center; justify-content: center; border-radius: var(--r-md); background: var(--brand-bg); color: var(--brand-texto); margin-top: var(--s1); }
+    .loseta { display: none; flex: none; width: calc(var(--s6) + var(--s2)); height: calc(var(--s6) + var(--s2)); align-items: center; justify-content: center; border-radius: var(--r-lg); background: linear-gradient(135deg, color-mix(in srgb, var(--brand-bg) 85%, var(--white)), var(--brand-bg)); border: 1px solid color-mix(in srgb, var(--brand) 28%, transparent); color: var(--brand-texto); margin-top: var(--s1); box-shadow: 0 4px 14px color-mix(in srgb, var(--brand) 18%, transparent); }
     .textos { min-width: 0; }
     .eyebrow { margin: 0 0 var(--s1); font: var(--t-eyebrow); letter-spacing: var(--t-eyebrow-track); text-transform: uppercase; color: var(--text-3); }
     /* En el celular el título se recompone en vez de encogerse: el rol titulo-1 en un teléfono angosto parte en tres líneas. */
-    h1 { margin: 0; font: var(--t-titulo-2); letter-spacing: var(--t-titulo-2-track); color: var(--brand-texto); overflow-wrap: anywhere; text-wrap: pretty; }
-    .descripcion { margin: var(--s1) 0 0; max-width: 70ch; font: var(--t-cuerpo-chico); color: var(--text-3); overflow-wrap: anywhere; }
+    h1 { margin: 0; font: var(--t-titulo-2); letter-spacing: var(--t-titulo-2-track); color: var(--text); overflow-wrap: anywhere; text-wrap: pretty; font-weight: 700; }
+    .descripcion { margin: var(--s1) 0 0; max-width: 70ch; font: var(--t-cuerpo-chico); color: var(--text-2); overflow-wrap: anywhere; line-height: 1.5; }
     /* Carril: en el celular tres botones se envolvían en tres líneas y empujaban el contenido fuera de la primera pantalla. */
     .acciones { display: flex; align-items: center; gap: var(--s2); overflow-x: auto; scrollbar-width: none; margin: 0 calc(var(--s3) * -1); padding: 0 var(--s3) var(--s1); }
     .acciones:empty { display: none; }

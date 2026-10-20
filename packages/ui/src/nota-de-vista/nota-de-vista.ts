@@ -26,15 +26,41 @@ import { Icono } from '../icono/icono'
     }
   `,
   styles: `
-    :host { display: block; border: var(--borde-fino) solid transparent; border-radius: var(--r-lg); transition: border-color var(--mov-micro) ease-out, background-color var(--mov-micro) ease-out; }
-    :host(.abierta) { border-color: var(--border); background: var(--surface); }
-    button { display: flex; width: 100%; align-items: center; gap: var(--s2); min-height: var(--area-tactil); padding: 0 var(--s3); border: 0; border-radius: var(--r-lg); background: transparent; color: var(--text-3); font: var(--t-campo-etiqueta); text-align: left; cursor: pointer; }
-    button:hover { background: var(--surface-2); }
+    :host {
+      display: block;
+      border: var(--borde-fino) solid color-mix(in srgb, var(--brand) 18%, var(--border));
+      border-radius: var(--r-lg);
+      background: color-mix(in srgb, var(--brand-bg) 35%, var(--surface));
+      transition: all var(--mov-micro) ease-out;
+    }
+    :host(.abierta) {
+      border-color: color-mix(in srgb, var(--brand) 30%, var(--border));
+      background: var(--surface);
+      box-shadow: var(--sombra-1);
+    }
+    button {
+      display: flex;
+      width: 100%;
+      align-items: center;
+      gap: var(--s2);
+      min-height: calc(var(--area-tactil) - 4px);
+      padding: 0 var(--s3);
+      border: 0;
+      border-radius: var(--r-lg);
+      background: transparent;
+      color: var(--text-2);
+      font: var(--t-campo-etiqueta);
+      font-weight: 500;
+      text-align: left;
+      cursor: pointer;
+      transition: background-color var(--mov-micro) ease;
+    }
+    button:hover { background: color-mix(in srgb, var(--brand-bg) 60%, transparent); color: var(--text); }
     button:focus-visible { outline: var(--borde-foco) solid var(--g300); outline-offset: var(--borde-desfase); }
     .bombilla, .chevron { color: var(--brand-texto); flex: none; }
     .chevron { margin-left: auto; transition: transform var(--mov-entrada) var(--curva-llega); }
     :host(.abierta) .chevron { transform: rotate(180deg); }
-    .cuerpo { padding: var(--s3) var(--s4); border-top: var(--borde-fino) solid var(--border); font: var(--t-cuerpo-chico); color: var(--text); max-width: 80ch; }
+    .cuerpo { padding: var(--s3) var(--s4); border-top: var(--borde-fino) solid var(--border); font: var(--t-cuerpo-chico); color: var(--text); max-width: 80ch; line-height: 1.55; }
   `,
 })
 export class NotaDeVista implements OnInit {

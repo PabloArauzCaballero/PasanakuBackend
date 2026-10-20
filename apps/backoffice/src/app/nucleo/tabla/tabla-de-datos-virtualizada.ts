@@ -91,13 +91,14 @@ import { accionParaTecla, enfocarFilaPorId } from './navegacion-por-teclado'
   styles: `
     :host { display: block; min-width: 0; max-width: 100%; } :host ::ng-deep .cdk-virtual-scroll-content-wrapper { width: 100%; /* sin esto, en tablet las filas crecían a su max-content y se desalineaban de la cabecera */ }
     .cabecera-tabla { display: flex; align-items: center; justify-content: space-between; gap: var(--s3); padding-bottom: var(--s3); }
-    h2 { font-size: 1.05em; color: var(--text); margin: 0; }
+    h2 { font: var(--t-titulo-3); font-weight: 600; color: var(--text); margin: 0; }
     .cargando { color: var(--text-3); font-size: .85em; }
     .error { color: var(--rojo-texto, var(--text)); background: var(--surface-2); border-radius: var(--r-md); padding: var(--s3) var(--s4); margin: 0 0 var(--s3); }
-    .marco { border: var(--borde-fino) solid var(--border); border-radius: var(--r-lg); background: var(--surface); overflow: hidden; }
-    .fila { display: flex; align-items: center; border-top: var(--borde-fino) solid var(--border); }
-    .fila-cabecera { border-top: 0; background: var(--surface-2); } .fila:first-child { border-top: 0; }
-    .celda { padding: var(--s3) var(--s4); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .marco { border: var(--borde-fino) solid var(--border); border-radius: var(--r-lg); background: var(--surface); overflow: hidden; box-shadow: var(--sombra-2); }
+    .fila { display: flex; align-items: center; border-top: var(--borde-fino) solid var(--border); transition: background-color var(--mov-micro) ease; }
+    .fila:hover:not(.fila-cabecera) { background: color-mix(in srgb, var(--surface-2) 65%, transparent); }
+    .fila-cabecera { border-top: 0; background: color-mix(in srgb, var(--surface-2) 85%, var(--surface)); font-weight: 600; font-size: 0.8125rem; letter-spacing: 0.02em; color: var(--text-2); } .fila:first-child { border-top: 0; }
+    .celda { padding: var(--s3) var(--s4); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.875rem; }
     .celda.numerica { text-align: right; font-variant-numeric: tabular-nums; } .celda.marca { flex: 0 0 var(--s7); }
     .viewport { width: 100%; }
     button { display: inline-flex; align-items: center; gap: var(--s1); min-height: var(--area-tactil); margin: calc(var(--s2) * -1) 0; padding: 0; border: 0; background: transparent; color: inherit; font: inherit; font-weight: 600; cursor: pointer; }
