@@ -43,3 +43,16 @@ $ flutter test --concurrency=2   (suite completa, Windows)
 +781 ~1 -311: Some tests failed
   314 «Pixel test failed» (referencias regeneradas en Linux, a4bcfafe; en Windows dan otros píxeles)
   5 UnmountedRefException en SeguimientoDelAlta.liberarCapturas (pantalla_subida_del_expediente.dart:107) — no tocado
+
+== H3 (2026-10-20, tras la prueba en el teléfono)
+$ ./gradlew :servicios:grupos:webTest           → grupos web tests=96 fallas=0 errores=0
+$ ./gradlew :servicios:grupos:test --tests '*HechosPorHttpTest'  → tests="9" failures="0"
+$ flutter test test/pasanaku/                    → +65: All tests passed!
+$ verificar_frontend.py                          → sin FALLA
+QR exportado con codigoQrComoPng y decodificado con OpenCV (venv aislado):
+  OK x8 · original / jpeg 70 1080px / jpeg 40 800px / jpeg 50 400px · con y sin título · 147 caracteres exactos
+GitHub Actions «Pruebas grupos e identidad (temporal)», run 39447390908 (PostgreSQL real, Testcontainers):
+  :servicios:grupos:integrationTest     → OK (incluye CU20Test límite de grupos y CU69EnlaceDeGrupoTest)
+  :servicios:identidad:integrationTest  → 183 tests, 13 fallas ajenas: R-SEG-12/permiso (CU04, CU08),
+    BorradorOnboardingRepositorioTest (bind), ArranqueTest. CU07MiPerfilTest pasa.
+Goldens de «mi estado» regenerados en Linux: e0c0105e (verificados sin --update-goldens).
