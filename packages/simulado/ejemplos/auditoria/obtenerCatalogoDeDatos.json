@@ -56,7 +56,8 @@
                 }
               ]
             },
-            "sistema": "sistema"
+            "sistema": "sistema",
+            "operaciones": []
           }
         ]
       }
@@ -120,7 +121,8 @@
                 }
               ]
             },
-            "sistema": "sistema"
+            "sistema": "sistema",
+            "operaciones": []
           }
         ]
       }

@@ -75,7 +75,7 @@ class CatalogoDeDatosTest(unittest.TestCase):
         self.assertGreater(self.por_nombre[("aportes", "pago")]["clasificacion"]["financieros"], 0)
 
     def test_tablas_de_infraestructura_estan_y_se_distinguen(self):
-        texto = cat.INFRA_SQL.read_text(encoding="utf-8")
+        texto = "".join(f.read_text(encoding="utf-8") for f in cat.INFRA_ARCHIVOS)
         en_ddl = set(re.findall(r"CREATE TABLE IF NOT EXISTS (\w+)\.(\w+) \(", texto))
         infra = {(t["esquema"], t["tabla"]) for t in self.catalogo["tablas"] if t["tipo"] == "INFRAESTRUCTURA"}
         self.assertEqual(infra, en_ddl)
@@ -84,6 +84,46 @@ class CatalogoDeDatosTest(unittest.TestCase):
         self.assertIn("tipo", [c["nombre"] for c in outbox["columnas"]])
         consumo = self.por_nombre[("aportes", "evento_consumido")]
         self.assertEqual([c["nombre"] for c in consumo["columnas"] if c["pk"]], ["id_evento", "consumidor"])
+
+    def test_borrador_de_onboarding_catalogado_con_datos_personales(self):
+        b = self.por_nombre[("identidad", "borrador_onboarding")]
+        self.assertEqual(b["tipo"], "INFRAESTRUCTURA")
+        self.assertEqual(b["servicio"], "identidad")
+        self.assertTrue(b["negocio"]["queEs"] and b["negocio"]["negocio"])
+        self.assertGreater(b["clasificacion"]["personales"], 0)
+        columnas = {c["nombre"]: c for c in b["columnas"]}
+        self.assertEqual([n for n, c in columnas.items() if c["pk"]], ["correo"])
+        self.assertEqual(columnas["fecha_nacimiento"]["tipo"], "DATE")
+        self.assertFalse(columnas["paso_pendiente"]["nulable"])
+        self.assertTrue(columnas["nombres"]["nulable"])
+        self.assertTrue(columnas["expira_en"]["negocio"])
+
+    def test_narrativa_conserva_parrafos_y_vinetas(self):
+        ficha = cat._ficha("### `x`\n**Para qué sirve (negocio).** Resuelve problemas\nprácticos:\n\n"
+                           "- Una **orden**: la primera\n  expiró.\n- `referencia` concilia.\n\nCierre.\n")
+        self.assertEqual(ficha["negocio"],
+                         "Resuelve problemas prácticos:\n\n- Una **orden**: la primera expiró.\n- `referencia` concilia.\n\nCierre.")
+        self.assertEqual(cat._narrativa("Regla dura.\n\n---\n"), "Regla dura.")
+        self.assertFalse(any(v.rstrip().endswith("---") for t in self.catalogo["tablas"]
+                             for v in [*t["negocio"].values(), t.get("notaDeSistema")] if v))
+        real = self.por_nombre[("aportes", "orden_cobro")]["negocio"]["negocio"]
+        self.assertIn("prácticos:\n\n- Una obligación puede tener **varias órdenes**", real)
+        self.assertIn("\n- `permiteMontoAbierto` cubre el pago parcial", real)
+
+    def test_operaciones_salen_de_los_casos_de_uso_y_la_matriz(self):
+        pago = self.por_nombre[("aportes", "pago")]["operaciones"]
+        codigos = [o["casoDeUso"] for o in pago]
+        self.assertIn("CU-21", codigos)
+        self.assertEqual(codigos, sorted(codigos, key=lambda c: int(c.split("-")[1])))
+        cu21 = next(o for o in pago if o["casoDeUso"] == "CU-21")
+        self.assertTrue(cu21["titulo"])
+        texto = next(cat.CASOS.glob("CU-21 *.md")).read_text(encoding="utf-8")
+        self.assertIn("[[pago", texto)  # la tabla figura porque el CU la enlaza, no por inferencia
+        matriz = cat.MATRIZ.read_text(encoding="utf-8")
+        for e in cu21["endpoints"]:
+            self.assertIn(f"| {e['servicio']} | {e['metodo']} | `{e['ruta']}` | `{e['operationId']}` |", matriz)
+        # Las de infraestructura no las nombra ningún caso de uso: sin operaciones.
+        self.assertEqual(self.por_nombre[("aportes", "evento_dominio")]["operaciones"], [])
 
     def test_vineta_con_varias_columnas_explica_a_cada_una(self):
         ficha = cat._ficha("### `X` / `x`\n- `montoA` y `montoB`: lo que se explica.\n- `esManual` + `registradoPor`: otra.\n")

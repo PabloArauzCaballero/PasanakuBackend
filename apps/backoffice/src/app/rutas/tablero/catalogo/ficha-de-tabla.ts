@@ -14,22 +14,23 @@ import { textosCatalogo } from './textos'
 import { VistaColumnas } from './vista-columnas'
 import { VistaGeneral } from './vista-general'
 import { VistaGobierno } from './vista-gobierno'
+import { VistaOperaciones } from './vista-operaciones'
 import { VistaRelaciones } from './vista-relaciones'
 
-const VISTAS = ['general', 'columnas', 'relaciones', 'gobierno'] as const
+const VISTAS = ['general', 'columnas', 'relaciones', 'operaciones', 'gobierno'] as const
 type Vista = (typeof VISTAS)[number]
 
 /**
  * La ficha de una tabla del catálogo, como la del portal de Atlas: cabecera con `esquema.tabla`, su
  * propósito y las insignias de datos personales, revisión y estado; «Editar ficha» para quien puede;
- * y cuatro pestañas (Vista general · Columnas · Relaciones · Gobierno) cuyo estado vive en `?vista=`.
+ * y cinco pestañas (Vista general · Columnas · Relaciones · Operaciones · Gobierno) cuyo estado vive en `?vista=`.
  * `esquema` y `tabla` llegan del path (`withComponentInputBinding`): el nombre solo no alcanza, porque la
  * infraestructura de mensajería repite nombres en cada esquema. Se pide solo esta tabla, no el catálogo entero.
  */
 @Component({
   selector: 'ap-ficha-de-tabla',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [Boton, CabeceraDePagina, ChipEstado, EstadoDePantalla, Pestanas, RouterLink, VistaColumnas, VistaGeneral, VistaGobierno, VistaRelaciones],
+  imports: [Boton, CabeceraDePagina, ChipEstado, EstadoDePantalla, Pestanas, RouterLink, VistaColumnas, VistaGeneral, VistaGobierno, VistaOperaciones, VistaRelaciones],
   template: `
     <ap-estado-de-pantalla [recurso]="remoto" [mensajeVacio]="t.noExiste(esquema() + '.' + tabla())" [etiquetaDeCarga]="textos.cargando" (reintentar)="remoto.reload()">
       @if (ficha(); as f) {
@@ -44,6 +45,7 @@ type Vista = (typeof VISTAS)[number]
           @switch (vista()) {
             @case ('columnas') { <ap-vista-columnas [tabla]="f" (cambio)="remoto.reload()" /> }
             @case ('relaciones') { <ap-vista-relaciones [tabla]="f" /> }
+            @case ('operaciones') { <ap-vista-operaciones [tabla]="f" /> }
             @case ('gobierno') { <ap-vista-gobierno [tabla]="f" [politicas]="politicas()" /> }
             @default { <ap-vista-general [tabla]="f" [politicas]="politicas()" /> }
           }
@@ -106,6 +108,7 @@ export class FichaDeTabla {
       { valor: 'general', texto: this.t.vistas.general },
       { valor: 'columnas', texto: this.t.vistas.columnas, cuenta: f?.columnas.length },
       { valor: 'relaciones', texto: this.t.vistas.relaciones, cuenta: f ? f.relaciones.salientes.length + f.relaciones.entrantes.length : undefined },
+      { valor: 'operaciones', texto: this.t.vistas.operaciones, cuenta: f?.operaciones?.length },
       { valor: 'gobierno', texto: this.t.vistas.gobierno },
     ]
   })

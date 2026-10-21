@@ -43,7 +43,10 @@ class CatalogoPorPartesWebTest {
              "relaciones":{"salientes":[{"columna":"obligacion_id","tabla":"obligacion_aporte","esquema":"aportes",
                "columnaDestino":"id","restriccion":"fk_pago_obligacion_id","alBorrar":"RESTRICT",
                "cardinalidad":"N:1","obligatoria":true}],"entrantes":[]},
-             "sistema":"Vive en el esquema `aportes`."}
+             "sistema":"Vive en el esquema `aportes`.",
+             "operaciones":[{"casoDeUso":"CU-21","titulo":"Cobrar el aporte del período","endpoints":[
+               {"servicio":"aportes","metodo":"POST","ruta":"/aportes/obligaciones/{obligacionId}/pagos",
+                "operationId":"cobrarAporte"}]}]}
             """;
 
     @Autowired
@@ -73,8 +76,20 @@ class CatalogoPorPartesWebTest {
 
     private static ConsultarCatalogoDeDatos.Fila fila() {
         return new ConsultarCatalogoDeDatos.Fila(
-                "pago", "aportes", "NEGOCIO", "03", "Aportes", Optional.of("aportes"), Optional.empty(), false, 19, 0,
-                14, 6, new ConsultarCatalogoDeDatos.Clasificacion(1, 3, 0, 0), FichaDeGobierno.porOmision());
+                "pago",
+                "aportes",
+                "NEGOCIO",
+                "03",
+                "Aportes",
+                Optional.of("aportes"),
+                Optional.empty(),
+                false,
+                19,
+                0,
+                14,
+                6,
+                new ConsultarCatalogoDeDatos.Clasificacion(1, 3, 0, 0),
+                FichaDeGobierno.porOmision());
     }
 
     @Test
@@ -99,8 +114,13 @@ class CatalogoPorPartesWebTest {
         verify(consultarCatalogo)
                 .tablas(
                         eq(new ConsultarCatalogoDeDatos.Filtro(
-                                Optional.empty(), Optional.of("aportes"), Optional.empty(), Optional.empty(),
-                                Optional.of("ACTIVA"), Optional.empty(), Optional.empty())),
+                                Optional.empty(),
+                                Optional.of("aportes"),
+                                Optional.empty(),
+                                Optional.empty(),
+                                Optional.of("ACTIVA"),
+                                Optional.empty(),
+                                Optional.empty())),
                         eq(2),
                         eq(20),
                         any());
@@ -140,19 +160,38 @@ class CatalogoPorPartesWebTest {
     void resumen() throws Exception {
         var esquema = new ConsultarCatalogoDeDatos.Esquema(
                 "aportes", Optional.of("aportes"), "Aportes.", 22, 18, 213, 38, 0, 1);
-        var catalogo = new ConsultarCatalogoDeDatos.Esquema(
-                "catalogo", Optional.empty(), "Compartidos.", 8, 8, 60, 0, 0, 0);
+        var catalogo =
+                new ConsultarCatalogoDeDatos.Esquema("catalogo", Optional.empty(), "Compartidos.", 8, 8, 60, 0, 0, 0);
         when(consultarCatalogo.resumen(any()))
                 .thenReturn(new ConsultarCatalogoDeDatos.Resumen(
-                        30, 26, 4, 273, 0, 38, 1, 9, 0, 30,
-                        Map.of("ACTIVA", 30, "PLANIFICADA", 0, "CANDIDATA_A_RETIRO", 0, "RETIRADA", 0,
-                                "DESHABILITADA", 0),
+                        30,
+                        26,
+                        4,
+                        273,
+                        0,
+                        38,
+                        1,
+                        9,
+                        0,
+                        30,
+                        Map.of(
+                                "ACTIVA",
+                                30,
+                                "PLANIFICADA",
+                                0,
+                                "CANDIDATA_A_RETIRO",
+                                0,
+                                "RETIRADA",
+                                0,
+                                "DESHABILITADA",
+                                0),
                         Map.of("DETECTADA", 30, "NECESITA_REVISION", 0, "APROBADA", 0, "RECHAZADA", 0),
                         List.of(esquema, catalogo),
                         List.of(new ConsultarCatalogoDeDatos.Modulo("03", "Aportes", 18)),
                         List.of()));
 
-        mvc.perform(get("/indicadores/catalogo-de-datos/resumen").with(Sesiones.como("AUDITOR_INTERNO", "AUDITORIA_LEER")))
+        mvc.perform(get("/indicadores/catalogo-de-datos/resumen")
+                        .with(Sesiones.como("AUDITOR_INTERNO", "AUDITORIA_LEER")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.tablas").value(30))
                 .andExpect(jsonPath("$.porEstado.ACTIVA").value(30))
@@ -176,7 +215,9 @@ class CatalogoPorPartesWebTest {
                 .andExpect(jsonPath("$.relaciones.salientes[0].alBorrar").value("RESTRICT"))
                 .andExpect(jsonPath("$.relaciones.salientes[0].cardinalidad").value("N:1"))
                 .andExpect(jsonPath("$.columnas[0].esquemaReferencia").value("aportes"))
-                .andExpect(jsonPath("$.gobierno.estadoRevision").value("DETECTADA"));
+                .andExpect(jsonPath("$.gobierno.estadoRevision").value("DETECTADA"))
+                .andExpect(jsonPath("$.operaciones[0].casoDeUso").value("CU-21"))
+                .andExpect(jsonPath("$.operaciones[0].endpoints[0].operationId").value("cobrarAporte"));
     }
 
     @Test

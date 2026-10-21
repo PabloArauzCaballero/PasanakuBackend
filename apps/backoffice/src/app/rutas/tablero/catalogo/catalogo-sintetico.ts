@@ -1,6 +1,7 @@
 import {
   ColumnaDelCatalogoOrigenNegocioEnum as Origen,
   ColumnaDelCatalogoSensibilidadEnum as S,
+  EndpointDeLaOperacionMetodoEnum as Metodo,
   EstadoDeRevision,
   EstadoDeTabla,
   RelacionDelCatalogoAlBorrarEnum as AlBorrar,
@@ -28,6 +29,7 @@ export function tabla(nombre: string, esquema: string, extra: Partial<TablaDelCa
     columnas: [{ nombre: 'id', tipo: 'UUID', nulable: false, pk: true, sistema: 'UUID, obligatoria, clave primaria.', sensibilidad: S.Ninguna }],
     relaciones: { salientes: [], entrantes: [] },
     sistema: `Vive en el esquema \`${esquema}\`.`,
+    operaciones: [],
     ...extra,
   }
 }
@@ -40,6 +42,17 @@ export const OBLIGACION = tabla('obligacion_aporte', 'aportes', {
     { nombre: 'id', tipo: 'UUID', nulable: false, pk: true, negocio: 'Identificador estable', origenNegocio: Origen.Convencion, sistema: 'UUID, obligatoria, clave primaria.', sensibilidad: S.Ninguna },
     { nombre: 'monto_esperado', tipo: 'DECIMAL(14,2)', nulable: false, pk: false, negocio: 'Lo que se pactó', origenNegocio: Origen.Ficha, sistema: 'DECIMAL(14,2), obligatoria.', sensibilidad: S.Financiero },
     { nombre: 'grupo_id', tipo: 'UUID', nulable: false, pk: false, referencia: 'grupo', esquemaReferencia: 'grupos', sistema: 'UUID, obligatoria, referencia a `grupo`.', sensibilidad: S.Ninguna },
+  ],
+  operaciones: [
+    {
+      casoDeUso: 'CU-21',
+      titulo: 'Cobrar el aporte del período',
+      endpoints: [
+        { servicio: 'aportes', metodo: Metodo.Post, ruta: '/aportes/obligaciones/{obligacionId}/pagos', operationId: 'cobrarAporte' },
+        { servicio: 'grupos', metodo: Metodo.Get, ruta: '/grupos/obligaciones/admisibilidad', operationId: 'consultarAdmisibilidadDePago' },
+      ],
+    },
+    { casoDeUso: 'CU-26', titulo: 'Condonar una obligación', endpoints: [] },
   ],
   relaciones: {
     salientes: [{ columna: 'grupo_id', tabla: 'grupo', esquema: 'grupos', columnaDestino: 'id', restriccion: 'fk_obligacion_aporte_grupo_id', alBorrar: AlBorrar.Restrict, cardinalidad: Cardinalidad.N1, obligatoria: true }],

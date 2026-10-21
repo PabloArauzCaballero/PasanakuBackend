@@ -209,8 +209,8 @@ public class IndicadoresController implements IndicadoresApi {
                 Optional.ofNullable(estado).map(EstadoDeTabla::getValue),
                 Optional.ofNullable(revision).map(EstadoDeRevision::getValue),
                 Optional.ofNullable(sensibilidad).map(SensibilidadDeTabla::getValue));
-        var resultado = catalogo.tablas(
-                filtro, pagina == null ? 1 : pagina, limite == null ? 20 : limite, sesion.actual());
+        var resultado =
+                catalogo.tablas(filtro, pagina == null ? 1 : pagina, limite == null ? 20 : limite, sesion.actual());
         return ResponseEntity.ok(MapeoDeCatalogo.aContrato(resultado));
     }
 
@@ -221,14 +221,7 @@ public class IndicadoresController implements IndicadoresApi {
     public ResponseEntity<TablaDelCatalogo> obtenerTablaDelCatalogo(String esquema, String tabla) {
         Traza.marcarCasoDeUso("TABLERO-SISTEMAS", "catalogo-de-datos/" + esquema + "." + tabla);
         return catalogo.tabla(esquema, tabla, sesion.actual())
-                .map(ficha -> {
-                    try {
-                        return ResponseEntity.ok(MapeoDeCatalogo.aContrato(
-                                mapper.treeToValue(ficha.tabla(), TablaDelCatalogo.class), ficha));
-                    } catch (JsonProcessingException e) {
-                        throw new IllegalStateException("La tabla del catalogo no cumple TablaDelCatalogo", e);
-                    }
-                })
+                .map(ficha -> ResponseEntity.ok(MapeoDeCatalogo.aContrato(mapper, ficha)))
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 

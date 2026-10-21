@@ -45,9 +45,9 @@ export class VistaGeneral {
     const f = this.tabla()
     const g = gobiernoDe(f)
     return [
-      { etiqueta: this.t.contexto.queEs, valor: f.negocio.queEs },
-      { etiqueta: this.t.contexto.negocio, valor: f.negocio.negocio },
-      { etiqueta: this.t.contexto.porQue, valor: f.negocio.porQue },
+      { etiqueta: this.t.contexto.queEs, valor: f.negocio.queEs, texto: true },
+      { etiqueta: this.t.contexto.negocio, valor: f.negocio.negocio, texto: true },
+      { etiqueta: this.t.contexto.porQue, valor: f.negocio.porQue, texto: true },
       { etiqueta: this.t.contexto.responsable, valor: g.responsable, tono: g.responsable ? undefined : 'apagado' },
       { etiqueta: this.t.contexto.reglas, valor: f.reglas.join(' · ') },
     ]
@@ -78,8 +78,8 @@ export class VistaGeneral {
   protected readonly sistema = computed<ClaveValor[]>(() => {
     const f = this.tabla()
     return [
-      { etiqueta: this.t.sistema.narrativa, valor: f.sistema },
-      { etiqueta: this.t.sistema.nota, valor: f.notaDeSistema },
+      { etiqueta: this.t.sistema.narrativa, valor: f.sistema, texto: true },
+      { etiqueta: this.t.sistema.nota, valor: f.notaDeSistema, texto: true },
     ]
   })
 }

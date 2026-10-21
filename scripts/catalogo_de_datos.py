@@ -107,7 +107,7 @@ def _ficha(seccion):
     marcas.sort()
     for i, (_, fin, clave) in enumerate(marcas):
         hasta = marcas[i + 1][0] if i + 1 < len(marcas) else len(cuerpo)
-        parrafo = _limpio(cuerpo[fin:hasta])
+        parrafo = _narrativa(cuerpo[fin:hasta])
         if parrafo and clave not in ficha:
             ficha[clave] = parrafo
     # Una viñeta explica una columna o varias a la vez: «- `montoComisionProveedor` y `montoNetoAcreditado`: …».
@@ -117,6 +117,33 @@ def _ficha(seccion):
         for nombre in re.findall(r"`(\w+)`", m.group(1)):
             ficha["columnas"].setdefault(nombre, _limpio(m.group(2)))
     return ficha
+
+
+def _narrativa(texto):
+    """Un párrafo de la ficha sin perder su forma: los párrafos se separan con una línea en blanco y cada viñeta
+    queda en su renglón (`- …` o `1. …`). Antes se aplanaba todo en un solo párrafo y las listas se leían como texto
+    corrido. Las líneas cortadas a mano y las continuaciones sangradas de una viñeta se juntan."""
+    texto = re.sub(r"```.*?```", "", texto, flags=re.S)
+    renglones = []
+    for linea in texto.splitlines():
+        # Una línea en blanco o un separador de markdown (`---`) corta el párrafo; el separador no es texto.
+        if not linea.strip() or re.fullmatch(r"\s*([-*_])(\s*\1){2,}\s*", linea):
+            renglones.append(None)
+        elif v := re.match(r"^\s*([-*]|\d+\.)\s+(.*)$", linea):
+            renglones.append(["-" if v[1] in "-*" else v[1], v[2]])
+        elif renglones and renglones[-1] is not None:
+            renglones[-1][1] += " " + linea
+        else:
+            renglones.append(["", linea])
+    salida, blanco = "", False
+    for r in renglones:
+        if r is None:
+            blanco = bool(salida)
+            continue
+        renglon = (f"{r[0]} " if r[0] else "") + re.sub(r"\s+", " ", r[1]).strip()
+        salida += (("\n\n" if blanco else "\n") + renglon) if salida else renglon
+        blanco = False
+    return salida
 
 
 def _limpio(texto):
@@ -176,12 +203,41 @@ def construir():
         t["relaciones"] = {"salientes": salientes, "entrantes": llegan}
         t["sistema"] = _sistema(t)
         t["clasificacion"] = _clasificacion(t["columnas"])
+    operaciones = operaciones_por_tabla(set(tablas))
+    for tabla, t in tablas.items():
+        t["operaciones"] = operaciones.get(tabla, [])
     for t in tablas_de_infraestructura():
-        tablas[f"{t['esquema']}.{t['tabla']}"] = t
+        tablas[f"{t['esquema']}.{t['tabla']}"] = {**t, "operaciones": []}
     ordenadas = [tablas[n] for n in sorted(tablas, key=lambda n: (tablas[n]["esquema"], tablas[n]["tabla"]))]
     return {"esquemas": sorted({t["esquema"] for t in ordenadas}),
             "detalleDeEsquemas": _esquemas(ordenadas),
             "tablas": ordenadas}
+
+
+MATRIZ = DOCS / "catalogo-de-flujos" / "matriz.md"
+CASOS = DOCS / "CasosDeUso"
+FILA_MATRIZ = re.compile(r"^\| ([\w-]+) \| (GET|POST|PUT|PATCH|DELETE) \| `([^`]+)` \| `(\w+)` \| [^|]+\| (CU-\d+) \|", re.M)
+
+
+def operaciones_por_tabla(tablas_de_negocio):
+    """Qué casos de uso nombran cada tabla y con qué endpoints se ejecutan (la pestaña «Operaciones» de Atlas).
+
+    No se infiere qué endpoint escribe qué tabla: se encadenan dos fuentes que ya existen. Tabla → caso de uso: el
+    `[[tabla]]` que cada `docs/CasosDeUso/CU-*.md` enlaza. Caso de uso → endpoint: la columna CU de
+    `docs/catalogo-de-flujos/matriz.md` (generada por `matriz_de_pruebas.py` desde el contrato y la traza).
+    """
+    endpoints = {}
+    for m in FILA_MATRIZ.finditer(MATRIZ.read_text(encoding="utf-8")):
+        endpoints.setdefault(int(m[5].split("-")[1]), []).append(
+            {"servicio": m[1], "metodo": m[2], "ruta": m[3], "operationId": m[4]})
+    por_tabla = {}
+    for archivo in sorted(CASOS.glob("CU-*.md"), key=lambda a: int(a.stem.split()[0].split("-")[1])):
+        codigo, titulo = archivo.stem.split(" ", 1)
+        nombradas = {e.strip() for e in re.findall(r"\[\[([^\]|#]+)", archivo.read_text(encoding="utf-8"))}
+        for tabla in sorted(nombradas & tablas_de_negocio):
+            por_tabla.setdefault(tabla, []).append(
+                {"casoDeUso": codigo, "titulo": titulo, "endpoints": endpoints.get(int(codigo.split("-")[1]), [])})
+    return por_tabla
 
 
 def _columna(c, destino, ficha, unica=False):
@@ -256,6 +312,15 @@ def _clasificacion(columnas):
 # en los orquestadores, el estado de saga. No están en los .puml (son plantilla), pero son tablas reales de la base:
 # un catálogo que no las lista dice que el esquema tiene menos de lo que tiene. Se leen del DDL que se aplica.
 INFRA_SQL = SQL / "15_infra" / "mensajeria.sql"
+BORRADORES_SQL = SQL / "15_infra" / "borradores.sql"
+INFRA_ARCHIVOS = (INFRA_SQL, BORRADORES_SQL)
+# Cómo se presenta cada archivo de infraestructura: el módulo y quién la escribe.
+INFRA_ORIGEN = {
+    INFRA_SQL: ("Infraestructura de mensajería", "Infraestructura del servicio `{s}`, generada por plantilla en cada "
+                "esquema (ADR-027): la escribe y la lee solo ese servicio."),
+    BORRADORES_SQL: ("Borradores de onboarding", "Tabla propia del servicio `{s}` fuera del modelo de entidades: la "
+                     "genera `generar_ddl.py` desde el contrato `BorradorOnboarding` y el repositorio que la usa."),
+}
 INFRA_NEGOCIO = {
     "evento_dominio": "Garantiza que ningún hecho del servicio se pierda entre la base y la mensajería: el evento se "
     "guarda en la misma transacción que el cambio y un relevo lo publica después (regla 98.3.3).",
@@ -264,14 +329,23 @@ INFRA_NEGOCIO = {
     "shedlock": "Evita que dos réplicas del servicio ejecuten el mismo trabajo programado a la vez (ADR-018).",
     "estado_saga": "Persiste el paso de una saga que cruza servicios para poder reanudarla o compensarla si algo "
     "falla en el medio (regla 98.3.2, ADR-028).",
+    "borrador_onboarding": "Permite retomar un alta interrumpida sin volver a cargar todo: guarda lo que la persona "
+    "llenó después de confirmar su correo, vence a los siete días y se borra al completar el alta. Guarda datos "
+    "personales en claro mientras el alta no termina.",
 }
-COLUMNA_DDL = re.compile(r"^\s+(\w+)\s+(UUID|VARCHAR\(\d+\)|JSONB|TIMESTAMPTZ|SMALLINT|INTEGER|BIGINT|TEXT|BOOLEAN)(?![\w(])"
+COLUMNA_DDL = re.compile(r"^\s+(\w+)\s+(UUID|VARCHAR\(\d+\)|JSONB|TIMESTAMPTZ|DATE|SMALLINT|INTEGER|BIGINT|TEXT|BOOLEAN)(?![\w(])"
                          r"(.*)$")
 
 
 def tablas_de_infraestructura():
-    texto = INFRA_SQL.read_text(encoding="utf-8")
+    return [t for archivo in INFRA_ARCHIVOS for t in _tablas_de_infraestructura(archivo)]
+
+
+def _tablas_de_infraestructura(archivo):
+    texto = archivo.read_text(encoding="utf-8")
+    modulo, sistema = INFRA_ORIGEN[archivo]
     comentarios = {(e, t): c for e, t, c in re.findall(r"COMMENT ON TABLE (\w+)\.(\w+) IS '([^']*)'", texto)}
+    de_columna = {(e, t, c): v for e, t, c, v in re.findall(r"COMMENT ON COLUMN (\w+)\.(\w+)\.(\w+) IS '([^']*)'", texto)}
     tablas = []
     for m in re.finditer(r"CREATE TABLE IF NOT EXISTS (\w+)\.(\w+) \((.*?)\n\);", texto, re.S):
         esquema, tabla, cuerpo = m[1], m[2], m[3]
@@ -286,19 +360,19 @@ def tablas_de_infraestructura():
             nulable = not pk and "NOT NULL" not in c[3]
             columnas.append({
                 "nombre": c[1], "tipo": c[2], "nulable": nulable, "pk": pk, "referencia": None,
-                "negocio": CONVENCIONES.get(c[1]), "origenNegocio": "convencion" if c[1] in CONVENCIONES else None,
+                "negocio": de_columna.get((esquema, tabla, c[1])) or CONVENCIONES.get(c[1]),
+                "origenNegocio": "ddl" if (esquema, tabla, c[1]) in de_columna else ("convencion" if c[1] in CONVENCIONES else None),
                 "sistema": ", ".join([c[2], "opcional" if nulable else "obligatoria"] + (["clave primaria"] if pk else []))
                 + ".", "sensibilidad": sensibilidad(c[1]),
             })
         tablas.append({
             "tabla": tabla, "esquema": esquema, "tipo": "INFRAESTRUCTURA", "modulo": "00",
-            "nombreModulo": "Infraestructura de mensajería", "servicio": modelo.servicio_de(esquema),
+            "nombreModulo": modulo, "servicio": modelo.servicio_de(esquema),
             "appendOnly": False,
             "negocio": {"queEs": comentarios.get((esquema, tabla)), "negocio": INFRA_NEGOCIO.get(tabla), "porQue": None},
             "notaDeSistema": None, "reglas": [], "columnas": columnas,
             "relaciones": {"salientes": [], "entrantes": []},
-            "sistema": f"Infraestructura del servicio `{modelo.servicio_de(esquema)}`, generada por plantilla en "
-                       f"cada esquema (ADR-027): la escribe y la lee solo ese servicio.",
+            "sistema": sistema.format(s=modelo.servicio_de(esquema)),
             "clasificacion": _clasificacion(columnas),
         })
     return tablas
@@ -371,6 +445,10 @@ def markdown(catalogo):
                 if t["negocio"][clave]:
                     L.append(f"**{titulo}.** {t['negocio'][clave]}")
                     L.append("")
+            if t["operaciones"]:
+                L += ["**Casos de uso que la nombran.** " + " · ".join(
+                    f"{o['casoDeUso']} {o['titulo']}" + (f" ({', '.join('`' + e['operationId'] + '`' for e in o['endpoints'])})"
+                                                         if o["endpoints"] else "") for o in t["operaciones"]), ""]
             L += [f"**Sistema.** {t['sistema']}", "", "| Columna | Tipo | Negocio | Sistema | Sensibilidad |",
                   "|---|---|---|---|---|"]
             for c in t["columnas"]:

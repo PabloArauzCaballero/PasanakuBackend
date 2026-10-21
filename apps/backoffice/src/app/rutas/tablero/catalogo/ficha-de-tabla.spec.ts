@@ -57,6 +57,35 @@ describe('FichaDeTabla', () => {
     expect(el.querySelector('ap-cabecera-de-pagina ap-boton'), 'sin permiso de edición no hay «Editar ficha»').toBeNull()
   })
 
+  it('correcto: la pestaña Operaciones (en la URL) lista cada endpoint con su caso de uso; un CU sin endpoint lo dice', async () => {
+    const el = await abrir('/tablero/catalogo-de-datos/aportes/obligacion_aporte?vista=operaciones', (r) => r.flush(OBLIGACION))
+    expect(el.querySelector('[role="tablist"] [aria-selected="true"]')?.textContent).toContain('Operaciones')
+    expect(el.querySelector('[role="tablist"] [aria-selected="true"]')?.textContent).toContain('2')
+    const panel = el.querySelector('ap-vista-operaciones')!
+    const t = panel.textContent ?? ''
+    expect(t).toContain('CU-21 Cobrar el aporte del período')
+    expect(t).toContain('/aportes/obligaciones/{obligacionId}/pagos')
+    expect(t).toContain('cobrarAporte')
+    expect(t).toContain('consultarAdmisibilidadDePago')
+    expect(t).toContain('CU-26 Condonar una obligación')
+    expect(t).toContain('Sin endpoint propio todavía')
+    expect(t, 'el método se lee en texto, no solo por color').toContain('POST')
+  })
+
+  it('vacío: una tabla que ningún caso de uso nombra explica por qué y qué hacer', async () => {
+    const el = await abrir('/tablero/catalogo-de-datos/identidad/credencial_acceso?vista=operaciones', (r) => r.flush(CREDENCIAL))
+    expect(el.querySelector('ap-vista-operaciones ap-estado-vacio')?.textContent).toContain('Ningún caso de uso la nombra')
+    expect(el.querySelector('ap-vista-operaciones ap-estado-vacio')?.textContent).toContain('falta enlazarla')
+  })
+
+  it('correcto: la narrativa con viñetas se lee como párrafo más lista, no como texto corrido', async () => {
+    const conLista = { ...OBLIGACION, negocio: { ...OBLIGACION.negocio, negocio: 'Resuelve problemas:\n\n- Varias órdenes.\n- Glosa conciliable.' } }
+    const el = await abrir('/tablero/catalogo-de-datos/aportes/obligacion_aporte', (r) => r.flush(conLista))
+    const contexto = el.querySelector('ap-seccion-clave-valor[aria-label="Contexto de negocio"]')!
+    expect(Array.from(contexto.querySelectorAll('dd ul > li')).map((li) => li.textContent)).toEqual(['Varias órdenes.', 'Glosa conciliable.'])
+    expect(Array.from(contexto.querySelectorAll('dd > p')).map((p) => p.textContent)).toEqual(['Lo que un cupo debe en un período', 'Resuelve problemas:', 'Sin ella no hay deuda formal'])
+  })
+
   it('correcto: con permiso aparece «Editar ficha»; la pestaña Relaciones (en la URL) lleva a la ficha de la otra tabla', async () => {
     const el = await abrir('/tablero/catalogo-de-datos/aportes/obligacion_aporte?vista=relaciones', (r) => r.flush(OBLIGACION), ['TABLERO_SISTEMAS_VER', 'CATALOGO_DATOS_EDITAR'])
     expect(el.querySelector('ap-cabecera-de-pagina ap-boton')?.textContent).toContain('Editar ficha')

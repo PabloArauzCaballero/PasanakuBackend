@@ -94,6 +94,21 @@ test('ficha: pestañas en la URL, y «Configurar tabla» confirma antes de guard
   await capturar(page, P, 'ficha-gobierno', 'tablet', 'light')
 })
 
+test('ficha: la narrativa conserva sus viñetas y «Operaciones» lista los casos de uso que nombran la tabla con sus endpoints', async ({ page }) => {
+  await abrir(page, ['TABLERO_SISTEMAS_VER'], '/tablero/catalogo-de-datos/aportes/pago')
+  const contexto = page.getByRole('region', { name: 'Contexto de negocio' })
+  await expect(contexto.getByRole('listitem').filter({ hasText: 'montoComisionProveedor' })).toBeVisible()
+  await todas(page, P, 'ficha-narrativa')
+
+  await page.getByRole('tab', { name: /Operaciones/ }).click()
+  await expect(page).toHaveURL(/vista=operaciones/)
+  const cu21 = page.getByRole('list', { name: 'Casos de uso que la nombran' }).getByRole('listitem').filter({ has: page.getByRole('heading', { name: /CU-21/ }) })
+  const cobrar = cu21.getByRole('list', { name: 'Endpoints de CU-21' }).getByRole('listitem').filter({ hasText: 'cobrarAporte' })
+  await expect(cobrar).toContainText('/aportes/obligaciones/{obligacionId}/pagos')
+  await expect(cobrar.getByText('POST', { exact: true })).toBeVisible()
+  await todas(page, P, 'ficha-operaciones')
+})
+
 test('columnas: revisar desde el cajón exige motivo al rechazar y guarda con la versión leída', async ({ page }) => {
   const cuerpo = await capturarPut(page, /\/catalogo-de-datos\/aportes\/pago\/columnas\/id\/revision$/, { decision: 'RECHAZADA', motivo: 'No es un identificador de negocio', version: 1 })
   await abrir(page, ['TABLERO_SISTEMAS_VER', 'CATALOGO_DATOS_EDITAR'], '/tablero/catalogo-de-datos/aportes/pago?vista=columnas')

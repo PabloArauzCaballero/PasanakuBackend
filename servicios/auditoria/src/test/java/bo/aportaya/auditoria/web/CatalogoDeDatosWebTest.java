@@ -42,11 +42,9 @@ class CatalogoDeDatosWebTest {
     @Autowired
     private MockMvc mvc;
 
-
     // Catalogo de datos · H2: comparte controlador; no se llama aca.
 
     @MockitoBean
-
     private bo.aportaya.auditoria.aplicacion.ConsultarCatalogoDeDatos consultarCatalogo;
 
     @MockitoBean

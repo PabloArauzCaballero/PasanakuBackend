@@ -7,25 +7,25 @@
     "ok": {
       "estado": 200,
       "cuerpo": {
-        "tablas": 391,
+        "tablas": 392,
         "tablasDeNegocio": 342,
-        "tablasDeInfraestructura": 49,
-        "columnas": 4124,
+        "tablasDeInfraestructura": 50,
+        "columnas": 4141,
         "columnasRevisadas": 0,
         "relaciones": 686,
-        "conDatosPersonales": 36,
-        "conDatosFinancieros": 120,
+        "conDatosPersonales": 37,
+        "conDatosFinancieros": 121,
         "criticasParaAuditoria": 0,
-        "sinResponsable": 391,
+        "sinResponsable": 392,
         "porEstado": {
-          "ACTIVA": 391,
+          "ACTIVA": 392,
           "PLANIFICADA": 0,
           "CANDIDATA_A_RETIRO": 0,
           "RETIRADA": 0,
           "DESHABILITADA": 0
         },
         "porRevision": {
-          "DETECTADA": 391,
+          "DETECTADA": 392,
           "NECESITA_REVISION": 0,
           "APROBADA": 0,
           "RECHAZADA": 0
@@ -131,12 +131,12 @@
           {
             "nombre": "identidad",
             "descripcion": "Identidad, Usuarios y Seguridad. Saber con certeza a quién le estás confiando plata ajena.",
-            "tablas": 30,
+            "tablas": 31,
             "tablasDeNegocio": 27,
-            "columnas": 300,
+            "columnas": 317,
             "relaciones": 34,
             "appendOnly": 0,
-            "conDatosPersonales": 7,
+            "conDatosPersonales": 8,
             "servicio": "identidad"
           },
           {

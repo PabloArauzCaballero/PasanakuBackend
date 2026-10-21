@@ -7,6 +7,8 @@ import static org.mockito.Mockito.when;
 
 import bo.aportaya.auditoria.dominio.FichaDeGobierno;
 import bo.aportaya.auditoria.dominio.RevisionDeColumna;
+import bo.aportaya.auditoria.web.generado.modelo.ColumnaDelCatalogo;
+import bo.aportaya.auditoria.web.generado.modelo.TablaDelCatalogo;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
 import java.util.Map;
@@ -43,8 +45,13 @@ class ConsultarCatalogoDeDatosTest {
     private static ConsultarCatalogoDeDatos.Filtro filtro(
             String q, String esquema, String tipo, String estado, String sensibilidad) {
         return new ConsultarCatalogoDeDatos.Filtro(
-                Optional.ofNullable(q), Optional.ofNullable(esquema), Optional.empty(), Optional.ofNullable(tipo),
-                Optional.ofNullable(estado), Optional.empty(), Optional.ofNullable(sensibilidad));
+                Optional.ofNullable(q),
+                Optional.ofNullable(esquema),
+                Optional.empty(),
+                Optional.ofNullable(tipo),
+                Optional.ofNullable(estado),
+                Optional.empty(),
+                Optional.ofNullable(sensibilidad));
     }
 
     @Test
@@ -58,7 +65,8 @@ class ConsultarCatalogoDeDatosTest {
         assertThat(pagina.items())
                 .extracting(f -> f.esquema() + "." + f.tabla())
                 .isSorted();
-        assertThat(pagina.items()).allSatisfy(f -> assertThat(f.gobierno().estado()).isEqualTo("ACTIVA"));
+        assertThat(pagina.items())
+                .allSatisfy(f -> assertThat(f.gobierno().estado()).isEqualTo("ACTIVA"));
     }
 
     @Test
@@ -66,7 +74,9 @@ class ConsultarCatalogoDeDatosTest {
     void busquedaNormalizada() {
         var pagina = consulta.tablas(filtro("Obligación APORTE", null, null, null, null), 1, 50, null);
 
-        assertThat(pagina.items()).extracting(ConsultarCatalogoDeDatos.Fila::tabla).contains("obligacion_aporte");
+        assertThat(pagina.items())
+                .extracting(ConsultarCatalogoDeDatos.Fila::tabla)
+                .contains("obligacion_aporte");
     }
 
     @Test
@@ -83,10 +93,18 @@ class ConsultarCatalogoDeDatosTest {
     @DisplayName("catálogo · lista: el filtro por estado usa la ficha guardada, no la de omisión")
     void estadoDeLaFichaGuardada() {
         var retiro = new FichaDeGobierno(
-                "CANDIDATA_A_RETIRO", "APROBADA", Optional.of("Sistemas"), Optional.empty(), false,
-                Optional.empty(), Optional.empty(), Optional.empty(), 1);
-        when(cu130.consultar(any())).thenReturn(new CU130GobernarFichaDeTabla.Vista(
-                Map.of(FichaDeGobierno.clave("aportes", "pago"), retiro), List.of()));
+                "CANDIDATA_A_RETIRO",
+                "APROBADA",
+                Optional.of("Sistemas"),
+                Optional.empty(),
+                false,
+                Optional.empty(),
+                Optional.empty(),
+                Optional.empty(),
+                1);
+        when(cu130.consultar(any()))
+                .thenReturn(new CU130GobernarFichaDeTabla.Vista(
+                        Map.of(FichaDeGobierno.clave("aportes", "pago"), retiro), List.of()));
 
         var pagina = consulta.tablas(filtro(null, null, null, "CANDIDATA_A_RETIRO", null), 1, 20, null);
 
@@ -100,7 +118,8 @@ class ConsultarCatalogoDeDatosTest {
         var pagina = consulta.tablas(filtro(null, null, null, null, "PERSONAL"), 1, 100, null);
 
         assertThat(pagina.total()).isPositive().isLessThan(totalDelRecurso);
-        assertThat(pagina.items()).allSatisfy(f -> assertThat(f.clasificacion().personales()).isPositive());
+        assertThat(pagina.items())
+                .allSatisfy(f -> assertThat(f.clasificacion().personales()).isPositive());
     }
 
     @Test
@@ -117,7 +136,7 @@ class ConsultarCatalogoDeDatosTest {
     void limitesAcotados() {
         var pagina = consulta.tablas(ConsultarCatalogoDeDatos.Filtro.ninguno(), 0, 5_000, null);
 
-        assertThat(pagina.limite()).isEqualTo(ConsultarCatalogoDeDatos.LIMITE_MAXIMO);
+        assertThat(pagina.limite()).isEqualTo(ConsultarCatalogoDeDatos.FILAS_POR_PAGINA_MAXIMO);
         assertThat(pagina.pagina()).isEqualTo(1);
         assertThat(pagina.items()).hasSize(100);
     }
@@ -128,10 +147,13 @@ class ConsultarCatalogoDeDatosTest {
         var resumen = consulta.resumen(null);
 
         assertThat(resumen.tablas()).isEqualTo(totalDelRecurso);
-        assertThat(resumen.tablasDeNegocio() + resumen.tablasDeInfraestructura()).isEqualTo(totalDelRecurso);
+        assertThat(resumen.tablasDeNegocio() + resumen.tablasDeInfraestructura())
+                .isEqualTo(totalDelRecurso);
         assertThat(resumen.porEstado().get("ACTIVA")).isEqualTo(totalDelRecurso);
         assertThat(resumen.porRevision().get("DETECTADA")).isEqualTo(totalDelRecurso);
-        assertThat(resumen.esquemas().stream().mapToInt(ConsultarCatalogoDeDatos.Esquema::tablas).sum())
+        assertThat(resumen.esquemas().stream()
+                        .mapToInt(ConsultarCatalogoDeDatos.Esquema::tablas)
+                        .sum())
                 .isEqualTo(totalDelRecurso);
         assertThat(resumen.esquemas())
                 .filteredOn(e -> e.nombre().equals("aportes"))
@@ -143,16 +165,46 @@ class ConsultarCatalogoDeDatosTest {
     @Test
     @DisplayName("catálogo · ficha: trae solo las revisiones de sus columnas; una tabla que no está, vacío")
     void ficha() {
-        var aprobada = new RevisionDeColumna("APROBADA", Optional.of("ALTA"), Optional.empty(), Optional.empty(),
-                Optional.empty(), 1);
-        when(cu131.consultar(any())).thenReturn(Map.of(
-                RevisionDeColumna.clave("aportes", "pago", "moneda"), aprobada,
-                RevisionDeColumna.clave("aportes", "pago_x", "moneda"), aprobada));
+        var aprobada = new RevisionDeColumna(
+                "APROBADA", Optional.of("ALTA"), Optional.empty(), Optional.empty(), Optional.empty(), 1);
+        when(cu131.consultar(any()))
+                .thenReturn(Map.of(
+                        RevisionDeColumna.clave("aportes", "pago", "moneda"), aprobada,
+                        RevisionDeColumna.clave("aportes", "pago_x", "moneda"), aprobada));
 
         var ficha = consulta.tabla("aportes", "pago", null).orElseThrow();
 
         assertThat(ficha.tabla().path("tabla").asText()).isEqualTo("pago");
         assertThat(ficha.revisiones()).containsOnlyKeys("aportes.pago.moneda");
         assertThat(consulta.tabla("aportes", "no_existe", null)).isEmpty();
+    }
+
+    @Test
+    @DisplayName("catálogo · ficha: trae los casos de uso que nombran la tabla con sus endpoints, y cumple el contrato")
+    void operacionesDeLaFicha() throws Exception {
+        sinFichasNiRevisiones();
+        when(cu131.consultar(any())).thenReturn(Map.of());
+
+        var pago = new ObjectMapper()
+                .treeToValue(
+                        consulta.tabla("aportes", "pago", null).orElseThrow().tabla(), TablaDelCatalogo.class);
+        var cu21 = pago.getOperaciones().stream()
+                .filter(o -> o.getCasoDeUso().equals("CU-21"))
+                .findFirst()
+                .orElseThrow();
+        assertThat(cu21.getEndpoints()).extracting(e -> e.getOperationId()).contains("cobrarAporte");
+
+        // Fuera del modelo de entidades: la nota de negocio sale del COMMENT del DDL generado.
+        var borrador = new ObjectMapper()
+                .treeToValue(
+                        consulta.tabla("identidad", "borrador_onboarding", null)
+                                .orElseThrow()
+                                .tabla(),
+                        TablaDelCatalogo.class);
+        assertThat(borrador.getOperaciones()).isEmpty();
+        assertThat(borrador.getColumnas())
+                .filteredOn(c -> c.getNombre().equals("correo"))
+                .singleElement()
+                .satisfies(c -> assertThat(c.getOrigenNegocio()).isEqualTo(ColumnaDelCatalogo.OrigenNegocioEnum.DDL));
     }
 }

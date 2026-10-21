@@ -23,6 +23,8 @@ import bo.aportaya.auditoria.web.generado.modelo.PaginaDeTablasDelCatalogo;
 import bo.aportaya.auditoria.web.generado.modelo.ResumenDelCatalogo;
 import bo.aportaya.auditoria.web.generado.modelo.TablaDelCatalogo;
 import bo.aportaya.auditoria.web.generado.modelo.TipoDeTabla;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -76,21 +78,29 @@ final class MapeoDeCatalogo {
                         .map(m -> new ModuloDelCatalogo(m.codigo(), m.nombre(), m.tablas()))
                         .toList(),
                 r.politicas().stream()
-                        .map(p -> new OpcionDeRetencion(p.id(), p.entidad(), p.mesesRetencionActiva(), p.accionAlVencer()))
+                        .map(p -> new OpcionDeRetencion(
+                                p.id(), p.entidad(), p.mesesRetencionActiva(), p.accionAlVencer()))
                         .toList());
     }
 
     private static EsquemaDelCatalogo aContrato(ConsultarCatalogoDeDatos.Esquema e) {
         var c = new EsquemaDelCatalogo(
-                e.nombre(), e.descripcion(), e.tablas(), e.tablasDeNegocio(), e.columnas(), e.relaciones(),
-                e.appendOnly(), e.conDatosPersonales());
+                e.nombre(),
+                e.descripcion(),
+                e.tablas(),
+                e.tablasDeNegocio(),
+                e.columnas(),
+                e.relaciones(),
+                e.appendOnly(),
+                e.conDatosPersonales());
         e.servicio().ifPresent(c::setServicio);
         return c;
     }
 
     /** Catalogo de datos · H2 — una pagina de la lista. */
     static PaginaDeTablasDelCatalogo aContrato(ConsultarCatalogoDeDatos.Pagina p) {
-        List<FilaDelCatalogo> items = p.items().stream().map(MapeoDeCatalogo::aContrato).toList();
+        List<FilaDelCatalogo> items =
+                p.items().stream().map(MapeoDeCatalogo::aContrato).toList();
         return new PaginaDeTablasDelCatalogo(items, p.pagina(), p.limite(), p.total(), p.totalPaginas());
     }
 
@@ -118,10 +128,20 @@ final class MapeoDeCatalogo {
     }
 
     /** Catalogo de datos · H2 — la ficha de una tabla: la del recurso con su gobierno y sus revisiones encima. */
+    /** La ficha del recurso pasada por el modelo generado: una tabla que no cumple el contrato falla aca. */
+    static TablaDelCatalogo aContrato(ObjectMapper mapper, ConsultarCatalogoDeDatos.Ficha ficha) {
+        try {
+            return aContrato(mapper.treeToValue(ficha.tabla(), TablaDelCatalogo.class), ficha);
+        } catch (JsonProcessingException e) {
+            throw new IllegalStateException("La tabla del catalogo no cumple TablaDelCatalogo", e);
+        }
+    }
+
     static TablaDelCatalogo aContrato(TablaDelCatalogo t, ConsultarCatalogoDeDatos.Ficha ficha) {
         t.setGobierno(aContrato(ficha.gobierno()));
         for (ColumnaDelCatalogo c : t.getColumnas()) {
-            RevisionDeColumna r = ficha.revisiones().get(RevisionDeColumna.clave(t.getEsquema(), t.getTabla(), c.getNombre()));
+            RevisionDeColumna r =
+                    ficha.revisiones().get(RevisionDeColumna.clave(t.getEsquema(), t.getTabla(), c.getNombre()));
             if (r != null) c.setRevision(aContrato(r));
         }
         return t;

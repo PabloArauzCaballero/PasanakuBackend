@@ -1,0 +1,31 @@
+# H6.S3.M1 · borradores.sql: el esquema completo se aplica sobre una base vacía · 2026-10-21T04:30:46+00:00
+$ python3 -I scripts/generar_ddl.py   → solo aparece sql/15_infra/borradores.sql (git status: ?? sql/15_infra/borradores.sql)
+$ CREATE DATABASE h6_esquema_completo; psql -v ON_ERROR_STOP=1 -f sql/aplicar.sql   (PostgreSQL 16 local)
+exit=0
+líneas con ERROR: 0
+psql:sql/40_reglas/restricciones.sql:3405: NOTICE:  trigger "tg_distribucion_interes_coherente" for relation "distribucion_interes" does not exist, skipping
+psql:sql/40_reglas/restricciones.sql:3411: NOTICE:  constraint "ck_corrida_trabajo_fin" of relation "corrida_trabajo" does not exist, skipping
+psql:sql/40_reglas/restricciones.sql:3412: NOTICE:  constraint "ck_corrida_trabajo_error" of relation "corrida_trabajo" does not exist, skipping
+
+$ psql … -f sql/aplicar.sql   (segunda vez, misma base: idempotencia)
+exit=0  líneas con ERROR: 0
+
+$ SQL literal de BorradorOnboardingRepositorio como svc_identidad (datos sintéticos, correo de prueba .test)
+SET
+INSERT 0 1
+INSERT 0 1
+ filas |   paso    
+-------+-----------
+     1 | actividad
+(1 row)
+
+-- paso_pendiente fuera del enum del contrato:
+ERROR:  new row for relation "borrador_onboarding" violates check constraint "ck_identidad_borrador_paso_pendiente"
+DETAIL:  Failing row contains (otro@ejemplo.test, null, null, null, null, null, null, null, null, null, null, null, null, null, inventado, 2026-10-21 04:31:05.353666+00, 2026-10-21 04:31:05.353666+00).
+DELETE 1
+ quedan 
+--------
+      0
+(1 row)
+
+exit=0

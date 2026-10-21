@@ -16,10 +16,10 @@
         "appendOnly": false,
         "negocio": {
           "queEs": "Plata que efectivamente se movió. El hecho económico.",
-          "negocio": "Es el registro que respalda que alguien cumplió. Varios campos merecen explicación: - montoComisionProveedor y montoNetoAcreditado: lo que el participante paga no es lo que llega a la bolsa. La pasarela se queda con su comisión. Si esa diferencia no se modela explícitamente, la bolsa nunca cuadra y nadie entiende por qué faltan Bs 3,50. - pagadorNombre y pagadorDocumento: quién pagó realmente. Muchas veces paga el esposo, la madre o el jefe por el participante. Registrarlo es necesario para cumplimiento (detectar que una sola persona está pagando por seis participantes distintos, patrón de participantes ficticios) y para resolver reclamos. - esManual + registradoPor: distingue el pago que entró solo por webhook del que un operador cargó a mano contra un comprobante. Los segundos son intrínsecamente más riesgosos y deben poder auditarse aparte. - canal = EFECTIVO_AL_ORGANIZADOR: reconoce que en la realidad boliviana una parte del dinero se paga en efectivo. Negarlo no lo elimina, solo lo saca del sistema y lo vuelve invisible. Mejor registrarlo, marcarlo como manual y someterlo a doble revisión.",
+          "negocio": "Es el registro que respalda que alguien cumplió. Varios campos merecen explicación:\n\n- montoComisionProveedor y montoNetoAcreditado: lo que el participante paga no es lo que llega a la bolsa. La pasarela se queda con su comisión. Si esa diferencia no se modela explícitamente, la bolsa nunca cuadra y nadie entiende por qué faltan Bs 3,50.\n- pagadorNombre y pagadorDocumento: quién pagó realmente. Muchas veces paga el esposo, la madre o el jefe por el participante. Registrarlo es necesario para cumplimiento (detectar que una sola persona está pagando por seis participantes distintos, patrón de participantes ficticios) y para resolver reclamos.\n- esManual + registradoPor: distingue el pago que entró solo por webhook del que un operador cargó a mano contra un comprobante. Los segundos son intrínsecamente más riesgosos y deben poder auditarse aparte.\n- canal = EFECTIVO_AL_ORGANIZADOR: reconoce que en la realidad boliviana una parte del dinero se paga en efectivo. Negarlo no lo elimina, solo lo saca del sistema y lo vuelve invisible. Mejor registrarlo, marcarlo como manual y someterlo a doble revisión.",
           "porQue": "Es el hecho económico. Sin él no hay contabilidad, ni constancia, ni conciliación, ni reputación basada en cumplimiento real."
         },
-        "notaDeSistema": "Reglas duras: UNIQUE (proveedor, referencia_proveedor) — el mismo cobro no entra dos veces. UNIQUE (clave_idempotencia). Trigger: la suma de pagos acreditados por obligación no puede superar monto_esperado + monto_recargo salvo que exista un reembolso compensatorio. ---",
+        "notaDeSistema": "Reglas duras: UNIQUE (proveedor, referencia_proveedor) — el mismo cobro no entra dos veces. UNIQUE (clave_idempotencia). Trigger: la suma de pagos acreditados por obligación no puede superar monto_esperado + monto_recargo salvo que exista un reembolso compensatorio.",
         "reglas": [
           "uq_pago_idem"
         ],
@@ -362,7 +362,129 @@
           "estadoRevision": "DETECTADA",
           "criticaParaAuditoria": false,
           "version": 0
-        }
+        },
+        "operaciones": [
+          {
+            "casoDeUso": "CU-10",
+            "titulo": "Recargar saldo",
+            "endpoints": [
+              {
+                "servicio": "nucleo-financiero",
+                "metodo": "POST",
+                "ruta": "/billetera/recargas",
+                "operationId": "solicitarRecarga"
+              },
+              {
+                "servicio": "nucleo-financiero",
+                "metodo": "POST",
+                "ruta": "/billetera/recargas/{ordenId}/acreditacion",
+                "operationId": "acreditarRecarga"
+              }
+            ]
+          },
+          {
+            "casoDeUso": "CU-19",
+            "titulo": "Reembolsar un pago y atender una disputa",
+            "endpoints": [
+              {
+                "servicio": "aportes",
+                "metodo": "POST",
+                "ruta": "/pagos/reembolsos/{reembolsoId}/aprobacion",
+                "operationId": "aprobarReembolso"
+              },
+              {
+                "servicio": "aportes",
+                "metodo": "POST",
+                "ruta": "/pagos/{pagoId}/disputas",
+                "operationId": "registrarDisputa"
+              },
+              {
+                "servicio": "aportes",
+                "metodo": "POST",
+                "ruta": "/pagos/{pagoId}/reembolsos",
+                "operationId": "solicitarReembolso"
+              }
+            ]
+          },
+          {
+            "casoDeUso": "CU-21",
+            "titulo": "Cobrar el aporte del período",
+            "endpoints": [
+              {
+                "servicio": "aportes",
+                "metodo": "POST",
+                "ruta": "/aportes/obligaciones/{obligacionId}/pagos",
+                "operationId": "cobrarAporte"
+              },
+              {
+                "servicio": "aportes",
+                "metodo": "GET",
+                "ruta": "/aportes/participantes/{participanteId}/estado",
+                "operationId": "consultarEstadoDelParticipante"
+              },
+              {
+                "servicio": "aportes",
+                "metodo": "POST",
+                "ruta": "/aportes/periodos/{periodoId}/obligaciones",
+                "operationId": "generarObligacionesDelPeriodo"
+              },
+              {
+                "servicio": "aportes",
+                "metodo": "GET",
+                "ruta": "/aportes/periodos/{periodoId}/recaudo",
+                "operationId": "consultarRecaudoDelPeriodo"
+              },
+              {
+                "servicio": "grupos",
+                "metodo": "GET",
+                "ruta": "/grupos/obligaciones/admisibilidad",
+                "operationId": "consultarAdmisibilidadDePago"
+              }
+            ]
+          },
+          {
+            "casoDeUso": "CU-26",
+            "titulo": "Ejecutar el aval y subrogar la deuda",
+            "endpoints": [
+              {
+                "servicio": "garantia",
+                "metodo": "POST",
+                "ruta": "/incumplimientos/{expedienteId}/aval/ejecucion",
+                "operationId": "ejecutarAval"
+              }
+            ]
+          },
+          {
+            "casoDeUso": "CU-51",
+            "titulo": "Ejecutar el cierre diario",
+            "endpoints": [
+              {
+                "servicio": "aportes",
+                "metodo": "GET",
+                "ruta": "/aportes/recaudo-diario",
+                "operationId": "consultarRecaudoDiario"
+              },
+              {
+                "servicio": "nucleo-financiero",
+                "metodo": "GET",
+                "ruta": "/contabilidad/cierres-diarios",
+                "operationId": "listarCierresDiarios"
+              }
+            ]
+          },
+          {
+            "casoDeUso": "CU-82",
+            "titulo": "Procesar una respuesta entrante",
+            "endpoints": [
+              {
+                "servicio": "notificaciones",
+                "metodo": "POST",
+                "ruta": "/notificaciones/webhooks/{proveedor}",
+                "operationId": "procesarRespuestaEntrante"
+              }
+            ]
+          }
+        ]
       }
     },
     "vacio": {
@@ -404,7 +526,8 @@
           "revisadoPor": "ca1bdca6-bfa2-48c4-85b9-946289be256a",
           "actualizadoEn": "2026-01-15T10:30:00Z",
           "version": 0
-        }
+        },
+        "operaciones": []
       }
     },
     "adverso": {
@@ -492,7 +615,8 @@
           "revisadoPor": "ca1bdca6-bfa2-48c4-85b9-946289be256a",
           "actualizadoEn": "2026-01-15T10:30:00Z",
           "version": 0
-        }
+        },
+        "operaciones": []
       }
     },
     "rechazo": {
