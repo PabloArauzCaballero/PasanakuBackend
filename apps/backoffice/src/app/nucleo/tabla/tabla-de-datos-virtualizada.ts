@@ -74,7 +74,7 @@ import { accionParaTecla, enfocarFilaPorId } from './navegacion-por-teclado'
             <div class="celda marca" role="cell"><ap-casilla [marcada]="elegidas().includes(identidad()(f))" (marcadaChange)="marcar(identidad()(f), $event)"><span class="oculto">Seleccionar fila</span></ap-casilla></div>
           }
           @for (c of columnas(); track c.clave) {
-            <div class="celda" role="cell" [class.numerica]="c.numerica" [style.flex]="c.ancho ?? '1'">
+            <div class="celda" role="cell" [class.numerica]="c.numerica" [style.flex]="c.ancho ?? '1'" [attr.title]="celda() ? null : f[c.clave]">
               @if (celda()) {
                 <ng-container *ngTemplateOutlet="celda()!; context: { $implicit: f, columna: c }" />
               } @else {
@@ -96,9 +96,9 @@ import { accionParaTecla, enfocarFilaPorId } from './navegacion-por-teclado'
     .error { color: var(--rojo-texto, var(--text)); background: var(--surface-2); border-radius: var(--r-md); padding: var(--s3) var(--s4); margin: 0 0 var(--s3); }
     .marco { border: var(--borde-fino) solid var(--border); border-radius: var(--r-lg); background: var(--surface); overflow: hidden; }
     .fila { display: flex; align-items: center; border-top: var(--borde-fino) solid var(--border); }
-    .fila-cabecera { border-top: 0; background: var(--surface-2); } .fila:first-child { border-top: 0; }
-    .celda { padding: var(--s3) var(--s4); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .celda.numerica { text-align: right; font-variant-numeric: tabular-nums; } .celda.marca { flex: 0 0 var(--s7); }
+    .fila-cabecera { border-top: 0; background: var(--surface-2); } .fila:first-child { border-top: 0; } /* cabecera como la de ap-tabla-de-datos */
+    .celda { padding: var(--s3) var(--s4); flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: var(--t-cuerpo-chico); color: var(--text); }
+    .fila-cabecera .celda { font: var(--t-cabecera-tabla); letter-spacing: var(--t-cabecera-tabla-track); text-transform: uppercase; color: var(--text-3); white-space: normal; } .celda.numerica { text-align: right; font-variant-numeric: tabular-nums; } .celda.marca { flex: 0 0 var(--s7); }
     .viewport { width: 100%; }
     button { display: inline-flex; align-items: center; gap: var(--s1); min-height: var(--area-tactil); margin: calc(var(--s2) * -1) 0; padding: 0; border: 0; background: transparent; color: inherit; font: inherit; font-weight: 600; cursor: pointer; }
     button:focus-visible, [role='row']:focus-visible, [role='row'].con-foco { outline: var(--borde-foco) solid var(--g300); outline-offset: var(--borde-desfase); }

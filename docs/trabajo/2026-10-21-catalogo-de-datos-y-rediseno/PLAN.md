@@ -67,14 +67,15 @@
 ## H4 — Rediseño integral del backoffice (visual de Atlas) y menú consolidado
 **CA:** Dado cualquier operador, cuando abre el backoffice, entonces ve un lienzo neutro, superficies blancas con líneas finas, un solo acento, tipografía con jerarquía clara, y un menú lateral con ≤ 12 entradas cuyas subpantallas aparecen como pestañas de sección; en tema claro y oscuro, en 375/768/1440 px, sin desbordes.
 **DoD:** capturas antes/después en `evidencia/capturas/` miradas · `test:front` y `test:a11y` verdes · `verificar_frontend.py` sin literales.
-**Estado:** TODO
+**Estado:** HECHO — `evidencia/H4-rediseno.txt` (920/920, a11y 78/78, contraste AA de la capa, e2e 150 verdes y los 14 rojos preexistentes en dev: `H4-e2e-base.txt`), capturas en `evidencia/capturas/{antes,despues}`.
+- Desvíos: el cajón lateral pasa a usarse por debajo de 64rem (antes 40rem), como el `lg` de Atlas; la paleta neutra se registró en la bóveda (`docs/Views/Sistema-Diseno/estilos.css`) porque `tokens-contra-boveda.spec.ts` exige que toda primitiva salga de ahí.
 
 | ID | Microtarea | CA | DoD | Estado |
 |---|---|---|---|---|
-| H4.S1.M1 | Capturas del estado actual (antes) | 3 anchos × 2 temas | archivos en `evidencia/capturas/antes-*` | TODO |
-| H4.S1.M2 | Capa de tema del backoffice (roles CSS) con el lenguaje de Atlas en claro y oscuro | contraste AA de texto sobre superficies | `test:a11y` + capturas | TODO |
-| H4.S1.M3 | Menú lateral: secciones sin subpantallas desplegadas; pestañas de sección en la cabecera | ≤ 12 enlaces en el menú | `menu.spec.ts` + `menu-lateral.spec.ts` | TODO |
-| H4.S1.M4 | Pulido del shell (barra superior, ancho de contenido, tarjetas, tablas) | capturas sin desbordes a 375 px | capturas después | TODO |
+| H4.S1.M1 | Capturas del estado actual (antes) | 3 anchos × 2 temas | archivos en `evidencia/capturas/antes-*` | HECHO |
+| H4.S1.M2 | Capa de tema del backoffice (roles CSS) con el lenguaje de Atlas en claro y oscuro | contraste AA de texto sobre superficies | `test:a11y` + capturas | HECHO |
+| H4.S1.M3 | Menú lateral: secciones sin subpantallas desplegadas; pestañas de sección en la cabecera | ≤ 12 enlaces en el menú | `menu.spec.ts` + `menu-lateral.spec.ts` | HECHO |
+| H4.S1.M4 | Pulido del shell (barra superior, ancho de contenido, tarjetas, tablas) | capturas sin desbordes a 375 px | capturas después | HECHO |
 
 ## H5 — Artefactos y cierre
 | ID | Microtarea | CA | DoD | Estado |

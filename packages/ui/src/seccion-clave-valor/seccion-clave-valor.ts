@@ -33,7 +33,7 @@ export type ClaveValor = { etiqueta: string; valor: string | number | boolean | 
     </dl>
   `,
   styles: `
-    :host { display: block; border: var(--borde-fino) solid var(--border); border-radius: var(--r-lg); background: var(--surface); box-shadow: var(--sombra-1); overflow: hidden; }
+    :host { display: block; container-type: inline-size; border: var(--borde-fino) solid var(--border); border-radius: var(--r-lg); background: var(--surface); box-shadow: var(--sombra-1); overflow: hidden; }
     .cabecera { padding: var(--s3) var(--s4); border-bottom: var(--borde-fino) solid var(--border); background: var(--surface-2); }
     h2 { margin: 0; font: var(--t-cuerpo-fuerte); color: var(--text); }
     .cabecera p { margin: var(--s1) 0 0; font: var(--t-cuerpo-chico); color: var(--text-3); }
@@ -41,9 +41,10 @@ export type ClaveValor = { etiqueta: string; valor: string | number | boolean | 
     .fila { display: grid; gap: var(--s1); padding: var(--s3) var(--s4); }
     .fila:nth-child(even) { background: color-mix(in srgb, var(--surface-2) 50%, var(--surface)); }
     dt { font: var(--t-cabecera-tabla); letter-spacing: var(--t-cabecera-tabla-track); text-transform: uppercase; color: var(--text-3); }
-    dd { margin: 0; min-width: 0; font: var(--t-cuerpo-chico); font-weight: 600; color: var(--text); overflow-wrap: anywhere; }
+    dd { margin: 0; min-width: 0; font: var(--t-cuerpo-chico); font-weight: 500; color: var(--text); overflow-wrap: break-word; }
     .tono-ok dd { color: var(--ok-texto); } .tono-aviso dd { color: var(--aviso-texto); } .tono-error dd { color: var(--err-texto); } .tono-info dd { color: var(--info-texto); } .tono-pii dd { color: var(--pii-texto); } .tono-apagado dd { color: var(--text-3); font-weight: 400; }
-    @media (min-width: 40rem) { .fila { grid-template-columns: minmax(7rem, 13rem) minmax(0, 1fr); align-items: start; gap: var(--s4); } }
+    /* Etiqueta al lado solo si la TARJETA es ancha (no la pantalla): en una columna de tres, apilada, el valor no se parte palabra por palabra. */
+    @container (min-width: 32rem) { .fila { grid-template-columns: minmax(7rem, 11rem) minmax(0, 1fr); align-items: baseline; gap: var(--s4); } }
   `,
 })
 export class SeccionClaveValor {

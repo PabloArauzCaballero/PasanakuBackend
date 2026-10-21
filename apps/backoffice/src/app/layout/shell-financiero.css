@@ -5,7 +5,9 @@
 .lateral {
   grid-area: lateral; position: sticky; top: 0; height: 100dvh; display: flex; flex-direction: column; gap: var(--s4); padding: var(--s4) var(--s3); min-width: 0;
   color: var(--white); overflow-y: auto; scrollbar-width: thin;
-  background: radial-gradient(circle at 0% 0%, color-mix(in srgb, var(--g400) 22%, transparent), transparent 45%), linear-gradient(180deg, var(--g800), var(--g900));
+  /* El degradé del portal interno de Atlas («atlas-mesh»): carbón que termina en el verde de la marca, no verde plano. */
+  background: linear-gradient(160deg, var(--n900) 0%, color-mix(in srgb, var(--g900) 55%, var(--n900)) 55%, var(--g800) 100%);
+  border-right: var(--borde-fino) solid color-mix(in srgb, var(--white) 6%, transparent);
 }
 .marca { display: flex; align-items: center; gap: var(--s3); padding: var(--s1) var(--s2) var(--s3); border-bottom: var(--borde-fino) solid color-mix(in srgb, var(--white) 12%, transparent); color: inherit; text-decoration: none; }
 .marca span { display: grid; line-height: 1.2; }
@@ -18,7 +20,7 @@
 .salir:disabled { cursor: progress; opacity: .7; }
 /* En el cajón del celular, «Salir» va sobre superficie clara. */
 ap-cajon-lateral .salir { width: auto; border: 0; color: var(--text); }
-ap-cajon-lateral ap-menu-lateral { display: block; margin: calc(var(--s4) * -1); padding: var(--s3); background: linear-gradient(180deg, var(--g800), var(--g900)); min-height: 100%; }
+ap-cajon-lateral ap-menu-lateral { display: block; margin: calc(var(--s4) * -1); padding: var(--s3); background: linear-gradient(160deg, var(--n900) 0%, color-mix(in srgb, var(--g900) 55%, var(--n900)) 55%, var(--g800) 100%); min-height: 100%; }
 
 .cabecera {
   grid-area: cabecera; position: sticky; top: 0; z-index: 10; display: flex; align-items: center; gap: var(--s3); padding: var(--s2) var(--s4);
@@ -33,7 +35,7 @@ ap-cajon-lateral ap-menu-lateral { display: block; margin: calc(var(--s4) * -1);
 
 main { grid-area: contenido; min-width: 0; display: grid; grid-template-columns: minmax(0, 1fr); align-content: start; gap: var(--s4); padding: var(--s4) var(--s4) calc(var(--s7) + var(--s4)); }
 /* Cada pantalla entra con la misma transición: el elemento que el router crea es el que se anima. */
-main > :not(router-outlet, ap-nota-de-vista) { animation: entrar-vista var(--mov-entrada) var(--curva-llega); }
+main > :not(router-outlet, ap-nota-de-vista, ap-pestanas-de-seccion) { animation: entrar-vista var(--mov-entrada) var(--curva-llega); }
 @keyframes entrar-vista { from { opacity: 0; transform: translateY(var(--s2)); } }
 
 @media (min-width: 64rem) { main { padding: var(--s5) var(--s5) calc(var(--s7) + var(--s5)); } .cabecera { padding: var(--s2) var(--s5); } }

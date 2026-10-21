@@ -19,15 +19,17 @@ import { crearCerrarSesion } from './dominio/cerrar-sesion'
 import { IconoDeSeccion } from './icono-de-seccion'
 import { MenuDeUsuario } from './menu-de-usuario'
 import { MenuLateral } from './menu-lateral'
+import { PestanasDeSeccion } from './pestanas-de-seccion'
 import { SimboloDeMarca } from './simbolo-de-marca'
 
-const ANGOSTO = '(max-width: 40rem)'
+// Por debajo del escritorio la barra lateral es un cajón, como en el portal de Atlas (lg): en tablet apretaba la cabecera.
+const ANGOSTO = '(max-width: 64rem)'
 
 /**
  * El shell del backoffice con la anatomía del portal interno de Atlas: barra lateral oscura con la
- * marca y el menú por grupos (`ap-menu-lateral`), cabecera fija con migas, título de la vista,
- * buscador global, lanzador del tutorial y menú de quien opera; abajo, las «Notas de la vista»
- * plegadas y el `router-outlet`. En el celular la barra es un cajón que abre la hamburguesa.
+ * marca y el menú por grupos (`ap-menu-lateral`, una entrada por sección), cabecera fija con migas,
+ * título de la vista, buscador global, lanzador del tutorial y menú de quien opera; abajo, las
+ * pestañas de la sección, las «Notas de la vista» plegadas y el `router-outlet`. En el celular la barra es un cajón que abre la hamburguesa.
  *
  * **El menú oculta por comodidad**; el permiso real lo exige `canMatch` en cada ruta y lo verifica
  * el servidor — este componente no es la barrera de seguridad.
@@ -35,7 +37,7 @@ const ANGOSTO = '(max-width: 40rem)'
 @Component({
   selector: 'ap-shell-financiero',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterOutlet, RouterLink, CajonLateral, Icono, Migas, NotaDeVista, LanzadorDeTutorial, AnfitrionDeTutorial, BuscadorGlobal, CampanaDeNotificaciones, IconoDeSeccion, MenuDeUsuario, MenuLateral, SimboloDeMarca],
+  imports: [RouterOutlet, RouterLink, CajonLateral, Icono, Migas, NotaDeVista, LanzadorDeTutorial, AnfitrionDeTutorial, BuscadorGlobal, CampanaDeNotificaciones, IconoDeSeccion, MenuDeUsuario, MenuLateral, PestanasDeSeccion, SimboloDeMarca],
   template: `
     <div class="shell" [class.angosto]="angosto()">
       @if (!angosto()) {
@@ -67,6 +69,7 @@ const ANGOSTO = '(max-width: 40rem)'
         <ap-menu-de-usuario [saliendo]="saliendo()" (salir)="salir()" />
       </header>
       <main id="contenido">
+        <ap-pestanas-de-seccion />
         @if (explicador.texto(); as texto) { <ap-nota-de-vista clave="vista">{{ texto }}</ap-nota-de-vista> }
         <router-outlet />
       </main>

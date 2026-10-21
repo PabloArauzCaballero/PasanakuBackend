@@ -5,20 +5,24 @@ import { SISTEMAS, servir } from './apoyo/tableros-sinteticos'
 
 /**
  * El shell con la anatomía del portal de Atlas (plan backoffice-como-atlas, H2): menú por grupos con
- * las pantallas de la sección activa, migas y título en la cabecera, buscador global, menú de quien
+ * una entrada por sección, pestañas con las pantallas de la sección activa (2026-10-21), migas y título en la cabecera, buscador global, menú de quien
  * opera y, en el celular, el cajón que abre la hamburguesa. Login real de CU-04 contra Prism; las
  * pantallas de abajo son las reales (la de outbox lee del mock).
  */
 const P = 'h2'
 const PERMISOS = ['TABLERO_SISTEMAS_VER', 'ACCESOS_ADMINISTRAR', 'VERIFICACION_RESOLVER', 'RETIRO_APROBAR', 'CONTABILIDAD_ERP_CERRAR']
 
-test('escritorio: grupos, pantallas de la sección activa, migas y título; capturas en 3 anchos × 2 temas', async ({ page }) => {
+test('escritorio: grupos, pestañas de la sección activa, migas y título; capturas en 3 anchos × 2 temas', async ({ page }) => {
   await servir(page, '/indicadores', { cuerpo: SISTEMAS })
   await iniciarSesionDePrueba(page, PERMISOS, 'PLATAFORMA')
   await navegarSinRecargar(page, '/sistemas/outbox')
   const menu = page.getByRole('navigation', { name: 'Secciones del backoffice' })
   await expect(menu.getByRole('button', { name: /Control/ })).toHaveAttribute('aria-expanded', 'true')
-  await expect(menu.getByRole('link', { name: 'Outbox y descartados' })).toHaveAttribute('aria-current', 'page')
+  // Una entrada por sección: la pantalla vive en las pestañas de la sección, no en el menú lateral.
+  await expect(menu.getByRole('link', { name: 'Sistemas' })).toHaveAttribute('aria-current', 'page')
+  await expect(menu.getByRole('link', { name: 'Outbox y descartados' })).toHaveCount(0)
+  const pestanas = page.getByRole('navigation', { name: 'Pantallas de Sistemas' })
+  await expect(pestanas.getByRole('link', { name: 'Outbox y descartados' })).toHaveAttribute('aria-current', 'page')
   const migas = page.getByRole('navigation', { name: 'Migas de pan' })
   await expect(migas).toContainText('Inicio')
   await expect(migas).toContainText('Sistemas')
@@ -38,7 +42,8 @@ test('cabecera: el menú de usuario muestra el rol y ofrece salir; el buscador a
   await navegarSinRecargar(page, '/tablero')
   // La cabecera muestra el rol del token en texto legible (el guard de Sistemas exige PLATAFORMA o SEGURIDAD).
   await page.locator('[data-tutorial-id="cabecera-rol"]').click()
-  await expect(page.getByRole('button', { name: /Plataforma/, expanded: true })).toBeVisible()
+  // El disparador del menú de cuenta, no el grupo «Plataforma» del menú lateral (mismo texto).
+  await expect(page.getByRole('banner').getByRole('button', { name: /Plataforma/, expanded: true })).toBeVisible()
   await expect(page.getByRole('menu', { name: 'Cuenta' })).toBeVisible()
   await capturar(page, P, 'menu-de-usuario', 'escritorio', 'light')
   await page.keyboard.press('Escape')

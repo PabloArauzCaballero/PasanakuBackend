@@ -48,7 +48,7 @@ import { textosCatalogo } from './textos'
     .servicio { color: var(--text-2); font: var(--t-etiqueta); letter-spacing: var(--t-etiqueta-track); }
     .descripcion { color: var(--text-2); font: var(--t-cuerpo-chico); }
     .cifras { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s2) var(--s3); margin: 0; padding-top: var(--s2); border-top: var(--borde-fino) solid var(--border); }
-    .cifras div { display: grid; gap: 2px; min-width: 0; }
+    .cifras div { display: grid; gap: calc(var(--s1) / 2); min-width: 0; }
     dt { color: var(--text-3); font: var(--t-eyebrow); letter-spacing: var(--t-eyebrow-track); text-transform: uppercase; overflow-wrap: anywhere; }
     dd { margin: 0; font: var(--t-cifra); font-variant-numeric: tabular-nums; }
     .ver { color: var(--brand-texto); font: var(--t-etiqueta); }

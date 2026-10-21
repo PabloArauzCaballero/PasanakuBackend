@@ -40,6 +40,8 @@ export type Opcion = { valor: string; texto: string; descripcion?: string }
     select:disabled { background: var(--surface-2); color: var(--text-3); cursor: not-allowed; }
     :host(.con-error) select { border-color: var(--err); }
     :host(.compacta) label { font: var(--t-ayuda); color: var(--text-3); }
+    /* En una barra de filtros el valor se lee como dato, no como titular: mismo cuerpo que la tabla que filtra. */
+    :host(.compacta) select { font: var(--t-cuerpo-chico); }
     .ayuda { margin: var(--s1) 0 0; font: var(--t-ayuda); color: var(--text-3); }
     .error { margin: var(--s1) 0 0; font: var(--t-ayuda); color: var(--err-texto); }
   `,
