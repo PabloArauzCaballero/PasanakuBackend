@@ -20,7 +20,7 @@ import { MenuDeUsuario } from './menu-de-usuario'
 import { MenuLateral } from './menu-lateral'
 import { SimboloDeMarca } from './simbolo-de-marca'
 
-const ANGOSTO = '(max-width: 40rem)'
+const ANGOSTO = '(max-width: 64rem)'
 
 /**
  * El shell del backoffice con la anatomía del portal interno de Atlas: barra lateral oscura con la

@@ -37,9 +37,9 @@ ap-cajon-lateral ap-menu-lateral { display: block; margin: calc(var(--s4) * -1);
 .hamburguesa { display: inline-flex; align-items: center; justify-content: center; width: var(--area-tactil); height: var(--area-tactil); margin-left: calc(var(--s2) * -1); border: 0; border-radius: var(--r-md); background: transparent; color: var(--text); cursor: pointer; }
 .hamburguesa:hover { background: var(--surface-2); }
 .marca-chica { display: inline-flex; }
-.vista { flex: 1; min-width: 0; display: grid; gap: calc(var(--s1) / 2); }
+.vista { flex: 1; min-width: min(calc(var(--s7) * 4), 30%); display: grid; gap: calc(var(--s1) / 2); }
 .titulo-vista { margin: 0; font: var(--t-cuerpo-fuerte); letter-spacing: -0.01em; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.buscador { flex: 0 1 calc(var(--s7) * 8); }
+.buscador { flex: 0 1 calc(var(--s7) * 8); min-width: 0; }
 
 main { grid-area: contenido; min-width: 0; display: grid; grid-template-columns: minmax(0, 1fr); align-content: start; gap: var(--s4); padding: var(--s4) var(--s4) calc(var(--s7) + var(--s4)); }
 /* Cada pantalla entra con la misma transición: el elemento que el router crea es el que se anima. */

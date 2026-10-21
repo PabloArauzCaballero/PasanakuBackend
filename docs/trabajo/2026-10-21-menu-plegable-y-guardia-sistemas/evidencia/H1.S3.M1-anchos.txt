@@ -1,0 +1,11 @@
+Medición en navegador (Playwright, http://localhost:4200/sistemas/permisos-internos, tema claro)
+ANTES (ANGOSTO=40rem):
+820px: doc scrollW=1014 clientW=809 (desborde 205) · header w=529 scrollW=734 · .vista w=0
+DESPUÉS (ANGOSTO=64rem, .buscador min-width:0, .vista min-width:min(s7*4,30%)):
+390px: desborde=0 vistaW=128 buscadorW=0 cajon=true
+820px: desborde=0 vistaW=192 buscadorW=288 cajon=true
+1024px: desborde=0 vistaW=276 buscadorW=384 cajon=true
+1100px: desborde=0 vistaW=192 buscadorW=130 cajon=false
+1280px: desborde=0 vistaW=192 buscadorW=310 cajon=false
+1440px: desborde=0 vistaW=278 buscadorW=384 cajon=false
+Capturas: cabecera-<ancho>.png

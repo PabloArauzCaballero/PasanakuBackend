@@ -33,24 +33,54 @@ describe('MenuLateral', () => {
     expect(el.getAttribute('data-tutorial-id')).toBe('menu-principal')
   })
 
-  it('correcto: bajo cualquier sección permitida sus pantallas están siempre abiertas y visibles con sus respectivos íconos', async () => {
-    const { el } = await montar(['ver:tablero', 'ver:sistemas'], '/tablero')
-    const hijos = Array.from(el.querySelectorAll('.hijos a')).map((a) => a.textContent?.trim())
-    expect(hijos).toContain('Outbox y descartados')
-    expect(hijos).toContain('Servicios y SLO')
-    expect(hijos).toContain('Webhooks')
-    // Cada hijo tiene su ícono respectivo
-    const iconosHijos = el.querySelectorAll('.hijos a ap-icono-de-seccion')
-    expect(iconosHijos.length).toBe(hijos.length)
+  // Requisito cambiado el 2026-10-21 (pedido de Pablo: «comprimí las opciones»): antes todas las
+  // secciones estaban siempre abiertas; ahora solo la activa se despliega y el resto se pliega.
+  function abiertas(el: HTMLElement): string[] {
+    return Array.from(el.querySelectorAll('.plegable.abierto .hijos')).map((u) => u.id)
+  }
+
+  it('correcto: solo la sección activa muestra sus pantallas, con sus íconos', async () => {
+    const { el } = await montar(['ver:tablero', 'ver:operacion', 'ver:sistemas'], '/sistemas/servicios')
+    expect(abiertas(el)).toEqual(['menu-hijos-sistemas'])
+    const hijos = Array.from(el.querySelectorAll('.plegable.abierto .hijos a'))
+    expect(hijos.map((a) => a.textContent?.trim())).toContain('Permisos internos')
+    expect(el.querySelectorAll('.plegable.abierto .hijos a ap-icono-de-seccion').length).toBe(hijos.length)
+    // Las pantallas plegadas no se alcanzan con el teclado.
+    expect(el.querySelector('#menu-hijos-operacion')!.closest('.plegable')!.hasAttribute('inert')).toBe(true)
   })
 
-  it('límite: todas las opciones tienen ícono asignado y no existen botones de despliegue o colapso', async () => {
-    const { el } = await montar(['ver:tablero', 'ver:operacion', 'ver:cumplimiento'])
-    expect(el.querySelectorAll('.chevron')).toHaveLength(0)
-    expect(el.querySelectorAll('.boton-chevron-hijos')).toHaveLength(0)
-    // Todas las opciones principales e hijas cuentan con icono de seccion
+  it('límite: en el inicio ninguna sección queda desplegada', async () => {
+    const { el } = await montar(['ver:tablero', 'ver:operacion', 'ver:sistemas'], '/tablero')
+    expect(abiertas(el)).toEqual([])
+  })
+
+  it('correcto: el botón de la flecha despliega y vuelve a plegar una sección, con aria-expanded', async () => {
+    const { fixture, el } = await montar(['ver:tablero', 'ver:operacion', 'ver:sistemas'], '/tablero')
+    const boton = el.querySelector<HTMLButtonElement>('button[aria-controls="menu-hijos-operacion"]')!
+    expect(boton.getAttribute('aria-expanded')).toBe('false')
+    expect(boton.getAttribute('aria-label')).toBe('Mostrar las pantallas de Operación')
+    boton.click()
+    fixture.detectChanges()
+    expect(boton.getAttribute('aria-expanded')).toBe('true')
+    expect(abiertas(el)).toEqual(['menu-hijos-operacion'])
+    boton.click()
+    fixture.detectChanges()
+    expect(abiertas(el)).toEqual([])
+  })
+
+  it('correcto: al navegar a otra sección se pliega la anterior y se abre la nueva', async () => {
+    const { fixture, el } = await montar(['ver:tablero', 'ver:operacion', 'ver:sistemas'], '/sistemas/servicios')
+    await TestBed.inject(Router).navigateByUrl('/operacion/reclamos')
+    fixture.detectChanges()
+    await fixture.whenStable()
+    fixture.detectChanges()
+    expect(abiertas(el)).toEqual(['menu-hijos-operacion'])
+  })
+
+  it('límite: todas las opciones tienen ícono y solo las secciones con pantallas tienen botón de plegar', async () => {
+    const { el } = await montar(['ver:tablero', 'ver:operacion', 'ver:cumplimiento', 'ver:admisiones'])
     const todosLosEnlaces = el.querySelectorAll('a')
-    const iconos = el.querySelectorAll('a ap-icono-de-seccion')
-    expect(iconos.length).toBe(todosLosEnlaces.length)
+    expect(el.querySelectorAll('a ap-icono-de-seccion').length).toBe(todosLosEnlaces.length)
+    expect(Array.from(el.querySelectorAll('button.plegar')).map((b) => b.getAttribute('aria-controls'))).toEqual(['menu-hijos-operacion', 'menu-hijos-cumplimiento'])
   })
 })

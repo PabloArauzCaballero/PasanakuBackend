@@ -1,0 +1,9 @@
+ ✓  backoffice  src/app/rutas/sistemas/guardia-rol-sistemas.spec.ts > soloRolesDeSistemas · barrera de interfaz > un rol financiero (ORGANIZADOR) es bloqueado y redirigido, nunca entra 7ms
+ ✓  backoffice  src/app/rutas/sistemas/guardia-rol-sistemas.spec.ts > soloRolesDeSistemas · barrera de interfaz > sin sesión (rol nulo) es bloqueado 1ms
+ ✓  backoffice  src/app/rutas/sistemas/guardia-rol-sistemas.spec.ts > soloRolesDeSistemas · barrera de interfaz > rol PLATAFORMA entra 1ms
+ ✓  backoffice  src/app/rutas/sistemas/guardia-rol-sistemas.spec.ts > soloRolesDeSistemas · barrera de interfaz > rol SEGURIDAD entra 1ms
+ ✓  backoffice  src/app/rutas/sistemas/guardia-rol-sistemas.spec.ts > soloRolesDeSistemas · barrera de interfaz > rol real del token (OPERADOR) con el código de catálogo ADMIN_PLATAFORMA en permisos entra 1ms
+ ✓  backoffice  src/app/rutas/sistemas/guardia-rol-sistemas.spec.ts > soloRolesDeSistemas · barrera de interfaz > rol real del token (OPERADOR) con RESPONSABLE_SEGURIDAD en permisos entra 1ms
+ ✓  backoffice  src/app/rutas/sistemas/guardia-rol-sistemas.spec.ts > soloRolesDeSistemas · barrera de interfaz > OPERADOR con un permiso de sistemas pero sin rol de sistemas (p. ej. CONTABILIDAD) sigue bloqueado 0ms
+ Test Files  1 passed (1)
+      Tests  7 passed (7)

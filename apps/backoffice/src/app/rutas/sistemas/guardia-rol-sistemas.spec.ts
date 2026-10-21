@@ -45,4 +45,27 @@ describe('soloRolesDeSistemas · barrera de interfaz', () => {
     const resultado = TestBed.runInInjectionContext(() => soloRolesDeSistemas({} as never, {} as never, {} as never))
     expect(resultado).toBe(true)
   })
+  it('rol real del token (OPERADOR) con el código de catálogo ADMIN_PLATAFORMA en permisos entra', () => {
+    configurar()
+    const sesion = TestBed.inject(Sesion)
+    sesion.abrir('token', ['ADMIN_PLATAFORMA', 'ACCESOS_ADMINISTRAR'], 'OPERADOR')
+    const resultado = TestBed.runInInjectionContext(() => soloRolesDeSistemas({} as never, {} as never, {} as never))
+    expect(resultado).toBe(true)
+  })
+
+  it('rol real del token (OPERADOR) con RESPONSABLE_SEGURIDAD en permisos entra', () => {
+    configurar()
+    const sesion = TestBed.inject(Sesion)
+    sesion.abrir('token', ['RESPONSABLE_SEGURIDAD'], 'OPERADOR')
+    const resultado = TestBed.runInInjectionContext(() => soloRolesDeSistemas({} as never, {} as never, {} as never))
+    expect(resultado).toBe(true)
+  })
+
+  it('OPERADOR con un permiso de sistemas pero sin rol de sistemas (p. ej. CONTABILIDAD) sigue bloqueado', () => {
+    configurar()
+    const sesion = TestBed.inject(Sesion)
+    sesion.abrir('token', ['ACCESOS_ADMINISTRAR', 'CONTADOR'], 'OPERADOR')
+    const resultado = TestBed.runInInjectionContext(() => soloRolesDeSistemas({} as never, {} as never, {} as never))
+    expect(resultado).toBeInstanceOf(UrlTree)
+  })
 })
