@@ -57,16 +57,22 @@ export const routes: Routes = [
       },
       {
         // CU-130: la edición de la ficha de gobierno en su propia página; el permiso de edición lo exige el servidor también.
-        path: 'tablero/catalogo-de-datos/:tabla/ficha',
+        path: 'tablero/catalogo-de-datos/:esquema/:tabla/ficha',
         canMatch: [requierePermiso('CATALOGO_DATOS_EDITAR')],
         loadComponent: () => import('./rutas/tablero/catalogo/pantalla-de-ficha-de-gobierno').then((m) => m.PantallaDeFichaDeGobierno),
         title: 'Configurar tabla · AportaYa',
       },
       {
-        path: 'tablero/catalogo-de-datos/:tabla',
+        // La ficha va por esquema y tabla: la infraestructura de mensajería repite nombres en cada esquema.
+        path: 'tablero/catalogo-de-datos/:esquema/:tabla',
         canMatch: [requierePermiso('TABLERO_SISTEMAS_VER')],
         loadComponent: () => import('./rutas/tablero/catalogo/ficha-de-tabla').then((m) => m.FichaDeTabla),
         title: 'Ficha de tabla · AportaYa',
+      },
+      {
+        // Un enlace viejo (`/catalogo-de-datos/pago`) no sabe el esquema: lleva a la lista buscando ese nombre.
+        path: 'tablero/catalogo-de-datos/:tabla',
+        redirectTo: ({ params }) => `/tablero/catalogo-de-datos?q=${encodeURIComponent(params['tabla'] ?? '')}`,
       },
       {
         path: 'tablero/comercial',

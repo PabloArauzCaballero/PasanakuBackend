@@ -8,8 +8,8 @@ import { EstadoDePantalla } from '@aportaya/ui/estado-de-pantalla/estado-de-pant
 import { Pestanas, type Pestana } from '@aportaya/ui/pestanas/pestanas'
 import { ExplicadorDeVista } from '../../../nucleo/explicador-de-vista'
 import { Sesion } from '../../../nucleo/sesion'
-import { CatalogoDeDatosRemoto } from './dominio'
-import { ESTADOS, REVISIONES, gobiernoDe, tieneDatosPersonales, tonoDeEstado, tonoDeRevision } from './gobierno'
+import { ResumenDelCatalogoRemoto, clasificacionDe, fichaRemota } from './dominio'
+import { ESTADOS, REVISIONES, gobiernoDe, tonoDeEstado, tonoDeRevision } from './gobierno'
 import { textosCatalogo } from './textos'
 import { VistaColumnas } from './vista-columnas'
 import { VistaGeneral } from './vista-general'
@@ -23,14 +23,15 @@ type Vista = (typeof VISTAS)[number]
  * La ficha de una tabla del catálogo, como la del portal de Atlas: cabecera con `esquema.tabla`, su
  * propósito y las insignias de datos personales, revisión y estado; «Editar ficha» para quien puede;
  * y cuatro pestañas (Vista general · Columnas · Relaciones · Gobierno) cuyo estado vive en `?vista=`.
- * `tabla` llega del path (`withComponentInputBinding`).
+ * `esquema` y `tabla` llegan del path (`withComponentInputBinding`): el nombre solo no alcanza, porque la
+ * infraestructura de mensajería repite nombres en cada esquema. Se pide solo esta tabla, no el catálogo entero.
  */
 @Component({
   selector: 'ap-ficha-de-tabla',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [Boton, CabeceraDePagina, ChipEstado, EstadoDePantalla, Pestanas, RouterLink, VistaColumnas, VistaGeneral, VistaGobierno, VistaRelaciones],
   template: `
-    <ap-estado-de-pantalla [recurso]="remoto.recurso" [mensajeVacio]="t.noExiste(tabla())" [etiquetaDeCarga]="textos.cargando" (reintentar)="remoto.recurso.reload()">
+    <ap-estado-de-pantalla [recurso]="remoto" [mensajeVacio]="t.noExiste(esquema() + '.' + tabla())" [etiquetaDeCarga]="textos.cargando" (reintentar)="remoto.reload()">
       @if (ficha(); as f) {
         <ap-cabecera-de-pagina icono="baseDeDatos" [eyebrow]="t.eyebrow" [titulo]="f.esquema + '.' + f.tabla" [descripcion]="f.negocio.queEs ?? t.sinDescripcion">
           @if (puedeEditar()) { <ap-boton acciones variante="primario" tamano="sm" (pulsado)="editar()">{{ t.editar }}</ap-boton> }
@@ -41,14 +42,14 @@ type Vista = (typeof VISTAS)[number]
         <ap-pestanas [etiqueta]="t.etiquetaDeVistas" estilo="segmentada" [pestanas]="pestanas()" [elegida]="vista()" (elegidaChange)="irA($event)" />
         <div role="tabpanel" [id]="'panel-' + vista()" [attr.aria-labelledby]="'pestana-' + vista()">
           @switch (vista()) {
-            @case ('columnas') { <ap-vista-columnas [tabla]="f" (cambio)="remoto.recurso.reload()" /> }
+            @case ('columnas') { <ap-vista-columnas [tabla]="f" (cambio)="remoto.reload()" /> }
             @case ('relaciones') { <ap-vista-relaciones [tabla]="f" /> }
             @case ('gobierno') { <ap-vista-gobierno [tabla]="f" [politicas]="politicas()" /> }
             @default { <ap-vista-general [tabla]="f" [politicas]="politicas()" /> }
           }
         </div>
       } @else {
-        <p role="status" class="nota">{{ t.noExiste(tabla()) }}</p>
+        <p role="status" class="nota">{{ t.noExiste(esquema() + '.' + tabla()) }}</p>
         <a routerLink="/tablero/catalogo-de-datos" class="volver">{{ t.volver }}</a>
       }
     </ap-estado-de-pantalla>
@@ -62,10 +63,12 @@ type Vista = (typeof VISTAS)[number]
   `,
 })
 export class FichaDeTabla {
+  readonly esquema = input.required<string>()
   readonly tabla = input.required<string>()
   protected readonly textos = textosCatalogo
   protected readonly t = textosCatalogo.ficha
-  protected readonly remoto = inject(CatalogoDeDatosRemoto)
+  protected readonly remoto = fichaRemota(() => this.esquema(), () => this.tabla())
+  private readonly resumen = inject(ResumenDelCatalogoRemoto)
   private readonly sesion = inject(Sesion)
   private readonly router = inject(Router)
   private readonly ruta = inject(ActivatedRoute)
@@ -75,14 +78,14 @@ export class FichaDeTabla {
     inject(ExplicadorDeVista).fijar(textosCatalogo.proposito)
   }
 
-  protected readonly ficha = computed(() =>
-    this.remoto.recurso.hasValue() ? this.remoto.recurso.value()?.tablas.find((t) => t.tabla === this.tabla()) : undefined,
-  )
-  protected readonly politicas = computed(() => (this.remoto.recurso.hasValue() ? (this.remoto.recurso.value()?.politicasDeRetencion ?? []) : []))
+  protected readonly ficha = computed(() => (this.remoto.hasValue() ? this.remoto.value() : undefined))
+  protected readonly politicas = computed(() => (this.resumen.recurso.hasValue() ? (this.resumen.recurso.value()?.politicasDeRetencion ?? []) : []))
   protected readonly puedeEditar = computed(() => this.sesion.puede('CATALOGO_DATOS_EDITAR'))
   protected readonly personales = computed(() => {
     const f = this.ficha()
-    return f ? tieneDatosPersonales(f) : false
+    if (!f) return false
+    const c = clasificacionDe(f)
+    return c.personales + c.secretos > 0
   })
   private readonly gobierno = computed(() => {
     const f = this.ficha()

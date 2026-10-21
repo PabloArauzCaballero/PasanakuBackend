@@ -1,7 +1,7 @@
 import { expect, test, type Page } from '@playwright/test'
 import { capturar, todas } from './apoyo/capturas-f2'
 import { iniciarSesionDePrueba, navegarSinRecargar } from './apoyo/sesion-e2e'
-import { CATALOGO, COMERCIAL, ENDPOINTS, FINANCIERO, SISTEMAS, VACIO, servir, type Respuesta } from './apoyo/tableros-sinteticos'
+import { CATALOGO, COMERCIAL, ENDPOINTS, FINANCIERO, SISTEMAS, VACIO, servir, servirCatalogo, type Respuesta } from './apoyo/tableros-sinteticos'
 
 /**
  * Tableros por rol (H9) · recorrido y prueba visual de los tres tableros y del catálogo de datos: guardas `canMatch`
@@ -63,31 +63,32 @@ for (const t of TABLEROS) {
 
 test.describe('catálogo de datos', () => {
   test('lista con datos y ficha de una tabla, con su sensibilidad y relaciones', async ({ page }) => {
-    await abrir(page, 'TABLERO_SISTEMAS_VER', '/tablero/catalogo-de-datos', { '/indicadores/catalogo-de-datos': { cuerpo: CATALOGO } })
+    await servirCatalogo(page, CATALOGO)
+    await abrir(page, 'TABLERO_SISTEMAS_VER', '/tablero/catalogo-de-datos', {})
     await expect(page.getByRole('heading', { level: 1, name: 'Catálogo de datos' })).toBeVisible()
-    await expect(page.getByText(`${CATALOGO.tablas.length} tablas`)).toBeVisible()
+    await expect(page.locator('ap-tabla-de-datos .total')).toHaveText(String(CATALOGO.tablas.length))
     await todas(page, P, 'catalogo-datos')
 
     await page.getByRole('searchbox').fill('obligación aporte')
     await expect(page.getByRole('link', { name: 'obligacion_aporte', exact: true })).toBeVisible()
     await page.getByRole('link', { name: 'obligacion_aporte', exact: true }).click()
     await expect(page.getByRole('heading', { level: 1 })).toContainText('obligacion_aporte')
-    await expect(page.getByText('Dato financiero').first()).toBeVisible()
+    await expect(page.getByText(/Sí · \d+ columnas?/).first()).toBeVisible()
     await todas(page, P, 'catalogo-ficha')
   })
 
   test('vacío de búsqueda y error del catálogo', async ({ page }) => {
-    await abrir(page, 'TABLERO_SISTEMAS_VER', '/tablero/catalogo-de-datos?q=zzz-inexistente', {
-      '/indicadores/catalogo-de-datos': { cuerpo: CATALOGO },
-    })
+    await servirCatalogo(page, CATALOGO)
+    await abrir(page, 'TABLERO_SISTEMAS_VER', '/tablero/catalogo-de-datos?q=zzz-inexistente', {})
     await expect(page.getByText(/Ninguna tabla coincide con la búsqueda/).first()).toBeVisible()
     await capturar(page, P, 'catalogo-vacio', 'movil', 'light')
     await capturar(page, P, 'catalogo-vacio', 'escritorio', 'dark')
   })
 
   test('error: un 403 del catálogo no muestra el detalle interno', async ({ page }) => {
-    await abrir(page, 'TABLERO_SISTEMAS_VER', '/tablero/catalogo-de-datos', { '/indicadores/catalogo-de-datos': { estado: 403 } })
-    await expect(page.getByRole('button', { name: 'Volver a intentar' })).toBeVisible()
+    await servirCatalogo(page, CATALOGO, { estado: 403 })
+    await abrir(page, 'TABLERO_SISTEMAS_VER', '/tablero/catalogo-de-datos', {})
+    await expect(page.getByRole('button', { name: 'Volver a intentar' }).first()).toBeVisible()
     await expect(page.getByText('detalle interno')).toHaveCount(0)
     await capturar(page, P, 'catalogo-error', 'movil', 'light')
     await capturar(page, P, 'catalogo-error', 'escritorio', 'dark')

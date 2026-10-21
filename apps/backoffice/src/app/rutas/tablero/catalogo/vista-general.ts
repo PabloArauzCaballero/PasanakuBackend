@@ -1,7 +1,8 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core'
 import { SeccionClaveValor, type ClaveValor } from '@aportaya/ui/seccion-clave-valor/seccion-clave-valor'
 import type { OpcionDeRetencion, TablaDelCatalogo } from 'clientes/angular/auditoria'
-import { ESTADOS, REVISIONES, gobiernoDe, tieneDatosFinancieros, tieneDatosPersonales } from './gobierno'
+import { clasificacionDe } from './dominio'
+import { ESTADOS, REVISIONES, gobiernoDe } from './gobierno'
 import { textosCatalogo } from './textos'
 
 /**
@@ -52,13 +53,13 @@ export class VistaGeneral {
     ]
   })
   protected readonly clasificacion = computed<ClaveValor[]>(() => {
-    const f = this.tabla()
-    const personales = tieneDatosPersonales(f)
+    const c = clasificacionDe(this.tabla())
+    const cuantas = (n: number) => (n === 0 ? 'No' : n === 1 ? 'Sí · 1 columna' : `Sí · ${n} columnas`)
     return [
-      { etiqueta: this.t.clasificacion.personales, valor: personales, tono: personales ? 'pii' : undefined },
-      { etiqueta: this.t.clasificacion.financieros, valor: tieneDatosFinancieros(f) },
-      { etiqueta: this.t.clasificacion.secretos, valor: f.columnas.some((c) => c.sensibilidad === 'SECRETO') },
-      { etiqueta: this.t.clasificacion.derivados, valor: f.columnas.some((c) => c.sensibilidad === 'DERIVADO') },
+      { etiqueta: this.t.clasificacion.personales, valor: cuantas(c.personales), tono: c.personales ? 'pii' : undefined },
+      { etiqueta: this.t.clasificacion.financieros, valor: cuantas(c.financieros) },
+      { etiqueta: this.t.clasificacion.secretos, valor: cuantas(c.secretos) },
+      { etiqueta: this.t.clasificacion.derivados, valor: cuantas(c.derivados) },
     ]
   })
   protected readonly responsabilidad = computed<ClaveValor[]>(() => {

@@ -27,40 +27,42 @@
 
 ## H1 — La semilla del catálogo describe esquemas, tablas, columnas y relaciones completas
 **CA:** Dado el modelo PlantUML, cuando se corre el generador, entonces el JSON trae cada esquema con servicio, descripción y cifras; cada relación con columna destino, nombre de restricción, acción al borrar, cardinalidad y obligatoriedad; y la segunda corrida no cambia nada.
-**DoD:** `python3 -I scripts/catalogo_de_datos.py --escribir` dos veces → `git diff --stat` igual · `python3 -m unittest scripts/test_catalogo_de_datos.py` verde.
-**Estado:** TODO
+**DoD:** `python3 -I scripts/catalogo_de_datos.py --escribir` dos veces → `git diff --stat` igual · `python3 -I scripts/test_catalogo_de_datos.py` verde.
+**Estado:** HECHO — `evidencia/H1-semilla-catalogo.txt`
 
 | ID | Microtarea | CA (binario) | DoD | Estado |
 |---|---|---|---|---|
-| H1.S1.M1 | Esquemas como objetos `{nombre, servicio, descripcion, tablas, columnas, appendOnly}` | `esquemas[0]` es objeto con los 6 campos | test `test_esquemas_son_objetos` | TODO |
-| H1.S1.M2 | Relaciones: `columnaDestino`, `restriccion` (`fk_…` igual que el DDL), `alBorrar` (RESTRICT/SET NULL igual que el DDL), `cardinalidad` (N:1 / 1:1 por UNIQUE de una sola columna), `obligatoria` | las 686 FK del catálogo coinciden 1:1 con `sql/20_claves` (nombre + acción) | test `test_relaciones_coinciden_con_el_ddl` | TODO |
-| H1.S1.M3 | Columnas: `referencia` con esquema (`esquemaReferencia`), `unica` | columna FK trae esquema destino | test `test_columna_fk_trae_esquema` | TODO |
-| H1.S1.M4 | Resumen de sensibilidad por tabla (`clasificacion`: personales, financieros, secretos) | `pago.clasificacion.financieros > 0` | test `test_clasificacion_por_tabla` | TODO |
-| H1.S1.M5 | Idempotencia del generador | 2.ª corrida sin diff | `--escribir` ×2 + `git diff --quiet` | TODO |
+| H1.S1.M1 | Esquemas como objetos `{nombre, servicio, descripcion, tablas, columnas, appendOnly}` | `esquemas[0]` es objeto con los 6 campos | test `test_esquemas_son_objetos` | HECHO |
+| H1.S1.M2 | Relaciones: `columnaDestino`, `restriccion` (`fk_…` igual que el DDL), `alBorrar` (RESTRICT/SET NULL igual que el DDL), `cardinalidad` (N:1 / 1:1 por UNIQUE de una sola columna), `obligatoria` | las 686 FK del catálogo coinciden 1:1 con `sql/20_claves` (nombre + acción) | test `test_relaciones_coinciden_con_el_ddl` | HECHO |
+| H1.S1.M3 | Columnas: `referencia` con esquema (`esquemaReferencia`), `unica` | columna FK trae esquema destino | test `test_columna_fk_trae_esquema` | HECHO |
+| H1.S1.M4 | Resumen de sensibilidad por tabla (`clasificacion`: personales, financieros, secretos) | `pago.clasificacion.financieros > 0` | test `test_clasificacion_por_tabla` | HECHO |
+| H1.S1.M5 | Idempotencia del generador | 2.ª corrida sin diff | `--escribir` ×2 + `git diff --quiet` | HECHO |
 
 ## H2 — Contrato y servicio: resumen, lista paginada y ficha por esquema+tabla
 **CA:** Dado un operador con `TABLERO_SISTEMAS_VER`, cuando pide `GET …/catalogo-de-datos/tablas?pagina=2&limite=20&esquema=aportes`, entonces recibe 20 filas o menos, sin columnas, con `meta {pagina, limite, total, totalPaginas}` y orden esquema→tabla; sin permiso 403; tabla inexistente 404 `AP-CAT-01`.
 **DoD:** `./gradlew :servicios:auditoria:test :servicios:auditoria:webTest` verde (salida pegada) · `generarClientes` verde.
-**Estado:** TODO
+**Estado:** HECHO — `evidencia/H2-auditoria.txt` (test 43/43, webTest 74/74)
 
 | ID | Microtarea | CA | DoD | Estado |
 |---|---|---|---|---|
-| H2.S1.M1 | Contrato OpenAPI: 3 operaciones + DTOs mínimos (`ResumenDelCatalogo`, `EsquemaDelCatalogo`, `PaginaDeTablasDelCatalogo`, `FilaDelCatalogo`, `RelacionDelCatalogo` ampliada); GET completo `deprecated: true` | el YAML valida y genera | `generarClientes` | TODO |
-| H2.S1.M2 | `ConsultarCatalogoDeDatos`: índice tipado en memoria, filtros (q normalizado sin acentos, esquema, modulo, estado, revision, sensibilidad), orden determinista, límite 1..100 | test unitario de filtros, bordes de página y límite | `:servicios:auditoria:test` | TODO |
-| H2.S1.M3 | Controlador: 3 endpoints con permiso y gobierno superpuesto; 404 de contrato | 200/400/401/403/404 | `:servicios:auditoria:webTest` (CatalogoDeDatosWebTest) | TODO |
+| H2.S1.M1 | Contrato OpenAPI: 3 operaciones + DTOs mínimos (`ResumenDelCatalogo`, `EsquemaDelCatalogo`, `PaginaDeTablasDelCatalogo`, `FilaDelCatalogo`, `RelacionDelCatalogo` ampliada); GET completo `deprecated: true` | el YAML valida y genera | `generarClientes` | HECHO |
+| H2.S1.M2 | `ConsultarCatalogoDeDatos`: índice tipado en memoria, filtros (q normalizado sin acentos, esquema, modulo, estado, revision, sensibilidad), orden determinista, límite 1..100 | test unitario de filtros, bordes de página y límite | `:servicios:auditoria:test` | HECHO |
+| H2.S1.M3 | Controlador: 3 endpoints con permiso y gobierno superpuesto; 404 de contrato | 200/400/401/403/404 | `:servicios:auditoria:webTest` (CatalogoDeDatosWebTest) | HECHO |
 
 ## H3 — Pantallas del catálogo contra el contrato nuevo
 **CA:** Dado el backoffice, cuando el operador filtra o pagina, entonces se pide la página al servidor (no se descarga el catálogo entero) y la URL conserva el estado; la ficha se abre por `esquema/tabla`; la pestaña Esquemas lista los 17 esquemas con su servicio y cifras; las relaciones muestran cardinalidad, columna destino, restricción y acción al borrar en palabras.
 **DoD:** `yarn workspace @aportaya/backoffice test:front` verde · `typecheck` · `lint` · capturas 3 anchos × 2 temas miradas.
-**Estado:** TODO
+**Estado:** HECHO (funcional) — `evidencia/H3-backoffice-catalogo.txt`: 294/294 unitarias, a11y 2/2, e2e 7/7 contra el doble declarado; la apariencia se cierra en H4.
+- Desvío registrado: el buscador global ya no baja el catálogo entero al abrir el backoffice; pide los nombres de tabla (de a 100) la primera vez que alguien busca.
+- Desvío registrado: `proxy.e2e.json` apuntaba al puerto 80; los e2e levantan el simulado en 4010.
 
 | ID | Microtarea | CA | DoD | Estado |
 |---|---|---|---|---|
-| H3.S1.M1 | Acceso a datos: `httpResource` por resumen, página y ficha | spec de dominio | `test:front` | TODO |
-| H3.S1.M2 | Lista con paginación del servidor + KPIs del resumen | spec de pantalla | `test:front` | TODO |
-| H3.S1.M3 | Ruta `catalogo-de-datos/:esquema/:tabla` (la vieja `:tabla` redirige) | spec de rutas | `test:front` | TODO |
-| H3.S1.M4 | Pestaña Esquemas | spec | `test:front` | TODO |
-| H3.S1.M5 | Relaciones enriquecidas | spec de `vista-relaciones` | `test:front` | TODO |
+| H3.S1.M1 | Acceso a datos: `httpResource` por resumen, página y ficha | spec de dominio | `test:front` | HECHO |
+| H3.S1.M2 | Lista con paginación del servidor + KPIs del resumen | spec de pantalla | `test:front` | HECHO |
+| H3.S1.M3 | Ruta `catalogo-de-datos/:esquema/:tabla` (la vieja `:tabla` redirige) | spec de rutas | `test:front` | HECHO |
+| H3.S1.M4 | Pestaña Esquemas | spec | `test:front` | HECHO |
+| H3.S1.M5 | Relaciones enriquecidas | spec de `vista-relaciones` | `test:front` | HECHO |
 
 ## H4 — Rediseño integral del backoffice (visual de Atlas) y menú consolidado
 **CA:** Dado cualquier operador, cuando abre el backoffice, entonces ve un lienzo neutro, superficies blancas con líneas finas, un solo acento, tipografía con jerarquía clara, y un menú lateral con ≤ 12 entradas cuyas subpantallas aparecen como pestañas de sección; en tema claro y oscuro, en 375/768/1440 px, sin desbordes.

@@ -1,72 +1,100 @@
+import { httpResource } from '@angular/common/http'
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core'
 import { toSignal } from '@angular/core/rxjs-interop'
 import { ActivatedRoute, Router, RouterLink } from '@angular/router'
 import { BarraDeFiltros, type Selector } from '@aportaya/ui/barra-de-filtros/barra-de-filtros'
-import { ChipEstado } from '@aportaya/ui/chip-estado/chip-estado'
 import { CabeceraDePagina } from '@aportaya/ui/cabecera-de-pagina/cabecera-de-pagina'
+import { ChipEstado } from '@aportaya/ui/chip-estado/chip-estado'
 import { EstadoDePantalla } from '@aportaya/ui/estado-de-pantalla/estado-de-pantalla'
 import { EstadoVacio } from '@aportaya/ui/estado-vacio/estado-vacio'
 import { Paginacion } from '@aportaya/ui/paginacion/paginacion'
+import { Pestanas, type Pestana } from '@aportaya/ui/pestanas/pestanas'
 import { TablaDeDatos, type Columna } from '@aportaya/ui/tabla-de-datos/tabla-de-datos'
 import { TarjetaKPI } from '@aportaya/ui/tarjeta-kpi/tarjeta-kpi'
 import { ExplicadorDeVista } from '../../../nucleo/explicador-de-vista'
-import { CatalogoDeDatosRemoto, filasDeTablas, filtrarTablas, pagina, type FilaDeTabla } from './dominio'
-import { ESTADOS, REVISIONES, aplicarGobierno, metricas, modulos } from './gobierno'
+import { GATEWAY } from '../../../nucleo/gateway'
+import { filasDeTablas, ResumenDelCatalogoRemoto, urlDeTablas, type FilaDeTabla, type FiltrosDeLista, type PaginaDeTablasDelCatalogo } from './dominio'
+import { ESTADOS, REVISIONES } from './gobierno'
 import { textosCatalogo } from './textos'
+import { VistaEsquemas } from './vista-esquemas'
 
 const FILAS = [10, 20, 50]
+const VISTAS = ['tablas', 'esquemas'] as const
 
 /**
- * Datos → Catálogo de datos, con la anatomía del catálogo del portal de Atlas: cabecera, cifras del
- * inventario, barra de filtros (esquema y módulo con conteo, estado, revisión), tabla con estado y
- * revisión en palabras y paginación completa. Todo el estado vive en la URL, así un enlace lleva a
- * la misma vista. «Ninguna coincide» (los filtros) es distinto de un catálogo que no se pudo leer.
+ * Datos → Catálogo de datos, con la anatomía del catálogo del portal de Atlas: cabecera, cifras del inventario,
+ * pestañas Tablas · Esquemas, barra de filtros y la tabla paginada **en el servidor**. Todo el estado vive en la URL,
+ * así un enlace lleva a la misma vista. Las cifras salen del resumen (no de lo filtrado: son el estado del inventario).
  */
 @Component({
   selector: 'ap-pantalla-catalogo',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [BarraDeFiltros, CabeceraDePagina, ChipEstado, EstadoDePantalla, EstadoVacio, Paginacion, RouterLink, TablaDeDatos, TarjetaKPI],
+  imports: [BarraDeFiltros, CabeceraDePagina, ChipEstado, EstadoDePantalla, EstadoVacio, Paginacion, Pestanas, RouterLink, TablaDeDatos, TarjetaKPI, VistaEsquemas],
   template: `
     <ap-cabecera-de-pagina icono="baseDeDatos" [eyebrow]="t.eyebrow" [titulo]="t.titulo" [descripcion]="t.descripcion" />
-    <ap-estado-de-pantalla [recurso]="remoto.recurso" [mensajeVacio]="t.vacio" [etiquetaDeCarga]="t.cargando" (reintentar)="remoto.recurso.reload()">
+    @if (resumen(); as r) {
       <div class="cifras">
-        <ap-tarjeta-kpi [etiqueta]="t.metricas.total" [valor]="'' + cifras().total" icono="baseDeDatos" />
-        <ap-tarjeta-kpi [etiqueta]="t.metricas.activas" [valor]="'' + cifras().activas" icono="verificado" tono="ok" [pista]="t.metricas.pista(cifras().activas, cifras().total)" />
-        <ap-tarjeta-kpi [etiqueta]="t.metricas.aRevisar" [valor]="'' + cifras().aRevisar" icono="alerta" [tono]="cifras().aRevisar ? 'aviso' : 'ok'" />
-        <ap-tarjeta-kpi [etiqueta]="t.metricas.personales" [valor]="'' + cifras().conDatosPersonales" icono="persona" tono="pii" />
-        <ap-tarjeta-kpi [etiqueta]="t.metricas.retiro" [valor]="'' + cifras().haciaElRetiro" icono="reloj" [tono]="cifras().haciaElRetiro ? 'aviso' : 'neutro'" />
+        <ap-tarjeta-kpi [etiqueta]="t.metricas.total" [valor]="'' + r.tablas" icono="baseDeDatos" [pista]="t.metricas.pistaTablas(r.tablasDeNegocio, r.tablasDeInfraestructura)" />
+        <ap-tarjeta-kpi [etiqueta]="t.metricas.columnas" [valor]="'' + r.columnas" icono="columnas" [pista]="t.metricas.pistaColumnas(r.columnasRevisadas)" />
+        <ap-tarjeta-kpi [etiqueta]="t.metricas.relaciones" [valor]="'' + r.relaciones" icono="relacion" [pista]="t.metricas.pistaEsquemas(r.esquemas.length)" />
+        <ap-tarjeta-kpi [etiqueta]="t.metricas.personales" [valor]="'' + r.conDatosPersonales" icono="persona" tono="pii" [pista]="t.metricas.pistaFinancieras(r.conDatosFinancieros)" />
+        <ap-tarjeta-kpi [etiqueta]="t.metricas.porRevisar" [valor]="'' + (r.porRevision.NECESITA_REVISION + r.porRevision.DETECTADA)" icono="alerta" [tono]="r.porRevision.NECESITA_REVISION ? 'aviso' : 'neutro'" [pista]="t.metricas.pistaRevision(r.porRevision.APROBADA)" />
       </div>
-      <ap-barra-de-filtros [etiquetaDeBusqueda]="t.busqueda" [ayudaDeBusqueda]="t.ayudaDeBusqueda" [busqueda]="filtros().q" [selectores]="selectores()" [textoLimpiar]="t.limpiar" (busquedaChange)="filtrar('q', $event)" (selectorChange)="filtrar($event.nombre, $event.valor)" (limpiar)="limpiarTodo()" />
-      @if (encontradas().length === 0) {
-        <ap-estado-vacio motivo="porFiltro" [titulo]="t.vacio" [explicacion]="t.vacioExplicacion" (actuar)="limpiarTodo()" />
+    }
+    <ap-pestanas [etiqueta]="t.etiquetaDeVistas" [pestanas]="pestanas()" [elegida]="vista()" (elegidaChange)="irA($event)" />
+    <div role="tabpanel" [id]="'panel-' + vista()" [attr.aria-labelledby]="'pestana-' + vista()" class="panel">
+      @if (vista() === 'esquemas') {
+        <ap-estado-de-pantalla [recurso]="resumenRemoto.recurso" [mensajeVacio]="t.vacio" [etiquetaDeCarga]="t.cargando" (reintentar)="resumenRemoto.recurso.reload()">
+          @if (resumen(); as r) { <ap-vista-esquemas [esquemas]="r.esquemas" /> }
+        </ap-estado-de-pantalla>
       } @else {
-        <ap-tabla-de-datos [titulo]="t.titulo" [columnas]="columnas" [estado]="{ tipo: 'lista', filas: filas() }" [identidad]="porId" densidad="compacta" [cabecera]="true" [textoRegistros]="t.registros" [totalDeRegistros]="encontradas().length">
-          <ng-template #celda let-f let-columna="columna">
-            @switch (columna.clave) {
-              @case ('tabla') { <a [routerLink]="['/tablero/catalogo-de-datos', f.tabla]">{{ f.tabla }}</a> }
-              @case ('estado') { <ap-chip-estado [tono]="f.tonoEstado">{{ f.estado }}</ap-chip-estado> }
-              @case ('revision') { <ap-chip-estado [tono]="f.tonoRevision">{{ f.revision }}</ap-chip-estado> }
-              @case ('personales') { @if (f.personales === 'Sí') { <ap-chip-estado tono="pii">{{ t.columnasLista.personales }}</ap-chip-estado> } @else { {{ f.personales }} } }
-              @default { {{ f[columna.clave] }} }
+        <ap-barra-de-filtros [etiquetaDeBusqueda]="t.busqueda" [ayudaDeBusqueda]="t.ayudaDeBusqueda" [busqueda]="filtros().q" [selectores]="selectores()" [textoLimpiar]="t.limpiar" (busquedaChange)="filtrar('q', $event)" (selectorChange)="filtrar($event.nombre, $event.valor)" (limpiar)="limpiarTodo()" />
+        <ap-estado-de-pantalla [recurso]="pagina" [mensajeVacio]="t.vacio" [etiquetaDeCarga]="t.cargando" (reintentar)="pagina.reload()">
+          @if (datos(); as p) {
+            @if (p.total === 0) {
+              <ap-estado-vacio motivo="porFiltro" [titulo]="t.vacio" [explicacion]="t.vacioExplicacion" (actuar)="limpiarTodo()" />
+            } @else {
+              <ap-tabla-de-datos [titulo]="t.titulo" [columnas]="columnas" [estado]="{ tipo: 'lista', filas: filas() }" [identidad]="porId" densidad="compacta" [cabecera]="true" [textoRegistros]="t.registros" [totalDeRegistros]="p.total">
+                <ng-template #celda let-f let-columna="columna">
+                  @switch (columna.clave) {
+                    @case ('tabla') {
+                      <a class="nombre" [routerLink]="['/tablero/catalogo-de-datos', f.esquema, f.tabla]">{{ f.tabla }}</a>
+                      <span class="que-es">{{ f.queEs }}</span>
+                    }
+                    @case ('esquema') {
+                      <code>{{ f.esquema }}</code>
+                      @if (f.infraestructura) { <span class="que-es">{{ t.infraestructura }}</span> }
+                    }
+                    @case ('estado') { <ap-chip-estado [tono]="f.tonoEstado">{{ f.estado }}</ap-chip-estado> }
+                    @case ('revision') { <ap-chip-estado [tono]="f.tonoRevision">{{ f.revision }}</ap-chip-estado> }
+                    @case ('sensible') { <ap-chip-estado [tono]="f.tonoSensible">{{ f.sensible }}</ap-chip-estado> }
+                    @default { {{ f[columna.clave] }} }
+                  }
+                </ng-template>
+              </ap-tabla-de-datos>
+              <ap-paginacion etiqueta="Paginación de tablas" [pagina]="p.pagina" (paginaChange)="filtrar('pagina', '' + $event)" [totalDeFilas]="p.total" [porPagina]="p.limite" (porPaginaChange)="filtrar('filas', '' + $event)" [opcionesPorPagina]="opcionesDeFilas" nombreDeRegistros="tablas" />
             }
-          </ng-template>
-        </ap-tabla-de-datos>
-        <ap-paginacion etiqueta="Paginación de tablas" [pagina]="paginaActual()" (paginaChange)="filtrar('pagina', '' + $event)" [totalDeFilas]="encontradas().length" [porPagina]="porPagina()" (porPaginaChange)="filtrar('filas', '' + $event)" [opcionesPorPagina]="opcionesDeFilas" nombreDeRegistros="tablas" />
+          }
+        </ap-estado-de-pantalla>
       }
-    </ap-estado-de-pantalla>
+    </div>
   `,
   styles: `
     :host { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s4); min-width: 0; }
-    ap-estado-de-pantalla { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s4); min-width: 0; }
-    .cifras { display: grid; gap: var(--s3); grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr)); }
-    a { color: var(--text); font-family: var(--mono); font-size: .92em; font-weight: 600; }
-    a:focus-visible { outline: var(--borde-foco) solid var(--g300); outline-offset: var(--borde-desfase); }
+    .cifras { display: grid; gap: var(--s3); grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr)); }
+    .panel, ap-estado-de-pantalla { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s4); min-width: 0; }
+    .nombre { display: block; color: var(--text); font-family: var(--mono); font-size: .92em; font-weight: 600; text-decoration: none; overflow-wrap: anywhere; }
+    .nombre:hover { color: var(--brand-texto); text-decoration: underline; }
+    .nombre:focus-visible { outline: var(--borde-foco) solid var(--g300); outline-offset: var(--borde-desfase); }
+    .que-es { display: block; margin-top: var(--s1); min-width: 24ch; max-width: 40ch; color: var(--text-2); font: var(--t-cuerpo-chico); white-space: normal; }
+    code { font-family: var(--mono); font-size: .92em; }
   `,
 })
 export class PantallaCatalogo {
   protected readonly t = textosCatalogo
-  protected readonly remoto = inject(CatalogoDeDatosRemoto)
+  protected readonly resumenRemoto = inject(ResumenDelCatalogoRemoto)
   protected readonly opcionesDeFilas = FILAS
+  private readonly gateway = inject(GATEWAY)
   private readonly router = inject(Router)
   private readonly ruta = inject(ActivatedRoute)
   private readonly consulta = toSignal(this.ruta.queryParamMap)
@@ -75,53 +103,66 @@ export class PantallaCatalogo {
     inject(ExplicadorDeVista).fijar(textosCatalogo.proposito)
   }
 
-  private readonly catalogo = computed(() => (this.remoto.recurso.hasValue() ? this.remoto.recurso.value() : undefined))
-  protected readonly cifras = computed(() => metricas(this.catalogo()?.tablas ?? []))
-  protected readonly filtros = computed(() => {
-    const q = this.consulta()
-    return { q: q?.get('q') ?? '', esquema: q?.get('esquema') ?? '', modulo: q?.get('modulo') ?? '', estado: q?.get('estado') ?? '', revision: q?.get('revision') ?? '' }
+  protected readonly resumen = computed(() => (this.resumenRemoto.recurso.hasValue() ? this.resumenRemoto.recurso.value() : undefined))
+  protected readonly vista = computed(() => {
+    const v = this.consulta()?.get('vista') ?? ''
+    return (VISTAS as readonly string[]).includes(v) ? v : 'tablas'
   })
-  protected readonly paginaActual = computed(() => Number(this.consulta()?.get('pagina') ?? 1) || 1)
-  protected readonly porPagina = computed(() => {
+  protected readonly filtros = computed<FiltrosDeLista>(() => {
+    const q = this.consulta()
+    const de = (clave: string) => q?.get(clave) ?? ''
+    return { q: de('q'), esquema: de('esquema'), tipo: de('tipo'), estado: de('estado'), revision: de('revision'), sensibilidad: de('sensibilidad') }
+  })
+  private readonly paginaPedida = computed(() => Number(this.consulta()?.get('pagina') ?? 1) || 1)
+  private readonly porPagina = computed(() => {
     const n = Number(this.consulta()?.get('filas') ?? 20)
     return FILAS.includes(n) ? n : 20
   })
-  protected readonly encontradas = computed(() => {
-    const f = this.filtros()
-    return aplicarGobierno(filtrarTablas(this.catalogo(), f.q, f.esquema ? [f.esquema] : []), { estado: f.estado, revision: f.revision, modulo: f.modulo })
-  })
-  private readonly retenciones = computed(() => new Map((this.catalogo()?.politicasDeRetencion ?? []).map((p) => [p.id, p.entidad])))
-  protected readonly filas = computed(() => filasDeTablas(pagina(this.encontradas(), this.paginaActual(), this.porPagina()), this.retenciones()))
+  /** Una página por pedido: cambia la URL, cambia la URL del recurso, y se pide solo esa página. */
+  protected readonly pagina = httpResource<PaginaDeTablasDelCatalogo>(() =>
+    this.vista() === 'tablas' ? urlDeTablas(this.gateway, this.filtros(), this.paginaPedida(), this.porPagina()) : undefined,
+  )
+  protected readonly datos = computed(() => (this.pagina.hasValue() ? this.pagina.value() : undefined))
+  protected readonly filas = computed(() => filasDeTablas(this.datos()?.items ?? []))
 
-  /** El conteo va en la opción a propósito: delata de un vistazo qué esquema o módulo no aporta nada. */
+  protected readonly pestanas = computed<Pestana[]>(() => {
+    const r = this.resumen()
+    return [
+      { valor: 'tablas', texto: this.t.vistas.tablas, cuenta: r?.tablas },
+      { valor: 'esquemas', texto: this.t.vistas.esquemas, cuenta: r?.esquemas.length },
+    ]
+  })
+
+  /** El conteo va en la opción a propósito: delata de un vistazo qué esquema no aporta nada. */
   protected readonly selectores = computed<Selector[]>(() => {
-    const tablas = this.catalogo()?.tablas ?? []
+    const r = this.resumen()
     const f = this.filtros()
     const t = textosCatalogo.filtros
-    const porEsquema = (this.catalogo()?.esquemas ?? []).map((e) => ({ valor: e, texto: `${e} (${tablas.filter((x) => x.esquema === e).length})` }))
-    const porModulo = modulos(tablas).map((m) => ({ valor: m.valor, texto: `${m.texto} (${tablas.filter((x) => x.modulo === m.valor).length})` }))
     const de = (d: Readonly<Record<string, string>>) => Object.entries(d).map(([valor, texto]) => ({ valor, texto }))
     return [
-      { nombre: 'esquema', etiqueta: t.esquema, valor: f.esquema, opciones: porEsquema, ayuda: t.ayudaEsquema },
-      { nombre: 'modulo', etiqueta: t.modulo, valor: f.modulo, opciones: porModulo, ayuda: t.ayudaModulo },
+      { nombre: 'esquema', etiqueta: t.esquema, valor: f.esquema, opciones: (r?.esquemas ?? []).map((e) => ({ valor: e.nombre, texto: `${e.nombre} (${e.tablas})` })), ayuda: t.ayudaEsquema },
       { nombre: 'estado', etiqueta: t.estado, valor: f.estado, opciones: de(ESTADOS), ayuda: t.ayudaEstado },
       { nombre: 'revision', etiqueta: t.revision, valor: f.revision, opciones: de(REVISIONES), ayuda: t.ayudaRevision },
+      { nombre: 'sensibilidad', etiqueta: t.sensibilidad, valor: f.sensibilidad, opciones: de(t.sensibilidades), ayuda: t.ayudaSensibilidad },
+      { nombre: 'tipo', etiqueta: t.tipo, valor: f.tipo, opciones: de(t.tipos), ayuda: t.ayudaTipo },
     ]
   })
 
   protected readonly porId = (f: FilaDeTabla) => f.id
-  // Estado y revisión van primero: es lo que se viene a mirar (como en el portal de Atlas).
+  // Lo que se viene a mirar va primero (como en el portal de Atlas): la tabla con lo que es, su estado y su revisión.
   protected readonly columnas: Columna<FilaDeTabla>[] = [
-    { clave: 'tabla', titulo: textosCatalogo.columnasLista.tabla, mono: true },
+    { clave: 'tabla', titulo: textosCatalogo.columnasLista.tabla },
+    { clave: 'esquema', titulo: textosCatalogo.columnasLista.esquema },
     { clave: 'estado', titulo: textosCatalogo.columnasLista.estado },
     { clave: 'revision', titulo: textosCatalogo.columnasLista.revision },
+    { clave: 'sensible', titulo: textosCatalogo.columnasLista.sensible },
     { clave: 'responsable', titulo: textosCatalogo.columnasLista.responsable },
-    { clave: 'personales', titulo: textosCatalogo.columnasLista.personales },
-    { clave: 'financieros', titulo: textosCatalogo.columnasLista.financieros },
-    { clave: 'retencion', titulo: textosCatalogo.columnasLista.retencion },
-    { clave: 'esquema', titulo: textosCatalogo.columnasLista.esquema, mono: true },
-    { clave: 'modulo', titulo: textosCatalogo.columnasLista.modulo },
+    { clave: 'columnas', titulo: textosCatalogo.columnasLista.columnas, numerica: true },
   ]
+
+  protected irA(vista: string): void {
+    void this.router.navigate([], { relativeTo: this.ruta, queryParams: { vista: vista === 'tablas' ? null : vista }, queryParamsHandling: 'merge' })
+  }
 
   /** Cambiar un filtro o el tamaño vuelve a la primera página; cambiar la página, no. */
   protected filtrar(clave: string, valor: string): void {
@@ -131,6 +172,10 @@ export class PantallaCatalogo {
   }
 
   protected limpiarTodo(): void {
-    void this.router.navigate([], { relativeTo: this.ruta, queryParams: { q: null, esquema: null, modulo: null, estado: null, revision: null, pagina: null }, queryParamsHandling: 'merge' })
+    void this.router.navigate([], {
+      relativeTo: this.ruta,
+      queryParams: { q: null, esquema: null, tipo: null, estado: null, revision: null, sensibilidad: null, pagina: null },
+      queryParamsHandling: 'merge',
+    })
   }
 }

@@ -1,7 +1,7 @@
 import { expect, test, type Page } from '@playwright/test'
 import { capturar, todas } from './apoyo/capturas-f2'
 import { iniciarSesionDePrueba, navegarSinRecargar } from './apoyo/sesion-e2e'
-import { CATALOGO, servir } from './apoyo/tableros-sinteticos'
+import { CATALOGO, servirCatalogo } from './apoyo/tableros-sinteticos'
 
 /**
  * CU-130 y CU-131 · el catálogo de datos como el portal de Atlas: la lista con cifras y filtros, la ficha con
@@ -33,7 +33,7 @@ const CON_GOBIERNO = {
 }
 
 async function abrir(page: Page, permisos: string[], ruta: string) {
-  await servir(page, '/indicadores/catalogo-de-datos', { cuerpo: CON_GOBIERNO })
+  await servirCatalogo(page, CON_GOBIERNO)
   await iniciarSesionDePrueba(page, permisos)
   await navegarSinRecargar(page, ruta)
 }
@@ -54,7 +54,8 @@ async function capturarPut(page: Page, sufijo: RegExp, respuesta: unknown): Prom
 test('lista: cifras del inventario, chips de estado y revisión, y filtro por estado desde la URL', async ({ page }) => {
   await abrir(page, ['TABLERO_SISTEMAS_VER'], '/tablero/catalogo-de-datos')
   await expect(page.getByRole('heading', { level: 1, name: 'Catálogo de datos' })).toBeVisible()
-  await expect(page.getByText('Hacia el retiro')).toBeVisible()
+  await expect(page.getByText('Por revisar')).toBeVisible()
+  await expect(page.getByText('2 fichas aprobadas')).toBeVisible()
   await expect(page.locator('ap-chip-estado', { hasText: 'Aprobada' }).first()).toBeVisible()
   await todas(page, P, 'lista')
 
@@ -67,7 +68,7 @@ test('lista: cifras del inventario, chips de estado y revisión, y filtro por es
 
 test('ficha: pestañas en la URL, y «Configurar tabla» confirma antes de guardar con la versión leída', async ({ page }) => {
   const cuerpo = await capturarPut(page, /\/catalogo-de-datos\/aportes\/pago\/gobierno$/, { ...FICHAS['aportes.pago'], estadoRevision: 'APROBADA', version: 2 })
-  await abrir(page, ['TABLERO_SISTEMAS_VER', 'CATALOGO_DATOS_EDITAR'], '/tablero/catalogo-de-datos/pago')
+  await abrir(page, ['TABLERO_SISTEMAS_VER', 'CATALOGO_DATOS_EDITAR'], '/tablero/catalogo-de-datos/aportes/pago')
   await expect(page.getByRole('heading', { level: 1, name: 'aportes.pago' })).toBeVisible()
   await expect(page.getByRole('tab', { name: 'Vista general' })).toHaveAttribute('aria-selected', 'true')
   await todas(page, P, 'ficha')
@@ -77,7 +78,7 @@ test('ficha: pestañas en la URL, y «Configurar tabla» confirma antes de guard
   await capturar(page, P, 'ficha-relaciones', 'escritorio', 'dark')
 
   await page.getByRole('button', { name: 'Editar ficha' }).click()
-  await expect(page).toHaveURL(/\/catalogo-de-datos\/pago\/ficha$/)
+  await expect(page).toHaveURL(/\/catalogo-de-datos\/aportes\/pago\/ficha$/)
   await expect(page.getByRole('heading', { level: 1, name: 'Configurar tabla' })).toBeVisible()
   await todas(page, P, 'configurar')
 
@@ -88,14 +89,14 @@ test('ficha: pestañas en la URL, y «Configurar tabla» confirma antes de guard
   await capturar(page, P, 'configurar-confirmar', 'movil', 'light')
   await dialogo.getByRole('button', { name: 'Guardar ficha' }).click()
 
-  await expect(page).toHaveURL(/\/catalogo-de-datos\/pago\?vista=gobierno$/)
+  await expect(page).toHaveURL(/\/catalogo-de-datos\/aportes\/pago\?vista=gobierno$/)
   expect(cuerpo()).toMatchObject({ estadoRevision: 'APROBADA', version: 1, responsable: 'Tesorería' })
   await capturar(page, P, 'ficha-gobierno', 'tablet', 'light')
 })
 
 test('columnas: revisar desde el cajón exige motivo al rechazar y guarda con la versión leída', async ({ page }) => {
   const cuerpo = await capturarPut(page, /\/catalogo-de-datos\/aportes\/pago\/columnas\/id\/revision$/, { decision: 'RECHAZADA', motivo: 'No es un identificador de negocio', version: 1 })
-  await abrir(page, ['TABLERO_SISTEMAS_VER', 'CATALOGO_DATOS_EDITAR'], '/tablero/catalogo-de-datos/pago?vista=columnas')
+  await abrir(page, ['TABLERO_SISTEMAS_VER', 'CATALOGO_DATOS_EDITAR'], '/tablero/catalogo-de-datos/aportes/pago?vista=columnas')
   await expect(page.getByRole('tab', { name: 'Columnas' })).toHaveAttribute('aria-selected', 'true')
   await expect(page.getByRole('cell', { name: 'Sin revisar' }).first()).toBeVisible()
   await page.getByRole('button', { name: 'Revisar' }).first().click()
@@ -117,7 +118,7 @@ test('columnas: revisar desde el cajón exige motivo al rechazar y guarda con la
 })
 
 test('sin permiso de edición: se lee, no se edita, y la revisión de una columna solo se mira', async ({ page }) => {
-  await abrir(page, ['TABLERO_SISTEMAS_VER'], '/tablero/catalogo-de-datos/pago?vista=columnas')
+  await abrir(page, ['TABLERO_SISTEMAS_VER'], '/tablero/catalogo-de-datos/aportes/pago?vista=columnas')
   await expect(page.getByRole('button', { name: 'Editar ficha' })).toHaveCount(0)
   await page.getByRole('button', { name: 'Ver revisión' }).first().click()
   const cajon = page.getByRole('dialog', { name: 'Revisar columna id' })
