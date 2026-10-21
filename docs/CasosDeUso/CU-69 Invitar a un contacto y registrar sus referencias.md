@@ -246,6 +246,18 @@ Dado un grupo conformado por las firmas
 Cuando el organizador compromete y revela el sorteo
 Entonces cada integrante tiene un turno distinto en el detalle
 
+Dado el organizador de un grupo viejo, pendiente de firma y sin cupo
+Cuando firma
+Entonces ocupa el primer cupo libre, figura FIRMADO y el grupo cuenta dos cupos ocupados
+
+Dado el organizador que ya firmo y quedo ACTIVO sin cupo
+Cuando abre el grupo y vuelve a firmar
+Entonces se le pide firmar, recupera un cupo y su firma no se duplica
+
+Dado un grupo sin cupos libres y el organizador sin cupo
+Cuando firma
+Entonces se rechaza con AP-CU69-01 y sigue pendiente de firma
+
 Dado un grupo con un enlace activo
 Cuando el organizador genera otro
 Entonces el anterior queda ANULADO y deja de servir

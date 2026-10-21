@@ -29,8 +29,8 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
 class ArranqueTest {
 
     /** Los prefijos reservados de este servicio (scripts/modelo.py). */
-    private static final java.util.List<String> PREFIJOS =
-            java.util.List.of("/identidad", "/usuarios", "/sesion", "/sesiones", "/roles");
+    private static final java.util.List<String> PREFIJOS = java.util.List.of(
+            "/identidad", "/usuarios", "/usuarios-internos", "/sesion", "/sesiones", "/roles", "/permisos");
 
     @DynamicPropertySource
     static void configuracion(DynamicPropertyRegistry registro) {

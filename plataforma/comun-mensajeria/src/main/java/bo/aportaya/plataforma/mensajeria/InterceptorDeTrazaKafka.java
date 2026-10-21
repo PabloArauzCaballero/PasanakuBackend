@@ -17,7 +17,8 @@ public class InterceptorDeTrazaKafka implements RecordInterceptor<String, String
     private static final String CLAVE_CORRELATION = "correlationId";
 
     @Override
-    public ConsumerRecord<String, String> intercept(ConsumerRecord<String, String> record, Consumer<String, String> consumer) {
+    public ConsumerRecord<String, String> intercept(
+            ConsumerRecord<String, String> record, Consumer<String, String> consumer) {
         String traceId = extraerCabecera(record, "trace_id");
         String correlationId = extraerCabecera(record, "correlation_id");
         if (traceId == null || traceId.isBlank()) {
