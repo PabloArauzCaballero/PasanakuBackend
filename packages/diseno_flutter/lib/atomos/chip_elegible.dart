@@ -62,15 +62,14 @@ class ChipElegible extends StatelessWidget {
                   child: AnimatedDefaultTextStyle(
                     duration: duracion(context, Movimiento.cambioDeEstado),
                     curve: Movimiento.llega,
-                    style:
-                        (Theme.of(context).textTheme.labelLarge ?? Tipo.boton)
-                            .copyWith(
-                              color: frente,
-                              fontWeight: seleccionado
-                                  ? FontWeight.w600
-                                  : FontWeight.w500,
-                            ),
-                    child: Text(texto, overflow: TextOverflow.ellipsis),
+                    style: (Theme.of(context).textTheme.labelLarge ?? Tipo.boton).copyWith(
+                      color: frente,
+                      fontWeight: seleccionado ? FontWeight.w600 : FontWeight.w500,
+                    ),
+                    child: Text(
+                      texto,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
                 ),
                 if (onCerrar != null) ...[

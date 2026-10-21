@@ -31,7 +31,7 @@ class TarjetaPuntosMesa extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = Tokens.of(context);
-    const colorOro = Paleta.warn;
+    const colorOro = Color(0xFFF59E0B);
 
     return Container(
       padding: const EdgeInsets.all(Espacio.s4),
@@ -54,32 +54,38 @@ class TarjetaPuntosMesa extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                children: [
-                  Container(
-                    width: 32,
-                    height: 32,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: colorOro.withValues(alpha: 0.18),
+              Expanded(
+                child: Row(
+                  children: [
+                    Container(
+                      width: 32,
+                      height: 32,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: colorOro.withValues(alpha: 0.18),
+                      ),
+                      child: const Icon(
+                        Icons.casino_outlined,
+                        size: 18,
+                        color: colorOro,
+                      ),
                     ),
-                    child: const Icon(
-                      Icons.casino_outlined,
-                      size: 18,
-                      color: colorOro,
+                    const SizedBox(width: Espacio.s2),
+                    Expanded(
+                      child: Text(
+                        'PUNTOS EN JUEGO',
+                        style: Tipo.etiqueta.copyWith(
+                          color: t.text2,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 1.1,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: Espacio.s2),
-                  Text(
-                    'PUNTOS EN JUEGO',
-                    style: Tipo.etiqueta.copyWith(
-                      color: t.text2,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: 1.1,
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
+              const SizedBox(width: Espacio.s2),
               Container(
                 padding: const EdgeInsets.symmetric(
                   horizontal: Espacio.s3,
@@ -87,7 +93,10 @@ class TarjetaPuntosMesa extends StatelessWidget {
                 ),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    colors: [colorOro, colorOro.withValues(alpha: 0.8)],
+                    colors: [
+                      colorOro,
+                      colorOro.withValues(alpha: 0.8),
+                    ],
                   ),
                   borderRadius: BorderRadius.circular(Radios.pill),
                   boxShadow: [
@@ -104,13 +113,13 @@ class TarjetaPuntosMesa extends StatelessWidget {
                     const Icon(
                       Icons.stars_rounded,
                       size: 14,
-                      color: Paleta.white,
+                      color: Colors.white,
                     ),
                     const SizedBox(width: 4),
                     Text(
                       '$rango · Nivel $nivel',
                       style: Tipo.etiqueta.copyWith(
-                        color: Paleta.white,
+                        color: Colors.white,
                         fontWeight: FontWeight.w800,
                       ),
                     ),
@@ -132,6 +141,7 @@ class TarjetaPuntosMesa extends StatelessWidget {
                 estilo: Tipo.cifraGrande.copyWith(
                   color: colorOro,
                   fontWeight: FontWeight.w800,
+                  fontSize: 44,
                 ),
               ),
               const SizedBox(width: Espacio.s2),
@@ -149,7 +159,11 @@ class TarjetaPuntosMesa extends StatelessWidget {
           // Regla clave del sistema de juego
           Row(
             children: [
-              Icon(Icons.check_circle_outline, size: 14, color: t.brand),
+              Icon(
+                Icons.check_circle_outline,
+                size: 14,
+                color: t.brand,
+              ),
               const SizedBox(width: 6),
               Expanded(
                 child: Text(
@@ -176,13 +190,17 @@ class TarjetaPuntosMesa extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                'Te faltan $puntosParaSiguiente pts para $siguienteRango',
-                style: Tipo.etiqueta.copyWith(
-                  color: t.text2,
-                  fontWeight: FontWeight.w500,
+              Expanded(
+                child: Text(
+                  'Te faltan $puntosParaSiguiente pts para $siguienteRango',
+                  style: Tipo.etiqueta.copyWith(
+                    color: t.text2,
+                    fontWeight: FontWeight.w500,
+                  ),
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
+              const SizedBox(width: Espacio.s2),
               Text(
                 '${(progresoRango * 100).toInt()}%',
                 style: Tipo.etiqueta.copyWith(
