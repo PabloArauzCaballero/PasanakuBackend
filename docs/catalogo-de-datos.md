@@ -18,7 +18,7 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `pago_id` | UUID | — | UUID, obligatoria, referencia a `pago`. | NINGUNA |
+| `pago_id` | UUID | — | UUID, obligatoria, única, referencia a `pago`. | NINGUNA |
 | `archivo_url` | VARCHAR(255) | — | VARCHAR(255), obligatoria. | NINGUNA |
 | `hash_archivo` | VARCHAR(64) | — | VARCHAR(64), obligatoria. | DERIVADO |
 | `estado_revision` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
@@ -40,8 +40,8 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `pago_id` | UUID | — | UUID, obligatoria, referencia a `pago`. | NINGUNA |
-| `movimiento_bancario_id` | UUID | — | UUID, opcional, referencia a `movimiento_bancario`. | NINGUNA |
+| `pago_id` | UUID | — | UUID, obligatoria, única, referencia a `pago`. | NINGUNA |
+| `movimiento_bancario_id` | UUID | — | UUID, opcional, única, referencia a `movimiento_bancario`. | NINGUNA |
 | `estado` | VARCHAR(25) | — | VARCHAR(25), obligatoria. | NINGUNA |
 | `metodo` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
 | `diferencia_monto` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
@@ -61,8 +61,8 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `pago_id` | UUID | — | UUID, obligatoria, referencia a `pago`. | NINGUNA |
-| `codigo_verificacion` | VARCHAR(40) | — | VARCHAR(40), obligatoria. | NINGUNA |
+| `pago_id` | UUID | — | UUID, obligatoria, única, referencia a `pago`. | NINGUNA |
+| `codigo_verificacion` | VARCHAR(40) | — | VARCHAR(40), obligatoria, única. | NINGUNA |
 | `hash_contenido` | VARCHAR(64) | — | VARCHAR(64), obligatoria. | DERIVADO |
 | `url_publica` | VARCHAR(255) | — | VARCHAR(255), obligatoria. | NINGUNA |
 | `url_pdf` | VARCHAR(255) | — | VARCHAR(255), obligatoria. | NINGUNA |
@@ -104,11 +104,72 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `orden_cobro_id` | UUID | — | UUID, obligatoria, referencia a `orden_cobro`. | NINGUNA |
-| `token_id` | UUID | — | UUID, obligatoria, referencia a `token_verificacion`. | SECRETO |
-| `url_corta` | VARCHAR(60) | — | VARCHAR(60), obligatoria. | NINGUNA |
+| `orden_cobro_id` | UUID | — | UUID, obligatoria, única, referencia a `orden_cobro`. | NINGUNA |
+| `token_id` | UUID | — | UUID, obligatoria, única, referencia a `token_verificacion`. | SECRETO |
+| `url_corta` | VARCHAR(60) | — | VARCHAR(60), obligatoria, única. | NINGUNA |
 | `clicks` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
 | `expira_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+
+### `estado_saga`
+
+**Qué es.** Estado de saga orquestada por este servicio (ADR-028).
+
+**Para qué sirve.** Persiste el paso de una saga que cruza servicios para poder reanudarla o compensarla si algo falla en el medio (regla 98.3.2, ADR-028).
+
+**Sistema.** Infraestructura del servicio `aportes`, generada por plantilla en cada esquema (ADR-027): la escribe y la lee solo ese servicio.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
+| `tipo_saga` | VARCHAR(60) | — | VARCHAR(60), obligatoria. | NINGUNA |
+| `clave_negocio` | VARCHAR(120) | — | VARCHAR(120), obligatoria. | SECRETO |
+| `paso` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
+| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
+| `datos` | JSONB | — | JSONB, obligatoria. | NINGUNA |
+| `creado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `actualizado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+
+### `evento_consumido`
+
+**Qué es.** Marca de evento ya consumido, por consumidor (ADR-027).
+
+**Para qué sirve.** Hace idempotente el consumo: la entrega es al menos una vez y un mismo evento no puede producir dos efectos (regla 98.3.4).
+
+**Sistema.** Infraestructura del servicio `aportes`, generada por plantilla en cada esquema (ADR-027): la escribe y la lee solo ese servicio.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `id_evento` | UUID | — | UUID, obligatoria, clave primaria. | NINGUNA |
+| `consumidor` | VARCHAR(60) | — | VARCHAR(60), obligatoria, clave primaria. | NINGUNA |
+| `consumido_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+
+### `evento_dominio`
+
+**Qué es.** Outbox transaccional del servicio (ADR-027).
+
+**Para qué sirve.** Garantiza que ningún hecho del servicio se pierda entre la base y la mensajería: el evento se guarda en la misma transacción que el cambio y un relevo lo publica después (regla 98.3.3).
+
+**Sistema.** Infraestructura del servicio `aportes`, generada por plantilla en cada esquema (ADR-027): la escribe y la lee solo ese servicio.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
+| `tipo` | VARCHAR(60) | — | VARCHAR(60), obligatoria. | NINGUNA |
+| `version` | VARCHAR(10) | — | VARCHAR(10), obligatoria. | NINGUNA |
+| `agregado` | VARCHAR(40) | — | VARCHAR(40), obligatoria. | NINGUNA |
+| `agregado_id` | UUID | — | UUID, obligatoria. | NINGUNA |
+| `payload` | JSONB | — | JSONB, obligatoria. | NINGUNA |
+| `metadatos` | JSONB | — | JSONB, obligatoria. | NINGUNA |
+| `correlation_id` | UUID | — | UUID, obligatoria. | NINGUNA |
+| `causation_id` | UUID | — | UUID, opcional. | NINGUNA |
+| `ocurrido_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `publicado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
+| `intentos` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
+| `tomado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `tomado_por` | VARCHAR(100) | — | VARCHAR(100), opcional. | NINGUNA |
+| `ultimo_error` | TEXT | — | TEXT, opcional. | NINGUNA |
+| `proximo_intento_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
 
 ### `excepcion_conciliacion`
 
@@ -254,7 +315,7 @@
 | `monto_exacto` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
 | `moneda` | CHAR(3) | Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2). | CHAR(3), obligatoria. | NINGUNA |
 | `permite_monto_abierto` | BOOLEAN | — | BOOLEAN, obligatoria. | FINANCIERO |
-| `referencia_unica` | VARCHAR(60) | — | VARCHAR(60), obligatoria. | NINGUNA |
+| `referencia_unica` | VARCHAR(60) | — | VARCHAR(60), obligatoria, única. | NINGUNA |
 | `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
 | `emitida_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
 | `expira_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
@@ -274,22 +335,22 @@
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
 | `obligacion_id` | UUID | — | UUID, obligatoria, referencia a `obligacion_aporte`. | NINGUNA |
-| `intento_pago_id` | UUID | — | UUID, opcional, referencia a `intento_pago`. | NINGUNA |
+| `intento_pago_id` | UUID | — | UUID, opcional, única, referencia a `intento_pago`. | NINGUNA |
 | `proveedor_id` | UUID | — | UUID, opcional, referencia a `proveedor_pago`. | NINGUNA |
 | `monto` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
 | `moneda` | CHAR(3) | Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2). | CHAR(3), obligatoria. | NINGUNA |
-| `monto_comision_proveedor` | DECIMAL(10,2) | — | DECIMAL(10,2), obligatoria. | FINANCIERO |
-| `monto_neto_acreditado` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
+| `monto_comision_proveedor` | DECIMAL(10,2) | **lo que el participante paga no es lo que llega a la bolsa.** La pasarela se queda con su comisión. Si esa diferencia no se modela explícitamente, la bolsa nunca cuadra y nadie entiende por qué faltan Bs 3,50. | DECIMAL(10,2), obligatoria. | FINANCIERO |
+| `monto_neto_acreditado` | DECIMAL(14,2) | **lo que el participante paga no es lo que llega a la bolsa.** La pasarela se queda con su comisión. Si esa diferencia no se modela explícitamente, la bolsa nunca cuadra y nadie entiende por qué faltan Bs 3,50. | DECIMAL(14,2), obligatoria. | FINANCIERO |
 | `canal` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
 | `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
 | `fecha_hora_pago` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
 | `fecha_hora_acreditacion` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
 | `referencia_proveedor` | VARCHAR(80) | — | VARCHAR(80), obligatoria. | NINGUNA |
-| `pagador_nombre` | VARCHAR(120) | — | VARCHAR(120), opcional. | NINGUNA |
-| `pagador_documento` | VARCHAR(30) | — | VARCHAR(30), opcional. | PERSONAL |
+| `pagador_nombre` | VARCHAR(120) | quién pagó realmente. Muchas veces paga el esposo, la madre o el jefe por el participante. Registrarlo es necesario para cumplimiento (detectar que una sola persona está pagando por seis participantes distintos, patrón de participantes ficticios) y para resolver reclamos. | VARCHAR(120), opcional. | NINGUNA |
+| `pagador_documento` | VARCHAR(30) | quién pagó realmente. Muchas veces paga el esposo, la madre o el jefe por el participante. Registrarlo es necesario para cumplimiento (detectar que una sola persona está pagando por seis participantes distintos, patrón de participantes ficticios) y para resolver reclamos. | VARCHAR(30), opcional. | PERSONAL |
 | `cuenta_origen_enmascarada` | VARCHAR(40) | — | VARCHAR(40), opcional. | NINGUNA |
-| `registrado_por` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
-| `es_manual` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
+| `registrado_por` | UUID | distingue el pago que entró solo por webhook del que un operador cargó a mano contra un comprobante. Los segundos son intrínsecamente más riesgosos y deben poder auditarse aparte. | UUID, opcional, referencia a `usuario`. | NINGUNA |
+| `es_manual` | BOOLEAN | distingue el pago que entró solo por webhook del que un operador cargó a mano contra un comprobante. Los segundos son intrínsecamente más riesgosos y deben poder auditarse aparte. | BOOLEAN, obligatoria. | NINGUNA |
 | `clave_idempotencia` | VARCHAR(80) | Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4). | VARCHAR(80), obligatoria. | NINGUNA |
 
 ### `plan_regularizacion`
@@ -348,7 +409,7 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `codigo` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
+| `codigo` | VARCHAR(30) | — | VARCHAR(30), obligatoria, única. | NINGUNA |
 | `nombre` | VARCHAR(80) | — | VARCHAR(80), obligatoria. | NINGUNA |
 | `tipo` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
 | `url_base` | VARCHAR(200) | — | VARCHAR(200), obligatoria. | NINGUNA |
@@ -373,7 +434,7 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `orden_cobro_id` | UUID | — | UUID, obligatoria, referencia a `orden_cobro`. | NINGUNA |
+| `orden_cobro_id` | UUID | — | UUID, obligatoria, única, referencia a `orden_cobro`. | NINGUNA |
 | `payload_emv` | TEXT | — | TEXT, obligatoria. | NINGUNA |
 | `url_imagen` | VARCHAR(255) | — | VARCHAR(255), obligatoria. | NINGUNA |
 | `crc` | VARCHAR(8) | — | VARCHAR(8), obligatoria. | NINGUNA |
@@ -404,6 +465,21 @@
 | `aprobado_por` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
 | `fecha_solicitud` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
 | `fecha_ejecucion` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+
+### `shedlock`
+
+**Qué es.** Bloqueo de trabajos programados entre replicas (ADR-018).
+
+**Para qué sirve.** Evita que dos réplicas del servicio ejecuten el mismo trabajo programado a la vez (ADR-018).
+
+**Sistema.** Infraestructura del servicio `aportes`, generada por plantilla en cada esquema (ADR-027): la escribe y la lee solo ese servicio.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `name` | VARCHAR(64) | — | VARCHAR(64), obligatoria, clave primaria. | NINGUNA |
+| `lock_until` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `locked_at` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `locked_by` | VARCHAR(255) | — | VARCHAR(255), obligatoria. | NINGUNA |
 
 ### `webhook_pasarela`
 
@@ -520,7 +596,7 @@
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
 | `tipo` | VARCHAR(40) | — | VARCHAR(40), obligatoria. | NINGUNA |
-| `nombre` | VARCHAR(80) | — | VARCHAR(80), obligatoria. | NINGUNA |
+| `nombre` | VARCHAR(80) | — | VARCHAR(80), obligatoria, única. | NINGUNA |
 | `descripcion` | VARCHAR(300) | — | VARCHAR(300), obligatoria. | NINGUNA |
 | `consulta_base` | TEXT | — | TEXT, obligatoria. | NINGUNA |
 | `parametros_esperados` | JSONB | — | JSONB, obligatoria. | NINGUNA |
@@ -554,6 +630,48 @@
 | `mensaje_error` | TEXT | — | TEXT, opcional. | NINGUNA |
 | `iniciada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
 | `finalizada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+
+### `evento_consumido`
+
+**Qué es.** Marca de evento ya consumido, por consumidor (ADR-027).
+
+**Para qué sirve.** Hace idempotente el consumo: la entrega es al menos una vez y un mismo evento no puede producir dos efectos (regla 98.3.4).
+
+**Sistema.** Infraestructura del servicio `auditoria`, generada por plantilla en cada esquema (ADR-027): la escribe y la lee solo ese servicio.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `id_evento` | UUID | — | UUID, obligatoria, clave primaria. | NINGUNA |
+| `consumidor` | VARCHAR(60) | — | VARCHAR(60), obligatoria, clave primaria. | NINGUNA |
+| `consumido_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+
+### `evento_dominio`
+
+**Qué es.** Outbox transaccional del servicio (ADR-027).
+
+**Para qué sirve.** Garantiza que ningún hecho del servicio se pierda entre la base y la mensajería: el evento se guarda en la misma transacción que el cambio y un relevo lo publica después (regla 98.3.3).
+
+**Sistema.** Infraestructura del servicio `auditoria`, generada por plantilla en cada esquema (ADR-027): la escribe y la lee solo ese servicio.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
+| `tipo` | VARCHAR(60) | — | VARCHAR(60), obligatoria. | NINGUNA |
+| `version` | VARCHAR(10) | — | VARCHAR(10), obligatoria. | NINGUNA |
+| `agregado` | VARCHAR(40) | — | VARCHAR(40), obligatoria. | NINGUNA |
+| `agregado_id` | UUID | — | UUID, obligatoria. | NINGUNA |
+| `payload` | JSONB | — | JSONB, obligatoria. | NINGUNA |
+| `metadatos` | JSONB | — | JSONB, obligatoria. | NINGUNA |
+| `correlation_id` | UUID | — | UUID, obligatoria. | NINGUNA |
+| `causation_id` | UUID | — | UUID, opcional. | NINGUNA |
+| `ocurrido_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `publicado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
+| `intentos` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
+| `tomado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `tomado_por` | VARCHAR(100) | — | VARCHAR(100), opcional. | NINGUNA |
+| `ultimo_error` | TEXT | — | TEXT, opcional. | NINGUNA |
+| `proximo_intento_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
 
 ### `exportacion_reporte`
 
@@ -617,7 +735,7 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `codigo` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
+| `codigo` | VARCHAR(20) | — | VARCHAR(20), obligatoria, única. | NINGUNA |
 | `titulo` | VARCHAR(160) | — | VARCHAR(160), obligatoria. | NINGUNA |
 | `severidad` | VARCHAR(6) | — | VARCHAR(6), obligatoria. | NINGUNA |
 | `sistema_afectado` | VARCHAR(60) | — | VARCHAR(60), obligatoria. | NINGUNA |
@@ -688,7 +806,7 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `entidad` | VARCHAR(50) | — | VARCHAR(50), obligatoria. | NINGUNA |
+| `entidad` | VARCHAR(50) | — | VARCHAR(50), obligatoria, única. | NINGUNA |
 | `meses_retencion_activa` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
 | `meses_retencion_historica` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
 | `accion_al_vencer` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
@@ -708,7 +826,7 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `usuario_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
+| `usuario_id` | UUID | — | UUID, obligatoria, única, referencia a `usuario`. | NINGUNA |
 | `solicitud_id` | UUID | — | UUID, opcional, referencia a `solicitud_datos_personales`. | NINGUNA |
 | `estrategia` | VARCHAR(25) | — | VARCHAR(25), obligatoria. | NINGUNA |
 | `entidades_afectadas` | JSONB | — | JSONB, obligatoria. | NINGUNA |
@@ -752,7 +870,7 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `codigo` | VARCHAR(40) | — | VARCHAR(40), obligatoria. | NINGUNA |
+| `codigo` | VARCHAR(40) | — | VARCHAR(40), obligatoria, única. | NINGUNA |
 | `descripcion` | VARCHAR(300) | — | VARCHAR(300), obligatoria. | NINGUNA |
 | `categoria` | VARCHAR(25) | — | VARCHAR(25), obligatoria. | NINGUNA |
 | `expresion` | VARCHAR(400) | — | VARCHAR(400), obligatoria. | NINGUNA |
@@ -782,7 +900,7 @@
 | `periodo_analizado` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
 | `narrativa` | TEXT | — | TEXT, obligatoria. | NINGUNA |
 | `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `numero_radicado` | VARCHAR(40) | — | VARCHAR(40), opcional. | NINGUNA |
+| `numero_radicado` | VARCHAR(40) | — | VARCHAR(40), opcional, única. | NINGUNA |
 | `enviado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
 
 ### `revision_columna`
@@ -807,6 +925,21 @@
 | `revisado_por` | UUID | — | UUID, obligatoria. | NINGUNA |
 | `revisado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
 | `version` | INTEGER | — | INTEGER, obligatoria. | NINGUNA |
+
+### `shedlock`
+
+**Qué es.** Bloqueo de trabajos programados entre replicas (ADR-018).
+
+**Para qué sirve.** Evita que dos réplicas del servicio ejecuten el mismo trabajo programado a la vez (ADR-018).
+
+**Sistema.** Infraestructura del servicio `auditoria`, generada por plantilla en cada esquema (ADR-027): la escribe y la lee solo ese servicio.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `name` | VARCHAR(64) | — | VARCHAR(64), obligatoria, clave primaria. | NINGUNA |
+| `lock_until` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `locked_at` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `locked_by` | VARCHAR(255) | — | VARCHAR(255), obligatoria. | NINGUNA |
 
 ### `solicitud_datos_personales`
 
@@ -911,7 +1044,7 @@
 | `organismo` | VARCHAR(10) | — | VARCHAR(10), obligatoria. | NINGUNA |
 | `tipo` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
 | `categoria_actividad` | VARCHAR(40) | — | VARCHAR(40), obligatoria. | NINGUNA |
-| `numero_resolucion` | VARCHAR(60) | — | VARCHAR(60), opcional. | NINGUNA |
+| `numero_resolucion` | VARCHAR(60) | — | VARCHAR(60), opcional, única. | NINGUNA |
 | `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
 | `fecha_solicitud` | DATE | — | DATE, obligatoria. | NINGUNA |
 | `fecha_otorgamiento` | DATE | — | DATE, opcional. | NINGUNA |
@@ -1152,7 +1285,7 @@
 | `propietario_id` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
 | `custodio_id` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
 | `contrato_tercero_id` | UUID | — | UUID, opcional, referencia a `contrato_tercero`. | NINGUNA |
-| `codigo` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
+| `codigo` | VARCHAR(30) | — | VARCHAR(30), obligatoria, única. | NINGUNA |
 | `nombre` | VARCHAR(120) | — | VARCHAR(120), obligatoria. | NINGUNA |
 | `tipo` | VARCHAR(25) | — | VARCHAR(25), obligatoria. | NINGUNA |
 | `clasificacion` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
@@ -1265,7 +1398,7 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `codigo` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
+| `codigo` | VARCHAR(20) | — | VARCHAR(20), obligatoria, única. | NINGUNA |
 | `usuario_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
 | `analista_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
 | `revisado_por` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
@@ -1293,7 +1426,7 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `codigo` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
+| `codigo` | VARCHAR(30) | — | VARCHAR(30), obligatoria, única. | NINGUNA |
 | `organismo` | VARCHAR(10) | — | VARCHAR(10), obligatoria. | NINGUNA |
 | `nombre` | VARCHAR(120) | — | VARCHAR(120), obligatoria. | NINGUNA |
 | `periodicidad` | VARCHAR(12) | — | VARCHAR(12), obligatoria. | NINGUNA |
@@ -1314,7 +1447,7 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `tipo` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
+| `tipo` | VARCHAR(30) | — | VARCHAR(30), obligatoria, única. | NINGUNA |
 | `periodicidad_minima` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
 | `composicion_requerida` | JSONB | — | JSONB, obligatoria. | NINGUNA |
 | `quorum_minimo` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
@@ -1384,7 +1517,7 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `codigo` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
+| `codigo` | VARCHAR(20) | — | VARCHAR(20), obligatoria, única. | NINGUNA |
 | `proceso` | VARCHAR(60) | — | VARCHAR(60), obligatoria. | NINGUNA |
 | `descripcion` | VARCHAR(300) | — | VARCHAR(300), obligatoria. | NINGUNA |
 | `tipo` | VARCHAR(12) | — | VARCHAR(12), obligatoria. | NINGUNA |
@@ -1579,7 +1712,7 @@
 | `organismo` | VARCHAR(10) | — | VARCHAR(10), obligatoria. | NINGUNA |
 | `canal` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
 | `fecha_envio` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `numero_constancia` | VARCHAR(60) | — | VARCHAR(60), opcional. | NINGUNA |
+| `numero_constancia` | VARCHAR(60) | — | VARCHAR(60), opcional, única. | NINGUNA |
 | `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
 | `respuesta` | JSONB | — | JSONB, opcional. | NINGUNA |
 | `reintentos` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
@@ -1625,6 +1758,48 @@
 | `acciones_requeridas` | VARCHAR(400) | — | VARCHAR(400), opcional. | NINGUNA |
 | `evaluada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
 
+### `evento_consumido`
+
+**Qué es.** Marca de evento ya consumido, por consumidor (ADR-027).
+
+**Para qué sirve.** Hace idempotente el consumo: la entrega es al menos una vez y un mismo evento no puede producir dos efectos (regla 98.3.4).
+
+**Sistema.** Infraestructura del servicio `cumplimiento`, generada por plantilla en cada esquema (ADR-027): la escribe y la lee solo ese servicio.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `id_evento` | UUID | — | UUID, obligatoria, clave primaria. | NINGUNA |
+| `consumidor` | VARCHAR(60) | — | VARCHAR(60), obligatoria, clave primaria. | NINGUNA |
+| `consumido_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+
+### `evento_dominio`
+
+**Qué es.** Outbox transaccional del servicio (ADR-027).
+
+**Para qué sirve.** Garantiza que ningún hecho del servicio se pierda entre la base y la mensajería: el evento se guarda en la misma transacción que el cambio y un relevo lo publica después (regla 98.3.3).
+
+**Sistema.** Infraestructura del servicio `cumplimiento`, generada por plantilla en cada esquema (ADR-027): la escribe y la lee solo ese servicio.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
+| `tipo` | VARCHAR(60) | — | VARCHAR(60), obligatoria. | NINGUNA |
+| `version` | VARCHAR(10) | — | VARCHAR(10), obligatoria. | NINGUNA |
+| `agregado` | VARCHAR(40) | — | VARCHAR(40), obligatoria. | NINGUNA |
+| `agregado_id` | UUID | — | UUID, obligatoria. | NINGUNA |
+| `payload` | JSONB | — | JSONB, obligatoria. | NINGUNA |
+| `metadatos` | JSONB | — | JSONB, obligatoria. | NINGUNA |
+| `correlation_id` | UUID | — | UUID, obligatoria. | NINGUNA |
+| `causation_id` | UUID | — | UUID, opcional. | NINGUNA |
+| `ocurrido_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `publicado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
+| `intentos` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
+| `tomado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `tomado_por` | VARCHAR(100) | — | VARCHAR(100), opcional. | NINGUNA |
+| `ultimo_error` | TEXT | — | TEXT, opcional. | NINGUNA |
+| `proximo_intento_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+
 ### `evento_riesgo_operativo`
 
 **Qué es.** La base de datos de pérdidas por errores, fallas y fraudes.
@@ -1638,7 +1813,7 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `codigo` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
+| `codigo` | VARCHAR(20) | — | VARCHAR(20), obligatoria, única. | NINGUNA |
 | `incidente_operativo_id` | UUID | — | UUID, opcional, referencia a `incidente_operativo`. | NINGUNA |
 | `registrado_por` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
 | `categoria_evento` | VARCHAR(35) | — | VARCHAR(35), obligatoria. | NINGUNA |
@@ -1667,7 +1842,7 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `usuario_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
+| `usuario_id` | UUID | — | UUID, obligatoria, única, referencia a `usuario`. | NINGUNA |
 | `responsable_id` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
 | `completitud_porcentaje` | DECIMAL(5,2) | — | DECIMAL(5,2), obligatoria. | NINGUNA |
 | `documentos` | JSONB | — | JSONB, obligatoria. | PERSONAL |
@@ -1706,7 +1881,7 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `codigo` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
+| `codigo` | VARCHAR(20) | — | VARCHAR(20), obligatoria, única. | NINGUNA |
 | `responsable_id` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
 | `origen` | VARCHAR(25) | — | VARCHAR(25), obligatoria. | NINGUNA |
 | `descripcion` | TEXT | — | TEXT, obligatoria. | NINGUNA |
@@ -1727,7 +1902,7 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `codigo` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
+| `codigo` | VARCHAR(20) | — | VARCHAR(20), obligatoria, única. | NINGUNA |
 | `activo_informacion_id` | UUID | — | UUID, opcional, referencia a `activo_informacion`. | NINGUNA |
 | `incidente_operativo_id` | UUID | — | UUID, opcional, referencia a `incidente_operativo`. | NINGUNA |
 | `evento_riesgo_id` | UUID | — | UUID, opcional, referencia a `evento_riesgo_operativo`. | NINGUNA |
@@ -1805,7 +1980,7 @@
 | `responsable_id` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
 | `organismo` | VARCHAR(10) | — | VARCHAR(10), obligatoria. | NINGUNA |
 | `tipo` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `numero_documento` | VARCHAR(60) | — | VARCHAR(60), obligatoria. | PERSONAL |
+| `numero_documento` | VARCHAR(60) | — | VARCHAR(60), obligatoria, única. | PERSONAL |
 | `descripcion` | TEXT | — | TEXT, obligatoria. | NINGUNA |
 | `monto_multa` | DECIMAL(16,2) | — | DECIMAL(16,2), opcional. | FINANCIERO |
 | `plazo_respuesta` | DATE | — | DATE, obligatoria. | NINGUNA |
@@ -1892,7 +2067,7 @@
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
 | `politica_interna_id` | UUID | — | UUID, opcional, referencia a `politica_interna`. | NINGUNA |
 | `responsable_id` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
-| `proceso_critico` | VARCHAR(80) | — | VARCHAR(80), obligatoria. | NINGUNA |
+| `proceso_critico` | VARCHAR(80) | — | VARCHAR(80), obligatoria, única. | NINGUNA |
 | `rto_minutos` | INTEGER | — | INTEGER, obligatoria. | NINGUNA |
 | `rpo_minutos` | INTEGER | — | INTEGER, obligatoria. | NINGUNA |
 | `estrategia` | VARCHAR(300) | — | VARCHAR(300), obligatoria. | NINGUNA |
@@ -1979,7 +2154,7 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `codigo` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
+| `codigo` | VARCHAR(20) | — | VARCHAR(20), obligatoria, única. | NINGUNA |
 | `tipo` | VARCHAR(12) | — | VARCHAR(12), obligatoria. | NINGUNA |
 | `descripcion` | VARCHAR(200) | — | VARCHAR(200), obligatoria. | NINGUNA |
 | `horario` | VARCHAR(80) | — | VARCHAR(80), obligatoria. | NINGUNA |
@@ -2073,7 +2248,7 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `codigo` | VARCHAR(40) | — | VARCHAR(40), obligatoria. | NINGUNA |
+| `codigo` | VARCHAR(40) | — | VARCHAR(40), obligatoria, única. | NINGUNA |
 | `tipologia` | VARCHAR(80) | — | VARCHAR(80), obligatoria. | NINGUNA |
 | `descripcion` | VARCHAR(300) | — | VARCHAR(300), obligatoria. | NINGUNA |
 | `expresion` | JSONB | — | JSONB, obligatoria. | NINGUNA |
@@ -2132,7 +2307,7 @@
 | `bloqueo_saldo_id` | UUID | — | UUID, opcional, referencia a `bloqueo_saldo`. | FINANCIERO |
 | `respondido_por` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
 | `autoridad` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `numero_oficio` | VARCHAR(60) | — | VARCHAR(60), obligatoria. | NINGUNA |
+| `numero_oficio` | VARCHAR(60) | — | VARCHAR(60), obligatoria, única. | NINGUNA |
 | `fecha_recepcion` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
 | `plazo_respuesta` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
 | `alcance` | VARCHAR(300) | — | VARCHAR(300), obligatoria. | NINGUNA |
@@ -2161,6 +2336,21 @@
 | `resultado` | VARCHAR(30) | — | VARCHAR(30), opcional. | NINGUNA |
 | `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
 
+### `shedlock`
+
+**Qué es.** Bloqueo de trabajos programados entre replicas (ADR-018).
+
+**Para qué sirve.** Evita que dos réplicas del servicio ejecuten el mismo trabajo programado a la vez (ADR-018).
+
+**Sistema.** Infraestructura del servicio `cumplimiento`, generada por plantilla en cada esquema (ADR-027): la escribe y la lee solo ese servicio.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `name` | VARCHAR(64) | — | VARCHAR(64), obligatoria, clave primaria. | NINGUNA |
+| `lock_until` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `locked_at` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `locked_by` | VARCHAR(255) | — | VARCHAR(255), obligatoria. | NINGUNA |
+
 ## Esquema `entregas`
 
 ### `cesion_derecho`
@@ -2187,7 +2377,7 @@
 | `retencion_ref` | UUID | — | UUID, opcional. | NINGUNA |
 | `liquidacion_ref` | UUID | — | UUID, opcional. | NINGUNA |
 | `motivo_fallo` | VARCHAR(200) | — | VARCHAR(200), opcional. | NINGUNA |
-| `clave_idempotencia` | VARCHAR(80) | Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4). | VARCHAR(80), obligatoria. | NINGUNA |
+| `clave_idempotencia` | VARCHAR(80) | Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4). | VARCHAR(80), obligatoria, única. | NINGUNA |
 | `creada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
 | `titulo_asignado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
 | `liquidada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
@@ -2206,7 +2396,7 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `entrega_id` | UUID | — | UUID, obligatoria, referencia a `entrega_fondo`. | NINGUNA |
+| `entrega_id` | UUID | — | UUID, obligatoria, única, referencia a `entrega_fondo`. | NINGUNA |
 | `estado` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
 | `monto_confirmado` | DECIMAL(14,2) | — | DECIMAL(14,2), opcional. | FINANCIERO |
 | `token_confirmacion_id` | UUID | — | UUID, opcional, referencia a `token_verificacion`. | SECRETO |
@@ -2303,6 +2493,67 @@
 | `observaciones` | VARCHAR(400) | — | VARCHAR(400), opcional. | NINGUNA |
 | `version` | INTEGER | — | INTEGER, obligatoria. | NINGUNA |
 
+### `estado_saga`
+
+**Qué es.** Estado de saga orquestada por este servicio (ADR-028).
+
+**Para qué sirve.** Persiste el paso de una saga que cruza servicios para poder reanudarla o compensarla si algo falla en el medio (regla 98.3.2, ADR-028).
+
+**Sistema.** Infraestructura del servicio `entregas`, generada por plantilla en cada esquema (ADR-027): la escribe y la lee solo ese servicio.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
+| `tipo_saga` | VARCHAR(60) | — | VARCHAR(60), obligatoria. | NINGUNA |
+| `clave_negocio` | VARCHAR(120) | — | VARCHAR(120), obligatoria. | SECRETO |
+| `paso` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
+| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
+| `datos` | JSONB | — | JSONB, obligatoria. | NINGUNA |
+| `creado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `actualizado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+
+### `evento_consumido`
+
+**Qué es.** Marca de evento ya consumido, por consumidor (ADR-027).
+
+**Para qué sirve.** Hace idempotente el consumo: la entrega es al menos una vez y un mismo evento no puede producir dos efectos (regla 98.3.4).
+
+**Sistema.** Infraestructura del servicio `entregas`, generada por plantilla en cada esquema (ADR-027): la escribe y la lee solo ese servicio.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `id_evento` | UUID | — | UUID, obligatoria, clave primaria. | NINGUNA |
+| `consumidor` | VARCHAR(60) | — | VARCHAR(60), obligatoria, clave primaria. | NINGUNA |
+| `consumido_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+
+### `evento_dominio`
+
+**Qué es.** Outbox transaccional del servicio (ADR-027).
+
+**Para qué sirve.** Garantiza que ningún hecho del servicio se pierda entre la base y la mensajería: el evento se guarda en la misma transacción que el cambio y un relevo lo publica después (regla 98.3.3).
+
+**Sistema.** Infraestructura del servicio `entregas`, generada por plantilla en cada esquema (ADR-027): la escribe y la lee solo ese servicio.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
+| `tipo` | VARCHAR(60) | — | VARCHAR(60), obligatoria. | NINGUNA |
+| `version` | VARCHAR(10) | — | VARCHAR(10), obligatoria. | NINGUNA |
+| `agregado` | VARCHAR(40) | — | VARCHAR(40), obligatoria. | NINGUNA |
+| `agregado_id` | UUID | — | UUID, obligatoria. | NINGUNA |
+| `payload` | JSONB | — | JSONB, obligatoria. | NINGUNA |
+| `metadatos` | JSONB | — | JSONB, obligatoria. | NINGUNA |
+| `correlation_id` | UUID | — | UUID, obligatoria. | NINGUNA |
+| `causation_id` | UUID | — | UUID, opcional. | NINGUNA |
+| `ocurrido_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `publicado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
+| `intentos` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
+| `tomado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `tomado_por` | VARCHAR(100) | — | VARCHAR(100), opcional. | NINGUNA |
+| `ultimo_error` | TEXT | — | TEXT, opcional. | NINGUNA |
+| `proximo_intento_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+
 ### `fondeo_entrega`
 
 **Qué es.** De dónde sale cada boliviano del pozo de una entrega: cuánto está confirmado, cuánto cubrió el fondo mutual, cuánto faltó, cuánto cubrió la empresa y cuánto queda pendiente.
@@ -2316,8 +2567,8 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `entrega_id` | UUID | — | UUID, obligatoria, referencia a `entrega_fondo`. | NINGUNA |
-| `turno_id` | UUID | — | UUID, obligatoria, referencia a `turno`. | NINGUNA |
+| `entrega_id` | UUID | — | UUID, obligatoria, única, referencia a `entrega_fondo`. | NINGUNA |
+| `turno_id` | UUID | — | UUID, obligatoria, única, referencia a `turno`. | NINGUNA |
 | `moneda` | CHAR(3) | Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2). | CHAR(3), obligatoria. | NINGUNA |
 | `monto_pozo` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
 | `monto_confirmado` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
@@ -2329,7 +2580,7 @@
 | `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
 | `corte_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
 | `fondeada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
-| `clave_idempotencia` | VARCHAR(80) | Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4). | VARCHAR(80), obligatoria. | NINGUNA |
+| `clave_idempotencia` | VARCHAR(80) | Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4). | VARCHAR(80), obligatoria, única. | NINGUNA |
 | `version` | INTEGER | — | INTEGER, obligatoria. | NINGUNA |
 
 ### `historial_estado_entrega`
@@ -2426,7 +2677,7 @@
 | `estado` | VARCHAR(12) | — | VARCHAR(12), obligatoria. | NINGUNA |
 | `vigente_hasta` | TIMESTAMPTZ | Hasta cuándo rigió esta versión; vacía mientras sigue vigente. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 | `publicada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `clave_idempotencia` | VARCHAR(80) | Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4). | VARCHAR(80), obligatoria. | NINGUNA |
+| `clave_idempotencia` | VARCHAR(80) | Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4). | VARCHAR(80), obligatoria, única. | NINGUNA |
 | `version` | INTEGER | — | INTEGER, obligatoria. | NINGUNA |
 
 ### `orden_desembolso`
@@ -2448,7 +2699,7 @@
 | `monto` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
 | `moneda` | CHAR(3) | Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2). | CHAR(3), obligatoria. | NINGUNA |
 | `estado` | VARCHAR(25) | — | VARCHAR(25), obligatoria. | NINGUNA |
-| `referencia_proveedor` | VARCHAR(80) | — | VARCHAR(80), opcional. | NINGUNA |
+| `referencia_proveedor` | VARCHAR(80) | — | VARCHAR(80), opcional, única. | NINGUNA |
 | `glosa` | VARCHAR(140) | — | VARCHAR(140), obligatoria. | NINGUNA |
 | `clave_idempotencia` | VARCHAR(80) | Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4). | VARCHAR(80), obligatoria. | NINGUNA |
 | `creada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
@@ -2467,13 +2718,28 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `codigo` | VARCHAR(40) | — | VARCHAR(40), obligatoria. | NINGUNA |
+| `codigo` | VARCHAR(40) | — | VARCHAR(40), obligatoria, única. | NINGUNA |
 | `descripcion` | VARCHAR(200) | — | VARCHAR(200), obligatoria. | NINGUNA |
 | `es_bloqueante` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
 | `permite_omision` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
 | `rol_que_puede_omitir` | VARCHAR(30) | — | VARCHAR(30), opcional. | NINGUNA |
 | `orden` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
 | `activa` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
+
+### `shedlock`
+
+**Qué es.** Bloqueo de trabajos programados entre replicas (ADR-018).
+
+**Para qué sirve.** Evita que dos réplicas del servicio ejecuten el mismo trabajo programado a la vez (ADR-018).
+
+**Sistema.** Infraestructura del servicio `entregas`, generada por plantilla en cada esquema (ADR-027): la escribe y la lee solo ese servicio.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `name` | VARCHAR(64) | — | VARCHAR(64), obligatoria, clave primaria. | NINGUNA |
+| `lock_until` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `locked_at` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `locked_by` | VARCHAR(255) | — | VARCHAR(255), obligatoria. | NINGUNA |
 
 ### `validacion_pre_entrega`
 
@@ -2515,7 +2781,7 @@
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
 | `categoria_activo_fijo_id` | UUID | — | UUID, obligatoria, referencia a `categoria_activo_fijo`. | NINGUNA |
 | `centro_costo_id` | UUID | — | UUID, opcional, referencia a `centro_costo`. | NINGUNA |
-| `codigo_inventario` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
+| `codigo_inventario` | VARCHAR(30) | — | VARCHAR(30), obligatoria, única. | NINGUNA |
 | `descripcion` | VARCHAR(200) | — | VARCHAR(200), obligatoria. | NINGUNA |
 | `fecha_adquisicion` | DATE | — | DATE, obligatoria. | NINGUNA |
 | `costo_adquisicion` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | NINGUNA |
@@ -2537,7 +2803,7 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `codigo` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
+| `codigo` | VARCHAR(30) | — | VARCHAR(30), obligatoria, única. | NINGUNA |
 | `nombre` | VARCHAR(100) | — | VARCHAR(100), obligatoria. | NINGUNA |
 | `glosa` | VARCHAR(200) | — | VARCHAR(200), obligatoria. | NINGUNA |
 | `periodicidad` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
@@ -2557,7 +2823,7 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `codigo` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
+| `codigo` | VARCHAR(20) | — | VARCHAR(20), obligatoria, única. | NINGUNA |
 | `nombre` | VARCHAR(80) | — | VARCHAR(80), obligatoria. | NINGUNA |
 | `vida_util_meses` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
 | `metodo_depreciacion` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
@@ -2578,7 +2844,7 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `codigo` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
+| `codigo` | VARCHAR(20) | — | VARCHAR(20), obligatoria, única. | NINGUNA |
 | `nombre` | VARCHAR(100) | — | VARCHAR(100), obligatoria. | NINGUNA |
 | `tipo` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
 | `activo` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
@@ -2596,7 +2862,7 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `periodo_contable_id` | UUID | — | UUID, obligatoria, referencia a `periodo_contable`. | NINGUNA |
+| `periodo_contable_id` | UUID | — | UUID, obligatoria, única, referencia a `periodo_contable`. | NINGUNA |
 | `cerrado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
 | `cerrado_por` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
 | `total_debe` | DECIMAL(18,2) | — | DECIMAL(18,2), obligatoria. | NINGUNA |
@@ -2676,7 +2942,7 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `anio` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
+| `anio` | SMALLINT | — | SMALLINT, obligatoria, única. | NINGUNA |
 | `fecha_inicio` | DATE | — | DATE, obligatoria. | NINGUNA |
 | `fecha_fin` | DATE | — | DATE, obligatoria. | NINGUNA |
 | `estado` | VARCHAR(10) | — | VARCHAR(10), obligatoria. | NINGUNA |
@@ -2700,6 +2966,48 @@
 | `generado_por` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
 | `datos` | JSONB | — | JSONB, obligatoria. | NINGUNA |
 | `hash_contenido` | VARCHAR(64) | — | VARCHAR(64), obligatoria. | DERIVADO |
+
+### `evento_consumido`
+
+**Qué es.** Marca de evento ya consumido, por consumidor (ADR-027).
+
+**Para qué sirve.** Hace idempotente el consumo: la entrega es al menos una vez y un mismo evento no puede producir dos efectos (regla 98.3.4).
+
+**Sistema.** Infraestructura del servicio `erp`, generada por plantilla en cada esquema (ADR-027): la escribe y la lee solo ese servicio.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `id_evento` | UUID | — | UUID, obligatoria, clave primaria. | NINGUNA |
+| `consumidor` | VARCHAR(60) | — | VARCHAR(60), obligatoria, clave primaria. | NINGUNA |
+| `consumido_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+
+### `evento_dominio`
+
+**Qué es.** Outbox transaccional del servicio (ADR-027).
+
+**Para qué sirve.** Garantiza que ningún hecho del servicio se pierda entre la base y la mensajería: el evento se guarda en la misma transacción que el cambio y un relevo lo publica después (regla 98.3.3).
+
+**Sistema.** Infraestructura del servicio `erp`, generada por plantilla en cada esquema (ADR-027): la escribe y la lee solo ese servicio.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
+| `tipo` | VARCHAR(60) | — | VARCHAR(60), obligatoria. | NINGUNA |
+| `version` | VARCHAR(10) | — | VARCHAR(10), obligatoria. | NINGUNA |
+| `agregado` | VARCHAR(40) | — | VARCHAR(40), obligatoria. | NINGUNA |
+| `agregado_id` | UUID | — | UUID, obligatoria. | NINGUNA |
+| `payload` | JSONB | — | JSONB, obligatoria. | NINGUNA |
+| `metadatos` | JSONB | — | JSONB, obligatoria. | NINGUNA |
+| `correlation_id` | UUID | — | UUID, obligatoria. | NINGUNA |
+| `causation_id` | UUID | — | UUID, opcional. | NINGUNA |
+| `ocurrido_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `publicado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
+| `intentos` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
+| `tomado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `tomado_por` | VARCHAR(100) | — | VARCHAR(100), opcional. | NINGUNA |
+| `ultimo_error` | TEXT | — | TEXT, opcional. | NINGUNA |
+| `proximo_intento_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
 
 ### `factura_proveedor`
 
@@ -2756,7 +3064,7 @@
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
 | `tercero_comercial_id` | UUID | — | UUID, obligatoria, referencia a `tercero_comercial`. | NINGUNA |
 | `centro_costo_id` | UUID | — | UUID, opcional, referencia a `centro_costo`. | NINGUNA |
-| `numero` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
+| `numero` | VARCHAR(30) | — | VARCHAR(30), obligatoria, única. | NINGUNA |
 | `descripcion` | VARCHAR(300) | — | VARCHAR(300), obligatoria. | NINGUNA |
 | `monto_total` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
 | `moneda` | CHAR(3) | Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2). | CHAR(3), obligatoria. | NINGUNA |
@@ -2843,6 +3151,21 @@
 | `aprobado_por` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
 | `aprobado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
 
+### `shedlock`
+
+**Qué es.** Bloqueo de trabajos programados entre replicas (ADR-018).
+
+**Para qué sirve.** Evita que dos réplicas del servicio ejecuten el mismo trabajo programado a la vez (ADR-018).
+
+**Sistema.** Infraestructura del servicio `erp`, generada por plantilla en cada esquema (ADR-027): la escribe y la lee solo ese servicio.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `name` | VARCHAR(64) | — | VARCHAR(64), obligatoria, clave primaria. | NINGUNA |
+| `lock_until` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `locked_at` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `locked_by` | VARCHAR(255) | — | VARCHAR(255), obligatoria. | NINGUNA |
+
 ### `tercero_comercial`
 
 **Qué es.** Un proveedor o cliente comercial: a quién la empresa le compra o le vende fuera del circuito del pasanaku.
@@ -2856,7 +3179,7 @@
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
 | `tipo` | VARCHAR(12) | — | VARCHAR(12), obligatoria. | NINGUNA |
 | `razon_social` | VARCHAR(150) | — | VARCHAR(150), obligatoria. | NINGUNA |
-| `numero_documento` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | PERSONAL |
+| `numero_documento` | VARCHAR(30) | — | VARCHAR(30), obligatoria, única. | PERSONAL |
 | `email` | VARCHAR(120) | — | VARCHAR(120), opcional. | PERSONAL |
 | `telefono` | VARCHAR(20) | — | VARCHAR(20), opcional. | PERSONAL |
 | `cuenta_contable_id` | UUID | — | UUID, opcional, referencia a `cuenta_contable`. | NINGUNA |
@@ -2928,7 +3251,7 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `registro_id` | UUID | — | UUID, obligatoria, referencia a `registro_incumplimiento`. | NINGUNA |
+| `registro_id` | UUID | — | UUID, obligatoria, única, referencia a `registro_incumplimiento`. | NINGUNA |
 | `aprobado_por` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
 | `acuerdo_grupo_id` | UUID | — | UUID, opcional, referencia a `acuerdo`. | NINGUNA |
 | `monto_original` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
@@ -3063,7 +3386,7 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `deuda_id` | UUID | — | UUID, obligatoria, referencia a `deuda_participante`. | FINANCIERO |
+| `deuda_id` | UUID | — | UUID, obligatoria, única, referencia a `deuda_participante`. | FINANCIERO |
 | `aprobado_por` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
 | `asiento_contable_id` | UUID | — | UUID, opcional, referencia a `asiento_contable`. | NINGUNA |
 | `monto_castigado` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
@@ -3086,8 +3409,8 @@
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
 | `fondo_id` | UUID | — | UUID, obligatoria, referencia a `fondo_garantia`. | NINGUNA |
-| `registro_id` | UUID | — | UUID, obligatoria, referencia a `registro_incumplimiento`. | NINGUNA |
-| `obligacion_id` | UUID | — | UUID, obligatoria, referencia a `obligacion_aporte`. | NINGUNA |
+| `registro_id` | UUID | — | UUID, obligatoria, única, referencia a `registro_incumplimiento`. | NINGUNA |
+| `obligacion_id` | UUID | — | UUID, obligatoria, única, referencia a `obligacion_aporte`. | NINGUNA |
 | `periodo_id` | UUID | — | UUID, obligatoria, referencia a `periodo`. | NINGUNA |
 | `movimiento_fondo_id` | UUID | — | UUID, opcional, referencia a `movimiento_fondo`. | NINGUNA |
 | `asiento_contable_id` | UUID | — | UUID, opcional, referencia a `asiento_contable`. | NINGUNA |
@@ -3126,7 +3449,7 @@
 | `monto_recuperado` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
 | `estado` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
 | `corte_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `clave_idempotencia` | VARCHAR(80) | Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4). | VARCHAR(80), obligatoria. | NINGUNA |
+| `clave_idempotencia` | VARCHAR(80) | Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4). | VARCHAR(80), obligatoria, única. | NINGUNA |
 | `solicitada_por` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
 | `responsable_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
 | `aplicada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
@@ -3189,8 +3512,8 @@
 | `usuario_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
 | `participante_id` | UUID | — | UUID, obligatoria, referencia a `participante`. | NINGUNA |
 | `grupo_id` | UUID | — | UUID, obligatoria, referencia a `grupo`. | NINGUNA |
-| `registro_id` | UUID | — | UUID, obligatoria, referencia a `registro_incumplimiento`. | NINGUNA |
-| `cobertura_id` | UUID | — | UUID, opcional, referencia a `cobertura_incumplimiento`. | NINGUNA |
+| `registro_id` | UUID | — | UUID, obligatoria, única, referencia a `registro_incumplimiento`. | NINGUNA |
+| `cobertura_id` | UUID | — | UUID, opcional, única, referencia a `cobertura_incumplimiento`. | NINGUNA |
 | `acreedor` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
 | `capital_original` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | NINGUNA |
 | `recargos_acumulados` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | NINGUNA |
@@ -3239,7 +3562,7 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `grupo_id` | UUID | — | UUID, obligatoria, referencia a `grupo`. | NINGUNA |
+| `grupo_id` | UUID | — | UUID, obligatoria, única, referencia a `grupo`. | NINGUNA |
 | `acuerdo_grupo_id` | UUID | — | UUID, opcional, referencia a `acuerdo`. | NINGUNA |
 | `causal` | VARCHAR(25) | — | VARCHAR(25), obligatoria. | NINGUNA |
 | `motivo` | VARCHAR(400) | — | VARCHAR(400), obligatoria. | NINGUNA |
@@ -3273,6 +3596,25 @@
 | `plazo_respuesta` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
 | `genera_deuda_del_avalista` | BOOLEAN | — | BOOLEAN, obligatoria. | FINANCIERO |
 
+### `estado_saga`
+
+**Qué es.** Estado de saga orquestada por este servicio (ADR-028).
+
+**Para qué sirve.** Persiste el paso de una saga que cruza servicios para poder reanudarla o compensarla si algo falla en el medio (regla 98.3.2, ADR-028).
+
+**Sistema.** Infraestructura del servicio `garantia`, generada por plantilla en cada esquema (ADR-027): la escribe y la lee solo ese servicio.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
+| `tipo_saga` | VARCHAR(60) | — | VARCHAR(60), obligatoria. | NINGUNA |
+| `clave_negocio` | VARCHAR(120) | — | VARCHAR(120), obligatoria. | SECRETO |
+| `paso` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
+| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
+| `datos` | JSONB | — | JSONB, obligatoria. | NINGUNA |
+| `creado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `actualizado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+
 ### `estrategia_cobranza`
 
 **Qué es.** Qué se hace en cada etapa: por qué canales, con qué frecuencia, con qué límite de contactos, si requiere gestor humano y si se puede negociar quita.
@@ -3297,6 +3639,48 @@
 | `permite_quita` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
 | `quita_maxima_porcentaje` | DECIMAL(5,2) | — | DECIMAL(5,2), obligatoria. | NINGUNA |
 | `siguiente_etapa` | VARCHAR(20) | — | VARCHAR(20), opcional. | NINGUNA |
+
+### `evento_consumido`
+
+**Qué es.** Marca de evento ya consumido, por consumidor (ADR-027).
+
+**Para qué sirve.** Hace idempotente el consumo: la entrega es al menos una vez y un mismo evento no puede producir dos efectos (regla 98.3.4).
+
+**Sistema.** Infraestructura del servicio `garantia`, generada por plantilla en cada esquema (ADR-027): la escribe y la lee solo ese servicio.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `id_evento` | UUID | — | UUID, obligatoria, clave primaria. | NINGUNA |
+| `consumidor` | VARCHAR(60) | — | VARCHAR(60), obligatoria, clave primaria. | NINGUNA |
+| `consumido_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+
+### `evento_dominio`
+
+**Qué es.** Outbox transaccional del servicio (ADR-027).
+
+**Para qué sirve.** Garantiza que ningún hecho del servicio se pierda entre la base y la mensajería: el evento se guarda en la misma transacción que el cambio y un relevo lo publica después (regla 98.3.3).
+
+**Sistema.** Infraestructura del servicio `garantia`, generada por plantilla en cada esquema (ADR-027): la escribe y la lee solo ese servicio.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
+| `tipo` | VARCHAR(60) | — | VARCHAR(60), obligatoria. | NINGUNA |
+| `version` | VARCHAR(10) | — | VARCHAR(10), obligatoria. | NINGUNA |
+| `agregado` | VARCHAR(40) | — | VARCHAR(40), obligatoria. | NINGUNA |
+| `agregado_id` | UUID | — | UUID, obligatoria. | NINGUNA |
+| `payload` | JSONB | — | JSONB, obligatoria. | NINGUNA |
+| `metadatos` | JSONB | — | JSONB, obligatoria. | NINGUNA |
+| `correlation_id` | UUID | — | UUID, obligatoria. | NINGUNA |
+| `causation_id` | UUID | — | UUID, opcional. | NINGUNA |
+| `ocurrido_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `publicado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
+| `intentos` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
+| `tomado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `tomado_por` | VARCHAR(100) | — | VARCHAR(100), opcional. | NINGUNA |
+| `ultimo_error` | TEXT | — | TEXT, opcional. | NINGUNA |
+| `proximo_intento_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
 
 ### `evidencia_incumplimiento`
 
@@ -3335,7 +3719,7 @@
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
 | `ambito` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
-| `grupo_id` | UUID | — | UUID, opcional, referencia a `grupo`. | NINGUNA |
+| `grupo_id` | UUID | — | UUID, opcional, única, referencia a `grupo`. | NINGUNA |
 | `politica_cobertura_id` | UUID | — | UUID, obligatoria, referencia a `politica_cobertura`. | NINGUNA |
 | `cuenta_contable_id` | UUID | — | UUID, obligatoria, referencia a `cuenta_contable`. | NINGUNA |
 | `moneda` | CHAR(3) | Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2). | CHAR(3), obligatoria. | NINGUNA |
@@ -3361,7 +3745,7 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `registro_id` | UUID | — | UUID, obligatoria, referencia a `registro_incumplimiento`. | NINGUNA |
+| `registro_id` | UUID | — | UUID, obligatoria, única, referencia a `registro_incumplimiento`. | NINGUNA |
 | `estrategia_id` | UUID | — | UUID, obligatoria, referencia a `estrategia_cobranza`. | NINGUNA |
 | `gestor_asignado_id` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
 | `etapa_actual` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
@@ -3535,7 +3919,7 @@
 | `exposicion_resultante` | DECIMAL(16,2) | — | DECIMAL(16,2), obligatoria. | NINGUNA |
 | `referencia_tipo` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
 | `referencia_id` | UUID | — | UUID, obligatoria. | NINGUNA |
-| `clave_idempotencia` | VARCHAR(80) | Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4). | VARCHAR(80), obligatoria. | NINGUNA |
+| `clave_idempotencia` | VARCHAR(80) | Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4). | VARCHAR(80), obligatoria, única. | NINGUNA |
 | `registrado_por` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
 | `responsable_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
 | `fecha` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
@@ -3581,13 +3965,13 @@
 | `porcentaje_constitucion` | DECIMAL(5,2) | cuánto de cada aporte alimenta el fondo. Sube el costo del pasanaku, así que es un equilibrio entre seguridad y precio. | DECIMAL(5,2), obligatoria. | NINGUNA |
 | `dias_mora_para_activar` | SMALLINT | **no se cubre al primer día de atraso.** Si se cubriera de inmediato, el fondo pagaría por gente que simplemente se olvidó y va a pagar mañana, y se agotaría en meses. | SMALLINT, obligatoria. | NINGUNA |
 | `porcentaje_maximo_cobertura_por_aporte` | DECIMAL(5,2) | — | DECIMAL(5,2), obligatoria. | NINGUNA |
-| `tope_cobertura_por_participante` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | NINGUNA |
+| `tope_cobertura_por_participante` | DECIMAL(14,2) | **evitan el parásito**. Sin límite, alguien podría no pagar nunca y dejar que el fondo cubra siempre — convirtiendo el seguro colectivo en su financiamiento personal. | DECIMAL(14,2), obligatoria. | NINGUNA |
 | `tope_cobertura_por_periodo` | DECIMAL(14,2) | protege contra el colapso masivo. Si en un período fallan seis de doce, el fondo no puede vaciarse cubriéndolos a todos; ahí corresponde un plan de contingencia, no cobertura. | DECIMAL(14,2), obligatoria. | NINGUNA |
-| `max_coberturas_por_participante` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
+| `max_coberturas_por_participante` | SMALLINT | **evitan el parásito**. Sin límite, alguien podría no pagar nunca y dejar que el fondo cubra siempre — convirtiendo el seguro colectivo en su financiamiento personal. | SMALLINT, obligatoria. | NINGUNA |
 | `exige_aval_previo` | BOOLEAN | solo se cubre a quien tiene quién responda. | BOOLEAN, obligatoria. | NINGUNA |
 | `requiere_aprobacion_manual_desde` | DECIMAL(14,2) | montos grandes pasan por revisión humana. | DECIMAL(14,2), obligatoria. | NINGUNA |
-| `plazo_recuperacion_dias` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `tasa_recargo_recuperacion` | DECIMAL(5,2) | — | DECIMAL(5,2), obligatoria. | NINGUNA |
+| `plazo_recuperacion_dias` | SMALLINT | **el fondo no es un regalo**. Es un préstamo forzoso con plazo y con costo. | SMALLINT, obligatoria. | NINGUNA |
+| `tasa_recargo_recuperacion` | DECIMAL(5,2) | **el fondo no es un regalo**. Es un préstamo forzoso con plazo y con costo. | DECIMAL(5,2), obligatoria. | NINGUNA |
 | `vigente_desde` | TIMESTAMPTZ | Desde cuándo rige esta versión de la fila: las condiciones se versionan, no se pisan. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 
 ### `politica_sancion`
@@ -3648,7 +4032,7 @@
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
 | `cobertura_respaldo_linea_id` | UUID | — | UUID, obligatoria, referencia a `cobertura_respaldo_linea`. | NINGUNA |
-| `pago_id` | UUID | — | UUID, obligatoria, referencia a `pago`. | NINGUNA |
+| `pago_id` | UUID | — | UUID, obligatoria, única, referencia a `pago`. | NINGUNA |
 | `movimiento_reserva_id` | UUID | — | UUID, obligatoria, referencia a `movimiento_reserva`. | NINGUNA |
 | `monto` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
 | `moneda` | CHAR(3) | Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2). | CHAR(3), obligatoria. | NINGUNA |
@@ -3673,8 +4057,8 @@
 | `participante_saliente_id` | UUID | — | UUID, obligatoria, referencia a `participante`. | NINGUNA |
 | `participante_entrante_id` | UUID | — | UUID, opcional, referencia a `participante`. | NINGUNA |
 | `acuerdo_grupo_id` | UUID | — | UUID, opcional, referencia a `acuerdo`. | NINGUNA |
-| `deuda_asumida_por_entrante` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
-| `deuda_retenida_por_saliente` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
+| `deuda_asumida_por_entrante` | DECIMAL(14,2) | **normalmente el entrante no asume la deuda vieja**, porque si la asumiera nadie querría entrar a reemplazar a un moroso. La deuda queda con el saliente y se persigue por M8. | DECIMAL(14,2), obligatoria. | FINANCIERO |
+| `deuda_retenida_por_saliente` | DECIMAL(14,2) | **normalmente el entrante no asume la deuda vieja**, porque si la asumiera nadie querría entrar a reemplazar a un moroso. La deuda queda con el saliente y se persigue por M8. | DECIMAL(14,2), obligatoria. | FINANCIERO |
 | `conserva_orden_de_turno` | BOOLEAN | el entrante hereda la posición del cupo en el calendario. Es lo que permite que el resto del grupo no se vea afectado. | BOOLEAN, obligatoria. | NINGUNA |
 | `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
 | `fecha` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
@@ -3692,13 +4076,13 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `codigo_expediente` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
+| `codigo_expediente` | VARCHAR(20) | — | VARCHAR(20), obligatoria, única. | NINGUNA |
 | `usuario_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
 | `participante_id` | UUID | — | UUID, obligatoria, referencia a `participante`. | NINGUNA |
 | `grupo_id` | UUID | — | UUID, obligatoria, referencia a `grupo`. | NINGUNA |
 | `periodo_id` | UUID | — | UUID, opcional, referencia a `periodo`. | NINGUNA |
 | `cupo_id` | UUID | — | UUID, opcional, referencia a `cupo`. | NINGUNA |
-| `obligacion_id` | UUID | — | UUID, opcional, referencia a `obligacion_aporte`. | NINGUNA |
+| `obligacion_id` | UUID | — | UUID, opcional, única, referencia a `obligacion_aporte`. | NINGUNA |
 | `entrega_afectada_id` | UUID | — | UUID, opcional, referencia a `entrega_fondo`. | NINGUNA |
 | `responsable_gestion` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
 | `tipo` | VARCHAR(40) | — | VARCHAR(40), obligatoria. | NINGUNA |
@@ -3745,7 +4129,7 @@
 | `monto_liberado` | DECIMAL(16,2) | — | DECIMAL(16,2), obligatoria. | FINANCIERO |
 | `estado` | VARCHAR(10) | — | VARCHAR(10), obligatoria. | NINGUNA |
 | `responsable_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `clave_idempotencia` | VARCHAR(80) | Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4). | VARCHAR(80), obligatoria. | NINGUNA |
+| `clave_idempotencia` | VARCHAR(80) | Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4). | VARCHAR(80), obligatoria, única. | NINGUNA |
 | `reservada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
 | `version` | INTEGER | — | INTEGER, obligatoria. | NINGUNA |
 
@@ -3799,6 +4183,21 @@
 | `accion_sugerida` | VARCHAR(160) | — | VARCHAR(160), obligatoria. | NINGUNA |
 | `calculado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
 
+### `shedlock`
+
+**Qué es.** Bloqueo de trabajos programados entre replicas (ADR-018).
+
+**Para qué sirve.** Evita que dos réplicas del servicio ejecuten el mismo trabajo programado a la vez (ADR-018).
+
+**Sistema.** Infraestructura del servicio `garantia`, generada por plantilla en cada esquema (ADR-027): la escribe y la lee solo ese servicio.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `name` | VARCHAR(64) | — | VARCHAR(64), obligatoria, clave primaria. | NINGUNA |
+| `lock_until` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `locked_at` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `locked_by` | VARCHAR(255) | — | VARCHAR(255), obligatoria. | NINGUNA |
+
 ### `subrogacion`
 
 **Qué es.** La formalización del cambio de acreedor: el fondo pagó, ahora el fondo es el acreedor.
@@ -3812,8 +4211,8 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `cobertura_id` | UUID | — | UUID, obligatoria, referencia a `cobertura_incumplimiento`. | NINGUNA |
-| `deuda_id` | UUID | — | UUID, obligatoria, referencia a `deuda_participante`. | FINANCIERO |
+| `cobertura_id` | UUID | — | UUID, obligatoria, única, referencia a `cobertura_incumplimiento`. | NINGUNA |
+| `deuda_id` | UUID | — | UUID, obligatoria, única, referencia a `deuda_participante`. | FINANCIERO |
 | `acreedor_original` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
 | `acreedor_subrogado` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
 | `monto_subrogado` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
@@ -3883,9 +4282,9 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `grupo_id` | UUID | — | UUID, obligatoria. | NINGUNA |
+| `grupo_id` | UUID | — | UUID, obligatoria, única. | NINGUNA |
 | `creador_id` | UUID | — | UUID, obligatoria. | NINGUNA |
-| `clave_idempotencia` | UUID | Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4). | UUID, obligatoria. | NINGUNA |
+| `clave_idempotencia` | UUID | Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4). | UUID, obligatoria, única. | NINGUNA |
 | `huella_solicitud` | VARCHAR(64) | — | VARCHAR(64), obligatoria. | NINGUNA |
 | `fondo_por_periodo` | VARCHAR(60) | — | VARCHAR(60), obligatoria. | NINGUNA |
 | `creada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
@@ -3903,13 +4302,13 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `grupo_id` | UUID | — | UUID, obligatoria, clave primaria, referencia a `grupo`. | NINGUNA |
-| `permite_cupos_multiples` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
-| `max_cupos_por_persona` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
+| `permite_cupos_multiples` | BOOLEAN | ¿se permite que alguien tenga dos manos? Es práctica habitual y a la vez es riesgo concentrado — si esa persona falla, el grupo pierde el doble. | BOOLEAN, obligatoria. | NINGUNA |
+| `max_cupos_por_persona` | SMALLINT | ¿se permite que alguien tenga dos manos? Es práctica habitual y a la vez es riesgo concentrado — si esa persona falla, el grupo pierde el doble. | SMALLINT, obligatoria. | NINGUNA |
 | `permite_permuta_turnos` | BOOLEAN | ¿pueden dos participantes intercambiar posiciones? Permitirlo da flexibilidad real (a alguien se le enfermó un familiar y necesita cobrar antes); prohibirlo evita el mercado gris de compra-venta de turnos. | BOOLEAN, obligatoria. | NINGUNA |
 | `requiere_avalista` | BOOLEAN | exige que cada participante tenga quién responda por él (M8). Sube la fricción de entrada y baja drásticamente la morosidad. | BOOLEAN, obligatoria. | NINGUNA |
 | `permite_ingreso_tardio` | BOOLEAN | ¿puede entrar alguien con el grupo ya empezado? Tiene implicaciones económicas serias (debe ponerse al día con los períodos ya transcurridos). | BOOLEAN, obligatoria. | NINGUNA |
-| `hora_limite_pago` | TIME | — | TIME, obligatoria. | NINGUNA |
-| `tolerancia_monto_parcial` | DECIMAL(5,2) | — | DECIMAL(5,2), obligatoria. | FINANCIERO |
+| `hora_limite_pago` | TIME | ¿un pago a las 23:50 del día de vencimiento cuenta como puntual? ¿Bs 499 sobre Bs 500 cuenta como pagado? Son las dos preguntas que generan más discusiones reales, y por eso se responden por configuración y no por criterio de quien mire. | TIME, obligatoria. | NINGUNA |
+| `tolerancia_monto_parcial` | DECIMAL(5,2) | ¿un pago a las 23:50 del día de vencimiento cuenta como puntual? ¿Bs 499 sobre Bs 500 cuenta como pagado? Son las dos preguntas que generan más discusiones reales, y por eso se responden por configuración y no por criterio de quien mire. | DECIMAL(5,2), obligatoria. | FINANCIERO |
 | `politica_mora_id` | UUID | — | UUID, opcional, referencia a `politica_mora`. | NINGUNA |
 | `politica_sancion_id` | UUID | — | UUID, opcional, referencia a `politica_sancion`. | NINGUNA |
 
@@ -3969,7 +4368,7 @@
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
 | `solicitud_id` | UUID | — | UUID, obligatoria. | NINGUNA |
-| `clave_idempotencia` | UUID | Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4). | UUID, obligatoria. | NINGUNA |
+| `clave_idempotencia` | UUID | Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4). | UUID, obligatoria, única. | NINGUNA |
 | `fase` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
 | `decision` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
 | `actor_id` | UUID | — | UUID, obligatoria. | NINGUNA |
@@ -3999,11 +4398,53 @@
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
 | `grupo_id` | UUID | — | UUID, obligatoria, referencia a `grupo`. | NINGUNA |
 | `emisor_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `token_hash` | VARCHAR(64) | — | VARCHAR(64), obligatoria. | DERIVADO |
+| `token_hash` | VARCHAR(64) | — | VARCHAR(64), obligatoria, única. | DERIVADO |
 | `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
 | `fecha_creacion` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
 | `fecha_expiracion` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
 | `fecha_anulacion` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+
+### `evento_consumido`
+
+**Qué es.** Marca de evento ya consumido, por consumidor (ADR-027).
+
+**Para qué sirve.** Hace idempotente el consumo: la entrega es al menos una vez y un mismo evento no puede producir dos efectos (regla 98.3.4).
+
+**Sistema.** Infraestructura del servicio `grupos`, generada por plantilla en cada esquema (ADR-027): la escribe y la lee solo ese servicio.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `id_evento` | UUID | — | UUID, obligatoria, clave primaria. | NINGUNA |
+| `consumidor` | VARCHAR(60) | — | VARCHAR(60), obligatoria, clave primaria. | NINGUNA |
+| `consumido_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+
+### `evento_dominio`
+
+**Qué es.** Outbox transaccional del servicio (ADR-027).
+
+**Para qué sirve.** Garantiza que ningún hecho del servicio se pierda entre la base y la mensajería: el evento se guarda en la misma transacción que el cambio y un relevo lo publica después (regla 98.3.3).
+
+**Sistema.** Infraestructura del servicio `grupos`, generada por plantilla en cada esquema (ADR-027): la escribe y la lee solo ese servicio.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
+| `tipo` | VARCHAR(60) | — | VARCHAR(60), obligatoria. | NINGUNA |
+| `version` | VARCHAR(10) | — | VARCHAR(10), obligatoria. | NINGUNA |
+| `agregado` | VARCHAR(40) | — | VARCHAR(40), obligatoria. | NINGUNA |
+| `agregado_id` | UUID | — | UUID, obligatoria. | NINGUNA |
+| `payload` | JSONB | — | JSONB, obligatoria. | NINGUNA |
+| `metadatos` | JSONB | — | JSONB, obligatoria. | NINGUNA |
+| `correlation_id` | UUID | — | UUID, obligatoria. | NINGUNA |
+| `causation_id` | UUID | — | UUID, opcional. | NINGUNA |
+| `ocurrido_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `publicado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
+| `intentos` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
+| `tomado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `tomado_por` | VARCHAR(100) | — | VARCHAR(100), opcional. | NINGUNA |
+| `ultimo_error` | TEXT | — | TEXT, opcional. | NINGUNA |
+| `proximo_intento_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
 
 ### `grupo`
 
@@ -4018,7 +4459,7 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `codigo_publico` | VARCHAR(12) | — | VARCHAR(12), obligatoria. | NINGUNA |
+| `codigo_publico` | VARCHAR(12) | — | VARCHAR(12), obligatoria, única. | NINGUNA |
 | `nombre` | VARCHAR(120) | — | VARCHAR(120), obligatoria. | NINGUNA |
 | `descripcion` | VARCHAR(400) | — | VARCHAR(400), opcional. | NINGUNA |
 | `monto_aporte` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
@@ -4082,7 +4523,7 @@
 | `telefono_invitado` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | PERSONAL |
 | `nombre_sugerido` | VARCHAR(80) | — | VARCHAR(80), opcional. | NINGUNA |
 | `emisor_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `token_id` | UUID | — | UUID, obligatoria, referencia a `token_verificacion`. | SECRETO |
+| `token_id` | UUID | — | UUID, obligatoria, única, referencia a `token_verificacion`. | SECRETO |
 | `consumidor_id` | UUID | — | UUID, opcional. | NINGUNA |
 | `clave_consumo` | UUID | — | UUID, opcional. | SECRETO |
 | `solicitud_ingreso_id` | UUID | — | UUID, opcional. | NINGUNA |
@@ -4229,6 +4670,21 @@
 | `vigente_hasta` | TIMESTAMPTZ | Hasta cuándo rigió esta versión; vacía mientras sigue vigente. | TIMESTAMPTZ, opcional. | NINGUNA |
 | `redactado_por` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
 
+### `shedlock`
+
+**Qué es.** Bloqueo de trabajos programados entre replicas (ADR-018).
+
+**Para qué sirve.** Evita que dos réplicas del servicio ejecuten el mismo trabajo programado a la vez (ADR-018).
+
+**Sistema.** Infraestructura del servicio `grupos`, generada por plantilla en cada esquema (ADR-027): la escribe y la lee solo ese servicio.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `name` | VARCHAR(64) | — | VARCHAR(64), obligatoria, clave primaria. | NINGUNA |
+| `lock_until` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `locked_at` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `locked_by` | VARCHAR(255) | — | VARCHAR(255), obligatoria. | NINGUNA |
+
 ### `snapshot_sorteo`
 
 **Qué es.** La foto congelada del plantel, el calendario y las reglas de un grupo en el momento en que se compromete el sorteo de turnos.
@@ -4242,7 +4698,7 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `sorteo_id` | UUID | — | UUID, obligatoria. | NINGUNA |
+| `sorteo_id` | UUID | — | UUID, obligatoria, única. | NINGUNA |
 | `grupo_id` | UUID | — | UUID, obligatoria. | NINGUNA |
 | `roster` | TEXT | — | TEXT, obligatoria. | NINGUNA |
 | `periodos` | TEXT | — | TEXT, obligatoria. | NINGUNA |
@@ -4314,7 +4770,7 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `participante_id` | UUID | — | UUID, obligatoria, referencia a `participante`. | NINGUNA |
+| `participante_id` | UUID | — | UUID, obligatoria, única, referencia a `participante`. | NINGUNA |
 | `motivo` | VARCHAR(200) | — | VARCHAR(200), obligatoria. | NINGUNA |
 | `solicitado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
 | `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
@@ -4366,7 +4822,7 @@
 | `grupo_id` | UUID | — | UUID, obligatoria. | NINGUNA |
 | `saliente_participante_id` | UUID | — | UUID, obligatoria. | NINGUNA |
 | `entrante_participante_id` | UUID | — | UUID, obligatoria. | NINGUNA |
-| `clave_idempotencia` | UUID | Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4). | UUID, obligatoria. | NINGUNA |
+| `clave_idempotencia` | UUID | Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4). | UUID, obligatoria, única. | NINGUNA |
 | `motivo` | VARCHAR(1000) | — | VARCHAR(1000), obligatoria. | NINGUNA |
 | `actor_id` | UUID | — | UUID, obligatoria. | NINGUNA |
 | `obligaciones_conservadas` | TEXT | — | TEXT, obligatoria. | NINGUNA |
@@ -4455,12 +4911,12 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `token_id` | UUID | — | UUID, obligatoria, referencia a `token_verificacion`. | SECRETO |
+| `token_id` | UUID | — | UUID, obligatoria, única, referencia a `token_verificacion`. | SECRETO |
 | `grupo_destino_id` | UUID | — | UUID, obligatoria. | NINGUNA |
 | `emisor_id` | UUID | — | UUID, obligatoria. | NINGUNA |
 | `telefono_destino` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | PERSONAL |
 | `nonce` | VARCHAR(64) | — | VARCHAR(64), obligatoria. | NINGUNA |
-| `clave_emision` | UUID | — | UUID, obligatoria. | SECRETO |
+| `clave_emision` | UUID | — | UUID, obligatoria, única. | SECRETO |
 | `huella_solicitud` | VARCHAR(64) | — | VARCHAR(64), obligatoria. | NINGUNA |
 | `clave_consumo` | UUID | — | UUID, opcional. | SECRETO |
 | `consumidor_id` | UUID | — | UUID, opcional. | NINGUNA |
@@ -4544,7 +5000,7 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `usuario_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
+| `usuario_id` | UUID | — | UUID, obligatoria, única, referencia a `usuario`. | NINGUNA |
 | `hash_contrasena` | VARCHAR(255) | — | VARCHAR(255), obligatoria. | DERIVADO |
 | `algoritmo` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
 | `parametros_kdf` | JSONB | — | JSONB, obligatoria. | NINGUNA |
@@ -4565,7 +5021,7 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `usuario_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
+| `usuario_id` | UUID | — | UUID, obligatoria, única, referencia a `usuario`. | NINGUNA |
 | `departamento` | VARCHAR(60) | — | VARCHAR(60), obligatoria. | NINGUNA |
 | `ciudad` | VARCHAR(60) | — | VARCHAR(60), obligatoria. | NINGUNA |
 | `zona` | VARCHAR(80) | — | VARCHAR(80), obligatoria. | NINGUNA |
@@ -4624,6 +5080,48 @@
 | `url_reverso` | VARCHAR(255) | — | VARCHAR(255), opcional. | PERSONAL |
 | `hash_archivo` | VARCHAR(64) | — | VARCHAR(64), opcional. | DERIVADO |
 | `estado` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
+
+### `evento_consumido`
+
+**Qué es.** Marca de evento ya consumido, por consumidor (ADR-027).
+
+**Para qué sirve.** Hace idempotente el consumo: la entrega es al menos una vez y un mismo evento no puede producir dos efectos (regla 98.3.4).
+
+**Sistema.** Infraestructura del servicio `identidad`, generada por plantilla en cada esquema (ADR-027): la escribe y la lee solo ese servicio.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `id_evento` | UUID | — | UUID, obligatoria, clave primaria. | NINGUNA |
+| `consumidor` | VARCHAR(60) | — | VARCHAR(60), obligatoria, clave primaria. | NINGUNA |
+| `consumido_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+
+### `evento_dominio`
+
+**Qué es.** Outbox transaccional del servicio (ADR-027).
+
+**Para qué sirve.** Garantiza que ningún hecho del servicio se pierda entre la base y la mensajería: el evento se guarda en la misma transacción que el cambio y un relevo lo publica después (regla 98.3.3).
+
+**Sistema.** Infraestructura del servicio `identidad`, generada por plantilla en cada esquema (ADR-027): la escribe y la lee solo ese servicio.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
+| `tipo` | VARCHAR(60) | — | VARCHAR(60), obligatoria. | NINGUNA |
+| `version` | VARCHAR(10) | — | VARCHAR(10), obligatoria. | NINGUNA |
+| `agregado` | VARCHAR(40) | — | VARCHAR(40), obligatoria. | NINGUNA |
+| `agregado_id` | UUID | — | UUID, obligatoria. | NINGUNA |
+| `payload` | JSONB | — | JSONB, obligatoria. | NINGUNA |
+| `metadatos` | JSONB | — | JSONB, obligatoria. | NINGUNA |
+| `correlation_id` | UUID | — | UUID, obligatoria. | NINGUNA |
+| `causation_id` | UUID | — | UUID, opcional. | NINGUNA |
+| `ocurrido_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `publicado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
+| `intentos` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
+| `tomado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `tomado_por` | VARCHAR(100) | — | VARCHAR(100), opcional. | NINGUNA |
+| `ultimo_error` | TEXT | — | TEXT, opcional. | NINGUNA |
+| `proximo_intento_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
 
 ### `factor_mfa`
 
@@ -4720,7 +5218,7 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `usuario_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
+| `usuario_id` | UUID | — | UUID, obligatoria, única, referencia a `usuario`. | NINGUNA |
 | `ocupacion` | VARCHAR(80) | — | VARCHAR(80), obligatoria. | NINGUNA |
 | `ingreso_mensual_declarado` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | NINGUNA |
 | `capacidad_aporte_declarada` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | NINGUNA |
@@ -4741,7 +5239,7 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `codigo` | VARCHAR(60) | — | VARCHAR(60), obligatoria. | NINGUNA |
+| `codigo` | VARCHAR(60) | — | VARCHAR(60), obligatoria, única. | NINGUNA |
 | `descripcion` | VARCHAR(160) | — | VARCHAR(160), obligatoria. | NINGUNA |
 | `recurso` | VARCHAR(40) | — | VARCHAR(40), obligatoria. | NINGUNA |
 | `accion` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
@@ -4787,7 +5285,7 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `usuario_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
+| `usuario_id` | UUID | — | UUID, obligatoria, única, referencia a `usuario`. | NINGUNA |
 | `canal_primario` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
 | `canal_respaldo` | VARCHAR(20) | — | VARCHAR(20), opcional. | NINGUNA |
 | `acepta_whatsapp` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
@@ -4833,7 +5331,7 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `usuario_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
+| `usuario_id` | UUID | — | UUID, obligatoria, única, referencia a `usuario`. | NINGUNA |
 | `puntaje` | DECIMAL(6,2) | — | DECIMAL(6,2), obligatoria. | NINGUNA |
 | `indice_puntualidad` | DECIMAL(5,2) | — | DECIMAL(5,2), obligatoria. | NINGUNA |
 | `total_obligaciones` | INTEGER | — | INTEGER, obligatoria. | NINGUNA |
@@ -4880,7 +5378,7 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `codigo` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
+| `codigo` | VARCHAR(30) | — | VARCHAR(30), obligatoria, única. | NINGUNA |
 | `nombre` | VARCHAR(60) | — | VARCHAR(60), obligatoria. | NINGUNA |
 | `ambito` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
 | `departamento` | VARCHAR(60) | — | VARCHAR(60), opcional. | NINGUNA |
@@ -4924,6 +5422,21 @@
 | `revocada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
 | `motivo_revocacion` | VARCHAR(80) | — | VARCHAR(80), opcional. | NINGUNA |
 
+### `shedlock`
+
+**Qué es.** Bloqueo de trabajos programados entre replicas (ADR-018).
+
+**Para qué sirve.** Evita que dos réplicas del servicio ejecuten el mismo trabajo programado a la vez (ADR-018).
+
+**Sistema.** Infraestructura del servicio `identidad`, generada por plantilla en cada esquema (ADR-027): la escribe y la lee solo ese servicio.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `name` | VARCHAR(64) | — | VARCHAR(64), obligatoria, clave primaria. | NINGUNA |
+| `lock_until` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `locked_at` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `locked_by` | VARCHAR(255) | — | VARCHAR(255), obligatoria. | NINGUNA |
+
 ### `solicitud_baja`
 
 **Qué es.** El pedido formal de un usuario de dejar la plataforma.
@@ -4961,7 +5474,7 @@
 | `dispositivo_id` | UUID | — | UUID, opcional, referencia a `dispositivo`. | NINGUNA |
 | `tipo_token` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | SECRETO |
 | `proposito` | VARCHAR(35) | — | VARCHAR(35), obligatoria. | NINGUNA |
-| `hash_token` | VARCHAR(128) | — | VARCHAR(128), obligatoria. | DERIVADO |
+| `hash_token` | VARCHAR(128) | — | VARCHAR(128), obligatoria, única. | DERIVADO |
 | `algoritmo_hash` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | DERIVADO |
 | `canal_entrega` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
 | `destino_enmascarado` | VARCHAR(40) | — | VARCHAR(40), obligatoria. | NINGUNA |
@@ -5000,11 +5513,11 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `codigo_publico` | VARCHAR(12) | — | VARCHAR(12), obligatoria. | NINGUNA |
+| `codigo_publico` | VARCHAR(12) | — | VARCHAR(12), obligatoria, única. | NINGUNA |
 | `nombres` | VARCHAR(80) | — | VARCHAR(80), obligatoria. | NINGUNA |
 | `apellidos` | VARCHAR(80) | — | VARCHAR(80), obligatoria. | PERSONAL |
-| `telefono_e164` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | PERSONAL |
-| `correo` | VARCHAR(150) | — | VARCHAR(150), opcional. | PERSONAL |
+| `telefono_e164` | VARCHAR(20) | — | VARCHAR(20), obligatoria, única. | PERSONAL |
+| `correo` | VARCHAR(150) | — | VARCHAR(150), opcional, única. | PERSONAL |
 | `fecha_nacimiento` | DATE | — | DATE, obligatoria. | PERSONAL |
 | `estado` | VARCHAR(25) | — | VARCHAR(25), obligatoria. | NINGUNA |
 | `nivel_kyc` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
@@ -5031,7 +5544,7 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `usuario_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
+| `usuario_id` | UUID | — | UUID, obligatoria, única, referencia a `usuario`. | NINGUNA |
 | `departamento` | VARCHAR(60) | — | VARCHAR(60), obligatoria. | NINGUNA |
 | `cargo` | VARCHAR(80) | — | VARCHAR(80), obligatoria. | NINGUNA |
 | `debe_cambiar_contrasena` | BOOLEAN | — | BOOLEAN, obligatoria. | SECRETO |
@@ -5083,7 +5596,7 @@
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
 | `posicion_inversion_id` | UUID | — | UUID, obligatoria, referencia a `posicion_inversion`. | NINGUNA |
-| `rescate_inversion_id` | UUID | — | UUID, obligatoria, referencia a `rescate_inversion`. | NINGUNA |
+| `rescate_inversion_id` | UUID | — | UUID, obligatoria, única, referencia a `rescate_inversion`. | NINGUNA |
 | `cuotas` | DECIMAL(18,6) | — | DECIMAL(18,6), obligatoria. | NINGUNA |
 | `valor_cuota` | DECIMAL(18,6) | — | DECIMAL(18,6), obligatoria. | NINGUNA |
 | `marca_maxima_previa` | DECIMAL(18,6) | — | DECIMAL(18,6), obligatoria. | NINGUNA |
@@ -5112,7 +5625,7 @@
 | `posicion_inversion_id` | UUID | — | UUID, obligatoria, referencia a `posicion_inversion`. | NINGUNA |
 | `usuario_id` | UUID | — | UUID, obligatoria. | NINGUNA |
 | `tipo` | VARCHAR(12) | — | VARCHAR(12), obligatoria. | NINGUNA |
-| `origen_id` | UUID | — | UUID, obligatoria. | NINGUNA |
+| `origen_id` | UUID | — | UUID, obligatoria, única. | NINGUNA |
 | `sentido_titular` | VARCHAR(8) | — | VARCHAR(8), obligatoria. | NINGUNA |
 | `principal` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | NINGUNA |
 | `interes` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | NINGUNA |
@@ -5139,7 +5652,7 @@
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
 | `posicion_inversion_id` | UUID | — | UUID, obligatoria, referencia a `posicion_inversion`. | NINGUNA |
-| `rescate_inversion_id` | UUID | — | UUID, obligatoria, referencia a `rescate_inversion`. | NINGUNA |
+| `rescate_inversion_id` | UUID | — | UUID, obligatoria, única, referencia a `rescate_inversion`. | NINGUNA |
 | `periodo_desde` | DATE | — | DATE, obligatoria. | NINGUNA |
 | `periodo_hasta` | DATE | — | DATE, obligatoria. | NINGUNA |
 | `interes_devengado` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | NINGUNA |
@@ -5228,7 +5741,7 @@
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
 | `posicion_inversion_id` | UUID | — | UUID, obligatoria, referencia a `posicion_inversion`. | NINGUNA |
-| `rescate_inversion_id` | UUID | — | UUID, obligatoria, referencia a `rescate_inversion`. | NINGUNA |
+| `rescate_inversion_id` | UUID | — | UUID, obligatoria, única, referencia a `rescate_inversion`. | NINGUNA |
 | `usuario_id` | UUID | — | UUID, obligatoria. | NINGUNA |
 | `periodo_desde` | DATE | — | DATE, obligatoria. | NINGUNA |
 | `periodo_hasta` | DATE | — | DATE, obligatoria. | NINGUNA |
@@ -5242,6 +5755,48 @@
 | `estado` | VARCHAR(12) | — | VARCHAR(12), obligatoria. | NINGUNA |
 | `motivo_discrepancia` | VARCHAR(40) | — | VARCHAR(40), opcional. | NINGUNA |
 | `distribuida_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+
+### `evento_consumido`
+
+**Qué es.** Marca de evento ya consumido, por consumidor (ADR-027).
+
+**Para qué sirve.** Hace idempotente el consumo: la entrega es al menos una vez y un mismo evento no puede producir dos efectos (regla 98.3.4).
+
+**Sistema.** Infraestructura del servicio `inversiones`, generada por plantilla en cada esquema (ADR-027): la escribe y la lee solo ese servicio.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `id_evento` | UUID | — | UUID, obligatoria, clave primaria. | NINGUNA |
+| `consumidor` | VARCHAR(60) | — | VARCHAR(60), obligatoria, clave primaria. | NINGUNA |
+| `consumido_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+
+### `evento_dominio`
+
+**Qué es.** Outbox transaccional del servicio (ADR-027).
+
+**Para qué sirve.** Garantiza que ningún hecho del servicio se pierda entre la base y la mensajería: el evento se guarda en la misma transacción que el cambio y un relevo lo publica después (regla 98.3.3).
+
+**Sistema.** Infraestructura del servicio `inversiones`, generada por plantilla en cada esquema (ADR-027): la escribe y la lee solo ese servicio.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
+| `tipo` | VARCHAR(60) | — | VARCHAR(60), obligatoria. | NINGUNA |
+| `version` | VARCHAR(10) | — | VARCHAR(10), obligatoria. | NINGUNA |
+| `agregado` | VARCHAR(40) | — | VARCHAR(40), obligatoria. | NINGUNA |
+| `agregado_id` | UUID | — | UUID, obligatoria. | NINGUNA |
+| `payload` | JSONB | — | JSONB, obligatoria. | NINGUNA |
+| `metadatos` | JSONB | — | JSONB, obligatoria. | NINGUNA |
+| `correlation_id` | UUID | — | UUID, obligatoria. | NINGUNA |
+| `causation_id` | UUID | — | UUID, opcional. | NINGUNA |
+| `ocurrido_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `publicado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
+| `intentos` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
+| `tomado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `tomado_por` | VARCHAR(100) | — | VARCHAR(100), opcional. | NINGUNA |
+| `ultimo_error` | TEXT | — | TEXT, opcional. | NINGUNA |
+| `proximo_intento_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
 
 ### `instruccion_libro`
 
@@ -5263,7 +5818,7 @@
 | `cuenta_billetera_id` | UUID | — | UUID, obligatoria. | NINGUNA |
 | `monto` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
 | `moneda` | CHAR(3) | Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2). | CHAR(3), obligatoria. | NINGUNA |
-| `clave_idempotencia` | VARCHAR(100) | Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4). | VARCHAR(100), obligatoria. | NINGUNA |
+| `clave_idempotencia` | VARCHAR(100) | Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4). | VARCHAR(100), obligatoria, única. | NINGUNA |
 | `estado` | VARCHAR(10) | — | VARCHAR(10), obligatoria. | NINGUNA |
 | `referencia_libro` | UUID | — | UUID, opcional. | NINGUNA |
 | `intentos` | INTEGER | — | INTEGER, obligatoria. | NINGUNA |
@@ -5287,7 +5842,7 @@
 | `usuario_id` | UUID | — | UUID, obligatoria. | NINGUNA |
 | `producto_inversion_id` | UUID | — | UUID, obligatoria, referencia a `producto_inversion`. | NINGUNA |
 | `version_condiciones_id` | UUID | — | UUID, obligatoria, referencia a `version_condiciones`. | NINGUNA |
-| `consentimiento_inversion_id` | UUID | — | UUID, obligatoria, referencia a `consentimiento_inversion`. | NINGUNA |
+| `consentimiento_inversion_id` | UUID | — | UUID, obligatoria, única, referencia a `consentimiento_inversion`. | NINGUNA |
 | `cuenta_billetera_id` | UUID | — | UUID, obligatoria. | NINGUNA |
 | `monto` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
 | `moneda` | CHAR(3) | Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2). | CHAR(3), obligatoria. | NINGUNA |
@@ -5317,7 +5872,7 @@
 | `usuario_id` | UUID | — | UUID, obligatoria. | NINGUNA |
 | `producto_inversion_id` | UUID | — | UUID, obligatoria, referencia a `producto_inversion`. | NINGUNA |
 | `version_condiciones_id` | UUID | — | UUID, obligatoria, referencia a `version_condiciones`. | NINGUNA |
-| `orden_inversion_id` | UUID | — | UUID, obligatoria, referencia a `orden_inversion`. | NINGUNA |
+| `orden_inversion_id` | UUID | — | UUID, obligatoria, única, referencia a `orden_inversion`. | NINGUNA |
 | `tipo` | VARCHAR(5) | — | VARCHAR(5), obligatoria. | NINGUNA |
 | `principal` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | NINGUNA |
 | `moneda` | CHAR(3) | Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2). | CHAR(3), obligatoria. | NINGUNA |
@@ -5326,7 +5881,7 @@
 | `marca_maxima` | DECIMAL(18,6) | — | DECIMAL(18,6), opcional. | NINGUNA |
 | `fecha_constitucion` | DATE | — | DATE, obligatoria. | NINGUNA |
 | `fecha_vencimiento` | DATE | — | DATE, opcional. | NINGUNA |
-| `posicion_externa` | VARCHAR(80) | — | VARCHAR(80), obligatoria. | NINGUNA |
+| `posicion_externa` | VARCHAR(80) | — | VARCHAR(80), obligatoria, única. | NINGUNA |
 | `estado` | VARCHAR(10) | — | VARCHAR(10), obligatoria. | NINGUNA |
 | `version` | INTEGER | — | INTEGER, obligatoria. | NINGUNA |
 | `creada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
@@ -5345,7 +5900,7 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `codigo` | VARCHAR(40) | — | VARCHAR(40), obligatoria. | NINGUNA |
+| `codigo` | VARCHAR(40) | — | VARCHAR(40), obligatoria, única. | NINGUNA |
 | `tipo` | VARCHAR(5) | — | VARCHAR(5), obligatoria. | NINGUNA |
 | `nombre` | VARCHAR(120) | — | VARCHAR(120), obligatoria. | NINGUNA |
 | `emisor` | VARCHAR(120) | — | VARCHAR(120), obligatoria. | NINGUNA |
@@ -5381,6 +5936,21 @@
 | `version` | INTEGER | — | INTEGER, obligatoria. | NINGUNA |
 | `solicitada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
 | `actualizada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+
+### `shedlock`
+
+**Qué es.** Bloqueo de trabajos programados entre replicas (ADR-018).
+
+**Para qué sirve.** Evita que dos réplicas del servicio ejecuten el mismo trabajo programado a la vez (ADR-018).
+
+**Sistema.** Infraestructura del servicio `inversiones`, generada por plantilla en cada esquema (ADR-027): la escribe y la lee solo ese servicio.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `name` | VARCHAR(64) | — | VARCHAR(64), obligatoria, clave primaria. | NINGUNA |
+| `lock_until` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `locked_at` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `locked_by` | VARCHAR(255) | — | VARCHAR(255), obligatoria. | NINGUNA |
 
 ### `valor_cuota`
 
@@ -5476,7 +6046,7 @@
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
 | `usuario_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `notificacion_id` | UUID | — | UUID, obligatoria, referencia a `notificacion`. | NINGUNA |
+| `notificacion_id` | UUID | — | UUID, obligatoria, única, referencia a `notificacion`. | NINGUNA |
 | `titulo` | VARCHAR(120) | — | VARCHAR(120), obligatoria. | NINGUNA |
 | `resumen` | VARCHAR(300) | — | VARCHAR(300), obligatoria. | NINGUNA |
 | `url_accion` | VARCHAR(255) | — | VARCHAR(255), opcional. | NINGUNA |
@@ -5522,7 +6092,7 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `envio_id` | UUID | — | UUID, obligatoria, referencia a `envio_notificacion`. | NINGUNA |
+| `envio_id` | UUID | — | UUID, obligatoria, única, referencia a `envio_notificacion`. | NINGUNA |
 | `particion` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
 | `disponible_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
 | `intentos` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
@@ -5560,10 +6130,10 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `notificacion_id` | UUID | — | UUID, obligatoria, referencia a `notificacion`. | NINGUNA |
+| `notificacion_id` | UUID | — | UUID, obligatoria, única, referencia a `notificacion`. | NINGUNA |
 | `orden_cobro_id` | UUID | — | UUID, obligatoria, referencia a `orden_cobro`. | NINGUNA |
-| `token_id` | UUID | — | UUID, obligatoria, referencia a `token_verificacion`. | SECRETO |
-| `url_corta` | VARCHAR(60) | — | VARCHAR(60), obligatoria. | NINGUNA |
+| `token_id` | UUID | — | UUID, obligatoria, única, referencia a `token_verificacion`. | SECRETO |
+| `url_corta` | VARCHAR(60) | — | VARCHAR(60), obligatoria, única. | NINGUNA |
 | `clicks` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
 | `primer_click_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
 | `convertido_en_pago` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
@@ -5592,7 +6162,7 @@
 | `encolado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
 | `contenido_enviado` | TEXT | — | TEXT, obligatoria. | NINGUNA |
 | `estado` | VARCHAR(25) | — | VARCHAR(25), obligatoria. | NINGUNA |
-| `id_mensaje_proveedor` | VARCHAR(120) | — | VARCHAR(120), opcional. | NINGUNA |
+| `id_mensaje_proveedor` | VARCHAR(120) | — | VARCHAR(120), opcional, única. | NINGUNA |
 | `orden` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
 | `intentos` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
 | `max_intentos` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
@@ -5603,6 +6173,48 @@
 | `entregado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
 | `leido_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
 | `proximo_reintento_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+
+### `evento_consumido`
+
+**Qué es.** Marca de evento ya consumido, por consumidor (ADR-027).
+
+**Para qué sirve.** Hace idempotente el consumo: la entrega es al menos una vez y un mismo evento no puede producir dos efectos (regla 98.3.4).
+
+**Sistema.** Infraestructura del servicio `notificaciones`, generada por plantilla en cada esquema (ADR-027): la escribe y la lee solo ese servicio.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `id_evento` | UUID | — | UUID, obligatoria, clave primaria. | NINGUNA |
+| `consumidor` | VARCHAR(60) | — | VARCHAR(60), obligatoria, clave primaria. | NINGUNA |
+| `consumido_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+
+### `evento_dominio`
+
+**Qué es.** Outbox transaccional del servicio (ADR-027).
+
+**Para qué sirve.** Garantiza que ningún hecho del servicio se pierda entre la base y la mensajería: el evento se guarda en la misma transacción que el cambio y un relevo lo publica después (regla 98.3.3).
+
+**Sistema.** Infraestructura del servicio `notificaciones`, generada por plantilla en cada esquema (ADR-027): la escribe y la lee solo ese servicio.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
+| `tipo` | VARCHAR(60) | — | VARCHAR(60), obligatoria. | NINGUNA |
+| `version` | VARCHAR(10) | — | VARCHAR(10), obligatoria. | NINGUNA |
+| `agregado` | VARCHAR(40) | — | VARCHAR(40), obligatoria. | NINGUNA |
+| `agregado_id` | UUID | — | UUID, obligatoria. | NINGUNA |
+| `payload` | JSONB | — | JSONB, obligatoria. | NINGUNA |
+| `metadatos` | JSONB | — | JSONB, obligatoria. | NINGUNA |
+| `correlation_id` | UUID | — | UUID, obligatoria. | NINGUNA |
+| `causation_id` | UUID | — | UUID, opcional. | NINGUNA |
+| `ocurrido_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `publicado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
+| `intentos` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
+| `tomado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `tomado_por` | VARCHAR(100) | — | VARCHAR(100), opcional. | NINGUNA |
+| `ultimo_error` | TEXT | — | TEXT, opcional. | NINGUNA |
+| `proximo_intento_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
 
 ### `evento_entrega_mensaje`
 
@@ -5638,7 +6250,7 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `tipo` | VARCHAR(40) | — | VARCHAR(40), obligatoria. | NINGUNA |
+| `tipo` | VARCHAR(40) | — | VARCHAR(40), obligatoria, única. | NINGUNA |
 | `descripcion` | VARCHAR(200) | — | VARCHAR(200), obligatoria. | NINGUNA |
 | `categoria` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
 | `es_obligatorio` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
@@ -5688,7 +6300,7 @@
 | `evento_id` | UUID | — | UUID, obligatoria, referencia a `evento_notificable`. | NINGUNA |
 | `prioridad` | VARCHAR(10) | — | VARCHAR(10), obligatoria. | NINGUNA |
 | `contexto` | JSONB | — | JSONB, obligatoria. | NINGUNA |
-| `clave_deduplicacion` | VARCHAR(120) | — | VARCHAR(120), obligatoria. | SECRETO |
+| `clave_deduplicacion` | VARCHAR(120) | — | VARCHAR(120), obligatoria, única. | SECRETO |
 | `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
 | `programada_para` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
 | `creada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
@@ -5708,7 +6320,7 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `codigo` | VARCHAR(50) | — | VARCHAR(50), obligatoria. | NINGUNA |
+| `codigo` | VARCHAR(50) | — | VARCHAR(50), obligatoria, única. | NINGUNA |
 | `evento_id` | UUID | — | UUID, obligatoria, referencia a `evento_notificable`. | NINGUNA |
 | `canal` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
 | `descripcion` | VARCHAR(200) | — | VARCHAR(200), obligatoria. | NINGUNA |
@@ -5752,7 +6364,7 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `codigo` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
+| `codigo` | VARCHAR(30) | — | VARCHAR(30), obligatoria, única. | NINGUNA |
 | `nombre` | VARCHAR(80) | — | VARCHAR(80), obligatoria. | NINGUNA |
 | `canales_soportados` | VARCHAR(120) | — | VARCHAR(120), obligatoria. | NINGUNA |
 | `url_base` | VARCHAR(200) | — | VARCHAR(200), obligatoria. | NINGUNA |
@@ -5783,6 +6395,21 @@
 | `recibida_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
 | `procesada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
 | `accion_ejecutada` | VARCHAR(120) | — | VARCHAR(120), opcional. | NINGUNA |
+
+### `shedlock`
+
+**Qué es.** Bloqueo de trabajos programados entre replicas (ADR-018).
+
+**Para qué sirve.** Evita que dos réplicas del servicio ejecuten el mismo trabajo programado a la vez (ADR-018).
+
+**Sistema.** Infraestructura del servicio `notificaciones`, generada por plantilla en cada esquema (ADR-027): la escribe y la lee solo ese servicio.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `name` | VARCHAR(64) | — | VARCHAR(64), obligatoria, clave primaria. | NINGUNA |
+| `lock_until` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `locked_at` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `locked_by` | VARCHAR(255) | — | VARCHAR(255), obligatoria. | NINGUNA |
 
 ### `version_plantilla`
 
@@ -5823,7 +6450,7 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `numero` | BIGSERIAL | — | BIGSERIAL, obligatoria. | NINGUNA |
+| `numero` | BIGSERIAL | — | BIGSERIAL, obligatoria, única. | NINGUNA |
 | `fecha` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
 | `glosa` | VARCHAR(200) | — | VARCHAR(200), obligatoria. | NINGUNA |
 | `origen_tipo` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
@@ -5875,7 +6502,7 @@
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
 | `cuenta_billetera_id` | UUID | — | UUID, obligatoria, referencia a `cuenta_billetera`. | NINGUNA |
 | `solicitado_por` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `folio` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
+| `folio` | VARCHAR(30) | — | VARCHAR(30), obligatoria, única. | NINGUNA |
 | `motivo` | VARCHAR(120) | — | VARCHAR(120), obligatoria. | NINGUNA |
 | `saldo_certificado` | DECIMAL(16,2) | — | DECIMAL(16,2), obligatoria. | FINANCIERO |
 | `fecha_corte` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
@@ -5896,7 +6523,7 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `fecha` | DATE | — | DATE, obligatoria. | NINGUNA |
+| `fecha` | DATE | — | DATE, obligatoria, única. | NINGUNA |
 | `total_recaudado` | DECIMAL(16,2) | — | DECIMAL(16,2), obligatoria. | NINGUNA |
 | `total_conciliado` | DECIMAL(16,2) | — | DECIMAL(16,2), obligatoria. | NINGUNA |
 | `total_excepciones` | DECIMAL(16,2) | — | DECIMAL(16,2), obligatoria. | NINGUNA |
@@ -5964,7 +6591,7 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `numero_cuenta` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | PERSONAL |
+| `numero_cuenta` | VARCHAR(20) | — | VARCHAR(20), obligatoria, única. | PERSONAL |
 | `tipo` | VARCHAR(35) | — | VARCHAR(35), obligatoria. | NINGUNA |
 | `usuario_id` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
 | `grupo_id` | UUID | — | UUID, opcional, referencia a `grupo`. | NINGUNA |
@@ -5994,7 +6621,7 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `codigo` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
+| `codigo` | VARCHAR(20) | — | VARCHAR(20), obligatoria, única. | NINGUNA |
 | `nombre` | VARCHAR(80) | — | VARCHAR(80), obligatoria. | NINGUNA |
 | `tipo` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
 | `naturaleza` | VARCHAR(12) | — | VARCHAR(12), obligatoria. | NINGUNA |
@@ -6128,6 +6755,48 @@
 | `evaluada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
 | `revisada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
 
+### `evento_consumido`
+
+**Qué es.** Marca de evento ya consumido, por consumidor (ADR-027).
+
+**Para qué sirve.** Hace idempotente el consumo: la entrega es al menos una vez y un mismo evento no puede producir dos efectos (regla 98.3.4).
+
+**Sistema.** Infraestructura del servicio `nucleo-financiero`, generada por plantilla en cada esquema (ADR-027): la escribe y la lee solo ese servicio.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `id_evento` | UUID | — | UUID, obligatoria, clave primaria. | NINGUNA |
+| `consumidor` | VARCHAR(60) | — | VARCHAR(60), obligatoria, clave primaria. | NINGUNA |
+| `consumido_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+
+### `evento_dominio`
+
+**Qué es.** Outbox transaccional del servicio (ADR-027).
+
+**Para qué sirve.** Garantiza que ningún hecho del servicio se pierda entre la base y la mensajería: el evento se guarda en la misma transacción que el cambio y un relevo lo publica después (regla 98.3.3).
+
+**Sistema.** Infraestructura del servicio `nucleo-financiero`, generada por plantilla en cada esquema (ADR-027): la escribe y la lee solo ese servicio.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
+| `tipo` | VARCHAR(60) | — | VARCHAR(60), obligatoria. | NINGUNA |
+| `version` | VARCHAR(10) | — | VARCHAR(10), obligatoria. | NINGUNA |
+| `agregado` | VARCHAR(40) | — | VARCHAR(40), obligatoria. | NINGUNA |
+| `agregado_id` | UUID | — | UUID, obligatoria. | NINGUNA |
+| `payload` | JSONB | — | JSONB, obligatoria. | NINGUNA |
+| `metadatos` | JSONB | — | JSONB, obligatoria. | NINGUNA |
+| `correlation_id` | UUID | — | UUID, obligatoria. | NINGUNA |
+| `causation_id` | UUID | — | UUID, opcional. | NINGUNA |
+| `ocurrido_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `publicado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
+| `intentos` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
+| `tomado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `tomado_por` | VARCHAR(100) | — | VARCHAR(100), opcional. | NINGUNA |
+| `ultimo_error` | TEXT | — | TEXT, opcional. | NINGUNA |
+| `proximo_intento_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+
 ### `evidencia_mfa_consumida`
 
 **Qué es.** La marca de que una evidencia de segundo factor (el `jti` del JWT de step-up) ya se usó.
@@ -6141,7 +6810,7 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `jti` | UUID | — | UUID, obligatoria. | NINGUNA |
+| `jti` | UUID | — | UUID, obligatoria, única. | NINGUNA |
 | `usuario_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
 | `proposito` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
 | `consumida_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
@@ -6230,12 +6899,12 @@
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
 | `cuenta_custodia_id` | UUID | — | UUID, obligatoria, referencia a `cuenta_custodia`. | NINGUNA |
-| `movimiento_bancario_id` | UUID | — | UUID, opcional, referencia a `movimiento_bancario`. | NINGUNA |
+| `movimiento_bancario_id` | UUID | — | UUID, opcional, única, referencia a `movimiento_bancario`. | NINGUNA |
 | `fecha_valor` | DATE | — | DATE, obligatoria. | NINGUNA |
 | `tipo` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
 | `sentido` | VARCHAR(7) | — | VARCHAR(7), obligatoria. | NINGUNA |
 | `monto` | DECIMAL(18,2) | — | DECIMAL(18,2), obligatoria. | FINANCIERO |
-| `referencia_bancaria` | VARCHAR(80) | — | VARCHAR(80), obligatoria. | NINGUNA |
+| `referencia_bancaria` | VARCHAR(80) | — | VARCHAR(80), obligatoria, única. | NINGUNA |
 | `glosa` | VARCHAR(200) | — | VARCHAR(200), obligatoria. | NINGUNA |
 | `conciliado` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
 | `registrado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
@@ -6286,7 +6955,7 @@
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
 | `cuenta_billetera_id` | UUID | — | UUID, obligatoria, referencia a `cuenta_billetera`. | NINGUNA |
 | `instrumento_destino_id` | UUID | — | UUID, obligatoria, referencia a `instrumento_fondeo`. | NINGUNA |
-| `retencion_id` | UUID | — | UUID, opcional, referencia a `retencion_saldo`. | NINGUNA |
+| `retencion_id` | UUID | — | UUID, opcional, única, referencia a `retencion_saldo`. | NINGUNA |
 | `transaccion_id` | UUID | — | UUID, opcional, referencia a `transaccion_billetera`. | NINGUNA |
 | `solicitada_por` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
 | `aprobada_por` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
@@ -6300,7 +6969,7 @@
 | `requiere_doble_aprobacion` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
 | `ventana_enfriamiento_hasta` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
 | `cotizacion_id` | UUID | — | UUID, opcional. | NINGUNA |
-| `referencia_proveedor` | VARCHAR(80) | — | VARCHAR(80), opcional. | NINGUNA |
+| `referencia_proveedor` | VARCHAR(80) | — | VARCHAR(80), opcional, única. | NINGUNA |
 | `clave_idempotencia` | VARCHAR(100) | Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4). | VARCHAR(100), obligatoria. | NINGUNA |
 | `solicitada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
 | `pagada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
@@ -6318,7 +6987,7 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `codigo` | VARCHAR(40) | — | VARCHAR(40), obligatoria. | NINGUNA |
+| `codigo` | VARCHAR(40) | — | VARCHAR(40), obligatoria, única. | NINGUNA |
 | `moneda` | CHAR(3) | Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2). | CHAR(3), obligatoria. | NINGUNA |
 | `dias_inactividad_para_limitar` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
 | `permite_transferencia_p2p` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
@@ -6343,7 +7012,7 @@
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
 | `cuenta_billetera_id` | UUID | — | UUID, obligatoria, referencia a `cuenta_billetera`. | NINGUNA |
-| `transaccion_id` | UUID | — | UUID, opcional, referencia a `transaccion_billetera`. | NINGUNA |
+| `transaccion_id` | UUID | — | UUID, opcional, única, referencia a `transaccion_billetera`. | NINGUNA |
 | `modalidad` | VARCHAR(10) | — | VARCHAR(10), obligatoria. | NINGUNA |
 | `monto` | DECIMAL(16,2) | — | DECIMAL(16,2), opcional. | FINANCIERO |
 | `moneda` | CHAR(3) | Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2). | CHAR(3), obligatoria. | NINGUNA |
@@ -6364,7 +7033,7 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `codigo` | VARCHAR(40) | — | VARCHAR(40), obligatoria. | NINGUNA |
+| `codigo` | VARCHAR(40) | — | VARCHAR(40), obligatoria, única. | NINGUNA |
 | `descripcion` | VARCHAR(300) | — | VARCHAR(300), obligatoria. | NINGUNA |
 | `expresion` | JSONB | — | JSONB, obligatoria. | NINGUNA |
 | `accion` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
@@ -6435,7 +7104,7 @@
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
 | `transaccion_original_id` | UUID | — | UUID, obligatoria, referencia a `transaccion_billetera`. | NINGUNA |
-| `transaccion_reverso_id` | UUID | — | UUID, opcional, referencia a `transaccion_billetera`. | NINGUNA |
+| `transaccion_reverso_id` | UUID | — | UUID, opcional, única, referencia a `transaccion_billetera`. | NINGUNA |
 | `autorizada_por` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
 | `tipo` | VARCHAR(25) | — | VARCHAR(25), obligatoria. | NINGUNA |
 | `motivo` | VARCHAR(300) | — | VARCHAR(300), obligatoria. | NINGUNA |
@@ -6466,6 +7135,21 @@
 | `hash_anterior` | VARCHAR(64) | — | VARCHAR(64), opcional. | DERIVADO |
 | `cerrado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
 
+### `shedlock`
+
+**Qué es.** Bloqueo de trabajos programados entre replicas (ADR-018).
+
+**Para qué sirve.** Evita que dos réplicas del servicio ejecuten el mismo trabajo programado a la vez (ADR-018).
+
+**Sistema.** Infraestructura del servicio `nucleo-financiero`, generada por plantilla en cada esquema (ADR-027): la escribe y la lee solo ese servicio.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `name` | VARCHAR(64) | — | VARCHAR(64), obligatoria, clave primaria. | NINGUNA |
+| `lock_until` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `locked_at` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `locked_by` | VARCHAR(255) | — | VARCHAR(255), obligatoria. | NINGUNA |
+
 ### `solicitud_cierre_billetera`
 
 **Qué es.** El proceso de cerrar la cuenta y devolver el saldo.
@@ -6479,7 +7163,7 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `cuenta_billetera_id` | UUID | — | UUID, obligatoria, referencia a `cuenta_billetera`. | NINGUNA |
+| `cuenta_billetera_id` | UUID | — | UUID, obligatoria, única, referencia a `cuenta_billetera`. | NINGUNA |
 | `orden_retiro_id` | UUID | — | UUID, opcional, referencia a `orden_retiro`. | NINGUNA |
 | `aprobada_por` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
 | `motivo` | VARCHAR(200) | — | VARCHAR(200), obligatoria. | NINGUNA |
@@ -6502,7 +7186,7 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `secuencia` | BIGSERIAL | — | BIGSERIAL, obligatoria. | NINGUNA |
+| `secuencia` | BIGSERIAL | — | BIGSERIAL, obligatoria, única. | NINGUNA |
 | `tipo` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
 | `estado` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
 | `moneda` | CHAR(3) | Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2). | CHAR(3), obligatoria. | NINGUNA |
@@ -6533,7 +7217,7 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `transaccion_id` | UUID | — | UUID, obligatoria, referencia a `transaccion_billetera`. | NINGUNA |
+| `transaccion_id` | UUID | — | UUID, obligatoria, única, referencia a `transaccion_billetera`. | NINGUNA |
 | `cuenta_billetera_origen_id` | UUID | — | UUID, obligatoria, referencia a `cuenta_billetera`. | NINGUNA |
 | `cuenta_billetera_destino_id` | UUID | — | UUID, obligatoria, referencia a `cuenta_billetera`. | NINGUNA |
 | `grupo_id` | UUID | — | UUID, opcional, referencia a `grupo`. | NINGUNA |
@@ -6627,7 +7311,7 @@
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
 | `solicitud_id` | UUID | — | UUID, obligatoria. | NINGUNA |
-| `clave_idempotencia` | UUID | Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4). | UUID, obligatoria. | NINGUNA |
+| `clave_idempotencia` | UUID | Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4). | UUID, obligatoria, única. | NINGUNA |
 | `fase` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
 | `decision` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
 | `actor_id` | UUID | — | UUID, obligatoria. | NINGUNA |
@@ -6678,12 +7362,54 @@
 | `tasa_finalizacion_grupos` | DECIMAL(5,2) | sus grupos, ¿terminan o se caen? | DECIMAL(5,2), obligatoria. | NINGUNA |
 | `satisfaccion_participantes` | DECIMAL(3,2) | la gente que administró, ¿lo recomendaría? | DECIMAL(3,2), obligatoria. | NINGUNA |
 | `tiempo_respuesta_promedio_horas` | DECIMAL(6,2) | cuando alguien tiene un problema, ¿contesta? | DECIMAL(6,2), obligatoria. | NINGUNA |
-| `incidencias_abiertas` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `coberturas_consumidas` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
+| `incidencias_abiertas` | SMALLINT | ¿cuánto le cuesta al sistema? | SMALLINT, obligatoria. | NINGUNA |
+| `coberturas_consumidas` | SMALLINT | ¿cuánto le cuesta al sistema? | SMALLINT, obligatoria. | NINGUNA |
 | `puntaje_global` | DECIMAL(5,2) | — | DECIMAL(5,2), obligatoria. | NINGUNA |
 | `nivel_sugerido` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
 | `accion_recomendada` | VARCHAR(120) | — | VARCHAR(120), obligatoria. | NINGUNA |
 | `evaluado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+
+### `evento_consumido`
+
+**Qué es.** Marca de evento ya consumido, por consumidor (ADR-027).
+
+**Para qué sirve.** Hace idempotente el consumo: la entrega es al menos una vez y un mismo evento no puede producir dos efectos (regla 98.3.4).
+
+**Sistema.** Infraestructura del servicio `organizador`, generada por plantilla en cada esquema (ADR-027): la escribe y la lee solo ese servicio.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `id_evento` | UUID | — | UUID, obligatoria, clave primaria. | NINGUNA |
+| `consumidor` | VARCHAR(60) | — | VARCHAR(60), obligatoria, clave primaria. | NINGUNA |
+| `consumido_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+
+### `evento_dominio`
+
+**Qué es.** Outbox transaccional del servicio (ADR-027).
+
+**Para qué sirve.** Garantiza que ningún hecho del servicio se pierda entre la base y la mensajería: el evento se guarda en la misma transacción que el cambio y un relevo lo publica después (regla 98.3.3).
+
+**Sistema.** Infraestructura del servicio `organizador`, generada por plantilla en cada esquema (ADR-027): la escribe y la lee solo ese servicio.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
+| `tipo` | VARCHAR(60) | — | VARCHAR(60), obligatoria. | NINGUNA |
+| `version` | VARCHAR(10) | — | VARCHAR(10), obligatoria. | NINGUNA |
+| `agregado` | VARCHAR(40) | — | VARCHAR(40), obligatoria. | NINGUNA |
+| `agregado_id` | UUID | — | UUID, obligatoria. | NINGUNA |
+| `payload` | JSONB | — | JSONB, obligatoria. | NINGUNA |
+| `metadatos` | JSONB | — | JSONB, obligatoria. | NINGUNA |
+| `correlation_id` | UUID | — | UUID, obligatoria. | NINGUNA |
+| `causation_id` | UUID | — | UUID, opcional. | NINGUNA |
+| `ocurrido_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `publicado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
+| `intentos` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
+| `tomado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `tomado_por` | VARCHAR(100) | — | VARCHAR(100), opcional. | NINGUNA |
+| `ultimo_error` | TEXT | — | TEXT, opcional. | NINGUNA |
+| `proximo_intento_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
 
 ### `metrica_organizador`
 
@@ -6718,7 +7444,7 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `usuario_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
+| `usuario_id` | UUID | — | UUID, obligatoria, única, referencia a `usuario`. | NINGUNA |
 | `estado` | VARCHAR(25) | — | VARCHAR(25), obligatoria. | NINGUNA |
 | `nivel` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
 | `limite_grupos_simultaneos` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
@@ -6746,7 +7472,7 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `codigo` | VARCHAR(40) | — | VARCHAR(40), obligatoria. | NINGUNA |
+| `codigo` | VARCHAR(40) | — | VARCHAR(40), obligatoria, única. | NINGUNA |
 | `descripcion` | VARCHAR(200) | — | VARCHAR(200), obligatoria. | NINGUNA |
 | `disparador` | VARCHAR(10) | — | VARCHAR(10), obligatoria. | NINGUNA |
 | `expresion_disparo` | VARCHAR(80) | — | VARCHAR(80), obligatoria. | NINGUNA |
@@ -6769,7 +7495,7 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `codigo` | VARCHAR(40) | — | VARCHAR(40), obligatoria. | NINGUNA |
+| `codigo` | VARCHAR(40) | — | VARCHAR(40), obligatoria, única. | NINGUNA |
 | `descripcion` | VARCHAR(200) | — | VARCHAR(200), obligatoria. | NINGUNA |
 | `tipo` | VARCHAR(25) | — | VARCHAR(25), obligatoria. | NINGUNA |
 | `valor_minimo` | DECIMAL(12,2) | — | DECIMAL(12,2), obligatoria. | NINGUNA |
@@ -6798,6 +7524,21 @@
 | `vigente_hasta` | TIMESTAMPTZ | Hasta cuándo rigió esta versión; vacía mientras sigue vigente. | TIMESTAMPTZ, opcional. | NINGUNA |
 | `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
 | `aplicada_por` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
+
+### `shedlock`
+
+**Qué es.** Bloqueo de trabajos programados entre replicas (ADR-018).
+
+**Para qué sirve.** Evita que dos réplicas del servicio ejecuten el mismo trabajo programado a la vez (ADR-018).
+
+**Sistema.** Infraestructura del servicio `organizador`, generada por plantilla en cada esquema (ADR-027): la escribe y la lee solo ese servicio.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `name` | VARCHAR(64) | — | VARCHAR(64), obligatoria, clave primaria. | NINGUNA |
+| `lock_until` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `locked_at` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `locked_by` | VARCHAR(255) | — | VARCHAR(255), obligatoria. | NINGUNA |
 
 ### `solicitud_organizador`
 
@@ -6987,11 +7728,53 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `codigo` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
+| `codigo` | VARCHAR(30) | — | VARCHAR(30), obligatoria, única. | NINGUNA |
 | `nombre` | VARCHAR(80) | — | VARCHAR(80), obligatoria. | NINGUNA |
 | `tipo` | VARCHAR(25) | — | VARCHAR(25), obligatoria. | NINGUNA |
 | `capacidad_maxima_simultanea` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
 | `activo` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
+
+### `evento_consumido`
+
+**Qué es.** Marca de evento ya consumido, por consumidor (ADR-027).
+
+**Para qué sirve.** Hace idempotente el consumo: la entrega es al menos una vez y un mismo evento no puede producir dos efectos (regla 98.3.4).
+
+**Sistema.** Infraestructura del servicio `publicidad`, generada por plantilla en cada esquema (ADR-027): la escribe y la lee solo ese servicio.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `id_evento` | UUID | — | UUID, obligatoria, clave primaria. | NINGUNA |
+| `consumidor` | VARCHAR(60) | — | VARCHAR(60), obligatoria, clave primaria. | NINGUNA |
+| `consumido_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+
+### `evento_dominio`
+
+**Qué es.** Outbox transaccional del servicio (ADR-027).
+
+**Para qué sirve.** Garantiza que ningún hecho del servicio se pierda entre la base y la mensajería: el evento se guarda en la misma transacción que el cambio y un relevo lo publica después (regla 98.3.3).
+
+**Sistema.** Infraestructura del servicio `publicidad`, generada por plantilla en cada esquema (ADR-027): la escribe y la lee solo ese servicio.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
+| `tipo` | VARCHAR(60) | — | VARCHAR(60), obligatoria. | NINGUNA |
+| `version` | VARCHAR(10) | — | VARCHAR(10), obligatoria. | NINGUNA |
+| `agregado` | VARCHAR(40) | — | VARCHAR(40), obligatoria. | NINGUNA |
+| `agregado_id` | UUID | — | UUID, obligatoria. | NINGUNA |
+| `payload` | JSONB | — | JSONB, obligatoria. | NINGUNA |
+| `metadatos` | JSONB | — | JSONB, obligatoria. | NINGUNA |
+| `correlation_id` | UUID | — | UUID, obligatoria. | NINGUNA |
+| `causation_id` | UUID | — | UUID, opcional. | NINGUNA |
+| `ocurrido_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `publicado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
+| `intentos` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
+| `tomado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `tomado_por` | VARCHAR(100) | — | VARCHAR(100), opcional. | NINGUNA |
+| `ultimo_error` | TEXT | — | TEXT, opcional. | NINGUNA |
+| `proximo_intento_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
 
 ### `factura_publicidad`
 
@@ -7083,6 +7866,21 @@
 | `creado_por` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
 | `creado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
 
+### `shedlock`
+
+**Qué es.** Bloqueo de trabajos programados entre replicas (ADR-018).
+
+**Para qué sirve.** Evita que dos réplicas del servicio ejecuten el mismo trabajo programado a la vez (ADR-018).
+
+**Sistema.** Infraestructura del servicio `publicidad`, generada por plantilla en cada esquema (ADR-027): la escribe y la lee solo ese servicio.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `name` | VARCHAR(64) | — | VARCHAR(64), obligatoria, clave primaria. | NINGUNA |
+| `lock_until` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `locked_at` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `locked_by` | VARCHAR(255) | — | VARCHAR(255), obligatoria. | NINGUNA |
+
 ### `socio_comercial`
 
 **Qué es.** un negocio externo (una marca, un comercio) que no tiene rol operativo en la plataforma. No es `usuario` ni `organizador`: es alguien que quiere visibilidad ante la base de usuarios de AportaYa sin participar de ningún pasanaku.
@@ -7095,7 +7893,7 @@
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
 | `razon_social` | VARCHAR(150) | — | VARCHAR(150), obligatoria. | NINGUNA |
-| `numero_documento` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | PERSONAL |
+| `numero_documento` | VARCHAR(30) | — | VARCHAR(30), obligatoria, única. | PERSONAL |
 | `rubro` | VARCHAR(60) | — | VARCHAR(60), opcional. | NINGUNA |
 | `email_contacto` | VARCHAR(120) | — | VARCHAR(120), obligatoria. | PERSONAL |
 | `telefono_contacto` | VARCHAR(20) | — | VARCHAR(20), opcional. | PERSONAL |
@@ -7178,7 +7976,7 @@
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
 | `tarifario_anterior_id` | UUID | — | UUID, obligatoria, referencia a `tarifario`. | NINGUNA |
-| `tarifario_nuevo_id` | UUID | — | UUID, obligatoria, referencia a `tarifario`. | NINGUNA |
+| `tarifario_nuevo_id` | UUID | — | UUID, obligatoria, única, referencia a `tarifario`. | NINGUNA |
 | `aprobado_por` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
 | `tipo_cambio` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
 | `requiere_preaviso` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
@@ -7202,7 +8000,7 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `codigo` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
+| `codigo` | VARCHAR(30) | — | VARCHAR(30), obligatoria, única. | NINGUNA |
 | `nombre` | VARCHAR(120) | — | VARCHAR(120), obligatoria. | NINGUNA |
 | `tipo` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
 | `presupuesto_maximo` | DECIMAL(16,2) | — | DECIMAL(16,2), opcional. | NINGUNA |
@@ -7249,7 +8047,7 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `codigo` | VARCHAR(40) | — | VARCHAR(40), obligatoria. | NINGUNA |
+| `codigo` | VARCHAR(40) | — | VARCHAR(40), obligatoria, única. | NINGUNA |
 | `descripcion` | VARCHAR(200) | — | VARCHAR(200), obligatoria. | NINGUNA |
 | `entidad_evento` | VARCHAR(40) | — | VARCHAR(40), obligatoria. | NINGUNA |
 | `campo_monto_base` | VARCHAR(40) | — | VARCHAR(40), opcional. | FINANCIERO |
@@ -7354,7 +8152,7 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `devengo_id` | UUID | — | UUID, obligatoria, referencia a `devengo_comision`. | NINGUNA |
+| `devengo_id` | UUID | — | UUID, obligatoria, única, referencia a `devengo_comision`. | NINGUNA |
 | `usuario_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
 | `gestion_cobranza_id` | UUID | — | UUID, opcional, referencia a `gestion_cobranza`. | NINGUNA |
 | `monto` | DECIMAL(12,2) | — | DECIMAL(12,2), obligatoria. | FINANCIERO |
@@ -7401,7 +8199,7 @@
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
 | `concepto_tarifa_id` | UUID | — | UUID, obligatoria, referencia a `concepto_tarifa`. | NINGUNA |
 | `tarifario_id` | UUID | — | UUID, obligatoria, referencia a `tarifario`. | NINGUNA |
-| `cotizacion_id` | UUID | — | UUID, opcional, referencia a `cotizacion_comision`. | NINGUNA |
+| `cotizacion_id` | UUID | — | UUID, opcional, única, referencia a `cotizacion_comision`. | NINGUNA |
 | `grupo_id` | UUID | — | UUID, opcional, referencia a `grupo`. | NINGUNA |
 | `participante_id` | UUID | — | UUID, opcional, referencia a `participante`. | NINGUNA |
 | `usuario_obligado_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
@@ -7442,6 +8240,67 @@
 | `solicitada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
 | `ejecutada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
 
+### `estado_saga`
+
+**Qué es.** Estado de saga orquestada por este servicio (ADR-028).
+
+**Para qué sirve.** Persiste el paso de una saga que cruza servicios para poder reanudarla o compensarla si algo falla en el medio (regla 98.3.2, ADR-028).
+
+**Sistema.** Infraestructura del servicio `tarifas`, generada por plantilla en cada esquema (ADR-027): la escribe y la lee solo ese servicio.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
+| `tipo_saga` | VARCHAR(60) | — | VARCHAR(60), obligatoria. | NINGUNA |
+| `clave_negocio` | VARCHAR(120) | — | VARCHAR(120), obligatoria. | SECRETO |
+| `paso` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
+| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
+| `datos` | JSONB | — | JSONB, obligatoria. | NINGUNA |
+| `creado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `actualizado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+
+### `evento_consumido`
+
+**Qué es.** Marca de evento ya consumido, por consumidor (ADR-027).
+
+**Para qué sirve.** Hace idempotente el consumo: la entrega es al menos una vez y un mismo evento no puede producir dos efectos (regla 98.3.4).
+
+**Sistema.** Infraestructura del servicio `tarifas`, generada por plantilla en cada esquema (ADR-027): la escribe y la lee solo ese servicio.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `id_evento` | UUID | — | UUID, obligatoria, clave primaria. | NINGUNA |
+| `consumidor` | VARCHAR(60) | — | VARCHAR(60), obligatoria, clave primaria. | NINGUNA |
+| `consumido_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+
+### `evento_dominio`
+
+**Qué es.** Outbox transaccional del servicio (ADR-027).
+
+**Para qué sirve.** Garantiza que ningún hecho del servicio se pierda entre la base y la mensajería: el evento se guarda en la misma transacción que el cambio y un relevo lo publica después (regla 98.3.3).
+
+**Sistema.** Infraestructura del servicio `tarifas`, generada por plantilla en cada esquema (ADR-027): la escribe y la lee solo ese servicio.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
+| `tipo` | VARCHAR(60) | — | VARCHAR(60), obligatoria. | NINGUNA |
+| `version` | VARCHAR(10) | — | VARCHAR(10), obligatoria. | NINGUNA |
+| `agregado` | VARCHAR(40) | — | VARCHAR(40), obligatoria. | NINGUNA |
+| `agregado_id` | UUID | — | UUID, obligatoria. | NINGUNA |
+| `payload` | JSONB | — | JSONB, obligatoria. | NINGUNA |
+| `metadatos` | JSONB | — | JSONB, obligatoria. | NINGUNA |
+| `correlation_id` | UUID | — | UUID, obligatoria. | NINGUNA |
+| `causation_id` | UUID | — | UUID, opcional. | NINGUNA |
+| `ocurrido_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `publicado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
+| `intentos` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
+| `tomado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `tomado_por` | VARCHAR(100) | — | VARCHAR(100), opcional. | NINGUNA |
+| `ultimo_error` | TEXT | — | TEXT, opcional. | NINGUNA |
+| `proximo_intento_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+
 ### `evento_significativo_sin`
 
 **Qué es.** Un período en que la facturación electrónica no pudo enviarse al SIN (por ejemplo, porque el servicio no respondió), declarado como evento significativo.
@@ -7466,7 +8325,7 @@
 | `cantidad_documentos_offline` | INTEGER | — | INTEGER, obligatoria. | PERSONAL |
 | `plazo_registro` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
 | `registrado_en_sin` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
-| `codigo_recepcion_evento` | VARCHAR(60) | — | VARCHAR(60), opcional. | NINGUNA |
+| `codigo_recepcion_evento` | VARCHAR(60) | — | VARCHAR(60), opcional, única. | NINGUNA |
 | `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
 
 ### `exencion_comision`
@@ -7546,7 +8405,7 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `periodo` | CHAR(7) | — | CHAR(7), obligatoria. | NINGUNA |
+| `periodo` | CHAR(7) | — | CHAR(7), obligatoria, única. | NINGUNA |
 | `fecha_inicio` | DATE | — | DATE, obligatoria. | NINGUNA |
 | `fecha_fin` | DATE | — | DATE, obligatoria. | NINGUNA |
 | `total_devengado` | DECIMAL(16,2) | — | DECIMAL(16,2), obligatoria. | NINGUNA |
@@ -7579,7 +8438,7 @@
 | `tipo_envio` | VARCHAR(25) | — | VARCHAR(25), obligatoria. | NINGUNA |
 | `cantidad_documentos` | INTEGER | — | INTEGER, obligatoria. | PERSONAL |
 | `fecha_envio` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `codigo_recepcion` | VARCHAR(60) | — | VARCHAR(60), opcional. | NINGUNA |
+| `codigo_recepcion` | VARCHAR(60) | — | VARCHAR(60), opcional, única. | NINGUNA |
 | `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
 | `respuesta` | JSONB | — | JSONB, opcional. | NINGUNA |
 | `reintentos` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
@@ -7617,7 +8476,7 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `codigo` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
+| `codigo` | VARCHAR(30) | — | VARCHAR(30), obligatoria, única. | NINGUNA |
 | `moneda` | CHAR(3) | Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2). | CHAR(3), obligatoria. | NINGUNA |
 | `unidad_minima` | DECIMAL(6,4) | — | DECIMAL(6,4), obligatoria. | NINGUNA |
 | `modo` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
@@ -7661,11 +8520,26 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `codigo` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
+| `codigo` | VARCHAR(30) | — | VARCHAR(30), obligatoria, única. | NINGUNA |
 | `descripcion` | VARCHAR(200) | — | VARCHAR(200), obligatoria. | NINGUNA |
 | `criterio` | JSONB | — | JSONB, obligatoria. | NINGUNA |
 | `prioridad` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
 | `activo` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
+
+### `shedlock`
+
+**Qué es.** Bloqueo de trabajos programados entre replicas (ADR-018).
+
+**Para qué sirve.** Evita que dos réplicas del servicio ejecuten el mismo trabajo programado a la vez (ADR-018).
+
+**Sistema.** Infraestructura del servicio `tarifas`, generada por plantilla en cada esquema (ADR-027): la escribe y la lee solo ese servicio.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `name` | VARCHAR(64) | — | VARCHAR(64), obligatoria, clave primaria. | NINGUNA |
+| `lock_until` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `locked_at` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `locked_by` | VARCHAR(255) | — | VARCHAR(255), obligatoria. | NINGUNA |
 
 ### `simulacion_tarifa`
 
@@ -7749,7 +8623,7 @@
 | `numero_bloque` | BIGINT | — | BIGINT, obligatoria. | NINGUNA |
 | `hash_bloque_anterior` | VARCHAR(64) | — | VARCHAR(64), obligatoria. | DERIVADO |
 | `raiz_merkle` | VARCHAR(64) | — | VARCHAR(64), obligatoria. | NINGUNA |
-| `hash_bloque` | VARCHAR(64) | — | VARCHAR(64), obligatoria. | DERIVADO |
+| `hash_bloque` | VARCHAR(64) | — | VARCHAR(64), obligatoria, única. | DERIVADO |
 | `cantidad_eventos` | INTEGER | — | INTEGER, obligatoria. | NINGUNA |
 | `periodo_cubierto_desde` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
 | `periodo_cubierto_hasta` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
@@ -7770,8 +8644,8 @@
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
 | `usuario_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `snapshot_id` | UUID | — | UUID, obligatoria, referencia a `snapshot_reputacion`. | NINGUNA |
-| `codigo_verificacion` | VARCHAR(40) | — | VARCHAR(40), obligatoria. | NINGUNA |
+| `snapshot_id` | UUID | — | UUID, obligatoria, única, referencia a `snapshot_reputacion`. | NINGUNA |
+| `codigo_verificacion` | VARCHAR(40) | — | VARCHAR(40), obligatoria, única. | NINGUNA |
 | `hash_contenido` | VARCHAR(64) | — | VARCHAR(64), obligatoria. | DERIVADO |
 | `firma_digital` | VARCHAR(255) | — | VARCHAR(255), obligatoria. | NINGUNA |
 | `url_publica` | VARCHAR(255) | — | VARCHAR(255), obligatoria. | NINGUNA |
@@ -7798,6 +8672,48 @@
 | `valor_normalizado` | DECIMAL(5,4) | — | DECIMAL(5,4), obligatoria. | NINGUNA |
 | `contribucion` | DECIMAL(6,2) | — | DECIMAL(6,2), obligatoria. | NINGUNA |
 | `tendencia` | VARCHAR(10) | — | VARCHAR(10), obligatoria. | NINGUNA |
+
+### `evento_consumido`
+
+**Qué es.** Marca de evento ya consumido, por consumidor (ADR-027).
+
+**Para qué sirve.** Hace idempotente el consumo: la entrega es al menos una vez y un mismo evento no puede producir dos efectos (regla 98.3.4).
+
+**Sistema.** Infraestructura del servicio `transparencia`, generada por plantilla en cada esquema (ADR-027): la escribe y la lee solo ese servicio.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `id_evento` | UUID | — | UUID, obligatoria, clave primaria. | NINGUNA |
+| `consumidor` | VARCHAR(60) | — | VARCHAR(60), obligatoria, clave primaria. | NINGUNA |
+| `consumido_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+
+### `evento_dominio`
+
+**Qué es.** Outbox transaccional del servicio (ADR-027).
+
+**Para qué sirve.** Garantiza que ningún hecho del servicio se pierda entre la base y la mensajería: el evento se guarda en la misma transacción que el cambio y un relevo lo publica después (regla 98.3.3).
+
+**Sistema.** Infraestructura del servicio `transparencia`, generada por plantilla en cada esquema (ADR-027): la escribe y la lee solo ese servicio.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
+| `tipo` | VARCHAR(60) | — | VARCHAR(60), obligatoria. | NINGUNA |
+| `version` | VARCHAR(10) | — | VARCHAR(10), obligatoria. | NINGUNA |
+| `agregado` | VARCHAR(40) | — | VARCHAR(40), obligatoria. | NINGUNA |
+| `agregado_id` | UUID | — | UUID, obligatoria. | NINGUNA |
+| `payload` | JSONB | — | JSONB, obligatoria. | NINGUNA |
+| `metadatos` | JSONB | — | JSONB, obligatoria. | NINGUNA |
+| `correlation_id` | UUID | — | UUID, obligatoria. | NINGUNA |
+| `causation_id` | UUID | — | UUID, opcional. | NINGUNA |
+| `ocurrido_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `publicado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
+| `intentos` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
+| `tomado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `tomado_por` | VARCHAR(100) | — | VARCHAR(100), opcional. | NINGUNA |
+| `ultimo_error` | TEXT | — | TEXT, opcional. | NINGUNA |
+| `proximo_intento_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
 
 ### `evento_reputacion`
 
@@ -7840,7 +8756,7 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `codigo` | VARCHAR(40) | — | VARCHAR(40), obligatoria. | NINGUNA |
+| `codigo` | VARCHAR(40) | — | VARCHAR(40), obligatoria, única. | NINGUNA |
 | `nombre` | VARCHAR(80) | — | VARCHAR(80), obligatoria. | NINGUNA |
 | `descripcion` | VARCHAR(200) | — | VARCHAR(200), obligatoria. | NINGUNA |
 | `criterio` | VARCHAR(300) | — | VARCHAR(300), obligatoria. | NINGUNA |
@@ -7900,7 +8816,7 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `version` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
+| `version` | VARCHAR(20) | — | VARCHAR(20), obligatoria, única. | NINGUNA |
 | `descripcion` | VARCHAR(200) | — | VARCHAR(200), obligatoria. | NINGUNA |
 | `puntaje_base` | DECIMAL(6,2) | — | DECIMAL(6,2), obligatoria. | NINGUNA |
 | `puntaje_minimo` | DECIMAL(6,2) | — | DECIMAL(6,2), obligatoria. | NINGUNA |
@@ -7945,7 +8861,7 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `usuario_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
+| `usuario_id` | UUID | — | UUID, obligatoria, única, referencia a `usuario`. | NINGUNA |
 | `modelo_id` | UUID | — | UUID, obligatoria, referencia a `modelo_scoring`. | NINGUNA |
 | `puntaje` | DECIMAL(6,2) | — | DECIMAL(6,2), obligatoria. | NINGUNA |
 | `nivel_confianza` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
@@ -8026,6 +8942,21 @@
 | `estado_moderacion` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
 | `moderada_por` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
 | `creada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+
+### `shedlock`
+
+**Qué es.** Bloqueo de trabajos programados entre replicas (ADR-018).
+
+**Para qué sirve.** Evita que dos réplicas del servicio ejecuten el mismo trabajo programado a la vez (ADR-018).
+
+**Sistema.** Infraestructura del servicio `transparencia`, generada por plantilla en cada esquema (ADR-027): la escribe y la lee solo ese servicio.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `name` | VARCHAR(64) | — | VARCHAR(64), obligatoria, clave primaria. | NINGUNA |
+| `lock_until` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `locked_at` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `locked_by` | VARCHAR(255) | — | VARCHAR(255), obligatoria. | NINGUNA |
 
 ### `snapshot_reputacion`
 

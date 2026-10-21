@@ -4,6 +4,7 @@ import bo.aportaya.auditoria.aplicacion.CU130GobernarFichaDeTabla;
 import bo.aportaya.auditoria.aplicacion.CU131RevisarColumna;
 import bo.aportaya.auditoria.aplicacion.CU98PublicarTablero;
 import bo.aportaya.auditoria.aplicacion.CatalogoDeDatosVigente;
+import bo.aportaya.auditoria.aplicacion.ConsultarCatalogoDeDatos;
 import bo.aportaya.auditoria.aplicacion.EndpointsDelDia;
 import bo.aportaya.auditoria.aplicacion.SaludDeServicios;
 import bo.aportaya.auditoria.dominio.FamiliasVisibles;
@@ -12,13 +13,20 @@ import bo.aportaya.auditoria.web.generado.modelo.CatalogoDeDatos;
 import bo.aportaya.auditoria.web.generado.modelo.EndpointDelDia;
 import bo.aportaya.auditoria.web.generado.modelo.EntradaFichaDeGobierno;
 import bo.aportaya.auditoria.web.generado.modelo.EntradaRevisionDeColumna;
+import bo.aportaya.auditoria.web.generado.modelo.EstadoDeRevision;
+import bo.aportaya.auditoria.web.generado.modelo.EstadoDeTabla;
 import bo.aportaya.auditoria.web.generado.modelo.FichaDeGobierno;
 import bo.aportaya.auditoria.web.generado.modelo.Indicador;
 import bo.aportaya.auditoria.web.generado.modelo.IndicadorSerieInner;
+import bo.aportaya.auditoria.web.generado.modelo.PaginaDeTablasDelCatalogo;
+import bo.aportaya.auditoria.web.generado.modelo.ResumenDelCatalogo;
 import bo.aportaya.auditoria.web.generado.modelo.RevisionDeColumna;
 import bo.aportaya.auditoria.web.generado.modelo.SalidaEndpointsDelDia;
 import bo.aportaya.auditoria.web.generado.modelo.SalidaSaludDeServicios;
 import bo.aportaya.auditoria.web.generado.modelo.SalidaTablero;
+import bo.aportaya.auditoria.web.generado.modelo.SensibilidadDeTabla;
+import bo.aportaya.auditoria.web.generado.modelo.TablaDelCatalogo;
+import bo.aportaya.auditoria.web.generado.modelo.TipoDeTabla;
 import bo.aportaya.plataforma.web.seguridad.Permiso;
 import bo.aportaya.plataforma.web.seguridad.PermisoAlternativo;
 import bo.aportaya.plataforma.web.seguridad.SesionDeLaPeticion;
@@ -51,6 +59,7 @@ public class IndicadoresController implements IndicadoresApi {
     private final SesionDeLaPeticion sesion;
     private final CU130GobernarFichaDeTabla cu130;
     private final CU131RevisarColumna cu131;
+    private final ConsultarCatalogoDeDatos catalogo;
 
     public IndicadoresController(
             CU98PublicarTablero cu98,
@@ -60,7 +69,8 @@ public class IndicadoresController implements IndicadoresApi {
             ObjectMapper mapper,
             SesionDeLaPeticion sesion,
             CU130GobernarFichaDeTabla cu130,
-            CU131RevisarColumna cu131) {
+            CU131RevisarColumna cu131,
+            ConsultarCatalogoDeDatos catalogo) {
         this.cu98 = cu98;
         this.endpointsDelDia = endpointsDelDia;
         this.catalogoDeDatos = catalogoDeDatos;
@@ -69,6 +79,7 @@ public class IndicadoresController implements IndicadoresApi {
         this.sesion = sesion;
         this.cu130 = cu130;
         this.cu131 = cu131;
+        this.catalogo = catalogo;
     }
 
     @Override
@@ -144,7 +155,11 @@ public class IndicadoresController implements IndicadoresApi {
     /**
      * Tableros · H7 — el catalogo de datos. El recurso se lee al arrancar y se pasa por el modelo generado del
      * contrato: un catalogo que no cumple {@code CatalogoDeDatos} falla aca y no en el navegador.
+     *
+     * @deprecated desde 2026-10-21 (contrato): descarga el catalogo entero. Lo reemplazan el resumen, la lista
+     *     paginada y la ficha por tabla; sigue respondiendo igual hasta que ningun cliente lo pida.
      */
+    @Deprecated(since = "2026-10-21")
     @Override
     @Permiso("TABLERO_SISTEMAS_VER")
     @PermisoAlternativo({"AUDITORIA_LEER"})
@@ -160,6 +175,61 @@ public class IndicadoresController implements IndicadoresApi {
         } catch (JsonProcessingException e) {
             throw new IllegalStateException("El catalogo de datos no cumple el contrato CatalogoDeDatos", e);
         }
+    }
+
+    /** Catalogo de datos · H2 — las cifras, los esquemas y los modulos, sin una columna. Traduce y delega. */
+    @Override
+    @Permiso("TABLERO_SISTEMAS_VER")
+    @PermisoAlternativo({"AUDITORIA_LEER"})
+    public ResponseEntity<ResumenDelCatalogo> obtenerResumenDelCatalogo() {
+        Traza.marcarCasoDeUso("TABLERO-SISTEMAS", "catalogo-de-datos/resumen");
+        return ResponseEntity.ok(MapeoDeCatalogo.aContrato(catalogo.resumen(sesion.actual())));
+    }
+
+    /** Catalogo de datos · H2 — una pagina de la lista, filtrada en el servidor. Traduce y delega. */
+    @Override
+    @Permiso("TABLERO_SISTEMAS_VER")
+    @PermisoAlternativo({"AUDITORIA_LEER"})
+    public ResponseEntity<PaginaDeTablasDelCatalogo> listarTablasDelCatalogo(
+            String q,
+            String esquema,
+            String modulo,
+            TipoDeTabla tipo,
+            EstadoDeTabla estado,
+            EstadoDeRevision revision,
+            SensibilidadDeTabla sensibilidad,
+            Integer pagina,
+            Integer limite) {
+        Traza.marcarCasoDeUso("TABLERO-SISTEMAS", "catalogo-de-datos/tablas");
+        var filtro = new ConsultarCatalogoDeDatos.Filtro(
+                Optional.ofNullable(q),
+                Optional.ofNullable(esquema),
+                Optional.ofNullable(modulo),
+                Optional.ofNullable(tipo).map(TipoDeTabla::getValue),
+                Optional.ofNullable(estado).map(EstadoDeTabla::getValue),
+                Optional.ofNullable(revision).map(EstadoDeRevision::getValue),
+                Optional.ofNullable(sensibilidad).map(SensibilidadDeTabla::getValue));
+        var resultado = catalogo.tablas(
+                filtro, pagina == null ? 1 : pagina, limite == null ? 20 : limite, sesion.actual());
+        return ResponseEntity.ok(MapeoDeCatalogo.aContrato(resultado));
+    }
+
+    /** Catalogo de datos · H2 — la ficha de una tabla con su gobierno y sus revisiones; 404 si no esta. */
+    @Override
+    @Permiso("TABLERO_SISTEMAS_VER")
+    @PermisoAlternativo({"AUDITORIA_LEER"})
+    public ResponseEntity<TablaDelCatalogo> obtenerTablaDelCatalogo(String esquema, String tabla) {
+        Traza.marcarCasoDeUso("TABLERO-SISTEMAS", "catalogo-de-datos/" + esquema + "." + tabla);
+        return catalogo.tabla(esquema, tabla, sesion.actual())
+                .map(ficha -> {
+                    try {
+                        return ResponseEntity.ok(MapeoDeCatalogo.aContrato(
+                                mapper.treeToValue(ficha.tabla(), TablaDelCatalogo.class), ficha));
+                    } catch (JsonProcessingException e) {
+                        throw new IllegalStateException("La tabla del catalogo no cumple TablaDelCatalogo", e);
+                    }
+                })
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     /** CU-130 · guarda la ficha de gobierno de una tabla. Traduce y delega. */

@@ -25,7 +25,7 @@ if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8")
 
 # Columnas con explicación de negocio (ficha o convención) al cerrar H7. Trinquete: solo sube.
-PISO_COLUMNAS = 524
+PISO_COLUMNAS = 566
 
 
 def main():
