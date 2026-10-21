@@ -1,6 +1,6 @@
 # Reporte — Menú lateral plegable y guardia de Sistemas que no dejaba entrar a nadie
 
-> **AVANCE: 6 / 7 — 85,7 %.** Backoffice cerrado; la subida a TestFlight (H2.S1.M2) está corriendo y se actualiza abajo.
+> **AVANCE: 6 / 7 — 85,7 %.** Backoffice cerrado (PRs #181 y #182, sin mergear). TestFlight: build 202610211645 compilado, la subida falló por la cuenta de Xcode y la tiene que correr Pablo (H2.S1.M2 A MEDIAS).
 
 - Fecha: 2026-10-21 · Plan: [PLAN.md](./PLAN.md) · Rama: `claude/menu-plegable-guardia-sistemas-20261021` (sobre `676df14b`)
 - Peldaño de evidencia alcanzado: backoffice `VERIFIED` (navegador real + tests dirigidos + regresión de módulo); TestFlight ver H2.
@@ -24,10 +24,11 @@ Ya estaba anotado sin corregir como H0-05 en `docs/trabajo/2026-10-16-tableros-p
 
 ## A medias
 ### H2.S1.M2 — Build y subida a TestFlight
-- Qué anda: worktree limpio en `origin/test` `f7bab6ac`, Flutter 3.44.8, clientes Dart presentes, contratos idénticos a HEAD.
-- Qué no anda: todavía no terminó (`scripts/testflight_ios.sh` en curso).
-- Qué falta exactamente: que el script termine con `Upload succeeded`; si la firma pide la cuenta de Xcode, la tiene que correr Pablo.
-- Dónde quedó: worktree `scratchpad/movil`, log `scratchpad/testflight.log`.
+- Qué anda: archivo iOS compilado desde `origin/test` `f7bab6ac`, **build 202610211645**, versión 0.1.0, 246,4 MB (`Xcode archive done`). Primer intento falló al compilar porque los clientes Dart copiados del árbol principal estaban viejos (faltaban `ContactoEnGrupo`, `PerfilDeReputacionEnGrupo`, `telefonoE164`); se regeneraron con Java 21 y compiló.
+- Qué no anda: la subida — `error: exportArchive Failed to Use Accounts` / `EXPORT FAILED` (la sesión no puede usar la cuenta de Xcode).
+- Qué falta exactamente: que Pablo corra `! bash /private/tmp/claude-501/-Users-pablo-Documents-GitHub-Pasanaku/21f9f6e6-948c-47ec-a806-58b4dde2e2e1/scratchpad/subir_testflight.sh` (usa la clave de `~/.appstoreconnect/env`, igual que el 2026-10-15) y que imprima `Upload succeeded`.
+- Dónde quedó: worktree `scratchpad/movil` (detached en `f7bab6ac`), archivo `apps/movil/build/ios/archive/Runner.xcarchive`, logs `scratchpad/testflight.log` y `testflight2.log`.
+- Riesgo: los clientes Dart del árbol principal están desactualizados respecto de los contratos; quien compile la app desde ahí va a fallar igual.
 
 ## Pendiente
 Ninguna.
@@ -49,6 +50,11 @@ Resto en `evidencia/`: `H1.S1.M1-guardia.txt`, `H1.S2.M1-menu.txt`, `H1.S3.M1-an
 - Se agregó H1.S3.M1 (cabecera en tablet), descubierto en la prueba visual.
 - Los estilos del menú se movieron a `layout/menu-lateral.css` para cumplir el tope de 200 líneas del lint.
 - **Edición concurrente**: durante la sesión otro agente (Gemini) editó el mismo árbol sin commitear — barra lateral clara en `shell-financiero.{ts,css}`, colores del menú en `menu-lateral.css`, y `packages/ui` (tabla, estado de pantalla, estilos). El commit de este trabajo se armó en un worktree limpio con **solo** los cambios propios; el trabajo de Gemini sigue sin commitear en el árbol principal.
+
+## Publicación
+- PR #181 (→ dev) y #182 (→ test) abiertos desde `claude/menu-plegable-guardia-sistemas-20261021` (`3d4344e3`).
+- CI: todo verde salvo «Frontend — Flutter y Angular», que falla en `@aportaya/diseno-flutter#lint` (paquete que este cambio no toca). El mismo job ya estaba rojo en el PR #180, ya mergeado a test → falla previa, se anota para otro trabajo.
+- **No mergeados**: el permiso de Claude Code bloqueó el merge sin revisión. Los mergea Pablo.
 
 ## Riesgos residuales
 - `yarn test:front` en el árbol compartido: 4 rojos en Configuración (tarifario, mensajería, reportes) causados por los cambios sin commitear de Gemini en `packages/ui/src/tabla-de-datos`. En el contenido de este commit pasan (`evidencia/regresion-front.txt`).

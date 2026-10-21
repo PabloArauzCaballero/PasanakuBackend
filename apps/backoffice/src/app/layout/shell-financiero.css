@@ -4,30 +4,30 @@
 
 .lateral {
   grid-area: lateral; position: sticky; top: 0; height: 100dvh; display: flex; flex-direction: column; gap: var(--s3); padding: var(--s4) var(--s3); min-width: 0;
-  color: var(--white); overflow-y: auto; scrollbar-width: thin;
-  scrollbar-color: color-mix(in srgb, var(--white) 16%, transparent) transparent;
-  background: radial-gradient(ellipse at 15% 0%, color-mix(in srgb, var(--g400) 26%, transparent) 0%, transparent 60%), linear-gradient(180deg, var(--g900) 0%, color-mix(in srgb, var(--g900) 50%, black) 100%);
-  border-right: var(--borde-fino) solid color-mix(in srgb, var(--white) 9%, transparent);
-  box-shadow: var(--sombra-3);
+  color: var(--text); overflow-y: auto; scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--border) 80%, transparent) transparent;
+  background: var(--surface);
+  border-right: var(--borde-fino) solid var(--border);
+  box-shadow: var(--borde-fino) 0 0 0 var(--border);
 }
 .lateral::-webkit-scrollbar { width: var(--s2); }
 .lateral::-webkit-scrollbar-track { background: transparent; }
-.lateral::-webkit-scrollbar-thumb { background: color-mix(in srgb, var(--white) 18%, transparent); border-radius: var(--r-pill); }
-.lateral::-webkit-scrollbar-thumb:hover { background: color-mix(in srgb, var(--white) 30%, transparent); }
+.lateral::-webkit-scrollbar-thumb { background: color-mix(in srgb, var(--border) 80%, transparent); border-radius: var(--r-pill); }
+.lateral::-webkit-scrollbar-thumb:hover { background: var(--text-3); }
 
-.marca { display: flex; align-items: center; gap: var(--s3); padding: var(--s2) var(--s3) var(--s3); border-bottom: var(--borde-fino) solid color-mix(in srgb, var(--white) 10%, transparent); color: inherit; text-decoration: none; border-radius: var(--r-md); transition: background-color var(--mov-micro) ease; }
-.marca:hover { background: color-mix(in srgb, var(--white) 5%, transparent); }
+.marca { display: flex; align-items: center; gap: var(--s3); padding: var(--s2) var(--s3) var(--s3); border-bottom: var(--borde-fino) solid var(--border); color: inherit; text-decoration: none; border-radius: var(--r-md); transition: background-color var(--mov-micro) ease; }
+.marca:hover { background: var(--surface-2); }
 .marca span { display: grid; line-height: 1.2; }
-.marca strong { font: var(--t-cuerpo-fuerte); letter-spacing: .08em; text-transform: uppercase; color: var(--white); }
-.marca small { font-size: 0.75rem; letter-spacing: 0.04em; color: var(--g300); font-weight: 600; }
+.marca strong { font: var(--t-cuerpo-fuerte); letter-spacing: .08em; text-transform: uppercase; color: var(--text); }
+.marca small { font-size: 0.75rem; letter-spacing: 0.04em; color: var(--verde-solido); font-weight: 600; }
 .marca:focus-visible, .salir:focus-visible, .hamburguesa:focus-visible, .marca-chica:focus-visible { outline: var(--borde-foco) solid var(--g300); outline-offset: var(--borde-desfase); }
 .menu { flex: 1; }
-.salir { display: flex; align-items: center; gap: var(--s3); width: 100%; min-height: var(--area-tactil); padding: var(--s3) var(--s3) var(--s2); border: 0; border-top: var(--borde-fino) solid color-mix(in srgb, var(--white) 10%, transparent); border-radius: var(--r-md); background: transparent; color: color-mix(in srgb, var(--white) 72%, transparent); font: var(--t-cuerpo-chico); font-weight: 500; cursor: pointer; transition: all var(--mov-micro) ease-out; margin-top: auto; }
-.salir:hover:not(:disabled) { color: color-mix(in srgb, var(--err) 80%, var(--white)); background: color-mix(in srgb, var(--err) 18%, transparent); }
+.salir { display: flex; align-items: center; gap: var(--s3); width: 100%; min-height: var(--area-tactil); padding: var(--s3) var(--s3) var(--s2); border: 0; border-top: var(--borde-fino) solid var(--border); border-radius: var(--r-md); background: transparent; color: var(--text-2); font: var(--t-cuerpo-chico); font-weight: 500; cursor: pointer; transition: all var(--mov-micro) ease-out; margin-top: auto; }
+.salir:hover:not(:disabled) { color: var(--err-texto); background: color-mix(in srgb, var(--err) 10%, transparent); }
 .salir:disabled { cursor: progress; opacity: .7; }
 /* En el cajón del celular, «Salir» va sobre superficie clara. */
 ap-cajon-lateral .salir { width: auto; border: 0; color: var(--text); }
-ap-cajon-lateral ap-menu-lateral { display: block; margin: calc(var(--s4) * -1); padding: var(--s3); background: linear-gradient(180deg, var(--g900), color-mix(in srgb, var(--g900) 50%, black)); min-height: 100%; }
+ap-cajon-lateral ap-menu-lateral { display: block; margin: calc(var(--s4) * -1); padding: var(--s3); background: var(--surface); min-height: 100%; }
 
 .cabecera {
   grid-area: cabecera; position: sticky; top: 0; z-index: 10; display: flex; align-items: center; gap: var(--s3); padding: var(--s2) var(--s4);
