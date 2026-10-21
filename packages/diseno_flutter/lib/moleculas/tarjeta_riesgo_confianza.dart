@@ -5,6 +5,8 @@ import '../atomos/progreso.dart';
 import '../atomos/tono.dart';
 import '../tokens/tokens.dart';
 
+part 'tarjeta_riesgo_confianza_piezas.dart';
+
 /// Tarjeta ultra estética que presenta la Calificación de Riesgo y el Nivel
 /// de Confianza de un participante del grupo sin emitir juicios arbitrarios:
 /// se basa en hechos medidos (puntualidad, mora, coberturas usadas e impagos).
@@ -32,14 +34,17 @@ class TarjetaRiesgoConfianza extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = Tokens.of(context);
     final esVerde = score >= 80;
-    final colorAcento = esVerde ? const Color(0xFF10B981) : const Color(0xFFF59E0B);
+    final colorAcento = esVerde ? t.ok : t.warn;
 
     return Container(
       padding: const EdgeInsets.all(Espacio.s4),
       decoration: BoxDecoration(
         color: t.surface,
         borderRadius: BorderRadius.circular(Radios.xl),
-        border: Border.all(color: colorAcento.withValues(alpha: 0.35), width: 1.5),
+        border: Border.all(
+          color: colorAcento.withValues(alpha: 0.35),
+          width: 1.5,
+        ),
         boxShadow: [
           BoxShadow(
             color: colorAcento.withValues(alpha: 0.08),
@@ -52,70 +57,7 @@ class TarjetaRiesgoConfianza extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Cabecera con etiqueta y badge de riesgo
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Row(
-                children: [
-                  Container(
-                    width: 32,
-                    height: 32,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: colorAcento.withValues(alpha: 0.15),
-                    ),
-                    child: Icon(
-                      Icons.shield_outlined,
-                      size: 18,
-                      color: colorAcento,
-                    ),
-                  ),
-                  const SizedBox(width: Espacio.s2),
-                  Text(
-                    'CALIFICACIÓN DE RIESGO',
-                    style: Tipo.etiqueta.copyWith(
-                      color: t.text2,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: 1.1,
-                    ),
-                  ),
-                ],
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: Espacio.s3,
-                  vertical: 4,
-                ),
-                decoration: BoxDecoration(
-                  color: colorAcento.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(Radios.pill),
-                  border: Border.all(color: colorAcento.withValues(alpha: 0.4)),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      width: 7,
-                      height: 7,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: colorAcento,
-                      ),
-                    ),
-                    const SizedBox(width: 5),
-                    Text(
-                      calificacion,
-                      style: Tipo.etiqueta.copyWith(
-                        color: colorAcento,
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
+          _cabeceraDeRiesgo(t, colorAcento, calificacion),
           const SizedBox(height: Espacio.s4),
 
           // Puntuación de confianza monumental
@@ -129,7 +71,6 @@ class TarjetaRiesgoConfianza extends StatelessWidget {
                 estilo: Tipo.cifraGrande.copyWith(
                   color: t.text,
                   fontWeight: FontWeight.w800,
-                  fontSize: 48,
                 ),
               ),
               Text(
@@ -174,7 +115,8 @@ class TarjetaRiesgoConfianza extends StatelessWidget {
               children: [
                 _MetricaFactual(
                   etiqueta: 'Puntualidad',
-                  valor: '${puntualidadPorcentaje.toStringAsFixed(1)}%',
+                  valor:
+                      '${puntualidadPorcentaje.toStringAsFixed(1)}%', // permitido: porcentaje, no es dinero
                   tono: colorAcento,
                 ),
                 Container(width: 1, height: 28, color: t.border),
@@ -187,7 +129,7 @@ class TarjetaRiesgoConfianza extends StatelessWidget {
                 _MetricaFactual(
                   etiqueta: 'Impagos',
                   valor: impagos == 0 ? '0 (Limpio)' : '$impagos',
-                  tono: impagos == 0 ? colorAcento : Colors.red,
+                  tono: impagos == 0 ? colorAcento : t.err,
                 ),
               ],
             ),
@@ -199,47 +141,11 @@ class TarjetaRiesgoConfianza extends StatelessWidget {
             'Auditoría fáctica: calculado a partir de asientos contables reales en AportaYa.',
             style: Tipo.etiqueta.copyWith(
               color: t.text3,
-              fontSize: 11,
+              fontSize: Tipo.eyebrow.fontSize,
             ),
           ),
         ],
       ),
-    );
-  }
-}
-
-class _MetricaFactual extends StatelessWidget {
-  const _MetricaFactual({
-    required this.etiqueta,
-    required this.valor,
-    required this.tono,
-  });
-
-  final String etiqueta;
-  final String valor;
-  final Color tono;
-
-  @override
-  Widget build(BuildContext context) {
-    final t = Tokens.of(context);
-    return Column(
-      children: [
-        Text(
-          valor,
-          style: Tipo.etiqueta.copyWith(
-            color: tono,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-        const SizedBox(height: 2),
-        Text(
-          etiqueta,
-          style: Tipo.etiqueta.copyWith(
-            color: t.text3,
-            fontSize: 11,
-          ),
-        ),
-      ],
     );
   }
 }

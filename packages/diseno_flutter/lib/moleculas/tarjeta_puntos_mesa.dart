@@ -31,7 +31,7 @@ class TarjetaPuntosMesa extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = Tokens.of(context);
-    const colorOro = Color(0xFFF59E0B);
+    const colorOro = Paleta.warn;
 
     return Container(
       padding: const EdgeInsets.all(Espacio.s4),
@@ -87,10 +87,7 @@ class TarjetaPuntosMesa extends StatelessWidget {
                 ),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    colors: [
-                      colorOro,
-                      colorOro.withValues(alpha: 0.8),
-                    ],
+                    colors: [colorOro, colorOro.withValues(alpha: 0.8)],
                   ),
                   borderRadius: BorderRadius.circular(Radios.pill),
                   boxShadow: [
@@ -107,13 +104,13 @@ class TarjetaPuntosMesa extends StatelessWidget {
                     const Icon(
                       Icons.stars_rounded,
                       size: 14,
-                      color: Colors.white,
+                      color: Paleta.white,
                     ),
                     const SizedBox(width: 4),
                     Text(
                       '$rango · Nivel $nivel',
                       style: Tipo.etiqueta.copyWith(
-                        color: Colors.white,
+                        color: Paleta.white,
                         fontWeight: FontWeight.w800,
                       ),
                     ),
@@ -135,7 +132,6 @@ class TarjetaPuntosMesa extends StatelessWidget {
                 estilo: Tipo.cifraGrande.copyWith(
                   color: colorOro,
                   fontWeight: FontWeight.w800,
-                  fontSize: 44,
                 ),
               ),
               const SizedBox(width: Espacio.s2),
@@ -153,11 +149,7 @@ class TarjetaPuntosMesa extends StatelessWidget {
           // Regla clave del sistema de juego
           Row(
             children: [
-              Icon(
-                Icons.check_circle_outline,
-                size: 14,
-                color: t.brand,
-              ),
+              Icon(Icons.check_circle_outline, size: 14, color: t.brand),
               const SizedBox(width: 6),
               Expanded(
                 child: Text(
