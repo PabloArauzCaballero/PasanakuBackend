@@ -89,12 +89,20 @@ class CamaraEnVivoPlugin implements CamaraEnVivo {
     if (kIsWeb || controlador == null || descripcion == null) return false;
     final lector = _lector ??= LectorDeRostroMlKit(descripcion, controlador);
     var ocupado = false;
+    var ultimoProcesamiento = DateTime.fromMillisecondsSinceEpoch(0);
+    const intervaloMinimo = Duration(milliseconds: 180);
     try {
       await controlador.startImageStream((cuadro) async {
-        // Un cuadro a la vez: los que llegan mientras ML Kit piensa se descartan,
-        // en vez de encolarse y llegar tarde.
-        if (ocupado) return;
+        final ahora = DateTime.now();
+        // Un cuadro a la vez y con limitación de tasa (~5 FPS): los cuadros que
+        // llegan mientras ML Kit procesa o antes del intervalo mínimo se descartan
+        // para evitar que el SoC (CPU/NPU) corra al 100% y sobrecaliente el teléfono.
+        if (ocupado ||
+            ahora.difference(ultimoProcesamiento) < intervaloMinimo) {
+          return;
+        }
         ocupado = true;
+        ultimoProcesamiento = ahora;
         try {
           alLeer(await lector.leer(cuadro));
         } on Object {

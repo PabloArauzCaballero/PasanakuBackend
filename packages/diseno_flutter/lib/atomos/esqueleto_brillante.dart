@@ -41,21 +41,23 @@ class _EsqueletoBrillanteState extends State<EsqueletoBrillante>
   Widget build(BuildContext context) {
     if (reducirMovimiento(context)) return widget.child;
     final t = Tokens.of(context);
-    return AnimatedBuilder(
-      animation: _control,
-      child: widget.child,
-      builder: (context, child) => ShaderMask(
-        blendMode: BlendMode.srcATop,
-        shaderCallback: (bounds) {
-          final avance = _control.value * 2 - 1;
-          return LinearGradient(
-            begin: Alignment(avance - 0.7, 0),
-            end: Alignment(avance + 0.7, 0),
-            colors: [t.surface2, t.surface, t.surface2],
-            stops: const [0.2, 0.5, 0.8],
-          ).createShader(bounds);
-        },
-        child: child,
+    return RepaintBoundary(
+      child: AnimatedBuilder(
+        animation: _control,
+        child: widget.child,
+        builder: (context, child) => ShaderMask(
+          blendMode: BlendMode.srcATop,
+          shaderCallback: (bounds) {
+            final avance = _control.value * 2 - 1;
+            return LinearGradient(
+              begin: Alignment(avance - 0.7, 0),
+              end: Alignment(avance + 0.7, 0),
+              colors: [t.surface2, t.surface, t.surface2],
+              stops: const [0.2, 0.5, 0.8],
+            ).createShader(bounds);
+          },
+          child: child,
+        ),
       ),
     );
   }
