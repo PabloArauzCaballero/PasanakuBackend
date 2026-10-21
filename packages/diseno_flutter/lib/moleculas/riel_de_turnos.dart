@@ -142,8 +142,10 @@ class _PulsoDeTurnoState extends State<_PulsoDeTurno>
   }
 
   @override
-  Widget build(BuildContext context) => FadeTransition(
-    opacity: Tween<double>(begin: 0.6, end: 1).animate(_control),
-    child: widget.child,
+  Widget build(BuildContext context) => RepaintBoundary(
+    child: FadeTransition(
+      opacity: Tween<double>(begin: 0.6, end: 1).animate(_control),
+      child: widget.child,
+    ),
   );
 }
