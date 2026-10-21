@@ -74,6 +74,7 @@ class TextosDeVerificacion {
       'crear un grupo o unirte a uno necesitamos terminar la revisión.';
   static const actualizarEstado = 'Actualizar estado';
   static const salirDeCuenta = 'Salir de esta cuenta';
+  static const continuarRegistro = 'Continuar registro / verificación';
   static const actualizarAcceso = 'Cerrar sesión para actualizar el acceso';
   static const noSePudoActivar =
       'No pudimos activar tu cuenta todavía. Probá de nuevo en un momento.';

@@ -108,6 +108,13 @@ class TextosPasanaku {
   // Mora / incumplimiento — SIEMPRE en hechos, nunca en probabilidad
   static const tituloMora = 'Estado de tu aporte';
   static const tituloMisGrupos = 'Tus grupos';
+  // Las dos partes de «Grupos», con su tope (2026-10-20).
+  static String seccionOrganizas(int n, int? tope) =>
+      tope == null ? 'Organizás · $n' : 'Organizás · $n de $tope';
+  static String seccionParticipas(int n, int? tope) =>
+      tope == null ? 'Participás · $n' : 'Participás · $n de $tope';
+  static const sinGruposOrganizados = 'Todavía no organizás ningún grupo.';
+  static const sinGruposParticipados = 'Todavía no participás en otros grupos.';
   static const grupoSinNombre = 'Grupo';
   static const organizasEsteGrupo = 'Organizás este grupo';
   static const participasEnEsteGrupo = 'Participás en este grupo';

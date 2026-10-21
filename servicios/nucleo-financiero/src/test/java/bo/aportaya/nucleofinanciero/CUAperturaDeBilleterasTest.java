@@ -221,6 +221,18 @@ class CUAperturaDeBilleterasTest extends BaseDeApertura {
     }
 
     @Test
+    @DisplayName("usuarios con prefijos comunes en UUID abren billetera sin colisionar en numero_cuenta")
+    void usuariosConPrefijoComunNoColisionan() {
+        UUID u1 = fixtura.usuario();
+        UUID u2 = fixtura.usuario();
+        var salida1 = abrir(apertura, registrado(u1));
+        var salida2 = abrir(apertura, registrado(u2));
+        assertThat(salida1.resultado()).isEqualTo(Resultado.ABIERTA);
+        assertThat(salida2.resultado()).isEqualTo(Resultado.ABIERTA);
+        assertThat(salida1.cuentaId()).isNotEqualTo(salida2.cuentaId());
+    }
+
+    @Test
     @DisplayName(
             "concurrencia: dos eventos DISTINTOS del mismo usuario (y del mismo grupo) al mismo tiempo dejan UNA sola"
                     + " cuenta: el indice unico R-BIL-04 decide")

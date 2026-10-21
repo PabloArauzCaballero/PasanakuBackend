@@ -61,6 +61,7 @@ SET search_path TO aportes, auditoria, cumplimiento, entregas, erp, garantia, gr
 \ir 10_tablas/02_grupos_turnos/solicitud_ingreso.sql
 \ir 10_tablas/02_grupos_turnos/decision_ingreso.sql
 \ir 10_tablas/02_grupos_turnos/sustitucion_administrador.sql
+\ir 10_tablas/02_grupos_turnos/enlace_grupo.sql
 \ir 10_tablas/02_grupos_turnos/invitacion.sql
 \ir 10_tablas/02_grupos_turnos/periodo.sql
 \ir 10_tablas/02_grupos_turnos/turno.sql
@@ -383,6 +384,9 @@ SET search_path TO aportes, auditoria, cumplimiento, entregas, erp, garantia, gr
 --     Solo afloja lo que el modelo declara opcional; no es un sistema de
 --     migraciones. Sobre una base recién creada no hace nada.
 \ir 15_infra/nulabilidad.sql
+
+-- 2d) Borradores de onboarding incompleto.
+\ir 15_infra/borradores.sql
 
 -- 3) Claves foráneas (después de todas las tablas)
 \ir 20_claves/01_identidad_usuarios.sql

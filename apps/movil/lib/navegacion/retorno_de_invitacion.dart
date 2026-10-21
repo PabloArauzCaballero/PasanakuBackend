@@ -10,8 +10,9 @@ String? retornoDeInvitacion(String? valor) {
       uri.hasFragment) {
     return null;
   }
+  // `/g/` es el enlace del grupo (2026-10-19): mismo formato de código.
   if (!RegExp(
-    r'^/pasanaku/unirse/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.[0-9a-f]{64}$',
+    r'^/(pasanaku/unirse|g)/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.[0-9a-f]{64}$',
   ).hasMatch(uri.path)) {
     return null;
   }

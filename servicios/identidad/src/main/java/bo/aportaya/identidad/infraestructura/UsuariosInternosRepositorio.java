@@ -1,11 +1,8 @@
 package bo.aportaya.identidad.infraestructura;
 
-import static bo.aportaya.identidad.generado.Tables.ASIGNACION_ROL;
 import static bo.aportaya.identidad.generado.Tables.CREDENCIAL_ACCESO;
 import static bo.aportaya.identidad.generado.Tables.FACTOR_MFA;
-import static bo.aportaya.identidad.generado.Tables.PERMISO;
 import static bo.aportaya.identidad.generado.Tables.ROL;
-import static bo.aportaya.identidad.generado.Tables.ROL_PERMISO;
 import static bo.aportaya.identidad.generado.Tables.USUARIO;
 import static bo.aportaya.identidad.generado.Tables.USUARIO_INTERNO;
 
@@ -14,8 +11,6 @@ import bo.aportaya.identidad.dominio.puertos.HasheadorDeCredencial;
 import bo.aportaya.identidad.web.generado.modelo.EntradaActualizarUsuarioInterno;
 import bo.aportaya.identidad.web.generado.modelo.EntradaAltaUsuarioInterno;
 import bo.aportaya.identidad.web.generado.modelo.EntradaAsignarRolesUsuarioInterno;
-import bo.aportaya.identidad.web.generado.modelo.PermisoCatalogo;
-import bo.aportaya.identidad.web.generado.modelo.RolCatalogo;
 import bo.aportaya.identidad.web.generado.modelo.UsuarioInternoDetalle;
 import bo.aportaya.identidad.web.generado.modelo.UsuarioInternoResumen;
 import bo.aportaya.plataforma.dominio.CodigoError;
@@ -27,7 +22,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.TreeSet;
 import java.util.UUID;
 import org.jooq.Condition;
 import org.jooq.DSLContext;
@@ -40,12 +34,15 @@ public class UsuariosInternosRepositorio {
 
     private final AccesosRepositorio accesos;
     private final HasheadorDeCredencial hasheador;
+    private final RolesYPermisosRepositorio rolesYPermisos;
     private static final String ALFABETO = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789!@#$%";
     private static final SecureRandom RANDOM = new SecureRandom();
 
-    public UsuariosInternosRepositorio(AccesosRepositorio accesos, HasheadorDeCredencial hasheador) {
+    public UsuariosInternosRepositorio(
+            AccesosRepositorio accesos, HasheadorDeCredencial hasheador, RolesYPermisosRepositorio rolesYPermisos) {
         this.accesos = accesos;
         this.hasheador = hasheador;
+        this.rolesYPermisos = rolesYPermisos;
     }
 
     public List<UsuarioInternoResumen> listar(
@@ -91,28 +88,10 @@ public class UsuariosInternosRepositorio {
                 continue;
             }
 
-            boolean tieneSegundoFactor = dsl.fetchExists(dsl.selectOne()
-                    .from(FACTOR_MFA)
-                    .where(FACTOR_MFA.USUARIO_ID.eq(usuarioId)));
+            boolean tieneSegundoFactor =
+                    dsl.fetchExists(dsl.selectOne().from(FACTOR_MFA).where(FACTOR_MFA.USUARIO_ID.eq(usuarioId)));
 
-            UsuarioInternoResumen resumen = new UsuarioInternoResumen();
-            resumen.setId(r.get(USUARIO_INTERNO.ID));
-            resumen.setUsuarioId(usuarioId);
-            resumen.setCodigoPublico(r.get(USUARIO.CODIGO_PUBLICO));
-            resumen.setNombres(r.get(USUARIO.NOMBRES));
-            resumen.setApellidos(r.get(USUARIO.APELLIDOS));
-            resumen.setCorreo(r.get(USUARIO.CORREO));
-            resumen.setTelefono(r.get(USUARIO.TELEFONO_E164));
-            resumen.setDepartamento(r.get(USUARIO_INTERNO.DEPARTAMENTO));
-            resumen.setCargo(r.get(USUARIO_INTERNO.CARGO));
-            resumen.setEstado(r.get(USUARIO.ESTADO));
-            resumen.setDebeCambiarContrasena(r.get(USUARIO_INTERNO.DEBE_CAMBIAR_CONTRASENA));
-            resumen.setTieneSegundoFactor(tieneSegundoFactor);
-            resumen.setBloqueadoHasta(r.get(USUARIO_INTERNO.BLOQUEADO_HASTA));
-            resumen.setMotivoBloqueo(r.get(USUARIO_INTERNO.MOTIVO_BLOQUEO));
-            resumen.setRoles(new ArrayList<>(rolesVigentes));
-
-            resultado.add(resumen);
+            resultado.add(UsuarioInternoMapeador.aResumen(r, usuarioId, rolesVigentes, tieneSegundoFactor));
         }
         return resultado;
     }
@@ -146,38 +125,25 @@ public class UsuariosInternosRepositorio {
         UUID uId = r.get(USUARIO_INTERNO.USUARIO_ID);
         Set<String> rolesVigentes = accesos.codigosDeRolesVigentes(dsl, uId, ahora);
         Set<String> permisosEfectivos = PermisosEfectivos.de(accesos.asignacionesDe(dsl, uId), ahora);
-        boolean tieneSegundoFactor = dsl.fetchExists(dsl.selectOne()
-                .from(FACTOR_MFA)
-                .where(FACTOR_MFA.USUARIO_ID.eq(uId)));
+        boolean tieneSegundoFactor =
+                dsl.fetchExists(dsl.selectOne().from(FACTOR_MFA).where(FACTOR_MFA.USUARIO_ID.eq(uId)));
 
-        UsuarioInternoDetalle detalle = new UsuarioInternoDetalle();
-        detalle.setId(r.get(USUARIO_INTERNO.ID));
-        detalle.setUsuarioId(uId);
-        detalle.setCodigoPublico(r.get(USUARIO.CODIGO_PUBLICO));
-        detalle.setNombres(r.get(USUARIO.NOMBRES));
-        detalle.setApellidos(r.get(USUARIO.APELLIDOS));
-        detalle.setCorreo(r.get(USUARIO.CORREO));
-        detalle.setTelefono(r.get(USUARIO.TELEFONO_E164));
-        detalle.setDepartamento(r.get(USUARIO_INTERNO.DEPARTAMENTO));
-        detalle.setCargo(r.get(USUARIO_INTERNO.CARGO));
-        detalle.setEstado(r.get(USUARIO.ESTADO));
-        detalle.setDebeCambiarContrasena(r.get(USUARIO_INTERNO.DEBE_CAMBIAR_CONTRASENA));
-        detalle.setTieneSegundoFactor(tieneSegundoFactor);
-        detalle.setBloqueadoHasta(r.get(USUARIO_INTERNO.BLOQUEADO_HASTA));
-        detalle.setMotivoBloqueo(r.get(USUARIO_INTERNO.MOTIVO_BLOQUEO));
-        detalle.setRoles(new ArrayList<>(rolesVigentes));
-        detalle.setPermisosEfectivos(new ArrayList<>(permisosEfectivos));
-        detalle.setCreadoEn(r.get(USUARIO.FECHA_REGISTRO));
+        UsuarioInternoDetalle detalle =
+                UsuarioInternoMapeador.aDetalle(r, uId, rolesVigentes, permisosEfectivos, tieneSegundoFactor);
         detalle.setActualizadoEn(ahora);
 
         return Optional.of(detalle);
     }
 
     public UsuarioInternoDetalle crear(
-            DSLContext dsl,
-            EntradaAltaUsuarioInterno entrada,
-            UUID operadorId,
-            OffsetDateTime ahora) {
+            DSLContext dsl, EntradaAltaUsuarioInterno entrada, UUID operadorId, OffsetDateTime ahora) {
+        if (dsl.fetchExists(dsl.selectOne().from(USUARIO).where(USUARIO.CORREO.eq(entrada.getCorreo())))) {
+            throw new ErrorDeNegocio(CodigoError.de(1, 2), "Ya existe un usuario registrado con ese correo.");
+        }
+        if (dsl.fetchExists(dsl.selectOne().from(USUARIO).where(USUARIO.TELEFONO_E164.eq(entrada.getTelefono())))) {
+            throw new ErrorDeNegocio(CodigoError.de(1, 3), "Ya existe un usuario registrado con ese telefono.");
+        }
+
         UUID rolId = dsl.select(ROL.ID)
                 .from(ROL)
                 .where(ROL.CODIGO.eq(entrada.getRolCodigo()))
@@ -185,7 +151,8 @@ public class UsuariosInternosRepositorio {
                 .orElseThrow(() -> new ErrorDeNegocio(CodigoError.de(8, 1), "El rol especificado no existe."));
 
         UUID usuarioId = UUID.randomUUID();
-        String codigoPublico = "OP-" + String.format("%04d", RANDOM.nextInt(10000));
+        String codigoPublico =
+                "OP-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase(java.util.Locale.ROOT);
 
         dsl.insertInto(USUARIO)
                 .set(USUARIO.ID, usuarioId)
@@ -224,15 +191,7 @@ public class UsuariosInternosRepositorio {
                 .execute();
 
         // Asignacion inicial del rol
-        accesos.asignar(
-                dsl,
-                usuarioId,
-                rolId,
-                "GLOBAL",
-                Optional.empty(),
-                operadorId,
-                Optional.empty(),
-                ahora);
+        accesos.asignar(dsl, usuarioId, rolId, "GLOBAL", Optional.empty(), operadorId, Optional.empty(), ahora);
 
         return consultar(dsl, usuarioId, ahora).orElseThrow();
     }
@@ -258,10 +217,19 @@ public class UsuariosInternosRepositorio {
                     .execute();
         }
         if (entrada.getEstado() != null) {
+            String nuevoEstado = entrada.getEstado().getValue();
             dsl.update(USUARIO)
-                    .set(USUARIO.ESTADO, entrada.getEstado().getValue())
+                    .set(USUARIO.ESTADO, nuevoEstado)
                     .where(USUARIO.ID.eq(uId))
                     .execute();
+
+            if (!"ACTIVO".equalsIgnoreCase(nuevoEstado)) {
+                String motivo =
+                        entrada.getMotivo() != null && !entrada.getMotivo().isBlank()
+                                ? entrada.getMotivo()
+                                : "Cambio de estado a " + nuevoEstado;
+                accesos.cerrarSesionesDe(dsl, uId, motivo, ahora);
+            }
         }
 
         return consultar(dsl, uId, ahora).orElseThrow();
@@ -275,37 +243,17 @@ public class UsuariosInternosRepositorio {
             OffsetDateTime ahora) {
         UUID uId = resolverUsuarioId(dsl, usuarioId);
 
-        // Revocar asignaciones vivas existentes
-        List<UUID> asignacionesVivas = dsl.select(ASIGNACION_ROL.ID)
-                .from(ASIGNACION_ROL)
-                .where(ASIGNACION_ROL.USUARIO_ID.eq(uId))
-                .and(ASIGNACION_ROL.REVOCADA_EN.isNull())
-                .fetch(ASIGNACION_ROL.ID);
-
-        for (UUID asigId : asignacionesVivas) {
-            accesos.revocar(dsl, asigId, entrada.getMotivo(), ahora);
+        if (uId.equals(operadorId)) {
+            throw new ErrorDeNegocio(CodigoError.de(8, 4), "Nadie se amplia sus propios permisos.");
         }
 
-        // Asignar los nuevos roles
-        for (String codRol : entrada.getRoles()) {
-            UUID rId = dsl.select(ROL.ID)
-                    .from(ROL)
-                    .where(ROL.CODIGO.eq(codRol))
-                    .fetchOptional(ROL.ID)
-                    .orElseThrow(() -> new ErrorDeNegocio(CodigoError.de(8, 1), "El rol " + codRol + " no existe."));
-
-            accesos.asignar(dsl, uId, rId, "GLOBAL", Optional.empty(), operadorId, Optional.empty(), ahora);
-        }
+        RotacionDeRolesInternos.rotar(accesos, dsl, uId, entrada.getRoles(), entrada.getMotivo(), operadorId, ahora);
 
         return consultar(dsl, uId, ahora).orElseThrow();
     }
 
     public UsuarioInternoDetalle desbloquear(
-            DSLContext dsl,
-            UUID usuarioId,
-            String motivo,
-            UUID operadorId,
-            OffsetDateTime ahora) {
+            DSLContext dsl, UUID usuarioId, String motivo, UUID operadorId, OffsetDateTime ahora) {
         UUID uId = resolverUsuarioId(dsl, usuarioId);
 
         dsl.update(USUARIO_INTERNO)
@@ -315,68 +263,6 @@ public class UsuariosInternosRepositorio {
                 .execute();
 
         return consultar(dsl, uId, ahora).orElseThrow();
-    }
-
-    public List<RolCatalogo> listarRoles(DSLContext dsl) {
-        var filas = dsl.select(
-                        ROL.ID,
-                        ROL.CODIGO,
-                        ROL.NOMBRE,
-                        ROL.AMBITO,
-                        ROL.DEPARTAMENTO,
-                        ROL.DESCRIPCION,
-                        ROL.ES_SISTEMA)
-                .from(ROL)
-                .orderBy(ROL.DEPARTAMENTO.asc().nullsLast(), ROL.NOMBRE.asc())
-                .fetch();
-
-        List<RolCatalogo> lista = new ArrayList<>();
-        for (Record r : filas) {
-            UUID rolId = r.get(ROL.ID);
-            Set<String> perms = accesos.permisosDelRol(dsl, rolId);
-
-            RolCatalogo rc = new RolCatalogo();
-            rc.setId(rolId);
-            rc.setCodigo(r.get(ROL.CODIGO));
-            rc.setNombre(r.get(ROL.NOMBRE));
-            rc.setAmbito(r.get(ROL.AMBITO));
-            rc.setDepartamento(r.get(ROL.DEPARTAMENTO));
-            rc.setDescripcion(r.get(ROL.DESCRIPCION));
-            rc.setEsSistema(r.get(ROL.ES_SISTEMA));
-            rc.setPermisos(new ArrayList<>(perms));
-            lista.add(rc);
-        }
-        return lista;
-    }
-
-    public List<PermisoCatalogo> listarPermisos(DSLContext dsl) {
-        var filas = dsl.select(
-                        PERMISO.ID,
-                        PERMISO.CODIGO,
-                        PERMISO.DESCRIPCION,
-                        PERMISO.RECURSO,
-                        PERMISO.ACCION,
-                        PERMISO.NIVEL_RIESGO,
-                        PERMISO.EXIGE_MOTIVO,
-                        PERMISO.REQUIERE_MFA)
-                .from(PERMISO)
-                .orderBy(PERMISO.RECURSO.asc(), PERMISO.ACCION.asc())
-                .fetch();
-
-        List<PermisoCatalogo> lista = new ArrayList<>();
-        for (Record r : filas) {
-            PermisoCatalogo pc = new PermisoCatalogo();
-            pc.setId(r.get(PERMISO.ID));
-            pc.setCodigo(r.get(PERMISO.CODIGO));
-            pc.setDescripcion(r.get(PERMISO.DESCRIPCION));
-            pc.setRecurso(r.get(PERMISO.RECURSO));
-            pc.setAccion(r.get(PERMISO.ACCION));
-            pc.setNivelRiesgo(PermisoCatalogo.NivelRiesgoEnum.fromValue(r.get(PERMISO.NIVEL_RIESGO)));
-            pc.setExigeMotivo(r.get(PERMISO.EXIGE_MOTIVO));
-            pc.setRequiereMfa(r.get(PERMISO.REQUIERE_MFA));
-            lista.add(pc);
-        }
-        return lista;
     }
 
     private UUID resolverUsuarioId(DSLContext dsl, UUID id) {

@@ -26,7 +26,8 @@ export function usuariosInternos(filtros: {
     if (filtros.rol()) params.set('rol', filtros.rol())
     if (filtros.busqueda()) params.set('busqueda', filtros.busqueda())
     const q = params.toString()
-    return `${gateway}/identidad/usuarios-internos${q ? `?${q}` : ''}`
+    const base = `${gateway}/usuarios-internos`
+    return q ? `${base}?${q}` : base
   })
 }
 
@@ -34,18 +35,18 @@ export function usuarioInterno(id: Signal<string | null>) {
   const gateway = inject(GATEWAY)
   return httpResource<UsuarioInternoDetalle>(() => {
     const idVal = id()
-    return idVal ? `${gateway}/identidad/usuarios-internos/${idVal}` : undefined
+    return idVal ? `${gateway}/usuarios-internos/${idVal}` : undefined
   })
 }
 
 export function catalogoRoles() {
   const gateway = inject(GATEWAY)
-  return httpResource<RolCatalogo[]>(() => `${gateway}/identidad/roles`)
+  return httpResource<RolCatalogo[]>(() => `${gateway}/roles`)
 }
 
 export function catalogoPermisos() {
   const gateway = inject(GATEWAY)
-  return httpResource<PermisoCatalogo[]>(() => `${gateway}/identidad/permisos`)
+  return httpResource<PermisoCatalogo[]>(() => `${gateway}/permisos`)
 }
 
 export function crearUsuarioInterno(
@@ -53,7 +54,7 @@ export function crearUsuarioInterno(
   gateway: string,
   entrada: EntradaAltaUsuarioInterno,
 ): Observable<UsuarioInternoDetalle> {
-  return http.post<UsuarioInternoDetalle>(`${gateway}/identidad/usuarios-internos`, entrada, {
+  return http.post<UsuarioInternoDetalle>(`${gateway}/usuarios-internos`, entrada, {
     context: contextoIdempotente(),
   })
 }
@@ -64,7 +65,7 @@ export function actualizarUsuarioInterno(
   id: string,
   entrada: EntradaActualizarUsuarioInterno,
 ): Observable<UsuarioInternoDetalle> {
-  return http.patch<UsuarioInternoDetalle>(`${gateway}/identidad/usuarios-internos/${id}`, entrada)
+  return http.patch<UsuarioInternoDetalle>(`${gateway}/usuarios-internos/${id}`, entrada)
 }
 
 export function asignarRolesUsuarioInterno(
@@ -73,7 +74,7 @@ export function asignarRolesUsuarioInterno(
   id: string,
   entrada: EntradaAsignarRolesUsuarioInterno,
 ): Observable<UsuarioInternoDetalle> {
-  return http.put<UsuarioInternoDetalle>(`${gateway}/identidad/usuarios-internos/${id}/roles`, entrada)
+  return http.put<UsuarioInternoDetalle>(`${gateway}/usuarios-internos/${id}/roles`, entrada)
 }
 
 export function desbloquearUsuarioInterno(
@@ -83,7 +84,7 @@ export function desbloquearUsuarioInterno(
   motivo: string,
 ): Observable<UsuarioInternoDetalle> {
   const payload: EntradaDesbloqueoUsuarioInterno = { motivo }
-  return http.post<UsuarioInternoDetalle>(`${gateway}/identidad/usuarios-internos/${id}/desbloquear`, payload)
+  return http.post<UsuarioInternoDetalle>(`${gateway}/usuarios-internos/${id}/desbloquear`, payload)
 }
 
 export function creadorUsuarioInterno() {

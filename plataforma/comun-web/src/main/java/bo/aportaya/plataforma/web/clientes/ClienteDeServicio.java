@@ -63,27 +63,40 @@ public class ClienteDeServicio {
                 .body(tipo));
     }
 
+    private static final org.slf4j.Logger BITACORA = org.slf4j.LoggerFactory.getLogger(ClienteDeServicio.class);
+
     private <T> Optional<T> blindar(Supplier<T> llamada) {
         try {
             return Optional.ofNullable(llamada.get());
         } catch (ResourceAccessException seCayo) {
-            // Timeout o red caida. No se convierte en excepcion de negocio: el que
-            // pregunta sabe si puede seguir sin la respuesta o si tiene que rechazar.
+            // Timeout o red caida: loguear para trazabilidad del fallo
+            BITACORA.warn("Fallo de red o timeout al llamar al servicio {}", destino, seCayo);
             return Optional.empty();
         } catch (org.springframework.web.client.RestClientResponseException respondioMal) {
-            if (respondioMal.getStatusCode().is4xxClientError()) {
+            if (respondioMal.getStatusCode().value() == 404) {
+                // 404 es recurso ausente: retorno vacio legitimo
                 return Optional.empty();
             }
-            throw new ErrorDeDominio("El servicio %s respondio %s".formatted(destino, respondioMal.getStatusCode()));
+            if (respondioMal.getStatusCode().is4xxClientError()) {
+                BITACORA.warn(
+                        "El servicio {} respondio error de cliente {}: {}",
+                        destino,
+                        respondioMal.getStatusCode(),
+                        respondioMal.getResponseBodyAsString());
+                return Optional.empty();
+            }
+            throw new ErrorDeDominio("El servicio %s respondio %s: %s"
+                    .formatted(destino, respondioMal.getStatusCode(), respondioMal.getResponseBodyAsString()));
         }
     }
 
-    /** El token de quien pregunta, para que el destino aplique SU politica de fila. */
+    /** El token y la traza de quien pregunta, para que el destino aplique SU politica de fila y correlacione logs. */
     public static void propagarElToken(HttpHeaders cabeceras) {
         Authentication autenticacion = SecurityContextHolder.getContext().getAuthentication();
         if (autenticacion != null && autenticacion.getPrincipal() instanceof Jwt token) {
             cabeceras.setBearerAuth(token.getTokenValue());
         }
+        propagarTraza(cabeceras);
     }
 
     /**
@@ -103,6 +116,15 @@ public class ClienteDeServicio {
         if (autenticacion != null && autenticacion.getPrincipal() instanceof Jwt token) {
             cabeceras.setBearerAuth(token.getTokenValue());
         }
+        propagarTraza(cabeceras);
+    }
+
+    private static void propagarTraza(HttpHeaders cabeceras) {
+        String traza = bo.aportaya.plataforma.web.traza.Traza.actual();
+        if (traza == null || traza.isBlank() || "sin-traza".equals(traza)) {
+            traza = java.util.UUID.randomUUID().toString();
+        }
+        cabeceras.set(bo.aportaya.plataforma.web.traza.Traza.CABECERA, traza);
     }
 
     /** El tiempo maximo que se espera a otro servicio. Corto: preguntar no es trabajar. */

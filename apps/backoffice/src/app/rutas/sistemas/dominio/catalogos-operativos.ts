@@ -37,7 +37,8 @@ export function elementosCatalogo(codigo: Signal<string | null>, activo: Signal<
     const params = new URLSearchParams()
     if (act !== null) params.set('activo', String(act))
     const q = params.toString()
-    return `${gateway}/auditoria/catalogos/${cod}/elementos${q ? `?${q}` : ''}`
+    const base = `${gateway}/auditoria/catalogos/${cod}/elementos`
+    return q ? `${base}?${q}` : base
   })
 }
 

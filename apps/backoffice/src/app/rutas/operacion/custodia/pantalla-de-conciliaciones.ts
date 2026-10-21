@@ -4,7 +4,6 @@ import { CabeceraDePagina } from '@aportaya/ui/cabecera-de-pagina/cabecera-de-pa
 import { ChipEstado } from '@aportaya/ui/chip-estado/chip-estado'
 import { formatearDia } from '@aportaya/ui/fecha/fecha'
 import { Monto } from '@aportaya/ui/monto/monto'
-import { ExplicadorDeVista } from '../../../nucleo/explicador-de-vista'
 import { Sesion } from '../../../nucleo/sesion'
 import { TablaDeDatosVirtualizada } from '../../../nucleo/tabla/tabla-de-datos-virtualizada'
 import type { ColumnaVirtual } from '../../../nucleo/tabla/tipos'
@@ -33,7 +32,7 @@ const COLUMNAS: ColumnaVirtual<ConciliacionEnLista>[] = CLAVES.map((clave) => ({
         <ap-alerta tono="info">{{ t.formulario.soloTesoreria }}</ap-alerta>
       }
       <ap-estado-de-bandeja [estado]="b.estado()" [error]="b.error()" [vacio]="t.vacio" [explicacionVacio]="t.explicacionVacio" [denegado]="t.denegado" (reintentar)="b.reintentar()" />
-      @if (b.estado() !== 'denegado') {
+      @if (b.estado() !== 'denegado' && b.estado() !== 'vacio') {
         @for (v of [b.version()]; track v) {
           <ap-tabla-de-datos-virtualizada [titulo]="t.titulo" [columnas]="COLUMNAS" [cargador]="b.cargador" [ordenPermitido]="[]" [identidad]="identidad" [tamanoDePagina]="25">
             <ng-template #celda let-r let-columna="columna">
@@ -59,9 +58,6 @@ const COLUMNAS: ColumnaVirtual<ConciliacionEnLista>[] = CLAVES.map((clave) => ({
   `,
 })
 export class PantallaDeConciliaciones {
-  constructor() {
-    inject(ExplicadorDeVista).fijar(this.t.proposito)
-  }
   private readonly sesion = inject(Sesion)
   protected readonly t = T
   protected readonly COLUMNAS = COLUMNAS

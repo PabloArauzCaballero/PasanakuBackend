@@ -65,8 +65,11 @@ describe('ShellFinanciero · salir y rol legible', () => {
 
   it('el menú solo ofrece lo que el permiso habilita y la cabecera muestra el rol legible', () => {
     const el = montar()
-    const enlaces = Array.from(el.querySelectorAll('ap-menu-lateral a')).map((a) => a.textContent?.trim())
+    const enlaces = Array.from(el.querySelectorAll('ap-menu-lateral .entrada-fila > a')).map((a) => a.textContent?.trim())
     expect(enlaces).toEqual(['Inicio', 'Operación', 'Ayuda']) // Ayuda es de todos
+    const hijos = Array.from(el.querySelectorAll('ap-menu-lateral .hijos a')).map((a) => a.textContent?.trim())
+    expect(hijos).toContain('Desembolsos')
+    expect(hijos).toContain('Arquitectura y estado')
     expect(el.querySelector('[data-tutorial-id="cabecera-rol"]')?.textContent?.trim()).toBe('Administración de plataforma')
   })
 

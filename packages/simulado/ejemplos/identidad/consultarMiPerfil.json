@@ -9,7 +9,9 @@
       "cuerpo": {
         "usuarioId": "bc2e3b27-0085-45a9-8435-42172bcb420d",
         "correo": "correo",
-        "correoVerificado": true
+        "correoVerificado": true,
+        "estadoDeCuenta": "ACTIVO",
+        "nombreVisible": "Rosa Q."
       }
     },
     "vacio": {
@@ -17,7 +19,9 @@
       "cuerpo": {
         "usuarioId": "bc2e3b27-0085-45a9-8435-42172bcb420d",
         "correo": "correo",
-        "correoVerificado": false
+        "correoVerificado": false,
+        "estadoDeCuenta": "INCOMPLETO_KYC",
+        "nombreVisible": null
       }
     },
     "adverso": {
@@ -25,7 +29,9 @@
       "cuerpo": {
         "usuarioId": "bc2e3b27-0085-45a9-8435-42172bcb420d",
         "correo": "correo",
-        "correoVerificado": true
+        "correoVerificado": true,
+        "estadoDeCuenta": "PENDIENTE_VERIFICACION",
+        "nombreVisible": "Rosa Q."
       }
     }
   }

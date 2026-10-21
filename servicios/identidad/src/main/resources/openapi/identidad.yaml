@@ -71,6 +71,31 @@ paths:
               schema: { $ref: '#/components/schemas/VerificacionCorreoConfirmada' }
         '422': { $ref: '#/components/responses/ReglaDeNegocio' }
 
+  /usuarios/verificaciones/correo/{verificacionId}/borrador:
+    put:
+      operationId: guardarBorradorOnboarding
+      summary: Guardar avance del onboarding incompleto
+      description: >-
+        Permite persistir los datos ingresados en el formulario de alta para que la
+        persona pueda retomar su proceso tras validar nuevamente su correo.
+      parameters:
+        - name: verificacionId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/BorradorOnboarding' }
+      responses:
+        '200':
+          description: Borrador guardado exitosamente
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/BorradorOnboarding' }
+        '422': { $ref: '#/components/responses/ReglaDeNegocio' }
+
   /usuarios:
     post:
       operationId: registrarUsuario          # CU-01
@@ -944,6 +969,27 @@ components:
       required: [verificada]
       properties:
         verificada: { type: boolean }
+        onboardingIncompleto: { type: boolean }
+        borrador: { $ref: '#/components/schemas/BorradorOnboarding' }
+    BorradorOnboarding:
+      type: object
+      additionalProperties: false
+      properties:
+        correo: { type: string, format: email, maxLength: 150 }
+        telefonoE164: { type: string, pattern: '^\+591[67]\d{7}$' }
+        nombres: { type: string, maxLength: 80 }
+        apellidos: { type: string, maxLength: 80 }
+        fechaNacimiento: { type: string, format: date }
+        tipoDocumento: { type: string, enum: [CI, PASAPORTE, CARNET_EXTRANJERO] }
+        numeroDocumento: { type: string, maxLength: 30 }
+        lugarExpedicion: { type: string, maxLength: 5 }
+        fechaExpiracion: { type: string, format: date }
+        actividadEconomica: { type: string, maxLength: 10 }
+        detalleActividad: { type: string, maxLength: 100 }
+        origenDeFondos: { type: string, maxLength: 20 }
+        detalleOrigen: { type: string, maxLength: 100 }
+        montoMensualEstimado: { type: string }
+        pasoPendiente: { type: string, enum: [cuenta, correo, documento, datos, actividad, contrato] }
     MiPerfil:
       type: object
       additionalProperties: false
@@ -952,6 +998,22 @@ components:
         usuarioId:        { type: string, format: uuid }
         correo:           { type: [string, 'null'], maxLength: 150 }
         correoVerificado: { type: boolean }
+        nombreVisible:
+          type: [string, 'null']
+          maxLength: 60
+          description: >-
+            Primer nombre e inicial del apellido («Rosa Q.»): lo que ve el organizador de
+            un grupo cuando la persona pide unirse. Null si la cuenta todavia no tiene nombre.
+        nombreCompleto:
+          type: [string, 'null']
+          maxLength: 120
+          description: >-
+            Nombres y apellidos de la propia cuenta. Lo ve el organizador de un grupo en la
+            solicitud de quien pide unirse por el enlace. Null si la cuenta no tiene nombre.
+        telefono:
+          type: [string, 'null']
+          maxLength: 20
+          description: Telefono E.164 de la propia cuenta. Null si todavia no lo cargo.
         estadoDeCuenta:
           type: string
           description: >-

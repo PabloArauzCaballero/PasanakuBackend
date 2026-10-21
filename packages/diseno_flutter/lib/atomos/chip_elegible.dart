@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'hundido_al_tocar.dart';
+import 'movimiento.dart';
 import '../tokens/tokens.dart';
 
 /// Chip de elección o filtro, con o sin cierre. (`ChipElegible`: `Chip` es de Flutter.)
@@ -33,7 +34,9 @@ class ChipElegible extends StatelessWidget {
         child: InkWell(
           onTap: onTap,
           borderRadius: BorderRadius.circular(Radios.pill),
-          child: Container(
+          child: AnimatedContainer(
+            duration: duracion(context, Movimiento.cambioDeEstado),
+            curve: Movimiento.llega,
             constraints: const BoxConstraints(minHeight: Tactil.minimo),
             padding: const EdgeInsets.symmetric(
               horizontal: Espacio.s3,
@@ -46,6 +49,7 @@ class ChipElegible extends StatelessWidget {
                 width: Borde.fino,
               ),
               borderRadius: BorderRadius.circular(Radios.pill),
+              boxShadow: seleccionado ? [t.sombra1] : null,
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
@@ -55,12 +59,17 @@ class ChipElegible extends StatelessWidget {
                   const SizedBox(width: Espacio.s2),
                 ],
                 Flexible(
-                  child: Text(
-                    texto,
-                    overflow: TextOverflow.ellipsis,
-                    style: Theme.of(
-                      context,
-                    ).textTheme.labelLarge?.copyWith(color: frente),
+                  child: AnimatedDefaultTextStyle(
+                    duration: duracion(context, Movimiento.cambioDeEstado),
+                    curve: Movimiento.llega,
+                    style: (Theme.of(context).textTheme.labelLarge ?? Tipo.boton).copyWith(
+                      color: frente,
+                      fontWeight: seleccionado ? FontWeight.w600 : FontWeight.w500,
+                    ),
+                    child: Text(
+                      texto,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
                 ),
                 if (onCerrar != null) ...[

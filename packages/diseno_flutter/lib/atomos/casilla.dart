@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
+import '../moviles/alcance_haptica.dart';
 import '../tokens/tokens.dart';
 
 /// Casilla con su etiqueta como una sola cosa tocable (48 dp).
@@ -22,7 +25,12 @@ class Casilla extends StatelessWidget {
     final t = Tokens.of(context);
     return CheckboxListTile(
       value: valor,
-      onChanged: onChanged == null ? null : (v) => onChanged!(v ?? false),
+      onChanged: onChanged == null
+          ? null
+          : (v) {
+              unawaited(AlcanceHaptica.maybeOf(context)?.seleccion());
+              onChanged!(v ?? false);
+            },
       title: Text(etiqueta),
       subtitle: detalle == null ? null : Text(detalle!),
       controlAffinity: ListTileControlAffinity.leading,

@@ -43,7 +43,7 @@ ThemeData temaDesde(Tokens t, Brightness brillo) {
     textTheme: _textoDesde(t),
     dividerColor: t.border,
     dividerTheme: DividerThemeData(color: t.border, space: 1, thickness: 1),
-    splashFactory: InkSparkle.splashFactory,
+    splashFactory: InkRipple.splashFactory,
     extensions: [t],
   );
   return base.copyWith(

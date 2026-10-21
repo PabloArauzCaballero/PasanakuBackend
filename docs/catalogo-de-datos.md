@@ -18,14 +18,14 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `pago_id` | UUID | — | UUID, obligatoria, referencia a `pago`. | NINGUNA |
-| `archivo_url` | VARCHAR(255) | — | VARCHAR(255), obligatoria. | NINGUNA |
-| `hash_archivo` | VARCHAR(64) | — | VARCHAR(64), obligatoria. | DERIVADO |
-| `estado_revision` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `revisado_por` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
-| `segunda_revision_por` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
-| `motivo_rechazo` | VARCHAR(200) | — | VARCHAR(200), opcional. | NINGUNA |
-| `fecha_revision` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `pago_id` | UUID | Referencia por clave foránea a la entidad `pago`. | UUID, obligatoria, referencia a `pago`, restricción única. | NINGUNA |
+| `archivo_url` | VARCHAR(255) | Localizador uniforme de recursos (URL/URI) correspondiente a archivo. | VARCHAR(255), obligatoria. | NINGUNA |
+| `hash_archivo` | VARCHAR(64) | Resumen criptográfico SHA-256 para verificación inmutable de archivo. | VARCHAR(64), obligatoria, sensibilidad derivado. | DERIVADO |
+| `estado_revision` | VARCHAR(15) | Atributo que representa estado revision en el modelo de `comprobante_manual`. | VARCHAR(15), obligatoria. | NINGUNA |
+| `revisado_por` | UUID | Identificador del usuario u operador que realizó la revisión técnica o de gobierno. | UUID, opcional, referencia a `usuario`. | NINGUNA |
+| `segunda_revision_por` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, opcional, referencia a `usuario`. | NINGUNA |
+| `motivo_rechazo` | VARCHAR(200) | Atributo que representa motivo rechazo en el modelo de `comprobante_manual`. | VARCHAR(200), opcional. | NINGUNA |
+| `fecha_revision` | TIMESTAMPTZ | Marca temporal o fecha de revision en `comprobante_manual`. | TIMESTAMPTZ, opcional. | NINGUNA |
 
 ### `conciliacion`
 
@@ -40,13 +40,13 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `pago_id` | UUID | — | UUID, obligatoria, referencia a `pago`. | NINGUNA |
-| `movimiento_bancario_id` | UUID | — | UUID, opcional, referencia a `movimiento_bancario`. | NINGUNA |
-| `estado` | VARCHAR(25) | — | VARCHAR(25), obligatoria. | NINGUNA |
-| `metodo` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
-| `diferencia_monto` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
-| `conciliado_por` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
-| `fecha_conciliacion` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `pago_id` | UUID | Referencia por clave foránea a la entidad `pago`. | UUID, obligatoria, referencia a `pago`, restricción única. | NINGUNA |
+| `movimiento_bancario_id` | UUID | Referencia por clave foránea a la entidad `movimiento_bancario`. | UUID, opcional, referencia a `movimiento_bancario`, restricción única. | NINGUNA |
+| `estado` | VARCHAR(25) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(25), obligatoria, índice b-tree. | NINGUNA |
+| `metodo` | VARCHAR(20) | Atributo que representa metodo en el modelo de `conciliacion`. | VARCHAR(20), obligatoria. | NINGUNA |
+| `diferencia_monto` | DECIMAL(14,2) | Importe monetario correspondiente a diferencia en `conciliacion`. | DECIMAL(14,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `conciliado_por` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, opcional, referencia a `usuario`. | NINGUNA |
+| `fecha_conciliacion` | TIMESTAMPTZ | Marca temporal o fecha de conciliacion en `conciliacion`. | TIMESTAMPTZ, opcional. | NINGUNA |
 
 ### `constancia_pago`
 
@@ -61,12 +61,12 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `pago_id` | UUID | — | UUID, obligatoria, referencia a `pago`. | NINGUNA |
-| `codigo_verificacion` | VARCHAR(40) | — | VARCHAR(40), obligatoria. | NINGUNA |
-| `hash_contenido` | VARCHAR(64) | — | VARCHAR(64), obligatoria. | DERIVADO |
-| `url_publica` | VARCHAR(255) | — | VARCHAR(255), obligatoria. | NINGUNA |
-| `url_pdf` | VARCHAR(255) | — | VARCHAR(255), obligatoria. | NINGUNA |
-| `fecha_generacion` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `pago_id` | UUID | Referencia por clave foránea a la entidad `pago`. | UUID, obligatoria, referencia a `pago`, restricción única. | NINGUNA |
+| `codigo_verificacion` | VARCHAR(40) | Código normalizado o mnemotécnico de verificacion. | VARCHAR(40), obligatoria, restricción única. | NINGUNA |
+| `hash_contenido` | VARCHAR(64) | Resumen criptográfico SHA-256 para verificación inmutable de contenido. | VARCHAR(64), obligatoria, sensibilidad derivado. | DERIVADO |
+| `url_publica` | VARCHAR(255) | Localizador uniforme de recursos (URL/URI) correspondiente a publica. | VARCHAR(255), obligatoria. | NINGUNA |
+| `url_pdf` | VARCHAR(255) | Localizador uniforme de recursos (URL/URI) correspondiente a pdf. | VARCHAR(255), obligatoria. | NINGUNA |
+| `fecha_generacion` | TIMESTAMPTZ | Marca temporal o fecha de generacion en `constancia_pago`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 
 ### `disputa_pago`
 
@@ -81,15 +81,15 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `pago_id` | UUID | — | UUID, obligatoria, referencia a `pago`. | NINGUNA |
-| `tipo` | VARCHAR(25) | — | VARCHAR(25), obligatoria. | NINGUNA |
-| `descripcion` | TEXT | — | TEXT, obligatoria. | NINGUNA |
-| `monto_disputado` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
-| `estado` | VARCHAR(25) | — | VARCHAR(25), obligatoria. | NINGUNA |
-| `evidencias` | JSONB | — | JSONB, obligatoria. | NINGUNA |
-| `abierta_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `fecha_limite_respuesta` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `resuelta_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `pago_id` | UUID | Referencia por clave foránea a la entidad `pago`. | UUID, obligatoria, referencia a `pago`, índice b-tree. | NINGUNA |
+| `tipo` | VARCHAR(25) | Subtipo o modalidad específica que determina las reglas operativas aplicables al registro. | VARCHAR(25), obligatoria. | NINGUNA |
+| `descripcion` | TEXT | Detalle descriptivo que explica el contenido, propósito o contexto de la entidad. | TEXT, obligatoria. | NINGUNA |
+| `monto_disputado` | DECIMAL(14,2) | Importe monetario correspondiente a disputado en `disputa_pago`. | DECIMAL(14,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `estado` | VARCHAR(25) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(25), obligatoria. | NINGUNA |
+| `evidencias` | JSONB | Atributo que representa evidencias en el modelo de `disputa_pago`. | JSONB, obligatoria. | NINGUNA |
+| `abierta_en` | TIMESTAMPTZ | Marca temporal o fecha de abierta en `disputa_pago`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `fecha_limite_respuesta` | TIMESTAMPTZ | Marca temporal o fecha de limite respuesta en `disputa_pago`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `resuelta_en` | TIMESTAMPTZ | Marca temporal o fecha de resuelta en `disputa_pago`. | TIMESTAMPTZ, opcional. | NINGUNA |
 
 ### `enlace_pago_rapido`
 
@@ -104,11 +104,11 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `orden_cobro_id` | UUID | — | UUID, obligatoria, referencia a `orden_cobro`. | NINGUNA |
-| `token_id` | UUID | — | UUID, obligatoria, referencia a `token_verificacion`. | SECRETO |
-| `url_corta` | VARCHAR(60) | — | VARCHAR(60), obligatoria. | NINGUNA |
-| `clicks` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `expira_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `orden_cobro_id` | UUID | Referencia por clave foránea a la entidad `orden_cobro`. | UUID, obligatoria, referencia a `orden_cobro`, restricción única. | NINGUNA |
+| `token_id` | UUID | Referencia por clave foránea a la entidad `token_verificacion`. | UUID, obligatoria, referencia a `token_verificacion`, restricción única, sensibilidad secreto. | SECRETO |
+| `url_corta` | VARCHAR(60) | Localizador uniforme de recursos (URL/URI) correspondiente a corta. | VARCHAR(60), obligatoria, restricción única. | NINGUNA |
+| `clicks` | SMALLINT | Atributo que representa clicks en el modelo de `enlace_pago_rapido`. | SMALLINT, obligatoria. | NINGUNA |
+| `expira_en` | TIMESTAMPTZ | Marca temporal o fecha de expira en `enlace_pago_rapido`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 
 ### `excepcion_conciliacion`
 
@@ -123,15 +123,15 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `conciliacion_id` | UUID | — | UUID, obligatoria, referencia a `conciliacion`. | NINGUNA |
-| `tipo` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
-| `descripcion` | VARCHAR(300) | — | VARCHAR(300), obligatoria. | NINGUNA |
-| `monto_diferencia` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
-| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `asignada_a` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
-| `resolucion` | VARCHAR(300) | — | VARCHAR(300), opcional. | NINGUNA |
-| `abierta_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `resuelta_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `conciliacion_id` | UUID | Referencia por clave foránea a la entidad `conciliacion`. | UUID, obligatoria, referencia a `conciliacion`, índice b-tree. | NINGUNA |
+| `tipo` | VARCHAR(30) | Subtipo o modalidad específica que determina las reglas operativas aplicables al registro. | VARCHAR(30), obligatoria. | NINGUNA |
+| `descripcion` | VARCHAR(300) | Detalle descriptivo que explica el contenido, propósito o contexto de la entidad. | VARCHAR(300), obligatoria. | NINGUNA |
+| `monto_diferencia` | DECIMAL(14,2) | Importe monetario correspondiente a diferencia en `excepcion_conciliacion`. | DECIMAL(14,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `estado` | VARCHAR(15) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(15), obligatoria, índice b-tree. | NINGUNA |
+| `asignada_a` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, opcional, referencia a `usuario`. | NINGUNA |
+| `resolucion` | VARCHAR(300) | Atributo que representa resolucion en el modelo de `excepcion_conciliacion`. | VARCHAR(300), opcional. | NINGUNA |
+| `abierta_en` | TIMESTAMPTZ | Marca temporal o fecha de abierta en `excepcion_conciliacion`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `resuelta_en` | TIMESTAMPTZ | Marca temporal o fecha de resuelta en `excepcion_conciliacion`. | TIMESTAMPTZ, opcional. | NINGUNA |
 
 ### `extracto_bancario`
 
@@ -146,15 +146,15 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `proveedor_id` | UUID | — | UUID, obligatoria, referencia a `proveedor_pago`. | NINGUNA |
-| `cuenta` | VARCHAR(40) | — | VARCHAR(40), obligatoria. | NINGUNA |
-| `fecha_desde` | DATE | — | DATE, obligatoria. | NINGUNA |
-| `fecha_hasta` | DATE | — | DATE, obligatoria. | NINGUNA |
-| `saldo_inicial` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
-| `saldo_final` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
-| `archivo_url` | VARCHAR(255) | — | VARCHAR(255), obligatoria. | NINGUNA |
-| `importado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `importado_por` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
+| `proveedor_id` | UUID | Referencia por clave foránea a la entidad `proveedor_pago`. | UUID, obligatoria, referencia a `proveedor_pago`. | NINGUNA |
+| `cuenta` | VARCHAR(40) | Atributo que representa cuenta en el modelo de `extracto_bancario`. | VARCHAR(40), obligatoria. | NINGUNA |
+| `fecha_desde` | DATE | Marca temporal o fecha de desde en `extracto_bancario`. | DATE, obligatoria. | NINGUNA |
+| `fecha_hasta` | DATE | Marca temporal o fecha de hasta en `extracto_bancario`. | DATE, obligatoria. | NINGUNA |
+| `saldo_inicial` | DECIMAL(14,2) | Atributo que representa saldo inicial en el modelo de `extracto_bancario`. | DECIMAL(14,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `saldo_final` | DECIMAL(14,2) | Atributo que representa saldo final en el modelo de `extracto_bancario`. | DECIMAL(14,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `archivo_url` | VARCHAR(255) | Localizador uniforme de recursos (URL/URI) correspondiente a archivo. | VARCHAR(255), obligatoria. | NINGUNA |
+| `importado_en` | TIMESTAMPTZ | Marca temporal o fecha de importado en `extracto_bancario`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `importado_por` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
 
 ### `intento_pago`
 
@@ -169,14 +169,14 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `orden_cobro_id` | UUID | — | UUID, obligatoria, referencia a `orden_cobro`. | NINGUNA |
-| `numero_intento` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `canal` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
-| `iniciado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `finalizado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
-| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `codigo_error` | VARCHAR(40) | — | VARCHAR(40), opcional. | NINGUNA |
-| `mensaje_proveedor` | VARCHAR(255) | — | VARCHAR(255), opcional. | NINGUNA |
+| `orden_cobro_id` | UUID | Referencia por clave foránea a la entidad `orden_cobro`. | UUID, obligatoria, referencia a `orden_cobro`, índice b-tree. | NINGUNA |
+| `numero_intento` | SMALLINT | Numeración secuencial o identificador numérico de intento. | SMALLINT, obligatoria. | NINGUNA |
+| `canal` | VARCHAR(30) | Atributo que representa canal en el modelo de `intento_pago`. | VARCHAR(30), obligatoria. | NINGUNA |
+| `iniciado_en` | TIMESTAMPTZ | Marca temporal o fecha de iniciado en `intento_pago`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `finalizado_en` | TIMESTAMPTZ | Marca temporal o fecha de finalizado en `intento_pago`. | TIMESTAMPTZ, opcional. | NINGUNA |
+| `estado` | VARCHAR(15) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(15), obligatoria. | NINGUNA |
+| `codigo_error` | VARCHAR(40) | Código normalizado o mnemotécnico de error. | VARCHAR(40), opcional. | NINGUNA |
+| `mensaje_proveedor` | VARCHAR(255) | Atributo que representa mensaje proveedor en el modelo de `intento_pago`. | VARCHAR(255), opcional. | NINGUNA |
 | `clave_idempotencia` | VARCHAR(80) | Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4). | VARCHAR(80), obligatoria. | NINGUNA |
 
 ### `movimiento_bancario`
@@ -192,14 +192,14 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `extracto_id` | UUID | — | UUID, obligatoria, referencia a `extracto_bancario`. | NINGUNA |
-| `fecha_movimiento` | DATE | — | DATE, obligatoria. | NINGUNA |
-| `monto` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
+| `extracto_id` | UUID | Referencia por clave foránea a la entidad `extracto_bancario`. | UUID, obligatoria, referencia a `extracto_bancario`, índice b-tree. | NINGUNA |
+| `fecha_movimiento` | DATE | Marca temporal o fecha de movimiento en `movimiento_bancario`. | DATE, obligatoria, índice b-tree. | NINGUNA |
+| `monto` | DECIMAL(14,2) | Importe monetario principal de la transacción o concepto financiero. | DECIMAL(14,2), obligatoria, sensibilidad financiero. | FINANCIERO |
 | `moneda` | CHAR(3) | Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2). | CHAR(3), obligatoria. | NINGUNA |
-| `glosa` | VARCHAR(200) | — | VARCHAR(200), obligatoria. | NINGUNA |
-| `referencia_banco` | VARCHAR(80) | — | VARCHAR(80), obligatoria. | NINGUNA |
-| `cuenta_origen` | VARCHAR(40) | — | VARCHAR(40), opcional. | NINGUNA |
-| `conciliado` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
+| `glosa` | VARCHAR(200) | Atributo que representa glosa en el modelo de `movimiento_bancario`. | VARCHAR(200), obligatoria, índice b-tree. | NINGUNA |
+| `referencia_banco` | VARCHAR(80) | Atributo que representa referencia banco en el modelo de `movimiento_bancario`. | VARCHAR(80), obligatoria, restricción única. | NINGUNA |
+| `cuenta_origen` | VARCHAR(40) | Atributo que representa cuenta origen en el modelo de `movimiento_bancario`. | VARCHAR(40), opcional. | NINGUNA |
+| `conciliado` | BOOLEAN | Atributo que representa conciliado en el modelo de `movimiento_bancario`. | BOOLEAN, obligatoria, índice b-tree. | NINGUNA |
 
 ### `obligacion_aporte`
 
@@ -214,27 +214,27 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `grupo_id` | UUID | — | UUID, obligatoria, referencia a `grupo`. | NINGUNA |
-| `periodo_id` | UUID | — | UUID, obligatoria, referencia a `periodo`. | NINGUNA |
-| `cupo_id` | UUID | — | UUID, obligatoria, referencia a `cupo`. | NINGUNA |
-| `participante_id` | UUID | — | UUID, obligatoria, referencia a `participante`. | NINGUNA |
-| `politica_mora_id` | UUID | — | UUID, opcional, referencia a `politica_mora`. | NINGUNA |
-| `obligacion_origen_id` | UUID | — | UUID, opcional, referencia a `obligacion_aporte`. | NINGUNA |
-| `plan_regularizacion_id` | UUID | — | UUID, opcional, referencia a `plan_regularizacion`. | NINGUNA |
-| `tipo` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
-| `monto_esperado` | DECIMAL(14,2) | lo que se pactó. **Nunca cambia.** | DECIMAL(14,2), obligatoria. | FINANCIERO |
+| `grupo_id` | UUID | Referencia al grupo de pasanaku en el que se enmarca esta operación. | UUID, obligatoria, referencia a `grupo`, índice b-tree. | NINGUNA |
+| `periodo_id` | UUID | Referencia por clave foránea a la entidad `periodo`. | UUID, obligatoria, referencia a `periodo`, índice b-tree. | NINGUNA |
+| `cupo_id` | UUID | Referencia por clave foránea a la entidad `cupo`. | UUID, obligatoria, referencia a `cupo`, índice b-tree. | NINGUNA |
+| `participante_id` | UUID | Referencia al miembro participante en el círculo de ahorro pasanaku. | UUID, obligatoria, referencia a `participante`, índice b-tree. | NINGUNA |
+| `politica_mora_id` | UUID | Referencia por clave foránea a la entidad `politica_mora`. | UUID, opcional, referencia a `politica_mora`. | NINGUNA |
+| `obligacion_origen_id` | UUID | Referencia por clave foránea a la entidad `obligacion_aporte`. | UUID, opcional, referencia a `obligacion_aporte`. | NINGUNA |
+| `plan_regularizacion_id` | UUID | Referencia por clave foránea a la entidad `plan_regularizacion`. | UUID, opcional, referencia a `plan_regularizacion`. | NINGUNA |
+| `tipo` | VARCHAR(30) | Subtipo o modalidad específica que determina las reglas operativas aplicables al registro. | VARCHAR(30), obligatoria. | NINGUNA |
+| `monto_esperado` | DECIMAL(14,2) | lo que se pactó. **Nunca cambia.** | DECIMAL(14,2), obligatoria, sensibilidad financiero. | FINANCIERO |
 | `moneda` | CHAR(3) | Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2). | CHAR(3), obligatoria. | NINGUNA |
-| `monto_pagado` | DECIMAL(14,2) | lo que efectivamente entró y se concilió. | DECIMAL(14,2), obligatoria. | FINANCIERO |
-| `monto_recargo` | DECIMAL(14,2) | la mora acumulada. | DECIMAL(14,2), obligatoria. | FINANCIERO |
-| `monto_condonado` | DECIMAL(14,2) | lo que el grupo decidió perdonar (por acuerdo, M2). | DECIMAL(14,2), obligatoria. | FINANCIERO |
-| `monto_cubierto_garantia` | DECIMAL(14,2) | lo que puso el fondo para que el grupo no se detenga (M8). **Ojo: cubierto no es pagado.** El participante sigue debiendo esa plata, pero ahora se la debe al fondo, no al grupo. | DECIMAL(14,2), obligatoria. | FINANCIERO |
-| `saldo_pendiente` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria, calculada por la base, no se escribe. | FINANCIERO |
-| `estado` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
-| `fecha_vencimiento` | DATE | — | DATE, obligatoria. | NINGUNA |
-| `fecha_fin_gracia` | DATE | — | DATE, obligatoria. | NINGUNA |
-| `fecha_pago_efectivo` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
-| `dias_mora` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `version` | INTEGER | — | INTEGER, obligatoria. | NINGUNA |
+| `monto_pagado` | DECIMAL(14,2) | lo que efectivamente entró y se concilió. | DECIMAL(14,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `monto_recargo` | DECIMAL(14,2) | la mora acumulada. | DECIMAL(14,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `monto_condonado` | DECIMAL(14,2) | lo que el grupo decidió perdonar (por acuerdo, M2). | DECIMAL(14,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `monto_cubierto_garantia` | DECIMAL(14,2) | lo que puso el fondo para que el grupo no se detenga (M8). **Ojo: cubierto no es pagado.** El participante sigue debiendo esa plata, pero ahora se la debe al fondo, no al grupo. | DECIMAL(14,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `saldo_pendiente` | DECIMAL(14,2) | Atributo que representa saldo pendiente en el modelo de `obligacion_aporte`. | DECIMAL(14,2), obligatoria, calculada por la base, no se escribe, sensibilidad financiero. | FINANCIERO |
+| `estado` | VARCHAR(30) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(30), obligatoria, índice b-tree. | NINGUNA |
+| `fecha_vencimiento` | DATE | Marca temporal o fecha de vencimiento en `obligacion_aporte`. | DATE, obligatoria, índice b-tree. | NINGUNA |
+| `fecha_fin_gracia` | DATE | Marca temporal o fecha de fin gracia en `obligacion_aporte`. | DATE, obligatoria. | NINGUNA |
+| `fecha_pago_efectivo` | TIMESTAMPTZ | Marca temporal o fecha de pago efectivo en `obligacion_aporte`. | TIMESTAMPTZ, opcional. | NINGUNA |
+| `dias_mora` | SMALLINT | Atributo que representa dias mora en el modelo de `obligacion_aporte`. | SMALLINT, obligatoria. | NINGUNA |
+| `version` | INTEGER | Número de versión para control de concurrencia optimista y auditoría de modificaciones. | INTEGER, obligatoria. | NINGUNA |
 
 ### `orden_cobro`
 
@@ -249,15 +249,15 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `obligacion_id` | UUID | — | UUID, obligatoria, referencia a `obligacion_aporte`. | NINGUNA |
-| `proveedor_id` | UUID | — | UUID, obligatoria, referencia a `proveedor_pago`. | NINGUNA |
-| `monto_exacto` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
+| `obligacion_id` | UUID | Referencia por clave foránea a la entidad `obligacion_aporte`. | UUID, obligatoria, referencia a `obligacion_aporte`, índice b-tree. | NINGUNA |
+| `proveedor_id` | UUID | Referencia por clave foránea a la entidad `proveedor_pago`. | UUID, obligatoria, referencia a `proveedor_pago`. | NINGUNA |
+| `monto_exacto` | DECIMAL(14,2) | Importe monetario correspondiente a exacto en `orden_cobro`. | DECIMAL(14,2), obligatoria, sensibilidad financiero. | FINANCIERO |
 | `moneda` | CHAR(3) | Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2). | CHAR(3), obligatoria. | NINGUNA |
-| `permite_monto_abierto` | BOOLEAN | — | BOOLEAN, obligatoria. | FINANCIERO |
-| `referencia_unica` | VARCHAR(60) | — | VARCHAR(60), obligatoria. | NINGUNA |
-| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `emitida_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `expira_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `permite_monto_abierto` | BOOLEAN | Atributo que representa permite monto abierto en el modelo de `orden_cobro`. | BOOLEAN, obligatoria, sensibilidad financiero. | FINANCIERO |
+| `referencia_unica` | VARCHAR(60) | Atributo que representa referencia unica en el modelo de `orden_cobro`. | VARCHAR(60), obligatoria, restricción única. | NINGUNA |
+| `estado` | VARCHAR(15) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(15), obligatoria, índice b-tree. | NINGUNA |
+| `emitida_en` | TIMESTAMPTZ | Marca temporal o fecha de emitida en `orden_cobro`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `expira_en` | TIMESTAMPTZ | Marca temporal o fecha de expira en `orden_cobro`. | TIMESTAMPTZ, obligatoria, índice b-tree. | NINGUNA |
 | `clave_idempotencia` | VARCHAR(80) | Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4). | VARCHAR(80), obligatoria. | NINGUNA |
 
 ### `pago`
@@ -273,23 +273,23 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `obligacion_id` | UUID | — | UUID, obligatoria, referencia a `obligacion_aporte`. | NINGUNA |
-| `intento_pago_id` | UUID | — | UUID, opcional, referencia a `intento_pago`. | NINGUNA |
-| `proveedor_id` | UUID | — | UUID, opcional, referencia a `proveedor_pago`. | NINGUNA |
-| `monto` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
+| `obligacion_id` | UUID | Referencia por clave foránea a la entidad `obligacion_aporte`. | UUID, obligatoria, referencia a `obligacion_aporte`, índice b-tree. | NINGUNA |
+| `intento_pago_id` | UUID | Referencia por clave foránea a la entidad `intento_pago`. | UUID, opcional, referencia a `intento_pago`, restricción única. | NINGUNA |
+| `proveedor_id` | UUID | Referencia por clave foránea a la entidad `proveedor_pago`. | UUID, opcional, referencia a `proveedor_pago`, índice b-tree. | NINGUNA |
+| `monto` | DECIMAL(14,2) | Importe monetario principal de la transacción o concepto financiero. | DECIMAL(14,2), obligatoria, sensibilidad financiero. | FINANCIERO |
 | `moneda` | CHAR(3) | Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2). | CHAR(3), obligatoria. | NINGUNA |
-| `monto_comision_proveedor` | DECIMAL(10,2) | — | DECIMAL(10,2), obligatoria. | FINANCIERO |
-| `monto_neto_acreditado` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
-| `canal` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
-| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `fecha_hora_pago` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `fecha_hora_acreditacion` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
-| `referencia_proveedor` | VARCHAR(80) | — | VARCHAR(80), obligatoria. | NINGUNA |
-| `pagador_nombre` | VARCHAR(120) | — | VARCHAR(120), opcional. | NINGUNA |
-| `pagador_documento` | VARCHAR(30) | — | VARCHAR(30), opcional. | PERSONAL |
-| `cuenta_origen_enmascarada` | VARCHAR(40) | — | VARCHAR(40), opcional. | NINGUNA |
-| `registrado_por` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
-| `es_manual` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
+| `monto_comision_proveedor` | DECIMAL(10,2) | Importe monetario correspondiente a comision proveedor en `pago`. | DECIMAL(10,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `monto_neto_acreditado` | DECIMAL(14,2) | Importe monetario correspondiente a neto acreditado en `pago`. | DECIMAL(14,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `canal` | VARCHAR(30) | Atributo que representa canal en el modelo de `pago`. | VARCHAR(30), obligatoria. | NINGUNA |
+| `estado` | VARCHAR(15) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(15), obligatoria, índice b-tree. | NINGUNA |
+| `fecha_hora_pago` | TIMESTAMPTZ | Marca temporal o fecha de hora pago en `pago`. | TIMESTAMPTZ, obligatoria, índice b-tree. | NINGUNA |
+| `fecha_hora_acreditacion` | TIMESTAMPTZ | Marca temporal o fecha de hora acreditacion en `pago`. | TIMESTAMPTZ, opcional. | NINGUNA |
+| `referencia_proveedor` | VARCHAR(80) | Atributo que representa referencia proveedor en el modelo de `pago`. | VARCHAR(80), obligatoria, restricción única. | NINGUNA |
+| `pagador_nombre` | VARCHAR(120) | Atributo que representa pagador nombre en el modelo de `pago`. | VARCHAR(120), opcional. | NINGUNA |
+| `pagador_documento` | VARCHAR(30) | Atributo que representa pagador documento en el modelo de `pago`. | VARCHAR(30), opcional, sensibilidad personal. | PERSONAL |
+| `cuenta_origen_enmascarada` | VARCHAR(40) | Atributo que representa cuenta origen enmascarada en el modelo de `pago`. | VARCHAR(40), opcional. | NINGUNA |
+| `registrado_por` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, opcional, referencia a `usuario`. | NINGUNA |
+| `es_manual` | BOOLEAN | Indicador booleano que señala si manual en `pago`. | BOOLEAN, obligatoria. | NINGUNA |
 | `clave_idempotencia` | VARCHAR(80) | Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4). | VARCHAR(80), obligatoria. | NINGUNA |
 
 ### `plan_regularizacion`
@@ -305,12 +305,12 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `participante_id` | UUID | — | UUID, obligatoria, referencia a `participante`. | NINGUNA |
-| `monto_total` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
-| `num_cuotas` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `aprobado_por` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `creado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `participante_id` | UUID | Referencia al miembro participante en el círculo de ahorro pasanaku. | UUID, obligatoria, referencia a `participante`, índice b-tree. | NINGUNA |
+| `monto_total` | DECIMAL(14,2) | Importe monetario correspondiente a total en `plan_regularizacion`. | DECIMAL(14,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `num_cuotas` | SMALLINT | Atributo que representa num cuotas en el modelo de `plan_regularizacion`. | SMALLINT, obligatoria. | NINGUNA |
+| `estado` | VARCHAR(15) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(15), obligatoria. | NINGUNA |
+| `aprobado_por` | UUID | Identificador del usuario con facultades que autorizó la operación. | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
+| `creado_en` | TIMESTAMPTZ | Marca temporal UTC en que el registro fue creado en la base de datos. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 
 ### `politica_mora`
 
@@ -325,14 +325,14 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `grupo_id` | UUID | — | UUID, opcional, referencia a `grupo`. | NINGUNA |
-| `dias_gracia` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `tipo_recargo` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
-| `valor_recargo` | DECIMAL(10,2) | — | DECIMAL(10,2), obligatoria. | NINGUNA |
-| `tope_recargo` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | NINGUNA |
-| `dias_para_mora_grave` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `dias_para_incumplimiento` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `aplica_automatico` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
+| `grupo_id` | UUID | Referencia al grupo de pasanaku en el que se enmarca esta operación. | UUID, opcional, referencia a `grupo`. | NINGUNA |
+| `dias_gracia` | SMALLINT | Atributo que representa dias gracia en el modelo de `politica_mora`. | SMALLINT, obligatoria. | NINGUNA |
+| `tipo_recargo` | VARCHAR(20) | Atributo que representa tipo recargo en el modelo de `politica_mora`. | VARCHAR(20), obligatoria. | NINGUNA |
+| `valor_recargo` | DECIMAL(10,2) | Atributo que representa valor recargo en el modelo de `politica_mora`. | DECIMAL(10,2), obligatoria. | NINGUNA |
+| `tope_recargo` | DECIMAL(14,2) | Atributo que representa tope recargo en el modelo de `politica_mora`. | DECIMAL(14,2), obligatoria. | NINGUNA |
+| `dias_para_mora_grave` | SMALLINT | Atributo que representa dias para mora grave en el modelo de `politica_mora`. | SMALLINT, obligatoria. | NINGUNA |
+| `dias_para_incumplimiento` | SMALLINT | Atributo que representa dias para incumplimiento en el modelo de `politica_mora`. | SMALLINT, obligatoria. | NINGUNA |
+| `aplica_automatico` | BOOLEAN | Atributo que representa aplica automatico en el modelo de `politica_mora`. | BOOLEAN, obligatoria. | NINGUNA |
 | `vigente_desde` | TIMESTAMPTZ | Desde cuándo rige esta versión de la fila: las condiciones se versionan, no se pisan. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 
 ### `proveedor_pago`
@@ -348,17 +348,17 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `codigo` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
-| `nombre` | VARCHAR(80) | — | VARCHAR(80), obligatoria. | NINGUNA |
-| `tipo` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `url_base` | VARCHAR(200) | — | VARCHAR(200), obligatoria. | NINGUNA |
-| `referencia_credenciales` | VARCHAR(120) | — | VARCHAR(120), obligatoria. | NINGUNA |
-| `comision_fija` | DECIMAL(10,2) | — | DECIMAL(10,2), obligatoria. | NINGUNA |
-| `comision_porcentual` | DECIMAL(5,3) | — | DECIMAL(5,3), obligatoria. | NINGUNA |
-| `soporta_webhook` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
-| `soporta_consulta_estado` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
-| `activo` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
-| `prioridad` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
+| `codigo` | VARCHAR(30) | Código mnemotécnico o identificador legible para operadores y personas usuarias. | VARCHAR(30), obligatoria, restricción única. | NINGUNA |
+| `nombre` | VARCHAR(80) | Nombre descriptivo de la entidad para visualización y referencia en el sistema. | VARCHAR(80), obligatoria. | NINGUNA |
+| `tipo` | VARCHAR(15) | Subtipo o modalidad específica que determina las reglas operativas aplicables al registro. | VARCHAR(15), obligatoria. | NINGUNA |
+| `url_base` | VARCHAR(200) | Localizador uniforme de recursos (URL/URI) correspondiente a base. | VARCHAR(200), obligatoria. | NINGUNA |
+| `referencia_credenciales` | VARCHAR(120) | Atributo que representa referencia credenciales en el modelo de `proveedor_pago`. | VARCHAR(120), obligatoria. | NINGUNA |
+| `comision_fija` | DECIMAL(10,2) | Atributo que representa comision fija en el modelo de `proveedor_pago`. | DECIMAL(10,2), obligatoria. | NINGUNA |
+| `comision_porcentual` | DECIMAL(5,3) | Atributo que representa comision porcentual en el modelo de `proveedor_pago`. | DECIMAL(5,3), obligatoria. | NINGUNA |
+| `soporta_webhook` | BOOLEAN | Atributo que representa soporta webhook en el modelo de `proveedor_pago`. | BOOLEAN, obligatoria. | NINGUNA |
+| `soporta_consulta_estado` | BOOLEAN | Atributo que representa soporta consulta estado en el modelo de `proveedor_pago`. | BOOLEAN, obligatoria. | NINGUNA |
+| `activo` | BOOLEAN | Indicador booleano que determina si el registro se encuentra actualmente operativo. | BOOLEAN, obligatoria. | NINGUNA |
+| `prioridad` | SMALLINT | Atributo que representa prioridad en el modelo de `proveedor_pago`. | SMALLINT, obligatoria. | NINGUNA |
 
 ### `qr_cobro`
 
@@ -373,14 +373,14 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `orden_cobro_id` | UUID | — | UUID, obligatoria, referencia a `orden_cobro`. | NINGUNA |
-| `payload_emv` | TEXT | — | TEXT, obligatoria. | NINGUNA |
-| `url_imagen` | VARCHAR(255) | — | VARCHAR(255), obligatoria. | NINGUNA |
-| `crc` | VARCHAR(8) | — | VARCHAR(8), obligatoria. | NINGUNA |
-| `banco_emisor` | VARCHAR(60) | — | VARCHAR(60), obligatoria. | NINGUNA |
-| `cuenta_abono` | VARCHAR(40) | — | VARCHAR(40), obligatoria. | NINGUNA |
-| `es_reutilizable` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
-| `escaneos` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
+| `orden_cobro_id` | UUID | Referencia por clave foránea a la entidad `orden_cobro`. | UUID, obligatoria, referencia a `orden_cobro`, restricción única. | NINGUNA |
+| `payload_emv` | TEXT | Atributo que representa payload emv en el modelo de `qr_cobro`. | TEXT, obligatoria. | NINGUNA |
+| `url_imagen` | VARCHAR(255) | Localizador uniforme de recursos (URL/URI) correspondiente a imagen. | VARCHAR(255), obligatoria. | NINGUNA |
+| `crc` | VARCHAR(8) | Atributo que representa crc en el modelo de `qr_cobro`. | VARCHAR(8), obligatoria. | NINGUNA |
+| `banco_emisor` | VARCHAR(60) | Atributo que representa banco emisor en el modelo de `qr_cobro`. | VARCHAR(60), obligatoria. | NINGUNA |
+| `cuenta_abono` | VARCHAR(40) | Atributo que representa cuenta abono en el modelo de `qr_cobro`. | VARCHAR(40), obligatoria. | NINGUNA |
+| `es_reutilizable` | BOOLEAN | Indicador booleano que señala si reutilizable en `qr_cobro`. | BOOLEAN, obligatoria. | NINGUNA |
+| `escaneos` | SMALLINT | Atributo que representa escaneos en el modelo de `qr_cobro`. | SMALLINT, obligatoria. | NINGUNA |
 
 ### `reembolso`
 
@@ -395,15 +395,15 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `pago_id` | UUID | — | UUID, obligatoria, referencia a `pago`. | NINGUNA |
-| `monto` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
-| `motivo` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
-| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `referencia_proveedor` | VARCHAR(80) | — | VARCHAR(80), opcional. | NINGUNA |
-| `solicitado_por` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `aprobado_por` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
-| `fecha_solicitud` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `fecha_ejecucion` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `pago_id` | UUID | Referencia por clave foránea a la entidad `pago`. | UUID, obligatoria, referencia a `pago`, índice b-tree. | NINGUNA |
+| `monto` | DECIMAL(14,2) | Importe monetario principal de la transacción o concepto financiero. | DECIMAL(14,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `motivo` | VARCHAR(30) | Justificación declarada o causal que originó la creación, rechazo o transición del registro. | VARCHAR(30), obligatoria. | NINGUNA |
+| `estado` | VARCHAR(15) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(15), obligatoria. | NINGUNA |
+| `referencia_proveedor` | VARCHAR(80) | Atributo que representa referencia proveedor en el modelo de `reembolso`. | VARCHAR(80), opcional. | NINGUNA |
+| `solicitado_por` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
+| `aprobado_por` | UUID | Identificador del usuario con facultades que autorizó la operación. | UUID, opcional, referencia a `usuario`. | NINGUNA |
+| `fecha_solicitud` | TIMESTAMPTZ | Marca temporal o fecha de solicitud en `reembolso`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `fecha_ejecucion` | TIMESTAMPTZ | Marca temporal o fecha de ejecucion en `reembolso`. | TIMESTAMPTZ, opcional. | NINGUNA |
 
 ### `webhook_pasarela`
 
@@ -418,18 +418,18 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `proveedor_id` | UUID | — | UUID, obligatoria, referencia a `proveedor_pago`. | NINGUNA |
-| `evento` | VARCHAR(60) | — | VARCHAR(60), obligatoria. | NINGUNA |
-| `payload_crudo` | JSONB | — | JSONB, obligatoria. | NINGUNA |
-| `firma` | VARCHAR(255) | — | VARCHAR(255), obligatoria. | NINGUNA |
-| `firma_valida` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
-| `recibido_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `procesado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
-| `intentos_procesamiento` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
+| `proveedor_id` | UUID | Referencia por clave foránea a la entidad `proveedor_pago`. | UUID, obligatoria, referencia a `proveedor_pago`, índice b-tree. | NINGUNA |
+| `evento` | VARCHAR(60) | Atributo que representa evento en el modelo de `webhook_pasarela`. | VARCHAR(60), obligatoria. | NINGUNA |
+| `payload_crudo` | JSONB | Atributo que representa payload crudo en el modelo de `webhook_pasarela`. | JSONB, obligatoria. | NINGUNA |
+| `firma` | VARCHAR(255) | Atributo que representa firma en el modelo de `webhook_pasarela`. | VARCHAR(255), obligatoria. | NINGUNA |
+| `firma_valida` | BOOLEAN | Atributo que representa firma valida en el modelo de `webhook_pasarela`. | BOOLEAN, obligatoria. | NINGUNA |
+| `recibido_en` | TIMESTAMPTZ | Marca temporal o fecha de recibido en `webhook_pasarela`. | TIMESTAMPTZ, obligatoria, índice b-tree. | NINGUNA |
+| `procesado_en` | TIMESTAMPTZ | Marca temporal o fecha de procesado en `webhook_pasarela`. | TIMESTAMPTZ, opcional. | NINGUNA |
+| `intentos_procesamiento` | SMALLINT | Atributo que representa intentos procesamiento en el modelo de `webhook_pasarela`. | SMALLINT, obligatoria. | NINGUNA |
+| `estado` | VARCHAR(15) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(15), obligatoria, índice b-tree. | NINGUNA |
 | `clave_idempotencia` | VARCHAR(120) | Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4). | VARCHAR(120), obligatoria. | NINGUNA |
-| `error_procesamiento` | TEXT | — | TEXT, opcional. | NINGUNA |
-| `pago_id` | UUID | — | UUID, opcional, referencia a `pago`. | NINGUNA |
+| `error_procesamiento` | TEXT | Atributo que representa error procesamiento en el modelo de `webhook_pasarela`. | TEXT, opcional. | NINGUNA |
+| `pago_id` | UUID | Referencia por clave foránea a la entidad `pago`. | UUID, opcional, referencia a `pago`. | NINGUNA |
 
 ## Esquema `auditoria`
 
@@ -446,20 +446,20 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `regla_id` | UUID | — | UUID, obligatoria, referencia a `regla_cumplimiento`. | NINGUNA |
-| `usuario_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `grupo_id` | UUID | — | UUID, opcional, referencia a `grupo`. | NINGUNA |
-| `analista_id` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
-| `reporte_sospechoso_id` | UUID | — | UUID, opcional, referencia a `reporte_operacion_sospechosa`. | NINGUNA |
-| `operacion_tipo` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
-| `operacion_id` | UUID | — | UUID, obligatoria. | NINGUNA |
-| `monto_involucrado` | DECIMAL(16,2) | — | DECIMAL(16,2), obligatoria. | FINANCIERO |
-| `detalle_deteccion` | JSONB | — | JSONB, obligatoria. | NINGUNA |
-| `severidad` | VARCHAR(10) | — | VARCHAR(10), obligatoria. | NINGUNA |
-| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `conclusion` | VARCHAR(500) | — | VARCHAR(500), opcional. | NINGUNA |
-| `detectada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `resuelta_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `regla_id` | UUID | Referencia por clave foránea a la entidad `regla_cumplimiento`. | UUID, obligatoria, referencia a `regla_cumplimiento`, índice b-tree. | NINGUNA |
+| `usuario_id` | UUID | Referencia al usuario titular de la cuenta o actor principal de la operación. | UUID, obligatoria, referencia a `usuario`, índice b-tree. | NINGUNA |
+| `grupo_id` | UUID | Referencia al grupo de pasanaku en el que se enmarca esta operación. | UUID, opcional, referencia a `grupo`. | NINGUNA |
+| `analista_id` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, opcional, referencia a `usuario`. | NINGUNA |
+| `reporte_sospechoso_id` | UUID | Referencia por clave foránea a la entidad `reporte_operacion_sospechosa`. | UUID, opcional, referencia a `reporte_operacion_sospechosa`. | NINGUNA |
+| `operacion_tipo` | VARCHAR(30) | Atributo que representa operacion tipo en el modelo de `alerta_cumplimiento`. | VARCHAR(30), obligatoria. | NINGUNA |
+| `operacion_id` | UUID | Identificador de referencia para el concepto de operacion en `alerta_cumplimiento`. | UUID, obligatoria, índice b-tree. | NINGUNA |
+| `monto_involucrado` | DECIMAL(16,2) | Importe monetario correspondiente a involucrado en `alerta_cumplimiento`. | DECIMAL(16,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `detalle_deteccion` | JSONB | Atributo que representa detalle deteccion en el modelo de `alerta_cumplimiento`. | JSONB, obligatoria. | NINGUNA |
+| `severidad` | VARCHAR(10) | Nivel de gravedad o criticidad asignado al incidente, alerta o evento. | VARCHAR(10), obligatoria. | NINGUNA |
+| `estado` | VARCHAR(15) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(15), obligatoria, índice b-tree. | NINGUNA |
+| `conclusion` | VARCHAR(500) | Atributo que representa conclusion en el modelo de `alerta_cumplimiento`. | VARCHAR(500), opcional. | NINGUNA |
+| `detectada_en` | TIMESTAMPTZ | Marca temporal o fecha de detectada en `alerta_cumplimiento`. | TIMESTAMPTZ, obligatoria, índice b-tree. | NINGUNA |
+| `resuelta_en` | TIMESTAMPTZ | Marca temporal o fecha de resuelta en `alerta_cumplimiento`. | TIMESTAMPTZ, opcional. | NINGUNA |
 
 ### `coincidencia_lista`
 
@@ -474,13 +474,13 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `lista_id` | UUID | — | UUID, obligatoria, referencia a `lista_restrictiva_externa`. | NINGUNA |
-| `usuario_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `revisada_por` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
-| `nombre_coincidente` | VARCHAR(150) | — | VARCHAR(150), obligatoria. | NINGUNA |
-| `puntaje_similitud` | DECIMAL(5,4) | — | DECIMAL(5,4), obligatoria. | NINGUNA |
-| `estado` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
-| `revisada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `lista_id` | UUID | Referencia por clave foránea a la entidad `lista_restrictiva_externa`. | UUID, obligatoria, referencia a `lista_restrictiva_externa`, índice b-tree. | NINGUNA |
+| `usuario_id` | UUID | Referencia al usuario titular de la cuenta o actor principal de la operación. | UUID, obligatoria, referencia a `usuario`, índice b-tree. | NINGUNA |
+| `revisada_por` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, opcional, referencia a `usuario`. | NINGUNA |
+| `nombre_coincidente` | VARCHAR(150) | Atributo que representa nombre coincidente en el modelo de `coincidencia_lista`. | VARCHAR(150), obligatoria. | NINGUNA |
+| `puntaje_similitud` | DECIMAL(5,4) | Atributo que representa puntaje similitud en el modelo de `coincidencia_lista`. | DECIMAL(5,4), obligatoria. | NINGUNA |
+| `estado` | VARCHAR(20) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(20), obligatoria, índice b-tree. | NINGUNA |
+| `revisada_en` | TIMESTAMPTZ | Marca temporal o fecha de revisada en `coincidencia_lista`. | TIMESTAMPTZ, opcional. | NINGUNA |
 
 ### `definicion_indicador`
 
@@ -495,14 +495,14 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `codigo` | VARCHAR(40) | — | VARCHAR(40), obligatoria. | NINGUNA |
-| `version` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
-| `familia` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
-| `dueno_familia` | VARCHAR(80) | — | VARCHAR(80), obligatoria. | NINGUNA |
-| `sentido_meta` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
-| `formula` | VARCHAR(400) | — | VARCHAR(400), obligatoria. | NINGUNA |
-| `fuente` | VARCHAR(300) | — | VARCHAR(300), obligatoria. | NINGUNA |
-| `minimo_casos` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
+| `codigo` | VARCHAR(40) | Código mnemotécnico o identificador legible para operadores y personas usuarias. | VARCHAR(40), obligatoria, restricción única. | NINGUNA |
+| `version` | VARCHAR(20) | Número de versión para control de concurrencia optimista y auditoría de modificaciones. | VARCHAR(20), obligatoria. | NINGUNA |
+| `familia` | VARCHAR(20) | Atributo que representa familia en el modelo de `definicion_indicador`. | VARCHAR(20), obligatoria. | NINGUNA |
+| `dueno_familia` | VARCHAR(80) | Atributo que representa dueno familia en el modelo de `definicion_indicador`. | VARCHAR(80), obligatoria. | NINGUNA |
+| `sentido_meta` | VARCHAR(20) | Atributo que representa sentido meta en el modelo de `definicion_indicador`. | VARCHAR(20), obligatoria. | NINGUNA |
+| `formula` | VARCHAR(400) | Atributo que representa formula en el modelo de `definicion_indicador`. | VARCHAR(400), obligatoria. | NINGUNA |
+| `fuente` | VARCHAR(300) | Atributo que representa fuente en el modelo de `definicion_indicador`. | VARCHAR(300), obligatoria. | NINGUNA |
+| `minimo_casos` | SMALLINT | Atributo que representa minimo casos en el modelo de `definicion_indicador`. | SMALLINT, obligatoria. | NINGUNA |
 | `vigente_desde` | TIMESTAMPTZ | Desde cuándo rige esta versión de la fila: las condiciones se versionan, no se pisan. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 | `vigente_hasta` | TIMESTAMPTZ | Hasta cuándo rigió esta versión; vacía mientras sigue vigente. | TIMESTAMPTZ, opcional. | NINGUNA |
 
@@ -519,16 +519,16 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `tipo` | VARCHAR(40) | — | VARCHAR(40), obligatoria. | NINGUNA |
-| `nombre` | VARCHAR(80) | — | VARCHAR(80), obligatoria. | NINGUNA |
-| `descripcion` | VARCHAR(300) | — | VARCHAR(300), obligatoria. | NINGUNA |
-| `consulta_base` | TEXT | — | TEXT, obligatoria. | NINGUNA |
-| `parametros_esperados` | JSONB | — | JSONB, obligatoria. | NINGUNA |
-| `columnas` | JSONB | — | JSONB, obligatoria. | NINGUNA |
-| `permiso_requerido` | VARCHAR(60) | — | VARCHAR(60), obligatoria. | NINGUNA |
-| `contiene_datos_sensibles` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
-| `cache_minutos` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `activa` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
+| `tipo` | VARCHAR(40) | Subtipo o modalidad específica que determina las reglas operativas aplicables al registro. | VARCHAR(40), obligatoria. | NINGUNA |
+| `nombre` | VARCHAR(80) | Nombre descriptivo de la entidad para visualización y referencia en el sistema. | VARCHAR(80), obligatoria, restricción única. | NINGUNA |
+| `descripcion` | VARCHAR(300) | Detalle descriptivo que explica el contenido, propósito o contexto de la entidad. | VARCHAR(300), obligatoria. | NINGUNA |
+| `consulta_base` | TEXT | Atributo que representa consulta base en el modelo de `definicion_reporte`. | TEXT, obligatoria. | NINGUNA |
+| `parametros_esperados` | JSONB | Atributo que representa parametros esperados en el modelo de `definicion_reporte`. | JSONB, obligatoria. | NINGUNA |
+| `columnas` | JSONB | Atributo que representa columnas en el modelo de `definicion_reporte`. | JSONB, obligatoria. | NINGUNA |
+| `permiso_requerido` | VARCHAR(60) | Atributo que representa permiso requerido en el modelo de `definicion_reporte`. | VARCHAR(60), obligatoria. | NINGUNA |
+| `contiene_datos_sensibles` | BOOLEAN | Atributo que representa contiene datos sensibles en el modelo de `definicion_reporte`. | BOOLEAN, obligatoria. | NINGUNA |
+| `cache_minutos` | SMALLINT | Atributo que representa cache minutos en el modelo de `definicion_reporte`. | SMALLINT, obligatoria. | NINGUNA |
+| `activa` | BOOLEAN | Indicador booleano que determina si la entidad se encuentra actualmente operativa. | BOOLEAN, obligatoria. | NINGUNA |
 
 ### `ejecucion_reporte`
 
@@ -543,17 +543,17 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `definicion_id` | UUID | — | UUID, obligatoria, referencia a `definicion_reporte`. | NINGUNA |
-| `grupo_id` | UUID | — | UUID, opcional, referencia a `grupo`. | NINGUNA |
-| `solicitado_por` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `parametros` | JSONB | — | JSONB, obligatoria. | NINGUNA |
-| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `filas_generadas` | INTEGER | — | INTEGER, obligatoria. | NINGUNA |
-| `duracion_ms` | INTEGER | — | INTEGER, obligatoria. | NINGUNA |
-| `hash_resultado` | VARCHAR(64) | — | VARCHAR(64), opcional. | DERIVADO |
-| `mensaje_error` | TEXT | — | TEXT, opcional. | NINGUNA |
-| `iniciada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `finalizada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `definicion_id` | UUID | Referencia por clave foránea a la entidad `definicion_reporte`. | UUID, obligatoria, referencia a `definicion_reporte`, índice b-tree. | NINGUNA |
+| `grupo_id` | UUID | Referencia al grupo de pasanaku en el que se enmarca esta operación. | UUID, opcional, referencia a `grupo`. | NINGUNA |
+| `solicitado_por` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, obligatoria, referencia a `usuario`, índice b-tree. | NINGUNA |
+| `parametros` | JSONB | Atributo que representa parametros en el modelo de `ejecucion_reporte`. | JSONB, obligatoria. | NINGUNA |
+| `estado` | VARCHAR(15) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(15), obligatoria, índice b-tree. | NINGUNA |
+| `filas_generadas` | INTEGER | Atributo que representa filas generadas en el modelo de `ejecucion_reporte`. | INTEGER, obligatoria. | NINGUNA |
+| `duracion_ms` | INTEGER | Atributo que representa duracion ms en el modelo de `ejecucion_reporte`. | INTEGER, obligatoria. | NINGUNA |
+| `hash_resultado` | VARCHAR(64) | Resumen criptográfico SHA-256 para verificación inmutable de resultado. | VARCHAR(64), opcional, sensibilidad derivado. | DERIVADO |
+| `mensaje_error` | TEXT | Atributo que representa mensaje error en el modelo de `ejecucion_reporte`. | TEXT, opcional. | NINGUNA |
+| `iniciada_en` | TIMESTAMPTZ | Marca temporal o fecha de iniciada en `ejecucion_reporte`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `finalizada_en` | TIMESTAMPTZ | Marca temporal o fecha de finalizada en `ejecucion_reporte`. | TIMESTAMPTZ, opcional. | NINGUNA |
 
 ### `exportacion_reporte`
 
@@ -568,16 +568,16 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `ejecucion_id` | UUID | — | UUID, obligatoria, referencia a `ejecucion_reporte`. | NINGUNA |
-| `formato` | VARCHAR(10) | — | VARCHAR(10), obligatoria. | NINGUNA |
-| `url_archivo` | VARCHAR(255) | — | VARCHAR(255), obligatoria. | NINGUNA |
-| `hash_archivo` | VARCHAR(64) | — | VARCHAR(64), obligatoria. | DERIVADO |
-| `tamano_bytes` | BIGINT | — | BIGINT, obligatoria. | NINGUNA |
+| `ejecucion_id` | UUID | Referencia por clave foránea a la entidad `ejecucion_reporte`. | UUID, obligatoria, referencia a `ejecucion_reporte`, índice b-tree. | NINGUNA |
+| `formato` | VARCHAR(10) | Atributo que representa formato en el modelo de `exportacion_reporte`. | VARCHAR(10), obligatoria. | NINGUNA |
+| `url_archivo` | VARCHAR(255) | Localizador uniforme de recursos (URL/URI) correspondiente a archivo. | VARCHAR(255), obligatoria. | NINGUNA |
+| `hash_archivo` | VARCHAR(64) | Resumen criptográfico SHA-256 para verificación inmutable de archivo. | VARCHAR(64), obligatoria, sensibilidad derivado. | DERIVADO |
+| `tamano_bytes` | BIGINT | Atributo que representa tamano bytes en el modelo de `exportacion_reporte`. | BIGINT, obligatoria. | NINGUNA |
 | `esta_cifrado` | BOOLEAN | si contiene datos sensibles, se cifra. | BOOLEAN, obligatoria. | NINGUNA |
-| `version_llave` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `descargas` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `expira_en` | TIMESTAMPTZ | el enlace de descarga caduca. Un CSV con datos de 500 usuarios no puede quedar accesible indefinidamente en una URL. | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `generada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `version_llave` | SMALLINT | Atributo que representa version llave en el modelo de `exportacion_reporte`. | SMALLINT, obligatoria. | NINGUNA |
+| `descargas` | SMALLINT | Atributo que representa descargas en el modelo de `exportacion_reporte`. | SMALLINT, obligatoria. | NINGUNA |
+| `expira_en` | TIMESTAMPTZ | el enlace de descarga caduca. Un CSV con datos de 500 usuarios no puede quedar accesible indefinidamente en una URL. | TIMESTAMPTZ, obligatoria, índice b-tree. | NINGUNA |
+| `generada_en` | TIMESTAMPTZ | Marca temporal o fecha de generada en `exportacion_reporte`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 
 ### `ficha_gobierno_tabla`
 
@@ -592,17 +592,17 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `esquema` | VARCHAR(63) | — | VARCHAR(63), obligatoria. | NINGUNA |
-| `tabla` | VARCHAR(63) | — | VARCHAR(63), obligatoria. | NINGUNA |
-| `estado` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
-| `estado_revision` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
-| `responsable` | VARCHAR(80) | — | VARCHAR(80), opcional. | NINGUNA |
-| `politica_retencion_id` | UUID | — | UUID, opcional, referencia a `politica_retencion`. | NINGUNA |
-| `critica_para_auditoria` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
-| `nota_revision` | VARCHAR(500) | — | VARCHAR(500), opcional. | NINGUNA |
-| `revisado_por` | UUID | — | UUID, opcional. | NINGUNA |
-| `actualizado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `version` | INTEGER | — | INTEGER, obligatoria. | NINGUNA |
+| `esquema` | VARCHAR(63) | Atributo que representa esquema en el modelo de `ficha_gobierno_tabla`. | VARCHAR(63), obligatoria, restricción única. | NINGUNA |
+| `tabla` | VARCHAR(63) | Atributo que representa tabla en el modelo de `ficha_gobierno_tabla`. | VARCHAR(63), obligatoria. | NINGUNA |
+| `estado` | VARCHAR(20) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(20), obligatoria. | NINGUNA |
+| `estado_revision` | VARCHAR(20) | Atributo que representa estado revision en el modelo de `ficha_gobierno_tabla`. | VARCHAR(20), obligatoria. | NINGUNA |
+| `responsable` | VARCHAR(80) | Atributo que representa responsable en el modelo de `ficha_gobierno_tabla`. | VARCHAR(80), opcional. | NINGUNA |
+| `politica_retencion_id` | UUID | Referencia por clave foránea a la entidad `politica_retencion`. | UUID, opcional, referencia a `politica_retencion`. | NINGUNA |
+| `critica_para_auditoria` | BOOLEAN | Atributo que representa critica para auditoria en el modelo de `ficha_gobierno_tabla`. | BOOLEAN, obligatoria. | NINGUNA |
+| `nota_revision` | VARCHAR(500) | Atributo que representa nota revision en el modelo de `ficha_gobierno_tabla`. | VARCHAR(500), opcional. | NINGUNA |
+| `revisado_por` | UUID | Identificador del usuario u operador que realizó la revisión técnica o de gobierno. | UUID, opcional. | NINGUNA |
+| `actualizado_en` | TIMESTAMPTZ | Marca temporal UTC de la última modificación aplicada sobre este registro. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `version` | INTEGER | Número de versión para control de concurrencia optimista y auditoría de modificaciones. | INTEGER, obligatoria. | NINGUNA |
 
 ### `incidente_operativo`
 
@@ -617,18 +617,18 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `codigo` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
-| `titulo` | VARCHAR(160) | — | VARCHAR(160), obligatoria. | NINGUNA |
-| `severidad` | VARCHAR(6) | — | VARCHAR(6), obligatoria. | NINGUNA |
-| `sistema_afectado` | VARCHAR(60) | — | VARCHAR(60), obligatoria. | NINGUNA |
-| `descripcion` | TEXT | — | TEXT, obligatoria. | NINGUNA |
-| `impacto_usuarios` | INTEGER | — | INTEGER, obligatoria. | NINGUNA |
-| `impacto_monetario` | DECIMAL(16,2) | — | DECIMAL(16,2), obligatoria. | NINGUNA |
-| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `detectado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `resuelto_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
-| `causa_raiz` | TEXT | — | TEXT, opcional. | NINGUNA |
-| `acciones_correctivas` | TEXT | — | TEXT, opcional. | NINGUNA |
+| `codigo` | VARCHAR(20) | Código mnemotécnico o identificador legible para operadores y personas usuarias. | VARCHAR(20), obligatoria, restricción única. | NINGUNA |
+| `titulo` | VARCHAR(160) | Atributo que representa titulo en el modelo de `incidente_operativo`. | VARCHAR(160), obligatoria. | NINGUNA |
+| `severidad` | VARCHAR(6) | Nivel de gravedad o criticidad asignado al incidente, alerta o evento. | VARCHAR(6), obligatoria. | NINGUNA |
+| `sistema_afectado` | VARCHAR(60) | Atributo que representa sistema afectado en el modelo de `incidente_operativo`. | VARCHAR(60), obligatoria. | NINGUNA |
+| `descripcion` | TEXT | Detalle descriptivo que explica el contenido, propósito o contexto de la entidad. | TEXT, obligatoria. | NINGUNA |
+| `impacto_usuarios` | INTEGER | Atributo que representa impacto usuarios en el modelo de `incidente_operativo`. | INTEGER, obligatoria. | NINGUNA |
+| `impacto_monetario` | DECIMAL(16,2) | Atributo que representa impacto monetario en el modelo de `incidente_operativo`. | DECIMAL(16,2), obligatoria. | NINGUNA |
+| `estado` | VARCHAR(15) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(15), obligatoria. | NINGUNA |
+| `detectado_en` | TIMESTAMPTZ | Marca temporal o fecha de detectado en `incidente_operativo`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `resuelto_en` | TIMESTAMPTZ | Marca temporal o fecha de resuelto en `incidente_operativo`. | TIMESTAMPTZ, opcional. | NINGUNA |
+| `causa_raiz` | TEXT | Atributo que representa causa raiz en el modelo de `incidente_operativo`. | TEXT, opcional. | NINGUNA |
+| `acciones_correctivas` | TEXT | Atributo que representa acciones correctivas en el modelo de `incidente_operativo`. | TEXT, opcional. | NINGUNA |
 
 ### `indicador_kpi`
 
@@ -643,19 +643,19 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `definicion_indicador_id` | UUID | — | UUID, obligatoria, referencia a `definicion_indicador`. | NINGUNA |
-| `codigo` | VARCHAR(40) | — | VARCHAR(40), obligatoria. | NINGUNA |
-| `nombre` | VARCHAR(80) | — | VARCHAR(80), obligatoria. | NINGUNA |
-| `valor` | DECIMAL(16,4) | — | DECIMAL(16,4), obligatoria. | NINGUNA |
-| `unidad` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `dimension` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
-| `dimension_id` | UUID | — | UUID, opcional. | NINGUNA |
-| `periodo` | VARCHAR(10) | — | VARCHAR(10), obligatoria. | NINGUNA |
-| `meta` | DECIMAL(16,4) | — | DECIMAL(16,4), opcional. | NINGUNA |
-| `variacion_periodo_anterior` | DECIMAL(8,4) | — | DECIMAL(8,4), opcional. | NINGUNA |
-| `provisorio` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
-| `casos` | INTEGER | — | INTEGER, opcional. | NINGUNA |
-| `calculado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `definicion_indicador_id` | UUID | Referencia por clave foránea a la entidad `definicion_indicador`. | UUID, obligatoria, referencia a `definicion_indicador`, índice b-tree. | NINGUNA |
+| `codigo` | VARCHAR(40) | Código mnemotécnico o identificador legible para operadores y personas usuarias. | VARCHAR(40), obligatoria, restricción única. | NINGUNA |
+| `nombre` | VARCHAR(80) | Nombre descriptivo de la entidad para visualización y referencia en el sistema. | VARCHAR(80), obligatoria. | NINGUNA |
+| `valor` | DECIMAL(16,4) | Atributo que representa valor en el modelo de `indicador_kpi`. | DECIMAL(16,4), obligatoria. | NINGUNA |
+| `unidad` | VARCHAR(15) | Atributo que representa unidad en el modelo de `indicador_kpi`. | VARCHAR(15), obligatoria. | NINGUNA |
+| `dimension` | VARCHAR(20) | Atributo que representa dimension en el modelo de `indicador_kpi`. | VARCHAR(20), obligatoria. | NINGUNA |
+| `dimension_id` | UUID | Identificador de referencia para el concepto de dimension en `indicador_kpi`. | UUID, opcional. | NINGUNA |
+| `periodo` | VARCHAR(10) | Atributo que representa periodo en el modelo de `indicador_kpi`. | VARCHAR(10), obligatoria. | NINGUNA |
+| `meta` | DECIMAL(16,4) | Atributo que representa meta en el modelo de `indicador_kpi`. | DECIMAL(16,4), opcional. | NINGUNA |
+| `variacion_periodo_anterior` | DECIMAL(8,4) | Atributo que representa variacion periodo anterior en el modelo de `indicador_kpi`. | DECIMAL(8,4), opcional. | NINGUNA |
+| `provisorio` | BOOLEAN | Atributo que representa provisorio en el modelo de `indicador_kpi`. | BOOLEAN, obligatoria. | NINGUNA |
+| `casos` | INTEGER | Atributo que representa casos en el modelo de `indicador_kpi`. | INTEGER, opcional. | NINGUNA |
+| `calculado_en` | TIMESTAMPTZ | Marca temporal o fecha de calculado en `indicador_kpi`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 
 ### `lista_restrictiva_externa`
 
@@ -670,10 +670,10 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `nombre_lista` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
-| `version` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
-| `fecha_actualizacion` | DATE | — | DATE, obligatoria. | NINGUNA |
-| `registros` | INTEGER | — | INTEGER, obligatoria. | NINGUNA |
+| `nombre_lista` | VARCHAR(30) | Atributo que representa nombre lista en el modelo de `lista_restrictiva_externa`. | VARCHAR(30), obligatoria, restricción única. | NINGUNA |
+| `version` | VARCHAR(20) | Número de versión para control de concurrencia optimista y auditoría de modificaciones. | VARCHAR(20), obligatoria. | NINGUNA |
+| `fecha_actualizacion` | DATE | Marca temporal o fecha de actualizacion en `lista_restrictiva_externa`. | DATE, obligatoria. | NINGUNA |
+| `registros` | INTEGER | Atributo que representa registros en el modelo de `lista_restrictiva_externa`. | INTEGER, obligatoria. | NINGUNA |
 
 ### `politica_retencion`
 
@@ -688,11 +688,11 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `entidad` | VARCHAR(50) | — | VARCHAR(50), obligatoria. | NINGUNA |
-| `meses_retencion_activa` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `meses_retencion_historica` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `accion_al_vencer` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `base_legal` | VARCHAR(200) | — | VARCHAR(200), obligatoria. | NINGUNA |
+| `entidad` | VARCHAR(50) | Atributo que representa entidad en el modelo de `politica_retencion`. | VARCHAR(50), obligatoria, restricción única. | NINGUNA |
+| `meses_retencion_activa` | SMALLINT | Atributo que representa meses retencion activa en el modelo de `politica_retencion`. | SMALLINT, obligatoria. | NINGUNA |
+| `meses_retencion_historica` | SMALLINT | Atributo que representa meses retencion historica en el modelo de `politica_retencion`. | SMALLINT, obligatoria. | NINGUNA |
+| `accion_al_vencer` | VARCHAR(15) | Atributo que representa accion al vencer en el modelo de `politica_retencion`. | VARCHAR(15), obligatoria. | NINGUNA |
+| `base_legal` | VARCHAR(200) | Atributo que representa base legal en el modelo de `politica_retencion`. | VARCHAR(200), obligatoria. | NINGUNA |
 | `vigente_desde` | DATE | Desde cuándo rige esta versión de la fila: las condiciones se versionan, no se pisan. | DATE, obligatoria. | NINGUNA |
 
 ### `proceso_anonimizacion`
@@ -708,13 +708,13 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `usuario_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `solicitud_id` | UUID | — | UUID, opcional, referencia a `solicitud_datos_personales`. | NINGUNA |
-| `estrategia` | VARCHAR(25) | — | VARCHAR(25), obligatoria. | NINGUNA |
-| `entidades_afectadas` | JSONB | — | JSONB, obligatoria. | NINGUNA |
-| `datos_retenidos_por_ley` | JSONB | — | JSONB, obligatoria. | NINGUNA |
-| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `ejecutado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `usuario_id` | UUID | Referencia al usuario titular de la cuenta o actor principal de la operación. | UUID, obligatoria, referencia a `usuario`, restricción única. | NINGUNA |
+| `solicitud_id` | UUID | Referencia por clave foránea a la entidad `solicitud_datos_personales`. | UUID, opcional, referencia a `solicitud_datos_personales`. | NINGUNA |
+| `estrategia` | VARCHAR(25) | Atributo que representa estrategia en el modelo de `proceso_anonimizacion`. | VARCHAR(25), obligatoria. | NINGUNA |
+| `entidades_afectadas` | JSONB | Atributo que representa entidades afectadas en el modelo de `proceso_anonimizacion`. | JSONB, obligatoria. | NINGUNA |
+| `datos_retenidos_por_ley` | JSONB | Atributo que representa datos retenidos por ley en el modelo de `proceso_anonimizacion`. | JSONB, obligatoria. | NINGUNA |
+| `estado` | VARCHAR(15) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(15), obligatoria. | NINGUNA |
+| `ejecutado_en` | TIMESTAMPTZ | Marca temporal o fecha de ejecutado en `proceso_anonimizacion`. | TIMESTAMPTZ, opcional. | NINGUNA |
 
 ### `programacion_reporte`
 
@@ -729,15 +729,15 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `definicion_id` | UUID | — | UUID, obligatoria, referencia a `definicion_reporte`. | NINGUNA |
-| `expresion_cron` | VARCHAR(40) | — | VARCHAR(40), obligatoria. | NINGUNA |
-| `parametros_fijos` | JSONB | — | JSONB, obligatoria. | NINGUNA |
-| `destinatarios` | JSONB | — | JSONB, obligatoria. | NINGUNA |
-| `canal_entrega` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
-| `formato` | VARCHAR(10) | — | VARCHAR(10), obligatoria. | NINGUNA |
-| `activa` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
-| `ultima_ejecucion_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
-| `proxima_ejecucion_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `definicion_id` | UUID | Referencia por clave foránea a la entidad `definicion_reporte`. | UUID, obligatoria, referencia a `definicion_reporte`, índice b-tree. | NINGUNA |
+| `expresion_cron` | VARCHAR(40) | Atributo que representa expresion cron en el modelo de `programacion_reporte`. | VARCHAR(40), obligatoria. | NINGUNA |
+| `parametros_fijos` | JSONB | Atributo que representa parametros fijos en el modelo de `programacion_reporte`. | JSONB, obligatoria. | NINGUNA |
+| `destinatarios` | JSONB | Atributo que representa destinatarios en el modelo de `programacion_reporte`. | JSONB, obligatoria. | NINGUNA |
+| `canal_entrega` | VARCHAR(20) | Atributo que representa canal entrega en el modelo de `programacion_reporte`. | VARCHAR(20), obligatoria. | NINGUNA |
+| `formato` | VARCHAR(10) | Atributo que representa formato en el modelo de `programacion_reporte`. | VARCHAR(10), obligatoria. | NINGUNA |
+| `activa` | BOOLEAN | Indicador booleano que determina si la entidad se encuentra actualmente operativa. | BOOLEAN, obligatoria. | NINGUNA |
+| `ultima_ejecucion_en` | TIMESTAMPTZ | Marca temporal o fecha de ultima ejecucion en `programacion_reporte`. | TIMESTAMPTZ, opcional. | NINGUNA |
+| `proxima_ejecucion_en` | TIMESTAMPTZ | Marca temporal o fecha de proxima ejecucion en `programacion_reporte`. | TIMESTAMPTZ, obligatoria, índice b-tree. | NINGUNA |
 
 ### `regla_cumplimiento`
 
@@ -752,15 +752,15 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `codigo` | VARCHAR(40) | — | VARCHAR(40), obligatoria. | NINGUNA |
-| `descripcion` | VARCHAR(300) | — | VARCHAR(300), obligatoria. | NINGUNA |
-| `categoria` | VARCHAR(25) | — | VARCHAR(25), obligatoria. | NINGUNA |
-| `expresion` | VARCHAR(400) | — | VARCHAR(400), obligatoria. | NINGUNA |
-| `umbral` | DECIMAL(16,2) | — | DECIMAL(16,2), opcional. | NINGUNA |
-| `ventana_horas` | SMALLINT | — | SMALLINT, opcional. | NINGUNA |
-| `severidad` | VARCHAR(10) | — | VARCHAR(10), obligatoria. | NINGUNA |
-| `accion_automatica` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
-| `activa` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
+| `codigo` | VARCHAR(40) | Código mnemotécnico o identificador legible para operadores y personas usuarias. | VARCHAR(40), obligatoria, restricción única. | NINGUNA |
+| `descripcion` | VARCHAR(300) | Detalle descriptivo que explica el contenido, propósito o contexto de la entidad. | VARCHAR(300), obligatoria. | NINGUNA |
+| `categoria` | VARCHAR(25) | Atributo que representa categoria en el modelo de `regla_cumplimiento`. | VARCHAR(25), obligatoria. | NINGUNA |
+| `expresion` | VARCHAR(400) | Atributo que representa expresion en el modelo de `regla_cumplimiento`. | VARCHAR(400), obligatoria. | NINGUNA |
+| `umbral` | DECIMAL(16,2) | Atributo que representa umbral en el modelo de `regla_cumplimiento`. | DECIMAL(16,2), opcional. | NINGUNA |
+| `ventana_horas` | SMALLINT | Atributo que representa ventana horas en el modelo de `regla_cumplimiento`. | SMALLINT, opcional. | NINGUNA |
+| `severidad` | VARCHAR(10) | Nivel de gravedad o criticidad asignado al incidente, alerta o evento. | VARCHAR(10), obligatoria. | NINGUNA |
+| `accion_automatica` | VARCHAR(20) | Atributo que representa accion automatica en el modelo de `regla_cumplimiento`. | VARCHAR(20), obligatoria. | NINGUNA |
+| `activa` | BOOLEAN | Indicador booleano que determina si la entidad se encuentra actualmente operativa. | BOOLEAN, obligatoria. | NINGUNA |
 
 ### `reporte_operacion_sospechosa`
 
@@ -775,15 +775,15 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `usuario_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `aprobado_por` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
-| `tipologia` | VARCHAR(60) | — | VARCHAR(60), obligatoria. | NINGUNA |
-| `monto_total` | DECIMAL(16,2) | — | DECIMAL(16,2), obligatoria. | FINANCIERO |
-| `periodo_analizado` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
-| `narrativa` | TEXT | — | TEXT, obligatoria. | NINGUNA |
-| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `numero_radicado` | VARCHAR(40) | — | VARCHAR(40), opcional. | NINGUNA |
-| `enviado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `usuario_id` | UUID | Referencia al usuario titular de la cuenta o actor principal de la operación. | UUID, obligatoria, referencia a `usuario`, índice b-tree. | NINGUNA |
+| `aprobado_por` | UUID | Identificador del usuario con facultades que autorizó la operación. | UUID, opcional, referencia a `usuario`. | NINGUNA |
+| `tipologia` | VARCHAR(60) | Atributo que representa tipologia en el modelo de `reporte_operacion_sospechosa`. | VARCHAR(60), obligatoria. | NINGUNA |
+| `monto_total` | DECIMAL(16,2) | Importe monetario correspondiente a total en `reporte_operacion_sospechosa`. | DECIMAL(16,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `periodo_analizado` | VARCHAR(20) | Atributo que representa periodo analizado en el modelo de `reporte_operacion_sospechosa`. | VARCHAR(20), obligatoria. | NINGUNA |
+| `narrativa` | TEXT | Atributo que representa narrativa en el modelo de `reporte_operacion_sospechosa`. | TEXT, obligatoria. | NINGUNA |
+| `estado` | VARCHAR(15) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(15), obligatoria. | NINGUNA |
+| `numero_radicado` | VARCHAR(40) | Numeración secuencial o identificador numérico de radicado. | VARCHAR(40), opcional, restricción única. | NINGUNA |
+| `enviado_en` | TIMESTAMPTZ | Marca temporal o fecha de enviado en `reporte_operacion_sospechosa`. | TIMESTAMPTZ, opcional. | NINGUNA |
 
 ### `revision_columna`
 
@@ -798,15 +798,15 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `esquema` | VARCHAR(63) | — | VARCHAR(63), obligatoria. | NINGUNA |
-| `tabla` | VARCHAR(63) | — | VARCHAR(63), obligatoria. | NINGUNA |
-| `columna` | VARCHAR(63) | — | VARCHAR(63), obligatoria. | NINGUNA |
-| `decision` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
-| `confianza` | VARCHAR(10) | — | VARCHAR(10), opcional. | NINGUNA |
-| `motivo` | VARCHAR(500) | — | VARCHAR(500), opcional. | NINGUNA |
-| `revisado_por` | UUID | — | UUID, obligatoria. | NINGUNA |
-| `revisado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `version` | INTEGER | — | INTEGER, obligatoria. | NINGUNA |
+| `esquema` | VARCHAR(63) | Atributo que representa esquema en el modelo de `revision_columna`. | VARCHAR(63), obligatoria, restricción única. | NINGUNA |
+| `tabla` | VARCHAR(63) | Atributo que representa tabla en el modelo de `revision_columna`. | VARCHAR(63), obligatoria. | NINGUNA |
+| `columna` | VARCHAR(63) | Atributo que representa columna en el modelo de `revision_columna`. | VARCHAR(63), obligatoria. | NINGUNA |
+| `decision` | VARCHAR(20) | Atributo que representa decision en el modelo de `revision_columna`. | VARCHAR(20), obligatoria. | NINGUNA |
+| `confianza` | VARCHAR(10) | Atributo que representa confianza en el modelo de `revision_columna`. | VARCHAR(10), opcional. | NINGUNA |
+| `motivo` | VARCHAR(500) | Justificación declarada o causal que originó la creación, rechazo o transición del registro. | VARCHAR(500), opcional. | NINGUNA |
+| `revisado_por` | UUID | Identificador del usuario u operador que realizó la revisión técnica o de gobierno. | UUID, obligatoria. | NINGUNA |
+| `revisado_en` | TIMESTAMPTZ | Marca temporal o fecha de revisado en `revision_columna`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `version` | INTEGER | Número de versión para control de concurrencia optimista y auditoría de modificaciones. | INTEGER, obligatoria. | NINGUNA |
 
 ### `solicitud_datos_personales`
 
@@ -821,15 +821,15 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `usuario_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `atendida_por` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
-| `tipo` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
-| `descripcion` | VARCHAR(400) | — | VARCHAR(400), obligatoria. | NINGUNA |
-| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `fecha_limite_legal` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `respuesta` | TEXT | — | TEXT, opcional. | NINGUNA |
-| `recibida_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `atendida_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `usuario_id` | UUID | Referencia al usuario titular de la cuenta o actor principal de la operación. | UUID, obligatoria, referencia a `usuario`, índice b-tree. | NINGUNA |
+| `atendida_por` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, opcional, referencia a `usuario`. | NINGUNA |
+| `tipo` | VARCHAR(20) | Subtipo o modalidad específica que determina las reglas operativas aplicables al registro. | VARCHAR(20), obligatoria. | NINGUNA |
+| `descripcion` | VARCHAR(400) | Detalle descriptivo que explica el contenido, propósito o contexto de la entidad. | VARCHAR(400), obligatoria. | NINGUNA |
+| `estado` | VARCHAR(15) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(15), obligatoria, índice b-tree. | NINGUNA |
+| `fecha_limite_legal` | TIMESTAMPTZ | Marca temporal o fecha de limite legal en `solicitud_datos_personales`. | TIMESTAMPTZ, obligatoria, índice b-tree. | NINGUNA |
+| `respuesta` | TEXT | Atributo que representa respuesta en el modelo de `solicitud_datos_personales`. | TEXT, opcional. | NINGUNA |
+| `recibida_en` | TIMESTAMPTZ | Marca temporal o fecha de recibida en `solicitud_datos_personales`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `atendida_en` | TIMESTAMPTZ | Marca temporal o fecha de atendida en `solicitud_datos_personales`. | TIMESTAMPTZ, opcional. | NINGUNA |
 
 ### `ticket_soporte`
 
@@ -844,18 +844,18 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `usuario_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `asignado_a` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
-| `categoria` | VARCHAR(40) | — | VARCHAR(40), obligatoria. | NINGUNA |
-| `asunto` | VARCHAR(160) | — | VARCHAR(160), obligatoria. | NINGUNA |
-| `descripcion` | TEXT | — | TEXT, obligatoria. | NINGUNA |
-| `prioridad` | VARCHAR(10) | — | VARCHAR(10), obligatoria. | NINGUNA |
-| `estado` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
-| `referencia_entidad` | VARCHAR(40) | — | VARCHAR(40), opcional. | NINGUNA |
-| `referencia_id` | UUID | — | UUID, opcional. | NINGUNA |
-| `sla_horas` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `abierto_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `resuelto_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `usuario_id` | UUID | Referencia al usuario titular de la cuenta o actor principal de la operación. | UUID, obligatoria, referencia a `usuario`, índice b-tree. | NINGUNA |
+| `asignado_a` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, opcional, referencia a `usuario`, índice b-tree. | NINGUNA |
+| `categoria` | VARCHAR(40) | Atributo que representa categoria en el modelo de `ticket_soporte`. | VARCHAR(40), obligatoria. | NINGUNA |
+| `asunto` | VARCHAR(160) | Atributo que representa asunto en el modelo de `ticket_soporte`. | VARCHAR(160), obligatoria. | NINGUNA |
+| `descripcion` | TEXT | Detalle descriptivo que explica el contenido, propósito o contexto de la entidad. | TEXT, obligatoria. | NINGUNA |
+| `prioridad` | VARCHAR(10) | Atributo que representa prioridad en el modelo de `ticket_soporte`. | VARCHAR(10), obligatoria. | NINGUNA |
+| `estado` | VARCHAR(20) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(20), obligatoria, índice b-tree. | NINGUNA |
+| `referencia_entidad` | VARCHAR(40) | Atributo que representa referencia entidad en el modelo de `ticket_soporte`. | VARCHAR(40), opcional. | NINGUNA |
+| `referencia_id` | UUID | Identificador de referencia para el concepto de referencia en `ticket_soporte`. | UUID, opcional. | NINGUNA |
+| `sla_horas` | SMALLINT | Atributo que representa sla horas en el modelo de `ticket_soporte`. | SMALLINT, obligatoria. | NINGUNA |
+| `abierto_en` | TIMESTAMPTZ | Marca temporal o fecha de abierto en `ticket_soporte`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `resuelto_en` | TIMESTAMPTZ | Marca temporal o fecha de resuelto en `ticket_soporte`. | TIMESTAMPTZ, opcional. | NINGUNA |
 
 ## Esquema `catalogo`
 
@@ -872,10 +872,10 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `fecha` | DATE | — | DATE, obligatoria. | NINGUNA |
-| `descripcion` | VARCHAR(120) | — | VARCHAR(120), obligatoria. | NINGUNA |
-| `alcance` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `grupo_id` | UUID | — | UUID, opcional, referencia a `grupo`. | NINGUNA |
+| `fecha` | DATE | Fecha calendario correspondiente al devengo o ejecución de la operación. | DATE, obligatoria, restricción única. | NINGUNA |
+| `descripcion` | VARCHAR(120) | Detalle descriptivo que explica el contenido, propósito o contexto de la entidad. | VARCHAR(120), obligatoria. | NINGUNA |
+| `alcance` | VARCHAR(15) | Atributo que representa alcance en el modelo de `dia_no_habil`. | VARCHAR(15), obligatoria. | NINGUNA |
+| `grupo_id` | UUID | Referencia al grupo de pasanaku en el que se enmarca esta operación. | UUID, opcional, referencia a `grupo`. | NINGUNA |
 
 ### `impuesto`
 
@@ -888,12 +888,12 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `cuenta_contable_id` | UUID | — | UUID, opcional, referencia a `cuenta_contable`. | NINGUNA |
-| `codigo` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `nombre` | VARCHAR(80) | — | VARCHAR(80), obligatoria. | NINGUNA |
-| `alicuota` | DECIMAL(6,4) | — | DECIMAL(6,4), obligatoria. | NINGUNA |
-| `tipo_calculo` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
-| `base_legal` | VARCHAR(120) | — | VARCHAR(120), obligatoria. | NINGUNA |
+| `cuenta_contable_id` | UUID | Referencia por clave foránea a la entidad `cuenta_contable`. | UUID, opcional, referencia a `cuenta_contable`. | NINGUNA |
+| `codigo` | VARCHAR(15) | Código mnemotécnico o identificador legible para operadores y personas usuarias. | VARCHAR(15), obligatoria, restricción única. | NINGUNA |
+| `nombre` | VARCHAR(80) | Nombre descriptivo de la entidad para visualización y referencia en el sistema. | VARCHAR(80), obligatoria. | NINGUNA |
+| `alicuota` | DECIMAL(6,4) | Atributo que representa alicuota en el modelo de `impuesto`. | DECIMAL(6,4), obligatoria. | NINGUNA |
+| `tipo_calculo` | VARCHAR(20) | Atributo que representa tipo calculo en el modelo de `impuesto`. | VARCHAR(20), obligatoria. | NINGUNA |
+| `base_legal` | VARCHAR(120) | Atributo que representa base legal en el modelo de `impuesto`. | VARCHAR(120), obligatoria. | NINGUNA |
 | `vigente_desde` | DATE | Desde cuándo rige esta versión de la fila: las condiciones se versionan, no se pisan. | DATE, obligatoria. | NINGUNA |
 | `vigente_hasta` | DATE | Hasta cuándo rigió esta versión; vacía mientras sigue vigente. | DATE, opcional. | NINGUNA |
 
@@ -908,19 +908,19 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `organismo` | VARCHAR(10) | — | VARCHAR(10), obligatoria. | NINGUNA |
-| `tipo` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
-| `categoria_actividad` | VARCHAR(40) | — | VARCHAR(40), obligatoria. | NINGUNA |
-| `numero_resolucion` | VARCHAR(60) | — | VARCHAR(60), opcional. | NINGUNA |
-| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `fecha_solicitud` | DATE | — | DATE, obligatoria. | NINGUNA |
-| `fecha_otorgamiento` | DATE | — | DATE, opcional. | NINGUNA |
+| `organismo` | VARCHAR(10) | Atributo que representa organismo en el modelo de `licencia_regulatoria`. | VARCHAR(10), obligatoria, índice b-tree. | NINGUNA |
+| `tipo` | VARCHAR(30) | Subtipo o modalidad específica que determina las reglas operativas aplicables al registro. | VARCHAR(30), obligatoria. | NINGUNA |
+| `categoria_actividad` | VARCHAR(40) | Atributo que representa categoria actividad en el modelo de `licencia_regulatoria`. | VARCHAR(40), obligatoria. | NINGUNA |
+| `numero_resolucion` | VARCHAR(60) | Numeración secuencial o identificador numérico de resolucion. | VARCHAR(60), opcional, restricción única. | NINGUNA |
+| `estado` | VARCHAR(15) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(15), obligatoria, índice b-tree. | NINGUNA |
+| `fecha_solicitud` | DATE | Marca temporal o fecha de solicitud en `licencia_regulatoria`. | DATE, obligatoria. | NINGUNA |
+| `fecha_otorgamiento` | DATE | Marca temporal o fecha de otorgamiento en `licencia_regulatoria`. | DATE, opcional. | NINGUNA |
 | `vigente_hasta` | DATE | Hasta cuándo rigió esta versión; vacía mientras sigue vigente. | DATE, opcional. | NINGUNA |
-| `alcance_autorizado` | JSONB | — | JSONB, obligatoria. | NINGUNA |
-| `garantia_seriedad` | DECIMAL(16,2) | — | DECIMAL(16,2), opcional. | NINGUNA |
-| `documento_url` | VARCHAR(255) | — | VARCHAR(255), opcional. | PERSONAL |
-| `hash_documento` | VARCHAR(64) | — | VARCHAR(64), opcional. | DERIVADO |
-| `responsable_id` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
+| `alcance_autorizado` | JSONB | Atributo que representa alcance autorizado en el modelo de `licencia_regulatoria`. | JSONB, obligatoria. | NINGUNA |
+| `garantia_seriedad` | DECIMAL(16,2) | Atributo que representa garantia seriedad en el modelo de `licencia_regulatoria`. | DECIMAL(16,2), opcional. | NINGUNA |
+| `documento_url` | VARCHAR(255) | Localizador uniforme de recursos (URL/URI) correspondiente a documento. | VARCHAR(255), opcional, sensibilidad personal. | PERSONAL |
+| `hash_documento` | VARCHAR(64) | Resumen criptográfico SHA-256 para verificación inmutable de documento. | VARCHAR(64), opcional, sensibilidad derivado. | DERIVADO |
+| `responsable_id` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, opcional, referencia a `usuario`. | NINGUNA |
 
 ### `limite_operativo_billetera`
 
@@ -935,16 +935,16 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `concepto` | VARCHAR(25) | — | VARCHAR(25), obligatoria. | NINGUNA |
-| `nivel_debida_diligencia` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `ventana` | VARCHAR(10) | — | VARCHAR(10), obligatoria. | NINGUNA |
-| `monto_maximo` | DECIMAL(16,2) | — | DECIMAL(16,2), opcional. | FINANCIERO |
-| `cantidad_maxima` | INTEGER | — | INTEGER, opcional. | NINGUNA |
+| `concepto` | VARCHAR(25) | Atributo que representa concepto en el modelo de `limite_operativo_billetera`. | VARCHAR(25), obligatoria. | NINGUNA |
+| `nivel_debida_diligencia` | VARCHAR(15) | Atributo que representa nivel debida diligencia en el modelo de `limite_operativo_billetera`. | VARCHAR(15), obligatoria. | NINGUNA |
+| `ventana` | VARCHAR(10) | Atributo que representa ventana en el modelo de `limite_operativo_billetera`. | VARCHAR(10), obligatoria. | NINGUNA |
+| `monto_maximo` | DECIMAL(16,2) | Importe monetario correspondiente a maximo en `limite_operativo_billetera`. | DECIMAL(16,2), opcional, sensibilidad financiero. | FINANCIERO |
+| `cantidad_maxima` | INTEGER | Atributo que representa cantidad maxima en el modelo de `limite_operativo_billetera`. | INTEGER, opcional. | NINGUNA |
 | `moneda` | CHAR(3) | Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2). | CHAR(3), obligatoria. | NINGUNA |
-| `base_normativa` | VARCHAR(120) | — | VARCHAR(120), obligatoria. | NINGUNA |
+| `base_normativa` | VARCHAR(120) | Atributo que representa base normativa en el modelo de `limite_operativo_billetera`. | VARCHAR(120), obligatoria. | NINGUNA |
 | `vigente_desde` | DATE | Desde cuándo rige esta versión de la fila: las condiciones se versionan, no se pisan. | DATE, obligatoria. | NINGUNA |
 | `vigente_hasta` | DATE | Hasta cuándo rigió esta versión; vacía mientras sigue vigente. | DATE, opcional. | NINGUNA |
-| `activo` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
+| `activo` | BOOLEAN | Indicador booleano que determina si el registro se encuentra actualmente operativo. | BOOLEAN, obligatoria. | NINGUNA |
 
 ### `tarifario`
 
@@ -957,20 +957,20 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `codigo` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
-| `version` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `nombre` | VARCHAR(120) | — | VARCHAR(120), obligatoria. | NINGUNA |
-| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `moneda_base` | CHAR(3) | — | CHAR(3), obligatoria. | NINGUNA |
-| `vigente_desde` | TIMESTAMPTZ | Desde cuándo rige esta versión de la fila: las condiciones se versionan, no se pisan. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `codigo` | VARCHAR(30) | Código mnemotécnico o identificador legible para operadores y personas usuarias. | VARCHAR(30), obligatoria, restricción única. | NINGUNA |
+| `version` | SMALLINT | Número de versión para control de concurrencia optimista y auditoría de modificaciones. | SMALLINT, obligatoria. | NINGUNA |
+| `nombre` | VARCHAR(120) | Nombre descriptivo de la entidad para visualización y referencia en el sistema. | VARCHAR(120), obligatoria. | NINGUNA |
+| `estado` | VARCHAR(15) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(15), obligatoria, índice b-tree. | NINGUNA |
+| `moneda_base` | CHAR(3) | Atributo que representa moneda base en el modelo de `tarifario`. | CHAR(3), obligatoria. | NINGUNA |
+| `vigente_desde` | TIMESTAMPTZ | Desde cuándo rige esta versión de la fila: las condiciones se versionan, no se pisan. | TIMESTAMPTZ, obligatoria, índice b-tree. | NINGUNA |
 | `vigente_hasta` | TIMESTAMPTZ | Hasta cuándo rigió esta versión; vacía mientras sigue vigente. | TIMESTAMPTZ, opcional. | NINGUNA |
-| `dias_preaviso` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `publicado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
-| `url_publicacion` | VARCHAR(255) | — | VARCHAR(255), opcional. | NINGUNA |
-| `hash_documento` | VARCHAR(64) | — | VARCHAR(64), opcional. | DERIVADO |
-| `tarifario_anterior_id` | UUID | — | UUID, opcional, referencia a `tarifario`. | NINGUNA |
-| `aprobado_por` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
-| `acta_aprobacion` | VARCHAR(80) | — | VARCHAR(80), opcional. | NINGUNA |
+| `dias_preaviso` | SMALLINT | Atributo que representa dias preaviso en el modelo de `tarifario`. | SMALLINT, obligatoria. | NINGUNA |
+| `publicado_en` | TIMESTAMPTZ | Marca temporal o fecha de publicado en `tarifario`. | TIMESTAMPTZ, opcional. | NINGUNA |
+| `url_publicacion` | VARCHAR(255) | Localizador uniforme de recursos (URL/URI) correspondiente a publicacion. | VARCHAR(255), opcional. | NINGUNA |
+| `hash_documento` | VARCHAR(64) | Resumen criptográfico SHA-256 para verificación inmutable de documento. | VARCHAR(64), opcional, sensibilidad derivado. | DERIVADO |
+| `tarifario_anterior_id` | UUID | Referencia por clave foránea a la entidad `tarifario`. | UUID, opcional, referencia a `tarifario`. | NINGUNA |
+| `aprobado_por` | UUID | Identificador del usuario con facultades que autorizó la operación. | UUID, opcional, referencia a `usuario`. | NINGUNA |
+| `acta_aprobacion` | VARCHAR(80) | Atributo que representa acta aprobacion en el modelo de `tarifario`. | VARCHAR(80), opcional. | NINGUNA |
 
 ### `tipo_cambio`
 
@@ -985,12 +985,12 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `moneda_origen` | CHAR(3) | — | CHAR(3), obligatoria. | NINGUNA |
-| `moneda_destino` | CHAR(3) | — | CHAR(3), obligatoria. | NINGUNA |
-| `fecha` | DATE | — | DATE, obligatoria. | NINGUNA |
-| `tipo_cambio` | DECIMAL(12,6) | — | DECIMAL(12,6), obligatoria. | NINGUNA |
-| `fuente` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `cargado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `moneda_origen` | CHAR(3) | Atributo que representa moneda origen en el modelo de `tipo_cambio`. | CHAR(3), obligatoria, restricción única. | NINGUNA |
+| `moneda_destino` | CHAR(3) | Atributo que representa moneda destino en el modelo de `tipo_cambio`. | CHAR(3), obligatoria. | NINGUNA |
+| `fecha` | DATE | Fecha calendario correspondiente al devengo o ejecución de la operación. | DATE, obligatoria, índice b-tree. | NINGUNA |
+| `tipo_cambio` | DECIMAL(12,6) | Atributo que representa tipo cambio en el modelo de `tipo_cambio`. | DECIMAL(12,6), obligatoria. | NINGUNA |
+| `fuente` | VARCHAR(15) | Atributo que representa fuente en el modelo de `tipo_cambio`. | VARCHAR(15), obligatoria. | NINGUNA |
+| `cargado_en` | TIMESTAMPTZ | Marca temporal o fecha de cargado en `tipo_cambio`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 
 ### `umbral_operativo`
 
@@ -1005,9 +1005,9 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `concepto` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
-| `nivel_kyc_requerido` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `monto_maximo` | DECIMAL(16,2) | — | DECIMAL(16,2), obligatoria. | FINANCIERO |
+| `concepto` | VARCHAR(30) | Atributo que representa concepto en el modelo de `umbral_operativo`. | VARCHAR(30), obligatoria, restricción única. | NINGUNA |
+| `nivel_kyc_requerido` | VARCHAR(15) | Atributo que representa nivel kyc requerido en el modelo de `umbral_operativo`. | VARCHAR(15), obligatoria. | NINGUNA |
+| `monto_maximo` | DECIMAL(16,2) | Importe monetario correspondiente a maximo en `umbral_operativo`. | DECIMAL(16,2), obligatoria, sensibilidad financiero. | FINANCIERO |
 | `moneda` | CHAR(3) | Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2). | CHAR(3), obligatoria. | NINGUNA |
 | `vigente_desde` | DATE | Desde cuándo rige esta versión de la fila: las condiciones se versionan, no se pisan. | DATE, obligatoria. | NINGUNA |
 
@@ -1022,18 +1022,18 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `formulario` | VARCHAR(10) | — | VARCHAR(10), obligatoria. | NINGUNA |
-| `inciso` | VARCHAR(4) | — | VARCHAR(4), obligatoria. | NINGUNA |
-| `concepto_operacion` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
-| `es_acumulado` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
-| `umbral_usd` | DECIMAL(16,2) | — | DECIMAL(16,2), obligatoria. | NINGUNA |
-| `ventana_dias_calendario` | SMALLINT | — | SMALLINT, opcional. | NINGUNA |
-| `exige_declaracion_origen_destino` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
-| `reinicia_tras_superar` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
-| `base_normativa` | VARCHAR(160) | — | VARCHAR(160), obligatoria. | NINGUNA |
+| `formulario` | VARCHAR(10) | Atributo que representa formulario en el modelo de `umbral_reporte_uif`. | VARCHAR(10), obligatoria, restricción única. | NINGUNA |
+| `inciso` | VARCHAR(4) | Atributo que representa inciso en el modelo de `umbral_reporte_uif`. | VARCHAR(4), obligatoria. | NINGUNA |
+| `concepto_operacion` | VARCHAR(30) | Atributo que representa concepto operacion en el modelo de `umbral_reporte_uif`. | VARCHAR(30), obligatoria. | NINGUNA |
+| `es_acumulado` | BOOLEAN | Indicador booleano que señala si acumulado en `umbral_reporte_uif`. | BOOLEAN, obligatoria. | NINGUNA |
+| `umbral_usd` | DECIMAL(16,2) | Atributo que representa umbral usd en el modelo de `umbral_reporte_uif`. | DECIMAL(16,2), obligatoria. | NINGUNA |
+| `ventana_dias_calendario` | SMALLINT | Atributo que representa ventana dias calendario en el modelo de `umbral_reporte_uif`. | SMALLINT, opcional. | NINGUNA |
+| `exige_declaracion_origen_destino` | BOOLEAN | Atributo que representa exige declaracion origen destino en el modelo de `umbral_reporte_uif`. | BOOLEAN, obligatoria. | NINGUNA |
+| `reinicia_tras_superar` | BOOLEAN | Atributo que representa reinicia tras superar en el modelo de `umbral_reporte_uif`. | BOOLEAN, obligatoria. | NINGUNA |
+| `base_normativa` | VARCHAR(160) | Atributo que representa base normativa en el modelo de `umbral_reporte_uif`. | VARCHAR(160), obligatoria. | NINGUNA |
 | `vigente_desde` | DATE | Desde cuándo rige esta versión de la fila: las condiciones se versionan, no se pisan. | DATE, obligatoria. | NINGUNA |
 | `vigente_hasta` | DATE | Hasta cuándo rigió esta versión; vacía mientras sigue vigente. | DATE, opcional. | NINGUNA |
-| `activo` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
+| `activo` | BOOLEAN | Indicador booleano que determina si el registro se encuentra actualmente operativo. | BOOLEAN, obligatoria, índice b-tree. | NINGUNA |
 
 ## Esquema `comun`
 
@@ -1050,26 +1050,26 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `secuencia` | BIGSERIAL | — | BIGSERIAL, obligatoria. | NINGUNA |
-| `entidad` | VARCHAR(50) | — | VARCHAR(50), obligatoria. | NINGUNA |
-| `entidad_id` | UUID | — | UUID, obligatoria. | NINGUNA |
-| `accion` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
-| `actor_usuario_id` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
-| `actor_rol` | VARCHAR(30) | — | VARCHAR(30), opcional. | NINGUNA |
-| `suplantando_a_usuario_id` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
-| `origen` | VARCHAR(25) | — | VARCHAR(25), obligatoria. | NINGUNA |
-| `ip_origen` | INET | — | INET, opcional. | NINGUNA |
-| `agente_usuario` | VARCHAR(255) | — | VARCHAR(255), opcional. | NINGUNA |
-| `correlation_id` | UUID | — | UUID, obligatoria. | NINGUNA |
-| `request_id` | UUID | — | UUID, opcional. | NINGUNA |
-| `valor_anterior` | JSONB | — | JSONB, opcional. | NINGUNA |
-| `valor_nuevo` | JSONB | — | JSONB, opcional. | NINGUNA |
-| `campos_modificados` | VARCHAR(400) | — | VARCHAR(400), opcional. | NINGUNA |
-| `motivo` | VARCHAR(300) | — | VARCHAR(300), opcional. | NINGUNA |
-| `grupo_id` | UUID | — | UUID, opcional, referencia a `grupo`. | NINGUNA |
-| `hash_registro` | VARCHAR(64) | — | VARCHAR(64), obligatoria. | DERIVADO |
-| `hash_anterior` | VARCHAR(64) | — | VARCHAR(64), obligatoria. | DERIVADO |
-| `fecha_hora` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `secuencia` | BIGSERIAL | Atributo que representa secuencia en el modelo de `bitacora_evento`. | BIGSERIAL, obligatoria, restricción única. | NINGUNA |
+| `entidad` | VARCHAR(50) | Atributo que representa entidad en el modelo de `bitacora_evento`. | VARCHAR(50), obligatoria, índice b-tree. | NINGUNA |
+| `entidad_id` | UUID | Identificador de referencia para el concepto de entidad en `bitacora_evento`. | UUID, obligatoria, índice b-tree. | NINGUNA |
+| `accion` | VARCHAR(30) | Atributo que representa accion en el modelo de `bitacora_evento`. | VARCHAR(30), obligatoria, índice b-tree. | NINGUNA |
+| `actor_usuario_id` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, opcional, referencia a `usuario`, índice b-tree. | NINGUNA |
+| `actor_rol` | VARCHAR(30) | Atributo que representa actor rol en el modelo de `bitacora_evento`. | VARCHAR(30), opcional. | NINGUNA |
+| `suplantando_a_usuario_id` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, opcional, referencia a `usuario`. | NINGUNA |
+| `origen` | VARCHAR(25) | Atributo que representa origen en el modelo de `bitacora_evento`. | VARCHAR(25), obligatoria. | NINGUNA |
+| `ip_origen` | INET | Dirección IP desde la cual se ejecutó la solicitud, registrada para auditoría de seguridad. | INET, opcional. | NINGUNA |
+| `agente_usuario` | VARCHAR(255) | Atributo que representa agente usuario en el modelo de `bitacora_evento`. | VARCHAR(255), opcional. | NINGUNA |
+| `correlation_id` | UUID | Identificador de referencia para el concepto de correlation en `bitacora_evento`. | UUID, obligatoria, índice b-tree. | NINGUNA |
+| `request_id` | UUID | Identificador de referencia para el concepto de request en `bitacora_evento`. | UUID, opcional. | NINGUNA |
+| `valor_anterior` | JSONB | Atributo que representa valor anterior en el modelo de `bitacora_evento`. | JSONB, opcional. | NINGUNA |
+| `valor_nuevo` | JSONB | Atributo que representa valor nuevo en el modelo de `bitacora_evento`. | JSONB, opcional. | NINGUNA |
+| `campos_modificados` | VARCHAR(400) | Atributo que representa campos modificados en el modelo de `bitacora_evento`. | VARCHAR(400), opcional. | NINGUNA |
+| `motivo` | VARCHAR(300) | Justificación declarada o causal que originó la creación, rechazo o transición del registro. | VARCHAR(300), opcional. | NINGUNA |
+| `grupo_id` | UUID | Referencia al grupo de pasanaku en el que se enmarca esta operación. | UUID, opcional, referencia a `grupo`, índice b-tree. | NINGUNA |
+| `hash_registro` | VARCHAR(64) | Resumen criptográfico SHA-256 para verificación inmutable de registro. | VARCHAR(64), obligatoria, restricción única, sensibilidad derivado. | DERIVADO |
+| `hash_anterior` | VARCHAR(64) | Resumen criptográfico SHA-256 para verificación inmutable de anterior. | VARCHAR(64), obligatoria, sensibilidad derivado. | DERIVADO |
+| `fecha_hora` | TIMESTAMPTZ | Marca temporal o fecha de hora en `bitacora_evento`. | TIMESTAMPTZ, obligatoria, índice b-tree. | NINGUNA |
 
 ### `registro_acceso_datos`
 
@@ -1084,15 +1084,15 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `usuario_consultor_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `usuario_afectado_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `tipo_dato` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
-| `operacion` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `justificacion` | VARCHAR(300) | — | VARCHAR(300), obligatoria. | NINGUNA |
-| `ticket_soporte_id` | VARCHAR(30) | — | VARCHAR(30), opcional. | NINGUNA |
-| `cantidad_registros` | INTEGER | — | INTEGER, obligatoria. | NINGUNA |
-| `ip_origen` | INET | — | INET, obligatoria. | NINGUNA |
-| `fecha_hora` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `usuario_consultor_id` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, obligatoria, referencia a `usuario`, índice b-tree. | NINGUNA |
+| `usuario_afectado_id` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, obligatoria, referencia a `usuario`, índice b-tree. | NINGUNA |
+| `tipo_dato` | VARCHAR(30) | Atributo que representa tipo dato en el modelo de `registro_acceso_datos`. | VARCHAR(30), obligatoria. | NINGUNA |
+| `operacion` | VARCHAR(15) | Atributo que representa operacion en el modelo de `registro_acceso_datos`. | VARCHAR(15), obligatoria. | NINGUNA |
+| `justificacion` | VARCHAR(300) | Atributo que representa justificacion en el modelo de `registro_acceso_datos`. | VARCHAR(300), obligatoria. | NINGUNA |
+| `ticket_soporte_id` | VARCHAR(30) | Identificador de referencia para el concepto de ticket soporte en `registro_acceso_datos`. | VARCHAR(30), opcional. | NINGUNA |
+| `cantidad_registros` | INTEGER | Atributo que representa cantidad registros en el modelo de `registro_acceso_datos`. | INTEGER, obligatoria. | NINGUNA |
+| `ip_origen` | INET | Dirección IP desde la cual se ejecutó la solicitud, registrada para auditoría de seguridad. | INET, obligatoria. | NINGUNA |
+| `fecha_hora` | TIMESTAMPTZ | Marca temporal o fecha de hora en `registro_acceso_datos`. | TIMESTAMPTZ, obligatoria, índice b-tree. | NINGUNA |
 
 ## Esquema `cumplimiento`
 
@@ -1107,14 +1107,14 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `contrato_adhesion_id` | UUID | — | UUID, obligatoria, referencia a `contrato_adhesion`. | NINGUNA |
-| `usuario_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `dispositivo_id` | UUID | — | UUID, opcional, referencia a `dispositivo`. | NINGUNA |
-| `token_firma_id` | UUID | — | UUID, opcional, referencia a `token_verificacion`. | SECRETO |
-| `version_aceptada` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `ip` | INET | — | INET, opcional. | NINGUNA |
-| `hash_evidencia` | VARCHAR(64) | — | VARCHAR(64), obligatoria. | DERIVADO |
-| `aceptado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `contrato_adhesion_id` | UUID | Referencia por clave foránea a la entidad `contrato_adhesion`. | UUID, obligatoria, referencia a `contrato_adhesion`, índice b-tree. | NINGUNA |
+| `usuario_id` | UUID | Referencia al usuario titular de la cuenta o actor principal de la operación. | UUID, obligatoria, referencia a `usuario`, índice b-tree. | NINGUNA |
+| `dispositivo_id` | UUID | Identificador del dispositivo enrolado desde el que se autenticó la operación. | UUID, opcional, referencia a `dispositivo`. | NINGUNA |
+| `token_firma_id` | UUID | Referencia por clave foránea a la entidad `token_verificacion`. | UUID, opcional, referencia a `token_verificacion`, sensibilidad secreto. | SECRETO |
+| `version_aceptada` | SMALLINT | Atributo que representa version aceptada en el modelo de `aceptacion_contrato`. | SMALLINT, obligatoria. | NINGUNA |
+| `ip` | INET | Atributo que representa ip en el modelo de `aceptacion_contrato`. | INET, opcional. | NINGUNA |
+| `hash_evidencia` | VARCHAR(64) | Resumen criptográfico SHA-256 para verificación inmutable de evidencia. | VARCHAR(64), obligatoria, sensibilidad derivado. | DERIVADO |
+| `aceptado_en` | TIMESTAMPTZ | Marca temporal o fecha de aceptado en `aceptacion_contrato`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 
 ### `acta_comite`
 
@@ -1127,16 +1127,16 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `comite_gobierno_id` | UUID | — | UUID, obligatoria, referencia a `comite_gobierno`. | NINGUNA |
-| `elaborada_por` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
-| `numero` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
-| `fecha` | DATE | — | DATE, obligatoria. | NINGUNA |
-| `asistentes` | JSONB | — | JSONB, obligatoria. | NINGUNA |
-| `cumple_quorum` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
-| `temas_tratados` | JSONB | — | JSONB, obligatoria. | NINGUNA |
-| `decisiones` | JSONB | — | JSONB, obligatoria. | NINGUNA |
-| `url_documento` | VARCHAR(255) | — | VARCHAR(255), obligatoria. | PERSONAL |
-| `hash_documento` | VARCHAR(64) | — | VARCHAR(64), obligatoria. | DERIVADO |
+| `comite_gobierno_id` | UUID | Referencia por clave foránea a la entidad `comite_gobierno`. | UUID, obligatoria, referencia a `comite_gobierno`, índice b-tree. | NINGUNA |
+| `elaborada_por` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, opcional, referencia a `usuario`. | NINGUNA |
+| `numero` | VARCHAR(20) | Atributo que representa numero en el modelo de `acta_comite`. | VARCHAR(20), obligatoria, restricción única. | NINGUNA |
+| `fecha` | DATE | Fecha calendario correspondiente al devengo o ejecución de la operación. | DATE, obligatoria, índice b-tree. | NINGUNA |
+| `asistentes` | JSONB | Atributo que representa asistentes en el modelo de `acta_comite`. | JSONB, obligatoria. | NINGUNA |
+| `cumple_quorum` | BOOLEAN | Atributo que representa cumple quorum en el modelo de `acta_comite`. | BOOLEAN, obligatoria. | NINGUNA |
+| `temas_tratados` | JSONB | Atributo que representa temas tratados en el modelo de `acta_comite`. | JSONB, obligatoria. | NINGUNA |
+| `decisiones` | JSONB | Atributo que representa decisiones en el modelo de `acta_comite`. | JSONB, obligatoria. | NINGUNA |
+| `url_documento` | VARCHAR(255) | Localizador uniforme de recursos (URL/URI) correspondiente a documento. | VARCHAR(255), obligatoria, sensibilidad personal. | PERSONAL |
+| `hash_documento` | VARCHAR(64) | Resumen criptográfico SHA-256 para verificación inmutable de documento. | VARCHAR(64), obligatoria, sensibilidad derivado. | DERIVADO |
 
 ### `activo_informacion`
 
@@ -1149,19 +1149,19 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `propietario_id` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
-| `custodio_id` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
-| `contrato_tercero_id` | UUID | — | UUID, opcional, referencia a `contrato_tercero`. | NINGUNA |
-| `codigo` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
-| `nombre` | VARCHAR(120) | — | VARCHAR(120), obligatoria. | NINGUNA |
-| `tipo` | VARCHAR(25) | — | VARCHAR(25), obligatoria. | NINGUNA |
-| `clasificacion` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `contiene_datos_personales` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
-| `contiene_datos_sensibles` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
-| `criticidad` | VARCHAR(10) | — | VARCHAR(10), obligatoria. | NINGUNA |
-| `ubicacion` | VARCHAR(120) | — | VARCHAR(120), obligatoria. | NINGUNA |
-| `exige_cifrado` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
-| `ultima_revision` | DATE | — | DATE, obligatoria. | NINGUNA |
+| `propietario_id` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, opcional, referencia a `usuario`. | NINGUNA |
+| `custodio_id` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, opcional, referencia a `usuario`. | NINGUNA |
+| `contrato_tercero_id` | UUID | Referencia por clave foránea a la entidad `contrato_tercero`. | UUID, opcional, referencia a `contrato_tercero`. | NINGUNA |
+| `codigo` | VARCHAR(30) | Código mnemotécnico o identificador legible para operadores y personas usuarias. | VARCHAR(30), obligatoria, restricción única. | NINGUNA |
+| `nombre` | VARCHAR(120) | Nombre descriptivo de la entidad para visualización y referencia en el sistema. | VARCHAR(120), obligatoria. | NINGUNA |
+| `tipo` | VARCHAR(25) | Subtipo o modalidad específica que determina las reglas operativas aplicables al registro. | VARCHAR(25), obligatoria. | NINGUNA |
+| `clasificacion` | VARCHAR(15) | Atributo que representa clasificacion en el modelo de `activo_informacion`. | VARCHAR(15), obligatoria, índice b-tree. | NINGUNA |
+| `contiene_datos_personales` | BOOLEAN | Atributo que representa contiene datos personales en el modelo de `activo_informacion`. | BOOLEAN, obligatoria, índice b-tree. | NINGUNA |
+| `contiene_datos_sensibles` | BOOLEAN | Atributo que representa contiene datos sensibles en el modelo de `activo_informacion`. | BOOLEAN, obligatoria. | NINGUNA |
+| `criticidad` | VARCHAR(10) | Atributo que representa criticidad en el modelo de `activo_informacion`. | VARCHAR(10), obligatoria. | NINGUNA |
+| `ubicacion` | VARCHAR(120) | Atributo que representa ubicacion en el modelo de `activo_informacion`. | VARCHAR(120), obligatoria. | NINGUNA |
+| `exige_cifrado` | BOOLEAN | Atributo que representa exige cifrado en el modelo de `activo_informacion`. | BOOLEAN, obligatoria. | NINGUNA |
+| `ultima_revision` | DATE | Atributo que representa ultima revision en el modelo de `activo_informacion`. | DATE, obligatoria. | NINGUNA |
 
 ### `alerta_monitoreo_lft`
 
@@ -1174,19 +1174,19 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `regla_monitoreo_id` | UUID | — | UUID, obligatoria, referencia a `regla_monitoreo_lft`. | PERSONAL |
-| `usuario_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `cuenta_billetera_id` | UUID | — | UUID, opcional, referencia a `cuenta_billetera`. | NINGUNA |
-| `transaccion_id` | UUID | — | UUID, opcional, referencia a `transaccion_billetera`. | NINGUNA |
-| `caso_id` | UUID | — | UUID, opcional, referencia a `caso_investigacion_lft`. | NINGUNA |
-| `asignada_a` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
-| `monto_involucrado` | DECIMAL(16,2) | — | DECIMAL(16,2), obligatoria. | FINANCIERO |
-| `detalle` | JSONB | — | JSONB, obligatoria. | NINGUNA |
-| `severidad` | VARCHAR(10) | — | VARCHAR(10), obligatoria. | NINGUNA |
-| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `conclusion` | VARCHAR(500) | — | VARCHAR(500), opcional. | NINGUNA |
-| `detectada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `cerrada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `regla_monitoreo_id` | UUID | Referencia por clave foránea a la entidad `regla_monitoreo_lft`. | UUID, obligatoria, referencia a `regla_monitoreo_lft`, índice b-tree, sensibilidad personal. | PERSONAL |
+| `usuario_id` | UUID | Referencia al usuario titular de la cuenta o actor principal de la operación. | UUID, obligatoria, referencia a `usuario`, índice b-tree. | NINGUNA |
+| `cuenta_billetera_id` | UUID | Referencia a la billetera donde se debita o acredita el movimiento de fondos. | UUID, opcional, referencia a `cuenta_billetera`. | NINGUNA |
+| `transaccion_id` | UUID | Referencia por clave foránea a la entidad `transaccion_billetera`. | UUID, opcional, referencia a `transaccion_billetera`. | NINGUNA |
+| `caso_id` | UUID | Referencia por clave foránea a la entidad `caso_investigacion_lft`. | UUID, opcional, referencia a `caso_investigacion_lft`. | NINGUNA |
+| `asignada_a` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, opcional, referencia a `usuario`. | NINGUNA |
+| `monto_involucrado` | DECIMAL(16,2) | Importe monetario correspondiente a involucrado en `alerta_monitoreo_lft`. | DECIMAL(16,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `detalle` | JSONB | Atributo que representa detalle en el modelo de `alerta_monitoreo_lft`. | JSONB, obligatoria. | NINGUNA |
+| `severidad` | VARCHAR(10) | Nivel de gravedad o criticidad asignado al incidente, alerta o evento. | VARCHAR(10), obligatoria, índice b-tree. | NINGUNA |
+| `estado` | VARCHAR(15) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(15), obligatoria, índice b-tree. | NINGUNA |
+| `conclusion` | VARCHAR(500) | Atributo que representa conclusion en el modelo de `alerta_monitoreo_lft`. | VARCHAR(500), opcional. | NINGUNA |
+| `detectada_en` | TIMESTAMPTZ | Marca temporal o fecha de detectada en `alerta_monitoreo_lft`. | TIMESTAMPTZ, obligatoria, índice b-tree. | NINGUNA |
+| `cerrada_en` | TIMESTAMPTZ | Marca temporal o fecha de cerrada en `alerta_monitoreo_lft`. | TIMESTAMPTZ, opcional. | NINGUNA |
 
 ### `beneficiario_final`
 
@@ -1201,13 +1201,13 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `usuario_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `nombre` | VARCHAR(150) | — | VARCHAR(150), obligatoria. | NINGUNA |
-| `documento` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | PERSONAL |
-| `porcentaje_participacion` | DECIMAL(5,2) | — | DECIMAL(5,2), obligatoria. | NINGUNA |
-| `tipo_control` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
-| `verificado` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
-| `registrado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `usuario_id` | UUID | Referencia al usuario titular de la cuenta o actor principal de la operación. | UUID, obligatoria, referencia a `usuario`, índice b-tree. | NINGUNA |
+| `nombre` | VARCHAR(150) | Nombre descriptivo de la entidad para visualización y referencia en el sistema. | VARCHAR(150), obligatoria. | NINGUNA |
+| `documento` | VARCHAR(30) | Atributo que representa documento en el modelo de `beneficiario_final`. | VARCHAR(30), obligatoria, sensibilidad personal. | PERSONAL |
+| `porcentaje_participacion` | DECIMAL(5,2) | Tasa porcentual o alícuota aplicable a participacion. | DECIMAL(5,2), obligatoria. | NINGUNA |
+| `tipo_control` | VARCHAR(30) | Atributo que representa tipo control en el modelo de `beneficiario_final`. | VARCHAR(30), obligatoria. | NINGUNA |
+| `verificado` | BOOLEAN | Atributo que representa verificado en el modelo de `beneficiario_final`. | BOOLEAN, obligatoria. | NINGUNA |
+| `registrado_en` | TIMESTAMPTZ | Marca temporal o fecha de registrado en `beneficiario_final`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 
 ### `calificacion_riesgo_cliente`
 
@@ -1220,18 +1220,18 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `usuario_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `matriz_riesgo_id` | UUID | — | UUID, opcional, referencia a `matriz_riesgo_lft`. | NINGUNA |
-| `calificado_por` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
-| `nivel` | VARCHAR(6) | — | VARCHAR(6), obligatoria. | NINGUNA |
-| `puntaje_total` | DECIMAL(6,2) | — | DECIMAL(6,2), obligatoria. | NINGUNA |
-| `nivel_dd_requerido` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `periodicidad_revision_meses` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
+| `usuario_id` | UUID | Referencia al usuario titular de la cuenta o actor principal de la operación. | UUID, obligatoria, referencia a `usuario`, índice b-tree. | NINGUNA |
+| `matriz_riesgo_id` | UUID | Referencia por clave foránea a la entidad `matriz_riesgo_lft`. | UUID, opcional, referencia a `matriz_riesgo_lft`. | NINGUNA |
+| `calificado_por` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, opcional, referencia a `usuario`. | NINGUNA |
+| `nivel` | VARCHAR(6) | Atributo que representa nivel en el modelo de `calificacion_riesgo_cliente`. | VARCHAR(6), obligatoria, índice b-tree. | NINGUNA |
+| `puntaje_total` | DECIMAL(6,2) | Atributo que representa puntaje total en el modelo de `calificacion_riesgo_cliente`. | DECIMAL(6,2), obligatoria. | NINGUNA |
+| `nivel_dd_requerido` | VARCHAR(15) | Atributo que representa nivel dd requerido en el modelo de `calificacion_riesgo_cliente`. | VARCHAR(15), obligatoria. | NINGUNA |
+| `periodicidad_revision_meses` | SMALLINT | Atributo que representa periodicidad revision meses en el modelo de `calificacion_riesgo_cliente`. | SMALLINT, obligatoria. | NINGUNA |
 | `vigente_desde` | TIMESTAMPTZ | Desde cuándo rige esta versión de la fila: las condiciones se versionan, no se pisan. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 | `vigente_hasta` | TIMESTAMPTZ | Hasta cuándo rigió esta versión; vacía mientras sigue vigente. | TIMESTAMPTZ, opcional. | NINGUNA |
-| `proxima_revision` | DATE | — | DATE, obligatoria. | NINGUNA |
-| `es_automatica` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
-| `motivo_cambio` | VARCHAR(300) | — | VARCHAR(300), opcional. | NINGUNA |
+| `proxima_revision` | DATE | Atributo que representa proxima revision en el modelo de `calificacion_riesgo_cliente`. | DATE, obligatoria, índice b-tree. | NINGUNA |
+| `es_automatica` | BOOLEAN | Indicador booleano que señala si automatica en `calificacion_riesgo_cliente`. | BOOLEAN, obligatoria. | NINGUNA |
+| `motivo_cambio` | VARCHAR(300) | Atributo que representa motivo cambio en el modelo de `calificacion_riesgo_cliente`. | VARCHAR(300), opcional. | NINGUNA |
 
 ### `capacitacion_cumplimiento`
 
@@ -1244,15 +1244,15 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `usuario_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `tema` | VARCHAR(120) | — | VARCHAR(120), obligatoria. | NINGUNA |
-| `modalidad` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `horas` | DECIMAL(5,2) | — | DECIMAL(5,2), obligatoria. | NINGUNA |
-| `fecha` | DATE | — | DATE, obligatoria. | NINGUNA |
-| `calificacion` | DECIMAL(5,2) | — | DECIMAL(5,2), opcional. | NINGUNA |
-| `aprobada` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
-| `evidencia_url` | VARCHAR(255) | — | VARCHAR(255), opcional. | NINGUNA |
-| `periodo` | CHAR(4) | — | CHAR(4), obligatoria. | NINGUNA |
+| `usuario_id` | UUID | Referencia al usuario titular de la cuenta o actor principal de la operación. | UUID, obligatoria, referencia a `usuario`, índice b-tree. | NINGUNA |
+| `tema` | VARCHAR(120) | Atributo que representa tema en el modelo de `capacitacion_cumplimiento`. | VARCHAR(120), obligatoria. | NINGUNA |
+| `modalidad` | VARCHAR(15) | Atributo que representa modalidad en el modelo de `capacitacion_cumplimiento`. | VARCHAR(15), obligatoria. | NINGUNA |
+| `horas` | DECIMAL(5,2) | Atributo que representa horas en el modelo de `capacitacion_cumplimiento`. | DECIMAL(5,2), obligatoria. | NINGUNA |
+| `fecha` | DATE | Fecha calendario correspondiente al devengo o ejecución de la operación. | DATE, obligatoria, índice b-tree. | NINGUNA |
+| `calificacion` | DECIMAL(5,2) | Atributo que representa calificacion en el modelo de `capacitacion_cumplimiento`. | DECIMAL(5,2), opcional. | NINGUNA |
+| `aprobada` | BOOLEAN | Atributo que representa aprobada en el modelo de `capacitacion_cumplimiento`. | BOOLEAN, obligatoria. | NINGUNA |
+| `evidencia_url` | VARCHAR(255) | Localizador uniforme de recursos (URL/URI) correspondiente a evidencia. | VARCHAR(255), opcional. | NINGUNA |
+| `periodo` | CHAR(4) | Atributo que representa periodo en el modelo de `capacitacion_cumplimiento`. | CHAR(4), obligatoria, índice b-tree. | NINGUNA |
 
 ### `caso_investigacion_lft`
 
@@ -1265,20 +1265,20 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `codigo` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
-| `usuario_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `analista_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `revisado_por` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
-| `reporte_operacion_sospechosa_id` | UUID | — | UUID, opcional, referencia a `reporte_operacion_sospechosa`. | NINGUNA |
-| `origen` | VARCHAR(25) | — | VARCHAR(25), obligatoria. | NINGUNA |
-| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `prioridad` | VARCHAR(10) | — | VARCHAR(10), obligatoria. | NINGUNA |
-| `resumen` | VARCHAR(500) | — | VARCHAR(500), obligatoria. | NINGUNA |
-| `hallazgos` | TEXT | — | TEXT, opcional. | NINGUNA |
-| `decision` | VARCHAR(25) | — | VARCHAR(25), opcional. | NINGUNA |
-| `abierto_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `plazo_limite` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `cerrado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `codigo` | VARCHAR(20) | Código mnemotécnico o identificador legible para operadores y personas usuarias. | VARCHAR(20), obligatoria, restricción única. | NINGUNA |
+| `usuario_id` | UUID | Referencia al usuario titular de la cuenta o actor principal de la operación. | UUID, obligatoria, referencia a `usuario`, índice b-tree. | NINGUNA |
+| `analista_id` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
+| `revisado_por` | UUID | Identificador del usuario u operador que realizó la revisión técnica o de gobierno. | UUID, opcional, referencia a `usuario`. | NINGUNA |
+| `reporte_operacion_sospechosa_id` | UUID | Referencia por clave foránea a la entidad `reporte_operacion_sospechosa`. | UUID, opcional, referencia a `reporte_operacion_sospechosa`. | NINGUNA |
+| `origen` | VARCHAR(25) | Atributo que representa origen en el modelo de `caso_investigacion_lft`. | VARCHAR(25), obligatoria. | NINGUNA |
+| `estado` | VARCHAR(15) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(15), obligatoria, índice b-tree. | NINGUNA |
+| `prioridad` | VARCHAR(10) | Atributo que representa prioridad en el modelo de `caso_investigacion_lft`. | VARCHAR(10), obligatoria. | NINGUNA |
+| `resumen` | VARCHAR(500) | Atributo que representa resumen en el modelo de `caso_investigacion_lft`. | VARCHAR(500), obligatoria. | NINGUNA |
+| `hallazgos` | TEXT | Atributo que representa hallazgos en el modelo de `caso_investigacion_lft`. | TEXT, opcional. | NINGUNA |
+| `decision` | VARCHAR(25) | Atributo que representa decision en el modelo de `caso_investigacion_lft`. | VARCHAR(25), opcional. | NINGUNA |
+| `abierto_en` | TIMESTAMPTZ | Marca temporal o fecha de abierto en `caso_investigacion_lft`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `plazo_limite` | TIMESTAMPTZ | Atributo que representa plazo limite en el modelo de `caso_investigacion_lft`. | TIMESTAMPTZ, obligatoria, índice b-tree. | NINGUNA |
+| `cerrado_en` | TIMESTAMPTZ | Marca temporal o fecha de cerrado en `caso_investigacion_lft`. | TIMESTAMPTZ, opcional. | NINGUNA |
 
 ### `catalogo_reporte_regulatorio`
 
@@ -1293,15 +1293,15 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `codigo` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
-| `organismo` | VARCHAR(10) | — | VARCHAR(10), obligatoria. | NINGUNA |
-| `nombre` | VARCHAR(120) | — | VARCHAR(120), obligatoria. | NINGUNA |
-| `periodicidad` | VARCHAR(12) | — | VARCHAR(12), obligatoria. | NINGUNA |
-| `formato` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `plazo_dias` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `base_normativa` | VARCHAR(120) | — | VARCHAR(120), obligatoria. | NINGUNA |
-| `obligatorio` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
-| `activo` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
+| `codigo` | VARCHAR(30) | Código mnemotécnico o identificador legible para operadores y personas usuarias. | VARCHAR(30), obligatoria, restricción única. | NINGUNA |
+| `organismo` | VARCHAR(10) | Atributo que representa organismo en el modelo de `catalogo_reporte_regulatorio`. | VARCHAR(10), obligatoria, índice b-tree. | NINGUNA |
+| `nombre` | VARCHAR(120) | Nombre descriptivo de la entidad para visualización y referencia en el sistema. | VARCHAR(120), obligatoria. | NINGUNA |
+| `periodicidad` | VARCHAR(12) | Atributo que representa periodicidad en el modelo de `catalogo_reporte_regulatorio`. | VARCHAR(12), obligatoria. | NINGUNA |
+| `formato` | VARCHAR(15) | Atributo que representa formato en el modelo de `catalogo_reporte_regulatorio`. | VARCHAR(15), obligatoria. | NINGUNA |
+| `plazo_dias` | SMALLINT | Atributo que representa plazo dias en el modelo de `catalogo_reporte_regulatorio`. | SMALLINT, obligatoria. | NINGUNA |
+| `base_normativa` | VARCHAR(120) | Atributo que representa base normativa en el modelo de `catalogo_reporte_regulatorio`. | VARCHAR(120), obligatoria. | NINGUNA |
+| `obligatorio` | BOOLEAN | Atributo que representa obligatorio en el modelo de `catalogo_reporte_regulatorio`. | BOOLEAN, obligatoria. | NINGUNA |
+| `activo` | BOOLEAN | Indicador booleano que determina si el registro se encuentra actualmente operativo. | BOOLEAN, obligatoria. | NINGUNA |
 
 ### `comite_gobierno`
 
@@ -1314,11 +1314,11 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `tipo` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
-| `periodicidad_minima` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `composicion_requerida` | JSONB | — | JSONB, obligatoria. | NINGUNA |
-| `quorum_minimo` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `activo` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
+| `tipo` | VARCHAR(30) | Subtipo o modalidad específica que determina las reglas operativas aplicables al registro. | VARCHAR(30), obligatoria, restricción única. | NINGUNA |
+| `periodicidad_minima` | VARCHAR(15) | Atributo que representa periodicidad minima en el modelo de `comite_gobierno`. | VARCHAR(15), obligatoria. | NINGUNA |
+| `composicion_requerida` | JSONB | Atributo que representa composicion requerida en el modelo de `comite_gobierno`. | JSONB, obligatoria. | NINGUNA |
+| `quorum_minimo` | SMALLINT | Atributo que representa quorum minimo en el modelo de `comite_gobierno`. | SMALLINT, obligatoria. | NINGUNA |
+| `activo` | BOOLEAN | Indicador booleano que determina si el registro se encuentra actualmente operativo. | BOOLEAN, obligatoria. | NINGUNA |
 
 ### `contrato_adhesion`
 
@@ -1331,18 +1331,18 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `codigo` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
-| `version` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `tipo` | VARCHAR(25) | — | VARCHAR(25), obligatoria. | NINGUNA |
-| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `url_documento` | VARCHAR(255) | — | VARCHAR(255), obligatoria. | PERSONAL |
-| `hash_documento` | VARCHAR(64) | — | VARCHAR(64), obligatoria. | DERIVADO |
-| `registrado_ante_regulador` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
-| `numero_registro` | VARCHAR(60) | — | VARCHAR(60), opcional. | NINGUNA |
-| `fecha_registro` | DATE | — | DATE, opcional. | NINGUNA |
+| `codigo` | VARCHAR(30) | Código mnemotécnico o identificador legible para operadores y personas usuarias. | VARCHAR(30), obligatoria, restricción única. | NINGUNA |
+| `version` | SMALLINT | Número de versión para control de concurrencia optimista y auditoría de modificaciones. | SMALLINT, obligatoria. | NINGUNA |
+| `tipo` | VARCHAR(25) | Subtipo o modalidad específica que determina las reglas operativas aplicables al registro. | VARCHAR(25), obligatoria, índice b-tree. | NINGUNA |
+| `estado` | VARCHAR(15) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(15), obligatoria. | NINGUNA |
+| `url_documento` | VARCHAR(255) | Localizador uniforme de recursos (URL/URI) correspondiente a documento. | VARCHAR(255), obligatoria, sensibilidad personal. | PERSONAL |
+| `hash_documento` | VARCHAR(64) | Resumen criptográfico SHA-256 para verificación inmutable de documento. | VARCHAR(64), obligatoria, sensibilidad derivado. | DERIVADO |
+| `registrado_ante_regulador` | BOOLEAN | Atributo que representa registrado ante regulador en el modelo de `contrato_adhesion`. | BOOLEAN, obligatoria. | NINGUNA |
+| `numero_registro` | VARCHAR(60) | Numeración secuencial o identificador numérico de registro. | VARCHAR(60), opcional. | NINGUNA |
+| `fecha_registro` | DATE | Marca temporal o fecha de registro en `contrato_adhesion`. | DATE, opcional. | NINGUNA |
 | `vigente_desde` | TIMESTAMPTZ | Desde cuándo rige esta versión de la fila: las condiciones se versionan, no se pisan. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 | `vigente_hasta` | TIMESTAMPTZ | Hasta cuándo rigió esta versión; vacía mientras sigue vigente. | TIMESTAMPTZ, opcional. | NINGUNA |
-| `aprobado_por` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
+| `aprobado_por` | UUID | Identificador del usuario con facultades que autorizó la operación. | UUID, opcional, referencia a `usuario`. | NINGUNA |
 
 ### `contrato_tercero`
 
@@ -1355,23 +1355,23 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `responsable_id` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
-| `razon_social` | VARCHAR(150) | — | VARCHAR(150), obligatoria. | NINGUNA |
-| `nit` | VARCHAR(20) | — | VARCHAR(20), opcional. | PERSONAL |
-| `servicio_contratado` | VARCHAR(160) | — | VARCHAR(160), obligatoria. | NINGUNA |
-| `es_critico` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
-| `accede_a_datos_personales` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
-| `pais_procesamiento` | CHAR(2) | — | CHAR(2), obligatoria. | NINGUNA |
-| `nivel_riesgo` | VARCHAR(10) | — | VARCHAR(10), obligatoria. | NINGUNA |
-| `evaluacion_riesgo_url` | VARCHAR(255) | — | VARCHAR(255), opcional. | NINGUNA |
-| `clausula_confidencialidad` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
-| `clausula_auditoria` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
-| `clausula_continuidad` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
-| `acuerdo_nivel_servicio` | JSONB | — | JSONB, obligatoria. | NINGUNA |
-| `comunicado_al_organismo` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
+| `responsable_id` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, opcional, referencia a `usuario`. | NINGUNA |
+| `razon_social` | VARCHAR(150) | Atributo que representa razon social en el modelo de `contrato_tercero`. | VARCHAR(150), obligatoria. | NINGUNA |
+| `nit` | VARCHAR(20) | Atributo que representa nit en el modelo de `contrato_tercero`. | VARCHAR(20), opcional, sensibilidad personal. | PERSONAL |
+| `servicio_contratado` | VARCHAR(160) | Atributo que representa servicio contratado en el modelo de `contrato_tercero`. | VARCHAR(160), obligatoria. | NINGUNA |
+| `es_critico` | BOOLEAN | Indicador booleano que señala si critico en `contrato_tercero`. | BOOLEAN, obligatoria, índice b-tree. | NINGUNA |
+| `accede_a_datos_personales` | BOOLEAN | Atributo que representa accede a datos personales en el modelo de `contrato_tercero`. | BOOLEAN, obligatoria, índice b-tree. | NINGUNA |
+| `pais_procesamiento` | CHAR(2) | Atributo que representa pais procesamiento en el modelo de `contrato_tercero`. | CHAR(2), obligatoria. | NINGUNA |
+| `nivel_riesgo` | VARCHAR(10) | Atributo que representa nivel riesgo en el modelo de `contrato_tercero`. | VARCHAR(10), obligatoria. | NINGUNA |
+| `evaluacion_riesgo_url` | VARCHAR(255) | Localizador uniforme de recursos (URL/URI) correspondiente a evaluacion riesgo. | VARCHAR(255), opcional. | NINGUNA |
+| `clausula_confidencialidad` | BOOLEAN | Atributo que representa clausula confidencialidad en el modelo de `contrato_tercero`. | BOOLEAN, obligatoria. | NINGUNA |
+| `clausula_auditoria` | BOOLEAN | Atributo que representa clausula auditoria en el modelo de `contrato_tercero`. | BOOLEAN, obligatoria. | NINGUNA |
+| `clausula_continuidad` | BOOLEAN | Atributo que representa clausula continuidad en el modelo de `contrato_tercero`. | BOOLEAN, obligatoria. | NINGUNA |
+| `acuerdo_nivel_servicio` | JSONB | Atributo que representa acuerdo nivel servicio en el modelo de `contrato_tercero`. | JSONB, obligatoria. | NINGUNA |
+| `comunicado_al_organismo` | BOOLEAN | Atributo que representa comunicado al organismo en el modelo de `contrato_tercero`. | BOOLEAN, obligatoria. | NINGUNA |
 | `vigente_desde` | DATE | Desde cuándo rige esta versión de la fila: las condiciones se versionan, no se pisan. | DATE, obligatoria. | NINGUNA |
 | `vigente_hasta` | DATE | Hasta cuándo rigió esta versión; vacía mientras sigue vigente. | DATE, opcional. | NINGUNA |
-| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
+| `estado` | VARCHAR(15) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(15), obligatoria, índice b-tree. | NINGUNA |
 
 ### `control_interno`
 
@@ -1384,15 +1384,15 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `codigo` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
-| `proceso` | VARCHAR(60) | — | VARCHAR(60), obligatoria. | NINGUNA |
-| `descripcion` | VARCHAR(300) | — | VARCHAR(300), obligatoria. | NINGUNA |
-| `tipo` | VARCHAR(12) | — | VARCHAR(12), obligatoria. | NINGUNA |
-| `frecuencia` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `automatizado` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
-| `riesgo_mitigado` | VARCHAR(120) | — | VARCHAR(120), obligatoria. | NINGUNA |
-| `responsable_id` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
-| `activo` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
+| `codigo` | VARCHAR(20) | Código mnemotécnico o identificador legible para operadores y personas usuarias. | VARCHAR(20), obligatoria, restricción única. | NINGUNA |
+| `proceso` | VARCHAR(60) | Atributo que representa proceso en el modelo de `control_interno`. | VARCHAR(60), obligatoria, índice b-tree. | NINGUNA |
+| `descripcion` | VARCHAR(300) | Detalle descriptivo que explica el contenido, propósito o contexto de la entidad. | VARCHAR(300), obligatoria. | NINGUNA |
+| `tipo` | VARCHAR(12) | Subtipo o modalidad específica que determina las reglas operativas aplicables al registro. | VARCHAR(12), obligatoria. | NINGUNA |
+| `frecuencia` | VARCHAR(15) | Atributo que representa frecuencia en el modelo de `control_interno`. | VARCHAR(15), obligatoria. | NINGUNA |
+| `automatizado` | BOOLEAN | Atributo que representa automatizado en el modelo de `control_interno`. | BOOLEAN, obligatoria. | NINGUNA |
+| `riesgo_mitigado` | VARCHAR(120) | Atributo que representa riesgo mitigado en el modelo de `control_interno`. | VARCHAR(120), obligatoria. | NINGUNA |
+| `responsable_id` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, opcional, referencia a `usuario`. | NINGUNA |
+| `activo` | BOOLEAN | Indicador booleano que determina si el registro se encuentra actualmente operativo. | BOOLEAN, obligatoria, índice b-tree. | NINGUNA |
 
 ### `debida_diligencia`
 
@@ -1407,19 +1407,19 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `usuario_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `verificacion_kyc_id` | UUID | — | UUID, opcional, referencia a `verificacion_kyc`. | NINGUNA |
-| `calificacion_riesgo_id` | UUID | — | UUID, opcional, referencia a `calificacion_riesgo_cliente`. | NINGUNA |
-| `aprobada_por` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
-| `segunda_revision_por` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
-| `tipo` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `documentos_requeridos` | JSONB | — | JSONB, obligatoria. | PERSONAL |
-| `documentos_recibidos` | JSONB | — | JSONB, obligatoria. | PERSONAL |
-| `observaciones` | VARCHAR(500) | — | VARCHAR(500), opcional. | NINGUNA |
-| `iniciada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `completada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
-| `vence_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `usuario_id` | UUID | Referencia al usuario titular de la cuenta o actor principal de la operación. | UUID, obligatoria, referencia a `usuario`, índice b-tree. | NINGUNA |
+| `verificacion_kyc_id` | UUID | Referencia por clave foránea a la entidad `verificacion_kyc`. | UUID, opcional, referencia a `verificacion_kyc`. | NINGUNA |
+| `calificacion_riesgo_id` | UUID | Referencia por clave foránea a la entidad `calificacion_riesgo_cliente`. | UUID, opcional, referencia a `calificacion_riesgo_cliente`. | NINGUNA |
+| `aprobada_por` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, opcional, referencia a `usuario`. | NINGUNA |
+| `segunda_revision_por` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, opcional, referencia a `usuario`. | NINGUNA |
+| `tipo` | VARCHAR(15) | Subtipo o modalidad específica que determina las reglas operativas aplicables al registro. | VARCHAR(15), obligatoria, índice b-tree. | NINGUNA |
+| `estado` | VARCHAR(15) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(15), obligatoria, índice b-tree. | NINGUNA |
+| `documentos_requeridos` | JSONB | Atributo que representa documentos requeridos en el modelo de `debida_diligencia`. | JSONB, obligatoria, sensibilidad personal. | PERSONAL |
+| `documentos_recibidos` | JSONB | Atributo que representa documentos recibidos en el modelo de `debida_diligencia`. | JSONB, obligatoria, sensibilidad personal. | PERSONAL |
+| `observaciones` | VARCHAR(500) | Atributo que representa observaciones en el modelo de `debida_diligencia`. | VARCHAR(500), opcional. | NINGUNA |
+| `iniciada_en` | TIMESTAMPTZ | Marca temporal o fecha de iniciada en `debida_diligencia`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `completada_en` | TIMESTAMPTZ | Marca temporal o fecha de completada en `debida_diligencia`. | TIMESTAMPTZ, opcional. | NINGUNA |
+| `vence_en` | TIMESTAMPTZ | Marca temporal o fecha de vence en `debida_diligencia`. | TIMESTAMPTZ, opcional, índice b-tree. | NINGUNA |
 
 ### `declaracion_origen_fondos`
 
@@ -1434,17 +1434,17 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `usuario_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `transaccion_id` | UUID | — | UUID, opcional, referencia a `transaccion_billetera`. | NINGUNA |
-| `verificada_por` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
-| `monto` | DECIMAL(16,2) | — | DECIMAL(16,2), obligatoria. | FINANCIERO |
+| `usuario_id` | UUID | Referencia al usuario titular de la cuenta o actor principal de la operación. | UUID, obligatoria, referencia a `usuario`, índice b-tree. | NINGUNA |
+| `transaccion_id` | UUID | Referencia por clave foránea a la entidad `transaccion_billetera`. | UUID, opcional, referencia a `transaccion_billetera`. | NINGUNA |
+| `verificada_por` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, opcional, referencia a `usuario`. | NINGUNA |
+| `monto` | DECIMAL(16,2) | Importe monetario principal de la transacción o concepto financiero. | DECIMAL(16,2), obligatoria, sensibilidad financiero. | FINANCIERO |
 | `moneda` | CHAR(3) | Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2). | CHAR(3), obligatoria. | NINGUNA |
-| `origen` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
-| `descripcion` | VARCHAR(300) | — | VARCHAR(300), obligatoria. | NINGUNA |
-| `documento_respaldo_url` | VARCHAR(255) | — | VARCHAR(255), opcional. | PERSONAL |
-| `hash_documento` | VARCHAR(64) | — | VARCHAR(64), opcional. | DERIVADO |
-| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `declarada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `origen` | VARCHAR(20) | Atributo que representa origen en el modelo de `declaracion_origen_fondos`. | VARCHAR(20), obligatoria. | NINGUNA |
+| `descripcion` | VARCHAR(300) | Detalle descriptivo que explica el contenido, propósito o contexto de la entidad. | VARCHAR(300), obligatoria. | NINGUNA |
+| `documento_respaldo_url` | VARCHAR(255) | Localizador uniforme de recursos (URL/URI) correspondiente a documento respaldo. | VARCHAR(255), opcional, sensibilidad personal. | PERSONAL |
+| `hash_documento` | VARCHAR(64) | Resumen criptográfico SHA-256 para verificación inmutable de documento. | VARCHAR(64), opcional, sensibilidad derivado. | DERIVADO |
+| `estado` | VARCHAR(15) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(15), obligatoria. | NINGUNA |
+| `declarada_en` | TIMESTAMPTZ | Marca temporal o fecha de declarada en `declaracion_origen_fondos`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 
 ### `declaracion_pep`
 
@@ -1459,17 +1459,17 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `usuario_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `verificada_por` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
-| `es_pep` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
-| `tipo_pep` | VARCHAR(25) | — | VARCHAR(25), opcional. | NINGUNA |
-| `cargo` | VARCHAR(120) | — | VARCHAR(120), opcional. | NINGUNA |
-| `institucion` | VARCHAR(120) | — | VARCHAR(120), opcional. | NINGUNA |
-| `pais` | CHAR(2) | — | CHAR(2), opcional. | NINGUNA |
-| `desde` | DATE | — | DATE, opcional. | NINGUNA |
-| `hasta` | DATE | — | DATE, opcional. | NINGUNA |
-| `evidencia_url` | VARCHAR(255) | — | VARCHAR(255), opcional. | NINGUNA |
-| `declarada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `usuario_id` | UUID | Referencia al usuario titular de la cuenta o actor principal de la operación. | UUID, obligatoria, referencia a `usuario`, índice b-tree. | NINGUNA |
+| `verificada_por` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, opcional, referencia a `usuario`. | NINGUNA |
+| `es_pep` | BOOLEAN | Indicador booleano que señala si pep en `declaracion_pep`. | BOOLEAN, obligatoria, índice b-tree. | NINGUNA |
+| `tipo_pep` | VARCHAR(25) | Atributo que representa tipo pep en el modelo de `declaracion_pep`. | VARCHAR(25), opcional. | NINGUNA |
+| `cargo` | VARCHAR(120) | Atributo que representa cargo en el modelo de `declaracion_pep`. | VARCHAR(120), opcional. | NINGUNA |
+| `institucion` | VARCHAR(120) | Atributo que representa institucion en el modelo de `declaracion_pep`. | VARCHAR(120), opcional. | NINGUNA |
+| `pais` | CHAR(2) | Atributo que representa pais en el modelo de `declaracion_pep`. | CHAR(2), opcional. | NINGUNA |
+| `desde` | DATE | Atributo que representa desde en el modelo de `declaracion_pep`. | DATE, opcional. | NINGUNA |
+| `hasta` | DATE | Atributo que representa hasta en el modelo de `declaracion_pep`. | DATE, opcional. | NINGUNA |
+| `evidencia_url` | VARCHAR(255) | Localizador uniforme de recursos (URL/URI) correspondiente a evidencia. | VARCHAR(255), opcional. | NINGUNA |
+| `declarada_en` | TIMESTAMPTZ | Marca temporal o fecha de declarada en `declaracion_pep`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 
 ### `designacion_regulatoria`
 
@@ -1482,15 +1482,15 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `usuario_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `acta_comite_id` | UUID | — | UUID, opcional, referencia a `acta_comite`. | NINGUNA |
-| `cargo` | VARCHAR(40) | — | VARCHAR(40), obligatoria. | NINGUNA |
-| `tipo` | VARCHAR(10) | — | VARCHAR(10), obligatoria. | NINGUNA |
-| `fecha_designacion` | DATE | — | DATE, obligatoria. | NINGUNA |
-| `organismo_comunicado` | VARCHAR(10) | — | VARCHAR(10), opcional. | NINGUNA |
-| `comunicada_al_organismo_en` | DATE | — | DATE, opcional. | NINGUNA |
-| `fecha_baja` | DATE | — | DATE, opcional. | NINGUNA |
-| `activo` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
+| `usuario_id` | UUID | Referencia al usuario titular de la cuenta o actor principal de la operación. | UUID, obligatoria, referencia a `usuario`, índice b-tree. | NINGUNA |
+| `acta_comite_id` | UUID | Referencia por clave foránea a la entidad `acta_comite`. | UUID, opcional, referencia a `acta_comite`. | NINGUNA |
+| `cargo` | VARCHAR(40) | Atributo que representa cargo en el modelo de `designacion_regulatoria`. | VARCHAR(40), obligatoria, índice b-tree. | NINGUNA |
+| `tipo` | VARCHAR(10) | Subtipo o modalidad específica que determina las reglas operativas aplicables al registro. | VARCHAR(10), obligatoria. | NINGUNA |
+| `fecha_designacion` | DATE | Marca temporal o fecha de designacion en `designacion_regulatoria`. | DATE, obligatoria. | NINGUNA |
+| `organismo_comunicado` | VARCHAR(10) | Atributo que representa organismo comunicado en el modelo de `designacion_regulatoria`. | VARCHAR(10), opcional. | NINGUNA |
+| `comunicada_al_organismo_en` | DATE | Marca temporal o fecha de comunicada al organismo en `designacion_regulatoria`. | DATE, opcional. | NINGUNA |
+| `fecha_baja` | DATE | Marca temporal o fecha de baja en `designacion_regulatoria`. | DATE, opcional. | NINGUNA |
+| `activo` | BOOLEAN | Indicador booleano que determina si el registro se encuentra actualmente operativo. | BOOLEAN, obligatoria, índice b-tree. | NINGUNA |
 
 ### `desvio_perfil`
 
@@ -1505,17 +1505,17 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `usuario_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `perfil_transaccional_id` | UUID | — | UUID, obligatoria, referencia a `perfil_transaccional`. | NINGUNA |
-| `alerta_monitoreo_id` | UUID | — | UUID, opcional, referencia a `alerta_monitoreo_lft`. | PERSONAL |
-| `periodo` | CHAR(7) | — | CHAR(7), obligatoria. | NINGUNA |
-| `monto_observado` | DECIMAL(16,2) | — | DECIMAL(16,2), obligatoria. | FINANCIERO |
-| `monto_esperado` | DECIMAL(16,2) | — | DECIMAL(16,2), obligatoria. | FINANCIERO |
-| `desvio_porcentual` | DECIMAL(8,2) | — | DECIMAL(8,2), obligatoria. | NINGUNA |
-| `severidad` | VARCHAR(10) | — | VARCHAR(10), obligatoria. | NINGUNA |
-| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `justificacion` | VARCHAR(500) | — | VARCHAR(500), opcional. | NINGUNA |
-| `detectado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `usuario_id` | UUID | Referencia al usuario titular de la cuenta o actor principal de la operación. | UUID, obligatoria, referencia a `usuario`, índice b-tree. | NINGUNA |
+| `perfil_transaccional_id` | UUID | Referencia por clave foránea a la entidad `perfil_transaccional`. | UUID, obligatoria, referencia a `perfil_transaccional`. | NINGUNA |
+| `alerta_monitoreo_id` | UUID | Referencia por clave foránea a la entidad `alerta_monitoreo_lft`. | UUID, opcional, referencia a `alerta_monitoreo_lft`, sensibilidad personal. | PERSONAL |
+| `periodo` | CHAR(7) | Atributo que representa periodo en el modelo de `desvio_perfil`. | CHAR(7), obligatoria, restricción única. | NINGUNA |
+| `monto_observado` | DECIMAL(16,2) | Importe monetario correspondiente a observado en `desvio_perfil`. | DECIMAL(16,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `monto_esperado` | DECIMAL(16,2) | Importe monetario correspondiente a esperado en `desvio_perfil`. | DECIMAL(16,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `desvio_porcentual` | DECIMAL(8,2) | Atributo que representa desvio porcentual en el modelo de `desvio_perfil`. | DECIMAL(8,2), obligatoria, índice b-tree. | NINGUNA |
+| `severidad` | VARCHAR(10) | Nivel de gravedad o criticidad asignado al incidente, alerta o evento. | VARCHAR(10), obligatoria. | NINGUNA |
+| `estado` | VARCHAR(15) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(15), obligatoria, índice b-tree. | NINGUNA |
+| `justificacion` | VARCHAR(500) | Atributo que representa justificacion en el modelo de `desvio_perfil`. | VARCHAR(500), opcional. | NINGUNA |
+| `detectado_en` | TIMESTAMPTZ | Marca temporal o fecha de detectado en `desvio_perfil`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 
 ### `documento_publicado`
 
@@ -1530,12 +1530,12 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `tipo` | VARCHAR(25) | — | VARCHAR(25), obligatoria. | NINGUNA |
-| `referencia_tipo` | VARCHAR(30) | — | VARCHAR(30), opcional. | NINGUNA |
-| `referencia_id` | UUID | — | UUID, opcional. | NINGUNA |
-| `publicado_por` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
-| `url_publica` | VARCHAR(255) | — | VARCHAR(255), obligatoria. | NINGUNA |
-| `hash_documento` | VARCHAR(64) | — | VARCHAR(64), obligatoria. | DERIVADO |
+| `tipo` | VARCHAR(25) | Subtipo o modalidad específica que determina las reglas operativas aplicables al registro. | VARCHAR(25), obligatoria, índice b-tree. | NINGUNA |
+| `referencia_tipo` | VARCHAR(30) | Atributo que representa referencia tipo en el modelo de `documento_publicado`. | VARCHAR(30), opcional. | NINGUNA |
+| `referencia_id` | UUID | Identificador de referencia para el concepto de referencia en `documento_publicado`. | UUID, opcional. | NINGUNA |
+| `publicado_por` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, opcional, referencia a `usuario`. | NINGUNA |
+| `url_publica` | VARCHAR(255) | Localizador uniforme de recursos (URL/URI) correspondiente a publica. | VARCHAR(255), obligatoria. | NINGUNA |
+| `hash_documento` | VARCHAR(64) | Resumen criptográfico SHA-256 para verificación inmutable de documento. | VARCHAR(64), obligatoria, sensibilidad derivado. | DERIVADO |
 | `vigente_desde` | TIMESTAMPTZ | Desde cuándo rige esta versión de la fila: las condiciones se versionan, no se pisan. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 | `vigente_hasta` | TIMESTAMPTZ | Hasta cuándo rigió esta versión; vacía mientras sigue vigente. | TIMESTAMPTZ, opcional. | NINGUNA |
 
@@ -1550,16 +1550,16 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `licencia_regulatoria_id` | UUID | — | UUID, obligatoria, referencia a `licencia_regulatoria`. | NINGUNA |
-| `servicio_en_prueba` | VARCHAR(120) | — | VARCHAR(120), obligatoria. | NINGUNA |
-| `alcance` | JSONB | — | JSONB, obligatoria. | NINGUNA |
-| `limite_usuarios` | INTEGER | — | INTEGER, opcional. | NINGUNA |
-| `limite_monto_operacion` | DECIMAL(16,2) | — | DECIMAL(16,2), opcional. | FINANCIERO |
-| `garantia_constituida` | DECIMAL(16,2) | — | DECIMAL(16,2), opcional. | NINGUNA |
-| `fecha_inicio` | DATE | — | DATE, obligatoria. | NINGUNA |
-| `fecha_fin` | DATE | — | DATE, obligatoria. | NINGUNA |
-| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `informes_remitidos` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
+| `licencia_regulatoria_id` | UUID | Referencia por clave foránea a la entidad `licencia_regulatoria`. | UUID, obligatoria, referencia a `licencia_regulatoria`, índice b-tree. | NINGUNA |
+| `servicio_en_prueba` | VARCHAR(120) | Atributo que representa servicio en prueba en el modelo de `entorno_prueba_regulado`. | VARCHAR(120), obligatoria. | NINGUNA |
+| `alcance` | JSONB | Atributo que representa alcance en el modelo de `entorno_prueba_regulado`. | JSONB, obligatoria. | NINGUNA |
+| `limite_usuarios` | INTEGER | Atributo que representa limite usuarios en el modelo de `entorno_prueba_regulado`. | INTEGER, opcional. | NINGUNA |
+| `limite_monto_operacion` | DECIMAL(16,2) | Atributo que representa limite monto operacion en el modelo de `entorno_prueba_regulado`. | DECIMAL(16,2), opcional, sensibilidad financiero. | FINANCIERO |
+| `garantia_constituida` | DECIMAL(16,2) | Atributo que representa garantia constituida en el modelo de `entorno_prueba_regulado`. | DECIMAL(16,2), opcional. | NINGUNA |
+| `fecha_inicio` | DATE | Marca temporal o fecha de inicio en `entorno_prueba_regulado`. | DATE, obligatoria. | NINGUNA |
+| `fecha_fin` | DATE | Marca temporal o fecha de fin en `entorno_prueba_regulado`. | DATE, obligatoria. | NINGUNA |
+| `estado` | VARCHAR(15) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(15), obligatoria, índice b-tree. | NINGUNA |
+| `informes_remitidos` | SMALLINT | Atributo que representa informes remitidos en el modelo de `entorno_prueba_regulado`. | SMALLINT, obligatoria. | NINGUNA |
 
 ### `envio_regulatorio`
 
@@ -1574,15 +1574,15 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `reporte_regulatorio_id` | UUID | — | UUID, obligatoria, referencia a `reporte_regulatorio`. | NINGUNA |
-| `enviado_por` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
-| `organismo` | VARCHAR(10) | — | VARCHAR(10), obligatoria. | NINGUNA |
-| `canal` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
-| `fecha_envio` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `numero_constancia` | VARCHAR(60) | — | VARCHAR(60), opcional. | NINGUNA |
-| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `respuesta` | JSONB | — | JSONB, opcional. | NINGUNA |
-| `reintentos` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
+| `reporte_regulatorio_id` | UUID | Referencia por clave foránea a la entidad `reporte_regulatorio`. | UUID, obligatoria, referencia a `reporte_regulatorio`, índice b-tree. | NINGUNA |
+| `enviado_por` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, opcional, referencia a `usuario`. | NINGUNA |
+| `organismo` | VARCHAR(10) | Atributo que representa organismo en el modelo de `envio_regulatorio`. | VARCHAR(10), obligatoria. | NINGUNA |
+| `canal` | VARCHAR(20) | Atributo que representa canal en el modelo de `envio_regulatorio`. | VARCHAR(20), obligatoria. | NINGUNA |
+| `fecha_envio` | TIMESTAMPTZ | Marca temporal o fecha de envio en `envio_regulatorio`. | TIMESTAMPTZ, obligatoria, índice b-tree. | NINGUNA |
+| `numero_constancia` | VARCHAR(60) | Numeración secuencial o identificador numérico de constancia. | VARCHAR(60), opcional, restricción única. | NINGUNA |
+| `estado` | VARCHAR(15) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(15), obligatoria, índice b-tree. | NINGUNA |
+| `respuesta` | JSONB | Atributo que representa respuesta en el modelo de `envio_regulatorio`. | JSONB, opcional. | NINGUNA |
+| `reintentos` | SMALLINT | Atributo que representa reintentos en el modelo de `envio_regulatorio`. | SMALLINT, obligatoria. | NINGUNA |
 
 ### `evaluacion_riesgo_producto`
 
@@ -1595,15 +1595,15 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `producto` | VARCHAR(60) | — | VARCHAR(60), obligatoria. | NINGUNA |
-| `version` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `aprobada_por` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
-| `riesgos_identificados` | JSONB | — | JSONB, obligatoria. | NINGUNA |
-| `nivel_riesgo_lft` | VARCHAR(6) | — | VARCHAR(6), obligatoria. | NINGUNA |
-| `controles_definidos` | JSONB | — | JSONB, obligatoria. | NINGUNA |
-| `requiere_no_objecion` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
-| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `fecha_aprobacion` | DATE | — | DATE, opcional. | NINGUNA |
+| `producto` | VARCHAR(60) | Atributo que representa producto en el modelo de `evaluacion_riesgo_producto`. | VARCHAR(60), obligatoria. | NINGUNA |
+| `version` | SMALLINT | Número de versión para control de concurrencia optimista y auditoría de modificaciones. | SMALLINT, obligatoria. | NINGUNA |
+| `aprobada_por` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, opcional, referencia a `usuario`. | NINGUNA |
+| `riesgos_identificados` | JSONB | Atributo que representa riesgos identificados en el modelo de `evaluacion_riesgo_producto`. | JSONB, obligatoria. | NINGUNA |
+| `nivel_riesgo_lft` | VARCHAR(6) | Atributo que representa nivel riesgo lft en el modelo de `evaluacion_riesgo_producto`. | VARCHAR(6), obligatoria. | NINGUNA |
+| `controles_definidos` | JSONB | Atributo que representa controles definidos en el modelo de `evaluacion_riesgo_producto`. | JSONB, obligatoria. | NINGUNA |
+| `requiere_no_objecion` | BOOLEAN | Atributo que representa requiere no objecion en el modelo de `evaluacion_riesgo_producto`. | BOOLEAN, obligatoria. | NINGUNA |
+| `estado` | VARCHAR(15) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(15), obligatoria. | NINGUNA |
+| `fecha_aprobacion` | DATE | Marca temporal o fecha de aprobacion en `evaluacion_riesgo_producto`. | DATE, opcional. | NINGUNA |
 
 ### `evaluacion_tercero`
 
@@ -1616,14 +1616,14 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `contrato_tercero_id` | UUID | — | UUID, obligatoria, referencia a `contrato_tercero`. | NINGUNA |
-| `evaluado_por` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `periodo` | CHAR(7) | — | CHAR(7), obligatoria. | NINGUNA |
-| `cumplimiento_sla` | DECIMAL(5,2) | — | DECIMAL(5,2), obligatoria. | NINGUNA |
-| `incidentes_atribuibles` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `resultado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `acciones_requeridas` | VARCHAR(400) | — | VARCHAR(400), opcional. | NINGUNA |
-| `evaluada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `contrato_tercero_id` | UUID | Referencia por clave foránea a la entidad `contrato_tercero`. | UUID, obligatoria, referencia a `contrato_tercero`, índice b-tree. | NINGUNA |
+| `evaluado_por` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
+| `periodo` | CHAR(7) | Atributo que representa periodo en el modelo de `evaluacion_tercero`. | CHAR(7), obligatoria, restricción única. | NINGUNA |
+| `cumplimiento_sla` | DECIMAL(5,2) | Atributo que representa cumplimiento sla en el modelo de `evaluacion_tercero`. | DECIMAL(5,2), obligatoria. | NINGUNA |
+| `incidentes_atribuibles` | SMALLINT | Atributo que representa incidentes atribuibles en el modelo de `evaluacion_tercero`. | SMALLINT, obligatoria. | NINGUNA |
+| `resultado` | VARCHAR(15) | Desenlace, dictamen o veredicto de la evaluación o proceso ejecutado. | VARCHAR(15), obligatoria. | NINGUNA |
+| `acciones_requeridas` | VARCHAR(400) | Atributo que representa acciones requeridas en el modelo de `evaluacion_tercero`. | VARCHAR(400), opcional. | NINGUNA |
+| `evaluada_en` | TIMESTAMPTZ | Marca temporal o fecha de evaluada en `evaluacion_tercero`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 
 ### `evento_riesgo_operativo`
 
@@ -1638,23 +1638,23 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `codigo` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
-| `incidente_operativo_id` | UUID | — | UUID, opcional, referencia a `incidente_operativo`. | NINGUNA |
-| `registrado_por` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `categoria_evento` | VARCHAR(35) | — | VARCHAR(35), obligatoria. | NINGUNA |
-| `factor_riesgo` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
-| `reportado_central_riesgo_operativo` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
-| `linea_negocio` | VARCHAR(40) | — | VARCHAR(40), obligatoria. | NINGUNA |
-| `descripcion` | TEXT | — | TEXT, obligatoria. | NINGUNA |
-| `fecha_ocurrencia` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `fecha_deteccion` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `fecha_contabilizacion` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
-| `perdida_bruta` | DECIMAL(16,2) | — | DECIMAL(16,2), obligatoria. | NINGUNA |
-| `recuperacion` | DECIMAL(16,2) | — | DECIMAL(16,2), obligatoria. | NINGUNA |
-| `perdida_neta` | DECIMAL(16,2) | — | DECIMAL(16,2), obligatoria, calculada por la base, no se escribe. | NINGUNA |
+| `codigo` | VARCHAR(20) | Código mnemotécnico o identificador legible para operadores y personas usuarias. | VARCHAR(20), obligatoria, restricción única. | NINGUNA |
+| `incidente_operativo_id` | UUID | Referencia por clave foránea a la entidad `incidente_operativo`. | UUID, opcional, referencia a `incidente_operativo`. | NINGUNA |
+| `registrado_por` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
+| `categoria_evento` | VARCHAR(35) | Atributo que representa categoria evento en el modelo de `evento_riesgo_operativo`. | VARCHAR(35), obligatoria, índice b-tree. | NINGUNA |
+| `factor_riesgo` | VARCHAR(30) | Atributo que representa factor riesgo en el modelo de `evento_riesgo_operativo`. | VARCHAR(30), obligatoria, índice b-tree. | NINGUNA |
+| `reportado_central_riesgo_operativo` | BOOLEAN | Atributo que representa reportado central riesgo operativo en el modelo de `evento_riesgo_operativo`. | BOOLEAN, obligatoria, índice b-tree. | NINGUNA |
+| `linea_negocio` | VARCHAR(40) | Atributo que representa linea negocio en el modelo de `evento_riesgo_operativo`. | VARCHAR(40), obligatoria. | NINGUNA |
+| `descripcion` | TEXT | Detalle descriptivo que explica el contenido, propósito o contexto de la entidad. | TEXT, obligatoria. | NINGUNA |
+| `fecha_ocurrencia` | TIMESTAMPTZ | Marca temporal o fecha de ocurrencia en `evento_riesgo_operativo`. | TIMESTAMPTZ, obligatoria, índice b-tree. | NINGUNA |
+| `fecha_deteccion` | TIMESTAMPTZ | Marca temporal o fecha de deteccion en `evento_riesgo_operativo`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `fecha_contabilizacion` | TIMESTAMPTZ | Marca temporal o fecha de contabilizacion en `evento_riesgo_operativo`. | TIMESTAMPTZ, opcional. | NINGUNA |
+| `perdida_bruta` | DECIMAL(16,2) | Atributo que representa perdida bruta en el modelo de `evento_riesgo_operativo`. | DECIMAL(16,2), obligatoria. | NINGUNA |
+| `recuperacion` | DECIMAL(16,2) | Atributo que representa recuperacion en el modelo de `evento_riesgo_operativo`. | DECIMAL(16,2), obligatoria. | NINGUNA |
+| `perdida_neta` | DECIMAL(16,2) | Atributo que representa perdida neta en el modelo de `evento_riesgo_operativo`. | DECIMAL(16,2), obligatoria, calculada por la base, no se escribe. | NINGUNA |
 | `moneda` | CHAR(3) | Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2). | CHAR(3), obligatoria. | NINGUNA |
-| `causa_raiz` | TEXT | — | TEXT, opcional. | NINGUNA |
-| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
+| `causa_raiz` | TEXT | Atributo que representa causa raiz en el modelo de `evento_riesgo_operativo`. | TEXT, opcional. | NINGUNA |
+| `estado` | VARCHAR(15) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(15), obligatoria, índice b-tree. | NINGUNA |
 
 ### `expediente_cliente`
 
@@ -1667,14 +1667,14 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `usuario_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `responsable_id` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
-| `completitud_porcentaje` | DECIMAL(5,2) | — | DECIMAL(5,2), obligatoria. | NINGUNA |
-| `documentos` | JSONB | — | JSONB, obligatoria. | PERSONAL |
-| `ubicacion_fisica` | VARCHAR(120) | — | VARCHAR(120), opcional. | NINGUNA |
-| `retencion_hasta` | DATE | — | DATE, obligatoria. | NINGUNA |
-| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `ultima_actualizacion` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `usuario_id` | UUID | Referencia al usuario titular de la cuenta o actor principal de la operación. | UUID, obligatoria, referencia a `usuario`, restricción única. | NINGUNA |
+| `responsable_id` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, opcional, referencia a `usuario`. | NINGUNA |
+| `completitud_porcentaje` | DECIMAL(5,2) | Tasa porcentual o alícuota aplicable a completitud. | DECIMAL(5,2), obligatoria. | NINGUNA |
+| `documentos` | JSONB | Atributo que representa documentos en el modelo de `expediente_cliente`. | JSONB, obligatoria, sensibilidad personal. | PERSONAL |
+| `ubicacion_fisica` | VARCHAR(120) | Atributo que representa ubicacion fisica en el modelo de `expediente_cliente`. | VARCHAR(120), opcional. | NINGUNA |
+| `retencion_hasta` | DATE | Atributo que representa retencion hasta en el modelo de `expediente_cliente`. | DATE, obligatoria, índice b-tree. | NINGUNA |
+| `estado` | VARCHAR(15) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(15), obligatoria. | NINGUNA |
+| `ultima_actualizacion` | TIMESTAMPTZ | Atributo que representa ultima actualizacion en el modelo de `expediente_cliente`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 
 ### `factor_riesgo_evaluado`
 
@@ -1687,13 +1687,13 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `usuario_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `matriz_riesgo_id` | UUID | — | UUID, obligatoria, referencia a `matriz_riesgo_lft`. | NINGUNA |
-| `dimension` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
-| `factor` | VARCHAR(60) | — | VARCHAR(60), obligatoria. | NINGUNA |
-| `valor_observado` | VARCHAR(120) | — | VARCHAR(120), obligatoria. | NINGUNA |
-| `puntaje` | DECIMAL(6,2) | — | DECIMAL(6,2), obligatoria. | NINGUNA |
-| `evaluado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `usuario_id` | UUID | Referencia al usuario titular de la cuenta o actor principal de la operación. | UUID, obligatoria, referencia a `usuario`, índice b-tree. | NINGUNA |
+| `matriz_riesgo_id` | UUID | Referencia por clave foránea a la entidad `matriz_riesgo_lft`. | UUID, obligatoria, referencia a `matriz_riesgo_lft`. | NINGUNA |
+| `dimension` | VARCHAR(20) | Atributo que representa dimension en el modelo de `factor_riesgo_evaluado`. | VARCHAR(20), obligatoria. | NINGUNA |
+| `factor` | VARCHAR(60) | Atributo que representa factor en el modelo de `factor_riesgo_evaluado`. | VARCHAR(60), obligatoria. | NINGUNA |
+| `valor_observado` | VARCHAR(120) | Atributo que representa valor observado en el modelo de `factor_riesgo_evaluado`. | VARCHAR(120), obligatoria. | NINGUNA |
+| `puntaje` | DECIMAL(6,2) | Atributo que representa puntaje en el modelo de `factor_riesgo_evaluado`. | DECIMAL(6,2), obligatoria. | NINGUNA |
+| `evaluado_en` | TIMESTAMPTZ | Marca temporal o fecha de evaluado en `factor_riesgo_evaluado`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 
 ### `hallazgo_auditoria`
 
@@ -1706,15 +1706,15 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `codigo` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
-| `responsable_id` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
-| `origen` | VARCHAR(25) | — | VARCHAR(25), obligatoria. | NINGUNA |
-| `descripcion` | TEXT | — | TEXT, obligatoria. | NINGUNA |
-| `severidad` | VARCHAR(10) | — | VARCHAR(10), obligatoria. | NINGUNA |
-| `proceso` | VARCHAR(60) | — | VARCHAR(60), obligatoria. | NINGUNA |
-| `fecha_identificacion` | DATE | — | DATE, obligatoria. | NINGUNA |
-| `plazo_regularizacion` | DATE | — | DATE, obligatoria. | NINGUNA |
-| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
+| `codigo` | VARCHAR(20) | Código mnemotécnico o identificador legible para operadores y personas usuarias. | VARCHAR(20), obligatoria, restricción única. | NINGUNA |
+| `responsable_id` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, opcional, referencia a `usuario`. | NINGUNA |
+| `origen` | VARCHAR(25) | Atributo que representa origen en el modelo de `hallazgo_auditoria`. | VARCHAR(25), obligatoria, índice b-tree. | NINGUNA |
+| `descripcion` | TEXT | Detalle descriptivo que explica el contenido, propósito o contexto de la entidad. | TEXT, obligatoria. | NINGUNA |
+| `severidad` | VARCHAR(10) | Nivel de gravedad o criticidad asignado al incidente, alerta o evento. | VARCHAR(10), obligatoria, índice b-tree. | NINGUNA |
+| `proceso` | VARCHAR(60) | Atributo que representa proceso en el modelo de `hallazgo_auditoria`. | VARCHAR(60), obligatoria. | NINGUNA |
+| `fecha_identificacion` | DATE | Marca temporal o fecha de identificacion en `hallazgo_auditoria`. | DATE, obligatoria. | NINGUNA |
+| `plazo_regularizacion` | DATE | Atributo que representa plazo regularizacion en el modelo de `hallazgo_auditoria`. | DATE, obligatoria, índice b-tree. | NINGUNA |
+| `estado` | VARCHAR(15) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(15), obligatoria, índice b-tree. | NINGUNA |
 
 ### `incidente_seguridad`
 
@@ -1727,23 +1727,23 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `codigo` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
-| `activo_informacion_id` | UUID | — | UUID, opcional, referencia a `activo_informacion`. | NINGUNA |
-| `incidente_operativo_id` | UUID | — | UUID, opcional, referencia a `incidente_operativo`. | NINGUNA |
-| `evento_riesgo_id` | UUID | — | UUID, opcional, referencia a `evento_riesgo_operativo`. | NINGUNA |
-| `responsable_id` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
-| `tipo` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
-| `severidad` | VARCHAR(10) | — | VARCHAR(10), obligatoria. | NINGUNA |
-| `vector_ataque` | VARCHAR(60) | — | VARCHAR(60), opcional. | NINGUNA |
-| `datos_personales_afectados` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
-| `usuarios_afectados` | INTEGER | — | INTEGER, obligatoria. | NINGUNA |
-| `detectado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `contenido_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
-| `reportado_al_organismo_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
-| `notificado_a_titulares_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
-| `plazo_reporte` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `leccion_aprendida` | TEXT | — | TEXT, opcional. | NINGUNA |
+| `codigo` | VARCHAR(20) | Código mnemotécnico o identificador legible para operadores y personas usuarias. | VARCHAR(20), obligatoria, restricción única. | NINGUNA |
+| `activo_informacion_id` | UUID | Referencia por clave foránea a la entidad `activo_informacion`. | UUID, opcional, referencia a `activo_informacion`, índice b-tree. | NINGUNA |
+| `incidente_operativo_id` | UUID | Referencia por clave foránea a la entidad `incidente_operativo`. | UUID, opcional, referencia a `incidente_operativo`. | NINGUNA |
+| `evento_riesgo_id` | UUID | Referencia por clave foránea a la entidad `evento_riesgo_operativo`. | UUID, opcional, referencia a `evento_riesgo_operativo`. | NINGUNA |
+| `responsable_id` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, opcional, referencia a `usuario`. | NINGUNA |
+| `tipo` | VARCHAR(30) | Subtipo o modalidad específica que determina las reglas operativas aplicables al registro. | VARCHAR(30), obligatoria, índice b-tree. | NINGUNA |
+| `severidad` | VARCHAR(10) | Nivel de gravedad o criticidad asignado al incidente, alerta o evento. | VARCHAR(10), obligatoria, índice b-tree. | NINGUNA |
+| `vector_ataque` | VARCHAR(60) | Atributo que representa vector ataque en el modelo de `incidente_seguridad`. | VARCHAR(60), opcional. | NINGUNA |
+| `datos_personales_afectados` | BOOLEAN | Atributo que representa datos personales afectados en el modelo de `incidente_seguridad`. | BOOLEAN, obligatoria, índice b-tree. | NINGUNA |
+| `usuarios_afectados` | INTEGER | Atributo que representa usuarios afectados en el modelo de `incidente_seguridad`. | INTEGER, obligatoria. | NINGUNA |
+| `detectado_en` | TIMESTAMPTZ | Marca temporal o fecha de detectado en `incidente_seguridad`. | TIMESTAMPTZ, obligatoria, índice b-tree. | NINGUNA |
+| `contenido_en` | TIMESTAMPTZ | Marca temporal o fecha de contenido en `incidente_seguridad`. | TIMESTAMPTZ, opcional. | NINGUNA |
+| `reportado_al_organismo_en` | TIMESTAMPTZ | Marca temporal o fecha de reportado al organismo en `incidente_seguridad`. | TIMESTAMPTZ, opcional. | NINGUNA |
+| `notificado_a_titulares_en` | TIMESTAMPTZ | Marca temporal o fecha de notificado a titulares en `incidente_seguridad`. | TIMESTAMPTZ, opcional. | NINGUNA |
+| `plazo_reporte` | TIMESTAMPTZ | Atributo que representa plazo reporte en el modelo de `incidente_seguridad`. | TIMESTAMPTZ, obligatoria, índice b-tree. | NINGUNA |
+| `estado` | VARCHAR(15) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(15), obligatoria, índice b-tree. | NINGUNA |
+| `leccion_aprendida` | TEXT | Atributo que representa leccion aprendida en el modelo de `incidente_seguridad`. | TEXT, opcional. | NINGUNA |
 
 ### `instancia_reclamo`
 
@@ -1758,14 +1758,14 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `reclamo_id` | UUID | — | UUID, obligatoria, referencia a `reclamo_cliente`. | NINGUNA |
-| `instancia` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `fecha_elevacion` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `numero_expediente` | VARCHAR(60) | — | VARCHAR(60), opcional. | NINGUNA |
-| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `resolucion` | TEXT | — | TEXT, opcional. | NINGUNA |
-| `fecha_resolucion` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
-| `monto_resarcido` | DECIMAL(14,2) | — | DECIMAL(14,2), opcional. | FINANCIERO |
+| `reclamo_id` | UUID | Referencia por clave foránea a la entidad `reclamo_cliente`. | UUID, obligatoria, referencia a `reclamo_cliente`, índice b-tree. | NINGUNA |
+| `instancia` | VARCHAR(15) | Atributo que representa instancia en el modelo de `instancia_reclamo`. | VARCHAR(15), obligatoria. | NINGUNA |
+| `fecha_elevacion` | TIMESTAMPTZ | Marca temporal o fecha de elevacion en `instancia_reclamo`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `numero_expediente` | VARCHAR(60) | Numeración secuencial o identificador numérico de expediente. | VARCHAR(60), opcional. | NINGUNA |
+| `estado` | VARCHAR(15) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(15), obligatoria. | NINGUNA |
+| `resolucion` | TEXT | Atributo que representa resolucion en el modelo de `instancia_reclamo`. | TEXT, opcional. | NINGUNA |
+| `fecha_resolucion` | TIMESTAMPTZ | Marca temporal o fecha de resolucion en `instancia_reclamo`. | TIMESTAMPTZ, opcional. | NINGUNA |
+| `monto_resarcido` | DECIMAL(14,2) | Importe monetario correspondiente a resarcido en `instancia_reclamo`. | DECIMAL(14,2), opcional, sensibilidad financiero. | FINANCIERO |
 
 ### `matriz_riesgo_lft`
 
@@ -1778,15 +1778,15 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `version` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `dimension` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
-| `factor` | VARCHAR(60) | — | VARCHAR(60), obligatoria. | NINGUNA |
-| `ponderacion` | DECIMAL(5,2) | — | DECIMAL(5,2), obligatoria. | NINGUNA |
-| `escala` | JSONB | — | JSONB, obligatoria. | NINGUNA |
-| `base_normativa` | VARCHAR(120) | — | VARCHAR(120), obligatoria. | NINGUNA |
+| `version` | SMALLINT | Número de versión para control de concurrencia optimista y auditoría de modificaciones. | SMALLINT, obligatoria, restricción única. | NINGUNA |
+| `dimension` | VARCHAR(20) | Atributo que representa dimension en el modelo de `matriz_riesgo_lft`. | VARCHAR(20), obligatoria. | NINGUNA |
+| `factor` | VARCHAR(60) | Atributo que representa factor en el modelo de `matriz_riesgo_lft`. | VARCHAR(60), obligatoria. | NINGUNA |
+| `ponderacion` | DECIMAL(5,2) | Atributo que representa ponderacion en el modelo de `matriz_riesgo_lft`. | DECIMAL(5,2), obligatoria. | NINGUNA |
+| `escala` | JSONB | Atributo que representa escala en el modelo de `matriz_riesgo_lft`. | JSONB, obligatoria. | NINGUNA |
+| `base_normativa` | VARCHAR(120) | Atributo que representa base normativa en el modelo de `matriz_riesgo_lft`. | VARCHAR(120), obligatoria. | NINGUNA |
 | `vigente_desde` | DATE | Desde cuándo rige esta versión de la fila: las condiciones se versionan, no se pisan. | DATE, obligatoria. | NINGUNA |
 | `vigente_hasta` | DATE | Hasta cuándo rigió esta versión; vacía mientras sigue vigente. | DATE, opcional. | NINGUNA |
-| `aprobada_por` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
+| `aprobada_por` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, opcional, referencia a `usuario`. | NINGUNA |
 
 ### `observacion_regulatoria`
 
@@ -1801,18 +1801,18 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `envio_regulatorio_id` | UUID | — | UUID, opcional, referencia a `envio_regulatorio`. | NINGUNA |
-| `responsable_id` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
-| `organismo` | VARCHAR(10) | — | VARCHAR(10), obligatoria. | NINGUNA |
-| `tipo` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `numero_documento` | VARCHAR(60) | — | VARCHAR(60), obligatoria. | PERSONAL |
-| `descripcion` | TEXT | — | TEXT, obligatoria. | NINGUNA |
-| `monto_multa` | DECIMAL(16,2) | — | DECIMAL(16,2), opcional. | FINANCIERO |
-| `plazo_respuesta` | DATE | — | DATE, obligatoria. | NINGUNA |
-| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `respuesta` | TEXT | — | TEXT, opcional. | NINGUNA |
-| `recibida_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `respondida_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `envio_regulatorio_id` | UUID | Referencia por clave foránea a la entidad `envio_regulatorio`. | UUID, opcional, referencia a `envio_regulatorio`. | NINGUNA |
+| `responsable_id` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, opcional, referencia a `usuario`. | NINGUNA |
+| `organismo` | VARCHAR(10) | Atributo que representa organismo en el modelo de `observacion_regulatoria`. | VARCHAR(10), obligatoria. | NINGUNA |
+| `tipo` | VARCHAR(15) | Subtipo o modalidad específica que determina las reglas operativas aplicables al registro. | VARCHAR(15), obligatoria, índice b-tree. | NINGUNA |
+| `numero_documento` | VARCHAR(60) | Numeración secuencial o identificador numérico de documento. | VARCHAR(60), obligatoria, restricción única, sensibilidad personal. | PERSONAL |
+| `descripcion` | TEXT | Detalle descriptivo que explica el contenido, propósito o contexto de la entidad. | TEXT, obligatoria. | NINGUNA |
+| `monto_multa` | DECIMAL(16,2) | Importe monetario correspondiente a multa en `observacion_regulatoria`. | DECIMAL(16,2), opcional, sensibilidad financiero. | FINANCIERO |
+| `plazo_respuesta` | DATE | Atributo que representa plazo respuesta en el modelo de `observacion_regulatoria`. | DATE, obligatoria, índice b-tree. | NINGUNA |
+| `estado` | VARCHAR(15) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(15), obligatoria, índice b-tree. | NINGUNA |
+| `respuesta` | TEXT | Atributo que representa respuesta en el modelo de `observacion_regulatoria`. | TEXT, opcional. | NINGUNA |
+| `recibida_en` | TIMESTAMPTZ | Marca temporal o fecha de recibida en `observacion_regulatoria`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `respondida_en` | TIMESTAMPTZ | Marca temporal o fecha de respondida en `observacion_regulatoria`. | TIMESTAMPTZ, opcional. | NINGUNA |
 
 ### `oficial_cumplimiento`
 
@@ -1825,13 +1825,13 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `usuario_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `tipo` | VARCHAR(10) | — | VARCHAR(10), obligatoria. | NINGUNA |
-| `fecha_designacion` | DATE | — | DATE, obligatoria. | NINGUNA |
-| `acta_designacion` | VARCHAR(80) | — | VARCHAR(80), obligatoria. | NINGUNA |
-| `comunicada_al_regulador_en` | DATE | — | DATE, opcional. | NINGUNA |
-| `fecha_baja` | DATE | — | DATE, opcional. | NINGUNA |
-| `activo` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
+| `usuario_id` | UUID | Referencia al usuario titular de la cuenta o actor principal de la operación. | UUID, obligatoria, referencia a `usuario`, índice b-tree. | NINGUNA |
+| `tipo` | VARCHAR(10) | Subtipo o modalidad específica que determina las reglas operativas aplicables al registro. | VARCHAR(10), obligatoria. | NINGUNA |
+| `fecha_designacion` | DATE | Marca temporal o fecha de designacion en `oficial_cumplimiento`. | DATE, obligatoria. | NINGUNA |
+| `acta_designacion` | VARCHAR(80) | Atributo que representa acta designacion en el modelo de `oficial_cumplimiento`. | VARCHAR(80), obligatoria. | NINGUNA |
+| `comunicada_al_regulador_en` | DATE | Marca temporal o fecha de comunicada al regulador en `oficial_cumplimiento`. | DATE, opcional. | NINGUNA |
+| `fecha_baja` | DATE | Marca temporal o fecha de baja en `oficial_cumplimiento`. | DATE, opcional. | NINGUNA |
+| `activo` | BOOLEAN | Indicador booleano que determina si el registro se encuentra actualmente operativo. | BOOLEAN, obligatoria, índice b-tree. | NINGUNA |
 
 ### `perfil_transaccional`
 
@@ -1846,17 +1846,17 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `usuario_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `tipo` | VARCHAR(10) | — | VARCHAR(10), obligatoria. | NINGUNA |
-| `monto_mensual_estimado` | DECIMAL(16,2) | — | DECIMAL(16,2), obligatoria. | FINANCIERO |
-| `cantidad_operaciones_estimada` | INTEGER | — | INTEGER, obligatoria. | NINGUNA |
-| `actividad_economica` | VARCHAR(120) | — | VARCHAR(120), obligatoria. | NINGUNA |
-| `codigo_ciiu` | VARCHAR(10) | — | VARCHAR(10), opcional. | NINGUNA |
-| `origen_fondos_declarado` | VARCHAR(200) | — | VARCHAR(200), obligatoria. | NINGUNA |
+| `usuario_id` | UUID | Referencia al usuario titular de la cuenta o actor principal de la operación. | UUID, obligatoria, referencia a `usuario`, índice b-tree. | NINGUNA |
+| `tipo` | VARCHAR(10) | Subtipo o modalidad específica que determina las reglas operativas aplicables al registro. | VARCHAR(10), obligatoria. | NINGUNA |
+| `monto_mensual_estimado` | DECIMAL(16,2) | Importe monetario correspondiente a mensual estimado en `perfil_transaccional`. | DECIMAL(16,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `cantidad_operaciones_estimada` | INTEGER | Atributo que representa cantidad operaciones estimada en el modelo de `perfil_transaccional`. | INTEGER, obligatoria. | NINGUNA |
+| `actividad_economica` | VARCHAR(120) | Atributo que representa actividad economica en el modelo de `perfil_transaccional`. | VARCHAR(120), obligatoria. | NINGUNA |
+| `codigo_ciiu` | VARCHAR(10) | Código normalizado o mnemotécnico de ciiu. | VARCHAR(10), opcional. | NINGUNA |
+| `origen_fondos_declarado` | VARCHAR(200) | Atributo que representa origen fondos declarado en el modelo de `perfil_transaccional`. | VARCHAR(200), obligatoria. | NINGUNA |
 | `moneda` | CHAR(3) | Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2). | CHAR(3), obligatoria. | NINGUNA |
-| `fuente` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
+| `fuente` | VARCHAR(30) | Atributo que representa fuente en el modelo de `perfil_transaccional`. | VARCHAR(30), obligatoria. | NINGUNA |
 | `vigente_desde` | TIMESTAMPTZ | Desde cuándo rige esta versión de la fila: las condiciones se versionan, no se pisan. | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `actualizado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `actualizado_en` | TIMESTAMPTZ | Marca temporal UTC de la última modificación aplicada sobre este registro. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 
 ### `plan_accion_riesgo`
 
@@ -1869,15 +1869,15 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `evento_riesgo_id` | UUID | — | UUID, opcional, referencia a `evento_riesgo_operativo`. | NINGUNA |
-| `hallazgo_id` | UUID | — | UUID, opcional, referencia a `hallazgo_auditoria`. | NINGUNA |
-| `responsable_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `descripcion` | VARCHAR(500) | — | VARCHAR(500), obligatoria. | NINGUNA |
-| `fecha_compromiso` | DATE | — | DATE, obligatoria. | NINGUNA |
-| `fecha_cierre` | DATE | — | DATE, opcional. | NINGUNA |
-| `avance_porcentaje` | DECIMAL(5,2) | — | DECIMAL(5,2), obligatoria. | NINGUNA |
-| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `evidencia_url` | VARCHAR(255) | — | VARCHAR(255), opcional. | NINGUNA |
+| `evento_riesgo_id` | UUID | Referencia por clave foránea a la entidad `evento_riesgo_operativo`. | UUID, opcional, referencia a `evento_riesgo_operativo`. | NINGUNA |
+| `hallazgo_id` | UUID | Referencia por clave foránea a la entidad `hallazgo_auditoria`. | UUID, opcional, referencia a `hallazgo_auditoria`. | NINGUNA |
+| `responsable_id` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
+| `descripcion` | VARCHAR(500) | Detalle descriptivo que explica el contenido, propósito o contexto de la entidad. | VARCHAR(500), obligatoria. | NINGUNA |
+| `fecha_compromiso` | DATE | Marca temporal o fecha de compromiso en `plan_accion_riesgo`. | DATE, obligatoria, índice b-tree. | NINGUNA |
+| `fecha_cierre` | DATE | Marca temporal o fecha de cierre en `plan_accion_riesgo`. | DATE, opcional. | NINGUNA |
+| `avance_porcentaje` | DECIMAL(5,2) | Tasa porcentual o alícuota aplicable a avance. | DECIMAL(5,2), obligatoria. | NINGUNA |
+| `estado` | VARCHAR(15) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(15), obligatoria, índice b-tree. | NINGUNA |
+| `evidencia_url` | VARCHAR(255) | Localizador uniforme de recursos (URL/URI) correspondiente a evidencia. | VARCHAR(255), opcional. | NINGUNA |
 
 ### `plan_continuidad`
 
@@ -1890,15 +1890,15 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `politica_interna_id` | UUID | — | UUID, opcional, referencia a `politica_interna`. | NINGUNA |
-| `responsable_id` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
-| `proceso_critico` | VARCHAR(80) | — | VARCHAR(80), obligatoria. | NINGUNA |
-| `rto_minutos` | INTEGER | — | INTEGER, obligatoria. | NINGUNA |
-| `rpo_minutos` | INTEGER | — | INTEGER, obligatoria. | NINGUNA |
-| `estrategia` | VARCHAR(300) | — | VARCHAR(300), obligatoria. | NINGUNA |
-| `periodicidad_prueba_meses` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
+| `politica_interna_id` | UUID | Referencia por clave foránea a la entidad `politica_interna`. | UUID, opcional, referencia a `politica_interna`. | NINGUNA |
+| `responsable_id` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, opcional, referencia a `usuario`. | NINGUNA |
+| `proceso_critico` | VARCHAR(80) | Atributo que representa proceso critico en el modelo de `plan_continuidad`. | VARCHAR(80), obligatoria, restricción única. | NINGUNA |
+| `rto_minutos` | INTEGER | Atributo que representa rto minutos en el modelo de `plan_continuidad`. | INTEGER, obligatoria. | NINGUNA |
+| `rpo_minutos` | INTEGER | Atributo que representa rpo minutos en el modelo de `plan_continuidad`. | INTEGER, obligatoria. | NINGUNA |
+| `estrategia` | VARCHAR(300) | Atributo que representa estrategia en el modelo de `plan_continuidad`. | VARCHAR(300), obligatoria. | NINGUNA |
+| `periodicidad_prueba_meses` | SMALLINT | Atributo que representa periodicidad prueba meses en el modelo de `plan_continuidad`. | SMALLINT, obligatoria. | NINGUNA |
 | `vigente_desde` | DATE | Desde cuándo rige esta versión de la fila: las condiciones se versionan, no se pisan. | DATE, obligatoria. | NINGUNA |
-| `proxima_prueba` | DATE | — | DATE, obligatoria. | NINGUNA |
+| `proxima_prueba` | DATE | Atributo que representa proxima prueba en el modelo de `plan_continuidad`. | DATE, obligatoria, índice b-tree. | NINGUNA |
 
 ### `politica_interna`
 
@@ -1911,18 +1911,18 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `acta_comite_id` | UUID | — | UUID, opcional, referencia a `acta_comite`. | NINGUNA |
-| `responsable_id` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
-| `codigo` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
-| `tipo` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `materia` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
-| `version` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `url_documento` | VARCHAR(255) | — | VARCHAR(255), obligatoria. | PERSONAL |
-| `hash_documento` | VARCHAR(64) | — | VARCHAR(64), obligatoria. | DERIVADO |
-| `aprobada_por_directorio` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
+| `acta_comite_id` | UUID | Referencia por clave foránea a la entidad `acta_comite`. | UUID, opcional, referencia a `acta_comite`. | NINGUNA |
+| `responsable_id` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, opcional, referencia a `usuario`. | NINGUNA |
+| `codigo` | VARCHAR(30) | Código mnemotécnico o identificador legible para operadores y personas usuarias. | VARCHAR(30), obligatoria, restricción única. | NINGUNA |
+| `tipo` | VARCHAR(15) | Subtipo o modalidad específica que determina las reglas operativas aplicables al registro. | VARCHAR(15), obligatoria. | NINGUNA |
+| `materia` | VARCHAR(30) | Atributo que representa materia en el modelo de `politica_interna`. | VARCHAR(30), obligatoria, índice b-tree. | NINGUNA |
+| `version` | SMALLINT | Número de versión para control de concurrencia optimista y auditoría de modificaciones. | SMALLINT, obligatoria. | NINGUNA |
+| `estado` | VARCHAR(15) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(15), obligatoria, índice b-tree. | NINGUNA |
+| `url_documento` | VARCHAR(255) | Localizador uniforme de recursos (URL/URI) correspondiente a documento. | VARCHAR(255), obligatoria, sensibilidad personal. | PERSONAL |
+| `hash_documento` | VARCHAR(64) | Resumen criptográfico SHA-256 para verificación inmutable de documento. | VARCHAR(64), obligatoria, sensibilidad derivado. | DERIVADO |
+| `aprobada_por_directorio` | BOOLEAN | Atributo que representa aprobada por directorio en el modelo de `politica_interna`. | BOOLEAN, obligatoria. | NINGUNA |
 | `vigente_desde` | DATE | Desde cuándo rige esta versión de la fila: las condiciones se versionan, no se pisan. | DATE, obligatoria. | NINGUNA |
-| `proxima_revision` | DATE | — | DATE, obligatoria. | NINGUNA |
+| `proxima_revision` | DATE | Atributo que representa proxima revision en el modelo de `politica_interna`. | DATE, obligatoria, índice b-tree. | NINGUNA |
 
 ### `prueba_continuidad`
 
@@ -1935,16 +1935,16 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `plan_continuidad_id` | UUID | — | UUID, obligatoria, referencia a `plan_continuidad`. | NINGUNA |
-| `acta_comite_id` | UUID | — | UUID, opcional, referencia a `acta_comite`. | NINGUNA |
-| `ejecutada_por` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `tipo` | VARCHAR(25) | — | VARCHAR(25), obligatoria. | NINGUNA |
-| `fecha` | DATE | — | DATE, obligatoria. | NINGUNA |
-| `rto_obtenido_minutos` | INTEGER | — | INTEGER, obligatoria. | NINGUNA |
-| `rpo_obtenido_minutos` | INTEGER | — | INTEGER, obligatoria. | NINGUNA |
-| `resultado` | VARCHAR(10) | — | VARCHAR(10), obligatoria. | NINGUNA |
-| `hallazgos` | TEXT | — | TEXT, opcional. | NINGUNA |
-| `evidencia_url` | VARCHAR(255) | — | VARCHAR(255), opcional. | NINGUNA |
+| `plan_continuidad_id` | UUID | Referencia por clave foránea a la entidad `plan_continuidad`. | UUID, obligatoria, referencia a `plan_continuidad`, índice b-tree. | NINGUNA |
+| `acta_comite_id` | UUID | Referencia por clave foránea a la entidad `acta_comite`. | UUID, opcional, referencia a `acta_comite`. | NINGUNA |
+| `ejecutada_por` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
+| `tipo` | VARCHAR(25) | Subtipo o modalidad específica que determina las reglas operativas aplicables al registro. | VARCHAR(25), obligatoria. | NINGUNA |
+| `fecha` | DATE | Fecha calendario correspondiente al devengo o ejecución de la operación. | DATE, obligatoria, índice b-tree. | NINGUNA |
+| `rto_obtenido_minutos` | INTEGER | Atributo que representa rto obtenido minutos en el modelo de `prueba_continuidad`. | INTEGER, obligatoria. | NINGUNA |
+| `rpo_obtenido_minutos` | INTEGER | Atributo que representa rpo obtenido minutos en el modelo de `prueba_continuidad`. | INTEGER, obligatoria. | NINGUNA |
+| `resultado` | VARCHAR(10) | Desenlace, dictamen o veredicto de la evaluación o proceso ejecutado. | VARCHAR(10), obligatoria, índice b-tree. | NINGUNA |
+| `hallazgos` | TEXT | Atributo que representa hallazgos en el modelo de `prueba_continuidad`. | TEXT, opcional. | NINGUNA |
+| `evidencia_url` | VARCHAR(255) | Localizador uniforme de recursos (URL/URI) correspondiente a evidencia. | VARCHAR(255), opcional. | NINGUNA |
 
 ### `prueba_control`
 
@@ -1957,14 +1957,14 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `control_id` | UUID | — | UUID, obligatoria, referencia a `control_interno`. | NINGUNA |
-| `ejecutada_por` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `periodo` | CHAR(7) | — | CHAR(7), obligatoria. | NINGUNA |
-| `tamanio_muestra` | INTEGER | — | INTEGER, obligatoria. | NINGUNA |
-| `excepciones` | INTEGER | — | INTEGER, obligatoria. | NINGUNA |
-| `resultado` | VARCHAR(12) | — | VARCHAR(12), obligatoria. | NINGUNA |
-| `evidencia_url` | VARCHAR(255) | — | VARCHAR(255), opcional. | NINGUNA |
-| `ejecutada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `control_id` | UUID | Referencia por clave foránea a la entidad `control_interno`. | UUID, obligatoria, referencia a `control_interno`, índice b-tree. | NINGUNA |
+| `ejecutada_por` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
+| `periodo` | CHAR(7) | Atributo que representa periodo en el modelo de `prueba_control`. | CHAR(7), obligatoria, restricción única. | NINGUNA |
+| `tamanio_muestra` | INTEGER | Atributo que representa tamanio muestra en el modelo de `prueba_control`. | INTEGER, obligatoria. | NINGUNA |
+| `excepciones` | INTEGER | Atributo que representa excepciones en el modelo de `prueba_control`. | INTEGER, obligatoria. | NINGUNA |
+| `resultado` | VARCHAR(12) | Desenlace, dictamen o veredicto de la evaluación o proceso ejecutado. | VARCHAR(12), obligatoria, índice b-tree. | NINGUNA |
+| `evidencia_url` | VARCHAR(255) | Localizador uniforme de recursos (URL/URI) correspondiente a evidencia. | VARCHAR(255), opcional. | NINGUNA |
+| `ejecutada_en` | TIMESTAMPTZ | Marca temporal o fecha de ejecutada en `prueba_control`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 
 ### `punto_reclamo`
 
@@ -1979,12 +1979,12 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `codigo` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
-| `tipo` | VARCHAR(12) | — | VARCHAR(12), obligatoria. | NINGUNA |
-| `descripcion` | VARCHAR(200) | — | VARCHAR(200), obligatoria. | NINGUNA |
-| `horario` | VARCHAR(80) | — | VARCHAR(80), obligatoria. | NINGUNA |
-| `responsable_id` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
-| `activo` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
+| `codigo` | VARCHAR(20) | Código mnemotécnico o identificador legible para operadores y personas usuarias. | VARCHAR(20), obligatoria, restricción única. | NINGUNA |
+| `tipo` | VARCHAR(12) | Subtipo o modalidad específica que determina las reglas operativas aplicables al registro. | VARCHAR(12), obligatoria. | NINGUNA |
+| `descripcion` | VARCHAR(200) | Detalle descriptivo que explica el contenido, propósito o contexto de la entidad. | VARCHAR(200), obligatoria. | NINGUNA |
+| `horario` | VARCHAR(80) | Atributo que representa horario en el modelo de `punto_reclamo`. | VARCHAR(80), obligatoria. | NINGUNA |
+| `responsable_id` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, opcional, referencia a `usuario`. | NINGUNA |
+| `activo` | BOOLEAN | Indicador booleano que determina si el registro se encuentra actualmente operativo. | BOOLEAN, obligatoria. | NINGUNA |
 
 ### `reclamo_cliente`
 
@@ -1999,30 +1999,30 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `codigo` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
-| `usuario_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `punto_reclamo_id` | UUID | — | UUID, obligatoria, referencia a `punto_reclamo`. | NINGUNA |
-| `responsable_id` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
-| `ticket_soporte_id` | UUID | — | UUID, opcional, referencia a `ticket_soporte`. | NINGUNA |
-| `devolucion_comision_id` | UUID | — | UUID, opcional, referencia a `devolucion_comision`. | NINGUNA |
-| `categoria` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
-| `producto` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
-| `monto_reclamado` | DECIMAL(14,2) | — | DECIMAL(14,2), opcional. | FINANCIERO |
-| `descripcion` | TEXT | — | TEXT, obligatoria. | NINGUNA |
-| `canal_ingreso` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `fecha_ingreso` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `dias_habiles_plazo` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `plazo_respuesta` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `plazo_prorrogado_hasta` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
-| `prorroga_comunicada_al_cliente_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
-| `prorroga_comunicada_al_organismo_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
-| `justificacion_prorroga` | VARCHAR(400) | — | VARCHAR(400), opcional. | NINGUNA |
-| `fecha_respuesta` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
-| `resultado` | VARCHAR(15) | — | VARCHAR(15), opcional. | NINGUNA |
-| `respuesta` | TEXT | — | TEXT, opcional. | NINGUNA |
-| `incluido_en_reporte_mensual` | CHAR(7) | — | CHAR(7), opcional. | NINGUNA |
-| `conservar_hasta` | DATE | — | DATE, obligatoria. | NINGUNA |
+| `codigo` | VARCHAR(20) | Código mnemotécnico o identificador legible para operadores y personas usuarias. | VARCHAR(20), obligatoria. | NINGUNA |
+| `usuario_id` | UUID | Referencia al usuario titular de la cuenta o actor principal de la operación. | UUID, obligatoria, referencia a `usuario`, índice b-tree. | NINGUNA |
+| `punto_reclamo_id` | UUID | Referencia por clave foránea a la entidad `punto_reclamo`. | UUID, obligatoria, referencia a `punto_reclamo`. | NINGUNA |
+| `responsable_id` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, opcional, referencia a `usuario`. | NINGUNA |
+| `ticket_soporte_id` | UUID | Referencia por clave foránea a la entidad `ticket_soporte`. | UUID, opcional, referencia a `ticket_soporte`. | NINGUNA |
+| `devolucion_comision_id` | UUID | Referencia por clave foránea a la entidad `devolucion_comision`. | UUID, opcional, referencia a `devolucion_comision`. | NINGUNA |
+| `categoria` | VARCHAR(30) | Atributo que representa categoria en el modelo de `reclamo_cliente`. | VARCHAR(30), obligatoria, índice b-tree. | NINGUNA |
+| `producto` | VARCHAR(30) | Atributo que representa producto en el modelo de `reclamo_cliente`. | VARCHAR(30), obligatoria. | NINGUNA |
+| `monto_reclamado` | DECIMAL(14,2) | Importe monetario correspondiente a reclamado en `reclamo_cliente`. | DECIMAL(14,2), opcional, sensibilidad financiero. | FINANCIERO |
+| `descripcion` | TEXT | Detalle descriptivo que explica el contenido, propósito o contexto de la entidad. | TEXT, obligatoria. | NINGUNA |
+| `canal_ingreso` | VARCHAR(15) | Atributo que representa canal ingreso en el modelo de `reclamo_cliente`. | VARCHAR(15), obligatoria. | NINGUNA |
+| `estado` | VARCHAR(15) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(15), obligatoria, índice b-tree. | NINGUNA |
+| `fecha_ingreso` | TIMESTAMPTZ | Marca temporal o fecha de ingreso en `reclamo_cliente`. | TIMESTAMPTZ, obligatoria, índice b-tree. | NINGUNA |
+| `dias_habiles_plazo` | SMALLINT | Atributo que representa dias habiles plazo en el modelo de `reclamo_cliente`. | SMALLINT, obligatoria. | NINGUNA |
+| `plazo_respuesta` | TIMESTAMPTZ | Atributo que representa plazo respuesta en el modelo de `reclamo_cliente`. | TIMESTAMPTZ, obligatoria, índice b-tree. | NINGUNA |
+| `plazo_prorrogado_hasta` | TIMESTAMPTZ | Atributo que representa plazo prorrogado hasta en el modelo de `reclamo_cliente`. | TIMESTAMPTZ, opcional. | NINGUNA |
+| `prorroga_comunicada_al_cliente_en` | TIMESTAMPTZ | Marca temporal o fecha de prorroga comunicada al cliente en `reclamo_cliente`. | TIMESTAMPTZ, opcional. | NINGUNA |
+| `prorroga_comunicada_al_organismo_en` | TIMESTAMPTZ | Marca temporal o fecha de prorroga comunicada al organismo en `reclamo_cliente`. | TIMESTAMPTZ, opcional. | NINGUNA |
+| `justificacion_prorroga` | VARCHAR(400) | Atributo que representa justificacion prorroga en el modelo de `reclamo_cliente`. | VARCHAR(400), opcional. | NINGUNA |
+| `fecha_respuesta` | TIMESTAMPTZ | Marca temporal o fecha de respuesta en `reclamo_cliente`. | TIMESTAMPTZ, opcional. | NINGUNA |
+| `resultado` | VARCHAR(15) | Desenlace, dictamen o veredicto de la evaluación o proceso ejecutado. | VARCHAR(15), opcional. | NINGUNA |
+| `respuesta` | TEXT | Atributo que representa respuesta en el modelo de `reclamo_cliente`. | TEXT, opcional. | NINGUNA |
+| `incluido_en_reporte_mensual` | CHAR(7) | Atributo que representa incluido en reporte mensual en el modelo de `reclamo_cliente`. | CHAR(7), opcional, índice b-tree. | NINGUNA |
+| `conservar_hasta` | DATE | Atributo que representa conservar hasta en el modelo de `reclamo_cliente`. | DATE, obligatoria, índice b-tree. | NINGUNA |
 
 ### `registro_operacion_relevante`
 
@@ -2035,30 +2035,30 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `usuario_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `transaccion_id` | UUID | — | UUID, obligatoria, referencia a `transaccion_billetera`. | NINGUNA |
-| `umbral_reporte_id` | UUID | — | UUID, obligatoria, referencia a `umbral_reporte_uif`. | NINGUNA |
-| `operacion_inicio_ventana_id` | UUID | — | UUID, opcional, referencia a `registro_operacion_relevante`. | NINGUNA |
-| `declaracion_origen_fondos_id` | UUID | — | UUID, opcional, referencia a `declaracion_origen_fondos`. | NINGUNA |
-| `reporte_regulatorio_id` | UUID | — | UUID, opcional, referencia a `reporte_regulatorio`. | NINGUNA |
-| `formulario` | VARCHAR(10) | — | VARCHAR(10), obligatoria. | NINGUNA |
-| `concepto_operacion` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
-| `es_acumulada` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
-| `ventana_desde` | DATE | — | DATE, opcional. | NINGUNA |
-| `ventana_hasta` | DATE | — | DATE, opcional. | NINGUNA |
-| `monto` | DECIMAL(16,2) | — | DECIMAL(16,2), obligatoria. | FINANCIERO |
+| `usuario_id` | UUID | Referencia al usuario titular de la cuenta o actor principal de la operación. | UUID, obligatoria, referencia a `usuario`, índice b-tree. | NINGUNA |
+| `transaccion_id` | UUID | Referencia por clave foránea a la entidad `transaccion_billetera`. | UUID, obligatoria, referencia a `transaccion_billetera`, índice b-tree. | NINGUNA |
+| `umbral_reporte_id` | UUID | Referencia por clave foránea a la entidad `umbral_reporte_uif`. | UUID, obligatoria, referencia a `umbral_reporte_uif`, índice b-tree. | NINGUNA |
+| `operacion_inicio_ventana_id` | UUID | Referencia por clave foránea a la entidad `registro_operacion_relevante`. | UUID, opcional, referencia a `registro_operacion_relevante`. | NINGUNA |
+| `declaracion_origen_fondos_id` | UUID | Referencia por clave foránea a la entidad `declaracion_origen_fondos`. | UUID, opcional, referencia a `declaracion_origen_fondos`. | NINGUNA |
+| `reporte_regulatorio_id` | UUID | Referencia por clave foránea a la entidad `reporte_regulatorio`. | UUID, opcional, referencia a `reporte_regulatorio`. | NINGUNA |
+| `formulario` | VARCHAR(10) | Atributo que representa formulario en el modelo de `registro_operacion_relevante`. | VARCHAR(10), obligatoria, índice b-tree. | NINGUNA |
+| `concepto_operacion` | VARCHAR(30) | Atributo que representa concepto operacion en el modelo de `registro_operacion_relevante`. | VARCHAR(30), obligatoria. | NINGUNA |
+| `es_acumulada` | BOOLEAN | Indicador booleano que señala si acumulada en `registro_operacion_relevante`. | BOOLEAN, obligatoria. | NINGUNA |
+| `ventana_desde` | DATE | Atributo que representa ventana desde en el modelo de `registro_operacion_relevante`. | DATE, opcional. | NINGUNA |
+| `ventana_hasta` | DATE | Atributo que representa ventana hasta en el modelo de `registro_operacion_relevante`. | DATE, opcional. | NINGUNA |
+| `monto` | DECIMAL(16,2) | Importe monetario principal de la transacción o concepto financiero. | DECIMAL(16,2), obligatoria, sensibilidad financiero. | FINANCIERO |
 | `moneda` | CHAR(3) | Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2). | CHAR(3), obligatoria. | NINGUNA |
-| `monto_acumulado_ventana` | DECIMAL(16,2) | — | DECIMAL(16,2), obligatoria. | FINANCIERO |
-| `tipo_cambio_aplicado` | DECIMAL(12,6) | — | DECIMAL(12,6), obligatoria. | NINGUNA |
-| `monto_equivalente_usd` | DECIMAL(16,2) | — | DECIMAL(16,2), obligatoria. | FINANCIERO |
-| `umbral_aplicado_usd` | DECIMAL(16,2) | — | DECIMAL(16,2), obligatoria. | NINGUNA |
-| `origen_declarado` | VARCHAR(300) | — | VARCHAR(300), opcional. | NINGUNA |
-| `destino_declarado` | VARCHAR(300) | — | VARCHAR(300), opcional. | NINGUNA |
-| `exento` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
-| `motivo_exencion` | VARCHAR(120) | — | VARCHAR(120), opcional. | NINGUNA |
-| `periodo_remision` | CHAR(7) | — | CHAR(7), obligatoria. | NINGUNA |
-| `fecha_operacion` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `registrada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `monto_acumulado_ventana` | DECIMAL(16,2) | Importe monetario correspondiente a acumulado ventana en `registro_operacion_relevante`. | DECIMAL(16,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `tipo_cambio_aplicado` | DECIMAL(12,6) | Atributo que representa tipo cambio aplicado en el modelo de `registro_operacion_relevante`. | DECIMAL(12,6), obligatoria. | NINGUNA |
+| `monto_equivalente_usd` | DECIMAL(16,2) | Importe monetario correspondiente a equivalente usd en `registro_operacion_relevante`. | DECIMAL(16,2), obligatoria, índice b-tree, sensibilidad financiero. | FINANCIERO |
+| `umbral_aplicado_usd` | DECIMAL(16,2) | Atributo que representa umbral aplicado usd en el modelo de `registro_operacion_relevante`. | DECIMAL(16,2), obligatoria. | NINGUNA |
+| `origen_declarado` | VARCHAR(300) | Atributo que representa origen declarado en el modelo de `registro_operacion_relevante`. | VARCHAR(300), opcional. | NINGUNA |
+| `destino_declarado` | VARCHAR(300) | Atributo que representa destino declarado en el modelo de `registro_operacion_relevante`. | VARCHAR(300), opcional. | NINGUNA |
+| `exento` | BOOLEAN | Atributo que representa exento en el modelo de `registro_operacion_relevante`. | BOOLEAN, obligatoria. | NINGUNA |
+| `motivo_exencion` | VARCHAR(120) | Atributo que representa motivo exencion en el modelo de `registro_operacion_relevante`. | VARCHAR(120), opcional. | NINGUNA |
+| `periodo_remision` | CHAR(7) | Atributo que representa periodo remision en el modelo de `registro_operacion_relevante`. | CHAR(7), obligatoria, índice b-tree. | NINGUNA |
+| `fecha_operacion` | TIMESTAMPTZ | Marca temporal o fecha de operacion en `registro_operacion_relevante`. | TIMESTAMPTZ, obligatoria, índice b-tree. | NINGUNA |
+| `registrada_en` | TIMESTAMPTZ | Marca temporal o fecha de registrada en `registro_operacion_relevante`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 
 ### `regla_monitoreo_lft`
 
@@ -2073,19 +2073,19 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `codigo` | VARCHAR(40) | — | VARCHAR(40), obligatoria. | NINGUNA |
-| `tipologia` | VARCHAR(80) | — | VARCHAR(80), obligatoria. | NINGUNA |
-| `descripcion` | VARCHAR(300) | — | VARCHAR(300), obligatoria. | NINGUNA |
-| `expresion` | JSONB | — | JSONB, obligatoria. | NINGUNA |
-| `ventana_evaluacion` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
-| `umbral_monto` | DECIMAL(16,2) | — | DECIMAL(16,2), opcional. | FINANCIERO |
-| `umbral_cantidad` | INTEGER | — | INTEGER, opcional. | NINGUNA |
-| `severidad` | VARCHAR(10) | — | VARCHAR(10), obligatoria. | NINGUNA |
-| `accion_automatica` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
-| `fuente_normativa` | VARCHAR(120) | — | VARCHAR(120), obligatoria. | NINGUNA |
-| `activa` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
+| `codigo` | VARCHAR(40) | Código mnemotécnico o identificador legible para operadores y personas usuarias. | VARCHAR(40), obligatoria, restricción única. | NINGUNA |
+| `tipologia` | VARCHAR(80) | Atributo que representa tipologia en el modelo de `regla_monitoreo_lft`. | VARCHAR(80), obligatoria. | NINGUNA |
+| `descripcion` | VARCHAR(300) | Detalle descriptivo que explica el contenido, propósito o contexto de la entidad. | VARCHAR(300), obligatoria. | NINGUNA |
+| `expresion` | JSONB | Atributo que representa expresion en el modelo de `regla_monitoreo_lft`. | JSONB, obligatoria. | NINGUNA |
+| `ventana_evaluacion` | VARCHAR(20) | Atributo que representa ventana evaluacion en el modelo de `regla_monitoreo_lft`. | VARCHAR(20), obligatoria. | NINGUNA |
+| `umbral_monto` | DECIMAL(16,2) | Importe monetario correspondiente a umbral en `regla_monitoreo_lft`. | DECIMAL(16,2), opcional, sensibilidad financiero. | FINANCIERO |
+| `umbral_cantidad` | INTEGER | Atributo que representa umbral cantidad en el modelo de `regla_monitoreo_lft`. | INTEGER, opcional. | NINGUNA |
+| `severidad` | VARCHAR(10) | Nivel de gravedad o criticidad asignado al incidente, alerta o evento. | VARCHAR(10), obligatoria. | NINGUNA |
+| `accion_automatica` | VARCHAR(30) | Atributo que representa accion automatica en el modelo de `regla_monitoreo_lft`. | VARCHAR(30), obligatoria. | NINGUNA |
+| `fuente_normativa` | VARCHAR(120) | Atributo que representa fuente normativa en el modelo de `regla_monitoreo_lft`. | VARCHAR(120), obligatoria. | NINGUNA |
+| `activa` | BOOLEAN | Indicador booleano que determina si la entidad se encuentra actualmente operativa. | BOOLEAN, obligatoria, índice b-tree. | NINGUNA |
 | `vigente_desde` | TIMESTAMPTZ | Desde cuándo rige esta versión de la fila: las condiciones se versionan, no se pisan. | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `aprobada_por` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
+| `aprobada_por` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, opcional, referencia a `usuario`. | NINGUNA |
 
 ### `reporte_regulatorio`
 
@@ -2100,20 +2100,20 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `catalogo_reporte_id` | UUID | — | UUID, obligatoria, referencia a `catalogo_reporte_regulatorio`. | NINGUNA |
-| `generado_por` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
-| `revisado_por` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
-| `aprobado_por` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
-| `periodo` | VARCHAR(10) | — | VARCHAR(10), obligatoria. | NINGUNA |
-| `fecha_corte` | DATE | — | DATE, obligatoria. | NINGUNA |
-| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `cantidad_registros` | INTEGER | — | INTEGER, obligatoria. | NINGUNA |
-| `reporte_en_cero` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
-| `monto_total` | DECIMAL(18,2) | — | DECIMAL(18,2), obligatoria. | FINANCIERO |
-| `url_archivo` | VARCHAR(255) | — | VARCHAR(255), opcional. | NINGUNA |
-| `hash_archivo` | VARCHAR(64) | — | VARCHAR(64), opcional. | DERIVADO |
-| `fecha_limite` | DATE | — | DATE, obligatoria. | NINGUNA |
-| `generado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `catalogo_reporte_id` | UUID | Referencia por clave foránea a la entidad `catalogo_reporte_regulatorio`. | UUID, obligatoria, referencia a `catalogo_reporte_regulatorio`, índice b-tree. | NINGUNA |
+| `generado_por` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, opcional, referencia a `usuario`. | NINGUNA |
+| `revisado_por` | UUID | Identificador del usuario u operador que realizó la revisión técnica o de gobierno. | UUID, opcional, referencia a `usuario`. | NINGUNA |
+| `aprobado_por` | UUID | Identificador del usuario con facultades que autorizó la operación. | UUID, opcional, referencia a `usuario`. | NINGUNA |
+| `periodo` | VARCHAR(10) | Atributo que representa periodo en el modelo de `reporte_regulatorio`. | VARCHAR(10), obligatoria. | NINGUNA |
+| `fecha_corte` | DATE | Marca temporal o fecha de corte en `reporte_regulatorio`. | DATE, obligatoria. | NINGUNA |
+| `estado` | VARCHAR(15) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(15), obligatoria, índice b-tree. | NINGUNA |
+| `cantidad_registros` | INTEGER | Atributo que representa cantidad registros en el modelo de `reporte_regulatorio`. | INTEGER, obligatoria. | NINGUNA |
+| `reporte_en_cero` | BOOLEAN | Atributo que representa reporte en cero en el modelo de `reporte_regulatorio`. | BOOLEAN, obligatoria. | NINGUNA |
+| `monto_total` | DECIMAL(18,2) | Importe monetario correspondiente a total en `reporte_regulatorio`. | DECIMAL(18,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `url_archivo` | VARCHAR(255) | Localizador uniforme de recursos (URL/URI) correspondiente a archivo. | VARCHAR(255), opcional. | NINGUNA |
+| `hash_archivo` | VARCHAR(64) | Resumen criptográfico SHA-256 para verificación inmutable de archivo. | VARCHAR(64), opcional, sensibilidad derivado. | DERIVADO |
+| `fecha_limite` | DATE | Marca temporal o fecha de limite en `reporte_regulatorio`. | DATE, obligatoria, índice b-tree. | NINGUNA |
+| `generado_en` | TIMESTAMPTZ | Marca temporal o fecha de generado en `reporte_regulatorio`. | TIMESTAMPTZ, opcional. | NINGUNA |
 
 ### `requerimiento_autoridad`
 
@@ -2128,19 +2128,19 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `usuario_afectado_id` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
-| `bloqueo_saldo_id` | UUID | — | UUID, opcional, referencia a `bloqueo_saldo`. | FINANCIERO |
-| `respondido_por` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
-| `autoridad` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `numero_oficio` | VARCHAR(60) | — | VARCHAR(60), obligatoria. | NINGUNA |
-| `fecha_recepcion` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `plazo_respuesta` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `alcance` | VARCHAR(300) | — | VARCHAR(300), obligatoria. | NINGUNA |
-| `documento_url` | VARCHAR(255) | — | VARCHAR(255), obligatoria. | PERSONAL |
-| `hash_documento` | VARCHAR(64) | — | VARCHAR(64), obligatoria. | DERIVADO |
-| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `respuesta_url` | VARCHAR(255) | — | VARCHAR(255), opcional. | NINGUNA |
-| `respondido_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `usuario_afectado_id` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, opcional, referencia a `usuario`. | NINGUNA |
+| `bloqueo_saldo_id` | UUID | Referencia por clave foránea a la entidad `bloqueo_saldo`. | UUID, opcional, referencia a `bloqueo_saldo`, sensibilidad financiero. | FINANCIERO |
+| `respondido_por` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, opcional, referencia a `usuario`. | NINGUNA |
+| `autoridad` | VARCHAR(15) | Atributo que representa autoridad en el modelo de `requerimiento_autoridad`. | VARCHAR(15), obligatoria, índice b-tree. | NINGUNA |
+| `numero_oficio` | VARCHAR(60) | Numeración secuencial o identificador numérico de oficio. | VARCHAR(60), obligatoria, restricción única. | NINGUNA |
+| `fecha_recepcion` | TIMESTAMPTZ | Marca temporal o fecha de recepcion en `requerimiento_autoridad`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `plazo_respuesta` | TIMESTAMPTZ | Atributo que representa plazo respuesta en el modelo de `requerimiento_autoridad`. | TIMESTAMPTZ, obligatoria, índice b-tree. | NINGUNA |
+| `alcance` | VARCHAR(300) | Atributo que representa alcance en el modelo de `requerimiento_autoridad`. | VARCHAR(300), obligatoria. | NINGUNA |
+| `documento_url` | VARCHAR(255) | Localizador uniforme de recursos (URL/URI) correspondiente a documento. | VARCHAR(255), obligatoria, sensibilidad personal. | PERSONAL |
+| `hash_documento` | VARCHAR(64) | Resumen criptográfico SHA-256 para verificación inmutable de documento. | VARCHAR(64), obligatoria, sensibilidad derivado. | DERIVADO |
+| `estado` | VARCHAR(15) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(15), obligatoria, índice b-tree. | NINGUNA |
+| `respuesta_url` | VARCHAR(255) | Localizador uniforme de recursos (URL/URI) correspondiente a respuesta. | VARCHAR(255), opcional. | NINGUNA |
+| `respondido_en` | TIMESTAMPTZ | Marca temporal o fecha de respondido en `requerimiento_autoridad`. | TIMESTAMPTZ, opcional. | NINGUNA |
 
 ### `revision_periodica_kyc`
 
@@ -2153,13 +2153,13 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `usuario_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `calificacion_riesgo_id` | UUID | — | UUID, opcional, referencia a `calificacion_riesgo_cliente`. | NINGUNA |
-| `ejecutada_por` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
-| `fecha_programada` | DATE | — | DATE, obligatoria. | NINGUNA |
-| `fecha_ejecutada` | DATE | — | DATE, opcional. | NINGUNA |
-| `resultado` | VARCHAR(30) | — | VARCHAR(30), opcional. | NINGUNA |
-| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
+| `usuario_id` | UUID | Referencia al usuario titular de la cuenta o actor principal de la operación. | UUID, obligatoria, referencia a `usuario`, índice b-tree. | NINGUNA |
+| `calificacion_riesgo_id` | UUID | Referencia por clave foránea a la entidad `calificacion_riesgo_cliente`. | UUID, opcional, referencia a `calificacion_riesgo_cliente`. | NINGUNA |
+| `ejecutada_por` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, opcional, referencia a `usuario`. | NINGUNA |
+| `fecha_programada` | DATE | Marca temporal o fecha de programada en `revision_periodica_kyc`. | DATE, obligatoria, índice b-tree. | NINGUNA |
+| `fecha_ejecutada` | DATE | Marca temporal o fecha de ejecutada en `revision_periodica_kyc`. | DATE, opcional. | NINGUNA |
+| `resultado` | VARCHAR(30) | Desenlace, dictamen o veredicto de la evaluación o proceso ejecutado. | VARCHAR(30), opcional. | NINGUNA |
+| `estado` | VARCHAR(15) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(15), obligatoria, índice b-tree. | NINGUNA |
 
 ## Esquema `entregas`
 
@@ -2176,22 +2176,22 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `oferta_turno_id` | UUID | — | UUID, obligatoria, referencia a `oferta_turno`. | NINGUNA |
-| `turno_id` | UUID | — | UUID, obligatoria, referencia a `turno`. | NINGUNA |
-| `participante_origen_id` | UUID | — | UUID, obligatoria, referencia a `participante`. | NINGUNA |
-| `participante_destino_id` | UUID | — | UUID, obligatoria, referencia a `participante`. | NINGUNA |
-| `comprador_usuario_id` | UUID | — | UUID, obligatoria. | NINGUNA |
+| `oferta_turno_id` | UUID | Referencia por clave foránea a la entidad `oferta_turno`. | UUID, obligatoria, referencia a `oferta_turno`, índice b-tree. | NINGUNA |
+| `turno_id` | UUID | Referencia por clave foránea a la entidad `turno`. | UUID, obligatoria, referencia a `turno`, índice b-tree. | NINGUNA |
+| `participante_origen_id` | UUID | Referencia por clave foránea a la entidad `participante`. | UUID, obligatoria, referencia a `participante`. | NINGUNA |
+| `participante_destino_id` | UUID | Referencia por clave foránea a la entidad `participante`. | UUID, obligatoria, referencia a `participante`. | NINGUNA |
+| `comprador_usuario_id` | UUID | Identificador de referencia para el concepto de comprador usuario en `cesion_derecho`. | UUID, obligatoria, índice b-tree. | NINGUNA |
 | `moneda` | CHAR(3) | Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2). | CHAR(3), obligatoria. | NINGUNA |
-| `monto_precio` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
-| `estado` | VARCHAR(16) | — | VARCHAR(16), obligatoria. | NINGUNA |
-| `retencion_ref` | UUID | — | UUID, opcional. | NINGUNA |
-| `liquidacion_ref` | UUID | — | UUID, opcional. | NINGUNA |
-| `motivo_fallo` | VARCHAR(200) | — | VARCHAR(200), opcional. | NINGUNA |
-| `clave_idempotencia` | VARCHAR(80) | Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4). | VARCHAR(80), obligatoria. | NINGUNA |
-| `creada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `titulo_asignado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
-| `liquidada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
-| `version` | INTEGER | — | INTEGER, obligatoria. | NINGUNA |
+| `monto_precio` | DECIMAL(14,2) | Importe monetario correspondiente a precio en `cesion_derecho`. | DECIMAL(14,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `estado` | VARCHAR(16) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(16), obligatoria, índice b-tree. | NINGUNA |
+| `retencion_ref` | UUID | Atributo que representa retencion ref en el modelo de `cesion_derecho`. | UUID, opcional. | NINGUNA |
+| `liquidacion_ref` | UUID | Atributo que representa liquidacion ref en el modelo de `cesion_derecho`. | UUID, opcional. | NINGUNA |
+| `motivo_fallo` | VARCHAR(200) | Atributo que representa motivo fallo en el modelo de `cesion_derecho`. | VARCHAR(200), opcional. | NINGUNA |
+| `clave_idempotencia` | VARCHAR(80) | Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4). | VARCHAR(80), obligatoria, restricción única. | NINGUNA |
+| `creada_en` | TIMESTAMPTZ | Marca temporal UTC en que la entidad fue creada en la base de datos. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `titulo_asignado_en` | TIMESTAMPTZ | Marca temporal o fecha de titulo asignado en `cesion_derecho`. | TIMESTAMPTZ, opcional. | NINGUNA |
+| `liquidada_en` | TIMESTAMPTZ | Marca temporal o fecha de liquidada en `cesion_derecho`. | TIMESTAMPTZ, opcional. | NINGUNA |
+| `version` | INTEGER | Número de versión para control de concurrencia optimista y auditoría de modificaciones. | INTEGER, obligatoria. | NINGUNA |
 
 ### `confirmacion_recepcion`
 
@@ -2206,15 +2206,15 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `entrega_id` | UUID | — | UUID, obligatoria, referencia a `entrega_fondo`. | NINGUNA |
-| `estado` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
-| `monto_confirmado` | DECIMAL(14,2) | — | DECIMAL(14,2), opcional. | FINANCIERO |
-| `token_confirmacion_id` | UUID | — | UUID, opcional, referencia a `token_verificacion`. | SECRETO |
-| `confirmada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
-| `plazo_limite` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `autoconfirmada_por_vencimiento` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
-| `ip_confirmacion` | INET | — | INET, opcional. | NINGUNA |
-| `comentario` | VARCHAR(300) | — | VARCHAR(300), opcional. | NINGUNA |
+| `entrega_id` | UUID | Referencia por clave foránea a la entidad `entrega_fondo`. | UUID, obligatoria, referencia a `entrega_fondo`, restricción única. | NINGUNA |
+| `estado` | VARCHAR(30) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(30), obligatoria, índice b-tree. | NINGUNA |
+| `monto_confirmado` | DECIMAL(14,2) | Importe monetario correspondiente a confirmado en `confirmacion_recepcion`. | DECIMAL(14,2), opcional, sensibilidad financiero. | FINANCIERO |
+| `token_confirmacion_id` | UUID | Referencia por clave foránea a la entidad `token_verificacion`. | UUID, opcional, referencia a `token_verificacion`, sensibilidad secreto. | SECRETO |
+| `confirmada_en` | TIMESTAMPTZ | Marca temporal o fecha de confirmada en `confirmacion_recepcion`. | TIMESTAMPTZ, opcional. | NINGUNA |
+| `plazo_limite` | TIMESTAMPTZ | Atributo que representa plazo limite en el modelo de `confirmacion_recepcion`. | TIMESTAMPTZ, obligatoria, índice b-tree. | NINGUNA |
+| `autoconfirmada_por_vencimiento` | BOOLEAN | Atributo que representa autoconfirmada por vencimiento en el modelo de `confirmacion_recepcion`. | BOOLEAN, obligatoria. | NINGUNA |
+| `ip_confirmacion` | INET | Atributo que representa ip confirmacion en el modelo de `confirmacion_recepcion`. | INET, opcional. | NINGUNA |
+| `comentario` | VARCHAR(300) | Atributo que representa comentario en el modelo de `confirmacion_recepcion`. | VARCHAR(300), opcional. | NINGUNA |
 
 ### `cuenta_bancaria_beneficiario`
 
@@ -2229,21 +2229,21 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `usuario_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `tipo_cuenta` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `entidad_financiera` | VARCHAR(60) | — | VARCHAR(60), obligatoria. | NINGUNA |
-| `numero_cuenta_cifrado` | VARCHAR(255) | — | VARCHAR(255), obligatoria. | PERSONAL |
-| `version_llave` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `hash_numero_cuenta` | VARCHAR(64) | — | VARCHAR(64), obligatoria. | DERIVADO |
-| `numero_enmascarado` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
-| `titular_nombre` | VARCHAR(120) | — | VARCHAR(120), obligatoria. | NINGUNA |
-| `titular_documento` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | PERSONAL |
+| `usuario_id` | UUID | Referencia al usuario titular de la cuenta o actor principal de la operación. | UUID, obligatoria, referencia a `usuario`, índice b-tree. | NINGUNA |
+| `tipo_cuenta` | VARCHAR(15) | Atributo que representa tipo cuenta en el modelo de `cuenta_bancaria_beneficiario`. | VARCHAR(15), obligatoria. | NINGUNA |
+| `entidad_financiera` | VARCHAR(60) | Atributo que representa entidad financiera en el modelo de `cuenta_bancaria_beneficiario`. | VARCHAR(60), obligatoria. | NINGUNA |
+| `numero_cuenta_cifrado` | VARCHAR(255) | Numeración secuencial o identificador numérico de cuenta cifrado. | VARCHAR(255), obligatoria, sensibilidad personal. | PERSONAL |
+| `version_llave` | SMALLINT | Atributo que representa version llave en el modelo de `cuenta_bancaria_beneficiario`. | SMALLINT, obligatoria. | NINGUNA |
+| `hash_numero_cuenta` | VARCHAR(64) | Resumen criptográfico SHA-256 para verificación inmutable de numero cuenta. | VARCHAR(64), obligatoria, sensibilidad derivado. | DERIVADO |
+| `numero_enmascarado` | VARCHAR(30) | Numeración secuencial o identificador numérico de enmascarado. | VARCHAR(30), obligatoria. | NINGUNA |
+| `titular_nombre` | VARCHAR(120) | Atributo que representa titular nombre en el modelo de `cuenta_bancaria_beneficiario`. | VARCHAR(120), obligatoria. | NINGUNA |
+| `titular_documento` | VARCHAR(30) | Atributo que representa titular documento en el modelo de `cuenta_bancaria_beneficiario`. | VARCHAR(30), obligatoria, sensibilidad personal. | PERSONAL |
 | `moneda` | CHAR(3) | Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2). | CHAR(3), obligatoria. | NINGUNA |
-| `es_principal` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
-| `estado_verificacion` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `metodo_verificacion` | VARCHAR(20) | — | VARCHAR(20), opcional. | NINGUNA |
-| `verificada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
-| `bloqueada_hasta` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `es_principal` | BOOLEAN | Indicador booleano que señala si principal en `cuenta_bancaria_beneficiario`. | BOOLEAN, obligatoria. | NINGUNA |
+| `estado_verificacion` | VARCHAR(15) | Atributo que representa estado verificacion en el modelo de `cuenta_bancaria_beneficiario`. | VARCHAR(15), obligatoria. | NINGUNA |
+| `metodo_verificacion` | VARCHAR(20) | Atributo que representa metodo verificacion en el modelo de `cuenta_bancaria_beneficiario`. | VARCHAR(20), opcional. | NINGUNA |
+| `verificada_en` | TIMESTAMPTZ | Marca temporal o fecha de verificada en `cuenta_bancaria_beneficiario`. | TIMESTAMPTZ, opcional. | NINGUNA |
+| `bloqueada_hasta` | TIMESTAMPTZ | Atributo que representa bloqueada hasta en el modelo de `cuenta_bancaria_beneficiario`. | TIMESTAMPTZ, opcional. | NINGUNA |
 
 ### `deduccion_entrega`
 
@@ -2258,14 +2258,14 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `entrega_id` | UUID | — | UUID, obligatoria, referencia a `entrega_fondo`. | NINGUNA |
-| `tipo` | VARCHAR(35) | — | VARCHAR(35), obligatoria. | NINGUNA |
-| `descripcion` | VARCHAR(200) | — | VARCHAR(200), obligatoria. | NINGUNA |
-| `monto` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
-| `referencia_origen_id` | UUID | — | UUID, opcional. | NINGUNA |
-| `es_obligatoria` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
-| `aplicada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `revertida_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `entrega_id` | UUID | Referencia por clave foránea a la entidad `entrega_fondo`. | UUID, obligatoria, referencia a `entrega_fondo`, índice b-tree. | NINGUNA |
+| `tipo` | VARCHAR(35) | Subtipo o modalidad específica que determina las reglas operativas aplicables al registro. | VARCHAR(35), obligatoria. | NINGUNA |
+| `descripcion` | VARCHAR(200) | Detalle descriptivo que explica el contenido, propósito o contexto de la entidad. | VARCHAR(200), obligatoria. | NINGUNA |
+| `monto` | DECIMAL(14,2) | Importe monetario principal de la transacción o concepto financiero. | DECIMAL(14,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `referencia_origen_id` | UUID | Identificador de referencia para el concepto de referencia origen en `deduccion_entrega`. | UUID, opcional. | NINGUNA |
+| `es_obligatoria` | BOOLEAN | Indicador booleano que señala si obligatoria en `deduccion_entrega`. | BOOLEAN, obligatoria. | NINGUNA |
+| `aplicada_en` | TIMESTAMPTZ | Marca temporal o fecha de aplicada en `deduccion_entrega`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `revertida_en` | TIMESTAMPTZ | Marca temporal o fecha de revertida en `deduccion_entrega`. | TIMESTAMPTZ, opcional. | NINGUNA |
 
 ### `entrega_fondo`
 
@@ -2280,28 +2280,28 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `grupo_id` | UUID | — | UUID, obligatoria, referencia a `grupo`. | NINGUNA |
-| `periodo_id` | UUID | — | UUID, obligatoria, referencia a `periodo`. | NINGUNA |
-| `turno_id` | UUID | — | UUID, obligatoria, referencia a `turno`. | NINGUNA |
-| `cupo_id` | UUID | — | UUID, obligatoria, referencia a `cupo`. | NINGUNA |
-| `beneficiario_participante_id` | UUID | — | UUID, obligatoria, referencia a `participante`. | NINGUNA |
-| `cuenta_destino_id` | UUID | — | UUID, opcional, referencia a `cuenta_bancaria_beneficiario`. | NINGUNA |
-| `monto_bolsa_bruto` | DECIMAL(14,2) | lo que se juntó entre todos. | DECIMAL(14,2), obligatoria. | FINANCIERO |
+| `grupo_id` | UUID | Referencia al grupo de pasanaku en el que se enmarca esta operación. | UUID, obligatoria, referencia a `grupo`, índice b-tree. | NINGUNA |
+| `periodo_id` | UUID | Referencia por clave foránea a la entidad `periodo`. | UUID, obligatoria, referencia a `periodo`. | NINGUNA |
+| `turno_id` | UUID | Referencia por clave foránea a la entidad `turno`. | UUID, obligatoria, referencia a `turno`. | NINGUNA |
+| `cupo_id` | UUID | Referencia por clave foránea a la entidad `cupo`. | UUID, obligatoria, referencia a `cupo`. | NINGUNA |
+| `beneficiario_participante_id` | UUID | Referencia por clave foránea a la entidad `participante`. | UUID, obligatoria, referencia a `participante`, índice b-tree. | NINGUNA |
+| `cuenta_destino_id` | UUID | Referencia por clave foránea a la entidad `cuenta_bancaria_beneficiario`. | UUID, opcional, referencia a `cuenta_bancaria_beneficiario`. | NINGUNA |
+| `monto_bolsa_bruto` | DECIMAL(14,2) | lo que se juntó entre todos. | DECIMAL(14,2), obligatoria, sensibilidad financiero. | FINANCIERO |
 | `total_deducciones` | DECIMAL(14,2) | lo que se le descuenta (y que hay que poder explicar línea por línea). | DECIMAL(14,2), obligatoria. | NINGUNA |
-| `monto_neto_a_entregar` | DECIMAL(14,2) | lo que efectivamente recibe. | DECIMAL(14,2), obligatoria. | FINANCIERO |
-| `monto_efectivamente_entregado` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
+| `monto_neto_a_entregar` | DECIMAL(14,2) | lo que efectivamente recibe. | DECIMAL(14,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `monto_efectivamente_entregado` | DECIMAL(14,2) | Importe monetario correspondiente a efectivamente entregado en `entrega_fondo`. | DECIMAL(14,2), obligatoria, sensibilidad financiero. | FINANCIERO |
 | `moneda` | CHAR(3) | Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2). | CHAR(3), obligatoria. | NINGUNA |
-| `estado` | VARCHAR(35) | — | VARCHAR(35), obligatoria. | NINGUNA |
-| `metodo_desembolso` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
-| `fecha_programada` | DATE | — | DATE, obligatoria. | NINGUNA |
-| `fecha_autorizacion` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
-| `fecha_entrega` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
-| `autorizada_por` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
-| `ejecutada_por` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
-| `comprobante_url` | VARCHAR(255) | — | VARCHAR(255), opcional. | NINGUNA |
-| `hash_comprobante` | VARCHAR(64) | — | VARCHAR(64), opcional. | DERIVADO |
-| `observaciones` | VARCHAR(400) | — | VARCHAR(400), opcional. | NINGUNA |
-| `version` | INTEGER | — | INTEGER, obligatoria. | NINGUNA |
+| `estado` | VARCHAR(35) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(35), obligatoria, índice b-tree. | NINGUNA |
+| `metodo_desembolso` | VARCHAR(30) | Atributo que representa metodo desembolso en el modelo de `entrega_fondo`. | VARCHAR(30), obligatoria. | NINGUNA |
+| `fecha_programada` | DATE | Marca temporal o fecha de programada en `entrega_fondo`. | DATE, obligatoria, índice b-tree. | NINGUNA |
+| `fecha_autorizacion` | TIMESTAMPTZ | Marca temporal o fecha de autorizacion en `entrega_fondo`. | TIMESTAMPTZ, opcional. | NINGUNA |
+| `fecha_entrega` | TIMESTAMPTZ | Marca temporal o fecha de entrega en `entrega_fondo`. | TIMESTAMPTZ, opcional. | NINGUNA |
+| `autorizada_por` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, opcional, referencia a `usuario`. | NINGUNA |
+| `ejecutada_por` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, opcional, referencia a `usuario`. | NINGUNA |
+| `comprobante_url` | VARCHAR(255) | Localizador uniforme de recursos (URL/URI) correspondiente a comprobante. | VARCHAR(255), opcional. | NINGUNA |
+| `hash_comprobante` | VARCHAR(64) | Resumen criptográfico SHA-256 para verificación inmutable de comprobante. | VARCHAR(64), opcional, sensibilidad derivado. | DERIVADO |
+| `observaciones` | VARCHAR(400) | Atributo que representa observaciones en el modelo de `entrega_fondo`. | VARCHAR(400), opcional. | NINGUNA |
+| `version` | INTEGER | Número de versión para control de concurrencia optimista y auditoría de modificaciones. | INTEGER, obligatoria. | NINGUNA |
 
 ### `fondeo_entrega`
 
@@ -2316,21 +2316,21 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `entrega_id` | UUID | — | UUID, obligatoria, referencia a `entrega_fondo`. | NINGUNA |
-| `turno_id` | UUID | — | UUID, obligatoria, referencia a `turno`. | NINGUNA |
+| `entrega_id` | UUID | Referencia por clave foránea a la entidad `entrega_fondo`. | UUID, obligatoria, referencia a `entrega_fondo`, restricción única. | NINGUNA |
+| `turno_id` | UUID | Referencia por clave foránea a la entidad `turno`. | UUID, obligatoria, referencia a `turno`, restricción única. | NINGUNA |
 | `moneda` | CHAR(3) | Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2). | CHAR(3), obligatoria. | NINGUNA |
-| `monto_pozo` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
-| `monto_confirmado` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
-| `monto_cubierto_mutual` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
-| `monto_faltante` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
-| `monto_cubierto_empresa` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
-| `monto_pendiente` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
-| `cobertura_respaldo_id` | UUID | — | UUID, opcional. | NINGUNA |
-| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `corte_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `fondeada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
-| `clave_idempotencia` | VARCHAR(80) | Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4). | VARCHAR(80), obligatoria. | NINGUNA |
-| `version` | INTEGER | — | INTEGER, obligatoria. | NINGUNA |
+| `monto_pozo` | DECIMAL(14,2) | Importe monetario correspondiente a pozo en `fondeo_entrega`. | DECIMAL(14,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `monto_confirmado` | DECIMAL(14,2) | Importe monetario correspondiente a confirmado en `fondeo_entrega`. | DECIMAL(14,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `monto_cubierto_mutual` | DECIMAL(14,2) | Importe monetario correspondiente a cubierto mutual en `fondeo_entrega`. | DECIMAL(14,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `monto_faltante` | DECIMAL(14,2) | Importe monetario correspondiente a faltante en `fondeo_entrega`. | DECIMAL(14,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `monto_cubierto_empresa` | DECIMAL(14,2) | Importe monetario correspondiente a cubierto empresa en `fondeo_entrega`. | DECIMAL(14,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `monto_pendiente` | DECIMAL(14,2) | Importe monetario correspondiente a pendiente en `fondeo_entrega`. | DECIMAL(14,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `cobertura_respaldo_id` | UUID | Identificador de referencia para el concepto de cobertura respaldo en `fondeo_entrega`. | UUID, opcional. | NINGUNA |
+| `estado` | VARCHAR(15) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(15), obligatoria, índice b-tree. | NINGUNA |
+| `corte_en` | TIMESTAMPTZ | Marca temporal o fecha de corte en `fondeo_entrega`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `fondeada_en` | TIMESTAMPTZ | Marca temporal o fecha de fondeada en `fondeo_entrega`. | TIMESTAMPTZ, opcional. | NINGUNA |
+| `clave_idempotencia` | VARCHAR(80) | Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4). | VARCHAR(80), obligatoria, restricción única. | NINGUNA |
+| `version` | INTEGER | Número de versión para control de concurrencia optimista y auditoría de modificaciones. | INTEGER, obligatoria. | NINGUNA |
 
 ### `historial_estado_entrega`
 
@@ -2345,12 +2345,12 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `entrega_id` | UUID | — | UUID, obligatoria, referencia a `entrega_fondo`. | NINGUNA |
-| `estado_anterior` | VARCHAR(35) | — | VARCHAR(35), obligatoria. | NINGUNA |
-| `estado_nuevo` | VARCHAR(35) | — | VARCHAR(35), obligatoria. | NINGUNA |
-| `motivo` | VARCHAR(200) | — | VARCHAR(200), obligatoria. | NINGUNA |
-| `ejecutado_por` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
-| `fecha_hora` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `entrega_id` | UUID | Referencia por clave foránea a la entidad `entrega_fondo`. | UUID, obligatoria, referencia a `entrega_fondo`, índice b-tree. | NINGUNA |
+| `estado_anterior` | VARCHAR(35) | Atributo que representa estado anterior en el modelo de `historial_estado_entrega`. | VARCHAR(35), obligatoria. | NINGUNA |
+| `estado_nuevo` | VARCHAR(35) | Atributo que representa estado nuevo en el modelo de `historial_estado_entrega`. | VARCHAR(35), obligatoria. | NINGUNA |
+| `motivo` | VARCHAR(200) | Justificación declarada o causal que originó la creación, rechazo o transición del registro. | VARCHAR(200), obligatoria. | NINGUNA |
+| `ejecutado_por` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, opcional, referencia a `usuario`. | NINGUNA |
+| `fecha_hora` | TIMESTAMPTZ | Marca temporal o fecha de hora en `historial_estado_entrega`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 
 ### `incidencia_entrega`
 
@@ -2365,19 +2365,19 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `entrega_id` | UUID | — | UUID, obligatoria, referencia a `entrega_fondo`. | NINGUNA |
-| `tipo` | VARCHAR(35) | — | VARCHAR(35), obligatoria. | NINGUNA |
-| `severidad` | VARCHAR(10) | — | VARCHAR(10), obligatoria. | NINGUNA |
-| `descripcion` | TEXT | — | TEXT, obligatoria. | NINGUNA |
-| `reportada_por` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `asignada_a` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
-| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `sla_horas` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `fecha_limite_sla` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `resolucion` | VARCHAR(400) | — | VARCHAR(400), opcional. | NINGUNA |
-| `evidencias` | JSONB | — | JSONB, obligatoria. | NINGUNA |
-| `abierta_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `resuelta_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `entrega_id` | UUID | Referencia por clave foránea a la entidad `entrega_fondo`. | UUID, obligatoria, referencia a `entrega_fondo`, índice b-tree. | NINGUNA |
+| `tipo` | VARCHAR(35) | Subtipo o modalidad específica que determina las reglas operativas aplicables al registro. | VARCHAR(35), obligatoria. | NINGUNA |
+| `severidad` | VARCHAR(10) | Nivel de gravedad o criticidad asignado al incidente, alerta o evento. | VARCHAR(10), obligatoria. | NINGUNA |
+| `descripcion` | TEXT | Detalle descriptivo que explica el contenido, propósito o contexto de la entidad. | TEXT, obligatoria. | NINGUNA |
+| `reportada_por` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
+| `asignada_a` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, opcional, referencia a `usuario`. | NINGUNA |
+| `estado` | VARCHAR(15) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(15), obligatoria, índice b-tree. | NINGUNA |
+| `sla_horas` | SMALLINT | Atributo que representa sla horas en el modelo de `incidencia_entrega`. | SMALLINT, obligatoria. | NINGUNA |
+| `fecha_limite_sla` | TIMESTAMPTZ | Marca temporal o fecha de limite sla en `incidencia_entrega`. | TIMESTAMPTZ, obligatoria, índice b-tree. | NINGUNA |
+| `resolucion` | VARCHAR(400) | Atributo que representa resolucion en el modelo de `incidencia_entrega`. | VARCHAR(400), opcional. | NINGUNA |
+| `evidencias` | JSONB | Atributo que representa evidencias en el modelo de `incidencia_entrega`. | JSONB, obligatoria. | NINGUNA |
+| `abierta_en` | TIMESTAMPTZ | Marca temporal o fecha de abierta en `incidencia_entrega`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `resuelta_en` | TIMESTAMPTZ | Marca temporal o fecha de resuelta en `incidencia_entrega`. | TIMESTAMPTZ, opcional. | NINGUNA |
 
 ### `intento_desembolso`
 
@@ -2392,14 +2392,14 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `orden_desembolso_id` | UUID | — | UUID, obligatoria, referencia a `orden_desembolso`. | NINGUNA |
-| `numero_intento` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `iniciado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `finalizado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
-| `resultado` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
-| `codigo_error` | VARCHAR(40) | — | VARCHAR(40), opcional. | NINGUNA |
-| `mensaje_proveedor` | VARCHAR(255) | — | VARCHAR(255), opcional. | NINGUNA |
-| `reintentable_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `orden_desembolso_id` | UUID | Referencia por clave foránea a la entidad `orden_desembolso`. | UUID, obligatoria, referencia a `orden_desembolso`, índice b-tree. | NINGUNA |
+| `numero_intento` | SMALLINT | Numeración secuencial o identificador numérico de intento. | SMALLINT, obligatoria. | NINGUNA |
+| `iniciado_en` | TIMESTAMPTZ | Marca temporal o fecha de iniciado en `intento_desembolso`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `finalizado_en` | TIMESTAMPTZ | Marca temporal o fecha de finalizado en `intento_desembolso`. | TIMESTAMPTZ, opcional. | NINGUNA |
+| `resultado` | VARCHAR(20) | Desenlace, dictamen o veredicto de la evaluación o proceso ejecutado. | VARCHAR(20), obligatoria. | NINGUNA |
+| `codigo_error` | VARCHAR(40) | Código normalizado o mnemotécnico de error. | VARCHAR(40), opcional. | NINGUNA |
+| `mensaje_proveedor` | VARCHAR(255) | Atributo que representa mensaje proveedor en el modelo de `intento_desembolso`. | VARCHAR(255), opcional. | NINGUNA |
+| `reintentable_en` | TIMESTAMPTZ | Marca temporal o fecha de reintentable en `intento_desembolso`. | TIMESTAMPTZ, opcional. | NINGUNA |
 
 ### `oferta_turno`
 
@@ -2414,20 +2414,20 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `grupo_id` | UUID | — | UUID, obligatoria, referencia a `grupo`. | NINGUNA |
-| `turno_id` | UUID | — | UUID, obligatoria, referencia a `turno`. | NINGUNA |
-| `cupo_id` | UUID | — | UUID, obligatoria, referencia a `cupo`. | NINGUNA |
-| `participante_origen_id` | UUID | — | UUID, obligatoria, referencia a `participante`. | NINGUNA |
-| `vendedor_usuario_id` | UUID | — | UUID, obligatoria. | NINGUNA |
+| `grupo_id` | UUID | Referencia al grupo de pasanaku en el que se enmarca esta operación. | UUID, obligatoria, referencia a `grupo`, índice b-tree. | NINGUNA |
+| `turno_id` | UUID | Referencia por clave foránea a la entidad `turno`. | UUID, obligatoria, referencia a `turno`, índice b-tree. | NINGUNA |
+| `cupo_id` | UUID | Referencia por clave foránea a la entidad `cupo`. | UUID, obligatoria, referencia a `cupo`. | NINGUNA |
+| `participante_origen_id` | UUID | Referencia por clave foránea a la entidad `participante`. | UUID, obligatoria, referencia a `participante`. | NINGUNA |
+| `vendedor_usuario_id` | UUID | Identificador de referencia para el concepto de vendedor usuario en `oferta_turno`. | UUID, obligatoria, índice b-tree. | NINGUNA |
 | `moneda` | CHAR(3) | Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2). | CHAR(3), obligatoria. | NINGUNA |
-| `monto_derecho` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
-| `monto_precio` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
-| `monto_cargos` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
-| `estado` | VARCHAR(12) | — | VARCHAR(12), obligatoria. | NINGUNA |
-| `vigente_hasta` | TIMESTAMPTZ | Hasta cuándo rigió esta versión; vacía mientras sigue vigente. | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `publicada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `clave_idempotencia` | VARCHAR(80) | Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4). | VARCHAR(80), obligatoria. | NINGUNA |
-| `version` | INTEGER | — | INTEGER, obligatoria. | NINGUNA |
+| `monto_derecho` | DECIMAL(14,2) | Importe monetario correspondiente a derecho en `oferta_turno`. | DECIMAL(14,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `monto_precio` | DECIMAL(14,2) | Importe monetario correspondiente a precio en `oferta_turno`. | DECIMAL(14,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `monto_cargos` | DECIMAL(14,2) | Importe monetario correspondiente a cargos en `oferta_turno`. | DECIMAL(14,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `estado` | VARCHAR(12) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(12), obligatoria, índice b-tree. | NINGUNA |
+| `vigente_hasta` | TIMESTAMPTZ | Hasta cuándo rigió esta versión; vacía mientras sigue vigente. | TIMESTAMPTZ, obligatoria, índice b-tree. | NINGUNA |
+| `publicada_en` | TIMESTAMPTZ | Marca temporal o fecha de publicada en `oferta_turno`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `clave_idempotencia` | VARCHAR(80) | Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4). | VARCHAR(80), obligatoria, restricción única. | NINGUNA |
+| `version` | INTEGER | Número de versión para control de concurrencia optimista y auditoría de modificaciones. | INTEGER, obligatoria. | NINGUNA |
 
 ### `orden_desembolso`
 
@@ -2442,17 +2442,17 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `entrega_id` | UUID | — | UUID, obligatoria, referencia a `entrega_fondo`. | NINGUNA |
-| `proveedor_id` | UUID | — | UUID, obligatoria, referencia a `proveedor_pago`. | NINGUNA |
-| `cuenta_destino_id` | UUID | — | UUID, obligatoria, referencia a `cuenta_bancaria_beneficiario`. | NINGUNA |
-| `monto` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
+| `entrega_id` | UUID | Referencia por clave foránea a la entidad `entrega_fondo`. | UUID, obligatoria, referencia a `entrega_fondo`, índice b-tree. | NINGUNA |
+| `proveedor_id` | UUID | Referencia por clave foránea a la entidad `proveedor_pago`. | UUID, obligatoria, referencia a `proveedor_pago`. | NINGUNA |
+| `cuenta_destino_id` | UUID | Referencia por clave foránea a la entidad `cuenta_bancaria_beneficiario`. | UUID, obligatoria, referencia a `cuenta_bancaria_beneficiario`. | NINGUNA |
+| `monto` | DECIMAL(14,2) | Importe monetario principal de la transacción o concepto financiero. | DECIMAL(14,2), obligatoria, sensibilidad financiero. | FINANCIERO |
 | `moneda` | CHAR(3) | Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2). | CHAR(3), obligatoria. | NINGUNA |
-| `estado` | VARCHAR(25) | — | VARCHAR(25), obligatoria. | NINGUNA |
-| `referencia_proveedor` | VARCHAR(80) | — | VARCHAR(80), opcional. | NINGUNA |
-| `glosa` | VARCHAR(140) | — | VARCHAR(140), obligatoria. | NINGUNA |
+| `estado` | VARCHAR(25) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(25), obligatoria, índice b-tree. | NINGUNA |
+| `referencia_proveedor` | VARCHAR(80) | Atributo que representa referencia proveedor en el modelo de `orden_desembolso`. | VARCHAR(80), opcional, restricción única. | NINGUNA |
+| `glosa` | VARCHAR(140) | Atributo que representa glosa en el modelo de `orden_desembolso`. | VARCHAR(140), obligatoria. | NINGUNA |
 | `clave_idempotencia` | VARCHAR(80) | Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4). | VARCHAR(80), obligatoria. | NINGUNA |
-| `creada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `acreditada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `creada_en` | TIMESTAMPTZ | Marca temporal UTC en que la entidad fue creada en la base de datos. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `acreditada_en` | TIMESTAMPTZ | Marca temporal o fecha de acreditada en `orden_desembolso`. | TIMESTAMPTZ, opcional. | NINGUNA |
 
 ### `regla_entrega`
 
@@ -2467,13 +2467,13 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `codigo` | VARCHAR(40) | — | VARCHAR(40), obligatoria. | NINGUNA |
-| `descripcion` | VARCHAR(200) | — | VARCHAR(200), obligatoria. | NINGUNA |
-| `es_bloqueante` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
-| `permite_omision` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
-| `rol_que_puede_omitir` | VARCHAR(30) | — | VARCHAR(30), opcional. | NINGUNA |
-| `orden` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `activa` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
+| `codigo` | VARCHAR(40) | Código mnemotécnico o identificador legible para operadores y personas usuarias. | VARCHAR(40), obligatoria, restricción única. | NINGUNA |
+| `descripcion` | VARCHAR(200) | Detalle descriptivo que explica el contenido, propósito o contexto de la entidad. | VARCHAR(200), obligatoria. | NINGUNA |
+| `es_bloqueante` | BOOLEAN | Indicador booleano que señala si bloqueante en `regla_entrega`. | BOOLEAN, obligatoria. | NINGUNA |
+| `permite_omision` | BOOLEAN | Atributo que representa permite omision en el modelo de `regla_entrega`. | BOOLEAN, obligatoria. | NINGUNA |
+| `rol_que_puede_omitir` | VARCHAR(30) | Atributo que representa rol que puede omitir en el modelo de `regla_entrega`. | VARCHAR(30), opcional. | NINGUNA |
+| `orden` | SMALLINT | Atributo que representa orden en el modelo de `regla_entrega`. | SMALLINT, obligatoria. | NINGUNA |
+| `activa` | BOOLEAN | Indicador booleano que determina si la entidad se encuentra actualmente operativa. | BOOLEAN, obligatoria. | NINGUNA |
 
 ### `validacion_pre_entrega`
 
@@ -2488,15 +2488,15 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `entrega_id` | UUID | — | UUID, obligatoria, referencia a `entrega_fondo`. | NINGUNA |
-| `regla_id` | UUID | — | UUID, obligatoria, referencia a `regla_entrega`. | NINGUNA |
-| `resultado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `valor_esperado` | VARCHAR(80) | — | VARCHAR(80), opcional. | NINGUNA |
-| `valor_obtenido` | VARCHAR(80) | — | VARCHAR(80), opcional. | NINGUNA |
-| `es_bloqueante` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
-| `omitida_por` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
-| `justificacion_omision` | VARCHAR(300) | — | VARCHAR(300), opcional. | NINGUNA |
-| `evaluada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `entrega_id` | UUID | Referencia por clave foránea a la entidad `entrega_fondo`. | UUID, obligatoria, referencia a `entrega_fondo`, índice b-tree. | NINGUNA |
+| `regla_id` | UUID | Referencia por clave foránea a la entidad `regla_entrega`. | UUID, obligatoria, referencia a `regla_entrega`. | NINGUNA |
+| `resultado` | VARCHAR(15) | Desenlace, dictamen o veredicto de la evaluación o proceso ejecutado. | VARCHAR(15), obligatoria. | NINGUNA |
+| `valor_esperado` | VARCHAR(80) | Atributo que representa valor esperado en el modelo de `validacion_pre_entrega`. | VARCHAR(80), opcional. | NINGUNA |
+| `valor_obtenido` | VARCHAR(80) | Atributo que representa valor obtenido en el modelo de `validacion_pre_entrega`. | VARCHAR(80), opcional. | NINGUNA |
+| `es_bloqueante` | BOOLEAN | Indicador booleano que señala si bloqueante en `validacion_pre_entrega`. | BOOLEAN, obligatoria. | NINGUNA |
+| `omitida_por` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, opcional, referencia a `usuario`. | NINGUNA |
+| `justificacion_omision` | VARCHAR(300) | Atributo que representa justificacion omision en el modelo de `validacion_pre_entrega`. | VARCHAR(300), opcional. | NINGUNA |
+| `evaluada_en` | TIMESTAMPTZ | Marca temporal o fecha de evaluada en `validacion_pre_entrega`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 
 ## Esquema `erp`
 
@@ -2513,18 +2513,18 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `categoria_activo_fijo_id` | UUID | — | UUID, obligatoria, referencia a `categoria_activo_fijo`. | NINGUNA |
-| `centro_costo_id` | UUID | — | UUID, opcional, referencia a `centro_costo`. | NINGUNA |
-| `codigo_inventario` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
-| `descripcion` | VARCHAR(200) | — | VARCHAR(200), obligatoria. | NINGUNA |
-| `fecha_adquisicion` | DATE | — | DATE, obligatoria. | NINGUNA |
-| `costo_adquisicion` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | NINGUNA |
+| `categoria_activo_fijo_id` | UUID | Referencia por clave foránea a la entidad `categoria_activo_fijo`. | UUID, obligatoria, referencia a `categoria_activo_fijo`, índice b-tree. | NINGUNA |
+| `centro_costo_id` | UUID | Referencia por clave foránea a la entidad `centro_costo`. | UUID, opcional, referencia a `centro_costo`. | NINGUNA |
+| `codigo_inventario` | VARCHAR(30) | Código normalizado o mnemotécnico de inventario. | VARCHAR(30), obligatoria, restricción única. | NINGUNA |
+| `descripcion` | VARCHAR(200) | Detalle descriptivo que explica el contenido, propósito o contexto de la entidad. | VARCHAR(200), obligatoria. | NINGUNA |
+| `fecha_adquisicion` | DATE | Marca temporal o fecha de adquisicion en `activo_fijo`. | DATE, obligatoria. | NINGUNA |
+| `costo_adquisicion` | DECIMAL(14,2) | Atributo que representa costo adquisicion en el modelo de `activo_fijo`. | DECIMAL(14,2), obligatoria. | NINGUNA |
 | `moneda` | CHAR(3) | Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2). | CHAR(3), obligatoria. | NINGUNA |
-| `valor_residual` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | NINGUNA |
-| `depreciacion_acumulada` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | NINGUNA |
-| `valor_en_libros` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria, calculada por la base, no se escribe. | NINGUNA |
-| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `factura_proveedor_id` | UUID | — | UUID, opcional, referencia a `factura_proveedor`. | NINGUNA |
+| `valor_residual` | DECIMAL(14,2) | Atributo que representa valor residual en el modelo de `activo_fijo`. | DECIMAL(14,2), obligatoria. | NINGUNA |
+| `depreciacion_acumulada` | DECIMAL(14,2) | Atributo que representa depreciacion acumulada en el modelo de `activo_fijo`. | DECIMAL(14,2), obligatoria. | NINGUNA |
+| `valor_en_libros` | DECIMAL(14,2) | Atributo que representa valor en libros en el modelo de `activo_fijo`. | DECIMAL(14,2), obligatoria, calculada por la base, no se escribe. | NINGUNA |
+| `estado` | VARCHAR(15) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(15), obligatoria, índice b-tree. | NINGUNA |
+| `factura_proveedor_id` | UUID | Referencia por clave foránea a la entidad `factura_proveedor`. | UUID, opcional, referencia a `factura_proveedor`. | NINGUNA |
 
 ### `asiento_plantilla`
 
@@ -2537,12 +2537,12 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `codigo` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
-| `nombre` | VARCHAR(100) | — | VARCHAR(100), obligatoria. | NINGUNA |
-| `glosa` | VARCHAR(200) | — | VARCHAR(200), obligatoria. | NINGUNA |
-| `periodicidad` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `activa` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
-| `creada_por` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
+| `codigo` | VARCHAR(30) | Código mnemotécnico o identificador legible para operadores y personas usuarias. | VARCHAR(30), obligatoria, restricción única. | NINGUNA |
+| `nombre` | VARCHAR(100) | Nombre descriptivo de la entidad para visualización y referencia en el sistema. | VARCHAR(100), obligatoria. | NINGUNA |
+| `glosa` | VARCHAR(200) | Atributo que representa glosa en el modelo de `asiento_plantilla`. | VARCHAR(200), obligatoria. | NINGUNA |
+| `periodicidad` | VARCHAR(15) | Atributo que representa periodicidad en el modelo de `asiento_plantilla`. | VARCHAR(15), obligatoria. | NINGUNA |
+| `activa` | BOOLEAN | Indicador booleano que determina si la entidad se encuentra actualmente operativa. | BOOLEAN, obligatoria. | NINGUNA |
+| `creada_por` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
 
 ### `categoria_activo_fijo`
 
@@ -2557,13 +2557,13 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `codigo` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
-| `nombre` | VARCHAR(80) | — | VARCHAR(80), obligatoria. | NINGUNA |
-| `vida_util_meses` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `metodo_depreciacion` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
-| `cuenta_activo_id` | UUID | — | UUID, obligatoria, referencia a `cuenta_contable`. | NINGUNA |
-| `cuenta_depreciacion_id` | UUID | — | UUID, obligatoria, referencia a `cuenta_contable`. | NINGUNA |
-| `cuenta_gasto_depreciacion_id` | UUID | — | UUID, obligatoria, referencia a `cuenta_contable`. | NINGUNA |
+| `codigo` | VARCHAR(20) | Código mnemotécnico o identificador legible para operadores y personas usuarias. | VARCHAR(20), obligatoria, restricción única. | NINGUNA |
+| `nombre` | VARCHAR(80) | Nombre descriptivo de la entidad para visualización y referencia en el sistema. | VARCHAR(80), obligatoria. | NINGUNA |
+| `vida_util_meses` | SMALLINT | Atributo que representa vida util meses en el modelo de `categoria_activo_fijo`. | SMALLINT, obligatoria. | NINGUNA |
+| `metodo_depreciacion` | VARCHAR(20) | Atributo que representa metodo depreciacion en el modelo de `categoria_activo_fijo`. | VARCHAR(20), obligatoria. | NINGUNA |
+| `cuenta_activo_id` | UUID | Referencia por clave foránea a la entidad `cuenta_contable`. | UUID, obligatoria, referencia a `cuenta_contable`. | NINGUNA |
+| `cuenta_depreciacion_id` | UUID | Referencia por clave foránea a la entidad `cuenta_contable`. | UUID, obligatoria, referencia a `cuenta_contable`. | NINGUNA |
+| `cuenta_gasto_depreciacion_id` | UUID | Referencia por clave foránea a la entidad `cuenta_contable`. | UUID, obligatoria, referencia a `cuenta_contable`. | NINGUNA |
 
 ### `centro_costo`
 
@@ -2578,10 +2578,10 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `codigo` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
-| `nombre` | VARCHAR(100) | — | VARCHAR(100), obligatoria. | NINGUNA |
-| `tipo` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
-| `activo` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
+| `codigo` | VARCHAR(20) | Código mnemotécnico o identificador legible para operadores y personas usuarias. | VARCHAR(20), obligatoria, restricción única. | NINGUNA |
+| `nombre` | VARCHAR(100) | Nombre descriptivo de la entidad para visualización y referencia en el sistema. | VARCHAR(100), obligatoria. | NINGUNA |
+| `tipo` | VARCHAR(20) | Subtipo o modalidad específica que determina las reglas operativas aplicables al registro. | VARCHAR(20), obligatoria. | NINGUNA |
+| `activo` | BOOLEAN | Indicador booleano que determina si el registro se encuentra actualmente operativo. | BOOLEAN, obligatoria. | NINGUNA |
 
 ### `cierre_periodo_contable`
 
@@ -2596,13 +2596,13 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `periodo_contable_id` | UUID | — | UUID, obligatoria, referencia a `periodo_contable`. | NINGUNA |
-| `cerrado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `cerrado_por` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `total_debe` | DECIMAL(18,2) | — | DECIMAL(18,2), obligatoria. | NINGUNA |
-| `total_haber` | DECIMAL(18,2) | — | DECIMAL(18,2), obligatoria. | NINGUNA |
-| `diferencia` | DECIMAL(18,2) | — | DECIMAL(18,2), obligatoria, calculada por la base, no se escribe. | NINGUNA |
-| `observaciones` | VARCHAR(300) | — | VARCHAR(300), opcional. | NINGUNA |
+| `periodo_contable_id` | UUID | Referencia por clave foránea a la entidad `periodo_contable`. | UUID, obligatoria, referencia a `periodo_contable`, restricción única. | NINGUNA |
+| `cerrado_en` | TIMESTAMPTZ | Marca temporal o fecha de cerrado en `cierre_periodo_contable`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `cerrado_por` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
+| `total_debe` | DECIMAL(18,2) | Importe monetario correspondiente a debe en `cierre_periodo_contable`. | DECIMAL(18,2), obligatoria. | NINGUNA |
+| `total_haber` | DECIMAL(18,2) | Importe monetario correspondiente a haber en `cierre_periodo_contable`. | DECIMAL(18,2), obligatoria. | NINGUNA |
+| `diferencia` | DECIMAL(18,2) | Atributo que representa diferencia en el modelo de `cierre_periodo_contable`. | DECIMAL(18,2), obligatoria, calculada por la base, no se escribe. | NINGUNA |
+| `observaciones` | VARCHAR(300) | Atributo que representa observaciones en el modelo de `cierre_periodo_contable`. | VARCHAR(300), opcional. | NINGUNA |
 
 ### `cobro_cuenta_por_cobrar`
 
@@ -2615,12 +2615,12 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `cuenta_por_cobrar_id` | UUID | — | UUID, obligatoria, referencia a `cuenta_por_cobrar`. | NINGUNA |
-| `monto` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
+| `cuenta_por_cobrar_id` | UUID | Referencia por clave foránea a la entidad `cuenta_por_cobrar`. | UUID, obligatoria, referencia a `cuenta_por_cobrar`, índice b-tree. | NINGUNA |
+| `monto` | DECIMAL(14,2) | Importe monetario principal de la transacción o concepto financiero. | DECIMAL(14,2), obligatoria, sensibilidad financiero. | FINANCIERO |
 | `moneda` | CHAR(3) | Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2). | CHAR(3), obligatoria. | NINGUNA |
-| `fecha_cobro` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `forma_cobro` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
-| `asiento_contable_id` | UUID | — | UUID, opcional, referencia a `asiento_contable`. | NINGUNA |
+| `fecha_cobro` | TIMESTAMPTZ | Marca temporal o fecha de cobro en `cobro_cuenta_por_cobrar`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `forma_cobro` | VARCHAR(20) | Atributo que representa forma cobro en el modelo de `cobro_cuenta_por_cobrar`. | VARCHAR(20), obligatoria. | NINGUNA |
+| `asiento_contable_id` | UUID | Referencia al asiento de partida doble que respalda el movimiento financiero. | UUID, opcional, referencia a `asiento_contable`. | NINGUNA |
 
 ### `cuenta_por_cobrar`
 
@@ -2633,15 +2633,15 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `origen_tipo` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
-| `origen_id` | UUID | — | UUID, obligatoria. | NINGUNA |
-| `tercero_comercial_id` | UUID | — | UUID, opcional, referencia a `tercero_comercial`. | NINGUNA |
-| `monto` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
+| `origen_tipo` | VARCHAR(20) | Atributo que representa origen tipo en el modelo de `cuenta_por_cobrar`. | VARCHAR(20), obligatoria, índice b-tree. | NINGUNA |
+| `origen_id` | UUID | Identificador de referencia para el concepto de origen en `cuenta_por_cobrar`. | UUID, obligatoria, índice b-tree. | NINGUNA |
+| `tercero_comercial_id` | UUID | Referencia por clave foránea a la entidad `tercero_comercial`. | UUID, opcional, referencia a `tercero_comercial`, índice b-tree. | NINGUNA |
+| `monto` | DECIMAL(14,2) | Importe monetario principal de la transacción o concepto financiero. | DECIMAL(14,2), obligatoria, sensibilidad financiero. | FINANCIERO |
 | `moneda` | CHAR(3) | Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2). | CHAR(3), obligatoria. | NINGUNA |
-| `monto_cobrado` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
-| `saldo_pendiente` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria, calculada por la base, no se escribe. | FINANCIERO |
-| `fecha_vencimiento` | DATE | — | DATE, obligatoria. | NINGUNA |
-| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
+| `monto_cobrado` | DECIMAL(14,2) | Importe monetario correspondiente a cobrado en `cuenta_por_cobrar`. | DECIMAL(14,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `saldo_pendiente` | DECIMAL(14,2) | Atributo que representa saldo pendiente en el modelo de `cuenta_por_cobrar`. | DECIMAL(14,2), obligatoria, calculada por la base, no se escribe, sensibilidad financiero. | FINANCIERO |
+| `fecha_vencimiento` | DATE | Marca temporal o fecha de vencimiento en `cuenta_por_cobrar`. | DATE, obligatoria. | NINGUNA |
+| `estado` | VARCHAR(15) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(15), obligatoria, índice b-tree. | NINGUNA |
 
 ### `depreciacion_activo`
 
@@ -2656,12 +2656,12 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `activo_fijo_id` | UUID | — | UUID, obligatoria, referencia a `activo_fijo`. | NINGUNA |
-| `periodo_contable_id` | UUID | — | UUID, obligatoria, referencia a `periodo_contable`. | NINGUNA |
-| `monto` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
+| `activo_fijo_id` | UUID | Referencia por clave foránea a la entidad `activo_fijo`. | UUID, obligatoria, referencia a `activo_fijo`, índice b-tree. | NINGUNA |
+| `periodo_contable_id` | UUID | Referencia por clave foránea a la entidad `periodo_contable`. | UUID, obligatoria, referencia a `periodo_contable`, índice b-tree. | NINGUNA |
+| `monto` | DECIMAL(14,2) | Importe monetario principal de la transacción o concepto financiero. | DECIMAL(14,2), obligatoria, sensibilidad financiero. | FINANCIERO |
 | `moneda` | CHAR(3) | Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2). | CHAR(3), obligatoria. | NINGUNA |
-| `asiento_contable_id` | UUID | — | UUID, opcional, referencia a `asiento_contable`. | NINGUNA |
-| `calculada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `asiento_contable_id` | UUID | Referencia al asiento de partida doble que respalda el movimiento financiero. | UUID, opcional, referencia a `asiento_contable`. | NINGUNA |
+| `calculada_en` | TIMESTAMPTZ | Marca temporal o fecha de calculada en `depreciacion_activo`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 
 ### `ejercicio_fiscal`
 
@@ -2676,12 +2676,12 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `anio` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `fecha_inicio` | DATE | — | DATE, obligatoria. | NINGUNA |
-| `fecha_fin` | DATE | — | DATE, obligatoria. | NINGUNA |
-| `estado` | VARCHAR(10) | — | VARCHAR(10), obligatoria. | NINGUNA |
-| `cerrado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
-| `cerrado_por` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
+| `anio` | SMALLINT | Atributo que representa anio en el modelo de `ejercicio_fiscal`. | SMALLINT, obligatoria, restricción única. | NINGUNA |
+| `fecha_inicio` | DATE | Marca temporal o fecha de inicio en `ejercicio_fiscal`. | DATE, obligatoria. | NINGUNA |
+| `fecha_fin` | DATE | Marca temporal o fecha de fin en `ejercicio_fiscal`. | DATE, obligatoria. | NINGUNA |
+| `estado` | VARCHAR(10) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(10), obligatoria, índice b-tree. | NINGUNA |
+| `cerrado_en` | TIMESTAMPTZ | Marca temporal o fecha de cerrado en `ejercicio_fiscal`. | TIMESTAMPTZ, opcional. | NINGUNA |
+| `cerrado_por` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, opcional, referencia a `usuario`. | NINGUNA |
 
 ### `estado_financiero_generado`
 
@@ -2694,12 +2694,12 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `periodo_contable_id` | UUID | — | UUID, obligatoria, referencia a `periodo_contable`. | NINGUNA |
-| `tipo` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
-| `generado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `generado_por` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `datos` | JSONB | — | JSONB, obligatoria. | NINGUNA |
-| `hash_contenido` | VARCHAR(64) | — | VARCHAR(64), obligatoria. | DERIVADO |
+| `periodo_contable_id` | UUID | Referencia por clave foránea a la entidad `periodo_contable`. | UUID, obligatoria, referencia a `periodo_contable`, índice b-tree. | NINGUNA |
+| `tipo` | VARCHAR(20) | Subtipo o modalidad específica que determina las reglas operativas aplicables al registro. | VARCHAR(20), obligatoria. | NINGUNA |
+| `generado_en` | TIMESTAMPTZ | Marca temporal o fecha de generado en `estado_financiero_generado`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `generado_por` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
+| `datos` | JSONB | Atributo que representa datos en el modelo de `estado_financiero_generado`. | JSONB, obligatoria. | NINGUNA |
+| `hash_contenido` | VARCHAR(64) | Resumen criptográfico SHA-256 para verificación inmutable de contenido. | VARCHAR(64), obligatoria, sensibilidad derivado. | DERIVADO |
 
 ### `factura_proveedor`
 
@@ -2712,19 +2712,19 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `tercero_comercial_id` | UUID | — | UUID, obligatoria, referencia a `tercero_comercial`. | NINGUNA |
-| `orden_compra_id` | UUID | — | UUID, opcional, referencia a `orden_compra`. | NINGUNA |
-| `centro_costo_id` | UUID | — | UUID, opcional, referencia a `centro_costo`. | NINGUNA |
-| `numero_factura` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
-| `fecha_emision` | DATE | — | DATE, obligatoria. | NINGUNA |
-| `fecha_vencimiento` | DATE | — | DATE, obligatoria. | NINGUNA |
-| `monto` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
+| `tercero_comercial_id` | UUID | Referencia por clave foránea a la entidad `tercero_comercial`. | UUID, obligatoria, referencia a `tercero_comercial`, índice b-tree. | NINGUNA |
+| `orden_compra_id` | UUID | Referencia por clave foránea a la entidad `orden_compra`. | UUID, opcional, referencia a `orden_compra`, índice b-tree. | NINGUNA |
+| `centro_costo_id` | UUID | Referencia por clave foránea a la entidad `centro_costo`. | UUID, opcional, referencia a `centro_costo`. | NINGUNA |
+| `numero_factura` | VARCHAR(30) | Numeración secuencial o identificador numérico de factura. | VARCHAR(30), obligatoria. | NINGUNA |
+| `fecha_emision` | DATE | Marca temporal o fecha de emision en `factura_proveedor`. | DATE, obligatoria. | NINGUNA |
+| `fecha_vencimiento` | DATE | Marca temporal o fecha de vencimiento en `factura_proveedor`. | DATE, obligatoria. | NINGUNA |
+| `monto` | DECIMAL(14,2) | Importe monetario principal de la transacción o concepto financiero. | DECIMAL(14,2), obligatoria, sensibilidad financiero. | FINANCIERO |
 | `moneda` | CHAR(3) | Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2). | CHAR(3), obligatoria. | NINGUNA |
-| `monto_pagado` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
-| `saldo_pendiente` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria, calculada por la base, no se escribe. | FINANCIERO |
-| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `aprobada_por` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
-| `asiento_contable_id` | UUID | — | UUID, opcional, referencia a `asiento_contable`. | NINGUNA |
+| `monto_pagado` | DECIMAL(14,2) | Importe monetario correspondiente a pagado en `factura_proveedor`. | DECIMAL(14,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `saldo_pendiente` | DECIMAL(14,2) | Atributo que representa saldo pendiente en el modelo de `factura_proveedor`. | DECIMAL(14,2), obligatoria, calculada por la base, no se escribe, sensibilidad financiero. | FINANCIERO |
+| `estado` | VARCHAR(15) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(15), obligatoria, índice b-tree. | NINGUNA |
+| `aprobada_por` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, opcional, referencia a `usuario`. | NINGUNA |
+| `asiento_contable_id` | UUID | Referencia al asiento de partida doble que respalda el movimiento financiero. | UUID, opcional, referencia a `asiento_contable`. | NINGUNA |
 
 ### `linea_plantilla_asiento`
 
@@ -2737,11 +2737,11 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `plantilla_id` | UUID | — | UUID, obligatoria, referencia a `asiento_plantilla`. | NINGUNA |
-| `cuenta_contable_id` | UUID | — | UUID, obligatoria, referencia a `cuenta_contable`. | NINGUNA |
-| `tipo_movimiento` | VARCHAR(5) | — | VARCHAR(5), obligatoria. | NINGUNA |
-| `monto_referencial` | DECIMAL(14,2) | — | DECIMAL(14,2), opcional. | FINANCIERO |
-| `orden` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
+| `plantilla_id` | UUID | Referencia por clave foránea a la entidad `asiento_plantilla`. | UUID, obligatoria, referencia a `asiento_plantilla`, índice b-tree. | NINGUNA |
+| `cuenta_contable_id` | UUID | Referencia por clave foránea a la entidad `cuenta_contable`. | UUID, obligatoria, referencia a `cuenta_contable`, índice b-tree. | NINGUNA |
+| `tipo_movimiento` | VARCHAR(5) | Atributo que representa tipo movimiento en el modelo de `linea_plantilla_asiento`. | VARCHAR(5), obligatoria. | NINGUNA |
+| `monto_referencial` | DECIMAL(14,2) | Importe monetario correspondiente a referencial en `linea_plantilla_asiento`. | DECIMAL(14,2), opcional, sensibilidad financiero. | FINANCIERO |
+| `orden` | SMALLINT | Atributo que representa orden en el modelo de `linea_plantilla_asiento`. | SMALLINT, obligatoria. | NINGUNA |
 
 ### `orden_compra`
 
@@ -2754,15 +2754,15 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `tercero_comercial_id` | UUID | — | UUID, obligatoria, referencia a `tercero_comercial`. | NINGUNA |
-| `centro_costo_id` | UUID | — | UUID, opcional, referencia a `centro_costo`. | NINGUNA |
-| `numero` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
-| `descripcion` | VARCHAR(300) | — | VARCHAR(300), obligatoria. | NINGUNA |
-| `monto_total` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
+| `tercero_comercial_id` | UUID | Referencia por clave foránea a la entidad `tercero_comercial`. | UUID, obligatoria, referencia a `tercero_comercial`, índice b-tree. | NINGUNA |
+| `centro_costo_id` | UUID | Referencia por clave foránea a la entidad `centro_costo`. | UUID, opcional, referencia a `centro_costo`. | NINGUNA |
+| `numero` | VARCHAR(30) | Atributo que representa numero en el modelo de `orden_compra`. | VARCHAR(30), obligatoria, restricción única. | NINGUNA |
+| `descripcion` | VARCHAR(300) | Detalle descriptivo que explica el contenido, propósito o contexto de la entidad. | VARCHAR(300), obligatoria. | NINGUNA |
+| `monto_total` | DECIMAL(14,2) | Importe monetario correspondiente a total en `orden_compra`. | DECIMAL(14,2), obligatoria, sensibilidad financiero. | FINANCIERO |
 | `moneda` | CHAR(3) | Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2). | CHAR(3), obligatoria. | NINGUNA |
-| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `aprobada_por` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
-| `creada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `estado` | VARCHAR(15) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(15), obligatoria, índice b-tree. | NINGUNA |
+| `aprobada_por` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, opcional, referencia a `usuario`. | NINGUNA |
+| `creada_en` | TIMESTAMPTZ | Marca temporal UTC en que la entidad fue creada en la base de datos. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 
 ### `pago_a_proveedor`
 
@@ -2775,14 +2775,14 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `factura_proveedor_id` | UUID | — | UUID, obligatoria, referencia a `factura_proveedor`. | NINGUNA |
-| `monto` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
+| `factura_proveedor_id` | UUID | Referencia por clave foránea a la entidad `factura_proveedor`. | UUID, obligatoria, referencia a `factura_proveedor`, índice b-tree. | NINGUNA |
+| `monto` | DECIMAL(14,2) | Importe monetario principal de la transacción o concepto financiero. | DECIMAL(14,2), obligatoria, sensibilidad financiero. | FINANCIERO |
 | `moneda` | CHAR(3) | Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2). | CHAR(3), obligatoria. | NINGUNA |
-| `fecha_pago` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `forma_pago` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
-| `autorizado_por` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
+| `fecha_pago` | TIMESTAMPTZ | Marca temporal o fecha de pago en `pago_a_proveedor`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `forma_pago` | VARCHAR(20) | Atributo que representa forma pago en el modelo de `pago_a_proveedor`. | VARCHAR(20), obligatoria. | NINGUNA |
+| `autorizado_por` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
 | `clave_idempotencia` | UUID | Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4). | UUID, opcional. | NINGUNA |
-| `asiento_contable_id` | UUID | — | UUID, opcional, referencia a `asiento_contable`. | NINGUNA |
+| `asiento_contable_id` | UUID | Referencia al asiento de partida doble que respalda el movimiento financiero. | UUID, opcional, referencia a `asiento_contable`. | NINGUNA |
 
 ### `partida_presupuestaria`
 
@@ -2797,12 +2797,12 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `presupuesto_id` | UUID | — | UUID, obligatoria, referencia a `presupuesto`. | NINGUNA |
-| `cuenta_contable_id` | UUID | — | UUID, obligatoria, referencia a `cuenta_contable`. | NINGUNA |
-| `periodo_contable_id` | UUID | — | UUID, obligatoria, referencia a `periodo_contable`. | NINGUNA |
-| `monto_presupuestado` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
+| `presupuesto_id` | UUID | Referencia por clave foránea a la entidad `presupuesto`. | UUID, obligatoria, referencia a `presupuesto`, índice b-tree. | NINGUNA |
+| `cuenta_contable_id` | UUID | Referencia por clave foránea a la entidad `cuenta_contable`. | UUID, obligatoria, referencia a `cuenta_contable`, índice b-tree. | NINGUNA |
+| `periodo_contable_id` | UUID | Referencia por clave foránea a la entidad `periodo_contable`. | UUID, obligatoria, referencia a `periodo_contable`, índice b-tree. | NINGUNA |
+| `monto_presupuestado` | DECIMAL(14,2) | Importe monetario correspondiente a presupuestado en `partida_presupuestaria`. | DECIMAL(14,2), obligatoria, sensibilidad financiero. | FINANCIERO |
 | `moneda` | CHAR(3) | Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2). | CHAR(3), obligatoria. | NINGUNA |
-| `monto_ejecutado` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
+| `monto_ejecutado` | DECIMAL(14,2) | Importe monetario correspondiente a ejecutado en `partida_presupuestaria`. | DECIMAL(14,2), obligatoria, sensibilidad financiero. | FINANCIERO |
 
 ### `periodo_contable`
 
@@ -2817,11 +2817,11 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `ejercicio_fiscal_id` | UUID | — | UUID, obligatoria, referencia a `ejercicio_fiscal`. | NINGUNA |
-| `mes` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `fecha_inicio` | DATE | — | DATE, obligatoria. | NINGUNA |
-| `fecha_fin` | DATE | — | DATE, obligatoria. | NINGUNA |
-| `estado` | VARCHAR(10) | — | VARCHAR(10), obligatoria. | NINGUNA |
+| `ejercicio_fiscal_id` | UUID | Referencia por clave foránea a la entidad `ejercicio_fiscal`. | UUID, obligatoria, referencia a `ejercicio_fiscal`, índice b-tree. | NINGUNA |
+| `mes` | SMALLINT | Atributo que representa mes en el modelo de `periodo_contable`. | SMALLINT, obligatoria. | NINGUNA |
+| `fecha_inicio` | DATE | Marca temporal o fecha de inicio en `periodo_contable`. | DATE, obligatoria. | NINGUNA |
+| `fecha_fin` | DATE | Marca temporal o fecha de fin en `periodo_contable`. | DATE, obligatoria. | NINGUNA |
+| `estado` | VARCHAR(10) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(10), obligatoria, índice b-tree. | NINGUNA |
 
 ### `presupuesto`
 
@@ -2836,12 +2836,12 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `centro_costo_id` | UUID | — | UUID, obligatoria, referencia a `centro_costo`. | NINGUNA |
-| `ejercicio_fiscal_id` | UUID | — | UUID, obligatoria, referencia a `ejercicio_fiscal`. | NINGUNA |
-| `nombre` | VARCHAR(100) | — | VARCHAR(100), obligatoria. | NINGUNA |
-| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `aprobado_por` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
-| `aprobado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `centro_costo_id` | UUID | Referencia por clave foránea a la entidad `centro_costo`. | UUID, obligatoria, referencia a `centro_costo`, índice b-tree. | NINGUNA |
+| `ejercicio_fiscal_id` | UUID | Referencia por clave foránea a la entidad `ejercicio_fiscal`. | UUID, obligatoria, referencia a `ejercicio_fiscal`, índice b-tree. | NINGUNA |
+| `nombre` | VARCHAR(100) | Nombre descriptivo de la entidad para visualización y referencia en el sistema. | VARCHAR(100), obligatoria. | NINGUNA |
+| `estado` | VARCHAR(15) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(15), obligatoria, índice b-tree. | NINGUNA |
+| `aprobado_por` | UUID | Identificador del usuario con facultades que autorizó la operación. | UUID, opcional, referencia a `usuario`. | NINGUNA |
+| `aprobado_en` | TIMESTAMPTZ | Marca temporal o fecha de aprobado en `presupuesto`. | TIMESTAMPTZ, opcional. | NINGUNA |
 
 ### `tercero_comercial`
 
@@ -2854,14 +2854,14 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `tipo` | VARCHAR(12) | — | VARCHAR(12), obligatoria. | NINGUNA |
-| `razon_social` | VARCHAR(150) | — | VARCHAR(150), obligatoria. | NINGUNA |
-| `numero_documento` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | PERSONAL |
-| `email` | VARCHAR(120) | — | VARCHAR(120), opcional. | PERSONAL |
-| `telefono` | VARCHAR(20) | — | VARCHAR(20), opcional. | PERSONAL |
-| `cuenta_contable_id` | UUID | — | UUID, opcional, referencia a `cuenta_contable`. | NINGUNA |
-| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `creado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `tipo` | VARCHAR(12) | Subtipo o modalidad específica que determina las reglas operativas aplicables al registro. | VARCHAR(12), obligatoria. | NINGUNA |
+| `razon_social` | VARCHAR(150) | Atributo que representa razon social en el modelo de `tercero_comercial`. | VARCHAR(150), obligatoria. | NINGUNA |
+| `numero_documento` | VARCHAR(30) | Numeración secuencial o identificador numérico de documento. | VARCHAR(30), obligatoria, restricción única, sensibilidad personal. | PERSONAL |
+| `email` | VARCHAR(120) | Atributo que representa email en el modelo de `tercero_comercial`. | VARCHAR(120), opcional, sensibilidad personal. | PERSONAL |
+| `telefono` | VARCHAR(20) | Atributo que representa telefono en el modelo de `tercero_comercial`. | VARCHAR(20), opcional, sensibilidad personal. | PERSONAL |
+| `cuenta_contable_id` | UUID | Referencia por clave foránea a la entidad `cuenta_contable`. | UUID, opcional, referencia a `cuenta_contable`, índice b-tree. | NINGUNA |
+| `estado` | VARCHAR(15) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(15), obligatoria, índice b-tree. | NINGUNA |
+| `creado_en` | TIMESTAMPTZ | Marca temporal UTC en que el registro fue creado en la base de datos. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 
 ## Esquema `garantia`
 
@@ -2878,18 +2878,18 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `deuda_id` | UUID | — | UUID, obligatoria, referencia a `deuda_participante`. | FINANCIERO |
-| `pago_id` | UUID | — | UUID, opcional, referencia a `pago`. | NINGUNA |
-| `entrega_id` | UUID | — | UUID, opcional, referencia a `entrega_fondo`. | NINGUNA |
-| `movimiento_fondo_id` | UUID | — | UUID, opcional, referencia a `movimiento_fondo`. | NINGUNA |
-| `monto` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
-| `origen` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
-| `aplicado_a_capital` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | NINGUNA |
-| `aplicado_a_recargos` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | NINGUNA |
-| `saldo_resultante` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
-| `fecha` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `registrado_por` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
-| `revertido_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `deuda_id` | UUID | Referencia por clave foránea a la entidad `deuda_participante`. | UUID, obligatoria, referencia a `deuda_participante`, índice b-tree, sensibilidad financiero. | FINANCIERO |
+| `pago_id` | UUID | Referencia por clave foránea a la entidad `pago`. | UUID, opcional, referencia a `pago`. | NINGUNA |
+| `entrega_id` | UUID | Referencia por clave foránea a la entidad `entrega_fondo`. | UUID, opcional, referencia a `entrega_fondo`. | NINGUNA |
+| `movimiento_fondo_id` | UUID | Referencia por clave foránea a la entidad `movimiento_fondo`. | UUID, opcional, referencia a `movimiento_fondo`. | NINGUNA |
+| `monto` | DECIMAL(14,2) | Importe monetario principal de la transacción o concepto financiero. | DECIMAL(14,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `origen` | VARCHAR(30) | Atributo que representa origen en el modelo de `abono_recuperacion`. | VARCHAR(30), obligatoria. | NINGUNA |
+| `aplicado_a_capital` | DECIMAL(14,2) | Atributo que representa aplicado a capital en el modelo de `abono_recuperacion`. | DECIMAL(14,2), obligatoria. | NINGUNA |
+| `aplicado_a_recargos` | DECIMAL(14,2) | Atributo que representa aplicado a recargos en el modelo de `abono_recuperacion`. | DECIMAL(14,2), obligatoria. | NINGUNA |
+| `saldo_resultante` | DECIMAL(14,2) | Atributo que representa saldo resultante en el modelo de `abono_recuperacion`. | DECIMAL(14,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `fecha` | TIMESTAMPTZ | Fecha calendario correspondiente al devengo o ejecución de la operación. | TIMESTAMPTZ, obligatoria, índice b-tree. | NINGUNA |
+| `registrado_por` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, opcional, referencia a `usuario`. | NINGUNA |
+| `revertido_en` | TIMESTAMPTZ | Marca temporal o fecha de revertido en `abono_recuperacion`. | TIMESTAMPTZ, opcional. | NINGUNA |
 
 ### `accion_cobranza`
 
@@ -2904,16 +2904,16 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `gestion_id` | UUID | — | UUID, obligatoria, referencia a `gestion_cobranza`. | NINGUNA |
-| `notificacion_id` | UUID | — | UUID, opcional, referencia a `notificacion`. | NINGUNA |
-| `etapa` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
-| `tipo` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
-| `canal` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
-| `resultado` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
-| `nota_gestor` | VARCHAR(500) | — | VARCHAR(500), opcional. | NINGUNA |
-| `costo` | DECIMAL(10,2) | — | DECIMAL(10,2), obligatoria. | NINGUNA |
-| `ejecutada_por` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
-| `ejecutada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `gestion_id` | UUID | Referencia por clave foránea a la entidad `gestion_cobranza`. | UUID, obligatoria, referencia a `gestion_cobranza`, índice b-tree. | NINGUNA |
+| `notificacion_id` | UUID | Referencia por clave foránea a la entidad `notificacion`. | UUID, opcional, referencia a `notificacion`. | NINGUNA |
+| `etapa` | VARCHAR(20) | Atributo que representa etapa en el modelo de `accion_cobranza`. | VARCHAR(20), obligatoria. | NINGUNA |
+| `tipo` | VARCHAR(30) | Subtipo o modalidad específica que determina las reglas operativas aplicables al registro. | VARCHAR(30), obligatoria. | NINGUNA |
+| `canal` | VARCHAR(20) | Atributo que representa canal en el modelo de `accion_cobranza`. | VARCHAR(20), obligatoria. | NINGUNA |
+| `resultado` | VARCHAR(30) | Desenlace, dictamen o veredicto de la evaluación o proceso ejecutado. | VARCHAR(30), obligatoria. | NINGUNA |
+| `nota_gestor` | VARCHAR(500) | Atributo que representa nota gestor en el modelo de `accion_cobranza`. | VARCHAR(500), opcional. | NINGUNA |
+| `costo` | DECIMAL(10,2) | Atributo que representa costo en el modelo de `accion_cobranza`. | DECIMAL(10,2), obligatoria. | NINGUNA |
+| `ejecutada_por` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, opcional, referencia a `usuario`. | NINGUNA |
+| `ejecutada_en` | TIMESTAMPTZ | Marca temporal o fecha de ejecutada en `accion_cobranza`. | TIMESTAMPTZ, obligatoria, índice b-tree. | NINGUNA |
 
 ### `acuerdo_quita`
 
@@ -2928,15 +2928,15 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `registro_id` | UUID | — | UUID, obligatoria, referencia a `registro_incumplimiento`. | NINGUNA |
-| `aprobado_por` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `acuerdo_grupo_id` | UUID | — | UUID, opcional, referencia a `acuerdo`. | NINGUNA |
-| `monto_original` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
-| `monto_condonado` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
-| `monto_a_pagar` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
-| `justificacion` | VARCHAR(400) | — | VARCHAR(400), obligatoria. | NINGUNA |
-| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `fecha` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `registro_id` | UUID | Referencia por clave foránea a la entidad `registro_incumplimiento`. | UUID, obligatoria, referencia a `registro_incumplimiento`, restricción única. | NINGUNA |
+| `aprobado_por` | UUID | Identificador del usuario con facultades que autorizó la operación. | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
+| `acuerdo_grupo_id` | UUID | Referencia por clave foránea a la entidad `acuerdo`. | UUID, opcional, referencia a `acuerdo`. | NINGUNA |
+| `monto_original` | DECIMAL(14,2) | Importe monetario correspondiente a original en `acuerdo_quita`. | DECIMAL(14,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `monto_condonado` | DECIMAL(14,2) | Importe monetario correspondiente a condonado en `acuerdo_quita`. | DECIMAL(14,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `monto_a_pagar` | DECIMAL(14,2) | Importe monetario correspondiente a a pagar en `acuerdo_quita`. | DECIMAL(14,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `justificacion` | VARCHAR(400) | Atributo que representa justificacion en el modelo de `acuerdo_quita`. | VARCHAR(400), obligatoria. | NINGUNA |
+| `estado` | VARCHAR(15) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(15), obligatoria. | NINGUNA |
+| `fecha` | TIMESTAMPTZ | Fecha calendario correspondiente al devengo o ejecución de la operación. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 
 ### `alerta_temprana`
 
@@ -2951,13 +2951,13 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `usuario_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `grupo_id` | UUID | — | UUID, opcional, referencia a `grupo`. | NINGUNA |
-| `codigo` | VARCHAR(40) | — | VARCHAR(40), obligatoria. | NINGUNA |
-| `descripcion` | VARCHAR(300) | — | VARCHAR(300), obligatoria. | NINGUNA |
-| `severidad` | VARCHAR(10) | — | VARCHAR(10), obligatoria. | NINGUNA |
-| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `generada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `usuario_id` | UUID | Referencia al usuario titular de la cuenta o actor principal de la operación. | UUID, obligatoria, referencia a `usuario`, índice b-tree. | NINGUNA |
+| `grupo_id` | UUID | Referencia al grupo de pasanaku en el que se enmarca esta operación. | UUID, opcional, referencia a `grupo`. | NINGUNA |
+| `codigo` | VARCHAR(40) | Código mnemotécnico o identificador legible para operadores y personas usuarias. | VARCHAR(40), obligatoria. | NINGUNA |
+| `descripcion` | VARCHAR(300) | Detalle descriptivo que explica el contenido, propósito o contexto de la entidad. | VARCHAR(300), obligatoria. | NINGUNA |
+| `severidad` | VARCHAR(10) | Nivel de gravedad o criticidad asignado al incidente, alerta o evento. | VARCHAR(10), obligatoria. | NINGUNA |
+| `estado` | VARCHAR(15) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(15), obligatoria. | NINGUNA |
+| `generada_en` | TIMESTAMPTZ | Marca temporal o fecha de generada en `alerta_temprana`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 
 ### `apelacion_sancion`
 
@@ -2972,17 +2972,17 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `sancion_id` | UUID | — | UUID, obligatoria, referencia a `sancion`. | NINGUNA |
-| `apelante_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `resuelta_por` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
-| `argumento` | TEXT | — | TEXT, obligatoria. | NINGUNA |
-| `evidencias` | JSONB | — | JSONB, obligatoria. | NINGUNA |
-| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `instancia` | VARCHAR(25) | — | VARCHAR(25), obligatoria. | NINGUNA |
-| `resolucion` | VARCHAR(500) | — | VARCHAR(500), opcional. | NINGUNA |
-| `presentada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `fecha_limite_resolucion` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `resuelta_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `sancion_id` | UUID | Referencia por clave foránea a la entidad `sancion`. | UUID, obligatoria, referencia a `sancion`, índice b-tree. | NINGUNA |
+| `apelante_id` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
+| `resuelta_por` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, opcional, referencia a `usuario`. | NINGUNA |
+| `argumento` | TEXT | Atributo que representa argumento en el modelo de `apelacion_sancion`. | TEXT, obligatoria. | NINGUNA |
+| `evidencias` | JSONB | Atributo que representa evidencias en el modelo de `apelacion_sancion`. | JSONB, obligatoria. | NINGUNA |
+| `estado` | VARCHAR(15) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(15), obligatoria. | NINGUNA |
+| `instancia` | VARCHAR(25) | Atributo que representa instancia en el modelo de `apelacion_sancion`. | VARCHAR(25), obligatoria. | NINGUNA |
+| `resolucion` | VARCHAR(500) | Atributo que representa resolucion en el modelo de `apelacion_sancion`. | VARCHAR(500), opcional. | NINGUNA |
+| `presentada_en` | TIMESTAMPTZ | Marca temporal o fecha de presentada en `apelacion_sancion`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `fecha_limite_resolucion` | TIMESTAMPTZ | Marca temporal o fecha de limite resolucion en `apelacion_sancion`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `resuelta_en` | TIMESTAMPTZ | Marca temporal o fecha de resuelta en `apelacion_sancion`. | TIMESTAMPTZ, opcional. | NINGUNA |
 
 ### `aval_participante`
 
@@ -2997,17 +2997,17 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `grupo_id` | UUID | — | UUID, obligatoria, referencia a `grupo`. | NINGUNA |
-| `participante_avalado_id` | UUID | — | UUID, obligatoria, referencia a `participante`. | NINGUNA |
-| `avalista_usuario_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `token_aceptacion_id` | UUID | — | UUID, opcional, referencia a `token_verificacion`. | SECRETO |
-| `es_participante_del_grupo` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
-| `monto_maximo_avalado` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
-| `alcance` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `porcentaje_responsabilidad` | DECIMAL(5,2) | — | DECIMAL(5,2), obligatoria. | NINGUNA |
-| `aceptado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
-| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `liberado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `grupo_id` | UUID | Referencia al grupo de pasanaku en el que se enmarca esta operación. | UUID, obligatoria, referencia a `grupo`, índice b-tree. | NINGUNA |
+| `participante_avalado_id` | UUID | Referencia por clave foránea a la entidad `participante`. | UUID, obligatoria, referencia a `participante`, índice b-tree. | NINGUNA |
+| `avalista_usuario_id` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, obligatoria, referencia a `usuario`, índice b-tree. | NINGUNA |
+| `token_aceptacion_id` | UUID | Referencia por clave foránea a la entidad `token_verificacion`. | UUID, opcional, referencia a `token_verificacion`, sensibilidad secreto. | SECRETO |
+| `es_participante_del_grupo` | BOOLEAN | Indicador booleano que señala si participante del grupo en `aval_participante`. | BOOLEAN, obligatoria. | NINGUNA |
+| `monto_maximo_avalado` | DECIMAL(14,2) | Importe monetario correspondiente a maximo avalado en `aval_participante`. | DECIMAL(14,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `alcance` | VARCHAR(15) | Atributo que representa alcance en el modelo de `aval_participante`. | VARCHAR(15), obligatoria. | NINGUNA |
+| `porcentaje_responsabilidad` | DECIMAL(5,2) | Tasa porcentual o alícuota aplicable a responsabilidad. | DECIMAL(5,2), obligatoria. | NINGUNA |
+| `aceptado_en` | TIMESTAMPTZ | Marca temporal o fecha de aceptado en `aval_participante`. | TIMESTAMPTZ, opcional. | NINGUNA |
+| `estado` | VARCHAR(15) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(15), obligatoria, índice b-tree. | NINGUNA |
+| `liberado_en` | TIMESTAMPTZ | Marca temporal o fecha de liberado en `aval_participante`. | TIMESTAMPTZ, opcional. | NINGUNA |
 
 ### `candidato_reemplazo`
 
@@ -3022,12 +3022,12 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `reemplazo_id` | UUID | — | UUID, obligatoria, referencia a `reemplazo_participante`. | NINGUNA |
-| `usuario_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `puntaje_reputacion` | DECIMAL(6,2) | — | DECIMAL(6,2), obligatoria. | NINGUNA |
-| `acepta_condiciones` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
-| `fuente_candidato` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
-| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
+| `reemplazo_id` | UUID | Referencia por clave foránea a la entidad `reemplazo_participante`. | UUID, obligatoria, referencia a `reemplazo_participante`, índice b-tree. | NINGUNA |
+| `usuario_id` | UUID | Referencia al usuario titular de la cuenta o actor principal de la operación. | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
+| `puntaje_reputacion` | DECIMAL(6,2) | Atributo que representa puntaje reputacion en el modelo de `candidato_reemplazo`. | DECIMAL(6,2), obligatoria. | NINGUNA |
+| `acepta_condiciones` | BOOLEAN | Atributo que representa acepta condiciones en el modelo de `candidato_reemplazo`. | BOOLEAN, obligatoria. | NINGUNA |
+| `fuente_candidato` | VARCHAR(20) | Atributo que representa fuente candidato en el modelo de `candidato_reemplazo`. | VARCHAR(20), obligatoria. | NINGUNA |
+| `estado` | VARCHAR(15) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(15), obligatoria. | NINGUNA |
 
 ### `capacidad_respaldo`
 
@@ -3042,13 +3042,13 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `ambito` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
+| `ambito` | VARCHAR(30) | Atributo que representa ambito en el modelo de `capacidad_respaldo`. | VARCHAR(30), obligatoria, restricción única. | NINGUNA |
 | `moneda` | CHAR(3) | Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2). | CHAR(3), obligatoria. | NINGUNA |
-| `monto_tope` | DECIMAL(16,2) | — | DECIMAL(16,2), obligatoria. | FINANCIERO |
-| `monto_comprometido` | DECIMAL(16,2) | — | DECIMAL(16,2), obligatoria. | FINANCIERO |
-| `responsable_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
+| `monto_tope` | DECIMAL(16,2) | Importe monetario correspondiente a tope en `capacidad_respaldo`. | DECIMAL(16,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `monto_comprometido` | DECIMAL(16,2) | Importe monetario correspondiente a comprometido en `capacidad_respaldo`. | DECIMAL(16,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `responsable_id` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
 | `vigente_desde` | TIMESTAMPTZ | Desde cuándo rige esta versión de la fila: las condiciones se versionan, no se pisan. | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `version` | INTEGER | — | INTEGER, obligatoria. | NINGUNA |
+| `version` | INTEGER | Número de versión para control de concurrencia optimista y auditoría de modificaciones. | INTEGER, obligatoria. | NINGUNA |
 
 ### `castigo_deuda`
 
@@ -3063,14 +3063,14 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `deuda_id` | UUID | — | UUID, obligatoria, referencia a `deuda_participante`. | FINANCIERO |
-| `aprobado_por` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `asiento_contable_id` | UUID | — | UUID, opcional, referencia a `asiento_contable`. | NINGUNA |
-| `monto_castigado` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
-| `motivo` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
-| `justificacion` | VARCHAR(400) | — | VARCHAR(400), obligatoria. | NINGUNA |
-| `mantiene_registro_reputacional` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
-| `fecha` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `deuda_id` | UUID | Referencia por clave foránea a la entidad `deuda_participante`. | UUID, obligatoria, referencia a `deuda_participante`, restricción única, sensibilidad financiero. | FINANCIERO |
+| `aprobado_por` | UUID | Identificador del usuario con facultades que autorizó la operación. | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
+| `asiento_contable_id` | UUID | Referencia al asiento de partida doble que respalda el movimiento financiero. | UUID, opcional, referencia a `asiento_contable`. | NINGUNA |
+| `monto_castigado` | DECIMAL(14,2) | Importe monetario correspondiente a castigado en `castigo_deuda`. | DECIMAL(14,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `motivo` | VARCHAR(30) | Justificación declarada o causal que originó la creación, rechazo o transición del registro. | VARCHAR(30), obligatoria. | NINGUNA |
+| `justificacion` | VARCHAR(400) | Atributo que representa justificacion en el modelo de `castigo_deuda`. | VARCHAR(400), obligatoria. | NINGUNA |
+| `mantiene_registro_reputacional` | BOOLEAN | Atributo que representa mantiene registro reputacional en el modelo de `castigo_deuda`. | BOOLEAN, obligatoria. | NINGUNA |
+| `fecha` | TIMESTAMPTZ | Fecha calendario correspondiente al devengo o ejecución de la operación. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 
 ### `cobertura_incumplimiento`
 
@@ -3085,21 +3085,21 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `fondo_id` | UUID | — | UUID, obligatoria, referencia a `fondo_garantia`. | NINGUNA |
-| `registro_id` | UUID | — | UUID, obligatoria, referencia a `registro_incumplimiento`. | NINGUNA |
-| `obligacion_id` | UUID | — | UUID, obligatoria, referencia a `obligacion_aporte`. | NINGUNA |
-| `periodo_id` | UUID | — | UUID, obligatoria, referencia a `periodo`. | NINGUNA |
-| `movimiento_fondo_id` | UUID | — | UUID, opcional, referencia a `movimiento_fondo`. | NINGUNA |
-| `asiento_contable_id` | UUID | — | UUID, opcional, referencia a `asiento_contable`. | NINGUNA |
-| `aprobada_por` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
-| `monto_solicitado` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
-| `monto_cubierto` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
-| `porcentaje_cobertura` | DECIMAL(5,2) | — | DECIMAL(5,2), obligatoria. | NINGUNA |
-| `estado` | VARCHAR(25) | — | VARCHAR(25), obligatoria. | NINGUNA |
-| `requirio_aprobacion_manual` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
-| `motivo_rechazo` | VARCHAR(300) | — | VARCHAR(300), opcional. | NINGUNA |
-| `solicitada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `aplicada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `fondo_id` | UUID | Referencia por clave foránea a la entidad `fondo_garantia`. | UUID, obligatoria, referencia a `fondo_garantia`, índice b-tree. | NINGUNA |
+| `registro_id` | UUID | Referencia por clave foránea a la entidad `registro_incumplimiento`. | UUID, obligatoria, referencia a `registro_incumplimiento`, restricción única. | NINGUNA |
+| `obligacion_id` | UUID | Referencia por clave foránea a la entidad `obligacion_aporte`. | UUID, obligatoria, referencia a `obligacion_aporte`, restricción única. | NINGUNA |
+| `periodo_id` | UUID | Referencia por clave foránea a la entidad `periodo`. | UUID, obligatoria, referencia a `periodo`. | NINGUNA |
+| `movimiento_fondo_id` | UUID | Referencia por clave foránea a la entidad `movimiento_fondo`. | UUID, opcional, referencia a `movimiento_fondo`. | NINGUNA |
+| `asiento_contable_id` | UUID | Referencia al asiento de partida doble que respalda el movimiento financiero. | UUID, opcional, referencia a `asiento_contable`. | NINGUNA |
+| `aprobada_por` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, opcional, referencia a `usuario`. | NINGUNA |
+| `monto_solicitado` | DECIMAL(14,2) | Importe monetario correspondiente a solicitado en `cobertura_incumplimiento`. | DECIMAL(14,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `monto_cubierto` | DECIMAL(14,2) | Importe monetario correspondiente a cubierto en `cobertura_incumplimiento`. | DECIMAL(14,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `porcentaje_cobertura` | DECIMAL(5,2) | Tasa porcentual o alícuota aplicable a cobertura. | DECIMAL(5,2), obligatoria. | NINGUNA |
+| `estado` | VARCHAR(25) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(25), obligatoria, índice b-tree. | NINGUNA |
+| `requirio_aprobacion_manual` | BOOLEAN | Atributo que representa requirio aprobacion manual en el modelo de `cobertura_incumplimiento`. | BOOLEAN, obligatoria. | NINGUNA |
+| `motivo_rechazo` | VARCHAR(300) | Atributo que representa motivo rechazo en el modelo de `cobertura_incumplimiento`. | VARCHAR(300), opcional. | NINGUNA |
+| `solicitada_en` | TIMESTAMPTZ | Marca temporal o fecha de solicitada en `cobertura_incumplimiento`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `aplicada_en` | TIMESTAMPTZ | Marca temporal o fecha de aplicada en `cobertura_incumplimiento`. | TIMESTAMPTZ, opcional. | NINGUNA |
 
 ### `cobertura_respaldo`
 
@@ -3114,23 +3114,23 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `reserva_respaldo_id` | UUID | — | UUID, obligatoria, referencia a `reserva_respaldo`. | NINGUNA |
-| `grupo_id` | UUID | — | UUID, obligatoria, referencia a `grupo`. | NINGUNA |
-| `periodo_id` | UUID | — | UUID, obligatoria, referencia a `periodo`. | NINGUNA |
-| `turno_id` | UUID | — | UUID, obligatoria, referencia a `turno`. | NINGUNA |
+| `reserva_respaldo_id` | UUID | Referencia por clave foránea a la entidad `reserva_respaldo`. | UUID, obligatoria, referencia a `reserva_respaldo`, índice b-tree. | NINGUNA |
+| `grupo_id` | UUID | Referencia al grupo de pasanaku en el que se enmarca esta operación. | UUID, obligatoria, referencia a `grupo`, índice b-tree. | NINGUNA |
+| `periodo_id` | UUID | Referencia por clave foránea a la entidad `periodo`. | UUID, obligatoria, referencia a `periodo`. | NINGUNA |
+| `turno_id` | UUID | Referencia por clave foránea a la entidad `turno`. | UUID, obligatoria, referencia a `turno`, índice b-tree. | NINGUNA |
 | `moneda` | CHAR(3) | Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2). | CHAR(3), obligatoria. | NINGUNA |
-| `monto_pozo` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
-| `monto_confirmado` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
-| `monto_cubierto_mutual` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
-| `monto_faltante` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
-| `monto_recuperado` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
-| `estado` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
-| `corte_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `clave_idempotencia` | VARCHAR(80) | Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4). | VARCHAR(80), obligatoria. | NINGUNA |
-| `solicitada_por` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `responsable_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `aplicada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `version` | INTEGER | — | INTEGER, obligatoria. | NINGUNA |
+| `monto_pozo` | DECIMAL(14,2) | Importe monetario correspondiente a pozo en `cobertura_respaldo`. | DECIMAL(14,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `monto_confirmado` | DECIMAL(14,2) | Importe monetario correspondiente a confirmado en `cobertura_respaldo`. | DECIMAL(14,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `monto_cubierto_mutual` | DECIMAL(14,2) | Importe monetario correspondiente a cubierto mutual en `cobertura_respaldo`. | DECIMAL(14,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `monto_faltante` | DECIMAL(14,2) | Importe monetario correspondiente a faltante en `cobertura_respaldo`. | DECIMAL(14,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `monto_recuperado` | DECIMAL(14,2) | Importe monetario correspondiente a recuperado en `cobertura_respaldo`. | DECIMAL(14,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `estado` | VARCHAR(20) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(20), obligatoria, índice b-tree. | NINGUNA |
+| `corte_en` | TIMESTAMPTZ | Marca temporal o fecha de corte en `cobertura_respaldo`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `clave_idempotencia` | VARCHAR(80) | Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4). | VARCHAR(80), obligatoria, restricción única. | NINGUNA |
+| `solicitada_por` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
+| `responsable_id` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
+| `aplicada_en` | TIMESTAMPTZ | Marca temporal o fecha de aplicada en `cobertura_respaldo`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `version` | INTEGER | Número de versión para control de concurrencia optimista y auditoría de modificaciones. | INTEGER, obligatoria. | NINGUNA |
 
 ### `cobertura_respaldo_linea`
 
@@ -3145,10 +3145,10 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `cobertura_respaldo_id` | UUID | — | UUID, obligatoria, referencia a `cobertura_respaldo`. | NINGUNA |
-| `obligacion_id` | UUID | — | UUID, obligatoria, referencia a `obligacion_aporte`. | NINGUNA |
-| `monto_cubierto` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
-| `monto_recuperado` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
+| `cobertura_respaldo_id` | UUID | Referencia por clave foránea a la entidad `cobertura_respaldo`. | UUID, obligatoria, referencia a `cobertura_respaldo`, índice b-tree. | NINGUNA |
+| `obligacion_id` | UUID | Referencia por clave foránea a la entidad `obligacion_aporte`. | UUID, obligatoria, referencia a `obligacion_aporte`, restricción única, índice b-tree. | NINGUNA |
+| `monto_cubierto` | DECIMAL(14,2) | Importe monetario correspondiente a cubierto en `cobertura_respaldo_linea`. | DECIMAL(14,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `monto_recuperado` | DECIMAL(14,2) | Importe monetario correspondiente a recuperado en `cobertura_respaldo_linea`. | DECIMAL(14,2), obligatoria, sensibilidad financiero. | FINANCIERO |
 
 ### `descargo_participante`
 
@@ -3163,15 +3163,15 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `registro_id` | UUID | — | UUID, obligatoria, referencia a `registro_incumplimiento`. | NINGUNA |
-| `participante_id` | UUID | — | UUID, obligatoria, referencia a `participante`. | NINGUNA |
-| `argumento` | TEXT | — | TEXT, obligatoria. | NINGUNA |
-| `evidencias` | JSONB | — | JSONB, obligatoria. | NINGUNA |
-| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `resolucion` | VARCHAR(400) | — | VARCHAR(400), opcional. | NINGUNA |
-| `resuelto_por` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
-| `presentado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `resuelto_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `registro_id` | UUID | Referencia por clave foránea a la entidad `registro_incumplimiento`. | UUID, obligatoria, referencia a `registro_incumplimiento`, índice b-tree. | NINGUNA |
+| `participante_id` | UUID | Referencia al miembro participante en el círculo de ahorro pasanaku. | UUID, obligatoria, referencia a `participante`. | NINGUNA |
+| `argumento` | TEXT | Atributo que representa argumento en el modelo de `descargo_participante`. | TEXT, obligatoria. | NINGUNA |
+| `evidencias` | JSONB | Atributo que representa evidencias en el modelo de `descargo_participante`. | JSONB, obligatoria. | NINGUNA |
+| `estado` | VARCHAR(15) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(15), obligatoria. | NINGUNA |
+| `resolucion` | VARCHAR(400) | Atributo que representa resolucion en el modelo de `descargo_participante`. | VARCHAR(400), opcional. | NINGUNA |
+| `resuelto_por` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, opcional, referencia a `usuario`. | NINGUNA |
+| `presentado_en` | TIMESTAMPTZ | Marca temporal o fecha de presentado en `descargo_participante`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `resuelto_en` | TIMESTAMPTZ | Marca temporal o fecha de resuelto en `descargo_participante`. | TIMESTAMPTZ, opcional. | NINGUNA |
 
 ### `deuda_participante`
 
@@ -3186,23 +3186,23 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `usuario_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `participante_id` | UUID | — | UUID, obligatoria, referencia a `participante`. | NINGUNA |
-| `grupo_id` | UUID | — | UUID, obligatoria, referencia a `grupo`. | NINGUNA |
-| `registro_id` | UUID | — | UUID, obligatoria, referencia a `registro_incumplimiento`. | NINGUNA |
-| `cobertura_id` | UUID | — | UUID, opcional, referencia a `cobertura_incumplimiento`. | NINGUNA |
-| `acreedor` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
-| `capital_original` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | NINGUNA |
-| `recargos_acumulados` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | NINGUNA |
-| `total_abonado` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | NINGUNA |
-| `saldo_actual` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
+| `usuario_id` | UUID | Referencia al usuario titular de la cuenta o actor principal de la operación. | UUID, obligatoria, referencia a `usuario`, índice b-tree. | NINGUNA |
+| `participante_id` | UUID | Referencia al miembro participante en el círculo de ahorro pasanaku. | UUID, obligatoria, referencia a `participante`. | NINGUNA |
+| `grupo_id` | UUID | Referencia al grupo de pasanaku en el que se enmarca esta operación. | UUID, obligatoria, referencia a `grupo`, índice b-tree. | NINGUNA |
+| `registro_id` | UUID | Referencia por clave foránea a la entidad `registro_incumplimiento`. | UUID, obligatoria, referencia a `registro_incumplimiento`, restricción única. | NINGUNA |
+| `cobertura_id` | UUID | Referencia por clave foránea a la entidad `cobertura_incumplimiento`. | UUID, opcional, referencia a `cobertura_incumplimiento`, restricción única. | NINGUNA |
+| `acreedor` | VARCHAR(20) | Atributo que representa acreedor en el modelo de `deuda_participante`. | VARCHAR(20), obligatoria. | NINGUNA |
+| `capital_original` | DECIMAL(14,2) | Atributo que representa capital original en el modelo de `deuda_participante`. | DECIMAL(14,2), obligatoria. | NINGUNA |
+| `recargos_acumulados` | DECIMAL(14,2) | Atributo que representa recargos acumulados en el modelo de `deuda_participante`. | DECIMAL(14,2), obligatoria. | NINGUNA |
+| `total_abonado` | DECIMAL(14,2) | Importe monetario correspondiente a abonado en `deuda_participante`. | DECIMAL(14,2), obligatoria. | NINGUNA |
+| `saldo_actual` | DECIMAL(14,2) | Atributo que representa saldo actual en el modelo de `deuda_participante`. | DECIMAL(14,2), obligatoria, índice b-tree, sensibilidad financiero. | FINANCIERO |
 | `moneda` | CHAR(3) | Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2). | CHAR(3), obligatoria. | NINGUNA |
-| `estado` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
-| `es_subrogada` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
-| `fecha_exigibilidad` | DATE | — | DATE, obligatoria. | NINGUNA |
-| `fecha_prescripcion` | DATE | — | DATE, obligatoria. | NINGUNA |
-| `dias_vencida` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `version` | INTEGER | — | INTEGER, obligatoria. | NINGUNA |
+| `estado` | VARCHAR(20) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(20), obligatoria, índice b-tree. | NINGUNA |
+| `es_subrogada` | BOOLEAN | Indicador booleano que señala si subrogada en `deuda_participante`. | BOOLEAN, obligatoria. | NINGUNA |
+| `fecha_exigibilidad` | DATE | Marca temporal o fecha de exigibilidad en `deuda_participante`. | DATE, obligatoria. | NINGUNA |
+| `fecha_prescripcion` | DATE | Marca temporal o fecha de prescripcion en `deuda_participante`. | DATE, obligatoria, índice b-tree. | NINGUNA |
+| `dias_vencida` | SMALLINT | Atributo que representa dias vencida en el modelo de `deuda_participante`. | SMALLINT, obligatoria. | NINGUNA |
+| `version` | INTEGER | Número de versión para control de concurrencia optimista y auditoría de modificaciones. | INTEGER, obligatoria. | NINGUNA |
 
 ### `devolucion_fondo`
 
@@ -3217,14 +3217,14 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `fondo_id` | UUID | — | UUID, obligatoria, referencia a `fondo_garantia`. | NINGUNA |
-| `participante_id` | UUID | — | UUID, obligatoria, referencia a `participante`. | NINGUNA |
-| `monto_aportado` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
-| `monto_consumido` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
-| `monto_a_devolver` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
-| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `motivo_retencion` | VARCHAR(200) | — | VARCHAR(200), opcional. | NINGUNA |
-| `fecha` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `fondo_id` | UUID | Referencia por clave foránea a la entidad `fondo_garantia`. | UUID, obligatoria, referencia a `fondo_garantia`, índice b-tree. | NINGUNA |
+| `participante_id` | UUID | Referencia al miembro participante en el círculo de ahorro pasanaku. | UUID, obligatoria, referencia a `participante`. | NINGUNA |
+| `monto_aportado` | DECIMAL(14,2) | Importe monetario correspondiente a aportado en `devolucion_fondo`. | DECIMAL(14,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `monto_consumido` | DECIMAL(14,2) | Importe monetario correspondiente a consumido en `devolucion_fondo`. | DECIMAL(14,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `monto_a_devolver` | DECIMAL(14,2) | Importe monetario correspondiente a a devolver en `devolucion_fondo`. | DECIMAL(14,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `estado` | VARCHAR(15) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(15), obligatoria. | NINGUNA |
+| `motivo_retencion` | VARCHAR(200) | Atributo que representa motivo retencion en el modelo de `devolucion_fondo`. | VARCHAR(200), opcional. | NINGUNA |
+| `fecha` | TIMESTAMPTZ | Fecha calendario correspondiente al devengo o ejecución de la operación. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 
 ### `disolucion_anticipada`
 
@@ -3239,16 +3239,16 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `grupo_id` | UUID | — | UUID, obligatoria, referencia a `grupo`. | NINGUNA |
-| `acuerdo_grupo_id` | UUID | — | UUID, opcional, referencia a `acuerdo`. | NINGUNA |
-| `causal` | VARCHAR(25) | — | VARCHAR(25), obligatoria. | NINGUNA |
-| `motivo` | VARCHAR(400) | — | VARCHAR(400), obligatoria. | NINGUNA |
-| `total_aportado_grupo` | DECIMAL(16,2) | — | DECIMAL(16,2), obligatoria. | NINGUNA |
-| `total_entregado` | DECIMAL(16,2) | — | DECIMAL(16,2), obligatoria. | NINGUNA |
-| `saldo_a_distribuir` | DECIMAL(16,2) | — | DECIMAL(16,2), obligatoria. | FINANCIERO |
-| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `iniciada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `cerrada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `grupo_id` | UUID | Referencia al grupo de pasanaku en el que se enmarca esta operación. | UUID, obligatoria, referencia a `grupo`, restricción única. | NINGUNA |
+| `acuerdo_grupo_id` | UUID | Referencia por clave foránea a la entidad `acuerdo`. | UUID, opcional, referencia a `acuerdo`. | NINGUNA |
+| `causal` | VARCHAR(25) | Atributo que representa causal en el modelo de `disolucion_anticipada`. | VARCHAR(25), obligatoria. | NINGUNA |
+| `motivo` | VARCHAR(400) | Justificación declarada o causal que originó la creación, rechazo o transición del registro. | VARCHAR(400), obligatoria. | NINGUNA |
+| `total_aportado_grupo` | DECIMAL(16,2) | Importe monetario correspondiente a aportado grupo en `disolucion_anticipada`. | DECIMAL(16,2), obligatoria. | NINGUNA |
+| `total_entregado` | DECIMAL(16,2) | Importe monetario correspondiente a entregado en `disolucion_anticipada`. | DECIMAL(16,2), obligatoria. | NINGUNA |
+| `saldo_a_distribuir` | DECIMAL(16,2) | Atributo que representa saldo a distribuir en el modelo de `disolucion_anticipada`. | DECIMAL(16,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `estado` | VARCHAR(15) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(15), obligatoria. | NINGUNA |
+| `iniciada_en` | TIMESTAMPTZ | Marca temporal o fecha de iniciada en `disolucion_anticipada`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `cerrada_en` | TIMESTAMPTZ | Marca temporal o fecha de cerrada en `disolucion_anticipada`. | TIMESTAMPTZ, opcional. | NINGUNA |
 
 ### `ejecucion_aval`
 
@@ -3263,15 +3263,15 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `aval_id` | UUID | — | UUID, obligatoria, referencia a `aval_participante`. | NINGUNA |
-| `registro_id` | UUID | — | UUID, obligatoria, referencia a `registro_incumplimiento`. | NINGUNA |
-| `deuda_id` | UUID | — | UUID, obligatoria, referencia a `deuda_participante`. | FINANCIERO |
-| `pago_id` | UUID | — | UUID, opcional, referencia a `pago`. | NINGUNA |
-| `monto_ejecutado` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
-| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `notificada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `plazo_respuesta` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `genera_deuda_del_avalista` | BOOLEAN | — | BOOLEAN, obligatoria. | FINANCIERO |
+| `aval_id` | UUID | Referencia por clave foránea a la entidad `aval_participante`. | UUID, obligatoria, referencia a `aval_participante`, índice b-tree. | NINGUNA |
+| `registro_id` | UUID | Referencia por clave foránea a la entidad `registro_incumplimiento`. | UUID, obligatoria, referencia a `registro_incumplimiento`, índice b-tree. | NINGUNA |
+| `deuda_id` | UUID | Referencia por clave foránea a la entidad `deuda_participante`. | UUID, obligatoria, referencia a `deuda_participante`, sensibilidad financiero. | FINANCIERO |
+| `pago_id` | UUID | Referencia por clave foránea a la entidad `pago`. | UUID, opcional, referencia a `pago`. | NINGUNA |
+| `monto_ejecutado` | DECIMAL(14,2) | Importe monetario correspondiente a ejecutado en `ejecucion_aval`. | DECIMAL(14,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `estado` | VARCHAR(15) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(15), obligatoria. | NINGUNA |
+| `notificada_en` | TIMESTAMPTZ | Marca temporal o fecha de notificada en `ejecucion_aval`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `plazo_respuesta` | TIMESTAMPTZ | Atributo que representa plazo respuesta en el modelo de `ejecucion_aval`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `genera_deuda_del_avalista` | BOOLEAN | Atributo que representa genera deuda del avalista en el modelo de `ejecucion_aval`. | BOOLEAN, obligatoria, sensibilidad financiero. | FINANCIERO |
 
 ### `estrategia_cobranza`
 
@@ -3286,17 +3286,17 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `etapa` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
-| `dias_mora_desde` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `dias_mora_hasta` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `canales_permitidos` | VARCHAR(120) | — | VARCHAR(120), obligatoria. | NINGUNA |
-| `frecuencia_dias` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `max_contactos_por_semana` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `plantilla_notificacion_codigo` | VARCHAR(50) | — | VARCHAR(50), opcional. | NINGUNA |
-| `requiere_gestor_humano` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
-| `permite_quita` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
-| `quita_maxima_porcentaje` | DECIMAL(5,2) | — | DECIMAL(5,2), obligatoria. | NINGUNA |
-| `siguiente_etapa` | VARCHAR(20) | — | VARCHAR(20), opcional. | NINGUNA |
+| `etapa` | VARCHAR(20) | Atributo que representa etapa en el modelo de `estrategia_cobranza`. | VARCHAR(20), obligatoria, restricción única. | NINGUNA |
+| `dias_mora_desde` | SMALLINT | Atributo que representa dias mora desde en el modelo de `estrategia_cobranza`. | SMALLINT, obligatoria. | NINGUNA |
+| `dias_mora_hasta` | SMALLINT | Atributo que representa dias mora hasta en el modelo de `estrategia_cobranza`. | SMALLINT, obligatoria. | NINGUNA |
+| `canales_permitidos` | VARCHAR(120) | Atributo que representa canales permitidos en el modelo de `estrategia_cobranza`. | VARCHAR(120), obligatoria. | NINGUNA |
+| `frecuencia_dias` | SMALLINT | Atributo que representa frecuencia dias en el modelo de `estrategia_cobranza`. | SMALLINT, obligatoria. | NINGUNA |
+| `max_contactos_por_semana` | SMALLINT | Atributo que representa max contactos por semana en el modelo de `estrategia_cobranza`. | SMALLINT, obligatoria. | NINGUNA |
+| `plantilla_notificacion_codigo` | VARCHAR(50) | Código normalizado o mnemotécnico de plantilla notificacion. | VARCHAR(50), opcional. | NINGUNA |
+| `requiere_gestor_humano` | BOOLEAN | Atributo que representa requiere gestor humano en el modelo de `estrategia_cobranza`. | BOOLEAN, obligatoria. | NINGUNA |
+| `permite_quita` | BOOLEAN | Atributo que representa permite quita en el modelo de `estrategia_cobranza`. | BOOLEAN, obligatoria. | NINGUNA |
+| `quita_maxima_porcentaje` | DECIMAL(5,2) | Tasa porcentual o alícuota aplicable a quita maxima. | DECIMAL(5,2), obligatoria. | NINGUNA |
+| `siguiente_etapa` | VARCHAR(20) | Atributo que representa siguiente etapa en el modelo de `estrategia_cobranza`. | VARCHAR(20), opcional. | NINGUNA |
 
 ### `evidencia_incumplimiento`
 
@@ -3311,15 +3311,15 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `registro_id` | UUID | — | UUID, obligatoria, referencia a `registro_incumplimiento`. | NINGUNA |
-| `tipo` | VARCHAR(25) | — | VARCHAR(25), obligatoria. | NINGUNA |
-| `descripcion` | VARCHAR(300) | — | VARCHAR(300), obligatoria. | NINGUNA |
-| `url_archivo` | VARCHAR(255) | — | VARCHAR(255), opcional. | NINGUNA |
-| `hash_archivo` | VARCHAR(64) | — | VARCHAR(64), opcional. | DERIVADO |
-| `contenido_estructurado` | JSONB | — | JSONB, opcional. | NINGUNA |
-| `aportada_por` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
-| `fecha_hora` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `es_inmutable` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
+| `registro_id` | UUID | Referencia por clave foránea a la entidad `registro_incumplimiento`. | UUID, obligatoria, referencia a `registro_incumplimiento`, índice b-tree. | NINGUNA |
+| `tipo` | VARCHAR(25) | Subtipo o modalidad específica que determina las reglas operativas aplicables al registro. | VARCHAR(25), obligatoria. | NINGUNA |
+| `descripcion` | VARCHAR(300) | Detalle descriptivo que explica el contenido, propósito o contexto de la entidad. | VARCHAR(300), obligatoria. | NINGUNA |
+| `url_archivo` | VARCHAR(255) | Localizador uniforme de recursos (URL/URI) correspondiente a archivo. | VARCHAR(255), opcional. | NINGUNA |
+| `hash_archivo` | VARCHAR(64) | Resumen criptográfico SHA-256 para verificación inmutable de archivo. | VARCHAR(64), opcional, sensibilidad derivado. | DERIVADO |
+| `contenido_estructurado` | JSONB | Atributo que representa contenido estructurado en el modelo de `evidencia_incumplimiento`. | JSONB, opcional. | NINGUNA |
+| `aportada_por` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, opcional, referencia a `usuario`. | NINGUNA |
+| `fecha_hora` | TIMESTAMPTZ | Marca temporal o fecha de hora en `evidencia_incumplimiento`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `es_inmutable` | BOOLEAN | Indicador booleano que señala si inmutable en `evidencia_incumplimiento`. | BOOLEAN, obligatoria. | NINGUNA |
 
 ### `fondo_garantia`
 
@@ -3334,19 +3334,19 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `ambito` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
-| `grupo_id` | UUID | — | UUID, opcional, referencia a `grupo`. | NINGUNA |
-| `politica_cobertura_id` | UUID | — | UUID, obligatoria, referencia a `politica_cobertura`. | NINGUNA |
-| `cuenta_contable_id` | UUID | — | UUID, obligatoria, referencia a `cuenta_contable`. | NINGUNA |
+| `ambito` | VARCHAR(20) | Atributo que representa ambito en el modelo de `fondo_garantia`. | VARCHAR(20), obligatoria. | NINGUNA |
+| `grupo_id` | UUID | Referencia al grupo de pasanaku en el que se enmarca esta operación. | UUID, opcional, referencia a `grupo`, restricción única. | NINGUNA |
+| `politica_cobertura_id` | UUID | Referencia por clave foránea a la entidad `politica_cobertura`. | UUID, obligatoria, referencia a `politica_cobertura`. | NINGUNA |
+| `cuenta_contable_id` | UUID | Referencia por clave foránea a la entidad `cuenta_contable`. | UUID, obligatoria, referencia a `cuenta_contable`. | NINGUNA |
 | `moneda` | CHAR(3) | Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2). | CHAR(3), obligatoria. | NINGUNA |
-| `saldo_disponible` | DECIMAL(16,2) | — | DECIMAL(16,2), obligatoria. | FINANCIERO |
-| `saldo_comprometido` | DECIMAL(16,2) | — | DECIMAL(16,2), obligatoria. | FINANCIERO |
-| `total_aportado` | DECIMAL(16,2) | — | DECIMAL(16,2), obligatoria. | NINGUNA |
-| `total_cubierto` | DECIMAL(16,2) | — | DECIMAL(16,2), obligatoria. | NINGUNA |
-| `total_recuperado` | DECIMAL(16,2) | — | DECIMAL(16,2), obligatoria. | NINGUNA |
-| `total_castigado` | DECIMAL(16,2) | — | DECIMAL(16,2), obligatoria. | NINGUNA |
-| `estado` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
-| `version` | INTEGER | — | INTEGER, obligatoria. | NINGUNA |
+| `saldo_disponible` | DECIMAL(16,2) | Atributo que representa saldo disponible en el modelo de `fondo_garantia`. | DECIMAL(16,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `saldo_comprometido` | DECIMAL(16,2) | Atributo que representa saldo comprometido en el modelo de `fondo_garantia`. | DECIMAL(16,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `total_aportado` | DECIMAL(16,2) | Importe monetario correspondiente a aportado en `fondo_garantia`. | DECIMAL(16,2), obligatoria. | NINGUNA |
+| `total_cubierto` | DECIMAL(16,2) | Importe monetario correspondiente a cubierto en `fondo_garantia`. | DECIMAL(16,2), obligatoria. | NINGUNA |
+| `total_recuperado` | DECIMAL(16,2) | Importe monetario correspondiente a recuperado en `fondo_garantia`. | DECIMAL(16,2), obligatoria. | NINGUNA |
+| `total_castigado` | DECIMAL(16,2) | Importe monetario correspondiente a castigado en `fondo_garantia`. | DECIMAL(16,2), obligatoria. | NINGUNA |
+| `estado` | VARCHAR(20) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(20), obligatoria. | NINGUNA |
+| `version` | INTEGER | Número de versión para control de concurrencia optimista y auditoría de modificaciones. | INTEGER, obligatoria. | NINGUNA |
 
 ### `gestion_cobranza`
 
@@ -3361,17 +3361,17 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `registro_id` | UUID | — | UUID, obligatoria, referencia a `registro_incumplimiento`. | NINGUNA |
-| `estrategia_id` | UUID | — | UUID, obligatoria, referencia a `estrategia_cobranza`. | NINGUNA |
-| `gestor_asignado_id` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
-| `etapa_actual` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
-| `monto_en_gestion` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
-| `intentos_contacto` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `ultimo_contacto_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
-| `proxima_accion_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `estado` | VARCHAR(25) | — | VARCHAR(25), obligatoria. | NINGUNA |
-| `abierta_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `cerrada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `registro_id` | UUID | Referencia por clave foránea a la entidad `registro_incumplimiento`. | UUID, obligatoria, referencia a `registro_incumplimiento`, restricción única. | NINGUNA |
+| `estrategia_id` | UUID | Referencia por clave foránea a la entidad `estrategia_cobranza`. | UUID, obligatoria, referencia a `estrategia_cobranza`. | NINGUNA |
+| `gestor_asignado_id` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, opcional, referencia a `usuario`, índice b-tree. | NINGUNA |
+| `etapa_actual` | VARCHAR(20) | Atributo que representa etapa actual en el modelo de `gestion_cobranza`. | VARCHAR(20), obligatoria, índice b-tree. | NINGUNA |
+| `monto_en_gestion` | DECIMAL(14,2) | Importe monetario correspondiente a en gestion en `gestion_cobranza`. | DECIMAL(14,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `intentos_contacto` | SMALLINT | Atributo que representa intentos contacto en el modelo de `gestion_cobranza`. | SMALLINT, obligatoria. | NINGUNA |
+| `ultimo_contacto_en` | TIMESTAMPTZ | Marca temporal o fecha de ultimo contacto en `gestion_cobranza`. | TIMESTAMPTZ, opcional. | NINGUNA |
+| `proxima_accion_en` | TIMESTAMPTZ | Marca temporal o fecha de proxima accion en `gestion_cobranza`. | TIMESTAMPTZ, obligatoria, índice b-tree. | NINGUNA |
+| `estado` | VARCHAR(25) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(25), obligatoria, índice b-tree. | NINGUNA |
+| `abierta_en` | TIMESTAMPTZ | Marca temporal o fecha de abierta en `gestion_cobranza`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `cerrada_en` | TIMESTAMPTZ | Marca temporal o fecha de cerrada en `gestion_cobranza`. | TIMESTAMPTZ, opcional. | NINGUNA |
 
 ### `historial_estado_incumplimiento`
 
@@ -3386,14 +3386,14 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `registro_id` | UUID | — | UUID, obligatoria, referencia a `registro_incumplimiento`. | NINGUNA |
-| `estado_anterior` | VARCHAR(30) | — | VARCHAR(30), opcional. | NINGUNA |
-| `estado_nuevo` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
-| `motivo` | VARCHAR(300) | — | VARCHAR(300), obligatoria. | NINGUNA |
-| `monto_asociado` | DECIMAL(14,2) | — | DECIMAL(14,2), opcional. | FINANCIERO |
-| `ejecutado_por` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
-| `es_automatico` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
-| `fecha_hora` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `registro_id` | UUID | Referencia por clave foránea a la entidad `registro_incumplimiento`. | UUID, obligatoria, referencia a `registro_incumplimiento`, índice b-tree. | NINGUNA |
+| `estado_anterior` | VARCHAR(30) | Atributo que representa estado anterior en el modelo de `historial_estado_incumplimiento`. | VARCHAR(30), opcional. | NINGUNA |
+| `estado_nuevo` | VARCHAR(30) | Atributo que representa estado nuevo en el modelo de `historial_estado_incumplimiento`. | VARCHAR(30), obligatoria. | NINGUNA |
+| `motivo` | VARCHAR(300) | Justificación declarada o causal que originó la creación, rechazo o transición del registro. | VARCHAR(300), obligatoria. | NINGUNA |
+| `monto_asociado` | DECIMAL(14,2) | Importe monetario correspondiente a asociado en `historial_estado_incumplimiento`. | DECIMAL(14,2), opcional, sensibilidad financiero. | FINANCIERO |
+| `ejecutado_por` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, opcional, referencia a `usuario`. | NINGUNA |
+| `es_automatico` | BOOLEAN | Indicador booleano que señala si automatico en `historial_estado_incumplimiento`. | BOOLEAN, obligatoria. | NINGUNA |
+| `fecha_hora` | TIMESTAMPTZ | Marca temporal o fecha de hora en `historial_estado_incumplimiento`. | TIMESTAMPTZ, obligatoria, índice b-tree. | NINGUNA |
 
 ### `historial_incumplimiento_usuario`
 
@@ -3407,20 +3407,20 @@
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
-| `usuario_id` | UUID | — | UUID, obligatoria, clave primaria, referencia a `usuario`. | NINGUNA |
-| `total_incumplimientos` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `incumplimientos_leves` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `incumplimientos_graves` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `incumplimientos_abiertos` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `monto_total_incumplido` | DECIMAL(16,2) | — | DECIMAL(16,2), obligatoria. | FINANCIERO |
-| `monto_total_recuperado` | DECIMAL(16,2) | — | DECIMAL(16,2), obligatoria. | FINANCIERO |
-| `monto_castigado_historico` | DECIMAL(16,2) | — | DECIMAL(16,2), obligatoria. | FINANCIERO |
-| `grupos_abandonados` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `ultimo_incumplimiento_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
-| `dias_mora_promedio` | DECIMAL(6,2) | — | DECIMAL(6,2), obligatoria. | NINGUNA |
-| `tasa_regularizacion` | DECIMAL(5,2) | — | DECIMAL(5,2), obligatoria. | NINGUNA |
-| `esta_en_lista_restriccion` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
-| `actualizado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `usuario_id` | UUID | Referencia al usuario titular de la cuenta o actor principal de la operación. | UUID, obligatoria, clave primaria, referencia a `usuario`. | NINGUNA |
+| `total_incumplimientos` | SMALLINT | Importe monetario correspondiente a incumplimientos en `historial_incumplimiento_usuario`. | SMALLINT, obligatoria. | NINGUNA |
+| `incumplimientos_leves` | SMALLINT | Atributo que representa incumplimientos leves en el modelo de `historial_incumplimiento_usuario`. | SMALLINT, obligatoria. | NINGUNA |
+| `incumplimientos_graves` | SMALLINT | Atributo que representa incumplimientos graves en el modelo de `historial_incumplimiento_usuario`. | SMALLINT, obligatoria. | NINGUNA |
+| `incumplimientos_abiertos` | SMALLINT | Atributo que representa incumplimientos abiertos en el modelo de `historial_incumplimiento_usuario`. | SMALLINT, obligatoria, índice b-tree. | NINGUNA |
+| `monto_total_incumplido` | DECIMAL(16,2) | Importe monetario correspondiente a incumplido en `historial_incumplimiento_usuario`. | DECIMAL(16,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `monto_total_recuperado` | DECIMAL(16,2) | Importe monetario correspondiente a recuperado en `historial_incumplimiento_usuario`. | DECIMAL(16,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `monto_castigado_historico` | DECIMAL(16,2) | Importe monetario correspondiente a castigado historico en `historial_incumplimiento_usuario`. | DECIMAL(16,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `grupos_abandonados` | SMALLINT | Atributo que representa grupos abandonados en el modelo de `historial_incumplimiento_usuario`. | SMALLINT, obligatoria. | NINGUNA |
+| `ultimo_incumplimiento_en` | TIMESTAMPTZ | Marca temporal o fecha de ultimo incumplimiento en `historial_incumplimiento_usuario`. | TIMESTAMPTZ, opcional. | NINGUNA |
+| `dias_mora_promedio` | DECIMAL(6,2) | Atributo que representa dias mora promedio en el modelo de `historial_incumplimiento_usuario`. | DECIMAL(6,2), obligatoria. | NINGUNA |
+| `tasa_regularizacion` | DECIMAL(5,2) | Tasa porcentual o alícuota aplicable a regularizacion. | DECIMAL(5,2), obligatoria. | NINGUNA |
+| `esta_en_lista_restriccion` | BOOLEAN | Indicador booleano que señala si en lista restriccion en `historial_incumplimiento_usuario`. | BOOLEAN, obligatoria. | NINGUNA |
+| `actualizado_en` | TIMESTAMPTZ | Marca temporal UTC de la última modificación aplicada sobre este registro. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 
 ### `liquidacion_participante`
 
@@ -3435,13 +3435,13 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `disolucion_id` | UUID | — | UUID, obligatoria, referencia a `disolucion_anticipada`. | NINGUNA |
-| `participante_id` | UUID | — | UUID, obligatoria, referencia a `participante`. | NINGUNA |
-| `total_aportado` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | NINGUNA |
-| `total_cobrado` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | NINGUNA |
-| `deuda_pendiente` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
-| `posicion_neta` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | NINGUNA |
-| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
+| `disolucion_id` | UUID | Referencia por clave foránea a la entidad `disolucion_anticipada`. | UUID, obligatoria, referencia a `disolucion_anticipada`, índice b-tree. | NINGUNA |
+| `participante_id` | UUID | Referencia al miembro participante en el círculo de ahorro pasanaku. | UUID, obligatoria, referencia a `participante`. | NINGUNA |
+| `total_aportado` | DECIMAL(14,2) | Importe monetario correspondiente a aportado en `liquidacion_participante`. | DECIMAL(14,2), obligatoria. | NINGUNA |
+| `total_cobrado` | DECIMAL(14,2) | Importe monetario correspondiente a cobrado en `liquidacion_participante`. | DECIMAL(14,2), obligatoria. | NINGUNA |
+| `deuda_pendiente` | DECIMAL(14,2) | Atributo que representa deuda pendiente en el modelo de `liquidacion_participante`. | DECIMAL(14,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `posicion_neta` | DECIMAL(14,2) | Atributo que representa posicion neta en el modelo de `liquidacion_participante`. | DECIMAL(14,2), obligatoria. | NINGUNA |
+| `estado` | VARCHAR(15) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(15), obligatoria. | NINGUNA |
 
 ### `lista_restriccion_interna`
 
@@ -3456,16 +3456,16 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `usuario_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `registro_origen_id` | UUID | — | UUID, opcional, referencia a `registro_incumplimiento`. | NINGUNA |
-| `motivo` | VARCHAR(300) | — | VARCHAR(300), obligatoria. | NINGUNA |
-| `nivel_restriccion` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `monto_adeudado` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
-| `incluido_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `usuario_id` | UUID | Referencia al usuario titular de la cuenta o actor principal de la operación. | UUID, obligatoria, referencia a `usuario`, índice b-tree. | NINGUNA |
+| `registro_origen_id` | UUID | Referencia por clave foránea a la entidad `registro_incumplimiento`. | UUID, opcional, referencia a `registro_incumplimiento`. | NINGUNA |
+| `motivo` | VARCHAR(300) | Justificación declarada o causal que originó la creación, rechazo o transición del registro. | VARCHAR(300), obligatoria. | NINGUNA |
+| `nivel_restriccion` | VARCHAR(15) | Atributo que representa nivel restriccion en el modelo de `lista_restriccion_interna`. | VARCHAR(15), obligatoria. | NINGUNA |
+| `monto_adeudado` | DECIMAL(14,2) | Importe monetario correspondiente a adeudado en `lista_restriccion_interna`. | DECIMAL(14,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `incluido_en` | TIMESTAMPTZ | Marca temporal o fecha de incluido en `lista_restriccion_interna`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 | `vigente_hasta` | TIMESTAMPTZ | Hasta cuándo rigió esta versión; vacía mientras sigue vigente. | TIMESTAMPTZ, opcional. | NINGUNA |
-| `retirado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
-| `retirado_por` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
-| `motivo_retiro` | VARCHAR(300) | — | VARCHAR(300), opcional. | NINGUNA |
+| `retirado_en` | TIMESTAMPTZ | Marca temporal o fecha de retirado en `lista_restriccion_interna`. | TIMESTAMPTZ, opcional. | NINGUNA |
+| `retirado_por` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, opcional, referencia a `usuario`. | NINGUNA |
+| `motivo_retiro` | VARCHAR(300) | Atributo que representa motivo retiro en el modelo de `lista_restriccion_interna`. | VARCHAR(300), opcional. | NINGUNA |
 
 ### `matriz_sancion`
 
@@ -3480,15 +3480,15 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `politica_id` | UUID | — | UUID, obligatoria, referencia a `politica_sancion`. | NINGUNA |
-| `tipo_incumplimiento` | VARCHAR(40) | — | VARCHAR(40), obligatoria. | NINGUNA |
-| `severidad` | VARCHAR(10) | — | VARCHAR(10), obligatoria. | NINGUNA |
-| `numero_reincidencia` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `tipo_sancion` | VARCHAR(35) | — | VARCHAR(35), obligatoria. | NINGUNA |
-| `valor` | DECIMAL(12,2) | — | DECIMAL(12,2), obligatoria. | NINGUNA |
-| `duracion_dias` | SMALLINT | — | SMALLINT, opcional. | NINGUNA |
-| `es_automatica` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
-| `requiere_revision_humana` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
+| `politica_id` | UUID | Referencia por clave foránea a la entidad `politica_sancion`. | UUID, obligatoria, referencia a `politica_sancion`, índice b-tree. | NINGUNA |
+| `tipo_incumplimiento` | VARCHAR(40) | Atributo que representa tipo incumplimiento en el modelo de `matriz_sancion`. | VARCHAR(40), obligatoria, restricción única. | NINGUNA |
+| `severidad` | VARCHAR(10) | Nivel de gravedad o criticidad asignado al incidente, alerta o evento. | VARCHAR(10), obligatoria. | NINGUNA |
+| `numero_reincidencia` | SMALLINT | Numeración secuencial o identificador numérico de reincidencia. | SMALLINT, obligatoria. | NINGUNA |
+| `tipo_sancion` | VARCHAR(35) | Atributo que representa tipo sancion en el modelo de `matriz_sancion`. | VARCHAR(35), obligatoria. | NINGUNA |
+| `valor` | DECIMAL(12,2) | Atributo que representa valor en el modelo de `matriz_sancion`. | DECIMAL(12,2), obligatoria. | NINGUNA |
+| `duracion_dias` | SMALLINT | Atributo que representa duracion dias en el modelo de `matriz_sancion`. | SMALLINT, opcional. | NINGUNA |
+| `es_automatica` | BOOLEAN | Indicador booleano que señala si automatica en `matriz_sancion`. | BOOLEAN, obligatoria. | NINGUNA |
+| `requiere_revision_humana` | BOOLEAN | Atributo que representa requiere revision humana en el modelo de `matriz_sancion`. | BOOLEAN, obligatoria. | NINGUNA |
 
 ### `movimiento_fondo`
 
@@ -3503,16 +3503,16 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `fondo_id` | UUID | — | UUID, obligatoria, referencia a `fondo_garantia`. | NINGUNA |
-| `asiento_contable_id` | UUID | — | UUID, opcional, referencia a `asiento_contable`. | NINGUNA |
-| `tipo` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
-| `monto` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
-| `saldo_resultante` | DECIMAL(16,2) | — | DECIMAL(16,2), obligatoria. | FINANCIERO |
-| `referencia_tipo` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
-| `referencia_id` | UUID | — | UUID, obligatoria. | NINGUNA |
-| `descripcion` | VARCHAR(200) | — | VARCHAR(200), obligatoria. | NINGUNA |
-| `fecha` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `registrado_por` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
+| `fondo_id` | UUID | Referencia por clave foránea a la entidad `fondo_garantia`. | UUID, obligatoria, referencia a `fondo_garantia`, índice b-tree. | NINGUNA |
+| `asiento_contable_id` | UUID | Referencia al asiento de partida doble que respalda el movimiento financiero. | UUID, opcional, referencia a `asiento_contable`. | NINGUNA |
+| `tipo` | VARCHAR(30) | Subtipo o modalidad específica que determina las reglas operativas aplicables al registro. | VARCHAR(30), obligatoria, índice b-tree. | NINGUNA |
+| `monto` | DECIMAL(14,2) | Importe monetario principal de la transacción o concepto financiero. | DECIMAL(14,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `saldo_resultante` | DECIMAL(16,2) | Atributo que representa saldo resultante en el modelo de `movimiento_fondo`. | DECIMAL(16,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `referencia_tipo` | VARCHAR(30) | Atributo que representa referencia tipo en el modelo de `movimiento_fondo`. | VARCHAR(30), obligatoria. | NINGUNA |
+| `referencia_id` | UUID | Identificador de referencia para el concepto de referencia en `movimiento_fondo`. | UUID, obligatoria, índice b-tree. | NINGUNA |
+| `descripcion` | VARCHAR(200) | Detalle descriptivo que explica el contenido, propósito o contexto de la entidad. | VARCHAR(200), obligatoria. | NINGUNA |
+| `fecha` | TIMESTAMPTZ | Fecha calendario correspondiente al devengo o ejecución de la operación. | TIMESTAMPTZ, obligatoria, índice b-tree. | NINGUNA |
+| `registrado_por` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, opcional, referencia a `usuario`. | NINGUNA |
 
 ### `movimiento_reserva`
 
@@ -3527,18 +3527,18 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `reserva_respaldo_id` | UUID | — | UUID, obligatoria, referencia a `reserva_respaldo`. | NINGUNA |
-| `tipo` | VARCHAR(25) | — | VARCHAR(25), obligatoria. | NINGUNA |
-| `monto` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
+| `reserva_respaldo_id` | UUID | Referencia por clave foránea a la entidad `reserva_respaldo`. | UUID, obligatoria, referencia a `reserva_respaldo`, índice b-tree. | NINGUNA |
+| `tipo` | VARCHAR(25) | Subtipo o modalidad específica que determina las reglas operativas aplicables al registro. | VARCHAR(25), obligatoria, índice b-tree. | NINGUNA |
+| `monto` | DECIMAL(14,2) | Importe monetario principal de la transacción o concepto financiero. | DECIMAL(14,2), obligatoria, sensibilidad financiero. | FINANCIERO |
 | `moneda` | CHAR(3) | Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2). | CHAR(3), obligatoria. | NINGUNA |
-| `disponible_resultante` | DECIMAL(16,2) | — | DECIMAL(16,2), obligatoria. | NINGUNA |
-| `exposicion_resultante` | DECIMAL(16,2) | — | DECIMAL(16,2), obligatoria. | NINGUNA |
-| `referencia_tipo` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
-| `referencia_id` | UUID | — | UUID, obligatoria. | NINGUNA |
-| `clave_idempotencia` | VARCHAR(80) | Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4). | VARCHAR(80), obligatoria. | NINGUNA |
-| `registrado_por` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `responsable_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `fecha` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `disponible_resultante` | DECIMAL(16,2) | Atributo que representa disponible resultante en el modelo de `movimiento_reserva`. | DECIMAL(16,2), obligatoria. | NINGUNA |
+| `exposicion_resultante` | DECIMAL(16,2) | Atributo que representa exposicion resultante en el modelo de `movimiento_reserva`. | DECIMAL(16,2), obligatoria. | NINGUNA |
+| `referencia_tipo` | VARCHAR(30) | Atributo que representa referencia tipo en el modelo de `movimiento_reserva`. | VARCHAR(30), obligatoria. | NINGUNA |
+| `referencia_id` | UUID | Identificador de referencia para el concepto de referencia en `movimiento_reserva`. | UUID, obligatoria, índice b-tree. | NINGUNA |
+| `clave_idempotencia` | VARCHAR(80) | Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4). | VARCHAR(80), obligatoria, restricción única. | NINGUNA |
+| `registrado_por` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
+| `responsable_id` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
+| `fecha` | TIMESTAMPTZ | Fecha calendario correspondiente al devengo o ejecución de la operación. | TIMESTAMPTZ, obligatoria, índice b-tree. | NINGUNA |
 
 ### `plan_contingencia`
 
@@ -3553,16 +3553,16 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `grupo_id` | UUID | — | UUID, obligatoria, referencia a `grupo`. | NINGUNA |
-| `acuerdo_grupo_id` | UUID | — | UUID, opcional, referencia a `acuerdo`. | NINGUNA |
-| `disparador` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
-| `tipo` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
-| `descripcion` | TEXT | — | TEXT, obligatoria. | NINGUNA |
-| `impacto_estimado` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | NINGUNA |
-| `requiere_acuerdo` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
-| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `propuesto_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `ejecutado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `grupo_id` | UUID | Referencia al grupo de pasanaku en el que se enmarca esta operación. | UUID, obligatoria, referencia a `grupo`, índice b-tree. | NINGUNA |
+| `acuerdo_grupo_id` | UUID | Referencia por clave foránea a la entidad `acuerdo`. | UUID, opcional, referencia a `acuerdo`. | NINGUNA |
+| `disparador` | VARCHAR(30) | Atributo que representa disparador en el modelo de `plan_contingencia`. | VARCHAR(30), obligatoria. | NINGUNA |
+| `tipo` | VARCHAR(30) | Subtipo o modalidad específica que determina las reglas operativas aplicables al registro. | VARCHAR(30), obligatoria. | NINGUNA |
+| `descripcion` | TEXT | Detalle descriptivo que explica el contenido, propósito o contexto de la entidad. | TEXT, obligatoria. | NINGUNA |
+| `impacto_estimado` | DECIMAL(14,2) | Atributo que representa impacto estimado en el modelo de `plan_contingencia`. | DECIMAL(14,2), obligatoria. | NINGUNA |
+| `requiere_acuerdo` | BOOLEAN | Atributo que representa requiere acuerdo en el modelo de `plan_contingencia`. | BOOLEAN, obligatoria. | NINGUNA |
+| `estado` | VARCHAR(15) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(15), obligatoria. | NINGUNA |
+| `propuesto_en` | TIMESTAMPTZ | Marca temporal o fecha de propuesto en `plan_contingencia`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `ejecutado_en` | TIMESTAMPTZ | Marca temporal o fecha de ejecutado en `plan_contingencia`. | TIMESTAMPTZ, opcional. | NINGUNA |
 
 ### `politica_cobertura`
 
@@ -3577,17 +3577,17 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `grupo_id` | UUID | — | UUID, opcional, referencia a `grupo`. | NINGUNA |
+| `grupo_id` | UUID | Referencia al grupo de pasanaku en el que se enmarca esta operación. | UUID, opcional, referencia a `grupo`. | NINGUNA |
 | `porcentaje_constitucion` | DECIMAL(5,2) | cuánto de cada aporte alimenta el fondo. Sube el costo del pasanaku, así que es un equilibrio entre seguridad y precio. | DECIMAL(5,2), obligatoria. | NINGUNA |
 | `dias_mora_para_activar` | SMALLINT | **no se cubre al primer día de atraso.** Si se cubriera de inmediato, el fondo pagaría por gente que simplemente se olvidó y va a pagar mañana, y se agotaría en meses. | SMALLINT, obligatoria. | NINGUNA |
-| `porcentaje_maximo_cobertura_por_aporte` | DECIMAL(5,2) | — | DECIMAL(5,2), obligatoria. | NINGUNA |
-| `tope_cobertura_por_participante` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | NINGUNA |
+| `porcentaje_maximo_cobertura_por_aporte` | DECIMAL(5,2) | Tasa porcentual o alícuota aplicable a maximo cobertura por aporte. | DECIMAL(5,2), obligatoria. | NINGUNA |
+| `tope_cobertura_por_participante` | DECIMAL(14,2) | Atributo que representa tope cobertura por participante en el modelo de `politica_cobertura`. | DECIMAL(14,2), obligatoria. | NINGUNA |
 | `tope_cobertura_por_periodo` | DECIMAL(14,2) | protege contra el colapso masivo. Si en un período fallan seis de doce, el fondo no puede vaciarse cubriéndolos a todos; ahí corresponde un plan de contingencia, no cobertura. | DECIMAL(14,2), obligatoria. | NINGUNA |
-| `max_coberturas_por_participante` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
+| `max_coberturas_por_participante` | SMALLINT | Atributo que representa max coberturas por participante en el modelo de `politica_cobertura`. | SMALLINT, obligatoria. | NINGUNA |
 | `exige_aval_previo` | BOOLEAN | solo se cubre a quien tiene quién responda. | BOOLEAN, obligatoria. | NINGUNA |
 | `requiere_aprobacion_manual_desde` | DECIMAL(14,2) | montos grandes pasan por revisión humana. | DECIMAL(14,2), obligatoria. | NINGUNA |
-| `plazo_recuperacion_dias` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `tasa_recargo_recuperacion` | DECIMAL(5,2) | — | DECIMAL(5,2), obligatoria. | NINGUNA |
+| `plazo_recuperacion_dias` | SMALLINT | Atributo que representa plazo recuperacion dias en el modelo de `politica_cobertura`. | SMALLINT, obligatoria. | NINGUNA |
+| `tasa_recargo_recuperacion` | DECIMAL(5,2) | Tasa porcentual o alícuota aplicable a recargo recuperacion. | DECIMAL(5,2), obligatoria. | NINGUNA |
 | `vigente_desde` | TIMESTAMPTZ | Desde cuándo rige esta versión de la fila: las condiciones se versionan, no se pisan. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 
 ### `politica_sancion`
@@ -3603,12 +3603,12 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `grupo_id` | UUID | — | UUID, opcional, referencia a `grupo`. | NINGUNA |
-| `version` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
-| `requiere_acuerdo_grupo` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
-| `plazo_descargo_dias` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `plazo_apelacion_dias` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `prescribe_en_dias` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
+| `grupo_id` | UUID | Referencia al grupo de pasanaku en el que se enmarca esta operación. | UUID, opcional, referencia a `grupo`. | NINGUNA |
+| `version` | VARCHAR(20) | Número de versión para control de concurrencia optimista y auditoría de modificaciones. | VARCHAR(20), obligatoria. | NINGUNA |
+| `requiere_acuerdo_grupo` | BOOLEAN | Atributo que representa requiere acuerdo grupo en el modelo de `politica_sancion`. | BOOLEAN, obligatoria. | NINGUNA |
+| `plazo_descargo_dias` | SMALLINT | Atributo que representa plazo descargo dias en el modelo de `politica_sancion`. | SMALLINT, obligatoria. | NINGUNA |
+| `plazo_apelacion_dias` | SMALLINT | Atributo que representa plazo apelacion dias en el modelo de `politica_sancion`. | SMALLINT, obligatoria. | NINGUNA |
+| `prescribe_en_dias` | SMALLINT | Atributo que representa prescribe en dias en el modelo de `politica_sancion`. | SMALLINT, obligatoria. | NINGUNA |
 | `vigente_desde` | TIMESTAMPTZ | Desde cuándo rige esta versión de la fila: las condiciones se versionan, no se pisan. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 
 ### `promesa_pago`
@@ -3624,15 +3624,15 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `gestion_id` | UUID | — | UUID, obligatoria, referencia a `gestion_cobranza`. | NINGUNA |
-| `monto_prometido` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
-| `fecha_prometida` | DATE | — | DATE, obligatoria. | NINGUNA |
-| `canal_compromiso` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
-| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `monto_efectivo` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
-| `registrada_por` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
-| `creada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `evaluada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `gestion_id` | UUID | Referencia por clave foránea a la entidad `gestion_cobranza`. | UUID, obligatoria, referencia a `gestion_cobranza`, índice b-tree. | NINGUNA |
+| `monto_prometido` | DECIMAL(14,2) | Importe monetario correspondiente a prometido en `promesa_pago`. | DECIMAL(14,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `fecha_prometida` | DATE | Marca temporal o fecha de prometida en `promesa_pago`. | DATE, obligatoria, índice b-tree. | NINGUNA |
+| `canal_compromiso` | VARCHAR(20) | Atributo que representa canal compromiso en el modelo de `promesa_pago`. | VARCHAR(20), obligatoria. | NINGUNA |
+| `estado` | VARCHAR(15) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(15), obligatoria, índice b-tree. | NINGUNA |
+| `monto_efectivo` | DECIMAL(14,2) | Importe monetario correspondiente a efectivo en `promesa_pago`. | DECIMAL(14,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `registrada_por` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, opcional, referencia a `usuario`. | NINGUNA |
+| `creada_en` | TIMESTAMPTZ | Marca temporal UTC en que la entidad fue creada en la base de datos. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `evaluada_en` | TIMESTAMPTZ | Marca temporal o fecha de evaluada en `promesa_pago`. | TIMESTAMPTZ, opcional. | NINGUNA |
 
 ### `recuperacion_respaldo`
 
@@ -3647,12 +3647,12 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `cobertura_respaldo_linea_id` | UUID | — | UUID, obligatoria, referencia a `cobertura_respaldo_linea`. | NINGUNA |
-| `pago_id` | UUID | — | UUID, obligatoria, referencia a `pago`. | NINGUNA |
-| `movimiento_reserva_id` | UUID | — | UUID, obligatoria, referencia a `movimiento_reserva`. | NINGUNA |
-| `monto` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
+| `cobertura_respaldo_linea_id` | UUID | Referencia por clave foránea a la entidad `cobertura_respaldo_linea`. | UUID, obligatoria, referencia a `cobertura_respaldo_linea`, índice b-tree. | NINGUNA |
+| `pago_id` | UUID | Referencia por clave foránea a la entidad `pago`. | UUID, obligatoria, referencia a `pago`, restricción única. | NINGUNA |
+| `movimiento_reserva_id` | UUID | Referencia por clave foránea a la entidad `movimiento_reserva`. | UUID, obligatoria, referencia a `movimiento_reserva`. | NINGUNA |
+| `monto` | DECIMAL(14,2) | Importe monetario principal de la transacción o concepto financiero. | DECIMAL(14,2), obligatoria, sensibilidad financiero. | FINANCIERO |
 | `moneda` | CHAR(3) | Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2). | CHAR(3), obligatoria. | NINGUNA |
-| `recuperada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `recuperada_en` | TIMESTAMPTZ | Marca temporal o fecha de recuperada en `recuperacion_respaldo`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 
 ### `reemplazo_participante`
 
@@ -3667,17 +3667,17 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `grupo_id` | UUID | — | UUID, obligatoria, referencia a `grupo`. | NINGUNA |
-| `cupo_id` | UUID | — | UUID, obligatoria, referencia a `cupo`. | NINGUNA |
-| `registro_id` | UUID | — | UUID, opcional, referencia a `registro_incumplimiento`. | NINGUNA |
-| `participante_saliente_id` | UUID | — | UUID, obligatoria, referencia a `participante`. | NINGUNA |
-| `participante_entrante_id` | UUID | — | UUID, opcional, referencia a `participante`. | NINGUNA |
-| `acuerdo_grupo_id` | UUID | — | UUID, opcional, referencia a `acuerdo`. | NINGUNA |
-| `deuda_asumida_por_entrante` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
-| `deuda_retenida_por_saliente` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
+| `grupo_id` | UUID | Referencia al grupo de pasanaku en el que se enmarca esta operación. | UUID, obligatoria, referencia a `grupo`, índice b-tree. | NINGUNA |
+| `cupo_id` | UUID | Referencia por clave foránea a la entidad `cupo`. | UUID, obligatoria, referencia a `cupo`. | NINGUNA |
+| `registro_id` | UUID | Referencia por clave foránea a la entidad `registro_incumplimiento`. | UUID, opcional, referencia a `registro_incumplimiento`. | NINGUNA |
+| `participante_saliente_id` | UUID | Referencia por clave foránea a la entidad `participante`. | UUID, obligatoria, referencia a `participante`. | NINGUNA |
+| `participante_entrante_id` | UUID | Referencia por clave foránea a la entidad `participante`. | UUID, opcional, referencia a `participante`. | NINGUNA |
+| `acuerdo_grupo_id` | UUID | Referencia por clave foránea a la entidad `acuerdo`. | UUID, opcional, referencia a `acuerdo`. | NINGUNA |
+| `deuda_asumida_por_entrante` | DECIMAL(14,2) | Atributo que representa deuda asumida por entrante en el modelo de `reemplazo_participante`. | DECIMAL(14,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `deuda_retenida_por_saliente` | DECIMAL(14,2) | Atributo que representa deuda retenida por saliente en el modelo de `reemplazo_participante`. | DECIMAL(14,2), obligatoria, sensibilidad financiero. | FINANCIERO |
 | `conserva_orden_de_turno` | BOOLEAN | el entrante hereda la posición del cupo en el calendario. Es lo que permite que el resto del grupo no se vea afectado. | BOOLEAN, obligatoria. | NINGUNA |
-| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `fecha` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `estado` | VARCHAR(15) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(15), obligatoria. | NINGUNA |
+| `fecha` | TIMESTAMPTZ | Fecha calendario correspondiente al devengo o ejecución de la operación. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 
 ### `registro_incumplimiento`
 
@@ -3692,35 +3692,35 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `codigo_expediente` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
-| `usuario_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `participante_id` | UUID | — | UUID, obligatoria, referencia a `participante`. | NINGUNA |
-| `grupo_id` | UUID | — | UUID, obligatoria, referencia a `grupo`. | NINGUNA |
-| `periodo_id` | UUID | — | UUID, opcional, referencia a `periodo`. | NINGUNA |
-| `cupo_id` | UUID | — | UUID, opcional, referencia a `cupo`. | NINGUNA |
-| `obligacion_id` | UUID | — | UUID, opcional, referencia a `obligacion_aporte`. | NINGUNA |
-| `entrega_afectada_id` | UUID | — | UUID, opcional, referencia a `entrega_fondo`. | NINGUNA |
-| `responsable_gestion` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
-| `tipo` | VARCHAR(40) | — | VARCHAR(40), obligatoria. | NINGUNA |
-| `severidad` | VARCHAR(10) | — | VARCHAR(10), obligatoria. | NINGUNA |
-| `estado` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
-| `origen_deteccion` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
-| `monto_involucrado` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
-| `monto_recuperado` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
-| `monto_castigado` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
-| `dias_mora_al_detectar` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `dias_mora_actuales` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `es_reincidencia` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
-| `numero_reincidencia` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `afecto_a_la_entrega` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
-| `detectado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `notificado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
-| `fecha_limite_subsanacion` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
-| `cerrado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
-| `motivo_cierre` | VARCHAR(200) | — | VARCHAR(200), opcional. | NINGUNA |
-| `resumen_resolucion` | TEXT | — | TEXT, opcional. | NINGUNA |
-| `reportado_por` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
-| `version` | INTEGER | — | INTEGER, obligatoria. | NINGUNA |
+| `codigo_expediente` | VARCHAR(20) | Código normalizado o mnemotécnico de expediente. | VARCHAR(20), obligatoria, restricción única. | NINGUNA |
+| `usuario_id` | UUID | Referencia al usuario titular de la cuenta o actor principal de la operación. | UUID, obligatoria, referencia a `usuario`, índice b-tree. | NINGUNA |
+| `participante_id` | UUID | Referencia al miembro participante en el círculo de ahorro pasanaku. | UUID, obligatoria, referencia a `participante`, índice b-tree. | NINGUNA |
+| `grupo_id` | UUID | Referencia al grupo de pasanaku en el que se enmarca esta operación. | UUID, obligatoria, referencia a `grupo`, índice b-tree. | NINGUNA |
+| `periodo_id` | UUID | Referencia por clave foránea a la entidad `periodo`. | UUID, opcional, referencia a `periodo`. | NINGUNA |
+| `cupo_id` | UUID | Referencia por clave foránea a la entidad `cupo`. | UUID, opcional, referencia a `cupo`. | NINGUNA |
+| `obligacion_id` | UUID | Referencia por clave foránea a la entidad `obligacion_aporte`. | UUID, opcional, referencia a `obligacion_aporte`, restricción única. | NINGUNA |
+| `entrega_afectada_id` | UUID | Referencia por clave foránea a la entidad `entrega_fondo`. | UUID, opcional, referencia a `entrega_fondo`. | NINGUNA |
+| `responsable_gestion` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, opcional, referencia a `usuario`. | NINGUNA |
+| `tipo` | VARCHAR(40) | Subtipo o modalidad específica que determina las reglas operativas aplicables al registro. | VARCHAR(40), obligatoria, índice b-tree. | NINGUNA |
+| `severidad` | VARCHAR(10) | Nivel de gravedad o criticidad asignado al incidente, alerta o evento. | VARCHAR(10), obligatoria, índice b-tree. | NINGUNA |
+| `estado` | VARCHAR(30) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(30), obligatoria, índice b-tree. | NINGUNA |
+| `origen_deteccion` | VARCHAR(30) | Atributo que representa origen deteccion en el modelo de `registro_incumplimiento`. | VARCHAR(30), obligatoria. | NINGUNA |
+| `monto_involucrado` | DECIMAL(14,2) | Importe monetario correspondiente a involucrado en `registro_incumplimiento`. | DECIMAL(14,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `monto_recuperado` | DECIMAL(14,2) | Importe monetario correspondiente a recuperado en `registro_incumplimiento`. | DECIMAL(14,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `monto_castigado` | DECIMAL(14,2) | Importe monetario correspondiente a castigado en `registro_incumplimiento`. | DECIMAL(14,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `dias_mora_al_detectar` | SMALLINT | Atributo que representa dias mora al detectar en el modelo de `registro_incumplimiento`. | SMALLINT, obligatoria. | NINGUNA |
+| `dias_mora_actuales` | SMALLINT | Atributo que representa dias mora actuales en el modelo de `registro_incumplimiento`. | SMALLINT, obligatoria. | NINGUNA |
+| `es_reincidencia` | BOOLEAN | Indicador booleano que señala si reincidencia en `registro_incumplimiento`. | BOOLEAN, obligatoria. | NINGUNA |
+| `numero_reincidencia` | SMALLINT | Numeración secuencial o identificador numérico de reincidencia. | SMALLINT, obligatoria. | NINGUNA |
+| `afecto_a_la_entrega` | BOOLEAN | Atributo que representa afecto a la entrega en el modelo de `registro_incumplimiento`. | BOOLEAN, obligatoria. | NINGUNA |
+| `detectado_en` | TIMESTAMPTZ | Marca temporal o fecha de detectado en `registro_incumplimiento`. | TIMESTAMPTZ, obligatoria, índice b-tree. | NINGUNA |
+| `notificado_en` | TIMESTAMPTZ | Marca temporal o fecha de notificado en `registro_incumplimiento`. | TIMESTAMPTZ, opcional. | NINGUNA |
+| `fecha_limite_subsanacion` | TIMESTAMPTZ | Marca temporal o fecha de limite subsanacion en `registro_incumplimiento`. | TIMESTAMPTZ, opcional. | NINGUNA |
+| `cerrado_en` | TIMESTAMPTZ | Marca temporal o fecha de cerrado en `registro_incumplimiento`. | TIMESTAMPTZ, opcional. | NINGUNA |
+| `motivo_cierre` | VARCHAR(200) | Atributo que representa motivo cierre en el modelo de `registro_incumplimiento`. | VARCHAR(200), opcional. | NINGUNA |
+| `resumen_resolucion` | TEXT | Atributo que representa resumen resolucion en el modelo de `registro_incumplimiento`. | TEXT, opcional. | NINGUNA |
+| `reportado_por` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, opcional, referencia a `usuario`. | NINGUNA |
+| `version` | INTEGER | Número de versión para control de concurrencia optimista y auditoría de modificaciones. | INTEGER, obligatoria. | NINGUNA |
 
 ### `reserva_respaldo`
 
@@ -3735,19 +3735,19 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `capacidad_respaldo_id` | UUID | — | UUID, obligatoria, referencia a `capacidad_respaldo`. | NINGUNA |
-| `grupo_id` | UUID | — | UUID, obligatoria, referencia a `grupo`. | NINGUNA |
-| `ciclo_numero` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
+| `capacidad_respaldo_id` | UUID | Referencia por clave foránea a la entidad `capacidad_respaldo`. | UUID, obligatoria, referencia a `capacidad_respaldo`, índice b-tree. | NINGUNA |
+| `grupo_id` | UUID | Referencia al grupo de pasanaku en el que se enmarca esta operación. | UUID, obligatoria, referencia a `grupo`, índice b-tree. | NINGUNA |
+| `ciclo_numero` | SMALLINT | Numeración secuencial o identificador numérico de ciclo. | SMALLINT, obligatoria, restricción única. | NINGUNA |
 | `moneda` | CHAR(3) | Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2). | CHAR(3), obligatoria. | NINGUNA |
-| `monto_reservado` | DECIMAL(16,2) | — | DECIMAL(16,2), obligatoria. | FINANCIERO |
-| `monto_aplicado` | DECIMAL(16,2) | — | DECIMAL(16,2), obligatoria. | FINANCIERO |
-| `monto_recuperado` | DECIMAL(16,2) | — | DECIMAL(16,2), obligatoria. | FINANCIERO |
-| `monto_liberado` | DECIMAL(16,2) | — | DECIMAL(16,2), obligatoria. | FINANCIERO |
-| `estado` | VARCHAR(10) | — | VARCHAR(10), obligatoria. | NINGUNA |
-| `responsable_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `clave_idempotencia` | VARCHAR(80) | Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4). | VARCHAR(80), obligatoria. | NINGUNA |
-| `reservada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `version` | INTEGER | — | INTEGER, obligatoria. | NINGUNA |
+| `monto_reservado` | DECIMAL(16,2) | Importe monetario correspondiente a reservado en `reserva_respaldo`. | DECIMAL(16,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `monto_aplicado` | DECIMAL(16,2) | Importe monetario correspondiente a aplicado en `reserva_respaldo`. | DECIMAL(16,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `monto_recuperado` | DECIMAL(16,2) | Importe monetario correspondiente a recuperado en `reserva_respaldo`. | DECIMAL(16,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `monto_liberado` | DECIMAL(16,2) | Importe monetario correspondiente a liberado en `reserva_respaldo`. | DECIMAL(16,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `estado` | VARCHAR(10) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(10), obligatoria, índice b-tree. | NINGUNA |
+| `responsable_id` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
+| `clave_idempotencia` | VARCHAR(80) | Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4). | VARCHAR(80), obligatoria, restricción única. | NINGUNA |
+| `reservada_en` | TIMESTAMPTZ | Marca temporal o fecha de reservada en `reserva_respaldo`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `version` | INTEGER | Número de versión para control de concurrencia optimista y auditoría de modificaciones. | INTEGER, obligatoria. | NINGUNA |
 
 ### `sancion`
 
@@ -3762,21 +3762,21 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `registro_id` | UUID | — | UUID, obligatoria, referencia a `registro_incumplimiento`. | NINGUNA |
-| `usuario_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `participante_id` | UUID | — | UUID, opcional, referencia a `participante`. | NINGUNA |
-| `matriz_id` | UUID | — | UUID, opcional, referencia a `matriz_sancion`. | NINGUNA |
-| `acuerdo_grupo_id` | UUID | — | UUID, opcional, referencia a `acuerdo`. | NINGUNA |
-| `aplicada_por` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
-| `tipo` | VARCHAR(35) | — | VARCHAR(35), obligatoria. | NINGUNA |
-| `descripcion` | VARCHAR(300) | — | VARCHAR(300), obligatoria. | NINGUNA |
-| `monto_recargo` | DECIMAL(14,2) | — | DECIMAL(14,2), opcional. | FINANCIERO |
-| `impacto_reputacion` | DECIMAL(6,2) | — | DECIMAL(6,2), opcional. | NINGUNA |
+| `registro_id` | UUID | Referencia por clave foránea a la entidad `registro_incumplimiento`. | UUID, obligatoria, referencia a `registro_incumplimiento`, índice b-tree. | NINGUNA |
+| `usuario_id` | UUID | Referencia al usuario titular de la cuenta o actor principal de la operación. | UUID, obligatoria, referencia a `usuario`, índice b-tree. | NINGUNA |
+| `participante_id` | UUID | Referencia al miembro participante en el círculo de ahorro pasanaku. | UUID, opcional, referencia a `participante`. | NINGUNA |
+| `matriz_id` | UUID | Referencia por clave foránea a la entidad `matriz_sancion`. | UUID, opcional, referencia a `matriz_sancion`. | NINGUNA |
+| `acuerdo_grupo_id` | UUID | Referencia por clave foránea a la entidad `acuerdo`. | UUID, opcional, referencia a `acuerdo`. | NINGUNA |
+| `aplicada_por` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, opcional, referencia a `usuario`. | NINGUNA |
+| `tipo` | VARCHAR(35) | Subtipo o modalidad específica que determina las reglas operativas aplicables al registro. | VARCHAR(35), obligatoria, índice b-tree. | NINGUNA |
+| `descripcion` | VARCHAR(300) | Detalle descriptivo que explica el contenido, propósito o contexto de la entidad. | VARCHAR(300), obligatoria. | NINGUNA |
+| `monto_recargo` | DECIMAL(14,2) | Importe monetario correspondiente a recargo en `sancion`. | DECIMAL(14,2), opcional, sensibilidad financiero. | FINANCIERO |
+| `impacto_reputacion` | DECIMAL(6,2) | Atributo que representa impacto reputacion en el modelo de `sancion`. | DECIMAL(6,2), opcional. | NINGUNA |
 | `vigente_desde` | TIMESTAMPTZ | Desde cuándo rige esta versión de la fila: las condiciones se versionan, no se pisan. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 | `vigente_hasta` | TIMESTAMPTZ | Hasta cuándo rigió esta versión; vacía mientras sigue vigente. | TIMESTAMPTZ, opcional. | NINGUNA |
-| `estado` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
-| `notificada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
-| `firme_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `estado` | VARCHAR(20) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(20), obligatoria, índice b-tree. | NINGUNA |
+| `notificada_en` | TIMESTAMPTZ | Marca temporal o fecha de notificada en `sancion`. | TIMESTAMPTZ, opcional. | NINGUNA |
+| `firme_en` | TIMESTAMPTZ | Marca temporal o fecha de firme en `sancion`. | TIMESTAMPTZ, opcional. | NINGUNA |
 
 ### `score_riesgo_incumplimiento`
 
@@ -3791,13 +3791,13 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `usuario_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `grupo_id` | UUID | — | UUID, opcional, referencia a `grupo`. | NINGUNA |
-| `probabilidad_incumplimiento` | DECIMAL(5,4) | — | DECIMAL(5,4), obligatoria. | NINGUNA |
-| `factores_principales` | JSONB | — | JSONB, obligatoria. | NINGUNA |
-| `nivel_riesgo` | VARCHAR(10) | — | VARCHAR(10), obligatoria. | NINGUNA |
-| `accion_sugerida` | VARCHAR(160) | — | VARCHAR(160), obligatoria. | NINGUNA |
-| `calculado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `usuario_id` | UUID | Referencia al usuario titular de la cuenta o actor principal de la operación. | UUID, obligatoria, referencia a `usuario`, índice b-tree. | NINGUNA |
+| `grupo_id` | UUID | Referencia al grupo de pasanaku en el que se enmarca esta operación. | UUID, opcional, referencia a `grupo`. | NINGUNA |
+| `probabilidad_incumplimiento` | DECIMAL(5,4) | Atributo que representa probabilidad incumplimiento en el modelo de `score_riesgo_incumplimiento`. | DECIMAL(5,4), obligatoria. | NINGUNA |
+| `factores_principales` | JSONB | Atributo que representa factores principales en el modelo de `score_riesgo_incumplimiento`. | JSONB, obligatoria. | NINGUNA |
+| `nivel_riesgo` | VARCHAR(10) | Atributo que representa nivel riesgo en el modelo de `score_riesgo_incumplimiento`. | VARCHAR(10), obligatoria, índice b-tree. | NINGUNA |
+| `accion_sugerida` | VARCHAR(160) | Atributo que representa accion sugerida en el modelo de `score_riesgo_incumplimiento`. | VARCHAR(160), obligatoria. | NINGUNA |
+| `calculado_en` | TIMESTAMPTZ | Marca temporal o fecha de calculado en `score_riesgo_incumplimiento`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 
 ### `subrogacion`
 
@@ -3812,13 +3812,13 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `cobertura_id` | UUID | — | UUID, obligatoria, referencia a `cobertura_incumplimiento`. | NINGUNA |
-| `deuda_id` | UUID | — | UUID, obligatoria, referencia a `deuda_participante`. | FINANCIERO |
-| `acreedor_original` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
-| `acreedor_subrogado` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
-| `monto_subrogado` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
-| `fecha` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `documento_respaldo_url` | VARCHAR(255) | — | VARCHAR(255), opcional. | PERSONAL |
+| `cobertura_id` | UUID | Referencia por clave foránea a la entidad `cobertura_incumplimiento`. | UUID, obligatoria, referencia a `cobertura_incumplimiento`, restricción única. | NINGUNA |
+| `deuda_id` | UUID | Referencia por clave foránea a la entidad `deuda_participante`. | UUID, obligatoria, referencia a `deuda_participante`, restricción única, sensibilidad financiero. | FINANCIERO |
+| `acreedor_original` | VARCHAR(30) | Atributo que representa acreedor original en el modelo de `subrogacion`. | VARCHAR(30), obligatoria. | NINGUNA |
+| `acreedor_subrogado` | VARCHAR(30) | Atributo que representa acreedor subrogado en el modelo de `subrogacion`. | VARCHAR(30), obligatoria. | NINGUNA |
+| `monto_subrogado` | DECIMAL(14,2) | Importe monetario correspondiente a subrogado en `subrogacion`. | DECIMAL(14,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `fecha` | TIMESTAMPTZ | Fecha calendario correspondiente al devengo o ejecución de la operación. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `documento_respaldo_url` | VARCHAR(255) | Localizador uniforme de recursos (URL/URI) correspondiente a documento respaldo. | VARCHAR(255), opcional, sensibilidad personal. | PERSONAL |
 
 ## Esquema `grupos`
 
@@ -3835,12 +3835,12 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `reglamento_id` | UUID | — | UUID, obligatoria, referencia a `reglamento_grupo`. | NINGUNA |
-| `participante_id` | UUID | — | UUID, obligatoria, referencia a `participante`. | NINGUNA |
-| `aceptado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `hash_firmado` | VARCHAR(64) | — | VARCHAR(64), obligatoria. | DERIVADO |
-| `ip_origen` | INET | — | INET, obligatoria. | NINGUNA |
-| `token_firma_id` | UUID | — | UUID, opcional, referencia a `token_verificacion`. | SECRETO |
+| `reglamento_id` | UUID | Referencia por clave foránea a la entidad `reglamento_grupo`. | UUID, obligatoria, referencia a `reglamento_grupo`. | NINGUNA |
+| `participante_id` | UUID | Referencia al miembro participante en el círculo de ahorro pasanaku. | UUID, obligatoria, referencia a `participante`. | NINGUNA |
+| `aceptado_en` | TIMESTAMPTZ | Marca temporal o fecha de aceptado en `aceptacion_reglamento`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `hash_firmado` | VARCHAR(64) | Resumen criptográfico SHA-256 para verificación inmutable de firmado. | VARCHAR(64), obligatoria, sensibilidad derivado. | DERIVADO |
+| `ip_origen` | INET | Dirección IP desde la cual se ejecutó la solicitud, registrada para auditoría de seguridad. | INET, obligatoria. | NINGUNA |
+| `token_firma_id` | UUID | Referencia por clave foránea a la entidad `token_verificacion`. | UUID, opcional, referencia a `token_verificacion`, sensibilidad secreto. | SECRETO |
 
 ### `acuerdo`
 
@@ -3855,20 +3855,20 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `grupo_id` | UUID | — | UUID, obligatoria, referencia a `grupo`. | NINGUNA |
-| `tipo` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
-| `descripcion` | VARCHAR(400) | — | VARCHAR(400), obligatoria. | NINGUNA |
-| `propuesto_por` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `quorum_requerido` | DECIMAL(4,3) | — | DECIMAL(4,3), obligatoria. | NINGUNA |
-| `votos_a_favor` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `votos_en_contra` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `abstenciones` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `referencia_afectada_id` | UUID | — | UUID, opcional. | NINGUNA |
-| `abierto_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `cierra_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `resuelto_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
-| `ejecutado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `grupo_id` | UUID | Referencia al grupo de pasanaku en el que se enmarca esta operación. | UUID, obligatoria, referencia a `grupo`, índice b-tree. | NINGUNA |
+| `tipo` | VARCHAR(30) | Subtipo o modalidad específica que determina las reglas operativas aplicables al registro. | VARCHAR(30), obligatoria. | NINGUNA |
+| `descripcion` | VARCHAR(400) | Detalle descriptivo que explica el contenido, propósito o contexto de la entidad. | VARCHAR(400), obligatoria. | NINGUNA |
+| `propuesto_por` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
+| `quorum_requerido` | DECIMAL(4,3) | Atributo que representa quorum requerido en el modelo de `acuerdo`. | DECIMAL(4,3), obligatoria. | NINGUNA |
+| `votos_a_favor` | SMALLINT | Atributo que representa votos a favor en el modelo de `acuerdo`. | SMALLINT, obligatoria. | NINGUNA |
+| `votos_en_contra` | SMALLINT | Atributo que representa votos en contra en el modelo de `acuerdo`. | SMALLINT, obligatoria. | NINGUNA |
+| `abstenciones` | SMALLINT | Atributo que representa abstenciones en el modelo de `acuerdo`. | SMALLINT, obligatoria. | NINGUNA |
+| `estado` | VARCHAR(15) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(15), obligatoria. | NINGUNA |
+| `referencia_afectada_id` | UUID | Identificador de referencia para el concepto de referencia afectada en `acuerdo`. | UUID, opcional. | NINGUNA |
+| `abierto_en` | TIMESTAMPTZ | Marca temporal o fecha de abierto en `acuerdo`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `cierra_en` | TIMESTAMPTZ | Marca temporal o fecha de cierra en `acuerdo`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `resuelto_en` | TIMESTAMPTZ | Marca temporal o fecha de resuelto en `acuerdo`. | TIMESTAMPTZ, opcional. | NINGUNA |
+| `ejecutado_en` | TIMESTAMPTZ | Marca temporal o fecha de ejecutado en `acuerdo`. | TIMESTAMPTZ, opcional. | NINGUNA |
 
 ### `alta_grupo`
 
@@ -3883,12 +3883,12 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `grupo_id` | UUID | — | UUID, obligatoria. | NINGUNA |
-| `creador_id` | UUID | — | UUID, obligatoria. | NINGUNA |
-| `clave_idempotencia` | UUID | Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4). | UUID, obligatoria. | NINGUNA |
-| `huella_solicitud` | VARCHAR(64) | — | VARCHAR(64), obligatoria. | NINGUNA |
-| `fondo_por_periodo` | VARCHAR(60) | — | VARCHAR(60), obligatoria. | NINGUNA |
-| `creada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `grupo_id` | UUID | Referencia al grupo de pasanaku en el que se enmarca esta operación. | UUID, obligatoria, restricción única. | NINGUNA |
+| `creador_id` | UUID | Identificador de referencia para el concepto de creador en `alta_grupo`. | UUID, obligatoria, índice b-tree. | NINGUNA |
+| `clave_idempotencia` | UUID | Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4). | UUID, obligatoria, restricción única. | NINGUNA |
+| `huella_solicitud` | VARCHAR(64) | Atributo que representa huella solicitud en el modelo de `alta_grupo`. | VARCHAR(64), obligatoria. | NINGUNA |
+| `fondo_por_periodo` | VARCHAR(60) | Atributo que representa fondo por periodo en el modelo de `alta_grupo`. | VARCHAR(60), obligatoria. | NINGUNA |
+| `creada_en` | TIMESTAMPTZ | Marca temporal UTC en que la entidad fue creada en la base de datos. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 
 ### `configuracion_grupo`
 
@@ -3902,16 +3902,16 @@
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
-| `grupo_id` | UUID | — | UUID, obligatoria, clave primaria, referencia a `grupo`. | NINGUNA |
-| `permite_cupos_multiples` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
-| `max_cupos_por_persona` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
+| `grupo_id` | UUID | Referencia al grupo de pasanaku en el que se enmarca esta operación. | UUID, obligatoria, clave primaria, referencia a `grupo`. | NINGUNA |
+| `permite_cupos_multiples` | BOOLEAN | Atributo que representa permite cupos multiples en el modelo de `configuracion_grupo`. | BOOLEAN, obligatoria. | NINGUNA |
+| `max_cupos_por_persona` | SMALLINT | Atributo que representa max cupos por persona en el modelo de `configuracion_grupo`. | SMALLINT, obligatoria. | NINGUNA |
 | `permite_permuta_turnos` | BOOLEAN | ¿pueden dos participantes intercambiar posiciones? Permitirlo da flexibilidad real (a alguien se le enfermó un familiar y necesita cobrar antes); prohibirlo evita el mercado gris de compra-venta de turnos. | BOOLEAN, obligatoria. | NINGUNA |
 | `requiere_avalista` | BOOLEAN | exige que cada participante tenga quién responda por él (M8). Sube la fricción de entrada y baja drásticamente la morosidad. | BOOLEAN, obligatoria. | NINGUNA |
 | `permite_ingreso_tardio` | BOOLEAN | ¿puede entrar alguien con el grupo ya empezado? Tiene implicaciones económicas serias (debe ponerse al día con los períodos ya transcurridos). | BOOLEAN, obligatoria. | NINGUNA |
-| `hora_limite_pago` | TIME | — | TIME, obligatoria. | NINGUNA |
-| `tolerancia_monto_parcial` | DECIMAL(5,2) | — | DECIMAL(5,2), obligatoria. | FINANCIERO |
-| `politica_mora_id` | UUID | — | UUID, opcional, referencia a `politica_mora`. | NINGUNA |
-| `politica_sancion_id` | UUID | — | UUID, opcional, referencia a `politica_sancion`. | NINGUNA |
+| `hora_limite_pago` | TIME | Atributo que representa hora limite pago en el modelo de `configuracion_grupo`. | TIME, obligatoria. | NINGUNA |
+| `tolerancia_monto_parcial` | DECIMAL(5,2) | Atributo que representa tolerancia monto parcial en el modelo de `configuracion_grupo`. | DECIMAL(5,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `politica_mora_id` | UUID | Referencia por clave foránea a la entidad `politica_mora`. | UUID, opcional, referencia a `politica_mora`. | NINGUNA |
+| `politica_sancion_id` | UUID | Referencia por clave foránea a la entidad `politica_sancion`. | UUID, opcional, referencia a `politica_sancion`. | NINGUNA |
 
 ### `criterio_emparejamiento`
 
@@ -3926,12 +3926,12 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `peso_reputacion` | DECIMAL(4,3) | — | DECIMAL(4,3), obligatoria. | NINGUNA |
-| `peso_monto` | DECIMAL(4,3) | — | DECIMAL(4,3), obligatoria. | FINANCIERO |
-| `peso_geografia` | DECIMAL(4,3) | — | DECIMAL(4,3), obligatoria. | NINGUNA |
-| `peso_historial_comun` | DECIMAL(4,3) | — | DECIMAL(4,3), obligatoria. | NINGUNA |
-| `reputacion_minima` | DECIMAL(6,2) | — | DECIMAL(6,2), obligatoria. | NINGUNA |
-| `max_morosos_por_grupo` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
+| `peso_reputacion` | DECIMAL(4,3) | Atributo que representa peso reputacion en el modelo de `criterio_emparejamiento`. | DECIMAL(4,3), obligatoria. | NINGUNA |
+| `peso_monto` | DECIMAL(4,3) | Importe monetario correspondiente a peso en `criterio_emparejamiento`. | DECIMAL(4,3), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `peso_geografia` | DECIMAL(4,3) | Atributo que representa peso geografia en el modelo de `criterio_emparejamiento`. | DECIMAL(4,3), obligatoria. | NINGUNA |
+| `peso_historial_comun` | DECIMAL(4,3) | Atributo que representa peso historial comun en el modelo de `criterio_emparejamiento`. | DECIMAL(4,3), obligatoria. | NINGUNA |
+| `reputacion_minima` | DECIMAL(6,2) | Atributo que representa reputacion minima en el modelo de `criterio_emparejamiento`. | DECIMAL(6,2), obligatoria. | NINGUNA |
+| `max_morosos_por_grupo` | SMALLINT | Atributo que representa max morosos por grupo en el modelo de `criterio_emparejamiento`. | SMALLINT, obligatoria. | NINGUNA |
 | `vigente_desde` | TIMESTAMPTZ | Desde cuándo rige esta versión de la fila: las condiciones se versionan, no se pisan. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 
 ### `cupo`
@@ -3947,13 +3947,13 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `grupo_id` | UUID | — | UUID, obligatoria, referencia a `grupo`. | NINGUNA |
-| `numero` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `participante_id` | UUID | — | UUID, opcional, referencia a `participante`. | NINGUNA |
-| `estado` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
-| `fraccion` | DECIMAL(3,2) | — | DECIMAL(3,2), obligatoria. | NINGUNA |
-| `asignado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
-| `liberado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `grupo_id` | UUID | Referencia al grupo de pasanaku en el que se enmarca esta operación. | UUID, obligatoria, referencia a `grupo`, índice b-tree. | NINGUNA |
+| `numero` | SMALLINT | Atributo que representa numero en el modelo de `cupo`. | SMALLINT, obligatoria, restricción única. | NINGUNA |
+| `participante_id` | UUID | Referencia al miembro participante en el círculo de ahorro pasanaku. | UUID, opcional, referencia a `participante`. | NINGUNA |
+| `estado` | VARCHAR(30) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(30), obligatoria. | NINGUNA |
+| `fraccion` | DECIMAL(3,2) | Atributo que representa fraccion en el modelo de `cupo`. | DECIMAL(3,2), obligatoria. | NINGUNA |
+| `asignado_en` | TIMESTAMPTZ | Marca temporal o fecha de asignado en `cupo`. | TIMESTAMPTZ, opcional. | NINGUNA |
+| `liberado_en` | TIMESTAMPTZ | Marca temporal o fecha de liberado en `cupo`. | TIMESTAMPTZ, opcional. | NINGUNA |
 
 ### `decision_ingreso`
 
@@ -3968,21 +3968,42 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `solicitud_id` | UUID | — | UUID, obligatoria. | NINGUNA |
-| `clave_idempotencia` | UUID | Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4). | UUID, obligatoria. | NINGUNA |
-| `fase` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `decision` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `actor_id` | UUID | — | UUID, obligatoria. | NINGUNA |
-| `motivo` | VARCHAR(1000) | — | VARCHAR(1000), obligatoria. | NINGUNA |
-| `propuesta_id` | UUID | — | UUID, opcional. | NINGUNA |
-| `participante_id` | UUID | — | UUID, opcional. | NINGUNA |
-| `revision` | INTEGER | — | INTEGER, obligatoria. | NINGUNA |
-| `evidencia_algoritmo` | TEXT | — | TEXT, obligatoria. | NINGUNA |
-| `version_motor` | VARCHAR(60) | — | VARCHAR(60), obligatoria. | NINGUNA |
-| `recomendacion_algoritmo` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
-| `apartamiento` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
-| `ocurrida_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `correlacion_id` | UUID | — | UUID, obligatoria. | NINGUNA |
+| `solicitud_id` | UUID | Identificador de referencia para el concepto de solicitud en `decision_ingreso`. | UUID, obligatoria, índice b-tree. | NINGUNA |
+| `clave_idempotencia` | UUID | Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4). | UUID, obligatoria, restricción única. | NINGUNA |
+| `fase` | VARCHAR(15) | Atributo que representa fase en el modelo de `decision_ingreso`. | VARCHAR(15), obligatoria. | NINGUNA |
+| `decision` | VARCHAR(15) | Atributo que representa decision en el modelo de `decision_ingreso`. | VARCHAR(15), obligatoria. | NINGUNA |
+| `actor_id` | UUID | Identificador de referencia para el concepto de actor en `decision_ingreso`. | UUID, obligatoria. | NINGUNA |
+| `motivo` | VARCHAR(1000) | Justificación declarada o causal que originó la creación, rechazo o transición del registro. | VARCHAR(1000), obligatoria. | NINGUNA |
+| `propuesta_id` | UUID | Identificador de referencia para el concepto de propuesta en `decision_ingreso`. | UUID, opcional. | NINGUNA |
+| `participante_id` | UUID | Referencia al miembro participante en el círculo de ahorro pasanaku. | UUID, opcional. | NINGUNA |
+| `revision` | INTEGER | Atributo que representa revision en el modelo de `decision_ingreso`. | INTEGER, obligatoria, restricción única. | NINGUNA |
+| `evidencia_algoritmo` | TEXT | Atributo que representa evidencia algoritmo en el modelo de `decision_ingreso`. | TEXT, obligatoria. | NINGUNA |
+| `version_motor` | VARCHAR(60) | Atributo que representa version motor en el modelo de `decision_ingreso`. | VARCHAR(60), obligatoria. | NINGUNA |
+| `recomendacion_algoritmo` | VARCHAR(20) | Atributo que representa recomendacion algoritmo en el modelo de `decision_ingreso`. | VARCHAR(20), obligatoria. | NINGUNA |
+| `apartamiento` | BOOLEAN | Atributo que representa apartamiento en el modelo de `decision_ingreso`. | BOOLEAN, obligatoria. | NINGUNA |
+| `ocurrida_en` | TIMESTAMPTZ | Marca temporal o fecha de ocurrida en `decision_ingreso`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `correlacion_id` | UUID | Identificador de referencia para el concepto de correlacion en `decision_ingreso`. | UUID, obligatoria. | NINGUNA |
+
+### `enlace_grupo`
+
+**Qué es.** El enlace —y su QR— que el organizador comparte para que **cualquier persona** pida unirse al grupo, sin tener que invitar teléfono por teléfono.
+
+**Para qué sirve.** Es como se arma un pasanaku en la práctica: el organizador pega un enlace en el grupo de WhatsApp de la familia o muestra el QR en persona. Como el enlace se puede reenviar a desconocidos, **no da entrada**: cada pedido es una `solicitud_ingreso` que el organizador aprueba (decisión del dueño, 2026-10-19). Vence a los 7 días o al llenarse el grupo, y el organizador lo puede anular cuando quiera.
+
+**Por qué existe.** Sin entidad propia no se podría anular un enlace que se filtró, ni saber por qué enlace llegó cada solicitud (`solicitud_ingreso.enlace_grupo_id`), ni garantizar que el grupo tenga un solo enlace vivo.
+
+**Sistema.** Vive en el esquema `grupos`; la escribe y la lee solo el servicio `grupos` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `grupo`, `identidad.usuario`. La referencian `solicitud_ingreso`.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
+| `grupo_id` | UUID | Referencia al grupo de pasanaku en el que se enmarca esta operación. | UUID, obligatoria, referencia a `grupo`, índice b-tree. | NINGUNA |
+| `emisor_id` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
+| `token_hash` | VARCHAR(64) | Resumen criptográfico SHA-256 para verificación inmutable de token. | VARCHAR(64), obligatoria, restricción única, sensibilidad derivado. | DERIVADO |
+| `estado` | VARCHAR(15) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(15), obligatoria. | NINGUNA |
+| `fecha_creacion` | TIMESTAMPTZ | Marca temporal o fecha de creacion en `enlace_grupo`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `fecha_expiracion` | TIMESTAMPTZ | Marca temporal o fecha de expiracion en `enlace_grupo`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `fecha_anulacion` | TIMESTAMPTZ | Marca temporal o fecha de anulacion en `enlace_grupo`. | TIMESTAMPTZ, opcional. | NINGUNA |
 
 ### `grupo`
 
@@ -3992,37 +4013,37 @@
 
 **Por qué existe.** Es la unidad de negocio. Sin ella no hay contexto para ninguna obligación, ningún turno ni ninguna entrega.
 
-**Sistema.** Vive en el esquema `grupos`; la escribe y la lee solo el servicio `grupos` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `organizador.organizador`. La referencian `acuerdo`, `aportes.obligacion_aporte`, `aportes.politica_mora`, `auditoria.alerta_cumplimiento`, `auditoria.ejecucion_reporte`, `catalogo.dia_no_habil`, `comun.bitacora_evento`, `configuracion_grupo`, `cupo`, `entregas.entrega_fondo`, `entregas.oferta_turno`, `garantia.alerta_temprana`, `garantia.aval_participante`, `garantia.cobertura_respaldo`, `garantia.deuda_participante`, `garantia.disolucion_anticipada`, `garantia.fondo_garantia`, `garantia.plan_contingencia`, `garantia.politica_cobertura`, `garantia.politica_sancion`, `garantia.reemplazo_participante`, `garantia.registro_incumplimiento`, `garantia.reserva_respaldo`, `garantia.score_riesgo_incumplimiento`, `historial_estado_grupo`, `invitacion`, `notificaciones.programacion_recordatorio`, `nucleo_financiero.asiento_contable`, `nucleo_financiero.cuenta_billetera`, `nucleo_financiero.cuenta_contable`, `nucleo_financiero.transaccion_billetera`, `nucleo_financiero.transferencia_p2p`, `organizador.tarea_automatizada`, `participante`, `periodo`, `propuesta_grupo`, `reglamento_grupo`, `solicitud_ingreso`, `sorteo_turnos`, `tarifas.asignacion_tarifario`, `tarifas.devengo_comision`, `tarifas.exencion_comision`, `tarifas.tarifa_congelada_grupo`, `transparencia.bloque_transparencia`, `transparencia.evento_reputacion`, `transparencia.metrica_grupo`, `transparencia.resena_participante`, `turno`.
+**Sistema.** Vive en el esquema `grupos`; la escribe y la lee solo el servicio `grupos` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `organizador.organizador`. La referencian `acuerdo`, `aportes.obligacion_aporte`, `aportes.politica_mora`, `auditoria.alerta_cumplimiento`, `auditoria.ejecucion_reporte`, `catalogo.dia_no_habil`, `comun.bitacora_evento`, `configuracion_grupo`, `cupo`, `enlace_grupo`, `entregas.entrega_fondo`, `entregas.oferta_turno`, `garantia.alerta_temprana`, `garantia.aval_participante`, `garantia.cobertura_respaldo`, `garantia.deuda_participante`, `garantia.disolucion_anticipada`, `garantia.fondo_garantia`, `garantia.plan_contingencia`, `garantia.politica_cobertura`, `garantia.politica_sancion`, `garantia.reemplazo_participante`, `garantia.registro_incumplimiento`, `garantia.reserva_respaldo`, `garantia.score_riesgo_incumplimiento`, `historial_estado_grupo`, `invitacion`, `notificaciones.programacion_recordatorio`, `nucleo_financiero.asiento_contable`, `nucleo_financiero.cuenta_billetera`, `nucleo_financiero.cuenta_contable`, `nucleo_financiero.transaccion_billetera`, `nucleo_financiero.transferencia_p2p`, `organizador.tarea_automatizada`, `participante`, `periodo`, `propuesta_grupo`, `reglamento_grupo`, `solicitud_ingreso`, `sorteo_turnos`, `tarifas.asignacion_tarifario`, `tarifas.devengo_comision`, `tarifas.exencion_comision`, `tarifas.tarifa_congelada_grupo`, `transparencia.bloque_transparencia`, `transparencia.evento_reputacion`, `transparencia.metrica_grupo`, `transparencia.resena_participante`, `turno`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `codigo_publico` | VARCHAR(12) | — | VARCHAR(12), obligatoria. | NINGUNA |
-| `nombre` | VARCHAR(120) | — | VARCHAR(120), obligatoria. | NINGUNA |
-| `descripcion` | VARCHAR(400) | — | VARCHAR(400), opcional. | NINGUNA |
-| `monto_aporte` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
+| `codigo_publico` | VARCHAR(12) | Identificador público visible en interfaz y comunicaciones que no expone la clave primaria UUID. | VARCHAR(12), obligatoria, restricción única. | NINGUNA |
+| `nombre` | VARCHAR(120) | Nombre descriptivo de la entidad para visualización y referencia en el sistema. | VARCHAR(120), obligatoria. | NINGUNA |
+| `descripcion` | VARCHAR(400) | Detalle descriptivo que explica el contenido, propósito o contexto de la entidad. | VARCHAR(400), opcional. | NINGUNA |
+| `monto_aporte` | DECIMAL(14,2) | Importe monetario correspondiente a aporte en `grupo`. | DECIMAL(14,2), obligatoria, sensibilidad financiero. | FINANCIERO |
 | `moneda` | CHAR(3) | Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2). | CHAR(3), obligatoria. | NINGUNA |
-| `periodicidad` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `dia_cobro` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `num_periodos` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `cupos_totales` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `cupos_ocupados` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `fecha_inicio` | DATE | — | DATE, obligatoria. | NINGUNA |
-| `fecha_fin_estimada` | DATE | — | DATE, obligatoria. | NINGUNA |
-| `estado` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
-| `tipo_conformacion` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
-| `modalidad_turnos` | VARCHAR(25) | — | VARCHAR(25), obligatoria. | NINGUNA |
-| `visibilidad` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
-| `organizador_id` | UUID | — | UUID, opcional, referencia a `organizador`. | NINGUNA |
-| `es_autogestionado` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
-| `requiere_kyc_minimo` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `reputacion_minima` | DECIMAL(6,2) | — | DECIMAL(6,2), obligatoria. | NINGUNA |
-| `dias_gracia` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `aplica_recargo_mora` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
-| `usa_fondo_garantia` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
-| `porcentaje_fondo_garantia` | DECIMAL(5,2) | — | DECIMAL(5,2), obligatoria. | NINGUNA |
-| `quorum_decisiones` | DECIMAL(4,3) | — | DECIMAL(4,3), obligatoria. | NINGUNA |
-| `cancelado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `periodicidad` | VARCHAR(15) | Atributo que representa periodicidad en el modelo de `grupo`. | VARCHAR(15), obligatoria. | NINGUNA |
+| `dia_cobro` | SMALLINT | Atributo que representa dia cobro en el modelo de `grupo`. | SMALLINT, obligatoria. | NINGUNA |
+| `num_periodos` | SMALLINT | Atributo que representa num periodos en el modelo de `grupo`. | SMALLINT, obligatoria. | NINGUNA |
+| `cupos_totales` | SMALLINT | Atributo que representa cupos totales en el modelo de `grupo`. | SMALLINT, obligatoria. | NINGUNA |
+| `cupos_ocupados` | SMALLINT | Atributo que representa cupos ocupados en el modelo de `grupo`. | SMALLINT, obligatoria. | NINGUNA |
+| `fecha_inicio` | DATE | Marca temporal o fecha de inicio en `grupo`. | DATE, obligatoria. | NINGUNA |
+| `fecha_fin_estimada` | DATE | Marca temporal o fecha de fin estimada en `grupo`. | DATE, obligatoria. | NINGUNA |
+| `estado` | VARCHAR(30) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(30), obligatoria, índice b-tree. | NINGUNA |
+| `tipo_conformacion` | VARCHAR(30) | Atributo que representa tipo conformacion en el modelo de `grupo`. | VARCHAR(30), obligatoria. | NINGUNA |
+| `modalidad_turnos` | VARCHAR(25) | Atributo que representa modalidad turnos en el modelo de `grupo`. | VARCHAR(25), obligatoria. | NINGUNA |
+| `visibilidad` | VARCHAR(20) | Atributo que representa visibilidad en el modelo de `grupo`. | VARCHAR(20), obligatoria. | NINGUNA |
+| `organizador_id` | UUID | Referencia por clave foránea a la entidad `organizador`. | UUID, opcional, referencia a `organizador`. | NINGUNA |
+| `es_autogestionado` | BOOLEAN | Indicador booleano que señala si autogestionado en `grupo`. | BOOLEAN, obligatoria. | NINGUNA |
+| `requiere_kyc_minimo` | VARCHAR(15) | Atributo que representa requiere kyc minimo en el modelo de `grupo`. | VARCHAR(15), obligatoria. | NINGUNA |
+| `reputacion_minima` | DECIMAL(6,2) | Atributo que representa reputacion minima en el modelo de `grupo`. | DECIMAL(6,2), obligatoria. | NINGUNA |
+| `dias_gracia` | SMALLINT | Atributo que representa dias gracia en el modelo de `grupo`. | SMALLINT, obligatoria. | NINGUNA |
+| `aplica_recargo_mora` | BOOLEAN | Atributo que representa aplica recargo mora en el modelo de `grupo`. | BOOLEAN, obligatoria. | NINGUNA |
+| `usa_fondo_garantia` | BOOLEAN | Atributo que representa usa fondo garantia en el modelo de `grupo`. | BOOLEAN, obligatoria. | NINGUNA |
+| `porcentaje_fondo_garantia` | DECIMAL(5,2) | Tasa porcentual o alícuota aplicable a fondo garantia. | DECIMAL(5,2), obligatoria. | NINGUNA |
+| `quorum_decisiones` | DECIMAL(4,3) | Atributo que representa quorum decisiones en el modelo de `grupo`. | DECIMAL(4,3), obligatoria. | NINGUNA |
+| `cancelado_en` | TIMESTAMPTZ | Marca temporal o fecha de cancelado en `grupo`. | TIMESTAMPTZ, opcional. | NINGUNA |
 
 ### `historial_estado_grupo`
 
@@ -4037,12 +4058,12 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `grupo_id` | UUID | — | UUID, obligatoria, referencia a `grupo`. | NINGUNA |
-| `estado_anterior` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
-| `estado_nuevo` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
-| `motivo` | VARCHAR(200) | — | VARCHAR(200), obligatoria. | NINGUNA |
-| `ejecutado_por` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `fecha_hora` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `grupo_id` | UUID | Referencia al grupo de pasanaku en el que se enmarca esta operación. | UUID, obligatoria, referencia a `grupo`, índice b-tree. | NINGUNA |
+| `estado_anterior` | VARCHAR(30) | Atributo que representa estado anterior en el modelo de `historial_estado_grupo`. | VARCHAR(30), obligatoria. | NINGUNA |
+| `estado_nuevo` | VARCHAR(30) | Atributo que representa estado nuevo en el modelo de `historial_estado_grupo`. | VARCHAR(30), obligatoria. | NINGUNA |
+| `motivo` | VARCHAR(200) | Justificación declarada o causal que originó la creación, rechazo o transición del registro. | VARCHAR(200), obligatoria. | NINGUNA |
+| `ejecutado_por` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
+| `fecha_hora` | TIMESTAMPTZ | Marca temporal o fecha de hora en `historial_estado_grupo`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 
 ### `invitacion`
 
@@ -4057,21 +4078,21 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `grupo_id` | UUID | — | UUID, obligatoria, referencia a `grupo`. | NINGUNA |
-| `telefono_invitado` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | PERSONAL |
-| `nombre_sugerido` | VARCHAR(80) | — | VARCHAR(80), opcional. | NINGUNA |
-| `emisor_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `token_id` | UUID | — | UUID, obligatoria, referencia a `token_verificacion`. | SECRETO |
-| `consumidor_id` | UUID | — | UUID, opcional. | NINGUNA |
-| `clave_consumo` | UUID | — | UUID, opcional. | SECRETO |
-| `solicitud_ingreso_id` | UUID | — | UUID, opcional. | NINGUNA |
-| `huella_canje` | VARCHAR(64) | — | VARCHAR(64), opcional. | NINGUNA |
-| `canal` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `envios_realizados` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `fecha_envio` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `fecha_expiracion` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `fecha_respuesta` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `grupo_id` | UUID | Referencia al grupo de pasanaku en el que se enmarca esta operación. | UUID, obligatoria, referencia a `grupo`, índice b-tree. | NINGUNA |
+| `telefono_invitado` | VARCHAR(20) | Atributo que representa telefono invitado en el modelo de `invitacion`. | VARCHAR(20), obligatoria, índice b-tree, sensibilidad personal. | PERSONAL |
+| `nombre_sugerido` | VARCHAR(80) | Atributo que representa nombre sugerido en el modelo de `invitacion`. | VARCHAR(80), opcional. | NINGUNA |
+| `emisor_id` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
+| `token_id` | UUID | Referencia por clave foránea a la entidad `token_verificacion`. | UUID, obligatoria, referencia a `token_verificacion`, restricción única, sensibilidad secreto. | SECRETO |
+| `consumidor_id` | UUID | Identificador de referencia para el concepto de consumidor en `invitacion`. | UUID, opcional. | NINGUNA |
+| `clave_consumo` | UUID | Atributo que representa clave consumo en el modelo de `invitacion`. | UUID, opcional, sensibilidad secreto. | SECRETO |
+| `solicitud_ingreso_id` | UUID | Identificador de referencia para el concepto de solicitud ingreso en `invitacion`. | UUID, opcional. | NINGUNA |
+| `huella_canje` | VARCHAR(64) | Atributo que representa huella canje en el modelo de `invitacion`. | VARCHAR(64), opcional. | NINGUNA |
+| `canal` | VARCHAR(15) | Atributo que representa canal en el modelo de `invitacion`. | VARCHAR(15), obligatoria. | NINGUNA |
+| `estado` | VARCHAR(15) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(15), obligatoria. | NINGUNA |
+| `envios_realizados` | SMALLINT | Atributo que representa envios realizados en el modelo de `invitacion`. | SMALLINT, obligatoria. | NINGUNA |
+| `fecha_envio` | TIMESTAMPTZ | Marca temporal o fecha de envio en `invitacion`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `fecha_expiracion` | TIMESTAMPTZ | Marca temporal o fecha de expiracion en `invitacion`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `fecha_respuesta` | TIMESTAMPTZ | Marca temporal o fecha de respuesta en `invitacion`. | TIMESTAMPTZ, opcional. | NINGUNA |
 
 ### `participante`
 
@@ -4086,18 +4107,18 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `grupo_id` | UUID | — | UUID, obligatoria, referencia a `grupo`. | NINGUNA |
-| `usuario_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `alias` | VARCHAR(60) | — | VARCHAR(60), opcional. | NINGUNA |
-| `estado` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
-| `es_organizador` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
-| `invitado_por_id` | UUID | — | UUID, opcional, referencia a `participante`. | NINGUNA |
-| `fecha_ingreso` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `fecha_salida` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
-| `motivo_salida` | VARCHAR(160) | — | VARCHAR(160), opcional. | NINGUNA |
-| `reputacion_al_ingresar` | DECIMAL(6,2) | — | DECIMAL(6,2), obligatoria. | NINGUNA |
-| `aportes_realizados` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `aportes_en_mora` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
+| `grupo_id` | UUID | Referencia al grupo de pasanaku en el que se enmarca esta operación. | UUID, obligatoria, referencia a `grupo`, índice b-tree. | NINGUNA |
+| `usuario_id` | UUID | Referencia al usuario titular de la cuenta o actor principal de la operación. | UUID, obligatoria, referencia a `usuario`, índice b-tree. | NINGUNA |
+| `alias` | VARCHAR(60) | Atributo que representa alias en el modelo de `participante`. | VARCHAR(60), opcional. | NINGUNA |
+| `estado` | VARCHAR(30) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(30), obligatoria, índice b-tree. | NINGUNA |
+| `es_organizador` | BOOLEAN | Indicador booleano que señala si organizador en `participante`. | BOOLEAN, obligatoria. | NINGUNA |
+| `invitado_por_id` | UUID | Referencia por clave foránea a la entidad `participante`. | UUID, opcional, referencia a `participante`. | NINGUNA |
+| `fecha_ingreso` | TIMESTAMPTZ | Marca temporal o fecha de ingreso en `participante`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `fecha_salida` | TIMESTAMPTZ | Marca temporal o fecha de salida en `participante`. | TIMESTAMPTZ, opcional. | NINGUNA |
+| `motivo_salida` | VARCHAR(160) | Atributo que representa motivo salida en el modelo de `participante`. | VARCHAR(160), opcional. | NINGUNA |
+| `reputacion_al_ingresar` | DECIMAL(6,2) | Atributo que representa reputacion al ingresar en el modelo de `participante`. | DECIMAL(6,2), obligatoria. | NINGUNA |
+| `aportes_realizados` | SMALLINT | Atributo que representa aportes realizados en el modelo de `participante`. | SMALLINT, obligatoria. | NINGUNA |
+| `aportes_en_mora` | SMALLINT | Atributo que representa aportes en mora en el modelo de `participante`. | SMALLINT, obligatoria. | NINGUNA |
 
 ### `periodo`
 
@@ -4112,16 +4133,16 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `grupo_id` | UUID | — | UUID, obligatoria, referencia a `grupo`. | NINGUNA |
-| `numero` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `fecha_inicio` | DATE | — | DATE, obligatoria. | NINGUNA |
-| `fecha_limite_pago` | DATE | — | DATE, obligatoria. | NINGUNA |
-| `fecha_fin_gracia` | DATE | — | DATE, obligatoria. | NINGUNA |
-| `fecha_entrega_prevista` | DATE | — | DATE, obligatoria. | NINGUNA |
-| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `monto_objetivo` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
-| `monto_recaudado` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
-| `cupos_morosos` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
+| `grupo_id` | UUID | Referencia al grupo de pasanaku en el que se enmarca esta operación. | UUID, obligatoria, referencia a `grupo`, índice b-tree. | NINGUNA |
+| `numero` | SMALLINT | Atributo que representa numero en el modelo de `periodo`. | SMALLINT, obligatoria, restricción única. | NINGUNA |
+| `fecha_inicio` | DATE | Marca temporal o fecha de inicio en `periodo`. | DATE, obligatoria. | NINGUNA |
+| `fecha_limite_pago` | DATE | Marca temporal o fecha de limite pago en `periodo`. | DATE, obligatoria, índice b-tree. | NINGUNA |
+| `fecha_fin_gracia` | DATE | Marca temporal o fecha de fin gracia en `periodo`. | DATE, obligatoria. | NINGUNA |
+| `fecha_entrega_prevista` | DATE | Marca temporal o fecha de entrega prevista en `periodo`. | DATE, obligatoria. | NINGUNA |
+| `estado` | VARCHAR(15) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(15), obligatoria, índice b-tree. | NINGUNA |
+| `monto_objetivo` | DECIMAL(14,2) | Importe monetario correspondiente a objetivo en `periodo`. | DECIMAL(14,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `monto_recaudado` | DECIMAL(14,2) | Importe monetario correspondiente a recaudado en `periodo`. | DECIMAL(14,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `cupos_morosos` | SMALLINT | Atributo que representa cupos morosos en el modelo de `periodo`. | SMALLINT, obligatoria. | NINGUNA |
 
 ### `postulacion_emparejamiento`
 
@@ -4136,15 +4157,15 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `usuario_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `monto_deseado` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
-| `rango_monto_min` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
-| `rango_monto_max` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
-| `periodicidad_deseada` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `fecha_inicio_deseada` | DATE | — | DATE, obligatoria. | NINGUNA |
-| `preferencia_turno` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `tolerancia_riesgo` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
+| `usuario_id` | UUID | Referencia al usuario titular de la cuenta o actor principal de la operación. | UUID, obligatoria, referencia a `usuario`, índice b-tree. | NINGUNA |
+| `monto_deseado` | DECIMAL(14,2) | Importe monetario correspondiente a deseado en `postulacion_emparejamiento`. | DECIMAL(14,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `rango_monto_min` | DECIMAL(14,2) | Atributo que representa rango monto min en el modelo de `postulacion_emparejamiento`. | DECIMAL(14,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `rango_monto_max` | DECIMAL(14,2) | Atributo que representa rango monto max en el modelo de `postulacion_emparejamiento`. | DECIMAL(14,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `periodicidad_deseada` | VARCHAR(15) | Atributo que representa periodicidad deseada en el modelo de `postulacion_emparejamiento`. | VARCHAR(15), obligatoria. | NINGUNA |
+| `fecha_inicio_deseada` | DATE | Marca temporal o fecha de inicio deseada en `postulacion_emparejamiento`. | DATE, obligatoria. | NINGUNA |
+| `preferencia_turno` | VARCHAR(15) | Atributo que representa preferencia turno en el modelo de `postulacion_emparejamiento`. | VARCHAR(15), obligatoria. | NINGUNA |
+| `tolerancia_riesgo` | VARCHAR(15) | Atributo que representa tolerancia riesgo en el modelo de `postulacion_emparejamiento`. | VARCHAR(15), obligatoria. | NINGUNA |
+| `estado` | VARCHAR(15) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(15), obligatoria, índice b-tree. | NINGUNA |
 | `vigente_hasta` | TIMESTAMPTZ | Hasta cuándo rigió esta versión; vacía mientras sigue vigente. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 
 ### `propuesta_grupo`
@@ -4160,15 +4181,15 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `criterio_id` | UUID | — | UUID, obligatoria, referencia a `criterio_emparejamiento`. | NINGUNA |
-| `monto_aporte` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
-| `periodicidad` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `puntaje_cohesion` | DECIMAL(5,2) | — | DECIMAL(5,2), obligatoria. | NINGUNA |
-| `riesgo_estimado` | DECIMAL(5,2) | — | DECIMAL(5,2), obligatoria. | NINGUNA |
-| `estado` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
-| `aceptaciones_recibidas` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `expira_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `grupo_materializado_id` | UUID | — | UUID, opcional, referencia a `grupo`. | NINGUNA |
+| `criterio_id` | UUID | Referencia por clave foránea a la entidad `criterio_emparejamiento`. | UUID, obligatoria, referencia a `criterio_emparejamiento`. | NINGUNA |
+| `monto_aporte` | DECIMAL(14,2) | Importe monetario correspondiente a aporte en `propuesta_grupo`. | DECIMAL(14,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `periodicidad` | VARCHAR(15) | Atributo que representa periodicidad en el modelo de `propuesta_grupo`. | VARCHAR(15), obligatoria. | NINGUNA |
+| `puntaje_cohesion` | DECIMAL(5,2) | Atributo que representa puntaje cohesion en el modelo de `propuesta_grupo`. | DECIMAL(5,2), obligatoria. | NINGUNA |
+| `riesgo_estimado` | DECIMAL(5,2) | Atributo que representa riesgo estimado en el modelo de `propuesta_grupo`. | DECIMAL(5,2), obligatoria. | NINGUNA |
+| `estado` | VARCHAR(20) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(20), obligatoria. | NINGUNA |
+| `aceptaciones_recibidas` | SMALLINT | Atributo que representa aceptaciones recibidas en el modelo de `propuesta_grupo`. | SMALLINT, obligatoria. | NINGUNA |
+| `expira_en` | TIMESTAMPTZ | Marca temporal o fecha de expira en `propuesta_grupo`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `grupo_materializado_id` | UUID | Referencia por clave foránea a la entidad `grupo`. | UUID, opcional, referencia a `grupo`. | NINGUNA |
 
 ### `propuesta_postulacion`
 
@@ -4180,10 +4201,10 @@
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
-| `propuesta_id` | UUID | — | UUID, obligatoria, clave primaria, referencia a `propuesta_grupo`. | NINGUNA |
-| `postulacion_id` | UUID | — | UUID, obligatoria, clave primaria, referencia a `postulacion_emparejamiento`. | NINGUNA |
-| `acepto` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
-| `respondido_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `propuesta_id` | UUID | Referencia por clave foránea a la entidad `propuesta_grupo`. | UUID, obligatoria, clave primaria, referencia a `propuesta_grupo`. | NINGUNA |
+| `postulacion_id` | UUID | Referencia por clave foránea a la entidad `postulacion_emparejamiento`. | UUID, obligatoria, clave primaria, referencia a `postulacion_emparejamiento`. | NINGUNA |
+| `acepto` | BOOLEAN | Atributo que representa acepto en el modelo de `propuesta_postulacion`. | BOOLEAN, obligatoria. | NINGUNA |
+| `respondido_en` | TIMESTAMPTZ | Marca temporal o fecha de respondido en `propuesta_postulacion`. | TIMESTAMPTZ, opcional. | NINGUNA |
 
 ### `reglamento_grupo`
 
@@ -4198,15 +4219,15 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `grupo_id` | UUID | — | UUID, obligatoria, referencia a `grupo`. | NINGUNA |
-| `version` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `contenido` | TEXT | — | TEXT, obligatoria. | NINGUNA |
-| `hash_contenido` | VARCHAR(64) | — | VARCHAR(64), obligatoria. | DERIVADO |
-| `clausulas_mora` | TEXT | — | TEXT, obligatoria. | NINGUNA |
-| `clausulas_abandono` | TEXT | — | TEXT, obligatoria. | NINGUNA |
+| `grupo_id` | UUID | Referencia al grupo de pasanaku en el que se enmarca esta operación. | UUID, obligatoria, referencia a `grupo`, índice b-tree. | NINGUNA |
+| `version` | SMALLINT | Número de versión para control de concurrencia optimista y auditoría de modificaciones. | SMALLINT, obligatoria, restricción única. | NINGUNA |
+| `contenido` | TEXT | Atributo que representa contenido en el modelo de `reglamento_grupo`. | TEXT, obligatoria. | NINGUNA |
+| `hash_contenido` | VARCHAR(64) | Resumen criptográfico SHA-256 para verificación inmutable de contenido. | VARCHAR(64), obligatoria, sensibilidad derivado. | DERIVADO |
+| `clausulas_mora` | TEXT | Atributo que representa clausulas mora en el modelo de `reglamento_grupo`. | TEXT, obligatoria. | NINGUNA |
+| `clausulas_abandono` | TEXT | Atributo que representa clausulas abandono en el modelo de `reglamento_grupo`. | TEXT, obligatoria. | NINGUNA |
 | `vigente_desde` | TIMESTAMPTZ | Desde cuándo rige esta versión de la fila: las condiciones se versionan, no se pisan. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 | `vigente_hasta` | TIMESTAMPTZ | Hasta cuándo rigió esta versión; vacía mientras sigue vigente. | TIMESTAMPTZ, opcional. | NINGUNA |
-| `redactado_por` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
+| `redactado_por` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
 
 ### `snapshot_sorteo`
 
@@ -4221,15 +4242,15 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `sorteo_id` | UUID | — | UUID, obligatoria. | NINGUNA |
-| `grupo_id` | UUID | — | UUID, obligatoria. | NINGUNA |
-| `roster` | TEXT | — | TEXT, obligatoria. | NINGUNA |
-| `periodos` | TEXT | — | TEXT, obligatoria. | NINGUNA |
-| `reglas` | TEXT | — | TEXT, obligatoria. | NINGUNA |
-| `hash_snapshot` | VARCHAR(64) | — | VARCHAR(64), obligatoria. | DERIVADO |
-| `semilla_sellada` | VARCHAR(128) | — | VARCHAR(128), obligatoria. | NINGUNA |
-| `congelado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `correlacion_id` | UUID | — | UUID, obligatoria. | NINGUNA |
+| `sorteo_id` | UUID | Identificador de referencia para el concepto de sorteo en `snapshot_sorteo`. | UUID, obligatoria, restricción única. | NINGUNA |
+| `grupo_id` | UUID | Referencia al grupo de pasanaku en el que se enmarca esta operación. | UUID, obligatoria, índice b-tree. | NINGUNA |
+| `roster` | TEXT | Atributo que representa roster en el modelo de `snapshot_sorteo`. | TEXT, obligatoria. | NINGUNA |
+| `periodos` | TEXT | Atributo que representa periodos en el modelo de `snapshot_sorteo`. | TEXT, obligatoria. | NINGUNA |
+| `reglas` | TEXT | Atributo que representa reglas en el modelo de `snapshot_sorteo`. | TEXT, obligatoria. | NINGUNA |
+| `hash_snapshot` | VARCHAR(64) | Resumen criptográfico SHA-256 para verificación inmutable de snapshot. | VARCHAR(64), obligatoria, sensibilidad derivado. | DERIVADO |
+| `semilla_sellada` | VARCHAR(128) | Atributo que representa semilla sellada en el modelo de `snapshot_sorteo`. | VARCHAR(128), obligatoria. | NINGUNA |
+| `congelado_en` | TIMESTAMPTZ | Marca temporal o fecha de congelado en `snapshot_sorteo`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `correlacion_id` | UUID | Identificador de referencia para el concepto de correlacion en `snapshot_sorteo`. | UUID, obligatoria. | NINGUNA |
 
 ### `solicitud_ingreso`
 
@@ -4239,20 +4260,24 @@
 
 **Por qué existe.** Un grupo con desconocidos necesita una puerta. Sin solicitud formal, o el grupo es cerrado (y la plataforma no puede crecer más allá de las redes existentes) o es abierto sin filtro (y se llena de morosos que ya fallaron en otros grupos).
 
-**Sistema.** Vive en el esquema `grupos`; la escribe y la lee solo el servicio `grupos` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `grupo`, `identidad.usuario`. Reglas nombradas: `uq_solicitud_ingreso_pendiente`, `ck_solicitud_ingreso_resuelta`.
+**Sistema.** Vive en el esquema `grupos`; la escribe y la lee solo el servicio `grupos` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `enlace_grupo`, `grupo`, `identidad.usuario`. Reglas nombradas: `uq_solicitud_ingreso_pendiente`, `ck_solicitud_ingreso_resuelta`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `grupo_id` | UUID | — | UUID, obligatoria, referencia a `grupo`. | NINGUNA |
-| `usuario_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `cupos_solicitados` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `mensaje` | VARCHAR(300) | — | VARCHAR(300), opcional. | NINGUNA |
-| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `puntaje_compatibilidad` | DECIMAL(5,2) | — | DECIMAL(5,2), opcional. | NINGUNA |
-| `revisada_por` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
-| `fecha_solicitud` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `fecha_resolucion` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `grupo_id` | UUID | Referencia al grupo de pasanaku en el que se enmarca esta operación. | UUID, obligatoria, referencia a `grupo`, índice b-tree. | NINGUNA |
+| `usuario_id` | UUID | Referencia al usuario titular de la cuenta o actor principal de la operación. | UUID, obligatoria, referencia a `usuario`, índice b-tree. | NINGUNA |
+| `cupos_solicitados` | SMALLINT | Atributo que representa cupos solicitados en el modelo de `solicitud_ingreso`. | SMALLINT, obligatoria. | NINGUNA |
+| `mensaje` | VARCHAR(300) | Atributo que representa mensaje en el modelo de `solicitud_ingreso`. | VARCHAR(300), opcional. | NINGUNA |
+| `estado` | VARCHAR(15) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(15), obligatoria. | NINGUNA |
+| `puntaje_compatibilidad` | DECIMAL(5,2) | Atributo que representa puntaje compatibilidad en el modelo de `solicitud_ingreso`. | DECIMAL(5,2), opcional. | NINGUNA |
+| `enlace_grupo_id` | UUID | Referencia por clave foránea a la entidad `enlace_grupo`. | UUID, opcional, referencia a `enlace_grupo`, índice b-tree. | NINGUNA |
+| `nombre_visible` | VARCHAR(60) | Atributo que representa nombre visible en el modelo de `solicitud_ingreso`. | VARCHAR(60), opcional. | NINGUNA |
+| `telefono_contacto` | VARCHAR(20) | Atributo que representa telefono contacto en el modelo de `solicitud_ingreso`. | VARCHAR(20), opcional, sensibilidad personal. | PERSONAL |
+| `correo_contacto` | VARCHAR(150) | Atributo que representa correo contacto en el modelo de `solicitud_ingreso`. | VARCHAR(150), opcional, sensibilidad personal. | PERSONAL |
+| `revisada_por` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, opcional, referencia a `usuario`. | NINGUNA |
+| `fecha_solicitud` | TIMESTAMPTZ | Marca temporal o fecha de solicitud en `solicitud_ingreso`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `fecha_resolucion` | TIMESTAMPTZ | Marca temporal o fecha de resolucion en `solicitud_ingreso`. | TIMESTAMPTZ, opcional. | NINGUNA |
 
 ### `solicitud_permuta`
 
@@ -4267,16 +4292,16 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `turno_origen_id` | UUID | — | UUID, obligatoria, referencia a `turno`. | NINGUNA |
-| `turno_destino_id` | UUID | — | UUID, obligatoria, referencia a `turno`. | NINGUNA |
-| `solicitante_id` | UUID | — | UUID, obligatoria, referencia a `participante`. | NINGUNA |
-| `contraparte_id` | UUID | — | UUID, obligatoria, referencia a `participante`. | NINGUNA |
-| `motivo` | VARCHAR(200) | — | VARCHAR(200), obligatoria. | NINGUNA |
-| `compensacion_ofrecida` | DECIMAL(14,2) | — | DECIMAL(14,2), opcional. | NINGUNA |
-| `estado` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
-| `aprobada_por_organizador` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
-| `fecha_solicitud` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `fecha_ejecucion` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `turno_origen_id` | UUID | Referencia por clave foránea a la entidad `turno`. | UUID, obligatoria, referencia a `turno`, índice b-tree. | NINGUNA |
+| `turno_destino_id` | UUID | Referencia por clave foránea a la entidad `turno`. | UUID, obligatoria, referencia a `turno`. | NINGUNA |
+| `solicitante_id` | UUID | Referencia por clave foránea a la entidad `participante`. | UUID, obligatoria, referencia a `participante`. | NINGUNA |
+| `contraparte_id` | UUID | Referencia por clave foránea a la entidad `participante`. | UUID, obligatoria, referencia a `participante`. | NINGUNA |
+| `motivo` | VARCHAR(200) | Justificación declarada o causal que originó la creación, rechazo o transición del registro. | VARCHAR(200), obligatoria. | NINGUNA |
+| `compensacion_ofrecida` | DECIMAL(14,2) | Atributo que representa compensacion ofrecida en el modelo de `solicitud_permuta`. | DECIMAL(14,2), opcional. | NINGUNA |
+| `estado` | VARCHAR(20) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(20), obligatoria. | NINGUNA |
+| `aprobada_por_organizador` | BOOLEAN | Atributo que representa aprobada por organizador en el modelo de `solicitud_permuta`. | BOOLEAN, obligatoria. | NINGUNA |
+| `fecha_solicitud` | TIMESTAMPTZ | Marca temporal o fecha de solicitud en `solicitud_permuta`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `fecha_ejecucion` | TIMESTAMPTZ | Marca temporal o fecha de ejecucion en `solicitud_permuta`. | TIMESTAMPTZ, opcional. | NINGUNA |
 
 ### `solicitud_retiro`
 
@@ -4291,14 +4316,14 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `participante_id` | UUID | — | UUID, obligatoria, referencia a `participante`. | NINGUNA |
-| `motivo` | VARCHAR(200) | — | VARCHAR(200), obligatoria. | NINGUNA |
-| `solicitado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `posicion` | VARCHAR(10) | — | VARCHAR(10), opcional. | NINGUNA |
-| `plan_regularizacion_id` | UUID | — | UUID, opcional, referencia a `plan_regularizacion`. | NINGUNA |
-| `requiere_reemplazo` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
-| `liquidacion_calculada` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | NINGUNA |
+| `participante_id` | UUID | Referencia al miembro participante en el círculo de ahorro pasanaku. | UUID, obligatoria, referencia a `participante`, restricción única. | NINGUNA |
+| `motivo` | VARCHAR(200) | Justificación declarada o causal que originó la creación, rechazo o transición del registro. | VARCHAR(200), obligatoria. | NINGUNA |
+| `solicitado_en` | TIMESTAMPTZ | Marca temporal o fecha de solicitado en `solicitud_retiro`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `estado` | VARCHAR(15) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(15), obligatoria. | NINGUNA |
+| `posicion` | VARCHAR(10) | Atributo que representa posicion en el modelo de `solicitud_retiro`. | VARCHAR(10), opcional. | NINGUNA |
+| `plan_regularizacion_id` | UUID | Referencia por clave foránea a la entidad `plan_regularizacion`. | UUID, opcional, referencia a `plan_regularizacion`. | NINGUNA |
+| `requiere_reemplazo` | BOOLEAN | Atributo que representa requiere reemplazo en el modelo de `solicitud_retiro`. | BOOLEAN, obligatoria. | NINGUNA |
+| `liquidacion_calculada` | DECIMAL(14,2) | Atributo que representa liquidacion calculada en el modelo de `solicitud_retiro`. | DECIMAL(14,2), obligatoria. | NINGUNA |
 
 ### `sorteo_turnos`
 
@@ -4313,19 +4338,19 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `grupo_id` | UUID | — | UUID, obligatoria, referencia a `grupo`. | NINGUNA |
-| `algoritmo` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
-| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `hash_semilla_previo` | VARCHAR(64) | — | VARCHAR(64), obligatoria. | DERIVADO |
-| `aportes_entropia` | JSONB | — | JSONB, opcional. | NINGUNA |
-| `fecha_compromiso` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `fecha_revelado_prevista` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
-| `semilla_servidor` | VARCHAR(128) | — | VARCHAR(128), opcional. | NINGUNA |
-| `semilla_publica` | VARCHAR(128) | — | VARCHAR(128), obligatoria. | NINGUNA |
-| `resultado` | JSONB | — | JSONB, obligatoria. | NINGUNA |
-| `ejecutado_por` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `fecha_ejecucion` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `anulado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `grupo_id` | UUID | Referencia al grupo de pasanaku en el que se enmarca esta operación. | UUID, obligatoria, referencia a `grupo`. | NINGUNA |
+| `algoritmo` | VARCHAR(30) | Atributo que representa algoritmo en el modelo de `sorteo_turnos`. | VARCHAR(30), obligatoria. | NINGUNA |
+| `estado` | VARCHAR(15) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(15), obligatoria, índice b-tree. | NINGUNA |
+| `hash_semilla_previo` | VARCHAR(64) | Resumen criptográfico SHA-256 para verificación inmutable de semilla previo. | VARCHAR(64), obligatoria, sensibilidad derivado. | DERIVADO |
+| `aportes_entropia` | JSONB | Atributo que representa aportes entropia en el modelo de `sorteo_turnos`. | JSONB, opcional. | NINGUNA |
+| `fecha_compromiso` | TIMESTAMPTZ | Marca temporal o fecha de compromiso en `sorteo_turnos`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `fecha_revelado_prevista` | TIMESTAMPTZ | Marca temporal o fecha de revelado prevista en `sorteo_turnos`. | TIMESTAMPTZ, opcional. | NINGUNA |
+| `semilla_servidor` | VARCHAR(128) | Atributo que representa semilla servidor en el modelo de `sorteo_turnos`. | VARCHAR(128), opcional. | NINGUNA |
+| `semilla_publica` | VARCHAR(128) | Atributo que representa semilla publica en el modelo de `sorteo_turnos`. | VARCHAR(128), obligatoria. | NINGUNA |
+| `resultado` | JSONB | Desenlace, dictamen o veredicto de la evaluación o proceso ejecutado. | JSONB, obligatoria. | NINGUNA |
+| `ejecutado_por` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
+| `fecha_ejecucion` | TIMESTAMPTZ | Marca temporal o fecha de ejecucion en `sorteo_turnos`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `anulado_en` | TIMESTAMPTZ | Marca temporal o fecha de anulado en `sorteo_turnos`. | TIMESTAMPTZ, opcional. | NINGUNA |
 
 ### `sustitucion_administrador`
 
@@ -4340,15 +4365,15 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `grupo_id` | UUID | — | UUID, obligatoria. | NINGUNA |
-| `saliente_participante_id` | UUID | — | UUID, obligatoria. | NINGUNA |
-| `entrante_participante_id` | UUID | — | UUID, obligatoria. | NINGUNA |
-| `clave_idempotencia` | UUID | Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4). | UUID, obligatoria. | NINGUNA |
-| `motivo` | VARCHAR(1000) | — | VARCHAR(1000), obligatoria. | NINGUNA |
-| `actor_id` | UUID | — | UUID, obligatoria. | NINGUNA |
-| `obligaciones_conservadas` | TEXT | — | TEXT, obligatoria. | NINGUNA |
-| `ocurrida_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `correlacion_id` | UUID | — | UUID, obligatoria. | NINGUNA |
+| `grupo_id` | UUID | Referencia al grupo de pasanaku en el que se enmarca esta operación. | UUID, obligatoria, índice b-tree. | NINGUNA |
+| `saliente_participante_id` | UUID | Identificador de referencia para el concepto de saliente participante en `sustitucion_administrador`. | UUID, obligatoria. | NINGUNA |
+| `entrante_participante_id` | UUID | Identificador de referencia para el concepto de entrante participante en `sustitucion_administrador`. | UUID, obligatoria. | NINGUNA |
+| `clave_idempotencia` | UUID | Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4). | UUID, obligatoria, restricción única. | NINGUNA |
+| `motivo` | VARCHAR(1000) | Justificación declarada o causal que originó la creación, rechazo o transición del registro. | VARCHAR(1000), obligatoria. | NINGUNA |
+| `actor_id` | UUID | Identificador de referencia para el concepto de actor en `sustitucion_administrador`. | UUID, obligatoria. | NINGUNA |
+| `obligaciones_conservadas` | TEXT | Atributo que representa obligaciones conservadas en el modelo de `sustitucion_administrador`. | TEXT, obligatoria. | NINGUNA |
+| `ocurrida_en` | TIMESTAMPTZ | Marca temporal o fecha de ocurrida en `sustitucion_administrador`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `correlacion_id` | UUID | Identificador de referencia para el concepto de correlacion en `sustitucion_administrador`. | UUID, obligatoria. | NINGUNA |
 
 ### `traspaso_cupo`
 
@@ -4363,15 +4388,15 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `cupo_id` | UUID | — | UUID, obligatoria, referencia a `cupo`. | NINGUNA |
-| `participante_origen_id` | UUID | — | UUID, obligatoria, referencia a `participante`. | NINGUNA |
-| `participante_destino_id` | UUID | — | UUID, obligatoria, referencia a `participante`. | NINGUNA |
-| `motivo` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
-| `deuda_transferida` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
-| `derecho_cobro_transferido` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
-| `aprobado_por_acuerdo_id` | UUID | — | UUID, opcional, referencia a `acuerdo`. | NINGUNA |
-| `fecha` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `revertido_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `cupo_id` | UUID | Referencia por clave foránea a la entidad `cupo`. | UUID, obligatoria, referencia a `cupo`, índice b-tree. | NINGUNA |
+| `participante_origen_id` | UUID | Referencia por clave foránea a la entidad `participante`. | UUID, obligatoria, referencia a `participante`. | NINGUNA |
+| `participante_destino_id` | UUID | Referencia por clave foránea a la entidad `participante`. | UUID, obligatoria, referencia a `participante`. | NINGUNA |
+| `motivo` | VARCHAR(30) | Justificación declarada o causal que originó la creación, rechazo o transición del registro. | VARCHAR(30), obligatoria. | NINGUNA |
+| `deuda_transferida` | DECIMAL(14,2) | Atributo que representa deuda transferida en el modelo de `traspaso_cupo`. | DECIMAL(14,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `derecho_cobro_transferido` | BOOLEAN | Atributo que representa derecho cobro transferido en el modelo de `traspaso_cupo`. | BOOLEAN, obligatoria. | NINGUNA |
+| `aprobado_por_acuerdo_id` | UUID | Referencia por clave foránea a la entidad `acuerdo`. | UUID, opcional, referencia a `acuerdo`. | NINGUNA |
+| `fecha` | TIMESTAMPTZ | Fecha calendario correspondiente al devengo o ejecución de la operación. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `revertido_en` | TIMESTAMPTZ | Marca temporal o fecha de revertido en `traspaso_cupo`. | TIMESTAMPTZ, opcional. | NINGUNA |
 
 ### `turno`
 
@@ -4386,16 +4411,16 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `grupo_id` | UUID | — | UUID, obligatoria, referencia a `grupo`. | NINGUNA |
-| `periodo_id` | UUID | — | UUID, obligatoria, referencia a `periodo`. | NINGUNA |
-| `cupo_id` | UUID | — | UUID, obligatoria, referencia a `cupo`. | NINGUNA |
-| `orden_asignado` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `criterio_asignacion` | VARCHAR(25) | — | VARCHAR(25), obligatoria. | NINGUNA |
-| `monto_estimado_cobro` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
-| `descuento_subasta` | DECIMAL(14,2) | — | DECIMAL(14,2), opcional. | NINGUNA |
-| `permutado_con_turno_id` | UUID | — | UUID, opcional, referencia a `turno`. | NINGUNA |
-| `confirmado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `grupo_id` | UUID | Referencia al grupo de pasanaku en el que se enmarca esta operación. | UUID, obligatoria, referencia a `grupo`, índice b-tree. | NINGUNA |
+| `periodo_id` | UUID | Referencia por clave foránea a la entidad `periodo`. | UUID, obligatoria, referencia a `periodo`. | NINGUNA |
+| `cupo_id` | UUID | Referencia por clave foránea a la entidad `cupo`. | UUID, obligatoria, referencia a `cupo`. | NINGUNA |
+| `orden_asignado` | SMALLINT | Atributo que representa orden asignado en el modelo de `turno`. | SMALLINT, obligatoria. | NINGUNA |
+| `estado` | VARCHAR(15) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(15), obligatoria. | NINGUNA |
+| `criterio_asignacion` | VARCHAR(25) | Atributo que representa criterio asignacion en el modelo de `turno`. | VARCHAR(25), obligatoria. | NINGUNA |
+| `monto_estimado_cobro` | DECIMAL(14,2) | Importe monetario correspondiente a estimado cobro en `turno`. | DECIMAL(14,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `descuento_subasta` | DECIMAL(14,2) | Atributo que representa descuento subasta en el modelo de `turno`. | DECIMAL(14,2), opcional. | NINGUNA |
+| `permutado_con_turno_id` | UUID | Referencia por clave foránea a la entidad `turno`. | UUID, opcional, referencia a `turno`. | NINGUNA |
+| `confirmado_en` | TIMESTAMPTZ | Marca temporal o fecha de confirmado en `turno`. | TIMESTAMPTZ, opcional. | NINGUNA |
 
 ### `voto_participante`
 
@@ -4410,12 +4435,12 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `acuerdo_id` | UUID | — | UUID, obligatoria, referencia a `acuerdo`. | NINGUNA |
-| `participante_id` | UUID | — | UUID, obligatoria, referencia a `participante`. | NINGUNA |
-| `sentido` | VARCHAR(12) | — | VARCHAR(12), obligatoria. | NINGUNA |
-| `peso` | DECIMAL(4,2) | — | DECIMAL(4,2), obligatoria. | NINGUNA |
-| `comentario` | VARCHAR(300) | — | VARCHAR(300), opcional. | NINGUNA |
-| `emitido_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `acuerdo_id` | UUID | Referencia por clave foránea a la entidad `acuerdo`. | UUID, obligatoria, referencia a `acuerdo`, índice b-tree. | NINGUNA |
+| `participante_id` | UUID | Referencia al miembro participante en el círculo de ahorro pasanaku. | UUID, obligatoria, referencia a `participante`. | NINGUNA |
+| `sentido` | VARCHAR(12) | Atributo que representa sentido en el modelo de `voto_participante`. | VARCHAR(12), obligatoria. | NINGUNA |
+| `peso` | DECIMAL(4,2) | Atributo que representa peso en el modelo de `voto_participante`. | DECIMAL(4,2), obligatoria. | NINGUNA |
+| `comentario` | VARCHAR(300) | Atributo que representa comentario en el modelo de `voto_participante`. | VARCHAR(300), opcional. | NINGUNA |
+| `emitido_en` | TIMESTAMPTZ | Marca temporal o fecha de emitido en `voto_participante`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 
 ## Esquema `identidad`
 
@@ -4432,15 +4457,15 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `token_id` | UUID | — | UUID, obligatoria, referencia a `token_verificacion`. | SECRETO |
-| `grupo_destino_id` | UUID | — | UUID, obligatoria. | NINGUNA |
-| `emisor_id` | UUID | — | UUID, obligatoria. | NINGUNA |
-| `telefono_destino` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | PERSONAL |
-| `nonce` | VARCHAR(64) | — | VARCHAR(64), obligatoria. | NINGUNA |
-| `clave_emision` | UUID | — | UUID, obligatoria. | SECRETO |
-| `huella_solicitud` | VARCHAR(64) | — | VARCHAR(64), obligatoria. | NINGUNA |
-| `clave_consumo` | UUID | — | UUID, opcional. | SECRETO |
-| `consumidor_id` | UUID | — | UUID, opcional. | NINGUNA |
+| `token_id` | UUID | Referencia por clave foránea a la entidad `token_verificacion`. | UUID, obligatoria, referencia a `token_verificacion`, restricción única, sensibilidad secreto. | SECRETO |
+| `grupo_destino_id` | UUID | Identificador de referencia para el concepto de grupo destino en `alcance_invitacion`. | UUID, obligatoria. | NINGUNA |
+| `emisor_id` | UUID | Identificador de referencia para el concepto de emisor en `alcance_invitacion`. | UUID, obligatoria. | NINGUNA |
+| `telefono_destino` | VARCHAR(20) | Atributo que representa telefono destino en el modelo de `alcance_invitacion`. | VARCHAR(20), obligatoria, sensibilidad personal. | PERSONAL |
+| `nonce` | VARCHAR(64) | Atributo que representa nonce en el modelo de `alcance_invitacion`. | VARCHAR(64), obligatoria. | NINGUNA |
+| `clave_emision` | UUID | Atributo que representa clave emision en el modelo de `alcance_invitacion`. | UUID, obligatoria, restricción única, sensibilidad secreto. | SECRETO |
+| `huella_solicitud` | VARCHAR(64) | Atributo que representa huella solicitud en el modelo de `alcance_invitacion`. | VARCHAR(64), obligatoria. | NINGUNA |
+| `clave_consumo` | UUID | Atributo que representa clave consumo en el modelo de `alcance_invitacion`. | UUID, opcional, sensibilidad secreto. | SECRETO |
+| `consumidor_id` | UUID | Identificador de referencia para el concepto de consumidor en `alcance_invitacion`. | UUID, opcional. | NINGUNA |
 
 ### `asignacion_rol`
 
@@ -4455,15 +4480,15 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `usuario_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `rol_id` | UUID | — | UUID, obligatoria, referencia a `rol`. | NINGUNA |
-| `ambito` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `ambito_id` | UUID | — | UUID, opcional. | NINGUNA |
-| `otorgada_por` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `otorgada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `usuario_id` | UUID | Referencia al usuario titular de la cuenta o actor principal de la operación. | UUID, obligatoria, referencia a `usuario`, índice b-tree. | NINGUNA |
+| `rol_id` | UUID | Referencia por clave foránea a la entidad `rol`. | UUID, obligatoria, referencia a `rol`. | NINGUNA |
+| `ambito` | VARCHAR(15) | Atributo que representa ambito en el modelo de `asignacion_rol`. | VARCHAR(15), obligatoria. | NINGUNA |
+| `ambito_id` | UUID | Identificador de referencia para el concepto de ambito en `asignacion_rol`. | UUID, opcional. | NINGUNA |
+| `otorgada_por` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
+| `otorgada_en` | TIMESTAMPTZ | Marca temporal o fecha de otorgada en `asignacion_rol`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 | `vigente_hasta` | TIMESTAMPTZ | Hasta cuándo rigió esta versión; vacía mientras sigue vigente. | TIMESTAMPTZ, opcional. | NINGUNA |
-| `revocada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
-| `motivo_revocacion` | VARCHAR(120) | — | VARCHAR(120), opcional. | NINGUNA |
+| `revocada_en` | TIMESTAMPTZ | Marca temporal o fecha de revocada en `asignacion_rol`. | TIMESTAMPTZ, opcional. | NINGUNA |
+| `motivo_revocacion` | VARCHAR(120) | Atributo que representa motivo revocacion en el modelo de `asignacion_rol`. | VARCHAR(120), opcional. | NINGUNA |
 
 ### `bloqueo_cuenta`
 
@@ -4478,12 +4503,12 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `usuario_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `motivo` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
-| `bloqueada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `desbloquea_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
-| `liberada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
-| `liberada_por` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
+| `usuario_id` | UUID | Referencia al usuario titular de la cuenta o actor principal de la operación. | UUID, obligatoria, referencia a `usuario`, índice b-tree. | NINGUNA |
+| `motivo` | VARCHAR(30) | Justificación declarada o causal que originó la creación, rechazo o transición del registro. | VARCHAR(30), obligatoria. | NINGUNA |
+| `bloqueada_en` | TIMESTAMPTZ | Marca temporal o fecha de bloqueada en `bloqueo_cuenta`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `desbloquea_en` | TIMESTAMPTZ | Marca temporal o fecha de desbloquea en `bloqueo_cuenta`. | TIMESTAMPTZ, opcional. | NINGUNA |
+| `liberada_en` | TIMESTAMPTZ | Marca temporal o fecha de liberada en `bloqueo_cuenta`. | TIMESTAMPTZ, opcional. | NINGUNA |
+| `liberada_por` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, opcional, referencia a `usuario`. | NINGUNA |
 
 ### `consentimiento`
 
@@ -4498,15 +4523,15 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `usuario_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `tipo` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
-| `version_documento` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | PERSONAL |
-| `hash_documento` | VARCHAR(64) | — | VARCHAR(64), obligatoria. | DERIVADO |
-| `otorgado` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
-| `fecha_hora` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `ip_origen` | INET | — | INET, obligatoria. | NINGUNA |
-| `agente_usuario` | VARCHAR(255) | — | VARCHAR(255), obligatoria. | NINGUNA |
-| `revocado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `usuario_id` | UUID | Referencia al usuario titular de la cuenta o actor principal de la operación. | UUID, obligatoria, referencia a `usuario`, índice b-tree. | NINGUNA |
+| `tipo` | VARCHAR(30) | Subtipo o modalidad específica que determina las reglas operativas aplicables al registro. | VARCHAR(30), obligatoria. | NINGUNA |
+| `version_documento` | VARCHAR(20) | Atributo que representa version documento en el modelo de `consentimiento`. | VARCHAR(20), obligatoria, sensibilidad personal. | PERSONAL |
+| `hash_documento` | VARCHAR(64) | Resumen criptográfico SHA-256 para verificación inmutable de documento. | VARCHAR(64), obligatoria, sensibilidad derivado. | DERIVADO |
+| `otorgado` | BOOLEAN | Atributo que representa otorgado en el modelo de `consentimiento`. | BOOLEAN, obligatoria. | NINGUNA |
+| `fecha_hora` | TIMESTAMPTZ | Marca temporal o fecha de hora en `consentimiento`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `ip_origen` | INET | Dirección IP desde la cual se ejecutó la solicitud, registrada para auditoría de seguridad. | INET, obligatoria. | NINGUNA |
+| `agente_usuario` | VARCHAR(255) | Atributo que representa agente usuario en el modelo de `consentimiento`. | VARCHAR(255), obligatoria. | NINGUNA |
+| `revocado_en` | TIMESTAMPTZ | Marca temporal o fecha de revocado en `consentimiento`. | TIMESTAMPTZ, opcional. | NINGUNA |
 
 ### `credencial_acceso`
 
@@ -4521,13 +4546,13 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `usuario_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `hash_contrasena` | VARCHAR(255) | — | VARCHAR(255), obligatoria. | DERIVADO |
-| `algoritmo` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
-| `parametros_kdf` | JSONB | — | JSONB, obligatoria. | NINGUNA |
-| `requiere_cambio` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
-| `cambiada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `expira_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `usuario_id` | UUID | Referencia al usuario titular de la cuenta o actor principal de la operación. | UUID, obligatoria, referencia a `usuario`, restricción única. | NINGUNA |
+| `hash_contrasena` | VARCHAR(255) | Resumen criptográfico SHA-256 para verificación inmutable de contrasena. | VARCHAR(255), obligatoria, sensibilidad derivado. | DERIVADO |
+| `algoritmo` | VARCHAR(20) | Atributo que representa algoritmo en el modelo de `credencial_acceso`. | VARCHAR(20), obligatoria. | NINGUNA |
+| `parametros_kdf` | JSONB | Atributo que representa parametros kdf en el modelo de `credencial_acceso`. | JSONB, obligatoria. | NINGUNA |
+| `requiere_cambio` | BOOLEAN | Atributo que representa requiere cambio en el modelo de `credencial_acceso`. | BOOLEAN, obligatoria. | NINGUNA |
+| `cambiada_en` | TIMESTAMPTZ | Marca temporal o fecha de cambiada en `credencial_acceso`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `expira_en` | TIMESTAMPTZ | Marca temporal o fecha de expira en `credencial_acceso`. | TIMESTAMPTZ, opcional. | NINGUNA |
 
 ### `direccion_usuario`
 
@@ -4542,13 +4567,13 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `usuario_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `departamento` | VARCHAR(60) | — | VARCHAR(60), obligatoria. | NINGUNA |
-| `ciudad` | VARCHAR(60) | — | VARCHAR(60), obligatoria. | NINGUNA |
-| `zona` | VARCHAR(80) | — | VARCHAR(80), obligatoria. | NINGUNA |
-| `detalle` | VARCHAR(160) | — | VARCHAR(160), obligatoria. | NINGUNA |
-| `latitud` | DECIMAL(9,6) | — | DECIMAL(9,6), opcional. | NINGUNA |
-| `longitud` | DECIMAL(9,6) | — | DECIMAL(9,6), opcional. | NINGUNA |
+| `usuario_id` | UUID | Referencia al usuario titular de la cuenta o actor principal de la operación. | UUID, obligatoria, referencia a `usuario`, restricción única. | NINGUNA |
+| `departamento` | VARCHAR(60) | Atributo que representa departamento en el modelo de `direccion_usuario`. | VARCHAR(60), obligatoria. | NINGUNA |
+| `ciudad` | VARCHAR(60) | Atributo que representa ciudad en el modelo de `direccion_usuario`. | VARCHAR(60), obligatoria. | NINGUNA |
+| `zona` | VARCHAR(80) | Atributo que representa zona en el modelo de `direccion_usuario`. | VARCHAR(80), obligatoria. | NINGUNA |
+| `detalle` | VARCHAR(160) | Atributo que representa detalle en el modelo de `direccion_usuario`. | VARCHAR(160), obligatoria. | NINGUNA |
+| `latitud` | DECIMAL(9,6) | Atributo que representa latitud en el modelo de `direccion_usuario`. | DECIMAL(9,6), opcional. | NINGUNA |
+| `longitud` | DECIMAL(9,6) | Atributo que representa longitud en el modelo de `direccion_usuario`. | DECIMAL(9,6), opcional. | NINGUNA |
 
 ### `dispositivo`
 
@@ -4563,16 +4588,16 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `usuario_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `huella` | VARCHAR(128) | — | VARCHAR(128), obligatoria. | NINGUNA |
-| `plataforma` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `modelo` | VARCHAR(60) | — | VARCHAR(60), obligatoria. | NINGUNA |
-| `version_app` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
-| `token_push` | VARCHAR(255) | — | VARCHAR(255), opcional. | SECRETO |
-| `es_confiable` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
-| `autorizado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
-| `ultimo_uso_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `revocado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `usuario_id` | UUID | Referencia al usuario titular de la cuenta o actor principal de la operación. | UUID, obligatoria, referencia a `usuario`, índice b-tree. | NINGUNA |
+| `huella` | VARCHAR(128) | Atributo que representa huella en el modelo de `dispositivo`. | VARCHAR(128), obligatoria, restricción única. | NINGUNA |
+| `plataforma` | VARCHAR(15) | Atributo que representa plataforma en el modelo de `dispositivo`. | VARCHAR(15), obligatoria. | NINGUNA |
+| `modelo` | VARCHAR(60) | Atributo que representa modelo en el modelo de `dispositivo`. | VARCHAR(60), obligatoria. | NINGUNA |
+| `version_app` | VARCHAR(20) | Atributo que representa version app en el modelo de `dispositivo`. | VARCHAR(20), obligatoria. | NINGUNA |
+| `token_push` | VARCHAR(255) | Atributo que representa token push en el modelo de `dispositivo`. | VARCHAR(255), opcional, sensibilidad secreto. | SECRETO |
+| `es_confiable` | BOOLEAN | Indicador booleano que señala si confiable en `dispositivo`. | BOOLEAN, obligatoria. | NINGUNA |
+| `autorizado_en` | TIMESTAMPTZ | Marca temporal o fecha de autorizado en `dispositivo`. | TIMESTAMPTZ, opcional. | NINGUNA |
+| `ultimo_uso_en` | TIMESTAMPTZ | Marca temporal o fecha de ultimo uso en `dispositivo`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `revocado_en` | TIMESTAMPTZ | Marca temporal o fecha de revocado en `dispositivo`. | TIMESTAMPTZ, opcional. | NINGUNA |
 
 ### `documento_identidad`
 
@@ -4587,20 +4612,20 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `usuario_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `tipo` | VARCHAR(25) | — | VARCHAR(25), obligatoria. | NINGUNA |
-| `numero_cifrado` | VARCHAR(255) | — | VARCHAR(255), obligatoria. | NINGUNA |
-| `version_llave` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `hash_numero` | VARCHAR(64) | — | VARCHAR(64), obligatoria. | DERIVADO |
-| `lugar_expedicion` | VARCHAR(2) | — | VARCHAR(2), opcional. | NINGUNA |
-| `complemento` | VARCHAR(10) | — | VARCHAR(10), opcional. | NINGUNA |
-| `pais_emision` | CHAR(2) | — | CHAR(2), obligatoria. | NINGUNA |
-| `fecha_emision` | DATE | — | DATE, opcional. | NINGUNA |
-| `fecha_expiracion` | DATE | — | DATE, opcional. | NINGUNA |
-| `url_anverso` | VARCHAR(255) | — | VARCHAR(255), opcional. | PERSONAL |
-| `url_reverso` | VARCHAR(255) | — | VARCHAR(255), opcional. | PERSONAL |
-| `hash_archivo` | VARCHAR(64) | — | VARCHAR(64), opcional. | DERIVADO |
-| `estado` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
+| `usuario_id` | UUID | Referencia al usuario titular de la cuenta o actor principal de la operación. | UUID, obligatoria, referencia a `usuario`, índice b-tree. | NINGUNA |
+| `tipo` | VARCHAR(25) | Subtipo o modalidad específica que determina las reglas operativas aplicables al registro. | VARCHAR(25), obligatoria. | NINGUNA |
+| `numero_cifrado` | VARCHAR(255) | Numeración secuencial o identificador numérico de cifrado. | VARCHAR(255), obligatoria. | NINGUNA |
+| `version_llave` | SMALLINT | Atributo que representa version llave en el modelo de `documento_identidad`. | SMALLINT, obligatoria. | NINGUNA |
+| `hash_numero` | VARCHAR(64) | Resumen criptográfico SHA-256 para verificación inmutable de numero. | VARCHAR(64), obligatoria, restricción única, sensibilidad derivado. | DERIVADO |
+| `lugar_expedicion` | VARCHAR(2) | Atributo que representa lugar expedicion en el modelo de `documento_identidad`. | VARCHAR(2), opcional. | NINGUNA |
+| `complemento` | VARCHAR(10) | Atributo que representa complemento en el modelo de `documento_identidad`. | VARCHAR(10), opcional. | NINGUNA |
+| `pais_emision` | CHAR(2) | Atributo que representa pais emision en el modelo de `documento_identidad`. | CHAR(2), obligatoria. | NINGUNA |
+| `fecha_emision` | DATE | Marca temporal o fecha de emision en `documento_identidad`. | DATE, opcional. | NINGUNA |
+| `fecha_expiracion` | DATE | Marca temporal o fecha de expiracion en `documento_identidad`. | DATE, opcional. | NINGUNA |
+| `url_anverso` | VARCHAR(255) | Localizador uniforme de recursos (URL/URI) correspondiente a anverso. | VARCHAR(255), opcional, sensibilidad personal. | PERSONAL |
+| `url_reverso` | VARCHAR(255) | Localizador uniforme de recursos (URL/URI) correspondiente a reverso. | VARCHAR(255), opcional, sensibilidad personal. | PERSONAL |
+| `hash_archivo` | VARCHAR(64) | Resumen criptográfico SHA-256 para verificación inmutable de archivo. | VARCHAR(64), opcional, sensibilidad derivado. | DERIVADO |
+| `estado` | VARCHAR(20) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(20), obligatoria. | NINGUNA |
 
 ### `factor_mfa`
 
@@ -4615,14 +4640,14 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `usuario_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `tipo` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
-| `secreto_cifrado` | VARCHAR(255) | — | VARCHAR(255), obligatoria. | SECRETO |
-| `version_llave` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `activo` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
-| `es_principal` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
-| `confirmado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
-| `ultimo_uso_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `usuario_id` | UUID | Referencia al usuario titular de la cuenta o actor principal de la operación. | UUID, obligatoria, referencia a `usuario`, índice b-tree. | NINGUNA |
+| `tipo` | VARCHAR(20) | Subtipo o modalidad específica que determina las reglas operativas aplicables al registro. | VARCHAR(20), obligatoria. | NINGUNA |
+| `secreto_cifrado` | VARCHAR(255) | Atributo que representa secreto cifrado en el modelo de `factor_mfa`. | VARCHAR(255), obligatoria, sensibilidad secreto. | SECRETO |
+| `version_llave` | SMALLINT | Atributo que representa version llave en el modelo de `factor_mfa`. | SMALLINT, obligatoria. | NINGUNA |
+| `activo` | BOOLEAN | Indicador booleano que determina si el registro se encuentra actualmente operativo. | BOOLEAN, obligatoria. | NINGUNA |
+| `es_principal` | BOOLEAN | Indicador booleano que señala si principal en `factor_mfa`. | BOOLEAN, obligatoria. | NINGUNA |
+| `confirmado_en` | TIMESTAMPTZ | Marca temporal o fecha de confirmado en `factor_mfa`. | TIMESTAMPTZ, opcional. | NINGUNA |
+| `ultimo_uso_en` | TIMESTAMPTZ | Marca temporal o fecha de ultimo uso en `factor_mfa`. | TIMESTAMPTZ, opcional. | NINGUNA |
 
 ### `historial_credencial`
 
@@ -4637,9 +4662,9 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `usuario_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `hash_contrasena` | VARCHAR(255) | — | VARCHAR(255), obligatoria. | DERIVADO |
-| `reemplazada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `usuario_id` | UUID | Referencia al usuario titular de la cuenta o actor principal de la operación. | UUID, obligatoria, referencia a `usuario`, índice b-tree. | NINGUNA |
+| `hash_contrasena` | VARCHAR(255) | Resumen criptográfico SHA-256 para verificación inmutable de contrasena. | VARCHAR(255), obligatoria, sensibilidad derivado. | DERIVADO |
+| `reemplazada_en` | TIMESTAMPTZ | Marca temporal o fecha de reemplazada en `historial_credencial`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 
 ### `intento_autenticacion`
 
@@ -4654,15 +4679,15 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `usuario_id` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
-| `identificador_usado` | VARCHAR(150) | — | VARCHAR(150), obligatoria. | NINGUNA |
-| `fecha_hora` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `exitoso` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
-| `motivo_fallo` | VARCHAR(60) | — | VARCHAR(60), opcional. | NINGUNA |
-| `ip_origen` | INET | — | INET, obligatoria. | NINGUNA |
-| `agente_usuario` | VARCHAR(255) | — | VARCHAR(255), obligatoria. | NINGUNA |
-| `huella_dispositivo` | VARCHAR(128) | — | VARCHAR(128), opcional. | NINGUNA |
-| `puntaje_riesgo` | DECIMAL(5,2) | — | DECIMAL(5,2), obligatoria. | NINGUNA |
+| `usuario_id` | UUID | Referencia al usuario titular de la cuenta o actor principal de la operación. | UUID, opcional, referencia a `usuario`, índice b-tree. | NINGUNA |
+| `identificador_usado` | VARCHAR(150) | Atributo que representa identificador usado en el modelo de `intento_autenticacion`. | VARCHAR(150), obligatoria, índice b-tree. | NINGUNA |
+| `fecha_hora` | TIMESTAMPTZ | Marca temporal o fecha de hora en `intento_autenticacion`. | TIMESTAMPTZ, obligatoria, índice b-tree. | NINGUNA |
+| `exitoso` | BOOLEAN | Atributo que representa exitoso en el modelo de `intento_autenticacion`. | BOOLEAN, obligatoria. | NINGUNA |
+| `motivo_fallo` | VARCHAR(60) | Atributo que representa motivo fallo en el modelo de `intento_autenticacion`. | VARCHAR(60), opcional. | NINGUNA |
+| `ip_origen` | INET | Dirección IP desde la cual se ejecutó la solicitud, registrada para auditoría de seguridad. | INET, obligatoria, índice b-tree. | NINGUNA |
+| `agente_usuario` | VARCHAR(255) | Atributo que representa agente usuario en el modelo de `intento_autenticacion`. | VARCHAR(255), obligatoria. | NINGUNA |
+| `huella_dispositivo` | VARCHAR(128) | Atributo que representa huella dispositivo en el modelo de `intento_autenticacion`. | VARCHAR(128), opcional. | NINGUNA |
+| `puntaje_riesgo` | DECIMAL(5,2) | Atributo que representa puntaje riesgo en el modelo de `intento_autenticacion`. | DECIMAL(5,2), obligatoria. | NINGUNA |
 
 ### `intento_validacion_token`
 
@@ -4677,12 +4702,12 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `token_id` | UUID | — | UUID, obligatoria, referencia a `token_verificacion`. | SECRETO |
-| `fecha_hora` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `resultado` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
-| `ip_origen` | INET | — | INET, obligatoria. | NINGUNA |
-| `agente_usuario` | VARCHAR(255) | — | VARCHAR(255), obligatoria. | NINGUNA |
-| `huella_dispositivo` | VARCHAR(128) | — | VARCHAR(128), opcional. | NINGUNA |
+| `token_id` | UUID | Referencia por clave foránea a la entidad `token_verificacion`. | UUID, obligatoria, referencia a `token_verificacion`, índice b-tree, sensibilidad secreto. | SECRETO |
+| `fecha_hora` | TIMESTAMPTZ | Marca temporal o fecha de hora en `intento_validacion_token`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `resultado` | VARCHAR(30) | Desenlace, dictamen o veredicto de la evaluación o proceso ejecutado. | VARCHAR(30), obligatoria. | NINGUNA |
+| `ip_origen` | INET | Dirección IP desde la cual se ejecutó la solicitud, registrada para auditoría de seguridad. | INET, obligatoria. | NINGUNA |
+| `agente_usuario` | VARCHAR(255) | Atributo que representa agente usuario en el modelo de `intento_validacion_token`. | VARCHAR(255), obligatoria. | NINGUNA |
+| `huella_dispositivo` | VARCHAR(128) | Atributo que representa huella dispositivo en el modelo de `intento_validacion_token`. | VARCHAR(128), opcional. | NINGUNA |
 
 ### `perfil_financiero`
 
@@ -4697,13 +4722,13 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `usuario_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `ocupacion` | VARCHAR(80) | — | VARCHAR(80), obligatoria. | NINGUNA |
-| `ingreso_mensual_declarado` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | NINGUNA |
-| `capacidad_aporte_declarada` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | NINGUNA |
-| `fuente_ingresos` | VARCHAR(120) | — | VARCHAR(120), obligatoria. | NINGUNA |
-| `es_pep` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
-| `actualizado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `usuario_id` | UUID | Referencia al usuario titular de la cuenta o actor principal de la operación. | UUID, obligatoria, referencia a `usuario`, restricción única. | NINGUNA |
+| `ocupacion` | VARCHAR(80) | Atributo que representa ocupacion en el modelo de `perfil_financiero`. | VARCHAR(80), obligatoria. | NINGUNA |
+| `ingreso_mensual_declarado` | DECIMAL(14,2) | Atributo que representa ingreso mensual declarado en el modelo de `perfil_financiero`. | DECIMAL(14,2), obligatoria. | NINGUNA |
+| `capacidad_aporte_declarada` | DECIMAL(14,2) | Atributo que representa capacidad aporte declarada en el modelo de `perfil_financiero`. | DECIMAL(14,2), obligatoria. | NINGUNA |
+| `fuente_ingresos` | VARCHAR(120) | Atributo que representa fuente ingresos en el modelo de `perfil_financiero`. | VARCHAR(120), obligatoria. | NINGUNA |
+| `es_pep` | BOOLEAN | Indicador booleano que señala si pep en `perfil_financiero`. | BOOLEAN, obligatoria. | NINGUNA |
+| `actualizado_en` | TIMESTAMPTZ | Marca temporal UTC de la última modificación aplicada sobre este registro. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 
 ### `permiso`
 
@@ -4718,11 +4743,13 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `codigo` | VARCHAR(60) | — | VARCHAR(60), obligatoria. | NINGUNA |
-| `descripcion` | VARCHAR(160) | — | VARCHAR(160), obligatoria. | NINGUNA |
-| `recurso` | VARCHAR(40) | — | VARCHAR(40), obligatoria. | NINGUNA |
-| `accion` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
-| `requiere_mfa` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
+| `codigo` | VARCHAR(60) | Código mnemotécnico o identificador legible para operadores y personas usuarias. | VARCHAR(60), obligatoria, restricción única. | NINGUNA |
+| `descripcion` | VARCHAR(160) | Detalle descriptivo que explica el contenido, propósito o contexto de la entidad. | VARCHAR(160), obligatoria. | NINGUNA |
+| `recurso` | VARCHAR(40) | Atributo que representa recurso en el modelo de `permiso`. | VARCHAR(40), obligatoria. | NINGUNA |
+| `accion` | VARCHAR(30) | Atributo que representa accion en el modelo de `permiso`. | VARCHAR(30), obligatoria. | NINGUNA |
+| `nivel_riesgo` | VARCHAR(10) | Atributo que representa nivel riesgo en el modelo de `permiso`. | VARCHAR(10), obligatoria. | NINGUNA |
+| `exige_motivo` | BOOLEAN | Atributo que representa exige motivo en el modelo de `permiso`. | BOOLEAN, obligatoria. | NINGUNA |
+| `requiere_mfa` | BOOLEAN | Atributo que representa requiere mfa en el modelo de `permiso`. | BOOLEAN, obligatoria. | NINGUNA |
 
 ### `politica_token`
 
@@ -4737,16 +4764,16 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `proposito` | VARCHAR(35) | — | VARCHAR(35), obligatoria. | NINGUNA |
-| `ttl_segundos` | INTEGER | — | INTEGER, obligatoria. | NINGUNA |
-| `longitud_codigo` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `max_intentos_validacion` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `max_reenvios_por_hora` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `cooldown_reenvio_segundos` | INTEGER | — | INTEGER, obligatoria. | NINGUNA |
-| `max_emisiones_por_dia` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `canales_permitidos` | VARCHAR(120) | — | VARCHAR(120), obligatoria. | NINGUNA |
-| `exige_dispositivo_conocido` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
-| `invalida_anteriores` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
+| `proposito` | VARCHAR(35) | Atributo que representa proposito en el modelo de `politica_token`. | VARCHAR(35), obligatoria, restricción única. | NINGUNA |
+| `ttl_segundos` | INTEGER | Atributo que representa ttl segundos en el modelo de `politica_token`. | INTEGER, obligatoria. | NINGUNA |
+| `longitud_codigo` | SMALLINT | Código normalizado o mnemotécnico de longitud. | SMALLINT, obligatoria. | NINGUNA |
+| `max_intentos_validacion` | SMALLINT | Atributo que representa max intentos validacion en el modelo de `politica_token`. | SMALLINT, obligatoria. | NINGUNA |
+| `max_reenvios_por_hora` | SMALLINT | Atributo que representa max reenvios por hora en el modelo de `politica_token`. | SMALLINT, obligatoria. | NINGUNA |
+| `cooldown_reenvio_segundos` | INTEGER | Atributo que representa cooldown reenvio segundos en el modelo de `politica_token`. | INTEGER, obligatoria. | NINGUNA |
+| `max_emisiones_por_dia` | SMALLINT | Atributo que representa max emisiones por dia en el modelo de `politica_token`. | SMALLINT, obligatoria. | NINGUNA |
+| `canales_permitidos` | VARCHAR(120) | Atributo que representa canales permitidos en el modelo de `politica_token`. | VARCHAR(120), obligatoria. | NINGUNA |
+| `exige_dispositivo_conocido` | BOOLEAN | Atributo que representa exige dispositivo conocido en el modelo de `politica_token`. | BOOLEAN, obligatoria. | NINGUNA |
+| `invalida_anteriores` | BOOLEAN | Atributo que representa invalida anteriores en el modelo de `politica_token`. | BOOLEAN, obligatoria. | NINGUNA |
 | `vigente_desde` | TIMESTAMPTZ | Desde cuándo rige esta versión de la fila: las condiciones se versionan, no se pisan. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 
 ### `preferencia_notificacion`
@@ -4762,17 +4789,17 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `usuario_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `canal_primario` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
-| `canal_respaldo` | VARCHAR(20) | — | VARCHAR(20), opcional. | NINGUNA |
-| `acepta_whatsapp` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
-| `acepta_correo` | BOOLEAN | — | BOOLEAN, obligatoria. | PERSONAL |
-| `acepta_sms` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
-| `acepta_push` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
-| `tope_diario_mensajes` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `hora_no_molestar_desde` | TIME | — | TIME, opcional. | NINGUNA |
-| `hora_no_molestar_hasta` | TIME | — | TIME, opcional. | NINGUNA |
-| `frecuencia_resumen` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
+| `usuario_id` | UUID | Referencia al usuario titular de la cuenta o actor principal de la operación. | UUID, obligatoria, referencia a `usuario`, restricción única. | NINGUNA |
+| `canal_primario` | VARCHAR(20) | Atributo que representa canal primario en el modelo de `preferencia_notificacion`. | VARCHAR(20), obligatoria. | NINGUNA |
+| `canal_respaldo` | VARCHAR(20) | Atributo que representa canal respaldo en el modelo de `preferencia_notificacion`. | VARCHAR(20), opcional. | NINGUNA |
+| `acepta_whatsapp` | BOOLEAN | Atributo que representa acepta whatsapp en el modelo de `preferencia_notificacion`. | BOOLEAN, obligatoria. | NINGUNA |
+| `acepta_correo` | BOOLEAN | Atributo que representa acepta correo en el modelo de `preferencia_notificacion`. | BOOLEAN, obligatoria, sensibilidad personal. | PERSONAL |
+| `acepta_sms` | BOOLEAN | Atributo que representa acepta sms en el modelo de `preferencia_notificacion`. | BOOLEAN, obligatoria. | NINGUNA |
+| `acepta_push` | BOOLEAN | Atributo que representa acepta push en el modelo de `preferencia_notificacion`. | BOOLEAN, obligatoria. | NINGUNA |
+| `tope_diario_mensajes` | SMALLINT | Atributo que representa tope diario mensajes en el modelo de `preferencia_notificacion`. | SMALLINT, obligatoria. | NINGUNA |
+| `hora_no_molestar_desde` | TIME | Atributo que representa hora no molestar desde en el modelo de `preferencia_notificacion`. | TIME, opcional. | NINGUNA |
+| `hora_no_molestar_hasta` | TIME | Atributo que representa hora no molestar hasta en el modelo de `preferencia_notificacion`. | TIME, opcional. | NINGUNA |
+| `frecuencia_resumen` | VARCHAR(15) | Atributo que representa frecuencia resumen en el modelo de `preferencia_notificacion`. | VARCHAR(15), obligatoria. | NINGUNA |
 
 ### `referencia_personal`
 
@@ -4787,13 +4814,13 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `usuario_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `nombre` | VARCHAR(120) | — | VARCHAR(120), obligatoria. | NINGUNA |
-| `telefono` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | PERSONAL |
-| `relacion` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
-| `verificada` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
-| `verificada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
-| `acepta_ser_avalista` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
+| `usuario_id` | UUID | Referencia al usuario titular de la cuenta o actor principal de la operación. | UUID, obligatoria, referencia a `usuario`, índice b-tree. | NINGUNA |
+| `nombre` | VARCHAR(120) | Nombre descriptivo de la entidad para visualización y referencia en el sistema. | VARCHAR(120), obligatoria. | NINGUNA |
+| `telefono` | VARCHAR(20) | Atributo que representa telefono en el modelo de `referencia_personal`. | VARCHAR(20), obligatoria, sensibilidad personal. | PERSONAL |
+| `relacion` | VARCHAR(20) | Atributo que representa relacion en el modelo de `referencia_personal`. | VARCHAR(20), obligatoria. | NINGUNA |
+| `verificada` | BOOLEAN | Atributo que representa verificada en el modelo de `referencia_personal`. | BOOLEAN, obligatoria. | NINGUNA |
+| `verificada_en` | TIMESTAMPTZ | Marca temporal o fecha de verificada en `referencia_personal`. | TIMESTAMPTZ, opcional. | NINGUNA |
+| `acepta_ser_avalista` | BOOLEAN | Atributo que representa acepta ser avalista en el modelo de `referencia_personal`. | BOOLEAN, obligatoria. | NINGUNA |
 
 ### `reputacion_usuario`
 
@@ -4808,16 +4835,16 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `usuario_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `puntaje` | DECIMAL(6,2) | — | DECIMAL(6,2), obligatoria. | NINGUNA |
-| `indice_puntualidad` | DECIMAL(5,2) | — | DECIMAL(5,2), obligatoria. | NINGUNA |
-| `total_obligaciones` | INTEGER | — | INTEGER, obligatoria. | NINGUNA |
-| `obligaciones_cumplidas` | INTEGER | — | INTEGER, obligatoria. | NINGUNA |
-| `obligaciones_en_mora` | INTEGER | — | INTEGER, obligatoria. | NINGUNA |
-| `incumplimientos_graves` | INTEGER | — | INTEGER, obligatoria. | NINGUNA |
-| `grupos_completados` | INTEGER | — | INTEGER, obligatoria. | NINGUNA |
-| `version_modelo` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
-| `calculado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `usuario_id` | UUID | Referencia al usuario titular de la cuenta o actor principal de la operación. | UUID, obligatoria, referencia a `usuario`, restricción única. | NINGUNA |
+| `puntaje` | DECIMAL(6,2) | Atributo que representa puntaje en el modelo de `reputacion_usuario`. | DECIMAL(6,2), obligatoria. | NINGUNA |
+| `indice_puntualidad` | DECIMAL(5,2) | Atributo que representa indice puntualidad en el modelo de `reputacion_usuario`. | DECIMAL(5,2), obligatoria. | NINGUNA |
+| `total_obligaciones` | INTEGER | Importe monetario correspondiente a obligaciones en `reputacion_usuario`. | INTEGER, obligatoria. | NINGUNA |
+| `obligaciones_cumplidas` | INTEGER | Atributo que representa obligaciones cumplidas en el modelo de `reputacion_usuario`. | INTEGER, obligatoria. | NINGUNA |
+| `obligaciones_en_mora` | INTEGER | Atributo que representa obligaciones en mora en el modelo de `reputacion_usuario`. | INTEGER, obligatoria. | NINGUNA |
+| `incumplimientos_graves` | INTEGER | Atributo que representa incumplimientos graves en el modelo de `reputacion_usuario`. | INTEGER, obligatoria. | NINGUNA |
+| `grupos_completados` | INTEGER | Atributo que representa grupos completados en el modelo de `reputacion_usuario`. | INTEGER, obligatoria. | NINGUNA |
+| `version_modelo` | VARCHAR(20) | Atributo que representa version modelo en el modelo de `reputacion_usuario`. | VARCHAR(20), obligatoria. | NINGUNA |
+| `calculado_en` | TIMESTAMPTZ | Marca temporal o fecha de calculado en `reputacion_usuario`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 
 ### `restriccion_usuario`
 
@@ -4832,15 +4859,15 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `usuario_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `tipo` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
-| `origen` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
-| `referencia_origen_id` | UUID | — | UUID, opcional. | NINGUNA |
-| `valor_limite` | DECIMAL(14,2) | — | DECIMAL(14,2), opcional. | NINGUNA |
+| `usuario_id` | UUID | Referencia al usuario titular de la cuenta o actor principal de la operación. | UUID, obligatoria, referencia a `usuario`, índice b-tree. | NINGUNA |
+| `tipo` | VARCHAR(30) | Subtipo o modalidad específica que determina las reglas operativas aplicables al registro. | VARCHAR(30), obligatoria. | NINGUNA |
+| `origen` | VARCHAR(20) | Atributo que representa origen en el modelo de `restriccion_usuario`. | VARCHAR(20), obligatoria. | NINGUNA |
+| `referencia_origen_id` | UUID | Identificador de referencia para el concepto de referencia origen en `restriccion_usuario`. | UUID, opcional. | NINGUNA |
+| `valor_limite` | DECIMAL(14,2) | Atributo que representa valor limite en el modelo de `restriccion_usuario`. | DECIMAL(14,2), opcional. | NINGUNA |
 | `vigente_desde` | TIMESTAMPTZ | Desde cuándo rige esta versión de la fila: las condiciones se versionan, no se pisan. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 | `vigente_hasta` | TIMESTAMPTZ | Hasta cuándo rigió esta versión; vacía mientras sigue vigente. | TIMESTAMPTZ, opcional. | NINGUNA |
-| `levantada_por` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
-| `motivo_levantamiento` | VARCHAR(160) | — | VARCHAR(160), opcional. | NINGUNA |
+| `levantada_por` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, opcional, referencia a `usuario`. | NINGUNA |
+| `motivo_levantamiento` | VARCHAR(160) | Atributo que representa motivo levantamiento en el modelo de `restriccion_usuario`. | VARCHAR(160), opcional. | NINGUNA |
 
 ### `rol`
 
@@ -4855,10 +4882,12 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `codigo` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
-| `nombre` | VARCHAR(60) | — | VARCHAR(60), obligatoria. | NINGUNA |
-| `ambito` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `es_sistema` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
+| `codigo` | VARCHAR(30) | Código mnemotécnico o identificador legible para operadores y personas usuarias. | VARCHAR(30), obligatoria, restricción única. | NINGUNA |
+| `nombre` | VARCHAR(60) | Nombre descriptivo de la entidad para visualización y referencia en el sistema. | VARCHAR(60), obligatoria. | NINGUNA |
+| `ambito` | VARCHAR(15) | Atributo que representa ambito en el modelo de `rol`. | VARCHAR(15), obligatoria. | NINGUNA |
+| `departamento` | VARCHAR(60) | Atributo que representa departamento en el modelo de `rol`. | VARCHAR(60), opcional. | NINGUNA |
+| `descripcion` | VARCHAR(255) | Detalle descriptivo que explica el contenido, propósito o contexto de la entidad. | VARCHAR(255), opcional. | NINGUNA |
+| `es_sistema` | BOOLEAN | Indicador booleano que señala si sistema en `rol`. | BOOLEAN, obligatoria. | NINGUNA |
 
 ### `rol_permiso`
 
@@ -4870,8 +4899,8 @@
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
-| `rol_id` | UUID | — | UUID, obligatoria, clave primaria, referencia a `rol`. | NINGUNA |
-| `permiso_id` | UUID | — | UUID, obligatoria, clave primaria, referencia a `permiso`. | NINGUNA |
+| `rol_id` | UUID | Referencia por clave foránea a la entidad `rol`. | UUID, obligatoria, clave primaria, referencia a `rol`. | NINGUNA |
+| `permiso_id` | UUID | Referencia por clave foránea a la entidad `permiso`. | UUID, obligatoria, clave primaria, referencia a `permiso`. | NINGUNA |
 
 ### `sesion`
 
@@ -4886,16 +4915,16 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `usuario_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `dispositivo_id` | UUID | — | UUID, obligatoria, referencia a `dispositivo`. | NINGUNA |
-| `refresco_familia_id` | UUID | — | UUID, opcional. | NINGUNA |
-| `iniciada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `ultima_actividad_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `expira_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `ip_origen` | INET | — | INET, obligatoria. | NINGUNA |
-| `geolocalizacion_aprox` | VARCHAR(80) | — | VARCHAR(80), opcional. | NINGUNA |
-| `revocada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
-| `motivo_revocacion` | VARCHAR(80) | — | VARCHAR(80), opcional. | NINGUNA |
+| `usuario_id` | UUID | Referencia al usuario titular de la cuenta o actor principal de la operación. | UUID, obligatoria, referencia a `usuario`, índice b-tree. | NINGUNA |
+| `dispositivo_id` | UUID | Identificador del dispositivo enrolado desde el que se autenticó la operación. | UUID, obligatoria, referencia a `dispositivo`. | NINGUNA |
+| `refresco_familia_id` | UUID | Identificador de referencia para el concepto de refresco familia en `sesion`. | UUID, opcional. | NINGUNA |
+| `iniciada_en` | TIMESTAMPTZ | Marca temporal o fecha de iniciada en `sesion`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `ultima_actividad_en` | TIMESTAMPTZ | Marca temporal o fecha de ultima actividad en `sesion`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `expira_en` | TIMESTAMPTZ | Marca temporal o fecha de expira en `sesion`. | TIMESTAMPTZ, obligatoria, índice b-tree. | NINGUNA |
+| `ip_origen` | INET | Dirección IP desde la cual se ejecutó la solicitud, registrada para auditoría de seguridad. | INET, obligatoria. | NINGUNA |
+| `geolocalizacion_aprox` | VARCHAR(80) | Atributo que representa geolocalizacion aprox en el modelo de `sesion`. | VARCHAR(80), opcional. | NINGUNA |
+| `revocada_en` | TIMESTAMPTZ | Marca temporal o fecha de revocada en `sesion`. | TIMESTAMPTZ, opcional. | NINGUNA |
+| `motivo_revocacion` | VARCHAR(80) | Atributo que representa motivo revocacion en el modelo de `sesion`. | VARCHAR(80), opcional. | NINGUNA |
 
 ### `solicitud_baja`
 
@@ -4910,11 +4939,11 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `usuario_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `motivo` | VARCHAR(160) | — | VARCHAR(160), obligatoria. | NINGUNA |
-| `solicitada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `fecha_efectiva` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
-| `bloqueada_por_obligaciones` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
+| `usuario_id` | UUID | Referencia al usuario titular de la cuenta o actor principal de la operación. | UUID, obligatoria, referencia a `usuario`, índice b-tree. | NINGUNA |
+| `motivo` | VARCHAR(160) | Justificación declarada o causal que originó la creación, rechazo o transición del registro. | VARCHAR(160), obligatoria. | NINGUNA |
+| `solicitada_en` | TIMESTAMPTZ | Marca temporal o fecha de solicitada en `solicitud_baja`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `fecha_efectiva` | TIMESTAMPTZ | Marca temporal o fecha de efectiva en `solicitud_baja`. | TIMESTAMPTZ, opcional. | NINGUNA |
+| `bloqueada_por_obligaciones` | BOOLEAN | Atributo que representa bloqueada por obligaciones en el modelo de `solicitud_baja`. | BOOLEAN, obligatoria. | NINGUNA |
 
 ### `token_verificacion`
 
@@ -4929,36 +4958,36 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `usuario_id` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
-| `politica_id` | UUID | — | UUID, obligatoria, referencia a `politica_token`. | NINGUNA |
-| `dispositivo_id` | UUID | — | UUID, opcional, referencia a `dispositivo`. | NINGUNA |
-| `tipo_token` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | SECRETO |
-| `proposito` | VARCHAR(35) | — | VARCHAR(35), obligatoria. | NINGUNA |
-| `hash_token` | VARCHAR(128) | — | VARCHAR(128), obligatoria. | DERIVADO |
-| `algoritmo_hash` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | DERIVADO |
-| `canal_entrega` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
-| `destino_enmascarado` | VARCHAR(40) | — | VARCHAR(40), obligatoria. | NINGUNA |
-| `estado` | VARCHAR(25) | — | VARCHAR(25), obligatoria. | NINGUNA |
-| `emitido_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `expira_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `enviado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
-| `consumido_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
-| `invalidado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
-| `motivo_invalidacion` | VARCHAR(120) | — | VARCHAR(120), opcional. | NINGUNA |
-| `intentos_fallidos` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `max_intentos` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `reenvios` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `ip_origen` | INET | — | INET, obligatoria. | NINGUNA |
-| `agente_usuario` | VARCHAR(255) | — | VARCHAR(255), obligatoria. | NINGUNA |
-| `correlation_id` | UUID | — | UUID, obligatoria. | NINGUNA |
+| `usuario_id` | UUID | Referencia al usuario titular de la cuenta o actor principal de la operación. | UUID, opcional, referencia a `usuario`, índice b-tree. | NINGUNA |
+| `politica_id` | UUID | Referencia por clave foránea a la entidad `politica_token`. | UUID, obligatoria, referencia a `politica_token`. | NINGUNA |
+| `dispositivo_id` | UUID | Identificador del dispositivo enrolado desde el que se autenticó la operación. | UUID, opcional, referencia a `dispositivo`. | NINGUNA |
+| `tipo_token` | VARCHAR(20) | Atributo que representa tipo token en el modelo de `token_verificacion`. | VARCHAR(20), obligatoria, sensibilidad secreto. | SECRETO |
+| `proposito` | VARCHAR(35) | Atributo que representa proposito en el modelo de `token_verificacion`. | VARCHAR(35), obligatoria, índice b-tree. | NINGUNA |
+| `hash_token` | VARCHAR(128) | Resumen criptográfico SHA-256 para verificación inmutable de token. | VARCHAR(128), obligatoria, restricción única, sensibilidad derivado. | DERIVADO |
+| `algoritmo_hash` | VARCHAR(20) | Resumen criptográfico SHA-256 para verificación inmutable de algoritmo. | VARCHAR(20), obligatoria, sensibilidad derivado. | DERIVADO |
+| `canal_entrega` | VARCHAR(20) | Atributo que representa canal entrega en el modelo de `token_verificacion`. | VARCHAR(20), obligatoria. | NINGUNA |
+| `destino_enmascarado` | VARCHAR(40) | Atributo que representa destino enmascarado en el modelo de `token_verificacion`. | VARCHAR(40), obligatoria. | NINGUNA |
+| `estado` | VARCHAR(25) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(25), obligatoria, índice b-tree. | NINGUNA |
+| `emitido_en` | TIMESTAMPTZ | Marca temporal o fecha de emitido en `token_verificacion`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `expira_en` | TIMESTAMPTZ | Marca temporal o fecha de expira en `token_verificacion`. | TIMESTAMPTZ, obligatoria, índice b-tree. | NINGUNA |
+| `enviado_en` | TIMESTAMPTZ | Marca temporal o fecha de enviado en `token_verificacion`. | TIMESTAMPTZ, opcional. | NINGUNA |
+| `consumido_en` | TIMESTAMPTZ | Marca temporal o fecha de consumido en `token_verificacion`. | TIMESTAMPTZ, opcional. | NINGUNA |
+| `invalidado_en` | TIMESTAMPTZ | Marca temporal o fecha de invalidado en `token_verificacion`. | TIMESTAMPTZ, opcional. | NINGUNA |
+| `motivo_invalidacion` | VARCHAR(120) | Atributo que representa motivo invalidacion en el modelo de `token_verificacion`. | VARCHAR(120), opcional. | NINGUNA |
+| `intentos_fallidos` | SMALLINT | Atributo que representa intentos fallidos en el modelo de `token_verificacion`. | SMALLINT, obligatoria. | NINGUNA |
+| `max_intentos` | SMALLINT | Atributo que representa max intentos en el modelo de `token_verificacion`. | SMALLINT, obligatoria. | NINGUNA |
+| `reenvios` | SMALLINT | Atributo que representa reenvios en el modelo de `token_verificacion`. | SMALLINT, obligatoria. | NINGUNA |
+| `ip_origen` | INET | Dirección IP desde la cual se ejecutó la solicitud, registrada para auditoría de seguridad. | INET, obligatoria. | NINGUNA |
+| `agente_usuario` | VARCHAR(255) | Atributo que representa agente usuario en el modelo de `token_verificacion`. | VARCHAR(255), obligatoria. | NINGUNA |
+| `correlation_id` | UUID | Identificador de referencia para el concepto de correlation en `token_verificacion`. | UUID, obligatoria, índice b-tree. | NINGUNA |
 | `clave_idempotencia` | VARCHAR(80) | Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4). | VARCHAR(80), obligatoria. | NINGUNA |
-| `longitud` | SMALLINT | — | SMALLINT, opcional. | NINGUNA |
-| `url_destino` | VARCHAR(255) | — | VARCHAR(255), opcional. | NINGUNA |
-| `firma_hmac` | VARCHAR(128) | — | VARCHAR(128), opcional. | NINGUNA |
-| `uso_unico` | BOOLEAN | — | BOOLEAN, opcional. | NINGUNA |
-| `clicks` | SMALLINT | — | SMALLINT, opcional. | NINGUNA |
-| `familia_id` | UUID | — | UUID, opcional. | NINGUNA |
-| `rotado_de_id` | UUID | — | UUID, opcional, referencia a `token_verificacion`. | NINGUNA |
+| `longitud` | SMALLINT | Atributo que representa longitud en el modelo de `token_verificacion`. | SMALLINT, opcional. | NINGUNA |
+| `url_destino` | VARCHAR(255) | Localizador uniforme de recursos (URL/URI) correspondiente a destino. | VARCHAR(255), opcional. | NINGUNA |
+| `firma_hmac` | VARCHAR(128) | Atributo que representa firma hmac en el modelo de `token_verificacion`. | VARCHAR(128), opcional. | NINGUNA |
+| `uso_unico` | BOOLEAN | Atributo que representa uso unico en el modelo de `token_verificacion`. | BOOLEAN, opcional. | NINGUNA |
+| `clicks` | SMALLINT | Atributo que representa clicks en el modelo de `token_verificacion`. | SMALLINT, opcional. | NINGUNA |
+| `familia_id` | UUID | Identificador de referencia para el concepto de familia en `token_verificacion`. | UUID, opcional. | NINGUNA |
+| `rotado_de_id` | UUID | Referencia por clave foránea a la entidad `token_verificacion`. | UUID, opcional, referencia a `token_verificacion`. | NINGUNA |
 
 ### `usuario`
 
@@ -4968,28 +4997,48 @@
 
 **Por qué existe.** Es el ancla de todo el sistema. Sin ella no hay reputación portable entre grupos, que es justamente la propuesta de valor: que tu buen historial en un pasanaku te sirva para entrar al siguiente.
 
-**Sistema.** Vive en el esquema `identidad`; la escribe y la lee solo el servicio `identidad` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. La referencian `aportes.comprobante_manual`, `aportes.conciliacion`, `aportes.excepcion_conciliacion`, `aportes.extracto_bancario`, `aportes.pago`, `aportes.plan_regularizacion`, `aportes.reembolso`, `asignacion_rol`, `auditoria.alerta_cumplimiento`, `auditoria.coincidencia_lista`, `auditoria.ejecucion_reporte`, `auditoria.proceso_anonimizacion`, `auditoria.reporte_operacion_sospechosa`, `auditoria.solicitud_datos_personales`, `auditoria.ticket_soporte`, `bloqueo_cuenta`, `catalogo.licencia_regulatoria`, `catalogo.tarifario`, `comun.bitacora_evento`, `comun.registro_acceso_datos`, `consentimiento`, `credencial_acceso`, `cumplimiento.aceptacion_contrato`, `cumplimiento.acta_comite`, `cumplimiento.activo_informacion`, `cumplimiento.alerta_monitoreo_lft`, `cumplimiento.beneficiario_final`, `cumplimiento.calificacion_riesgo_cliente`, `cumplimiento.capacitacion_cumplimiento`, `cumplimiento.caso_investigacion_lft`, `cumplimiento.contrato_adhesion`, `cumplimiento.contrato_tercero`, `cumplimiento.control_interno`, `cumplimiento.debida_diligencia`, `cumplimiento.declaracion_origen_fondos`, `cumplimiento.declaracion_pep`, `cumplimiento.designacion_regulatoria`, `cumplimiento.desvio_perfil`, `cumplimiento.documento_publicado`, `cumplimiento.envio_regulatorio`, `cumplimiento.evaluacion_riesgo_producto`, `cumplimiento.evaluacion_tercero`, `cumplimiento.evento_riesgo_operativo`, `cumplimiento.expediente_cliente`, `cumplimiento.factor_riesgo_evaluado`, `cumplimiento.hallazgo_auditoria`, `cumplimiento.incidente_seguridad`, `cumplimiento.matriz_riesgo_lft`, `cumplimiento.observacion_regulatoria`, `cumplimiento.oficial_cumplimiento`, `cumplimiento.perfil_transaccional`, `cumplimiento.plan_accion_riesgo`, `cumplimiento.plan_continuidad`, `cumplimiento.politica_interna`, `cumplimiento.prueba_continuidad`, `cumplimiento.prueba_control`, `cumplimiento.punto_reclamo`, `cumplimiento.reclamo_cliente`, `cumplimiento.registro_operacion_relevante`, `cumplimiento.regla_monitoreo_lft`, `cumplimiento.reporte_regulatorio`, `cumplimiento.requerimiento_autoridad`, `cumplimiento.revision_periodica_kyc`, `direccion_usuario`, `dispositivo`, `documento_identidad`, `entregas.cuenta_bancaria_beneficiario`, `entregas.entrega_fondo`, `entregas.historial_estado_entrega`, `entregas.incidencia_entrega`, `entregas.validacion_pre_entrega`, `erp.asiento_plantilla`, `erp.cierre_periodo_contable`, `erp.ejercicio_fiscal`, `erp.estado_financiero_generado`, `erp.factura_proveedor`, `erp.orden_compra`, `erp.pago_a_proveedor`, `erp.presupuesto`, `factor_mfa`, `garantia.abono_recuperacion`, `garantia.accion_cobranza`, `garantia.acuerdo_quita`, `garantia.alerta_temprana`, `garantia.apelacion_sancion`, `garantia.aval_participante`, `garantia.candidato_reemplazo`, `garantia.capacidad_respaldo`, `garantia.castigo_deuda`, `garantia.cobertura_incumplimiento`, `garantia.cobertura_respaldo`, `garantia.descargo_participante`, `garantia.deuda_participante`, `garantia.evidencia_incumplimiento`, `garantia.gestion_cobranza`, `garantia.historial_estado_incumplimiento`, `garantia.historial_incumplimiento_usuario`, `garantia.lista_restriccion_interna`, `garantia.movimiento_fondo`, `garantia.movimiento_reserva`, `garantia.promesa_pago`, `garantia.registro_incumplimiento`, `garantia.reserva_respaldo`, `garantia.sancion`, `garantia.score_riesgo_incumplimiento`, `grupos.acuerdo`, `grupos.historial_estado_grupo`, `grupos.invitacion`, `grupos.participante`, `grupos.postulacion_emparejamiento`, `grupos.reglamento_grupo`, `grupos.solicitud_ingreso`, `grupos.sorteo_turnos`, `historial_credencial`, `intento_autenticacion`, `notificaciones.bandeja_entrada`, `notificaciones.canal_vinculado`, `notificaciones.notificacion`, `nucleo_financiero.asiento_contable`, `nucleo_financiero.bloqueo_saldo`, `nucleo_financiero.certificado_saldo`, `nucleo_financiero.cierre_diario`, `nucleo_financiero.conciliacion_custodia`, `nucleo_financiero.cuenta_billetera`, `nucleo_financiero.descuadre_custodia`, `nucleo_financiero.evaluacion_antifraude`, `nucleo_financiero.evidencia_mfa_consumida`, `nucleo_financiero.instrumento_fondeo`, `nucleo_financiero.orden_retiro`, `nucleo_financiero.politica_billetera`, `nucleo_financiero.regla_antifraude`, `nucleo_financiero.respuesta_idempotente`, `nucleo_financiero.retencion_saldo`, `nucleo_financiero.reverso_transaccion`, `nucleo_financiero.solicitud_cierre_billetera`, `nucleo_financiero.transaccion_billetera`, `organizador.apelacion_sancion_org`, `organizador.organizador`, `organizador.sancion_organizador`, `organizador.solicitud_organizador`, `perfil_financiero`, `preferencia_notificacion`, `publicidad.campana_publicitaria`, `publicidad.clic_anuncio`, `publicidad.impresion_anuncio`, `publicidad.revision_creativa`, `publicidad.segmento_audiencia`, `publicidad.socio_comercial`, `referencia_personal`, `reputacion_usuario`, `restriccion_usuario`, `sesion`, `solicitud_baja`, `tarifas.asignacion_tarifario`, `tarifas.cambio_tarifario`, `tarifas.campana_promocional`, `tarifas.cuenta_por_cobrar_comision`, `tarifas.datos_facturacion`, `tarifas.devengo_comision`, `tarifas.devolucion_comision`, `tarifas.evento_significativo_sin`, `tarifas.exencion_comision`, `tarifas.factura_electronica`, `tarifas.liquidacion_ingresos`, `tarifas.simulacion_tarifa`, `token_verificacion`, `transparencia.certificado_reputacion`, `transparencia.evento_reputacion`, `transparencia.insignia_otorgada`, `transparencia.puntaje_reputacion`, `transparencia.resena_participante`, `transparencia.snapshot_reputacion`, `verificacion_kyc`.
+**Sistema.** Vive en el esquema `identidad`; la escribe y la lee solo el servicio `identidad` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. La referencian `aportes.comprobante_manual`, `aportes.conciliacion`, `aportes.excepcion_conciliacion`, `aportes.extracto_bancario`, `aportes.pago`, `aportes.plan_regularizacion`, `aportes.reembolso`, `asignacion_rol`, `auditoria.alerta_cumplimiento`, `auditoria.coincidencia_lista`, `auditoria.ejecucion_reporte`, `auditoria.proceso_anonimizacion`, `auditoria.reporte_operacion_sospechosa`, `auditoria.solicitud_datos_personales`, `auditoria.ticket_soporte`, `bloqueo_cuenta`, `catalogo.licencia_regulatoria`, `catalogo.tarifario`, `comun.bitacora_evento`, `comun.registro_acceso_datos`, `consentimiento`, `credencial_acceso`, `cumplimiento.aceptacion_contrato`, `cumplimiento.acta_comite`, `cumplimiento.activo_informacion`, `cumplimiento.alerta_monitoreo_lft`, `cumplimiento.beneficiario_final`, `cumplimiento.calificacion_riesgo_cliente`, `cumplimiento.capacitacion_cumplimiento`, `cumplimiento.caso_investigacion_lft`, `cumplimiento.contrato_adhesion`, `cumplimiento.contrato_tercero`, `cumplimiento.control_interno`, `cumplimiento.debida_diligencia`, `cumplimiento.declaracion_origen_fondos`, `cumplimiento.declaracion_pep`, `cumplimiento.designacion_regulatoria`, `cumplimiento.desvio_perfil`, `cumplimiento.documento_publicado`, `cumplimiento.envio_regulatorio`, `cumplimiento.evaluacion_riesgo_producto`, `cumplimiento.evaluacion_tercero`, `cumplimiento.evento_riesgo_operativo`, `cumplimiento.expediente_cliente`, `cumplimiento.factor_riesgo_evaluado`, `cumplimiento.hallazgo_auditoria`, `cumplimiento.incidente_seguridad`, `cumplimiento.matriz_riesgo_lft`, `cumplimiento.observacion_regulatoria`, `cumplimiento.oficial_cumplimiento`, `cumplimiento.perfil_transaccional`, `cumplimiento.plan_accion_riesgo`, `cumplimiento.plan_continuidad`, `cumplimiento.politica_interna`, `cumplimiento.prueba_continuidad`, `cumplimiento.prueba_control`, `cumplimiento.punto_reclamo`, `cumplimiento.reclamo_cliente`, `cumplimiento.registro_operacion_relevante`, `cumplimiento.regla_monitoreo_lft`, `cumplimiento.reporte_regulatorio`, `cumplimiento.requerimiento_autoridad`, `cumplimiento.revision_periodica_kyc`, `direccion_usuario`, `dispositivo`, `documento_identidad`, `entregas.cuenta_bancaria_beneficiario`, `entregas.entrega_fondo`, `entregas.historial_estado_entrega`, `entregas.incidencia_entrega`, `entregas.validacion_pre_entrega`, `erp.asiento_plantilla`, `erp.cierre_periodo_contable`, `erp.ejercicio_fiscal`, `erp.estado_financiero_generado`, `erp.factura_proveedor`, `erp.orden_compra`, `erp.pago_a_proveedor`, `erp.presupuesto`, `factor_mfa`, `garantia.abono_recuperacion`, `garantia.accion_cobranza`, `garantia.acuerdo_quita`, `garantia.alerta_temprana`, `garantia.apelacion_sancion`, `garantia.aval_participante`, `garantia.candidato_reemplazo`, `garantia.capacidad_respaldo`, `garantia.castigo_deuda`, `garantia.cobertura_incumplimiento`, `garantia.cobertura_respaldo`, `garantia.descargo_participante`, `garantia.deuda_participante`, `garantia.evidencia_incumplimiento`, `garantia.gestion_cobranza`, `garantia.historial_estado_incumplimiento`, `garantia.historial_incumplimiento_usuario`, `garantia.lista_restriccion_interna`, `garantia.movimiento_fondo`, `garantia.movimiento_reserva`, `garantia.promesa_pago`, `garantia.registro_incumplimiento`, `garantia.reserva_respaldo`, `garantia.sancion`, `garantia.score_riesgo_incumplimiento`, `grupos.acuerdo`, `grupos.enlace_grupo`, `grupos.historial_estado_grupo`, `grupos.invitacion`, `grupos.participante`, `grupos.postulacion_emparejamiento`, `grupos.reglamento_grupo`, `grupos.solicitud_ingreso`, `grupos.sorteo_turnos`, `historial_credencial`, `intento_autenticacion`, `notificaciones.aviso_interno`, `notificaciones.bandeja_entrada`, `notificaciones.canal_vinculado`, `notificaciones.notificacion`, `nucleo_financiero.asiento_contable`, `nucleo_financiero.bloqueo_saldo`, `nucleo_financiero.certificado_saldo`, `nucleo_financiero.cierre_diario`, `nucleo_financiero.conciliacion_custodia`, `nucleo_financiero.cuenta_billetera`, `nucleo_financiero.descuadre_custodia`, `nucleo_financiero.evaluacion_antifraude`, `nucleo_financiero.evidencia_mfa_consumida`, `nucleo_financiero.instrumento_fondeo`, `nucleo_financiero.orden_retiro`, `nucleo_financiero.politica_billetera`, `nucleo_financiero.regla_antifraude`, `nucleo_financiero.respuesta_idempotente`, `nucleo_financiero.retencion_saldo`, `nucleo_financiero.reverso_transaccion`, `nucleo_financiero.solicitud_cierre_billetera`, `nucleo_financiero.transaccion_billetera`, `organizador.apelacion_sancion_org`, `organizador.organizador`, `organizador.sancion_organizador`, `organizador.solicitud_organizador`, `perfil_financiero`, `preferencia_notificacion`, `publicidad.campana_publicitaria`, `publicidad.clic_anuncio`, `publicidad.impresion_anuncio`, `publicidad.revision_creativa`, `publicidad.segmento_audiencia`, `publicidad.socio_comercial`, `referencia_personal`, `reputacion_usuario`, `restriccion_usuario`, `sesion`, `solicitud_baja`, `tarifas.asignacion_tarifario`, `tarifas.cambio_tarifario`, `tarifas.campana_promocional`, `tarifas.cuenta_por_cobrar_comision`, `tarifas.datos_facturacion`, `tarifas.devengo_comision`, `tarifas.devolucion_comision`, `tarifas.evento_significativo_sin`, `tarifas.exencion_comision`, `tarifas.factura_electronica`, `tarifas.liquidacion_ingresos`, `tarifas.simulacion_tarifa`, `token_verificacion`, `transparencia.certificado_reputacion`, `transparencia.evento_reputacion`, `transparencia.insignia_otorgada`, `transparencia.puntaje_reputacion`, `transparencia.resena_participante`, `transparencia.snapshot_reputacion`, `usuario_interno`, `verificacion_kyc`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `codigo_publico` | VARCHAR(12) | — | VARCHAR(12), obligatoria. | NINGUNA |
-| `nombres` | VARCHAR(80) | — | VARCHAR(80), obligatoria. | NINGUNA |
-| `apellidos` | VARCHAR(80) | — | VARCHAR(80), obligatoria. | PERSONAL |
-| `telefono_e164` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | PERSONAL |
-| `correo` | VARCHAR(150) | — | VARCHAR(150), opcional. | PERSONAL |
-| `fecha_nacimiento` | DATE | — | DATE, obligatoria. | PERSONAL |
-| `estado` | VARCHAR(25) | — | VARCHAR(25), obligatoria. | NINGUNA |
-| `nivel_kyc` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `idioma` | VARCHAR(10) | — | VARCHAR(10), obligatoria. | NINGUNA |
-| `zona_horaria` | VARCHAR(40) | — | VARCHAR(40), obligatoria. | NINGUNA |
-| `url_avatar` | VARCHAR(255) | — | VARCHAR(255), opcional. | NINGUNA |
-| `telefono_verificado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | PERSONAL |
-| `correo_verificado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | PERSONAL |
-| `ultimo_acceso_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
-| `fecha_registro` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `eliminado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
-| `version` | INTEGER | — | INTEGER, obligatoria. | NINGUNA |
+| `codigo_publico` | VARCHAR(12) | Identificador público visible en interfaz y comunicaciones que no expone la clave primaria UUID. | VARCHAR(12), obligatoria, restricción única. | NINGUNA |
+| `nombres` | VARCHAR(80) | Atributo que representa nombres en el modelo de `usuario`. | VARCHAR(80), obligatoria. | NINGUNA |
+| `apellidos` | VARCHAR(80) | Atributo que representa apellidos en el modelo de `usuario`. | VARCHAR(80), obligatoria, sensibilidad personal. | PERSONAL |
+| `telefono_e164` | VARCHAR(20) | Atributo que representa telefono e164 en el modelo de `usuario`. | VARCHAR(20), obligatoria, restricción única, índice b-tree, sensibilidad personal. | PERSONAL |
+| `correo` | VARCHAR(150) | Atributo que representa correo en el modelo de `usuario`. | VARCHAR(150), opcional, restricción única, sensibilidad personal. | PERSONAL |
+| `fecha_nacimiento` | DATE | Marca temporal o fecha de nacimiento en `usuario`. | DATE, obligatoria, sensibilidad personal. | PERSONAL |
+| `estado` | VARCHAR(25) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(25), obligatoria. | NINGUNA |
+| `nivel_kyc` | VARCHAR(15) | Atributo que representa nivel kyc en el modelo de `usuario`. | VARCHAR(15), obligatoria. | NINGUNA |
+| `idioma` | VARCHAR(10) | Atributo que representa idioma en el modelo de `usuario`. | VARCHAR(10), obligatoria. | NINGUNA |
+| `zona_horaria` | VARCHAR(40) | Atributo que representa zona horaria en el modelo de `usuario`. | VARCHAR(40), obligatoria. | NINGUNA |
+| `url_avatar` | VARCHAR(255) | Localizador uniforme de recursos (URL/URI) correspondiente a avatar. | VARCHAR(255), opcional. | NINGUNA |
+| `telefono_verificado_en` | TIMESTAMPTZ | Marca temporal o fecha de telefono verificado en `usuario`. | TIMESTAMPTZ, opcional, sensibilidad personal. | PERSONAL |
+| `correo_verificado_en` | TIMESTAMPTZ | Marca temporal o fecha de correo verificado en `usuario`. | TIMESTAMPTZ, opcional, sensibilidad personal. | PERSONAL |
+| `ultimo_acceso_en` | TIMESTAMPTZ | Marca temporal o fecha de ultimo acceso en `usuario`. | TIMESTAMPTZ, opcional. | NINGUNA |
+| `fecha_registro` | TIMESTAMPTZ | Marca temporal o fecha de registro en `usuario`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `eliminado_en` | TIMESTAMPTZ | Marca temporal o fecha de eliminado en `usuario`. | TIMESTAMPTZ, opcional. | NINGUNA |
+| `version` | INTEGER | Número de versión para control de concurrencia optimista y auditoría de modificaciones. | INTEGER, obligatoria. | NINGUNA |
+
+### `usuario_interno`
+
+**Qué es.** El perfil laboral y operativo del usuario que desempeña funciones internas en la plataforma.
+
+**Para qué sirve.** Separa al cliente o participante final del personal operativo de AportaYa. Asocia al empleado con su departamento corporativo (Sistemas, Operaciones, Riesgos, Cumplimiento, Finanzas, Comercial, Soporte, Auditoría), su cargo formal, si debe cambiar la contraseña provisional enviada por correo al ingresar por primera vez, y el bloqueo temporal administrativo con su motivo justificado.
+
+**Por qué existe.** La segregación de responsabilidades y las directrices de control interno de ASFI e ISO/IEC 27001 exigen que los atributos laborales y las restricciones administrativas de los operadores no contaminen la entidad general de usuario ni se gestionen de manera informal.
+
+**Sistema.** Vive en el esquema `identidad`; la escribe y la lee solo el servicio `identidad` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `usuario`.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
+| `usuario_id` | UUID | Referencia al usuario titular de la cuenta o actor principal de la operación. | UUID, obligatoria, referencia a `usuario`, restricción única. | NINGUNA |
+| `departamento` | VARCHAR(60) | Atributo que representa departamento en el modelo de `usuario_interno`. | VARCHAR(60), obligatoria. | NINGUNA |
+| `cargo` | VARCHAR(80) | Atributo que representa cargo en el modelo de `usuario_interno`. | VARCHAR(80), obligatoria. | NINGUNA |
+| `debe_cambiar_contrasena` | BOOLEAN | Atributo que representa debe cambiar contrasena en el modelo de `usuario_interno`. | BOOLEAN, obligatoria, sensibilidad secreto. | SECRETO |
+| `bloqueado_hasta` | TIMESTAMPTZ | Atributo que representa bloqueado hasta en el modelo de `usuario_interno`. | TIMESTAMPTZ, opcional. | NINGUNA |
+| `motivo_bloqueo` | VARCHAR(160) | Atributo que representa motivo bloqueo en el modelo de `usuario_interno`. | VARCHAR(160), opcional. | NINGUNA |
 
 ### `verificacion_kyc`
 
@@ -5004,20 +5053,20 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `usuario_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `documento_id` | UUID | — | UUID, opcional, referencia a `documento_identidad`. | PERSONAL |
-| `nivel_solicitado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `estado` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
-| `proveedor` | VARCHAR(40) | — | VARCHAR(40), opcional. | NINGUNA |
-| `referencia_proveedor` | VARCHAR(80) | — | VARCHAR(80), opcional. | NINGUNA |
-| `puntaje_biometrico` | DECIMAL(5,2) | — | DECIMAL(5,2), opcional. | NINGUNA |
-| `url_selfie` | VARCHAR(255) | — | VARCHAR(255), opcional. | PERSONAL |
-| `url_perfil_izquierdo` | VARCHAR(255) | — | VARCHAR(255), opcional. | NINGUNA |
-| `url_perfil_derecho` | VARCHAR(255) | — | VARCHAR(255), opcional. | NINGUNA |
-| `motivo_rechazo` | VARCHAR(160) | — | VARCHAR(160), opcional. | NINGUNA |
-| `revisada_por` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
-| `iniciada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `resuelta_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `usuario_id` | UUID | Referencia al usuario titular de la cuenta o actor principal de la operación. | UUID, obligatoria, referencia a `usuario`, índice b-tree. | NINGUNA |
+| `documento_id` | UUID | Referencia por clave foránea a la entidad `documento_identidad`. | UUID, opcional, referencia a `documento_identidad`, sensibilidad personal. | PERSONAL |
+| `nivel_solicitado` | VARCHAR(15) | Atributo que representa nivel solicitado en el modelo de `verificacion_kyc`. | VARCHAR(15), obligatoria. | NINGUNA |
+| `estado` | VARCHAR(20) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(20), obligatoria. | NINGUNA |
+| `proveedor` | VARCHAR(40) | Atributo que representa proveedor en el modelo de `verificacion_kyc`. | VARCHAR(40), opcional. | NINGUNA |
+| `referencia_proveedor` | VARCHAR(80) | Atributo que representa referencia proveedor en el modelo de `verificacion_kyc`. | VARCHAR(80), opcional. | NINGUNA |
+| `puntaje_biometrico` | DECIMAL(5,2) | Atributo que representa puntaje biometrico en el modelo de `verificacion_kyc`. | DECIMAL(5,2), opcional. | NINGUNA |
+| `url_selfie` | VARCHAR(255) | Localizador uniforme de recursos (URL/URI) correspondiente a selfie. | VARCHAR(255), opcional, sensibilidad personal. | PERSONAL |
+| `url_perfil_izquierdo` | VARCHAR(255) | Localizador uniforme de recursos (URL/URI) correspondiente a perfil izquierdo. | VARCHAR(255), opcional. | NINGUNA |
+| `url_perfil_derecho` | VARCHAR(255) | Localizador uniforme de recursos (URL/URI) correspondiente a perfil derecho. | VARCHAR(255), opcional. | NINGUNA |
+| `motivo_rechazo` | VARCHAR(160) | Atributo que representa motivo rechazo en el modelo de `verificacion_kyc`. | VARCHAR(160), opcional. | NINGUNA |
+| `revisada_por` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, opcional, referencia a `usuario`. | NINGUNA |
+| `iniciada_en` | TIMESTAMPTZ | Marca temporal o fecha de iniciada en `verificacion_kyc`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `resuelta_en` | TIMESTAMPTZ | Marca temporal o fecha de resuelta en `verificacion_kyc`. | TIMESTAMPTZ, opcional. | NINGUNA |
 | `vigente_hasta` | DATE | Hasta cuándo rigió esta versión; vacía mientras sigue vigente. | DATE, opcional. | NINGUNA |
 
 ## Esquema `inversiones`
@@ -5035,19 +5084,19 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `posicion_inversion_id` | UUID | — | UUID, obligatoria, referencia a `posicion_inversion`. | NINGUNA |
-| `rescate_inversion_id` | UUID | — | UUID, obligatoria, referencia a `rescate_inversion`. | NINGUNA |
-| `cuotas` | DECIMAL(18,6) | — | DECIMAL(18,6), obligatoria. | NINGUNA |
-| `valor_cuota` | DECIMAL(18,6) | — | DECIMAL(18,6), obligatoria. | NINGUNA |
-| `marca_maxima_previa` | DECIMAL(18,6) | — | DECIMAL(18,6), obligatoria. | NINGUNA |
-| `tasa` | DECIMAL(7,6) | — | DECIMAL(7,6), obligatoria. | NINGUNA |
-| `base_elegible` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | NINGUNA |
-| `comision` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | NINGUNA |
-| `cuota_neta` | DECIMAL(18,6) | — | DECIMAL(18,6), obligatoria. | NINGUNA |
-| `marca_maxima_nueva` | DECIMAL(18,6) | — | DECIMAL(18,6), obligatoria. | NINGUNA |
+| `posicion_inversion_id` | UUID | Referencia por clave foránea a la entidad `posicion_inversion`. | UUID, obligatoria, referencia a `posicion_inversion`, índice b-tree. | NINGUNA |
+| `rescate_inversion_id` | UUID | Referencia por clave foránea a la entidad `rescate_inversion`. | UUID, obligatoria, referencia a `rescate_inversion`, restricción única. | NINGUNA |
+| `cuotas` | DECIMAL(18,6) | Atributo que representa cuotas en el modelo de `comision_exito`. | DECIMAL(18,6), obligatoria. | NINGUNA |
+| `valor_cuota` | DECIMAL(18,6) | Atributo que representa valor cuota en el modelo de `comision_exito`. | DECIMAL(18,6), obligatoria. | NINGUNA |
+| `marca_maxima_previa` | DECIMAL(18,6) | Atributo que representa marca maxima previa en el modelo de `comision_exito`. | DECIMAL(18,6), obligatoria. | NINGUNA |
+| `tasa` | DECIMAL(7,6) | Atributo que representa tasa en el modelo de `comision_exito`. | DECIMAL(7,6), obligatoria. | NINGUNA |
+| `base_elegible` | DECIMAL(14,2) | Atributo que representa base elegible en el modelo de `comision_exito`. | DECIMAL(14,2), obligatoria. | NINGUNA |
+| `comision` | DECIMAL(14,2) | Atributo que representa comision en el modelo de `comision_exito`. | DECIMAL(14,2), obligatoria. | NINGUNA |
+| `cuota_neta` | DECIMAL(18,6) | Atributo que representa cuota neta en el modelo de `comision_exito`. | DECIMAL(18,6), obligatoria. | NINGUNA |
+| `marca_maxima_nueva` | DECIMAL(18,6) | Atributo que representa marca maxima nueva en el modelo de `comision_exito`. | DECIMAL(18,6), obligatoria. | NINGUNA |
 | `moneda` | CHAR(3) | Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2). | CHAR(3), obligatoria. | NINGUNA |
-| `origen_datos` | VARCHAR(12) | — | VARCHAR(12), obligatoria. | NINGUNA |
-| `calculada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `origen_datos` | VARCHAR(12) | Atributo que representa origen datos en el modelo de `comision_exito`. | VARCHAR(12), obligatoria. | NINGUNA |
+| `calculada_en` | TIMESTAMPTZ | Marca temporal o fecha de calculada en `comision_exito`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 
 ### `comprobante_inversion`
 
@@ -5062,21 +5111,21 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `posicion_inversion_id` | UUID | — | UUID, obligatoria, referencia a `posicion_inversion`. | NINGUNA |
-| `usuario_id` | UUID | — | UUID, obligatoria. | NINGUNA |
-| `tipo` | VARCHAR(12) | — | VARCHAR(12), obligatoria. | NINGUNA |
-| `origen_id` | UUID | — | UUID, obligatoria. | NINGUNA |
-| `sentido_titular` | VARCHAR(8) | — | VARCHAR(8), obligatoria. | NINGUNA |
-| `principal` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | NINGUNA |
-| `interes` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | NINGUNA |
-| `impuesto` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | NINGUNA |
-| `comision` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | NINGUNA |
-| `perdida_realizada` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | NINGUNA |
-| `neto` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | NINGUNA |
-| `costo_base` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | NINGUNA |
+| `posicion_inversion_id` | UUID | Referencia por clave foránea a la entidad `posicion_inversion`. | UUID, obligatoria, referencia a `posicion_inversion`, índice b-tree. | NINGUNA |
+| `usuario_id` | UUID | Referencia al usuario titular de la cuenta o actor principal de la operación. | UUID, obligatoria, índice b-tree. | NINGUNA |
+| `tipo` | VARCHAR(12) | Subtipo o modalidad específica que determina las reglas operativas aplicables al registro. | VARCHAR(12), obligatoria. | NINGUNA |
+| `origen_id` | UUID | Identificador de referencia para el concepto de origen en `comprobante_inversion`. | UUID, obligatoria, restricción única. | NINGUNA |
+| `sentido_titular` | VARCHAR(8) | Atributo que representa sentido titular en el modelo de `comprobante_inversion`. | VARCHAR(8), obligatoria. | NINGUNA |
+| `principal` | DECIMAL(14,2) | Atributo que representa principal en el modelo de `comprobante_inversion`. | DECIMAL(14,2), obligatoria. | NINGUNA |
+| `interes` | DECIMAL(14,2) | Atributo que representa interes en el modelo de `comprobante_inversion`. | DECIMAL(14,2), obligatoria. | NINGUNA |
+| `impuesto` | DECIMAL(14,2) | Atributo que representa impuesto en el modelo de `comprobante_inversion`. | DECIMAL(14,2), obligatoria. | NINGUNA |
+| `comision` | DECIMAL(14,2) | Atributo que representa comision en el modelo de `comprobante_inversion`. | DECIMAL(14,2), obligatoria. | NINGUNA |
+| `perdida_realizada` | DECIMAL(14,2) | Atributo que representa perdida realizada en el modelo de `comprobante_inversion`. | DECIMAL(14,2), obligatoria. | NINGUNA |
+| `neto` | DECIMAL(14,2) | Atributo que representa neto en el modelo de `comprobante_inversion`. | DECIMAL(14,2), obligatoria. | NINGUNA |
+| `costo_base` | DECIMAL(14,2) | Atributo que representa costo base en el modelo de `comprobante_inversion`. | DECIMAL(14,2), obligatoria. | NINGUNA |
 | `moneda` | CHAR(3) | Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2). | CHAR(3), obligatoria. | NINGUNA |
-| `origen_datos` | VARCHAR(12) | — | VARCHAR(12), obligatoria. | NINGUNA |
-| `emitido_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `origen_datos` | VARCHAR(12) | Atributo que representa origen datos en el modelo de `comprobante_inversion`. | VARCHAR(12), obligatoria. | NINGUNA |
+| `emitido_en` | TIMESTAMPTZ | Marca temporal o fecha de emitido en `comprobante_inversion`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 
 ### `conciliacion_interes`
 
@@ -5091,17 +5140,17 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `posicion_inversion_id` | UUID | — | UUID, obligatoria, referencia a `posicion_inversion`. | NINGUNA |
-| `rescate_inversion_id` | UUID | — | UUID, obligatoria, referencia a `rescate_inversion`. | NINGUNA |
-| `periodo_desde` | DATE | — | DATE, obligatoria. | NINGUNA |
-| `periodo_hasta` | DATE | — | DATE, obligatoria. | NINGUNA |
-| `interes_devengado` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | NINGUNA |
-| `interes_externo` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | NINGUNA |
-| `retencion_calculada` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | NINGUNA |
-| `retencion_externa` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | NINGUNA |
+| `posicion_inversion_id` | UUID | Referencia por clave foránea a la entidad `posicion_inversion`. | UUID, obligatoria, referencia a `posicion_inversion`, índice b-tree. | NINGUNA |
+| `rescate_inversion_id` | UUID | Referencia por clave foránea a la entidad `rescate_inversion`. | UUID, obligatoria, referencia a `rescate_inversion`, restricción única. | NINGUNA |
+| `periodo_desde` | DATE | Atributo que representa periodo desde en el modelo de `conciliacion_interes`. | DATE, obligatoria. | NINGUNA |
+| `periodo_hasta` | DATE | Atributo que representa periodo hasta en el modelo de `conciliacion_interes`. | DATE, obligatoria. | NINGUNA |
+| `interes_devengado` | DECIMAL(14,2) | Atributo que representa interes devengado en el modelo de `conciliacion_interes`. | DECIMAL(14,2), obligatoria. | NINGUNA |
+| `interes_externo` | DECIMAL(14,2) | Atributo que representa interes externo en el modelo de `conciliacion_interes`. | DECIMAL(14,2), obligatoria. | NINGUNA |
+| `retencion_calculada` | DECIMAL(14,2) | Atributo que representa retencion calculada en el modelo de `conciliacion_interes`. | DECIMAL(14,2), obligatoria. | NINGUNA |
+| `retencion_externa` | DECIMAL(14,2) | Atributo que representa retencion externa en el modelo de `conciliacion_interes`. | DECIMAL(14,2), obligatoria. | NINGUNA |
 | `moneda` | CHAR(3) | Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2). | CHAR(3), obligatoria. | NINGUNA |
-| `estado` | VARCHAR(12) | — | VARCHAR(12), obligatoria. | NINGUNA |
-| `conciliada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `estado` | VARCHAR(12) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(12), obligatoria, índice b-tree. | NINGUNA |
+| `conciliada_en` | TIMESTAMPTZ | Marca temporal o fecha de conciliada en `conciliacion_interes`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 
 ### `consentimiento_inversion`
 
@@ -5116,12 +5165,12 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `usuario_id` | UUID | — | UUID, obligatoria. | NINGUNA |
-| `version_condiciones_id` | UUID | — | UUID, obligatoria, referencia a `version_condiciones`. | NINGUNA |
-| `texto_hash` | CHAR(64) | — | CHAR(64), obligatoria. | DERIVADO |
-| `clave_idempotencia` | VARCHAR(80) | Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4). | VARCHAR(80), obligatoria. | NINGUNA |
-| `hash_solicitud` | CHAR(64) | — | CHAR(64), obligatoria. | DERIVADO |
-| `aceptado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `usuario_id` | UUID | Referencia al usuario titular de la cuenta o actor principal de la operación. | UUID, obligatoria, índice b-tree. | NINGUNA |
+| `version_condiciones_id` | UUID | Referencia por clave foránea a la entidad `version_condiciones`. | UUID, obligatoria, referencia a `version_condiciones`, índice b-tree. | NINGUNA |
+| `texto_hash` | CHAR(64) | Resumen criptográfico SHA-256 para verificación inmutable de texto. | CHAR(64), obligatoria, sensibilidad derivado. | DERIVADO |
+| `clave_idempotencia` | VARCHAR(80) | Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4). | VARCHAR(80), obligatoria, restricción única. | NINGUNA |
+| `hash_solicitud` | CHAR(64) | Resumen criptográfico SHA-256 para verificación inmutable de solicitud. | CHAR(64), obligatoria, sensibilidad derivado. | DERIVADO |
+| `aceptado_en` | TIMESTAMPTZ | Marca temporal o fecha de aceptado en `consentimiento_inversion`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 
 ### `corrida_trabajo`
 
@@ -5136,15 +5185,15 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `operacion` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
-| `clave_idempotencia` | VARCHAR(80) | Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4). | VARCHAR(80), obligatoria. | NINGUNA |
-| `hash_solicitud` | CHAR(64) | — | CHAR(64), obligatoria. | DERIVADO |
-| `origen` | VARCHAR(10) | — | VARCHAR(10), obligatoria. | NINGUNA |
-| `estado` | VARCHAR(10) | — | VARCHAR(10), obligatoria. | NINGUNA |
-| `resultado` | VARCHAR(400) | — | VARCHAR(400), opcional. | NINGUNA |
-| `error` | VARCHAR(120) | — | VARCHAR(120), opcional. | NINGUNA |
-| `iniciada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `terminada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `operacion` | VARCHAR(30) | Atributo que representa operacion en el modelo de `corrida_trabajo`. | VARCHAR(30), obligatoria, índice b-tree. | NINGUNA |
+| `clave_idempotencia` | VARCHAR(80) | Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4). | VARCHAR(80), obligatoria, restricción única. | NINGUNA |
+| `hash_solicitud` | CHAR(64) | Resumen criptográfico SHA-256 para verificación inmutable de solicitud. | CHAR(64), obligatoria, sensibilidad derivado. | DERIVADO |
+| `origen` | VARCHAR(10) | Atributo que representa origen en el modelo de `corrida_trabajo`. | VARCHAR(10), obligatoria. | NINGUNA |
+| `estado` | VARCHAR(10) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(10), obligatoria, índice b-tree. | NINGUNA |
+| `resultado` | VARCHAR(400) | Desenlace, dictamen o veredicto de la evaluación o proceso ejecutado. | VARCHAR(400), opcional. | NINGUNA |
+| `error` | VARCHAR(120) | Atributo que representa error en el modelo de `corrida_trabajo`. | VARCHAR(120), opcional. | NINGUNA |
+| `iniciada_en` | TIMESTAMPTZ | Marca temporal o fecha de iniciada en `corrida_trabajo`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `terminada_en` | TIMESTAMPTZ | Marca temporal o fecha de terminada en `corrida_trabajo`. | TIMESTAMPTZ, opcional. | NINGUNA |
 
 ### `devengo_dpf`
 
@@ -5159,13 +5208,13 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `posicion_inversion_id` | UUID | — | UUID, obligatoria, referencia a `posicion_inversion`. | NINGUNA |
-| `fecha` | DATE | — | DATE, obligatoria. | NINGUNA |
-| `dias_acumulados` | INTEGER | — | INTEGER, obligatoria. | NINGUNA |
-| `interes_acumulado` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | NINGUNA |
-| `monto` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
+| `posicion_inversion_id` | UUID | Referencia por clave foránea a la entidad `posicion_inversion`. | UUID, obligatoria, referencia a `posicion_inversion`, índice b-tree. | NINGUNA |
+| `fecha` | DATE | Fecha calendario correspondiente al devengo o ejecución de la operación. | DATE, obligatoria, restricción única. | NINGUNA |
+| `dias_acumulados` | INTEGER | Atributo que representa dias acumulados en el modelo de `devengo_dpf`. | INTEGER, obligatoria. | NINGUNA |
+| `interes_acumulado` | DECIMAL(14,2) | Atributo que representa interes acumulado en el modelo de `devengo_dpf`. | DECIMAL(14,2), obligatoria. | NINGUNA |
+| `monto` | DECIMAL(14,2) | Importe monetario principal de la transacción o concepto financiero. | DECIMAL(14,2), obligatoria, sensibilidad financiero. | FINANCIERO |
 | `moneda` | CHAR(3) | Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2). | CHAR(3), obligatoria. | NINGUNA |
-| `creado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `creado_en` | TIMESTAMPTZ | Marca temporal UTC en que el registro fue creado en la base de datos. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 
 ### `distribucion_interes`
 
@@ -5180,21 +5229,21 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `posicion_inversion_id` | UUID | — | UUID, obligatoria, referencia a `posicion_inversion`. | NINGUNA |
-| `rescate_inversion_id` | UUID | — | UUID, obligatoria, referencia a `rescate_inversion`. | NINGUNA |
-| `usuario_id` | UUID | — | UUID, obligatoria. | NINGUNA |
-| `periodo_desde` | DATE | — | DATE, obligatoria. | NINGUNA |
-| `periodo_hasta` | DATE | — | DATE, obligatoria. | NINGUNA |
-| `interes_devengado` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | NINGUNA |
-| `penalizacion` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | NINGUNA |
-| `interes_esperado` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | NINGUNA |
-| `interes_pagado` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | NINGUNA |
-| `retencion` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | NINGUNA |
-| `interes_neto` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | NINGUNA |
+| `posicion_inversion_id` | UUID | Referencia por clave foránea a la entidad `posicion_inversion`. | UUID, obligatoria, referencia a `posicion_inversion`, índice b-tree. | NINGUNA |
+| `rescate_inversion_id` | UUID | Referencia por clave foránea a la entidad `rescate_inversion`. | UUID, obligatoria, referencia a `rescate_inversion`, restricción única. | NINGUNA |
+| `usuario_id` | UUID | Referencia al usuario titular de la cuenta o actor principal de la operación. | UUID, obligatoria, índice b-tree. | NINGUNA |
+| `periodo_desde` | DATE | Atributo que representa periodo desde en el modelo de `distribucion_interes`. | DATE, obligatoria. | NINGUNA |
+| `periodo_hasta` | DATE | Atributo que representa periodo hasta en el modelo de `distribucion_interes`. | DATE, obligatoria. | NINGUNA |
+| `interes_devengado` | DECIMAL(14,2) | Atributo que representa interes devengado en el modelo de `distribucion_interes`. | DECIMAL(14,2), obligatoria. | NINGUNA |
+| `penalizacion` | DECIMAL(14,2) | Atributo que representa penalizacion en el modelo de `distribucion_interes`. | DECIMAL(14,2), obligatoria. | NINGUNA |
+| `interes_esperado` | DECIMAL(14,2) | Atributo que representa interes esperado en el modelo de `distribucion_interes`. | DECIMAL(14,2), obligatoria. | NINGUNA |
+| `interes_pagado` | DECIMAL(14,2) | Atributo que representa interes pagado en el modelo de `distribucion_interes`. | DECIMAL(14,2), obligatoria. | NINGUNA |
+| `retencion` | DECIMAL(14,2) | Atributo que representa retencion en el modelo de `distribucion_interes`. | DECIMAL(14,2), obligatoria. | NINGUNA |
+| `interes_neto` | DECIMAL(14,2) | Atributo que representa interes neto en el modelo de `distribucion_interes`. | DECIMAL(14,2), obligatoria. | NINGUNA |
 | `moneda` | CHAR(3) | Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2). | CHAR(3), obligatoria. | NINGUNA |
-| `estado` | VARCHAR(12) | — | VARCHAR(12), obligatoria. | NINGUNA |
-| `motivo_discrepancia` | VARCHAR(40) | — | VARCHAR(40), opcional. | NINGUNA |
-| `distribuida_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `estado` | VARCHAR(12) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(12), obligatoria, índice b-tree. | NINGUNA |
+| `motivo_discrepancia` | VARCHAR(40) | Atributo que representa motivo discrepancia en el modelo de `distribucion_interes`. | VARCHAR(40), opcional. | NINGUNA |
+| `distribuida_en` | TIMESTAMPTZ | Marca temporal o fecha de distribuida en `distribucion_interes`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 
 ### `instruccion_libro`
 
@@ -5209,20 +5258,20 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `origen_tipo` | VARCHAR(10) | — | VARCHAR(10), obligatoria. | NINGUNA |
-| `origen_id` | UUID | — | UUID, obligatoria. | NINGUNA |
-| `tipo` | VARCHAR(10) | — | VARCHAR(10), obligatoria. | NINGUNA |
-| `usuario_id` | UUID | — | UUID, obligatoria. | NINGUNA |
-| `cuenta_billetera_id` | UUID | — | UUID, obligatoria. | NINGUNA |
-| `monto` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
+| `origen_tipo` | VARCHAR(10) | Atributo que representa origen tipo en el modelo de `instruccion_libro`. | VARCHAR(10), obligatoria, índice b-tree. | NINGUNA |
+| `origen_id` | UUID | Identificador de referencia para el concepto de origen en `instruccion_libro`. | UUID, obligatoria, índice b-tree. | NINGUNA |
+| `tipo` | VARCHAR(10) | Subtipo o modalidad específica que determina las reglas operativas aplicables al registro. | VARCHAR(10), obligatoria. | NINGUNA |
+| `usuario_id` | UUID | Referencia al usuario titular de la cuenta o actor principal de la operación. | UUID, obligatoria. | NINGUNA |
+| `cuenta_billetera_id` | UUID | Referencia a la billetera donde se debita o acredita el movimiento de fondos. | UUID, obligatoria. | NINGUNA |
+| `monto` | DECIMAL(14,2) | Importe monetario principal de la transacción o concepto financiero. | DECIMAL(14,2), obligatoria, sensibilidad financiero. | FINANCIERO |
 | `moneda` | CHAR(3) | Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2). | CHAR(3), obligatoria. | NINGUNA |
-| `clave_idempotencia` | VARCHAR(100) | Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4). | VARCHAR(100), obligatoria. | NINGUNA |
-| `estado` | VARCHAR(10) | — | VARCHAR(10), obligatoria. | NINGUNA |
-| `referencia_libro` | UUID | — | UUID, opcional. | NINGUNA |
-| `intentos` | INTEGER | — | INTEGER, obligatoria. | NINGUNA |
-| `ultimo_error` | VARCHAR(60) | — | VARCHAR(60), opcional. | NINGUNA |
-| `creada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `aplicada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `clave_idempotencia` | VARCHAR(100) | Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4). | VARCHAR(100), obligatoria, restricción única. | NINGUNA |
+| `estado` | VARCHAR(10) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(10), obligatoria, índice b-tree. | NINGUNA |
+| `referencia_libro` | UUID | Atributo que representa referencia libro en el modelo de `instruccion_libro`. | UUID, opcional. | NINGUNA |
+| `intentos` | INTEGER | Atributo que representa intentos en el modelo de `instruccion_libro`. | INTEGER, obligatoria. | NINGUNA |
+| `ultimo_error` | VARCHAR(60) | Atributo que representa ultimo error en el modelo de `instruccion_libro`. | VARCHAR(60), opcional. | NINGUNA |
+| `creada_en` | TIMESTAMPTZ | Marca temporal UTC en que la entidad fue creada en la base de datos. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `aplicada_en` | TIMESTAMPTZ | Marca temporal o fecha de aplicada en `instruccion_libro`. | TIMESTAMPTZ, opcional. | NINGUNA |
 
 ### `orden_inversion`
 
@@ -5237,22 +5286,22 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `usuario_id` | UUID | — | UUID, obligatoria. | NINGUNA |
-| `producto_inversion_id` | UUID | — | UUID, obligatoria, referencia a `producto_inversion`. | NINGUNA |
-| `version_condiciones_id` | UUID | — | UUID, obligatoria, referencia a `version_condiciones`. | NINGUNA |
-| `consentimiento_inversion_id` | UUID | — | UUID, obligatoria, referencia a `consentimiento_inversion`. | NINGUNA |
-| `cuenta_billetera_id` | UUID | — | UUID, obligatoria. | NINGUNA |
-| `monto` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
+| `usuario_id` | UUID | Referencia al usuario titular de la cuenta o actor principal de la operación. | UUID, obligatoria, índice b-tree. | NINGUNA |
+| `producto_inversion_id` | UUID | Referencia por clave foránea a la entidad `producto_inversion`. | UUID, obligatoria, referencia a `producto_inversion`, índice b-tree. | NINGUNA |
+| `version_condiciones_id` | UUID | Referencia por clave foránea a la entidad `version_condiciones`. | UUID, obligatoria, referencia a `version_condiciones`, índice b-tree. | NINGUNA |
+| `consentimiento_inversion_id` | UUID | Referencia por clave foránea a la entidad `consentimiento_inversion`. | UUID, obligatoria, referencia a `consentimiento_inversion`, restricción única. | NINGUNA |
+| `cuenta_billetera_id` | UUID | Referencia a la billetera donde se debita o acredita el movimiento de fondos. | UUID, obligatoria. | NINGUNA |
+| `monto` | DECIMAL(14,2) | Importe monetario principal de la transacción o concepto financiero. | DECIMAL(14,2), obligatoria, sensibilidad financiero. | FINANCIERO |
 | `moneda` | CHAR(3) | Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2). | CHAR(3), obligatoria. | NINGUNA |
-| `estado` | VARCHAR(12) | — | VARCHAR(12), obligatoria. | NINGUNA |
-| `clave_idempotencia` | VARCHAR(80) | Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4). | VARCHAR(80), obligatoria. | NINGUNA |
-| `hash_solicitud` | CHAR(64) | — | CHAR(64), obligatoria. | DERIVADO |
-| `transaccion_externa` | VARCHAR(80) | — | VARCHAR(80), opcional. | NINGUNA |
-| `fecha_valor` | DATE | — | DATE, opcional. | NINGUNA |
-| `motivo_rechazo` | VARCHAR(60) | — | VARCHAR(60), opcional. | NINGUNA |
-| `version` | INTEGER | — | INTEGER, obligatoria. | NINGUNA |
-| `creada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `actualizada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `estado` | VARCHAR(12) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(12), obligatoria, índice b-tree. | NINGUNA |
+| `clave_idempotencia` | VARCHAR(80) | Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4). | VARCHAR(80), obligatoria, restricción única. | NINGUNA |
+| `hash_solicitud` | CHAR(64) | Resumen criptográfico SHA-256 para verificación inmutable de solicitud. | CHAR(64), obligatoria, sensibilidad derivado. | DERIVADO |
+| `transaccion_externa` | VARCHAR(80) | Atributo que representa transaccion externa en el modelo de `orden_inversion`. | VARCHAR(80), opcional. | NINGUNA |
+| `fecha_valor` | DATE | Marca temporal o fecha de valor en `orden_inversion`. | DATE, opcional. | NINGUNA |
+| `motivo_rechazo` | VARCHAR(60) | Atributo que representa motivo rechazo en el modelo de `orden_inversion`. | VARCHAR(60), opcional. | NINGUNA |
+| `version` | INTEGER | Número de versión para control de concurrencia optimista y auditoría de modificaciones. | INTEGER, obligatoria. | NINGUNA |
+| `creada_en` | TIMESTAMPTZ | Marca temporal UTC en que la entidad fue creada en la base de datos. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `actualizada_en` | TIMESTAMPTZ | Marca temporal UTC de la última modificación aplicada sobre esta entidad. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 
 ### `posicion_inversion`
 
@@ -5267,23 +5316,23 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `usuario_id` | UUID | — | UUID, obligatoria. | NINGUNA |
-| `producto_inversion_id` | UUID | — | UUID, obligatoria, referencia a `producto_inversion`. | NINGUNA |
-| `version_condiciones_id` | UUID | — | UUID, obligatoria, referencia a `version_condiciones`. | NINGUNA |
-| `orden_inversion_id` | UUID | — | UUID, obligatoria, referencia a `orden_inversion`. | NINGUNA |
-| `tipo` | VARCHAR(5) | — | VARCHAR(5), obligatoria. | NINGUNA |
-| `principal` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | NINGUNA |
+| `usuario_id` | UUID | Referencia al usuario titular de la cuenta o actor principal de la operación. | UUID, obligatoria, índice b-tree. | NINGUNA |
+| `producto_inversion_id` | UUID | Referencia por clave foránea a la entidad `producto_inversion`. | UUID, obligatoria, referencia a `producto_inversion`, índice b-tree. | NINGUNA |
+| `version_condiciones_id` | UUID | Referencia por clave foránea a la entidad `version_condiciones`. | UUID, obligatoria, referencia a `version_condiciones`, índice b-tree. | NINGUNA |
+| `orden_inversion_id` | UUID | Referencia por clave foránea a la entidad `orden_inversion`. | UUID, obligatoria, referencia a `orden_inversion`, restricción única. | NINGUNA |
+| `tipo` | VARCHAR(5) | Subtipo o modalidad específica que determina las reglas operativas aplicables al registro. | VARCHAR(5), obligatoria. | NINGUNA |
+| `principal` | DECIMAL(14,2) | Atributo que representa principal en el modelo de `posicion_inversion`. | DECIMAL(14,2), obligatoria. | NINGUNA |
 | `moneda` | CHAR(3) | Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2). | CHAR(3), obligatoria. | NINGUNA |
-| `cuotas` | DECIMAL(18,6) | — | DECIMAL(18,6), opcional. | NINGUNA |
-| `valor_cuota_entrada` | DECIMAL(18,6) | — | DECIMAL(18,6), opcional. | NINGUNA |
-| `marca_maxima` | DECIMAL(18,6) | — | DECIMAL(18,6), opcional. | NINGUNA |
-| `fecha_constitucion` | DATE | — | DATE, obligatoria. | NINGUNA |
-| `fecha_vencimiento` | DATE | — | DATE, opcional. | NINGUNA |
-| `posicion_externa` | VARCHAR(80) | — | VARCHAR(80), obligatoria. | NINGUNA |
-| `estado` | VARCHAR(10) | — | VARCHAR(10), obligatoria. | NINGUNA |
-| `version` | INTEGER | — | INTEGER, obligatoria. | NINGUNA |
-| `creada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `cerrada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `cuotas` | DECIMAL(18,6) | Atributo que representa cuotas en el modelo de `posicion_inversion`. | DECIMAL(18,6), opcional. | NINGUNA |
+| `valor_cuota_entrada` | DECIMAL(18,6) | Atributo que representa valor cuota entrada en el modelo de `posicion_inversion`. | DECIMAL(18,6), opcional. | NINGUNA |
+| `marca_maxima` | DECIMAL(18,6) | Atributo que representa marca maxima en el modelo de `posicion_inversion`. | DECIMAL(18,6), opcional. | NINGUNA |
+| `fecha_constitucion` | DATE | Marca temporal o fecha de constitucion en `posicion_inversion`. | DATE, obligatoria. | NINGUNA |
+| `fecha_vencimiento` | DATE | Marca temporal o fecha de vencimiento en `posicion_inversion`. | DATE, opcional. | NINGUNA |
+| `posicion_externa` | VARCHAR(80) | Atributo que representa posicion externa en el modelo de `posicion_inversion`. | VARCHAR(80), obligatoria, restricción única. | NINGUNA |
+| `estado` | VARCHAR(10) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(10), obligatoria, índice b-tree. | NINGUNA |
+| `version` | INTEGER | Número de versión para control de concurrencia optimista y auditoría de modificaciones. | INTEGER, obligatoria. | NINGUNA |
+| `creada_en` | TIMESTAMPTZ | Marca temporal UTC en que la entidad fue creada en la base de datos. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `cerrada_en` | TIMESTAMPTZ | Marca temporal o fecha de cerrada en `posicion_inversion`. | TIMESTAMPTZ, opcional. | NINGUNA |
 
 ### `producto_inversion`
 
@@ -5298,14 +5347,14 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `codigo` | VARCHAR(40) | — | VARCHAR(40), obligatoria. | NINGUNA |
-| `tipo` | VARCHAR(5) | — | VARCHAR(5), obligatoria. | NINGUNA |
-| `nombre` | VARCHAR(120) | — | VARCHAR(120), obligatoria. | NINGUNA |
-| `emisor` | VARCHAR(120) | — | VARCHAR(120), obligatoria. | NINGUNA |
+| `codigo` | VARCHAR(40) | Código mnemotécnico o identificador legible para operadores y personas usuarias. | VARCHAR(40), obligatoria, restricción única. | NINGUNA |
+| `tipo` | VARCHAR(5) | Subtipo o modalidad específica que determina las reglas operativas aplicables al registro. | VARCHAR(5), obligatoria, índice b-tree. | NINGUNA |
+| `nombre` | VARCHAR(120) | Nombre descriptivo de la entidad para visualización y referencia en el sistema. | VARCHAR(120), obligatoria. | NINGUNA |
+| `emisor` | VARCHAR(120) | Atributo que representa emisor en el modelo de `producto_inversion`. | VARCHAR(120), obligatoria. | NINGUNA |
 | `moneda` | CHAR(3) | Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2). | CHAR(3), obligatoria. | NINGUNA |
-| `nivel_riesgo` | VARCHAR(10) | — | VARCHAR(10), obligatoria. | NINGUNA |
-| `estado` | VARCHAR(12) | — | VARCHAR(12), obligatoria. | NINGUNA |
-| `creado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `nivel_riesgo` | VARCHAR(10) | Atributo que representa nivel riesgo en el modelo de `producto_inversion`. | VARCHAR(10), obligatoria. | NINGUNA |
+| `estado` | VARCHAR(12) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(12), obligatoria, índice b-tree. | NINGUNA |
+| `creado_en` | TIMESTAMPTZ | Marca temporal UTC en que el registro fue creado en la base de datos. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 
 ### `rescate_inversion`
 
@@ -5320,20 +5369,20 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `posicion_inversion_id` | UUID | — | UUID, obligatoria, referencia a `posicion_inversion`. | NINGUNA |
-| `usuario_id` | UUID | — | UUID, obligatoria. | NINGUNA |
-| `tipo` | VARCHAR(12) | — | VARCHAR(12), obligatoria. | NINGUNA |
-| `cuotas` | DECIMAL(18,6) | — | DECIMAL(18,6), opcional. | NINGUNA |
-| `estado` | VARCHAR(14) | — | VARCHAR(14), obligatoria. | NINGUNA |
-| `clave_idempotencia` | VARCHAR(80) | Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4). | VARCHAR(80), obligatoria. | NINGUNA |
-| `hash_solicitud` | CHAR(64) | — | CHAR(64), obligatoria. | DERIVADO |
-| `fecha_valor` | DATE | — | DATE, opcional. | NINGUNA |
-| `liquida_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
-| `transaccion_externa` | VARCHAR(80) | — | VARCHAR(80), opcional. | NINGUNA |
-| `motivo_rechazo` | VARCHAR(60) | — | VARCHAR(60), opcional. | NINGUNA |
-| `version` | INTEGER | — | INTEGER, obligatoria. | NINGUNA |
-| `solicitada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `actualizada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `posicion_inversion_id` | UUID | Referencia por clave foránea a la entidad `posicion_inversion`. | UUID, obligatoria, referencia a `posicion_inversion`, índice b-tree. | NINGUNA |
+| `usuario_id` | UUID | Referencia al usuario titular de la cuenta o actor principal de la operación. | UUID, obligatoria, índice b-tree. | NINGUNA |
+| `tipo` | VARCHAR(12) | Subtipo o modalidad específica que determina las reglas operativas aplicables al registro. | VARCHAR(12), obligatoria. | NINGUNA |
+| `cuotas` | DECIMAL(18,6) | Atributo que representa cuotas en el modelo de `rescate_inversion`. | DECIMAL(18,6), opcional. | NINGUNA |
+| `estado` | VARCHAR(14) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(14), obligatoria, índice b-tree. | NINGUNA |
+| `clave_idempotencia` | VARCHAR(80) | Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4). | VARCHAR(80), obligatoria, restricción única. | NINGUNA |
+| `hash_solicitud` | CHAR(64) | Resumen criptográfico SHA-256 para verificación inmutable de solicitud. | CHAR(64), obligatoria, sensibilidad derivado. | DERIVADO |
+| `fecha_valor` | DATE | Marca temporal o fecha de valor en `rescate_inversion`. | DATE, opcional. | NINGUNA |
+| `liquida_en` | TIMESTAMPTZ | Marca temporal o fecha de liquida en `rescate_inversion`. | TIMESTAMPTZ, opcional. | NINGUNA |
+| `transaccion_externa` | VARCHAR(80) | Atributo que representa transaccion externa en el modelo de `rescate_inversion`. | VARCHAR(80), opcional. | NINGUNA |
+| `motivo_rechazo` | VARCHAR(60) | Atributo que representa motivo rechazo en el modelo de `rescate_inversion`. | VARCHAR(60), opcional. | NINGUNA |
+| `version` | INTEGER | Número de versión para control de concurrencia optimista y auditoría de modificaciones. | INTEGER, obligatoria. | NINGUNA |
+| `solicitada_en` | TIMESTAMPTZ | Marca temporal o fecha de solicitada en `rescate_inversion`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `actualizada_en` | TIMESTAMPTZ | Marca temporal UTC de la última modificación aplicada sobre esta entidad. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 
 ### `valor_cuota`
 
@@ -5348,14 +5397,14 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `producto_inversion_id` | UUID | — | UUID, obligatoria, referencia a `producto_inversion`. | NINGUNA |
-| `fecha` | DATE | — | DATE, obligatoria. | NINGUNA |
-| `valor` | DECIMAL(18,6) | — | DECIMAL(18,6), obligatoria. | NINGUNA |
+| `producto_inversion_id` | UUID | Referencia por clave foránea a la entidad `producto_inversion`. | UUID, obligatoria, referencia a `producto_inversion`, índice b-tree. | NINGUNA |
+| `fecha` | DATE | Fecha calendario correspondiente al devengo o ejecución de la operación. | DATE, obligatoria, restricción única. | NINGUNA |
+| `valor` | DECIMAL(18,6) | Atributo que representa valor en el modelo de `valor_cuota`. | DECIMAL(18,6), obligatoria. | NINGUNA |
 | `moneda` | CHAR(3) | Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2). | CHAR(3), obligatoria. | NINGUNA |
-| `fuente` | VARCHAR(200) | — | VARCHAR(200), obligatoria. | NINGUNA |
-| `origen_datos` | VARCHAR(12) | — | VARCHAR(12), obligatoria. | NINGUNA |
-| `publicado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `recibido_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `fuente` | VARCHAR(200) | Atributo que representa fuente en el modelo de `valor_cuota`. | VARCHAR(200), obligatoria. | NINGUNA |
+| `origen_datos` | VARCHAR(12) | Atributo que representa origen datos en el modelo de `valor_cuota`. | VARCHAR(12), obligatoria. | NINGUNA |
+| `publicado_en` | TIMESTAMPTZ | Marca temporal o fecha de publicado en `valor_cuota`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `recibido_en` | TIMESTAMPTZ | Marca temporal o fecha de recibido en `valor_cuota`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 
 ### `version_condiciones`
 
@@ -5370,28 +5419,50 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `producto_inversion_id` | UUID | — | UUID, obligatoria, referencia a `producto_inversion`. | NINGUNA |
-| `numero` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `plazo_dias` | INTEGER | — | INTEGER, opcional. | NINGUNA |
-| `base_dias` | SMALLINT | — | SMALLINT, opcional. | NINGUNA |
-| `tasa_nominal_anual` | DECIMAL(9,6) | — | DECIMAL(9,6), opcional. | NINGUNA |
-| `permite_rescate_anticipado` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
-| `penalizacion_anticipo` | DECIMAL(7,6) | — | DECIMAL(7,6), opcional. | NINGUNA |
-| `dias_rescate` | SMALLINT | — | SMALLINT, opcional. | NINGUNA |
-| `hora_corte` | VARCHAR(5) | — | VARCHAR(5), opcional. | NINGUNA |
-| `monto_minimo` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
-| `tasa_retencion` | DECIMAL(7,6) | — | DECIMAL(7,6), opcional. | NINGUNA |
-| `tasa_comision_exito` | DECIMAL(7,6) | — | DECIMAL(7,6), opcional. | NINGUNA |
-| `costos_texto` | VARCHAR(300) | — | VARCHAR(300), obligatoria. | NINGUNA |
-| `texto_condiciones` | VARCHAR(2000) | — | VARCHAR(2000), obligatoria. | NINGUNA |
-| `texto_hash` | CHAR(64) | — | CHAR(64), obligatoria. | DERIVADO |
-| `fuente` | VARCHAR(200) | — | VARCHAR(200), obligatoria. | NINGUNA |
-| `fecha_cotizacion` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `origen_datos` | VARCHAR(12) | — | VARCHAR(12), obligatoria. | NINGUNA |
-| `apto_produccion` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
+| `producto_inversion_id` | UUID | Referencia por clave foránea a la entidad `producto_inversion`. | UUID, obligatoria, referencia a `producto_inversion`, índice b-tree. | NINGUNA |
+| `numero` | SMALLINT | Atributo que representa numero en el modelo de `version_condiciones`. | SMALLINT, obligatoria, restricción única. | NINGUNA |
+| `plazo_dias` | INTEGER | Atributo que representa plazo dias en el modelo de `version_condiciones`. | INTEGER, opcional. | NINGUNA |
+| `base_dias` | SMALLINT | Atributo que representa base dias en el modelo de `version_condiciones`. | SMALLINT, opcional. | NINGUNA |
+| `tasa_nominal_anual` | DECIMAL(9,6) | Tasa porcentual o alícuota aplicable a nominal anual. | DECIMAL(9,6), opcional. | NINGUNA |
+| `permite_rescate_anticipado` | BOOLEAN | Atributo que representa permite rescate anticipado en el modelo de `version_condiciones`. | BOOLEAN, obligatoria. | NINGUNA |
+| `penalizacion_anticipo` | DECIMAL(7,6) | Atributo que representa penalizacion anticipo en el modelo de `version_condiciones`. | DECIMAL(7,6), opcional. | NINGUNA |
+| `dias_rescate` | SMALLINT | Atributo que representa dias rescate en el modelo de `version_condiciones`. | SMALLINT, opcional. | NINGUNA |
+| `hora_corte` | VARCHAR(5) | Atributo que representa hora corte en el modelo de `version_condiciones`. | VARCHAR(5), opcional. | NINGUNA |
+| `monto_minimo` | DECIMAL(14,2) | Importe monetario correspondiente a minimo en `version_condiciones`. | DECIMAL(14,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `tasa_retencion` | DECIMAL(7,6) | Tasa porcentual o alícuota aplicable a retencion. | DECIMAL(7,6), opcional. | NINGUNA |
+| `tasa_comision_exito` | DECIMAL(7,6) | Tasa porcentual o alícuota aplicable a comision exito. | DECIMAL(7,6), opcional. | NINGUNA |
+| `costos_texto` | VARCHAR(300) | Atributo que representa costos texto en el modelo de `version_condiciones`. | VARCHAR(300), obligatoria. | NINGUNA |
+| `texto_condiciones` | VARCHAR(2000) | Atributo que representa texto condiciones en el modelo de `version_condiciones`. | VARCHAR(2000), obligatoria. | NINGUNA |
+| `texto_hash` | CHAR(64) | Resumen criptográfico SHA-256 para verificación inmutable de texto. | CHAR(64), obligatoria, sensibilidad derivado. | DERIVADO |
+| `fuente` | VARCHAR(200) | Atributo que representa fuente en el modelo de `version_condiciones`. | VARCHAR(200), obligatoria. | NINGUNA |
+| `fecha_cotizacion` | TIMESTAMPTZ | Marca temporal o fecha de cotizacion en `version_condiciones`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `origen_datos` | VARCHAR(12) | Atributo que representa origen datos en el modelo de `version_condiciones`. | VARCHAR(12), obligatoria. | NINGUNA |
+| `apto_produccion` | BOOLEAN | Atributo que representa apto produccion en el modelo de `version_condiciones`. | BOOLEAN, obligatoria. | NINGUNA |
 | `vigente_desde` | TIMESTAMPTZ | Desde cuándo rige esta versión de la fila: las condiciones se versionan, no se pisan. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 
 ## Esquema `notificaciones`
+
+### `aviso_interno`
+
+**Qué es.** El registro persistente de avisos dirigidos a operadores internos o a roles funcionales en el backoffice.
+
+**Para qué sirve.** Alerta a operadores sobre hechos operativos críticos: una nueva alerta de monitoreo, un caso asignado, una ficha técnica pendiente de revisión o un fallo de despliegue. Puede dirigirse a un operador específico o a todo un rol (ej. `ADMIN_PLATAFORMA`, `OFICIAL_CUMPLIMIENTO`).
+
+**Por qué existe.** Sin este registro, los operadores no tendrían una campana de notificaciones real que les informe de eventos urgentes con enlace directo a la pantalla de resolución. ---
+
+**Sistema.** Vive en el esquema `notificaciones`; la escribe y la lee solo el servicio `notificaciones` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `identidad.usuario`.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
+| `usuario_id` | UUID | Referencia al usuario titular de la cuenta o actor principal de la operación. | UUID, opcional, referencia a `usuario`, índice b-tree. | NINGUNA |
+| `rol_destinatario` | VARCHAR(50) | Atributo que representa rol destinatario en el modelo de `aviso_interno`. | VARCHAR(50), opcional, índice b-tree. | NINGUNA |
+| `titulo` | VARCHAR(150) | Atributo que representa titulo en el modelo de `aviso_interno`. | VARCHAR(150), obligatoria. | NINGUNA |
+| `mensaje` | TEXT | Atributo que representa mensaje en el modelo de `aviso_interno`. | TEXT, obligatoria. | NINGUNA |
+| `tipo` | VARCHAR(20) | Subtipo o modalidad específica que determina las reglas operativas aplicables al registro. | VARCHAR(20), obligatoria. | NINGUNA |
+| `enlace` | VARCHAR(300) | Atributo que representa enlace en el modelo de `aviso_interno`. | VARCHAR(300), opcional. | NINGUNA |
+| `leido_en` | TIMESTAMPTZ | Marca temporal o fecha de leido en `aviso_interno`. | TIMESTAMPTZ, opcional, índice b-tree. | NINGUNA |
+| `creado_en` | TIMESTAMPTZ | Marca temporal UTC en que el registro fue creado en la base de datos. | TIMESTAMPTZ, obligatoria, índice b-tree. | NINGUNA |
 
 ### `bandeja_entrada`
 
@@ -5406,14 +5477,14 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `usuario_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `notificacion_id` | UUID | — | UUID, obligatoria, referencia a `notificacion`. | NINGUNA |
-| `titulo` | VARCHAR(120) | — | VARCHAR(120), obligatoria. | NINGUNA |
-| `resumen` | VARCHAR(300) | — | VARCHAR(300), obligatoria. | NINGUNA |
-| `url_accion` | VARCHAR(255) | — | VARCHAR(255), opcional. | NINGUNA |
-| `leida` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
-| `leida_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
-| `archivada` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
+| `usuario_id` | UUID | Referencia al usuario titular de la cuenta o actor principal de la operación. | UUID, obligatoria, referencia a `usuario`, índice b-tree. | NINGUNA |
+| `notificacion_id` | UUID | Referencia por clave foránea a la entidad `notificacion`. | UUID, obligatoria, referencia a `notificacion`, restricción única. | NINGUNA |
+| `titulo` | VARCHAR(120) | Atributo que representa titulo en el modelo de `bandeja_entrada`. | VARCHAR(120), obligatoria. | NINGUNA |
+| `resumen` | VARCHAR(300) | Atributo que representa resumen en el modelo de `bandeja_entrada`. | VARCHAR(300), obligatoria. | NINGUNA |
+| `url_accion` | VARCHAR(255) | Localizador uniforme de recursos (URL/URI) correspondiente a accion. | VARCHAR(255), opcional. | NINGUNA |
+| `leida` | BOOLEAN | Atributo que representa leida en el modelo de `bandeja_entrada`. | BOOLEAN, obligatoria, índice b-tree. | NINGUNA |
+| `leida_en` | TIMESTAMPTZ | Marca temporal o fecha de leida en `bandeja_entrada`. | TIMESTAMPTZ, opcional. | NINGUNA |
+| `archivada` | BOOLEAN | Atributo que representa archivada en el modelo de `bandeja_entrada`. | BOOLEAN, obligatoria. | NINGUNA |
 
 ### `canal_vinculado`
 
@@ -5428,17 +5499,17 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `usuario_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `tipo` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `identificador` | VARCHAR(150) | — | VARCHAR(150), obligatoria. | NINGUNA |
-| `verificado` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
-| `verificado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
-| `opt_in_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
-| `opt_out_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
-| `motivo_opt_out` | VARCHAR(120) | — | VARCHAR(120), opcional. | NINGUNA |
-| `ventana_conversacion_hasta` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
-| `rebotes_consecutivos` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `estado` | VARCHAR(25) | — | VARCHAR(25), obligatoria. | NINGUNA |
+| `usuario_id` | UUID | Referencia al usuario titular de la cuenta o actor principal de la operación. | UUID, obligatoria, referencia a `usuario`, índice b-tree. | NINGUNA |
+| `tipo` | VARCHAR(15) | Subtipo o modalidad específica que determina las reglas operativas aplicables al registro. | VARCHAR(15), obligatoria. | NINGUNA |
+| `identificador` | VARCHAR(150) | Atributo que representa identificador en el modelo de `canal_vinculado`. | VARCHAR(150), obligatoria, restricción única. | NINGUNA |
+| `verificado` | BOOLEAN | Atributo que representa verificado en el modelo de `canal_vinculado`. | BOOLEAN, obligatoria. | NINGUNA |
+| `verificado_en` | TIMESTAMPTZ | Marca temporal o fecha de verificado en `canal_vinculado`. | TIMESTAMPTZ, opcional. | NINGUNA |
+| `opt_in_en` | TIMESTAMPTZ | Marca temporal o fecha de opt in en `canal_vinculado`. | TIMESTAMPTZ, opcional. | NINGUNA |
+| `opt_out_en` | TIMESTAMPTZ | Marca temporal o fecha de opt out en `canal_vinculado`. | TIMESTAMPTZ, opcional. | NINGUNA |
+| `motivo_opt_out` | VARCHAR(120) | Atributo que representa motivo opt out en el modelo de `canal_vinculado`. | VARCHAR(120), opcional. | NINGUNA |
+| `ventana_conversacion_hasta` | TIMESTAMPTZ | Atributo que representa ventana conversacion hasta en el modelo de `canal_vinculado`. | TIMESTAMPTZ, opcional. | NINGUNA |
+| `rebotes_consecutivos` | SMALLINT | Atributo que representa rebotes consecutivos en el modelo de `canal_vinculado`. | SMALLINT, obligatoria. | NINGUNA |
+| `estado` | VARCHAR(25) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(25), obligatoria, índice b-tree. | NINGUNA |
 
 ### `cola_envio`
 
@@ -5453,11 +5524,11 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `envio_id` | UUID | — | UUID, obligatoria, referencia a `envio_notificacion`. | NINGUNA |
-| `particion` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
-| `disponible_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `intentos` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `bloqueada_hasta` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `envio_id` | UUID | Referencia por clave foránea a la entidad `envio_notificacion`. | UUID, obligatoria, referencia a `envio_notificacion`, restricción única. | NINGUNA |
+| `particion` | VARCHAR(20) | Atributo que representa particion en el modelo de `cola_envio`. | VARCHAR(20), obligatoria, índice b-tree. | NINGUNA |
+| `disponible_en` | TIMESTAMPTZ | Marca temporal o fecha de disponible en `cola_envio`. | TIMESTAMPTZ, obligatoria, índice b-tree. | NINGUNA |
+| `intentos` | SMALLINT | Atributo que representa intentos en el modelo de `cola_envio`. | SMALLINT, obligatoria. | NINGUNA |
+| `bloqueada_hasta` | TIMESTAMPTZ | Atributo que representa bloqueada hasta en el modelo de `cola_envio`. | TIMESTAMPTZ, opcional. | NINGUNA |
 
 ### `cola_muerta`
 
@@ -5472,11 +5543,11 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `envio_id` | UUID | — | UUID, obligatoria, referencia a `envio_notificacion`. | NINGUNA |
-| `motivo` | VARCHAR(200) | — | VARCHAR(200), obligatoria. | NINGUNA |
-| `payload` | JSONB | — | JSONB, obligatoria. | NINGUNA |
-| `fecha` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `reprocesado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `envio_id` | UUID | Referencia por clave foránea a la entidad `envio_notificacion`. | UUID, obligatoria, referencia a `envio_notificacion`, índice b-tree. | NINGUNA |
+| `motivo` | VARCHAR(200) | Justificación declarada o causal que originó la creación, rechazo o transición del registro. | VARCHAR(200), obligatoria. | NINGUNA |
+| `payload` | JSONB | Atributo que representa payload en el modelo de `cola_muerta`. | JSONB, obligatoria. | NINGUNA |
+| `fecha` | TIMESTAMPTZ | Fecha calendario correspondiente al devengo o ejecución de la operación. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `reprocesado_en` | TIMESTAMPTZ | Marca temporal o fecha de reprocesado en `cola_muerta`. | TIMESTAMPTZ, opcional. | NINGUNA |
 
 ### `enlace_pago_notificado`
 
@@ -5491,14 +5562,14 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `notificacion_id` | UUID | — | UUID, obligatoria, referencia a `notificacion`. | NINGUNA |
-| `orden_cobro_id` | UUID | — | UUID, obligatoria, referencia a `orden_cobro`. | NINGUNA |
-| `token_id` | UUID | — | UUID, obligatoria, referencia a `token_verificacion`. | SECRETO |
-| `url_corta` | VARCHAR(60) | — | VARCHAR(60), obligatoria. | NINGUNA |
-| `clicks` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `primer_click_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
-| `convertido_en_pago` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
-| `expira_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `notificacion_id` | UUID | Referencia por clave foránea a la entidad `notificacion`. | UUID, obligatoria, referencia a `notificacion`, restricción única. | NINGUNA |
+| `orden_cobro_id` | UUID | Referencia por clave foránea a la entidad `orden_cobro`. | UUID, obligatoria, referencia a `orden_cobro`. | NINGUNA |
+| `token_id` | UUID | Referencia por clave foránea a la entidad `token_verificacion`. | UUID, obligatoria, referencia a `token_verificacion`, restricción única, sensibilidad secreto. | SECRETO |
+| `url_corta` | VARCHAR(60) | Localizador uniforme de recursos (URL/URI) correspondiente a corta. | VARCHAR(60), obligatoria, restricción única. | NINGUNA |
+| `clicks` | SMALLINT | Atributo que representa clicks en el modelo de `enlace_pago_notificado`. | SMALLINT, obligatoria. | NINGUNA |
+| `primer_click_en` | TIMESTAMPTZ | Marca temporal o fecha de primer click en `enlace_pago_notificado`. | TIMESTAMPTZ, opcional. | NINGUNA |
+| `convertido_en_pago` | BOOLEAN | Atributo que representa convertido en pago en el modelo de `enlace_pago_notificado`. | BOOLEAN, obligatoria. | NINGUNA |
+| `expira_en` | TIMESTAMPTZ | Marca temporal o fecha de expira en `enlace_pago_notificado`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 
 ### `envio_notificacion`
 
@@ -5513,27 +5584,27 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `notificacion_id` | UUID | — | UUID, obligatoria, referencia a `notificacion`. | NINGUNA |
-| `proveedor_id` | UUID | — | UUID, obligatoria, referencia a `proveedor_mensajeria`. | NINGUNA |
-| `version_plantilla_id` | UUID | — | UUID, obligatoria, referencia a `version_plantilla`. | NINGUNA |
-| `canal_vinculado_id` | UUID | — | UUID, opcional, referencia a `canal_vinculado`. | NINGUNA |
-| `canal` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `destinatario` | VARCHAR(150) | — | VARCHAR(150), obligatoria. | NINGUNA |
+| `notificacion_id` | UUID | Referencia por clave foránea a la entidad `notificacion`. | UUID, obligatoria, referencia a `notificacion`, índice b-tree. | NINGUNA |
+| `proveedor_id` | UUID | Referencia por clave foránea a la entidad `proveedor_mensajeria`. | UUID, obligatoria, referencia a `proveedor_mensajeria`. | NINGUNA |
+| `version_plantilla_id` | UUID | Referencia por clave foránea a la entidad `version_plantilla`. | UUID, obligatoria, referencia a `version_plantilla`. | NINGUNA |
+| `canal_vinculado_id` | UUID | Referencia por clave foránea a la entidad `canal_vinculado`. | UUID, opcional, referencia a `canal_vinculado`. | NINGUNA |
+| `canal` | VARCHAR(15) | Atributo que representa canal en el modelo de `envio_notificacion`. | VARCHAR(15), obligatoria. | NINGUNA |
+| `destinatario` | VARCHAR(150) | Atributo que representa destinatario en el modelo de `envio_notificacion`. | VARCHAR(150), obligatoria. | NINGUNA |
 | `clave_idempotencia` | VARCHAR(120) | Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4). | VARCHAR(120), obligatoria. | NINGUNA |
-| `encolado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `contenido_enviado` | TEXT | — | TEXT, obligatoria. | NINGUNA |
-| `estado` | VARCHAR(25) | — | VARCHAR(25), obligatoria. | NINGUNA |
-| `id_mensaje_proveedor` | VARCHAR(120) | — | VARCHAR(120), opcional. | NINGUNA |
-| `orden` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `intentos` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `max_intentos` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `costo` | DECIMAL(10,4) | — | DECIMAL(10,4), obligatoria. | NINGUNA |
+| `encolado_en` | TIMESTAMPTZ | Marca temporal o fecha de encolado en `envio_notificacion`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `contenido_enviado` | TEXT | Atributo que representa contenido enviado en el modelo de `envio_notificacion`. | TEXT, obligatoria. | NINGUNA |
+| `estado` | VARCHAR(25) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(25), obligatoria, índice b-tree. | NINGUNA |
+| `id_mensaje_proveedor` | VARCHAR(120) | Atributo que representa id mensaje proveedor en el modelo de `envio_notificacion`. | VARCHAR(120), opcional, restricción única. | NINGUNA |
+| `orden` | SMALLINT | Atributo que representa orden en el modelo de `envio_notificacion`. | SMALLINT, obligatoria. | NINGUNA |
+| `intentos` | SMALLINT | Atributo que representa intentos en el modelo de `envio_notificacion`. | SMALLINT, obligatoria. | NINGUNA |
+| `max_intentos` | SMALLINT | Atributo que representa max intentos en el modelo de `envio_notificacion`. | SMALLINT, obligatoria. | NINGUNA |
+| `costo` | DECIMAL(10,4) | Atributo que representa costo en el modelo de `envio_notificacion`. | DECIMAL(10,4), obligatoria. | NINGUNA |
 | `moneda` | CHAR(3) | Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2). | CHAR(3), obligatoria. | NINGUNA |
-| `codigo_error` | VARCHAR(40) | — | VARCHAR(40), opcional. | NINGUNA |
-| `enviado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
-| `entregado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
-| `leido_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
-| `proximo_reintento_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `codigo_error` | VARCHAR(40) | Código normalizado o mnemotécnico de error. | VARCHAR(40), opcional. | NINGUNA |
+| `enviado_en` | TIMESTAMPTZ | Marca temporal o fecha de enviado en `envio_notificacion`. | TIMESTAMPTZ, opcional. | NINGUNA |
+| `entregado_en` | TIMESTAMPTZ | Marca temporal o fecha de entregado en `envio_notificacion`. | TIMESTAMPTZ, opcional. | NINGUNA |
+| `leido_en` | TIMESTAMPTZ | Marca temporal o fecha de leido en `envio_notificacion`. | TIMESTAMPTZ, opcional. | NINGUNA |
+| `proximo_reintento_en` | TIMESTAMPTZ | Marca temporal o fecha de proximo reintento en `envio_notificacion`. | TIMESTAMPTZ, opcional, índice b-tree. | NINGUNA |
 
 ### `evento_entrega_mensaje`
 
@@ -5548,12 +5619,12 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `envio_id` | UUID | — | UUID, obligatoria, referencia a `envio_notificacion`. | NINGUNA |
-| `tipo_evento` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
-| `fecha_hora_proveedor` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `recibido_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `payload_crudo` | JSONB | — | JSONB, obligatoria. | NINGUNA |
-| `codigo_error` | VARCHAR(40) | — | VARCHAR(40), opcional. | NINGUNA |
+| `envio_id` | UUID | Referencia por clave foránea a la entidad `envio_notificacion`. | UUID, obligatoria, referencia a `envio_notificacion`, índice b-tree. | NINGUNA |
+| `tipo_evento` | VARCHAR(20) | Atributo que representa tipo evento en el modelo de `evento_entrega_mensaje`. | VARCHAR(20), obligatoria. | NINGUNA |
+| `fecha_hora_proveedor` | TIMESTAMPTZ | Marca temporal o fecha de hora proveedor en `evento_entrega_mensaje`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `recibido_en` | TIMESTAMPTZ | Marca temporal o fecha de recibido en `evento_entrega_mensaje`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `payload_crudo` | JSONB | Atributo que representa payload crudo en el modelo de `evento_entrega_mensaje`. | JSONB, obligatoria. | NINGUNA |
+| `codigo_error` | VARCHAR(40) | Código normalizado o mnemotécnico de error. | VARCHAR(40), opcional. | NINGUNA |
 | `clave_idempotencia` | VARCHAR(120) | Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4). | VARCHAR(120), obligatoria. | NINGUNA |
 
 ### `evento_notificable`
@@ -5569,17 +5640,17 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `tipo` | VARCHAR(40) | — | VARCHAR(40), obligatoria. | NINGUNA |
-| `descripcion` | VARCHAR(200) | — | VARCHAR(200), obligatoria. | NINGUNA |
-| `categoria` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
-| `es_obligatorio` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
+| `tipo` | VARCHAR(40) | Subtipo o modalidad específica que determina las reglas operativas aplicables al registro. | VARCHAR(40), obligatoria, restricción única. | NINGUNA |
+| `descripcion` | VARCHAR(200) | Detalle descriptivo que explica el contenido, propósito o contexto de la entidad. | VARCHAR(200), obligatoria. | NINGUNA |
+| `categoria` | VARCHAR(20) | Atributo que representa categoria en el modelo de `evento_notificable`. | VARCHAR(20), obligatoria, índice b-tree. | NINGUNA |
+| `es_obligatorio` | BOOLEAN | Indicador booleano que señala si obligatorio en `evento_notificable`. | BOOLEAN, obligatoria. | NINGUNA |
 | `prioridad` | VARCHAR(10) | un código de verificación es CRÍTICO (bloquea al usuario si no llega); un resumen mensual es BAJO. | VARCHAR(10), obligatoria. | NINGUNA |
 | `es_transaccional` | BOOLEAN | **si es transaccional, ignora el horario de no molestar.** "Tu entrega se acreditó" o "tu pago fue rechazado" se avisan a la hora que sea. Un recordatorio de aporte, no. | BOOLEAN, obligatoria. | NINGUNA |
 | `permite_agrupacion` | BOOLEAN | evita mandar cinco mensajes cuando se pueden juntar en uno. | BOOLEAN, obligatoria. | NINGUNA |
 | `ventana_deduplicacion_min` | SMALLINT | cuánto tiempo tiene que pasar para que el mismo aviso se considere nuevo y no repetido. | SMALLINT, obligatoria. | NINGUNA |
-| `canales_permitidos` | VARCHAR(120) | — | VARCHAR(120), obligatoria. | NINGUNA |
+| `canales_permitidos` | VARCHAR(120) | Atributo que representa canales permitidos en el modelo de `evento_notificable`. | VARCHAR(120), obligatoria. | NINGUNA |
 | `cadena_respaldo` | VARCHAR(120) | el orden de canales a intentar. WhatsApp → SMS → correo. | VARCHAR(120), obligatoria. | NINGUNA |
-| `activo` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
+| `activo` | BOOLEAN | Indicador booleano que determina si el registro se encuentra actualmente operativo. | BOOLEAN, obligatoria. | NINGUNA |
 
 ### `lista_supresion`
 
@@ -5594,13 +5665,13 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `identificador` | VARCHAR(150) | — | VARCHAR(150), obligatoria. | NINGUNA |
-| `canal` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `motivo` | VARCHAR(25) | — | VARCHAR(25), obligatoria. | NINGUNA |
-| `categoria` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
-| `activa` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
-| `agregado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `permanente` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
+| `identificador` | VARCHAR(150) | Atributo que representa identificador en el modelo de `lista_supresion`. | VARCHAR(150), obligatoria, restricción única. | NINGUNA |
+| `canal` | VARCHAR(15) | Atributo que representa canal en el modelo de `lista_supresion`. | VARCHAR(15), obligatoria. | NINGUNA |
+| `motivo` | VARCHAR(25) | Justificación declarada o causal que originó la creación, rechazo o transición del registro. | VARCHAR(25), obligatoria. | NINGUNA |
+| `categoria` | VARCHAR(20) | Atributo que representa categoria en el modelo de `lista_supresion`. | VARCHAR(20), obligatoria, índice b-tree. | NINGUNA |
+| `activa` | BOOLEAN | Indicador booleano que determina si la entidad se encuentra actualmente operativa. | BOOLEAN, obligatoria, índice b-tree. | NINGUNA |
+| `agregado_en` | TIMESTAMPTZ | Marca temporal o fecha de agregado en `lista_supresion`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `permanente` | BOOLEAN | Atributo que representa permanente en el modelo de `lista_supresion`. | BOOLEAN, obligatoria. | NINGUNA |
 
 ### `notificacion`
 
@@ -5615,16 +5686,16 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `usuario_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `evento_id` | UUID | — | UUID, obligatoria, referencia a `evento_notificable`. | NINGUNA |
-| `prioridad` | VARCHAR(10) | — | VARCHAR(10), obligatoria. | NINGUNA |
-| `contexto` | JSONB | — | JSONB, obligatoria. | NINGUNA |
-| `clave_deduplicacion` | VARCHAR(120) | — | VARCHAR(120), obligatoria. | SECRETO |
-| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `programada_para` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `creada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `finalizada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
-| `correlation_id` | UUID | — | UUID, obligatoria. | NINGUNA |
+| `usuario_id` | UUID | Referencia al usuario titular de la cuenta o actor principal de la operación. | UUID, obligatoria, referencia a `usuario`, índice b-tree. | NINGUNA |
+| `evento_id` | UUID | Referencia por clave foránea a la entidad `evento_notificable`. | UUID, obligatoria, referencia a `evento_notificable`. | NINGUNA |
+| `prioridad` | VARCHAR(10) | Atributo que representa prioridad en el modelo de `notificacion`. | VARCHAR(10), obligatoria. | NINGUNA |
+| `contexto` | JSONB | Atributo que representa contexto en el modelo de `notificacion`. | JSONB, obligatoria. | NINGUNA |
+| `clave_deduplicacion` | VARCHAR(120) | Atributo que representa clave deduplicacion en el modelo de `notificacion`. | VARCHAR(120), obligatoria, restricción única, sensibilidad secreto. | SECRETO |
+| `estado` | VARCHAR(15) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(15), obligatoria, índice b-tree. | NINGUNA |
+| `programada_para` | TIMESTAMPTZ | Atributo que representa programada para en el modelo de `notificacion`. | TIMESTAMPTZ, obligatoria, índice b-tree. | NINGUNA |
+| `creada_en` | TIMESTAMPTZ | Marca temporal UTC en que la entidad fue creada en la base de datos. | TIMESTAMPTZ, obligatoria, índice b-tree. | NINGUNA |
+| `finalizada_en` | TIMESTAMPTZ | Marca temporal o fecha de finalizada en `notificacion`. | TIMESTAMPTZ, opcional. | NINGUNA |
+| `correlation_id` | UUID | Identificador de referencia para el concepto de correlation en `notificacion`. | UUID, obligatoria, índice b-tree. | NINGUNA |
 
 ### `plantilla_mensaje`
 
@@ -5639,14 +5710,14 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `codigo` | VARCHAR(50) | — | VARCHAR(50), obligatoria. | NINGUNA |
-| `evento_id` | UUID | — | UUID, obligatoria, referencia a `evento_notificable`. | NINGUNA |
-| `canal` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `descripcion` | VARCHAR(200) | — | VARCHAR(200), obligatoria. | NINGUNA |
-| `categoria_proveedor` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
-| `estado_aprobacion` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `id_plantilla_proveedor` | VARCHAR(80) | — | VARCHAR(80), opcional. | NINGUNA |
-| `activa` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
+| `codigo` | VARCHAR(50) | Código mnemotécnico o identificador legible para operadores y personas usuarias. | VARCHAR(50), obligatoria, restricción única. | NINGUNA |
+| `evento_id` | UUID | Referencia por clave foránea a la entidad `evento_notificable`. | UUID, obligatoria, referencia a `evento_notificable`, índice b-tree. | NINGUNA |
+| `canal` | VARCHAR(15) | Atributo que representa canal en el modelo de `plantilla_mensaje`. | VARCHAR(15), obligatoria. | NINGUNA |
+| `descripcion` | VARCHAR(200) | Detalle descriptivo que explica el contenido, propósito o contexto de la entidad. | VARCHAR(200), obligatoria. | NINGUNA |
+| `categoria_proveedor` | VARCHAR(20) | Atributo que representa categoria proveedor en el modelo de `plantilla_mensaje`. | VARCHAR(20), obligatoria. | NINGUNA |
+| `estado_aprobacion` | VARCHAR(15) | Atributo que representa estado aprobacion en el modelo de `plantilla_mensaje`. | VARCHAR(15), obligatoria. | NINGUNA |
+| `id_plantilla_proveedor` | VARCHAR(80) | Atributo que representa id plantilla proveedor en el modelo de `plantilla_mensaje`. | VARCHAR(80), opcional. | NINGUNA |
+| `activa` | BOOLEAN | Indicador booleano que determina si la entidad se encuentra actualmente operativa. | BOOLEAN, obligatoria. | NINGUNA |
 
 ### `programacion_recordatorio`
 
@@ -5661,14 +5732,14 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `grupo_id` | UUID | — | UUID, opcional, referencia a `grupo`. | NINGUNA |
-| `evento_id` | UUID | — | UUID, obligatoria, referencia a `evento_notificable`. | NINGUNA |
-| `desfase_dias` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `hora_envio` | TIME | — | TIME, obligatoria. | NINGUNA |
-| `repetir_cada` | SMALLINT | — | SMALLINT, opcional. | NINGUNA |
-| `max_repeticiones` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `condicion` | VARCHAR(200) | — | VARCHAR(200), obligatoria. | NINGUNA |
-| `activa` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
+| `grupo_id` | UUID | Referencia al grupo de pasanaku en el que se enmarca esta operación. | UUID, opcional, referencia a `grupo`. | NINGUNA |
+| `evento_id` | UUID | Referencia por clave foránea a la entidad `evento_notificable`. | UUID, obligatoria, referencia a `evento_notificable`. | NINGUNA |
+| `desfase_dias` | SMALLINT | Atributo que representa desfase dias en el modelo de `programacion_recordatorio`. | SMALLINT, obligatoria. | NINGUNA |
+| `hora_envio` | TIME | Atributo que representa hora envio en el modelo de `programacion_recordatorio`. | TIME, obligatoria. | NINGUNA |
+| `repetir_cada` | SMALLINT | Atributo que representa repetir cada en el modelo de `programacion_recordatorio`. | SMALLINT, opcional. | NINGUNA |
+| `max_repeticiones` | SMALLINT | Atributo que representa max repeticiones en el modelo de `programacion_recordatorio`. | SMALLINT, obligatoria. | NINGUNA |
+| `condicion` | VARCHAR(200) | Atributo que representa condicion en el modelo de `programacion_recordatorio`. | VARCHAR(200), obligatoria. | NINGUNA |
+| `activa` | BOOLEAN | Indicador booleano que determina si la entidad se encuentra actualmente operativa. | BOOLEAN, obligatoria. | NINGUNA |
 
 ### `proveedor_mensajeria`
 
@@ -5683,16 +5754,16 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `codigo` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
-| `nombre` | VARCHAR(80) | — | VARCHAR(80), obligatoria. | NINGUNA |
-| `canales_soportados` | VARCHAR(120) | — | VARCHAR(120), obligatoria. | NINGUNA |
-| `url_base` | VARCHAR(200) | — | VARCHAR(200), obligatoria. | NINGUNA |
-| `referencia_credenciales` | VARCHAR(120) | — | VARCHAR(120), obligatoria. | NINGUNA |
-| `costo_por_mensaje` | DECIMAL(10,4) | — | DECIMAL(10,4), obligatoria. | NINGUNA |
-| `limite_mensajes_por_segundo` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `prioridad` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `activo` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
-| `salud_porcentaje` | DECIMAL(5,2) | — | DECIMAL(5,2), obligatoria. | NINGUNA |
+| `codigo` | VARCHAR(30) | Código mnemotécnico o identificador legible para operadores y personas usuarias. | VARCHAR(30), obligatoria, restricción única. | NINGUNA |
+| `nombre` | VARCHAR(80) | Nombre descriptivo de la entidad para visualización y referencia en el sistema. | VARCHAR(80), obligatoria. | NINGUNA |
+| `canales_soportados` | VARCHAR(120) | Atributo que representa canales soportados en el modelo de `proveedor_mensajeria`. | VARCHAR(120), obligatoria. | NINGUNA |
+| `url_base` | VARCHAR(200) | Localizador uniforme de recursos (URL/URI) correspondiente a base. | VARCHAR(200), obligatoria. | NINGUNA |
+| `referencia_credenciales` | VARCHAR(120) | Atributo que representa referencia credenciales en el modelo de `proveedor_mensajeria`. | VARCHAR(120), obligatoria. | NINGUNA |
+| `costo_por_mensaje` | DECIMAL(10,4) | Atributo que representa costo por mensaje en el modelo de `proveedor_mensajeria`. | DECIMAL(10,4), obligatoria. | NINGUNA |
+| `limite_mensajes_por_segundo` | SMALLINT | Atributo que representa limite mensajes por segundo en el modelo de `proveedor_mensajeria`. | SMALLINT, obligatoria. | NINGUNA |
+| `prioridad` | SMALLINT | Atributo que representa prioridad en el modelo de `proveedor_mensajeria`. | SMALLINT, obligatoria. | NINGUNA |
+| `activo` | BOOLEAN | Indicador booleano que determina si el registro se encuentra actualmente operativo. | BOOLEAN, obligatoria. | NINGUNA |
+| `salud_porcentaje` | DECIMAL(5,2) | Tasa porcentual o alícuota aplicable a salud. | DECIMAL(5,2), obligatoria. | NINGUNA |
 
 ### `respuesta_entrante`
 
@@ -5707,13 +5778,13 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `canal_vinculado_id` | UUID | — | UUID, obligatoria, referencia a `canal_vinculado`. | NINGUNA |
-| `notificacion_relacionada_id` | UUID | — | UUID, opcional, referencia a `notificacion`. | NINGUNA |
-| `contenido` | TEXT | — | TEXT, obligatoria. | NINGUNA |
-| `intencion_detectada` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
-| `recibida_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `procesada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
-| `accion_ejecutada` | VARCHAR(120) | — | VARCHAR(120), opcional. | NINGUNA |
+| `canal_vinculado_id` | UUID | Referencia por clave foránea a la entidad `canal_vinculado`. | UUID, obligatoria, referencia a `canal_vinculado`, índice b-tree. | NINGUNA |
+| `notificacion_relacionada_id` | UUID | Referencia por clave foránea a la entidad `notificacion`. | UUID, opcional, referencia a `notificacion`. | NINGUNA |
+| `contenido` | TEXT | Atributo que representa contenido en el modelo de `respuesta_entrante`. | TEXT, obligatoria. | NINGUNA |
+| `intencion_detectada` | VARCHAR(30) | Atributo que representa intencion detectada en el modelo de `respuesta_entrante`. | VARCHAR(30), obligatoria. | NINGUNA |
+| `recibida_en` | TIMESTAMPTZ | Marca temporal o fecha de recibida en `respuesta_entrante`. | TIMESTAMPTZ, obligatoria, índice b-tree. | NINGUNA |
+| `procesada_en` | TIMESTAMPTZ | Marca temporal o fecha de procesada en `respuesta_entrante`. | TIMESTAMPTZ, opcional. | NINGUNA |
+| `accion_ejecutada` | VARCHAR(120) | Atributo que representa accion ejecutada en el modelo de `respuesta_entrante`. | VARCHAR(120), opcional. | NINGUNA |
 
 ### `version_plantilla`
 
@@ -5728,14 +5799,14 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `plantilla_id` | UUID | — | UUID, obligatoria, referencia a `plantilla_mensaje`. | NINGUNA |
-| `version` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `idioma` | VARCHAR(10) | — | VARCHAR(10), obligatoria. | NINGUNA |
-| `asunto` | VARCHAR(160) | — | VARCHAR(160), opcional. | NINGUNA |
-| `cuerpo` | TEXT | — | TEXT, obligatoria. | NINGUNA |
-| `variables` | JSONB | — | JSONB, obligatoria. | NINGUNA |
-| `botones` | JSONB | — | JSONB, opcional. | NINGUNA |
-| `url_encabezado_media` | VARCHAR(255) | — | VARCHAR(255), opcional. | NINGUNA |
+| `plantilla_id` | UUID | Referencia por clave foránea a la entidad `plantilla_mensaje`. | UUID, obligatoria, referencia a `plantilla_mensaje`, índice b-tree. | NINGUNA |
+| `version` | SMALLINT | Número de versión para control de concurrencia optimista y auditoría de modificaciones. | SMALLINT, obligatoria, restricción única. | NINGUNA |
+| `idioma` | VARCHAR(10) | Atributo que representa idioma en el modelo de `version_plantilla`. | VARCHAR(10), obligatoria. | NINGUNA |
+| `asunto` | VARCHAR(160) | Atributo que representa asunto en el modelo de `version_plantilla`. | VARCHAR(160), opcional. | NINGUNA |
+| `cuerpo` | TEXT | Atributo que representa cuerpo en el modelo de `version_plantilla`. | TEXT, obligatoria. | NINGUNA |
+| `variables` | JSONB | Atributo que representa variables en el modelo de `version_plantilla`. | JSONB, obligatoria. | NINGUNA |
+| `botones` | JSONB | Atributo que representa botones en el modelo de `version_plantilla`. | JSONB, opcional. | NINGUNA |
+| `url_encabezado_media` | VARCHAR(255) | Localizador uniforme de recursos (URL/URI) correspondiente a encabezado media. | VARCHAR(255), opcional. | NINGUNA |
 | `vigente_desde` | TIMESTAMPTZ | Desde cuándo rige esta versión de la fila: las condiciones se versionan, no se pisan. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 | `vigente_hasta` | TIMESTAMPTZ | Hasta cuándo rigió esta versión; vacía mientras sigue vigente. | TIMESTAMPTZ, opcional. | NINGUNA |
 
@@ -5754,16 +5825,16 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `numero` | BIGSERIAL | — | BIGSERIAL, obligatoria. | NINGUNA |
-| `fecha` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `glosa` | VARCHAR(200) | — | VARCHAR(200), obligatoria. | NINGUNA |
-| `origen_tipo` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
-| `origen_id` | UUID | — | UUID, obligatoria. | NINGUNA |
-| `grupo_id` | UUID | — | UUID, opcional, referencia a `grupo`. | NINGUNA |
-| `periodo_contable_id` | UUID | — | UUID, opcional, referencia a `periodo_contable`. | NINGUNA |
-| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `asiento_reversa_id` | UUID | — | UUID, opcional, referencia a `asiento_contable`. | NINGUNA |
-| `registrado_por` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
+| `numero` | BIGSERIAL | Atributo que representa numero en el modelo de `asiento_contable`. | BIGSERIAL, obligatoria, restricción única. | NINGUNA |
+| `fecha` | TIMESTAMPTZ | Fecha calendario correspondiente al devengo o ejecución de la operación. | TIMESTAMPTZ, obligatoria, índice b-tree. | NINGUNA |
+| `glosa` | VARCHAR(200) | Atributo que representa glosa en el modelo de `asiento_contable`. | VARCHAR(200), obligatoria. | NINGUNA |
+| `origen_tipo` | VARCHAR(20) | Atributo que representa origen tipo en el modelo de `asiento_contable`. | VARCHAR(20), obligatoria. | NINGUNA |
+| `origen_id` | UUID | Identificador de referencia para el concepto de origen en `asiento_contable`. | UUID, obligatoria, índice b-tree. | NINGUNA |
+| `grupo_id` | UUID | Referencia al grupo de pasanaku en el que se enmarca esta operación. | UUID, opcional, referencia a `grupo`, índice b-tree. | NINGUNA |
+| `periodo_contable_id` | UUID | Referencia por clave foránea a la entidad `periodo_contable`. | UUID, opcional, referencia a `periodo_contable`, índice b-tree. | NINGUNA |
+| `estado` | VARCHAR(15) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(15), obligatoria. | NINGUNA |
+| `asiento_reversa_id` | UUID | Referencia por clave foránea a la entidad `asiento_contable`. | UUID, opcional, referencia a `asiento_contable`. | NINGUNA |
+| `registrado_por` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, opcional, referencia a `usuario`. | NINGUNA |
 
 ### `bloqueo_saldo`
 
@@ -5778,20 +5849,20 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `cuenta_billetera_id` | UUID | — | UUID, obligatoria, referencia a `cuenta_billetera`. | NINGUNA |
-| `retencion_id` | UUID | — | UUID, opcional, referencia a `retencion_saldo`. | NINGUNA |
-| `levantada_por` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
-| `autoridad` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
-| `tipo_orden` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
-| `numero_oficio` | VARCHAR(60) | — | VARCHAR(60), obligatoria. | NINGUNA |
-| `monto_bloqueado` | DECIMAL(16,2) | — | DECIMAL(16,2), opcional. | FINANCIERO |
-| `alcance` | VARCHAR(10) | — | VARCHAR(10), obligatoria. | NINGUNA |
-| `documento_url` | VARCHAR(255) | — | VARCHAR(255), obligatoria. | PERSONAL |
-| `hash_documento` | VARCHAR(64) | — | VARCHAR(64), obligatoria. | DERIVADO |
-| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `recibido_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `vence_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
-| `levantado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `cuenta_billetera_id` | UUID | Referencia a la billetera donde se debita o acredita el movimiento de fondos. | UUID, obligatoria, referencia a `cuenta_billetera`, índice b-tree. | NINGUNA |
+| `retencion_id` | UUID | Referencia por clave foránea a la entidad `retencion_saldo`. | UUID, opcional, referencia a `retencion_saldo`. | NINGUNA |
+| `levantada_por` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, opcional, referencia a `usuario`. | NINGUNA |
+| `autoridad` | VARCHAR(20) | Atributo que representa autoridad en el modelo de `bloqueo_saldo`. | VARCHAR(20), obligatoria. | NINGUNA |
+| `tipo_orden` | VARCHAR(30) | Atributo que representa tipo orden en el modelo de `bloqueo_saldo`. | VARCHAR(30), obligatoria. | NINGUNA |
+| `numero_oficio` | VARCHAR(60) | Numeración secuencial o identificador numérico de oficio. | VARCHAR(60), obligatoria. | NINGUNA |
+| `monto_bloqueado` | DECIMAL(16,2) | Importe monetario correspondiente a bloqueado en `bloqueo_saldo`. | DECIMAL(16,2), opcional, sensibilidad financiero. | FINANCIERO |
+| `alcance` | VARCHAR(10) | Atributo que representa alcance en el modelo de `bloqueo_saldo`. | VARCHAR(10), obligatoria. | NINGUNA |
+| `documento_url` | VARCHAR(255) | Localizador uniforme de recursos (URL/URI) correspondiente a documento. | VARCHAR(255), obligatoria, sensibilidad personal. | PERSONAL |
+| `hash_documento` | VARCHAR(64) | Resumen criptográfico SHA-256 para verificación inmutable de documento. | VARCHAR(64), obligatoria, sensibilidad derivado. | DERIVADO |
+| `estado` | VARCHAR(15) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(15), obligatoria, índice b-tree. | NINGUNA |
+| `recibido_en` | TIMESTAMPTZ | Marca temporal o fecha de recibido en `bloqueo_saldo`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `vence_en` | TIMESTAMPTZ | Marca temporal o fecha de vence en `bloqueo_saldo`. | TIMESTAMPTZ, opcional. | NINGUNA |
+| `levantado_en` | TIMESTAMPTZ | Marca temporal o fecha de levantado en `bloqueo_saldo`. | TIMESTAMPTZ, opcional. | NINGUNA |
 
 ### `certificado_saldo`
 
@@ -5804,15 +5875,15 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `cuenta_billetera_id` | UUID | — | UUID, obligatoria, referencia a `cuenta_billetera`. | NINGUNA |
-| `solicitado_por` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `folio` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
-| `motivo` | VARCHAR(120) | — | VARCHAR(120), obligatoria. | NINGUNA |
-| `saldo_certificado` | DECIMAL(16,2) | — | DECIMAL(16,2), obligatoria. | FINANCIERO |
-| `fecha_corte` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `hash_documento` | VARCHAR(64) | — | VARCHAR(64), obligatoria. | DERIVADO |
-| `url_documento` | VARCHAR(255) | — | VARCHAR(255), obligatoria. | PERSONAL |
-| `emitido_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `cuenta_billetera_id` | UUID | Referencia a la billetera donde se debita o acredita el movimiento de fondos. | UUID, obligatoria, referencia a `cuenta_billetera`, índice b-tree. | NINGUNA |
+| `solicitado_por` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
+| `folio` | VARCHAR(30) | Atributo que representa folio en el modelo de `certificado_saldo`. | VARCHAR(30), obligatoria, restricción única. | NINGUNA |
+| `motivo` | VARCHAR(120) | Justificación declarada o causal que originó la creación, rechazo o transición del registro. | VARCHAR(120), obligatoria. | NINGUNA |
+| `saldo_certificado` | DECIMAL(16,2) | Atributo que representa saldo certificado en el modelo de `certificado_saldo`. | DECIMAL(16,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `fecha_corte` | TIMESTAMPTZ | Marca temporal o fecha de corte en `certificado_saldo`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `hash_documento` | VARCHAR(64) | Resumen criptográfico SHA-256 para verificación inmutable de documento. | VARCHAR(64), obligatoria, sensibilidad derivado. | DERIVADO |
+| `url_documento` | VARCHAR(255) | Localizador uniforme de recursos (URL/URI) correspondiente a documento. | VARCHAR(255), obligatoria, sensibilidad personal. | PERSONAL |
+| `emitido_en` | TIMESTAMPTZ | Marca temporal o fecha de emitido en `certificado_saldo`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 
 ### `cierre_diario`
 
@@ -5827,15 +5898,15 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `fecha` | DATE | — | DATE, obligatoria. | NINGUNA |
-| `total_recaudado` | DECIMAL(16,2) | — | DECIMAL(16,2), obligatoria. | NINGUNA |
-| `total_conciliado` | DECIMAL(16,2) | — | DECIMAL(16,2), obligatoria. | NINGUNA |
-| `total_excepciones` | DECIMAL(16,2) | — | DECIMAL(16,2), obligatoria. | NINGUNA |
-| `cantidad_pagos` | INTEGER | — | INTEGER, obligatoria. | NINGUNA |
-| `cuadrado` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
-| `cerrado_por` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `cerrado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `reabierto_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `fecha` | DATE | Fecha calendario correspondiente al devengo o ejecución de la operación. | DATE, obligatoria, restricción única. | NINGUNA |
+| `total_recaudado` | DECIMAL(16,2) | Importe monetario correspondiente a recaudado en `cierre_diario`. | DECIMAL(16,2), obligatoria. | NINGUNA |
+| `total_conciliado` | DECIMAL(16,2) | Importe monetario correspondiente a conciliado en `cierre_diario`. | DECIMAL(16,2), obligatoria. | NINGUNA |
+| `total_excepciones` | DECIMAL(16,2) | Importe monetario correspondiente a excepciones en `cierre_diario`. | DECIMAL(16,2), obligatoria. | NINGUNA |
+| `cantidad_pagos` | INTEGER | Atributo que representa cantidad pagos en el modelo de `cierre_diario`. | INTEGER, obligatoria. | NINGUNA |
+| `cuadrado` | BOOLEAN | Atributo que representa cuadrado en el modelo de `cierre_diario`. | BOOLEAN, obligatoria. | NINGUNA |
+| `cerrado_por` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
+| `cerrado_en` | TIMESTAMPTZ | Marca temporal o fecha de cerrado en `cierre_diario`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `reabierto_en` | TIMESTAMPTZ | Marca temporal o fecha de reabierto en `cierre_diario`. | TIMESTAMPTZ, opcional. | NINGUNA |
 
 ### `conciliacion_custodia`
 
@@ -5850,18 +5921,18 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `cuenta_custodia_id` | UUID | — | UUID, obligatoria, referencia a `cuenta_custodia`. | NINGUNA |
-| `cierre_diario_id` | UUID | — | UUID, opcional, referencia a `cierre_diario`. | NINGUNA |
-| `ejecutada_por` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
-| `fecha` | DATE | — | DATE, obligatoria. | NINGUNA |
-| `saldo_dinero_electronico` | DECIMAL(18,2) | — | DECIMAL(18,2), obligatoria. | FINANCIERO |
-| `saldo_custodia` | DECIMAL(18,2) | — | DECIMAL(18,2), obligatoria. | FINANCIERO |
-| `saldo_en_transito` | DECIMAL(18,2) | — | DECIMAL(18,2), obligatoria. | FINANCIERO |
-| `diferencia` | DECIMAL(18,2) | — | DECIMAL(18,2), obligatoria, calculada por la base, no se escribe. | NINGUNA |
-| `ratio_cobertura` | DECIMAL(9,6) | — | DECIMAL(9,6), obligatoria, calculada por la base, no se escribe. | NINGUNA |
-| `cumple_encaje` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
-| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `ejecutada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `cuenta_custodia_id` | UUID | Referencia por clave foránea a la entidad `cuenta_custodia`. | UUID, obligatoria, referencia a `cuenta_custodia`, índice b-tree. | NINGUNA |
+| `cierre_diario_id` | UUID | Referencia por clave foránea a la entidad `cierre_diario`. | UUID, opcional, referencia a `cierre_diario`. | NINGUNA |
+| `ejecutada_por` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, opcional, referencia a `usuario`. | NINGUNA |
+| `fecha` | DATE | Fecha calendario correspondiente al devengo o ejecución de la operación. | DATE, obligatoria. | NINGUNA |
+| `saldo_dinero_electronico` | DECIMAL(18,2) | Atributo que representa saldo dinero electronico en el modelo de `conciliacion_custodia`. | DECIMAL(18,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `saldo_custodia` | DECIMAL(18,2) | Atributo que representa saldo custodia en el modelo de `conciliacion_custodia`. | DECIMAL(18,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `saldo_en_transito` | DECIMAL(18,2) | Atributo que representa saldo en transito en el modelo de `conciliacion_custodia`. | DECIMAL(18,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `diferencia` | DECIMAL(18,2) | Atributo que representa diferencia en el modelo de `conciliacion_custodia`. | DECIMAL(18,2), obligatoria, calculada por la base, no se escribe. | NINGUNA |
+| `ratio_cobertura` | DECIMAL(9,6) | Atributo que representa ratio cobertura en el modelo de `conciliacion_custodia`. | DECIMAL(9,6), obligatoria, calculada por la base, no se escribe. | NINGUNA |
+| `cumple_encaje` | BOOLEAN | Atributo que representa cumple encaje en el modelo de `conciliacion_custodia`. | BOOLEAN, obligatoria, índice b-tree. | NINGUNA |
+| `estado` | VARCHAR(15) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(15), obligatoria, índice b-tree. | NINGUNA |
+| `ejecutada_en` | TIMESTAMPTZ | Marca temporal o fecha de ejecutada en `conciliacion_custodia`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 
 ### `consumo_limite`
 
@@ -5874,13 +5945,13 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `cuenta_billetera_id` | UUID | — | UUID, obligatoria, referencia a `cuenta_billetera`. | NINGUNA |
-| `limite_id` | UUID | — | UUID, obligatoria, referencia a `limite_operativo_billetera`. | NINGUNA |
-| `ventana_inicio` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `ventana_fin` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `monto_acumulado` | DECIMAL(16,2) | — | DECIMAL(16,2), obligatoria. | FINANCIERO |
-| `cantidad_acumulada` | INTEGER | — | INTEGER, obligatoria. | NINGUNA |
-| `actualizado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `cuenta_billetera_id` | UUID | Referencia a la billetera donde se debita o acredita el movimiento de fondos. | UUID, obligatoria, referencia a `cuenta_billetera`, índice b-tree. | NINGUNA |
+| `limite_id` | UUID | Referencia por clave foránea a la entidad `limite_operativo_billetera`. | UUID, obligatoria, referencia a `limite_operativo_billetera`, índice b-tree. | NINGUNA |
+| `ventana_inicio` | TIMESTAMPTZ | Atributo que representa ventana inicio en el modelo de `consumo_limite`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `ventana_fin` | TIMESTAMPTZ | Atributo que representa ventana fin en el modelo de `consumo_limite`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `monto_acumulado` | DECIMAL(16,2) | Importe monetario correspondiente a acumulado en `consumo_limite`. | DECIMAL(16,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `cantidad_acumulada` | INTEGER | Atributo que representa cantidad acumulada en el modelo de `consumo_limite`. | INTEGER, obligatoria. | NINGUNA |
+| `actualizado_en` | TIMESTAMPTZ | Marca temporal UTC de la última modificación aplicada sobre este registro. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 
 ### `cuenta_billetera`
 
@@ -5895,22 +5966,22 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `numero_cuenta` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | PERSONAL |
-| `tipo` | VARCHAR(35) | — | VARCHAR(35), obligatoria. | NINGUNA |
-| `usuario_id` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
-| `grupo_id` | UUID | — | UUID, opcional, referencia a `grupo`. | NINGUNA |
-| `politica_billetera_id` | UUID | — | UUID, opcional, referencia a `politica_billetera`. | NINGUNA |
-| `cuenta_contable_id` | UUID | — | UUID, opcional, referencia a `cuenta_contable`. | NINGUNA |
+| `numero_cuenta` | VARCHAR(20) | Numeración secuencial o identificador numérico de cuenta. | VARCHAR(20), obligatoria, restricción única, sensibilidad personal. | PERSONAL |
+| `tipo` | VARCHAR(35) | Subtipo o modalidad específica que determina las reglas operativas aplicables al registro. | VARCHAR(35), obligatoria, índice b-tree. | NINGUNA |
+| `usuario_id` | UUID | Referencia al usuario titular de la cuenta o actor principal de la operación. | UUID, opcional, referencia a `usuario`, índice b-tree. | NINGUNA |
+| `grupo_id` | UUID | Referencia al grupo de pasanaku en el que se enmarca esta operación. | UUID, opcional, referencia a `grupo`, índice b-tree. | NINGUNA |
+| `politica_billetera_id` | UUID | Referencia por clave foránea a la entidad `politica_billetera`. | UUID, opcional, referencia a `politica_billetera`. | NINGUNA |
+| `cuenta_contable_id` | UUID | Referencia por clave foránea a la entidad `cuenta_contable`. | UUID, opcional, referencia a `cuenta_contable`. | NINGUNA |
 | `moneda` | CHAR(3) | Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2). | CHAR(3), obligatoria. | NINGUNA |
-| `estado` | VARCHAR(25) | — | VARCHAR(25), obligatoria. | NINGUNA |
-| `nivel_debida_diligencia` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `saldo_disponible` | DECIMAL(16,2) | — | DECIMAL(16,2), obligatoria. | FINANCIERO |
-| `saldo_retenido` | DECIMAL(16,2) | — | DECIMAL(16,2), obligatoria. | FINANCIERO |
-| `saldo_total` | DECIMAL(16,2) | — | DECIMAL(16,2), obligatoria, calculada por la base, no se escribe. | FINANCIERO |
-| `permite_saldo_negativo` | BOOLEAN | — | BOOLEAN, obligatoria. | FINANCIERO |
-| `fecha_apertura` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `fecha_cierre` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
-| `version` | INTEGER | — | INTEGER, obligatoria. | NINGUNA |
+| `estado` | VARCHAR(25) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(25), obligatoria, índice b-tree. | NINGUNA |
+| `nivel_debida_diligencia` | VARCHAR(15) | Atributo que representa nivel debida diligencia en el modelo de `cuenta_billetera`. | VARCHAR(15), obligatoria. | NINGUNA |
+| `saldo_disponible` | DECIMAL(16,2) | Atributo que representa saldo disponible en el modelo de `cuenta_billetera`. | DECIMAL(16,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `saldo_retenido` | DECIMAL(16,2) | Atributo que representa saldo retenido en el modelo de `cuenta_billetera`. | DECIMAL(16,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `saldo_total` | DECIMAL(16,2) | Atributo que representa saldo total en el modelo de `cuenta_billetera`. | DECIMAL(16,2), obligatoria, calculada por la base, no se escribe, sensibilidad financiero. | FINANCIERO |
+| `permite_saldo_negativo` | BOOLEAN | Atributo que representa permite saldo negativo en el modelo de `cuenta_billetera`. | BOOLEAN, obligatoria, sensibilidad financiero. | FINANCIERO |
+| `fecha_apertura` | TIMESTAMPTZ | Marca temporal o fecha de apertura en `cuenta_billetera`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `fecha_cierre` | TIMESTAMPTZ | Marca temporal o fecha de cierre en `cuenta_billetera`. | TIMESTAMPTZ, opcional. | NINGUNA |
+| `version` | INTEGER | Número de versión para control de concurrencia optimista y auditoría de modificaciones. | INTEGER, obligatoria. | NINGUNA |
 
 ### `cuenta_contable`
 
@@ -5925,17 +5996,17 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `codigo` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
-| `nombre` | VARCHAR(80) | — | VARCHAR(80), obligatoria. | NINGUNA |
-| `tipo` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `naturaleza` | VARCHAR(12) | — | VARCHAR(12), obligatoria. | NINGUNA |
+| `codigo` | VARCHAR(20) | Código mnemotécnico o identificador legible para operadores y personas usuarias. | VARCHAR(20), obligatoria, restricción única. | NINGUNA |
+| `nombre` | VARCHAR(80) | Nombre descriptivo de la entidad para visualización y referencia en el sistema. | VARCHAR(80), obligatoria. | NINGUNA |
+| `tipo` | VARCHAR(15) | Subtipo o modalidad específica que determina las reglas operativas aplicables al registro. | VARCHAR(15), obligatoria. | NINGUNA |
+| `naturaleza` | VARCHAR(12) | Atributo que representa naturaleza en el modelo de `cuenta_contable`. | VARCHAR(12), obligatoria. | NINGUNA |
 | `moneda` | CHAR(3) | Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2). | CHAR(3), obligatoria. | NINGUNA |
-| `cuenta_padre_id` | UUID | — | UUID, opcional, referencia a `cuenta_contable`. | NINGUNA |
-| `nivel` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `es_cuenta_de_movimiento` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
-| `grupo_id` | UUID | — | UUID, opcional, referencia a `grupo`. | NINGUNA |
-| `participante_id` | UUID | — | UUID, opcional, referencia a `participante`. | NINGUNA |
-| `saldo` | DECIMAL(16,2) | — | DECIMAL(16,2), obligatoria. | FINANCIERO |
+| `cuenta_padre_id` | UUID | Referencia por clave foránea a la entidad `cuenta_contable`. | UUID, opcional, referencia a `cuenta_contable`, índice b-tree. | NINGUNA |
+| `nivel` | SMALLINT | Atributo que representa nivel en el modelo de `cuenta_contable`. | SMALLINT, obligatoria. | NINGUNA |
+| `es_cuenta_de_movimiento` | BOOLEAN | Indicador booleano que señala si cuenta de movimiento en `cuenta_contable`. | BOOLEAN, obligatoria. | NINGUNA |
+| `grupo_id` | UUID | Referencia al grupo de pasanaku en el que se enmarca esta operación. | UUID, opcional, referencia a `grupo`. | NINGUNA |
+| `participante_id` | UUID | Referencia al miembro participante en el círculo de ahorro pasanaku. | UUID, opcional, referencia a `participante`. | NINGUNA |
+| `saldo` | DECIMAL(16,2) | Monto neto disponible o remanente tras procesar las operaciones de la entidad. | DECIMAL(16,2), obligatoria, sensibilidad financiero. | FINANCIERO |
 
 ### `cuenta_custodia`
 
@@ -5950,19 +6021,19 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `tipo` | VARCHAR(25) | — | VARCHAR(25), obligatoria. | NINGUNA |
-| `entidad_financiera` | VARCHAR(60) | — | VARCHAR(60), obligatoria. | NINGUNA |
-| `numero_cuenta_cifrado` | VARCHAR(255) | — | VARCHAR(255), obligatoria. | PERSONAL |
-| `version_llave` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `numero_enmascarado` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
+| `tipo` | VARCHAR(25) | Subtipo o modalidad específica que determina las reglas operativas aplicables al registro. | VARCHAR(25), obligatoria. | NINGUNA |
+| `entidad_financiera` | VARCHAR(60) | Atributo que representa entidad financiera en el modelo de `cuenta_custodia`. | VARCHAR(60), obligatoria. | NINGUNA |
+| `numero_cuenta_cifrado` | VARCHAR(255) | Numeración secuencial o identificador numérico de cuenta cifrado. | VARCHAR(255), obligatoria, sensibilidad personal. | PERSONAL |
+| `version_llave` | SMALLINT | Atributo que representa version llave en el modelo de `cuenta_custodia`. | SMALLINT, obligatoria. | NINGUNA |
+| `numero_enmascarado` | VARCHAR(30) | Numeración secuencial o identificador numérico de enmascarado. | VARCHAR(30), obligatoria. | NINGUNA |
 | `moneda` | CHAR(3) | Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2). | CHAR(3), obligatoria. | NINGUNA |
-| `saldo_segun_banco` | DECIMAL(18,2) | — | DECIMAL(18,2), obligatoria. | FINANCIERO |
-| `saldo_segun_libro` | DECIMAL(18,2) | — | DECIMAL(18,2), obligatoria. | FINANCIERO |
-| `fecha_saldo` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | FINANCIERO |
-| `contrato_referencia` | VARCHAR(80) | — | VARCHAR(80), obligatoria. | NINGUNA |
-| `es_principal` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
-| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `abierta_en` | DATE | — | DATE, obligatoria. | NINGUNA |
+| `saldo_segun_banco` | DECIMAL(18,2) | Atributo que representa saldo segun banco en el modelo de `cuenta_custodia`. | DECIMAL(18,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `saldo_segun_libro` | DECIMAL(18,2) | Atributo que representa saldo segun libro en el modelo de `cuenta_custodia`. | DECIMAL(18,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `fecha_saldo` | TIMESTAMPTZ | Marca temporal o fecha de saldo en `cuenta_custodia`. | TIMESTAMPTZ, obligatoria, sensibilidad financiero. | FINANCIERO |
+| `contrato_referencia` | VARCHAR(80) | Atributo que representa contrato referencia en el modelo de `cuenta_custodia`. | VARCHAR(80), obligatoria. | NINGUNA |
+| `es_principal` | BOOLEAN | Indicador booleano que señala si principal en `cuenta_custodia`. | BOOLEAN, obligatoria. | NINGUNA |
+| `estado` | VARCHAR(15) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(15), obligatoria. | NINGUNA |
+| `abierta_en` | DATE | Marca temporal o fecha de abierta en `cuenta_custodia`. | DATE, obligatoria. | NINGUNA |
 
 ### `descuadre_custodia`
 
@@ -5977,17 +6048,17 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `conciliacion_custodia_id` | UUID | — | UUID, obligatoria, referencia a `conciliacion_custodia`. | NINGUNA |
-| `incidente_operativo_id` | UUID | — | UUID, opcional, referencia a `incidente_operativo`. | NINGUNA |
-| `resuelto_por` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
-| `tipo` | VARCHAR(25) | — | VARCHAR(25), obligatoria. | NINGUNA |
-| `monto_diferencia` | DECIMAL(18,2) | — | DECIMAL(18,2), obligatoria. | FINANCIERO |
-| `severidad` | VARCHAR(10) | — | VARCHAR(10), obligatoria. | NINGUNA |
-| `explicacion` | VARCHAR(500) | — | VARCHAR(500), opcional. | NINGUNA |
-| `plan_accion` | VARCHAR(500) | — | VARCHAR(500), opcional. | NINGUNA |
-| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `detectado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `resuelto_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `conciliacion_custodia_id` | UUID | Referencia por clave foránea a la entidad `conciliacion_custodia`. | UUID, obligatoria, referencia a `conciliacion_custodia`, índice b-tree. | NINGUNA |
+| `incidente_operativo_id` | UUID | Referencia por clave foránea a la entidad `incidente_operativo`. | UUID, opcional, referencia a `incidente_operativo`. | NINGUNA |
+| `resuelto_por` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, opcional, referencia a `usuario`. | NINGUNA |
+| `tipo` | VARCHAR(25) | Subtipo o modalidad específica que determina las reglas operativas aplicables al registro. | VARCHAR(25), obligatoria. | NINGUNA |
+| `monto_diferencia` | DECIMAL(18,2) | Importe monetario correspondiente a diferencia en `descuadre_custodia`. | DECIMAL(18,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `severidad` | VARCHAR(10) | Nivel de gravedad o criticidad asignado al incidente, alerta o evento. | VARCHAR(10), obligatoria, índice b-tree. | NINGUNA |
+| `explicacion` | VARCHAR(500) | Atributo que representa explicacion en el modelo de `descuadre_custodia`. | VARCHAR(500), opcional. | NINGUNA |
+| `plan_accion` | VARCHAR(500) | Atributo que representa plan accion en el modelo de `descuadre_custodia`. | VARCHAR(500), opcional. | NINGUNA |
+| `estado` | VARCHAR(15) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(15), obligatoria, índice b-tree. | NINGUNA |
+| `detectado_en` | TIMESTAMPTZ | Marca temporal o fecha de detectado en `descuadre_custodia`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `resuelto_en` | TIMESTAMPTZ | Marca temporal o fecha de resuelto en `descuadre_custodia`. | TIMESTAMPTZ, opcional. | NINGUNA |
 
 ### `discrepancia_proveedor`
 
@@ -6002,16 +6073,16 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `referencia_tipo` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
-| `referencia_id` | UUID | — | UUID, obligatoria. | NINGUNA |
-| `tipo` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
-| `monto_esperado` | DECIMAL(16,2) | — | DECIMAL(16,2), opcional. | FINANCIERO |
-| `monto_informado` | DECIMAL(16,2) | — | DECIMAL(16,2), opcional. | FINANCIERO |
+| `referencia_tipo` | VARCHAR(20) | Atributo que representa referencia tipo en el modelo de `discrepancia_proveedor`. | VARCHAR(20), obligatoria. | NINGUNA |
+| `referencia_id` | UUID | Identificador de referencia para el concepto de referencia en `discrepancia_proveedor`. | UUID, obligatoria, índice b-tree. | NINGUNA |
+| `tipo` | VARCHAR(30) | Subtipo o modalidad específica que determina las reglas operativas aplicables al registro. | VARCHAR(30), obligatoria. | NINGUNA |
+| `monto_esperado` | DECIMAL(16,2) | Importe monetario correspondiente a esperado en `discrepancia_proveedor`. | DECIMAL(16,2), opcional, sensibilidad financiero. | FINANCIERO |
+| `monto_informado` | DECIMAL(16,2) | Importe monetario correspondiente a informado en `discrepancia_proveedor`. | DECIMAL(16,2), opcional, sensibilidad financiero. | FINANCIERO |
 | `moneda` | CHAR(3) | Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2). | CHAR(3), opcional. | NINGUNA |
-| `detalle` | VARCHAR(300) | — | VARCHAR(300), obligatoria. | NINGUNA |
-| `huella` | VARCHAR(64) | — | VARCHAR(64), obligatoria. | NINGUNA |
-| `correlacion_id` | UUID | — | UUID, obligatoria. | NINGUNA |
-| `detectada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `detalle` | VARCHAR(300) | Atributo que representa detalle en el modelo de `discrepancia_proveedor`. | VARCHAR(300), obligatoria. | NINGUNA |
+| `huella` | VARCHAR(64) | Atributo que representa huella en el modelo de `discrepancia_proveedor`. | VARCHAR(64), obligatoria, restricción única. | NINGUNA |
+| `correlacion_id` | UUID | Identificador de referencia para el concepto de correlacion en `discrepancia_proveedor`. | UUID, obligatoria. | NINGUNA |
+| `detectada_en` | TIMESTAMPTZ | Marca temporal o fecha de detectada en `discrepancia_proveedor`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 
 ### `estado_cuenta_billetera`
 
@@ -6024,18 +6095,18 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `cuenta_billetera_id` | UUID | — | UUID, obligatoria, referencia a `cuenta_billetera`. | NINGUNA |
-| `periodo_desde` | DATE | — | DATE, obligatoria. | NINGUNA |
-| `periodo_hasta` | DATE | — | DATE, obligatoria. | NINGUNA |
-| `saldo_inicial` | DECIMAL(16,2) | — | DECIMAL(16,2), obligatoria. | FINANCIERO |
-| `total_creditos` | DECIMAL(16,2) | — | DECIMAL(16,2), obligatoria. | NINGUNA |
-| `total_debitos` | DECIMAL(16,2) | — | DECIMAL(16,2), obligatoria. | NINGUNA |
-| `saldo_final` | DECIMAL(16,2) | — | DECIMAL(16,2), obligatoria. | FINANCIERO |
-| `cantidad_movimientos` | INTEGER | — | INTEGER, obligatoria. | NINGUNA |
-| `url_archivo` | VARCHAR(255) | — | VARCHAR(255), obligatoria. | NINGUNA |
-| `hash_archivo` | VARCHAR(64) | — | VARCHAR(64), obligatoria. | DERIVADO |
-| `emitido_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `entregado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `cuenta_billetera_id` | UUID | Referencia a la billetera donde se debita o acredita el movimiento de fondos. | UUID, obligatoria, referencia a `cuenta_billetera`, índice b-tree. | NINGUNA |
+| `periodo_desde` | DATE | Atributo que representa periodo desde en el modelo de `estado_cuenta_billetera`. | DATE, obligatoria, restricción única. | NINGUNA |
+| `periodo_hasta` | DATE | Atributo que representa periodo hasta en el modelo de `estado_cuenta_billetera`. | DATE, obligatoria. | NINGUNA |
+| `saldo_inicial` | DECIMAL(16,2) | Atributo que representa saldo inicial en el modelo de `estado_cuenta_billetera`. | DECIMAL(16,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `total_creditos` | DECIMAL(16,2) | Importe monetario correspondiente a creditos en `estado_cuenta_billetera`. | DECIMAL(16,2), obligatoria. | NINGUNA |
+| `total_debitos` | DECIMAL(16,2) | Importe monetario correspondiente a debitos en `estado_cuenta_billetera`. | DECIMAL(16,2), obligatoria. | NINGUNA |
+| `saldo_final` | DECIMAL(16,2) | Atributo que representa saldo final en el modelo de `estado_cuenta_billetera`. | DECIMAL(16,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `cantidad_movimientos` | INTEGER | Atributo que representa cantidad movimientos en el modelo de `estado_cuenta_billetera`. | INTEGER, obligatoria. | NINGUNA |
+| `url_archivo` | VARCHAR(255) | Localizador uniforme de recursos (URL/URI) correspondiente a archivo. | VARCHAR(255), obligatoria. | NINGUNA |
+| `hash_archivo` | VARCHAR(64) | Resumen criptográfico SHA-256 para verificación inmutable de archivo. | VARCHAR(64), obligatoria, sensibilidad derivado. | DERIVADO |
+| `emitido_en` | TIMESTAMPTZ | Marca temporal o fecha de emitido en `estado_cuenta_billetera`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `entregado_en` | TIMESTAMPTZ | Marca temporal o fecha de entregado en `estado_cuenta_billetera`. | TIMESTAMPTZ, opcional. | NINGUNA |
 
 ### `evaluacion_antifraude`
 
@@ -6048,16 +6119,16 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `transaccion_id` | UUID | — | UUID, opcional, referencia a `transaccion_billetera`. | NINGUNA |
-| `cuenta_billetera_id` | UUID | — | UUID, obligatoria, referencia a `cuenta_billetera`. | NINGUNA |
-| `revisada_por` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
-| `motor_version` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
-| `puntaje_riesgo` | DECIMAL(5,2) | — | DECIMAL(5,2), obligatoria. | NINGUNA |
-| `decision` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
-| `reglas_disparadas` | JSONB | — | JSONB, obligatoria. | NINGUNA |
-| `latencia_ms` | INTEGER | — | INTEGER, obligatoria. | NINGUNA |
-| `evaluada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `revisada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `transaccion_id` | UUID | Referencia por clave foránea a la entidad `transaccion_billetera`. | UUID, opcional, referencia a `transaccion_billetera`, índice b-tree. | NINGUNA |
+| `cuenta_billetera_id` | UUID | Referencia a la billetera donde se debita o acredita el movimiento de fondos. | UUID, obligatoria, referencia a `cuenta_billetera`, índice b-tree. | NINGUNA |
+| `revisada_por` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, opcional, referencia a `usuario`. | NINGUNA |
+| `motor_version` | VARCHAR(20) | Atributo que representa motor version en el modelo de `evaluacion_antifraude`. | VARCHAR(20), obligatoria. | NINGUNA |
+| `puntaje_riesgo` | DECIMAL(5,2) | Atributo que representa puntaje riesgo en el modelo de `evaluacion_antifraude`. | DECIMAL(5,2), obligatoria, índice b-tree. | NINGUNA |
+| `decision` | VARCHAR(20) | Atributo que representa decision en el modelo de `evaluacion_antifraude`. | VARCHAR(20), obligatoria, índice b-tree. | NINGUNA |
+| `reglas_disparadas` | JSONB | Atributo que representa reglas disparadas en el modelo de `evaluacion_antifraude`. | JSONB, obligatoria. | NINGUNA |
+| `latencia_ms` | INTEGER | Atributo que representa latencia ms en el modelo de `evaluacion_antifraude`. | INTEGER, obligatoria. | NINGUNA |
+| `evaluada_en` | TIMESTAMPTZ | Marca temporal o fecha de evaluada en `evaluacion_antifraude`. | TIMESTAMPTZ, obligatoria, índice b-tree. | NINGUNA |
+| `revisada_en` | TIMESTAMPTZ | Marca temporal o fecha de revisada en `evaluacion_antifraude`. | TIMESTAMPTZ, opcional. | NINGUNA |
 
 ### `evidencia_mfa_consumida`
 
@@ -6072,10 +6143,10 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `jti` | UUID | — | UUID, obligatoria. | NINGUNA |
-| `usuario_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `proposito` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
-| `consumida_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `jti` | UUID | Atributo que representa jti en el modelo de `evidencia_mfa_consumida`. | UUID, obligatoria, restricción única. | NINGUNA |
+| `usuario_id` | UUID | Referencia al usuario titular de la cuenta o actor principal de la operación. | UUID, obligatoria, referencia a `usuario`, índice b-tree. | NINGUNA |
+| `proposito` | VARCHAR(20) | Atributo que representa proposito en el modelo de `evidencia_mfa_consumida`. | VARCHAR(20), obligatoria. | NINGUNA |
+| `consumida_en` | TIMESTAMPTZ | Marca temporal o fecha de consumida en `evidencia_mfa_consumida`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 
 ### `instrumento_fondeo`
 
@@ -6090,21 +6161,21 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `usuario_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `tipo` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
-| `entidad_financiera` | VARCHAR(60) | — | VARCHAR(60), obligatoria. | NINGUNA |
-| `token_proveedor` | VARCHAR(255) | — | VARCHAR(255), opcional. | SECRETO |
-| `hash_identificador` | VARCHAR(64) | — | VARCHAR(64), obligatoria. | DERIVADO |
-| `enmascarado` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
-| `titular_nombre` | VARCHAR(120) | — | VARCHAR(120), obligatoria. | NINGUNA |
-| `titular_documento` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | PERSONAL |
-| `titular_coincide` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
+| `usuario_id` | UUID | Referencia al usuario titular de la cuenta o actor principal de la operación. | UUID, obligatoria, referencia a `usuario`, índice b-tree. | NINGUNA |
+| `tipo` | VARCHAR(20) | Subtipo o modalidad específica que determina las reglas operativas aplicables al registro. | VARCHAR(20), obligatoria. | NINGUNA |
+| `entidad_financiera` | VARCHAR(60) | Atributo que representa entidad financiera en el modelo de `instrumento_fondeo`. | VARCHAR(60), obligatoria. | NINGUNA |
+| `token_proveedor` | VARCHAR(255) | Atributo que representa token proveedor en el modelo de `instrumento_fondeo`. | VARCHAR(255), opcional, sensibilidad secreto. | SECRETO |
+| `hash_identificador` | VARCHAR(64) | Resumen criptográfico SHA-256 para verificación inmutable de identificador. | VARCHAR(64), obligatoria, restricción única, sensibilidad derivado. | DERIVADO |
+| `enmascarado` | VARCHAR(30) | Atributo que representa enmascarado en el modelo de `instrumento_fondeo`. | VARCHAR(30), obligatoria. | NINGUNA |
+| `titular_nombre` | VARCHAR(120) | Atributo que representa titular nombre en el modelo de `instrumento_fondeo`. | VARCHAR(120), obligatoria. | NINGUNA |
+| `titular_documento` | VARCHAR(30) | Atributo que representa titular documento en el modelo de `instrumento_fondeo`. | VARCHAR(30), obligatoria, sensibilidad personal. | PERSONAL |
+| `titular_coincide` | BOOLEAN | Atributo que representa titular coincide en el modelo de `instrumento_fondeo`. | BOOLEAN, obligatoria. | NINGUNA |
 | `moneda` | CHAR(3) | Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2). | CHAR(3), obligatoria. | NINGUNA |
-| `es_principal` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
-| `estado_verificacion` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `metodo_verificacion` | VARCHAR(20) | — | VARCHAR(20), opcional. | NINGUNA |
-| `verificado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
-| `bloqueado_hasta` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `es_principal` | BOOLEAN | Indicador booleano que señala si principal en `instrumento_fondeo`. | BOOLEAN, obligatoria. | NINGUNA |
+| `estado_verificacion` | VARCHAR(15) | Atributo que representa estado verificacion en el modelo de `instrumento_fondeo`. | VARCHAR(15), obligatoria. | NINGUNA |
+| `metodo_verificacion` | VARCHAR(20) | Atributo que representa metodo verificacion en el modelo de `instrumento_fondeo`. | VARCHAR(20), opcional. | NINGUNA |
+| `verificado_en` | TIMESTAMPTZ | Marca temporal o fecha de verificado en `instrumento_fondeo`. | TIMESTAMPTZ, opcional. | NINGUNA |
+| `bloqueado_hasta` | TIMESTAMPTZ | Atributo que representa bloqueado hasta en el modelo de `instrumento_fondeo`. | TIMESTAMPTZ, opcional. | NINGUNA |
 
 ### `movimiento_billetera`
 
@@ -6119,15 +6190,15 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `transaccion_id` | UUID | — | UUID, obligatoria, referencia a `transaccion_billetera`. | NINGUNA |
-| `cuenta_billetera_id` | UUID | — | UUID, obligatoria, referencia a `cuenta_billetera`. | NINGUNA |
-| `orden` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `sentido` | VARCHAR(7) | — | VARCHAR(7), obligatoria. | NINGUNA |
-| `monto` | DECIMAL(16,2) | — | DECIMAL(16,2), obligatoria. | FINANCIERO |
-| `saldo_disponible_posterior` | DECIMAL(16,2) | — | DECIMAL(16,2), obligatoria. | FINANCIERO |
-| `saldo_retenido_posterior` | DECIMAL(16,2) | — | DECIMAL(16,2), obligatoria. | FINANCIERO |
-| `glosa` | VARCHAR(160) | — | VARCHAR(160), obligatoria. | NINGUNA |
-| `registrado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `transaccion_id` | UUID | Referencia por clave foránea a la entidad `transaccion_billetera`. | UUID, obligatoria, referencia a `transaccion_billetera`, índice b-tree. | NINGUNA |
+| `cuenta_billetera_id` | UUID | Referencia a la billetera donde se debita o acredita el movimiento de fondos. | UUID, obligatoria, referencia a `cuenta_billetera`, índice b-tree. | NINGUNA |
+| `orden` | SMALLINT | Atributo que representa orden en el modelo de `movimiento_billetera`. | SMALLINT, obligatoria. | NINGUNA |
+| `sentido` | VARCHAR(7) | Atributo que representa sentido en el modelo de `movimiento_billetera`. | VARCHAR(7), obligatoria. | NINGUNA |
+| `monto` | DECIMAL(16,2) | Importe monetario principal de la transacción o concepto financiero. | DECIMAL(16,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `saldo_disponible_posterior` | DECIMAL(16,2) | Atributo que representa saldo disponible posterior en el modelo de `movimiento_billetera`. | DECIMAL(16,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `saldo_retenido_posterior` | DECIMAL(16,2) | Atributo que representa saldo retenido posterior en el modelo de `movimiento_billetera`. | DECIMAL(16,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `glosa` | VARCHAR(160) | Atributo que representa glosa en el modelo de `movimiento_billetera`. | VARCHAR(160), obligatoria. | NINGUNA |
+| `registrado_en` | TIMESTAMPTZ | Marca temporal o fecha de registrado en `movimiento_billetera`. | TIMESTAMPTZ, obligatoria, índice b-tree. | NINGUNA |
 
 ### `movimiento_contable`
 
@@ -6142,12 +6213,12 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `asiento_id` | UUID | — | UUID, obligatoria, referencia a `asiento_contable`. | NINGUNA |
-| `cuenta_id` | UUID | — | UUID, obligatoria, referencia a `cuenta_contable`. | NINGUNA |
-| `debe` | DECIMAL(16,2) | — | DECIMAL(16,2), obligatoria. | NINGUNA |
-| `haber` | DECIMAL(16,2) | — | DECIMAL(16,2), obligatoria. | NINGUNA |
+| `asiento_id` | UUID | Referencia por clave foránea a la entidad `asiento_contable`. | UUID, obligatoria, referencia a `asiento_contable`, índice b-tree. | NINGUNA |
+| `cuenta_id` | UUID | Referencia por clave foránea a la entidad `cuenta_contable`. | UUID, obligatoria, referencia a `cuenta_contable`, índice b-tree. | NINGUNA |
+| `debe` | DECIMAL(16,2) | Atributo que representa debe en el modelo de `movimiento_contable`. | DECIMAL(16,2), obligatoria. | NINGUNA |
+| `haber` | DECIMAL(16,2) | Atributo que representa haber en el modelo de `movimiento_contable`. | DECIMAL(16,2), obligatoria. | NINGUNA |
 | `moneda` | CHAR(3) | Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2). | CHAR(3), obligatoria. | NINGUNA |
-| `descripcion` | VARCHAR(160) | — | VARCHAR(160), obligatoria. | NINGUNA |
+| `descripcion` | VARCHAR(160) | Detalle descriptivo que explica el contenido, propósito o contexto de la entidad. | VARCHAR(160), obligatoria. | NINGUNA |
 
 ### `movimiento_custodia`
 
@@ -6160,16 +6231,16 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `cuenta_custodia_id` | UUID | — | UUID, obligatoria, referencia a `cuenta_custodia`. | NINGUNA |
-| `movimiento_bancario_id` | UUID | — | UUID, opcional, referencia a `movimiento_bancario`. | NINGUNA |
-| `fecha_valor` | DATE | — | DATE, obligatoria. | NINGUNA |
-| `tipo` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
-| `sentido` | VARCHAR(7) | — | VARCHAR(7), obligatoria. | NINGUNA |
-| `monto` | DECIMAL(18,2) | — | DECIMAL(18,2), obligatoria. | FINANCIERO |
-| `referencia_bancaria` | VARCHAR(80) | — | VARCHAR(80), obligatoria. | NINGUNA |
-| `glosa` | VARCHAR(200) | — | VARCHAR(200), obligatoria. | NINGUNA |
-| `conciliado` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
-| `registrado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `cuenta_custodia_id` | UUID | Referencia por clave foránea a la entidad `cuenta_custodia`. | UUID, obligatoria, referencia a `cuenta_custodia`, índice b-tree. | NINGUNA |
+| `movimiento_bancario_id` | UUID | Referencia por clave foránea a la entidad `movimiento_bancario`. | UUID, opcional, referencia a `movimiento_bancario`, restricción única. | NINGUNA |
+| `fecha_valor` | DATE | Marca temporal o fecha de valor en `movimiento_custodia`. | DATE, obligatoria, índice b-tree. | NINGUNA |
+| `tipo` | VARCHAR(20) | Subtipo o modalidad específica que determina las reglas operativas aplicables al registro. | VARCHAR(20), obligatoria. | NINGUNA |
+| `sentido` | VARCHAR(7) | Atributo que representa sentido en el modelo de `movimiento_custodia`. | VARCHAR(7), obligatoria. | NINGUNA |
+| `monto` | DECIMAL(18,2) | Importe monetario principal de la transacción o concepto financiero. | DECIMAL(18,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `referencia_bancaria` | VARCHAR(80) | Atributo que representa referencia bancaria en el modelo de `movimiento_custodia`. | VARCHAR(80), obligatoria, restricción única. | NINGUNA |
+| `glosa` | VARCHAR(200) | Atributo que representa glosa en el modelo de `movimiento_custodia`. | VARCHAR(200), obligatoria. | NINGUNA |
+| `conciliado` | BOOLEAN | Atributo que representa conciliado en el modelo de `movimiento_custodia`. | BOOLEAN, obligatoria, índice b-tree. | NINGUNA |
+| `registrado_en` | TIMESTAMPTZ | Marca temporal o fecha de registrado en `movimiento_custodia`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 
 ### `orden_recarga`
 
@@ -6184,23 +6255,23 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `cuenta_billetera_id` | UUID | — | UUID, obligatoria, referencia a `cuenta_billetera`. | NINGUNA |
-| `instrumento_fondeo_id` | UUID | — | UUID, opcional, referencia a `instrumento_fondeo`. | NINGUNA |
-| `proveedor_id` | UUID | — | UUID, opcional, referencia a `proveedor_pago`. | NINGUNA |
-| `pago_id` | UUID | — | UUID, opcional, referencia a `pago`. | NINGUNA |
-| `transaccion_id` | UUID | — | UUID, opcional, referencia a `transaccion_billetera`. | NINGUNA |
-| `monto_bruto` | DECIMAL(16,2) | — | DECIMAL(16,2), obligatoria. | FINANCIERO |
-| `costo_proveedor` | DECIMAL(10,2) | — | DECIMAL(10,2), obligatoria. | NINGUNA |
-| `monto_acreditado` | DECIMAL(16,2) | — | DECIMAL(16,2), obligatoria. | FINANCIERO |
+| `cuenta_billetera_id` | UUID | Referencia a la billetera donde se debita o acredita el movimiento de fondos. | UUID, obligatoria, referencia a `cuenta_billetera`, índice b-tree. | NINGUNA |
+| `instrumento_fondeo_id` | UUID | Referencia por clave foránea a la entidad `instrumento_fondeo`. | UUID, opcional, referencia a `instrumento_fondeo`. | NINGUNA |
+| `proveedor_id` | UUID | Referencia por clave foránea a la entidad `proveedor_pago`. | UUID, opcional, referencia a `proveedor_pago`. | NINGUNA |
+| `pago_id` | UUID | Referencia por clave foránea a la entidad `pago`. | UUID, opcional, referencia a `pago`. | NINGUNA |
+| `transaccion_id` | UUID | Referencia por clave foránea a la entidad `transaccion_billetera`. | UUID, opcional, referencia a `transaccion_billetera`. | NINGUNA |
+| `monto_bruto` | DECIMAL(16,2) | Importe monetario correspondiente a bruto en `orden_recarga`. | DECIMAL(16,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `costo_proveedor` | DECIMAL(10,2) | Atributo que representa costo proveedor en el modelo de `orden_recarga`. | DECIMAL(10,2), obligatoria. | NINGUNA |
+| `monto_acreditado` | DECIMAL(16,2) | Importe monetario correspondiente a acreditado en `orden_recarga`. | DECIMAL(16,2), obligatoria, sensibilidad financiero. | FINANCIERO |
 | `moneda` | CHAR(3) | Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2). | CHAR(3), obligatoria. | NINGUNA |
-| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `medio` | VARCHAR(30) | — | VARCHAR(30), opcional. | NINGUNA |
-| `cotizacion_id` | UUID | — | UUID, opcional. | NINGUNA |
-| `referencia_externa` | VARCHAR(80) | — | VARCHAR(80), opcional. | NINGUNA |
+| `estado` | VARCHAR(15) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(15), obligatoria, índice b-tree. | NINGUNA |
+| `medio` | VARCHAR(30) | Atributo que representa medio en el modelo de `orden_recarga`. | VARCHAR(30), opcional. | NINGUNA |
+| `cotizacion_id` | UUID | Identificador de referencia para el concepto de cotizacion en `orden_recarga`. | UUID, opcional. | NINGUNA |
+| `referencia_externa` | VARCHAR(80) | Atributo que representa referencia externa en el modelo de `orden_recarga`. | VARCHAR(80), opcional. | NINGUNA |
 | `clave_idempotencia` | VARCHAR(100) | Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4). | VARCHAR(100), obligatoria. | NINGUNA |
-| `solicitada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `acreditada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
-| `expira_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `solicitada_en` | TIMESTAMPTZ | Marca temporal o fecha de solicitada en `orden_recarga`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `acreditada_en` | TIMESTAMPTZ | Marca temporal o fecha de acreditada en `orden_recarga`. | TIMESTAMPTZ, opcional. | NINGUNA |
+| `expira_en` | TIMESTAMPTZ | Marca temporal o fecha de expira en `orden_recarga`. | TIMESTAMPTZ, opcional. | NINGUNA |
 
 ### `orden_retiro`
 
@@ -6215,26 +6286,26 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `cuenta_billetera_id` | UUID | — | UUID, obligatoria, referencia a `cuenta_billetera`. | NINGUNA |
-| `instrumento_destino_id` | UUID | — | UUID, obligatoria, referencia a `instrumento_fondeo`. | NINGUNA |
-| `retencion_id` | UUID | — | UUID, opcional, referencia a `retencion_saldo`. | NINGUNA |
-| `transaccion_id` | UUID | — | UUID, opcional, referencia a `transaccion_billetera`. | NINGUNA |
-| `solicitada_por` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `aprobada_por` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
-| `proveedor_id` | UUID | — | UUID, opcional, referencia a `proveedor_pago`. | NINGUNA |
-| `monto_solicitado` | DECIMAL(16,2) | — | DECIMAL(16,2), obligatoria. | FINANCIERO |
-| `costo_retiro` | DECIMAL(10,2) | — | DECIMAL(10,2), obligatoria. | NINGUNA |
-| `monto_neto` | DECIMAL(16,2) | — | DECIMAL(16,2), obligatoria. | FINANCIERO |
+| `cuenta_billetera_id` | UUID | Referencia a la billetera donde se debita o acredita el movimiento de fondos. | UUID, obligatoria, referencia a `cuenta_billetera`, índice b-tree. | NINGUNA |
+| `instrumento_destino_id` | UUID | Referencia por clave foránea a la entidad `instrumento_fondeo`. | UUID, obligatoria, referencia a `instrumento_fondeo`. | NINGUNA |
+| `retencion_id` | UUID | Referencia por clave foránea a la entidad `retencion_saldo`. | UUID, opcional, referencia a `retencion_saldo`, restricción única. | NINGUNA |
+| `transaccion_id` | UUID | Referencia por clave foránea a la entidad `transaccion_billetera`. | UUID, opcional, referencia a `transaccion_billetera`. | NINGUNA |
+| `solicitada_por` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, obligatoria, referencia a `usuario`, índice b-tree. | NINGUNA |
+| `aprobada_por` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, opcional, referencia a `usuario`. | NINGUNA |
+| `proveedor_id` | UUID | Referencia por clave foránea a la entidad `proveedor_pago`. | UUID, opcional, referencia a `proveedor_pago`. | NINGUNA |
+| `monto_solicitado` | DECIMAL(16,2) | Importe monetario correspondiente a solicitado en `orden_retiro`. | DECIMAL(16,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `costo_retiro` | DECIMAL(10,2) | Atributo que representa costo retiro en el modelo de `orden_retiro`. | DECIMAL(10,2), obligatoria. | NINGUNA |
+| `monto_neto` | DECIMAL(16,2) | Importe monetario correspondiente a neto en `orden_retiro`. | DECIMAL(16,2), obligatoria, sensibilidad financiero. | FINANCIERO |
 | `moneda` | CHAR(3) | Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2). | CHAR(3), obligatoria. | NINGUNA |
-| `estado` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
-| `mfa_verificado` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
-| `requiere_doble_aprobacion` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
-| `ventana_enfriamiento_hasta` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
-| `cotizacion_id` | UUID | — | UUID, opcional. | NINGUNA |
-| `referencia_proveedor` | VARCHAR(80) | — | VARCHAR(80), opcional. | NINGUNA |
+| `estado` | VARCHAR(20) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(20), obligatoria, índice b-tree. | NINGUNA |
+| `mfa_verificado` | BOOLEAN | Atributo que representa mfa verificado en el modelo de `orden_retiro`. | BOOLEAN, obligatoria. | NINGUNA |
+| `requiere_doble_aprobacion` | BOOLEAN | Atributo que representa requiere doble aprobacion en el modelo de `orden_retiro`. | BOOLEAN, obligatoria. | NINGUNA |
+| `ventana_enfriamiento_hasta` | TIMESTAMPTZ | Atributo que representa ventana enfriamiento hasta en el modelo de `orden_retiro`. | TIMESTAMPTZ, opcional. | NINGUNA |
+| `cotizacion_id` | UUID | Identificador de referencia para el concepto de cotizacion en `orden_retiro`. | UUID, opcional. | NINGUNA |
+| `referencia_proveedor` | VARCHAR(80) | Atributo que representa referencia proveedor en el modelo de `orden_retiro`. | VARCHAR(80), opcional, restricción única. | NINGUNA |
 | `clave_idempotencia` | VARCHAR(100) | Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4). | VARCHAR(100), obligatoria. | NINGUNA |
-| `solicitada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `pagada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `solicitada_en` | TIMESTAMPTZ | Marca temporal o fecha de solicitada en `orden_retiro`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `pagada_en` | TIMESTAMPTZ | Marca temporal o fecha de pagada en `orden_retiro`. | TIMESTAMPTZ, opcional. | NINGUNA |
 
 ### `politica_billetera`
 
@@ -6249,16 +6320,16 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `codigo` | VARCHAR(40) | — | VARCHAR(40), obligatoria. | NINGUNA |
+| `codigo` | VARCHAR(40) | Código mnemotécnico o identificador legible para operadores y personas usuarias. | VARCHAR(40), obligatoria, restricción única. | NINGUNA |
 | `moneda` | CHAR(3) | Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2). | CHAR(3), obligatoria. | NINGUNA |
-| `dias_inactividad_para_limitar` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `permite_transferencia_p2p` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
-| `requiere_mfa_desde` | DECIMAL(16,2) | — | DECIMAL(16,2), obligatoria. | NINGUNA |
-| `ventana_enfriamiento_retiro_horas` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `dias_vigencia_retencion` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `permite_saldo_negativo` | BOOLEAN | — | BOOLEAN, obligatoria. | FINANCIERO |
+| `dias_inactividad_para_limitar` | SMALLINT | Atributo que representa dias inactividad para limitar en el modelo de `politica_billetera`. | SMALLINT, obligatoria. | NINGUNA |
+| `permite_transferencia_p2p` | BOOLEAN | Atributo que representa permite transferencia p2p en el modelo de `politica_billetera`. | BOOLEAN, obligatoria. | NINGUNA |
+| `requiere_mfa_desde` | DECIMAL(16,2) | Atributo que representa requiere mfa desde en el modelo de `politica_billetera`. | DECIMAL(16,2), obligatoria. | NINGUNA |
+| `ventana_enfriamiento_retiro_horas` | SMALLINT | Atributo que representa ventana enfriamiento retiro horas en el modelo de `politica_billetera`. | SMALLINT, obligatoria. | NINGUNA |
+| `dias_vigencia_retencion` | SMALLINT | Atributo que representa dias vigencia retencion en el modelo de `politica_billetera`. | SMALLINT, obligatoria. | NINGUNA |
+| `permite_saldo_negativo` | BOOLEAN | Atributo que representa permite saldo negativo en el modelo de `politica_billetera`. | BOOLEAN, obligatoria, sensibilidad financiero. | FINANCIERO |
 | `vigente_desde` | TIMESTAMPTZ | Desde cuándo rige esta versión de la fila: las condiciones se versionan, no se pisan. | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `aprobada_por` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
+| `aprobada_por` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, opcional, referencia a `usuario`. | NINGUNA |
 
 ### `qr_transferencia`
 
@@ -6273,16 +6344,16 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `cuenta_billetera_id` | UUID | — | UUID, obligatoria, referencia a `cuenta_billetera`. | NINGUNA |
-| `transaccion_id` | UUID | — | UUID, opcional, referencia a `transaccion_billetera`. | NINGUNA |
-| `modalidad` | VARCHAR(10) | — | VARCHAR(10), obligatoria. | NINGUNA |
-| `monto` | DECIMAL(16,2) | — | DECIMAL(16,2), opcional. | FINANCIERO |
+| `cuenta_billetera_id` | UUID | Referencia a la billetera donde se debita o acredita el movimiento de fondos. | UUID, obligatoria, referencia a `cuenta_billetera`, índice b-tree. | NINGUNA |
+| `transaccion_id` | UUID | Referencia por clave foránea a la entidad `transaccion_billetera`. | UUID, opcional, referencia a `transaccion_billetera`, restricción única. | NINGUNA |
+| `modalidad` | VARCHAR(10) | Atributo que representa modalidad en el modelo de `qr_transferencia`. | VARCHAR(10), obligatoria. | NINGUNA |
+| `monto` | DECIMAL(16,2) | Importe monetario principal de la transacción o concepto financiero. | DECIMAL(16,2), opcional, sensibilidad financiero. | FINANCIERO |
 | `moneda` | CHAR(3) | Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2). | CHAR(3), obligatoria. | NINGUNA |
-| `concepto` | VARCHAR(140) | — | VARCHAR(140), opcional. | NINGUNA |
-| `estado` | VARCHAR(10) | — | VARCHAR(10), obligatoria. | NINGUNA |
-| `expira_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
-| `creado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `usado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `concepto` | VARCHAR(140) | Atributo que representa concepto en el modelo de `qr_transferencia`. | VARCHAR(140), opcional. | NINGUNA |
+| `estado` | VARCHAR(10) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(10), obligatoria. | NINGUNA |
+| `expira_en` | TIMESTAMPTZ | Marca temporal o fecha de expira en `qr_transferencia`. | TIMESTAMPTZ, opcional. | NINGUNA |
+| `creado_en` | TIMESTAMPTZ | Marca temporal UTC en que el registro fue creado en la base de datos. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `usado_en` | TIMESTAMPTZ | Marca temporal o fecha de usado en `qr_transferencia`. | TIMESTAMPTZ, opcional. | NINGUNA |
 
 ### `regla_antifraude`
 
@@ -6295,15 +6366,15 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `codigo` | VARCHAR(40) | — | VARCHAR(40), obligatoria. | NINGUNA |
-| `descripcion` | VARCHAR(300) | — | VARCHAR(300), obligatoria. | NINGUNA |
-| `expresion` | JSONB | — | JSONB, obligatoria. | NINGUNA |
-| `accion` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
-| `umbral_puntaje` | DECIMAL(5,2) | — | DECIMAL(5,2), obligatoria. | NINGUNA |
-| `prioridad` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `activa` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
+| `codigo` | VARCHAR(40) | Código mnemotécnico o identificador legible para operadores y personas usuarias. | VARCHAR(40), obligatoria, restricción única. | NINGUNA |
+| `descripcion` | VARCHAR(300) | Detalle descriptivo que explica el contenido, propósito o contexto de la entidad. | VARCHAR(300), obligatoria. | NINGUNA |
+| `expresion` | JSONB | Atributo que representa expresion en el modelo de `regla_antifraude`. | JSONB, obligatoria. | NINGUNA |
+| `accion` | VARCHAR(20) | Atributo que representa accion en el modelo de `regla_antifraude`. | VARCHAR(20), obligatoria. | NINGUNA |
+| `umbral_puntaje` | DECIMAL(5,2) | Atributo que representa umbral puntaje en el modelo de `regla_antifraude`. | DECIMAL(5,2), obligatoria. | NINGUNA |
+| `prioridad` | SMALLINT | Atributo que representa prioridad en el modelo de `regla_antifraude`. | SMALLINT, obligatoria. | NINGUNA |
+| `activa` | BOOLEAN | Indicador booleano que determina si la entidad se encuentra actualmente operativa. | BOOLEAN, obligatoria, índice b-tree. | NINGUNA |
 | `vigente_desde` | TIMESTAMPTZ | Desde cuándo rige esta versión de la fila: las condiciones se versionan, no se pisan. | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `aprobada_por` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
+| `aprobada_por` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, opcional, referencia a `usuario`. | NINGUNA |
 
 ### `respuesta_idempotente`
 
@@ -6318,14 +6389,14 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `usuario_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `operacion` | VARCHAR(40) | — | VARCHAR(40), obligatoria. | NINGUNA |
+| `usuario_id` | UUID | Referencia al usuario titular de la cuenta o actor principal de la operación. | UUID, obligatoria, referencia a `usuario`, índice b-tree. | NINGUNA |
+| `operacion` | VARCHAR(40) | Atributo que representa operacion en el modelo de `respuesta_idempotente`. | VARCHAR(40), obligatoria, restricción única. | NINGUNA |
 | `clave_idempotencia` | VARCHAR(100) | Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4). | VARCHAR(100), obligatoria. | NINGUNA |
-| `hash_solicitud` | VARCHAR(64) | — | VARCHAR(64), obligatoria. | DERIVADO |
-| `codigo_http` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `cuerpo_respuesta` | JSONB | — | JSONB, obligatoria. | NINGUNA |
-| `registrada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `expira_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `hash_solicitud` | VARCHAR(64) | Resumen criptográfico SHA-256 para verificación inmutable de solicitud. | VARCHAR(64), obligatoria, sensibilidad derivado. | DERIVADO |
+| `codigo_http` | SMALLINT | Código normalizado o mnemotécnico de http. | SMALLINT, obligatoria. | NINGUNA |
+| `cuerpo_respuesta` | JSONB | Atributo que representa cuerpo respuesta en el modelo de `respuesta_idempotente`. | JSONB, obligatoria. | NINGUNA |
+| `registrada_en` | TIMESTAMPTZ | Marca temporal o fecha de registrada en `respuesta_idempotente`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `expira_en` | TIMESTAMPTZ | Marca temporal o fecha de expira en `respuesta_idempotente`. | TIMESTAMPTZ, obligatoria, índice b-tree. | NINGUNA |
 
 ### `retencion_saldo`
 
@@ -6340,17 +6411,17 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `cuenta_billetera_id` | UUID | — | UUID, obligatoria, referencia a `cuenta_billetera`. | NINGUNA |
-| `transaccion_origen_id` | UUID | — | UUID, opcional, referencia a `transaccion_billetera`. | NINGUNA |
-| `liberada_por` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
-| `motivo` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
-| `referencia_tipo` | VARCHAR(30) | — | VARCHAR(30), opcional. | NINGUNA |
-| `referencia_id` | UUID | — | UUID, opcional. | NINGUNA |
-| `monto` | DECIMAL(16,2) | — | DECIMAL(16,2), obligatoria. | FINANCIERO |
-| `estado` | VARCHAR(12) | — | VARCHAR(12), obligatoria. | NINGUNA |
-| `expira_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
-| `creada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `liberada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `cuenta_billetera_id` | UUID | Referencia a la billetera donde se debita o acredita el movimiento de fondos. | UUID, obligatoria, referencia a `cuenta_billetera`, índice b-tree. | NINGUNA |
+| `transaccion_origen_id` | UUID | Referencia por clave foránea a la entidad `transaccion_billetera`. | UUID, opcional, referencia a `transaccion_billetera`. | NINGUNA |
+| `liberada_por` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, opcional, referencia a `usuario`. | NINGUNA |
+| `motivo` | VARCHAR(30) | Justificación declarada o causal que originó la creación, rechazo o transición del registro. | VARCHAR(30), obligatoria, índice b-tree. | NINGUNA |
+| `referencia_tipo` | VARCHAR(30) | Atributo que representa referencia tipo en el modelo de `retencion_saldo`. | VARCHAR(30), opcional. | NINGUNA |
+| `referencia_id` | UUID | Identificador de referencia para el concepto de referencia en `retencion_saldo`. | UUID, opcional. | NINGUNA |
+| `monto` | DECIMAL(16,2) | Importe monetario principal de la transacción o concepto financiero. | DECIMAL(16,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `estado` | VARCHAR(12) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(12), obligatoria, índice b-tree. | NINGUNA |
+| `expira_en` | TIMESTAMPTZ | Marca temporal o fecha de expira en `retencion_saldo`. | TIMESTAMPTZ, opcional, índice b-tree. | NINGUNA |
+| `creada_en` | TIMESTAMPTZ | Marca temporal UTC en que la entidad fue creada en la base de datos. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `liberada_en` | TIMESTAMPTZ | Marca temporal o fecha de liberada en `retencion_saldo`. | TIMESTAMPTZ, opcional. | NINGUNA |
 
 ### `reverso_transaccion`
 
@@ -6365,15 +6436,15 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `transaccion_original_id` | UUID | — | UUID, obligatoria, referencia a `transaccion_billetera`. | NINGUNA |
-| `transaccion_reverso_id` | UUID | — | UUID, opcional, referencia a `transaccion_billetera`. | NINGUNA |
-| `autorizada_por` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `tipo` | VARCHAR(25) | — | VARCHAR(25), obligatoria. | NINGUNA |
-| `motivo` | VARCHAR(300) | — | VARCHAR(300), obligatoria. | NINGUNA |
-| `monto_reversado` | DECIMAL(16,2) | — | DECIMAL(16,2), obligatoria. | FINANCIERO |
-| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `solicitada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `ejecutada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `transaccion_original_id` | UUID | Referencia por clave foránea a la entidad `transaccion_billetera`. | UUID, obligatoria, referencia a `transaccion_billetera`, índice b-tree. | NINGUNA |
+| `transaccion_reverso_id` | UUID | Referencia por clave foránea a la entidad `transaccion_billetera`. | UUID, opcional, referencia a `transaccion_billetera`, restricción única. | NINGUNA |
+| `autorizada_por` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
+| `tipo` | VARCHAR(25) | Subtipo o modalidad específica que determina las reglas operativas aplicables al registro. | VARCHAR(25), obligatoria. | NINGUNA |
+| `motivo` | VARCHAR(300) | Justificación declarada o causal que originó la creación, rechazo o transición del registro. | VARCHAR(300), obligatoria. | NINGUNA |
+| `monto_reversado` | DECIMAL(16,2) | Importe monetario correspondiente a reversado en `reverso_transaccion`. | DECIMAL(16,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `estado` | VARCHAR(15) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(15), obligatoria. | NINGUNA |
+| `solicitada_en` | TIMESTAMPTZ | Marca temporal o fecha de solicitada en `reverso_transaccion`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `ejecutada_en` | TIMESTAMPTZ | Marca temporal o fecha de ejecutada en `reverso_transaccion`. | TIMESTAMPTZ, opcional. | NINGUNA |
 
 ### `saldo_diario_billetera`
 
@@ -6388,14 +6459,14 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `cuenta_billetera_id` | UUID | — | UUID, obligatoria, referencia a `cuenta_billetera`. | NINGUNA |
-| `fecha` | DATE | — | DATE, obligatoria. | NINGUNA |
-| `saldo_disponible` | DECIMAL(16,2) | — | DECIMAL(16,2), obligatoria. | FINANCIERO |
-| `saldo_retenido` | DECIMAL(16,2) | — | DECIMAL(16,2), obligatoria. | FINANCIERO |
-| `cantidad_movimientos` | INTEGER | — | INTEGER, obligatoria. | NINGUNA |
-| `hash_registro` | VARCHAR(64) | — | VARCHAR(64), obligatoria. | DERIVADO |
-| `hash_anterior` | VARCHAR(64) | — | VARCHAR(64), opcional. | DERIVADO |
-| `cerrado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `cuenta_billetera_id` | UUID | Referencia a la billetera donde se debita o acredita el movimiento de fondos. | UUID, obligatoria, referencia a `cuenta_billetera`, índice b-tree. | NINGUNA |
+| `fecha` | DATE | Fecha calendario correspondiente al devengo o ejecución de la operación. | DATE, obligatoria. | NINGUNA |
+| `saldo_disponible` | DECIMAL(16,2) | Atributo que representa saldo disponible en el modelo de `saldo_diario_billetera`. | DECIMAL(16,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `saldo_retenido` | DECIMAL(16,2) | Atributo que representa saldo retenido en el modelo de `saldo_diario_billetera`. | DECIMAL(16,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `cantidad_movimientos` | INTEGER | Atributo que representa cantidad movimientos en el modelo de `saldo_diario_billetera`. | INTEGER, obligatoria. | NINGUNA |
+| `hash_registro` | VARCHAR(64) | Resumen criptográfico SHA-256 para verificación inmutable de registro. | VARCHAR(64), obligatoria, sensibilidad derivado. | DERIVADO |
+| `hash_anterior` | VARCHAR(64) | Resumen criptográfico SHA-256 para verificación inmutable de anterior. | VARCHAR(64), opcional, sensibilidad derivado. | DERIVADO |
+| `cerrado_en` | TIMESTAMPTZ | Marca temporal o fecha de cerrado en `saldo_diario_billetera`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 
 ### `solicitud_cierre_billetera`
 
@@ -6410,15 +6481,15 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `cuenta_billetera_id` | UUID | — | UUID, obligatoria, referencia a `cuenta_billetera`. | NINGUNA |
-| `orden_retiro_id` | UUID | — | UUID, opcional, referencia a `orden_retiro`. | NINGUNA |
-| `aprobada_por` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
-| `motivo` | VARCHAR(200) | — | VARCHAR(200), obligatoria. | NINGUNA |
-| `saldo_al_solicitar` | DECIMAL(16,2) | — | DECIMAL(16,2), obligatoria. | FINANCIERO |
-| `destino_saldo` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | FINANCIERO |
-| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `solicitada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `ejecutada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `cuenta_billetera_id` | UUID | Referencia a la billetera donde se debita o acredita el movimiento de fondos. | UUID, obligatoria, referencia a `cuenta_billetera`, restricción única. | NINGUNA |
+| `orden_retiro_id` | UUID | Referencia por clave foránea a la entidad `orden_retiro`. | UUID, opcional, referencia a `orden_retiro`. | NINGUNA |
+| `aprobada_por` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, opcional, referencia a `usuario`. | NINGUNA |
+| `motivo` | VARCHAR(200) | Justificación declarada o causal que originó la creación, rechazo o transición del registro. | VARCHAR(200), obligatoria. | NINGUNA |
+| `saldo_al_solicitar` | DECIMAL(16,2) | Atributo que representa saldo al solicitar en el modelo de `solicitud_cierre_billetera`. | DECIMAL(16,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `destino_saldo` | VARCHAR(20) | Atributo que representa destino saldo en el modelo de `solicitud_cierre_billetera`. | VARCHAR(20), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `estado` | VARCHAR(15) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(15), obligatoria, índice b-tree. | NINGUNA |
+| `solicitada_en` | TIMESTAMPTZ | Marca temporal o fecha de solicitada en `solicitud_cierre_billetera`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `ejecutada_en` | TIMESTAMPTZ | Marca temporal o fecha de ejecutada en `solicitud_cierre_billetera`. | TIMESTAMPTZ, opcional. | NINGUNA |
 
 ### `transaccion_billetera`
 
@@ -6433,25 +6504,25 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `secuencia` | BIGSERIAL | — | BIGSERIAL, obligatoria. | NINGUNA |
-| `tipo` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
-| `estado` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
+| `secuencia` | BIGSERIAL | Atributo que representa secuencia en el modelo de `transaccion_billetera`. | BIGSERIAL, obligatoria, restricción única. | NINGUNA |
+| `tipo` | VARCHAR(30) | Subtipo o modalidad específica que determina las reglas operativas aplicables al registro. | VARCHAR(30), obligatoria, índice b-tree. | NINGUNA |
+| `estado` | VARCHAR(20) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(20), obligatoria, índice b-tree. | NINGUNA |
 | `moneda` | CHAR(3) | Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2). | CHAR(3), obligatoria. | NINGUNA |
-| `monto_total` | DECIMAL(16,2) | — | DECIMAL(16,2), obligatoria. | FINANCIERO |
-| `grupo_id` | UUID | — | UUID, opcional, referencia a `grupo`. | NINGUNA |
-| `asiento_contable_id` | UUID | — | UUID, opcional, referencia a `asiento_contable`. | NINGUNA |
-| `sesion_id` | UUID | — | UUID, opcional, referencia a `sesion`. | NINGUNA |
-| `dispositivo_id` | UUID | — | UUID, opcional, referencia a `dispositivo`. | NINGUNA |
-| `iniciada_por` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
-| `origen_tipo` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
-| `origen_id` | UUID | — | UUID, obligatoria. | NINGUNA |
-| `canal` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `ip_origen` | INET | — | INET, opcional. | NINGUNA |
+| `monto_total` | DECIMAL(16,2) | Importe monetario correspondiente a total en `transaccion_billetera`. | DECIMAL(16,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `grupo_id` | UUID | Referencia al grupo de pasanaku en el que se enmarca esta operación. | UUID, opcional, referencia a `grupo`, índice b-tree. | NINGUNA |
+| `asiento_contable_id` | UUID | Referencia al asiento de partida doble que respalda el movimiento financiero. | UUID, opcional, referencia a `asiento_contable`. | NINGUNA |
+| `sesion_id` | UUID | Referencia por clave foránea a la entidad `sesion`. | UUID, opcional, referencia a `sesion`. | NINGUNA |
+| `dispositivo_id` | UUID | Identificador del dispositivo enrolado desde el que se autenticó la operación. | UUID, opcional, referencia a `dispositivo`. | NINGUNA |
+| `iniciada_por` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, opcional, referencia a `usuario`. | NINGUNA |
+| `origen_tipo` | VARCHAR(30) | Atributo que representa origen tipo en el modelo de `transaccion_billetera`. | VARCHAR(30), obligatoria. | NINGUNA |
+| `origen_id` | UUID | Identificador de referencia para el concepto de origen en `transaccion_billetera`. | UUID, obligatoria, índice b-tree. | NINGUNA |
+| `canal` | VARCHAR(15) | Atributo que representa canal en el modelo de `transaccion_billetera`. | VARCHAR(15), obligatoria. | NINGUNA |
+| `ip_origen` | INET | Dirección IP desde la cual se ejecutó la solicitud, registrada para auditoría de seguridad. | INET, opcional. | NINGUNA |
 | `clave_idempotencia` | VARCHAR(100) | Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4). | VARCHAR(100), obligatoria. | NINGUNA |
-| `hash_registro` | VARCHAR(64) | — | VARCHAR(64), obligatoria. | DERIVADO |
-| `hash_anterior` | VARCHAR(64) | — | VARCHAR(64), opcional. | DERIVADO |
-| `ocurrida_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `registrada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `hash_registro` | VARCHAR(64) | Resumen criptográfico SHA-256 para verificación inmutable de registro. | VARCHAR(64), obligatoria, sensibilidad derivado. | DERIVADO |
+| `hash_anterior` | VARCHAR(64) | Resumen criptográfico SHA-256 para verificación inmutable de anterior. | VARCHAR(64), opcional, sensibilidad derivado. | DERIVADO |
+| `ocurrida_en` | TIMESTAMPTZ | Marca temporal o fecha de ocurrida en `transaccion_billetera`. | TIMESTAMPTZ, obligatoria, índice b-tree. | NINGUNA |
+| `registrada_en` | TIMESTAMPTZ | Marca temporal o fecha de registrada en `transaccion_billetera`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 
 ### `transferencia_p2p`
 
@@ -6464,16 +6535,16 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `transaccion_id` | UUID | — | UUID, obligatoria, referencia a `transaccion_billetera`. | NINGUNA |
-| `cuenta_billetera_origen_id` | UUID | — | UUID, obligatoria, referencia a `cuenta_billetera`. | NINGUNA |
-| `cuenta_billetera_destino_id` | UUID | — | UUID, obligatoria, referencia a `cuenta_billetera`. | NINGUNA |
-| `grupo_id` | UUID | — | UUID, opcional, referencia a `grupo`. | NINGUNA |
-| `obligacion_id` | UUID | — | UUID, opcional, referencia a `obligacion_aporte`. | NINGUNA |
-| `monto` | DECIMAL(16,2) | — | DECIMAL(16,2), obligatoria. | FINANCIERO |
+| `transaccion_id` | UUID | Referencia por clave foránea a la entidad `transaccion_billetera`. | UUID, obligatoria, referencia a `transaccion_billetera`, restricción única. | NINGUNA |
+| `cuenta_billetera_origen_id` | UUID | Referencia por clave foránea a la entidad `cuenta_billetera`. | UUID, obligatoria, referencia a `cuenta_billetera`, índice b-tree. | NINGUNA |
+| `cuenta_billetera_destino_id` | UUID | Referencia por clave foránea a la entidad `cuenta_billetera`. | UUID, obligatoria, referencia a `cuenta_billetera`, índice b-tree. | NINGUNA |
+| `grupo_id` | UUID | Referencia al grupo de pasanaku en el que se enmarca esta operación. | UUID, opcional, referencia a `grupo`. | NINGUNA |
+| `obligacion_id` | UUID | Referencia por clave foránea a la entidad `obligacion_aporte`. | UUID, opcional, referencia a `obligacion_aporte`. | NINGUNA |
+| `monto` | DECIMAL(16,2) | Importe monetario principal de la transacción o concepto financiero. | DECIMAL(16,2), obligatoria, sensibilidad financiero. | FINANCIERO |
 | `moneda` | CHAR(3) | Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2). | CHAR(3), obligatoria. | NINGUNA |
-| `concepto` | VARCHAR(140) | — | VARCHAR(140), obligatoria. | NINGUNA |
-| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `ejecutada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `concepto` | VARCHAR(140) | Atributo que representa concepto en el modelo de `transferencia_p2p`. | VARCHAR(140), obligatoria. | NINGUNA |
+| `estado` | VARCHAR(15) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(15), obligatoria. | NINGUNA |
+| `ejecutada_en` | TIMESTAMPTZ | Marca temporal o fecha de ejecutada en `transferencia_p2p`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 
 ## Esquema `organizador`
 
@@ -6490,14 +6561,14 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `sancion_organizador_id` | UUID | — | UUID, obligatoria, referencia a `sancion_organizador`. | NINGUNA |
-| `argumento` | TEXT | — | TEXT, obligatoria. | NINGUNA |
-| `evidencias` | JSONB | — | JSONB, obligatoria. | NINGUNA |
-| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `resuelta_por` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
-| `resolucion` | VARCHAR(400) | — | VARCHAR(400), opcional. | NINGUNA |
-| `presentada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `resuelta_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `sancion_organizador_id` | UUID | Referencia por clave foránea a la entidad `sancion_organizador`. | UUID, obligatoria, referencia a `sancion_organizador`. | NINGUNA |
+| `argumento` | TEXT | Atributo que representa argumento en el modelo de `apelacion_sancion_org`. | TEXT, obligatoria. | NINGUNA |
+| `evidencias` | JSONB | Atributo que representa evidencias en el modelo de `apelacion_sancion_org`. | JSONB, obligatoria. | NINGUNA |
+| `estado` | VARCHAR(15) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(15), obligatoria. | NINGUNA |
+| `resuelta_por` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, opcional, referencia a `usuario`. | NINGUNA |
+| `resolucion` | VARCHAR(400) | Atributo que representa resolucion en el modelo de `apelacion_sancion_org`. | VARCHAR(400), opcional. | NINGUNA |
+| `presentada_en` | TIMESTAMPTZ | Marca temporal o fecha de presentada en `apelacion_sancion_org`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `resuelta_en` | TIMESTAMPTZ | Marca temporal o fecha de resuelta en `apelacion_sancion_org`. | TIMESTAMPTZ, opcional. | NINGUNA |
 
 ### `capacitacion_organizador`
 
@@ -6512,11 +6583,11 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `organizador_id` | UUID | — | UUID, obligatoria, referencia a `organizador`. | NINGUNA |
-| `modulo` | VARCHAR(80) | — | VARCHAR(80), obligatoria. | NINGUNA |
-| `completada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `puntaje_evaluacion` | DECIMAL(5,2) | — | DECIMAL(5,2), obligatoria. | NINGUNA |
-| `aprobada` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
+| `organizador_id` | UUID | Referencia por clave foránea a la entidad `organizador`. | UUID, obligatoria, referencia a `organizador`, índice b-tree. | NINGUNA |
+| `modulo` | VARCHAR(80) | Atributo que representa modulo en el modelo de `capacitacion_organizador`. | VARCHAR(80), obligatoria. | NINGUNA |
+| `completada_en` | TIMESTAMPTZ | Marca temporal o fecha de completada en `capacitacion_organizador`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `puntaje_evaluacion` | DECIMAL(5,2) | Atributo que representa puntaje evaluacion en el modelo de `capacitacion_organizador`. | DECIMAL(5,2), obligatoria. | NINGUNA |
+| `aprobada` | BOOLEAN | Atributo que representa aprobada en el modelo de `capacitacion_organizador`. | BOOLEAN, obligatoria. | NINGUNA |
 | `vigente_hasta` | DATE | Hasta cuándo rigió esta versión; vacía mientras sigue vigente. | DATE, opcional. | NINGUNA |
 
 ### `contrato_organizador`
@@ -6532,17 +6603,17 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `organizador_id` | UUID | — | UUID, obligatoria, referencia a `organizador`. | NINGUNA |
-| `version` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
-| `contenido_hash` | VARCHAR(64) | — | VARCHAR(64), obligatoria. | DERIVADO |
-| `obligaciones` | TEXT | — | TEXT, obligatoria. | NINGUNA |
-| `causales_rescision` | TEXT | — | TEXT, obligatoria. | NINGUNA |
-| `firmado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
-| `token_firma_id` | UUID | — | UUID, opcional, referencia a `token_verificacion`. | SECRETO |
+| `organizador_id` | UUID | Referencia por clave foránea a la entidad `organizador`. | UUID, obligatoria, referencia a `organizador`, índice b-tree. | NINGUNA |
+| `version` | VARCHAR(20) | Número de versión para control de concurrencia optimista y auditoría de modificaciones. | VARCHAR(20), obligatoria. | NINGUNA |
+| `contenido_hash` | VARCHAR(64) | Resumen criptográfico SHA-256 para verificación inmutable de contenido. | VARCHAR(64), obligatoria, sensibilidad derivado. | DERIVADO |
+| `obligaciones` | TEXT | Atributo que representa obligaciones en el modelo de `contrato_organizador`. | TEXT, obligatoria. | NINGUNA |
+| `causales_rescision` | TEXT | Atributo que representa causales rescision en el modelo de `contrato_organizador`. | TEXT, obligatoria. | NINGUNA |
+| `firmado_en` | TIMESTAMPTZ | Marca temporal o fecha de firmado en `contrato_organizador`. | TIMESTAMPTZ, opcional. | NINGUNA |
+| `token_firma_id` | UUID | Referencia por clave foránea a la entidad `token_verificacion`. | UUID, opcional, referencia a `token_verificacion`, sensibilidad secreto. | SECRETO |
 | `vigente_desde` | DATE | Desde cuándo rige esta versión de la fila: las condiciones se versionan, no se pisan. | DATE, obligatoria. | NINGUNA |
 | `vigente_hasta` | DATE | Hasta cuándo rigió esta versión; vacía mientras sigue vigente. | DATE, opcional. | NINGUNA |
-| `rescindido_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
-| `motivo_rescision` | VARCHAR(300) | — | VARCHAR(300), opcional. | NINGUNA |
+| `rescindido_en` | TIMESTAMPTZ | Marca temporal o fecha de rescindido en `contrato_organizador`. | TIMESTAMPTZ, opcional. | NINGUNA |
+| `motivo_rescision` | VARCHAR(300) | Atributo que representa motivo rescision en el modelo de `contrato_organizador`. | VARCHAR(300), opcional. | NINGUNA |
 
 ### `decision_habilitacion`
 
@@ -6557,17 +6628,17 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `solicitud_id` | UUID | — | UUID, obligatoria. | NINGUNA |
-| `clave_idempotencia` | UUID | Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4). | UUID, obligatoria. | NINGUNA |
-| `fase` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `decision` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `actor_id` | UUID | — | UUID, obligatoria. | NINGUNA |
-| `motivo` | VARCHAR(1000) | — | VARCHAR(1000), obligatoria. | NINGUNA |
-| `revision` | INTEGER | — | INTEGER, obligatoria. | NINGUNA |
-| `organizador_id` | UUID | — | UUID, opcional. | NINGUNA |
-| `evidencia_requisitos` | TEXT | — | TEXT, obligatoria. | NINGUNA |
-| `ocurrida_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `correlacion_id` | UUID | — | UUID, obligatoria. | NINGUNA |
+| `solicitud_id` | UUID | Identificador de referencia para el concepto de solicitud en `decision_habilitacion`. | UUID, obligatoria, índice b-tree. | NINGUNA |
+| `clave_idempotencia` | UUID | Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4). | UUID, obligatoria, restricción única. | NINGUNA |
+| `fase` | VARCHAR(15) | Atributo que representa fase en el modelo de `decision_habilitacion`. | VARCHAR(15), obligatoria. | NINGUNA |
+| `decision` | VARCHAR(15) | Atributo que representa decision en el modelo de `decision_habilitacion`. | VARCHAR(15), obligatoria. | NINGUNA |
+| `actor_id` | UUID | Identificador de referencia para el concepto de actor en `decision_habilitacion`. | UUID, obligatoria. | NINGUNA |
+| `motivo` | VARCHAR(1000) | Justificación declarada o causal que originó la creación, rechazo o transición del registro. | VARCHAR(1000), obligatoria. | NINGUNA |
+| `revision` | INTEGER | Atributo que representa revision en el modelo de `decision_habilitacion`. | INTEGER, obligatoria, restricción única. | NINGUNA |
+| `organizador_id` | UUID | Identificador de referencia para el concepto de organizador en `decision_habilitacion`. | UUID, opcional. | NINGUNA |
+| `evidencia_requisitos` | TEXT | Atributo que representa evidencia requisitos en el modelo de `decision_habilitacion`. | TEXT, obligatoria. | NINGUNA |
+| `ocurrida_en` | TIMESTAMPTZ | Marca temporal o fecha de ocurrida en `decision_habilitacion`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `correlacion_id` | UUID | Identificador de referencia para el concepto de correlacion en `decision_habilitacion`. | UUID, obligatoria. | NINGUNA |
 
 ### `ejecucion_tarea`
 
@@ -6582,13 +6653,13 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `tarea_id` | UUID | — | UUID, obligatoria, referencia a `tarea_automatizada`. | NINGUNA |
-| `iniciada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `finalizada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
-| `resultado` | VARCHAR(10) | — | VARCHAR(10), obligatoria. | NINGUNA |
-| `registros_afectados` | INTEGER | — | INTEGER, obligatoria. | NINGUNA |
-| `detalle` | JSONB | — | JSONB, obligatoria. | NINGUNA |
-| `mensaje_error` | TEXT | — | TEXT, opcional. | NINGUNA |
+| `tarea_id` | UUID | Referencia por clave foránea a la entidad `tarea_automatizada`. | UUID, obligatoria, referencia a `tarea_automatizada`, índice b-tree. | NINGUNA |
+| `iniciada_en` | TIMESTAMPTZ | Marca temporal o fecha de iniciada en `ejecucion_tarea`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `finalizada_en` | TIMESTAMPTZ | Marca temporal o fecha de finalizada en `ejecucion_tarea`. | TIMESTAMPTZ, opcional. | NINGUNA |
+| `resultado` | VARCHAR(10) | Desenlace, dictamen o veredicto de la evaluación o proceso ejecutado. | VARCHAR(10), obligatoria. | NINGUNA |
+| `registros_afectados` | INTEGER | Atributo que representa registros afectados en el modelo de `ejecucion_tarea`. | INTEGER, obligatoria. | NINGUNA |
+| `detalle` | JSONB | Atributo que representa detalle en el modelo de `ejecucion_tarea`. | JSONB, obligatoria. | NINGUNA |
+| `mensaje_error` | TEXT | Atributo que representa mensaje error en el modelo de `ejecucion_tarea`. | TEXT, opcional. | NINGUNA |
 
 ### `evaluacion_desempeno`
 
@@ -6603,18 +6674,18 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `organizador_id` | UUID | — | UUID, obligatoria, referencia a `organizador`. | NINGUNA |
-| `periodo_evaluado` | VARCHAR(10) | — | VARCHAR(10), obligatoria. | NINGUNA |
+| `organizador_id` | UUID | Referencia por clave foránea a la entidad `organizador`. | UUID, obligatoria, referencia a `organizador`, índice b-tree. | NINGUNA |
+| `periodo_evaluado` | VARCHAR(10) | Atributo que representa periodo evaluado en el modelo de `evaluacion_desempeno`. | VARCHAR(10), obligatoria. | NINGUNA |
 | `indice_morosidad_cartera` | DECIMAL(5,2) | sus grupos, ¿pagan a tiempo? | DECIMAL(5,2), obligatoria. | NINGUNA |
 | `tasa_finalizacion_grupos` | DECIMAL(5,2) | sus grupos, ¿terminan o se caen? | DECIMAL(5,2), obligatoria. | NINGUNA |
 | `satisfaccion_participantes` | DECIMAL(3,2) | la gente que administró, ¿lo recomendaría? | DECIMAL(3,2), obligatoria. | NINGUNA |
 | `tiempo_respuesta_promedio_horas` | DECIMAL(6,2) | cuando alguien tiene un problema, ¿contesta? | DECIMAL(6,2), obligatoria. | NINGUNA |
-| `incidencias_abiertas` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `coberturas_consumidas` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `puntaje_global` | DECIMAL(5,2) | — | DECIMAL(5,2), obligatoria. | NINGUNA |
-| `nivel_sugerido` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `accion_recomendada` | VARCHAR(120) | — | VARCHAR(120), obligatoria. | NINGUNA |
-| `evaluado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `incidencias_abiertas` | SMALLINT | Atributo que representa incidencias abiertas en el modelo de `evaluacion_desempeno`. | SMALLINT, obligatoria. | NINGUNA |
+| `coberturas_consumidas` | SMALLINT | Atributo que representa coberturas consumidas en el modelo de `evaluacion_desempeno`. | SMALLINT, obligatoria. | NINGUNA |
+| `puntaje_global` | DECIMAL(5,2) | Atributo que representa puntaje global en el modelo de `evaluacion_desempeno`. | DECIMAL(5,2), obligatoria. | NINGUNA |
+| `nivel_sugerido` | VARCHAR(15) | Atributo que representa nivel sugerido en el modelo de `evaluacion_desempeno`. | VARCHAR(15), obligatoria. | NINGUNA |
+| `accion_recomendada` | VARCHAR(120) | Atributo que representa accion recomendada en el modelo de `evaluacion_desempeno`. | VARCHAR(120), obligatoria. | NINGUNA |
+| `evaluado_en` | TIMESTAMPTZ | Marca temporal o fecha de evaluado en `evaluacion_desempeno`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 
 ### `metrica_organizador`
 
@@ -6629,12 +6700,12 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `evaluacion_id` | UUID | — | UUID, obligatoria, referencia a `evaluacion_desempeno`. | NINGUNA |
-| `codigo` | VARCHAR(40) | — | VARCHAR(40), obligatoria. | NINGUNA |
-| `valor` | DECIMAL(12,4) | — | DECIMAL(12,4), obligatoria. | NINGUNA |
-| `meta` | DECIMAL(12,4) | — | DECIMAL(12,4), obligatoria. | NINGUNA |
-| `cumple` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
-| `peso` | DECIMAL(4,3) | — | DECIMAL(4,3), obligatoria. | NINGUNA |
+| `evaluacion_id` | UUID | Referencia por clave foránea a la entidad `evaluacion_desempeno`. | UUID, obligatoria, referencia a `evaluacion_desempeno`, índice b-tree. | NINGUNA |
+| `codigo` | VARCHAR(40) | Código mnemotécnico o identificador legible para operadores y personas usuarias. | VARCHAR(40), obligatoria. | NINGUNA |
+| `valor` | DECIMAL(12,4) | Atributo que representa valor en el modelo de `metrica_organizador`. | DECIMAL(12,4), obligatoria. | NINGUNA |
+| `meta` | DECIMAL(12,4) | Atributo que representa meta en el modelo de `metrica_organizador`. | DECIMAL(12,4), obligatoria. | NINGUNA |
+| `cumple` | BOOLEAN | Atributo que representa cumple en el modelo de `metrica_organizador`. | BOOLEAN, obligatoria. | NINGUNA |
+| `peso` | DECIMAL(4,3) | Atributo que representa peso en el modelo de `metrica_organizador`. | DECIMAL(4,3), obligatoria. | NINGUNA |
 
 ### `organizador`
 
@@ -6649,20 +6720,20 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `usuario_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `estado` | VARCHAR(25) | — | VARCHAR(25), obligatoria. | NINGUNA |
-| `nivel` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `limite_grupos_simultaneos` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `limite_monto_administrado` | DECIMAL(16,2) | — | DECIMAL(16,2), obligatoria. | FINANCIERO |
-| `grupos_activos` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `grupos_historicos` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `monto_administrado_actual` | DECIMAL(16,2) | — | DECIMAL(16,2), obligatoria. | FINANCIERO |
-| `calificacion_promedio` | DECIMAL(3,2) | — | DECIMAL(3,2), obligatoria. | NINGUNA |
-| `indice_morosidad_cartera` | DECIMAL(5,2) | — | DECIMAL(5,2), obligatoria. | NINGUNA |
-| `fecha_postulacion` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `fecha_habilitacion` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
-| `fecha_suspension` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
-| `version` | INTEGER | — | INTEGER, obligatoria. | NINGUNA |
+| `usuario_id` | UUID | Referencia al usuario titular de la cuenta o actor principal de la operación. | UUID, obligatoria, referencia a `usuario`, restricción única. | NINGUNA |
+| `estado` | VARCHAR(25) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(25), obligatoria, índice b-tree. | NINGUNA |
+| `nivel` | VARCHAR(15) | Atributo que representa nivel en el modelo de `organizador`. | VARCHAR(15), obligatoria. | NINGUNA |
+| `limite_grupos_simultaneos` | SMALLINT | Atributo que representa limite grupos simultaneos en el modelo de `organizador`. | SMALLINT, obligatoria. | NINGUNA |
+| `limite_monto_administrado` | DECIMAL(16,2) | Atributo que representa limite monto administrado en el modelo de `organizador`. | DECIMAL(16,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `grupos_activos` | SMALLINT | Atributo que representa grupos activos en el modelo de `organizador`. | SMALLINT, obligatoria. | NINGUNA |
+| `grupos_historicos` | SMALLINT | Atributo que representa grupos historicos en el modelo de `organizador`. | SMALLINT, obligatoria. | NINGUNA |
+| `monto_administrado_actual` | DECIMAL(16,2) | Importe monetario correspondiente a administrado actual en `organizador`. | DECIMAL(16,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `calificacion_promedio` | DECIMAL(3,2) | Atributo que representa calificacion promedio en el modelo de `organizador`. | DECIMAL(3,2), obligatoria. | NINGUNA |
+| `indice_morosidad_cartera` | DECIMAL(5,2) | Atributo que representa indice morosidad cartera en el modelo de `organizador`. | DECIMAL(5,2), obligatoria. | NINGUNA |
+| `fecha_postulacion` | TIMESTAMPTZ | Marca temporal o fecha de postulacion en `organizador`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `fecha_habilitacion` | TIMESTAMPTZ | Marca temporal o fecha de habilitacion en `organizador`. | TIMESTAMPTZ, opcional. | NINGUNA |
+| `fecha_suspension` | TIMESTAMPTZ | Marca temporal o fecha de suspension en `organizador`. | TIMESTAMPTZ, opcional. | NINGUNA |
+| `version` | INTEGER | Número de versión para control de concurrencia optimista y auditoría de modificaciones. | INTEGER, obligatoria. | NINGUNA |
 
 ### `regla_automatizacion`
 
@@ -6677,15 +6748,15 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `codigo` | VARCHAR(40) | — | VARCHAR(40), obligatoria. | NINGUNA |
-| `descripcion` | VARCHAR(200) | — | VARCHAR(200), obligatoria. | NINGUNA |
-| `disparador` | VARCHAR(10) | — | VARCHAR(10), obligatoria. | NINGUNA |
-| `expresion_disparo` | VARCHAR(80) | — | VARCHAR(80), obligatoria. | NINGUNA |
-| `condicion` | VARCHAR(300) | — | VARCHAR(300), obligatoria. | NINGUNA |
-| `accion` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
-| `requiere_confirmacion_humana` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
-| `prioridad` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `activa` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
+| `codigo` | VARCHAR(40) | Código mnemotécnico o identificador legible para operadores y personas usuarias. | VARCHAR(40), obligatoria, restricción única. | NINGUNA |
+| `descripcion` | VARCHAR(200) | Detalle descriptivo que explica el contenido, propósito o contexto de la entidad. | VARCHAR(200), obligatoria. | NINGUNA |
+| `disparador` | VARCHAR(10) | Atributo que representa disparador en el modelo de `regla_automatizacion`. | VARCHAR(10), obligatoria. | NINGUNA |
+| `expresion_disparo` | VARCHAR(80) | Atributo que representa expresion disparo en el modelo de `regla_automatizacion`. | VARCHAR(80), obligatoria. | NINGUNA |
+| `condicion` | VARCHAR(300) | Atributo que representa condicion en el modelo de `regla_automatizacion`. | VARCHAR(300), obligatoria. | NINGUNA |
+| `accion` | VARCHAR(30) | Atributo que representa accion en el modelo de `regla_automatizacion`. | VARCHAR(30), obligatoria. | NINGUNA |
+| `requiere_confirmacion_humana` | BOOLEAN | Atributo que representa requiere confirmacion humana en el modelo de `regla_automatizacion`. | BOOLEAN, obligatoria. | NINGUNA |
+| `prioridad` | SMALLINT | Atributo que representa prioridad en el modelo de `regla_automatizacion`. | SMALLINT, obligatoria. | NINGUNA |
+| `activa` | BOOLEAN | Indicador booleano que determina si la entidad se encuentra actualmente operativa. | BOOLEAN, obligatoria. | NINGUNA |
 
 ### `requisito_habilitacion`
 
@@ -6700,13 +6771,13 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `codigo` | VARCHAR(40) | — | VARCHAR(40), obligatoria. | NINGUNA |
-| `descripcion` | VARCHAR(200) | — | VARCHAR(200), obligatoria. | NINGUNA |
-| `tipo` | VARCHAR(25) | — | VARCHAR(25), obligatoria. | NINGUNA |
-| `valor_minimo` | DECIMAL(12,2) | — | DECIMAL(12,2), obligatoria. | NINGUNA |
-| `es_obligatorio` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
-| `nivel_requerido` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `activo` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
+| `codigo` | VARCHAR(40) | Código mnemotécnico o identificador legible para operadores y personas usuarias. | VARCHAR(40), obligatoria, restricción única. | NINGUNA |
+| `descripcion` | VARCHAR(200) | Detalle descriptivo que explica el contenido, propósito o contexto de la entidad. | VARCHAR(200), obligatoria. | NINGUNA |
+| `tipo` | VARCHAR(25) | Subtipo o modalidad específica que determina las reglas operativas aplicables al registro. | VARCHAR(25), obligatoria. | NINGUNA |
+| `valor_minimo` | DECIMAL(12,2) | Atributo que representa valor minimo en el modelo de `requisito_habilitacion`. | DECIMAL(12,2), obligatoria. | NINGUNA |
+| `es_obligatorio` | BOOLEAN | Indicador booleano que señala si obligatorio en `requisito_habilitacion`. | BOOLEAN, obligatoria. | NINGUNA |
+| `nivel_requerido` | VARCHAR(15) | Atributo que representa nivel requerido en el modelo de `requisito_habilitacion`. | VARCHAR(15), obligatoria. | NINGUNA |
+| `activo` | BOOLEAN | Indicador booleano que determina si el registro se encuentra actualmente operativo. | BOOLEAN, obligatoria. | NINGUNA |
 
 ### `sancion_organizador`
 
@@ -6721,14 +6792,14 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `organizador_id` | UUID | — | UUID, obligatoria, referencia a `organizador`. | NINGUNA |
-| `evaluacion_id` | UUID | — | UUID, opcional, referencia a `evaluacion_desempeno`. | NINGUNA |
-| `tipo` | VARCHAR(25) | — | VARCHAR(25), obligatoria. | NINGUNA |
-| `motivo` | VARCHAR(300) | — | VARCHAR(300), obligatoria. | NINGUNA |
+| `organizador_id` | UUID | Referencia por clave foránea a la entidad `organizador`. | UUID, obligatoria, referencia a `organizador`, índice b-tree. | NINGUNA |
+| `evaluacion_id` | UUID | Referencia por clave foránea a la entidad `evaluacion_desempeno`. | UUID, opcional, referencia a `evaluacion_desempeno`. | NINGUNA |
+| `tipo` | VARCHAR(25) | Subtipo o modalidad específica que determina las reglas operativas aplicables al registro. | VARCHAR(25), obligatoria. | NINGUNA |
+| `motivo` | VARCHAR(300) | Justificación declarada o causal que originó la creación, rechazo o transición del registro. | VARCHAR(300), obligatoria. | NINGUNA |
 | `vigente_desde` | TIMESTAMPTZ | Desde cuándo rige esta versión de la fila: las condiciones se versionan, no se pisan. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 | `vigente_hasta` | TIMESTAMPTZ | Hasta cuándo rigió esta versión; vacía mientras sigue vigente. | TIMESTAMPTZ, opcional. | NINGUNA |
-| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `aplicada_por` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
+| `estado` | VARCHAR(15) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(15), obligatoria, índice b-tree. | NINGUNA |
+| `aplicada_por` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
 
 ### `solicitud_organizador`
 
@@ -6743,16 +6814,16 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `usuario_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `motivacion` | TEXT | — | TEXT, obligatoria. | NINGUNA |
-| `experiencia_declarada` | TEXT | — | TEXT, obligatoria. | NINGUNA |
-| `kyc_reforzado_id` | UUID | — | UUID, opcional, referencia a `verificacion_kyc`. | NINGUNA |
-| `puntaje_reputacion_al_solicitar` | DECIMAL(6,2) | — | DECIMAL(6,2), obligatoria. | NINGUNA |
-| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `revisada_por` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
-| `motivo_rechazo` | VARCHAR(300) | — | VARCHAR(300), opcional. | NINGUNA |
-| `fecha_solicitud` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `fecha_resolucion` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `usuario_id` | UUID | Referencia al usuario titular de la cuenta o actor principal de la operación. | UUID, obligatoria, referencia a `usuario`, índice b-tree. | NINGUNA |
+| `motivacion` | TEXT | Atributo que representa motivacion en el modelo de `solicitud_organizador`. | TEXT, obligatoria. | NINGUNA |
+| `experiencia_declarada` | TEXT | Atributo que representa experiencia declarada en el modelo de `solicitud_organizador`. | TEXT, obligatoria. | NINGUNA |
+| `kyc_reforzado_id` | UUID | Referencia por clave foránea a la entidad `verificacion_kyc`. | UUID, opcional, referencia a `verificacion_kyc`. | NINGUNA |
+| `puntaje_reputacion_al_solicitar` | DECIMAL(6,2) | Atributo que representa puntaje reputacion al solicitar en el modelo de `solicitud_organizador`. | DECIMAL(6,2), obligatoria. | NINGUNA |
+| `estado` | VARCHAR(15) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(15), obligatoria. | NINGUNA |
+| `revisada_por` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, opcional, referencia a `usuario`. | NINGUNA |
+| `motivo_rechazo` | VARCHAR(300) | Atributo que representa motivo rechazo en el modelo de `solicitud_organizador`. | VARCHAR(300), opcional. | NINGUNA |
+| `fecha_solicitud` | TIMESTAMPTZ | Marca temporal o fecha de solicitud en `solicitud_organizador`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `fecha_resolucion` | TIMESTAMPTZ | Marca temporal o fecha de resolucion en `solicitud_organizador`. | TIMESTAMPTZ, opcional. | NINGUNA |
 
 ### `tarea_automatizada`
 
@@ -6767,12 +6838,12 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `regla_id` | UUID | — | UUID, obligatoria, referencia a `regla_automatizacion`. | NINGUNA |
-| `grupo_id` | UUID | — | UUID, obligatoria, referencia a `grupo`. | NINGUNA |
-| `tipo` | VARCHAR(40) | — | VARCHAR(40), obligatoria. | NINGUNA |
-| `programada_para` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `estado` | VARCHAR(25) | — | VARCHAR(25), obligatoria. | NINGUNA |
-| `intentos` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
+| `regla_id` | UUID | Referencia por clave foránea a la entidad `regla_automatizacion`. | UUID, obligatoria, referencia a `regla_automatizacion`, índice b-tree. | NINGUNA |
+| `grupo_id` | UUID | Referencia al grupo de pasanaku en el que se enmarca esta operación. | UUID, obligatoria, referencia a `grupo`, índice b-tree. | NINGUNA |
+| `tipo` | VARCHAR(40) | Subtipo o modalidad específica que determina las reglas operativas aplicables al registro. | VARCHAR(40), obligatoria. | NINGUNA |
+| `programada_para` | TIMESTAMPTZ | Atributo que representa programada para en el modelo de `tarea_automatizada`. | TIMESTAMPTZ, obligatoria, índice b-tree. | NINGUNA |
+| `estado` | VARCHAR(25) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(25), obligatoria, índice b-tree. | NINGUNA |
+| `intentos` | SMALLINT | Atributo que representa intentos en el modelo de `tarea_automatizada`. | SMALLINT, obligatoria. | NINGUNA |
 | `clave_idempotencia` | VARCHAR(80) | Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4). | VARCHAR(80), obligatoria. | NINGUNA |
 
 ## Esquema `publicidad`
@@ -6788,12 +6859,12 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `tipo` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `organizador_id` | UUID | — | UUID, opcional, referencia a `organizador`. | NINGUNA |
-| `socio_comercial_id` | UUID | — | UUID, opcional, referencia a `socio_comercial`. | NINGUNA |
-| `razon_social_facturacion` | VARCHAR(150) | — | VARCHAR(150), obligatoria. | NINGUNA |
-| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `creado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `tipo` | VARCHAR(15) | Subtipo o modalidad específica que determina las reglas operativas aplicables al registro. | VARCHAR(15), obligatoria, índice b-tree. | NINGUNA |
+| `organizador_id` | UUID | Referencia por clave foránea a la entidad `organizador`. | UUID, opcional, referencia a `organizador`, índice b-tree. | NINGUNA |
+| `socio_comercial_id` | UUID | Referencia por clave foránea a la entidad `socio_comercial`. | UUID, opcional, referencia a `socio_comercial`, índice b-tree. | NINGUNA |
+| `razon_social_facturacion` | VARCHAR(150) | Atributo que representa razon social facturacion en el modelo de `anunciante`. | VARCHAR(150), obligatoria. | NINGUNA |
+| `estado` | VARCHAR(15) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(15), obligatoria, índice b-tree. | NINGUNA |
+| `creado_en` | TIMESTAMPTZ | Marca temporal UTC en que el registro fue creado en la base de datos. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 
 ### `anuncio`
 
@@ -6806,11 +6877,11 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `conjunto_anuncios_id` | UUID | — | UUID, obligatoria, referencia a `conjunto_anuncios`. | NINGUNA |
-| `pieza_creativa_id` | UUID | — | UUID, obligatoria, referencia a `pieza_creativa`. | NINGUNA |
-| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `iniciado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
-| `finalizado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `conjunto_anuncios_id` | UUID | Referencia por clave foránea a la entidad `conjunto_anuncios`. | UUID, obligatoria, referencia a `conjunto_anuncios`, índice b-tree. | NINGUNA |
+| `pieza_creativa_id` | UUID | Referencia por clave foránea a la entidad `pieza_creativa`. | UUID, obligatoria, referencia a `pieza_creativa`, índice b-tree. | NINGUNA |
+| `estado` | VARCHAR(15) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(15), obligatoria, índice b-tree. | NINGUNA |
+| `iniciado_en` | TIMESTAMPTZ | Marca temporal o fecha de iniciado en `anuncio`. | TIMESTAMPTZ, opcional. | NINGUNA |
+| `finalizado_en` | TIMESTAMPTZ | Marca temporal o fecha de finalizado en `anuncio`. | TIMESTAMPTZ, opcional. | NINGUNA |
 
 ### `campana_publicitaria`
 
@@ -6823,16 +6894,16 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `cuenta_publicitaria_id` | UUID | — | UUID, obligatoria, referencia a `cuenta_publicitaria`. | NINGUNA |
-| `nombre` | VARCHAR(120) | — | VARCHAR(120), obligatoria. | NINGUNA |
-| `objetivo` | VARCHAR(25) | — | VARCHAR(25), obligatoria. | NINGUNA |
-| `presupuesto_total` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | NINGUNA |
-| `presupuesto_consumido` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | NINGUNA |
+| `cuenta_publicitaria_id` | UUID | Referencia por clave foránea a la entidad `cuenta_publicitaria`. | UUID, obligatoria, referencia a `cuenta_publicitaria`, índice b-tree. | NINGUNA |
+| `nombre` | VARCHAR(120) | Nombre descriptivo de la entidad para visualización y referencia en el sistema. | VARCHAR(120), obligatoria. | NINGUNA |
+| `objetivo` | VARCHAR(25) | Atributo que representa objetivo en el modelo de `campana_publicitaria`. | VARCHAR(25), obligatoria. | NINGUNA |
+| `presupuesto_total` | DECIMAL(14,2) | Atributo que representa presupuesto total en el modelo de `campana_publicitaria`. | DECIMAL(14,2), obligatoria. | NINGUNA |
+| `presupuesto_consumido` | DECIMAL(14,2) | Atributo que representa presupuesto consumido en el modelo de `campana_publicitaria`. | DECIMAL(14,2), obligatoria. | NINGUNA |
 | `moneda` | CHAR(3) | Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2). | CHAR(3), obligatoria. | NINGUNA |
-| `fecha_inicio` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `fecha_fin` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
-| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `aprobada_por` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
+| `fecha_inicio` | TIMESTAMPTZ | Marca temporal o fecha de inicio en `campana_publicitaria`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `fecha_fin` | TIMESTAMPTZ | Marca temporal o fecha de fin en `campana_publicitaria`. | TIMESTAMPTZ, opcional. | NINGUNA |
+| `estado` | VARCHAR(15) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(15), obligatoria, índice b-tree. | NINGUNA |
+| `aprobada_por` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, opcional, referencia a `usuario`. | NINGUNA |
 
 ### `clic_anuncio`
 
@@ -6845,10 +6916,10 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `impresion_id` | UUID | — | UUID, obligatoria, referencia a `impresion_anuncio`. | NINGUNA |
-| `usuario_id` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
-| `clic_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `costo` | DECIMAL(10,4) | — | DECIMAL(10,4), obligatoria. | NINGUNA |
+| `impresion_id` | UUID | Referencia por clave foránea a la entidad `impresion_anuncio`. | UUID, obligatoria, referencia a `impresion_anuncio`, índice b-tree. | NINGUNA |
+| `usuario_id` | UUID | Referencia al usuario titular de la cuenta o actor principal de la operación. | UUID, opcional, referencia a `usuario`, índice b-tree. | NINGUNA |
+| `clic_en` | TIMESTAMPTZ | Marca temporal o fecha de clic en `clic_anuncio`. | TIMESTAMPTZ, obligatoria, índice b-tree. | NINGUNA |
+| `costo` | DECIMAL(10,4) | Atributo que representa costo en el modelo de `clic_anuncio`. | DECIMAL(10,4), obligatoria. | NINGUNA |
 | `moneda` | CHAR(3) | Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2). | CHAR(3), obligatoria. | NINGUNA |
 
 ### `conjunto_anuncios`
@@ -6862,15 +6933,15 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `campana_publicitaria_id` | UUID | — | UUID, obligatoria, referencia a `campana_publicitaria`. | NINGUNA |
-| `segmento_audiencia_id` | UUID | — | UUID, obligatoria, referencia a `segmento_audiencia`. | NINGUNA |
-| `espacio_publicitario_id` | UUID | — | UUID, obligatoria, referencia a `espacio_publicitario`. | NINGUNA |
-| `nombre` | VARCHAR(120) | — | VARCHAR(120), obligatoria. | NINGUNA |
-| `presupuesto_diario` | DECIMAL(12,2) | — | DECIMAL(12,2), obligatoria. | NINGUNA |
+| `campana_publicitaria_id` | UUID | Referencia por clave foránea a la entidad `campana_publicitaria`. | UUID, obligatoria, referencia a `campana_publicitaria`, índice b-tree. | NINGUNA |
+| `segmento_audiencia_id` | UUID | Referencia por clave foránea a la entidad `segmento_audiencia`. | UUID, obligatoria, referencia a `segmento_audiencia`, índice b-tree. | NINGUNA |
+| `espacio_publicitario_id` | UUID | Referencia por clave foránea a la entidad `espacio_publicitario`. | UUID, obligatoria, referencia a `espacio_publicitario`, índice b-tree. | NINGUNA |
+| `nombre` | VARCHAR(120) | Nombre descriptivo de la entidad para visualización y referencia en el sistema. | VARCHAR(120), obligatoria. | NINGUNA |
+| `presupuesto_diario` | DECIMAL(12,2) | Atributo que representa presupuesto diario en el modelo de `conjunto_anuncios`. | DECIMAL(12,2), obligatoria. | NINGUNA |
 | `moneda` | CHAR(3) | Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2). | CHAR(3), obligatoria. | NINGUNA |
-| `puja_maxima` | DECIMAL(10,2) | — | DECIMAL(10,2), obligatoria. | NINGUNA |
-| `modelo_puja` | VARCHAR(10) | — | VARCHAR(10), obligatoria. | NINGUNA |
-| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
+| `puja_maxima` | DECIMAL(10,2) | Atributo que representa puja maxima en el modelo de `conjunto_anuncios`. | DECIMAL(10,2), obligatoria. | NINGUNA |
+| `modelo_puja` | VARCHAR(10) | Atributo que representa modelo puja en el modelo de `conjunto_anuncios`. | VARCHAR(10), obligatoria. | NINGUNA |
+| `estado` | VARCHAR(15) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(15), obligatoria, índice b-tree. | NINGUNA |
 
 ### `conversion_anuncio`
 
@@ -6883,11 +6954,11 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `clic_id` | UUID | — | UUID, opcional, referencia a `clic_anuncio`. | NINGUNA |
-| `impresion_id` | UUID | — | UUID, opcional, referencia a `impresion_anuncio`. | NINGUNA |
-| `tipo` | VARCHAR(25) | — | VARCHAR(25), obligatoria. | NINGUNA |
-| `referencia_id` | UUID | — | UUID, opcional. | NINGUNA |
-| `ocurrida_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `clic_id` | UUID | Referencia por clave foránea a la entidad `clic_anuncio`. | UUID, opcional, referencia a `clic_anuncio`, índice b-tree. | NINGUNA |
+| `impresion_id` | UUID | Referencia por clave foránea a la entidad `impresion_anuncio`. | UUID, opcional, referencia a `impresion_anuncio`, índice b-tree. | NINGUNA |
+| `tipo` | VARCHAR(25) | Subtipo o modalidad específica que determina las reglas operativas aplicables al registro. | VARCHAR(25), obligatoria. | NINGUNA |
+| `referencia_id` | UUID | Identificador de referencia para el concepto de referencia en `conversion_anuncio`. | UUID, opcional, índice b-tree. | NINGUNA |
+| `ocurrida_en` | TIMESTAMPTZ | Marca temporal o fecha de ocurrida en `conversion_anuncio`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 
 ### `cuenta_publicitaria`
 
@@ -6900,12 +6971,12 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `anunciante_id` | UUID | — | UUID, obligatoria, referencia a `anunciante`. | NINGUNA |
-| `limite_gasto_mensual` | DECIMAL(14,2) | — | DECIMAL(14,2), opcional. | NINGUNA |
+| `anunciante_id` | UUID | Referencia por clave foránea a la entidad `anunciante`. | UUID, obligatoria, referencia a `anunciante`. | NINGUNA |
+| `limite_gasto_mensual` | DECIMAL(14,2) | Atributo que representa limite gasto mensual en el modelo de `cuenta_publicitaria`. | DECIMAL(14,2), opcional. | NINGUNA |
 | `moneda` | CHAR(3) | Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2). | CHAR(3), obligatoria. | NINGUNA |
-| `saldo_consumido_mes` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
-| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `creada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `saldo_consumido_mes` | DECIMAL(14,2) | Atributo que representa saldo consumido mes en el modelo de `cuenta_publicitaria`. | DECIMAL(14,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `estado` | VARCHAR(15) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(15), obligatoria, índice b-tree. | NINGUNA |
+| `creada_en` | TIMESTAMPTZ | Marca temporal UTC en que la entidad fue creada en la base de datos. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 
 ### `espacio_publicitario`
 
@@ -6918,11 +6989,11 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `codigo` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
-| `nombre` | VARCHAR(80) | — | VARCHAR(80), obligatoria. | NINGUNA |
-| `tipo` | VARCHAR(25) | — | VARCHAR(25), obligatoria. | NINGUNA |
-| `capacidad_maxima_simultanea` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `activo` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
+| `codigo` | VARCHAR(30) | Código mnemotécnico o identificador legible para operadores y personas usuarias. | VARCHAR(30), obligatoria, restricción única. | NINGUNA |
+| `nombre` | VARCHAR(80) | Nombre descriptivo de la entidad para visualización y referencia en el sistema. | VARCHAR(80), obligatoria. | NINGUNA |
+| `tipo` | VARCHAR(25) | Subtipo o modalidad específica que determina las reglas operativas aplicables al registro. | VARCHAR(25), obligatoria. | NINGUNA |
+| `capacidad_maxima_simultanea` | SMALLINT | Atributo que representa capacidad maxima simultanea en el modelo de `espacio_publicitario`. | SMALLINT, obligatoria. | NINGUNA |
+| `activo` | BOOLEAN | Indicador booleano que determina si el registro se encuentra actualmente operativo. | BOOLEAN, obligatoria. | NINGUNA |
 
 ### `factura_publicidad`
 
@@ -6935,14 +7006,14 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `cuenta_publicitaria_id` | UUID | — | UUID, obligatoria, referencia a `cuenta_publicitaria`. | NINGUNA |
-| `periodo` | VARCHAR(7) | — | VARCHAR(7), obligatoria. | NINGUNA |
-| `monto_total` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
+| `cuenta_publicitaria_id` | UUID | Referencia por clave foránea a la entidad `cuenta_publicitaria`. | UUID, obligatoria, referencia a `cuenta_publicitaria`, índice b-tree. | NINGUNA |
+| `periodo` | VARCHAR(7) | Atributo que representa periodo en el modelo de `factura_publicidad`. | VARCHAR(7), obligatoria. | NINGUNA |
+| `monto_total` | DECIMAL(14,2) | Importe monetario correspondiente a total en `factura_publicidad`. | DECIMAL(14,2), obligatoria, sensibilidad financiero. | FINANCIERO |
 | `moneda` | CHAR(3) | Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2). | CHAR(3), obligatoria. | NINGUNA |
-| `factura_electronica_id` | UUID | — | UUID, opcional, referencia a `factura_electronica`. | NINGUNA |
-| `cuenta_por_cobrar_id` | UUID | — | UUID, opcional, referencia a `cuenta_por_cobrar`. | NINGUNA |
-| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `generada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `factura_electronica_id` | UUID | Referencia por clave foránea a la entidad `factura_electronica`. | UUID, opcional, referencia a `factura_electronica`. | NINGUNA |
+| `cuenta_por_cobrar_id` | UUID | Referencia por clave foránea a la entidad `cuenta_por_cobrar`. | UUID, opcional, referencia a `cuenta_por_cobrar`. | NINGUNA |
+| `estado` | VARCHAR(15) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(15), obligatoria, índice b-tree. | NINGUNA |
+| `generada_en` | TIMESTAMPTZ | Marca temporal o fecha de generada en `factura_publicidad`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 
 ### `impresion_anuncio`
 
@@ -6955,10 +7026,10 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `anuncio_id` | UUID | — | UUID, obligatoria, referencia a `anuncio`. | NINGUNA |
-| `usuario_id` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
-| `mostrada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `costo` | DECIMAL(10,4) | — | DECIMAL(10,4), obligatoria. | NINGUNA |
+| `anuncio_id` | UUID | Referencia por clave foránea a la entidad `anuncio`. | UUID, obligatoria, referencia a `anuncio`, índice b-tree. | NINGUNA |
+| `usuario_id` | UUID | Referencia al usuario titular de la cuenta o actor principal de la operación. | UUID, opcional, referencia a `usuario`, índice b-tree. | NINGUNA |
+| `mostrada_en` | TIMESTAMPTZ | Marca temporal o fecha de mostrada en `impresion_anuncio`. | TIMESTAMPTZ, obligatoria, índice b-tree. | NINGUNA |
+| `costo` | DECIMAL(10,4) | Atributo que representa costo en el modelo de `impresion_anuncio`. | DECIMAL(10,4), obligatoria. | NINGUNA |
 | `moneda` | CHAR(3) | Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2). | CHAR(3), obligatoria. | NINGUNA |
 
 ### `pieza_creativa`
@@ -6972,13 +7043,13 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `anunciante_id` | UUID | — | UUID, obligatoria, referencia a `anunciante`. | NINGUNA |
-| `titulo` | VARCHAR(120) | — | VARCHAR(120), obligatoria. | NINGUNA |
-| `texto` | VARCHAR(300) | — | VARCHAR(300), opcional. | NINGUNA |
-| `url_recurso` | VARCHAR(300) | — | VARCHAR(300), obligatoria. | NINGUNA |
-| `tipo_recurso` | VARCHAR(10) | — | VARCHAR(10), obligatoria. | NINGUNA |
-| `estado_moderacion` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `creada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `anunciante_id` | UUID | Referencia por clave foránea a la entidad `anunciante`. | UUID, obligatoria, referencia a `anunciante`, índice b-tree. | NINGUNA |
+| `titulo` | VARCHAR(120) | Atributo que representa titulo en el modelo de `pieza_creativa`. | VARCHAR(120), obligatoria. | NINGUNA |
+| `texto` | VARCHAR(300) | Atributo que representa texto en el modelo de `pieza_creativa`. | VARCHAR(300), opcional. | NINGUNA |
+| `url_recurso` | VARCHAR(300) | Localizador uniforme de recursos (URL/URI) correspondiente a recurso. | VARCHAR(300), obligatoria. | NINGUNA |
+| `tipo_recurso` | VARCHAR(10) | Atributo que representa tipo recurso en el modelo de `pieza_creativa`. | VARCHAR(10), obligatoria. | NINGUNA |
+| `estado_moderacion` | VARCHAR(15) | Atributo que representa estado moderacion en el modelo de `pieza_creativa`. | VARCHAR(15), obligatoria, índice b-tree. | NINGUNA |
+| `creada_en` | TIMESTAMPTZ | Marca temporal UTC en que la entidad fue creada en la base de datos. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 
 ### `revision_creativa`
 
@@ -6991,11 +7062,11 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `pieza_creativa_id` | UUID | — | UUID, obligatoria, referencia a `pieza_creativa`. | NINGUNA |
-| `revisada_por` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `decision` | VARCHAR(10) | — | VARCHAR(10), obligatoria. | NINGUNA |
-| `motivo` | VARCHAR(300) | — | VARCHAR(300), opcional. | NINGUNA |
-| `revisada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `pieza_creativa_id` | UUID | Referencia por clave foránea a la entidad `pieza_creativa`. | UUID, obligatoria, referencia a `pieza_creativa`, índice b-tree. | NINGUNA |
+| `revisada_por` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
+| `decision` | VARCHAR(10) | Atributo que representa decision en el modelo de `revision_creativa`. | VARCHAR(10), obligatoria. | NINGUNA |
+| `motivo` | VARCHAR(300) | Justificación declarada o causal que originó la creación, rechazo o transición del registro. | VARCHAR(300), opcional. | NINGUNA |
+| `revisada_en` | TIMESTAMPTZ | Marca temporal o fecha de revisada en `revision_creativa`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 
 ### `segmento_audiencia`
 
@@ -7008,11 +7079,11 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `nombre` | VARCHAR(100) | — | VARCHAR(100), obligatoria. | NINGUNA |
-| `criterios` | JSONB | — | JSONB, obligatoria. | NINGUNA |
-| `reutilizable` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
-| `creado_por` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `creado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `nombre` | VARCHAR(100) | Nombre descriptivo de la entidad para visualización y referencia en el sistema. | VARCHAR(100), obligatoria. | NINGUNA |
+| `criterios` | JSONB | Atributo que representa criterios en el modelo de `segmento_audiencia`. | JSONB, obligatoria. | NINGUNA |
+| `reutilizable` | BOOLEAN | Atributo que representa reutilizable en el modelo de `segmento_audiencia`. | BOOLEAN, obligatoria. | NINGUNA |
+| `creado_por` | UUID | Identificador del usuario u operador que dio de alta el registro. | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
+| `creado_en` | TIMESTAMPTZ | Marca temporal UTC en que el registro fue creado en la base de datos. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 
 ### `socio_comercial`
 
@@ -7025,14 +7096,14 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `razon_social` | VARCHAR(150) | — | VARCHAR(150), obligatoria. | NINGUNA |
-| `numero_documento` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | PERSONAL |
-| `rubro` | VARCHAR(60) | — | VARCHAR(60), opcional. | NINGUNA |
-| `email_contacto` | VARCHAR(120) | — | VARCHAR(120), obligatoria. | PERSONAL |
-| `telefono_contacto` | VARCHAR(20) | — | VARCHAR(20), opcional. | PERSONAL |
-| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `verificado_por` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
-| `creado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `razon_social` | VARCHAR(150) | Atributo que representa razon social en el modelo de `socio_comercial`. | VARCHAR(150), obligatoria. | NINGUNA |
+| `numero_documento` | VARCHAR(30) | Numeración secuencial o identificador numérico de documento. | VARCHAR(30), obligatoria, restricción única, sensibilidad personal. | PERSONAL |
+| `rubro` | VARCHAR(60) | Atributo que representa rubro en el modelo de `socio_comercial`. | VARCHAR(60), opcional. | NINGUNA |
+| `email_contacto` | VARCHAR(120) | Atributo que representa email contacto en el modelo de `socio_comercial`. | VARCHAR(120), obligatoria, sensibilidad personal. | PERSONAL |
+| `telefono_contacto` | VARCHAR(20) | Atributo que representa telefono contacto en el modelo de `socio_comercial`. | VARCHAR(20), opcional, sensibilidad personal. | PERSONAL |
+| `estado` | VARCHAR(15) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(15), obligatoria, índice b-tree. | NINGUNA |
+| `verificado_por` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, opcional, referencia a `usuario`. | NINGUNA |
+| `creado_en` | TIMESTAMPTZ | Marca temporal UTC en que el registro fue creado en la base de datos. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 
 ## Esquema `tarifas`
 
@@ -7049,10 +7120,10 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `campana_id` | UUID | — | UUID, obligatoria, referencia a `campana_promocional`. | NINGUNA |
-| `devengo_id` | UUID | — | UUID, obligatoria, referencia a `devengo_comision`. | NINGUNA |
-| `monto_descontado` | DECIMAL(12,2) | — | DECIMAL(12,2), obligatoria. | FINANCIERO |
-| `aplicada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `campana_id` | UUID | Referencia por clave foránea a la entidad `campana_promocional`. | UUID, obligatoria, referencia a `campana_promocional`, índice b-tree. | NINGUNA |
+| `devengo_id` | UUID | Referencia por clave foránea a la entidad `devengo_comision`. | UUID, obligatoria, referencia a `devengo_comision`, índice b-tree. | NINGUNA |
+| `monto_descontado` | DECIMAL(12,2) | Importe monetario correspondiente a descontado en `aplicacion_promocion`. | DECIMAL(12,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `aplicada_en` | TIMESTAMPTZ | Marca temporal o fecha de aplicada en `aplicacion_promocion`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 
 ### `asignacion_tarifario`
 
@@ -7067,14 +7138,14 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `tarifario_id` | UUID | — | UUID, obligatoria, referencia a `tarifario`. | NINGUNA |
-| `segmento_id` | UUID | — | UUID, opcional, referencia a `segmento_comercial`. | NINGUNA |
-| `grupo_id` | UUID | — | UUID, opcional, referencia a `grupo`. | NINGUNA |
-| `usuario_id` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
-| `autorizado_por` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
-| `ambito` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `prioridad` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `motivo` | VARCHAR(200) | — | VARCHAR(200), opcional. | NINGUNA |
+| `tarifario_id` | UUID | Referencia por clave foránea a la entidad `tarifario`. | UUID, obligatoria, referencia a `tarifario`, índice b-tree. | NINGUNA |
+| `segmento_id` | UUID | Referencia por clave foránea a la entidad `segmento_comercial`. | UUID, opcional, referencia a `segmento_comercial`. | NINGUNA |
+| `grupo_id` | UUID | Referencia al grupo de pasanaku en el que se enmarca esta operación. | UUID, opcional, referencia a `grupo`. | NINGUNA |
+| `usuario_id` | UUID | Referencia al usuario titular de la cuenta o actor principal de la operación. | UUID, opcional, referencia a `usuario`. | NINGUNA |
+| `autorizado_por` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, opcional, referencia a `usuario`. | NINGUNA |
+| `ambito` | VARCHAR(15) | Atributo que representa ambito en el modelo de `asignacion_tarifario`. | VARCHAR(15), obligatoria, índice b-tree. | NINGUNA |
+| `prioridad` | SMALLINT | Atributo que representa prioridad en el modelo de `asignacion_tarifario`. | SMALLINT, obligatoria. | NINGUNA |
+| `motivo` | VARCHAR(200) | Justificación declarada o causal que originó la creación, rechazo o transición del registro. | VARCHAR(200), opcional. | NINGUNA |
 | `vigente_desde` | TIMESTAMPTZ | Desde cuándo rige esta versión de la fila: las condiciones se versionan, no se pisan. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 | `vigente_hasta` | TIMESTAMPTZ | Hasta cuándo rigió esta versión; vacía mientras sigue vigente. | TIMESTAMPTZ, opcional. | NINGUNA |
 
@@ -7089,13 +7160,13 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `devengo_id` | UUID | — | UUID, obligatoria, referencia a `devengo_comision`. | NINGUNA |
-| `impuesto_id` | UUID | — | UUID, obligatoria, referencia a `impuesto`. | NINGUNA |
-| `base_imponible` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | NINGUNA |
-| `alicuota_aplicada` | DECIMAL(6,4) | — | DECIMAL(6,4), obligatoria. | NINGUNA |
-| `monto_impuesto` | DECIMAL(12,2) | — | DECIMAL(12,2), obligatoria. | FINANCIERO |
-| `incluido_en_precio` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
-| `periodo_fiscal` | CHAR(7) | — | CHAR(7), obligatoria. | NINGUNA |
+| `devengo_id` | UUID | Referencia por clave foránea a la entidad `devengo_comision`. | UUID, obligatoria, referencia a `devengo_comision`, índice b-tree. | NINGUNA |
+| `impuesto_id` | UUID | Referencia por clave foránea a la entidad `impuesto`. | UUID, obligatoria, referencia a `impuesto`. | NINGUNA |
+| `base_imponible` | DECIMAL(14,2) | Atributo que representa base imponible en el modelo de `calculo_impuesto`. | DECIMAL(14,2), obligatoria. | NINGUNA |
+| `alicuota_aplicada` | DECIMAL(6,4) | Atributo que representa alicuota aplicada en el modelo de `calculo_impuesto`. | DECIMAL(6,4), obligatoria. | NINGUNA |
+| `monto_impuesto` | DECIMAL(12,2) | Importe monetario correspondiente a impuesto en `calculo_impuesto`. | DECIMAL(12,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `incluido_en_precio` | BOOLEAN | Atributo que representa incluido en precio en el modelo de `calculo_impuesto`. | BOOLEAN, obligatoria. | NINGUNA |
+| `periodo_fiscal` | CHAR(7) | Atributo que representa periodo fiscal en el modelo de `calculo_impuesto`. | CHAR(7), obligatoria, índice b-tree. | NINGUNA |
 
 ### `cambio_tarifario`
 
@@ -7108,17 +7179,17 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `tarifario_anterior_id` | UUID | — | UUID, obligatoria, referencia a `tarifario`. | NINGUNA |
-| `tarifario_nuevo_id` | UUID | — | UUID, obligatoria, referencia a `tarifario`. | NINGUNA |
-| `aprobado_por` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `tipo_cambio` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
-| `requiere_preaviso` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
-| `dias_preaviso` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `fecha_aviso` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
-| `canal_aviso` | VARCHAR(40) | — | VARCHAR(40), opcional. | NINGUNA |
-| `usuarios_notificados` | INTEGER | — | INTEGER, obligatoria. | NINGUNA |
-| `permite_rescision_sin_costo` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
-| `publicado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `tarifario_anterior_id` | UUID | Referencia por clave foránea a la entidad `tarifario`. | UUID, obligatoria, referencia a `tarifario`. | NINGUNA |
+| `tarifario_nuevo_id` | UUID | Referencia por clave foránea a la entidad `tarifario`. | UUID, obligatoria, referencia a `tarifario`, restricción única. | NINGUNA |
+| `aprobado_por` | UUID | Identificador del usuario con facultades que autorizó la operación. | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
+| `tipo_cambio` | VARCHAR(20) | Atributo que representa tipo cambio en el modelo de `cambio_tarifario`. | VARCHAR(20), obligatoria. | NINGUNA |
+| `requiere_preaviso` | BOOLEAN | Atributo que representa requiere preaviso en el modelo de `cambio_tarifario`. | BOOLEAN, obligatoria. | NINGUNA |
+| `dias_preaviso` | SMALLINT | Atributo que representa dias preaviso en el modelo de `cambio_tarifario`. | SMALLINT, obligatoria. | NINGUNA |
+| `fecha_aviso` | TIMESTAMPTZ | Marca temporal o fecha de aviso en `cambio_tarifario`. | TIMESTAMPTZ, opcional. | NINGUNA |
+| `canal_aviso` | VARCHAR(40) | Atributo que representa canal aviso en el modelo de `cambio_tarifario`. | VARCHAR(40), opcional. | NINGUNA |
+| `usuarios_notificados` | INTEGER | Atributo que representa usuarios notificados en el modelo de `cambio_tarifario`. | INTEGER, obligatoria. | NINGUNA |
+| `permite_rescision_sin_costo` | BOOLEAN | Atributo que representa permite rescision sin costo en el modelo de `cambio_tarifario`. | BOOLEAN, obligatoria. | NINGUNA |
+| `publicado_en` | TIMESTAMPTZ | Marca temporal o fecha de publicado en `cambio_tarifario`. | TIMESTAMPTZ, opcional. | NINGUNA |
 
 ### `campana_promocional`
 
@@ -7133,16 +7204,16 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `codigo` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
-| `nombre` | VARCHAR(120) | — | VARCHAR(120), obligatoria. | NINGUNA |
-| `tipo` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
-| `presupuesto_maximo` | DECIMAL(16,2) | — | DECIMAL(16,2), opcional. | NINGUNA |
-| `presupuesto_consumido` | DECIMAL(16,2) | — | DECIMAL(16,2), obligatoria. | NINGUNA |
-| `condiciones` | JSONB | — | JSONB, obligatoria. | NINGUNA |
+| `codigo` | VARCHAR(30) | Código mnemotécnico o identificador legible para operadores y personas usuarias. | VARCHAR(30), obligatoria, restricción única. | NINGUNA |
+| `nombre` | VARCHAR(120) | Nombre descriptivo de la entidad para visualización y referencia en el sistema. | VARCHAR(120), obligatoria. | NINGUNA |
+| `tipo` | VARCHAR(30) | Subtipo o modalidad específica que determina las reglas operativas aplicables al registro. | VARCHAR(30), obligatoria. | NINGUNA |
+| `presupuesto_maximo` | DECIMAL(16,2) | Atributo que representa presupuesto maximo en el modelo de `campana_promocional`. | DECIMAL(16,2), opcional. | NINGUNA |
+| `presupuesto_consumido` | DECIMAL(16,2) | Atributo que representa presupuesto consumido en el modelo de `campana_promocional`. | DECIMAL(16,2), obligatoria. | NINGUNA |
+| `condiciones` | JSONB | Atributo que representa condiciones en el modelo de `campana_promocional`. | JSONB, obligatoria. | NINGUNA |
 | `vigente_desde` | TIMESTAMPTZ | Desde cuándo rige esta versión de la fila: las condiciones se versionan, no se pisan. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 | `vigente_hasta` | TIMESTAMPTZ | Hasta cuándo rigió esta versión; vacía mientras sigue vigente. | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `aprobada_por` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
+| `estado` | VARCHAR(15) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(15), obligatoria, índice b-tree. | NINGUNA |
+| `aprobada_por` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
 
 ### `cargo_comision`
 
@@ -7155,17 +7226,17 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `devengo_id` | UUID | — | UUID, obligatoria, referencia a `devengo_comision`. | NINGUNA |
-| `deduccion_entrega_id` | UUID | — | UUID, opcional, referencia a `deduccion_entrega`. | NINGUNA |
-| `transaccion_id` | UUID | — | UUID, opcional, referencia a `transaccion_billetera`. | NINGUNA |
-| `obligacion_id` | UUID | — | UUID, opcional, referencia a `obligacion_aporte`. | NINGUNA |
-| `forma_cobro` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
-| `monto_cobrado` | DECIMAL(12,2) | — | DECIMAL(12,2), obligatoria. | FINANCIERO |
+| `devengo_id` | UUID | Referencia por clave foránea a la entidad `devengo_comision`. | UUID, obligatoria, referencia a `devengo_comision`, índice b-tree. | NINGUNA |
+| `deduccion_entrega_id` | UUID | Referencia por clave foránea a la entidad `deduccion_entrega`. | UUID, opcional, referencia a `deduccion_entrega`. | NINGUNA |
+| `transaccion_id` | UUID | Referencia por clave foránea a la entidad `transaccion_billetera`. | UUID, opcional, referencia a `transaccion_billetera`. | NINGUNA |
+| `obligacion_id` | UUID | Referencia por clave foránea a la entidad `obligacion_aporte`. | UUID, opcional, referencia a `obligacion_aporte`. | NINGUNA |
+| `forma_cobro` | VARCHAR(30) | Atributo que representa forma cobro en el modelo de `cargo_comision`. | VARCHAR(30), obligatoria. | NINGUNA |
+| `monto_cobrado` | DECIMAL(12,2) | Importe monetario correspondiente a cobrado en `cargo_comision`. | DECIMAL(12,2), obligatoria, sensibilidad financiero. | FINANCIERO |
 | `moneda` | CHAR(3) | Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2). | CHAR(3), obligatoria. | NINGUNA |
-| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `intentos` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `ultimo_error` | VARCHAR(300) | — | VARCHAR(300), opcional. | NINGUNA |
-| `cobrado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `estado` | VARCHAR(15) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(15), obligatoria, índice b-tree. | NINGUNA |
+| `intentos` | SMALLINT | Atributo que representa intentos en el modelo de `cargo_comision`. | SMALLINT, obligatoria. | NINGUNA |
+| `ultimo_error` | VARCHAR(300) | Atributo que representa ultimo error en el modelo de `cargo_comision`. | VARCHAR(300), opcional. | NINGUNA |
+| `cobrado_en` | TIMESTAMPTZ | Marca temporal o fecha de cobrado en `cargo_comision`. | TIMESTAMPTZ, opcional. | NINGUNA |
 
 ### `catalogo_hecho_generador`
 
@@ -7180,13 +7251,13 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `codigo` | VARCHAR(40) | — | VARCHAR(40), obligatoria. | NINGUNA |
-| `descripcion` | VARCHAR(200) | — | VARCHAR(200), obligatoria. | NINGUNA |
-| `entidad_evento` | VARCHAR(40) | — | VARCHAR(40), obligatoria. | NINGUNA |
-| `campo_monto_base` | VARCHAR(40) | — | VARCHAR(40), opcional. | FINANCIERO |
-| `unidad_conteo` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
-| `modulo_origen` | CHAR(2) | — | CHAR(2), obligatoria. | NINGUNA |
-| `activo` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
+| `codigo` | VARCHAR(40) | Código mnemotécnico o identificador legible para operadores y personas usuarias. | VARCHAR(40), obligatoria, restricción única. | NINGUNA |
+| `descripcion` | VARCHAR(200) | Detalle descriptivo que explica el contenido, propósito o contexto de la entidad. | VARCHAR(200), obligatoria. | NINGUNA |
+| `entidad_evento` | VARCHAR(40) | Atributo que representa entidad evento en el modelo de `catalogo_hecho_generador`. | VARCHAR(40), obligatoria. | NINGUNA |
+| `campo_monto_base` | VARCHAR(40) | Atributo que representa campo monto base en el modelo de `catalogo_hecho_generador`. | VARCHAR(40), opcional, sensibilidad financiero. | FINANCIERO |
+| `unidad_conteo` | VARCHAR(20) | Atributo que representa unidad conteo en el modelo de `catalogo_hecho_generador`. | VARCHAR(20), obligatoria. | NINGUNA |
+| `modulo_origen` | CHAR(2) | Atributo que representa modulo origen en el modelo de `catalogo_hecho_generador`. | CHAR(2), obligatoria. | NINGUNA |
+| `activo` | BOOLEAN | Indicador booleano que determina si el registro se encuentra actualmente operativo. | BOOLEAN, obligatoria. | NINGUNA |
 
 ### `concepto_tarifa`
 
@@ -7201,27 +7272,27 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `tarifario_id` | UUID | — | UUID, obligatoria, referencia a `tarifario`. | NINGUNA |
-| `hecho_generador_id` | UUID | — | UUID, obligatoria, referencia a `catalogo_hecho_generador`. | NINGUNA |
-| `politica_redondeo_id` | UUID | — | UUID, opcional, referencia a `politica_redondeo`. | NINGUNA |
-| `cuenta_ingreso_id` | UUID | — | UUID, opcional, referencia a `cuenta_contable`. | NINGUNA |
-| `codigo` | VARCHAR(40) | — | VARCHAR(40), obligatoria. | NINGUNA |
-| `nombre_comercial` | VARCHAR(80) | — | VARCHAR(80), obligatoria. | NINGUNA |
-| `descripcion_usuario` | VARCHAR(300) | — | VARCHAR(300), obligatoria. | NINGUNA |
-| `metodo_calculo` | VARCHAR(25) | — | VARCHAR(25), obligatoria. | NINGUNA |
-| `base_calculo` | VARCHAR(35) | — | VARCHAR(35), obligatoria. | NINGUNA |
-| `valor_porcentual` | DECIMAL(7,4) | — | DECIMAL(7,4), opcional. | NINGUNA |
-| `valor_fijo` | DECIMAL(12,2) | — | DECIMAL(12,2), opcional. | NINGUNA |
-| `monto_minimo` | DECIMAL(12,2) | — | DECIMAL(12,2), opcional. | FINANCIERO |
-| `monto_maximo` | DECIMAL(12,2) | — | DECIMAL(12,2), opcional. | FINANCIERO |
-| `sujeto_obligado` | VARCHAR(35) | — | VARCHAR(35), obligatoria. | NINGUNA |
-| `forma_cobro` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
-| `momento_cobro` | VARCHAR(25) | — | VARCHAR(25), obligatoria. | NINGUNA |
-| `gravado_iva` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
-| `gravado_it` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
-| `precio_incluye_impuesto` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
-| `orden_aplicacion` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `activo` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
+| `tarifario_id` | UUID | Referencia por clave foránea a la entidad `tarifario`. | UUID, obligatoria, referencia a `tarifario`, índice b-tree. | NINGUNA |
+| `hecho_generador_id` | UUID | Referencia por clave foránea a la entidad `catalogo_hecho_generador`. | UUID, obligatoria, referencia a `catalogo_hecho_generador`, índice b-tree. | NINGUNA |
+| `politica_redondeo_id` | UUID | Referencia por clave foránea a la entidad `politica_redondeo`. | UUID, opcional, referencia a `politica_redondeo`. | NINGUNA |
+| `cuenta_ingreso_id` | UUID | Referencia por clave foránea a la entidad `cuenta_contable`. | UUID, opcional, referencia a `cuenta_contable`. | NINGUNA |
+| `codigo` | VARCHAR(40) | Código mnemotécnico o identificador legible para operadores y personas usuarias. | VARCHAR(40), obligatoria, restricción única. | NINGUNA |
+| `nombre_comercial` | VARCHAR(80) | Atributo que representa nombre comercial en el modelo de `concepto_tarifa`. | VARCHAR(80), obligatoria. | NINGUNA |
+| `descripcion_usuario` | VARCHAR(300) | Atributo que representa descripcion usuario en el modelo de `concepto_tarifa`. | VARCHAR(300), obligatoria. | NINGUNA |
+| `metodo_calculo` | VARCHAR(25) | Atributo que representa metodo calculo en el modelo de `concepto_tarifa`. | VARCHAR(25), obligatoria. | NINGUNA |
+| `base_calculo` | VARCHAR(35) | Atributo que representa base calculo en el modelo de `concepto_tarifa`. | VARCHAR(35), obligatoria. | NINGUNA |
+| `valor_porcentual` | DECIMAL(7,4) | Atributo que representa valor porcentual en el modelo de `concepto_tarifa`. | DECIMAL(7,4), opcional. | NINGUNA |
+| `valor_fijo` | DECIMAL(12,2) | Atributo que representa valor fijo en el modelo de `concepto_tarifa`. | DECIMAL(12,2), opcional. | NINGUNA |
+| `monto_minimo` | DECIMAL(12,2) | Importe monetario correspondiente a minimo en `concepto_tarifa`. | DECIMAL(12,2), opcional, sensibilidad financiero. | FINANCIERO |
+| `monto_maximo` | DECIMAL(12,2) | Importe monetario correspondiente a maximo en `concepto_tarifa`. | DECIMAL(12,2), opcional, sensibilidad financiero. | FINANCIERO |
+| `sujeto_obligado` | VARCHAR(35) | Atributo que representa sujeto obligado en el modelo de `concepto_tarifa`. | VARCHAR(35), obligatoria. | NINGUNA |
+| `forma_cobro` | VARCHAR(30) | Atributo que representa forma cobro en el modelo de `concepto_tarifa`. | VARCHAR(30), obligatoria. | NINGUNA |
+| `momento_cobro` | VARCHAR(25) | Atributo que representa momento cobro en el modelo de `concepto_tarifa`. | VARCHAR(25), obligatoria. | NINGUNA |
+| `gravado_iva` | BOOLEAN | Atributo que representa gravado iva en el modelo de `concepto_tarifa`. | BOOLEAN, obligatoria. | NINGUNA |
+| `gravado_it` | BOOLEAN | Atributo que representa gravado it en el modelo de `concepto_tarifa`. | BOOLEAN, obligatoria. | NINGUNA |
+| `precio_incluye_impuesto` | BOOLEAN | Atributo que representa precio incluye impuesto en el modelo de `concepto_tarifa`. | BOOLEAN, obligatoria. | NINGUNA |
+| `orden_aplicacion` | SMALLINT | Atributo que representa orden aplicacion en el modelo de `concepto_tarifa`. | SMALLINT, obligatoria. | NINGUNA |
+| `activo` | BOOLEAN | Indicador booleano que determina si el registro se encuentra actualmente operativo. | BOOLEAN, obligatoria, índice b-tree. | NINGUNA |
 
 ### `costo_proveedor_operacion`
 
@@ -7234,17 +7305,17 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `proveedor_id` | UUID | — | UUID, obligatoria, referencia a `proveedor_pago`. | NINGUNA |
-| `transaccion_id` | UUID | — | UUID, opcional, referencia a `transaccion_billetera`. | NINGUNA |
-| `liquidacion_ingresos_id` | UUID | — | UUID, opcional, referencia a `liquidacion_ingresos`. | NINGUNA |
-| `tipo_operacion` | VARCHAR(25) | — | VARCHAR(25), obligatoria. | NINGUNA |
-| `monto_operacion` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
-| `costo_fijo` | DECIMAL(10,2) | — | DECIMAL(10,2), obligatoria. | NINGUNA |
-| `costo_porcentual` | DECIMAL(10,2) | — | DECIMAL(10,2), obligatoria. | NINGUNA |
-| `costo_total` | DECIMAL(10,2) | — | DECIMAL(10,2), obligatoria. | NINGUNA |
+| `proveedor_id` | UUID | Referencia por clave foránea a la entidad `proveedor_pago`. | UUID, obligatoria, referencia a `proveedor_pago`, índice b-tree. | NINGUNA |
+| `transaccion_id` | UUID | Referencia por clave foránea a la entidad `transaccion_billetera`. | UUID, opcional, referencia a `transaccion_billetera`. | NINGUNA |
+| `liquidacion_ingresos_id` | UUID | Referencia por clave foránea a la entidad `liquidacion_ingresos`. | UUID, opcional, referencia a `liquidacion_ingresos`. | NINGUNA |
+| `tipo_operacion` | VARCHAR(25) | Atributo que representa tipo operacion en el modelo de `costo_proveedor_operacion`. | VARCHAR(25), obligatoria. | NINGUNA |
+| `monto_operacion` | DECIMAL(14,2) | Importe monetario correspondiente a operacion en `costo_proveedor_operacion`. | DECIMAL(14,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `costo_fijo` | DECIMAL(10,2) | Atributo que representa costo fijo en el modelo de `costo_proveedor_operacion`. | DECIMAL(10,2), obligatoria. | NINGUNA |
+| `costo_porcentual` | DECIMAL(10,2) | Atributo que representa costo porcentual en el modelo de `costo_proveedor_operacion`. | DECIMAL(10,2), obligatoria. | NINGUNA |
+| `costo_total` | DECIMAL(10,2) | Atributo que representa costo total en el modelo de `costo_proveedor_operacion`. | DECIMAL(10,2), obligatoria. | NINGUNA |
 | `moneda` | CHAR(3) | Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2). | CHAR(3), obligatoria. | NINGUNA |
-| `periodo` | CHAR(7) | — | CHAR(7), obligatoria. | NINGUNA |
-| `conciliado_con_factura` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
+| `periodo` | CHAR(7) | Atributo que representa periodo en el modelo de `costo_proveedor_operacion`. | CHAR(7), obligatoria, índice b-tree. | NINGUNA |
+| `conciliado_con_factura` | BOOLEAN | Atributo que representa conciliado con factura en el modelo de `costo_proveedor_operacion`. | BOOLEAN, obligatoria. | NINGUNA |
 
 ### `cotizacion_comision`
 
@@ -7259,19 +7330,19 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `concepto_tarifa_id` | UUID | — | UUID, obligatoria, referencia a `concepto_tarifa`. | NINGUNA |
-| `tarifario_id` | UUID | — | UUID, obligatoria, referencia a `tarifario`. | NINGUNA |
-| `referencia_tipo` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
-| `referencia_id` | UUID | — | UUID, obligatoria. | NINGUNA |
-| `monto_base` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
-| `monto_comision` | DECIMAL(12,2) | — | DECIMAL(12,2), obligatoria. | FINANCIERO |
-| `monto_impuesto` | DECIMAL(12,2) | — | DECIMAL(12,2), obligatoria. | FINANCIERO |
-| `monto_total` | DECIMAL(12,2) | — | DECIMAL(12,2), obligatoria. | FINANCIERO |
+| `concepto_tarifa_id` | UUID | Referencia por clave foránea a la entidad `concepto_tarifa`. | UUID, obligatoria, referencia a `concepto_tarifa`, índice b-tree. | NINGUNA |
+| `tarifario_id` | UUID | Referencia por clave foránea a la entidad `tarifario`. | UUID, obligatoria, referencia a `tarifario`. | NINGUNA |
+| `referencia_tipo` | VARCHAR(30) | Atributo que representa referencia tipo en el modelo de `cotizacion_comision`. | VARCHAR(30), obligatoria. | NINGUNA |
+| `referencia_id` | UUID | Identificador de referencia para el concepto de referencia en `cotizacion_comision`. | UUID, obligatoria, índice b-tree. | NINGUNA |
+| `monto_base` | DECIMAL(14,2) | Importe monetario correspondiente a base en `cotizacion_comision`. | DECIMAL(14,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `monto_comision` | DECIMAL(12,2) | Importe monetario correspondiente a comision en `cotizacion_comision`. | DECIMAL(12,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `monto_impuesto` | DECIMAL(12,2) | Importe monetario correspondiente a impuesto en `cotizacion_comision`. | DECIMAL(12,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `monto_total` | DECIMAL(12,2) | Importe monetario correspondiente a total en `cotizacion_comision`. | DECIMAL(12,2), obligatoria, sensibilidad financiero. | FINANCIERO |
 | `moneda` | CHAR(3) | Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2). | CHAR(3), obligatoria. | NINGUNA |
-| `desglose` | JSONB | — | JSONB, obligatoria. | NINGUNA |
-| `valida_hasta` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `mostrada_al_usuario_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
-| `aceptada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `desglose` | JSONB | Atributo que representa desglose en el modelo de `cotizacion_comision`. | JSONB, obligatoria. | NINGUNA |
+| `valida_hasta` | TIMESTAMPTZ | Atributo que representa valida hasta en el modelo de `cotizacion_comision`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `mostrada_al_usuario_en` | TIMESTAMPTZ | Marca temporal o fecha de mostrada al usuario en `cotizacion_comision`. | TIMESTAMPTZ, opcional. | NINGUNA |
+| `aceptada_en` | TIMESTAMPTZ | Marca temporal o fecha de aceptada en `cotizacion_comision`. | TIMESTAMPTZ, opcional. | NINGUNA |
 | `clave_idempotencia` | VARCHAR(100) | Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4). | VARCHAR(100), obligatoria. | NINGUNA |
 
 ### `cuenta_por_cobrar_comision`
@@ -7285,15 +7356,15 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `devengo_id` | UUID | — | UUID, obligatoria, referencia a `devengo_comision`. | NINGUNA |
-| `usuario_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `gestion_cobranza_id` | UUID | — | UUID, opcional, referencia a `gestion_cobranza`. | NINGUNA |
-| `monto` | DECIMAL(12,2) | — | DECIMAL(12,2), obligatoria. | FINANCIERO |
-| `saldo` | DECIMAL(12,2) | — | DECIMAL(12,2), obligatoria. | FINANCIERO |
-| `dias_vencido` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `vence_en` | DATE | — | DATE, obligatoria. | NINGUNA |
-| `castigada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `devengo_id` | UUID | Referencia por clave foránea a la entidad `devengo_comision`. | UUID, obligatoria, referencia a `devengo_comision`, restricción única. | NINGUNA |
+| `usuario_id` | UUID | Referencia al usuario titular de la cuenta o actor principal de la operación. | UUID, obligatoria, referencia a `usuario`, índice b-tree. | NINGUNA |
+| `gestion_cobranza_id` | UUID | Referencia por clave foránea a la entidad `gestion_cobranza`. | UUID, opcional, referencia a `gestion_cobranza`. | NINGUNA |
+| `monto` | DECIMAL(12,2) | Importe monetario principal de la transacción o concepto financiero. | DECIMAL(12,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `saldo` | DECIMAL(12,2) | Monto neto disponible o remanente tras procesar las operaciones de la entidad. | DECIMAL(12,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `dias_vencido` | SMALLINT | Atributo que representa dias vencido en el modelo de `cuenta_por_cobrar_comision`. | SMALLINT, obligatoria, índice b-tree. | NINGUNA |
+| `estado` | VARCHAR(15) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(15), obligatoria, índice b-tree. | NINGUNA |
+| `vence_en` | DATE | Marca temporal o fecha de vence en `cuenta_por_cobrar_comision`. | DATE, obligatoria. | NINGUNA |
+| `castigada_en` | TIMESTAMPTZ | Marca temporal o fecha de castigada en `cuenta_por_cobrar_comision`. | TIMESTAMPTZ, opcional. | NINGUNA |
 
 ### `datos_facturacion`
 
@@ -7308,14 +7379,14 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `usuario_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `tipo_documento` | VARCHAR(5) | — | VARCHAR(5), obligatoria. | PERSONAL |
-| `numero_documento` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | PERSONAL |
-| `razon_social` | VARCHAR(150) | — | VARCHAR(150), obligatoria. | NINGUNA |
-| `email_envio` | VARCHAR(120) | — | VARCHAR(120), obligatoria. | PERSONAL |
-| `es_predeterminado` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
-| `verificado` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
-| `actualizado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `usuario_id` | UUID | Referencia al usuario titular de la cuenta o actor principal de la operación. | UUID, obligatoria, referencia a `usuario`, índice b-tree. | NINGUNA |
+| `tipo_documento` | VARCHAR(5) | Atributo que representa tipo documento en el modelo de `datos_facturacion`. | VARCHAR(5), obligatoria, sensibilidad personal. | PERSONAL |
+| `numero_documento` | VARCHAR(20) | Numeración secuencial o identificador numérico de documento. | VARCHAR(20), obligatoria, restricción única, sensibilidad personal. | PERSONAL |
+| `razon_social` | VARCHAR(150) | Atributo que representa razon social en el modelo de `datos_facturacion`. | VARCHAR(150), obligatoria. | NINGUNA |
+| `email_envio` | VARCHAR(120) | Atributo que representa email envio en el modelo de `datos_facturacion`. | VARCHAR(120), obligatoria, sensibilidad personal. | PERSONAL |
+| `es_predeterminado` | BOOLEAN | Indicador booleano que señala si predeterminado en `datos_facturacion`. | BOOLEAN, obligatoria. | NINGUNA |
+| `verificado` | BOOLEAN | Atributo que representa verificado en el modelo de `datos_facturacion`. | BOOLEAN, obligatoria. | NINGUNA |
+| `actualizado_en` | TIMESTAMPTZ | Marca temporal UTC de la última modificación aplicada sobre este registro. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 
 ### `devengo_comision`
 
@@ -7330,24 +7401,24 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `concepto_tarifa_id` | UUID | — | UUID, obligatoria, referencia a `concepto_tarifa`. | NINGUNA |
-| `tarifario_id` | UUID | — | UUID, obligatoria, referencia a `tarifario`. | NINGUNA |
-| `cotizacion_id` | UUID | — | UUID, opcional, referencia a `cotizacion_comision`. | NINGUNA |
-| `grupo_id` | UUID | — | UUID, opcional, referencia a `grupo`. | NINGUNA |
-| `participante_id` | UUID | — | UUID, opcional, referencia a `participante`. | NINGUNA |
-| `usuario_obligado_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `asiento_contable_id` | UUID | — | UUID, opcional, referencia a `asiento_contable`. | NINGUNA |
-| `referencia_tipo` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
-| `referencia_id` | UUID | — | UUID, obligatoria. | NINGUNA |
-| `monto_base` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
-| `monto_comision` | DECIMAL(12,2) | — | DECIMAL(12,2), obligatoria. | FINANCIERO |
-| `monto_descuento` | DECIMAL(12,2) | — | DECIMAL(12,2), obligatoria. | FINANCIERO |
-| `monto_impuesto` | DECIMAL(12,2) | — | DECIMAL(12,2), obligatoria. | FINANCIERO |
-| `monto_total` | DECIMAL(12,2) | — | DECIMAL(12,2), obligatoria. | FINANCIERO |
+| `concepto_tarifa_id` | UUID | Referencia por clave foránea a la entidad `concepto_tarifa`. | UUID, obligatoria, referencia a `concepto_tarifa`, índice b-tree. | NINGUNA |
+| `tarifario_id` | UUID | Referencia por clave foránea a la entidad `tarifario`. | UUID, obligatoria, referencia a `tarifario`, índice b-tree. | NINGUNA |
+| `cotizacion_id` | UUID | Referencia por clave foránea a la entidad `cotizacion_comision`. | UUID, opcional, referencia a `cotizacion_comision`, restricción única. | NINGUNA |
+| `grupo_id` | UUID | Referencia al grupo de pasanaku en el que se enmarca esta operación. | UUID, opcional, referencia a `grupo`, índice b-tree. | NINGUNA |
+| `participante_id` | UUID | Referencia al miembro participante en el círculo de ahorro pasanaku. | UUID, opcional, referencia a `participante`. | NINGUNA |
+| `usuario_obligado_id` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, obligatoria, referencia a `usuario`, índice b-tree. | NINGUNA |
+| `asiento_contable_id` | UUID | Referencia al asiento de partida doble que respalda el movimiento financiero. | UUID, opcional, referencia a `asiento_contable`. | NINGUNA |
+| `referencia_tipo` | VARCHAR(30) | Atributo que representa referencia tipo en el modelo de `devengo_comision`. | VARCHAR(30), obligatoria. | NINGUNA |
+| `referencia_id` | UUID | Identificador de referencia para el concepto de referencia en `devengo_comision`. | UUID, obligatoria, índice b-tree. | NINGUNA |
+| `monto_base` | DECIMAL(14,2) | Importe monetario correspondiente a base en `devengo_comision`. | DECIMAL(14,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `monto_comision` | DECIMAL(12,2) | Importe monetario correspondiente a comision en `devengo_comision`. | DECIMAL(12,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `monto_descuento` | DECIMAL(12,2) | Importe monetario correspondiente a descuento en `devengo_comision`. | DECIMAL(12,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `monto_impuesto` | DECIMAL(12,2) | Importe monetario correspondiente a impuesto en `devengo_comision`. | DECIMAL(12,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `monto_total` | DECIMAL(12,2) | Importe monetario correspondiente a total en `devengo_comision`. | DECIMAL(12,2), obligatoria, sensibilidad financiero. | FINANCIERO |
 | `moneda` | CHAR(3) | Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2). | CHAR(3), obligatoria. | NINGUNA |
-| `estado` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
-| `fecha_devengo` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `periodo_contable` | CHAR(7) | — | CHAR(7), obligatoria. | NINGUNA |
+| `estado` | VARCHAR(20) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(20), obligatoria, índice b-tree. | NINGUNA |
+| `fecha_devengo` | TIMESTAMPTZ | Marca temporal o fecha de devengo en `devengo_comision`. | TIMESTAMPTZ, obligatoria, índice b-tree. | NINGUNA |
+| `periodo_contable` | CHAR(7) | Atributo que representa periodo contable en el modelo de `devengo_comision`. | CHAR(7), obligatoria, índice b-tree. | NINGUNA |
 | `clave_idempotencia` | VARCHAR(100) | Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4). | VARCHAR(100), obligatoria. | NINGUNA |
 
 ### `devolucion_comision`
@@ -7361,17 +7432,17 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `devengo_id` | UUID | — | UUID, obligatoria, referencia a `devengo_comision`. | NINGUNA |
-| `transaccion_id` | UUID | — | UUID, opcional, referencia a `transaccion_billetera`. | NINGUNA |
-| `reclamo_id` | UUID | — | UUID, opcional, referencia a `reclamo_cliente`. | NINGUNA |
-| `autorizada_por` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `motivo` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
-| `detalle` | VARCHAR(300) | — | VARCHAR(300), obligatoria. | NINGUNA |
-| `monto_devuelto` | DECIMAL(12,2) | — | DECIMAL(12,2), obligatoria. | FINANCIERO |
-| `forma` | VARCHAR(25) | — | VARCHAR(25), obligatoria. | NINGUNA |
-| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `solicitada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `ejecutada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `devengo_id` | UUID | Referencia por clave foránea a la entidad `devengo_comision`. | UUID, obligatoria, referencia a `devengo_comision`, índice b-tree. | NINGUNA |
+| `transaccion_id` | UUID | Referencia por clave foránea a la entidad `transaccion_billetera`. | UUID, opcional, referencia a `transaccion_billetera`. | NINGUNA |
+| `reclamo_id` | UUID | Referencia por clave foránea a la entidad `reclamo_cliente`. | UUID, opcional, referencia a `reclamo_cliente`. | NINGUNA |
+| `autorizada_por` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
+| `motivo` | VARCHAR(30) | Justificación declarada o causal que originó la creación, rechazo o transición del registro. | VARCHAR(30), obligatoria. | NINGUNA |
+| `detalle` | VARCHAR(300) | Atributo que representa detalle en el modelo de `devolucion_comision`. | VARCHAR(300), obligatoria. | NINGUNA |
+| `monto_devuelto` | DECIMAL(12,2) | Importe monetario correspondiente a devuelto en `devolucion_comision`. | DECIMAL(12,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `forma` | VARCHAR(25) | Atributo que representa forma en el modelo de `devolucion_comision`. | VARCHAR(25), obligatoria. | NINGUNA |
+| `estado` | VARCHAR(15) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(15), obligatoria, índice b-tree. | NINGUNA |
+| `solicitada_en` | TIMESTAMPTZ | Marca temporal o fecha de solicitada en `devolucion_comision`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `ejecutada_en` | TIMESTAMPTZ | Marca temporal o fecha de ejecutada en `devolucion_comision`. | TIMESTAMPTZ, opcional. | NINGUNA |
 
 ### `evento_significativo_sin`
 
@@ -7386,19 +7457,19 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `registrado_por` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
-| `codigo_evento` | VARCHAR(10) | — | VARCHAR(10), obligatoria. | NINGUNA |
-| `descripcion` | VARCHAR(200) | — | VARCHAR(200), obligatoria. | NINGUNA |
-| `sucursal` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `punto_venta` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `cufd_evento` | VARCHAR(120) | — | VARCHAR(120), obligatoria. | NINGUNA |
-| `fecha_inicio` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `fecha_fin` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
-| `cantidad_documentos_offline` | INTEGER | — | INTEGER, obligatoria. | PERSONAL |
-| `plazo_registro` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `registrado_en_sin` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
-| `codigo_recepcion_evento` | VARCHAR(60) | — | VARCHAR(60), opcional. | NINGUNA |
-| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
+| `registrado_por` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, opcional, referencia a `usuario`. | NINGUNA |
+| `codigo_evento` | VARCHAR(10) | Código normalizado o mnemotécnico de evento. | VARCHAR(10), obligatoria, índice b-tree. | NINGUNA |
+| `descripcion` | VARCHAR(200) | Detalle descriptivo que explica el contenido, propósito o contexto de la entidad. | VARCHAR(200), obligatoria. | NINGUNA |
+| `sucursal` | SMALLINT | Atributo que representa sucursal en el modelo de `evento_significativo_sin`. | SMALLINT, obligatoria. | NINGUNA |
+| `punto_venta` | SMALLINT | Atributo que representa punto venta en el modelo de `evento_significativo_sin`. | SMALLINT, obligatoria. | NINGUNA |
+| `cufd_evento` | VARCHAR(120) | Atributo que representa cufd evento en el modelo de `evento_significativo_sin`. | VARCHAR(120), obligatoria. | NINGUNA |
+| `fecha_inicio` | TIMESTAMPTZ | Marca temporal o fecha de inicio en `evento_significativo_sin`. | TIMESTAMPTZ, obligatoria, índice b-tree. | NINGUNA |
+| `fecha_fin` | TIMESTAMPTZ | Marca temporal o fecha de fin en `evento_significativo_sin`. | TIMESTAMPTZ, opcional. | NINGUNA |
+| `cantidad_documentos_offline` | INTEGER | Atributo que representa cantidad documentos offline en el modelo de `evento_significativo_sin`. | INTEGER, obligatoria, sensibilidad personal. | PERSONAL |
+| `plazo_registro` | TIMESTAMPTZ | Atributo que representa plazo registro en el modelo de `evento_significativo_sin`. | TIMESTAMPTZ, obligatoria, índice b-tree. | NINGUNA |
+| `registrado_en_sin` | TIMESTAMPTZ | Atributo que representa registrado en sin en el modelo de `evento_significativo_sin`. | TIMESTAMPTZ, opcional. | NINGUNA |
+| `codigo_recepcion_evento` | VARCHAR(60) | Código normalizado o mnemotécnico de recepcion evento. | VARCHAR(60), opcional, restricción única. | NINGUNA |
+| `estado` | VARCHAR(15) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(15), obligatoria, índice b-tree. | NINGUNA |
 
 ### `exencion_comision`
 
@@ -7413,19 +7484,19 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `usuario_id` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
-| `grupo_id` | UUID | — | UUID, opcional, referencia a `grupo`. | NINGUNA |
-| `concepto_tarifa_id` | UUID | — | UUID, opcional, referencia a `concepto_tarifa`. | NINGUNA |
-| `segmento_id` | UUID | — | UUID, opcional, referencia a `segmento_comercial`. | NINGUNA |
-| `autorizada_por` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `alcance` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `motivo` | VARCHAR(25) | — | VARCHAR(25), obligatoria. | NINGUNA |
-| `justificacion` | VARCHAR(300) | — | VARCHAR(300), obligatoria. | NINGUNA |
-| `porcentaje_exencion` | DECIMAL(5,2) | — | DECIMAL(5,2), obligatoria. | NINGUNA |
-| `monto_tope` | DECIMAL(12,2) | — | DECIMAL(12,2), opcional. | FINANCIERO |
+| `usuario_id` | UUID | Referencia al usuario titular de la cuenta o actor principal de la operación. | UUID, opcional, referencia a `usuario`. | NINGUNA |
+| `grupo_id` | UUID | Referencia al grupo de pasanaku en el que se enmarca esta operación. | UUID, opcional, referencia a `grupo`. | NINGUNA |
+| `concepto_tarifa_id` | UUID | Referencia por clave foránea a la entidad `concepto_tarifa`. | UUID, opcional, referencia a `concepto_tarifa`. | NINGUNA |
+| `segmento_id` | UUID | Referencia por clave foránea a la entidad `segmento_comercial`. | UUID, opcional, referencia a `segmento_comercial`. | NINGUNA |
+| `autorizada_por` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
+| `alcance` | VARCHAR(15) | Atributo que representa alcance en el modelo de `exencion_comision`. | VARCHAR(15), obligatoria, índice b-tree. | NINGUNA |
+| `motivo` | VARCHAR(25) | Justificación declarada o causal que originó la creación, rechazo o transición del registro. | VARCHAR(25), obligatoria. | NINGUNA |
+| `justificacion` | VARCHAR(300) | Atributo que representa justificacion en el modelo de `exencion_comision`. | VARCHAR(300), obligatoria. | NINGUNA |
+| `porcentaje_exencion` | DECIMAL(5,2) | Tasa porcentual o alícuota aplicable a exencion. | DECIMAL(5,2), obligatoria. | NINGUNA |
+| `monto_tope` | DECIMAL(12,2) | Importe monetario correspondiente a tope en `exencion_comision`. | DECIMAL(12,2), opcional, sensibilidad financiero. | FINANCIERO |
 | `vigente_desde` | TIMESTAMPTZ | Desde cuándo rige esta versión de la fila: las condiciones se versionan, no se pisan. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 | `vigente_hasta` | TIMESTAMPTZ | Hasta cuándo rigió esta versión; vacía mientras sigue vigente. | TIMESTAMPTZ, opcional. | NINGUNA |
-| `activa` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
+| `activa` | BOOLEAN | Indicador booleano que determina si la entidad se encuentra actualmente operativa. | BOOLEAN, obligatoria, índice b-tree. | NINGUNA |
 
 ### `factura_electronica`
 
@@ -7440,31 +7511,31 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `devengo_id` | UUID | — | UUID, opcional, referencia a `devengo_comision`. | NINGUNA |
-| `usuario_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `datos_facturacion_id` | UUID | — | UUID, obligatoria, referencia a `datos_facturacion`. | NINGUNA |
-| `lote_envio_sin_id` | UUID | — | UUID, opcional, referencia a `lote_envio_sin`. | NINGUNA |
-| `evento_significativo_id` | UUID | — | UUID, opcional, referencia a `evento_significativo_sin`. | NINGUNA |
-| `nit_emisor` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | PERSONAL |
-| `sucursal` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `punto_venta` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `numero_factura` | BIGINT | — | BIGINT, obligatoria. | NINGUNA |
-| `cuf` | VARCHAR(80) | — | VARCHAR(80), obligatoria. | NINGUNA |
-| `cufd` | VARCHAR(120) | — | VARCHAR(120), obligatoria. | NINGUNA |
-| `codigo_control` | VARCHAR(20) | — | VARCHAR(20), opcional. | NINGUNA |
-| `fecha_emision` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `monto_total` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
-| `monto_iva` | DECIMAL(12,2) | — | DECIMAL(12,2), obligatoria. | FINANCIERO |
-| `monto_no_sujeto` | DECIMAL(12,2) | — | DECIMAL(12,2), obligatoria. | FINANCIERO |
+| `devengo_id` | UUID | Referencia por clave foránea a la entidad `devengo_comision`. | UUID, opcional, referencia a `devengo_comision`, índice b-tree. | NINGUNA |
+| `usuario_id` | UUID | Referencia al usuario titular de la cuenta o actor principal de la operación. | UUID, obligatoria, referencia a `usuario`, índice b-tree. | NINGUNA |
+| `datos_facturacion_id` | UUID | Referencia por clave foránea a la entidad `datos_facturacion`. | UUID, obligatoria, referencia a `datos_facturacion`. | NINGUNA |
+| `lote_envio_sin_id` | UUID | Referencia por clave foránea a la entidad `lote_envio_sin`. | UUID, opcional, referencia a `lote_envio_sin`. | NINGUNA |
+| `evento_significativo_id` | UUID | Referencia por clave foránea a la entidad `evento_significativo_sin`. | UUID, opcional, referencia a `evento_significativo_sin`. | NINGUNA |
+| `nit_emisor` | VARCHAR(20) | Atributo que representa nit emisor en el modelo de `factura_electronica`. | VARCHAR(20), obligatoria, sensibilidad personal. | PERSONAL |
+| `sucursal` | SMALLINT | Atributo que representa sucursal en el modelo de `factura_electronica`. | SMALLINT, obligatoria. | NINGUNA |
+| `punto_venta` | SMALLINT | Atributo que representa punto venta en el modelo de `factura_electronica`. | SMALLINT, obligatoria. | NINGUNA |
+| `numero_factura` | BIGINT | Numeración secuencial o identificador numérico de factura. | BIGINT, obligatoria, restricción única. | NINGUNA |
+| `cuf` | VARCHAR(80) | Atributo que representa cuf en el modelo de `factura_electronica`. | VARCHAR(80), obligatoria. | NINGUNA |
+| `cufd` | VARCHAR(120) | Atributo que representa cufd en el modelo de `factura_electronica`. | VARCHAR(120), obligatoria. | NINGUNA |
+| `codigo_control` | VARCHAR(20) | Código normalizado o mnemotécnico de control. | VARCHAR(20), opcional. | NINGUNA |
+| `fecha_emision` | TIMESTAMPTZ | Marca temporal o fecha de emision en `factura_electronica`. | TIMESTAMPTZ, obligatoria, índice b-tree. | NINGUNA |
+| `monto_total` | DECIMAL(14,2) | Importe monetario correspondiente a total en `factura_electronica`. | DECIMAL(14,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `monto_iva` | DECIMAL(12,2) | Importe monetario correspondiente a iva en `factura_electronica`. | DECIMAL(12,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `monto_no_sujeto` | DECIMAL(12,2) | Importe monetario correspondiente a no sujeto en `factura_electronica`. | DECIMAL(12,2), obligatoria, sensibilidad financiero. | FINANCIERO |
 | `moneda` | CHAR(3) | Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2). | CHAR(3), obligatoria. | NINGUNA |
-| `estado_fiscal` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
-| `url_pdf` | VARCHAR(255) | — | VARCHAR(255), opcional. | NINGUNA |
-| `url_xml` | VARCHAR(255) | — | VARCHAR(255), opcional. | NINGUNA |
-| `hash_documento` | VARCHAR(64) | — | VARCHAR(64), obligatoria. | DERIVADO |
-| `qr_verificacion` | VARCHAR(255) | — | VARCHAR(255), opcional. | NINGUNA |
-| `leyenda` | VARCHAR(200) | — | VARCHAR(200), opcional. | NINGUNA |
-| `anulada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
-| `motivo_anulacion` | VARCHAR(200) | — | VARCHAR(200), opcional. | NINGUNA |
+| `estado_fiscal` | VARCHAR(20) | Atributo que representa estado fiscal en el modelo de `factura_electronica`. | VARCHAR(20), obligatoria, índice b-tree. | NINGUNA |
+| `url_pdf` | VARCHAR(255) | Localizador uniforme de recursos (URL/URI) correspondiente a pdf. | VARCHAR(255), opcional. | NINGUNA |
+| `url_xml` | VARCHAR(255) | Localizador uniforme de recursos (URL/URI) correspondiente a xml. | VARCHAR(255), opcional. | NINGUNA |
+| `hash_documento` | VARCHAR(64) | Resumen criptográfico SHA-256 para verificación inmutable de documento. | VARCHAR(64), obligatoria, sensibilidad derivado. | DERIVADO |
+| `qr_verificacion` | VARCHAR(255) | Atributo que representa qr verificacion en el modelo de `factura_electronica`. | VARCHAR(255), opcional. | NINGUNA |
+| `leyenda` | VARCHAR(200) | Atributo que representa leyenda en el modelo de `factura_electronica`. | VARCHAR(200), opcional. | NINGUNA |
+| `anulada_en` | TIMESTAMPTZ | Marca temporal o fecha de anulada en `factura_electronica`. | TIMESTAMPTZ, opcional. | NINGUNA |
+| `motivo_anulacion` | VARCHAR(200) | Atributo que representa motivo anulacion en el modelo de `factura_electronica`. | VARCHAR(200), opcional. | NINGUNA |
 
 ### `liquidacion_ingresos`
 
@@ -7477,22 +7548,22 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `periodo` | CHAR(7) | — | CHAR(7), obligatoria. | NINGUNA |
-| `fecha_inicio` | DATE | — | DATE, obligatoria. | NINGUNA |
-| `fecha_fin` | DATE | — | DATE, obligatoria. | NINGUNA |
-| `total_devengado` | DECIMAL(16,2) | — | DECIMAL(16,2), obligatoria. | NINGUNA |
-| `total_cobrado` | DECIMAL(16,2) | — | DECIMAL(16,2), obligatoria. | NINGUNA |
-| `total_exonerado` | DECIMAL(16,2) | — | DECIMAL(16,2), obligatoria. | NINGUNA |
-| `total_devuelto` | DECIMAL(16,2) | — | DECIMAL(16,2), obligatoria. | NINGUNA |
-| `total_incobrable` | DECIMAL(16,2) | — | DECIMAL(16,2), obligatoria. | NINGUNA |
-| `total_impuestos` | DECIMAL(16,2) | — | DECIMAL(16,2), obligatoria. | NINGUNA |
-| `total_costo_proveedores` | DECIMAL(16,2) | — | DECIMAL(16,2), obligatoria. | NINGUNA |
-| `ingreso_neto` | DECIMAL(16,2) | — | DECIMAL(16,2), obligatoria, calculada por la base, no se escribe. | NINGUNA |
-| `cantidad_operaciones` | INTEGER | — | INTEGER, obligatoria. | NINGUNA |
-| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `asiento_contable_id` | UUID | — | UUID, opcional, referencia a `asiento_contable`. | NINGUNA |
-| `cerrada_por` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
-| `cerrada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `periodo` | CHAR(7) | Atributo que representa periodo en el modelo de `liquidacion_ingresos`. | CHAR(7), obligatoria, restricción única. | NINGUNA |
+| `fecha_inicio` | DATE | Marca temporal o fecha de inicio en `liquidacion_ingresos`. | DATE, obligatoria. | NINGUNA |
+| `fecha_fin` | DATE | Marca temporal o fecha de fin en `liquidacion_ingresos`. | DATE, obligatoria. | NINGUNA |
+| `total_devengado` | DECIMAL(16,2) | Importe monetario correspondiente a devengado en `liquidacion_ingresos`. | DECIMAL(16,2), obligatoria. | NINGUNA |
+| `total_cobrado` | DECIMAL(16,2) | Importe monetario correspondiente a cobrado en `liquidacion_ingresos`. | DECIMAL(16,2), obligatoria. | NINGUNA |
+| `total_exonerado` | DECIMAL(16,2) | Importe monetario correspondiente a exonerado en `liquidacion_ingresos`. | DECIMAL(16,2), obligatoria. | NINGUNA |
+| `total_devuelto` | DECIMAL(16,2) | Importe monetario correspondiente a devuelto en `liquidacion_ingresos`. | DECIMAL(16,2), obligatoria. | NINGUNA |
+| `total_incobrable` | DECIMAL(16,2) | Importe monetario correspondiente a incobrable en `liquidacion_ingresos`. | DECIMAL(16,2), obligatoria. | NINGUNA |
+| `total_impuestos` | DECIMAL(16,2) | Importe monetario correspondiente a impuestos en `liquidacion_ingresos`. | DECIMAL(16,2), obligatoria. | NINGUNA |
+| `total_costo_proveedores` | DECIMAL(16,2) | Importe monetario correspondiente a costo proveedores en `liquidacion_ingresos`. | DECIMAL(16,2), obligatoria. | NINGUNA |
+| `ingreso_neto` | DECIMAL(16,2) | Atributo que representa ingreso neto en el modelo de `liquidacion_ingresos`. | DECIMAL(16,2), obligatoria, calculada por la base, no se escribe. | NINGUNA |
+| `cantidad_operaciones` | INTEGER | Atributo que representa cantidad operaciones en el modelo de `liquidacion_ingresos`. | INTEGER, obligatoria. | NINGUNA |
+| `estado` | VARCHAR(15) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(15), obligatoria, índice b-tree. | NINGUNA |
+| `asiento_contable_id` | UUID | Referencia al asiento de partida doble que respalda el movimiento financiero. | UUID, opcional, referencia a `asiento_contable`. | NINGUNA |
+| `cerrada_por` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, opcional, referencia a `usuario`. | NINGUNA |
+| `cerrada_en` | TIMESTAMPTZ | Marca temporal o fecha de cerrada en `liquidacion_ingresos`. | TIMESTAMPTZ, opcional. | NINGUNA |
 
 ### `lote_envio_sin`
 
@@ -7507,13 +7578,13 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `tipo_envio` | VARCHAR(25) | — | VARCHAR(25), obligatoria. | NINGUNA |
-| `cantidad_documentos` | INTEGER | — | INTEGER, obligatoria. | PERSONAL |
-| `fecha_envio` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `codigo_recepcion` | VARCHAR(60) | — | VARCHAR(60), opcional. | NINGUNA |
-| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `respuesta` | JSONB | — | JSONB, opcional. | NINGUNA |
-| `reintentos` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
+| `tipo_envio` | VARCHAR(25) | Atributo que representa tipo envio en el modelo de `lote_envio_sin`. | VARCHAR(25), obligatoria. | NINGUNA |
+| `cantidad_documentos` | INTEGER | Atributo que representa cantidad documentos en el modelo de `lote_envio_sin`. | INTEGER, obligatoria, sensibilidad personal. | PERSONAL |
+| `fecha_envio` | TIMESTAMPTZ | Marca temporal o fecha de envio en `lote_envio_sin`. | TIMESTAMPTZ, obligatoria, índice b-tree. | NINGUNA |
+| `codigo_recepcion` | VARCHAR(60) | Código normalizado o mnemotécnico de recepcion. | VARCHAR(60), opcional, restricción única. | NINGUNA |
+| `estado` | VARCHAR(15) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(15), obligatoria, índice b-tree. | NINGUNA |
+| `respuesta` | JSONB | Atributo que representa respuesta en el modelo de `lote_envio_sin`. | JSONB, opcional. | NINGUNA |
+| `reintentos` | SMALLINT | Atributo que representa reintentos en el modelo de `lote_envio_sin`. | SMALLINT, obligatoria. | NINGUNA |
 
 ### `nota_credito_debito`
 
@@ -7528,14 +7599,14 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `factura_id` | UUID | — | UUID, obligatoria, referencia a `factura_electronica`. | NINGUNA |
-| `devolucion_comision_id` | UUID | — | UUID, opcional, referencia a `devolucion_comision`. | NINGUNA |
-| `tipo` | VARCHAR(8) | — | VARCHAR(8), obligatoria. | NINGUNA |
-| `motivo` | VARCHAR(200) | — | VARCHAR(200), obligatoria. | NINGUNA |
-| `monto` | DECIMAL(12,2) | — | DECIMAL(12,2), obligatoria. | FINANCIERO |
-| `cuf` | VARCHAR(80) | — | VARCHAR(80), obligatoria. | NINGUNA |
-| `fecha_emision` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `estado_fiscal` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
+| `factura_id` | UUID | Referencia por clave foránea a la entidad `factura_electronica`. | UUID, obligatoria, referencia a `factura_electronica`, índice b-tree. | NINGUNA |
+| `devolucion_comision_id` | UUID | Referencia por clave foránea a la entidad `devolucion_comision`. | UUID, opcional, referencia a `devolucion_comision`. | NINGUNA |
+| `tipo` | VARCHAR(8) | Subtipo o modalidad específica que determina las reglas operativas aplicables al registro. | VARCHAR(8), obligatoria. | NINGUNA |
+| `motivo` | VARCHAR(200) | Justificación declarada o causal que originó la creación, rechazo o transición del registro. | VARCHAR(200), obligatoria. | NINGUNA |
+| `monto` | DECIMAL(12,2) | Importe monetario principal de la transacción o concepto financiero. | DECIMAL(12,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `cuf` | VARCHAR(80) | Atributo que representa cuf en el modelo de `nota_credito_debito`. | VARCHAR(80), obligatoria. | NINGUNA |
+| `fecha_emision` | TIMESTAMPTZ | Marca temporal o fecha de emision en `nota_credito_debito`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `estado_fiscal` | VARCHAR(20) | Atributo que representa estado fiscal en el modelo de `nota_credito_debito`. | VARCHAR(20), obligatoria. | NINGUNA |
 
 ### `politica_redondeo`
 
@@ -7548,11 +7619,11 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `codigo` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
+| `codigo` | VARCHAR(30) | Código mnemotécnico o identificador legible para operadores y personas usuarias. | VARCHAR(30), obligatoria, restricción única. | NINGUNA |
 | `moneda` | CHAR(3) | Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2). | CHAR(3), obligatoria. | NINGUNA |
-| `unidad_minima` | DECIMAL(6,4) | — | DECIMAL(6,4), obligatoria. | NINGUNA |
-| `modo` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `aplica_a` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
+| `unidad_minima` | DECIMAL(6,4) | Atributo que representa unidad minima en el modelo de `politica_redondeo`. | DECIMAL(6,4), obligatoria. | NINGUNA |
+| `modo` | VARCHAR(15) | Atributo que representa modo en el modelo de `politica_redondeo`. | VARCHAR(15), obligatoria. | NINGUNA |
+| `aplica_a` | VARCHAR(20) | Atributo que representa aplica a en el modelo de `politica_redondeo`. | VARCHAR(20), obligatoria. | NINGUNA |
 
 ### `regla_tarifa`
 
@@ -7567,15 +7638,15 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `concepto_tarifa_id` | UUID | — | UUID, obligatoria, referencia a `concepto_tarifa`. | NINGUNA |
-| `orden` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `condicion` | JSONB | — | JSONB, obligatoria. | NINGUNA |
-| `monto_base_desde` | DECIMAL(14,2) | — | DECIMAL(14,2), opcional. | FINANCIERO |
-| `monto_base_hasta` | DECIMAL(14,2) | — | DECIMAL(14,2), opcional. | FINANCIERO |
-| `valor_porcentual` | DECIMAL(7,4) | — | DECIMAL(7,4), opcional. | NINGUNA |
-| `valor_fijo` | DECIMAL(12,2) | — | DECIMAL(12,2), opcional. | NINGUNA |
-| `monto_minimo` | DECIMAL(12,2) | — | DECIMAL(12,2), opcional. | FINANCIERO |
-| `monto_maximo` | DECIMAL(12,2) | — | DECIMAL(12,2), opcional. | FINANCIERO |
+| `concepto_tarifa_id` | UUID | Referencia por clave foránea a la entidad `concepto_tarifa`. | UUID, obligatoria, referencia a `concepto_tarifa`, índice b-tree. | NINGUNA |
+| `orden` | SMALLINT | Atributo que representa orden en el modelo de `regla_tarifa`. | SMALLINT, obligatoria. | NINGUNA |
+| `condicion` | JSONB | Atributo que representa condicion en el modelo de `regla_tarifa`. | JSONB, obligatoria. | NINGUNA |
+| `monto_base_desde` | DECIMAL(14,2) | Importe monetario correspondiente a base desde en `regla_tarifa`. | DECIMAL(14,2), opcional, sensibilidad financiero. | FINANCIERO |
+| `monto_base_hasta` | DECIMAL(14,2) | Importe monetario correspondiente a base hasta en `regla_tarifa`. | DECIMAL(14,2), opcional, sensibilidad financiero. | FINANCIERO |
+| `valor_porcentual` | DECIMAL(7,4) | Atributo que representa valor porcentual en el modelo de `regla_tarifa`. | DECIMAL(7,4), opcional. | NINGUNA |
+| `valor_fijo` | DECIMAL(12,2) | Atributo que representa valor fijo en el modelo de `regla_tarifa`. | DECIMAL(12,2), opcional. | NINGUNA |
+| `monto_minimo` | DECIMAL(12,2) | Importe monetario correspondiente a minimo en `regla_tarifa`. | DECIMAL(12,2), opcional, sensibilidad financiero. | FINANCIERO |
+| `monto_maximo` | DECIMAL(12,2) | Importe monetario correspondiente a maximo en `regla_tarifa`. | DECIMAL(12,2), opcional, sensibilidad financiero. | FINANCIERO |
 | `vigente_desde` | TIMESTAMPTZ | Desde cuándo rige esta versión de la fila: las condiciones se versionan, no se pisan. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 | `vigente_hasta` | TIMESTAMPTZ | Hasta cuándo rigió esta versión; vacía mientras sigue vigente. | TIMESTAMPTZ, opcional. | NINGUNA |
 
@@ -7592,11 +7663,11 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `codigo` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
-| `descripcion` | VARCHAR(200) | — | VARCHAR(200), obligatoria. | NINGUNA |
-| `criterio` | JSONB | — | JSONB, obligatoria. | NINGUNA |
-| `prioridad` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `activo` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
+| `codigo` | VARCHAR(30) | Código mnemotécnico o identificador legible para operadores y personas usuarias. | VARCHAR(30), obligatoria, restricción única. | NINGUNA |
+| `descripcion` | VARCHAR(200) | Detalle descriptivo que explica el contenido, propósito o contexto de la entidad. | VARCHAR(200), obligatoria. | NINGUNA |
+| `criterio` | JSONB | Atributo que representa criterio en el modelo de `segmento_comercial`. | JSONB, obligatoria. | NINGUNA |
+| `prioridad` | SMALLINT | Atributo que representa prioridad en el modelo de `segmento_comercial`. | SMALLINT, obligatoria. | NINGUNA |
+| `activo` | BOOLEAN | Indicador booleano que determina si el registro se encuentra actualmente operativo. | BOOLEAN, obligatoria. | NINGUNA |
 
 ### `simulacion_tarifa`
 
@@ -7609,13 +7680,13 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `tarifario_id` | UUID | — | UUID, obligatoria, referencia a `tarifario`. | NINGUNA |
-| `ejecutada_por` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `escenario` | JSONB | — | JSONB, obligatoria. | NINGUNA |
-| `resultado` | JSONB | — | JSONB, obligatoria. | NINGUNA |
-| `delta_ingreso_estimado` | DECIMAL(16,2) | — | DECIMAL(16,2), obligatoria. | NINGUNA |
-| `usuarios_impactados` | INTEGER | — | INTEGER, obligatoria. | NINGUNA |
-| `ejecutada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `tarifario_id` | UUID | Referencia por clave foránea a la entidad `tarifario`. | UUID, obligatoria, referencia a `tarifario`, índice b-tree. | NINGUNA |
+| `ejecutada_por` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
+| `escenario` | JSONB | Atributo que representa escenario en el modelo de `simulacion_tarifa`. | JSONB, obligatoria. | NINGUNA |
+| `resultado` | JSONB | Desenlace, dictamen o veredicto de la evaluación o proceso ejecutado. | JSONB, obligatoria. | NINGUNA |
+| `delta_ingreso_estimado` | DECIMAL(16,2) | Atributo que representa delta ingreso estimado en el modelo de `simulacion_tarifa`. | DECIMAL(16,2), obligatoria. | NINGUNA |
+| `usuarios_impactados` | INTEGER | Atributo que representa usuarios impactados en el modelo de `simulacion_tarifa`. | INTEGER, obligatoria. | NINGUNA |
+| `ejecutada_en` | TIMESTAMPTZ | Marca temporal o fecha de ejecutada en `simulacion_tarifa`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 
 ### `tarifa_congelada_grupo`
 
@@ -7630,13 +7701,13 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `grupo_id` | UUID | — | UUID, obligatoria, referencia a `grupo`. | NINGUNA |
-| `tarifario_id` | UUID | — | UUID, obligatoria, referencia a `tarifario`. | NINGUNA |
-| `acuerdo_id` | UUID | — | UUID, opcional, referencia a `acuerdo`. | NINGUNA |
-| `snapshot_conceptos` | JSONB | — | JSONB, obligatoria. | NINGUNA |
-| `hash_snapshot` | VARCHAR(64) | — | VARCHAR(64), obligatoria. | DERIVADO |
-| `congelada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `vigente_hasta_ciclo_nro` | SMALLINT | — | SMALLINT, opcional. | NINGUNA |
+| `grupo_id` | UUID | Referencia al grupo de pasanaku en el que se enmarca esta operación. | UUID, obligatoria, referencia a `grupo`. | NINGUNA |
+| `tarifario_id` | UUID | Referencia por clave foránea a la entidad `tarifario`. | UUID, obligatoria, referencia a `tarifario`. | NINGUNA |
+| `acuerdo_id` | UUID | Referencia por clave foránea a la entidad `acuerdo`. | UUID, opcional, referencia a `acuerdo`. | NINGUNA |
+| `snapshot_conceptos` | JSONB | Atributo que representa snapshot conceptos en el modelo de `tarifa_congelada_grupo`. | JSONB, obligatoria. | NINGUNA |
+| `hash_snapshot` | VARCHAR(64) | Resumen criptográfico SHA-256 para verificación inmutable de snapshot. | VARCHAR(64), obligatoria, sensibilidad derivado. | DERIVADO |
+| `congelada_en` | TIMESTAMPTZ | Marca temporal o fecha de congelada en `tarifa_congelada_grupo`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `vigente_hasta_ciclo_nro` | SMALLINT | Atributo que representa vigente hasta ciclo nro en el modelo de `tarifa_congelada_grupo`. | SMALLINT, opcional. | NINGUNA |
 
 ## Esquema `transparencia`
 
@@ -7653,15 +7724,15 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `ambito` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `ambito_id` | UUID | — | UUID, obligatoria. | NINGUNA |
-| `codigo` | VARCHAR(40) | — | VARCHAR(40), obligatoria. | NINGUNA |
-| `severidad` | VARCHAR(10) | — | VARCHAR(10), obligatoria. | NINGUNA |
-| `descripcion` | VARCHAR(300) | — | VARCHAR(300), obligatoria. | NINGUNA |
-| `evidencia` | JSONB | — | JSONB, obligatoria. | NINGUNA |
-| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `detectada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `cerrada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `ambito` | VARCHAR(15) | Atributo que representa ambito en el modelo de `alerta_riesgo`. | VARCHAR(15), obligatoria. | NINGUNA |
+| `ambito_id` | UUID | Identificador de referencia para el concepto de ambito en `alerta_riesgo`. | UUID, obligatoria, índice b-tree. | NINGUNA |
+| `codigo` | VARCHAR(40) | Código mnemotécnico o identificador legible para operadores y personas usuarias. | VARCHAR(40), obligatoria. | NINGUNA |
+| `severidad` | VARCHAR(10) | Nivel de gravedad o criticidad asignado al incidente, alerta o evento. | VARCHAR(10), obligatoria. | NINGUNA |
+| `descripcion` | VARCHAR(300) | Detalle descriptivo que explica el contenido, propósito o contexto de la entidad. | VARCHAR(300), obligatoria. | NINGUNA |
+| `evidencia` | JSONB | Atributo que representa evidencia en el modelo de `alerta_riesgo`. | JSONB, obligatoria. | NINGUNA |
+| `estado` | VARCHAR(15) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(15), obligatoria, índice b-tree. | NINGUNA |
+| `detectada_en` | TIMESTAMPTZ | Marca temporal o fecha de detectada en `alerta_riesgo`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `cerrada_en` | TIMESTAMPTZ | Marca temporal o fecha de cerrada en `alerta_riesgo`. | TIMESTAMPTZ, opcional. | NINGUNA |
 
 ### `bloque_transparencia`
 
@@ -7676,16 +7747,16 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `grupo_id` | UUID | — | UUID, obligatoria, referencia a `grupo`. | NINGUNA |
-| `numero_bloque` | BIGINT | — | BIGINT, obligatoria. | NINGUNA |
-| `hash_bloque_anterior` | VARCHAR(64) | — | VARCHAR(64), obligatoria. | DERIVADO |
-| `raiz_merkle` | VARCHAR(64) | — | VARCHAR(64), obligatoria. | NINGUNA |
-| `hash_bloque` | VARCHAR(64) | — | VARCHAR(64), obligatoria. | DERIVADO |
-| `cantidad_eventos` | INTEGER | — | INTEGER, obligatoria. | NINGUNA |
-| `periodo_cubierto_desde` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `periodo_cubierto_hasta` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `sellado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `sello_externo` | VARCHAR(255) | — | VARCHAR(255), opcional. | NINGUNA |
+| `grupo_id` | UUID | Referencia al grupo de pasanaku en el que se enmarca esta operación. | UUID, obligatoria, referencia a `grupo`, índice b-tree. | NINGUNA |
+| `numero_bloque` | BIGINT | Numeración secuencial o identificador numérico de bloque. | BIGINT, obligatoria. | NINGUNA |
+| `hash_bloque_anterior` | VARCHAR(64) | Resumen criptográfico SHA-256 para verificación inmutable de bloque anterior. | VARCHAR(64), obligatoria, sensibilidad derivado. | DERIVADO |
+| `raiz_merkle` | VARCHAR(64) | Atributo que representa raiz merkle en el modelo de `bloque_transparencia`. | VARCHAR(64), obligatoria. | NINGUNA |
+| `hash_bloque` | VARCHAR(64) | Resumen criptográfico SHA-256 para verificación inmutable de bloque. | VARCHAR(64), obligatoria, restricción única, sensibilidad derivado. | DERIVADO |
+| `cantidad_eventos` | INTEGER | Atributo que representa cantidad eventos en el modelo de `bloque_transparencia`. | INTEGER, obligatoria. | NINGUNA |
+| `periodo_cubierto_desde` | TIMESTAMPTZ | Atributo que representa periodo cubierto desde en el modelo de `bloque_transparencia`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `periodo_cubierto_hasta` | TIMESTAMPTZ | Atributo que representa periodo cubierto hasta en el modelo de `bloque_transparencia`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `sellado_en` | TIMESTAMPTZ | Marca temporal o fecha de sellado en `bloque_transparencia`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `sello_externo` | VARCHAR(255) | Atributo que representa sello externo en el modelo de `bloque_transparencia`. | VARCHAR(255), opcional. | NINGUNA |
 
 ### `certificado_reputacion`
 
@@ -7700,15 +7771,15 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `usuario_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `snapshot_id` | UUID | — | UUID, obligatoria, referencia a `snapshot_reputacion`. | NINGUNA |
-| `codigo_verificacion` | VARCHAR(40) | — | VARCHAR(40), obligatoria. | NINGUNA |
-| `hash_contenido` | VARCHAR(64) | — | VARCHAR(64), obligatoria. | DERIVADO |
-| `firma_digital` | VARCHAR(255) | — | VARCHAR(255), obligatoria. | NINGUNA |
-| `url_publica` | VARCHAR(255) | — | VARCHAR(255), obligatoria. | NINGUNA |
-| `emitido_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `expira_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `revocado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `usuario_id` | UUID | Referencia al usuario titular de la cuenta o actor principal de la operación. | UUID, obligatoria, referencia a `usuario`, índice b-tree. | NINGUNA |
+| `snapshot_id` | UUID | Referencia por clave foránea a la entidad `snapshot_reputacion`. | UUID, obligatoria, referencia a `snapshot_reputacion`, restricción única. | NINGUNA |
+| `codigo_verificacion` | VARCHAR(40) | Código normalizado o mnemotécnico de verificacion. | VARCHAR(40), obligatoria, restricción única. | NINGUNA |
+| `hash_contenido` | VARCHAR(64) | Resumen criptográfico SHA-256 para verificación inmutable de contenido. | VARCHAR(64), obligatoria, sensibilidad derivado. | DERIVADO |
+| `firma_digital` | VARCHAR(255) | Atributo que representa firma digital en el modelo de `certificado_reputacion`. | VARCHAR(255), obligatoria. | NINGUNA |
+| `url_publica` | VARCHAR(255) | Localizador uniforme de recursos (URL/URI) correspondiente a publica. | VARCHAR(255), obligatoria. | NINGUNA |
+| `emitido_en` | TIMESTAMPTZ | Marca temporal o fecha de emitido en `certificado_reputacion`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `expira_en` | TIMESTAMPTZ | Marca temporal o fecha de expira en `certificado_reputacion`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `revocado_en` | TIMESTAMPTZ | Marca temporal o fecha de revocado en `certificado_reputacion`. | TIMESTAMPTZ, opcional. | NINGUNA |
 
 ### `componente_score`
 
@@ -7723,12 +7794,12 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `puntaje_id` | UUID | — | UUID, obligatoria, referencia a `puntaje_reputacion`. | NINGUNA |
-| `codigo_factor` | VARCHAR(40) | — | VARCHAR(40), obligatoria. | NINGUNA |
-| `valor_crudo` | DECIMAL(12,4) | — | DECIMAL(12,4), obligatoria. | NINGUNA |
-| `valor_normalizado` | DECIMAL(5,4) | — | DECIMAL(5,4), obligatoria. | NINGUNA |
-| `contribucion` | DECIMAL(6,2) | — | DECIMAL(6,2), obligatoria. | NINGUNA |
-| `tendencia` | VARCHAR(10) | — | VARCHAR(10), obligatoria. | NINGUNA |
+| `puntaje_id` | UUID | Referencia por clave foránea a la entidad `puntaje_reputacion`. | UUID, obligatoria, referencia a `puntaje_reputacion`, índice b-tree. | NINGUNA |
+| `codigo_factor` | VARCHAR(40) | Código normalizado o mnemotécnico de factor. | VARCHAR(40), obligatoria, restricción única. | NINGUNA |
+| `valor_crudo` | DECIMAL(12,4) | Atributo que representa valor crudo en el modelo de `componente_score`. | DECIMAL(12,4), obligatoria. | NINGUNA |
+| `valor_normalizado` | DECIMAL(5,4) | Atributo que representa valor normalizado en el modelo de `componente_score`. | DECIMAL(5,4), obligatoria. | NINGUNA |
+| `contribucion` | DECIMAL(6,2) | Atributo que representa contribucion en el modelo de `componente_score`. | DECIMAL(6,2), obligatoria. | NINGUNA |
+| `tendencia` | VARCHAR(10) | Atributo que representa tendencia en el modelo de `componente_score`. | VARCHAR(10), obligatoria. | NINGUNA |
 
 ### `evento_reputacion`
 
@@ -7743,20 +7814,20 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `usuario_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `grupo_id` | UUID | — | UUID, opcional, referencia a `grupo`. | NINGUNA |
-| `participante_id` | UUID | — | UUID, opcional, referencia a `participante`. | NINGUNA |
-| `tipo` | VARCHAR(40) | — | VARCHAR(40), obligatoria. | NINGUNA |
-| `referencia_tipo` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
-| `referencia_origen_id` | UUID | — | UUID, opcional. | NINGUNA |
-| `impacto` | DECIMAL(6,2) | — | DECIMAL(6,2), obligatoria. | NINGUNA |
-| `factor_afectado` | VARCHAR(40) | — | VARCHAR(40), obligatoria. | NINGUNA |
-| `descripcion` | VARCHAR(200) | — | VARCHAR(200), obligatoria. | NINGUNA |
-| `modelo_version` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
-| `es_reversible` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
-| `revertido_por_id` | UUID | — | UUID, opcional, referencia a `evento_reputacion`. | NINGUNA |
-| `ocurrido_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `registrado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `usuario_id` | UUID | Referencia al usuario titular de la cuenta o actor principal de la operación. | UUID, obligatoria, referencia a `usuario`, índice b-tree. | NINGUNA |
+| `grupo_id` | UUID | Referencia al grupo de pasanaku en el que se enmarca esta operación. | UUID, opcional, referencia a `grupo`, índice b-tree. | NINGUNA |
+| `participante_id` | UUID | Referencia al miembro participante en el círculo de ahorro pasanaku. | UUID, opcional, referencia a `participante`. | NINGUNA |
+| `tipo` | VARCHAR(40) | Subtipo o modalidad específica que determina las reglas operativas aplicables al registro. | VARCHAR(40), obligatoria, índice b-tree. | NINGUNA |
+| `referencia_tipo` | VARCHAR(30) | Atributo que representa referencia tipo en el modelo de `evento_reputacion`. | VARCHAR(30), obligatoria. | NINGUNA |
+| `referencia_origen_id` | UUID | Identificador de referencia para el concepto de referencia origen en `evento_reputacion`. | UUID, opcional. | NINGUNA |
+| `impacto` | DECIMAL(6,2) | Atributo que representa impacto en el modelo de `evento_reputacion`. | DECIMAL(6,2), obligatoria. | NINGUNA |
+| `factor_afectado` | VARCHAR(40) | Atributo que representa factor afectado en el modelo de `evento_reputacion`. | VARCHAR(40), obligatoria. | NINGUNA |
+| `descripcion` | VARCHAR(200) | Detalle descriptivo que explica el contenido, propósito o contexto de la entidad. | VARCHAR(200), obligatoria. | NINGUNA |
+| `modelo_version` | VARCHAR(20) | Atributo que representa modelo version en el modelo de `evento_reputacion`. | VARCHAR(20), obligatoria. | NINGUNA |
+| `es_reversible` | BOOLEAN | Indicador booleano que señala si reversible en `evento_reputacion`. | BOOLEAN, obligatoria. | NINGUNA |
+| `revertido_por_id` | UUID | Referencia por clave foránea a la entidad `evento_reputacion`. | UUID, opcional, referencia a `evento_reputacion`. | NINGUNA |
+| `ocurrido_en` | TIMESTAMPTZ | Marca temporal o fecha de ocurrido en `evento_reputacion`. | TIMESTAMPTZ, obligatoria, índice b-tree. | NINGUNA |
+| `registrado_en` | TIMESTAMPTZ | Marca temporal o fecha de registrado en `evento_reputacion`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 
 ### `insignia_logro`
 
@@ -7771,11 +7842,11 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `codigo` | VARCHAR(40) | — | VARCHAR(40), obligatoria. | NINGUNA |
-| `nombre` | VARCHAR(80) | — | VARCHAR(80), obligatoria. | NINGUNA |
-| `descripcion` | VARCHAR(200) | — | VARCHAR(200), obligatoria. | NINGUNA |
-| `criterio` | VARCHAR(300) | — | VARCHAR(300), obligatoria. | NINGUNA |
-| `icono_url` | VARCHAR(255) | — | VARCHAR(255), obligatoria. | NINGUNA |
+| `codigo` | VARCHAR(40) | Código mnemotécnico o identificador legible para operadores y personas usuarias. | VARCHAR(40), obligatoria, restricción única. | NINGUNA |
+| `nombre` | VARCHAR(80) | Nombre descriptivo de la entidad para visualización y referencia en el sistema. | VARCHAR(80), obligatoria. | NINGUNA |
+| `descripcion` | VARCHAR(200) | Detalle descriptivo que explica el contenido, propósito o contexto de la entidad. | VARCHAR(200), obligatoria. | NINGUNA |
+| `criterio` | VARCHAR(300) | Atributo que representa criterio en el modelo de `insignia_logro`. | VARCHAR(300), obligatoria. | NINGUNA |
+| `icono_url` | VARCHAR(255) | Localizador uniforme de recursos (URL/URI) correspondiente a icono. | VARCHAR(255), obligatoria. | NINGUNA |
 
 ### `insignia_otorgada`
 
@@ -7790,11 +7861,11 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `usuario_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `insignia_id` | UUID | — | UUID, obligatoria, referencia a `insignia_logro`. | NINGUNA |
-| `otorgada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `revocada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
-| `motivo_revocacion` | VARCHAR(160) | — | VARCHAR(160), opcional. | NINGUNA |
+| `usuario_id` | UUID | Referencia al usuario titular de la cuenta o actor principal de la operación. | UUID, obligatoria, referencia a `usuario`, índice b-tree. | NINGUNA |
+| `insignia_id` | UUID | Referencia por clave foránea a la entidad `insignia_logro`. | UUID, obligatoria, referencia a `insignia_logro`. | NINGUNA |
+| `otorgada_en` | TIMESTAMPTZ | Marca temporal o fecha de otorgada en `insignia_otorgada`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `revocada_en` | TIMESTAMPTZ | Marca temporal o fecha de revocada en `insignia_otorgada`. | TIMESTAMPTZ, opcional. | NINGUNA |
+| `motivo_revocacion` | VARCHAR(160) | Atributo que representa motivo revocacion en el modelo de `insignia_otorgada`. | VARCHAR(160), opcional. | NINGUNA |
 
 ### `metrica_grupo`
 
@@ -7809,14 +7880,14 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `grupo_id` | UUID | — | UUID, obligatoria, referencia a `grupo`. | NINGUNA |
-| `periodo_id` | UUID | — | UUID, opcional, referencia a `periodo`. | NINGUNA |
-| `codigo` | VARCHAR(40) | — | VARCHAR(40), obligatoria. | NINGUNA |
-| `valor` | DECIMAL(12,4) | — | DECIMAL(12,4), obligatoria. | NINGUNA |
-| `unidad` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `umbral_alerta` | DECIMAL(12,4) | — | DECIMAL(12,4), opcional. | NINGUNA |
-| `en_alerta` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
-| `calculada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `grupo_id` | UUID | Referencia al grupo de pasanaku en el que se enmarca esta operación. | UUID, obligatoria, referencia a `grupo`, índice b-tree. | NINGUNA |
+| `periodo_id` | UUID | Referencia por clave foránea a la entidad `periodo`. | UUID, opcional, referencia a `periodo`. | NINGUNA |
+| `codigo` | VARCHAR(40) | Código mnemotécnico o identificador legible para operadores y personas usuarias. | VARCHAR(40), obligatoria, restricción única. | NINGUNA |
+| `valor` | DECIMAL(12,4) | Atributo que representa valor en el modelo de `metrica_grupo`. | DECIMAL(12,4), obligatoria. | NINGUNA |
+| `unidad` | VARCHAR(15) | Atributo que representa unidad en el modelo de `metrica_grupo`. | VARCHAR(15), obligatoria. | NINGUNA |
+| `umbral_alerta` | DECIMAL(12,4) | Atributo que representa umbral alerta en el modelo de `metrica_grupo`. | DECIMAL(12,4), opcional. | NINGUNA |
+| `en_alerta` | BOOLEAN | Atributo que representa en alerta en el modelo de `metrica_grupo`. | BOOLEAN, obligatoria, índice b-tree. | NINGUNA |
+| `calculada_en` | TIMESTAMPTZ | Marca temporal o fecha de calculada en `metrica_grupo`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 
 ### `modelo_scoring`
 
@@ -7831,17 +7902,17 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `version` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
-| `descripcion` | VARCHAR(200) | — | VARCHAR(200), obligatoria. | NINGUNA |
-| `puntaje_base` | DECIMAL(6,2) | — | DECIMAL(6,2), obligatoria. | NINGUNA |
-| `puntaje_minimo` | DECIMAL(6,2) | — | DECIMAL(6,2), obligatoria. | NINGUNA |
-| `puntaje_maximo` | DECIMAL(6,2) | — | DECIMAL(6,2), obligatoria. | NINGUNA |
-| `factor_decaimiento_mensual` | DECIMAL(5,4) | — | DECIMAL(5,4), obligatoria. | NINGUNA |
-| `ventana_historica_meses` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `min_eventos_para_score` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
+| `version` | VARCHAR(20) | Número de versión para control de concurrencia optimista y auditoría de modificaciones. | VARCHAR(20), obligatoria, restricción única. | NINGUNA |
+| `descripcion` | VARCHAR(200) | Detalle descriptivo que explica el contenido, propósito o contexto de la entidad. | VARCHAR(200), obligatoria. | NINGUNA |
+| `puntaje_base` | DECIMAL(6,2) | Atributo que representa puntaje base en el modelo de `modelo_scoring`. | DECIMAL(6,2), obligatoria. | NINGUNA |
+| `puntaje_minimo` | DECIMAL(6,2) | Atributo que representa puntaje minimo en el modelo de `modelo_scoring`. | DECIMAL(6,2), obligatoria. | NINGUNA |
+| `puntaje_maximo` | DECIMAL(6,2) | Atributo que representa puntaje maximo en el modelo de `modelo_scoring`. | DECIMAL(6,2), obligatoria. | NINGUNA |
+| `factor_decaimiento_mensual` | DECIMAL(5,4) | Atributo que representa factor decaimiento mensual en el modelo de `modelo_scoring`. | DECIMAL(5,4), obligatoria. | NINGUNA |
+| `ventana_historica_meses` | SMALLINT | Atributo que representa ventana historica meses en el modelo de `modelo_scoring`. | SMALLINT, obligatoria. | NINGUNA |
+| `min_eventos_para_score` | SMALLINT | Atributo que representa min eventos para score en el modelo de `modelo_scoring`. | SMALLINT, obligatoria. | NINGUNA |
 | `vigente_desde` | TIMESTAMPTZ | Desde cuándo rige esta versión de la fila: las condiciones se versionan, no se pisan. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 | `vigente_hasta` | TIMESTAMPTZ | Hasta cuándo rigió esta versión; vacía mientras sigue vigente. | TIMESTAMPTZ, opcional. | NINGUNA |
-| `es_produccion` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
+| `es_produccion` | BOOLEAN | Indicador booleano que señala si produccion en `modelo_scoring`. | BOOLEAN, obligatoria. | NINGUNA |
 
 ### `peso_factor`
 
@@ -7856,12 +7927,12 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `modelo_id` | UUID | — | UUID, obligatoria, referencia a `modelo_scoring`. | NINGUNA |
-| `codigo_factor` | VARCHAR(40) | — | VARCHAR(40), obligatoria. | NINGUNA |
-| `descripcion` | VARCHAR(160) | — | VARCHAR(160), obligatoria. | NINGUNA |
-| `peso` | DECIMAL(5,4) | — | DECIMAL(5,4), obligatoria. | NINGUNA |
-| `tope_aporte_al_score` | DECIMAL(6,2) | — | DECIMAL(6,2), obligatoria. | NINGUNA |
-| `es_penalizador` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
+| `modelo_id` | UUID | Referencia por clave foránea a la entidad `modelo_scoring`. | UUID, obligatoria, referencia a `modelo_scoring`, índice b-tree. | NINGUNA |
+| `codigo_factor` | VARCHAR(40) | Código normalizado o mnemotécnico de factor. | VARCHAR(40), obligatoria, restricción única. | NINGUNA |
+| `descripcion` | VARCHAR(160) | Detalle descriptivo que explica el contenido, propósito o contexto de la entidad. | VARCHAR(160), obligatoria. | NINGUNA |
+| `peso` | DECIMAL(5,4) | Atributo que representa peso en el modelo de `peso_factor`. | DECIMAL(5,4), obligatoria. | NINGUNA |
+| `tope_aporte_al_score` | DECIMAL(6,2) | Atributo que representa tope aporte al score en el modelo de `peso_factor`. | DECIMAL(6,2), obligatoria. | NINGUNA |
+| `es_penalizador` | BOOLEAN | Indicador booleano que señala si penalizador en `peso_factor`. | BOOLEAN, obligatoria. | NINGUNA |
 
 ### `puntaje_reputacion`
 
@@ -7876,23 +7947,23 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `usuario_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `modelo_id` | UUID | — | UUID, obligatoria, referencia a `modelo_scoring`. | NINGUNA |
-| `puntaje` | DECIMAL(6,2) | — | DECIMAL(6,2), obligatoria. | NINGUNA |
-| `nivel_confianza` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
-| `indice_puntualidad` | DECIMAL(5,2) | — | DECIMAL(5,2), obligatoria. | NINGUNA |
-| `tasa_incumplimiento` | DECIMAL(5,2) | — | DECIMAL(5,2), obligatoria. | NINGUNA |
-| `monto_total_aportado` | DECIMAL(16,2) | — | DECIMAL(16,2), obligatoria. | FINANCIERO |
-| `grupos_completados` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `grupos_abandonados` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `incumplimientos_abiertos` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `antiguedad_meses` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `eventos_considerados` | INTEGER | — | INTEGER, obligatoria. | NINGUNA |
-| `modelo_version` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
+| `usuario_id` | UUID | Referencia al usuario titular de la cuenta o actor principal de la operación. | UUID, obligatoria, referencia a `usuario`, restricción única. | NINGUNA |
+| `modelo_id` | UUID | Referencia por clave foránea a la entidad `modelo_scoring`. | UUID, obligatoria, referencia a `modelo_scoring`. | NINGUNA |
+| `puntaje` | DECIMAL(6,2) | Atributo que representa puntaje en el modelo de `puntaje_reputacion`. | DECIMAL(6,2), obligatoria, índice b-tree. | NINGUNA |
+| `nivel_confianza` | VARCHAR(20) | Atributo que representa nivel confianza en el modelo de `puntaje_reputacion`. | VARCHAR(20), obligatoria, índice b-tree. | NINGUNA |
+| `indice_puntualidad` | DECIMAL(5,2) | Atributo que representa indice puntualidad en el modelo de `puntaje_reputacion`. | DECIMAL(5,2), obligatoria. | NINGUNA |
+| `tasa_incumplimiento` | DECIMAL(5,2) | Tasa porcentual o alícuota aplicable a incumplimiento. | DECIMAL(5,2), obligatoria. | NINGUNA |
+| `monto_total_aportado` | DECIMAL(16,2) | Importe monetario correspondiente a aportado en `puntaje_reputacion`. | DECIMAL(16,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `grupos_completados` | SMALLINT | Atributo que representa grupos completados en el modelo de `puntaje_reputacion`. | SMALLINT, obligatoria. | NINGUNA |
+| `grupos_abandonados` | SMALLINT | Atributo que representa grupos abandonados en el modelo de `puntaje_reputacion`. | SMALLINT, obligatoria. | NINGUNA |
+| `incumplimientos_abiertos` | SMALLINT | Atributo que representa incumplimientos abiertos en el modelo de `puntaje_reputacion`. | SMALLINT, obligatoria. | NINGUNA |
+| `antiguedad_meses` | SMALLINT | Atributo que representa antiguedad meses en el modelo de `puntaje_reputacion`. | SMALLINT, obligatoria. | NINGUNA |
+| `eventos_considerados` | INTEGER | Atributo que representa eventos considerados en el modelo de `puntaje_reputacion`. | INTEGER, obligatoria. | NINGUNA |
+| `modelo_version` | VARCHAR(20) | Atributo que representa modelo version en el modelo de `puntaje_reputacion`. | VARCHAR(20), obligatoria. | NINGUNA |
 | `vigente_desde` | TIMESTAMPTZ | Desde cuándo rige esta versión de la fila: las condiciones se versionan, no se pisan. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 | `vigente_hasta` | TIMESTAMPTZ | Hasta cuándo rigió esta versión; vacía mientras sigue vigente. | TIMESTAMPTZ, opcional. | NINGUNA |
-| `calculado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `proximo_recalculo_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `calculado_en` | TIMESTAMPTZ | Marca temporal o fecha de calculado en `puntaje_reputacion`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `proximo_recalculo_en` | TIMESTAMPTZ | Marca temporal o fecha de proximo recalculo en `puntaje_reputacion`. | TIMESTAMPTZ, obligatoria, índice b-tree. | NINGUNA |
 
 ### `registro_sellado`
 
@@ -7907,12 +7978,12 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `bloque_id` | UUID | — | UUID, obligatoria, referencia a `bloque_transparencia`. | NINGUNA |
-| `tipo_entidad` | VARCHAR(25) | — | VARCHAR(25), obligatoria. | NINGUNA |
-| `entidad_id` | UUID | — | UUID, obligatoria. | NINGUNA |
-| `hash_contenido` | VARCHAR(64) | — | VARCHAR(64), obligatoria. | DERIVADO |
-| `resumen_publico` | JSONB | — | JSONB, obligatoria. | NINGUNA |
-| `ocurrido_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `bloque_id` | UUID | Referencia por clave foránea a la entidad `bloque_transparencia`. | UUID, obligatoria, referencia a `bloque_transparencia`, índice b-tree. | NINGUNA |
+| `tipo_entidad` | VARCHAR(25) | Atributo que representa tipo entidad en el modelo de `registro_sellado`. | VARCHAR(25), obligatoria. | NINGUNA |
+| `entidad_id` | UUID | Identificador de referencia para el concepto de entidad en `registro_sellado`. | UUID, obligatoria, índice b-tree. | NINGUNA |
+| `hash_contenido` | VARCHAR(64) | Resumen criptográfico SHA-256 para verificación inmutable de contenido. | VARCHAR(64), obligatoria, sensibilidad derivado. | DERIVADO |
+| `resumen_publico` | JSONB | Atributo que representa resumen publico en el modelo de `registro_sellado`. | JSONB, obligatoria. | NINGUNA |
+| `ocurrido_en` | TIMESTAMPTZ | Marca temporal o fecha de ocurrido en `registro_sellado`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 
 ### `regla_impacto_evento`
 
@@ -7927,13 +7998,13 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `modelo_id` | UUID | — | UUID, obligatoria, referencia a `modelo_scoring`. | NINGUNA |
-| `tipo_evento` | VARCHAR(40) | — | VARCHAR(40), obligatoria. | NINGUNA |
-| `codigo_factor` | VARCHAR(40) | — | VARCHAR(40), obligatoria. | NINGUNA |
-| `impacto_base` | DECIMAL(6,2) | — | DECIMAL(6,2), obligatoria. | NINGUNA |
-| `multiplicador_por_reincidencia` | DECIMAL(4,2) | — | DECIMAL(4,2), obligatoria. | NINGUNA |
-| `impacto_maximo` | DECIMAL(6,2) | — | DECIMAL(6,2), obligatoria. | NINGUNA |
-| `requiere_confirmacion` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
+| `modelo_id` | UUID | Referencia por clave foránea a la entidad `modelo_scoring`. | UUID, obligatoria, referencia a `modelo_scoring`, índice b-tree. | NINGUNA |
+| `tipo_evento` | VARCHAR(40) | Atributo que representa tipo evento en el modelo de `regla_impacto_evento`. | VARCHAR(40), obligatoria, restricción única. | NINGUNA |
+| `codigo_factor` | VARCHAR(40) | Código normalizado o mnemotécnico de factor. | VARCHAR(40), obligatoria. | NINGUNA |
+| `impacto_base` | DECIMAL(6,2) | Atributo que representa impacto base en el modelo de `regla_impacto_evento`. | DECIMAL(6,2), obligatoria. | NINGUNA |
+| `multiplicador_por_reincidencia` | DECIMAL(4,2) | Atributo que representa multiplicador por reincidencia en el modelo de `regla_impacto_evento`. | DECIMAL(4,2), obligatoria. | NINGUNA |
+| `impacto_maximo` | DECIMAL(6,2) | Atributo que representa impacto maximo en el modelo de `regla_impacto_evento`. | DECIMAL(6,2), obligatoria. | NINGUNA |
+| `requiere_confirmacion` | BOOLEAN | Atributo que representa requiere confirmacion en el modelo de `regla_impacto_evento`. | BOOLEAN, obligatoria. | NINGUNA |
 
 ### `resena_participante`
 
@@ -7948,15 +8019,15 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `grupo_id` | UUID | — | UUID, obligatoria, referencia a `grupo`. | NINGUNA |
-| `autor_participante_id` | UUID | — | UUID, obligatoria, referencia a `participante`. | NINGUNA |
-| `evaluado_usuario_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `calificacion` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `comentario` | VARCHAR(500) | — | VARCHAR(500), opcional. | NINGUNA |
-| `dimension` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
-| `estado_moderacion` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `moderada_por` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
-| `creada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `grupo_id` | UUID | Referencia al grupo de pasanaku en el que se enmarca esta operación. | UUID, obligatoria, referencia a `grupo`, índice b-tree. | NINGUNA |
+| `autor_participante_id` | UUID | Referencia por clave foránea a la entidad `participante`. | UUID, obligatoria, referencia a `participante`. | NINGUNA |
+| `evaluado_usuario_id` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, obligatoria, referencia a `usuario`, índice b-tree. | NINGUNA |
+| `calificacion` | SMALLINT | Atributo que representa calificacion en el modelo de `resena_participante`. | SMALLINT, obligatoria. | NINGUNA |
+| `comentario` | VARCHAR(500) | Atributo que representa comentario en el modelo de `resena_participante`. | VARCHAR(500), opcional. | NINGUNA |
+| `dimension` | VARCHAR(20) | Atributo que representa dimension en el modelo de `resena_participante`. | VARCHAR(20), obligatoria. | NINGUNA |
+| `estado_moderacion` | VARCHAR(15) | Atributo que representa estado moderacion en el modelo de `resena_participante`. | VARCHAR(15), obligatoria. | NINGUNA |
+| `moderada_por` | UUID | Referencia por clave foránea a la entidad `usuario`. | UUID, opcional, referencia a `usuario`. | NINGUNA |
+| `creada_en` | TIMESTAMPTZ | Marca temporal UTC en que la entidad fue creada en la base de datos. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 
 ### `snapshot_reputacion`
 
@@ -7971,12 +8042,12 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `usuario_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `puntaje` | DECIMAL(6,2) | — | DECIMAL(6,2), obligatoria. | NINGUNA |
-| `nivel_confianza` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
-| `fotografia_factores` | JSONB | — | JSONB, obligatoria. | NINGUNA |
-| `motivo` | VARCHAR(25) | — | VARCHAR(25), obligatoria. | NINGUNA |
-| `tomado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `usuario_id` | UUID | Referencia al usuario titular de la cuenta o actor principal de la operación. | UUID, obligatoria, referencia a `usuario`, índice b-tree. | NINGUNA |
+| `puntaje` | DECIMAL(6,2) | Atributo que representa puntaje en el modelo de `snapshot_reputacion`. | DECIMAL(6,2), obligatoria. | NINGUNA |
+| `nivel_confianza` | VARCHAR(20) | Atributo que representa nivel confianza en el modelo de `snapshot_reputacion`. | VARCHAR(20), obligatoria. | NINGUNA |
+| `fotografia_factores` | JSONB | Atributo que representa fotografia factores en el modelo de `snapshot_reputacion`. | JSONB, obligatoria. | NINGUNA |
+| `motivo` | VARCHAR(25) | Justificación declarada o causal que originó la creación, rechazo o transición del registro. | VARCHAR(25), obligatoria. | NINGUNA |
+| `tomado_en` | TIMESTAMPTZ | Marca temporal o fecha de tomado en `snapshot_reputacion`. | TIMESTAMPTZ, obligatoria, índice b-tree. | NINGUNA |
 
 ### `verificacion_publica`
 
@@ -7990,13 +8061,13 @@
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
-| `codigo` | VARCHAR(40) | — | VARCHAR(40), obligatoria, clave primaria. | NINGUNA |
-| `tipo_documento` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | PERSONAL |
-| `referencia_id` | UUID | — | UUID, obligatoria. | NINGUNA |
-| `hash_esperado` | VARCHAR(64) | — | VARCHAR(64), obligatoria. | DERIVADO |
-| `hash_recomputado` | VARCHAR(64) | — | VARCHAR(64), opcional. | DERIVADO |
-| `resultado` | VARCHAR(15) | — | VARCHAR(15), opcional. | NINGUNA |
-| `verificado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
-| `consultas` | INTEGER | — | INTEGER, obligatoria. | NINGUNA |
-| `ultima_consulta_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `codigo` | VARCHAR(40) | Código mnemotécnico o identificador legible para operadores y personas usuarias. | VARCHAR(40), obligatoria, clave primaria. | NINGUNA |
+| `tipo_documento` | VARCHAR(30) | Atributo que representa tipo documento en el modelo de `verificacion_publica`. | VARCHAR(30), obligatoria, sensibilidad personal. | PERSONAL |
+| `referencia_id` | UUID | Identificador de referencia para el concepto de referencia en `verificacion_publica`. | UUID, obligatoria, índice b-tree. | NINGUNA |
+| `hash_esperado` | VARCHAR(64) | Resumen criptográfico SHA-256 para verificación inmutable de esperado. | VARCHAR(64), obligatoria, sensibilidad derivado. | DERIVADO |
+| `hash_recomputado` | VARCHAR(64) | Resumen criptográfico SHA-256 para verificación inmutable de recomputado. | VARCHAR(64), opcional, sensibilidad derivado. | DERIVADO |
+| `resultado` | VARCHAR(15) | Desenlace, dictamen o veredicto de la evaluación o proceso ejecutado. | VARCHAR(15), opcional. | NINGUNA |
+| `verificado_en` | TIMESTAMPTZ | Marca temporal o fecha de verificado en `verificacion_publica`. | TIMESTAMPTZ, opcional. | NINGUNA |
+| `consultas` | INTEGER | Atributo que representa consultas en el modelo de `verificacion_publica`. | INTEGER, obligatoria. | NINGUNA |
+| `ultima_consulta_en` | TIMESTAMPTZ | Marca temporal o fecha de ultima consulta en `verificacion_publica`. | TIMESTAMPTZ, opcional. | NINGUNA |
 

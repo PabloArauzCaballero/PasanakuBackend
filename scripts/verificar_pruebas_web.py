@@ -171,7 +171,15 @@ def controladores():
 
 
 def tiene_prueba(servicio, nombre):
-    return any((SERVICIOS / servicio).glob(f"src/test/java/**/{nombre}WebTest.java"))
+    """La matriz de un controlador: su `<Nombre>WebTest`, o pruebas web que lo levantan con
+    `@PruebaWeb(<Nombre>.class)` (un controlador grande reparte su matriz en varias, por el
+    limite de tamano de archivo)."""
+    pruebas = (SERVICIOS / servicio).glob("src/test/java/**/*WebTest.java")
+    declara = re.compile(r"@PruebaWeb\(\s*\{?[^)]*\b" + re.escape(nombre) + r"\.class")
+    return any(
+        p.name == f"{nombre}WebTest.java" or declara.search(p.read_text(encoding="utf-8"))
+        for p in pruebas
+    )
 
 
 def main():

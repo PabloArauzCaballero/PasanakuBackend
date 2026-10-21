@@ -38,6 +38,7 @@ import org.springframework.test.web.servlet.MockMvc;
             // GruposAdmisionHumanaWebTest.
             "aportaya.grupos.admision.humana-obligatoria=false",
         })
+@MockitoBean(types = bo.aportaya.grupos.aplicacion.CU69EnlaceDeGrupo.class)
 class GruposSolicitudesWebTest {
 
     private static final UUID GRUPO = UUID.fromString("c4000000-0000-4000-8000-000000000001");
@@ -96,6 +97,9 @@ class GruposSolicitudesWebTest {
 
     @MockitoBean
     private SorteoDelGrupo sorteo;
+
+    @MockitoBean
+    private IntegrantesDelGrupo integrantesDelGrupo;
 
     @Nested
     @DisplayName("CU-68 · decisión del organizador sobre una solicitud de ingreso")

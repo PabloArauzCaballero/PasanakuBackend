@@ -54,7 +54,7 @@ import org.springframework.web.bind.annotation.RestController;
  * contesta a los demas para que ellos tampoco tengan que leer su esquema.
  */
 @RestController
-public class GruposController extends RutasDeInvitacion {
+public class GruposController extends RutasDelGrupo {
 
     /** El proceso que atiende lo publico: fijo, para poder leerlo en la bitacora. */
     private static final UUID PROCESO_PUBLICO = UUID.fromString("00000000-0000-0000-0000-0000000000f1");
@@ -92,8 +92,9 @@ public class GruposController extends RutasDeInvitacion {
             RespuestasAOtrosServicios respuestas,
             SorteoDelGrupo sorteo,
             AdmisionDelGrupo admision,
-            bo.aportaya.grupos.aplicacion.CanjearInvitacion canjes) {
-        super(admision, sesion, cu68Decision, invitaciones, cu69, canjes, consultas, afuera, afinidadNeutra);
+            bo.aportaya.grupos.aplicacion.CanjearInvitacion canjes,
+            bo.aportaya.grupos.aplicacion.CU69EnlaceDeGrupo enlace) {
+        super(admision, sesion, cu68Decision, invitaciones, cu69, canjes, consultas, afuera, afinidadNeutra, enlace);
         this.cu20 = cu20;
         this.cu59 = cu59;
         this.cu64 = cu64;

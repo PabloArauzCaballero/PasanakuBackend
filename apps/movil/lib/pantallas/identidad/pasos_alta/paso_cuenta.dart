@@ -50,6 +50,8 @@ class _PasoCuentaState extends ConsumerState<PasoCuenta> {
   /// El mínimo del servidor. Vive acá como constante y no como número suelto en el
   /// texto: el mensaje de ayuda lo lee de este valor, así que no pueden divergir.
   static const largoMinimo = 8;
+  final _sugerencia =
+      sugerirContrasena(); // fija mientras la pantalla está abierta
 
   @override
   void initState() {
@@ -78,6 +80,8 @@ class _PasoCuentaState extends ConsumerState<PasoCuenta> {
 
   String? get _errorClave {
     final clave = _clave.text;
+    final espacios = errorEspaciosEnClave(clave, sugerencia: _sugerencia);
+    if (espacios != null) return espacios;
     if (clave.length < largoMinimo) return TextosDelAlta.claveCorta;
     final datos = ref.read(altaProvider).datos;
     // Las mismas dos comprobaciones que hace el servidor, para no gastar un viaje ni
@@ -171,7 +175,10 @@ class _PasoCuentaState extends ConsumerState<PasoCuenta> {
             clave: _clave,
             repetida: _repetida,
             focoClave: _focoClave,
-            errorClave: _visible(_errorClave),
+            // Los espacios se avisan al instante, sin esperar a «Continuar».
+            errorClave: tieneEspacios(_clave.text)
+                ? _errorClave
+                : _visible(_errorClave),
             errorRepetida: _visible(_errorRepetida),
             errorRemoto: _errorRemoto(alta),
             trazaId: alta.trazaId,

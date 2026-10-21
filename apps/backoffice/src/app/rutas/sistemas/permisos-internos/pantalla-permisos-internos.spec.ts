@@ -7,7 +7,7 @@ import {
   PermisoCatalogoNivelRiesgoEnum,
   type PermisoCatalogo,
 } from 'clientes/angular/identidad'
-import { GATEWAY } from '../../../nucleo/gateway'
+import { GATEWAY, GW } from '../../../nucleo/gateway'
 import { PantallaPermisosInternos } from './pantalla-permisos-internos'
 
 const PERMISOS_EJEMPLO: PermisoCatalogo[] = [
@@ -42,7 +42,7 @@ describe('PantallaPermisosInternos', () => {
         provideZonelessChangeDetection(),
         provideHttpClient(),
         provideHttpClientTesting(),
-        { provide: GATEWAY, useValue: 'http://gw/api/v1' },
+        { provide: GATEWAY, useValue: GW },
       ],
     })
     http = TestBed.inject(HttpTestingController)
@@ -54,7 +54,7 @@ describe('PantallaPermisosInternos', () => {
     const fixture = TestBed.createComponent(PantallaPermisosInternos)
     fixture.detectChanges()
 
-    http.expectOne('http://gw/api/v1/identidad/permisos').flush(PERMISOS_EJEMPLO)
+    http.expectOne(`${GW}/permisos`).flush(PERMISOS_EJEMPLO)
     await fixture.whenStable()
     fixture.detectChanges()
 

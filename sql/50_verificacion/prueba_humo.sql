@@ -712,13 +712,13 @@ SELECT CASE WHEN NOT EXISTS (
 
 -- R-SEG-12 · lo irreversible se confirma con el segundo factor
 SELECT pg_temp.debe_fallar('R-SEG-12 permiso APROBAR sin segundo factor', $q$
-  INSERT INTO permiso (codigo, descripcion, recurso, accion, requiere_mfa)
-  VALUES ('ZZ_APROBAR_SIN_MFA', 'prueba', 'zz', 'APROBAR', FALSE)
+  INSERT INTO permiso (codigo, descripcion, recurso, accion, requiere_mfa, nivel_riesgo)
+  VALUES ('ZZ_APROBAR_SIN_MFA', 'prueba', 'zz', 'APROBAR', FALSE, 'ALTO')
 $q$);
 
 SELECT pg_temp.debe_pasar('R-SEG-12 el mismo permiso con segundo factor entra', $q$
-  INSERT INTO permiso (codigo, descripcion, recurso, accion, requiere_mfa)
-  VALUES ('ZZ_APROBAR_CON_MFA', 'prueba', 'zz', 'APROBAR', TRUE)
+  INSERT INTO permiso (codigo, descripcion, recurso, accion, requiere_mfa, nivel_riesgo)
+  VALUES ('ZZ_APROBAR_CON_MFA', 'prueba', 'zz', 'APROBAR', TRUE, 'ALTO')
 $q$);
 
 -- --- restricciones que exigen datos de varios módulos: se verifica que

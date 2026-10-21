@@ -279,6 +279,8 @@ package "Membresia: Participantes y Cupos" {
     - mensaje: String
     - estado: String <<PENDIENTE | APROBADA | RECHAZADA | EXPIRADA>>
     - puntajeCompatibilidad: Decimal
+    - enlaceGrupoId: UUID
+    - nombreVisible: String
     - revisadaPor: UUID
     - fechaSolicitud: DateTime
     - fechaResolucion: DateTime
@@ -306,6 +308,20 @@ package "Membresia: Participantes y Cupos" {
     + reenviar()
     + aceptar(usuarioId): Participante
     + revocar(motivo)
+  }
+
+  class EnlaceGrupo {
+    - id: UUID
+    - grupoId: UUID
+    - emisorId: UUID
+    - tokenHash: String
+    - estado: String <<ACTIVO | ANULADO>>
+    - fechaCreacion: DateTime
+    - fechaExpiracion: DateTime
+    - fechaAnulacion: DateTime
+    --
+    + solicitarIngreso(usuarioId): SolicitudIngreso
+    + anular()
   }
 }
 
@@ -531,6 +547,8 @@ Grupo "1" *-- "0..*" HistorialEstadoGrupo
 Grupo "1" *-- "3..*" Participante
 Grupo "1" *-- "3..*" Cupo
 Grupo "1" *-- "0..*" Invitacion
+Grupo "1" *-- "0..*" EnlaceGrupo
+EnlaceGrupo "1" o-- "0..*" SolicitudIngreso
 Grupo "1" *-- "0..*" SolicitudIngreso
 Grupo "1" *-- "1..*" Periodo
 Grupo "1" *-- "0..1" SorteoTurnos
@@ -789,6 +807,10 @@ entity "solicitud_ingreso" as soling {
   mensaje : VARCHAR(300) <<NULL>>
   estado : VARCHAR(15) <<CK>>
   puntaje_compatibilidad : DECIMAL(5,2) <<NULL>>
+  # enlace_grupo_id : UUID <<FK, NULL, IDX>>
+  nombre_visible : VARCHAR(60) <<NULL>>
+  telefono_contacto : VARCHAR(20) <<NULL>>
+  correo_contacto : VARCHAR(150) <<NULL>>
   # revisada_por : UUID <<FK, NULL>>
   fecha_solicitud : TIMESTAMPTZ
   fecha_resolucion : TIMESTAMPTZ <<NULL>>
@@ -826,6 +848,18 @@ entity "sustitucion_administrador" as sustadm {
   obligaciones_conservadas : TEXT
   ocurrida_en : TIMESTAMPTZ
   correlacion_id : UUID
+}
+
+entity "enlace_grupo" as enlgrp {
+  * id : UUID <<PK>>
+  --
+  # grupo_id : UUID <<FK, IDX>>
+  # emisor_id : UUID <<FK>>
+  token_hash : VARCHAR(64) <<UQ>>
+  estado : VARCHAR(15) <<CK>>
+  fecha_creacion : TIMESTAMPTZ
+  fecha_expiracion : TIMESTAMPTZ
+  fecha_anulacion : TIMESTAMPTZ <<NULL>>
 }
 
 entity "invitacion" as inv {
@@ -1020,6 +1054,8 @@ grupo ||--o{ part : "agrupa"
 grupo ||--o{ cupo : "divide en"
 grupo ||--o{ inv : "envia"
 grupo ||--o{ soling : "recibe"
+grupo ||--o{ enlgrp : "comparte"
+enlgrp |o--o{ soling : "origina"
 grupo ||--o{ periodo : "programa"
 grupo ||--o| sorteo : "ordena por"
 grupo ||--o{ acuerdo : "decide"

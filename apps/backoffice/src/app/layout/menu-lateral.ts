@@ -1,45 +1,49 @@
-import { ChangeDetectionStrategy, Component, computed, inject, input, output, signal } from '@angular/core'
+import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core'
 import { Router, RouterLink, RouterLinkActive } from '@angular/router'
 import { toSignal } from '@angular/core/rxjs-interop'
 import { filter, map, startWith } from 'rxjs'
 import { NavigationEnd } from '@angular/router'
-import { Icono } from '@aportaya/ui/icono/icono'
 import { MENU, type Entrada, type Grupo } from '../nucleo/menu'
 import { Sesion } from '../nucleo/sesion'
 import { IconoDeSeccion } from './icono-de-seccion'
 
-const CLAVE = 'ap-menu:plegados'
-
 /**
- * La navegación del backoffice: grupos plegables con ícono y rótulo en mayúsculas, una entrada por
- * sección y, bajo la sección activa, sus pantallas. El grupo de la ruta actual arranca abierto; lo
- * que se pliega a mano se recuerda en la sesión. Se usa en la barra lateral y en el cajón del celular.
+ * La navegación del backoffice: grupos con rótulo en mayúsculas, una entrada por
+ * sección y sus pantallas siempre abiertas con su respectivo ícono. Se usa en la barra lateral y en el cajón del celular.
  */
 @Component({
   selector: 'ap-menu-lateral',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, RouterLinkActive, Icono, IconoDeSeccion],
+  imports: [RouterLink, RouterLinkActive, IconoDeSeccion],
   host: { role: 'navigation', 'aria-label': 'Secciones del backoffice', 'data-tutorial-id': 'menu-principal' },
   template: `
     @for (g of visibles(); track g.titulo) {
       <section class="grupo">
         @if (g.titulo) {
-          <button type="button" class="rotulo" [attr.aria-expanded]="abierto(g)" [attr.aria-controls]="idDe(g)" (click)="alternar(g)">
-            <ap-icono-de-seccion [nombre]="g.icono" />
+          <div class="rotulo" [id]="idDe(g)">
             <span>{{ g.titulo }}</span>
-            <ap-icono nombre="chevronAbajo" tamano="s4" class="chevron" [class.plegado]="!abierto(g)" />
-          </button>
+          </div>
         }
-        <ul [id]="idDe(g)" [hidden]="!abierto(g)">
+        <ul [id]="idDe(g) + '-lista'">
           @for (e of g.entradas; track e.ruta) {
             <li>
-              <a [routerLink]="e.destino" [attr.data-tutorial-id]="'menu-' + e.ruta" routerLinkActive="activo" ariaCurrentWhenActive="page" [routerLinkActiveOptions]="{ exact: e.destino === '/tablero' }" (click)="navegado.emit()">
-                <ap-icono-de-seccion [nombre]="e.ruta" />{{ e.texto }}
-              </a>
-              @if (e.hijos?.length && activa(e)) {
+              <div class="entrada-fila">
+                <a [routerLink]="e.destino" [attr.data-tutorial-id]="'menu-' + e.ruta" routerLinkActive="activo" ariaCurrentWhenActive="page" [routerLinkActiveOptions]="{ exact: e.destino === '/tablero' }" (click)="alNavegar()">
+                  <ap-icono-de-seccion [nombre]="e.ruta" class="icono-padre" />
+                  <span class="texto-entrada">{{ e.texto }}</span>
+                </a>
+              </div>
+              @if (e.hijos?.length) {
                 <ul class="hijos">
                   @for (h of e.hijos; track h.ruta) {
-                    <li><a [routerLink]="h.ruta ? e.destino + '/' + h.ruta : e.destino" routerLinkActive="activo" ariaCurrentWhenActive="page" [routerLinkActiveOptions]="{ exact: true }" (click)="navegado.emit()">{{ h.texto }}</a></li>
+                    <li>
+                      <a [routerLink]="h.ruta ? e.destino + '/' + h.ruta : e.destino" routerLinkActive="activo" ariaCurrentWhenActive="page" [routerLinkActiveOptions]="{ exact: true }" (click)="navegado.emit()">
+                        @if (h.icono) {
+                          <ap-icono-de-seccion [nombre]="h.icono" class="icono-hijo" />
+                        }
+                        <span class="texto-hijo">{{ h.texto }}</span>
+                      </a>
+                    </li>
                   }
                 </ul>
               }
@@ -50,23 +54,96 @@ const CLAVE = 'ap-menu:plegados'
     }
   `,
   styles: `
-    :host { display: grid; align-content: start; gap: var(--s2); color: var(--white); }
-    .rotulo { display: flex; width: 100%; align-items: center; gap: var(--s2); min-height: var(--area-tactil); padding: 0 var(--s3); border: 0; border-radius: var(--r-md); background: transparent; color: color-mix(in srgb, var(--white) 55%, transparent); font: var(--t-eyebrow); letter-spacing: var(--t-eyebrow-track); text-transform: uppercase; text-align: left; cursor: pointer; }
-    .rotulo:hover { color: var(--white); background: color-mix(in srgb, var(--white) 6%, transparent); }
-    .rotulo:focus-visible { outline: var(--borde-foco) solid var(--g300); outline-offset: var(--borde-desfase); }
-    .rotulo span { flex: 1; }
-    .chevron { transition: transform var(--mov-entrada) var(--curva-llega); }
-    .chevron.plegado { transform: rotate(-90deg); }
-    ul { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--s1); }
-    /* El atributo hidden pierde contra un display propio: un grupo plegado se vería igual que abierto. */
-    ul[hidden] { display: none; }
-    a { display: flex; align-items: center; gap: var(--s3); min-height: var(--area-tactil); padding: var(--s2) var(--s3); border-radius: var(--r-md); font: var(--t-cuerpo); color: color-mix(in srgb, var(--white) 78%, transparent); text-decoration: none; transition: background-color var(--mov-micro) ease-out, color var(--mov-micro) ease-out; }
-    a:hover { background: color-mix(in srgb, var(--white) 8%, transparent); color: var(--white); }
-    a.activo { background: color-mix(in srgb, var(--white) 14%, transparent); color: var(--white); font-weight: 600; box-shadow: inset var(--borde-desfase) 0 0 var(--g300); }
+    :host { display: grid; align-content: start; gap: var(--s3); color: var(--white); }
+    .grupo { display: grid; gap: var(--s1); }
+    .rotulo {
+      display: flex;
+      align-items: center;
+      padding: var(--s2) var(--s3) var(--s1);
+      color: color-mix(in srgb, var(--white) 48%, transparent);
+      font: var(--t-eyebrow);
+      letter-spacing: var(--t-eyebrow-track);
+      text-transform: uppercase;
+      user-select: none;
+    }
+    ul { list-style: none; margin: 0; padding: 0; display: grid; gap: calc(var(--s1) / 2); }
+    .entrada-fila { display: flex; align-items: center; width: 100%; border-radius: var(--r-md); position: relative; }
+    .entrada-fila a { flex: 1; min-width: 0; }
+    a {
+      display: flex;
+      align-items: center;
+      gap: var(--s2);
+      min-height: calc(var(--area-tactil) - var(--s2));
+      padding: var(--s2) var(--s3);
+      border-radius: var(--r-md);
+      font: var(--t-cuerpo-chico);
+      font-weight: 500;
+      color: color-mix(in srgb, var(--white) 80%, transparent);
+      text-decoration: none;
+      transition: background-color var(--mov-micro) cubic-bezier(0.16, 1, 0.3, 1),
+                  color var(--mov-micro) cubic-bezier(0.16, 1, 0.3, 1),
+                  transform var(--mov-micro) cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
+    }
+    a:hover {
+      background: color-mix(in srgb, var(--white) 9%, transparent);
+      color: var(--white);
+      transform: translateX(calc(var(--s1) / 2));
+    }
+    a.activo {
+      background: color-mix(in srgb, var(--g400) 24%, transparent);
+      color: var(--white);
+      font-weight: 600;
+      box-shadow: inset var(--borde-foco) 0 0 var(--g300), var(--sombra-2);
+    }
+    a.activo .icono-padre,
+    a.activo .icono-hijo {
+      color: var(--g300);
+      opacity: 1;
+    }
     a:focus-visible { outline: var(--borde-foco) solid var(--g300); outline-offset: var(--borde-desfase); }
-    .hijos { margin: var(--s1) 0 var(--s1) var(--s4); padding-left: var(--s3); border-left: var(--borde-fino) solid color-mix(in srgb, var(--white) 14%, transparent); }
-    .hijos a { min-height: calc(var(--area-tactil) - var(--s2)); padding: var(--s1) var(--s3); font: var(--t-cuerpo-chico); }
-    .hijos a.activo { box-shadow: none; }
+    .texto-entrada { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .icono-padre { flex: none; width: 1.25rem; height: 1.25rem; opacity: 0.85; transition: transform var(--mov-micro) ease; }
+    a:hover .icono-padre { opacity: 1; transform: scale(1.08); }
+
+    .hijos {
+      margin: calc(var(--s1) / 2) 0 var(--s2) var(--s3);
+      padding-left: var(--s2);
+      border-left: var(--borde-fino) solid color-mix(in srgb, var(--white) 12%, transparent);
+      display: grid;
+      gap: calc(var(--s1) / 2);
+    }
+    .hijos a {
+      min-height: 2.125rem;
+      padding: var(--s1) var(--s2);
+      gap: var(--s2);
+      font-size: 0.8125rem;
+      color: color-mix(in srgb, var(--white) 65%, transparent);
+    }
+    .hijos a:hover {
+      color: var(--white);
+      background: color-mix(in srgb, var(--white) 7%, transparent);
+      transform: translateX(calc(var(--s1) / 2));
+    }
+    .hijos a.activo {
+      color: var(--white);
+      background: color-mix(in srgb, var(--g400) 28%, transparent);
+      font-weight: 600;
+      box-shadow: inset var(--borde-desfase) 0 0 var(--g300);
+    }
+    .texto-hijo { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .icono-hijo {
+      flex: none;
+      width: 1rem;
+      height: 1rem;
+      opacity: 0.75;
+      transition: transform var(--mov-micro) ease, opacity var(--mov-micro) ease;
+    }
+    .hijos a:hover .icono-hijo,
+    .hijos a.activo .icono-hijo {
+      opacity: 1;
+      color: var(--g300);
+    }
   `,
 })
 export class MenuLateral {
@@ -83,7 +160,7 @@ export class MenuLateral {
     ),
     { initialValue: this.router.url },
   )
-  private readonly plegados = signal<string[]>(leerPlegados())
+
   readonly visibles = computed(() =>
     this.menu()
       .map((g) => ({ ...g, entradas: g.entradas.filter((e) => this.sesion.puede(e.permiso)) }))
@@ -93,35 +170,22 @@ export class MenuLateral {
   idDe(g: Grupo): string {
     return 'menu-grupo-' + (g.titulo ?? 'inicio').toLowerCase()
   }
-  /** Abierto salvo que se haya plegado a mano; el grupo de la ruta activa se abre siempre. */
-  abierto(g: Grupo): boolean {
-    if (!g.titulo) return true
-    if (g.entradas.some((e) => this.activa(e))) return true
-    return !this.plegados().includes(g.titulo)
+
+  /** Todas las secciones y pantallas están siempre abiertas. */
+  abierto(): boolean {
+    return true
   }
+
+  hijosAbiertos(): boolean {
+    return true
+  }
+
   activa(e: Entrada): boolean {
     const url = this.url().split('?')[0]!
     return url === e.destino || url.startsWith(e.destino + '/')
   }
-  alternar(g: Grupo): void {
-    if (!g.titulo) return
-    const t = g.titulo
-    this.plegados.update((p) => (p.includes(t) ? p.filter((x) => x !== t) : [...p, t]))
-    guardarPlegados(this.plegados())
-  }
-}
 
-function leerPlegados(): string[] {
-  try {
-    return JSON.parse(sessionStorage.getItem(CLAVE) ?? '[]') as string[]
-  } catch {
-    return []
-  }
-}
-function guardarPlegados(p: string[]): void {
-  try {
-    sessionStorage.setItem(CLAVE, JSON.stringify(p))
-  } catch {
-    // Sin almacenamiento el menú funciona igual, solo no recuerda.
+  alNavegar(): void {
+    this.navegado.emit()
   }
 }

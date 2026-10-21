@@ -2,16 +2,14 @@ import { ChangeDetectionStrategy, Component, effect, inject, input } from '@angu
 import { CabeceraDePagina } from '@aportaya/ui/cabecera-de-pagina/cabecera-de-pagina'
 import type { NombreDeIcono } from '@aportaya/ui/icono/icono'
 import { ExplicadorDeVista } from '../../../nucleo/explicador-de-vista'
-import { NavegacionDeCumplimiento } from './navegacion'
 
-/** El marco común de las bandejas de cumplimiento: propósito, navegación de la sección, título y acciones. */
+/** El marco común de las bandejas de cumplimiento: propósito, título y acciones. */
 @Component({
   selector: 'ap-marco-de-cumplimiento',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CabeceraDePagina, NavegacionDeCumplimiento],
+  imports: [CabeceraDePagina],
   template: `
     <section class="pantalla">
-      <ap-navegacion-de-cumplimiento />
       <ap-cabecera-de-pagina [titulo]="titulo()" [descripcion]="proposito()" [icono]="icono()">
         <div acciones class="acciones"><ng-content select="[acciones]" /></div>
       </ap-cabecera-de-pagina>

@@ -27,7 +27,7 @@ class CabeceraDeInicio extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(top: Espacio.s2, bottom: Espacio.s1),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Expanded(
             child: MergeSemantics(
@@ -39,9 +39,19 @@ class CabeceraDeInicio extends StatelessWidget {
                     if (saludo != null)
                       Text(
                         saludo!,
-                        style: Tipo.cuerpoChico.copyWith(color: t.text2),
+                        style: Tipo.cuerpoChico.copyWith(
+                          color: t.text3,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
-                    Text(titulo, style: Tipo.titulo1.copyWith(color: t.text)),
+                    Text(
+                      titulo,
+                      style: Tipo.titulo1.copyWith(
+                        color: t.text,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: -0.5,
+                      ),
+                    ),
                   ],
                 ),
               ),

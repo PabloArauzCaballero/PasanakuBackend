@@ -118,37 +118,39 @@ class _SuperficieVivaState extends State<SuperficieViva>
     final t = Tokens.of(context);
     final c = widget.color;
     final forma = BorderRadius.circular(widget.radio);
-    return Listener(
-      onPointerDown: (_) => _apretar(),
-      onPointerUp: (_) => _soltar(),
-      onPointerCancel: (_) => _soltar(),
-      child: AnimatedBuilder(
-        animation: Listenable.merge([_hundido, _brillo]),
-        child: widget.child,
-        builder: (context, hijo) {
-          // Plano, como una app bancaria: relleno sólido y una sombra mínima. Sin
-          // degradado ni halo del color del botón —eso lo hacía de videojuego—.
-          return Transform.scale(
-            scale: 1 - (1 - _escalaPresion) * _hundido.value,
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                borderRadius: forma,
-                color: c,
-                boxShadow: widget.activo ? [t.sombra1] : null,
-              ),
-              child: ClipRRect(
-                borderRadius: forma,
-                child: CustomPaint(
-                  foregroundPainter: LuzDeBoton(
-                    avance: _avanceDelBrillo(),
-                    filo: Paleta.white,
+    return RepaintBoundary(
+      child: Listener(
+        onPointerDown: (_) => _apretar(),
+        onPointerUp: (_) => _soltar(),
+        onPointerCancel: (_) => _soltar(),
+        child: AnimatedBuilder(
+          animation: Listenable.merge([_hundido, _brillo]),
+          child: widget.child,
+          builder: (context, hijo) {
+            // Plano, como una app bancaria: relleno sólido y una sombra mínima. Sin
+            // degradado ni halo del color del botón —eso lo hacía de videojuego—.
+            return Transform.scale(
+              scale: 1 - (1 - _escalaPresion) * _hundido.value,
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  borderRadius: forma,
+                  color: c,
+                  boxShadow: widget.activo ? [t.sombra1] : null,
+                ),
+                child: ClipRRect(
+                  borderRadius: forma,
+                  child: CustomPaint(
+                    foregroundPainter: LuzDeBoton(
+                      avance: _avanceDelBrillo(),
+                      filo: Paleta.white,
+                    ),
+                    child: hijo,
                   ),
-                  child: hijo,
                 ),
               ),
-            ),
-          );
-        },
+            );
+          },
+        ),
       ),
     );
   }

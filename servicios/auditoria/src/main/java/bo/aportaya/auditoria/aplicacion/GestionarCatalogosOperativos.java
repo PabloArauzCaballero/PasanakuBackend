@@ -48,7 +48,9 @@ public class GestionarCatalogosOperativos {
         String rol = contexto != null ? contexto.rol() : "ADMIN";
         UUID correlationId = UUID.randomUUID();
 
-        return datos.conContexto(contexto, dsl -> repositorio.actualizarEstadoElemento(
-                dsl, codigo, id, nuevoActivo, motivo, usuarioId, rol, correlationId));
+        return datos.conContexto(
+                contexto,
+                dsl -> repositorio.actualizarEstadoElemento(
+                        dsl, codigo, id, nuevoActivo, motivo, usuarioId, rol, correlationId));
     }
 }

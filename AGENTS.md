@@ -1,5 +1,10 @@
 # Instrucciones para agentes
 
+> [!IMPORTANT]
+> ## 🚨 DIRECTIVA URGENTE PARA TODAS LAS SESIONES (2026-10-21)
+> **SI TIENES CÓDIGO, FIXES, MIGRACIONES, TESTS O DOCUMENTACIÓN EN TU ESPACIO DE TRABAJO, DEBES COMMITTEARLOS Y SUBIRLOS (PUSH) INMEDIATAMENTE A GIT.**
+> El servidor TEST (`161.97.85.216`) y las ramas `test`, `dev` y `pablo/feat/backoffice-como-atlas-h0-h1-2026-10-18` ya están unificados y desplegados en `98ba839c`. Todo trabajo pendiente debe integrarse sin demora.
+
 ## Skills obligatorias para la app móvil
 
 

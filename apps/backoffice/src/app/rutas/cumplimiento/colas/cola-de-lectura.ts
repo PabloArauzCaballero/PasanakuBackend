@@ -32,7 +32,7 @@ const esImporte = (c: Celda): c is Importe => typeof c === 'object' && c !== nul
       <ng-content />
       <ap-estado-de-bandeja [estado]="bandeja().estado()" [error]="bandeja().error()" [textoVacio]="vacio()" [conFiltros]="estados().length > 0" (reintentar)="recargar()" (quitarFiltros)="estados.set([])" />
       @for (m of [bandeja().montaje()]; track m) {
-        <div [hidden]="bandeja().estado() === 'denegado'">
+        <div [hidden]="bandeja().estado() === 'denegado' || bandeja().estado() === 'vacio'">
           <ap-tabla-de-datos-virtualizada [titulo]="tabla()" [columnas]="columnas()" [cargador]="bandeja().cargador" [ordenPermitido]="[]" [identidad]="identidad()" [filtros]="filtros()" [tamanoDePagina]="25">
             <ng-template #celda let-f let-columna="columna">
               @if (importe(f, columna.clave); as i) { <ap-monto [monto]="i.monto" [moneda]="i.moneda" /> }

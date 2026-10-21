@@ -42,6 +42,29 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 public class ConfiguracionMensajeria {
 
     /**
+     * Propagacion automatica de trazas en todo @KafkaListener: extrae trace_id
+     * de la cabecera de Kafka y lo coloca en el MDC de SLF4J durante la ejecucion.
+     */
+    @Bean
+    @ConditionalOnMissingBean
+    public InterceptorDeTrazaKafka interceptorDeTrazaKafka() {
+        return new InterceptorDeTrazaKafka();
+    }
+
+    /**
+     * Manejo resiliente de errores en consumidores de Kafka con backoff exponencial.
+     * Evita que un fallo transitorio descarte eventos y desincronice las bases de datos.
+     */
+    @Bean
+    @ConditionalOnMissingBean
+    @ConditionalOnBean(KafkaTemplate.class)
+    public org.springframework.kafka.listener.CommonErrorHandler manejadorDeErroresKafka() {
+        var backoff = new org.springframework.util.backoff.ExponentialBackOff(1000L, 2.0);
+        backoff.setMaxElapsedTime(10000L);
+        return new org.springframework.kafka.listener.DefaultErrorHandler(backoff);
+    }
+
+    /**
      * Una tabla {@code shedlock} por esquema (ya generada en {@code sql/15_infra/mensajeria.sql},
      * ADR-018/027) — nunca una compartida entre servicios, que convertiria el lock de UNO en
      * el lock de TODOS.

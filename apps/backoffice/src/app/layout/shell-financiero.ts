@@ -6,11 +6,10 @@ import { filter, finalize, map, startWith } from 'rxjs'
 import { CajonLateral } from '@aportaya/ui/cajon-lateral/cajon-lateral'
 import { Icono } from '@aportaya/ui/icono/icono'
 import { Migas } from '@aportaya/ui/migas/migas'
-import { NotaDeVista } from '@aportaya/ui/nota-de-vista/nota-de-vista'
 import { EncendidoDeTutorial } from '@aportaya/tutoriales/encendido'
 import { AnfitrionDeTutorial } from '@aportaya/tutoriales/anfitrion-de-tutorial'
 import { LanzadorDeTutorial } from '@aportaya/tutoriales/lanzador-de-tutorial'
-import { ExplicadorDeVista } from '../nucleo/explicador-de-vista'
+import { ExplicadorDeVistaComponent } from '../nucleo/explicador-de-vista.component'
 import { migasDe } from '../nucleo/menu'
 import { Sesion } from '../nucleo/sesion'
 import { BuscadorGlobal } from './buscador-global'
@@ -26,8 +25,8 @@ const ANGOSTO = '(max-width: 40rem)'
 /**
  * El shell del backoffice con la anatomía del portal interno de Atlas: barra lateral oscura con la
  * marca y el menú por grupos (`ap-menu-lateral`), cabecera fija con migas, título de la vista,
- * buscador global, lanzador del tutorial y menú de quien opera; abajo, las «Notas de la vista»
- * plegadas y el `router-outlet`. En el celular la barra es un cajón que abre la hamburguesa.
+ * buscador global, lanzador del tutorial y menú de quien opera; abajo, el explicador de la vista
+ * (negocio y sistemas, colapsado por omisión) y el `router-outlet`. En el celular la barra es un cajón que abre la hamburguesa.
  *
  * **El menú oculta por comodidad**; el permiso real lo exige `canMatch` en cada ruta y lo verifica
  * el servidor — este componente no es la barrera de seguridad.
@@ -35,7 +34,7 @@ const ANGOSTO = '(max-width: 40rem)'
 @Component({
   selector: 'ap-shell-financiero',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterOutlet, RouterLink, CajonLateral, Icono, Migas, NotaDeVista, LanzadorDeTutorial, AnfitrionDeTutorial, BuscadorGlobal, CampanaDeNotificaciones, IconoDeSeccion, MenuDeUsuario, MenuLateral, SimboloDeMarca],
+  imports: [RouterOutlet, RouterLink, CajonLateral, Icono, Migas, LanzadorDeTutorial, AnfitrionDeTutorial, BuscadorGlobal, CampanaDeNotificaciones, IconoDeSeccion, MenuDeUsuario, MenuLateral, SimboloDeMarca, ExplicadorDeVistaComponent],
   template: `
     <div class="shell" [class.angosto]="angosto()">
       @if (!angosto()) {
@@ -67,7 +66,9 @@ const ANGOSTO = '(max-width: 40rem)'
         <ap-menu-de-usuario [saliendo]="saliendo()" (salir)="salir()" />
       </header>
       <main id="contenido">
-        @if (explicador.texto(); as texto) { <ap-nota-de-vista clave="vista">{{ texto }}</ap-nota-de-vista> }
+        @defer (on idle) {
+          <ap-explicador-de-vista />
+        }
         <router-outlet />
       </main>
       @defer (when tutorial.activo()) { <ap-anfitrion-de-tutorial /> }
@@ -78,7 +79,6 @@ const ANGOSTO = '(max-width: 40rem)'
 export class ShellFinanciero {
   protected readonly sesion = inject(Sesion)
   protected readonly tutorial = inject(EncendidoDeTutorial)
-  protected readonly explicador = inject(ExplicadorDeVista)
   private readonly router = inject(Router)
   private readonly titulo = inject(Title)
   private readonly cerrarSesion = crearCerrarSesion()

@@ -1,0 +1,58 @@
+{
+  "servicio": "grupos",
+  "operacion": "solicitarIngresoPorEnlace",
+  "metodo": "post",
+  "ruta": "/grupos/enlace-del-grupo/solicitudes",
+  "escenarios": {
+    "ok": {
+      "estado": 201,
+      "cuerpo": {
+        "solicitudId": "fe1f0ae5-49d3-4543-8483-3805a47f2802",
+        "grupoId": "5b1ee516-6ebc-49ca-85a2-acdcc9db2ee0",
+        "estado": "PENDIENTE"
+      }
+    },
+    "vacio": {
+      "estado": 201,
+      "cuerpo": {
+        "solicitudId": "fe1f0ae5-49d3-4543-8483-3805a47f2802",
+        "grupoId": "5b1ee516-6ebc-49ca-85a2-acdcc9db2ee0",
+        "estado": "PENDIENTE"
+      }
+    },
+    "adverso": {
+      "estado": 201,
+      "cuerpo": {
+        "solicitudId": "fe1f0ae5-49d3-4543-8483-3805a47f2802",
+        "grupoId": "5b1ee516-6ebc-49ca-85a2-acdcc9db2ee0",
+        "estado": "PENDIENTE"
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "solicitudId": "fe1f0ae5-49d3-4543-8483-3805a47f2802",
+        "grupoId": "5b1ee516-6ebc-49ca-85a2-acdcc9db2ee0",
+        "estado": "PENDIENTE"
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU69-11",
+        "mensaje": "Enlace invalido",
+        "detalle": {},
+        "trazaId": "traza-solicitarIngresoPorEnlace-rechazo"
+      }
+    }
+  }
+}

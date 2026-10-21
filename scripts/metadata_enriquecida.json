@@ -1,0 +1,107 @@
+{
+  "esquemas": {
+    "aportes": {
+      "nombre": "Aportes y Recaudación",
+      "modulo": "02",
+      "negocio": "Gestión integral de recaudación de aportes de cada ciclo, seguimiento de obligaciones de pago, control de mora y cálculo de recargos del pasanaku.",
+      "sistema": "Esquema del microservicio aportes, operado exclusivamente por el rol de base svc_aportes. Contiene tablas de obligaciones, pagos y pasarelas de pago."
+    },
+    "auditoria": {
+      "nombre": "Auditoría, Reportes y Cumplimiento",
+      "modulo": "09",
+      "negocio": "Registro inmutable de trazabilidad, cumplimiento regulatorio, catálogo de metadatos, gobierno de datos, reportes periódicos a supervisores y bitácora de eventos del sistema.",
+      "sistema": "Esquema del microservicio auditoria, operado por svc_auditoria. Almacena bitácoras de eventos, políticas de retención, fichas de gobierno de datos y revisiones."
+    },
+    "cumplimiento": {
+      "nombre": "Cumplimiento Regulatorio, UIF y ASFI",
+      "modulo": "12",
+      "negocio": "Prevención de legitimación de ganancias ilícitas y financiamiento del terrorismo (PLA/FT), debida diligencia, listas de sanción, límites transaccionales y reportes UIF.",
+      "sistema": "Esquema del microservicio cumplimiento, operado por svc_cumplimiento. Aplica RLS estricto para expedientes confidenciales y auditoría de decisiones de comités."
+    },
+    "entregas": {
+      "nombre": "Entregas, Turnos y Desembolsos",
+      "modulo": "04",
+      "negocio": "Adjudicación y desembolso del fondo acumulado a los beneficiarios de cada turno según el calendario o sorteo del grupo pasanaku.",
+      "sistema": "Esquema del microservicio entregas, operado por svc_entregas. Coordina con nucleo_financiero mediante sagas orquestadas para transferencias seguras."
+    },
+    "erp": {
+      "nombre": "Contabilidad Institucional y ERP",
+      "modulo": "13",
+      "negocio": "Gestión administrativa interna, plan de cuentas institucional, facturación electrónica, presupuesto operativo, compras y activos de la empresa.",
+      "sistema": "Esquema del microservicio erp, operado por svc_erp. Separa la contabilidad corporativa de los libros de custodia de fondos de los participantes."
+    },
+    "garantia": {
+      "nombre": "Fondo de Garantía, Mora y Cobranza",
+      "modulo": "08",
+      "negocio": "Fondo de protección colectiva, gestión de garantías prendarias y líquidas, subrogación de deuda ante incumplimientos y procesos de cobranza judicial y extrajudicial.",
+      "sistema": "Esquema del microservicio garantia, operado por svc_garantia. Asegura la solvencia del grupo mediante coberturas automáticas registradas en libro mayor."
+    },
+    "grupos": {
+      "nombre": "Grupos, Rondas y Turnos",
+      "modulo": "03",
+      "negocio": "Administración del ciclo de vida de los grupos pasanaku: creación, miembros, cupos, turnos, reglas de convivencia, votaciones y disolución.",
+      "sistema": "Esquema del microservicio grupos, operado por svc_grupos. Centraliza el estado de los círculos de ahorro y valida cupos y turnos."
+    },
+    "identidad": {
+      "nombre": "Identidad, Usuarios y Autenticación",
+      "modulo": "01",
+      "negocio": "Registro de usuarios, verificación de identidad documental y biométrica (KYC), autenticación multifactor (MFA, PIN, contraseñas) y gestión de roles y permisos.",
+      "sistema": "Esquema del microservicio identidad, operado por svc_identidad. Almacena credenciales hasheadas con Argon2id, tokens revocables y sesiones con contexto RLS."
+    },
+    "inversiones": {
+      "nombre": "Inversiones y Rendimientos",
+      "modulo": "15",
+      "negocio": "Rentabilización de excedentes de fondos de reserva en instrumentos autorizados (DPF, bonos soberanos), cálculo de rendimientos y reinversión.",
+      "sistema": "Esquema del microservicio inversiones, operado por svc_inversiones. Restricción de doble firma y segregación de fondos propios vs fondos en custodia."
+    },
+    "notificaciones": {
+      "nombre": "Notificaciones y Mensajería",
+      "modulo": "05",
+      "negocio": "Envío omnicanal (WhatsApp, push, SMS, correo) de avisos de vencimiento, confirmación de pagos, alertas de seguridad y recordatorios de turnos.",
+      "sistema": "Esquema del microservicio notificaciones, operado por svc_notificaciones. Emplea cola de reintentos con backoff exponencial y plantillas versionadas."
+    },
+    "nucleo_financiero": {
+      "nombre": "Núcleo Financiero, Billeteras y Custodia",
+      "modulo": "10",
+      "negocio": "El corazón transaccional de AportaYa: billeteras electrónicas, libro mayor de partida doble inmutable, custodia de dinero de los participantes y movimientos contables.",
+      "sistema": "Esquema del microservicio nucleo_financiero, operado por svc_nucleo_financiero. Tablas append-only sin UPDATE/DELETE permitidos. Garantía de balance cero."
+    },
+    "organizador": {
+      "nombre": "Organizadores y Automatización",
+      "modulo": "07",
+      "negocio": "Habilitación, capacitación, evaluación de reputación, liquidación de comisiones y control de conducta de los organizadores comunitarios de pasanaku.",
+      "sistema": "Esquema del microservicio organizador, operado por svc_organizador. Registra contratos de mandato, certificaciones y límites de grupos simultáneos."
+    },
+    "publicidad": {
+      "nombre": "Publicidad, Campañas y Fidelización",
+      "modulo": "14",
+      "negocio": "Campañas de difusión, incentivos por referidos, programas de fidelidad y métricas de adquisición de nuevos participantes.",
+      "sistema": "Esquema del microservicio publicidad, operado por svc_publicidad. Aislado de datos financieros y personales sensibles; opera con agregados anónimos."
+    },
+    "tarifas": {
+      "nombre": "Tarifas, Comisiones e Impuestos",
+      "modulo": "11",
+      "negocio": "Tarifario oficial de comisiones por servicio, costos de pasarela, impuestos aplicables e historial de modificaciones comerciales.",
+      "sistema": "Esquema del microservicio tarifas, operado por svc_tarifas. Los cálculos de comisiones se congelan en la cotización; tablas versionadas temporalmente."
+    },
+    "transparencia": {
+      "nombre": "Transparencia, Sorteos y Reputación",
+      "modulo": "06",
+      "negocio": "Mecanismo verificable de confianza colectiva: actas de sorteo criptográfico (commit-reveal), hashes encadenados inmutables y verificación pública de probidad.",
+      "sistema": "Esquema del microservicio transparencia, operado por svc_transparencia. Genera árboles de Merkle y pruebas criptográficas SHA-256 reproducibles por terceros."
+    },
+    "catalogo": {
+      "nombre": "Catálogos y Datos Maestros Compartidos",
+      "modulo": "99",
+      "negocio": "Datos maestros y tablas de referencia estables: monedas, países, tipos de documento, feriados bancarios y motivos operativos.",
+      "sistema": "Esquema compartido de solo lectura para todos los servicios; solo el servicio asignado o los scripts de semillas pueden escribir en él."
+    },
+    "comun": {
+      "nombre": "Infraestructura Común y Trazabilidad",
+      "modulo": "00",
+      "negocio": "Infraestructura transversal compartida de observabilidad, auditoría técnica de sesiones y rastreo entre servicios.",
+      "sistema": "Esquema compartido; todo servicio puede insertar su rastro de eventos/auditoría pero ningún servicio puede leer ni modificar el de otro salvo svc_auditoria."
+    }
+  },
+  "columnas_explicadas": 3734
+}

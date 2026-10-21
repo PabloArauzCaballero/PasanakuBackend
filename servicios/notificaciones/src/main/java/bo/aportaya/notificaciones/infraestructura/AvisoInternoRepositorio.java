@@ -23,7 +23,8 @@ public class AvisoInternoRepositorio {
 
     private Condition condicionDestinatario(UUID usuarioId, Collection<String> roles) {
         Condition condUsuario = (usuarioId != null) ? AVISO_INTERNO.USUARIO_ID.eq(usuarioId) : DSL.falseCondition();
-        Condition condRoles = (roles != null && !roles.isEmpty()) ? AVISO_INTERNO.ROL_DESTINATARIO.in(roles) : DSL.falseCondition();
+        Condition condRoles =
+                (roles != null && !roles.isEmpty()) ? AVISO_INTERNO.ROL_DESTINATARIO.in(roles) : DSL.falseCondition();
         return condUsuario.or(condRoles);
     }
 
@@ -47,15 +48,12 @@ public class AvisoInternoRepositorio {
 
     public Optional<AvisoInternoRecord> buscarPorId(DSLContext dsl, UUID id) {
         return Optional.ofNullable(
-                dsl.selectFrom(AVISO_INTERNO)
-                        .where(AVISO_INTERNO.ID.eq(id))
-                        .fetchOne());
+                dsl.selectFrom(AVISO_INTERNO).where(AVISO_INTERNO.ID.eq(id)).fetchOne());
     }
 
     public Optional<AvisoInternoRecord> marcarLeido(DSLContext dsl, UUID id, OffsetDateTime ahora) {
-        AvisoInternoRecord record = dsl.selectFrom(AVISO_INTERNO)
-                .where(AVISO_INTERNO.ID.eq(id))
-                .fetchOne();
+        AvisoInternoRecord record =
+                dsl.selectFrom(AVISO_INTERNO).where(AVISO_INTERNO.ID.eq(id)).fetchOne();
         if (record == null) {
             return Optional.empty();
         }

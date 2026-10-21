@@ -1,23 +1,31 @@
 package bo.aportaya.identidad.web;
 
+import bo.aportaya.identidad.aplicacion.ActivarRolOrganizador;
 import bo.aportaya.identidad.aplicacion.BuscarPorTelefono;
 import bo.aportaya.identidad.aplicacion.CU01RegistrarUsuario;
 import bo.aportaya.identidad.aplicacion.CU02ActualizarFechaExpiracion;
 import bo.aportaya.identidad.aplicacion.CU02ConsultarEstadoDeVerificacion;
 import bo.aportaya.identidad.aplicacion.CU02GuardarFotoDelExpediente;
+import bo.aportaya.identidad.aplicacion.CU02IniciarVerificacion;
 import bo.aportaya.identidad.aplicacion.ConfirmarVerificacionCorreo;
+import bo.aportaya.identidad.aplicacion.ConsultarMiPerfil;
 import bo.aportaya.identidad.aplicacion.ConsultarNivelKyc;
+import bo.aportaya.identidad.aplicacion.ConsumirInvitacion;
 import bo.aportaya.identidad.aplicacion.EmitirTokenDeInvitacion;
+import bo.aportaya.identidad.aplicacion.GuardarBorradorOnboarding;
 import bo.aportaya.identidad.aplicacion.SolicitarVerificacionCorreo;
 import bo.aportaya.identidad.aplicacion.ValidarTokenDeInvitacion;
 import bo.aportaya.identidad.aplicacion.VerificarTitularidad;
+import bo.aportaya.identidad.web.generado.modelo.BorradorOnboarding;
 import bo.aportaya.identidad.web.generado.modelo.ConfirmacionVerificacionCorreo;
 import bo.aportaya.identidad.web.generado.modelo.EntradaBusquedaPorTelefono;
 import bo.aportaya.identidad.web.generado.modelo.EntradaRegistro;
+import bo.aportaya.identidad.web.generado.modelo.EntradaRolOrganizador;
 import bo.aportaya.identidad.web.generado.modelo.EntradaTitularidad;
 import bo.aportaya.identidad.web.generado.modelo.EntradaTokenDeInvitacion;
 import bo.aportaya.identidad.web.generado.modelo.EntradaValidacionInvitacion;
 import bo.aportaya.identidad.web.generado.modelo.NivelKyc;
+import bo.aportaya.identidad.web.generado.modelo.RolOrganizadorActivado;
 import bo.aportaya.identidad.web.generado.modelo.SalidaRegistro;
 import bo.aportaya.identidad.web.generado.modelo.SalidaTitularidad;
 import bo.aportaya.identidad.web.generado.modelo.SalidaTokenDeInvitacion;
@@ -32,11 +40,10 @@ import bo.aportaya.plataforma.web.seguridad.Permiso;
 import bo.aportaya.plataforma.web.seguridad.PermisoAlternativo;
 import bo.aportaya.plataforma.web.seguridad.Publico;
 import bo.aportaya.plataforma.web.seguridad.SesionDeLaPeticion;
-import bo.aportaya.plataforma.web.traza.Traza;
 import jakarta.servlet.http.HttpServletRequest;
 import java.time.Duration;
 import java.time.ZoneOffset;
-import java.util.Optional;
+import java.util.Objects;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -68,7 +75,8 @@ public class UsuariosController extends ExpedienteController {
     private final HttpServletRequest peticion;
     private final String pimienta;
     private final LimiteDeConsultas limiteDeTitularidad;
-    private final bo.aportaya.identidad.aplicacion.ActivarRolOrganizador rolOrganizador;
+    private final ActivarRolOrganizador rolOrganizador;
+    private final GuardarBorradorOnboarding guardarBorrador;
 
     public UsuariosController(
             CU01RegistrarUsuario cu01,
@@ -78,14 +86,15 @@ public class UsuariosController extends ExpedienteController {
             CU02ActualizarFechaExpiracion actualizarFechaExpiracion,
             EmitirTokenDeInvitacion tokens,
             ValidarTokenDeInvitacion validacionDeInvitacion,
-            bo.aportaya.identidad.aplicacion.ConsumirInvitacion consumo,
+            ConsumirInvitacion consumo,
             BuscarPorTelefono busqueda,
             ConsultarNivelKyc nivelesKyc,
             SolicitarVerificacionCorreo solicitarCorreo,
             ConfirmarVerificacionCorreo confirmarCorreo,
-            bo.aportaya.identidad.aplicacion.ActivarRolOrganizador rolOrganizador,
-            bo.aportaya.identidad.aplicacion.ConsultarMiPerfil miPerfil,
-            bo.aportaya.identidad.aplicacion.CU02IniciarVerificacion iniciarVerificacion,
+            GuardarBorradorOnboarding guardarBorrador,
+            ActivarRolOrganizador rolOrganizador,
+            ConsultarMiPerfil miPerfil,
+            CU02IniciarVerificacion iniciarVerificacion,
             SesionDeLaPeticion sesion,
             HttpServletRequest peticion,
             @Value("${aportaya.seguridad.pimienta}") String pimienta,
@@ -112,6 +121,7 @@ public class UsuariosController extends ExpedienteController {
         this.nivelesKyc = nivelesKyc;
         this.solicitarCorreo = solicitarCorreo;
         this.confirmarCorreo = confirmarCorreo;
+        this.guardarBorrador = guardarBorrador;
         this.sesion = sesion;
         this.peticion = peticion;
         this.pimienta = pimienta;
@@ -122,10 +132,9 @@ public class UsuariosController extends ExpedienteController {
     /** CU-90 vía básica: el rol ORGANIZADOR para quien ya aceptó el contrato. Solo para uno mismo. */
     @Override
     @Permiso("PARTICIPANTE")
-    public ResponseEntity<bo.aportaya.identidad.web.generado.modelo.RolOrganizadorActivado> activarRolOrganizador(
-            UUID usuarioId, bo.aportaya.identidad.web.generado.modelo.EntradaRolOrganizador cuerpo) {
-        Traza.marcarCasoDeUso("CU-90", usuarioId.toString());
-        String agente = java.util.Objects.requireNonNullElse(peticion.getHeader("User-Agent"), "desconocido");
+    public ResponseEntity<RolOrganizadorActivado> activarRolOrganizador(UUID usuarioId, EntradaRolOrganizador cuerpo) {
+        bo.aportaya.plataforma.web.traza.Traza.marcarCasoDeUso("CU-90", usuarioId.toString());
+        String agente = Objects.requireNonNullElse(peticion.getHeader("User-Agent"), "desconocido");
         boolean nuevo = rolOrganizador.ejecutar(
                 usuarioId,
                 cuerpo.getContratoId(),
@@ -133,27 +142,19 @@ public class UsuariosController extends ExpedienteController {
                 peticion.getRemoteAddr(),
                 agente.length() > 255 ? agente.substring(0, 255) : agente,
                 sesion.actual());
-        var salida = new bo.aportaya.identidad.web.generado.modelo.RolOrganizadorActivado();
+        var salida = new RolOrganizadorActivado();
         salida.setActivo(true);
         salida.setEsNuevo(nuevo);
         return ResponseEntity.ok(salida);
     }
 
-    /**
-     * Si el nombre y el documento declarados son los del titular.
-     *
-     * <p>Contesta si coinciden y nada mas. Devolver los guardados haria de esta ruta un
-     * directorio de clientes para cualquier servicio comprometido.
-     */
     /** @deprecated el telefono viaja en la query; usar {@link #buscarUsuarioPorTelefono} hasta que grupos migre. */
     @Deprecated
     @Override
     @Permiso("GRUPO_ADMINISTRAR")
     public ResponseEntity<UsuarioEncontrado> buscarPorTelefono(String telefono) {
-        Traza.marcarCasoDeUso("CU-69", "busqueda");
-
+        bo.aportaya.plataforma.web.traza.Traza.marcarCasoDeUso("CU-69", "busqueda");
         var encontrado = busqueda.ejecutar(telefono, sesion.actual());
-
         var respuesta = new UsuarioEncontrado();
         respuesta.setExiste(encontrado.isPresent());
         encontrado.ifPresent(respuesta::setUsuarioId);
@@ -171,9 +172,9 @@ public class UsuariosController extends ExpedienteController {
     @Permiso("GRUPO_ADMINISTRAR")
     public ResponseEntity<SalidaTokenDeInvitacion> emitirTokenDeInvitacion(
             UUID idempotencyKey, EntradaTokenDeInvitacion cuerpo) {
-        Traza.marcarCasoDeUso("CU-69", cuerpo.getCanal().getValue());
+        bo.aportaya.plataforma.web.traza.Traza.marcarCasoDeUso(
+                "CU-69", cuerpo.getCanal().getValue());
         String agente = agente();
-
         var emitido = tokens.ejecutar(
                 new EmitirTokenDeInvitacion.Entrada(
                         idempotencyKey,
@@ -183,7 +184,6 @@ public class UsuariosController extends ExpedienteController {
                         ip(),
                         agente.substring(0, Math.min(255, agente.length()))),
                 sesion.actual());
-
         var respuesta = new SalidaTokenDeInvitacion();
         respuesta.setTokenId(emitido.tokenId());
         respuesta.setToken(emitido.token());
@@ -194,7 +194,7 @@ public class UsuariosController extends ExpedienteController {
     @Override
     @Permiso("PARTICIPANTE")
     public ResponseEntity<SalidaValidacionInvitacion> validarTokenDeInvitacion(EntradaValidacionInvitacion cuerpo) {
-        Traza.marcarCasoDeUso("CU-69", "validar-enlace");
+        bo.aportaya.plataforma.web.traza.Traza.marcarCasoDeUso("CU-69", "validar-enlace");
         boolean valido = validacionDeInvitacion.ejecutar(
                 cuerpo.getTokenId(),
                 cuerpo.getToken(),
@@ -208,21 +208,14 @@ public class UsuariosController extends ExpedienteController {
      * Si el nombre y el documento declarados son los del titular: SOLO contesta si o no, jamas el dato.
      *
      * <p>Dos puertas. {@code DATOS_SENSIBLES_LEER} es de quien lee documentos de clientes (backoffice) y NO de un
-     * participante. La otra es la credencial de SERVICIO de {@code entregas} ({@code SERVICIO_ENTREGAS}): es el mecanismo
-     * con que entregas comprueba que una cuenta bancaria es de quien la registra (CU-18, R-SEG-02). Antes entregas
-     * propagaba el token del PARTICIPANTE, que no tiene el permiso, y el 403 se leia como «no coincide»: ningun
-     * participante podia registrar su cuenta. El rol es la puerta mas estrecha posible: solo esta ruta lo nombra, y la
-     * respuesta es un booleano (carril I). QUE rol de operacion deberia poder verificar es una decision del modelo de
-     * roles que corresponde a Seguridad; aca solo se cierra el mecanismo.
+     * participante. La otra es la credencial de SERVICIO de {@code entregas} ({@code SERVICIO_ENTREGAS}).
      */
     @Override
     @Permiso("DATOS_SENSIBLES_LEER")
     @PermisoAlternativo("SERVICIO_ENTREGAS")
     public ResponseEntity<SalidaTitularidad> verificarTitularidad(UUID usuarioId, EntradaTitularidad cuerpo) {
-        Traza.marcarCasoDeUso("CU-01", usuarioId.toString());
-        // Oraculo de si/no: tope por actor (429 con Retry-After) ANTES de tocar el expediente.
+        bo.aportaya.plataforma.web.traza.Traza.marcarCasoDeUso("CU-01", usuarioId.toString());
         limiteDeTitularidad.registrar(sesion.actual().usuarioId());
-
         var respuesta = new SalidaTitularidad();
         respuesta.setCoincide(
                 titularidad.coincide(usuarioId, cuerpo.getNombreCompleto(), cuerpo.getDocumento(), sesion.actual()));
@@ -233,7 +226,7 @@ public class UsuariosController extends ExpedienteController {
     @Override
     @Permiso("PARTICIPANTE")
     public ResponseEntity<NivelKyc> consultarNivelKyc(UUID usuarioId) {
-        Traza.marcarCasoDeUso("CU-02", "nivel-kyc");
+        bo.aportaya.plataforma.web.traza.Traza.marcarCasoDeUso("CU-02", "nivel-kyc");
         var nivel = nivelesKyc.ejecutar(usuarioId, sesion.actual());
         return ResponseEntity.ok(new NivelKyc(usuarioId, NivelKyc.NivelEnum.fromValue(nivel)));
     }
@@ -241,11 +234,8 @@ public class UsuariosController extends ExpedienteController {
     @Override
     @Publico("CU-01: el alta ocurre antes de que exista la sesion")
     public ResponseEntity<SalidaRegistro> registrarUsuario(UUID idempotencyKey, EntradaRegistro cuerpo) {
-        // El telefono es dato personal: no va al MDC ni a ningun log (regla 90.2.1). Se marca el caso, no la persona.
-        Traza.marcarCasoDeUso("CU-01", "alta");
-
+        bo.aportaya.plataforma.web.traza.Traza.marcarCasoDeUso("CU-01", "alta");
         var salida = cu01.ejecutar(MapeoDelAlta.mapear(cuerpo, pimienta, ip(), agente()), contextoDelAlta());
-
         var paraLasFotos = tokenDeAlta.emitir(salida.usuarioId());
         return ResponseEntity.status(HttpStatus.ACCEPTED)
                 .body(new SalidaRegistro(
@@ -260,7 +250,7 @@ public class UsuariosController extends ExpedienteController {
     @Publico("CU-01: el codigo se solicita antes de crear la cuenta")
     public ResponseEntity<VerificacionCorreoSolicitada> solicitarVerificacionCorreo(
             UUID idempotencyKey, SolicitudVerificacionCorreo cuerpo) {
-        Traza.marcarCasoDeUso("CU-01", "correo");
+        bo.aportaya.plataforma.web.traza.Traza.marcarCasoDeUso("CU-01", "correo");
         var salida = solicitarCorreo.ejecutar(cuerpo.getCorreo(), idempotencyKey, ip(), agente(), contextoDelAlta());
         return ResponseEntity.accepted()
                 .body(new VerificacionCorreoSolicitada(
@@ -271,10 +261,24 @@ public class UsuariosController extends ExpedienteController {
     @Publico("CU-01: el codigo se confirma antes de crear la cuenta")
     public ResponseEntity<VerificacionCorreoConfirmada> confirmarVerificacionCorreo(
             UUID verificacionId, ConfirmacionVerificacionCorreo cuerpo) {
-        Traza.marcarCasoDeUso("CU-01", "confirmar-correo");
-        confirmarCorreo.ejecutar(
+        bo.aportaya.plataforma.web.traza.Traza.marcarCasoDeUso("CU-01", "confirmar-correo");
+        var resultado = confirmarCorreo.ejecutar(
                 verificacionId, cuerpo.getCorreo(), cuerpo.getCodigo(), ip(), agente(), contextoDelAlta());
-        return ResponseEntity.ok(new VerificacionCorreoConfirmada(true));
+        var confirmada = new VerificacionCorreoConfirmada(resultado.verificada());
+        confirmada.setOnboardingIncompleto(resultado.onboardingIncompleto());
+        if (resultado.borrador() != null) {
+            confirmada.setBorrador(MapeoDelBorrador.aModelo(resultado.borrador()));
+        }
+        return ResponseEntity.ok(confirmada);
+    }
+
+    @Override
+    @Publico("CU-01: guardar borrador de avance del alta")
+    public ResponseEntity<BorradorOnboarding> guardarBorradorOnboarding(
+            UUID verificacionId, BorradorOnboarding cuerpo) {
+        bo.aportaya.plataforma.web.traza.Traza.marcarCasoDeUso("CU-01", "guardar-borrador");
+        var guardado = guardarBorrador.ejecutar(verificacionId, MapeoDelBorrador.aDominio(cuerpo), contextoDelAlta());
+        return ResponseEntity.ok(MapeoDelBorrador.aModelo(guardado));
     }
 
     /**
@@ -283,14 +287,8 @@ public class UsuariosController extends ExpedienteController {
      * permiten escribir la fila de alguien que todavia no existe.
      */
     private ContextoSesion contextoDelAlta() {
-        return ContextoSesion.deSistema(PROCESO_DE_ALTA, new bo.aportaya.plataforma.dominio.Traza(Traza.actual()));
-    }
-
-    private String ip() {
-        return Optional.ofNullable(peticion.getRemoteAddr()).orElse("0.0.0.0");
-    }
-
-    private String agente() {
-        return Optional.ofNullable(peticion.getHeader("User-Agent")).orElse("desconocido");
+        return ContextoSesion.deSistema(
+                PROCESO_DE_ALTA,
+                new bo.aportaya.plataforma.dominio.Traza(bo.aportaya.plataforma.web.traza.Traza.actual()));
     }
 }

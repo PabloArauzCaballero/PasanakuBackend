@@ -52,6 +52,16 @@ final class MapeoDeAltaDeGrupo {
                     "Necesitas elevar tu nivel de verificacion antes de crear un grupo.");
         }
 
+        // Cuantos grupos puede organizar a la vez (limite_grupos_simultaneos de su habilitacion). Sin
+        // respuesta de organizador no se abre nada: abrir de mas porque el que controla estaba caido es
+        // justo lo que el limite existe para impedir.
+        var limite = afuera.limiteDeGruposDelOrganizador(organizador.get());
+        if (limite.isEmpty()) {
+            throw new bo.aportaya.plataforma.dominio.ErrorDeNegocio(
+                    bo.aportaya.plataforma.dominio.CodigoError.de(20, 2),
+                    "No pudimos confirmar cuantos grupos podes organizar. Proba de nuevo en un momento.");
+        }
+
         return new CU20CrearGrupo.EntradaCreacion(
                 new GrupoNuevo(
                         cuerpo.getNombre(),
@@ -65,6 +75,10 @@ final class MapeoDeAltaDeGrupo {
                 afuera.tarifarioVigente(codigoTarifario),
                 afuera.licenciaHabilita(servicioDeLicencia),
                 Boolean.TRUE.equals(cuerpo.getPermitePermutaDeTurnos()),
-                clave);
+                clave,
+                limite.getAsInt(),
+                afuera.contactoDeLaSesion()
+                        .map(HechosDeOtrosServicios.Contacto::nombre)
+                        .orElse(null));
     }
 }

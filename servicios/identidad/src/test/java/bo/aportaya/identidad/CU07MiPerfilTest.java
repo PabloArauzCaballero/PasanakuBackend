@@ -87,4 +87,29 @@ class CU07MiPerfilTest {
         assertThatThrownBy(() -> tx.execute(s -> consulta.ejecutar(ctx(fantasma))))
                 .isInstanceOf(ErrorDeNegocio.class);
     }
+
+    @Test
+    void elNombreVisibleEsElPrimerNombreYLaInicialDelApellido() {
+        UUID usuario = fixtura.usuario(telefono());
+        dsl.execute(
+                "UPDATE identidad.usuario SET nombres = 'Rosa Maria', apellidos = 'quispe mamani' WHERE id = ?",
+                usuario);
+
+        var perfil = tx.execute(s -> consulta.ejecutar(ctx(usuario)));
+
+        assertThat(perfil.nombreVisible()).isEqualTo("Rosa Q.");
+        assertThat(perfil.nombreCompleto()).isEqualTo("Rosa Maria quispe mamani");
+    }
+
+    @Test
+    void sinNombreNoSeInventaUno() {
+        assertThat(ConsultarMiPerfil.nombreVisible(null, "Quispe")).isNull();
+        assertThat(ConsultarMiPerfil.nombreVisible("  ", "Quispe")).isNull();
+        assertThat(ConsultarMiPerfil.nombreVisible("Rosa", null)).isEqualTo("Rosa");
+        assertThat(ConsultarMiPerfil.nombreVisible("  Ana\tLucia ", " mendoza")).isEqualTo("Ana M.");
+        assertThat(ConsultarMiPerfil.nombreCompleto(null, "Quispe")).isNull();
+        assertThat(ConsultarMiPerfil.nombreCompleto("  Ana\tLucia ", " mendoza  "))
+                .isEqualTo("Ana Lucia mendoza");
+        assertThat(ConsultarMiPerfil.nombreCompleto("Rosa", " ")).isEqualTo("Rosa");
+    }
 }

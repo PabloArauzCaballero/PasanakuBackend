@@ -87,7 +87,8 @@ void main() {
       findsOneWidget,
     );
     expect(find.text(TextosInvitacion.accionInvitar), findsOneWidget);
-    expect(find.text(TextosInvitacion.accionCrearGrupo), findsOneWidget);
+    // Dentro de un grupo solo se invita (2026-10-20): organizar otro va en la lista.
+    expect(find.text(TextosInvitacion.accionCrearGrupo), findsNothing);
     expect(tester.takeException(), isNull);
     await expectLater(
       find.byType(PantallaMiEstado),
@@ -96,17 +97,14 @@ void main() {
       ),
     );
 
-    final crearGrupo = find.text(TextosInvitacion.accionCrearGrupo);
+    final invitar = find.text(TextosInvitacion.accionInvitar);
     await Scrollable.ensureVisible(
-      tester.element(crearGrupo),
+      tester.element(invitar),
       alignment: 1,
       duration: Duration.zero,
     );
     await tester.pumpAndSettle();
-    for (final texto in [
-      TextosInvitacion.accionInvitar,
-      TextosInvitacion.accionCrearGrupo,
-    ]) {
+    for (final texto in [TextosInvitacion.accionInvitar]) {
       final rect = tester.getRect(find.text(texto));
       expect(rect.top, greaterThanOrEqualTo(0), reason: '$texto queda arriba');
       expect(

@@ -2,12 +2,12 @@
 tags:
   - moc
   - indice
-entidades: 327
+entidades: 328
 ---
 
 # Índice de entidades
 
-Las **327 tablas** del modelo, agrupadas por módulo. «Sal.» y «Ent.» son claves foráneas salientes y entrantes.
+Las **328 tablas** del modelo, agrupadas por módulo. «Sal.» y «Ent.» son claves foráneas salientes y entrantes.
 
 [[Index|← Índice general]] · [[_Relaciones|Relaciones →]]
 
@@ -17,7 +17,7 @@ Las **327 tablas** del modelo, agrupadas por módulo. «Sal.» y «Ent.» son cl
 
 | Tabla | Columnas | Sal. | Ent. | Notas |
 | --- | --: | --: | --: | --- |
-| [[usuario]] | 18 | 0 | 218 | muy conectada |
+| [[usuario]] | 18 | 0 | 219 | muy conectada |
 | [[direccion_usuario]] | 8 | 1 | 0 | — |
 | [[perfil_financiero]] | 8 | 1 | 0 | — |
 | [[credencial_acceso]] | 8 | 1 | 0 | — |
@@ -51,7 +51,7 @@ Las **327 tablas** del modelo, agrupadas por módulo. «Sal.» y «Ent.» son cl
 
 | Tabla | Columnas | Sal. | Ent. | Notas |
 | --- | --: | --: | --: | --- |
-| [[grupo]] | 27 | 1 | 48 | muy conectada |
+| [[grupo]] | 27 | 1 | 49 | muy conectada |
 | [[alta_grupo]] | 7 | 0 | 0 | — |
 | [[configuracion_grupo]] | 10 | 3 | 0 | — |
 | [[reglamento_grupo]] | 10 | 2 | 1 | — |
@@ -61,9 +61,10 @@ Las **327 tablas** del modelo, agrupadas por módulo. «Sal.» y «Ent.» son cl
 | [[cupo]] | 8 | 2 | 7 | muy conectada |
 | [[traspaso_cupo]] | 10 | 4 | 0 | — |
 | [[solicitud_retiro]] | 9 | 2 | 0 | — |
-| [[solicitud_ingreso]] | 10 | 3 | 0 | — |
+| [[solicitud_ingreso]] | 14 | 4 | 0 | — |
 | [[decision_ingreso]] | 16 | 0 | 0 | — |
 | [[sustitucion_administrador]] | 10 | 0 | 0 | — |
+| [[enlace_grupo]] | 8 | 2 | 1 | — |
 | [[invitacion]] | 16 | 3 | 0 | — |
 | [[periodo]] | 11 | 1 | 7 | muy conectada |
 | [[turno]] | 11 | 4 | 8 | muy conectada |

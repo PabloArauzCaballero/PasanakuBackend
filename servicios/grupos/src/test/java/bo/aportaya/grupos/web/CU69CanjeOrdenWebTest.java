@@ -59,6 +59,7 @@ import org.springframework.test.web.servlet.ResultActions;
             "aportaya.grupo.tope-de-reenvios-de-invitacion=3",
         })
 @Import(InvitacionesWeb.class)
+@MockitoBean(types = bo.aportaya.grupos.aplicacion.CU69EnlaceDeGrupo.class)
 class CU69CanjeOrdenWebTest {
 
     private static final UUID GRUPO = UUID.fromString("c9100000-0000-4000-8000-000000000001");
@@ -111,6 +112,9 @@ class CU69CanjeOrdenWebTest {
 
     @MockitoBean
     private SorteoDelGrupo sorteo;
+
+    @MockitoBean
+    private IntegrantesDelGrupo integrantesDelGrupo;
 
     @BeforeEach
     void escenario() {

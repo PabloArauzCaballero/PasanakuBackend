@@ -102,6 +102,30 @@ public class Relevo {
     }
 
     /**
+     * Rescate de eventos atascados en FALLIDO: si Kafka estuvo caido mas tiempo que el
+     * backoff maximo, los eventos no se pierden para siempre. Este barrido rescata eventos
+     * en FALLIDO con mas de 5 minutos de antiguedad y los devuelve a PENDIENTE para que
+     * las demas bases de datos puedan sincronizarse en consistencia eventual.
+     */
+    @Scheduled(fixedDelayString = "${aportaya.outbox.rescate-intervalo:PT5M}")
+    @SchedulerLock(name = "outbox.relevo.rescate", lockAtMostFor = "PT1M")
+    public void rescatarFallidos() {
+        OffsetDateTime umbral = OffsetDateTime.now().minus(Duration.ofMinutes(5));
+        int rescatados = dsl.update(DSL.table(DSL.name(esquema, "evento_dominio")))
+                .set(DSL.field("estado", String.class), "PENDIENTE")
+                .set(DSL.field("intentos", Short.class), (short) 0)
+                .set(DSL.field("proximo_intento_en", OffsetDateTime.class), DSL.field("now()", OffsetDateTime.class))
+                .where(DSL.field("estado")
+                        .eq("FALLIDO")
+                        .and(DSL.field("ocurrido_en", OffsetDateTime.class).lt(umbral)))
+                .execute();
+        if (rescatados > 0) {
+            BITACORA.warn(
+                    "Relevo outbox [{}]: se rescataron {} eventos FALLIDOS para sincronizacion", esquema, rescatados);
+        }
+    }
+
+    /**
      * Tx1, corta: toma una tanda de PENDIENTE listos para intentar, sin tocar Kafka. Un
      * {@code TOMADO} mas viejo que {@code backoff-tope} es un huerfano — el relevo que lo tomo
      * murio entre las dos transacciones cortas, sin marcar nada — y se retoma igual que un

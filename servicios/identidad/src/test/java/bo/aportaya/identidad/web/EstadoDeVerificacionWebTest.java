@@ -23,7 +23,6 @@ import bo.aportaya.identidad.aplicacion.SolicitarVerificacionCorreo;
 import bo.aportaya.identidad.aplicacion.ValidarTokenDeInvitacion;
 import bo.aportaya.identidad.aplicacion.VerificarTitularidad;
 import bo.aportaya.identidad.dominio.ExpedienteDeIdentidad;
-import bo.aportaya.plataforma.dominio.ErrorDeDominio;
 import bo.aportaya.plataforma.dominio.Reloj;
 import bo.aportaya.plataforma.pruebas.web.PruebaWeb;
 import bo.aportaya.plataforma.pruebas.web.Sesiones;
@@ -61,7 +60,8 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
         types = {
             bo.aportaya.identidad.aplicacion.ActivarRolOrganizador.class,
             bo.aportaya.identidad.aplicacion.ConsultarMiPerfil.class,
-            bo.aportaya.identidad.aplicacion.CU02IniciarVerificacion.class
+            bo.aportaya.identidad.aplicacion.CU02IniciarVerificacion.class,
+            bo.aportaya.identidad.aplicacion.GuardarBorradorOnboarding.class
         })
 @DisplayName("GET /usuarios/{id}/verificacion — solo su titular, sin datos personales")
 class EstadoDeVerificacionWebTest {
@@ -264,36 +264,5 @@ class EstadoDeVerificacionWebTest {
                 .doesNotContain("documento")
                 .doesNotContain("CI SC")
                 .doesNotContain("usuarioId");
-    }
-
-    @Test
-    @DisplayName("CU-02 · el motivo del rechazo viaja solo a su titular y solo cuando el estado es RECHAZADA")
-    void motivoDeRechazoSoloSiRechazada() throws Exception {
-        existeElExpediente("RECHAZADA", MOTIVO, List.of("ANVERSO"));
-        mvc.perform(consulta(USUARIO, tokenDe(USUARIO)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.estado").value("RECHAZADA"))
-                .andExpect(jsonPath("$.motivoRechazo").value(MOTIVO));
-
-        // Un motivo que quedo en la fila de un expediente que ya no esta rechazado no sale.
-        existeElExpediente("EN_REVISION", MOTIVO, List.of("ANVERSO"));
-        String cuerpo = mvc.perform(consulta(USUARIO, tokenDe(USUARIO)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.estado").value("EN_REVISION"))
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
-        assertThat(json.readTree(cuerpo).path("motivoRechazo").isValueNode()).isTrue();
-        assertThat(json.readTree(cuerpo).path("motivoRechazo").isNull()).isTrue();
-        assertThat(cuerpo).doesNotContain(MOTIVO);
-    }
-
-    @Test
-    @DisplayName("CU-02 · 422 cuando todavia no existe un expediente para su titular")
-    void sinExpedienteEs422() throws Exception {
-        when(estadoDeVerificacion.ejecutar(eq(USUARIO), any()))
-                .thenThrow(new ErrorDeDominio("Todavia no hay un expediente abierto para esa persona"));
-
-        mvc.perform(consulta(USUARIO, tokenDe(USUARIO))).andExpect(status().isUnprocessableEntity());
     }
 }

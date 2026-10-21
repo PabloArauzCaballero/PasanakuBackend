@@ -24,7 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-@PruebaWeb(BitacoraController.class)
+@PruebaWeb(AuditoriaController.class)
 class BitacoraControllerWebTest {
 
     private static final UUID EVENTO_ID = UUID.fromString("b17a0000-0000-4000-8000-000000000001");
@@ -37,6 +37,12 @@ class BitacoraControllerWebTest {
 
     @MockitoBean
     private ConsultarBitacora consultarBitacora;
+
+    @MockitoBean
+    private bo.aportaya.auditoria.aplicacion.GestionarCatalogosOperativos catalogosCasoDeUso;
+
+    @MockitoBean
+    private bo.aportaya.auditoria.aplicacion.CU07EjercerDerechos cu07;
 
     @Test
     @DisplayName("401: sin sesion no lee la bitacora")

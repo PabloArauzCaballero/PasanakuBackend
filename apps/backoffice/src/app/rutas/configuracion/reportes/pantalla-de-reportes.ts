@@ -45,7 +45,7 @@ const COLUMNAS_EJECUCIONES: ColumnaVirtual<EjecucionDeReporteEnLista>[] = [
       <p class="nota">{{ comun.soloLectura }}</p>
 
       <ap-aviso-de-listado [error]="catalogo.error()" [vacio]="catalogo.vacio()" [mensajeVacio]="t.definiciones.vacio" (reintentar)="catalogo.reintentar()" />
-      @if (!catalogo.error()) {
+      @if (!catalogo.error() && !catalogo.vacio()) {
         <ap-tabla-de-datos-virtualizada [titulo]="t.definiciones.titulo" [columnas]="columnasCatalogo" [cargador]="cargadorCatalogo" [ordenPermitido]="[]" [identidad]="idDefinicion" [alturaDeViewport]="320">
           <ng-template #celda let-r let-columna="columna">
             @switch (columna.clave) {
@@ -61,7 +61,7 @@ const COLUMNAS_EJECUCIONES: ColumnaVirtual<EjecucionDeReporteEnLista>[] = [
       <p class="nota">{{ t.ejecuciones.corte }}</p>
       <ap-barra-de-filtros [etiqueta]="comun.estado" [incluirBusqueda]="false" [definiciones]="chips" />
       <ap-aviso-de-listado [error]="historial.error()" [vacio]="historial.vacio()" [conFiltro]="!!filtros()['estado']" [mensajeVacio]="t.ejecuciones.vacio" (reintentar)="historial.reintentar()" />
-      @if (!historial.error()) {
+      @if (!historial.error() && !historial.vacio()) {
         <ap-tabla-de-datos-virtualizada [titulo]="t.ejecuciones.titulo" [columnas]="columnasEjecuciones" [cargador]="cargadorHistorial" [ordenPermitido]="[]" [identidad]="idEjecucion" [filtros]="filtros()">
           <ng-template #celda let-r let-columna="columna">
             @switch (columna.clave) {

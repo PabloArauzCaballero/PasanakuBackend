@@ -41,6 +41,10 @@ final class PrecondicionesDePostulacion {
         if (!entrada.kycSuficiente()) {
             throw new ErrorDeNegocio(CodigoError.de(68, 2), "Necesitas elevar tu nivel de verificacion.");
         }
+        emparejamientos.exigirLugarParaParticipar(
+                dsl,
+                usuarioId,
+                "Ya participas en el maximo de grupos permitido. Cuando termine uno vas a poder unirte a otro.");
         if (!emparejamientos.hayCuposLibres(dsl, entrada.grupoId())) {
             throw new ErrorDeNegocio(CodigoError.de(68, 4), "Este grupo ya no tiene cupos libres.");
         }

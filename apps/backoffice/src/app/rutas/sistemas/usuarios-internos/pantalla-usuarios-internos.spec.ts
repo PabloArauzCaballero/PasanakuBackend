@@ -5,7 +5,7 @@ import { TestBed } from '@angular/core/testing'
 import { provideRouter } from '@angular/router'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import type { UsuarioInternoResumen } from 'clientes/angular/identidad'
-import { GATEWAY } from '../../../nucleo/gateway'
+import { GATEWAY, GW } from '../../../nucleo/gateway'
 import { PantallaUsuariosInternos } from './pantalla-usuarios-internos'
 
 const USUARIOS_EJEMPLO: UsuarioInternoResumen[] = [
@@ -36,7 +36,7 @@ describe('PantallaUsuariosInternos', () => {
         provideRouter([]),
         provideHttpClient(),
         provideHttpClientTesting(),
-        { provide: GATEWAY, useValue: 'http://gw/api/v1' },
+        { provide: GATEWAY, useValue: GW },
       ],
     })
     http = TestBed.inject(HttpTestingController)
@@ -48,7 +48,7 @@ describe('PantallaUsuariosInternos', () => {
     const fixture = TestBed.createComponent(PantallaUsuariosInternos)
     fixture.detectChanges()
 
-    const req = http.expectOne('http://gw/api/v1/identidad/usuarios-internos')
+    const req = http.expectOne(`${GW}/usuarios-internos`)
     req.flush(USUARIOS_EJEMPLO)
     await fixture.whenStable()
     fixture.detectChanges()
@@ -66,7 +66,7 @@ describe('PantallaUsuariosInternos', () => {
     const fixture = TestBed.createComponent(PantallaUsuariosInternos)
     fixture.detectChanges()
 
-    http.expectOne('http://gw/api/v1/identidad/usuarios-internos').flush([])
+    http.expectOne('http://gw/api/v1/usuarios-internos').flush([])
     await fixture.whenStable()
     fixture.detectChanges()
 

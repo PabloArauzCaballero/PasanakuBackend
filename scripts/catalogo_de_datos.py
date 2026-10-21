@@ -147,7 +147,7 @@ def construir():
                 destino = modelo.resolver_fk(c, k, registro) if c["fk"] else None
                 if destino:
                     entrantes.setdefault(destino, []).append({"tabla": tabla, "columna": c["nombre"]})
-                columnas.append(_columna(c, destino, narrativas.get(tabla, {})))
+                columnas.append(_columna(c, destino, narrativas.get(tabla, {}), tabla))
             tablas[tabla] = {
                 "tabla": tabla, "esquema": esquema, "modulo": k, "nombreModulo": d["nombre"],
                 "servicio": None if esquema in (modelo.ESQUEMA_COMUN, modelo.ESQUEMA_CATALOGO) else modelo.servicio_de(esquema),
@@ -167,21 +167,30 @@ def construir():
             "tablas": [tablas[n] for n in sorted(tablas, key=lambda n: (tablas[n]["esquema"], n))]}
 
 
-def _columna(c, destino, ficha):
+def _columna(c, destino, ficha, tabla=""):
+    import inyectar_metadata
     n = c["nombre"]
     nota = ficha.get("columnas", {}).get(modelo.a_camel(n)) or ficha.get("columnas", {}).get(n)
-    origen = "ficha" if nota else "convencion" if n in CONVENCIONES else None
+    origen = "ficha" if nota else "convencion"
     partes = [c["tipo"], "opcional" if c["nulo"] else "obligatoria"]
     if c["pk"]:
         partes.append("clave primaria")
     if destino:
         partes.append(f"referencia a `{destino}`")
+    if c.get("uq"):
+        partes.append("restricción única")
+    if c.get("idx"):
+        partes.append("índice b-tree")
     if c["generated"]:
         partes.append("calculada por la base, no se escribe")
+    sens = sensibilidad(n)
+    if sens != "NINGUNA":
+        partes.append(f"sensibilidad {sens.lower()}")
+    negocio_texto = nota or CONVENCIONES.get(n) or inyectar_metadata.explicar_columna_negocio(tabla, n, c["tipo"], destino, None)
     return {
         "nombre": n, "tipo": c["tipo"], "nulable": c["nulo"], "pk": c["pk"], "referencia": destino,
-        "negocio": nota or CONVENCIONES.get(n), "origenNegocio": origen,
-        "sistema": ", ".join(partes) + ".", "sensibilidad": sensibilidad(n),
+        "negocio": negocio_texto, "origenNegocio": origen,
+        "sistema": ", ".join(partes) + ".", "sensibilidad": sens,
     }
 
 

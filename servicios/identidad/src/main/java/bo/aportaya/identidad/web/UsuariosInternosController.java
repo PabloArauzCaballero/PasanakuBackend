@@ -24,9 +24,7 @@ public class UsuariosInternosController implements UsuariosInternosApi {
     private final GestionarUsuariosInternos casoDeUso;
     private final SesionDeLaPeticion sesion;
 
-    public UsuariosInternosController(
-            GestionarUsuariosInternos casoDeUso,
-            SesionDeLaPeticion sesion) {
+    public UsuariosInternosController(GestionarUsuariosInternos casoDeUso, SesionDeLaPeticion sesion) {
         this.casoDeUso = casoDeUso;
         this.sesion = sesion;
     }
@@ -55,9 +53,8 @@ public class UsuariosInternosController implements UsuariosInternosApi {
     @PermisoAlternativo("ACCESOS_ADMINISTRAR")
     public ResponseEntity<UsuarioInternoDetalle> consultarUsuarioInterno(UUID id) {
         ContextoSesion ctx = sesion.actual();
-        return casoDeUso.consultar(id, ctx)
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+        return casoDeUso.consultar(id, ctx).map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound()
+                .build());
     }
 
     @Override

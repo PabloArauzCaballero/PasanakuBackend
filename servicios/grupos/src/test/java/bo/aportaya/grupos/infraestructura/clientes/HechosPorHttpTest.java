@@ -103,7 +103,27 @@ class HechosPorHttpTest {
         assertThat(hechos.morososDelGrupo(GRUPO)).isEqualTo(1);
     }
 
+    @Test
+    void elLimiteDeGruposSaleDeLaHabilitacionDelOrganizador() {
+        respuestas.put(
+                "/organizadores/" + ORGANIZADOR + "/habilitacion",
+                Respuesta.ok("{\"habilitado\":true,\"nivel\":\"APRENDIZ\",\"limiteDeGrupos\":2,"
+                        + "\"limiteDeMonto\":\"5000.00\",\"gruposActivos\":1}"));
+        assertThat(hechos.limiteDeGruposDelOrganizador(ORGANIZADOR)).hasValue(2);
+    }
+
     // --- limite ---
+
+    @Test
+    void sinHabilitacionOSinLimiteNoHayLimiteConocido() {
+        respuestas.put(
+                "/organizadores/" + ORGANIZADOR + "/habilitacion",
+                Respuesta.ok("{\"habilitado\":false,\"nivel\":\"APRENDIZ\",\"limiteDeGrupos\":2,"
+                        + "\"limiteDeMonto\":\"5000.00\",\"gruposActivos\":0}"));
+        assertThat(hechos.limiteDeGruposDelOrganizador(ORGANIZADOR)).isEmpty();
+        // 404: el servicio no conoce a ese organizador.
+        assertThat(hechos.limiteDeGruposDelOrganizador(UUID.randomUUID())).isEmpty();
+    }
 
     @Test
     void habilitadoFalsoYRespuestaDeOtraPersonaNoHabilitan() {

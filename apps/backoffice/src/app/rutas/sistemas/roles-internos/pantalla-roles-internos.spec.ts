@@ -4,7 +4,7 @@ import { provideZonelessChangeDetection } from '@angular/core'
 import { TestBed } from '@angular/core/testing'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import type { RolCatalogo } from 'clientes/angular/identidad'
-import { GATEWAY } from '../../../nucleo/gateway'
+import { GATEWAY, GW } from '../../../nucleo/gateway'
 import { PantallaRolesInternos } from './pantalla-roles-internos'
 
 const ROLES_EJEMPLO: RolCatalogo[] = [
@@ -39,7 +39,7 @@ describe('PantallaRolesInternos', () => {
         provideZonelessChangeDetection(),
         provideHttpClient(),
         provideHttpClientTesting(),
-        { provide: GATEWAY, useValue: 'http://gw/api/v1' },
+        { provide: GATEWAY, useValue: GW },
       ],
     })
     http = TestBed.inject(HttpTestingController)
@@ -51,7 +51,7 @@ describe('PantallaRolesInternos', () => {
     const fixture = TestBed.createComponent(PantallaRolesInternos)
     fixture.detectChanges()
 
-    http.expectOne('http://gw/api/v1/identidad/roles').flush(ROLES_EJEMPLO)
+    http.expectOne(`${GW}/roles`).flush(ROLES_EJEMPLO)
     await fixture.whenStable()
     fixture.detectChanges()
 

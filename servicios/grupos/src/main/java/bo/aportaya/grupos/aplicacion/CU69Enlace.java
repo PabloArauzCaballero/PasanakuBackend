@@ -21,10 +21,19 @@ import org.springframework.transaction.annotation.Transactional;
 public class CU69Enlace {
     private final Datos datos;
     private final Outbox outbox;
+    private final bo.aportaya.grupos.infraestructura.EmparejamientoRepositorio emparejamientos;
 
+    /** Sin tope de participaciones: para las pruebas que no miran esa regla. */
     public CU69Enlace(Datos datos, Outbox outbox) {
+        this(datos, outbox, new bo.aportaya.grupos.infraestructura.EmparejamientoRepositorio());
+    }
+
+    @org.springframework.beans.factory.annotation.Autowired
+    public CU69Enlace(
+            Datos datos, Outbox outbox, bo.aportaya.grupos.infraestructura.EmparejamientoRepositorio emparejamientos) {
         this.datos = datos;
         this.outbox = outbox;
+        this.emparejamientos = emparejamientos;
     }
 
     @Transactional(readOnly = true)
@@ -83,6 +92,10 @@ public class CU69Enlace {
                     .get("existe", Boolean.class))) {
                 throw new ErrorDeNegocio(CodigoError.de(69, 3), "Ya sos participante de este grupo.");
             }
+            emparejamientos.exigirLugarParaParticipar(
+                    dsl,
+                    ctx.usuarioId(),
+                    "Ya participas en el maximo de grupos permitido. Cuando termine uno vas a poder unirte a otro.");
 
             Record cupo = dsl.fetchOne(
                     """

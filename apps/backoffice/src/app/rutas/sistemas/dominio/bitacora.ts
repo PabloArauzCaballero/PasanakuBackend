@@ -25,7 +25,8 @@ export function bitacora(filtros: {
     if (ad) params.set('antesDe', ad)
     if (adId) params.set('antesDeId', adId)
     const q = params.toString()
-    return `${gateway}/auditoria/bitacora${q ? `?${q}` : ''}`
+    const base = `${gateway}/auditoria/bitacora`
+    return q ? `${base}?${q}` : base
   })
 }
 

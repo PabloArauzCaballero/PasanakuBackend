@@ -44,6 +44,7 @@ import org.springframework.test.web.servlet.MockMvc;
             "aportaya.grupo.tope-de-reenvios-de-invitacion=3",
             "aportaya.grupos.admision.humana-obligatoria=true",
         })
+@MockitoBean(types = bo.aportaya.grupos.aplicacion.CU69EnlaceDeGrupo.class)
 class GruposAdmisionHumanaWebTest {
 
     private static final UUID SOLICITUD = UUID.fromString("c6a00000-0000-4000-8000-000000000001");
@@ -92,6 +93,9 @@ class GruposAdmisionHumanaWebTest {
 
     @MockitoBean
     private SorteoDelGrupo sorteo;
+
+    @MockitoBean
+    private IntegrantesDelGrupo integrantesDelGrupo;
 
     private org.springframework.test.web.servlet.ResultActions decidir() throws Exception {
         return mvc.perform(post("/grupos/solicitudes/{id}/decision", SOLICITUD)

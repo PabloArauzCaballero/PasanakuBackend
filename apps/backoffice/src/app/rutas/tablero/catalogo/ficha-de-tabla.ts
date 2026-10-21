@@ -14,9 +14,10 @@ import { textosCatalogo } from './textos'
 import { VistaColumnas } from './vista-columnas'
 import { VistaGeneral } from './vista-general'
 import { VistaGobierno } from './vista-gobierno'
+import { VistaOperaciones } from './vista-operaciones'
 import { VistaRelaciones } from './vista-relaciones'
 
-const VISTAS = ['general', 'columnas', 'relaciones', 'gobierno'] as const
+const VISTAS = ['general', 'columnas', 'operaciones', 'relaciones', 'gobierno'] as const
 type Vista = (typeof VISTAS)[number]
 
 /**
@@ -28,7 +29,7 @@ type Vista = (typeof VISTAS)[number]
 @Component({
   selector: 'ap-ficha-de-tabla',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [Boton, CabeceraDePagina, ChipEstado, EstadoDePantalla, Pestanas, RouterLink, VistaColumnas, VistaGeneral, VistaGobierno, VistaRelaciones],
+  imports: [Boton, CabeceraDePagina, ChipEstado, EstadoDePantalla, Pestanas, RouterLink, VistaColumnas, VistaGeneral, VistaGobierno, VistaOperaciones, VistaRelaciones],
   template: `
     <ap-estado-de-pantalla [recurso]="remoto.recurso" [mensajeVacio]="t.noExiste(tabla())" [etiquetaDeCarga]="textos.cargando" (reintentar)="remoto.recurso.reload()">
       @if (ficha(); as f) {
@@ -42,6 +43,7 @@ type Vista = (typeof VISTAS)[number]
         <div role="tabpanel" [id]="'panel-' + vista()" [attr.aria-labelledby]="'pestana-' + vista()">
           @switch (vista()) {
             @case ('columnas') { <ap-vista-columnas [tabla]="f" (cambio)="remoto.recurso.reload()" /> }
+            @case ('operaciones') { <ap-vista-operaciones [tabla]="f" /> }
             @case ('relaciones') { <ap-vista-relaciones [tabla]="f" /> }
             @case ('gobierno') { <ap-vista-gobierno [tabla]="f" [politicas]="politicas()" /> }
             @default { <ap-vista-general [tabla]="f" [politicas]="politicas()" /> }
@@ -102,6 +104,7 @@ export class FichaDeTabla {
     return [
       { valor: 'general', texto: this.t.vistas.general },
       { valor: 'columnas', texto: this.t.vistas.columnas, cuenta: f?.columnas.length },
+      { valor: 'operaciones', texto: this.t.vistas.operaciones },
       { valor: 'relaciones', texto: this.t.vistas.relaciones, cuenta: f ? f.relaciones.salientes.length + f.relaciones.entrantes.length : undefined },
       { valor: 'gobierno', texto: this.t.vistas.gobierno },
     ]

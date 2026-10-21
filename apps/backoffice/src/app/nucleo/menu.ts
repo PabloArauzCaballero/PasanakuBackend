@@ -1,15 +1,15 @@
 import type { Miga } from '@aportaya/ui/migas/migas'
 import type { Seccion as NombreDeSeccion } from '../layout/icono-de-seccion'
 
-/** Una pantalla dentro de una sección: la ruta relativa a la sección y su nombre en el menú. */
-export type Subruta = { ruta: string; texto: string }
+/** Una pantalla dentro de una sección: la ruta relativa a la sección, su nombre en el menú y su respectivo ícono. */
+export type Subruta = { ruta: string; texto: string; icono?: NombreDeSeccion }
 /** Una sección del backoffice: su ruta, su ícono, el permiso `ver:*` que la abre y sus pantallas. */
 export type Entrada = { ruta: NombreDeSeccion; destino: string; texto: string; permiso: string; hijos?: Subruta[] }
 export type Grupo = { titulo: string | null; icono: NombreDeSeccion; entradas: Entrada[] }
 
 /**
  * El árbol del menú, con los mismos grupos que el portal interno de Atlas adaptados a lo que
- * tiene AportaYa: grupos plegables, una entrada por sección y, debajo, sus pantallas.
+ * tiene AportaYa: grupos organizados, una entrada por sección y, debajo, sus pantallas siempre abiertas con ícono propio.
  *
  * **El menú oculta por comodidad**; el permiso real lo exige `canMatch` en cada ruta y lo verifica
  * el servidor. Los `ver:*` se traducen en `secciones.ts`.
@@ -26,14 +26,14 @@ export const MENU: readonly Grupo[] = [
         texto: 'Operación',
         permiso: 'ver:operacion',
         hijos: [
-          { ruta: 'estado', texto: 'Arquitectura y estado' },
-          { ruta: 'retiros', texto: 'Retiros en revisión' },
-          { ruta: 'reclamos', texto: 'Reclamos' },
-          { ruta: 'solicitudes-escaladas', texto: 'Solicitudes escaladas' },
-          { ruta: 'custodia', texto: 'Conciliación de custodia' },
-          { ruta: 'cierres-diarios', texto: 'Cierres diarios' },
-          { ruta: 'reversos', texto: 'Reversos' },
-          { ruta: 'desembolsos', texto: 'Desembolsos' },
+          { ruta: 'estado', texto: 'Arquitectura y estado', icono: 'estado' },
+          { ruta: 'retiros', texto: 'Retiros en revisión', icono: 'retiros' },
+          { ruta: 'reclamos', texto: 'Reclamos', icono: 'reclamos' },
+          { ruta: 'solicitudes-escaladas', texto: 'Solicitudes escaladas', icono: 'solicitudesEscaladas' },
+          { ruta: 'custodia', texto: 'Conciliación de custodia', icono: 'custodia' },
+          { ruta: 'cierres-diarios', texto: 'Cierres diarios', icono: 'cierresDiarios' },
+          { ruta: 'reversos', texto: 'Reversos', icono: 'reversos' },
+          { ruta: 'desembolsos', texto: 'Desembolsos', icono: 'desembolsos' },
         ],
       },
       { ruta: 'admisiones', destino: '/admisiones', texto: 'Admisiones', permiso: 'ver:admisiones' },
@@ -49,15 +49,15 @@ export const MENU: readonly Grupo[] = [
         texto: 'Cumplimiento',
         permiso: 'ver:cumplimiento',
         hijos: [
-          { ruta: 'verificaciones', texto: 'Verificación de identidad' },
-          { ruta: 'alertas', texto: 'Alertas de monitoreo' },
-          { ruta: 'casos', texto: 'Casos de investigación' },
-          { ruta: 'uif/reportes', texto: 'Reportes a la UIF' },
-          { ruta: 'uif/requerimientos', texto: 'Requerimientos de autoridad' },
-          { ruta: 'continuidad', texto: 'Pruebas de continuidad' },
-          { ruta: 'actas', texto: 'Actas de comité' },
-          { ruta: 'riesgos/eventos', texto: 'Eventos de riesgo operativo' },
-          { ruta: 'seguridad/incidentes', texto: 'Incidentes de seguridad' },
+          { ruta: 'verificaciones', texto: 'Verificación de identidad', icono: 'verificaciones' },
+          { ruta: 'alertas', texto: 'Alertas de monitoreo', icono: 'alertas' },
+          { ruta: 'casos', texto: 'Casos de investigación', icono: 'casos' },
+          { ruta: 'uif/reportes', texto: 'Reportes a la UIF', icono: 'uifReportes' },
+          { ruta: 'uif/requerimientos', texto: 'Requerimientos de autoridad', icono: 'uifRequerimientos' },
+          { ruta: 'continuidad', texto: 'Pruebas de continuidad', icono: 'continuidad' },
+          { ruta: 'actas', texto: 'Actas de comité', icono: 'actas' },
+          { ruta: 'riesgos/eventos', texto: 'Eventos de riesgo operativo', icono: 'riesgosEventos' },
+          { ruta: 'seguridad/incidentes', texto: 'Incidentes de seguridad', icono: 'seguridadIncidentes' },
         ],
       },
       {
@@ -66,20 +66,22 @@ export const MENU: readonly Grupo[] = [
         texto: 'Sistemas',
         permiso: 'ver:sistemas',
         hijos: [
-          { ruta: 'servicios', texto: 'Servicios y SLO' },
-          { ruta: 'despliegues', texto: 'Despliegues e interruptores' },
-          { ruta: 'base-de-datos', texto: 'Base y migraciones' },
-          { ruta: 'respaldos', texto: 'Respaldos' },
-          { ruta: 'proveedores', texto: 'Proveedores' },
-          { ruta: 'outbox', texto: 'Outbox y descartados' },
-          { ruta: 'webhooks', texto: 'Webhooks' },
-          { ruta: 'accesos', texto: 'Accesos' },
-          { ruta: 'incidentes', texto: 'Incidentes' },
-          { ruta: 'usuarios-internos', texto: 'Usuarios internos' },
-          { ruta: 'roles-internos', texto: 'Roles internos' },
-          { ruta: 'permisos-internos', texto: 'Permisos internos' },
-          { ruta: 'bitacora', texto: 'Registro del sistema' },
-          { ruta: 'catalogos-operativos', texto: 'Catálogos operativos' },
+          { ruta: 'servicios', texto: 'Servicios y SLO', icono: 'servicios' },
+          { ruta: 'despliegues', texto: 'Despliegues e interruptores', icono: 'despliegues' },
+          { ruta: 'base-de-datos', texto: 'Base y migraciones', icono: 'baseDeDatos' },
+          { ruta: 'respaldos', texto: 'Respaldos', icono: 'respaldos' },
+          { ruta: 'proveedores', texto: 'Proveedores', icono: 'proveedores' },
+          { ruta: 'outbox', texto: 'Outbox y descartados', icono: 'outbox' },
+          { ruta: 'webhooks', texto: 'Webhooks', icono: 'webhooks' },
+          { ruta: 'accesos', texto: 'Accesos', icono: 'accesos' },
+          { ruta: 'incidentes', texto: 'Incidentes', icono: 'incidentes' },
+          { ruta: 'usuarios-internos', texto: 'Usuarios internos', icono: 'usuariosInternos' },
+          { ruta: 'roles-internos', texto: 'Roles internos', icono: 'rolesInternos' },
+          { ruta: 'permisos-internos', texto: 'Permisos internos', icono: 'permisosInternos' },
+          { ruta: 'operaciones', texto: 'Operaciones del sistema', icono: 'operaciones' },
+          { ruta: 'flujos', texto: 'Mapa de flujos', icono: 'flujos' },
+          { ruta: 'bitacora', texto: 'Registro del sistema', icono: 'bitacora' },
+          { ruta: 'catalogos-operativos', texto: 'Catálogos operativos', icono: 'catalogosOperativos' },
         ],
       },
     ],
@@ -99,10 +101,10 @@ export const MENU: readonly Grupo[] = [
         texto: 'Contabilidad',
         permiso: 'ver:contabilidad',
         hijos: [
-          { ruta: '', texto: 'Períodos contables' },
-          { ruta: 'presupuesto', texto: 'Presupuesto' },
-          { ruta: 'compras', texto: 'Compras y cuentas por pagar' },
-          { ruta: 'cobros', texto: 'Cuentas por cobrar' },
+          { ruta: '', texto: 'Períodos contables', icono: 'periodos' },
+          { ruta: 'presupuesto', texto: 'Presupuesto', icono: 'presupuesto' },
+          { ruta: 'compras', texto: 'Compras y cuentas por pagar', icono: 'compras' },
+          { ruta: 'cobros', texto: 'Cuentas por cobrar', icono: 'cobros' },
         ],
       },
       {
@@ -111,11 +113,11 @@ export const MENU: readonly Grupo[] = [
         texto: 'Publicidad',
         permiso: 'ver:publicidad',
         hijos: [
-          { ruta: 'anunciantes', texto: 'Anunciantes' },
-          { ruta: 'campanas', texto: 'Campañas' },
-          { ruta: 'moderacion', texto: 'Moderación' },
-          { ruta: 'desempeno', texto: 'Desempeño' },
-          { ruta: 'liquidacion', texto: 'Liquidación' },
+          { ruta: 'anunciantes', texto: 'Anunciantes', icono: 'anunciantes' },
+          { ruta: 'campanas', texto: 'Campañas', icono: 'campanas' },
+          { ruta: 'moderacion', texto: 'Moderación', icono: 'moderacion' },
+          { ruta: 'desempeno', texto: 'Desempeño', icono: 'desempeno' },
+          { ruta: 'liquidacion', texto: 'Liquidación', icono: 'liquidacion' },
         ],
       },
     ],
@@ -131,9 +133,9 @@ export const MENU: readonly Grupo[] = [
         texto: 'Configuración',
         permiso: 'ver:configuracion',
         hijos: [
-          { ruta: 'tarifario', texto: 'Tarifario' },
-          { ruta: 'mensajeria', texto: 'Mensajería' },
-          { ruta: 'reportes', texto: 'Reportes' },
+          { ruta: 'tarifario', texto: 'Tarifario', icono: 'tarifario' },
+          { ruta: 'mensajeria', texto: 'Mensajería', icono: 'mensajeria' },
+          { ruta: 'reportes', texto: 'Reportes', icono: 'reportes' },
         ],
       },
       { ruta: 'ayuda', destino: '/ayuda', texto: 'Ayuda', permiso: 'ver:ayuda' },

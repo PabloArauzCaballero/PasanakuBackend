@@ -99,6 +99,25 @@ describe('Tablero · «Requiere tu acción» desde las bandejas reales', () => {
     await estabilizar(fixture)
     expect(tarjeta(raiz, 'retiros')!.textContent).toContain('Hay pendientes')
   })
+
+  it('error: la tarjeta muestra «Último intento» y su botón «Reintentar» vuelve a consultar solo esa bandeja', async () => {
+    const { fixture, http, raiz } = montar(['RECLAMO_VER'])
+    http.expectOne(`${GW}/reclamos?limite=1`).flush({ codigo: 'AP-SEG-01', trazaId: 'tr-42' }, { status: 403, statusText: 'Forbidden' })
+    await estabilizar(fixture)
+
+    const reclamos = tarjeta(raiz, 'reclamos')!
+    expect(reclamos.querySelector('.hora')?.textContent).toContain('Último intento')
+    expect(reclamos.querySelector('.hora')?.textContent).not.toContain('Consultada')
+    expect(reclamos.querySelector('.traza-codigo')?.textContent).toBe('tr-42')
+
+    reclamos.querySelector<HTMLButtonElement>('.boton-reintentar')!.click()
+    fixture.detectChanges()
+    http.expectOne(`${GW}/reclamos?limite=1`).flush({ items: [{ reclamoId: 'rec-1' }] })
+    await estabilizar(fixture)
+
+    expect(reclamos.textContent).toContain('Hay pendientes')
+    expect(reclamos.querySelector('.hora')?.textContent).toContain('Consultada')
+  })
 })
 
 describe('Tablero · monitoreo y accesos', () => {

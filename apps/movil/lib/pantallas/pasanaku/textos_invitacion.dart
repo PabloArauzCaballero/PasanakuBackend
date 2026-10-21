@@ -8,6 +8,11 @@ class TextosInvitacion {
   static const tituloInvitar = 'Invitar a un contacto';
   static const accionInvitar = 'Invitar a alguien a mi grupo';
   static const accionCrearGrupo = 'Organizar un grupo nuevo';
+  static const accionUnirseAGrupo = 'Unirse a un grupo';
+  static String organizarAlTope(int tope) =>
+      'Ya organizás $tope grupos, el máximo. Cuando uno termine vas a poder organizar otro.';
+  static String participarAlTope(int tope) =>
+      'Ya participás en $tope grupos, el máximo. Cuando uno termine vas a poder unirte a otro.';
   static const telefonoInvitado = 'Celular de la persona';
   static const nombreSugerido = 'Cómo la conocés (opcional)';
   static const canalInvitacion = 'Por dónde se la vas a mandar';

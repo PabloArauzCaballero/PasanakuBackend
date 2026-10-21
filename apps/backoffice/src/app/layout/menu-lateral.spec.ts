@@ -33,22 +33,24 @@ describe('MenuLateral', () => {
     expect(el.getAttribute('data-tutorial-id')).toBe('menu-principal')
   })
 
-  it('correcto: bajo la sección activa aparecen sus pantallas; plegar un grupo se recuerda en la sesión', async () => {
-    const { fixture, el } = await montar(['ver:tablero', 'ver:sistemas'], '/sistemas/outbox')
+  it('correcto: bajo cualquier sección permitida sus pantallas están siempre abiertas y visibles con sus respectivos íconos', async () => {
+    const { el } = await montar(['ver:tablero', 'ver:sistemas'], '/tablero')
     const hijos = Array.from(el.querySelectorAll('.hijos a')).map((a) => a.textContent?.trim())
     expect(hijos).toContain('Outbox y descartados')
-    const rotulo = Array.from(el.querySelectorAll('.rotulo')).find((b) => b.textContent?.includes('Plataforma')) as HTMLButtonElement
-    expect(rotulo.getAttribute('aria-expanded')).toBe('true')
-    rotulo.click()
-    fixture.detectChanges()
-    expect(rotulo.getAttribute('aria-expanded')).toBe('false')
-    expect(JSON.parse(sessionStorage.getItem('ap-menu:plegados') ?? '[]')).toEqual(['Plataforma'])
+    expect(hijos).toContain('Servicios y SLO')
+    expect(hijos).toContain('Webhooks')
+    // Cada hijo tiene su ícono respectivo
+    const iconosHijos = el.querySelectorAll('.hijos a ap-icono-de-seccion')
+    expect(iconosHijos.length).toBe(hijos.length)
   })
 
-  it('límite: el grupo de la ruta activa se abre aunque esté plegado', async () => {
-    sessionStorage.setItem('ap-menu:plegados', JSON.stringify(['Control']))
-    const { el } = await montar(['ver:tablero', 'ver:sistemas'], '/sistemas')
-    const rotulo = Array.from(el.querySelectorAll('.rotulo')).find((b) => b.textContent?.includes('Control')) as HTMLButtonElement
-    expect(rotulo.getAttribute('aria-expanded')).toBe('true')
+  it('límite: todas las opciones tienen ícono asignado y no existen botones de despliegue o colapso', async () => {
+    const { el } = await montar(['ver:tablero', 'ver:operacion', 'ver:cumplimiento'])
+    expect(el.querySelectorAll('.chevron')).toHaveLength(0)
+    expect(el.querySelectorAll('.boton-chevron-hijos')).toHaveLength(0)
+    // Todas las opciones principales e hijas cuentan con icono de seccion
+    const todosLosEnlaces = el.querySelectorAll('a')
+    const iconos = el.querySelectorAll('a ap-icono-de-seccion')
+    expect(iconos.length).toBe(todosLosEnlaces.length)
   })
 })

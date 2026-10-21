@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "bo.aportaya.aportaya_movil",
+      "sha256_cert_fingerprints": [
+        "F6:0A:9D:37:97:91:7D:A4:F3:2C:82:0B:69:8E:DD:60:21:21:15:CC:21:0D:15:D7:B4:E5:1F:B4:FF:B0:5C:B9"
+      ]
+    }
+  }
+]

@@ -42,12 +42,22 @@ public class CU68AceptarIngreso {
     private final OrganizadorDecideIngreso directo;
 
     @Autowired
-    public CU68AceptarIngreso(Datos datos, AdmisionRepositorio admision, Outbox outbox, Reloj reloj) {
+    public CU68AceptarIngreso(
+            Datos datos,
+            AdmisionRepositorio admision,
+            Outbox outbox,
+            Reloj reloj,
+            bo.aportaya.grupos.infraestructura.EmparejamientoRepositorio emparejamientos) {
         this.datos = datos;
         this.admision = admision;
         this.outbox = outbox;
         this.reloj = reloj;
-        this.directo = new OrganizadorDecideIngreso(datos, outbox);
+        this.directo = new OrganizadorDecideIngreso(datos, outbox, emparejamientos);
+    }
+
+    /** Sin tope de participaciones: para las pruebas que no miran esa regla. */
+    public CU68AceptarIngreso(Datos datos, AdmisionRepositorio admision, Outbox outbox, Reloj reloj) {
+        this(datos, admision, outbox, reloj, new bo.aportaya.grupos.infraestructura.EmparejamientoRepositorio());
     }
 
     /** Solo el camino directo del organizador ({@link #pendientes}, {@link #decidir}); no usa el expediente. */
@@ -206,7 +216,9 @@ public class CU68AceptarIngreso {
             String mensaje,
             java.math.BigDecimal puntaje,
             String estado,
-            OffsetDateTime fecha) {}
+            OffsetDateTime fecha,
+            String nombreVisible,
+            boolean porEnlace) {}
 
     public record Resultado(UUID solicitudId, String estado, UUID participanteId, UUID cupoId) {}
 

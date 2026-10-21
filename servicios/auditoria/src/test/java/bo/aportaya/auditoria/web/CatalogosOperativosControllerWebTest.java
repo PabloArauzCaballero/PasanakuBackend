@@ -21,7 +21,6 @@ import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +28,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-@PruebaWeb(CatalogosOperativosController.class)
+@PruebaWeb(AuditoriaController.class)
 class CatalogosOperativosControllerWebTest {
 
     private static final OffsetDateTime FECHA = OffsetDateTime.of(2026, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC);
@@ -39,6 +38,12 @@ class CatalogosOperativosControllerWebTest {
 
     @MockitoBean
     private GestionarCatalogosOperativos casoDeUso;
+
+    @MockitoBean
+    private bo.aportaya.auditoria.aplicacion.ConsultarBitacora bitacoraCasoDeUso;
+
+    @MockitoBean
+    private bo.aportaya.auditoria.aplicacion.CU07EjercerDerechos cu07;
 
     @Test
     @DisplayName("401: sin sesion rechaza la consulta de catalogos")
@@ -134,7 +139,8 @@ class CatalogosOperativosControllerWebTest {
 
         when(casoDeUso.listarElementos(eq("HECHOS_GENERADORES"), any(), any())).thenReturn(List.of(e));
 
-        mvc.perform(get("/auditoria/catalogos/HECHOS_GENERADORES/elementos").with(Sesiones.como("AUDITOR", "AUDITORIA_LEER")))
+        mvc.perform(get("/auditoria/catalogos/HECHOS_GENERADORES/elementos")
+                        .with(Sesiones.como("AUDITOR", "AUDITORIA_LEER")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].codigo").value("ENTREGA_FONDO_ACREDITADA"))
                 .andExpect(jsonPath("$[0].activo").value(true));
@@ -155,10 +161,16 @@ class CatalogosOperativosControllerWebTest {
         actualizado.setActualizadoEn(FECHA);
         actualizado.setActualizadoPor("OPERADOR");
 
-        when(casoDeUso.actualizarEstado(eq("HECHOS_GENERADORES"), eq("hg-1"), eq(false), eq("Desactivación temporal por mantenimiento de regla"), any()))
+        when(casoDeUso.actualizarEstado(
+                        eq("HECHOS_GENERADORES"),
+                        eq("hg-1"),
+                        eq(false),
+                        eq("Desactivación temporal por mantenimiento de regla"),
+                        any()))
                 .thenReturn(Optional.of(actualizado));
 
-        String body = """
+        String body =
+                """
                 {
                   "activo": false,
                   "motivo": "Desactivación temporal por mantenimiento de regla"
@@ -176,7 +188,8 @@ class CatalogosOperativosControllerWebTest {
     @Test
     @DisplayName("400: PATCH sin motivo suficiente es rechazado por validación")
     void actualizarSinMotivoRechaza() throws Exception {
-        String body = """
+        String body =
+                """
                 {
                   "activo": false,
                   "motivo": "no"
@@ -196,7 +209,8 @@ class CatalogosOperativosControllerWebTest {
         when(casoDeUso.actualizarEstado(any(), any(), anyBoolean(), any(), any()))
                 .thenReturn(Optional.empty());
 
-        String body = """
+        String body =
+                """
                 {
                   "activo": true,
                   "motivo": "Reactivación de elemento operativo"

@@ -78,6 +78,35 @@ normas: [Protección de datos, ASFI Consumidor Financiero, antifraude]
 
 > **Interruptor de admisión humana** (`aportaya.grupos.admision.humana-obligatoria`, decisión adoptada por delegación del dueño en [[ADR-052 Decisiones adoptadas por delegación del dueño|ADR-052]] DD-2: `true` en producción y `false` en TEST; pendiente de ratificación de negocio y cumplimiento). Encendido, aceptar por enlace (que crearía al participante ACTIVO sin expediente) se rechaza y el camino es el canje, que deja una solicitud pendiente de backoffice; apagado conserva el comportamiento de TEST. Producción debe fijar `ADMISION_HUMANA_OBLIGATORIA=true`.
 
+## Enlace del grupo (QR) — 2026-10-19
+
+Además de la invitación a un teléfono, el organizador puede compartir **un enlace del grupo** —con su
+QR— que sirve para cualquier persona. Decisión del dueño (2026-10-19): **el organizador aprueba** a
+cada persona, y el enlace sirve **hasta llenarse los cupos o 7 días**, o hasta que el organizador lo
+anule.
+
+1. El organizador (administrador del grupo) genera [[enlace_grupo]]: un código aleatorio del que la
+   base guarda **solo el hash** (`token_hash`), `estado = ACTIVO` y `fecha_expiracion` a 7 días. Un
+   grupo tiene **un solo** enlace activo: generar otro anula el anterior.
+2. El enlace se comparte como `https://<app>/g/<código>` y como QR. En un Android con la app
+   instalada abre la app (App Links); sin la app abre la app web en la misma pantalla.
+3. Quien lo abre, con sesión, ve el grupo (nombre, aporte, periodicidad, cupos libres) **sin datos
+   de los integrantes**, y pide unirse.
+4. Pedir unirse crea una [[solicitud_ingreso]] `PENDIENTE` con `enlace_grupo_id` y el
+   nombre completo (`nombre_visible`) de quien pide, de su cuenta en `identidad`. Solo el nombre:
+   ni teléfono ni correo (decisión del dueño 2026-10-20; `telefono_contacto` y `correo_contacto`
+   quedan sin uso), y la app se lo avisa a quien pide antes de tocar «Pedir unirme». Con las mismas
+   precondiciones de [[CU-68 Postular a un grupo y ser emparejado]] (KYC, restricciones,
+   reputación, cupos). El organizador la acepta o la rechaza (CU-68).
+5. Repetir el pedido devuelve la misma solicitud pendiente: no se crean dos.
+
+| # | Situación | Resultado |
+| :-: | --- | --- |
+| E1 | Enlace vencido, anulado o inexistente | `ENLACE_INVALIDO`; el organizador puede generar otro |
+| E2 | El grupo ya no tiene cupos libres | `SIN_CUPOS_LIBRES` |
+| E3 | Quien pide ya participa del grupo | `YA_ES_PARTICIPANTE` |
+| E4 | Quien genera o anula no administra ese grupo | `EMISOR_NO_HABILITADO` |
+
 ## Postcondiciones
 
 - Toda incorporación por invitación tiene emisor identificado y token consumido una
@@ -118,6 +147,14 @@ export const ErroresCU69 = {
   TOKEN_INVALIDO:        'AP-CU69-05',
   REFERENCIA_DUPLICADA:  'AP-CU69-06',
   EMISOR_NO_HABILITADO:  'AP-CU69-07',
+  LIMITE_DIARIO_DE_INVITACIONES: 'AP-CU69-08',
+  INVITACION_VIGENTE_EXISTENTE:  'AP-CU69-09',
+  ADMISION_HUMANA_OBLIGATORIA:   'AP-CU69-10',
+  ENLACE_INVALIDO:       'AP-CU69-11',
+  GRUPO_TODAVIA_NO_ABIERTO: 'AP-CU69-12',
+  SIN_FIRMA_PENDIENTE:   'AP-CU69-13',
+  NO_ES_INTEGRANTE:      'AP-CU69-14',
+  LIMITE_DE_PARTICIPACIONES: 'AP-CU69-15',
 } as const
 ```
 
@@ -130,6 +167,14 @@ export const ErroresCU69 = {
 | `TOKEN_INVALIDO` | Vencido o ya consumido; se ofrece pedir otro |
 | `REFERENCIA_DUPLICADA` | El mismo teléfono ya figura como referencia del usuario |
 | `EMISOR_NO_HABILITADO` | Quien invita no es participante activo ni organizador del grupo |
+| `LIMITE_DIARIO_DE_INVITACIONES` | `identidad` alcanzó el tope diario de invitaciones del emisor |
+| `INVITACION_VIGENTE_EXISTENTE` | Ese teléfono ya tiene una invitación vigente: revocarla antes de emitir otra |
+| `ADMISION_HUMANA_OBLIGATORIA` | Con el interruptor de admisión humana encendido, la aceptación directa se cierra |
+| `ENLACE_INVALIDO` | El enlace del grupo venció, fue anulado o no existe |
+| `SIN_FIRMA_PENDIENTE` | Quien firma no es integrante del grupo o no tiene una firma pendiente en él |
+| `LIMITE_DE_PARTICIPACIONES` | Quien pide entrar (o a quien se acepta) ya participa, sin organizarlos, en tantos grupos vivos como el tope `aportaya.grupos.maximo-de-participaciones` (4, decisión del dueño 2026-10-20) |
+| `NO_ES_INTEGRANTE` | Quien pide el detalle del grupo no es integrante: no ve sus cupos ni sus nombres |
+| `GRUPO_TODAVIA_NO_ABIERTO` | El organizador quiere crear el enlace de un grupo que todavía no está abierto a inscripción (sigue en `BORRADOR` mientras se fija su precio); un enlace así no le serviría a nadie |
 
 ## Descomposición atómica
 
@@ -168,11 +213,71 @@ export const ErroresCU69 = {
 [[invitacion]] · [[referencia_personal]] · [[token_verificacion]] ·
 [[intento_validacion_token]] · [[envio_notificacion]] · [[aval_participante]] ·
 `evento_dominio` ·
-[[alcance_invitacion]]
+[[alcance_invitacion]] · [[enlace_grupo]] · [[solicitud_ingreso]]
 
 ## Criterios de aceptación
 
 ```gherkin
+Dado el organizador de un grupo con cupos libres
+Cuando genera el enlace del grupo
+Entonces recibe un código que vence a los 7 días y la base guarda solo su hash
+
+Dado un grupo que todavia esta en BORRADOR
+Cuando el organizador genera el enlace
+Entonces recibe AP-CU69-12 y no queda ningun enlace
+
+Dada una persona que ya participa en el maximo de grupos vivos
+Cuando intenta entrar a otro
+Entonces recibe AP-CU69-15
+
+Dada una persona que organiza grupos o ya salio de otros
+Cuando se cuentan sus participaciones
+Entonces solo cuentan los grupos vivos donde participa sin organizar
+
+Dado un integrante aceptado que todavia no firmo
+Cuando firma el reglamento vigente
+Entonces queda ACTIVO, su cupo OCUPADO y el detalle lo muestra FIRMADO
+
+Dado un grupo con todos sus cupos reservados
+Cuando firma el ultimo integrante
+Entonces el grupo queda CONFORMADO con un periodo por cupo y el organizador puede sortear
+
+Dado un grupo conformado por las firmas
+Cuando el organizador compromete y revela el sorteo
+Entonces cada integrante tiene un turno distinto en el detalle
+
+Dado el organizador de un grupo viejo, pendiente de firma y sin cupo
+Cuando firma
+Entonces ocupa el primer cupo libre, figura FIRMADO y el grupo cuenta dos cupos ocupados
+
+Dado el organizador que ya firmo y quedo ACTIVO sin cupo
+Cuando abre el grupo y vuelve a firmar
+Entonces se le pide firmar, recupera un cupo y su firma no se duplica
+
+Dado un grupo sin cupos libres y el organizador sin cupo
+Cuando firma
+Entonces se rechaza con AP-CU69-01 y sigue pendiente de firma
+
+Dado un grupo con un enlace activo
+Cuando el organizador genera otro
+Entonces el anterior queda ANULADO y deja de servir
+
+Dado un enlace activo del grupo
+Cuando una persona verificada pide unirse
+Entonces queda una solicitud PENDIENTE con su nombre visible para el organizador
+
+Dada una persona con una solicitud PENDIENTE por el enlace
+Cuando vuelve a pedir unirse
+Entonces recibe la misma solicitud y no se crea otra
+
+Dado un enlace vencido o anulado
+Cuando alguien pide unirse
+Entonces se rechaza con ENLACE_INVALIDO
+
+Dado un participante que no administra el grupo
+Cuando intenta generar o anular su enlace
+Entonces se rechaza con EMISOR_NO_HABILITADO
+
 Dado un enlace ya aceptado
 Cuando la misma persona repite con la MISMA clave
 Entonces recibe la misma participación y no se duplica nada

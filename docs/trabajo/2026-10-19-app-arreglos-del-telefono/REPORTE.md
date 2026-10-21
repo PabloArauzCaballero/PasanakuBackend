@@ -19,9 +19,11 @@
 | H4.M1 | Correo del perfil deshabilitado, sin «Guardar» | `flutter test test/widget/pantalla_perfil_correo_test.dart test/widget/pantalla_perfil_cerrar_sesion_test.dart` | +6 PASS |
 | H5.M1 | Candado ejercitado en emulador con solo PIN | `adb` + `dumpsys window` | `evidencia/h5-candado-emulador.txt` |
 | H5.M3 | «Entrar con mi contraseña» cierra al instante | `flutter test test/unidad/cierre_de_sesion_test.dart` | +2 PASS |
-| H6.M1 | Contraseña de puros espacios rechazada (login, alta y cambio) | `flutter test test/identidad/login_validacion_test.dart …` | +14 PASS |
+| H6.M1 | Contraseña de puros espacios rechazada en login y cambio (el alta NO estaba cubierta: ver H9) | `flutter test test/identidad/login_validacion_test.dart …` | +14 PASS |
 | H7.M1 (código) | Backoffice sale solo de `/arranque` | `ng test --include=src/app/nucleo/restaurando-sesion*.spec.ts` | 8 PASS; con el código viejo 3 fallan · `evidencia/h7-backoffice.txt` |
 | H8.M1 | Suite completa + analyze + reglas | `flutter test`, `flutter analyze`, `verificar_frontend.py` | +754; las 311 rojas son todas de imagen · `evidencia/h8-m1-suite.txt` |
+
+| H9.M1 | Alta: la contraseña no acepta espacios; aviso al instante con una sugerencia válida (`Grupo4247Futuro`) | `flutter test test/identidad/paso_contrasena_test.dart test/identidad/login_validacion_test.dart` | +11 PASS · `evidencia/h9-clave-sin-espacios.txt` |
 
 ## A medias
 ### H5.M2 — «Entrar con huella o PIN» en el teléfono del usuario
@@ -43,9 +45,10 @@ Ver `evidencia/`.
 ## No cubierto
 - Ningún cambio se probó todavía en el teléfono del usuario.
 - Movimientos con la billetera activa: el gesto de recargar el extracto se probó solo por la igualdad de la clave (`ParametrosExtracto`), no con una prueba de pantalla.
-- El servidor sigue aceptando al registrarse una contraseña de 8 espacios (`minLength: 8` en `identidad.yaml`); la app ya no la deja enviar.
+- El servidor sigue aceptando contraseñas con espacios (`minLength: 8` en `identidad.yaml`, `PoliticaDeClave`); la app ya no las deja enviar.
 
 ## Desvíos del plan
+- Error de reporte corregido: H6 decía «login, alta y cambio», pero el alta valida con su propia regla en `pasos_alta/paso_cuenta.dart` y seguía aceptando espacios. Lo encontró el usuario; se arregló en H9. Ahora una contraseña nueva (alta o cambio) no lleva espacios en ningún lado; el login solo rechaza las de puros espacios, para no dejar afuera a quien ya tenía una con espacios.
 - `EstadoDePantalla` (sistema de diseño) borraba la pantalla en cada refresco por defecto; se cambió el valor por defecto para conservar el dato (afecta a todas las pantallas; cubierto por la suite).
 - `ParametrosExtracto` no tenía igualdad por valor: cada redibujo pedía el extracto de nuevo. Se agregó (hacía falta para recargar).
 - El PR #139 ya estaba unido a `test` (por otra persona) cuando terminé: los cambios van en el PR #147.

@@ -23,7 +23,10 @@ String? rutaDeInvitacionDesdeQr(String? texto, {String? appWeb}) {
   if (limpio.isEmpty || limpio.length > _largoMaximoDelQr) return null;
   final uri = Uri.tryParse(limpio);
   if (uri == null) return null;
-  final interna = rutaInternaDesde(uri) ?? _desdeLaAppWeb(uri, appWeb);
+  // Un https ajeno no entra nunca: el dominio se compara antes que nada.
+  final interna = uri.scheme == 'https'
+      ? _desdeLaAppWeb(uri, appWeb)
+      : rutaInternaDesde(uri);
   return interna == null ? null : retornoDeInvitacion(interna);
 }
 
@@ -33,6 +36,8 @@ String? _desdeLaAppWeb(Uri uri, String? appWeb) {
   );
   if (propia == null || propia.host.isEmpty) return null;
   if (uri.scheme != 'https' || uri.host != propia.host) return null;
+  final delGrupo = codigoDeEnlaceDelGrupo(uri);
+  if (delGrupo != null) return '/g/$delGrupo';
   final codigo = codigoDeInvitacion(uri.toString());
   return codigo == null ? null : '/pasanaku/unirse/$codigo';
 }
