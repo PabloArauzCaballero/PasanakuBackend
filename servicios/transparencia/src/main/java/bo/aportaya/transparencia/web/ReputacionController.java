@@ -11,7 +11,6 @@ import bo.aportaya.transparencia.aplicacion.CU75EmitirCertificado;
 import bo.aportaya.transparencia.aplicacion.CU76PublicarResena;
 import bo.aportaya.transparencia.aplicacion.CU97EvaluarRiesgo;
 import bo.aportaya.transparencia.aplicacion.ConsultarPuntaje;
-import bo.aportaya.transparencia.web.generado.ReputacionApi;
 import bo.aportaya.transparencia.web.generado.modelo.EntradaCertificado;
 import bo.aportaya.transparencia.web.generado.modelo.EntradaCierreAlerta;
 import bo.aportaya.transparencia.web.generado.modelo.EntradaCompensacion;
@@ -46,7 +45,7 @@ import org.springframework.web.bind.annotation.RestController;
  * {@link MapeoDeTransparencia} y {@link MapeoDeReputacion}.
  */
 @RestController
-public class ReputacionController implements ReputacionApi {
+public class ReputacionController extends RutasDePerfilEnGrupo {
 
     private final ConsultarPuntaje puntajes;
     private final CU70RegistrarEventoReputacion cu70;
@@ -68,6 +67,7 @@ public class ReputacionController implements ReputacionApi {
             CU76PublicarResena cu76,
             CU97EvaluarRiesgo cu97,
             SesionDeLaPeticion sesion) {
+        super(sesion);
         this.puntajes = puntajes;
         this.cu70 = cu70;
         this.cu71 = cu71;
