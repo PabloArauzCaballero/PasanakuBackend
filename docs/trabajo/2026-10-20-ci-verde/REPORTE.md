@@ -1,6 +1,6 @@
 # Reporte — CI en verde en dev y test sin regresiones
 
-> **AVANCE: 5 / 10 — 50 %.** El CI todavía NO queda en verde: arreglarlo destapó fallas de fondo que antes no corrían (ver Pendiente).
+> **AVANCE: 8 / 14 — 57,1 %.** P1 y P3 quedaron resueltos y P2 resultó no ser una falla del CI (2026-10-21). Falta el resultado del CI real (H1.S3.M2) y `diseno_flutter` (de Pablo). Ver «Cierre de P1–P3».
 
 - Fecha: 2026-10-20 · Plan: [PLAN.md](./PLAN.md) · Rama: `claude/ci-verde-20261020` · PRs #168 (test) y #169 (dev)
 - Peldaño de evidencia: `TESTED` en lo arreglado (reproducción local de cada job).
@@ -35,9 +35,9 @@ jacocoTestCoverageVerification => 1
 ## Pendiente
 | ID | Estado | Qué lo destraba |
 |---|---|---|
-| P1 | BLOQUEADO — `DECISION_REQUIRED` (seguridad) | `MatrizDeAutorizacionContratoTest`: la ruta **sin sesión** `PUT /usuarios/verificaciones/correo/{verificacionId}/borrador` (`guardarBorradorOnboarding`) **escribe sin control compensatorio** (posible IDOR por UUID), y la lista de rutas públicas cambió sin su decisión escrita en `PoliticaDeAcceso`. Requiere decidir el control (token de propósito único, sesión parcial, etc.). Dueño de identidad. |
-| P2 | BLOQUEADO — `DECISION_REQUIRED` (contrato entre servicios) | `PactoConEntregasContratoTest` (nucleo-financiero): `entregas.yaml` no publica la ruta GET de la oferta que el consumidor espera. Decidir si se publica en `entregas` o se ajusta el pacto. |
-| P3 | TODO | Pisos de cobertura: auditoria (ramas 0.60/0.70, líneas 0.85/0.89), identidad (líneas 0.77/0.79), notificaciones (ramas 0.75/0.82, líneas 0.84/0.86). Hacen falta pruebas nuevas; no se bajan los pisos. |
+| P1 | RESUELTO 2026-10-21 → H1.S4.M1 | Ver «Cierre de P1–P3». |
+| P2 | DESCARTADO 2026-10-21 (solo Windows, CRLF) → H1.S4.M2 | Ver «Cierre de P1–P3». |
+| P3 | RESUELTO 2026-10-21 → H1.S4.M3 | Ver «Cierre de P1–P3». |
 | H1.S2 | DESCARTADO en esta PR (lo decidió el agente para no pisar trabajo en curso) | Los 3 arreglos de `diseno_flutter` (dart format, 25 literales → tokens, 6 archivos > 200 líneas) se hicieron y verificaron (`verificar_frontend.py diseno` → TODO OK, `flutter analyze` limpio), pero `origin/dev` recibió `c46d277a` (Pablo) que reescribe esos mismos 6 archivos: el merge chocaba en 5. Se revirtieron de esta rama para no pisar su trabajo. Queda para Pablo: correr `dart format` con Dart 3.12.2, aplicar el mapeo de colores de abajo (decisión del dueño: colores de marca) y partir los 6 archivos (con `part`/`part of` funciona sin cambiar la API). La versión hecha está en el commit `e66103f5` de esta rama como referencia. |
 | H1.S3.M2 | EN ESPERA | Resultado del CI real de #168/#169 (pasos de Frontend que nunca corrían: typecheck, `flutter test`, a11y, app, Angular, e2e). |
 
@@ -64,3 +64,28 @@ jacocoTestCoverageVerification => 1
 | `generar_compose.py`: `MAXIMO_DE_PARTICIPACIONES` (desarrollo `4`; desplegado `${...:-4}`) | El generador se negaba a escribir el compose por esa variable nueva de grupos | `verificar_limites_compose.py` OK; una línea nueva en `docker-compose.coolify.yml` |
 
 Las PRs #168/#169 quedan **abiertas sin mergear**: el CI no puede quedar verde hasta resolver P1–P3 y el frontend de `diseno_flutter`. La última espera del CI la cortó el sistema por falta de memoria; el resultado de los últimos commits se ve en la PR.
+
+## Cierre de P1–P3 (2026-10-21)
+Decisión: el dueño del trabajo pidió «lo más recomendable y seguro posible» y delegó así la decisión de P1. Se tomó la opción que cierra el hueco sin cambiar el flujo de la app.
+
+| ID | Qué se hizo | Verificación (local, Windows + Docker) | Resultado |
+|---|---|---|---|
+| H1.S4.M1 (P1) | `guardarBorradorOnboarding` (sin sesión) solo escribe con el token **CONSUMIDO** (código ya confirmado) y la huella del correo. Antes también aceptaba un token solo `ENVIADO`. El control quedó declarado en `PoliticaDeAcceso`. | `:plataforma:comun-pruebas:contractTest` · `:servicios:identidad:integrationTest --tests *BorradorOnboarding*` | PASS: matriz 8/8, `BorradorOnboardingGuardadoRepositorioTest` 4/4, `BorradorOnboardingRepositorioTest` 5/5. Con la condición vieja la prueba de `ENVIADO` falla ([evidencia](./evidencia/p1-p2-2026-10-21.txt)) |
+| H1.S4.M2 (P2) | DESCARTADO: no es una falla. `entregas.yaml:406` sí publica `GET /entregas/mercado/ofertas/{ofertaId}`. La prueba busca `
+` y la copia de Windows tiene CRLF (`core.autocrlf=true`). | `:servicios:nucleo-financiero:contractTest --tests *PactoConEntregas*` | Con CRLF: FAIL · con LF (como en git y en el CI): PASS 6/6. Clase `ENVIRONMENT`, sin cambio de código |
+| H1.S4.M3 (P3) | Pruebas nuevas contra PostgreSQL real, sin bajar ningún piso: avisos internos (notificaciones), catálogos operativos y bitácora (auditoria), fecha de vencimiento (identidad) | `jacocoTestCoverageVerification` después de correr las suites completas de cada módulo | notificaciones líneas 0.84→0.91 / ramas 0.75→0.83 · auditoria 0.85→0.94 / 0.64→0.76 · identidad 0.787→0.793 / 0.70 — PASS los tres |
+| H1.S4.M4 | **Bug encontrado por P3:** activar o desactivar un elemento de catálogo operativo siempre fallaba. La acción `ACTIVAR_/DESACTIVAR_ELEMENTO_CATALOGO` no está en `ck_bitacora_evento_accion` y el cambio nunca se guardaba (las pruebas web usaban dobles). Ahora se registra como `CAMBIO_ESTADO` (acción existente; el sentido queda en `activo`). Ningún consumidor usaba los nombres viejos. | `:servicios:auditoria:integrationTest --tests *CatalogosOperativosRepositorioTest*` + todas las suites de auditoria | PASS 6/6. Con el nombre viejo, 2 fallan por la restricción |
+
+### Seguridad (regla 90.6) — P1
+- Amenaza: con solo el id de verificación (UUID) y el correo se podía escribir el borrador del alta de otra persona sin haber probado el código.
+- Control: `BorradorOnboardingRepositorio.validarEstadoToken` (`SOLO_CORREO_CONFIRMADO`) + `validarCorreoDelToken` (huella HMAC del correo).
+- Pruebas: `BorradorOnboardingGuardadoRepositorioTest`, casos correcto, límite (ENVIADO) e inválidos (correo ajeno, id inexistente).
+- Riesgo residual: el token CONSUMIDO sigue sirviendo para guardar el borrador hasta que se cree la cuenta, porque así se reanuda el alta. No se le agregó un vencimiento propio para no cortar altas largas.
+
+### No cubierto
+- El CI real de estos commits: ver H1.S3.M2.
+- La app no se probó en un teléfono. No hizo falta cambiarla: solo guarda el borrador después de confirmar el código e ignora los errores del guardado (`notifier_alta.dart:122`, `verificacion_correo.dart:177`).
+
+### Deuda anotada (fuera de alcance, sin tocar)
+- `CatalogosOperativosRepositorio.actualizarEstadoElemento` arma el JSON de la bitácora pegando texto, y el `motivo` va sin escapar: un motivo con comillas rompe el JSONB y hace fallar el cambio. Hay que escaparlo o armar el JSON con ObjectMapper.
+- `GestionarAvisosInternos.mapear` tiene un respaldo a `INFO` que nunca se ejecuta: la base solo admite los 6 tipos del enum.
