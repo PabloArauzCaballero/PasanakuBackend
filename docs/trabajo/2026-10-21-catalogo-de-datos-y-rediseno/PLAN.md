@@ -101,14 +101,15 @@ Hallazgos de descubrimiento (con fuente):
 | H6.S2.M1 | e2e `f2-posiciones-y-roles` (×4) en verde, causa clasificada | 4/4 PASS | `playwright test f2-posiciones-y-roles` | HECHO — TEST_BUG, 10/10 · `evidencia/H6-S2-e2e-preexistentes.txt` |
 | H6.S2.M2 | e2e `f2-red-y-teclado` «ingreso solo con teclado» en verde, causa clasificada | PASS | `playwright test f2-red-y-teclado` | HECHO — PRODUCT_BUG (`ap-campo` desbordaba a 360 px), 7/7 |
 | H6.S2.M3 | e2e `sistemas-sin-contrato` (×9) en verde, causa clasificada | 9/9 PASS | `playwright test sistemas-sin-contrato` | HECHO — PRODUCT_BUG (alertas anidadas), 11/11 |
-| H6.S3.M1 | `generar_ddl.py` escribe `15_infra/borradores.sql` (tabla + GRANT DELETE) desde contrato+repositorio | base nueva aplica `aplicar.sql` completo | `psql -f sql/aplicar.sql` sobre base vacía, exit 0 | TODO |
-| H6.S3.M2 | El catálogo de datos incluye `identidad.borrador_onboarding` con su clasificación (personales) | aparece en el JSON con `tipo` INFRAESTRUCTURA | `test_catalogo_de_datos.py` | TODO |
-| H6.S4.M1 | La narrativa de negocio conserva sus viñetas (párrafos y listas) en el JSON | una ficha con viñetas llega como líneas separadas | `test_catalogo_de_datos.py` | TODO |
-| H6.S4.M2 | El backoffice pinta la narrativa con párrafos y listas | spec del componente | `test:front` | TODO |
-| H6.S5.M1 | El generador agrega `operaciones` por tabla (CU + endpoints) con su fuente | tabla de ejemplo con sus CU | `test_catalogo_de_datos.py` | TODO |
-| H6.S5.M2 | El contrato y `auditoria` exponen `operaciones` en la ficha | webTest de la ficha | `:servicios:auditoria:test webTest` | TODO |
-| H6.S5.M3 | Pestaña «Operaciones» en la ficha del backoffice | spec + e2e del catálogo | `test:front` + playwright catálogo | TODO |
-| H6.S6.M1 | Retiro del GET completo deprecado (contrato, controlador, clientes, Postman, simulado) si no queda consumidor | `grep` sin consumidores; build y tests verdes | `generarClientes` + tests auditoria + `test:front` | TODO |
+| H6.S3.M1 | `generar_ddl.py` escribe `15_infra/borradores.sql` (tabla + GRANT DELETE) desde contrato+repositorio | base nueva aplica `aplicar.sql` completo | `psql -f sql/aplicar.sql` sobre base vacía, exit 0 | HECHO — exit 0 dos veces + SQL del repositorio como `svc_identidad` · `evidencia/H6-S3-borradores.txt` |
+| H6.S3.M2 | El catálogo de datos incluye `identidad.borrador_onboarding` con su clasificación (personales) | aparece en el JSON con `tipo` INFRAESTRUCTURA | `test_catalogo_de_datos.py` | HECHO — + `origenNegocio: ddl` en el contrato · `evidencia/H6-S3-S5-catalogo-y-auditoria.txt` |
+| H6.S4.M1 | La narrativa de negocio conserva sus viñetas (párrafos y listas) en el JSON | una ficha con viñetas llega como líneas separadas | `test_catalogo_de_datos.py` | HECHO — 41 campos; separadores `---` fuera |
+| H6.S4.M2 | El backoffice pinta la narrativa con párrafos y listas | spec del componente | `test:front` | HECHO — `ClaveValor.texto` en `ap-seccion-clave-valor`; capturas `cu130-ficha-narrativa-*` miradas |
+| H6.S5.M1 | El generador agrega `operaciones` por tabla (CU + endpoints) con su fuente | tabla de ejemplo con sus CU | `test_catalogo_de_datos.py` | HECHO — 328/342 tablas nombradas por algún CU, 306 con endpoint |
+| H6.S5.M2 | El contrato y `auditoria` exponen `operaciones` en la ficha | webTest de la ficha | `:servicios:auditoria:test webTest` | HECHO — 44/44 · 74/74 |
+| H6.S5.M3 | Pestaña «Operaciones» en la ficha del backoffice | spec + e2e del catálogo | `test:front` + playwright catálogo | HECHO — 35/35 specs del catálogo, e2e 5/5; capturas `cu130-ficha-operaciones-*` miradas (la 1.ª versión en tabla cortaba la columna Servicio: se rehízo en tarjetas por CU) |
+| H6.S6.M1 | Retiro del GET completo deprecado (contrato, controlador, clientes, Postman, simulado) si no queda consumidor | `grep` sin consumidores; build y tests verdes | `generarClientes` + tests auditoria + `test:front` | DESCARTADO en esta entrega (decisión: Claude, regla 98.1.3) — el backoffice se despliega aparte (`despliegue/coolify/backoffice.yml`); quitarlo ahora rompe el backoffice que está en producción si `auditoria` sale primero. Se declaró en el contrato la condición de retiro; la fecha la confirman Marcelo/Pablo |
+| H6.S6.M2 | `auditoria` pasa los gates de CI que H2 rompía (spotless, `testBarrido`: archivo ≥300 líneas y constante con nombre de umbral) | `check` + `testBarrido` en verde | `./gradlew :servicios:auditoria:check … testBarrido` | HECHO — `evidencia/H6-S3-S5-catalogo-y-auditoria.txt` |
 | H6.S7.M1 | Regresión completa + REPORTE actualizado | suites en verde | salidas en `evidencia/H6-regresion.txt` | TODO |
 
 ## Riesgos y bloqueos previstos
