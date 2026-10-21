@@ -1,0 +1,46 @@
+{
+  "consumidor": "identidad",
+  "productor": "grupos",
+  "version": 1,
+  "descripcion": "Pacto dirigido por el consumidor (2026-10-21, perfil del integrante): antes de mostrar el telefono de una persona, identidad le pregunta a grupos si quien llama y esa persona son integrantes del mismo grupo (decision del dueno: solo el mismo grupo). El consumidor es el cliente REAL GruposPorHttp; el productor publica la operacion como consultarSiCompartenGrupo en grupos.yaml. La prueba del consumidor (GruposPorHttpPactoContratoTest (identidad)) usa este archivo contra un servidor HTTP del JDK y compara el archivo con el OpenAPI REAL de grupos. Toda respuesta que no sea un 200 con comparten=true se trata como NO: falla cerrado. NO existe todavia una prueba contra el proceso real de grupos.",
+  "identidades": {
+    "PARTICIPANTE": "Authorization: Bearer <token de quien pregunta>; el consumidor lo propaga tal cual y grupos toma de el a quien pregunta"
+  },
+  "interacciones": [
+    {
+      "id": "comparten",
+      "peticion": {
+        "metodo": "GET",
+        "ruta": "/grupos/{grupo}/integrantes/{usuario}/comparte",
+        "identidad": "PARTICIPANTE"
+      },
+      "respuesta": {
+        "estado": 200,
+        "campos": [
+          "comparten"
+        ],
+        "ejemplo": {
+          "comparten": true
+        }
+      }
+    },
+    {
+      "id": "no-comparten",
+      "peticion": {
+        "metodo": "GET",
+        "ruta": "/grupos/{grupo}/integrantes/{ajeno}/comparte",
+        "identidad": "PARTICIPANTE"
+      },
+      "respuesta": {
+        "estado": 200,
+        "campos": [
+          "comparten"
+        ],
+        "ejemplo": {
+          "comparten": false
+        },
+        "consecuencia": "identidad responde 403 y no muestra nada"
+      }
+    }
+  ]
+}

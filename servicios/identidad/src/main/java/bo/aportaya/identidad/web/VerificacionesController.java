@@ -2,7 +2,6 @@ package bo.aportaya.identidad.web;
 
 import bo.aportaya.identidad.aplicacion.CU02RevisarExpediente;
 import bo.aportaya.identidad.dominio.ExpedienteDeIdentidad;
-import bo.aportaya.identidad.web.generado.IdentidadApi;
 import bo.aportaya.identidad.web.generado.modelo.CaraDelExpediente;
 import bo.aportaya.identidad.web.generado.modelo.DecisionDeVerificacion;
 import bo.aportaya.identidad.web.generado.modelo.EnlaceDeFoto;
@@ -24,12 +23,16 @@ import org.springframework.web.bind.annotation.RestController;
  * abre o le cierra la billetera.
  */
 @RestController
-public class VerificacionesController implements IdentidadApi {
+public class VerificacionesController extends RutasDeContactoEnGrupo {
 
     private final CU02RevisarExpediente revision;
     private final SesionDeLaPeticion sesion;
 
-    public VerificacionesController(CU02RevisarExpediente revision, SesionDeLaPeticion sesion) {
+    public VerificacionesController(
+            CU02RevisarExpediente revision,
+            SesionDeLaPeticion sesion,
+            bo.aportaya.identidad.aplicacion.ConsultarContactoEnGrupo contactos) {
+        super(contactos, sesion);
         this.revision = revision;
         this.sesion = sesion;
     }

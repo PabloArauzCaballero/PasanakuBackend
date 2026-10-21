@@ -192,5 +192,26 @@ final class PoliticaDeAcceso {
                     Ambito.control(
                             "servicios/identidad/src/main/java/bo/aportaya/identidad/web/ExpedienteController.java",
                             "titular.exigir\\(usuarioId, null\\)",
-                            "CU-02 diferido: cada quien envia su propio documento; la sesion de otra persona es 403")));
+                            "CU-02 diferido: cada quien envia su propio documento; la sesion de otra persona es 403")),
+            Map.entry(
+                    "consultarSiCompartenGrupo",
+                    Ambito.control(
+                            "servicios/grupos/src/main/java/bo/aportaya/grupos/aplicacion/ConsultarDetalleDelGrupo.java",
+                            "esIntegrante\\(dsl, grupoId, ctx.usuarioId\\(\\)\\)",
+                            "perfil del integrante (2026-10-21): solo si o no, y solo si quien pregunta (el token) es"
+                                    + " integrante; no dice estado ni cupo del otro")),
+            Map.entry(
+                    "consultarContactoEnGrupo",
+                    Ambito.control(
+                            "servicios/identidad/src/main/java/bo/aportaya/identidad/aplicacion/ConsultarContactoEnGrupo.java",
+                            "if \\(!grupos.compartenGrupo\\(grupoId, usuarioId\\)\\)",
+                            "decision del dueño 2026-10-21: el telefono solo para el mismo grupo; grupos lo confirma con"
+                                    + " el token de quien llama y si no responde es 403")),
+            Map.entry(
+                    "consultarPerfilEnGrupo",
+                    Ambito.control(
+                            "servicios/transparencia/src/main/java/bo/aportaya/transparencia/aplicacion/ConsultarPerfilEnGrupo.java",
+                            "if \\(!grupos.compartenGrupo\\(grupoId, usuarioId\\)\\)",
+                            "decision del dueño 2026-10-21: la reputacion solo para el mismo grupo; grupos lo confirma con"
+                                    + " el token de quien llama y si no responde es 403")));
 }

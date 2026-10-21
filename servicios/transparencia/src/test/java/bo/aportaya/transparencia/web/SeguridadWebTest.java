@@ -29,6 +29,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
  * llegar a ellos, y un doble que nunca se llama es la prueba de que asi fue.
  */
 @PruebaWeb
+@MockitoBean(types = bo.aportaya.transparencia.aplicacion.ConsultarPerfilEnGrupo.class)
 class SeguridadWebTest extends SabanaDeSeguridadWeb {
 
     @MockitoBean

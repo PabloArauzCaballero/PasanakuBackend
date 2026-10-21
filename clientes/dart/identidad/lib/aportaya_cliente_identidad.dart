@@ -18,6 +18,7 @@ export 'package:aportaya_cliente_identidad/src/model/canje_invitacion.dart';
 export 'package:aportaya_cliente_identidad/src/model/cara_del_expediente.dart';
 export 'package:aportaya_cliente_identidad/src/model/confirmacion_verificacion_correo.dart';
 export 'package:aportaya_cliente_identidad/src/model/consumo_invitacion.dart';
+export 'package:aportaya_cliente_identidad/src/model/contacto_en_grupo.dart';
 export 'package:aportaya_cliente_identidad/src/model/decision_de_verificacion.dart';
 export 'package:aportaya_cliente_identidad/src/model/dinero.dart';
 export 'package:aportaya_cliente_identidad/src/model/documento.dart';

@@ -129,6 +129,33 @@ public class ConsultarDetalleDelGrupo {
         });
     }
 
+    /** Integrante de un grupo: esta y no se fue. El mismo criterio para el detalle y para {@link #comparten}. */
+    private static final String ES_INTEGRANTE =
+            """
+            SELECT EXISTS (SELECT 1 FROM grupos.participante
+                            WHERE grupo_id = ? AND usuario_id = ?
+                              AND estado NOT IN ('RETIRADO', 'EXPULSADO', 'REEMPLAZADO', 'POSTULANTE', 'INVITADO')) AS si
+            """;
+
+    /**
+     * Perfil del integrante (2026-10-21): si quien pregunta (el token, nunca la peticion) y otra persona son
+     * integrantes del mismo grupo. Lo consultan identidad y transparencia antes de mostrar telefono o reputacion.
+     * Responde solo si o no: ni el estado ni el cupo del otro.
+     */
+    @Transactional(readOnly = true)
+    public boolean comparten(UUID grupoId, UUID otroUsuarioId, ContextoSesion ctx) {
+        ContextoSesion interno =
+                ContextoSesion.deSistema(ctx.usuarioId(), new Traza(ctx.traza().id()));
+        return datos.conContexto(
+                interno,
+                dsl -> esIntegrante(dsl, grupoId, ctx.usuarioId()) && esIntegrante(dsl, grupoId, otroUsuarioId));
+    }
+
+    private static boolean esIntegrante(org.jooq.DSLContext dsl, UUID grupoId, UUID usuarioId) {
+        return Boolean.TRUE.equals(
+                dsl.fetchOne(ES_INTEGRANTE, grupoId, usuarioId).get("si", Boolean.class));
+    }
+
     /** LIBRE si nadie lo ocupa; FIRMADO si quien lo ocupa ya firmo (cupo OCUPADO); si no, PENDIENTE_FIRMA. */
     static String estadoDelCupo(String estadoCupo, String estadoParticipante) {
         if (estadoParticipante == null || "LIBRE".equals(estadoCupo)) return "LIBRE";

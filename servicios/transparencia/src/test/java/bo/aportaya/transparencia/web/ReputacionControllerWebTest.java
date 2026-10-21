@@ -51,6 +51,7 @@ import org.springframework.test.web.servlet.MockMvc;
  * reputación no puede además sellar la cadena que los vuelve inmodificables.
  */
 @PruebaWeb(ReputacionController.class)
+@MockitoBean(types = bo.aportaya.transparencia.aplicacion.ConsultarPerfilEnGrupo.class)
 class ReputacionControllerWebTest {
 
     private static final UUID USUARIO = UUID.fromString("e1000000-0000-4000-8000-000000000001");
