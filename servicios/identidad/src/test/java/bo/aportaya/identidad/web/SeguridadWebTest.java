@@ -40,6 +40,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
             "aportaya.seguridad.pimienta=pimienta-de-prueba-no-es-la-de-produccion",
         })
 @Import(CookieDeRefresco.class)
+@MockitoBean(types = bo.aportaya.identidad.aplicacion.ConsultarContactoEnGrupo.class)
 class SeguridadWebTest extends SabanaDeSeguridadWeb {
 
     @MockitoBean
