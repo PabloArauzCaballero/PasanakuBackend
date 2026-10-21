@@ -1,6 +1,6 @@
 # Reporte — CI en verde en dev y test sin regresiones
 
-> **AVANCE: 8 / 10 — 80 %.** El CI todavía NO queda en verde: arreglarlo destapó fallas de fondo que antes no corrían (ver Pendiente).
+> **AVANCE: 5 / 10 — 50 %.** El CI todavía NO queda en verde: arreglarlo destapó fallas de fondo que antes no corrían (ver Pendiente).
 
 - Fecha: 2026-10-20 · Plan: [PLAN.md](./PLAN.md) · Rama: `claude/ci-verde-20261020` · PRs #168 (test) y #169 (dev)
 - Peldaño de evidencia: `TESTED` en lo arreglado (reproducción local de cada job).
@@ -13,9 +13,6 @@
 | H1.S1.M3 | `CU69FirmaYSorteoTest` vuelve a su versión; casos nuevos en `CU69FirmaSinCupoTest` | `gradlew testBarrido` | PASS (0) |
 | H1.S1.M4 | `UsuariosInternosRepositorio` 285 líneas (rotación de roles movida tal cual) | `gradlew testBarrido` | PASS (0) |
 | H1.S1.M5 | identidad: fixtures con `nivel_riesgo`, prefijos de `ArranqueTest`, bind de `BorradorOnboarding` | `gradlew :servicios:identidad:integrationTest` | PASS 183/183 |
-| H1.S2.M1 | `dart format` con Dart 3.12.2 | `dart format --set-exit-if-changed lib test` | PASS (0) |
-| H1.S2.M2 | 25 literales de diseño → tokens (exactos o de marca) | `verificar_frontend.py diseno` | PASS «TODO OK» |
-| H1.S2.M3 | 6 archivos > 200 líneas partidos con `part` | `verificar_frontend.py diseno` + `flutter analyze` | PASS · «No issues found!» |
 
 Corrida local completa del job «Los cinco corredores» (en serie):
 
@@ -41,6 +38,7 @@ jacocoTestCoverageVerification => 1
 | P1 | BLOQUEADO — `DECISION_REQUIRED` (seguridad) | `MatrizDeAutorizacionContratoTest`: la ruta **sin sesión** `PUT /usuarios/verificaciones/correo/{verificacionId}/borrador` (`guardarBorradorOnboarding`) **escribe sin control compensatorio** (posible IDOR por UUID), y la lista de rutas públicas cambió sin su decisión escrita en `PoliticaDeAcceso`. Requiere decidir el control (token de propósito único, sesión parcial, etc.). Dueño de identidad. |
 | P2 | BLOQUEADO — `DECISION_REQUIRED` (contrato entre servicios) | `PactoConEntregasContratoTest` (nucleo-financiero): `entregas.yaml` no publica la ruta GET de la oferta que el consumidor espera. Decidir si se publica en `entregas` o se ajusta el pacto. |
 | P3 | TODO | Pisos de cobertura: auditoria (ramas 0.60/0.70, líneas 0.85/0.89), identidad (líneas 0.77/0.79), notificaciones (ramas 0.75/0.82, líneas 0.84/0.86). Hacen falta pruebas nuevas; no se bajan los pisos. |
+| H1.S2 | DESCARTADO en esta PR (lo decidió el agente para no pisar trabajo en curso) | Los 3 arreglos de `diseno_flutter` (dart format, 25 literales → tokens, 6 archivos > 200 líneas) se hicieron y verificaron (`verificar_frontend.py diseno` → TODO OK, `flutter analyze` limpio), pero `origin/dev` recibió `c46d277a` (Pablo) que reescribe esos mismos 6 archivos: el merge chocaba en 5. Se revirtieron de esta rama para no pisar su trabajo. Queda para Pablo: correr `dart format` con Dart 3.12.2, aplicar el mapeo de colores de abajo (decisión del dueño: colores de marca) y partir los 6 archivos (con `part`/`part of` funciona sin cambiar la API). La versión hecha está en el commit `e66103f5` de esta rama como referencia. |
 | H1.S3.M2 | EN ESPERA | Resultado del CI real de #168/#169 (pasos de Frontend que nunca corrían: typecheck, `flutter test`, a11y, app, Angular, e2e). |
 
 ## No cubierto

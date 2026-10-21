@@ -27,9 +27,9 @@
 | H1.S1.M3 | `CU69FirmaYSorteoTest` vuelve a su versión; los 3 casos nuevos en `CU69FirmaSinCupoTest` | `testBarrido` grupos 0 | `gradlew testBarrido` | HECHO |
 | H1.S1.M4 | `UsuariosInternosRepositorio` < 300 líneas moviendo la rotación de roles a `RotacionDeRolesInternos` (mismo código) | `testBarrido` identidad 0 | `gradlew testBarrido` | HECHO |
 | H1.S1.M5 | Fixtures de permisos con `nivel_riesgo`; prefijos de `ArranqueTest` alineados con `scripts/modelo.py`; bind de `BorradorOnboardingRepositorioTest` | 183/183 | `gradlew :servicios:identidad:integrationTest` | HECHO |
-| H1.S2.M1 | `dart format` con el Dart del CI (3.12.2) | exit 0 | `dart format --set-exit-if-changed` | HECHO |
-| H1.S2.M2 | Literales de diseño → tokens (exactos cuando existen; marca cuando no) | regla OK | `verificar_frontend.py diseno` | HECHO |
-| H1.S2.M3 | 6 archivos > 200 líneas partidos con `part` (mismo código, mismas expresiones) | regla OK + analyze limpio | `verificar_frontend.py diseno` + `flutter analyze` | HECHO |
+| H1.S2.M1 | `dart format` con el Dart del CI (3.12.2) | exit 0 | `dart format --set-exit-if-changed` | DESCARTADO (ver REPORTE) |
+| H1.S2.M2 | Literales de diseño → tokens (exactos cuando existen; marca cuando no) | regla OK | `verificar_frontend.py diseno` | DESCARTADO (ver REPORTE) |
+| H1.S2.M3 | 6 archivos > 200 líneas partidos con `part` (mismo código, mismas expresiones) | regla OK + analyze limpio | `verificar_frontend.py diseno` + `flutter analyze` | DESCARTADO (ver REPORTE) |
 | H1.S3.M1 | Regresión backend completa (test, webTest, integrationTest, contractTest, sagaTest, cobertura) | 0 fallos | corrida local en serie | A MEDIAS |
 | H1.S3.M2 | Frontend completo en el CI real (pasos que nunca corrían) | verde | `gh pr checks` | TODO |
 
