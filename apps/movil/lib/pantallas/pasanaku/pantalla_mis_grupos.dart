@@ -8,9 +8,8 @@ import 'package:aportaya_diseno/organismos/estado_de_pantalla.dart';
 import 'package:aportaya_diseno/tokens/tokens.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
-import '../../proveedores/sesion.dart';
+import 'abrir_mi_grupo.dart';
 import 'acciones_de_grupo.dart';
 import 'aviso_de_revision_en_grupos.dart';
 import 'dominio/mis_grupos.dart';
@@ -74,21 +73,7 @@ class TarjetaDeMiGrupo extends ConsumerWidget {
     final monto = grupo.montoAporte;
     return Tarjeta(
       etiqueta: 'Grupo $nombre, $etiqueta',
-      onTap: () async {
-        final usuarioId = await ref.read(sesionProvider).usuarioId() ?? '';
-        if (!context.mounted) return;
-        // El grupo entero —integrantes, firma y sorteo— y desde ahí mis aportes (2026-10-20).
-        context.push(
-          Uri(
-            path: '/pasanaku/grupos/${grupo.grupoId}',
-            queryParameters: {
-              'participante': grupo.participanteId,
-              'usuario': usuarioId,
-              'nombre': nombre,
-            },
-          ).toString(),
-        );
-      },
+      onTap: () => abrirMiGrupo(context, ref, grupo, nombre: nombre),
       child: Row(
         children: [
           Avatar(nombre: nombre),
