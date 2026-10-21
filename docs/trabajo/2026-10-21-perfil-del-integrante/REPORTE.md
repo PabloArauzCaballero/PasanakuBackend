@@ -82,3 +82,10 @@ Los teléfonos y nombres de las pruebas y capturas son sintéticos.
 - Colecciones de Postman regeneradas (`scripts/generar_postman.py`).
 - `ArquitecturaTest` (transparencia): la web usaba records de `infraestructura`; pasaron a `dominio/PerfilDeReputacionEnGrupo`.
 - Reproducido en local antes de volver a subir: test, web, integración (grupos 262, identidad 193, transparencia 123), contrato, saga, barrido, formato y pisos de cobertura de los tres servicios, todo en verde (identidad: líneas 0.797, piso 0.79).
+
+### Falla en TEST y arreglo (2026-10-21, tarde)
+- **Síntoma** (teléfono del dueño, APK `aportaya-test-4`): en el perfil, «Contacto» mostraba «Algo salió mal de nuestro lado»; «Confianza» cargaba bien.
+- **Causa demostrada**: `comun.registro_acceso_datos` tiene la política de fila `pol_registro_acceso_datos_reservado` (solo `BACKOFFICE`, `CUMPLIMIENTO` y `AUDITOR`). El registro de lectura del teléfono escribía con el rol `sistema`, y la base lo rechazaba. Reproducido en la base local con el rol del servicio: `SET LOCAL ROLE svc_identidad; set_config('app.rol','sistema')` + `INSERT` → `ERROR: new row violates row-level security policy for table "registro_acceso_datos"`. Las pruebas de integración no lo vieron porque se conectan como superusuario, que saltea las políticas de fila.
+- **Arreglo**: se revirtió el commit de la auditoría (`5c3d92ae`). La lectura del teléfono vuelve a ser solo el `SELECT` de `identidad.usuario`, cuya política admite `sistema`. Pruebas: web del contacto y `SeguridadWebTest` en verde, integración 3/3, barrido y formato.
+- **Pendiente (decisión del dueño)**: para auditar la lectura del teléfono hay que permitir que `sistema` **inserte** (solo inserte) en `registro_acceso_datos`, con una política `FOR INSERT` adicional en `sql/40_reglas/restricciones.sql`. Es ensanchar un control de una tabla reservada a cumplimiento; no se hizo sin confirmación.
+- **Lección**: una prueba que escribe en una tabla con política de fila tiene que correr con el rol del servicio, no con el superusuario del contenedor.
