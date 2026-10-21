@@ -55,3 +55,12 @@ jacocoTestCoverageVerification => 1
 
 ## Decisiones y ambigüedades
 - Mapeo de colores: verde→`ok`, azul→`info`, ámbar→`warn`, violeta de la grilla→`brand`, rojo→`err`, bronce→`o600/o100`, plata→`muted/cloud`, oro→`warn/warnbg`, diamante→`info/infobg`, esmeralda→`ok/okbg`, `#6B3FA0`→`Paleta.pii` (exacto), blanco→`Paleta.white` (exacto), negro→`Paleta.ink`. A confirmar con diseño (Pablo).
+
+## Agregado después del merge con dev (2026-10-21)
+| Qué | Por qué | Verificación |
+|---|---|---|
+| `identidad.usuario_interno_creado` sin `correo` en el payload | `SalidasSensiblesBarridoTest` (regla 90.2: ids, no contenidos). Ningún servicio consume ese evento. En Windows el barrido no lo detecta (CRLF); en el CI (LF) sí. | `identidad` compila; `webTest` 144/144 |
+| `verificar_pruebas_web.py` reconoce `@PruebaWeb(<Controlador>.class)` | `AuditoriaController` (unificado el 19-oct) reparte su matriz en `Bitacora`, `CatalogosOperativos` y `DerechosControllerWebTest`, todos con `@PruebaWeb(AuditoriaController.class)` | «41 · con matriz propia: 41 · en deuda: 0» |
+| `generar_compose.py`: `MAXIMO_DE_PARTICIPACIONES` (desarrollo `4`; desplegado `${...:-4}`) | El generador se negaba a escribir el compose por esa variable nueva de grupos | `verificar_limites_compose.py` OK; una línea nueva en `docker-compose.coolify.yml` |
+
+Las PRs #168/#169 quedan **abiertas sin mergear**: el CI no puede quedar verde hasta resolver P1–P3 y el frontend de `diseno_flutter`. La última espera del CI la cortó el sistema por falta de memoria; el resultado de los últimos commits se ve en la PR.
