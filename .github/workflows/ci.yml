@@ -167,6 +167,7 @@ jobs:
       - name: 6i · verificar_narrativas.py — toda tabla con su ficha, y el catálogo de datos al día
         run: |
           python3 -I scripts/verificar_narrativas.py
+          python3 -I scripts/test_catalogo_de_datos.py
           python3 -I scripts/catalogo_de_datos.py --escribir
           git diff --exit-code -- docs/catalogo-de-datos.md servicios/auditoria/src/main/resources/catalogo/catalogo-datos.json
 
@@ -184,6 +185,10 @@ jobs:
         run: |
           python3 -m pip install --quiet pyyaml
           python3 scripts/validar_flujos.py
+          # La matriz endpoint → CU es generada y alimenta la pestaña «Operaciones» del catálogo de datos (6i):
+          # regenerarla no puede cambiar nada.
+          python3 scripts/matriz_de_pruebas.py
+          git diff --exit-code -- docs/catalogo-de-flujos/matriz.md
 
       - name: 6e · generar_k8s.py — los descriptores cierran contra el pool
         run: python3 scripts/generar_k8s.py

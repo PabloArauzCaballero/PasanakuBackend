@@ -9,16 +9,20 @@
 
 **Qué es.** La foto del comprobante que sube el participante cuando pagó por fuera del circuito automático.
 
-**Para qué sirve.** Cubre el caso real más frecuente de fricción: alguien transfirió desde su banco sin usar el QR, o pagó en efectivo, y ahora reclama que le acrediten. `estadoRevision`, `revisadoPor` y **`segundaRevisionPor`** implementan doble control: acreditar un pago que no existe es la forma más simple de robar en esta plataforma, y por eso un solo par de ojos no alcanza para montos relevantes. `hashArchivo` detecta el mismo comprobante subido dos veces —para dos aportes distintos—, que es el fraude más común y más fácil de intentar.
+**Para qué sirve.** Cubre el caso real más frecuente de fricción: alguien transfirió desde su banco sin usar el QR, o pagó en efectivo, y ahora reclama que le acrediten. `estadoRevision`, `revisadoPor` y **`segundaRevisionPor`** implementan doble control: acreditar un pago que no existe es la forma más simple de robar en esta plataforma, y por eso un solo par de ojos no alcanza para montos relevantes.
 
-**Por qué existe.** Sin flujo de comprobante manual, la gente que paga por fuera queda marcada como morosa injustamente; con flujo manual sin doble revisión ni hash, el sistema se vuelve trivial de defraudar. ---
+`hashArchivo` detecta el mismo comprobante subido dos veces —para dos aportes distintos—, que es el fraude más común y más fácil de intentar.
+
+**Por qué existe.** Sin flujo de comprobante manual, la gente que paga por fuera queda marcada como morosa injustamente; con flujo manual sin doble revisión ni hash, el sistema se vuelve trivial de defraudar.
+
+**Casos de uso que la nombran.** CU-25 Declarar el incumplimiento con descargo y evidencia (`declararIncumplimiento`, `presentarDescargo`, `resolverDescargo`) · CU-82 Procesar una respuesta entrante (`procesarRespuestaEntrante`)
 
 **Sistema.** Vive en el esquema `aportes`; la escribe y la lee solo el servicio `aportes` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `identidad.usuario`, `pago`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `pago_id` | UUID | — | UUID, obligatoria, referencia a `pago`. | NINGUNA |
+| `pago_id` | UUID | — | UUID, obligatoria, única, referencia a `pago`. | NINGUNA |
 | `archivo_url` | VARCHAR(255) | — | VARCHAR(255), obligatoria. | NINGUNA |
 | `hash_archivo` | VARCHAR(64) | — | VARCHAR(64), obligatoria. | DERIVADO |
 | `estado_revision` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
@@ -31,17 +35,23 @@
 
 **Qué es.** El cruce entre un pago del sistema y un movimiento del banco.
 
-**Para qué sirve.** **Es la entidad que hace verdadero el "pagado".** Mientras no exista una conciliación en estado `CONCILIADO_*`, el aporte no está realmente saldado por más que la pasarela haya dicho "aprobado". `metodo` guarda cómo se logró el cruce (referencia exacta, monto+fecha, manual). Es un indicador de calidad operativa: si el 40% de la conciliación es manual, la generación de referencias tiene un problema. `diferenciaMonto` captura los centavos y las comisiones no previstas. `forzarManual(usuarioId, justificacion)` existe porque siempre hay casos que el algoritmo no resuelve — pero exige justificación y deja autor, porque forzar una conciliación es afirmar que entró plata.
+**Para qué sirve.** **Es la entidad que hace verdadero el "pagado".** Mientras no exista una conciliación en estado `CONCILIADO_*`, el aporte no está realmente saldado por más que la pasarela haya dicho "aprobado".
 
-**Por qué existe.** Sin conciliación explícita, la única fuente de verdad es la pasarela, y las pasarelas se equivocan, reintentan y reversan. ---
+`metodo` guarda cómo se logró el cruce (referencia exacta, monto+fecha, manual). Es un indicador de calidad operativa: si el 40% de la conciliación es manual, la generación de referencias tiene un problema. `diferenciaMonto` captura los centavos y las comisiones no previstas.
+
+`forzarManual(usuarioId, justificacion)` existe porque siempre hay casos que el algoritmo no resuelve — pero exige justificación y deja autor, porque forzar una conciliación es afirmar que entró plata.
+
+**Por qué existe.** Sin conciliación explícita, la única fuente de verdad es la pasarela, y las pasarelas se equivocan, reintentan y reversan.
+
+**Casos de uso que la nombran.** CU-19 Reembolsar un pago y atender una disputa (`aprobarReembolso`, `registrarDisputa`, `solicitarReembolso`) · CU-21 Cobrar el aporte del período (`cobrarAporte`, `consultarEstadoDelParticipante`, `generarObligacionesDelPeriodo`, `consultarRecaudoDelPeriodo`, `consultarAdmisibilidadDePago`) · CU-51 Ejecutar el cierre diario (`consultarRecaudoDiario`, `listarCierresDiarios`) · CU-82 Procesar una respuesta entrante (`procesarRespuestaEntrante`)
 
 **Sistema.** Vive en el esquema `aportes`; la escribe y la lee solo el servicio `aportes` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `identidad.usuario`, `movimiento_bancario`, `pago`. La referencian `excepcion_conciliacion`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `pago_id` | UUID | — | UUID, obligatoria, referencia a `pago`. | NINGUNA |
-| `movimiento_bancario_id` | UUID | — | UUID, opcional, referencia a `movimiento_bancario`. | NINGUNA |
+| `pago_id` | UUID | — | UUID, obligatoria, única, referencia a `pago`. | NINGUNA |
+| `movimiento_bancario_id` | UUID | — | UUID, opcional, única, referencia a `movimiento_bancario`. | NINGUNA |
 | `estado` | VARCHAR(25) | — | VARCHAR(25), obligatoria. | NINGUNA |
 | `metodo` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
 | `diferencia_monto` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
@@ -54,15 +64,17 @@
 
 **Para qué sirve.** Es lo que el participante muestra cuando alguien pone en duda que pagó. `codigoVerificacion` es público y verificable por cualquiera —incluido alguien que no tiene cuenta— contra el módulo 6. Eso convierte el comprobante en algo que no se puede falsificar con un editor de imágenes.
 
-**Por qué existe.** En el pasanaku de cuaderno, la prueba de pago es la palabra del organizador. Acá es un documento verificable de forma independiente. Es una de las razones por las que alguien elegiría la plataforma sobre el cuaderno. ---
+**Por qué existe.** En el pasanaku de cuaderno, la prueba de pago es la palabra del organizador. Acá es un documento verificable de forma independiente. Es una de las razones por las que alguien elegiría la plataforma sobre el cuaderno.
+
+**Casos de uso que la nombran.** CU-22 Liquidar y entregar el fondo (`liquidarEntrega`, `fondearPozo`, `autorizarEntrega`, `ejecutarEntrega`) · CU-57 Operar un punto de atención y arquear el efectivo
 
 **Sistema.** Vive en el esquema `aportes`; la escribe y la lee solo el servicio `aportes` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `pago`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `pago_id` | UUID | — | UUID, obligatoria, referencia a `pago`. | NINGUNA |
-| `codigo_verificacion` | VARCHAR(40) | — | VARCHAR(40), obligatoria. | NINGUNA |
+| `pago_id` | UUID | — | UUID, obligatoria, única, referencia a `pago`. | NINGUNA |
+| `codigo_verificacion` | VARCHAR(40) | — | VARCHAR(40), obligatoria, única. | NINGUNA |
 | `hash_contenido` | VARCHAR(64) | — | VARCHAR(64), obligatoria. | DERIVADO |
 | `url_publica` | VARCHAR(255) | — | VARCHAR(255), obligatoria. | NINGUNA |
 | `url_pdf` | VARCHAR(255) | — | VARCHAR(255), obligatoria. | NINGUNA |
@@ -72,9 +84,13 @@
 
 **Qué es.** El reclamo formal sobre un pago: contracargo, desconocimiento del cargo, monto incorrecto.
 
-**Para qué sirve.** Los contracargos son una realidad de cualquier sistema con tarjetas, y tienen **plazo legal de respuesta** (`fechaLimiteRespuesta`). Perder ese plazo significa perder la plata automáticamente, sin importar quién tenga razón. Esta entidad existe en buena medida para que ese reloj sea visible y accionable. `evidencias` acumula lo que se va a presentar: la constancia, el registro de escaneo del QR, la confirmación de recepción.
+**Para qué sirve.** Los contracargos son una realidad de cualquier sistema con tarjetas, y tienen **plazo legal de respuesta** (`fechaLimiteRespuesta`). Perder ese plazo significa perder la plata automáticamente, sin importar quién tenga razón. Esta entidad existe en buena medida para que ese reloj sea visible y accionable.
 
-**Por qué existe.** Sin gestión de disputas, cada contracargo es una pérdida silenciosa y una potencial descuadratura de la bolsa de un grupo. ---
+`evidencias` acumula lo que se va a presentar: la constancia, el registro de escaneo del QR, la confirmación de recepción.
+
+**Por qué existe.** Sin gestión de disputas, cada contracargo es una pérdida silenciosa y una potencial descuadratura de la bolsa de un grupo.
+
+**Casos de uso que la nombran.** CU-19 Reembolsar un pago y atender una disputa (`aprobarReembolso`, `registrarDisputa`, `solicitarReembolso`)
 
 **Sistema.** Vive en el esquema `aportes`; la escribe y la lee solo el servicio `aportes` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `pago`.
 
@@ -95,28 +111,97 @@
 
 **Qué es.** El enlace corto y firmado que lleva directo al pago de una obligación concreta.
 
-**Para qué sirve.** Es la mitad técnica del **"pago en un toque"** (RF-16). El participante recibe por WhatsApp "Tu aporte vence mañana — [Pagar]", toca, y llega a su QR sin login, sin buscar el grupo, sin recordar cuánto era. Cada paso que se le quita a ese flujo se traduce directamente en tasa de pago puntual. `clicks` mide la conversión del recordatorio.
+**Para qué sirve.** Es la mitad técnica del **"pago en un toque"** (RF-16). El participante recibe por WhatsApp "Tu aporte vence mañana — [Pagar]", toca, y llega a su QR sin login, sin buscar el grupo, sin recordar cuánto era. Cada paso que se le quita a ese flujo se traduce directamente en tasa de pago puntual.
+
+`clicks` mide la conversión del recordatorio.
 
 **Por qué existe.** Sin enlace firmado y de un solo uso, un enlace de pago por WhatsApp expondría el identificador de la obligación y permitiría que cualquiera viera —o pagara, o manipulara— la deuda de otro.
+
+**Casos de uso que la nombran.** CU-99 Dar de alta un proveedor de pago y enrutar el cobro (`enrutarCobro`, `darDeAltaProveedor`)
 
 **Sistema.** Vive en el esquema `aportes`; la escribe y la lee solo el servicio `aportes` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `identidad.token_verificacion`, `orden_cobro`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `orden_cobro_id` | UUID | — | UUID, obligatoria, referencia a `orden_cobro`. | NINGUNA |
-| `token_id` | UUID | — | UUID, obligatoria, referencia a `token_verificacion`. | SECRETO |
-| `url_corta` | VARCHAR(60) | — | VARCHAR(60), obligatoria. | NINGUNA |
+| `orden_cobro_id` | UUID | — | UUID, obligatoria, única, referencia a `orden_cobro`. | NINGUNA |
+| `token_id` | UUID | — | UUID, obligatoria, única, referencia a `token_verificacion`. | SECRETO |
+| `url_corta` | VARCHAR(60) | — | VARCHAR(60), obligatoria, única. | NINGUNA |
 | `clicks` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
 | `expira_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+
+### `estado_saga`
+
+**Qué es.** Estado de saga orquestada por este servicio (ADR-028).
+
+**Para qué sirve.** Persiste el paso de una saga que cruza servicios para poder reanudarla o compensarla si algo falla en el medio (regla 98.3.2, ADR-028).
+
+**Sistema.** Infraestructura del servicio `aportes`, generada por plantilla en cada esquema (ADR-027): la escribe y la lee solo ese servicio.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
+| `tipo_saga` | VARCHAR(60) | — | VARCHAR(60), obligatoria. | NINGUNA |
+| `clave_negocio` | VARCHAR(120) | — | VARCHAR(120), obligatoria. | SECRETO |
+| `paso` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
+| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
+| `datos` | JSONB | — | JSONB, obligatoria. | NINGUNA |
+| `creado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `actualizado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+
+### `evento_consumido`
+
+**Qué es.** Marca de evento ya consumido, por consumidor (ADR-027).
+
+**Para qué sirve.** Hace idempotente el consumo: la entrega es al menos una vez y un mismo evento no puede producir dos efectos (regla 98.3.4).
+
+**Sistema.** Infraestructura del servicio `aportes`, generada por plantilla en cada esquema (ADR-027): la escribe y la lee solo ese servicio.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `id_evento` | UUID | — | UUID, obligatoria, clave primaria. | NINGUNA |
+| `consumidor` | VARCHAR(60) | — | VARCHAR(60), obligatoria, clave primaria. | NINGUNA |
+| `consumido_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+
+### `evento_dominio`
+
+**Qué es.** Outbox transaccional del servicio (ADR-027).
+
+**Para qué sirve.** Garantiza que ningún hecho del servicio se pierda entre la base y la mensajería: el evento se guarda en la misma transacción que el cambio y un relevo lo publica después (regla 98.3.3).
+
+**Sistema.** Infraestructura del servicio `aportes`, generada por plantilla en cada esquema (ADR-027): la escribe y la lee solo ese servicio.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
+| `tipo` | VARCHAR(60) | — | VARCHAR(60), obligatoria. | NINGUNA |
+| `version` | VARCHAR(10) | — | VARCHAR(10), obligatoria. | NINGUNA |
+| `agregado` | VARCHAR(40) | — | VARCHAR(40), obligatoria. | NINGUNA |
+| `agregado_id` | UUID | — | UUID, obligatoria. | NINGUNA |
+| `payload` | JSONB | — | JSONB, obligatoria. | NINGUNA |
+| `metadatos` | JSONB | — | JSONB, obligatoria. | NINGUNA |
+| `correlation_id` | UUID | — | UUID, obligatoria. | NINGUNA |
+| `causation_id` | UUID | — | UUID, opcional. | NINGUNA |
+| `ocurrido_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `publicado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
+| `intentos` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
+| `tomado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `tomado_por` | VARCHAR(100) | — | VARCHAR(100), opcional. | NINGUNA |
+| `ultimo_error` | TEXT | — | TEXT, opcional. | NINGUNA |
+| `proximo_intento_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
 
 ### `excepcion_conciliacion`
 
 **Qué es.** Cada descuadre detectado, tipificado y asignado a alguien para resolver.
 
-**Para qué sirve.** Los siete tipos son el catálogo de todo lo que sale mal con el dinero en la práctica: monto distinto, referencia ausente, pago duplicado, pago sin obligación, obligación sin pago, fuera de plazo, moneda distinta. Tipificarlos permite medir cuál predomina y atacar la causa. `asignadaA` convierte el descuadre en trabajo de alguien, con dueño. Sin asignación, las excepciones se acumulan y nadie las mira hasta que son cien.
+**Para qué sirve.** Los siete tipos son el catálogo de todo lo que sale mal con el dinero en la práctica: monto distinto, referencia ausente, pago duplicado, pago sin obligación, obligación sin pago, fuera de plazo, moneda distinta. Tipificarlos permite medir cuál predomina y atacar la causa.
 
-**Por qué existe.** Y sobre todo: **toda excepción abierta bloquea el cierre diario.** Esa es la regla que impide que los descuadres se arrastren. Sin la entidad no hay qué bloquear. ---
+`asignadaA` convierte el descuadre en trabajo de alguien, con dueño. Sin asignación, las excepciones se acumulan y nadie las mira hasta que son cien.
+
+**Por qué existe.** Y sobre todo: **toda excepción abierta bloquea el cierre diario.** Esa es la regla que impide que los descuadres se arrastren. Sin la entidad no hay qué bloquear.
+
+**Casos de uso que la nombran.** CU-19 Reembolsar un pago y atender una disputa (`aprobarReembolso`, `registrarDisputa`, `solicitarReembolso`) · CU-21 Cobrar el aporte del período (`cobrarAporte`, `consultarEstadoDelParticipante`, `generarObligacionesDelPeriodo`, `consultarRecaudoDelPeriodo`, `consultarAdmisibilidadDePago`) · CU-28 Emitir la orden de desembolso y ejecutar el intento (`listarDesembolsos`, `emitirOrdenDesembolso`, `anotarRespuestaDesembolso`) · CU-35 Cerrar la liquidación mensual de ingresos (`cerrarLiquidacion`) · CU-51 Ejecutar el cierre diario (`consultarRecaudoDiario`, `listarCierresDiarios`)
 
 **Sistema.** Vive en el esquema `aportes`; la escribe y la lee solo el servicio `aportes` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `conciliacion`, `identidad.usuario`.
 
@@ -137,9 +222,13 @@
 
 **Qué es.** El estado de cuenta de un período, importado desde el banco.
 
-**Para qué sirve.** Es la **fuente de verdad externa**. Todo lo que el sistema afirma sobre el dinero se contrasta contra esto. `cuadrar()` verifica que saldo inicial + movimientos = saldo final: si no cuadra, el archivo está incompleto y conciliar contra él daría un falso "todo bien". `importadoPor` deja constancia de quién cargó el extracto, porque un extracto adulterado invalidaría toda la conciliación de ese día.
+**Para qué sirve.** Es la **fuente de verdad externa**. Todo lo que el sistema afirma sobre el dinero se contrasta contra esto. `cuadrar()` verifica que saldo inicial + movimientos = saldo final: si no cuadra, el archivo está incompleto y conciliar contra él daría un falso "todo bien".
 
-**Por qué existe.** Sin extracto no hay contra qué conciliar y la plataforma solo puede confiar en lo que la pasarela le informa. ---
+`importadoPor` deja constancia de quién cargó el extracto, porque un extracto adulterado invalidaría toda la conciliación de ese día.
+
+**Por qué existe.** Sin extracto no hay contra qué conciliar y la plataforma solo puede confiar en lo que la pasarela le informa.
+
+**Casos de uso que la nombran.** CU-28 Emitir la orden de desembolso y ejecutar el intento (`listarDesembolsos`, `emitirOrdenDesembolso`, `anotarRespuestaDesembolso`) · CU-51 Ejecutar el cierre diario (`consultarRecaudoDiario`, `listarCierresDiarios`) · CU-99 Dar de alta un proveedor de pago y enrutar el cobro (`enrutarCobro`, `darDeAltaProveedor`)
 
 **Sistema.** Vive en el esquema `aportes`; la escribe y la lee solo el servicio `aportes` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `identidad.usuario`, `proveedor_pago`. La referencian `movimiento_bancario`.
 
@@ -160,9 +249,13 @@
 
 **Qué es.** Cada vez que se trata de ejecutar el cobro de una orden, con su resultado.
 
-**Para qué sirve.** Registra los fracasos, no solo los éxitos. Cuando un participante dice "intenté pagar tres veces y no me dejó", esta tabla lo confirma o lo desmiente, con el código de error y el mensaje que devolvió el proveedor. Es la diferencia entre creerle o no a alguien que pide que no le cobren mora. Operativamente permite `reintentarConRespaldo()`: el intento 1 falló con el proveedor A, el intento 2 va por el B, y **la trazabilidad del primero no se pierde**.
+**Para qué sirve.** Registra los fracasos, no solo los éxitos. Cuando un participante dice "intenté pagar tres veces y no me dejó", esta tabla lo confirma o lo desmiente, con el código de error y el mensaje que devolvió el proveedor. Es la diferencia entre creerle o no a alguien que pide que no le cobren mora.
+
+Operativamente permite `reintentarConRespaldo()`: el intento 1 falló con el proveedor A, el intento 2 va por el B, y **la trazabilidad del primero no se pierde**.
 
 **Por qué existe.** Sin intentos materializados, un pago fallido no deja rastro y el soporte no puede diagnosticar nada. También es la base para medir la tasa de éxito por proveedor, que es lo que justifica cambiar de pasarela.
+
+**Casos de uso que la nombran.** CU-19 Reembolsar un pago y atender una disputa (`aprobarReembolso`, `registrarDisputa`, `solicitarReembolso`) · CU-99 Dar de alta un proveedor de pago y enrutar el cobro (`enrutarCobro`, `darDeAltaProveedor`)
 
 **Sistema.** Vive en el esquema `aportes`; la escribe y la lee solo el servicio `aportes` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `orden_cobro`. La referencian `pago`. Reglas nombradas: `uq_intento_pago_idem`.
 
@@ -187,6 +280,8 @@
 
 **Por qué existe.** El caso que justifica esta tabla: **entró plata que nadie identificó.** Alguien transfirió sin referencia. Sin `MovimientoBancario` como entidad propia, ese dinero es invisible; con ella, queda como movimiento no conciliado, visible, con `conciliado = FALSE`, esperando que alguien lo reclame.
 
+**Casos de uso que la nombran.** CU-51 Ejecutar el cierre diario (`consultarRecaudoDiario`, `listarCierresDiarios`)
+
 **Sistema.** Vive en el esquema `aportes`; la escribe y la lee solo el servicio `aportes` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `extracto_bancario`. La referencian `conciliacion`, `nucleo_financiero.movimiento_custodia`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
@@ -205,9 +300,27 @@
 
 **Qué es.** Lo que un cupo debe, en un período, por un concepto. Es la deuda formal que la plataforma le reconoce a un participante.
 
-**Para qué sirve.** Es **el eje de todo el sistema financiero**. La cubre el fondo de garantía (M8), la deduce la entrega (M4), la puntúa la reputación (M6) y la persigue la cobranza (M8). Si hubiera que elegir una sola tabla como corazón del modelo, es esta. Los cinco campos de monto no son redundancia, son la historia económica completa de esa obligación: - `montoEsperado`: lo que se pactó. **Nunca cambia.** - `montoPagado`: lo que efectivamente entró y se concilió. - `montoRecargo`: la mora acumulada. - `montoCondonado`: lo que el grupo decidió perdonar (por acuerdo, M2). - `montoCubiertoGarantia`: lo que puso el fondo para que el grupo no se detenga (M8). **Ojo: cubierto no es pagado.** El participante sigue debiendo esa plata, pero ahora se la debe al fondo, no al grupo. `saldoPendiente` es columna generada de los cinco anteriores: no se puede desincronizar porque no se escribe a mano. `tipo` distingue seis conceptos distintos que un solo "aporte" confundiría: el aporte del período, el recargo por mora, el aporte al fondo de garantía, la reposición de una cobertura consumida y el ajuste manual. Cada uno se cobra distinto, se contabiliza en cuenta distinta y tiene distinto tratamiento si el grupo se disuelve. Hay un sexto tipo, `COMISION_PLATAFORMA`, que solo se usa cuando el tarifario define que la comisión del servicio se prorratea entre los participantes en vez de deducirse de la entrega (M11). **Ninguno de los tipos representa un ingreso del organizador: administrar sigue sin cobrarse (RN-18).** `obligacionOrigenId` implementa una decisión de diseño importante: **un recargo por mora es OTRA obligación**, que apunta a la original. Así el `montoEsperado` del aporte base nunca se "ensucia". Si mañana se condona el recargo pero no el capital, se condona una fila y la otra queda intacta. Si se mezclaran, esa distinción sería imposible. `estado` con trece valores parece excesivo hasta que se enumeran los casos reales: programado (todavía no vence), pendiente, reportado por el usuario (dice que pagó, falta verificar), en verificación, pagado parcial, pagado, vencido, en mora, cubierto por garantía, exonerado, condonado, reprogramado, anulado. Cada uno implica una acción distinta del sistema y un mensaje distinto al usuario.
+**Para qué sirve.** Es **el eje de todo el sistema financiero**. La cubre el fondo de garantía (M8), la deduce la entrega (M4), la puntúa la reputación (M6) y la persigue la cobranza (M8). Si hubiera que elegir una sola tabla como corazón del modelo, es esta.
+
+Los cinco campos de monto no son redundancia, son la historia económica completa de esa obligación:
+
+- `montoEsperado`: lo que se pactó. **Nunca cambia.**
+- `montoPagado`: lo que efectivamente entró y se concilió.
+- `montoRecargo`: la mora acumulada.
+- `montoCondonado`: lo que el grupo decidió perdonar (por acuerdo, M2).
+- `montoCubiertoGarantia`: lo que puso el fondo para que el grupo no se detenga (M8). **Ojo: cubierto no es pagado.** El participante sigue debiendo esa plata, pero ahora se la debe al fondo, no al grupo.
+
+`saldoPendiente` es columna generada de los cinco anteriores: no se puede desincronizar porque no se escribe a mano.
+
+`tipo` distingue seis conceptos distintos que un solo "aporte" confundiría: el aporte del período, el recargo por mora, el aporte al fondo de garantía, la reposición de una cobertura consumida y el ajuste manual. Cada uno se cobra distinto, se contabiliza en cuenta distinta y tiene distinto tratamiento si el grupo se disuelve. Hay un sexto tipo, `COMISION_PLATAFORMA`, que solo se usa cuando el tarifario define que la comisión del servicio se prorratea entre los participantes en vez de deducirse de la entrega (M11). **Ninguno de los tipos representa un ingreso del organizador: administrar sigue sin cobrarse (RN-18).**
+
+`obligacionOrigenId` implementa una decisión de diseño importante: **un recargo por mora es OTRA obligación**, que apunta a la original. Así el `montoEsperado` del aporte base nunca se "ensucia". Si mañana se condona el recargo pero no el capital, se condona una fila y la otra queda intacta. Si se mezclaran, esa distinción sería imposible.
+
+`estado` con trece valores parece excesivo hasta que se enumeran los casos reales: programado (todavía no vence), pendiente, reportado por el usuario (dice que pagó, falta verificar), en verificación, pagado parcial, pagado, vencido, en mora, cubierto por garantía, exonerado, condonado, reprogramado, anulado. Cada uno implica una acción distinta del sistema y un mensaje distinto al usuario.
 
 **Por qué existe.** Sin obligación explícita, "quién debe cuánto" sería un cálculo derivado del calendario, y no habría dónde registrar recargos, condonaciones, coberturas ni exoneraciones.
+
+**Casos de uso que la nombran.** CU-12 Transferir saldo entre billeteras (`resolverAlias`, `acreditarRescate`, `emitirQr`, `leerQr`, `pagarQr`, `transferirSaldo`) · CU-16 Cerrar billetera y devolver saldo (`consultarActividad`, `solicitarCierreBilletera`) · CU-19 Reembolsar un pago y atender una disputa (`aprobarReembolso`, `registrarDisputa`, `solicitarReembolso`) · CU-21 Cobrar el aporte del período (`cobrarAporte`, `consultarEstadoDelParticipante`, `generarObligacionesDelPeriodo`, `consultarRecaudoDelPeriodo`, `consultarAdmisibilidadDePago`) · CU-23 Cubrir un incumplimiento con el fondo (`cubrirIncumplimiento`) · CU-25 Declarar el incumplimiento con descargo y evidencia (`declararIncumplimiento`, `presentarDescargo`, `resolverDescargo`) · CU-29 Devolver los aportes del fondo de garantía (`devolverFondo`) · CU-31 Devengar y cobrar la comisión (`devengarComision`, `anotarCobroDeComision`) · CU-64 Traspasar un cupo (`traspasarCupo`, `consultarPuntaje`) · CU-72 Sellar el bloque de transparencia (`listarBloques`, `sellarBloque`) · CU-81 Programar recordatorios de aporte
 
 **Sistema.** Vive en el esquema `aportes`; la escribe y la lee solo el servicio `aportes` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `grupos.cupo`, `grupos.grupo`, `grupos.participante`, `grupos.periodo`, `obligacion_aporte`, `plan_regularizacion`, `politica_mora`. La referencian `garantia.cobertura_incumplimiento`, `garantia.cobertura_respaldo_linea`, `garantia.registro_incumplimiento`, `nucleo_financiero.transferencia_p2p`, `obligacion_aporte`, `orden_cobro`, `pago`, `tarifas.cargo_comision`. Reglas nombradas: `uq_obligacion_periodo_cupo`.
 
@@ -240,9 +353,15 @@
 
 **Qué es.** La instrucción concreta de cobro para una obligación: monto exacto, proveedor, referencia única, vigencia.
 
-**Para qué sirve.** Es la traducción de "debés Bs 500" a "acá está el QR para pagar esos Bs 500". Separarla de la obligación resuelve varios problemas prácticos: - Una obligación puede tener **varias órdenes**: la primera expiró, se generó otra; o la primera era por el banco A y falló, se generó otra por el banco B. - `referenciaUnica` es la **glosa conciliable**: el texto que viaja con la transferencia y que después permite cruzarla automáticamente con el extracto bancario. Sin ella, la conciliación es manual, que es exactamente lo que RF-15 quiere eliminar. - `permiteMontoAbierto` cubre el pago parcial: hay grupos que aceptan que alguien ponga la mitad ahora y la mitad después.
+**Para qué sirve.** Es la traducción de "debés Bs 500" a "acá está el QR para pagar esos Bs 500". Separarla de la obligación resuelve varios problemas prácticos:
+
+- Una obligación puede tener **varias órdenes**: la primera expiró, se generó otra; o la primera era por el banco A y falló, se generó otra por el banco B.
+- `referenciaUnica` es la **glosa conciliable**: el texto que viaja con la transferencia y que después permite cruzarla automáticamente con el extracto bancario. Sin ella, la conciliación es manual, que es exactamente lo que RF-15 quiere eliminar.
+- `permiteMontoAbierto` cubre el pago parcial: hay grupos que aceptan que alguien ponga la mitad ahora y la mitad después.
 
 **Por qué existe.** Sin orden de cobro no hay forma de saber a qué obligación corresponde una transferencia que llegó al banco. Ese cruce es precisamente lo que automatiza el módulo.
+
+**Casos de uso que la nombran.** CU-19 Reembolsar un pago y atender una disputa (`aprobarReembolso`, `registrarDisputa`, `solicitarReembolso`) · CU-21 Cobrar el aporte del período (`cobrarAporte`, `consultarEstadoDelParticipante`, `generarObligacionesDelPeriodo`, `consultarRecaudoDelPeriodo`, `consultarAdmisibilidadDePago`) · CU-81 Programar recordatorios de aporte · CU-99 Dar de alta un proveedor de pago y enrutar el cobro (`enrutarCobro`, `darDeAltaProveedor`)
 
 **Sistema.** Vive en el esquema `aportes`; la escribe y la lee solo el servicio `aportes` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `obligacion_aporte`, `proveedor_pago`. La referencian `enlace_pago_rapido`, `intento_pago`, `notificaciones.enlace_pago_notificado`, `qr_cobro`. Reglas nombradas: `uq_orden_cobro_idem`.
 
@@ -254,7 +373,7 @@
 | `monto_exacto` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
 | `moneda` | CHAR(3) | Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2). | CHAR(3), obligatoria. | NINGUNA |
 | `permite_monto_abierto` | BOOLEAN | — | BOOLEAN, obligatoria. | FINANCIERO |
-| `referencia_unica` | VARCHAR(60) | — | VARCHAR(60), obligatoria. | NINGUNA |
+| `referencia_unica` | VARCHAR(60) | — | VARCHAR(60), obligatoria, única. | NINGUNA |
 | `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
 | `emitida_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
 | `expira_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
@@ -264,9 +383,16 @@
 
 **Qué es.** Plata que efectivamente se movió. El hecho económico.
 
-**Para qué sirve.** Es el registro que respalda que alguien cumplió. Varios campos merecen explicación: - `montoComisionProveedor` y `montoNetoAcreditado`: **lo que el participante paga no es lo que llega a la bolsa.** La pasarela se queda con su comisión. Si esa diferencia no se modela explícitamente, la bolsa nunca cuadra y nadie entiende por qué faltan Bs 3,50. - `pagadorNombre` y `pagadorDocumento`: quién pagó realmente. Muchas veces paga el esposo, la madre o el jefe por el participante. Registrarlo es necesario para cumplimiento (detectar que una sola persona está pagando por seis participantes distintos, patrón de participantes ficticios) y para resolver reclamos. - `esManual` + `registradoPor`: distingue el pago que entró solo por webhook del que un operador cargó a mano contra un comprobante. Los segundos son intrínsecamente más riesgosos y deben poder auditarse aparte. - `canal = EFECTIVO_AL_ORGANIZADOR`: reconoce que en la realidad boliviana una parte del dinero se paga en efectivo. Negarlo no lo elimina, solo lo saca del sistema y lo vuelve invisible. Mejor registrarlo, marcarlo como manual y someterlo a doble revisión.
+**Para qué sirve.** Es el registro que respalda que alguien cumplió. Varios campos merecen explicación:
+
+- `montoComisionProveedor` y `montoNetoAcreditado`: **lo que el participante paga no es lo que llega a la bolsa.** La pasarela se queda con su comisión. Si esa diferencia no se modela explícitamente, la bolsa nunca cuadra y nadie entiende por qué faltan Bs 3,50.
+- `pagadorNombre` y `pagadorDocumento`: quién pagó realmente. Muchas veces paga el esposo, la madre o el jefe por el participante. Registrarlo es necesario para cumplimiento (detectar que una sola persona está pagando por seis participantes distintos, patrón de participantes ficticios) y para resolver reclamos.
+- `esManual` + `registradoPor`: distingue el pago que entró solo por webhook del que un operador cargó a mano contra un comprobante. Los segundos son intrínsecamente más riesgosos y deben poder auditarse aparte.
+- `canal = EFECTIVO_AL_ORGANIZADOR`: reconoce que en la realidad boliviana una parte del dinero se paga en efectivo. Negarlo no lo elimina, solo lo saca del sistema y lo vuelve invisible. Mejor registrarlo, marcarlo como manual y someterlo a doble revisión.
 
 **Por qué existe.** Es el hecho económico. Sin él no hay contabilidad, ni constancia, ni conciliación, ni reputación basada en cumplimiento real.
+
+**Casos de uso que la nombran.** CU-10 Recargar saldo (`solicitarRecarga`, `acreditarRecarga`) · CU-19 Reembolsar un pago y atender una disputa (`aprobarReembolso`, `registrarDisputa`, `solicitarReembolso`) · CU-21 Cobrar el aporte del período (`cobrarAporte`, `consultarEstadoDelParticipante`, `generarObligacionesDelPeriodo`, `consultarRecaudoDelPeriodo`, `consultarAdmisibilidadDePago`) · CU-26 Ejecutar el aval y subrogar la deuda (`ejecutarAval`) · CU-51 Ejecutar el cierre diario (`consultarRecaudoDiario`, `listarCierresDiarios`) · CU-82 Procesar una respuesta entrante (`procesarRespuestaEntrante`)
 
 **Sistema.** Vive en el esquema `aportes`; la escribe y la lee solo el servicio `aportes` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `identidad.usuario`, `intento_pago`, `obligacion_aporte`, `proveedor_pago`. La referencian `comprobante_manual`, `conciliacion`, `constancia_pago`, `disputa_pago`, `garantia.abono_recuperacion`, `garantia.ejecucion_aval`, `garantia.recuperacion_respaldo`, `nucleo_financiero.orden_recarga`, `reembolso`, `webhook_pasarela`. Reglas nombradas: `uq_pago_idem`.
 
@@ -274,31 +400,37 @@
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
 | `obligacion_id` | UUID | — | UUID, obligatoria, referencia a `obligacion_aporte`. | NINGUNA |
-| `intento_pago_id` | UUID | — | UUID, opcional, referencia a `intento_pago`. | NINGUNA |
+| `intento_pago_id` | UUID | — | UUID, opcional, única, referencia a `intento_pago`. | NINGUNA |
 | `proveedor_id` | UUID | — | UUID, opcional, referencia a `proveedor_pago`. | NINGUNA |
 | `monto` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
 | `moneda` | CHAR(3) | Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2). | CHAR(3), obligatoria. | NINGUNA |
-| `monto_comision_proveedor` | DECIMAL(10,2) | — | DECIMAL(10,2), obligatoria. | FINANCIERO |
-| `monto_neto_acreditado` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
+| `monto_comision_proveedor` | DECIMAL(10,2) | **lo que el participante paga no es lo que llega a la bolsa.** La pasarela se queda con su comisión. Si esa diferencia no se modela explícitamente, la bolsa nunca cuadra y nadie entiende por qué faltan Bs 3,50. | DECIMAL(10,2), obligatoria. | FINANCIERO |
+| `monto_neto_acreditado` | DECIMAL(14,2) | **lo que el participante paga no es lo que llega a la bolsa.** La pasarela se queda con su comisión. Si esa diferencia no se modela explícitamente, la bolsa nunca cuadra y nadie entiende por qué faltan Bs 3,50. | DECIMAL(14,2), obligatoria. | FINANCIERO |
 | `canal` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
 | `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
 | `fecha_hora_pago` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
 | `fecha_hora_acreditacion` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
 | `referencia_proveedor` | VARCHAR(80) | — | VARCHAR(80), obligatoria. | NINGUNA |
-| `pagador_nombre` | VARCHAR(120) | — | VARCHAR(120), opcional. | NINGUNA |
-| `pagador_documento` | VARCHAR(30) | — | VARCHAR(30), opcional. | PERSONAL |
+| `pagador_nombre` | VARCHAR(120) | quién pagó realmente. Muchas veces paga el esposo, la madre o el jefe por el participante. Registrarlo es necesario para cumplimiento (detectar que una sola persona está pagando por seis participantes distintos, patrón de participantes ficticios) y para resolver reclamos. | VARCHAR(120), opcional. | NINGUNA |
+| `pagador_documento` | VARCHAR(30) | quién pagó realmente. Muchas veces paga el esposo, la madre o el jefe por el participante. Registrarlo es necesario para cumplimiento (detectar que una sola persona está pagando por seis participantes distintos, patrón de participantes ficticios) y para resolver reclamos. | VARCHAR(30), opcional. | PERSONAL |
 | `cuenta_origen_enmascarada` | VARCHAR(40) | — | VARCHAR(40), opcional. | NINGUNA |
-| `registrado_por` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
-| `es_manual` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
+| `registrado_por` | UUID | distingue el pago que entró solo por webhook del que un operador cargó a mano contra un comprobante. Los segundos son intrínsecamente más riesgosos y deben poder auditarse aparte. | UUID, opcional, referencia a `usuario`. | NINGUNA |
+| `es_manual` | BOOLEAN | distingue el pago que entró solo por webhook del que un operador cargó a mano contra un comprobante. Los segundos son intrínsecamente más riesgosos y deben poder auditarse aparte. | BOOLEAN, obligatoria. | NINGUNA |
 | `clave_idempotencia` | VARCHAR(80) | Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4). | VARCHAR(80), obligatoria. | NINGUNA |
 
 ### `plan_regularizacion`
 
 **Qué es.** El acuerdo de pago en cuotas para alguien que se atrasó.
 
-**Para qué sirve.** Es la salida para el participante que quiere pagar pero no puede de golpe. Sin esta figura, el sistema solo ofrece dos caminos —pagar todo o ser expulsado— y la experiencia de cobranza real dice que la mayoría de la gente sí quiere pagar, solo que no puede en el plazo original. `generarCuotas()` crea nuevas obligaciones de aporte que reemplazan a las originales. Eso es importante: el plan no es una anotación al margen, se materializa en obligaciones cobrables con sus propias fechas. `registrarIncumplimiento()` cierra el círculo: **si incumplís el plan de pago, eso también es un incumplimiento** (`INCUMPLIMIENTO_PLAN_REGULARIZACION` en M8), y normalmente más grave que el original, porque ya se te dio una oportunidad.
+**Para qué sirve.** Es la salida para el participante que quiere pagar pero no puede de golpe. Sin esta figura, el sistema solo ofrece dos caminos —pagar todo o ser expulsado— y la experiencia de cobranza real dice que la mayoría de la gente sí quiere pagar, solo que no puede en el plazo original.
 
-**Por qué existe.** Es lo que convierte una cartera morosa en una cartera recuperable. Sin plan, la única gestión posible es la presión, y la tasa de recuperación cae. ---
+`generarCuotas()` crea nuevas obligaciones de aporte que reemplazan a las originales. Eso es importante: el plan no es una anotación al margen, se materializa en obligaciones cobrables con sus propias fechas.
+
+`registrarIncumplimiento()` cierra el círculo: **si incumplís el plan de pago, eso también es un incumplimiento** (`INCUMPLIMIENTO_PLAN_REGULARIZACION` en M8), y normalmente más grave que el original, porque ya se te dio una oportunidad.
+
+**Por qué existe.** Es lo que convierte una cartera morosa en una cartera recuperable. Sin plan, la única gestión posible es la presión, y la tasa de recuperación cae.
+
+**Casos de uso que la nombran.** CU-27 Restringir al deudor e incluirlo en la lista interna (`levantarRestriccion`, `restringirDeudor`) · CU-82 Procesar una respuesta entrante (`procesarRespuestaEntrante`) · CU-97 Anticipar el riesgo con alertas tempranas (`cerrarAlertaRiesgo`, `evaluarRiesgo`)
 
 **Sistema.** Vive en el esquema `aportes`; la escribe y la lee solo el servicio `aportes` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `grupos.participante`, `identidad.usuario`. La referencian `grupos.solicitud_retiro`, `obligacion_aporte`.
 
@@ -316,9 +448,15 @@
 
 **Qué es.** Las reglas de recargo por atraso: cuántos días de gracia, qué tipo de recargo, cuánto, con qué tope, y a partir de cuántos días se considera mora grave o incumplimiento.
 
-**Para qué sirve.** El recargo por mora es un instrumento delicado: **si es muy bajo no cambia el comportamiento; si es muy alto ahoga al que ya está ahogado y garantiza que nunca pague.** Que sea configurable por grupo permite calibrarlo: un pasanaku familiar puede tener cero recargo y solo presión social; uno formal necesita que atrasarse cueste. `topeRecargo` es una protección al deudor y a la plataforma: sin tope, un recargo diario compuesto convierte una deuda de Bs 500 en una impagable en pocos meses, lo que es a la vez injusto y contraproducente (nadie paga una deuda que no puede alcanzar). `diasParaMoraGrave` y `diasParaIncumplimiento` son los umbrales que disparan el módulo 8: dejan de ser un juicio de valor y pasan a ser un parámetro explícito.
+**Para qué sirve.** El recargo por mora es un instrumento delicado: **si es muy bajo no cambia el comportamiento; si es muy alto ahoga al que ya está ahogado y garantiza que nunca pague.** Que sea configurable por grupo permite calibrarlo: un pasanaku familiar puede tener cero recargo y solo presión social; uno formal necesita que atrasarse cueste.
+
+`topeRecargo` es una protección al deudor y a la plataforma: sin tope, un recargo diario compuesto convierte una deuda de Bs 500 en una impagable en pocos meses, lo que es a la vez injusto y contraproducente (nadie paga una deuda que no puede alcanzar).
+
+`diasParaMoraGrave` y `diasParaIncumplimiento` son los umbrales que disparan el módulo 8: dejan de ser un juicio de valor y pasan a ser un parámetro explícito.
 
 **Por qué existe.** Sin política parametrizable, la fórmula de mora está hardcodeada y todos los grupos comparten la misma tolerancia — lo que hace imposible atender segmentos distintos.
+
+**Casos de uso que la nombran.** CU-21 Cobrar el aporte del período (`cobrarAporte`, `consultarEstadoDelParticipante`, `generarObligacionesDelPeriodo`, `consultarRecaudoDelPeriodo`, `consultarAdmisibilidadDePago`) · CU-25 Declarar el incumplimiento con descargo y evidencia (`declararIncumplimiento`, `presentarDescargo`, `resolverDescargo`)
 
 **Sistema.** Vive en el esquema `aportes`; la escribe y la lee solo el servicio `aportes` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `grupos.grupo`. La referencian `grupos.configuracion_grupo`, `obligacion_aporte`.
 
@@ -339,16 +477,24 @@
 
 **Qué es.** Cada pasarela, banco o billetera con la que la plataforma opera.
 
-**Para qué sirve.** Tres cosas que importan comercialmente: 1. **Multi-proveedor con respaldo.** `prioridad` y `activo` permiten que si el QR del banco A falla, el `IntentoPago` reintente con el proveedor B. En un país donde los servicios bancarios se caen con cierta regularidad, esto es la diferencia entre "no pude pagar" y "pagué". Y el día de vencimiento es justamente cuando más carga hay. 2. **Costo real por transacción.** `comisionFija` y `comisionPorcentual` permiten calcular `costoDe(monto)` y decidir por dónde enrutar. En aportes chicos —que son la mayoría— la comisión fija puede ser un porcentaje enorme del aporte. 3. **Capacidades declaradas.** `soportaWebhook` y `soportaConsultaEstado` cambian la estrategia: con webhook la acreditación es en segundos; sin él hay que hacer polling, con la latencia y el costo que eso implica. `referenciaCredenciales` es explícitamente **un puntero a la bóveda de secretos, nunca la llave**. Las credenciales de una pasarela de pagos no viven en la base de datos de la aplicación.
+**Para qué sirve.** Tres cosas que importan comercialmente:
 
-**Por qué existe.** Sin abstracción de proveedor, integrar un segundo banco significa reescribir el flujo de cobro. ---
+1. **Multi-proveedor con respaldo.** `prioridad` y `activo` permiten que si el QR del banco A falla, el `IntentoPago` reintente con el proveedor B. En un país donde los servicios bancarios se caen con cierta regularidad, esto es la diferencia entre "no pude pagar" y "pagué". Y el día de vencimiento es justamente cuando más carga hay.
+2. **Costo real por transacción.** `comisionFija` y `comisionPorcentual` permiten calcular `costoDe(monto)` y decidir por dónde enrutar. En aportes chicos —que son la mayoría— la comisión fija puede ser un porcentaje enorme del aporte.
+3. **Capacidades declaradas.** `soportaWebhook` y `soportaConsultaEstado` cambian la estrategia: con webhook la acreditación es en segundos; sin él hay que hacer polling, con la latencia y el costo que eso implica.
+
+`referenciaCredenciales` es explícitamente **un puntero a la bóveda de secretos, nunca la llave**. Las credenciales de una pasarela de pagos no viven en la base de datos de la aplicación.
+
+**Por qué existe.** Sin abstracción de proveedor, integrar un segundo banco significa reescribir el flujo de cobro.
+
+**Casos de uso que la nombran.** CU-18 Registrar y verificar una cuenta bancaria de destino (`registrarCuentaDestino`, `consultarDisponibilidad`, `designarCuentaPrincipal`, `verificarCuentaDestino`) · CU-19 Reembolsar un pago y atender una disputa (`aprobarReembolso`, `registrarDisputa`, `solicitarReembolso`) · CU-28 Emitir la orden de desembolso y ejecutar el intento (`listarDesembolsos`, `emitirOrdenDesembolso`, `anotarRespuestaDesembolso`) · CU-99 Dar de alta un proveedor de pago y enrutar el cobro (`enrutarCobro`, `darDeAltaProveedor`)
 
 **Sistema.** Vive en el esquema `aportes`; la escribe y la lee solo el servicio `aportes` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. La referencian `entregas.orden_desembolso`, `extracto_bancario`, `nucleo_financiero.orden_recarga`, `nucleo_financiero.orden_retiro`, `orden_cobro`, `pago`, `tarifas.costo_proveedor_operacion`, `webhook_pasarela`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `codigo` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
+| `codigo` | VARCHAR(30) | — | VARCHAR(30), obligatoria, única. | NINGUNA |
 | `nombre` | VARCHAR(80) | — | VARCHAR(80), obligatoria. | NINGUNA |
 | `tipo` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
 | `url_base` | VARCHAR(200) | — | VARCHAR(200), obligatoria. | NINGUNA |
@@ -364,16 +510,22 @@
 
 **Qué es.** El código QR interoperable propiamente dicho: el payload EMVCo, la imagen, el CRC, el banco emisor.
 
-**Para qué sirve.** Es la interfaz de pago que el mercado boliviano efectivamente usa. El QR interoperable permite que alguien pague desde la app de **cualquier** banco, no solo del banco de la plataforma. Ese detalle define si el producto es usable o no: obligar a los participantes a abrir cuenta en un banco específico mataría la adopción. `escaneos` y `registrarEscaneo()` permiten medir el embudo real: cuánta gente ve el QR, cuánta lo escanea, cuánta termina pagando. Si hay muchos escaneos y pocos pagos, hay un problema en la app del banco, no en el recordatorio. `esReutilizable` distingue dos casos: el QR de un aporte concreto (uso único, monto fijo) y el QR permanente del grupo (reutilizable, monto abierto).
+**Para qué sirve.** Es la interfaz de pago que el mercado boliviano efectivamente usa. El QR interoperable permite que alguien pague desde la app de **cualquier** banco, no solo del banco de la plataforma. Ese detalle define si el producto es usable o no: obligar a los participantes a abrir cuenta en un banco específico mataría la adopción.
+
+`escaneos` y `registrarEscaneo()` permiten medir el embudo real: cuánta gente ve el QR, cuánta lo escanea, cuánta termina pagando. Si hay muchos escaneos y pocos pagos, hay un problema en la app del banco, no en el recordatorio.
+
+`esReutilizable` distingue dos casos: el QR de un aporte concreto (uso único, monto fijo) y el QR permanente del grupo (reutilizable, monto abierto).
 
 **Por qué existe.** Separado de la orden porque el payload EMV tiene su propio formato, su propio CRC validable y su propia representación gráfica, y porque un mismo cobro puede necesitar QR en un canal y enlace en otro.
+
+**Casos de uso que la nombran.** CU-10 Recargar saldo (`solicitarRecarga`, `acreditarRecarga`) · CU-19 Reembolsar un pago y atender una disputa (`aprobarReembolso`, `registrarDisputa`, `solicitarReembolso`) · CU-21 Cobrar el aporte del período (`cobrarAporte`, `consultarEstadoDelParticipante`, `generarObligacionesDelPeriodo`, `consultarRecaudoDelPeriodo`, `consultarAdmisibilidadDePago`) · CU-81 Programar recordatorios de aporte · CU-99 Dar de alta un proveedor de pago y enrutar el cobro (`enrutarCobro`, `darDeAltaProveedor`)
 
 **Sistema.** Vive en el esquema `aportes`; la escribe y la lee solo el servicio `aportes` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `orden_cobro`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `orden_cobro_id` | UUID | — | UUID, obligatoria, referencia a `orden_cobro`. | NINGUNA |
+| `orden_cobro_id` | UUID | — | UUID, obligatoria, única, referencia a `orden_cobro`. | NINGUNA |
 | `payload_emv` | TEXT | — | TEXT, obligatoria. | NINGUNA |
 | `url_imagen` | VARCHAR(255) | — | VARCHAR(255), obligatoria. | NINGUNA |
 | `crc` | VARCHAR(8) | — | VARCHAR(8), obligatoria. | NINGUNA |
@@ -386,9 +538,13 @@
 
 **Qué es.** La devolución de un pago, total o parcial.
 
-**Para qué sirve.** Cuatro motivos, todos reales: pago duplicado (la persona pagó dos veces), error de monto, grupo cancelado antes de arrancar, o resolución de disputa. Es la única manera legítima de sacar plata que ya entró. El flujo `solicitado → aprobado → ejecutado`, con `solicitadoPor` y `aprobadoPor` distintos, es control interno básico: **quien pide una devolución no puede ser quien la aprueba.**
+**Para qué sirve.** Cuatro motivos, todos reales: pago duplicado (la persona pagó dos veces), error de monto, grupo cancelado antes de arrancar, o resolución de disputa. Es la única manera legítima de sacar plata que ya entró.
 
-**Por qué existe.** Sin reembolso modelado, "devolver plata" se haría con un ajuste manual sobre el saldo, sin rastro, sin aprobación y sin asiento contable. Es el hueco por donde se va la plata en sistemas mal diseñados. ---
+El flujo `solicitado → aprobado → ejecutado`, con `solicitadoPor` y `aprobadoPor` distintos, es control interno básico: **quien pide una devolución no puede ser quien la aprueba.**
+
+**Por qué existe.** Sin reembolso modelado, "devolver plata" se haría con un ajuste manual sobre el saldo, sin rastro, sin aprobación y sin asiento contable. Es el hueco por donde se va la plata en sistemas mal diseñados.
+
+**Casos de uso que la nombran.** CU-19 Reembolsar un pago y atender una disputa (`aprobarReembolso`, `registrarDisputa`, `solicitarReembolso`)
 
 **Sistema.** Vive en el esquema `aportes`; la escribe y la lee solo el servicio `aportes` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `identidad.usuario`, `pago`.
 
@@ -405,13 +561,35 @@
 | `fecha_solicitud` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
 | `fecha_ejecucion` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
 
+### `shedlock`
+
+**Qué es.** Bloqueo de trabajos programados entre replicas (ADR-018).
+
+**Para qué sirve.** Evita que dos réplicas del servicio ejecuten el mismo trabajo programado a la vez (ADR-018).
+
+**Sistema.** Infraestructura del servicio `aportes`, generada por plantilla en cada esquema (ADR-027): la escribe y la lee solo ese servicio.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `name` | VARCHAR(64) | — | VARCHAR(64), obligatoria, clave primaria. | NINGUNA |
+| `lock_until` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `locked_at` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `locked_by` | VARCHAR(255) | — | VARCHAR(255), obligatoria. | NINGUNA |
+
 ### `webhook_pasarela`
 
 **Qué es.** Cada notificación que la pasarela envía al sistema, guardada en crudo antes de procesarla.
 
-**Para qué sirve.** Es el punto de entrada del dinero automático, y por eso es también el punto de mayor riesgo. Dos protecciones críticas: 1. **`claveIdempotencia` es `UNIQUE`.** Las pasarelas reenvían el mismo evento —lo hacen sistemáticamente, por diseño, cuando no reciben confirmación a tiempo. Sin idempotencia, **un reintento del proveedor acredita el aporte dos veces**. Ese es el bug clásico que descuadra la bolsa y hace que alguien cobre de más. 2. **`firmaValida` se verifica ANTES de confiar en el payload.** Un webhook es un endpoint público: cualquiera puede enviarle un JSON que diga "pago aprobado por Bs 5.000". La firma es lo único que distingue a la pasarela real de un atacante. `payloadCrudo` se guarda completo y sin interpretar. Cuando hay una disputa con el proveedor, lo que vale es lo que él mandó, no lo que el sistema entendió.
+**Para qué sirve.** Es el punto de entrada del dinero automático, y por eso es también el punto de mayor riesgo. Dos protecciones críticas:
 
-**Por qué existe.** Sin persistir los webhooks, un fallo de procesamiento pierde el evento para siempre y el pago nunca se acredita. Con la tabla, se reintenta (`intentosProcesamiento`) o se manda a cola muerta para revisión manual. ---
+1. **`claveIdempotencia` es `UNIQUE`.** Las pasarelas reenvían el mismo evento —lo hacen sistemáticamente, por diseño, cuando no reciben confirmación a tiempo. Sin idempotencia, **un reintento del proveedor acredita el aporte dos veces**. Ese es el bug clásico que descuadra la bolsa y hace que alguien cobre de más.
+2. **`firmaValida` se verifica ANTES de confiar en el payload.** Un webhook es un endpoint público: cualquiera puede enviarle un JSON que diga "pago aprobado por Bs 5.000". La firma es lo único que distingue a la pasarela real de un atacante.
+
+`payloadCrudo` se guarda completo y sin interpretar. Cuando hay una disputa con el proveedor, lo que vale es lo que él mandó, no lo que el sistema entendió.
+
+**Por qué existe.** Sin persistir los webhooks, un fallo de procesamiento pierde el evento para siempre y el pago nunca se acredita. Con la tabla, se reintenta (`intentosProcesamiento`) o se manda a cola muerta para revisión manual.
+
+**Casos de uso que la nombran.** CU-10 Recargar saldo (`solicitarRecarga`, `acreditarRecarga`) · CU-99 Dar de alta un proveedor de pago y enrutar el cobro (`enrutarCobro`, `darDeAltaProveedor`)
 
 **Sistema.** Vive en el esquema `aportes`; la escribe y la lee solo el servicio `aportes` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `pago`, `proveedor_pago`. Reglas nombradas: `uq_webhook_idem`.
 
@@ -437,9 +615,15 @@
 
 **Qué es.** Cada detección concreta, con su evidencia y su análisis.
 
-**Para qué sirve.** Es la unidad de trabajo del oficial de cumplimiento. El flujo `ABIERTA → EN_ANALISIS → DESCARTADA | ESCALADA | REPORTADA` con `conclusion` obligatoria hace que **cada alerta se cierre con una decisión fundamentada**. Eso importa por dos razones: la mayoría de las alertas son falsos positivos (y descartarlas sin fundamento sería negligencia), y ante una inspección hay que poder mostrar el criterio con que se descartaron. `detalleDeteccion` guarda por qué saltó: qué operaciones, qué montos, qué ventana. Las tipologías relevantes en un pasanaku digital, según la nota del modelo: fraccionamiento de aportes para evitar umbrales, grupos con participantes ficticios, **una misma cuenta destino para varios usuarios** (detectado en M4 con `hash_numero_cuenta`), y retiro inmediato tras cobrar el turno.
+**Para qué sirve.** Es la unidad de trabajo del oficial de cumplimiento. El flujo `ABIERTA → EN_ANALISIS → DESCARTADA | ESCALADA | REPORTADA` con `conclusion` obligatoria hace que **cada alerta se cierre con una decisión fundamentada**. Eso importa por dos razones: la mayoría de las alertas son falsos positivos (y descartarlas sin fundamento sería negligencia), y ante una inspección hay que poder mostrar el criterio con que se descartaron.
 
-**Por qué existe.** Sin alertas gestionadas, la detección genera ruido que nadie procesa — que a efectos regulatorios es igual que no detectar. ---
+`detalleDeteccion` guarda por qué saltó: qué operaciones, qué montos, qué ventana.
+
+Las tipologías relevantes en un pasanaku digital, según la nota del modelo: fraccionamiento de aportes para evitar umbrales, grupos con participantes ficticios, **una misma cuenta destino para varios usuarios** (detectado en M4 con `hash_numero_cuenta`), y retiro inmediato tras cobrar el turno.
+
+**Por qué existe.** Sin alertas gestionadas, la detección genera ruido que nadie procesa — que a efectos regulatorios es igual que no detectar.
+
+**Casos de uso que la nombran.** CU-48 Calibrar reglas de cumplimiento y triar sus alertas
 
 **Sistema.** Vive en el esquema `auditoria`; la escribe y la lee solo el servicio `auditoria` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `grupos.grupo`, `identidad.usuario`, `regla_cumplimiento`, `reporte_operacion_sospechosa`.
 
@@ -465,9 +649,17 @@
 
 **Qué es.** Las listas de personas restringidas (PEP, OFAC, ONU, locales) y las coincidencias detectadas contra usuarios.
 
-**Para qué sirve.** El chequeo contra listas es requisito normativo básico al dar de alta a un usuario y periódicamente después. `puntajeSimilitud` y el estado `FALSO_POSITIVO` reconocen el problema real de estas listas: **los nombres coinciden con frecuencia y la mayoría son falsos positivos.** "Juan Pérez" va a coincidir con alguien. Sin gestión de falsos positivos, o se bloquea a gente inocente o se ignoran todas las coincidencias — ambos extremos son inaceptables. `revisadaPor` deja constancia de quién decidió que era falso positivo, que es la decisión que un inspector revisará. `version` de la lista importa: hay que poder demostrar contra qué versión se verificó a un usuario en su fecha de alta.
+**Para qué sirve.** El chequeo contra listas es requisito normativo básico al dar de alta a un usuario y periódicamente después.
 
-**Por qué existe.** Es requisito regulatorio, y sin gestión de coincidencias el requisito se cumple mal en cualquiera de las dos direcciones. ---
+`puntajeSimilitud` y el estado `FALSO_POSITIVO` reconocen el problema real de estas listas: **los nombres coinciden con frecuencia y la mayoría son falsos positivos.** "Juan Pérez" va a coincidir con alguien. Sin gestión de falsos positivos, o se bloquea a gente inocente o se ignoran todas las coincidencias — ambos extremos son inaceptables.
+
+`revisadaPor` deja constancia de quién decidió que era falso positivo, que es la decisión que un inspector revisará.
+
+`version` de la lista importa: hay que poder demostrar contra qué versión se verificó a un usuario en su fecha de alta.
+
+**Por qué existe.** Es requisito regulatorio, y sin gestión de coincidencias el requisito se cumple mal en cualquiera de las dos direcciones.
+
+**Casos de uso que la nombran.** CU-01 Registro y apertura de billetera (`listarContratosVigentes`, `registrarUsuario`, `solicitarVerificacionCorreo`, `guardarBorradorOnboarding`, `confirmarVerificacionCorreo`, `verificarTitularidad`) · CU-02 Elevar nivel de debida diligencia (`consultarEstadoDeVerificacion`, `iniciarVerificacion`) · CU-03 Declaración PEP y beneficiario final
 
 **Sistema.** Vive en el esquema `auditoria`; la escribe y la lee solo el servicio `auditoria` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `identidad.usuario`, `lista_restrictiva_externa`.
 
@@ -486,9 +678,20 @@
 
 **Qué es.** Qué mide cada indicador, cómo se calcula, de dónde sale el dato, quién responde por él y para qué lado se cumple su meta. Versionada y con vigencia.
 
-**Para qué sirve.** Resuelve el problema que no es técnico: **que dos personas lleguen a una reunión con números distintos de la misma cosa**. Un indicador es una definición, no una consulta; si dos lugares lo recalculan, ya hay dos indicadores. - `sentido_meta` decide de qué lado se cumple. Sin él, «morosidad 7 % con meta 5 %» se leería como que cumple, porque 7 es mayor que 5. La mitad de los indicadores de riesgo y de cumplimiento son de los que **cuanto menos, mejor**, y el semáforo se pinta al revés de lo que sugiere la aritmética ingenua. - `dueno_familia` es quien escribe la explicación cuando su indicador está en rojo. Un indicador sin dueño es un número que nadie defiende y que, la tercera vez que aparece en rojo, deja de mirarse. - `minimo_casos` es el piso de muestra para publicar sin identificar personas. - `formula` y `fuente` son lo que se responde cuando alguien pregunta «¿y esto de dónde salió?» — que es la discusión que se lleva la reunión entera.
+**Para qué sirve.** Resuelve el problema que no es técnico: **que dos personas lleguen a una reunión con números distintos de la misma cosa**. Un indicador es una definición, no una consulta; si dos lugares lo recalculan, ya hay dos indicadores.
 
-**Por qué existe.** Por la **reproducibilidad**. `indicador_kpi` apunta a la versión de definición con la que se calculó, y por eso un número de hace un año vuelve a salir igual. Cuando la fórmula cambia, se cierra la vigencia de una versión y se abre otra: la serie vieja conserva la suya, y **el corte se puede señalar en el gráfico** en vez de aparecer como una mejora del 40 % que nadie explica. Sin esta tabla la definición vive en el código, y entonces se pierde en cuanto alguien despliega: el número queda sin forma de auditarse hacia atrás. > La columna se llama `definicion_indicador_id` y no `definicion_id` a propósito: > `definicion_id` ya está tomado por `definicion_reporte`, en este mismo módulo, y la > clave foránea habría resuelto en silencio a la tabla equivocada. ---
+- `sentido_meta` decide de qué lado se cumple. Sin él, «morosidad 7 % con meta 5 %» se leería como que cumple, porque 7 es mayor que 5. La mitad de los indicadores de riesgo y de cumplimiento son de los que **cuanto menos, mejor**, y el semáforo se pinta al revés de lo que sugiere la aritmética ingenua.
+- `dueno_familia` es quien escribe la explicación cuando su indicador está en rojo. Un indicador sin dueño es un número que nadie defiende y que, la tercera vez que aparece en rojo, deja de mirarse.
+- `minimo_casos` es el piso de muestra para publicar sin identificar personas.
+- `formula` y `fuente` son lo que se responde cuando alguien pregunta «¿y esto de dónde salió?» — que es la discusión que se lleva la reunión entera.
+
+**Por qué existe.** Por la **reproducibilidad**. `indicador_kpi` apunta a la versión de definición con la que se calculó, y por eso un número de hace un año vuelve a salir igual. Cuando la fórmula cambia, se cierra la vigencia de una versión y se abre otra: la serie vieja conserva la suya, y **el corte se puede señalar en el gráfico** en vez de aparecer como una mejora del 40 % que nadie explica.
+
+Sin esta tabla la definición vive en el código, y entonces se pierde en cuanto alguien despliega: el número queda sin forma de auditarse hacia atrás.
+
+> La columna se llama `definicion_indicador_id` y no `definicion_id` a propósito: > `definicion_id` ya está tomado por `definicion_reporte`, en este mismo módulo, y la > clave foránea habría resuelto en silencio a la tabla equivocada.
+
+**Casos de uso que la nombran.** CU-98 Publicar el tablero de indicadores (`publicarTablero`, `listarEndpointsDelDia`)
 
 **Sistema.** Vive en el esquema `auditoria`; la escribe y la lee solo el servicio `auditoria` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. La referencian `indicador_kpi`.
 
@@ -510,9 +713,15 @@
 
 **Qué es.** El catálogo de reportes disponibles, con su consulta, parámetros, permiso requerido y si contiene datos sensibles.
 
-**Para qué sirve.** Los diez tipos cubren a todos los públicos de la plataforma: el participante (estado de cuenta), el organizador (estado del grupo, desempeño), la operación (cartera en mora, conciliación diaria), la dirección (KPIs) y el regulador (operaciones sospechosas). `permisoRequerido` y `contieneDatosSensibles` son control de acceso: **el reporte de cartera en mora contiene nombres y montos de deudas de personas reales**, y no puede estar disponible para cualquiera con sesión iniciada. `estimarCosto()` protege la base de datos: un reporte sin filtros sobre tres años de pagos puede tumbar la producción en el peor momento.
+**Para qué sirve.** Los diez tipos cubren a todos los públicos de la plataforma: el participante (estado de cuenta), el organizador (estado del grupo, desempeño), la operación (cartera en mora, conciliación diaria), la dirección (KPIs) y el regulador (operaciones sospechosas).
 
-**Por qué existe.** Sin catálogo, cada reporte es una consulta escrita a mano por alguien, sin control de acceso, sin caché y sin registro de quién la ejecutó. ---
+`permisoRequerido` y `contieneDatosSensibles` son control de acceso: **el reporte de cartera en mora contiene nombres y montos de deudas de personas reales**, y no puede estar disponible para cualquiera con sesión iniciada.
+
+`estimarCosto()` protege la base de datos: un reporte sin filtros sobre tres años de pagos puede tumbar la producción en el peor momento.
+
+**Por qué existe.** Sin catálogo, cada reporte es una consulta escrita a mano por alguien, sin control de acceso, sin caché y sin registro de quién la ejecutó.
+
+**Casos de uso que la nombran.** CU-58 Definir, programar y exportar un reporte (`listarDefinicionesDeReporte`, `listarEjecucionesDeReporte`, `descargarExportacion`, `ejecutarReporte`)
 
 **Sistema.** Vive en el esquema `auditoria`; la escribe y la lee solo el servicio `auditoria` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. La referencian `ejecucion_reporte`, `programacion_reporte`.
 
@@ -520,7 +729,7 @@
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
 | `tipo` | VARCHAR(40) | — | VARCHAR(40), obligatoria. | NINGUNA |
-| `nombre` | VARCHAR(80) | — | VARCHAR(80), obligatoria. | NINGUNA |
+| `nombre` | VARCHAR(80) | — | VARCHAR(80), obligatoria, única. | NINGUNA |
 | `descripcion` | VARCHAR(300) | — | VARCHAR(300), obligatoria. | NINGUNA |
 | `consulta_base` | TEXT | — | TEXT, obligatoria. | NINGUNA |
 | `parametros_esperados` | JSONB | — | JSONB, obligatoria. | NINGUNA |
@@ -534,9 +743,13 @@
 
 **Qué es.** Cada corrida de un reporte, con parámetros, resultado y quién la pidió.
 
-**Para qué sirve.** Deja rastro de **quién extrajo qué información y cuándo**. `hashResultado` permite verificar después que un reporte presentado en una reunión o ante un tercero es el que realmente salió del sistema, y no una hoja de cálculo editada. `duracionMs` y `filasGeneradas` son las métricas que permiten detectar reportes que se degradan a medida que crece la base.
+**Para qué sirve.** Deja rastro de **quién extrajo qué información y cuándo**. `hashResultado` permite verificar después que un reporte presentado en una reunión o ante un tercero es el que realmente salió del sistema, y no una hoja de cálculo editada.
 
-**Por qué existe.** Sin registro de ejecuciones, la extracción de datos es invisible. Y la extracción invisible es exactamente cómo salen los datos de una organización. ---
+`duracionMs` y `filasGeneradas` son las métricas que permiten detectar reportes que se degradan a medida que crece la base.
+
+**Por qué existe.** Sin registro de ejecuciones, la extracción de datos es invisible. Y la extracción invisible es exactamente cómo salen los datos de una organización.
+
+**Casos de uso que la nombran.** CU-58 Definir, programar y exportar un reporte (`listarDefinicionesDeReporte`, `listarEjecucionesDeReporte`, `descargarExportacion`, `ejecutarReporte`)
 
 **Sistema.** Vive en el esquema `auditoria`; la escribe y la lee solo el servicio `auditoria` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `definicion_reporte`, `grupos.grupo`, `identidad.usuario`. La referencian `exportacion_reporte`.
 
@@ -555,13 +768,61 @@
 | `iniciada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
 | `finalizada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
 
+### `evento_consumido`
+
+**Qué es.** Marca de evento ya consumido, por consumidor (ADR-027).
+
+**Para qué sirve.** Hace idempotente el consumo: la entrega es al menos una vez y un mismo evento no puede producir dos efectos (regla 98.3.4).
+
+**Sistema.** Infraestructura del servicio `auditoria`, generada por plantilla en cada esquema (ADR-027): la escribe y la lee solo ese servicio.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `id_evento` | UUID | — | UUID, obligatoria, clave primaria. | NINGUNA |
+| `consumidor` | VARCHAR(60) | — | VARCHAR(60), obligatoria, clave primaria. | NINGUNA |
+| `consumido_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+
+### `evento_dominio`
+
+**Qué es.** Outbox transaccional del servicio (ADR-027).
+
+**Para qué sirve.** Garantiza que ningún hecho del servicio se pierda entre la base y la mensajería: el evento se guarda en la misma transacción que el cambio y un relevo lo publica después (regla 98.3.3).
+
+**Sistema.** Infraestructura del servicio `auditoria`, generada por plantilla en cada esquema (ADR-027): la escribe y la lee solo ese servicio.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
+| `tipo` | VARCHAR(60) | — | VARCHAR(60), obligatoria. | NINGUNA |
+| `version` | VARCHAR(10) | — | VARCHAR(10), obligatoria. | NINGUNA |
+| `agregado` | VARCHAR(40) | — | VARCHAR(40), obligatoria. | NINGUNA |
+| `agregado_id` | UUID | — | UUID, obligatoria. | NINGUNA |
+| `payload` | JSONB | — | JSONB, obligatoria. | NINGUNA |
+| `metadatos` | JSONB | — | JSONB, obligatoria. | NINGUNA |
+| `correlation_id` | UUID | — | UUID, obligatoria. | NINGUNA |
+| `causation_id` | UUID | — | UUID, opcional. | NINGUNA |
+| `ocurrido_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `publicado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
+| `intentos` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
+| `tomado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `tomado_por` | VARCHAR(100) | — | VARCHAR(100), opcional. | NINGUNA |
+| `ultimo_error` | TEXT | — | TEXT, opcional. | NINGUNA |
+| `proximo_intento_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+
 ### `exportacion_reporte`
 
 **Qué es.** El archivo generado a partir de una ejecución: PDF, XLSX, CSV o JSON.
 
-**Para qué sirve.** El archivo es el objeto que efectivamente sale de la plataforma, y por eso tiene sus propios controles: - `estaCifrado`: si contiene datos sensibles, se cifra. - `expiraEn`: el enlace de descarga caduca. Un CSV con datos de 500 usuarios no puede quedar accesible indefinidamente en una URL. - `descargas` + `registrarDescarga()`: quién lo bajó y cuántas veces. - `revocarAcceso()`: cortar la descarga si se detecta que el enlace circuló.
+**Para qué sirve.** El archivo es el objeto que efectivamente sale de la plataforma, y por eso tiene sus propios controles:
+- `estaCifrado`: si contiene datos sensibles, se cifra.
+- `expiraEn`: el enlace de descarga caduca. Un CSV con datos de 500 usuarios no puede quedar accesible indefinidamente en una URL.
+- `descargas` + `registrarDescarga()`: quién lo bajó y cuántas veces.
+- `revocarAcceso()`: cortar la descarga si se detecta que el enlace circuló.
 
 **Por qué existe.** Es el punto donde los datos dejan el perímetro de la plataforma. Sin controles en ese punto, todo lo demás es teatro.
+
+**Casos de uso que la nombran.** CU-58 Definir, programar y exportar un reporte (`listarDefinicionesDeReporte`, `listarEjecucionesDeReporte`, `descargarExportacion`, `ejecutarReporte`)
 
 **Sistema.** Vive en el esquema `auditoria`; la escribe y la lee solo el servicio `auditoria` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `ejecucion_reporte`. Reglas nombradas: `ck_exportacion_version_llave`.
 
@@ -583,9 +844,13 @@
 
 **Qué es.** La ficha de gobierno de cada tabla del modelo: si está en uso (estado), si alguien ya revisó su descripción (revisión), quién responde por ella y qué política de retención le aplica.
 
-**Para qué sirve.** El catálogo de datos dice qué es cada tabla, pero no si sigue en uso ni quién la cuida. Con esta ficha el equipo de sistemas y auditoría ve de un vistazo qué tablas están activas, cuáles se proponen retirar y cuáles nadie revisó todavía, igual que en el portal interno de Atlas. Una tabla sin ficha se muestra **activa y detectada**: está en el modelo y nadie la revisó. La sensibilidad no se guarda acá: se deriva de las columnas del modelo, para no tener dos fuentes de verdad.
+**Para qué sirve.** El catálogo de datos dice qué es cada tabla, pero no si sigue en uso ni quién la cuida. Con esta ficha el equipo de sistemas y auditoría ve de un vistazo qué tablas están activas, cuáles se proponen retirar y cuáles nadie revisó todavía, igual que en el portal interno de Atlas.
 
-**Por qué existe.** Sin ella, retirar una tabla o confirmar que una tabla con datos personales tiene dueño y retención depende de la memoria de alguien. ---
+Una tabla sin ficha se muestra **activa y detectada**: está en el modelo y nadie la revisó. La sensibilidad no se guarda acá: se deriva de las columnas del modelo, para no tener dos fuentes de verdad.
+
+**Por qué existe.** Sin ella, retirar una tabla o confirmar que una tabla con datos personales tiene dueño y retención depende de la memoria de alguien.
+
+**Casos de uso que la nombran.** CU-130 Gobernar la ficha de cada tabla del catálogo de datos (`obtenerResumenDelCatalogo`, `guardarFichaDeGobierno`)
 
 **Sistema.** Vive en el esquema `auditoria`; la escribe y la lee solo el servicio `auditoria` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `politica_retencion`.
 
@@ -608,16 +873,20 @@
 
 **Qué es.** Un fallo del sistema con impacto en usuarios o en dinero.
 
-**Para qué sirve.** `impactoUsuarios` e `impactoMonetario` son los campos que distinguen un incidente técnico de un incidente de negocio. Un servicio caído dos horas un domingo es una cosa; el mismo servicio caído el día de vencimiento de cuarenta grupos es otra completamente distinta, y hay que poder cuantificarla — entre otras cosas para decidir si corresponde condonar la mora de ese día. `causaRaiz` y `accionesCorrectivas` con post mortem convierten el incidente en aprendizaje en vez de en un susto que se repite.
+**Para qué sirve.** `impactoUsuarios` e `impactoMonetario` son los campos que distinguen un incidente técnico de un incidente de negocio. Un servicio caído dos horas un domingo es una cosa; el mismo servicio caído el día de vencimiento de cuarenta grupos es otra completamente distinta, y hay que poder cuantificarla — entre otras cosas para decidir si corresponde condonar la mora de ese día.
 
-**Por qué existe.** Sin registro de incidentes no se puede correlacionar un reclamo masivo de usuarios con la caída que lo causó, ni decidir con fundamento sobre las consecuencias (perdonar mora, reprogramar entregas, compensar). ---
+`causaRaiz` y `accionesCorrectivas` con post mortem convierten el incidente en aprendizaje en vez de en un susto que se repite.
+
+**Por qué existe.** Sin registro de incidentes no se puede correlacionar un reclamo masivo de usuarios con la caída que lo causó, ni decidir con fundamento sobre las consecuencias (perdonar mora, reprogramar entregas, compensar).
+
+**Casos de uso que la nombran.** CU-15 Emitir extracto y certificado de saldo (`emitirExtracto`, `listarMovimientosBilletera`) · CU-50 Conciliar la custodia y verificar el encaje (`ejecutarCierreDiario`, `listarConciliaciones`, `conciliarCustodia`) · CU-54 Registrar un evento de riesgo operativo (`registrarRiesgoOperativo`) · CU-60 Sortear los turnos (`comprometerSorteo`, `revelarSorteo`, `verificarSorteo`) · CU-61 Verificar públicamente el sorteo (`consultarPaqueteDelSorteo`) · CU-72 Sellar el bloque de transparencia (`listarBloques`, `sellarBloque`) · CU-73 Verificar la cadena de transparencia (`verificarCadena`)
 
 **Sistema.** Vive en el esquema `auditoria`; la escribe y la lee solo el servicio `auditoria` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. La referencian `cumplimiento.evento_riesgo_operativo`, `cumplimiento.incidente_seguridad`, `nucleo_financiero.descuadre_custodia`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `codigo` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
+| `codigo` | VARCHAR(20) | — | VARCHAR(20), obligatoria, única. | NINGUNA |
 | `titulo` | VARCHAR(160) | — | VARCHAR(160), obligatoria. | NINGUNA |
 | `severidad` | VARCHAR(6) | — | VARCHAR(6), obligatoria. | NINGUNA |
 | `sistema_afectado` | VARCHAR(60) | — | VARCHAR(60), obligatoria. | NINGUNA |
@@ -634,9 +903,22 @@
 
 **Qué es.** Los indicadores de negocio de la plataforma, por dimensión y período.
 
-**Para qué sirve.** Los cuatro códigos de ejemplo son exactamente los que definen la salud del negocio: - `TASA_MOROSIDAD_GLOBAL`: **el indicador más importante.** Si sube sostenidamente, el modelo no funciona. - `GRUPOS_ACTIVOS` y `MONTO_ADMINISTRADO`: escala. - `TASA_CONCILIACION_AUTOMATICA`: eficiencia operativa. Si baja, hay más trabajo manual y más riesgo. `meta` y `variacionPeriodoAnterior` convierten el dato en gestión: no importa el valor absoluto, importa si va hacia donde tiene que ir. `dimension` (global / por grupo / por organizador) permite el mismo indicador a tres niveles, que es como se detecta que la morosidad global es aceptable pero está concentrada en los grupos de un organizador específico. `provisorio` acompaña al número y **no se deduce al consultarlo**. Un indicador calculado sobre un período cuyos cierres todavía no cuadraron es una opinión, y quien lo calculó es el único que sabe si cuadraron. Deducirlo al publicar obligaría a auditoría a mirar el esquema de `nucleo-financiero`, que no puede: por eso el dato viaja con la fila. `casos` es el tamaño de la muestra con la que se calculó. Sin él no se puede aplicar el mínimo de privacidad y el valor se publicaría identificando a las personas que lo componen: un promedio de tres personas identifica a las tres.
+**Para qué sirve.** Los cuatro códigos de ejemplo son exactamente los que definen la salud del negocio:
+- `TASA_MOROSIDAD_GLOBAL`: **el indicador más importante.** Si sube sostenidamente, el modelo no funciona.
+- `GRUPOS_ACTIVOS` y `MONTO_ADMINISTRADO`: escala.
+- `TASA_CONCILIACION_AUTOMATICA`: eficiencia operativa. Si baja, hay más trabajo manual y más riesgo.
 
-**Por qué existe.** Sin KPIs persistidos no hay serie temporal, y sin serie temporal no hay tendencia — solo fotos sueltas. ---
+`meta` y `variacionPeriodoAnterior` convierten el dato en gestión: no importa el valor absoluto, importa si va hacia donde tiene que ir.
+
+`dimension` (global / por grupo / por organizador) permite el mismo indicador a tres niveles, que es como se detecta que la morosidad global es aceptable pero está concentrada en los grupos de un organizador específico.
+
+`provisorio` acompaña al número y **no se deduce al consultarlo**. Un indicador calculado sobre un período cuyos cierres todavía no cuadraron es una opinión, y quien lo calculó es el único que sabe si cuadraron. Deducirlo al publicar obligaría a auditoría a mirar el esquema de `nucleo-financiero`, que no puede: por eso el dato viaja con la fila.
+
+`casos` es el tamaño de la muestra con la que se calculó. Sin él no se puede aplicar el mínimo de privacidad y el valor se publicaría identificando a las personas que lo componen: un promedio de tres personas identifica a las tres.
+
+**Por qué existe.** Sin KPIs persistidos no hay serie temporal, y sin serie temporal no hay tendencia — solo fotos sueltas.
+
+**Casos de uso que la nombran.** CU-98 Publicar el tablero de indicadores (`publicarTablero`, `listarEndpointsDelDia`)
 
 **Sistema.** Vive en el esquema `auditoria`; la escribe y la lee solo el servicio `auditoria` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Es append-only: UPDATE y DELETE revocados al rol del servicio; se corrige con una fila nueva. Depende de `definicion_indicador`.
 
@@ -661,9 +943,17 @@
 
 **Qué es.** Las listas de personas restringidas (PEP, OFAC, ONU, locales) y las coincidencias detectadas contra usuarios.
 
-**Para qué sirve.** El chequeo contra listas es requisito normativo básico al dar de alta a un usuario y periódicamente después. `puntajeSimilitud` y el estado `FALSO_POSITIVO` reconocen el problema real de estas listas: **los nombres coinciden con frecuencia y la mayoría son falsos positivos.** "Juan Pérez" va a coincidir con alguien. Sin gestión de falsos positivos, o se bloquea a gente inocente o se ignoran todas las coincidencias — ambos extremos son inaceptables. `revisadaPor` deja constancia de quién decidió que era falso positivo, que es la decisión que un inspector revisará. `version` de la lista importa: hay que poder demostrar contra qué versión se verificó a un usuario en su fecha de alta.
+**Para qué sirve.** El chequeo contra listas es requisito normativo básico al dar de alta a un usuario y periódicamente después.
 
-**Por qué existe.** Es requisito regulatorio, y sin gestión de coincidencias el requisito se cumple mal en cualquiera de las dos direcciones. ---
+`puntajeSimilitud` y el estado `FALSO_POSITIVO` reconocen el problema real de estas listas: **los nombres coinciden con frecuencia y la mayoría son falsos positivos.** "Juan Pérez" va a coincidir con alguien. Sin gestión de falsos positivos, o se bloquea a gente inocente o se ignoran todas las coincidencias — ambos extremos son inaceptables.
+
+`revisadaPor` deja constancia de quién decidió que era falso positivo, que es la decisión que un inspector revisará.
+
+`version` de la lista importa: hay que poder demostrar contra qué versión se verificó a un usuario en su fecha de alta.
+
+**Por qué existe.** Es requisito regulatorio, y sin gestión de coincidencias el requisito se cumple mal en cualquiera de las dos direcciones.
+
+**Casos de uso que la nombran.** CU-01 Registro y apertura de billetera (`listarContratosVigentes`, `registrarUsuario`, `solicitarVerificacionCorreo`, `guardarBorradorOnboarding`, `confirmarVerificacionCorreo`, `verificarTitularidad`) · CU-03 Declaración PEP y beneficiario final
 
 **Sistema.** Vive en el esquema `auditoria`; la escribe y la lee solo el servicio `auditoria` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. La referencian `coincidencia_lista`.
 
@@ -679,16 +969,22 @@
 
 **Qué es.** Cuánto tiempo se conserva cada tipo de dato y qué se hace al vencer: archivar, anonimizar o eliminar.
 
-**Para qué sirve.** Concilia dos obligaciones que se contradicen: **conservar** (la normativa financiera exige guardar registros contables por años) y **borrar** (la normativa de datos personales exige no guardar más de lo necesario). `baseLegal` documenta bajo qué norma se retiene cada cosa. Cuando un usuario ejerce su derecho de cancelación y no se le puede borrar todo, este campo es la justificación. `ARCHIVAR | ANONIMIZAR | ELIMINAR` son tres respuestas distintas: los asientos contables se archivan (se necesitan íntegros), los logs de acceso se anonimizan (sirve el patrón, no la identidad), los borradores se eliminan.
+**Para qué sirve.** Concilia dos obligaciones que se contradicen: **conservar** (la normativa financiera exige guardar registros contables por años) y **borrar** (la normativa de datos personales exige no guardar más de lo necesario).
 
-**Por qué existe.** Sin política de retención, o se guarda todo para siempre (riesgo regulatorio y costo creciente) o se borra sin criterio (y se pierde evidencia que la ley obliga a tener). ---
+`baseLegal` documenta bajo qué norma se retiene cada cosa. Cuando un usuario ejerce su derecho de cancelación y no se le puede borrar todo, este campo es la justificación.
+
+`ARCHIVAR | ANONIMIZAR | ELIMINAR` son tres respuestas distintas: los asientos contables se archivan (se necesitan íntegros), los logs de acceso se anonimizan (sirve el patrón, no la identidad), los borradores se eliminan.
+
+**Por qué existe.** Sin política de retención, o se guarda todo para siempre (riesgo regulatorio y costo creciente) o se borra sin criterio (y se pierde evidencia que la ley obliga a tener).
+
+**Casos de uso que la nombran.** CU-07 Ejercer derechos sobre datos personales (`ejercerDerechos`, `consultarMiPerfil`, `revocarCertificado`) · CU-130 Gobernar la ficha de cada tabla del catálogo de datos (`obtenerResumenDelCatalogo`, `guardarFichaDeGobierno`)
 
 **Sistema.** Vive en el esquema `auditoria`; la escribe y la lee solo el servicio `auditoria` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. La referencian `ficha_gobierno_tabla`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `entidad` | VARCHAR(50) | — | VARCHAR(50), obligatoria. | NINGUNA |
+| `entidad` | VARCHAR(50) | — | VARCHAR(50), obligatoria, única. | NINGUNA |
 | `meses_retencion_activa` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
 | `meses_retencion_historica` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
 | `accion_al_vencer` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
@@ -699,16 +995,24 @@
 
 **Qué es.** La ejecución técnica del borrado o seudonimización, con lo que se afecta y lo que se retiene por ley.
 
-**Para qué sirve.** Borrar a un usuario de un sistema financiero no es un `DELETE`. Sus pagos aparecen en asientos contables que deben conservarse; sus aportes son parte de la historia de un grupo con otras once personas cuyos derechos también hay que respetar. `SEUDONIMIZACION` es habitualmente la respuesta correcta: **se rompe el vínculo con la persona pero se conserva la integridad de los registros.** El asiento contable sigue cuadrando; ya no dice quién. `datosRetenidosPorLey` documenta explícitamente qué no se borró y con qué fundamento. Es lo que se le entrega al usuario como respuesta y lo que se le muestra a un inspector. `simular()` antes de ejecutar es indispensable: una anonimización mal ejecutada es irreversible y puede romper la contabilidad de un grupo entero.
+**Para qué sirve.** Borrar a un usuario de un sistema financiero no es un `DELETE`. Sus pagos aparecen en asientos contables que deben conservarse; sus aportes son parte de la historia de un grupo con otras once personas cuyos derechos también hay que respetar.
 
-**Por qué existe.** Sin proceso formal, el borrado es un script ad-hoc que alguien corre una vez, sin registro de qué se afectó ni posibilidad de explicarlo después. ---
+`SEUDONIMIZACION` es habitualmente la respuesta correcta: **se rompe el vínculo con la persona pero se conserva la integridad de los registros.** El asiento contable sigue cuadrando; ya no dice quién.
+
+`datosRetenidosPorLey` documenta explícitamente qué no se borró y con qué fundamento. Es lo que se le entrega al usuario como respuesta y lo que se le muestra a un inspector.
+
+`simular()` antes de ejecutar es indispensable: una anonimización mal ejecutada es irreversible y puede romper la contabilidad de un grupo entero.
+
+**Por qué existe.** Sin proceso formal, el borrado es un script ad-hoc que alguien corre una vez, sin registro de qué se afectó ni posibilidad de explicarlo después.
+
+**Casos de uso que la nombran.** CU-07 Ejercer derechos sobre datos personales (`ejercerDerechos`, `consultarMiPerfil`, `revocarCertificado`)
 
 **Sistema.** Vive en el esquema `auditoria`; la escribe y la lee solo el servicio `auditoria` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `identidad.usuario`, `solicitud_datos_personales`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `usuario_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
+| `usuario_id` | UUID | — | UUID, obligatoria, única, referencia a `usuario`. | NINGUNA |
 | `solicitud_id` | UUID | — | UUID, opcional, referencia a `solicitud_datos_personales`. | NINGUNA |
 | `estrategia` | VARCHAR(25) | — | VARCHAR(25), obligatoria. | NINGUNA |
 | `entidades_afectadas` | JSONB | — | JSONB, obligatoria. | NINGUNA |
@@ -722,7 +1026,9 @@
 
 **Para qué sirve.** Los reportes que hay que pedir no se piden. La conciliación diaria, el resumen semanal del organizador, el estado mensual del participante: automatizarlos es lo que hace que la información llegue a quien tiene que actuar sobre ella, y no que se descubra un problema en el cierre trimestral.
 
-**Por qué existe.** Sin programación, los controles periódicos dependen de la disciplina de una persona. ---
+**Por qué existe.** Sin programación, los controles periódicos dependen de la disciplina de una persona.
+
+**Casos de uso que la nombran.** CU-58 Definir, programar y exportar un reporte (`listarDefinicionesDeReporte`, `listarEjecucionesDeReporte`, `descargarExportacion`, `ejecutarReporte`)
 
 **Sistema.** Vive en el esquema `auditoria`; la escribe y la lee solo el servicio `auditoria` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `definicion_reporte`.
 
@@ -743,16 +1049,25 @@
 
 **Qué es.** Las reglas de detección de operaciones sospechosas, con su umbral, ventana y acción automática.
 
-**Para qué sirve.** Las cinco categorías corresponden a tipologías reales: - `UMBRAL_MONTO`: operaciones sobre el límite reportable. - `FRACCIONAMIENTO`: **la más importante.** Alguien divide un monto grande en varios chicos para no gatillar el umbral. Se detecta con `ventanaHoras` + suma acumulada, nunca operación por operación. - `VELOCIDAD`: mucho movimiento en poco tiempo. - `RED_SOSPECHOSA`: varias cuentas conectadas entre sí (misma cuenta bancaria destino, mismo dispositivo, mismo pagador). - `LISTA_RESTRICTIVA`: coincidencia con listas de PEP, OFAC, ONU. `accionAutomatica` gradúa la respuesta: `ALERTAR` (revisar después), `RETENER_OPERACION` (frenar hasta revisar), `BLOQUEAR_USUARIO` (casos graves). Retener una operación tiene costo para un usuario legítimo, así que la proporcionalidad importa.
+**Para qué sirve.** Las cinco categorías corresponden a tipologías reales:
+- `UMBRAL_MONTO`: operaciones sobre el límite reportable.
+- `FRACCIONAMIENTO`: **la más importante.** Alguien divide un monto grande en varios chicos para no gatillar el umbral. Se detecta con `ventanaHoras` + suma acumulada, nunca operación por operación.
+- `VELOCIDAD`: mucho movimiento en poco tiempo.
+- `RED_SOSPECHOSA`: varias cuentas conectadas entre sí (misma cuenta bancaria destino, mismo dispositivo, mismo pagador).
+- `LISTA_RESTRICTIVA`: coincidencia con listas de PEP, OFAC, ONU.
 
-**Por qué existe.** Con reglas hardcodeadas no se pueden ajustar umbrales cuando cambia la normativa ni agregar tipologías nuevas cuando aparece un patrón de abuso. ---
+`accionAutomatica` gradúa la respuesta: `ALERTAR` (revisar después), `RETENER_OPERACION` (frenar hasta revisar), `BLOQUEAR_USUARIO` (casos graves). Retener una operación tiene costo para un usuario legítimo, así que la proporcionalidad importa.
+
+**Por qué existe.** Con reglas hardcodeadas no se pueden ajustar umbrales cuando cambia la normativa ni agregar tipologías nuevas cuando aparece un patrón de abuso.
+
+**Casos de uso que la nombran.** CU-47 Evaluar el riesgo del producto antes de lanzarlo · CU-48 Calibrar reglas de cumplimiento y triar sus alertas
 
 **Sistema.** Vive en el esquema `auditoria`; la escribe y la lee solo el servicio `auditoria` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. La referencian `alerta_cumplimiento`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `codigo` | VARCHAR(40) | — | VARCHAR(40), obligatoria. | NINGUNA |
+| `codigo` | VARCHAR(40) | — | VARCHAR(40), obligatoria, única. | NINGUNA |
 | `descripcion` | VARCHAR(300) | — | VARCHAR(300), obligatoria. | NINGUNA |
 | `categoria` | VARCHAR(25) | — | VARCHAR(25), obligatoria. | NINGUNA |
 | `expresion` | VARCHAR(400) | — | VARCHAR(400), obligatoria. | NINGUNA |
@@ -766,9 +1081,15 @@
 
 **Qué es.** El reporte formal a la autoridad competente (UIF), consolidando varias alertas.
 
-**Para qué sirve.** Es una **obligación legal**, no una opción. Y la consolidación importa: no se reporta cada alerta por separado, se reporta un caso —un usuario, un período, una tipología, una narrativa que explica el patrón—. `narrativa` es el corazón del reporte: hay que **contar la historia** de por qué esas operaciones son sospechosas. Los datos crudos no constituyen un reporte. `aprobadoPor` (oficial de cumplimiento) y `numeroRadicado` cierran el circuito formal.
+**Para qué sirve.** Es una **obligación legal**, no una opción. Y la consolidación importa: no se reporta cada alerta por separado, se reporta un caso —un usuario, un período, una tipología, una narrativa que explica el patrón—.
 
-**Por qué existe.** No reportar cuando corresponde tiene consecuencias legales directas para la plataforma y sus responsables. Y el reporte tiene que quedar registrado, con fecha y radicado, para poder probar que se cumplió. ---
+`narrativa` es el corazón del reporte: hay que **contar la historia** de por qué esas operaciones son sospechosas. Los datos crudos no constituyen un reporte.
+
+`aprobadoPor` (oficial de cumplimiento) y `numeroRadicado` cierran el circuito formal.
+
+**Por qué existe.** No reportar cuando corresponde tiene consecuencias legales directas para la plataforma y sus responsables. Y el reporte tiene que quedar registrado, con fecha y radicado, para poder probar que se cumplió.
+
+**Casos de uso que la nombran.** CU-44 De alerta de monitoreo a reporte de operación sospechosa (`listarBandejaDeAlertas`, `listarBandejaDeCasos`, `abrirCasoLft`, `decidirCasoLft`)
 
 **Sistema.** Vive en el esquema `auditoria`; la escribe y la lee solo el servicio `auditoria` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `identidad.usuario`. La referencian `alerta_cumplimiento`, `cumplimiento.caso_investigacion_lft`.
 
@@ -782,7 +1103,7 @@
 | `periodo_analizado` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
 | `narrativa` | TEXT | — | TEXT, obligatoria. | NINGUNA |
 | `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `numero_radicado` | VARCHAR(40) | — | VARCHAR(40), opcional. | NINGUNA |
+| `numero_radicado` | VARCHAR(40) | — | VARCHAR(40), opcional, única. | NINGUNA |
 | `enviado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
 
 ### `revision_columna`
@@ -791,7 +1112,9 @@
 
 **Para qué sirve.** El catálogo describe cada columna desde el modelo (tipo, sensibilidad, nota de negocio). Esa descripción la escribió alguien una vez; que otra persona la revise y lo deje dicho es lo que convierte una ficha en un dato en el que se puede confiar, igual que en el catálogo del portal interno de Atlas. Un rechazo sin motivo no sirve a quien tiene que corregir: por eso el motivo es obligatorio al rechazar.
 
-**Por qué existe.** Sin ella, «esta columna ya se revisó» vive en la cabeza de quien la revisó, y una columna con datos personales mal clasificada pasa años sin que nadie lo note. ---
+**Por qué existe.** Sin ella, «esta columna ya se revisó» vive en la cabeza de quien la revisó, y una columna con datos personales mal clasificada pasa años sin que nadie lo note.
+
+**Casos de uso que la nombran.** CU-131 Revisar cada columna del catálogo de datos (`obtenerTablaDelCatalogo`, `revisarColumna`)
 
 **Sistema.** Vive en el esquema `auditoria`; la escribe y la lee solo el servicio `auditoria` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos.
 
@@ -808,13 +1131,34 @@
 | `revisado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
 | `version` | INTEGER | — | INTEGER, obligatoria. | NINGUNA |
 
+### `shedlock`
+
+**Qué es.** Bloqueo de trabajos programados entre replicas (ADR-018).
+
+**Para qué sirve.** Evita que dos réplicas del servicio ejecuten el mismo trabajo programado a la vez (ADR-018).
+
+**Sistema.** Infraestructura del servicio `auditoria`, generada por plantilla en cada esquema (ADR-027): la escribe y la lee solo ese servicio.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `name` | VARCHAR(64) | — | VARCHAR(64), obligatoria, clave primaria. | NINGUNA |
+| `lock_until` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `locked_at` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `locked_by` | VARCHAR(255) | — | VARCHAR(255), obligatoria. | NINGUNA |
+
 ### `solicitud_datos_personales`
 
 **Qué es.** El ejercicio de los derechos ARCO: acceso, rectificación, cancelación, oposición, portabilidad.
 
-**Para qué sirve.** Es un derecho del usuario y una obligación de la plataforma, **con plazo legal** (`fechaLimiteLegal`). Incumplir el plazo es sancionable con independencia de si después se atiende. El método `rechazarPorObligacionesVigentes(motivo)` es la pieza de negocio más delicada y merece explicación: **el derecho de cancelación no borra registros con obligación legal o financiera vigente.** Si el usuario tiene una deuda abierta en M8 o hay asientos contables suyos en M3, esos datos se conservan y se documenta la base legal. Es exactamente la situación que hay que resolver bien: alguien que debe plata pide que borren sus datos para desaparecer. La respuesta no puede ser "no" a secas ni "sí" sin más: es una atención parcial, fundamentada, con lo que se conserva y por qué.
+**Para qué sirve.** Es un derecho del usuario y una obligación de la plataforma, **con plazo legal** (`fechaLimiteLegal`). Incumplir el plazo es sancionable con independencia de si después se atiende.
 
-**Por qué existe.** Sin gestión formal, las solicitudes llegan por correo, se pierden y se incumplen los plazos. ---
+El método `rechazarPorObligacionesVigentes(motivo)` es la pieza de negocio más delicada y merece explicación: **el derecho de cancelación no borra registros con obligación legal o financiera vigente.** Si el usuario tiene una deuda abierta en M8 o hay asientos contables suyos en M3, esos datos se conservan y se documenta la base legal.
+
+Es exactamente la situación que hay que resolver bien: alguien que debe plata pide que borren sus datos para desaparecer. La respuesta no puede ser "no" a secas ni "sí" sin más: es una atención parcial, fundamentada, con lo que se conserva y por qué.
+
+**Por qué existe.** Sin gestión formal, las solicitudes llegan por correo, se pierden y se incumplen los plazos.
+
+**Casos de uso que la nombran.** CU-07 Ejercer derechos sobre datos personales (`ejercerDerechos`, `consultarMiPerfil`, `revocarCertificado`)
 
 **Sistema.** Vive en el esquema `auditoria`; la escribe y la lee solo el servicio `auditoria` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `identidad.usuario`. La referencian `proceso_anonimizacion`.
 
@@ -835,9 +1179,13 @@
 
 **Qué es.** El canal formal de atención al usuario.
 
-**Para qué sirve.** En una plataforma de dinero, el soporte no es opcional: **cada problema no resuelto es plata que alguien siente que perdió.** `referenciaEntidad` + `referenciaId` conectan el ticket con el objeto del problema (la entrega que no llegó, el pago que no se acreditó), lo que le da al agente el contexto sin tener que pedírselo al usuario. `slaHoras` establece el compromiso de tiempo. Un reclamo por una entrega no recibida no puede tener el mismo SLA que una consulta sobre cómo cambiar el avatar.
+**Para qué sirve.** En una plataforma de dinero, el soporte no es opcional: **cada problema no resuelto es plata que alguien siente que perdió.** `referenciaEntidad` + `referenciaId` conectan el ticket con el objeto del problema (la entrega que no llegó, el pago que no se acreditó), lo que le da al agente el contexto sin tener que pedírselo al usuario.
 
-**Por qué existe.** Y hay una razón adicional: `ticketSoporteId` es la justificación que exige `RegistroAccesoDatos` para consultar datos sensibles. **Sin tickets, no hay forma de validar que un acceso a datos personales tenía una razón legítima.** ---
+`slaHoras` establece el compromiso de tiempo. Un reclamo por una entrega no recibida no puede tener el mismo SLA que una consulta sobre cómo cambiar el avatar.
+
+**Por qué existe.** Y hay una razón adicional: `ticketSoporteId` es la justificación que exige `RegistroAccesoDatos` para consultar datos sensibles. **Sin tickets, no hay forma de validar que un acceso a datos personales tenía una razón legítima.**
+
+**Casos de uso que la nombran.** CU-82 Procesar una respuesta entrante (`procesarRespuestaEntrante`)
 
 **Sistema.** Vive en el esquema `auditoria`; la escribe y la lee solo el servicio `auditoria` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `identidad.usuario`. La referencian `cumplimiento.reclamo_cliente`.
 
@@ -863,9 +1211,13 @@
 
 **Qué es.** El calendario de feriados nacionales, departamentales o propios del grupo.
 
-**Para qué sirve.** Si el día de cobro cae feriado, el banco no procesa y la transferencia no se acredita. Cobrar mora a alguien porque el 6 de agosto no había atención bancaria es injusto y genera reclamos legítimos. `siguienteHabil()` corre las fechas automáticamente. El alcance departamental importa en Bolivia: cada departamento tiene su efeméride, y un grupo con gente de La Paz y Santa Cruz no comparte todos los feriados.
+**Para qué sirve.** Si el día de cobro cae feriado, el banco no procesa y la transferencia no se acredita. Cobrar mora a alguien porque el 6 de agosto no había atención bancaria es injusto y genera reclamos legítimos. `siguienteHabil()` corre las fechas automáticamente.
 
-**Por qué existe.** Es la diferencia entre un sistema que entiende el contexto y uno que castiga a la gente por el calendario. ---
+El alcance departamental importa en Bolivia: cada departamento tiene su efeméride, y un grupo con gente de La Paz y Santa Cruz no comparte todos los feriados.
+
+**Por qué existe.** Es la diferencia entre un sistema que entiende el contexto y uno que castiga a la gente por el calendario.
+
+**Casos de uso que la nombran.** CU-25 Declarar el incumplimiento con descargo y evidencia (`declararIncumplimiento`, `presentarDescargo`, `resolverDescargo`) · CU-59 Mantener el calendario de días no hábiles (`calcularPlazoHabil`, `calcularVencimientoLocal`)
 
 **Sistema.** Vive en el esquema `catalogo`: todos los servicios la consultan; se carga con las semillas. Depende de `grupos.grupo`. Reglas nombradas: `ck_dia_no_habil_ambito`, `uq_dia_no_habil`.
 
@@ -881,7 +1233,11 @@
 
 **Qué es.** Las alícuotas vigentes y su aplicación a cada devengo.
 
-**Para qué sirve.** Que el impuesto sea una fila con `vigente_desde` y `base_legal`, y que su cálculo quede guardado por devengo. Cuando cambia una alícuota, el histórico conserva la que se aplicó, que es lo que exige cualquier revisión tributaria. `precio_incluye_impuesto` en el concepto decide si el precio publicado es final o si el impuesto se suma encima. Para el consumidor final, el precio publicado tiene que ser el final: la comisión de Bs 18 es Bs 18, impuestos incluidos. ---
+**Para qué sirve.** Que el impuesto sea una fila con `vigente_desde` y `base_legal`, y que su cálculo quede guardado por devengo. Cuando cambia una alícuota, el histórico conserva la que se aplicó, que es lo que exige cualquier revisión tributaria.
+
+`precio_incluye_impuesto` en el concepto decide si el precio publicado es final o si el impuesto se suma encima. Para el consumidor final, el precio publicado tiene que ser el final: la comisión de Bs 18 es Bs 18, impuestos incluidos.
+
+**Casos de uso que la nombran.** CU-30 Cotizar la comisión antes de operar (`cotizarOperacion`, `cotizarComision`, `aceptarCotizacion`)
 
 **Sistema.** Vive en el esquema `catalogo`: todos los servicios la consultan; solo `tarifas` la escribe. Depende de `nucleo_financiero.cuenta_contable`. La referencian `tarifas.calculo_impuesto`.
 
@@ -901,7 +1257,11 @@
 
 **Qué es.** El estado de habilitación de la empresa ante el regulador.
 
-**Para qué sirve.** Operar sin licencia es el riesgo número uno de este producto, por encima de cualquier bug. El régimen vigente para empresas de tecnología financiera exige primero un **certificado de adecuación** y después una **licencia de funcionamiento**, con categorías de actividad definidas —pagos y plataformas de pago es la que corresponde a este producto— y con plazo de adecuación para quien ya está operando. `alcance_autorizado` en JSON es la parte accionable: **la aplicación consulta esta tabla antes de habilitar un servicio**, en vez de confiar en que alguien recuerde qué quedó autorizado. Lanzar una función fuera del alcance deja de ser posible por descuido. ---
+**Para qué sirve.** Operar sin licencia es el riesgo número uno de este producto, por encima de cualquier bug. El régimen vigente para empresas de tecnología financiera exige primero un **certificado de adecuación** y después una **licencia de funcionamiento**, con categorías de actividad definidas —pagos y plataformas de pago es la que corresponde a este producto— y con plazo de adecuación para quien ya está operando.
+
+`alcance_autorizado` en JSON es la parte accionable: **la aplicación consulta esta tabla antes de habilitar un servicio**, en vez de confiar en que alguien recuerde qué quedó autorizado. Lanzar una función fuera del alcance deja de ser posible por descuido.
+
+**Casos de uso que la nombran.** CU-01 Registro y apertura de billetera (`listarContratosVigentes`, `registrarUsuario`, `solicitarVerificacionCorreo`, `guardarBorradorOnboarding`, `confirmarVerificacionCorreo`, `verificarTitularidad`) · CU-46 Verificar el alcance de la licencia (`verificarAlcance`) · CU-47 Evaluar el riesgo del producto antes de lanzarlo
 
 **Sistema.** Vive en el esquema `catalogo`: todos los servicios la consultan; solo `cumplimiento` la escribe. Depende de `identidad.usuario`. La referencian `cumplimiento.entorno_prueba_regulado`.
 
@@ -911,7 +1271,7 @@
 | `organismo` | VARCHAR(10) | — | VARCHAR(10), obligatoria. | NINGUNA |
 | `tipo` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
 | `categoria_actividad` | VARCHAR(40) | — | VARCHAR(40), obligatoria. | NINGUNA |
-| `numero_resolucion` | VARCHAR(60) | — | VARCHAR(60), opcional. | NINGUNA |
+| `numero_resolucion` | VARCHAR(60) | — | VARCHAR(60), opcional, única. | NINGUNA |
 | `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
 | `fecha_solicitud` | DATE | — | DATE, obligatoria. | NINGUNA |
 | `fecha_otorgamiento` | DATE | — | DATE, opcional. | NINGUNA |
@@ -929,6 +1289,8 @@
 **Para qué sirve.** Es la traducción operativa del principio "a menos conocimiento del cliente, menos capacidad de operación". Una persona verificada solo con celular puede tener saldo bajo y mover poco; una con documento validado y domicilio verificado puede más. Eso es lo que permite ofrecer apertura de cuenta en dos minutos **sin** que la plataforma se convierta en un canal cómodo para mover plata anónima.
 
 **Por qué existe.** Porque los techos cambian por norma y por decisión de riesgo, y cambiar un techo no puede requerir un despliegue. `base_normativa` guarda la referencia al artículo que obliga cada techo: cuando el supervisor pregunta "¿de dónde sacaron este límite?", la respuesta está en la fila.
+
+**Casos de uso que la nombran.** CU-01 Registro y apertura de billetera (`listarContratosVigentes`, `registrarUsuario`, `solicitarVerificacionCorreo`, `guardarBorradorOnboarding`, `confirmarVerificacionCorreo`, `verificarTitularidad`) · CU-02 Elevar nivel de debida diligencia (`consultarEstadoDeVerificacion`, `iniciarVerificacion`) · CU-40 Evaluar límites antes de una operación · CU-48 Calibrar reglas de cumplimiento y triar sus alertas
 
 **Sistema.** Vive en el esquema `catalogo`: todos los servicios la consultan; solo `cumplimiento` la escribe. La referencian `nucleo_financiero.consumo_limite`. Reglas nombradas: `ex_limite_vigencia`.
 
@@ -950,7 +1312,13 @@
 
 **Qué es.** Una versión completa y publicada de la política de precios.
 
-**Para qué sirve.** Tres cosas a la vez: 1. **Congelar el precio histórico.** Cada devengo apunta al tarifario que rigió. 2. **Publicar.** `url_publicacion` y `hash_documento` guardan el documento que se puso a disposición del público. La transparencia de tarifas no es opcional para un proveedor de servicios de pago: es exigible y verificable. 3. **Ordenar el cambio.** Un tarifario nuevo no entra de golpe: pasa por `EN_PREAVISO` durante `dias_preaviso` antes de volverse `VIGENTE`.
+**Para qué sirve.** Tres cosas a la vez:
+
+1. **Congelar el precio histórico.** Cada devengo apunta al tarifario que rigió.
+2. **Publicar.** `url_publicacion` y `hash_documento` guardan el documento que se puso a disposición del público. La transparencia de tarifas no es opcional para un proveedor de servicios de pago: es exigible y verificable.
+3. **Ordenar el cambio.** Un tarifario nuevo no entra de golpe: pasa por `EN_PREAVISO` durante `dias_preaviso` antes de volverse `VIGENTE`.
+
+**Casos de uso que la nombran.** CU-01 Registro y apertura de billetera (`listarContratosVigentes`, `registrarUsuario`, `solicitarVerificacionCorreo`, `guardarBorradorOnboarding`, `confirmarVerificacionCorreo`, `verificarTitularidad`) · CU-05 Aceptar contrato de adhesión y tarifario · CU-20 Crear grupo y congelar tarifario (`crearGrupo`, `consultarNivelKyc`, `consultarHabilitacion`, `consultarTarifarioVigente`) · CU-34 Publicar un tarifario nuevo con preaviso (`listarTarifarios`, `publicarTarifario`, `ponerTarifarioVigente`) · CU-36 Segmentar comercialmente y aplicar precio diferenciado (`resolverPrecio`, `crearSegmento`)
 
 **Sistema.** Vive en el esquema `catalogo`: todos los servicios la consultan; solo `tarifas` la escribe. Depende de `identidad.usuario`, `tarifario`. La referencian `tarifario`, `tarifas.asignacion_tarifario`, `tarifas.cambio_tarifario`, `tarifas.concepto_tarifa`, `tarifas.cotizacion_comision`, `tarifas.devengo_comision`, `tarifas.simulacion_tarifa`, `tarifas.tarifa_congelada_grupo`. Reglas nombradas: `ex_tarifario_vigente`, `ck_tarifario_publicado`.
 
@@ -980,6 +1348,8 @@
 
 **Por qué existe.** Porque el registro de la operación relevante ([[registro_operacion_relevante]], M12) **copia** el `tipo_cambio_aplicado` al momento del hecho. Esta tabla es de dónde sale ese número, y `fuente` dice si vino del banco central, de un proveedor o de una carga manual.
 
+**Casos de uso que la nombran.** CU-28 Emitir la orden de desembolso y ejecutar el intento (`listarDesembolsos`, `emitirOrdenDesembolso`, `anotarRespuestaDesembolso`)
+
 **Sistema.** Vive en el esquema `catalogo`: todos los servicios la consultan; se carga con las semillas.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
@@ -996,9 +1366,19 @@
 
 **Qué es.** Cuánto puede mover un usuario según su nivel de KYC.
 
-**Para qué sirve.** Implementa el principio de **KYC escalonado**, que es lo que permite tener a la vez baja fricción y cumplimiento: - Sin verificación: puede participar en grupos chicos. - KYC básico: montos medianos. - KYC avanzado: sin restricción práctica. Es lo que evita el falso dilema entre "pedir cédula a todos" (que expulsa a la mayoría del público objetivo en el registro) y "no pedir nada" (que es incumplimiento normativo). La persona escala su verificación cuando quiere operar más. `ACUMULADO_MENSUAL` como concepto es importante: el control no puede ser solo por operación individual, porque entonces el fraccionamiento lo esquiva trivialmente.
+**Para qué sirve.** Implementa el principio de **KYC escalonado**, que es lo que permite tener a la vez baja fricción y cumplimiento:
 
-**Por qué existe.** Sin umbrales por nivel de KYC, la única política posible es la misma exigencia para todos — y cualquiera de las dos opciones mata el producto o lo pone fuera de la ley. ---
+- Sin verificación: puede participar en grupos chicos.
+- KYC básico: montos medianos.
+- KYC avanzado: sin restricción práctica.
+
+Es lo que evita el falso dilema entre "pedir cédula a todos" (que expulsa a la mayoría del público objetivo en el registro) y "no pedir nada" (que es incumplimiento normativo). La persona escala su verificación cuando quiere operar más.
+
+`ACUMULADO_MENSUAL` como concepto es importante: el control no puede ser solo por operación individual, porque entonces el fraccionamiento lo esquiva trivialmente.
+
+**Por qué existe.** Sin umbrales por nivel de KYC, la única política posible es la misma exigencia para todos — y cualquiera de las dos opciones mata el producto o lo pone fuera de la ley.
+
+**Casos de uso que la nombran.** CU-48 Calibrar reglas de cumplimiento y triar sus alertas
 
 **Sistema.** Vive en el esquema `catalogo`: todos los servicios la consultan; solo `cumplimiento` la escribe.
 
@@ -1015,7 +1395,13 @@
 
 **Qué es.** Cada inciso del instructivo de la unidad de inteligencia financiera, convertido en una fila.
 
-**Para qué sirve.** El régimen de reporte por umbral no es un número: es una tabla de casos, cada uno con su formulario, su concepto de operación, si es por operación individual o acumulada, su monto en dólares, su ventana en días calendario y si exige declarar origen y destino de los fondos. Modelarlo como dato tiene tres consecuencias prácticas: 1. **Cuando la autoridad cambia un umbral, es un `INSERT` con vigencia.** Y los cambios ocurren: el régimen vigente incorporó un umbral específico para billeteras móviles —carga y retiro acumulados desde USD 1.000 en ventanas de 1 a 3 días calendario— que antes no existía. 2. **Se puede demostrar qué umbral regía el día de una operación**, porque la fila vieja conserva su vigencia en lugar de ser sobrescrita. 3. `base_normativa` guarda el artículo e inciso exactos, que es lo que se cita en una inspección. ---
+**Para qué sirve.** El régimen de reporte por umbral no es un número: es una tabla de casos, cada uno con su formulario, su concepto de operación, si es por operación individual o acumulada, su monto en dólares, su ventana en días calendario y si exige declarar origen y destino de los fondos. Modelarlo como dato tiene tres consecuencias prácticas:
+
+1. **Cuando la autoridad cambia un umbral, es un `INSERT` con vigencia.** Y los cambios ocurren: el régimen vigente incorporó un umbral específico para billeteras móviles —carga y retiro acumulados desde USD 1.000 en ventanas de 1 a 3 días calendario— que antes no existía.
+2. **Se puede demostrar qué umbral regía el día de una operación**, porque la fila vieja conserva su vigencia en lugar de ser sobrescrita.
+3. `base_normativa` guarda el artículo e inciso exactos, que es lo que se cita en una inspección.
+
+**Casos de uso que la nombran.** CU-41 Detectar umbral y registrar formulario PCC-01 · CU-42 Detectar umbral y registrar ROG · CU-48 Calibrar reglas de cumplimiento y triar sus alertas
 
 **Sistema.** Vive en el esquema `catalogo`: todos los servicios la consultan; solo `cumplimiento` la escribe. La referencian `cumplimiento.registro_operacion_relevante`. Reglas nombradas: `ck_umbral_base_normativa`, `ck_umbral_ventana`, `ex_umbral_vigencia`.
 
@@ -1041,9 +1427,23 @@
 
 **Qué es.** El registro insert-only de cada cambio sobre cualquier dato del sistema, con valor anterior, valor nuevo y autor.
 
-**Para qué sirve.** Implementa RN-17 y responde la pregunta que aparece en cada conflicto serio: ***¿quién cambió esto y cuándo?*** Casos concretos que solo esta tabla resuelve: - El monto del aporte del grupo cambió de Bs 500 a Bs 600 y nadie sabe quién lo cambió. - Una obligación aparece como exonerada y el participante jura que no pidió nada. - La cuenta bancaria de un beneficiario se modificó tres días antes de su turno. Dos campos merecen atención especial: **`hashAnterior` — encadenamiento.** Cada registro incluye el hash del anterior. Alterar un registro viejo rompe la cadena y `verificarCadena()` lo detecta. Esto convierte la bitácora de "un log que un administrador podría editar" a "un libro que, si se toca, se nota". Sin encadenamiento, la auditoría solo protege contra errores, no contra alguien con acceso a la base de datos — que es precisamente contra quien hay que protegerse. **`suplantandoAUsuarioId` — actuación de soporte.** Cuando un agente de soporte opera "como" un usuario para resolverle un problema, este campo deja constancia. **Sin él, nadie distingue lo que hizo el titular de lo que hizo un empleado.** Es la diferencia entre poder afirmar "el usuario autorizó esa entrega" y no poder afirmarlo. `reconstruirEstadoA(entidad, id, fecha)` permite responder "¿cómo estaba esto el 15 de marzo?", que es lo que se necesita cuando el reclamo llega meses después.
+**Para qué sirve.** Implementa RN-17 y responde la pregunta que aparece en cada conflicto serio: ***¿quién cambió esto y cuándo?*** Casos concretos que solo esta tabla resuelve:
+
+- El monto del aporte del grupo cambió de Bs 500 a Bs 600 y nadie sabe quién lo cambió.
+- Una obligación aparece como exonerada y el participante jura que no pidió nada.
+- La cuenta bancaria de un beneficiario se modificó tres días antes de su turno.
+
+Dos campos merecen atención especial:
+
+**`hashAnterior` — encadenamiento.** Cada registro incluye el hash del anterior. Alterar un registro viejo rompe la cadena y `verificarCadena()` lo detecta. Esto convierte la bitácora de "un log que un administrador podría editar" a "un libro que, si se toca, se nota". Sin encadenamiento, la auditoría solo protege contra errores, no contra alguien con acceso a la base de datos — que es precisamente contra quien hay que protegerse.
+
+**`suplantandoAUsuarioId` — actuación de soporte.** Cuando un agente de soporte opera "como" un usuario para resolverle un problema, este campo deja constancia. **Sin él, nadie distingue lo que hizo el titular de lo que hizo un empleado.** Es la diferencia entre poder afirmar "el usuario autorizó esa entrega" y no poder afirmarlo.
+
+`reconstruirEstadoA(entidad, id, fecha)` permite responder "¿cómo estaba esto el 15 de marzo?", que es lo que se necesita cuando el reclamo llega meses después.
 
 **Por qué existe.** Sin bitácora, cualquier disputa se resuelve por la palabra de quien tiene acceso al sistema. Con bitácora encadenada, se resuelve con evidencia verificable.
+
+**Casos de uso que la nombran.** CU-01 Registro y apertura de billetera (`listarContratosVigentes`, `registrarUsuario`, `solicitarVerificacionCorreo`, `guardarBorradorOnboarding`, `confirmarVerificacionCorreo`, `verificarTitularidad`) · CU-03 Declaración PEP y beneficiario final · CU-04 Autenticar con MFA y registrar dispositivo (`autenticar`, `abrirDesafioDeStepUp`, `verificarDesafioDeStepUp`) · CU-05 Aceptar contrato de adhesión y tarifario · CU-07 Ejercer derechos sobre datos personales (`ejercerDerechos`, `consultarMiPerfil`, `revocarCertificado`) · CU-08 Asignar y revocar roles de operador (`asignarRolesUsuarioInterno`) · CU-09 Cambiar credenciales y solicitar la baja · CU-16 Cerrar billetera y devolver saldo (`consultarActividad`, `solicitarCierreBilletera`) · CU-17 Bloquear saldo por orden de autoridad (`bloquearPorAutoridad`) · CU-18 Registrar y verificar una cuenta bancaria de destino (`registrarCuentaDestino`, `consultarDisponibilidad`, `designarCuentaPrincipal`, `verificarCuentaDestino`) · CU-19 Reembolsar un pago y atender una disputa (`aprobarReembolso`, `registrarDisputa`, `solicitarReembolso`) · CU-27 Restringir al deudor e incluirlo en la lista interna (`levantarRestriccion`, `restringirDeudor`) · CU-40 Evaluar límites antes de una operación · CU-44 De alerta de monitoreo a reporte de operación sospechosa (`listarBandejaDeAlertas`, `listarBandejaDeCasos`, `abrirCasoLft`, `decidirCasoLft`) · CU-45 Atender un requerimiento de autoridad · CU-46 Verificar el alcance de la licencia (`verificarAlcance`) · CU-47 Evaluar el riesgo del producto antes de lanzarlo · CU-48 Calibrar reglas de cumplimiento y triar sus alertas · CU-53 Elevar un reclamo a segunda instancia · CU-55 Gestionar un incidente de seguridad (`registrarIncidente`, `notificarTitulares`, `reportarIncidente`) · CU-57 Operar un punto de atención y arquear el efectivo · CU-58 Definir, programar y exportar un reporte (`listarDefinicionesDeReporte`, `listarEjecucionesDeReporte`, `descargarExportacion`, `ejecutarReporte`) · CU-59 Mantener el calendario de días no hábiles (`calcularPlazoHabil`, `calcularVencimientoLocal`) · CU-60 Sortear los turnos (`comprometerSorteo`, `revelarSorteo`, `verificarSorteo`) · CU-63 Proponer y votar un acuerdo (`proponerAcuerdo`, `votarAcuerdo`) · CU-76 Reseñar a un participante y moderar la reseña (`publicarResena`, `moderarResena`) · CU-91 Firmar y rescindir el contrato de organizador (`firmarContrato`, `rescindirContrato`, `firmarHabilitacionBasica`, `emitirContrato`) · CU-95 Definir una regla de automatización (`definirRegla`, `activarRegla`) · CU-96 Programar y ejecutar una tarea automatizada (`programarTarea`, `aprobarTarea`, `anotarEjecucion`) · CU-130 Gobernar la ficha de cada tabla del catálogo de datos (`obtenerResumenDelCatalogo`, `guardarFichaDeGobierno`) · CU-131 Revisar cada columna del catálogo de datos (`obtenerTablaDelCatalogo`, `revisarColumna`)
 
 **Sistema.** Vive en el esquema `comun`: todo servicio INSERTA su rastro y ninguno lee ni edita el de otro; el SELECT es solo de `rol_auditor` (excepción enumerada en `COMPARTIDAS_ESCRITURA`). Es append-only: UPDATE y DELETE revocados al rol del servicio; se corrige con una fila nueva. Depende de `grupos.grupo`, `identidad.usuario`.
 
@@ -1075,9 +1475,17 @@
 
 **Qué es.** El registro de quién **consultó** datos sensibles de quién, con qué justificación.
 
-**Para qué sirve.** **Es el registro que se pide cuando hay una filtración**, y el que casi nunca existe. El escenario: se filtran los documentos de identidad de 200 usuarios. La bitácora de escritura no sirve — nadie los modificó, alguien los *miró*. Sin esta tabla, no hay forma de saber si fue un empleado, cuál, ni cuántos registros consultó. `justificacion` + `ticketSoporteId` imponen una disciplina saludable: **para ver la cédula o la cuenta bancaria de alguien hay que decir por qué**, y ese porqué debe estar atado a un caso real. La sola existencia de ese requisito reduce drásticamente las consultas por curiosidad. `esAccesoInusual()` detecta el patrón peligroso: un consultor que en una hora accede a 300 registros de usuarios sin relación entre sí no está resolviendo un ticket, está extrayendo una base de datos.
+**Para qué sirve.** **Es el registro que se pide cuando hay una filtración**, y el que casi nunca existe.
+
+El escenario: se filtran los documentos de identidad de 200 usuarios. La bitácora de escritura no sirve — nadie los modificó, alguien los *miró*. Sin esta tabla, no hay forma de saber si fue un empleado, cuál, ni cuántos registros consultó.
+
+`justificacion` + `ticketSoporteId` imponen una disciplina saludable: **para ver la cédula o la cuenta bancaria de alguien hay que decir por qué**, y ese porqué debe estar atado a un caso real. La sola existencia de ese requisito reduce drásticamente las consultas por curiosidad.
+
+`esAccesoInusual()` detecta el patrón peligroso: un consultor que en una hora accede a 300 registros de usuarios sin relación entre sí no está resolviendo un ticket, está extrayendo una base de datos.
 
 **Por qué existe.** Es requisito de cualquier normativa seria de protección de datos, y es la única defensa —y la única prueba— ante un incidente de privacidad.
+
+**Casos de uso que la nombran.** CU-07 Ejercer derechos sobre datos personales (`ejercerDerechos`, `consultarMiPerfil`, `revocarCertificado`) · CU-15 Emitir extracto y certificado de saldo (`emitirExtracto`, `listarMovimientosBilletera`) · CU-17 Bloquear saldo por orden de autoridad (`bloquearPorAutoridad`) · CU-18 Registrar y verificar una cuenta bancaria de destino (`registrarCuentaDestino`, `consultarDisponibilidad`, `designarCuentaPrincipal`, `verificarCuentaDestino`) · CU-44 De alerta de monitoreo a reporte de operación sospechosa (`listarBandejaDeAlertas`, `listarBandejaDeCasos`, `abrirCasoLft`, `decidirCasoLft`) · CU-45 Atender un requerimiento de autoridad · CU-58 Definir, programar y exportar un reporte (`listarDefinicionesDeReporte`, `listarEjecucionesDeReporte`, `descargarExportacion`, `ejecutarReporte`)
 
 **Sistema.** Vive en el esquema `comun`: todo servicio INSERTA su rastro y ninguno lee ni edita el de otro; el SELECT es solo de `rol_auditor` (excepción enumerada en `COMPARTIDAS_ESCRITURA`). Es append-only: UPDATE y DELETE revocados al rol del servicio; se corrige con una fila nueva. Depende de `identidad.usuario`. Reglas nombradas: `ck_acceso_justificacion`.
 
@@ -1100,7 +1508,11 @@
 
 **Qué es.** El contrato modelo y la prueba de que cada usuario lo aceptó.
 
-**Para qué sirve.** Los contratos de adhesión de servicios financieros tienen forma reglada y suelen requerir registro previo ante el supervisor. El modelo guarda versión, hash, número de registro y vigencia. La aceptación guarda IP, dispositivo, token de firma y hash de evidencia: eso es lo que convierte un clic en una aceptación oponible. Sin esa fila, el consentimiento del usuario es una afirmación de la empresa. ---
+**Para qué sirve.** Los contratos de adhesión de servicios financieros tienen forma reglada y suelen requerir registro previo ante el supervisor. El modelo guarda versión, hash, número de registro y vigencia.
+
+La aceptación guarda IP, dispositivo, token de firma y hash de evidencia: eso es lo que convierte un clic en una aceptación oponible. Sin esa fila, el consentimiento del usuario es una afirmación de la empresa.
+
+**Casos de uso que la nombran.** CU-01 Registro y apertura de billetera (`listarContratosVigentes`, `registrarUsuario`, `solicitarVerificacionCorreo`, `guardarBorradorOnboarding`, `confirmarVerificacionCorreo`, `verificarTitularidad`) · CU-05 Aceptar contrato de adhesión y tarifario
 
 **Sistema.** Vive en el esquema `cumplimiento`; la escribe y la lee solo el servicio `cumplimiento` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `contrato_adhesion`, `identidad.dispositivo`, `identidad.token_verificacion`, `identidad.usuario`.
 
@@ -1120,7 +1532,9 @@
 
 **Qué es.** El aparato de gobierno: comités, actas, manuales y designaciones.
 
-**Para qué sirve.** Esto no es burocracia decorativa: en la práctica supervisora, **un manual sin acta de aprobación se considera inexistente**, y la ausencia de manuales de procedimientos es una falta administrativa sancionable. `acta_comite` guarda asistentes, quórum, temas y decisiones con hash del documento; `politica_interna` versiona cada manual con su fecha de próxima revisión; `designacion_regulatoria` unifica quién es oficial de cumplimiento, responsable de seguridad de la información, responsable de riesgos, auditor interno y responsable del punto de reclamo, con acta y fecha de comunicación al organismo. ---
+**Para qué sirve.** Esto no es burocracia decorativa: en la práctica supervisora, **un manual sin acta de aprobación se considera inexistente**, y la ausencia de manuales de procedimientos es una falta administrativa sancionable. `acta_comite` guarda asistentes, quórum, temas y decisiones con hash del documento; `politica_interna` versiona cada manual con su fecha de próxima revisión; `designacion_regulatoria` unifica quién es oficial de cumplimiento, responsable de seguridad de la información, responsable de riesgos, auditor interno y responsable del punto de reclamo, con acta y fecha de comunicación al organismo.
+
+**Casos de uso que la nombran.** CU-34 Publicar un tarifario nuevo con preaviso (`listarTarifarios`, `publicarTarifario`, `ponerTarifarioVigente`) · CU-47 Evaluar el riesgo del producto antes de lanzarlo · CU-49 Designar al oficial de cumplimiento y capacitar · CU-53 Elevar un reclamo a segunda instancia · CU-54 Registrar un evento de riesgo operativo (`registrarRiesgoOperativo`) · CU-56 Ejecutar una prueba de continuidad · CU-93 Sancionar al organizador y resolver su apelación (`apelarSancion`, `resolverApelacion`, `sancionarOrganizador`) · CU-94 Elevar una decisión al comité de gobierno
 
 **Sistema.** Vive en el esquema `cumplimiento`; la escribe y la lee solo el servicio `cumplimiento` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Es append-only: UPDATE y DELETE revocados al rol del servicio; se corrige con una fila nueva. Depende de `comite_gobierno`, `identidad.usuario`. La referencian `designacion_regulatoria`, `politica_interna`, `prueba_continuidad`.
 
@@ -1142,7 +1556,11 @@
 
 **Qué es.** El inventario clasificado de activos y los incidentes que los afectan.
 
-**Para qué sirve.** El inventario con propietario, custodio y clasificación es el punto de partida de cualquier sistema de gestión de seguridad de la información, y también lo que permite responder "¿dónde están los datos personales?" sin adivinar: `contiene_datos_personales` es una columna consultable. En el incidente, `plazo_reporte` se calcula al detectar y **se guarda**: tres relojes distintos corren en paralelo —contención, reporte al organismo y notificación a los titulares— y hay que poder demostrar cuál regía ese día. ---
+**Para qué sirve.** El inventario con propietario, custodio y clasificación es el punto de partida de cualquier sistema de gestión de seguridad de la información, y también lo que permite responder "¿dónde están los datos personales?" sin adivinar: `contiene_datos_personales` es una columna consultable.
+
+En el incidente, `plazo_reporte` se calcula al detectar y **se guarda**: tres relojes distintos corren en paralelo —contención, reporte al organismo y notificación a los titulares— y hay que poder demostrar cuál regía ese día.
+
+**Casos de uso que la nombran.** CU-07 Ejercer derechos sobre datos personales (`ejercerDerechos`, `consultarMiPerfil`, `revocarCertificado`) · CU-55 Gestionar un incidente de seguridad (`registrarIncidente`, `notificarTitulares`, `reportarIncidente`)
 
 **Sistema.** Vive en el esquema `cumplimiento`; la escribe y la lee solo el servicio `cumplimiento` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `contrato_tercero`, `identidad.usuario`. La referencian `incidente_seguridad`.
 
@@ -1152,7 +1570,7 @@
 | `propietario_id` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
 | `custodio_id` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
 | `contrato_tercero_id` | UUID | — | UUID, opcional, referencia a `contrato_tercero`. | NINGUNA |
-| `codigo` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
+| `codigo` | VARCHAR(30) | — | VARCHAR(30), obligatoria, única. | NINGUNA |
 | `nombre` | VARCHAR(120) | — | VARCHAR(120), obligatoria. | NINGUNA |
 | `tipo` | VARCHAR(25) | — | VARCHAR(25), obligatoria. | NINGUNA |
 | `clasificacion` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
@@ -1167,7 +1585,13 @@
 
 **Qué es.** La detección y la investigación.
 
-**Para qué sirve.** Están separadas a propósito: una alerta es automática y barata; un caso es humano y caro. Varias alertas del mismo cliente se agrupan en un caso, el analista investiga y **decide**: descartar, mantener bajo monitoreo reforzado, reportar a la autoridad o terminar la relación. Lo importante es que **descartar también deja rastro**: `conclusion` es obligatoria. Un sistema donde las alertas se cierran sin justificación es peor que uno sin alertas, porque documenta que se vio y no se hizo nada. `plazo_limite` en el caso obliga a que la investigación tenga fecha de vencimiento.
+**Para qué sirve.** Están separadas a propósito: una alerta es automática y barata; un caso es humano y caro. Varias alertas del mismo cliente se agrupan en un caso, el analista investiga y **decide**: descartar, mantener bajo monitoreo reforzado, reportar a la autoridad o terminar la relación.
+
+Lo importante es que **descartar también deja rastro**: `conclusion` es obligatoria. Un sistema donde las alertas se cierran sin justificación es peor que uno sin alertas, porque documenta que se vio y no se hizo nada.
+
+`plazo_limite` en el caso obliga a que la investigación tenga fecha de vencimiento.
+
+**Casos de uso que la nombran.** CU-06 Revisión periódica de conocimiento del cliente · CU-12 Transferir saldo entre billeteras (`resolverAlias`, `acreditarRescate`, `emitirQr`, `leerQr`, `pagarQr`, `transferirSaldo`) · CU-44 De alerta de monitoreo a reporte de operación sospechosa (`listarBandejaDeAlertas`, `listarBandejaDeCasos`, `abrirCasoLft`, `decidirCasoLft`) · CU-48 Calibrar reglas de cumplimiento y triar sus alertas
 
 **Sistema.** Vive en el esquema `cumplimiento`; la escribe y la lee solo el servicio `cumplimiento` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `caso_investigacion_lft`, `identidad.usuario`, `nucleo_financiero.cuenta_billetera`, `nucleo_financiero.transaccion_billetera`, `regla_monitoreo_lft`. La referencian `desvio_perfil`. Reglas nombradas: `ck_alerta_conclusion`.
 
@@ -1192,9 +1616,13 @@
 
 **Qué es.** Las tres declaraciones que el marco de prevención exige y que casi ningún sistema casero modela.
 
-**Para qué sirve.** - **PEP**: si el cliente es una persona expuesta políticamente —o familiar o allegado— la relación exige debida diligencia reforzada y aprobación de nivel superior. Guardar cargo, institución, país y período es lo que permite saber cuándo deja de serlo. - **Beneficiario final**: quién controla realmente. Aplica sobre todo cuando el titular es una organización, una asociación o un grupo con personería. - **Origen de fondos**: para operaciones sobre umbral, la declaración de dónde salió la plata, con documento de respaldo y su hash.
+**Para qué sirve.** - **PEP**: si el cliente es una persona expuesta políticamente —o familiar o allegado— la relación exige debida diligencia reforzada y aprobación de nivel superior. Guardar cargo, institución, país y período es lo que permite saber cuándo deja de serlo.
+- **Beneficiario final**: quién controla realmente. Aplica sobre todo cuando el titular es una organización, una asociación o un grupo con personería.
+- **Origen de fondos**: para operaciones sobre umbral, la declaración de dónde salió la plata, con documento de respaldo y su hash.
 
-**Por qué existe.** Porque son exactamente los tres papeles que se piden en una inspección, y porque cuando aparece un problema con un cliente, la primera pregunta es "¿le preguntaron?". Sin estas tablas la respuesta es "verbalmente". ---
+**Por qué existe.** Porque son exactamente los tres papeles que se piden en una inspección, y porque cuando aparece un problema con un cliente, la primera pregunta es "¿le preguntaron?". Sin estas tablas la respuesta es "verbalmente".
+
+**Casos de uso que la nombran.** CU-03 Declaración PEP y beneficiario final
 
 **Sistema.** Vive en el esquema `cumplimiento`; la escribe y la lee solo el servicio `cumplimiento` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `identidad.usuario`.
 
@@ -1213,7 +1641,16 @@
 
 **Qué es.** El nivel de riesgo vigente de un cliente y lo que ese nivel exige.
 
-**Para qué sirve.** Es **la pieza que conecta cumplimiento con producto**. De ella dependen: - el tipo de debida diligencia exigida, - los [[limite_operativo_billetera]] que aplican (M10), - la periodicidad de revisión, - la sensibilidad del monitoreo. Eso convierte la verificación en algo con valor para el usuario: subir de nivel no es un trámite burocrático, es lo que le permite operar más. Y convierte el cumplimiento en algo automático: cambiar la calificación cambia los límites sin que nadie toque una configuración.
+**Para qué sirve.** Es **la pieza que conecta cumplimiento con producto**. De ella dependen:
+
+- el tipo de debida diligencia exigida,
+- los [[limite_operativo_billetera]] que aplican (M10),
+- la periodicidad de revisión,
+- la sensibilidad del monitoreo.
+
+Eso convierte la verificación en algo con valor para el usuario: subir de nivel no es un trámite burocrático, es lo que le permite operar más. Y convierte el cumplimiento en algo automático: cambiar la calificación cambia los límites sin que nadie toque una configuración.
+
+**Casos de uso que la nombran.** CU-01 Registro y apertura de billetera (`listarContratosVigentes`, `registrarUsuario`, `solicitarVerificacionCorreo`, `guardarBorradorOnboarding`, `confirmarVerificacionCorreo`, `verificarTitularidad`) · CU-02 Elevar nivel de debida diligencia (`consultarEstadoDeVerificacion`, `iniciarVerificacion`) · CU-03 Declaración PEP y beneficiario final · CU-06 Revisión periódica de conocimiento del cliente
 
 **Sistema.** Vive en el esquema `cumplimiento`; la escribe y la lee solo el servicio `cumplimiento` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `identidad.usuario`, `matriz_riesgo_lft`. La referencian `debida_diligencia`, `revision_periodica_kyc`. Reglas nombradas: `ex_calificacion_vigente`.
 
@@ -1237,7 +1674,11 @@
 
 **Qué es.** La designación del responsable y la formación obligatoria del personal.
 
-**Para qué sirve.** Son dos requisitos formales que siempre se piden y que siempre se responden con papeles sueltos: quién es el oficial de cumplimiento —titular y suplente—, desde cuándo, con qué acta y si se comunicó al organismo; y quién recibió capacitación, sobre qué tema, cuántas horas y con qué resultado. Tenerlos como tablas convierte "sí, capacitamos" en un reporte con nombres y fechas. ---
+**Para qué sirve.** Son dos requisitos formales que siempre se piden y que siempre se responden con papeles sueltos: quién es el oficial de cumplimiento —titular y suplente—, desde cuándo, con qué acta y si se comunicó al organismo; y quién recibió capacitación, sobre qué tema, cuántas horas y con qué resultado.
+
+Tenerlos como tablas convierte "sí, capacitamos" en un reporte con nombres y fechas.
+
+**Casos de uso que la nombran.** CU-49 Designar al oficial de cumplimiento y capacitar
 
 **Sistema.** Vive en el esquema `cumplimiento`; la escribe y la lee solo el servicio `cumplimiento` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `identidad.usuario`.
 
@@ -1258,14 +1699,20 @@
 
 **Qué es.** La detección y la investigación.
 
-**Para qué sirve.** Están separadas a propósito: una alerta es automática y barata; un caso es humano y caro. Varias alertas del mismo cliente se agrupan en un caso, el analista investiga y **decide**: descartar, mantener bajo monitoreo reforzado, reportar a la autoridad o terminar la relación. Lo importante es que **descartar también deja rastro**: `conclusion` es obligatoria. Un sistema donde las alertas se cierran sin justificación es peor que uno sin alertas, porque documenta que se vio y no se hizo nada. `plazo_limite` en el caso obliga a que la investigación tenga fecha de vencimiento.
+**Para qué sirve.** Están separadas a propósito: una alerta es automática y barata; un caso es humano y caro. Varias alertas del mismo cliente se agrupan en un caso, el analista investiga y **decide**: descartar, mantener bajo monitoreo reforzado, reportar a la autoridad o terminar la relación.
+
+Lo importante es que **descartar también deja rastro**: `conclusion` es obligatoria. Un sistema donde las alertas se cierran sin justificación es peor que uno sin alertas, porque documenta que se vio y no se hizo nada.
+
+`plazo_limite` en el caso obliga a que la investigación tenga fecha de vencimiento.
+
+**Casos de uso que la nombran.** CU-01 Registro y apertura de billetera (`listarContratosVigentes`, `registrarUsuario`, `solicitarVerificacionCorreo`, `guardarBorradorOnboarding`, `confirmarVerificacionCorreo`, `verificarTitularidad`) · CU-03 Declaración PEP y beneficiario final · CU-06 Revisión periódica de conocimiento del cliente · CU-07 Ejercer derechos sobre datos personales (`ejercerDerechos`, `consultarMiPerfil`, `revocarCertificado`) · CU-44 De alerta de monitoreo a reporte de operación sospechosa (`listarBandejaDeAlertas`, `listarBandejaDeCasos`, `abrirCasoLft`, `decidirCasoLft`) · CU-48 Calibrar reglas de cumplimiento y triar sus alertas
 
 **Sistema.** Vive en el esquema `cumplimiento`; la escribe y la lee solo el servicio `cumplimiento` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `auditoria.reporte_operacion_sospechosa`, `identidad.usuario`. La referencian `alerta_monitoreo_lft`. Reglas nombradas: `ck_caso_plazo`, `ck_caso_revision`, `ck_caso_reporte`, `ix_caso_vencidos`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `codigo` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
+| `codigo` | VARCHAR(20) | — | VARCHAR(20), obligatoria, única. | NINGUNA |
 | `usuario_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
 | `analista_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
 | `revisado_por` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
@@ -1284,16 +1731,20 @@
 
 **Qué es.** La agenda de reportes obligatorios y el rastro de cada envío.
 
-**Para qué sirve.** Una entidad supervisada envía información periódica: diaria, mensual, trimestral. El catálogo define **qué se debe enviar, a quién, con qué periodicidad, en qué formato y con qué plazo**. A partir de ahí el sistema genera los vencimientos solo, y un reporte no enviado es visible antes de vencer, no después. El envío guarda `numero_constancia`: la prueba de que se envió. La observación guarda lo que el organismo devolvió —observación, instrucción, multa o requerimiento— con su plazo de respuesta.
+**Para qué sirve.** Una entidad supervisada envía información periódica: diaria, mensual, trimestral. El catálogo define **qué se debe enviar, a quién, con qué periodicidad, en qué formato y con qué plazo**. A partir de ahí el sistema genera los vencimientos solo, y un reporte no enviado es visible antes de vencer, no después.
 
-**Por qué existe.** Porque el incumplimiento más común y más caro no es hacer las cosas mal: es **no mandar a tiempo**. Un calendario en una planilla no sobrevive a la primera rotación de personal. ---
+El envío guarda `numero_constancia`: la prueba de que se envió. La observación guarda lo que el organismo devolvió —observación, instrucción, multa o requerimiento— con su plazo de respuesta.
+
+**Por qué existe.** Porque el incumplimiento más común y más caro no es hacer las cosas mal: es **no mandar a tiempo**. Un calendario en una planilla no sobrevive a la primera rotación de personal.
+
+**Casos de uso que la nombran.** CU-43 Remitir los reportes mensuales a la UIF
 
 **Sistema.** Vive en el esquema `cumplimiento`; la escribe y la lee solo el servicio `cumplimiento` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. La referencian `reporte_regulatorio`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `codigo` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
+| `codigo` | VARCHAR(30) | — | VARCHAR(30), obligatoria, única. | NINGUNA |
 | `organismo` | VARCHAR(10) | — | VARCHAR(10), obligatoria. | NINGUNA |
 | `nombre` | VARCHAR(120) | — | VARCHAR(120), obligatoria. | NINGUNA |
 | `periodicidad` | VARCHAR(12) | — | VARCHAR(12), obligatoria. | NINGUNA |
@@ -1307,14 +1758,16 @@
 
 **Qué es.** El aparato de gobierno: comités, actas, manuales y designaciones.
 
-**Para qué sirve.** Esto no es burocracia decorativa: en la práctica supervisora, **un manual sin acta de aprobación se considera inexistente**, y la ausencia de manuales de procedimientos es una falta administrativa sancionable. `acta_comite` guarda asistentes, quórum, temas y decisiones con hash del documento; `politica_interna` versiona cada manual con su fecha de próxima revisión; `designacion_regulatoria` unifica quién es oficial de cumplimiento, responsable de seguridad de la información, responsable de riesgos, auditor interno y responsable del punto de reclamo, con acta y fecha de comunicación al organismo. ---
+**Para qué sirve.** Esto no es burocracia decorativa: en la práctica supervisora, **un manual sin acta de aprobación se considera inexistente**, y la ausencia de manuales de procedimientos es una falta administrativa sancionable. `acta_comite` guarda asistentes, quórum, temas y decisiones con hash del documento; `politica_interna` versiona cada manual con su fecha de próxima revisión; `designacion_regulatoria` unifica quién es oficial de cumplimiento, responsable de seguridad de la información, responsable de riesgos, auditor interno y responsable del punto de reclamo, con acta y fecha de comunicación al organismo.
+
+**Casos de uso que la nombran.** CU-93 Sancionar al organizador y resolver su apelación (`apelarSancion`, `resolverApelacion`, `sancionarOrganizador`) · CU-94 Elevar una decisión al comité de gobierno
 
 **Sistema.** Vive en el esquema `cumplimiento`; la escribe y la lee solo el servicio `cumplimiento` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. La referencian `acta_comite`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `tipo` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
+| `tipo` | VARCHAR(30) | — | VARCHAR(30), obligatoria, única. | NINGUNA |
 | `periodicidad_minima` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
 | `composicion_requerida` | JSONB | — | JSONB, obligatoria. | NINGUNA |
 | `quorum_minimo` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
@@ -1324,7 +1777,11 @@
 
 **Qué es.** El contrato modelo y la prueba de que cada usuario lo aceptó.
 
-**Para qué sirve.** Los contratos de adhesión de servicios financieros tienen forma reglada y suelen requerir registro previo ante el supervisor. El modelo guarda versión, hash, número de registro y vigencia. La aceptación guarda IP, dispositivo, token de firma y hash de evidencia: eso es lo que convierte un clic en una aceptación oponible. Sin esa fila, el consentimiento del usuario es una afirmación de la empresa. ---
+**Para qué sirve.** Los contratos de adhesión de servicios financieros tienen forma reglada y suelen requerir registro previo ante el supervisor. El modelo guarda versión, hash, número de registro y vigencia.
+
+La aceptación guarda IP, dispositivo, token de firma y hash de evidencia: eso es lo que convierte un clic en una aceptación oponible. Sin esa fila, el consentimiento del usuario es una afirmación de la empresa.
+
+**Casos de uso que la nombran.** CU-01 Registro y apertura de billetera (`listarContratosVigentes`, `registrarUsuario`, `solicitarVerificacionCorreo`, `guardarBorradorOnboarding`, `confirmarVerificacionCorreo`, `verificarTitularidad`) · CU-05 Aceptar contrato de adhesión y tarifario
 
 **Sistema.** Vive en el esquema `cumplimiento`; la escribe y la lee solo el servicio `cumplimiento` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `identidad.usuario`. La referencian `aceptacion_contrato`.
 
@@ -1348,7 +1805,9 @@
 
 **Qué es.** La tercerización y su seguimiento.
 
-**Para qué sirve.** Una billetera se apoya en terceros críticos: pasarela, mensajería, nube, antifraude. La responsabilidad frente al cliente **no se terceriza**, así que hay que registrar quién procesa qué, si accede a datos personales, en qué país los procesa, con qué cláusulas de confidencialidad, auditoría y continuidad, y con qué nivel de servicio. La evaluación periódica mide cumplimiento de acuerdo de nivel de servicio e incidentes atribuibles. ---
+**Para qué sirve.** Una billetera se apoya en terceros críticos: pasarela, mensajería, nube, antifraude. La responsabilidad frente al cliente **no se terceriza**, así que hay que registrar quién procesa qué, si accede a datos personales, en qué país los procesa, con qué cláusulas de confidencialidad, auditoría y continuidad, y con qué nivel de servicio. La evaluación periódica mide cumplimiento de acuerdo de nivel de servicio e incidentes atribuibles.
+
+**Casos de uso que la nombran.** CU-07 Ejercer derechos sobre datos personales (`ejercerDerechos`, `consultarMiPerfil`, `revocarCertificado`) · CU-55 Gestionar un incidente de seguridad (`registrarIncidente`, `notificarTitulares`, `reportarIncidente`) · CU-99 Dar de alta un proveedor de pago y enrutar el cobro (`enrutarCobro`, `darDeAltaProveedor`)
 
 **Sistema.** Vive en el esquema `cumplimiento`; la escribe y la lee solo el servicio `cumplimiento` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `identidad.usuario`. La referencian `activo_informacion`, `evaluacion_tercero`.
 
@@ -1377,14 +1836,16 @@
 
 **Qué es.** El inventario de controles y la evidencia de que se ejecutan.
 
-**Para qué sirve.** Un control que nadie prueba es un control que no existe. `prueba_control` guarda período, tamaño de muestra, excepciones encontradas y resultado —efectivo, deficiente o no efectivo—, que es exactamente el formato en el que auditoría interna y externa trabajan. ---
+**Para qué sirve.** Un control que nadie prueba es un control que no existe. `prueba_control` guarda período, tamaño de muestra, excepciones encontradas y resultado —efectivo, deficiente o no efectivo—, que es exactamente el formato en el que auditoría interna y externa trabajan.
+
+**Casos de uso que la nombran.** CU-54 Registrar un evento de riesgo operativo (`registrarRiesgoOperativo`) · CU-55 Gestionar un incidente de seguridad (`registrarIncidente`, `notificarTitulares`, `reportarIncidente`)
 
 **Sistema.** Vive en el esquema `cumplimiento`; la escribe y la lee solo el servicio `cumplimiento` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `identidad.usuario`. La referencian `prueba_control`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `codigo` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
+| `codigo` | VARCHAR(20) | — | VARCHAR(20), obligatoria, única. | NINGUNA |
 | `proceso` | VARCHAR(60) | — | VARCHAR(60), obligatoria. | NINGUNA |
 | `descripcion` | VARCHAR(300) | — | VARCHAR(300), obligatoria. | NINGUNA |
 | `tipo` | VARCHAR(12) | — | VARCHAR(12), obligatoria. | NINGUNA |
@@ -1398,9 +1859,15 @@
 
 **Qué es.** El expediente de conocimiento del cliente, por nivel.
 
-**Para qué sirve.** Cinco niveles —simplificada, estándar, ampliada, reforzada y continua— porque no todos los clientes justifican el mismo esfuerzo. Una persona que abre cuenta para aportar Bs 300 al mes no puede pasar por el mismo proceso que una que mueve Bs 80.000: exigirle lo mismo es perder al primero sin controlar mejor al segundo. `documentos_requeridos` vs `documentos_recibidos` en JSON permite que el requerimiento documental sea **configurable por nivel** y que la app muestre exactamente qué falta. `segunda_revision_por` implementa el principio de cuatro ojos: en debida diligencia reforzada, quien aprueba no puede ser quien recolectó.
+**Para qué sirve.** Cinco niveles —simplificada, estándar, ampliada, reforzada y continua— porque no todos los clientes justifican el mismo esfuerzo. Una persona que abre cuenta para aportar Bs 300 al mes no puede pasar por el mismo proceso que una que mueve Bs 80.000: exigirle lo mismo es perder al primero sin controlar mejor al segundo.
 
-**Por qué existe.** Porque la verificación KYC es un acto técnico —validar que el documento es real y la persona es quien dice ser— y la debida diligencia es un proceso de cumplimiento con vigencia, revisión periódica, aprobación y vencimiento. Fusionarlas hace imposible representar "el KYC está bien pero la debida diligencia venció". ---
+`documentos_requeridos` vs `documentos_recibidos` en JSON permite que el requerimiento documental sea **configurable por nivel** y que la app muestre exactamente qué falta.
+
+`segunda_revision_por` implementa el principio de cuatro ojos: en debida diligencia reforzada, quien aprueba no puede ser quien recolectó.
+
+**Por qué existe.** Porque la verificación KYC es un acto técnico —validar que el documento es real y la persona es quien dice ser— y la debida diligencia es un proceso de cumplimiento con vigencia, revisión periódica, aprobación y vencimiento. Fusionarlas hace imposible representar "el KYC está bien pero la debida diligencia venció".
+
+**Casos de uso que la nombran.** CU-01 Registro y apertura de billetera (`listarContratosVigentes`, `registrarUsuario`, `solicitarVerificacionCorreo`, `guardarBorradorOnboarding`, `confirmarVerificacionCorreo`, `verificarTitularidad`) · CU-02 Elevar nivel de debida diligencia (`consultarEstadoDeVerificacion`, `iniciarVerificacion`) · CU-06 Revisión periódica de conocimiento del cliente · CU-18 Registrar y verificar una cuenta bancaria de destino (`registrarCuentaDestino`, `consultarDisponibilidad`, `designarCuentaPrincipal`, `verificarCuentaDestino`) · CU-68 Postular a un grupo y ser emparejado (`contarMorosos`, `consultarRestriccion`, `solicitarIngresoPorEnlace`, `generarEnlaceDelGrupo`, `postularAlGrupo`) · CU-90 Postular a organizador y habilitarse (`activarRolOrganizador`, `postularOrganizador`, `aprobarPostulacion`, `consultarHabilitacionBasica`, `aceptarHabilitacionBasica`, `habilitarOrganizador`)
 
 **Sistema.** Vive en el esquema `cumplimiento`; la escribe y la lee solo el servicio `cumplimiento` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `calificacion_riesgo_cliente`, `identidad.usuario`, `identidad.verificacion_kyc`. Reglas nombradas: `ix_ddd_por_vencer`.
 
@@ -1425,9 +1892,13 @@
 
 **Qué es.** Las tres declaraciones que el marco de prevención exige y que casi ningún sistema casero modela.
 
-**Para qué sirve.** - **PEP**: si el cliente es una persona expuesta políticamente —o familiar o allegado— la relación exige debida diligencia reforzada y aprobación de nivel superior. Guardar cargo, institución, país y período es lo que permite saber cuándo deja de serlo. - **Beneficiario final**: quién controla realmente. Aplica sobre todo cuando el titular es una organización, una asociación o un grupo con personería. - **Origen de fondos**: para operaciones sobre umbral, la declaración de dónde salió la plata, con documento de respaldo y su hash.
+**Para qué sirve.** - **PEP**: si el cliente es una persona expuesta políticamente —o familiar o allegado— la relación exige debida diligencia reforzada y aprobación de nivel superior. Guardar cargo, institución, país y período es lo que permite saber cuándo deja de serlo.
+- **Beneficiario final**: quién controla realmente. Aplica sobre todo cuando el titular es una organización, una asociación o un grupo con personería.
+- **Origen de fondos**: para operaciones sobre umbral, la declaración de dónde salió la plata, con documento de respaldo y su hash.
 
-**Por qué existe.** Porque son exactamente los tres papeles que se piden en una inspección, y porque cuando aparece un problema con un cliente, la primera pregunta es "¿le preguntaron?". Sin estas tablas la respuesta es "verbalmente". ---
+**Por qué existe.** Porque son exactamente los tres papeles que se piden en una inspección, y porque cuando aparece un problema con un cliente, la primera pregunta es "¿le preguntaron?". Sin estas tablas la respuesta es "verbalmente".
+
+**Casos de uso que la nombran.** CU-02 Elevar nivel de debida diligencia (`consultarEstadoDeVerificacion`, `iniciarVerificacion`) · CU-41 Detectar umbral y registrar formulario PCC-01 · CU-57 Operar un punto de atención y arquear el efectivo
 
 **Sistema.** Vive en el esquema `cumplimiento`; la escribe y la lee solo el servicio `cumplimiento` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `identidad.usuario`, `nucleo_financiero.transaccion_billetera`. La referencian `registro_operacion_relevante`.
 
@@ -1450,9 +1921,13 @@
 
 **Qué es.** Las tres declaraciones que el marco de prevención exige y que casi ningún sistema casero modela.
 
-**Para qué sirve.** - **PEP**: si el cliente es una persona expuesta políticamente —o familiar o allegado— la relación exige debida diligencia reforzada y aprobación de nivel superior. Guardar cargo, institución, país y período es lo que permite saber cuándo deja de serlo. - **Beneficiario final**: quién controla realmente. Aplica sobre todo cuando el titular es una organización, una asociación o un grupo con personería. - **Origen de fondos**: para operaciones sobre umbral, la declaración de dónde salió la plata, con documento de respaldo y su hash.
+**Para qué sirve.** - **PEP**: si el cliente es una persona expuesta políticamente —o familiar o allegado— la relación exige debida diligencia reforzada y aprobación de nivel superior. Guardar cargo, institución, país y período es lo que permite saber cuándo deja de serlo.
+- **Beneficiario final**: quién controla realmente. Aplica sobre todo cuando el titular es una organización, una asociación o un grupo con personería.
+- **Origen de fondos**: para operaciones sobre umbral, la declaración de dónde salió la plata, con documento de respaldo y su hash.
 
-**Por qué existe.** Porque son exactamente los tres papeles que se piden en una inspección, y porque cuando aparece un problema con un cliente, la primera pregunta es "¿le preguntaron?". Sin estas tablas la respuesta es "verbalmente". ---
+**Por qué existe.** Porque son exactamente los tres papeles que se piden en una inspección, y porque cuando aparece un problema con un cliente, la primera pregunta es "¿le preguntaron?". Sin estas tablas la respuesta es "verbalmente".
+
+**Casos de uso que la nombran.** CU-03 Declaración PEP y beneficiario final
 
 **Sistema.** Vive en el esquema `cumplimiento`; la escribe y la lee solo el servicio `cumplimiento` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `identidad.usuario`.
 
@@ -1475,7 +1950,9 @@
 
 **Qué es.** El aparato de gobierno: comités, actas, manuales y designaciones.
 
-**Para qué sirve.** Esto no es burocracia decorativa: en la práctica supervisora, **un manual sin acta de aprobación se considera inexistente**, y la ausencia de manuales de procedimientos es una falta administrativa sancionable. `acta_comite` guarda asistentes, quórum, temas y decisiones con hash del documento; `politica_interna` versiona cada manual con su fecha de próxima revisión; `designacion_regulatoria` unifica quién es oficial de cumplimiento, responsable de seguridad de la información, responsable de riesgos, auditor interno y responsable del punto de reclamo, con acta y fecha de comunicación al organismo. ---
+**Para qué sirve.** Esto no es burocracia decorativa: en la práctica supervisora, **un manual sin acta de aprobación se considera inexistente**, y la ausencia de manuales de procedimientos es una falta administrativa sancionable. `acta_comite` guarda asistentes, quórum, temas y decisiones con hash del documento; `politica_interna` versiona cada manual con su fecha de próxima revisión; `designacion_regulatoria` unifica quién es oficial de cumplimiento, responsable de seguridad de la información, responsable de riesgos, auditor interno y responsable del punto de reclamo, con acta y fecha de comunicación al organismo.
+
+**Casos de uso que la nombran.** CU-49 Designar al oficial de cumplimiento y capacitar · CU-55 Gestionar un incidente de seguridad (`registrarIncidente`, `notificarTitulares`, `reportarIncidente`)
 
 **Sistema.** Vive en el esquema `cumplimiento`; la escribe y la lee solo el servicio `cumplimiento` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `acta_comite`, `identidad.usuario`.
 
@@ -1496,9 +1973,13 @@
 
 **Qué es.** Lo que el cliente declaró que iba a mover, y lo que efectivamente movió.
 
-**Para qué sirve.** Esta es la base de todo el monitoreo con sentido. Sin perfil declarado, la única forma de detectar algo raro es por umbrales absolutos, que generan miles de falsos positivos. Con perfil, "Bs 40.000 este mes" es normal para un comerciante y una alerta seria para un asalariado que declaró Bs 3.000. `tipo` distingue `DECLARADO` de `OBSERVADO`: el segundo se recalcula solo con el comportamiento real, y compararlos es exactamente lo que produce el desvío.
+**Para qué sirve.** Esta es la base de todo el monitoreo con sentido. Sin perfil declarado, la única forma de detectar algo raro es por umbrales absolutos, que generan miles de falsos positivos. Con perfil, "Bs 40.000 este mes" es normal para un comerciante y una alerta seria para un asalariado que declaró Bs 3.000.
 
-**Por qué existe.** Porque la pregunta del supervisor no es "¿tienen alertas?", es "¿cómo saben que esta operación es coherente con este cliente?". ---
+`tipo` distingue `DECLARADO` de `OBSERVADO`: el segundo se recalcula solo con el comportamiento real, y compararlos es exactamente lo que produce el desvío.
+
+**Por qué existe.** Porque la pregunta del supervisor no es "¿tienen alertas?", es "¿cómo saben que esta operación es coherente con este cliente?".
+
+**Casos de uso que la nombran.** CU-02 Elevar nivel de debida diligencia (`consultarEstadoDeVerificacion`, `iniciarVerificacion`) · CU-06 Revisión periódica de conocimiento del cliente
 
 **Sistema.** Vive en el esquema `cumplimiento`; la escribe y la lee solo el servicio `cumplimiento` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `alerta_monitoreo_lft`, `identidad.usuario`, `perfil_transaccional`.
 
@@ -1523,7 +2004,9 @@
 
 **Para qué sirve.** Tarifario, contrato, política de privacidad, canales de reclamo y horarios de atención deben estar publicados y accesibles. La obligación no es solo publicarlos: es **poder demostrar que estuvieron publicados en una fecha determinada**. `hash_documento` + vigencias responden eso.
 
-**Por qué existe.** Porque "el tarifario siempre estuvo en la web" no es demostrable si la web se actualiza en el lugar. Con esta tabla, sí. ---
+**Por qué existe.** Porque "el tarifario siempre estuvo en la web" no es demostrable si la web se actualiza en el lugar. Con esta tabla, sí.
+
+**Casos de uso que la nombran.** CU-05 Aceptar contrato de adhesión y tarifario · CU-34 Publicar un tarifario nuevo con preaviso (`listarTarifarios`, `publicarTarifario`, `ponerTarifarioVigente`)
 
 **Sistema.** Vive en el esquema `cumplimiento`; la escribe y la lee solo el servicio `cumplimiento` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `identidad.usuario`.
 
@@ -1543,7 +2026,9 @@
 
 **Qué es.** El sandbox: probar un servicio nuevo bajo supervisión, con límites.
 
-**Para qué sirve.** Permite lanzar algo que todavía no está en la licencia, con tope de usuarios, tope de monto por operación, garantía constituida y plazo. Que esos límites sean columnas permite que el sistema los haga cumplir solo, que es la única forma de no salirse del sandbox sin darse cuenta. ---
+**Para qué sirve.** Permite lanzar algo que todavía no está en la licencia, con tope de usuarios, tope de monto por operación, garantía constituida y plazo. Que esos límites sean columnas permite que el sistema los haga cumplir solo, que es la única forma de no salirse del sandbox sin darse cuenta.
+
+**Casos de uso que la nombran.** CU-46 Verificar el alcance de la licencia (`verificarAlcance`) · CU-99 Dar de alta un proveedor de pago y enrutar el cobro (`enrutarCobro`, `darDeAltaProveedor`)
 
 **Sistema.** Vive en el esquema `cumplimiento`; la escribe y la lee solo el servicio `cumplimiento` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `catalogo.licencia_regulatoria`. Reglas nombradas: `ck_sandbox_limites`.
 
@@ -1565,9 +2050,13 @@
 
 **Qué es.** La agenda de reportes obligatorios y el rastro de cada envío.
 
-**Para qué sirve.** Una entidad supervisada envía información periódica: diaria, mensual, trimestral. El catálogo define **qué se debe enviar, a quién, con qué periodicidad, en qué formato y con qué plazo**. A partir de ahí el sistema genera los vencimientos solo, y un reporte no enviado es visible antes de vencer, no después. El envío guarda `numero_constancia`: la prueba de que se envió. La observación guarda lo que el organismo devolvió —observación, instrucción, multa o requerimiento— con su plazo de respuesta.
+**Para qué sirve.** Una entidad supervisada envía información periódica: diaria, mensual, trimestral. El catálogo define **qué se debe enviar, a quién, con qué periodicidad, en qué formato y con qué plazo**. A partir de ahí el sistema genera los vencimientos solo, y un reporte no enviado es visible antes de vencer, no después.
 
-**Por qué existe.** Porque el incumplimiento más común y más caro no es hacer las cosas mal: es **no mandar a tiempo**. Un calendario en una planilla no sobrevive a la primera rotación de personal. ---
+El envío guarda `numero_constancia`: la prueba de que se envió. La observación guarda lo que el organismo devolvió —observación, instrucción, multa o requerimiento— con su plazo de respuesta.
+
+**Por qué existe.** Porque el incumplimiento más común y más caro no es hacer las cosas mal: es **no mandar a tiempo**. Un calendario en una planilla no sobrevive a la primera rotación de personal.
+
+**Casos de uso que la nombran.** CU-43 Remitir los reportes mensuales a la UIF
 
 **Sistema.** Vive en el esquema `cumplimiento`; la escribe y la lee solo el servicio `cumplimiento` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `identidad.usuario`, `reporte_regulatorio`. La referencian `observacion_regulatoria`.
 
@@ -1579,7 +2068,7 @@
 | `organismo` | VARCHAR(10) | — | VARCHAR(10), obligatoria. | NINGUNA |
 | `canal` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
 | `fecha_envio` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `numero_constancia` | VARCHAR(60) | — | VARCHAR(60), opcional. | NINGUNA |
+| `numero_constancia` | VARCHAR(60) | — | VARCHAR(60), opcional, única. | NINGUNA |
 | `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
 | `respuesta` | JSONB | — | JSONB, opcional. | NINGUNA |
 | `reintentos` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
@@ -1588,7 +2077,9 @@
 
 **Qué es.** El análisis de riesgo previo al lanzamiento de un producto o canal nuevo.
 
-**Para qué sirve.** Antes de habilitar, por ejemplo, transferencias entre personas sin límite, o pasanakus entre desconocidos, hay que evaluar qué riesgos de lavado y de fraude introduce eso y qué controles lo mitigan. Guardar la evaluación con su aprobación es lo que permite lanzar sin que el lanzamiento sea la observación del año siguiente. ---
+**Para qué sirve.** Antes de habilitar, por ejemplo, transferencias entre personas sin límite, o pasanakus entre desconocidos, hay que evaluar qué riesgos de lavado y de fraude introduce eso y qué controles lo mitigan. Guardar la evaluación con su aprobación es lo que permite lanzar sin que el lanzamiento sea la observación del año siguiente.
+
+**Casos de uso que la nombran.** CU-47 Evaluar el riesgo del producto antes de lanzarlo · CU-94 Elevar una decisión al comité de gobierno
 
 **Sistema.** Vive en el esquema `cumplimiento`; la escribe y la lee solo el servicio `cumplimiento` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `identidad.usuario`. Reglas nombradas: `uq_evaluacion_producto_version`, `ck_evaluacion_no_objecion`, `ck_evaluacion_vigente_aprobada`.
 
@@ -1609,7 +2100,9 @@
 
 **Qué es.** La tercerización y su seguimiento.
 
-**Para qué sirve.** Una billetera se apoya en terceros críticos: pasarela, mensajería, nube, antifraude. La responsabilidad frente al cliente **no se terceriza**, así que hay que registrar quién procesa qué, si accede a datos personales, en qué país los procesa, con qué cláusulas de confidencialidad, auditoría y continuidad, y con qué nivel de servicio. La evaluación periódica mide cumplimiento de acuerdo de nivel de servicio e incidentes atribuibles. ---
+**Para qué sirve.** Una billetera se apoya en terceros críticos: pasarela, mensajería, nube, antifraude. La responsabilidad frente al cliente **no se terceriza**, así que hay que registrar quién procesa qué, si accede a datos personales, en qué país los procesa, con qué cláusulas de confidencialidad, auditoría y continuidad, y con qué nivel de servicio. La evaluación periódica mide cumplimiento de acuerdo de nivel de servicio e incidentes atribuibles.
+
+**Casos de uso que la nombran.** CU-55 Gestionar un incidente de seguridad (`registrarIncidente`, `notificarTitulares`, `reportarIncidente`) · CU-99 Dar de alta un proveedor de pago y enrutar el cobro (`enrutarCobro`, `darDeAltaProveedor`)
 
 **Sistema.** Vive en el esquema `cumplimiento`; la escribe y la lee solo el servicio `cumplimiento` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `contrato_tercero`, `identidad.usuario`.
 
@@ -1625,20 +2118,66 @@
 | `acciones_requeridas` | VARCHAR(400) | — | VARCHAR(400), opcional. | NINGUNA |
 | `evaluada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
 
+### `evento_consumido`
+
+**Qué es.** Marca de evento ya consumido, por consumidor (ADR-027).
+
+**Para qué sirve.** Hace idempotente el consumo: la entrega es al menos una vez y un mismo evento no puede producir dos efectos (regla 98.3.4).
+
+**Sistema.** Infraestructura del servicio `cumplimiento`, generada por plantilla en cada esquema (ADR-027): la escribe y la lee solo ese servicio.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `id_evento` | UUID | — | UUID, obligatoria, clave primaria. | NINGUNA |
+| `consumidor` | VARCHAR(60) | — | VARCHAR(60), obligatoria, clave primaria. | NINGUNA |
+| `consumido_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+
+### `evento_dominio`
+
+**Qué es.** Outbox transaccional del servicio (ADR-027).
+
+**Para qué sirve.** Garantiza que ningún hecho del servicio se pierda entre la base y la mensajería: el evento se guarda en la misma transacción que el cambio y un relevo lo publica después (regla 98.3.3).
+
+**Sistema.** Infraestructura del servicio `cumplimiento`, generada por plantilla en cada esquema (ADR-027): la escribe y la lee solo ese servicio.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
+| `tipo` | VARCHAR(60) | — | VARCHAR(60), obligatoria. | NINGUNA |
+| `version` | VARCHAR(10) | — | VARCHAR(10), obligatoria. | NINGUNA |
+| `agregado` | VARCHAR(40) | — | VARCHAR(40), obligatoria. | NINGUNA |
+| `agregado_id` | UUID | — | UUID, obligatoria. | NINGUNA |
+| `payload` | JSONB | — | JSONB, obligatoria. | NINGUNA |
+| `metadatos` | JSONB | — | JSONB, obligatoria. | NINGUNA |
+| `correlation_id` | UUID | — | UUID, obligatoria. | NINGUNA |
+| `causation_id` | UUID | — | UUID, opcional. | NINGUNA |
+| `ocurrido_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `publicado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
+| `intentos` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
+| `tomado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `tomado_por` | VARCHAR(100) | — | VARCHAR(100), opcional. | NINGUNA |
+| `ultimo_error` | TEXT | — | TEXT, opcional. | NINGUNA |
+| `proximo_intento_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+
 ### `evento_riesgo_operativo`
 
 **Qué es.** La base de datos de pérdidas por errores, fallas y fraudes.
 
-**Para qué sirve.** Poner número a lo que cuesta hacer las cosas mal. Cada descuadre de custodia (M10), cada reverso por error operativo, cada acreditación duplicada y cada caída con impacto monetario entra acá con su pérdida bruta, su recuperación y su pérdida neta. `categoria_basilea` y `linea_negocio` permiten comparar con estándares y armar los reportes de gestión de riesgo operativo.
+**Para qué sirve.** Poner número a lo que cuesta hacer las cosas mal. Cada descuadre de custodia (M10), cada reverso por error operativo, cada acreditación duplicada y cada caída con impacto monetario entra acá con su pérdida bruta, su recuperación y su pérdida neta.
 
-**Por qué existe.** Porque sin base de pérdidas, la discusión sobre invertir en controles es una discusión de opiniones. Con base de pérdidas, es una discusión de números: *"la conciliación manual nos costó Bs 40.000 el año pasado"*. ---
+`categoria_basilea` y `linea_negocio` permiten comparar con estándares y armar los reportes de gestión de riesgo operativo.
+
+**Por qué existe.** Porque sin base de pérdidas, la discusión sobre invertir en controles es una discusión de opiniones. Con base de pérdidas, es una discusión de números: *"la conciliación manual nos costó Bs 40.000 el año pasado"*.
+
+**Casos de uso que la nombran.** CU-14 Reversar una transacción (`reversarTransaccion`, `listarReversos`) · CU-19 Reembolsar un pago y atender una disputa (`aprobarReembolso`, `registrarDisputa`, `solicitarReembolso`) · CU-28 Emitir la orden de desembolso y ejecutar el intento (`listarDesembolsos`, `emitirOrdenDesembolso`, `anotarRespuestaDesembolso`) · CU-33 Devolver comisión y emitir nota de crédito (`devolverComision`) · CU-50 Conciliar la custodia y verificar el encaje (`ejecutarCierreDiario`, `listarConciliaciones`, `conciliarCustodia`) · CU-52 Atender un reclamo en plazo (`listarBandejaDeReclamos`, `consultarEfectoDeReclamos`, `consultarReclamo`, `responderReclamo`) · CU-54 Registrar un evento de riesgo operativo (`registrarRiesgoOperativo`) · CU-55 Gestionar un incidente de seguridad (`registrarIncidente`, `notificarTitulares`, `reportarIncidente`) · CU-56 Ejecutar una prueba de continuidad · CU-57 Operar un punto de atención y arquear el efectivo · CU-73 Verificar la cadena de transparencia (`verificarCadena`) · CU-93 Sancionar al organizador y resolver su apelación (`apelarSancion`, `resolverApelacion`, `sancionarOrganizador`) · CU-95 Definir una regla de automatización (`definirRegla`, `activarRegla`)
 
 **Sistema.** Vive en el esquema `cumplimiento`; la escribe y la lee solo el servicio `cumplimiento` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Es append-only: UPDATE y DELETE revocados al rol del servicio; se corrige con una fila nueva. Depende de `auditoria.incidente_operativo`, `identidad.usuario`. La referencian `incidente_seguridad`, `plan_accion_riesgo`. Reglas nombradas: `ck_evento_categoria`, `ck_evento_factor`, `ck_evento_fechas`, `ck_evento_recuperacion`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `codigo` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
+| `codigo` | VARCHAR(20) | — | VARCHAR(20), obligatoria, única. | NINGUNA |
 | `incidente_operativo_id` | UUID | — | UUID, opcional, referencia a `incidente_operativo`. | NINGUNA |
 | `registrado_por` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
 | `categoria_evento` | VARCHAR(35) | — | VARCHAR(35), obligatoria. | NINGUNA |
@@ -1660,14 +2199,18 @@
 
 **Qué es.** La agenda de actualización y el legajo completo.
 
-**Para qué sirve.** El conocimiento del cliente **se vence**. La revisión periódica se programa según el nivel de riesgo (más riesgo, más frecuente) y queda visible cuando está atrasada. El expediente consolida qué documentos hay, qué completitud tiene y hasta cuándo hay que conservarlo. El período de conservación es largo —no menor a **diez años** para los libros y documentos de las operaciones, contados desde la fecha del último asiento contable, según la Ley de Servicios Financieros— y por eso `retencion_hasta` se calcula y se guarda por expediente en lugar de aplicarse una regla global que nadie puede auditar. `retencion_hasta` es también lo que hace compatible el derecho a la eliminación de datos personales con la obligación de conservación: [[proceso_anonimizacion]] (M9) consulta esta fecha antes de borrar. ---
+**Para qué sirve.** El conocimiento del cliente **se vence**. La revisión periódica se programa según el nivel de riesgo (más riesgo, más frecuente) y queda visible cuando está atrasada. El expediente consolida qué documentos hay, qué completitud tiene y hasta cuándo hay que conservarlo. El período de conservación es largo —no menor a **diez años** para los libros y documentos de las operaciones, contados desde la fecha del último asiento contable, según la Ley de Servicios Financieros— y por eso `retencion_hasta` se calcula y se guarda por expediente en lugar de aplicarse una regla global que nadie puede auditar.
+
+`retencion_hasta` es también lo que hace compatible el derecho a la eliminación de datos personales con la obligación de conservación: [[proceso_anonimizacion]] (M9) consulta esta fecha antes de borrar.
+
+**Casos de uso que la nombran.** CU-01 Registro y apertura de billetera (`listarContratosVigentes`, `registrarUsuario`, `solicitarVerificacionCorreo`, `guardarBorradorOnboarding`, `confirmarVerificacionCorreo`, `verificarTitularidad`) · CU-02 Elevar nivel de debida diligencia (`consultarEstadoDeVerificacion`, `iniciarVerificacion`) · CU-06 Revisión periódica de conocimiento del cliente · CU-07 Ejercer derechos sobre datos personales (`ejercerDerechos`, `consultarMiPerfil`, `revocarCertificado`) · CU-16 Cerrar billetera y devolver saldo (`consultarActividad`, `solicitarCierreBilletera`)
 
 **Sistema.** Vive en el esquema `cumplimiento`; la escribe y la lee solo el servicio `cumplimiento` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `identidad.usuario`. Reglas nombradas: `ck_expediente_retencion_futura`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `usuario_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
+| `usuario_id` | UUID | — | UUID, obligatoria, única, referencia a `usuario`. | NINGUNA |
 | `responsable_id` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
 | `completitud_porcentaje` | DECIMAL(5,2) | — | DECIMAL(5,2), obligatoria. | NINGUNA |
 | `documentos` | JSONB | — | JSONB, obligatoria. | PERSONAL |
@@ -1680,7 +2223,11 @@
 
 **Qué es.** Los factores con los que se puntúa el riesgo de un cliente y el resultado de evaluar cada uno.
 
-**Para qué sirve.** El riesgo no se decide "a ojo": se calcula sobre cuatro dimensiones —cliente, producto, canal y zona geográfica— con factores ponderados. Que la matriz sea una tabla versionada permite dos cosas que un supervisor pide siempre: **explicar por qué este cliente es de riesgo alto** y **demostrar qué criterio regía cuando se lo calificó**. `factor_riesgo_evaluado` guarda el detalle: no solo "puntaje 72", sino "actividad económica: cambista → 25 puntos; zona: frontera → 20 puntos". Sin ese detalle, la calificación es un número que nadie puede defender. ---
+**Para qué sirve.** El riesgo no se decide "a ojo": se calcula sobre cuatro dimensiones —cliente, producto, canal y zona geográfica— con factores ponderados. Que la matriz sea una tabla versionada permite dos cosas que un supervisor pide siempre: **explicar por qué este cliente es de riesgo alto** y **demostrar qué criterio regía cuando se lo calificó**.
+
+`factor_riesgo_evaluado` guarda el detalle: no solo "puntaje 72", sino "actividad económica: cambista → 25 puntos; zona: frontera → 20 puntos". Sin ese detalle, la calificación es un número que nadie puede defender.
+
+**Casos de uso que la nombran.** CU-01 Registro y apertura de billetera (`listarContratosVigentes`, `registrarUsuario`, `solicitarVerificacionCorreo`, `guardarBorradorOnboarding`, `confirmarVerificacionCorreo`, `verificarTitularidad`) · CU-02 Elevar nivel de debida diligencia (`consultarEstadoDeVerificacion`, `iniciarVerificacion`) · CU-06 Revisión periódica de conocimiento del cliente
 
 **Sistema.** Vive en el esquema `cumplimiento`; la escribe y la lee solo el servicio `cumplimiento` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `identidad.usuario`, `matriz_riesgo_lft`.
 
@@ -1699,14 +2246,16 @@
 
 **Qué es.** Lo que se encontró mal y lo que se va a hacer al respecto.
 
-**Para qué sirve.** Un hallazgo sin responsable y sin plazo no se corrige. El plan de acción tiene responsable, fecha comprometida, porcentaje de avance y evidencia de cierre. Los hallazgos vencidos son visibles y **son exactamente lo primero que revisa una inspección de seguimiento**. ---
+**Para qué sirve.** Un hallazgo sin responsable y sin plazo no se corrige. El plan de acción tiene responsable, fecha comprometida, porcentaje de avance y evidencia de cierre. Los hallazgos vencidos son visibles y **son exactamente lo primero que revisa una inspección de seguimiento**.
+
+**Casos de uso que la nombran.** CU-07 Ejercer derechos sobre datos personales (`ejercerDerechos`, `consultarMiPerfil`, `revocarCertificado`) · CU-17 Bloquear saldo por orden de autoridad (`bloquearPorAutoridad`) · CU-19 Reembolsar un pago y atender una disputa (`aprobarReembolso`, `registrarDisputa`, `solicitarReembolso`) · CU-35 Cerrar la liquidación mensual de ingresos (`cerrarLiquidacion`) · CU-43 Remitir los reportes mensuales a la UIF · CU-44 De alerta de monitoreo a reporte de operación sospechosa (`listarBandejaDeAlertas`, `listarBandejaDeCasos`, `abrirCasoLft`, `decidirCasoLft`) · CU-45 Atender un requerimiento de autoridad · CU-47 Evaluar el riesgo del producto antes de lanzarlo · CU-49 Designar al oficial de cumplimiento y capacitar · CU-52 Atender un reclamo en plazo (`listarBandejaDeReclamos`, `consultarEfectoDeReclamos`, `consultarReclamo`, `responderReclamo`) · CU-54 Registrar un evento de riesgo operativo (`registrarRiesgoOperativo`) · CU-56 Ejecutar una prueba de continuidad · CU-94 Elevar una decisión al comité de gobierno
 
 **Sistema.** Vive en el esquema `cumplimiento`; la escribe y la lee solo el servicio `cumplimiento` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `identidad.usuario`. La referencian `plan_accion_riesgo`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `codigo` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
+| `codigo` | VARCHAR(20) | — | VARCHAR(20), obligatoria, única. | NINGUNA |
 | `responsable_id` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
 | `origen` | VARCHAR(25) | — | VARCHAR(25), obligatoria. | NINGUNA |
 | `descripcion` | TEXT | — | TEXT, obligatoria. | NINGUNA |
@@ -1720,14 +2269,18 @@
 
 **Qué es.** El inventario clasificado de activos y los incidentes que los afectan.
 
-**Para qué sirve.** El inventario con propietario, custodio y clasificación es el punto de partida de cualquier sistema de gestión de seguridad de la información, y también lo que permite responder "¿dónde están los datos personales?" sin adivinar: `contiene_datos_personales` es una columna consultable. En el incidente, `plazo_reporte` se calcula al detectar y **se guarda**: tres relojes distintos corren en paralelo —contención, reporte al organismo y notificación a los titulares— y hay que poder demostrar cuál regía ese día. ---
+**Para qué sirve.** El inventario con propietario, custodio y clasificación es el punto de partida de cualquier sistema de gestión de seguridad de la información, y también lo que permite responder "¿dónde están los datos personales?" sin adivinar: `contiene_datos_personales` es una columna consultable.
+
+En el incidente, `plazo_reporte` se calcula al detectar y **se guarda**: tres relojes distintos corren en paralelo —contención, reporte al organismo y notificación a los titulares— y hay que poder demostrar cuál regía ese día.
+
+**Casos de uso que la nombran.** CU-09 Cambiar credenciales y solicitar la baja · CU-54 Registrar un evento de riesgo operativo (`registrarRiesgoOperativo`) · CU-55 Gestionar un incidente de seguridad (`registrarIncidente`, `notificarTitulares`, `reportarIncidente`) · CU-57 Operar un punto de atención y arquear el efectivo · CU-99 Dar de alta un proveedor de pago y enrutar el cobro (`enrutarCobro`, `darDeAltaProveedor`)
 
 **Sistema.** Vive en el esquema `cumplimiento`; la escribe y la lee solo el servicio `cumplimiento` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `activo_informacion`, `auditoria.incidente_operativo`, `evento_riesgo_operativo`, `identidad.usuario`. Reglas nombradas: `ck_incidente_plazo`, `ck_incidente_notificacion`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `codigo` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
+| `codigo` | VARCHAR(20) | — | VARCHAR(20), obligatoria, única. | NINGUNA |
 | `activo_informacion_id` | UUID | — | UUID, opcional, referencia a `activo_informacion`. | NINGUNA |
 | `incidente_operativo_id` | UUID | — | UUID, opcional, referencia a `incidente_operativo`. | NINGUNA |
 | `evento_riesgo_id` | UUID | — | UUID, opcional, referencia a `evento_riesgo_operativo`. | NINGUNA |
@@ -1749,9 +2302,15 @@
 
 **Qué es.** El canal de reclamos, el reclamo y su escalamiento.
 
-**Para qué sirve.** La atención de reclamos es uno de los aspectos más vigilados de la relación con el consumidor financiero, y uno de los más fáciles de hacer mal. Tres decisiones del modelo: 1. **El plazo se guarda, no se calcula.** `plazo_respuesta` se fija al ingresar el reclamo. Si la norma cambia el plazo el mes que viene, los reclamos viejos conservan el plazo que les regía. Un plazo calculado al vuelo reescribe la historia. 2. **El escalamiento es una entidad, no un estado.** Un reclamo puede subir a la defensoría del consumidor financiero, al supervisor, a arbitraje o a la vía judicial, y cada instancia tiene expediente, resolución y monto resarcido propios. 3. **Un reclamo favorable con monto exige una devolución asociada.** No se puede cerrar diciendo "le dimos la razón" sin que exista la [[devolucion_comision]] (M11) o la transacción de resarcimiento (M10). Eso cierra el circuito entre reconocer el error y repararlo.
+**Para qué sirve.** La atención de reclamos es uno de los aspectos más vigilados de la relación con el consumidor financiero, y uno de los más fáciles de hacer mal. Tres decisiones del modelo:
 
-**Por qué existe.** Porque la tasa de reclamos resueltos a favor del cliente es el indicador que mira el supervisor: si sube, hay un problema de producto, no de atención. Y ese indicador no se puede calcular sin estas tablas. ---
+1. **El plazo se guarda, no se calcula.** `plazo_respuesta` se fija al ingresar el reclamo. Si la norma cambia el plazo el mes que viene, los reclamos viejos conservan el plazo que les regía. Un plazo calculado al vuelo reescribe la historia.
+2. **El escalamiento es una entidad, no un estado.** Un reclamo puede subir a la defensoría del consumidor financiero, al supervisor, a arbitraje o a la vía judicial, y cada instancia tiene expediente, resolución y monto resarcido propios.
+3. **Un reclamo favorable con monto exige una devolución asociada.** No se puede cerrar diciendo "le dimos la razón" sin que exista la [[devolucion_comision]] (M11) o la transacción de resarcimiento (M10). Eso cierra el circuito entre reconocer el error y repararlo.
+
+**Por qué existe.** Porque la tasa de reclamos resueltos a favor del cliente es el indicador que mira el supervisor: si sube, hay un problema de producto, no de atención. Y ese indicador no se puede calcular sin estas tablas.
+
+**Casos de uso que la nombran.** CU-52 Atender un reclamo en plazo (`listarBandejaDeReclamos`, `consultarEfectoDeReclamos`, `consultarReclamo`, `responderReclamo`) · CU-53 Elevar un reclamo a segunda instancia
 
 **Sistema.** Vive en el esquema `cumplimiento`; la escribe y la lee solo el servicio `cumplimiento` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `reclamo_cliente`.
 
@@ -1771,7 +2330,11 @@
 
 **Qué es.** Los factores con los que se puntúa el riesgo de un cliente y el resultado de evaluar cada uno.
 
-**Para qué sirve.** El riesgo no se decide "a ojo": se calcula sobre cuatro dimensiones —cliente, producto, canal y zona geográfica— con factores ponderados. Que la matriz sea una tabla versionada permite dos cosas que un supervisor pide siempre: **explicar por qué este cliente es de riesgo alto** y **demostrar qué criterio regía cuando se lo calificó**. `factor_riesgo_evaluado` guarda el detalle: no solo "puntaje 72", sino "actividad económica: cambista → 25 puntos; zona: frontera → 20 puntos". Sin ese detalle, la calificación es un número que nadie puede defender. ---
+**Para qué sirve.** El riesgo no se decide "a ojo": se calcula sobre cuatro dimensiones —cliente, producto, canal y zona geográfica— con factores ponderados. Que la matriz sea una tabla versionada permite dos cosas que un supervisor pide siempre: **explicar por qué este cliente es de riesgo alto** y **demostrar qué criterio regía cuando se lo calificó**.
+
+`factor_riesgo_evaluado` guarda el detalle: no solo "puntaje 72", sino "actividad económica: cambista → 25 puntos; zona: frontera → 20 puntos". Sin ese detalle, la calificación es un número que nadie puede defender.
+
+**Casos de uso que la nombran.** CU-01 Registro y apertura de billetera (`listarContratosVigentes`, `registrarUsuario`, `solicitarVerificacionCorreo`, `guardarBorradorOnboarding`, `confirmarVerificacionCorreo`, `verificarTitularidad`) · CU-06 Revisión periódica de conocimiento del cliente · CU-47 Evaluar el riesgo del producto antes de lanzarlo
 
 **Sistema.** Vive en el esquema `cumplimiento`; la escribe y la lee solo el servicio `cumplimiento` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `identidad.usuario`. La referencian `calificacion_riesgo_cliente`, `factor_riesgo_evaluado`.
 
@@ -1792,9 +2355,13 @@
 
 **Qué es.** La agenda de reportes obligatorios y el rastro de cada envío.
 
-**Para qué sirve.** Una entidad supervisada envía información periódica: diaria, mensual, trimestral. El catálogo define **qué se debe enviar, a quién, con qué periodicidad, en qué formato y con qué plazo**. A partir de ahí el sistema genera los vencimientos solo, y un reporte no enviado es visible antes de vencer, no después. El envío guarda `numero_constancia`: la prueba de que se envió. La observación guarda lo que el organismo devolvió —observación, instrucción, multa o requerimiento— con su plazo de respuesta.
+**Para qué sirve.** Una entidad supervisada envía información periódica: diaria, mensual, trimestral. El catálogo define **qué se debe enviar, a quién, con qué periodicidad, en qué formato y con qué plazo**. A partir de ahí el sistema genera los vencimientos solo, y un reporte no enviado es visible antes de vencer, no después.
 
-**Por qué existe.** Porque el incumplimiento más común y más caro no es hacer las cosas mal: es **no mandar a tiempo**. Un calendario en una planilla no sobrevive a la primera rotación de personal. ---
+El envío guarda `numero_constancia`: la prueba de que se envió. La observación guarda lo que el organismo devolvió —observación, instrucción, multa o requerimiento— con su plazo de respuesta.
+
+**Por qué existe.** Porque el incumplimiento más común y más caro no es hacer las cosas mal: es **no mandar a tiempo**. Un calendario en una planilla no sobrevive a la primera rotación de personal.
+
+**Casos de uso que la nombran.** CU-43 Remitir los reportes mensuales a la UIF · CU-45 Atender un requerimiento de autoridad · CU-47 Evaluar el riesgo del producto antes de lanzarlo · CU-53 Elevar un reclamo a segunda instancia
 
 **Sistema.** Vive en el esquema `cumplimiento`; la escribe y la lee solo el servicio `cumplimiento` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `envio_regulatorio`, `identidad.usuario`.
 
@@ -1805,7 +2372,7 @@
 | `responsable_id` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
 | `organismo` | VARCHAR(10) | — | VARCHAR(10), obligatoria. | NINGUNA |
 | `tipo` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `numero_documento` | VARCHAR(60) | — | VARCHAR(60), obligatoria. | PERSONAL |
+| `numero_documento` | VARCHAR(60) | — | VARCHAR(60), obligatoria, única. | PERSONAL |
 | `descripcion` | TEXT | — | TEXT, obligatoria. | NINGUNA |
 | `monto_multa` | DECIMAL(16,2) | — | DECIMAL(16,2), opcional. | FINANCIERO |
 | `plazo_respuesta` | DATE | — | DATE, obligatoria. | NINGUNA |
@@ -1818,7 +2385,11 @@
 
 **Qué es.** La designación del responsable y la formación obligatoria del personal.
 
-**Para qué sirve.** Son dos requisitos formales que siempre se piden y que siempre se responden con papeles sueltos: quién es el oficial de cumplimiento —titular y suplente—, desde cuándo, con qué acta y si se comunicó al organismo; y quién recibió capacitación, sobre qué tema, cuántas horas y con qué resultado. Tenerlos como tablas convierte "sí, capacitamos" en un reporte con nombres y fechas. ---
+**Para qué sirve.** Son dos requisitos formales que siempre se piden y que siempre se responden con papeles sueltos: quién es el oficial de cumplimiento —titular y suplente—, desde cuándo, con qué acta y si se comunicó al organismo; y quién recibió capacitación, sobre qué tema, cuántas horas y con qué resultado.
+
+Tenerlos como tablas convierte "sí, capacitamos" en un reporte con nombres y fechas.
+
+**Casos de uso que la nombran.** CU-47 Evaluar el riesgo del producto antes de lanzarlo · CU-48 Calibrar reglas de cumplimiento y triar sus alertas · CU-49 Designar al oficial de cumplimiento y capacitar
 
 **Sistema.** Vive en el esquema `cumplimiento`; la escribe y la lee solo el servicio `cumplimiento` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `identidad.usuario`. Reglas nombradas: `uq_oficial_titular_activo`, `ck_oficial_baja_coherente`, `ck_oficial_baja_posterior`.
 
@@ -1837,9 +2408,13 @@
 
 **Qué es.** Lo que el cliente declaró que iba a mover, y lo que efectivamente movió.
 
-**Para qué sirve.** Esta es la base de todo el monitoreo con sentido. Sin perfil declarado, la única forma de detectar algo raro es por umbrales absolutos, que generan miles de falsos positivos. Con perfil, "Bs 40.000 este mes" es normal para un comerciante y una alerta seria para un asalariado que declaró Bs 3.000. `tipo` distingue `DECLARADO` de `OBSERVADO`: el segundo se recalcula solo con el comportamiento real, y compararlos es exactamente lo que produce el desvío.
+**Para qué sirve.** Esta es la base de todo el monitoreo con sentido. Sin perfil declarado, la única forma de detectar algo raro es por umbrales absolutos, que generan miles de falsos positivos. Con perfil, "Bs 40.000 este mes" es normal para un comerciante y una alerta seria para un asalariado que declaró Bs 3.000.
 
-**Por qué existe.** Porque la pregunta del supervisor no es "¿tienen alertas?", es "¿cómo saben que esta operación es coherente con este cliente?". ---
+`tipo` distingue `DECLARADO` de `OBSERVADO`: el segundo se recalcula solo con el comportamiento real, y compararlos es exactamente lo que produce el desvío.
+
+**Por qué existe.** Porque la pregunta del supervisor no es "¿tienen alertas?", es "¿cómo saben que esta operación es coherente con este cliente?".
+
+**Casos de uso que la nombran.** CU-01 Registro y apertura de billetera (`listarContratosVigentes`, `registrarUsuario`, `solicitarVerificacionCorreo`, `guardarBorradorOnboarding`, `confirmarVerificacionCorreo`, `verificarTitularidad`) · CU-06 Revisión periódica de conocimiento del cliente · CU-36 Segmentar comercialmente y aplicar precio diferenciado (`resolverPrecio`, `crearSegmento`) · CU-44 De alerta de monitoreo a reporte de operación sospechosa (`listarBandejaDeAlertas`, `listarBandejaDeCasos`, `abrirCasoLft`, `decidirCasoLft`)
 
 **Sistema.** Vive en el esquema `cumplimiento`; la escribe y la lee solo el servicio `cumplimiento` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `identidad.usuario`. La referencian `desvio_perfil`.
 
@@ -1862,7 +2437,9 @@
 
 **Qué es.** Lo que se encontró mal y lo que se va a hacer al respecto.
 
-**Para qué sirve.** Un hallazgo sin responsable y sin plazo no se corrige. El plan de acción tiene responsable, fecha comprometida, porcentaje de avance y evidencia de cierre. Los hallazgos vencidos son visibles y **son exactamente lo primero que revisa una inspección de seguimiento**. ---
+**Para qué sirve.** Un hallazgo sin responsable y sin plazo no se corrige. El plan de acción tiene responsable, fecha comprometida, porcentaje de avance y evidencia de cierre. Los hallazgos vencidos son visibles y **son exactamente lo primero que revisa una inspección de seguimiento**.
+
+**Casos de uso que la nombran.** CU-47 Evaluar el riesgo del producto antes de lanzarlo · CU-53 Elevar un reclamo a segunda instancia · CU-54 Registrar un evento de riesgo operativo (`registrarRiesgoOperativo`) · CU-55 Gestionar un incidente de seguridad (`registrarIncidente`, `notificarTitulares`, `reportarIncidente`) · CU-56 Ejecutar una prueba de continuidad · CU-94 Elevar una decisión al comité de gobierno
 
 **Sistema.** Vive en el esquema `cumplimiento`; la escribe y la lee solo el servicio `cumplimiento` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `evento_riesgo_operativo`, `hallazgo_auditoria`, `identidad.usuario`.
 
@@ -1883,7 +2460,9 @@
 
 **Qué es.** Los planes de continuidad por proceso crítico y la evidencia de que se prueban.
 
-**Para qué sirve.** La norma no pide tener un plan: pide **probarlo y documentar el resultado en acta**. Por eso la prueba guarda RTO y RPO obtenidos contra los comprometidos, el tipo de prueba, los hallazgos y el acta donde se reportó. Un plan sin pruebas registradas es un hallazgo garantizado. ---
+**Para qué sirve.** La norma no pide tener un plan: pide **probarlo y documentar el resultado en acta**. Por eso la prueba guarda RTO y RPO obtenidos contra los comprometidos, el tipo de prueba, los hallazgos y el acta donde se reportó. Un plan sin pruebas registradas es un hallazgo garantizado.
+
+**Casos de uso que la nombran.** CU-56 Ejecutar una prueba de continuidad
 
 **Sistema.** Vive en el esquema `cumplimiento`; la escribe y la lee solo el servicio `cumplimiento` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `identidad.usuario`, `politica_interna`. La referencian `prueba_continuidad`. Reglas nombradas: `ck_plan_objetivos`, `ck_plan_prueba`.
 
@@ -1892,7 +2471,7 @@
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
 | `politica_interna_id` | UUID | — | UUID, opcional, referencia a `politica_interna`. | NINGUNA |
 | `responsable_id` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
-| `proceso_critico` | VARCHAR(80) | — | VARCHAR(80), obligatoria. | NINGUNA |
+| `proceso_critico` | VARCHAR(80) | — | VARCHAR(80), obligatoria, única. | NINGUNA |
 | `rto_minutos` | INTEGER | — | INTEGER, obligatoria. | NINGUNA |
 | `rpo_minutos` | INTEGER | — | INTEGER, obligatoria. | NINGUNA |
 | `estrategia` | VARCHAR(300) | — | VARCHAR(300), obligatoria. | NINGUNA |
@@ -1904,7 +2483,9 @@
 
 **Qué es.** El aparato de gobierno: comités, actas, manuales y designaciones.
 
-**Para qué sirve.** Esto no es burocracia decorativa: en la práctica supervisora, **un manual sin acta de aprobación se considera inexistente**, y la ausencia de manuales de procedimientos es una falta administrativa sancionable. `acta_comite` guarda asistentes, quórum, temas y decisiones con hash del documento; `politica_interna` versiona cada manual con su fecha de próxima revisión; `designacion_regulatoria` unifica quién es oficial de cumplimiento, responsable de seguridad de la información, responsable de riesgos, auditor interno y responsable del punto de reclamo, con acta y fecha de comunicación al organismo. ---
+**Para qué sirve.** Esto no es burocracia decorativa: en la práctica supervisora, **un manual sin acta de aprobación se considera inexistente**, y la ausencia de manuales de procedimientos es una falta administrativa sancionable. `acta_comite` guarda asistentes, quórum, temas y decisiones con hash del documento; `politica_interna` versiona cada manual con su fecha de próxima revisión; `designacion_regulatoria` unifica quién es oficial de cumplimiento, responsable de seguridad de la información, responsable de riesgos, auditor interno y responsable del punto de reclamo, con acta y fecha de comunicación al organismo.
+
+**Casos de uso que la nombran.** CU-41 Detectar umbral y registrar formulario PCC-01 · CU-56 Ejecutar una prueba de continuidad · CU-94 Elevar una decisión al comité de gobierno
 
 **Sistema.** Vive en el esquema `cumplimiento`; la escribe y la lee solo el servicio `cumplimiento` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `acta_comite`, `identidad.usuario`. La referencian `plan_continuidad`. Reglas nombradas: `ck_politica_acta`, `ck_politica_revision`.
 
@@ -1928,7 +2509,9 @@
 
 **Qué es.** Los planes de continuidad por proceso crítico y la evidencia de que se prueban.
 
-**Para qué sirve.** La norma no pide tener un plan: pide **probarlo y documentar el resultado en acta**. Por eso la prueba guarda RTO y RPO obtenidos contra los comprometidos, el tipo de prueba, los hallazgos y el acta donde se reportó. Un plan sin pruebas registradas es un hallazgo garantizado. ---
+**Para qué sirve.** La norma no pide tener un plan: pide **probarlo y documentar el resultado en acta**. Por eso la prueba guarda RTO y RPO obtenidos contra los comprometidos, el tipo de prueba, los hallazgos y el acta donde se reportó. Un plan sin pruebas registradas es un hallazgo garantizado.
+
+**Casos de uso que la nombran.** CU-56 Ejecutar una prueba de continuidad
 
 **Sistema.** Vive en el esquema `cumplimiento`; la escribe y la lee solo el servicio `cumplimiento` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `acta_comite`, `identidad.usuario`, `plan_continuidad`. Reglas nombradas: `ck_prueba_resultado`.
 
@@ -1950,7 +2533,9 @@
 
 **Qué es.** El inventario de controles y la evidencia de que se ejecutan.
 
-**Para qué sirve.** Un control que nadie prueba es un control que no existe. `prueba_control` guarda período, tamaño de muestra, excepciones encontradas y resultado —efectivo, deficiente o no efectivo—, que es exactamente el formato en el que auditoría interna y externa trabajan. ---
+**Para qué sirve.** Un control que nadie prueba es un control que no existe. `prueba_control` guarda período, tamaño de muestra, excepciones encontradas y resultado —efectivo, deficiente o no efectivo—, que es exactamente el formato en el que auditoría interna y externa trabajan.
+
+**Casos de uso que la nombran.** CU-54 Registrar un evento de riesgo operativo (`registrarRiesgoOperativo`)
 
 **Sistema.** Vive en el esquema `cumplimiento`; la escribe y la lee solo el servicio `cumplimiento` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `control_interno`, `identidad.usuario`.
 
@@ -1970,16 +2555,22 @@
 
 **Qué es.** El canal de reclamos, el reclamo y su escalamiento.
 
-**Para qué sirve.** La atención de reclamos es uno de los aspectos más vigilados de la relación con el consumidor financiero, y uno de los más fáciles de hacer mal. Tres decisiones del modelo: 1. **El plazo se guarda, no se calcula.** `plazo_respuesta` se fija al ingresar el reclamo. Si la norma cambia el plazo el mes que viene, los reclamos viejos conservan el plazo que les regía. Un plazo calculado al vuelo reescribe la historia. 2. **El escalamiento es una entidad, no un estado.** Un reclamo puede subir a la defensoría del consumidor financiero, al supervisor, a arbitraje o a la vía judicial, y cada instancia tiene expediente, resolución y monto resarcido propios. 3. **Un reclamo favorable con monto exige una devolución asociada.** No se puede cerrar diciendo "le dimos la razón" sin que exista la [[devolucion_comision]] (M11) o la transacción de resarcimiento (M10). Eso cierra el circuito entre reconocer el error y repararlo.
+**Para qué sirve.** La atención de reclamos es uno de los aspectos más vigilados de la relación con el consumidor financiero, y uno de los más fáciles de hacer mal. Tres decisiones del modelo:
 
-**Por qué existe.** Porque la tasa de reclamos resueltos a favor del cliente es el indicador que mira el supervisor: si sube, hay un problema de producto, no de atención. Y ese indicador no se puede calcular sin estas tablas. ---
+1. **El plazo se guarda, no se calcula.** `plazo_respuesta` se fija al ingresar el reclamo. Si la norma cambia el plazo el mes que viene, los reclamos viejos conservan el plazo que les regía. Un plazo calculado al vuelo reescribe la historia.
+2. **El escalamiento es una entidad, no un estado.** Un reclamo puede subir a la defensoría del consumidor financiero, al supervisor, a arbitraje o a la vía judicial, y cada instancia tiene expediente, resolución y monto resarcido propios.
+3. **Un reclamo favorable con monto exige una devolución asociada.** No se puede cerrar diciendo "le dimos la razón" sin que exista la [[devolucion_comision]] (M11) o la transacción de resarcimiento (M10). Eso cierra el circuito entre reconocer el error y repararlo.
+
+**Por qué existe.** Porque la tasa de reclamos resueltos a favor del cliente es el indicador que mira el supervisor: si sube, hay un problema de producto, no de atención. Y ese indicador no se puede calcular sin estas tablas.
+
+**Casos de uso que la nombran.** CU-52 Atender un reclamo en plazo (`listarBandejaDeReclamos`, `consultarEfectoDeReclamos`, `consultarReclamo`, `responderReclamo`)
 
 **Sistema.** Vive en el esquema `cumplimiento`; la escribe y la lee solo el servicio `cumplimiento` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `identidad.usuario`. La referencian `reclamo_cliente`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `codigo` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
+| `codigo` | VARCHAR(20) | — | VARCHAR(20), obligatoria, única. | NINGUNA |
 | `tipo` | VARCHAR(12) | — | VARCHAR(12), obligatoria. | NINGUNA |
 | `descripcion` | VARCHAR(200) | — | VARCHAR(200), obligatoria. | NINGUNA |
 | `horario` | VARCHAR(80) | — | VARCHAR(80), obligatoria. | NINGUNA |
@@ -1990,9 +2581,15 @@
 
 **Qué es.** El canal de reclamos, el reclamo y su escalamiento.
 
-**Para qué sirve.** La atención de reclamos es uno de los aspectos más vigilados de la relación con el consumidor financiero, y uno de los más fáciles de hacer mal. Tres decisiones del modelo: 1. **El plazo se guarda, no se calcula.** `plazo_respuesta` se fija al ingresar el reclamo. Si la norma cambia el plazo el mes que viene, los reclamos viejos conservan el plazo que les regía. Un plazo calculado al vuelo reescribe la historia. 2. **El escalamiento es una entidad, no un estado.** Un reclamo puede subir a la defensoría del consumidor financiero, al supervisor, a arbitraje o a la vía judicial, y cada instancia tiene expediente, resolución y monto resarcido propios. 3. **Un reclamo favorable con monto exige una devolución asociada.** No se puede cerrar diciendo "le dimos la razón" sin que exista la [[devolucion_comision]] (M11) o la transacción de resarcimiento (M10). Eso cierra el circuito entre reconocer el error y repararlo.
+**Para qué sirve.** La atención de reclamos es uno de los aspectos más vigilados de la relación con el consumidor financiero, y uno de los más fáciles de hacer mal. Tres decisiones del modelo:
 
-**Por qué existe.** Porque la tasa de reclamos resueltos a favor del cliente es el indicador que mira el supervisor: si sube, hay un problema de producto, no de atención. Y ese indicador no se puede calcular sin estas tablas. ---
+1. **El plazo se guarda, no se calcula.** `plazo_respuesta` se fija al ingresar el reclamo. Si la norma cambia el plazo el mes que viene, los reclamos viejos conservan el plazo que les regía. Un plazo calculado al vuelo reescribe la historia.
+2. **El escalamiento es una entidad, no un estado.** Un reclamo puede subir a la defensoría del consumidor financiero, al supervisor, a arbitraje o a la vía judicial, y cada instancia tiene expediente, resolución y monto resarcido propios.
+3. **Un reclamo favorable con monto exige una devolución asociada.** No se puede cerrar diciendo "le dimos la razón" sin que exista la [[devolucion_comision]] (M11) o la transacción de resarcimiento (M10). Eso cierra el circuito entre reconocer el error y repararlo.
+
+**Por qué existe.** Porque la tasa de reclamos resueltos a favor del cliente es el indicador que mira el supervisor: si sube, hay un problema de producto, no de atención. Y ese indicador no se puede calcular sin estas tablas.
+
+**Casos de uso que la nombran.** CU-33 Devolver comisión y emitir nota de crédito (`devolverComision`) · CU-52 Atender un reclamo en plazo (`listarBandejaDeReclamos`, `consultarEfectoDeReclamos`, `consultarReclamo`, `responderReclamo`) · CU-53 Elevar un reclamo a segunda instancia · CU-59 Mantener el calendario de días no hábiles (`calcularPlazoHabil`, `calcularVencimientoLocal`) · CU-82 Procesar una respuesta entrante (`procesarRespuestaEntrante`)
 
 **Sistema.** Vive en el esquema `cumplimiento`; la escribe y la lee solo el servicio `cumplimiento` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `auditoria.ticket_soporte`, `identidad.usuario`, `punto_reclamo`, `tarifas.devolucion_comision`. La referencian `instancia_reclamo`, `tarifas.devolucion_comision`. Reglas nombradas: `ck_reclamo_plazo`, `ck_reclamo_dias`, `uq_reclamo_codigo`, `ck_reclamo_prorroga`, `ck_reclamo_prorroga_extendida`, `ck_reclamo_reparacion`, `ck_reclamo_conservacion`, `ix_reclamo_vencidos`.
 
@@ -2028,7 +2625,17 @@
 
 **Qué es.** El registro de toda operación que activa una obligación de reporte por umbral.
 
-**Para qué sirve.** Hay operaciones que se registran y se reportan **por monto, sin que haya nada sospechoso**. Es una obligación distinta del reporte de operación sospechosa y hay que poder demostrar las dos por separado: una es objetiva y automática, la otra es subjetiva y fundada. Tres columnas que parecen detalle y son el núcleo del cumplimiento: - **`operacion_inicio_ventana_id`** implementa la regla de reinicio: *"se considera como inicio la operación posterior a la última que hubiera superado el umbral"*. Sin esa referencia, la acumulación se calcula mal y se reporta de menos o de más. - **`monto_equivalente_usd` + `tipo_cambio_aplicado`**: los umbrales están en dólares y las operaciones ocurren en bolivianos. Guardar la conversión y su tipo de cambio hace el cálculo reproducible dos años después. - **`periodo_remision`**: alimenta el envío mensual. La obligación no es solo reportar: es reportar **hasta el día 15 del mes siguiente**, y si no hubo ninguna operación, informar igual que no la hubo — de ahí `reporte_regulatorio.reporte_en_cero`. `exento` + `motivo_exencion` cubren los casos que la norma excluye expresamente (operativa propia entre entidades reguladas, pagos de servicios básicos, impuestos, bonos sociales, pagos con tarjeta). Sin esas columnas, un exento se ve igual que un olvido. ---
+**Para qué sirve.** Hay operaciones que se registran y se reportan **por monto, sin que haya nada sospechoso**. Es una obligación distinta del reporte de operación sospechosa y hay que poder demostrar las dos por separado: una es objetiva y automática, la otra es subjetiva y fundada.
+
+Tres columnas que parecen detalle y son el núcleo del cumplimiento:
+
+- **`operacion_inicio_ventana_id`** implementa la regla de reinicio: *"se considera como inicio la operación posterior a la última que hubiera superado el umbral"*. Sin esa referencia, la acumulación se calcula mal y se reporta de menos o de más.
+- **`monto_equivalente_usd` + `tipo_cambio_aplicado`**: los umbrales están en dólares y las operaciones ocurren en bolivianos. Guardar la conversión y su tipo de cambio hace el cálculo reproducible dos años después.
+- **`periodo_remision`**: alimenta el envío mensual. La obligación no es solo reportar: es reportar **hasta el día 15 del mes siguiente**, y si no hubo ninguna operación, informar igual que no la hubo — de ahí `reporte_regulatorio.reporte_en_cero`.
+
+`exento` + `motivo_exencion` cubren los casos que la norma excluye expresamente (operativa propia entre entidades reguladas, pagos de servicios básicos, impuestos, bonos sociales, pagos con tarjeta). Sin esas columnas, un exento se ve igual que un olvido.
+
+**Casos de uso que la nombran.** CU-10 Recargar saldo (`solicitarRecarga`, `acreditarRecarga`) · CU-11 Retirar saldo (`solicitarRetiro`) · CU-12 Transferir saldo entre billeteras (`resolverAlias`, `acreditarRescate`, `emitirQr`, `leerQr`, `pagarQr`, `transferirSaldo`) · CU-41 Detectar umbral y registrar formulario PCC-01 · CU-42 Detectar umbral y registrar ROG · CU-43 Remitir los reportes mensuales a la UIF
 
 **Sistema.** Vive en el esquema `cumplimiento`; la escribe y la lee solo el servicio `cumplimiento` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Es append-only: UPDATE y DELETE revocados al rol del servicio; se corrige con una fila nueva. Depende de `catalogo.umbral_reporte_uif`, `declaracion_origen_fondos`, `identidad.usuario`, `nucleo_financiero.transaccion_billetera`, `registro_operacion_relevante`, `reporte_regulatorio`. La referencian `registro_operacion_relevante`. Reglas nombradas: `ck_operelev_ventana`, `ck_operelev_tipo_cambio`, `ck_operelev_declaracion`, `ck_operelev_periodo`, `uq_operelev_tx_umbral`, `ix_operelev_periodo`, `ix_operelev_usuario_fecha`.
 
@@ -2064,16 +2671,20 @@
 
 **Qué es.** Una tipología de operación inusual, expresada como dato.
 
-**Para qué sirve.** Detectar patrones: fraccionamiento para no llegar al umbral de registro, entrada y salida inmediata del mismo monto, circularidad entre cuentas del mismo círculo, uso de un grupo de pasanaku como pantalla para mover plata entre desconocidos. La expresión es `JSONB` declarativo y `accion_automatica` decide qué hacer: solo alertar, retener la operación o bloquear la cuenta. **Cuando el regulador publica una tipología nueva, se carga una fila**; no se despliega software. Y `fuente_normativa` deja constancia de de dónde salió cada regla.
+**Para qué sirve.** Detectar patrones: fraccionamiento para no llegar al umbral de registro, entrada y salida inmediata del mismo monto, circularidad entre cuentas del mismo círculo, uso de un grupo de pasanaku como pantalla para mover plata entre desconocidos.
 
-**Por qué existe.** Porque las tipologías cambian dos o tres veces al año y porque el supervisor pregunta específicamente "¿qué tipologías tienen parametrizadas?". Un `if` en el código no es una respuesta. ---
+La expresión es `JSONB` declarativo y `accion_automatica` decide qué hacer: solo alertar, retener la operación o bloquear la cuenta. **Cuando el regulador publica una tipología nueva, se carga una fila**; no se despliega software. Y `fuente_normativa` deja constancia de de dónde salió cada regla.
+
+**Por qué existe.** Porque las tipologías cambian dos o tres veces al año y porque el supervisor pregunta específicamente "¿qué tipologías tienen parametrizadas?". Un `if` en el código no es una respuesta.
+
+**Casos de uso que la nombran.** CU-03 Declaración PEP y beneficiario final · CU-44 De alerta de monitoreo a reporte de operación sospechosa (`listarBandejaDeAlertas`, `listarBandejaDeCasos`, `abrirCasoLft`, `decidirCasoLft`) · CU-47 Evaluar el riesgo del producto antes de lanzarlo
 
 **Sistema.** Vive en el esquema `cumplimiento`; la escribe y la lee solo el servicio `cumplimiento` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `identidad.usuario`. La referencian `alerta_monitoreo_lft`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `codigo` | VARCHAR(40) | — | VARCHAR(40), obligatoria. | NINGUNA |
+| `codigo` | VARCHAR(40) | — | VARCHAR(40), obligatoria, única. | NINGUNA |
 | `tipologia` | VARCHAR(80) | — | VARCHAR(80), obligatoria. | NINGUNA |
 | `descripcion` | VARCHAR(300) | — | VARCHAR(300), obligatoria. | NINGUNA |
 | `expresion` | JSONB | — | JSONB, obligatoria. | NINGUNA |
@@ -2091,9 +2702,13 @@
 
 **Qué es.** La agenda de reportes obligatorios y el rastro de cada envío.
 
-**Para qué sirve.** Una entidad supervisada envía información periódica: diaria, mensual, trimestral. El catálogo define **qué se debe enviar, a quién, con qué periodicidad, en qué formato y con qué plazo**. A partir de ahí el sistema genera los vencimientos solo, y un reporte no enviado es visible antes de vencer, no después. El envío guarda `numero_constancia`: la prueba de que se envió. La observación guarda lo que el organismo devolvió —observación, instrucción, multa o requerimiento— con su plazo de respuesta.
+**Para qué sirve.** Una entidad supervisada envía información periódica: diaria, mensual, trimestral. El catálogo define **qué se debe enviar, a quién, con qué periodicidad, en qué formato y con qué plazo**. A partir de ahí el sistema genera los vencimientos solo, y un reporte no enviado es visible antes de vencer, no después.
 
-**Por qué existe.** Porque el incumplimiento más común y más caro no es hacer las cosas mal: es **no mandar a tiempo**. Un calendario en una planilla no sobrevive a la primera rotación de personal. ---
+El envío guarda `numero_constancia`: la prueba de que se envió. La observación guarda lo que el organismo devolvió —observación, instrucción, multa o requerimiento— con su plazo de respuesta.
+
+**Por qué existe.** Porque el incumplimiento más común y más caro no es hacer las cosas mal: es **no mandar a tiempo**. Un calendario en una planilla no sobrevive a la primera rotación de personal.
+
+**Casos de uso que la nombran.** CU-43 Remitir los reportes mensuales a la UIF · CU-52 Atender un reclamo en plazo (`listarBandejaDeReclamos`, `consultarEfectoDeReclamos`, `consultarReclamo`, `responderReclamo`) · CU-54 Registrar un evento de riesgo operativo (`registrarRiesgoOperativo`)
 
 **Sistema.** Vive en el esquema `cumplimiento`; la escribe y la lee solo el servicio `cumplimiento` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `catalogo_reporte_regulatorio`, `identidad.usuario`. La referencian `envio_regulatorio`, `registro_operacion_relevante`. Reglas nombradas: `ck_reporte_en_cero`, `uq_reporte_catalogo_periodo`, `ck_reporte_segregacion`, `ix_reporte_vencidos`.
 
@@ -2121,7 +2736,9 @@
 
 **Para qué sirve.** Llegan oficios: de fiscalía, de juzgados, de la unidad de inteligencia financiera, del supervisor. Cada uno tiene plazo, alcance y consecuencia. Si ordena inmovilizar fondos, genera un [[bloqueo_saldo]] (M10); si pide información, genera un [[registro_acceso_datos]] (M9).
 
-**Por qué existe.** Porque **nunca se ejecuta una orden sin el documento que la respalda**, y porque el día que el titular reclame por qué le congelaron el saldo, la respuesta tiene que ser el número de oficio, no "nos lo pidieron". ---
+**Por qué existe.** Porque **nunca se ejecuta una orden sin el documento que la respalda**, y porque el día que el titular reclame por qué le congelaron el saldo, la respuesta tiene que ser el número de oficio, no "nos lo pidieron".
+
+**Casos de uso que la nombran.** CU-07 Ejercer derechos sobre datos personales (`ejercerDerechos`, `consultarMiPerfil`, `revocarCertificado`) · CU-17 Bloquear saldo por orden de autoridad (`bloquearPorAutoridad`) · CU-45 Atender un requerimiento de autoridad
 
 **Sistema.** Vive en el esquema `cumplimiento`; la escribe y la lee solo el servicio `cumplimiento` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `identidad.usuario`, `nucleo_financiero.bloqueo_saldo`. Reglas nombradas: `ix_requerimiento_vencidos`.
 
@@ -2132,7 +2749,7 @@
 | `bloqueo_saldo_id` | UUID | — | UUID, opcional, referencia a `bloqueo_saldo`. | FINANCIERO |
 | `respondido_por` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
 | `autoridad` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
-| `numero_oficio` | VARCHAR(60) | — | VARCHAR(60), obligatoria. | NINGUNA |
+| `numero_oficio` | VARCHAR(60) | — | VARCHAR(60), obligatoria, única. | NINGUNA |
 | `fecha_recepcion` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
 | `plazo_respuesta` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
 | `alcance` | VARCHAR(300) | — | VARCHAR(300), obligatoria. | NINGUNA |
@@ -2146,7 +2763,11 @@
 
 **Qué es.** La agenda de actualización y el legajo completo.
 
-**Para qué sirve.** El conocimiento del cliente **se vence**. La revisión periódica se programa según el nivel de riesgo (más riesgo, más frecuente) y queda visible cuando está atrasada. El expediente consolida qué documentos hay, qué completitud tiene y hasta cuándo hay que conservarlo. El período de conservación es largo —no menor a **diez años** para los libros y documentos de las operaciones, contados desde la fecha del último asiento contable, según la Ley de Servicios Financieros— y por eso `retencion_hasta` se calcula y se guarda por expediente en lugar de aplicarse una regla global que nadie puede auditar. `retencion_hasta` es también lo que hace compatible el derecho a la eliminación de datos personales con la obligación de conservación: [[proceso_anonimizacion]] (M9) consulta esta fecha antes de borrar. ---
+**Para qué sirve.** El conocimiento del cliente **se vence**. La revisión periódica se programa según el nivel de riesgo (más riesgo, más frecuente) y queda visible cuando está atrasada. El expediente consolida qué documentos hay, qué completitud tiene y hasta cuándo hay que conservarlo. El período de conservación es largo —no menor a **diez años** para los libros y documentos de las operaciones, contados desde la fecha del último asiento contable, según la Ley de Servicios Financieros— y por eso `retencion_hasta` se calcula y se guarda por expediente en lugar de aplicarse una regla global que nadie puede auditar.
+
+`retencion_hasta` es también lo que hace compatible el derecho a la eliminación de datos personales con la obligación de conservación: [[proceso_anonimizacion]] (M9) consulta esta fecha antes de borrar.
+
+**Casos de uso que la nombran.** CU-06 Revisión periódica de conocimiento del cliente
 
 **Sistema.** Vive en el esquema `cumplimiento`; la escribe y la lee solo el servicio `cumplimiento` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `calificacion_riesgo_cliente`, `identidad.usuario`. Reglas nombradas: `ix_revision_kyc_vencidas`.
 
@@ -2161,6 +2782,21 @@
 | `resultado` | VARCHAR(30) | — | VARCHAR(30), opcional. | NINGUNA |
 | `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
 
+### `shedlock`
+
+**Qué es.** Bloqueo de trabajos programados entre replicas (ADR-018).
+
+**Para qué sirve.** Evita que dos réplicas del servicio ejecuten el mismo trabajo programado a la vez (ADR-018).
+
+**Sistema.** Infraestructura del servicio `cumplimiento`, generada por plantilla en cada esquema (ADR-027): la escribe y la lee solo ese servicio.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `name` | VARCHAR(64) | — | VARCHAR(64), obligatoria, clave primaria. | NINGUNA |
+| `lock_until` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `locked_at` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `locked_by` | VARCHAR(255) | — | VARCHAR(255), obligatoria. | NINGUNA |
+
 ## Esquema `entregas`
 
 ### `cesion_derecho`
@@ -2170,6 +2806,8 @@
 **Para qué sirve.** Que el comprador no pierda su plata si la cesión falla, y que el vendedor no pierda su turno sin haber cobrado: primero se retienen los fondos, después se asigna el título y al final se liquida.
 
 **Por qué existe.** La cesión mueve dinero y cambia quién cobra. Sin un registro con estados no hay forma de saber en qué paso quedó una cesión interrumpida ni de compensarla.
+
+**Casos de uso que la nombran.** CU-22 Liquidar y entregar el fondo (`liquidarEntrega`, `fondearPozo`, `autorizarEntrega`, `ejecutarEntrega`)
 
 **Sistema.** Vive en el esquema `entregas`; la escribe y la lee solo el servicio `entregas` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `grupos.participante`, `grupos.turno`, `oferta_turno`. Reglas nombradas: `uq_cesion_derecho_turno_viva`, `ck_cesion_derecho_partes`, `ck_cesion_derecho_retencion`, `ck_cesion_derecho_titulo`, `ck_cesion_derecho_liquidada`, `ck_cesion_derecho_fallo`.
 
@@ -2187,7 +2825,7 @@
 | `retencion_ref` | UUID | — | UUID, opcional. | NINGUNA |
 | `liquidacion_ref` | UUID | — | UUID, opcional. | NINGUNA |
 | `motivo_fallo` | VARCHAR(200) | — | VARCHAR(200), opcional. | NINGUNA |
-| `clave_idempotencia` | VARCHAR(80) | Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4). | VARCHAR(80), obligatoria. | NINGUNA |
+| `clave_idempotencia` | VARCHAR(80) | Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4). | VARCHAR(80), obligatoria, única. | NINGUNA |
 | `creada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
 | `titulo_asignado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
 | `liquidada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
@@ -2197,16 +2835,24 @@
 
 **Qué es.** La confirmación del beneficiario de que efectivamente recibió su plata.
 
-**Para qué sirve.** Cierra el círculo. El sistema puede saber que el banco aceptó la transferencia y aun así la plata no haber llegado (cuenta equivocada, retención bancaria, error del proveedor). **La única confirmación válida es la del que tenía que recibirla.** `montoConfirmado` permite detectar la discrepancia: el sistema mandó Bs 5.450, la persona confirma haber recibido Bs 5.400. Esos Bs 50 son una comisión no prevista o un error, y hay que investigarlos. `autoconfirmadaPorVencimiento` es un compromiso operativo necesario: si nadie confirmara nunca, las entregas quedarían abiertas para siempre y el grupo no podría cerrar el período. Pasado el `plazoLimite` se autoconfirma — pero **queda marcado que fue automática**, no que la persona dijo que sí. La distinción importa si después hay reclamo. `objetar(motivo)` es lo que abre una incidencia formal.
+**Para qué sirve.** Cierra el círculo. El sistema puede saber que el banco aceptó la transferencia y aun así la plata no haber llegado (cuenta equivocada, retención bancaria, error del proveedor). **La única confirmación válida es la del que tenía que recibirla.**
+
+`montoConfirmado` permite detectar la discrepancia: el sistema mandó Bs 5.450, la persona confirma haber recibido Bs 5.400. Esos Bs 50 son una comisión no prevista o un error, y hay que investigarlos.
+
+`autoconfirmadaPorVencimiento` es un compromiso operativo necesario: si nadie confirmara nunca, las entregas quedarían abiertas para siempre y el grupo no podría cerrar el período. Pasado el `plazoLimite` se autoconfirma — pero **queda marcado que fue automática**, no que la persona dijo que sí. La distinción importa si después hay reclamo.
+
+`objetar(motivo)` es lo que abre una incidencia formal.
 
 **Por qué existe.** Sin confirmación, "entregado" significa "lo mandamos", y esa diferencia es exactamente donde se pierde la plata y la confianza.
+
+**Casos de uso que la nombran.** CU-22 Liquidar y entregar el fondo (`liquidarEntrega`, `fondearPozo`, `autorizarEntrega`, `ejecutarEntrega`)
 
 **Sistema.** Vive en el esquema `entregas`; la escribe y la lee solo el servicio `entregas` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `entrega_fondo`, `identidad.token_verificacion`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `entrega_id` | UUID | — | UUID, obligatoria, referencia a `entrega_fondo`. | NINGUNA |
+| `entrega_id` | UUID | — | UUID, obligatoria, única, referencia a `entrega_fondo`. | NINGUNA |
 | `estado` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
 | `monto_confirmado` | DECIMAL(14,2) | — | DECIMAL(14,2), opcional. | FINANCIERO |
 | `token_confirmacion_id` | UUID | — | UUID, opcional, referencia a `token_verificacion`. | SECRETO |
@@ -2220,9 +2866,15 @@
 
 **Qué es.** La cuenta bancaria o billetera donde el usuario quiere recibir su plata, verificada.
 
-**Para qué sirve.** Es **el punto de mayor riesgo de fraude de toda la plataforma**, y por eso tiene tres defensas explícitas: 1. **`estadoVerificacion` + `metodoVerificacion`.** No se transfiere a una cuenta que nadie validó. El micro-depósito o la coincidencia de nombre con el titular son lo que confirma que la cuenta existe y es de esa persona. 2. **`coincideTitularCon(usuario)`.** La cuenta debe estar a nombre del beneficiario. Si no coincide, o hay un error, o hay alguien cobrando por otro — ambas cosas requieren revisión. 3. **`bloqueadaHasta` — período de enfriamiento.** Esta es la defensa contra el fraude clásico: *"me cambiaron la cuenta justo antes de cobrar"*. Alguien toma control de la cuenta, cambia el destino bancario y espera al turno. Con enfriamiento, un cambio de cuenta no puede usarse inmediatamente, y el usuario real recibe el aviso a tiempo para reaccionar.
+**Para qué sirve.** Es **el punto de mayor riesgo de fraude de toda la plataforma**, y por eso tiene tres defensas explícitas:
+
+1. **`estadoVerificacion` + `metodoVerificacion`.** No se transfiere a una cuenta que nadie validó. El micro-depósito o la coincidencia de nombre con el titular son lo que confirma que la cuenta existe y es de esa persona.
+2. **`coincideTitularCon(usuario)`.** La cuenta debe estar a nombre del beneficiario. Si no coincide, o hay un error, o hay alguien cobrando por otro — ambas cosas requieren revisión.
+3. **`bloqueadaHasta` — período de enfriamiento.** Esta es la defensa contra el fraude clásico: *"me cambiaron la cuenta justo antes de cobrar"*. Alguien toma control de la cuenta, cambia el destino bancario y espera al turno. Con enfriamiento, un cambio de cuenta no puede usarse inmediatamente, y el usuario real recibe el aviso a tiempo para reaccionar.
 
 **Por qué existe.** Sin esta entidad, el destino del dinero sería un campo de texto en la entrega, editable, sin verificación y sin historial.
+
+**Casos de uso que la nombran.** CU-18 Registrar y verificar una cuenta bancaria de destino (`registrarCuentaDestino`, `consultarDisponibilidad`, `designarCuentaPrincipal`, `verificarCuentaDestino`) · CU-28 Emitir la orden de desembolso y ejecutar el intento (`listarDesembolsos`, `emitirOrdenDesembolso`, `anotarRespuestaDesembolso`)
 
 **Sistema.** Vive en el esquema `entregas`; la escribe y la lee solo el servicio `entregas` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `identidad.usuario`. La referencian `entrega_fondo`, `orden_desembolso`. Reglas nombradas: `uq_cuenta_benef_hash`, `ck_cuenta_benef_hash_completo`, `ck_cuenta_benef_verificada`, `uq_cuenta_benef_principal`, `ck_cuenta_bancaria_sin_claro`, `ck_cuenta_bancaria_version_llave`.
 
@@ -2249,9 +2901,23 @@
 
 **Qué es.** Cada descuento aplicado a la bolsa antes de entregarla, con su monto y su origen.
 
-**Para qué sirve.** Es **la entidad que hace explicable la entrega**. Siete tipos, todos con un caso real detrás: - `APORTE_PROPIO_DEL_PERIODO`: el beneficiario también debe su aporte de este período. No tiene sentido cobrarle Bs 500 y pagarle Bs 6.000 el mismo día: se netea. Sin esta línea, la persona tendría que hacer una transferencia para recibir otra, con dos comisiones bancarias de por medio. - `DEUDA_VENCIDA_PROPIA` y `RECARGO_MORA_PROPIO`: **el turno es el momento de máxima capacidad de cobro de todo el ciclo.** Es la única vez que el sistema tiene plata del deudor en la mano. Descontarla ahí es lo que hace recuperable una cartera morosa. - `REPOSICION_FONDO_GARANTIA`: si el fondo cubrió un aporte suyo hace tres meses, ahora que cobra lo devuelve. - `RETENCION_IMPUESTO` y `COSTO_TRANSFERENCIA`: los descuentos que no decide nadie. - `COMISION_PLATAFORMA`: la comisión del servicio (M11). Es la única deducción que representa un ingreso de la empresa, y por eso es la que más rigor exige: `referenciaOrigenId` apunta al `cargo_comision`, que apunta al concepto y a la versión exacta del tarifario que la calculó. La pantalla puede decir *"Bs 18 — comisión por cobro de turno, 0,3 % de la bolsa"* y el usuario puede verificarlo contra el tarifario publicado. > **Vigencia ([[ADR-051 Garantía del pozo, comisión y autogestión|ADR-051]], D-04).** Por la regla de pozo completo la > comisión es un **cargo separado**: el principal se acredita íntegro y el cargo es una línea propia, no una > deducción de la bolsa. El camino con deducciones queda como legado. **Sigue sin haber deducción por comisión del organizador**: administrar no se cobra (RN-18). El cargo es para pagar el servicio de la plataforma, nunca para pagarle a quien administra el grupo. `referenciaOrigenId` apunta al hecho concreto que justifica cada descuento. Eso es lo que permite que la pantalla diga "Bs 500 — tu aporte del período 7" en vez de "deducciones: Bs 550", que es lo que genera desconfianza.
+**Para qué sirve.** Es **la entidad que hace explicable la entrega**. Siete tipos, todos con un caso real detrás:
+
+- `APORTE_PROPIO_DEL_PERIODO`: el beneficiario también debe su aporte de este período. No tiene sentido cobrarle Bs 500 y pagarle Bs 6.000 el mismo día: se netea. Sin esta línea, la persona tendría que hacer una transferencia para recibir otra, con dos comisiones bancarias de por medio.
+- `DEUDA_VENCIDA_PROPIA` y `RECARGO_MORA_PROPIO`: **el turno es el momento de máxima capacidad de cobro de todo el ciclo.** Es la única vez que el sistema tiene plata del deudor en la mano. Descontarla ahí es lo que hace recuperable una cartera morosa.
+- `REPOSICION_FONDO_GARANTIA`: si el fondo cubrió un aporte suyo hace tres meses, ahora que cobra lo devuelve.
+- `RETENCION_IMPUESTO` y `COSTO_TRANSFERENCIA`: los descuentos que no decide nadie.
+- `COMISION_PLATAFORMA`: la comisión del servicio (M11). Es la única deducción que representa un ingreso de la empresa, y por eso es la que más rigor exige: `referenciaOrigenId` apunta al `cargo_comision`, que apunta al concepto y a la versión exacta del tarifario que la calculó. La pantalla puede decir *"Bs 18 — comisión por cobro de turno, 0,3 % de la bolsa"* y el usuario puede verificarlo contra el tarifario publicado.
+
+> **Vigencia ([[ADR-051 Garantía del pozo, comisión y autogestión|ADR-051]], D-04).** Por la regla de pozo completo la > comisión es un **cargo separado**: el principal se acredita íntegro y el cargo es una línea propia, no una > deducción de la bolsa. El camino con deducciones queda como legado.
+
+**Sigue sin haber deducción por comisión del organizador**: administrar no se cobra (RN-18). El cargo es para pagar el servicio de la plataforma, nunca para pagarle a quien administra el grupo.
+
+`referenciaOrigenId` apunta al hecho concreto que justifica cada descuento. Eso es lo que permite que la pantalla diga "Bs 500 — tu aporte del período 7" en vez de "deducciones: Bs 550", que es lo que genera desconfianza.
 
 **Por qué existe.** Sin deducciones línea a línea, la única alternativa es un campo `total_descontado` que nadie puede auditar ni explicar. Y el beneficiario tiene todo el derecho a saber por qué recibió menos.
+
+**Casos de uso que la nombran.** CU-22 Liquidar y entregar el fondo (`liquidarEntrega`, `fondearPozo`, `autorizarEntrega`, `ejecutarEntrega`) · CU-31 Devengar y cobrar la comisión (`devengarComision`, `anotarCobroDeComision`)
 
 **Sistema.** Vive en el esquema `entregas`; la escribe y la lee solo el servicio `entregas` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `entrega_fondo`. La referencian `tarifas.cargo_comision`.
 
@@ -2271,9 +2937,25 @@
 
 **Qué es.** El acto de entregar la bolsa de un período al beneficiario del turno.
 
-**Para qué sirve.** Es el producto que el participante compró. Los tres montos que lleva cuentan toda la historia: - `montoBolsaBruto`: lo que se juntó entre todos. - `totalDeducciones`: lo que se le descuenta (y que hay que poder explicar línea por línea). - `montoNetoAEntregar`: lo que efectivamente recibe. Esa separación existe porque **la queja número uno en el momento de cobrar es "yo esperaba Bs 6.000 y me llegaron Bs 5.450"**. Si el sistema solo guarda el neto, no hay forma de responderla. Con las tres cifras y el detalle de deducciones, la respuesta es inmediata y verificable. La máquina de estados es intencionalmente conservadora. Note los dos estados de bloqueo separados: - `BLOQUEADA_POR_FONDO_INCOMPLETO`: falta plata en la bolsa. Es un problema del grupo (alguien no aportó) y dispara el módulo 8. - `BLOQUEADA_POR_VALIDACION`: la bolsa está pero algo del beneficiario no cierra (cuenta sin verificar, deuda propia sin plan, KYC vencido). Es un problema individual. Son dos conversaciones completamente distintas con dos personas distintas. Un solo estado "bloqueada" las confundiría. `RECHAZADA_POR_BENEFICIARIO` cubre un caso real: la persona ve el monto neto, no está de acuerdo con las deducciones y objeta antes de aceptar.
+**Para qué sirve.** Es el producto que el participante compró. Los tres montos que lleva cuentan toda la historia:
+
+- `montoBolsaBruto`: lo que se juntó entre todos.
+- `totalDeducciones`: lo que se le descuenta (y que hay que poder explicar línea por línea).
+- `montoNetoAEntregar`: lo que efectivamente recibe.
+
+Esa separación existe porque **la queja número uno en el momento de cobrar es "yo esperaba Bs 6.000 y me llegaron Bs 5.450"**. Si el sistema solo guarda el neto, no hay forma de responderla. Con las tres cifras y el detalle de deducciones, la respuesta es inmediata y verificable.
+
+La máquina de estados es intencionalmente conservadora. Note los dos estados de bloqueo separados:
+- `BLOQUEADA_POR_FONDO_INCOMPLETO`: falta plata en la bolsa. Es un problema del grupo (alguien no aportó) y dispara el módulo 8.
+- `BLOQUEADA_POR_VALIDACION`: la bolsa está pero algo del beneficiario no cierra (cuenta sin verificar, deuda propia sin plan, KYC vencido). Es un problema individual.
+
+Son dos conversaciones completamente distintas con dos personas distintas. Un solo estado "bloqueada" las confundiría.
+
+`RECHAZADA_POR_BENEFICIARIO` cubre un caso real: la persona ve el monto neto, no está de acuerdo con las deducciones y objeta antes de aceptar.
 
 **Por qué existe.** Sin entrega como entidad, el desembolso sería un pago más y no habría dónde registrar el cálculo, las validaciones previas, la autorización ni la confirmación.
+
+**Casos de uso que la nombran.** CU-22 Liquidar y entregar el fondo (`liquidarEntrega`, `fondearPozo`, `autorizarEntrega`, `ejecutarEntrega`) · CU-28 Emitir la orden de desembolso y ejecutar el intento (`listarDesembolsos`, `emitirOrdenDesembolso`, `anotarRespuestaDesembolso`) · CU-62 Permutar turnos entre participantes (`solicitarPermuta`) · CU-67 Disolver el grupo anticipadamente (`cerrarDisolucion`, `iniciarDisolucion`)
 
 **Sistema.** Vive en el esquema `entregas`; la escribe y la lee solo el servicio `entregas` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `cuenta_bancaria_beneficiario`, `grupos.cupo`, `grupos.grupo`, `grupos.participante`, `grupos.periodo`, `grupos.turno`, `identidad.usuario`. La referencian `confirmacion_recepcion`, `deduccion_entrega`, `fondeo_entrega`, `garantia.abono_recuperacion`, `garantia.registro_incumplimiento`, `historial_estado_entrega`, `incidencia_entrega`, `orden_desembolso`, `validacion_pre_entrega`. Reglas nombradas: `ck_entrega_segregacion`, `uq_entrega_turno`, `uq_entrega_periodo`, `ck_entrega_neto`, `ck_entrega_neto_no_negativo`.
 
@@ -2303,6 +2985,67 @@
 | `observaciones` | VARCHAR(400) | — | VARCHAR(400), opcional. | NINGUNA |
 | `version` | INTEGER | — | INTEGER, obligatoria. | NINGUNA |
 
+### `estado_saga`
+
+**Qué es.** Estado de saga orquestada por este servicio (ADR-028).
+
+**Para qué sirve.** Persiste el paso de una saga que cruza servicios para poder reanudarla o compensarla si algo falla en el medio (regla 98.3.2, ADR-028).
+
+**Sistema.** Infraestructura del servicio `entregas`, generada por plantilla en cada esquema (ADR-027): la escribe y la lee solo ese servicio.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
+| `tipo_saga` | VARCHAR(60) | — | VARCHAR(60), obligatoria. | NINGUNA |
+| `clave_negocio` | VARCHAR(120) | — | VARCHAR(120), obligatoria. | SECRETO |
+| `paso` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
+| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
+| `datos` | JSONB | — | JSONB, obligatoria. | NINGUNA |
+| `creado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `actualizado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+
+### `evento_consumido`
+
+**Qué es.** Marca de evento ya consumido, por consumidor (ADR-027).
+
+**Para qué sirve.** Hace idempotente el consumo: la entrega es al menos una vez y un mismo evento no puede producir dos efectos (regla 98.3.4).
+
+**Sistema.** Infraestructura del servicio `entregas`, generada por plantilla en cada esquema (ADR-027): la escribe y la lee solo ese servicio.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `id_evento` | UUID | — | UUID, obligatoria, clave primaria. | NINGUNA |
+| `consumidor` | VARCHAR(60) | — | VARCHAR(60), obligatoria, clave primaria. | NINGUNA |
+| `consumido_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+
+### `evento_dominio`
+
+**Qué es.** Outbox transaccional del servicio (ADR-027).
+
+**Para qué sirve.** Garantiza que ningún hecho del servicio se pierda entre la base y la mensajería: el evento se guarda en la misma transacción que el cambio y un relevo lo publica después (regla 98.3.3).
+
+**Sistema.** Infraestructura del servicio `entregas`, generada por plantilla en cada esquema (ADR-027): la escribe y la lee solo ese servicio.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
+| `tipo` | VARCHAR(60) | — | VARCHAR(60), obligatoria. | NINGUNA |
+| `version` | VARCHAR(10) | — | VARCHAR(10), obligatoria. | NINGUNA |
+| `agregado` | VARCHAR(40) | — | VARCHAR(40), obligatoria. | NINGUNA |
+| `agregado_id` | UUID | — | UUID, obligatoria. | NINGUNA |
+| `payload` | JSONB | — | JSONB, obligatoria. | NINGUNA |
+| `metadatos` | JSONB | — | JSONB, obligatoria. | NINGUNA |
+| `correlation_id` | UUID | — | UUID, obligatoria. | NINGUNA |
+| `causation_id` | UUID | — | UUID, opcional. | NINGUNA |
+| `ocurrido_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `publicado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
+| `intentos` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
+| `tomado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `tomado_por` | VARCHAR(100) | — | VARCHAR(100), opcional. | NINGUNA |
+| `ultimo_error` | TEXT | — | TEXT, opcional. | NINGUNA |
+| `proximo_intento_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+
 ### `fondeo_entrega`
 
 **Qué es.** De dónde sale cada boliviano del pozo de una entrega: cuánto está confirmado, cuánto cubrió el fondo mutual, cuánto faltó, cuánto cubrió la empresa y cuánto queda pendiente.
@@ -2311,13 +3054,15 @@
 
 **Por qué existe.** El pozo completo exige separar la entrega (lo que recibe la persona) del fondeo (de dónde salió). Sin esta tabla, una cobertura empresarial se confundiría con un aporte pagado y la deuda que se conserva desaparecería.
 
+**Casos de uso que la nombran.** CU-22 Liquidar y entregar el fondo (`liquidarEntrega`, `fondearPozo`, `autorizarEntrega`, `ejecutarEntrega`)
+
 **Sistema.** Vive en el esquema `entregas`; la escribe y la lee solo el servicio `entregas` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `entrega_fondo`, `grupos.turno`. Reglas nombradas: `ck_fondeo_entrega_cuadra`, `ck_fondeo_entrega_pendiente`, `ck_fondeo_entrega_estado`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `entrega_id` | UUID | — | UUID, obligatoria, referencia a `entrega_fondo`. | NINGUNA |
-| `turno_id` | UUID | — | UUID, obligatoria, referencia a `turno`. | NINGUNA |
+| `entrega_id` | UUID | — | UUID, obligatoria, única, referencia a `entrega_fondo`. | NINGUNA |
+| `turno_id` | UUID | — | UUID, obligatoria, única, referencia a `turno`. | NINGUNA |
 | `moneda` | CHAR(3) | Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2). | CHAR(3), obligatoria. | NINGUNA |
 | `monto_pozo` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
 | `monto_confirmado` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
@@ -2329,7 +3074,7 @@
 | `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
 | `corte_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
 | `fondeada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
-| `clave_idempotencia` | VARCHAR(80) | Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4). | VARCHAR(80), obligatoria. | NINGUNA |
+| `clave_idempotencia` | VARCHAR(80) | Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4). | VARCHAR(80), obligatoria, única. | NINGUNA |
 | `version` | INTEGER | — | INTEGER, obligatoria. | NINGUNA |
 
 ### `historial_estado_entrega`
@@ -2338,7 +3083,9 @@
 
 **Para qué sirve.** Reconstruye la línea de tiempo: cuándo se programó, cuándo se bloqueó y por qué, quién la autorizó, cuándo se ejecutó, cuándo se confirmó. Es lo primero que se mira ante un reclamo de "me pagaron tarde", y es la única forma de distinguir un retraso del grupo (faltaba plata) de un retraso operativo (el desembolso se quedó trabado dos días).
 
-**Por qué existe.** El campo `estado` dice dónde está; el historial dice cuánto tardó cada paso y quién lo movió. Sin él no hay métricas de tiempo de entrega ni responsables identificables. ---
+**Por qué existe.** El campo `estado` dice dónde está; el historial dice cuánto tardó cada paso y quién lo movió. Sin él no hay métricas de tiempo de entrega ni responsables identificables.
+
+**Casos de uso que la nombran.** CU-28 Emitir la orden de desembolso y ejecutar el intento (`listarDesembolsos`, `emitirOrdenDesembolso`, `anotarRespuestaDesembolso`)
 
 **Sistema.** Vive en el esquema `entregas`; la escribe y la lee solo el servicio `entregas` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `entrega_fondo`, `identidad.usuario`.
 
@@ -2356,9 +3103,15 @@
 
 **Qué es.** Cualquier problema con una entrega, tipificado, con severidad, responsable y SLA.
 
-**Para qué sirve.** Los ocho tipos son el catálogo de todo lo que puede salir mal en el momento más sensible: fondo incompleto, datos bancarios erróneos, desembolso rechazado, monto que no coincide, el beneficiario no recibió, entrega duplicada, reclamo de un tercero, sospecha de fraude. `slaHoras` y `fechaLimiteSLA` son lo que convierte el reclamo en algo con reloj. **Una entrega que no llega es la emergencia máxima de la plataforma**: la persona esperó meses su turno y contaba con esa plata para algo concreto. Un reclamo así no puede quedar en una bandeja sin dueño ni plazo. `ENTREGA_DUPLICADA` está tipificada aunque las restricciones de base de datos la hagan improbable: si alguna vez ocurre por una vía inesperada, hay que poder gestionarla, no descubrirla en el cierre contable.
+**Para qué sirve.** Los ocho tipos son el catálogo de todo lo que puede salir mal en el momento más sensible: fondo incompleto, datos bancarios erróneos, desembolso rechazado, monto que no coincide, el beneficiario no recibió, entrega duplicada, reclamo de un tercero, sospecha de fraude.
 
-**Por qué existe.** Sin incidencias, el problema en una entrega es una conversación de WhatsApp con soporte, sin trazabilidad, sin plazo y sin métrica. ---
+`slaHoras` y `fechaLimiteSLA` son lo que convierte el reclamo en algo con reloj. **Una entrega que no llega es la emergencia máxima de la plataforma**: la persona esperó meses su turno y contaba con esa plata para algo concreto. Un reclamo así no puede quedar en una bandeja sin dueño ni plazo.
+
+`ENTREGA_DUPLICADA` está tipificada aunque las restricciones de base de datos la hagan improbable: si alguna vez ocurre por una vía inesperada, hay que poder gestionarla, no descubrirla en el cierre contable.
+
+**Por qué existe.** Sin incidencias, el problema en una entrega es una conversación de WhatsApp con soporte, sin trazabilidad, sin plazo y sin métrica.
+
+**Casos de uso que la nombran.** CU-28 Emitir la orden de desembolso y ejecutar el intento (`listarDesembolsos`, `emitirOrdenDesembolso`, `anotarRespuestaDesembolso`)
 
 **Sistema.** Vive en el esquema `entregas`; la escribe y la lee solo el servicio `entregas` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `entrega_fondo`, `identidad.usuario`.
 
@@ -2383,9 +3136,13 @@
 
 **Qué es.** Cada ejecución de una orden de desembolso, con el resultado que devolvió el proveedor.
 
-**Para qué sirve.** Guarda por qué falló y cuándo se puede reintentar (`reintentableEn`). Cuando el beneficiario reclama que no le llegó, el `mensajeProveedor` dice si fue "cuenta inexistente", "cuenta bloqueada" o "servicio no disponible" — tres diagnósticos que llevan a tres acciones distintas. `programarReintento()` implementa backoff: no tiene sentido reintentar cada segundo contra un banco caído.
+**Para qué sirve.** Guarda por qué falló y cuándo se puede reintentar (`reintentableEn`). Cuando el beneficiario reclama que no le llegó, el `mensajeProveedor` dice si fue "cuenta inexistente", "cuenta bloqueada" o "servicio no disponible" — tres diagnósticos que llevan a tres acciones distintas.
 
-**Por qué existe.** Sin intentos, un desembolso fallido es un estado sin explicación, y el soporte no puede decirle al usuario qué tiene que corregir. ---
+`programarReintento()` implementa backoff: no tiene sentido reintentar cada segundo contra un banco caído.
+
+**Por qué existe.** Sin intentos, un desembolso fallido es un estado sin explicación, y el soporte no puede decirle al usuario qué tiene que corregir.
+
+**Casos de uso que la nombran.** CU-28 Emitir la orden de desembolso y ejecutar el intento (`listarDesembolsos`, `emitirOrdenDesembolso`, `anotarRespuestaDesembolso`)
 
 **Sistema.** Vive en el esquema `entregas`; la escribe y la lee solo el servicio `entregas` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `orden_desembolso`. Reglas nombradas: `uq_intento_desembolso_numero`, `ck_intento_desembolso_fallo`.
 
@@ -2409,6 +3166,8 @@
 
 **Por qué existe.** El derecho a cobrar un turno vale dinero. Sin una oferta registrada no hay forma de impedir que el mismo turno se venda dos veces ni de saber qué se ofreció, a qué precio y con qué cargos.
 
+**Casos de uso que la nombran.** CU-22 Liquidar y entregar el fondo (`liquidarEntrega`, `fondearPozo`, `autorizarEntrega`, `ejecutarEntrega`)
+
 **Sistema.** Vive en el esquema `entregas`; la escribe y la lee solo el servicio `entregas` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `grupos.cupo`, `grupos.grupo`, `grupos.participante`, `grupos.turno`. La referencian `cesion_derecho`. Reglas nombradas: `uq_oferta_turno_activa`, `ck_oferta_turno_cargos`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
@@ -2426,16 +3185,20 @@
 | `estado` | VARCHAR(12) | — | VARCHAR(12), obligatoria. | NINGUNA |
 | `vigente_hasta` | TIMESTAMPTZ | Hasta cuándo rigió esta versión; vacía mientras sigue vigente. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 | `publicada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `clave_idempotencia` | VARCHAR(80) | Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4). | VARCHAR(80), obligatoria. | NINGUNA |
+| `clave_idempotencia` | VARCHAR(80) | Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4). | VARCHAR(80), obligatoria, única. | NINGUNA |
 | `version` | INTEGER | — | INTEGER, obligatoria. | NINGUNA |
 
 ### `orden_desembolso`
 
 **Qué es.** La instrucción concreta al proveedor de pagos para transferir el neto a la cuenta del beneficiario.
 
-**Para qué sirve.** Separa la decisión (la entrega autorizada) de la ejecución (la transferencia). Eso importa porque una transferencia puede fallar, ser devuelta por el banco o quedar en proceso durante horas, **sin que eso signifique que la entrega deba recalcularse**. La entrega ya está decidida; lo que se reintenta es el desembolso. `glosa` es lo que el beneficiario ve en su extracto bancario. Que diga "Pasanaku Los Amigos - Periodo 7" en vez de un código interno es una diferencia real para que la persona reconozca de dónde vino la plata.
+**Para qué sirve.** Separa la decisión (la entrega autorizada) de la ejecución (la transferencia). Eso importa porque una transferencia puede fallar, ser devuelta por el banco o quedar en proceso durante horas, **sin que eso signifique que la entrega deba recalcularse**. La entrega ya está decidida; lo que se reintenta es el desembolso.
+
+`glosa` es lo que el beneficiario ve en su extracto bancario. Que diga "Pasanaku Los Amigos - Periodo 7" en vez de un código interno es una diferencia real para que la persona reconozca de dónde vino la plata.
 
 **Por qué existe.** Sin orden separada, un desembolso fallido dejaría la entrega en un estado ambiguo. Además, una entrega puede tener varias órdenes: la primera rebotó por datos bancarios, la segunda fue a la cuenta corregida.
+
+**Casos de uso que la nombran.** CU-28 Emitir la orden de desembolso y ejecutar el intento (`listarDesembolsos`, `emitirOrdenDesembolso`, `anotarRespuestaDesembolso`)
 
 **Sistema.** Vive en el esquema `entregas`; la escribe y la lee solo el servicio `entregas` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `aportes.proveedor_pago`, `cuenta_bancaria_beneficiario`, `entrega_fondo`. La referencian `intento_desembolso`. Reglas nombradas: `uq_orden_desembolso_clave`, `ck_orden_desembolso_monto`, `ck_orden_desembolso_acreditada`, `uq_orden_desembolso_entrega_viva`.
 
@@ -2448,7 +3211,7 @@
 | `monto` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
 | `moneda` | CHAR(3) | Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2). | CHAR(3), obligatoria. | NINGUNA |
 | `estado` | VARCHAR(25) | — | VARCHAR(25), obligatoria. | NINGUNA |
-| `referencia_proveedor` | VARCHAR(80) | — | VARCHAR(80), opcional. | NINGUNA |
+| `referencia_proveedor` | VARCHAR(80) | — | VARCHAR(80), opcional, única. | NINGUNA |
 | `glosa` | VARCHAR(140) | — | VARCHAR(140), obligatoria. | NINGUNA |
 | `clave_idempotencia` | VARCHAR(80) | Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4). | VARCHAR(80), obligatoria. | NINGUNA |
 | `creada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
@@ -2458,16 +3221,20 @@
 
 **Qué es.** El catálogo de controles previos, con su orden, si bloquean y quién puede omitirlos.
 
-**Para qué sirve.** Permite endurecer o relajar los controles según el tipo de grupo y según la experiencia operativa, sin desplegar código. Si aparece un patrón de fraude nuevo (por ejemplo, cambios de cuenta bancaria justo antes del turno), se agrega una regla y aplica a todas las entregas siguientes. `esBloqueante` vs advertencia es la distinción clave: hay controles que deben detener la entrega y otros que solo deben avisar.
+**Para qué sirve.** Permite endurecer o relajar los controles según el tipo de grupo y según la experiencia operativa, sin desplegar código. Si aparece un patrón de fraude nuevo (por ejemplo, cambios de cuenta bancaria justo antes del turno), se agrega una regla y aplica a todas las entregas siguientes.
 
-**Por qué existe.** Con reglas hardcodeadas, cada ajuste de control es un release y no queda registro de qué reglas estaban vigentes cuando se autorizó una entrega vieja. ---
+`esBloqueante` vs advertencia es la distinción clave: hay controles que deben detener la entrega y otros que solo deben avisar.
+
+**Por qué existe.** Con reglas hardcodeadas, cada ajuste de control es un release y no queda registro de qué reglas estaban vigentes cuando se autorizó una entrega vieja.
+
+**Casos de uso que la nombran.** CU-22 Liquidar y entregar el fondo (`liquidarEntrega`, `fondearPozo`, `autorizarEntrega`, `ejecutarEntrega`)
 
 **Sistema.** Vive en el esquema `entregas`; la escribe y la lee solo el servicio `entregas` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. La referencian `validacion_pre_entrega`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `codigo` | VARCHAR(40) | — | VARCHAR(40), obligatoria. | NINGUNA |
+| `codigo` | VARCHAR(40) | — | VARCHAR(40), obligatoria, única. | NINGUNA |
 | `descripcion` | VARCHAR(200) | — | VARCHAR(200), obligatoria. | NINGUNA |
 | `es_bloqueante` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
 | `permite_omision` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
@@ -2475,13 +3242,40 @@
 | `orden` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
 | `activa` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
 
+### `shedlock`
+
+**Qué es.** Bloqueo de trabajos programados entre replicas (ADR-018).
+
+**Para qué sirve.** Evita que dos réplicas del servicio ejecuten el mismo trabajo programado a la vez (ADR-018).
+
+**Sistema.** Infraestructura del servicio `entregas`, generada por plantilla en cada esquema (ADR-027): la escribe y la lee solo ese servicio.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `name` | VARCHAR(64) | — | VARCHAR(64), obligatoria, clave primaria. | NINGUNA |
+| `lock_until` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `locked_at` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `locked_by` | VARCHAR(255) | — | VARCHAR(255), obligatoria. | NINGUNA |
+
 ### `validacion_pre_entrega`
 
 **Qué es.** El resultado de aplicar cada regla de control antes de autorizar la entrega.
 
-**Para qué sirve.** Es el **checklist ejecutado y guardado**. Las reglas típicas (RN-05): 1. Todos los aportes del período están pagados o cubiertos por el fondo. 2. El beneficiario no tiene deuda vencida sin plan de regularización. 3. La cuenta bancaria está verificada y a su nombre. 4. El KYC está vigente para el monto que se va a entregar. 5. No existe una entrega previa para el mismo turno. Guardar cada evaluación con `valorEsperado` y `valorObtenido` responde la pregunta del beneficiario bloqueado: *"¿por qué no me pagan?"* Respuesta: "faltan Bs 500 de la bolsa: se esperaban Bs 6.000 y hay Bs 5.500". `omitir(usuarioId, justificacion)` es deliberado y controlado. Siempre hay excepciones legítimas, pero omitir una validación bloqueante exige justificación escrita, queda con autor y va a la bitácora del módulo 9. `ReglaEntrega.rolQuePuedeOmitir` limita quién puede hacerlo.
+**Para qué sirve.** Es el **checklist ejecutado y guardado**. Las reglas típicas (RN-05):
 
-**Por qué existe.** Sin persistir las validaciones, un bloqueo es un mensaje de error efímero. Con ellas, es un expediente: se sabe qué se revisó, cuándo, con qué resultado, y quién decidió saltarse qué. ---
+1. Todos los aportes del período están pagados o cubiertos por el fondo.
+2. El beneficiario no tiene deuda vencida sin plan de regularización.
+3. La cuenta bancaria está verificada y a su nombre.
+4. El KYC está vigente para el monto que se va a entregar.
+5. No existe una entrega previa para el mismo turno.
+
+Guardar cada evaluación con `valorEsperado` y `valorObtenido` responde la pregunta del beneficiario bloqueado: *"¿por qué no me pagan?"* Respuesta: "faltan Bs 500 de la bolsa: se esperaban Bs 6.000 y hay Bs 5.500".
+
+`omitir(usuarioId, justificacion)` es deliberado y controlado. Siempre hay excepciones legítimas, pero omitir una validación bloqueante exige justificación escrita, queda con autor y va a la bitácora del módulo 9. `ReglaEntrega.rolQuePuedeOmitir` limita quién puede hacerlo.
+
+**Por qué existe.** Sin persistir las validaciones, un bloqueo es un mensaje de error efímero. Con ellas, es un expediente: se sabe qué se revisó, cuándo, con qué resultado, y quién decidió saltarse qué.
+
+**Casos de uso que la nombran.** CU-22 Liquidar y entregar el fondo (`liquidarEntrega`, `fondearPozo`, `autorizarEntrega`, `ejecutarEntrega`)
 
 **Sistema.** Vive en el esquema `entregas`; la escribe y la lee solo el servicio `entregas` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `entrega_fondo`, `identidad.usuario`, `regla_entrega`.
 
@@ -2508,6 +3302,8 @@
 
 **Por qué existe.** es un requisito contable básico para cualquier empresa formal, y hoy no hay ninguna tabla que lo represente.
 
+**Casos de uso que la nombran.** CU-105 Depreciar un activo fijo (`listarActivosFijos`, `depreciarActivo`, `correrDepreciacionDelPeriodo`)
+
 **Sistema.** Vive en el esquema `erp`; la escribe y la lee solo el servicio `erp` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `categoria_activo_fijo`, `centro_costo`, `factura_proveedor`. La referencian `depreciacion_activo`. Reglas nombradas: `ck_activo_fijo_depreciacion`, `ck_activo_fijo_residual`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
@@ -2515,7 +3311,7 @@
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
 | `categoria_activo_fijo_id` | UUID | — | UUID, obligatoria, referencia a `categoria_activo_fijo`. | NINGUNA |
 | `centro_costo_id` | UUID | — | UUID, opcional, referencia a `centro_costo`. | NINGUNA |
-| `codigo_inventario` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
+| `codigo_inventario` | VARCHAR(30) | — | VARCHAR(30), obligatoria, única. | NINGUNA |
 | `descripcion` | VARCHAR(200) | — | VARCHAR(200), obligatoria. | NINGUNA |
 | `fecha_adquisicion` | DATE | — | DATE, obligatoria. | NINGUNA |
 | `costo_adquisicion` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | NINGUNA |
@@ -2532,12 +3328,14 @@
 
 **Por qué existe.** sin plantilla, un asiento recurrente se recaptura manualmente cada mes — fuente típica de error de tipeo en montos que después no cuadran. Sin `estado_financiero_generado`, cada vez que alguien pide "el balance de marzo" hay que recalcularlo desde cero contra la tabla completa de movimientos, lo cual es lento y — peor — puede dar un resultado distinto si se corre dos veces sobre datos que cambiaron entre medio (algo que no debería poder pasar en un período cerrado, pero la fotografía lo hace verificable).
 
+**Casos de uso que la nombran.** CU-106 Generar el estado financiero del período (`descargarEstadoFinanciero`, `generarEstadoFinanciero`, `validarPlantillaDeAsiento`)
+
 **Sistema.** Vive en el esquema `erp`; la escribe y la lee solo el servicio `erp` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `identidad.usuario`. La referencian `linea_plantilla_asiento`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `codigo` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
+| `codigo` | VARCHAR(30) | — | VARCHAR(30), obligatoria, única. | NINGUNA |
 | `nombre` | VARCHAR(100) | — | VARCHAR(100), obligatoria. | NINGUNA |
 | `glosa` | VARCHAR(200) | — | VARCHAR(200), obligatoria. | NINGUNA |
 | `periodicidad` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
@@ -2552,12 +3350,14 @@
 
 **Por qué existe.** es un requisito contable básico para cualquier empresa formal, y hoy no hay ninguna tabla que lo represente.
 
+**Casos de uso que la nombran.** CU-105 Depreciar un activo fijo (`listarActivosFijos`, `depreciarActivo`, `correrDepreciacionDelPeriodo`)
+
 **Sistema.** Vive en el esquema `erp`; la escribe y la lee solo el servicio `erp` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `nucleo_financiero.cuenta_contable`. La referencian `activo_fijo`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `codigo` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
+| `codigo` | VARCHAR(20) | — | VARCHAR(20), obligatoria, única. | NINGUNA |
 | `nombre` | VARCHAR(80) | — | VARCHAR(80), obligatoria. | NINGUNA |
 | `vida_util_meses` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
 | `metodo_depreciacion` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
@@ -2573,12 +3373,14 @@
 
 **Por qué existe.** sin presupuesto por centro de costo, "nos pasamos de presupuesto" es una sensación, no un hecho verificable. `partida_presupuestaria.monto_ejecutado` compara contra `monto_presupuestado` con datos, no con memoria.
 
+**Casos de uso que la nombran.** CU-101 Presupuestar por centro de costo (`listarPartidasPresupuestarias`, `crearPresupuesto`, `aprobarPresupuesto`) · CU-102 Dar de alta un tercero comercial y su orden de compra (`listarOrdenesDeCompra`, `crearOrdenDeCompra`, `aprobarOrdenDeCompra`, `darDeAltaTercero`)
+
 **Sistema.** Vive en el esquema `erp`; la escribe y la lee solo el servicio `erp` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. La referencian `activo_fijo`, `factura_proveedor`, `orden_compra`, `presupuesto`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `codigo` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
+| `codigo` | VARCHAR(20) | — | VARCHAR(20), obligatoria, única. | NINGUNA |
 | `nombre` | VARCHAR(100) | — | VARCHAR(100), obligatoria. | NINGUNA |
 | `tipo` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
 | `activo` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
@@ -2591,12 +3393,14 @@
 
 **Por qué existe.** la regulación boliviana (y cualquier auditoría) exige poder decir con certeza "los estados financieros de enero ya no cambiaron después del 5 de febrero". Sin un período que se cierra de verdad, esa afirmación no se puede sostener.
 
+**Casos de uso que la nombran.** CU-100 Abrir y cerrar el período contable (`listarEjerciciosFiscales`, `abrirEjercicioFiscal`, `listarPeriodosDelEjercicio`, `consultarPeriodoVigente`, `cerrarPeriodoContable`)
+
 **Sistema.** Vive en el esquema `erp`; la escribe y la lee solo el servicio `erp` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Es append-only: UPDATE y DELETE revocados al rol del servicio; se corrige con una fila nueva. Depende de `identidad.usuario`, `periodo_contable`. Reglas nombradas: `ck_cierre_periodo_cuadrado`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `periodo_contable_id` | UUID | — | UUID, obligatoria, referencia a `periodo_contable`. | NINGUNA |
+| `periodo_contable_id` | UUID | — | UUID, obligatoria, única, referencia a `periodo_contable`. | NINGUNA |
 | `cerrado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
 | `cerrado_por` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
 | `total_debe` | DECIMAL(18,2) | — | DECIMAL(18,2), obligatoria. | NINGUNA |
@@ -2609,6 +3413,8 @@
 **Qué es.** El ingreso que la cancela.
 
 **Por qué existe.** hasta este módulo, todo lo que la plataforma cobra pasa por la billetera de un `participante` (módulo 03/10). Pero la facturación de publicidad (módulo 14) es a un `anunciante` — que puede ser un `socio_comercial` externo sin billetera en la plataforma. `cuenta_por_cobrar` es el puente: `origen_tipo = 'FACTURA_PUBLICIDAD'` apunta a `factura_publicidad.id` (M14), y desde ahí todo el seguimiento de cobro es igual de riguroso que el de cualquier otra plata que entra: pendiente, cobrada parcial, cobrada, o declarada incobrable con motivo.
+
+**Casos de uso que la nombran.** CU-104 Cobrar una cuenta por cobrar (`listarCuentasPorCobrar`, `abrirCuentaPorCobrar`, `registrarCobro`)
 
 **Sistema.** Vive en el esquema `erp`; la escribe y la lee solo el servicio `erp` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Es append-only: UPDATE y DELETE revocados al rol del servicio; se corrige con una fila nueva. Depende de `cuenta_por_cobrar`, `nucleo_financiero.asiento_contable`.
 
@@ -2627,6 +3433,8 @@
 **Qué es.** Un cobro pendiente a un tercero, de origen polimórfico.
 
 **Por qué existe.** hasta este módulo, todo lo que la plataforma cobra pasa por la billetera de un `participante` (módulo 03/10). Pero la facturación de publicidad (módulo 14) es a un `anunciante` — que puede ser un `socio_comercial` externo sin billetera en la plataforma. `cuenta_por_cobrar` es el puente: `origen_tipo = 'FACTURA_PUBLICIDAD'` apunta a `factura_publicidad.id` (M14), y desde ahí todo el seguimiento de cobro es igual de riguroso que el de cualquier otra plata que entra: pendiente, cobrada parcial, cobrada, o declarada incobrable con motivo.
+
+**Casos de uso que la nombran.** CU-104 Cobrar una cuenta por cobrar (`listarCuentasPorCobrar`, `abrirCuentaPorCobrar`, `registrarCobro`) · CU-114 Liquidar y facturar el gasto publicitario (`consumoDelPeriodo`, `liquidarPeriodo`)
 
 **Sistema.** Vive en el esquema `erp`; la escribe y la lee solo el servicio `erp` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Es append-only: UPDATE y DELETE revocados al rol del servicio; se corrige con una fila nueva. Depende de `tercero_comercial`. La referencian `cobro_cuenta_por_cobrar`, `publicidad.factura_publicidad`. Reglas nombradas: `ck_cxc_cobrado`.
 
@@ -2651,6 +3459,8 @@
 
 **Por qué existe.** es un requisito contable básico para cualquier empresa formal, y hoy no hay ninguna tabla que lo represente.
 
+**Casos de uso que la nombran.** CU-105 Depreciar un activo fijo (`listarActivosFijos`, `depreciarActivo`, `correrDepreciacionDelPeriodo`)
+
 **Sistema.** Vive en el esquema `erp`; la escribe y la lee solo el servicio `erp` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Es append-only: UPDATE y DELETE revocados al rol del servicio; se corrige con una fila nueva. Depende de `activo_fijo`, `nucleo_financiero.asiento_contable`, `periodo_contable`. Reglas nombradas: `uq_depreciacion_activo_periodo`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
@@ -2671,12 +3481,14 @@
 
 **Por qué existe.** la regulación boliviana (y cualquier auditoría) exige poder decir con certeza "los estados financieros de enero ya no cambiaron después del 5 de febrero". Sin un período que se cierra de verdad, esa afirmación no se puede sostener.
 
+**Casos de uso que la nombran.** CU-100 Abrir y cerrar el período contable (`listarEjerciciosFiscales`, `abrirEjercicioFiscal`, `listarPeriodosDelEjercicio`, `consultarPeriodoVigente`, `cerrarPeriodoContable`) · CU-101 Presupuestar por centro de costo (`listarPartidasPresupuestarias`, `crearPresupuesto`, `aprobarPresupuesto`)
+
 **Sistema.** Vive en el esquema `erp`; la escribe y la lee solo el servicio `erp` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `identidad.usuario`. La referencian `periodo_contable`, `presupuesto`. Reglas nombradas: `ck_ejercicio_fiscal_rango`, `ck_ejercicio_fiscal_cierre`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `anio` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
+| `anio` | SMALLINT | — | SMALLINT, obligatoria, única. | NINGUNA |
 | `fecha_inicio` | DATE | — | DATE, obligatoria. | NINGUNA |
 | `fecha_fin` | DATE | — | DATE, obligatoria. | NINGUNA |
 | `estado` | VARCHAR(10) | — | VARCHAR(10), obligatoria. | NINGUNA |
@@ -2688,6 +3500,8 @@
 **Qué es.** Una fotografía de balance general o estado de resultados de un período, ya calculada y guardada.
 
 **Por qué existe.** sin plantilla, un asiento recurrente se recaptura manualmente cada mes — fuente típica de error de tipeo en montos que después no cuadran. Sin `estado_financiero_generado`, cada vez que alguien pide "el balance de marzo" hay que recalcularlo desde cero contra la tabla completa de movimientos, lo cual es lento y — peor — puede dar un resultado distinto si se corre dos veces sobre datos que cambiaron entre medio (algo que no debería poder pasar en un período cerrado, pero la fotografía lo hace verificable).
+
+**Casos de uso que la nombran.** CU-106 Generar el estado financiero del período (`descargarEstadoFinanciero`, `generarEstadoFinanciero`, `validarPlantillaDeAsiento`)
 
 **Sistema.** Vive en el esquema `erp`; la escribe y la lee solo el servicio `erp` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Es append-only: UPDATE y DELETE revocados al rol del servicio; se corrige con una fila nueva. Depende de `identidad.usuario`, `periodo_contable`. Reglas nombradas: `uq_estado_financiero_periodo_tipo`.
 
@@ -2701,11 +3515,55 @@
 | `datos` | JSONB | — | JSONB, obligatoria. | NINGUNA |
 | `hash_contenido` | VARCHAR(64) | — | VARCHAR(64), obligatoria. | DERIVADO |
 
+### `evento_consumido`
+
+**Qué es.** Marca de evento ya consumido, por consumidor (ADR-027).
+
+**Para qué sirve.** Hace idempotente el consumo: la entrega es al menos una vez y un mismo evento no puede producir dos efectos (regla 98.3.4).
+
+**Sistema.** Infraestructura del servicio `erp`, generada por plantilla en cada esquema (ADR-027): la escribe y la lee solo ese servicio.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `id_evento` | UUID | — | UUID, obligatoria, clave primaria. | NINGUNA |
+| `consumidor` | VARCHAR(60) | — | VARCHAR(60), obligatoria, clave primaria. | NINGUNA |
+| `consumido_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+
+### `evento_dominio`
+
+**Qué es.** Outbox transaccional del servicio (ADR-027).
+
+**Para qué sirve.** Garantiza que ningún hecho del servicio se pierda entre la base y la mensajería: el evento se guarda en la misma transacción que el cambio y un relevo lo publica después (regla 98.3.3).
+
+**Sistema.** Infraestructura del servicio `erp`, generada por plantilla en cada esquema (ADR-027): la escribe y la lee solo ese servicio.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
+| `tipo` | VARCHAR(60) | — | VARCHAR(60), obligatoria. | NINGUNA |
+| `version` | VARCHAR(10) | — | VARCHAR(10), obligatoria. | NINGUNA |
+| `agregado` | VARCHAR(40) | — | VARCHAR(40), obligatoria. | NINGUNA |
+| `agregado_id` | UUID | — | UUID, obligatoria. | NINGUNA |
+| `payload` | JSONB | — | JSONB, obligatoria. | NINGUNA |
+| `metadatos` | JSONB | — | JSONB, obligatoria. | NINGUNA |
+| `correlation_id` | UUID | — | UUID, obligatoria. | NINGUNA |
+| `causation_id` | UUID | — | UUID, opcional. | NINGUNA |
+| `ocurrido_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `publicado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
+| `intentos` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
+| `tomado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `tomado_por` | VARCHAR(100) | — | VARCHAR(100), opcional. | NINGUNA |
+| `ultimo_error` | TEXT | — | TEXT, opcional. | NINGUNA |
+| `proximo_intento_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+
 ### `factura_proveedor`
 
 **Qué es.** La cuenta por pagar: una factura recibida.
 
 **Por qué existe.** `tercero_comercial` **no es** `usuario` ni `proveedor_pago` (módulo 03). `usuario` es alguien con billetera en la plataforma; `proveedor_pago` es la pasarela que procesa cobros. `tercero_comercial` es la imprenta que factura por las tarjetas de bienvenida, el proveedor de hosting, el estudio contable externo — gente a la que la empresa le compra, no que compra en la plataforma. Fusionarlo con `usuario` obligaría a darle una billetera a un proveedor de oficina, que no tiene sentido.
+
+**Casos de uso que la nombran.** CU-101 Presupuestar por centro de costo (`listarPartidasPresupuestarias`, `crearPresupuesto`, `aprobarPresupuesto`) · CU-102 Dar de alta un tercero comercial y su orden de compra (`listarOrdenesDeCompra`, `crearOrdenDeCompra`, `aprobarOrdenDeCompra`, `darDeAltaTercero`) · CU-103 Registrar y pagar una factura de proveedor (`listarFacturasDeProveedor`, `registrarFacturaDeProveedor`, `pagarFacturaDeProveedor`) · CU-105 Depreciar un activo fijo (`listarActivosFijos`, `depreciarActivo`, `correrDepreciacionDelPeriodo`)
 
 **Sistema.** Vive en el esquema `erp`; la escribe y la lee solo el servicio `erp` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Es append-only: UPDATE y DELETE revocados al rol del servicio; se corrige con una fila nueva. Depende de `centro_costo`, `identidad.usuario`, `nucleo_financiero.asiento_contable`, `orden_compra`, `tercero_comercial`. La referencian `activo_fijo`, `pago_a_proveedor`. Reglas nombradas: `uq_factura_proveedor_numero`, `ck_factura_proveedor_pagado`, `ck_factura_proveedor_vencimiento`, `ck_factura_proveedor_aprobacion`.
 
@@ -2732,6 +3590,8 @@
 
 **Por qué existe.** sin plantilla, un asiento recurrente se recaptura manualmente cada mes — fuente típica de error de tipeo en montos que después no cuadran. Sin `estado_financiero_generado`, cada vez que alguien pide "el balance de marzo" hay que recalcularlo desde cero contra la tabla completa de movimientos, lo cual es lento y — peor — puede dar un resultado distinto si se corre dos veces sobre datos que cambiaron entre medio (algo que no debería poder pasar en un período cerrado, pero la fotografía lo hace verificable).
 
+**Casos de uso que la nombran.** CU-106 Generar el estado financiero del período (`descargarEstadoFinanciero`, `generarEstadoFinanciero`, `validarPlantillaDeAsiento`)
+
 **Sistema.** Vive en el esquema `erp`; la escribe y la lee solo el servicio `erp` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `asiento_plantilla`, `nucleo_financiero.cuenta_contable`. Reglas nombradas: `uq_linea_plantilla_orden`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
@@ -2749,6 +3609,8 @@
 
 **Por qué existe.** `tercero_comercial` **no es** `usuario` ni `proveedor_pago` (módulo 03). `usuario` es alguien con billetera en la plataforma; `proveedor_pago` es la pasarela que procesa cobros. `tercero_comercial` es la imprenta que factura por las tarjetas de bienvenida, el proveedor de hosting, el estudio contable externo — gente a la que la empresa le compra, no que compra en la plataforma. Fusionarlo con `usuario` obligaría a darle una billetera a un proveedor de oficina, que no tiene sentido.
 
+**Casos de uso que la nombran.** CU-102 Dar de alta un tercero comercial y su orden de compra (`listarOrdenesDeCompra`, `crearOrdenDeCompra`, `aprobarOrdenDeCompra`, `darDeAltaTercero`) · CU-103 Registrar y pagar una factura de proveedor (`listarFacturasDeProveedor`, `registrarFacturaDeProveedor`, `pagarFacturaDeProveedor`)
+
 **Sistema.** Vive en el esquema `erp`; la escribe y la lee solo el servicio `erp` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `centro_costo`, `identidad.usuario`, `tercero_comercial`. La referencian `factura_proveedor`. Reglas nombradas: `ck_orden_compra_aprobacion`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
@@ -2756,7 +3618,7 @@
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
 | `tercero_comercial_id` | UUID | — | UUID, obligatoria, referencia a `tercero_comercial`. | NINGUNA |
 | `centro_costo_id` | UUID | — | UUID, opcional, referencia a `centro_costo`. | NINGUNA |
-| `numero` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
+| `numero` | VARCHAR(30) | — | VARCHAR(30), obligatoria, única. | NINGUNA |
 | `descripcion` | VARCHAR(300) | — | VARCHAR(300), obligatoria. | NINGUNA |
 | `monto_total` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
 | `moneda` | CHAR(3) | Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2). | CHAR(3), obligatoria. | NINGUNA |
@@ -2769,6 +3631,8 @@
 **Qué es.** El egreso que la cancela, total o parcial.
 
 **Por qué existe.** `tercero_comercial` **no es** `usuario` ni `proveedor_pago` (módulo 03). `usuario` es alguien con billetera en la plataforma; `proveedor_pago` es la pasarela que procesa cobros. `tercero_comercial` es la imprenta que factura por las tarjetas de bienvenida, el proveedor de hosting, el estudio contable externo — gente a la que la empresa le compra, no que compra en la plataforma. Fusionarlo con `usuario` obligaría a darle una billetera a un proveedor de oficina, que no tiene sentido.
+
+**Casos de uso que la nombran.** CU-101 Presupuestar por centro de costo (`listarPartidasPresupuestarias`, `crearPresupuesto`, `aprobarPresupuesto`) · CU-103 Registrar y pagar una factura de proveedor (`listarFacturasDeProveedor`, `registrarFacturaDeProveedor`, `pagarFacturaDeProveedor`)
 
 **Sistema.** Vive en el esquema `erp`; la escribe y la lee solo el servicio `erp` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Es append-only: UPDATE y DELETE revocados al rol del servicio; se corrige con una fila nueva. Depende de `factura_proveedor`, `identidad.usuario`, `nucleo_financiero.asiento_contable`. Reglas nombradas: `uq_pago_a_proveedor_clave`.
 
@@ -2792,6 +3656,8 @@
 
 **Por qué existe.** sin presupuesto por centro de costo, "nos pasamos de presupuesto" es una sensación, no un hecho verificable. `partida_presupuestaria.monto_ejecutado` compara contra `monto_presupuestado` con datos, no con memoria.
 
+**Casos de uso que la nombran.** CU-101 Presupuestar por centro de costo (`listarPartidasPresupuestarias`, `crearPresupuesto`, `aprobarPresupuesto`)
+
 **Sistema.** Vive en el esquema `erp`; la escribe y la lee solo el servicio `erp` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `nucleo_financiero.cuenta_contable`, `periodo_contable`, `presupuesto`. Reglas nombradas: `uq_partida_presupuesto_cuenta_periodo`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
@@ -2812,6 +3678,8 @@
 
 **Por qué existe.** la regulación boliviana (y cualquier auditoría) exige poder decir con certeza "los estados financieros de enero ya no cambiaron después del 5 de febrero". Sin un período que se cierra de verdad, esa afirmación no se puede sostener.
 
+**Casos de uso que la nombran.** CU-100 Abrir y cerrar el período contable (`listarEjerciciosFiscales`, `abrirEjercicioFiscal`, `listarPeriodosDelEjercicio`, `consultarPeriodoVigente`, `cerrarPeriodoContable`) · CU-101 Presupuestar por centro de costo (`listarPartidasPresupuestarias`, `crearPresupuesto`, `aprobarPresupuesto`) · CU-103 Registrar y pagar una factura de proveedor (`listarFacturasDeProveedor`, `registrarFacturaDeProveedor`, `pagarFacturaDeProveedor`) · CU-105 Depreciar un activo fijo (`listarActivosFijos`, `depreciarActivo`, `correrDepreciacionDelPeriodo`) · CU-106 Generar el estado financiero del período (`descargarEstadoFinanciero`, `generarEstadoFinanciero`, `validarPlantillaDeAsiento`)
+
 **Sistema.** Vive en el esquema `erp`; la escribe y la lee solo el servicio `erp` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `ejercicio_fiscal`. La referencian `cierre_periodo_contable`, `depreciacion_activo`, `estado_financiero_generado`, `nucleo_financiero.asiento_contable`, `partida_presupuestaria`. Reglas nombradas: `uq_periodo_contable_ejercicio_mes`, `ck_periodo_contable_rango`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
@@ -2831,6 +3699,8 @@
 
 **Por qué existe.** sin presupuesto por centro de costo, "nos pasamos de presupuesto" es una sensación, no un hecho verificable. `partida_presupuestaria.monto_ejecutado` compara contra `monto_presupuestado` con datos, no con memoria.
 
+**Casos de uso que la nombran.** CU-101 Presupuestar por centro de costo (`listarPartidasPresupuestarias`, `crearPresupuesto`, `aprobarPresupuesto`)
+
 **Sistema.** Vive en el esquema `erp`; la escribe y la lee solo el servicio `erp` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `centro_costo`, `ejercicio_fiscal`, `identidad.usuario`. La referencian `partida_presupuestaria`. Reglas nombradas: `uq_presupuesto_centro_ejercicio`, `ck_presupuesto_aprobacion`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
@@ -2843,11 +3713,28 @@
 | `aprobado_por` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
 | `aprobado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
 
+### `shedlock`
+
+**Qué es.** Bloqueo de trabajos programados entre replicas (ADR-018).
+
+**Para qué sirve.** Evita que dos réplicas del servicio ejecuten el mismo trabajo programado a la vez (ADR-018).
+
+**Sistema.** Infraestructura del servicio `erp`, generada por plantilla en cada esquema (ADR-027): la escribe y la lee solo ese servicio.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `name` | VARCHAR(64) | — | VARCHAR(64), obligatoria, clave primaria. | NINGUNA |
+| `lock_until` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `locked_at` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `locked_by` | VARCHAR(255) | — | VARCHAR(255), obligatoria. | NINGUNA |
+
 ### `tercero_comercial`
 
 **Qué es.** Un proveedor o cliente comercial: a quién la empresa le compra o le vende fuera del circuito del pasanaku.
 
 **Por qué existe.** `tercero_comercial` **no es** `usuario` ni `proveedor_pago` (módulo 03). `usuario` es alguien con billetera en la plataforma; `proveedor_pago` es la pasarela que procesa cobros. `tercero_comercial` es la imprenta que factura por las tarjetas de bienvenida, el proveedor de hosting, el estudio contable externo — gente a la que la empresa le compra, no que compra en la plataforma. Fusionarlo con `usuario` obligaría a darle una billetera a un proveedor de oficina, que no tiene sentido.
+
+**Casos de uso que la nombran.** CU-102 Dar de alta un tercero comercial y su orden de compra (`listarOrdenesDeCompra`, `crearOrdenDeCompra`, `aprobarOrdenDeCompra`, `darDeAltaTercero`) · CU-103 Registrar y pagar una factura de proveedor (`listarFacturasDeProveedor`, `registrarFacturaDeProveedor`, `pagarFacturaDeProveedor`)
 
 **Sistema.** Vive en el esquema `erp`; la escribe y la lee solo el servicio `erp` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `nucleo_financiero.cuenta_contable`. La referencian `cuenta_por_cobrar`, `factura_proveedor`, `orden_compra`.
 
@@ -2856,7 +3743,7 @@
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
 | `tipo` | VARCHAR(12) | — | VARCHAR(12), obligatoria. | NINGUNA |
 | `razon_social` | VARCHAR(150) | — | VARCHAR(150), obligatoria. | NINGUNA |
-| `numero_documento` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | PERSONAL |
+| `numero_documento` | VARCHAR(30) | — | VARCHAR(30), obligatoria, única. | PERSONAL |
 | `email` | VARCHAR(120) | — | VARCHAR(120), opcional. | PERSONAL |
 | `telefono` | VARCHAR(20) | — | VARCHAR(20), opcional. | PERSONAL |
 | `cuenta_contable_id` | UUID | — | UUID, opcional, referencia a `cuenta_contable`. | NINGUNA |
@@ -2869,9 +3756,18 @@
 
 **Qué es.** Cada pago que reduce una deuda, con su origen y su imputación.
 
-**Para qué sirve.** El desglose `aplicadoACapital` / `aplicadoARecargos` importa mucho y es fuente frecuente de disputa: **si todo se imputa primero a recargos, el capital nunca baja** y la deuda se vuelve perpetua. La regla de imputación debe ser explícita y visible, no una decisión enterrada en el código. `origen` cubre las cinco formas reales de recuperar: - `PAGO_VOLUNTARIO`: pagó. - `DESCUENTO_DE_ENTREGA`: **la más efectiva de todas.** Cuando le toca cobrar su turno, se le descuenta. Es el único momento del ciclo en que el sistema tiene plata del deudor en la mano. - `EJECUCION_AVAL`: pagó el que respondía por él. - `ACUERDO_QUITA`: pagó una parte negociada. - `COMPENSACION`: se cruzó contra un saldo a favor.
+**Para qué sirve.** El desglose `aplicadoACapital` / `aplicadoARecargos` importa mucho y es fuente frecuente de disputa: **si todo se imputa primero a recargos, el capital nunca baja** y la deuda se vuelve perpetua. La regla de imputación debe ser explícita y visible, no una decisión enterrada en el código.
 
-**Por qué existe.** Append-only: los abonos no se editan. Si hubo un error, se registra la reversión (`revertido_en`). Es dinero: la trazabilidad no es opcional. ---
+`origen` cubre las cinco formas reales de recuperar:
+- `PAGO_VOLUNTARIO`: pagó.
+- `DESCUENTO_DE_ENTREGA`: **la más efectiva de todas.** Cuando le toca cobrar su turno, se le descuenta. Es el único momento del ciclo en que el sistema tiene plata del deudor en la mano.
+- `EJECUCION_AVAL`: pagó el que respondía por él.
+- `ACUERDO_QUITA`: pagó una parte negociada.
+- `COMPENSACION`: se cruzó contra un saldo a favor.
+
+**Por qué existe.** Append-only: los abonos no se editan. Si hubo un error, se registra la reversión (`revertido_en`). Es dinero: la trazabilidad no es opcional.
+
+**Casos de uso que la nombran.** CU-23 Cubrir un incumplimiento con el fondo (`cubrirIncumplimiento`) · CU-29 Devolver los aportes del fondo de garantía (`devolverFondo`)
 
 **Sistema.** Vive en el esquema `garantia`; la escribe y la lee solo el servicio `garantia` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Es append-only: UPDATE y DELETE revocados al rol del servicio; se corrige con una fila nueva. Depende de `aportes.pago`, `deuda_participante`, `entregas.entrega_fondo`, `identidad.usuario`, `movimiento_fondo`.
 
@@ -2895,9 +3791,15 @@
 
 **Qué es.** Cada intento de contacto, con su resultado y su costo.
 
-**Para qué sirve.** Es **el registro de que se hizo el esfuerzo**, y eso importa en dos momentos: cuando la persona reclama que nunca la contactaron, y cuando hay que justificar el castigo de una deuda (hay que probar que se agotaron las instancias). `ResultadoContacto` con siete valores captura la información que realmente sirve: `TELEFONO_ERRONEO` (hay que actualizar datos, no insistir), `SOLICITA_PLAN` (quiere pagar, dale un plan), `DISPUTA_LA_DEUDA` (para la cobranza y abre descargo), `CONTACTADO_SE_NIEGA` (escalá). Un booleano "contactado" perdería todo eso. `AVISO_A_AVALISTA` como tipo de acción merece nota: es de las más efectivas, porque activa la presión social que sostiene el pasanaku. Y `costo` por acción es lo que permite calcular el retorno de cada canal de cobranza.
+**Para qué sirve.** Es **el registro de que se hizo el esfuerzo**, y eso importa en dos momentos: cuando la persona reclama que nunca la contactaron, y cuando hay que justificar el castigo de una deuda (hay que probar que se agotaron las instancias).
 
-**Por qué existe.** Sin acciones registradas, la gestión de cobranza no se puede auditar, ni medir, ni defender. ---
+`ResultadoContacto` con siete valores captura la información que realmente sirve: `TELEFONO_ERRONEO` (hay que actualizar datos, no insistir), `SOLICITA_PLAN` (quiere pagar, dale un plan), `DISPUTA_LA_DEUDA` (para la cobranza y abre descargo), `CONTACTADO_SE_NIEGA` (escalá). Un booleano "contactado" perdería todo eso.
+
+`AVISO_A_AVALISTA` como tipo de acción merece nota: es de las más efectivas, porque activa la presión social que sostiene el pasanaku. Y `costo` por acción es lo que permite calcular el retorno de cada canal de cobranza.
+
+**Por qué existe.** Sin acciones registradas, la gestión de cobranza no se puede auditar, ni medir, ni defender.
+
+**Casos de uso que la nombran.** CU-81 Programar recordatorios de aporte
 
 **Sistema.** Vive en el esquema `garantia`; la escribe y la lee solo el servicio `garantia` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `gestion_cobranza`, `identidad.usuario`, `notificaciones.notificacion`.
 
@@ -2919,16 +3821,20 @@
 
 **Qué es.** El acuerdo de condonar parte de la deuda a cambio del pago del resto.
 
-**Para qué sirve.** Es la salida negociada. Pero tiene un problema de fondo que la entidad resuelve explícitamente: **la plata que se condona sale del bolsillo de los otros participantes o del fondo que es de todos.** Por eso `acuerdoGrupoId` apunta a una votación del grupo (M2): la condonación **no es decisión del organizador ni del gestor**, es decisión de los que pierden esa plata. `justificacion` documenta el porqué, que es lo que se revisa si aparece un patrón de quitas sospechosamente frecuentes con ciertos deudores.
+**Para qué sirve.** Es la salida negociada. Pero tiene un problema de fondo que la entidad resuelve explícitamente: **la plata que se condona sale del bolsillo de los otros participantes o del fondo que es de todos.** Por eso `acuerdoGrupoId` apunta a una votación del grupo (M2): la condonación **no es decisión del organizador ni del gestor**, es decisión de los que pierden esa plata.
 
-**Por qué existe.** Sin acuerdo formal, condonar sería un ajuste manual de saldo — el hueco por donde se va la plata en sistemas mal controlados. ---
+`justificacion` documenta el porqué, que es lo que se revisa si aparece un patrón de quitas sospechosamente frecuentes con ciertos deudores.
+
+**Por qué existe.** Sin acuerdo formal, condonar sería un ajuste manual de saldo — el hueco por donde se va la plata en sistemas mal controlados.
+
+**Casos de uso que la nombran.** CU-23 Cubrir un incumplimiento con el fondo (`cubrirIncumplimiento`)
 
 **Sistema.** Vive en el esquema `garantia`; la escribe y la lee solo el servicio `garantia` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `grupos.acuerdo`, `identidad.usuario`, `registro_incumplimiento`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `registro_id` | UUID | — | UUID, obligatoria, referencia a `registro_incumplimiento`. | NINGUNA |
+| `registro_id` | UUID | — | UUID, obligatoria, única, referencia a `registro_incumplimiento`. | NINGUNA |
 | `aprobado_por` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
 | `acuerdo_grupo_id` | UUID | — | UUID, opcional, referencia a `acuerdo`. | NINGUNA |
 | `monto_original` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
@@ -2942,9 +3848,14 @@
 
 **Qué es.** Señales de comportamiento que anticipan un problema.
 
-**Para qué sirve.** Los tres códigos son patrones observables y accionables: - `PAGA_CADA_VEZ_MAS_TARDE`: la tendencia importa más que el evento aislado. Pagó el día 3, luego el 5, luego el 8. Va camino a no pagar. - `NO_ABRE_MENSAJES`: dejó de leer los recordatorios (dato que viene de M5). Suele preceder al abandono, o indicar un problema de canal que hay que corregir antes de tratarlo como moroso. - `MULTIPLES_GRUPOS_EN_MORA`: se sobreextendió. Está en cuatro pasanakus y no puede con todos.
+**Para qué sirve.** Los tres códigos son patrones observables y accionables:
+- `PAGA_CADA_VEZ_MAS_TARDE`: la tendencia importa más que el evento aislado. Pagó el día 3, luego el 5, luego el 8. Va camino a no pagar.
+- `NO_ABRE_MENSAJES`: dejó de leer los recordatorios (dato que viene de M5). Suele preceder al abandono, o indicar un problema de canal que hay que corregir antes de tratarlo como moroso.
+- `MULTIPLES_GRUPOS_EN_MORA`: se sobreextendió. Está en cuatro pasanakus y no puede con todos.
 
-**Por qué existe.** Estas señales existen en los datos pero no en ninguna tabla si no se materializan. Y sin materializarlas, nadie actúa sobre ellas. ---
+**Por qué existe.** Estas señales existen en los datos pero no en ninguna tabla si no se materializan. Y sin materializarlas, nadie actúa sobre ellas.
+
+**Casos de uso que la nombran.** CU-97 Anticipar el riesgo con alertas tempranas (`cerrarAlertaRiesgo`, `evaluarRiesgo`)
 
 **Sistema.** Vive en el esquema `garantia`; la escribe y la lee solo el servicio `garantia` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `grupos.grupo`, `identidad.usuario`. Reglas nombradas: `uq_alerta_temprana_abierta`.
 
@@ -2963,9 +3874,13 @@
 
 **Qué es.** El recurso del sancionado, con instancia y plazo.
 
-**Para qué sirve.** `instancia` con tres niveles (organizador → comité del grupo → soporte de la plataforma) es lo que hace real el derecho a apelar: apelar ante quien te sancionó no es apelar. `escalarInstancia()` permite subir cuando la primera instancia no resuelve. `fechaLimiteResolucion` protege al apelante de la táctica más simple para neutralizar una apelación: no resolverla nunca.
+**Para qué sirve.** `instancia` con tres niveles (organizador → comité del grupo → soporte de la plataforma) es lo que hace real el derecho a apelar: apelar ante quien te sancionó no es apelar. `escalarInstancia()` permite subir cuando la primera instancia no resuelve.
 
-**Por qué existe.** Sin apelación, un error del sistema o del organizador es definitivo. Y los errores ocurren: expedientes abiertos por pagos mal conciliados son frecuentes al principio de la operación. ---
+`fechaLimiteResolucion` protege al apelante de la táctica más simple para neutralizar una apelación: no resolverla nunca.
+
+**Por qué existe.** Sin apelación, un error del sistema o del organizador es definitivo. Y los errores ocurren: expedientes abiertos por pagos mal conciliados son frecuentes al principio de la operación.
+
+**Casos de uso que la nombran.** CU-66 Reemplazar a un participante moroso (`aprobarReemplazo`, `ejecutarReemplazo`, `proponerReemplazo`)
 
 **Sistema.** Vive en el esquema `garantia`; la escribe y la lee solo el servicio `garantia` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `identidad.usuario`, `sancion`.
 
@@ -2988,9 +3903,17 @@
 
 **Qué es.** El compromiso de una persona de responder por la deuda de otra, hasta cierto monto.
 
-**Para qué sirve.** **Formaliza la práctica más antigua del pasanaku: quien te invita responde por vos.** En el pasanaku presencial esto es implícito y poderoso: si traés a alguien que no paga, el grupo te lo cobra a vos, socialmente. La entidad lo hace explícito, con monto máximo y aceptación firmada. `avalistaUsuarioId` suele coincidir con `participante.invitadoPorId` (M2): la cadena de confianza se convierte en cadena de responsabilidad. `montoMaximoAvalado` y `alcance` (total / un período / porcentaje) permiten que el aval sea proporcionado: nadie va a avalar de forma ilimitada a un conocido, pero sí puede avalar un período. `esParticipanteDelGrupo` distingue dos situaciones distintas: si el avalista está en el grupo, se le puede descontar de su propio turno; si es externo, hay que cobrarle por fuera.
+**Para qué sirve.** **Formaliza la práctica más antigua del pasanaku: quien te invita responde por vos.** En el pasanaku presencial esto es implícito y poderoso: si traés a alguien que no paga, el grupo te lo cobra a vos, socialmente. La entidad lo hace explícito, con monto máximo y aceptación firmada.
+
+`avalistaUsuarioId` suele coincidir con `participante.invitadoPorId` (M2): la cadena de confianza se convierte en cadena de responsabilidad.
+
+`montoMaximoAvalado` y `alcance` (total / un período / porcentaje) permiten que el aval sea proporcionado: nadie va a avalar de forma ilimitada a un conocido, pero sí puede avalar un período.
+
+`esParticipanteDelGrupo` distingue dos situaciones distintas: si el avalista está en el grupo, se le puede descontar de su propio turno; si es externo, hay que cobrarle por fuera.
 
 **Por qué existe.** El aval es lo que hace viable prestarle confianza a alguien sin historial. Sin él, un usuario nuevo no puede entrar a ningún grupo serio y la plataforma no puede crecer más allá de los ya conocidos.
+
+**Casos de uso que la nombran.** CU-26 Ejecutar el aval y subrogar la deuda (`ejecutarAval`) · CU-66 Reemplazar a un participante moroso (`aprobarReemplazo`, `ejecutarReemplazo`, `proponerReemplazo`) · CU-69 Invitar a un contacto y registrar sus referencias (`buscarPorTelefono`, `emitirTokenDeInvitacion`, `validarTokenDeInvitacion`, `consultarSupresion`)
 
 **Sistema.** Vive en el esquema `garantia`; la escribe y la lee solo el servicio `garantia` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `grupos.grupo`, `grupos.participante`, `identidad.token_verificacion`, `identidad.usuario`. La referencian `ejecucion_aval`.
 
@@ -3015,7 +3938,9 @@
 
 **Para qué sirve.** Permite comparar antes de decidir, y `fuenteCandidato` (lista de espera / invitación / emparejamiento) mide qué canal provee mejores reemplazos. `aceptaCondiciones` es explícito porque entrar a un grupo empezado tiene condiciones especiales: hay que ponerse al día con los períodos ya transcurridos.
 
-**Por qué existe.** Sin candidatos registrados, el reemplazo es una decisión sin alternativas evaluadas, y no se puede medir la efectividad de cada canal. ---
+**Por qué existe.** Sin candidatos registrados, el reemplazo es una decisión sin alternativas evaluadas, y no se puede medir la efectividad de cada canal.
+
+**Casos de uso que la nombran.** CU-66 Reemplazar a un participante moroso (`aprobarReemplazo`, `ejecutarReemplazo`, `proponerReemplazo`)
 
 **Sistema.** Vive en el esquema `garantia`; la escribe y la lee solo el servicio `garantia` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `identidad.usuario`, `reemplazo_participante`.
 
@@ -3037,6 +3962,8 @@
 
 **Por qué existe.** Sin un tope explícito, cada grupo nuevo agregaría exposición sin que nadie la viera crecer. Dos grupos que se activan a la vez podrían comprometer la misma plata.
 
+**Casos de uso que la nombran.** CU-23 Cubrir un incumplimiento con el fondo (`cubrirIncumplimiento`)
+
 **Sistema.** Vive en el esquema `garantia`; la escribe y la lee solo el servicio `garantia` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `identidad.usuario`. La referencian `reserva_respaldo`. Reglas nombradas: `ck_capacidad_respaldo_comprometido`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
@@ -3054,16 +3981,24 @@
 
 **Qué es.** La baja contable de una deuda considerada incobrable.
 
-**Para qué sirve.** Reconoce la realidad: hay deudas que no se van a cobrar, y mantenerlas como activo distorsiona los estados financieros del fondo. Los cinco motivos son honestos, incluido `COSTO_MAYOR_QUE_DEUDA` —perseguir Bs 300 cuesta más de Bs 300— y `FALLECIMIENTO`. Pero el campo decisivo es `mantieneRegistroReputacional = true`: > **Castigar no es perdonar.** Es una decisión contable, no un perdón. El registro reputacional se mantiene. Si el deudor aparece años después queriendo entrar a otro grupo, la deuda **se reactiva** (`reactivarSiPaga()`). Sin esta distinción, castigar una deuda sería una amnistía y crearía el incentivo perverso de aguantar hasta que te castiguen.
+**Para qué sirve.** Reconoce la realidad: hay deudas que no se van a cobrar, y mantenerlas como activo distorsiona los estados financieros del fondo. Los cinco motivos son honestos, incluido `COSTO_MAYOR_QUE_DEUDA` —perseguir Bs 300 cuesta más de Bs 300— y `FALLECIMIENTO`.
 
-**Por qué existe.** Sin castigo formal, las deudas incobrables se acumulan para siempre en la cartera y el fondo aparenta tener activos que no existen. ---
+Pero el campo decisivo es `mantieneRegistroReputacional = true`:
+
+> **Castigar no es perdonar.** Es una decisión contable, no un perdón.
+
+El registro reputacional se mantiene. Si el deudor aparece años después queriendo entrar a otro grupo, la deuda **se reactiva** (`reactivarSiPaga()`). Sin esta distinción, castigar una deuda sería una amnistía y crearía el incentivo perverso de aguantar hasta que te castiguen.
+
+**Por qué existe.** Sin castigo formal, las deudas incobrables se acumulan para siempre en la cartera y el fondo aparenta tener activos que no existen.
+
+**Casos de uso que la nombran.** CU-23 Cubrir un incumplimiento con el fondo (`cubrirIncumplimiento`) · CU-67 Disolver el grupo anticipadamente (`cerrarDisolucion`, `iniciarDisolucion`)
 
 **Sistema.** Vive en el esquema `garantia`; la escribe y la lee solo el servicio `garantia` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `deuda_participante`, `identidad.usuario`, `nucleo_financiero.asiento_contable`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `deuda_id` | UUID | — | UUID, obligatoria, referencia a `deuda_participante`. | FINANCIERO |
+| `deuda_id` | UUID | — | UUID, obligatoria, única, referencia a `deuda_participante`. | FINANCIERO |
 | `aprobado_por` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
 | `asiento_contable_id` | UUID | — | UUID, opcional, referencia a `asiento_contable`. | NINGUNA |
 | `monto_castigado` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
@@ -3076,9 +4011,17 @@
 
 **Qué es.** El acto de que el fondo ponga la plata que un participante no puso.
 
-**Para qué sirve.** Es **el momento en que el grupo se salva**. El beneficiario del período cobra completo, el grupo sigue, y el problema se traslada a un circuito paralelo que no lo detiene. `porcentajeCobertura` reconoce que la cobertura puede ser parcial: el fondo cubre el 80% y el beneficiario absorbe el 20%. Es una decisión de política que balancea la protección con la sostenibilidad del fondo. `requirioAprobacionManual` + `aprobadaPor`: montos altos no se cubren automáticamente. Es control interno básico. `generarDeuda()` es el paso conceptualmente crítico: **cubrir no es perdonar**. En el mismo acto en que el fondo pone la plata, nace una deuda del participante hacia el fondo. Si esos dos hechos no fueran atómicos, existiría el estado imposible de "el fondo pagó y nadie debe".
+**Para qué sirve.** Es **el momento en que el grupo se salva**. El beneficiario del período cobra completo, el grupo sigue, y el problema se traslada a un circuito paralelo que no lo detiene.
+
+`porcentajeCobertura` reconoce que la cobertura puede ser parcial: el fondo cubre el 80% y el beneficiario absorbe el 20%. Es una decisión de política que balancea la protección con la sostenibilidad del fondo.
+
+`requirioAprobacionManual` + `aprobadaPor`: montos altos no se cubren automáticamente. Es control interno básico.
+
+`generarDeuda()` es el paso conceptualmente crítico: **cubrir no es perdonar**. En el mismo acto en que el fondo pone la plata, nace una deuda del participante hacia el fondo. Si esos dos hechos no fueran atómicos, existiría el estado imposible de "el fondo pagó y nadie debe".
 
 **Por qué existe.** Sin cobertura como entidad, el fondo sería un saldo que baja sin que quede constancia de por qué, para quién y quién lo autorizó.
+
+**Casos de uso que la nombran.** CU-23 Cubrir un incumplimiento con el fondo (`cubrirIncumplimiento`) · CU-29 Devolver los aportes del fondo de garantía (`devolverFondo`)
 
 **Sistema.** Vive en el esquema `garantia`; la escribe y la lee solo el servicio `garantia` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `aportes.obligacion_aporte`, `fondo_garantia`, `grupos.periodo`, `identidad.usuario`, `movimiento_fondo`, `nucleo_financiero.asiento_contable`, `registro_incumplimiento`. La referencian `deuda_participante`, `subrogacion`.
 
@@ -3086,8 +4029,8 @@
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
 | `fondo_id` | UUID | — | UUID, obligatoria, referencia a `fondo_garantia`. | NINGUNA |
-| `registro_id` | UUID | — | UUID, obligatoria, referencia a `registro_incumplimiento`. | NINGUNA |
-| `obligacion_id` | UUID | — | UUID, obligatoria, referencia a `obligacion_aporte`. | NINGUNA |
+| `registro_id` | UUID | — | UUID, obligatoria, única, referencia a `registro_incumplimiento`. | NINGUNA |
+| `obligacion_id` | UUID | — | UUID, obligatoria, única, referencia a `obligacion_aporte`. | NINGUNA |
 | `periodo_id` | UUID | — | UUID, obligatoria, referencia a `periodo`. | NINGUNA |
 | `movimiento_fondo_id` | UUID | — | UUID, opcional, referencia a `movimiento_fondo`. | NINGUNA |
 | `asiento_contable_id` | UUID | — | UUID, opcional, referencia a `asiento_contable`. | NINGUNA |
@@ -3109,6 +4052,8 @@
 
 **Por qué existe.** La cobertura es todo o nada y genera un derecho de recuperación. Sin el registro no se distinguiría la plata puesta por la empresa de la pagada por los participantes.
 
+**Casos de uso que la nombran.** CU-23 Cubrir un incumplimiento con el fondo (`cubrirIncumplimiento`)
+
 **Sistema.** Vive en el esquema `garantia`; la escribe y la lee solo el servicio `garantia` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `grupos.grupo`, `grupos.periodo`, `grupos.turno`, `identidad.usuario`, `reserva_respaldo`. La referencian `cobertura_respaldo_linea`. Reglas nombradas: `ck_cobertura_respaldo_cuadra`, `ck_cobertura_respaldo_recuperado`, `ck_cobertura_respaldo_estado`, `uq_cobertura_respaldo_turno_viva`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
@@ -3126,7 +4071,7 @@
 | `monto_recuperado` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
 | `estado` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
 | `corte_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `clave_idempotencia` | VARCHAR(80) | Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4). | VARCHAR(80), obligatoria. | NINGUNA |
+| `clave_idempotencia` | VARCHAR(80) | Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4). | VARCHAR(80), obligatoria, única. | NINGUNA |
 | `solicitada_por` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
 | `responsable_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
 | `aplicada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
@@ -3139,6 +4084,8 @@
 **Para qué sirve.** Saber a quién se le cubrió cuánto, y por lo tanto quién le debe cuánto a la empresa. Sin la línea, la deuda sería un total sin dueño.
 
 **Por qué existe.** La recuperación se cobra a cada incumplidor por lo que se le cubrió a él. Sin línea por obligación no se puede perseguir ni descontar la deuda correcta.
+
+**Casos de uso que la nombran.** CU-23 Cubrir un incumplimiento con el fondo (`cubrirIncumplimiento`)
 
 **Sistema.** Vive en el esquema `garantia`; la escribe y la lee solo el servicio `garantia` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `aportes.obligacion_aporte`, `cobertura_respaldo`. La referencian `recuperacion_respaldo`. Reglas nombradas: `ck_cobertura_respaldo_linea_recuperada`.
 
@@ -3154,9 +4101,15 @@
 
 **Qué es.** La versión del participante: su argumento y sus pruebas.
 
-**Para qué sirve.** **Es el derecho a ser oído**, y no es un formalismo. Los descargos legítimos son frecuentes y concretos: pagó pero la conciliación falló; el sistema le mostró la fecha equivocada; hubo un acuerdo verbal con el organizador; estuvo internado. Sin este canal, la única forma de reclamar es por WhatsApp al soporte, sin trazabilidad, sin plazo y sin criterio uniforme. Y sobre todo: **sin descargo, una sanción es indefendible ante cualquier reclamo formal.** `resueltoPor` + `resolucion` obligan a que alguien lo lea y responda con fundamento, no que se archive.
+**Para qué sirve.** **Es el derecho a ser oído**, y no es un formalismo. Los descargos legítimos son frecuentes y concretos: pagó pero la conciliación falló; el sistema le mostró la fecha equivocada; hubo un acuerdo verbal con el organizador; estuvo internado.
 
-**Por qué existe.** Sancionar sin oír es arbitrario. Y en un sistema que maneja plata de la gente, la arbitrariedad es el riesgo reputacional más caro que existe. ---
+Sin este canal, la única forma de reclamar es por WhatsApp al soporte, sin trazabilidad, sin plazo y sin criterio uniforme. Y sobre todo: **sin descargo, una sanción es indefendible ante cualquier reclamo formal.**
+
+`resueltoPor` + `resolucion` obligan a que alguien lo lea y responda con fundamento, no que se archive.
+
+**Por qué existe.** Sancionar sin oír es arbitrario. Y en un sistema que maneja plata de la gente, la arbitrariedad es el riesgo reputacional más caro que existe.
+
+**Casos de uso que la nombran.** CU-23 Cubrir un incumplimiento con el fondo (`cubrirIncumplimiento`) · CU-25 Declarar el incumplimiento con descargo y evidencia (`declararIncumplimiento`, `presentarDescargo`, `resolverDescargo`) · CU-63 Proponer y votar un acuerdo (`proponerAcuerdo`, `votarAcuerdo`) · CU-66 Reemplazar a un participante moroso (`aprobarReemplazo`, `ejecutarReemplazo`, `proponerReemplazo`)
 
 **Sistema.** Vive en el esquema `garantia`; la escribe y la lee solo el servicio `garantia` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `grupos.participante`, `identidad.usuario`, `registro_incumplimiento`.
 
@@ -3177,9 +4130,19 @@
 
 **Qué es.** Lo que un participante debe, como obligación exigible con vida propia.
 
-**Para qué sirve.** El punto clave está en la nota del diagrama y merece subrayarse: **la deuda vive a nivel de usuario, no de participante.** > Si el grupo termina, la deuda sigue exigible. Esa es la diferencia entre el pasanaku digital y el de cuaderno. En el tradicional, cuando el grupo se disuelve, la deuda se evapora: no hay quién la cobre ni dónde esté registrada. Acá persiste, sigue generando recargos, bloquea el ingreso a nuevos grupos (vía `RestriccionUsuario` en M1) y puede recuperarse años después. `acreedor` distingue a quién se le debe: al fondo de garantía (si cubrió), al grupo (si no hubo cobertura) o a la plataforma. Es determinante para saber a quién le llega la recuperación. `esSubrogada` marca que la deuda cambió de acreedor. `fechaPrescripcion` reconoce que las deudas caducan legalmente: no se puede perseguir a alguien indefinidamente, y el sistema debe saber cuándo dejar de hacerlo.
+**Para qué sirve.** El punto clave está en la nota del diagrama y merece subrayarse: **la deuda vive a nivel de usuario, no de participante.**
+
+> Si el grupo termina, la deuda sigue exigible.
+
+Esa es la diferencia entre el pasanaku digital y el de cuaderno. En el tradicional, cuando el grupo se disuelve, la deuda se evapora: no hay quién la cobre ni dónde esté registrada. Acá persiste, sigue generando recargos, bloquea el ingreso a nuevos grupos (vía `RestriccionUsuario` en M1) y puede recuperarse años después.
+
+`acreedor` distingue a quién se le debe: al fondo de garantía (si cubrió), al grupo (si no hubo cobertura) o a la plataforma. Es determinante para saber a quién le llega la recuperación.
+
+`esSubrogada` marca que la deuda cambió de acreedor. `fechaPrescripcion` reconoce que las deudas caducan legalmente: no se puede perseguir a alguien indefinidamente, y el sistema debe saber cuándo dejar de hacerlo.
 
 **Por qué existe.** Sin deuda como entidad independiente, el incumplimiento se cierra cuando el grupo cierra, y quien abandonó no tiene ninguna consecuencia duradera.
+
+**Casos de uso que la nombran.** CU-16 Cerrar billetera y devolver saldo (`consultarActividad`, `solicitarCierreBilletera`) · CU-19 Reembolsar un pago y atender una disputa (`aprobarReembolso`, `registrarDisputa`, `solicitarReembolso`) · CU-23 Cubrir un incumplimiento con el fondo (`cubrirIncumplimiento`) · CU-26 Ejecutar el aval y subrogar la deuda (`ejecutarAval`) · CU-27 Restringir al deudor e incluirlo en la lista interna (`levantarRestriccion`, `restringirDeudor`) · CU-29 Devolver los aportes del fondo de garantía (`devolverFondo`) · CU-62 Permutar turnos entre participantes (`solicitarPermuta`) · CU-64 Traspasar un cupo (`traspasarCupo`, `consultarPuntaje`) · CU-66 Reemplazar a un participante moroso (`aprobarReemplazo`, `ejecutarReemplazo`, `proponerReemplazo`) · CU-67 Disolver el grupo anticipadamente (`cerrarDisolucion`, `iniciarDisolucion`)
 
 **Sistema.** Vive en el esquema `garantia`; la escribe y la lee solo el servicio `garantia` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `cobertura_incumplimiento`, `grupos.grupo`, `grupos.participante`, `identidad.usuario`, `registro_incumplimiento`. La referencian `abono_recuperacion`, `castigo_deuda`, `ejecucion_aval`, `subrogacion`.
 
@@ -3189,8 +4152,8 @@
 | `usuario_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
 | `participante_id` | UUID | — | UUID, obligatoria, referencia a `participante`. | NINGUNA |
 | `grupo_id` | UUID | — | UUID, obligatoria, referencia a `grupo`. | NINGUNA |
-| `registro_id` | UUID | — | UUID, obligatoria, referencia a `registro_incumplimiento`. | NINGUNA |
-| `cobertura_id` | UUID | — | UUID, opcional, referencia a `cobertura_incumplimiento`. | NINGUNA |
+| `registro_id` | UUID | — | UUID, obligatoria, única, referencia a `registro_incumplimiento`. | NINGUNA |
+| `cobertura_id` | UUID | — | UUID, opcional, única, referencia a `cobertura_incumplimiento`. | NINGUNA |
 | `acreedor` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
 | `capital_original` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | NINGUNA |
 | `recargos_acumulados` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | NINGUNA |
@@ -3208,9 +4171,15 @@
 
 **Qué es.** El cálculo de cuánto le toca devolver a cada participante del fondo sobrante al cerrar el grupo.
 
-**Para qué sirve.** Es lo que hace **justo** el fondo. Si el grupo terminó bien y sobró plata, esa plata **es de los participantes** y hay que devolverla a prorrata de lo aportado. `montoConsumido` es el ajuste de equidad: quien consumió cobertura (y no la repuso) recibe menos. Sin esa resta, el que nunca falló financiaría al que falló seguido, que es exactamente lo contrario del incentivo que se busca. `RETENIDA` con `motivoRetencion` cubre al participante que todavía debe: no se le devuelve mientras tenga deuda abierta; se compensa.
+**Para qué sirve.** Es lo que hace **justo** el fondo. Si el grupo terminó bien y sobró plata, esa plata **es de los participantes** y hay que devolverla a prorrata de lo aportado.
 
-**Por qué existe.** Sin devolución explícita, el sobrante del fondo se quedaría en la plataforma, lo que sería —correctamente— percibido como apropiación. ---
+`montoConsumido` es el ajuste de equidad: quien consumió cobertura (y no la repuso) recibe menos. Sin esa resta, el que nunca falló financiaría al que falló seguido, que es exactamente lo contrario del incentivo que se busca.
+
+`RETENIDA` con `motivoRetencion` cubre al participante que todavía debe: no se le devuelve mientras tenga deuda abierta; se compensa.
+
+**Por qué existe.** Sin devolución explícita, el sobrante del fondo se quedaría en la plataforma, lo que sería —correctamente— percibido como apropiación.
+
+**Casos de uso que la nombran.** CU-29 Devolver los aportes del fondo de garantía (`devolverFondo`)
 
 **Sistema.** Vive en el esquema `garantia`; la escribe y la lee solo el servicio `garantia` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `fondo_garantia`, `grupos.participante`. Reglas nombradas: `ck_devolucion_no_negativa`, `ck_devolucion_hasta_lo_aportado`, `ck_devolucion_cuadra`, `ck_devolucion_retencion_motivada`, `uq_devolucion_fondo_participante`.
 
@@ -3230,16 +4199,22 @@
 
 **Qué es.** El cierre del grupo antes de completar el ciclo, con la liquidación de todos.
 
-**Para qué sirve.** Es el peor escenario y por eso hay que modelarlo bien. La pregunta que responde es la más difícil de todo el sistema: **si el grupo se rompe en el período 7 de 12, ¿quién le debe qué a quién?** Unos ya cobraron su turno y todavía deben aportes; otros aportaron siete veces y nunca cobraron. Sin un cálculo formal, esa liquidación es una discusión sin final —y es exactamente donde el pasanaku tradicional termina en pelea familiar o legal. `saldoADistribuir` es lo que queda para repartir después de cruzar todo.
+**Para qué sirve.** Es el peor escenario y por eso hay que modelarlo bien. La pregunta que responde es la más difícil de todo el sistema: **si el grupo se rompe en el período 7 de 12, ¿quién le debe qué a quién?**
 
-**Por qué existe.** Sin disolución modelada, el cierre anticipado es un conflicto abierto sin árbitro ni cifras. ---
+Unos ya cobraron su turno y todavía deben aportes; otros aportaron siete veces y nunca cobraron. Sin un cálculo formal, esa liquidación es una discusión sin final —y es exactamente donde el pasanaku tradicional termina en pelea familiar o legal.
+
+`saldoADistribuir` es lo que queda para repartir después de cruzar todo.
+
+**Por qué existe.** Sin disolución modelada, el cierre anticipado es un conflicto abierto sin árbitro ni cifras.
+
+**Casos de uso que la nombran.** CU-67 Disolver el grupo anticipadamente (`cerrarDisolucion`, `iniciarDisolucion`)
 
 **Sistema.** Vive en el esquema `garantia`; la escribe y la lee solo el servicio `garantia` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `grupos.acuerdo`, `grupos.grupo`. La referencian `liquidacion_participante`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `grupo_id` | UUID | — | UUID, obligatoria, referencia a `grupo`. | NINGUNA |
+| `grupo_id` | UUID | — | UUID, obligatoria, única, referencia a `grupo`. | NINGUNA |
 | `acuerdo_grupo_id` | UUID | — | UUID, opcional, referencia a `acuerdo`. | NINGUNA |
 | `causal` | VARCHAR(25) | — | VARCHAR(25), obligatoria. | NINGUNA |
 | `motivo` | VARCHAR(400) | — | VARCHAR(400), obligatoria. | NINGUNA |
@@ -3254,9 +4229,13 @@
 
 **Qué es.** El acto de exigirle al avalista que pague.
 
-**Para qué sirve.** Es el momento más delicado del módulo: **se le está cobrando a alguien la deuda de otro**. Por eso `notificar()` y `plazoRespuesta` son obligatorios: el avalista tiene derecho a enterarse, a verificar y a responder antes de que se le exija. `generaDeudaDelAvalista` cierra el círculo con honestidad: si el avalista tampoco paga, se le abre **su propio expediente** de incumplimiento (tipo `INCUMPLIMIENTO_AVAL`). El aval no es simbólico; tiene consecuencias reales para quien lo firma. Y eso es lo que hace que la gente avale con criterio, que es justamente el filtro que se busca.
+**Para qué sirve.** Es el momento más delicado del módulo: **se le está cobrando a alguien la deuda de otro**. Por eso `notificar()` y `plazoRespuesta` son obligatorios: el avalista tiene derecho a enterarse, a verificar y a responder antes de que se le exija.
 
-**Por qué existe.** Sin ejecución formal, el aval es una declaración de buenas intenciones que nadie hace cumplir — y por lo tanto no filtra nada. ---
+`generaDeudaDelAvalista` cierra el círculo con honestidad: si el avalista tampoco paga, se le abre **su propio expediente** de incumplimiento (tipo `INCUMPLIMIENTO_AVAL`). El aval no es simbólico; tiene consecuencias reales para quien lo firma. Y eso es lo que hace que la gente avale con criterio, que es justamente el filtro que se busca.
+
+**Por qué existe.** Sin ejecución formal, el aval es una declaración de buenas intenciones que nadie hace cumplir — y por lo tanto no filtra nada.
+
+**Casos de uso que la nombran.** CU-26 Ejecutar el aval y subrogar la deuda (`ejecutarAval`)
 
 **Sistema.** Vive en el esquema `garantia`; la escribe y la lee solo el servicio `garantia` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `aportes.pago`, `aval_participante`, `deuda_participante`, `registro_incumplimiento`. Reglas nombradas: `uq_ejecucion_aval_registro`, `ck_ejecucion_aval_monto`, `ck_ejecucion_aval_plazo`.
 
@@ -3273,13 +4252,39 @@
 | `plazo_respuesta` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
 | `genera_deuda_del_avalista` | BOOLEAN | — | BOOLEAN, obligatoria. | FINANCIERO |
 
+### `estado_saga`
+
+**Qué es.** Estado de saga orquestada por este servicio (ADR-028).
+
+**Para qué sirve.** Persiste el paso de una saga que cruza servicios para poder reanudarla o compensarla si algo falla en el medio (regla 98.3.2, ADR-028).
+
+**Sistema.** Infraestructura del servicio `garantia`, generada por plantilla en cada esquema (ADR-027): la escribe y la lee solo ese servicio.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
+| `tipo_saga` | VARCHAR(60) | — | VARCHAR(60), obligatoria. | NINGUNA |
+| `clave_negocio` | VARCHAR(120) | — | VARCHAR(120), obligatoria. | SECRETO |
+| `paso` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
+| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
+| `datos` | JSONB | — | JSONB, obligatoria. | NINGUNA |
+| `creado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `actualizado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+
 ### `estrategia_cobranza`
 
 **Qué es.** Qué se hace en cada etapa: por qué canales, con qué frecuencia, con qué límite de contactos, si requiere gestor humano y si se puede negociar quita.
 
-**Para qué sirve.** Dos equilibrios delicados: 1. **`maxContactosPorSemana` y `frecuenciaDias`.** Cobrar demasiado es contraproducente: genera bloqueos, quejas por spam y hostilidad. Y en muchas jurisdicciones el acoso en la cobranza está regulado. El límite protege al deudor y a la plataforma. 2. **`permiteQuita` + `quitaMaximaPorcentaje`.** Reconoce una verdad incómoda: **a veces cobrar el 70% ahora es mejor que perseguir el 100% durante dos años.** Pero la quita tiene que tener tope y autorización, o se convierte en la salida fácil de cualquier gestor. `requiereGestorHumano` marca dónde termina la automatización. Las primeras etapas son automáticas; a partir de cierto punto, una persona tiene que llamar.
+**Para qué sirve.** Dos equilibrios delicados:
 
-**Por qué existe.** Sin estrategia parametrizada, la cobranza es improvisada, inconsistente entre casos y potencialmente abusiva. ---
+1. **`maxContactosPorSemana` y `frecuenciaDias`.** Cobrar demasiado es contraproducente: genera bloqueos, quejas por spam y hostilidad. Y en muchas jurisdicciones el acoso en la cobranza está regulado. El límite protege al deudor y a la plataforma.
+2. **`permiteQuita` + `quitaMaximaPorcentaje`.** Reconoce una verdad incómoda: **a veces cobrar el 70% ahora es mejor que perseguir el 100% durante dos años.** Pero la quita tiene que tener tope y autorización, o se convierte en la salida fácil de cualquier gestor.
+
+`requiereGestorHumano` marca dónde termina la automatización. Las primeras etapas son automáticas; a partir de cierto punto, una persona tiene que llamar.
+
+**Por qué existe.** Sin estrategia parametrizada, la cobranza es improvisada, inconsistente entre casos y potencialmente abusiva.
+
+**Casos de uso que la nombran.** CU-23 Cubrir un incumplimiento con el fondo (`cubrirIncumplimiento`)
 
 **Sistema.** Vive en el esquema `garantia`; la escribe y la lee solo el servicio `garantia` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. La referencian `gestion_cobranza`.
 
@@ -3298,13 +4303,61 @@
 | `quita_maxima_porcentaje` | DECIMAL(5,2) | — | DECIMAL(5,2), obligatoria. | NINGUNA |
 | `siguiente_etapa` | VARCHAR(20) | — | VARCHAR(20), opcional. | NINGUNA |
 
+### `evento_consumido`
+
+**Qué es.** Marca de evento ya consumido, por consumidor (ADR-027).
+
+**Para qué sirve.** Hace idempotente el consumo: la entrega es al menos una vez y un mismo evento no puede producir dos efectos (regla 98.3.4).
+
+**Sistema.** Infraestructura del servicio `garantia`, generada por plantilla en cada esquema (ADR-027): la escribe y la lee solo ese servicio.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `id_evento` | UUID | — | UUID, obligatoria, clave primaria. | NINGUNA |
+| `consumidor` | VARCHAR(60) | — | VARCHAR(60), obligatoria, clave primaria. | NINGUNA |
+| `consumido_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+
+### `evento_dominio`
+
+**Qué es.** Outbox transaccional del servicio (ADR-027).
+
+**Para qué sirve.** Garantiza que ningún hecho del servicio se pierda entre la base y la mensajería: el evento se guarda en la misma transacción que el cambio y un relevo lo publica después (regla 98.3.3).
+
+**Sistema.** Infraestructura del servicio `garantia`, generada por plantilla en cada esquema (ADR-027): la escribe y la lee solo ese servicio.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
+| `tipo` | VARCHAR(60) | — | VARCHAR(60), obligatoria. | NINGUNA |
+| `version` | VARCHAR(10) | — | VARCHAR(10), obligatoria. | NINGUNA |
+| `agregado` | VARCHAR(40) | — | VARCHAR(40), obligatoria. | NINGUNA |
+| `agregado_id` | UUID | — | UUID, obligatoria. | NINGUNA |
+| `payload` | JSONB | — | JSONB, obligatoria. | NINGUNA |
+| `metadatos` | JSONB | — | JSONB, obligatoria. | NINGUNA |
+| `correlation_id` | UUID | — | UUID, obligatoria. | NINGUNA |
+| `causation_id` | UUID | — | UUID, opcional. | NINGUNA |
+| `ocurrido_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `publicado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
+| `intentos` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
+| `tomado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `tomado_por` | VARCHAR(100) | — | VARCHAR(100), opcional. | NINGUNA |
+| `ultimo_error` | TEXT | — | TEXT, opcional. | NINGUNA |
+| `proximo_intento_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+
 ### `evidencia_incumplimiento`
 
 **Qué es.** Los respaldos del expediente: captura del estado, extracto, comunicaciones, actas, logs del sistema, documentos.
 
-**Para qué sirve.** **Sin evidencia, el expediente es una acusación.** Cuando se sanciona a alguien, o se ejecuta un aval, o se lo incluye en la lista de restricción, hay que poder mostrar en qué se basó. `LOG_SISTEMA` como tipo es importante: la evidencia más fuerte suele ser automática (el registro de que la obligación venció, de que se enviaron cinco recordatorios entregados y leídos, de que no hubo pago). Es objetiva y no depende de la palabra de nadie. `hashArchivo` + `esInmutable` + `sellar()` garantizan que la evidencia no se modificó después de aportada. Una evidencia editable no es evidencia.
+**Para qué sirve.** **Sin evidencia, el expediente es una acusación.** Cuando se sanciona a alguien, o se ejecuta un aval, o se lo incluye en la lista de restricción, hay que poder mostrar en qué se basó.
 
-**Por qué existe.** Es la diferencia entre un proceso defendible y uno arbitrario. Y ante un reclamo legal, es lo único que vale. ---
+`LOG_SISTEMA` como tipo es importante: la evidencia más fuerte suele ser automática (el registro de que la obligación venció, de que se enviaron cinco recordatorios entregados y leídos, de que no hubo pago). Es objetiva y no depende de la palabra de nadie.
+
+`hashArchivo` + `esInmutable` + `sellar()` garantizan que la evidencia no se modificó después de aportada. Una evidencia editable no es evidencia.
+
+**Por qué existe.** Es la diferencia entre un proceso defendible y uno arbitrario. Y ante un reclamo legal, es lo único que vale.
+
+**Casos de uso que la nombran.** CU-25 Declarar el incumplimiento con descargo y evidencia (`declararIncumplimiento`, `presentarDescargo`, `resolverDescargo`)
 
 **Sistema.** Vive en el esquema `garantia`; la escribe y la lee solo el servicio `garantia` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `identidad.usuario`, `registro_incumplimiento`. Reglas nombradas: `ck_evidencia_con_respaldo`.
 
@@ -3325,9 +4378,21 @@
 
 **Qué es.** El colchón económico que cubre los aportes impagos para que el grupo no se detenga.
 
-**Para qué sirve.** **Es la innovación central del modelo digital frente al pasanaku tradicional.** En el pasanaku de siempre, si uno no pone, el que cobra recibe menos — y esa persona, que hizo todo bien, paga el error de otro. Es profundamente injusto y es lo que hace que la gente abandone. Con fondo de garantía, el sistema pone la diferencia: **el beneficiario cobra completo, y el que no pagó ahora le debe al fondo, no al grupo.** El conflicto deja de ser entre vecinos y pasa a ser entre el moroso y un mecanismo institucional. Eso solo ya cambia la dinámica social del grupo. El `ambito` define dos modelos de negocio distintos: - `POR_GRUPO`: cada grupo tiene su propio fondo, alimentado con un porcentaje de cada aporte. Lo que sobra al final se devuelve. - `MUTUAL_PLATAFORMA`: un fondo común entre todos los grupos. Diversifica mejor (un grupo con mala suerte no se queda sin cobertura) pero mezcla riesgos entre grupos que no se conocen. La separación `saldoDisponible` / `saldoComprometido` es contabilidad prudente: hay plata reservada para coberturas ya aprobadas pero no aplicadas. Sin esa distinción, el fondo aparentaría tener más de lo que realmente puede comprometer. `indiceSuficiencia()` y `proyectarAgotamiento()` son las funciones de alerta temprana: **un fondo que se va a agotar en dos períodos es un grupo que va a colapsar en tres**, y hay que saberlo antes.
+**Para qué sirve.** **Es la innovación central del modelo digital frente al pasanaku tradicional.** En el pasanaku de siempre, si uno no pone, el que cobra recibe menos — y esa persona, que hizo todo bien, paga el error de otro. Es profundamente injusto y es lo que hace que la gente abandone.
+
+Con fondo de garantía, el sistema pone la diferencia: **el beneficiario cobra completo, y el que no pagó ahora le debe al fondo, no al grupo.** El conflicto deja de ser entre vecinos y pasa a ser entre el moroso y un mecanismo institucional. Eso solo ya cambia la dinámica social del grupo.
+
+El `ambito` define dos modelos de negocio distintos:
+- `POR_GRUPO`: cada grupo tiene su propio fondo, alimentado con un porcentaje de cada aporte. Lo que sobra al final se devuelve.
+- `MUTUAL_PLATAFORMA`: un fondo común entre todos los grupos. Diversifica mejor (un grupo con mala suerte no se queda sin cobertura) pero mezcla riesgos entre grupos que no se conocen.
+
+La separación `saldoDisponible` / `saldoComprometido` es contabilidad prudente: hay plata reservada para coberturas ya aprobadas pero no aplicadas. Sin esa distinción, el fondo aparentaría tener más de lo que realmente puede comprometer.
+
+`indiceSuficiencia()` y `proyectarAgotamiento()` son las funciones de alerta temprana: **un fondo que se va a agotar en dos períodos es un grupo que va a colapsar en tres**, y hay que saberlo antes.
 
 **Por qué existe.** Sin fondo, la única respuesta al impago es que el beneficiario cobre menos. Con fondo, el grupo sigue funcionando y la deuda se persigue por separado.
+
+**Casos de uso que la nombran.** CU-19 Reembolsar un pago y atender una disputa (`aprobarReembolso`, `registrarDisputa`, `solicitarReembolso`) · CU-23 Cubrir un incumplimiento con el fondo (`cubrirIncumplimiento`) · CU-26 Ejecutar el aval y subrogar la deuda (`ejecutarAval`) · CU-29 Devolver los aportes del fondo de garantía (`devolverFondo`) · CU-67 Disolver el grupo anticipadamente (`cerrarDisolucion`, `iniciarDisolucion`) · CU-92 Evaluar el desempeño del organizador (`evaluarDesempeno`)
 
 **Sistema.** Vive en el esquema `garantia`; la escribe y la lee solo el servicio `garantia` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `grupos.grupo`, `nucleo_financiero.cuenta_contable`, `politica_cobertura`. La referencian `cobertura_incumplimiento`, `devolucion_fondo`, `movimiento_fondo`.
 
@@ -3335,7 +4400,7 @@
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
 | `ambito` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
-| `grupo_id` | UUID | — | UUID, opcional, referencia a `grupo`. | NINGUNA |
+| `grupo_id` | UUID | — | UUID, opcional, única, referencia a `grupo`. | NINGUNA |
 | `politica_cobertura_id` | UUID | — | UUID, obligatoria, referencia a `politica_cobertura`. | NINGUNA |
 | `cuenta_contable_id` | UUID | — | UUID, obligatoria, referencia a `cuenta_contable`. | NINGUNA |
 | `moneda` | CHAR(3) | Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2). | CHAR(3), obligatoria. | NINGUNA |
@@ -3352,16 +4417,22 @@
 
 **Qué es.** El proceso activo de cobrarle a alguien, con su etapa, su gestor y su próxima acción.
 
-**Para qué sirve.** **Convierte "hay que cobrarle" en un proceso con dueño, etapa y próximo paso.** Las seis etapas (preventiva → temprana → administrativa → prejudicial → judicial → castigo) son la práctica estándar de cobranza, y existen porque **cada etapa tiene un costo y una efectividad distintos**: un recordatorio automático cuesta centavos; una gestión judicial cuesta más que la mayoría de las deudas de un pasanaku. `costoAcumulado()` es la función que responde la pregunta económica clave: **¿vale la pena seguir cobrando?** Si llevo Bs 400 gastados en gestión para recuperar Bs 500, la respuesta es no, y corresponde castigar la deuda (con la constancia reputacional intacta). `proximaAccionEn` es lo que hace que la cobranza no se olvide: es el campo por el que se ordena la bandeja de trabajo diaria.
+**Para qué sirve.** **Convierte "hay que cobrarle" en un proceso con dueño, etapa y próximo paso.** Las seis etapas (preventiva → temprana → administrativa → prejudicial → judicial → castigo) son la práctica estándar de cobranza, y existen porque **cada etapa tiene un costo y una efectividad distintos**: un recordatorio automático cuesta centavos; una gestión judicial cuesta más que la mayoría de las deudas de un pasanaku.
 
-**Por qué existe.** Sin gestión materializada, cobrar depende de que alguien se acuerde. Y la cobranza que depende de la memoria no ocurre. ---
+`costoAcumulado()` es la función que responde la pregunta económica clave: **¿vale la pena seguir cobrando?** Si llevo Bs 400 gastados en gestión para recuperar Bs 500, la respuesta es no, y corresponde castigar la deuda (con la constancia reputacional intacta).
+
+`proximaAccionEn` es lo que hace que la cobranza no se olvide: es el campo por el que se ordena la bandeja de trabajo diaria.
+
+**Por qué existe.** Sin gestión materializada, cobrar depende de que alguien se acuerde. Y la cobranza que depende de la memoria no ocurre.
+
+**Casos de uso que la nombran.** CU-23 Cubrir un incumplimiento con el fondo (`cubrirIncumplimiento`) · CU-26 Ejecutar el aval y subrogar la deuda (`ejecutarAval`) · CU-66 Reemplazar a un participante moroso (`aprobarReemplazo`, `ejecutarReemplazo`, `proponerReemplazo`) · CU-67 Disolver el grupo anticipadamente (`cerrarDisolucion`, `iniciarDisolucion`) · CU-81 Programar recordatorios de aporte
 
 **Sistema.** Vive en el esquema `garantia`; la escribe y la lee solo el servicio `garantia` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `estrategia_cobranza`, `identidad.usuario`, `registro_incumplimiento`. La referencian `accion_cobranza`, `promesa_pago`, `tarifas.cuenta_por_cobrar_comision`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `registro_id` | UUID | — | UUID, obligatoria, referencia a `registro_incumplimiento`. | NINGUNA |
+| `registro_id` | UUID | — | UUID, obligatoria, única, referencia a `registro_incumplimiento`. | NINGUNA |
 | `estrategia_id` | UUID | — | UUID, obligatoria, referencia a `estrategia_cobranza`. | NINGUNA |
 | `gestor_asignado_id` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
 | `etapa_actual` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
@@ -3377,9 +4448,15 @@
 
 **Qué es.** La línea de tiempo del expediente: cada transición, con motivo, monto y autor.
 
-**Para qué sirve.** Reconstruye la historia completa: detectado el 5, notificado el 6, gestión abierta el 8, promesa de pago el 12, promesa incumplida el 15, cobertura aplicada el 16, sanción propuesta el 20, descargo presentado el 22, sanción firme el 30. Esa línea de tiempo es lo que se presenta cuando alguien dice "nunca me avisaron" o "me sancionaron sin darme oportunidad". `esAutomatico` distingue lo que hizo el sistema de lo que hizo una persona. Importa: una escalada automática por vencimiento de plazo es distinta de una escalada decidida por un gestor.
+**Para qué sirve.** Reconstruye la historia completa: detectado el 5, notificado el 6, gestión abierta el 8, promesa de pago el 12, promesa incumplida el 15, cobertura aplicada el 16, sanción propuesta el 20, descargo presentado el 22, sanción firme el 30.
 
-**Por qué existe.** El campo `estado` dice dónde está; el historial dice cómo llegó y cuánto tardó cada paso. Es la base del debido proceso. ---
+Esa línea de tiempo es lo que se presenta cuando alguien dice "nunca me avisaron" o "me sancionaron sin darme oportunidad".
+
+`esAutomatico` distingue lo que hizo el sistema de lo que hizo una persona. Importa: una escalada automática por vencimiento de plazo es distinta de una escalada decidida por un gestor.
+
+**Por qué existe.** El campo `estado` dice dónde está; el historial dice cómo llegó y cuánto tardó cada paso. Es la base del debido proceso.
+
+**Casos de uso que la nombran.** CU-25 Declarar el incumplimiento con descargo y evidencia (`declararIncumplimiento`, `presentarDescargo`, `resolverDescargo`)
 
 **Sistema.** Vive en el esquema `garantia`; la escribe y la lee solo el servicio `garantia` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Es append-only: UPDATE y DELETE revocados al rol del servicio; se corrige con una fila nueva. Depende de `identidad.usuario`, `registro_incumplimiento`.
 
@@ -3399,9 +4476,17 @@
 
 **Qué es.** La proyección agregada del comportamiento de un usuario **a través de todos los grupos**.
 
-**Para qué sirve.** **Es la portabilidad del mal historial**, y es tan importante como la portabilidad del bueno. El problema que resuelve: alguien abandona un pasanaku debiendo tres cuotas, y a la semana siguiente entra a otro grupo en la misma plataforma como si nada. En el mundo presencial, la comunidad se entera; digitalmente, hay que construir esa memoria. `tasaRegularizacion` es el matiz que evita la condena permanente: no es lo mismo alguien que se atrasó cinco veces y regularizó las cinco, que alguien que se atrasó dos y nunca pagó. El primero es un mal pagador puntual; el segundo es un riesgo real. Sin esta métrica, ambos se ven igual. Se consulta al evaluar `SolicitudIngreso` (M2) y en el emparejamiento automático (RF-19).
+**Para qué sirve.** **Es la portabilidad del mal historial**, y es tan importante como la portabilidad del bueno.
+
+El problema que resuelve: alguien abandona un pasanaku debiendo tres cuotas, y a la semana siguiente entra a otro grupo en la misma plataforma como si nada. En el mundo presencial, la comunidad se entera; digitalmente, hay que construir esa memoria.
+
+`tasaRegularizacion` es el matiz que evita la condena permanente: no es lo mismo alguien que se atrasó cinco veces y regularizó las cinco, que alguien que se atrasó dos y nunca pagó. El primero es un mal pagador puntual; el segundo es un riesgo real. Sin esta métrica, ambos se ven igual.
+
+Se consulta al evaluar `SolicitudIngreso` (M2) y en el emparejamiento automático (RF-19).
 
 **Por qué existe.** Sin agregado cross-grupo, cada grupo tendría que descubrir por su cuenta que el nuevo participante ya falló en otros tres.
+
+**Casos de uso que la nombran.** CU-66 Reemplazar a un participante moroso (`aprobarReemplazo`, `ejecutarReemplazo`, `proponerReemplazo`)
 
 **Sistema.** Vive en el esquema `garantia`; la escribe y la lee solo el servicio `garantia` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `identidad.usuario`.
 
@@ -3426,9 +4511,13 @@
 
 **Qué es.** La posición neta de cada participante en la disolución.
 
-**Para qué sirve.** `posicionNeta` es el número que resuelve todo: **positiva, se le devuelve; negativa, debe.** Se calcula como total aportado menos total cobrado menos deuda pendiente. Es transparente, verificable y aplica el mismo criterio a todos. `estado = EN_COBRANZA` reconoce lo obvio: los que quedan debiendo pasan al circuito de cobranza como cualquier otra deuda, y no se evaporan porque el grupo se cerró.
+**Para qué sirve.** `posicionNeta` es el número que resuelve todo: **positiva, se le devuelve; negativa, debe.** Se calcula como total aportado menos total cobrado menos deuda pendiente. Es transparente, verificable y aplica el mismo criterio a todos.
 
-**Por qué existe.** Sin liquidación individual, la disolución sería un reparto discrecional del saldo, y quien lo hiciera quedaría bajo sospecha inevitablemente. ---
+`estado = EN_COBRANZA` reconoce lo obvio: los que quedan debiendo pasan al circuito de cobranza como cualquier otra deuda, y no se evaporan porque el grupo se cerró.
+
+**Por qué existe.** Sin liquidación individual, la disolución sería un reparto discrecional del saldo, y quien lo hiciera quedaría bajo sospecha inevitablemente.
+
+**Casos de uso que la nombran.** CU-65 Retirarse de un grupo (`solicitarRetiro`) · CU-67 Disolver el grupo anticipadamente (`cerrarDisolucion`, `iniciarDisolucion`)
 
 **Sistema.** Vive en el esquema `garantia`; la escribe y la lee solo el servicio `garantia` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `disolucion_anticipada`, `grupos.participante`.
 
@@ -3447,9 +4536,18 @@
 
 **Qué es.** El registro de usuarios con restricciones activas por incumplimiento, con su nivel.
 
-**Para qué sirve.** Es el mecanismo ejecutivo del historial. Tres niveles graduados: - `OBSERVACION`: puede operar, pero se lo monitorea. - `LIMITADO`: puede seguir en sus grupos actuales pero no entrar a nuevos. - `VETADO`: no puede operar. `montoAdeudado` es el dato que permite la salida: **la restricción se levanta pagando.** No es una condena, es una consecuencia con remedio, y eso es deliberado: una restricción sin salida elimina todo incentivo a regularizar. `retiradoPor` + `motivoRetiro` documentan quién la levantó, que es la decisión más sensible del proceso.
+**Para qué sirve.** Es el mecanismo ejecutivo del historial. Tres niveles graduados:
+- `OBSERVACION`: puede operar, pero se lo monitorea.
+- `LIMITADO`: puede seguir en sus grupos actuales pero no entrar a nuevos.
+- `VETADO`: no puede operar.
 
-**Por qué existe.** Sin lista, el historial es información y no consecuencia. Se materializa como `RestriccionUsuario` en M1, que es donde el resto del sistema la consulta. ---
+`montoAdeudado` es el dato que permite la salida: **la restricción se levanta pagando.** No es una condena, es una consecuencia con remedio, y eso es deliberado: una restricción sin salida elimina todo incentivo a regularizar.
+
+`retiradoPor` + `motivoRetiro` documentan quién la levantó, que es la decisión más sensible del proceso.
+
+**Por qué existe.** Sin lista, el historial es información y no consecuencia. Se materializa como `RestriccionUsuario` en M1, que es donde el resto del sistema la consulta.
+
+**Casos de uso que la nombran.** CU-27 Restringir al deudor e incluirlo en la lista interna (`levantarRestriccion`, `restringirDeudor`)
 
 **Sistema.** Vive en el esquema `garantia`; la escribe y la lee solo el servicio `garantia` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `identidad.usuario`, `registro_incumplimiento`. Reglas nombradas: `ck_lista_retiro_motivado`.
 
@@ -3471,9 +4569,20 @@
 
 **Qué es.** La tabla que determina qué sanción corresponde a cada combinación de `tipo de incumplimiento × severidad × número de reincidencia`.
 
-**Para qué sirve.** **Es la entidad que garantiza proporcionalidad.** > La sanción no la decide una persona de humor variable: sale de la matriz. Eso resuelve tres problemas de golpe: 1. **Consistencia**: dos personas con el mismo incumplimiento reciben la misma sanción, sin importar quién las evalúe ni si le caen bien al organizador. 2. **Previsibilidad**: se puede publicar la matriz y todos saben de antemano qué les pasa si incumplen. Eso tiene efecto disuasivo, que una sanción impredecible no tiene. 3. **Proporcionalidad**: el primer atraso leve es una advertencia; el tercero grave es expulsión. La escalada está codificada. `esAutomatica` vs `requiereRevisionHumana` marca el límite: las advertencias se aplican solas; una expulsión pasa por revisión.
+**Para qué sirve.** **Es la entidad que garantiza proporcionalidad.**
+
+> La sanción no la decide una persona de humor variable: sale de la matriz.
+
+Eso resuelve tres problemas de golpe:
+1. **Consistencia**: dos personas con el mismo incumplimiento reciben la misma sanción, sin importar quién las evalúe ni si le caen bien al organizador.
+2. **Previsibilidad**: se puede publicar la matriz y todos saben de antemano qué les pasa si incumplen. Eso tiene efecto disuasivo, que una sanción impredecible no tiene.
+3. **Proporcionalidad**: el primer atraso leve es una advertencia; el tercero grave es expulsión. La escalada está codificada.
+
+`esAutomatica` vs `requiereRevisionHumana` marca el límite: las advertencias se aplican solas; una expulsión pasa por revisión.
 
 **Por qué existe.** Sin matriz, sancionar es un juicio subjetivo, y en un grupo con dinero de por medio la subjetividad se lee siempre como favoritismo.
+
+**Casos de uso que la nombran.** CU-66 Reemplazar a un participante moroso (`aprobarReemplazo`, `ejecutarReemplazo`, `proponerReemplazo`)
 
 **Sistema.** Vive en el esquema `garantia`; la escribe y la lee solo el servicio `garantia` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `politica_sancion`. La referencian `sancion`.
 
@@ -3494,9 +4603,13 @@
 
 **Qué es.** Cada entrada o salida del fondo, con el saldo resultante.
 
-**Para qué sirve.** Es el extracto del fondo, y es lo que hace que el fondo sea **auditable por los participantes**, que son sus dueños. Los nueve tipos cuentan toda la historia: constitución, aportes, coberturas aplicadas, recuperaciones, ejecuciones de aval, devoluciones, castigos, ajustes, rendimientos. `saldoResultante` en cada movimiento permite verificar la secuencia completa sin recalcular: si un saldo resultante no coincide con el anterior más el monto, hubo manipulación.
+**Para qué sirve.** Es el extracto del fondo, y es lo que hace que el fondo sea **auditable por los participantes**, que son sus dueños. Los nueve tipos cuentan toda la historia: constitución, aportes, coberturas aplicadas, recuperaciones, ejecuciones de aval, devoluciones, castigos, ajustes, rendimientos.
+
+`saldoResultante` en cada movimiento permite verificar la secuencia completa sin recalcular: si un saldo resultante no coincide con el anterior más el monto, hubo manipulación.
 
 **Por qué existe.** Es plata de los participantes. Si el fondo fuera solo un campo `saldo` que sube y baja, nadie podría verificar en qué se usó su aporte al fondo — y eso reproduce exactamente la opacidad que la plataforma quiere eliminar.
+
+**Casos de uso que la nombran.** CU-23 Cubrir un incumplimiento con el fondo (`cubrirIncumplimiento`) · CU-29 Devolver los aportes del fondo de garantía (`devolverFondo`)
 
 **Sistema.** Vive en el esquema `garantia`; la escribe y la lee solo el servicio `garantia` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Es append-only: UPDATE y DELETE revocados al rol del servicio; se corrige con una fila nueva. Depende de `fondo_garantia`, `identidad.usuario`, `nucleo_financiero.asiento_contable`. La referencian `abono_recuperacion`, `cobertura_incumplimiento`.
 
@@ -3522,6 +4635,8 @@
 
 **Por qué existe.** Si los saldos de la reserva se editaran directo, un error o un reintento cambiaría el número sin dejar rastro. Con el libro, el saldo se reconstruye y se corrige con un movimiento inverso.
 
+**Casos de uso que la nombran.** CU-23 Cubrir un incumplimiento con el fondo (`cubrirIncumplimiento`)
+
 **Sistema.** Vive en el esquema `garantia`; la escribe y la lee solo el servicio `garantia` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Es append-only: UPDATE y DELETE revocados al rol del servicio; se corrige con una fila nueva. Depende de `identidad.usuario`, `reserva_respaldo`. La referencian `recuperacion_respaldo`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
@@ -3535,7 +4650,7 @@
 | `exposicion_resultante` | DECIMAL(16,2) | — | DECIMAL(16,2), obligatoria. | NINGUNA |
 | `referencia_tipo` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
 | `referencia_id` | UUID | — | UUID, obligatoria. | NINGUNA |
-| `clave_idempotencia` | VARCHAR(80) | Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4). | VARCHAR(80), obligatoria. | NINGUNA |
+| `clave_idempotencia` | VARCHAR(80) | Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4). | VARCHAR(80), obligatoria, única. | NINGUNA |
 | `registrado_por` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
 | `responsable_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
 | `fecha` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
@@ -3544,9 +4659,21 @@
 
 **Qué es.** La respuesta estructurada a una crisis del grupo.
 
-**Para qué sirve.** Es el manual de emergencia. Cuatro disparadores (mora crítica, fondo agotado, abandono masivo, organizador inhabilitado) y cinco respuestas posibles: - `PRORRATEO_ENTRE_ACTIVOS`: los que quedan ponen la diferencia. - `REDUCCION_DE_BOLSA`: todos cobran menos, pero el grupo sigue. - `EXTENSION_DE_PLAZO`: se alargan los períodos. - `REEMPLAZO`: se busca quién entre. - `DISOLUCION`: se corta la pérdida. `simularImpacto()` es la función clave: **antes de someterlo a votación, cada participante ve cuánto le cuesta cada alternativa**. Votar a ciegas entre cinco opciones abstractas no es decidir. `requiereAcuerdo` + `acuerdoGrupoId`: la contingencia la aprueba el grupo (M2), porque todas las opciones implican que alguien pierde algo.
+**Para qué sirve.** Es el manual de emergencia. Cuatro disparadores (mora crítica, fondo agotado, abandono masivo, organizador inhabilitado) y cinco respuestas posibles:
 
-**Por qué existe.** Sin plan de contingencia, la crisis se maneja improvisando por WhatsApp, y el resultado suele ser que el grupo se desarma con pérdidas mal repartidas. ---
+- `PRORRATEO_ENTRE_ACTIVOS`: los que quedan ponen la diferencia.
+- `REDUCCION_DE_BOLSA`: todos cobran menos, pero el grupo sigue.
+- `EXTENSION_DE_PLAZO`: se alargan los períodos.
+- `REEMPLAZO`: se busca quién entre.
+- `DISOLUCION`: se corta la pérdida.
+
+`simularImpacto()` es la función clave: **antes de someterlo a votación, cada participante ve cuánto le cuesta cada alternativa**. Votar a ciegas entre cinco opciones abstractas no es decidir.
+
+`requiereAcuerdo` + `acuerdoGrupoId`: la contingencia la aprueba el grupo (M2), porque todas las opciones implican que alguien pierde algo.
+
+**Por qué existe.** Sin plan de contingencia, la crisis se maneja improvisando por WhatsApp, y el resultado suele ser que el grupo se desarma con pérdidas mal repartidas.
+
+**Casos de uso que la nombran.** CU-23 Cubrir un incumplimiento con el fondo (`cubrirIncumplimiento`) · CU-66 Reemplazar a un participante moroso (`aprobarReemplazo`, `ejecutarReemplazo`, `proponerReemplazo`) · CU-97 Anticipar el riesgo con alertas tempranas (`cerrarAlertaRiesgo`, `evaluarRiesgo`)
 
 **Sistema.** Vive en el esquema `garantia`; la escribe y la lee solo el servicio `garantia` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `grupos.acuerdo`, `grupos.grupo`. Reglas nombradas: `uq_plan_contingencia_vivo`.
 
@@ -3568,9 +4695,19 @@
 
 **Qué es.** Las reglas del fondo: cuánto se aporta, cuándo se activa la cobertura, cuánto cubre y con qué límites.
 
-**Para qué sirve.** Cada parámetro protege contra un abuso concreto: - `porcentajeConstitucion`: cuánto de cada aporte alimenta el fondo. Sube el costo del pasanaku, así que es un equilibrio entre seguridad y precio. - `diasMoraParaActivar`: **no se cubre al primer día de atraso.** Si se cubriera de inmediato, el fondo pagaría por gente que simplemente se olvidó y va a pagar mañana, y se agotaría en meses. - `topeCoberturaPorParticipante` y `maxCoberturasPorParticipante`: **evitan el parásito**. Sin límite, alguien podría no pagar nunca y dejar que el fondo cubra siempre — convirtiendo el seguro colectivo en su financiamiento personal. - `topeCoberturaPorPeriodo`: protege contra el colapso masivo. Si en un período fallan seis de doce, el fondo no puede vaciarse cubriéndolos a todos; ahí corresponde un plan de contingencia, no cobertura. - `exigeAvalPrevio`: solo se cubre a quien tiene quién responda. - `requiereAprobacionManualDesde`: montos grandes pasan por revisión humana. - `plazoRecuperacionDias` y `tasaRecargoRecuperacion`: **el fondo no es un regalo**. Es un préstamo forzoso con plazo y con costo.
+**Para qué sirve.** Cada parámetro protege contra un abuso concreto:
 
-**Por qué existe.** Un fondo sin política es un fondo que se agota. Y configurarla por grupo permite que un pasanaku familiar sea generoso y uno con desconocidos sea estricto. ---
+- `porcentajeConstitucion`: cuánto de cada aporte alimenta el fondo. Sube el costo del pasanaku, así que es un equilibrio entre seguridad y precio.
+- `diasMoraParaActivar`: **no se cubre al primer día de atraso.** Si se cubriera de inmediato, el fondo pagaría por gente que simplemente se olvidó y va a pagar mañana, y se agotaría en meses.
+- `topeCoberturaPorParticipante` y `maxCoberturasPorParticipante`: **evitan el parásito**. Sin límite, alguien podría no pagar nunca y dejar que el fondo cubra siempre — convirtiendo el seguro colectivo en su financiamiento personal.
+- `topeCoberturaPorPeriodo`: protege contra el colapso masivo. Si en un período fallan seis de doce, el fondo no puede vaciarse cubriéndolos a todos; ahí corresponde un plan de contingencia, no cobertura.
+- `exigeAvalPrevio`: solo se cubre a quien tiene quién responda.
+- `requiereAprobacionManualDesde`: montos grandes pasan por revisión humana.
+- `plazoRecuperacionDias` y `tasaRecargoRecuperacion`: **el fondo no es un regalo**. Es un préstamo forzoso con plazo y con costo.
+
+**Por qué existe.** Un fondo sin política es un fondo que se agota. Y configurarla por grupo permite que un pasanaku familiar sea generoso y uno con desconocidos sea estricto.
+
+**Casos de uso que la nombran.** CU-23 Cubrir un incumplimiento con el fondo (`cubrirIncumplimiento`)
 
 **Sistema.** Vive en el esquema `garantia`; la escribe y la lee solo el servicio `garantia` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `grupos.grupo`. La referencian `fondo_garantia`.
 
@@ -3581,22 +4718,26 @@
 | `porcentaje_constitucion` | DECIMAL(5,2) | cuánto de cada aporte alimenta el fondo. Sube el costo del pasanaku, así que es un equilibrio entre seguridad y precio. | DECIMAL(5,2), obligatoria. | NINGUNA |
 | `dias_mora_para_activar` | SMALLINT | **no se cubre al primer día de atraso.** Si se cubriera de inmediato, el fondo pagaría por gente que simplemente se olvidó y va a pagar mañana, y se agotaría en meses. | SMALLINT, obligatoria. | NINGUNA |
 | `porcentaje_maximo_cobertura_por_aporte` | DECIMAL(5,2) | — | DECIMAL(5,2), obligatoria. | NINGUNA |
-| `tope_cobertura_por_participante` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | NINGUNA |
+| `tope_cobertura_por_participante` | DECIMAL(14,2) | **evitan el parásito**. Sin límite, alguien podría no pagar nunca y dejar que el fondo cubra siempre — convirtiendo el seguro colectivo en su financiamiento personal. | DECIMAL(14,2), obligatoria. | NINGUNA |
 | `tope_cobertura_por_periodo` | DECIMAL(14,2) | protege contra el colapso masivo. Si en un período fallan seis de doce, el fondo no puede vaciarse cubriéndolos a todos; ahí corresponde un plan de contingencia, no cobertura. | DECIMAL(14,2), obligatoria. | NINGUNA |
-| `max_coberturas_por_participante` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
+| `max_coberturas_por_participante` | SMALLINT | **evitan el parásito**. Sin límite, alguien podría no pagar nunca y dejar que el fondo cubra siempre — convirtiendo el seguro colectivo en su financiamiento personal. | SMALLINT, obligatoria. | NINGUNA |
 | `exige_aval_previo` | BOOLEAN | solo se cubre a quien tiene quién responda. | BOOLEAN, obligatoria. | NINGUNA |
 | `requiere_aprobacion_manual_desde` | DECIMAL(14,2) | montos grandes pasan por revisión humana. | DECIMAL(14,2), obligatoria. | NINGUNA |
-| `plazo_recuperacion_dias` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `tasa_recargo_recuperacion` | DECIMAL(5,2) | — | DECIMAL(5,2), obligatoria. | NINGUNA |
+| `plazo_recuperacion_dias` | SMALLINT | **el fondo no es un regalo**. Es un préstamo forzoso con plazo y con costo. | SMALLINT, obligatoria. | NINGUNA |
+| `tasa_recargo_recuperacion` | DECIMAL(5,2) | **el fondo no es un regalo**. Es un préstamo forzoso con plazo y con costo. | DECIMAL(5,2), obligatoria. | NINGUNA |
 | `vigente_desde` | TIMESTAMPTZ | Desde cuándo rige esta versión de la fila: las condiciones se versionan, no se pisan. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 
 ### `politica_sancion`
 
 **Qué es.** Las reglas del proceso sancionatorio: si requiere acuerdo del grupo, plazos de descargo y apelación, y prescripción.
 
-**Para qué sirve.** Define las **garantías procesales**. `plazoDescargoDias` y `plazoApelacionDias` no son configuración técnica: son los derechos del sancionado. Que sean parametrizables por grupo permite que un grupo formal tenga plazos más largos y uno pequeño resuelva más rápido. `requiereAcuerdoGrupo` decide si las sanciones las aplica el organizador o las vota el grupo. Para expulsiones, votarlas es lo correcto.
+**Para qué sirve.** Define las **garantías procesales**. `plazoDescargoDias` y `plazoApelacionDias` no son configuración técnica: son los derechos del sancionado. Que sean parametrizables por grupo permite que un grupo formal tenga plazos más largos y uno pequeño resuelva más rápido.
 
-**Por qué existe.** Sin política explícita, los plazos los decide quien sanciona — que es la definición de proceso arbitrario. ---
+`requiereAcuerdoGrupo` decide si las sanciones las aplica el organizador o las vota el grupo. Para expulsiones, votarlas es lo correcto.
+
+**Por qué existe.** Sin política explícita, los plazos los decide quien sanciona — que es la definición de proceso arbitrario.
+
+**Casos de uso que la nombran.** CU-25 Declarar el incumplimiento con descargo y evidencia (`declararIncumplimiento`, `presentarDescargo`, `resolverDescargo`) · CU-93 Sancionar al organizador y resolver su apelación (`apelarSancion`, `resolverApelacion`, `sancionarOrganizador`)
 
 **Sistema.** Vive en el esquema `garantia`; la escribe y la lee solo el servicio `garantia` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `grupos.grupo`. La referencian `grupos.configuracion_grupo`, `matriz_sancion`.
 
@@ -3615,9 +4756,15 @@
 
 **Qué es.** El compromiso del deudor de pagar cierto monto en cierta fecha.
 
-**Para qué sirve.** Es la unidad de trabajo real de toda cobranza. El gestor no cobra: **consigue promesas**, y después las hace cumplir. `estado` con `CUMPLIDA / INCUMPLIDA / PARCIAL` mide la variable más predictiva de todas: **una promesa incumplida vale más que diez días de mora** como señal de riesgo. Quien promete y no cumple no tiene un problema de liquidez, tiene un problema de intención — y eso cambia toda la estrategia. `canalCompromiso` registra dónde se comprometió (llamada, WhatsApp, app), lo que importa si después niega haberlo hecho.
+**Para qué sirve.** Es la unidad de trabajo real de toda cobranza. El gestor no cobra: **consigue promesas**, y después las hace cumplir.
 
-**Por qué existe.** Sin promesas registradas no hay seguimiento, y "dijo que iba a pagar el viernes" se pierde en la memoria del gestor. ---
+`estado` con `CUMPLIDA / INCUMPLIDA / PARCIAL` mide la variable más predictiva de todas: **una promesa incumplida vale más que diez días de mora** como señal de riesgo. Quien promete y no cumple no tiene un problema de liquidez, tiene un problema de intención — y eso cambia toda la estrategia.
+
+`canalCompromiso` registra dónde se comprometió (llamada, WhatsApp, app), lo que importa si después niega haberlo hecho.
+
+**Por qué existe.** Sin promesas registradas no hay seguimiento, y "dijo que iba a pagar el viernes" se pierde en la memoria del gestor.
+
+**Casos de uso que la nombran.** CU-81 Programar recordatorios de aporte · CU-82 Procesar una respuesta entrante (`procesarRespuestaEntrante`) · CU-97 Anticipar el riesgo con alertas tempranas (`cerrarAlertaRiesgo`, `evaluarRiesgo`)
 
 **Sistema.** Vive en el esquema `garantia`; la escribe y la lee solo el servicio `garantia` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `gestion_cobranza`, `identidad.usuario`.
 
@@ -3642,13 +4789,15 @@
 
 **Por qué existe.** Sin ella, un pago tardío no se podría atribuir a la cobertura que lo originó, y un mismo pago podría contarse dos veces como recuperación.
 
+**Casos de uso que la nombran.** CU-23 Cubrir un incumplimiento con el fondo (`cubrirIncumplimiento`)
+
 **Sistema.** Vive en el esquema `garantia`; la escribe y la lee solo el servicio `garantia` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Es append-only: UPDATE y DELETE revocados al rol del servicio; se corrige con una fila nueva. Depende de `aportes.pago`, `cobertura_respaldo_linea`, `movimiento_reserva`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
 | `cobertura_respaldo_linea_id` | UUID | — | UUID, obligatoria, referencia a `cobertura_respaldo_linea`. | NINGUNA |
-| `pago_id` | UUID | — | UUID, obligatoria, referencia a `pago`. | NINGUNA |
+| `pago_id` | UUID | — | UUID, obligatoria, única, referencia a `pago`. | NINGUNA |
 | `movimiento_reserva_id` | UUID | — | UUID, obligatoria, referencia a `movimiento_reserva`. | NINGUNA |
 | `monto` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
 | `moneda` | CHAR(3) | Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2). | CHAR(3), obligatoria. | NINGUNA |
@@ -3658,9 +4807,14 @@
 
 **Qué es.** La sustitución de un participante que salió por otro que entra al mismo cupo.
 
-**Para qué sirve.** Es la solución preferida frente al abandono: mejor reemplazar que reducir la bolsa de todos. Los tres campos económicos son los que hacen posible el acuerdo: - `deudaAsumidaPorEntrante` y `deudaRetenidaPorSaliente`: **normalmente el entrante no asume la deuda vieja**, porque si la asumiera nadie querría entrar a reemplazar a un moroso. La deuda queda con el saliente y se persigue por M8. - `conservaOrdenDeTurno`: el entrante hereda la posición del cupo en el calendario. Es lo que permite que el resto del grupo no se vea afectado.
+**Para qué sirve.** Es la solución preferida frente al abandono: mejor reemplazar que reducir la bolsa de todos. Los tres campos económicos son los que hacen posible el acuerdo:
+
+- `deudaAsumidaPorEntrante` y `deudaRetenidaPorSaliente`: **normalmente el entrante no asume la deuda vieja**, porque si la asumiera nadie querría entrar a reemplazar a un moroso. La deuda queda con el saliente y se persigue por M8.
+- `conservaOrdenDeTurno`: el entrante hereda la posición del cupo en el calendario. Es lo que permite que el resto del grupo no se vea afectado.
 
 **Por qué existe.** Sin reemplazo formal, la salida de una persona obliga a recalcular el calendario de todos, que es inaceptable para once personas que no hicieron nada mal.
+
+**Casos de uso que la nombran.** CU-66 Reemplazar a un participante moroso (`aprobarReemplazo`, `ejecutarReemplazo`, `proponerReemplazo`)
 
 **Sistema.** Vive en el esquema `garantia`; la escribe y la lee solo el servicio `garantia` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `grupos.acuerdo`, `grupos.cupo`, `grupos.grupo`, `grupos.participante`, `registro_incumplimiento`. La referencian `candidato_reemplazo`.
 
@@ -3673,8 +4827,8 @@
 | `participante_saliente_id` | UUID | — | UUID, obligatoria, referencia a `participante`. | NINGUNA |
 | `participante_entrante_id` | UUID | — | UUID, opcional, referencia a `participante`. | NINGUNA |
 | `acuerdo_grupo_id` | UUID | — | UUID, opcional, referencia a `acuerdo`. | NINGUNA |
-| `deuda_asumida_por_entrante` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
-| `deuda_retenida_por_saliente` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
+| `deuda_asumida_por_entrante` | DECIMAL(14,2) | **normalmente el entrante no asume la deuda vieja**, porque si la asumiera nadie querría entrar a reemplazar a un moroso. La deuda queda con el saliente y se persigue por M8. | DECIMAL(14,2), obligatoria. | FINANCIERO |
+| `deuda_retenida_por_saliente` | DECIMAL(14,2) | **normalmente el entrante no asume la deuda vieja**, porque si la asumiera nadie querría entrar a reemplazar a un moroso. La deuda queda con el saliente y se persigue por M8. | DECIMAL(14,2), obligatoria. | FINANCIERO |
 | `conserva_orden_de_turno` | BOOLEAN | el entrante hereda la posición del cupo en el calendario. Es lo que permite que el resto del grupo no se vea afectado. | BOOLEAN, obligatoria. | NINGUNA |
 | `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
 | `fecha` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
@@ -3683,22 +4837,40 @@
 
 **Qué es.** El expediente completo de un hecho de incumplimiento.
 
-**Para qué sirve.** **Esta es la entidad más importante del módulo y posiblemente del sistema entero.** Su justificación es directa: > Un booleano `es_moroso` no responde: **cuánto** debe, **desde cuándo**, **qué se > hizo** para cobrarle, **quién autorizó** la cobertura, **qué dijo él** en su > descargo, **qué sanción** se le aplicó y **si la apeló**. > El expediente responde todo eso, y es la prueba ante un reclamo o una auditoría. `codigoExpediente` (`INC-2026-000123`) es legible a propósito: se cita en notificaciones, en reclamos y en comunicaciones formales. "Tu expediente INC-2026-000123" es infinitamente más manejable que un UUID. Los doce tipos de incumplimiento no son variaciones del mismo hecho. Vale la pena notar los que un modelo ingenuo omitiría: - `PAGO_RECHAZADO_O_REVERSADO`: pagó y después el pago se cayó. **Técnicamente pagó, económicamente no.** - `COMPROBANTE_FALSO`: subió una imagen adulterada. Es fraude, no atraso. - `BENEFICIARIO_NO_CONTINUA_APORTANDO`: **el peor caso del pasanaku.** Cobró su turno y dejó de aportar. Ya se llevó la bolsa entera y ahora le debe a todos los que todavía no cobraron. Es cualitativamente distinto de atrasarse antes de cobrar, y tratarlos igual sería absurdo. - `INCUMPLIMIENTO_AVAL`: el que respondía por otro tampoco responde. `severidad` × `esReincidencia` × `numeroReincidencia` son las tres variables que alimentan la matriz de sanciones. **La cuarta vez no es como la primera**, y el modelo lo sabe. `origenDeteccion` importa para la calidad del proceso: no es lo mismo un incumplimiento detectado automáticamente por vencimiento que uno reportado por un participante (que puede tener conflicto con el señalado). El segundo exige más verificación. `fechaLimiteSubsanacion` es el reloj del debido proceso: la persona tiene un plazo para arreglar antes de que escale.
+**Para qué sirve.** **Esta es la entidad más importante del módulo y posiblemente del sistema entero.** Su justificación es directa:
+
+> Un booleano `es_moroso` no responde: **cuánto** debe, **desde cuándo**, **qué se > hizo** para cobrarle, **quién autorizó** la cobertura, **qué dijo él** en su > descargo, **qué sanción** se le aplicó y **si la apeló**. > El expediente responde todo eso, y es la prueba ante un reclamo o una auditoría.
+
+`codigoExpediente` (`INC-2026-000123`) es legible a propósito: se cita en notificaciones, en reclamos y en comunicaciones formales. "Tu expediente INC-2026-000123" es infinitamente más manejable que un UUID.
+
+Los doce tipos de incumplimiento no son variaciones del mismo hecho. Vale la pena notar los que un modelo ingenuo omitiría:
+- `PAGO_RECHAZADO_O_REVERSADO`: pagó y después el pago se cayó. **Técnicamente pagó, económicamente no.**
+- `COMPROBANTE_FALSO`: subió una imagen adulterada. Es fraude, no atraso.
+- `BENEFICIARIO_NO_CONTINUA_APORTANDO`: **el peor caso del pasanaku.** Cobró su turno y dejó de aportar. Ya se llevó la bolsa entera y ahora le debe a todos los que todavía no cobraron. Es cualitativamente distinto de atrasarse antes de cobrar, y tratarlos igual sería absurdo.
+- `INCUMPLIMIENTO_AVAL`: el que respondía por otro tampoco responde.
+
+`severidad` × `esReincidencia` × `numeroReincidencia` son las tres variables que alimentan la matriz de sanciones. **La cuarta vez no es como la primera**, y el modelo lo sabe.
+
+`origenDeteccion` importa para la calidad del proceso: no es lo mismo un incumplimiento detectado automáticamente por vencimiento que uno reportado por un participante (que puede tener conflicto con el señalado). El segundo exige más verificación.
+
+`fechaLimiteSubsanacion` es el reloj del debido proceso: la persona tiene un plazo para arreglar antes de que escale.
 
 **Por qué existe.** Sin expediente, la morosidad es un estado y no un proceso. No se puede gestionar, ni probar, ni apelar, ni cerrar formalmente.
+
+**Casos de uso que la nombran.** CU-21 Cobrar el aporte del período (`cobrarAporte`, `consultarEstadoDelParticipante`, `generarObligacionesDelPeriodo`, `consultarRecaudoDelPeriodo`, `consultarAdmisibilidadDePago`) · CU-23 Cubrir un incumplimiento con el fondo (`cubrirIncumplimiento`) · CU-25 Declarar el incumplimiento con descargo y evidencia (`declararIncumplimiento`, `presentarDescargo`, `resolverDescargo`) · CU-26 Ejecutar el aval y subrogar la deuda (`ejecutarAval`) · CU-27 Restringir al deudor e incluirlo en la lista interna (`levantarRestriccion`, `restringirDeudor`) · CU-59 Mantener el calendario de días no hábiles (`calcularPlazoHabil`, `calcularVencimientoLocal`) · CU-66 Reemplazar a un participante moroso (`aprobarReemplazo`, `ejecutarReemplazo`, `proponerReemplazo`)
 
 **Sistema.** Vive en el esquema `garantia`; la escribe y la lee solo el servicio `garantia` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Es append-only: UPDATE y DELETE revocados al rol del servicio; se corrige con una fila nueva. Depende de `aportes.obligacion_aporte`, `entregas.entrega_fondo`, `grupos.cupo`, `grupos.grupo`, `grupos.participante`, `grupos.periodo`, `identidad.usuario`. La referencian `acuerdo_quita`, `cobertura_incumplimiento`, `descargo_participante`, `deuda_participante`, `ejecucion_aval`, `evidencia_incumplimiento`, `gestion_cobranza`, `historial_estado_incumplimiento`, `lista_restriccion_interna`, `reemplazo_participante`, `sancion`. Reglas nombradas: `ck_incumplimiento_plazo_guardado`, `ck_incumplimiento_plazo_posterior`, `ck_incumplimiento_cierre_motivado`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `codigo_expediente` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
+| `codigo_expediente` | VARCHAR(20) | — | VARCHAR(20), obligatoria, única. | NINGUNA |
 | `usuario_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
 | `participante_id` | UUID | — | UUID, obligatoria, referencia a `participante`. | NINGUNA |
 | `grupo_id` | UUID | — | UUID, obligatoria, referencia a `grupo`. | NINGUNA |
 | `periodo_id` | UUID | — | UUID, opcional, referencia a `periodo`. | NINGUNA |
 | `cupo_id` | UUID | — | UUID, opcional, referencia a `cupo`. | NINGUNA |
-| `obligacion_id` | UUID | — | UUID, opcional, referencia a `obligacion_aporte`. | NINGUNA |
+| `obligacion_id` | UUID | — | UUID, opcional, única, referencia a `obligacion_aporte`. | NINGUNA |
 | `entrega_afectada_id` | UUID | — | UUID, opcional, referencia a `entrega_fondo`. | NINGUNA |
 | `responsable_gestion` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
 | `tipo` | VARCHAR(40) | — | VARCHAR(40), obligatoria. | NINGUNA |
@@ -3730,6 +4902,8 @@
 
 **Por qué existe.** La capacidad es global; la cobertura ocurre en un grupo. Sin la reserva por ciclo no se puede saber cuánto respaldo le queda a un grupo ni liberar lo que no se usó.
 
+**Casos de uso que la nombran.** CU-23 Cubrir un incumplimiento con el fondo (`cubrirIncumplimiento`)
+
 **Sistema.** Vive en el esquema `garantia`; la escribe y la lee solo el servicio `garantia` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `capacidad_respaldo`, `grupos.grupo`, `identidad.usuario`. La referencian `cobertura_respaldo`, `movimiento_reserva`. Reglas nombradas: `ck_reserva_respaldo_uso`, `ck_reserva_respaldo_recuperado`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
@@ -3745,7 +4919,7 @@
 | `monto_liberado` | DECIMAL(16,2) | — | DECIMAL(16,2), obligatoria. | FINANCIERO |
 | `estado` | VARCHAR(10) | — | VARCHAR(10), obligatoria. | NINGUNA |
 | `responsable_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `clave_idempotencia` | VARCHAR(80) | Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4). | VARCHAR(80), obligatoria. | NINGUNA |
+| `clave_idempotencia` | VARCHAR(80) | Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4). | VARCHAR(80), obligatoria, única. | NINGUNA |
 | `reservada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
 | `version` | INTEGER | — | INTEGER, obligatoria. | NINGUNA |
 
@@ -3753,9 +4927,18 @@
 
 **Qué es.** La sanción concreta aplicada a una persona por un expediente.
 
-**Para qué sirve.** Los nueve tipos van de la advertencia a la inhabilitación total, e incluyen algunos específicos del contexto: - `PERDIDA_DE_PRIORIDAD_DE_TURNO`: te vas al final de la fila. Es de las más efectivas porque toca lo que más le importa a la gente en un pasanaku. - `SUSPENSION_DE_VOTO`: perdés voz en las decisiones del grupo mientras estés en falta. - `RETENCION_DE_ENTREGA`: no cobrás hasta regularizar. La máquina de estados **es el debido proceso hecho dato**: **La sanción solo se ejecuta cuando está `FIRME`**: antes hubo notificación, plazo de descargo y, si se apeló, resolución. Ejecutar una sanción antes de que quede firme es exactamente lo que la vuelve indefendible.
+**Para qué sirve.** Los nueve tipos van de la advertencia a la inhabilitación total, e incluyen algunos específicos del contexto:
+- `PERDIDA_DE_PRIORIDAD_DE_TURNO`: te vas al final de la fila. Es de las más efectivas porque toca lo que más le importa a la gente en un pasanaku.
+- `SUSPENSION_DE_VOTO`: perdés voz en las decisiones del grupo mientras estés en falta.
+- `RETENCION_DE_ENTREGA`: no cobrás hasta regularizar.
+
+La máquina de estados **es el debido proceso hecho dato**:
+
+**La sanción solo se ejecuta cuando está `FIRME`**: antes hubo notificación, plazo de descargo y, si se apeló, resolución. Ejecutar una sanción antes de que quede firme es exactamente lo que la vuelve indefendible.
 
 **Por qué existe.** Sin sanción como entidad con estados, la consecuencia sería inmediata y sin recurso — arbitraria por construcción.
+
+**Casos de uso que la nombran.** CU-25 Declarar el incumplimiento con descargo y evidencia (`declararIncumplimiento`, `presentarDescargo`, `resolverDescargo`) · CU-66 Reemplazar a un participante moroso (`aprobarReemplazo`, `ejecutarReemplazo`, `proponerReemplazo`)
 
 **Sistema.** Vive en el esquema `garantia`; la escribe y la lee solo el servicio `garantia` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `grupos.acuerdo`, `grupos.participante`, `identidad.usuario`, `matriz_sancion`, `registro_incumplimiento`. La referencian `apelacion_sancion`.
 
@@ -3782,9 +4965,13 @@
 
 **Qué es.** La probabilidad estimada de que un participante incumpla, con sus factores.
 
-**Para qué sirve.** Es predictivo, no reactivo. Permite actuar **antes** del incumplimiento: ofrecer un plan de pago a quien se ve venir en problemas, reforzar el recordatorio, o simplemente no aceptarlo en un grupo de monto alto. `factoresPrincipales` (JSON) hace el modelo explicable: no basta con decir "riesgo alto", hay que poder decir por qué. Sin explicabilidad, un rechazo basado en el score es indefendible.
+**Para qué sirve.** Es predictivo, no reactivo. Permite actuar **antes** del incumplimiento: ofrecer un plan de pago a quien se ve venir en problemas, reforzar el recordatorio, o simplemente no aceptarlo en un grupo de monto alto.
 
-**Por qué existe.** Prevenir un incumplimiento cuesta una fracción de lo que cuesta gestionarlo: cobertura del fondo, gestión de cobranza, sanción, apelación, reemplazo. La prevención es el mejor negocio del módulo. ---
+`factoresPrincipales` (JSON) hace el modelo explicable: no basta con decir "riesgo alto", hay que poder decir por qué. Sin explicabilidad, un rechazo basado en el score es indefendible.
+
+**Por qué existe.** Prevenir un incumplimiento cuesta una fracción de lo que cuesta gestionarlo: cobertura del fondo, gestión de cobranza, sanción, apelación, reemplazo. La prevención es el mejor negocio del módulo.
+
+**Casos de uso que la nombran.** CU-68 Postular a un grupo y ser emparejado (`contarMorosos`, `consultarRestriccion`, `solicitarIngresoPorEnlace`, `generarEnlaceDelGrupo`, `postularAlGrupo`) · CU-97 Anticipar el riesgo con alertas tempranas (`cerrarAlertaRiesgo`, `evaluarRiesgo`)
 
 **Sistema.** Vive en el esquema `garantia`; la escribe y la lee solo el servicio `garantia` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `grupos.grupo`, `identidad.usuario`.
 
@@ -3799,21 +4986,40 @@
 | `accion_sugerida` | VARCHAR(160) | — | VARCHAR(160), obligatoria. | NINGUNA |
 | `calculado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
 
+### `shedlock`
+
+**Qué es.** Bloqueo de trabajos programados entre replicas (ADR-018).
+
+**Para qué sirve.** Evita que dos réplicas del servicio ejecuten el mismo trabajo programado a la vez (ADR-018).
+
+**Sistema.** Infraestructura del servicio `garantia`, generada por plantilla en cada esquema (ADR-027): la escribe y la lee solo ese servicio.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `name` | VARCHAR(64) | — | VARCHAR(64), obligatoria, clave primaria. | NINGUNA |
+| `lock_until` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `locked_at` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `locked_by` | VARCHAR(255) | — | VARCHAR(255), obligatoria. | NINGUNA |
+
 ### `subrogacion`
 
 **Qué es.** La formalización del cambio de acreedor: el fondo pagó, ahora el fondo es el acreedor.
 
-**Para qué sirve.** Es la figura jurídica que **da fundamento legal a que el fondo cobre**. Sin subrogación formal, el fondo pagó una deuda ajena y no tendría título para reclamarla — que es exactamente el argumento que usaría un deudor bien asesorado. `documentoRespaldoUrl` guarda el instrumento que lo respalda.
+**Para qué sirve.** Es la figura jurídica que **da fundamento legal a que el fondo cobre**. Sin subrogación formal, el fondo pagó una deuda ajena y no tendría título para reclamarla — que es exactamente el argumento que usaría un deudor bien asesorado.
 
-**Por qué existe.** Sin subrogación documentada, la deuda con el fondo es una anotación interna sin sustento jurídico. Con ella, es exigible. ---
+`documentoRespaldoUrl` guarda el instrumento que lo respalda.
+
+**Por qué existe.** Sin subrogación documentada, la deuda con el fondo es una anotación interna sin sustento jurídico. Con ella, es exigible.
+
+**Casos de uso que la nombran.** CU-23 Cubrir un incumplimiento con el fondo (`cubrirIncumplimiento`) · CU-26 Ejecutar el aval y subrogar la deuda (`ejecutarAval`) · CU-29 Devolver los aportes del fondo de garantía (`devolverFondo`) · CU-66 Reemplazar a un participante moroso (`aprobarReemplazo`, `ejecutarReemplazo`, `proponerReemplazo`)
 
 **Sistema.** Vive en el esquema `garantia`; la escribe y la lee solo el servicio `garantia` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `cobertura_incumplimiento`, `deuda_participante`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `cobertura_id` | UUID | — | UUID, obligatoria, referencia a `cobertura_incumplimiento`. | NINGUNA |
-| `deuda_id` | UUID | — | UUID, obligatoria, referencia a `deuda_participante`. | FINANCIERO |
+| `cobertura_id` | UUID | — | UUID, obligatoria, única, referencia a `cobertura_incumplimiento`. | NINGUNA |
+| `deuda_id` | UUID | — | UUID, obligatoria, única, referencia a `deuda_participante`. | FINANCIERO |
 | `acreedor_original` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
 | `acreedor_subrogado` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
 | `monto_subrogado` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
@@ -3829,6 +5035,8 @@
 **Para qué sirve.** Es el equivalente digital de la firma en el acta. Guarda `hashFirmado`, IP, fecha y el token de firma (M1). Cuando un participante sancionado dice "yo no sabía que se podía expulsar por dos cuotas impagas", esta fila responde: firmaste la versión 3 el 2 de febrero, y la cláusula estaba ahí.
 
 **Por qué existe.** Sin ella no hay debido proceso posible: no se puede sancionar a alguien por incumplir reglas que no consta que haya aceptado. Es la base de todo el módulo 8.
+
+**Casos de uso que la nombran.** CU-20 Crear grupo y congelar tarifario (`crearGrupo`, `consultarNivelKyc`, `consultarHabilitacion`, `consultarTarifarioVigente`) · CU-60 Sortear los turnos (`comprometerSorteo`, `revelarSorteo`, `verificarSorteo`) · CU-64 Traspasar un cupo (`traspasarCupo`, `consultarPuntaje`) · CU-68 Postular a un grupo y ser emparejado (`contarMorosos`, `consultarRestriccion`, `solicitarIngresoPorEnlace`, `generarEnlaceDelGrupo`, `postularAlGrupo`)
 
 **Sistema.** Vive en el esquema `grupos`; la escribe y la lee solo el servicio `grupos` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `identidad.token_verificacion`, `participante`, `reglamento_grupo`.
 
@@ -3846,9 +5054,15 @@
 
 **Qué es.** Una decisión colectiva sometida a votación: expulsar a alguien, cambiar la fecha de cobro, condonar una mora, disolver el grupo.
 
-**Para qué sirve.** **Esta es la entidad que define quién manda en un pasanaku digital, y la respuesta es: el grupo, no el organizador.** Las ocho decisiones tipificadas en `TipoAcuerdo` tienen algo en común: todas afectan el dinero o los derechos de terceros. Expulsar a un moroso libera su cupo pero deja un hueco en la bolsa. Condonar una mora significa que los demás absorben esa pérdida. Cambiar el monto altera el compromiso que cada uno asumió. Ninguna de esas puede ser decisión unilateral de una persona, por más organizadora que sea. En el pasanaku presencial esto se resuelve en reunión. Digitalmente, `Acuerdo` es la reunión: se propone, se abre la votación, se cuenta con quórum, y **queda registrado como prueba ante disputas**. Cuando el expulsado reclame, la respuesta es: se votó, hubo quórum de 8 sobre 12, y estos son los votos.
+**Para qué sirve.** **Esta es la entidad que define quién manda en un pasanaku digital, y la respuesta es: el grupo, no el organizador.**
+
+Las ocho decisiones tipificadas en `TipoAcuerdo` tienen algo en común: todas afectan el dinero o los derechos de terceros. Expulsar a un moroso libera su cupo pero deja un hueco en la bolsa. Condonar una mora significa que los demás absorben esa pérdida. Cambiar el monto altera el compromiso que cada uno asumió. Ninguna de esas puede ser decisión unilateral de una persona, por más organizadora que sea.
+
+En el pasanaku presencial esto se resuelve en reunión. Digitalmente, `Acuerdo` es la reunión: se propone, se abre la votación, se cuenta con quórum, y **queda registrado como prueba ante disputas**. Cuando el expulsado reclame, la respuesta es: se votó, hubo quórum de 8 sobre 12, y estos son los votos.
 
 **Por qué existe.** Sin acuerdos, la plataforma le entrega al organizador un poder que en el pasanaku real nunca tuvo, y reproduce digitalmente el abuso que promete evitar.
+
+**Casos de uso que la nombran.** CU-20 Crear grupo y congelar tarifario (`crearGrupo`, `consultarNivelKyc`, `consultarHabilitacion`, `consultarTarifarioVigente`) · CU-23 Cubrir un incumplimiento con el fondo (`cubrirIncumplimiento`) · CU-25 Declarar el incumplimiento con descargo y evidencia (`declararIncumplimiento`, `presentarDescargo`, `resolverDescargo`) · CU-60 Sortear los turnos (`comprometerSorteo`, `revelarSorteo`, `verificarSorteo`) · CU-62 Permutar turnos entre participantes (`solicitarPermuta`) · CU-63 Proponer y votar un acuerdo (`proponerAcuerdo`, `votarAcuerdo`) · CU-64 Traspasar un cupo (`traspasarCupo`, `consultarPuntaje`) · CU-65 Retirarse de un grupo (`solicitarRetiro`) · CU-66 Reemplazar a un participante moroso (`aprobarReemplazo`, `ejecutarReemplazo`, `proponerReemplazo`) · CU-67 Disolver el grupo anticipadamente (`cerrarDisolucion`, `iniciarDisolucion`)
 
 **Sistema.** Vive en el esquema `grupos`; la escribe y la lee solo el servicio `grupos` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `grupo`, `identidad.usuario`. La referencian `garantia.acuerdo_quita`, `garantia.disolucion_anticipada`, `garantia.plan_contingencia`, `garantia.reemplazo_participante`, `garantia.sancion`, `tarifas.tarifa_congelada_grupo`, `traspaso_cupo`, `voto_participante`. Reglas nombradas: `uq_acuerdo_abierto`.
 
@@ -3878,14 +5092,16 @@
 
 **Por qué existe.** Sin ella, un reintento duplicaría el grupo con sus cupos y su reglamento. Tampoco se podría distinguir un reintento legítimo de un pedido distinto mandado con la misma clave.
 
+**Casos de uso que la nombran.** CU-68 Postular a un grupo y ser emparejado (`contarMorosos`, `consultarRestriccion`, `solicitarIngresoPorEnlace`, `generarEnlaceDelGrupo`, `postularAlGrupo`)
+
 **Sistema.** Vive en el esquema `grupos`; la escribe y la lee solo el servicio `grupos` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Es append-only: UPDATE y DELETE revocados al rol del servicio; se corrige con una fila nueva.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `grupo_id` | UUID | — | UUID, obligatoria. | NINGUNA |
+| `grupo_id` | UUID | — | UUID, obligatoria, única. | NINGUNA |
 | `creador_id` | UUID | — | UUID, obligatoria. | NINGUNA |
-| `clave_idempotencia` | UUID | Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4). | UUID, obligatoria. | NINGUNA |
+| `clave_idempotencia` | UUID | Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4). | UUID, obligatoria, única. | NINGUNA |
 | `huella_solicitud` | VARCHAR(64) | — | VARCHAR(64), obligatoria. | NINGUNA |
 | `fondo_por_periodo` | VARCHAR(60) | — | VARCHAR(60), obligatoria. | NINGUNA |
 | `creada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
@@ -3894,22 +5110,30 @@
 
 **Qué es.** Los parámetros operativos finos del grupo, separados de su definición económica.
 
-**Para qué sirve.** Cada campo aquí es una decisión que se toma una vez y afecta el comportamiento diario: - `permiteCuposMultiples` + `maxCuposPorPersona`: ¿se permite que alguien tenga dos manos? Es práctica habitual y a la vez es riesgo concentrado — si esa persona falla, el grupo pierde el doble. - `permitePermutaTurnos`: ¿pueden dos participantes intercambiar posiciones? Permitirlo da flexibilidad real (a alguien se le enfermó un familiar y necesita cobrar antes); prohibirlo evita el mercado gris de compra-venta de turnos. - `requiereAvalista`: exige que cada participante tenga quién responda por él (M8). Sube la fricción de entrada y baja drásticamente la morosidad. - `permiteIngresoTardio`: ¿puede entrar alguien con el grupo ya empezado? Tiene implicaciones económicas serias (debe ponerse al día con los períodos ya transcurridos). - `horaLimitePago` y `toleranciaMontoParcial`: ¿un pago a las 23:50 del día de vencimiento cuenta como puntual? ¿Bs 499 sobre Bs 500 cuenta como pagado? Son las dos preguntas que generan más discusiones reales, y por eso se responden por configuración y no por criterio de quien mire.
+**Para qué sirve.** Cada campo aquí es una decisión que se toma una vez y afecta el comportamiento diario:
+
+- `permiteCuposMultiples` + `maxCuposPorPersona`: ¿se permite que alguien tenga dos manos? Es práctica habitual y a la vez es riesgo concentrado — si esa persona falla, el grupo pierde el doble.
+- `permitePermutaTurnos`: ¿pueden dos participantes intercambiar posiciones? Permitirlo da flexibilidad real (a alguien se le enfermó un familiar y necesita cobrar antes); prohibirlo evita el mercado gris de compra-venta de turnos.
+- `requiereAvalista`: exige que cada participante tenga quién responda por él (M8). Sube la fricción de entrada y baja drásticamente la morosidad.
+- `permiteIngresoTardio`: ¿puede entrar alguien con el grupo ya empezado? Tiene implicaciones económicas serias (debe ponerse al día con los períodos ya transcurridos).
+- `horaLimitePago` y `toleranciaMontoParcial`: ¿un pago a las 23:50 del día de vencimiento cuenta como puntual? ¿Bs 499 sobre Bs 500 cuenta como pagado? Son las dos preguntas que generan más discusiones reales, y por eso se responden por configuración y no por criterio de quien mire.
 
 **Por qué existe.** Separada del `Grupo` porque son ~10 campos que casi nunca se consultan junto con la definición económica, y porque su cambio tiene otro nivel de autorización. `validarCoherencia()` evita combinaciones absurdas (permitir permutas pero exigir orden estricto por reputación, por ejemplo).
+
+**Casos de uso que la nombran.** CU-20 Crear grupo y congelar tarifario (`crearGrupo`, `consultarNivelKyc`, `consultarHabilitacion`, `consultarTarifarioVigente`)
 
 **Sistema.** Vive en el esquema `grupos`; la escribe y la lee solo el servicio `grupos` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `aportes.politica_mora`, `garantia.politica_sancion`, `grupo`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `grupo_id` | UUID | — | UUID, obligatoria, clave primaria, referencia a `grupo`. | NINGUNA |
-| `permite_cupos_multiples` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
-| `max_cupos_por_persona` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
+| `permite_cupos_multiples` | BOOLEAN | ¿se permite que alguien tenga dos manos? Es práctica habitual y a la vez es riesgo concentrado — si esa persona falla, el grupo pierde el doble. | BOOLEAN, obligatoria. | NINGUNA |
+| `max_cupos_por_persona` | SMALLINT | ¿se permite que alguien tenga dos manos? Es práctica habitual y a la vez es riesgo concentrado — si esa persona falla, el grupo pierde el doble. | SMALLINT, obligatoria. | NINGUNA |
 | `permite_permuta_turnos` | BOOLEAN | ¿pueden dos participantes intercambiar posiciones? Permitirlo da flexibilidad real (a alguien se le enfermó un familiar y necesita cobrar antes); prohibirlo evita el mercado gris de compra-venta de turnos. | BOOLEAN, obligatoria. | NINGUNA |
 | `requiere_avalista` | BOOLEAN | exige que cada participante tenga quién responda por él (M8). Sube la fricción de entrada y baja drásticamente la morosidad. | BOOLEAN, obligatoria. | NINGUNA |
 | `permite_ingreso_tardio` | BOOLEAN | ¿puede entrar alguien con el grupo ya empezado? Tiene implicaciones económicas serias (debe ponerse al día con los períodos ya transcurridos). | BOOLEAN, obligatoria. | NINGUNA |
-| `hora_limite_pago` | TIME | — | TIME, obligatoria. | NINGUNA |
-| `tolerancia_monto_parcial` | DECIMAL(5,2) | — | DECIMAL(5,2), obligatoria. | FINANCIERO |
+| `hora_limite_pago` | TIME | ¿un pago a las 23:50 del día de vencimiento cuenta como puntual? ¿Bs 499 sobre Bs 500 cuenta como pagado? Son las dos preguntas que generan más discusiones reales, y por eso se responden por configuración y no por criterio de quien mire. | TIME, obligatoria. | NINGUNA |
+| `tolerancia_monto_parcial` | DECIMAL(5,2) | ¿un pago a las 23:50 del día de vencimiento cuenta como puntual? ¿Bs 499 sobre Bs 500 cuenta como pagado? Son las dos preguntas que generan más discusiones reales, y por eso se responden por configuración y no por criterio de quien mire. | DECIMAL(5,2), obligatoria. | FINANCIERO |
 | `politica_mora_id` | UUID | — | UUID, opcional, referencia a `politica_mora`. | NINGUNA |
 | `politica_sancion_id` | UUID | — | UUID, opcional, referencia a `politica_sancion`. | NINGUNA |
 
@@ -3919,7 +5143,9 @@
 
 **Para qué sirve.** Permite calibrar el algoritmo según lo que la operación vaya aprendiendo. Si se detecta que los grupos geográficamente dispersos fallan más, se sube `pesoGeografia` sin tocar código. `maxMorososPorGrupo` es el control de riesgo más directo: no se arma un grupo con cuatro personas de historial dudoso, aunque individualmente pasen el mínimo.
 
-**Por qué existe.** Un algoritmo de emparejamiento con constantes hardcodeadas no se puede ajustar frente a la evidencia. `vigenteDesde` permite saber con qué criterio se armó cada grupo histórico. ---
+**Por qué existe.** Un algoritmo de emparejamiento con constantes hardcodeadas no se puede ajustar frente a la evidencia. `vigenteDesde` permite saber con qué criterio se armó cada grupo histórico.
+
+**Casos de uso que la nombran.** CU-68 Postular a un grupo y ser emparejado (`contarMorosos`, `consultarRestriccion`, `solicitarIngresoPorEnlace`, `generarEnlaceDelGrupo`, `postularAlGrupo`)
 
 **Sistema.** Vive en el esquema `grupos`; la escribe y la lee solo el servicio `grupos` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. La referencian `propuesta_grupo`.
 
@@ -3938,9 +5164,15 @@
 
 **Qué es.** Una cuota económica del grupo. La "mano". Numerada del 1 al N.
 
-**Para qué sirve.** Es la unidad económica real del pasanaku. Cada cupo genera una obligación de aporte por período (M3) y tiene derecho a cobrar la bolsa exactamente una vez por ciclo (M2 → M4). `fraccion` permite el medio cupo: dos personas comparten una mano, cada una pone la mitad y cuando les toca se reparten la bolsa. Es común entre parientes o compañeros que no pueden con la cuota entera pero no quieren quedarse fuera. El caso que justifica toda la separación: **un participante abandona en el período 4 de 12**. Si los turnos colgaran de la persona, habría que reordenar el calendario de los otros once. Colgando del cupo, se libera el cupo (`LIBERADO_POR_INCUMPLIMIENTO`), entra un reemplazante y **hereda la posición**: el calendario del grupo no se mueve, y las diez personas que no hicieron nada mal no sufren consecuencias.
+**Para qué sirve.** Es la unidad económica real del pasanaku. Cada cupo genera una obligación de aporte por período (M3) y tiene derecho a cobrar la bolsa exactamente una vez por ciclo (M2 → M4).
+
+`fraccion` permite el medio cupo: dos personas comparten una mano, cada una pone la mitad y cuando les toca se reparten la bolsa. Es común entre parientes o compañeros que no pueden con la cuota entera pero no quieren quedarse fuera.
+
+El caso que justifica toda la separación: **un participante abandona en el período 4 de 12**. Si los turnos colgaran de la persona, habría que reordenar el calendario de los otros once. Colgando del cupo, se libera el cupo (`LIBERADO_POR_INCUMPLIMIENTO`), entra un reemplazante y **hereda la posición**: el calendario del grupo no se mueve, y las diez personas que no hicieron nada mal no sufren consecuencias.
 
 **Por qué existe.** Sin `Cupo`, el modelo no soporta manos múltiples, ni medias manos, ni reemplazos sin descuadre. Los tres casos son la norma, no la excepción.
+
+**Casos de uso que la nombran.** CU-20 Crear grupo y congelar tarifario (`crearGrupo`, `consultarNivelKyc`, `consultarHabilitacion`, `consultarTarifarioVigente`) · CU-60 Sortear los turnos (`comprometerSorteo`, `revelarSorteo`, `verificarSorteo`) · CU-64 Traspasar un cupo (`traspasarCupo`, `consultarPuntaje`) · CU-68 Postular a un grupo y ser emparejado (`contarMorosos`, `consultarRestriccion`, `solicitarIngresoPorEnlace`, `generarEnlaceDelGrupo`, `postularAlGrupo`)
 
 **Sistema.** Vive en el esquema `grupos`; la escribe y la lee solo el servicio `grupos` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `grupo`, `participante`. La referencian `aportes.obligacion_aporte`, `entregas.entrega_fondo`, `entregas.oferta_turno`, `garantia.reemplazo_participante`, `garantia.registro_incumplimiento`, `traspaso_cupo`, `turno`.
 
@@ -3963,13 +5195,15 @@
 
 **Por qué existe.** Con la admisión humana obligatoria (ADR-052 DD-2), el organizador propone y backoffice resuelve. Sin esta tabla, la propuesta, la resolución y el motivo se pisarían en la solicitud y no habría forma de reconstruir por qué alguien quedó dentro o fuera.
 
+**Casos de uso que la nombran.** CU-68 Postular a un grupo y ser emparejado (`contarMorosos`, `consultarRestriccion`, `solicitarIngresoPorEnlace`, `generarEnlaceDelGrupo`, `postularAlGrupo`)
+
 **Sistema.** Vive en el esquema `grupos`; la escribe y la lee solo el servicio `grupos` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Es append-only: UPDATE y DELETE revocados al rol del servicio; se corrige con una fila nueva. Reglas nombradas: `ck_decision_ingreso_fase`, `ck_decision_ingreso_resultado`, `ck_decision_ingreso_revision`, `ck_decision_ingreso_motivo`, `ck_decision_ingreso_recomendacion`, `ck_decision_ingreso_propuesta`, `uq_decision_ingreso_resolucion`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
 | `solicitud_id` | UUID | — | UUID, obligatoria. | NINGUNA |
-| `clave_idempotencia` | UUID | Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4). | UUID, obligatoria. | NINGUNA |
+| `clave_idempotencia` | UUID | Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4). | UUID, obligatoria, única. | NINGUNA |
 | `fase` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
 | `decision` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
 | `actor_id` | UUID | — | UUID, obligatoria. | NINGUNA |
@@ -3992,6 +5226,8 @@
 
 **Por qué existe.** Sin entidad propia no se podría anular un enlace que se filtró, ni saber por qué enlace llegó cada solicitud (`solicitud_ingreso.enlace_grupo_id`), ni garantizar que el grupo tenga un solo enlace vivo.
 
+**Casos de uso que la nombran.** CU-69 Invitar a un contacto y registrar sus referencias (`buscarPorTelefono`, `emitirTokenDeInvitacion`, `validarTokenDeInvitacion`, `consultarSupresion`)
+
 **Sistema.** Vive en el esquema `grupos`; la escribe y la lee solo el servicio `grupos` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `grupo`, `identidad.usuario`. La referencian `solicitud_ingreso`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
@@ -3999,26 +5235,77 @@
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
 | `grupo_id` | UUID | — | UUID, obligatoria, referencia a `grupo`. | NINGUNA |
 | `emisor_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `token_hash` | VARCHAR(64) | — | VARCHAR(64), obligatoria. | DERIVADO |
+| `token_hash` | VARCHAR(64) | — | VARCHAR(64), obligatoria, única. | DERIVADO |
 | `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
 | `fecha_creacion` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
 | `fecha_expiracion` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
 | `fecha_anulacion` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
 
+### `evento_consumido`
+
+**Qué es.** Marca de evento ya consumido, por consumidor (ADR-027).
+
+**Para qué sirve.** Hace idempotente el consumo: la entrega es al menos una vez y un mismo evento no puede producir dos efectos (regla 98.3.4).
+
+**Sistema.** Infraestructura del servicio `grupos`, generada por plantilla en cada esquema (ADR-027): la escribe y la lee solo ese servicio.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `id_evento` | UUID | — | UUID, obligatoria, clave primaria. | NINGUNA |
+| `consumidor` | VARCHAR(60) | — | VARCHAR(60), obligatoria, clave primaria. | NINGUNA |
+| `consumido_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+
+### `evento_dominio`
+
+**Qué es.** Outbox transaccional del servicio (ADR-027).
+
+**Para qué sirve.** Garantiza que ningún hecho del servicio se pierda entre la base y la mensajería: el evento se guarda en la misma transacción que el cambio y un relevo lo publica después (regla 98.3.3).
+
+**Sistema.** Infraestructura del servicio `grupos`, generada por plantilla en cada esquema (ADR-027): la escribe y la lee solo ese servicio.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
+| `tipo` | VARCHAR(60) | — | VARCHAR(60), obligatoria. | NINGUNA |
+| `version` | VARCHAR(10) | — | VARCHAR(10), obligatoria. | NINGUNA |
+| `agregado` | VARCHAR(40) | — | VARCHAR(40), obligatoria. | NINGUNA |
+| `agregado_id` | UUID | — | UUID, obligatoria. | NINGUNA |
+| `payload` | JSONB | — | JSONB, obligatoria. | NINGUNA |
+| `metadatos` | JSONB | — | JSONB, obligatoria. | NINGUNA |
+| `correlation_id` | UUID | — | UUID, obligatoria. | NINGUNA |
+| `causation_id` | UUID | — | UUID, opcional. | NINGUNA |
+| `ocurrido_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `publicado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
+| `intentos` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
+| `tomado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `tomado_por` | VARCHAR(100) | — | VARCHAR(100), opcional. | NINGUNA |
+| `ultimo_error` | TEXT | — | TEXT, opcional. | NINGUNA |
+| `proximo_intento_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+
 ### `grupo`
 
 **Qué es.** El pasanaku en sí: monto del aporte, cada cuánto se aporta, cuántos cupos, cuándo empieza, con qué reglas.
 
-**Para qué sirve.** Es el contrato. Todo lo demás cuelga de acá. Los campos que más importan y por qué: - `montoAporte` + `periodicidad` + `numPeriodos` + `cuposTotales` son los cuatro números que definen el negocio completo: cuánto pongo, cada cuánto, por cuánto tiempo, y cuánto me llevo cuando me toque. `montoBolsaPorPeriodo()` deriva de ellos y es la cifra que la gente realmente quiere saber. - `esAutogestionado` + `organizadorId` distinguían dos modelos de negocio: el grupo que administra una persona habilitada (M7) y el que administra el sistema solo. Por [[ADR-051 Garantía del pozo, comisión y autogestión|ADR-051]] (D-12) **solo existe el primero**: todo grupo tiene un organizador humano habilitado y el organizador digital únicamente automatiza tareas. En ningún caso el organizador cobra comisión: administrar no se cobra (RN-18). La comisión que sí existe es la de la plataforma por el servicio (M11), que se congela por grupo al constituirlo (`tarifa_congelada_grupo`) para que el precio no cambie a mitad del juego. - `requiereKYCMinimo` y `reputacionMinima` son **filtros de entrada**. Un grupo de Bs 200 entre amigos no pide nada; uno de USD 500 entre desconocidos exige documento verificado y buen historial. Sin estos campos, todos los grupos tendrían el mismo nivel de exigencia y la plataforma solo podría servir al segmento más bajo o al más alto, nunca a ambos. - `diasGracia` y `aplicaRecargoMora` codifican la tolerancia del grupo. En un pasanaku de barrio la gracia es de una semana y nadie cobra recargo; en uno formal, el recargo es la única forma de que la gente pague a tiempo. - `usaFondoGarantia` + `porcentajeFondoGarantia` deciden si el grupo se autoasegura (M8). Es la diferencia entre "si uno no paga, el beneficiario del período cobra menos" y "si uno no paga, el fondo cubre y el beneficiario cobra completo". - `quorumDecisiones` define cuánta gente hace falta para aprobar un cambio. Es lo que impide que tres personas decidan expulsar a un cuarto.
+**Para qué sirve.** Es el contrato. Todo lo demás cuelga de acá. Los campos que más importan y por qué:
+
+- `montoAporte` + `periodicidad` + `numPeriodos` + `cuposTotales` son los cuatro números que definen el negocio completo: cuánto pongo, cada cuánto, por cuánto tiempo, y cuánto me llevo cuando me toque. `montoBolsaPorPeriodo()` deriva de ellos y es la cifra que la gente realmente quiere saber.
+- `esAutogestionado` + `organizadorId` distinguían dos modelos de negocio: el grupo que administra una persona habilitada (M7) y el que administra el sistema solo. Por [[ADR-051 Garantía del pozo, comisión y autogestión|ADR-051]] (D-12) **solo existe el primero**: todo grupo tiene un organizador humano habilitado y el organizador digital únicamente automatiza tareas. En ningún caso el organizador cobra comisión: administrar no se cobra (RN-18). La comisión que sí existe es la de la plataforma por el servicio (M11), que se congela por grupo al constituirlo (`tarifa_congelada_grupo`) para que el precio no cambie a mitad del juego.
+- `requiereKYCMinimo` y `reputacionMinima` son **filtros de entrada**. Un grupo de Bs 200 entre amigos no pide nada; uno de USD 500 entre desconocidos exige documento verificado y buen historial. Sin estos campos, todos los grupos tendrían el mismo nivel de exigencia y la plataforma solo podría servir al segmento más bajo o al más alto, nunca a ambos.
+- `diasGracia` y `aplicaRecargoMora` codifican la tolerancia del grupo. En un pasanaku de barrio la gracia es de una semana y nadie cobra recargo; en uno formal, el recargo es la única forma de que la gente pague a tiempo.
+- `usaFondoGarantia` + `porcentajeFondoGarantia` deciden si el grupo se autoasegura (M8). Es la diferencia entre "si uno no paga, el beneficiario del período cobra menos" y "si uno no paga, el fondo cubre y el beneficiario cobra completo".
+- `quorumDecisiones` define cuánta gente hace falta para aprobar un cambio. Es lo que impide que tres personas decidan expulsar a un cuarto.
 
 **Por qué existe.** Es la unidad de negocio. Sin ella no hay contexto para ninguna obligación, ningún turno ni ninguna entrega.
+
+**Casos de uso que la nombran.** CU-20 Crear grupo y congelar tarifario (`crearGrupo`, `consultarNivelKyc`, `consultarHabilitacion`, `consultarTarifarioVigente`) · CU-60 Sortear los turnos (`comprometerSorteo`, `revelarSorteo`, `verificarSorteo`) · CU-63 Proponer y votar un acuerdo (`proponerAcuerdo`, `votarAcuerdo`) · CU-68 Postular a un grupo y ser emparejado (`contarMorosos`, `consultarRestriccion`, `solicitarIngresoPorEnlace`, `generarEnlaceDelGrupo`, `postularAlGrupo`)
 
 **Sistema.** Vive en el esquema `grupos`; la escribe y la lee solo el servicio `grupos` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `organizador.organizador`. La referencian `acuerdo`, `aportes.obligacion_aporte`, `aportes.politica_mora`, `auditoria.alerta_cumplimiento`, `auditoria.ejecucion_reporte`, `catalogo.dia_no_habil`, `comun.bitacora_evento`, `configuracion_grupo`, `cupo`, `enlace_grupo`, `entregas.entrega_fondo`, `entregas.oferta_turno`, `garantia.alerta_temprana`, `garantia.aval_participante`, `garantia.cobertura_respaldo`, `garantia.deuda_participante`, `garantia.disolucion_anticipada`, `garantia.fondo_garantia`, `garantia.plan_contingencia`, `garantia.politica_cobertura`, `garantia.politica_sancion`, `garantia.reemplazo_participante`, `garantia.registro_incumplimiento`, `garantia.reserva_respaldo`, `garantia.score_riesgo_incumplimiento`, `historial_estado_grupo`, `invitacion`, `notificaciones.programacion_recordatorio`, `nucleo_financiero.asiento_contable`, `nucleo_financiero.cuenta_billetera`, `nucleo_financiero.cuenta_contable`, `nucleo_financiero.transaccion_billetera`, `nucleo_financiero.transferencia_p2p`, `organizador.tarea_automatizada`, `participante`, `periodo`, `propuesta_grupo`, `reglamento_grupo`, `solicitud_ingreso`, `sorteo_turnos`, `tarifas.asignacion_tarifario`, `tarifas.devengo_comision`, `tarifas.exencion_comision`, `tarifas.tarifa_congelada_grupo`, `transparencia.bloque_transparencia`, `transparencia.evento_reputacion`, `transparencia.metrica_grupo`, `transparencia.resena_participante`, `turno`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `codigo_publico` | VARCHAR(12) | — | VARCHAR(12), obligatoria. | NINGUNA |
+| `codigo_publico` | VARCHAR(12) | — | VARCHAR(12), obligatoria, única. | NINGUNA |
 | `nombre` | VARCHAR(120) | — | VARCHAR(120), obligatoria. | NINGUNA |
 | `descripcion` | VARCHAR(400) | — | VARCHAR(400), opcional. | NINGUNA |
 | `monto_aporte` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
@@ -4051,7 +5338,9 @@
 
 **Para qué sirve.** Responde: *¿por qué este grupo está suspendido, quién lo suspendió y cuándo?* Un grupo suspendido significa que doce personas no pueden aportar ni cobrar; nadie debería poder hacerlo sin dejar rastro y sin motivo.
 
-**Por qué existe.** El campo `estado` dice dónde está el grupo hoy; esta tabla dice cómo llegó ahí. Ante un reclamo colectivo, es lo primero que se mira. ---
+**Por qué existe.** El campo `estado` dice dónde está el grupo hoy; esta tabla dice cómo llegó ahí. Ante un reclamo colectivo, es lo primero que se mira.
+
+**Casos de uso que la nombran.** CU-20 Crear grupo y congelar tarifario (`crearGrupo`, `consultarNivelKyc`, `consultarHabilitacion`, `consultarTarifarioVigente`) · CU-68 Postular a un grupo y ser emparejado (`contarMorosos`, `consultarRestriccion`, `solicitarIngresoPorEnlace`, `generarEnlaceDelGrupo`, `postularAlGrupo`)
 
 **Sistema.** Vive en el esquema `grupos`; la escribe y la lee solo el servicio `grupos` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `grupo`, `identidad.usuario`.
 
@@ -4069,9 +5358,13 @@
 
 **Qué es.** La invitación a un teléfono concreto para unirse a un grupo, con su enlace firmado.
 
-**Para qué sirve.** Es **el canal de crecimiento principal**. Así es como realmente se arma un pasanaku: alguien manda el enlace al grupo de WhatsApp de la familia o del trabajo. La invitación se hace a un `telefonoInvitado`, no a un usuario registrado, justamente porque la mayoría de los invitados todavía no existe en la plataforma — la invitación es lo que los trae. `enviosRealizados` y `reenviar()` reconocen algo cotidiano: la gente no contesta a la primera. `fechaExpiracion` (típicamente 72 h) evita que un enlace circule indefinidamente y que alguien se cuele a un grupo que ya arrancó.
+**Para qué sirve.** Es **el canal de crecimiento principal**. Así es como realmente se arma un pasanaku: alguien manda el enlace al grupo de WhatsApp de la familia o del trabajo. La invitación se hace a un `telefonoInvitado`, no a un usuario registrado, justamente porque la mayoría de los invitados todavía no existe en la plataforma — la invitación es lo que los trae.
+
+`enviosRealizados` y `reenviar()` reconocen algo cotidiano: la gente no contesta a la primera. `fechaExpiracion` (típicamente 72 h) evita que un enlace circule indefinidamente y que alguien se cuele a un grupo que ya arrancó.
 
 **Por qué existe.** Sin invitación como entidad, no se puede medir el embudo (cuántos invitados → cuántos aceptan), ni revocar un enlace mandado por error a un número equivocado, ni saber quién invitó a quién — que es la cadena de confianza que el aval del módulo 8 necesita.
+
+**Casos de uso que la nombran.** CU-69 Invitar a un contacto y registrar sus referencias (`buscarPorTelefono`, `emitirTokenDeInvitacion`, `validarTokenDeInvitacion`, `consultarSupresion`)
 
 **Sistema.** Vive en el esquema `grupos`; la escribe y la lee solo el servicio `grupos` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `grupo`, `identidad.token_verificacion`, `identidad.usuario`. Reglas nombradas: `uq_invitacion_token`, `ck_invitacion_expira`, `ck_invitacion_respuesta`, `uq_invitacion_activa`.
 
@@ -4082,7 +5375,7 @@
 | `telefono_invitado` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | PERSONAL |
 | `nombre_sugerido` | VARCHAR(80) | — | VARCHAR(80), opcional. | NINGUNA |
 | `emisor_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `token_id` | UUID | — | UUID, obligatoria, referencia a `token_verificacion`. | SECRETO |
+| `token_id` | UUID | — | UUID, obligatoria, única, referencia a `token_verificacion`. | SECRETO |
 | `consumidor_id` | UUID | — | UUID, opcional. | NINGUNA |
 | `clave_consumo` | UUID | — | UUID, opcional. | SECRETO |
 | `solicitud_ingreso_id` | UUID | — | UUID, opcional. | NINGUNA |
@@ -4098,9 +5391,17 @@
 
 **Qué es.** Una persona dentro de un grupo específico, con su estado y su historia en ese grupo.
 
-**Para qué sirve.** Es la membresía. Su máquina de estados (`INVITADO → POSTULANTE → ACEPTADO_PENDIENTE_FIRMA → ACTIVO → EN_MORA → …`) es el recorrido real de alguien que entra a un pasanaku: lo invitan, postula, lo aceptan, firma, participa, eventualmente se atrasa, y termina de una de cuatro maneras (retirado, reemplazado, expulsado, o el grupo termina bien). `invitadoPorId` es un campo pequeño con consecuencias grandes: construye la **cadena de confianza**. Quien te invitó respondió por vos, y el módulo 8 usa justamente ese vínculo para el aval solidario. Es la digitalización del "yo lo traje, yo respondo". `reputacionAlIngresar` congela el score del día de entrada. Sirve para dos cosas: evaluar después si el filtro de reputación funcionó (¿los que entraron con score bajo fallaron más?), y para no juzgar retroactivamente a alguien cuyo puntaje bajó por hechos posteriores en otro grupo. `alias` existe porque en un grupo de trabajo la gente se conoce por apodo, y mostrar el nombre completo de la cédula es a la vez incómodo y una filtración innecesaria de datos personales al resto del grupo.
+**Para qué sirve.** Es la membresía. Su máquina de estados (`INVITADO → POSTULANTE → ACEPTADO_PENDIENTE_FIRMA → ACTIVO → EN_MORA → …`) es el recorrido real de alguien que entra a un pasanaku: lo invitan, postula, lo aceptan, firma, participa, eventualmente se atrasa, y termina de una de cuatro maneras (retirado, reemplazado, expulsado, o el grupo termina bien).
+
+`invitadoPorId` es un campo pequeño con consecuencias grandes: construye la **cadena de confianza**. Quien te invitó respondió por vos, y el módulo 8 usa justamente ese vínculo para el aval solidario. Es la digitalización del "yo lo traje, yo respondo".
+
+`reputacionAlIngresar` congela el score del día de entrada. Sirve para dos cosas: evaluar después si el filtro de reputación funcionó (¿los que entraron con score bajo fallaron más?), y para no juzgar retroactivamente a alguien cuyo puntaje bajó por hechos posteriores en otro grupo.
+
+`alias` existe porque en un grupo de trabajo la gente se conoce por apodo, y mostrar el nombre completo de la cédula es a la vez incómodo y una filtración innecesaria de datos personales al resto del grupo.
 
 **Por qué existe.** Porque el mismo usuario está en varios grupos con estados distintos: al día en uno, en mora en otro. El estado es propiedad de la relación, no de la persona.
+
+**Casos de uso que la nombran.** CU-20 Crear grupo y congelar tarifario (`crearGrupo`, `consultarNivelKyc`, `consultarHabilitacion`, `consultarTarifarioVigente`) · CU-60 Sortear los turnos (`comprometerSorteo`, `revelarSorteo`, `verificarSorteo`) · CU-63 Proponer y votar un acuerdo (`proponerAcuerdo`, `votarAcuerdo`) · CU-64 Traspasar un cupo (`traspasarCupo`, `consultarPuntaje`) · CU-65 Retirarse de un grupo (`solicitarRetiro`) · CU-68 Postular a un grupo y ser emparejado (`contarMorosos`, `consultarRestriccion`, `solicitarIngresoPorEnlace`, `generarEnlaceDelGrupo`, `postularAlGrupo`)
 
 **Sistema.** Vive en el esquema `grupos`; la escribe y la lee solo el servicio `grupos` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `grupo`, `identidad.usuario`, `participante`. La referencian `aceptacion_reglamento`, `aportes.obligacion_aporte`, `aportes.plan_regularizacion`, `cupo`, `entregas.cesion_derecho`, `entregas.entrega_fondo`, `entregas.oferta_turno`, `garantia.aval_participante`, `garantia.descargo_participante`, `garantia.deuda_participante`, `garantia.devolucion_fondo`, `garantia.liquidacion_participante`, `garantia.reemplazo_participante`, `garantia.registro_incumplimiento`, `garantia.sancion`, `nucleo_financiero.cuenta_contable`, `participante`, `solicitud_permuta`, `solicitud_retiro`, `tarifas.devengo_comision`, `transparencia.evento_reputacion`, `transparencia.resena_participante`, `traspaso_cupo`, `voto_participante`. Reglas nombradas: `uq_participante_vigente_grupo_usuario`.
 
@@ -4124,9 +5425,15 @@
 
 **Qué es.** Un ciclo de aporte del grupo: del 1 al N, con sus fechas de vencimiento y gracia, y cuánto se recaudó.
 
-**Para qué sirve.** Es la unidad de tiempo del pasanaku y el punto de control financiero. `montoObjetivo` vs `montoRecaudado` responde la pregunta que más importa cada mes: **¿está completa la bolsa para poder entregarla?** `brechaFinanciamiento()` es la cifra que dispara todo el módulo 8 — si faltan Bs 500, o alguien los pone, o el fondo de garantía los cubre, o el beneficiario cobra menos. Las tres fechas (`fechaLimitePago`, `fechaFinGracia`, `fechaEntregaPrevista`) existen porque son tres momentos distintos con consecuencias distintas: pasada la primera se es impuntual, pasada la segunda se entra en mora formal y se activa la cobranza, y en la tercera hay que entregar sí o sí. `cuposMorosos` es un contador denormalizado a propósito: el panel de transparencia (M6) y las alertas de riesgo lo consultan constantemente.
+**Para qué sirve.** Es la unidad de tiempo del pasanaku y el punto de control financiero. `montoObjetivo` vs `montoRecaudado` responde la pregunta que más importa cada mes: **¿está completa la bolsa para poder entregarla?** `brechaFinanciamiento()` es la cifra que dispara todo el módulo 8 — si faltan Bs 500, o alguien los pone, o el fondo de garantía los cubre, o el beneficiario cobra menos.
+
+Las tres fechas (`fechaLimitePago`, `fechaFinGracia`, `fechaEntregaPrevista`) existen porque son tres momentos distintos con consecuencias distintas: pasada la primera se es impuntual, pasada la segunda se entra en mora formal y se activa la cobranza, y en la tercera hay que entregar sí o sí.
+
+`cuposMorosos` es un contador denormalizado a propósito: el panel de transparencia (M6) y las alertas de riesgo lo consultan constantemente.
 
 **Por qué existe.** Sin períodos materializados, el calendario sería un cálculo en tiempo de ejecución y no se podría registrar qué pasó realmente en cada uno: cuánto entró, quién falló, si se entregó a tiempo.
+
+**Casos de uso que la nombran.** CU-20 Crear grupo y congelar tarifario (`crearGrupo`, `consultarNivelKyc`, `consultarHabilitacion`, `consultarTarifarioVigente`) · CU-21 Cobrar el aporte del período (`cobrarAporte`, `consultarEstadoDelParticipante`, `generarObligacionesDelPeriodo`, `consultarRecaudoDelPeriodo`, `consultarAdmisibilidadDePago`) · CU-29 Devolver los aportes del fondo de garantía (`devolverFondo`) · CU-60 Sortear los turnos (`comprometerSorteo`, `revelarSorteo`, `verificarSorteo`) · CU-72 Sellar el bloque de transparencia (`listarBloques`, `sellarBloque`) · CU-81 Programar recordatorios de aporte
 
 **Sistema.** Vive en el esquema `grupos`; la escribe y la lee solo el servicio `grupos` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `grupo`. La referencian `aportes.obligacion_aporte`, `entregas.entrega_fondo`, `garantia.cobertura_incumplimiento`, `garantia.cobertura_respaldo`, `garantia.registro_incumplimiento`, `transparencia.metrica_grupo`, `turno`.
 
@@ -4150,7 +5457,9 @@
 
 **Para qué sirve.** Es la demanda en el marketplace. La persona dice: quiero aportar entre Bs 300 y Bs 500, mensual, empezando en marzo, y prefiero cobrar temprano. `preferenciaTurno` es un campo pequeño con mucho valor: quien quiere cobrar temprano busca liquidez (está pidiendo un préstamo), quien prefiere tarde busca ahorrar. Emparejar dos perfiles complementarios hace grupos más estables que emparejar doce personas que todas quieren cobrar primero.
 
-**Por qué existe.** Sin postulaciones no hay pool de demanda y el emparejamiento no tiene con qué trabajar. `vigenteHasta` evita proponer grupos a gente que ya perdió el interés hace meses. ---
+**Por qué existe.** Sin postulaciones no hay pool de demanda y el emparejamiento no tiene con qué trabajar. `vigenteHasta` evita proponer grupos a gente que ya perdió el interés hace meses.
+
+**Casos de uso que la nombran.** CU-66 Reemplazar a un participante moroso (`aprobarReemplazo`, `ejecutarReemplazo`, `proponerReemplazo`) · CU-68 Postular a un grupo y ser emparejado (`contarMorosos`, `consultarRestriccion`, `solicitarIngresoPorEnlace`, `generarEnlaceDelGrupo`, `postularAlGrupo`)
 
 **Sistema.** Vive en el esquema `grupos`; la escribe y la lee solo el servicio `grupos` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `identidad.usuario`. La referencian `propuesta_postulacion`.
 
@@ -4172,9 +5481,13 @@
 
 **Qué es.** Un grupo candidato: un conjunto de postulaciones que el motor considera compatibles, todavía sin confirmar.
 
-**Para qué sirve.** Es el paso intermedio imprescindible: **el sistema propone, la gente acepta**. Nadie debe ser metido automáticamente a un grupo con desconocidos. La propuesta se notifica a los candidatos, se cuentan las aceptaciones (`propuesta_postulacion.acepto`), y solo si se llega al cupo completo antes de `expiraEn` la propuesta se `materializa()` en un `Grupo` real. `puntajeCohesion` y `riesgoEstimado` son los números que se le muestran al candidato para que decida con información: "este grupo tiene riesgo estimado bajo, 9 de 12 personas ya aceptaron".
+**Para qué sirve.** Es el paso intermedio imprescindible: **el sistema propone, la gente acepta**. Nadie debe ser metido automáticamente a un grupo con desconocidos. La propuesta se notifica a los candidatos, se cuentan las aceptaciones (`propuesta_postulacion.acepto`), y solo si se llega al cupo completo antes de `expiraEn` la propuesta se `materializa()` en un `Grupo` real.
 
-**Por qué existe.** Sin propuesta como entidad separada, un emparejamiento fallido (5 aceptaron, 7 no) dejaría grupos a medio armar en la tabla real. ---
+`puntajeCohesion` y `riesgoEstimado` son los números que se le muestran al candidato para que decida con información: "este grupo tiene riesgo estimado bajo, 9 de 12 personas ya aceptaron".
+
+**Por qué existe.** Sin propuesta como entidad separada, un emparejamiento fallido (5 aceptaron, 7 no) dejaría grupos a medio armar en la tabla real.
+
+**Casos de uso que la nombran.** CU-68 Postular a un grupo y ser emparejado (`contarMorosos`, `consultarRestriccion`, `solicitarIngresoPorEnlace`, `generarEnlaceDelGrupo`, `postularAlGrupo`)
 
 **Sistema.** Vive en el esquema `grupos`; la escribe y la lee solo el servicio `grupos` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `criterio_emparejamiento`, `grupo`. La referencian `propuesta_postulacion`.
 
@@ -4195,7 +5508,9 @@
 
 **Qué es.** La relación entre una propuesta y cada postulación invitada, con su respuesta.
 
-**Para qué sirve.** Guarda quién aceptó y quién no, y cuándo. Permite medir la tasa de conversión del emparejamiento y reintentar con los que no respondieron. ---
+**Para qué sirve.** Guarda quién aceptó y quién no, y cuándo. Permite medir la tasa de conversión del emparejamiento y reintentar con los que no respondieron.
+
+**Casos de uso que la nombran.** CU-68 Postular a un grupo y ser emparejado (`contarMorosos`, `consultarRestriccion`, `solicitarIngresoPorEnlace`, `generarEnlaceDelGrupo`, `postularAlGrupo`)
 
 **Sistema.** Vive en el esquema `grupos`; la escribe y la lee solo el servicio `grupos` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `postulacion_emparejamiento`, `propuesta_grupo`.
 
@@ -4210,9 +5525,13 @@
 
 **Qué es.** El texto de las reglas del grupo, versionado y sellado con hash.
 
-**Para qué sirve.** Es el documento que la gente firma. Contiene lo que la configuración no puede expresar en números: qué pasa si alguien abandona, cómo se reparte si el grupo se disuelve, qué se considera falta grave. Cuando hay conflicto —y en pasanakus lo hay— este es el texto al que se apela. El versionado (`version`, `vigenteDesde/Hasta`) importa porque los reglamentos se modifican a mitad de ciclo. `requiereReaceptacion()` decide si un cambio es tan sustancial que hay que pedir que todos vuelvan a firmar.
+**Para qué sirve.** Es el documento que la gente firma. Contiene lo que la configuración no puede expresar en números: qué pasa si alguien abandona, cómo se reparte si el grupo se disuelve, qué se considera falta grave. Cuando hay conflicto —y en pasanakus lo hay— este es el texto al que se apela.
 
-**Por qué existe.** `hashContenido` es lo que convierte el reglamento en prueba: sin él, cualquiera podría alegar que el texto se editó después de que lo firmó. ---
+El versionado (`version`, `vigenteDesde/Hasta`) importa porque los reglamentos se modifican a mitad de ciclo. `requiereReaceptacion()` decide si un cambio es tan sustancial que hay que pedir que todos vuelvan a firmar.
+
+**Por qué existe.** `hashContenido` es lo que convierte el reglamento en prueba: sin él, cualquiera podría alegar que el texto se editó después de que lo firmó.
+
+**Casos de uso que la nombran.** CU-20 Crear grupo y congelar tarifario (`crearGrupo`, `consultarNivelKyc`, `consultarHabilitacion`, `consultarTarifarioVigente`) · CU-62 Permutar turnos entre participantes (`solicitarPermuta`) · CU-67 Disolver el grupo anticipadamente (`cerrarDisolucion`, `iniciarDisolucion`)
 
 **Sistema.** Vive en el esquema `grupos`; la escribe y la lee solo el servicio `grupos` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `grupo`, `identidad.usuario`. La referencian `aceptacion_reglamento`.
 
@@ -4229,6 +5548,21 @@
 | `vigente_hasta` | TIMESTAMPTZ | Hasta cuándo rigió esta versión; vacía mientras sigue vigente. | TIMESTAMPTZ, opcional. | NINGUNA |
 | `redactado_por` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
 
+### `shedlock`
+
+**Qué es.** Bloqueo de trabajos programados entre replicas (ADR-018).
+
+**Para qué sirve.** Evita que dos réplicas del servicio ejecuten el mismo trabajo programado a la vez (ADR-018).
+
+**Sistema.** Infraestructura del servicio `grupos`, generada por plantilla en cada esquema (ADR-027): la escribe y la lee solo ese servicio.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `name` | VARCHAR(64) | — | VARCHAR(64), obligatoria, clave primaria. | NINGUNA |
+| `lock_until` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `locked_at` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `locked_by` | VARCHAR(255) | — | VARCHAR(255), obligatoria. | NINGUNA |
+
 ### `snapshot_sorteo`
 
 **Qué es.** La foto congelada del plantel, el calendario y las reglas de un grupo en el momento en que se compromete el sorteo de turnos.
@@ -4237,12 +5571,14 @@
 
 **Por qué existe.** El sorteo publica primero el hash de la semilla y después la revela (CU-60). Si el plantel o las reglas cambiaran entre esos dos momentos, el resultado dejaría de ser verificable. La foto es lo que hace que el sorteo sea reproducible.
 
+**Casos de uso que la nombran.** CU-60 Sortear los turnos (`comprometerSorteo`, `revelarSorteo`, `verificarSorteo`)
+
 **Sistema.** Vive en el esquema `grupos`; la escribe y la lee solo el servicio `grupos` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Es append-only: UPDATE y DELETE revocados al rol del servicio; se corrige con una fila nueva. Reglas nombradas: `ck_snapshot_sorteo_hash`, `ck_snapshot_sorteo_roster`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `sorteo_id` | UUID | — | UUID, obligatoria. | NINGUNA |
+| `sorteo_id` | UUID | — | UUID, obligatoria, única. | NINGUNA |
 | `grupo_id` | UUID | — | UUID, obligatoria. | NINGUNA |
 | `roster` | TEXT | — | TEXT, obligatoria. | NINGUNA |
 | `periodos` | TEXT | — | TEXT, obligatoria. | NINGUNA |
@@ -4259,6 +5595,8 @@
 **Para qué sirve.** Es el filtro de entrada de los grupos públicos o por enlace. `puntajeCompatibilidad` y `evaluarAutomaticamente()` permiten que el sistema pre-evalúe: reputación suficiente, sin deuda abierta, capacidad declarada compatible con el aporte, sin restricciones vigentes (M1). El organizador —humano o digital— recibe la solicitud ya calificada en vez de tener que investigar a cada postulante.
 
 **Por qué existe.** Un grupo con desconocidos necesita una puerta. Sin solicitud formal, o el grupo es cerrado (y la plataforma no puede crecer más allá de las redes existentes) o es abierto sin filtro (y se llena de morosos que ya fallaron en otros grupos).
+
+**Casos de uso que la nombran.** CU-68 Postular a un grupo y ser emparejado (`contarMorosos`, `consultarRestriccion`, `solicitarIngresoPorEnlace`, `generarEnlaceDelGrupo`, `postularAlGrupo`) · CU-69 Invitar a un contacto y registrar sus referencias (`buscarPorTelefono`, `emitirTokenDeInvitacion`, `validarTokenDeInvitacion`, `consultarSupresion`)
 
 **Sistema.** Vive en el esquema `grupos`; la escribe y la lee solo el servicio `grupos` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `enlace_grupo`, `grupo`, `identidad.usuario`. Reglas nombradas: `uq_solicitud_ingreso_pendiente`, `ck_solicitud_ingreso_resuelta`.
 
@@ -4281,9 +5619,15 @@
 
 **Qué es.** El pedido de intercambiar turnos entre dos cupos, con la compensación que se ofrece.
 
-**Para qué sirve.** Cubre una necesidad real y frecuente: a alguien se le presentó un gasto urgente (una operación, una matrícula) y necesita cobrar antes; a otro no le urge y acepta cambiar, a veces a cambio de una compensación. En el pasanaku presencial esto se arregla hablando; el problema es que después nadie se acuerda de lo acordado. El flujo de tres aprobaciones (`solicitante → contraparte → organizador`) es deliberado: **la permuta no es un asunto privado entre dos**. Cambiar el orden altera el riesgo del grupo entero (si el que ahora cobra primero es el más riesgoso, todos quedan más expuestos). Por eso el organizador —o el grupo por acuerdo— tiene que validarla. `compensacionOfrecida` reconoce que estos intercambios tienen precio, y lo registra en vez de dejarlo en un acuerdo verbal.
+**Para qué sirve.** Cubre una necesidad real y frecuente: a alguien se le presentó un gasto urgente (una operación, una matrícula) y necesita cobrar antes; a otro no le urge y acepta cambiar, a veces a cambio de una compensación. En el pasanaku presencial esto se arregla hablando; el problema es que después nadie se acuerda de lo acordado.
 
-**Por qué existe.** Sin ella, o se prohíben las permutas (y el producto es rígido frente a una necesidad real) o se permiten sin registro (y aparecen disputas sin prueba). ---
+El flujo de tres aprobaciones (`solicitante → contraparte → organizador`) es deliberado: **la permuta no es un asunto privado entre dos**. Cambiar el orden altera el riesgo del grupo entero (si el que ahora cobra primero es el más riesgoso, todos quedan más expuestos). Por eso el organizador —o el grupo por acuerdo— tiene que validarla.
+
+`compensacionOfrecida` reconoce que estos intercambios tienen precio, y lo registra en vez de dejarlo en un acuerdo verbal.
+
+**Por qué existe.** Sin ella, o se prohíben las permutas (y el producto es rígido frente a una necesidad real) o se permiten sin registro (y aparecen disputas sin prueba).
+
+**Casos de uso que la nombran.** CU-62 Permutar turnos entre participantes (`solicitarPermuta`)
 
 **Sistema.** Vive en el esquema `grupos`; la escribe y la lee solo el servicio `grupos` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `participante`, `turno`.
 
@@ -4305,16 +5649,20 @@
 
 **Qué es.** El pedido de un participante de salir del grupo antes de que termine.
 
-**Para qué sirve.** Convierte "me voy" en un proceso con número. `liquidacionCalculada` responde la pregunta económica: si ya aporté 6 períodos y todavía no cobré, ¿cuánto me corresponde? Si ya cobré y me quiero ir sin seguir aportando, ¿cuánto debo? Ese cálculo es la fuente de la mitad de los conflictos de un pasanaku y tiene que estar explícito. `requiereReemplazo` refleja la realidad: en la mayoría de los grupos no te podés ir sin dejar quién ocupe tu lugar, porque tu salida deja un hueco en la bolsa de todos los períodos restantes.
+**Para qué sirve.** Convierte "me voy" en un proceso con número. `liquidacionCalculada` responde la pregunta económica: si ya aporté 6 períodos y todavía no cobré, ¿cuánto me corresponde? Si ya cobré y me quiero ir sin seguir aportando, ¿cuánto debo? Ese cálculo es la fuente de la mitad de los conflictos de un pasanaku y tiene que estar explícito.
 
-**Por qué existe.** Sin ella, la salida es un cambio de estado sin cálculo, sin aprobación y sin constancia de lo acordado. ---
+`requiereReemplazo` refleja la realidad: en la mayoría de los grupos no te podés ir sin dejar quién ocupe tu lugar, porque tu salida deja un hueco en la bolsa de todos los períodos restantes.
+
+**Por qué existe.** Sin ella, la salida es un cambio de estado sin cálculo, sin aprobación y sin constancia de lo acordado.
+
+**Casos de uso que la nombran.** CU-65 Retirarse de un grupo (`solicitarRetiro`)
 
 **Sistema.** Vive en el esquema `grupos`; la escribe y la lee solo el servicio `grupos` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `aportes.plan_regularizacion`, `participante`. Reglas nombradas: `ck_retiro_deudor_con_plan`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `participante_id` | UUID | — | UUID, obligatoria, referencia a `participante`. | NINGUNA |
+| `participante_id` | UUID | — | UUID, obligatoria, única, referencia a `participante`. | NINGUNA |
 | `motivo` | VARCHAR(200) | — | VARCHAR(200), obligatoria. | NINGUNA |
 | `solicitado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
 | `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
@@ -4327,9 +5675,18 @@
 
 **Qué es.** El sorteo del orden de cobro, con esquema criptográfico *commit-reveal* verificable.
 
-**Para qué sirve.** **Esta entidad existe por una sola razón: el orden de cobro es el punto de desconfianza número uno del pasanaku.** Todo el mundo sospecha que el organizador acomodó el sorteo para que él o su gente cobre primero. En el pasanaku presencial esto se resuelve sorteando delante de todos con papelitos en una bolsa. Digitalmente hay que reconstruir esa garantía. El mecanismo: 1. **Antes** de sortear, el sistema publica `hashSemillaPrevio` — el hash de una semilla que todavía no reveló. Queda comprometido: ya no puede cambiarla. 2. Se mezcla con `semillaPublica`, un valor que los propios participantes aportan y que el servidor no controla. 3. Después del sorteo se revela `semillaServidor`. **Cualquier participante puede recomputar el orden y verificar que nadie lo manipuló.** `testigos` registra a quiénes se notificó el compromiso previo. `repetirPorAnulacion()` cubre el caso de un sorteo anulado por error, dejando constancia de que hubo dos.
+**Para qué sirve.** **Esta entidad existe por una sola razón: el orden de cobro es el punto de desconfianza número uno del pasanaku.** Todo el mundo sospecha que el organizador acomodó el sorteo para que él o su gente cobre primero. En el pasanaku presencial esto se resuelve sorteando delante de todos con papelitos en una bolsa. Digitalmente hay que reconstruir esa garantía.
+
+El mecanismo:
+1. **Antes** de sortear, el sistema publica `hashSemillaPrevio` — el hash de una semilla que todavía no reveló. Queda comprometido: ya no puede cambiarla.
+2. Se mezcla con `semillaPublica`, un valor que los propios participantes aportan y que el servidor no controla.
+3. Después del sorteo se revela `semillaServidor`. **Cualquier participante puede recomputar el orden y verificar que nadie lo manipuló.**
+
+`testigos` registra a quiénes se notificó el compromiso previo. `repetirPorAnulacion()` cubre el caso de un sorteo anulado por error, dejando constancia de que hubo dos.
 
 **Por qué existe.** Sin verificabilidad, el sorteo es "confiá en nosotros", que es exactamente lo que la plataforma promete reemplazar. La entidad no es un lujo criptográfico: es el argumento comercial.
+
+**Casos de uso que la nombran.** CU-60 Sortear los turnos (`comprometerSorteo`, `revelarSorteo`, `verificarSorteo`) · CU-61 Verificar públicamente el sorteo (`consultarPaqueteDelSorteo`)
 
 **Sistema.** Vive en el esquema `grupos`; la escribe y la lee solo el servicio `grupos` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `grupo`, `identidad.usuario`. Reglas nombradas: `uq_sorteo_grupo`, `ck_sorteo_revelado`, `ck_sorteo_compromiso`.
 
@@ -4358,6 +5715,8 @@
 
 **Por qué existe.** Sin ella, el cambio de administrador sería un `UPDATE` sobre el participante y se perdería quién lo decidió, por qué y qué conservó el saliente.
 
+**Casos de uso que la nombran.** CU-68 Postular a un grupo y ser emparejado (`contarMorosos`, `consultarRestriccion`, `solicitarIngresoPorEnlace`, `generarEnlaceDelGrupo`, `postularAlGrupo`)
+
 **Sistema.** Vive en el esquema `grupos`; la escribe y la lee solo el servicio `grupos` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Es append-only: UPDATE y DELETE revocados al rol del servicio; se corrige con una fila nueva. Reglas nombradas: `ck_sustitucion_administrador_distintos`, `ck_sustitucion_administrador_motivo`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
@@ -4366,7 +5725,7 @@
 | `grupo_id` | UUID | — | UUID, obligatoria. | NINGUNA |
 | `saliente_participante_id` | UUID | — | UUID, obligatoria. | NINGUNA |
 | `entrante_participante_id` | UUID | — | UUID, obligatoria. | NINGUNA |
-| `clave_idempotencia` | UUID | Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4). | UUID, obligatoria. | NINGUNA |
+| `clave_idempotencia` | UUID | Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4). | UUID, obligatoria, única. | NINGUNA |
 | `motivo` | VARCHAR(1000) | — | VARCHAR(1000), obligatoria. | NINGUNA |
 | `actor_id` | UUID | — | UUID, obligatoria. | NINGUNA |
 | `obligaciones_conservadas` | TEXT | — | TEXT, obligatoria. | NINGUNA |
@@ -4377,9 +5736,15 @@
 
 **Qué es.** El cambio de manos de un cupo, de un participante a otro, con lo que se transfiere y lo que no.
 
-**Para qué sirve.** Es donde se resuelve la pregunta más espinosa del reemplazo: **¿quién se hace cargo de la deuda que dejó el que se fue, y quién tiene derecho a cobrar el turno?** Los dos campos `deudaTransferida` y `derechoCobroTransferido` obligan a responderlo explícitamente en cada traspaso, en lugar de dejarlo a interpretación. Los tres motivos (`VENTA`, `REEMPLAZO_POR_MORA`, `RETIRO`) tienen consecuencias distintas: en una venta acordada el entrante suele asumir todo; en un reemplazo por mora, la deuda vieja normalmente **queda con el saliente** (se persigue en M8) y el entrante arranca limpio, porque si no, nadie aceptaría reemplazar a un moroso. `aprobadoPorAcuerdoId` es obligatorio en la práctica: un traspaso no puede ser decisión de dos personas cuando afecta la garantía de las otras diez.
+**Para qué sirve.** Es donde se resuelve la pregunta más espinosa del reemplazo: **¿quién se hace cargo de la deuda que dejó el que se fue, y quién tiene derecho a cobrar el turno?** Los dos campos `deudaTransferida` y `derechoCobroTransferido` obligan a responderlo explícitamente en cada traspaso, en lugar de dejarlo a interpretación.
+
+Los tres motivos (`VENTA`, `REEMPLAZO_POR_MORA`, `RETIRO`) tienen consecuencias distintas: en una venta acordada el entrante suele asumir todo; en un reemplazo por mora, la deuda vieja normalmente **queda con el saliente** (se persigue en M8) y el entrante arranca limpio, porque si no, nadie aceptaría reemplazar a un moroso.
+
+`aprobadoPorAcuerdoId` es obligatorio en la práctica: un traspaso no puede ser decisión de dos personas cuando afecta la garantía de las otras diez.
 
 **Por qué existe.** Sin esta tabla, un traspaso es un `UPDATE` de `cupo.participante_id` y se pierde toda la historia económica: quién debía qué, quién asumió qué, quién lo autorizó.
+
+**Casos de uso que la nombran.** CU-64 Traspasar un cupo (`traspasarCupo`, `consultarPuntaje`) · CU-66 Reemplazar a un participante moroso (`aprobarReemplazo`, `ejecutarReemplazo`, `proponerReemplazo`)
 
 **Sistema.** Vive en el esquema `grupos`; la escribe y la lee solo el servicio `grupos` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `acuerdo`, `cupo`, `participante`.
 
@@ -4400,9 +5765,15 @@
 
 **Qué es.** El derecho de un cupo a cobrar la bolsa en un período determinado.
 
-**Para qué sirve.** Es **el activo más disputado del pasanaku**. Cobrar primero vale más que cobrar último: quien cobra en el período 1 recibe un préstamo sin interés; quien cobra en el 12 hizo un ahorro forzado. Esa asimetría es la razón de que existan la subasta (`descuentoSubasta`), las permutas y las peleas por el orden. `criterioAsignacion` guarda **cómo** se asignó ese turno (sorteo, orden de ingreso, reputación, subasta, acuerdo). Es información que el participante tiene derecho a ver: no es lo mismo "me tocó el último por sorteo" que "me pusieron último". `montoEstimadoCobro` es la expectativa; el monto real se calcula en la entrega (M4) descontando deducciones. Tenerlo acá permite mostrarle al participante desde el día uno cuánto va a recibir y cuándo.
+**Para qué sirve.** Es **el activo más disputado del pasanaku**. Cobrar primero vale más que cobrar último: quien cobra en el período 1 recibe un préstamo sin interés; quien cobra en el 12 hizo un ahorro forzado. Esa asimetría es la razón de que existan la subasta (`descuentoSubasta`), las permutas y las peleas por el orden.
+
+`criterioAsignacion` guarda **cómo** se asignó ese turno (sorteo, orden de ingreso, reputación, subasta, acuerdo). Es información que el participante tiene derecho a ver: no es lo mismo "me tocó el último por sorteo" que "me pusieron último".
+
+`montoEstimadoCobro` es la expectativa; el monto real se calcula en la entrega (M4) descontando deducciones. Tenerlo acá permite mostrarle al participante desde el día uno cuánto va a recibir y cuándo.
 
 **Por qué existe.** Es el calendario de derechos de cobro. Sin él no hay plataforma: es literalmente el producto.
+
+**Casos de uso que la nombran.** CU-20 Crear grupo y congelar tarifario (`crearGrupo`, `consultarNivelKyc`, `consultarHabilitacion`, `consultarTarifarioVigente`) · CU-22 Liquidar y entregar el fondo (`liquidarEntrega`, `fondearPozo`, `autorizarEntrega`, `ejecutarEntrega`) · CU-60 Sortear los turnos (`comprometerSorteo`, `revelarSorteo`, `verificarSorteo`) · CU-61 Verificar públicamente el sorteo (`consultarPaqueteDelSorteo`) · CU-62 Permutar turnos entre participantes (`solicitarPermuta`) · CU-64 Traspasar un cupo (`traspasarCupo`, `consultarPuntaje`)
 
 **Sistema.** Vive en el esquema `grupos`; la escribe y la lee solo el servicio `grupos` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `cupo`, `grupo`, `periodo`, `turno`. La referencian `entregas.cesion_derecho`, `entregas.entrega_fondo`, `entregas.fondeo_entrega`, `entregas.oferta_turno`, `garantia.cobertura_respaldo`, `solicitud_permuta`, `turno`. Reglas nombradas: `uq_turno_periodo`, `uq_turno_orden`.
 
@@ -4424,9 +5795,13 @@
 
 **Qué es.** El voto individual sobre un acuerdo, con su peso.
 
-**Para qué sirve.** El campo `peso` es la sutileza importante: **vale según cuántos cupos tenés**. Quien puso dos manos arriesga el doble y por eso pesa el doble. Es la regla que la gente aplica intuitivamente en los pasanakus reales, y que un voto por cabeza contradiría. `comentario` permite que quede constancia del argumento, no solo del sentido del voto. En una disputa posterior, eso importa.
+**Para qué sirve.** El campo `peso` es la sutileza importante: **vale según cuántos cupos tenés**. Quien puso dos manos arriesga el doble y por eso pesa el doble. Es la regla que la gente aplica intuitivamente en los pasanakus reales, y que un voto por cabeza contradiría.
+
+`comentario` permite que quede constancia del argumento, no solo del sentido del voto. En una disputa posterior, eso importa.
 
 **Por qué existe.** Sin votos individuales solo hay un contador agregado, y no se puede verificar el resultado ni detectar votos inválidos (de participantes suspendidos, por ejemplo).
+
+**Casos de uso que la nombran.** CU-62 Permutar turnos entre participantes (`solicitarPermuta`) · CU-63 Proponer y votar un acuerdo (`proponerAcuerdo`, `votarAcuerdo`)
 
 **Sistema.** Vive en el esquema `grupos`; la escribe y la lee solo el servicio `grupos` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `acuerdo`, `participante`. Reglas nombradas: `uq_voto_acuerdo_participante`.
 
@@ -4450,17 +5825,19 @@
 
 **Por qué existe.** El token (`token_verificacion`) solo prueba que el secreto es válido; no dice para qué. Sin el alcance, un enlace reenviado o filtrado abriría la puerta de cualquier grupo, y una segunda emisión no podría revocar la anterior de forma explícita.
 
+**Casos de uso que la nombran.** CU-69 Invitar a un contacto y registrar sus referencias (`buscarPorTelefono`, `emitirTokenDeInvitacion`, `validarTokenDeInvitacion`, `consultarSupresion`)
+
 **Sistema.** Vive en el esquema `identidad`; la escribe y la lee solo el servicio `identidad` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `token_verificacion`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `token_id` | UUID | — | UUID, obligatoria, referencia a `token_verificacion`. | SECRETO |
+| `token_id` | UUID | — | UUID, obligatoria, única, referencia a `token_verificacion`. | SECRETO |
 | `grupo_destino_id` | UUID | — | UUID, obligatoria. | NINGUNA |
 | `emisor_id` | UUID | — | UUID, obligatoria. | NINGUNA |
 | `telefono_destino` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | PERSONAL |
 | `nonce` | VARCHAR(64) | — | VARCHAR(64), obligatoria. | NINGUNA |
-| `clave_emision` | UUID | — | UUID, obligatoria. | SECRETO |
+| `clave_emision` | UUID | — | UUID, obligatoria, única. | SECRETO |
 | `huella_solicitud` | VARCHAR(64) | — | VARCHAR(64), obligatoria. | NINGUNA |
 | `clave_consumo` | UUID | — | UUID, opcional. | SECRETO |
 | `consumidor_id` | UUID | — | UUID, opcional. | NINGUNA |
@@ -4469,9 +5846,13 @@
 
 **Qué es.** El vínculo usuario–rol, acotado a un ámbito, con vigencia y rastro de quién lo otorgó.
 
-**Para qué sirve.** Responde: *¿quién le dio a esta persona el poder de autorizar entregas en este grupo, cuándo, y hasta cuándo?* Es la tabla que se revisa primero cuando algo salió mal y hay que entender cómo alguien pudo hacer lo que hizo. `vigenteHasta` habilita accesos temporales: darle a un analista de soporte acceso al grupo por 48 horas para resolver un caso, y que caduque solo.
+**Para qué sirve.** Responde: *¿quién le dio a esta persona el poder de autorizar entregas en este grupo, cuándo, y hasta cuándo?* Es la tabla que se revisa primero cuando algo salió mal y hay que entender cómo alguien pudo hacer lo que hizo.
+
+`vigenteHasta` habilita accesos temporales: darle a un analista de soporte acceso al grupo por 48 horas para resolver un caso, y que caduque solo.
 
 **Por qué existe.** Un campo `es_admin` en `usuario` no tiene ámbito, no tiene vigencia, no tiene autor y no se puede revocar con motivo.
+
+**Casos de uso que la nombran.** CU-04 Autenticar con MFA y registrar dispositivo (`autenticar`, `abrirDesafioDeStepUp`, `verificarDesafioDeStepUp`) · CU-08 Asignar y revocar roles de operador (`asignarRolesUsuarioInterno`) · CU-09 Cambiar credenciales y solicitar la baja · CU-49 Designar al oficial de cumplimiento y capacitar · CU-90 Postular a organizador y habilitarse (`activarRolOrganizador`, `postularOrganizador`, `aprobarPostulacion`, `consultarHabilitacionBasica`, `aceptarHabilitacionBasica`, `habilitarOrganizador`) · CU-91 Firmar y rescindir el contrato de organizador (`firmarContrato`, `rescindirContrato`, `firmarHabilitacionBasica`, `emitirContrato`)
 
 **Sistema.** Vive en el esquema `identidad`; la escribe y la lee solo el servicio `identidad` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `rol`, `usuario`. Reglas nombradas: `ck_asignacion_no_autoasignada`, `ck_asignacion_ambito_completo`, `ck_asignacion_revocacion_motivada`, `uq_asignacion_vigente`, `ix_asignacion_por_vencer`.
 
@@ -4494,7 +5875,9 @@
 
 **Para qué sirve.** Separa cuatro situaciones que un solo campo `estado = BLOQUEADO` confunde: bloqueo automático por intentos fallidos (se libera solo), bloqueo por sospecha de fraude (lo libera cumplimiento), bloqueo pedido por el propio usuario (perdí el teléfono) y bloqueo por orden administrativa. Cada uno tiene un responsable de liberación distinto y un discurso distinto hacia el usuario.
 
-**Por qué existe.** `liberadaPor` y `liberadaEn` responden la pregunta que siempre aparece en la auditoría: *¿quién desbloqueó esta cuenta y con qué autoridad?* ---
+**Por qué existe.** `liberadaPor` y `liberadaEn` responden la pregunta que siempre aparece en la auditoría: *¿quién desbloqueó esta cuenta y con qué autoridad?*
+
+**Casos de uso que la nombran.** CU-04 Autenticar con MFA y registrar dispositivo (`autenticar`, `abrirDesafioDeStepUp`, `verificarDesafioDeStepUp`)
 
 **Sistema.** Vive en el esquema `identidad`; la escribe y la lee solo el servicio `identidad` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `usuario`.
 
@@ -4508,13 +5891,45 @@
 | `liberada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
 | `liberada_por` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
 
+### `borrador_onboarding`
+
+**Qué es.** Datos de un alta a medio llenar para retomarla; se borra al completar el alta.
+
+**Para qué sirve.** Permite retomar un alta interrumpida sin volver a cargar todo: guarda lo que la persona llenó después de confirmar su correo, vence a los siete días y se borra al completar el alta. Guarda datos personales en claro mientras el alta no termina.
+
+**Sistema.** Tabla propia del servicio `identidad` fuera del modelo de entidades: la genera `generar_ddl.py` desde el contrato `BorradorOnboarding` y el repositorio que la usa.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `correo` | VARCHAR(150) | Correo ya confirmado de quien está dándose de alta; identifica el borrador. | VARCHAR(150), obligatoria, clave primaria. | PERSONAL |
+| `telefono_e164` | VARCHAR(20) | Teléfono en formato E.164 que la persona cargó. | VARCHAR(20), opcional. | PERSONAL |
+| `nombres` | VARCHAR(80) | Nombres tal como los escribió la persona. | VARCHAR(80), opcional. | NINGUNA |
+| `apellidos` | VARCHAR(80) | Apellidos tal como los escribió la persona. | VARCHAR(80), opcional. | PERSONAL |
+| `fecha_nacimiento` | DATE | Fecha de nacimiento declarada. | DATE, opcional. | PERSONAL |
+| `tipo_documento` | VARCHAR(25) | Tipo de documento elegido. | VARCHAR(25), opcional. | PERSONAL |
+| `numero_documento` | VARCHAR(30) | Número de documento que la persona cargó. | VARCHAR(30), opcional. | PERSONAL |
+| `lugar_expedicion` | VARCHAR(5) | Lugar de expedición del documento. | VARCHAR(5), opcional. | NINGUNA |
+| `fecha_expiracion` | DATE | Vencimiento del documento. | DATE, opcional. | NINGUNA |
+| `actividad_economica` | VARCHAR(10) | Código de actividad económica elegido. | VARCHAR(10), opcional. | NINGUNA |
+| `detalle_actividad` | VARCHAR(100) | Detalle libre de la actividad. | VARCHAR(100), opcional. | NINGUNA |
+| `origen_de_fondos` | VARCHAR(20) | Origen de fondos elegido. | VARCHAR(20), opcional. | NINGUNA |
+| `detalle_del_origen` | VARCHAR(100) | Detalle libre del origen de fondos. | VARCHAR(100), opcional. | NINGUNA |
+| `monto_mensual_estimado` | TEXT | Monto mensual estimado tal como llegó en el contrato (texto, sin tope declarado). | TEXT, opcional. | FINANCIERO |
+| `paso_pendiente` | VARCHAR(10) | Paso del alta donde la persona retoma. | VARCHAR(10), obligatoria. | NINGUNA |
+| `actualizado_en` | TIMESTAMPTZ | Último guardado del borrador. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `expira_en` | TIMESTAMPTZ | Desde aquí el borrador ya no se ofrece para retomar (siete días desde el último guardado). | TIMESTAMPTZ, obligatoria. | NINGUNA |
+
 ### `consentimiento`
 
 **Qué es.** El registro de que el usuario aceptó un documento: términos, privacidad, tratamiento de datos, marketing, reglamento del grupo — con la **versión y el hash** del texto exacto que aceptó.
 
-**Para qué sirve.** Es la prueba legal. Cuando un participante reclama "yo nunca acepté que me cobren recargo por mora", la respuesta no es "sí aceptaste": es *aceptaste la versión 2.1 del reglamento el 14 de marzo a las 19:42 desde la IP tal, y este es el hash del texto que estaba vigente ese día*. Sin el hash del documento, el consentimiento no prueba nada, porque los términos cambian con el tiempo. `revocadoEn` cubre el otro lado: el usuario puede retirar el consentimiento de marketing sin perder los servicios que sí contrató.
+**Para qué sirve.** Es la prueba legal. Cuando un participante reclama "yo nunca acepté que me cobren recargo por mora", la respuesta no es "sí aceptaste": es *aceptaste la versión 2.1 del reglamento el 14 de marzo a las 19:42 desde la IP tal, y este es el hash del texto que estaba vigente ese día*. Sin el hash del documento, el consentimiento no prueba nada, porque los términos cambian con el tiempo.
 
-**Por qué existe.** Es requisito de la normativa de protección de datos y es la única defensa ante una disputa sobre las condiciones pactadas. ---
+`revocadoEn` cubre el otro lado: el usuario puede retirar el consentimiento de marketing sin perder los servicios que sí contrató.
+
+**Por qué existe.** Es requisito de la normativa de protección de datos y es la única defensa ante una disputa sobre las condiciones pactadas.
+
+**Casos de uso que la nombran.** CU-05 Aceptar contrato de adhesión y tarifario · CU-07 Ejercer derechos sobre datos personales (`ejercerDerechos`, `consultarMiPerfil`, `revocarCertificado`)
 
 **Sistema.** Vive en el esquema `identidad`; la escribe y la lee solo el servicio `identidad` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `usuario`.
 
@@ -4539,12 +5954,14 @@
 
 **Por qué existe.** `requiereCambio`, `expiraEn` y `estaComprometida()` permiten reaccionar cuando aparece una filtración de credenciales de terceros: forzar cambio a los usuarios afectados sin tocar a los demás.
 
+**Casos de uso que la nombran.** CU-04 Autenticar con MFA y registrar dispositivo (`autenticar`, `abrirDesafioDeStepUp`, `verificarDesafioDeStepUp`) · CU-09 Cambiar credenciales y solicitar la baja
+
 **Sistema.** Vive en el esquema `identidad`; la escribe y la lee solo el servicio `identidad` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `usuario`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `usuario_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
+| `usuario_id` | UUID | — | UUID, obligatoria, única, referencia a `usuario`. | NINGUNA |
 | `hash_contrasena` | VARCHAR(255) | — | VARCHAR(255), obligatoria. | DERIVADO |
 | `algoritmo` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
 | `parametros_kdf` | JSONB | — | JSONB, obligatoria. | NINGUNA |
@@ -4560,12 +5977,14 @@
 
 **Por qué existe.** Si la dirección viviera dentro de `usuario`, cinco campos más engordarían la tabla más consultada del sistema para un dato que se usa esporádicamente. Además la relación 1-a-1 opcional deja claro que un usuario puede operar sin dirección hasta cierto nivel de KYC.
 
+**Casos de uso que la nombran.** CU-02 Elevar nivel de debida diligencia (`consultarEstadoDeVerificacion`, `iniciarVerificacion`)
+
 **Sistema.** Vive en el esquema `identidad`; la escribe y la lee solo el servicio `identidad` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `usuario`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `usuario_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
+| `usuario_id` | UUID | — | UUID, obligatoria, única, referencia a `usuario`. | NINGUNA |
 | `departamento` | VARCHAR(60) | — | VARCHAR(60), obligatoria. | NINGUNA |
 | `ciudad` | VARCHAR(60) | — | VARCHAR(60), obligatoria. | NINGUNA |
 | `zona` | VARCHAR(80) | — | VARCHAR(80), obligatoria. | NINGUNA |
@@ -4579,7 +5998,9 @@
 
 **Para qué sirve.** Tres funciones distintas. **Seguridad**: un login desde un dispositivo nunca visto puede exigir verificación adicional (`esConfiable`, `PoliticaToken.exigeDispositivoConocido`). **Notificaciones**: `tokenPush` es la dirección a la que llegan los avisos push del módulo 5. **Detección de fraude**: varias cuentas operando desde la misma huella de dispositivo es el patrón típico de participantes ficticios en un grupo, algo que el módulo 9 vigila.
 
-**Por qué existe.** Sin identidad de dispositivo, no se puede distinguir "el usuario de siempre desde su teléfono de siempre" de "alguien con la contraseña correcta desde un equipo desconocido". ---
+**Por qué existe.** Sin identidad de dispositivo, no se puede distinguir "el usuario de siempre desde su teléfono de siempre" de "alguien con la contraseña correcta desde un equipo desconocido".
+
+**Casos de uso que la nombran.** CU-01 Registro y apertura de billetera (`listarContratosVigentes`, `registrarUsuario`, `solicitarVerificacionCorreo`, `guardarBorradorOnboarding`, `confirmarVerificacionCorreo`, `verificarTitularidad`) · CU-04 Autenticar con MFA y registrar dispositivo (`autenticar`, `abrirDesafioDeStepUp`, `verificarDesafioDeStepUp`) · CU-09 Cambiar credenciales y solicitar la baja
 
 **Sistema.** Vive en el esquema `identidad`; la escribe y la lee solo el servicio `identidad` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `usuario`. La referencian `cumplimiento.aceptacion_contrato`, `nucleo_financiero.transaccion_billetera`, `sesion`, `token_verificacion`.
 
@@ -4605,6 +6026,8 @@
 
 **Por qué existe.** `hash_numero` es la pieza clave: permite detectar que la misma cédula está abriendo dos cuentas **sin necesidad de descifrar el número**. Ese es el patrón de quien quiere volver a entrar después de haber sido restringido por deuda, y es el que hace que la restricción del punto anterior no sea trivial de esquivar.
 
+**Casos de uso que la nombran.** CU-01 Registro y apertura de billetera (`listarContratosVigentes`, `registrarUsuario`, `solicitarVerificacionCorreo`, `guardarBorradorOnboarding`, `confirmarVerificacionCorreo`, `verificarTitularidad`)
+
 **Sistema.** Vive en el esquema `identidad`; la escribe y la lee solo el servicio `identidad` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `usuario`. La referencian `verificacion_kyc`. Reglas nombradas: `ck_documento_hash_completo`, `ck_documento_version_llave`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
@@ -4625,13 +6048,57 @@
 | `hash_archivo` | VARCHAR(64) | — | VARCHAR(64), opcional. | DERIVADO |
 | `estado` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
 
+### `evento_consumido`
+
+**Qué es.** Marca de evento ya consumido, por consumidor (ADR-027).
+
+**Para qué sirve.** Hace idempotente el consumo: la entrega es al menos una vez y un mismo evento no puede producir dos efectos (regla 98.3.4).
+
+**Sistema.** Infraestructura del servicio `identidad`, generada por plantilla en cada esquema (ADR-027): la escribe y la lee solo ese servicio.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `id_evento` | UUID | — | UUID, obligatoria, clave primaria. | NINGUNA |
+| `consumidor` | VARCHAR(60) | — | VARCHAR(60), obligatoria, clave primaria. | NINGUNA |
+| `consumido_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+
+### `evento_dominio`
+
+**Qué es.** Outbox transaccional del servicio (ADR-027).
+
+**Para qué sirve.** Garantiza que ningún hecho del servicio se pierda entre la base y la mensajería: el evento se guarda en la misma transacción que el cambio y un relevo lo publica después (regla 98.3.3).
+
+**Sistema.** Infraestructura del servicio `identidad`, generada por plantilla en cada esquema (ADR-027): la escribe y la lee solo ese servicio.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
+| `tipo` | VARCHAR(60) | — | VARCHAR(60), obligatoria. | NINGUNA |
+| `version` | VARCHAR(10) | — | VARCHAR(10), obligatoria. | NINGUNA |
+| `agregado` | VARCHAR(40) | — | VARCHAR(40), obligatoria. | NINGUNA |
+| `agregado_id` | UUID | — | UUID, obligatoria. | NINGUNA |
+| `payload` | JSONB | — | JSONB, obligatoria. | NINGUNA |
+| `metadatos` | JSONB | — | JSONB, obligatoria. | NINGUNA |
+| `correlation_id` | UUID | — | UUID, obligatoria. | NINGUNA |
+| `causation_id` | UUID | — | UUID, opcional. | NINGUNA |
+| `ocurrido_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `publicado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
+| `intentos` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
+| `tomado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `tomado_por` | VARCHAR(100) | — | VARCHAR(100), opcional. | NINGUNA |
+| `ultimo_error` | TEXT | — | TEXT, opcional. | NINGUNA |
+| `proximo_intento_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+
 ### `factor_mfa`
 
 **Qué es.** El segundo factor: TOTP, SMS, WhatsApp o códigos de respaldo.
 
 **Para qué sirve.** Se exige selectivamente, no siempre: para administradores, para organizadores que administran carteras grandes, y para acciones críticas como cambiar la cuenta bancaria de cobro o autorizar un desembolso. Ese es el punto de `Permiso.requiereMFA`.
 
-**Por qué existe.** Los `codigosRespaldo` resuelven el caso real de "perdí el teléfono justo antes de mi turno". Sin ellos, la única salida es soporte manual, que es a la vez lento y un vector de ingeniería social. ---
+**Por qué existe.** Los `codigosRespaldo` resuelven el caso real de "perdí el teléfono justo antes de mi turno". Sin ellos, la única salida es soporte manual, que es a la vez lento y un vector de ingeniería social.
+
+**Casos de uso que la nombran.** CU-04 Autenticar con MFA y registrar dispositivo (`autenticar`, `abrirDesafioDeStepUp`, `verificarDesafioDeStepUp`) · CU-08 Asignar y revocar roles de operador (`asignarRolesUsuarioInterno`) · CU-09 Cambiar credenciales y solicitar la baja
 
 **Sistema.** Vive en el esquema `identidad`; la escribe y la lee solo el servicio `identidad` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `usuario`. Reglas nombradas: `ck_factor_mfa_version_llave`.
 
@@ -4653,7 +6120,9 @@
 
 **Para qué sirve.** Impide el ciclo clásico de "cambiar la contraseña y volver a poner la misma de siempre" cuando se fuerza una rotación por incidente. Si hubo un compromiso y se obliga a cambiar, reutilizar la contraseña filtrada deja al usuario igual de expuesto.
 
-**Por qué existe.** Sin historial, la política de no reutilización no se puede aplicar. ---
+**Por qué existe.** Sin historial, la política de no reutilización no se puede aplicar.
+
+**Casos de uso que la nombran.** CU-09 Cambiar credenciales y solicitar la baja
 
 **Sistema.** Vive en el esquema `identidad`; la escribe y la lee solo el servicio `identidad` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `usuario`.
 
@@ -4670,7 +6139,9 @@
 
 **Para qué sirve.** Alimenta el bloqueo automático por fuerza bruta y las alertas de seguridad. `usuarioId` puede ser nulo a propósito: hay que registrar también los intentos contra identificadores que no existen, porque eso es exactamente la firma de un ataque de enumeración de usuarios.
 
-**Por qué existe.** El `puntajeRiesgo` permite decidir de forma graduada: no bloquear al usuario que se equivocó dos veces desde su casa, pero sí exigir MFA al que acierta la contraseña desde una IP nueva en otro país. ---
+**Por qué existe.** El `puntajeRiesgo` permite decidir de forma graduada: no bloquear al usuario que se equivocó dos veces desde su casa, pero sí exigir MFA al que acierta la contraseña desde una IP nueva en otro país.
+
+**Casos de uso que la nombran.** CU-04 Autenticar con MFA y registrar dispositivo (`autenticar`, `abrirDesafioDeStepUp`, `verificarDesafioDeStepUp`) · CU-09 Cambiar credenciales y solicitar la baja
 
 **Sistema.** Vive en el esquema `identidad`; la escribe y la lee solo el servicio `identidad` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `usuario`.
 
@@ -4695,6 +6166,8 @@
 
 **Por qué existe.** El contador `intentosFallidos` del token dice *cuántos*; esta tabla dice *quién, desde dónde y con qué patrón*. Solo lo segundo sirve para investigar.
 
+**Casos de uso que la nombran.** CU-01 Registro y apertura de billetera (`listarContratosVigentes`, `registrarUsuario`, `solicitarVerificacionCorreo`, `guardarBorradorOnboarding`, `confirmarVerificacionCorreo`, `verificarTitularidad`) · CU-04 Autenticar con MFA y registrar dispositivo (`autenticar`, `abrirDesafioDeStepUp`, `verificarDesafioDeStepUp`) · CU-09 Cambiar credenciales y solicitar la baja · CU-69 Invitar a un contacto y registrar sus referencias (`buscarPorTelefono`, `emitirTokenDeInvitacion`, `validarTokenDeInvitacion`, `consultarSupresion`)
+
 **Sistema.** Vive en el esquema `identidad`; la escribe y la lee solo el servicio `identidad` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `token_verificacion`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
@@ -4711,16 +6184,20 @@
 
 **Qué es.** Lo que la persona declara sobre su capacidad económica: ocupación, ingreso mensual, cuánto puede aportar, de dónde sale la plata, y si es PEP (persona expuesta políticamente).
 
-**Para qué sirve.** Aquí se previene el fracaso más común y más silencioso del pasanaku digital: **gente que se compromete a un aporte que no puede sostener**. En el pasanaku de oficina esto lo filtra el sentido común colectivo ("¿vos vas a poder con Bs 1.000 al mes?"); en una plataforma que empareja desconocidos, ese filtro hay que construirlo. `validarCapacidad(montoAporte)` es la función que le advierte a la persona —y al grupo— que el compromiso no cierra con lo que ella misma declaró. `esPEP` y `fuenteIngresos` son requisitos de cumplimiento antilavado: una plataforma que mueve aportes recurrentes de muchas personas es exactamente el vehículo que un regulador vigila.
+**Para qué sirve.** Aquí se previene el fracaso más común y más silencioso del pasanaku digital: **gente que se compromete a un aporte que no puede sostener**. En el pasanaku de oficina esto lo filtra el sentido común colectivo ("¿vos vas a poder con Bs 1.000 al mes?"); en una plataforma que empareja desconocidos, ese filtro hay que construirlo. `validarCapacidad(montoAporte)` es la función que le advierte a la persona —y al grupo— que el compromiso no cierra con lo que ella misma declaró.
+
+`esPEP` y `fuenteIngresos` son requisitos de cumplimiento antilavado: una plataforma que mueve aportes recurrentes de muchas personas es exactamente el vehículo que un regulador vigila.
 
 **Por qué existe.** Es información autodeclarada y de baja frecuencia de cambio, con implicaciones legales distintas a las de los datos de contacto. Se mantiene separada para poder auditar cuándo se declaró qué, y para poder retenerla o anonimizarla con reglas propias (M9).
+
+**Casos de uso que la nombran.** CU-68 Postular a un grupo y ser emparejado (`contarMorosos`, `consultarRestriccion`, `solicitarIngresoPorEnlace`, `generarEnlaceDelGrupo`, `postularAlGrupo`)
 
 **Sistema.** Vive en el esquema `identidad`; la escribe y la lee solo el servicio `identidad` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `usuario`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `usuario_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
+| `usuario_id` | UUID | — | UUID, obligatoria, única, referencia a `usuario`. | NINGUNA |
 | `ocupacion` | VARCHAR(80) | — | VARCHAR(80), obligatoria. | NINGUNA |
 | `ingreso_mensual_declarado` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | NINGUNA |
 | `capacidad_aporte_declarada` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | NINGUNA |
@@ -4734,14 +6211,16 @@
 
 **Para qué sirve.** Permite ajustar la política de autorización sin tocar código, y sobre todo declarar **qué acciones exigen segundo factor** (`requiereMFA`). Exonerar el aporte de alguien, autorizar un desembolso o cambiar una cuenta bancaria son acciones con impacto económico directo: deben pedir MFA aunque la sesión ya esté abierta.
 
-**Por qué existe.** Sin permisos granulares, la única distinción posible es "admin / no admin", y toda la operación termina hecha con cuentas de administrador — que es exactamente lo que un auditor marca como hallazgo crítico. ---
+**Por qué existe.** Sin permisos granulares, la única distinción posible es "admin / no admin", y toda la operación termina hecha con cuentas de administrador — que es exactamente lo que un auditor marca como hallazgo crítico.
+
+**Casos de uso que la nombran.** CU-08 Asignar y revocar roles de operador (`asignarRolesUsuarioInterno`)
 
 **Sistema.** Vive en el esquema `identidad`; la escribe y la lee solo el servicio `identidad` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. La referencian `rol_permiso`. Reglas nombradas: `ck_permiso_decision_exige_mfa`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `codigo` | VARCHAR(60) | — | VARCHAR(60), obligatoria. | NINGUNA |
+| `codigo` | VARCHAR(60) | — | VARCHAR(60), obligatoria, única. | NINGUNA |
 | `descripcion` | VARCHAR(160) | — | VARCHAR(160), obligatoria. | NINGUNA |
 | `recurso` | VARCHAR(40) | — | VARCHAR(40), obligatoria. | NINGUNA |
 | `accion` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
@@ -4753,9 +6232,13 @@
 
 **Qué es.** Los parámetros de seguridad de cada tipo de token: cuánto dura, cuántos intentos, cuántos reenvíos por hora, por qué canales puede salir.
 
-**Para qué sirve.** Permite **endurecer la seguridad sin desplegar código**. Un OTP para autorizar un pago debe durar 5 minutos; una invitación a un grupo debe durar 72 horas porque la gente contesta WhatsApp cuando puede. Si esos números están hardcodeados, cada ajuste operativo —y se ajustan seguido, sobre todo cuando aparece un patrón de fraude— es un release. `maxReenviosPorHora` y `maxEmisionesPorDia` tienen además un efecto directo en costos: cada SMS se paga. Un bucle de reenvíos mal controlado es una factura inesperada.
+**Para qué sirve.** Permite **endurecer la seguridad sin desplegar código**. Un OTP para autorizar un pago debe durar 5 minutos; una invitación a un grupo debe durar 72 horas porque la gente contesta WhatsApp cuando puede. Si esos números están hardcodeados, cada ajuste operativo —y se ajustan seguido, sobre todo cuando aparece un patrón de fraude— es un release.
 
-**Por qué existe.** Convierte decisiones de seguridad en configuración auditable y versionada (`vigenteDesde`), en lugar de constantes enterradas. ---
+`maxReenviosPorHora` y `maxEmisionesPorDia` tienen además un efecto directo en costos: cada SMS se paga. Un bucle de reenvíos mal controlado es una factura inesperada.
+
+**Por qué existe.** Convierte decisiones de seguridad en configuración auditable y versionada (`vigenteDesde`), en lugar de constantes enterradas.
+
+**Casos de uso que la nombran.** CU-04 Autenticar con MFA y registrar dispositivo (`autenticar`, `abrirDesafioDeStepUp`, `verificarDesafioDeStepUp`) · CU-09 Cambiar credenciales y solicitar la baja · CU-69 Invitar a un contacto y registrar sus referencias (`buscarPorTelefono`, `emitirTokenDeInvitacion`, `validarTokenDeInvitacion`, `consultarSupresion`)
 
 **Sistema.** Vive en el esquema `identidad`; la escribe y la lee solo el servicio `identidad` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. La referencian `token_verificacion`.
 
@@ -4778,16 +6261,20 @@
 
 **Qué es.** Por dónde y cuándo quiere el usuario que le escriban.
 
-**Para qué sirve.** Un cobro que llega por el canal equivocado no cobra. Y un cobro que llega a las 2 de la mañana genera un opt-out, que es peor: después ya no se le puede escribir ni siquiera para avisarle que su turno está listo. El horario de no molestar y el canal preferido protegen la relación con el usuario. `estaEnHorarioSilencio()` tiene una excepción deliberada: los eventos transaccionales (`EventoNotificable.esTransaccional`) la ignoran. Si tu pago fue rechazado o tu entrega se acreditó, eso se avisa a la hora que sea.
+**Para qué sirve.** Un cobro que llega por el canal equivocado no cobra. Y un cobro que llega a las 2 de la mañana genera un opt-out, que es peor: después ya no se le puede escribir ni siquiera para avisarle que su turno está listo. El horario de no molestar y el canal preferido protegen la relación con el usuario.
 
-**Por qué existe.** Además de la buena práctica, hay una razón económica y regulatoria: WhatsApp exige opt-in y penaliza a los remitentes con quejas de spam. Escribirle a quien no quiere ser escrito pone en riesgo el canal para todos los demás usuarios. ---
+`estaEnHorarioSilencio()` tiene una excepción deliberada: los eventos transaccionales (`EventoNotificable.esTransaccional`) la ignoran. Si tu pago fue rechazado o tu entrega se acreditó, eso se avisa a la hora que sea.
+
+**Por qué existe.** Además de la buena práctica, hay una razón económica y regulatoria: WhatsApp exige opt-in y penaliza a los remitentes con quejas de spam. Escribirle a quien no quiere ser escrito pone en riesgo el canal para todos los demás usuarios.
+
+**Casos de uso que la nombran.** CU-80 Despachar una notificación (`emitirNotificacion`, `consultarAvisosInternos`, `emitirAvisoInterno`, `marcarTodosAvisosLeidos`, `marcarAvisoLeido`, `listarPlantillas`, `verificarSupresion`)
 
 **Sistema.** Vive en el esquema `identidad`; la escribe y la lee solo el servicio `identidad` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `usuario`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `usuario_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
+| `usuario_id` | UUID | — | UUID, obligatoria, única, referencia a `usuario`. | NINGUNA |
 | `canal_primario` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
 | `canal_respaldo` | VARCHAR(20) | — | VARCHAR(20), opcional. | NINGUNA |
 | `acepta_whatsapp` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
@@ -4803,9 +6290,13 @@
 
 **Qué es.** Un contacto de confianza declarado por el usuario, con la relación y si acepta ser avalista.
 
-**Para qué sirve.** Formaliza lo que en el pasanaku presencial es implícito: **alguien responde por vos**. Cumple dos papeles. Primero, verificación blanda de identidad para usuarios sin documento en regla: si tres personas verificadas confirman conocerte, eso es señal. Segundo, y más importante, es la puerta de entrada al **aval solidario del módulo 8**: `aceptaSerAvalista` marca a quién se le puede pedir que garantice la deuda del avalado. En la cobranza también es determinante: la etapa temprana del módulo 8 contempla `AVISO_A_AVALISTA`, y la sola perspectiva de que le avisen a tu cuñado que no estás pagando mueve más plata que tres recordatorios automáticos.
+**Para qué sirve.** Formaliza lo que en el pasanaku presencial es implícito: **alguien responde por vos**. Cumple dos papeles. Primero, verificación blanda de identidad para usuarios sin documento en regla: si tres personas verificadas confirman conocerte, eso es señal. Segundo, y más importante, es la puerta de entrada al **aval solidario del módulo 8**: `aceptaSerAvalista` marca a quién se le puede pedir que garantice la deuda del avalado.
 
-**Por qué existe.** Sin referencias, un moroso sin documento verificado es inalcanzable. Con ellas, la red social que sostiene al pasanaku real se vuelve parte del sistema. ---
+En la cobranza también es determinante: la etapa temprana del módulo 8 contempla `AVISO_A_AVALISTA`, y la sola perspectiva de que le avisen a tu cuñado que no estás pagando mueve más plata que tres recordatorios automáticos.
+
+**Por qué existe.** Sin referencias, un moroso sin documento verificado es inalcanzable. Con ellas, la red social que sostiene al pasanaku real se vuelve parte del sistema.
+
+**Casos de uso que la nombran.** CU-69 Invitar a un contacto y registrar sus referencias (`buscarPorTelefono`, `emitirTokenDeInvitacion`, `validarTokenDeInvitacion`, `consultarSupresion`)
 
 **Sistema.** Vive en el esquema `identidad`; la escribe y la lee solo el servicio `identidad` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `usuario`.
 
@@ -4828,12 +6319,14 @@
 
 **Por qué existe.** Es deliberadamente una **proyección**, no la fuente de la verdad. La fuente es `evento_reputacion` + `puntaje_reputacion` en M6. Esta tabla se mantiene sincronizada como espejo. Confundir ambas —y editar el número aquí— rompería la trazabilidad de por qué alguien tiene el puntaje que tiene.
 
+**Casos de uso que la nombran.** CU-36 Segmentar comercialmente y aplicar precio diferenciado (`resolverPrecio`, `crearSegmento`) · CU-68 Postular a un grupo y ser emparejado (`contarMorosos`, `consultarRestriccion`, `solicitarIngresoPorEnlace`, `generarEnlaceDelGrupo`, `postularAlGrupo`) · CU-75 Emitir un certificado de reputación verificable (`emitirCertificado`, `verificarCertificado`)
+
 **Sistema.** Vive en el esquema `identidad`; la escribe y la lee solo el servicio `identidad` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `usuario`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `usuario_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
+| `usuario_id` | UUID | — | UUID, obligatoria, única, referencia a `usuario`. | NINGUNA |
 | `puntaje` | DECIMAL(6,2) | — | DECIMAL(6,2), obligatoria. | NINGUNA |
 | `indice_puntualidad` | DECIMAL(5,2) | — | DECIMAL(5,2), obligatoria. | NINGUNA |
 | `total_obligaciones` | INTEGER | — | INTEGER, obligatoria. | NINGUNA |
@@ -4848,9 +6341,13 @@
 
 **Qué es.** Una limitación puntual sobre lo que el usuario puede hacer, sin bloquearle el acceso: no crear grupos, no unirse a nuevos, no ser organizador, o un tope de monto.
 
-**Para qué sirve.** Es **la entidad bisagra entre el incumplimiento y el resto de la plataforma**, y una de las más importantes de todo el modelo. El escenario que resuelve: alguien abandona un pasanaku debiendo tres cuotas; se le abre un expediente en M8; ese expediente crea aquí una restricción `NO_UNIRSE`. Resultado: **no puede entrar limpio al siguiente grupo mientras tenga deuda abierta**. Esa es, en la práctica, la sanción que más disuade — mucho más que un puntaje que baja. Y a diferencia del bloqueo, la persona sí puede seguir entrando: puede ver su deuda, pagarla y regularizarse. Cerrarle la puerta del todo elimina la vía por la que podría pagar.
+**Para qué sirve.** Es **la entidad bisagra entre el incumplimiento y el resto de la plataforma**, y una de las más importantes de todo el modelo. El escenario que resuelve: alguien abandona un pasanaku debiendo tres cuotas; se le abre un expediente en M8; ese expediente crea aquí una restricción `NO_UNIRSE`. Resultado: **no puede entrar limpio al siguiente grupo mientras tenga deuda abierta**. Esa es, en la práctica, la sanción que más disuade — mucho más que un puntaje que baja.
+
+Y a diferencia del bloqueo, la persona sí puede seguir entrando: puede ver su deuda, pagarla y regularizarse. Cerrarle la puerta del todo elimina la vía por la que podría pagar.
 
 **Por qué existe.** Sin ella, la consecuencia del incumplimiento se queda encerrada en el módulo 8 y no afecta el comportamiento del sistema. La reputación informa; la restricción impide.
+
+**Casos de uso que la nombran.** CU-27 Restringir al deudor e incluirlo en la lista interna (`levantarRestriccion`, `restringirDeudor`) · CU-68 Postular a un grupo y ser emparejado (`contarMorosos`, `consultarRestriccion`, `solicitarIngresoPorEnlace`, `generarEnlaceDelGrupo`, `postularAlGrupo`) · CU-90 Postular a organizador y habilitarse (`activarRolOrganizador`, `postularOrganizador`, `aprobarPostulacion`, `consultarHabilitacionBasica`, `aceptarHabilitacionBasica`, `habilitarOrganizador`)
 
 **Sistema.** Vive en el esquema `identidad`; la escribe y la lee solo el servicio `identidad` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `usuario`. Reglas nombradas: `ck_restriccion_levantamiento`, `ck_restriccion_vigencia`, `uq_restriccion_usuario_vigente`.
 
@@ -4871,16 +6368,20 @@
 
 **Qué es.** Un conjunto nombrado de permisos: administrador, soporte, auditor, organizador, participante, invitado.
 
-**Para qué sirve.** Permite que la misma persona sea organizadora en un grupo y simple participante en otro, que es lo normal: quien organiza el pasanaku de la oficina probablemente participa en el de su familia sin organizarlo. El `ambito` (GLOBAL / GRUPO / ORGANIZACION) es lo que hace posible esa doble vida. El rol `AUDITOR` merece mención aparte: existe para que alguien pueda **leer todo sin poder modificar nada**, que es el requisito de una revisión externa o de un regulador.
+**Para qué sirve.** Permite que la misma persona sea organizadora en un grupo y simple participante en otro, que es lo normal: quien organiza el pasanaku de la oficina probablemente participa en el de su familia sin organizarlo. El `ambito` (GLOBAL / GRUPO / ORGANIZACION) es lo que hace posible esa doble vida.
 
-**Por qué existe.** Sin roles con ámbito, el permiso "expulsar participante" o se le da a todos los organizadores en todos los grupos, o no se le da a ninguno. ---
+El rol `AUDITOR` merece mención aparte: existe para que alguien pueda **leer todo sin poder modificar nada**, que es el requisito de una revisión externa o de un regulador.
+
+**Por qué existe.** Sin roles con ámbito, el permiso "expulsar participante" o se le da a todos los organizadores en todos los grupos, o no se le da a ninguno.
+
+**Casos de uso que la nombran.** CU-04 Autenticar con MFA y registrar dispositivo (`autenticar`, `abrirDesafioDeStepUp`, `verificarDesafioDeStepUp`) · CU-08 Asignar y revocar roles de operador (`asignarRolesUsuarioInterno`) · CU-09 Cambiar credenciales y solicitar la baja
 
 **Sistema.** Vive en el esquema `identidad`; la escribe y la lee solo el servicio `identidad` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. La referencian `asignacion_rol`, `rol_permiso`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `codigo` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
+| `codigo` | VARCHAR(30) | — | VARCHAR(30), obligatoria, única. | NINGUNA |
 | `nombre` | VARCHAR(60) | — | VARCHAR(60), obligatoria. | NINGUNA |
 | `ambito` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
 | `departamento` | VARCHAR(60) | — | VARCHAR(60), opcional. | NINGUNA |
@@ -4891,7 +6392,9 @@
 
 **Qué es.** La relación muchos-a-muchos entre roles y permisos.
 
-**Para qué sirve.** Permite redefinir qué puede hacer un rol sin reasignar usuarios uno por uno. Si mañana se decide que los organizadores ya no pueden condonar mora unilateralmente, se quita el permiso de la tabla y el cambio aplica a todos los organizadores del sistema. ---
+**Para qué sirve.** Permite redefinir qué puede hacer un rol sin reasignar usuarios uno por uno. Si mañana se decide que los organizadores ya no pueden condonar mora unilateralmente, se quita el permiso de la tabla y el cambio aplica a todos los organizadores del sistema.
+
+**Casos de uso que la nombran.** CU-08 Asignar y revocar roles de operador (`asignarRolesUsuarioInterno`)
 
 **Sistema.** Vive en el esquema `identidad`; la escribe y la lee solo el servicio `identidad` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `permiso`, `rol`.
 
@@ -4907,6 +6410,8 @@
 **Para qué sirve.** Le da al usuario la pantalla de "dispositivos conectados" y el botón de "cerrar todas las sesiones". Es la primera reacción de alguien que sospecha que le entraron a la cuenta, y es también lo que ejecuta el soporte cuando se reporta un robo de teléfono.
 
 **Por qué existe.** Sin sesiones materializadas solo hay tokens: se pueden revocar, pero no mostrar ni explicar al usuario. La revocación deja de ser una acción que el usuario puede tomar por sí mismo.
+
+**Casos de uso que la nombran.** CU-01 Registro y apertura de billetera (`listarContratosVigentes`, `registrarUsuario`, `solicitarVerificacionCorreo`, `guardarBorradorOnboarding`, `confirmarVerificacionCorreo`, `verificarTitularidad`) · CU-04 Autenticar con MFA y registrar dispositivo (`autenticar`, `abrirDesafioDeStepUp`, `verificarDesafioDeStepUp`) · CU-08 Asignar y revocar roles de operador (`asignarRolesUsuarioInterno`) · CU-09 Cambiar credenciales y solicitar la baja · CU-55 Gestionar un incidente de seguridad (`registrarIncidente`, `notificarTitulares`, `reportarIncidente`)
 
 **Sistema.** Vive en el esquema `identidad`; la escribe y la lee solo el servicio `identidad` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `dispositivo`, `usuario`. La referencian `nucleo_financiero.transaccion_billetera`.
 
@@ -4924,13 +6429,32 @@
 | `revocada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
 | `motivo_revocacion` | VARCHAR(80) | — | VARCHAR(80), opcional. | NINGUNA |
 
+### `shedlock`
+
+**Qué es.** Bloqueo de trabajos programados entre replicas (ADR-018).
+
+**Para qué sirve.** Evita que dos réplicas del servicio ejecuten el mismo trabajo programado a la vez (ADR-018).
+
+**Sistema.** Infraestructura del servicio `identidad`, generada por plantilla en cada esquema (ADR-027): la escribe y la lee solo ese servicio.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `name` | VARCHAR(64) | — | VARCHAR(64), obligatoria, clave primaria. | NINGUNA |
+| `lock_until` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `locked_at` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `locked_by` | VARCHAR(255) | — | VARCHAR(255), obligatoria. | NINGUNA |
+
 ### `solicitud_baja`
 
 **Qué es.** El pedido formal de un usuario de dejar la plataforma.
 
-**Para qué sirve.** Traduce un derecho (irse cuando quiera) a un proceso que no puede atropellar a terceros. El campo clave es `bloqueadaPorObligaciones`: **nadie puede darse de baja para escapar de una deuda o de un grupo en curso**. Si el usuario tiene aportes pendientes, deuda con el fondo de garantía o un turno por cobrar, la baja queda registrada pero con fecha efectiva condicionada. Esto protege a los otros diez participantes que siguen poniendo su plata contando con él. También sirve para separar la baja de la eliminación de datos: irse de la plataforma no es lo mismo que ejercer el derecho de cancelación de datos personales, que se tramita en el módulo 9 y tiene sus propias excepciones legales.
+**Para qué sirve.** Traduce un derecho (irse cuando quiera) a un proceso que no puede atropellar a terceros. El campo clave es `bloqueadaPorObligaciones`: **nadie puede darse de baja para escapar de una deuda o de un grupo en curso**. Si el usuario tiene aportes pendientes, deuda con el fondo de garantía o un turno por cobrar, la baja queda registrada pero con fecha efectiva condicionada. Esto protege a los otros diez participantes que siguen poniendo su plata contando con él.
+
+También sirve para separar la baja de la eliminación de datos: irse de la plataforma no es lo mismo que ejercer el derecho de cancelación de datos personales, que se tramita en el módulo 9 y tiene sus propias excepciones legales.
 
 **Por qué existe.** Sin esta entidad, la baja es un `UPDATE` de estado y se pierde la razón, la fecha de solicitud y el motivo del bloqueo. Ante un reclamo ("pedí darme de baja y me siguieron cobrando"), esto es la prueba.
+
+**Casos de uso que la nombran.** CU-09 Cambiar credenciales y solicitar la baja
 
 **Sistema.** Vive en el esquema `identidad`; la escribe y la lee solo el servicio `identidad` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `usuario`.
 
@@ -4947,9 +6471,20 @@
 
 **Qué es.** Cualquier credencial de un solo uso y vida corta que el sistema emite para probar que alguien controla un canal (teléfono, correo) o para autorizar una acción puntual.
 
-**Para qué sirve.** Es el mecanismo con el que la plataforma **convierte "dice que es él" en "probó que es él"** sin exigir contraseña en cada paso. Concretamente habilita: - el registro sin fricción (código por WhatsApp en vez de formulario largo); - la invitación a un grupo por enlace (RF-19, M2); - el **pago en un toque** desde el recordatorio de WhatsApp (RF-16, M5) — el participante toca el enlace y llega directo al QR de su aporte, sin login; - la confirmación de que el beneficiario recibió su bolsa (M4); - la firma del reglamento del grupo con sello de tiempo (M2); - la aceptación de un aval solidario (M8), que es un compromiso económico real y necesita constancia de quién aceptó y cuándo.
+**Para qué sirve.** Es el mecanismo con el que la plataforma **convierte "dice que es él" en "probó que es él"** sin exigir contraseña en cada paso. Concretamente habilita:
 
-**Por qué existe.** Porque el punto de ataque número uno de una app de dinero es el flujo de recuperación de cuenta. Los campos `intentosFallidos`, `maxIntentos`, `reenvios`, `ipOrigen` y `dispositivoId` no son burocracia: son lo que impide que alguien pruebe códigos de 6 dígitos hasta entrar a la cuenta de un participante la semana de su turno. `claveIdempotencia` resuelve un problema cotidiano y no de seguridad: el usuario toca dos veces "Enviar código" porque la red va lenta. Sin idempotencia se emiten dos códigos, el primero se invalida, la persona recibe el primero por SMS y escribe ese — y el sistema lo rechaza. Es una de las causas más frecuentes de abandono en el registro.
+- el registro sin fricción (código por WhatsApp en vez de formulario largo);
+- la invitación a un grupo por enlace (RF-19, M2);
+- el **pago en un toque** desde el recordatorio de WhatsApp (RF-16, M5) — el participante toca el enlace y llega directo al QR de su aporte, sin login;
+- la confirmación de que el beneficiario recibió su bolsa (M4);
+- la firma del reglamento del grupo con sello de tiempo (M2);
+- la aceptación de un aval solidario (M8), que es un compromiso económico real y necesita constancia de quién aceptó y cuándo.
+
+**Por qué existe.** Porque el punto de ataque número uno de una app de dinero es el flujo de recuperación de cuenta. Los campos `intentosFallidos`, `maxIntentos`, `reenvios`, `ipOrigen` y `dispositivoId` no son burocracia: son lo que impide que alguien pruebe códigos de 6 dígitos hasta entrar a la cuenta de un participante la semana de su turno.
+
+`claveIdempotencia` resuelve un problema cotidiano y no de seguridad: el usuario toca dos veces "Enviar código" porque la red va lenta. Sin idempotencia se emiten dos códigos, el primero se invalida, la persona recibe el primero por SMS y escribe ese — y el sistema lo rechaza. Es una de las causas más frecuentes de abandono en el registro.
+
+**Casos de uso que la nombran.** CU-01 Registro y apertura de billetera (`listarContratosVigentes`, `registrarUsuario`, `solicitarVerificacionCorreo`, `guardarBorradorOnboarding`, `confirmarVerificacionCorreo`, `verificarTitularidad`) · CU-04 Autenticar con MFA y registrar dispositivo (`autenticar`, `abrirDesafioDeStepUp`, `verificarDesafioDeStepUp`) · CU-09 Cambiar credenciales y solicitar la baja · CU-69 Invitar a un contacto y registrar sus referencias (`buscarPorTelefono`, `emitirTokenDeInvitacion`, `validarTokenDeInvitacion`, `consultarSupresion`) · CU-80 Despachar una notificación (`emitirNotificacion`, `consultarAvisosInternos`, `emitirAvisoInterno`, `marcarTodosAvisosLeidos`, `marcarAvisoLeido`, `listarPlantillas`, `verificarSupresion`) · CU-91 Firmar y rescindir el contrato de organizador (`firmarContrato`, `rescindirContrato`, `firmarHabilitacionBasica`, `emitirContrato`)
 
 **Sistema.** Vive en el esquema `identidad`; la escribe y la lee solo el servicio `identidad` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `dispositivo`, `politica_token`, `token_verificacion`, `usuario`. La referencian `alcance_invitacion`, `aportes.enlace_pago_rapido`, `cumplimiento.aceptacion_contrato`, `entregas.confirmacion_recepcion`, `garantia.aval_participante`, `grupos.aceptacion_reglamento`, `grupos.invitacion`, `intento_validacion_token`, `notificaciones.enlace_pago_notificado`, `organizador.contrato_organizador`, `token_verificacion`. Reglas nombradas: `uq_token_verificacion_idem`, `ck_token_refresco_familia`, `uq_token_refresco_vivo`.
 
@@ -4961,7 +6496,7 @@
 | `dispositivo_id` | UUID | — | UUID, opcional, referencia a `dispositivo`. | NINGUNA |
 | `tipo_token` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | SECRETO |
 | `proposito` | VARCHAR(35) | — | VARCHAR(35), obligatoria. | NINGUNA |
-| `hash_token` | VARCHAR(128) | — | VARCHAR(128), obligatoria. | DERIVADO |
+| `hash_token` | VARCHAR(128) | — | VARCHAR(128), obligatoria, única. | DERIVADO |
 | `algoritmo_hash` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | DERIVADO |
 | `canal_entrega` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
 | `destino_enmascarado` | VARCHAR(40) | — | VARCHAR(40), obligatoria. | NINGUNA |
@@ -4991,20 +6526,28 @@
 
 **Qué es.** La persona real detrás de la cuenta. Una sola por número de teléfono.
 
-**Para qué sirve.** Es el sujeto de todo lo demás: quien aporta, quien cobra, quien organiza, quien debe y quien tiene reputación. Su ciclo de vida (`PRE_REGISTRO → PENDIENTE_VERIFICACION → ACTIVO`) modela el onboarding real: en Bolivia la gente se baja la app porque un amigo le mandó un enlace de WhatsApp, no porque haya decidido "registrarse en una fintech". Por eso existe el estado `PRE_REGISTRO`: hay que poder guardar un teléfono e invitarlo a un grupo **antes** de que la persona complete su perfil, sin obligarla a un formulario largo cuando todavía no entiende qué es la plataforma. El campo `codigoPublico` existe porque nadie debería mostrar un UUID en pantalla ni tener que dictar su número de teléfono para que lo agreguen a un grupo. Es el identificador que la persona lee en voz alta. `idioma` con quechua y aymara no es decorativo: buena parte del mercado real de pasanakus está en poblaciones donde el español es segunda lengua, y un recordatorio de cobro que no se entiende es un recordatorio que no cobra. `nivelKYC` está en el usuario (y no solo en la tabla de verificaciones) porque es la variable que decide, en tiempo de operación y sin joins, cuánto puede mover esa persona. `limiteOperativoVigente()` es la función que impide que alguien sin documento verificado entre a un grupo de Bs 5.000 mensuales.
+**Para qué sirve.** Es el sujeto de todo lo demás: quien aporta, quien cobra, quien organiza, quien debe y quien tiene reputación. Su ciclo de vida (`PRE_REGISTRO → PENDIENTE_VERIFICACION → ACTIVO`) modela el onboarding real: en Bolivia la gente se baja la app porque un amigo le mandó un enlace de WhatsApp, no porque haya decidido "registrarse en una fintech". Por eso existe el estado `PRE_REGISTRO`: hay que poder guardar un teléfono e invitarlo a un grupo **antes** de que la persona complete su perfil, sin obligarla a un formulario largo cuando todavía no entiende qué es la plataforma.
+
+El campo `codigoPublico` existe porque nadie debería mostrar un UUID en pantalla ni tener que dictar su número de teléfono para que lo agreguen a un grupo. Es el identificador que la persona lee en voz alta.
+
+`idioma` con quechua y aymara no es decorativo: buena parte del mercado real de pasanakus está en poblaciones donde el español es segunda lengua, y un recordatorio de cobro que no se entiende es un recordatorio que no cobra.
+
+`nivelKYC` está en el usuario (y no solo en la tabla de verificaciones) porque es la variable que decide, en tiempo de operación y sin joins, cuánto puede mover esa persona. `limiteOperativoVigente()` es la función que impide que alguien sin documento verificado entre a un grupo de Bs 5.000 mensuales.
 
 **Por qué existe.** Es el ancla de todo el sistema. Sin ella no hay reputación portable entre grupos, que es justamente la propuesta de valor: que tu buen historial en un pasanaku te sirva para entrar al siguiente.
+
+**Casos de uso que la nombran.** CU-01 Registro y apertura de billetera (`listarContratosVigentes`, `registrarUsuario`, `solicitarVerificacionCorreo`, `guardarBorradorOnboarding`, `confirmarVerificacionCorreo`, `verificarTitularidad`) · CU-08 Asignar y revocar roles de operador (`asignarRolesUsuarioInterno`)
 
 **Sistema.** Vive en el esquema `identidad`; la escribe y la lee solo el servicio `identidad` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. La referencian `aportes.comprobante_manual`, `aportes.conciliacion`, `aportes.excepcion_conciliacion`, `aportes.extracto_bancario`, `aportes.pago`, `aportes.plan_regularizacion`, `aportes.reembolso`, `asignacion_rol`, `auditoria.alerta_cumplimiento`, `auditoria.coincidencia_lista`, `auditoria.ejecucion_reporte`, `auditoria.proceso_anonimizacion`, `auditoria.reporte_operacion_sospechosa`, `auditoria.solicitud_datos_personales`, `auditoria.ticket_soporte`, `bloqueo_cuenta`, `catalogo.licencia_regulatoria`, `catalogo.tarifario`, `comun.bitacora_evento`, `comun.registro_acceso_datos`, `consentimiento`, `credencial_acceso`, `cumplimiento.aceptacion_contrato`, `cumplimiento.acta_comite`, `cumplimiento.activo_informacion`, `cumplimiento.alerta_monitoreo_lft`, `cumplimiento.beneficiario_final`, `cumplimiento.calificacion_riesgo_cliente`, `cumplimiento.capacitacion_cumplimiento`, `cumplimiento.caso_investigacion_lft`, `cumplimiento.contrato_adhesion`, `cumplimiento.contrato_tercero`, `cumplimiento.control_interno`, `cumplimiento.debida_diligencia`, `cumplimiento.declaracion_origen_fondos`, `cumplimiento.declaracion_pep`, `cumplimiento.designacion_regulatoria`, `cumplimiento.desvio_perfil`, `cumplimiento.documento_publicado`, `cumplimiento.envio_regulatorio`, `cumplimiento.evaluacion_riesgo_producto`, `cumplimiento.evaluacion_tercero`, `cumplimiento.evento_riesgo_operativo`, `cumplimiento.expediente_cliente`, `cumplimiento.factor_riesgo_evaluado`, `cumplimiento.hallazgo_auditoria`, `cumplimiento.incidente_seguridad`, `cumplimiento.matriz_riesgo_lft`, `cumplimiento.observacion_regulatoria`, `cumplimiento.oficial_cumplimiento`, `cumplimiento.perfil_transaccional`, `cumplimiento.plan_accion_riesgo`, `cumplimiento.plan_continuidad`, `cumplimiento.politica_interna`, `cumplimiento.prueba_continuidad`, `cumplimiento.prueba_control`, `cumplimiento.punto_reclamo`, `cumplimiento.reclamo_cliente`, `cumplimiento.registro_operacion_relevante`, `cumplimiento.regla_monitoreo_lft`, `cumplimiento.reporte_regulatorio`, `cumplimiento.requerimiento_autoridad`, `cumplimiento.revision_periodica_kyc`, `direccion_usuario`, `dispositivo`, `documento_identidad`, `entregas.cuenta_bancaria_beneficiario`, `entregas.entrega_fondo`, `entregas.historial_estado_entrega`, `entregas.incidencia_entrega`, `entregas.validacion_pre_entrega`, `erp.asiento_plantilla`, `erp.cierre_periodo_contable`, `erp.ejercicio_fiscal`, `erp.estado_financiero_generado`, `erp.factura_proveedor`, `erp.orden_compra`, `erp.pago_a_proveedor`, `erp.presupuesto`, `factor_mfa`, `garantia.abono_recuperacion`, `garantia.accion_cobranza`, `garantia.acuerdo_quita`, `garantia.alerta_temprana`, `garantia.apelacion_sancion`, `garantia.aval_participante`, `garantia.candidato_reemplazo`, `garantia.capacidad_respaldo`, `garantia.castigo_deuda`, `garantia.cobertura_incumplimiento`, `garantia.cobertura_respaldo`, `garantia.descargo_participante`, `garantia.deuda_participante`, `garantia.evidencia_incumplimiento`, `garantia.gestion_cobranza`, `garantia.historial_estado_incumplimiento`, `garantia.historial_incumplimiento_usuario`, `garantia.lista_restriccion_interna`, `garantia.movimiento_fondo`, `garantia.movimiento_reserva`, `garantia.promesa_pago`, `garantia.registro_incumplimiento`, `garantia.reserva_respaldo`, `garantia.sancion`, `garantia.score_riesgo_incumplimiento`, `grupos.acuerdo`, `grupos.enlace_grupo`, `grupos.historial_estado_grupo`, `grupos.invitacion`, `grupos.participante`, `grupos.postulacion_emparejamiento`, `grupos.reglamento_grupo`, `grupos.solicitud_ingreso`, `grupos.sorteo_turnos`, `historial_credencial`, `intento_autenticacion`, `notificaciones.aviso_interno`, `notificaciones.bandeja_entrada`, `notificaciones.canal_vinculado`, `notificaciones.notificacion`, `nucleo_financiero.asiento_contable`, `nucleo_financiero.bloqueo_saldo`, `nucleo_financiero.certificado_saldo`, `nucleo_financiero.cierre_diario`, `nucleo_financiero.conciliacion_custodia`, `nucleo_financiero.cuenta_billetera`, `nucleo_financiero.descuadre_custodia`, `nucleo_financiero.evaluacion_antifraude`, `nucleo_financiero.evidencia_mfa_consumida`, `nucleo_financiero.instrumento_fondeo`, `nucleo_financiero.orden_retiro`, `nucleo_financiero.politica_billetera`, `nucleo_financiero.regla_antifraude`, `nucleo_financiero.respuesta_idempotente`, `nucleo_financiero.retencion_saldo`, `nucleo_financiero.reverso_transaccion`, `nucleo_financiero.solicitud_cierre_billetera`, `nucleo_financiero.transaccion_billetera`, `organizador.apelacion_sancion_org`, `organizador.organizador`, `organizador.sancion_organizador`, `organizador.solicitud_organizador`, `perfil_financiero`, `preferencia_notificacion`, `publicidad.campana_publicitaria`, `publicidad.clic_anuncio`, `publicidad.impresion_anuncio`, `publicidad.revision_creativa`, `publicidad.segmento_audiencia`, `publicidad.socio_comercial`, `referencia_personal`, `reputacion_usuario`, `restriccion_usuario`, `sesion`, `solicitud_baja`, `tarifas.asignacion_tarifario`, `tarifas.cambio_tarifario`, `tarifas.campana_promocional`, `tarifas.cuenta_por_cobrar_comision`, `tarifas.datos_facturacion`, `tarifas.devengo_comision`, `tarifas.devolucion_comision`, `tarifas.evento_significativo_sin`, `tarifas.exencion_comision`, `tarifas.factura_electronica`, `tarifas.liquidacion_ingresos`, `tarifas.simulacion_tarifa`, `token_verificacion`, `transparencia.certificado_reputacion`, `transparencia.evento_reputacion`, `transparencia.insignia_otorgada`, `transparencia.puntaje_reputacion`, `transparencia.resena_participante`, `transparencia.snapshot_reputacion`, `usuario_interno`, `verificacion_kyc`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `codigo_publico` | VARCHAR(12) | — | VARCHAR(12), obligatoria. | NINGUNA |
+| `codigo_publico` | VARCHAR(12) | — | VARCHAR(12), obligatoria, única. | NINGUNA |
 | `nombres` | VARCHAR(80) | — | VARCHAR(80), obligatoria. | NINGUNA |
 | `apellidos` | VARCHAR(80) | — | VARCHAR(80), obligatoria. | PERSONAL |
-| `telefono_e164` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | PERSONAL |
-| `correo` | VARCHAR(150) | — | VARCHAR(150), opcional. | PERSONAL |
+| `telefono_e164` | VARCHAR(20) | — | VARCHAR(20), obligatoria, única. | PERSONAL |
+| `correo` | VARCHAR(150) | — | VARCHAR(150), opcional, única. | PERSONAL |
 | `fecha_nacimiento` | DATE | — | DATE, obligatoria. | PERSONAL |
 | `estado` | VARCHAR(25) | — | VARCHAR(25), obligatoria. | NINGUNA |
 | `nivel_kyc` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
@@ -5026,12 +6569,14 @@
 
 **Por qué existe.** La segregación de responsabilidades y las directrices de control interno de ASFI e ISO/IEC 27001 exigen que los atributos laborales y las restricciones administrativas de los operadores no contaminen la entidad general de usuario ni se gestionen de manera informal.
 
+**Casos de uso que la nombran.** CU-08 Asignar y revocar roles de operador (`asignarRolesUsuarioInterno`)
+
 **Sistema.** Vive en el esquema `identidad`; la escribe y la lee solo el servicio `identidad` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `usuario`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `usuario_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
+| `usuario_id` | UUID | — | UUID, obligatoria, única, referencia a `usuario`. | NINGUNA |
 | `departamento` | VARCHAR(60) | — | VARCHAR(60), obligatoria. | NINGUNA |
 | `cargo` | VARCHAR(80) | — | VARCHAR(80), obligatoria. | NINGUNA |
 | `debe_cambiar_contrasena` | BOOLEAN | — | BOOLEAN, obligatoria. | SECRETO |
@@ -5044,7 +6589,9 @@
 
 **Para qué sirve.** Un documento cargado no es un documento verificado. Esta entidad separa el *dato* del *proceso*: guarda quién lo validó (proveedor externo o revisor humano), con qué puntaje biométrico, cuándo, y hasta cuándo vale esa verificación (`vigenteHasta` — los documentos vencen). Cuando un participante reclama que le rechazaron el KYC, `motivoRechazo` y `revisadaPor` son la respuesta.
 
-**Por qué existe.** Sin historial de verificaciones no se puede reintentar sin perder el rastro del rechazo anterior, ni auditar la tasa de aprobación del proveedor, ni detectar a un revisor que aprueba todo sin mirar. ---
+**Por qué existe.** Sin historial de verificaciones no se puede reintentar sin perder el rastro del rechazo anterior, ni auditar la tasa de aprobación del proveedor, ni detectar a un revisor que aprueba todo sin mirar.
+
+**Casos de uso que la nombran.** CU-01 Registro y apertura de billetera (`listarContratosVigentes`, `registrarUsuario`, `solicitarVerificacionCorreo`, `guardarBorradorOnboarding`, `confirmarVerificacionCorreo`, `verificarTitularidad`)
 
 **Sistema.** Vive en el esquema `identidad`; la escribe y la lee solo el servicio `identidad` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `documento_identidad`, `usuario`. La referencian `cumplimiento.debida_diligencia`, `organizador.solicitud_organizador`.
 
@@ -5083,7 +6630,7 @@
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
 | `posicion_inversion_id` | UUID | — | UUID, obligatoria, referencia a `posicion_inversion`. | NINGUNA |
-| `rescate_inversion_id` | UUID | — | UUID, obligatoria, referencia a `rescate_inversion`. | NINGUNA |
+| `rescate_inversion_id` | UUID | — | UUID, obligatoria, única, referencia a `rescate_inversion`. | NINGUNA |
 | `cuotas` | DECIMAL(18,6) | — | DECIMAL(18,6), obligatoria. | NINGUNA |
 | `valor_cuota` | DECIMAL(18,6) | — | DECIMAL(18,6), obligatoria. | NINGUNA |
 | `marca_maxima_previa` | DECIMAL(18,6) | — | DECIMAL(18,6), obligatoria. | NINGUNA |
@@ -5112,7 +6659,7 @@
 | `posicion_inversion_id` | UUID | — | UUID, obligatoria, referencia a `posicion_inversion`. | NINGUNA |
 | `usuario_id` | UUID | — | UUID, obligatoria. | NINGUNA |
 | `tipo` | VARCHAR(12) | — | VARCHAR(12), obligatoria. | NINGUNA |
-| `origen_id` | UUID | — | UUID, obligatoria. | NINGUNA |
+| `origen_id` | UUID | — | UUID, obligatoria, única. | NINGUNA |
 | `sentido_titular` | VARCHAR(8) | — | VARCHAR(8), obligatoria. | NINGUNA |
 | `principal` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | NINGUNA |
 | `interes` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | NINGUNA |
@@ -5139,7 +6686,7 @@
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
 | `posicion_inversion_id` | UUID | — | UUID, obligatoria, referencia a `posicion_inversion`. | NINGUNA |
-| `rescate_inversion_id` | UUID | — | UUID, obligatoria, referencia a `rescate_inversion`. | NINGUNA |
+| `rescate_inversion_id` | UUID | — | UUID, obligatoria, única, referencia a `rescate_inversion`. | NINGUNA |
 | `periodo_desde` | DATE | — | DATE, obligatoria. | NINGUNA |
 | `periodo_hasta` | DATE | — | DATE, obligatoria. | NINGUNA |
 | `interes_devengado` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | NINGUNA |
@@ -5228,7 +6775,7 @@
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
 | `posicion_inversion_id` | UUID | — | UUID, obligatoria, referencia a `posicion_inversion`. | NINGUNA |
-| `rescate_inversion_id` | UUID | — | UUID, obligatoria, referencia a `rescate_inversion`. | NINGUNA |
+| `rescate_inversion_id` | UUID | — | UUID, obligatoria, única, referencia a `rescate_inversion`. | NINGUNA |
 | `usuario_id` | UUID | — | UUID, obligatoria. | NINGUNA |
 | `periodo_desde` | DATE | — | DATE, obligatoria. | NINGUNA |
 | `periodo_hasta` | DATE | — | DATE, obligatoria. | NINGUNA |
@@ -5242,6 +6789,48 @@
 | `estado` | VARCHAR(12) | — | VARCHAR(12), obligatoria. | NINGUNA |
 | `motivo_discrepancia` | VARCHAR(40) | — | VARCHAR(40), opcional. | NINGUNA |
 | `distribuida_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+
+### `evento_consumido`
+
+**Qué es.** Marca de evento ya consumido, por consumidor (ADR-027).
+
+**Para qué sirve.** Hace idempotente el consumo: la entrega es al menos una vez y un mismo evento no puede producir dos efectos (regla 98.3.4).
+
+**Sistema.** Infraestructura del servicio `inversiones`, generada por plantilla en cada esquema (ADR-027): la escribe y la lee solo ese servicio.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `id_evento` | UUID | — | UUID, obligatoria, clave primaria. | NINGUNA |
+| `consumidor` | VARCHAR(60) | — | VARCHAR(60), obligatoria, clave primaria. | NINGUNA |
+| `consumido_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+
+### `evento_dominio`
+
+**Qué es.** Outbox transaccional del servicio (ADR-027).
+
+**Para qué sirve.** Garantiza que ningún hecho del servicio se pierda entre la base y la mensajería: el evento se guarda en la misma transacción que el cambio y un relevo lo publica después (regla 98.3.3).
+
+**Sistema.** Infraestructura del servicio `inversiones`, generada por plantilla en cada esquema (ADR-027): la escribe y la lee solo ese servicio.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
+| `tipo` | VARCHAR(60) | — | VARCHAR(60), obligatoria. | NINGUNA |
+| `version` | VARCHAR(10) | — | VARCHAR(10), obligatoria. | NINGUNA |
+| `agregado` | VARCHAR(40) | — | VARCHAR(40), obligatoria. | NINGUNA |
+| `agregado_id` | UUID | — | UUID, obligatoria. | NINGUNA |
+| `payload` | JSONB | — | JSONB, obligatoria. | NINGUNA |
+| `metadatos` | JSONB | — | JSONB, obligatoria. | NINGUNA |
+| `correlation_id` | UUID | — | UUID, obligatoria. | NINGUNA |
+| `causation_id` | UUID | — | UUID, opcional. | NINGUNA |
+| `ocurrido_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `publicado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
+| `intentos` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
+| `tomado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `tomado_por` | VARCHAR(100) | — | VARCHAR(100), opcional. | NINGUNA |
+| `ultimo_error` | TEXT | — | TEXT, opcional. | NINGUNA |
+| `proximo_intento_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
 
 ### `instruccion_libro`
 
@@ -5263,7 +6852,7 @@
 | `cuenta_billetera_id` | UUID | — | UUID, obligatoria. | NINGUNA |
 | `monto` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
 | `moneda` | CHAR(3) | Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2). | CHAR(3), obligatoria. | NINGUNA |
-| `clave_idempotencia` | VARCHAR(100) | Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4). | VARCHAR(100), obligatoria. | NINGUNA |
+| `clave_idempotencia` | VARCHAR(100) | Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4). | VARCHAR(100), obligatoria, única. | NINGUNA |
 | `estado` | VARCHAR(10) | — | VARCHAR(10), obligatoria. | NINGUNA |
 | `referencia_libro` | UUID | — | UUID, opcional. | NINGUNA |
 | `intentos` | INTEGER | — | INTEGER, obligatoria. | NINGUNA |
@@ -5287,7 +6876,7 @@
 | `usuario_id` | UUID | — | UUID, obligatoria. | NINGUNA |
 | `producto_inversion_id` | UUID | — | UUID, obligatoria, referencia a `producto_inversion`. | NINGUNA |
 | `version_condiciones_id` | UUID | — | UUID, obligatoria, referencia a `version_condiciones`. | NINGUNA |
-| `consentimiento_inversion_id` | UUID | — | UUID, obligatoria, referencia a `consentimiento_inversion`. | NINGUNA |
+| `consentimiento_inversion_id` | UUID | — | UUID, obligatoria, única, referencia a `consentimiento_inversion`. | NINGUNA |
 | `cuenta_billetera_id` | UUID | — | UUID, obligatoria. | NINGUNA |
 | `monto` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | FINANCIERO |
 | `moneda` | CHAR(3) | Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2). | CHAR(3), obligatoria. | NINGUNA |
@@ -5317,7 +6906,7 @@
 | `usuario_id` | UUID | — | UUID, obligatoria. | NINGUNA |
 | `producto_inversion_id` | UUID | — | UUID, obligatoria, referencia a `producto_inversion`. | NINGUNA |
 | `version_condiciones_id` | UUID | — | UUID, obligatoria, referencia a `version_condiciones`. | NINGUNA |
-| `orden_inversion_id` | UUID | — | UUID, obligatoria, referencia a `orden_inversion`. | NINGUNA |
+| `orden_inversion_id` | UUID | — | UUID, obligatoria, única, referencia a `orden_inversion`. | NINGUNA |
 | `tipo` | VARCHAR(5) | — | VARCHAR(5), obligatoria. | NINGUNA |
 | `principal` | DECIMAL(14,2) | — | DECIMAL(14,2), obligatoria. | NINGUNA |
 | `moneda` | CHAR(3) | Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2). | CHAR(3), obligatoria. | NINGUNA |
@@ -5326,7 +6915,7 @@
 | `marca_maxima` | DECIMAL(18,6) | — | DECIMAL(18,6), opcional. | NINGUNA |
 | `fecha_constitucion` | DATE | — | DATE, obligatoria. | NINGUNA |
 | `fecha_vencimiento` | DATE | — | DATE, opcional. | NINGUNA |
-| `posicion_externa` | VARCHAR(80) | — | VARCHAR(80), obligatoria. | NINGUNA |
+| `posicion_externa` | VARCHAR(80) | — | VARCHAR(80), obligatoria, única. | NINGUNA |
 | `estado` | VARCHAR(10) | — | VARCHAR(10), obligatoria. | NINGUNA |
 | `version` | INTEGER | — | INTEGER, obligatoria. | NINGUNA |
 | `creada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
@@ -5345,7 +6934,7 @@
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `codigo` | VARCHAR(40) | — | VARCHAR(40), obligatoria. | NINGUNA |
+| `codigo` | VARCHAR(40) | — | VARCHAR(40), obligatoria, única. | NINGUNA |
 | `tipo` | VARCHAR(5) | — | VARCHAR(5), obligatoria. | NINGUNA |
 | `nombre` | VARCHAR(120) | — | VARCHAR(120), obligatoria. | NINGUNA |
 | `emisor` | VARCHAR(120) | — | VARCHAR(120), obligatoria. | NINGUNA |
@@ -5381,6 +6970,21 @@
 | `version` | INTEGER | — | INTEGER, obligatoria. | NINGUNA |
 | `solicitada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
 | `actualizada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+
+### `shedlock`
+
+**Qué es.** Bloqueo de trabajos programados entre replicas (ADR-018).
+
+**Para qué sirve.** Evita que dos réplicas del servicio ejecuten el mismo trabajo programado a la vez (ADR-018).
+
+**Sistema.** Infraestructura del servicio `inversiones`, generada por plantilla en cada esquema (ADR-027): la escribe y la lee solo ese servicio.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `name` | VARCHAR(64) | — | VARCHAR(64), obligatoria, clave primaria. | NINGUNA |
+| `lock_until` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `locked_at` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `locked_by` | VARCHAR(255) | — | VARCHAR(255), obligatoria. | NINGUNA |
 
 ### `valor_cuota`
 
@@ -5446,7 +7050,9 @@
 
 **Para qué sirve.** Alerta a operadores sobre hechos operativos críticos: una nueva alerta de monitoreo, un caso asignado, una ficha técnica pendiente de revisión o un fallo de despliegue. Puede dirigirse a un operador específico o a todo un rol (ej. `ADMIN_PLATAFORMA`, `OFICIAL_CUMPLIMIENTO`).
 
-**Por qué existe.** Sin este registro, los operadores no tendrían una campana de notificaciones real que les informe de eventos urgentes con enlace directo a la pantalla de resolución. ---
+**Por qué existe.** Sin este registro, los operadores no tendrían una campana de notificaciones real que les informe de eventos urgentes con enlace directo a la pantalla de resolución.
+
+**Casos de uso que la nombran.** CU-80 Despachar una notificación (`emitirNotificacion`, `consultarAvisosInternos`, `emitirAvisoInterno`, `marcarTodosAvisosLeidos`, `marcarAvisoLeido`, `listarPlantillas`, `verificarSupresion`)
 
 **Sistema.** Vive en el esquema `notificaciones`; la escribe y la lee solo el servicio `notificaciones` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `identidad.usuario`.
 
@@ -5466,9 +7072,13 @@
 
 **Qué es.** El espejo de las notificaciones dentro de la app.
 
-**Para qué sirve.** WhatsApp y SMS se pierden en la marea de mensajes. La bandeja en la app es el registro persistente: el usuario entra y ve todo lo que le comunicaron, con su acción pendiente. Es también la red de seguridad cuando el usuario hizo opt-out de todos los canales externos — **algo tiene que poder avisarle que su turno está listo para cobrar**. `urlAccion` lleva directo a lo que hay que hacer.
+**Para qué sirve.** WhatsApp y SMS se pierden en la marea de mensajes. La bandeja en la app es el registro persistente: el usuario entra y ve todo lo que le comunicaron, con su acción pendiente. Es también la red de seguridad cuando el usuario hizo opt-out de todos los canales externos — **algo tiene que poder avisarle que su turno está listo para cobrar**.
 
-**Por qué existe.** Sin bandeja, un usuario que borró el WhatsApp no tiene cómo enterarse de nada, y la única constancia de lo comunicado está fuera de la plataforma. ---
+`urlAccion` lleva directo a lo que hay que hacer.
+
+**Por qué existe.** Sin bandeja, un usuario que borró el WhatsApp no tiene cómo enterarse de nada, y la única constancia de lo comunicado está fuera de la plataforma.
+
+**Casos de uso que la nombran.** CU-80 Despachar una notificación (`emitirNotificacion`, `consultarAvisosInternos`, `emitirAvisoInterno`, `marcarTodosAvisosLeidos`, `marcarAvisoLeido`, `listarPlantillas`, `verificarSupresion`) · CU-82 Procesar una respuesta entrante (`procesarRespuestaEntrante`)
 
 **Sistema.** Vive en el esquema `notificaciones`; la escribe y la lee solo el servicio `notificaciones` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `identidad.usuario`, `notificacion`.
 
@@ -5476,7 +7086,7 @@
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
 | `usuario_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `notificacion_id` | UUID | — | UUID, obligatoria, referencia a `notificacion`. | NINGUNA |
+| `notificacion_id` | UUID | — | UUID, obligatoria, única, referencia a `notificacion`. | NINGUNA |
 | `titulo` | VARCHAR(120) | — | VARCHAR(120), obligatoria. | NINGUNA |
 | `resumen` | VARCHAR(300) | — | VARCHAR(300), obligatoria. | NINGUNA |
 | `url_accion` | VARCHAR(255) | — | VARCHAR(255), opcional. | NINGUNA |
@@ -5488,9 +7098,15 @@
 
 **Qué es.** Un canal concreto de un usuario —su WhatsApp, su SMS, su correo, su token push— con su estado de verificación y consentimiento.
 
-**Para qué sirve.** Es el destinatario real. Tres campos hacen el trabajo pesado: - **`optInEn` / `optOutEn`.** El consentimiento es por canal, no por usuario: alguien puede aceptar WhatsApp y rechazar SMS. Enviar sin opt-in no solo es problema legal, es problema operativo: genera reportes de spam que degradan la reputación del remitente y afectan la entregabilidad **de todos los demás usuarios**. - **`ventanaConversacionHasta`.** La ventana de 24 horas de WhatsApp: después de que el usuario escribe, hay 24 horas para responderle con mensajes libres; pasadas esas horas solo se pueden enviar plantillas aprobadas. Guardar la ventana evita intentar envíos que el proveedor va a rechazar **y que en algunos esquemas igual se cobran**. - **`rebotesConsecutivos` + `estado = NO_ALCANZABLE`.** El número cambió de dueño, el correo no existe. Seguir escribiendo a un destino muerto cuesta plata y ensucia las métricas de entregabilidad.
+**Para qué sirve.** Es el destinatario real. Tres campos hacen el trabajo pesado:
 
-**Por qué existe.** Si el destinatario fuera simplemente `usuario.telefono`, no habría dónde guardar el opt-in, la ventana de conversación ni el estado de alcanzabilidad — y el sistema seguiría escribiéndole a quien pidió que no le escriban. ---
+- **`optInEn` / `optOutEn`.** El consentimiento es por canal, no por usuario: alguien puede aceptar WhatsApp y rechazar SMS. Enviar sin opt-in no solo es problema legal, es problema operativo: genera reportes de spam que degradan la reputación del remitente y afectan la entregabilidad **de todos los demás usuarios**.
+- **`ventanaConversacionHasta`.** La ventana de 24 horas de WhatsApp: después de que el usuario escribe, hay 24 horas para responderle con mensajes libres; pasadas esas horas solo se pueden enviar plantillas aprobadas. Guardar la ventana evita intentar envíos que el proveedor va a rechazar **y que en algunos esquemas igual se cobran**.
+- **`rebotesConsecutivos` + `estado = NO_ALCANZABLE`.** El número cambió de dueño, el correo no existe. Seguir escribiendo a un destino muerto cuesta plata y ensucia las métricas de entregabilidad.
+
+**Por qué existe.** Si el destinatario fuera simplemente `usuario.telefono`, no habría dónde guardar el opt-in, la ventana de conversación ni el estado de alcanzabilidad — y el sistema seguiría escribiéndole a quien pidió que no le escriban.
+
+**Casos de uso que la nombran.** CU-09 Cambiar credenciales y solicitar la baja · CU-80 Despachar una notificación (`emitirNotificacion`, `consultarAvisosInternos`, `emitirAvisoInterno`, `marcarTodosAvisosLeidos`, `marcarAvisoLeido`, `listarPlantillas`, `verificarSupresion`) · CU-82 Procesar una respuesta entrante (`procesarRespuestaEntrante`)
 
 **Sistema.** Vive en el esquema `notificaciones`; la escribe y la lee solo el servicio `notificaciones` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `identidad.usuario`. La referencian `envio_notificacion`, `respuesta_entrante`.
 
@@ -5513,16 +7129,20 @@
 
 **Qué es.** La cola de trabajo de los envíos pendientes.
 
-**Para qué sirve.** El pico de envíos es brutalmente concentrado: todos los grupos con día de cobro 5 generan sus recordatorios el día 3 a la misma hora. La cola con `particion` y `disponibleEn` distribuye ese pico para no saturar al proveedor ni exceder su límite de tasa. `bloqueadaHasta` implementa el lease: dos workers no toman el mismo envío y no se manda el mensaje dos veces.
+**Para qué sirve.** El pico de envíos es brutalmente concentrado: todos los grupos con día de cobro 5 generan sus recordatorios el día 3 a la misma hora. La cola con `particion` y `disponibleEn` distribuye ese pico para no saturar al proveedor ni exceder su límite de tasa.
 
-**Por qué existe.** Sin cola persistente, un reinicio del servicio en pleno envío pierde los mensajes pendientes y nadie recibe su recordatorio ese día. ---
+`bloqueadaHasta` implementa el lease: dos workers no toman el mismo envío y no se manda el mensaje dos veces.
+
+**Por qué existe.** Sin cola persistente, un reinicio del servicio en pleno envío pierde los mensajes pendientes y nadie recibe su recordatorio ese día.
+
+**Casos de uso que la nombran.** CU-83 Enrutar el envío por proveedor de mensajería (`listarEnvios`)
 
 **Sistema.** Vive en el esquema `notificaciones`; la escribe y la lee solo el servicio `notificaciones` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `envio_notificacion`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `envio_id` | UUID | — | UUID, obligatoria, referencia a `envio_notificacion`. | NINGUNA |
+| `envio_id` | UUID | — | UUID, obligatoria, única, referencia a `envio_notificacion`. | NINGUNA |
 | `particion` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
 | `disponible_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
 | `intentos` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
@@ -5534,7 +7154,9 @@
 
 **Para qué sirve.** Un mensaje que falla para siempre y desaparece es un usuario que no se enteró de que tenía que pagar y al que después se le va a cobrar mora. La cola muerta hace visible ese fallo: alguien puede revisarlo, corregir el canal y reprocesar.
 
-**Por qué existe.** Sin ella, los fallos permanentes son invisibles y se descubren como reclamos. ---
+**Por qué existe.** Sin ella, los fallos permanentes son invisibles y se descubren como reclamos.
+
+**Casos de uso que la nombran.** CU-80 Despachar una notificación (`emitirNotificacion`, `consultarAvisosInternos`, `emitirAvisoInterno`, `marcarTodosAvisosLeidos`, `marcarAvisoLeido`, `listarPlantillas`, `verificarSupresion`) · CU-83 Enrutar el envío por proveedor de mensajería (`listarEnvios`) · CU-96 Programar y ejecutar una tarea automatizada (`programarTarea`, `aprobarTarea`, `anotarEjecucion`)
 
 **Sistema.** Vive en el esquema `notificaciones`; la escribe y la lee solo el servicio `notificaciones` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `envio_notificacion`.
 
@@ -5555,15 +7177,17 @@
 
 **Por qué existe.** Sin esta entidad no se puede atribuir un pago al recordatorio que lo causó, y por lo tanto no se puede saber si la inversión en mensajería se justifica.
 
+**Casos de uso que la nombran.** CU-80 Despachar una notificación (`emitirNotificacion`, `consultarAvisosInternos`, `emitirAvisoInterno`, `marcarTodosAvisosLeidos`, `marcarAvisoLeido`, `listarPlantillas`, `verificarSupresion`)
+
 **Sistema.** Vive en el esquema `notificaciones`; la escribe y la lee solo el servicio `notificaciones` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `aportes.orden_cobro`, `identidad.token_verificacion`, `notificacion`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `notificacion_id` | UUID | — | UUID, obligatoria, referencia a `notificacion`. | NINGUNA |
+| `notificacion_id` | UUID | — | UUID, obligatoria, única, referencia a `notificacion`. | NINGUNA |
 | `orden_cobro_id` | UUID | — | UUID, obligatoria, referencia a `orden_cobro`. | NINGUNA |
-| `token_id` | UUID | — | UUID, obligatoria, referencia a `token_verificacion`. | SECRETO |
-| `url_corta` | VARCHAR(60) | — | VARCHAR(60), obligatoria. | NINGUNA |
+| `token_id` | UUID | — | UUID, obligatoria, única, referencia a `token_verificacion`. | SECRETO |
+| `url_corta` | VARCHAR(60) | — | VARCHAR(60), obligatoria, única. | NINGUNA |
 | `clicks` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
 | `primer_click_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
 | `convertido_en_pago` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
@@ -5573,9 +7197,15 @@
 
 **Qué es.** Un intento de entregar una notificación por un canal concreto, con su costo y su estado.
 
-**Para qué sirve.** Es donde vive la **cadena de respaldo** (RF-16): `orden = 1` WhatsApp; si a los N minutos no hay confirmación de entrega, se crea `orden = 2` por SMS; después correo. Cada eslabón guarda su propio `costo` y su propio `estado`. Eso permite responder la pregunta que decide el presupuesto de la operación: **¿qué canal realmente hace que la gente pague?** Si el 80% de los pagos ocurre tras el WhatsApp y el SMS solo agrega 3% a un costo diez veces mayor, la cadena de respaldo se recorta. Sin costo y estado por eslabón, esa decisión se toma a ciegas. `contenidoEnviado` guarda el texto exacto que se envió. Es la prueba ante "a mí nunca me avisaron".
+**Para qué sirve.** Es donde vive la **cadena de respaldo** (RF-16): `orden = 1` WhatsApp; si a los N minutos no hay confirmación de entrega, se crea `orden = 2` por SMS; después correo. Cada eslabón guarda su propio `costo` y su propio `estado`.
+
+Eso permite responder la pregunta que decide el presupuesto de la operación: **¿qué canal realmente hace que la gente pague?** Si el 80% de los pagos ocurre tras el WhatsApp y el SMS solo agrega 3% a un costo diez veces mayor, la cadena de respaldo se recorta. Sin costo y estado por eslabón, esa decisión se toma a ciegas.
+
+`contenidoEnviado` guarda el texto exacto que se envió. Es la prueba ante "a mí nunca me avisaron".
 
 **Por qué existe.** Sin envíos separados, no hay respaldo entre canales, ni costo por canal, ni forma de reintentar un canal sin reintentar todos.
+
+**Casos de uso que la nombran.** CU-34 Publicar un tarifario nuevo con preaviso (`listarTarifarios`, `publicarTarifario`, `ponerTarifarioVigente`) · CU-69 Invitar a un contacto y registrar sus referencias (`buscarPorTelefono`, `emitirTokenDeInvitacion`, `validarTokenDeInvitacion`, `consultarSupresion`) · CU-80 Despachar una notificación (`emitirNotificacion`, `consultarAvisosInternos`, `emitirAvisoInterno`, `marcarTodosAvisosLeidos`, `marcarAvisoLeido`, `listarPlantillas`, `verificarSupresion`) · CU-81 Programar recordatorios de aporte · CU-82 Procesar una respuesta entrante (`procesarRespuestaEntrante`) · CU-83 Enrutar el envío por proveedor de mensajería (`listarEnvios`)
 
 **Sistema.** Vive en el esquema `notificaciones`; la escribe y la lee solo el servicio `notificaciones` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `canal_vinculado`, `notificacion`, `proveedor_mensajeria`, `version_plantilla`. La referencian `cola_envio`, `cola_muerta`, `evento_entrega_mensaje`. Reglas nombradas: `uq_envio_idempotencia`.
 
@@ -5592,7 +7222,7 @@
 | `encolado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
 | `contenido_enviado` | TEXT | — | TEXT, obligatoria. | NINGUNA |
 | `estado` | VARCHAR(25) | — | VARCHAR(25), obligatoria. | NINGUNA |
-| `id_mensaje_proveedor` | VARCHAR(120) | — | VARCHAR(120), opcional. | NINGUNA |
+| `id_mensaje_proveedor` | VARCHAR(120) | — | VARCHAR(120), opcional, única. | NINGUNA |
 | `orden` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
 | `intentos` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
 | `max_intentos` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
@@ -5604,13 +7234,59 @@
 | `leido_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
 | `proximo_reintento_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
 
+### `evento_consumido`
+
+**Qué es.** Marca de evento ya consumido, por consumidor (ADR-027).
+
+**Para qué sirve.** Hace idempotente el consumo: la entrega es al menos una vez y un mismo evento no puede producir dos efectos (regla 98.3.4).
+
+**Sistema.** Infraestructura del servicio `notificaciones`, generada por plantilla en cada esquema (ADR-027): la escribe y la lee solo ese servicio.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `id_evento` | UUID | — | UUID, obligatoria, clave primaria. | NINGUNA |
+| `consumidor` | VARCHAR(60) | — | VARCHAR(60), obligatoria, clave primaria. | NINGUNA |
+| `consumido_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+
+### `evento_dominio`
+
+**Qué es.** Outbox transaccional del servicio (ADR-027).
+
+**Para qué sirve.** Garantiza que ningún hecho del servicio se pierda entre la base y la mensajería: el evento se guarda en la misma transacción que el cambio y un relevo lo publica después (regla 98.3.3).
+
+**Sistema.** Infraestructura del servicio `notificaciones`, generada por plantilla en cada esquema (ADR-027): la escribe y la lee solo ese servicio.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
+| `tipo` | VARCHAR(60) | — | VARCHAR(60), obligatoria. | NINGUNA |
+| `version` | VARCHAR(10) | — | VARCHAR(10), obligatoria. | NINGUNA |
+| `agregado` | VARCHAR(40) | — | VARCHAR(40), obligatoria. | NINGUNA |
+| `agregado_id` | UUID | — | UUID, obligatoria. | NINGUNA |
+| `payload` | JSONB | — | JSONB, obligatoria. | NINGUNA |
+| `metadatos` | JSONB | — | JSONB, obligatoria. | NINGUNA |
+| `correlation_id` | UUID | — | UUID, obligatoria. | NINGUNA |
+| `causation_id` | UUID | — | UUID, opcional. | NINGUNA |
+| `ocurrido_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `publicado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
+| `intentos` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
+| `tomado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `tomado_por` | VARCHAR(100) | — | VARCHAR(100), opcional. | NINGUNA |
+| `ultimo_error` | TEXT | — | TEXT, opcional. | NINGUNA |
+| `proximo_intento_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+
 ### `evento_entrega_mensaje`
 
 **Qué es.** Cada callback del proveedor sobre el destino de un mensaje: enviado, entregado, leído, fallido, rechazado.
 
-**Para qué sirve.** Es la única fuente confiable de si el mensaje llegó. "Enviado" no es "entregado" y "entregado" no es "leído". Esa distinción es la que alimenta la cadena de respaldo: si a los 15 minutos no hay `delivered`, se escala al siguiente canal. El estado `leído` tiene un uso adicional en cobranza: **alguien que lee los recordatorios y no paga es un caso distinto de alguien que no los lee**. El primero es una decisión; el segundo puede ser un problema de canal. El módulo 8 usa exactamente esa señal (`NO_ABRE_MENSAJES` como alerta temprana).
+**Para qué sirve.** Es la única fuente confiable de si el mensaje llegó. "Enviado" no es "entregado" y "entregado" no es "leído". Esa distinción es la que alimenta la cadena de respaldo: si a los 15 minutos no hay `delivered`, se escala al siguiente canal.
+
+El estado `leído` tiene un uso adicional en cobranza: **alguien que lee los recordatorios y no paga es un caso distinto de alguien que no los lee**. El primero es una decisión; el segundo puede ser un problema de canal. El módulo 8 usa exactamente esa señal (`NO_ABRE_MENSAJES` como alerta temprana).
 
 **Por qué existe.** Los proveedores reintentan sus callbacks. `claveIdempotencia` `UNIQUE` evita aplicar dos veces el mismo evento y contar dos entregas donde hubo una.
+
+**Casos de uso que la nombran.** CU-19 Reembolsar un pago y atender una disputa (`aprobarReembolso`, `registrarDisputa`, `solicitarReembolso`) · CU-80 Despachar una notificación (`emitirNotificacion`, `consultarAvisosInternos`, `emitirAvisoInterno`, `marcarTodosAvisosLeidos`, `marcarAvisoLeido`, `listarPlantillas`, `verificarSupresion`) · CU-83 Enrutar el envío por proveedor de mensajería (`listarEnvios`)
 
 **Sistema.** Vive en el esquema `notificaciones`; la escribe y la lee solo el servicio `notificaciones` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `envio_notificacion`. Reglas nombradas: `uq_evento_entrega_idempotencia`.
 
@@ -5629,16 +7305,24 @@
 
 **Qué es.** El catálogo de los 20 hechos del negocio que ameritan avisarle a alguien, cada uno con su política de comunicación.
 
-**Para qué sirve.** Centraliza decisiones que de otro modo quedarían dispersas en el código de ocho módulos distintos: - `prioridad`: un código de verificación es CRÍTICO (bloquea al usuario si no llega); un resumen mensual es BAJO. - `esTransaccional`: **si es transaccional, ignora el horario de no molestar.** "Tu entrega se acreditó" o "tu pago fue rechazado" se avisan a la hora que sea. Un recordatorio de aporte, no. - `permiteAgrupacion`: evita mandar cinco mensajes cuando se pueden juntar en uno. - `ventanaDeduplicacionMin`: cuánto tiempo tiene que pasar para que el mismo aviso se considere nuevo y no repetido. - `cadenaRespaldo`: el orden de canales a intentar. WhatsApp → SMS → correo.
+**Para qué sirve.** Centraliza decisiones que de otro modo quedarían dispersas en el código de ocho módulos distintos:
 
-**Por qué existe.** Sin catálogo, cada módulo decide por su cuenta cómo notificar, y el usuario recibe cinco mensajes de cinco estilos distintos por cosas relacionadas. Además, ajustar la política de comunicación (por ejemplo, dejar de mandar SMS porque se disparó el costo) requeriría tocar ocho módulos. ---
+- `prioridad`: un código de verificación es CRÍTICO (bloquea al usuario si no llega); un resumen mensual es BAJO.
+- `esTransaccional`: **si es transaccional, ignora el horario de no molestar.** "Tu entrega se acreditó" o "tu pago fue rechazado" se avisan a la hora que sea. Un recordatorio de aporte, no.
+- `permiteAgrupacion`: evita mandar cinco mensajes cuando se pueden juntar en uno.
+- `ventanaDeduplicacionMin`: cuánto tiempo tiene que pasar para que el mismo aviso se considere nuevo y no repetido.
+- `cadenaRespaldo`: el orden de canales a intentar. WhatsApp → SMS → correo.
+
+**Por qué existe.** Sin catálogo, cada módulo decide por su cuenta cómo notificar, y el usuario recibe cinco mensajes de cinco estilos distintos por cosas relacionadas. Además, ajustar la política de comunicación (por ejemplo, dejar de mandar SMS porque se disparó el costo) requeriría tocar ocho módulos.
+
+**Casos de uso que la nombran.** CU-80 Despachar una notificación (`emitirNotificacion`, `consultarAvisosInternos`, `emitirAvisoInterno`, `marcarTodosAvisosLeidos`, `marcarAvisoLeido`, `listarPlantillas`, `verificarSupresion`)
 
 **Sistema.** Vive en el esquema `notificaciones`; la escribe y la lee solo el servicio `notificaciones` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. La referencian `notificacion`, `plantilla_mensaje`, `programacion_recordatorio`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `tipo` | VARCHAR(40) | — | VARCHAR(40), obligatoria. | NINGUNA |
+| `tipo` | VARCHAR(40) | — | VARCHAR(40), obligatoria, única. | NINGUNA |
 | `descripcion` | VARCHAR(200) | — | VARCHAR(200), obligatoria. | NINGUNA |
 | `categoria` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
 | `es_obligatorio` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
@@ -5654,9 +7338,13 @@
 
 **Qué es.** La lista negra de identificadores a los que no se les vuelve a escribir, por canal.
 
-**Para qué sirve.** Es la protección de la reputación del remitente. Tres motivos: queja por spam, rebote duro, solicitud legal. Se consulta **antes de cada envío**. La diferencia con el opt-out del `CanalVinculado` es importante: la supresión es **por identificador, no por usuario**. Si un número reportó spam, no se le escribe a ese número aunque mañana lo registre otra persona con otra cuenta. Es una protección a nivel de infraestructura de mensajería, no de relación con el usuario.
+**Para qué sirve.** Es la protección de la reputación del remitente. Tres motivos: queja por spam, rebote duro, solicitud legal. Se consulta **antes de cada envío**.
 
-**Por qué existe.** Una tasa alta de quejas hace que el proveedor limite o suspenda la cuenta de envío. Cuando eso pasa, **ningún** usuario recibe recordatorios, y la cobranza de toda la plataforma se cae. ---
+La diferencia con el opt-out del `CanalVinculado` es importante: la supresión es **por identificador, no por usuario**. Si un número reportó spam, no se le escribe a ese número aunque mañana lo registre otra persona con otra cuenta. Es una protección a nivel de infraestructura de mensajería, no de relación con el usuario.
+
+**Por qué existe.** Una tasa alta de quejas hace que el proveedor limite o suspenda la cuenta de envío. Cuando eso pasa, **ningún** usuario recibe recordatorios, y la cobranza de toda la plataforma se cae.
+
+**Casos de uso que la nombran.** CU-07 Ejercer derechos sobre datos personales (`ejercerDerechos`, `consultarMiPerfil`, `revocarCertificado`) · CU-69 Invitar a un contacto y registrar sus referencias (`buscarPorTelefono`, `emitirTokenDeInvitacion`, `validarTokenDeInvitacion`, `consultarSupresion`) · CU-80 Despachar una notificación (`emitirNotificacion`, `consultarAvisosInternos`, `emitirAvisoInterno`, `marcarTodosAvisosLeidos`, `marcarAvisoLeido`, `listarPlantillas`, `verificarSupresion`) · CU-82 Procesar una respuesta entrante (`procesarRespuestaEntrante`)
 
 **Sistema.** Vive en el esquema `notificaciones`; la escribe y la lee solo el servicio `notificaciones` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos.
 
@@ -5675,9 +7363,17 @@
 
 **Qué es.** El hecho a comunicar a una persona. Una por evento y destinatario.
 
-**Para qué sirve.** Es la intención: "hay que avisarle a Juan que su aporte vence mañana". Independiente de por dónde se le avise y de cuántas veces se intente. `contexto` (JSON) lleva los datos del hecho: grupo, aporte, monto, fecha. Se guarda con la notificación, no se recalcula al enviar, porque **el mensaje debe decir lo que era cierto cuando se generó**. Si el monto cambió entre la generación y el envío, mandar el nuevo confundiría al usuario. `claveDeduplicacion` es el campo que resuelve el problema más molesto de todo sistema de recordatorios: **el bombardeo**. El job de recordatorios se reejecuta —por un reintento, por un despliegue, por un error— y la persona recibe cinco mensajes idénticos. Eso genera opt-outs y quejas por spam. La clave (hash de tipoEvento + usuarioId + aporteId + día) con índice único parcial lo hace imposible por construcción. `correlationId` permite trazar: este recordatorio pertenece al mismo flujo que generó la orden de cobro y que registró el intento de pago (M3, M9).
+**Para qué sirve.** Es la intención: "hay que avisarle a Juan que su aporte vence mañana". Independiente de por dónde se le avise y de cuántas veces se intente.
+
+`contexto` (JSON) lleva los datos del hecho: grupo, aporte, monto, fecha. Se guarda con la notificación, no se recalcula al enviar, porque **el mensaje debe decir lo que era cierto cuando se generó**. Si el monto cambió entre la generación y el envío, mandar el nuevo confundiría al usuario.
+
+`claveDeduplicacion` es el campo que resuelve el problema más molesto de todo sistema de recordatorios: **el bombardeo**. El job de recordatorios se reejecuta —por un reintento, por un despliegue, por un error— y la persona recibe cinco mensajes idénticos. Eso genera opt-outs y quejas por spam. La clave (hash de tipoEvento + usuarioId + aporteId + día) con índice único parcial lo hace imposible por construcción.
+
+`correlationId` permite trazar: este recordatorio pertenece al mismo flujo que generó la orden de cobro y que registró el intento de pago (M3, M9).
 
 **Por qué existe.** Sin el nivel de "hecho a comunicar" separado del envío, no se puede escalar a canal de respaldo sin duplicar la notificación, ni deduplicar, ni mostrar en la bandeja de la app.
+
+**Casos de uso que la nombran.** CU-80 Despachar una notificación (`emitirNotificacion`, `consultarAvisosInternos`, `emitirAvisoInterno`, `marcarTodosAvisosLeidos`, `marcarAvisoLeido`, `listarPlantillas`, `verificarSupresion`) · CU-81 Programar recordatorios de aporte
 
 **Sistema.** Vive en el esquema `notificaciones`; la escribe y la lee solo el servicio `notificaciones` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `evento_notificable`, `identidad.usuario`. La referencian `bandeja_entrada`, `enlace_pago_notificado`, `envio_notificacion`, `garantia.accion_cobranza`, `respuesta_entrante`.
 
@@ -5688,7 +7384,7 @@
 | `evento_id` | UUID | — | UUID, obligatoria, referencia a `evento_notificable`. | NINGUNA |
 | `prioridad` | VARCHAR(10) | — | VARCHAR(10), obligatoria. | NINGUNA |
 | `contexto` | JSONB | — | JSONB, obligatoria. | NINGUNA |
-| `clave_deduplicacion` | VARCHAR(120) | — | VARCHAR(120), obligatoria. | SECRETO |
+| `clave_deduplicacion` | VARCHAR(120) | — | VARCHAR(120), obligatoria, única. | SECRETO |
 | `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
 | `programada_para` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
 | `creada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
@@ -5699,16 +7395,24 @@
 
 **Qué es.** Una plantilla de mensaje para un evento y un canal, con su estado de aprobación ante el proveedor.
 
-**Para qué sirve.** Modela una restricción externa que no se puede ignorar: **WhatsApp exige que las plantillas se registren y se aprueben antes de poder usarse**, y las rechaza con frecuencia (por tono comercial, por variables mal definidas, por categoría incorrecta). `categoriaProveedor` (UTILITY / AUTHENTICATION / MARKETING) tiene consecuencias económicas y funcionales directas: las de marketing cuestan más, requieren opt-in más estricto y **no se pueden enviar fuera de la ventana de 24 horas**. Clasificar mal un recordatorio de cobro como marketing significa no poder enviarlo cuando más falta hace. `idPlantillaProveedor` guarda el identificador que devuelve Meta/Twilio: es el que hay que mandar en cada envío. `estadoAprobacion = PAUSADA` refleja algo real: el proveedor puede pausar una plantilla en producción si acumula reportes de spam. Si el sistema no lo sabe, sigue intentando enviarla y falla en silencio.
+**Para qué sirve.** Modela una restricción externa que no se puede ignorar: **WhatsApp exige que las plantillas se registren y se aprueben antes de poder usarse**, y las rechaza con frecuencia (por tono comercial, por variables mal definidas, por categoría incorrecta).
 
-**Por qué existe.** Sin esta entidad, el sistema intenta enviar mensajes que el proveedor va a rechazar —y que en algunos esquemas igual se cobran— y no hay dónde ver qué plantillas están vivas. ---
+`categoriaProveedor` (UTILITY / AUTHENTICATION / MARKETING) tiene consecuencias económicas y funcionales directas: las de marketing cuestan más, requieren opt-in más estricto y **no se pueden enviar fuera de la ventana de 24 horas**. Clasificar mal un recordatorio de cobro como marketing significa no poder enviarlo cuando más falta hace.
+
+`idPlantillaProveedor` guarda el identificador que devuelve Meta/Twilio: es el que hay que mandar en cada envío.
+
+`estadoAprobacion = PAUSADA` refleja algo real: el proveedor puede pausar una plantilla en producción si acumula reportes de spam. Si el sistema no lo sabe, sigue intentando enviarla y falla en silencio.
+
+**Por qué existe.** Sin esta entidad, el sistema intenta enviar mensajes que el proveedor va a rechazar —y que en algunos esquemas igual se cobran— y no hay dónde ver qué plantillas están vivas.
+
+**Casos de uso que la nombran.** CU-80 Despachar una notificación (`emitirNotificacion`, `consultarAvisosInternos`, `emitirAvisoInterno`, `marcarTodosAvisosLeidos`, `marcarAvisoLeido`, `listarPlantillas`, `verificarSupresion`)
 
 **Sistema.** Vive en el esquema `notificaciones`; la escribe y la lee solo el servicio `notificaciones` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `evento_notificable`. La referencian `version_plantilla`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `codigo` | VARCHAR(50) | — | VARCHAR(50), obligatoria. | NINGUNA |
+| `codigo` | VARCHAR(50) | — | VARCHAR(50), obligatoria, única. | NINGUNA |
 | `evento_id` | UUID | — | UUID, obligatoria, referencia a `evento_notificable`. | NINGUNA |
 | `canal` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
 | `descripcion` | VARCHAR(200) | — | VARCHAR(200), obligatoria. | NINGUNA |
@@ -5721,9 +7425,21 @@
 
 **Qué es.** La regla de cuándo mandar cada recordatorio, relativa a una fecha de referencia.
 
-**Para qué sirve.** `desfaseDias` es elegante en su simplicidad: `-3` es tres días antes del vencimiento, `+1` es un día después. Con eso se arma toda la secuencia de cobranza preventiva sin escribir código: - `-3`: "tu aporte vence el viernes" - `-1`: "tu aporte vence mañana" - `0`: "hoy vence tu aporte" - `+1`: "tu aporte venció ayer" - `+3`, repetido: escalamiento `horaEnvio` importa más de lo que parece: mandar el recordatorio de cobro a las 9 de la mañana de un lunes tiene tasa de conversión distinta que a las 8 de la noche de un viernes. Poder ajustarlo por configuración permite optimizar sin desplegar. `grupoId` nullable permite que un grupo tenga su propia cadencia (los grupos familiares toleran menos recordatorios que los formales).
+**Para qué sirve.** `desfaseDias` es elegante en su simplicidad: `-3` es tres días antes del vencimiento, `+1` es un día después. Con eso se arma toda la secuencia de cobranza preventiva sin escribir código:
 
-**Por qué existe.** Sin programación configurable, la secuencia de recordatorios está hardcodeada y no se puede experimentar con lo que realmente mejora la puntualidad — que es la métrica que define el éxito del producto. ---
+- `-3`: "tu aporte vence el viernes"
+- `-1`: "tu aporte vence mañana"
+- `0`: "hoy vence tu aporte"
+- `+1`: "tu aporte venció ayer"
+- `+3`, repetido: escalamiento
+
+`horaEnvio` importa más de lo que parece: mandar el recordatorio de cobro a las 9 de la mañana de un lunes tiene tasa de conversión distinta que a las 8 de la noche de un viernes. Poder ajustarlo por configuración permite optimizar sin desplegar.
+
+`grupoId` nullable permite que un grupo tenga su propia cadencia (los grupos familiares toleran menos recordatorios que los formales).
+
+**Por qué existe.** Sin programación configurable, la secuencia de recordatorios está hardcodeada y no se puede experimentar con lo que realmente mejora la puntualidad — que es la métrica que define el éxito del producto.
+
+**Casos de uso que la nombran.** CU-81 Programar recordatorios de aporte
 
 **Sistema.** Vive en el esquema `notificaciones`; la escribe y la lee solo el servicio `notificaciones` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `evento_notificable`, `grupos.grupo`.
 
@@ -5745,14 +7461,16 @@
 
 **Para qué sirve.** `costoPorMensaje` permite calcular el costo real de la cobranza por grupo — un número que la mayoría de las plataformas descubre tarde. `limiteMensajesPorSegundo` evita que el envío masivo del día de vencimiento haga que el proveedor rechace la mitad de los mensajes por exceso de tasa. `saludPorcentaje` + `estaSaludable()` permiten enrutar a un proveedor alternativo cuando el principal se degrada, justo el día de mayor volumen.
 
-**Por qué existe.** Con un solo proveedor hardcodeado, su caída es la caída del cobro de todos los grupos ese día. ---
+**Por qué existe.** Con un solo proveedor hardcodeado, su caída es la caída del cobro de todos los grupos ese día.
+
+**Casos de uso que la nombran.** CU-83 Enrutar el envío por proveedor de mensajería (`listarEnvios`)
 
 **Sistema.** Vive en el esquema `notificaciones`; la escribe y la lee solo el servicio `notificaciones` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. La referencian `envio_notificacion`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `codigo` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
+| `codigo` | VARCHAR(30) | — | VARCHAR(30), obligatoria, única. | NINGUNA |
 | `nombre` | VARCHAR(80) | — | VARCHAR(80), obligatoria. | NINGUNA |
 | `canales_soportados` | VARCHAR(120) | — | VARCHAR(120), obligatoria. | NINGUNA |
 | `url_base` | VARCHAR(200) | — | VARCHAR(200), obligatoria. | NINGUNA |
@@ -5767,9 +7485,18 @@
 
 **Qué es.** Lo que el participante contesta por el canal, con la intención detectada.
 
-**Para qué sirve.** Esta entidad reconoce algo que todo sistema de notificaciones descubre a la mala: **la gente contesta**. Escriben "YA PAGUÉ", "cuánto debo", "sáquenme de aquí", "1". Si nadie procesa esas respuestas, o se pierden (y el usuario siente que le habla a una pared) o alguien tiene que leer chats a mano. `intencionDetectada` clasifica en cinco intenciones accionables: - `YA_PAGUE` → dispara el flujo de comprobante manual del módulo 3. - `CONSULTAR_SALDO` → responde con el estado de cuenta. - `AYUDA` → abre ticket de soporte (M9). - `BAJA` → registra opt-out en el canal. **Esto no es opcional: es requisito regulatorio y de los proveedores** que responder "BAJA" funcione. - `DESCONOCIDA` → escala a un humano.
+**Para qué sirve.** Esta entidad reconoce algo que todo sistema de notificaciones descubre a la mala: **la gente contesta**. Escriben "YA PAGUÉ", "cuánto debo", "sáquenme de aquí", "1". Si nadie procesa esas respuestas, o se pierden (y el usuario siente que le habla a una pared) o alguien tiene que leer chats a mano.
 
-**Por qué existe.** Sin respuestas entrantes, el canal es unidireccional y el usuario que quiere cooperar (avisar que ya pagó) no tiene cómo hacerlo por el canal que sí usa. ---
+`intencionDetectada` clasifica en cinco intenciones accionables:
+- `YA_PAGUE` → dispara el flujo de comprobante manual del módulo 3.
+- `CONSULTAR_SALDO` → responde con el estado de cuenta.
+- `AYUDA` → abre ticket de soporte (M9).
+- `BAJA` → registra opt-out en el canal. **Esto no es opcional: es requisito regulatorio y de los proveedores** que responder "BAJA" funcione.
+- `DESCONOCIDA` → escala a un humano.
+
+**Por qué existe.** Sin respuestas entrantes, el canal es unidireccional y el usuario que quiere cooperar (avisar que ya pagó) no tiene cómo hacerlo por el canal que sí usa.
+
+**Casos de uso que la nombran.** CU-82 Procesar una respuesta entrante (`procesarRespuestaEntrante`)
 
 **Sistema.** Vive en el esquema `notificaciones`; la escribe y la lee solo el servicio `notificaciones` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `canal_vinculado`, `notificacion`.
 
@@ -5784,13 +7511,37 @@
 | `procesada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
 | `accion_ejecutada` | VARCHAR(120) | — | VARCHAR(120), opcional. | NINGUNA |
 
+### `shedlock`
+
+**Qué es.** Bloqueo de trabajos programados entre replicas (ADR-018).
+
+**Para qué sirve.** Evita que dos réplicas del servicio ejecuten el mismo trabajo programado a la vez (ADR-018).
+
+**Sistema.** Infraestructura del servicio `notificaciones`, generada por plantilla en cada esquema (ADR-027): la escribe y la lee solo ese servicio.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `name` | VARCHAR(64) | — | VARCHAR(64), obligatoria, clave primaria. | NINGUNA |
+| `lock_until` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `locked_at` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `locked_by` | VARCHAR(255) | — | VARCHAR(255), obligatoria. | NINGUNA |
+
 ### `version_plantilla`
 
 **Qué es.** El texto concreto de una plantilla, en un idioma, en una versión.
 
-**Para qué sirve.** Dos razones: 1. **Idioma.** Un recordatorio de cobro en español a alguien que opera en quechua o aymara es un recordatorio que no cobra. El modelo soporta versiones por idioma de la misma plantilla. 2. **Versionado.** Cuando alguien reclama "a mí nunca me avisaron que había recargo", hay que poder reconstruir el texto exacto que se le envió ese día. `contenidoEnviado` en el envío guarda el resultado renderizado; la versión guarda la plantilla de la que salió. `botones` (JSON) es lo que habilita el CTA "Pagar ahora" y las respuestas rápidas del tipo "Ya pagué / Necesito plazo". Ese botón es literalmente la diferencia entre un mensaje que informa y uno que cobra. `validarVariables(contexto)` evita el error clásico de mandar "Hola {{1}}, tu aporte de {{2}} vence el {{3}}" con una variable sin resolver.
+**Para qué sirve.** Dos razones:
 
-**Por qué existe.** Sin versiones, cambiar un texto reescribe la historia y no se puede probar qué se comunicó. ---
+1. **Idioma.** Un recordatorio de cobro en español a alguien que opera en quechua o aymara es un recordatorio que no cobra. El modelo soporta versiones por idioma de la misma plantilla.
+2. **Versionado.** Cuando alguien reclama "a mí nunca me avisaron que había recargo", hay que poder reconstruir el texto exacto que se le envió ese día. `contenidoEnviado` en el envío guarda el resultado renderizado; la versión guarda la plantilla de la que salió.
+
+`botones` (JSON) es lo que habilita el CTA "Pagar ahora" y las respuestas rápidas del tipo "Ya pagué / Necesito plazo". Ese botón es literalmente la diferencia entre un mensaje que informa y uno que cobra.
+
+`validarVariables(contexto)` evita el error clásico de mandar "Hola {{1}}, tu aporte de {{2}} vence el {{3}}" con una variable sin resolver.
+
+**Por qué existe.** Sin versiones, cambiar un texto reescribe la historia y no se puede probar qué se comunicó.
+
+**Casos de uso que la nombran.** CU-80 Despachar una notificación (`emitirNotificacion`, `consultarAvisosInternos`, `emitirAvisoInterno`, `marcarTodosAvisosLeidos`, `marcarAvisoLeido`, `listarPlantillas`, `verificarSupresion`)
 
 **Sistema.** Vive en el esquema `notificaciones`; la escribe y la lee solo el servicio `notificaciones` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `plantilla_mensaje`. La referencian `envio_notificacion`.
 
@@ -5814,16 +7565,22 @@
 
 **Qué es.** El registro de un hecho económico, compuesto por movimientos que suman igual en el debe y en el haber.
 
-**Para qué sirve.** Cada aporte acreditado, cada entrega y cada cobertura del fondo genera un asiento. La regla `SUM(debe) = SUM(haber)` **hace estructuralmente imposible** que la plata aparezca o desaparezca: si algo entró a un lado, salió de otro. `origenTipo` + `origenId` conectan el asiento con el hecho que lo generó (un pago, una entrega, una cobertura). Eso permite ir del número al hecho y viceversa, que es lo primero que pide un auditor. **La regla de oro: los asientos no se editan ni se borran. Se reversan.** `asientoReversaId` apunta al asiento que anula a otro. Un error contable queda visible con su corrección al lado, y esa es exactamente la trazabilidad que se exige cuando hay dinero de terceros.
+**Para qué sirve.** Cada aporte acreditado, cada entrega y cada cobertura del fondo genera un asiento. La regla `SUM(debe) = SUM(haber)` **hace estructuralmente imposible** que la plata aparezca o desaparezca: si algo entró a un lado, salió de otro.
+
+`origenTipo` + `origenId` conectan el asiento con el hecho que lo generó (un pago, una entrega, una cobertura). Eso permite ir del número al hecho y viceversa, que es lo primero que pide un auditor.
+
+**La regla de oro: los asientos no se editan ni se borran. Se reversan.** `asientoReversaId` apunta al asiento que anula a otro. Un error contable queda visible con su corrección al lado, y esa es exactamente la trazabilidad que se exige cuando hay dinero de terceros.
 
 **Por qué existe.** Es lo que convierte un montón de filas de pagos en información financiera confiable y auditable.
+
+**Casos de uso que la nombran.** CU-10 Recargar saldo (`solicitarRecarga`, `acreditarRecarga`) · CU-11 Retirar saldo (`solicitarRetiro`) · CU-12 Transferir saldo entre billeteras (`resolverAlias`, `acreditarRescate`, `emitirQr`, `leerQr`, `pagarQr`, `transferirSaldo`) · CU-14 Reversar una transacción (`reversarTransaccion`, `listarReversos`) · CU-19 Reembolsar un pago y atender una disputa (`aprobarReembolso`, `registrarDisputa`, `solicitarReembolso`) · CU-21 Cobrar el aporte del período (`cobrarAporte`, `consultarEstadoDelParticipante`, `generarObligacionesDelPeriodo`, `consultarRecaudoDelPeriodo`, `consultarAdmisibilidadDePago`) · CU-22 Liquidar y entregar el fondo (`liquidarEntrega`, `fondearPozo`, `autorizarEntrega`, `ejecutarEntrega`) · CU-23 Cubrir un incumplimiento con el fondo (`cubrirIncumplimiento`) · CU-24 Registrar el asiento contable de una operación · CU-26 Ejecutar el aval y subrogar la deuda (`ejecutarAval`) · CU-28 Emitir la orden de desembolso y ejecutar el intento (`listarDesembolsos`, `emitirOrdenDesembolso`, `anotarRespuestaDesembolso`) · CU-29 Devolver los aportes del fondo de garantía (`devolverFondo`) · CU-31 Devengar y cobrar la comisión (`devengarComision`, `anotarCobroDeComision`) · CU-33 Devolver comisión y emitir nota de crédito (`devolverComision`) · CU-35 Cerrar la liquidación mensual de ingresos (`cerrarLiquidacion`) · CU-51 Ejecutar el cierre diario (`consultarRecaudoDiario`, `listarCierresDiarios`) · CU-65 Retirarse de un grupo (`solicitarRetiro`) · CU-67 Disolver el grupo anticipadamente (`cerrarDisolucion`, `iniciarDisolucion`) · CU-100 Abrir y cerrar el período contable (`listarEjerciciosFiscales`, `abrirEjercicioFiscal`, `listarPeriodosDelEjercicio`, `consultarPeriodoVigente`, `cerrarPeriodoContable`) · CU-103 Registrar y pagar una factura de proveedor (`listarFacturasDeProveedor`, `registrarFacturaDeProveedor`, `pagarFacturaDeProveedor`) · CU-104 Cobrar una cuenta por cobrar (`listarCuentasPorCobrar`, `abrirCuentaPorCobrar`, `registrarCobro`) · CU-105 Depreciar un activo fijo (`listarActivosFijos`, `depreciarActivo`, `correrDepreciacionDelPeriodo`) · CU-106 Generar el estado financiero del período (`descargarEstadoFinanciero`, `generarEstadoFinanciero`, `validarPlantillaDeAsiento`)
 
 **Sistema.** Vive en el esquema `nucleo_financiero`; la escribe y la lee solo el servicio `nucleo-financiero` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Es append-only: UPDATE y DELETE revocados al rol del servicio; se corrige con una fila nueva. Depende de `asiento_contable`, `erp.periodo_contable`, `grupos.grupo`, `identidad.usuario`. La referencian `asiento_contable`, `erp.cobro_cuenta_por_cobrar`, `erp.depreciacion_activo`, `erp.factura_proveedor`, `erp.pago_a_proveedor`, `garantia.castigo_deuda`, `garantia.cobertura_incumplimiento`, `garantia.movimiento_fondo`, `movimiento_contable`, `tarifas.devengo_comision`, `tarifas.liquidacion_ingresos`, `transaccion_billetera`. Reglas nombradas: `ck_asiento_reversa_distinta`, `ck_asiento_reversado_enlazado`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `numero` | BIGSERIAL | — | BIGSERIAL, obligatoria. | NINGUNA |
+| `numero` | BIGSERIAL | — | BIGSERIAL, obligatoria, única. | NINGUNA |
 | `fecha` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
 | `glosa` | VARCHAR(200) | — | VARCHAR(200), obligatoria. | NINGUNA |
 | `origen_tipo` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
@@ -5841,6 +7598,8 @@
 **Para qué sirve.** Cumplir el oficio **sin mentirle al usuario ni perder el rastro del dinero**. El bloqueo se materializa como una retención: la plata sigue siendo del titular y sigue apareciendo en su saldo total, pero no está disponible, y la app puede explicar por qué.
 
 **Por qué existe.** Porque llegan oficios, y la alternativa habitual —bajar el saldo a mano o "congelar la cuenta" con una bandera— destruye la contabilidad y deja a la empresa sin defensa cuando el titular reclama. Aquí quedan el número de oficio, la autoridad, el alcance, el documento y su hash.
+
+**Casos de uso que la nombran.** CU-11 Retirar saldo (`solicitarRetiro`) · CU-16 Cerrar billetera y devolver saldo (`consultarActividad`, `solicitarCierreBilletera`) · CU-17 Bloquear saldo por orden de autoridad (`bloquearPorAutoridad`) · CU-45 Atender un requerimiento de autoridad
 
 **Sistema.** Vive en el esquema `nucleo_financiero`; la escribe y la lee solo el servicio `nucleo-financiero` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `cuenta_billetera`, `identidad.usuario`, `retencion_saldo`. La referencian `cumplimiento.requerimiento_autoridad`. Reglas nombradas: `uq_bloqueo_oficio`.
 
@@ -5866,7 +7625,9 @@
 
 **Qué es.** Un documento con folio que certifica el saldo a una fecha.
 
-**Para qué sirve.** Trámites de terceros: visas, créditos, procesos judiciales. `folio` + `hash_documento` permiten que quien lo recibe verifique su autenticidad contra la plataforma, lo que evita el certificado falsificado en Photoshop. ---
+**Para qué sirve.** Trámites de terceros: visas, créditos, procesos judiciales. `folio` + `hash_documento` permiten que quien lo recibe verifique su autenticidad contra la plataforma, lo que evita el certificado falsificado en Photoshop.
+
+**Casos de uso que la nombran.** CU-15 Emitir extracto y certificado de saldo (`emitirExtracto`, `listarMovimientosBilletera`)
 
 **Sistema.** Vive en el esquema `nucleo_financiero`; la escribe y la lee solo el servicio `nucleo-financiero` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `cuenta_billetera`, `identidad.usuario`.
 
@@ -5875,7 +7636,7 @@
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
 | `cuenta_billetera_id` | UUID | — | UUID, obligatoria, referencia a `cuenta_billetera`. | NINGUNA |
 | `solicitado_por` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `folio` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
+| `folio` | VARCHAR(30) | — | VARCHAR(30), obligatoria, única. | NINGUNA |
 | `motivo` | VARCHAR(120) | — | VARCHAR(120), obligatoria. | NINGUNA |
 | `saldo_certificado` | DECIMAL(16,2) | — | DECIMAL(16,2), obligatoria. | FINANCIERO |
 | `fecha_corte` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
@@ -5887,16 +7648,20 @@
 
 **Qué es.** El corte del día: cuánto se recaudó, cuánto se concilió, cuánto quedó en excepción, y si el día cuadró.
 
-**Para qué sirve.** Es el **control de calidad diario del dinero**. La disciplina que impone es simple y poderosa: cada día se cierra, y si no cuadra, no se cierra. Los descuadres se resuelven el mismo día, cuando todavía se recuerda qué pasó, en vez de acumularse hasta volverse irresolubles. `reabrir(motivo, adminId)` existe porque a veces hay que corregir un día ya cerrado — pero deja constancia de quién lo reabrió y por qué, que es lo que un auditor va a mirar primero.
+**Para qué sirve.** Es el **control de calidad diario del dinero**. La disciplina que impone es simple y poderosa: cada día se cierra, y si no cuadra, no se cierra. Los descuadres se resuelven el mismo día, cuando todavía se recuerda qué pasó, en vez de acumularse hasta volverse irresolubles.
 
-**Por qué existe.** Sin cierre diario, un descuadre puede vivir meses. `cuadrado = FALSE` mientras exista una excepción sin resolver de esa fecha: la excepción no se puede ignorar, bloquea el cierre. ---
+`reabrir(motivo, adminId)` existe porque a veces hay que corregir un día ya cerrado — pero deja constancia de quién lo reabrió y por qué, que es lo que un auditor va a mirar primero.
+
+**Por qué existe.** Sin cierre diario, un descuadre puede vivir meses. `cuadrado = FALSE` mientras exista una excepción sin resolver de esa fecha: la excepción no se puede ignorar, bloquea el cierre.
+
+**Casos de uso que la nombran.** CU-24 Registrar el asiento contable de una operación · CU-35 Cerrar la liquidación mensual de ingresos (`cerrarLiquidacion`) · CU-50 Conciliar la custodia y verificar el encaje (`ejecutarCierreDiario`, `listarConciliaciones`, `conciliarCustodia`) · CU-51 Ejecutar el cierre diario (`consultarRecaudoDiario`, `listarCierresDiarios`) · CU-98 Publicar el tablero de indicadores (`publicarTablero`, `listarEndpointsDelDia`)
 
 **Sistema.** Vive en el esquema `nucleo_financiero`; la escribe y la lee solo el servicio `nucleo-financiero` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `identidad.usuario`. La referencian `conciliacion_custodia`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `fecha` | DATE | — | DATE, obligatoria. | NINGUNA |
+| `fecha` | DATE | — | DATE, obligatoria, única. | NINGUNA |
 | `total_recaudado` | DECIMAL(16,2) | — | DECIMAL(16,2), obligatoria. | NINGUNA |
 | `total_conciliado` | DECIMAL(16,2) | — | DECIMAL(16,2), obligatoria. | NINGUNA |
 | `total_excepciones` | DECIMAL(16,2) | — | DECIMAL(16,2), obligatoria. | NINGUNA |
@@ -5910,9 +7675,13 @@
 
 **Qué es.** El cuadre diario entre lo que el sistema dice que la gente tiene y lo que el banco dice que hay.
 
-**Para qué sirve.** Es **la prueba diaria de solvencia del dinero electrónico**. Tres cifras y una división: Cuando el ratio baja de 1, el sistema entra en modo restringido de forma automática: se siguen aceptando recargas y aportes (que aumentan la cobertura), se suspenden los retiros discrecionales, y el descuadre escala como incidente operativo (M9) y como evento de riesgo operativo (M12).
+**Para qué sirve.** Es **la prueba diaria de solvencia del dinero electrónico**. Tres cifras y una división:
+
+Cuando el ratio baja de 1, el sistema entra en modo restringido de forma automática: se siguen aceptando recargas y aportes (que aumentan la cobertura), se suspenden los retiros discrecionales, y el descuadre escala como incidente operativo (M9) y como evento de riesgo operativo (M12).
 
 **Por qué existe.** Porque el modo de fallar de todas las billeteras que quebraron es el mismo: el descuadre existió durante meses y nadie lo vio, porque nadie lo calculaba todos los días. Esta tabla obliga a calcularlo todos los días y deja rastro de cada cálculo.
+
+**Casos de uso que la nombran.** CU-50 Conciliar la custodia y verificar el encaje (`ejecutarCierreDiario`, `listarConciliaciones`, `conciliarCustodia`)
 
 **Sistema.** Vive en el esquema `nucleo_financiero`; la escribe y la lee solo el servicio `nucleo-financiero` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `cierre_diario`, `cuenta_custodia`, `identidad.usuario`. La referencian `descuadre_custodia`. Reglas nombradas: `uq_conciliacion_cuenta_fecha`, `ck_conciliacion_encaje`.
 
@@ -5938,6 +7707,8 @@
 
 **Para qué sirve.** Poder decir "te quedan Bs 1.400 de tu límite mensual de retiro" antes de que el usuario intente la operación, en vez de rechazarla al final. Y poder auditar por qué una operación fue rechazada un día concreto.
 
+**Casos de uso que la nombran.** CU-40 Evaluar límites antes de una operación
+
 **Sistema.** Vive en el esquema `nucleo_financiero`; la escribe y la lee solo el servicio `nucleo-financiero` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `catalogo.limite_operativo_billetera`, `cuenta_billetera`. Reglas nombradas: `uq_consumo_ventana`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
@@ -5955,16 +7726,23 @@
 
 **Qué es.** El contenedor de saldo. Una por titular y moneda.
 
-**Para qué sirve.** Es la pieza que permite que el pasanaku funcione como funciona en la vida real —plata que entra, se junta y sale— sin que nadie tenga que confiar en la cuenta bancaria personal de otro. Cuatro familias de cuentas, y las cuatro son necesarias: - **`USUARIO`**: el saldo de una persona. Es lo que ve en la app. - **`GRUPO`**: **la bolsa del pasanaku tiene cuenta propia.** Este es el cambio más importante que introduce el módulo respecto del modelo anterior. Antes, el dinero del grupo era una abstracción contable; ahora es un saldo real con titular jurídico definido: el grupo, no el organizador. El organizador puede operarla dentro del reglamento, pero **no es titular y no puede retirar hacia una cuenta propia** (RN-18 sigue viva y ahora es estructural). - **`PLATAFORMA_INGRESOS`** y **`PLATAFORMA_IMPUESTOS_POR_PAGAR`**: donde caen la comisión y los impuestos retenidos. Separadas a propósito: el IVA cobrado no es ingreso, es plata del fisco que la plataforma solo transporta. - **`SUSPENSO_NO_IDENTIFICADO`**: llegó dinero que no se sabe de quién es. Sin esta cuenta, ese depósito se "acomoda" en algún lado y se pierde la trazabilidad. Con ella, queda visible hasta que alguien lo identifique o se devuelva.
+**Para qué sirve.** Es la pieza que permite que el pasanaku funcione como funciona en la vida real —plata que entra, se junta y sale— sin que nadie tenga que confiar en la cuenta bancaria personal de otro. Cuatro familias de cuentas, y las cuatro son necesarias:
+
+- **`USUARIO`**: el saldo de una persona. Es lo que ve en la app.
+- **`GRUPO`**: **la bolsa del pasanaku tiene cuenta propia.** Este es el cambio más importante que introduce el módulo respecto del modelo anterior. Antes, el dinero del grupo era una abstracción contable; ahora es un saldo real con titular jurídico definido: el grupo, no el organizador. El organizador puede operarla dentro del reglamento, pero **no es titular y no puede retirar hacia una cuenta propia** (RN-18 sigue viva y ahora es estructural).
+- **`PLATAFORMA_INGRESOS`** y **`PLATAFORMA_IMPUESTOS_POR_PAGAR`**: donde caen la comisión y los impuestos retenidos. Separadas a propósito: el IVA cobrado no es ingreso, es plata del fisco que la plataforma solo transporta.
+- **`SUSPENSO_NO_IDENTIFICADO`**: llegó dinero que no se sabe de quién es. Sin esta cuenta, ese depósito se "acomoda" en algún lado y se pierde la trazabilidad. Con ella, queda visible hasta que alguien lo identifique o se devuelva.
 
 **Por qué existe.** Sin cuenta de grupo, el dinero del pasanaku vuelve a depender de que alguien lo tenga en su cuenta personal —que es exactamente el problema que el producto promete resolver. Sin cuenta de plataforma separada, los ingresos por comisión se mezclan con el dinero de los usuarios y el encaje deja de ser demostrable.
+
+**Casos de uso que la nombran.** CU-01 Registro y apertura de billetera (`listarContratosVigentes`, `registrarUsuario`, `solicitarVerificacionCorreo`, `guardarBorradorOnboarding`, `confirmarVerificacionCorreo`, `verificarTitularidad`) · CU-02 Elevar nivel de debida diligencia (`consultarEstadoDeVerificacion`, `iniciarVerificacion`) · CU-10 Recargar saldo (`solicitarRecarga`, `acreditarRecarga`) · CU-12 Transferir saldo entre billeteras (`resolverAlias`, `acreditarRescate`, `emitirQr`, `leerQr`, `pagarQr`, `transferirSaldo`) · CU-13 Retener y liberar saldo (`debitarInversion`, `retenerSaldo`, `cerrarRetencion`, `pagarAlTercero`, `consultarSaldo`) · CU-16 Cerrar billetera y devolver saldo (`consultarActividad`, `solicitarCierreBilletera`) · CU-20 Crear grupo y congelar tarifario (`crearGrupo`, `consultarNivelKyc`, `consultarHabilitacion`, `consultarTarifarioVigente`) · CU-29 Devolver los aportes del fondo de garantía (`devolverFondo`) · CU-50 Conciliar la custodia y verificar el encaje (`ejecutarCierreDiario`, `listarConciliaciones`, `conciliarCustodia`)
 
 **Sistema.** Vive en el esquema `nucleo_financiero`; la escribe y la lee solo el servicio `nucleo-financiero` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `cuenta_contable`, `grupos.grupo`, `identidad.usuario`, `politica_billetera`. La referencian `bloqueo_saldo`, `certificado_saldo`, `consumo_limite`, `cumplimiento.alerta_monitoreo_lft`, `estado_cuenta_billetera`, `evaluacion_antifraude`, `movimiento_billetera`, `orden_recarga`, `orden_retiro`, `qr_transferencia`, `retencion_saldo`, `saldo_diario_billetera`, `solicitud_cierre_billetera`, `transferencia_p2p`. Reglas nombradas: `ck_cuenta_saldo_no_negativo`, `ck_cuenta_retenido_no_negativo`, `uq_cuenta_usuario_moneda`, `uq_cuenta_grupo_moneda`, `ck_cuenta_titularidad`, `uq_cuenta_custodia_inversion_moneda`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `numero_cuenta` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | PERSONAL |
+| `numero_cuenta` | VARCHAR(20) | — | VARCHAR(20), obligatoria, única. | PERSONAL |
 | `tipo` | VARCHAR(35) | — | VARCHAR(35), obligatoria. | NINGUNA |
 | `usuario_id` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
 | `grupo_id` | UUID | — | UUID, opcional, referencia a `grupo`. | NINGUNA |
@@ -5985,16 +7763,20 @@
 
 **Qué es.** Cada bolsillo del sistema: la caja del grupo, la cuenta corriente de cada participante y el fondo de garantía.
 
-**Para qué sirve.** Permite responder, en cualquier momento y de forma verificable: *¿cuánta plata hay en el grupo? ¿cuánto de eso le corresponde a cada uno? ¿cuánto es del fondo de garantía?* La cuenta corriente por participante (`participanteId`) es la que sostiene el estado de cuenta individual: cuánto aportó, cuánto cobró, cuál es su posición neta en el grupo. Ese número es el que se necesita cuando alguien se retira o cuando el grupo se disuelve anticipadamente (M8).
+**Para qué sirve.** Permite responder, en cualquier momento y de forma verificable: *¿cuánta plata hay en el grupo? ¿cuánto de eso le corresponde a cada uno? ¿cuánto es del fondo de garantía?*
 
-**Por qué existe.** Sin plan de cuentas, cada saldo se calcula con una consulta distinta escrita por una persona distinta, y ninguna coincide con las otras. ---
+La cuenta corriente por participante (`participanteId`) es la que sostiene el estado de cuenta individual: cuánto aportó, cuánto cobró, cuál es su posición neta en el grupo. Ese número es el que se necesita cuando alguien se retira o cuando el grupo se disuelve anticipadamente (M8).
+
+**Por qué existe.** Sin plan de cuentas, cada saldo se calcula con una consulta distinta escrita por una persona distinta, y ninguna coincide con las otras.
+
+**Casos de uso que la nombran.** CU-01 Registro y apertura de billetera (`listarContratosVigentes`, `registrarUsuario`, `solicitarVerificacionCorreo`, `guardarBorradorOnboarding`, `confirmarVerificacionCorreo`, `verificarTitularidad`) · CU-20 Crear grupo y congelar tarifario (`crearGrupo`, `consultarNivelKyc`, `consultarHabilitacion`, `consultarTarifarioVigente`) · CU-24 Registrar el asiento contable de una operación · CU-101 Presupuestar por centro de costo (`listarPartidasPresupuestarias`, `crearPresupuesto`, `aprobarPresupuesto`) · CU-106 Generar el estado financiero del período (`descargarEstadoFinanciero`, `generarEstadoFinanciero`, `validarPlantillaDeAsiento`)
 
 **Sistema.** Vive en el esquema `nucleo_financiero`; la escribe y la lee solo el servicio `nucleo-financiero` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `cuenta_contable`, `grupos.grupo`, `grupos.participante`. La referencian `catalogo.impuesto`, `cuenta_billetera`, `cuenta_contable`, `erp.categoria_activo_fijo`, `erp.linea_plantilla_asiento`, `erp.partida_presupuestaria`, `erp.tercero_comercial`, `garantia.fondo_garantia`, `movimiento_contable`, `tarifas.concepto_tarifa`. Reglas nombradas: `ck_cuenta_contable_padre_distinto`, `ck_cuenta_contable_nivel`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `codigo` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
+| `codigo` | VARCHAR(20) | — | VARCHAR(20), obligatoria, única. | NINGUNA |
 | `nombre` | VARCHAR(80) | — | VARCHAR(80), obligatoria. | NINGUNA |
 | `tipo` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
 | `naturaleza` | VARCHAR(12) | — | VARCHAR(12), obligatoria. | NINGUNA |
@@ -6012,7 +7794,9 @@
 
 **Para qué sirve.** Materializa la separación patrimonial: **el dinero de los usuarios no está en la caja de la empresa**. Está en una cuenta específica, idealmente en fideicomiso, cuyo único propósito es respaldar dinero electrónico. Si la plataforma quiebra, ese dinero no forma parte de la masa concursal.
 
-**Por qué existe.** Porque sin ella el encaje es una afirmación, no un hecho verificable. Y porque es la primera cosa que revisa cualquier supervisión: "muéstrenme la cuenta y muéstrenme el extracto". ---
+**Por qué existe.** Porque sin ella el encaje es una afirmación, no un hecho verificable. Y porque es la primera cosa que revisa cualquier supervisión: "muéstrenme la cuenta y muéstrenme el extracto".
+
+**Casos de uso que la nombran.** CU-50 Conciliar la custodia y verificar el encaje (`ejecutarCierreDiario`, `listarConciliaciones`, `conciliarCustodia`) · CU-57 Operar un punto de atención y arquear el efectivo
 
 **Sistema.** Vive en el esquema `nucleo_financiero`; la escribe y la lee solo el servicio `nucleo-financiero` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. La referencian `conciliacion_custodia`, `movimiento_custodia`. Reglas nombradas: `ck_cuenta_custodia_version_llave`.
 
@@ -6039,7 +7823,9 @@
 
 **Para qué sirve.** Distingue los cuatro tipos de diferencia —faltante, sobrante, desfase temporal y error de registro— porque cada uno tiene un dueño y un plazo distintos. Y obliga a escribir la explicación y el plan de acción: un descuadre sin explicación queda abierto y visible para siempre.
 
-**Por qué existe.** Porque "hubo una diferencia de Bs 1.240 el 12 de mayo" sin expediente es exactamente el tipo de cabo suelto que aparece en una inspección dos años después, cuando ya nadie recuerda qué pasó. ---
+**Por qué existe.** Porque "hubo una diferencia de Bs 1.240 el 12 de mayo" sin expediente es exactamente el tipo de cabo suelto que aparece en una inspección dos años después, cuando ya nadie recuerda qué pasó.
+
+**Casos de uso que la nombran.** CU-15 Emitir extracto y certificado de saldo (`emitirExtracto`, `listarMovimientosBilletera`) · CU-29 Devolver los aportes del fondo de garantía (`devolverFondo`) · CU-50 Conciliar la custodia y verificar el encaje (`ejecutarCierreDiario`, `listarConciliaciones`, `conciliarCustodia`) · CU-54 Registrar un evento de riesgo operativo (`registrarRiesgoOperativo`)
 
 **Sistema.** Vive en el esquema `nucleo_financiero`; la escribe y la lee solo el servicio `nucleo-financiero` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `auditoria.incidente_operativo`, `conciliacion_custodia`, `identidad.usuario`.
 
@@ -6066,6 +7852,8 @@
 
 **Por qué existe.** No es lo mismo que un proveedor que no contesta. Un timeout deja el resultado desconocido y se vuelve a consultar; una firma que no coincide es evidencia y se conserva.
 
+**Casos de uso que la nombran.** CU-10 Recargar saldo (`solicitarRecarga`, `acreditarRecarga`) · CU-11 Retirar saldo (`solicitarRetiro`)
+
 **Sistema.** Vive en el esquema `nucleo_financiero`; la escribe y la lee solo el servicio `nucleo-financiero` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Es append-only: UPDATE y DELETE revocados al rol del servicio; se corrige con una fila nueva. Reglas nombradas: `ck_discrepancia_moneda`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
@@ -6086,7 +7874,9 @@
 
 **Qué es.** El extracto periódico emitido y archivado.
 
-**Para qué sirve.** No basta con que el usuario pueda ver sus movimientos en pantalla: hay que **emitir** el extracto, guardarlo con su hash y poder demostrar que se puso a disposición. Esa es una obligación típica de transparencia con el consumidor financiero, y también lo que el usuario necesita para un trámite de crédito o un juicio. ---
+**Para qué sirve.** No basta con que el usuario pueda ver sus movimientos en pantalla: hay que **emitir** el extracto, guardarlo con su hash y poder demostrar que se puso a disposición. Esa es una obligación típica de transparencia con el consumidor financiero, y también lo que el usuario necesita para un trámite de crédito o un juicio.
+
+**Casos de uso que la nombran.** CU-15 Emitir extracto y certificado de saldo (`emitirExtracto`, `listarMovimientosBilletera`)
 
 **Sistema.** Vive en el esquema `nucleo_financiero`; la escribe y la lee solo el servicio `nucleo-financiero` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `cuenta_billetera`. Reglas nombradas: `ck_extracto_hash`, `ck_extracto_cuadra`.
 
@@ -6110,7 +7900,11 @@
 
 **Qué es.** El motor de decisión en tiempo real y el registro de cada decisión.
 
-**Para qué sirve.** La regla es **declarativa** (`expresion JSONB`): "más de tres retiros en una hora hacia un instrumento agregado hoy" se escribe como dato, no como `if`. La evaluación guarda el resultado, el puntaje, qué reglas se dispararon y cuánto tardó. Guardar la evaluación importa por dos razones opuestas: cuando el motor **acertó**, justifica ante el cliente por qué se le pidió MFA o se le rechazó una operación; cuando **se equivocó**, permite medir la tasa de falsos positivos y afinarlo. Sin registro, el motor antifraude es una caja negra que nadie puede mejorar ni defender. ---
+**Para qué sirve.** La regla es **declarativa** (`expresion JSONB`): "más de tres retiros en una hora hacia un instrumento agregado hoy" se escribe como dato, no como `if`. La evaluación guarda el resultado, el puntaje, qué reglas se dispararon y cuánto tardó.
+
+Guardar la evaluación importa por dos razones opuestas: cuando el motor **acertó**, justifica ante el cliente por qué se le pidió MFA o se le rechazó una operación; cuando **se equivocó**, permite medir la tasa de falsos positivos y afinarlo. Sin registro, el motor antifraude es una caja negra que nadie puede mejorar ni defender.
+
+**Casos de uso que la nombran.** CU-04 Autenticar con MFA y registrar dispositivo (`autenticar`, `abrirDesafioDeStepUp`, `verificarDesafioDeStepUp`) · CU-11 Retirar saldo (`solicitarRetiro`) · CU-48 Calibrar reglas de cumplimiento y triar sus alertas
 
 **Sistema.** Vive en el esquema `nucleo_financiero`; la escribe y la lee solo el servicio `nucleo-financiero` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `cuenta_billetera`, `identidad.usuario`, `transaccion_billetera`.
 
@@ -6128,6 +7922,48 @@
 | `evaluada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
 | `revisada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
 
+### `evento_consumido`
+
+**Qué es.** Marca de evento ya consumido, por consumidor (ADR-027).
+
+**Para qué sirve.** Hace idempotente el consumo: la entrega es al menos una vez y un mismo evento no puede producir dos efectos (regla 98.3.4).
+
+**Sistema.** Infraestructura del servicio `nucleo-financiero`, generada por plantilla en cada esquema (ADR-027): la escribe y la lee solo ese servicio.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `id_evento` | UUID | — | UUID, obligatoria, clave primaria. | NINGUNA |
+| `consumidor` | VARCHAR(60) | — | VARCHAR(60), obligatoria, clave primaria. | NINGUNA |
+| `consumido_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+
+### `evento_dominio`
+
+**Qué es.** Outbox transaccional del servicio (ADR-027).
+
+**Para qué sirve.** Garantiza que ningún hecho del servicio se pierda entre la base y la mensajería: el evento se guarda en la misma transacción que el cambio y un relevo lo publica después (regla 98.3.3).
+
+**Sistema.** Infraestructura del servicio `nucleo-financiero`, generada por plantilla en cada esquema (ADR-027): la escribe y la lee solo ese servicio.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
+| `tipo` | VARCHAR(60) | — | VARCHAR(60), obligatoria. | NINGUNA |
+| `version` | VARCHAR(10) | — | VARCHAR(10), obligatoria. | NINGUNA |
+| `agregado` | VARCHAR(40) | — | VARCHAR(40), obligatoria. | NINGUNA |
+| `agregado_id` | UUID | — | UUID, obligatoria. | NINGUNA |
+| `payload` | JSONB | — | JSONB, obligatoria. | NINGUNA |
+| `metadatos` | JSONB | — | JSONB, obligatoria. | NINGUNA |
+| `correlation_id` | UUID | — | UUID, obligatoria. | NINGUNA |
+| `causation_id` | UUID | — | UUID, opcional. | NINGUNA |
+| `ocurrido_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `publicado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
+| `intentos` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
+| `tomado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `tomado_por` | VARCHAR(100) | — | VARCHAR(100), opcional. | NINGUNA |
+| `ultimo_error` | TEXT | — | TEXT, opcional. | NINGUNA |
+| `proximo_intento_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+
 ### `evidencia_mfa_consumida`
 
 **Qué es.** La marca de que una evidencia de segundo factor (el `jti` del JWT de step-up) ya se usó.
@@ -6136,12 +7972,14 @@
 
 **Por qué existe.** El JWT de evidencia es válido hasta que vence. Sin registrar su consumo, podría presentarse dos veces dentro de su vigencia.
 
+**Casos de uso que la nombran.** CU-04 Autenticar con MFA y registrar dispositivo (`autenticar`, `abrirDesafioDeStepUp`, `verificarDesafioDeStepUp`)
+
 **Sistema.** Vive en el esquema `nucleo_financiero`; la escribe y la lee solo el servicio `nucleo-financiero` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Es append-only: UPDATE y DELETE revocados al rol del servicio; se corrige con una fila nueva. Depende de `identidad.usuario`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `jti` | UUID | — | UUID, obligatoria. | NINGUNA |
+| `jti` | UUID | — | UUID, obligatoria, única. | NINGUNA |
 | `usuario_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
 | `proposito` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
 | `consumida_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
@@ -6153,6 +7991,8 @@
 **Para qué sirve.** Que el usuario no tenga que tipear su cuenta cada vez, y que la plataforma pueda exigir **coincidencia de titularidad**: `titular_coincide` es la bandera que impide sacar plata hacia la cuenta de un tercero. Ese solo control corta de raíz el uso de la billetera como puente de lavado y la mayoría de las estafas de "prestame tu cuenta".
 
 **Por qué existe.** Es también el punto donde se decide qué se guarda y qué no: se persiste `token_proveedor` y `hash_identificador`, **nunca el número completo de tarjeta ni de cuenta en claro**.
+
+**Casos de uso que la nombran.** CU-10 Recargar saldo (`solicitarRecarga`, `acreditarRecarga`) · CU-11 Retirar saldo (`solicitarRetiro`) · CU-18 Registrar y verificar una cuenta bancaria de destino (`registrarCuentaDestino`, `consultarDisponibilidad`, `designarCuentaPrincipal`, `verificarCuentaDestino`)
 
 **Sistema.** Vive en el esquema `nucleo_financiero`; la escribe y la lee solo el servicio `nucleo-financiero` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `identidad.usuario`. La referencian `orden_recarga`, `orden_retiro`. Reglas nombradas: `ck_instrumento_sin_pan`.
 
@@ -6183,6 +8023,8 @@
 
 **Por qué existe.** Es el registro primario del que se deriva todo lo demás. Si se elimina, no hay sistema.
 
+**Casos de uso que la nombran.** CU-10 Recargar saldo (`solicitarRecarga`, `acreditarRecarga`) · CU-11 Retirar saldo (`solicitarRetiro`) · CU-12 Transferir saldo entre billeteras (`resolverAlias`, `acreditarRescate`, `emitirQr`, `leerQr`, `pagarQr`, `transferirSaldo`) · CU-14 Reversar una transacción (`reversarTransaccion`, `listarReversos`) · CU-15 Emitir extracto y certificado de saldo (`emitirExtracto`, `listarMovimientosBilletera`) · CU-53 Elevar un reclamo a segunda instancia
+
 **Sistema.** Vive en el esquema `nucleo_financiero`; la escribe y la lee solo el servicio `nucleo-financiero` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Es append-only: UPDATE y DELETE revocados al rol del servicio; se corrige con una fila nueva. Depende de `cuenta_billetera`, `transaccion_billetera`. Reglas nombradas: `ix_movimiento_cuenta_fecha`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
@@ -6206,6 +8048,8 @@
 
 **Por qué existe.** Sin las líneas no hay doble partida, solo un total.
 
+**Casos de uso que la nombran.** CU-24 Registrar el asiento contable de una operación · CU-100 Abrir y cerrar el período contable (`listarEjerciciosFiscales`, `abrirEjercicioFiscal`, `listarPeriodosDelEjercicio`, `consultarPeriodoVigente`, `cerrarPeriodoContable`)
+
 **Sistema.** Vive en el esquema `nucleo_financiero`; la escribe y la lee solo el servicio `nucleo-financiero` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Es append-only: UPDATE y DELETE revocados al rol del servicio; se corrige con una fila nueva. Depende de `asiento_contable`, `cuenta_contable`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
@@ -6222,7 +8066,9 @@
 
 **Qué es.** Cada movimiento real de esa cuenta bancaria.
 
-**Para qué sirve.** Es el lado "banco" de la conciliación. Se enlaza con [[movimiento_bancario]] (M3) para reutilizar la ingesta de extractos que ya existe: no hay dos pipelines de conciliación, hay uno. ---
+**Para qué sirve.** Es el lado "banco" de la conciliación. Se enlaza con [[movimiento_bancario]] (M3) para reutilizar la ingesta de extractos que ya existe: no hay dos pipelines de conciliación, hay uno.
+
+**Casos de uso que la nombran.** CU-10 Recargar saldo (`solicitarRecarga`, `acreditarRecarga`) · CU-28 Emitir la orden de desembolso y ejecutar el intento (`listarDesembolsos`, `emitirOrdenDesembolso`, `anotarRespuestaDesembolso`) · CU-50 Conciliar la custodia y verificar el encaje (`ejecutarCierreDiario`, `listarConciliaciones`, `conciliarCustodia`) · CU-57 Operar un punto de atención y arquear el efectivo
 
 **Sistema.** Vive en el esquema `nucleo_financiero`; la escribe y la lee solo el servicio `nucleo-financiero` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Es append-only: UPDATE y DELETE revocados al rol del servicio; se corrige con una fila nueva. Depende de `aportes.movimiento_bancario`, `cuenta_custodia`.
 
@@ -6230,12 +8076,12 @@
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
 | `cuenta_custodia_id` | UUID | — | UUID, obligatoria, referencia a `cuenta_custodia`. | NINGUNA |
-| `movimiento_bancario_id` | UUID | — | UUID, opcional, referencia a `movimiento_bancario`. | NINGUNA |
+| `movimiento_bancario_id` | UUID | — | UUID, opcional, única, referencia a `movimiento_bancario`. | NINGUNA |
 | `fecha_valor` | DATE | — | DATE, obligatoria. | NINGUNA |
 | `tipo` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
 | `sentido` | VARCHAR(7) | — | VARCHAR(7), obligatoria. | NINGUNA |
 | `monto` | DECIMAL(18,2) | — | DECIMAL(18,2), obligatoria. | FINANCIERO |
-| `referencia_bancaria` | VARCHAR(80) | — | VARCHAR(80), obligatoria. | NINGUNA |
+| `referencia_bancaria` | VARCHAR(80) | — | VARCHAR(80), obligatoria, única. | NINGUNA |
 | `glosa` | VARCHAR(200) | — | VARCHAR(200), obligatoria. | NINGUNA |
 | `conciliado` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
 | `registrado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
@@ -6244,9 +8090,14 @@
 
 **Qué es.** El *cash-in* y el *cash-out*: los dos puntos donde el dinero cruza la frontera entre el mundo bancario y el saldo de la app.
 
-**Para qué sirve.** Son las operaciones de mayor riesgo del sistema, y por eso son asimétricas a propósito: - **La recarga es optimista**: se acredita cuando el banco confirma, se enlaza con [[pago]] (M3) y con el movimiento real de la cuenta de custodia. - **El retiro es pesimista**: exige MFA verificado, puede exigir doble aprobación por monto, tiene ventana de enfriamiento configurable y reserva el saldo con una retención antes de intentar el pago. Si el proveedor falla, la retención se libera; el saldo nunca queda "perdido en el limbo".
+**Para qué sirve.** Son las operaciones de mayor riesgo del sistema, y por eso son asimétricas a propósito:
+
+- **La recarga es optimista**: se acredita cuando el banco confirma, se enlaza con [[pago]] (M3) y con el movimiento real de la cuenta de custodia.
+- **El retiro es pesimista**: exige MFA verificado, puede exigir doble aprobación por monto, tiene ventana de enfriamiento configurable y reserva el saldo con una retención antes de intentar el pago. Si el proveedor falla, la retención se libera; el saldo nunca queda "perdido en el limbo".
 
 **Por qué existe.** Porque esas entidades hablan de *obligaciones del grupo*; estas hablan de *saldo del titular*. Un retiro no es una entrega de fondo: es una persona sacando su propio dinero, sin relación con ningún pasanaku.
+
+**Casos de uso que la nombran.** CU-10 Recargar saldo (`solicitarRecarga`, `acreditarRecarga`)
 
 **Sistema.** Vive en el esquema `nucleo_financiero`; la escribe y la lee solo el servicio `nucleo-financiero` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `aportes.pago`, `aportes.proveedor_pago`, `cuenta_billetera`, `instrumento_fondeo`, `transaccion_billetera`. Reglas nombradas: `uq_recarga_idem`, `uq_recarga_referencia`.
 
@@ -6275,9 +8126,14 @@
 
 **Qué es.** El *cash-in* y el *cash-out*: los dos puntos donde el dinero cruza la frontera entre el mundo bancario y el saldo de la app.
 
-**Para qué sirve.** Son las operaciones de mayor riesgo del sistema, y por eso son asimétricas a propósito: - **La recarga es optimista**: se acredita cuando el banco confirma, se enlaza con [[pago]] (M3) y con el movimiento real de la cuenta de custodia. - **El retiro es pesimista**: exige MFA verificado, puede exigir doble aprobación por monto, tiene ventana de enfriamiento configurable y reserva el saldo con una retención antes de intentar el pago. Si el proveedor falla, la retención se libera; el saldo nunca queda "perdido en el limbo".
+**Para qué sirve.** Son las operaciones de mayor riesgo del sistema, y por eso son asimétricas a propósito:
+
+- **La recarga es optimista**: se acredita cuando el banco confirma, se enlaza con [[pago]] (M3) y con el movimiento real de la cuenta de custodia.
+- **El retiro es pesimista**: exige MFA verificado, puede exigir doble aprobación por monto, tiene ventana de enfriamiento configurable y reserva el saldo con una retención antes de intentar el pago. Si el proveedor falla, la retención se libera; el saldo nunca queda "perdido en el limbo".
 
 **Por qué existe.** Porque esas entidades hablan de *obligaciones del grupo*; estas hablan de *saldo del titular*. Un retiro no es una entrega de fondo: es una persona sacando su propio dinero, sin relación con ningún pasanaku.
+
+**Casos de uso que la nombran.** CU-11 Retirar saldo (`solicitarRetiro`) · CU-16 Cerrar billetera y devolver saldo (`consultarActividad`, `solicitarCierreBilletera`) · CU-28 Emitir la orden de desembolso y ejecutar el intento (`listarDesembolsos`, `emitirOrdenDesembolso`, `anotarRespuestaDesembolso`) · CU-42 Detectar umbral y registrar ROG · CU-57 Operar un punto de atención y arquear el efectivo
 
 **Sistema.** Vive en el esquema `nucleo_financiero`; la escribe y la lee solo el servicio `nucleo-financiero` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `aportes.proveedor_pago`, `cuenta_billetera`, `identidad.usuario`, `instrumento_fondeo`, `retencion_saldo`, `transaccion_billetera`. La referencian `solicitud_cierre_billetera`. Reglas nombradas: `uq_retiro_idem`, `ck_retiro_mfa`, `ck_retiro_doble_aprobacion`.
 
@@ -6286,7 +8142,7 @@
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
 | `cuenta_billetera_id` | UUID | — | UUID, obligatoria, referencia a `cuenta_billetera`. | NINGUNA |
 | `instrumento_destino_id` | UUID | — | UUID, obligatoria, referencia a `instrumento_fondeo`. | NINGUNA |
-| `retencion_id` | UUID | — | UUID, opcional, referencia a `retencion_saldo`. | NINGUNA |
+| `retencion_id` | UUID | — | UUID, opcional, única, referencia a `retencion_saldo`. | NINGUNA |
 | `transaccion_id` | UUID | — | UUID, opcional, referencia a `transaccion_billetera`. | NINGUNA |
 | `solicitada_por` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
 | `aprobada_por` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
@@ -6300,7 +8156,7 @@
 | `requiere_doble_aprobacion` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
 | `ventana_enfriamiento_hasta` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
 | `cotizacion_id` | UUID | — | UUID, opcional. | NINGUNA |
-| `referencia_proveedor` | VARCHAR(80) | — | VARCHAR(80), opcional. | NINGUNA |
+| `referencia_proveedor` | VARCHAR(80) | — | VARCHAR(80), opcional, única. | NINGUNA |
 | `clave_idempotencia` | VARCHAR(100) | Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4). | VARCHAR(100), obligatoria. | NINGUNA |
 | `solicitada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
 | `pagada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
@@ -6311,14 +8167,16 @@
 
 **Para qué sirve.** Que "el retiro tiene 24 horas de enfriamiento" o "desde Bs 500 se pide MFA" sean **filas, no constantes en el código**. El día que el área de riesgos quiera bajar el umbral de MFA a Bs 200 porque apareció una modalidad de fraude nueva, eso es un `INSERT` con nueva vigencia y efecto inmediato, no un despliegue con ventana de cambio.
 
-**Por qué existe.** Porque los parámetros de riesgo cambian con la realidad del fraude, que se mueve más rápido que un ciclo de release. Y porque cuando el regulador pregunta "¿desde cuándo aplicaban ese umbral?", `vigente_desde` responde con fecha exacta. ---
+**Por qué existe.** Porque los parámetros de riesgo cambian con la realidad del fraude, que se mueve más rápido que un ciclo de release. Y porque cuando el regulador pregunta "¿desde cuándo aplicaban ese umbral?", `vigente_desde` responde con fecha exacta.
+
+**Casos de uso que la nombran.** CU-09 Cambiar credenciales y solicitar la baja · CU-18 Registrar y verificar una cuenta bancaria de destino (`registrarCuentaDestino`, `consultarDisponibilidad`, `designarCuentaPrincipal`, `verificarCuentaDestino`)
 
 **Sistema.** Vive en el esquema `nucleo_financiero`; la escribe y la lee solo el servicio `nucleo-financiero` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `identidad.usuario`. La referencian `cuenta_billetera`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `codigo` | VARCHAR(40) | — | VARCHAR(40), obligatoria. | NINGUNA |
+| `codigo` | VARCHAR(40) | — | VARCHAR(40), obligatoria, única. | NINGUNA |
 | `moneda` | CHAR(3) | Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2). | CHAR(3), obligatoria. | NINGUNA |
 | `dias_inactividad_para_limitar` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
 | `permite_transferencia_p2p` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
@@ -6337,13 +8195,15 @@
 
 **Por qué existe.** Sin él, cobrar dentro de la plataforma exigiría pasar el número de billetera a mano. Además no se podría impedir que un QR dinámico se pague dos veces ni por un importe distinto del que se mostró.
 
+**Casos de uso que la nombran.** CU-12 Transferir saldo entre billeteras (`resolverAlias`, `acreditarRescate`, `emitirQr`, `leerQr`, `pagarQr`, `transferirSaldo`)
+
 **Sistema.** Vive en el esquema `nucleo_financiero`; la escribe y la lee solo el servicio `nucleo-financiero` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `cuenta_billetera`, `transaccion_billetera`. Reglas nombradas: `ck_qr_modalidad`, `ck_qr_uso`, `ck_qr_estatico_no_se_consume`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
 | `cuenta_billetera_id` | UUID | — | UUID, obligatoria, referencia a `cuenta_billetera`. | NINGUNA |
-| `transaccion_id` | UUID | — | UUID, opcional, referencia a `transaccion_billetera`. | NINGUNA |
+| `transaccion_id` | UUID | — | UUID, opcional, única, referencia a `transaccion_billetera`. | NINGUNA |
 | `modalidad` | VARCHAR(10) | — | VARCHAR(10), obligatoria. | NINGUNA |
 | `monto` | DECIMAL(16,2) | — | DECIMAL(16,2), opcional. | FINANCIERO |
 | `moneda` | CHAR(3) | Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2). | CHAR(3), obligatoria. | NINGUNA |
@@ -6357,14 +8217,18 @@
 
 **Qué es.** El motor de decisión en tiempo real y el registro de cada decisión.
 
-**Para qué sirve.** La regla es **declarativa** (`expresion JSONB`): "más de tres retiros en una hora hacia un instrumento agregado hoy" se escribe como dato, no como `if`. La evaluación guarda el resultado, el puntaje, qué reglas se dispararon y cuánto tardó. Guardar la evaluación importa por dos razones opuestas: cuando el motor **acertó**, justifica ante el cliente por qué se le pidió MFA o se le rechazó una operación; cuando **se equivocó**, permite medir la tasa de falsos positivos y afinarlo. Sin registro, el motor antifraude es una caja negra que nadie puede mejorar ni defender. ---
+**Para qué sirve.** La regla es **declarativa** (`expresion JSONB`): "más de tres retiros en una hora hacia un instrumento agregado hoy" se escribe como dato, no como `if`. La evaluación guarda el resultado, el puntaje, qué reglas se dispararon y cuánto tardó.
+
+Guardar la evaluación importa por dos razones opuestas: cuando el motor **acertó**, justifica ante el cliente por qué se le pidió MFA o se le rechazó una operación; cuando **se equivocó**, permite medir la tasa de falsos positivos y afinarlo. Sin registro, el motor antifraude es una caja negra que nadie puede mejorar ni defender.
+
+**Casos de uso que la nombran.** CU-48 Calibrar reglas de cumplimiento y triar sus alertas
 
 **Sistema.** Vive en el esquema `nucleo_financiero`; la escribe y la lee solo el servicio `nucleo-financiero` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `identidad.usuario`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `codigo` | VARCHAR(40) | — | VARCHAR(40), obligatoria. | NINGUNA |
+| `codigo` | VARCHAR(40) | — | VARCHAR(40), obligatoria, única. | NINGUNA |
 | `descripcion` | VARCHAR(300) | — | VARCHAR(300), obligatoria. | NINGUNA |
 | `expresion` | JSONB | — | JSONB, obligatoria. | NINGUNA |
 | `accion` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
@@ -6381,6 +8245,8 @@
 **Para qué sirve.** Que si la app reintenta una recarga, un retiro o una aprobación porque se cortó la conexión, la persona reciba la misma respuesta y la plata no se mueva dos veces.
 
 **Por qué existe.** La regla 91.1.4 exige idempotencia en toda operación de dinero. Sin la respuesta guardada, el reintento solo podría rechazarse, y la app no sabría si la primera vez salió bien.
+
+**Casos de uso que la nombran.** CU-10 Recargar saldo (`solicitarRecarga`, `acreditarRecarga`) · CU-11 Retirar saldo (`solicitarRetiro`)
 
 **Sistema.** Vive en el esquema `nucleo_financiero`; la escribe y la lee solo el servicio `nucleo-financiero` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `identidad.usuario`. Reglas nombradas: `ck_respuesta_idem_hash`, `ck_respuesta_idem_expira`, `ck_respuesta_idem_http`, `ix_respuesta_idem_expiradas`.
 
@@ -6400,9 +8266,18 @@
 
 **Qué es.** Plata que sigue siendo del titular pero deja de estar disponible.
 
-**Para qué sirve.** Resuelve seis situaciones que sin ella se resuelven mal: - **`APORTE_PROGRAMADO`**: el participante autorizó el débito automático del día 10. Se retiene el 10 y se ejecuta cuando corresponde. Sin retención, el usuario puede gastar el saldo el día 9 y el grupo se queda corto. - **`ENTREGA_EN_CURSO`**: la bolsa está lista para desembolsar; se congela para que nadie la mueva mientras se autoriza. - **`DISPUTA`** y **`ANTIFRAUDE`**: hay un reclamo o una alerta abierta sobre esa plata. - **`ORDEN_AUTORIDAD`**: llegó un oficio judicial. - **`COMISION_PENDIENTE`**: la comisión devengada que todavía no se cobró.
+**Para qué sirve.** Resuelve seis situaciones que sin ella se resuelven mal:
+
+- **`APORTE_PROGRAMADO`**: el participante autorizó el débito automático del día
+10. Se retiene el 10 y se ejecuta cuando corresponde. Sin retención, el usuario puede gastar el saldo el día 9 y el grupo se queda corto.
+- **`ENTREGA_EN_CURSO`**: la bolsa está lista para desembolsar; se congela para que nadie la mueva mientras se autoriza.
+- **`DISPUTA`** y **`ANTIFRAUDE`**: hay un reclamo o una alerta abierta sobre esa plata.
+- **`ORDEN_AUTORIDAD`**: llegó un oficio judicial.
+- **`COMISION_PENDIENTE`**: la comisión devengada que todavía no se cobró.
 
 **Por qué existe.** Sin retenciones, la única forma de "apartar" plata es moverla a otra cuenta, lo que ensucia el extracto del usuario con movimientos que no entiende y rompe la trazabilidad. La retención es visible, reversible y explicable: *"Bs 500 reservados para tu aporte del 10 de marzo"*.
+
+**Casos de uso que la nombran.** CU-11 Retirar saldo (`solicitarRetiro`) · CU-13 Retener y liberar saldo (`debitarInversion`, `retenerSaldo`, `cerrarRetencion`, `pagarAlTercero`, `consultarSaldo`) · CU-16 Cerrar billetera y devolver saldo (`consultarActividad`, `solicitarCierreBilletera`) · CU-17 Bloquear saldo por orden de autoridad (`bloquearPorAutoridad`) · CU-21 Cobrar el aporte del período (`cobrarAporte`, `consultarEstadoDelParticipante`, `generarObligacionesDelPeriodo`, `consultarRecaudoDelPeriodo`, `consultarAdmisibilidadDePago`) · CU-28 Emitir la orden de desembolso y ejecutar el intento (`listarDesembolsos`, `emitirOrdenDesembolso`, `anotarRespuestaDesembolso`) · CU-44 De alerta de monitoreo a reporte de operación sospechosa (`listarBandejaDeAlertas`, `listarBandejaDeCasos`, `abrirCasoLft`, `decidirCasoLft`)
 
 **Sistema.** Vive en el esquema `nucleo_financiero`; la escribe y la lee solo el servicio `nucleo-financiero` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `cuenta_billetera`, `identidad.usuario`, `transaccion_billetera`. La referencian `bloqueo_saldo`, `orden_retiro`. Reglas nombradas: `ck_retencion_referencia_motivo`, `ck_retencion_expira`.
 
@@ -6427,7 +8302,9 @@
 
 **Para qué sirve.** Separar el *hecho* (la transacción compensatoria) de la *justificación* (quién lo autorizó, por qué, con qué respaldo). Cuatro tipos: anulación, contracargo, error operativo y orden de autoridad. Cada uno tiene consecuencias distintas: un error operativo alimenta el registro de pérdidas por riesgo operativo (M12); un contracargo puede generar cargo al usuario.
 
-**Por qué existe.** Sin él, en el libro solo se ve que hubo un movimiento inverso, pero no por qué. Y "por qué" es la primera pregunta de toda auditoría. ---
+**Por qué existe.** Sin él, en el libro solo se ve que hubo un movimiento inverso, pero no por qué. Y "por qué" es la primera pregunta de toda auditoría.
+
+**Casos de uso que la nombran.** CU-14 Reversar una transacción (`reversarTransaccion`, `listarReversos`) · CU-54 Registrar un evento de riesgo operativo (`registrarRiesgoOperativo`)
 
 **Sistema.** Vive en el esquema `nucleo_financiero`; la escribe y la lee solo el servicio `nucleo-financiero` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `identidad.usuario`, `transaccion_billetera`. Reglas nombradas: `uq_reverso_original`, `ck_reverso_segregacion`.
 
@@ -6435,7 +8312,7 @@
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
 | `transaccion_original_id` | UUID | — | UUID, obligatoria, referencia a `transaccion_billetera`. | NINGUNA |
-| `transaccion_reverso_id` | UUID | — | UUID, opcional, referencia a `transaccion_billetera`. | NINGUNA |
+| `transaccion_reverso_id` | UUID | — | UUID, opcional, única, referencia a `transaccion_billetera`. | NINGUNA |
 | `autorizada_por` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
 | `tipo` | VARCHAR(25) | — | VARCHAR(25), obligatoria. | NINGUNA |
 | `motivo` | VARCHAR(300) | — | VARCHAR(300), obligatoria. | NINGUNA |
@@ -6452,6 +8329,8 @@
 
 **Por qué existe.** Un embargo, una sucesión, una auditoría o un reclamo siempre preguntan por una fecha pasada. Sin esta tabla la única respuesta posible es "recalculamos y nos dio esto", que es exactamente la respuesta que un auditor no acepta.
 
+**Casos de uso que la nombran.** CU-15 Emitir extracto y certificado de saldo (`emitirExtracto`, `listarMovimientosBilletera`) · CU-50 Conciliar la custodia y verificar el encaje (`ejecutarCierreDiario`, `listarConciliaciones`, `conciliarCustodia`) · CU-51 Ejecutar el cierre diario (`consultarRecaudoDiario`, `listarCierresDiarios`)
+
 **Sistema.** Vive en el esquema `nucleo_financiero`; la escribe y la lee solo el servicio `nucleo-financiero` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Es append-only: UPDATE y DELETE revocados al rol del servicio; se corrige con una fila nueva. Depende de `cuenta_billetera`. Reglas nombradas: `uq_saldo_diario_cuenta_fecha`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
@@ -6466,20 +8345,37 @@
 | `hash_anterior` | VARCHAR(64) | — | VARCHAR(64), opcional. | DERIVADO |
 | `cerrado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
 
+### `shedlock`
+
+**Qué es.** Bloqueo de trabajos programados entre replicas (ADR-018).
+
+**Para qué sirve.** Evita que dos réplicas del servicio ejecuten el mismo trabajo programado a la vez (ADR-018).
+
+**Sistema.** Infraestructura del servicio `nucleo-financiero`, generada por plantilla en cada esquema (ADR-027): la escribe y la lee solo ese servicio.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `name` | VARCHAR(64) | — | VARCHAR(64), obligatoria, clave primaria. | NINGUNA |
+| `lock_until` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `locked_at` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `locked_by` | VARCHAR(255) | — | VARCHAR(255), obligatoria. | NINGUNA |
+
 ### `solicitud_cierre_billetera`
 
 **Qué es.** El proceso de cerrar la cuenta y devolver el saldo.
 
 **Para qué sirve.** El derecho a irse con la plata es tan importante como el derecho a abrir. La solicitud valida que no queden obligaciones abiertas —aportes pendientes, deuda, retenciones vigentes, grupos activos— y deja constancia del destino del saldo.
 
-**Por qué existe.** Porque el cierre de cuenta es el momento de mayor fricción y el que más reclamos genera. Sin expediente, es la palabra del usuario contra la del soporte. ---
+**Por qué existe.** Porque el cierre de cuenta es el momento de mayor fricción y el que más reclamos genera. Sin expediente, es la palabra del usuario contra la del soporte.
+
+**Casos de uso que la nombran.** CU-16 Cerrar billetera y devolver saldo (`consultarActividad`, `solicitarCierreBilletera`)
 
 **Sistema.** Vive en el esquema `nucleo_financiero`; la escribe y la lee solo el servicio `nucleo-financiero` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `cuenta_billetera`, `identidad.usuario`, `orden_retiro`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `cuenta_billetera_id` | UUID | — | UUID, obligatoria, referencia a `cuenta_billetera`. | NINGUNA |
+| `cuenta_billetera_id` | UUID | — | UUID, obligatoria, única, referencia a `cuenta_billetera`. | NINGUNA |
 | `orden_retiro_id` | UUID | — | UUID, opcional, referencia a `orden_retiro`. | NINGUNA |
 | `aprobada_por` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
 | `motivo` | VARCHAR(200) | — | VARCHAR(200), obligatoria. | NINGUNA |
@@ -6493,16 +8389,24 @@
 
 **Qué es.** El sobre atómico que agrupa los movimientos de una operación.
 
-**Para qué sirve.** Es **la unidad de "algo pasó con el dinero"**. Doce tipos, cada uno con un hecho de negocio detrás: recarga, retiro, aporte a grupo, entrega de fondo, cobro de comisión, cobro de impuesto, transferencia entre personas, cobertura del fondo de garantía, reposición, devolución, ajuste operativo y reverso. Que la transacción sea una entidad separada de sus movimientos es lo que permite: 1. **Idempotencia real.** `UNIQUE (clave_idempotencia)`. Si la app reintenta porque se cortó el 4G, o si la pasarela reenvía el webhook, la segunda vez no pasa nada. Este es el defecto más caro y más común de los sistemas de pago caseros: acreditar dos veces. 2. **Reversar en vez de editar.** Nunca se corrige un movimiento. Se emite una transacción de tipo `REVERSO` que lo compensa, y ambas quedan visibles. El extracto del usuario muestra el error *y* su corrección, que es lo que exige cualquier norma contable seria. 3. **Contexto forense.** `sesion_id`, `dispositivo_id`, `ip_origen` y `canal` quedan pegados a la transacción. Cuando alguien dice "yo no hice esa transferencia", esa fila es la que contesta.
+**Para qué sirve.** Es **la unidad de "algo pasó con el dinero"**. Doce tipos, cada uno con un hecho de negocio detrás: recarga, retiro, aporte a grupo, entrega de fondo, cobro de comisión, cobro de impuesto, transferencia entre personas, cobertura del fondo de garantía, reposición, devolución, ajuste operativo y reverso.
+
+Que la transacción sea una entidad separada de sus movimientos es lo que permite:
+
+1. **Idempotencia real.** `UNIQUE (clave_idempotencia)`. Si la app reintenta porque se cortó el 4G, o si la pasarela reenvía el webhook, la segunda vez no pasa nada. Este es el defecto más caro y más común de los sistemas de pago caseros: acreditar dos veces.
+2. **Reversar en vez de editar.** Nunca se corrige un movimiento. Se emite una transacción de tipo `REVERSO` que lo compensa, y ambas quedan visibles. El extracto del usuario muestra el error *y* su corrección, que es lo que exige cualquier norma contable seria.
+3. **Contexto forense.** `sesion_id`, `dispositivo_id`, `ip_origen` y `canal` quedan pegados a la transacción. Cuando alguien dice "yo no hice esa transferencia", esa fila es la que contesta.
 
 **Por qué existe.** Sin sobre transaccional, cada movimiento sería independiente y no habría forma de garantizar que un aporte deje la bolsa cuadrada: podría acreditarse el crédito al grupo y fallar el débito al participante.
+
+**Casos de uso que la nombran.** CU-10 Recargar saldo (`solicitarRecarga`, `acreditarRecarga`) · CU-11 Retirar saldo (`solicitarRetiro`) · CU-12 Transferir saldo entre billeteras (`resolverAlias`, `acreditarRescate`, `emitirQr`, `leerQr`, `pagarQr`, `transferirSaldo`) · CU-13 Retener y liberar saldo (`debitarInversion`, `retenerSaldo`, `cerrarRetencion`, `pagarAlTercero`, `consultarSaldo`) · CU-14 Reversar una transacción (`reversarTransaccion`, `listarReversos`) · CU-19 Reembolsar un pago y atender una disputa (`aprobarReembolso`, `registrarDisputa`, `solicitarReembolso`) · CU-21 Cobrar el aporte del período (`cobrarAporte`, `consultarEstadoDelParticipante`, `generarObligacionesDelPeriodo`, `consultarRecaudoDelPeriodo`, `consultarAdmisibilidadDePago`) · CU-22 Liquidar y entregar el fondo (`liquidarEntrega`, `fondearPozo`, `autorizarEntrega`, `ejecutarEntrega`) · CU-23 Cubrir un incumplimiento con el fondo (`cubrirIncumplimiento`) · CU-26 Ejecutar el aval y subrogar la deuda (`ejecutarAval`) · CU-29 Devolver los aportes del fondo de garantía (`devolverFondo`) · CU-31 Devengar y cobrar la comisión (`devengarComision`, `anotarCobroDeComision`) · CU-33 Devolver comisión y emitir nota de crédito (`devolverComision`) · CU-41 Detectar umbral y registrar formulario PCC-01 · CU-42 Detectar umbral y registrar ROG · CU-52 Atender un reclamo en plazo (`listarBandejaDeReclamos`, `consultarEfectoDeReclamos`, `consultarReclamo`, `responderReclamo`) · CU-67 Disolver el grupo anticipadamente (`cerrarDisolucion`, `iniciarDisolucion`)
 
 **Sistema.** Vive en el esquema `nucleo_financiero`; la escribe y la lee solo el servicio `nucleo-financiero` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Es append-only: UPDATE y DELETE revocados al rol del servicio; se corrige con una fila nueva. Depende de `asiento_contable`, `grupos.grupo`, `identidad.dispositivo`, `identidad.sesion`, `identidad.usuario`. La referencian `cumplimiento.alerta_monitoreo_lft`, `cumplimiento.declaracion_origen_fondos`, `cumplimiento.registro_operacion_relevante`, `evaluacion_antifraude`, `movimiento_billetera`, `orden_recarga`, `orden_retiro`, `qr_transferencia`, `retencion_saldo`, `reverso_transaccion`, `tarifas.cargo_comision`, `tarifas.costo_proveedor_operacion`, `tarifas.devolucion_comision`, `transferencia_p2p`. Reglas nombradas: `uq_tx_idem`, `uq_tx_inversion_origen`, `uq_tx_rescate_origen`, `uq_tx_compra_mercado_origen`, `ix_transaccion_ocurrida`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `secuencia` | BIGSERIAL | — | BIGSERIAL, obligatoria. | NINGUNA |
+| `secuencia` | BIGSERIAL | — | BIGSERIAL, obligatoria, única. | NINGUNA |
 | `tipo` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
 | `estado` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
 | `moneda` | CHAR(3) | Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2). | CHAR(3), obligatoria. | NINGUNA |
@@ -6526,14 +8430,18 @@
 
 **Qué es.** Movimiento de saldo entre dos billeteras.
 
-**Para qué sirve.** Es el mecanismo por el que **el aporte al pasanaku se vuelve instantáneo y gratuito**: el participante ya tiene saldo, el grupo tiene cuenta, y el aporte es una transferencia interna que no toca la red bancaria, no paga comisión de pasarela y se acredita en el acto. Ese es el argumento comercial central de la billetera. `obligacion_id` enlaza la transferencia con la [[obligacion_aporte]] que salda, para que un aporte hecho desde saldo tenga exactamente la misma trazabilidad que uno hecho por QR. ---
+**Para qué sirve.** Es el mecanismo por el que **el aporte al pasanaku se vuelve instantáneo y gratuito**: el participante ya tiene saldo, el grupo tiene cuenta, y el aporte es una transferencia interna que no toca la red bancaria, no paga comisión de pasarela y se acredita en el acto. Ese es el argumento comercial central de la billetera.
+
+`obligacion_id` enlaza la transferencia con la [[obligacion_aporte]] que salda, para que un aporte hecho desde saldo tenga exactamente la misma trazabilidad que uno hecho por QR.
+
+**Casos de uso que la nombran.** CU-12 Transferir saldo entre billeteras (`resolverAlias`, `acreditarRescate`, `emitirQr`, `leerQr`, `pagarQr`, `transferirSaldo`)
 
 **Sistema.** Vive en el esquema `nucleo_financiero`; la escribe y la lee solo el servicio `nucleo-financiero` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `aportes.obligacion_aporte`, `cuenta_billetera`, `grupos.grupo`, `transaccion_billetera`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `transaccion_id` | UUID | — | UUID, obligatoria, referencia a `transaccion_billetera`. | NINGUNA |
+| `transaccion_id` | UUID | — | UUID, obligatoria, única, referencia a `transaccion_billetera`. | NINGUNA |
 | `cuenta_billetera_origen_id` | UUID | — | UUID, obligatoria, referencia a `cuenta_billetera`. | NINGUNA |
 | `cuenta_billetera_destino_id` | UUID | — | UUID, obligatoria, referencia a `cuenta_billetera`. | NINGUNA |
 | `grupo_id` | UUID | — | UUID, opcional, referencia a `grupo`. | NINGUNA |
@@ -6550,9 +8458,13 @@
 
 **Qué es.** El recurso del organizador contra una sanción.
 
-**Para qué sirve.** Debido proceso. Las evaluaciones automáticas se equivocan: un grupo puede tener alta morosidad por razones ajenas al organizador (una crisis local, un participante que resultó ser un estafador). Sin apelación, un buen organizador puede ser sancionado por un dato que no controlaba. Esto pesa más en un modelo sin retribución: **si administrar no da ingreso y encima expone a sanciones injustas, nadie va a querer hacerlo.** La apelación es lo que mantiene el rol atractivo para la gente que uno quiere que lo asuma.
+**Para qué sirve.** Debido proceso. Las evaluaciones automáticas se equivocan: un grupo puede tener alta morosidad por razones ajenas al organizador (una crisis local, un participante que resultó ser un estafador). Sin apelación, un buen organizador puede ser sancionado por un dato que no controlaba.
 
-**Por qué existe.** Una sanción automática sin recurso es arbitraria, y disuade a la gente buena de asumir el rol. ---
+Esto pesa más en un modelo sin retribución: **si administrar no da ingreso y encima expone a sanciones injustas, nadie va a querer hacerlo.** La apelación es lo que mantiene el rol atractivo para la gente que uno quiere que lo asuma.
+
+**Por qué existe.** Una sanción automática sin recurso es arbitraria, y disuade a la gente buena de asumir el rol.
+
+**Casos de uso que la nombran.** CU-93 Sancionar al organizador y resolver su apelación (`apelarSancion`, `resolverApelacion`, `sancionarOrganizador`) · CU-94 Elevar una decisión al comité de gobierno
 
 **Sistema.** Vive en el esquema `organizador`; la escribe y la lee solo el servicio `organizador` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `identidad.usuario`, `sancion_organizador`. Reglas nombradas: `uq_apelacion_por_sancion`, `ck_apelacion_org_resuelta`.
 
@@ -6572,9 +8484,15 @@
 
 **Qué es.** Los módulos de formación que el organizador completó, con su nota y vigencia.
 
-**Para qué sirve.** La mayoría de los problemas de un organizador no son mala fe: son desconocimiento. No sabe cómo manejar a alguien que se atrasa, no entiende qué puede y qué no puede decidir solo, no sabe cómo se calcula una liquidación. La capacitación reduce incidentes y le da a la plataforma un argumento sólido cuando tiene que sancionar: *se te capacitó en esto, aprobaste con esta nota, y aun así lo hiciste mal.* Un contenido se vuelve obligatorio en este modelo: **que administrar no se cobra**, y que pedir dinero por fuera de la plataforma es causal de inhabilitación. `vigenteHasta` obliga a recertificar cuando cambian las reglas.
+**Para qué sirve.** La mayoría de los problemas de un organizador no son mala fe: son desconocimiento. No sabe cómo manejar a alguien que se atrasa, no entiende qué puede y qué no puede decidir solo, no sabe cómo se calcula una liquidación. La capacitación reduce incidentes y le da a la plataforma un argumento sólido cuando tiene que sancionar: *se te capacitó en esto, aprobaste con esta nota, y aun así lo hiciste mal.*
 
-**Por qué existe.** Sin registro de capacitación no se puede exigir formación como requisito ni distinguir el error de buena fe del incumplimiento consciente. ---
+Un contenido se vuelve obligatorio en este modelo: **que administrar no se cobra**, y que pedir dinero por fuera de la plataforma es causal de inhabilitación.
+
+`vigenteHasta` obliga a recertificar cuando cambian las reglas.
+
+**Por qué existe.** Sin registro de capacitación no se puede exigir formación como requisito ni distinguir el error de buena fe del incumplimiento consciente.
+
+**Casos de uso que la nombran.** CU-90 Postular a organizador y habilitarse (`activarRolOrganizador`, `postularOrganizador`, `aprobarPostulacion`, `consultarHabilitacionBasica`, `aceptarHabilitacionBasica`, `habilitarOrganizador`)
 
 **Sistema.** Vive en el esquema `organizador`; la escribe y la lee solo el servicio `organizador` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `organizador`.
 
@@ -6592,9 +8510,13 @@
 
 **Qué es.** El contrato firmado entre el organizador y la plataforma, versionado y sellado con hash.
 
-**Para qué sirve.** Es el documento que hace exigibles las obligaciones del organizador y que fundamenta las `causalesRescision`. Cuando hay que deshabilitar a alguien, la pregunta legal es "¿en base a qué?", y la respuesta es este contrato, en la versión que firmó, con su hash y su token de firma. **Con la comisión eliminada, este contrato carga el peso de la regla.** Es donde queda escrito, firmado y fechado que el organizador (a) no custodia fondos y (b) **no percibe contraprestación por administrar, ni dentro ni fuera de la plataforma**. Si alguien cobra "por debajo" a los participantes, está violando el contrato de forma documentada, y eso es lo que sostiene la inhabilitación.
+**Para qué sirve.** Es el documento que hace exigibles las obligaciones del organizador y que fundamenta las `causalesRescision`. Cuando hay que deshabilitar a alguien, la pregunta legal es "¿en base a qué?", y la respuesta es este contrato, en la versión que firmó, con su hash y su token de firma.
 
-**Por qué existe.** Sin contrato firmado y versionado, la relación con el organizador es informal, y sancionarlo o darlo de baja queda sin fundamento. ---
+**Con la comisión eliminada, este contrato carga el peso de la regla.** Es donde queda escrito, firmado y fechado que el organizador (a) no custodia fondos y (b) **no percibe contraprestación por administrar, ni dentro ni fuera de la plataforma**. Si alguien cobra "por debajo" a los participantes, está violando el contrato de forma documentada, y eso es lo que sostiene la inhabilitación.
+
+**Por qué existe.** Sin contrato firmado y versionado, la relación con el organizador es informal, y sancionarlo o darlo de baja queda sin fundamento.
+
+**Casos de uso que la nombran.** CU-91 Firmar y rescindir el contrato de organizador (`firmarContrato`, `rescindirContrato`, `firmarHabilitacionBasica`, `emitirContrato`) · CU-93 Sancionar al organizador y resolver su apelación (`apelarSancion`, `resolverApelacion`, `sancionarOrganizador`)
 
 **Sistema.** Vive en el esquema `organizador`; la escribe y la lee solo el servicio `organizador` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `identidad.token_verificacion`, `organizador`. Reglas nombradas: `ck_contrato_org_vigencia`, `ck_contrato_org_rescision`, `ck_contrato_org_firma`, `ex_contrato_org_vigente`.
 
@@ -6621,13 +8543,15 @@
 
 **Por qué existe.** Sin ella, la habilitación sería un estado en la solicitud: se perdería quién aprobó, con qué requisitos cumplidos y por qué se revocó después.
 
+**Casos de uso que la nombran.** CU-90 Postular a organizador y habilitarse (`activarRolOrganizador`, `postularOrganizador`, `aprobarPostulacion`, `consultarHabilitacionBasica`, `aceptarHabilitacionBasica`, `habilitarOrganizador`)
+
 **Sistema.** Vive en el esquema `organizador`; la escribe y la lee solo el servicio `organizador` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Es append-only: UPDATE y DELETE revocados al rol del servicio; se corrige con una fila nueva. Reglas nombradas: `ck_decision_habilitacion_fase`, `ck_decision_habilitacion_resultado`, `ck_decision_habilitacion_revision`, `ck_decision_habilitacion_motivo`, `ck_decision_habilitacion_coherencia`, `uq_decision_habilitacion_resolucion`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
 | `solicitud_id` | UUID | — | UUID, obligatoria. | NINGUNA |
-| `clave_idempotencia` | UUID | Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4). | UUID, obligatoria. | NINGUNA |
+| `clave_idempotencia` | UUID | Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4). | UUID, obligatoria, única. | NINGUNA |
 | `fase` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
 | `decision` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
 | `actor_id` | UUID | — | UUID, obligatoria. | NINGUNA |
@@ -6642,9 +8566,13 @@
 
 **Qué es.** El registro de cada ejecución: cuándo, con qué resultado, cuántos registros afectó.
 
-**Para qué sirve.** Es la **rendición de cuentas de la automatización**. Cuando un participante pregunta "¿por qué me aplicaron mora?", la respuesta es: la tarea de aplicación de mora del 6 de marzo a las 00:15 procesó 47 obligaciones vencidas, y la tuya era una. Con `detalle` en JSON, se puede reconstruir exactamente qué hizo. `resultado = PARCIAL` es realista: una tarea puede procesar 40 de 47 registros y fallar en 7. Sin ese estado, o se marca éxito (y se ocultan los 7 fallos) o se marca error (y se pierden los 40 éxitos).
+**Para qué sirve.** Es la **rendición de cuentas de la automatización**. Cuando un participante pregunta "¿por qué me aplicaron mora?", la respuesta es: la tarea de aplicación de mora del 6 de marzo a las 00:15 procesó 47 obligaciones vencidas, y la tuya era una. Con `detalle` en JSON, se puede reconstruir exactamente qué hizo.
+
+`resultado = PARCIAL` es realista: una tarea puede procesar 40 de 47 registros y fallar en 7. Sin ese estado, o se marca éxito (y se ocultan los 7 fallos) o se marca error (y se pierden los 40 éxitos).
 
 **Por qué existe.** **Un sistema que actúa solo sobre el dinero de la gente tiene que poder explicar cada acción que tomó.** Sin registro de ejecución, la automatización es una caja negra que mueve plata, y eso es inaceptable.
+
+**Casos de uso que la nombran.** CU-96 Programar y ejecutar una tarea automatizada (`programarTarea`, `aprobarTarea`, `anotarEjecucion`)
 
 **Sistema.** Vive en el esquema `organizador`; la escribe y la lee solo el servicio `organizador` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `tarea_automatizada`. Reglas nombradas: `ck_ejecucion_tarea_error`, `ck_ejecucion_tarea_fin`.
 
@@ -6663,9 +8591,21 @@
 
 **Qué es.** La evaluación periódica del organizador sobre seis indicadores objetivos.
 
-**Para qué sirve.** Implementa RN-22 y responde: *¿este organizador está haciendo bien su trabajo?* Con datos, no con impresiones: - `indiceMorosidadCartera`: sus grupos, ¿pagan a tiempo? - `tasaFinalizacionGrupos`: sus grupos, ¿terminan o se caen? - `satisfaccionParticipantes`: la gente que administró, ¿lo recomendaría? - `tiempoRespuestaPromedioHoras`: cuando alguien tiene un problema, ¿contesta? - `incidenciasAbiertas` y `coberturasConsumidas`: ¿cuánto le cuesta al sistema? `nivelSugerido` + `accionRecomendada` cierran el ciclo: la evaluación **tiene consecuencias automáticas**, hacia arriba (ascenso de nivel, más límite) o hacia abajo (reducción de límite, suspensión). Esta entidad gana importancia con la comisión eliminada. En un modelo con comisión, un organizador mediocre igual tiene el incentivo económico de seguir administrando. Sin ella, el único incentivo es el reconocimiento — **y este es el registro que lo produce**. Sin evaluación, administrar bien y administrar mal se ven exactamente igual, y no queda ningún motivo para hacerlo bien.
+**Para qué sirve.** Implementa RN-22 y responde: *¿este organizador está haciendo bien su trabajo?* Con datos, no con impresiones:
+
+- `indiceMorosidadCartera`: sus grupos, ¿pagan a tiempo?
+- `tasaFinalizacionGrupos`: sus grupos, ¿terminan o se caen?
+- `satisfaccionParticipantes`: la gente que administró, ¿lo recomendaría?
+- `tiempoRespuestaPromedioHoras`: cuando alguien tiene un problema, ¿contesta?
+- `incidenciasAbiertas` y `coberturasConsumidas`: ¿cuánto le cuesta al sistema?
+
+`nivelSugerido` + `accionRecomendada` cierran el ciclo: la evaluación **tiene consecuencias automáticas**, hacia arriba (ascenso de nivel, más límite) o hacia abajo (reducción de límite, suspensión).
+
+Esta entidad gana importancia con la comisión eliminada. En un modelo con comisión, un organizador mediocre igual tiene el incentivo económico de seguir administrando. Sin ella, el único incentivo es el reconocimiento — **y este es el registro que lo produce**. Sin evaluación, administrar bien y administrar mal se ven exactamente igual, y no queda ningún motivo para hacerlo bien.
 
 **Por qué existe.** Sin evaluación sistemática, un organizador que administra mal sigue acumulando grupos hasta que el daño es grande y visible. Y uno que administra bien no tiene forma de demostrarlo para crecer.
+
+**Casos de uso que la nombran.** CU-92 Evaluar el desempeño del organizador (`evaluarDesempeno`) · CU-93 Sancionar al organizador y resolver su apelación (`apelarSancion`, `resolverApelacion`, `sancionarOrganizador`)
 
 **Sistema.** Vive en el esquema `organizador`; la escribe y la lee solo el servicio `organizador` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `organizador`. La referencian `metrica_organizador`, `sancion_organizador`. Reglas nombradas: `uq_evaluacion_org_periodo`.
 
@@ -6678,12 +8618,54 @@
 | `tasa_finalizacion_grupos` | DECIMAL(5,2) | sus grupos, ¿terminan o se caen? | DECIMAL(5,2), obligatoria. | NINGUNA |
 | `satisfaccion_participantes` | DECIMAL(3,2) | la gente que administró, ¿lo recomendaría? | DECIMAL(3,2), obligatoria. | NINGUNA |
 | `tiempo_respuesta_promedio_horas` | DECIMAL(6,2) | cuando alguien tiene un problema, ¿contesta? | DECIMAL(6,2), obligatoria. | NINGUNA |
-| `incidencias_abiertas` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
-| `coberturas_consumidas` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
+| `incidencias_abiertas` | SMALLINT | ¿cuánto le cuesta al sistema? | SMALLINT, obligatoria. | NINGUNA |
+| `coberturas_consumidas` | SMALLINT | ¿cuánto le cuesta al sistema? | SMALLINT, obligatoria. | NINGUNA |
 | `puntaje_global` | DECIMAL(5,2) | — | DECIMAL(5,2), obligatoria. | NINGUNA |
 | `nivel_sugerido` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
 | `accion_recomendada` | VARCHAR(120) | — | VARCHAR(120), obligatoria. | NINGUNA |
 | `evaluado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+
+### `evento_consumido`
+
+**Qué es.** Marca de evento ya consumido, por consumidor (ADR-027).
+
+**Para qué sirve.** Hace idempotente el consumo: la entrega es al menos una vez y un mismo evento no puede producir dos efectos (regla 98.3.4).
+
+**Sistema.** Infraestructura del servicio `organizador`, generada por plantilla en cada esquema (ADR-027): la escribe y la lee solo ese servicio.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `id_evento` | UUID | — | UUID, obligatoria, clave primaria. | NINGUNA |
+| `consumidor` | VARCHAR(60) | — | VARCHAR(60), obligatoria, clave primaria. | NINGUNA |
+| `consumido_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+
+### `evento_dominio`
+
+**Qué es.** Outbox transaccional del servicio (ADR-027).
+
+**Para qué sirve.** Garantiza que ningún hecho del servicio se pierda entre la base y la mensajería: el evento se guarda en la misma transacción que el cambio y un relevo lo publica después (regla 98.3.3).
+
+**Sistema.** Infraestructura del servicio `organizador`, generada por plantilla en cada esquema (ADR-027): la escribe y la lee solo ese servicio.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
+| `tipo` | VARCHAR(60) | — | VARCHAR(60), obligatoria. | NINGUNA |
+| `version` | VARCHAR(10) | — | VARCHAR(10), obligatoria. | NINGUNA |
+| `agregado` | VARCHAR(40) | — | VARCHAR(40), obligatoria. | NINGUNA |
+| `agregado_id` | UUID | — | UUID, obligatoria. | NINGUNA |
+| `payload` | JSONB | — | JSONB, obligatoria. | NINGUNA |
+| `metadatos` | JSONB | — | JSONB, obligatoria. | NINGUNA |
+| `correlation_id` | UUID | — | UUID, obligatoria. | NINGUNA |
+| `causation_id` | UUID | — | UUID, opcional. | NINGUNA |
+| `ocurrido_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `publicado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
+| `intentos` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
+| `tomado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `tomado_por` | VARCHAR(100) | — | VARCHAR(100), opcional. | NINGUNA |
+| `ultimo_error` | TEXT | — | TEXT, opcional. | NINGUNA |
+| `proximo_intento_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
 
 ### `metrica_organizador`
 
@@ -6691,7 +8673,9 @@
 
 **Para qué sirve.** Hace la evaluación **explicable y apelable**. El organizador no recibe "puntaje 62, nivel reducido"; recibe el desglose: morosidad 18% contra meta de 10% (no cumple, peso 0,35); tiempo de respuesta 4 h contra meta de 6 h (cumple, peso 0,15). Con eso sabe qué corregir, y si apela, sabe qué discutir.
 
-**Por qué existe.** Una evaluación sin desglose es una calificación arbitraria, y sancionar en base a ella es indefendible. ---
+**Por qué existe.** Una evaluación sin desglose es una calificación arbitraria, y sancionar en base a ella es indefendible.
+
+**Casos de uso que la nombran.** CU-92 Evaluar el desempeño del organizador (`evaluarDesempeno`) · CU-98 Publicar el tablero de indicadores (`publicarTablero`, `listarEndpointsDelDia`)
 
 **Sistema.** Vive en el esquema `organizador`; la escribe y la lee solo el servicio `organizador` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `evaluacion_desempeno`. Reglas nombradas: `uq_metrica_org_codigo`, `ck_metrica_org_peso`.
 
@@ -6709,16 +8693,25 @@
 
 **Qué es.** Un usuario habilitado para administrar grupos de terceros, con su nivel, sus límites y sus indicadores de cartera.
 
-**Para qué sirve.** Convierte "el que organiza" en **un rol con requisitos, límites y consecuencias** — aunque no tenga retribución. Los campos clave: - `limiteGruposSimultaneos` y `limiteMontoAdministrado` son **control de riesgo puro**. Un organizador nuevo puede llevar dos grupos chicos; uno con historial probado, quince grupos grandes. Sin límites, alguien puede acumular cincuenta grupos y su fracaso arrastra a cientos de personas a la vez. - `nivel` (aprendiz → estándar → sénior → maestro) es la escalera de progresión. Sin comisión de por medio, el incentivo deja de ser económico y pasa a ser reputacional: administrar bien habilita a administrar más, y eso se refleja en el perfil público (M6). - `indiceMorosidadCartera` es **el indicador que más importa de todo el módulo**. Un organizador cuyos grupos tienen 30% de mora está haciendo mal el trabajo. Y ahora es el único indicador que importa, porque ya no hay un volumen de comisiones que compense un mal desempeño. - `calificacionPromedio` viene de las reseñas (M6) y captura la dimensión de trato.
+**Para qué sirve.** Convierte "el que organiza" en **un rol con requisitos, límites y consecuencias** — aunque no tenga retribución. Los campos clave:
 
-**Por qué existe.** Porque ser organizador es un rol con estado propio (`POSTULADO → EN_EVALUACION → CAPACITACION_PENDIENTE → HABILITADO → LIMITADO → SUSPENDIDO → DESHABILITADO`), con métricas propias y con un proceso de habilitación que la cuenta de usuario no tiene. Y porque el mismo usuario es organizador en unos grupos y participante en otros. **Qué NO lleva, y por qué importa.** No tiene `cuentaCobroId` ni `comisionAcumulada()`: **no hay nada que pagarle**, así que no hay a dónde pagarle. Si además participa en el grupo que administra, lo hace como participante normal (M2), con sus propias obligaciones (M3) y su turno (M4) — por la vía de siempre, sin trato especial.
+- `limiteGruposSimultaneos` y `limiteMontoAdministrado` son **control de riesgo puro**. Un organizador nuevo puede llevar dos grupos chicos; uno con historial probado, quince grupos grandes. Sin límites, alguien puede acumular cincuenta grupos y su fracaso arrastra a cientos de personas a la vez.
+- `nivel` (aprendiz → estándar → sénior → maestro) es la escalera de progresión. Sin comisión de por medio, el incentivo deja de ser económico y pasa a ser reputacional: administrar bien habilita a administrar más, y eso se refleja en el perfil público (M6).
+- `indiceMorosidadCartera` es **el indicador que más importa de todo el módulo**. Un organizador cuyos grupos tienen 30% de mora está haciendo mal el trabajo. Y ahora es el único indicador que importa, porque ya no hay un volumen de comisiones que compense un mal desempeño.
+- `calificacionPromedio` viene de las reseñas (M6) y captura la dimensión de trato.
+
+**Por qué existe.** Porque ser organizador es un rol con estado propio (`POSTULADO → EN_EVALUACION → CAPACITACION_PENDIENTE → HABILITADO → LIMITADO → SUSPENDIDO → DESHABILITADO`), con métricas propias y con un proceso de habilitación que la cuenta de usuario no tiene. Y porque el mismo usuario es organizador en unos grupos y participante en otros.
+
+**Qué NO lleva, y por qué importa.** No tiene `cuentaCobroId` ni `comisionAcumulada()`: **no hay nada que pagarle**, así que no hay a dónde pagarle. Si además participa en el grupo que administra, lo hace como participante normal (M2), con sus propias obligaciones (M3) y su turno (M4) — por la vía de siempre, sin trato especial.
+
+**Casos de uso que la nombran.** CU-20 Crear grupo y congelar tarifario (`crearGrupo`, `consultarNivelKyc`, `consultarHabilitacion`, `consultarTarifarioVigente`) · CU-90 Postular a organizador y habilitarse (`activarRolOrganizador`, `postularOrganizador`, `aprobarPostulacion`, `consultarHabilitacionBasica`, `aceptarHabilitacionBasica`, `habilitarOrganizador`) · CU-91 Firmar y rescindir el contrato de organizador (`firmarContrato`, `rescindirContrato`, `firmarHabilitacionBasica`, `emitirContrato`) · CU-92 Evaluar el desempeño del organizador (`evaluarDesempeno`) · CU-110 Dar de alta un anunciante y su cuenta publicitaria (`darDeAltaAnunciante`, `postularSocioComercial`, `verificarSocioComercial`)
 
 **Sistema.** Vive en el esquema `organizador`; la escribe y la lee solo el servicio `organizador` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `identidad.usuario`. La referencian `capacitacion_organizador`, `contrato_organizador`, `evaluacion_desempeno`, `grupos.grupo`, `publicidad.anunciante`, `sancion_organizador`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `usuario_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
+| `usuario_id` | UUID | — | UUID, obligatoria, única, referencia a `usuario`. | NINGUNA |
 | `estado` | VARCHAR(25) | — | VARCHAR(25), obligatoria. | NINGUNA |
 | `nivel` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
 | `limite_grupos_simultaneos` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
@@ -6737,16 +8730,20 @@
 
 **Qué es.** Qué se automatiza, cuándo se dispara, bajo qué condición y qué acción ejecuta.
 
-**Para qué sirve.** Es el cerebro configurable. Las seis acciones tipificadas son exactamente el trabajo del organizador: generar cobros, enviar recordatorios, aplicar mora, liquidar el período, ejecutar la entrega, escalar la cobranza. `requiereConfirmacionHumana` es el freno de seguridad **por acción, no por sistema**. Generar recordatorios puede ser totalmente automático; ejecutar una entrega de Bs 20.000 probablemente no. La granularidad permite automatizar lo rutinario sin automatizar lo irreversible.
+**Para qué sirve.** Es el cerebro configurable. Las seis acciones tipificadas son exactamente el trabajo del organizador: generar cobros, enviar recordatorios, aplicar mora, liquidar el período, ejecutar la entrega, escalar la cobranza.
 
-**Por qué existe.** Con automatización hardcodeada no se puede ajustar qué se automatiza por tipo de grupo, ni desactivar una regla que está causando problemas sin apagar todo el sistema. ---
+`requiereConfirmacionHumana` es el freno de seguridad **por acción, no por sistema**. Generar recordatorios puede ser totalmente automático; ejecutar una entrega de Bs 20.000 probablemente no. La granularidad permite automatizar lo rutinario sin automatizar lo irreversible.
+
+**Por qué existe.** Con automatización hardcodeada no se puede ajustar qué se automatiza por tipo de grupo, ni desactivar una regla que está causando problemas sin apagar todo el sistema.
+
+**Casos de uso que la nombran.** CU-95 Definir una regla de automatización (`definirRegla`, `activarRegla`) · CU-96 Programar y ejecutar una tarea automatizada (`programarTarea`, `aprobarTarea`, `anotarEjecucion`)
 
 **Sistema.** Vive en el esquema `organizador`; la escribe y la lee solo el servicio `organizador` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. La referencian `tarea_automatizada`. Reglas nombradas: `ck_regla_confirmacion_humana`, `ck_regla_prioridad`, `uq_regla_automatizacion_prioridad`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `codigo` | VARCHAR(40) | — | VARCHAR(40), obligatoria. | NINGUNA |
+| `codigo` | VARCHAR(40) | — | VARCHAR(40), obligatoria, única. | NINGUNA |
 | `descripcion` | VARCHAR(200) | — | VARCHAR(200), obligatoria. | NINGUNA |
 | `disparador` | VARCHAR(10) | — | VARCHAR(10), obligatoria. | NINGUNA |
 | `expresion_disparo` | VARCHAR(80) | — | VARCHAR(80), obligatoria. | NINGUNA |
@@ -6760,16 +8757,20 @@
 
 **Qué es.** El catálogo de requisitos por nivel: KYC, reputación, antigüedad, capacitación, garantía económica.
 
-**Para qué sirve.** Permite endurecer o relajar la barrera de entrada según la etapa del negocio y según lo que la experiencia enseñe. Si aparece un patrón de organizadores nuevos que fallan en el primer grupo, se sube la antigüedad mínima sin desplegar código. `GARANTIA_ECONOMICA` como tipo es relevante: para niveles altos se puede exigir un depósito que responda si su gestión genera pérdidas. Sin comisión que retener, es **el único mecanismo económico que alinea el interés del organizador con el del grupo**.
+**Para qué sirve.** Permite endurecer o relajar la barrera de entrada según la etapa del negocio y según lo que la experiencia enseñe. Si aparece un patrón de organizadores nuevos que fallan en el primer grupo, se sube la antigüedad mínima sin desplegar código.
 
-**Por qué existe.** Con requisitos hardcodeados, cada ajuste es un release y no queda registro de qué se le exigió a un organizador habilitado hace un año. ---
+`GARANTIA_ECONOMICA` como tipo es relevante: para niveles altos se puede exigir un depósito que responda si su gestión genera pérdidas. Sin comisión que retener, es **el único mecanismo económico que alinea el interés del organizador con el del grupo**.
+
+**Por qué existe.** Con requisitos hardcodeados, cada ajuste es un release y no queda registro de qué se le exigió a un organizador habilitado hace un año.
+
+**Casos de uso que la nombran.** CU-90 Postular a organizador y habilitarse (`activarRolOrganizador`, `postularOrganizador`, `aprobarPostulacion`, `consultarHabilitacionBasica`, `aceptarHabilitacionBasica`, `habilitarOrganizador`)
 
 **Sistema.** Vive en el esquema `organizador`; la escribe y la lee solo el servicio `organizador` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `codigo` | VARCHAR(40) | — | VARCHAR(40), obligatoria. | NINGUNA |
+| `codigo` | VARCHAR(40) | — | VARCHAR(40), obligatoria, única. | NINGUNA |
 | `descripcion` | VARCHAR(200) | — | VARCHAR(200), obligatoria. | NINGUNA |
 | `tipo` | VARCHAR(25) | — | VARCHAR(25), obligatoria. | NINGUNA |
 | `valor_minimo` | DECIMAL(12,2) | — | DECIMAL(12,2), obligatoria. | NINGUNA |
@@ -6781,9 +8782,15 @@
 
 **Qué es.** La consecuencia por mal desempeño: advertencia, reducción de límite, suspensión o inhabilitación.
 
-**Para qué sirve.** La escalera es deliberadamente gradual. Se empieza por advertencia, no por inhabilitación, porque **inhabilitar a un organizador deja a todos sus grupos sin administrador** — el remedio puede ser peor que la enfermedad (aunque el organizador digital, en este modelo, es una red de contención razonable). `REDUCCION_LIMITE` es la sanción más útil del catálogo: no le quita los grupos que tiene —lo que perjudicaría a participantes que no hicieron nada—, pero le impide tomar más hasta que mejore. **Nota sobre el catálogo:** ya no existe `RETENCION_COMISION`. Sin comisión no hay qué retener, y por eso **todas las sanciones de este módulo son de habilitación, no económicas**. Es una limitación real del modelo y conviene tenerla presente: la única palanca económica disponible es la `GARANTIA_ECONOMICA` exigida como requisito de habilitación.
+**Para qué sirve.** La escalera es deliberadamente gradual. Se empieza por advertencia, no por inhabilitación, porque **inhabilitar a un organizador deja a todos sus grupos sin administrador** — el remedio puede ser peor que la enfermedad (aunque el organizador digital, en este modelo, es una red de contención razonable).
 
-**Por qué existe.** Sin sanciones graduadas, la única alternativa es tolerar o expulsar, y ninguna de las dos sirve para la mayoría de los casos reales. ---
+`REDUCCION_LIMITE` es la sanción más útil del catálogo: no le quita los grupos que tiene —lo que perjudicaría a participantes que no hicieron nada—, pero le impide tomar más hasta que mejore.
+
+**Nota sobre el catálogo:** ya no existe `RETENCION_COMISION`. Sin comisión no hay qué retener, y por eso **todas las sanciones de este módulo son de habilitación, no económicas**. Es una limitación real del modelo y conviene tenerla presente: la única palanca económica disponible es la `GARANTIA_ECONOMICA` exigida como requisito de habilitación.
+
+**Por qué existe.** Sin sanciones graduadas, la única alternativa es tolerar o expulsar, y ninguna de las dos sirve para la mayoría de los casos reales.
+
+**Casos de uso que la nombran.** CU-93 Sancionar al organizador y resolver su apelación (`apelarSancion`, `resolverApelacion`, `sancionarOrganizador`)
 
 **Sistema.** Vive en el esquema `organizador`; la escribe y la lee solo el servicio `organizador` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `evaluacion_desempeno`, `identidad.usuario`, `organizador`. La referencian `apelacion_sancion_org`. Reglas nombradas: `ck_sancion_org_vigencia`.
 
@@ -6799,13 +8806,34 @@
 | `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
 | `aplicada_por` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
 
+### `shedlock`
+
+**Qué es.** Bloqueo de trabajos programados entre replicas (ADR-018).
+
+**Para qué sirve.** Evita que dos réplicas del servicio ejecuten el mismo trabajo programado a la vez (ADR-018).
+
+**Sistema.** Infraestructura del servicio `organizador`, generada por plantilla en cada esquema (ADR-027): la escribe y la lee solo ese servicio.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `name` | VARCHAR(64) | — | VARCHAR(64), obligatoria, clave primaria. | NINGUNA |
+| `lock_until` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `locked_at` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `locked_by` | VARCHAR(255) | — | VARCHAR(255), obligatoria. | NINGUNA |
+
 ### `solicitud_organizador`
 
 **Qué es.** La postulación de un usuario para ser habilitado como organizador.
 
-**Para qué sirve.** Es la puerta de entrada, y tiene que ser una puerta real: **quien administra plata ajena tiene que pasar un filtro**, cobre o no cobre. La solicitud guarda motivación, experiencia declarada, referencias, el KYC reforzado y `puntajeReputacionAlSolicitar`: con qué historial se lo aceptó. Sin comisión de por medio, `motivacion` gana peso en la evaluación: hay que entender por qué alguien quiere asumir el trabajo sin retribución. Los motivos legítimos abundan (organiza el pasanaku de su oficina, de su familia, de su gremio), pero es exactamente la pregunta que hay que hacerle a quien no tiene vínculo previo con el grupo que quiere administrar. `motivoRechazo` y `revisadaPor` cierran el proceso: el rechazo tiene autor y fundamento, y el postulante sabe qué le faltó para volver a intentar.
+**Para qué sirve.** Es la puerta de entrada, y tiene que ser una puerta real: **quien administra plata ajena tiene que pasar un filtro**, cobre o no cobre. La solicitud guarda motivación, experiencia declarada, referencias, el KYC reforzado y `puntajeReputacionAlSolicitar`: con qué historial se lo aceptó.
 
-**Por qué existe.** Sin solicitud formal, ser organizador sería marcar una casilla, y la plataforma estaría entregando la administración de dinero ajeno sin evaluación ni registro de quién autorizó qué. ---
+Sin comisión de por medio, `motivacion` gana peso en la evaluación: hay que entender por qué alguien quiere asumir el trabajo sin retribución. Los motivos legítimos abundan (organiza el pasanaku de su oficina, de su familia, de su gremio), pero es exactamente la pregunta que hay que hacerle a quien no tiene vínculo previo con el grupo que quiere administrar.
+
+`motivoRechazo` y `revisadaPor` cierran el proceso: el rechazo tiene autor y fundamento, y el postulante sabe qué le faltó para volver a intentar.
+
+**Por qué existe.** Sin solicitud formal, ser organizador sería marcar una casilla, y la plataforma estaría entregando la administración de dinero ajeno sin evaluación ni registro de quién autorizó qué.
+
+**Casos de uso que la nombran.** CU-90 Postular a organizador y habilitarse (`activarRolOrganizador`, `postularOrganizador`, `aprobarPostulacion`, `consultarHabilitacionBasica`, `aceptarHabilitacionBasica`, `habilitarOrganizador`)
 
 **Sistema.** Vive en el esquema `organizador`; la escribe y la lee solo el servicio `organizador` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `identidad.usuario`, `identidad.verificacion_kyc`. Reglas nombradas: `uq_solicitud_organizador_pendiente`, `ck_solicitud_org_resuelta`, `ck_solicitud_org_rechazo_motivado`.
 
@@ -6827,9 +8855,13 @@
 
 **Qué es.** Una instancia concreta de trabajo programada por una regla.
 
-**Para qué sirve.** Hace visible lo que el sistema va a hacer **antes de hacerlo**. `tareasPendientes()` es la agenda del organizador digital, y en modo `SOLO_SUGIERE` es literalmente la lista de sugerencias que el humano revisa. `REQUIERE_APROBACION` como estado materializa el freno: la tarea está lista, sabe qué hacer, y espera el visto bueno.
+**Para qué sirve.** Hace visible lo que el sistema va a hacer **antes de hacerlo**. `tareasPendientes()` es la agenda del organizador digital, y en modo `SOLO_SUGIERE` es literalmente la lista de sugerencias que el humano revisa.
 
-**Por qué existe.** `claveIdempotencia` `UNIQUE` es crítica: **impide que un reintento del planificador genere cobros o recordatorios duplicados**. Un cron que se ejecuta dos veces por un problema de infraestructura no puede cobrarle dos veces a nadie ni mandar el recordatorio dos veces. ---
+`REQUIERE_APROBACION` como estado materializa el freno: la tarea está lista, sabe qué hacer, y espera el visto bueno.
+
+**Por qué existe.** `claveIdempotencia` `UNIQUE` es crítica: **impide que un reintento del planificador genere cobros o recordatorios duplicados**. Un cron que se ejecuta dos veces por un problema de infraestructura no puede cobrarle dos veces a nadie ni mandar el recordatorio dos veces.
+
+**Casos de uso que la nombran.** CU-95 Definir una regla de automatización (`definirRegla`, `activarRegla`) · CU-96 Programar y ejecutar una tarea automatizada (`programarTarea`, `aprobarTarea`, `anotarEjecucion`)
 
 **Sistema.** Vive en el esquema `organizador`; la escribe y la lee solo el servicio `organizador` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `grupos.grupo`, `regla_automatizacion`. La referencian `ejecucion_tarea`. Reglas nombradas: `uq_tarea_automatizada_clave`, `ck_tarea_intentos`.
 
@@ -6852,6 +8884,8 @@
 
 **Por qué existe.** sin `anunciante`, cada tabla de campaña necesitaría dos FK opcionales (una a organizador, otra a socio comercial) repetidas en cada entidad de la cadena. Con `anunciante` como punto único, el resto del módulo es agnóstico a quién hay detrás.
 
+**Casos de uso que la nombran.** CU-110 Dar de alta un anunciante y su cuenta publicitaria (`darDeAltaAnunciante`, `postularSocioComercial`, `verificarSocioComercial`) · CU-111 Crear y aprobar una campaña publicitaria (`crearCampana`, `aprobarCampana`, `rechazarCampana`) · CU-112 Moderar una pieza creativa (`subirPiezaCreativa`, `moderarPiezaCreativa`)
+
 **Sistema.** Vive en el esquema `publicidad`; la escribe y la lee solo el servicio `publicidad` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `organizador.organizador`, `socio_comercial`. La referencian `cuenta_publicitaria`, `pieza_creativa`. Reglas nombradas: `ck_anunciante_tipo_exclusivo`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
@@ -6870,6 +8904,8 @@
 
 **Por qué existe.** una pieza creativa puede reutilizarse en varios `anuncio` (la misma imagen en distintos conjuntos), y puede volver a revisión si el anunciante la reemplaza. Fusionarla con `anuncio` obligaría a re-moderar y a duplicar el archivo cada vez que se reutiliza.
 
+**Casos de uso que la nombran.** CU-111 Crear y aprobar una campaña publicitaria (`crearCampana`, `aprobarCampana`, `rechazarCampana`) · CU-112 Moderar una pieza creativa (`subirPiezaCreativa`, `moderarPiezaCreativa`) · CU-113 Entregar un anuncio y medir su desempeño (`programarAnuncio`, `registrarConversion`, `entregarAnuncio`, `registrarClic`)
+
 **Sistema.** Vive en el esquema `publicidad`; la escribe y la lee solo el servicio `publicidad` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `conjunto_anuncios`, `pieza_creativa`. La referencian `impresion_anuncio`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
@@ -6886,6 +8922,8 @@
 **Qué es.** Objetivo, presupuesto total y vigencia de una campaña.
 
 **Para qué sirve.** separa "quién es el anunciante" de "cuánto está gastando y en qué". Un mismo anunciante puede tener varias campañas activas (una para captar postulantes a su grupo, otra para descargas de la app) y el límite de gasto se controla a nivel de cuenta, no de campaña, para que el anunciante no pueda desbordar su presupuesto abriendo campañas nuevas.
+
+**Casos de uso que la nombran.** CU-110 Dar de alta un anunciante y su cuenta publicitaria (`darDeAltaAnunciante`, `postularSocioComercial`, `verificarSocioComercial`) · CU-111 Crear y aprobar una campaña publicitaria (`crearCampana`, `aprobarCampana`, `rechazarCampana`)
 
 **Sistema.** Vive en el esquema `publicidad`; la escribe y la lee solo el servicio `publicidad` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `cuenta_publicitaria`, `identidad.usuario`. La referencian `conjunto_anuncios`. Reglas nombradas: `ck_campana_pub_consumo`, `ck_campana_pub_aprobacion`, `ck_campana_pub_vigencia`.
 
@@ -6907,7 +8945,13 @@
 
 **Qué es.** Un evento de clic, derivado de una impresión.
 
-**Por qué existe.** `impresion_anuncio` y `clic_anuncio` pueden crecer mucho más rápido que cualquier otra tabla del sistema. Se marcaron `APPEND_ONLY` desde ya. **No** se particionaron por fecha todavía porque `conversion_anuncio` las referencia por FK, y este modelo solo particiona tablas que nadie referencia (ver `scripts/modelo.py`, `PARTICIONADAS`, y la nota de `bitacora_evento`/`notificacion` sobre el mismo trade-off). Cuando el volumen lo justifique, la migración es mover esas FK a clave compuesta antes de particionar — está declarado como riesgo en el plan de implementación, no ignorado. **Cómo se factura, sin inventar un tercer libro**: `factura_publicidad` es la liquidación de **origen** — cuánto gastó una cuenta publicitaria en un período — y dispara dos caminos que ya existen: `factura_electronica` (M11) para el comprobante fiscal ante el SIN, y `cuenta_por_cobrar` (M13) para el seguimiento de cobro. No hay un tercer sistema de facturación paralelo: publicidad reutiliza lo que la empresa ya tiene para cobrarle a alguien que no es un participante del pasanaku.
+**Por qué existe.** `impresion_anuncio` y `clic_anuncio` pueden crecer mucho más rápido que cualquier otra tabla del sistema. Se marcaron `APPEND_ONLY` desde ya. **No** se particionaron por fecha todavía porque `conversion_anuncio` las referencia por FK, y este modelo solo particiona tablas que nadie referencia (ver `scripts/modelo.py`, `PARTICIONADAS`, y la nota de `bitacora_evento`/`notificacion` sobre el mismo trade-off). Cuando el volumen lo justifique, la migración es mover esas FK a clave compuesta antes de particionar — está declarado como riesgo en el plan de implementación, no ignorado.
+
+**Cómo se factura, sin inventar un tercer libro**:
+
+`factura_publicidad` es la liquidación de **origen** — cuánto gastó una cuenta publicitaria en un período — y dispara dos caminos que ya existen: `factura_electronica` (M11) para el comprobante fiscal ante el SIN, y `cuenta_por_cobrar` (M13) para el seguimiento de cobro. No hay un tercer sistema de facturación paralelo: publicidad reutiliza lo que la empresa ya tiene para cobrarle a alguien que no es un participante del pasanaku.
+
+**Casos de uso que la nombran.** CU-113 Entregar un anuncio y medir su desempeño (`programarAnuncio`, `registrarConversion`, `entregarAnuncio`, `registrarClic`) · CU-114 Liquidar y facturar el gasto publicitario (`consumoDelPeriodo`, `liquidarPeriodo`)
 
 **Sistema.** Vive en el esquema `publicidad`; la escribe y la lee solo el servicio `publicidad` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Es append-only: UPDATE y DELETE revocados al rol del servicio; se corrige con una fila nueva. Depende de `identidad.usuario`, `impresion_anuncio`. La referencian `conversion_anuncio`.
 
@@ -6925,6 +8969,8 @@
 **Qué es.** Une una campaña con un segmento, un espacio y un presupuesto/puja concretos — el equivalente al *ad set* de Meta.
 
 **Por qué existe.** el inventario de una app financiera es limitado y sensible — no se puede poner un banner de un tercero en medio del flujo de pago. Tener el inventario como catálogo con `capacidad_maxima_simultanea` permite controlar cuántos anuncios compiten por el mismo espacio a la vez, y qué espacios existen es una decisión de producto, no algo que cualquier anunciante inventa.
+
+**Casos de uso que la nombran.** CU-111 Crear y aprobar una campaña publicitaria (`crearCampana`, `aprobarCampana`, `rechazarCampana`) · CU-112 Moderar una pieza creativa (`subirPiezaCreativa`, `moderarPiezaCreativa`) · CU-113 Entregar un anuncio y medir su desempeño (`programarAnuncio`, `registrarConversion`, `entregarAnuncio`, `registrarClic`)
 
 **Sistema.** Vive en el esquema `publicidad`; la escribe y la lee solo el servicio `publicidad` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `campana_publicitaria`, `espacio_publicitario`, `segmento_audiencia`. La referencian `anuncio`.
 
@@ -6945,7 +8991,13 @@
 
 **Qué es.** Un resultado atribuido (postulación a un grupo, registro, descarga).
 
-**Por qué existe.** `impresion_anuncio` y `clic_anuncio` pueden crecer mucho más rápido que cualquier otra tabla del sistema. Se marcaron `APPEND_ONLY` desde ya. **No** se particionaron por fecha todavía porque `conversion_anuncio` las referencia por FK, y este modelo solo particiona tablas que nadie referencia (ver `scripts/modelo.py`, `PARTICIONADAS`, y la nota de `bitacora_evento`/`notificacion` sobre el mismo trade-off). Cuando el volumen lo justifique, la migración es mover esas FK a clave compuesta antes de particionar — está declarado como riesgo en el plan de implementación, no ignorado. **Cómo se factura, sin inventar un tercer libro**: `factura_publicidad` es la liquidación de **origen** — cuánto gastó una cuenta publicitaria en un período — y dispara dos caminos que ya existen: `factura_electronica` (M11) para el comprobante fiscal ante el SIN, y `cuenta_por_cobrar` (M13) para el seguimiento de cobro. No hay un tercer sistema de facturación paralelo: publicidad reutiliza lo que la empresa ya tiene para cobrarle a alguien que no es un participante del pasanaku.
+**Por qué existe.** `impresion_anuncio` y `clic_anuncio` pueden crecer mucho más rápido que cualquier otra tabla del sistema. Se marcaron `APPEND_ONLY` desde ya. **No** se particionaron por fecha todavía porque `conversion_anuncio` las referencia por FK, y este modelo solo particiona tablas que nadie referencia (ver `scripts/modelo.py`, `PARTICIONADAS`, y la nota de `bitacora_evento`/`notificacion` sobre el mismo trade-off). Cuando el volumen lo justifique, la migración es mover esas FK a clave compuesta antes de particionar — está declarado como riesgo en el plan de implementación, no ignorado.
+
+**Cómo se factura, sin inventar un tercer libro**:
+
+`factura_publicidad` es la liquidación de **origen** — cuánto gastó una cuenta publicitaria en un período — y dispara dos caminos que ya existen: `factura_electronica` (M11) para el comprobante fiscal ante el SIN, y `cuenta_por_cobrar` (M13) para el seguimiento de cobro. No hay un tercer sistema de facturación paralelo: publicidad reutiliza lo que la empresa ya tiene para cobrarle a alguien que no es un participante del pasanaku.
+
+**Casos de uso que la nombran.** CU-113 Entregar un anuncio y medir su desempeño (`programarAnuncio`, `registrarConversion`, `entregarAnuncio`, `registrarClic`)
 
 **Sistema.** Vive en el esquema `publicidad`; la escribe y la lee solo el servicio `publicidad` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Es append-only: UPDATE y DELETE revocados al rol del servicio; se corrige con una fila nueva. Depende de `clic_anuncio`, `impresion_anuncio`.
 
@@ -6963,6 +9015,8 @@
 **Qué es.** La cuenta de facturación de un anunciante: límite de gasto mensual, saldo consumido, estado.
 
 **Para qué sirve.** separa "quién es el anunciante" de "cuánto está gastando y en qué". Un mismo anunciante puede tener varias campañas activas (una para captar postulantes a su grupo, otra para descargas de la app) y el límite de gasto se controla a nivel de cuenta, no de campaña, para que el anunciante no pueda desbordar su presupuesto abriendo campañas nuevas.
+
+**Casos de uso que la nombran.** CU-110 Dar de alta un anunciante y su cuenta publicitaria (`darDeAltaAnunciante`, `postularSocioComercial`, `verificarSocioComercial`) · CU-111 Crear y aprobar una campaña publicitaria (`crearCampana`, `aprobarCampana`, `rechazarCampana`) · CU-114 Liquidar y facturar el gasto publicitario (`consumoDelPeriodo`, `liquidarPeriodo`)
 
 **Sistema.** Vive en el esquema `publicidad`; la escribe y la lee solo el servicio `publicidad` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `anunciante`. La referencian `campana_publicitaria`, `factura_publicidad`. Reglas nombradas: `uq_cuenta_publicitaria_anunciante`, `ck_cuenta_publicitaria_consumo`.
 
@@ -6982,22 +9036,72 @@
 
 **Por qué existe.** el inventario de una app financiera es limitado y sensible — no se puede poner un banner de un tercero en medio del flujo de pago. Tener el inventario como catálogo con `capacidad_maxima_simultanea` permite controlar cuántos anuncios compiten por el mismo espacio a la vez, y qué espacios existen es una decisión de producto, no algo que cualquier anunciante inventa.
 
+**Casos de uso que la nombran.** CU-111 Crear y aprobar una campaña publicitaria (`crearCampana`, `aprobarCampana`, `rechazarCampana`) · CU-113 Entregar un anuncio y medir su desempeño (`programarAnuncio`, `registrarConversion`, `entregarAnuncio`, `registrarClic`)
+
 **Sistema.** Vive en el esquema `publicidad`; la escribe y la lee solo el servicio `publicidad` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. La referencian `conjunto_anuncios`. Reglas nombradas: `ck_espacio_pub_capacidad`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `codigo` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
+| `codigo` | VARCHAR(30) | — | VARCHAR(30), obligatoria, única. | NINGUNA |
 | `nombre` | VARCHAR(80) | — | VARCHAR(80), obligatoria. | NINGUNA |
 | `tipo` | VARCHAR(25) | — | VARCHAR(25), obligatoria. | NINGUNA |
 | `capacidad_maxima_simultanea` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
 | `activo` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
 
+### `evento_consumido`
+
+**Qué es.** Marca de evento ya consumido, por consumidor (ADR-027).
+
+**Para qué sirve.** Hace idempotente el consumo: la entrega es al menos una vez y un mismo evento no puede producir dos efectos (regla 98.3.4).
+
+**Sistema.** Infraestructura del servicio `publicidad`, generada por plantilla en cada esquema (ADR-027): la escribe y la lee solo ese servicio.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `id_evento` | UUID | — | UUID, obligatoria, clave primaria. | NINGUNA |
+| `consumidor` | VARCHAR(60) | — | VARCHAR(60), obligatoria, clave primaria. | NINGUNA |
+| `consumido_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+
+### `evento_dominio`
+
+**Qué es.** Outbox transaccional del servicio (ADR-027).
+
+**Para qué sirve.** Garantiza que ningún hecho del servicio se pierda entre la base y la mensajería: el evento se guarda en la misma transacción que el cambio y un relevo lo publica después (regla 98.3.3).
+
+**Sistema.** Infraestructura del servicio `publicidad`, generada por plantilla en cada esquema (ADR-027): la escribe y la lee solo ese servicio.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
+| `tipo` | VARCHAR(60) | — | VARCHAR(60), obligatoria. | NINGUNA |
+| `version` | VARCHAR(10) | — | VARCHAR(10), obligatoria. | NINGUNA |
+| `agregado` | VARCHAR(40) | — | VARCHAR(40), obligatoria. | NINGUNA |
+| `agregado_id` | UUID | — | UUID, obligatoria. | NINGUNA |
+| `payload` | JSONB | — | JSONB, obligatoria. | NINGUNA |
+| `metadatos` | JSONB | — | JSONB, obligatoria. | NINGUNA |
+| `correlation_id` | UUID | — | UUID, obligatoria. | NINGUNA |
+| `causation_id` | UUID | — | UUID, opcional. | NINGUNA |
+| `ocurrido_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `publicado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
+| `intentos` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
+| `tomado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `tomado_por` | VARCHAR(100) | — | VARCHAR(100), opcional. | NINGUNA |
+| `ultimo_error` | TEXT | — | TEXT, opcional. | NINGUNA |
+| `proximo_intento_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+
 ### `factura_publicidad`
 
 **Qué es.** La liquidación periódica de gasto de una cuenta publicitaria.
 
-**Por qué existe.** `impresion_anuncio` y `clic_anuncio` pueden crecer mucho más rápido que cualquier otra tabla del sistema. Se marcaron `APPEND_ONLY` desde ya. **No** se particionaron por fecha todavía porque `conversion_anuncio` las referencia por FK, y este modelo solo particiona tablas que nadie referencia (ver `scripts/modelo.py`, `PARTICIONADAS`, y la nota de `bitacora_evento`/`notificacion` sobre el mismo trade-off). Cuando el volumen lo justifique, la migración es mover esas FK a clave compuesta antes de particionar — está declarado como riesgo en el plan de implementación, no ignorado. **Cómo se factura, sin inventar un tercer libro**: `factura_publicidad` es la liquidación de **origen** — cuánto gastó una cuenta publicitaria en un período — y dispara dos caminos que ya existen: `factura_electronica` (M11) para el comprobante fiscal ante el SIN, y `cuenta_por_cobrar` (M13) para el seguimiento de cobro. No hay un tercer sistema de facturación paralelo: publicidad reutiliza lo que la empresa ya tiene para cobrarle a alguien que no es un participante del pasanaku.
+**Por qué existe.** `impresion_anuncio` y `clic_anuncio` pueden crecer mucho más rápido que cualquier otra tabla del sistema. Se marcaron `APPEND_ONLY` desde ya. **No** se particionaron por fecha todavía porque `conversion_anuncio` las referencia por FK, y este modelo solo particiona tablas que nadie referencia (ver `scripts/modelo.py`, `PARTICIONADAS`, y la nota de `bitacora_evento`/`notificacion` sobre el mismo trade-off). Cuando el volumen lo justifique, la migración es mover esas FK a clave compuesta antes de particionar — está declarado como riesgo en el plan de implementación, no ignorado.
+
+**Cómo se factura, sin inventar un tercer libro**:
+
+`factura_publicidad` es la liquidación de **origen** — cuánto gastó una cuenta publicitaria en un período — y dispara dos caminos que ya existen: `factura_electronica` (M11) para el comprobante fiscal ante el SIN, y `cuenta_por_cobrar` (M13) para el seguimiento de cobro. No hay un tercer sistema de facturación paralelo: publicidad reutiliza lo que la empresa ya tiene para cobrarle a alguien que no es un participante del pasanaku.
+
+**Casos de uso que la nombran.** CU-104 Cobrar una cuenta por cobrar (`listarCuentasPorCobrar`, `abrirCuentaPorCobrar`, `registrarCobro`) · CU-114 Liquidar y facturar el gasto publicitario (`consumoDelPeriodo`, `liquidarPeriodo`)
 
 **Sistema.** Vive en el esquema `publicidad`; la escribe y la lee solo el servicio `publicidad` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Es append-only: UPDATE y DELETE revocados al rol del servicio; se corrige con una fila nueva. Depende de `cuenta_publicitaria`, `erp.cuenta_por_cobrar`, `tarifas.factura_electronica`. Reglas nombradas: `uq_factura_publicidad_cuenta_periodo`.
 
@@ -7017,7 +9121,13 @@
 
 **Qué es.** Un evento de exhibición.
 
-**Por qué existe.** `impresion_anuncio` y `clic_anuncio` pueden crecer mucho más rápido que cualquier otra tabla del sistema. Se marcaron `APPEND_ONLY` desde ya. **No** se particionaron por fecha todavía porque `conversion_anuncio` las referencia por FK, y este modelo solo particiona tablas que nadie referencia (ver `scripts/modelo.py`, `PARTICIONADAS`, y la nota de `bitacora_evento`/`notificacion` sobre el mismo trade-off). Cuando el volumen lo justifique, la migración es mover esas FK a clave compuesta antes de particionar — está declarado como riesgo en el plan de implementación, no ignorado. **Cómo se factura, sin inventar un tercer libro**: `factura_publicidad` es la liquidación de **origen** — cuánto gastó una cuenta publicitaria en un período — y dispara dos caminos que ya existen: `factura_electronica` (M11) para el comprobante fiscal ante el SIN, y `cuenta_por_cobrar` (M13) para el seguimiento de cobro. No hay un tercer sistema de facturación paralelo: publicidad reutiliza lo que la empresa ya tiene para cobrarle a alguien que no es un participante del pasanaku.
+**Por qué existe.** `impresion_anuncio` y `clic_anuncio` pueden crecer mucho más rápido que cualquier otra tabla del sistema. Se marcaron `APPEND_ONLY` desde ya. **No** se particionaron por fecha todavía porque `conversion_anuncio` las referencia por FK, y este modelo solo particiona tablas que nadie referencia (ver `scripts/modelo.py`, `PARTICIONADAS`, y la nota de `bitacora_evento`/`notificacion` sobre el mismo trade-off). Cuando el volumen lo justifique, la migración es mover esas FK a clave compuesta antes de particionar — está declarado como riesgo en el plan de implementación, no ignorado.
+
+**Cómo se factura, sin inventar un tercer libro**:
+
+`factura_publicidad` es la liquidación de **origen** — cuánto gastó una cuenta publicitaria en un período — y dispara dos caminos que ya existen: `factura_electronica` (M11) para el comprobante fiscal ante el SIN, y `cuenta_por_cobrar` (M13) para el seguimiento de cobro. No hay un tercer sistema de facturación paralelo: publicidad reutiliza lo que la empresa ya tiene para cobrarle a alguien que no es un participante del pasanaku.
+
+**Casos de uso que la nombran.** CU-113 Entregar un anuncio y medir su desempeño (`programarAnuncio`, `registrarConversion`, `entregarAnuncio`, `registrarClic`) · CU-114 Liquidar y facturar el gasto publicitario (`consumoDelPeriodo`, `liquidarPeriodo`)
 
 **Sistema.** Vive en el esquema `publicidad`; la escribe y la lee solo el servicio `publicidad` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Es append-only: UPDATE y DELETE revocados al rol del servicio; se corrige con una fila nueva. Depende de `anuncio`, `identidad.usuario`. La referencian `clic_anuncio`, `conversion_anuncio`.
 
@@ -7035,6 +9145,8 @@
 **Qué es.** La imagen/texto/video concreto de un anuncio.
 
 **Por qué existe.** una pieza creativa puede reutilizarse en varios `anuncio` (la misma imagen en distintos conjuntos), y puede volver a revisión si el anunciante la reemplaza. Fusionarla con `anuncio` obligaría a re-moderar y a duplicar el archivo cada vez que se reutiliza.
+
+**Casos de uso que la nombran.** CU-112 Moderar una pieza creativa (`subirPiezaCreativa`, `moderarPiezaCreativa`) · CU-113 Entregar un anuncio y medir su desempeño (`programarAnuncio`, `registrarConversion`, `entregarAnuncio`, `registrarClic`)
 
 **Sistema.** Vive en el esquema `publicidad`; la escribe y la lee solo el servicio `publicidad` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `anunciante`. La referencian `anuncio`, `revision_creativa`.
 
@@ -7055,6 +9167,8 @@
 
 **Por qué existe.** una pieza creativa puede reutilizarse en varios `anuncio` (la misma imagen en distintos conjuntos), y puede volver a revisión si el anunciante la reemplaza. Fusionarla con `anuncio` obligaría a re-moderar y a duplicar el archivo cada vez que se reutiliza.
 
+**Casos de uso que la nombran.** CU-112 Moderar una pieza creativa (`subirPiezaCreativa`, `moderarPiezaCreativa`)
+
 **Sistema.** Vive en el esquema `publicidad`; la escribe y la lee solo el servicio `publicidad` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `identidad.usuario`, `pieza_creativa`. Reglas nombradas: `ck_revision_creativa_motivo`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
@@ -7072,6 +9186,8 @@
 
 **Por qué existe.** el inventario de una app financiera es limitado y sensible — no se puede poner un banner de un tercero en medio del flujo de pago. Tener el inventario como catálogo con `capacidad_maxima_simultanea` permite controlar cuántos anuncios compiten por el mismo espacio a la vez, y qué espacios existen es una decisión de producto, no algo que cualquier anunciante inventa.
 
+**Casos de uso que la nombran.** CU-111 Crear y aprobar una campaña publicitaria (`crearCampana`, `aprobarCampana`, `rechazarCampana`)
+
 **Sistema.** Vive en el esquema `publicidad`; la escribe y la lee solo el servicio `publicidad` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `identidad.usuario`. La referencian `conjunto_anuncios`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
@@ -7083,11 +9199,28 @@
 | `creado_por` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
 | `creado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
 
+### `shedlock`
+
+**Qué es.** Bloqueo de trabajos programados entre replicas (ADR-018).
+
+**Para qué sirve.** Evita que dos réplicas del servicio ejecuten el mismo trabajo programado a la vez (ADR-018).
+
+**Sistema.** Infraestructura del servicio `publicidad`, generada por plantilla en cada esquema (ADR-027): la escribe y la lee solo ese servicio.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `name` | VARCHAR(64) | — | VARCHAR(64), obligatoria, clave primaria. | NINGUNA |
+| `lock_until` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `locked_at` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `locked_by` | VARCHAR(255) | — | VARCHAR(255), obligatoria. | NINGUNA |
+
 ### `socio_comercial`
 
 **Qué es.** un negocio externo (una marca, un comercio) que no tiene rol operativo en la plataforma. No es `usuario` ni `organizador`: es alguien que quiere visibilidad ante la base de usuarios de AportaYa sin participar de ningún pasanaku.
 
 **Por qué existe.** sin `anunciante`, cada tabla de campaña necesitaría dos FK opcionales (una a organizador, otra a socio comercial) repetidas en cada entidad de la cadena. Con `anunciante` como punto único, el resto del módulo es agnóstico a quién hay detrás.
+
+**Casos de uso que la nombran.** CU-110 Dar de alta un anunciante y su cuenta publicitaria (`darDeAltaAnunciante`, `postularSocioComercial`, `verificarSocioComercial`)
 
 **Sistema.** Vive en el esquema `publicidad`; la escribe y la lee solo el servicio `publicidad` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `identidad.usuario`. La referencian `anunciante`.
 
@@ -7095,7 +9228,7 @@
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
 | `razon_social` | VARCHAR(150) | — | VARCHAR(150), obligatoria. | NINGUNA |
-| `numero_documento` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | PERSONAL |
+| `numero_documento` | VARCHAR(30) | — | VARCHAR(30), obligatoria, única. | PERSONAL |
 | `rubro` | VARCHAR(60) | — | VARCHAR(60), opcional. | NINGUNA |
 | `email_contacto` | VARCHAR(120) | — | VARCHAR(120), obligatoria. | PERSONAL |
 | `telefono_contacto` | VARCHAR(20) | — | VARCHAR(20), opcional. | PERSONAL |
@@ -7109,9 +9242,13 @@
 
 **Qué es.** No cobrar, con nombre y apellido.
 
-**Para qué sirve.** Toda plataforma termina regalando comisiones: por campaña, por cortesía tras un error, por convenio institucional. La diferencia entre hacerlo bien y hacerlo mal es si queda registro de **quién lo autorizó, por qué motivo, con qué tope y hasta cuándo**. `campana_promocional` agrega presupuesto: una promoción con `presupuesto_maximo` se apaga sola cuando lo consume, en vez de descubrirse a fin de mes.
+**Para qué sirve.** Toda plataforma termina regalando comisiones: por campaña, por cortesía tras un error, por convenio institucional. La diferencia entre hacerlo bien y hacerlo mal es si queda registro de **quién lo autorizó, por qué motivo, con qué tope y hasta cuándo**.
 
-**Por qué existe.** Porque sin ellas la exención se implementa como un `monto = 0` a mano, y entonces es imposible distinguir "no correspondía cobrar" de "alguien no cobró". ---
+`campana_promocional` agrega presupuesto: una promoción con `presupuesto_maximo` se apaga sola cuando lo consume, en vez de descubrirse a fin de mes.
+
+**Por qué existe.** Porque sin ellas la exención se implementa como un `monto = 0` a mano, y entonces es imposible distinguir "no correspondía cobrar" de "alguien no cobró".
+
+**Casos de uso que la nombran.** CU-30 Cotizar la comisión antes de operar (`cotizarOperacion`, `cotizarComision`, `aceptarCotizacion`) · CU-36 Segmentar comercialmente y aplicar precio diferenciado (`resolverPrecio`, `crearSegmento`)
 
 **Sistema.** Vive en el esquema `tarifas`; la escribe y la lee solo el servicio `tarifas` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `campana_promocional`, `devengo_comision`.
 
@@ -7129,7 +9266,9 @@
 
 **Para qué sirve.** Resuelven la pregunta "¿qué precio le corresponde a esta operación?" con una jerarquía explícita: usuario > grupo > segmento > global. La asignación puede tener vigencia y motivo, de modo que un precio especial siempre tiene fecha de inicio, fecha de fin y una razón escrita.
 
-**Por qué existe.** Porque los precios especiales existen igual: si el modelo no los soporta, aparecen como excepciones a mano en producción, que es la peor forma posible de tenerlos. ---
+**Por qué existe.** Porque los precios especiales existen igual: si el modelo no los soporta, aparecen como excepciones a mano en producción, que es la peor forma posible de tenerlos.
+
+**Casos de uso que la nombran.** CU-05 Aceptar contrato de adhesión y tarifario · CU-20 Crear grupo y congelar tarifario (`crearGrupo`, `consultarNivelKyc`, `consultarHabilitacion`, `consultarTarifarioVigente`) · CU-30 Cotizar la comisión antes de operar (`cotizarOperacion`, `cotizarComision`, `aceptarCotizacion`)
 
 **Sistema.** Vive en el esquema `tarifas`; la escribe y la lee solo el servicio `tarifas` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `catalogo.tarifario`, `grupos.grupo`, `identidad.usuario`, `segmento_comercial`.
 
@@ -7151,7 +9290,11 @@
 
 **Qué es.** Las alícuotas vigentes y su aplicación a cada devengo.
 
-**Para qué sirve.** Que el impuesto sea una fila con `vigente_desde` y `base_legal`, y que su cálculo quede guardado por devengo. Cuando cambia una alícuota, el histórico conserva la que se aplicó, que es lo que exige cualquier revisión tributaria. `precio_incluye_impuesto` en el concepto decide si el precio publicado es final o si el impuesto se suma encima. Para el consumidor final, el precio publicado tiene que ser el final: la comisión de Bs 18 es Bs 18, impuestos incluidos. ---
+**Para qué sirve.** Que el impuesto sea una fila con `vigente_desde` y `base_legal`, y que su cálculo quede guardado por devengo. Cuando cambia una alícuota, el histórico conserva la que se aplicó, que es lo que exige cualquier revisión tributaria.
+
+`precio_incluye_impuesto` en el concepto decide si el precio publicado es final o si el impuesto se suma encima. Para el consumidor final, el precio publicado tiene que ser el final: la comisión de Bs 18 es Bs 18, impuestos incluidos.
+
+**Casos de uso que la nombran.** CU-31 Devengar y cobrar la comisión (`devengarComision`, `anotarCobroDeComision`) · CU-35 Cerrar la liquidación mensual de ingresos (`cerrarLiquidacion`)
 
 **Sistema.** Vive en el esquema `tarifas`; la escribe y la lee solo el servicio `tarifas` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `catalogo.impuesto`, `devengo_comision`.
 
@@ -7170,7 +9313,11 @@
 
 **Qué es.** El ensayo previo y el expediente del cambio.
 
-**Para qué sirve.** La simulación permite correr el tarifario nuevo sobre la historia real antes de publicarlo: cuánto más se habría cobrado, a cuánta gente le habría subido y en cuánto. Eso convierte una decisión de precios en una decisión informada y deja constancia de que se evaluó el impacto. `cambio_tarifario` guarda el cumplimiento del deber de aviso: tipo de cambio, días de preaviso, fecha y canal del aviso, cuántos usuarios fueron notificados y si el cambio habilita rescindir sin costo. Un aumento de comisiones sin aviso previo documentado es una observación segura. ---
+**Para qué sirve.** La simulación permite correr el tarifario nuevo sobre la historia real antes de publicarlo: cuánto más se habría cobrado, a cuánta gente le habría subido y en cuánto. Eso convierte una decisión de precios en una decisión informada y deja constancia de que se evaluó el impacto.
+
+`cambio_tarifario` guarda el cumplimiento del deber de aviso: tipo de cambio, días de preaviso, fecha y canal del aviso, cuántos usuarios fueron notificados y si el cambio habilita rescindir sin costo. Un aumento de comisiones sin aviso previo documentado es una observación segura.
+
+**Casos de uso que la nombran.** CU-34 Publicar un tarifario nuevo con preaviso (`listarTarifarios`, `publicarTarifario`, `ponerTarifarioVigente`)
 
 **Sistema.** Vive en el esquema `tarifas`; la escribe y la lee solo el servicio `tarifas` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `catalogo.tarifario`, `identidad.usuario`.
 
@@ -7178,7 +9325,7 @@
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
 | `tarifario_anterior_id` | UUID | — | UUID, obligatoria, referencia a `tarifario`. | NINGUNA |
-| `tarifario_nuevo_id` | UUID | — | UUID, obligatoria, referencia a `tarifario`. | NINGUNA |
+| `tarifario_nuevo_id` | UUID | — | UUID, obligatoria, única, referencia a `tarifario`. | NINGUNA |
 | `aprobado_por` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
 | `tipo_cambio` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
 | `requiere_preaviso` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
@@ -7193,16 +9340,20 @@
 
 **Qué es.** No cobrar, con nombre y apellido.
 
-**Para qué sirve.** Toda plataforma termina regalando comisiones: por campaña, por cortesía tras un error, por convenio institucional. La diferencia entre hacerlo bien y hacerlo mal es si queda registro de **quién lo autorizó, por qué motivo, con qué tope y hasta cuándo**. `campana_promocional` agrega presupuesto: una promoción con `presupuesto_maximo` se apaga sola cuando lo consume, en vez de descubrirse a fin de mes.
+**Para qué sirve.** Toda plataforma termina regalando comisiones: por campaña, por cortesía tras un error, por convenio institucional. La diferencia entre hacerlo bien y hacerlo mal es si queda registro de **quién lo autorizó, por qué motivo, con qué tope y hasta cuándo**.
 
-**Por qué existe.** Porque sin ellas la exención se implementa como un `monto = 0` a mano, y entonces es imposible distinguir "no correspondía cobrar" de "alguien no cobró". ---
+`campana_promocional` agrega presupuesto: una promoción con `presupuesto_maximo` se apaga sola cuando lo consume, en vez de descubrirse a fin de mes.
+
+**Por qué existe.** Porque sin ellas la exención se implementa como un `monto = 0` a mano, y entonces es imposible distinguir "no correspondía cobrar" de "alguien no cobró".
+
+**Casos de uso que la nombran.** CU-30 Cotizar la comisión antes de operar (`cotizarOperacion`, `cotizarComision`, `aceptarCotizacion`) · CU-36 Segmentar comercialmente y aplicar precio diferenciado (`resolverPrecio`, `crearSegmento`)
 
 **Sistema.** Vive en el esquema `tarifas`; la escribe y la lee solo el servicio `tarifas` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `identidad.usuario`. La referencian `aplicacion_promocion`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `codigo` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
+| `codigo` | VARCHAR(30) | — | VARCHAR(30), obligatoria, única. | NINGUNA |
 | `nombre` | VARCHAR(120) | — | VARCHAR(120), obligatoria. | NINGUNA |
 | `tipo` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
 | `presupuesto_maximo` | DECIMAL(16,2) | — | DECIMAL(16,2), opcional. | NINGUNA |
@@ -7217,7 +9368,15 @@
 
 **Qué es.** El intento —y el resultado— de cobrar efectivamente el devengo.
 
-**Para qué sirve.** Materializa las tres vías de cobro y las mantiene unificadas: - **`DEDUCCION_DE_ENTREGA`** → una línea de [[deduccion_entrega]] (M4). Es la vía por defecto: la plataforma cobra donde ya tiene el dinero. - **`DEBITO_DE_BILLETERA`** → una [[transaccion_billetera]] (M10). - **`OBLIGACION_DE_APORTE`** → una [[obligacion_aporte]] (M3), para el escenario de prorrateo entre participantes. Que las tres vías cuelguen del mismo devengo es lo que permite cambiar la forma de cobro por configuración: el devengo no cambia, cambia por dónde se cobra.
+**Para qué sirve.** Materializa las tres vías de cobro y las mantiene unificadas:
+
+- **`DEDUCCION_DE_ENTREGA`** → una línea de [[deduccion_entrega]] (M4). Es la vía por defecto: la plataforma cobra donde ya tiene el dinero.
+- **`DEBITO_DE_BILLETERA`** → una [[transaccion_billetera]] (M10).
+- **`OBLIGACION_DE_APORTE`** → una [[obligacion_aporte]] (M3), para el escenario de prorrateo entre participantes.
+
+Que las tres vías cuelguen del mismo devengo es lo que permite cambiar la forma de cobro por configuración: el devengo no cambia, cambia por dónde se cobra.
+
+**Casos de uso que la nombran.** CU-11 Retirar saldo (`solicitarRetiro`) · CU-22 Liquidar y entregar el fondo (`liquidarEntrega`, `fondearPozo`, `autorizarEntrega`, `ejecutarEntrega`) · CU-31 Devengar y cobrar la comisión (`devengarComision`, `anotarCobroDeComision`)
 
 **Sistema.** Vive en el esquema `tarifas`; la escribe y la lee solo el servicio `tarifas` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `aportes.obligacion_aporte`, `devengo_comision`, `entregas.deduccion_entrega`, `nucleo_financiero.transaccion_billetera`. Reglas nombradas: `uq_cargo_deduccion`.
 
@@ -7242,14 +9401,16 @@
 
 **Para qué sirve.** Es el vocabulario del motor. Un concepto de tarifa no dice "cobrar cuando alguien cobre su turno" en prosa: apunta a un hecho del catálogo, que a su vez sabe de qué tabla viene y qué campo usar como base. Eso es lo que hace posible agregar un cobro nuevo sin programar la fórmula.
 
-**Por qué existe.** Sin catálogo, cada concepto tendría que traer su propia lógica de "cuándo dispara", y esa lógica terminaría en el código. Con catálogo, el motor escucha eventos de dominio (M9) y busca qué conceptos están enganchados a ese hecho. ---
+**Por qué existe.** Sin catálogo, cada concepto tendría que traer su propia lógica de "cuándo dispara", y esa lógica terminaría en el código. Con catálogo, el motor escucha eventos de dominio (M9) y busca qué conceptos están enganchados a ese hecho.
+
+**Casos de uso que la nombran.** CU-31 Devengar y cobrar la comisión (`devengarComision`, `anotarCobroDeComision`)
 
 **Sistema.** Vive en el esquema `tarifas`; la escribe y la lee solo el servicio `tarifas` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. La referencian `concepto_tarifa`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `codigo` | VARCHAR(40) | — | VARCHAR(40), obligatoria. | NINGUNA |
+| `codigo` | VARCHAR(40) | — | VARCHAR(40), obligatoria, única. | NINGUNA |
 | `descripcion` | VARCHAR(200) | — | VARCHAR(200), obligatoria. | NINGUNA |
 | `entidad_evento` | VARCHAR(40) | — | VARCHAR(40), obligatoria. | NINGUNA |
 | `campo_monto_base` | VARCHAR(40) | — | VARCHAR(40), opcional. | FINANCIERO |
@@ -7261,9 +9422,17 @@
 
 **Qué es.** Un cobro concreto: nombre comercial, fórmula, sujeto, vía y momento.
 
-**Para qué sirve.** Es **la fila donde vive la política**. Vale la pena leer sus seis columnas de decisión como una oración: > Sobre `hecho_generador_id`, calcular con `metodo_calculo` sobre `base_calculo`, > a cargo de `sujeto_obligado`, cobrando por `forma_cobro` en el momento > `momento_cobro`. `nombre_comercial` y `descripcion_usuario` existen para que la app muestre *"Comisión por cobro de turno — se descuenta de la bolsa cuando cobrás tu turno"* y no `COM_ENTREGA`. Un cobro que el usuario no puede leer en su idioma es un reclamo esperando a suceder. `gravado_iva`, `gravado_it` y `precio_incluye_impuesto` definen el tratamiento tributario por concepto, porque no todos los cobros tributan igual y porque el precio que se muestra tiene que ser el precio final.
+**Para qué sirve.** Es **la fila donde vive la política**. Vale la pena leer sus seis columnas de decisión como una oración:
+
+> Sobre `hecho_generador_id`, calcular con `metodo_calculo` sobre `base_calculo`, > a cargo de `sujeto_obligado`, cobrando por `forma_cobro` en el momento > `momento_cobro`.
+
+`nombre_comercial` y `descripcion_usuario` existen para que la app muestre *"Comisión por cobro de turno — se descuenta de la bolsa cuando cobrás tu turno"* y no `COM_ENTREGA`. Un cobro que el usuario no puede leer en su idioma es un reclamo esperando a suceder.
+
+`gravado_iva`, `gravado_it` y `precio_incluye_impuesto` definen el tratamiento tributario por concepto, porque no todos los cobros tributan igual y porque el precio que se muestra tiene que ser el precio final.
 
 **Por qué existe.** Porque la alternativa —constantes, `if`s por tipo de operación, o un campo `porcentaje_comision` en `configuracion_grupo`— hace que cada cambio comercial sea un cambio de software, con su ciclo de QA, su despliegue y su riesgo. Y hace imposible contestar qué se cobraba el año pasado.
+
+**Casos de uso que la nombran.** CU-30 Cotizar la comisión antes de operar (`cotizarOperacion`, `cotizarComision`, `aceptarCotizacion`) · CU-34 Publicar un tarifario nuevo con preaviso (`listarTarifarios`, `publicarTarifario`, `ponerTarifarioVigente`)
 
 **Sistema.** Vive en el esquema `tarifas`; la escribe y la lee solo el servicio `tarifas` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `catalogo.tarifario`, `catalogo_hecho_generador`, `nucleo_financiero.cuenta_contable`, `politica_redondeo`. La referencian `cotizacion_comision`, `devengo_comision`, `exencion_comision`, `regla_tarifa`. Reglas nombradas: `ck_concepto_metodo`, `ck_concepto_piso_techo`, `ck_concepto_precio_final`.
 
@@ -7296,7 +9465,9 @@
 
 **Qué es.** Lo que cobra la pasarela, el banco o el agente por cada operación.
 
-**Para qué sirve.** Saber el **margen real**. Una comisión de Bs 18 con un costo de pasarela de Bs 14 es un negocio distinto del que parece. Sin esta tabla, el costo aparece agregado a fin de mes y nunca se puede atribuir a la operación que lo generó, ni decidir con datos qué proveedor conviene para qué rango de monto. ---
+**Para qué sirve.** Saber el **margen real**. Una comisión de Bs 18 con un costo de pasarela de Bs 14 es un negocio distinto del que parece. Sin esta tabla, el costo aparece agregado a fin de mes y nunca se puede atribuir a la operación que lo generó, ni decidir con datos qué proveedor conviene para qué rango de monto.
+
+**Casos de uso que la nombran.** CU-35 Cerrar la liquidación mensual de ingresos (`cerrarLiquidacion`) · CU-83 Enrutar el envío por proveedor de mensajería (`listarEnvios`) · CU-99 Dar de alta un proveedor de pago y enrutar el cobro (`enrutarCobro`, `darDeAltaProveedor`)
 
 **Sistema.** Vive en el esquema `tarifas`; la escribe y la lee solo el servicio `tarifas` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `aportes.proveedor_pago`, `liquidacion_ingresos`, `nucleo_financiero.transaccion_billetera`.
 
@@ -7321,7 +9492,9 @@
 
 **Para qué sirve.** Que la pantalla diga *"vas a recibir Bs 5.982: Bs 6.000 menos Bs 18 de comisión"* y que ese número quede guardado con su desglose. Cuando el usuario reclama, no se discute contra un recálculo: se muestra la cotización que él vio y aceptó.
 
-**Por qué existe.** Porque el reclamo típico no es "me cobraron de más", es "nadie me avisó". La cotización es la prueba del aviso. ---
+**Por qué existe.** Porque el reclamo típico no es "me cobraron de más", es "nadie me avisó". La cotización es la prueba del aviso.
+
+**Casos de uso que la nombran.** CU-30 Cotizar la comisión antes de operar (`cotizarOperacion`, `cotizarComision`, `aceptarCotizacion`) · CU-31 Devengar y cobrar la comisión (`devengarComision`, `anotarCobroDeComision`) · CU-36 Segmentar comercialmente y aplicar precio diferenciado (`resolverPrecio`, `crearSegmento`) · CU-53 Elevar un reclamo a segunda instancia
 
 **Sistema.** Vive en el esquema `tarifas`; la escribe y la lee solo el servicio `tarifas` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `catalogo.tarifario`, `concepto_tarifa`. La referencian `devengo_comision`. Reglas nombradas: `uq_cotizacion_idem`.
 
@@ -7347,14 +9520,18 @@
 
 **Qué es.** Los dos finales alternativos del devengo: se devuelve o queda por cobrar.
 
-**Para qué sirve.** La devolución tipifica el motivo —entrega anulada, error de tarifa, reclamo procedente, falla de servicio— porque cada uno alimenta un indicador distinto: los errores de tarifa son deuda técnica, las fallas de servicio son riesgo operativo, y los reclamos procedentes son el indicador que mira el defensor del consumidor financiero. La cuenta por cobrar conecta con la gestión de cobranza (M8), reutilizando toda la maquinaria que ya existe para la mora de aportes. ---
+**Para qué sirve.** La devolución tipifica el motivo —entrega anulada, error de tarifa, reclamo procedente, falla de servicio— porque cada uno alimenta un indicador distinto: los errores de tarifa son deuda técnica, las fallas de servicio son riesgo operativo, y los reclamos procedentes son el indicador que mira el defensor del consumidor financiero.
+
+La cuenta por cobrar conecta con la gestión de cobranza (M8), reutilizando toda la maquinaria que ya existe para la mora de aportes.
+
+**Casos de uso que la nombran.** CU-16 Cerrar billetera y devolver saldo (`consultarActividad`, `solicitarCierreBilletera`) · CU-31 Devengar y cobrar la comisión (`devengarComision`, `anotarCobroDeComision`)
 
 **Sistema.** Vive en el esquema `tarifas`; la escribe y la lee solo el servicio `tarifas` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `devengo_comision`, `garantia.gestion_cobranza`, `identidad.usuario`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `devengo_id` | UUID | — | UUID, obligatoria, referencia a `devengo_comision`. | NINGUNA |
+| `devengo_id` | UUID | — | UUID, obligatoria, única, referencia a `devengo_comision`. | NINGUNA |
 | `usuario_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
 | `gestion_cobranza_id` | UUID | — | UUID, opcional, referencia a `gestion_cobranza`. | NINGUNA |
 | `monto` | DECIMAL(12,2) | — | DECIMAL(12,2), obligatoria. | FINANCIERO |
@@ -7368,9 +9545,13 @@
 
 **Qué es.** El documento fiscal y su ciclo de vida.
 
-**Para qué sirve.** Cobrar una comisión obliga a facturarla. El modelo cubre la facturación electrónica boliviana con sus piezas propias: NIT emisor, sucursal, punto de venta, número correlativo, CUF, CUFD, código de control, leyenda y QR de verificación. `estado_fiscal` incluye `EMITIDA_OFFLINE`, porque el servicio de impuestos se cae y la operación no puede detenerse: se emite fuera de línea y se envía después por lote. Una factura **no se edita ni se borra**: se anula y se emite nota de crédito. La nota de crédito se enlaza con la devolución que la origina, de modo que la devolución de plata y el documento fiscal quedan atados.
+**Para qué sirve.** Cobrar una comisión obliga a facturarla. El modelo cubre la facturación electrónica boliviana con sus piezas propias: NIT emisor, sucursal, punto de venta, número correlativo, CUF, CUFD, código de control, leyenda y QR de verificación. `estado_fiscal` incluye `EMITIDA_OFFLINE`, porque el servicio de impuestos se cae y la operación no puede detenerse: se emite fuera de línea y se envía después por lote.
 
-**Por qué existe.** Porque la alternativa —facturar a mano por fuera— es inviable al primer mes de operación y es una contingencia tributaria desde el primer día. ---
+Una factura **no se edita ni se borra**: se anula y se emite nota de crédito. La nota de crédito se enlaza con la devolución que la origina, de modo que la devolución de plata y el documento fiscal quedan atados.
+
+**Por qué existe.** Porque la alternativa —facturar a mano por fuera— es inviable al primer mes de operación y es una contingencia tributaria desde el primer día.
+
+**Casos de uso que la nombran.** CU-32 Emitir factura electrónica (`emitirFactura`)
 
 **Sistema.** Vive en el esquema `tarifas`; la escribe y la lee solo el servicio `tarifas` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `identidad.usuario`. La referencian `factura_electronica`.
 
@@ -7390,9 +9571,13 @@
 
 **Qué es.** El hecho económico: la plataforma ganó esta comisión, por esta operación, en esta fecha.
 
-**Para qué sirve.** Es **el ingreso**, separado del cobro. La distinción importa: se puede haber devengado y no cobrado (el usuario no tenía saldo), o haber devengado y devuelto (la entrega se anuló). Contablemente son situaciones distintas y el estado las distingue: `DEVENGADO`, `COBRADO_PARCIAL`, `COBRADO`, `EXONERADO`, `DEVUELTO`, `INCOBRABLE`, `REVERSADO`. `periodo_contable` permite cerrar meses; `asiento_contable_id` conecta con la doble partida de M3, donde el ingreso impacta contra la cuenta configurada en el concepto.
+**Para qué sirve.** Es **el ingreso**, separado del cobro. La distinción importa: se puede haber devengado y no cobrado (el usuario no tenía saldo), o haber devengado y devuelto (la entrega se anuló). Contablemente son situaciones distintas y el estado las distingue: `DEVENGADO`, `COBRADO_PARCIAL`, `COBRADO`, `EXONERADO`, `DEVUELTO`, `INCOBRABLE`, `REVERSADO`.
+
+`periodo_contable` permite cerrar meses; `asiento_contable_id` conecta con la doble partida de M3, donde el ingreso impacta contra la cuenta configurada en el concepto.
 
 **Por qué existe.** Porque mezclar devengo y cobro produce el error clásico: reconocer como ingreso lo que nunca se cobró, o perder de vista lo cobrado que había que devolver.
+
+**Casos de uso que la nombran.** CU-22 Liquidar y entregar el fondo (`liquidarEntrega`, `fondearPozo`, `autorizarEntrega`, `ejecutarEntrega`) · CU-31 Devengar y cobrar la comisión (`devengarComision`, `anotarCobroDeComision`) · CU-32 Emitir factura electrónica (`emitirFactura`) · CU-33 Devolver comisión y emitir nota de crédito (`devolverComision`) · CU-35 Cerrar la liquidación mensual de ingresos (`cerrarLiquidacion`) · CU-91 Firmar y rescindir el contrato de organizador (`firmarContrato`, `rescindirContrato`, `firmarHabilitacionBasica`, `emitirContrato`)
 
 **Sistema.** Vive en el esquema `tarifas`; la escribe y la lee solo el servicio `tarifas` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Es append-only: UPDATE y DELETE revocados al rol del servicio; se corrige con una fila nueva. Depende de `catalogo.tarifario`, `concepto_tarifa`, `cotizacion_comision`, `grupos.grupo`, `grupos.participante`, `identidad.usuario`, `nucleo_financiero.asiento_contable`. La referencian `aplicacion_promocion`, `calculo_impuesto`, `cargo_comision`, `cuenta_por_cobrar_comision`, `devolucion_comision`, `factura_electronica`. Reglas nombradas: `uq_devengo_idem`, `uq_devengo_hecho`.
 
@@ -7401,7 +9586,7 @@
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
 | `concepto_tarifa_id` | UUID | — | UUID, obligatoria, referencia a `concepto_tarifa`. | NINGUNA |
 | `tarifario_id` | UUID | — | UUID, obligatoria, referencia a `tarifario`. | NINGUNA |
-| `cotizacion_id` | UUID | — | UUID, opcional, referencia a `cotizacion_comision`. | NINGUNA |
+| `cotizacion_id` | UUID | — | UUID, opcional, única, referencia a `cotizacion_comision`. | NINGUNA |
 | `grupo_id` | UUID | — | UUID, opcional, referencia a `grupo`. | NINGUNA |
 | `participante_id` | UUID | — | UUID, opcional, referencia a `participante`. | NINGUNA |
 | `usuario_obligado_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
@@ -7423,7 +9608,11 @@
 
 **Qué es.** Los dos finales alternativos del devengo: se devuelve o queda por cobrar.
 
-**Para qué sirve.** La devolución tipifica el motivo —entrega anulada, error de tarifa, reclamo procedente, falla de servicio— porque cada uno alimenta un indicador distinto: los errores de tarifa son deuda técnica, las fallas de servicio son riesgo operativo, y los reclamos procedentes son el indicador que mira el defensor del consumidor financiero. La cuenta por cobrar conecta con la gestión de cobranza (M8), reutilizando toda la maquinaria que ya existe para la mora de aportes. ---
+**Para qué sirve.** La devolución tipifica el motivo —entrega anulada, error de tarifa, reclamo procedente, falla de servicio— porque cada uno alimenta un indicador distinto: los errores de tarifa son deuda técnica, las fallas de servicio son riesgo operativo, y los reclamos procedentes son el indicador que mira el defensor del consumidor financiero.
+
+La cuenta por cobrar conecta con la gestión de cobranza (M8), reutilizando toda la maquinaria que ya existe para la mora de aportes.
+
+**Casos de uso que la nombran.** CU-33 Devolver comisión y emitir nota de crédito (`devolverComision`) · CU-52 Atender un reclamo en plazo (`listarBandejaDeReclamos`, `consultarEfectoDeReclamos`, `consultarReclamo`, `responderReclamo`)
 
 **Sistema.** Vive en el esquema `tarifas`; la escribe y la lee solo el servicio `tarifas` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `cumplimiento.reclamo_cliente`, `devengo_comision`, `identidad.usuario`, `nucleo_financiero.transaccion_billetera`. La referencian `cumplimiento.reclamo_cliente`, `nota_credito_debito`.
 
@@ -7442,6 +9631,67 @@
 | `solicitada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
 | `ejecutada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
 
+### `estado_saga`
+
+**Qué es.** Estado de saga orquestada por este servicio (ADR-028).
+
+**Para qué sirve.** Persiste el paso de una saga que cruza servicios para poder reanudarla o compensarla si algo falla en el medio (regla 98.3.2, ADR-028).
+
+**Sistema.** Infraestructura del servicio `tarifas`, generada por plantilla en cada esquema (ADR-027): la escribe y la lee solo ese servicio.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
+| `tipo_saga` | VARCHAR(60) | — | VARCHAR(60), obligatoria. | NINGUNA |
+| `clave_negocio` | VARCHAR(120) | — | VARCHAR(120), obligatoria. | SECRETO |
+| `paso` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
+| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
+| `datos` | JSONB | — | JSONB, obligatoria. | NINGUNA |
+| `creado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `actualizado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+
+### `evento_consumido`
+
+**Qué es.** Marca de evento ya consumido, por consumidor (ADR-027).
+
+**Para qué sirve.** Hace idempotente el consumo: la entrega es al menos una vez y un mismo evento no puede producir dos efectos (regla 98.3.4).
+
+**Sistema.** Infraestructura del servicio `tarifas`, generada por plantilla en cada esquema (ADR-027): la escribe y la lee solo ese servicio.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `id_evento` | UUID | — | UUID, obligatoria, clave primaria. | NINGUNA |
+| `consumidor` | VARCHAR(60) | — | VARCHAR(60), obligatoria, clave primaria. | NINGUNA |
+| `consumido_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+
+### `evento_dominio`
+
+**Qué es.** Outbox transaccional del servicio (ADR-027).
+
+**Para qué sirve.** Garantiza que ningún hecho del servicio se pierda entre la base y la mensajería: el evento se guarda en la misma transacción que el cambio y un relevo lo publica después (regla 98.3.3).
+
+**Sistema.** Infraestructura del servicio `tarifas`, generada por plantilla en cada esquema (ADR-027): la escribe y la lee solo ese servicio.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
+| `tipo` | VARCHAR(60) | — | VARCHAR(60), obligatoria. | NINGUNA |
+| `version` | VARCHAR(10) | — | VARCHAR(10), obligatoria. | NINGUNA |
+| `agregado` | VARCHAR(40) | — | VARCHAR(40), obligatoria. | NINGUNA |
+| `agregado_id` | UUID | — | UUID, obligatoria. | NINGUNA |
+| `payload` | JSONB | — | JSONB, obligatoria. | NINGUNA |
+| `metadatos` | JSONB | — | JSONB, obligatoria. | NINGUNA |
+| `correlation_id` | UUID | — | UUID, obligatoria. | NINGUNA |
+| `causation_id` | UUID | — | UUID, opcional. | NINGUNA |
+| `ocurrido_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `publicado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
+| `intentos` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
+| `tomado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `tomado_por` | VARCHAR(100) | — | VARCHAR(100), opcional. | NINGUNA |
+| `ultimo_error` | TEXT | — | TEXT, opcional. | NINGUNA |
+| `proximo_intento_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+
 ### `evento_significativo_sin`
 
 **Qué es.** Un período en que la facturación electrónica no pudo enviarse al SIN (por ejemplo, porque el servicio no respondió), declarado como evento significativo.
@@ -7449,6 +9699,8 @@
 **Para qué sirve.** Que las facturas emitidas sin conexión sigan siendo válidas: se registra el evento y después se envían en lote dentro del plazo que fija el SIN.
 
 **Por qué existe.** Sin el evento, las facturas emitidas fuera de línea quedarían sin respaldo ante el SIN y la plataforma incumpliría su obligación tributaria.
+
+**Casos de uso que la nombran.** CU-32 Emitir factura electrónica (`emitirFactura`)
 
 **Sistema.** Vive en el esquema `tarifas`; la escribe y la lee solo el servicio `tarifas` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `identidad.usuario`. La referencian `factura_electronica`.
 
@@ -7466,16 +9718,20 @@
 | `cantidad_documentos_offline` | INTEGER | — | INTEGER, obligatoria. | PERSONAL |
 | `plazo_registro` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
 | `registrado_en_sin` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
-| `codigo_recepcion_evento` | VARCHAR(60) | — | VARCHAR(60), opcional. | NINGUNA |
+| `codigo_recepcion_evento` | VARCHAR(60) | — | VARCHAR(60), opcional, única. | NINGUNA |
 | `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
 
 ### `exencion_comision`
 
 **Qué es.** No cobrar, con nombre y apellido.
 
-**Para qué sirve.** Toda plataforma termina regalando comisiones: por campaña, por cortesía tras un error, por convenio institucional. La diferencia entre hacerlo bien y hacerlo mal es si queda registro de **quién lo autorizó, por qué motivo, con qué tope y hasta cuándo**. `campana_promocional` agrega presupuesto: una promoción con `presupuesto_maximo` se apaga sola cuando lo consume, en vez de descubrirse a fin de mes.
+**Para qué sirve.** Toda plataforma termina regalando comisiones: por campaña, por cortesía tras un error, por convenio institucional. La diferencia entre hacerlo bien y hacerlo mal es si queda registro de **quién lo autorizó, por qué motivo, con qué tope y hasta cuándo**.
 
-**Por qué existe.** Porque sin ellas la exención se implementa como un `monto = 0` a mano, y entonces es imposible distinguir "no correspondía cobrar" de "alguien no cobró". ---
+`campana_promocional` agrega presupuesto: una promoción con `presupuesto_maximo` se apaga sola cuando lo consume, en vez de descubrirse a fin de mes.
+
+**Por qué existe.** Porque sin ellas la exención se implementa como un `monto = 0` a mano, y entonces es imposible distinguir "no correspondía cobrar" de "alguien no cobró".
+
+**Casos de uso que la nombran.** CU-16 Cerrar billetera y devolver saldo (`consultarActividad`, `solicitarCierreBilletera`) · CU-30 Cotizar la comisión antes de operar (`cotizarOperacion`, `cotizarComision`, `aceptarCotizacion`) · CU-31 Devengar y cobrar la comisión (`devengarComision`, `anotarCobroDeComision`) · CU-36 Segmentar comercialmente y aplicar precio diferenciado (`resolverPrecio`, `crearSegmento`)
 
 **Sistema.** Vive en el esquema `tarifas`; la escribe y la lee solo el servicio `tarifas` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `concepto_tarifa`, `grupos.grupo`, `identidad.usuario`, `segmento_comercial`.
 
@@ -7500,9 +9756,13 @@
 
 **Qué es.** El documento fiscal y su ciclo de vida.
 
-**Para qué sirve.** Cobrar una comisión obliga a facturarla. El modelo cubre la facturación electrónica boliviana con sus piezas propias: NIT emisor, sucursal, punto de venta, número correlativo, CUF, CUFD, código de control, leyenda y QR de verificación. `estado_fiscal` incluye `EMITIDA_OFFLINE`, porque el servicio de impuestos se cae y la operación no puede detenerse: se emite fuera de línea y se envía después por lote. Una factura **no se edita ni se borra**: se anula y se emite nota de crédito. La nota de crédito se enlaza con la devolución que la origina, de modo que la devolución de plata y el documento fiscal quedan atados.
+**Para qué sirve.** Cobrar una comisión obliga a facturarla. El modelo cubre la facturación electrónica boliviana con sus piezas propias: NIT emisor, sucursal, punto de venta, número correlativo, CUF, CUFD, código de control, leyenda y QR de verificación. `estado_fiscal` incluye `EMITIDA_OFFLINE`, porque el servicio de impuestos se cae y la operación no puede detenerse: se emite fuera de línea y se envía después por lote.
 
-**Por qué existe.** Porque la alternativa —facturar a mano por fuera— es inviable al primer mes de operación y es una contingencia tributaria desde el primer día. ---
+Una factura **no se edita ni se borra**: se anula y se emite nota de crédito. La nota de crédito se enlaza con la devolución que la origina, de modo que la devolución de plata y el documento fiscal quedan atados.
+
+**Por qué existe.** Porque la alternativa —facturar a mano por fuera— es inviable al primer mes de operación y es una contingencia tributaria desde el primer día.
+
+**Casos de uso que la nombran.** CU-32 Emitir factura electrónica (`emitirFactura`) · CU-33 Devolver comisión y emitir nota de crédito (`devolverComision`) · CU-114 Liquidar y facturar el gasto publicitario (`consumoDelPeriodo`, `liquidarPeriodo`)
 
 **Sistema.** Vive en el esquema `tarifas`; la escribe y la lee solo el servicio `tarifas` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `datos_facturacion`, `devengo_comision`, `evento_significativo_sin`, `identidad.usuario`, `lote_envio_sin`. La referencian `nota_credito_debito`, `publicidad.factura_publicidad`. Reglas nombradas: `uq_factura_cuf`, `uq_factura_correlativo`, `ck_factura_offline_evento`.
 
@@ -7539,14 +9799,16 @@
 
 **Qué es.** El cierre mensual del ingreso: devengado, cobrado, exonerado, devuelto, incobrable, impuestos, costos de proveedores e ingreso neto.
 
-**Para qué sirve.** Es el estado de resultados del producto, construido desde los devengos y no desde una planilla aparte. Y es el número que se compara contra la contabilidad: si `liquidacion_ingresos.total_cobrado` no coincide con el saldo de la cuenta de ingresos del mayor, hay un problema y se ve el mismo mes. ---
+**Para qué sirve.** Es el estado de resultados del producto, construido desde los devengos y no desde una planilla aparte. Y es el número que se compara contra la contabilidad: si `liquidacion_ingresos.total_cobrado` no coincide con el saldo de la cuenta de ingresos del mayor, hay un problema y se ve el mismo mes.
+
+**Casos de uso que la nombran.** CU-35 Cerrar la liquidación mensual de ingresos (`cerrarLiquidacion`) · CU-98 Publicar el tablero de indicadores (`publicarTablero`, `listarEndpointsDelDia`)
 
 **Sistema.** Vive en el esquema `tarifas`; la escribe y la lee solo el servicio `tarifas` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `identidad.usuario`, `nucleo_financiero.asiento_contable`. La referencian `costo_proveedor_operacion`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `periodo` | CHAR(7) | — | CHAR(7), obligatoria. | NINGUNA |
+| `periodo` | CHAR(7) | — | CHAR(7), obligatoria, única. | NINGUNA |
 | `fecha_inicio` | DATE | — | DATE, obligatoria. | NINGUNA |
 | `fecha_fin` | DATE | — | DATE, obligatoria. | NINGUNA |
 | `total_devengado` | DECIMAL(16,2) | — | DECIMAL(16,2), obligatoria. | NINGUNA |
@@ -7567,9 +9829,13 @@
 
 **Qué es.** El documento fiscal y su ciclo de vida.
 
-**Para qué sirve.** Cobrar una comisión obliga a facturarla. El modelo cubre la facturación electrónica boliviana con sus piezas propias: NIT emisor, sucursal, punto de venta, número correlativo, CUF, CUFD, código de control, leyenda y QR de verificación. `estado_fiscal` incluye `EMITIDA_OFFLINE`, porque el servicio de impuestos se cae y la operación no puede detenerse: se emite fuera de línea y se envía después por lote. Una factura **no se edita ni se borra**: se anula y se emite nota de crédito. La nota de crédito se enlaza con la devolución que la origina, de modo que la devolución de plata y el documento fiscal quedan atados.
+**Para qué sirve.** Cobrar una comisión obliga a facturarla. El modelo cubre la facturación electrónica boliviana con sus piezas propias: NIT emisor, sucursal, punto de venta, número correlativo, CUF, CUFD, código de control, leyenda y QR de verificación. `estado_fiscal` incluye `EMITIDA_OFFLINE`, porque el servicio de impuestos se cae y la operación no puede detenerse: se emite fuera de línea y se envía después por lote.
 
-**Por qué existe.** Porque la alternativa —facturar a mano por fuera— es inviable al primer mes de operación y es una contingencia tributaria desde el primer día. ---
+Una factura **no se edita ni se borra**: se anula y se emite nota de crédito. La nota de crédito se enlaza con la devolución que la origina, de modo que la devolución de plata y el documento fiscal quedan atados.
+
+**Por qué existe.** Porque la alternativa —facturar a mano por fuera— es inviable al primer mes de operación y es una contingencia tributaria desde el primer día.
+
+**Casos de uso que la nombran.** CU-32 Emitir factura electrónica (`emitirFactura`)
 
 **Sistema.** Vive en el esquema `tarifas`; la escribe y la lee solo el servicio `tarifas` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. La referencian `factura_electronica`.
 
@@ -7579,7 +9845,7 @@
 | `tipo_envio` | VARCHAR(25) | — | VARCHAR(25), obligatoria. | NINGUNA |
 | `cantidad_documentos` | INTEGER | — | INTEGER, obligatoria. | PERSONAL |
 | `fecha_envio` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
-| `codigo_recepcion` | VARCHAR(60) | — | VARCHAR(60), opcional. | NINGUNA |
+| `codigo_recepcion` | VARCHAR(60) | — | VARCHAR(60), opcional, única. | NINGUNA |
 | `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
 | `respuesta` | JSONB | — | JSONB, opcional. | NINGUNA |
 | `reintentos` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
@@ -7588,9 +9854,13 @@
 
 **Qué es.** El documento fiscal y su ciclo de vida.
 
-**Para qué sirve.** Cobrar una comisión obliga a facturarla. El modelo cubre la facturación electrónica boliviana con sus piezas propias: NIT emisor, sucursal, punto de venta, número correlativo, CUF, CUFD, código de control, leyenda y QR de verificación. `estado_fiscal` incluye `EMITIDA_OFFLINE`, porque el servicio de impuestos se cae y la operación no puede detenerse: se emite fuera de línea y se envía después por lote. Una factura **no se edita ni se borra**: se anula y se emite nota de crédito. La nota de crédito se enlaza con la devolución que la origina, de modo que la devolución de plata y el documento fiscal quedan atados.
+**Para qué sirve.** Cobrar una comisión obliga a facturarla. El modelo cubre la facturación electrónica boliviana con sus piezas propias: NIT emisor, sucursal, punto de venta, número correlativo, CUF, CUFD, código de control, leyenda y QR de verificación. `estado_fiscal` incluye `EMITIDA_OFFLINE`, porque el servicio de impuestos se cae y la operación no puede detenerse: se emite fuera de línea y se envía después por lote.
 
-**Por qué existe.** Porque la alternativa —facturar a mano por fuera— es inviable al primer mes de operación y es una contingencia tributaria desde el primer día. ---
+Una factura **no se edita ni se borra**: se anula y se emite nota de crédito. La nota de crédito se enlaza con la devolución que la origina, de modo que la devolución de plata y el documento fiscal quedan atados.
+
+**Por qué existe.** Porque la alternativa —facturar a mano por fuera— es inviable al primer mes de operación y es una contingencia tributaria desde el primer día.
+
+**Casos de uso que la nombran.** CU-32 Emitir factura electrónica (`emitirFactura`) · CU-33 Devolver comisión y emitir nota de crédito (`devolverComision`)
 
 **Sistema.** Vive en el esquema `tarifas`; la escribe y la lee solo el servicio `tarifas` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `devolucion_comision`, `factura_electronica`. Reglas nombradas: `uq_nota_cuf`.
 
@@ -7610,14 +9880,16 @@
 
 **Qué es.** Cómo se redondea el resultado del cálculo.
 
-**Para qué sirve.** En Bolivia el circulante mínimo práctico es Bs 0,10. Un cálculo de 0,3 % sobre Bs 5.437 da Bs 16,311, y hay que decidir —una vez, de forma explícita y auditable— si eso es 16,30 o 16,40. Sin política, cada desarrollador redondea distinto y aparecen diferencias de centavos que rompen conciliaciones. ---
+**Para qué sirve.** En Bolivia el circulante mínimo práctico es Bs 0,10. Un cálculo de 0,3 % sobre Bs 5.437 da Bs 16,311, y hay que decidir —una vez, de forma explícita y auditable— si eso es 16,30 o 16,40. Sin política, cada desarrollador redondea distinto y aparecen diferencias de centavos que rompen conciliaciones.
+
+**Casos de uso que la nombran.** CU-30 Cotizar la comisión antes de operar (`cotizarOperacion`, `cotizarComision`, `aceptarCotizacion`)
 
 **Sistema.** Vive en el esquema `tarifas`; la escribe y la lee solo el servicio `tarifas` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. La referencian `concepto_tarifa`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `codigo` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
+| `codigo` | VARCHAR(30) | — | VARCHAR(30), obligatoria, única. | NINGUNA |
 | `moneda` | CHAR(3) | Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2). | CHAR(3), obligatoria. | NINGUNA |
 | `unidad_minima` | DECIMAL(6,4) | — | DECIMAL(6,4), obligatoria. | NINGUNA |
 | `modo` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
@@ -7630,6 +9902,8 @@
 **Para qué sirve.** Permite precios que dependen del contexto sin multiplicar conceptos: tramos por monto, descuentos por tamaño de grupo, tarifa distinta por canal, por antigüedad del usuario o por nivel de verificación. La condición es `JSONB` declarativo —`{"tamanio_grupo": {">=": 20}, "canal": "APP"}`— evaluado por el motor.
 
 **Por qué existe.** Porque la primera negociación comercial seria (un convenio con una cooperativa, una campaña regional) pide precio diferenciado, y sin reglas eso se resuelve con código especial que nadie vuelve a tocar.
+
+**Casos de uso que la nombran.** CU-30 Cotizar la comisión antes de operar (`cotizarOperacion`, `cotizarComision`, `aceptarCotizacion`) · CU-34 Publicar un tarifario nuevo con preaviso (`listarTarifarios`, `publicarTarifario`, `ponerTarifarioVigente`) · CU-36 Segmentar comercialmente y aplicar precio diferenciado (`resolverPrecio`, `crearSegmento`)
 
 **Sistema.** Vive en el esquema `tarifas`; la escribe y la lee solo el servicio `tarifas` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `concepto_tarifa`.
 
@@ -7654,24 +9928,45 @@
 
 **Para qué sirve.** Resuelven la pregunta "¿qué precio le corresponde a esta operación?" con una jerarquía explícita: usuario > grupo > segmento > global. La asignación puede tener vigencia y motivo, de modo que un precio especial siempre tiene fecha de inicio, fecha de fin y una razón escrita.
 
-**Por qué existe.** Porque los precios especiales existen igual: si el modelo no los soporta, aparecen como excepciones a mano en producción, que es la peor forma posible de tenerlos. ---
+**Por qué existe.** Porque los precios especiales existen igual: si el modelo no los soporta, aparecen como excepciones a mano en producción, que es la peor forma posible de tenerlos.
+
+**Casos de uso que la nombran.** CU-36 Segmentar comercialmente y aplicar precio diferenciado (`resolverPrecio`, `crearSegmento`) · CU-74 Otorgar y revocar una insignia (`evaluarInsignias`, `revocarInsignia`)
 
 **Sistema.** Vive en el esquema `tarifas`; la escribe y la lee solo el servicio `tarifas` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. La referencian `asignacion_tarifario`, `exencion_comision`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `codigo` | VARCHAR(30) | — | VARCHAR(30), obligatoria. | NINGUNA |
+| `codigo` | VARCHAR(30) | — | VARCHAR(30), obligatoria, única. | NINGUNA |
 | `descripcion` | VARCHAR(200) | — | VARCHAR(200), obligatoria. | NINGUNA |
 | `criterio` | JSONB | — | JSONB, obligatoria. | NINGUNA |
 | `prioridad` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
 | `activo` | BOOLEAN | — | BOOLEAN, obligatoria. | NINGUNA |
 
+### `shedlock`
+
+**Qué es.** Bloqueo de trabajos programados entre replicas (ADR-018).
+
+**Para qué sirve.** Evita que dos réplicas del servicio ejecuten el mismo trabajo programado a la vez (ADR-018).
+
+**Sistema.** Infraestructura del servicio `tarifas`, generada por plantilla en cada esquema (ADR-027): la escribe y la lee solo ese servicio.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `name` | VARCHAR(64) | — | VARCHAR(64), obligatoria, clave primaria. | NINGUNA |
+| `lock_until` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `locked_at` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `locked_by` | VARCHAR(255) | — | VARCHAR(255), obligatoria. | NINGUNA |
+
 ### `simulacion_tarifa`
 
 **Qué es.** El ensayo previo y el expediente del cambio.
 
-**Para qué sirve.** La simulación permite correr el tarifario nuevo sobre la historia real antes de publicarlo: cuánto más se habría cobrado, a cuánta gente le habría subido y en cuánto. Eso convierte una decisión de precios en una decisión informada y deja constancia de que se evaluó el impacto. `cambio_tarifario` guarda el cumplimiento del deber de aviso: tipo de cambio, días de preaviso, fecha y canal del aviso, cuántos usuarios fueron notificados y si el cambio habilita rescindir sin costo. Un aumento de comisiones sin aviso previo documentado es una observación segura. ---
+**Para qué sirve.** La simulación permite correr el tarifario nuevo sobre la historia real antes de publicarlo: cuánto más se habría cobrado, a cuánta gente le habría subido y en cuánto. Eso convierte una decisión de precios en una decisión informada y deja constancia de que se evaluó el impacto.
+
+`cambio_tarifario` guarda el cumplimiento del deber de aviso: tipo de cambio, días de preaviso, fecha y canal del aviso, cuántos usuarios fueron notificados y si el cambio habilita rescindir sin costo. Un aumento de comisiones sin aviso previo documentado es una observación segura.
+
+**Casos de uso que la nombran.** CU-34 Publicar un tarifario nuevo con preaviso (`listarTarifarios`, `publicarTarifario`, `ponerTarifarioVigente`)
 
 **Sistema.** Vive en el esquema `tarifas`; la escribe y la lee solo el servicio `tarifas` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `catalogo.tarifario`, `identidad.usuario`.
 
@@ -7690,9 +9985,13 @@
 
 **Qué es.** El snapshot del tarifario que aceptó un grupo al constituirse.
 
-**Para qué sirve.** **El precio no cambia a mitad del juego.** Un pasanaku de doce meses se acuerda al inicio; si la comisión sube en el mes cinco, los que ya estaban adentro siguen con el precio pactado. Un aumento aplica a los grupos nuevos. `hash_snapshot` permite demostrar que el snapshot no fue alterado, y `acuerdo_id` lo enlaza con el [[acuerdo]] (M2) por el cual los participantes lo aceptaron.
+**Para qué sirve.** **El precio no cambia a mitad del juego.** Un pasanaku de doce meses se acuerda al inicio; si la comisión sube en el mes cinco, los que ya estaban adentro siguen con el precio pactado. Un aumento aplica a los grupos nuevos.
 
-**Por qué existe.** Porque sin él, subir el tarifario reescribe retroactivamente el costo de ciclos ya aceptados. Eso es, a la vez, un problema de confianza, un reclamo con razón y un incumplimiento contractual. ---
+`hash_snapshot` permite demostrar que el snapshot no fue alterado, y `acuerdo_id` lo enlaza con el [[acuerdo]] (M2) por el cual los participantes lo aceptaron.
+
+**Por qué existe.** Porque sin él, subir el tarifario reescribe retroactivamente el costo de ciclos ya aceptados. Eso es, a la vez, un problema de confianza, un reclamo con razón y un incumplimiento contractual.
+
+**Casos de uso que la nombran.** CU-20 Crear grupo y congelar tarifario (`crearGrupo`, `consultarNivelKyc`, `consultarHabilitacion`, `consultarTarifarioVigente`) · CU-22 Liquidar y entregar el fondo (`liquidarEntrega`, `fondearPozo`, `autorizarEntrega`, `ejecutarEntrega`) · CU-30 Cotizar la comisión antes de operar (`cotizarOperacion`, `cotizarComision`, `aceptarCotizacion`) · CU-34 Publicar un tarifario nuevo con preaviso (`listarTarifarios`, `publicarTarifario`, `ponerTarifarioVigente`) · CU-36 Segmentar comercialmente y aplicar precio diferenciado (`resolverPrecio`, `crearSegmento`)
 
 **Sistema.** Vive en el esquema `tarifas`; la escribe y la lee solo el servicio `tarifas` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `catalogo.tarifario`, `grupos.acuerdo`, `grupos.grupo`. Reglas nombradas: `uq_tarifa_congelada_grupo`.
 
@@ -7713,9 +10012,18 @@
 
 **Qué es.** Una señal automática de que algo anda mal con un usuario, un grupo o un organizador.
 
-**Para qué sirve.** Los cuatro códigos son patrones aprendidos: - `CAIDA_ABRUPTA_SCORE`: alguien que era confiable empezó a fallar. Puede ser un problema personal (y ahí conviene ofrecer un plan de pago antes de sancionar) o puede ser una cuenta comprometida. - `MORA_CONCENTRADA`: varios morosos en el mismo grupo. **Es el predictor más fuerte de colapso**: cuando la gente ve que otros no pagan, deja de pagar. - `RETIRO_MASIVO`: varias solicitudes de salida juntas. Algo pasó en ese grupo que el sistema no ve. - `GRUPO_INVIABLE`: los números ya no cierran. `escalarACumplimiento()` conecta con M9 cuando el patrón huele a fraude y no a dificultad económica.
+**Para qué sirve.** Los cuatro códigos son patrones aprendidos:
 
-**Por qué existe.** Sin alertas, los problemas se descubren cuando alguien reclama —es decir, cuando ya hay daño. Con alertas, hay una ventana para intervenir: ofrecer un plan, activar un plan de contingencia, reforzar la cobranza. ---
+- `CAIDA_ABRUPTA_SCORE`: alguien que era confiable empezó a fallar. Puede ser un problema personal (y ahí conviene ofrecer un plan de pago antes de sancionar) o puede ser una cuenta comprometida.
+- `MORA_CONCENTRADA`: varios morosos en el mismo grupo. **Es el predictor más fuerte de colapso**: cuando la gente ve que otros no pagan, deja de pagar.
+- `RETIRO_MASIVO`: varias solicitudes de salida juntas. Algo pasó en ese grupo que el sistema no ve.
+- `GRUPO_INVIABLE`: los números ya no cierran.
+
+`escalarACumplimiento()` conecta con M9 cuando el patrón huele a fraude y no a dificultad económica.
+
+**Por qué existe.** Sin alertas, los problemas se descubren cuando alguien reclama —es decir, cuando ya hay daño. Con alertas, hay una ventana para intervenir: ofrecer un plan, activar un plan de contingencia, reforzar la cobranza.
+
+**Casos de uso que la nombran.** CU-97 Anticipar el riesgo con alertas tempranas (`cerrarAlertaRiesgo`, `evaluarRiesgo`)
 
 **Sistema.** Vive en el esquema `transparencia`; la escribe y la lee solo el servicio `transparencia` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Reglas nombradas: `ck_alerta_riesgo_cierre`.
 
@@ -7736,9 +10044,17 @@
 
 **Qué es.** Un bloque sellado de la historia del grupo, encadenado por hash al anterior y con raíz Merkle de los eventos que contiene.
 
-**Para qué sirve.** Resuelve la pregunta que ninguna base de datos común puede responder: ***¿cómo sé que no editaron un pago viejo después de que pasó?*** La respuesta es criptográfica: cada bloque incluye el hash del anterior. Alterar un registro antiguo cambia el hash de su bloque, lo que invalida el siguiente, y el siguiente, hasta el último. **Manipular la historia se nota siempre.** La raíz Merkle permite algo más fino: `pruebaDeInclusion(eventoId)` le da a un participante la prueba de que **su pago concreto** estaba en el libro antes de que se cerrara el ciclo, sin necesidad de revelar los pagos de los demás. `selloExterno` (anclaje a un servicio de timestamping externo) es la vuelta de tuerca: prueba que el bloque existía en una fecha determinada, incluso contra la sospecha de que la propia plataforma haya regenerado toda la cadena.
+**Para qué sirve.** Resuelve la pregunta que ninguna base de datos común puede responder: ***¿cómo sé que no editaron un pago viejo después de que pasó?***
+
+La respuesta es criptográfica: cada bloque incluye el hash del anterior. Alterar un registro antiguo cambia el hash de su bloque, lo que invalida el siguiente, y el siguiente, hasta el último. **Manipular la historia se nota siempre.**
+
+La raíz Merkle permite algo más fino: `pruebaDeInclusion(eventoId)` le da a un participante la prueba de que **su pago concreto** estaba en el libro antes de que se cerrara el ciclo, sin necesidad de revelar los pagos de los demás.
+
+`selloExterno` (anclaje a un servicio de timestamping externo) es la vuelta de tuerca: prueba que el bloque existía en una fecha determinada, incluso contra la sospecha de que la propia plataforma haya regenerado toda la cadena.
 
 **Por qué existe.** Sin sello, la transparencia es una promesa: "confiá en que no editamos nada". Con sello, es verificable por cualquiera, incluso contra la plataforma misma. **Esa diferencia es la propuesta de valor del módulo.**
+
+**Casos de uso que la nombran.** CU-60 Sortear los turnos (`comprometerSorteo`, `revelarSorteo`, `verificarSorteo`) · CU-72 Sellar el bloque de transparencia (`listarBloques`, `sellarBloque`) · CU-73 Verificar la cadena de transparencia (`verificarCadena`)
 
 **Sistema.** Vive en el esquema `transparencia`; la escribe y la lee solo el servicio `transparencia` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `grupos.grupo`. La referencian `registro_sellado`. Reglas nombradas: `uq_bloque_grupo_numero`, `ck_bloque_genesis`.
 
@@ -7749,7 +10065,7 @@
 | `numero_bloque` | BIGINT | — | BIGINT, obligatoria. | NINGUNA |
 | `hash_bloque_anterior` | VARCHAR(64) | — | VARCHAR(64), obligatoria. | DERIVADO |
 | `raiz_merkle` | VARCHAR(64) | — | VARCHAR(64), obligatoria. | NINGUNA |
-| `hash_bloque` | VARCHAR(64) | — | VARCHAR(64), obligatoria. | DERIVADO |
+| `hash_bloque` | VARCHAR(64) | — | VARCHAR(64), obligatoria, única. | DERIVADO |
 | `cantidad_eventos` | INTEGER | — | INTEGER, obligatoria. | NINGUNA |
 | `periodo_cubierto_desde` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
 | `periodo_cubierto_hasta` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
@@ -7760,9 +10076,15 @@
 
 **Qué es.** Un documento firmado digitalmente que acredita el historial del usuario, verificable públicamente.
 
-**Para qué sirve.** Es **la reputación portable hecha producto** (RF-18). El usuario puede presentar su certificado a un grupo fuera de la plataforma, a un prestamista, a una cooperativa, a alguien que le va a fiar mercadería. Para mucha gente sin historial bancario formal, **este certificado puede ser el primer documento que acredite que cumple sus compromisos financieros**. Ese es un impacto real, no una función más. `codigoVerificacion` + `firmaDigital` + `urlPublica` permiten que un tercero —sin cuenta en la plataforma— verifique que el certificado es auténtico y no está revocado. `expiraEn` es necesario: un certificado de hace dos años no dice nada del presente.
+**Para qué sirve.** Es **la reputación portable hecha producto** (RF-18). El usuario puede presentar su certificado a un grupo fuera de la plataforma, a un prestamista, a una cooperativa, a alguien que le va a fiar mercadería. Para mucha gente sin historial bancario formal, **este certificado puede ser el primer documento que acredite que cumple sus compromisos financieros**. Ese es un impacto real, no una función más.
 
-**Por qué existe.** Sin certificado, la reputación solo sirve dentro de la plataforma. Con certificado, sale al mundo y se convierte en un activo de la persona. ---
+`codigoVerificacion` + `firmaDigital` + `urlPublica` permiten que un tercero —sin cuenta en la plataforma— verifique que el certificado es auténtico y no está revocado.
+
+`expiraEn` es necesario: un certificado de hace dos años no dice nada del presente.
+
+**Por qué existe.** Sin certificado, la reputación solo sirve dentro de la plataforma. Con certificado, sale al mundo y se convierte en un activo de la persona.
+
+**Casos de uso que la nombran.** CU-74 Otorgar y revocar una insignia (`evaluarInsignias`, `revocarInsignia`) · CU-75 Emitir un certificado de reputación verificable (`emitirCertificado`, `verificarCertificado`)
 
 **Sistema.** Vive en el esquema `transparencia`; la escribe y la lee solo el servicio `transparencia` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `identidad.usuario`, `snapshot_reputacion`.
 
@@ -7770,8 +10092,8 @@
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
 | `usuario_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
-| `snapshot_id` | UUID | — | UUID, obligatoria, referencia a `snapshot_reputacion`. | NINGUNA |
-| `codigo_verificacion` | VARCHAR(40) | — | VARCHAR(40), obligatoria. | NINGUNA |
+| `snapshot_id` | UUID | — | UUID, obligatoria, única, referencia a `snapshot_reputacion`. | NINGUNA |
+| `codigo_verificacion` | VARCHAR(40) | — | VARCHAR(40), obligatoria, única. | NINGUNA |
 | `hash_contenido` | VARCHAR(64) | — | VARCHAR(64), obligatoria. | DERIVADO |
 | `firma_digital` | VARCHAR(255) | — | VARCHAR(255), obligatoria. | NINGUNA |
 | `url_publica` | VARCHAR(255) | — | VARCHAR(255), obligatoria. | NINGUNA |
@@ -7783,9 +10105,13 @@
 
 **Qué es.** El desglose del puntaje por factor: valor crudo, normalizado, contribución y tendencia.
 
-**Para qué sirve.** Es lo que hace **explicable** el score. Permite mostrar: "puntualidad: 340 puntos (subiendo); permanencia: 210 puntos (estable); incumplimientos: -80 puntos (mejorando)". Sin el desglose, el usuario ve un número que se mueve sin entender por qué, y eso genera desconfianza en el sistema mismo. `tendencia` es lo que convierte el score en algo accionable: saber que vas subiendo motiva; saber solo que tenés 640 no.
+**Para qué sirve.** Es lo que hace **explicable** el score. Permite mostrar: "puntualidad: 340 puntos (subiendo); permanencia: 210 puntos (estable); incumplimientos: -80 puntos (mejorando)". Sin el desglose, el usuario ve un número que se mueve sin entender por qué, y eso genera desconfianza en el sistema mismo.
 
-**Por qué existe.** Un score opaco es un score que no se puede defender ante un reclamo, y que no motiva ningún cambio de comportamiento. ---
+`tendencia` es lo que convierte el score en algo accionable: saber que vas subiendo motiva; saber solo que tenés 640 no.
+
+**Por qué existe.** Un score opaco es un score que no se puede defender ante un reclamo, y que no motiva ningún cambio de comportamiento.
+
+**Casos de uso que la nombran.** CU-71 Recalcular el puntaje de reputación (`recalcularPuntaje`, `tomarSnapshotReputacion`) · CU-76 Reseñar a un participante y moderar la reseña (`publicarResena`, `moderarResena`)
 
 **Sistema.** Vive en el esquema `transparencia`; la escribe y la lee solo el servicio `transparencia` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `puntaje_reputacion`.
 
@@ -7799,13 +10125,61 @@
 | `contribucion` | DECIMAL(6,2) | — | DECIMAL(6,2), obligatoria. | NINGUNA |
 | `tendencia` | VARCHAR(10) | — | VARCHAR(10), obligatoria. | NINGUNA |
 
+### `evento_consumido`
+
+**Qué es.** Marca de evento ya consumido, por consumidor (ADR-027).
+
+**Para qué sirve.** Hace idempotente el consumo: la entrega es al menos una vez y un mismo evento no puede producir dos efectos (regla 98.3.4).
+
+**Sistema.** Infraestructura del servicio `transparencia`, generada por plantilla en cada esquema (ADR-027): la escribe y la lee solo ese servicio.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `id_evento` | UUID | — | UUID, obligatoria, clave primaria. | NINGUNA |
+| `consumidor` | VARCHAR(60) | — | VARCHAR(60), obligatoria, clave primaria. | NINGUNA |
+| `consumido_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+
+### `evento_dominio`
+
+**Qué es.** Outbox transaccional del servicio (ADR-027).
+
+**Para qué sirve.** Garantiza que ningún hecho del servicio se pierda entre la base y la mensajería: el evento se guarda en la misma transacción que el cambio y un relevo lo publica después (regla 98.3.3).
+
+**Sistema.** Infraestructura del servicio `transparencia`, generada por plantilla en cada esquema (ADR-027): la escribe y la lee solo ese servicio.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
+| `tipo` | VARCHAR(60) | — | VARCHAR(60), obligatoria. | NINGUNA |
+| `version` | VARCHAR(10) | — | VARCHAR(10), obligatoria. | NINGUNA |
+| `agregado` | VARCHAR(40) | — | VARCHAR(40), obligatoria. | NINGUNA |
+| `agregado_id` | UUID | — | UUID, obligatoria. | NINGUNA |
+| `payload` | JSONB | — | JSONB, obligatoria. | NINGUNA |
+| `metadatos` | JSONB | — | JSONB, obligatoria. | NINGUNA |
+| `correlation_id` | UUID | — | UUID, obligatoria. | NINGUNA |
+| `causation_id` | UUID | — | UUID, opcional. | NINGUNA |
+| `ocurrido_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `publicado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `estado` | VARCHAR(15) | — | VARCHAR(15), obligatoria. | NINGUNA |
+| `intentos` | SMALLINT | — | SMALLINT, obligatoria. | NINGUNA |
+| `tomado_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+| `tomado_por` | VARCHAR(100) | — | VARCHAR(100), opcional. | NINGUNA |
+| `ultimo_error` | TEXT | — | TEXT, opcional. | NINGUNA |
+| `proximo_intento_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, opcional. | NINGUNA |
+
 ### `evento_reputacion`
 
 **Qué es.** Un hecho reputacional inmutable: aportó puntual, abandonó el grupo, consumió cobertura, completó un ciclo, recibió una sanción.
 
-**Para qué sirve.** **Es la fuente de la verdad de toda la reputación.** El puntaje no es un dato: es una función de estos eventos. Que sea append-only tiene una consecuencia práctica enorme: **corregir un error no es editar, es registrar el evento inverso** (`revertidoPorId`). Si se marcó incorrectamente un aporte como impago y después se descubre que sí había pagado, no se borra el evento negativo: se registra el positivo que lo revierte. El historial queda completo y explica el puntaje actual, incluido el error y su corrección. Los 19 tipos cubren todo el ciclo: desde `APORTE_ANTICIPADO` (que **suma**, porque pagar antes merece reconocimiento) hasta `FRAUDE_CONFIRMADO`. Vale la pena notar `SANCION_REVOCADA` y `DEUDA_RECUPERADA`: **el sistema modela explícitamente la redención.** Quien se atrasó y después pagó todo tiene un evento positivo que lo refleja. Un modelo que solo registra lo malo condena a la gente y no le da razones para regularizarse.
+**Para qué sirve.** **Es la fuente de la verdad de toda la reputación.** El puntaje no es un dato: es una función de estos eventos.
+
+Que sea append-only tiene una consecuencia práctica enorme: **corregir un error no es editar, es registrar el evento inverso** (`revertidoPorId`). Si se marcó incorrectamente un aporte como impago y después se descubre que sí había pagado, no se borra el evento negativo: se registra el positivo que lo revierte. El historial queda completo y explica el puntaje actual, incluido el error y su corrección.
+
+Los 19 tipos cubren todo el ciclo: desde `APORTE_ANTICIPADO` (que **suma**, porque pagar antes merece reconocimiento) hasta `FRAUDE_CONFIRMADO`. Vale la pena notar `SANCION_REVOCADA` y `DEUDA_RECUPERADA`: **el sistema modela explícitamente la redención.** Quien se atrasó y después pagó todo tiene un evento positivo que lo refleja. Un modelo que solo registra lo malo condena a la gente y no le da razones para regularizarse.
 
 **Por qué existe.** Sin eventos, el puntaje es un número que alguien escribió y que no se puede explicar, auditar ni recalcular con un modelo nuevo.
+
+**Casos de uso que la nombran.** CU-25 Declarar el incumplimiento con descargo y evidencia (`declararIncumplimiento`, `presentarDescargo`, `resolverDescargo`) · CU-26 Ejecutar el aval y subrogar la deuda (`ejecutarAval`) · CU-62 Permutar turnos entre participantes (`solicitarPermuta`) · CU-64 Traspasar un cupo (`traspasarCupo`, `consultarPuntaje`) · CU-65 Retirarse de un grupo (`solicitarRetiro`) · CU-66 Reemplazar a un participante moroso (`aprobarReemplazo`, `ejecutarReemplazo`, `proponerReemplazo`) · CU-70 Registrar un evento de reputación (`registrarEventoReputacion`, `compensarEventoReputacion`) · CU-71 Recalcular el puntaje de reputación (`recalcularPuntaje`, `tomarSnapshotReputacion`) · CU-74 Otorgar y revocar una insignia (`evaluarInsignias`, `revocarInsignia`) · CU-76 Reseñar a un participante y moderar la reseña (`publicarResena`, `moderarResena`)
 
 **Sistema.** Vive en el esquema `transparencia`; la escribe y la lee solo el servicio `transparencia` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Es append-only: UPDATE y DELETE revocados al rol del servicio; se corrige con una fila nueva. Depende de `evento_reputacion`, `grupos.grupo`, `grupos.participante`, `identidad.usuario`. La referencian `evento_reputacion`. Reglas nombradas: `uq_evento_reputacion_hecho`.
 
@@ -7831,16 +10205,22 @@
 
 **Qué es.** Reconocimientos concretos: `PUNTUAL_12_MESES`, `PRIMER_GRUPO`, `SIN_MORA`, `ORGANIZADOR_5_ESTRELLAS`.
 
-**Para qué sirve.** Un puntaje numérico es abstracto y se mueve poco a poco; una insignia es concreta, se muestra y se persigue. Cumplen dos funciones: **motivación** (una meta alcanzable frente a un score que sube lentamente) y **señalización social** (en la lista de un grupo, "12 meses puntual" comunica más que "score 780"). Separar el catálogo (`InsigniaLogro`) del otorgamiento (`InsigniaOtorgada`) permite agregar insignias nuevas y evaluarlas retroactivamente. `revocadaEn` importa: si una insignia se otorgó por un logro que después se demostró falso —o si el usuario incurre en algo grave—, se revoca con motivo, no se borra.
+**Para qué sirve.** Un puntaje numérico es abstracto y se mueve poco a poco; una insignia es concreta, se muestra y se persigue. Cumplen dos funciones: **motivación** (una meta alcanzable frente a un score que sube lentamente) y **señalización social** (en la lista de un grupo, "12 meses puntual" comunica más que "score 780").
 
-**Por qué existe.** Sin gamificación, el único incentivo a pagar puntual es evitar el castigo. Con insignias hay también un incentivo positivo, que es más sostenible. ---
+Separar el catálogo (`InsigniaLogro`) del otorgamiento (`InsigniaOtorgada`) permite agregar insignias nuevas y evaluarlas retroactivamente.
+
+`revocadaEn` importa: si una insignia se otorgó por un logro que después se demostró falso —o si el usuario incurre en algo grave—, se revoca con motivo, no se borra.
+
+**Por qué existe.** Sin gamificación, el único incentivo a pagar puntual es evitar el castigo. Con insignias hay también un incentivo positivo, que es más sostenible.
+
+**Casos de uso que la nombran.** CU-74 Otorgar y revocar una insignia (`evaluarInsignias`, `revocarInsignia`)
 
 **Sistema.** Vive en el esquema `transparencia`; la escribe y la lee solo el servicio `transparencia` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. La referencian `insignia_otorgada`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `codigo` | VARCHAR(40) | — | VARCHAR(40), obligatoria. | NINGUNA |
+| `codigo` | VARCHAR(40) | — | VARCHAR(40), obligatoria, única. | NINGUNA |
 | `nombre` | VARCHAR(80) | — | VARCHAR(80), obligatoria. | NINGUNA |
 | `descripcion` | VARCHAR(200) | — | VARCHAR(200), obligatoria. | NINGUNA |
 | `criterio` | VARCHAR(300) | — | VARCHAR(300), obligatoria. | NINGUNA |
@@ -7850,9 +10230,15 @@
 
 **Qué es.** Reconocimientos concretos: `PUNTUAL_12_MESES`, `PRIMER_GRUPO`, `SIN_MORA`, `ORGANIZADOR_5_ESTRELLAS`.
 
-**Para qué sirve.** Un puntaje numérico es abstracto y se mueve poco a poco; una insignia es concreta, se muestra y se persigue. Cumplen dos funciones: **motivación** (una meta alcanzable frente a un score que sube lentamente) y **señalización social** (en la lista de un grupo, "12 meses puntual" comunica más que "score 780"). Separar el catálogo (`InsigniaLogro`) del otorgamiento (`InsigniaOtorgada`) permite agregar insignias nuevas y evaluarlas retroactivamente. `revocadaEn` importa: si una insignia se otorgó por un logro que después se demostró falso —o si el usuario incurre en algo grave—, se revoca con motivo, no se borra.
+**Para qué sirve.** Un puntaje numérico es abstracto y se mueve poco a poco; una insignia es concreta, se muestra y se persigue. Cumplen dos funciones: **motivación** (una meta alcanzable frente a un score que sube lentamente) y **señalización social** (en la lista de un grupo, "12 meses puntual" comunica más que "score 780").
 
-**Por qué existe.** Sin gamificación, el único incentivo a pagar puntual es evitar el castigo. Con insignias hay también un incentivo positivo, que es más sostenible. ---
+Separar el catálogo (`InsigniaLogro`) del otorgamiento (`InsigniaOtorgada`) permite agregar insignias nuevas y evaluarlas retroactivamente.
+
+`revocadaEn` importa: si una insignia se otorgó por un logro que después se demostró falso —o si el usuario incurre en algo grave—, se revoca con motivo, no se borra.
+
+**Por qué existe.** Sin gamificación, el único incentivo a pagar puntual es evitar el castigo. Con insignias hay también un incentivo positivo, que es más sostenible.
+
+**Casos de uso que la nombran.** CU-74 Otorgar y revocar una insignia (`evaluarInsignias`, `revocarInsignia`)
 
 **Sistema.** Vive en el esquema `transparencia`; la escribe y la lee solo el servicio `transparencia` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `identidad.usuario`, `insignia_logro`. Reglas nombradas: `uq_insignia_usuario`, `ck_insignia_revocacion_motivada`.
 
@@ -7869,9 +10255,13 @@
 
 **Qué es.** Indicadores calculados del grupo: tasa de puntualidad, días de mora promedio, cobertura consumida, rotación.
 
-**Para qué sirve.** Es el **tablero de salud del grupo**, y sobre todo el sistema de alerta temprana. `umbralAlerta` + `enAlerta` permiten detectar que un grupo se está deteriorando antes de que colapse: la mora se concentra, el fondo se consume rápido, la gente empieza a salirse. Detectarlo a tiempo permite intervenir (activar un plan de contingencia, M8) en lugar de reaccionar cuando el grupo ya es inviable y hay que liquidarlo con pérdidas para todos.
+**Para qué sirve.** Es el **tablero de salud del grupo**, y sobre todo el sistema de alerta temprana. `umbralAlerta` + `enAlerta` permiten detectar que un grupo se está deteriorando antes de que colapse: la mora se concentra, el fondo se consume rápido, la gente empieza a salirse.
+
+Detectarlo a tiempo permite intervenir (activar un plan de contingencia, M8) en lugar de reaccionar cuando el grupo ya es inviable y hay que liquidarlo con pérdidas para todos.
 
 **Por qué existe.** Sin métricas persistidas, cada consulta recalcularía sobre toda la historia del grupo, y no habría serie temporal para ver la tendencia — que es justamente lo que anticipa el colapso.
+
+**Casos de uso que la nombran.** CU-92 Evaluar el desempeño del organizador (`evaluarDesempeno`) · CU-97 Anticipar el riesgo con alertas tempranas (`cerrarAlertaRiesgo`, `evaluarRiesgo`) · CU-98 Publicar el tablero de indicadores (`publicarTablero`, `listarEndpointsDelDia`)
 
 **Sistema.** Vive en el esquema `transparencia`; la escribe y la lee solo el servicio `transparencia` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `grupos.grupo`, `grupos.periodo`.
 
@@ -7891,16 +10281,24 @@
 
 **Qué es.** La versión del algoritmo que convierte eventos en un puntaje: puntaje base, mínimo, máximo, decaimiento y ventana histórica.
 
-**Para qué sirve.** Tres cosas que sin esta entidad son imposibles: 1. **Responder "¿por qué me bajó el score?".** Guardando `modeloVersion` en cada puntaje, se puede recalcular exactamente con el modelo que estaba vigente ese día. Sin versión, cualquier ajuste del algoritmo reescribe retroactivamente la historia de todos y nadie puede auditar nada. 2. **Probar un modelo nuevo en sombra.** `esProduccion = false` permite calcular en paralelo y comparar antes de aplicarlo a decisiones reales. Cambiar el scoring de golpe puede dejar afuera a miles de usuarios que ayer eran elegibles. 3. **`factorDecaimientoMensual`: los errores viejos pesan menos.** Es una decisión de negocio deliberada, no un detalle técnico. Alguien que se atrasó dos veces hace tres años y desde entonces es puntual no debería cargar eso para siempre. Un sistema sin decaimiento condena a la gente y elimina el incentivo a mejorar. `minEventosParaScore` evita el problema del usuario nuevo: con dos eventos no se puede afirmar nada, y mostrar un puntaje "alto" basado en nada es engañoso para quien lo lee.
+**Para qué sirve.** Tres cosas que sin esta entidad son imposibles:
 
-**Por qué existe.** Sin modelo versionado, el puntaje es un número mágico que nadie puede explicar ni defender, y el primer reclamo serio lo tumba. ---
+1. **Responder "¿por qué me bajó el score?".** Guardando `modeloVersion` en cada puntaje, se puede recalcular exactamente con el modelo que estaba vigente ese día. Sin versión, cualquier ajuste del algoritmo reescribe retroactivamente la historia de todos y nadie puede auditar nada.
+2. **Probar un modelo nuevo en sombra.** `esProduccion = false` permite calcular en paralelo y comparar antes de aplicarlo a decisiones reales. Cambiar el scoring de golpe puede dejar afuera a miles de usuarios que ayer eran elegibles.
+3. **`factorDecaimientoMensual`: los errores viejos pesan menos.** Es una decisión de negocio deliberada, no un detalle técnico. Alguien que se atrasó dos veces hace tres años y desde entonces es puntual no debería cargar eso para siempre. Un sistema sin decaimiento condena a la gente y elimina el incentivo a mejorar.
+
+`minEventosParaScore` evita el problema del usuario nuevo: con dos eventos no se puede afirmar nada, y mostrar un puntaje "alto" basado en nada es engañoso para quien lo lee.
+
+**Por qué existe.** Sin modelo versionado, el puntaje es un número mágico que nadie puede explicar ni defender, y el primer reclamo serio lo tumba.
+
+**Casos de uso que la nombran.** CU-71 Recalcular el puntaje de reputación (`recalcularPuntaje`, `tomarSnapshotReputacion`) · CU-97 Anticipar el riesgo con alertas tempranas (`cerrarAlertaRiesgo`, `evaluarRiesgo`)
 
 **Sistema.** Vive en el esquema `transparencia`; la escribe y la lee solo el servicio `transparencia` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. La referencian `peso_factor`, `puntaje_reputacion`, `regla_impacto_evento`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `version` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
+| `version` | VARCHAR(20) | — | VARCHAR(20), obligatoria, única. | NINGUNA |
 | `descripcion` | VARCHAR(200) | — | VARCHAR(200), obligatoria. | NINGUNA |
 | `puntaje_base` | DECIMAL(6,2) | — | DECIMAL(6,2), obligatoria. | NINGUNA |
 | `puntaje_minimo` | DECIMAL(6,2) | — | DECIMAL(6,2), obligatoria. | NINGUNA |
@@ -7916,9 +10314,13 @@
 
 **Qué es.** Cuánto pesa cada dimensión dentro del modelo: puntualidad, permanencia, severidad de incumplimientos, volumen, antigüedad, comportamiento social.
 
-**Para qué sirve.** Permite calibrar sin código. Si la operación descubre que la antigüedad predice mucho menos que la puntualidad, se ajustan los pesos. `topeAporteAlScore` evita que un solo factor domine: alguien con veinte grupos completados pero que abandona el vigésimo primero no debería seguir apareciendo como excelente solo por volumen. `esPenalizador` distingue los factores que suman de los que restan, lo que importa para explicarle al usuario qué le conviene hacer.
+**Para qué sirve.** Permite calibrar sin código. Si la operación descubre que la antigüedad predice mucho menos que la puntualidad, se ajustan los pesos. `topeAporteAlScore` evita que un solo factor domine: alguien con veinte grupos completados pero que abandona el vigésimo primero no debería seguir apareciendo como excelente solo por volumen.
 
-**Por qué existe.** Con pesos hardcodeados no se puede ajustar el modelo con la evidencia que la operación va acumulando, ni auditar con qué ponderación se calculó un score histórico. ---
+`esPenalizador` distingue los factores que suman de los que restan, lo que importa para explicarle al usuario qué le conviene hacer.
+
+**Por qué existe.** Con pesos hardcodeados no se puede ajustar el modelo con la evidencia que la operación va acumulando, ni auditar con qué ponderación se calculó un score histórico.
+
+**Casos de uso que la nombran.** CU-71 Recalcular el puntaje de reputación (`recalcularPuntaje`, `tomarSnapshotReputacion`)
 
 **Sistema.** Vive en el esquema `transparencia`; la escribe y la lee solo el servicio `transparencia` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `modelo_scoring`.
 
@@ -7936,16 +10338,24 @@
 
 **Qué es.** El puntaje vigente del usuario, con las métricas que lo componen.
 
-**Para qué sirve.** Es la **proyección materializada** de los eventos. Existe por rendimiento: mostrar el score en un perfil no puede implicar recorrer tres años de eventos. Pero no es solo un número. Los campos que lo acompañan son los que la gente realmente quiere ver antes de meterse a un grupo con alguien: `indicePuntualidad`, `gruposCompletados`, `gruposAbandonados`, `incumplimientosAbiertos`, `antiguedadMeses`. **"820 puntos" no dice nada; "completó 6 grupos, abandonó 0, 97% de puntualidad" sí.** `nivelConfianza` traduce el número a lenguaje humano (`SIN_HISTORIAL`, `EN_OBSERVACION`, `BASICO`, `CONFIABLE`, `MUY_CONFIABLE`, `REFERENTE`, `RESTRINGIDO`). Es lo que se muestra en la UI, porque un puntaje numérico invita a comparaciones odiosas y a la ansiedad de ver bajar dos puntos. `esElegiblePara(grupo)` es la función que conecta con M2: un grupo con `reputacionMinima = 600` filtra automáticamente.
+**Para qué sirve.** Es la **proyección materializada** de los eventos. Existe por rendimiento: mostrar el score en un perfil no puede implicar recorrer tres años de eventos.
+
+Pero no es solo un número. Los campos que lo acompañan son los que la gente realmente quiere ver antes de meterse a un grupo con alguien: `indicePuntualidad`, `gruposCompletados`, `gruposAbandonados`, `incumplimientosAbiertos`, `antiguedadMeses`. **"820 puntos" no dice nada; "completó 6 grupos, abandonó 0, 97% de puntualidad" sí.**
+
+`nivelConfianza` traduce el número a lenguaje humano (`SIN_HISTORIAL`, `EN_OBSERVACION`, `BASICO`, `CONFIABLE`, `MUY_CONFIABLE`, `REFERENTE`, `RESTRINGIDO`). Es lo que se muestra en la UI, porque un puntaje numérico invita a comparaciones odiosas y a la ansiedad de ver bajar dos puntos.
+
+`esElegiblePara(grupo)` es la función que conecta con M2: un grupo con `reputacionMinima = 600` filtra automáticamente.
 
 **Por qué existe.** Sin proyección, cada consulta de reputación recalcularía desde los eventos. Con proyección pero sin eventos, el número no se puede explicar. Hacen falta las dos.
+
+**Casos de uso que la nombran.** CU-71 Recalcular el puntaje de reputación (`recalcularPuntaje`, `tomarSnapshotReputacion`) · CU-75 Emitir un certificado de reputación verificable (`emitirCertificado`, `verificarCertificado`)
 
 **Sistema.** Vive en el esquema `transparencia`; la escribe y la lee solo el servicio `transparencia` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `identidad.usuario`, `modelo_scoring`. La referencian `componente_score`. Reglas nombradas: `ex_puntaje_vigente`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
 | `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
-| `usuario_id` | UUID | — | UUID, obligatoria, referencia a `usuario`. | NINGUNA |
+| `usuario_id` | UUID | — | UUID, obligatoria, única, referencia a `usuario`. | NINGUNA |
 | `modelo_id` | UUID | — | UUID, obligatoria, referencia a `modelo_scoring`. | NINGUNA |
 | `puntaje` | DECIMAL(6,2) | — | DECIMAL(6,2), obligatoria. | NINGUNA |
 | `nivel_confianza` | VARCHAR(20) | — | VARCHAR(20), obligatoria. | NINGUNA |
@@ -7967,9 +10377,13 @@
 
 **Qué es.** Cada hecho incluido en un bloque: un pago, una entrega, una cobertura, un acuerdo, una sanción — con su hash y un resumen público.
 
-**Para qué sirve.** `resumenPublico` es el campo clave y la decisión más delicada: contiene lo suficiente para verificar **sin exponer datos personales**. Se sella que "el cupo 7 aportó Bs 500 el 3 de marzo", no el nombre, el documento ni la cuenta bancaria de nadie. Esto permite que la verificación sea genuinamente pública sin convertir el libro en una filtración de datos.
+**Para qué sirve.** `resumenPublico` es el campo clave y la decisión más delicada: contiene lo suficiente para verificar **sin exponer datos personales**. Se sella que "el cupo 7 aportó Bs 500 el 3 de marzo", no el nombre, el documento ni la cuenta bancaria de nadie.
 
-**Por qué existe.** El bloque sella un conjunto; el registro es cada elemento del conjunto y lo que hace posible la prueba de inclusión individual. ---
+Esto permite que la verificación sea genuinamente pública sin convertir el libro en una filtración de datos.
+
+**Por qué existe.** El bloque sella un conjunto; el registro es cada elemento del conjunto y lo que hace posible la prueba de inclusión individual.
+
+**Casos de uso que la nombran.** CU-72 Sellar el bloque de transparencia (`listarBloques`, `sellarBloque`) · CU-106 Generar el estado financiero del período (`descargarEstadoFinanciero`, `generarEstadoFinanciero`, `validarPlantillaDeAsiento`)
 
 **Sistema.** Vive en el esquema `transparencia`; la escribe y la lee solo el servicio `transparencia` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Es append-only: UPDATE y DELETE revocados al rol del servicio; se corrige con una fila nueva. Depende de `bloque_transparencia`.
 
@@ -7987,9 +10401,15 @@
 
 **Qué es.** Cuánto suma o resta cada tipo de evento, y sobre qué factor.
 
-**Para qué sirve.** Traduce hechos a puntos. Aquí es donde se decide, explícitamente, que un aporte puntual suma poco y un abandono de grupo resta mucho. `multiplicadorPorReincidencia` es la pieza de justicia: **la segunda vez pesa más que la primera.** Atrasarse una vez le pasa a cualquiera; atrasarse la cuarta vez es un patrón. Sin multiplicador, cuatro atrasos leves pesan lo mismo que cuatro atrasos independientes de cuatro personas distintas, lo que no refleja el riesgo real. `requiereConfirmacion` protege contra el impacto prematuro: un fraude *sospechado* no puede destruir la reputación de alguien antes de estar confirmado.
+**Para qué sirve.** Traduce hechos a puntos. Aquí es donde se decide, explícitamente, que un aporte puntual suma poco y un abandono de grupo resta mucho.
 
-**Por qué existe.** Sin tabla de impactos, la fórmula está enterrada en el código y cambiarla es un release sin trazabilidad de qué cambió y cuándo. ---
+`multiplicadorPorReincidencia` es la pieza de justicia: **la segunda vez pesa más que la primera.** Atrasarse una vez le pasa a cualquiera; atrasarse la cuarta vez es un patrón. Sin multiplicador, cuatro atrasos leves pesan lo mismo que cuatro atrasos independientes de cuatro personas distintas, lo que no refleja el riesgo real.
+
+`requiereConfirmacion` protege contra el impacto prematuro: un fraude *sospechado* no puede destruir la reputación de alguien antes de estar confirmado.
+
+**Por qué existe.** Sin tabla de impactos, la fórmula está enterrada en el código y cambiarla es un release sin trazabilidad de qué cambió y cuándo.
+
+**Casos de uso que la nombran.** CU-70 Registrar un evento de reputación (`registrarEventoReputacion`, `compensarEventoReputacion`)
 
 **Sistema.** Vive en el esquema `transparencia`; la escribe y la lee solo el servicio `transparencia` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `modelo_scoring`.
 
@@ -8008,9 +10428,17 @@
 
 **Qué es.** La calificación de 1 a 5 que un participante le da a otro, por dimensión (puntualidad, comunicación, organización).
 
-**Para qué sirve.** Captura lo que los datos duros no ven. Alguien puede pagar siempre a tiempo y ser insoportable de tratar; alguien puede atrasarse un día pero avisar siempre y cumplir lo que promete. Esa información existe solo en la experiencia de los otros participantes. Es especialmente relevante para evaluar organizadores: `ORGANIZADOR_5_ESTRELLAS` y `satisfaccionParticipantes` (M7) salen de acá. `estadoModeracion` es obligatorio, no opcional: **un sistema de reseñas sin moderación se convierte en un canal de acoso**, sobre todo en un contexto donde hay conflictos por plata. `moderadaPor` deja constancia de quién decidió publicar u ocultar. `dimension` evita el "le pongo 1 estrella porque me cae mal": obliga a calificar algo concreto.
+**Para qué sirve.** Captura lo que los datos duros no ven. Alguien puede pagar siempre a tiempo y ser insoportable de tratar; alguien puede atrasarse un día pero avisar siempre y cumplir lo que promete. Esa información existe solo en la experiencia de los otros participantes.
+
+Es especialmente relevante para evaluar organizadores: `ORGANIZADOR_5_ESTRELLAS` y `satisfaccionParticipantes` (M7) salen de acá.
+
+`estadoModeracion` es obligatorio, no opcional: **un sistema de reseñas sin moderación se convierte en un canal de acoso**, sobre todo en un contexto donde hay conflictos por plata. `moderadaPor` deja constancia de quién decidió publicar u ocultar.
+
+`dimension` evita el "le pongo 1 estrella porque me cae mal": obliga a calificar algo concreto.
 
 **Por qué existe.** Sin reseñas, la reputación solo mide comportamiento de pago, y se pierde la dimensión de trato y comunicación que en un grupo colectivo pesa mucho.
+
+**Casos de uso que la nombran.** CU-76 Reseñar a un participante y moderar la reseña (`publicarResena`, `moderarResena`)
 
 **Sistema.** Vive en el esquema `transparencia`; la escribe y la lee solo el servicio `transparencia` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `grupos.grupo`, `grupos.participante`, `identidad.usuario`. Reglas nombradas: `uq_resena_autor_evaluado`, `ck_resena_moderada`.
 
@@ -8027,13 +10455,34 @@
 | `moderada_por` | UUID | — | UUID, opcional, referencia a `usuario`. | NINGUNA |
 | `creada_en` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
 
+### `shedlock`
+
+**Qué es.** Bloqueo de trabajos programados entre replicas (ADR-018).
+
+**Para qué sirve.** Evita que dos réplicas del servicio ejecuten el mismo trabajo programado a la vez (ADR-018).
+
+**Sistema.** Infraestructura del servicio `transparencia`, generada por plantilla en cada esquema (ADR-027): la escribe y la lee solo ese servicio.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `name` | VARCHAR(64) | — | VARCHAR(64), obligatoria, clave primaria. | NINGUNA |
+| `lock_until` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `locked_at` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `locked_by` | VARCHAR(255) | — | VARCHAR(255), obligatoria. | NINGUNA |
+
 ### `snapshot_reputacion`
 
 **Qué es.** Una fotografía del puntaje en un momento concreto, con el detalle de sus factores.
 
-**Para qué sirve.** Congela el estado en los momentos que importan: - `INGRESO_A_GRUPO`: con qué reputación entró. **Es lo que impide juzgarlo después con información que no existía cuando se lo aceptó.** - `CIERRE_DE_GRUPO`: con qué terminó, para medir el efecto del grupo. - `AUDITORIA`: estado en la fecha de una revisión. - `PERIODICO`: serie histórica para ver la evolución.
+**Para qué sirve.** Congela el estado en los momentos que importan:
+- `INGRESO_A_GRUPO`: con qué reputación entró. **Es lo que impide juzgarlo después con información que no existía cuando se lo aceptó.**
+- `CIERRE_DE_GRUPO`: con qué terminó, para medir el efecto del grupo.
+- `AUDITORIA`: estado en la fecha de una revisión.
+- `PERIODICO`: serie histórica para ver la evolución.
 
-**Por qué existe.** El puntaje vigente cambia; para comparar "antes y después" o para defender una decisión pasada hace falta la foto de ese momento. ---
+**Por qué existe.** El puntaje vigente cambia; para comparar "antes y después" o para defender una decisión pasada hace falta la foto de ese momento.
+
+**Casos de uso que la nombran.** CU-71 Recalcular el puntaje de reputación (`recalcularPuntaje`, `tomarSnapshotReputacion`) · CU-75 Emitir un certificado de reputación verificable (`emitirCertificado`, `verificarCertificado`)
 
 **Sistema.** Vive en el esquema `transparencia`; la escribe y la lee solo el servicio `transparencia` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `identidad.usuario`. La referencian `certificado_reputacion`.
 
@@ -8051,9 +10500,15 @@
 
 **Qué es.** El endpoint de verificación de un código: constancia de pago, certificado de reputación o estado de grupo.
 
-**Para qué sirve.** Es la cara pública de todo el módulo. Alguien que recibe una constancia de pago o un certificado de reputación —**sin tener cuenta en la plataforma**— entra el código y comprueba que es auténtico. Ese detalle es lo que hace que los documentos de la plataforma valgan afuera. Un PDF sin verificación es una imagen que se edita en dos minutos. `consultas` y `ultimaConsultaEn` sirven además como señal: un certificado consultado muchas veces desde muchos lugares puede indicar que está circulando de forma inesperada.
+**Para qué sirve.** Es la cara pública de todo el módulo. Alguien que recibe una constancia de pago o un certificado de reputación —**sin tener cuenta en la plataforma**— entra el código y comprueba que es auténtico.
 
-**Por qué existe.** Sin verificación pública, la transparencia solo existe para quien ya está adentro y ya confía. ---
+Ese detalle es lo que hace que los documentos de la plataforma valgan afuera. Un PDF sin verificación es una imagen que se edita en dos minutos.
+
+`consultas` y `ultimaConsultaEn` sirven además como señal: un certificado consultado muchas veces desde muchos lugares puede indicar que está circulando de forma inesperada.
+
+**Por qué existe.** Sin verificación pública, la transparencia solo existe para quien ya está adentro y ya confía.
+
+**Casos de uso que la nombran.** CU-61 Verificar públicamente el sorteo (`consultarPaqueteDelSorteo`) · CU-73 Verificar la cadena de transparencia (`verificarCadena`) · CU-75 Emitir un certificado de reputación verificable (`emitirCertificado`, `verificarCertificado`)
 
 **Sistema.** Vive en el esquema `transparencia`; la escribe y la lee solo el servicio `transparencia` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos.
 

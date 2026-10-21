@@ -33,10 +33,11 @@ describe('MenuLateral', () => {
     expect(el.getAttribute('data-tutorial-id')).toBe('menu-principal')
   })
 
-  it('correcto: bajo la sección activa aparecen sus pantallas; plegar un grupo se recuerda en la sesión', async () => {
+  it('correcto: una entrada por sección (las pantallas van en las pestañas de sección); la activa se marca; plegar un grupo se recuerda', async () => {
     const { fixture, el } = await montar(['ver:tablero', 'ver:sistemas'], '/sistemas/outbox')
-    const hijos = Array.from(el.querySelectorAll('.hijos a')).map((a) => a.textContent?.trim())
-    expect(hijos).toContain('Outbox y descartados')
+    const enlaces = Array.from(el.querySelectorAll('a')).map((a) => a.textContent?.trim())
+    expect(enlaces).not.toContain('Outbox y descartados')
+    expect(el.querySelector('a[aria-current="page"]')?.textContent?.trim()).toBe('Sistemas')
     const rotulo = Array.from(el.querySelectorAll('.rotulo')).find((b) => b.textContent?.includes('Plataforma')) as HTMLButtonElement
     expect(rotulo.getAttribute('aria-expanded')).toBe('true')
     rotulo.click()

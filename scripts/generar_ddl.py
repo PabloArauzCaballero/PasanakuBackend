@@ -665,6 +665,7 @@ def generar():
     escribir_base()
     escribir_esquemas()
     escribir_infra_mensajeria()
+    escribir_infra_borradores()
     escribir_permisos_finales()
     escribir_append_only()
     escribir_convergencia(opcionales)
@@ -1069,6 +1070,65 @@ def escribir_infra_mensajeria():
         for tabla in tablas_infra_de(e):
             L += _ddl_infra(e, tabla)
     (d / "mensajeria.sql").write_text("\n".join(L), encoding="utf-8")
+
+
+# Columnas de `identidad.borrador_onboarding`. No es una entidad del modelo: es el respaldo de un alta a medio
+# llenar (la persona confirmó su correo y todavía no terminó). Cada columna sale de una de dos fuentes, y de
+# ninguna otra:
+#   - `servicios/identidad/src/main/resources/openapi/identidad.yaml` · schema `BorradorOnboarding`
+#     (maxLength, enums y que ningún campo es obligatorio en el contrato);
+#   - `servicios/identidad/.../BorradorOnboardingRepositorio.java` (nombres de columna, `ON CONFLICT (correo)`,
+#     `actualizado_en`/`expira_en` como timestamptz, `paso_pendiente` siempre presente, DELETE al completar).
+# Donde el contrato no fija longitud (montoMensualEstimado: `type: string` sin maxLength) se usa TEXT y no se
+# inventa un tope.
+BORRADOR_COLUMNAS = [
+    ("correo", "VARCHAR(150) PRIMARY KEY", "Correo ya confirmado de quien está dándose de alta; identifica el borrador."),
+    ("telefono_e164", "VARCHAR(20)", "Teléfono en formato E.164 que la persona cargó."),
+    ("nombres", "VARCHAR(80)", "Nombres tal como los escribió la persona."),
+    ("apellidos", "VARCHAR(80)", "Apellidos tal como los escribió la persona."),
+    ("fecha_nacimiento", "DATE", "Fecha de nacimiento declarada."),
+    ("tipo_documento", "VARCHAR(25)", "Tipo de documento elegido."),
+    ("numero_documento", "VARCHAR(30)", "Número de documento que la persona cargó."),
+    ("lugar_expedicion", "VARCHAR(5)", "Lugar de expedición del documento."),
+    ("fecha_expiracion", "DATE", "Vencimiento del documento."),
+    ("actividad_economica", "VARCHAR(10)", "Código de actividad económica elegido."),
+    ("detalle_actividad", "VARCHAR(100)", "Detalle libre de la actividad."),
+    ("origen_de_fondos", "VARCHAR(20)", "Origen de fondos elegido."),
+    ("detalle_del_origen", "VARCHAR(100)", "Detalle libre del origen de fondos."),
+    ("monto_mensual_estimado", "TEXT", "Monto mensual estimado tal como llegó en el contrato (texto, sin tope declarado)."),
+    ("paso_pendiente", "VARCHAR(10) NOT NULL", "Paso del alta donde la persona retoma."),
+    ("actualizado_en", "TIMESTAMPTZ NOT NULL", "Último guardado del borrador."),
+    ("expira_en", "TIMESTAMPTZ NOT NULL", "Desde aquí el borrador ya no se ofrece para retomar (siete días desde el último guardado)."),
+]
+BORRADOR_ENUMS = {
+    "tipo_documento": ["CI", "PASAPORTE", "CARNET_EXTRANJERO"],
+    "paso_pendiente": ["cuenta", "correo", "documento", "datos", "actividad", "contrato"],
+}
+
+
+def escribir_infra_borradores():
+    """El borrador de onboarding incompleto (ver BORRADOR_COLUMNAS). Antes `aplicar.sql` lo incluía pero nadie lo
+    escribía, y una base nueva fallaba al aplicar el esquema completo."""
+    q, ancho = "identidad.borrador_onboarding", max(len(n) for n, _, _ in BORRADOR_COLUMNAS)
+    L = ["-- Borrador de onboarding incompleto (servicio identidad).",
+         "-- Generado por scripts/generar_ddl.py — no editar a mano. Fuente: contrato BorradorOnboarding +",
+         "-- BorradorOnboardingRepositorio (ver BORRADOR_COLUMNAS en el generador).",
+         "",
+         f"CREATE TABLE IF NOT EXISTS {q} ("]
+    filas = [f"  {n.ljust(ancho)} {t}" for n, t, _ in BORRADOR_COLUMNAS]
+    for col, valores in BORRADOR_ENUMS.items():
+        lista = ", ".join(f"'{v}'" for v in valores)
+        filas.append(f"  CONSTRAINT {ident('ck', 'identidad', 'borrador', col)} CHECK ({col} IN ({lista}))")
+    L += [",\n".join(filas), ");"]
+    L.append(f"COMMENT ON TABLE {q} IS 'Datos de un alta a medio llenar para retomarla; se borra al completar el alta.';")
+    for n, _, comentario in BORRADOR_COLUMNAS:
+        L.append(f"COMMENT ON COLUMN {q}.{n} IS '{comentario}';")
+    L += ["-- El repositorio lo borra al completar el alta (BorradorOnboardingRepositorio.eliminar); el GRANT general",
+          "-- de 03_permisos solo da SELECT, INSERT y UPDATE.",
+          f"GRANT DELETE ON {q} TO svc_identidad;", ""]
+    d = OUT / "15_infra"
+    d.mkdir(parents=True, exist_ok=True)
+    (d / "borradores.sql").write_text("\n".join(L), encoding="utf-8")
 
 
 def escribir_append_only():

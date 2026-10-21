@@ -2,7 +2,7 @@
 
 > No editar a mano: se regenera con `python3 scripts/inventario_endpoints.py`. El CI falla (`--check`) si un endpoint implementado no esta en su OpenAPI, o viceversa (H2.S1 del carril PR4-seguridad).
 
-**Total de endpoints relevados:** 310.
+**Total de endpoints relevados:** 317.
 
 | Service | Method | Path | Permission | Ownership | Idempotency | Rate limit | MFA | Audit | Tests | Sensible |
 |---|---|---|---|---|---|---|---|---|---|---|
@@ -27,6 +27,9 @@
 | auditoria | POST | `/auditoria/derechos` | DATOS_SENSIBLES_LEER | n/a | si | n/a | no aplica | no critica | ver *WebTest del servicio | no |
 | auditoria | GET | `/indicadores` | SIN_ANOTACION | n/a | no | n/a | no aplica | no critica | ver *WebTest del servicio | no |
 | auditoria | GET | `/indicadores/catalogo-de-datos` | SIN_ANOTACION | n/a | no | n/a | no aplica | no critica | ver *WebTest del servicio | no |
+| auditoria | GET | `/indicadores/catalogo-de-datos/resumen` | SIN_ANOTACION | n/a | no | n/a | no aplica | no critica | ver *WebTest del servicio | no |
+| auditoria | GET | `/indicadores/catalogo-de-datos/tablas` | SIN_ANOTACION | n/a | no | n/a | no aplica | no critica | ver *WebTest del servicio | no |
+| auditoria | GET | `/indicadores/catalogo-de-datos/tablas/{esquema}/{tabla}` | SIN_ANOTACION | n/a | no | n/a | no aplica | no critica | ver *WebTest del servicio | no |
 | auditoria | PUT | `/indicadores/catalogo-de-datos/{esquema}/{tabla}/columnas/{columna}/revision` | CATALOGO_DATOS_EDITAR | n/a | no | n/a | no aplica | no critica | ver *WebTest del servicio | no |
 | auditoria | PUT | `/indicadores/catalogo-de-datos/{esquema}/{tabla}/gobierno` | CATALOGO_DATOS_EDITAR | n/a | no | n/a | no aplica | no critica | ver *WebTest del servicio | no |
 | auditoria | GET | `/indicadores/operacion/endpoints` | SIN_ANOTACION | n/a | no | n/a | no aplica | no critica | ver *WebTest del servicio | no |
@@ -128,6 +131,8 @@
 | grupos | POST | `/grupos` | GRUPO_CREAR | n/a | si | n/a | no aplica | no critica | ver *WebTest del servicio | no |
 | grupos | GET | `/grupos/calendario/calcular` | PARTICIPANTE | n/a | no | n/a | no aplica | no critica | ver *WebTest del servicio | no |
 | grupos | GET | `/grupos/calendario/vencimiento` | PARTICIPANTE | n/a | no | n/a | no aplica | no critica | ver *WebTest del servicio | no |
+| grupos | POST | `/grupos/enlace-del-grupo/consultar` | PARTICIPANTE | n/a | no | n/a | no aplica | no critica | ver *WebTest del servicio | no |
+| grupos | POST | `/grupos/enlace-del-grupo/solicitudes` | PARTICIPANTE | n/a | no | n/a | no aplica | no critica | ver *WebTest del servicio | no |
 | grupos | POST | `/grupos/invitaciones/enlace/aceptar` | PARTICIPANTE | n/a | si | n/a | no aplica | no critica | ver *WebTest del servicio | no |
 | grupos | POST | `/grupos/invitaciones/enlace/consultar` | PARTICIPANTE | n/a | no | n/a | no aplica | no critica | ver *WebTest del servicio | no |
 | grupos | GET | `/grupos/obligaciones/admisibilidad` | PARTICIPANTE | n/a | no | borde (gateway, H7.S4 — Pablo) | no aplica | critica (ver security-matrix.md) | ver *WebTest del servicio | si |
@@ -142,6 +147,8 @@
 | grupos | GET | `/grupos/sorteos/{sorteoId}/paquete` | PUBLICO | revisar (id en la ruta) | no | n/a | no aplica | no critica | ver *WebTest del servicio | no |
 | grupos | POST | `/grupos/{grupoId}/administrador/sustitucion` | ADMIN_PLATAFORMA | revisar (id en la ruta) | si | n/a | no aplica | no critica | ver *WebTest del servicio | no |
 | grupos | POST | `/grupos/{grupoId}/cupos/{cupoId}/traspasos` | GRUPO_ADMINISTRAR | revisar (id en la ruta) | si | n/a | no aplica | no critica | ver *WebTest del servicio | no |
+| grupos | POST | `/grupos/{grupoId}/enlace-del-grupo` | GRUPO_ADMINISTRAR | revisar (id en la ruta) | no | n/a | no aplica | no critica | ver *WebTest del servicio | no |
+| grupos | POST | `/grupos/{grupoId}/enlace-del-grupo/anulacion` | GRUPO_ADMINISTRAR | revisar (id en la ruta) | no | n/a | no aplica | no critica | ver *WebTest del servicio | no |
 | grupos | POST | `/grupos/{grupoId}/invitaciones` | GRUPO_ADMINISTRAR | revisar (id en la ruta) | si | n/a | no aplica | no critica | ver *WebTest del servicio | no |
 | grupos | POST | `/grupos/{grupoId}/invitaciones/{invitacionId}/canje` | PARTICIPANTE | revisar (id en la ruta) | si | n/a | no aplica | no critica | ver *WebTest del servicio | no |
 | grupos | POST | `/grupos/{grupoId}/invitaciones/{invitacionId}/revocacion` | GRUPO_ADMINISTRAR | revisar (id en la ruta) | no | n/a | no aplica | no critica | ver *WebTest del servicio | no |

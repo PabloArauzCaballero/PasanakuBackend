@@ -496,8 +496,14 @@ paths:
   /indicadores/catalogo-de-datos:
     get:
       operationId: obtenerCatalogoDeDatos      # tableros por rol · H7 catalogo de datos (D14)
-      summary: El catalogo de datos de toda la plataforma
+      summary: El catalogo de datos de toda la plataforma (deprecado)
+      deprecated: true
       description: >-
+        DEPRECADO desde 2026-10-21: descarga el catalogo entero (~2 MB) en una sola respuesta. Usar
+        obtenerResumenDelCatalogo, listarTablasDelCatalogo y obtenerTablaDelCatalogo. Se mantiene sin cambios de
+        forma hasta que ningun cliente lo pida (regla 96.4.1). Retiro (regla 98.1.3): el backoffice se despliega
+        aparte de auditoria, asi que se quita recien cuando el backoffice que usa las tres operaciones este en TEST
+        y en PROD; la fecha la confirman Marcelo/Pablo y se escribe aca.
         Cada esquema, tabla y columna con su explicacion de negocio (las fichas de docs/entidades) y de sistema
         (derivada del modelo: servicio dueño, append-only, claves, reglas nombradas), las relaciones y la
         sensibilidad de cada columna. Lo genera scripts/catalogo_de_datos.py; no se calcula en la peticion. Vive bajo /indicadores, junto al
@@ -510,6 +516,84 @@ paths:
           content:
             application/json:
               schema: { $ref: '#/components/schemas/CatalogoDeDatos' }
+        '403':
+          description: Sin TABLERO_SISTEMAS_VER ni AUDITORIA_LEER
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+
+  /indicadores/catalogo-de-datos/resumen:
+    get:
+      operationId: obtenerResumenDelCatalogo     # catalogo de datos 2026-10-21 · H2
+      summary: Las cifras del catalogo, sus esquemas y lo que se puede filtrar
+      description: >-
+        Lo que la pantalla muestra antes de la primera tabla: cuantas tablas, columnas y relaciones hay, cada
+        esquema con su servicio dueño y sus cifras, cuantas tablas hay por estado y por revision de su ficha
+        (CU-130), los modulos del modelo y las politicas de retencion que se pueden asignar. Sin columnas ni
+        narrativa: pesa unos pocos KB. Exige TABLERO_SISTEMAS_VER o AUDITORIA_LEER.
+      responses:
+        '200':
+          description: El resumen vigente
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ResumenDelCatalogo' }
+        '403':
+          description: Sin TABLERO_SISTEMAS_VER ni AUDITORIA_LEER
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+
+  /indicadores/catalogo-de-datos/tablas:
+    get:
+      operationId: listarTablasDelCatalogo       # catalogo de datos 2026-10-21 · H2
+      summary: Las tablas del catalogo, filtradas y paginadas en el servidor
+      description: >-
+        Una fila por tabla, sin columnas ni narrativa larga: nombre, esquema, servicio, modulo, que es, cifras,
+        clasificacion por sensibilidad y su ficha de gobierno. Orden fijo esquema y tabla. Paginacion por numero
+        de pagina y no por cursor a proposito: el catalogo es un recurso estatico del servicio (cambia con el
+        despliegue, no con los datos), asi que una pagina no se corre entre dos pedidos. `q` busca sin acentos ni
+        mayusculas en el nombre de la tabla, sus columnas, el esquema y lo que la ficha dice que es. Exige
+        TABLERO_SISTEMAS_VER o AUDITORIA_LEER.
+      parameters:
+        - { name: q, in: query, required: false, schema: { type: string, maxLength: 80 } }
+        - { name: esquema, in: query, required: false, schema: { type: string, maxLength: 63, pattern: '^[a-z_][a-z0-9_]*$' } }
+        - { name: modulo, in: query, required: false, schema: { type: string, maxLength: 2, pattern: '^[0-9]{2}$' } }
+        - { name: tipo, in: query, required: false, schema: { $ref: '#/components/schemas/TipoDeTabla' } }
+        - { name: estado, in: query, required: false, schema: { $ref: '#/components/schemas/EstadoDeTabla' } }
+        - { name: revision, in: query, required: false, schema: { $ref: '#/components/schemas/EstadoDeRevision' } }
+        - { name: sensibilidad, in: query, required: false, schema: { $ref: '#/components/schemas/SensibilidadDeTabla' } }
+        - { name: pagina, in: query, required: false, schema: { type: integer, minimum: 1, maximum: 1000, default: 1 } }
+        - { name: limite, in: query, required: false, schema: { type: integer, minimum: 1, maximum: 100, default: 20 } }
+      responses:
+        '200':
+          description: La pagina pedida (vacia si nada coincide o si la pagina pasa del final)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PaginaDeTablasDelCatalogo' }
+        '400':
+          description: Un filtro fuera de su dominio (AP-VAL, lo responde el manejador comun)
+        '403':
+          description: Sin TABLERO_SISTEMAS_VER ni AUDITORIA_LEER
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+
+  /indicadores/catalogo-de-datos/tablas/{esquema}/{tabla}:
+    get:
+      operationId: obtenerTablaDelCatalogo       # catalogo de datos 2026-10-21 · H2
+      summary: La ficha completa de una tabla del catalogo
+      description: >-
+        La tabla con sus columnas (y la revision de cada una, CU-131), sus relaciones salientes y entrantes con
+        cardinalidad, restriccion y accion al borrar tal como las aplica la base, su narrativa de negocio y de
+        sistema, y su ficha de gobierno (CU-130). Exige TABLERO_SISTEMAS_VER o AUDITORIA_LEER.
+      parameters:
+        - { name: esquema, in: path, required: true, schema: { type: string, maxLength: 63, pattern: '^[a-z_][a-z0-9_]*$' } }
+        - { name: tabla, in: path, required: true, schema: { type: string, maxLength: 63, pattern: '^[a-z_][a-z0-9_]*$' } }
+      responses:
+        '200':
+          description: La ficha de la tabla
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TablaDelCatalogo' }
+        '404':
+          description: La tabla no esta en el catalogo
         '403':
           description: Sin TABLERO_SISTEMAS_VER ni AUDITORIA_LEER
         '401':
@@ -594,6 +678,7 @@ components:
       required: [esquemas, tablas]
       properties:
         esquemas: { type: array, items: { type: string } }
+        detalleDeEsquemas: { type: array, items: { $ref: '#/components/schemas/EsquemaDelCatalogo' } }
         tablas: { type: array, items: { $ref: '#/components/schemas/TablaDelCatalogo' } }
         politicasDeRetencion:
           type: array
@@ -602,21 +687,51 @@ components:
     TablaDelCatalogo:
       type: object
       additionalProperties: false
-      required: [tabla, esquema, modulo, nombreModulo, appendOnly, negocio, reglas, columnas, relaciones, sistema]
+      required: [tabla, esquema, modulo, nombreModulo, appendOnly, negocio, reglas, columnas, relaciones, sistema, operaciones]
       properties:
         tabla: { type: string }
         esquema: { type: string }
-        modulo: { type: string, description: 'Modulo del modelo (01..15)' }
+        tipo: { $ref: '#/components/schemas/TipoDeTabla' }
+        modulo: { type: string, description: 'Modulo del modelo (01..15); 00 en la infraestructura de mensajeria' }
         nombreModulo: { type: string }
         servicio: { type: string, description: 'Servicio dueño; ausente en los esquemas compartidos catalogo y comun' }
         appendOnly: { type: boolean }
+        clasificacion: { $ref: '#/components/schemas/ClasificacionDeTabla' }
         negocio: { $ref: '#/components/schemas/NegocioDeTabla' }
         notaDeSistema: { type: string, description: 'El parrafo «A nivel de sistema» de la ficha, si lo tiene' }
         reglas: { type: array, items: { type: string }, description: 'Reglas nombradas de docs/Restricciones.md' }
         columnas: { type: array, items: { $ref: '#/components/schemas/ColumnaDelCatalogo' } }
         relaciones: { $ref: '#/components/schemas/RelacionesDeTabla' }
         sistema: { type: string, description: 'Narrativa de sistema derivada del modelo' }
+        operaciones:
+          type: array
+          description: >-
+            Los casos de uso que nombran esta tabla (el [[tabla]] de docs/CasosDeUso/CU-*.md) y los endpoints que
+            los ejecutan (la columna CU de docs/catalogo-de-flujos/matriz.md). No dice que esos endpoints escriban
+            la tabla: dice que el caso de uso la involucra. Vacio en la infraestructura y en las tablas que ningun
+            caso de uso nombra.
+          items: { $ref: '#/components/schemas/OperacionDeLaTabla' }
         gobierno: { $ref: '#/components/schemas/FichaDeGobierno' }
+    OperacionDeLaTabla:
+      type: object
+      additionalProperties: false
+      required: [casoDeUso, titulo, endpoints]
+      properties:
+        casoDeUso: { type: string, pattern: '^CU-\d+$', example: CU-21 }
+        titulo: { type: string, example: Cobrar el aporte del periodo }
+        endpoints:
+          type: array
+          description: Vacio si el caso de uso todavia no tiene endpoint propio.
+          items: { $ref: '#/components/schemas/EndpointDeLaOperacion' }
+    EndpointDeLaOperacion:
+      type: object
+      additionalProperties: false
+      required: [servicio, metodo, ruta, operationId]
+      properties:
+        servicio: { type: string }
+        metodo: { type: string, enum: [GET, POST, PUT, PATCH, DELETE] }
+        ruta: { type: string, example: '/aportes/obligaciones/{obligacionId}/pagos' }
+        operationId: { type: string }
     EstadoDeTabla:
       type: string
       enum: [ACTIVA, PLANIFICADA, CANDIDATA_A_RETIRO, RETIRADA, DESHABILITADA]
@@ -684,8 +799,15 @@ components:
         nulable: { type: boolean }
         pk: { type: boolean }
         referencia: { type: string, description: 'Tabla a la que apunta la clave foranea' }
+        esquemaReferencia: { type: string, description: 'Esquema de la tabla referenciada' }
+        unica: { type: boolean, description: 'Tiene un indice UNIQUE propio: la FK que vive aca es 1:1' }
         negocio: { type: string }
-        origenNegocio: { type: string, enum: [ficha, convencion] }
+        origenNegocio:
+          type: string
+          enum: [ficha, convencion, ddl]
+          description: >-
+            De donde sale la nota de negocio: la ficha de docs/entidades, una convencion del proyecto, o el COMMENT
+            del DDL generado (tablas fuera del modelo, como identidad.borrador_onboarding).
         sistema: { type: string }
         sensibilidad: { type: string, enum: [NINGUNA, PERSONAL, FINANCIERO, SECRETO, DERIVADO] }
         revision: { $ref: '#/components/schemas/RevisionDeColumna' }
@@ -730,11 +852,132 @@ components:
     RelacionDelCatalogo:
       type: object
       additionalProperties: false
+      description: >-
+        Una clave foranea vista desde la tabla de la ficha. `tabla`/`esquema` son el otro extremo; `columna` es la
+        columna que lleva la FK (en las salientes es de esta tabla, en las entrantes de la otra). Restriccion y
+        accion al borrar son las del DDL que se aplica (sql/20_claves).
       required: [columna, tabla, esquema]
       properties:
         columna: { type: string }
         tabla: { type: string }
         esquema: { type: string }
+        columnaDestino: { type: string, description: 'Columna referenciada (siempre la clave primaria id)' }
+        restriccion: { type: string, description: 'Nombre de la restriccion FOREIGN KEY en la base' }
+        alBorrar: { type: string, enum: [RESTRICT, SET NULL, CASCADE, NO ACTION] }
+        cardinalidad: { type: string, enum: ['N:1', '1:1'], description: '1:1 cuando la columna de la FK es UNIQUE' }
+        obligatoria: { type: boolean, description: 'La columna de la FK es NOT NULL' }
+    TipoDeTabla:
+      type: string
+      description: NEGOCIO sale del modelo; INFRAESTRUCTURA es la mensajeria que el generador agrega a cada esquema
+      enum: [NEGOCIO, INFRAESTRUCTURA]
+    SensibilidadDeTabla:
+      type: string
+      description: Filtro de tablas con al menos una columna de esa sensibilidad
+      enum: [PERSONAL, FINANCIERO, SECRETO]
+    ClasificacionDeTabla:
+      type: object
+      additionalProperties: false
+      description: Cuantas columnas de cada sensibilidad tiene la tabla (derivado de los nombres de columna)
+      required: [personales, financieros, secretos, derivados]
+      properties:
+        personales: { type: integer, minimum: 0 }
+        financieros: { type: integer, minimum: 0 }
+        secretos: { type: integer, minimum: 0 }
+        derivados: { type: integer, minimum: 0 }
+    EsquemaDelCatalogo:
+      type: object
+      additionalProperties: false
+      required: [nombre, descripcion, tablas, tablasDeNegocio, columnas, relaciones, appendOnly, conDatosPersonales]
+      properties:
+        nombre: { type: string }
+        servicio: { type: string, description: 'Ausente en los esquemas compartidos catalogo y comun' }
+        descripcion: { type: string }
+        tablas: { type: integer, minimum: 0 }
+        tablasDeNegocio: { type: integer, minimum: 0 }
+        columnas: { type: integer, minimum: 0 }
+        relaciones: { type: integer, minimum: 0, description: 'Claves foraneas que salen de sus tablas' }
+        appendOnly: { type: integer, minimum: 0 }
+        conDatosPersonales: { type: integer, minimum: 0 }
+    ModuloDelCatalogo:
+      type: object
+      additionalProperties: false
+      required: [codigo, nombre, tablas]
+      properties:
+        codigo: { type: string }
+        nombre: { type: string }
+        tablas: { type: integer, minimum: 0 }
+    ConteoPorEstadoDeTabla:
+      type: object
+      additionalProperties: false
+      required: [ACTIVA, PLANIFICADA, CANDIDATA_A_RETIRO, RETIRADA, DESHABILITADA]
+      properties:
+        ACTIVA: { type: integer, minimum: 0 }
+        PLANIFICADA: { type: integer, minimum: 0 }
+        CANDIDATA_A_RETIRO: { type: integer, minimum: 0 }
+        RETIRADA: { type: integer, minimum: 0 }
+        DESHABILITADA: { type: integer, minimum: 0 }
+    ConteoPorEstadoDeRevision:
+      type: object
+      additionalProperties: false
+      required: [DETECTADA, NECESITA_REVISION, APROBADA, RECHAZADA]
+      properties:
+        DETECTADA: { type: integer, minimum: 0 }
+        NECESITA_REVISION: { type: integer, minimum: 0 }
+        APROBADA: { type: integer, minimum: 0 }
+        RECHAZADA: { type: integer, minimum: 0 }
+    ResumenDelCatalogo:
+      type: object
+      additionalProperties: false
+      required: [tablas, tablasDeNegocio, tablasDeInfraestructura, columnas, columnasRevisadas, relaciones,
+                 conDatosPersonales, conDatosFinancieros, criticasParaAuditoria, sinResponsable,
+                 porEstado, porRevision, esquemas, modulos, politicasDeRetencion]
+      properties:
+        tablas: { type: integer, minimum: 0 }
+        tablasDeNegocio: { type: integer, minimum: 0 }
+        tablasDeInfraestructura: { type: integer, minimum: 0 }
+        columnas: { type: integer, minimum: 0 }
+        columnasRevisadas: { type: integer, minimum: 0, description: 'Columnas con una revision guardada (CU-131)' }
+        relaciones: { type: integer, minimum: 0 }
+        conDatosPersonales: { type: integer, minimum: 0 }
+        conDatosFinancieros: { type: integer, minimum: 0 }
+        criticasParaAuditoria: { type: integer, minimum: 0 }
+        sinResponsable: { type: integer, minimum: 0 }
+        porEstado: { $ref: '#/components/schemas/ConteoPorEstadoDeTabla' }
+        porRevision: { $ref: '#/components/schemas/ConteoPorEstadoDeRevision' }
+        esquemas: { type: array, items: { $ref: '#/components/schemas/EsquemaDelCatalogo' } }
+        modulos: { type: array, items: { $ref: '#/components/schemas/ModuloDelCatalogo' } }
+        politicasDeRetencion: { type: array, items: { $ref: '#/components/schemas/OpcionDeRetencion' } }
+    FilaDelCatalogo:
+      type: object
+      additionalProperties: false
+      description: Una tabla en la lista, sin columnas ni narrativa larga
+      required: [tabla, esquema, tipo, modulo, nombreModulo, appendOnly, columnas, columnasRevisadas,
+                 relacionesSalientes, relacionesEntrantes, clasificacion, gobierno]
+      properties:
+        tabla: { type: string }
+        esquema: { type: string }
+        tipo: { $ref: '#/components/schemas/TipoDeTabla' }
+        modulo: { type: string }
+        nombreModulo: { type: string }
+        servicio: { type: string }
+        queEs: { type: string }
+        appendOnly: { type: boolean }
+        columnas: { type: integer, minimum: 0 }
+        columnasRevisadas: { type: integer, minimum: 0 }
+        relacionesSalientes: { type: integer, minimum: 0 }
+        relacionesEntrantes: { type: integer, minimum: 0 }
+        clasificacion: { $ref: '#/components/schemas/ClasificacionDeTabla' }
+        gobierno: { $ref: '#/components/schemas/FichaDeGobierno' }
+    PaginaDeTablasDelCatalogo:
+      type: object
+      additionalProperties: false
+      required: [items, pagina, limite, total, totalPaginas]
+      properties:
+        items: { type: array, items: { $ref: '#/components/schemas/FilaDelCatalogo' } }
+        pagina: { type: integer, minimum: 1 }
+        limite: { type: integer, minimum: 1 }
+        total: { type: integer, minimum: 0 }
+        totalPaginas: { type: integer, minimum: 0 }
     SalidaEndpointsDelDia:
       type: object
       additionalProperties: false

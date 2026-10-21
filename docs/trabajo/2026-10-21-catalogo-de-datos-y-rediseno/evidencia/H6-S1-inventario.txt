@@ -1,0 +1,18 @@
+# H6.S1.M1 · inventario y matriz de endpoints · 2026-10-21T04:16:08+00:00
+$ python3 scripts/inventario_endpoints.py --check
+endpoints relevados: 317 · hallazgos: 0
+El inventario esta alineado: todo lo implementado tiene contrato y viceversa.
+exit=0
+$ python3 scripts/inventario_endpoints.py && python3 scripts/matriz_de_pruebas.py   (regenera los .md derivados)
+ docs/auditoria-produccion/endpoints.md |  9 ++++++-
+ docs/catalogo-de-flujos/matriz.md      | 47 +++++++++++++++++++++++++++++-----
+ 2 files changed, 49 insertions(+), 7 deletions(-)
+
+Las 3 operaciones nuevas aparecen:
+52:| auditoria | GET | `/indicadores/catalogo-de-datos/resumen` | `obtenerResumenDelCatalogo` | sí | CU-130 | sí | — |
+53:| auditoria | GET | `/indicadores/catalogo-de-datos/tablas` | `listarTablasDelCatalogo` | sí | — | — | — |
+54:| auditoria | GET | `/indicadores/catalogo-de-datos/tablas/{esquema}/{tabla}` | `obtenerTablaDelCatalogo` | **no** | CU-131 | sí | — |
+55:| auditoria | PUT | `/indicadores/catalogo-de-datos/{esquema}/{tabla}/columnas/{columna}/revision` | `revisarColumna` | **no** | CU-131 | sí | — |
+56:| auditoria | PUT | `/indicadores/catalogo-de-datos/{esquema}/{tabla}/gobierno` | `guardarFichaDeGobierno` | **no** | CU-130 | sí | — |
+
+Limitación de la heurística (no se cambia): matriz_de_pruebas normaliza a {} solo segmentos con forma de id, así que /tablas/aportes/pago no se reconoce como /tablas/{esquema}/{tabla} aunque CatalogoPorPartesWebTest la pide (líneas 132, 172, 187). SIN_ANOTACION en endpoints.md es igual para el GET viejo y para listarEndpointsDelDia: la heurística del inventario no lee @PermisoAlternativo.

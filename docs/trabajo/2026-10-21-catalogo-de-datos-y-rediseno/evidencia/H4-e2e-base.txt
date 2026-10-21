@@ -1,0 +1,9 @@
+$ playwright sobre dev 7752e1bf (sin cambios de este trabajo) — los mismos specs
+  14 failed
+  17 passed (1.3m)
+      1 e2e/f2-posiciones-y-roles.e2e.ts:136:9 › [token de prueba, permisos del catálogo] recorrido por roles sin acciones ajenas › ADMIN_PLATAFORMA: el menú ofrece solo Operación, Cumplimiento, Admisiones, Sistemas; lo ajeno no monta ni escribiendo la dirección
+      1 e2e/f2-posiciones-y-roles.e2e.ts:136:9 › [token de prueba, permisos del catálogo] recorrido por roles sin acciones ajenas › CONTABILIDAD: el menú ofrece solo Operación, Contabilidad; lo ajeno no monta ni escribiendo la dirección
+      1 e2e/f2-posiciones-y-roles.e2e.ts:136:9 › [token de prueba, permisos del catálogo] recorrido por roles sin acciones ajenas › PARTICIPANTE: el menú ofrece solo Tablero y Ayuda; lo ajeno no monta ni escribiendo la dirección
+      1 e2e/f2-posiciones-y-roles.e2e.ts:136:9 › [token de prueba, permisos del catálogo] recorrido por roles sin acciones ajenas › SOPORTE: el menú ofrece solo Operación; lo ajeno no monta ni escribiendo la dirección
+      1 e2e/f2-red-y-teclado.e2e.ts:175:7 › teclado y foco en los flujos críticos del backoffice › ingreso: se completa y envía solo con teclado, el error de credenciales queda asociado al campo y el foco no se pierde
+      9 e2e/sistemas-sin-contrato.e2e.ts:48:9 › sistemas — sin contrato real, nunca datos de ejemplo

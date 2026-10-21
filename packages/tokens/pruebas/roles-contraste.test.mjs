@@ -16,8 +16,11 @@ function rgba(valor) {
   return [canales[0], canales[1], canales[2], canales[3] ?? 1]
 }
 
+// La capa del backoffice redefine algunos roles sobre el tema base: lo que no redefine, lo hereda.
+const BASE = { backofficeClaro: 'claro', backofficeOscuro: 'oscuro' }
+
 function resolver(tema, rol) {
-  const valor = tokens.roles[tema][rol]
+  const valor = tokens.roles[tema][rol] ?? tokens.roles[BASE[tema]]?.[rol]
   return tokens.primitivas.color[valor] ?? valor
 }
 
@@ -46,8 +49,10 @@ function fondoRenderizado(tema, rol) {
   return rgba(fondo)[3] < 1 ? sobre(fondo, resolver(tema, 'surface')) : fondo
 }
 
-test('roles de texto y estado superan 4.5:1 en ambos temas', () => {
-  for (const tema of ['claro', 'oscuro']) {
+const TEMAS = ['claro', 'oscuro', 'backofficeClaro', 'backofficeOscuro']
+
+test('roles de texto y estado superan 4.5:1 en ambos temas (y en la capa del backoffice)', () => {
+  for (const tema of TEMAS) {
     for (const texto of ['text', 'text2', 'text3']) {
       for (const fondo of ['surface', 'bg']) {
         const ratio = contraste(resolver(tema, texto), resolver(tema, fondo))
@@ -81,8 +86,8 @@ test('roles de texto y estado superan 4.5:1 en ambos temas', () => {
   }
 })
 
-test('controles de acción y estado superan sus umbrales en ambos temas', () => {
-  for (const tema of ['claro', 'oscuro']) {
+test('controles de acción y estado superan sus umbrales en ambos temas (y en la capa del backoffice)', () => {
+  for (const tema of TEMAS) {
     for (const [texto, fondo] of [
       ['accentInk', 'accent'],
       ['sobreVerdeSolido', 'verdeSolido'],

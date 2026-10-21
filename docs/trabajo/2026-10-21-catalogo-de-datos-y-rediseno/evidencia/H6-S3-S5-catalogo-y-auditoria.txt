@@ -1,0 +1,47 @@
+# H6.S3.M2 · H6.S4.M1 · H6.S5.M1-M2 · generador del catálogo + contrato + auditoria · 2026-10-21T04:42:10+00:00
+
+$ python3 -I scripts/test_catalogo_de_datos.py
+test_al_borrar_sigue_la_nulabilidad (__main__.CatalogoDeDatosTest.test_al_borrar_sigue_la_nulabilidad) ... ok
+test_borrador_de_onboarding_catalogado_con_datos_personales (__main__.CatalogoDeDatosTest.test_borrador_de_onboarding_catalogado_con_datos_personales) ... ok
+test_clasificacion_por_tabla_cuenta_las_columnas_sensibles (__main__.CatalogoDeDatosTest.test_clasificacion_por_tabla_cuenta_las_columnas_sensibles) ... ok
+test_columna_fk_trae_el_esquema_destino (__main__.CatalogoDeDatosTest.test_columna_fk_trae_el_esquema_destino) ... ok
+test_columna_unica_vuelve_la_relacion_uno_a_uno (__main__.CatalogoDeDatosTest.test_columna_unica_vuelve_la_relacion_uno_a_uno) ... ok
+test_entrante_es_la_saliente_vista_desde_el_otro_lado (__main__.CatalogoDeDatosTest.test_entrante_es_la_saliente_vista_desde_el_otro_lado) ... ok
+test_esquemas_son_objetos_con_sus_cifras (__main__.CatalogoDeDatosTest.test_esquemas_son_objetos_con_sus_cifras) ... ok
+test_narrativa_conserva_parrafos_y_vinetas (__main__.CatalogoDeDatosTest.test_narrativa_conserva_parrafos_y_vinetas) ... ok
+test_operaciones_salen_de_los_casos_de_uso_y_la_matriz (__main__.CatalogoDeDatosTest.test_operaciones_salen_de_los_casos_de_uso_y_la_matriz) ... ok
+test_orden_determinista (__main__.CatalogoDeDatosTest.test_orden_determinista) ... ok
+test_relaciones_coinciden_con_el_ddl (__main__.CatalogoDeDatosTest.test_relaciones_coinciden_con_el_ddl) ... ok
+test_tablas_de_infraestructura_estan_y_se_distinguen (__main__.CatalogoDeDatosTest.test_tablas_de_infraestructura_estan_y_se_distinguen) ... ok
+test_vineta_con_varias_columnas_explica_a_cada_una (__main__.CatalogoDeDatosTest.test_vineta_con_varias_columnas_explica_a_cada_una) ... ok
+Ran 13 tests in 0.155s
+OK
+
+$ python3 -I scripts/catalogo_de_datos.py --escribir  (dos veces + cmp)
+392 tablas → docs/catalogo-de-datos.md y servicios/auditoria/src/main/resources/catalogo/catalogo-datos.json; idempotente: cmp sin diferencias entre la 1.ª y la 2.ª corrida
+$ python3 -I scripts/verificar_narrativas.py
+Sin fallas.
+$ python3 scripts/matriz_de_pruebas.py && git diff --exit-code -- docs/catalogo-de-flujos/matriz.md
+sin diferencias (exit 0)
+
+Cobertura de «Operaciones»: 328 de 342 tablas de negocio nombradas por algún CU; 306 con al menos un endpoint
+Narrativas con viñetas que ahora conservan su forma: 41 campos
+
+$ ./gradlew generarClientes   → OperacionDeLaTabla, EndpointDeLaOperacion y ColumnaDelCatalogoOrigenNegocioEnum.Ddl generados
+$ ./gradlew :servicios:auditoria:test :servicios:auditoria:webTest   (BD local 5433 para jOOQ)
+BUILD SUCCESSFUL
+test: 44 tests, 0 fallas · webTest: 74 tests, 0 fallas
+  nuevas: ConsultarCatalogoDeDatosTest.operacionesDeLaFicha (recurso real → TablaDelCatalogo; CU-21 con cobrarAporte;
+          borrador_onboarding sin operaciones y origenNegocio=DDL), CatalogoPorPartesWebTest.ficha ($.operaciones[0])
+  CatalogoDeDatosVigenteTest pasa el recurso entero (392 tablas) por el modelo generado CatalogoDeDatos.
+
+## Defectos propios de H2 que el barrido detectaba (no se había corrido testBarrido)
+$ ./gradlew :servicios:auditoria:testBarrido   (antes)
+  sin-umbral-literal: ConsultarCatalogoDeDatos.java:33  public static final int LIMITE_MAXIMO = 100;
+  tamano-archivo: ConsultarCatalogoDeDatos.java 358 líneas · IndicadoresController.java 302 líneas (límite 300)
+  + spotlessApply reformateó ConsultarCatalogoDeDatos, IndicadoresController, MapeoDeCatalogo y 3 web tests (solo formato).
+Corrección: el tope de página se llama FILAS_POR_PAGINA_MAXIMO (como LARGO_MAXIMO / PASOS_MAXIMOS del repo; espeja el
+maximum: 100 del contrato, no es una cifra regulatoria); TablaIndexada sale a su archivo; la conversión de la ficha al
+contrato pasa a MapeoDeCatalogo.
+$ ./gradlew :servicios:auditoria:check -x test -x webTest -x integrationTest -x jacoco… :servicios:auditoria:testBarrido
+BUILD SUCCESSFUL · testBarrido 0 fallas · ConsultarCatalogoDeDatos 296 líneas · IndicadoresController 295 líneas
