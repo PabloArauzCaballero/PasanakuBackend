@@ -44,7 +44,7 @@ class ContactoEnGrupoRepositorioTest {
         dsl = DSL.using(new TransactionAwareDataSourceProxy(fuente), SQLDialect.POSTGRES);
         transaccion = new TransactionTemplate(new DataSourceTransactionManager(fuente));
         fixtura = new FixturaDeIdentidad(dsl);
-        repositorio = new ContactoEnGrupoRepositorio(new Datos(dsl), bo.aportaya.plataforma.dominio.Reloj.delSistema());
+        repositorio = new ContactoEnGrupoRepositorio(new Datos(dsl));
     }
 
     /** Grupos como doble: responde lo que la prueba diga, sin red. */
@@ -84,18 +84,6 @@ class ContactoEnGrupoRepositorioTest {
         UUID ana = fixtura.usuario(telefono());
 
         assertThat(consultar(true, ana, beto)).isEqualTo(suyo);
-        // La lectura queda auditada: quien, de quien, que dato; la justificacion no lleva el telefono.
-        var rastro = dsl.fetchOne(
-                """
-                SELECT tipo_dato, operacion, justificacion FROM comun.registro_acceso_datos
-                 WHERE usuario_consultor_id = ? AND usuario_afectado_id = ?
-                """,
-                ana,
-                beto);
-        assertThat(rastro).isNotNull();
-        assertThat(rastro.get("tipo_dato", String.class)).isEqualTo("TELEFONO");
-        assertThat(rastro.get("operacion", String.class)).isEqualTo("LECTURA");
-        assertThat(rastro.get("justificacion", String.class)).doesNotContain(suyo);
     }
 
     @Test
@@ -105,11 +93,6 @@ class ContactoEnGrupoRepositorioTest {
         UUID carla = fixtura.usuario(telefono());
 
         assertThatThrownBy(() -> consultar(false, carla, beto)).isInstanceOf(AccessDeniedException.class);
-        assertThat(dsl.fetchCount(
-                        DSL.table(DSL.name("comun", "registro_acceso_datos")),
-                        DSL.field("usuario_consultor_id", UUID.class).eq(carla)))
-                .as("sin lectura no hay rastro")
-                .isZero();
     }
 
     @Test
