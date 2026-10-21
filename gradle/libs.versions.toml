@@ -65,7 +65,7 @@ minio                = { module = "io.minio:minio", version.ref = "minio" }
 # El jar de MinIO referencia anotaciones de SpotBugs que no trae. Sin esto el
 # compilador avisa que no las encuentra y `-Werror` tumba el build por un aviso
 # sobre codigo que no escribimos nosotros.
-spotbugs-anotaciones = { module = "com.github.spotbugs:spotbugs-annotations", version = "4.10.4" }
+spotbugs-anotaciones = { module = "com.github.spotbugs:spotbugs-annotations", version = "4.10.5" }
 
 # — Datos —
 jooq       = { module = "org.jooq:jooq", version.ref = "jooq" }
