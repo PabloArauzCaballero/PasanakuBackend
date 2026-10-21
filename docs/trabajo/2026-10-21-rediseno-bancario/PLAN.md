@@ -436,7 +436,7 @@ Cada microtarea de pantalla tiene el **mismo DoD**:
 | H6.S1.M1 | `/billetera/inicio` | Anatomía §2: saludo, héroe, acciones, próximo aporte, carrusel de grupos y últimos movimientos | A MEDIAS (anda: cabecera con Ayuda y avisos en círculos, héroe, acciones, vacío de pasanakus con crear/entrar y últimos movimientos con la fila nueva; falta: tarjeta «próximo aporte» (A11) y carrusel de grupos) |
 | H6.S1.M2 | `/billetera/recargar` | Monto grande centrado con teclado propio, chips de montos sugeridos, QR en tarjeta y estado de espera honesto («esperando confirmación», regla 91.3) | A MEDIAS (anda: cabecera única con volver (se corrigió el título duplicado), monto grande centrado con atajos y estado de espera honesto con etapas (91.3); falta: teclado propio y QR en tarjeta) |
 | H6.S1.M3 | `/billetera/retirar` | Ídem, más la cuenta destino enmascarada en tarjeta y el aviso de enfriamiento | A MEDIAS (anda: monto grande y confirmación «instruido» con etapas y monto neto; falta: cuenta destino enmascarada en tarjeta y aviso de enfriamiento, que dependen de CU-18) |
-| H6.S1.M4 | `/billetera/transferir` | Contacto con avatar, monto y hoja de confirmación con resumen | TODO |
+| H6.S1.M4 | `/billetera/transferir` | Contacto con avatar, monto y hoja de confirmación con resumen | A MEDIAS (anda: cabecera única, monto grande y confirmación; falta: contacto con avatar y hoja de confirmación con resumen) |
 | H6.S1.M5 | `/billetera/extracto` | Filtros en chips, lista agrupada por día y tarjeta para descargar el certificado | TODO |
 
 ### H6.S2 — Grupos (el corazón del pasanaku)
@@ -450,7 +450,7 @@ Cada microtarea de pantalla tiene el **mismo DoD**:
 | H6.S2.M6 | `/grupos/:id/transparencia` | Pozo del grupo como héroe y libro de movimientos legible (lectura del mayor, sin cálculo nuevo) | TODO |
 | H6.S2.M7 | `/sorteos/:id/turno`, `verificar` | Rueda protagonista, momento del sorteo con movimiento y verificación explicada | TODO |
 | H6.S2.M8 | `/turnos/permuta`, `/grupos/:id/retiro` | Comparación lado a lado y hoja de confirmación | TODO |
-| H6.S2.M9 | `/obligaciones/:id/aportar` | Desglose claro, botón de urgencia, espera honesta y celebración al confirmarse | TODO |
+| H6.S2.M9 | `/obligaciones/:id/aportar` | Desglose claro, botón de urgencia, espera honesta y celebración al confirmarse | A MEDIAS (anda: importe fijo como cifra protagonista, canales en chips con ícono, «Aportar» en naranja de urgencia y confirmación en palabras con el estado de la obligación; falta: desglose del cobro, celebración y espera honesta con webhook) |
 | H6.S2.M10 | `/pasanaku/escanear`, `/unirse/:codigo`, `/g/:codigo` | Visor de QR con marco animado y tarjeta de vista previa del grupo antes de unirse | TODO |
 
 ### H6.S3 — Entrada, alta y KYC

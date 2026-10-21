@@ -48,6 +48,12 @@ abstract final class IconosDeMarca {
   static const IconData porFiltro = LucideIcons.filterX;
   static const IconData porPermiso = LucideIcons.lock;
 
+  // Canales de pago
+  static const IconData canalBilletera = LucideIcons.wallet;
+  static const IconData canalQr = LucideIcons.qrCode;
+  static const IconData canalBanco = LucideIcons.landmark;
+  static const IconData canalTarjeta = LucideIcons.creditCard;
+
   // Trámites (estado de una verificación)
   static const IconData enEspera = LucideIcons.hourglass;
   static const IconData tramiteListo = LucideIcons.circleCheck;

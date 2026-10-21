@@ -98,6 +98,12 @@ class TextosPasanaku {
   static const neto = 'Neto a recibir el turno';
   static const aportando = 'Cobrando tu aporte…';
   static const aporteConfirmado = 'Aporte registrado.';
+  static const aporteDelPeriodo = 'Aporte de este período';
+  static const loFijaElReglamento = 'Lo fija el reglamento de tu grupo.';
+  static const comoPagas = 'Cómo pagás';
+  static const pagoYaRegistrado =
+      'Ya habíamos registrado este pago: no se cobró dos veces.';
+  static const referenciaDelPago = 'Referencia del pago';
 
   // Entrega (CU-22)
   static const tituloEntrega = 'Recibir el fondo';

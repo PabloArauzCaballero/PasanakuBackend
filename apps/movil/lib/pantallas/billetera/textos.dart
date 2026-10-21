@@ -8,6 +8,7 @@ abstract final class TextosBilletera {
   // Estados de una operación de dinero: dónde está, sin decir que ya pasó (regla 91.3).
   static const montoARecargar = 'Monto a recargar';
   static const montoARetirar = 'Monto a retirar';
+  static const montoATransferir = 'Monto a transferir';
   static const pasoPedida = 'Pedida';
   static const pasoConfirmaElBanco = 'Confirma el banco';
   static const pasoAcreditada = 'Acreditada';
