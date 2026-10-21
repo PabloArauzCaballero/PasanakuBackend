@@ -459,7 +459,7 @@ Cada microtarea de pantalla tiene el **mismo DoD**:
 ### H6.S4 — Perfil, notificaciones, ayuda y sistema
 | ID | Pantalla | Cambios clave | Estado |
 |---|---|---|---|
-| H6.S4.M1 | `/identidad/perfil` | Tarjeta de identidad con nivel KYC y secciones agrupadas tipo Ajustes de iOS | TODO |
+| H6.S4.M1 | `/identidad/perfil` | Tarjeta de identidad con nivel KYC y secciones agrupadas tipo Ajustes de iOS | A MEDIAS (anda: tarjeta de verificación con escudo y chip de estado con tono, correo, lista agrupada con íconos, cerrar sesión secundario y «Dar de baja» como fila roja al final; falta: avatar/nombre de la persona (el contrato solo trae el correo) y nivel KYC en escalera) |
 | H6.S4.M2 | Verificación, verificación profunda, dispositivos y contraseña | Filas agrupadas, chips de estado y sin `Card`/`ListTile` crudos | TODO |
 | H6.S4.M3 | `/identidad/baja` | Pantalla sobria, consecuencias claras y confirmación con hoja | TODO |
 | H6.S4.M4 | `/notificaciones/bandeja` | Agrupación por día, no leídas con punto y vacío que orienta | TODO |

@@ -48,6 +48,14 @@ abstract final class IconosDeMarca {
   static const IconData porFiltro = LucideIcons.filterX;
   static const IconData porPermiso = LucideIcons.lock;
 
+  // Cuenta
+  static const IconData verificada = LucideIcons.badgeCheck;
+  static const IconData contrasena = LucideIcons.keyRound;
+  static const IconData guia = LucideIcons.bookOpen;
+  static const IconData cerrarSesion = LucideIcons.logOut;
+  static const IconData darDeBaja = LucideIcons.userX;
+  static const IconData expediente = LucideIcons.fileCheck;
+
   // Interfaz
   static const IconData avisos = LucideIcons.bell;
   static const IconData seguir = LucideIcons.chevronRight;
