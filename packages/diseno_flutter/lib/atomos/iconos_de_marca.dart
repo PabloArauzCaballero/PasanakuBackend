@@ -29,10 +29,19 @@ abstract final class IconosDeMarca {
   static const IconData subida = LucideIcons.trendingUp;
   static const IconData vencimiento = LucideIcons.calendarClock;
 
-  // Movimientos
+  // Movimientos: el sentido, cuando el contrato no dice más…
   static const IconData entra = LucideIcons.arrowDownLeft;
   static const IconData sale = LucideIcons.arrowUpRight;
   static const IconData billetera = LucideIcons.wallet;
+
+  // …y qué pasó, cuando sí lo dice (`TipoDeMovimiento`).
+  static const IconData ingresoDesdeBanco = LucideIcons.banknoteArrowDown;
+  static const IconData salidaAlBanco = LucideIcons.banknoteArrowUp;
+  static const IconData entregaDelFondo = LucideIcons.piggyBank;
+  static const IconData comision = LucideIcons.receiptText;
+  static const IconData reverso = LucideIcons.undo2;
+  static const IconData rechazado = LucideIcons.ban;
+  static const IconData bono = LucideIcons.partyPopper;
 
   // Interfaz
   static const IconData avisos = LucideIcons.bell;

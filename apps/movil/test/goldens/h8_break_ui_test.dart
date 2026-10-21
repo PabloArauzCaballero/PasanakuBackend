@@ -1,6 +1,7 @@
 import 'package:aportaya_diseno/tema.dart';
 import 'package:aportaya_diseno/tokens/tokens.dart';
 import 'package:aportaya_movil/dominio/cliente.dart';
+import 'package:aportaya_movil/pantallas/billetera/lista_de_movimientos.dart';
 import 'package:aportaya_movil/pantallas/billetera/pantalla_de_saldo.dart';
 import 'package:aportaya_movil/pantallas/identidad/dominio/estado_alta.dart';
 import 'package:aportaya_movil/pantallas/identidad/pantalla_perfil.dart';
@@ -247,7 +248,8 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Movimiento de prueba 00'), findsOneWidget);
     expect(find.text('Movimiento de prueba 39'), findsOneWidget);
-    expect(find.byType(ListTile), findsNWidgets(40));
+    // Las 40 filas existen; se cuentan por lo que son, no por el widget que las pinta.
+    expect(find.byType(FilaDeMovimiento), findsNWidgets(40));
     expect(tester.takeException(), isNull);
     await tester.ensureVisible(find.text('Movimiento de prueba 39'));
     await tester.pumpAndSettle();
@@ -271,7 +273,8 @@ void main() {
     );
     await tester.drag(find.byType(ListView).first, const Offset(0, -560));
     await tester.pumpAndSettle();
-    expect(find.byType(ListTile), findsNWidgets(40));
+    // Las 40 filas existen; se cuentan por lo que son, no por el widget que las pinta.
+    expect(find.byType(FilaDeMovimiento), findsNWidgets(40));
     expect(tester.takeException(), isNull);
     await tester.ensureVisible(find.text('Movimiento de prueba 39'));
     await tester.pumpAndSettle();

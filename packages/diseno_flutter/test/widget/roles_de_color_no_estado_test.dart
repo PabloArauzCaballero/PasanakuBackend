@@ -1,4 +1,5 @@
 import 'package:aportaya_diseno/atomos/boton_icono.dart';
+import 'package:aportaya_diseno/atomos/iconos_de_marca.dart';
 import 'package:aportaya_diseno/atomos/avatar.dart';
 import 'package:aportaya_diseno/atomos/marca.dart';
 import 'package:aportaya_diseno/atomos/pintor_de_marca.dart';
@@ -197,7 +198,7 @@ void main() {
         ),
       );
       expect(
-        tester.widget<Icon>(find.byIcon(Icons.groups_outlined)).color,
+        tester.widget<Icon>(find.byIcon(IconosDeMarca.aportar)).color,
         tokens.text2,
       );
       expect(

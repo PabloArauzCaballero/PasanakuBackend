@@ -235,6 +235,10 @@ No se copia ninguna marca ajena: se toma el **lenguaje**, no los activos.
     `EncabezadoDeSaldo`, que es lo que usa la app; `TarjetaSaldo` quedó solo en el catálogo con el
     estilo viejo. Dos componentes para el mismo saldo viola 95.1.3. Supuesto: se retira
     `TarjetaSaldo` (o queda como alias del héroe) en H4.S2.M2. Confirmar con Pablo antes de borrar.
+  - **A10, tipo de movimiento en la billetera (ABIERTA):** `MovimientoBilletera` solo trae `sentido`
+    (sin tipo: aporte, recarga, entrega). La fila muestra entra/sale y no adivina el tipo por la
+    glosa (regla 97.5.2). Si el contrato suma el tipo, la fila ya lo acepta (`tipo:`). Confirmar
+    con el dueño de `nucleo-financiero`.
 
 ---
 
@@ -357,7 +361,7 @@ por componente · `test/a11y` PASS.
 | H4.S2.M1 | `Tarjeta`: niveles `plana`/`elevada`/`heroe`/`vidrio` por variante semántica | Las 4 capturadas | golden `moleculas_*` | TODO |
 | H4.S2.M2 | `TarjetaSaldo` → tarjeta héroe (degradado, ruido, ojo, chips y brillo al tocar) | Captura + video del brillo | 6 capturas + MP4 | A MEDIAS (anda: la tarjeta héroe con degradado, brillo radial, ojo que oculta y chips, en `EncabezadoDeSaldo`; falta: ruido de textura, brillo al tocar con su MP4 y resolver A9 con `TarjetaSaldo`) |
 | H4.S2.M3 | `AccionesRapidas` → círculos de 56 dp con etiqueta y entrada escalonada | Captura + video | idem | A MEDIAS (anda: círculos de 56 dp con la acción destacada en verde sólido, test de roles; falta: entrada escalonada y su MP4, que dependen de H5) |
-| H4.S2.M4 | `FilaDeMovimiento`: avatar por tipo, monto con signo y color + ícono, y subtítulo con hora | Captura de los tipos | captura | TODO |
+| H4.S2.M4 | `FilaDeMovimiento`: avatar por tipo, monto con signo y color + ícono, y subtítulo con hora | Captura de los tipos | captura | HECHO |
 | H4.S2.M5 | `ItemPasanaku` → **tarjeta de grupo** con rueda mini, progreso del ciclo y avatares apilados | Captura en datos y peor caso | captura | TODO |
 | H4.S2.M6 | `Cabecera` grande que se compacta al desplazar (reemplaza el `AppBar` de fábrica) | Video del colapso | MP4 | TODO |
 | H4.S2.M7 | `Alerta`, `Seccion`, `Pestanas`, `BarraDePasos`, `ChipsDeFiltro`, `TarjetaKPI` y `RielDeTurnos` re-estilizados | Una captura por componente | golden `moleculas_*` | TODO |
