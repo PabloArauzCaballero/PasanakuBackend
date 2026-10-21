@@ -64,7 +64,6 @@ public class GestionarUsuariosInternos {
                             detalle.getUsuarioId(),
                             Map.of(
                                     "usuarioId", detalle.getUsuarioId().toString(),
-                                    "correo", detalle.getCorreo(),
                                     "departamento", detalle.getDepartamento(),
                                     "cargo", detalle.getCargo()),
                             correlacion));

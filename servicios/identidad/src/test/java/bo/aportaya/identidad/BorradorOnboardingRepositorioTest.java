@@ -167,8 +167,8 @@ class BorradorOnboardingRepositorioTest {
         });
 
         // Obtener el correo del usuario insertado
-        String correoIncompleto = tx.<String>execute(s ->
-                (String) dsl.fetchValue("SELECT correo FROM identidad.usuario WHERE id = ?", String.class, usuarioId));
+        String correoIncompleto = tx.<String>execute(
+                s -> (String) dsl.fetchValue("SELECT correo FROM identidad.usuario WHERE id = ?", usuarioId));
 
         ResultadoConfirmacionCorreo resultado =
                 tx.execute(s -> repositorio.resolverResultado(dsl, correoIncompleto, AHORA));

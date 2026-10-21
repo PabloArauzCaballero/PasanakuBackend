@@ -99,8 +99,8 @@ final class FixturaDeIdentidad {
         UUID id = UUID.randomUUID();
         dsl.execute(
                 """
-                INSERT INTO identidad.permiso (id, codigo, descripcion, recurso, accion, requiere_mfa)
-                VALUES (?, ?, 'permiso de prueba', ?, ?, ?)
+                INSERT INTO identidad.permiso (id, codigo, descripcion, recurso, accion, nivel_riesgo, requiere_mfa)
+                VALUES (?, ?, 'permiso de prueba', ?, ?, 'BAJO', ?)
                 """,
                 id,
                 codigo,
