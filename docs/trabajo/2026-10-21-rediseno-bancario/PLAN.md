@@ -251,6 +251,10 @@ No se copia ninguna marca ajena: se toma el **lenguaje**, no los activos.
   - **A13, montos sugeridos en Recargar (ABIERTA):** Bs 50 / 100 / 200 / 500 son atajos de
     comodidad, no parámetros del negocio: no hay mínimo ni tope inferidos (regla 97.5.4). Si
     producto quiere otros montos o ninguno, es una lista en un solo lugar. Confirmar con Pablo.
+  - **A14, Extracto sin lista de movimientos (ABIERTA):** el contrato `ExtractoFilas` devuelve
+    solo `desde`, `hasta`, `saldoFinal` y `cantidadMovimientos`. Chips de filtro, lista por día y
+    descarga del certificado piden endpoints que no existen; no se inventan. Confirmar con quien
+    es dueño de billetera si se van a exponer.
 
 ---
 
@@ -437,7 +441,7 @@ Cada microtarea de pantalla tiene el **mismo DoD**:
 | H6.S1.M2 | `/billetera/recargar` | Monto grande centrado con teclado propio, chips de montos sugeridos, QR en tarjeta y estado de espera honesto («esperando confirmación», regla 91.3) | A MEDIAS (anda: cabecera única con volver (se corrigió el título duplicado), monto grande centrado con atajos y estado de espera honesto con etapas (91.3); falta: teclado propio y QR en tarjeta) |
 | H6.S1.M3 | `/billetera/retirar` | Ídem, más la cuenta destino enmascarada en tarjeta y el aviso de enfriamiento | A MEDIAS (anda: monto grande y confirmación «instruido» con etapas y monto neto; falta: cuenta destino enmascarada en tarjeta y aviso de enfriamiento, que dependen de CU-18) |
 | H6.S1.M4 | `/billetera/transferir` | Contacto con avatar, monto y hoja de confirmación con resumen | A MEDIAS (anda: cabecera única, monto grande y confirmación; falta: contacto con avatar y hoja de confirmación con resumen) |
-| H6.S1.M5 | `/billetera/extracto` | Filtros en chips, lista agrupada por día y tarjeta para descargar el certificado | TODO |
+| H6.S1.M5 | `/billetera/extracto` | Filtros en chips, lista agrupada por día y tarjeta para descargar el certificado | A MEDIAS — hecho: cabecera, vacío orientador con acción, comprobante con saldo protagonista (ver `evidencia/h6-s1-m5-extracto.txt`). Falta: chips, lista por día y descarga, porque el contrato `ExtractoFilas` solo trae desde/hasta/saldoFinal/cantidad (A14) |
 
 ### H6.S2 — Grupos (el corazón del pasanaku)
 | ID | Pantalla | Cambios clave | Estado |

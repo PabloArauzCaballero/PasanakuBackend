@@ -1,6 +1,8 @@
 import 'package:aportaya_diseno/atomos/boton.dart';
 import 'package:aportaya_diseno/atomos/boton_variante.dart';
-import 'package:aportaya_diseno/atomos/monto.dart';
+import 'package:aportaya_diseno/atomos/iconos_de_marca.dart';
+import 'package:aportaya_diseno/moleculas/cabecera.dart';
+import 'package:aportaya_diseno/organismos/estado_vacio.dart';
 import 'package:aportaya_diseno/organismos/estado_de_pantalla.dart';
 import 'package:aportaya_diseno/tokens/tokens.dart';
 import 'package:flutter/material.dart';
@@ -9,6 +11,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../dominio/cu15_emitir_extracto.dart';
 import '../../dominio/proteccion_de_pantalla_dinero.dart';
 import 'recargable.dart';
+import 'tarjeta_de_extracto.dart';
 import 'textos.dart';
 import 'package:aportaya_diseno/moviles/anclas_de_tutorial.dart';
 
@@ -30,18 +33,23 @@ class _PantallaExtractoState extends ConsumerState<PantallaExtracto>
   Widget build(BuildContext context) {
     final rango = _rango;
     return Scaffold(
-      appBar: AppBar(title: const Text(TextosBilletera.extracto)),
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(Espacio.s4),
+          padding: const EdgeInsets.symmetric(horizontal: Espacio.s4),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              const CabeceraDeSeccion(titulo: TextosBilletera.extracto),
+              const SizedBox(height: Espacio.s2),
               MarcaDeTutorial(
                 id: 'billetera.extracto',
                 hijo: Boton(
-                  texto: TextosBilletera.generarExtracto,
-                  variante: BotonVariante.secundario,
+                  texto: rango == null
+                      ? TextosBilletera.generarExtracto
+                      : TextosBilletera.elegirOtroPeriodo,
+                  variante: rango == null
+                      ? BotonVariante.primario
+                      : BotonVariante.secundario,
                   onPressed: () async {
                     final ahora = DateTime.now();
                     final elegido = await showDateRangePicker(
@@ -72,7 +80,11 @@ class _PantallaExtractoState extends ConsumerState<PantallaExtracto>
                     }
                   },
                   hijo: rango == null
-                      ? const Text(TextosBilletera.sinExtracto)
+                      ? const EstadoVacio(
+                          icono: IconosDeMarca.periodo,
+                          titulo: TextosBilletera.elegiUnPeriodo,
+                          mensaje: TextosBilletera.sinExtractoDetalle,
+                        )
                       : EstadoDePantalla(
                           valor: ref.watch(
                             extractoProvider(
@@ -95,20 +107,12 @@ class _PantallaExtractoState extends ConsumerState<PantallaExtracto>
                               ),
                             ),
                           ),
-                          exito: (e) => Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                '${TextosBilletera.desde} ${e.desde.toLocal()} · '
-                                '${TextosBilletera.hasta} ${e.hasta.toLocal()}',
-                              ),
-                              const SizedBox(height: Espacio.s2),
-                              Monto(
-                                monto: e.saldoFinal.monto,
-                                moneda: e.saldoFinal.moneda.value,
-                                etiqueta: TextosBilletera.saldoDisponible,
-                              ),
-                            ],
+                          exito: (e) => TarjetaDeExtracto(
+                            desde: e.desde,
+                            hasta: e.hasta,
+                            saldoFinal: e.saldoFinal.monto,
+                            moneda: e.saldoFinal.moneda.value,
+                            cantidadMovimientos: e.cantidadMovimientos,
                           ),
                         ),
                 ),

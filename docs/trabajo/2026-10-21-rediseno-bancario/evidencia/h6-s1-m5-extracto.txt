@@ -1,0 +1,16 @@
+H6.S1.M5 — Extracto (peldaño TESTED en la parte hecha; VERIFIED_FUNCTIONAL_ONLY no aplica: no se ejercitó contra backend)
+
+Cambio: CabeceraDeSeccion en vez de AppBar; sin período, EstadoVacio con ícono y texto que orienta + botón primario «Generar extracto»;
+con período, TarjetaDeExtracto (período, saldo al cierre como cifra protagonista en FittedBox, cantidad de movimientos solo si el servidor la manda).
+Se conserva: ConProteccionDePantalla, Recargable, MarcaDeTutorial, showDateRangePicker.
+
+Comandos (salida real de esta sesión):
+  python3 scripts/verificar_frontend.py movil  -> TODO OK
+  python3 scripts/verificar_frontend.py diseno -> TODO OK
+  dart analyze --fatal-infos (apps/movil)      -> No issues found!
+  flutter test test/widget/pestanas_test.dart test/unidad test/billetera -> 379 tests, All tests passed
+  flutter test test/widget/tarjeta_de_extracto_test.dart -> 4 tests, All tests passed (claro/oscuro, sin cantidad, 200 % a 320 px)
+Capturas: evidencia/despues/billetera/extracto__{cargando,vacio,error,peorCaso,datos}__{360,412,600}__{claro,oscuro}.png (vistas: vacío en claro/oscuro, 360 y 412).
+
+No cubierto: estado «con datos» a pantalla completa con fuentes reales (el arnés de capturas no puede elegir un rango en el selector de fechas; se vio la tarjeta con fuente de bloques);
+no se ejercitó contra backend; chips, lista agrupada por día y descarga de certificado no existen (A14: el contrato no los ofrece; no se inventan).

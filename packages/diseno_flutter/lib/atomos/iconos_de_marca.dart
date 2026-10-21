@@ -28,6 +28,7 @@ abstract final class IconosDeMarca {
   static const IconData custodia = LucideIcons.shieldCheck;
   static const IconData subida = LucideIcons.trendingUp;
   static const IconData vencimiento = LucideIcons.calendarClock;
+  static const IconData periodo = LucideIcons.calendarRange;
 
   // Movimientos: el sentido, cuando el contrato no dice más…
   static const IconData entra = LucideIcons.arrowDownLeft;

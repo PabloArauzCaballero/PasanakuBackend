@@ -66,4 +66,11 @@ abstract final class TextosBilletera {
   static const hasta = 'Hasta';
   static const generarExtracto = 'Generar extracto';
   static const sinExtracto = 'Todavía no generaste ningún extracto.';
+  static const elegiUnPeriodo = 'Elegí un período';
+  static const sinExtractoDetalle =
+      'Generá un extracto para ver tu saldo al cierre y cuántos movimientos tuviste en esas fechas.';
+  static const elegirOtroPeriodo = 'Elegir otro período';
+  static const periodo = 'Período';
+  static const saldoFinalDelPeriodo = 'Saldo al cierre del período';
+  static const movimientosDelPeriodo = 'Movimientos en el período';
 }
