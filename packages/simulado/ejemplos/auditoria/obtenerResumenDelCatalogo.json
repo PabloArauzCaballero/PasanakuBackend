@@ -1,0 +1,402 @@
+{
+  "servicio": "auditoria",
+  "operacion": "obtenerResumenDelCatalogo",
+  "metodo": "get",
+  "ruta": "/indicadores/catalogo-de-datos/resumen",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "tablas": 391,
+        "tablasDeNegocio": 342,
+        "tablasDeInfraestructura": 49,
+        "columnas": 4124,
+        "columnasRevisadas": 0,
+        "relaciones": 686,
+        "conDatosPersonales": 36,
+        "conDatosFinancieros": 120,
+        "criticasParaAuditoria": 0,
+        "sinResponsable": 391,
+        "porEstado": {
+          "ACTIVA": 391,
+          "PLANIFICADA": 0,
+          "CANDIDATA_A_RETIRO": 0,
+          "RETIRADA": 0,
+          "DESHABILITADA": 0
+        },
+        "porRevision": {
+          "DETECTADA": 391,
+          "NECESITA_REVISION": 0,
+          "APROBADA": 0,
+          "RECHAZADA": 0
+        },
+        "esquemas": [
+          {
+            "nombre": "aportes",
+            "descripcion": "Aportes, Pagos QR y Conciliación. Que \"pagué\" signifique \"el banco lo confirmó\".",
+            "tablas": 22,
+            "tablasDeNegocio": 18,
+            "columnas": 224,
+            "relaciones": 38,
+            "appendOnly": 0,
+            "conDatosPersonales": 1,
+            "servicio": "aportes"
+          },
+          {
+            "nombre": "auditoria",
+            "descripcion": "Auditoría, Reportes y Cumplimiento. Poder demostrar todo lo anterior ante un reclamo o un regulador.",
+            "tablas": 21,
+            "tablasDeNegocio": 18,
+            "columnas": 214,
+            "relaciones": 23,
+            "appendOnly": 1,
+            "conDatosPersonales": 0,
+            "servicio": "auditoria"
+          },
+          {
+            "nombre": "catalogo",
+            "descripcion": "Catálogos compartidos: todos los servicios los consultan y solo su dueño declarado los escribe (ADR-029).",
+            "tablas": 8,
+            "tablasDeNegocio": 8,
+            "columnas": 80,
+            "relaciones": 5,
+            "appendOnly": 0,
+            "conDatosPersonales": 1
+          },
+          {
+            "nombre": "comun",
+            "descripcion": "Bitácoras transversales append-only: todo servicio inserta su rastro y solo el rol auditor las lee.",
+            "tablas": 2,
+            "tablasDeNegocio": 2,
+            "columnas": 31,
+            "relaciones": 5,
+            "appendOnly": 2,
+            "conDatosPersonales": 0
+          },
+          {
+            "nombre": "cumplimiento",
+            "descripcion": "Cumplimiento Regulatorio y Consumidor Financiero. Que una inspección se responda con consultas, no armando carpetas.",
+            "tablas": 48,
+            "tablasDeNegocio": 45,
+            "columnas": 560,
+            "relaciones": 101,
+            "appendOnly": 3,
+            "conDatosPersonales": 12,
+            "servicio": "cumplimiento"
+          },
+          {
+            "nombre": "entregas",
+            "descripcion": "Entregas de Fondo. Que la bolsa llegue completa, a la persona correcta, una sola vez.",
+            "tablas": 17,
+            "tablasDeNegocio": 13,
+            "columnas": 198,
+            "relaciones": 34,
+            "appendOnly": 0,
+            "conDatosPersonales": 1,
+            "servicio": "entregas"
+          },
+          {
+            "nombre": "erp",
+            "descripcion": "Contabilidad Financiera y ERP. Que cerrar un mes no dependa de un Excel armado a mano.",
+            "tablas": 21,
+            "tablasDeNegocio": 18,
+            "columnas": 171,
+            "relaciones": 39,
+            "appendOnly": 7,
+            "conDatosPersonales": 1,
+            "servicio": "erp"
+          },
+          {
+            "nombre": "garantia",
+            "descripcion": "Garantía, Incumplimiento, Cobranza y Sanciones. El grupo no se detiene, pero la deuda no se perdona sola.",
+            "tablas": 43,
+            "tablasDeNegocio": 39,
+            "columnas": 480,
+            "relaciones": 117,
+            "appendOnly": 6,
+            "conDatosPersonales": 1,
+            "servicio": "garantia"
+          },
+          {
+            "nombre": "grupos",
+            "descripcion": "Grupos, Cupos, Turnos y Gobernanza. Reglas del juego, orden de cobro y decisiones colectivas.",
+            "tablas": 29,
+            "tablasDeNegocio": 26,
+            "columnas": 306,
+            "relaciones": 51,
+            "appendOnly": 4,
+            "conDatosPersonales": 1,
+            "servicio": "grupos"
+          },
+          {
+            "nombre": "identidad",
+            "descripcion": "Identidad, Usuarios y Seguridad. Saber con certeza a quién le estás confiando plata ajena.",
+            "tablas": 30,
+            "tablasDeNegocio": 27,
+            "columnas": 300,
+            "relaciones": 34,
+            "appendOnly": 0,
+            "conDatosPersonales": 7,
+            "servicio": "identidad"
+          },
+          {
+            "nombre": "inversiones",
+            "descripcion": "Inversiones voluntarias. Que una inversion voluntaria nunca prometa rentabilidad ni duplique el saldo.",
+            "tablas": 17,
+            "tablasDeNegocio": 14,
+            "columnas": 211,
+            "relaciones": 18,
+            "appendOnly": 8,
+            "conDatosPersonales": 0,
+            "servicio": "inversiones"
+          },
+          {
+            "nombre": "notificaciones",
+            "descripcion": "Notificaciones y Comunicaciones. WhatsApp como canal real de cobro, sin spam ni doble aviso.",
+            "tablas": 19,
+            "tablasDeNegocio": 16,
+            "columnas": 184,
+            "relaciones": 22,
+            "appendOnly": 0,
+            "conDatosPersonales": 0,
+            "servicio": "notificaciones"
+          },
+          {
+            "nombre": "nucleo_financiero",
+            "descripcion": "Billetera, Custodia y Dinero Electrónico. El saldo no se guarda: se deriva, y todos los días cuadra contra el banco.",
+            "tablas": 33,
+            "tablasDeNegocio": 30,
+            "columnas": 382,
+            "relaciones": 74,
+            "appendOnly": 8,
+            "conDatosPersonales": 5,
+            "servicio": "nucleo-financiero"
+          },
+          {
+            "nombre": "organizador",
+            "descripcion": "Organizador y Automatización. Administrar es un rol, no un negocio: el organizador no cobra ni custodia.",
+            "tablas": 16,
+            "tablasDeNegocio": 13,
+            "columnas": 153,
+            "relaciones": 17,
+            "appendOnly": 1,
+            "conDatosPersonales": 0,
+            "servicio": "organizador"
+          },
+          {
+            "nombre": "publicidad",
+            "descripcion": "Publicidad y Campañas. Que un partner se anuncie dentro de la app sin inventar un segundo cobro.",
+            "tablas": 17,
+            "tablasDeNegocio": 14,
+            "columnas": 127,
+            "relaciones": 24,
+            "appendOnly": 4,
+            "conDatosPersonales": 1,
+            "servicio": "publicidad"
+          },
+          {
+            "nombre": "tarifas",
+            "descripcion": "Tarifas, Comisiones, Impuestos y Facturación. La política de cobro es dato, no código: se cambia con un seeder.",
+            "tablas": 29,
+            "tablasDeNegocio": 25,
+            "columnas": 327,
+            "relaciones": 62,
+            "appendOnly": 1,
+            "conDatosPersonales": 4,
+            "servicio": "tarifas"
+          },
+          {
+            "nombre": "transparencia",
+            "descripcion": "Transparencia y Reputación. Que nadie tenga que \"creerle\" al organizador.",
+            "tablas": 19,
+            "tablasDeNegocio": 16,
+            "columnas": 176,
+            "relaciones": 22,
+            "appendOnly": 2,
+            "conDatosPersonales": 1,
+            "servicio": "transparencia"
+          }
+        ],
+        "modulos": [
+          {
+            "codigo": "00",
+            "nombre": "Infraestructura de mensajería",
+            "tablas": 49
+          },
+          {
+            "codigo": "01",
+            "nombre": "Identidad, Usuarios y Seguridad",
+            "tablas": 27
+          },
+          {
+            "codigo": "02",
+            "nombre": "Grupos, Cupos, Turnos y Gobernanza",
+            "tablas": 27
+          },
+          {
+            "codigo": "03",
+            "nombre": "Aportes, Pagos QR y Conciliación",
+            "tablas": 23
+          },
+          {
+            "codigo": "04",
+            "nombre": "Entregas de Fondo",
+            "tablas": 13
+          },
+          {
+            "codigo": "05",
+            "nombre": "Notificaciones y Comunicaciones",
+            "tablas": 16
+          },
+          {
+            "codigo": "06",
+            "nombre": "Transparencia y Reputación",
+            "tablas": 16
+          },
+          {
+            "codigo": "07",
+            "nombre": "Organizador y Automatización",
+            "tablas": 13
+          },
+          {
+            "codigo": "08",
+            "nombre": "Garantía, Incumplimiento, Cobranza y Sanciones",
+            "tablas": 39
+          },
+          {
+            "codigo": "09",
+            "nombre": "Auditoría, Reportes y Cumplimiento",
+            "tablas": 21
+          },
+          {
+            "codigo": "10",
+            "nombre": "Billetera, Custodia y Dinero Electrónico",
+            "tablas": 27
+          },
+          {
+            "codigo": "11",
+            "nombre": "Tarifas, Comisiones, Impuestos y Facturación",
+            "tablas": 27
+          },
+          {
+            "codigo": "12",
+            "nombre": "Cumplimiento Regulatorio y Consumidor Financiero",
+            "tablas": 47
+          },
+          {
+            "codigo": "13",
+            "nombre": "Contabilidad Financiera y ERP",
+            "tablas": 18
+          },
+          {
+            "codigo": "14",
+            "nombre": "Publicidad y Campañas",
+            "tablas": 14
+          },
+          {
+            "codigo": "15",
+            "nombre": "Inversiones voluntarias",
+            "tablas": 14
+          }
+        ],
+        "politicasDeRetencion": []
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "tablas": 0,
+        "tablasDeNegocio": 0,
+        "tablasDeInfraestructura": 0,
+        "columnas": 0,
+        "columnasRevisadas": 0,
+        "relaciones": 0,
+        "conDatosPersonales": 0,
+        "conDatosFinancieros": 0,
+        "criticasParaAuditoria": 0,
+        "sinResponsable": 0,
+        "porEstado": {
+          "ACTIVA": 0,
+          "PLANIFICADA": 0,
+          "CANDIDATA_A_RETIRO": 0,
+          "RETIRADA": 0,
+          "DESHABILITADA": 0
+        },
+        "porRevision": {
+          "DETECTADA": 0,
+          "NECESITA_REVISION": 0,
+          "APROBADA": 0,
+          "RECHAZADA": 0
+        },
+        "esquemas": [],
+        "modulos": [],
+        "politicasDeRetencion": []
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "tablas": 0,
+        "tablasDeNegocio": 0,
+        "tablasDeInfraestructura": 0,
+        "columnas": 0,
+        "columnasRevisadas": 0,
+        "relaciones": 0,
+        "conDatosPersonales": 0,
+        "conDatosFinancieros": 0,
+        "criticasParaAuditoria": 0,
+        "sinResponsable": 0,
+        "porEstado": {
+          "ACTIVA": 0,
+          "PLANIFICADA": 0,
+          "CANDIDATA_A_RETIRO": 0,
+          "RETIRADA": 0,
+          "DESHABILITADA": 0
+        },
+        "porRevision": {
+          "DETECTADA": 0,
+          "NECESITA_REVISION": 0,
+          "APROBADA": 0,
+          "RECHAZADA": 0
+        },
+        "esquemas": [
+          {
+            "nombre": "nombre",
+            "servicio": "servicio",
+            "descripcion": "descripcion",
+            "tablas": 0,
+            "tablasDeNegocio": 0,
+            "columnas": 0,
+            "relaciones": 0,
+            "appendOnly": 0,
+            "conDatosPersonales": 0
+          }
+        ],
+        "modulos": [
+          {
+            "codigo": "codigo",
+            "nombre": "nombre",
+            "tablas": 0
+          }
+        ],
+        "politicasDeRetencion": [
+          {
+            "id": "bcaf0ce1-c3ea-4505-8f45-49e4809951e6",
+            "entidad": "entidad",
+            "mesesRetencionActiva": 1,
+            "accionAlVencer": "accionAlVencer"
+          }
+        ]
+      }
+    },
+    "rechazo": {
+      "estado": 401,
+      "cuerpo": {
+        "codigo": "AP-CU07-01",
+        "mensaje": "Identidad no verificada",
+        "detalle": {},
+        "trazaId": "traza-obtenerResumenDelCatalogo-rechazo"
+      }
+    }
+  }
+}
