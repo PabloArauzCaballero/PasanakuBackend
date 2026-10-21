@@ -6,12 +6,15 @@ import { Icono } from '../icono/icono'
  * Un error accionable, como en el portal de Atlas: ícono en loseta, título, qué pasó, el código
  * de seguimiento para soporte y «Reintentar». Nunca el error crudo del servidor. Sin `reintentar`
  * no hay botón (un 404 no se reintenta).
+ *
+ * Suelto es su propia alerta. Dentro de un contenedor que ya es la región de alerta (`ap-estado-de-pantalla`) se
+ * monta con `[anunciar]="false"`: dos `role="alert"` anidados se anuncian dos veces.
  */
 @Component({
   selector: 'ap-estado-de-error',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [Boton, Icono],
-  host: { role: 'alert' },
+  host: { '[attr.role]': "anunciar() ? 'alert' : null" },
   template: `
     <span class="loseta" aria-hidden="true"><ap-icono nombre="advertencia" tamano="s5" /></span>
     <div class="textos">
@@ -38,5 +41,6 @@ export class EstadoDeError {
   readonly trazaId = input<string>()
   readonly conReintento = input(true)
   readonly textoReintentar = input('Volver a intentar')
+  readonly anunciar = input(true)
   readonly reintentar = output<void>()
 }

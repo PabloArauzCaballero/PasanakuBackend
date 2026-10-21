@@ -1,0 +1,15 @@
+# H6.S1.M2 · proxy de desarrollo → simulado · 2026-10-21T04:16:57+00:00
+$ cat apps/backoffice/proxy.desarrollo.json
+{
+  "/api/v1": {
+    "target": "http://127.0.0.1:4010",
+    "secure": false,
+    "changeOrigin": true
+  }
+}
+$ grep proxyConfig apps/backoffice/angular.json
+114:              "proxyConfig": "proxy.desarrollo.json"
+$ ng serve --port 4200 (configuración development, sin --proxy-config) ; curl -s -o /dev/null -w "%{http_code}" -H "Authorization: Bearer x" http://127.0.0.1:4200/api/v1/indicadores/catalogo-de-datos/resumen
+http=200
+{"tablas":391,"tablasDeNegocio":342,"tablasDeInfraestructura":49,"columnas":4124,"columnasRevisadas":0,"relaciones":686,"conDatosPersonales":36,"conDatosFinancieros":120,"criticasParaAuditoria":0,"sin
+proxy.stack-local.json queda en 127.0.0.1:80: el nginx del stack (despliegue/compose/base.yml:263 "80:80"); no se ejercita acá (sin Docker).

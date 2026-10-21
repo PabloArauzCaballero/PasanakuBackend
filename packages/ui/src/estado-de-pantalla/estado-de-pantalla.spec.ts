@@ -82,6 +82,8 @@ describe('EstadoDePantalla · las cuatro ramas reales (H2.S1.M1)', () => {
     expect(seccion.textContent).toContain('Código de seguimiento: abc-123')
     const boton = seccion.querySelector('button') as HTMLButtonElement
     expect(boton.textContent?.trim()).toBe('Volver a intentar')
+    // Una sola región de alerta: dos anidadas hacen que el lector de pantalla anuncie el error dos veces.
+    expect(fixture.nativeElement.querySelectorAll('[role="alert"]').length).toBe(1)
   })
 
   it('error sin trazaId (el contrato no lo trae): no se inventa un "Código de seguimiento"', () => {

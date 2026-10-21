@@ -1,0 +1,44 @@
+# H6.S2 · e2e que ya fallaban en dev (7752e1bf) — clasificación y corrección
+
+## H6.S2.M1 · f2-posiciones-y-roles (×4) — TEST_BUG
+Reproducción (antes): los 4 casos de «recorrido por roles» fallan en
+  expect(menu.getByRole('link', { name: 'Tablero' })).toBeVisible() → element(s) not found
+Causa: la entrada del tablero se llama «Inicio» en el menú (src/app/nucleo/menu.ts:18) y así la
+afirman src/app/nucleo/menu.spec.ts:24-39, src/app/layout/shell-financiero.spec.ts:69 y e2e/shell.e2e.ts:27.
+Solo este e2e quedó con el nombre viejo. No se debilita: la aserción sigue exigiendo el enlace visible
+(ahora con exact: true) y el resto del recorrido no cambia.
+$ playwright test -c playwright.local.config.ts f2-posiciones-y-roles --workers=1
+  10 passed (31.3s)
+
+## H6.S2.M2 · f2-red-y-teclado «ingreso solo con teclado» — PRODUCT_BUG
+Reproducción (antes):
+  Error: ingreso-error movil light: la página no desplaza en horizontal
+  expect(received).toBeLessThanOrEqual(expected)  Expected: <= 0  Received: 40
+Sonda (360×740, /ingreso): scrollWidth=400; desbordan section.lado (w=400), div.tarjeta (w=368), p.aviso.
+Mínimo de contenido medido por elemento: input=252 px aun con min-width:0; el campo de contraseña
+(input + botón «mostrar») exige 318 px dentro de una tarjeta que a 360 px solo tiene 280 de contenido.
+Causa: en packages/ui/src/campo/campo.ts el <input> tenía `flex: 1; min-width: 0` pero no `width: 0`, así que
+su ancho intrínseco (atributo size por defecto) entraba en el min-content del renglón flex. Afecta a todo
+`ap-campo` con contenido al lado (contraseña, prefijo).
+Corrección: `input { flex: 1; width: 0; min-width: 0; … }`.
+Después: sonda scrollWidth=360, ningún elemento desborda.
+$ playwright test -c playwright.local.config.ts f2-red-y-teclado --workers=1
+  7 passed (14.6s)
+Captura mirada: capturas/despues/ingreso-error-360-claro.png (tarjeta completa, error arriba, foco en Contraseña).
+
+## H6.S2.M3 · sistemas-sin-contrato (×9) — PRODUCT_BUG (accesibilidad)
+Reproducción (antes), los 9 iguales:
+  Error: strict mode violation: getByRole('alert') resolved to 2 elements:
+    1) <section role="alert" class="error" aria-live="assertive">   (ap-estado-de-pantalla)
+    2) <ap-estado-de-error role="alert">                             (anidado adentro)
+Causa: `ap-estado-de-pantalla` envuelve el error en su región de alerta y adentro monta `ap-estado-de-error`, que
+trae `role="alert"` fijo en el host. Dos alertas anidadas hacen que un lector de pantalla anuncie el error dos veces.
+El e2e tenía razón (exige una sola alerta visible); no se toca.
+Corrección (packages/ui): `ap-estado-de-error` gana `anunciar = input(true)` y pone el rol con
+`'[attr.role]': "anunciar() ? 'alert' : null"`; `ap-estado-de-pantalla` lo monta con `[anunciar]="false"`.
+Suelto (cajón de revisión y ficha de gobierno del catálogo) sigue siendo su propia alerta.
+Pruebas nuevas: estado-de-pantalla.spec «una sola región de alerta»; estado-de-error.spec «anunciar=false no repite role».
+$ ng test (packages/ui: estado-de-error, estado-de-pantalla, campo)
+  Test Files 4 passed (4) · Tests 28 passed (28)
+$ playwright test -c playwright.local.config.ts sistemas-sin-contrato --workers=1
+  11 passed (6.5s)

@@ -83,6 +83,34 @@
 | H5.S1.M1 | Ejemplos del simulado + Postman regenerados | colección con las 3 operaciones nuevas | `python3 scripts/generar_postman.py` | HECHO |
 | H5.S1.M2 | REPORTE.md | 3 secciones + avance primera línea | archivo | HECHO |
 
+## H6 — Cierre de pendientes (pedido: «implementalo todo lo que quede pendiente»)
+**CA:** Dado el REPORTE con pendientes, cuando se cierra H6, entonces cada pendiente queda resuelto con evidencia o, si no se puede ejercitar en este contenedor, declarado con su causa; ningún e2e del backoffice en rojo.
+**DoD:** salida literal de cada DoD en `evidencia/H6-*.txt` · suite del backoffice + e2e completos en verde · REPORTE actualizado.
+**Estado:** EN CURSO
+
+Hallazgos de descubrimiento (con fuente):
+- `proxy.stack-local.json` → `127.0.0.1:80` es correcto: es el `nginx` del compose (`despliegue/compose/base.yml:263` `"80:80"`). `proxy.desarrollo.json` es el de `ng serve` por defecto y su trabajo de origen lo declara «(Prism)» (`docs/trabajo/2026-10-02-escaner-identidad-5-caras/PLAN.md` H12.S3.M3), pero apunta a 80 → defecto.
+- `sql/aplicar.sql` incluye `15_infra/borradores.sql`, que `generar_ddl.py:1176` referencia pero nadie escribe. La tabla `identidad.borrador_onboarding` se usa en `BorradorOnboardingRepositorio.java` (SELECT/INSERT … ON CONFLICT (correo)/DELETE). Fuente de tipos: el contrato `identidad.yaml` `BorradorOnboarding` (longitudes y enums) + el repositorio (columnas, `ON CONFLICT (correo)`, `actualizado_en`/`expira_en` timestamptz). No se inventa nada fuera de esas dos fuentes.
+- Pestaña «Operaciones»: no hay relación endpoint↔tabla en el modelo, pero sí dos fuentes reales encadenables: endpoint → CU (`scripts/matriz_de_pruebas.py`, que lee `Traza.marcarCasoDeUso` y el contrato) y CU → tablas (los `[[tabla]]` que cada `docs/CasosDeUso/CU-*.md` enlaza). Se muestra como «casos de uso que nombran esta tabla y sus endpoints», no como «endpoints que escriben esta tabla».
+- La matriz `docs/catalogo-de-flujos/matriz.md` y `docs/auditoria-produccion/endpoints.md` no listan las 3 operaciones nuevas de `auditoria` → verificar si el CI las vigila.
+
+| ID | Microtarea | CA (binario) | DoD | Estado |
+|---|---|---|---|---|
+| H6.S1.M1 | Inventario y matriz de endpoints al día con las 3 operaciones nuevas | `--check` sale 0 | `python3 scripts/inventario_endpoints.py --check` (la matriz no tiene `--check`: se regenera) | HECHO — `evidencia/H6-S1-inventario.txt` |
+| H6.S1.M2 | `proxy.desarrollo.json` apunta al simulado (4010); `stack-local` queda en 80 | `ng serve` + `curl /api/v1/...` responde el simulado | curl contra el dev server | HECHO — `evidencia/H6-S1-proxy.txt` (http=200) |
+| H6.S2.M1 | e2e `f2-posiciones-y-roles` (×4) en verde, causa clasificada | 4/4 PASS | `playwright test f2-posiciones-y-roles` | HECHO — TEST_BUG, 10/10 · `evidencia/H6-S2-e2e-preexistentes.txt` |
+| H6.S2.M2 | e2e `f2-red-y-teclado` «ingreso solo con teclado» en verde, causa clasificada | PASS | `playwright test f2-red-y-teclado` | HECHO — PRODUCT_BUG (`ap-campo` desbordaba a 360 px), 7/7 |
+| H6.S2.M3 | e2e `sistemas-sin-contrato` (×9) en verde, causa clasificada | 9/9 PASS | `playwright test sistemas-sin-contrato` | HECHO — PRODUCT_BUG (alertas anidadas), 11/11 |
+| H6.S3.M1 | `generar_ddl.py` escribe `15_infra/borradores.sql` (tabla + GRANT DELETE) desde contrato+repositorio | base nueva aplica `aplicar.sql` completo | `psql -f sql/aplicar.sql` sobre base vacía, exit 0 | TODO |
+| H6.S3.M2 | El catálogo de datos incluye `identidad.borrador_onboarding` con su clasificación (personales) | aparece en el JSON con `tipo` INFRAESTRUCTURA | `test_catalogo_de_datos.py` | TODO |
+| H6.S4.M1 | La narrativa de negocio conserva sus viñetas (párrafos y listas) en el JSON | una ficha con viñetas llega como líneas separadas | `test_catalogo_de_datos.py` | TODO |
+| H6.S4.M2 | El backoffice pinta la narrativa con párrafos y listas | spec del componente | `test:front` | TODO |
+| H6.S5.M1 | El generador agrega `operaciones` por tabla (CU + endpoints) con su fuente | tabla de ejemplo con sus CU | `test_catalogo_de_datos.py` | TODO |
+| H6.S5.M2 | El contrato y `auditoria` exponen `operaciones` en la ficha | webTest de la ficha | `:servicios:auditoria:test webTest` | TODO |
+| H6.S5.M3 | Pestaña «Operaciones» en la ficha del backoffice | spec + e2e del catálogo | `test:front` + playwright catálogo | TODO |
+| H6.S6.M1 | Retiro del GET completo deprecado (contrato, controlador, clientes, Postman, simulado) si no queda consumidor | `grep` sin consumidores; build y tests verdes | `generarClientes` + tests auditoria + `test:front` | TODO |
+| H6.S7.M1 | Regresión completa + REPORTE actualizado | suites en verde | salidas en `evidencia/H6-regresion.txt` | TODO |
+
 ## Riesgos y bloqueos previstos
 | Riesgo | Impacto | Mitigación |
 |---|---|---|
