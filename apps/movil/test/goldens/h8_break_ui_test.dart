@@ -130,6 +130,8 @@ void main() {
   ) async {
     viewport200(tester);
     final (:dio, :adaptador) = dioSimulado();
+    // «Tus pasanakus» pide sus grupos aparte (2026-10-21): sin grupos, como antes.
+    adaptador.onGet('/grupos/participaciones', (s) => s.reply(200, <Object>[]));
     adaptador.onGet(
       _rutaSaldo,
       (s) => s.reply(200, {
@@ -167,6 +169,8 @@ void main() {
   ) async {
     viewport200(tester);
     final (:dio, :adaptador) = dioSimulado();
+    // «Tus pasanakus» pide sus grupos aparte (2026-10-21): sin grupos, como antes.
+    adaptador.onGet('/grupos/participaciones', (s) => s.reply(200, <Object>[]));
     adaptador.onGet(
       _rutaSaldo,
       (s) => s.reply(200, {
@@ -204,6 +208,8 @@ void main() {
   testWidgets('billetera · 40 movimientos · 200 %', (tester) async {
     viewport200(tester);
     final (:dio, :adaptador) = dioSimulado();
+    // «Tus pasanakus» pide sus grupos aparte (2026-10-21): sin grupos, como antes.
+    adaptador.onGet('/grupos/participaciones', (s) => s.reply(200, <Object>[]));
     adaptador.onGet(
       '/billetera/$_cuenta/movimientos',
       (s) => s.reply(200, {
