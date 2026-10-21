@@ -451,7 +451,7 @@ Cada microtarea de pantalla tiene el **mismo DoD**:
 |---|---|---|---|
 | H6.S3.M1 | `/portada` | Héroe de marca, promesa en una línea (`copywriting`) y CTA claro | TODO |
 | H6.S3.M2 | `/tour` (4) | Ilustraciones reestilizadas, indicador de puntos con resorte y texto por beneficio | TODO |
-| H6.S3.M3 | `/ingreso`, `/identidad/mfa` | Campos nuevos, biometría como botón destacado y OTP en celdas | TODO |
+| H6.S3.M3 | `/ingreso`, `/identidad/mfa` | Campos nuevos, biometría como botón destacado y OTP en celdas | A MEDIAS (anda: ingreso con banda de marca verde, logo, saludo y titular que se corre con el teclado; falta: MFA con celdas nuevas y biometría como botón destacado) |
 | H6.S3.M4 | `/registro` (6 pasos) | Fricción mínima según `signup`, progreso visible y ayuda en contexto | TODO |
 | H6.S3.M5 | Pautas, cámara, prueba de vida y subida | Marcos de guía claros sobre fondo oscuro y estados de permiso (los 3) | TODO |
 | H6.S3.M6 | Estado, contrato y bienvenida | Bienvenida con checklist de activación (`onboarding`: primer grupo, primera recarga) | A MEDIAS (anda: estado de verificación ×5 con círculo de tono, etapas Recibido/En revisión/Listo y caso, y bienvenida con tarjeta verde y pasos numerados; falta: checklist de activación con primer grupo y primera recarga (`onboarding`) y contrato) |
