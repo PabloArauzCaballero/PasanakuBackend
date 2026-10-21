@@ -1,171 +1,211 @@
-import 'package:aportaya_diseno/organismos/celebracion_stage.dart';
-import 'package:aportaya_diseno/moviles/tour_en_stages.dart';
 import 'package:aportaya_movil/pantallas/pasanaku/pantalla_detalle_miembro.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../comun.dart';
 
+/// El perfil del integrante (2026-10-21): solo lo que el servidor devuelve, y solo
+/// para quien comparte el grupo. Datos sintéticos.
+const _grupo = '11111111-1111-4111-8111-111111111111';
+const _beto = '22222222-2222-4222-8222-222222222222';
+const _contacto = '/identidad/contactos/grupos/$_grupo/integrantes/$_beto';
+const _reputacion = '/reputacion/$_beto/perfil-en-grupo/$_grupo';
+
+Map<String, dynamic> _conHistorial() => {
+  'tieneHistorial': true,
+  'puntaje': '812.50',
+  'nivelDeConfianza': 'CONFIABLE',
+  'indicePuntualidad': '96.40',
+  'gruposCompletados': 3,
+  'gruposAbandonados': 1,
+  'incumplimientosAbiertos': 0,
+  'antiguedadMeses': 14,
+  'insignias': [
+    {
+      'codigo': 'PAGADOR_PUNTUAL',
+      'nombre': 'Pagador puntual',
+      'descripcion': 'Pagó a tiempo doce aportes seguidos.',
+      'otorgadaEn': '2026-09-01T12:00:00Z',
+    },
+  ],
+};
+
+Map<String, dynamic> _problema(String codigo) => {
+  'codigo': codigo,
+  'mensaje': 'No.',
+  'trazaId': 'traza-prueba',
+};
+
+const _pantalla = PantallaDetalleMiembro(
+  grupoId: _grupo,
+  cupoId: 'cupo-2',
+  nombre: 'Beto Mamani',
+  numero: 2,
+  turno: 3,
+  nombreGrupo: 'Pasanaku del barrio',
+  usuarioId: _beto,
+);
+
+Future<void> _montar(WidgetTester tester, Widget hijo, Dio dio) async {
+  await tester.pumpWidget(conApp(hijo, dio: dio));
+  await asentar(tester);
+}
+
 void main() {
-  const grupoId = '11111111-1111-4111-8111-111111111111';
-  const cupoId = 'cupo-1';
+  group('perfil del integrante', () {
+    testWidgets('correcto: teléfono y reputación reales; nada inventado', (
+      tester,
+    ) async {
+      final (:dio, :adaptador) = dioSimulado();
+      adaptador
+        ..onGet(
+          _contacto,
+          (s) => s.reply(200, {'telefonoE164': '+59171234567'}),
+        )
+        ..onGet(_reputacion, (s) => s.reply(200, _conHistorial()));
+      await _montar(tester, _pantalla, dio);
 
-  group('PantallaDetalleMiembro', () {
+      expect(find.text('Beto Mamani'), findsOneWidget);
+      expect(find.text('Cupo 2'), findsOneWidget);
+      expect(find.text('Turno 3'), findsOneWidget);
+      expect(find.text('+59171234567'), findsOneWidget);
+      expect(find.text('Confiable'), findsOneWidget);
+      expect(find.text('812.50'), findsOneWidget);
+      expect(find.text('96.40 %'), findsOneWidget);
+      expect(find.text('14 meses'), findsOneWidget);
+      expect(find.text('Pagador puntual'), findsOneWidget);
+      // Lo que la pantalla anterior inventaba ya no existe.
+      expect(find.textContaining('Identidad Verificada'), findsNothing);
+      expect(find.textContaining('Rango'), findsNothing);
+      expect(find.textContaining('Bs '), findsNothing);
+      expect(find.textContaining('***'), findsNothing);
+    });
+
+    testWidgets('límite: sin historial no hay ceros, lo dice', (tester) async {
+      final (:dio, :adaptador) = dioSimulado();
+      adaptador
+        ..onGet(
+          _contacto,
+          (s) => s.reply(200, {'telefonoE164': '+59171234567'}),
+        )
+        ..onGet(
+          _reputacion,
+          (s) => s.reply(200, {
+            'tieneHistorial': false,
+            'nivelDeConfianza': 'SIN_HISTORIAL',
+            'insignias': <Object>[],
+          }),
+        );
+      await _montar(tester, _pantalla, dio);
+
+      expect(find.text('Sin historial'), findsOneWidget);
+      expect(find.textContaining('Todavía no tiene historial'), findsOneWidget);
+      expect(find.text('Puntaje'), findsNothing);
+      expect(find.text('Todavía no ganó insignias.'), findsOneWidget);
+    });
+
     testWidgets(
-      'muestra datos del participante protegiendo su privacidad cuando no es el usuario actual',
+      'inválido: 403 dice que es solo para el grupo y no ofrece reintentar',
       (tester) async {
         final (:dio, :adaptador) = dioSimulado();
-        await tester.pumpWidget(
-          conApp(
-            const PantallaDetalleMiembro(
-              grupoId: grupoId,
-              cupoId: cupoId,
-              nombre: 'Juan Perez',
-              numero: 2,
-              turno: null,
-              esOrganizador: false,
-              soyYo: false,
-              estado: 'FIRMADO',
-              nombreGrupo: 'Pasanaku Central',
-            ),
-            dio: dio,
-          ),
+        adaptador
+          ..onGet(_contacto, (s) => s.reply(403, _problema('AP-SEG-403')))
+          ..onGet(_reputacion, (s) => s.reply(403, _problema('AP-SEG-403')));
+        await _montar(tester, _pantalla, dio);
+
+        expect(
+          find.text('Solo quienes están en el mismo grupo ven estos datos.'),
+          findsNWidgets(2),
         );
-        await tester.pumpAndSettle();
-
-        // Nombre y cupo visibles
-        expect(find.text('Juan Perez'), findsWidgets);
-        expect(find.text('Cupo 2'), findsOneWidget);
-        expect(find.text('Sin turno todavía'), findsOneWidget);
-
-        // Verificación de identidad oficial Nivel 2
-        expect(find.text('Identidad Verificada · Nivel 2 Oficial'), findsOneWidget);
-
-        // Privacidad bancaria: no expone teléfonos ni correos sin enmascarar de terceros
-        expect(find.text('Contacto protegido por privacidad'), findsWidgets);
-        expect(find.textContaining('+591'), findsNothing);
-        expect(find.textContaining('@'), findsNothing);
-
-        // Tarjetas estéticas de Riesgo y Puntos
-        expect(find.text('CALIFICACIÓN DE RIESGO'), findsOneWidget);
-        expect(find.text('PUNTOS EN JUEGO'), findsOneWidget);
-        expect(find.text('HISTORIAL Y MÉTRICAS DE JUEGO'), findsOneWidget);
-
-        // Métricas de historial medido
-        expect(find.text('Grupos Activos'), findsOneWidget);
-        expect(find.text('Grupos Pasados'), findsOneWidget);
-        expect(find.text('Ciclos Completos'), findsOneWidget);
-        expect(find.text('Turnos Jugados'), findsOneWidget);
-        expect(find.text('Días de Retraso'), findsOneWidget);
-        expect(find.text('Impagos'), findsNWidgets(2));
-
-        // Vitrina de trofeos e insignias (estilo GymSheet)
-        expect(find.text('INSIGNIAS Y TROFEOS DE HONOR'), findsOneWidget);
-        expect(find.text('Primer Pasanaku'), findsOneWidget);
-        expect(find.text('Pagador Puntual'), findsOneWidget);
-        expect(find.text('Sin Mora 12 Meses'), findsOneWidget);
-        expect(find.text('Mesa de Honor'), findsOneWidget);
+        expect(find.text('+59171234567'), findsNothing);
+        expect(find.text('Volver a intentar'), findsNothing);
       },
     );
 
     testWidgets(
-      'muestra turno asignado y contacto enmascarado cuando soyYo es true',
+      'parcial: si falla la reputación, el teléfono sigue y se puede reintentar',
       (tester) async {
         final (:dio, :adaptador) = dioSimulado();
-        await tester.pumpWidget(
-          conApp(
-            const PantallaDetalleMiembro(
-              grupoId: grupoId,
-              cupoId: cupoId,
-              nombre: 'Rosa Quispe',
-              numero: 1,
-              turno: 3,
-              esOrganizador: true,
-              soyYo: true,
-              estado: 'FIRMADO',
-              nombreGrupo: 'Pasanaku Central',
-            ),
-            dio: dio,
-          ),
-        );
-        await tester.pumpAndSettle();
+        adaptador
+          ..onGet(
+            _contacto,
+            (s) => s.reply(200, {'telefonoE164': '+59171234567'}),
+          )
+          ..onGet(_reputacion, (s) => s.reply(500, _problema('AP-SIS-500')));
+        await _montar(tester, _pantalla, dio);
 
-        expect(find.text('Rosa Quispe'), findsWidgets);
-        expect(find.text('Turno 3'), findsOneWidget);
-        expect(find.text('Vos (Tu cupo)'), findsOneWidget);
-        expect(find.text('Organizador'), findsOneWidget);
-
-        // Al ser mi propio perfil, muestra mi contacto enmascarado
-        expect(find.textContaining('+591'), findsOneWidget);
-        expect(find.textContaining('@pasanaku.bo'), findsOneWidget);
+        expect(find.text('+59171234567'), findsOneWidget);
+        expect(find.text('Volver a intentar'), findsOneWidget);
       },
     );
 
-    testWidgets(
-      'al tocar una insignia conseguida se abre la CelebracionStage con rayos y partículas',
-      (tester) async {
-        tester.view.physicalSize = const Size(412, 3000);
-        tester.view.devicePixelRatio = 1;
-        addTearDown(tester.view.reset);
+    testWidgets('sin la persona identificada no se pide nada', (tester) async {
+      final (:dio, adaptador: _) = dioSimulado();
+      await _montar(
+        tester,
+        const PantallaDetalleMiembro(
+          grupoId: _grupo,
+          cupoId: 'cupo-2',
+          nombre: '',
+          numero: 2,
+        ),
+        dio,
+      );
 
-        final (:dio, :adaptador) = dioSimulado();
-        await tester.pumpWidget(
-          conApp(
-            const PantallaDetalleMiembro(
-              grupoId: grupoId,
-              cupoId: cupoId,
-              nombre: 'Carlos Arce',
-              numero: 1,
-              turno: 1,
+      expect(find.text('Integrante'), findsOneWidget);
+      expect(
+        find.text('Solo quienes están en el mismo grupo ven estos datos.'),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('«Volver» cierra el perfil y deja el grupo a la vista', (
+      tester,
+    ) async {
+      final (:dio, :adaptador) = dioSimulado();
+      adaptador
+        ..onGet(
+          _contacto,
+          (s) => s.reply(200, {'telefonoE164': '+59171234567'}),
+        )
+        ..onGet(_reputacion, (s) => s.reply(200, _conHistorial()));
+      await _montar(
+        tester,
+        Builder(
+          builder: (context) => Scaffold(
+            body: Center(
+              child: TextButton(
+                onPressed: () => Navigator.of(
+                  context,
+                ).push(MaterialPageRoute<void>(builder: (_) => _pantalla)),
+                child: const Text('El grupo'),
+              ),
             ),
-            dio: dio,
           ),
-        );
-        await tester.pumpAndSettle();
+        ),
+        dio,
+      );
+      await tester.tap(find.text('El grupo'));
+      await asentar(tester);
+      expect(find.text('Perfil del integrante'), findsOneWidget);
 
-        // Toca la insignia conseguida "Primer Pasanaku"
-        await tester.tap(find.text('Primer Pasanaku'));
-        await tester.pump();
-        await tester.pump(const Duration(milliseconds: 300));
+      await tester.tap(find.byIcon(Icons.arrow_back));
+      await asentar(tester);
+      expect(find.text('Perfil del integrante'), findsNothing);
+      expect(find.text('El grupo'), findsOneWidget);
+    });
 
-        // Debe haberse abierto CelebracionStage
-        expect(find.byType(CelebracionStage), findsOneWidget);
-        expect(find.text('¡NUEVO LOGRO!'), findsOneWidget);
-        expect(find.text('Continuar en el Pasanaku'), findsOneWidget);
-      },
-    );
-
-    testWidgets(
-      'al tocar el banner explicativo se abre el TourEnStages en 4 etapas',
-      (tester) async {
-        tester.view.physicalSize = const Size(412, 3000);
-        tester.view.devicePixelRatio = 1;
-        addTearDown(tester.view.reset);
-
-        final (:dio, :adaptador) = dioSimulado();
-        await tester.pumpWidget(
-          conApp(
-            const PantallaDetalleMiembro(
-              grupoId: grupoId,
-              cupoId: cupoId,
-              nombre: 'Carlos Arce',
-              numero: 1,
-            ),
-            dio: dio,
-          ),
-        );
-        await tester.pumpAndSettle();
-
-        // Toca el banner explicativo
-        await tester.tap(find.text('¿Cómo funcionan los Puntos y el Riesgo?'));
-        await tester.pump();
-        await tester.pump(const Duration(milliseconds: 300));
-
-        // Debe haberse abierto TourEnStages
-        expect(find.byType(TourEnStages), findsOneWidget);
-        expect(find.text('1 Punto por cada Bs en Juego'), findsOneWidget);
-        expect(find.text('Siguiente etapa'), findsOneWidget);
-      },
-    );
+    testWidgets('a11y: todo lo tocable llega a 48 dp', (tester) async {
+      final (:dio, :adaptador) = dioSimulado();
+      adaptador
+        ..onGet(
+          _contacto,
+          (s) => s.reply(200, {'telefonoE164': '+59171234567'}),
+        )
+        ..onGet(_reputacion, (s) => s.reply(200, _conHistorial()));
+      await _montar(tester, _pantalla, dio);
+      await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
+    });
   });
 }
