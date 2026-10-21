@@ -5,6 +5,15 @@ abstract final class TextosBilletera {
   static const disponible = 'Disponible';
   static const enPasanakus = 'En pasanakus';
   static const tusPasanakus = 'Tus pasanakus';
+  // Estados de una operación de dinero: dónde está, sin decir que ya pasó (regla 91.3).
+  static const montoARecargar = 'Monto a recargar';
+  static const montoARetirar = 'Monto a retirar';
+  static const pasoPedida = 'Pedida';
+  static const pasoConfirmaElBanco = 'Confirma el banco';
+  static const pasoAcreditada = 'Acreditada';
+  static const pasoInstruido = 'Instruido';
+  static const pasoEnCamino = 'En camino al banco';
+  static const pasoAcreditadoEnTuCuenta = 'En tu cuenta';
   static const tituloSinPasanakus = 'Armá tu primer pasanaku';
   static const crearUnGrupo = 'Crear un grupo';
   static const entrarConEnlace = 'Entrar con un enlace o QR';

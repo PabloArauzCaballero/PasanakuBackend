@@ -23,6 +23,7 @@ class EstadoDeTramite extends StatelessWidget {
     this.pasoActual = 0,
     this.fallo = false,
     this.caso,
+    this.extra,
   });
 
   final IconData icono;
@@ -40,6 +41,9 @@ class EstadoDeTramite extends StatelessWidget {
 
   /// «Caso a11ce001»: lo que se cita a soporte.
   final String? caso;
+
+  /// Algo propio del trámite entre el detalle y las etapas (un importe, por ejemplo).
+  final Widget? extra;
 
   @override
   Widget build(BuildContext context) {
@@ -76,6 +80,7 @@ class EstadoDeTramite extends StatelessWidget {
               style: Tipo.cuerpo.copyWith(color: t.text2),
             ),
           ],
+          if (extra != null) ...[const SizedBox(height: Espacio.s4), extra!],
           if (pasos.isNotEmpty) ...[
             const SizedBox(height: Espacio.s5),
             _Pasos(

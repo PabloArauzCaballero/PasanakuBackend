@@ -1,7 +1,11 @@
 import 'package:aportaya_diseno/atomos/boton.dart';
 import 'package:aportaya_diseno/atomos/boton_variante.dart';
 import 'package:aportaya_diseno/atomos/campo.dart';
-import 'package:aportaya_diseno/atomos/campo_monto.dart';
+import 'package:aportaya_diseno/atomos/campo_monto_grande.dart';
+import 'package:aportaya_diseno/atomos/iconos_de_marca.dart';
+import 'package:aportaya_diseno/atomos/tono.dart';
+import 'package:aportaya_diseno/moleculas/cabecera.dart';
+import 'package:aportaya_diseno/organismos/estado_de_tramite.dart';
 import 'package:aportaya_diseno/atomos/monto.dart';
 import 'package:aportaya_diseno/organismos/estado_error.dart';
 import 'package:aportaya_diseno/tokens/tokens.dart';
@@ -43,70 +47,92 @@ class _PantallaRetirarState extends ConsumerState<PantallaRetirar>
     final notifier = ref.read(retirarSaldoProvider.notifier);
     final resultado = estado.value;
     return Scaffold(
-      appBar: AppBar(title: const Text(TextosBilletera.retirar)),
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(Espacio.s4),
-          child: resultado != null
-              ? Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(Icons.check_circle_outline, size: Espacio.s7),
-                    const SizedBox(height: Espacio.s3),
-                    const Text(
-                      TextosBilletera.retiroInstruido,
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: Espacio.s3),
-                    Monto(
-                      monto: resultado.montoNeto.monto,
-                      moneda: resultado.montoNeto.moneda.value,
-                      etiqueta: TextosBilletera.monto,
-                    ),
-                  ],
-                )
-              : Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    CampoMonto(
-                      etiqueta: TextosBilletera.monto,
-                      onChanged: (v) => setState(() => _monto = v),
-                    ),
-                    const SizedBox(height: Espacio.s3),
-                    Campo(
-                      etiqueta: TextosBilletera.cuentaDestino,
-                      onChanged: (v) =>
-                          setState(() => _instrumentoDestinoId = v),
-                    ),
-                    const SizedBox(height: Espacio.s3),
-                    Campo(
-                      etiqueta: TextosBilletera.factorMfa,
-                      tipoDeTeclado: TextInputType.number,
-                      onChanged: (v) => setState(() => _factorMfa = v),
-                    ),
-                    const SizedBox(height: Espacio.s4),
-                    if (estado.hasError)
-                      EstadoError(
-                        error: estado.error!,
-                        reintentar: () => ref.invalidate(retirarSaldoProvider),
+          padding: const EdgeInsets.symmetric(horizontal: Espacio.s4),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const CabeceraDeSeccion(titulo: TextosBilletera.retirar),
+              Expanded(
+                child: resultado != null
+                    // «Instruido» no es «llegó»: el banco todavía tiene que acreditarlo.
+                    ? Center(
+                        child: EstadoDeTramite(
+                          icono: IconosDeMarca.tramiteListo,
+                          tono: Tono.ok,
+                          titulo: TextosBilletera.retiroInstruido,
+                          extra: Monto(
+                            monto: resultado.montoNeto.monto,
+                            moneda: resultado.montoNeto.moneda.value,
+                            etiqueta: TextosBilletera.monto,
+                            estilo: Tipo.cifraGrande.copyWith(
+                              color: Tokens.of(context).text,
+                            ),
+                          ),
+                          pasos: const [
+                            TextosBilletera.pasoInstruido,
+                            TextosBilletera.pasoEnCamino,
+                            TextosBilletera.pasoAcreditadoEnTuCuenta,
+                          ],
+                          pasoActual: 1,
+                        ),
+                      )
+                    : SingleChildScrollView(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            const SizedBox(height: Espacio.s5),
+                            CampoMontoGrande(
+                              etiqueta: TextosBilletera.montoARetirar,
+                              onChanged: (v) => setState(() => _monto = v),
+                            ),
+                            const SizedBox(height: Espacio.s6),
+                            Campo(
+                              etiqueta: TextosBilletera.cuentaDestino,
+                              onChanged: (v) =>
+                                  setState(() => _instrumentoDestinoId = v),
+                            ),
+                            const SizedBox(height: Espacio.s3),
+                            Campo(
+                              etiqueta: TextosBilletera.factorMfa,
+                              tipoDeTeclado: TextInputType.number,
+                              onChanged: (v) => setState(() => _factorMfa = v),
+                            ),
+                            const SizedBox(height: Espacio.s4),
+                            if (estado.hasError)
+                              EstadoError(
+                                error: estado.error!,
+                                reintentar: () =>
+                                    ref.invalidate(retirarSaldoProvider),
+                              ),
+                          ],
+                        ),
                       ),
-                    const Spacer(),
-                    Boton(
-                      texto: TextosBilletera.retirar,
-                      variante: BotonVariante.primario,
-                      expandido: true,
-                      cargando: estado.isLoading,
-                      onPressed: _puedeEnviar
-                          ? () => notifier.enviar(
-                              cuentaId: widget.cuentaId,
-                              monto: _monto!,
-                              instrumentoDestinoId: _instrumentoDestinoId,
-                              factorMfa: _factorMfa,
-                            )
-                          : null,
-                    ),
-                  ],
+              ),
+              if (resultado == null)
+                Padding(
+                  padding: const EdgeInsets.only(
+                    top: Espacio.s3,
+                    bottom: Espacio.s4,
+                  ),
+                  child: Boton(
+                    texto: TextosBilletera.retirar,
+                    variante: BotonVariante.primario,
+                    expandido: true,
+                    cargando: estado.isLoading,
+                    onPressed: _puedeEnviar
+                        ? () => notifier.enviar(
+                            cuentaId: widget.cuentaId,
+                            monto: _monto!,
+                            instrumentoDestinoId: _instrumentoDestinoId,
+                            factorMfa: _factorMfa,
+                          )
+                        : null,
+                  ),
                 ),
+            ],
+          ),
         ),
       ),
     );
