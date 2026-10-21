@@ -62,7 +62,7 @@ evidencia/componentes/<antes|despues>/<nivel>/<componente>__<claro|oscuro>.png
 3. **Teléfono real** (fuera del alcance de este contenedor): queda como verificación pendiente para
    la persona, con un checklist en el `REPORTE.md`.
 
-**Galería comparativa:** `evidencia/galeria.html` muestra el antes y el después lado a lado por
+**Galería comparativa:** `evidencia/galeria.html` (las herramientas viven en `herramientas/` de este trabajo: `comprimir_capturas.py` cuantiza a 256 colores, 57 → 20 MB en el «antes») muestra el antes y el después lado a lado por
 pantalla, con filtros por flujo, tema, viewport y estado. Se publica como página para revisarla
 desde el celular. Se regenera con `scripts/galeria_capturas.mjs` (script nuevo, solo lee
 `evidencia/`).
@@ -248,10 +248,10 @@ No se copia ninguna marca ajena: se toma el **lenguaje**, no los activos.
 ### H0.S2 — Arnés de capturas
 | ID | Microtarea | CA | DoD | Estado |
 |---|---|---|---|---|
-| H0.S2.M1 | Cargador de fuentes reales para tests (`test/capturas/fuentes.dart`) | Un texto de prueba se ve en Instrument, no en bloques | `flutter test test/capturas/fuentes_test.dart` + captura mirada | TODO |
-| H0.S2.M2 | Matriz de viewport × tema (`test/capturas/matriz.dart`) | Una pantalla genera 6 PNG | `flutter test …/matriz_test.dart` → 6 archivos | TODO |
-| H0.S2.M3 | Datos sintéticos declarados por pantalla (`test/capturas/datos_sinteticos.dart`) | Cada override devuelve datos, vacío o error | Test unitario de los fixtures en verde | TODO |
-| H0.S2.M4 | Inventario de pantallas del arnés (lista cerrada contra las rutas) | Toda ruta registrada tiene su entrada o una exclusión justificada | Test que compara el inventario con `rutas.dart` → PASS | TODO |
+| H0.S2.M1 | Cargador de fuentes reales para tests (`test/capturas/fuentes.dart`) | Un texto de prueba se ve en Instrument, no en bloques | `flutter test test/capturas/fuentes_test.dart` + captura mirada | HECHO |
+| H0.S2.M2 | Matriz de viewport × tema (`test/capturas/matriz.dart`) | Una pantalla genera 6 PNG | `flutter test …/matriz_test.dart` → 6 archivos | HECHO |
+| H0.S2.M3 | Datos sintéticos declarados por pantalla (`test/capturas/datos_sinteticos.dart`) | Cada override devuelve datos, vacío o error | Test unitario de los fixtures en verde | HECHO |
+| H0.S2.M4 | Inventario de pantallas del arnés (lista cerrada contra las rutas) | Toda ruta registrada tiene su entrada o una exclusión justificada | Test que compara el inventario con `rutas.dart` → PASS | HECHO |
 | H0.S2.M5 | Recorrido web con Playwright (`herramientas/capturas-web/`) | Navega Inicio → Grupos → Movimientos y captura | `node herramientas/capturas-web/recorrer.mjs` exit 0 + PNG | TODO |
 | H0.S2.M6 | Grabador de movimiento (video de Playwright más extracción de cuadros con ffmpeg) | Sale un MP4 y 3 cuadros de una transición | Archivo MP4 > 0 bytes + 3 PNG | TODO |
 | H0.S2.M7 | Generador de galería `scripts/galeria_capturas.mjs` | `galeria.html` lista antes y después por pantalla con filtros | `node scripts/galeria_capturas.mjs` → HTML abierto y mirado | TODO |
@@ -259,12 +259,12 @@ No se copia ninguna marca ajena: se toma el **lenguaje**, no los activos.
 ### H0.S3 — Capturas «antes» (una microtarea por flujo)
 | ID | Microtarea | CA | DoD | Estado |
 |---|---|---|---|---|
-| H0.S3.M1 | Entrada: portada, tour (4), ingreso, MFA | Matriz completa | conteo de PNG = pantallas × 6 × estados | TODO |
-| H0.S3.M2 | Alta y KYC: registro (6 pasos), pautas, cámara, prueba de vida, subida, estado, contrato, bienvenida | ídem | ídem | TODO |
-| H0.S3.M3 | Billetera: inicio, recargar, retirar, transferir, extracto | ídem | ídem | TODO |
-| H0.S3.M4 | Grupos: mi estado, puntaje, nuevo, pedir cupo, invitar (+número), solicitudes, retiro, transparencia, permuta, sorteo (2), aportar, escanear, unirse, enlace | ídem | ídem | TODO |
-| H0.S3.M5 | Perfil: perfil, verificación, dispositivos, verificación profunda, contraseña, baja | ídem | ídem | TODO |
-| H0.S3.M6 | Notificaciones, ayuda, candado, splash, pantallas de bloqueo y configuración inválida | ídem | ídem | TODO |
+| H0.S3.M1 | Entrada: portada, tour (4), ingreso, MFA | Matriz completa | conteo de PNG = pantallas × 6 × estados | HECHO |
+| H0.S3.M2 | Alta y KYC: registro (6 pasos), pautas, cámara, prueba de vida, subida, estado, contrato, bienvenida | ídem | ídem | HECHO |
+| H0.S3.M3 | Billetera: inicio, recargar, retirar, transferir, extracto | ídem | ídem | HECHO |
+| H0.S3.M4 | Grupos: mi estado, puntaje, nuevo, pedir cupo, invitar (+número), solicitudes, retiro, transparencia, permuta, sorteo (2), aportar, escanear, unirse, enlace | ídem | ídem | HECHO |
+| H0.S3.M5 | Perfil: perfil, verificación, dispositivos, verificación profunda, contraseña, baja | ídem | ídem | HECHO |
+| H0.S3.M6 | Notificaciones, ayuda, candado, splash, pantallas de bloqueo y configuración inválida | ídem | ídem | HECHO |
 | H0.S3.M7 | Componentes: el catálogo Widgetbook completo por nivel | Una captura por componente y tema | conteo de PNG | TODO |
 | H0.S3.M8 | Revisión del «antes» con la rúbrica `ui-quality-review`, con la lista de problemas por pantalla | `evidencia/revision-antes.md` con ≥ 1 hallazgo por pantalla | Archivo escrito | TODO |
 
