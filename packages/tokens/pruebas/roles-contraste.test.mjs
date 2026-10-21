@@ -102,3 +102,21 @@ test('controles de acción y estado superan sus umbrales en ambos temas', () => 
     assert.ok(ratioDeBorde >= 3, `${tema}: brand sobre surface = ${ratioDeBorde.toFixed(2)}:1`)
   }
 })
+
+// Rediseño bancario (ADR-053): el texto del héroe se lee en los dos extremos del
+// degradado, y el vidrio de la barra de pestañas deja leer el texto apagado encima.
+test('el texto del héroe y el de la barra de vidrio superan 4.5:1 en ambos temas', () => {
+  for (const tema of ['claro', 'oscuro']) {
+    for (const texto of ['heroTexto', 'heroTexto2']) {
+      for (const fondo of ['heroInicio', 'heroFin']) {
+        const ratio = contraste(resolver(tema, texto), resolver(tema, fondo))
+        assert.ok(ratio >= 4.5, `${tema}: ${texto} sobre ${fondo} = ${ratio.toFixed(2)}:1`)
+      }
+    }
+    const vidrio = sobre(resolver(tema, 'vidrio'), resolver(tema, 'bg'))
+    for (const texto of ['text', 'text3', 'brandTexto']) {
+      const ratio = contraste(resolver(tema, texto), vidrio)
+      assert.ok(ratio >= 4.5, `${tema}: ${texto} sobre vidrio = ${ratio.toFixed(2)}:1`)
+    }
+  }
+})

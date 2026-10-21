@@ -42,8 +42,11 @@ Revolut) y delegó las cuatro decisiones abiertas en «lo más recomendado» (20
 2. **Color por rol**:
    - El **verde de marca es la acción principal**; el **naranja queda solo para la urgencia de
      pago** (aportar, vencimientos).
-   - Roles nuevos: `heroInicio`, `heroFin`, `heroTexto`, `heroTexto2`, `halo`, `vidrio`,
-     `vidrioBorde`, `urgencia`, `sobreUrgencia`, `urgenciaBg`, `urgenciaTexto`.
+   - Roles nuevos: `heroInicio`, `heroFin`, `heroBrillo`, `heroTexto`, `heroTexto2`, `halo`,
+     `vidrio`, `vidrioBorde` y `sombraHeroe`. La urgencia **reusa** los roles `accent`,
+     `accentInk` y `accentTexto` (ya naranja y medidos); no se crea un juego paralelo.
+   - Fondo claro `#F0F4F1`: el `#EEF2EF` de la lámina dejaba el texto bajo el velo del
+     tutorial en 4,47:1 (test `tutoriales_a11y`). `accentTexto` pasa a `#9C5412` (5,13:1).
    - Cada par se mide en claro y oscuro (≥ 4,5:1 para texto). Los 15 pares de la lámina pasan.
 3. **Tipografía**: Bricolage (ya empaquetada y sin uso) para cifras y títulos de pantalla;
    Instrument para el texto; cifras tabulares.

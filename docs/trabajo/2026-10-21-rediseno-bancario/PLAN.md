@@ -296,14 +296,14 @@ regenerado · lámina de tokens capturada.
 
 | ID | Microtarea | CA | DoD | Estado |
 |---|---|---|---|---|
-| H2.S1.M1 | Paleta: extender verdes (g950, g850) y neutros fríos para el fondo oscuro | Primitivas nuevas en JSON y CSS | test espejo PASS | TODO |
-| H2.S1.M2 | Roles nuevos: `heroInicio`, `heroFin`, `heroTexto`, `heroTexto2`, `halo`, `vidrio`, `vidrioBorde`, `superficieElevada`, `iconoContenedor` por tono | Existen en claro y oscuro | test de contraste PASS (texto ≥ 4.5:1 y no texto ≥ 3:1) | TODO |
-| H2.S1.M3 | Rol de acción según A2 | `accent` y `brand` con la semántica decidida | test PASS + captura de botones | TODO |
-| H2.S2.M1 | Elevación en 4 niveles con sombra en 2 capas (`e1` fila, `e2` tarjeta, `e3` héroe, `e4` hoja) y equivalentes oscuros con borde | `Elevacion.*` generado | test generador PASS | TODO |
-| H2.S2.M2 | Radios: agregar `r2xl` 28 y la regla de anidado (interior = exterior − padding) | Token y documentación | test PASS | TODO |
-| H2.S3.M1 | Tipografía: `Tipo.saldo` (Bricolage 44/700, tabular, −2 % de tracking), `tituloPantalla` (Bricolage 28/700), `tituloCompacto` 17 y `cifraFila` (tabular) | Estilos generados con `fontFeatures` | test PASS + lámina tipográfica capturada | TODO |
-| H2.S4.M1 | Movimiento: tokens de resorte (`resorteSuave`, `resorteRapido`, `resorteRebote`) y escalonado (`paso` 30 ms) en `movimiento.dart` | Con su porqué en comentario | test unitario de valores | TODO |
-| H2.S5.M1 | Efecto sobre la web (A3): capturar la web antes y después del cambio de tokens | Lista de roles que cambiaron con captura | 4 capturas web + nota | TODO |
+| H2.S1.M1 | Paleta: extender verdes (g950, g850) y neutros fríos para el fondo oscuro | Primitivas nuevas en JSON y CSS | test espejo PASS | DESCARTADO (la paleta existente alcanza: héroe g600→g900 y oscuro con hex derivado; decidido en H2) |
+| H2.S1.M2 | Roles nuevos: `heroInicio`, `heroFin`, `heroTexto`, `heroTexto2`, `halo`, `vidrio`, `vidrioBorde`, `superficieElevada`, `iconoContenedor` por tono | Existen en claro y oscuro | test de contraste PASS (texto ≥ 4.5:1 y no texto ≥ 3:1) | HECHO |
+| H2.S1.M3 | Rol de acción según A2 | `accent` y `brand` con la semántica decidida | test PASS + captura de botones | HECHO |
+| H2.S2.M1 | Elevación en 4 niveles con sombra en 2 capas (`e1` fila, `e2` tarjeta, `e3` héroe, `e4` hoja) y equivalentes oscuros con borde | `Elevacion.*` generado | test generador PASS | HECHO |
+| H2.S2.M2 | Radios: agregar `r2xl` 28 y la regla de anidado (interior = exterior − padding) | Token y documentación | test PASS | HECHO |
+| H2.S3.M1 | Tipografía: `Tipo.saldo` (Bricolage 44/700, tabular, −2 % de tracking), `tituloPantalla` (Bricolage 28/700), `tituloCompacto` 17 y `cifraFila` (tabular) | Estilos generados con `fontFeatures` | test PASS + lámina tipográfica capturada | HECHO |
+| H2.S4.M1 | Movimiento: tokens de resorte (`resorteSuave`, `resorteRapido`, `resorteRebote`) y escalonado (`paso` 30 ms) en `movimiento.dart` | Con su porqué en comentario | test unitario de valores | HECHO |
+| H2.S5.M1 | Efecto sobre la web (A3): capturar la web antes y después del cambio de tokens | Lista de roles que cambiaron con captura | 4 capturas web + nota | HECHO |
 
 ---
 
