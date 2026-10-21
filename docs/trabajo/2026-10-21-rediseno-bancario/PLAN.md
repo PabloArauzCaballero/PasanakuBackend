@@ -62,7 +62,7 @@ evidencia/componentes/<antes|despues>/<nivel>/<componente>__<claro|oscuro>.png
 3. **Teléfono real** (fuera del alcance de este contenedor): queda como verificación pendiente para
    la persona, con un checklist en el `REPORTE.md`.
 
-**Galería comparativa:** `evidencia/galeria.html` (las herramientas viven en `herramientas/` de este trabajo: `comprimir_capturas.py` cuantiza a 256 colores, 57 → 20 MB en el «antes») muestra el antes y el después lado a lado por
+**Galería comparativa** (publicada, privada: https://claude.ai/artifact/Qr6hRkXnRFJpDS4vzqXLK5): `evidencia/galeria.html` (las herramientas viven en `herramientas/` de este trabajo: `comprimir_capturas.py` cuantiza a 256 colores, 57 → 20 MB en el «antes») muestra el antes y el después lado a lado por
 pantalla, con filtros por flujo, tema, viewport y estado. Se publica como página para revisarla
 desde el celular. Se regenera con `scripts/galeria_capturas.mjs` (script nuevo, solo lee
 `evidencia/`).
@@ -265,8 +265,8 @@ No se copia ninguna marca ajena: se toma el **lenguaje**, no los activos.
 | H0.S3.M4 | Grupos: mi estado, puntaje, nuevo, pedir cupo, invitar (+número), solicitudes, retiro, transparencia, permuta, sorteo (2), aportar, escanear, unirse, enlace | ídem | ídem | HECHO |
 | H0.S3.M5 | Perfil: perfil, verificación, dispositivos, verificación profunda, contraseña, baja | ídem | ídem | HECHO |
 | H0.S3.M6 | Notificaciones, ayuda, candado, splash, pantallas de bloqueo y configuración inválida | ídem | ídem | HECHO |
-| H0.S3.M7 | Componentes: el catálogo Widgetbook completo por nivel | Una captura por componente y tema | conteo de PNG | TODO |
-| H0.S3.M8 | Revisión del «antes» con la rúbrica `ui-quality-review`, con la lista de problemas por pantalla | `evidencia/revision-antes.md` con ≥ 1 hallazgo por pantalla | Archivo escrito | TODO |
+| H0.S3.M7 | Componentes: el catálogo Widgetbook completo por nivel | Una captura por componente y tema | conteo de PNG | HECHO |
+| H0.S3.M8 | Revisión del «antes» con la rúbrica `ui-quality-review`, con la lista de problemas por pantalla | `evidencia/revision-antes.md` con ≥ 1 hallazgo por pantalla | Archivo escrito | HECHO |
 
 ---
 
