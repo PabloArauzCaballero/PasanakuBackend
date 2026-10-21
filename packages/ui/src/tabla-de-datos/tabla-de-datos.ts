@@ -2,6 +2,8 @@ import { ChangeDetectionStrategy, Component, computed, input, model, output, Tem
 import { NgTemplateOutlet } from '@angular/common'
 import { BotonCopiar } from '../boton-copiar/boton-copiar'
 import { Casilla } from '../casilla/casilla'
+import { Esqueleto } from '../esqueleto/esqueleto'
+import { Girador } from '../girador/girador'
 import { Icono } from '../icono/icono'
 
 /** `fijaDerecha`: la columna (de acciones) queda pegada al borde derecho al desplazar; `mono`: identificadores y códigos. */
@@ -39,7 +41,7 @@ export type EstadoColeccion<T> =
  * El organismo canónico de tabla de datos (único; ver `tabla-de-datos-virtualizada` en
  * `apps/backoffice/nucleo/tabla` como excepción documentada — PR7 §H4.S1.M3): identidad de
  * fila por función pura tipada, columnas tipadas, selección, orden por columna (`aria-sort`)
- * y, opcionalmente, el estado de una colección paginada por el consumidor (`estado()`).
+ * estados de carga con girador y esqueleto y, opcionalmente, el estado de una colección paginada por el consumidor (`estado()`).
  *
  * Pagina y filtra quien la usa; ella solo muestra la página — la paginación (por índice, con
  * `ap-paginacion`) se compone **al lado** de este organismo en la plantilla del consumidor, no
@@ -54,7 +56,7 @@ export type EstadoColeccion<T> =
 @Component({
   selector: 'ap-tabla-de-datos',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [BotonCopiar, Casilla, Icono, NgTemplateOutlet],
+  imports: [BotonCopiar, Casilla, Icono, NgTemplateOutlet, Girador, Esqueleto],
   host: { '[class.densidad-compacta]': "densidad() === 'compacta'" },
   template: `
     <div class="marco" [class.con-cabecera]="cabecera()">
@@ -66,14 +68,23 @@ export type EstadoColeccion<T> =
       }
       @if (estado(); as e) {
         @if (e.tipo === 'cargando') {
-          <p class="mensaje-estado" role="status" aria-live="polite">{{ textoCargando() }}</p>
+          <div class="mensaje-estado cargando-contenedor" role="status" aria-live="polite">
+            <div class="aviso-cargando">
+              <ap-girador tamano="s4" etiqueta="Cargando datos" />
+              <span>{{ textoCargando() }}</span>
+            </div>
+            <ap-esqueleto forma="filas" [lineas]="5" etiqueta="Cargando filas" />
+          </div>
         } @else if (e.tipo === 'error') {
           <p class="mensaje-estado mensaje-error" role="alert">{{ e.mensaje }}</p>
         } @else if (e.tipo === 'lista' && e.filas.length === 0) {
           <p class="mensaje-estado">{{ textoVacio() }}</p>
         }
         @if (e.tipo === 'lista' && e.obsoleta) {
-          <p class="mensaje-obsoleta" role="status" aria-live="polite">{{ textoActualizando() }}</p>
+          <div class="mensaje-obsoleta" role="status" aria-live="polite">
+            <ap-girador tamano="s4" etiqueta="Actualizando" />
+            <span>{{ textoActualizando() }}</span>
+          </div>
         }
       }
       @if (!ocultarTabla()) {
