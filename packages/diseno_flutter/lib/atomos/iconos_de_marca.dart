@@ -29,6 +29,7 @@ abstract final class IconosDeMarca {
   static const IconData subida = LucideIcons.trendingUp;
   static const IconData vencimiento = LucideIcons.calendarClock;
   static const IconData periodo = LucideIcons.calendarRange;
+  static const IconData compartir = LucideIcons.share2;
   static const IconData reputacion = LucideIcons.award;
   static const IconData recienEmpiezas = LucideIcons.sprout;
 

@@ -24,13 +24,16 @@ class TarjetaDeExtracto extends StatelessWidget {
   final String moneda;
   final int? cantidadMovimientos;
 
-  static String _dia(DateTime d) =>
-      Fecha.formatear(d.toUtc().toIso8601String(), conHora: false);
+  /// «1 sep 2026 – 30 sep 2026».
+  static String textoDelPeriodo(DateTime desde, DateTime hasta) =>
+      '${_dia(desde)} – ${_dia(hasta)}';
+
+  static String _dia(DateTime d) => Fecha.formatearDia(d.toLocal());
 
   @override
   Widget build(BuildContext context) {
     final t = Tokens.of(context);
-    final periodo = '${_dia(desde)} – ${_dia(hasta)}';
+    final periodo = textoDelPeriodo(desde, hasta);
     return Tarjeta(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

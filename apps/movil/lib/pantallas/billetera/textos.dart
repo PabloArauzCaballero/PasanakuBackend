@@ -71,6 +71,19 @@ abstract final class TextosBilletera {
       'Generá un extracto para ver tu saldo al cierre y cuántos movimientos tuviste en esas fechas.';
   static const elegirOtroPeriodo = 'Elegir otro período';
   static const periodo = 'Período';
+  static const filtroTodos = 'Todos';
+  static const filtroEntradas = 'Entradas';
+  static const filtroSalidas = 'Salidas';
+  static const detalleDelPeriodo = 'Detalle del período';
+  static const sinMovimientosConEseFiltro =
+      'No hay movimientos de este tipo en el período. Probá con «Todos».';
+  static const lecturaCorta =
+      'Mostramos tus últimos 100 movimientos; los más viejos del período pueden no aparecer.';
+  static const compartirCertificado = 'Compartir certificado de saldo';
+  static const noSePudoCompartir =
+      'No pudimos abrir otra app para compartirlo.';
+  static String certificado(String periodo, String moneda, String saldo) =>
+      'Certificado de saldo AportaYa\nPeríodo: $periodo\nSaldo al cierre: $moneda $saldo';
   static const saldoFinalDelPeriodo = 'Saldo al cierre del período';
   static const movimientosDelPeriodo = 'Movimientos en el período';
 }

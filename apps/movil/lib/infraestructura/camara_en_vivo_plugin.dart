@@ -97,7 +97,8 @@ class CamaraEnVivoPlugin implements CamaraEnVivo {
         // Un cuadro a la vez y con limitación de tasa (~5 FPS): los cuadros que
         // llegan mientras ML Kit procesa o antes del intervalo mínimo se descartan
         // para evitar que el SoC (CPU/NPU) corra al 100% y sobrecaliente el teléfono.
-        if (ocupado || ahora.difference(ultimoProcesamiento) < intervaloMinimo) {
+        if (ocupado ||
+            ahora.difference(ultimoProcesamiento) < intervaloMinimo) {
           return;
         }
         ocupado = true;
