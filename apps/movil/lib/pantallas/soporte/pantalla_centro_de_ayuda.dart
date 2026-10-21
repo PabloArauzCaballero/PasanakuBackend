@@ -150,7 +150,7 @@ class _PantallaCentroDeAyudaState extends ConsumerState<PantallaCentroDeAyuda> {
             if (sugerido != null) ...[
               const SizedBox(height: Espacio.s5),
               const TituloDeSeccion(titulo: TextosSoporte.recomendado),
-              TarjetaDeTutorialEnLista(fila: sugerido),
+              TarjetaDeTutorialEnLista(fila: sugerido, destacada: true),
             ],
             const SizedBox(height: Espacio.s5),
             MarcaDeTutorial(

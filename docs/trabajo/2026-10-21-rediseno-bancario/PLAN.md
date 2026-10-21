@@ -244,6 +244,10 @@ No se copia ninguna marca ajena: se toma el **lenguaje**, no los activos.
     trae, y ninguna pantalla la enlaza (solo llega por aviso). Sin ese dato no se ofrece «Poner al
     día» (no se inventa la ruta). Hace falta que `aportes` exponga las obligaciones abiertas con id.
     Confirmar con el dueño de `aportes`.
+  - **A12, filtros de Ayuda en carrusel (ABIERTA):** la crítica propone una fila de chips con scroll
+    horizontal; un test existente exige lo contrario («ChipsDeFiltro se acomodan en varias líneas,
+    nunca en carrusel») y el tema es un campo de selección. Se mantiene el requisito y solo se
+    reduce el ruido (un primario por pantalla). Confirmar con Pablo si el requisito sigue vigente.
 
 ---
 
@@ -452,7 +456,7 @@ Cada microtarea de pantalla tiene el **mismo DoD**:
 | H6.S3.M1 | `/portada` | Héroe de marca, promesa en una línea (`copywriting`) y CTA claro | A MEDIAS (anda: banda verde de marca a sangre con el sello y la palabra, promesa y garantías, puertas abajo; falta: mostrar la tarjeta héroe como vista previa, revisar el copy con `copywriting` y el recorrido web) |
 | H6.S3.M2 | `/tour` (4) | Ilustraciones reestilizadas, indicador de puntos con resorte y texto por beneficio | TODO |
 | H6.S3.M3 | `/ingreso`, `/identidad/mfa` | Campos nuevos, biometría como botón destacado y OTP en celdas | A MEDIAS (anda: ingreso con banda de marca verde, logo, saludo y titular que se corre con el teclado; falta: MFA con celdas nuevas y biometría como botón destacado) |
-| H6.S3.M4 | `/registro` (6 pasos) | Fricción mínima según `signup`, progreso visible y ayuda en contexto | TODO |
+| H6.S3.M4 | `/registro` (6 pasos) | Fricción mínima según `signup`, progreso visible y ayuda en contexto | A MEDIAS (anda: cabecera de fase con jerarquía real: eyebrow de marca, título grande y barra más gruesa; falta: fricción mínima según `signup`, ayuda en contexto y los seis pasos rediseñados) |
 | H6.S3.M5 | Pautas, cámara, prueba de vida y subida | Marcos de guía claros sobre fondo oscuro y estados de permiso (los 3) | TODO |
 | H6.S3.M6 | Estado, contrato y bienvenida | Bienvenida con checklist de activación (`onboarding`: primer grupo, primera recarga) | A MEDIAS (anda: estado de verificación ×5 con círculo de tono, etapas Recibido/En revisión/Listo y caso, y bienvenida con tarjeta verde y pasos numerados; falta: checklist de activación con primer grupo y primera recarga (`onboarding`) y contrato) |
 
@@ -463,7 +467,7 @@ Cada microtarea de pantalla tiene el **mismo DoD**:
 | H6.S4.M2 | Verificación, verificación profunda, dispositivos y contraseña | Filas agrupadas, chips de estado y sin `Card`/`ListTile` crudos | TODO |
 | H6.S4.M3 | `/identidad/baja` | Pantalla sobria, consecuencias claras y confirmación con hoja | TODO |
 | H6.S4.M4 | `/notificaciones/bandeja` | Agrupación por día, no leídas con punto y vacío que orienta | TODO |
-| H6.S4.M5 | `/soporte/ayuda` | Buscador, temas en tarjetas y tutoriales | TODO |
+| H6.S4.M5 | `/soporte/ayuda` | Buscador, temas en tarjetas y tutoriales | A MEDIAS (anda: solo el tutorial recomendado lleva la acción principal; falta: buscador y temas en tarjetas, A12) |
 | H6.S4.M6 | Candado, splash, bloqueo de plataforma y configuración inválida | Candado con marca y biometría; los errores de sistema con referencia | TODO |
 | H6.S4.M7 | Shell: barra flotante y, si A6 = sí, pestaña central QR | Navegación capturada y E2E de las pestañas | HECHO |
 | H6.S4.M8 | **Agregada en H0.S2.M5 (bug real):** desde otra rama, la pestaña «Movimientos» llama a `goBranch(0, initialLocation: true)` y aterriza en `/billetera/inicio`, no en `/billetera/extracto` (`navegacion/shell.dart:107-111`). Visto en el recorrido web, captura `web/antes/09-movimientos__412.png` | Test de widget: desde Grupos, tocar Movimientos deja la ubicación en `/billetera/extracto` · recorrido web con la captura correcta | HECHO |
