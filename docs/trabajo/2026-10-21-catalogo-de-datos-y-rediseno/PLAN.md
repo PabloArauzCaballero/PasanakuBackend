@@ -86,7 +86,7 @@
 ## H6 — Cierre de pendientes (pedido: «implementalo todo lo que quede pendiente»)
 **CA:** Dado el REPORTE con pendientes, cuando se cierra H6, entonces cada pendiente queda resuelto con evidencia o, si no se puede ejercitar en este contenedor, declarado con su causa; ningún e2e del backoffice en rojo.
 **DoD:** salida literal de cada DoD en `evidencia/H6-*.txt` · suite del backoffice + e2e completos en verde · REPORTE actualizado.
-**Estado:** EN CURSO
+**Estado:** HECHO salvo H6.S6.M1 (DESCARTADO con motivo) — `evidencia/H6-regresion.txt`
 
 Hallazgos de descubrimiento (con fuente):
 - `proxy.stack-local.json` → `127.0.0.1:80` es correcto: es el `nginx` del compose (`despliegue/compose/base.yml:263` `"80:80"`). `proxy.desarrollo.json` es el de `ng serve` por defecto y su trabajo de origen lo declara «(Prism)» (`docs/trabajo/2026-10-02-escaner-identidad-5-caras/PLAN.md` H12.S3.M3), pero apunta a 80 → defecto.
@@ -110,7 +110,7 @@ Hallazgos de descubrimiento (con fuente):
 | H6.S5.M3 | Pestaña «Operaciones» en la ficha del backoffice | spec + e2e del catálogo | `test:front` + playwright catálogo | HECHO — 35/35 specs del catálogo, e2e 5/5; capturas `cu130-ficha-operaciones-*` miradas (la 1.ª versión en tabla cortaba la columna Servicio: se rehízo en tarjetas por CU) |
 | H6.S6.M1 | Retiro del GET completo deprecado (contrato, controlador, clientes, Postman, simulado) si no queda consumidor | `grep` sin consumidores; build y tests verdes | `generarClientes` + tests auditoria + `test:front` | DESCARTADO en esta entrega (decisión: Claude, regla 98.1.3) — el backoffice se despliega aparte (`despliegue/coolify/backoffice.yml`); quitarlo ahora rompe el backoffice que está en producción si `auditoria` sale primero. Se declaró en el contrato la condición de retiro; la fecha la confirman Marcelo/Pablo |
 | H6.S6.M2 | `auditoria` pasa los gates de CI que H2 rompía (spotless, `testBarrido`: archivo ≥300 líneas y constante con nombre de umbral) | `check` + `testBarrido` en verde | `./gradlew :servicios:auditoria:check … testBarrido` | HECHO — `evidencia/H6-S3-S5-catalogo-y-auditoria.txt` |
-| H6.S7.M1 | Regresión completa + REPORTE actualizado | suites en verde | salidas en `evidencia/H6-regresion.txt` | TODO |
+| H6.S7.M1 | Regresión completa + REPORTE actualizado | suites en verde | salidas en `evidencia/H6-regresion.txt` | HECHO — backoffice 923 + a11y 78, ui 164 + 9, web 74 + 8, e2e 165/165, simulado 344, auditoria 44 + 74 |
 
 ## Riesgos y bloqueos previstos
 | Riesgo | Impacto | Mitigación |
