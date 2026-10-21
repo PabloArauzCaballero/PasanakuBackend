@@ -27,8 +27,6 @@ public class ConsultarContactoEnGrupo {
         if (!grupos.compartenGrupo(grupoId, usuarioId)) {
             throw new AccessDeniedException("no comparte el grupo");
         }
-        return contactos
-                .telefono(grupoId, usuarioId, ctx)
-                .orElseThrow(() -> new AccessDeniedException("no comparte el grupo"));
+        return contactos.telefono(usuarioId, ctx).orElseThrow(() -> new AccessDeniedException("no comparte el grupo"));
     }
 }
