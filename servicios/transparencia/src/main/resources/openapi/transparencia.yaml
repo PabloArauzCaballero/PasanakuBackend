@@ -464,6 +464,29 @@ paths:
         '204': { description: Alerta cerrada con su desenlace }
         '422': { $ref: '#/components/responses/ReglaDeNegocio' }
 
+  /reputacion/{usuarioId}/perfil-en-grupo/{grupoId}:
+    get:
+      operationId: consultarPerfilEnGrupo       # perfil del integrante (2026-10-21)
+      summary: La reputacion de un integrante, para otro integrante del mismo grupo
+      description: >-
+        Lo que la app muestra al abrir el perfil de un integrante: el puntaje y su nivel de
+        confianza, la puntualidad, los grupos completados y abandonados, los incumplimientos
+        abiertos, la antiguedad y las insignias vigentes. El dueño decidio el 2026-10-21 que lo ve
+        solo quien esta en el mismo grupo: la pertenencia es de `grupos` y se le pregunta con el
+        token de quien llama (`GET /grupos/{grupoId}/integrantes/{usuarioId}/comparte`); si no
+        responde o responde que no, 403. Sin montos ni datos bancarios. Quien no tiene historial
+        NO tiene ceros: `tieneHistorial=false` y las cifras en null.
+      parameters:
+        - { name: usuarioId, in: path, required: true, schema: { type: string, format: uuid } }
+        - { name: grupoId, in: path, required: true, schema: { type: string, format: uuid } }
+      responses:
+        '200':
+          description: La reputacion del integrante
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PerfilDeReputacionEnGrupo' }
+        '403':
+          description: Quien pregunta no comparte el grupo con esa persona, o no se pudo comprobar
   /reputacion/{usuarioId}/puntaje:
     get:
       operationId: consultarPuntaje
@@ -507,6 +530,32 @@ components:
           schema: { $ref: '#/components/schemas/Problema' }
 
   schemas:
+    PerfilDeReputacionEnGrupo:
+      type: object
+      additionalProperties: false
+      required: [tieneHistorial, nivelDeConfianza, insignias]
+      properties:
+        tieneHistorial:          { type: boolean }
+        puntaje:                 { type: [string, 'null'] }
+        nivelDeConfianza:        { type: string }
+        indicePuntualidad:       { type: [string, 'null'] }
+        gruposCompletados:       { type: [integer, 'null'], minimum: 0 }
+        gruposAbandonados:       { type: [integer, 'null'], minimum: 0 }
+        incumplimientosAbiertos: { type: [integer, 'null'], minimum: 0 }
+        antiguedadMeses:         { type: [integer, 'null'], minimum: 0 }
+        insignias:
+          description: Una por insignia del catalogo, como mucho (las revocadas no aparecen).
+          type: array
+          items: { $ref: '#/components/schemas/InsigniaVigente' }
+    InsigniaVigente:
+      type: object
+      additionalProperties: false
+      required: [codigo, nombre, descripcion, otorgadaEn]
+      properties:
+        codigo:      { type: string, maxLength: 40 }
+        nombre:      { type: string, maxLength: 80 }
+        descripcion: { type: string, maxLength: 200 }
+        otorgadaEn:  { type: string, format: date-time }
     PuntajeDelUsuario:
       type: object
       additionalProperties: false

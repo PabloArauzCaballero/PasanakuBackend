@@ -71,6 +71,12 @@ class IntegrantesDelGrupo {
         return salida;
     }
 
+    bo.aportaya.grupos.web.generado.modelo.PertenenciaCompartida comparten(
+            UUID grupoId, UUID usuarioId, ContextoSesion ctx) {
+        return new bo.aportaya.grupos.web.generado.modelo.PertenenciaCompartida(
+                detalle.comparten(grupoId, usuarioId, ctx));
+    }
+
     SalidaFirmaDeReglamento firmar(UUID grupoId, EntradaFirmaDeReglamento cuerpo, ContextoSesion ctx) {
         // Sin la aceptacion expresa no hay firma, aunque el hash sea el correcto.
         if (!Boolean.TRUE.equals(cuerpo.getAceptaReglamento())) {

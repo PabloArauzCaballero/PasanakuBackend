@@ -12,8 +12,8 @@ import 'textos_detalle_del_grupo.dart';
 
 /// Un cupo del grupo como tarjeta (2026-10-20): quién lo ocupa, si firmó y su turno.
 /// Un cupo libre se ve libre, no se esconde: así se entiende cuánto falta.
-/// Tocarla abre la pantalla completa del detalle del participante con sus métricas
-/// fácticas de reputación, riesgo, puntos y trofeos sin romper su privacidad.
+/// Tocarla abre el perfil del integrante a pantalla completa: su teléfono y su
+/// reputación real, que el servidor muestra solo a quien comparte el grupo.
 class TarjetaDeIntegrante extends StatelessWidget {
   const TarjetaDeIntegrante({
     super.key,

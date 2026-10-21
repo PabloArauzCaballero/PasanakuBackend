@@ -185,4 +185,39 @@ class GruposDetalleYFirmaWebTest {
                 .andExpect(status().isUnauthorized());
         verifyNoInteractions(detalle, firma);
     }
+
+    @Test
+    @DisplayName("perfil · 200: dice si quien pregunta y el otro comparten el grupo, y nada mas")
+    void compartenGrupo() throws Exception {
+        when(detalle.comparten(eq(GRUPO), eq(PARTICIPANTE), any())).thenReturn(true);
+        mvc.perform(get("/grupos/{g}/integrantes/{u}/comparte", GRUPO, PARTICIPANTE)
+                        .with(Sesiones.como("PARTICIPANTE")))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.comparten").value(true))
+                .andExpect(jsonPath("$.estado").doesNotExist())
+                .andExpect(jsonPath("$.cupoId").doesNotExist());
+    }
+
+    @Test
+    @DisplayName("perfil · 200 false: quien no comparte el grupo recibe un no")
+    void noCompartenGrupo() throws Exception {
+        when(detalle.comparten(eq(GRUPO), eq(PARTICIPANTE), any())).thenReturn(false);
+        mvc.perform(get("/grupos/{g}/integrantes/{u}/comparte", GRUPO, PARTICIPANTE)
+                        .with(Sesiones.como("PARTICIPANTE")))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.comparten").value(false));
+    }
+
+    @Test
+    @DisplayName("perfil · 401 sin sesion, 403 sin el permiso de participante, 400 con un id que no es UUID")
+    void compartenSinPermiso() throws Exception {
+        mvc.perform(get("/grupos/{g}/integrantes/{u}/comparte", GRUPO, PARTICIPANTE))
+                .andExpect(status().isUnauthorized());
+        mvc.perform(get("/grupos/{g}/integrantes/{u}/comparte", GRUPO, PARTICIPANTE)
+                        .with(Sesiones.como("OTRO_PERMISO")))
+                .andExpect(status().isForbidden());
+        mvc.perform(get("/grupos/{g}/integrantes/{u}/comparte", GRUPO, "no-es-uuid")
+                        .with(Sesiones.como("PARTICIPANTE")))
+                .andExpect(status().isBadRequest());
+    }
 }

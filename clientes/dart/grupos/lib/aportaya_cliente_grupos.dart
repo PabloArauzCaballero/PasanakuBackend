@@ -47,6 +47,7 @@ export 'package:aportaya_cliente_grupos/src/model/integrante_del_grupo.dart';
 export 'package:aportaya_cliente_grupos/src/model/mis_limites.dart';
 export 'package:aportaya_cliente_grupos/src/model/paquete_del_sorteo.dart';
 export 'package:aportaya_cliente_grupos/src/model/participacion.dart';
+export 'package:aportaya_cliente_grupos/src/model/pertenencia_compartida.dart';
 export 'package:aportaya_cliente_grupos/src/model/reglamento_para_firmar.dart';
 export 'package:aportaya_cliente_grupos/src/model/revelacion_de_sorteo.dart';
 export 'package:aportaya_cliente_grupos/src/model/salida_aceptacion_invitacion.dart';
