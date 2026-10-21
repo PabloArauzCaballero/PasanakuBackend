@@ -30,8 +30,8 @@
 | H1.S2.M1 | `dart format` con el Dart del CI (3.12.2) | exit 0 | `dart format --set-exit-if-changed` | DESCARTADO (ver REPORTE) |
 | H1.S2.M2 | Literales de diseño → tokens (exactos cuando existen; marca cuando no) | regla OK | `verificar_frontend.py diseno` | DESCARTADO (ver REPORTE) |
 | H1.S2.M3 | 6 archivos > 200 líneas partidos con `part` (mismo código, mismas expresiones) | regla OK + analyze limpio | `verificar_frontend.py diseno` + `flutter analyze` | DESCARTADO (ver REPORTE) |
-| H1.S3.M1 | Regresión backend completa (test, webTest, integrationTest, contractTest, sagaTest, cobertura) | 0 fallos | corrida local en serie | A MEDIAS |
-| H1.S3.M2 | Frontend completo en el CI real (pasos que nunca corrían) | verde | `gh pr checks` | TODO |
+| H1.S3.M1 | Regresión backend completa (test, webTest, integrationTest, contractTest, sagaTest, cobertura) | 0 fallos | corrida local en serie | HECHO (CI real de #168/#169 en `3c29e51b`: «Los cinco corredores» pass) |
+| H1.S3.M2 | Frontend completo en el CI real (pasos que nunca corrían) | verde | `gh pr checks` | TODO (el CI saltea Frontend: «Detectar impacto» no ve cambios de frontend en esta PR) |
 | H1.S4.M1 | P1: el borrador sin sesión solo se guarda con el token CONSUMIDO (código ya confirmado) + huella del correo; control declarado en `PoliticaDeAcceso` | token ENVIADO / correo ajeno / id inexistente → rechazo; CONSUMIDO → guarda | `gradlew :plataforma:comun-pruebas:contractTest` + `:servicios:identidad:integrationTest --tests *BorradorOnboarding*` | HECHO (evidencia/p1-p2-2026-10-21.txt) |
 | H1.S4.M2 | P2: pacto nucleo-financiero ↔ entregas (GET oferta) | `PactoConEntregasContratoTest` 0 | `gradlew :servicios:nucleo-financiero:contractTest` | DESCARTADO: no hay falla en el CI; solo en Windows por CRLF (evidencia/p1-p2-2026-10-21.txt) |
 | H1.S4.M3 | P3: pisos de cobertura con pruebas nuevas (sin bajar pisos) | auditoria, identidad, notificaciones ≥ piso | `gradlew jacocoTestCoverageVerification` | HECHO (notificaciones L0.91/R0.83 · auditoria L0.94/R0.76 · identidad L0.79/R0.70, local) |

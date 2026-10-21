@@ -1,6 +1,6 @@
 # Reporte — CI en verde en dev y test sin regresiones
 
-> **AVANCE: 8 / 14 — 57,1 %.** P1 y P3 quedaron resueltos y P2 resultó no ser una falla del CI (2026-10-21). Falta el resultado del CI real (H1.S3.M2) y `diseno_flutter` (de Pablo). Ver «Cierre de P1–P3».
+> **AVANCE: 9 / 14 — 64,3 %.** El CI del backend quedó en VERDE en #168 (test) y #169 (dev) sobre `3c29e51b`: los 10 jobs que corren pasan, «Los cinco corredores» incluido. Quedan abiertos: Frontend (el CI lo saltea porque esta PR no lo toca) y `diseno_flutter` (de Pablo). Las PRs NO se mergearon.
 
 - Fecha: 2026-10-20 · Plan: [PLAN.md](./PLAN.md) · Rama: `claude/ci-verde-20261020` · PRs #168 (test) y #169 (dev)
 - Peldaño de evidencia: `TESTED` en lo arreglado (reproducción local de cada job).
@@ -89,3 +89,16 @@ Decisión: el dueño del trabajo pidió «lo más recomendable y seguro posible�
 ### Deuda anotada (fuera de alcance, sin tocar)
 - `CatalogosOperativosRepositorio.actualizarEstadoElemento` arma el JSON de la bitácora pegando texto, y el `motivo` va sin escapar: un motivo con comillas rompe el JSONB y hace fallar el cambio. Hay que escaparlo o armar el JSON con ObjectMapper.
 - `GestionarAvisosInternos.mapear` tiene un respaldo a `INFO` que nunca se ejecuta: la base solo admite los 6 tipos del enum.
+
+### CI real (2026-10-21, `3c29e51b`)
+```text
+gh pr checks 169  (y 168, mismo resultado)
+pass | Formato, reglas propias y compilacion
+pass | Los cinco corredores
+pass | bootJar y docker build, multietapa y sin root
+pass | Dependencias, secretos e imagen · Trivy
+pass | Base efimera, semillas y permisos · La boveda y el esquema no divergen
+pass | Bóveda, seguridad, carriles y despliegue coherentes · Esquema, semillas y prueba de humo sobre PostgreSQL real
+pass | Detectar impacto del cambio
+skipping | Frontend, App (goldens, iOS), Contratos y clientes generados, OSV, Punta a punta
+```
