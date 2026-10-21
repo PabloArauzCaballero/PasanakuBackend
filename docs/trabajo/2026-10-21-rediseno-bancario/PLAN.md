@@ -220,7 +220,7 @@ No se copia ninguna marca ajena: se toma el **lenguaje**, no los activos.
   - **A4, íconos (RESUELTA):** **Lucide**, con `lucide_icons_flutter` fijado en **3.1.20**
     (publicado el 2026-09-15, licencia ISC, ~290 mil descargas por mes y API `IconData`
     compatible con `Icon`). Phosphor quedó descartado: sin publicar desde 2024-05. Hugeicons quedó
-    descartado: API no `IconData`. Se registra en ADR-045 (H1.S2.M2).
+    descartado: API no `IconData`. Se registra en ADR-053 (H1.S2.M2).
   - **A5, nombre visible:** «Aporteo» (`app_real.dart`) o «AportaYa» (`app.dart`). Sigue abierta;
     no se toca (no es diseño).
   - **A6, pestaña central QR (RESUELTA):** sí. Pestañas: Inicio · Grupos · **QR** · Movimientos ·
@@ -273,7 +273,7 @@ No se copia ninguna marca ajena: se toma el **lenguaje**, no los activos.
 ## H1 — Dirección de arte, voz y decisiones
 **CA:** Dado el «antes» revisado, cuando la persona abre el brief y la lámina de dirección, entonces puede
 aprobar o corregir paleta, tipografía, íconos, color de acción y navegación antes de que se toque código.
-**DoD:** brief y lámina capturados · ADR-045 escrito · ambigüedades A1–A7 respondidas o con supuesto registrado.
+**DoD:** brief y lámina capturados · ADR-053 escrito · ambigüedades A1–A7 respondidas o con supuesto registrado.
 **Estado:** TODO
 
 | ID | Microtarea | CA | DoD | Estado |
@@ -281,9 +281,9 @@ aprobar o corregir paleta, tipografía, íconos, color de acción y navegación 
 | H1.S1.M1 | Contexto de producto (`.agents/product-marketing.md`, skill `product-marketing`): audiencia, promesa, voz rioplatense con voseo y lo que no se promete | Documento con las 8 secciones de la skill | Archivo en disco | HECHO |
 | H1.S1.M2 | Guía de voz y microcopy (`copywriting` + `copy-editing` + `ux-writing-microcopy`): glosario, verbos de botón, errores sin culpa y prohibiciones de muletillas de IA | Tabla «decimos / no decimos» con ≥ 30 entradas | Archivo `voz.md` | HECHO |
 | H1.S1.M3 | Mapa de psicología aplicada (`marketing-psychology`): confianza, transparencia del pozo, progreso del ciclo, aversión a la pérdida en mora (sin manipular) | Principio → pantalla → elemento | Archivo `psicologia.md` | HECHO |
-| H1.S2.M1 | Lámina de dirección de arte: paleta, tipos, sombras, radios, íconos e Inicio en alta fidelidad (HTML estático con los tokens propuestos) | Se ve en claro y oscuro | 2 capturas de la lámina + revisión | TODO |
-| H1.S2.M2 | ADR-045 «Rediseño bancario»: decisiones de paleta, tipografía, íconos, navegación y efecto sobre la web | ADR con contexto, opciones, decisión y consecuencias | Archivo en `docs/Arquitectura/` | TODO |
-| H1.S2.M3 | Confirmación de A1–A7 con la persona | Cada una con respuesta o supuesto | Tabla actualizada en este plan | TODO |
+| H1.S2.M1 | Lámina de dirección de arte: paleta, tipos, sombras, radios, íconos e Inicio en alta fidelidad (HTML estático con los tokens propuestos) | Se ve en claro y oscuro | 2 capturas de la lámina + revisión | HECHO |
+| H1.S2.M2 | ADR-053 «Rediseño bancario»: decisiones de paleta, tipografía, íconos, navegación y efecto sobre la web | ADR con contexto, opciones, decisión y consecuencias | Archivo en `docs/Arquitectura/` | HECHO |
+| H1.S2.M3 | Confirmación de A1–A7 con la persona | Cada una con respuesta o supuesto | Tabla actualizada en este plan | HECHO |
 
 ---
 
@@ -341,7 +341,7 @@ por componente · `test/a11y` PASS.
 | H4.S1.M6 | `Esqueleto` con brillo diagonal de baja frecuencia (se apaga con reducir movimiento) | Video | MP4 normal + reducido | TODO |
 | H4.S1.M7 | `Casilla` e `Interruptor` sin `ListTile` de fábrica | Captura | golden `atomos_seleccion_*` | TODO |
 | H4.S1.M8 | Campos (`Campo`, `CampoMonto`, `CampoOTP`): relleno suave, foco con anillo de marca y monto grande centrado | Captura de los estados | golden `atomos_campos_*` | TODO |
-| H4.S1.M9 | Iconografía: agregar `lucide_icons_flutter: 3.1.20` (con ADR-045), mapa único `IconosDeMarca` (sustantivo → `LucideIcons.*`) en `diseno_flutter` y barrido de los ~185 `Icons.*` | `git grep -n "Icons\." apps/movil/lib` sin `Icons.` de Material (salvo excepciones listadas) | grep pegado + capturas | TODO |
+| H4.S1.M9 | Iconografía: agregar `lucide_icons_flutter: 3.1.20` (con ADR-053), mapa único `IconosDeMarca` (sustantivo → `LucideIcons.*`) en `diseno_flutter` y barrido de los ~185 `Icons.*` | `git grep -n "Icons\." apps/movil/lib` sin `Icons.` de Material (salvo excepciones listadas) | grep pegado + capturas | TODO |
 
 ### H4.S2 — Moléculas
 | ID | Microtarea | CA | DoD | Estado |
