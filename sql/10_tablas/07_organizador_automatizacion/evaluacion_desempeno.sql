@@ -27,4 +27,6 @@ COMMENT ON COLUMN organizador.evaluacion_desempeno.indice_morosidad_cartera IS '
 COMMENT ON COLUMN organizador.evaluacion_desempeno.tasa_finalizacion_grupos IS 'sus grupos, ¿terminan o se caen?';
 COMMENT ON COLUMN organizador.evaluacion_desempeno.satisfaccion_participantes IS 'la gente que administró, ¿lo recomendaría?';
 COMMENT ON COLUMN organizador.evaluacion_desempeno.tiempo_respuesta_promedio_horas IS 'cuando alguien tiene un problema, ¿contesta?';
+COMMENT ON COLUMN organizador.evaluacion_desempeno.incidencias_abiertas IS '¿cuánto le cuesta al sistema?';
+COMMENT ON COLUMN organizador.evaluacion_desempeno.coberturas_consumidas IS '¿cuánto le cuesta al sistema?';
 COMMENT ON COLUMN organizador.evaluacion_desempeno.nivel_sugerido IS 'CK';

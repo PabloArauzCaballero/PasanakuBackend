@@ -167,6 +167,7 @@ jobs:
       - name: 6i · verificar_narrativas.py — toda tabla con su ficha, y el catálogo de datos al día
         run: |
           python3 -I scripts/verificar_narrativas.py
+          python3 -I scripts/test_catalogo_de_datos.py
           python3 -I scripts/catalogo_de_datos.py --escribir
           git diff --exit-code -- docs/catalogo-de-datos.md servicios/auditoria/src/main/resources/catalogo/catalogo-datos.json
 

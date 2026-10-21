@@ -1,0 +1,30 @@
+# H6.S7.M1 · regresión completa (serial, 1 worker) · 2026-10-21T04:57:31+00:00 · HEAD 4d9bbfed
+$ yarn test:front (backoffice-front)
+ Test Files  148 passed (148)
+      Tests  923 passed (923)
+$ yarn test:a11y (backoffice-a11y)
+ Test Files  42 passed (42)
+      Tests  78 passed (78)
+$ yarn test:front (ui-front)
+ Test Files  35 passed (35)
+      Tests  164 passed (164)
+$ yarn test:a11y (ui-a11y)
+ Test Files  2 passed (2)
+      Tests  9 passed (9)
+$ yarn test:front (web-front)
+ Test Files  16 passed (16)
+      Tests  74 passed (74)
+$ yarn test:a11y (web-a11y)
+ Test Files  4 passed (4)
+      Tests  8 passed (8)
+$ playwright test -c playwright.local.config.ts --workers=1   (backoffice, todo)
+  165 passed (4.8m)
+  (antes de H6: 150 passed · 14 failed, los mismos que en dev 7752e1bf)
+$ yarn typecheck (backoffice) → exit 0 · yarn lint (backoffice, incluye verificar_frontend.py) → exit 0, «TODO OK»
+$ vitest (packages/simulado) → 344 passed
+$ python3 scripts/inventario_endpoints.py --check
+endpoints relevados: 317 · hallazgos: 0
+El inventario esta alineado: todo lo implementado tiene contrato y viceversa.
+$ ./gradlew :servicios:auditoria:test :servicios:auditoria:webTest · check · testBarrido → 44 · 74 · 0 fallas (ver H6-S3-S5)
+
+Las capturas que el e2e escribe en evidencia/ (raíz, de otro trabajo) se restauraron con git checkout; no se commitean.

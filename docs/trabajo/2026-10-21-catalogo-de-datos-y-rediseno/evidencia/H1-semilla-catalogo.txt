@@ -1,0 +1,27 @@
+$ python3 -I scripts/generar_ddl.py
+sql/ generado: 342 tablas · 686 claves foráneas · 785 índices · 532 CHECK
+Sin pendientes a nivel de datos.
+$ python3 -I scripts/catalogo_de_datos.py --escribir (x2) + cmp
+391 tablas → docs/catalogo-de-datos.md y servicios/auditoria/src/main/resources/catalogo/catalogo-datos.json
+391 tablas → docs/catalogo-de-datos.md y servicios/auditoria/src/main/resources/catalogo/catalogo-datos.json
+segunda corrida idéntica
+$ python3 -I scripts/test_catalogo_de_datos.py -v
+test_al_borrar_sigue_la_nulabilidad (__main__.CatalogoDeDatosTest.test_al_borrar_sigue_la_nulabilidad) ... ok
+test_clasificacion_por_tabla_cuenta_las_columnas_sensibles (__main__.CatalogoDeDatosTest.test_clasificacion_por_tabla_cuenta_las_columnas_sensibles) ... ok
+test_columna_fk_trae_el_esquema_destino (__main__.CatalogoDeDatosTest.test_columna_fk_trae_el_esquema_destino) ... ok
+test_columna_unica_vuelve_la_relacion_uno_a_uno (__main__.CatalogoDeDatosTest.test_columna_unica_vuelve_la_relacion_uno_a_uno) ... ok
+test_entrante_es_la_saliente_vista_desde_el_otro_lado (__main__.CatalogoDeDatosTest.test_entrante_es_la_saliente_vista_desde_el_otro_lado) ... ok
+test_esquemas_son_objetos_con_sus_cifras (__main__.CatalogoDeDatosTest.test_esquemas_son_objetos_con_sus_cifras) ... ok
+test_orden_determinista (__main__.CatalogoDeDatosTest.test_orden_determinista) ... ok
+test_relaciones_coinciden_con_el_ddl (__main__.CatalogoDeDatosTest.test_relaciones_coinciden_con_el_ddl) ... ok
+test_tablas_de_infraestructura_estan_y_se_distinguen (__main__.CatalogoDeDatosTest.test_tablas_de_infraestructura_estan_y_se_distinguen) ... ok
+test_vineta_con_varias_columnas_explica_a_cada_una (__main__.CatalogoDeDatosTest.test_vineta_con_varias_columnas_explica_a_cada_una) ... ok
+
+----------------------------------------------------------------------
+Ran 10 tests in 0.148s
+
+OK
+$ python3 -I scripts/verificar_narrativas.py
+  OK    · columnas con explicación de negocio: 566/4124 (piso 524)
+
+Sin fallas.

@@ -36,14 +36,16 @@ const ESPERA_DE_BUSQUEDA_MS = 350
     }
   `,
   styles: `
-    :host { display: flex; flex-wrap: wrap; align-items: flex-end; gap: var(--s3); padding: var(--s3); border: var(--borde-fino) solid var(--border); border-radius: var(--r-lg); background: var(--surface); box-shadow: var(--sombra-1); }
-    /* El buscador conserva un ancho mínimo: con seis filtros la fila envuelve en vez de aplastarlo. */
-    .buscador { display: flex; align-items: center; gap: var(--s1); flex: 1 1 14rem; min-width: min(14rem, 100%); }
+    /* Grilla y no fila flexible: con cinco filtros, el último ya no se estira solo a todo el ancho. */
+    :host { container-type: inline-size; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 11rem), 1fr)); align-items: end; gap: var(--s3); padding: var(--s3); border: var(--borde-fino) solid var(--border); border-radius: var(--r-lg); background: var(--surface); box-shadow: var(--sombra-1); }
+    /* El buscador ocupa toda la fila en angosto y dos columnas cuando hay lugar: es el filtro que más se usa. */
+    .buscador { display: flex; align-items: center; gap: var(--s1); grid-column: 1 / -1; min-width: 0; }
+    @container (min-width: 36rem) { .buscador { grid-column: span 2; } }
     ap-campo-busqueda { flex: 1; min-width: 0; }
     .ayuda { display: inline-flex; align-items: center; justify-content: center; width: var(--area-tactil); height: var(--area-tactil); padding: 0; border: 0; border-radius: var(--r-pill); background: transparent; color: var(--text-3); cursor: help; }
     .ayuda:focus-visible { outline: var(--borde-foco) solid var(--g300); outline-offset: var(--borde-desfase); }
-    ap-lista-de-opciones { flex: 1 1 11rem; min-width: min(11rem, 100%); }
-    ap-boton { margin-left: auto; }
+    ap-lista-de-opciones { min-width: 0; }
+    ap-boton { justify-self: end; }
   `,
 })
 export class BarraDeFiltros implements OnDestroy {

@@ -7,10 +7,11 @@ import { RouterTestingHarness } from '@angular/router/testing'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { GATEWAY } from '../../../nucleo/gateway'
 import { Sesion } from '../../../nucleo/sesion'
-import { catalogo } from './catalogo-sintetico'
+import { OBLIGACION, resumen } from './catalogo-sintetico'
 import { PantallaDeFichaDeGobierno } from './pantalla-de-ficha-de-gobierno'
 
-const URL = 'http://gw/api/v1/indicadores/catalogo-de-datos'
+const BASE = 'http://gw/api/v1/indicadores/catalogo-de-datos'
+const FICHA = `${BASE}/tablas/aportes/obligacion_aporte`
 
 /** La ficha a la que se vuelve tras guardar, sin pedir nada. */
 @Component({ template: '' })
@@ -28,7 +29,7 @@ describe('PantallaDeFichaDeGobierno', () => {
         provideZonelessChangeDetection(),
         provideHttpClient(),
         provideHttpClientTesting(),
-        provideRouter([{ path: 'tablero/catalogo-de-datos/:tabla/ficha', component: PantallaDeFichaDeGobierno }, { path: '**', component: Vacia }], withComponentInputBinding()),
+        provideRouter([{ path: 'tablero/catalogo-de-datos/:esquema/:tabla/ficha', component: PantallaDeFichaDeGobierno }, { path: '**', component: Vacia }], withComponentInputBinding()),
         { provide: GATEWAY, useValue: 'http://gw/api/v1' },
       ],
     })
@@ -44,9 +45,10 @@ describe('PantallaDeFichaDeGobierno', () => {
   })
 
   async function abrir() {
-    const arnes = await RouterTestingHarness.create('/tablero/catalogo-de-datos/obligacion_aporte/ficha')
+    const arnes = await RouterTestingHarness.create('/tablero/catalogo-de-datos/aportes/obligacion_aporte/ficha')
     TestBed.inject(ApplicationRef).tick()
-    http.expectOne(URL).flush(catalogo())
+    http.expectOne(FICHA).flush(OBLIGACION)
+    http.expectOne(`${BASE}/resumen`).flush(resumen())
     await arnes.fixture.whenStable()
     arnes.fixture.detectChanges()
     const el = arnes.routeNativeElement as HTMLElement
@@ -77,7 +79,9 @@ describe('PantallaDeFichaDeGobierno', () => {
     expect(pedido.request.body).toEqual({ estado: 'CANDIDATA_A_RETIRO', estadoRevision: 'DETECTADA', criticaParaAuditoria: false, version: 0 })
     pedido.flush({ estado: 'CANDIDATA_A_RETIRO', estadoRevision: 'DETECTADA', criticaParaAuditoria: false, version: 1 })
     await new Promise((r) => setTimeout(r))
-    http.expectOne(URL).flush(catalogo())
+    // Tras guardar se releen las cifras del catálogo, que cambiaron con la ficha (la ficha la relee la pantalla a la que se vuelve).
+    http.match(FICHA).forEach((r) => r.flush(OBLIGACION))
+    http.expectOne(`${BASE}/resumen`).flush(resumen())
     await arnes.fixture.whenStable()
     expect(destinos.at(-1)).toEqual(['..'])
   })

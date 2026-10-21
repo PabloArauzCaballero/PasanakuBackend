@@ -14,9 +14,9 @@ import { Interruptor } from '@aportaya/ui/interruptor/interruptor'
 import { ListaDeOpciones } from '@aportaya/ui/lista-de-opciones/lista-de-opciones'
 import { Tarjeta } from '@aportaya/ui/tarjeta/tarjeta'
 import { mensajeDe } from '../../../nucleo/errores'
-import { CatalogoDeDatosRemoto } from './dominio'
+import { ResumenDelCatalogoRemoto, clasificacionDe, fichaRemota } from './dominio'
 import { GuardadoDeFicha } from './dominio/guardado-de-ficha'
-import { ESTADOS, REVISIONES, borradorDe, entradaDe, gobiernoDe, tieneDatosFinancieros, tieneDatosPersonales, type Borrador } from './gobierno'
+import { ESTADOS, REVISIONES, borradorDe, entradaDe, gobiernoDe, type Borrador } from './gobierno'
 import { textosCatalogo } from './textos'
 import { textosGobierno as t } from './textos-gobierno'
 
@@ -31,7 +31,7 @@ import { textosGobierno as t } from './textos-gobierno'
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [AreaDeTexto, Boton, CabeceraDePagina, CabeceraDeSeccion, Campo, ChipEstado, DialogoDeConfirmacion, EstadoDeError, EstadoDePantalla, Interruptor, ListaDeOpciones, Tarjeta],
   template: `
-    <ap-estado-de-pantalla [recurso]="remoto.recurso" [mensajeVacio]="textos.ficha.noExiste(tabla())" [etiquetaDeCarga]="textos.cargando" (reintentar)="remoto.recurso.reload()">
+    <ap-estado-de-pantalla [recurso]="remoto" [mensajeVacio]="textos.ficha.noExiste(esquema() + '.' + tabla())" [etiquetaDeCarga]="textos.cargando" (reintentar)="remoto.reload()">
       @if (ficha(); as f) {
         <ap-cabecera-de-pagina icono="baseDeDatos" [eyebrow]="t.eyebrow" [titulo]="t.configurar" [descripcion]="t.descripcion(f.esquema + '.' + f.tabla)">
           <ap-boton acciones variante="fantasma" tamano="sm" (pulsado)="volver()">{{ t.volver }}</ap-boton>
@@ -77,21 +77,29 @@ import { textosGobierno as t } from './textos-gobierno'
   `,
 })
 export class PantallaDeFichaDeGobierno {
+  readonly esquema = input.required<string>()
   readonly tabla = input.required<string>()
   protected readonly t = t
   protected readonly textos = textosCatalogo
-  protected readonly remoto = inject(CatalogoDeDatosRemoto)
+  protected readonly remoto = fichaRemota(() => this.esquema(), () => this.tabla())
+  private readonly resumen = inject(ResumenDelCatalogoRemoto)
   private readonly guardado$ = inject(GuardadoDeFicha)
   private readonly router = inject(Router)
   private readonly ruta = inject(ActivatedRoute)
   protected readonly opcionesEstado = Object.entries(ESTADOS).map(([valor, texto]) => ({ valor, texto }))
   protected readonly opcionesRevision = Object.entries(REVISIONES).map(([valor, texto]) => ({ valor, texto }))
-  protected readonly ficha = computed(() => (this.remoto.recurso.hasValue() ? this.remoto.recurso.value()?.tablas.find((x) => x.tabla === this.tabla()) : undefined))
+  protected readonly ficha = computed(() => (this.remoto.hasValue() ? this.remoto.value() : undefined))
   protected readonly opcionesRetencion = computed(() =>
-    (this.remoto.recurso.hasValue() ? (this.remoto.recurso.value()?.politicasDeRetencion ?? []) : []).map((p) => ({ valor: p.id, texto: t.opcionRetencion(p.entidad, p.mesesRetencionActiva, p.accionAlVencer) })),
+    (this.resumen.recurso.hasValue() ? (this.resumen.recurso.value()?.politicasDeRetencion ?? []) : []).map((p) => ({ valor: p.id, texto: t.opcionRetencion(p.entidad, p.mesesRetencionActiva, p.accionAlVencer) })),
   )
-  protected readonly personales = computed(() => (this.ficha() ? tieneDatosPersonales(this.ficha()!) : false))
-  protected readonly financieros = computed(() => (this.ficha() ? tieneDatosFinancieros(this.ficha()!) : false))
+  protected readonly personales = computed(() => {
+    const f = this.ficha()
+    return f ? clasificacionDe(f).personales + clasificacionDe(f).secretos > 0 : false
+  })
+  protected readonly financieros = computed(() => {
+    const f = this.ficha()
+    return f ? clasificacionDe(f).financieros > 0 : false
+  })
   private readonly actual = computed(() => (this.ficha() ? gobiernoDe(this.ficha()!) : undefined))
   protected readonly borrador = signal<Borrador>(borradorDe({ estado: 'ACTIVA', estadoRevision: 'DETECTADA', criticaParaAuditoria: false, version: 0 } as never))
   protected readonly cambios = computed(() => {
@@ -135,7 +143,9 @@ export class PantallaDeFichaDeGobierno {
     try {
       await this.guardado$.guardar(f.esquema, f.tabla, entradaDe(this.borrador(), a.version))
       this.confirmando.set(false)
-      this.remoto.recurso.reload()
+      this.remoto.reload()
+      // Las cifras del catálogo (estado, revisión, responsable) cambiaron con esta ficha.
+      this.resumen.recurso.reload()
       this.volver()
     } catch (e) {
       const http = e instanceof HttpErrorResponse ? e : undefined

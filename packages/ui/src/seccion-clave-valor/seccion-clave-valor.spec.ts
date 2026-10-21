@@ -44,4 +44,19 @@ describe('SeccionClaveValor', () => {
     expect(codigo?.querySelector('button')?.getAttribute('aria-label')).toBe('Copiar Esquema')
     expect(el.querySelectorAll('dl > div')[2]?.classList.contains('tono-aviso')).toBe(true)
   })
+
+  it('texto largo: párrafos y viñetas de la narrativa quedan como <p>, <ul> y <ol>, no como texto corrido', () => {
+    const fixture = TestBed.createComponent(SeccionClaveValor)
+    fixture.componentRef.setInput('titulo', 'Contexto')
+    fixture.componentRef.setInput('items', [
+      { etiqueta: 'Para qué sirve', texto: true, valor: 'Resuelve problemas:\n\n- Varias órdenes.\n- Glosa conciliable.\n\nCierre.\n1. Primero.\n2. Después.' },
+      { etiqueta: 'Qué es', texto: true, valor: 'Una sola línea.' },
+    ])
+    fixture.detectChanges()
+    const [larga, corta] = Array.from((fixture.nativeElement as HTMLElement).querySelectorAll('dd'))
+    expect(Array.from(larga!.querySelectorAll('p')).map((p) => p.textContent)).toEqual(['Resuelve problemas:', 'Cierre.'])
+    expect(Array.from(larga!.querySelectorAll('ul > li')).map((li) => li.textContent)).toEqual(['Varias órdenes.', 'Glosa conciliable.'])
+    expect(Array.from(larga!.querySelectorAll('ol > li')).map((li) => li.textContent)).toEqual(['Primero.', 'Después.'])
+    expect(corta!.querySelector('p')?.textContent).toBe('Una sola línea.')
+  })
 })
