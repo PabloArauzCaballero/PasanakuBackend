@@ -111,14 +111,16 @@ class _MontoQueSubeState extends State<MontoQueSube>
         etiqueta: widget.etiqueta,
       ),
       excludeSemantics: true,
-      child: AnimatedBuilder(
-        animation: _control,
-        builder: (context, _) => Text(
-          formatearMonto(
-            monto: montoDesdeCentavos(_centavosVisibles),
-            moneda: widget.moneda,
+      child: RepaintBoundary(
+        child: AnimatedBuilder(
+          animation: _control,
+          builder: (context, _) => Text(
+            formatearMonto(
+              monto: montoDesdeCentavos(_centavosVisibles),
+              moneda: widget.moneda,
+            ),
+            style: estilo,
           ),
-          style: estilo,
         ),
       ),
     );
