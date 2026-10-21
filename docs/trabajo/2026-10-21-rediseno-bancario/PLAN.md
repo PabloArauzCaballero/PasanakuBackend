@@ -254,7 +254,7 @@ No se copia ninguna marca ajena: se toma el **lenguaje**, no los activos.
 | H0.S2.M4 | Inventario de pantallas del arnés (lista cerrada contra las rutas) | Toda ruta registrada tiene su entrada o una exclusión justificada | Test que compara el inventario con `rutas.dart` → PASS | HECHO |
 | H0.S2.M5 | Recorrido web con Playwright (`herramientas/capturas-web/`) | Navega Inicio → Grupos → Movimientos y captura | `node herramientas/capturas-web/recorrer.mjs` exit 0 + PNG | TODO |
 | H0.S2.M6 | Grabador de movimiento (video de Playwright más extracción de cuadros con ffmpeg) | Sale un MP4 y 3 cuadros de una transición | Archivo MP4 > 0 bytes + 3 PNG | TODO |
-| H0.S2.M7 | Generador de galería `scripts/galeria_capturas.mjs` | `galeria.html` lista antes y después por pantalla con filtros | `node scripts/galeria_capturas.mjs` → HTML abierto y mirado | TODO |
+| H0.S2.M7 | Generador de galería `scripts/galeria_capturas.mjs` | `galeria.html` lista antes y después por pantalla con filtros | `node scripts/galeria_capturas.mjs` → HTML abierto y mirado | HECHO |
 
 ### H0.S3 — Capturas «antes» (una microtarea por flujo)
 | ID | Microtarea | CA | DoD | Estado |
