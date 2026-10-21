@@ -239,6 +239,11 @@ No se copia ninguna marca ajena: se toma el **lenguaje**, no los activos.
     (sin tipo: aporte, recarga, entrega). La fila muestra entra/sale y no adivina el tipo por la
     glosa (regla 97.5.2). Si el contrato suma el tipo, la fila ya lo acepta (`tipo:`). Confirmar
     con el dueño de `nucleo-financiero`.
+  - **A11, pagar desde «Estado de tu aporte» (ABIERTA):** la ruta de pago
+    `/pasanaku/obligaciones/:obligacionId/aportar` necesita un id que el estado del participante no
+    trae, y ninguna pantalla la enlaza (solo llega por aviso). Sin ese dato no se ofrece «Poner al
+    día» (no se inventa la ruta). Hace falta que `aportes` exponga las obligaciones abiertas con id.
+    Confirmar con el dueño de `aportes`.
 
 ---
 
@@ -430,7 +435,7 @@ Cada microtarea de pantalla tiene el **mismo DoD**:
 ### H6.S2 — Grupos (el corazón del pasanaku)
 | ID | Pantalla | Cambios clave | Estado |
 |---|---|---|---|
-| H6.S2.M1 | `/pasanaku/mi-estado` | Tarjetas de grupo, resumen de compromisos y restricciones como alerta con acción | TODO |
+| H6.S2.M1 | `/pasanaku/mi-estado` | Tarjetas de grupo, resumen de compromisos y restricciones como alerta con acción | A MEDIAS (anda: título grande, tarjeta de grupo con la cifra por período, tarjeta de aporte con cada cifra nombrada y restricción como alerta; falta: acción de pago en la alerta (A11) y el resumen de compromisos de todos los grupos) |
 | H6.S2.M2 | `/mi-puntaje` | Medidor circular de confianza, escalera de etapas y qué sube el puntaje | TODO |
 | H6.S2.M3 | `/grupos/nuevo` | Asistente por pasos con `BarraDePasos`, vista previa de la tarjeta del grupo y monto grande | TODO |
 | H6.S2.M4 | `/grupos/:id/invitar` (+número) | Tarjeta compartible con QR (`referrals`: mensaje listo para WhatsApp, beneficio para ambos solo si existe en el negocio) | TODO |
@@ -520,6 +525,16 @@ cada pantalla y componente, y el reporte dice con honestidad qué está hecho, q
 ---
 
 ## Orden de ejecución y entregas parciales
+
+> **Reorden del 2026-10-21 (pedido de la persona usuaria: «hay cosas que antes se veían mal y
+> siguen igual»).** La crítica `evidencia/roast-pantallas-hoy.md` mostró que H2–H4 cambiaron color
+> y piezas, pero no la composición de las pantallas. Desde acá se ejecuta **H6 antes de terminar
+> H4 y H5**, en este orden, y cada pantalla construye en el momento la pieza de H4 que necesite:
+> 1. H6.S2.M1 Mi estado · 2. H6.S1.M1 + H6.S4.M7 Inicio y barra · 3. H6.S4.M1 Perfil ·
+> 4. H6.S3.M6 Pantallas de estado · 5. H6.S3.M3 Ingreso · 6. H6.S3.M1 Portada ·
+> 7. H6.S4.M5 Ayuda · 8. H6.S3.M4 Alta.
+> Cada una cierra con su antes|después en 3 viewports × 2 temas, mirado.
+
 
 1. **H0** (antes) → **H1** (dirección; A2, A3, A4 y A6 ya resueltas el 2026-10-21) → **H2** → **H3** →
    **H4** → **H6.S1 Inicio** → *entrega parcial con galería* → H5 en paralelo con el resto de **H6** →

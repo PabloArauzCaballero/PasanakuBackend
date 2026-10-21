@@ -1,0 +1,21 @@
+# H6.S2.M1 — Grupos y «Estado de tu aporte» (2026-10-21) · peldaño TESTED + prueba visual
+
+Origen: roast-pantallas-hoy.md, hallazgo #1 (🔥🔥🔥 la plata escondida en un párrafo).
+- Mis grupos: CabeceraDeInicio («Pasanakus / Tus grupos») en vez de AppBar; TarjetaDeMiGrupo con
+  identidad arriba y franja con «Aporte por período» como cifra (o «Ver el estado del grupo»).
+- Estado de tu aporte: TarjetaDeAporte (chip, «Deuda vigente con el grupo» en cifraGrande, «Por
+  aportar este período» y «Obligaciones abiertas» con nombre visible) + AvisoDeRestriccion
+  (Alerta aviso con el monto que la levanta; sin restricción, línea con escudo).
+- Textos que quedaron sin uso, borrados: deudaVigente, porAportarAviso, restriccionVigente,
+  aportePorPeriodo.
+
+Rojos: ninguno de producto. h8_grupos_mi_estado_oscuro_test afirmaba las oraciones viejas →
+reescrito a los mismos hechos con su etiqueta (deuda, por aportar, obligaciones, restricción).
+pantalla_mis_grupos_test: solo el import de la tarjeta (archivo nuevo).
+
+$ (apps/movil) dart analyze --fatal-infos → No issues found!
+$ flutter test test/pasanaku/pantalla_mis_grupos_test.dart → 00:01 +5: All tests passed!
+$ flutter test test/unidad test/widget test/contrato test/identidad test/pasanaku test/a11y → 01:51 +769: All tests passed!
+$ flutter test test/goldens --update-goldens → +274 · flutter test test/goldens → 00:50 +274: All tests passed!
+$ flutter test test/capturas/rediseno --update-goldens --dart-define=FASE=intermedio-h6 --dart-define=FLUJOS=grupos → 01:03 +516
+Mirado: 19 goldens cambiados (5 estados × temas × anchos) y mis-grupos datos/peorCaso antes|después.

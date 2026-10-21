@@ -76,14 +76,20 @@ void main() {
     expect(Theme.of(contexto).brightness, Brightness.dark);
     expect(MediaQuery.textScalerOf(contexto).scale(10), closeTo(13, 0.001));
     expect(find.text('Con deuda vigente'), findsOneWidget);
+    // Cada hecho con su nombre a la vista (ADR-053): la deuda, lo que falta aportar, las
+    // obligaciones abiertas y el monto que levanta la restricción.
+    expect(find.text(TextosPasanaku.etiquetaDeudaVigente), findsOneWidget);
+    expect(find.text('Bs 1.240,50'), findsOneWidget);
+    expect(find.text(TextosPasanaku.etiquetaPorAportar), findsOneWidget);
+    expect(find.text('Bs 4,44'), findsOneWidget);
     expect(
-      find.text(TextosPasanaku.deudaVigente('Bs\u00a01.240,50')),
+      find.text(TextosPasanaku.etiquetaObligacionesAbiertas),
       findsOneWidget,
     );
-    expect(find.text('Bs 4,44'), findsOneWidget);
-    expect(find.text('Obligaciones abiertas: 1'), findsOneWidget);
+    expect(find.text('1'), findsOneWidget);
+    expect(find.text(TextosPasanaku.tituloRestriccion), findsOneWidget);
     expect(
-      find.text(TextosPasanaku.restriccionVigente('Bs\u00a01.240,50')),
+      find.text(TextosPasanaku.levantaRestriccion('Bs\u00a01.240,50')),
       findsOneWidget,
     );
     expect(find.text(TextosInvitacion.accionInvitar), findsOneWidget);
@@ -175,7 +181,12 @@ void main() {
     expect(MediaQuery.textScalerOf(contexto).scale(10), closeTo(13, 0.001));
     expect(find.text('Al día'), findsOneWidget);
     expect(find.text(TextosPasanaku.sinRestriccion), findsOneWidget);
-    expect(find.text('Obligaciones abiertas: 0'), findsOneWidget);
+    expect(find.text(TextosPasanaku.alDiaTitulo), findsOneWidget);
+    expect(
+      find.text(TextosPasanaku.etiquetaObligacionesAbiertas),
+      findsOneWidget,
+    );
+    expect(find.text('0'), findsOneWidget);
     expect(tester.takeException(), isNull);
     await expectLater(
       find.byType(PantallaMiEstado),

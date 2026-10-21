@@ -108,11 +108,12 @@ class TextosPasanaku {
   // Mora / incumplimiento — SIEMPRE en hechos, nunca en probabilidad
   static const tituloMora = 'Estado de tu aporte';
   static const tituloMisGrupos = 'Tus grupos';
+  static const saludoMisGrupos = 'Pasanakus';
+  static const etiquetaAportePorPeriodo = 'Aporte por período';
+  static const verEstadoDelGrupo = 'Ver el estado del grupo';
   static const grupoSinNombre = 'Grupo';
   static const organizasEsteGrupo = 'Organizás este grupo';
   static const participasEnEsteGrupo = 'Participás en este grupo';
-  static String aportePorPeriodo(String monto) =>
-      'Aporte de $monto por período';
   static String diasDesdeVencimiento(int dias) => dias <= 0
       ? 'Tu aporte vence hoy.'
       : 'Tu aporte está a $dias día${dias == 1 ? '' : 's'} de su plazo, vencido el';
@@ -120,13 +121,15 @@ class TextosPasanaku {
   static const alDia = 'Estás al día con este grupo.';
   static const sinParticipacion =
       'Todavía no participás en ningún grupo. Cuando entres a uno, acá ves cómo vas con tus aportes.';
-  static String deudaVigente(String monto) =>
-      'Tenés una deuda vigente de $monto con el grupo.';
-  static String porAportarAviso(String monto) =>
-      'Por aportar este período: $monto.';
   static const sinRestriccion = 'No tenés restricciones vigentes.';
-  static String restriccionVigente(String monto) =>
-      'Tenés una restricción vigente. Se levanta pagando $monto.';
+  // Tarjeta de aporte (ADR-053): cada cifra con su nombre a la vista.
+  static const alDiaTitulo = 'Estás al día';
+  static const etiquetaDeudaVigente = 'Deuda vigente con el grupo';
+  static const etiquetaPorAportar = 'Por aportar este período';
+  static const etiquetaObligacionesAbiertas = 'Obligaciones abiertas';
+  static const tituloRestriccion = 'Tenés una restricción vigente';
+  static String levantaRestriccion(String monto) =>
+      'Se levanta pagando $monto.';
   static const tituloMiPuntaje = 'Tu puntaje de reputación';
   static const sinHistorial =
       'Todavía no tenés historial suficiente para un puntaje — no es una sanción, es que recién empezás.';
