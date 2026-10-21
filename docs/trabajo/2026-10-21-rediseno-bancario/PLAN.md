@@ -369,15 +369,15 @@ por componente · `test/a11y` PASS.
 | H4.S2.M4 | `FilaDeMovimiento`: avatar por tipo, monto con signo y color + ícono, y subtítulo con hora | Captura de los tipos | captura | HECHO |
 | H4.S2.M5 | `ItemPasanaku` → **tarjeta de grupo** con rueda mini, progreso del ciclo y avatares apilados | Captura en datos y peor caso | captura | TODO |
 | H4.S2.M6 | `Cabecera` grande que se compacta al desplazar (reemplaza el `AppBar` de fábrica) | Video del colapso | MP4 | TODO |
-| H4.S2.M7 | `Alerta`, `Seccion`, `Pestanas`, `BarraDePasos`, `ChipsDeFiltro`, `TarjetaKPI` y `RielDeTurnos` re-estilizados | Una captura por componente | golden `moleculas_*` | TODO |
+| H4.S2.M7 | `Alerta`, `Seccion`, `Pestanas`, `BarraDePasos`, `ChipsDeFiltro`, `TarjetaKPI` y `RielDeTurnos` re-estilizados | Una captura por componente | golden `moleculas_*` | A MEDIAS (anda: BotonDeCabecera en círculo, píldora de pestañas; falta Alerta, Seccion, Pestanas, BarraDePasos, ChipsDeFiltro, TarjetaKPI y RielDeTurnos) |
 
 ### H4.S3 — Organismos y móviles
 | ID | Microtarea | CA | DoD | Estado |
 |---|---|---|---|---|
 | H4.S3.M1 | `EncabezadoDeSaldo` vuelve a usar la tarjeta héroe | Captura | golden `pantalla_de_saldo_*` | HECHO |
 | H4.S3.M2 | `ListaDeMovimientos` con encabezados de día fijos | Video al desplazar | MP4 | TODO |
-| H4.S3.M3 | `EstadoVacio`, `EstadoError` y `EstadoDePantalla` con ilustración, título, explicación y acción | 3 estados × 2 temas | golden `organismos_*` | TODO |
-| H4.S3.M4 | `BarraPestanas` flotante de vidrio con indicador en píldora con resorte (más pestaña QR si A6 = sí) | Video del cambio de pestaña | MP4 normal + reducido | TODO |
+| H4.S3.M3 | `EstadoVacio`, `EstadoError` y `EstadoDePantalla` con ilustración, título, explicación y acción | 3 estados × 2 temas | golden `organismos_*` | A MEDIAS (anda: EstadoVacio con círculo de marca, título, ícono propio y acción, y EstadoDePantalla lo propaga; falta: EstadoError con el mismo tratamiento y las capturas de los tres estados × 2 temas) |
+| H4.S3.M4 | `BarraPestanas` flotante de vidrio con indicador en píldora con resorte (más pestaña QR si A6 = sí) | Video del cambio de pestaña | MP4 normal + reducido | A MEDIAS (anda: cápsula flotante con píldora que crece, QR central levantado, etiquetas del mismo tamaño y test; falta: indicador que se desliza con resorte entre pestañas y su MP4 normal/reducido, que van con H5) |
 | H4.S3.M5 | `HojaDeConfirmacion` con agarradera, banda elástica y fondo atenuado | Video | MP4 | TODO |
 | H4.S3.M6 | `CelebracionDeExito` para aporte pagado (confeti breve ≤ 900 ms, solo en éxito de dinero, apagado con reducir movimiento) | Video | MP4 | TODO |
 | H4.S3.M7 | `TecladoNumerico` con teclas circulares y háptico de selección | Captura | captura | TODO |
@@ -426,7 +426,7 @@ Cada microtarea de pantalla tiene el **mismo DoD**:
 ### H6.S1 — Inicio y billetera (primero: es la cara de la app)
 | ID | Pantalla | Cambios clave | Estado |
 |---|---|---|---|
-| H6.S1.M1 | `/billetera/inicio` | Anatomía §2: saludo, héroe, acciones, próximo aporte, carrusel de grupos y últimos movimientos | TODO |
+| H6.S1.M1 | `/billetera/inicio` | Anatomía §2: saludo, héroe, acciones, próximo aporte, carrusel de grupos y últimos movimientos | A MEDIAS (anda: cabecera con Ayuda y avisos en círculos, héroe, acciones, vacío de pasanakus con crear/entrar y últimos movimientos con la fila nueva; falta: tarjeta «próximo aporte» (A11) y carrusel de grupos) |
 | H6.S1.M2 | `/billetera/recargar` | Monto grande centrado con teclado propio, chips de montos sugeridos, QR en tarjeta y estado de espera honesto («esperando confirmación», regla 91.3) | TODO |
 | H6.S1.M3 | `/billetera/retirar` | Ídem, más la cuenta destino enmascarada en tarjeta y el aviso de enfriamiento | TODO |
 | H6.S1.M4 | `/billetera/transferir` | Contacto con avatar, monto y hoja de confirmación con resumen | TODO |
@@ -465,8 +465,8 @@ Cada microtarea de pantalla tiene el **mismo DoD**:
 | H6.S4.M4 | `/notificaciones/bandeja` | Agrupación por día, no leídas con punto y vacío que orienta | TODO |
 | H6.S4.M5 | `/soporte/ayuda` | Buscador, temas en tarjetas y tutoriales | TODO |
 | H6.S4.M6 | Candado, splash, bloqueo de plataforma y configuración inválida | Candado con marca y biometría; los errores de sistema con referencia | TODO |
-| H6.S4.M7 | Shell: barra flotante y, si A6 = sí, pestaña central QR | Navegación capturada y E2E de las pestañas | TODO |
-| H6.S4.M8 | **Agregada en H0.S2.M5 (bug real):** desde otra rama, la pestaña «Movimientos» llama a `goBranch(0, initialLocation: true)` y aterriza en `/billetera/inicio`, no en `/billetera/extracto` (`navegacion/shell.dart:107-111`). Visto en el recorrido web, captura `web/antes/09-movimientos__412.png` | Test de widget: desde Grupos, tocar Movimientos deja la ubicación en `/billetera/extracto` · recorrido web con la captura correcta | TODO |
+| H6.S4.M7 | Shell: barra flotante y, si A6 = sí, pestaña central QR | Navegación capturada y E2E de las pestañas | HECHO |
+| H6.S4.M8 | **Agregada en H0.S2.M5 (bug real):** desde otra rama, la pestaña «Movimientos» llama a `goBranch(0, initialLocation: true)` y aterriza en `/billetera/inicio`, no en `/billetera/extracto` (`navegacion/shell.dart:107-111`). Visto en el recorrido web, captura `web/antes/09-movimientos__412.png` | Test de widget: desde Grupos, tocar Movimientos deja la ubicación en `/billetera/extracto` · recorrido web con la captura correcta | HECHO |
 
 ---
 

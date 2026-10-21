@@ -157,7 +157,13 @@ void main() {
       find.byType(PantallaDeSaldo),
       matchesGoldenFile('$_evidencia/billetera-saldo-alto-vacios-200.png'),
     );
-    await tester.drag(find.byType(ListView).first, const Offset(0, -560));
+    // Se desplaza HASTA lo que se mide, no una distancia fija: el estado vacío de pasanakus
+    // (ADR-053) es más alto y 560 dp ya no alcanzan para llegar a los movimientos.
+    await tester.dragUntilVisible(
+      find.textContaining('Todavía no tenés movimientos'),
+      find.byType(ListView).first,
+      const Offset(0, -200),
+    );
     await tester.pumpAndSettle();
     expect(find.text('Movimientos'), findsOneWidget);
     expect(find.textContaining('Todavía no tenés movimientos'), findsOneWidget);
@@ -196,7 +202,11 @@ void main() {
     // ve entero. Se arrastra solo si hay algo desplazable; la aserción no cambia.
     final desplazable = find.byType(Scrollable);
     if (desplazable.evaluate().isNotEmpty) {
-      await tester.drag(desplazable.first, const Offset(0, -560));
+      await tester.dragUntilVisible(
+        find.textContaining('Todavía no tenés movimientos'),
+        desplazable.first,
+        const Offset(0, -200),
+      );
       await tester.pumpAndSettle();
     }
     expect(find.textContaining('Todavía no tenés movimientos'), findsOneWidget);
@@ -244,7 +254,11 @@ void main() {
     await tester.pumpAndSettle();
 
     comprobarEscala200(tester);
-    await tester.drag(find.byType(ListView).first, const Offset(0, -560));
+    await tester.dragUntilVisible(
+      find.text('Movimiento de prueba 00'),
+      find.byType(ListView).first,
+      const Offset(0, -200),
+    );
     await tester.pumpAndSettle();
     expect(find.text('Movimiento de prueba 00'), findsOneWidget);
     expect(find.text('Movimiento de prueba 39'), findsOneWidget);
@@ -271,7 +285,11 @@ void main() {
       Theme.of(tester.element(find.byType(Scaffold).first)).brightness,
       Brightness.dark,
     );
-    await tester.drag(find.byType(ListView).first, const Offset(0, -560));
+    await tester.dragUntilVisible(
+      find.text('Movimiento de prueba 00'),
+      find.byType(ListView).first,
+      const Offset(0, -200),
+    );
     await tester.pumpAndSettle();
     // Las 40 filas existen; se cuentan por lo que son, no por el widget que las pinta.
     expect(find.byType(FilaDeMovimiento), findsNWidgets(40));

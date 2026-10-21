@@ -126,39 +126,48 @@ class BotonDeCabecera extends StatelessWidget {
       child: Semantics(
         button: true,
         label: etiqueta,
-        child: Material(
-          color: t.surface,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(Radios.md),
-            side: BorderSide(color: t.border, width: Borde.fino),
+        // Círculo, de la misma familia que las acciones del saldo (ADR-053): antes eran
+        // baldosas cuadradas pegadas.
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            boxShadow: Elevacion.fila(t),
           ),
-          child: InkWell(
-            onTap: onTap,
-            borderRadius: BorderRadius.circular(Radios.md),
-            child: SizedBox.square(
-              dimension: Tactil.minimo,
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  Icon(icono, size: 20, color: t.text),
-                  if (conAviso)
-                    Positioned(
-                      top: Espacio.s2 + 1,
-                      right: Espacio.s2 + 1,
-                      child: Container(
-                        width: Espacio.s2,
-                        height: Espacio.s2,
-                        decoration: BoxDecoration(
-                          color: t.accent,
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: t.surface,
-                            width: Borde.desfase,
+          child: Material(
+            color: t.surface,
+            shape: CircleBorder(
+              side: Theme.of(context).brightness == Brightness.dark
+                  ? BorderSide(color: t.border, width: Borde.fino)
+                  : BorderSide.none,
+            ),
+            clipBehavior: Clip.antiAlias,
+            child: InkWell(
+              onTap: onTap,
+              child: SizedBox.square(
+                dimension: Tactil.minimo,
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    Icon(icono, size: Espacio.s5, color: t.text),
+                    if (conAviso)
+                      Positioned(
+                        top: Espacio.s2 + 1,
+                        right: Espacio.s2 + 1,
+                        child: Container(
+                          width: Espacio.s2,
+                          height: Espacio.s2,
+                          decoration: BoxDecoration(
+                            color: t.accent,
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: t.surface,
+                              width: Borde.desfase,
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),

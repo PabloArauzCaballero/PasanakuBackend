@@ -43,6 +43,11 @@ abstract final class IconosDeMarca {
   static const IconData rechazado = LucideIcons.ban;
   static const IconData bono = LucideIcons.partyPopper;
 
+  // Estados vacíos (`MotivoVacio`)
+  static const IconData sinDatos = LucideIcons.inbox;
+  static const IconData porFiltro = LucideIcons.filterX;
+  static const IconData porPermiso = LucideIcons.lock;
+
   // Interfaz
   static const IconData avisos = LucideIcons.bell;
   static const IconData seguir = LucideIcons.chevronRight;

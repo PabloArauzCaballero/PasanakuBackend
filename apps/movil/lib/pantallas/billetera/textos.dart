@@ -5,6 +5,9 @@ abstract final class TextosBilletera {
   static const disponible = 'Disponible';
   static const enPasanakus = 'En pasanakus';
   static const tusPasanakus = 'Tus pasanakus';
+  static const tituloSinPasanakus = 'Armá tu primer pasanaku';
+  static const crearUnGrupo = 'Crear un grupo';
+  static const entrarConEnlace = 'Entrar con un enlace o QR';
   static const verTodos = 'Ver todos';
   static const todos = 'Todos';
   static const sinPasanakus =

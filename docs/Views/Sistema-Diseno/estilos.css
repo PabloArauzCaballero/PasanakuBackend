@@ -31,6 +31,7 @@
   --t-boton:600 15px/1 var(--font-b);          --t-boton-track:0em;
   --t-etiqueta:600 12px/1.2 var(--font-b);     --t-etiqueta-track:0.06em;
   --t-eyebrow:700 11px/1.2 var(--font-b);      --t-eyebrow-track:0.16em;
+  --t-pestana:500 11px/1.2 var(--font-b);      --t-pestana-track:0em;
   --t-cabecera-tabla:600 11px/1.2 var(--font-b);--t-cabecera-tabla-track:0.08em;
   --t-cuerpo:400 15px/1.5 var(--font-b);       --t-cuerpo-track:0em;
   --t-cuerpo-fuerte:600 15px/1.4 var(--font-b);--t-cuerpo-fuerte-track:0em;

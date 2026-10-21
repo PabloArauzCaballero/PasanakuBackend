@@ -85,6 +85,14 @@ class _PantallaDePerfilState extends ConsumerState<PantallaDePerfil> {
                 onPressed: () =>
                     ref.read(verGuiaDeInicioOtraVezProvider)().ignore(),
               ),
+              const SizedBox(height: Espacio.s2),
+              // Ayuda dejó la barra de pestañas (ADR-053, A6) y cuelga de acá.
+              FilaDeAccionDePerfil(
+                claveSemantica: const ValueKey('perfil-fila-ayuda'),
+                texto: 'Ayuda',
+                pista: 'Abrí el centro de ayuda.',
+                onPressed: () => context.go('/soporte/ayuda'),
+              ),
               const SizedBox(height: Espacio.s3),
               // Cerrar sesión no estaba en ningún lado: se podía entrar y no salir.
               // Va antes de «dar de baja» y con otra variante, porque son cosas muy

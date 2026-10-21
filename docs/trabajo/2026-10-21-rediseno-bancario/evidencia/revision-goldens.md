@@ -32,3 +32,11 @@ sólidos grises (`debugDisableShadows`). Las capturas de `intermedio-h4/` usan s
 
 10 PNG cambiados (4 del paquete, 6 de la app), mirados en una hoja antes|después: avatar circular
 con Lucide, «+»/«−» explícitos, y a 200 % el concepto entero con el importe debajo (G4 corregido).
+
+## 2026-10-21 · H4.S3.M4 / H6.S4.M7 (barra flotante con QR, cabecera en círculos, vacío con acción)
+
+73 PNG cambiados (4 del paquete, 69 de la app), mirados en 5 hojas antes|después. Cambios
+intencionales: botón «volver» y de cabecera en círculo, fila «Ayuda» en el perfil, ayuda en
+vez de escanear en la cabecera, vacío de pasanakus con acciones, y en el catálogo el círculo de
+marca de los vacíos. Sin cortes. G6 (etiquetas Aportar/Recargar/Retirar muy juntas a 200 %) sigue
+igual: no se tocan, no se cortan.
