@@ -1,0 +1,8 @@
+PR #147 unido a test por el dueño del repo (d36c3a0f, 12:26). Coolify:
+  aportaya-api (16 servicios) 20261019T164737, todos healthy
+  aportaya-backoffice deployment d36c3a0f -> finished, contenedor 20261019T165306
+Sonda Playwright (Chrome) https://backoffice.aportaya.161.97.85.216.sslip.io/arranque?volverA=%2F sin cookie:
+  antes del despliegue: 401 refrescar -> URL final /arranque?volverA=%2F, TEXTO «Restaurando tu sesión…»
+  después:             401 refrescar -> URL final /ingreso?volverA=%2F, pantalla de ingreso
+CI #147: «Esquema… prueba de humo» rojo (R-BIL-01 descuadre en sql/50_verificacion/prueba_humo.sql), igual en #145 ya unido; no toca archivos de esta rama.
+«Contrato Postman sin divergencia» rojo por operaciones nuevas de #145 -> colección regenerada en 9911798b (PR aparte).
