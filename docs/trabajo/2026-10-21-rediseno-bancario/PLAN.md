@@ -449,7 +449,7 @@ Cada microtarea de pantalla tiene el **mismo DoD**:
 ### H6.S3 — Entrada, alta y KYC
 | ID | Pantalla | Cambios clave | Estado |
 |---|---|---|---|
-| H6.S3.M1 | `/portada` | Héroe de marca, promesa en una línea (`copywriting`) y CTA claro | TODO |
+| H6.S3.M1 | `/portada` | Héroe de marca, promesa en una línea (`copywriting`) y CTA claro | A MEDIAS (anda: banda verde de marca a sangre con el sello y la palabra, promesa y garantías, puertas abajo; falta: mostrar la tarjeta héroe como vista previa, revisar el copy con `copywriting` y el recorrido web) |
 | H6.S3.M2 | `/tour` (4) | Ilustraciones reestilizadas, indicador de puntos con resorte y texto por beneficio | TODO |
 | H6.S3.M3 | `/ingreso`, `/identidad/mfa` | Campos nuevos, biometría como botón destacado y OTP en celdas | A MEDIAS (anda: ingreso con banda de marca verde, logo, saludo y titular que se corre con el teclado; falta: MFA con celdas nuevas y biometría como botón destacado) |
 | H6.S3.M4 | `/registro` (6 pasos) | Fricción mínima según `signup`, progreso visible y ayuda en contexto | TODO |
