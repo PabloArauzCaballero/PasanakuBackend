@@ -32,6 +32,9 @@
 | H1.S2.M3 | 6 archivos > 200 líneas partidos con `part` (mismo código, mismas expresiones) | regla OK + analyze limpio | `verificar_frontend.py diseno` + `flutter analyze` | DESCARTADO (ver REPORTE) |
 | H1.S3.M1 | Regresión backend completa (test, webTest, integrationTest, contractTest, sagaTest, cobertura) | 0 fallos | corrida local en serie | A MEDIAS |
 | H1.S3.M2 | Frontend completo en el CI real (pasos que nunca corrían) | verde | `gh pr checks` | TODO |
+| H1.S4.M1 | P1: el borrador sin sesión solo se guarda con el token CONSUMIDO (código ya confirmado) + huella del correo; control declarado en `PoliticaDeAcceso` | token ENVIADO / correo ajeno / id inexistente → rechazo; CONSUMIDO → guarda | `gradlew :plataforma:comun-pruebas:contractTest` + `:servicios:identidad:integrationTest --tests *BorradorOnboarding*` | HECHO (evidencia/p1-p2-2026-10-21.txt) |
+| H1.S4.M2 | P2: pacto nucleo-financiero ↔ entregas (GET oferta) | `PactoConEntregasContratoTest` 0 | `gradlew :servicios:nucleo-financiero:contractTest` | DESCARTADO: no hay falla en el CI; solo en Windows por CRLF (evidencia/p1-p2-2026-10-21.txt) |
+| H1.S4.M3 | P3: pisos de cobertura con pruebas nuevas (sin bajar pisos) | auditoria, identidad, notificaciones ≥ piso | `gradlew jacocoTestCoverageVerification` | EN CURSO |
 
 ## Riesgos
 | Riesgo | Impacto | Mitigación |

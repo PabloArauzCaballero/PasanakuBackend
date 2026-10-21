@@ -23,6 +23,9 @@ import org.springframework.transaction.annotation.Transactional;
 @Component
 public class BorradorOnboardingRepositorio {
 
+    /** El unico estado del token que permite guardar el borrador: el codigo ya se confirmo. */
+    static final String SOLO_CORREO_CONFIRMADO = "CONSUMIDO";
+
     private final Datos datos;
     private final ProteccionDeVerificacionCorreo proteccion;
 
@@ -141,9 +144,14 @@ public class BorradorOnboardingRepositorio {
         return datosBorrador;
     }
 
+    /**
+     * Control compensatorio de la ruta sin sesion (PoliticaDeAcceso): solo escribe quien ya
+     * demostro con el codigo que el correo es suyo. Un token solo ENVIADO no alcanza, porque
+     * el id de verificacion por si solo no prueba nada.
+     */
     private void validarEstadoToken(Record token) {
         String estado = token.get("estado", String.class);
-        if (!"CONSUMIDO".equals(estado) && !"ENVIADO".equals(estado)) {
+        if (!SOLO_CORREO_CONFIRMADO.equals(estado)) {
             throw new ErrorDeNegocio(CodigoError.de(1, 9), "El token no esta disponible para guardar borrador.");
         }
     }

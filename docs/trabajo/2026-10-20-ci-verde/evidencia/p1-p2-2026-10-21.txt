@@ -1,0 +1,22 @@
+P1 — guardarBorradorOnboarding (ruta sin sesion) — 2026-10-21, Windows local, Docker Desktop
+$ gradlew :plataforma:comun-pruebas:contractTest :servicios:identidad:integrationTest --tests "*BorradorOnboarding*"
+BUILD SUCCESSFUL
+TEST-...MatrizDeAutorizacionContratoTest  tests="8" failures="0" errors="0"  (contractTest de comun-pruebas)
+TEST-...BorradorOnboardingRepositorioTest tests="5" failures="0" errors="0"
+TEST-...BorradorOnboardingGuardadoRepositorioTest tests="4" failures="0" errors="0"
+  - guardar · con el codigo ya confirmado (CONSUMIDO) y su correo, el borrador queda guardado   (correcto)
+  - rechaza · el codigo enviado pero NO confirmado (ENVIADO) no alcanza para guardar          (limite)
+  - rechaza · un id de verificacion confirmado no escribe el borrador de OTRO correo           (invalido)
+  - rechaza · un id de verificacion inexistente no escribe nada                                (invalido)
+Prueba de mutacion: con la condicion vieja (acepta ENVIADO) ->
+  BorradorOnboardingGuardadoRepositorioTest > rechaza · el codigo enviado pero NO confirmado (ENVIADO) ... FAILED
+  BUILD FAILED  (se restauro el arreglo despues)
+
+P2 — PactoConEntregasContratoTest (nucleo-financiero)
+$ gradlew :servicios:nucleo-financiero:contractTest --tests "*PactoConEntregas*"   (entregas.yaml con CRLF, copia Windows)
+PactoConEntregasContratoTest > pacto · productor: entregas.yaml publica la operacion ... FAILED
+BUILD FAILED
+$ (mismo comando con entregas.yaml en LF, como lo tiene git y lo ve el CI)
+BUILD SUCCESSFUL  tests="6" failures="0" errors="0"
+Causa: la prueba busca "  /entregas/mercado/ofertas/{ofertaId}:\n"; con core.autocrlf=true la copia de Windows tiene \r\n.
+La ruta GET consultarOfertaParaPago SI esta publicada (entregas.yaml:406). Clase: ENVIRONMENT (solo Windows). Sin cambio de codigo.

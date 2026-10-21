@@ -69,6 +69,12 @@ final class PoliticaDeAcceso {
                     "servicios/identidad/src/main/java/bo/aportaya/identidad/infraestructura/VerificacionCorreoRepositorio.java",
                     "max_intentos",
                     "se confirma antes de existir como usuario; el codigo se invalida al agotar intentos"),
+            "guardarBorradorOnboarding",
+            new ControlCompensatorio(
+                    "servicios/identidad/src/main/java/bo/aportaya/identidad/infraestructura/BorradorOnboardingRepositorio.java",
+                    "SOLO_CORREO_CONFIRMADO\\.equals",
+                    "CU-01: el avance se guarda antes de existir como usuario; solo escribe quien ya confirmo el "
+                            + "codigo de ESE correo (token CONSUMIDO y huella del correo), no basta el UUID de la ruta"),
             "subirDocumento",
             new ControlCompensatorio(
                     "servicios/identidad/src/main/java/bo/aportaya/identidad/web/TitularDelExpediente.java",
