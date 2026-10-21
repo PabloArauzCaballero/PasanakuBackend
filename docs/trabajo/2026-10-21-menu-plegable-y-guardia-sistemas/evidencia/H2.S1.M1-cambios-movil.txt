@@ -1,0 +1,15 @@
+Último build registrado en TestFlight: 202610151748 (docs/trabajo/2026-10-15-builds-movil/REPORTE.md)
+$ git log --oneline --since=2026-10-15T17:48 origin/test -- apps/movil packages/diseno_flutter | wc -l
+      51
+1f5945a8 feat(movil): «Tus pasanakus» en el inicio muestra lo que piden tus grupos
+aef6619c feat(movil): el perfil del integrante muestra solo datos reales, a pantalla completa
+9d2d1629 perf(movil,diseno): rendimiento termico del Frontend llevado al Backend, sin el hunk que rompia reducir movimiento
+c46d277a feat(backoffice,movil): mejoras en navegacion de tableros, bandejas de operacion y suite de tests de miembro
+e99570d2 feat(movil): pantalla detalle de miembro, componentes de diseno y soporte docker en scripts de sincronizacion
+b28d16ff feat(movil): «Grupos» en dos secciones con su tope, orden de cobro con «Tú» y solicitudes solo con el nombre
+5c391481 feat(movil): el grupo por dentro — integrantes, firma del reglamento y sorteo con ruleta
+9155b3ef test(movil): mi estado ya no ofrece organizar otro grupo; goldens a regenerar (corrida 4)
+e7ff5fd6 fix(movil): dentro de un grupo solo «Invitar»; organizar o unirse a otro, desde la lista
+32624a51 fix(grupos,movil): límite de grupos por organizador, «Unirse» solo en la lista y formulario de crear grupo limpio
+6ffcca30 feat(grupos,movil): invitar por QR o enlace y unirse subiendo el QR o pegando el enlace
+8ba20288 merge: unificar rama de backoffice y calidad con origin/test

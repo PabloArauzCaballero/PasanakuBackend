@@ -1,20 +1,22 @@
-import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core'
+import { ChangeDetectionStrategy, Component, computed, effect, inject, input, output, signal, untracked } from '@angular/core'
 import { Router, RouterLink, RouterLinkActive } from '@angular/router'
 import { toSignal } from '@angular/core/rxjs-interop'
 import { filter, map, startWith } from 'rxjs'
 import { NavigationEnd } from '@angular/router'
 import { MENU, type Entrada, type Grupo } from '../nucleo/menu'
 import { Sesion } from '../nucleo/sesion'
+import { Icono } from '@aportaya/ui/icono/icono'
 import { IconoDeSeccion } from './icono-de-seccion'
 
 /**
  * La navegación del backoffice: grupos con rótulo en mayúsculas, una entrada por
- * sección y sus pantallas siempre abiertas con su respectivo ícono. Se usa en la barra lateral y en el cajón del celular.
+ * sección y sus pantallas con su respectivo ícono. Solo la sección activa queda desplegada;
+ * las demás se pliegan y se abren con el botón de la flecha. Se usa en la barra lateral y en el cajón del celular.
  */
 @Component({
   selector: 'ap-menu-lateral',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, RouterLinkActive, IconoDeSeccion],
+  imports: [RouterLink, RouterLinkActive, IconoDeSeccion, Icono],
   host: { role: 'navigation', 'aria-label': 'Secciones del backoffice', 'data-tutorial-id': 'menu-principal' },
   template: `
     @for (g of visibles(); track g.titulo) {
@@ -32,9 +34,24 @@ import { IconoDeSeccion } from './icono-de-seccion'
                   <ap-icono-de-seccion [nombre]="e.ruta" class="icono-padre" />
                   <span class="texto-entrada">{{ e.texto }}</span>
                 </a>
+                @if (e.hijos?.length) {
+                  <button
+                    type="button"
+                    class="plegar"
+                    [class.abierto]="abierta(e)"
+                    [attr.aria-expanded]="abierta(e)"
+                    [attr.aria-controls]="'menu-hijos-' + e.ruta"
+                    [attr.aria-label]="(abierta(e) ? 'Ocultar las pantallas de ' : 'Mostrar las pantallas de ') + e.texto"
+                    [attr.title]="abierta(e) ? 'Ocultar pantallas' : 'Mostrar pantallas'"
+                    (click)="alternar(e)"
+                  >
+                    <ap-icono nombre="chevronDerecha" tamano="s4" />
+                  </button>
+                }
               </div>
               @if (e.hijos?.length) {
-                <ul class="hijos">
+                <div class="plegable" [class.abierto]="abierta(e)" [attr.inert]="abierta(e) ? null : ''">
+                <ul class="hijos" [id]="'menu-hijos-' + e.ruta">
                   @for (h of e.hijos; track h.ruta) {
                     <li>
                       <a [routerLink]="h.ruta ? e.destino + '/' + h.ruta : e.destino" routerLinkActive="activo" ariaCurrentWhenActive="page" [routerLinkActiveOptions]="{ exact: true }" (click)="navegado.emit()">
@@ -46,6 +63,7 @@ import { IconoDeSeccion } from './icono-de-seccion'
                     </li>
                   }
                 </ul>
+                </div>
               }
             </li>
           }
@@ -53,98 +71,7 @@ import { IconoDeSeccion } from './icono-de-seccion'
       </section>
     }
   `,
-  styles: `
-    :host { display: grid; align-content: start; gap: var(--s3); color: var(--white); }
-    .grupo { display: grid; gap: var(--s1); }
-    .rotulo {
-      display: flex;
-      align-items: center;
-      padding: var(--s2) var(--s3) var(--s1);
-      color: color-mix(in srgb, var(--white) 48%, transparent);
-      font: var(--t-eyebrow);
-      letter-spacing: var(--t-eyebrow-track);
-      text-transform: uppercase;
-      user-select: none;
-    }
-    ul { list-style: none; margin: 0; padding: 0; display: grid; gap: calc(var(--s1) / 2); }
-    .entrada-fila { display: flex; align-items: center; width: 100%; border-radius: var(--r-md); position: relative; }
-    .entrada-fila a { flex: 1; min-width: 0; }
-    a {
-      display: flex;
-      align-items: center;
-      gap: var(--s2);
-      min-height: calc(var(--area-tactil) - var(--s2));
-      padding: var(--s2) var(--s3);
-      border-radius: var(--r-md);
-      font: var(--t-cuerpo-chico);
-      font-weight: 500;
-      color: color-mix(in srgb, var(--white) 80%, transparent);
-      text-decoration: none;
-      transition: background-color var(--mov-micro) cubic-bezier(0.16, 1, 0.3, 1),
-                  color var(--mov-micro) cubic-bezier(0.16, 1, 0.3, 1),
-                  transform var(--mov-micro) cubic-bezier(0.16, 1, 0.3, 1);
-      position: relative;
-    }
-    a:hover {
-      background: color-mix(in srgb, var(--white) 9%, transparent);
-      color: var(--white);
-      transform: translateX(calc(var(--s1) / 2));
-    }
-    a.activo {
-      background: color-mix(in srgb, var(--g400) 24%, transparent);
-      color: var(--white);
-      font-weight: 600;
-      box-shadow: inset var(--borde-foco) 0 0 var(--g300), var(--sombra-2);
-    }
-    a.activo .icono-padre,
-    a.activo .icono-hijo {
-      color: var(--g300);
-      opacity: 1;
-    }
-    a:focus-visible { outline: var(--borde-foco) solid var(--g300); outline-offset: var(--borde-desfase); }
-    .texto-entrada { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .icono-padre { flex: none; width: 1.25rem; height: 1.25rem; opacity: 0.85; transition: transform var(--mov-micro) ease; }
-    a:hover .icono-padre { opacity: 1; transform: scale(1.08); }
-
-    .hijos {
-      margin: calc(var(--s1) / 2) 0 var(--s2) var(--s3);
-      padding-left: var(--s2);
-      border-left: var(--borde-fino) solid color-mix(in srgb, var(--white) 12%, transparent);
-      display: grid;
-      gap: calc(var(--s1) / 2);
-    }
-    .hijos a {
-      min-height: 2.125rem;
-      padding: var(--s1) var(--s2);
-      gap: var(--s2);
-      font-size: 0.8125rem;
-      color: color-mix(in srgb, var(--white) 65%, transparent);
-    }
-    .hijos a:hover {
-      color: var(--white);
-      background: color-mix(in srgb, var(--white) 7%, transparent);
-      transform: translateX(calc(var(--s1) / 2));
-    }
-    .hijos a.activo {
-      color: var(--white);
-      background: color-mix(in srgb, var(--g400) 28%, transparent);
-      font-weight: 600;
-      box-shadow: inset var(--borde-desfase) 0 0 var(--g300);
-    }
-    .texto-hijo { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .icono-hijo {
-      flex: none;
-      width: 1rem;
-      height: 1rem;
-      opacity: 0.75;
-      transition: transform var(--mov-micro) ease, opacity var(--mov-micro) ease;
-    }
-    .hijos a:hover .icono-hijo,
-    .hijos a.activo .icono-hijo {
-      opacity: 1;
-      color: var(--g300);
-    }
-  `,
+  styleUrl: './menu-lateral.css',
 })
 export class MenuLateral {
   private readonly sesion = inject(Sesion)
@@ -171,13 +98,28 @@ export class MenuLateral {
     return 'menu-grupo-' + (g.titulo ?? 'inicio').toLowerCase()
   }
 
-  /** Todas las secciones y pantallas están siempre abiertas. */
-  abierto(): boolean {
-    return true
+  /**
+   * Lo que la persona plegó o desplegó a mano, por sección. Se vacía al cambiar de sección:
+   * así el menú vuelve a mostrar abierta solo la sección en la que está.
+   */
+  private readonly aMano = signal<Readonly<Record<string, boolean>>>({})
+  private readonly seccionActual = computed(() => this.visibles().flatMap((g) => g.entradas).find((e) => this.activa(e))?.ruta ?? null)
+
+  constructor() {
+    effect(() => {
+      this.seccionActual()
+      untracked(() => this.aMano.set({}))
+    })
   }
 
-  hijosAbiertos(): boolean {
-    return true
+  /** Abierta si la persona la abrió a mano o, si no la tocó, cuando es la sección activa. */
+  abierta(e: Entrada): boolean {
+    return this.aMano()[e.ruta] ?? this.activa(e)
+  }
+
+  alternar(e: Entrada): void {
+    const siguiente = !this.abierta(e)
+    this.aMano.update((m) => ({ ...m, [e.ruta]: siguiente }))
   }
 
   activa(e: Entrada): boolean {
