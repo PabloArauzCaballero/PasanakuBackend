@@ -40,3 +40,9 @@ intencionales: botón «volver» y de cabecera en círculo, fila «Ayuda» en el
 vez de escanear en la cabecera, vacío de pasanakus con acciones, y en el catálogo el círculo de
 marca de los vacíos. Sin cortes. G6 (etiquetas Aportar/Recargar/Retirar muy juntas a 200 %) sigue
 igual: no se tocan, no se cortan.
+
+## 2026-10-21 · H6.S3.M6 parcial (estados de trámite y bienvenida)
+
+36 PNG cambiados, mirados. Estado de verificación (5 estados × claro/oscuro × 360/412/600, y con
+sesión), bienvenida (claro/oscuro). Primera pasada: etapas partidas a mitad de palabra; corregido y
+re-mirado. Sin cortes en 600 dp ni a 130 %.

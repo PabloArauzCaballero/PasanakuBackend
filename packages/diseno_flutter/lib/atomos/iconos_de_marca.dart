@@ -48,6 +48,11 @@ abstract final class IconosDeMarca {
   static const IconData porFiltro = LucideIcons.filterX;
   static const IconData porPermiso = LucideIcons.lock;
 
+  // Trámites (estado de una verificación)
+  static const IconData enEspera = LucideIcons.hourglass;
+  static const IconData tramiteListo = LucideIcons.circleCheck;
+  static const IconData tramiteFallido = LucideIcons.circleX;
+
   // Cuenta
   static const IconData verificada = LucideIcons.badgeCheck;
   static const IconData contrasena = LucideIcons.keyRound;

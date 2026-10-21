@@ -30,6 +30,7 @@ import '../atomos/progreso.dart';
 import '../atomos/punto.dart';
 import '../atomos/rueda.dart';
 import '../atomos/selector_segmentado.dart';
+import '../atomos/iconos_de_marca.dart';
 import '../atomos/tono.dart';
 import '../errores.dart';
 import '../ilustraciones/arte_en_custodia.dart';
@@ -72,6 +73,7 @@ import '../organismos/estado_vacio.dart';
 import '../organismos/lista_de_movimientos.dart';
 import '../organismos/lista_de_requisitos.dart';
 import '../organismos/motivo_vacio.dart';
+import '../organismos/estado_de_tramite.dart';
 import '../organismos/panel_bienvenida.dart';
 import '../organismos/panel_de_factores.dart';
 import '../organismos/panel_sorteo.dart';
@@ -817,6 +819,31 @@ final List<({String grupo, List<Muestra> muestras})> catalogo = [
             (texto: 'Entrá a un grupo con código', hecho: false, onTap: () {}),
             (texto: 'Activá la huella', hecho: true, onTap: () {}),
           ],
+        ),
+      ),
+      (
+        nombre: 'Estado de trámite · en revisión',
+        widget: () => const EstadoDeTramite(
+          icono: IconosDeMarca.enEspera,
+          tono: Tono.info,
+          titulo: 'Recibimos tus documentos',
+          detalle: 'Un especialista está verificando tu identidad.',
+          pasos: ['Recibido', 'En revisión', 'Listo'],
+          pasoActual: 1,
+          caso: 'Caso a11ce001',
+        ),
+      ),
+      (
+        nombre: 'Estado de trámite · rechazado',
+        widget: () => const EstadoDeTramite(
+          icono: IconosDeMarca.tramiteFallido,
+          tono: Tono.error,
+          titulo: 'No pudimos validar tu documento',
+          detalle: 'La cara no coincide con el documento.',
+          pasos: ['Recibido', 'En revisión', 'Rechazado'],
+          pasoActual: 2,
+          fallo: true,
+          caso: 'Caso a11ce001',
         ),
       ),
       (
