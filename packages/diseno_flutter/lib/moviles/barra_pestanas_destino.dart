@@ -39,62 +39,64 @@ class _DestinoDePestanas extends StatelessWidget {
                 excludeFromSemantics: true,
                 customBorder: const StadiumBorder(),
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    // La píldora de la activa crece desde el ícono, no aparece de golpe.
-                    AnimatedContainer(
-                      duration: duracionIcono,
-                      curve: Curves.easeOut,
-                      padding: EdgeInsets.symmetric(
-                        horizontal: seleccionado ? Espacio.s4 : Espacio.s2,
-                        vertical: Espacio.s1,
-                      ),
-                      decoration: BoxDecoration(
-                        color: seleccionado
-                            ? tokens.brandBg
-                            : tokens.brandBg.withValues(alpha: 0),
-                        borderRadius: BorderRadius.circular(Radios.pill),
-                      ),
-                      child: Badge(
-                        isLabelVisible: destino.novedades > 0,
-                        label: Text('${destino.novedades}'),
-                        backgroundColor: tokens.err,
-                        // El ícono que se enciende entra con fundido y un rebote corto
-                        // (Movimiento.tildeDeValidez); con movimiento reducido, sin rebote.
-                        child: AnimatedSwitcher(
-                          duration: duracionIcono,
-                          transitionBuilder: (child, animacion) =>
-                              FadeTransition(
-                                opacity: animacion,
-                                child: ScaleTransition(
-                                  scale: TweenSequence<double>([
-                                    TweenSequenceItem(
-                                      tween: Tween<double>(begin: 1, end: 1.12)
-                                          .chain(
-                                            CurveTween(curve: Curves.easeOut),
-                                          ),
-                                      weight: 45,
-                                    ),
-                                    TweenSequenceItem(
-                                      tween: Tween<double>(begin: 1.12, end: 1)
-                                          .chain(
-                                            CurveTween(curve: Curves.easeInOut),
-                                          ),
-                                      weight: 55,
-                                    ),
-                                  ]).animate(animacion),
-                                  child: child,
+                    // El casillero del ícono: de alto fijo, para que la píldora que se
+                    // desliza detrás (en la barra) quede siempre justo detrás.
+                    const SizedBox(height: Espacio.s2),
+                    SizedBox(
+                      height: _altoDePildora,
+                      child: Center(
+                        child: Badge(
+                          isLabelVisible: destino.novedades > 0,
+                          label: Text('${destino.novedades}'),
+                          backgroundColor: tokens.err,
+                          // El ícono que se enciende entra con fundido y un rebote corto
+                          // (Movimiento.tildeDeValidez); con movimiento reducido, sin rebote.
+                          child: AnimatedSwitcher(
+                            duration: duracionIcono,
+                            transitionBuilder: (child, animacion) =>
+                                FadeTransition(
+                                  opacity: animacion,
+                                  child: ScaleTransition(
+                                    scale: TweenSequence<double>([
+                                      TweenSequenceItem(
+                                        tween:
+                                            Tween<double>(
+                                              begin: 1,
+                                              end: 1.12,
+                                            ).chain(
+                                              CurveTween(curve: Curves.easeOut),
+                                            ),
+                                        weight: 45,
+                                      ),
+                                      TweenSequenceItem(
+                                        tween:
+                                            Tween<double>(
+                                              begin: 1.12,
+                                              end: 1,
+                                            ).chain(
+                                              CurveTween(
+                                                curve: Curves.easeInOut,
+                                              ),
+                                            ),
+                                        weight: 55,
+                                      ),
+                                    ]).animate(animacion),
+                                    child: child,
+                                  ),
                                 ),
-                              ),
-                          child: Icon(
-                            seleccionado ? destino.iconoActivo : destino.icono,
-                            key: ValueKey(
+                            child: Icon(
                               seleccionado
-                                  ? 'activo-${destino.iconoActivo.codePoint}'
-                                  : 'inactivo-${destino.icono.codePoint}',
+                                  ? destino.iconoActivo
+                                  : destino.icono,
+                              key: ValueKey(
+                                seleccionado
+                                    ? 'activo-${destino.iconoActivo.codePoint}'
+                                    : 'inactivo-${destino.icono.codePoint}',
+                              ),
+                              size: Espacio.s5 + Espacio.s1 / 2,
+                              color: color,
                             ),
-                            size: Espacio.s5 + Espacio.s1 / 2,
-                            color: color,
                           ),
                         ),
                       ),

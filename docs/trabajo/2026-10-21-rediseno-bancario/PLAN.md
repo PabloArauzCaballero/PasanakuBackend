@@ -407,7 +407,7 @@ perfil de rendimiento sin cuadros > 16 ms en la pantalla de Inicio (`flutter run
 | H5.S2.M1 | Entrada escalonada de Inicio (héroe → acciones → secciones, 30 ms de paso) | Video | MP4 + 3 cuadros | TODO |
 | H5.S2.M2 | Rodillo de cifra del saldo al refrescar | Video | MP4 | TODO |
 | H5.S2.M3 | Hero compartido: tarjeta de grupo → detalle del grupo | Video | MP4 | TODO |
-| H5.S2.M4 | Indicador de pestaña con resorte | Video | MP4 | TODO |
+| H5.S2.M4 | Indicador de pestaña con resorte | Video | MP4 | A MEDIAS (anda: una sola píldora que se desliza con resorte crítico (k 322, c 35,9), interrumpible, y llega de una vez con movimiento reducido; 3 tests con mutante y 28 cuadros en `evidencia/movimiento/barra`; falta: el MP4 normal/reducido que pide el DoD) |
 | H5.S2.M5 | Hoja interrumpible con gesto (arrastrar, soltar y rebote; `apple-design` §momentum) | Video | MP4 | TODO |
 | H5.S2.M6 | Arrastrar para refrescar personalizado (marca que gira) | Video | MP4 | TODO |
 | H5.S2.M7 | Ocultar o mostrar el saldo con desenfoque y fundido | Video | MP4 | TODO |
