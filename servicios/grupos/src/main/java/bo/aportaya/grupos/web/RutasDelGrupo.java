@@ -72,6 +72,14 @@ abstract class RutasDelGrupo extends RutasDeEnlaceDeGrupo {
 
     @Override
     @Permiso("PARTICIPANTE")
+    public ResponseEntity<bo.aportaya.grupos.web.generado.modelo.PertenenciaCompartida> consultarSiCompartenGrupo(
+            UUID grupoId, UUID usuarioId) {
+        Traza.marcarCasoDeUso("CU-69", grupoId.toString());
+        return ResponseEntity.ok(integrantes.comparten(grupoId, usuarioId, sesion.actual()));
+    }
+
+    @Override
+    @Permiso("PARTICIPANTE")
     public ResponseEntity<SalidaFirmaDeReglamento> firmarReglamentoDelGrupo(
             UUID grupoId, EntradaFirmaDeReglamento cuerpo) {
         Traza.marcarCasoDeUso("CU-69", grupoId.toString());

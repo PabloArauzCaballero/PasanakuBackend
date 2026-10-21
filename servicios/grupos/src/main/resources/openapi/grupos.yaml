@@ -742,6 +742,33 @@ paths:
           $ref: '#/components/responses/ReglaDeNegocio'
           # AP-CU69-14 NO_ES_INTEGRANTE
 
+  /grupos/{grupoId}/integrantes/{usuarioId}/comparte:
+    get:
+      operationId: consultarSiCompartenGrupo    # perfil del integrante (2026-10-21)
+      summary: Si quien pregunta y otra persona son integrantes del mismo grupo
+      description: >-
+        Lo preguntan `identidad` (el telefono) y `transparencia` (la reputacion) antes de mostrarle a
+        alguien el perfil de un integrante: el dueño decidio el 2026-10-21 que esos datos los ve solo
+        quien esta en el mismo grupo, y la pertenencia es de este servicio. Quien pregunta sale del
+        token, nunca de la peticion. Integrante es quien esta en el grupo y no se fue (ni RETIRADO,
+        EXPULSADO, REEMPLAZADO, POSTULANTE o INVITADO), igual que en `/detalle`. No dice nada mas:
+        ni el estado ni el cupo del otro.
+      parameters:
+        - name: grupoId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+        - name: usuarioId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: Si los dos son integrantes del grupo
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PertenenciaCompartida' }
+
   /grupos/{grupoId}/reglamento/firma:
     post:
       operationId: firmarReglamentoDelGrupo     # CU-69
@@ -1357,6 +1384,12 @@ components:
       properties:
         sorteoId: { type: string, format: uuid }
         estado:   { type: string, enum: [COMPROMETIDO, REVELADO] }
+    PertenenciaCompartida:
+      type: object
+      additionalProperties: false
+      required: [comparten]
+      properties:
+        comparten: { type: boolean }
     IntegranteDelGrupo:
       type: object
       additionalProperties: false
