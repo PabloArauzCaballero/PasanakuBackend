@@ -34,7 +34,7 @@
 | H1.S3.M2 | Frontend completo en el CI real (pasos que nunca corrían) | verde | `gh pr checks` | TODO |
 | H1.S4.M1 | P1: el borrador sin sesión solo se guarda con el token CONSUMIDO (código ya confirmado) + huella del correo; control declarado en `PoliticaDeAcceso` | token ENVIADO / correo ajeno / id inexistente → rechazo; CONSUMIDO → guarda | `gradlew :plataforma:comun-pruebas:contractTest` + `:servicios:identidad:integrationTest --tests *BorradorOnboarding*` | HECHO (evidencia/p1-p2-2026-10-21.txt) |
 | H1.S4.M2 | P2: pacto nucleo-financiero ↔ entregas (GET oferta) | `PactoConEntregasContratoTest` 0 | `gradlew :servicios:nucleo-financiero:contractTest` | DESCARTADO: no hay falla en el CI; solo en Windows por CRLF (evidencia/p1-p2-2026-10-21.txt) |
-| H1.S4.M3 | P3: pisos de cobertura con pruebas nuevas (sin bajar pisos) | auditoria, identidad, notificaciones ≥ piso | `gradlew jacocoTestCoverageVerification` | EN CURSO |
+| H1.S4.M3 | P3: pisos de cobertura con pruebas nuevas (sin bajar pisos) | auditoria, identidad, notificaciones ≥ piso | `gradlew jacocoTestCoverageVerification` | HECHO (notificaciones L0.91/R0.83 · auditoria L0.94/R0.76 · identidad L0.79/R0.70, local) |
 | H1.S4.M4 | Bug hallado por P3: activar/desactivar un elemento de catálogo operativo violaba `ck_bitacora_evento_accion` (acción fuera de la lista) → se registra como `CAMBIO_ESTADO` (acción existente; el sentido queda en `activo`) | el cambio se guarda y deja rastro en la bitácora | `gradlew :servicios:auditoria:integrationTest --tests *CatalogosOperativosRepositorioTest*` | HECHO (6/6; con el nombre viejo 2 fallan por ck_bitacora_evento_accion) |
 
 ## Riesgos
