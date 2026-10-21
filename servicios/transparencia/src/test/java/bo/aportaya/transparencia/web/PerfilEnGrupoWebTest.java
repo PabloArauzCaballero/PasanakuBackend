@@ -19,7 +19,7 @@ import bo.aportaya.transparencia.aplicacion.CU76PublicarResena;
 import bo.aportaya.transparencia.aplicacion.CU97EvaluarRiesgo;
 import bo.aportaya.transparencia.aplicacion.ConsultarPerfilEnGrupo;
 import bo.aportaya.transparencia.aplicacion.ConsultarPuntaje;
-import bo.aportaya.transparencia.infraestructura.PerfilEnGrupoRepositorio;
+import bo.aportaya.transparencia.dominio.PerfilDeReputacionEnGrupo;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -58,10 +58,10 @@ class PerfilEnGrupoWebTest {
     @DisplayName("perfil · 200 con historial: cifras como cadenas o enteros, insignias vigentes, sin montos")
     void conHistorial() throws Exception {
         when(perfiles.ejecutar(eq(GRUPO), eq(USUARIO), any()))
-                .thenReturn(new PerfilEnGrupoRepositorio.Perfil(
-                        Optional.of(new PerfilEnGrupoRepositorio.Factores(
+                .thenReturn(new PerfilDeReputacionEnGrupo(
+                        Optional.of(new PerfilDeReputacionEnGrupo.Factores(
                                 new BigDecimal("812.50"), "CONFIABLE", new BigDecimal("96.40"), 3, 1, 0, 14)),
-                        List.of(new PerfilEnGrupoRepositorio.Insignia(
+                        List.of(new PerfilDeReputacionEnGrupo.Insignia(
                                 "PAGADOR_PUNTUAL", "Pagador puntual", "Pago a tiempo", CUANDO))));
         mvc.perform(get(RUTA, USUARIO, GRUPO).with(Sesiones.como("PARTICIPANTE")))
                 .andExpect(status().isOk())
@@ -81,7 +81,7 @@ class PerfilEnGrupoWebTest {
     @DisplayName("perfil · 200 sin historial: SIN_HISTORIAL y las cifras ausentes, nunca en cero")
     void sinHistorial() throws Exception {
         when(perfiles.ejecutar(eq(GRUPO), eq(USUARIO), any()))
-                .thenReturn(new PerfilEnGrupoRepositorio.Perfil(Optional.empty(), List.of()));
+                .thenReturn(new PerfilDeReputacionEnGrupo(Optional.empty(), List.of()));
         mvc.perform(get(RUTA, USUARIO, GRUPO).with(Sesiones.como("PARTICIPANTE")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.tieneHistorial").value(false))

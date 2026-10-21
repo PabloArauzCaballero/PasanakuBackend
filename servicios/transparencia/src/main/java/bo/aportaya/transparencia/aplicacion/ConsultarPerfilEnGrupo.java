@@ -1,6 +1,7 @@
 package bo.aportaya.transparencia.aplicacion;
 
 import bo.aportaya.plataforma.dominio.ContextoSesion;
+import bo.aportaya.transparencia.dominio.PerfilDeReputacionEnGrupo;
 import bo.aportaya.transparencia.infraestructura.PerfilEnGrupoRepositorio;
 import bo.aportaya.transparencia.infraestructura.clientes.GruposPorHttp;
 import java.util.UUID;
@@ -23,7 +24,7 @@ public class ConsultarPerfilEnGrupo {
         this.perfiles = perfiles;
     }
 
-    public PerfilEnGrupoRepositorio.Perfil ejecutar(UUID grupoId, UUID usuarioId, ContextoSesion ctx) {
+    public PerfilDeReputacionEnGrupo ejecutar(UUID grupoId, UUID usuarioId, ContextoSesion ctx) {
         if (!grupos.compartenGrupo(grupoId, usuarioId)) {
             throw new AccessDeniedException("no comparte el grupo");
         }

@@ -7,6 +7,7 @@ import bo.aportaya.plataforma.datos.Datos;
 import bo.aportaya.plataforma.dominio.ContextoSesion;
 import bo.aportaya.plataforma.dominio.Traza;
 import bo.aportaya.transparencia.aplicacion.ConsultarPerfilEnGrupo;
+import bo.aportaya.transparencia.dominio.PerfilDeReputacionEnGrupo;
 import bo.aportaya.transparencia.infraestructura.PerfilEnGrupoRepositorio;
 import bo.aportaya.transparencia.infraestructura.clientes.GruposPorHttp;
 import java.math.BigDecimal;
@@ -51,7 +52,7 @@ class PerfilEnGrupoRepositorioTest extends BaseDeTransparencia {
                 usuario, "PARTICIPANTE", new Traza(UUID.randomUUID().toString()));
     }
 
-    private PerfilEnGrupoRepositorio.Perfil consultar(boolean comparten, UUID quienPregunta, UUID otro) {
+    private PerfilDeReputacionEnGrupo consultar(boolean comparten, UUID quienPregunta, UUID otro) {
         var caso = new ConsultarPerfilEnGrupo(new GruposDoble(comparten), repositorio);
         return transaccion.execute(s -> caso.ejecutar(UUID.randomUUID(), otro, de(quienPregunta)));
     }
@@ -126,7 +127,7 @@ class PerfilEnGrupoRepositorioTest extends BaseDeTransparencia {
         assertThat(f.antiguedadMeses()).isEqualTo(14);
         assertThat(perfil.insignias())
                 .as("la revocada no aparece")
-                .extracting(PerfilEnGrupoRepositorio.Insignia::codigo)
+                .extracting(PerfilDeReputacionEnGrupo.Insignia::codigo)
                 .containsExactly("PAGADOR_PUNTUAL");
     }
 
