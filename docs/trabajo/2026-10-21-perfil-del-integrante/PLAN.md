@@ -31,8 +31,8 @@
 | H1.S3.M1 | transparencia: `GET /reputacion/{usuarioId}/perfil-en-grupo/{grupoId}` → misma pregunta; devuelve puntaje, nivel, puntualidad, grupos, incumplimientos, antigüedad, insignias vigentes (sin montos) | co-integrante → perfil; otro / caído → 403; sin historial → `tieneHistorial=false` sin ceros inventados | `gradlew :servicios:transparencia:webTest :servicios:transparencia:integrationTest --tests *PerfilEnGrupo*` | HECHO (webTest 4/4 + ReputacionController, contractTest 4/4, integrationTest 3/3, testBarrido) |
 | H1.S4.M1 | Pactos y matriz: ámbito declarado en `PoliticaDeAcceso` para las rutas nuevas; pactos consumidor/productor identidad→grupos y transparencia→grupos | `contractTest` verde | `gradlew contractTest` | HECHO (matriz 8/8, clientes regenerados, pactos en contractTest de identidad y transparencia) |
 | H1.S5.M1 | app: la pantalla usa solo los datos de las dos rutas; sin cifras inventadas; estados cargando / error / sin historial; «volver» | prueba de widget con dobles en los tres estados | `flutter test test/pasanaku/` | HECHO (flutter test pasanaku 85+, perfil 7/7, a11y, capturas 18 en evidencia/) |
-| H1.S6.M1 | CI de la PR en verde | todos los jobs que corren en pass | `gh pr checks` | TODO |
-| H1.S6.M2 | APK de prueba con el perfil | APK descargable | `gh run` del workflow «APK de prueba (Android)» | TODO |
+| H1.S6.M1 | CI de la PR en verde | todos los jobs que corren en pass | `gh pr checks` | A MEDIAS (PR #175 en fd5946c6: todo verde salvo Frontend por dart format de 9 archivos de diseno_flutter, ajeno) |
+| H1.S6.M2 | APK de prueba con el perfil | APK descargable | `gh run` del workflow «APK de prueba (Android)» | BLOQUEADO (DECISION_REQUIRED: el APK apunta a TEST; requiere mergear #175 y llevar dev a test, decision del dueño) |
 
 ## Riesgos y bloqueos previstos
 | Riesgo | Impacto | Mitigación |

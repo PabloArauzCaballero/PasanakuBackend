@@ -1,6 +1,6 @@
 # Reporte — Perfil del integrante con datos reales (teléfono y reputación solo para el mismo grupo)
 
-> **AVANCE: 5 / 7 — 71,4 %.** Backend (grupos, identidad, transparencia) y app terminados y probados en local; faltan el CI de la PR (H1.S6.M1) y el APK de prueba (H1.S6.M2).
+> **AVANCE: 5 / 7 — 71,4 %.** Backend y app terminados; el CI de la PR #175 pasa en todo salvo Frontend, que falla por el formato de 9 archivos de `diseno_flutter` (de Pablo, ya fallaba en `dev`). Falta mergear y llevar a `test` para generar el APK.
 
 - Fecha: 2026-10-21 · Plan: [PLAN.md](./PLAN.md) · Rama: `claude/perfil-participante-20261021` (desde `origin/dev` `4e296bc8`)
 - Peldaño de evidencia: `TESTED` (pruebas dirigidas en verde en los tres servicios y en la app, contra PostgreSQL real y con el cliente HTTP real contra un doble del productor). No `VERIFIED`: no se ejercitó con los servicios reales levantados juntos ni en un teléfono.
@@ -20,8 +20,8 @@ ninguna
 ## Pendiente
 | ID | Estado | Qué lo destraba |
 |---|---|---|
-| H1.S6.M1 | TODO | Abrir la PR a `dev` y esperar el CI. El job de Frontend ya está rojo en `dev` por `dart format` de 11 archivos de `diseno_flutter`/`movil` (de Pablo) y puede seguir rojo por eso |
-| H1.S6.M2 | TODO | APK de prueba con el workflow «APK de prueba (Android)» después de que el cambio llegue a la rama desde la que se construye |
+| H1.S6.M1 | A MEDIAS | PR #175 en `fd5946c6`: 11 jobs en pass («Los cinco corredores» incluido). Frontend en fail solo por `dart format` de 9 archivos de `packages/diseno_flutter` (de Pablo; ya fallaba en `dev`). Los 2 archivos de `movil` que también fallaban antes se arreglaron con esta PR. Lo destraba: `dart format` (Dart 3.12.2) de esos 9 archivos, de Pablo o con su permiso |
+| H1.S6.M2 | BLOQUEADO (DECISION_REQUIRED) | El APK llama a TEST (`API_TEST` en `apk-de-prueba.yml`): sin el backend desplegado el perfil mostraría error. Lo destraba: mergear #175 a `dev`, llevar `dev` a `test` (autodespliegue cada 2 min) y lanzar el workflow. Decisión del dueño |
 
 ## Evidencia
 ```text
@@ -76,3 +76,9 @@ Los teléfonos y nombres de las pruebas y capturas son sintéticos.
 - **Ambigüedad** (a confirmar con el dueño): el 2026-10-20 se decidió que `/grupos/{id}/detalle` no lleve teléfono ni correo, y que las solicitudes muestren solo el nombre. Supuesto: la decisión de hoy aplica solo al perfil de un integrante ya aceptado; la lista y las solicitudes quedan igual.
 - **Ambigüedad** (a confirmar con el dueño / cumplimiento): la base legal para mostrar el teléfono a los miembros. Supuesto: el reglamento del grupo que todos firman. No se revisó su texto.
 - **Ambigüedad** (a confirmar con quien mantiene el modelo de reputación): `indice_puntualidad` («proporción de aportes pagados antes del vencimiento», `NUMERIC(5,2)`) no dice si va de 0 a 1 o de 0 a 100. Supuesto: 0–100; la app lo muestra como «96.40 %».
+
+### Correcciones después del primer CI (2026-10-21)
+- `SeguridadWebTest` de identidad y transparencia: faltaba el doble del caso de uso nuevo (solo había corrido las pruebas web dirigidas). Ahora pasan las suites web completas: grupos 106, identidad 147, transparencia 34.
+- Colecciones de Postman regeneradas (`scripts/generar_postman.py`).
+- `ArquitecturaTest` (transparencia): la web usaba records de `infraestructura`; pasaron a `dominio/PerfilDeReputacionEnGrupo`.
+- Reproducido en local antes de volver a subir: test, web, integración (grupos 262, identidad 193, transparencia 123), contrato, saga, barrido, formato y pisos de cobertura de los tres servicios, todo en verde (identidad: líneas 0.797, piso 0.79).
