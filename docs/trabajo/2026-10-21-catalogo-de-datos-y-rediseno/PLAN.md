@@ -80,8 +80,8 @@
 ## H5 — Artefactos y cierre
 | ID | Microtarea | CA | DoD | Estado |
 |---|---|---|---|---|
-| H5.S1.M1 | Ejemplos del simulado + Postman regenerados | colección con las 3 operaciones nuevas | `python3 scripts/generar_postman.py` | TODO |
-| H5.S1.M2 | REPORTE.md | 3 secciones + avance primera línea | archivo | TODO |
+| H5.S1.M1 | Ejemplos del simulado + Postman regenerados | colección con las 3 operaciones nuevas | `python3 scripts/generar_postman.py` | HECHO |
+| H5.S1.M2 | REPORTE.md | 3 secciones + avance primera línea | archivo | HECHO |
 
 ## Riesgos y bloqueos previstos
 | Riesgo | Impacto | Mitigación |
