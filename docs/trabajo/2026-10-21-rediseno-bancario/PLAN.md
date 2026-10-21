@@ -251,6 +251,9 @@ No se copia ninguna marca ajena: se toma el **lenguaje**, no los activos.
   - **A13, montos sugeridos en Recargar (ABIERTA):** Bs 50 / 100 / 200 / 500 son atajos de
     comodidad, no parámetros del negocio: no hay mínimo ni tope inferidos (regla 97.5.4). Si
     producto quiere otros montos o ninguno, es una lista en un solo lugar. Confirmar con Pablo.
+  - **A15, Mi puntaje sin escala (ABIERTA):** el contrato devuelve `puntaje` como cadena y
+    `nivelDeConfianza` sin máximo, umbrales ni factores. Un medidor circular o una escalera de
+    etapas inventaría esos valores (regla 97.5.4). Confirmar con transparencia si exponen la escala.
   - **A14, Extracto sin lista de movimientos (ABIERTA):** el contrato `ExtractoFilas` devuelve
     solo `desde`, `hasta`, `saldoFinal` y `cantidadMovimientos`. Chips de filtro, lista por día y
     descarga del certificado piden endpoints que no existen; no se inventan. Confirmar con quien
@@ -447,7 +450,7 @@ Cada microtarea de pantalla tiene el **mismo DoD**:
 | ID | Pantalla | Cambios clave | Estado |
 |---|---|---|---|
 | H6.S2.M1 | `/pasanaku/mi-estado` | Tarjetas de grupo, resumen de compromisos y restricciones como alerta con acción | A MEDIAS (anda: título grande, tarjeta de grupo con la cifra por período, tarjeta de aporte con cada cifra nombrada y restricción como alerta; falta: acción de pago en la alerta (A11) y el resumen de compromisos de todos los grupos) |
-| H6.S2.M2 | `/mi-puntaje` | Medidor circular de confianza, escalera de etapas y qué sube el puntaje | TODO |
+| H6.S2.M2 | `/mi-puntaje` | Medidor circular de confianza, escalera de etapas y qué sube el puntaje | A MEDIAS — hecho: tarjeta con ícono, puntaje protagonista, nivel en chip, origen del dato, vacío «Recién empezás» (ver `evidencia/h6-s2-m2-puntaje.txt`). Falta: medidor, escalera y «qué sube» (A15) |
 | H6.S2.M3 | `/grupos/nuevo` | Asistente por pasos con `BarraDePasos`, vista previa de la tarjeta del grupo y monto grande | TODO |
 | H6.S2.M4 | `/grupos/:id/invitar` (+número) | Tarjeta compartible con QR (`referrals`: mensaje listo para WhatsApp, beneficio para ambos solo si existe en el negocio) | TODO |
 | H6.S2.M5 | `/grupos/:id/solicitudes`, `pedir-cupo` | Tarjetas de solicitud con avatar, nivel y acciones | TODO |

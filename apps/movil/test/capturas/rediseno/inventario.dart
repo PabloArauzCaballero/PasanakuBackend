@@ -50,6 +50,7 @@ class PantallaDeCaptura {
 
 // Ids sintéticos: los ejemplos del contrato los aceptan todos (el adaptador matchea por patrón).
 const _grupo = 'ed65a0cc-a1e4-425c-8c81-b2908f49b328';
+const _participante = '55555555-5555-4555-8555-555555555555';
 const _sorteo = '22222222-2222-4222-8222-222222222222';
 const _obligacion = '33333333-3333-4333-8333-333333333333';
 const _codigo =
@@ -135,8 +136,19 @@ const pantallasDeCaptura = <PantallaDeCaptura>[
   PantallaDeCaptura('billetera', 'transferir', '/billetera/transferir'),
   PantallaDeCaptura('billetera', 'extracto', '/billetera/extracto'),
   // Grupos
-  PantallaDeCaptura('grupos', 'mi-estado', '/pasanaku/mi-estado'),
-  PantallaDeCaptura('grupos', 'mi-puntaje', '/pasanaku/mi-puntaje'),
+  // Sin sus parámetros estas dos rutas caían en otra pantalla o en un error: se abren como
+  // las abre la app (tarjeta del grupo y fila «Tu puntaje»).
+  PantallaDeCaptura(
+    'grupos',
+    'mi-estado',
+    '/pasanaku/mi-estado?participante=$_participante&usuario=$usuarioDeCaptura'
+        '&grupo=$_grupo&nombre=Grupo%20de%20ejemplo',
+  ),
+  PantallaDeCaptura(
+    'grupos',
+    'mi-puntaje',
+    '/pasanaku/mi-puntaje?usuario=$usuarioDeCaptura',
+  ),
   PantallaDeCaptura('grupos', 'nuevo', '/pasanaku/grupos/nuevo'),
   PantallaDeCaptura(
     'grupos',

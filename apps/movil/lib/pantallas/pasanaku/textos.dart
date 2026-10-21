@@ -137,6 +137,11 @@ class TextosPasanaku {
   static String levantaRestriccion(String monto) =>
       'Se levanta pagando $monto.';
   static const tituloMiPuntaje = 'Tu puntaje de reputación';
+  static const tituloSinHistorial = 'Recién empezás';
+  static const etiquetaPuntaje = 'Tu puntaje';
+  static const etiquetaNivel = 'Tu nivel';
+  static const origenDelPuntaje =
+      'Lo calcula el servicio de transparencia a partir de tu historial en AportaYa.';
   static const sinHistorial =
       'Todavía no tenés historial suficiente para un puntaje — no es una sanción, es que recién empezás.';
 

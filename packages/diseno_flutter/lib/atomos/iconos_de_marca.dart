@@ -29,6 +29,8 @@ abstract final class IconosDeMarca {
   static const IconData subida = LucideIcons.trendingUp;
   static const IconData vencimiento = LucideIcons.calendarClock;
   static const IconData periodo = LucideIcons.calendarRange;
+  static const IconData reputacion = LucideIcons.award;
+  static const IconData recienEmpiezas = LucideIcons.sprout;
 
   // Movimientos: el sentido, cuando el contrato no dice más…
   static const IconData entra = LucideIcons.arrowDownLeft;
