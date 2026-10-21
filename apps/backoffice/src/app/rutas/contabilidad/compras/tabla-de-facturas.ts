@@ -38,40 +38,42 @@ const COLUMNAS: ColumnaVirtual<FacturaDeProveedor>[] = [
     <section aria-labelledby="facturas">
       <h2 id="facturas">{{ t.facturas }}</h2>
       <ap-estado-de-listado [error]="listado.error()" [vacio]="listado.vacio()" [mensajeVacio]="t.enCeroFacturas" />
-      <ap-tabla-de-datos-virtualizada
-        [titulo]="t.facturas"
-        [columnas]="COLUMNAS"
-        [cargador]="listado.cargador"
-        [ordenPermitido]="[]"
-        [identidad]="identidad"
-      >
-        <ng-template #celda let-f let-columna="columna">
-          @switch (columna.clave) {
-            @case ('fechaVencimiento') {
-              <ap-fecha [iso]="f.fechaVencimiento" [conHora]="false" />
-            }
-            @case ('monto') {
-              <ap-monto [monto]="f.monto.monto" [moneda]="f.monto.moneda" etiqueta="Monto de la factura" />
-            }
-            @case ('saldoPendiente') {
-              <ap-monto [monto]="f.saldoPendiente.monto" [moneda]="f.saldoPendiente.moneda" [etiqueta]="t.saldoPendiente" />
-            }
-            @case ('estado') {
-              <ap-chip-estado [tono]="f.estado === 'PAGADA' ? 'ok' : f.estado === 'ANULADA' ? 'error' : 'aviso'">{{ etiqueta(f) }}</ap-chip-estado>
-            }
-            @case ('facturaProveedorId') {
-              @if (motivo(f); as porQueNo) {
-                <span class="motivo">{{ porQueNo }}</span>
-              } @else {
-                <ap-boton (pulsado)="elegir(f)">{{ t.pagar }}</ap-boton>
+      @if (!listado.error() && !listado.vacio()) {
+        <ap-tabla-de-datos-virtualizada
+          [titulo]="t.facturas"
+          [columnas]="COLUMNAS"
+          [cargador]="listado.cargador"
+          [ordenPermitido]="[]"
+          [identidad]="identidad"
+        >
+          <ng-template #celda let-f let-columna="columna">
+            @switch (columna.clave) {
+              @case ('fechaVencimiento') {
+                <ap-fecha [iso]="f.fechaVencimiento" [conHora]="false" />
+              }
+              @case ('monto') {
+                <ap-monto [monto]="f.monto.monto" [moneda]="f.monto.moneda" etiqueta="Monto de la factura" />
+              }
+              @case ('saldoPendiente') {
+                <ap-monto [monto]="f.saldoPendiente.monto" [moneda]="f.saldoPendiente.moneda" [etiqueta]="t.saldoPendiente" />
+              }
+              @case ('estado') {
+                <ap-chip-estado [tono]="f.estado === 'PAGADA' ? 'ok' : f.estado === 'ANULADA' ? 'error' : 'aviso'">{{ etiqueta(f) }}</ap-chip-estado>
+              }
+              @case ('facturaProveedorId') {
+                @if (motivo(f); as porQueNo) {
+                  <span class="motivo">{{ porQueNo }}</span>
+                } @else {
+                  <ap-boton (pulsado)="elegir(f)">{{ t.pagar }}</ap-boton>
+                }
+              }
+              @default {
+                {{ f[columna.clave] }}
               }
             }
-            @default {
-              {{ f[columna.clave] }}
-            }
-          }
-        </ng-template>
-      </ap-tabla-de-datos-virtualizada>
+          </ng-template>
+        </ap-tabla-de-datos-virtualizada>
+      }
     </section>
 
     @if (elegida(); as f) {

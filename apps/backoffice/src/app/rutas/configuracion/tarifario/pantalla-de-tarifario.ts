@@ -41,7 +41,7 @@ const TONO: Record<TarifarioEnLista['estado'], Tono> = { VIGENTE: 'ok', EN_PREAV
       <p class="nota">{{ comun.soloLectura }}</p>
       <ap-barra-de-filtros [etiqueta]="comun.estado" [incluirBusqueda]="false" [definiciones]="chips" />
       <ap-aviso-de-listado [error]="lectura.error()" [vacio]="lectura.vacio()" [conFiltro]="!!filtros()['estado']" [mensajeVacio]="t.vacio" (reintentar)="lectura.reintentar()" />
-      @if (!lectura.error()) {
+      @if (!lectura.error() && !lectura.vacio()) {
         <ap-tabla-de-datos-virtualizada [titulo]="t.titulo" [columnas]="columnas" [cargador]="cargador" [ordenPermitido]="[]" [identidad]="identidad" [filtros]="filtros()">
           <ng-template #celda let-r let-columna="columna">
             @switch (columna.clave) {

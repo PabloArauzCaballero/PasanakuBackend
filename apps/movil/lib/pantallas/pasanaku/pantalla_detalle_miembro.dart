@@ -199,6 +199,11 @@ class PantallaDetalleMiembro extends ConsumerWidget {
                                 fontWeight: FontWeight.w700,
                               ),
                             ),
+                          )
+                        else
+                          const ChipEstado(
+                            texto: TextosDetalleDelGrupo.sinTurno,
+                            tono: Tono.neutro,
                           ),
                       ],
                     ),
@@ -226,11 +231,14 @@ class PantallaDetalleMiembro extends ConsumerWidget {
                             color: Color(0xFF10B981),
                           ),
                           const SizedBox(width: 6),
-                          Text(
-                            'Identidad Verificada · Nivel 2 Oficial',
-                            style: Tipo.etiqueta.copyWith(
-                              color: const Color(0xFF10B981),
-                              fontWeight: FontWeight.w700,
+                          Flexible(
+                            child: Text(
+                              'Identidad Verificada · Nivel 2 Oficial',
+                              style: Tipo.etiqueta.copyWith(
+                                color: const Color(0xFF10B981),
+                                fontWeight: FontWeight.w700,
+                              ),
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
                         ],
@@ -252,11 +260,14 @@ class PantallaDetalleMiembro extends ConsumerWidget {
                             children: [
                               Icon(Icons.lock_outline, size: 16, color: t.text3),
                               const SizedBox(width: Espacio.s2),
-                              Text(
-                                'Contacto protegido por privacidad',
-                                style: Tipo.etiqueta.copyWith(
-                                  color: t.text2,
-                                  fontWeight: FontWeight.w700,
+                              Expanded(
+                                child: Text(
+                                  'Contacto protegido por privacidad',
+                                  style: Tipo.etiqueta.copyWith(
+                                    color: t.text2,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
                                 ),
                               ),
                             ],
@@ -270,11 +281,16 @@ class PantallaDetalleMiembro extends ConsumerWidget {
                                 'Correo: ',
                                 style: Tipo.etiqueta.copyWith(color: t.text3),
                               ),
-                              Text(
-                                _enmascararCorreo(_nombreMostrado),
-                                style: Tipo.etiqueta.copyWith(
-                                  color: t.text,
-                                  fontWeight: FontWeight.w600,
+                              Expanded(
+                                child: Text(
+                                  soyYo
+                                      ? _enmascararCorreo(_nombreMostrado)
+                                      : 'Protegido por privacidad',
+                                  style: Tipo.etiqueta.copyWith(
+                                    color: t.text,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
                                 ),
                               ),
                             ],
@@ -288,11 +304,16 @@ class PantallaDetalleMiembro extends ConsumerWidget {
                                 'Teléfono: ',
                                 style: Tipo.etiqueta.copyWith(color: t.text3),
                               ),
-                              Text(
-                                _enmascararTelefono(),
-                                style: Tipo.etiqueta.copyWith(
-                                  color: t.text,
-                                  fontWeight: FontWeight.w600,
+                              Expanded(
+                                child: Text(
+                                  soyYo
+                                      ? _enmascararTelefono()
+                                      : 'Protegido por privacidad',
+                                  style: Tipo.etiqueta.copyWith(
+                                    color: t.text,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
                                 ),
                               ),
                             ],
@@ -404,14 +425,18 @@ class PantallaDetalleMiembro extends ConsumerWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    'INSIGNIAS Y TROFEOS DE HONOR',
-                    style: Tipo.etiqueta.copyWith(
-                      color: t.text2,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: 1.1,
+                  Expanded(
+                    child: Text(
+                      'INSIGNIAS Y TROFEOS DE HONOR',
+                      style: Tipo.etiqueta.copyWith(
+                        color: t.text2,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 1.1,
+                      ),
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
+                  const SizedBox(width: Espacio.s2),
                   Text(
                     '4 ganadas',
                     style: Tipo.etiqueta.copyWith(

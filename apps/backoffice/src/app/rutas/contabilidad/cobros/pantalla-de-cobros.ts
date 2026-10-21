@@ -42,47 +42,49 @@ const COLUMNAS: ColumnaVirtual<CuentaPorCobrar>[] = [
       <ap-cabecera-de-pagina [titulo]="t.titulo" [descripcion]="t.proposito" icono="recarga" />
       <ap-barra-de-filtros etiqueta="Estado" [incluirBusqueda]="false" [definiciones]="filtros" />
       <ap-estado-de-listado [error]="listado.error()" [vacio]="listado.vacio()" [mensajeVacio]="t.enCero" [filtrado]="!!filtrosActivos()['estado']" />
-      <ap-tabla-de-datos-virtualizada
-        [titulo]="t.titulo"
-        [columnas]="COLUMNAS"
-        [cargador]="listado.cargador"
-        [ordenPermitido]="[]"
-        [identidad]="identidad"
-        [filtros]="filtrosActivos()"
-      >
-        <ng-template #celda let-c let-columna="columna">
-          @switch (columna.clave) {
-            @case ('origenTipo') {
-              {{ origen(c) }}
-            }
-            @case ('terceroRazonSocial') {
-              {{ c.terceroRazonSocial ?? t.sinTercero }}
-            }
-            @case ('fechaVencimiento') {
-              <ap-fecha [iso]="c.fechaVencimiento" [conHora]="false" />
-            }
-            @case ('monto') {
-              <ap-monto [monto]="c.monto.monto" [moneda]="c.monto.moneda" etiqueta="Monto de la cuenta" />
-            }
-            @case ('saldoPendiente') {
-              <ap-monto [monto]="c.saldoPendiente.monto" [moneda]="c.saldoPendiente.moneda" [etiqueta]="t.saldoPendiente" />
-            }
-            @case ('estado') {
-              <ap-chip-estado [tono]="c.estado === 'COBRADA' ? 'ok' : c.estado === 'INCOBRABLE' ? 'error' : 'aviso'">{{ etiqueta(c) }}</ap-chip-estado>
-            }
-            @case ('cuentaPorCobrarId') {
-              @if (motivo(c); as porQueNo) {
-                <span class="motivo">{{ porQueNo }}</span>
-              } @else {
-                <ap-boton (pulsado)="elegida.set(c)">{{ t.cobrar }}</ap-boton>
+      @if (!listado.error() && !listado.vacio()) {
+        <ap-tabla-de-datos-virtualizada
+          [titulo]="t.titulo"
+          [columnas]="COLUMNAS"
+          [cargador]="listado.cargador"
+          [ordenPermitido]="[]"
+          [identidad]="identidad"
+          [filtros]="filtrosActivos()"
+        >
+          <ng-template #celda let-c let-columna="columna">
+            @switch (columna.clave) {
+              @case ('origenTipo') {
+                {{ origen(c) }}
+              }
+              @case ('terceroRazonSocial') {
+                {{ c.terceroRazonSocial ?? t.sinTercero }}
+              }
+              @case ('fechaVencimiento') {
+                <ap-fecha [iso]="c.fechaVencimiento" [conHora]="false" />
+              }
+              @case ('monto') {
+                <ap-monto [monto]="c.monto.monto" [moneda]="c.monto.moneda" etiqueta="Monto de la cuenta" />
+              }
+              @case ('saldoPendiente') {
+                <ap-monto [monto]="c.saldoPendiente.monto" [moneda]="c.saldoPendiente.moneda" [etiqueta]="t.saldoPendiente" />
+              }
+              @case ('estado') {
+                <ap-chip-estado [tono]="c.estado === 'COBRADA' ? 'ok' : c.estado === 'INCOBRABLE' ? 'error' : 'aviso'">{{ etiqueta(c) }}</ap-chip-estado>
+              }
+              @case ('cuentaPorCobrarId') {
+                @if (motivo(c); as porQueNo) {
+                  <span class="motivo">{{ porQueNo }}</span>
+                } @else {
+                  <ap-boton (pulsado)="elegida.set(c)">{{ t.cobrar }}</ap-boton>
+                }
+              }
+              @default {
+                {{ c[columna.clave] }}
               }
             }
-            @default {
-              {{ c[columna.clave] }}
-            }
-          }
-        </ng-template>
-      </ap-tabla-de-datos-virtualizada>
+          </ng-template>
+        </ap-tabla-de-datos-virtualizada>
+      }
     </section>
 
     @if (elegida(); as c) {

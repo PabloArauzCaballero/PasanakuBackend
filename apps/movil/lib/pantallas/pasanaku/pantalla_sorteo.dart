@@ -30,11 +30,17 @@ class PantallaSorteo extends ConsumerStatefulWidget {
 
 class _PantallaSorteoState extends ConsumerState<PantallaSorteo>
     with SingleTickerProviderStateMixin {
-  late final AnimationController _giro = AnimationController(vsync: this);
+  late final AnimationController _giro;
   double _angulo = 0;
   bool _sorteando = false;
   String? _error;
   final List<String> _revelados = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _giro = AnimationController(vsync: this);
+  }
 
   @override
   void dispose() {

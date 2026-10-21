@@ -5,7 +5,7 @@ import { CabeceraDePagina } from '@aportaya/ui/cabecera-de-pagina/cabecera-de-pa
 import { ChipEstado } from '@aportaya/ui/chip-estado/chip-estado'
 import { ExplicadorDeVista } from '../../nucleo/explicador-de-vista'
 import { Sesion } from '../../nucleo/sesion'
-import { BANDEJAS, lectorDeBandejas, type DefinicionDeBandeja } from './dominio/bandejas'
+import { BANDEJAS, lectorDeBandejas, traducirError, type DefinicionDeBandeja } from './dominio/bandejas'
 import { TarjetaDeBandeja, type EstadoDeTarjeta } from './tarjeta-de-bandeja'
 import { textosTablero } from './textos'
 
@@ -40,7 +40,7 @@ type Acceso = { ruta: string; texto: string; permiso: string; descripcion: strin
         } @else {
           <ul class="grilla" data-tutorial-id="tablero-accion">
             @for (b of visibles(); track b.id) {
-              <li><ap-tarjeta-de-bandeja [bandeja]="b" [estado]="estados()[b.id] ?? cargando" /></li>
+              <li><ap-tarjeta-de-bandeja [bandeja]="b" [estado]="estados()[b.id] ?? cargando" (reintentar)="consultarBandeja(b)" /></li>
             }
           </ul>
         }
@@ -128,9 +128,15 @@ export class Tablero {
   /** Vuelve a consultar cada bandeja visible; cada tarjeta resuelve por su cuenta (una caída no tapa a las demás). */
   protected actualizar(): void {
     for (const bandeja of this.visibles()) {
-      this.fijar(bandeja.id, this.cargando)
-      void this.leer(bandeja).then((lectura) => this.fijar(bandeja.id, { ...lectura, consultadaEn: new Date().toISOString() }))
+      this.consultarBandeja(bandeja)
     }
+  }
+
+  protected consultarBandeja(bandeja: DefinicionDeBandeja): void {
+    this.fijar(bandeja.id, this.cargando)
+    void this.leer(bandeja)
+      .then((lectura) => this.fijar(bandeja.id, { ...lectura, consultadaEn: new Date().toISOString() }))
+      .catch((error) => this.fijar(bandeja.id, { tipo: 'error', error: traducirError(error), consultadaEn: new Date().toISOString() }))
   }
 
   private fijar(id: DefinicionDeBandeja['id'], estado: EstadoDeTarjeta): void {

@@ -32,7 +32,7 @@ const COLUMNAS: ColumnaVirtual<ReversoEnLista>[] = CLAVES.map((clave) => ({ clav
       <ap-cabecera-de-pagina [titulo]="t.titulo" [descripcion]="t.proposito" icono="recarga" />
       <ap-barra-de-filtros [etiqueta]="t.filtroEtiqueta" [incluirBusqueda]="false" [definiciones]="filtrosDeEstado" />
       <ap-estado-de-bandeja [estado]="b.estado()" [error]="b.error()" [vacio]="t.vacio" [explicacionVacio]="t.explicacionVacio" [denegado]="t.denegado" [conFiltro]="!!filtrosActivos()['estados']" (reintentar)="b.reintentar()" (quitarFiltros)="quitarFiltros()" />
-      @if (b.estado() !== 'denegado') {
+      @if (b.estado() !== 'denegado' && b.estado() !== 'vacio') {
         @for (v of [b.version()]; track v) {
           <ap-tabla-de-datos-virtualizada [titulo]="t.titulo" [columnas]="COLUMNAS" [cargador]="b.cargador" [ordenPermitido]="[]" [identidad]="identidad" [filtros]="filtrosActivos()" [tamanoDePagina]="25">
             <ng-template #celda let-r let-columna="columna">

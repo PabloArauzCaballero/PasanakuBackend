@@ -64,24 +64,26 @@ const FILTROS: Filtro[] = [
         <ap-barra-de-filtros etiqueta="Estado" [incluirBusqueda]="false" [definiciones]="FILTROS" />
         <p class="nota">{{ t.porOmision }}</p>
         <ap-estado-de-listado [error]="listado.error()" [vacio]="listado.vacio()" [mensajeVacio]="t.sinCampanas" [filtrado]="!!filtrosActivos()['estado']" />
-        <ap-tabla-de-datos-virtualizada data-tutorial-id="publicidad-tabla-campanas" [titulo]="t.tituloGestion" [columnas]="COLUMNAS" [cargador]="listado.cargador" [ordenPermitido]="[]" [identidad]="identidad" [filtros]="filtrosActivos()">
-          <ng-template #celda let-c let-columna="columna">
-            @switch (columna.clave) {
-              @case ('estado') {
-                <ap-chip-estado [tono]="c.estado === 'ACTIVA' ? 'ok' : c.estado === 'RECHAZADA' ? 'error' : 'neutro'">{{ textoDeEstado(c) }}</ap-chip-estado>
+        @if (!listado.error() && !listado.vacio()) {
+          <ap-tabla-de-datos-virtualizada data-tutorial-id="publicidad-tabla-campanas" [titulo]="t.tituloGestion" [columnas]="COLUMNAS" [cargador]="listado.cargador" [ordenPermitido]="[]" [identidad]="identidad" [filtros]="filtrosActivos()">
+            <ng-template #celda let-c let-columna="columna">
+              @switch (columna.clave) {
+                @case ('estado') {
+                  <ap-chip-estado [tono]="c.estado === 'ACTIVA' ? 'ok' : c.estado === 'RECHAZADA' ? 'error' : 'neutro'">{{ textoDeEstado(c) }}</ap-chip-estado>
+                }
+                @case ('fechaInicio') { <ap-fecha [iso]="c.fechaInicio" [conHora]="false" /> }
+                @case ('presupuestoTotal') { <ap-monto [monto]="c.presupuestoTotal.monto" [moneda]="c.presupuestoTotal.moneda" [etiqueta]="t.columnaPresupuesto" /> }
+                @case ('presupuestoConsumido') { <ap-monto [monto]="c.presupuestoConsumido.monto" [moneda]="c.presupuestoConsumido.moneda" [etiqueta]="t.columnaConsumido" /> }
+                @case ('campanaId') {
+                  @if (c.estado === 'EN_REVISION') { <a [routerLink]="'/publicidad/campanas/' + c.campanaId + '/aprobacion'">{{ t.revisar }}</a> }
+                }
+                @default {
+                  {{ c[columna.clave] }}
+                }
               }
-              @case ('fechaInicio') { <ap-fecha [iso]="c.fechaInicio" [conHora]="false" /> }
-              @case ('presupuestoTotal') { <ap-monto [monto]="c.presupuestoTotal.monto" [moneda]="c.presupuestoTotal.moneda" [etiqueta]="t.columnaPresupuesto" /> }
-              @case ('presupuestoConsumido') { <ap-monto [monto]="c.presupuestoConsumido.monto" [moneda]="c.presupuestoConsumido.moneda" [etiqueta]="t.columnaConsumido" /> }
-              @case ('campanaId') {
-                @if (c.estado === 'EN_REVISION') { <a [routerLink]="'/publicidad/campanas/' + c.campanaId + '/aprobacion'">{{ t.revisar }}</a> }
-              }
-              @default {
-                {{ c[columna.clave] }}
-              }
-            }
-          </ng-template>
-        </ap-tabla-de-datos-virtualizada>
+            </ng-template>
+          </ap-tabla-de-datos-virtualizada>
+        }
       } @else {
         <p class="nota" role="status">{{ t.soloOperaciones }}</p>
       }

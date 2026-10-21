@@ -42,41 +42,43 @@ const COLUMNAS: ColumnaVirtual<OrdenDeCompra>[] = [
       <h2 id="ordenes">{{ t.ordenes }}</h2>
       <ap-barra-de-filtros etiqueta="Estado de la orden" [incluirBusqueda]="false" [definiciones]="filtros" />
       <ap-estado-de-listado [error]="listado.error()" [vacio]="listado.vacio()" [mensajeVacio]="t.enCeroOrdenes" [filtrado]="!!filtrosActivos()['estado']" />
-      <ap-tabla-de-datos-virtualizada
-        [titulo]="t.ordenes"
-        [columnas]="COLUMNAS"
-        [cargador]="listado.cargador"
-        [ordenPermitido]="[]"
-        [identidad]="identidad"
-        [filtros]="filtrosActivos()"
-      >
-        <ng-template #celda let-o let-columna="columna">
-          @switch (columna.clave) {
-            @case ('centroCostoNombre') {
-              {{ o.centroCostoNombre ?? t.sinCentroDeCosto }}
-            }
-            @case ('creadaEn') {
-              <ap-fecha [iso]="o.creadaEn" [conHora]="false" />
-            }
-            @case ('monto') {
-              <ap-monto [monto]="o.monto.monto" [moneda]="o.monto.moneda" etiqueta="Monto de la orden" />
-            }
-            @case ('estado') {
-              <ap-chip-estado [tono]="o.estado === 'CANCELADA' ? 'error' : o.estado === 'BORRADOR' ? 'neutro' : 'ok'">{{ etiqueta(o) }}</ap-chip-estado>
-            }
-            @case ('ordenCompraId') {
-              @if (facturable(o)) {
-                <span class="si">Sí</span>
-              } @else {
-                <span class="motivo">{{ motivo(o) }}</span>
+      @if (!listado.error() && !listado.vacio()) {
+        <ap-tabla-de-datos-virtualizada
+          [titulo]="t.ordenes"
+          [columnas]="COLUMNAS"
+          [cargador]="listado.cargador"
+          [ordenPermitido]="[]"
+          [identidad]="identidad"
+          [filtros]="filtrosActivos()"
+        >
+          <ng-template #celda let-o let-columna="columna">
+            @switch (columna.clave) {
+              @case ('centroCostoNombre') {
+                {{ o.centroCostoNombre ?? t.sinCentroDeCosto }}
+              }
+              @case ('creadaEn') {
+                <ap-fecha [iso]="o.creadaEn" [conHora]="false" />
+              }
+              @case ('monto') {
+                <ap-monto [monto]="o.monto.monto" [moneda]="o.monto.moneda" etiqueta="Monto de la orden" />
+              }
+              @case ('estado') {
+                <ap-chip-estado [tono]="o.estado === 'CANCELADA' ? 'error' : o.estado === 'BORRADOR' ? 'neutro' : 'ok'">{{ etiqueta(o) }}</ap-chip-estado>
+              }
+              @case ('ordenCompraId') {
+                @if (facturable(o)) {
+                  <span class="si">Sí</span>
+                } @else {
+                  <span class="motivo">{{ motivo(o) }}</span>
+                }
+              }
+              @default {
+                {{ o[columna.clave] }}
               }
             }
-            @default {
-              {{ o[columna.clave] }}
-            }
-          }
-        </ng-template>
-      </ap-tabla-de-datos-virtualizada>
+          </ng-template>
+        </ap-tabla-de-datos-virtualizada>
+      }
     </section>
   `,
   styles: `
