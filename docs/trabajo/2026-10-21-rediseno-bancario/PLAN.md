@@ -162,7 +162,7 @@ No se copia ninguna marca ajena: se toma el **lenguaje**, no los activos.
 | **Fondo** | `#F4F6F5` plano | Claro `#F5F7F6` con **halo** radial de marca detrás de la tarjeta héroe. Oscuro casi negro verdoso `#07130D` |
 | **Color de acción** | Naranja `o700` | **Ambigüedad A2.** Propuesta: verde de marca como primario y naranja solo para «pagar / aportar ahora» (urgencia). Se decide con la persona |
 | **Tipografía** | Instrument en todo | **Bricolage** para cifras y títulos de pantalla (display, 700) e **Instrument** para el texto. Cifras tabulares y tracking negativo en display |
-| **Íconos** | Material mezclado | **Un solo set lineal redondeado**, `Icons.*_rounded` con trazo uniforme. Opción B (ADR): paquete de íconos lineales. Contenedor circular con tinte por categoría |
+| **Íconos** | Material mezclado | **Lucide** (`lucide_icons_flutter` 3.1.20): un solo set lineal de trazo uniforme y redondeado, el de las fintech modernas. Contenedor circular con tinte por categoría |
 | **Cabeceras** | `AppBar` de fábrica | `Cabecera` grande estilo iOS (título de 28 que se encoge a 17 al desplazar, con desenfoque al pasar contenido por detrás) |
 | **Barra de pestañas** | Barra pegada abajo | **Flotante, translúcida** (vidrio con `BackdropFilter`), indicador en píldora que se desliza con resorte y pestaña central «QR» destacada |
 | **Movimientos** | Filas planas | Avatar circular por tipo (aporte, cobro, recarga), monto alineado a la derecha con signo y color semántico + ícono (nunca solo color), y agrupación por día con encabezado fijo |
@@ -210,19 +210,21 @@ No se copia ninguna marca ajena: se toma el **lenguaje**, no los activos.
   - Landing, ícono de la app y splash nativo, que quedan como propuesta en H8.
   - Dependencias nuevas sin ADR.
 - **Ambigüedades registradas** (supuesto tomado → a quién confirmar: la persona usuaria y Pablo):
-  - **A1, referencia Meru:** no hay capturas. Supuesto: lenguaje fintech premium descrito en §2.
-    Se recalibra si llegan capturas.
-  - **A2, color primario:** ¿verde de marca o se mantiene el naranja? Supuesto: verde primario y
-    naranja solo para urgencia de pago.
-  - **A3, `tokens.css` compartido con la web:** cambiar un rol cambia el backoffice. Supuesto: los
-    roles nuevos se agregan con nombre nuevo y los roles existentes que cambian de valor se listan
-    en el reporte, con capturas de la web.
-  - **A4, set de íconos:** supuesto `Icons.*_rounded` (sin dependencia). La alternativa con paquete
-    requiere ADR-045.
-  - **A5, nombre visible:** «Aporteo» (`app_real.dart`) o «AportaYa» (`app.dart`). No se toca hasta
-    confirmar.
-  - **A6, pestaña central QR:** cambia la arquitectura de navegación (Ayuda pasa al Perfil).
-    Supuesto: se propone con capturas y se implementa solo con OK.
+  - **Decisiones confirmadas por la persona usuaria el 2026-10-21** (delegó en «lo más recomendado»):
+  - **A1, referencia (RESUELTA):** lenguaje de las apps bancarias hermanas (Meru, Nubank, Revolut,
+    Ualá, Mercado Pago, Apple Wallet). Ver §2. Se recalibra si llegan capturas de Meru.
+  - **A2, color primario (RESUELTA):** verde de marca como primario y naranja solo para la urgencia
+    de pago («Aportar ahora», vencimientos).
+  - **A3, `tokens.css` compartido (RESUELTA):** se permite que el cambio de roles alcance a la web y
+    al backoffice. Se capturan antes y después (H2.S5.M1, H8.S3.M2).
+  - **A4, íconos (RESUELTA):** **Lucide**, con `lucide_icons_flutter` fijado en **3.1.20**
+    (publicado el 2026-09-15, licencia ISC, ~290 mil descargas por mes y API `IconData`
+    compatible con `Icon`). Phosphor quedó descartado: sin publicar desde 2024-05. Hugeicons quedó
+    descartado: API no `IconData`. Se registra en ADR-045 (H1.S2.M2).
+  - **A5, nombre visible:** «Aporteo» (`app_real.dart`) o «AportaYa» (`app.dart`). Sigue abierta;
+    no se toca (no es diseño).
+  - **A6, pestaña central QR (RESUELTA):** sí. Pestañas: Inicio · Grupos · **QR** · Movimientos ·
+    Perfil. Ayuda pasa a una fila del Perfil y a un botón de la cabecera.
   - **A7, bases de goldens:** se regeneran en Linux (CI). Las de macOS las regenera
     `goldens-macos.yml`.
 
@@ -238,10 +240,10 @@ No se copia ninguna marca ajena: se toma el **lenguaje**, no los activos.
 ### H0.S1 — Entorno
 | ID | Microtarea | CA (binario) | DoD (comando) | Estado |
 |---|---|---|---|---|
-| H0.S1.M1 | Instalar Flutter 3.44.8 en `/opt/flutter` | `flutter --version` imprime 3.44.8 | `flutter --version` → `Flutter 3.44.8` | TODO |
-| H0.S1.M2 | Generar los tokens | `tokens.dart` existe | `yarn workspace @aportaya/tokens build && yarn workspace @aportaya/diseno-flutter build` exit 0 · `ls packages/diseno_flutter/lib/tokens/tokens.dart` | TODO |
-| H0.S1.M3 | Resolver dependencias de la app y el paquete | `pub get` sin error | `flutter pub get` en ambos → exit 0 | TODO |
-| H0.S1.M4 | Fijar la línea base de calidad | Se conoce el estado previo | `dart analyze --fatal-infos` + `flutter test` + `python3 scripts/verificar_frontend.py movil` → salidas pegadas en `evidencia/linea-base.txt` | TODO |
+| H0.S1.M1 | Instalar Flutter 3.44.8 en `/opt/flutter` | `flutter --version` imprime 3.44.8 | `flutter --version` → `Flutter 3.44.8` | HECHO |
+| H0.S1.M2 | Generar los tokens | `tokens.dart` existe | `yarn workspace @aportaya/tokens build && yarn workspace @aportaya/diseno-flutter build` exit 0 · `ls packages/diseno_flutter/lib/tokens/tokens.dart` | HECHO |
+| H0.S1.M3 | Resolver dependencias de la app y el paquete | `pub get` sin error | `flutter pub get` en ambos → exit 0 | HECHO |
+| H0.S1.M4 | Fijar la línea base de calidad | Se conoce el estado previo | `dart analyze --fatal-infos` + `flutter test` + `python3 scripts/verificar_frontend.py movil` → salidas pegadas en `evidencia/linea-base.txt` | HECHO |
 
 ### H0.S2 — Arnés de capturas
 | ID | Microtarea | CA | DoD | Estado |
@@ -339,7 +341,7 @@ por componente · `test/a11y` PASS.
 | H4.S1.M6 | `Esqueleto` con brillo diagonal de baja frecuencia (se apaga con reducir movimiento) | Video | MP4 normal + reducido | TODO |
 | H4.S1.M7 | `Casilla` e `Interruptor` sin `ListTile` de fábrica | Captura | golden `atomos_seleccion_*` | TODO |
 | H4.S1.M8 | Campos (`Campo`, `CampoMonto`, `CampoOTP`): relleno suave, foco con anillo de marca y monto grande centrado | Captura de los estados | golden `atomos_campos_*` | TODO |
-| H4.S1.M9 | Iconografía: mapa único `IconosDeMarca` (sustantivo → `Icons.*_rounded`) y barrido de los ~185 usos | `git grep "Icons\.[a-z_]*[^d]\b" apps/movil/lib` sin variantes mezcladas | grep pegado | TODO |
+| H4.S1.M9 | Iconografía: agregar `lucide_icons_flutter: 3.1.20` (con ADR-045), mapa único `IconosDeMarca` (sustantivo → `LucideIcons.*`) en `diseno_flutter` y barrido de los ~185 `Icons.*` | `git grep -n "Icons\." apps/movil/lib` sin `Icons.` de Material (salvo excepciones listadas) | grep pegado + capturas | TODO |
 
 ### H4.S2 — Moléculas
 | ID | Microtarea | CA | DoD | Estado |
@@ -390,6 +392,7 @@ perfil de rendimiento sin cuadros > 16 ms en la pantalla de Inicio (`flutter run
 | H5.S3.M1 | `fixing-motion-performance`: `RepaintBoundary` en héroe y barra, sin animar layout | Perfil sin jank | salida del perfil pegada | TODO |
 | H5.S3.M2 | Revisión final `review-animations` + `improve-animations` | Hallazgos corregidos | `movimiento/revision.md` | TODO |
 | H5.S3.M3 | Política de hápticos aplicada por el puerto `proveedores/haptica.dart` (`pasanaku-app-movil-ux` §4) | `git grep HapticFeedback apps/movil/lib/pantallas` vacío | grep pegado | TODO |
+| H5.S3.M4 | **Agregada en H0.S1.M4 (bug de la línea base):** el candado se resincroniza cuando «reducir movimiento» cambia con la capa animándose (`didChangeDependencies`). Hoy queda con opacidad 0 | Dado el candado entrando, cuando se activa reducir movimiento, entonces la capa se ve completa en el mismo cuadro | `flutter test test/widget/capa_de_bloqueo_animacion_test.dart` → PASS | HECHO |
 
 ---
 
@@ -505,7 +508,7 @@ cada pantalla y componente, y el reporte dice con honestidad qué está hecho, q
 
 ## Orden de ejecución y entregas parciales
 
-1. **H0** (antes) → **H1** (dirección; **pausa para tu OK** en A2, A3, A4 y A6) → **H2** → **H3** →
+1. **H0** (antes) → **H1** (dirección; A2, A3, A4 y A6 ya resueltas el 2026-10-21) → **H2** → **H3** →
    **H4** → **H6.S1 Inicio** → *entrega parcial con galería* → H5 en paralelo con el resto de **H6** →
    **H7** → **H8** → **H9**.
 2. Cada flujo cerrado se commitea y se empuja con sus capturas. La galería se actualiza en cada entrega.
