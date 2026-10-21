@@ -50,7 +50,7 @@ const COLUMNAS_ENVIOS: ColumnaVirtual<EnvioEnLista>[] = [
       <p class="nota">{{ comun.soloLectura }}</p>
 
       <ap-aviso-de-listado [error]="plantillas.error()" [vacio]="plantillas.vacio()" [mensajeVacio]="t.plantillas.vacio" (reintentar)="plantillas.reintentar()" />
-      @if (!plantillas.error()) {
+      @if (!plantillas.error() && !plantillas.vacio()) {
         <ap-tabla-de-datos-virtualizada [titulo]="t.plantillas.titulo" [columnas]="columnasPlantillas" [cargador]="cargadorPlantillas" [ordenPermitido]="[]" [identidad]="idPlantilla" [alturaDeViewport]="320">
           <ng-template #celda let-r let-columna="columna">
             @switch (columna.clave) {
@@ -66,7 +66,7 @@ const COLUMNAS_ENVIOS: ColumnaVirtual<EnvioEnLista>[] = [
 
       <ap-barra-de-filtros [etiqueta]="comun.estado" [incluirBusqueda]="false" [definiciones]="chipsEnvios" />
       <ap-aviso-de-listado [error]="envios.error()" [vacio]="envios.vacio()" [conFiltro]="!!filtros()['estado']" [mensajeVacio]="t.envios.vacio" (reintentar)="envios.reintentar()" />
-      @if (!envios.error()) {
+      @if (!envios.error() && !envios.vacio()) {
         <ap-tabla-de-datos-virtualizada [titulo]="t.envios.titulo" [columnas]="columnasEnvios" [cargador]="cargadorEnvios" [ordenPermitido]="[]" [identidad]="idEnvio" [filtros]="filtros()">
           <ng-template #celda let-r let-columna="columna">
             @switch (columna.clave) {

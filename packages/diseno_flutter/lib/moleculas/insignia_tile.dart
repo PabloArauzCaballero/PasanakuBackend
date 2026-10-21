@@ -189,10 +189,14 @@ class InsigniaTile extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  progresoEtiqueta ?? '${(progreso! * 100).toInt()}% completado',
-                  style: Tipo.etiqueta.copyWith(color: t.text3),
+                Expanded(
+                  child: Text(
+                    progresoEtiqueta ?? '${(progreso! * 100).toInt()}% completado',
+                    style: Tipo.etiqueta.copyWith(color: t.text3),
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
+                const SizedBox(width: Espacio.s2),
                 Text(
                   '+$puntos pts al desbloquear',
                   style: Tipo.etiqueta.copyWith(

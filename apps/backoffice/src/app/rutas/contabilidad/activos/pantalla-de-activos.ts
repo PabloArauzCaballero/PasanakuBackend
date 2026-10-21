@@ -47,41 +47,43 @@ const COLUMNAS: ColumnaVirtual<ActivoFijo>[] = [
       <ap-error-de-envio [error]="errorDeEnvio()" />
       <ap-barra-de-filtros etiqueta="Estado" [incluirBusqueda]="false" [definiciones]="filtros" />
       <ap-estado-de-listado [error]="listado.error()" [vacio]="listado.vacio()" [mensajeVacio]="t.enCero" [filtrado]="!!filtrosActivos()['estado']" />
-      <ap-tabla-de-datos-virtualizada
-        [titulo]="t.titulo"
-        [columnas]="COLUMNAS"
-        [cargador]="listado.cargador"
-        [ordenPermitido]="[]"
-        [identidad]="identidad"
-        [filtros]="filtrosActivos()"
-      >
-        <ng-template #celda let-a let-columna="columna">
-          @switch (columna.clave) {
-            @case ('costoAdquisicion') {
-              <ap-monto [monto]="a.costoAdquisicion.monto" [moneda]="a.costoAdquisicion.moneda" [etiqueta]="t.costo" />
-            }
-            @case ('depreciacionAcumulada') {
-              <ap-monto [monto]="a.depreciacionAcumulada.monto" [moneda]="a.depreciacionAcumulada.moneda" [etiqueta]="t.acumulada" />
-            }
-            @case ('valorEnLibros') {
-              <ap-monto [monto]="a.valorEnLibros.monto" [moneda]="a.valorEnLibros.moneda" [etiqueta]="t.valorEnLibros" />
-            }
-            @case ('estado') {
-              <ap-chip-estado [tono]="a.estado === 'ACTIVO' ? 'ok' : 'neutro'">{{ etiqueta(a) }}</ap-chip-estado>
-            }
-            @case ('activoFijoId') {
-              @if (motivo(a); as porQueNo) {
-                <span class="motivo">{{ porQueNo }}</span>
-              } @else {
-                <ap-boton [cargando]="enviando() === a.activoFijoId" (pulsado)="depreciar(a)">{{ t.depreciar }}</ap-boton>
+      @if (!listado.error() && !listado.vacio()) {
+        <ap-tabla-de-datos-virtualizada
+          [titulo]="t.titulo"
+          [columnas]="COLUMNAS"
+          [cargador]="listado.cargador"
+          [ordenPermitido]="[]"
+          [identidad]="identidad"
+          [filtros]="filtrosActivos()"
+        >
+          <ng-template #celda let-a let-columna="columna">
+            @switch (columna.clave) {
+              @case ('costoAdquisicion') {
+                <ap-monto [monto]="a.costoAdquisicion.monto" [moneda]="a.costoAdquisicion.moneda" [etiqueta]="t.costo" />
+              }
+              @case ('depreciacionAcumulada') {
+                <ap-monto [monto]="a.depreciacionAcumulada.monto" [moneda]="a.depreciacionAcumulada.moneda" [etiqueta]="t.acumulada" />
+              }
+              @case ('valorEnLibros') {
+                <ap-monto [monto]="a.valorEnLibros.monto" [moneda]="a.valorEnLibros.moneda" [etiqueta]="t.valorEnLibros" />
+              }
+              @case ('estado') {
+                <ap-chip-estado [tono]="a.estado === 'ACTIVO' ? 'ok' : 'neutro'">{{ etiqueta(a) }}</ap-chip-estado>
+              }
+              @case ('activoFijoId') {
+                @if (motivo(a); as porQueNo) {
+                  <span class="motivo">{{ porQueNo }}</span>
+                } @else {
+                  <ap-boton [cargando]="enviando() === a.activoFijoId" (pulsado)="depreciar(a)">{{ t.depreciar }}</ap-boton>
+                }
+              }
+              @default {
+                {{ a[columna.clave] }}
               }
             }
-            @default {
-              {{ a[columna.clave] }}
-            }
-          }
-        </ng-template>
-      </ap-tabla-de-datos-virtualizada>
+          </ng-template>
+        </ap-tabla-de-datos-virtualizada>
+      }
     </section>
   `,
   styles: `

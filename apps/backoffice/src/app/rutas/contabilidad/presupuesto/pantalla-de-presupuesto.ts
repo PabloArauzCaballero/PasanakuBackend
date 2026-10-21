@@ -43,40 +43,42 @@ const COLUMNAS: ColumnaVirtual<PartidaPresupuestaria>[] = [
       <p class="aviso">{{ t.noBloquea }}</p>
       <ap-barra-de-filtros etiqueta="Estado" [incluirBusqueda]="false" [definiciones]="filtros" />
       <ap-estado-de-listado [error]="listado.error()" [vacio]="listado.vacio()" [mensajeVacio]="t.enCero" [filtrado]="!!filtrosActivos()['estado']" />
-      <ap-tabla-de-datos-virtualizada
-        [titulo]="t.titulo"
-        [columnas]="COLUMNAS"
-        [cargador]="listado.cargador"
-        [ordenPermitido]="[]"
-        [identidad]="identidad"
-        [filtros]="filtrosActivos()"
-      >
-        <ng-template #celda let-p let-columna="columna">
-          @switch (columna.clave) {
-            @case ('montoPresupuestado') {
-              <ap-monto [monto]="p.montoPresupuestado.monto" [moneda]="p.montoPresupuestado.moneda" [etiqueta]="t.presupuestado" />
+      @if (!listado.error() && !listado.vacio()) {
+        <ap-tabla-de-datos-virtualizada
+          [titulo]="t.titulo"
+          [columnas]="COLUMNAS"
+          [cargador]="listado.cargador"
+          [ordenPermitido]="[]"
+          [identidad]="identidad"
+          [filtros]="filtrosActivos()"
+        >
+          <ng-template #celda let-p let-columna="columna">
+            @switch (columna.clave) {
+              @case ('montoPresupuestado') {
+                <ap-monto [monto]="p.montoPresupuestado.monto" [moneda]="p.montoPresupuestado.moneda" [etiqueta]="t.presupuestado" />
+              }
+              @case ('montoEjecutado') {
+                <ap-monto [monto]="p.montoEjecutado.monto" [moneda]="p.montoEjecutado.moneda" [etiqueta]="t.ejecutado" />
+              }
+              @case ('partidaId') {
+                <span class="desviacion" [class.sobre]="sobre(p)">
+                  <ap-monto [monto]="desviacion(p).monto" [moneda]="desviacion(p).moneda" [etiqueta]="t.desviacion" />
+                  @if (sobre(p)) { <span class="marca">{{ t.sobreEjecutado }}</span> }
+                </span>
+              }
+              @case ('fechaInicioPeriodo') {
+                {{ periodo(p) }}
+              }
+              @case ('estado') {
+                <ap-chip-estado [tono]="p.estado === 'APROBADO' ? 'ok' : 'neutro'">{{ etiqueta(p) }}</ap-chip-estado>
+              }
+              @default {
+                {{ p[columna.clave] }}
+              }
             }
-            @case ('montoEjecutado') {
-              <ap-monto [monto]="p.montoEjecutado.monto" [moneda]="p.montoEjecutado.moneda" [etiqueta]="t.ejecutado" />
-            }
-            @case ('partidaId') {
-              <span class="desviacion" [class.sobre]="sobre(p)">
-                <ap-monto [monto]="desviacion(p).monto" [moneda]="desviacion(p).moneda" [etiqueta]="t.desviacion" />
-                @if (sobre(p)) { <span class="marca">{{ t.sobreEjecutado }}</span> }
-              </span>
-            }
-            @case ('fechaInicioPeriodo') {
-              {{ periodo(p) }}
-            }
-            @case ('estado') {
-              <ap-chip-estado [tono]="p.estado === 'APROBADO' ? 'ok' : 'neutro'">{{ etiqueta(p) }}</ap-chip-estado>
-            }
-            @default {
-              {{ p[columna.clave] }}
-            }
-          }
-        </ng-template>
-      </ap-tabla-de-datos-virtualizada>
+          </ng-template>
+        </ap-tabla-de-datos-virtualizada>
+      }
     </section>
   `,
   styles: `

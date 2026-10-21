@@ -37,32 +37,34 @@ const COLUMNAS: ColumnaVirtual<PiezaCreativa>[] = [
     <section class="pantalla">
       <ap-cabecera-de-pagina [titulo]="t.titulo" [descripcion]="t.proposito" icono="ojo" />
       <ap-estado-de-listado [error]="listado.error()" [vacio]="listado.vacio()" [mensajeVacio]="t.sinPiezas" />
-      <ap-tabla-de-datos-virtualizada [titulo]="t.titulo" [columnas]="COLUMNAS" [cargador]="listado.cargador" [ordenPermitido]="[]" [identidad]="identidad">
-        <ng-template #celda let-p let-columna="columna">
-          @switch (columna.clave) {
-            @case ('tipoRecurso') {
-              <ap-chip-estado tono="info">{{ p.tipoRecurso }}</ap-chip-estado>
-              <a class="ver" [href]="p.urlRecurso" target="_blank" rel="noopener noreferrer" [attr.aria-label]="t.verPieza(p.titulo)">Ver</a>
-            }
-            @case ('creadaEn') {
-              <ap-fecha [iso]="p.creadaEn" [conHora]="false" />
-            }
-            @case ('piezaCreativaId') {
-              @if (resultado(p); as r) {
-                <ap-chip-estado [tono]="r === 'APROBADA' ? 'ok' : 'error'">{{ t.estados[r] }}</ap-chip-estado>
-              } @else if (puedeModerarEsta()) {
-                <div class="acciones">
-                  <ap-boton (pulsado)="abrir(p, 'APROBADA')">{{ t.aprobar }}</ap-boton>
-                  <ap-boton variante="fantasma" (pulsado)="abrir(p, 'RECHAZADA')">{{ t.rechazar }}</ap-boton>
-                </div>
+      @if (!listado.error() && !listado.vacio()) {
+        <ap-tabla-de-datos-virtualizada [titulo]="t.titulo" [columnas]="COLUMNAS" [cargador]="listado.cargador" [ordenPermitido]="[]" [identidad]="identidad">
+          <ng-template #celda let-p let-columna="columna">
+            @switch (columna.clave) {
+              @case ('tipoRecurso') {
+                <ap-chip-estado tono="info">{{ p.tipoRecurso }}</ap-chip-estado>
+                <a class="ver" [href]="p.urlRecurso" target="_blank" rel="noopener noreferrer" [attr.aria-label]="t.verPieza(p.titulo)">Ver</a>
+              }
+              @case ('creadaEn') {
+                <ap-fecha [iso]="p.creadaEn" [conHora]="false" />
+              }
+              @case ('piezaCreativaId') {
+                @if (resultado(p); as r) {
+                  <ap-chip-estado [tono]="r === 'APROBADA' ? 'ok' : 'error'">{{ t.estados[r] }}</ap-chip-estado>
+                } @else if (puedeModerarEsta()) {
+                  <div class="acciones">
+                    <ap-boton (pulsado)="abrir(p, 'APROBADA')">{{ t.aprobar }}</ap-boton>
+                    <ap-boton variante="fantasma" (pulsado)="abrir(p, 'RECHAZADA')">{{ t.rechazar }}</ap-boton>
+                  </div>
+                }
+              }
+              @default {
+                {{ p[columna.clave] }}
               }
             }
-            @default {
-              {{ p[columna.clave] }}
-            }
-          }
-        </ng-template>
-      </ap-tabla-de-datos-virtualizada>
+          </ng-template>
+        </ap-tabla-de-datos-virtualizada>
+      }
     </section>
 
     @if (seleccionada(); as p) {

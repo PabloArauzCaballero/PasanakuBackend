@@ -32,7 +32,7 @@ const COLUMNAS: ColumnaVirtual<ConciliacionEnLista>[] = CLAVES.map((clave) => ({
         <ap-alerta tono="info">{{ t.formulario.soloTesoreria }}</ap-alerta>
       }
       <ap-estado-de-bandeja [estado]="b.estado()" [error]="b.error()" [vacio]="t.vacio" [explicacionVacio]="t.explicacionVacio" [denegado]="t.denegado" (reintentar)="b.reintentar()" />
-      @if (b.estado() !== 'denegado') {
+      @if (b.estado() !== 'denegado' && b.estado() !== 'vacio') {
         @for (v of [b.version()]; track v) {
           <ap-tabla-de-datos-virtualizada [titulo]="t.titulo" [columnas]="COLUMNAS" [cargador]="b.cargador" [ordenPermitido]="[]" [identidad]="identidad" [tamanoDePagina]="25">
             <ng-template #celda let-r let-columna="columna">

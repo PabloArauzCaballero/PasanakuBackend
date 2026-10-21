@@ -52,7 +52,7 @@ const aFiltros = (d: Record<string, string>) => Object.entries(d).map(([valor, t
       @if (recibo()) { <ap-alerta tono="ok">{{ recibo() }}</ap-alerta> }
       <ap-estado-de-bandeja [estado]="bandeja.estado()" [error]="bandeja.error()" [textoVacio]="t.vacio" [explicacionVacio]="t.explicacionVacio" [conFiltros]="conFiltros()" (reintentar)="bandeja.recargar()" (quitarFiltros)="quitarFiltros()" />
       @for (m of [bandeja.montaje()]; track m) {
-        <div [hidden]="bandeja.estado() === 'denegado'">
+        <div [hidden]="bandeja.estado() === 'denegado' || bandeja.estado() === 'vacio'">
           <ap-tabla-de-datos-virtualizada [titulo]="t.tabla" [columnas]="COLUMNAS" [cargador]="bandeja.cargador" [ordenPermitido]="[]" [identidad]="identidad" [filtros]="filtros()" [seleccionable]="puedeAbrir()" [tamanoDePagina]="25" [(elegidas)]="elegidas">
             <ng-template #celda let-a let-columna="columna">
               @switch (columna.clave) {

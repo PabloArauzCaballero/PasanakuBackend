@@ -161,67 +161,72 @@ class _TourEnStagesState extends State<TourEnStages> {
     final esUltima = _paginaActual == widget.etapas.length - 1;
 
     return Container(
+      constraints: BoxConstraints(
+        maxHeight: MediaQuery.of(context).size.height * 0.90,
+      ),
       decoration: BoxDecoration(
         color: t.surface,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(Radios.xl)),
         border: Border.all(color: t.border),
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // Barra superior con botón cerrar y título
-          Padding(
-            padding: const EdgeInsets.fromLTRB(Espacio.s4, Espacio.s3, Espacio.s4, Espacio.s1),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: Espacio.s2,
-                        vertical: 3,
-                      ),
-                      decoration: BoxDecoration(
-                        color: t.surface2,
-                        borderRadius: BorderRadius.circular(Radios.sm),
-                        border: Border.all(color: t.border),
-                      ),
-                      child: Text(
-                        'Paso ${_paginaActual + 1} de ${widget.etapas.length}',
-                        style: Tipo.etiqueta.copyWith(
-                          color: t.text2,
-                          fontWeight: FontWeight.w700,
+      child: SafeArea(
+        top: false,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Barra superior con botón cerrar y título
+            Padding(
+              padding: const EdgeInsets.fromLTRB(Espacio.s4, Espacio.s3, Espacio.s4, Espacio.s1),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: Espacio.s2,
+                          vertical: 3,
+                        ),
+                        decoration: BoxDecoration(
+                          color: t.surface2,
+                          borderRadius: BorderRadius.circular(Radios.sm),
+                          border: Border.all(color: t.border),
+                        ),
+                        child: Text(
+                          'Paso ${_paginaActual + 1} de ${widget.etapas.length}',
+                          style: Tipo.etiqueta.copyWith(
+                            color: t.text2,
+                            fontWeight: FontWeight.w700,
+                          ),
                         ),
                       ),
-                    ),
-                  ],
-                ),
-                TextButton(
-                  onPressed: widget.onCompletar,
-                  child: Text(
-                    esUltima ? 'Cerrar' : 'Saltar tour',
-                    style: Tipo.etiqueta.copyWith(color: t.text3),
+                    ],
                   ),
-                ),
-              ],
+                  TextButton(
+                    onPressed: widget.onCompletar,
+                    child: Text(
+                      esUltima ? 'Cerrar' : 'Saltar tour',
+                      style: Tipo.etiqueta.copyWith(color: t.text3),
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
 
-          // Contenedor deslizable de etapas
-          SizedBox(
-            height: 480,
-            child: PageView.builder(
-              controller: _pageController,
-              itemCount: widget.etapas.length,
-              onPageChanged: (i) => setState(() => _paginaActual = i),
-              itemBuilder: (context, index) {
-                final etapa = widget.etapas[index];
-                return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: Espacio.s5),
-                  child: Column(
-                    children: [
-                      const Spacer(),
+            // Contenedor deslizable de etapas
+            Flexible(
+              child: PageView.builder(
+                controller: _pageController,
+                itemCount: widget.etapas.length,
+                onPageChanged: (i) => setState(() => _paginaActual = i),
+                itemBuilder: (context, index) {
+                  final etapa = widget.etapas[index];
+                  return SingleChildScrollView(
+                    padding: const EdgeInsets.symmetric(horizontal: Espacio.s5),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const SizedBox(height: Espacio.s2),
                       // Icono con capas concéntricas
                       Stack(
                         alignment: Alignment.center,
@@ -339,7 +344,7 @@ class _TourEnStagesState extends State<TourEnStages> {
                           ],
                         ),
                       ),
-                      const Spacer(),
+                      const SizedBox(height: Espacio.s4),
                     ],
                   ),
                 );
@@ -406,6 +411,7 @@ class _TourEnStagesState extends State<TourEnStages> {
           ),
         ],
       ),
-    );
+    ),
+  );
   }
 }

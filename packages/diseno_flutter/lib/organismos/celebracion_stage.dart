@@ -304,9 +304,9 @@ class _CelebracionStageState extends State<CelebracionStage>
                             Icon(
                               Icons.auto_awesome,
                               color: widget.tier.colorPrimario,
-                              size: 20,
+                              size: 18,
                             ),
-                            const SizedBox(width: Espacio.s2),
+                            const SizedBox(width: Espacio.s1),
                             Text(
                               '+',
                               style: Tipo.cifra.copyWith(
@@ -322,12 +322,15 @@ class _CelebracionStageState extends State<CelebracionStage>
                                 fontWeight: FontWeight.w800,
                               ),
                             ),
-                            const SizedBox(width: 6),
-                            Text(
-                              'puntos en la mesa',
-                              style: Tipo.etiqueta.copyWith(
-                                color: widget.tier.colorPrimario,
-                                fontWeight: FontWeight.w700,
+                            const SizedBox(width: 4),
+                            Flexible(
+                              child: Text(
+                                'pts en mesa',
+                                style: Tipo.etiqueta.copyWith(
+                                  color: widget.tier.colorPrimario,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                                overflow: TextOverflow.ellipsis,
                               ),
                             ),
                           ],

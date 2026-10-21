@@ -46,7 +46,7 @@ const COLUMNAS: ColumnaVirtual<ReporteRegulatorioEnLista>[] = [
       <ap-estado-de-bandeja [estado]="bandeja.estado()" [error]="bandeja.error()" [textoVacio]="t.vacio" [explicacionVacio]="t.explicacionVacio" [conFiltros]="estados().length > 0" (reintentar)="bandeja.recargar()" (quitarFiltros)="estados.set([])" />
       <p class="nota">{{ t.sinMoneda }}</p>
       @for (m of [bandeja.montaje()]; track m) {
-        <div [hidden]="bandeja.estado() === 'denegado'">
+        <div [hidden]="bandeja.estado() === 'denegado' || bandeja.estado() === 'vacio'">
           <ap-tabla-de-datos-virtualizada [titulo]="t.tabla" [columnas]="COLUMNAS" [cargador]="bandeja.cargador" [ordenPermitido]="[]" [identidad]="identidad" [filtros]="filtros()" [tamanoDePagina]="25">
             <ng-template #celda let-r let-columna="columna">
               @switch (columna.clave) {

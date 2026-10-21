@@ -54,32 +54,38 @@ class TarjetaPuntosMesa extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                children: [
-                  Container(
-                    width: 32,
-                    height: 32,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: colorOro.withValues(alpha: 0.18),
+              Expanded(
+                child: Row(
+                  children: [
+                    Container(
+                      width: 32,
+                      height: 32,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: colorOro.withValues(alpha: 0.18),
+                      ),
+                      child: const Icon(
+                        Icons.casino_outlined,
+                        size: 18,
+                        color: colorOro,
+                      ),
                     ),
-                    child: const Icon(
-                      Icons.casino_outlined,
-                      size: 18,
-                      color: colorOro,
+                    const SizedBox(width: Espacio.s2),
+                    Expanded(
+                      child: Text(
+                        'PUNTOS EN JUEGO',
+                        style: Tipo.etiqueta.copyWith(
+                          color: t.text2,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 1.1,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: Espacio.s2),
-                  Text(
-                    'PUNTOS EN JUEGO',
-                    style: Tipo.etiqueta.copyWith(
-                      color: t.text2,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: 1.1,
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
+              const SizedBox(width: Espacio.s2),
               Container(
                 padding: const EdgeInsets.symmetric(
                   horizontal: Espacio.s3,
@@ -184,13 +190,17 @@ class TarjetaPuntosMesa extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                'Te faltan $puntosParaSiguiente pts para $siguienteRango',
-                style: Tipo.etiqueta.copyWith(
-                  color: t.text2,
-                  fontWeight: FontWeight.w500,
+              Expanded(
+                child: Text(
+                  'Te faltan $puntosParaSiguiente pts para $siguienteRango',
+                  style: Tipo.etiqueta.copyWith(
+                    color: t.text2,
+                    fontWeight: FontWeight.w500,
+                  ),
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
+              const SizedBox(width: Espacio.s2),
               Text(
                 '${(progresoRango * 100).toInt()}%',
                 style: Tipo.etiqueta.copyWith(

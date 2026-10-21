@@ -11,8 +11,10 @@ export const textosTablero = {
     pendientes: 'Hay pendientes',
     alDia: 'Al día',
     error: 'No pudimos consultarla',
+    reintentar: 'Reintentar',
     abrir: 'Abrir bandeja',
     consultadaEl: 'Consultada',
+    intentoEl: 'Último intento',
     traza: 'Código de seguimiento',
   },
   monitoreo: {

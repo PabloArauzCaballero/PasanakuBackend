@@ -16,7 +16,7 @@ import { coloresDe, Tono } from '../tono/tono'
     <span class="texto"><ng-content /></span>
   `,
   styles: `
-    :host { display: inline-flex; align-items: center; gap: var(--s2); max-width: 100%; min-height: var(--s5); padding: 0 var(--s3); border-radius: var(--r-pill); background: var(--fondo); color: var(--frente); border: var(--borde-fino) solid color-mix(in srgb, var(--frente) 35%, transparent); font-size: .85em; font-weight: 600; white-space: nowrap; }
+    :host { display: inline-flex; align-items: center; justify-self: start; width: fit-content; gap: var(--s2); max-width: 100%; min-height: var(--s5); padding: 0 var(--s3); border-radius: var(--r-pill); background: var(--fondo); color: var(--frente); border: var(--borde-fino) solid color-mix(in srgb, var(--frente) 35%, transparent); font-size: .85em; font-weight: 600; white-space: nowrap; }
     .punto { position: relative; width: var(--s2); height: var(--s2); border-radius: var(--r-pill); background: currentColor; flex: none; }
     /* «Vivo»: un halo que late, para lo que está pasando ahora (un servicio arriba, un proceso en curso). */
     .punto.vivo::before { content: ''; position: absolute; inset: 0; border-radius: inherit; background: currentColor; opacity: .6; animation: latir 1.6s ease-out infinite; }

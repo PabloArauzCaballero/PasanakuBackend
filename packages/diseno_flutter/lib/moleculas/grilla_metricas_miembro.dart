@@ -166,13 +166,17 @@ class _TarjetaMetricaIndividual extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                metrica.titulo,
-                style: Tipo.etiqueta.copyWith(
-                  color: t.text2,
-                  fontWeight: FontWeight.w600,
+              Expanded(
+                child: Text(
+                  metrica.titulo,
+                  style: Tipo.etiqueta.copyWith(
+                    color: t.text2,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
+              const SizedBox(width: Espacio.s1),
               Container(
                 width: 28,
                 height: 28,

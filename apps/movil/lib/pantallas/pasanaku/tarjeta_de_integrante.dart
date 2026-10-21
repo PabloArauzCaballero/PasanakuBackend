@@ -7,8 +7,6 @@ import 'package:aportaya_diseno/moleculas/tarjeta.dart';
 import 'package:aportaya_diseno/tokens/tokens.dart';
 import 'package:flutter/material.dart';
 
-import 'package:go_router/go_router.dart';
-
 import 'pantalla_detalle_miembro.dart';
 import 'textos_detalle_del_grupo.dart';
 
@@ -100,39 +98,22 @@ class TarjetaDeIntegrante extends StatelessWidget {
   void _abrirPerfil(BuildContext context) {
     final cupoId = integrante.cupoId ?? integrante.numero.toString();
     final gid = grupoId ?? '';
-    final uri = Uri(
-      path: '/pasanaku/grupos/$gid/integrante/$cupoId',
-      queryParameters: {
-        'nombre': _nombre,
-        'numero': integrante.numero.toString(),
-        if (integrante.turno != null) 'turno': integrante.turno.toString(),
-        'organizador': integrante.esOrganizador.toString(),
-        'soyYo': integrante.soyYo.toString(),
-        'estado': integrante.estado.name,
-        'nombreGrupo': ?nombreGrupo,
-        'usuarioId': ?integrante.usuarioId,
-      },
-    );
-    try {
-      context.push(uri.toString());
-    } catch (_) {
-      Navigator.of(context).push(
-        MaterialPageRoute<void>(
-          builder: (_) => PantallaDetalleMiembro(
-            grupoId: gid,
-            cupoId: cupoId,
-            nombre: _nombre,
-            numero: integrante.numero,
-            turno: integrante.turno,
-            esOrganizador: integrante.esOrganizador,
-            soyYo: integrante.soyYo,
-            estado: integrante.estado.name,
-            nombreGrupo: nombreGrupo,
-            usuarioId: integrante.usuarioId,
-          ),
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => PantallaDetalleMiembro(
+          grupoId: gid,
+          cupoId: cupoId,
+          nombre: _nombre,
+          numero: integrante.numero,
+          turno: integrante.turno,
+          esOrganizador: integrante.esOrganizador,
+          soyYo: integrante.soyYo,
+          estado: integrante.estado.name,
+          nombreGrupo: nombreGrupo,
+          usuarioId: integrante.usuarioId,
         ),
-      );
-    }
+      ),
+    );
   }
 }
 

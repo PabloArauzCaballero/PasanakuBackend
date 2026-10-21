@@ -56,32 +56,38 @@ class TarjetaRiesgoConfianza extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Row(
-                children: [
-                  Container(
-                    width: 32,
-                    height: 32,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: colorAcento.withValues(alpha: 0.15),
+              Expanded(
+                child: Row(
+                  children: [
+                    Container(
+                      width: 32,
+                      height: 32,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: colorAcento.withValues(alpha: 0.15),
+                      ),
+                      child: Icon(
+                        Icons.shield_outlined,
+                        size: 18,
+                        color: colorAcento,
+                      ),
                     ),
-                    child: Icon(
-                      Icons.shield_outlined,
-                      size: 18,
-                      color: colorAcento,
+                    const SizedBox(width: Espacio.s2),
+                    Expanded(
+                      child: Text(
+                        'CALIFICACIÓN DE RIESGO',
+                        style: Tipo.etiqueta.copyWith(
+                          color: t.text2,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 1.1,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: Espacio.s2),
-                  Text(
-                    'CALIFICACIÓN DE RIESGO',
-                    style: Tipo.etiqueta.copyWith(
-                      color: t.text2,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: 1.1,
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
+              const SizedBox(width: Espacio.s2),
               Container(
                 padding: const EdgeInsets.symmetric(
                   horizontal: Espacio.s3,
@@ -129,7 +135,7 @@ class TarjetaRiesgoConfianza extends StatelessWidget {
                 estilo: Tipo.cifraGrande.copyWith(
                   color: t.text,
                   fontWeight: FontWeight.w800,
-                  fontSize: 48,
+                  fontSize: 34,
                 ),
               ),
               Text(
@@ -137,14 +143,18 @@ class TarjetaRiesgoConfianza extends StatelessWidget {
                 style: Tipo.cifra.copyWith(
                   color: t.text3,
                   fontWeight: FontWeight.w600,
+                  fontSize: 18,
                 ),
               ),
               const Spacer(),
-              Text(
-                'Nivel Excelente',
-                style: Tipo.etiqueta.copyWith(
-                  color: colorAcento,
-                  fontWeight: FontWeight.w700,
+              Flexible(
+                child: Text(
+                  'Nivel Excelente',
+                  style: Tipo.etiqueta.copyWith(
+                    color: colorAcento,
+                    fontWeight: FontWeight.w700,
+                  ),
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
             ],
@@ -163,31 +173,39 @@ class TarjetaRiesgoConfianza extends StatelessWidget {
 
           // Métricas fácticas auditadas
           Container(
-            padding: const EdgeInsets.all(Espacio.s3),
+            padding: const EdgeInsets.symmetric(
+              horizontal: Espacio.s2,
+              vertical: Espacio.s3,
+            ),
             decoration: BoxDecoration(
               color: t.surface2,
               borderRadius: BorderRadius.circular(Radios.md),
               border: Border.all(color: t.border),
             ),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                _MetricaFactual(
-                  etiqueta: 'Puntualidad',
-                  valor: '${puntualidadPorcentaje.toStringAsFixed(1)}%',
-                  tono: colorAcento,
+                Expanded(
+                  child: _MetricaFactual(
+                    etiqueta: 'Puntualidad',
+                    valor: '${puntualidadPorcentaje.toStringAsFixed(1)}%',
+                    tono: colorAcento,
+                  ),
                 ),
                 Container(width: 1, height: 28, color: t.border),
-                _MetricaFactual(
-                  etiqueta: 'Fondo usado',
-                  valor: '$coberturasUsadas veces',
-                  tono: coberturasUsadas == 0 ? colorAcento : t.text2,
+                Expanded(
+                  child: _MetricaFactual(
+                    etiqueta: 'Fondo usado',
+                    valor: '$coberturasUsadas veces',
+                    tono: coberturasUsadas == 0 ? colorAcento : t.text2,
+                  ),
                 ),
                 Container(width: 1, height: 28, color: t.border),
-                _MetricaFactual(
-                  etiqueta: 'Impagos',
-                  valor: impagos == 0 ? '0 (Limpio)' : '$impagos',
-                  tono: impagos == 0 ? colorAcento : Colors.red,
+                Expanded(
+                  child: _MetricaFactual(
+                    etiqueta: 'Impagos',
+                    valor: impagos == 0 ? '0 (Limpio)' : '$impagos',
+                    tono: impagos == 0 ? colorAcento : Colors.red,
+                  ),
                 ),
               ],
             ),
