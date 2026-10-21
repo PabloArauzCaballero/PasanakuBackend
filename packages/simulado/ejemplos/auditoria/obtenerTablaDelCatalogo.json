@@ -1,0 +1,528 @@
+{
+  "servicio": "auditoria",
+  "operacion": "obtenerTablaDelCatalogo",
+  "metodo": "get",
+  "ruta": "/indicadores/catalogo-de-datos/tablas/{esquema}/{tabla}",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "tabla": "pago",
+        "esquema": "aportes",
+        "tipo": "NEGOCIO",
+        "modulo": "03",
+        "nombreModulo": "Aportes, Pagos QR y Conciliación",
+        "servicio": "aportes",
+        "appendOnly": false,
+        "negocio": {
+          "queEs": "Plata que efectivamente se movió. El hecho económico.",
+          "negocio": "Es el registro que respalda que alguien cumplió. Varios campos merecen explicación:\n\n- montoComisionProveedor y montoNetoAcreditado: lo que el participante paga no es lo que llega a la bolsa. La pasarela se queda con su comisión. Si esa diferencia no se modela explícitamente, la bolsa nunca cuadra y nadie entiende por qué faltan Bs 3,50.\n- pagadorNombre y pagadorDocumento: quién pagó realmente. Muchas veces paga el esposo, la madre o el jefe por el participante. Registrarlo es necesario para cumplimiento (detectar que una sola persona está pagando por seis participantes distintos, patrón de participantes ficticios) y para resolver reclamos.\n- esManual + registradoPor: distingue el pago que entró solo por webhook del que un operador cargó a mano contra un comprobante. Los segundos son intrínsecamente más riesgosos y deben poder auditarse aparte.\n- canal = EFECTIVO_AL_ORGANIZADOR: reconoce que en la realidad boliviana una parte del dinero se paga en efectivo. Negarlo no lo elimina, solo lo saca del sistema y lo vuelve invisible. Mejor registrarlo, marcarlo como manual y someterlo a doble revisión.",
+          "porQue": "Es el hecho económico. Sin él no hay contabilidad, ni constancia, ni conciliación, ni reputación basada en cumplimiento real."
+        },
+        "notaDeSistema": "Reglas duras: UNIQUE (proveedor, referencia_proveedor) — el mismo cobro no entra dos veces. UNIQUE (clave_idempotencia). Trigger: la suma de pagos acreditados por obligación no puede superar monto_esperado + monto_recargo salvo que exista un reembolso compensatorio.",
+        "reglas": [
+          "uq_pago_idem"
+        ],
+        "columnas": [
+          {
+            "nombre": "id",
+            "tipo": "UUID",
+            "nulable": false,
+            "pk": true,
+            "negocio": "Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.",
+            "origenNegocio": "convencion",
+            "sistema": "UUID, obligatoria, clave primaria.",
+            "sensibilidad": "NINGUNA"
+          },
+          {
+            "nombre": "obligacion_id",
+            "tipo": "UUID",
+            "nulable": false,
+            "pk": false,
+            "referencia": "obligacion_aporte",
+            "negocio": "Referencia por clave foránea a la entidad obligacion_aporte.",
+            "origenNegocio": "convencion",
+            "sistema": "UUID, obligatoria, referencia a obligacion_aporte, índice b-tree.",
+            "sensibilidad": "NINGUNA",
+            "esquemaReferencia": "aportes"
+          },
+          {
+            "nombre": "intento_pago_id",
+            "tipo": "UUID",
+            "nulable": true,
+            "pk": false,
+            "referencia": "intento_pago",
+            "negocio": "Referencia por clave foránea a la entidad intento_pago.",
+            "origenNegocio": "convencion",
+            "sistema": "UUID, opcional, referencia a intento_pago, restricción única.",
+            "sensibilidad": "NINGUNA",
+            "unica": true,
+            "esquemaReferencia": "aportes"
+          },
+          {
+            "nombre": "proveedor_id",
+            "tipo": "UUID",
+            "nulable": true,
+            "pk": false,
+            "referencia": "proveedor_pago",
+            "negocio": "Referencia por clave foránea a la entidad proveedor_pago.",
+            "origenNegocio": "convencion",
+            "sistema": "UUID, opcional, referencia a proveedor_pago, índice b-tree.",
+            "sensibilidad": "NINGUNA",
+            "esquemaReferencia": "aportes"
+          },
+          {
+            "nombre": "monto",
+            "tipo": "DECIMAL(14,2)",
+            "nulable": false,
+            "pk": false,
+            "negocio": "Importe monetario principal de la transacción o concepto financiero.",
+            "origenNegocio": "convencion",
+            "sistema": "DECIMAL(14,2), obligatoria, sensibilidad financiero.",
+            "sensibilidad": "FINANCIERO"
+          },
+          {
+            "nombre": "moneda",
+            "tipo": "CHAR(3)",
+            "nulable": false,
+            "pk": false,
+            "negocio": "Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2).",
+            "origenNegocio": "convencion",
+            "sistema": "CHAR(3), obligatoria.",
+            "sensibilidad": "NINGUNA"
+          },
+          {
+            "nombre": "monto_comision_proveedor",
+            "tipo": "DECIMAL(10,2)",
+            "nulable": false,
+            "pk": false,
+            "negocio": "lo que el participante paga no es lo que llega a la bolsa. La pasarela se queda con su comisión. Si esa diferencia no se modela explícitamente, la bolsa nunca cuadra y nadie entiende por qué faltan Bs 3,50.",
+            "origenNegocio": "ficha",
+            "sistema": "DECIMAL(10,2), obligatoria, sensibilidad financiero.",
+            "sensibilidad": "FINANCIERO"
+          },
+          {
+            "nombre": "monto_neto_acreditado",
+            "tipo": "DECIMAL(14,2)",
+            "nulable": false,
+            "pk": false,
+            "negocio": "lo que el participante paga no es lo que llega a la bolsa. La pasarela se queda con su comisión. Si esa diferencia no se modela explícitamente, la bolsa nunca cuadra y nadie entiende por qué faltan Bs 3,50.",
+            "origenNegocio": "ficha",
+            "sistema": "DECIMAL(14,2), obligatoria, sensibilidad financiero.",
+            "sensibilidad": "FINANCIERO"
+          },
+          {
+            "nombre": "canal",
+            "tipo": "VARCHAR(30)",
+            "nulable": false,
+            "pk": false,
+            "negocio": "Atributo que representa canal en el modelo de pago.",
+            "origenNegocio": "convencion",
+            "sistema": "VARCHAR(30), obligatoria.",
+            "sensibilidad": "NINGUNA"
+          },
+          {
+            "nombre": "estado",
+            "tipo": "VARCHAR(15)",
+            "nulable": false,
+            "pk": false,
+            "negocio": "Estado operativo o fase del ciclo de vida en que se encuentra el registro.",
+            "origenNegocio": "convencion",
+            "sistema": "VARCHAR(15), obligatoria, índice b-tree.",
+            "sensibilidad": "NINGUNA"
+          },
+          {
+            "nombre": "fecha_hora_pago",
+            "tipo": "TIMESTAMPTZ",
+            "nulable": false,
+            "pk": false,
+            "negocio": "Marca temporal o fecha de hora pago en pago.",
+            "origenNegocio": "convencion",
+            "sistema": "TIMESTAMPTZ, obligatoria, índice b-tree.",
+            "sensibilidad": "NINGUNA"
+          },
+          {
+            "nombre": "fecha_hora_acreditacion",
+            "tipo": "TIMESTAMPTZ",
+            "nulable": true,
+            "pk": false,
+            "negocio": "Marca temporal o fecha de hora acreditacion en pago.",
+            "origenNegocio": "convencion",
+            "sistema": "TIMESTAMPTZ, opcional.",
+            "sensibilidad": "NINGUNA"
+          },
+          {
+            "nombre": "referencia_proveedor",
+            "tipo": "VARCHAR(80)",
+            "nulable": false,
+            "pk": false,
+            "negocio": "Atributo que representa referencia proveedor en el modelo de pago.",
+            "origenNegocio": "convencion",
+            "sistema": "VARCHAR(80), obligatoria, restricción única.",
+            "sensibilidad": "NINGUNA"
+          },
+          {
+            "nombre": "pagador_nombre",
+            "tipo": "VARCHAR(120)",
+            "nulable": true,
+            "pk": false,
+            "negocio": "quién pagó realmente. Muchas veces paga el esposo, la madre o el jefe por el participante. Registrarlo es necesario para cumplimiento (detectar que una sola persona está pagando por seis participantes distintos, patrón de participantes ficticios) y para resolver reclamos.",
+            "origenNegocio": "ficha",
+            "sistema": "VARCHAR(120), opcional.",
+            "sensibilidad": "NINGUNA"
+          },
+          {
+            "nombre": "pagador_documento",
+            "tipo": "VARCHAR(30)",
+            "nulable": true,
+            "pk": false,
+            "negocio": "quién pagó realmente. Muchas veces paga el esposo, la madre o el jefe por el participante. Registrarlo es necesario para cumplimiento (detectar que una sola persona está pagando por seis participantes distintos, patrón de participantes ficticios) y para resolver reclamos.",
+            "origenNegocio": "ficha",
+            "sistema": "VARCHAR(30), opcional, sensibilidad personal.",
+            "sensibilidad": "PERSONAL"
+          },
+          {
+            "nombre": "cuenta_origen_enmascarada",
+            "tipo": "VARCHAR(40)",
+            "nulable": true,
+            "pk": false,
+            "negocio": "Atributo que representa cuenta origen enmascarada en el modelo de pago.",
+            "origenNegocio": "convencion",
+            "sistema": "VARCHAR(40), opcional.",
+            "sensibilidad": "NINGUNA"
+          },
+          {
+            "nombre": "registrado_por",
+            "tipo": "UUID",
+            "nulable": true,
+            "pk": false,
+            "referencia": "usuario",
+            "negocio": "distingue el pago que entró solo por webhook del que un operador cargó a mano contra un comprobante. Los segundos son intrínsecamente más riesgosos y deben poder auditarse aparte.",
+            "origenNegocio": "ficha",
+            "sistema": "UUID, opcional, referencia a usuario.",
+            "sensibilidad": "NINGUNA",
+            "esquemaReferencia": "identidad"
+          },
+          {
+            "nombre": "es_manual",
+            "tipo": "BOOLEAN",
+            "nulable": false,
+            "pk": false,
+            "negocio": "distingue el pago que entró solo por webhook del que un operador cargó a mano contra un comprobante. Los segundos son intrínsecamente más riesgosos y deben poder auditarse aparte.",
+            "origenNegocio": "ficha",
+            "sistema": "BOOLEAN, obligatoria.",
+            "sensibilidad": "NINGUNA"
+          },
+          {
+            "nombre": "clave_idempotencia",
+            "tipo": "VARCHAR(80)",
+            "nulable": false,
+            "pk": false,
+            "negocio": "Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4).",
+            "origenNegocio": "convencion",
+            "sistema": "VARCHAR(80), obligatoria.",
+            "sensibilidad": "NINGUNA"
+          }
+        ],
+        "relaciones": {
+          "salientes": [
+            {
+              "columna": "obligacion_id",
+              "tabla": "obligacion_aporte",
+              "esquema": "aportes",
+              "columnaDestino": "id",
+              "restriccion": "fk_pago_obligacion_id",
+              "alBorrar": "RESTRICT",
+              "cardinalidad": "N:1",
+              "obligatoria": true
+            },
+            {
+              "columna": "intento_pago_id",
+              "tabla": "intento_pago",
+              "esquema": "aportes",
+              "columnaDestino": "id",
+              "restriccion": "fk_pago_intento_pago_id",
+              "alBorrar": "SET NULL",
+              "cardinalidad": "1:1",
+              "obligatoria": false
+            },
+            {
+              "columna": "proveedor_id",
+              "tabla": "proveedor_pago",
+              "esquema": "aportes",
+              "columnaDestino": "id",
+              "restriccion": "fk_pago_proveedor_id",
+              "alBorrar": "SET NULL",
+              "cardinalidad": "N:1",
+              "obligatoria": false
+            },
+            {
+              "columna": "registrado_por",
+              "tabla": "usuario",
+              "esquema": "identidad",
+              "columnaDestino": "id",
+              "restriccion": "fk_pago_registrado_por",
+              "alBorrar": "SET NULL",
+              "cardinalidad": "N:1",
+              "obligatoria": false
+            }
+          ],
+          "entrantes": [
+            {
+              "columna": "pago_id",
+              "tabla": "comprobante_manual",
+              "esquema": "aportes",
+              "columnaDestino": "id",
+              "restriccion": "fk_comprobante_manual_pago_id",
+              "alBorrar": "RESTRICT",
+              "cardinalidad": "1:1",
+              "obligatoria": true
+            },
+            {
+              "columna": "pago_id",
+              "tabla": "constancia_pago",
+              "esquema": "aportes",
+              "columnaDestino": "id",
+              "restriccion": "fk_constancia_pago_pago_id",
+              "alBorrar": "RESTRICT",
+              "cardinalidad": "1:1",
+              "obligatoria": true
+            },
+            {
+              "columna": "pago_id",
+              "tabla": "reembolso",
+              "esquema": "aportes",
+              "columnaDestino": "id",
+              "restriccion": "fk_reembolso_pago_id",
+              "alBorrar": "RESTRICT",
+              "cardinalidad": "N:1",
+              "obligatoria": true
+            },
+            {
+              "columna": "pago_id",
+              "tabla": "disputa_pago",
+              "esquema": "aportes",
+              "columnaDestino": "id",
+              "restriccion": "fk_disputa_pago_pago_id",
+              "alBorrar": "RESTRICT",
+              "cardinalidad": "N:1",
+              "obligatoria": true
+            },
+            {
+              "columna": "pago_id",
+              "tabla": "conciliacion",
+              "esquema": "aportes",
+              "columnaDestino": "id",
+              "restriccion": "fk_conciliacion_pago_id",
+              "alBorrar": "RESTRICT",
+              "cardinalidad": "1:1",
+              "obligatoria": true
+            },
+            {
+              "columna": "pago_id",
+              "tabla": "webhook_pasarela",
+              "esquema": "aportes",
+              "columnaDestino": "id",
+              "restriccion": "fk_webhook_pasarela_pago_id",
+              "alBorrar": "SET NULL",
+              "cardinalidad": "N:1",
+              "obligatoria": false
+            },
+            {
+              "columna": "pago_id",
+              "tabla": "abono_recuperacion",
+              "esquema": "garantia",
+              "columnaDestino": "id",
+              "restriccion": "fk_abono_recuperacion_pago_id",
+              "alBorrar": "SET NULL",
+              "cardinalidad": "N:1",
+              "obligatoria": false
+            },
+            {
+              "columna": "pago_id",
+              "tabla": "ejecucion_aval",
+              "esquema": "garantia",
+              "columnaDestino": "id",
+              "restriccion": "fk_ejecucion_aval_pago_id",
+              "alBorrar": "SET NULL",
+              "cardinalidad": "N:1",
+              "obligatoria": false
+            },
+            {
+              "columna": "pago_id",
+              "tabla": "recuperacion_respaldo",
+              "esquema": "garantia",
+              "columnaDestino": "id",
+              "restriccion": "fk_recuperacion_respaldo_pago_id",
+              "alBorrar": "RESTRICT",
+              "cardinalidad": "1:1",
+              "obligatoria": true
+            },
+            {
+              "columna": "pago_id",
+              "tabla": "orden_recarga",
+              "esquema": "nucleo_financiero",
+              "columnaDestino": "id",
+              "restriccion": "fk_orden_recarga_pago_id",
+              "alBorrar": "SET NULL",
+              "cardinalidad": "N:1",
+              "obligatoria": false
+            }
+          ]
+        },
+        "sistema": "Vive en el esquema aportes; la escribe y la lee solo el servicio aportes (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de identidad.usuario, intento_pago, obligacion_aporte, proveedor_pago. La referencian comprobante_manual, conciliacion, constancia_pago, disputa_pago, garantia.abono_recuperacion, garantia.ejecucion_aval, garantia.recuperacion_respaldo, nucleo_financiero.orden_recarga, reembolso, webhook_pasarela. Reglas nombradas: uq_pago_idem.",
+        "clasificacion": {
+          "personales": 1,
+          "financieros": 3,
+          "secretos": 0,
+          "derivados": 0
+        },
+        "gobierno": {
+          "estado": "ACTIVA",
+          "estadoRevision": "DETECTADA",
+          "criticaParaAuditoria": false,
+          "version": 0
+        }
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "tabla": "tabla",
+        "esquema": "esquema",
+        "tipo": "NEGOCIO",
+        "modulo": "modulo",
+        "nombreModulo": "nombreModulo",
+        "servicio": "servicio",
+        "appendOnly": false,
+        "clasificacion": {
+          "personales": 0,
+          "financieros": 0,
+          "secretos": 0,
+          "derivados": 0
+        },
+        "negocio": {
+          "queEs": "queEs",
+          "negocio": "negocio",
+          "porQue": "porQue"
+        },
+        "notaDeSistema": "notaDeSistema",
+        "reglas": [],
+        "columnas": [],
+        "relaciones": {
+          "salientes": [],
+          "entrantes": []
+        },
+        "sistema": "sistema",
+        "gobierno": {
+          "estado": "ACTIVA",
+          "estadoRevision": "DETECTADA",
+          "responsable": "responsable",
+          "politicaRetencionId": "2b16724b-9994-4ac1-84d7-d9776c4aa8d0",
+          "criticaParaAuditoria": false,
+          "notaRevision": "notaRevision",
+          "revisadoPor": "ca1bdca6-bfa2-48c4-85b9-946289be256a",
+          "actualizadoEn": "2026-01-15T10:30:00Z",
+          "version": 0
+        }
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "tabla": "tabla",
+        "esquema": "esquema",
+        "tipo": "NEGOCIO",
+        "modulo": "modulo",
+        "nombreModulo": "nombreModulo",
+        "servicio": "servicio",
+        "appendOnly": true,
+        "clasificacion": {
+          "personales": 0,
+          "financieros": 0,
+          "secretos": 0,
+          "derivados": 0
+        },
+        "negocio": {
+          "queEs": "queEs",
+          "negocio": "negocio",
+          "porQue": "porQue"
+        },
+        "notaDeSistema": "notaDeSistema",
+        "reglas": [
+          "reglas[0]"
+        ],
+        "columnas": [
+          {
+            "nombre": "nombre",
+            "tipo": "tipo",
+            "nulable": true,
+            "pk": true,
+            "referencia": "referencia",
+            "esquemaReferencia": "esquemaReferencia",
+            "unica": true,
+            "negocio": "negocio",
+            "origenNegocio": "ficha",
+            "sistema": "sistema",
+            "sensibilidad": "NINGUNA",
+            "revision": {
+              "decision": "APROBADA",
+              "confianza": "BAJA",
+              "motivo": "motivo",
+              "revisadoPor": "00ce76b2-7a6a-4354-8aa4-15e67b38da06",
+              "revisadoEn": "2026-01-15T10:30:00Z",
+              "version": 0
+            }
+          }
+        ],
+        "relaciones": {
+          "salientes": [
+            {
+              "columna": "columna",
+              "tabla": "tabla",
+              "esquema": "esquema",
+              "columnaDestino": "columnaDestino",
+              "restriccion": "restriccion",
+              "alBorrar": "RESTRICT",
+              "cardinalidad": "N:1",
+              "obligatoria": true
+            }
+          ],
+          "entrantes": [
+            {
+              "columna": "columna",
+              "tabla": "tabla",
+              "esquema": "esquema",
+              "columnaDestino": "columnaDestino",
+              "restriccion": "restriccion",
+              "alBorrar": "RESTRICT",
+              "cardinalidad": "N:1",
+              "obligatoria": true
+            }
+          ]
+        },
+        "sistema": "sistema",
+        "gobierno": {
+          "estado": "ACTIVA",
+          "estadoRevision": "DETECTADA",
+          "responsable": "responsable",
+          "politicaRetencionId": "2b16724b-9994-4ac1-84d7-d9776c4aa8d0",
+          "criticaParaAuditoria": true,
+          "notaRevision": "notaRevision",
+          "revisadoPor": "ca1bdca6-bfa2-48c4-85b9-946289be256a",
+          "actualizadoEn": "2026-01-15T10:30:00Z",
+          "version": 0
+        }
+      }
+    },
+    "rechazo": {
+      "estado": 404,
+      "cuerpo": {
+        "codigo": "AP-CU07-01",
+        "mensaje": "Identidad no verificada",
+        "detalle": {},
+        "trazaId": "traza-obtenerTablaDelCatalogo-rechazo"
+      }
+    }
+  }
+}

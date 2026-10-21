@@ -42,7 +42,7 @@ export const RAMA_DE: Record<ResourceStatus, 'cargando' | 'obsoleto' | 'error' |
         @if (plantillaError(); as tpl) {
           <ng-container *ngTemplateOutlet="tpl; context: { $implicit: error() }" />
         } @else {
-          <ap-estado-de-error [titulo]="error().mensaje" [trazaId]="error().trazaId" [conReintento]="!esNoEncontrado()" (reintentar)="reintentar.emit()" />
+          <ap-estado-de-error [anunciar]="false" [titulo]="error().mensaje" [trazaId]="error().trazaId" [conReintento]="!esNoEncontrado()" (reintentar)="reintentar.emit()" />
         }
       </section>
     }

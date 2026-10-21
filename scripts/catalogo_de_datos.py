@@ -107,12 +107,43 @@ def _ficha(seccion):
     marcas.sort()
     for i, (_, fin, clave) in enumerate(marcas):
         hasta = marcas[i + 1][0] if i + 1 < len(marcas) else len(cuerpo)
-        parrafo = _limpio(cuerpo[fin:hasta])
+        parrafo = _narrativa(cuerpo[fin:hasta])
         if parrafo and clave not in ficha:
             ficha[clave] = parrafo
-    for m in re.finditer(r"^\s*[-*]\s+`(\w+)`\s*(?:\([^)]*\))?\s*[:—–-]\s*(.+(?:\n\s{2,}\S.*)*)", cuerpo, re.M):
-        ficha["columnas"].setdefault(m.group(1), _limpio(m.group(2)))
+    # Una viñeta explica una columna o varias a la vez: «- `montoComisionProveedor` y `montoNetoAcreditado`: …».
+    # Antes solo se reconocía la de un nombre y las de varios se perdían enteras.
+    for m in re.finditer(r"^\s*[-*]\s+((?:`\w+`\s*(?:,|/|\+|\by\b|\be\b|\bo\b)?\s*)+)(?:\([^)]*\))?\s*[:—–-]\s*"
+                         r"(.+(?:\n\s{2,}\S.*)*)", cuerpo, re.M):
+        for nombre in re.findall(r"`(\w+)`", m.group(1)):
+            ficha["columnas"].setdefault(nombre, _limpio(m.group(2)))
     return ficha
+
+
+def _narrativa(texto):
+    """Un párrafo de la ficha sin perder su forma: los párrafos se separan con una línea en blanco y cada viñeta
+    queda en su renglón (`- …` o `1. …`). Antes se aplanaba todo en un solo párrafo y las listas se leían como texto
+    corrido. Las líneas cortadas a mano y las continuaciones sangradas de una viñeta se juntan."""
+    texto = re.sub(r"```.*?```", "", texto, flags=re.S)
+    renglones = []
+    for linea in texto.splitlines():
+        # Una línea en blanco o un separador de markdown (`---`) corta el párrafo; el separador no es texto.
+        if not linea.strip() or re.fullmatch(r"\s*([-*_])(\s*\1){2,}\s*", linea):
+            renglones.append(None)
+        elif v := re.match(r"^\s*([-*]|\d+\.)\s+(.*)$", linea):
+            renglones.append(["-" if v[1] in "-*" else v[1], v[2]])
+        elif renglones and renglones[-1] is not None:
+            renglones[-1][1] += " " + linea
+        else:
+            renglones.append(["", linea])
+    salida, blanco = "", False
+    for r in renglones:
+        if r is None:
+            blanco = bool(salida)
+            continue
+        renglon = (f"{r[0]} " if r[0] else "") + re.sub(r"\s+", " ", r[1]).strip()
+        salida += (("\n\n" if blanco else "\n") + renglon) if salida else renglon
+        blanco = False
+    return salida
 
 
 def _limpio(texto):
@@ -136,6 +167,7 @@ def sensibilidad(columna):
 def construir():
     mods, registro, _ = modelo.cargar()
     narrativas, reglas = fichas(), reglas_por_tabla()
+    claves, unicas = claves_foraneas_del_ddl(), unicas_del_ddl()
     tablas, entrantes = {}, {}
     for k, d in mods.items():
         for alias in d["orden"]:
@@ -147,9 +179,9 @@ def construir():
                 destino = modelo.resolver_fk(c, k, registro) if c["fk"] else None
                 if destino:
                     entrantes.setdefault(destino, []).append({"tabla": tabla, "columna": c["nombre"]})
-                columnas.append(_columna(c, destino, narrativas.get(tabla, {}), tabla))
+                columnas.append(_columna(c, destino, narrativas.get(tabla, {}), tabla, (esquema, tabla, c["nombre"]) in unicas))
             tablas[tabla] = {
-                "tabla": tabla, "esquema": esquema, "modulo": k, "nombreModulo": d["nombre"],
+                "tabla": tabla, "esquema": esquema, "tipo": "NEGOCIO", "modulo": k, "nombreModulo": d["nombre"],
                 "servicio": None if esquema in (modelo.ESQUEMA_COMUN, modelo.ESQUEMA_CATALOGO) else modelo.servicio_de(esquema),
                 "appendOnly": tabla in modelo.APPEND_ONLY,
                 "negocio": {c: narrativas.get(tabla, {}).get(c) for c in ("queEs", "negocio", "porQue")},
@@ -157,17 +189,29 @@ def construir():
                 "reglas": [r["nombre"] for r in reglas.get(tabla, [])],
                 "columnas": columnas,
             }
+    for c in (c for t in tablas.values() for c in t["columnas"] if c["referencia"]):
+        c["esquemaReferencia"] = tablas[c["referencia"]]["esquema"]
     for tabla, t in tablas.items():
-        salientes = [{"columna": c["nombre"], "tabla": c["referencia"], "esquema": tablas[c["referencia"]]["esquema"]}
-                     for c in t["columnas"] if c["referencia"]]
-        llegan = [{**r, "esquema": tablas[r["tabla"]]["esquema"]} for r in entrantes.get(tabla, [])]
+        salientes = [_relacion(t["esquema"], tabla, c["nombre"], c["referencia"], tablas[c["referencia"]]["esquema"],
+                               not c["nulable"], c.get("unica", False), claves) for c in t["columnas"] if c["referencia"]]
+        llegan = []
+        for r in entrantes.get(tabla, []):
+            origen = tablas[r["tabla"]]
+            col = next(c for c in origen["columnas"] if c["nombre"] == r["columna"])
+            llegan.append(_relacion(origen["esquema"], r["tabla"], r["columna"], r["tabla"], origen["esquema"],
+                                    not col["nulable"], col.get("unica", False), claves))
         t["relaciones"] = {"salientes": salientes, "entrantes": llegan}
         t["sistema"] = _sistema(t)
-    return {"esquemas": sorted({t["esquema"] for t in tablas.values()}),
-            "tablas": [tablas[n] for n in sorted(tablas, key=lambda n: (tablas[n]["esquema"], n))]}
+        t["clasificacion"] = _clasificacion(t["columnas"])
+    for t in tablas_de_infraestructura():
+        tablas[f"{t['esquema']}.{t['tabla']}"] = t
+    ordenadas = [tablas[n] for n in sorted(tablas, key=lambda n: (tablas[n]["esquema"], tablas[n]["tabla"]))]
+    return {"esquemas": sorted({t["esquema"] for t in ordenadas}),
+            "detalleDeEsquemas": _esquemas(ordenadas),
+            "tablas": ordenadas}
 
 
-def _columna(c, destino, ficha, tabla=""):
+def _columna(c, destino, ficha, tabla="", unica=False):
     import inyectar_metadata
     n = c["nombre"]
     nota = ficha.get("columnas", {}).get(modelo.a_camel(n)) or ficha.get("columnas", {}).get(n)
@@ -177,7 +221,7 @@ def _columna(c, destino, ficha, tabla=""):
         partes.append("clave primaria")
     if destino:
         partes.append(f"referencia a `{destino}`")
-    if c.get("uq"):
+    if unica or c.get("uq"):
         partes.append("restricción única")
     if c.get("idx"):
         partes.append("índice b-tree")
@@ -187,11 +231,165 @@ def _columna(c, destino, ficha, tabla=""):
     if sens != "NINGUNA":
         partes.append(f"sensibilidad {sens.lower()}")
     negocio_texto = nota or CONVENCIONES.get(n) or inyectar_metadata.explicar_columna_negocio(tabla, n, c["tipo"], destino, None)
-    return {
+    columna = {
         "nombre": n, "tipo": c["tipo"], "nulable": c["nulo"], "pk": c["pk"], "referencia": destino,
         "negocio": negocio_texto, "origenNegocio": origen,
         "sistema": ", ".join(partes) + ".", "sensibilidad": sens,
     }
+    if unica:
+        columna["unica"] = True
+    return columna
+
+
+# --- relaciones: lo que la base aplica de verdad ------------------------------
+# La relación sale del modelo (resolver_fk), pero su restricción y su acción al borrar se leen del DDL que se
+# aplica (`sql/20_claves`, generado por generar_ddl.py): así el catálogo dice lo que la base hace, no lo que se
+# supone. Una FK del modelo sin su restricción en el DDL es deriva (regla 97.2) y corta la generación.
+SQL = pathlib.Path("sql")
+FK_DDL = re.compile(r"ALTER TABLE (\w+)\.(\w+)\s+ADD CONSTRAINT (\w+)\s+FOREIGN KEY \((\w+)\) REFERENCES (\w+)\.(\w+) "
+                    r"\((\w+)\) ON DELETE (RESTRICT|SET NULL|CASCADE|NO ACTION)")
+UNICO_DDL = re.compile(r"CREATE UNIQUE INDEX IF NOT EXISTS \w+\s+ON (\w+)\.(\w+) \((\w+)\);")
+
+
+def claves_foraneas_del_ddl():
+    """{(esquema, tabla, columna): {restriccion, esquemaDestino, tablaDestino, columnaDestino, alBorrar}}."""
+    claves = {}
+    for f in sorted((SQL / "20_claves").glob("*.sql")):
+        for m in FK_DDL.finditer(f.read_text(encoding="utf-8")):
+            claves[(m[1], m[2], m[4])] = {"restriccion": m[3], "esquemaDestino": m[5], "tablaDestino": m[6],
+                                          "columnaDestino": m[7], "alBorrar": m[8]}
+    return claves
+
+
+def unicas_del_ddl():
+    """Columnas con un índice UNIQUE de una sola columna: la FK que vive en ellas es 1:1, no N:1."""
+    return {(m[1], m[2], m[3]) for f in sorted((SQL / "30_indices").glob("*.sql"))
+            for m in UNICO_DDL.finditer(f.read_text(encoding="utf-8"))}
+
+
+def _relacion(esquema_origen, tabla_origen, columna, tabla, esquema, obligatoria, unica, claves):
+    """Una relación vista desde la tabla de la ficha. `tabla`/`esquema` son el otro extremo; la FK siempre vive en
+    `tabla_origen.columna`, así que la restricción se busca ahí en las dos direcciones."""
+    fk = claves.get((esquema_origen, tabla_origen, columna))
+    if fk is None:
+        raise SystemExit(f"Deriva: la FK {esquema_origen}.{tabla_origen}.{columna} del modelo no está en sql/20_claves "
+                         "(correr scripts/generar_ddl.py)")
+    return {"columna": columna, "tabla": tabla, "esquema": esquema, "columnaDestino": fk["columnaDestino"],
+            "restriccion": fk["restriccion"], "alBorrar": fk["alBorrar"],
+            "cardinalidad": "1:1" if unica else "N:1", "obligatoria": obligatoria}
+
+
+def _clasificacion(columnas):
+    """Cuántas columnas de cada sensibilidad tiene la tabla: es lo que el catálogo filtra y cuenta sin abrirla."""
+    cuenta = {"personales": "PERSONAL", "financieros": "FINANCIERO", "secretos": "SECRETO", "derivados": "DERIVADO"}
+    return {k: sum(1 for c in columnas if c["sensibilidad"] == v) for k, v in cuenta.items()}
+
+
+# --- infraestructura de mensajería (ADR-027/028) -------------------------------
+# generar_ddl.py inyecta en cada esquema de servicio el outbox, la marca de consumo, el candado de trabajos y,
+# en los orquestadores, el estado de saga. No están en los .puml (son plantilla), pero son tablas reales de la base:
+# un catálogo que no las lista dice que el esquema tiene menos de lo que tiene. Se leen del DDL que se aplica.
+INFRA_SQL = SQL / "15_infra" / "mensajeria.sql"
+BORRADORES_SQL = SQL / "15_infra" / "borradores.sql"
+INFRA_ARCHIVOS = (INFRA_SQL, BORRADORES_SQL)
+# Cómo se presenta cada archivo de infraestructura: el módulo y quién la escribe.
+INFRA_ORIGEN = {
+    INFRA_SQL: ("Infraestructura de mensajería", "Infraestructura del servicio `{s}`, generada por plantilla en cada "
+                "esquema (ADR-027): la escribe y la lee solo ese servicio."),
+    BORRADORES_SQL: ("Borradores de onboarding", "Tabla propia del servicio `{s}` fuera del modelo de entidades: la "
+                     "genera `generar_ddl.py` y la usa `BorradorOnboardingRepositorio`."),
+}
+INFRA_NEGOCIO = {
+    "evento_dominio": "Garantiza que ningún hecho del servicio se pierda entre la base y la mensajería: el evento se "
+    "guarda en la misma transacción que el cambio y un relevo lo publica después (regla 98.3.3).",
+    "evento_consumido": "Hace idempotente el consumo: la entrega es al menos una vez y un mismo evento no puede "
+    "producir dos efectos (regla 98.3.4).",
+    "shedlock": "Evita que dos réplicas del servicio ejecuten el mismo trabajo programado a la vez (ADR-018).",
+    "estado_saga": "Persiste el paso de una saga que cruza servicios para poder reanudarla o compensarla si algo "
+    "falla en el medio (regla 98.3.2, ADR-028).",
+    "borrador_onboarding": "Permite retomar un alta interrumpida sin volver a cargar todo: guarda lo que la persona "
+    "llenó después de confirmar su correo, vence a los siete días y se borra al completar el alta. Guarda datos "
+    "personales en claro mientras el alta no termina.",
+}
+COLUMNA_DDL = re.compile(r"^\s+(\w+)\s+(UUID|VARCHAR\(\d+\)|JSONB|TIMESTAMPTZ|DATE|SMALLINT|INTEGER|BIGINT|TEXT|BOOLEAN)(?![\w(])"
+                         r"(.*)$")
+
+
+def tablas_de_infraestructura():
+    return [t for archivo in INFRA_ARCHIVOS for t in _tablas_de_infraestructura(archivo)]
+
+
+def _tablas_de_infraestructura(archivo):
+    texto = archivo.read_text(encoding="utf-8")
+    modulo, sistema = INFRA_ORIGEN[archivo]
+    comentarios = {(e, t): c for e, t, c in re.findall(r"COMMENT ON TABLE (\w+)\.(\w+) IS '([^']*)'", texto)}
+    # Sin COMMENT ON TABLE, «qué es» sale de la primera oración del encabezado que el generador escribe sobre la tabla.
+    for cabecera, e, t in re.findall(r"((?:^--[^\n]*\n)+)CREATE TABLE IF NOT EXISTS (\w+)\.(\w+)", texto, re.M):
+        lineas = [l[2:].strip() for l in cabecera.splitlines() if "Generado por" not in l]
+        primera = re.match(r"(.+?\.)(?:\s|$)", " ".join(lineas))
+        if primera and (e, t) not in comentarios:
+            comentarios[(e, t)] = primera[1]
+    de_columna = {(e, t, c): v for e, t, c, v in re.findall(r"COMMENT ON COLUMN (\w+)\.(\w+)\.(\w+) IS '([^']*)'", texto)}
+    tablas = []
+    for m in re.finditer(r"CREATE TABLE IF NOT EXISTS (\w+)\.(\w+) \((.*?)\n\);", texto, re.S):
+        esquema, tabla, cuerpo = m[1], m[2], m[3]
+        pk_compuesta = re.search(r"PRIMARY KEY \(([^)]*)\)", cuerpo)
+        en_pk = {n.strip() for n in pk_compuesta[1].split(",")} if pk_compuesta else set()
+        columnas = []
+        for linea in cuerpo.splitlines():
+            c = COLUMNA_DDL.match(linea)
+            if not c:
+                continue
+            pk = "PRIMARY KEY" in c[3] or c[1] in en_pk
+            nulable = not pk and "NOT NULL" not in c[3]
+            columnas.append({
+                "nombre": c[1], "tipo": c[2], "nulable": nulable, "pk": pk, "referencia": None,
+                "negocio": de_columna.get((esquema, tabla, c[1])) or CONVENCIONES.get(c[1]),
+                "origenNegocio": "convencion" if (esquema, tabla, c[1]) in de_columna or c[1] in CONVENCIONES else None,
+                "sistema": ", ".join([c[2], "opcional" if nulable else "obligatoria"] + (["clave primaria"] if pk else []))
+                + ".", "sensibilidad": sensibilidad(c[1]),
+            })
+        tablas.append({
+            "tabla": tabla, "esquema": esquema, "tipo": "INFRAESTRUCTURA", "modulo": "00",
+            "nombreModulo": modulo, "servicio": modelo.servicio_de(esquema),
+            "appendOnly": False,
+            "negocio": {"queEs": comentarios.get((esquema, tabla)), "negocio": INFRA_NEGOCIO.get(tabla), "porQue": None},
+            "notaDeSistema": None, "reglas": [], "columnas": columnas,
+            "relaciones": {"salientes": [], "entrantes": []},
+            "sistema": sistema.format(s=modelo.servicio_de(esquema)),
+            "clasificacion": _clasificacion(columnas),
+        })
+    return tablas
+
+
+def _esquemas(tablas):
+    """Cada esquema con su servicio dueño, de qué trata y sus cifras: lo que el catálogo muestra antes de las tablas."""
+    modulo_de = {v: k for k, v in modelo.ESQUEMA.items()}
+    resultado = []
+    for nombre in sorted({t["esquema"] for t in tablas}):
+        propias = [t for t in tablas if t["esquema"] == nombre]
+        if nombre == modelo.ESQUEMA_CATALOGO:
+            servicio, descripcion = None, ("Catálogos compartidos: todos los servicios los consultan y solo su "
+                                           "dueño declarado los escribe (ADR-029).")
+        elif nombre == modelo.ESQUEMA_COMUN:
+            servicio, descripcion = None, ("Bitácoras transversales append-only: todo servicio inserta su rastro y "
+                                           "solo el rol auditor las lee.")
+        else:
+            k = modulo_de[nombre]
+            servicio, descripcion = modelo.servicio_de(nombre), f"{modelo.MODULOS[k][0]}. {modelo.FOCO[k]}."
+        esquema = {
+            "nombre": nombre, "descripcion": descripcion,
+            "tablas": len(propias),
+            "tablasDeNegocio": sum(1 for t in propias if t["tipo"] == "NEGOCIO"),
+            "columnas": sum(len(t["columnas"]) for t in propias),
+            "relaciones": sum(len(t["relaciones"]["salientes"]) for t in propias),
+            "appendOnly": sum(1 for t in propias if t["appendOnly"]),
+            "conDatosPersonales": sum(1 for t in propias if t["clasificacion"]["personales"]),
+        }
+        if servicio:
+            esquema["servicio"] = servicio
+        resultado.append(esquema)
+    return resultado
 
 
 def _sistema(t):

@@ -47,7 +47,9 @@ let secuencia = 0
     .caja:focus-within { border-color: var(--brand); box-shadow: 0 0 0 var(--borde-foco) var(--g300); }
     :host(.con-error) .caja { border-color: var(--err); }
     :host(.con-exito) .caja { border-color: var(--ok); }
-    input { flex: 1; min-width: 0; border: 0; background: transparent; color: inherit; font: inherit; outline: none; }
+    /* width: 0 además de min-width: 0: sin él, el ancho intrínseco del input (~20 caracteres) entra en el mínimo del
+       renglón y a 360 px el campo con botón desborda la pantalla. flex: 1 lo vuelve a estirar. */
+    input { flex: 1; width: 0; min-width: 0; border: 0; background: transparent; color: inherit; font: inherit; outline: none; }
     input::placeholder { color: var(--text-3); }
     input:disabled { opacity: .5; }
     .prefijo { color: var(--text-3); font-family: var(--font-d); }

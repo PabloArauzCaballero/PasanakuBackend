@@ -1,0 +1,15 @@
+$ ng test (catálogo, núcleo y layout)
+[2m Test Files [22m [1m[32m44 passed[39m[22m[90m (44)[39m
+[2m      Tests [22m [1m[32m294 passed[39m[22m[90m (294)[39m
+$ ng test (a11y del catálogo)
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m2 passed[39m[22m[90m (2)[39m
+$ playwright (catálogo contra el doble declarado de auditoria)
+  ✓  1 [chromium] › e2e/catalogo-gobierno.e2e.ts:54:5 › lista: cifras del inventario, chips de estado y revisión, y filtro por estado desde la URL (7.0s)
+  ✓  2 [chromium] › e2e/catalogo-gobierno.e2e.ts:69:5 › ficha: pestañas en la URL, y «Configurar tabla» confirma antes de guardar con la versión leída (6.5s)
+  ✓  3 [chromium] › e2e/catalogo-gobierno.e2e.ts:97:5 › columnas: revisar desde el cajón exige motivo al rechazar y guarda con la versión leída (4.8s)
+  ✓  4 [chromium] › e2e/catalogo-gobierno.e2e.ts:120:5 › sin permiso de edición: se lee, no se edita, y la revisión de una columna solo se mira (2.4s)
+  ✓  5 [chromium] › e2e/tableros-por-rol.e2e.ts:65:7 › catálogo de datos › lista con datos y ficha de una tabla, con su sensibilidad y relaciones (8.4s)
+  ✓  6 [chromium] › e2e/tableros-por-rol.e2e.ts:80:7 › catálogo de datos › vacío de búsqueda y error del catálogo (2.3s)
+  ✓  7 [chromium] › e2e/tableros-por-rol.e2e.ts:88:7 › catálogo de datos › error: un 403 del catálogo no muestra el detalle interno (2.2s)
+  7 passed (34.6s)

@@ -1,0 +1,45 @@
+$ ./gradlew :servicios:auditoria:test :servicios:auditoria:webTest   (BD local 5433 para jOOQ)
+BUILD SUCCESSFUL in 23s
+  bo.aportaya.auditoria.aplicacion.CatalogoDeDatosVigenteTest.xml tests="1" skipped="0" failures="0" errors="0"
+     ✓ tableros · catálogo: el recurso generado cumple CatalogoDeDatos y toda tabla trae su «qué es»
+  bo.aportaya.auditoria.aplicacion.ConsultarCatalogoDeDatosTest.xml tests="9" skipped="0" failures="0" errors="0"
+     ✓ catálogo · lista: la búsqueda ignora acentos, mayúsculas y guiones bajos
+     ✓ catálogo · ficha: trae solo las revisiones de sus columnas; una tabla que no está, vacío
+     ✓ catálogo · lista: sin filtros, 20 filas de todo el catálogo en orden esquema y tabla
+     ✓ catálogo · resumen: las cifras cierran con la lista y cada esquema trae su servicio
+     ✓ catálogo · lista: una página que pasa del final viene vacía, con el total real
+     ✓ catálogo · lista: el límite se acota a 100 y la página mínima es 1
+     ✓ catálogo · lista: sensibilidad PERSONAL trae solo tablas con al menos una columna personal
+     ✓ catálogo · lista: el filtro por estado usa la ficha guardada, no la de omisión
+     ✓ catálogo · lista: esquema y tipo se combinan; la infraestructura se distingue del negocio
+test: 43 tests, 0 fallas
+  bo.aportaya.auditoria.web.CatalogoDeDatosWebTest.xml tests="3" skipped="0" failures="0" errors="0"
+     ✓ tableros · catálogo: lo que la ficha no dice se omite, no viaja como null
+     ✓ tableros · catálogo: con TABLERO_SISTEMAS_VER, 200 con la tabla, su narrativa y sus relaciones
+     ✓ tableros · catálogo: 403 con el permiso de otro tablero, sin leer el catálogo
+  bo.aportaya.auditoria.web.CatalogoPorPartesWebTest.xml tests="6" skipped="0" failures="0" errors="0"
+     ✓ catálogo · tablas: 200 con la página, sin columnas, y los filtros llegan al caso de uso
+     ✓ catálogo · ficha: 404 cuando la tabla no está en el catálogo
+     ✓ catálogo · tablas: 400 con un límite fuera de 1..100 o un estado que no existe, sin consultar
+     ✓ catálogo · ficha: 200 con relaciones enriquecidas y la ficha de gobierno superpuesta
+     ✓ catálogo · resumen: 200 con cifras, conteos por estado y esquemas, con AUDITORIA_LEER
+     ✓ catálogo · tablas y resumen: 403 con el permiso de otro tablero, sin consultar
+  bo.aportaya.auditoria.web.CatalogosOperativosControllerWebTest.xml tests="9" skipped="0" failures="0" errors="0"
+     ✓ 200: PATCH actualiza estado de un elemento con motivo y permiso CATALOGO_EDITAR
+     ✓ 200: lista elementos de un catalogo operativo
+     ✓ 404: consulta de catalogo inexistente responde 404
+     ✓ 200: consulta detalle de un catalogo por codigo
+     ✓ 404: PATCH a elemento inexistente devuelve 404
+     ✓ 401: sin sesion rechaza la consulta de catalogos
+     ✓ 403: sin permiso adecuado rechaza la consulta de catalogos
+     ✓ 400: PATCH sin motivo suficiente es rechazado por validación
+     ✓ 200: con AUDITORIA_LEER lista catalogos operativos
+  bo.aportaya.auditoria.web.SeguridadWebTest.xml tests="6" skipped="0" failures="0" errors="0"
+webTest: 74 tests, 0 fallas
+
+$ python3 scripts/verificar_pruebas_web.py
+controladores: 43 · con matriz propia: 43 · en deuda: 0
+operaciones con el estado HTTP fuera de su contrato: 25
+servicios con sabana de seguridad: 15
+La capa web esta cubierta segun ADR-043.
+$ python3 scripts/verificar_contratos_limites.py  (98 hallazgos antes y después: ninguno nuevo)

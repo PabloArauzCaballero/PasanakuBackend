@@ -35,37 +35,6 @@ export const tonoDeRevision = (revision: string): Tono => TONO_REVISION[revision
 export const tieneDatosPersonales = (t: TablaDelCatalogo): boolean => t.columnas.some((c) => c.sensibilidad === 'PERSONAL' || c.sensibilidad === 'SECRETO')
 export const tieneDatosFinancieros = (t: TablaDelCatalogo): boolean => t.columnas.some((c) => c.sensibilidad === 'FINANCIERO')
 
-/** Los filtros de gobierno, leídos de la URL (`?estado=&revision=&modulo=`). Vacío es «todos». */
-export type FiltrosDeGobierno = { estado: string; revision: string; modulo: string }
-
-export function aplicarGobierno(tablas: readonly TablaDelCatalogo[], f: FiltrosDeGobierno): TablaDelCatalogo[] {
-  return tablas.filter((t) => {
-    const g = gobiernoDe(t)
-    return (!f.estado || g.estado === f.estado) && (!f.revision || g.estadoRevision === f.revision) && (!f.modulo || t.modulo === f.modulo)
-  })
-}
-
-export type Metricas = { total: number; activas: number; aRevisar: number; conDatosPersonales: number; haciaElRetiro: number }
-
-/** Las cifras de la cabecera, sobre todo el catálogo (no sobre lo filtrado: es el estado del inventario). */
-export function metricas(tablas: readonly TablaDelCatalogo[]): Metricas {
-  const estados = tablas.map((t) => gobiernoDe(t))
-  return {
-    total: tablas.length,
-    activas: estados.filter((g) => g.estado === 'ACTIVA').length,
-    aRevisar: estados.filter((g) => g.estadoRevision === 'DETECTADA' || g.estadoRevision === 'NECESITA_REVISION').length,
-    conDatosPersonales: tablas.filter(tieneDatosPersonales).length,
-    haciaElRetiro: estados.filter((g) => ['CANDIDATA_A_RETIRO', 'RETIRADA', 'DESHABILITADA'].includes(g.estado)).length,
-  }
-}
-
-/** Los módulos del modelo presentes en el catálogo, para el filtro. Orden por número. */
-export function modulos(tablas: readonly TablaDelCatalogo[]): { valor: string; texto: string }[] {
-  const vistos = new Map<string, string>()
-  for (const t of tablas) vistos.set(t.modulo, `${t.modulo} · ${t.nombreModulo}`)
-  return [...vistos].sort(([a], [b]) => a.localeCompare(b)).map(([valor, texto]) => ({ valor, texto }))
-}
-
 /** Lo que el formulario edita, en texto (los campos del `ap-campo` y las listas son cadenas). */
 export type Borrador = { estado: string; estadoRevision: string; responsable: string; politicaRetencionId: string; criticaParaAuditoria: boolean; notaRevision: string }
 

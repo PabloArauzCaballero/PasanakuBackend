@@ -133,12 +133,12 @@ const ROLES: { rol: string; ve: (typeof SECCIONES)[number][]; prohibida: string;
 
 test.describe('[token de prueba, permisos del catálogo] recorrido por roles sin acciones ajenas', () => {
   for (const { rol, ve, prohibida, billeteraDeTerceros } of ROLES) {
-    test(`${rol}: el menú ofrece solo ${ve.length ? ve.join(', ') : 'Tablero y Ayuda'}; lo ajeno no monta ni escribiendo la dirección`, async ({ page }) => {
+    test(`${rol}: el menú ofrece solo ${ve.length ? ve.join(', ') : 'Inicio y Ayuda'}; lo ajeno no monta ni escribiendo la dirección`, async ({ page }) => {
       const consola: string[] = []
       page.on('pageerror', (e) => consola.push(e.message))
       await iniciarSesionDePrueba(page, permisosDe(rol), rol)
       const menu = page.getByRole('navigation', { name: 'Secciones del backoffice' })
-      await expect(menu.getByRole('link', { name: 'Tablero' })).toBeVisible()
+      await expect(menu.getByRole('link', { name: 'Inicio', exact: true })).toBeVisible()
       await expect(menu.getByRole('link', { name: 'Ayuda' })).toBeVisible()
       for (const s of SECCIONES) await expect(menu.getByRole('link', { name: s, exact: true })).toHaveCount(ve.includes(s) ? 1 : 0)
 

@@ -24,7 +24,11 @@ COMMENT ON COLUMN garantia.politica_cobertura.id IS 'Identificador estable de la
 COMMENT ON COLUMN garantia.politica_cobertura.grupo_id IS 'FK, NULL';
 COMMENT ON COLUMN garantia.politica_cobertura.porcentaje_constitucion IS 'cuánto de cada aporte alimenta el fondo. Sube el costo del pasanaku, así que es un equilibrio entre seguridad y precio.';
 COMMENT ON COLUMN garantia.politica_cobertura.dias_mora_para_activar IS 'no se cubre al primer día de atraso. Si se cubriera de inmediato, el fondo pagaría por gente que simplemente se olvidó y va a pagar mañana, y se agotaría en meses.';
+COMMENT ON COLUMN garantia.politica_cobertura.tope_cobertura_por_participante IS 'evitan el parásito. Sin límite, alguien podría no pagar nunca y dejar que el fondo cubra siempre — convirtiendo el seguro colectivo en su financiamiento personal.';
 COMMENT ON COLUMN garantia.politica_cobertura.tope_cobertura_por_periodo IS 'protege contra el colapso masivo. Si en un período fallan seis de doce, el fondo no puede vaciarse cubriéndolos a todos; ahí corresponde un plan de contingencia, no cobertura.';
+COMMENT ON COLUMN garantia.politica_cobertura.max_coberturas_por_participante IS 'evitan el parásito. Sin límite, alguien podría no pagar nunca y dejar que el fondo cubra siempre — convirtiendo el seguro colectivo en su financiamiento personal.';
 COMMENT ON COLUMN garantia.politica_cobertura.exige_aval_previo IS 'solo se cubre a quien tiene quién responda.';
 COMMENT ON COLUMN garantia.politica_cobertura.requiere_aprobacion_manual_desde IS 'montos grandes pasan por revisión humana.';
+COMMENT ON COLUMN garantia.politica_cobertura.plazo_recuperacion_dias IS 'el fondo no es un regalo. Es un préstamo forzoso con plazo y con costo.';
+COMMENT ON COLUMN garantia.politica_cobertura.tasa_recargo_recuperacion IS 'el fondo no es un regalo. Es un préstamo forzoso con plazo y con costo.';
 COMMENT ON COLUMN garantia.politica_cobertura.vigente_desde IS 'Desde cuándo rige esta versión de la fila: las condiciones se versionan, no se pisan.';
