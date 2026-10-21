@@ -252,8 +252,8 @@ No se copia ninguna marca ajena: se toma el **lenguaje**, no los activos.
 | H0.S2.M2 | Matriz de viewport × tema (`test/capturas/matriz.dart`) | Una pantalla genera 6 PNG | `flutter test …/matriz_test.dart` → 6 archivos | HECHO |
 | H0.S2.M3 | Datos sintéticos declarados por pantalla (`test/capturas/datos_sinteticos.dart`) | Cada override devuelve datos, vacío o error | Test unitario de los fixtures en verde | HECHO |
 | H0.S2.M4 | Inventario de pantallas del arnés (lista cerrada contra las rutas) | Toda ruta registrada tiene su entrada o una exclusión justificada | Test que compara el inventario con `rutas.dart` → PASS | HECHO |
-| H0.S2.M5 | Recorrido web con Playwright (`herramientas/capturas-web/`) | Navega Inicio → Grupos → Movimientos y captura | `node herramientas/capturas-web/recorrer.mjs` exit 0 + PNG | TODO |
-| H0.S2.M6 | Grabador de movimiento (video de Playwright más extracción de cuadros con ffmpeg) | Sale un MP4 y 3 cuadros de una transición | Archivo MP4 > 0 bytes + 3 PNG | TODO |
+| H0.S2.M5 | Recorrido web con Playwright (`herramientas/capturas-web/`) | Navega Inicio → Grupos → Movimientos y captura | `node herramientas/capturas-web/recorrer.mjs` exit 0 + PNG | HECHO |
+| H0.S2.M6 | Grabador de movimiento (video de Playwright más extracción de cuadros con ffmpeg) | Sale un MP4 y 3 cuadros de una transición | Archivo MP4 > 0 bytes + 3 PNG | HECHO |
 | H0.S2.M7 | Generador de galería `scripts/galeria_capturas.mjs` | `galeria.html` lista antes y después por pantalla con filtros | `node scripts/galeria_capturas.mjs` → HTML abierto y mirado | HECHO |
 
 ### H0.S3 — Capturas «antes» (una microtarea por flujo)
@@ -449,6 +449,7 @@ Cada microtarea de pantalla tiene el **mismo DoD**:
 | H6.S4.M5 | `/soporte/ayuda` | Buscador, temas en tarjetas y tutoriales | TODO |
 | H6.S4.M6 | Candado, splash, bloqueo de plataforma y configuración inválida | Candado con marca y biometría; los errores de sistema con referencia | TODO |
 | H6.S4.M7 | Shell: barra flotante y, si A6 = sí, pestaña central QR | Navegación capturada y E2E de las pestañas | TODO |
+| H6.S4.M8 | **Agregada en H0.S2.M5 (bug real):** desde otra rama, la pestaña «Movimientos» llama a `goBranch(0, initialLocation: true)` y aterriza en `/billetera/inicio`, no en `/billetera/extracto` (`navegacion/shell.dart:107-111`). Visto en el recorrido web, captura `web/antes/09-movimientos__412.png` | Test de widget: desde Grupos, tocar Movimientos deja la ubicación en `/billetera/extracto` · recorrido web con la captura correcta | TODO |
 
 ---
 

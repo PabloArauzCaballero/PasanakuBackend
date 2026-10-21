@@ -103,6 +103,17 @@ no defectos de la pantalla.
 | Moléculas | `TarjetaSaldo`, `AccionesRapidas`, `FilaDeMovimiento` e `ItemPasanaku` ya existen pero planos: son la base a re-pintar en H4.S2 (no se crean gemelos) |
 | Átomos | Botón apagado sin forma (T3); íconos de Material mezclados (T6) |
 
+## Recorrido real en la web (Playwright, contra el simulado)
+
+| Hallazgo | Evidencia | Lo resuelve |
+|---|---|---|
+| **La pestaña «Movimientos» no lleva a Movimientos si venís de otra pestaña**: aterriza en Inicio | `web/antes/09-movimientos__412.png` · `navegacion/shell.dart:107-111` | H6.S4.M8 |
+| **Los campos del ingreso exponen el placeholder como nombre accesible** (`71234567`, `Mínimo 8 caracteres`), no la etiqueta; varios botones salen sin nombre en la semántica | `herramientas/recorrer_web.cjs` (se ubican por tipo) | H8.S2.M1 |
+| El tutorial guiado tapa Inicio con un velo oscuro la primera vez: bien resuelto, pero el foco verde sobre el saldo resalta un bloque sin forma (T2) | `web/antes/06-tutorial__412.png` | H4.S2.M2 |
+| La app consulta `GET /api/v1/version`, que no está en los contratos (404 contra el simulado) | consola del recorrido | Fuera de alcance (contrato) |
+| Sin idioma del navegador, Flutter web no arranca («Incorrect locale information provided») | `herramientas/recorrer_web.cjs` fija `es-BO` | Fuera de alcance (anotado) |
+| El build web incluye las fuentes de `widgetbook` (Poppins): el catálogo viaja dentro de la app | log del servidor estático | Fuera de alcance (anotado) |
+
 ## Hallazgos fuera de alcance (anotados, no arreglados — regla 00 §3)
 
 1. `CamaraEnVivoPlugin.iniciar` lanza `StateError` sin cámara y `_PantallaDeCamaraState._inicializar` no lo atrapa.
