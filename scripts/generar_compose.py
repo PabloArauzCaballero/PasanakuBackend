@@ -129,6 +129,8 @@ DE_DESARROLLO = {
     "ADMISION_HUMANA_OBLIGATORIA": "false",
     "SUSTITUCION_AUTOMATICA_ADMIN": "false",
     "SUSTITUCION_CONSUMO_HABILITADO": "false",
+    # grupos · tope de participaciones vivas por persona (application.yml: ${MAXIMO_DE_PARTICIPACIONES:4}).
+    "MAXIMO_DE_PARTICIPACIONES": "4",
     # grupos · consumo de entregas.derecho_cedido (el cupo cambia de titular al venderse un turno): ENCENDIDO. La venta ya
     # movio el dinero en otro servicio; apagarlo la deja pagada sin reflejo en el grupo.
     "CESION_CONSUMO_HABILITADO": "true",
@@ -244,6 +246,8 @@ DE_ENTORNO = {
     "ADMISION_HUMANA_OBLIGATORIA": "${ADMISION_HUMANA_OBLIGATORIA:-false}",
     "SUSTITUCION_AUTOMATICA_ADMIN": "${SUSTITUCION_AUTOMATICA_ADMIN:-false}",
     "SUSTITUCION_CONSUMO_HABILITADO": "${SUSTITUCION_CONSUMO_HABILITADO:-false}",
+    # grupos · tope de participaciones vivas por persona; opcional, el mismo 4 que trae la aplicacion.
+    "MAXIMO_DE_PARTICIPACIONES": "${MAXIMO_DE_PARTICIPACIONES:-4}",
     # Carril I · consumidores del circuito del dinero, ENCENDIDOS por omision (ver DE_DESARROLLO). Opcionales (`:-`).
     "CESION_CONSUMO_HABILITADO": "${CESION_CONSUMO_HABILITADO:-true}",
     "CONSUMO_DE_APORTES_HABILITADO": "${CONSUMO_DE_APORTES_HABILITADO:-true}",

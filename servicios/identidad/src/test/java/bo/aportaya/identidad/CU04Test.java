@@ -187,8 +187,8 @@ class CU04Test extends BaseDeCU04 {
         assertThat(
                         rechazaLaBase(
                                 """
-                        INSERT INTO identidad.permiso (id, codigo, recurso, accion, descripcion, requiere_mfa)
-                        VALUES (gen_random_uuid(), 'PRUEBA_APROBAR', 'prueba', 'APROBAR', 'prueba', false)
+                        INSERT INTO identidad.permiso (id, codigo, recurso, accion, descripcion, nivel_riesgo, requiere_mfa)
+                        VALUES (gen_random_uuid(), 'PRUEBA_APROBAR', 'prueba', 'APROBAR', 'prueba', 'ALTO', false)
                         """))
                 .contains("ck_permiso_decision_exige_mfa");
     }

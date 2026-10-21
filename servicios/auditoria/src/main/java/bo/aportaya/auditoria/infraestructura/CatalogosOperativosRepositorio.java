@@ -29,6 +29,9 @@ import org.springframework.stereotype.Component;
 @Component
 public class CatalogosOperativosRepositorio {
 
+    /** Una de las acciones que admite {@code ck_bitacora_evento_accion}. */
+    static final String ACCION_EN_BITACORA = "CAMBIO_ESTADO";
+
     private static final String RECURSO_CATALOGOS = "/catalogo/catalogos-operativos.json";
     private static final OffsetDateTime VIGENCIA_DEFECTO = OffsetDateTime.of(2026, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC);
 
@@ -198,7 +201,10 @@ public class CatalogosOperativosRepositorio {
         actual.setActualizadoPor(actorUsuarioId != null ? actorUsuarioId.toString() : "ADMIN");
 
         if (dsl != null) {
-            String accion = nuevoActivo ? "ACTIVAR_ELEMENTO_CATALOGO" : "DESACTIVAR_ELEMENTO_CATALOGO";
+            // ck_bitacora_evento_accion admite una lista cerrada de acciones: activar y desactivar son un
+            // CAMBIO_ESTADO, y el sentido queda en valor_anterior/valor_nuevo ("activo"). Con los nombres
+            // propios de antes el INSERT violaba la restriccion y el cambio nunca se guardaba.
+            String accion = ACCION_EN_BITACORA;
             String valAnt = "{\"catalogo\":\"" + codigo + "\",\"id\":\"" + id + "\",\"codigo\":\"" + actual.getCodigo()
                     + "\",\"activo\":" + estadoAnterior + "}";
             String valNue = "{\"catalogo\":\"" + codigo + "\",\"id\":\"" + id + "\",\"codigo\":\"" + actual.getCodigo()

@@ -104,8 +104,8 @@ class CU08RechazosTest extends BaseDeCU08 {
         assertThat(
                         rechazaLaBase(
                                 """
-                        INSERT INTO identidad.permiso (id, codigo, descripcion, recurso, accion, requiere_mfa)
-                        VALUES (gen_random_uuid(), 'CU08_REVERSAR', 'prueba', 'accesos', 'REVERSAR', false)
+                        INSERT INTO identidad.permiso (id, codigo, descripcion, recurso, accion, nivel_riesgo, requiere_mfa)
+                        VALUES (gen_random_uuid(), 'CU08_REVERSAR', 'prueba', 'accesos', 'REVERSAR', 'ALTO', false)
                         """))
                 .contains("ck_permiso_decision_exige_mfa");
     }

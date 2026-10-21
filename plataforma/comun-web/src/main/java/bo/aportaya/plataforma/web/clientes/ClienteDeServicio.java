@@ -85,8 +85,8 @@ public class ClienteDeServicio {
                         respondioMal.getResponseBodyAsString());
                 return Optional.empty();
             }
-            throw new ErrorDeDominio("El servicio %s respondio %s: %s".formatted(
-                    destino, respondioMal.getStatusCode(), respondioMal.getResponseBodyAsString()));
+            throw new ErrorDeDominio("El servicio %s respondio %s: %s"
+                    .formatted(destino, respondioMal.getStatusCode(), respondioMal.getResponseBodyAsString()));
         }
     }
 

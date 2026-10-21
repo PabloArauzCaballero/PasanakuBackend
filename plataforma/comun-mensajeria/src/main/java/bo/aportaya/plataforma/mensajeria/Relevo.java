@@ -115,11 +115,13 @@ public class Relevo {
                 .set(DSL.field("estado", String.class), "PENDIENTE")
                 .set(DSL.field("intentos", Short.class), (short) 0)
                 .set(DSL.field("proximo_intento_en", OffsetDateTime.class), DSL.field("now()", OffsetDateTime.class))
-                .where(DSL.field("estado").eq("FALLIDO")
+                .where(DSL.field("estado")
+                        .eq("FALLIDO")
                         .and(DSL.field("ocurrido_en", OffsetDateTime.class).lt(umbral)))
                 .execute();
         if (rescatados > 0) {
-            BITACORA.warn("Relevo outbox [{}]: se rescataron {} eventos FALLIDOS para sincronizacion", esquema, rescatados);
+            BITACORA.warn(
+                    "Relevo outbox [{}]: se rescataron {} eventos FALLIDOS para sincronizacion", esquema, rescatados);
         }
     }
 
