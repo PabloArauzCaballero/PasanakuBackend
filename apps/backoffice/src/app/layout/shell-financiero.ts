@@ -39,7 +39,7 @@ const ANGOSTO = '(max-width: 64rem)'
     <div class="shell" [class.angosto]="angosto()">
       @if (!angosto()) {
         <aside class="lateral">
-          <a class="marca" routerLink="/tablero"><ap-simbolo-de-marca [sobreOscuro]="true" /><span><strong>AportaYa</strong><small>Backoffice</small></span></a>
+          <a class="marca" routerLink="/tablero"><ap-simbolo-de-marca /><span><strong>AportaYa</strong><small>Backoffice</small></span></a>
           <ap-menu-lateral class="menu" />
           <button type="button" class="salir" [disabled]="saliendo()" (click)="salir()"><ap-icono-de-seccion nombre="salir" />{{ saliendo() ? 'Saliendo…' : 'Salir' }}</button>
         </aside>

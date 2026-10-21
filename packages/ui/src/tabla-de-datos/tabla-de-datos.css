@@ -14,7 +14,15 @@ th.fija { z-index: 3; }
 .cuenta { display: inline-flex; align-items: center; gap: var(--s1); }
 .total { padding: 0 var(--s2); border-radius: var(--r-sm); background: var(--surface-2); color: var(--text); font-family: var(--mono); font-size: .85em; font-weight: 600; }
 .con-cabecera caption { position: absolute; width: var(--borde-fino); height: var(--borde-fino); overflow: hidden; clip: rect(0 0 0 0); }
-.desplazable { overflow-x: auto; }
+.desplazable {
+  overflow-x: auto;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--border) 80%, transparent) transparent;
+}
+.desplazable::-webkit-scrollbar { height: var(--s2); width: var(--s2); }
+.desplazable::-webkit-scrollbar-track { background: transparent; }
+.desplazable::-webkit-scrollbar-thumb { background: color-mix(in srgb, var(--border) 80%, transparent); border-radius: var(--r-pill); }
+.desplazable::-webkit-scrollbar-thumb:hover { background: var(--text-3); }
 .desplazable.acotada { max-height: calc(var(--s7) * 12); overflow: auto; }
 .desplazable:focus-visible { outline: var(--borde-foco) solid var(--g300); outline-offset: calc(var(--borde-desfase) * -1); }
 .numerica { text-align: right; font-variant-numeric: tabular-nums; }
@@ -25,7 +33,9 @@ button:focus-visible { outline: var(--borde-foco) solid var(--g300); outline-off
 .oculto { position: absolute; width: var(--borde-fino); height: var(--borde-fino); overflow: hidden; clip: rect(0 0 0 0); }
 .mensaje-estado { margin: 0; padding: var(--s4); color: var(--text-2); }
 .mensaje-error { color: var(--rojo-texto, var(--text)); }
-.mensaje-obsoleta { margin: 0; padding: 0 var(--s4) var(--s3); color: var(--text-3, var(--text-2)); font-size: .85em; }
+.aviso-cargando { display: inline-flex; align-items: center; gap: var(--s2); margin-bottom: var(--s3); font-weight: 500; color: var(--text-2); }
+.cargando-contenedor { padding: var(--s4); }
+.mensaje-obsoleta { display: inline-flex; align-items: center; gap: var(--s2); margin: 0; padding: 0 var(--s4) var(--s3); color: var(--text-3, var(--text-2)); font-size: .85em; }
 .etiqueta-movil { display: none; }
 
 /* Densidad: variante semántica, no un nombre de pantalla (H3.S1.M3). */

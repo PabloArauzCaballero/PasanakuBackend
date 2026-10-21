@@ -65,7 +65,7 @@ Hallazgo: a 820 px la cabecera pide ~734 px y tiene 529 (`.vista` queda en 0 px,
 | ID | Microtarea | CA (binario) | DoD | Estado |
 |---|---|---|---|---|
 | H2.S1.M1 | Detectar cambios de la app móvil desde el último build | Lista de commits o «ninguno» | `git log --since=<build 202610151748> origin/test -- apps/movil packages/diseno_flutter` → hay commits nuevos (`evidencia/H2.S1.M1-cambios-movil.txt`) | HECHO |
-| H2.S1.M2 | Construir y subir a TestFlight si hay cambios | Build aceptado por App Store Connect | salida de la subida | TODO |
+| H2.S1.M2 | Construir y subir a TestFlight si hay cambios | Build aceptado por App Store Connect | salida de la subida | A MEDIAS — compilado 202610211645, subida pendiente de Pablo |
 
 ## Riesgos y bloqueos previstos
 | Riesgo | Impacto | Mitigación |
