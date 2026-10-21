@@ -66,9 +66,10 @@ void main() {
         final estiloEnlace = botonTextoDesde(tokens);
         expect(
           estiloEnlace.foregroundColor!.resolve({}),
-          tokens.accentTexto,
+          tokens.brandTexto,
           reason:
-              'TextButton usa el acento de acción en vez del verde de marca',
+              'ADR-053 (A2): la acción común es verde de marca; el naranja '
+              'queda para la urgencia de pagar',
         );
 
         await tester.pumpWidget(

@@ -315,9 +315,9 @@ el lenguaje nuevo (sin bordes de fábrica, cabeceras grandes, hojas redondeadas 
 
 | ID | Microtarea | CA | DoD | Estado |
 |---|---|---|---|---|
-| H3.S1.M1 | `CardTheme`: sin borde en claro, elevación `e2`, radio `r2xl` | Tarjeta testigo cambia | golden testigo regenerado y mirado | TODO |
-| H3.S1.M2 | `AppBarTheme` → estilo cabecera grande, transparente y con desenfoque al desplazar | Captura con contenido debajo | captura 3 vp × 2 temas | TODO |
-| H3.S1.M3 | `BottomSheetTheme`, `DialogTheme` y `SnackBarTheme` en el lenguaje nuevo | Captura de cada uno | 6 capturas | TODO |
+| H3.S1.M1 | `CardTheme`: sin borde en claro, elevación `e2`, radio `r2xl` | Tarjeta testigo cambia | golden testigo regenerado y mirado | HECHO |
+| H3.S1.M2 | `AppBarTheme` → estilo cabecera grande, transparente y con desenfoque al desplazar | Captura con contenido debajo | captura 3 vp × 2 temas | HECHO |
+| H3.S1.M3 | `BottomSheetTheme`, `DialogTheme` y `SnackBarTheme` en el lenguaje nuevo | Captura de cada uno | 6 capturas | A MEDIAS (código y tests en verde; faltan las capturas de hoja y diálogo, que salen del catálogo en H4.S3.M8) |
 | H3.S1.M4 | Transición de página con resorte (`TransicionDeEje` actualizada) | Video de la transición | MP4 normal + reducido | TODO |
 | H3.S1.M5 | Fondo con halo para pantallas raíz (`FondoDeMarca` parametrizado) | Captura | 6 capturas | TODO |
 
