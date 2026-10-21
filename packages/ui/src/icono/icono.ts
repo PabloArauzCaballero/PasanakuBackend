@@ -43,6 +43,9 @@ const TRAZOS = {
   candado: 'M6 11h12v10H6zM8 11V7a4 4 0 0 1 8 0v4',
   filtro: 'M3 5h18l-7 8v6l-4 2v-8z',
   info: 'M12 11v5m0-8h.01M12 21a9 9 0 1 1 0-18 9 9 0 0 1 0 18z',
+  // Catálogo de datos: las columnas de una tabla y la clave que une dos tablas.
+  columnas: 'M4 4h16v16H4zM9.5 4v16M14.5 4v16',
+  relacion: 'M9 15 15 9M10 6.5l1.5-1.5a4 4 0 0 1 5.7 5.7L15.7 12.2M14 17.5 12.5 19a4 4 0 0 1-5.7-5.7L8.3 11.8',
 } as const
 
 /**

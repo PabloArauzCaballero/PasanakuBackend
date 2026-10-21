@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "AportaYa · auditoria",
-    "description": "# AportaYa · auditoria\n\nGenerado por `scripts/generar_postman.py` desde `servicios/*/src/main/resources/openapi/`.\n**No se edita a mano**: la proxima generacion lo pisa, y una coleccion editada a mano\nprueba una API que ya no existe.\n\n**17 operaciones.** Cada peticion trae su cuerpo de ejemplo derivado del\nesquema, la clave de idempotencia donde el contrato la exige, el permiso que pide\n—leido de los `@Permiso` del codigo— y los rechazos `AP-CU` que declara.\n\nElegi un entorno de `postman/entornos/` antes de disparar nada.\n",
+    "description": "# AportaYa · auditoria\n\nGenerado por `scripts/generar_postman.py` desde `servicios/*/src/main/resources/openapi/`.\n**No se edita a mano**: la proxima generacion lo pisa, y una coleccion editada a mano\nprueba una API que ya no existe.\n\n**20 operaciones.** Cada peticion trae su cuerpo de ejemplo derivado del\nesquema, la clave de idempotencia donde el contrato la exige, el permiso que pide\n—leido de los `@Permiso` del codigo— y los rechazos `AP-CU` que declara.\n\nElegi un entorno de `postman/entornos/` antes de disparar nada.\n",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
@@ -1179,7 +1179,7 @@
       ]
     },
     {
-      "name": "obtenerCatalogoDeDatos · El catalogo de datos de toda la plataforma",
+      "name": "obtenerCatalogoDeDatos · El catalogo de datos de toda la plataforma (deprecado)",
       "request": {
         "method": "GET",
         "header": [
@@ -1199,7 +1199,7 @@
           ],
           "variable": []
         },
-        "description": "## El catalogo de datos de toda la plataforma\n\nCada esquema, tabla y columna con su explicacion de negocio (las fichas de docs/entidades) y de sistema (derivada del modelo: servicio dueño, append-only, claves, reglas nombradas), las relaciones y la sensibilidad de cada columna. Lo genera scripts/catalogo_de_datos.py; no se calcula en la peticion. Vive bajo /indicadores, junto al desglose de sistemas, porque es parte del tablero de sistemas y el gateway ya enruta ese prefijo a auditoria. Describe el esquema completo de la base, por eso NO es un archivo estatico del backoffice: exige TABLERO_SISTEMAS_VER o AUDITORIA_LEER. No contiene datos de personas, solo la estructura.\n\n| | |\n| --- | --- |\n| **Servicio** | `auditoria` |\n| **Operacion** | `obtenerCatalogoDeDatos` |\n| **Ruta** | `GET /api/v1/indicadores/catalogo-de-datos` |\n| **Permiso** | `TABLERO_SISTEMAS_VER` |\n| **Respuestas** | `200`, `403`, `401` |\n\n### Rechazos que declara el contrato\n\n_El contrato no declara rechazos de negocio para esta operacion._\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos."
+        "description": "## El catalogo de datos de toda la plataforma (deprecado)\n\nDEPRECADO desde 2026-10-21: descarga el catalogo entero (~2 MB) en una sola respuesta. Usar obtenerResumenDelCatalogo, listarTablasDelCatalogo y obtenerTablaDelCatalogo. Se mantiene sin cambios de forma hasta que ningun cliente lo pida (regla 96.4.1). Retiro (regla 98.1.3): el backoffice se despliega aparte de auditoria, asi que se quita recien cuando el backoffice que usa las tres operaciones este en TEST y en PROD; la fecha la confirman Marcelo/Pablo y se escribe aca. Cada esquema, tabla y columna con su explicacion de negocio (las fichas de docs/entidades) y de sistema (derivada del modelo: servicio dueño, append-only, claves, reglas nombradas), las relaciones y la sensibilidad de cada columna. Lo genera scripts/catalogo_de_datos.py; no se calcula en la peticion. Vive bajo /indicadores, junto al desglose de sistemas, porque es parte del tablero de sistemas y el gateway ya enruta ese prefijo a auditoria. Describe el esquema completo de la base, por eso NO es un archivo estatico del backoffice: exige TABLERO_SISTEMAS_VER o AUDITORIA_LEER. No contiene datos de personas, solo la estructura.\n\n| | |\n| --- | --- |\n| **Servicio** | `auditoria` |\n| **Operacion** | `obtenerCatalogoDeDatos` |\n| **Ruta** | `GET /api/v1/indicadores/catalogo-de-datos` |\n| **Permiso** | `TABLERO_SISTEMAS_VER` |\n| **Respuestas** | `200`, `403`, `401` |\n\n### Rechazos que declara el contrato\n\n_El contrato no declara rechazos de negocio para esta operacion._\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos."
       },
       "response": [],
       "event": [
@@ -1210,6 +1210,276 @@
             "exec": [
               "// Lo que se le exige a TODA respuesta del sistema, sin excepcion.",
               "const esperadas = [200, 401, 403];",
+              "",
+              "pm.test(\"responde con un codigo que el contrato declara\", () => {",
+              "    pm.expect(esperadas).to.include(pm.response.code);",
+              "});",
+              "",
+              "pm.test(\"no filtra la traza al cliente\", () => {",
+              "    const cuerpo = pm.response.text();",
+              "    // Un stack trace en la respuesta le cuenta al atacante como esta hecho el",
+              "    // servidor. Es una de las dieciocho prohibiciones del contrato.",
+              "    pm.expect(cuerpo).to.not.match(/at bo\\.aportaya\\./);",
+              "    pm.expect(cuerpo).to.not.include(\"java.lang.\");",
+              "});",
+              "",
+              "if (pm.response.code === 422) {",
+              "    pm.test(\"el rechazo trae su codigo AP-CU\", () => {",
+              "        pm.expect(pm.response.json()).to.have.property(\"codigo\").that.matches(/^AP-CU\\d+-\\d+$/);",
+              "    });",
+              "}",
+              "",
+              "// Encadena: lo que devuelve esta peticion queda disponible para la siguiente.",
+              "if (pm.response.code < 300) {",
+              "    const cuerpo = pm.response.json();",
+              "    for (const [clave, valor] of Object.entries(cuerpo || {})) {",
+              "        if (typeof valor === \"string\" && /^[0-9a-f]{8}-[0-9a-f]{4}-/i.test(valor)) {",
+              "            pm.collectionVariables.set(clave, valor);",
+              "        }",
+              "    }",
+              "}",
+              ""
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "obtenerResumenDelCatalogo · Las cifras del catalogo, sus esquemas y lo que se puede filtrar",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}{{prefijo_api}}/indicadores/catalogo-de-datos/resumen",
+          "host": [
+            "{{base_url}}{{prefijo_api}}"
+          ],
+          "path": [
+            "indicadores",
+            "catalogo-de-datos",
+            "resumen"
+          ],
+          "variable": []
+        },
+        "description": "## Las cifras del catalogo, sus esquemas y lo que se puede filtrar\n\nLo que la pantalla muestra antes de la primera tabla: cuantas tablas, columnas y relaciones hay, cada esquema con su servicio dueño y sus cifras, cuantas tablas hay por estado y por revision de su ficha (CU-130), los modulos del modelo y las politicas de retencion que se pueden asignar. Sin columnas ni narrativa: pesa unos pocos KB. Exige TABLERO_SISTEMAS_VER o AUDITORIA_LEER.\n\n| | |\n| --- | --- |\n| **Servicio** | `auditoria` |\n| **Operacion** | `obtenerResumenDelCatalogo` |\n| **Ruta** | `GET /api/v1/indicadores/catalogo-de-datos/resumen` |\n| **Permiso** | `TABLERO_SISTEMAS_VER` |\n| **Respuestas** | `200`, `403`, `401` |\n\n### Rechazos que declara el contrato\n\n_El contrato no declara rechazos de negocio para esta operacion._\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos."
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// Lo que se le exige a TODA respuesta del sistema, sin excepcion.",
+              "const esperadas = [200, 401, 403];",
+              "",
+              "pm.test(\"responde con un codigo que el contrato declara\", () => {",
+              "    pm.expect(esperadas).to.include(pm.response.code);",
+              "});",
+              "",
+              "pm.test(\"no filtra la traza al cliente\", () => {",
+              "    const cuerpo = pm.response.text();",
+              "    // Un stack trace en la respuesta le cuenta al atacante como esta hecho el",
+              "    // servidor. Es una de las dieciocho prohibiciones del contrato.",
+              "    pm.expect(cuerpo).to.not.match(/at bo\\.aportaya\\./);",
+              "    pm.expect(cuerpo).to.not.include(\"java.lang.\");",
+              "});",
+              "",
+              "if (pm.response.code === 422) {",
+              "    pm.test(\"el rechazo trae su codigo AP-CU\", () => {",
+              "        pm.expect(pm.response.json()).to.have.property(\"codigo\").that.matches(/^AP-CU\\d+-\\d+$/);",
+              "    });",
+              "}",
+              "",
+              "// Encadena: lo que devuelve esta peticion queda disponible para la siguiente.",
+              "if (pm.response.code < 300) {",
+              "    const cuerpo = pm.response.json();",
+              "    for (const [clave, valor] of Object.entries(cuerpo || {})) {",
+              "        if (typeof valor === \"string\" && /^[0-9a-f]{8}-[0-9a-f]{4}-/i.test(valor)) {",
+              "            pm.collectionVariables.set(clave, valor);",
+              "        }",
+              "    }",
+              "}",
+              ""
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "listarTablasDelCatalogo · Las tablas del catalogo, filtradas y paginadas en el servidor",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}{{prefijo_api}}/indicadores/catalogo-de-datos/tablas",
+          "host": [
+            "{{base_url}}{{prefijo_api}}"
+          ],
+          "path": [
+            "indicadores",
+            "catalogo-de-datos",
+            "tablas"
+          ],
+          "variable": [],
+          "query": [
+            {
+              "key": "q",
+              "value": "q-de-prueba",
+              "description": "",
+              "disabled": true
+            },
+            {
+              "key": "esquema",
+              "value": "a1",
+              "description": "",
+              "disabled": true
+            },
+            {
+              "key": "modulo",
+              "value": "11",
+              "description": "",
+              "disabled": true
+            },
+            {
+              "key": "tipo",
+              "value": "NEGOCIO",
+              "description": "",
+              "disabled": true
+            },
+            {
+              "key": "estado",
+              "value": "ACTIVA",
+              "description": "",
+              "disabled": true
+            },
+            {
+              "key": "revision",
+              "value": "DETECTADA",
+              "description": "",
+              "disabled": true
+            },
+            {
+              "key": "sensibilidad",
+              "value": "PERSONAL",
+              "description": "",
+              "disabled": true
+            },
+            {
+              "key": "pagina",
+              "value": "1",
+              "description": "",
+              "disabled": true
+            },
+            {
+              "key": "limite",
+              "value": "1",
+              "description": "",
+              "disabled": true
+            }
+          ]
+        },
+        "description": "## Las tablas del catalogo, filtradas y paginadas en el servidor\n\nUna fila por tabla, sin columnas ni narrativa larga: nombre, esquema, servicio, modulo, que es, cifras, clasificacion por sensibilidad y su ficha de gobierno. Orden fijo esquema y tabla. Paginacion por numero de pagina y no por cursor a proposito: el catalogo es un recurso estatico del servicio (cambia con el despliegue, no con los datos), asi que una pagina no se corre entre dos pedidos. `q` busca sin acentos ni mayusculas en el nombre de la tabla, sus columnas, el esquema y lo que la ficha dice que es. Exige TABLERO_SISTEMAS_VER o AUDITORIA_LEER.\n\n| | |\n| --- | --- |\n| **Servicio** | `auditoria` |\n| **Operacion** | `listarTablasDelCatalogo` |\n| **Ruta** | `GET /api/v1/indicadores/catalogo-de-datos/tablas` |\n| **Permiso** | `TABLERO_SISTEMAS_VER` |\n| **Respuestas** | `200`, `400`, `403`, `401` |\n\n### Rechazos que declara el contrato\n\n_El contrato no declara rechazos de negocio para esta operacion._\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos."
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// Lo que se le exige a TODA respuesta del sistema, sin excepcion.",
+              "const esperadas = [200, 400, 401, 403];",
+              "",
+              "pm.test(\"responde con un codigo que el contrato declara\", () => {",
+              "    pm.expect(esperadas).to.include(pm.response.code);",
+              "});",
+              "",
+              "pm.test(\"no filtra la traza al cliente\", () => {",
+              "    const cuerpo = pm.response.text();",
+              "    // Un stack trace en la respuesta le cuenta al atacante como esta hecho el",
+              "    // servidor. Es una de las dieciocho prohibiciones del contrato.",
+              "    pm.expect(cuerpo).to.not.match(/at bo\\.aportaya\\./);",
+              "    pm.expect(cuerpo).to.not.include(\"java.lang.\");",
+              "});",
+              "",
+              "if (pm.response.code === 422) {",
+              "    pm.test(\"el rechazo trae su codigo AP-CU\", () => {",
+              "        pm.expect(pm.response.json()).to.have.property(\"codigo\").that.matches(/^AP-CU\\d+-\\d+$/);",
+              "    });",
+              "}",
+              "",
+              "// Encadena: lo que devuelve esta peticion queda disponible para la siguiente.",
+              "if (pm.response.code < 300) {",
+              "    const cuerpo = pm.response.json();",
+              "    for (const [clave, valor] of Object.entries(cuerpo || {})) {",
+              "        if (typeof valor === \"string\" && /^[0-9a-f]{8}-[0-9a-f]{4}-/i.test(valor)) {",
+              "            pm.collectionVariables.set(clave, valor);",
+              "        }",
+              "    }",
+              "}",
+              ""
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "obtenerTablaDelCatalogo · La ficha completa de una tabla del catalogo",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}{{prefijo_api}}/indicadores/catalogo-de-datos/tablas/:esquema/:tabla",
+          "host": [
+            "{{base_url}}{{prefijo_api}}"
+          ],
+          "path": [
+            "indicadores",
+            "catalogo-de-datos",
+            "tablas",
+            ":esquema",
+            ":tabla"
+          ],
+          "variable": [
+            {
+              "key": "esquema",
+              "value": "{{esquema}}",
+              "description": "Identificador; se encadena desde una peticion anterior."
+            },
+            {
+              "key": "tabla",
+              "value": "{{tabla}}",
+              "description": "Identificador; se encadena desde una peticion anterior."
+            }
+          ]
+        },
+        "description": "## La ficha completa de una tabla del catalogo\n\nLa tabla con sus columnas (y la revision de cada una, CU-131), sus relaciones salientes y entrantes con cardinalidad, restriccion y accion al borrar tal como las aplica la base, su narrativa de negocio y de sistema, y su ficha de gobierno (CU-130). Exige TABLERO_SISTEMAS_VER o AUDITORIA_LEER.\n\n| | |\n| --- | --- |\n| **Servicio** | `auditoria` |\n| **Operacion** | `obtenerTablaDelCatalogo` |\n| **Ruta** | `GET /api/v1/indicadores/catalogo-de-datos/tablas/{esquema}/{tabla}` |\n| **Permiso** | `TABLERO_SISTEMAS_VER` |\n| **Respuestas** | `200`, `404`, `403`, `401` |\n\n### Rechazos que declara el contrato\n\n_El contrato no declara rechazos de negocio para esta operacion._\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos."
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// Lo que se le exige a TODA respuesta del sistema, sin excepcion.",
+              "const esperadas = [200, 401, 403, 404];",
               "",
               "pm.test(\"responde con un codigo que el contrato declara\", () => {",
               "    pm.expect(esperadas).to.include(pm.response.code);",

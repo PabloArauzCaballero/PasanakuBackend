@@ -1,0 +1,600 @@
+{
+  "servicio": "auditoria",
+  "operacion": "listarTablasDelCatalogo",
+  "metodo": "get",
+  "ruta": "/indicadores/catalogo-de-datos/tablas",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "items": [
+          {
+            "tabla": "comprobante_manual",
+            "esquema": "aportes",
+            "tipo": "NEGOCIO",
+            "modulo": "03",
+            "nombreModulo": "Aportes, Pagos QR y Conciliación",
+            "servicio": "aportes",
+            "queEs": "La foto del comprobante que sube el participante cuando pagó por fuera del circuito automático.",
+            "appendOnly": false,
+            "columnas": 9,
+            "columnasRevisadas": 0,
+            "relacionesSalientes": 3,
+            "relacionesEntrantes": 0,
+            "clasificacion": {
+              "personales": 0,
+              "financieros": 0,
+              "secretos": 0,
+              "derivados": 1
+            },
+            "gobierno": {
+              "estado": "ACTIVA",
+              "estadoRevision": "DETECTADA",
+              "criticaParaAuditoria": false,
+              "version": 0
+            }
+          },
+          {
+            "tabla": "conciliacion",
+            "esquema": "aportes",
+            "tipo": "NEGOCIO",
+            "modulo": "03",
+            "nombreModulo": "Aportes, Pagos QR y Conciliación",
+            "servicio": "aportes",
+            "queEs": "El cruce entre un pago del sistema y un movimiento del banco.",
+            "appendOnly": false,
+            "columnas": 8,
+            "columnasRevisadas": 0,
+            "relacionesSalientes": 3,
+            "relacionesEntrantes": 1,
+            "clasificacion": {
+              "personales": 0,
+              "financieros": 1,
+              "secretos": 0,
+              "derivados": 0
+            },
+            "gobierno": {
+              "estado": "ACTIVA",
+              "estadoRevision": "DETECTADA",
+              "criticaParaAuditoria": false,
+              "version": 0
+            }
+          },
+          {
+            "tabla": "constancia_pago",
+            "esquema": "aportes",
+            "tipo": "NEGOCIO",
+            "modulo": "03",
+            "nombreModulo": "Aportes, Pagos QR y Conciliación",
+            "servicio": "aportes",
+            "queEs": "El comprobante que la plataforma emite, con código de verificación público.",
+            "appendOnly": false,
+            "columnas": 7,
+            "columnasRevisadas": 0,
+            "relacionesSalientes": 1,
+            "relacionesEntrantes": 0,
+            "clasificacion": {
+              "personales": 0,
+              "financieros": 0,
+              "secretos": 0,
+              "derivados": 1
+            },
+            "gobierno": {
+              "estado": "ACTIVA",
+              "estadoRevision": "DETECTADA",
+              "criticaParaAuditoria": false,
+              "version": 0
+            }
+          },
+          {
+            "tabla": "disputa_pago",
+            "esquema": "aportes",
+            "tipo": "NEGOCIO",
+            "modulo": "03",
+            "nombreModulo": "Aportes, Pagos QR y Conciliación",
+            "servicio": "aportes",
+            "queEs": "El reclamo formal sobre un pago: contracargo, desconocimiento del cargo, monto incorrecto.",
+            "appendOnly": false,
+            "columnas": 10,
+            "columnasRevisadas": 0,
+            "relacionesSalientes": 1,
+            "relacionesEntrantes": 0,
+            "clasificacion": {
+              "personales": 0,
+              "financieros": 1,
+              "secretos": 0,
+              "derivados": 0
+            },
+            "gobierno": {
+              "estado": "ACTIVA",
+              "estadoRevision": "DETECTADA",
+              "criticaParaAuditoria": false,
+              "version": 0
+            }
+          },
+          {
+            "tabla": "enlace_pago_rapido",
+            "esquema": "aportes",
+            "tipo": "NEGOCIO",
+            "modulo": "03",
+            "nombreModulo": "Aportes, Pagos QR y Conciliación",
+            "servicio": "aportes",
+            "queEs": "El enlace corto y firmado que lleva directo al pago de una obligación concreta.",
+            "appendOnly": false,
+            "columnas": 6,
+            "columnasRevisadas": 0,
+            "relacionesSalientes": 2,
+            "relacionesEntrantes": 0,
+            "clasificacion": {
+              "personales": 0,
+              "financieros": 0,
+              "secretos": 1,
+              "derivados": 0
+            },
+            "gobierno": {
+              "estado": "ACTIVA",
+              "estadoRevision": "DETECTADA",
+              "criticaParaAuditoria": false,
+              "version": 0
+            }
+          },
+          {
+            "tabla": "estado_saga",
+            "esquema": "aportes",
+            "tipo": "INFRAESTRUCTURA",
+            "modulo": "00",
+            "nombreModulo": "Infraestructura de mensajería",
+            "servicio": "aportes",
+            "queEs": "Estado de saga orquestada por este servicio (ADR-028).",
+            "appendOnly": false,
+            "columnas": 8,
+            "columnasRevisadas": 0,
+            "relacionesSalientes": 0,
+            "relacionesEntrantes": 0,
+            "clasificacion": {
+              "personales": 0,
+              "financieros": 0,
+              "secretos": 1,
+              "derivados": 0
+            },
+            "gobierno": {
+              "estado": "ACTIVA",
+              "estadoRevision": "DETECTADA",
+              "criticaParaAuditoria": false,
+              "version": 0
+            }
+          },
+          {
+            "tabla": "evento_consumido",
+            "esquema": "aportes",
+            "tipo": "INFRAESTRUCTURA",
+            "modulo": "00",
+            "nombreModulo": "Infraestructura de mensajería",
+            "servicio": "aportes",
+            "queEs": "Marca de evento ya consumido, por consumidor (ADR-027).",
+            "appendOnly": false,
+            "columnas": 3,
+            "columnasRevisadas": 0,
+            "relacionesSalientes": 0,
+            "relacionesEntrantes": 0,
+            "clasificacion": {
+              "personales": 0,
+              "financieros": 0,
+              "secretos": 0,
+              "derivados": 0
+            },
+            "gobierno": {
+              "estado": "ACTIVA",
+              "estadoRevision": "DETECTADA",
+              "criticaParaAuditoria": false,
+              "version": 0
+            }
+          },
+          {
+            "tabla": "evento_dominio",
+            "esquema": "aportes",
+            "tipo": "INFRAESTRUCTURA",
+            "modulo": "00",
+            "nombreModulo": "Infraestructura de mensajería",
+            "servicio": "aportes",
+            "queEs": "Outbox transaccional del servicio (ADR-027).",
+            "appendOnly": false,
+            "columnas": 17,
+            "columnasRevisadas": 0,
+            "relacionesSalientes": 0,
+            "relacionesEntrantes": 0,
+            "clasificacion": {
+              "personales": 0,
+              "financieros": 0,
+              "secretos": 0,
+              "derivados": 0
+            },
+            "gobierno": {
+              "estado": "ACTIVA",
+              "estadoRevision": "DETECTADA",
+              "criticaParaAuditoria": false,
+              "version": 0
+            }
+          },
+          {
+            "tabla": "excepcion_conciliacion",
+            "esquema": "aportes",
+            "tipo": "NEGOCIO",
+            "modulo": "03",
+            "nombreModulo": "Aportes, Pagos QR y Conciliación",
+            "servicio": "aportes",
+            "queEs": "Cada descuadre detectado, tipificado y asignado a alguien para resolver.",
+            "appendOnly": false,
+            "columnas": 10,
+            "columnasRevisadas": 0,
+            "relacionesSalientes": 2,
+            "relacionesEntrantes": 0,
+            "clasificacion": {
+              "personales": 0,
+              "financieros": 1,
+              "secretos": 0,
+              "derivados": 0
+            },
+            "gobierno": {
+              "estado": "ACTIVA",
+              "estadoRevision": "DETECTADA",
+              "criticaParaAuditoria": false,
+              "version": 0
+            }
+          },
+          {
+            "tabla": "extracto_bancario",
+            "esquema": "aportes",
+            "tipo": "NEGOCIO",
+            "modulo": "03",
+            "nombreModulo": "Aportes, Pagos QR y Conciliación",
+            "servicio": "aportes",
+            "queEs": "El estado de cuenta de un período, importado desde el banco.",
+            "appendOnly": false,
+            "columnas": 10,
+            "columnasRevisadas": 0,
+            "relacionesSalientes": 2,
+            "relacionesEntrantes": 1,
+            "clasificacion": {
+              "personales": 0,
+              "financieros": 2,
+              "secretos": 0,
+              "derivados": 0
+            },
+            "gobierno": {
+              "estado": "ACTIVA",
+              "estadoRevision": "DETECTADA",
+              "criticaParaAuditoria": false,
+              "version": 0
+            }
+          },
+          {
+            "tabla": "intento_pago",
+            "esquema": "aportes",
+            "tipo": "NEGOCIO",
+            "modulo": "03",
+            "nombreModulo": "Aportes, Pagos QR y Conciliación",
+            "servicio": "aportes",
+            "queEs": "Cada vez que se trata de ejecutar el cobro de una orden, con su resultado.",
+            "appendOnly": false,
+            "columnas": 10,
+            "columnasRevisadas": 0,
+            "relacionesSalientes": 1,
+            "relacionesEntrantes": 1,
+            "clasificacion": {
+              "personales": 0,
+              "financieros": 0,
+              "secretos": 0,
+              "derivados": 0
+            },
+            "gobierno": {
+              "estado": "ACTIVA",
+              "estadoRevision": "DETECTADA",
+              "criticaParaAuditoria": false,
+              "version": 0
+            }
+          },
+          {
+            "tabla": "movimiento_bancario",
+            "esquema": "aportes",
+            "tipo": "NEGOCIO",
+            "modulo": "03",
+            "nombreModulo": "Aportes, Pagos QR y Conciliación",
+            "servicio": "aportes",
+            "queEs": "Cada línea del extracto: fecha, monto, glosa, referencia del banco.",
+            "appendOnly": false,
+            "columnas": 9,
+            "columnasRevisadas": 0,
+            "relacionesSalientes": 1,
+            "relacionesEntrantes": 2,
+            "clasificacion": {
+              "personales": 0,
+              "financieros": 1,
+              "secretos": 0,
+              "derivados": 0
+            },
+            "gobierno": {
+              "estado": "ACTIVA",
+              "estadoRevision": "DETECTADA",
+              "criticaParaAuditoria": false,
+              "version": 0
+            }
+          },
+          {
+            "tabla": "obligacion_aporte",
+            "esquema": "aportes",
+            "tipo": "NEGOCIO",
+            "modulo": "03",
+            "nombreModulo": "Aportes, Pagos QR y Conciliación",
+            "servicio": "aportes",
+            "queEs": "Lo que un cupo debe, en un período, por un concepto. Es la deuda formal que la plataforma le reconoce a un participante.",
+            "appendOnly": false,
+            "columnas": 22,
+            "columnasRevisadas": 0,
+            "relacionesSalientes": 7,
+            "relacionesEntrantes": 8,
+            "clasificacion": {
+              "personales": 0,
+              "financieros": 6,
+              "secretos": 0,
+              "derivados": 0
+            },
+            "gobierno": {
+              "estado": "ACTIVA",
+              "estadoRevision": "DETECTADA",
+              "criticaParaAuditoria": false,
+              "version": 0
+            }
+          },
+          {
+            "tabla": "orden_cobro",
+            "esquema": "aportes",
+            "tipo": "NEGOCIO",
+            "modulo": "03",
+            "nombreModulo": "Aportes, Pagos QR y Conciliación",
+            "servicio": "aportes",
+            "queEs": "La instrucción concreta de cobro para una obligación: monto exacto, proveedor, referencia única, vigencia.",
+            "appendOnly": false,
+            "columnas": 11,
+            "columnasRevisadas": 0,
+            "relacionesSalientes": 2,
+            "relacionesEntrantes": 4,
+            "clasificacion": {
+              "personales": 0,
+              "financieros": 2,
+              "secretos": 0,
+              "derivados": 0
+            },
+            "gobierno": {
+              "estado": "ACTIVA",
+              "estadoRevision": "DETECTADA",
+              "criticaParaAuditoria": false,
+              "version": 0
+            }
+          },
+          {
+            "tabla": "pago",
+            "esquema": "aportes",
+            "tipo": "NEGOCIO",
+            "modulo": "03",
+            "nombreModulo": "Aportes, Pagos QR y Conciliación",
+            "servicio": "aportes",
+            "queEs": "Plata que efectivamente se movió. El hecho económico.",
+            "appendOnly": false,
+            "columnas": 19,
+            "columnasRevisadas": 0,
+            "relacionesSalientes": 4,
+            "relacionesEntrantes": 10,
+            "clasificacion": {
+              "personales": 1,
+              "financieros": 3,
+              "secretos": 0,
+              "derivados": 0
+            },
+            "gobierno": {
+              "estado": "ACTIVA",
+              "estadoRevision": "DETECTADA",
+              "criticaParaAuditoria": false,
+              "version": 0
+            }
+          },
+          {
+            "tabla": "plan_regularizacion",
+            "esquema": "aportes",
+            "tipo": "NEGOCIO",
+            "modulo": "03",
+            "nombreModulo": "Aportes, Pagos QR y Conciliación",
+            "servicio": "aportes",
+            "queEs": "El acuerdo de pago en cuotas para alguien que se atrasó.",
+            "appendOnly": false,
+            "columnas": 7,
+            "columnasRevisadas": 0,
+            "relacionesSalientes": 2,
+            "relacionesEntrantes": 2,
+            "clasificacion": {
+              "personales": 0,
+              "financieros": 1,
+              "secretos": 0,
+              "derivados": 0
+            },
+            "gobierno": {
+              "estado": "ACTIVA",
+              "estadoRevision": "DETECTADA",
+              "criticaParaAuditoria": false,
+              "version": 0
+            }
+          },
+          {
+            "tabla": "politica_mora",
+            "esquema": "aportes",
+            "tipo": "NEGOCIO",
+            "modulo": "03",
+            "nombreModulo": "Aportes, Pagos QR y Conciliación",
+            "servicio": "aportes",
+            "queEs": "Las reglas de recargo por atraso: cuántos días de gracia, qué tipo de recargo, cuánto, con qué tope, y a partir de cuántos días se considera mora grave o incumplimiento.",
+            "appendOnly": false,
+            "columnas": 10,
+            "columnasRevisadas": 0,
+            "relacionesSalientes": 1,
+            "relacionesEntrantes": 2,
+            "clasificacion": {
+              "personales": 0,
+              "financieros": 0,
+              "secretos": 0,
+              "derivados": 0
+            },
+            "gobierno": {
+              "estado": "ACTIVA",
+              "estadoRevision": "DETECTADA",
+              "criticaParaAuditoria": false,
+              "version": 0
+            }
+          },
+          {
+            "tabla": "proveedor_pago",
+            "esquema": "aportes",
+            "tipo": "NEGOCIO",
+            "modulo": "03",
+            "nombreModulo": "Aportes, Pagos QR y Conciliación",
+            "servicio": "aportes",
+            "queEs": "Cada pasarela, banco o billetera con la que la plataforma opera.",
+            "appendOnly": false,
+            "columnas": 12,
+            "columnasRevisadas": 0,
+            "relacionesSalientes": 0,
+            "relacionesEntrantes": 8,
+            "clasificacion": {
+              "personales": 0,
+              "financieros": 0,
+              "secretos": 0,
+              "derivados": 0
+            },
+            "gobierno": {
+              "estado": "ACTIVA",
+              "estadoRevision": "DETECTADA",
+              "criticaParaAuditoria": false,
+              "version": 0
+            }
+          },
+          {
+            "tabla": "qr_cobro",
+            "esquema": "aportes",
+            "tipo": "NEGOCIO",
+            "modulo": "03",
+            "nombreModulo": "Aportes, Pagos QR y Conciliación",
+            "servicio": "aportes",
+            "queEs": "El código QR interoperable propiamente dicho: el payload EMVCo, la imagen, el CRC, el banco emisor.",
+            "appendOnly": false,
+            "columnas": 9,
+            "columnasRevisadas": 0,
+            "relacionesSalientes": 1,
+            "relacionesEntrantes": 0,
+            "clasificacion": {
+              "personales": 0,
+              "financieros": 0,
+              "secretos": 0,
+              "derivados": 0
+            },
+            "gobierno": {
+              "estado": "ACTIVA",
+              "estadoRevision": "DETECTADA",
+              "criticaParaAuditoria": false,
+              "version": 0
+            }
+          },
+          {
+            "tabla": "reembolso",
+            "esquema": "aportes",
+            "tipo": "NEGOCIO",
+            "modulo": "03",
+            "nombreModulo": "Aportes, Pagos QR y Conciliación",
+            "servicio": "aportes",
+            "queEs": "La devolución de un pago, total o parcial.",
+            "appendOnly": false,
+            "columnas": 10,
+            "columnasRevisadas": 0,
+            "relacionesSalientes": 3,
+            "relacionesEntrantes": 0,
+            "clasificacion": {
+              "personales": 0,
+              "financieros": 1,
+              "secretos": 0,
+              "derivados": 0
+            },
+            "gobierno": {
+              "estado": "ACTIVA",
+              "estadoRevision": "DETECTADA",
+              "criticaParaAuditoria": false,
+              "version": 0
+            }
+          }
+        ],
+        "pagina": 1,
+        "limite": 20,
+        "total": 391,
+        "totalPaginas": 20
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "items": [],
+        "pagina": 1,
+        "limite": 1,
+        "total": 0,
+        "totalPaginas": 0
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "items": [
+          {
+            "tabla": "tabla",
+            "esquema": "esquema",
+            "tipo": "NEGOCIO",
+            "modulo": "modulo",
+            "nombreModulo": "nombreModulo",
+            "servicio": "servicio",
+            "queEs": "queEs",
+            "appendOnly": true,
+            "columnas": 0,
+            "columnasRevisadas": 0,
+            "relacionesSalientes": 0,
+            "relacionesEntrantes": 0,
+            "clasificacion": {
+              "personales": 0,
+              "financieros": 0,
+              "secretos": 0,
+              "derivados": 0
+            },
+            "gobierno": {
+              "estado": "ACTIVA",
+              "estadoRevision": "DETECTADA",
+              "responsable": "responsable",
+              "politicaRetencionId": "fdd8b758-1976-4176-81b5-129d2174f18c",
+              "criticaParaAuditoria": true,
+              "notaRevision": "notaRevision",
+              "revisadoPor": "181215f5-b9f7-4b99-85e1-a4194d209c18",
+              "actualizadoEn": "2026-01-15T10:30:00Z",
+              "version": 0
+            }
+          }
+        ],
+        "pagina": 1,
+        "limite": 1,
+        "total": 0,
+        "totalPaginas": 0
+      }
+    },
+    "rechazo": {
+      "estado": 400,
+      "cuerpo": {
+        "codigo": "AP-CU07-01",
+        "mensaje": "Identidad no verificada",
+        "detalle": {},
+        "trazaId": "traza-listarTablasDelCatalogo-rechazo"
+      }
+    }
+  }
+}

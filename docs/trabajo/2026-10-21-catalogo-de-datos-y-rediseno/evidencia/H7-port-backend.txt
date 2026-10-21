@@ -1,0 +1,47 @@
+# H7 · port a PasanakuBackend dev — línea base vs port · 2026-10-21T15:32:13+00:00
+Base: origin/dev 14195f55 (= test). Port: rama marcelo/feat/catalogo-de-datos-y-rediseno-2026-10-21 sobre ese commit.
+
+## Unitarias y a11y (yarn test:front / test:a11y)
+| Suite | dev (base) | port |
+|---|---|---|
+| backoffice-front | Tests 933 passed (933) | Tests 934 passed (934) |
+| backoffice-a11y | Tests 78 passed (78) | Tests 78 passed (78) |
+| ui-front | Tests 162 passed (162) | Tests 164 passed (164) |
+| ui-a11y | Tests 9 passed (9) | Tests 9 passed (9) |
+| web-front | Tests 74 passed (74) | Tests 74 passed (74) |
+| web-a11y | Tests 8 passed (8) | Tests 8 passed (8) |
+| simulado (vitest) | Tests 344 passed (344) | Tests 347 passed (347) |
+
+## e2e backoffice (1 worker; proxy al simulado 4010 en ambas corridas)
+base:
+  18 failed
+  146 passed (6.5m)
+port:
+  3 failed
+  162 passed (6.1m)
+Rojos del port (los 3 también rojos en la base, sin tocar por este trabajo):
+1) [chromium] › e2e/admisiones.e2e.ts:170:7 › [UI con red simulada] admisión humana en backoffice › estados: carg
+2) [chromium] › e2e/admisiones.e2e.ts:243:7 › [UI con red simulada] admisión humana en backoffice › puerta de ent
+3) [chromium] › e2e/shell.e2e.ts:15:5 › escritorio: grupos, pantallas de la sección activa, migas y título; captur
+Rojos de la base que el port pone en verde: 15 (f2-posiciones ×4, f2 ingreso ×1, sistemas-sin-contrato ×9, tableros-por-rol catálogo ×1).
+
+## auditoria
+test 44 · webTest 74 · check + testBarrido BUILD SUCCESSFUL (jOOQ contra el esquema del port)
+
+## Generadores
+test_catalogo_de_datos 12/12 · catálogo idempotente (cmp) · verificar_narrativas sin fallas (3753/4143, piso 3734) · generar_ddl dos veces igual · inventario --check alineado
+
+# H7 · esquema contra PostgreSQL 16 real · 2026-10-21T15:19:06+00:00
+$ base vacía ← sql/aplicar.sql del port
+exit=0 ERROR=0
+$ base con el esquema de origin/dev (lo que tiene TEST) ← sql/aplicar.sql del port
+  dev: exit=0 ERROR=0
+  port encima: exit=0 ERROR=0
+$ comentario corregido (antes literal NULL):
+quién pagó realmente. Muchas veces paga el esposo, la madre o el jefe por el p
+$ sql/60_semillas/24-metadata-comentarios.sql sobre la base actualizada (dos veces)
+  corrida 1: exit=0 ERROR=0
+  corrida 2: exit=0 ERROR=0
+
+## Lint backoffice
+2 FALLAS preexistentes en apps/backoffice/src/app/nucleo/explicador-de-vista.component.ts (literal de diseño en :290 y 314 líneas): archivo idéntico a origin/dev (2489cacf, Pablo). No se toca.

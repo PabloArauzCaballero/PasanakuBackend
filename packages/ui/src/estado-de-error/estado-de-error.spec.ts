@@ -23,6 +23,13 @@ describe('EstadoDeError, TarjetaKPI y BotonCopiar', () => {
     expect(reintentos).toBe(1)
   })
 
+  it('error dentro de otra alerta: con anunciar=false no repite role=alert', () => {
+    const fixture = TestBed.createComponent(EstadoDeError)
+    fixture.componentRef.setInput('anunciar', false)
+    fixture.detectChanges()
+    expect((fixture.nativeElement as HTMLElement).hasAttribute('role')).toBe(false)
+  })
+
   it('error sin reintento: no hay botón (un 404 no se reintenta)', () => {
     const fixture = TestBed.createComponent(EstadoDeError)
     fixture.componentRef.setInput('conReintento', false)

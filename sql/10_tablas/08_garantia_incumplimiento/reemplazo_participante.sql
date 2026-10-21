@@ -27,5 +27,7 @@ COMMENT ON COLUMN garantia.reemplazo_participante.registro_id IS 'FK, NULL';
 COMMENT ON COLUMN garantia.reemplazo_participante.participante_saliente_id IS 'FK';
 COMMENT ON COLUMN garantia.reemplazo_participante.participante_entrante_id IS 'FK, NULL';
 COMMENT ON COLUMN garantia.reemplazo_participante.acuerdo_grupo_id IS 'FK, NULL, M2';
+COMMENT ON COLUMN garantia.reemplazo_participante.deuda_asumida_por_entrante IS 'normalmente el entrante no asume la deuda vieja, porque si la asumiera nadie querría entrar a reemplazar a un moroso. La deuda queda con el saliente y se persigue por M8.';
+COMMENT ON COLUMN garantia.reemplazo_participante.deuda_retenida_por_saliente IS 'normalmente el entrante no asume la deuda vieja, porque si la asumiera nadie querría entrar a reemplazar a un moroso. La deuda queda con el saliente y se persigue por M8.';
 COMMENT ON COLUMN garantia.reemplazo_participante.conserva_orden_de_turno IS 'el entrante hereda la posición del cupo en el calendario. Es lo que permite que el resto del grupo no se vea afectado.';
 COMMENT ON COLUMN garantia.reemplazo_participante.estado IS 'CK';
