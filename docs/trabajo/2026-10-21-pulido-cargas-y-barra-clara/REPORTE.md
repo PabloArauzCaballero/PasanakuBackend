@@ -23,7 +23,7 @@
 
 ## A medias
 ### H1.S2.M3 — Commit y PRs
-- Qué anda: commit en `claude/pulido-cargas-barra-clara-20261021`, PRs a dev y test abiertos.
+- Qué anda: commit `2157ff50` en `claude/pulido-cargas-barra-clara-20261021`; PR #183 (→ dev) y #184 (→ test) abiertos.
 - Qué no anda: no están mergeados (permiso de merge sin revisión denegado).
 - Qué falta exactamente: que Pablo mergee los PRs (primero #181/#182, de los que depende este).
 - Dónde quedó: rama empujada; compila y pasa 940/940.
