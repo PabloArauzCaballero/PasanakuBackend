@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:aportaya_diseno/catalogo/catalogo.dart';
 import 'package:aportaya_diseno/catalogo/muestras.dart';
+import 'package:flutter/rendering.dart' show debugDisableShadows;
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -33,6 +34,12 @@ Future<void> _cargarFuentesReales() async {
   await familia('Instrument', [
     for (final w in [400, 500, 600]) 'lib/fuentes/Instrument-$w.ttf',
   ]);
+  final cache =
+      Platform.environment['PUB_CACHE'] ??
+      '${Platform.environment['HOME']}/.pub-cache';
+  await familia('packages/lucide_icons_flutter/Lucide', [
+    '$cache/hosted/pub.dev/lucide_icons_flutter-3.1.20/assets/lucide.ttf',
+  ]);
   final sdk = Platform.environment['FLUTTER_ROOT'];
   if (sdk != null) {
     await familia('MaterialIcons', [
@@ -62,6 +69,8 @@ void main() {
         tester.view.physicalSize = const Size(360, 2400);
         tester.view.devicePixelRatio = 1;
         addTearDown(tester.view.reset);
+        // Sombras reales, no los bloques sólidos de `flutter_test`.
+        debugDisableShadows = false;
         await tester.pumpWidget(
           conTema(
             PaginaDeCatalogo(grupo: grupo),
@@ -84,6 +93,8 @@ void main() {
           find.byType(PaginaDeCatalogo),
           matchesGoldenFile('$_salida/${archivo}__$tema.png'),
         );
+        // El binding exige que la variable vuelva dentro del cuerpo del test.
+        debugDisableShadows = true;
       });
     }
   }

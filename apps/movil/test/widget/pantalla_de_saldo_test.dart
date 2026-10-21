@@ -158,15 +158,19 @@ void main() {
         '/billetera/$cuenta/movimientos',
         (s) => s.reply(200, {'cuentaId': cuenta, 'movimientos': <Object>[]}),
       );
-      await tester.pumpWidget(
-        conApp(const PantallaDeSaldo(cuentaId: cuenta), dio: dio),
-      );
-      await asentar(tester);
-      expect(find.text('Recargar'), findsOneWidget);
-      expect(
-        find.textContaining('Todavía no tenés movimientos'),
-        findsOneWidget,
-      );
+      // Con la tarjeta héroe (ADR-053) la sección de movimientos queda debajo de los
+      // 600 px lógicos del lienzo por omisión: se mide en un teléfono, como el de éxito.
+      await conSuperficieDeTelefono(tester, () async {
+        await tester.pumpWidget(
+          conApp(const PantallaDeSaldo(cuentaId: cuenta), dio: dio),
+        );
+        await asentar(tester);
+        expect(find.text('Recargar'), findsOneWidget);
+        expect(
+          find.textContaining('Todavía no tenés movimientos'),
+          findsOneWidget,
+        );
+      });
     },
   );
 

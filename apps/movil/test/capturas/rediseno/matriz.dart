@@ -61,6 +61,10 @@ Future<(AdaptadorPorContrato, Future<List<String>> Function())> montarRuta(
   t.view.physicalSize = viewport;
   t.view.devicePixelRatio = 1;
   addTearDown(t.view.reset);
+  // `flutter_test` dibuja las sombras como bloques sólidos; las capturas tienen que
+  // mostrar las reales, desenfocadas como en el teléfono (elevación de ADR-053).
+  // Se restaura en `salir`: el binding exige que vuelva dentro del cuerpo del test.
+  debugDisableShadows = false;
   _simularPermisos(estado);
 
   final sesion = p.sesion == SesionDeCaptura.activa
@@ -126,6 +130,7 @@ Future<(AdaptadorPorContrato, Future<List<String>> Function())> montarRuta(
     }
     await paso(() => t.pumpWidget(const SizedBox.shrink()));
     await paso(() => t.pump(const Duration(seconds: 2)));
+    debugDisableShadows = true;
     return halladas;
   }
 

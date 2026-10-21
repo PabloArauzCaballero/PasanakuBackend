@@ -126,7 +126,9 @@ void main() {
       await tester.pumpWidget(
         conTema(
           const AccionesRapidas(
+            destacada: 0,
             acciones: [
+              (texto: 'Aportar', icono: Icons.savings, onTap: _sinAccion),
               (texto: 'Recargar', icono: Icons.refresh, onTap: _sinAccion),
               (texto: 'Retirar', icono: Icons.north_east, onTap: _sinAccion),
             ],
@@ -134,20 +136,33 @@ void main() {
           brillo: brillo,
         ),
       );
+      BoxDecoration circuloDe(IconData icono) =>
+          tester
+                  .widget<DecoratedBox>(
+                    find
+                        .ancestor(
+                          of: find.byIcon(icono),
+                          matching: find.byType(DecoratedBox),
+                        )
+                        .first,
+                  )
+                  .decoration
+              as BoxDecoration;
+      // ADR-053 (A2): las acciones comunes son verde de marca sobre superficie; la
+      // destacada, verde sólido. El naranja no aparece: no hay nada que venza.
       for (final icono in [Icons.refresh, Icons.north_east]) {
         expect(
           tester.widget<Icon>(find.byIcon(icono)).color,
-          tokens.accentTexto,
+          tokens.brandTexto,
         );
-        final mosaico = find
-            .ancestor(of: find.byIcon(icono), matching: find.byType(Container))
-            .first;
-        expect(
-          (tester.widget<Container>(mosaico).decoration! as BoxDecoration)
-              .color,
-          tokens.surface2,
-        );
+        expect(circuloDe(icono).color, tokens.surface);
+        expect(circuloDe(icono).shape, BoxShape.circle);
       }
+      expect(
+        tester.widget<Icon>(find.byIcon(Icons.savings)).color,
+        tokens.sobreVerdeSolido,
+      );
+      expect(circuloDe(Icons.savings).color, tokens.verdeSolido);
 
       await tester.pumpWidget(
         conTema(

@@ -21,6 +21,7 @@ abstract final class TextosBilletera {
   // entidad queda la cuenta de custodia —solo «una entidad supervisada por ASFI»—; el «Banco Unión»
   // venía de datos de ejemplo de la maqueta. Cuando producto confirme la entidad, se agrega acá.
   static const custodia = 'En custodia, separado del dinero de la empresa';
+
   static const verAportesPendientes = 'Ver aportes pendientes';
   static const movimientos = 'Movimientos';
   static const sinMovimientos =

@@ -227,6 +227,14 @@ No se copia ninguna marca ajena: se toma el **lenguaje**, no los activos.
     Perfil. Ayuda pasa a una fila del Perfil y a un botón de la cabecera.
   - **A7, bases de goldens:** se regeneran en Linux (CI). Las de macOS las regenera
     `goldens-macos.yml`.
+  - **A8, «Transferir» en Inicio (ABIERTA):** la pantalla `billetera.transferir` existe pero
+    ninguna vista la enlaza. Las apps hermanas ponen «Enviar» entre las acciones rápidas; acá no
+    se expone sin confirmación (mover plata entre personas toca la regla 91.5). Supuesto:
+    Aportar · Recargar · Retirar. Confirmar con Pablo.
+  - **A9, `TarjetaSaldo` vs `EncabezadoDeSaldo` (ABIERTA):** la tarjeta héroe vive en
+    `EncabezadoDeSaldo`, que es lo que usa la app; `TarjetaSaldo` quedó solo en el catálogo con el
+    estilo viejo. Dos componentes para el mismo saldo viola 95.1.3. Supuesto: se retira
+    `TarjetaSaldo` (o queda como alias del héroe) en H4.S2.M2. Confirmar con Pablo antes de borrar.
 
 ---
 
@@ -341,14 +349,14 @@ por componente · `test/a11y` PASS.
 | H4.S1.M6 | `Esqueleto` con brillo diagonal de baja frecuencia (se apaga con reducir movimiento) | Video | MP4 normal + reducido | TODO |
 | H4.S1.M7 | `Casilla` e `Interruptor` sin `ListTile` de fábrica | Captura | golden `atomos_seleccion_*` | TODO |
 | H4.S1.M8 | Campos (`Campo`, `CampoMonto`, `CampoOTP`): relleno suave, foco con anillo de marca y monto grande centrado | Captura de los estados | golden `atomos_campos_*` | TODO |
-| H4.S1.M9 | Iconografía: agregar `lucide_icons_flutter: 3.1.20` (con ADR-053), mapa único `IconosDeMarca` (sustantivo → `LucideIcons.*`) en `diseno_flutter` y barrido de los ~185 `Icons.*` | `git grep -n "Icons\." apps/movil/lib` sin `Icons.` de Material (salvo excepciones listadas) | grep pegado + capturas | TODO |
+| H4.S1.M9 | Iconografía: agregar `lucide_icons_flutter: 3.1.20` (con ADR-053), mapa único `IconosDeMarca` (sustantivo → `LucideIcons.*`) en `diseno_flutter` y barrido de los ~185 `Icons.*` | `git grep -n "Icons\." apps/movil/lib` sin `Icons.` de Material (salvo excepciones listadas) | grep pegado + capturas | A MEDIAS (anda: dependencia fijada, `IconosDeMarca` con 22 sustantivos, fuente cargada en las capturas; falta: barrido de los 91 `Icons.` que quedan en `apps/movil/lib` y la lista de excepciones) |
 
 ### H4.S2 — Moléculas
 | ID | Microtarea | CA | DoD | Estado |
 |---|---|---|---|---|
 | H4.S2.M1 | `Tarjeta`: niveles `plana`/`elevada`/`heroe`/`vidrio` por variante semántica | Las 4 capturadas | golden `moleculas_*` | TODO |
-| H4.S2.M2 | `TarjetaSaldo` → tarjeta héroe (degradado, ruido, ojo, chips y brillo al tocar) | Captura + video del brillo | 6 capturas + MP4 | TODO |
-| H4.S2.M3 | `AccionesRapidas` → círculos de 56 dp con etiqueta y entrada escalonada | Captura + video | idem | TODO |
+| H4.S2.M2 | `TarjetaSaldo` → tarjeta héroe (degradado, ruido, ojo, chips y brillo al tocar) | Captura + video del brillo | 6 capturas + MP4 | A MEDIAS (anda: la tarjeta héroe con degradado, brillo radial, ojo que oculta y chips, en `EncabezadoDeSaldo`; falta: ruido de textura, brillo al tocar con su MP4 y resolver A9 con `TarjetaSaldo`) |
+| H4.S2.M3 | `AccionesRapidas` → círculos de 56 dp con etiqueta y entrada escalonada | Captura + video | idem | A MEDIAS (anda: círculos de 56 dp con la acción destacada en verde sólido, test de roles; falta: entrada escalonada y su MP4, que dependen de H5) |
 | H4.S2.M4 | `FilaDeMovimiento`: avatar por tipo, monto con signo y color + ícono, y subtítulo con hora | Captura de los tipos | captura | TODO |
 | H4.S2.M5 | `ItemPasanaku` → **tarjeta de grupo** con rueda mini, progreso del ciclo y avatares apilados | Captura en datos y peor caso | captura | TODO |
 | H4.S2.M6 | `Cabecera` grande que se compacta al desplazar (reemplaza el `AppBar` de fábrica) | Video del colapso | MP4 | TODO |
@@ -357,7 +365,7 @@ por componente · `test/a11y` PASS.
 ### H4.S3 — Organismos y móviles
 | ID | Microtarea | CA | DoD | Estado |
 |---|---|---|---|---|
-| H4.S3.M1 | `EncabezadoDeSaldo` vuelve a usar la tarjeta héroe | Captura | golden `pantalla_de_saldo_*` | TODO |
+| H4.S3.M1 | `EncabezadoDeSaldo` vuelve a usar la tarjeta héroe | Captura | golden `pantalla_de_saldo_*` | HECHO |
 | H4.S3.M2 | `ListaDeMovimientos` con encabezados de día fijos | Video al desplazar | MP4 | TODO |
 | H4.S3.M3 | `EstadoVacio`, `EstadoError` y `EstadoDePantalla` con ilustración, título, explicación y acción | 3 estados × 2 temas | golden `organismos_*` | TODO |
 | H4.S3.M4 | `BarraPestanas` flotante de vidrio con indicador en píldora con resorte (más pestaña QR si A6 = sí) | Video del cambio de pestaña | MP4 normal + reducido | TODO |

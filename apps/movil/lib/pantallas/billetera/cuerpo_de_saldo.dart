@@ -44,16 +44,14 @@ class CuerpoDeSaldo extends StatelessWidget {
                 monto: saldo.retenido.monto,
               ),
             ],
+            distintivo: TextosBilletera.custodia,
             acciones: MarcaDeTutorial(
               id: 'billetera.acciones',
               hijo: AccionesDeSaldo(cuentaId: saldo.cuentaId),
             ),
           ),
         ),
-        const Padding(
-          padding: EdgeInsets.only(bottom: Espacio.s4),
-          child: _NotaDeCustodia(),
-        ),
+        const SizedBox(height: Espacio.s5),
         const TituloDeSeccion(titulo: TextosBilletera.tusPasanakus),
         Panel(
           hijo: Text(
@@ -75,19 +73,6 @@ class CuerpoDeSaldo extends StatelessWidget {
           reintentar: reintentarMovimientos,
         ),
       ],
-    );
-  }
-}
-
-class _NotaDeCustodia extends StatelessWidget {
-  const _NotaDeCustodia();
-
-  @override
-  Widget build(BuildContext context) {
-    final t = Tokens.of(context);
-    return Text(
-      TextosBilletera.custodia,
-      style: Tipo.ayuda.copyWith(color: t.text3),
     );
   }
 }

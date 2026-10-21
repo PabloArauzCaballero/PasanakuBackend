@@ -446,7 +446,7 @@ final List<({String grupo, List<Muestra> muestras})> catalogo = [
           rota: true,
           salida: Boton(
             texto: 'Poner al día la cuota',
-            variante: BotonVariante.primario,
+            variante: BotonVariante.urgencia,
             onPressed: () {},
           ),
         ),
