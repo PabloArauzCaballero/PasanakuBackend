@@ -1,4 +1,4 @@
-# H6.S4.M1 — Perfil (2026-10-21) · peldaño TESTED + prueba visual (intermedio-h6/perfil)
+# H6.S4.M1 — Perfil (2026-10-21) · peldaño TESTED + prueba visual (despues/perfil)
 
 Origen: roast-pantallas-hoy.md hallazgo #3 («el perfil no tiene a nadie adentro»; «Dar de baja» era
 el segundo botón más grande de la pantalla).
@@ -23,5 +23,5 @@ $ (apps/movil) dart analyze --fatal-infos → No issues found! · verificar_fron
 $ flutter test test/unidad test/widget test/contrato test/identidad test/pasanaku test/a11y → 03:32 +771: All tests passed!
 $ flutter test test/goldens --update-goldens → +274 · flutter test test/goldens → 01:34 +274: All tests passed!
 $ (packages/diseno_flutter) flutter test test/unidad test/widget test/a11y test/goldens → 00:35 +146: All tests passed!
-Goldens cambiados: 9 (perfil), mirados en una hoja antes|después. Capturas con fuentes reales: 186 en intermedio-h6/perfil.
+Goldens cambiados: 9 (perfil), mirados en una hoja antes|después. Capturas con fuentes reales: 186 en despues/perfil.
 No cubierto: nombre/avatar de la persona (no hay dato en el contrato); lector de pantalla real sobre la lista.

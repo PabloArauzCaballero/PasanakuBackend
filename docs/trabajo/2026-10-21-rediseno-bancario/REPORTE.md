@@ -4,7 +4,7 @@
 
 - Fecha: 2026-10-21 · Plan: [PLAN.md](./PLAN.md) · Rama: `claude/rediseno-bancario` (base `dev`)
 - Peldaño de evidencia alcanzado (regla 30): **TESTED** en paquete y app; **prueba visual** de Inicio,
-  Grupos, Mi estado y Perfil con fuentes reales (`evidencia/intermedio-h4`, `intermedio-h6`).
+  Grupos, Mi estado y Perfil con fuentes reales (`evidencia/intermedio-h4`, `despues` (interino)).
   **No VERIFIED**: no se recorrió ninguna pantalla nueva en runtime contra backend con consola y red.
 - Este reporte es de un corte intermedio: el trabajo sigue. El plan es el estado durable.
 
@@ -88,17 +88,47 @@ coreyhaines31, `mobile-app-ui-design`, `fintech-ux`, `roast-my-ui`), con procede
 ### H4.S3.M4 — `BarraPestanas` flotante de vidrio con indicador en píldora con resorte (más pes
 - (anda: cápsula flotante con píldora que crece, QR central levantado, etiquetas del mismo tamaño y test; falta: indicador que se desliza con resorte entre pestañas y su MP4 normal/reducido, que van con H5)
 
+### H5.S2.M4 — Indicador de pestaña con resorte
+- (anda: una sola píldora que se desliza con resorte crítico (k 322, c 35,9), interrumpible, y llega de una vez con movimiento reducido; 3 tests con mutante y 28 cuadros en `evidencia/movimiento/barra`; falta: el MP4 normal/reducido que pide el DoD)
+
 ### H6.S1.M1 — `/billetera/inicio`
 - (anda: cabecera con Ayuda y avisos en círculos, héroe, acciones, vacío de pasanakus con crear/entrar y últimos movimientos con la fila nueva; falta: tarjeta «próximo aporte» (A11) y carrusel de grupos)
+
+### H6.S1.M2 — `/billetera/recargar`
+- (anda: cabecera única con volver (se corrigió el título duplicado), monto grande centrado con atajos y estado de espera honesto con etapas (91.3); falta: teclado propio y QR en tarjeta)
+
+### H6.S1.M3 — `/billetera/retirar`
+- (anda: monto grande y confirmación «instruido» con etapas y monto neto; falta: cuenta destino enmascarada en tarjeta y aviso de enfriamiento, que dependen de CU-18)
+
+### H6.S1.M4 — `/billetera/transferir`
+- (anda: cabecera única, monto grande y confirmación; falta: contacto con avatar y hoja de confirmación con resumen)
 
 ### H6.S2.M1 — `/pasanaku/mi-estado`
 - (anda: título grande, tarjeta de grupo con la cifra por período, tarjeta de aporte con cada cifra nombrada y restricción como alerta; falta: acción de pago en la alerta (A11) y el resumen de compromisos de todos los grupos)
 
+### H6.S2.M9 — `/obligaciones/:id/aportar`
+- (anda: importe fijo como cifra protagonista, canales en chips con ícono, «Aportar» en naranja de urgencia y confirmación en palabras con el estado de la obligación; falta: desglose del cobro, celebración y espera honesta con webhook)
+
+### H6.S3.M1 — `/portada`
+- (anda: banda verde de marca a sangre con el sello y la palabra, promesa y garantías, puertas abajo; falta: mostrar la tarjeta héroe como vista previa, revisar el copy con `copywriting` y el recorrido web)
+
+### H6.S3.M3 — `/ingreso`, `/identidad/mfa`
+- (anda: ingreso con banda de marca verde, logo, saludo y titular que se corre con el teclado; falta: MFA con celdas nuevas y biometría como botón destacado)
+
+### H6.S3.M4 — `/registro` (6 pasos)
+- (anda: cabecera de fase con jerarquía real: eyebrow de marca, título grande y barra más gruesa; falta: fricción mínima según `signup`, ayuda en contexto y los seis pasos rediseñados)
+
+### H6.S3.M6 — Estado, contrato y bienvenida
+- (anda: estado de verificación ×5 con círculo de tono, etapas Recibido/En revisión/Listo y caso, y bienvenida con tarjeta verde y pasos numerados; falta: checklist de activación con primer grupo y primera recarga (`onboarding`) y contrato)
+
 ### H6.S4.M1 — `/identidad/perfil`
 - (anda: tarjeta de verificación con escudo y chip de estado con tono, correo, lista agrupada con íconos, cerrar sesión secundario y «Dar de baja» como fila roja al final; falta: avatar/nombre de la persona (el contrato solo trae el correo) y nivel KYC en escalera)
 
+### H6.S4.M5 — `/soporte/ayuda`
+- (anda: solo el tutorial recomendado lleva la acción principal; falta: buscador y temas en tarjetas, A12)
+
 ## Pendiente
-Sin empezar (`TODO`): H3.S1.M4, H3.S1.M5, H4.S1.M3, H4.S1.M4, H4.S1.M5, H4.S1.M6, H4.S1.M7, H4.S1.M8, H4.S2.M1, H4.S2.M5, H4.S2.M6, H4.S3.M2, H4.S3.M5, H4.S3.M6, H4.S3.M7, H4.S3.M8, H5.S1.M1, H5.S1.M2, H5.S2.M1, H5.S2.M2, H5.S2.M3, H5.S2.M4, H5.S2.M5, H5.S2.M6, H5.S2.M7, H5.S2.M8, H5.S2.M9, H5.S3.M1, H5.S3.M2, H5.S3.M3, H6.S1.M2, H6.S1.M3, H6.S1.M4, H6.S1.M5, H6.S2.M2, H6.S2.M3, H6.S2.M4, H6.S2.M5, H6.S2.M6, H6.S2.M7, H6.S2.M8, H6.S2.M9, H6.S2.M10, H6.S3.M1, H6.S3.M2, H6.S3.M3, H6.S3.M4, H6.S3.M5, H6.S3.M6, H6.S4.M2, H6.S4.M3, H6.S4.M4, H6.S4.M5, H6.S4.M6, H7.S1.M1, H7.S1.M2, H7.S2.M1, H7.S2.M2, H7.S2.M3, H7.S2.M4, H7.S3.M1, H8.S1.M1, H8.S1.M2, H8.S1.M3, H8.S1.M4, H8.S2.M1, H8.S2.M2, H8.S2.M3, H8.S3.M1, H8.S3.M2, H9.S1.M1, H9.S1.M2, H9.S1.M3, H9.S1.M4.
+Sin empezar (`TODO`): H3.S1.M4, H3.S1.M5, H4.S1.M3, H4.S1.M4, H4.S1.M5, H4.S1.M6, H4.S1.M7, H4.S1.M8, H4.S2.M1, H4.S2.M5, H4.S2.M6, H4.S3.M2, H4.S3.M5, H4.S3.M6, H4.S3.M7, H4.S3.M8, H5.S1.M1, H5.S1.M2, H5.S2.M1, H5.S2.M2, H5.S2.M3, H5.S2.M5, H5.S2.M6, H5.S2.M7, H5.S2.M8, H5.S2.M9, H5.S3.M1, H5.S3.M2, H5.S3.M3, H6.S1.M5, H6.S2.M2, H6.S2.M3, H6.S2.M4, H6.S2.M5, H6.S2.M6, H6.S2.M7, H6.S2.M8, H6.S2.M10, H6.S3.M2, H6.S3.M5, H6.S4.M2, H6.S4.M3, H6.S4.M4, H6.S4.M6, H7.S1.M1, H7.S1.M2, H7.S2.M1, H7.S2.M2, H7.S2.M3, H7.S2.M4, H7.S3.M1, H8.S1.M1, H8.S1.M2, H8.S1.M3, H8.S1.M4, H8.S2.M1, H8.S2.M2, H8.S2.M3, H8.S3.M1, H8.S3.M2, H9.S1.M1, H9.S1.M2, H9.S1.M3, H9.S1.M4.
 Sin bloqueos externos. Lo abierto son decisiones de negocio (ver Decisiones) y el resto del plan.
 
 ## Evidencia
@@ -107,10 +137,10 @@ Sin bloqueos externos. Lo abierto son decisiones de negocio (ver Decisiones) y e
 - `evidencia/revision-goldens.md`: cada lote de goldens regenerado y mirado (más de 400 imágenes),
   con hallazgos G1–G6.
 - `evidencia/roast-pantallas-hoy.md`: la crítica con 8 arreglos ordenados por impacto.
-- `evidencia/antes/` (1344 capturas), `intermedio-h4/`, `intermedio-h6/`, `componentes/`.
+- `evidencia/antes/` (1344 capturas), `intermedio-h4/`, `despues/`, `componentes/`.
 - Última pirámide corrida (apps/movil): `dart analyze --fatal-infos` limpio; `flutter test test/unidad
-  test/widget test/contrato test/identidad test/pasanaku test/a11y` → **+771 verde**; `test/goldens`
-  → **+274 verde**. Paquete: **+146 verde** (unidad, widget, a11y, goldens). Tokens: vitest 15/15.
+  test/widget test/contrato test/identidad test/pasanaku test/a11y` → **+774 verde**; `test/goldens`
+  → **+274 verde**. Paquete: **+158 verde** (unidad, widget, a11y, goldens). Tokens: vitest 15/15.
   `verificar_frontend.py movil` y `diseno`: TODO OK.
 - Línea base: en `dev` (7752e1b) los 274 goldens de la app y los 18 del paquete pasaban en Linux; toda
   diferencia de píxeles posterior viene del rediseño.
@@ -119,10 +149,10 @@ Sin bloqueos externos. Lo abierto son decisiones de negocio (ver Decisiones) y e
 - Ninguna pantalla nueva se recorrió en runtime contra backend/mock con consola y red (peldaño 5).
 - Lector de pantalla real y TalkBack; contraste calculado de las superficies nuevas fuera de las ya
   probadas por `roles-contraste`.
-- Movimiento: no hay ningún MP4 de las animaciones nuevas (H5 sin empezar). La píldora de la barra
-  crece, pero el indicador no se desliza con resorte.
-- Pantallas sin rediseñar: portada, ingreso, MFA, alta (6 pasos), KYC, ayuda, verificación (5 estados),
-  bienvenida, recargar/retirar/transferir/extracto, puntaje, crear grupo, invitar y el resto.
+- Movimiento: no hay ningún MP4. Hay una animación nueva (píldora de la barra con resorte) con 28 cuadros y
+  test con mutante; el resto de H5 (entrada escalonada, rodillo, hojas con gesto, celebración) sin empezar.
+- Pantallas sin rediseñar a fondo: MFA, los seis pasos del alta, KYC y cámara, extracto, mi puntaje, crear grupo,
+  invitar, solicitudes, pedir cupo, sorteo, transparencia, retiro del grupo, permuta, reclamo, notificaciones.
 - Web y backoffice Angular: solo capturas de los tokens (H2.S5.M1); sin regresión completa.
 - Los goldens se regeneraron en Linux, la plataforma del CI; los de macOS dependen de `goldens-macos.yml`.
 - `dispositivos` e iOS/Android reales: no probados.

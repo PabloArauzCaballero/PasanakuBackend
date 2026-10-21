@@ -1,6 +1,6 @@
 # H4.S3.M4 · H6.S4.M7 · H6.S4.M8 · H6.S1.M1 (parcial) — barra flotante con QR, cabecera en círculos, vacío con acción (2026-10-21)
 
-Peldaño: TESTED + prueba visual (intermedio-h6/billetera, grupos, perfil).
+Peldaño: TESTED + prueba visual (despues/billetera, grupos, perfil).
 Origen: roast-pantallas-hoy.md (Inicio: cabecera en baldosas, barra vieja con «Movimien…», vacío mudo).
 
 Cambios
@@ -33,7 +33,7 @@ $ (packages/diseno_flutter) flutter test test/goldens --update-goldens → 00:04
 $ (apps/movil) dart analyze --fatal-infos → No issues found!
 $ (apps/movil) flutter test test/unidad test/widget test/contrato test/identidad test/pasanaku test/a11y --timeout 60s → 01:55 +771: All tests passed!
 $ (apps/movil) flutter test test/goldens --update-goldens → 00:52 +274 ; flutter test test/goldens → 00:50 +274: All tests passed!
-$ flutter test test/capturas/rediseno --update-goldens --dart-define=FASE=intermedio-h6 --dart-define=FLUJOS=billetera → 00:28 +156
+$ flutter test test/capturas/rediseno --update-goldens --dart-define=FASE=despues --dart-define=FLUJOS=billetera → 00:28 +156
 Goldens cambiados: 73, mirados en 5 hojas antes|después (3 vistas a fondo, 2 por patrón repetido).
 No cubierto: barra con lector de pantalla real y TalkBack; QR central con la cámara real; MP4 de
 la píldora; EstadoError con el tratamiento nuevo.
