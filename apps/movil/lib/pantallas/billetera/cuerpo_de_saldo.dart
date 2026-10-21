@@ -9,6 +9,7 @@ import 'package:go_router/go_router.dart';
 
 import 'acciones_de_saldo.dart';
 import 'lista_de_movimientos.dart';
+import 'resumen_de_pasanakus.dart';
 import 'textos.dart';
 
 /// La cifra, las acciones principales y el contexto financiero de la billetera.
@@ -26,7 +27,6 @@ class CuerpoDeSaldo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final t = Tokens.of(context);
     return ListView(
       physics: const AlwaysScrollableScrollPhysics(),
       padding: const EdgeInsets.only(top: Espacio.s4, bottom: Espacio.s6),
@@ -55,12 +55,7 @@ class CuerpoDeSaldo extends StatelessWidget {
           child: _NotaDeCustodia(),
         ),
         const TituloDeSeccion(titulo: TextosBilletera.tusPasanakus),
-        Panel(
-          hijo: Text(
-            TextosBilletera.sinPasanakus,
-            style: Tipo.cuerpoChico.copyWith(color: t.text2),
-          ),
-        ),
+        const ResumenDePasanakus(),
         const SizedBox(height: Espacio.s5),
         TituloDeSeccion(
           titulo: TextosBilletera.movimientos,

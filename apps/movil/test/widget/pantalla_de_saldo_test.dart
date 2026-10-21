@@ -244,6 +244,12 @@ void main() {
     (tester) async {
       await conSuperficieDeTelefono(tester, () async {
         final (:dio, :adaptador) = dioSimulado();
+        // «Tus pasanakus» pide sus grupos aparte (2026-10-21): sin grupos, para que
+        // el único «Volver a intentar» en pantalla sea el del saldo.
+        adaptador.onGet(
+          '/grupos/participaciones',
+          (s) => s.reply(200, <Object>[]),
+        );
         // Primero el gateway falla; después responde. Registrar la ruta de nuevo
         // reemplaza la respuesta anterior.
         adaptador.onGet(

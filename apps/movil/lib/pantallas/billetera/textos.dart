@@ -8,7 +8,17 @@ abstract final class TextosBilletera {
   static const verTodos = 'Ver todos';
   static const todos = 'Todos';
   static const sinPasanakus =
-      'Todavía no estás en ningún pasanaku. Cuando entres a uno, tu rueda aparece acá.';
+      'Todavía no estás en ningún pasanaku. Cuando entres a uno, lo vas a ver acá.';
+  static const cargandoPasanakus = 'Cargando tus pasanakus';
+  static const avisoFirmar = 'Te falta firmar el reglamento';
+  static const avisoAtrasado = 'Tenés un aporte atrasado';
+  static const avisoSuspendido = 'Tu participación está suspendida';
+  static const verMisGrupos = 'Ver mis grupos';
+  static const unirmeAUnGrupo = 'Unirme a un grupo';
+  static const crearUnGrupo = 'Crear un grupo';
+  static String todoAlDia(int n) => n == 1
+      ? 'Estás en 1 grupo · todo al día'
+      : 'Estás en $n grupos · todo al día';
   static const cargandoSaldo = 'Cargando tu saldo';
   static const buscandoBilletera = 'Buscando tu billetera';
   static const billeteraInactiva =
