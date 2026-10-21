@@ -92,9 +92,11 @@ void main() {
           brillo: brillo,
         ),
       );
+      // ADR-053: el botón de ícono es neutro (tinta sobre superficie), como en las
+      // cabeceras de las apps bancarias; ni verde ni naranja.
       expect(
         tester.widget<IconButton>(find.byType(IconButton)).color,
-        tokens.accentTexto,
+        tokens.text,
       );
 
       await tester.pumpWidget(

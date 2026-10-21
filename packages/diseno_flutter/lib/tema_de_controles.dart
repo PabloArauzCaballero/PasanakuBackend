@@ -6,9 +6,7 @@ import 'tokens/tokens.dart';
 /// rediseño bancario (ADR-053). Separado de `tema.dart` por el barrido de 200 líneas.
 ButtonStyle _base(Tokens t) => const ButtonStyle(
   minimumSize: WidgetStatePropertyAll(Size(0, Tactil.minimo)),
-  padding: WidgetStatePropertyAll(
-    EdgeInsets.symmetric(horizontal: Espacio.s4),
-  ),
+  padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: Espacio.s4)),
   textStyle: WidgetStatePropertyAll(Tipo.boton),
   shape: WidgetStatePropertyAll(StadiumBorder()),
   elevation: WidgetStatePropertyAll(0),

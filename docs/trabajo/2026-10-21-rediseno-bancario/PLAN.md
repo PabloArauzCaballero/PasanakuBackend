@@ -333,8 +333,8 @@ por componente · `test/a11y` PASS.
 ### H4.S1 — Átomos
 | ID | Microtarea | CA | DoD | Estado |
 |---|---|---|---|---|
-| H4.S1.M1 | `Boton`: altura 56, radio píldora, variantes primario/secundario/fantasma/peligro/urgencia, hundido con resorte y brillo solo en el principal | 7 estados capturados | golden `atomos_botones_*` | TODO |
-| H4.S1.M2 | `BotonIcono` circular de 44/56 con contenedor tintado | Área ≥ 48 | a11y PASS + captura | TODO |
+| H4.S1.M1 | `Boton`: altura 56, radio píldora, variantes primario/secundario/fantasma/peligro/urgencia, hundido con resorte y brillo solo en el principal | 7 estados capturados | golden `atomos_botones_*` | HECHO |
+| H4.S1.M2 | `BotonIcono` circular de 44/56 con contenedor tintado | Área ≥ 48 | a11y PASS + captura | HECHO |
 | H4.S1.M3 | `Monto` / `MontoQueSube`: Bricolage tabular con decimales más chicos y en `text2`, rodillo de dígitos al cambiar | Video del rodillo | MP4 + test de formateo intacto | TODO |
 | H4.S1.M4 | `Avatar` con anillo de estado y `AvataresApilados` (parámetro de `Avatar`, no componente nuevo, salvo justificación) | Captura de 1, 3 y 9+ | captura | TODO |
 | H4.S1.M5 | `ChipEstado` con ícono + texto + tono (nunca solo color) | 4 tonos × 2 temas | captura | TODO |

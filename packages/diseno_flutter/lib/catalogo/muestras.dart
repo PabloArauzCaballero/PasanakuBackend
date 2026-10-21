@@ -96,8 +96,16 @@ final List<({String grupo, List<Muestra> muestras})> catalogo = [
       (
         nombre: 'Primario',
         widget: () => Boton(
-          texto: 'Confirmar aporte de Bs 250',
+          texto: 'Recargar saldo',
           variante: BotonVariante.primario,
+          onPressed: () {},
+        ),
+      ),
+      (
+        nombre: 'Urgencia (pagar o aportar)',
+        widget: () => Boton(
+          texto: 'Aportar Bs 250',
+          variante: BotonVariante.urgencia,
           onPressed: () {},
         ),
       ),
