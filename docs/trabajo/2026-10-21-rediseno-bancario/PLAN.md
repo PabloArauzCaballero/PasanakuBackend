@@ -447,10 +447,10 @@ Cada microtarea de pantalla tiene el **mismo DoD**:
 | ID | Pantalla | Cambios clave | Estado |
 |---|---|---|---|
 | H6.S2.M1 | `/pasanaku/mi-estado` | Tarjetas de grupo, resumen de compromisos y restricciones como alerta con acción | A MEDIAS (anda: título grande, tarjeta de grupo con la cifra por período, tarjeta de aporte con cada cifra nombrada y restricción como alerta; falta: acción de pago en la alerta (A11) y el resumen de compromisos de todos los grupos) |
-| H6.S2.M2 | `/mi-puntaje` | Medidor circular de confianza, escalera de etapas y qué sube el puntaje | A MEDIAS — hecho: tarjeta con ícono, puntaje protagonista, nivel en chip, origen del dato, vacío «Recién empezás» (ver `evidencia/h6-s2-m2-puntaje.txt`). Falta: medidor, escalera y «qué sube» (A15) |
+| H6.S2.M2 | `/mi-puntaje` | Medidor circular de confianza, escalera de etapas y qué sube el puntaje | HECHO en lo que el contrato permite (tarjeta, puntaje, nivel, origen, vacío «Recién empezás»; `evidencia/h6-s2-m2-puntaje.txt`). Medidor, escalera y «qué sube» son DECISION_REQUIRED (A15): sin escala del negocio se inventarían umbrales (regla 97.5.4) |
 | H6.S2.M3 | `/grupos/nuevo` | Asistente por pasos con `BarraDePasos`, vista previa de la tarjeta del grupo y monto grande | TODO |
 | H6.S2.M4 | `/grupos/:id/invitar` (+número) | Tarjeta compartible con QR (`referrals`: mensaje listo para WhatsApp, beneficio para ambos solo si existe en el negocio) | TODO |
-| H6.S2.M5 | `/grupos/:id/solicitudes`, `pedir-cupo` | Tarjetas de solicitud con avatar, nivel y acciones | TODO |
+| H6.S2.M5 | `/grupos/:id/solicitudes`, `pedir-cupo` | Tarjetas de solicitud con avatar, nivel y acciones | HECHO — tarjeta con avatar, puntaje y cupos como chips, mensaje entre comillas, Aceptar como primario; Pedir cupo con etapas de espera y selector de cupos (`evidencia/h6-s2-m5-solicitudes.txt`). «Nivel» se muestra como puntaje: no hay escala (A15) |
 | H6.S2.M6 | `/grupos/:id/transparencia` | Pozo del grupo como héroe y libro de movimientos legible (lectura del mayor, sin cálculo nuevo) | TODO |
 | H6.S2.M7 | `/sorteos/:id/turno`, `verificar` | Rueda protagonista, momento del sorteo con movimiento y verificación explicada | TODO |
 | H6.S2.M8 | `/turnos/permuta`, `/grupos/:id/retiro` | Comparación lado a lado y hoja de confirmación | TODO |

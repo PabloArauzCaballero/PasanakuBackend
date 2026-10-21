@@ -34,6 +34,12 @@ class TextosPasanaku {
   static const mensajeOpcional = 'Un mensaje para quien decide (opcional)';
   static const enviandoPedido = 'Enviando tu pedido…';
   static const pedidoEnviadoTitulo = 'Tu pedido de cupo';
+  static const pasosDelPedido = [
+    'Pedido enviado',
+    'Decide el organizador',
+    'Te avisamos',
+  ];
+  static const cupoEnEspera = 'Tu cupo queda en espera';
   static const quienDecide =
       'Quién decide: el organizador del grupo, con el puntaje de emparejamiento como guía.';
   static const enCuanto =
