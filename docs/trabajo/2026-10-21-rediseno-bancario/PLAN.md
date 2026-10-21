@@ -278,9 +278,9 @@ aprobar o corregir paleta, tipografía, íconos, color de acción y navegación 
 
 | ID | Microtarea | CA | DoD | Estado |
 |---|---|---|---|---|
-| H1.S1.M1 | Contexto de producto (`.agents/product-marketing.md`, skill `product-marketing`): audiencia, promesa, voz rioplatense con voseo y lo que no se promete | Documento con las 8 secciones de la skill | Archivo en disco | TODO |
-| H1.S1.M2 | Guía de voz y microcopy (`copywriting` + `copy-editing` + `ux-writing-microcopy`): glosario, verbos de botón, errores sin culpa y prohibiciones de muletillas de IA | Tabla «decimos / no decimos» con ≥ 30 entradas | Archivo `voz.md` | TODO |
-| H1.S1.M3 | Mapa de psicología aplicada (`marketing-psychology`): confianza, transparencia del pozo, progreso del ciclo, aversión a la pérdida en mora (sin manipular) | Principio → pantalla → elemento | Archivo `psicologia.md` | TODO |
+| H1.S1.M1 | Contexto de producto (`.agents/product-marketing.md`, skill `product-marketing`): audiencia, promesa, voz rioplatense con voseo y lo que no se promete | Documento con las 8 secciones de la skill | Archivo en disco | HECHO |
+| H1.S1.M2 | Guía de voz y microcopy (`copywriting` + `copy-editing` + `ux-writing-microcopy`): glosario, verbos de botón, errores sin culpa y prohibiciones de muletillas de IA | Tabla «decimos / no decimos» con ≥ 30 entradas | Archivo `voz.md` | HECHO |
+| H1.S1.M3 | Mapa de psicología aplicada (`marketing-psychology`): confianza, transparencia del pozo, progreso del ciclo, aversión a la pérdida en mora (sin manipular) | Principio → pantalla → elemento | Archivo `psicologia.md` | HECHO |
 | H1.S2.M1 | Lámina de dirección de arte: paleta, tipos, sombras, radios, íconos e Inicio en alta fidelidad (HTML estático con los tokens propuestos) | Se ve en claro y oscuro | 2 capturas de la lámina + revisión | TODO |
 | H1.S2.M2 | ADR-045 «Rediseño bancario»: decisiones de paleta, tipografía, íconos, navegación y efecto sobre la web | ADR con contexto, opciones, decisión y consecuencias | Archivo en `docs/Arquitectura/` | TODO |
 | H1.S2.M3 | Confirmación de A1–A7 con la persona | Cada una con respuesta o supuesto | Tabla actualizada en este plan | TODO |
