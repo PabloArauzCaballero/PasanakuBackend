@@ -116,7 +116,8 @@ class ReglasPropiasTest {
     }
 
     @Test
-    @DisplayName("con-contexto-sin-transaccion: metodo publico de aplicacion que llama conContexto sin @Transactional, se detecta")
+    @DisplayName(
+            "con-contexto-sin-transaccion: metodo publico de aplicacion que llama conContexto sin @Transactional, se detecta")
     void conContextoSinTransaccionSeDetecta() throws IOException {
         escribirEnAplicacion(
                 "Listador.java",

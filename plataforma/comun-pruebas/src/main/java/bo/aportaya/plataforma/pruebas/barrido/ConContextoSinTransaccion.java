@@ -29,8 +29,8 @@ public final class ConContextoSinTransaccion {
             "@Transactional[^\\n]*\\n(?:\\s*@[\\w.]+(?:\\([^)]*\\))?\\s*\\n)*\\s*public\\s+(?:final\\s+|abstract\\s+)?class");
 
     /** Anotaciones inmediatamente anteriores + firma de un metodo publico (no clase, ni constructor). */
-    private static final Pattern METODO_PUBLICO = Pattern.compile(
-            "((?:[ \\t]*@[\\w.]+(?:\\((?:[^()]|\\([^()]*\\))*\\))?[ \\t]*\\n)*)"
+    private static final Pattern METODO_PUBLICO =
+            Pattern.compile("((?:[ \\t]*@[\\w.]+(?:\\((?:[^()]|\\([^()]*\\))*\\))?[ \\t]*\\n)*)"
                     + "[ \\t]*public\\s+(?!(?:abstract\\s+|static\\s+|final\\s+)*(?:class|interface|record|enum)\\b)"
                     + "[\\w<>\\[\\],.? ]+?\\s+(\\w+)\\s*\\((?:[^()]|\\([^()]*\\))*\\)[^{;]*\\{");
 
@@ -43,7 +43,8 @@ public final class ConContextoSinTransaccion {
                 continue;
             }
             String contenido = leer(archivo);
-            if (!contenido.contains("conContexto(") || CLASE_TRANSACCIONAL.matcher(contenido).find()) {
+            if (!contenido.contains("conContexto(")
+                    || CLASE_TRANSACCIONAL.matcher(contenido).find()) {
                 continue;
             }
             Matcher m = METODO_PUBLICO.matcher(contenido);
