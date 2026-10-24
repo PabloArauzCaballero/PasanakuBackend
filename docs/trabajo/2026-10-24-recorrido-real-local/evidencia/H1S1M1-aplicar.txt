@@ -1,0 +1,6 @@
+psql:40_reglas/restricciones.sql:3366: NOTICE:  constraint "ck_distribucion_interes_esperado" of relation "distribucion_interes" does not exist, skipping
+psql:40_reglas/restricciones.sql:3367: NOTICE:  constraint "ck_distribucion_interes_neto" of relation "distribucion_interes" does not exist, skipping
+psql:40_reglas/restricciones.sql:3405: NOTICE:  trigger "tg_distribucion_interes_coherente" for relation "distribucion_interes" does not exist, skipping
+psql:40_reglas/restricciones.sql:3411: NOTICE:  constraint "ck_corrida_trabajo_fin" of relation "corrida_trabajo" does not exist, skipping
+psql:40_reglas/restricciones.sql:3412: NOTICE:  constraint "ck_corrida_trabajo_error" of relation "corrida_trabajo" does not exist, skipping
+aplicar exit=0

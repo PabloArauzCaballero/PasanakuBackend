@@ -1,0 +1,7 @@
+# antes
+svc_auditoria SELECT comun.bitacora_evento = false
+# despues
+svc_auditoria SELECT comun.bitacora_evento = true
+svc_identidad SELECT comun.bitacora_evento = false
+svc_auditoria UPDATE comun.bitacora_evento = false
+GET /api/v1/auditoria/bitacora -> HTTP 200 dict ['items', 'proximoAntesDe', 'proximoAntesDeId', 'totalAproximado']

@@ -1,0 +1,11 @@
+# POST /erp/ejercicios {anio:2026} como CONTABILIDAD (datos de prueba en la base local)
+{"ejercicioId":"a4dd77e3-5ff5-4306-8cce-64be1f8dc493","anio":2026,"periodos":12}
+HTTP 201
+# mismo POST con la misma Idempotency-Key
+{"codigo":"AP-CU100-01","mensaje":"El ejercicio 2026 ya esta abierto.","detalle":{},"trazaId":"2bacb259-267e-43fa-a24b-c05c8903f340"}
+HTTP 422
+# GET /erp/periodos/vigente
+{"periodoId":"68b1b971-5887-48c6-acdc-7aa3ae689ce4","ejercicioId":"a4dd77e3-5ff5-4306-8cce-64be1f8dc493","anio":2026,"mes":10,"estado":"ABIERTO","fechaInicio":"2026-10-01","fechaFin":"2026-10-31"}
+HTTP 200
+# periodos en la base:
+12

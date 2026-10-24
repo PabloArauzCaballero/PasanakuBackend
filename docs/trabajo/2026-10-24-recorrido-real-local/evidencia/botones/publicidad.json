@@ -1,0 +1,533 @@
+[
+  {
+    "ruta": "/tablero",
+    "final": "/tablero",
+    "controles": 2,
+    "pulsados": 2,
+    "saltados": [],
+    "hallazgos": []
+  },
+  {
+    "ruta": "/tablero/financiero",
+    "final": "/tablero",
+    "controles": 0,
+    "pulsados": 0,
+    "saltados": [],
+    "hallazgos": [],
+    "redirigida": true
+  },
+  {
+    "ruta": "/tablero/sistemas",
+    "final": "/tablero",
+    "controles": 0,
+    "pulsados": 0,
+    "saltados": [],
+    "hallazgos": [],
+    "redirigida": true
+  },
+  {
+    "ruta": "/tablero/catalogo-de-datos",
+    "final": "/tablero",
+    "controles": 0,
+    "pulsados": 0,
+    "saltados": [],
+    "hallazgos": [],
+    "redirigida": true
+  },
+  {
+    "ruta": "/tablero/comercial",
+    "final": "/tablero",
+    "controles": 0,
+    "pulsados": 0,
+    "saltados": [],
+    "hallazgos": [],
+    "redirigida": true
+  },
+  {
+    "ruta": "/operacion",
+    "final": "/tablero",
+    "controles": 2,
+    "pulsados": 2,
+    "saltados": [],
+    "hallazgos": []
+  },
+  {
+    "ruta": "/operacion/reclamos",
+    "final": "/tablero",
+    "controles": 0,
+    "pulsados": 0,
+    "saltados": [],
+    "hallazgos": [],
+    "redirigida": true
+  },
+  {
+    "ruta": "/operacion/solicitudes-escaladas",
+    "final": "/tablero",
+    "controles": 0,
+    "pulsados": 0,
+    "saltados": [],
+    "hallazgos": [],
+    "redirigida": true
+  },
+  {
+    "ruta": "/operacion/retiros",
+    "final": "/tablero",
+    "controles": 0,
+    "pulsados": 0,
+    "saltados": [],
+    "hallazgos": [],
+    "redirigida": true
+  },
+  {
+    "ruta": "/operacion/custodia",
+    "final": "/tablero",
+    "controles": 0,
+    "pulsados": 0,
+    "saltados": [],
+    "hallazgos": [],
+    "redirigida": true
+  },
+  {
+    "ruta": "/operacion/cierres-diarios",
+    "final": "/tablero",
+    "controles": 0,
+    "pulsados": 0,
+    "saltados": [],
+    "hallazgos": [],
+    "redirigida": true
+  },
+  {
+    "ruta": "/operacion/reversos",
+    "final": "/tablero",
+    "controles": 0,
+    "pulsados": 0,
+    "saltados": [],
+    "hallazgos": [],
+    "redirigida": true
+  },
+  {
+    "ruta": "/operacion/desembolsos",
+    "final": "/tablero",
+    "controles": 0,
+    "pulsados": 0,
+    "saltados": [],
+    "hallazgos": [],
+    "redirigida": true
+  },
+  {
+    "ruta": "/operacion/estado",
+    "final": "/tablero",
+    "controles": 0,
+    "pulsados": 0,
+    "saltados": [],
+    "hallazgos": [],
+    "redirigida": true
+  },
+  {
+    "ruta": "/cumplimiento",
+    "final": "/tablero",
+    "controles": 2,
+    "pulsados": 2,
+    "saltados": [],
+    "hallazgos": []
+  },
+  {
+    "ruta": "/cumplimiento/verificaciones",
+    "final": "/tablero",
+    "controles": 0,
+    "pulsados": 0,
+    "saltados": [],
+    "hallazgos": [],
+    "redirigida": true
+  },
+  {
+    "ruta": "/cumplimiento/alertas",
+    "final": "/tablero",
+    "controles": 0,
+    "pulsados": 0,
+    "saltados": [],
+    "hallazgos": [],
+    "redirigida": true
+  },
+  {
+    "ruta": "/cumplimiento/casos",
+    "final": "/tablero",
+    "controles": 0,
+    "pulsados": 0,
+    "saltados": [],
+    "hallazgos": [],
+    "redirigida": true
+  },
+  {
+    "ruta": "/cumplimiento/uif/reportes",
+    "final": "/tablero",
+    "controles": 0,
+    "pulsados": 0,
+    "saltados": [],
+    "hallazgos": [],
+    "redirigida": true
+  },
+  {
+    "ruta": "/cumplimiento/uif/requerimientos",
+    "final": "/tablero",
+    "controles": 0,
+    "pulsados": 0,
+    "saltados": [],
+    "hallazgos": [],
+    "redirigida": true
+  },
+  {
+    "ruta": "/cumplimiento/continuidad",
+    "final": "/tablero",
+    "controles": 0,
+    "pulsados": 0,
+    "saltados": [],
+    "hallazgos": [],
+    "redirigida": true
+  },
+  {
+    "ruta": "/cumplimiento/actas",
+    "final": "/tablero",
+    "controles": 0,
+    "pulsados": 0,
+    "saltados": [],
+    "hallazgos": [],
+    "redirigida": true
+  },
+  {
+    "ruta": "/cumplimiento/riesgos/eventos",
+    "final": "/tablero",
+    "controles": 0,
+    "pulsados": 0,
+    "saltados": [],
+    "hallazgos": [],
+    "redirigida": true
+  },
+  {
+    "ruta": "/cumplimiento/seguridad/incidentes",
+    "final": "/tablero",
+    "controles": 0,
+    "pulsados": 0,
+    "saltados": [],
+    "hallazgos": [],
+    "redirigida": true
+  },
+  {
+    "ruta": "/admisiones",
+    "final": "/tablero",
+    "controles": 0,
+    "pulsados": 0,
+    "saltados": [],
+    "hallazgos": [],
+    "redirigida": true
+  },
+  {
+    "ruta": "/sistemas",
+    "final": "/tablero",
+    "controles": 2,
+    "pulsados": 2,
+    "saltados": [],
+    "hallazgos": []
+  },
+  {
+    "ruta": "/sistemas/servicios",
+    "final": "/tablero",
+    "controles": 0,
+    "pulsados": 0,
+    "saltados": [],
+    "hallazgos": [],
+    "redirigida": true
+  },
+  {
+    "ruta": "/sistemas/despliegues",
+    "final": "/tablero",
+    "controles": 0,
+    "pulsados": 0,
+    "saltados": [],
+    "hallazgos": [],
+    "redirigida": true
+  },
+  {
+    "ruta": "/sistemas/base-de-datos",
+    "final": "/tablero",
+    "controles": 0,
+    "pulsados": 0,
+    "saltados": [],
+    "hallazgos": [],
+    "redirigida": true
+  },
+  {
+    "ruta": "/sistemas/respaldos",
+    "final": "/tablero",
+    "controles": 0,
+    "pulsados": 0,
+    "saltados": [],
+    "hallazgos": [],
+    "redirigida": true
+  },
+  {
+    "ruta": "/sistemas/proveedores",
+    "final": "/tablero",
+    "controles": 0,
+    "pulsados": 0,
+    "saltados": [],
+    "hallazgos": [],
+    "redirigida": true
+  },
+  {
+    "ruta": "/sistemas/outbox",
+    "final": "/tablero",
+    "controles": 0,
+    "pulsados": 0,
+    "saltados": [],
+    "hallazgos": [],
+    "redirigida": true
+  },
+  {
+    "ruta": "/sistemas/webhooks",
+    "final": "/tablero",
+    "controles": 0,
+    "pulsados": 0,
+    "saltados": [],
+    "hallazgos": [],
+    "redirigida": true
+  },
+  {
+    "ruta": "/sistemas/accesos",
+    "final": "/tablero",
+    "controles": 0,
+    "pulsados": 0,
+    "saltados": [],
+    "hallazgos": [],
+    "redirigida": true
+  },
+  {
+    "ruta": "/sistemas/incidentes",
+    "final": "/tablero",
+    "controles": 0,
+    "pulsados": 0,
+    "saltados": [],
+    "hallazgos": [],
+    "redirigida": true
+  },
+  {
+    "ruta": "/sistemas/usuarios-internos",
+    "final": "/tablero",
+    "controles": 0,
+    "pulsados": 0,
+    "saltados": [],
+    "hallazgos": [],
+    "redirigida": true
+  },
+  {
+    "ruta": "/sistemas/roles-internos",
+    "final": "/tablero",
+    "controles": 0,
+    "pulsados": 0,
+    "saltados": [],
+    "hallazgos": [],
+    "redirigida": true
+  },
+  {
+    "ruta": "/sistemas/permisos-internos",
+    "final": "/tablero",
+    "controles": 0,
+    "pulsados": 0,
+    "saltados": [],
+    "hallazgos": [],
+    "redirigida": true
+  },
+  {
+    "ruta": "/sistemas/operaciones",
+    "final": "/tablero",
+    "controles": 0,
+    "pulsados": 0,
+    "saltados": [],
+    "hallazgos": [],
+    "redirigida": true
+  },
+  {
+    "ruta": "/sistemas/flujos",
+    "final": "/tablero",
+    "controles": 0,
+    "pulsados": 0,
+    "saltados": [],
+    "hallazgos": [],
+    "redirigida": true
+  },
+  {
+    "ruta": "/sistemas/bitacora",
+    "final": "/tablero",
+    "controles": 0,
+    "pulsados": 0,
+    "saltados": [],
+    "hallazgos": [],
+    "redirigida": true
+  },
+  {
+    "ruta": "/sistemas/catalogos-operativos",
+    "final": "/tablero",
+    "controles": 0,
+    "pulsados": 0,
+    "saltados": [],
+    "hallazgos": [],
+    "redirigida": true
+  },
+  {
+    "ruta": "/contabilidad",
+    "final": "/tablero",
+    "controles": 0,
+    "pulsados": 0,
+    "saltados": [],
+    "hallazgos": [],
+    "redirigida": true
+  },
+  {
+    "ruta": "/contabilidad/presupuesto",
+    "final": "/tablero",
+    "controles": 0,
+    "pulsados": 0,
+    "saltados": [],
+    "hallazgos": [],
+    "redirigida": true
+  },
+  {
+    "ruta": "/contabilidad/compras",
+    "final": "/tablero",
+    "controles": 0,
+    "pulsados": 0,
+    "saltados": [],
+    "hallazgos": [],
+    "redirigida": true
+  },
+  {
+    "ruta": "/contabilidad/cobros",
+    "final": "/tablero",
+    "controles": 0,
+    "pulsados": 0,
+    "saltados": [],
+    "hallazgos": [],
+    "redirigida": true
+  },
+  {
+    "ruta": "/ayuda",
+    "final": "/ayuda",
+    "controles": 15,
+    "pulsados": 10,
+    "saltados": [],
+    "hallazgos": []
+  },
+  {
+    "ruta": "/publicidad",
+    "final": "/publicidad/anunciantes",
+    "controles": 4,
+    "pulsados": 2,
+    "saltados": [],
+    "hallazgos": [
+      {
+        "control": "Anterior",
+        "problema": "no se pudo pulsar: locator.click: Timeout 2500ms exceeded."
+      },
+      {
+        "control": "Siguiente",
+        "problema": "no se pudo pulsar: locator.click: Timeout 2500ms exceeded."
+      }
+    ]
+  },
+  {
+    "ruta": "/publicidad/anunciantes",
+    "final": "/publicidad/anunciantes",
+    "controles": 6,
+    "pulsados": 1,
+    "saltados": [],
+    "hallazgos": [
+      {
+        "control": "Publicidad y Alianzas—qué es este módulo y esta vista (para ",
+        "problema": "no se pudo pulsar: locator.click: Timeout 2500ms exceeded."
+      },
+      {
+        "control": "Dar de alta anunciante",
+        "problema": "no se pudo pulsar: locator.click: Timeout 2500ms exceeded."
+      },
+      {
+        "control": "Anterior",
+        "problema": "no se pudo pulsar: locator.click: Timeout 2500ms exceeded."
+      },
+      {
+        "control": "Siguiente",
+        "problema": "no se pudo pulsar: locator.click: Timeout 2500ms exceeded."
+      }
+    ]
+  },
+  {
+    "ruta": "/publicidad/campanas",
+    "final": "/publicidad/campanas",
+    "controles": 8,
+    "pulsados": 7,
+    "saltados": [
+      "Crear campaña"
+    ],
+    "hallazgos": []
+  },
+  {
+    "ruta": "/publicidad/moderacion",
+    "final": "/tablero",
+    "controles": 0,
+    "pulsados": 0,
+    "saltados": [],
+    "hallazgos": [],
+    "redirigida": true
+  },
+  {
+    "ruta": "/publicidad/desempeno",
+    "final": "/publicidad/desempeno",
+    "controles": 2,
+    "pulsados": 2,
+    "saltados": [],
+    "hallazgos": []
+  },
+  {
+    "ruta": "/publicidad/liquidacion",
+    "final": "/publicidad/liquidacion",
+    "controles": 2,
+    "pulsados": 2,
+    "saltados": [],
+    "hallazgos": []
+  },
+  {
+    "ruta": "/configuracion",
+    "final": "/tablero",
+    "controles": 0,
+    "pulsados": 0,
+    "saltados": [],
+    "hallazgos": [],
+    "redirigida": true
+  },
+  {
+    "ruta": "/configuracion/tarifario",
+    "final": "/tablero",
+    "controles": 0,
+    "pulsados": 0,
+    "saltados": [],
+    "hallazgos": [],
+    "redirigida": true
+  },
+  {
+    "ruta": "/configuracion/mensajeria",
+    "final": "/tablero",
+    "controles": 0,
+    "pulsados": 0,
+    "saltados": [],
+    "hallazgos": [],
+    "redirigida": true
+  },
+  {
+    "ruta": "/configuracion/reportes",
+    "final": "/tablero",
+    "controles": 0,
+    "pulsados": 0,
+    "saltados": [],
+    "hallazgos": [],
+    "redirigida": true
+  }
+]
