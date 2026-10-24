@@ -1,0 +1,10 @@
+## 2026-10-24T05:44:27+00:00 · re-captura tras la revisión independiente
+$ playwright test catalogo-gobierno
+  ✓  1 [chromium] › e2e/catalogo-gobierno.e2e.ts:54:5 › lista: cifras del inventario, chips de estado y revisión, y filtro por estado desde la URL (7.2s)
+  ✓  2 [chromium] › e2e/catalogo-gobierno.e2e.ts:69:5 › ficha: pestañas en la URL, y «Configurar tabla» confirma antes de guardar con la versión leída (6.4s)
+  ✓  3 [chromium] › e2e/catalogo-gobierno.e2e.ts:97:5 › ficha: la narrativa de negocio conserva sus viñetas (3.8s)
+  ✓  4 [chromium] › e2e/catalogo-gobierno.e2e.ts:104:5 › ficha: «Operaciones» conserva las directas y lista los casos de uso que nombran la tabla con sus endpoints (4.1s)
+  ✓  5 [chromium] › e2e/catalogo-gobierno.e2e.ts:117:5 › ficha de infraestructura: «Operaciones» muestra los dos vacíos y los dos dicen por qué y qué hacer (3.2s)
+  ✓  6 [chromium] › e2e/catalogo-gobierno.e2e.ts:129:5 › columnas: revisar desde el cajón exige motivo al rechazar y guarda con la versión leída (4.5s)
+  ✓  7 [chromium] › e2e/catalogo-gobierno.e2e.ts:152:5 › sin permiso de edición: se lee, no se edita, y la revisión de una columna solo se mira (2.3s)
+  7 passed (1.0m)

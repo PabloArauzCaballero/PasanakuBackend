@@ -11,3 +11,7 @@ src/app/rutas/tablero/dominio/indicadores.ts(137,48): error TS2339: Property 'va
 src/app/rutas/tablero/dominio/indicadores.ts(137,72): error TS2339: Property 'valor' does not exist on type '{}'.
 ../../clientes/angular/publicidad/model/entradaCampana.ts(10,26): error TS2307: Cannot find module './conjunto' or its corresponding type declarations.
 exit=2
+## línea base tras generarClientes — 2026-10-24T04:35:02+00:00
+$ ./gradlew generarClientes  → exit 0
+$ yarn workspace @aportaya/backoffice typecheck
+exit=0

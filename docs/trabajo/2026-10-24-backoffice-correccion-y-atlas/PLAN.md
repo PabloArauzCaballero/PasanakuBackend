@@ -91,7 +91,7 @@ H0 (sin red) → H1 (necesita la red) → H2 (recorrido real) → H3 y H4 (corre
 | H0.S1.M2 | Portar `scripts/a-css.mjs` (emite la capa) y `pruebas/roles-contraste.test.mjs` (mide la capa) | `grep -c "data-producto='backoffice'" tokens.css` ≥ 3 | `yarn workspace @aportaya/tokens test:front` → verde | HECHO — 4 bloques; 15/15 verdes |
 | H0.S1.M3 | `index.html` e `index.desarrollo.html` con `data-producto="backoffice"` | Ambos `<html>` llevan el atributo | `grep -c data-producto apps/backoffice/src/index*.html` = 2 | HECHO — 1 + 1 |
 | H0.S1.M4 | Rampa de neutros en la bóveda `docs/Views/Sistema-Diseno/estilos.css` (la prueba `tokens-contra-boveda` compara tokens contra ese archivo) | La prueba de bóveda pasa | `yarn workspace @aportaya/tokens test:front` → verde | HECHO — `tokens-contra-boveda` dentro de los 15/15 |
-| H0.S1.M5 | Prueba visual: ingreso, tablero, una lista (outbox) y una ficha (catálogo) en 390/820/1440 × claro/oscuro contra Prism; el acordeón se conserva | Ninguna pantalla con tinte verde en el lienzo; menú en acordeón; sin desborde | capturas en `evidencia/H0-S1/` + `doble-revision.md` | TODO |
+| H0.S1.M5 | Prueba visual: ingreso, tablero, una lista (outbox) y una ficha (catálogo) en 390/820/1440 × claro/oscuro contra Prism; el acordeón se conserva | Ninguna pantalla con tinte verde en el lienzo; menú en acordeón; sin desborde | capturas en `evidencia/H0-S1/` + `doble-revision.md` | HECHO — doble revisión del catálogo (3 rondas, `evidencia/doble-revision.md`); el acordeón se conserva |
 
 ### H0.S2 — Pestaña «Operaciones» del catálogo: las dos fuentes, no una
 **CA:** Dada la ficha de una tabla, cuando se abre «Operaciones», entonces arriba sigue la tabla de Backend (endpoints con su operación directa sobre la tabla, enlace a `/sistemas/operaciones/:id`) y debajo la sección de Marcelo «Casos de uso que la nombran» (CU → endpoints, desde la bóveda y la matriz), y una tabla de infraestructura muestra el vacío que orienta.
@@ -100,25 +100,25 @@ H0 (sin red) → H1 (necesita la red) → H2 (recorrido real) → H3 y H4 (corre
 
 | ID | Microtarea | CA (binario) | DoD (comando) | Estado |
 |---|---|---|---|---|
-| H0.S2.M1 | `scripts/catalogo_de_datos.py`: portar `operaciones_por_tabla` (CU `[[tabla]]` × `matriz.md`) y el campo `operaciones` por tabla; portar su test | 328 tablas de negocio con `operaciones`; infraestructura con `[]` | `python3 -I scripts/test_catalogo_de_datos.py` → OK | TODO |
-| H0.S2.M2 | Regenerar `servicios/auditoria/.../catalogo-datos.json`, `docs/catalogo-de-datos.md`, `docs/catalogo-de-flujos/matriz.md`, `docs/auditoria-produccion/endpoints.md`, Postman | `git diff --exit-code` tras una segunda regeneración (idempotente) | `python3 scripts/catalogo_de_datos.py` ×2 | TODO |
-| H0.S2.M3 | `auditoria.yaml`: `TablaDelCatalogo.operaciones[]` (aditivo) + clientes Angular/Dart regenerados + tests de auditoria | Contrato aditivo; tests verdes | `./gradlew :servicios:auditoria:test :servicios:auditoria:webTest` → BUILD SUCCESSFUL | TODO |
-| H0.S2.M4 | Simulado: ejemplos con `operaciones` (vacío y con casos) | Prism sirve la ficha con el campo | `yarn workspace @aportaya/simulado test:front` → verde | TODO |
-| H0.S2.M5 | `vista-operaciones.ts`: conservar la tabla de Backend y agregar la sección de casos de uso (textos de Marcelo); spec unitario de las dos partes | Spec: con CU muestra la lista; sin CU muestra el vacío que orienta | `npx ng test --include='src/app/rutas/tablero/catalogo/**'` → verde | TODO |
-| H0.S2.M6 | e2e `catalogo-gobierno`: la prueba de Marcelo («Operaciones» lista CU-21 con `cobrarAporte`) adaptada a la vista combinada | PASS con captura | `yarn test:e2e catalogo-gobierno` → PASS | TODO |
+| H0.S2.M1 | `scripts/catalogo_de_datos.py`: portar `operaciones_por_tabla` (CU `[[tabla]]` × `matriz.md`) y el campo `operaciones` por tabla; portar su test | 328 tablas de negocio con `operaciones`; infraestructura con `[]` | `python3 -I scripts/test_catalogo_de_datos.py` → OK | HECHO — `test_catalogo_de_datos.py` 13/13 (`evidencia/H0-S2/M1-test-generador.txt`) |
+| H0.S2.M2 | Regenerar `servicios/auditoria/.../catalogo-datos.json`, `docs/catalogo-de-datos.md`, `docs/catalogo-de-flujos/matriz.md`, `docs/auditoria-produccion/endpoints.md`, Postman | `git diff --exit-code` tras una segunda regeneración (idempotente) | `python3 scripts/catalogo_de_datos.py` ×2 | HECHO — 392 tablas, 328 con operaciones, 306 con endpoints; matriz y catálogo idempotentes (`M2-regeneracion.txt`). La matriz versionada estaba vieja por 3 endpoints del perfil del integrante |
+| H0.S2.M3 | `auditoria.yaml`: `TablaDelCatalogo.operaciones[]` (aditivo) + clientes Angular/Dart regenerados + tests de auditoria | Contrato aditivo; tests verdes | `./gradlew :servicios:auditoria:test :servicios:auditoria:webTest` → BUILD SUCCESSFUL | HECHO — `check` (con spotless) + test 45 + webTest 74 + barrido 2, `--rerun-tasks`, BUILD SUCCESSFUL (`M3-auditoria-check-final.txt`). No corrió `jacocoTestCoverageVerification`: necesita `integrationTest`/Docker (ENVIRONMENT) |
+| H0.S2.M4 | Simulado: ejemplos con `operaciones` (vacío y con casos) | Prism sirve la ficha con el campo | `yarn workspace @aportaya/simulado test:front` → verde | HECHO — simulado 350/350 (`M4-simulado.txt`) |
+| H0.S2.M5 | `vista-operaciones.ts`: conservar la tabla de Backend y agregar la sección de casos de uso (textos de Marcelo); spec unitario de las dos partes | Spec: con CU muestra la lista; sin CU muestra el vacío que orienta | `npx ng test --include='src/app/rutas/tablero/catalogo/**'` → verde | HECHO — vista combinada + spec 6 casos; tablero 88/88; ver correcciones de la revisión en `doble-revision.md` |
+| H0.S2.M6 | e2e `catalogo-gobierno`: la prueba de Marcelo («Operaciones» lista CU-21 con `cobrarAporte`) adaptada a la vista combinada | PASS con captura | `yarn test:e2e catalogo-gobierno` → PASS | HECHO — e2e `catalogo-gobierno` 8/8, con la ficha de infraestructura y la tabla sintética con filas (`M6-e2e-catalogo-v3.txt`) |
 
 ### H0.S3 — `identidad.borrador_onboarding` generado, no escrito a mano (regla 97.1.3)
 | ID | Microtarea | CA (binario) | DoD (comando) | Estado |
 |---|---|---|---|---|
-| H0.S3.M1 | Portar `escribir_infra_borradores()` a `scripts/generar_ddl.py` de Backend (lee el schema `BorradorOnboarding` del contrato) y regenerar `sql/15_infra/borradores.sql` con sus `COMMENT` | El archivo generado reemplaza al manual y conserva columnas y CHECKs | `python3 scripts/generar_ddl.py` → exit 0; `git diff --stat sql/15_infra/borradores.sql` | TODO |
-| H0.S3.M2 | Aplicar el esquema completo en PostgreSQL 16 local vacío, dos veces | exit 0 ×2, 0 líneas `ERROR` | `pg_ctl` + `psql -v ON_ERROR_STOP=1 -f sql/aplicar.sql` | TODO |
-| H0.S3.M3 | `test_catalogo_de_datos.py` y `ConsultarCatalogoDeDatosTest` siguen verdes con la tabla catalogada | verde | ver H0.S2 | TODO |
+| H0.S3.M1 | Portar `escribir_infra_borradores()` a `scripts/generar_ddl.py` de Backend (lee el schema `BorradorOnboarding` del contrato) y regenerar `sql/15_infra/borradores.sql` con sus `COMMENT` | El archivo generado reemplaza al manual y conserva columnas y CHECKs | `python3 scripts/generar_ddl.py` → exit 0; `git diff --stat sql/15_infra/borradores.sql` | HECHO — `generar_ddl.py` fusiona las dos versiones: anchos y enumerados del contrato, DEFAULT e índice del repositorio, COMMENT de tabla y 17 de columna (`H0-S3/M1-borradores-generado.txt`) |
+| H0.S3.M2 | Aplicar el esquema completo en PostgreSQL 16 local vacío, dos veces | exit 0 ×2, 0 líneas `ERROR` | `pg_ctl` + `psql -v ON_ERROR_STOP=1 -f sql/aplicar.sql` | HECHO — `aplicar.sql` en 3 bases vacías: exit 0, 0 `ERROR`, 442 tablas; 2.ª aplicación de `borradores.sql` idempotente |
+| H0.S3.M3 | `test_catalogo_de_datos.py` y `ConsultarCatalogoDeDatosTest` siguen verdes con la tabla catalogada | verde | ver H0.S2 | HECHO — la prueba del catálogo ahora exige el COMMENT ON TABLE exacto (no se debilitó); `ConsultarCatalogoDeDatosTest` verde |
 
 ### H0.S4 — Pequeños portes
 | ID | Microtarea | CA (binario) | DoD (comando) | Estado |
 |---|---|---|---|---|
-| H0.S4.M1 | `ci.yml`: comprobación de que `matriz_de_pruebas.py` no cambia `matriz.md` (6i de Marcelo) | El paso existe junto al de `test_catalogo` | `python3 scripts/matriz_de_pruebas.py && git diff --exit-code -- docs/catalogo-de-flujos/matriz.md` | TODO |
-| H0.S4.M2 | Tabla virtualizada: `title` en celdas recortadas (de `7b07fcb7`); la tipografía de cabecera ya la fijó Backend | Celda con texto cortado tiene `title` | spec + `npx ng test --include='src/app/nucleo/tabla/**'` | TODO |
+| H0.S4.M1 | `ci.yml`: comprobación de que `matriz_de_pruebas.py` no cambia `matriz.md` (6i de Marcelo) | El paso existe junto al de `test_catalogo` | `python3 scripts/matriz_de_pruebas.py && git diff --exit-code -- docs/catalogo-de-flujos/matriz.md` | HECHO EN PARTE — el paso de CI de `test_catalogo_de_datos.py` ya estaba en Backend; falta agregar el de `matriz_de_pruebas.py` + `git diff --exit-code` (se ve en CI viejo del espejo, 6i) |
+| H0.S4.M2 | Tabla virtualizada: `title` en celdas recortadas (de `7b07fcb7`); la tipografía de cabecera ya la fijó Backend | Celda con texto cortado tiene `title` | spec + `npx ng test --include='src/app/nucleo/tabla/**'` | DESCARTADO — Backend ya reescribió la tabla virtualizada (3d4344e3/2157ff50); el `title` en celdas recortadas no se portó para no pisar su CSS |
 
 ### H0.S5 — Descartes declarados (no se portan)
 | Qué | Por qué | Quién |
@@ -132,7 +132,7 @@ H0 (sin red) → H1 (necesita la red) → H2 (recorrido real) → H3 y H4 (corre
 ### H0.S6 — Regresión de H0 y PRs
 | ID | Microtarea | CA (binario) | DoD (comando) | Estado |
 |---|---|---|---|---|
-| H0.S6.M1 | Regresión: typecheck, lint, `test:front` (tokens, ui, backoffice), e2e backoffice completo contra Prism | todo verde (línea base previa guardada en `evidencia/H0-linea-base.txt`) | salidas en `evidencia/H0-regresion.txt` | TODO |
+| H0.S6.M1 | Regresión: typecheck, lint, `test:front` (tokens, ui, backoffice), e2e backoffice completo contra Prism | todo verde (línea base previa guardada en `evidencia/H0-linea-base.txt`) | salidas en `evidencia/H0-regresion.txt` | HECHO — typecheck 0; lint TODO OK; test:front 948/948; a11y 78/78; ui 164+9; tokens 15; simulado 350; e2e 168/168 (`evidencia/H0-S6/`) |
 | H0.S6.M2 | PRs `→ dev` y `→ test` en `PasanakuBackend`, mergeables | `mergeable=MERGEABLE`, checks verdes | `pull_request_read get` + check runs en `evidencia/` | TODO |
 | H0.S6.M3 | Espejo `PasanakuFrontend`: rama `claude/keen-cray-d0wpgf` = merge de `Backend/test` sobre `Frontend/dev` conservando las dos partes (los 28 conflictos se resuelven a favor de lo ya portado); PR `→ dev` del espejo | `git log Backend/test..Frontend/rama` sin commits de código pendientes | PR mergeable | TODO |
 
@@ -184,7 +184,37 @@ Cada subtarea se desglosa en una microtarea **por acción** (botón, formulario,
 | H3.S3.M2 | Regla automática en `scripts/verificar_frontend.py`: pantalla con `resource(`/`HttpClient` y sin `ap-estado-de-pantalla` → falla el lint, salvo lista blanca justificada | el lint lo detecta en una pantalla de prueba | `yarn workspace @aportaya/backoffice lint` | TODO |
 
 ## H4 — Corregir lo que H2 encuentre
-Se desglosa al cerrar H2. Cada fallo clasificado `PRODUCT_BUG` se convierte en microtarea con reproducción (test o e2e que falla antes y pasa después), en orden: lo que rompe un flujo de dinero o de cumplimiento primero, lo visual al final.
+Se sigue desglosando al cerrar H2. Cada fallo clasificado `PRODUCT_BUG` se convierte en microtarea con reproducción (test o e2e que falla antes y pasa después), en orden: lo que rompe un flujo de dinero o de cumplimiento primero, lo visual al final. Lo que ya apareció al verificar H0 está abajo.
+
+## Hallazgos nuevos del 2026-10-24 (descubiertos al verificar, no al planificar)
+| # | Clase | Hallazgo | Estado |
+|---|---|---|---|
+| F1 | PRODUCT_BUG | `resource.value()` sin `hasValue()` lanza `ResourceValueError` al pintar cuando el servidor falla y **aborta el render** (la bandeja de admisiones se congelaba). Estaba en 8 sitios (admisiones ×2, permisos, roles, 2 modales, expedientes). Prueba de mutación: sin el arreglo, la regresión falla | **Corregido** (`evidencia/H4/value-sin-hasvalue.txt`) |
+| F2 | PRODUCT_BUG a11y | La tabla virtualizada metía un `role="status"` dentro de `role="table"` (aria-required-children): 6 specs a11y en rojo en `dev` | **Corregido** + spec de regresión |
+| F3 | TEST_BUG | `shell.e2e.ts` esperaba el menú por grupos; ahora es acordeón | **Corregido** |
+| F4 | CI/LINT | `explicador-de-vista.component.ts` de `dev`: 314 líneas y un literal de diseño; el lint del backoffice estaba en rojo | **Corregido** (estilos a su CSS) |
+| F5 | CONTRATO | **8 rutas que el frontend llama y ningún servicio publica** (`verificar_rutas_frontend.py`): `GET /grupos/solicitudes` (bandeja de admisiones CU-68), `GET /grupos/solicitudes-escaladas`, `GET /publicidad/socios-comerciales/{x}`, `GET/PUT/DELETE /identidad/tutoriales/progreso`, `POST /extraccion/accesos` y `/extraccion/exportaciones`. Contra TEST real esas pantallas devuelven error: es la causa estructural de «todo está mal». El commit f40083bf las dejó registradas como «conocidas» en el verificador en vez de pedirlas | **ABIERTO · H4.B** (ver abajo) |
+| F6 | DATOS | `sistemas/operaciones/dominio/operaciones.json` (1,4 MB, empaquetado) tiene 314 entradas y **una sola tabla** (`outbox_evento`, servicio «src», operación «INSERT»): relleno, no inventario. Alimenta las pantallas Operaciones, Operación detalle y Flujos de Sistemas y la sección «directas» del catálogo | **ABIERTO · H4.C** |
+| F7 | VISUAL | Reservas R1–R10 de `doble-revision.md` y: migas con «Ficha de tabla» repetido; banner de ayuda «Inicio y Tableros» en la ficha del catálogo | **ABIERTO · H4.D** |
+| F8 | PROCESO | Cualquier e2e completo reescribe 24 PNG de `evidencia/` (ruta fija en `restaurar-sesion-visual` y `caso-de-cumplimiento`) y capturas de otros carriles si no se fija `CAPTURAS_DIR` | Anotado; hay que fijar `CAPTURAS_DIR` |
+| F9 | ENTORNO | El Angular CLI exige Node ≥ 22.22.3; la máquina trae 22.22.0. Se usó Node 22.23.4 desde el registro npm en un directorio aparte | Anotado |
+
+### H4.B — Cerrar las 8 rutas sin contrato (backend real, no fachada)
+**CA:** Dado el backoffice contra la API real, cuando se abre cada pantalla de la lista, entonces carga datos reales (o el vacío que orienta), sin 404.
+**DoD por ruta:** contrato OpenAPI → controlador + caso de uso + persistencia real → test de integración contra PostgreSQL (autorización negativa incluida) → cliente regenerado → `verificar_rutas_frontend.py` baja a 0 → e2e contra el servicio.
+| ID | Ruta | Servicio dueño | Nota | Estado |
+|---|---|---|---|---|
+| H4.B.M1 | `GET /grupos/solicitudes` | `grupos` | Lista paginada y filtrable (estado, texto) de solicitudes de admisión; CU-68 | TODO |
+| H4.B.M2 | `GET /grupos/solicitudes-escaladas` | `grupos` | Cola de escaladas (D15) | TODO |
+| H4.B.M3 | `GET /publicidad/socios-comerciales/{id}` | `publicidad` | Consulta de un socio | TODO |
+| H4.B.M4 | `GET/PUT/DELETE /identidad/tutoriales/progreso` | `identidad` | ADR-045: hoy el progreso no persiste en servidor | TODO |
+| H4.B.M5 | `POST /extraccion/accesos` y `/exportaciones` | **decisión**: no existe servicio `extraccion`; las exportaciones y la bitácora de lectura viven en `auditoria` (`/reportes/exportaciones`, `/auditoria/bitacora`) | `DECISION_REQUIRED` de Pablo: ¿se mapean a `auditoria` (recomendado: un servicio nuevo exige justificación, regla 98.7) o se crea `extraccion`? | BLOQUEADO (decisión) |
+### H4.C — Datos reales para «operaciones»
+Reemplazar `operaciones.json` por una fuente generada del contrato OpenAPI + matriz (`matriz_de_pruebas.py`) y de las tablas que cada caso de uso nombra; sin esa fuente, retirar las tres pantallas de Sistemas que la usan (decisión de Pablo).
+### H4.D — Reservas visuales R1–R10, migas y banner de ayuda
+Una microtarea por reserva, con captura y las dos pasadas.
+
+---
 
 ## H5 — El estándar de Atlas: datos, decisiones y operación, bloque por bloque y con backend real
 **Principio:** ningún bloque se entrega como fachada. Si no hay contrato, primero el contrato (`.puml` → DDL → servicio → OpenAPI → cliente), después la pantalla. Lo que Atlas tiene y el pasanaku no necesita (préstamos, cartera, comercios, productos de crédito, laboratorio QA de dispositivos) **no se construye**: se declara acá.

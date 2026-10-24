@@ -1,0 +1,6 @@
+## 2026-10-24T05:41:15+00:00 · correcciones de la revisión visual independiente
+$ typecheck
+exit=0
+$ ng test tablero + packages ui
+ Test Files  15 passed (15)
+      Tests  88 passed (88)
