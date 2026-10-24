@@ -69,7 +69,7 @@
 | ID | Microtarea | CA (binario) | DoD | Estado |
 |---|---|---|---|---|
 | H3.S3.M1 | `nivel_kyc = 'NINGUNO'` (el valor inicial que ya usa `RegistroRepositorio`) y parámetros KDF desde `HasheadorDeCredencial.parametros()` | el alta devuelve 201 | recompilar, reiniciar identidad, `curl` | HECHO: `POST /usuarios-internos` → 201 con la ficha y 9 permisos de CONTABILIDAD (evidencia/H3S3-alta-usuario-interno.txt) |
-| H3.S3.M2 | Reintento con la misma `Idempotency-Key` no duplica | misma respuesta, una sola fila | `curl` ×2 + `select count(*)` | **NO CUMPLE**: el reintento con la misma clave devuelve 422 `AP-CU01-02` (no duplica: una sola fila) en vez de repetir el 201. `identidad` no tiene `respuesta_idempotente` (solo `nucleo_financiero`); implementarlo toca el generador de esquema → H3.S4 |
+| H3.S3.M2 | Reintento con la misma `Idempotency-Key` no duplica | misma respuesta, una sola fila | `curl` ×2 + `select count(*)` | A MEDIAS — **NO CUMPLE**: el reintento con la misma clave devuelve 422 `AP-CU01-02` (no duplica: una sola fila) en vez de repetir el 201. `identidad` no tiene `respuesta_idempotente` (solo `nucleo_financiero`); implementarlo toca el generador de esquema → H3.S4 |
 | H3.S3.M3 | Prueba de integración del repositorio (alta y lectura contra Postgres real) | pasa en CI | **solo escrita: aquí no hay Docker, no se puede correr** (peldaño WRITTEN) | **A MEDIAS (peldaño RUNS, no TESTED)**: `UsuariosInternosRepositorioTest` escrita, compila y pasa spotless; NO ejecutada — necesita Testcontainers y aquí no hay Docker. Falta que la corra el CI (`integrationTest`) |
 
 ### H3.S4 — Idempotencia real en el alta de usuario interno (pendiente, abierta por M2)
