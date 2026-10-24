@@ -1,0 +1,60 @@
+Auto-merging .github/workflows/ci.yml
+Auto-merging apps/backoffice/e2e/catalogo-gobierno.e2e.ts
+CONFLICT (content): Merge conflict in apps/backoffice/e2e/catalogo-gobierno.e2e.ts
+Auto-merging apps/backoffice/src/app/layout/menu-lateral.spec.ts
+CONFLICT (content): Merge conflict in apps/backoffice/src/app/layout/menu-lateral.spec.ts
+Auto-merging apps/backoffice/src/app/layout/menu-lateral.ts
+CONFLICT (content): Merge conflict in apps/backoffice/src/app/layout/menu-lateral.ts
+Auto-merging apps/backoffice/src/app/layout/shell-financiero.css
+CONFLICT (content): Merge conflict in apps/backoffice/src/app/layout/shell-financiero.css
+Auto-merging apps/backoffice/src/app/layout/shell-financiero.ts
+CONFLICT (content): Merge conflict in apps/backoffice/src/app/layout/shell-financiero.ts
+Auto-merging apps/backoffice/src/app/nucleo/tabla/tabla-de-datos-virtualizada.ts
+CONFLICT (content): Merge conflict in apps/backoffice/src/app/nucleo/tabla/tabla-de-datos-virtualizada.ts
+Auto-merging apps/backoffice/src/app/rutas/tablero/catalogo/catalogo-sintetico.ts
+CONFLICT (content): Merge conflict in apps/backoffice/src/app/rutas/tablero/catalogo/catalogo-sintetico.ts
+Auto-merging apps/backoffice/src/app/rutas/tablero/catalogo/ficha-de-tabla.spec.ts
+CONFLICT (content): Merge conflict in apps/backoffice/src/app/rutas/tablero/catalogo/ficha-de-tabla.spec.ts
+Auto-merging apps/backoffice/src/app/rutas/tablero/catalogo/ficha-de-tabla.ts
+CONFLICT (content): Merge conflict in apps/backoffice/src/app/rutas/tablero/catalogo/ficha-de-tabla.ts
+Auto-merging apps/backoffice/src/app/rutas/tablero/catalogo/textos.ts
+CONFLICT (content): Merge conflict in apps/backoffice/src/app/rutas/tablero/catalogo/textos.ts
+Auto-merging apps/backoffice/src/app/rutas/tablero/catalogo/vista-operaciones.ts
+CONFLICT (add/add): Merge conflict in apps/backoffice/src/app/rutas/tablero/catalogo/vista-operaciones.ts
+Auto-merging apps/movil/lib/infraestructura/camara_en_vivo_plugin.dart
+CONFLICT (content): Merge conflict in apps/movil/lib/infraestructura/camara_en_vivo_plugin.dart
+Auto-merging docs/auditoria-produccion/endpoints.md
+CONFLICT (content): Merge conflict in docs/auditoria-produccion/endpoints.md
+Auto-merging docs/catalogo-de-datos.md
+CONFLICT (content): Merge conflict in docs/catalogo-de-datos.md
+Auto-merging docs/catalogo-de-flujos/matriz.md
+CONFLICT (content): Merge conflict in docs/catalogo-de-flujos/matriz.md
+Auto-merging docs/trabajo/2026-10-21-catalogo-de-datos-y-rediseno/PLAN.md
+CONFLICT (add/add): Merge conflict in docs/trabajo/2026-10-21-catalogo-de-datos-y-rediseno/PLAN.md
+Auto-merging docs/trabajo/2026-10-21-catalogo-de-datos-y-rediseno/REPORTE.md
+CONFLICT (add/add): Merge conflict in docs/trabajo/2026-10-21-catalogo-de-datos-y-rediseno/REPORTE.md
+Auto-merging packages/simulado/ejemplos/auditoria/obtenerResumenDelCatalogo.json
+CONFLICT (add/add): Merge conflict in packages/simulado/ejemplos/auditoria/obtenerResumenDelCatalogo.json
+Auto-merging packages/simulado/ejemplos/auditoria/obtenerTablaDelCatalogo.json
+CONFLICT (add/add): Merge conflict in packages/simulado/ejemplos/auditoria/obtenerTablaDelCatalogo.json
+Auto-merging packages/ui/src/estado-de-pantalla/estado-de-pantalla.ts
+Auto-merging postman/humo/auditoria.humo.postman_collection.json
+CONFLICT (content): Merge conflict in postman/humo/auditoria.humo.postman_collection.json
+Auto-merging scripts/catalogo_de_datos.py
+CONFLICT (content): Merge conflict in scripts/catalogo_de_datos.py
+Auto-merging scripts/generar_ddl.py
+CONFLICT (content): Merge conflict in scripts/generar_ddl.py
+Auto-merging scripts/test_catalogo_de_datos.py
+CONFLICT (add/add): Merge conflict in scripts/test_catalogo_de_datos.py
+Auto-merging scripts/verificar_narrativas.py
+CONFLICT (content): Merge conflict in scripts/verificar_narrativas.py
+Auto-merging servicios/auditoria/src/main/resources/catalogo/catalogo-datos.json
+CONFLICT (content): Merge conflict in servicios/auditoria/src/main/resources/catalogo/catalogo-datos.json
+Auto-merging servicios/auditoria/src/main/resources/openapi/auditoria.yaml
+Auto-merging servicios/auditoria/src/test/java/bo/aportaya/auditoria/aplicacion/ConsultarCatalogoDeDatosTest.java
+CONFLICT (add/add): Merge conflict in servicios/auditoria/src/test/java/bo/aportaya/auditoria/aplicacion/ConsultarCatalogoDeDatosTest.java
+Auto-merging servicios/auditoria/src/test/java/bo/aportaya/auditoria/web/CatalogoPorPartesWebTest.java
+CONFLICT (add/add): Merge conflict in servicios/auditoria/src/test/java/bo/aportaya/auditoria/web/CatalogoPorPartesWebTest.java
+Auto-merging sql/15_infra/borradores.sql
+CONFLICT (add/add): Merge conflict in sql/15_infra/borradores.sql
+Automatic merge failed; fix conflicts and then commit the result.
