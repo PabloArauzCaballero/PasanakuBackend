@@ -382,7 +382,27 @@
           "estadoRevision": "DETECTADA",
           "criticaParaAuditoria": false,
           "version": 0
-        }
+        },
+        "operaciones": [
+          {
+            "casoDeUso": "CU-21",
+            "titulo": "Cobrar el aporte del período",
+            "endpoints": [
+              {
+                "servicio": "aportes",
+                "metodo": "POST",
+                "ruta": "/aportes/obligaciones/{obligacionId}/pagos",
+                "operationId": "cobrarAporte"
+              },
+              {
+                "servicio": "aportes",
+                "metodo": "GET",
+                "ruta": "/aportes/participantes/{participanteId}/estado",
+                "operationId": "consultarEstadoDelParticipante"
+              }
+            ]
+          }
+        ]
       }
     },
     "vacio": {
@@ -424,7 +444,8 @@
           "revisadoPor": "ca1bdca6-bfa2-48c4-85b9-946289be256a",
           "actualizadoEn": "2026-01-15T10:30:00Z",
           "version": 0
-        }
+        },
+        "operaciones": []
       }
     },
     "adverso": {
@@ -512,7 +533,8 @@
           "revisadoPor": "ca1bdca6-bfa2-48c4-85b9-946289be256a",
           "actualizadoEn": "2026-01-15T10:30:00Z",
           "version": 0
-        }
+        },
+        "operaciones": []
       }
     },
     "rechazo": {

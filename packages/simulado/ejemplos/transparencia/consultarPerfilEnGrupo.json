@@ -1,0 +1,73 @@
+{
+  "servicio": "transparencia",
+  "operacion": "consultarPerfilEnGrupo",
+  "metodo": "get",
+  "ruta": "/reputacion/{usuarioId}/perfil-en-grupo/{grupoId}",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "tieneHistorial": true,
+        "puntaje": "puntaje",
+        "nivelDeConfianza": "nivelDeConfianza",
+        "indicePuntualidad": "indicePuntualidad",
+        "gruposCompletados": 0,
+        "gruposAbandonados": 0,
+        "incumplimientosAbiertos": 0,
+        "antiguedadMeses": 0,
+        "insignias": [
+          {
+            "codigo": "codigo",
+            "nombre": "nombre",
+            "descripcion": "descripcion",
+            "otorgadaEn": "2026-01-15T10:30:00Z"
+          }
+        ]
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "tieneHistorial": false,
+        "puntaje": "puntaje",
+        "nivelDeConfianza": "nivelDeConfianza",
+        "indicePuntualidad": "indicePuntualidad",
+        "gruposCompletados": 0,
+        "gruposAbandonados": 0,
+        "incumplimientosAbiertos": 0,
+        "antiguedadMeses": 0,
+        "insignias": []
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "tieneHistorial": true,
+        "puntaje": "puntaje",
+        "nivelDeConfianza": "nivelDeConfianza",
+        "indicePuntualidad": "indicePuntualidad",
+        "gruposCompletados": 0,
+        "gruposAbandonados": 0,
+        "incumplimientosAbiertos": 0,
+        "antiguedadMeses": 0,
+        "insignias": [
+          {
+            "codigo": "codigo",
+            "nombre": "nombre",
+            "descripcion": "descripcion",
+            "otorgadaEn": "2026-01-15T10:30:00Z"
+          }
+        ]
+      }
+    },
+    "rechazo": {
+      "estado": 403,
+      "cuerpo": {
+        "codigo": "AP-CU61-01",
+        "mensaje": "Sorteo no revelado",
+        "detalle": {},
+        "trazaId": "traza-consultarPerfilEnGrupo-rechazo"
+      }
+    }
+  }
+}
