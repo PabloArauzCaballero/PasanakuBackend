@@ -128,7 +128,7 @@ export class PantallaDeExpedientes {
    * estado y los que esperan una persona son dos.
    */
   protected readonly visibles = computed(() => {
-    return recortar(this.cola.value() ?? [], this.estado()).filter((e) =>
+    return recortar(this.cola.hasValue() ? (this.cola.value() ?? []) : [], this.estado()).filter((e) =>
       coincideConBusqueda(e, this.busqueda()),
     )
   })

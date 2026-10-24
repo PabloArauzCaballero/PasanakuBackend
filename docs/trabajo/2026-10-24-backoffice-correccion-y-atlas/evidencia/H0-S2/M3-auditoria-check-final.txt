@@ -1,0 +1,17 @@
+## 2026-10-24T06:17:25+00:00 · :servicios:auditoria:check (sin jacocoTestCoverageVerification) test webTest testBarrido --rerun-tasks
+> Task :servicios:auditoria:spotlessJava
+> Task :servicios:auditoria:spotlessJavaCheck
+> Task :servicios:auditoria:spotlessKotlinGradle
+> Task :servicios:auditoria:spotlessKotlinGradleCheck
+> Task :servicios:auditoria:spotlessCheck
+> Task :servicios:auditoria:testClasses
+> Task :servicios:auditoria:test
+> Task :servicios:auditoria:testBarrido
+> Task :servicios:auditoria:webTest
+> Task :servicios:auditoria:check
+BUILD SUCCESSFUL in 1m 19s
+41 actionable tasks: 41 executed
+test tests=45 failures=0 errors=0 skipped=0
+webTest tests=74 failures=0 errors=0 skipped=0
+testBarrido tests=2 failures=0 errors=0 skipped=0
+NO ejecutado: jacocoTestCoverageVerification (mide test+webTest+integrationTest; integrationTest necesita Docker/Testcontainers, no disponible en este contenedor: 0,37 de líneas sin integración, ENVIRONMENT)

@@ -30,6 +30,9 @@ const primitivas = [
 ]
 
 const roles = (tema) => ROLES.map((rol) => linea(aKebab(rol), resolverRol(tokens.roles[tema][rol])))
+// La capa del backoffice redefine solo los roles que cambian (el resto hereda del tema base).
+const capa = (tema) => Object.entries(tokens.roles[tema]).map(([rol, v]) => linea(aKebab(rol), resolverRol(v)))
+const BACKOFFICE = ":root[data-producto='backoffice']"
 
 const css = `/* GENERADO por packages/tokens/scripts/a-css.mjs desde tokens.json — no editar a mano. */
 
@@ -53,6 +56,26 @@ ${roles('claro').join('\n')}
 
 :root[data-theme='dark'] {
 ${roles('oscuro').join('\n')}
+}
+
+/* Backoffice: el lenguaje visual del portal interno (neutro, un acento). Va después: a igual especificidad, gana. */
+${BACKOFFICE} {
+${capa('backofficeClaro').join('\n')}
+}
+
+@media (prefers-color-scheme: dark) {
+  ${BACKOFFICE}:not([data-theme='light']) {
+${roles('oscuro').map((l) => `  ${l}`).join('\n')}
+${capa('backofficeOscuro').map((l) => `  ${l}`).join('\n')}
+  }
+}
+
+${BACKOFFICE}[data-theme='light'] {
+${capa('backofficeClaro').join('\n')}
+}
+
+${BACKOFFICE}[data-theme='dark'] {
+${capa('backofficeOscuro').join('\n')}
 }
 `
 mkdirSync(resolve(RAIZ, 'generado'), { recursive: true })

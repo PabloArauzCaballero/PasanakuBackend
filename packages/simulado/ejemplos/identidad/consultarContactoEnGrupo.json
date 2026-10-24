@@ -1,0 +1,35 @@
+{
+  "servicio": "identidad",
+  "operacion": "consultarContactoEnGrupo",
+  "metodo": "get",
+  "ruta": "/identidad/contactos/grupos/{grupoId}/integrantes/{usuarioId}",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "telefonoE164": "+54444444444"
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "telefonoE164": "+10000000"
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "telefonoE164": "+54444444444"
+      }
+    },
+    "rechazo": {
+      "estado": 403,
+      "cuerpo": {
+        "codigo": "AP-CU01-03",
+        "mensaje": "Cuenta ya existe",
+        "detalle": {},
+        "trazaId": "traza-consultarContactoEnGrupo-rechazo"
+      }
+    }
+  }
+}

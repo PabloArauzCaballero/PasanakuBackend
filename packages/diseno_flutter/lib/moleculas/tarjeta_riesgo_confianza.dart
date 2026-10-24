@@ -32,14 +32,19 @@ class TarjetaRiesgoConfianza extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = Tokens.of(context);
     final esVerde = score >= 80;
-    final colorAcento = esVerde ? const Color(0xFF10B981) : const Color(0xFFF59E0B);
+    final colorAcento = esVerde
+        ? const Color(0xFF10B981)
+        : const Color(0xFFF59E0B);
 
     return Container(
       padding: const EdgeInsets.all(Espacio.s4),
       decoration: BoxDecoration(
         color: t.surface,
         borderRadius: BorderRadius.circular(Radios.xl),
-        border: Border.all(color: colorAcento.withValues(alpha: 0.35), width: 1.5),
+        border: Border.all(
+          color: colorAcento.withValues(alpha: 0.35),
+          width: 1.5,
+        ),
         boxShadow: [
           BoxShadow(
             color: colorAcento.withValues(alpha: 0.08),
@@ -215,10 +220,7 @@ class TarjetaRiesgoConfianza extends StatelessWidget {
           // Pie de auditoría
           Text(
             'Auditoría fáctica: calculado a partir de asientos contables reales en AportaYa.',
-            style: Tipo.etiqueta.copyWith(
-              color: t.text3,
-              fontSize: 11,
-            ),
+            style: Tipo.etiqueta.copyWith(color: t.text3, fontSize: 11),
           ),
         ],
       ),
@@ -252,10 +254,7 @@ class _MetricaFactual extends StatelessWidget {
         const SizedBox(height: 2),
         Text(
           etiqueta,
-          style: Tipo.etiqueta.copyWith(
-            color: t.text3,
-            fontSize: 11,
-          ),
+          style: Tipo.etiqueta.copyWith(color: t.text3, fontSize: 11),
         ),
       ],
     );

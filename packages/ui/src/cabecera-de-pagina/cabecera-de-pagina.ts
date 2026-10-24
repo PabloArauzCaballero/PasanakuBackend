@@ -38,13 +38,13 @@ import { Icono, NombreDeIcono } from '../icono/icono'
     /* En el celular el título se recompone en vez de encogerse: el rol titulo-1 en un teléfono angosto parte en tres líneas. */
     h1 { margin: 0; font: var(--t-titulo-2); letter-spacing: var(--t-titulo-2-track); color: var(--text); overflow-wrap: anywhere; text-wrap: pretty; font-weight: 700; }
     .descripcion { margin: var(--s1) 0 0; max-width: 70ch; font: var(--t-cuerpo-chico); color: var(--text-2); overflow-wrap: anywhere; line-height: 1.5; }
-    /* Carril: en el celular tres botones se envolvían en tres líneas y empujaban el contenido fuera de la primera pantalla. */
-    .acciones { display: flex; align-items: center; gap: var(--s2); overflow-x: auto; scrollbar-width: none; margin: 0 calc(var(--s3) * -1); padding: 0 var(--s3) var(--s1); }
+    /* Las acciones y los estados envuelven: un carril con scroll lateral escondía el último chip («Activa») sin pista a 360 px.
+       Información que se corta es información perdida (WCAG 1.4.10, reflujo): preferimos una línea más a un estado invisible. */
+    .acciones { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s2); }
     .acciones:empty { display: none; }
     @media (min-width: 40rem) {
       .loseta { display: inline-flex; }
       h1 { font: var(--t-titulo-1); letter-spacing: var(--t-titulo-1-track); }
-      .acciones { flex-wrap: wrap; overflow: visible; margin: 0; padding: 0; }
     }
     @media (min-width: 64rem) {
       header { flex-direction: row; align-items: flex-start; justify-content: space-between; }

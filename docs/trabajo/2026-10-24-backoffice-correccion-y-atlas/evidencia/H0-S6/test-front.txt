@@ -1,0 +1,20 @@
+## 2026-10-24T05:25:09+00:00 · Node v22.23.4
+$ yarn test:front
+[2m Test Files [22m [1m[32m151 passed[39m[22m[90m (151)[39m
+[2m      Tests [22m [1m[32m944 passed[39m[22m[90m (944)[39m
+$ yarn test:a11y
+[31m     [31m×[31m sin violaciones serias en la pestaña de órdenes, con el aviso de segregación a la vista[39m[32m 287[2mms[22m[39m
+[31m     [31m×[31m sin violaciones serias en la pestaña de facturas de proveedor[39m[32m 219[2mms[22m[39m
+[31m     [31m×[31m sin violaciones serias con la cola cargada[39m[32m 195[2mms[22m[39m
+[31m     [31m×[31m sin violaciones serias, con el aviso de que el presupuesto mide y no bloquea[39m[32m 225[2mms[22m[39m
+[31m     [31m×[31m sin violaciones serias en el inventario de activos fijos[39m[32m 186[2mms[22m[39m
+[31m     [31m×[31m sin violaciones serias en la tabla de cuentas por cobrar[39m[32m 205[2mms[22m[39m
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 6 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+[41m[1m FAIL [22m[49m [30m[42m backoffice [49m[39m src/app/rutas/contabilidad/activos/pantalla-de-activos.a11y.spec.ts[2m > [22mPantallaDeActivos · accesibilidad[2m > [22msin violaciones serias en el inventario de activos fijos
+[41m[1m FAIL [22m[49m [30m[42m backoffice [49m[39m src/app/rutas/contabilidad/cobros/pantalla-de-cobros.a11y.spec.ts[2m > [22mPantallaDeCobros · accesibilidad[2m > [22msin violaciones serias en la tabla de cuentas por cobrar
+[41m[1m FAIL [22m[49m [30m[42m backoffice [49m[39m src/app/rutas/contabilidad/compras/pantalla-de-compras.a11y.spec.ts[2m > [22mPantallaDeCompras · accesibilidad[2m > [22msin violaciones serias en la pestaña de órdenes, con el aviso de segregación a la vista
+[41m[1m FAIL [22m[49m [30m[42m backoffice [49m[39m src/app/rutas/contabilidad/compras/pantalla-de-compras.a11y.spec.ts[2m > [22mPantallaDeCompras · accesibilidad[2m > [22msin violaciones serias en la pestaña de facturas de proveedor
+[41m[1m FAIL [22m[49m [30m[42m backoffice [49m[39m src/app/rutas/contabilidad/presupuesto/pantalla-de-presupuesto.a11y.spec.ts[2m > [22mPantallaDePresupuesto · accesibilidad[2m > [22msin violaciones serias, con el aviso de que el presupuesto mide y no bloquea
+[41m[1m FAIL [22m[49m [30m[42m backoffice [49m[39m src/app/rutas/operacion/solicitudes-escaladas/cola-de-solicitudes-escaladas.a11y.spec.ts[2m > [22mColaDeSolicitudesEscaladas · accesibilidad[2m > [22msin violaciones serias con la cola cargada
+[2m Test Files [22m [1m[31m5 failed[39m[22m[2m | [22m[1m[32m37 passed[39m[22m[90m (42)[39m
+[2m      Tests [22m [1m[31m6 failed[39m[22m[2m | [22m[1m[32m72 passed[39m[22m[90m (78)[39m

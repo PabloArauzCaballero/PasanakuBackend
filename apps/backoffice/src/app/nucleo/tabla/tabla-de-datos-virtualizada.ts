@@ -64,7 +64,8 @@ import { accionParaTecla, enfocarFilaPorId } from './navegacion-por-teclado'
       </div>
       <div class="contenedor-cuerpo">
         @if (cargando() && filas().length === 0) {
-          <div class="esqueleto-superpuesto" role="status" aria-live="polite">
+          <!-- Decorativo: dentro de role="table" solo caben filas. El aviso «Cargando…» de la cabecera ya lo anuncia. -->
+          <div class="esqueleto-superpuesto" aria-hidden="true">
             <ap-esqueleto forma="filas" [lineas]="5" etiqueta="Cargando registros…" />
           </div>
         }

@@ -76,14 +76,18 @@ class GrillaMetricasMiembro extends StatelessWidget {
         titulo: 'Días de Retraso',
         valor: diasRetraso == 0 ? '0 días' : '$diasRetraso d',
         icono: Icons.schedule_outlined,
-        colorAcento: diasRetraso == 0 ? const Color(0xFF10B981) : const Color(0xFFEF4444),
+        colorAcento: diasRetraso == 0
+            ? const Color(0xFF10B981)
+            : const Color(0xFFEF4444),
         subtitulo: diasRetraso == 0 ? 'Puntualidad 100%' : 'Atraso promedio',
       ),
       _DatoMetrica(
         titulo: 'Impagos',
         valor: impagos == 0 ? '0' : '$impagos',
         icono: Icons.verified_outlined,
-        colorAcento: impagos == 0 ? const Color(0xFF10B981) : const Color(0xFFEF4444),
+        colorAcento: impagos == 0
+            ? const Color(0xFF10B981)
+            : const Color(0xFFEF4444),
         subtitulo: impagos == 0 ? 'Récord limpio' : 'Incumplimientos',
       ),
     ];
@@ -206,10 +210,7 @@ class _TarjetaMetricaIndividual extends StatelessWidget {
           const SizedBox(height: 2),
           Text(
             metrica.subtitulo,
-            style: Tipo.etiqueta.copyWith(
-              color: t.text3,
-              fontSize: 11,
-            ),
+            style: Tipo.etiqueta.copyWith(color: t.text3, fontSize: 11),
           ),
         ],
       ),

@@ -131,6 +131,28 @@ describe('EntradaDeAdmision · Bandeja de solicitudes de ingreso', () => {
     expect(texto).toContain('No hay solicitudes de ingreso')
   })
 
+  it('si el servidor falla (500): muestra el error accionable con «Volver a intentar», no lanza al pintar y la apertura directa sigue funcionando', async () => {
+    const fixture = TestBed.createComponent(EntradaDeAdmision)
+    fixture.detectChanges()
+
+    // Regresión: leer `value()` de un recurso en error lanza ResourceValueError dentro del cálculo y aborta el
+    // render; el operador veía la pantalla congelada y la validación del identificador no se pintaba.
+    http.expectOne(`${GW}/grupos/solicitudes`).flush({ codigo: 'AP-ERROR' }, { status: 500, statusText: 'Internal Server Error' })
+    await fixture.whenStable()
+    expect(() => fixture.detectChanges()).not.toThrow()
+
+    const el = fixture.nativeElement as HTMLElement
+    expect(el.querySelector('[role="alert"]')).not.toBeNull()
+    expect(Array.from(el.querySelectorAll('button')).some((b) => /volver a intentar/i.test(b.textContent ?? ''))).toBe(true)
+
+    // La apertura directa por identificador no depende de la lista y se pinta aun con la lista caída.
+    const comp = fixture.componentInstance
+    comp.id.set('no-es-un-uuid')
+    comp['abrir']()
+    fixture.detectChanges()
+    expect(el.textContent).toContain('Ese identificador no tiene el formato de una solicitud.')
+  })
+
   it('permite abrir directamente una solicitud por UUID válido', async () => {
     const fixture = TestBed.createComponent(EntradaDeAdmision)
     fixture.detectChanges()

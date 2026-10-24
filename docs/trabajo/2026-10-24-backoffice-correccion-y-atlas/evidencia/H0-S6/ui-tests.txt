@@ -1,0 +1,7 @@
+## 2026-10-24T05:42:01+00:00
+$ yarn workspace @aportaya/ui test:front
+ Test Files  35 passed (35)
+      Tests  164 passed (164)
+$ yarn workspace @aportaya/ui test:a11y
+ Test Files  2 passed (2)
+      Tests  9 passed (9)

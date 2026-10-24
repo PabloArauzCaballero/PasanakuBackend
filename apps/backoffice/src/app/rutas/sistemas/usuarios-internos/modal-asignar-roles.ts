@@ -21,7 +21,7 @@ import { asignadorRolesUsuarioInterno, catalogoRoles } from '../dominio/usuarios
           <p class="ayuda">Seleccioná los roles que corresponden a las funciones del operador:</p>
 
           <div class="lista-seleccion">
-            @for (r of roles.value() ?? []; track r.id) {
+            @for (r of roles.hasValue() ? (roles.value() ?? []) : []; track r.id) {
               <label class="item-rol">
                 <input type="checkbox" [checked]="rolesSeleccionados().includes(r.codigo)" (change)="toggleRol(r.codigo)" [disabled]="enviando()" />
                 <div>

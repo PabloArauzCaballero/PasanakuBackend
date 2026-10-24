@@ -93,10 +93,7 @@ class TarjetaPuntosMesa extends StatelessWidget {
                 ),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    colors: [
-                      colorOro,
-                      colorOro.withValues(alpha: 0.8),
-                    ],
+                    colors: [colorOro, colorOro.withValues(alpha: 0.8)],
                   ),
                   borderRadius: BorderRadius.circular(Radios.pill),
                   boxShadow: [
@@ -159,11 +156,7 @@ class TarjetaPuntosMesa extends StatelessWidget {
           // Regla clave del sistema de juego
           Row(
             children: [
-              Icon(
-                Icons.check_circle_outline,
-                size: 14,
-                color: t.brand,
-              ),
+              Icon(Icons.check_circle_outline, size: 14, color: t.brand),
               const SizedBox(width: 6),
               Expanded(
                 child: Text(

@@ -1,0 +1,22 @@
+## 2026-10-24T05:24:42+00:00 · Node v22.23.4
+$ yarn workspace @aportaya/backoffice lint
+All files pass linting.
+
+=== apps/backoffice (Angular) ===
+  OK    · sin red en vista 
+  OK    · sin literal de diseño 
+  OK    · sin formato de dinero 
+  OK    · sin console 
+  OK    · ningún archivo de más de 200 líneas 
+=== packages/tutoriales (Angular) ===
+  OK    · sin red fuera del puerto 
+  OK    · sin literal de diseño 
+  OK    · sin console 
+  OK    · ningún archivo de más de 200 líneas 
+  OK    · sin literal de diseño en @aportaya/ui 
+
+TODO OK
+exit=0
+$ ng test --include=explicador*
+[2m Test Files [22m [1m[32m31 passed[39m[22m[90m (31)[39m
+[2m      Tests [22m [1m[32m246 passed[39m[22m[90m (246)[39m

@@ -47,6 +47,31 @@ describe('TablaDeDatosVirtualizada · dataset grande paginado del servidor', () 
     expect(instancia.filas().length).toBe(50)
   })
 
+  it('mientras carga: el aviso «Cargando…» está en la cabecera y el esqueleto no mete un status dentro de la tabla', async () => {
+    let soltar!: (p: PaginaServidor<Fila>) => void
+    const colgado: CargadorDePagina<Fila> = () => new Promise<PaginaServidor<Fila>>((r) => (soltar = r))
+    const fixture = TestBed.createComponent(TablaDeDatosVirtualizada<Fila>)
+    fixture.componentRef.setInput('titulo', 'Prueba de carga')
+    fixture.componentRef.setInput('columnas', [{ clave: 'nombre', titulo: 'Nombre' }])
+    fixture.componentRef.setInput('cargador', colgado)
+    fixture.detectChanges()
+    await fixture.whenStable()
+    const el = fixture.nativeElement as HTMLElement
+    expect(fixture.componentInstance.cargando()).toBe(true)
+    // Se ve el esqueleto y se anuncia la carga una sola vez, fuera de la tabla.
+    expect(el.querySelector('.esqueleto-superpuesto')).not.toBeNull()
+    expect(el.querySelector('.cabecera-tabla [role="status"]')?.textContent).toContain('Cargando')
+    // Dentro de role="table" solo caben filas: ARIA (aria-required-children) rechaza un status ahí.
+    const visibles = Array.from(el.querySelectorAll('[role="table"] [role="status"]')).filter((n) => !n.closest('[aria-hidden="true"]'))
+    expect(visibles).toEqual([])
+    expect(el.querySelector('.esqueleto-superpuesto')?.getAttribute('aria-hidden')).toBe('true')
+    soltar({ filas: [], total: 0 })
+    await fixture.whenStable()
+    fixture.detectChanges()
+    expect(fixture.componentInstance.cargando()).toBe(false)
+    expect(el.querySelector('.esqueleto-superpuesto')).toBeNull()
+  })
+
   it('cambiar de página vuelve a pedir al servidor, con el tamaño de página fijo', async () => {
     const fixture = await montar()
     fixture.componentInstance.pagina.set(3)

@@ -1,0 +1,114 @@
+{
+  "servicio": "grupos",
+  "operacion": "consultarDetalleDelGrupo",
+  "metodo": "get",
+  "ruta": "/grupos/{grupoId}/detalle",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "grupoId": "8d80ad4b-5983-4065-82bf-c92d2e7046db",
+        "nombre": "nombre",
+        "estado": "estado",
+        "montoAporte": "4.44",
+        "moneda": "mon",
+        "periodicidad": "periodicidad",
+        "cuposTotales": 1,
+        "cuposOcupados": 0,
+        "soyOrganizador": true,
+        "debeFirmar": true,
+        "puedeSortear": true,
+        "reglamento": {
+          "texto": "texto",
+          "hash": "7777777777777777777777777777777777777777777777777777777777777777"
+        },
+        "sorteo": {
+          "sorteoId": "3cb61c00-252a-4dc4-899c-e1c461e119c4",
+          "estado": "COMPROMETIDO"
+        },
+        "integrantes": [
+          {
+            "numero": 1,
+            "cupoId": "b2fd19a1-1568-4d7f-8586-a1b22c866172",
+            "usuarioId": "865a6136-dd05-4094-8b5f-c1a2636001ca",
+            "nombre": "nombre",
+            "estado": "LIBRE",
+            "esOrganizador": true,
+            "soyYo": true,
+            "turno": 1
+          }
+        ]
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "grupoId": "8d80ad4b-5983-4065-82bf-c92d2e7046db",
+        "nombre": "nombre",
+        "estado": "estado",
+        "montoAporte": "0.00",
+        "moneda": "mon",
+        "periodicidad": "periodicidad",
+        "cuposTotales": 1,
+        "cuposOcupados": 0,
+        "soyOrganizador": false,
+        "debeFirmar": false,
+        "puedeSortear": false,
+        "reglamento": {
+          "texto": "texto",
+          "hash": "0000000000000000000000000000000000000000000000000000000000000000"
+        },
+        "sorteo": {
+          "sorteoId": "3cb61c00-252a-4dc4-899c-e1c461e119c4",
+          "estado": "COMPROMETIDO"
+        },
+        "integrantes": []
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "grupoId": "8d80ad4b-5983-4065-82bf-c92d2e7046db",
+        "nombre": "nombre",
+        "estado": "estado",
+        "montoAporte": "4.44",
+        "moneda": "mon",
+        "periodicidad": "periodicidad",
+        "cuposTotales": 1,
+        "cuposOcupados": 0,
+        "soyOrganizador": true,
+        "debeFirmar": true,
+        "puedeSortear": true,
+        "reglamento": {
+          "texto": "texto",
+          "hash": "7777777777777777777777777777777777777777777777777777777777777777"
+        },
+        "sorteo": {
+          "sorteoId": "3cb61c00-252a-4dc4-899c-e1c461e119c4",
+          "estado": "COMPROMETIDO"
+        },
+        "integrantes": [
+          {
+            "numero": 1,
+            "cupoId": "b2fd19a1-1568-4d7f-8586-a1b22c866172",
+            "usuarioId": "865a6136-dd05-4094-8b5f-c1a2636001ca",
+            "nombre": "nombre",
+            "estado": "LIBRE",
+            "esOrganizador": true,
+            "soyYo": true,
+            "turno": 1
+          }
+        ]
+      }
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU69-14",
+        "mensaje": "No es integrante",
+        "detalle": {},
+        "trazaId": "traza-consultarDetalleDelGrupo-rechazo"
+      }
+    }
+  }
+}

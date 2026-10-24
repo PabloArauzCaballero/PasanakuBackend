@@ -24,10 +24,12 @@ export type Pestana = { valor: string; texto: string; cuenta?: number }
     button[aria-selected="true"] { color: var(--brand-texto); border-bottom-color: var(--brand); }
     button:focus-visible { outline: var(--borde-foco) solid var(--g300); outline-offset: calc(var(--borde-desfase) * -1); }
     .cuenta { padding: 0 var(--s2); border-radius: var(--r-pill); background: var(--surface-2); color: var(--text-2); font-size: .8em; }
-    :host(.segmentada) { gap: var(--s1); padding: var(--s1); border: var(--borde-fino) solid var(--border); border-bottom-width: var(--borde-fino); border-radius: var(--r-md); background: var(--surface-2); }
+    /* Segmentada envuelve: a 360 px la activa quedaba recortada («Opera») y las últimas pestañas, inalcanzables y sin pista. */
+    :host(.segmentada) { flex-wrap: wrap; overflow-x: visible; gap: var(--s1); padding: var(--s1); border: var(--borde-fino) solid var(--border); border-bottom-width: var(--borde-fino); border-radius: var(--r-md); background: var(--surface-2); }
     :host(.segmentada) button { min-height: calc(var(--area-tactil) - var(--s2)); margin: 0; border: 0; border-radius: var(--r-sm); color: var(--text-3); transition: background-color var(--mov-micro) ease-out, color var(--mov-micro) ease-out; }
-    :host(.segmentada) button:hover { color: var(--text); background: color-mix(in srgb, var(--surface) 60%, transparent); }
-    :host(.segmentada) button[aria-selected="true"] { color: var(--text); background: var(--surface); box-shadow: var(--sombra-1); }
+    /* El hover se distingue de la activa: sin fondo claro ni sombra, solo un velo de la tinta; la activa es la única «tarjeta». */
+    :host(.segmentada) button:hover:not([aria-selected="true"]) { color: var(--text); background: color-mix(in srgb, var(--text) 7%, transparent); }
+    :host(.segmentada) button[aria-selected="true"] { color: var(--text); background: var(--surface); box-shadow: var(--sombra-1), inset 0 0 0 var(--borde-fino) var(--border); }
     button[aria-selected="true"] .cuenta { background: var(--brand-bg); color: var(--brand-ink); }
   `,
 })

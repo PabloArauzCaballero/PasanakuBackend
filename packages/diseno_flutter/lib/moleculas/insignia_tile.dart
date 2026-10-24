@@ -101,7 +101,9 @@ class InsigniaTile extends StatelessWidget {
                 ),
                 child: Center(
                   child: Icon(
-                    conseguida ? icono : (progreso != null ? icono : Icons.lock_outline),
+                    conseguida
+                        ? icono
+                        : (progreso != null ? icono : Icons.lock_outline),
                     color: conseguida ? tier.colorPrimario : t.text3,
                     size: 24,
                   ),
@@ -182,8 +184,8 @@ class InsigniaTile extends StatelessWidget {
               tono: tier == InsigniaTier.esmeralda
                   ? Tono.ok
                   : tier == InsigniaTier.bronce
-                      ? Tono.aviso
-                      : Tono.marca,
+                  ? Tono.aviso
+                  : Tono.marca,
             ),
             const SizedBox(height: Espacio.s1),
             Row(
@@ -191,7 +193,8 @@ class InsigniaTile extends StatelessWidget {
               children: [
                 Expanded(
                   child: Text(
-                    progresoEtiqueta ?? '${(progreso! * 100).toInt()}% completado',
+                    progresoEtiqueta ??
+                        '${(progreso! * 100).toInt()}% completado',
                     style: Tipo.etiqueta.copyWith(color: t.text3),
                     overflow: TextOverflow.ellipsis,
                   ),
