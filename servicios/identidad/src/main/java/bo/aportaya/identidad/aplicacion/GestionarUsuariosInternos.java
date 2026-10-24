@@ -45,6 +45,7 @@ public class GestionarUsuariosInternos {
         this.outbox = outbox;
     }
 
+    @Transactional(readOnly = true)
     public List<UsuarioInternoResumen> listar(String estado, String rol, String busqueda, ContextoSesion ctx) {
         OffsetDateTime ahora = reloj.ahora().atOffset(ZoneOffset.UTC);
         return datos.conContexto(ctx, dsl -> repositorio.listar(dsl, estado, rol, busqueda, ahora));
@@ -71,6 +72,7 @@ public class GestionarUsuariosInternos {
         });
     }
 
+    @Transactional(readOnly = true)
     public Optional<UsuarioInternoDetalle> consultar(UUID id, ContextoSesion ctx) {
         OffsetDateTime ahora = reloj.ahora().atOffset(ZoneOffset.UTC);
         return datos.conContexto(ctx, dsl -> repositorio.consultar(dsl, id, ahora));
@@ -139,10 +141,12 @@ public class GestionarUsuariosInternos {
         });
     }
 
+    @Transactional(readOnly = true)
     public List<RolCatalogo> listarRoles(ContextoSesion ctx) {
         return datos.conContexto(ctx, rolesYPermisos::listarRoles);
     }
 
+    @Transactional(readOnly = true)
     public List<PermisoCatalogo> listarPermisos(ContextoSesion ctx) {
         return datos.conContexto(ctx, rolesYPermisos::listarPermisos);
     }

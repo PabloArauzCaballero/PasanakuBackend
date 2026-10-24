@@ -115,6 +115,88 @@ class ReglasPropiasTest {
         assertThat(ClaveIdempotenciaSuelta.revisar(raiz)).isEmpty();
     }
 
+    @Test
+    @DisplayName("con-contexto-sin-transaccion: metodo publico de aplicacion que llama conContexto sin @Transactional, se detecta")
+    void conContextoSinTransaccionSeDetecta() throws IOException {
+        escribirEnAplicacion(
+                "Listador.java",
+                "public class Listador {\n"
+                        + "    public Listador(Datos datos) {}\n"
+                        + "\n"
+                        + "    public List<String> listar(Contexto ctx) {\n"
+                        + "        return datos.conContexto(ctx, dsl -> repositorio.listar(dsl));\n"
+                        + "    }\n"
+                        + "}\n");
+
+        assertThat(ConContextoSinTransaccion.revisar(raiz)).singleElement().satisfies(h -> {
+            assertThat(h.archivo().getFileName()).hasToString("Listador.java");
+            assertThat(h.linea()).isEqualTo(4);
+            assertThat(h.detalle()).contains("listar");
+        });
+    }
+
+    @Test
+    @DisplayName("con-contexto-sin-transaccion: solo el metodo sin anotar se senala, no el anotado de al lado")
+    void conContextoSinTransaccionSenalaSoloAlQueFalta() throws IOException {
+        escribirEnAplicacion(
+                "Mixto.java",
+                "public class Mixto {\n"
+                        + "    @Transactional\n"
+                        + "    public String crear(Contexto ctx) {\n"
+                        + "        return datos.conContexto(ctx, dsl -> \"x\");\n"
+                        + "    }\n"
+                        + "\n"
+                        + "    @Transactional(readOnly = true)\n"
+                        + "    public String leer(Contexto ctx) {\n"
+                        + "        return datos.conContexto(ctx, dsl -> \"y\");\n"
+                        + "    }\n"
+                        + "\n"
+                        + "    public String olvidado(Contexto ctx) {\n"
+                        + "        return datos.conContexto(ctx, dsl -> \"z\");\n"
+                        + "    }\n"
+                        + "}\n");
+
+        assertThat(ConContextoSinTransaccion.revisar(raiz)).singleElement().satisfies(h -> {
+            assertThat(h.detalle()).contains("olvidado");
+            assertThat(h.linea()).isEqualTo(12);
+        });
+    }
+
+    @Test
+    @DisplayName("con-contexto-sin-transaccion: @Transactional en la clase cubre a todos sus metodos")
+    void conContextoSinTransaccionNoGritaConTransaccionDeClase() throws IOException {
+        escribirEnAplicacion(
+                "DeClase.java",
+                "@Service\n"
+                        + "@Transactional\n"
+                        + "public class DeClase {\n"
+                        + "    public String leer(Contexto ctx) {\n"
+                        + "        return datos.conContexto(ctx, dsl -> \"x\");\n"
+                        + "    }\n"
+                        + "}\n");
+
+        assertThat(ConContextoSinTransaccion.revisar(raiz)).isEmpty();
+    }
+
+    @Test
+    @DisplayName("con-contexto-sin-transaccion: fuera de la capa aplicacion no se revisa")
+    void conContextoSinTransaccionIgnoraLoQueNoEsAplicacion() throws IOException {
+        escribir(
+                "Repositorio.java",
+                "public class Repositorio {\n"
+                        + "    public String leer(Contexto ctx) {\n"
+                        + "        return datos.conContexto(ctx, dsl -> \"x\");\n"
+                        + "    }\n"
+                        + "}\n");
+
+        assertThat(ConContextoSinTransaccion.revisar(raiz)).isEmpty();
+    }
+
+    private void escribirEnAplicacion(String nombre, String contenido) throws IOException {
+        Path dir = Files.createDirectories(raiz.resolve("aplicacion"));
+        Files.writeString(dir.resolve(nombre), contenido);
+    }
+
     private void escribir(String nombre, String contenido) throws IOException {
         Files.writeString(raiz.resolve(nombre), contenido);
     }
