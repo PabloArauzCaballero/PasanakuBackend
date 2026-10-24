@@ -30,7 +30,9 @@ class BarraPestanas extends StatelessWidget {
       color: t.surface,
       child: DecoratedBox(
         decoration: BoxDecoration(
-          border: Border(top: BorderSide(color: t.border, width: Borde.fino)),
+          border: Border(
+            top: BorderSide(color: t.border, width: Borde.fino),
+          ),
         ),
         child: SafeArea(
           top: false,
@@ -44,7 +46,10 @@ class BarraPestanas extends StatelessWidget {
                       destino: destinos[i],
                       seleccionado: i == actual,
                       tokens: t,
-                      duracionIcono: duracion(context, Movimiento.tildeDeValidez),
+                      duracionIcono: duracion(
+                        context,
+                        Movimiento.tildeDeValidez,
+                      ),
                       alTocar: () => onChanged(i),
                     ),
                   ),
@@ -168,17 +173,18 @@ class _DestinoDePestanas extends StatelessWidget {
                     AnimatedDefaultTextStyle(
                       duration: duracion(context, Movimiento.cambioDeEstado),
                       curve: Movimiento.llega,
-                      style: (Theme.of(context).textTheme.labelSmall ??
-                              const TextStyle())
-                          .copyWith(
-                            color: seleccionado
-                                ? tokens.brandTexto
-                                : tokens.text2,
-                            fontWeight: seleccionado
-                                ? FontWeight.w600
-                                : FontWeight.w500,
-                            letterSpacing: 0.1,
-                          ),
+                      style:
+                          (Theme.of(context).textTheme.labelSmall ??
+                                  const TextStyle())
+                              .copyWith(
+                                color: seleccionado
+                                    ? tokens.brandTexto
+                                    : tokens.text2,
+                                fontWeight: seleccionado
+                                    ? FontWeight.w600
+                                    : FontWeight.w500,
+                                letterSpacing: 0.1,
+                              ),
                       child: Text(
                         destino.texto,
                         maxLines: 1,
