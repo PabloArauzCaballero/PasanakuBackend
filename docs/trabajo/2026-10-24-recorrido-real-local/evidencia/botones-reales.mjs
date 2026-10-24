@@ -40,6 +40,7 @@ for (const ruta of rutas) {
     try { nombre = ((await el.getAttribute('aria-label')) || (await el.innerText({ timeout: 1500 })) || (await el.getAttribute('title')) || '').replace(/\s+/g, ' ').trim().slice(0, 60) } catch { continue }
     const tag = await el.evaluate((n) => n.tagName).catch(() => '')
     if (SALTAR.test(nombre)) { fila.saltados.push(nombre); continue }
+    if (await el.isDisabled().catch(() => false)) { (fila.deshabilitados ??= []).push(nombre); continue } // deshabilitado a proposito (p. ej. paginador con una sola pagina): no es un fallo
     peticiones = []; consola = []
     try {
       if (tag === 'SELECT') { const op = await el.locator('option').count(); if (op > 1) await el.selectOption({ index: 1 }, { timeout: 2000 }) }

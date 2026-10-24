@@ -40,9 +40,9 @@
 | ID | Microtarea | CA (binario) | DoD | Estado |
 |---|---|---|---|---|
 | H2.S1.M1 | Inicio de sesión del operador por la API real, con segundo factor | token de acceso válido | `curl` literal (token enmascarado) | HECHO |
-| H2.S1.M2 | `ng serve` del backoffice con proxy al gateway local | `GET /` y `GET /api/v1/...` responden desde el navegador | Playwright | TODO |
-| H2.S2.M1 | Inventario de rutas del backoffice (de `rutas.ts`) y su servicio | lista completa con la ruta de API de cada una | tabla en evidencia | TODO |
-| H2.S2.M2 | Recorrido de cada pantalla (se desglosa por grupo al llegar) | ver CA de H2 | evidencia por pantalla | TODO |
+| H2.S1.M2 | `ng serve` del backoffice con proxy al gateway local | `GET /` y `GET /api/v1/...` responden desde el navegador | Playwright | HECHO (`ng serve` en 4200 con proxy al gateway; el gateway solo admite el origen `http://localhost:4200`) |
+| H2.S2.M1 | Inventario de rutas del backoffice (de `rutas.ts`) y su servicio | lista completa con la ruta de API de cada una | tabla en evidencia | HECHO (57 rutas estáticas; evidencia/rutas-estaticas.json) |
+| H2.S2.M2 | Recorrido de cada pantalla (se desglosa por grupo al llegar) | ver CA de H2 | evidencia por pantalla | **A MEDIAS**: 57 rutas estáticas × 6 roles y barrido de botones hechos (evidencia/recorrido-consolidado.md y barrido-de-botones.md); faltan rutas con parámetro, móvil/tablet/oscuro, mutaciones por la UI y la doble revisión de capturas |
 
 ## H3 — Defectos reales que el recorrido contra el backend vivo destapó
 **CA:** Dado el backend local, cuando el operador abre Usuarios internos, Roles internos, Permisos internos y Bitácora, entonces cada pantalla carga datos reales (o vacío) sin 422/500.

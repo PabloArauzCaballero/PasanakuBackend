@@ -1,0 +1,40 @@
+[
+  {
+    "ruta": "/publicidad/anunciantes",
+    "final": "/publicidad/anunciantes",
+    "controles": 4,
+    "pulsados": 2,
+    "saltados": [],
+    "hallazgos": [],
+    "deshabilitados": [
+      "Anterior",
+      "Siguiente"
+    ]
+  },
+  {
+    "ruta": "/publicidad/campanas",
+    "final": "/publicidad/campanas",
+    "controles": 8,
+    "pulsados": 7,
+    "saltados": [
+      "Crear campaña"
+    ],
+    "hallazgos": []
+  },
+  {
+    "ruta": "/publicidad/desempeno",
+    "final": "/publicidad/desempeno",
+    "controles": 2,
+    "pulsados": 2,
+    "saltados": [],
+    "hallazgos": []
+  },
+  {
+    "ruta": "/publicidad/liquidacion",
+    "final": "/publicidad/liquidacion",
+    "controles": 2,
+    "pulsados": 2,
+    "saltados": [],
+    "hallazgos": []
+  }
+]
