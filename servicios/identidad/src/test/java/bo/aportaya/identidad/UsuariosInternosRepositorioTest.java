@@ -91,8 +91,10 @@ class UsuariosInternosRepositorioTest {
                 .isEqualTo("NINGUNO");
 
         var credencial = dsl.fetchOne(
-                "SELECT algoritmo, parametros_kdf::text AS kdf, requiere_cambio FROM identidad.credencial_acceso"
-                        + " WHERE usuario_id = ?",
+                """
+                SELECT algoritmo, parametros_kdf::text AS kdf, requiere_cambio
+                FROM identidad.credencial_acceso WHERE usuario_id = ?
+                """,
                 detalle.getUsuarioId());
         assertThat(credencial).isNotNull();
         assertThat(credencial.get("algoritmo", String.class))
