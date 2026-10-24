@@ -21,10 +21,15 @@ confirmación o irreversible (lista `SALTAR` del script).
 | OPERADOR_PUBLICIDAD | 10 / 57 | 45 | 32 |
 
 ## Clasificación de los 57 hallazgos únicos
+Recuento exacto: **19** son peticiones con estado ≥ 400 (3 peticiones distintas, 2 causas) y **38** son «no se pudo
+pulsar» (28 paginadores y 10 controles sueltos). Los 38 se descartaron como defectos en una segunda pasada con
+`isDisabled()` y pulsando uno por uno, **hecha con los roles cumplimiento y publicidad**; los paginadores de admin,
+contabilidad y riesgos son el mismo componente y se extrapolan sin repetirse.
+
 | Clase | Qué es | Veredicto |
 |---|---|---|
-| Paginadores `Anterior` / `Siguiente` (≈ 36 casos) | «no se pudo pulsar» | **No es defecto**: están deshabilitados con una sola página. Se comprobó con `isDisabled()` en la segunda pasada (`botones2/`). |
-| 7 chips de estado de `/cumplimiento/uif/reportes` y otros controles sueltos | «no se pudo pulsar» | **No es defecto**: artefacto del barrido (el DOM se rehace tras cada pulsación). Pulsados uno por uno, los 7 disparan `GET /uif/reportes?estados=…` con 200 y alternan `aria-pressed`. «Dar de alta anunciante» también se pulsa bien. |
+| Paginadores `Anterior` / `Siguiente` (28 casos) | «no se pudo pulsar» | **No es defecto**: están deshabilitados con una sola página. Se comprobó con `isDisabled()` en la segunda pasada (`botones2/`). |
+| 10 controles sueltos: 7 chips de estado de `/cumplimiento/uif/reportes`, «Dar de alta anunciante», «Abrir caso con 0 alertas» y el resumen de ayuda de anunciantes | «no se pudo pulsar» | **No es defecto**: artefacto del barrido (el DOM se rehace tras cada pulsación). Pulsados uno por uno, los 7 disparan `GET /uif/reportes?estados=…` con 200 y alternan `aria-pressed`. «Dar de alta anunciante» también se pulsa bien. |
 | `GET /identidad/verificaciones` → 403 (rol RESPONSABLE_RIESGOS: `/cumplimiento`, `/cumplimiento/verificaciones`, tarjeta del tablero, `/ayuda`) | La ruta se le abre y la API se lo niega; la pantalla muestra el error con «Volver a intentar», que no arregla nada | **Defecto abierto** (hallazgo 9 del plan): alinear el permiso de la ruta con el de la API. |
 | `GET /grupos/solicitudes` y `/grupos/solicitudes-escaladas` → 404 (admin) | Rutas que el frontend llama y ningún servicio publica | **Defecto conocido** (H4.B del plan predecesor). |
 
