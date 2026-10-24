@@ -63,7 +63,7 @@ import { catalogoRoles, creadorUsuarioInterno } from '../dominio/usuarios-intern
           <label>
             <span>Rol inicial</span>
             <select [(ngModel)]="rolCodigo" name="rolCodigo" required [disabled]="enviando()">
-              @for (r of roles.value() ?? []; track r.id) {
+              @for (r of roles.hasValue() ? (roles.value() ?? []) : []; track r.id) {
                 <option [value]="r.codigo">{{ r.nombre }} ({{ r.departamento }})</option>
               }
             </select>

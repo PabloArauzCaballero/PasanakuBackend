@@ -87,7 +87,7 @@ export class PantallaPermisosInternos {
   }
 
   protected readonly permisosFiltrados = computed(() => {
-    const list = this.recurso.value() ?? []
+    const list = this.recurso.hasValue() ? (this.recurso.value() ?? []) : []
     const nf = this.nivelFiltro()
     const b = this.busqueda().trim().toLowerCase()
 

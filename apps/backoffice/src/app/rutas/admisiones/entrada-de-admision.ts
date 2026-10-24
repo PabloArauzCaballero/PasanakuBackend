@@ -121,7 +121,7 @@ export class EntradaDeAdmision {
   protected readonly esVacio = (items: SolicitudDeAdmision[]) => !items || items.length === 0
 
   protected readonly encontradas = computed<SolicitudDeAdmision[]>(() => {
-    const items = this.recurso.value() ?? []
+    const items = this.recurso.hasValue() ? (this.recurso.value() ?? []) : []
     const f = this.filtros()
     const termino = f.q.trim().toLowerCase()
     const filtroEstado = f.estado.trim().toUpperCase()
