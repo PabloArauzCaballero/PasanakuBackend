@@ -4,7 +4,7 @@ import { iniciarSesionDePrueba, navegarSinRecargar } from './apoyo/sesion-e2e'
 import { SISTEMAS, servir } from './apoyo/tableros-sinteticos'
 
 /**
- * El shell con la anatomía del portal de Atlas (plan backoffice-como-atlas, H2): menú por grupos con
+ * El shell con la anatomía del portal de Atlas (plan backoffice-como-atlas, H2): menú en acordeón con
  * las pantallas de la sección activa, migas y título en la cabecera, buscador global, menú de quien
  * opera y, en el celular, el cajón que abre la hamburguesa. Login real de CU-04 contra Prism; las
  * pantallas de abajo son las reales (la de outbox lee del mock).
@@ -17,7 +17,9 @@ test('escritorio: grupos, pantallas de la sección activa, migas y título; capt
   await iniciarSesionDePrueba(page, PERMISOS, 'PLATAFORMA')
   await navegarSinRecargar(page, '/sistemas/outbox')
   const menu = page.getByRole('navigation', { name: 'Secciones del backoffice' })
-  await expect(menu.getByRole('button', { name: /Control/ })).toHaveAttribute('aria-expanded', 'true')
+  // Acordeón (3d4344e3): la sección de la ruta activa arranca desplegada y su pantalla marca la página actual.
+  const sistemas = menu.getByRole('button', { name: /pantallas de Sistemas/ })
+  await expect(sistemas).toHaveAttribute('aria-expanded', 'true')
   await expect(menu.getByRole('link', { name: 'Outbox y descartados' })).toHaveAttribute('aria-current', 'page')
   const migas = page.getByRole('navigation', { name: 'Migas de pan' })
   await expect(migas).toContainText('Inicio')
@@ -25,12 +27,14 @@ test('escritorio: grupos, pantallas de la sección activa, migas y título; capt
   await expect(migas.locator('[aria-current="page"]')).toHaveText('Outbox y descartados')
   await todas(page, P, 'shell-outbox')
 
-  // Plegar un grupo se recuerda; el de la ruta activa no se pliega.
+  // Plegar la sección oculta sus pantallas (y las saca del orden de tabulación); volver a abrirla las devuelve.
   await page.setViewportSize({ width: 1280, height: 900 })
-  const plataforma = menu.getByRole('button', { name: /Plataforma/ })
-  await plataforma.click()
-  await expect(plataforma).toHaveAttribute('aria-expanded', 'false')
-  await expect(menu.getByRole('link', { name: 'Ayuda' })).toBeHidden()
+  await sistemas.click()
+  await expect(sistemas).toHaveAttribute('aria-expanded', 'false')
+  await expect(menu.getByRole('link', { name: 'Outbox y descartados' })).toBeHidden()
+  await sistemas.click()
+  await expect(sistemas).toHaveAttribute('aria-expanded', 'true')
+  await expect(menu.getByRole('link', { name: 'Outbox y descartados' })).toBeVisible()
 })
 
 test('cabecera: el menú de usuario muestra el rol y ofrece salir; el buscador abre una pantalla con el teclado', async ({ page }) => {
