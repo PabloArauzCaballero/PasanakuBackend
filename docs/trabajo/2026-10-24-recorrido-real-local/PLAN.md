@@ -82,6 +82,16 @@
 | H3.S4.M1 | Inyectar `respuesta_idempotente` en `identidad` desde `generar_ddl.py` | tabla creada por `aplicar.sql` | `aplicar.sql` + deriva | TODO |
 | H3.S4.M2 | Aplicar `Idempotencia` en `crearUsuarioInterno` | mismo POST dos veces → misma respuesta | `curl` ×2 | TODO |
 
+### H3.S5 — Hallazgos del recorrido por roles y del barrido de botones
+| # | Hallazgo (evidencia) | Tratamiento |
+|---|---|---|
+| 5 | Tablero de sistemas: `TypeError ... reading 'startsWith'` en `variacionEnPalabras`: el backend real manda `variacionPeriodoAnterior: null` (2 de 3 indicadores) y el contrato dice «ausente» | **HECHO** en el frontend: tolera `null` + prueba (evidencia/H3S5-variacion-null.txt). Causa de fondo, SIN corregir: Spring serializa los opcionales vacíos como `null` en todos los servicios mientras los clientes generados esperan «ausente» → hallazgo sistémico, decisión de diseño (`default-property-inclusion: non_null` en la plataforma tiene mucho alcance) |
+| 6 | Un operador creado por la alta NO puede iniciar sesión jamás: R-SEG-10 exige TOTP enrolado y no existe ningún endpoint de enrolamiento (`AP-CU04-06`). Solo los operadores sembrados tienen factor | **DECISION_REQUIRED** (falta un caso de uso). Para el recorrido se sembró el factor en la base local (evidencia/H2S3M3-factor-sembrado-local.txt) |
+| 7 | `Idempotency-Key`: 122 operaciones la declaran en los 15 contratos; solo `nucleo_financiero` tiene `respuesta_idempotente` y ningún servicio construye `Idempotencia`. Reintentar con la misma clave da 422 «ya existe» (comprobado en `POST /usuarios-internos` y `POST /erp/ejercicios`) en vez de repetir la respuesta | **ABIERTO** (H3.S4 ampliada): decisión de diseño del almacén de respuestas por esquema (generador + ADR) |
+| 8 | `/contabilidad` dice «hay que abrir el ejercicio» pero la pantalla no ofrece la acción, aunque la API `abrirEjercicioFiscal` existe; la base de desarrollo no trae ejercicios | **ABIERTO** (frontend). Probado por la API: 201 con 12 períodos y `GET /erp/periodos/vigente` 200 (evidencia/H2S4M1-erp-abrir-ejercicio.txt) |
+| 9 | `RESPONSABLE_RIESGOS` en `/cumplimiento`: la pantalla llama `GET /identidad/verificaciones` y el rol no tiene permiso (403) aunque la ruta se le abre | **ABIERTO**: alinear permiso de ruta y de API |
+| 10 | Rutas `/tablero/comercial` y `/publicidad/moderacion` no las abre ninguno de los 6 roles probados | **ABIERTO**: probar con el rol que corresponda (¿EXECUTIVE_READONLY?, ¿moderación?) |
+
 ## Riesgos y bloqueos previstos
 | Riesgo | Impacto | Mitigación |
 |---|---|---|
