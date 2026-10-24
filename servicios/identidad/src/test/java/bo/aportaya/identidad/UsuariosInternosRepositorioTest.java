@@ -59,7 +59,7 @@ class UsuariosInternosRepositorioTest {
         return "+5917%07d".formatted(Math.floorMod(UUID.randomUUID().getMostSignificantBits(), 10_000_000L));
     }
 
-    private static EntradaAltaUsuarioInterno entrada(String sufijo) {
+    private static EntradaAltaUsuarioInterno entrada(String sufijo, String rolCodigo) {
         return new EntradaAltaUsuarioInterno(
                 "Prueba",
                 "Contable",
@@ -67,19 +67,21 @@ class UsuariosInternosRepositorioTest {
                 telefonoUnico(),
                 "Finanzas",
                 "Analista de pruebas",
-                "CONTABILIDAD");
+                rolCodigo);
     }
 
     @Test
-    @DisplayName("crear · el alta de un operador con un rol del catalogo termina, empieza sin KYC y con KDF informado")
+    @DisplayName("crear · el alta de un operador con un rol existente termina, empieza sin KYC y con KDF informado")
     void crearDejaAlOperadorConNivelKycNingunoYParametrosKdf() {
         UUID otorgante = fixtura.usuario(telefonoUnico());
         String sufijo = UUID.randomUUID().toString().substring(0, 8);
+        String rol = "ROL_" + sufijo.toUpperCase();
+        fixtura.rolGlobal(rol);
 
-        UsuarioInternoDetalle detalle = tx.execute(s -> repositorio.crear(dsl, entrada(sufijo), otorgante, AHORA));
+        UsuarioInternoDetalle detalle = tx.execute(s -> repositorio.crear(dsl, entrada(sufijo, rol), otorgante, AHORA));
 
         assertThat(detalle).isNotNull();
-        assertThat(detalle.getRoles()).containsExactly("CONTABILIDAD");
+        assertThat(detalle.getRoles()).containsExactly(rol);
         assertThat(detalle.getEstado()).isEqualTo("ACTIVO");
         assertThat(detalle.getDebeCambiarContrasena()).isTrue();
 
@@ -108,7 +110,9 @@ class UsuariosInternosRepositorioTest {
     void elOperadorDeAltaApareceEnLaLista() {
         UUID otorgante = fixtura.usuario(telefonoUnico());
         String sufijo = UUID.randomUUID().toString().substring(0, 8);
-        UsuarioInternoDetalle detalle = tx.execute(s -> repositorio.crear(dsl, entrada(sufijo), otorgante, AHORA));
+        String rol = "ROL_" + sufijo.toUpperCase();
+        fixtura.rolGlobal(rol);
+        UsuarioInternoDetalle detalle = tx.execute(s -> repositorio.crear(dsl, entrada(sufijo, rol), otorgante, AHORA));
 
         var lista = tx.execute(s -> repositorio.listar(dsl, null, null, "prueba." + sufijo, AHORA));
 
