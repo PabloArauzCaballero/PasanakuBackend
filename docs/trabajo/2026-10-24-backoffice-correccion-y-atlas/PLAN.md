@@ -47,6 +47,12 @@
 | TEST: el operador de plataforma y su credencial viven en el VPS (`/opt/aportaya/credenciales-admin-test.txt`), nunca en el repo. El operador **siempre** pasa por segundo factor; TEST tiene «el segundo factor de desarrollo encendido» | `despliegue/TEST.md:84-85`, `:146`, §«Lo que este entorno NO es» |
 | Local: `USR000091` (`+59171000091`, `ADMIN_PLATAFORMA`) se siembra sin contraseña; `CLAVE_DEV=… scripts/clave_dev.py --huella …` le pone una y confía el dispositivo. Requiere la base en el contenedor `aportaya-postgres` (Docker) | `sql/61_dev/15-usuarios-dev.sql:25-40`, `scripts/clave_dev.py` |
 
+### 5. Línea base de `dev` (medida el 2026-10-24, antes de tocar nada)
+| Hecho | Evidencia |
+|---|---|
+| `yarn workspace @aportaya/backoffice typecheck` **falla en `dev`** con 5 errores: `clientes/angular/publicidad/model/entradaCampana.ts` importa `./conjunto`, que no existe en el cliente versionado (el contrato `publicidad.yaml` sí define `Conjunto` desde `161284f4`, 2026-10-16; el cliente se generó por última vez en `60f9fd1e`, 2026-10-10). Los otros 4 errores (`tablero/dominio/indicadores.ts`) son consecuencia. **El CI regenera los clientes antes de compilar** (`ci.yml:275`), por eso allá pasa y acá no: el cliente versionado está desactualizado | `evidencia/H0-linea-base.txt` |
+| Regenerar con Gradle desde acá: primer intento falló por `429 Too Many Requests` de Maven Central a través del proxy (58 artefactos) | `scratchpad/gradle-clientes.log` |
+
 ## Desconocidos (no se pudieron verificar desde acá)
 1. Qué commit está desplegado hoy en TEST (si el temporizador reconstruyó tras el 10-21/10-23). Se ve en `/opt/aportaya/logs/autodespliegue.log` del host.
 2. Qué pantallas y botones concretos fallan en TEST y con qué error de consola/red (no hay evidencia en los reportes porque nadie entró con usuario real).
@@ -76,15 +82,15 @@ H0 (sin red) → H1 (necesita la red) → H2 (recorrido real) → H3 y H4 (corre
 
 ### H0.S1 — Capa visual del portal de Atlas por tokens (`data-producto="backoffice"`)
 **CA:** Dado el backoffice en claro y en oscuro, cuando se abre cualquier pantalla, entonces el lienzo es neutro (sin tinte verde), las superficies blancas/grafito y hay un solo acento; la app móvil no cambia.
-**DoD:** `yarn workspace @aportaya/tokens build` + `test:front` verdes; `tokens.css` con los tres bloques `:root[data-producto='backoffice']`; capturas miradas.
-**Estado:** TODO
+**DoD:** `yarn workspace @aportaya/tokens build` + `test:front` verdes; `tokens.css` con los bloques `:root[data-producto='backoffice']`; capturas miradas.
+**Estado:** EN CURSO (M1–M4 HECHO; M5 espera que el backoffice compile: el cliente de publicidad está roto en `dev`)
 
 | ID | Microtarea | CA (binario) | DoD (comando) | Estado |
 |---|---|---|---|---|
-| H0.S1.M1 | Portar `packages/tokens/tokens.json`: rampa `n50…n950`, `tinta`, temas `backofficeClaro` / `backofficeOscuro` (del espejo, `05c0a2ee`) | El JSON tiene los 4 temas y la capa solo redefine roles que ya existen en `claro` (verificado: 0 roles nuevos) | `yarn workspace @aportaya/tokens build` → exit 0 | TODO |
-| H0.S1.M2 | Portar `scripts/a-css.mjs` (emite la capa) y `pruebas/roles-contraste.test.mjs` (mide la capa) | `grep -c "data-producto='backoffice'" tokens.css` = 3 | `yarn workspace @aportaya/tokens test:front` → verde | TODO |
-| H0.S1.M3 | `index.html` e `index.desarrollo.html` con `data-producto="backoffice"` | Ambos `<html>` llevan el atributo | `grep -c data-producto apps/backoffice/src/index*.html` = 2 | TODO |
-| H0.S1.M4 | Rampa de neutros en la bóveda `docs/Views/Sistema-Diseno/estilos.css` (la prueba `tokens-contra-boveda` compara tokens contra ese archivo) | La prueba de bóveda pasa | `yarn workspace @aportaya/tokens test:front` → verde | TODO |
+| H0.S1.M1 | Portar `packages/tokens/tokens.json`: rampa `n50…n950`, `tinta`, temas `backofficeClaro` / `backofficeOscuro` (del espejo, `05c0a2ee`) | El JSON tiene los 4 temas y la capa solo redefine roles que ya existen en `claro` (verificado: 0 roles nuevos) | `yarn workspace @aportaya/tokens build` → exit 0 | HECHO — exit 0, `tokens.css` 274→412 líneas (`evidencia/H0-S1/M1-M4-tokens.txt`) |
+| H0.S1.M2 | Portar `scripts/a-css.mjs` (emite la capa) y `pruebas/roles-contraste.test.mjs` (mide la capa) | `grep -c "data-producto='backoffice'" tokens.css` ≥ 3 | `yarn workspace @aportaya/tokens test:front` → verde | HECHO — 4 bloques; 15/15 verdes |
+| H0.S1.M3 | `index.html` e `index.desarrollo.html` con `data-producto="backoffice"` | Ambos `<html>` llevan el atributo | `grep -c data-producto apps/backoffice/src/index*.html` = 2 | HECHO — 1 + 1 |
+| H0.S1.M4 | Rampa de neutros en la bóveda `docs/Views/Sistema-Diseno/estilos.css` (la prueba `tokens-contra-boveda` compara tokens contra ese archivo) | La prueba de bóveda pasa | `yarn workspace @aportaya/tokens test:front` → verde | HECHO — `tokens-contra-boveda` dentro de los 15/15 |
 | H0.S1.M5 | Prueba visual: ingreso, tablero, una lista (outbox) y una ficha (catálogo) en 390/820/1440 × claro/oscuro contra Prism; el acordeón se conserva | Ninguna pantalla con tinte verde en el lienzo; menú en acordeón; sin desborde | capturas en `evidencia/H0-S1/` + `doble-revision.md` | TODO |
 
 ### H0.S2 — Pestaña «Operaciones» del catálogo: las dos fuentes, no una

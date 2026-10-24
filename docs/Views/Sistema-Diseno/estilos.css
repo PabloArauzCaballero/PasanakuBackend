@@ -9,6 +9,11 @@
   /* ===== Semánticos ===== */
   --ok:#1F9D57;--okbg:#E7F5EC;--warn:#F0B429;--warnbg:#FEF4DA;--err:#D64545;--errbg:#FBECEC;--info:#2E7FB8;--infobg:#E7F1F8;
   --pii:#6B3FA0;--piibg:#F1EAF8; /* datos personales: señal propia, ni aviso ni error (como el portal de Atlas) */
+  /* ===== Neutros del backoffice (2026-10-21) =====
+     La rampa del portal interno de Atlas: lienzo, línea y tinta sin tinte verde. Solo la usa la capa
+     data-producto="backoffice" (roles backofficeClaro/backofficeOscuro de tokens.json); la app no. */
+  --n50:#FAFAFA;--n100:#F5F5F7;--n150:#F0F0F3;--n200:#E4E4E7;--n300:#C9C9CF;--n400:#9A9AA3;--n500:#6B6B75;
+  --n600:#5A5A63;--n700:#38383D;--n750:#2C2C31;--n800:#232327;--n850:#1B1B1E;--n900:#141416;--n950:#0B0B0C;--tinta:#1D1D1F;
   /* ===== Escalas ===== */
   --s1:4px;--s2:8px;--s3:12px;--s4:16px;--s5:24px;--s6:32px;--s7:48px;
   --r-sm:8px;--r-md:12px;--r-lg:16px;--r-xl:24px;--r-pill:999px;
