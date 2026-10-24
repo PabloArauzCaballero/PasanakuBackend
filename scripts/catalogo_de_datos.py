@@ -424,7 +424,11 @@ def _esquemas(tablas):
 def _sistema(t):
     if t["esquema"] == modelo.ESQUEMA_COMUN:
         frases = ["Vive en el esquema `comun`: todo servicio INSERTA su rastro y ninguno lee ni edita el de otro; "
-                  "el SELECT es solo de `rol_auditor` (excepción enumerada en `COMPARTIDAS_ESCRITURA`)."]
+                  "el SELECT es de `rol_auditor` (excepción enumerada en `COMPARTIDAS_ESCRITURA`)."]
+        lector = modelo.COMPARTIDAS_LECTURA.get(t["tabla"])
+        if lector:
+            frases[0] = frases[0][:-1] + (f" y del servicio `{lector}`, que es quien la consulta "
+                                          "(excepción enumerada en `COMPARTIDAS_LECTURA`).")
     elif t["esquema"] == modelo.ESQUEMA_CATALOGO:
         escritor = modelo.CATALOGO_ESCRITOR.get(t["tabla"])
         frases = ["Vive en el esquema `catalogo`: todos los servicios la consultan; "

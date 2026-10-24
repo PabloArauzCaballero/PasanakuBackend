@@ -116,7 +116,8 @@ ESQUEMA_CATALOGO = "catalogo"
 #
 # Es una excepcion al invariante 11 y esta enumerada a proposito. Se sostiene
 # porque ambas son APPEND-ONLY: un servicio puede agregar su rastro, y NO
-# puede leer ni modificar el de otro (el SELECT se otorga solo a rol_auditor).
+# puede leer ni modificar el de otro (el SELECT se otorga a rol_auditor y, por
+# COMPARTIDAS_LECTURA, al unico servicio que consulta la bitacora).
 # Sin esto, cada servicio escribiria en el esquema de "auditoria" —que es el
 # acceso cruzado que el invariante prohibe.
 #
@@ -126,6 +127,16 @@ ESQUEMA_CATALOGO = "catalogo"
 COMPARTIDAS_ESCRITURA = {
     "bitacora_evento",         # rastro de auditoria de toda operacion
     "registro_acceso_datos",   # quien leyo que dato personal
+}
+
+# Lectura de esas bitacoras: el SELECT es de `rol_auditor` y, ademas, del UNICO servicio
+# que existe para consultarlas. `auditoria` sirve GET /auditoria/bitacora (CU-130 y la
+# pantalla Bitacora del backoffice) con su propio `svc_auditoria`: sin este SELECT la base
+# responde 42501 y la ruta devuelve 500 en todo entorno. Es una segunda excepcion al
+# invariante 11, enumerada a proposito y de UNA tabla; cualquier otro svc_* sigue sin leer
+# el rastro ajeno. Pendiente de confirmacion de Seguridad (regla 90.5).
+COMPARTIDAS_LECTURA = {
+    "bitacora_evento": "auditoria",
 }
 
 ESQUEMA_COMUN = "comun"

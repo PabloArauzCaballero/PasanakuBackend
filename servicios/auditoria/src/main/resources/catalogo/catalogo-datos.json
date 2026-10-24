@@ -10776,7 +10776,7 @@
     ],
     "entrantes": []
    },
-   "sistema": "Vive en el esquema comun: todo servicio INSERTA su rastro y ninguno lee ni edita el de otro; el SELECT es solo de rol_auditor (excepción enumerada en COMPARTIDAS_ESCRITURA). Es append-only: UPDATE y DELETE revocados al rol del servicio; se corrige con una fila nueva. Depende de grupos.grupo, identidad.usuario.",
+   "sistema": "Vive en el esquema comun: todo servicio INSERTA su rastro y ninguno lee ni edita el de otro; el SELECT es de rol_auditor (excepción enumerada en COMPARTIDAS_ESCRITURA) y del servicio auditoria, que es quien la consulta (excepción enumerada en COMPARTIDAS_LECTURA). Es append-only: UPDATE y DELETE revocados al rol del servicio; se corrige con una fila nueva. Depende de grupos.grupo, identidad.usuario.",
    "clasificacion": {
     "personales": 0,
     "financieros": 0,
@@ -11464,7 +11464,7 @@
     ],
     "entrantes": []
    },
-   "sistema": "Vive en el esquema comun: todo servicio INSERTA su rastro y ninguno lee ni edita el de otro; el SELECT es solo de rol_auditor (excepción enumerada en COMPARTIDAS_ESCRITURA). Es append-only: UPDATE y DELETE revocados al rol del servicio; se corrige con una fila nueva. Depende de identidad.usuario. Reglas nombradas: ck_acceso_justificacion.",
+   "sistema": "Vive en el esquema comun: todo servicio INSERTA su rastro y ninguno lee ni edita el de otro; el SELECT es de rol_auditor (excepción enumerada en COMPARTIDAS_ESCRITURA). Es append-only: UPDATE y DELETE revocados al rol del servicio; se corrige con una fila nueva. Depende de identidad.usuario. Reglas nombradas: ck_acceso_justificacion.",
    "clasificacion": {
     "personales": 0,
     "financieros": 0,
