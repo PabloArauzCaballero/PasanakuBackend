@@ -1,0 +1,32 @@
+## REGRESIÓN FINAL · 2026-10-24T06:01:26+00:00 · Node v22.23.4 · c4b25e1c+cambios sin commitear
+### 1 typecheck backoffice
+exit=0
+### 2 lint backoffice (+ verificar_frontend.py)
+  FALLA · sin literal de diseño ['apps/backoffice/src/app/rutas/tablero/catalogo/vista-operaciones.ts:131']
+  FALLA · ningún archivo de más de 200 líneas ['apps/backoffice/src/app/rutas/tablero/catalogo/vista-operaciones.ts (213)']
+2 FALLAS
+exit=1
+### 3 test:front backoffice
+ Test Files  151 passed (151)
+      Tests  948 passed (948)
+### 4 test:a11y backoffice
+ Test Files  42 passed (42)
+      Tests  78 passed (78)
+### 5 ui test:front + a11y
+ Test Files  35 passed (35)
+      Tests  164 passed (164)
+ Test Files  2 passed (2)
+      Tests  9 passed (9)
+### 6 tokens + simulado
+ Test Files  3 passed (3)
+      Tests  15 passed (15)
+ Test Files  4 passed (4)
+      Tests  350 passed (350)
+### 7 scripts
+Ran 13 tests in 0.173s
+
+OK
+
+Sin fallas.
+rutas distintas que usa el frontend: 87 · con contrato: 79 · sin contrato: 8
+TODO OK

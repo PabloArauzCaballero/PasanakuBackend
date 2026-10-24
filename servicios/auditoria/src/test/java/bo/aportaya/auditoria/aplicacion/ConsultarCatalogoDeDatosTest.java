@@ -180,6 +180,31 @@ class ConsultarCatalogoDeDatosTest {
     }
 
     @Test
+    @DisplayName("catálogo · ficha: trae los casos de uso que nombran la tabla con sus endpoints, y cumple el contrato")
+    void operacionesDeLaFicha() throws Exception {
+        sinFichasNiRevisiones();
+        when(cu131.consultar(any())).thenReturn(Map.of());
+
+        var pago = new ObjectMapper()
+                .treeToValue(
+                        consulta.tabla("aportes", "pago", null).orElseThrow().tabla(), TablaDelCatalogo.class);
+        var cu21 = pago.getOperaciones().stream()
+                .filter(o -> o.getCasoDeUso().equals("CU-21"))
+                .findFirst()
+                .orElseThrow();
+        assertThat(cu21.getEndpoints()).extracting(e -> e.getOperationId()).contains("cobrarAporte");
+
+        // La infraestructura no la nombra ningún caso de uso: sin operaciones, y el contrato lo admite vacío.
+        var borrador = new ObjectMapper()
+                .treeToValue(
+                        consulta.tabla("identidad", "borrador_onboarding", null)
+                                .orElseThrow()
+                                .tabla(),
+                        TablaDelCatalogo.class);
+        assertThat(borrador.getOperaciones()).isEmpty();
+    }
+
+    @Test
     @DisplayName(
             "catálogo · ficha: una tabla fuera del modelo (borrador de onboarding) cumple el contrato y se clasifica")
     void fichaDeInfraestructuraCumpleElContrato() throws Exception {

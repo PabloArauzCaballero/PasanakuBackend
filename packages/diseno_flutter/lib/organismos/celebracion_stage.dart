@@ -45,22 +45,21 @@ class CelebracionStage extends StatefulWidget {
     InsigniaTier tier = InsigniaTier.oro,
     String? flavorText,
     String eyebrow = 'LOGRO DESBLOQUEADO',
-  }) =>
-      showDialog<void>(
-        context: context,
-        barrierDismissible: true,
-        barrierColor: Colors.black.withValues(alpha: 0.78),
-        builder: (c) => CelebracionStage(
-          nombre: nombre,
-          descripcion: descripcion,
-          icono: icono,
-          puntos: puntos,
-          tier: tier,
-          flavorText: flavorText,
-          eyebrow: eyebrow,
-          onCerrar: () => Navigator.of(c).pop(),
-        ),
-      );
+  }) => showDialog<void>(
+    context: context,
+    barrierDismissible: true,
+    barrierColor: Colors.black.withValues(alpha: 0.78),
+    builder: (c) => CelebracionStage(
+      nombre: nombre,
+      descripcion: descripcion,
+      icono: icono,
+      puntos: puntos,
+      tier: tier,
+      flavorText: flavorText,
+      eyebrow: eyebrow,
+      onCerrar: () => Navigator.of(c).pop(),
+    ),
+  );
 
   @override
   State<CelebracionStage> createState() => _CelebracionStageState();
@@ -93,10 +92,7 @@ class _CelebracionStageState extends State<CelebracionStage>
       duration: const Duration(milliseconds: 700),
     );
 
-    _escala = CurvedAnimation(
-      parent: _entradaCtrl,
-      curve: Curves.easeOutBack,
-    );
+    _escala = CurvedAnimation(parent: _entradaCtrl, curve: Curves.easeOutBack);
     _opacidad = CurvedAnimation(
       parent: _entradaCtrl,
       curve: const Interval(0.0, 0.4, curve: Curves.easeIn),
@@ -131,10 +127,7 @@ class _CelebracionStageState extends State<CelebracionStage>
               final o = reduceMotion ? 1.0 : _opacidad.value;
               return Opacity(
                 opacity: o,
-                child: Transform.scale(
-                  scale: s,
-                  child: child,
-                ),
+                child: Transform.scale(scale: s, child: child),
               );
             },
             child: Stack(
@@ -149,7 +142,9 @@ class _CelebracionStageState extends State<CelebracionStage>
                       builder: (context, _) => CustomPaint(
                         painter: _PintorDeRayos(
                           angulo: _rayosCtrl.value * 2 * math.pi,
-                          color: widget.tier.colorPrimario.withValues(alpha: 0.22),
+                          color: widget.tier.colorPrimario.withValues(
+                            alpha: 0.22,
+                          ),
                         ),
                       ),
                     ),
@@ -187,7 +182,9 @@ class _CelebracionStageState extends State<CelebracionStage>
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: widget.tier.colorPrimario.withValues(alpha: 0.35),
+                        color: widget.tier.colorPrimario.withValues(
+                          alpha: 0.35,
+                        ),
                         blurRadius: 36,
                         spreadRadius: 4,
                         offset: const Offset(0, 8),
@@ -211,9 +208,13 @@ class _CelebracionStageState extends State<CelebracionStage>
                             height: 104,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              color: widget.tier.colorPrimario.withValues(alpha: 0.14),
+                              color: widget.tier.colorPrimario.withValues(
+                                alpha: 0.14,
+                              ),
                               border: Border.all(
-                                color: widget.tier.colorPrimario.withValues(alpha: 0.35),
+                                color: widget.tier.colorPrimario.withValues(
+                                  alpha: 0.35,
+                                ),
                                 width: 2,
                               ),
                             ),
@@ -228,12 +229,16 @@ class _CelebracionStageState extends State<CelebracionStage>
                                 end: Alignment.bottomRight,
                                 colors: [
                                   widget.tier.colorPrimario,
-                                  widget.tier.colorPrimario.withValues(alpha: 0.75),
+                                  widget.tier.colorPrimario.withValues(
+                                    alpha: 0.75,
+                                  ),
                                 ],
                               ),
                               boxShadow: [
                                 BoxShadow(
-                                  color: widget.tier.colorPrimario.withValues(alpha: 0.45),
+                                  color: widget.tier.colorPrimario.withValues(
+                                    alpha: 0.45,
+                                  ),
                                   blurRadius: 18,
                                   offset: const Offset(0, 4),
                                 ),
@@ -292,10 +297,14 @@ class _CelebracionStageState extends State<CelebracionStage>
                           vertical: Espacio.s3,
                         ),
                         decoration: BoxDecoration(
-                          color: widget.tier.colorPrimario.withValues(alpha: 0.12),
+                          color: widget.tier.colorPrimario.withValues(
+                            alpha: 0.12,
+                          ),
                           borderRadius: BorderRadius.circular(Radios.lg),
                           border: Border.all(
-                            color: widget.tier.colorPrimario.withValues(alpha: 0.3),
+                            color: widget.tier.colorPrimario.withValues(
+                              alpha: 0.3,
+                            ),
                           ),
                         ),
                         child: Row(
@@ -344,7 +353,9 @@ class _CelebracionStageState extends State<CelebracionStage>
                         child: Boton(
                           texto: 'Continuar en el Pasanaku',
                           variante: BotonVariante.primario,
-                          onPressed: widget.onCerrar ?? () => Navigator.of(context).pop(),
+                          onPressed:
+                              widget.onCerrar ??
+                              () => Navigator.of(context).pop(),
                         ),
                       ),
                     ],
@@ -371,7 +382,9 @@ class _CelebracionStageState extends State<CelebracionStage>
                         borderRadius: BorderRadius.circular(Radios.pill),
                         boxShadow: [
                           BoxShadow(
-                            color: widget.tier.colorPrimario.withValues(alpha: 0.5),
+                            color: widget.tier.colorPrimario.withValues(
+                              alpha: 0.5,
+                            ),
                             blurRadius: 12,
                             offset: const Offset(0, 4),
                           ),
@@ -422,7 +435,10 @@ class _PintorDeRayos extends CustomPainter {
       final path = Path()
         ..moveTo(0, 0)
         ..lineTo(radio * math.cos(theta), radio * math.sin(theta))
-        ..lineTo(radio * math.cos(theta + paso * 0.6), radio * math.sin(theta + paso * 0.6))
+        ..lineTo(
+          radio * math.cos(theta + paso * 0.6),
+          radio * math.sin(theta + paso * 0.6),
+        )
         ..close();
       canvas.drawPath(path, paint);
     }
@@ -430,7 +446,8 @@ class _PintorDeRayos extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(_PintorDeRayos old) => old.angulo != angulo || old.color != color;
+  bool shouldRepaint(_PintorDeRayos old) =>
+      old.angulo != angulo || old.color != color;
 }
 
 class _PintorDeParticulas extends CustomPainter {

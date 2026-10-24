@@ -74,7 +74,7 @@ export class PantallaDeAdmision {
   protected readonly sinDecisiones = (h: DecisionDeIngreso[]): boolean => h.length === 0
   protected readonly registradaAhora = signal(false)
 
-  protected readonly decisiones = computed(() => this.historial.value() ?? [])
+  protected readonly decisiones = computed(() => this.historial.hasValue() ? (this.historial.value() ?? []) : [])
   protected readonly propuesta = computed(() => propuestaVigente(this.decisiones()))
   protected readonly resolucion = computed(() => resolucionDe(this.decisiones()))
   protected readonly revision = computed(() => revisionActual(this.decisiones()))

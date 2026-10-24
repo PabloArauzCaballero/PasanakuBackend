@@ -1,0 +1,15 @@
+$ ./gradlew :servicios:auditoria:test :servicios:auditoria:webTest  (jOOQ contra PostgreSQL local 5433)
+> Task :plataforma:comun-web:testFixturesClasses
+> Task :plataforma:comun-web:testFixturesJar
+> Task :servicios:auditoria:generateJooq
+> Task :servicios:auditoria:testClasses
+> Task :servicios:auditoria:test
+> Task :servicios:auditoria:webTest
+BUILD SUCCESSFUL in 17m 51s
+
+real	17m52.182s
+user	3m23.744s
+sys	0m12.179s
+exit=0
+test tests=45 failures=0 errors=0 skipped=0
+webTest tests=74 failures=0 errors=0 skipped=0

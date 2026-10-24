@@ -1,0 +1,7 @@
+## 2026-10-24T06:03:57+00:00 · tras mover estilos a vista-operaciones.css
+typecheck exit=0
+TODO OK
+ Test Files  151 passed (151)
+      Tests  948 passed (948)
+ Test Files  42 passed (42)
+      Tests  78 passed (78)

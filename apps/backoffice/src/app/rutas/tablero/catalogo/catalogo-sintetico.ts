@@ -27,6 +27,7 @@ export function tabla(nombre: string, esquema: string, extra: Partial<TablaDelCa
     reglas: [],
     columnas: [{ nombre: 'id', tipo: 'UUID', nulable: false, pk: true, sistema: 'UUID, obligatoria, clave primaria.', sensibilidad: S.Ninguna }],
     relaciones: { salientes: [], entrantes: [] },
+    operaciones: [],
     sistema: `Vive en el esquema \`${esquema}\`.`,
     ...extra,
   }

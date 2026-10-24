@@ -67,7 +67,7 @@ export class PantallaRolesInternos {
   protected readonly deptoFiltro = signal('TODOS')
 
   protected readonly departamentos = computed(() => {
-    const list = this.recurso.value() ?? []
+    const list = this.recurso.hasValue() ? (this.recurso.value() ?? []) : []
     const set = new Set<string>()
     for (const r of list) {
       if (r.departamento) set.add(r.departamento)
@@ -76,7 +76,7 @@ export class PantallaRolesInternos {
   })
 
   protected readonly rolesFiltrados = computed(() => {
-    const list = this.recurso.value() ?? []
+    const list = this.recurso.hasValue() ? (this.recurso.value() ?? []) : []
     const d = this.deptoFiltro()
     if (d === 'TODOS') return list
     return list.filter((r) => r.departamento === d)

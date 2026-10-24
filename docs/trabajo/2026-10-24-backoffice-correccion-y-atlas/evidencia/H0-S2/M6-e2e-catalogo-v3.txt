@@ -1,0 +1,47 @@
+## 2026-10-24T05:48:16+00:00 · ronda 3: correcciones B1–B5 y captura de la tabla de directas con filas
+$ typecheck
+exit=0
+$ playwright test catalogo-gobierno
+  ✓  1 [chromium] › e2e/catalogo-gobierno.e2e.ts:54:5 › lista: cifras del inventario, chips de estado y revisión, y filtro por estado desde la URL (7.4s)
+  ✓  2 [chromium] › e2e/catalogo-gobierno.e2e.ts:69:5 › ficha: pestañas en la URL, y «Configurar tabla» confirma antes de guardar con la versión leída (6.3s)
+  ✓  3 [chromium] › e2e/catalogo-gobierno.e2e.ts:97:5 › ficha: la narrativa de negocio conserva sus viñetas (3.7s)
+  ✓  4 [chromium] › e2e/catalogo-gobierno.e2e.ts:104:5 › ficha: «Operaciones» conserva las directas y lista los casos de uso que nombran la tabla con sus endpoints (4.2s)
+  ✘  5 [chromium] › e2e/catalogo-gobierno.e2e.ts:117:5 › ficha: «Operaciones directas» con filas: la tabla se ve sin desborde (tabla SINTÉTICA declarada, nombrada como la nombra el inventario empaquetado) (32.4s
+  ✘  6 [chromium] › e2e/catalogo-gobierno.e2e.ts:117:5 › ficha: «Operaciones directas» con filas: la tabla se ve sin desborde (tabla SINTÉTICA declarada, nombrada como la nombra el inventario empaquetado) (retry
+  ✓  7 [chromium] › e2e/catalogo-gobierno.e2e.ts:131:5 › ficha de infraestructura: «Operaciones» muestra los dos vacíos y los dos dicen por qué y qué hacer (3.6s)
+  ✓  8 [chromium] › e2e/catalogo-gobierno.e2e.ts:143:5 › columnas: revisar desde el cajón exige motivo al rechazar y guarda con la versión leída (4.5s)
+  ✓  9 [chromium] › e2e/catalogo-gobierno.e2e.ts:166:5 › sin permiso de edición: se lee, no se edita, y la revisión de una columna solo se mira (2.3s)
+    Error: page.evaluate: Test timeout of 30000ms exceeded.
+      26 | export async function contraste(page: Page): Promise<Hallazgo[]> {
+        at contraste (/home/user/PasanakuBackend/apps/backoffice/e2e/apoyo/capturas-f2.ts:28:15)
+    Error: page.addStyleTag: Test timeout of 30000ms exceeded.
+  1 failed
+  7 passed (2.1m)
+## 2026-10-24T05:51:03+00:00 · paginación de las directas (210 filas rompían axe/render)
+$ typecheck
+exit=0
+$ ng test tablero
+ Test Files  15 passed (15)
+      Tests  88 passed (88)
+$ playwright catalogo-gobierno
+  ✓  1 [chromium] › e2e/catalogo-gobierno.e2e.ts:54:5 › lista: cifras del inventario, chips de estado y revisión, y filtro por estado desde la URL (7.3s)
+  ✓  2 [chromium] › e2e/catalogo-gobierno.e2e.ts:69:5 › ficha: pestañas en la URL, y «Configurar tabla» confirma antes de guardar con la versión leída (6.4s)
+  ✓  3 [chromium] › e2e/catalogo-gobierno.e2e.ts:97:5 › ficha: la narrativa de negocio conserva sus viñetas (3.9s)
+  ✓  4 [chromium] › e2e/catalogo-gobierno.e2e.ts:104:5 › ficha: «Operaciones» conserva las directas y lista los casos de uso que nombran la tabla con sus endpoints (4.4s)
+  ✓  5 [chromium] › e2e/catalogo-gobierno.e2e.ts:117:5 › ficha: «Operaciones directas» con filas: la tabla se ve sin desborde (tabla SINTÉTICA declarada, nombrada como la nombra el inventario
+  ✓  6 [chromium] › e2e/catalogo-gobierno.e2e.ts:131:5 › ficha de infraestructura: «Operaciones» muestra los dos vacíos y los dos dicen por qué y qué hacer (3.3s)
+  ✓  7 [chromium] › e2e/catalogo-gobierno.e2e.ts:143:5 › columnas: revisar desde el cajón exige motivo al rechazar y guarda con la versión leída (4.7s)
+  ✓  8 [chromium] › e2e/catalogo-gobierno.e2e.ts:166:5 › sin permiso de edición: se lee, no se edita, y la revisión de una columna solo se mira (2.5s)
+  8 passed (1.2m)
+## 2026-10-24T05:53:25+00:00 · directas: sin columna Acciones redundante, 10 por página
+typecheck exit=0
+ Test Files  15 passed (15)
+      Tests  88 passed (88)
+  8 passed (1.1m)
+## 2026-10-24T05:55:29+00:00 · directas: ruta e impacto envuelven (recortes en escritorio y móvil)
+  8 passed (1.2m)
+## 2026-10-24T05:56:53+00:00 · directas: cortes limpios en la ruta
+typecheck exit=0
+ Test Files  15 passed (15)
+      Tests  88 passed (88)
+  8 passed (1.1m)

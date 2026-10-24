@@ -1,0 +1,7 @@
+$ python3 -I scripts/test_catalogo_de_datos.py
+.............
+----------------------------------------------------------------------
+Ran 13 tests in 0.389s
+
+OK
+exit=0

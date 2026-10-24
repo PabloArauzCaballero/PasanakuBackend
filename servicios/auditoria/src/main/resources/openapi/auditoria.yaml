@@ -687,7 +687,7 @@ components:
     TablaDelCatalogo:
       type: object
       additionalProperties: false
-      required: [tabla, esquema, modulo, nombreModulo, appendOnly, negocio, reglas, columnas, relaciones, sistema]
+      required: [tabla, esquema, modulo, nombreModulo, appendOnly, negocio, reglas, columnas, relaciones, sistema, operaciones]
       properties:
         tabla: { type: string }
         esquema: { type: string }
@@ -703,7 +703,35 @@ components:
         columnas: { type: array, items: { $ref: '#/components/schemas/ColumnaDelCatalogo' } }
         relaciones: { $ref: '#/components/schemas/RelacionesDeTabla' }
         sistema: { type: string, description: 'Narrativa de sistema derivada del modelo' }
+        operaciones:
+          type: array
+          description: >-
+            Los casos de uso que nombran esta tabla (el [[tabla]] de docs/CasosDeUso/CU-*.md) y los endpoints que
+            los ejecutan (la columna CU de docs/catalogo-de-flujos/matriz.md). No dice que esos endpoints escriban
+            la tabla: dice que el caso de uso la involucra. Vacio en la infraestructura y en las tablas que ningun
+            caso de uso nombra.
+          items: { $ref: '#/components/schemas/OperacionDeLaTabla' }
         gobierno: { $ref: '#/components/schemas/FichaDeGobierno' }
+    OperacionDeLaTabla:
+      type: object
+      additionalProperties: false
+      required: [casoDeUso, titulo, endpoints]
+      properties:
+        casoDeUso: { type: string, pattern: '^CU-\d+$', example: CU-21 }
+        titulo: { type: string, example: Cobrar el aporte del periodo }
+        endpoints:
+          type: array
+          description: Vacio si el caso de uso todavia no tiene endpoint propio.
+          items: { $ref: '#/components/schemas/EndpointDeLaOperacion' }
+    EndpointDeLaOperacion:
+      type: object
+      additionalProperties: false
+      required: [servicio, metodo, ruta, operationId]
+      properties:
+        servicio: { type: string }
+        metodo: { type: string, enum: [GET, POST, PUT, PATCH, DELETE] }
+        ruta: { type: string, example: '/aportes/obligaciones/{obligacionId}/pagos' }
+        operationId: { type: string }
     EstadoDeTabla:
       type: string
       enum: [ACTIVA, PLANIFICADA, CANDIDATA_A_RETIRO, RETIRADA, DESHABILITADA]

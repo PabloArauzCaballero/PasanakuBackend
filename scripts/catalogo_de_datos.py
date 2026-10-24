@@ -34,6 +34,11 @@ SALIDA_MD = DOCS / "catalogo-de-datos.md"
 # No va en `apps/backoffice/public/`: un archivo estático se sirve sin sesión y publicaría el esquema completo.
 # Lo sirve `auditoria` en GET /catalogo-de-datos, con TABLERO_SISTEMAS_VER (D14 del trabajo de tableros).
 SALIDA_JSON = pathlib.Path("servicios/auditoria/src/main/resources/catalogo/catalogo-datos.json")
+# Operaciones por tabla (la pestaña «Operaciones» de Atlas): tabla → caso de uso por el `[[tabla]]` de cada
+# `docs/CasosDeUso/CU-*.md`; caso de uso → endpoint por la columna CU de la matriz generada por `matriz_de_pruebas.py`.
+MATRIZ = DOCS / "catalogo-de-flujos" / "matriz.md"
+CASOS = DOCS / "CasosDeUso"
+FILA_MATRIZ = re.compile(r"^\| ([\w-]+) \| (GET|POST|PUT|PATCH|DELETE) \| `([^`]+)` \| `(\w+)` \| [^|]+\| (CU-\d+) \|", re.M)
 
 # Las fichas escriben la etiqueta con matices («**Por qué debe existir, y por qué no es lo mismo…**:»):
 # se reconoce el comienzo y se tolera el resto hasta el cierre del negrita.
@@ -203,12 +208,36 @@ def construir():
         t["relaciones"] = {"salientes": salientes, "entrantes": llegan}
         t["sistema"] = _sistema(t)
         t["clasificacion"] = _clasificacion(t["columnas"])
+    operaciones = operaciones_por_tabla(set(tablas))
+    for tabla, t in tablas.items():
+        t["operaciones"] = operaciones.get(tabla, [])
     for t in tablas_de_infraestructura():
-        tablas[f"{t['esquema']}.{t['tabla']}"] = t
+        tablas[f"{t['esquema']}.{t['tabla']}"] = {**t, "operaciones": []}
     ordenadas = [tablas[n] for n in sorted(tablas, key=lambda n: (tablas[n]["esquema"], tablas[n]["tabla"]))]
     return {"esquemas": sorted({t["esquema"] for t in ordenadas}),
             "detalleDeEsquemas": _esquemas(ordenadas),
             "tablas": ordenadas}
+
+
+def operaciones_por_tabla(tablas_de_negocio):
+    """Qué casos de uso nombran cada tabla y con qué endpoints se ejecutan (la pestaña «Operaciones» de Atlas).
+
+    No se infiere qué endpoint escribe qué tabla: se encadenan dos fuentes que ya existen. Tabla → caso de uso: el
+    `[[tabla]]` que cada `docs/CasosDeUso/CU-*.md` enlaza. Caso de uso → endpoint: la columna CU de
+    `docs/catalogo-de-flujos/matriz.md` (generada por `matriz_de_pruebas.py` desde el contrato y la traza).
+    """
+    endpoints = {}
+    for m in FILA_MATRIZ.finditer(MATRIZ.read_text(encoding="utf-8")):
+        endpoints.setdefault(int(m[5].split("-")[1]), []).append(
+            {"servicio": m[1], "metodo": m[2], "ruta": m[3], "operationId": m[4]})
+    por_tabla = {}
+    for archivo in sorted(CASOS.glob("CU-*.md"), key=lambda a: int(a.stem.split()[0].split("-")[1])):
+        codigo, titulo = archivo.stem.split(" ", 1)
+        nombradas = {e.strip() for e in re.findall(r"\[\[([^\]|#]+)", archivo.read_text(encoding="utf-8"))}
+        for tabla in sorted(nombradas & tablas_de_negocio):
+            por_tabla.setdefault(tabla, []).append(
+                {"casoDeUso": codigo, "titulo": titulo, "endpoints": endpoints.get(int(codigo.split("-")[1]), [])})
+    return por_tabla
 
 
 def _columna(c, destino, ficha, tabla="", unica=False):
@@ -429,6 +458,10 @@ def markdown(catalogo):
                 if t["negocio"][clave]:
                     L.append(f"**{titulo}.** {t['negocio'][clave]}")
                     L.append("")
+            if t["operaciones"]:
+                L += ["**Casos de uso que la nombran.** " + " · ".join(
+                    f"{o['casoDeUso']} {o['titulo']}" + (f" ({', '.join('`' + e['operationId'] + '`' for e in o['endpoints'])})"
+                                                         if o["endpoints"] else "") for o in t["operaciones"]), ""]
             L += [f"**Sistema.** {t['sistema']}", "", "| Columna | Tipo | Negocio | Sistema | Sensibilidad |",
                   "|---|---|---|---|---|"]
             for c in t["columnas"]:

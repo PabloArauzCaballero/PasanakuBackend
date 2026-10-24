@@ -1,0 +1,17 @@
+## línea base a1872a8d — 2026-10-24T04:27:49+00:00
+$ yarn workspace @aportaya/tokens build
+generado/tokens.css · 274 lineas
+generado/tokens.dart · 460 lineas
+vectores/monto.json · 5006 casos
+exit=0
+$ yarn workspace @aportaya/backoffice typecheck
+src/app/rutas/tablero/dominio/indicadores.ts(134,62): error TS7006: Parameter 'i' implicitly has an 'any' type.
+src/app/rutas/tablero/dominio/indicadores.ts(137,20): error TS2339: Property 'suprimidoPorPrivacidad' does not exist on type '{}'.
+src/app/rutas/tablero/dominio/indicadores.ts(137,48): error TS2339: Property 'valor' does not exist on type '{}'.
+src/app/rutas/tablero/dominio/indicadores.ts(137,72): error TS2339: Property 'valor' does not exist on type '{}'.
+../../clientes/angular/publicidad/model/entradaCampana.ts(10,26): error TS2307: Cannot find module './conjunto' or its corresponding type declarations.
+exit=2
+## línea base tras generarClientes — 2026-10-24T04:35:02+00:00
+$ ./gradlew generarClientes  → exit 0
+$ yarn workspace @aportaya/backoffice typecheck
+exit=0
