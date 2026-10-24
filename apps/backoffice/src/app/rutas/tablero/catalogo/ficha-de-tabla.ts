@@ -107,6 +107,7 @@ export class FichaDeTabla {
     return [
       { valor: 'general', texto: this.t.vistas.general },
       { valor: 'columnas', texto: this.t.vistas.columnas, cuenta: f?.columnas.length },
+      // Sin contador: sumaría casos de uso mientras la primera sección habla de operaciones directas y se contradirían.
       { valor: 'operaciones', texto: this.t.vistas.operaciones },
       { valor: 'relaciones', texto: this.t.vistas.relaciones, cuenta: f ? f.relaciones.salientes.length + f.relaciones.entrantes.length : undefined },
       { valor: 'gobierno', texto: this.t.vistas.gobierno },
