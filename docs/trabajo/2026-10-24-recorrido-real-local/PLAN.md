@@ -9,6 +9,7 @@
 - OUT: TEST (no alcanzable desde aquí), producción, cualquier corrección de código de otros carriles, el paquete `diseno_flutter`. Los defectos que aparezcan se **registran** y, si son del backoffice o del backend de los carriles de este trabajo, se agregan al plan como microtarea.
 - Secretos: la contraseña que Justin usa en TEST **no se usa ni se escribe**. Las claves locales (pimienta, firma, cuenta de operador) son aleatorias, viven en variables de entorno y en un archivo del scratchpad fuera del repositorio.
 - Ambigüedades registradas:
+  - H3.S2: `modelo.py` dice que el SELECT de las bitácoras compartidas es solo de `rol_auditor`; el servicio `auditoria` las consulta con `svc_auditoria`. Supuesto tomado: se otorga SELECT sobre `comun.bitacora_evento` (solo esa tabla) a `svc_auditoria`, porque es el servicio que existe para consultarla. Confirmar con Pablo / Seguridad: es un cambio de permisos (regla 90.5).
   - Sin Docker: se usa Postgres, Redis y Kafka nativos y los servicios con `java -jar`. Supuesto: el comportamiento es el mismo que en contenedores salvo PgBouncer (los servicios hablan directo a Postgres) y MinIO (sin almacén de archivos; las pantallas que suben archivos quedan fuera del recorrido y se declaran). Confirmar con Pablo si exige pasar por PgBouncer.
 
 ## H1 — Infraestructura y servicios arriba, en la nube (HECHO: 15 servicios + gateway en `UP`, ver evidencia/H1S2M4-salud-de-todos.txt)
@@ -42,6 +43,22 @@
 | H2.S1.M2 | `ng serve` del backoffice con proxy al gateway local | `GET /` y `GET /api/v1/...` responden desde el navegador | Playwright | TODO |
 | H2.S2.M1 | Inventario de rutas del backoffice (de `rutas.ts`) y su servicio | lista completa con la ruta de API de cada una | tabla en evidencia | TODO |
 | H2.S2.M2 | Recorrido de cada pantalla (se desglosa por grupo al llegar) | ver CA de H2 | evidencia por pantalla | TODO |
+
+## H3 — Defectos reales que el recorrido contra el backend vivo destapó
+**CA:** Dado el backend local, cuando el operador abre Usuarios internos, Roles internos, Permisos internos y Bitácora, entonces cada pantalla carga datos reales (o vacío) sin 422/500.
+**DoD:** `curl` por el gateway con el token del operador devuelve 200 en las cuatro rutas; el barrido GET del contrato queda sin 422 `AP-DOM-01` ni 5xx; tests dirigidos del servicio en verde; deriva del esquema en verde si cambia el generador (regla 97).
+**Estado:** HECHO salvo hallazgo 3 (rutas de grupos, fuera de este plan) — barrido GET tras las correcciones: 31×200, 2×400, 30×403 por permisos, 0×422, 0×5xx (evidencia/barrido-get-despues.txt)
+**Hallazgos (evidencia/barrido-get.txt y recorrido/escritorio-1440.log):**
+1. `GET /usuarios-internos`, `/roles`, `/permisos` → 422 `AP-DOM-01` «conContexto exige una transacción abierta»: `GestionarUsuariosInternos.listar/consultar/listarRoles/listarPermisos` llaman a `Datos.conContexto` sin `@Transactional`.
+2. `GET /auditoria/bitacora` → 500: `svc_auditoria` solo tiene INSERT sobre `comun.*` y `ConsultarBitacora` hace SELECT sobre `comun.bitacora_evento` (SQLSTATE 42501). El comentario de `scripts/modelo.py` dice que el SELECT es solo de `rol_auditor`: el servicio que existe para consultar la bitácora quedó sin permiso. Decisión de seguridad registrada (ver Ambigüedades).
+3. `GET /grupos/solicitudes` y `GET /grupos/solicitudes-escaladas` → 404: rutas sin servicio (H4.B del plan predecesor, no se repite aquí).
+
+| ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
+|---|---|---|---|---|
+| H3.S1.M1 | `@Transactional(readOnly = true)` en los cuatro métodos de lectura de `GestionarUsuariosInternos` | las tres rutas devuelven 200 por el gateway | `curl` literal tras recompilar y reiniciar identidad | HECHO (evidencia/H3S1M1-identidad-lecturas.txt) |
+| H3.S1.M2 | Prueba dirigida que habría atrapado M1 | falla sin el arreglo y pasa con él | test de identidad en verde + mutación | HECHO: nueva regla `con-contexto-sin-transaccion` (comun-pruebas) + 4 pruebas dirigidas + activada en identidad; mutación probada (evidencia/H3S1M2-mutacion.txt) |
+| H3.S2.M1 | `svc_auditoria` puede leer `comun.bitacora_evento` (excepción enumerada en `modelo.py`, generada en `03_permisos.sql`) | `GET /auditoria/bitacora` → 200 | `curl` + `generar_ddl.py` sin diff extra + verificaciones.sql | HECHO (evidencia/H3S2M1-bitacora.txt: GET /auditoria/bitacora 200; svc_identidad sigue sin SELECT) |
+| H3.S2.M2 | Catálogo de datos y docs regenerados coherentes con la excepción | `catalogo_de_datos.py` y `verificar_narrativas.py` en verde | salida literal | HECHO (evidencia/H3S2M2-*.txt: generar_ddl idempotente, verificar_boveda/seguridad/narrativas OK, base vacía + verificaciones.sql exit 0, auditoria test 45 / webTest 74 / testBarrido 2) |
 
 ## Riesgos y bloqueos previstos
 | Riesgo | Impacto | Mitigación |
