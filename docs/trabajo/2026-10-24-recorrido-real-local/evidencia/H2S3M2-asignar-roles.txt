@@ -1,0 +1,5 @@
+# PUT /usuarios-internos/{usuarioId de USR000091}/roles
+{"codigo":"AP-CU08-04","mensaje":"Nadie se amplia sus propios permisos.","detalle":{},"trazaId":"131255f2-9bed-410d-b812-ca6cb7429772"}
+HTTP 422
+# roles vigentes en la base:
+ADMIN_PLATAFORMA SOPORTE 

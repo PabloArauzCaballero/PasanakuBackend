@@ -60,6 +60,28 @@
 | H3.S2.M1 | `svc_auditoria` puede leer `comun.bitacora_evento` (excepción enumerada en `modelo.py`, generada en `03_permisos.sql`) | `GET /auditoria/bitacora` → 200 | `curl` + `generar_ddl.py` sin diff extra + verificaciones.sql | HECHO (evidencia/H3S2M1-bitacora.txt: GET /auditoria/bitacora 200; svc_identidad sigue sin SELECT) |
 | H3.S2.M2 | Catálogo de datos y docs regenerados coherentes con la excepción | `catalogo_de_datos.py` y `verificar_narrativas.py` en verde | salida literal | HECHO (evidencia/H3S2M2-*.txt: generar_ddl idempotente, verificar_boveda/seguridad/narrativas OK, base vacía + verificaciones.sql exit 0, auditoria test 45 / webTest 74 / testBarrido 2) |
 
+### H3.S3 — Alta de usuario interno (hallazgo 4, destapado al probar el botón «Alta» por la API real)
+**CA:** Dado el operador con permiso de gestión de usuarios internos, cuando da de alta a una persona con un rol, entonces recibe 201 con su ficha, el reintento con la misma `Idempotency-Key` no duplica, y la persona aparece en la lista.
+**DoD:** `POST /usuarios-internos` → 201 por el gateway; mismo POST repetido → misma ficha; `GET /usuarios-internos` la lista; prueba de integración escrita para CI.
+**Estado:** EN CURSO
+**Hallazgos:** `UsuariosInternosRepositorio.crear` (a) inserta `nivel_kyc = 'ESTANDAR'`, valor que `ck_usuario_nivel_kyc` rechaza (BASICO, COMPLETO, INTERMEDIO, NINGUNO) → 422 `AP-BD-03`; (b) no informa `credencial_acceso.parametros_kdf` (NOT NULL) y escribe el algoritmo a mano; (c) NO CORREGIDO, fuera de alcance: inserta `fecha_nacimiento = 1990-01-01` inventada para personal real (regla 00 §2) — se registra como riesgo.
+
+| ID | Microtarea | CA (binario) | DoD | Estado |
+|---|---|---|---|---|
+| H3.S3.M1 | `nivel_kyc = 'NINGUNO'` (el valor inicial que ya usa `RegistroRepositorio`) y parámetros KDF desde `HasheadorDeCredencial.parametros()` | el alta devuelve 201 | recompilar, reiniciar identidad, `curl` | HECHO: `POST /usuarios-internos` → 201 con la ficha y 9 permisos de CONTABILIDAD (evidencia/H3S3-alta-usuario-interno.txt) |
+| H3.S3.M2 | Reintento con la misma `Idempotency-Key` no duplica | misma respuesta, una sola fila | `curl` ×2 + `select count(*)` | **NO CUMPLE**: el reintento con la misma clave devuelve 422 `AP-CU01-02` (no duplica: una sola fila) en vez de repetir el 201. `identidad` no tiene `respuesta_idempotente` (solo `nucleo_financiero`); implementarlo toca el generador de esquema → H3.S4 |
+| H3.S3.M3 | Prueba de integración del repositorio (alta y lectura contra Postgres real) | pasa en CI | **solo escrita: aquí no hay Docker, no se puede correr** (peldaño WRITTEN) | TODO |
+
+### H3.S4 — Idempotencia real en el alta de usuario interno (pendiente, abierta por M2)
+**CA:** Dado el mismo `POST /usuarios-internos` con la misma `Idempotency-Key`, entonces la segunda respuesta es la primera (201, misma ficha), no un 422.
+**DoD:** `respuesta_idempotente` en el esquema `identidad` por el generador (regla 97), `Idempotencia` aplicada en el controlador, prueba de idempotencia, deriva en verde.
+**Estado:** TODO
+
+| ID | Microtarea | CA (binario) | DoD | Estado |
+|---|---|---|---|---|
+| H3.S4.M1 | Inyectar `respuesta_idempotente` en `identidad` desde `generar_ddl.py` | tabla creada por `aplicar.sql` | `aplicar.sql` + deriva | TODO |
+| H3.S4.M2 | Aplicar `Idempotencia` en `crearUsuarioInterno` | mismo POST dos veces → misma respuesta | `curl` ×2 | TODO |
+
 ## Riesgos y bloqueos previstos
 | Riesgo | Impacto | Mitigación |
 |---|---|---|
