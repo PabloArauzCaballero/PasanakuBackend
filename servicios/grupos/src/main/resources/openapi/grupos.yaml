@@ -53,6 +53,37 @@ paths:
       responses:
         '204': { description: Invitación revocada }
         '422': { $ref: '#/components/responses/ReglaDeNegocio' }
+  /grupos/solicitudes:
+    get:
+      operationId: listarBandejaDeAdmisiones   # CU-68 · bandeja general del backoffice (H4.B.M1)
+      summary: Solicitudes de ingreso de TODOS los grupos, para el backoffice
+      description: >-
+        La bandeja de «Admisiones»: las solicitudes de cualquier grupo, las mas nuevas primero, con
+        el codigo del grupo y el nombre con que se presento quien pide entrar. Distinta de
+        `/grupos/{grupoId}/solicitudes`, que es la cola PENDIENTE de un solo grupo para su organizador.
+        Sin telefono ni correo de nadie. `estado` usa los nombres de la pantalla: `ACEPTADA` es lo que la
+        base guarda como `APROBADA`. Acotada a `limite` filas (maximo 200); la pantalla filtra y pagina
+        sobre ese arreglo.
+      parameters:
+        - name: estado
+          in: query
+          required: false
+          schema: { type: string, enum: [PENDIENTE, ACEPTADA, RECHAZADA, EXPIRADA] }
+        - name: limite
+          in: query
+          required: false
+          schema: { type: integer, minimum: 1, maximum: 200, default: 200 }
+      responses:
+        '200':
+          description: Solicitudes, la mas nueva primero
+          content:
+            application/json:
+              schema:
+                type: array
+                maxItems: 200
+                items: { $ref: '#/components/schemas/SolicitudDeAdmision' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
   /grupos/solicitudes/{solicitudId}/propuestas:
     post:
       operationId: proponerAdmision
@@ -1333,6 +1364,23 @@ components:
         nombreVisible:    { type: [string, 'null'], maxLength: 60, description: 'Nombre completo de quien pide entrar por el enlace del grupo (sin telefono ni correo)' }
         porEnlace:        { type: boolean, description: 'La pidio con el enlace del grupo' }
         estado:           { type: string, enum: [PENDIENTE, APROBADA, RECHAZADA, EXPIRADA] }
+        fechaSolicitud:   { type: string, format: date-time }
+    SolicitudDeAdmision:
+      type: object
+      additionalProperties: false
+      description: Una fila de la bandeja de admisiones del backoffice; no lleva telefono ni correo.
+      required: [solicitudId, usuarioId, postulante, grupoId, grupoCodigo, cuposSolicitados, estado, fechaSolicitud]
+      properties:
+        solicitudId:      { type: string, format: uuid }
+        usuarioId:        { type: string, format: uuid }
+        postulante:       { type: string, maxLength: 80, description: 'Nombre con que se presento por el enlace del grupo; si no hay, "Usuario" y los primeros 8 caracteres del id' }
+        grupoId:          { type: string, format: uuid }
+        grupoCodigo:      { type: string, maxLength: 40, description: 'Codigo publico del grupo' }
+        cuposSolicitados: { type: integer, minimum: 1 }
+        mensaje:          { type: [string, 'null'], maxLength: 500 }
+        puntaje:          { type: [string, 'null'] }
+        porEnlace:        { type: boolean, description: 'La pidio con el enlace del grupo' }
+        estado:           { type: string, enum: [PENDIENTE, ACEPTADA, RECHAZADA, EXPIRADA] }
         fechaSolicitud:   { type: string, format: date-time }
     MisLimites:
       type: object
