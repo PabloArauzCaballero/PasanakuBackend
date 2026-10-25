@@ -212,7 +212,7 @@ public class CU68AceptarIngreso {
     @Transactional(readOnly = true)
     public List<FilaDeBandeja> bandeja(String estado, Integer limite, ContextoSesion ctx) {
         String enBase = estado == null ? null : "ACEPTADA".equals(estado) ? "APROBADA" : estado;
-        int tope = limite == null ? TOPE_DE_BANDEJA : Math.max(1, Math.min(limite, TOPE_DE_BANDEJA));
+        int tope = limite == null ? FILAS_DE_LA_BANDEJA : Math.max(1, Math.min(limite, FILAS_DE_LA_BANDEJA));
         var sistema =
                 ContextoSesion.deSistema(ctx.usuarioId(), new Traza(ctx.traza().id()));
         return datos.conContexto(sistema, dsl -> dsl.fetch(
@@ -280,7 +280,7 @@ public class CU68AceptarIngreso {
             String nombreVisible,
             boolean porEnlace) {}
 
-    private static final int TOPE_DE_BANDEJA = 200;
+    private static final int FILAS_DE_LA_BANDEJA = 200;
 
     public record Resultado(UUID solicitudId, String estado, UUID participanteId, UUID cupoId) {}
 
