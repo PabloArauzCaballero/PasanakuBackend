@@ -40,7 +40,7 @@ from modelo import (MODULOS, FOCO, APPEND_ONLY, PARTICIONADAS, CK_AMPLIADOS,  # 
 
                     ESQUEMA, ESQUEMA_CATALOGO, CATALOGO, CATALOGO_ESCRITOR,
                     LIBRO_CONTABLE,
-                    ESQUEMA_COMUN, COMPARTIDAS_ESCRITURA,
+                    ESQUEMA_COMUN, COMPARTIDAS_ESCRITURA, COMPARTIDAS_LECTURA,
                     INFRA_MENSAJERIA, INFRA_ORQUESTADOR, ESQUEMAS_ORQUESTADORES,
                     esquemas_de_servicio, tablas_infra_de,
                     esquema_de, rol_de,
@@ -876,6 +876,11 @@ def escribir_permisos_finales():
               f"GRANT INSERT ON ALL TABLES IN SCHEMA {ESQUEMA_COMUN} TO {r};",
               f"GRANT USAGE ON ALL SEQUENCES IN SCHEMA {e} TO {r};",
               f"GRANT USAGE ON ALL SEQUENCES IN SCHEMA {ESQUEMA_COMUN} TO {r};"]
+    L.append("")
+    L.append("-- Lectura de las bitacoras compartidas: ademas de rol_auditor, solo el servicio que existe para")
+    L.append("-- consultarlas (modelo.py -> COMPARTIDAS_LECTURA). Los demas svc_* siguen sin leer el rastro ajeno.")
+    for tabla, duenio in sorted(COMPARTIDAS_LECTURA.items()):
+        L.append(f"GRANT SELECT ON {ESQUEMA_COMUN}.{tabla} TO {rol_de(duenio)};")
     L.append("")
     for e in esquemas:
         L.append(f"GRANT SELECT ON ALL TABLES IN SCHEMA {e} TO rol_auditor;")

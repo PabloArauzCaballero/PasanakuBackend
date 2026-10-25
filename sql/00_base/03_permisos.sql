@@ -80,6 +80,10 @@ GRANT INSERT ON ALL TABLES IN SCHEMA comun TO svc_transparencia;
 GRANT USAGE ON ALL SEQUENCES IN SCHEMA transparencia TO svc_transparencia;
 GRANT USAGE ON ALL SEQUENCES IN SCHEMA comun TO svc_transparencia;
 
+-- Lectura de las bitacoras compartidas: ademas de rol_auditor, solo el servicio que existe para
+-- consultarlas (modelo.py -> COMPARTIDAS_LECTURA). Los demas svc_* siguen sin leer el rastro ajeno.
+GRANT SELECT ON comun.bitacora_evento TO svc_auditoria;
+
 GRANT SELECT ON ALL TABLES IN SCHEMA aportes TO rol_auditor;
 GRANT SELECT ON ALL TABLES IN SCHEMA auditoria TO rol_auditor;
 GRANT SELECT ON ALL TABLES IN SCHEMA cumplimiento TO rol_auditor;

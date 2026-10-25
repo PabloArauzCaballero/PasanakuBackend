@@ -1,0 +1,5 @@
+63 rutas GET: {200: 27, 400: 2, 403: 30, 422: 3, 500: 1}
+  500 AP-INT-01   auditoria          /auditoria/bitacora
+  422 AP-DOM-01   identidad          /usuarios-internos
+  422 AP-DOM-01   identidad          /roles
+  422 AP-DOM-01   identidad          /permisos

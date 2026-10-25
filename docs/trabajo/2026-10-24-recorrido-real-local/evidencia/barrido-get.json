@@ -1,0 +1,473 @@
+[
+ {
+  "servicio": "aportes",
+  "ruta": "/aportes/recaudo-diario",
+  "estado": 400,
+  "codigo": "AP-VAL-02",
+  "consulta_requerida": [
+   "fecha"
+  ]
+ },
+ {
+  "servicio": "auditoria",
+  "ruta": "/auditoria/bitacora",
+  "estado": 500,
+  "codigo": "AP-INT-01",
+  "consulta_requerida": []
+ },
+ {
+  "servicio": "auditoria",
+  "ruta": "/auditoria/catalogos",
+  "estado": 200,
+  "codigo": "",
+  "consulta_requerida": []
+ },
+ {
+  "servicio": "auditoria",
+  "ruta": "/reportes",
+  "estado": 200,
+  "codigo": "",
+  "consulta_requerida": []
+ },
+ {
+  "servicio": "auditoria",
+  "ruta": "/reportes/ejecuciones",
+  "estado": 200,
+  "codigo": "",
+  "consulta_requerida": []
+ },
+ {
+  "servicio": "auditoria",
+  "ruta": "/indicadores",
+  "estado": 400,
+  "codigo": "AP-VAL-02",
+  "consulta_requerida": [
+   "periodo",
+   "dimension"
+  ]
+ },
+ {
+  "servicio": "auditoria",
+  "ruta": "/indicadores/operacion/endpoints",
+  "estado": 200,
+  "codigo": "",
+  "consulta_requerida": []
+ },
+ {
+  "servicio": "auditoria",
+  "ruta": "/indicadores/operacion/servicios",
+  "estado": 200,
+  "codigo": "",
+  "consulta_requerida": []
+ },
+ {
+  "servicio": "auditoria",
+  "ruta": "/indicadores/catalogo-de-datos",
+  "estado": 200,
+  "codigo": "",
+  "consulta_requerida": []
+ },
+ {
+  "servicio": "auditoria",
+  "ruta": "/indicadores/catalogo-de-datos/resumen",
+  "estado": 200,
+  "codigo": "",
+  "consulta_requerida": []
+ },
+ {
+  "servicio": "auditoria",
+  "ruta": "/indicadores/catalogo-de-datos/tablas",
+  "estado": 200,
+  "codigo": "",
+  "consulta_requerida": []
+ },
+ {
+  "servicio": "cumplimiento",
+  "ruta": "/cumplimiento/contratos/vigentes",
+  "estado": 200,
+  "codigo": "",
+  "consulta_requerida": []
+ },
+ {
+  "servicio": "cumplimiento",
+  "ruta": "/cumplimiento/riesgos/eventos",
+  "estado": 200,
+  "codigo": "",
+  "consulta_requerida": []
+ },
+ {
+  "servicio": "cumplimiento",
+  "ruta": "/cumplimiento/seguridad/incidentes",
+  "estado": 200,
+  "codigo": "",
+  "consulta_requerida": []
+ },
+ {
+  "servicio": "cumplimiento",
+  "ruta": "/reclamos",
+  "estado": 200,
+  "codigo": "",
+  "consulta_requerida": []
+ },
+ {
+  "servicio": "cumplimiento",
+  "ruta": "/cumplimiento/alertas",
+  "estado": 403,
+  "codigo": "AP-SEG-01",
+  "consulta_requerida": []
+ },
+ {
+  "servicio": "cumplimiento",
+  "ruta": "/cumplimiento/casos",
+  "estado": 403,
+  "codigo": "AP-SEG-01",
+  "consulta_requerida": []
+ },
+ {
+  "servicio": "cumplimiento",
+  "ruta": "/uif/reportes",
+  "estado": 200,
+  "codigo": "",
+  "consulta_requerida": []
+ },
+ {
+  "servicio": "cumplimiento",
+  "ruta": "/uif/requerimientos",
+  "estado": 200,
+  "codigo": "",
+  "consulta_requerida": []
+ },
+ {
+  "servicio": "cumplimiento",
+  "ruta": "/cumplimiento/continuidad/pruebas",
+  "estado": 200,
+  "codigo": "",
+  "consulta_requerida": []
+ },
+ {
+  "servicio": "cumplimiento",
+  "ruta": "/cumplimiento/comites/actas",
+  "estado": 200,
+  "codigo": "",
+  "consulta_requerida": []
+ },
+ {
+  "servicio": "cumplimiento",
+  "ruta": "/licencia/alcance",
+  "estado": 403,
+  "codigo": "AP-SEG-01",
+  "consulta_requerida": [
+   "servicio"
+  ]
+ },
+ {
+  "servicio": "entregas",
+  "ruta": "/desembolsos",
+  "estado": 200,
+  "codigo": "",
+  "consulta_requerida": []
+ },
+ {
+  "servicio": "entregas",
+  "ruta": "/entregas/mercado/ofertas",
+  "estado": 403,
+  "codigo": "AP-SEG-01",
+  "consulta_requerida": []
+ },
+ {
+  "servicio": "erp",
+  "ruta": "/erp/ejercicios",
+  "estado": 403,
+  "codigo": "AP-SEG-01",
+  "consulta_requerida": []
+ },
+ {
+  "servicio": "erp",
+  "ruta": "/erp/periodos/vigente",
+  "estado": 403,
+  "codigo": "AP-SEG-01",
+  "consulta_requerida": []
+ },
+ {
+  "servicio": "erp",
+  "ruta": "/erp/partidas-presupuestarias",
+  "estado": 403,
+  "codigo": "AP-SEG-01",
+  "consulta_requerida": []
+ },
+ {
+  "servicio": "erp",
+  "ruta": "/erp/ordenes-de-compra",
+  "estado": 403,
+  "codigo": "AP-SEG-01",
+  "consulta_requerida": []
+ },
+ {
+  "servicio": "erp",
+  "ruta": "/erp/facturas-de-proveedor",
+  "estado": 403,
+  "codigo": "AP-SEG-01",
+  "consulta_requerida": []
+ },
+ {
+  "servicio": "erp",
+  "ruta": "/erp/cuentas-por-cobrar",
+  "estado": 403,
+  "codigo": "AP-SEG-01",
+  "consulta_requerida": []
+ },
+ {
+  "servicio": "erp",
+  "ruta": "/erp/activos",
+  "estado": 403,
+  "codigo": "AP-SEG-01",
+  "consulta_requerida": []
+ },
+ {
+  "servicio": "grupos",
+  "ruta": "/grupos/calendario/calcular",
+  "estado": 403,
+  "codigo": "AP-SEG-01",
+  "consulta_requerida": [
+   "desde",
+   "dias",
+   "alcance"
+  ]
+ },
+ {
+  "servicio": "grupos",
+  "ruta": "/grupos/calendario/vencimiento",
+  "estado": 403,
+  "codigo": "AP-SEG-01",
+  "consulta_requerida": [
+   "instante",
+   "alcance"
+  ]
+ },
+ {
+  "servicio": "grupos",
+  "ruta": "/grupos/obligaciones/admisibilidad",
+  "estado": 403,
+  "codigo": "AP-SEG-01",
+  "consulta_requerida": [
+   "participanteId",
+   "periodoId"
+  ]
+ },
+ {
+  "servicio": "grupos",
+  "ruta": "/grupos/mis-limites",
+  "estado": 403,
+  "codigo": "AP-SEG-01",
+  "consulta_requerida": []
+ },
+ {
+  "servicio": "grupos",
+  "ruta": "/grupos/participaciones",
+  "estado": 403,
+  "codigo": "AP-SEG-01",
+  "consulta_requerida": []
+ },
+ {
+  "servicio": "identidad",
+  "ruta": "/identidad/verificaciones",
+  "estado": 200,
+  "codigo": "",
+  "consulta_requerida": []
+ },
+ {
+  "servicio": "identidad",
+  "ruta": "/usuarios/por-telefono",
+  "estado": 403,
+  "codigo": "AP-SEG-01",
+  "consulta_requerida": [
+   "telefono"
+  ]
+ },
+ {
+  "servicio": "identidad",
+  "ruta": "/usuarios/yo/perfil",
+  "estado": 403,
+  "codigo": "AP-SEG-01",
+  "consulta_requerida": []
+ },
+ {
+  "servicio": "identidad",
+  "ruta": "/usuarios-internos",
+  "estado": 422,
+  "codigo": "AP-DOM-01",
+  "consulta_requerida": []
+ },
+ {
+  "servicio": "identidad",
+  "ruta": "/roles",
+  "estado": 422,
+  "codigo": "AP-DOM-01",
+  "consulta_requerida": []
+ },
+ {
+  "servicio": "identidad",
+  "ruta": "/permisos",
+  "estado": 422,
+  "codigo": "AP-DOM-01",
+  "consulta_requerida": []
+ },
+ {
+  "servicio": "inversiones",
+  "ruta": "/inversiones/productos",
+  "estado": 403,
+  "codigo": "AP-SEG-01",
+  "consulta_requerida": []
+ },
+ {
+  "servicio": "inversiones",
+  "ruta": "/inversiones/posiciones",
+  "estado": 403,
+  "codigo": "AP-SEG-01",
+  "consulta_requerida": []
+ },
+ {
+  "servicio": "inversiones",
+  "ruta": "/inversiones/reportes/fiscal",
+  "estado": 403,
+  "codigo": "AP-SEG-01",
+  "consulta_requerida": [
+   "desde",
+   "hasta"
+  ]
+ },
+ {
+  "servicio": "inversiones",
+  "ruta": "/inversiones/reportes/fiscal/exportacion",
+  "estado": 403,
+  "codigo": "AP-SEG-01",
+  "consulta_requerida": [
+   "desde",
+   "hasta"
+  ]
+ },
+ {
+  "servicio": "inversiones",
+  "ruta": "/inversiones/corridas",
+  "estado": 200,
+  "codigo": "",
+  "consulta_requerida": []
+ },
+ {
+  "servicio": "notificaciones",
+  "ruta": "/notificaciones/plantillas",
+  "estado": 200,
+  "codigo": "",
+  "consulta_requerida": []
+ },
+ {
+  "servicio": "notificaciones",
+  "ruta": "/notificaciones/envios",
+  "estado": 200,
+  "codigo": "",
+  "consulta_requerida": []
+ },
+ {
+  "servicio": "notificaciones",
+  "ruta": "/notificaciones/supresion",
+  "estado": 403,
+  "codigo": "AP-SEG-01",
+  "consulta_requerida": [
+   "identificador",
+   "categoria"
+  ]
+ },
+ {
+  "servicio": "notificaciones",
+  "ruta": "/notificaciones/avisos-internos",
+  "estado": 200,
+  "codigo": "",
+  "consulta_requerida": []
+ },
+ {
+  "servicio": "nucleo-financiero",
+  "ruta": "/billetera/cuentas/propia",
+  "estado": 403,
+  "codigo": "AP-SEG-01",
+  "consulta_requerida": [
+   "moneda"
+  ]
+ },
+ {
+  "servicio": "nucleo-financiero",
+  "ruta": "/billetera/retiros",
+  "estado": 403,
+  "codigo": "AP-SEG-01",
+  "consulta_requerida": []
+ },
+ {
+  "servicio": "nucleo-financiero",
+  "ruta": "/custodia/conciliaciones",
+  "estado": 200,
+  "codigo": "",
+  "consulta_requerida": []
+ },
+ {
+  "servicio": "nucleo-financiero",
+  "ruta": "/contabilidad/cierres-diarios",
+  "estado": 200,
+  "codigo": "",
+  "consulta_requerida": []
+ },
+ {
+  "servicio": "nucleo-financiero",
+  "ruta": "/contabilidad/reversos",
+  "estado": 200,
+  "codigo": "",
+  "consulta_requerida": []
+ },
+ {
+  "servicio": "organizador",
+  "ruta": "/organizadores/yo/habilitacion-basica",
+  "estado": 403,
+  "codigo": "AP-SEG-01",
+  "consulta_requerida": []
+ },
+ {
+  "servicio": "organizador",
+  "ruta": "/organizadores/postulaciones/bandeja",
+  "estado": 200,
+  "codigo": "",
+  "consulta_requerida": []
+ },
+ {
+  "servicio": "organizador",
+  "ruta": "/organizadores/postulaciones/mia",
+  "estado": 403,
+  "codigo": "AP-SEG-01",
+  "consulta_requerida": []
+ },
+ {
+  "servicio": "publicidad",
+  "ruta": "/publicidad/anunciantes",
+  "estado": 403,
+  "codigo": "AP-SEG-01",
+  "consulta_requerida": []
+ },
+ {
+  "servicio": "publicidad",
+  "ruta": "/publicidad/campanas",
+  "estado": 403,
+  "codigo": "AP-SEG-01",
+  "consulta_requerida": []
+ },
+ {
+  "servicio": "publicidad",
+  "ruta": "/publicidad/piezas-creativas",
+  "estado": 403,
+  "codigo": "AP-SEG-01",
+  "consulta_requerida": []
+ },
+ {
+  "servicio": "tarifas",
+  "ruta": "/tarifas/tarifarios",
+  "estado": 200,
+  "codigo": "",
+  "consulta_requerida": []
+ }
+]

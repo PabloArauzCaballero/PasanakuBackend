@@ -68,6 +68,18 @@ public final class Barrido {
                 .isEmpty();
     }
 
+    /**
+     * con-contexto-sin-transaccion: un metodo publico de la capa {@code aplicacion} que llama
+     * a {@code Datos.conContexto} sin {@code @Transactional} falla en ejecucion con 422
+     * {@code AP-DOM-01}. Opt-in: se activa en los servicios cuyos casos de uso ya cumplen,
+     * para no gritar por deuda ajena el mismo dia que se agrega.
+     */
+    public void ningunConContextoSinTransaccion() {
+        assertThat(describir(ConContextoSinTransaccion.revisar(soloProduccion())))
+                .as("con-contexto-sin-transaccion: conContexto exige una transaccion abierta (SET LOCAL)")
+                .isEmpty();
+    }
+
     private List<String> describir(List<Hallazgo> hallazgos) {
         return hallazgos.stream().map(h -> h.describir(raiz)).toList();
     }

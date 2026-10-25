@@ -1,0 +1,1 @@
+token guardado; claims: {'sub': '<omitido>', 'nivel_diligencia': '<omitido>', 'exp': 1792856183, 'permisos': '<21 elementos>', 'iat': 1792855283, 'jti': '<omitido>', 'rol': 'BACKOFFICE', 'sesion_id': '<omitido>'}
