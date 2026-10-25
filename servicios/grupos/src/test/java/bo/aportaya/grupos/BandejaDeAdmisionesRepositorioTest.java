@@ -27,7 +27,8 @@ class BandejaDeAdmisionesRepositorioTest extends BaseDeCU68 {
 
     /** SOPORTE: un rol del backoffice que la RLS de solicitud_ingreso NO deja pasar por si sola. */
     private ContextoSesion soporte() {
-        return ContextoSesion.de(UUID.randomUUID(), "SOPORTE", new Traza(UUID.randomUUID().toString()));
+        return ContextoSesion.de(
+                UUID.randomUUID(), "SOPORTE", new Traza(UUID.randomUUID().toString()));
     }
 
     private UUID solicitud(UUID grupo, UUID usuario, String estado, String nombreVisible, String haceCuanto) {
@@ -95,7 +96,8 @@ class BandejaDeAdmisionesRepositorioTest extends BaseDeCU68 {
                 .fetchOne("SELECT codigo_publico FROM grupos.grupo WHERE id = ?", a.grupoA())
                 .get(0, String.class);
 
-        var fila = solo(cu().bandeja(null, null, soporte()), Set.of(a.pendienteA())).get(0);
+        var fila = solo(cu().bandeja(null, null, soporte()), Set.of(a.pendienteA()))
+                .get(0);
 
         assertThat(fila.grupoCodigo()).isEqualTo(codigoA);
         assertThat(fila.nombreVisible()).isEqualTo("Ana Rojas");
