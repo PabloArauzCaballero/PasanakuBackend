@@ -58,7 +58,7 @@ class BandejaDeAdmisionesRepositorioTest extends BaseDeCU68 {
         }
     }
 
-    private Armado armar() {
+    private Armado dejarArmadas() {
         UUID a = fixtura.grupoConformado(3);
         UUID b = fixtura.grupoConformado(3);
         return new Armado(
@@ -78,7 +78,7 @@ class BandejaDeAdmisionesRepositorioTest extends BaseDeCU68 {
     @DisplayName(
             "Dado un rol del backoffice que la RLS no deja pasar · Cuando abre la bandeja · Entonces ve las solicitudes de TODOS los grupos, las mas nuevas primero")
     void variosGruposDeLaMasNuevaALaMasVieja() {
-        var a = armar();
+        var a = dejarArmadas();
 
         var filas = solo(cu().bandeja(null, null, soporte()), a.todas());
 
@@ -91,7 +91,7 @@ class BandejaDeAdmisionesRepositorioTest extends BaseDeCU68 {
     @Test
     @DisplayName("trae el codigo publico del grupo y el nombre con que se presento quien pidio entrar")
     void traeElCodigoDelGrupoYElNombre() {
-        var a = armar();
+        var a = dejarArmadas();
         String codigoA = dslFixtura
                 .fetchOne("SELECT codigo_publico FROM grupos.grupo WHERE id = ?", a.grupoA())
                 .get(0, String.class);
@@ -107,7 +107,7 @@ class BandejaDeAdmisionesRepositorioTest extends BaseDeCU68 {
     @Test
     @DisplayName("el estado sale con los nombres de la pantalla: lo que la base guarda como APROBADA es ACEPTADA")
     void aprobadaSeLlamaAceptada() {
-        var a = armar();
+        var a = dejarArmadas();
 
         var todas = solo(cu().bandeja(null, null, soporte()), a.todas());
 
@@ -121,7 +121,7 @@ class BandejaDeAdmisionesRepositorioTest extends BaseDeCU68 {
     @Test
     @DisplayName("filtrar por ACEPTADA trae solo las aprobadas; por PENDIENTE, solo las pendientes de los dos grupos")
     void filtraPorEstadoConLosNombresDeLaPantalla() {
-        var a = armar();
+        var a = dejarArmadas();
 
         assertThat(solo(cu().bandeja("ACEPTADA", null, soporte()), a.todas()))
                 .extracting(FilaDeBandeja::id)
@@ -135,7 +135,7 @@ class BandejaDeAdmisionesRepositorioTest extends BaseDeCU68 {
     @Test
     @DisplayName("un estado que no existe no coincide con ninguna fila (no revienta ni devuelve todo)")
     void estadoDesconocidoNoCoincide() {
-        var a = armar();
+        var a = dejarArmadas();
 
         assertThat(solo(cu().bandeja("TAL_VEZ", null, soporte()), a.todas())).isEmpty();
     }
@@ -143,7 +143,7 @@ class BandejaDeAdmisionesRepositorioTest extends BaseDeCU68 {
     @Test
     @DisplayName("el limite acota la lista: 1 devuelve una sola fila y uno fuera de rango se acota a 1..200")
     void limiteAcotaLaLista() {
-        armar();
+        dejarArmadas();
 
         assertThat(cu().bandeja(null, 1, soporte())).hasSize(1);
         assertThat(cu().bandeja(null, 0, soporte())).hasSize(1);
