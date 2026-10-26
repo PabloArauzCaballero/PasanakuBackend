@@ -1,93 +1,86 @@
-import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core'
-import { toSignal } from '@angular/core/rxjs-interop'
-import { ActivatedRoute, Router } from '@angular/router'
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core'
 import { CabeceraDePagina } from '@aportaya/ui/cabecera-de-pagina/cabecera-de-pagina'
 import { ChipEstado } from '@aportaya/ui/chip-estado/chip-estado'
-import type { Filtro } from '@aportaya/ui/chips-de-filtro/chips-de-filtro'
+import type { ColumnaExportable } from '@aportaya/ui/exportar-listado/exportar'
 import { Fecha } from '@aportaya/ui/fecha/fecha'
 import { Monto } from '@aportaya/ui/monto/monto'
-import { BarraDeFiltros } from '../../../nucleo/filtros/barra-de-filtros'
+import type { Columna } from '@aportaya/ui/tabla-de-datos/tabla-de-datos'
 import { ExplicadorDeVista } from '../../../nucleo/explicador-de-vista'
-import { TablaDeDatosVirtualizada } from '../../../nucleo/tabla/tabla-de-datos-virtualizada'
-import type { ColumnaVirtual } from '../../../nucleo/tabla/tipos'
-import { EstadoDeBandejaVista } from '../comun/estado-de-bandeja'
-import { bandejaDeDesembolsos, type DesembolsoEnLista } from './dominio/cu28-desembolsos'
+import { fechaComoSeVe, montoComoSeVe } from '../comun/como-se-ve'
+import { crearListadoPorCursor } from '../comun/listado-por-cursor'
+import { ListadoPorCursorVista } from '../comun/listado-por-cursor-vista'
+import { pedidorDeDesembolsos, type DesembolsoEnLista } from './dominio/cu28-desembolsos'
 import { textosDesembolsos } from './textos'
 
 const T = textosDesembolsos
+const C = T.columnas
 type Estado = keyof typeof T.estados
+type Resultado = keyof typeof T.resultados
 const TONO: Record<Estado, 'ok' | 'aviso' | 'error' | 'info' | 'neutro'> = {
   CREADA: 'info', ENVIADA_A_PROVEEDOR: 'info', EN_PROCESO: 'aviso', ACREDITADA: 'ok', RECHAZADA: 'error', DEVUELTA_POR_BANCO: 'error', CANCELADA: 'neutro',
 }
 const CLAVES = ['creadaEn', 'monto', 'estado', 'intentos', 'ultimoResultado', 'ultimoCodigoError', 'reintentableEn', 'entregaId'] as const
-const COLUMNAS: ColumnaVirtual<DesembolsoEnLista>[] = CLAVES.map((clave) => ({ clave, titulo: T.columnas[clave], numerica: clave === 'monto' || clave === 'intentos' }))
+const COLUMNAS: Columna<DesembolsoEnLista>[] = CLAVES.map((clave) => ({ clave, titulo: C[clave], numerica: clave === 'monto' || clave === 'intentos', mono: clave === 'entregaId' }))
+const estadoDe = (r: DesembolsoEnLista) => T.estados[r.estado as Estado] ?? r.estado
+const resultadoDe = (r: DesembolsoEnLista) => (r.ultimoResultado ? (T.resultados[r.ultimoResultado as Resultado] ?? r.ultimoResultado) : T.ninguno)
+const EXPORTABLES: ColumnaExportable<DesembolsoEnLista>[] = [
+  { clave: 'ordenId', titulo: C.ordenId },
+  { clave: 'creadaEn', titulo: C.creadaEn, valor: (r) => fechaComoSeVe(r.creadaEn) },
+  { clave: 'monto', titulo: C.monto, valor: (r) => montoComoSeVe(r.monto) },
+  { clave: 'estado', titulo: C.estado, valor: estadoDe },
+  { clave: 'intentos', titulo: C.intentos },
+  { clave: 'ultimoResultado', titulo: C.ultimoResultado, valor: resultadoDe },
+  { clave: 'ultimoCodigoError', titulo: C.ultimoCodigoError, valor: (r) => r.ultimoCodigoError ?? T.ninguno },
+  { clave: 'reintentableEn', titulo: C.reintentableEn, valor: (r) => fechaComoSeVe(r.reintentableEn) || T.ninguno },
+  { clave: 'entregaId', titulo: C.entregaId },
+]
 
 /**
- * CU-28 · bandeja de desembolsos (solo lectura).
+ * CU-28 · bandeja de desembolsos (solo lectura). Un desembolso es un movimiento de fondos: no se edita ni se elimina,
+ * y el contrato no publica reintento ni cancelación desde acá, así que la fila no ofrece acciones (un botón sin
+ * endpoint sería un botón muerto). El estado viaja al servidor; sin estado, el servidor devuelve las excepciones.
  */
 @Component({
   selector: 'ap-bandeja-de-desembolsos',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CabeceraDePagina, ChipEstado, Fecha, Monto, BarraDeFiltros, TablaDeDatosVirtualizada, EstadoDeBandejaVista],
+  imports: [CabeceraDePagina, ChipEstado, Fecha, Monto, ListadoPorCursorVista],
   template: `
     <section class="pantalla">
-      <ap-cabecera-de-pagina [titulo]="t.titulo" [descripcion]="t.proposito" icono="entrega" />
-      <ap-barra-de-filtros [etiqueta]="t.filtroEtiqueta" [incluirBusqueda]="false" [definiciones]="filtrosDeEstado" />
-      <ap-estado-de-bandeja [estado]="b.estado()" [error]="b.error()" [vacio]="t.vacio" [explicacionVacio]="t.explicacionVacio" [denegado]="t.denegado" [conFiltro]="!!filtrosActivos()['estados']" (reintentar)="b.reintentar()" (quitarFiltros)="quitarFiltros()" />
-      @if (b.estado() !== 'denegado') {
-        @for (v of [b.version()]; track v) {
-          <ap-tabla-de-datos-virtualizada [titulo]="t.titulo" [columnas]="COLUMNAS" [cargador]="b.cargador" [ordenPermitido]="[]" [identidad]="identidad" [filtros]="filtrosActivos()" [tamanoDePagina]="25">
-            <ng-template #celda let-r let-columna="columna">
-              @switch (columna.clave) {
-                @case ('creadaEn') { <ap-fecha [iso]="r.creadaEn" /> }
-                @case ('reintentableEn') { @if (r.reintentableEn) { <ap-fecha [iso]="r.reintentableEn" /> } @else { {{ t.ninguno }} } }
-                @case ('monto') { <ap-monto [monto]="r.monto.monto" [moneda]="r.monto.moneda" [etiqueta]="t.columnas.monto" /> }
-                @case ('estado') { <ap-chip-estado [tono]="tonoDe(r)">{{ estadoDe(r) }}</ap-chip-estado> }
-                @case ('ultimoResultado') { {{ r.ultimoResultado ? resultadoDe(r) : t.ninguno }} }
-                @default { {{ r[columna.clave] ?? t.ninguno }} }
-              }
-            </ng-template>
-          </ap-tabla-de-datos-virtualizada>
-        }
-      }
+      <ap-cabecera-de-pagina eyebrow="Operación · CU-28" [titulo]="t.titulo" [descripcion]="t.proposito" icono="entrega" />
+      <ap-listado-por-cursor [titulo]="t.titulo" [columnas]="COLUMNAS" [fuente]="l" [exportables]="EXPORTABLES" [identidad]="identidad" [ayudaDeBusqueda]="t.ayudaBusqueda" [textoVacio]="t.vacio" [explicacionVacio]="t.explicacionVacio" [textoDenegado]="t.denegado" nombreDeRegistros="desembolsos" nombreDeRegistro="desembolso">
+        <ng-template #celda let-r let-columna="columna">
+          @switch (columna.clave) {
+            @case ('creadaEn') { <ap-fecha [iso]="r.creadaEn" /> }
+            @case ('reintentableEn') { @if (r.reintentableEn) { <ap-fecha [iso]="r.reintentableEn" /> } @else { {{ t.ninguno }} } }
+            @case ('monto') { <ap-monto [monto]="r.monto.monto" [moneda]="r.monto.moneda" [etiqueta]="t.columnas.monto" /> }
+            @case ('estado') { <ap-chip-estado [tono]="tonoDe(r)">{{ estadoDe(r) }}</ap-chip-estado> }
+            @case ('ultimoResultado') { {{ resultadoDe(r) }} }
+            @default { <span class="id">{{ r[columna.clave] ?? t.ninguno }}</span> }
+          }
+        </ng-template>
+      </ap-listado-por-cursor>
     </section>
   `,
   styles: `
-    .pantalla { padding: var(--s5); max-width: 80rem; display: grid; gap: var(--s4); }
+    .pantalla { padding: var(--s5); display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s5); min-width: 0; }
+    .id { display: block; white-space: normal; overflow-wrap: anywhere; }
   `,
 })
 export class BandejaDeDesembolsos {
   constructor() {
     inject(ExplicadorDeVista).fijar(this.t.proposito)
   }
-  private readonly router = inject(Router)
-  private readonly ruta = inject(ActivatedRoute)
   protected readonly t = T
+  protected readonly tonoDe = (r: DesembolsoEnLista) => TONO[r.estado as Estado]
   protected readonly COLUMNAS = COLUMNAS
-  protected readonly b = bandejaDeDesembolsos()
+  protected readonly EXPORTABLES = EXPORTABLES
+  protected readonly estadoDe = estadoDe
+  protected readonly resultadoDe = resultadoDe
   protected readonly identidad = (r: DesembolsoEnLista) => r.ordenId
-  protected readonly filtrosDeEstado: Filtro[] = (Object.keys(T.estados) as Estado[]).map((valor) => ({ valor, texto: T.estados[valor] }))
-  private readonly queryParamMap = toSignal(this.ruta.queryParamMap, { requireSync: false })
-  protected readonly filtrosActivos = computed<Record<string, string>>(() => {
-    const elegidos = this.queryParamMap()?.get('filtro')?.split(',').filter(Boolean) ?? []
-    const filtros: Record<string, string> = {}
-    if (elegidos.length) filtros['estados'] = elegidos.join(',')
-    return filtros
+  protected readonly l = crearListadoPorCursor({
+    pedir: pedidorDeDesembolsos(),
+    camposDeBusqueda: ['entregaId', 'ordenId', 'ultimoCodigoError', (r) => montoComoSeVe(r.monto), estadoDe, resultadoDe],
+    filtrosDeServidor: [{ nombre: 'estados', etiqueta: T.filtroEtiqueta, opciones: (Object.keys(T.estados) as Estado[]).map((valor) => ({ valor, texto: T.estados[valor] })), textoTodos: 'Las excepciones' }],
+    filtrosLocales: [{ nombre: 'resultado', etiqueta: C.ultimoResultado, valor: resultadoDe }],
   })
-
-  protected estadoDe(r: DesembolsoEnLista): string {
-    return T.estados[r.estado as Estado]
-  }
-
-  protected tonoDe(r: DesembolsoEnLista): 'ok' | 'aviso' | 'error' | 'info' | 'neutro' {
-    return TONO[r.estado as Estado]
-  }
-
-  protected resultadoDe(r: DesembolsoEnLista): string {
-    return T.resultados[r.ultimoResultado as keyof typeof T.resultados]
-  }
-
-  protected quitarFiltros(): void {
-    void this.router.navigate([], { relativeTo: this.ruta, queryParams: { filtro: null }, queryParamsHandling: 'merge' })
-  }
 }

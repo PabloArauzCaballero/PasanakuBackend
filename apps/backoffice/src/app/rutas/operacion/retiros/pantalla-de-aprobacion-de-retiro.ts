@@ -49,7 +49,7 @@ type Envio = 'inactivo' | 'enviando' | 'confirmado' | 'sinConfirmar' | 'rechazad
           <span class="traza">{{ t.aprobadaPor }} {{ r.aprobadaPor }}</span>
         </ap-alerta>
         <div class="acciones">
-          <ap-boton variante="secundario" (pulsado)="ordenId() ? volver() : otra()">{{ ordenId() ? t.volverABandeja : t.otra }}</ap-boton>
+          <ap-boton variante="secundario" [icono]="ordenId() ? 'flechaIzquierda' : 'mas'" (pulsado)="ordenId() ? volver() : otra()">{{ ordenId() ? t.volverABandeja : t.otra }}</ap-boton>
         </div>
       } @else {
         @if (!puedeAprobar()) {
@@ -80,7 +80,7 @@ type Envio = 'inactivo' | 'enviando' | 'confirmado' | 'sinConfirmar' | 'rechazad
           }
           <ap-campo [etiqueta]="t.motivoEtiqueta" [ayuda]="t.motivoAyuda" [error]="errorMotivo()" [deshabilitado]="bloqueado()" [(valor)]="motivo" />
           <div class="acciones">
-            <ap-boton variante="primario" tipo="submit" [cargando]="envio() === 'enviando'" [deshabilitado]="bloqueado()">
+            <ap-boton variante="primario" tipo="submit" icono="enviar" [cargando]="envio() === 'enviando'" [deshabilitado]="bloqueado()">
               {{ envio() === 'sinConfirmar' ? t.reintentar : envio() === 'enviando' ? t.resolviendo : t.resolver }}
             </ap-boton>
           </div>
