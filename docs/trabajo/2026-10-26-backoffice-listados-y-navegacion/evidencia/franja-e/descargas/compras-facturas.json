@@ -1,0 +1,12 @@
+[
+  {
+    "numeroFactura": "F-0003",
+    "proveedor": "Proveedor Andino SRL",
+    "fechaEmision": "2026-09-02",
+    "fechaVencimiento": "2099-10-02",
+    "monto": "BOB 800.00",
+    "pagado": "BOB 0.00",
+    "saldoPendiente": "BOB 800.00",
+    "estado": "Registrada"
+  }
+]

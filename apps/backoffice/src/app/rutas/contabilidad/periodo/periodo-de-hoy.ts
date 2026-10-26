@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core'
 import { RouterLink } from '@angular/router'
 import { Alerta } from '@aportaya/ui/alerta/alerta'
+import { Icono, type NombreDeIcono } from '@aportaya/ui/icono/icono'
 import type { ErrorTraducido } from '../../../nucleo/errores'
 import { Sesion } from '../../../nucleo/sesion'
 import { nombreDelPeriodo, type PeriodoVigente } from '../dominio/cu100-periodos'
@@ -25,10 +26,10 @@ export function estadoDelPeriodoDeHoy(periodo: PeriodoVigente | null, error: Err
 @Component({
   selector: 'ap-periodo-de-hoy',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [Alerta, RouterLink],
+  imports: [Alerta, Icono, RouterLink],
   template: `
     <section aria-labelledby="titulo-vigente">
-      <h2 id="titulo-vigente">{{ t.vigente }}</h2>
+      <h2 id="titulo-vigente"><ap-icono nombre="reloj" tamano="s4" />{{ t.vigente }}</h2>
       @switch (estado()) {
         @case ('cargando') {
           <p role="status">{{ t.cargandoVigente }}</p>
@@ -50,7 +51,7 @@ export function estadoDelPeriodoDeHoy(periodo: PeriodoVigente | null, error: Err
         <nav [attr.aria-label]="t.secciones">
           <ul>
             @for (e of enlaces(); track e.ruta) {
-              <li><a [routerLink]="e.ruta">{{ e.texto }}</a></li>
+              <li><a [routerLink]="e.ruta"><ap-icono [nombre]="e.icono" tamano="s4" />{{ e.texto }}<ap-icono class="flecha" nombre="chevronDerecha" tamano="s4" /></a></li>
             }
           </ul>
         </nav>
@@ -59,11 +60,13 @@ export function estadoDelPeriodoDeHoy(periodo: PeriodoVigente | null, error: Err
   `,
   styles: `
     section { display: grid; gap: var(--s3); }
-    h2 { margin: 0; font-size: 1.05em; }
+    h2 { display: flex; align-items: center; gap: var(--s2); margin: 0; font-size: 1.05em; }
     .hoy { margin: 0; font-weight: 600; }
     .traza { display: block; margin-top: var(--s1); color: var(--text-2); font-size: .85em; }
-    ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: var(--s2) var(--s4); }
-    a { display: inline-flex; align-items: center; min-height: var(--area-tactil); color: var(--text); }
+    ul { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--s2); }
+    a { display: flex; align-items: center; gap: var(--s2); min-height: var(--area-tactil); padding: 0 var(--s3); border: var(--borde-fino) solid var(--border); border-radius: var(--r-md); color: var(--brand-texto); font-weight: 600; text-decoration: none; transition: background-color var(--mov-micro) ease-out; }
+    a:hover { background: var(--brand-bg); }
+    .flecha { margin-left: auto; color: var(--text-3); }
     a:focus-visible { outline: var(--borde-foco) solid var(--g300); outline-offset: var(--borde-desfase); }
   `,
 })
@@ -82,12 +85,12 @@ export class PeriodoDeHoy {
   protected readonly enlaces = computed(() => {
     const hoy = this.periodo()?.periodoId ?? null
     const e = this.t.enlaces
-    const candidatos: { ruta: string; texto: string; permiso: string; necesitaHoy?: boolean }[] = [
-      { ruta: '/contabilidad/presupuesto', texto: e.presupuesto, permiso: 'CONTABILIDAD_ERP_PRESUPUESTO' },
-      { ruta: '/contabilidad/compras', texto: e.compras, permiso: 'CONTABILIDAD_ERP_COMPRAS' },
-      { ruta: '/contabilidad/cobros', texto: e.cobros, permiso: 'CONTABILIDAD_ERP_COBRAR' },
-      { ruta: `/contabilidad/activos/${hoy}`, texto: e.activos, permiso: 'CONTABILIDAD_ERP_ACTIVOS_FIJOS', necesitaHoy: true },
-      { ruta: `/contabilidad/estados/${hoy}`, texto: e.estados, permiso: 'CONTABILIDAD_ERP_REPORTES', necesitaHoy: true },
+    const candidatos: { ruta: string; texto: string; permiso: string; icono: NombreDeIcono; necesitaHoy?: boolean }[] = [
+      { ruta: '/contabilidad/presupuesto', texto: e.presupuesto, permiso: 'CONTABILIDAD_ERP_PRESUPUESTO', icono: 'grafico' },
+      { ruta: '/contabilidad/compras', texto: e.compras, permiso: 'CONTABILIDAD_ERP_COMPRAS', icono: 'recibo' },
+      { ruta: '/contabilidad/cobros', texto: e.cobros, permiso: 'CONTABILIDAD_ERP_COBRAR', icono: 'moneda' },
+      { ruta: `/contabilidad/activos/${hoy}`, texto: e.activos, permiso: 'CONTABILIDAD_ERP_ACTIVOS_FIJOS', icono: 'paquete', necesitaHoy: true },
+      { ruta: `/contabilidad/estados/${hoy}`, texto: e.estados, permiso: 'CONTABILIDAD_ERP_REPORTES', icono: 'balanza', necesitaHoy: true },
     ]
     return candidatos.filter((c) => this.sesion.puede(c.permiso) && (!c.necesitaHoy || hoy !== null))
   })
