@@ -1,12 +1,11 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input, output, signal } from '@angular/core'
-import { Router, RouterLink } from '@angular/router'
-import { toSignal } from '@angular/core/rxjs-interop'
-import { filter, map, startWith } from 'rxjs'
-import { NavigationEnd } from '@angular/router'
+import { RouterLink } from '@angular/router'
 import { Icono } from '@aportaya/ui/icono/icono'
 import { MENU, type Entrada, type Grupo } from '../nucleo/menu'
+import { entradaDe, entradasVisibles } from '../nucleo/navegacion'
 import { Sesion } from '../nucleo/sesion'
 import { IconoDeSeccion } from './icono-de-seccion'
+import { UrlActual } from './url-actual'
 
 const CLAVE = 'ap-menu:plegados'
 
@@ -16,6 +15,10 @@ const CLAVE = 'ap-menu:plegados'
  * en el portal interno de Atlas — el menú pasó de más de cuarenta enlaces a uno por sección. El grupo de la ruta
  * actual arranca abierto; lo que se pliega a mano se recuerda en la sesión. Se usa en la barra lateral y en el cajón
  * del celular.
+ *
+ * Una entrada se dibuja solo si la sesión puede abrir **alguna** de sus pestañas, y lleva a la primera que puede abrir
+ * (`entradasVisibles`): antes filtraba solo por el permiso de sección y «Sistemas» rebotaba a Operación a quien no
+ * tenía el rol de sistemas (F1).
  */
 @Component({
   selector: 'ap-menu-lateral',
@@ -62,25 +65,13 @@ const CLAVE = 'ap-menu:plegados'
 })
 export class MenuLateral {
   private readonly sesion = inject(Sesion)
-  private readonly router = inject(Router)
+  private readonly url = inject(UrlActual).url
   /** El cajón del celular se cierra al navegar. */
   readonly navegado = output<void>()
   readonly menu = input<readonly Grupo[]>(MENU)
-  private readonly url = toSignal(
-    this.router.events.pipe(
-      filter((e): e is NavigationEnd => e instanceof NavigationEnd),
-      map((e) => e.urlAfterRedirects),
-      startWith(this.router.url),
-    ),
-    { initialValue: this.router.url },
-  )
   private readonly plegados = signal<string[]>(leerPlegados())
 
-  readonly visibles = computed(() =>
-    this.menu()
-      .map((g) => ({ ...g, entradas: g.entradas.filter((e) => this.sesion.puede(e.permiso)) }))
-      .filter((g) => g.entradas.length > 0),
-  )
+  readonly visibles = computed(() => entradasVisibles(this.sesion, this.menu()))
 
   idDe(g: Grupo): string {
     return 'menu-grupo-' + (g.titulo ?? 'inicio').toLowerCase()
@@ -91,14 +82,8 @@ export class MenuLateral {
     if (g.entradas.some((e) => this.activa(e))) return true
     return !this.plegados().includes(g.titulo)
   }
-  /** La entrada de destino más largo que prefija la URL: `/tablero/catalogo-de-datos` es Catálogo, no Inicio. */
-  private readonly entradaActiva = computed(() => {
-    const url = this.url().split('?')[0]!
-    return this.menu()
-      .flatMap((g) => g.entradas)
-      .filter((e) => url === e.destino || url.startsWith(e.destino + '/'))
-      .sort((a, b) => b.destino.length - a.destino.length)[0]
-  })
+  /** La sección dueña de la URL: `/tablero/catalogo-de-datos` es Configuración, no Inicio. */
+  private readonly entradaActiva = computed(() => entradaDe(this.url(), this.menu()))
   activa(e: Entrada): boolean {
     return this.entradaActiva()?.ruta === e.ruta
   }

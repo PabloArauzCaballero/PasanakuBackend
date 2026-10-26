@@ -1,11 +1,10 @@
-import { ChangeDetectionStrategy, Component, computed, input, signal } from '@angular/core'
-import { ChipsDeFiltro } from '@aportaya/ui/chips-de-filtro/chips-de-filtro'
+import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core'
+import type { ColumnaExportable } from '@aportaya/ui/exportar-listado/exportar'
+import type { NombreDeIcono } from '@aportaya/ui/icono/icono'
 import { Monto } from '@aportaya/ui/monto/monto'
-import { TablaDeDatosVirtualizada } from '../../../nucleo/tabla/tabla-de-datos-virtualizada'
-import type { CargadorDePagina, ColumnaVirtual } from '../../../nucleo/tabla/tipos'
-import { filtrosDe, observarBandeja } from '../compartido/bandeja'
-import type { Opcion } from '../compartido/campos'
-import { EstadoDeBandejaVista } from '../compartido/estado-de-bandeja'
+import type { Columna } from '@aportaya/ui/tabla-de-datos/tabla-de-datos'
+import type { Bandeja } from '../compartido/bandeja-por-cursor'
+import { ListadoDeBandeja } from '../compartido/listado-de-bandeja'
 import { MarcoDeCumplimiento } from '../compartido/marco'
 
 /** Un importe del contrato (`Dinero`): cadena decimal + moneda. Se dibuja con `ap-monto`, nunca formateado a mano. */
@@ -14,54 +13,58 @@ export type Celda = string | Importe
 
 const esImporte = (c: Celda): c is Importe => typeof c === 'object' && c !== null && 'moneda' in c
 
+/** El texto de una celda tal como se lee: el importe va con su moneda al lado, nunca solo el número. */
+export const textoDeCelda = (c: Celda): string => (esImporte(c) ? `${c.monto} ${c.moneda}` : c)
+
+/** El buscador y el archivo leen lo mismo que la tabla muestra: una sola función de celda para los tres. */
+export function camposDeCelda<T>(columnas: readonly Columna<T>[], celda: (f: T, clave: string) => Celda): ((f: T) => string)[] {
+  return columnas.map((c) => (f: T) => textoDeCelda(celda(f, c.clave)))
+}
+
+export function exportablesDeCelda<T>(columnas: readonly Columna<T>[], celda: (f: T, clave: string) => Celda): ColumnaExportable<T>[] {
+  return columnas.map((c) => ({ clave: c.clave, titulo: c.titulo, valor: (f: T) => textoDeCelda(celda(f, c.clave)) }))
+}
+
 /**
- * Cola de solo lectura por cursor con sus cinco estados. Cada pantalla trae columnas, cargador
- * y cómo se lee cada celda (`celda`); no hay acciones acá —quien necesita una (registrar una
- * prueba) la proyecta en `[acciones]` y llama `recargar()` al terminar—.
+ * Cola de solo lectura por cursor con la anatomía del kit (buscador, filtros, CSV/JSON, paginación y estados). Cada
+ * pantalla trae su bandeja (`crearBandeja`), columnas y cómo se lee cada celda; no hay acciones de fila —son
+ * registros de expediente y el contrato no tiene editar ni eliminar—. Quien necesita una acción de pantalla (registrar
+ * una prueba) la proyecta con `acciones` y llama `bandeja.recargar()` al terminar.
  */
 @Component({
   selector: 'ap-cola-de-lectura',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [MarcoDeCumplimiento, EstadoDeBandejaVista, TablaDeDatosVirtualizada, ChipsDeFiltro, Monto],
+  imports: [MarcoDeCumplimiento, ListadoDeBandeja, Monto],
   template: `
-    <ap-marco-de-cumplimiento [titulo]="titulo()" [proposito]="proposito()">
-      <div acciones><ng-content select="[acciones]" /></div>
-      @if (filtrosDeEstado().length) {
-        <ap-chips-de-filtro [etiqueta]="etiquetaFiltro()" [filtros]="filtrosDeEstado()" [(elegidos)]="estados" />
-      }
+    <ap-marco-de-cumplimiento [titulo]="titulo()" [proposito]="proposito()" [icono]="icono()">
+      <div acciones class="acciones"><ng-content select="[acciones]" /></div>
       <ng-content />
-      <ap-estado-de-bandeja [estado]="bandeja().estado()" [error]="bandeja().error()" [textoVacio]="vacio()" [conFiltros]="estados().length > 0" (reintentar)="recargar()" (quitarFiltros)="estados.set([])" />
-      @for (m of [bandeja().montaje()]; track m) {
-        <div [hidden]="bandeja().estado() === 'denegado'">
-          <ap-tabla-de-datos-virtualizada [titulo]="tabla()" [columnas]="columnas()" [cargador]="bandeja().cargador" [ordenPermitido]="[]" [identidad]="identidad()" [filtros]="filtros()" [tamanoDePagina]="25">
-            <ng-template #celda let-f let-columna="columna">
-              @if (importe(f, columna.clave); as i) { <ap-monto [monto]="i.monto" [moneda]="i.moneda" /> }
-              @else { {{ texto(f, columna.clave) }} }
-            </ng-template>
-          </ap-tabla-de-datos-virtualizada>
-        </div>
-      }
+      <ap-listado-de-bandeja recursoDeExportacion="cumplimiento-colas" [titulo]="tabla()" [columnas]="columnas()" [bandeja]="bandeja()" [identidad]="identidad()" [exportables]="exportables()" [nombreDeRegistros]="nombreDeRegistros()" [textoVacio]="vacio()" [ayudaDeBusqueda]="ayudaDeBusqueda()">
+        <ng-template #celda let-f let-columna="columna">
+          @if (importe(f, columna.clave); as i) { <ap-monto [monto]="i.monto" [moneda]="i.moneda" /> }
+          @else { {{ texto(f, columna.clave) }} }
+        </ng-template>
+      </ap-listado-de-bandeja>
     </ap-marco-de-cumplimiento>
   `,
+  styles: `.acciones { display: flex; flex-wrap: wrap; gap: var(--s2); }`,
 })
 export class ColaDeLectura<T extends object> {
   readonly titulo = input.required<string>()
   readonly proposito = input.required<string>()
+  readonly icono = input<NombreDeIcono>('lista')
   readonly tabla = input.required<string>()
   readonly vacio = input.required<string>()
-  readonly columnas = input.required<ColumnaVirtual<T>[]>()
-  readonly cargador = input.required<CargadorDePagina<T>>()
+  readonly columnas = input.required<Columna<T>[]>()
+  readonly bandeja = input.required<Bandeja<T>>()
   readonly identidad = input.required<(fila: T) => string>()
   readonly celda = input.required<(fila: T, clave: string) => Celda>()
-  readonly filtrosDeEstado = input<Opcion[]>([])
-  readonly etiquetaFiltro = input('Filtrar por estado')
-
-  protected readonly estados = signal<string[]>([])
-  protected readonly filtros = computed(() => filtrosDe({ estados: this.estados() }))
-  protected readonly bandeja = computed(() => observarBandeja(this.cargador()))
+  readonly nombreDeRegistros = input('registros')
+  readonly ayudaDeBusqueda = input<string>()
+  protected readonly exportables = computed(() => exportablesDeCelda(this.columnas(), this.celda()))
 
   recargar(): void {
-    this.bandeja().recargar()
+    void this.bandeja().recargar()
   }
 
   protected importe(fila: T, clave: string): Importe | null {

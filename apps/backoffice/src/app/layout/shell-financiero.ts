@@ -1,8 +1,7 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signal } from '@angular/core'
 import { Title } from '@angular/platform-browser'
-import { NavigationEnd, Router, RouterLink, RouterOutlet } from '@angular/router'
-import { toSignal } from '@angular/core/rxjs-interop'
-import { filter, finalize, map, startWith } from 'rxjs'
+import { Router, RouterLink, RouterOutlet } from '@angular/router'
+import { finalize } from 'rxjs'
 import { CajonLateral } from '@aportaya/ui/cajon-lateral/cajon-lateral'
 import { Icono } from '@aportaya/ui/icono/icono'
 import { Migas } from '@aportaya/ui/migas/migas'
@@ -11,7 +10,7 @@ import { EncendidoDeTutorial } from '@aportaya/tutoriales/encendido'
 import { AnfitrionDeTutorial } from '@aportaya/tutoriales/anfitrion-de-tutorial'
 import { LanzadorDeTutorial } from '@aportaya/tutoriales/lanzador-de-tutorial'
 import { ExplicadorDeVista } from '../nucleo/explicador-de-vista'
-import { migasDe } from '../nucleo/menu'
+import { migasDe } from '../nucleo/navegacion'
 import { Sesion } from '../nucleo/sesion'
 import { BuscadorGlobal } from './buscador-global'
 import { CampanaDeNotificaciones } from './campana-de-notificaciones'
@@ -21,6 +20,7 @@ import { MenuDeUsuario } from './menu-de-usuario'
 import { MenuLateral } from './menu-lateral'
 import { PestanasDeSeccion } from './pestanas-de-seccion'
 import { SimboloDeMarca } from './simbolo-de-marca'
+import { UrlActual } from './url-actual'
 
 // Por debajo del escritorio la barra lateral es un cajón, como en el portal de Atlas (lg): en tablet apretaba la cabecera.
 const ANGOSTO = '(max-width: 64rem)'
@@ -59,7 +59,8 @@ const ANGOSTO = '(max-width: 64rem)'
           <a class="marca-chica" routerLink="/tablero" aria-label="Inicio"><ap-simbolo-de-marca /></a>
         }
         <div class="vista">
-          @if (migas().length) { <ap-migas [migas]="migas()" (navegar)="ir($event)" /> }
+          <!-- La última miga es la pantalla actual, que ya es el título de abajo: no se repite (antes se apilaban en tres líneas). -->
+          @if (migas().length > 1) { <ap-migas [migas]="migas().slice(0, -1)" (navegar)="ir($event)" /> }
           <p class="titulo-vista">{{ tituloDeVista() }}</p>
         </div>
         <ap-buscador-global class="buscador" />
@@ -88,15 +89,8 @@ export class ShellFinanciero {
   protected readonly saliendo = signal(false)
   protected readonly menuAbierto = signal(false)
   protected readonly angosto = signal(typeof matchMedia === 'function' && matchMedia(ANGOSTO).matches)
-  private readonly url = toSignal(
-    this.router.events.pipe(
-      filter((e): e is NavigationEnd => e instanceof NavigationEnd),
-      map((e) => e.urlAfterRedirects),
-      startWith(this.router.url),
-    ),
-    { initialValue: this.router.url },
-  )
-  protected readonly migas = computed(() => migasDe(this.url(), this.titulo.getTitle()))
+  private readonly url = inject(UrlActual).url
+  protected readonly migas = computed(() => migasDe(this.url(), this.titulo.getTitle(), this.sesion))
   protected readonly tituloDeVista = computed(() => this.migas().at(-1)?.texto ?? this.titulo.getTitle().replace(/\s*·\s*AportaYa\s*$/, ''))
 
   constructor() {

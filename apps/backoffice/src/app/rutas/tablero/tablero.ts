@@ -3,13 +3,15 @@ import { RouterLink } from '@angular/router'
 import { Boton } from '@aportaya/ui/boton/boton'
 import { CabeceraDePagina } from '@aportaya/ui/cabecera-de-pagina/cabecera-de-pagina'
 import { ChipEstado } from '@aportaya/ui/chip-estado/chip-estado'
+import { Icono, type NombreDeIcono } from '@aportaya/ui/icono/icono'
 import { ExplicadorDeVista } from '../../nucleo/explicador-de-vista'
 import { Sesion } from '../../nucleo/sesion'
 import { BANDEJAS, lectorDeBandejas, type DefinicionDeBandeja } from './dominio/bandejas'
 import { TarjetaDeBandeja, type EstadoDeTarjeta } from './tarjeta-de-bandeja'
 import { textosTablero } from './textos'
 
-type Acceso = { ruta: string; texto: string; permiso: string; descripcion: string }
+/** `roles`: además del permiso, la ruta exige uno de estos roles (la guardia `soloRolesDeSistemas`, que no se exporta). */
+type Acceso = { ruta: string; texto: string; permiso: string; descripcion: string; icono: NombreDeIcono; roles?: readonly string[] }
 
 /**
  * H1.S4.M1 (B2) · El punto de entrada tras iniciar sesión, en tres bloques:
@@ -22,16 +24,16 @@ type Acceso = { ruta: string; texto: string; permiso: string; descripcion: strin
 @Component({
   selector: 'ap-tablero',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [Boton, CabeceraDePagina, ChipEstado, RouterLink, TarjetaDeBandeja],
+  imports: [Boton, CabeceraDePagina, ChipEstado, Icono, RouterLink, TarjetaDeBandeja],
   template: `
     <section class="pantalla">
-      <ap-cabecera-de-pagina [titulo]="t.titulo" [descripcion]="t.proposito" icono="casa" />
+      <ap-cabecera-de-pagina eyebrow="Inicio" [titulo]="t.titulo" [descripcion]="t.proposito" icono="casa" />
 
       <section class="bloque" aria-labelledby="tablero-accion">
         <div class="cabecera">
-          <h2 id="tablero-accion">{{ t.accion.titulo }}</h2>
+          <h2 id="tablero-accion"><ap-icono nombre="bandeja" tamano="s5" />{{ t.accion.titulo }}</h2>
           @if (visibles().length > 0) {
-            <ap-boton [cargando]="consultando()" (pulsado)="actualizar()">{{ t.accion.actualizar }}</ap-boton>
+            <ap-boton icono="recarga" [cargando]="consultando()" (pulsado)="actualizar()">{{ t.accion.actualizar }}</ap-boton>
           }
         </div>
         <p class="explicacion">{{ t.accion.explicacion }}</p>
@@ -47,12 +49,12 @@ type Acceso = { ruta: string; texto: string; permiso: string; descripcion: strin
       </section>
 
       <section class="bloque" aria-labelledby="tablero-monitoreo">
-        <h2 id="tablero-monitoreo">{{ t.monitoreo.titulo }}</h2>
+        <h2 id="tablero-monitoreo"><ap-icono nombre="actividad" tamano="s5" />{{ t.monitoreo.titulo }}</h2>
         <p class="explicacion">{{ t.monitoreo.explicacion }}</p>
         <ul class="grilla">
           @for (i of t.monitoreo.indicadores; track i.id) {
             <li class="indicador" [attr.data-indicador]="i.id">
-              <h3>{{ i.titulo }}</h3>
+              <h3><ap-icono [nombre]="i.icono" tamano="s4" />{{ i.titulo }}</h3>
               <ap-chip-estado tono="neutro">{{ t.monitoreo.noDisponible }}</ap-chip-estado>
               <p>{{ i.motivo }}</p>
             </li>
@@ -61,13 +63,13 @@ type Acceso = { ruta: string; texto: string; permiso: string; descripcion: strin
       </section>
 
       <section class="bloque" aria-labelledby="tablero-accesos-titulo">
-        <h2 id="tablero-accesos-titulo">{{ t.accesos.titulo }}</h2>
+        <h2 id="tablero-accesos-titulo"><ap-icono nombre="enlace" tamano="s5" />{{ t.accesos.titulo }}</h2>
         <ul class="grilla accesos" data-tutorial-id="tablero-accesos">
           @for (a of accesos; track a.ruta) {
-            @if (sesion.puede(a.permiso)) {
+            @if (visible(a)) {
               <li>
                 <a [routerLink]="'/' + a.ruta" [attr.data-tutorial-id]="'tablero-' + a.ruta">
-                  <span class="texto">{{ a.texto }}</span>
+                  <span class="texto"><ap-icono [nombre]="a.icono" tamano="s4" />{{ a.texto }}</span>
                   <span class="descripcion">{{ a.descripcion }}</span>
                 </a>
               </li>
@@ -80,8 +82,8 @@ type Acceso = { ruta: string; texto: string; permiso: string; descripcion: strin
   styles: `
     .pantalla { padding: var(--s5); display: grid; gap: var(--s5); }
     h1, h2, h3 { margin: 0; }
-    h2 { font-size: 1.15em; }
-    h3 { font-size: 1em; }
+    h2 { display: flex; align-items: center; gap: var(--s2); font-size: 1.15em; }
+    h3 { display: flex; align-items: center; gap: var(--s2); font-size: 1em; }
     .bloque { display: grid; gap: var(--s3); }
     .cabecera { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--s3); }
     .explicacion, .vacio, .indicador p { margin: 0; color: var(--text-2); }
@@ -89,7 +91,8 @@ type Acceso = { ruta: string; texto: string; permiso: string; descripcion: strin
     .indicador { display: grid; gap: var(--s2); align-content: start; padding: var(--s4); border: var(--borde-fino) dashed var(--border); border-radius: var(--r-lg); background: var(--surface); }
     .accesos a { display: block; min-height: var(--area-tactil); padding: var(--s4); border: var(--borde-fino) solid var(--border); border-radius: var(--r-lg); background: var(--surface); text-decoration: none; }
     .accesos a:focus-visible { outline: var(--borde-foco) solid var(--g300); outline-offset: var(--borde-desfase); }
-    .texto { display: block; font-weight: 600; color: var(--text); }
+    .texto { display: flex; align-items: center; gap: var(--s2); font-weight: 600; color: var(--text); }
+    .accesos a:hover { border-color: var(--brand); background: var(--brand-bg); }
     .descripcion { display: block; margin-top: var(--s1); color: var(--text-2); font-size: .9em; }
   `,
 })
@@ -105,20 +108,25 @@ export class Tablero {
   protected readonly consultando = computed(() => Object.values(this.estados()).some((e) => e?.tipo === 'cargando'))
 
   protected readonly accesos: Acceso[] = [
-    { ruta: 'tablero/financiero', texto: 'Tablero financiero', permiso: 'TABLERO_FINANCIERO_VER', descripcion: 'Dinero entrante y saliente, mora, fondo y turnos.' },
-    { ruta: 'tablero/sistemas', texto: 'Tablero de sistemas', permiso: 'TABLERO_SISTEMAS_VER', descripcion: 'Tráfico, errores, latencia y endpoints del día.' },
-    { ruta: 'tablero/catalogo-de-datos', texto: 'Catálogo de datos', permiso: 'TABLERO_SISTEMAS_VER', descripcion: 'Cada tabla con por qué existe, su servicio y sus relaciones.' },
-    { ruta: 'tablero/comercial', texto: 'Tablero comercial', permiso: 'TABLERO_COMERCIAL_VER', descripcion: 'Altas, activos, embudo, grupos y retención.' },
-    { ruta: 'operacion', texto: 'Operación', permiso: 'ver:operacion', descripcion: 'Billetera, cobranza, entregas y cierre.' },
-    { ruta: 'operacion/estado', texto: 'Arquitectura y estado', permiso: 'ver:operacion', descripcion: 'Nivel de criticidad y réplicas por servicio.' },
-    { ruta: 'operacion/retiros', texto: 'Aprobación de retiros', permiso: 'RETIRO_APROBAR', descripcion: 'Segunda firma de un retiro: autorizar o rechazar.' },
-    { ruta: 'cumplimiento', texto: 'Cumplimiento', permiso: 'ver:cumplimiento', descripcion: 'UIF, alertas, casos y gobierno.' },
-    { ruta: 'admisiones', texto: 'Solicitudes de ingreso', permiso: 'ver:admisiones', descripcion: 'Resolver quién entra a un grupo.' },
-    { ruta: 'contabilidad', texto: 'Contabilidad', permiso: 'ver:contabilidad', descripcion: 'Períodos, presupuestos y estados financieros.' },
-    { ruta: 'publicidad', texto: 'Publicidad', permiso: 'ver:publicidad', descripcion: 'Campañas y ofertas.' },
-    { ruta: 'configuracion', texto: 'Configuración', permiso: 'ver:configuracion', descripcion: 'Tarifario, mensajería y reportes, de solo lectura.' },
-    { ruta: 'sistemas', texto: 'Sistemas', permiso: 'ver:sistemas', descripcion: 'Salud de servicios, despliegues y respaldos.' },
+    { ruta: 'tablero/financiero', texto: 'Tablero financiero', permiso: 'TABLERO_FINANCIERO_VER', descripcion: 'Dinero entrante y saliente, mora, fondo y turnos.', icono: 'moneda' },
+    { ruta: 'tablero/sistemas', texto: 'Tablero de sistemas', permiso: 'TABLERO_SISTEMAS_VER', descripcion: 'Tráfico, errores, latencia y endpoints del día.', icono: 'servidor' },
+    { ruta: 'tablero/catalogo-de-datos', texto: 'Catálogo de datos', permiso: 'TABLERO_SISTEMAS_VER', descripcion: 'Cada tabla con por qué existe, su servicio y sus relaciones.', icono: 'baseDeDatos' },
+    { ruta: 'tablero/comercial', texto: 'Tablero comercial', permiso: 'TABLERO_COMERCIAL_VER', descripcion: 'Altas, activos, embudo, grupos y retención.', icono: 'tendencia' },
+    { ruta: 'operacion', texto: 'Operación', permiso: 'ver:operacion', descripcion: 'Billetera, cobranza, entregas y cierre.', icono: 'actividad' },
+    { ruta: 'operacion/estado', texto: 'Arquitectura y estado', permiso: 'ver:operacion', descripcion: 'Nivel de criticidad y réplicas por servicio.', icono: 'interruptor' },
+    { ruta: 'operacion/retiros', texto: 'Aprobación de retiros', permiso: 'RETIRO_APROBAR', descripcion: 'Segunda firma de un retiro: autorizar o rechazar.', icono: 'retiro' },
+    { ruta: 'cumplimiento', texto: 'Cumplimiento', permiso: 'ver:cumplimiento', descripcion: 'UIF, alertas, casos y gobierno.', icono: 'escudo' },
+    { ruta: 'admisiones', texto: 'Solicitudes de ingreso', permiso: 'ver:admisiones', descripcion: 'Resolver quién entra a un grupo.', icono: 'personaMas' },
+    { ruta: 'contabilidad', texto: 'Contabilidad', permiso: 'ver:contabilidad', descripcion: 'Períodos, presupuestos y estados financieros.', icono: 'libro' },
+    { ruta: 'publicidad', texto: 'Publicidad', permiso: 'ver:publicidad', descripcion: 'Campañas y ofertas.', icono: 'megafono' },
+    { ruta: 'configuracion', texto: 'Configuración', permiso: 'ver:configuracion', descripcion: 'Tarifario, mensajería y reportes, de solo lectura.', icono: 'engranaje' },
+    { ruta: 'sistemas', texto: 'Sistemas', permiso: 'ver:sistemas', descripcion: 'Salud de servicios, despliegues y respaldos.', icono: 'servidor', roles: ['PLATAFORMA', 'SEGURIDAD'] },
   ]
+
+  /** Un acceso que la ruta rechazaría (rebote silencioso a otra sección) no se ofrece: sería un botón que «no funciona». */
+  protected visible(a: Acceso): boolean {
+    return this.sesion.puede(a.permiso) && (!a.roles || a.roles.includes(this.sesion.rol() ?? ''))
+  }
 
   constructor() {
     inject(ExplicadorDeVista).fijar(textosTablero.proposito)

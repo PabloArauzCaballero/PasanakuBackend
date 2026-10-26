@@ -1,3 +1,5 @@
+import type { NombreDeIcono } from '@aportaya/ui/icono/icono'
+
 /** Los textos del tablero, en voz de marca. */
 export const textosTablero = {
   titulo: 'Tablero',
@@ -19,9 +21,9 @@ export const textosTablero = {
     titulo: 'Monitoreo',
     explicacion: 'Indicadores de la plataforma. Solo mostramos los que un servicio publica; el resto lo decimos.',
     noDisponible: 'Indicador no disponible',
-    indicadores: [
-      { id: 'integraciones', titulo: 'Salud de integraciones', motivo: 'Ningún servicio publica todavía una proyección del estado de los proveedores externos.' },
-      { id: 'conciliacion', titulo: 'Conciliación del día', motivo: 'No hay proyección de la conciliación diaria: el resultado se ve en la bandeja de operación.' },
+    indicadores: <{ id: string; icono: NombreDeIcono; titulo: string; motivo: string }[]>[
+      { id: 'integraciones', icono: 'enlace', titulo: 'Salud de integraciones', motivo: 'Ningún servicio publica todavía una proyección del estado de los proveedores externos.' },
+      { id: 'conciliacion', icono: 'balanza', titulo: 'Conciliación del día', motivo: 'No hay proyección de la conciliación diaria: el resultado se ve en la bandeja de operación.' },
     ],
   },
   accesos: { titulo: 'Accesos' },
@@ -66,6 +68,7 @@ export const textosTablero = {
       explicacion: 'Desde la medianoche hasta ahora: cuántas veces se llamó cada ruta, cuántas fallaron y cuánto tardó el 95 % de las llamadas.',
       cargando: 'Consultando el tráfico de hoy',
       vacio: 'Todavía nadie llamó a la plataforma hoy.',
+      ayudaBusqueda: 'Busca por servicio, método o ruta plantilla.',
       sinFuente: 'No pudimos leer el tráfico: el colector de métricas no respondió. Esto no significa que no haya habido llamadas.',
     },
   },

@@ -19,6 +19,7 @@ import { textosCustodia } from './textos'
     }
     <form (submit)="$event.preventDefault(); solicitarRevision.emit()" novalidate>
       <ap-campo
+        class="ancho"
         [etiqueta]="t.cuenta"
         [ayuda]="t.cuentaAyuda"
         [error]="errores()['cuenta']"
@@ -36,7 +37,7 @@ import { textosCustodia } from './textos'
         <ap-grupo-radio [etiqueta]="t.moneda" [opciones]="opcionesMoneda()" [(elegido)]="moneda" />
       </fieldset>
       @if (errores()['moneda']) {
-        <p class="error-campo" role="alert">{{ errores()['moneda'] }}</p>
+        <p class="error-campo ancho" role="alert">{{ errores()['moneda'] }}</p>
       }
       <ap-campo
         modoDeEntrada="decimal"
@@ -56,8 +57,8 @@ import { textosCustodia } from './textos'
         [deshabilitado]="deshabilitado()"
         [(valor)]="transito"
       />
-      <div>
-        <ap-boton variante="primario" tipo="submit" [deshabilitado]="deshabilitado()">
+      <div class="ancho">
+        <ap-boton variante="primario" tipo="submit" icono="balanza" [deshabilitado]="deshabilitado()">
           {{ t.revisar }}
         </ap-boton>
       </div>
@@ -65,7 +66,9 @@ import { textosCustodia } from './textos'
   `,
   styles: `
     :host { display: grid; gap: var(--s3); }
-    form { display: grid; gap: var(--s3); max-width: 32rem; }
+    form { display: grid; gap: var(--s3); }
+    /* A lo ancho de la tarjeta: dos columnas desde tablet, sin una columna vacía al lado. */
+    @media (min-width: 48rem) { form { grid-template-columns: 1fr 1fr; gap: var(--s4); } .ancho { grid-column: 1 / -1; } }
     .bloque { border: 0; margin: 0; padding: 0; min-width: 0; }
     .error-campo { margin: 0; color: var(--err-texto); font-size: .875rem; }
   `,

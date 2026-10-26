@@ -41,7 +41,7 @@ const SENSIBILIDADES: Record<string, string> = { NINGUNA: 'Ninguna', PERSONAL: '
             @case ('revision') { <ap-chip-estado [tono]="c.tonoRevision">{{ c.revision }}</ap-chip-estado> }
             @case ('negocio') { <span class="largo">{{ c.negocio }}</span> }
             @case ('sistema') { <span class="largo">{{ c.sistema }}</span> }
-            @case ('acciones') { <ap-boton variante="secundario" tamano="sm" (pulsado)="revisar(c.columna)">{{ puedeEditar() ? t.revisar : t.ver }}</ap-boton> }
+            @case ('acciones') { <ap-boton variante="secundario" tamano="sm" [icono]="puedeEditar() ? 'aprobar' : 'ojo'" (pulsado)="revisar(c.columna)">{{ puedeEditar() ? t.revisar : t.ver }}</ap-boton> }
             @default { {{ c[columna.clave] }} }
           }
         </ng-template>

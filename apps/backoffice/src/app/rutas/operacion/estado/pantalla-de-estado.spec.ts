@@ -50,7 +50,7 @@ describe('PantallaDeEstado · estado en la URL y exportación con permiso', () =
     TestBed.configureTestingModule({ providers: montarProviders() })
     TestBed.inject(Sesion).abrir('t', [], 'consulta')
     const arnes = await montarRespondiendo('/')
-    const botones = Array.from(arnes.routeNativeElement?.querySelectorAll('.cabecera button') ?? [])
+    const botones = Array.from(arnes.routeNativeElement?.querySelectorAll('.cabecera button') ?? []).filter((b) => b.textContent?.includes('Exportar'))
     expect(botones).toHaveLength(0)
   })
 
@@ -58,7 +58,8 @@ describe('PantallaDeEstado · estado en la URL y exportación con permiso', () =
     TestBed.configureTestingModule({ providers: montarProviders() })
     TestBed.inject(Sesion).abrir('t', ['exportar:estado-plataforma'], 'oficial')
     const arnes = await montarRespondiendo('/')
-    expect(arnes.routeNativeElement?.querySelector('.cabecera button')?.textContent).toContain('Exportar')
+    const botones = Array.from(arnes.routeNativeElement?.querySelectorAll('.cabecera button') ?? []).map((b) => b.textContent ?? '')
+    expect(botones.some((t) => t.includes('Exportar'))).toBe(true)
   })
 
   it('pegar la URL con un filtro de nivel ya aplicado muestra solo esa página filtrada', async () => {
@@ -70,6 +71,36 @@ describe('PantallaDeEstado · estado en la URL y exportación con permiso', () =
     const texto = arnes.routeNativeElement?.textContent ?? ''
     expect(texto).toContain('identidad')
     expect(texto).not.toContain('publicidad')
+  })
+
+  it('elegir un nivel en el selector lo escribe en la URL (sobrevive a recargar); «Limpiar» lo saca', async () => {
+    TestBed.configureTestingModule({ providers: montarProviders() })
+    TestBed.inject(Sesion).abrir('t', [], 'oficial')
+    const arnes = await montarRespondiendo('/')
+    const pantalla = arnes.fixture.debugElement.query((d) => d.componentInstance instanceof PantallaDeEstado).componentInstance as PantallaDeEstado
+    pantalla['listado'].filtrar('nivel', 'N3')
+    arnes.fixture.detectChanges()
+    await arnes.fixture.whenStable()
+    expect(TestBed.inject(Router).url).toContain('filtro=N3')
+    pantalla['listado'].limpiar()
+    arnes.fixture.detectChanges()
+    await arnes.fixture.whenStable()
+    expect(TestBed.inject(Router).url).not.toContain('filtro')
+  })
+
+  it('buscar por servicio y filtrar por salud trabajan sobre la tabla; sin coincidencias ofrece «Quitar filtros»', async () => {
+    TestBed.configureTestingModule({ providers: montarProviders() })
+    TestBed.inject(Sesion).abrir('t', [], 'oficial')
+    const arnes = await montarRespondiendo('/', { consultadoEn: '2026-10-17T15:04:05Z', servicios: [{ servicio: 'erp', estado: 'CAIDO' }] })
+    const pantalla = arnes.fixture.debugElement.query((d) => d.componentInstance instanceof PantallaDeEstado).componentInstance as PantallaDeEstado
+    pantalla['listado'].filtrar('salud', 'no responde')
+    arnes.fixture.detectChanges()
+    expect(pantalla['listado'].filtradas().map((f) => f.servicio)).toEqual(['erp'])
+    pantalla['listado'].limpiar()
+    pantalla['listado'].buscar('zzz')
+    arnes.fixture.detectChanges()
+    expect(arnes.routeNativeElement?.textContent).toContain('Quitar filtros')
+    expect(arnes.routeNativeElement?.textContent).toContain('No responden')
   })
 
   async function montar() {

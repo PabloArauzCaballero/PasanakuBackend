@@ -1,0 +1,26 @@
+PASS desembolsos: primera página GET /desembolsos?limite=10 sin cursor
+PASS desembolsos: la tabla pinta la página del simulado
+PASS desembolsos: Siguiente pide con el cursor (antesDeId=1fe9dac5…)
+PASS desembolsos: Anterior vuelve a la página 1 sin cursor
+PASS desembolsos: Filas por página = 20 pide limite=20
+PASS desembolsos: filtro Estado=Acreditada viaja como estados=ACREDITADA
+PASS desembolsos: filtro local Último resultado=Exitoso no vuelve a pedir y deja la fila
+PASS desembolsos: buscar por ordenId encuentra la fila
+PASS desembolsos: CSV sin coincidencias baja solo el encabezado (desembolsos-2026-10-26.csv)
+PASS desembolsos: CSV de lo filtrado con el importe como se ve («Bs 4,44») · desembolsos-2026-10-26.csv
+PASS desembolsos: JSON con 1 fila(s) filtrada(s) · desembolsos-2026-10-26.json
+PASS desembolsos: límite · 25 filas, 10 por página ⇒ 10 en la página 1
+PASS desembolsos: límite · Ir a 3 ⇒ última página parcial (5 filas) y Siguiente deshabilitado
+PASS desembolsos: límite · una sola fila ⇒ Página 1 de 1
+PASS desembolsos: límite · texto largo a 375 px sin desborde horizontal de la página
+PASS desembolsos: límite · colección vacía ⇒ vacío explicado («No hay desembolsos en estos estados.»)
+PASS desembolsos: error · 500 ⇒ mensaje accionable con código de seguimiento, sin el crudo
+PASS desembolsos: error · «Volver a intentar» repite la petición y se recupera
+PASS desembolsos: error · 403 ⇒ «No tenés acceso a esta bandeja.»
+PASS desembolsos: 768px light sin desborde horizontal (scrollWidth=768)
+PASS desembolsos: 768px light consola sin errores
+PASS desembolsos: 375px light sin desborde horizontal (scrollWidth=375)
+PASS desembolsos: 375px light consola sin errores
+PASS desembolsos: 1280px dark sin desborde horizontal (scrollWidth=1280)
+PASS desembolsos: 1280px dark consola sin errores
+PASS desembolsos: consola sin errores (salvo los 403/500 provocados) []

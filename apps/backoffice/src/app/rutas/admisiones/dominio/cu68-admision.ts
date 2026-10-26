@@ -40,6 +40,30 @@ export type EntradaDecisionDeIngreso = {
   propuestaId?: string
 }
 
+/**
+ * `SolicitudDeIngreso` de `grupos.yaml` (`listarSolicitudesDeIngreso`, `GET /grupos/{grupoId}/solicitudes`): las
+ * PENDIENTES de un grupo, la más antigua primero, como mucho 200. Trae el primer nombre e inicial de quien pide, no su
+ * documento ni su contacto. El contrato la describe como «la cola del organizador»: si el servidor no se la abre a
+ * backoffice responde 403, y la pantalla lo dice (ambigüedad registrada en el informe de la franja F).
+ */
+export type SolicitudDeIngreso = {
+  solicitudId: string
+  usuarioId: string
+  cuposSolicitados: number
+  mensaje?: string | null
+  puntaje?: string | null
+  nombreVisible?: string | null
+  porEnlace?: boolean
+  estado: 'PENDIENTE' | 'APROBADA' | 'RECHAZADA' | 'EXPIRADA' | string
+  fechaSolicitud: string
+}
+
+/** Las solicitudes pendientes del grupo pedido; sin grupo, no pide nada. */
+export function solicitudesDelGrupo(grupoId: Signal<string>) {
+  const gateway = inject(GATEWAY)
+  return httpResource<SolicitudDeIngreso[]>(() => (grupoId() ? `${gateway}/grupos/${grupoId()}/solicitudes` : undefined))
+}
+
 /** El motivo que acepta el contrato (`maxLength: 1000`). */
 export const MOTIVO_MAXIMO = 1000
 

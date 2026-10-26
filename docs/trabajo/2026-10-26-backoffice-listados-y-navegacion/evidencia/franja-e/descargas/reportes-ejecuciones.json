@@ -1,0 +1,20 @@
+[
+  {
+    "iniciadaEn": "2026-10-16T12:00:00Z",
+    "reporte": "Reporte 2",
+    "estado": "Fallida",
+    "filasGeneradas": 1,
+    "duracionMs": 15,
+    "hashResultado": "no disponible",
+    "finalizadaEn": "no disponible"
+  },
+  {
+    "iniciadaEn": "2026-10-16T12:00:00Z",
+    "reporte": "Reporte 2",
+    "estado": "Completada",
+    "filasGeneradas": 6,
+    "duracionMs": 15,
+    "hashResultado": "no disponible",
+    "finalizadaEn": "no disponible"
+  }
+]

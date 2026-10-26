@@ -1,0 +1,8 @@
+$ npx ng test --include='src/app/rutas/operacion/**/*.spec.ts' --exclude='src/**/*.a11y.spec.ts'
+ Test Files  23 passed (23)
+      Tests  135 passed (135)
+exit=0
+$ npx ng test --include='src/app/rutas/operacion/**/*.a11y.spec.ts'
+ Test Files  6 passed (6)
+      Tests  26 passed (26)
+exit=0

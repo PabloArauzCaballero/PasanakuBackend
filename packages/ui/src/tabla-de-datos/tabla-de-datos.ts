@@ -115,8 +115,8 @@ export type EstadoColeccion<T> =
                 @for (c of columnas(); track c.clave) {
                   <td role="cell" [class.numerica]="c.numerica" [class.fija]="c.fijaDerecha" [class.mono]="c.mono">
                     <span class="etiqueta-movil" aria-hidden="true">{{ c.titulo }}</span>
-                    @if (celda()) {
-                      <ng-container *ngTemplateOutlet="celda()!; context: { $implicit: f, columna: c }" />
+                    @if (plantilla(); as p) {
+                      <ng-container *ngTemplateOutlet="p; context: { $implicit: f, columna: c }" />
                     } @else {
                       {{ f[c.clave] }}
                     }
@@ -144,6 +144,9 @@ export class TablaDeDatos<T extends object> {
   readonly orden = model<Orden | null>(null)
   readonly ordenado = output<Orden>()
   readonly celda = contentChild<TemplateRef<{ $implicit: T; columna: Columna<T> }>>('celda')
+  /** La plantilla de celda que llega de un organismo que envuelve a la tabla (`ap-listado`); la proyectada gana. */
+  readonly plantillaDeCelda = input<TemplateRef<{ $implicit: T; columna: Columna<T> }> | null>(null)
+  readonly plantilla = computed(() => this.celda() ?? this.plantillaDeCelda())
 
   /** Estado de colección opcional (regla 65 / Q-J1). `null` conserva el comportamiento previo a esta extensión. */
   readonly estado = input<EstadoColeccion<T> | null>(null)

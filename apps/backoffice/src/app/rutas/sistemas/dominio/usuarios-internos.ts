@@ -113,3 +113,10 @@ export function desbloqueadorUsuarioInterno() {
   return (id: string, motivo: string) =>
     desbloquearUsuarioInterno(http, gateway, id, motivo)
 }
+
+/**
+ * Los departamentos que ofrece el alta (los mismos que tenía el formulario). El contrato no publica un catálogo de
+ * departamentos (`departamento` es texto libre de 2–60 caracteres en `EntradaAltaUsuarioInterno`): si el backend
+ * agrega uno, esto se reemplaza por su `GET`.
+ */
+export const DEPARTAMENTOS_INTERNOS = ['OPERACIONES', 'RIESGOS', 'CUMPLIMIENTO', 'TECNOLOGIA', 'COBRANZAS', 'GOBERNANZA_DATOS', 'AUDITORIA', 'EJECUTIVO'] as const

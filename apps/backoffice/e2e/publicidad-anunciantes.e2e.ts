@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs'
 import { expect, test } from '@playwright/test'
 import { iniciarSesionDePrueba, navegarSinRecargar } from './apoyo/sesion-e2e'
 import { PAGINA_SINTETICA } from './apoyo/anunciantes-sinteticos'
@@ -61,6 +62,30 @@ test.describe('publicidad/anunciantes — tabla canónica', () => {
       await expect(page.getByText('Café del Valle SRL')).toBeVisible()
       await expect(page.getByRole('button', { name: 'Dar de alta anunciante' })).toBeVisible()
     })
+  })
+})
+
+test.describe('publicidad/anunciantes — el kit del listado (25 anunciantes SINTÉTICOS, forma del contrato)', () => {
+  test('pagina de a 10, «Ir a» la 3, busca sin coincidencias y el CSV baja solo lo filtrado', async ({ page }) => {
+    await iniciarSesionDePrueba(page, ['PUBLICIDAD_ANUNCIANTES'])
+    const items = Array.from({ length: 25 }, (_, i) => ({ ...PAGINA_SINTETICA.items[0], anuncianteId: `00000000-0000-4000-8000-${String(i).padStart(12, '0')}`, razonSocialFacturacion: `Anunciante sintético ${i + 1}` }))
+    await page.route((u) => u.pathname.endsWith('/api/v1/publicidad/anunciantes'), (route) =>
+      route.request().method() === 'GET' ? route.fulfill({ json: { items, proximoFecha: null, proximoId: null } }) : route.fallback(),
+    )
+    await page.locator('ul.accesos').getByRole('link', { name: /Publicidad/ }).click()
+    await expect(page.getByText('Página 1 de 3')).toBeVisible()
+    await page.getByLabel('Ir a la página').fill('3')
+    await page.getByLabel('Ir a la página').press('Enter')
+    await expect(page.getByText('Página 3 de 3')).toBeVisible()
+    await expect(page.locator('table tbody tr')).toHaveCount(5)
+    await page.getByRole('searchbox').fill('sintético 25')
+    await expect(page.getByText('1 de 25 anunciantes')).toBeVisible()
+    const [descarga] = await Promise.all([page.waitForEvent('download'), page.getByRole('button', { name: 'Descargar CSV' }).click()])
+    const csv = readFileSync((await descarga.path())!, 'utf8').trim().split('\r\n')
+    expect(csv).toHaveLength(2)
+    expect(csv[1]).toContain('Anunciante sintético 25')
+    await page.getByRole('searchbox').fill('no existe nada así')
+    await expect(page.getByRole('button', { name: 'Quitar filtros' })).toBeVisible()
   })
 })
 

@@ -1,0 +1,30 @@
+PASS escaladas: no pide GET /grupos/solicitudes-escaladas (peticiones: ["GET /api/v1/billetera/retiros","GET /api/v1/reclamos","GET /api/v1/cumplimiento/alertas","GET /api/v1/cumplimiento/casos","GET /api/v1/desembolsos"])
+PASS escaladas: error · identificador vacío marcado en el campo, no navega
+PASS escaladas: aceptado · «Abrir en Admisiones» navega a /admisiones/:solicitudId
+PASS escaladas: límite · sin acceso a Admisiones no se ofrece el botón y se explica
+PASS billetera: aceptado · GET /billetera/:cuenta/saldo pinta el saldo con su moneda
+PASS billetera: aceptado · «Actualizar saldo» vuelve a pedir el saldo
+PASS billetera: error · identificador mal formado marcado y conservado, sin petición
+PASS billetera: aceptado · «Consultar saldo» navega a la otra cuenta y pide su saldo
+PASS billetera: límite · saldo en cero ⇒ lo dice y aclara que no es un error
+PASS billetera: error · 500 ⇒ mensaje accionable sin el crudo
+PASS billetera: error · «Volver a intentar» repite; 403 ⇒ «No tenés acceso a esto.»
+PASS estado: aceptado · 14 servicios en una página (20 por página)
+PASS estado: aceptado · Nivel N1 deja 4 servicios y escribe ?filtro=N1 en la URL
+PASS estado: CSV de lo filtrado (4 filas + encabezado) · estado-de-los-servicios-2026-10-26.csv
+PASS estado: filtro Salud = no responde ⇒ solo publicidad, y el JSON baja esa fila
+PASS estado: límite · búsqueda sin coincidencias ⇒ «Quitar filtros» vuelve a los 14
+PASS estado: aceptado · buscar por el motivo del nivel encuentra nucleo-financiero
+PASS estado: error · 500 ⇒ «No se pudo consultar la salud», tarjetas «Sin dato de salud», sin el crudo
+PASS estado: error · «Volver a consultar» repite; 403 ⇒ lo dice y la tabla queda con la arquitectura
+PASS escaladas: 1280px light sin desborde (scrollWidth=1280) y consola limpia
+PASS escaladas: 768px light sin desborde (scrollWidth=768) y consola limpia
+PASS escaladas: 375px light sin desborde (scrollWidth=375) y consola limpia
+PASS escaladas: 1280px dark sin desborde (scrollWidth=1280) y consola limpia
+PASS billetera: 768px light sin desborde (scrollWidth=768) y consola limpia
+PASS billetera: 375px light sin desborde (scrollWidth=375) y consola limpia
+PASS billetera: 1280px dark sin desborde (scrollWidth=1280) y consola limpia
+PASS estado: 768px light sin desborde (scrollWidth=768) y consola limpia
+PASS estado: 375px light sin desborde (scrollWidth=375) y consola limpia
+PASS estado: 1280px dark sin desborde (scrollWidth=1280) y consola limpia
+PASS otras: consola sin errores salvo los provocados []

@@ -1,80 +1,38 @@
-import { ChangeDetectionStrategy, Component, HostListener, input, output, signal } from '@angular/core'
-import { FormsModule } from '@angular/forms'
-import { Boton } from '@aportaya/ui/boton/boton'
+import { ChangeDetectionStrategy, Component, input, output, signal } from '@angular/core'
+import { AreaDeTexto } from '@aportaya/ui/area-de-texto/area-de-texto'
 import { ChipEstado } from '@aportaya/ui/chip-estado/chip-estado'
+import { Dialogo } from '@aportaya/ui/dialogo/dialogo'
 import { ErrorDeEnvio, type ErrorParaVista } from '@aportaya/ui/error-de-envio/error-de-envio'
-import {
-  actualizadorElementoCatalogo,
-  type ElementoCatalogoOperativo,
-} from '../dominio/catalogos-operativos'
+import { mensajeDeError } from '../compartido/carga'
+import { actualizadorElementoCatalogo, type ElementoCatalogoOperativo } from '../dominio/catalogos-operativos'
 import { textosSistemas } from '../textos'
 
+/**
+ * Activar o desactivar un elemento de catálogo (PATCH `/auditoria/catalogos/{codigo}/elementos/{id}` con
+ * `{activo, motivo}`). Se monta con `@if` y abre el `ap-dialogo` nativo: foco atrapado, `Escape` y vuelta del foco.
+ * Antes leía `err.error?.mensaje` y perdía siempre el `ErrorTraducido`; ahora el rechazo deja el motivo escrito y
+ * el mensaje traducido con su código de seguimiento.
+ */
 @Component({
   selector: 'ap-modal-cambiar-estado-elemento',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [Boton, ChipEstado, FormsModule, ErrorDeEnvio],
+  imports: [AreaDeTexto, ChipEstado, Dialogo, ErrorDeEnvio],
   template: `
-    <div class="telon">
-      <div class="caja" role="dialog" aria-modal="true" aria-labelledby="modal-estado-titulo">
-        <header>
-          <h2 id="modal-estado-titulo">{{ t.cambiarEstadoTitulo }}</h2>
-          <ap-boton variante="fantasma" (pulsado)="cerrar.emit()" aria-label="Cerrar modal">✕</ap-boton>
-        </header>
-
-        <form (ngSubmit)="guardar()">
-          <div class="resumen-elemento">
-            <div class="campo">
-              <span class="etiqueta">Elemento:</span>
-              <strong>{{ elemento().nombre }} (<code>{{ elemento().codigo }}</code>)</strong>
-            </div>
-            <div class="campo">
-              <span class="etiqueta">Nuevo estado:</span>
-              <ap-chip-estado [tono]="nuevoEstado() ? 'ok' : 'neutro'">
-                {{ nuevoEstado() ? 'Activo' : 'Inactivo' }}
-              </ap-chip-estado>
-            </div>
-          </div>
-
-          <label class="motivo-label">
-            <span>{{ t.motivoObligatorio }}</span>
-            <textarea
-              [ngModel]="motivo()"
-              (ngModelChange)="motivo.set($event)"
-              name="motivo"
-              rows="3"
-              placeholder="Ej: Desactivado por resolución del comité de riesgos..."
-              required
-              [disabled]="enviando()"
-            ></textarea>
-          </label>
-
-          <ap-error-de-envio [error]="error()" />
-
-          <footer>
-            <ap-boton variante="fantasma" (pulsado)="cerrar.emit()" [deshabilitado]="enviando()">
-              {{ t.cancelar }}
-            </ap-boton>
-            <ap-boton tipo="submit" variante="primario" [deshabilitado]="enviando() || !esValido()">
-              {{ enviando() ? 'Guardando...' : t.guardar }}
-            </ap-boton>
-          </footer>
-        </form>
-      </div>
-    </div>
+    <ap-dialogo [titulo]="t.cambiarEstadoTitulo" [textoDeConfirmar]="enviando() ? 'Guardando…' : (nuevoEstado() ? t.activar : t.desactivar) + ' elemento'" [destructivo]="!nuevoEstado()" [cargando]="enviando()" [confirmarDeshabilitado]="!esValido() || enviando()" [puedeDescartar]="puedeCerrar" [abierto]="true" (confirmar)="guardar()" (cancelar)="cerrar.emit()">
+      <dl class="resumen">
+        <div><dt>Elemento</dt><dd>{{ elemento().nombre }} <code>{{ elemento().codigo }}</code></dd></div>
+        <div><dt>Nuevo estado</dt><dd><ap-chip-estado [tono]="nuevoEstado() ? 'ok' : 'neutro'">{{ nuevoEstado() ? 'Activo' : 'Inactivo' }}</ap-chip-estado></dd></div>
+      </dl>
+      <ap-area-de-texto [etiqueta]="t.motivoObligatorio" [(valor)]="motivo" [maximo]="500" [deshabilitado]="enviando()" ayuda="Mínimo 5 caracteres. Queda en la bitácora inmutable." />
+      <ap-error-de-envio [error]="error()" />
+    </ap-dialogo>
   `,
   styles: `
-    .telon { position: fixed; inset: 0; background: var(--overlay); display: flex; align-items: center; justify-content: center; z-index: var(--z-modal); padding: var(--s4); }
-    .caja { background: var(--surface); border: var(--borde-fino) solid var(--border); border-radius: var(--r-xl); padding: var(--s5); width: 100%; max-width: 32rem; max-height: 90vh; overflow-y: auto; display: flex; flex-direction: column; gap: var(--s4); box-shadow: var(--sombra-lg); }
-    header { display: flex; justify-content: space-between; align-items: center; }
-    h2 { margin: 0; font-size: 1.25rem; font-weight: 600; color: var(--text); }
-    form { display: flex; flex-direction: column; gap: var(--s3); }
-    .resumen-elemento { display: flex; flex-direction: column; gap: var(--s2); padding: var(--s3); border: var(--borde-fino) solid var(--border); border-radius: var(--r-md); background: var(--surface-2); }
-    .campo { display: flex; align-items: center; gap: var(--s2); font-size: 0.875rem; color: var(--text); }
-    .etiqueta { color: var(--text-2); min-width: 6rem; }
-    code { font-family: var(--f-mono); font-size: 0.85em; background: var(--surface-3); padding: var(--s1) var(--s2); border-radius: var(--r-sm); }
-    .motivo-label { display: flex; flex-direction: column; gap: var(--s1); font-size: 0.875rem; color: var(--text-2); }
-    textarea { padding: var(--s2); border: var(--borde-fino) solid var(--border); border-radius: var(--r-md); background: var(--surface-2); color: var(--text); font: inherit; resize: vertical; }
-    footer { display: flex; justify-content: flex-end; gap: var(--s2); margin-top: var(--s2); }
+    .resumen { display: grid; gap: var(--s2); margin: 0 0 var(--s3); padding: var(--s3); border: var(--borde-fino) solid var(--border); border-radius: var(--r-md); background: var(--surface-2); }
+    .resumen div { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s2); }
+    dt { min-width: calc(var(--s7) * 2); font: var(--t-cuerpo-chico); color: var(--text-2); }
+    dd { margin: 0; font: var(--t-cuerpo-chico); color: var(--text); overflow-wrap: anywhere; }
+    code { padding: 0 var(--s1); border-radius: var(--r-sm); background: var(--surface); font-family: var(--f-mono); }
   `,
 })
 export class ModalCambiarEstadoElemento {
@@ -87,15 +45,8 @@ export class ModalCambiarEstadoElemento {
   protected readonly motivo = signal('')
   protected readonly enviando = signal(false)
   protected readonly error = signal<ErrorParaVista | null>(null)
-
+  protected readonly puedeCerrar = () => !this.enviando()
   private readonly actualizar = actualizadorElementoCatalogo()
-
-  @HostListener('document:keydown.escape')
-  protected alPresionarEscape(): void {
-    if (!this.enviando()) {
-      this.cerrar.emit()
-    }
-  }
 
   protected nuevoEstado(): boolean {
     return !this.elemento().activo
@@ -109,20 +60,14 @@ export class ModalCambiarEstadoElemento {
     if (!this.esValido() || this.enviando()) return
     this.enviando.set(true)
     this.error.set(null)
-
-    this.actualizar(this.catalogoCodigo(), this.elemento().id, {
-      activo: this.nuevoEstado(),
-      motivo: this.motivo().trim(),
-    }).subscribe({
+    this.actualizar(this.catalogoCodigo(), this.elemento().id, { activo: this.nuevoEstado(), motivo: this.motivo().trim() }).subscribe({
       next: () => {
         this.enviando.set(false)
         this.guardado.emit()
       },
-      error: (err) => {
+      error: (e: unknown) => {
         this.enviando.set(false)
-        this.error.set({
-          mensaje: err.error?.mensaje ?? err.message ?? 'Error al actualizar el elemento.',
-        })
+        this.error.set(mensajeDeError(e, 'No se pudo actualizar el elemento. Probá de nuevo.'))
       },
     })
   }
