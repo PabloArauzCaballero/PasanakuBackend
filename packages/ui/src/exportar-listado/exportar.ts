@@ -21,7 +21,8 @@ function valorDe<T>(fila: T, c: ColumnaExportable<T>): Celda {
   return typeof v === 'object' ? JSON.stringify(v) : (v as Celda)
 }
 
-const NUMERO = /^-?\d+([.,]\d+)?$/
+/** Un importe o cantidad, con separadores de miles y una unidad opcional: «-359.90», «-1.250,00 Bs». */
+const NUMERO = /^-?\d[\d.,\s]*(\s?[A-Za-z]{1,4})?$/
 
 /**
  * Una celda de CSV según RFC 4180: entre comillas si trae separador, comillas o saltos, con las comillas

@@ -38,6 +38,8 @@ button:focus-visible { outline: var(--borde-foco) solid var(--g300); outline-off
 @media (max-width: 40em) {
   .marco { overflow-x: visible; border: 0; background: transparent; }
   table, thead, tbody, tr, th, td { display: block; width: 100%; }
+  /* Con la tabla en bloque, el caption quedaba al ancho mínimo: una palabra por línea. */
+  caption { display: block; width: 100%; }
   thead tr { position: absolute; width: var(--borde-fino); height: var(--borde-fino); overflow: hidden; clip: rect(0 0 0 0); }
   tbody tr { margin-bottom: var(--s4); border: var(--borde-fino) solid var(--border); border-radius: var(--r-lg); background: var(--surface); padding: var(--s2) var(--s4); }
   tbody tr:last-child { margin-bottom: 0; }
