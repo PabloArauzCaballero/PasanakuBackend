@@ -22,11 +22,11 @@ const t = textosContabilidad.activos
 const COLUMNAS: Columna<ActivoFijo>[] = [
   { clave: 'codigo', titulo: 'Código', mono: true },
   { clave: 'descripcion', titulo: 'Descripción' },
-  { clave: 'categoriaNombre', titulo: 'Categoría' },
+  { clave: 'valorEnLibros', titulo: 'Valor en libros', numerica: true },
   { clave: 'costoAdquisicion', titulo: 'Costo', numerica: true },
   { clave: 'depreciacionAcumulada', titulo: 'Depreciación acumulada', numerica: true },
-  { clave: 'valorEnLibros', titulo: 'Valor en libros', numerica: true },
   { clave: 'estado', titulo: 'Estado' },
+  { clave: 'categoriaNombre', titulo: 'Categoría' },
 ]
 
 const EXPORTABLES = [

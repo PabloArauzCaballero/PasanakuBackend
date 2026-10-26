@@ -38,7 +38,7 @@ import { textosConfiguracion } from './textos'
     .pantalla { padding: var(--s5); display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s4); min-width: 0; }
     .vacio { margin: 0; color: var(--text-2); }
     .accesos { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 18rem), 1fr)); gap: var(--s4); }
-    a { display: flex; align-items: center; gap: var(--s3); min-height: var(--area-tactil); padding: var(--s4); border: var(--borde-fino) solid var(--border); border-radius: var(--r-lg); background: var(--surface); box-shadow: var(--sombra-1); text-decoration: none; transition: border-color var(--mov-micro) ease-out, box-shadow var(--mov-micro) ease-out; }
+    a { display: flex; box-sizing: border-box; height: 100%; align-items: center; gap: var(--s3); min-height: var(--area-tactil); padding: var(--s4); border: var(--borde-fino) solid var(--border); border-radius: var(--r-lg); background: var(--surface); box-shadow: var(--sombra-1); text-decoration: none; transition: border-color var(--mov-micro) ease-out, box-shadow var(--mov-micro) ease-out; }
     a:hover { border-color: var(--brand); box-shadow: var(--sombra-2); }
     .loseta { display: inline-flex; flex: none; align-items: center; justify-content: center; width: calc(var(--s6) + var(--s2)); height: calc(var(--s6) + var(--s2)); border-radius: var(--r-md); background: var(--brand-bg); color: var(--brand-texto); }
     .textos { flex: 1; min-width: 0; }
