@@ -1,0 +1,24 @@
+PASS custodia: primera página GET /custodia/conciliaciones?limite=10 sin cursor
+PASS custodia: la tabla pinta la página del simulado
+PASS custodia: Siguiente pide con el cursor (antesDeId=bcc01dce…)
+PASS custodia: Anterior vuelve a la página 1 sin cursor
+PASS custodia: Filas por página = 20 pide limite=20
+PASS custodia: filtro local Estado=Cuadrada no vuelve a pedir y deja la fila
+PASS custodia: buscar por conciliacionId encuentra la fila
+PASS custodia: CSV sin coincidencias baja solo el encabezado (historial-de-conciliaciones-2026-10-26.csv)
+PASS custodia: CSV de lo filtrado con el importe como se ve («Bs 4,44») · historial-de-conciliaciones-2026-10-26.csv
+PASS custodia: JSON con 1 fila(s) filtrada(s) · historial-de-conciliaciones-2026-10-26.json
+PASS custodia: límite · 25 filas, 10 por página ⇒ 10 en la página 1
+PASS custodia: límite · Ir a 3 ⇒ última página parcial (5 filas) y Siguiente deshabilitado
+PASS custodia: límite · una sola fila ⇒ Página 1 de 1
+PASS custodia: límite · colección vacía ⇒ vacío explicado («Todavía no hay conciliaciones registradas.»)
+PASS custodia: error · 500 ⇒ mensaje accionable con código de seguimiento, sin el crudo
+PASS custodia: error · «Volver a intentar» repite la petición y se recupera
+PASS custodia: error · 403 ⇒ «No tenés acceso a esta bandeja.»
+PASS custodia: 768px light sin desborde horizontal (scrollWidth=768)
+PASS custodia: 768px light consola sin errores
+PASS custodia: 375px light sin desborde horizontal (scrollWidth=375)
+PASS custodia: 375px light consola sin errores
+PASS custodia: 1280px dark sin desborde horizontal (scrollWidth=1280)
+PASS custodia: 1280px dark consola sin errores
+PASS custodia: consola sin errores (salvo los 403/500 provocados) []
