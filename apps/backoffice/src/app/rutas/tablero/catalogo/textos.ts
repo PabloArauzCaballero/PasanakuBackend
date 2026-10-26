@@ -1,5 +1,6 @@
 /** Los textos del catálogo de datos, en voz de marca. */
 export const textosCatalogo = {
+  notaDeDescarga: 'La descarga baja la página filtrada que ves. Para más filas, subí «Filas por página».',
   eyebrow: 'Datos',
   titulo: 'Catálogo de datos',
   descripcion: 'Las tablas reales de la base: qué significa cada una, quién responde por ella y si guarda datos sensibles.',

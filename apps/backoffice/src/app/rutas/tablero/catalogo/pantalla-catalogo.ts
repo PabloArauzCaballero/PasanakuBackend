@@ -1,24 +1,22 @@
 import { httpResource } from '@angular/common/http'
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core'
 import { toSignal } from '@angular/core/rxjs-interop'
-import { ActivatedRoute, Router, RouterLink } from '@angular/router'
+import { ActivatedRoute, Router } from '@angular/router'
 import { BarraDeFiltros, type Selector } from '@aportaya/ui/barra-de-filtros/barra-de-filtros'
 import { CabeceraDePagina } from '@aportaya/ui/cabecera-de-pagina/cabecera-de-pagina'
-import { ChipEstado } from '@aportaya/ui/chip-estado/chip-estado'
 import { EstadoDePantalla } from '@aportaya/ui/estado-de-pantalla/estado-de-pantalla'
 import { EstadoVacio } from '@aportaya/ui/estado-vacio/estado-vacio'
-import { Paginacion } from '@aportaya/ui/paginacion/paginacion'
 import { Pestanas, type Pestana } from '@aportaya/ui/pestanas/pestanas'
-import { TablaDeDatos, type Columna } from '@aportaya/ui/tabla-de-datos/tabla-de-datos'
 import { TarjetaKPI } from '@aportaya/ui/tarjeta-kpi/tarjeta-kpi'
 import { ExplicadorDeVista } from '../../../nucleo/explicador-de-vista'
 import { GATEWAY } from '../../../nucleo/gateway'
-import { filasDeTablas, ResumenDelCatalogoRemoto, urlDeTablas, type FilaDeTabla, type FiltrosDeLista, type PaginaDeTablasDelCatalogo } from './dominio'
+import { filasDeTablas, ResumenDelCatalogoRemoto, urlDeTablas, type FiltrosDeLista, type PaginaDeTablasDelCatalogo } from './dominio'
+import { ListaDeTablas } from './lista-de-tablas'
 import { ESTADOS, REVISIONES } from './gobierno'
 import { textosCatalogo } from './textos'
 import { VistaEsquemas } from './vista-esquemas'
 
-const FILAS = [10, 20, 50]
+const FILAS = [10, 20, 50, 100]
 const VISTAS = ['tablas', 'esquemas'] as const
 
 /**
@@ -29,7 +27,7 @@ const VISTAS = ['tablas', 'esquemas'] as const
 @Component({
   selector: 'ap-pantalla-catalogo',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [BarraDeFiltros, CabeceraDePagina, ChipEstado, EstadoDePantalla, EstadoVacio, Paginacion, Pestanas, RouterLink, TablaDeDatos, TarjetaKPI, VistaEsquemas],
+  imports: [BarraDeFiltros, CabeceraDePagina, EstadoDePantalla, EstadoVacio, ListaDeTablas, Pestanas, TarjetaKPI, VistaEsquemas],
   template: `
     <ap-cabecera-de-pagina icono="baseDeDatos" [eyebrow]="t.eyebrow" [titulo]="t.titulo" [descripcion]="t.descripcion" />
     @if (resumen(); as r) {
@@ -54,25 +52,7 @@ const VISTAS = ['tablas', 'esquemas'] as const
             @if (p.total === 0) {
               <ap-estado-vacio motivo="porFiltro" [titulo]="t.vacio" [explicacion]="t.vacioExplicacion" (actuar)="limpiarTodo()" />
             } @else {
-              <ap-tabla-de-datos [titulo]="t.titulo" [columnas]="columnas" [estado]="{ tipo: 'lista', filas: filas() }" [identidad]="porId" densidad="compacta" [cabecera]="true" [textoRegistros]="t.registros" [totalDeRegistros]="p.total">
-                <ng-template #celda let-f let-columna="columna">
-                  @switch (columna.clave) {
-                    @case ('tabla') {
-                      <a class="nombre" [routerLink]="['/tablero/catalogo-de-datos', f.esquema, f.tabla]">{{ f.tabla }}</a>
-                      <span class="que-es">{{ f.queEs }}</span>
-                    }
-                    @case ('esquema') {
-                      <code>{{ f.esquema }}</code>
-                      @if (f.infraestructura) { <span class="que-es">{{ t.infraestructura }}</span> }
-                    }
-                    @case ('estado') { <ap-chip-estado [tono]="f.tonoEstado">{{ f.estado }}</ap-chip-estado> }
-                    @case ('revision') { <ap-chip-estado [tono]="f.tonoRevision">{{ f.revision }}</ap-chip-estado> }
-                    @case ('sensible') { <ap-chip-estado [tono]="f.tonoSensible">{{ f.sensible }}</ap-chip-estado> }
-                    @default { {{ f[columna.clave] }} }
-                  }
-                </ng-template>
-              </ap-tabla-de-datos>
-              <ap-paginacion etiqueta="Paginación de tablas" [pagina]="p.pagina" (paginaChange)="filtrar('pagina', '' + $event)" [totalDeFilas]="p.total" [porPagina]="p.limite" (porPaginaChange)="filtrar('filas', '' + $event)" [opcionesPorPagina]="opcionesDeFilas" nombreDeRegistros="tablas" />
+              <ap-lista-de-tablas [filas]="filas()" [pagina]="p.pagina" [porPagina]="p.limite" [total]="p.total" [opciones]="opcionesDeFilas" (paginaChange)="filtrar('pagina', '' + $event)" (porPaginaChange)="filtrar('filas', '' + $event)" />
             }
           }
         </ap-estado-de-pantalla>
@@ -83,11 +63,6 @@ const VISTAS = ['tablas', 'esquemas'] as const
     :host { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s4); min-width: 0; }
     .cifras { display: grid; gap: var(--s3); grid-template-columns: repeat(auto-fit, minmax(min(100%, 9rem), 1fr)); }
     .panel, ap-estado-de-pantalla { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s4); min-width: 0; }
-    .nombre { display: block; color: var(--text); font-family: var(--mono); font-size: .92em; font-weight: 600; text-decoration: none; overflow-wrap: anywhere; }
-    .nombre:hover { color: var(--brand-texto); text-decoration: underline; }
-    .nombre:focus-visible { outline: var(--borde-foco) solid var(--g300); outline-offset: var(--borde-desfase); }
-    .que-es { display: block; margin-top: var(--s1); min-width: 24ch; max-width: 40ch; color: var(--text-2); font: var(--t-cuerpo-chico); white-space: normal; }
-    code { font-family: var(--mono); font-size: .92em; }
   `,
 })
 export class PantallaCatalogo {
@@ -147,18 +122,6 @@ export class PantallaCatalogo {
       { nombre: 'tipo', etiqueta: t.tipo, valor: f.tipo, opciones: de(t.tipos), ayuda: t.ayudaTipo },
     ]
   })
-
-  protected readonly porId = (f: FilaDeTabla) => f.id
-  // Lo que se viene a mirar va primero (como en el portal de Atlas): la tabla con lo que es, su estado y su revisión.
-  protected readonly columnas: Columna<FilaDeTabla>[] = [
-    { clave: 'tabla', titulo: textosCatalogo.columnasLista.tabla },
-    { clave: 'esquema', titulo: textosCatalogo.columnasLista.esquema },
-    { clave: 'estado', titulo: textosCatalogo.columnasLista.estado },
-    { clave: 'revision', titulo: textosCatalogo.columnasLista.revision },
-    { clave: 'sensible', titulo: textosCatalogo.columnasLista.sensible },
-    { clave: 'responsable', titulo: textosCatalogo.columnasLista.responsable },
-    { clave: 'columnas', titulo: textosCatalogo.columnasLista.columnas, numerica: true },
-  ]
 
   protected irA(vista: string): void {
     void this.router.navigate([], { relativeTo: this.ruta, queryParams: { vista: vista === 'tablas' ? null : vista }, queryParamsHandling: 'merge' })
