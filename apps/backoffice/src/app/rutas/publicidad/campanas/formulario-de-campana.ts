@@ -27,7 +27,7 @@ const t = textosPublicidad.campanas
   imports: [Campo, CampoMonto, Dialogo, ErrorDeEnvio, ListaDeOpciones],
   template: `
     <ap-dialogo [titulo]="t.nuevaCampana" [textoDeConfirmar]="t.crearYEnviar" [(abierto)]="abierto" [cargando]="guardando()" [hayCambiosSinGuardar]="sucio()" (confirmar)="guardar()" (cancelar)="abierto.set(false)">
-      <div class="formulario">
+      <div class="formulario" data-tutorial-id="publicidad-formulario-campana">
         <fieldset>
           <legend>{{ t.datosCampana }}</legend>
           <ap-lista-de-opciones class="ancho" [etiqueta]="t.cuenta" [opciones]="cuentas()" [(valor)]="cuenta" [textoVacio]="cuentasCargando() ? 'Cargando cuentas…' : 'Elegí una cuenta'" [error]="errorDeCuentas() ?? (falta() && !cuenta() ? t.obligatorio : undefined)" />

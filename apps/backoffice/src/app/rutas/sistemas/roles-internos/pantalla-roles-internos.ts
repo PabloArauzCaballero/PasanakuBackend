@@ -47,7 +47,7 @@ const origenDe = (r: RolCatalogo) => (r.esSistema ? 'Sistema' : 'Personalizado')
 
       <ap-cajon-lateral [titulo]="seleccionado() ? 'Permisos de ' + seleccionado()!.nombre : 'Permisos del rol'" [(abierto)]="cajonAbierto">
         @if (seleccionado(); as r) {
-          <p class="sub">{{ r.descripcion ?? 'Sin descripción.' }} · {{ r.ambito }}</p>
+          <p class="sub">{{ r.descripcion || 'Sin descripción.' }} · {{ r.ambito }}</p>
           <ul class="permisos">
             @for (p of r.permisos; track p) { <li><code>{{ p }}</code></li> } @empty { <li class="sub">Este rol no suma permisos.</li> }
           </ul>

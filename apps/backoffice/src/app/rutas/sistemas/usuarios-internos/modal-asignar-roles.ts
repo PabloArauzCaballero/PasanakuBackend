@@ -30,7 +30,7 @@ import { asignadorRolesUsuarioInterno, catalogoRoles } from '../dominio/usuarios
         } @else {
           @for (r of roles.value() ?? []; track r.id) {
             <ap-casilla [marcada]="rolesSeleccionados().includes(r.codigo)" (marcadaChange)="toggleRol(r.codigo)">
-              <strong>{{ r.nombre }}</strong> <span class="subtexto">{{ r.codigo }} · {{ r.departamento ?? 'Sin departamento' }}</span>
+              <strong>{{ r.nombre }}</strong> <span class="subtexto">{{ r.codigo }} · {{ r.departamento || 'Sin departamento' }}</span>
             </ap-casilla>
           }
         }

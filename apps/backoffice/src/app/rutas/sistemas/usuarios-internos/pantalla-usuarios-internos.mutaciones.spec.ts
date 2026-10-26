@@ -61,7 +61,7 @@ describe('PantallaUsuariosInternos · listado y operaciones del contrato (identi
   it('aceptado: cada fila trae Ver, Editar, Roles y Suspender/Reactivar con ícono + nombre, Desbloquear solo si está bloqueado, y ningún Eliminar', async () => {
     const el = await cargar(3)
     const fila2 = el.querySelectorAll('tbody tr')[1]!
-    expect(Array.from(fila2.querySelectorAll('button')).map((b) => texto(b))).toEqual(['Roles', 'Suspender', 'Desbloquear', 'Ver', 'Editar'])
+    expect(Array.from(fila2.querySelectorAll('button')).map((b) => texto(b))).toEqual(['Ver', 'Roles', 'Suspender', 'Desbloquear', 'Editar'])
     expect(fila2.querySelectorAll('button ap-icono').length).toBe(5)
     expect(texto(el.querySelectorAll('tbody tr')[0]!)).toContain('Reactivar')
     expect(Array.from(el.querySelectorAll('button')).some((b) => texto(b) === 'Eliminar')).toBe(false)
