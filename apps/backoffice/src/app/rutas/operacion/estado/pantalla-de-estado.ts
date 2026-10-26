@@ -63,6 +63,8 @@ const PROPOSITO_ESTADO =
   styles: `
     .pantalla { padding: var(--s5); display: flex; flex-direction: column; gap: var(--s5); }
     .pantalla > * { min-width: 0; }
+    /* ap-listado no acota su columna (pedido a H0 en franjas/b.md): sin esto la tabla empuja la página a 768 px. */
+    ap-listado { grid-template-columns: minmax(0, 1fr); }
     .cifras { display: grid; gap: var(--s3); grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr)); }
     .largo { display: block; white-space: normal; overflow-wrap: anywhere; }
     /* Desde tablet la tabla es tabla (en móvil, tarjetas): sin ancho mínimo el «por qué» se parte en filas altas y vacías. */

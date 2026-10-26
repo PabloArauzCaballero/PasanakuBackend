@@ -5,7 +5,7 @@ import { CabeceraDePagina } from '@aportaya/ui/cabecera-de-pagina/cabecera-de-pa
 import { ChipEstado } from '@aportaya/ui/chip-estado/chip-estado'
 import type { ColumnaExportable } from '@aportaya/ui/exportar-listado/exportar'
 import { Icono } from '@aportaya/ui/icono/icono'
-import { RelojDePlazo } from '@aportaya/ui/reloj-de-plazo/reloj-de-plazo'
+import { Fecha } from '@aportaya/ui/fecha/fecha'
 import type { Columna } from '@aportaya/ui/tabla-de-datos/tabla-de-datos'
 import { ExplicadorDeVista } from '../../../nucleo/explicador-de-vista'
 import { Sesion } from '../../../nucleo/sesion'
@@ -23,7 +23,7 @@ type Categoria = keyof typeof T.categorias
 type Canal = keyof typeof T.canales
 const TONO: Record<EstadoReclamo, 'ok' | 'aviso' | 'error' | 'info' | 'neutro'> = { INGRESADO: 'info', EN_ANALISIS: 'aviso', RESPONDIDO: 'ok', CERRADO: 'neutro', ELEVADO: 'error' }
 const CLAVES = ['codigo', 'categoria', 'canalIngreso', 'montoReclamado', 'limiteVigente', 'estado'] as const
-const COLUMNAS: Columna<ReclamoEnBandeja>[] = CLAVES.map((clave) => ({ clave, titulo: C[clave], numerica: clave === 'montoReclamado', mono: clave === 'codigo' }))
+const COLUMNAS: Columna<ReclamoEnBandeja>[] = CLAVES.map((clave) => ({ clave, titulo: C[clave], numerica: clave === 'montoReclamado' }))
 const estadoDe = (r: ReclamoEnBandeja) => T.estados[r.estado as EstadoReclamo] ?? r.estado
 const categoriaDe = (r: ReclamoEnBandeja) => T.categorias[r.categoria as Categoria] ?? r.categoria
 const canalDe = (r: ReclamoEnBandeja) => T.canales[r.canalIngreso as Canal] ?? r.canalIngreso
@@ -46,11 +46,12 @@ const EXPORTABLES: ColumnaExportable<ReclamoEnBandeja>[] = [
 @Component({
   selector: 'ap-bandeja-de-reclamos',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [AccionesDeFila, Alerta, CabeceraDePagina, ChipEstado, Icono, RelojDePlazo, ImporteSinMoneda, ListadoPorCursorVista, RespuestaAReclamo],
+  imports: [AccionesDeFila, Alerta, CabeceraDePagina, ChipEstado, Fecha, Icono, ImporteSinMoneda, ListadoPorCursorVista, RespuestaAReclamo],
   template: `
     <section class="pantalla">
       <ap-cabecera-de-pagina data-tutorial-id="operacion-reclamos" eyebrow="Operación · CU-52" [titulo]="t.titulo" [descripcion]="t.proposito" icono="mensaje" />
       @if (hecho(); as h) { <ap-alerta tono="ok">{{ h }}</ap-alerta> }
+      <p class="norma"><ap-icono nombre="reloj" tamano="s4" />{{ t.plazo }}: {{ t.norma }}. El servidor lo calculó al ingresar el reclamo.</p>
       <ap-listado-por-cursor [titulo]="t.titulo" [columnas]="COLUMNAS" [fuente]="l" [exportables]="EXPORTABLES" [identidad]="identidad" [ayudaDeBusqueda]="t.ayudaBusqueda" [textoVacio]="t.vacio" [explicacionVacio]="t.explicacionVacio" [textoDenegado]="t.denegado" nombreDeRegistros="reclamos" nombreDeRegistro="reclamo">
         <ng-template #celda let-r let-columna="columna">
           @switch (columna.clave) {
@@ -58,8 +59,7 @@ const EXPORTABLES: ColumnaExportable<ReclamoEnBandeja>[] = [
             @case ('categoria') { {{ categoriaDe(r) }} }
             @case ('canalIngreso') { {{ canalDe(r) }} }
             @case ('limiteVigente') {
-              <ap-reloj-de-plazo [etiqueta]="t.plazo" [venceIso]="r.limiteVigente" [ahoraIso]="ahoraIso" [norma]="t.norma" />
-              @if (r.vencido) { <span class="vencido"><ap-icono nombre="advertencia" tamano="s4" />{{ t.vencido }}</span> }
+              <span class="plazo"><ap-fecha [iso]="r.limiteVigente" /><ap-chip-estado [tono]="r.vencido ? 'error' : 'ok'">{{ r.vencido ? t.vencido : t.enPlazo }}</ap-chip-estado></span>
             }
             @case ('montoReclamado') { @if (r.montoReclamado) { <ap-importe-sin-moneda [monto]="r.montoReclamado" /> } @else { {{ t.sinMonto }} } }
             @default { <span class="id">{{ r[columna.clave] }}</span> }
@@ -82,7 +82,8 @@ const EXPORTABLES: ColumnaExportable<ReclamoEnBandeja>[] = [
   `,
   styles: `
     .pantalla { padding: var(--s5); display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s5); min-width: 0; }
-    .vencido { display: inline-flex; align-items: center; gap: var(--s1); color: var(--err-texto); font-weight: 600; }
+    .plazo { display: inline-flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: var(--s2); }
+    .norma { margin: 0; display: flex; align-items: center; gap: var(--s2); color: var(--text-2); font: var(--t-cuerpo-chico); }
     .id { display: block; white-space: normal; overflow-wrap: anywhere; }
     .nota { color: var(--text-2); font: var(--t-cuerpo-chico); white-space: normal; }
   `,
@@ -96,7 +97,6 @@ export class BandejaDeReclamos {
   protected readonly tonoDe = (r: ReclamoEnBandeja) => TONO[r.estado as EstadoReclamo]
   protected readonly COLUMNAS = COLUMNAS
   protected readonly EXPORTABLES = EXPORTABLES
-  protected readonly ahoraIso = new Date().toISOString()
   protected readonly identidad = (r: ReclamoEnBandeja) => r.reclamoId
   protected readonly sePuedeResponder = sePuedeResponder
   protected readonly estadoDe = estadoDe

@@ -21,7 +21,7 @@ const T = textosCustodia
 const C = T.columnas
 type Estado = keyof typeof T.estados
 const CLAVES = ['fecha', 'cuentaCustodiaId', 'saldoEmitido', 'saldoCustodia', 'saldoEnTransito', 'diferencia', 'ratioCobertura', 'estado', 'descuadresAbiertos'] as const
-const COLUMNAS: Columna<ConciliacionEnLista>[] = CLAVES.map((clave) => ({ clave, titulo: C[clave], numerica: clave.startsWith('saldo') || clave === 'diferencia', mono: clave === 'cuentaCustodiaId' }))
+const COLUMNAS: Columna<ConciliacionEnLista>[] = CLAVES.map((clave) => ({ clave, titulo: C[clave], numerica: clave.startsWith('saldo') || clave === 'diferencia' }))
 const estadoDe = (r: ConciliacionEnLista) => T.estados[r.estado as Estado] ?? r.estado
 const encajeDe = (r: ConciliacionEnLista) => (r.cumpleEncaje ? T.cumpleEncaje : T.noCumpleEncaje)
 const cuadreDe = (r: ConciliacionEnLista) => (esCero(r.diferencia.monto) ? T.cuadra : T.descuadre)

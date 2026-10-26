@@ -17,7 +17,7 @@ type Estado = keyof typeof T.estados
 type Tipo = keyof typeof T.tipos
 const TONO: Record<Estado, 'ok' | 'aviso' | 'error' | 'info'> = { SOLICITADO: 'info', AUTORIZADO: 'aviso', EJECUTADO: 'ok', RECHAZADO: 'error' }
 const CLAVES = ['solicitadaEn', 'tipo', 'estado', 'montoReversado', 'motivo', 'autorizadaPor', 'transaccionOriginalId', 'ejecutadaEn'] as const
-const COLUMNAS: Columna<ReversoEnLista>[] = CLAVES.map((clave) => ({ clave, titulo: T.columnas[clave], numerica: clave === 'montoReversado', mono: clave.endsWith('Id') }))
+const COLUMNAS: Columna<ReversoEnLista>[] = CLAVES.map((clave) => ({ clave, titulo: T.columnas[clave], numerica: clave === 'montoReversado' }))
 const estadoDe = (r: ReversoEnLista) => T.estados[r.estado as Estado] ?? r.estado
 const tipoDe = (r: ReversoEnLista) => T.tipos[r.tipo as Tipo] ?? r.tipo
 const C = T.columnas

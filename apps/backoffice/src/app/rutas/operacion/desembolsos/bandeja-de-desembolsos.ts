@@ -20,7 +20,7 @@ const TONO: Record<Estado, 'ok' | 'aviso' | 'error' | 'info' | 'neutro'> = {
   CREADA: 'info', ENVIADA_A_PROVEEDOR: 'info', EN_PROCESO: 'aviso', ACREDITADA: 'ok', RECHAZADA: 'error', DEVUELTA_POR_BANCO: 'error', CANCELADA: 'neutro',
 }
 const CLAVES = ['creadaEn', 'monto', 'estado', 'intentos', 'ultimoResultado', 'ultimoCodigoError', 'reintentableEn', 'entregaId'] as const
-const COLUMNAS: Columna<DesembolsoEnLista>[] = CLAVES.map((clave) => ({ clave, titulo: C[clave], numerica: clave === 'monto' || clave === 'intentos', mono: clave === 'entregaId' }))
+const COLUMNAS: Columna<DesembolsoEnLista>[] = CLAVES.map((clave) => ({ clave, titulo: C[clave], numerica: clave === 'monto' || clave === 'intentos' }))
 const estadoDe = (r: DesembolsoEnLista) => T.estados[r.estado as Estado] ?? r.estado
 const resultadoDe = (r: DesembolsoEnLista) => (r.ultimoResultado ? (T.resultados[r.ultimoResultado as Resultado] ?? r.ultimoResultado) : T.ninguno)
 const EXPORTABLES: ColumnaExportable<DesembolsoEnLista>[] = [
