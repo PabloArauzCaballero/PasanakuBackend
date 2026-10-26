@@ -21,7 +21,7 @@ import { ExplicadorDeVista } from '../../../nucleo/explicador-de-vista'
     </section>
   `,
   styles: `
-    .pantalla { padding: var(--s5) var(--s4); display: grid; gap: var(--s4); min-width: 0; }
+    .pantalla { padding: var(--s5) var(--s4); display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s4); min-width: 0; }
     .acciones { display: flex; flex-wrap: wrap; gap: var(--s2); }
   `,
 })

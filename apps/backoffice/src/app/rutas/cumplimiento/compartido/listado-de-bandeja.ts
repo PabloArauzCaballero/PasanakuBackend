@@ -48,7 +48,7 @@ const CLAVE_ACCIONES = '__acciones'
         <ap-estado-vacio motivo="porPermiso" titulo="No tenés acceso a esta bandeja." explicacion="Tu rol no puede ver esta información. Si la necesitás, pedí el permiso a quien administra los accesos." />
       }
       @case ('error') {
-        <ap-estado-de-error [titulo]="'No se pudo cargar ' + titulo().toLowerCase() + '.'" [mensaje]="c.error.mensaje" [trazaId]="c.error.trazaId" (reintentar)="b.recargar()" />
+        <ap-estado-de-error [titulo]="'No se pudo cargar la bandeja «' + titulo() + '».'" [mensaje]="c.error.mensaje" [trazaId]="c.error.trazaId" (reintentar)="b.recargar()" />
       }
       @default {
         @if (b.filtradas().length === 0) {
@@ -67,7 +67,7 @@ const CLAVE_ACCIONES = '__acciones'
     }
   `,
   styles: `
-    :host { display: grid; gap: var(--s4); min-width: 0; }
+    :host { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s4); min-width: 0; }
     .barra { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--s3); }
     .resumen { margin: 0; color: var(--text-2); font: var(--t-cuerpo-chico); }
     .acciones { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s2); }
