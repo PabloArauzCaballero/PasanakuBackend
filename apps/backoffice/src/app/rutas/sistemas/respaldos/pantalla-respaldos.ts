@@ -39,7 +39,7 @@ const RESTAURACION = { vencida: 'Vencida', alDia: 'Al día' } as const
       </ap-listado>
     </section>
   `,
-  styles: `.pantalla { display: grid; gap: var(--s5); min-width: 0; }`,
+  styles: `:host { display: block; min-width: 0; } .pantalla { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s5); min-width: 0; } /* ap-listado deja sus pistas en «auto»: sin esto la tabla ensancha la página en vez de desplazarse en su marco. */ ap-listado { grid-template-columns: minmax(0, 1fr); }`,
 })
 export class PantallaRespaldos {
   constructor() {
@@ -65,7 +65,7 @@ export class PantallaRespaldos {
     return [
       { etiqueta: 'Respaldos', valor: contar(f), icono: 'nube' },
       { etiqueta: 'Restauración al día', valor: contar(f, (r) => !restauracionVencida(r)), icono: 'verificado', tono: 'ok' },
-      { etiqueta: 'Restauración vencida', valor: contar(f, (r) => restauracionVencida(r)), icono: 'alerta', tono: 'error', pista: this.t.restauracionVencida },
+      { etiqueta: 'Restauración vencida', valor: contar(f, (r) => restauracionVencida(r)), icono: 'alerta', tono: 'error', pista: 'Más de 30 días sin probar.' },
     ]
   })
   protected readonly columnas: Columna<Respaldo>[] = [

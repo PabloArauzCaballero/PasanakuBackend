@@ -27,7 +27,7 @@ import { textosSistemas } from '../textos'
       <ap-listado [titulo]="t.titulo" [columnas]="columnas" [listado]="listado" [carga]="carga()" ayudaDeBusqueda="Busca por persona, rol, ámbito o fecha de otorgamiento." nombreDeRegistros="accesos" [textoVacio]="t.vacio" explicacionVacio="Cuando se otorgue un acceso, aparece acá con su rol y su ámbito." (reintentar)="accesos.reload()" />
     </section>
   `,
-  styles: `.pantalla { display: grid; gap: var(--s5); min-width: 0; }`,
+  styles: `:host { display: block; min-width: 0; } .pantalla { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s5); min-width: 0; } /* ap-listado deja sus pistas en «auto»: sin esto la tabla ensancha la página en vez de desplazarse en su marco. */ ap-listado { grid-template-columns: minmax(0, 1fr); }`,
 })
 export class PantallaAccesos {
   constructor() {

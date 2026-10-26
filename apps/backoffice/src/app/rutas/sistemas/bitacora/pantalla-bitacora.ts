@@ -73,7 +73,10 @@ import { crearPaginadorPorCursor } from './paginador-por-cursor'
     </section>
   `,
   styles: `
-    .pantalla { display: grid; gap: var(--s5); min-width: 0; }
+    :host { display: block; min-width: 0; }
+    /* La tabla se desplaza dentro de su marco: las acciones van en una sola línea en vez de apilarse y estirar la fila. */
+    ap-acciones-de-fila { flex-wrap: nowrap; }
+    .pantalla { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s5); min-width: 0; }
     .barra { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--s3); }
     .resumen { margin: 0; color: var(--text-2); font: var(--t-cuerpo-chico); }
     .hash { font-family: var(--f-mono); font: var(--t-ayuda); color: var(--text-2); background: var(--surface-2); padding: 0 var(--s1); border-radius: var(--r-sm); }

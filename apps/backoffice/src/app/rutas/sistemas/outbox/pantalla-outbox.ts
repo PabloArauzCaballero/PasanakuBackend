@@ -36,7 +36,7 @@ const ESTADO: Record<MensajeOutbox['estado'], string> = { pendiente: 'Pendiente'
       <ap-listado [titulo]="t.tituloDescartados" [columnas]="columnasDescartados" [listado]="descartados" [carga]="carga()" ayudaDeBusqueda="Busca por tipo de mensaje, motivo del descarte o fecha." nombreDeRegistros="descartados" [textoVacio]="t.vacioDescartados" explicacionVacio="Un mensaje que no se pudo entregar tras sus reintentos aparece acá con su motivo." (reintentar)="outbox.reload()" />
     </section>
   `,
-  styles: `.pantalla { display: grid; gap: var(--s5); min-width: 0; }`,
+  styles: `:host { display: block; min-width: 0; } .pantalla { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s5); min-width: 0; } /* ap-listado deja sus pistas en «auto»: sin esto la tabla ensancha la página en vez de desplazarse en su marco. */ ap-listado { grid-template-columns: minmax(0, 1fr); }`,
 })
 export class PantallaOutbox {
   constructor() {

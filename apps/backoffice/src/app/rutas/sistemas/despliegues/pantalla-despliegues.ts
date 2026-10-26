@@ -72,7 +72,9 @@ const ESTADO: Record<Despliegue['estado'], string> = { exitoso: 'Exitoso', 'en c
     </section>
   `,
   styles: `
-    .pantalla { display: grid; gap: var(--s5); min-width: 0; }
+    :host { display: block; min-width: 0; }
+    .pantalla { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s5); min-width: 0; }
+    /* ap-listado deja sus pistas en «auto»: sin esto la tabla ensancha la página en vez de desplazarse en su marco. */ ap-listado { grid-template-columns: minmax(0, 1fr); }
     .interruptores { display: grid; gap: var(--s3); padding: var(--s4); border: var(--borde-fino) solid var(--border); border-radius: var(--r-lg); background: var(--surface); box-shadow: var(--sombra-1); }
     h2 { display: flex; align-items: center; gap: var(--s2); margin: 0; font: var(--t-titulo-3); color: var(--text); }
     .fila { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--s3); min-width: 0; }

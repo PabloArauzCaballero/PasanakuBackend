@@ -44,7 +44,9 @@ const mfaDe = (p: PermisoCatalogo) => (p.requiereMfa ? 'Requiere MFA' : 'No')
     </section>
   `,
   styles: `
-    .pantalla { display: grid; gap: var(--s5); min-width: 0; }
+    :host { display: block; min-width: 0; }
+    .pantalla { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s5); min-width: 0; }
+    /* ap-listado deja sus pistas en «auto»: sin esto la tabla ensancha la página en vez de desplazarse en su marco. */ ap-listado { grid-template-columns: minmax(0, 1fr); }
     code { padding: 0 var(--s1); border-radius: var(--r-sm); background: var(--surface-2); font: var(--t-ayuda); font-family: var(--f-mono); color: var(--text-2); overflow-wrap: anywhere; }
   `,
 })

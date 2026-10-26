@@ -20,7 +20,7 @@ export type Cifra = { etiqueta: string; valor: string; icono: NombreDeIcono; ton
       <ap-tarjeta-kpi [etiqueta]="c.etiqueta" [valor]="c.valor" [icono]="c.icono" [tono]="c.tono ?? 'neutro'" [pista]="c.pista" />
     }
   `,
-  styles: `:host { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr)); gap: var(--s3); } :host:empty { display: none; }`,
+  styles: `:host { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 9rem), 1fr)); gap: var(--s3); } :host:empty { display: none; }`,
 })
 export class CifrasDeSistemas {
   readonly etiqueta = input('Resumen')

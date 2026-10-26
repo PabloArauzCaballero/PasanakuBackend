@@ -57,7 +57,11 @@ const origenDe = (r: RolCatalogo) => (r.esSistema ? 'Sistema' : 'Personalizado')
     </section>
   `,
   styles: `
-    .pantalla { display: grid; gap: var(--s5); min-width: 0; }
+    :host { display: block; min-width: 0; }
+    /* La tabla se desplaza dentro de su marco: las acciones van en una sola línea en vez de apilarse y estirar la fila. */
+    ap-acciones-de-fila { flex-wrap: nowrap; }
+    .pantalla { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s5); min-width: 0; }
+    /* ap-listado deja sus pistas en «auto»: sin esto la tabla ensancha la página en vez de desplazarse en su marco. */ ap-listado { grid-template-columns: minmax(0, 1fr); }
     code { padding: 0 var(--s1); border-radius: var(--r-sm); background: var(--surface-2); font: var(--t-ayuda); font-family: var(--f-mono); color: var(--text-2); overflow-wrap: anywhere; }
     .sub { margin: 0 0 var(--s3); font: var(--t-cuerpo-chico); color: var(--text-2); }
     .permisos { display: grid; gap: var(--s1); margin: 0; padding: 0; list-style: none; }

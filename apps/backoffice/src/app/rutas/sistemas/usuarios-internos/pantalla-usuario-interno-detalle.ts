@@ -67,7 +67,8 @@ import { ModalAsignarRoles } from './modal-asignar-roles'
     </section>
   `,
   styles: `
-    .pantalla { display: grid; gap: var(--s5); min-width: 0; }
+    :host { display: block; min-width: 0; }
+    .pantalla { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s5); min-width: 0; }
     .ficha { display: grid; gap: var(--s5); padding: var(--s5); border: var(--borde-fino) solid var(--border); border-radius: var(--r-lg); background: var(--surface); box-shadow: var(--sombra-1); min-width: 0; }
     .estados { display: flex; flex-wrap: wrap; gap: var(--s2); }
     h2 { margin: 0 0 var(--s2); font: var(--t-titulo-3); color: var(--text); }

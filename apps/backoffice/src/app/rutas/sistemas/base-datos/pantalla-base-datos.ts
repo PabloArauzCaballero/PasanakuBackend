@@ -36,7 +36,7 @@ const ESTADO: Record<Migracion['estado'], string> = { aplicada: 'Aplicada', pend
       </ap-listado>
     </section>
   `,
-  styles: `.pantalla { display: grid; gap: var(--s5); min-width: 0; }`,
+  styles: `:host { display: block; min-width: 0; } .pantalla { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s5); min-width: 0; } /* ap-listado deja sus pistas en «auto»: sin esto la tabla ensancha la página en vez de desplazarse en su marco. */ ap-listado { grid-template-columns: minmax(0, 1fr); }`,
 })
 export class PantallaBaseDeDatos {
   constructor() {
