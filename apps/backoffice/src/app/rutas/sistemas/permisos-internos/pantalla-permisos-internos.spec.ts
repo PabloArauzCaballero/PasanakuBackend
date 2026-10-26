@@ -8,6 +8,7 @@ import {
   type PermisoCatalogo,
 } from 'clientes/angular/identidad'
 import { GATEWAY } from '../../../nucleo/gateway'
+import { GW_DE_PRUEBA, probarListadoHttp } from '../compartido/pruebas-http.apoyo'
 import { PantallaPermisosInternos } from './pantalla-permisos-internos'
 
 const PERMISOS_EJEMPLO: PermisoCatalogo[] = [
@@ -63,5 +64,16 @@ describe('PantallaPermisosInternos', () => {
     expect(texto).toContain('CIERRES_DIARIOS_GESTIONAR')
     expect(texto).toContain('CRITICO')
     expect(texto).toContain('Exige motivo')
+  })
+})
+
+describe('PantallaPermisosInternos · listado del kit en los tres niveles', () => {
+  probarListadoHttp<PermisoCatalogo>({
+    componente: PantallaPermisosInternos,
+    url: `${GW_DE_PRUEBA}/permisos`,
+    filas: (n) => Array.from({ length: n }, (_, i) => ({ id: `p-${i + 1}`, codigo: i === 8 ? 'ENTREGA_EJECUTAR' : `PERMISO_${i + 1}`, descripcion: 'Permiso sintético', recurso: i % 2 ? 'grupos' : 'entregas', accion: 'LEER', nivelRiesgo: Object.values(PermisoCatalogoNivelRiesgoEnum)[i % 4]!, exigeMotivo: i % 3 === 0, requiereMfa: false })),
+    textoVacio: 'No hay permisos internos configurados.',
+    busqueda: { termino: 'ejecutar', esperadas: 1 },
+    filtro: { etiqueta: 'Riesgo', valor: 'CRITICO', esperadas: 6 },
   })
 })
