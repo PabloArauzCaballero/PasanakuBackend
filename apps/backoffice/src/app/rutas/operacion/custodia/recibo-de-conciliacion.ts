@@ -54,7 +54,7 @@ export interface ReciboConciliacionVm {
       </dl>
     </ap-alerta>
     @if (permitirOtro()) {
-      <div class="acciones"><ap-boton (pulsado)="otra.emit()">{{ t.formulario.otra }}</ap-boton></div>
+      <div class="acciones"><ap-boton icono="mas" (pulsado)="otra.emit()">{{ t.formulario.otra }}</ap-boton></div>
     }
   `,
   styles: `

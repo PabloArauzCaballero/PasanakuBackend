@@ -29,7 +29,7 @@ import { textosCierres } from './textos'
         [(valor)]="fecha"
       />
       <div>
-        <ap-boton variante="primario" tipo="submit" [deshabilitado]="deshabilitado()">
+        <ap-boton variante="primario" tipo="submit" icono="candado" [deshabilitado]="deshabilitado()">
           {{ t.revisar }}
         </ap-boton>
       </div>
@@ -38,7 +38,9 @@ import { textosCierres } from './textos'
   styles: `
     :host { display: grid; gap: var(--s3); }
     .requisitos { margin: 0; padding-left: var(--s5); color: var(--text-2); display: grid; gap: var(--s1); }
-    form { display: grid; gap: var(--s3); max-width: 24rem; }
+    form { display: grid; gap: var(--s3); align-content: start; }
+    /* A lo ancho de la tarjeta: los requisitos a un lado y el día al otro, sin una columna vacía. */
+    @media (min-width: 48rem) { :host { grid-template-columns: 3fr 2fr; column-gap: var(--s5); } ap-alerta { grid-column: 1 / -1; order: -1; } }
   `,
 })
 export class FormularioDeCierreVista {

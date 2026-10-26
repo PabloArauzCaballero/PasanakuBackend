@@ -1,0 +1,25 @@
+$ npx tsc -p tsconfig.app.json --noEmit && npx tsc -p tsconfig.spec.json --noEmit
+exit=0
+$ npx ng lint
+
+Linting "backoffice"...
+
+All files pass linting.
+
+exit=0
+$ python3 ../../scripts/verificar_frontend.py backoffice
+=== apps/backoffice (Angular) ===
+  OK    · sin red en vista 
+  OK    · sin literal de diseño 
+  OK    · sin formato de dinero 
+  OK    · sin console 
+  OK    · ningún archivo de más de 200 líneas 
+=== packages/tutoriales (Angular) ===
+  OK    · sin red fuera del puerto 
+  OK    · sin literal de diseño 
+  OK    · sin console 
+  OK    · ningún archivo de más de 200 líneas 
+  OK    · sin literal de diseño en @aportaya/ui 
+
+TODO OK
+exit=0
