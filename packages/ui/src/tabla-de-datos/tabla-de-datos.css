@@ -46,5 +46,5 @@ button:focus-visible { outline: var(--borde-foco) solid var(--g300); outline-off
   td:first-child { border-top: 0; }
   td.numerica { text-align: right; }
   td.marca { justify-content: flex-start; }
-  .etiqueta-movil { display: inline-block; flex: none; font-weight: 600; color: var(--text-2); text-align: left; }
+  .etiqueta-movil { display: inline-block; flex: none; font-family: var(--font-b); font-weight: 600; color: var(--text-2); text-align: left; }
 }
