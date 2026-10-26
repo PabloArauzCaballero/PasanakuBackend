@@ -56,6 +56,11 @@
    "detalle": ""
   },
   {
+   "nombre": "1280 · la cabecera entra entera (menú de usuario visible)",
+   "veredicto": "PASS",
+   "detalle": "borde derecho=1256px"
+  },
+  {
    "nombre": "buscador · aceptado · «retir» → Enter abre /operacion/retiros",
    "veredicto": "PASS",
    "detalle": ""
@@ -183,9 +188,19 @@
    "texto": "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
   },
   {
+   "url": "/operacion/reclamos",
+   "tipo": "consola",
+   "texto": "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+  },
+  {
    "url": "/tablero",
    "tipo": "consola",
    "texto": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+  },
+  {
+   "url": "/sistemas/outbox",
+   "tipo": "consola",
+   "texto": "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
   },
   {
    "url": "/sistemas/outbox",

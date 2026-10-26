@@ -35,7 +35,7 @@
    "nombre": "menu:Operación",
    "href": "/operacion/retiros",
    "url": "/operacion/retiros",
-   "ms": 335,
+   "ms": 304,
    "rebote": false,
    "botones": 4
   },
@@ -43,7 +43,7 @@
    "nombre": "pestana:Operación/Desembolsos",
    "href": "/operacion/desembolsos",
    "url": "/operacion/desembolsos",
-   "ms": 181,
+   "ms": 84,
    "rebote": false,
    "botones": 10
   },
@@ -51,7 +51,7 @@
    "nombre": "pestana:Operación/Reversos",
    "href": "/operacion/reversos",
    "url": "/operacion/reversos",
-   "ms": 327,
+   "ms": 167,
    "rebote": false,
    "botones": 7
   },
@@ -59,15 +59,31 @@
    "nombre": "pestana:Operación/Reclamos",
    "href": "/operacion/reclamos",
    "url": "/operacion/reclamos",
-   "ms": 267,
+   "ms": 240,
    "rebote": false,
-   "botones": 8
+   "botones": 9
+  },
+  {
+   "nombre": "pestana:Operación/Conciliación de custodia",
+   "href": "/operacion/custodia",
+   "url": "/operacion/custodia",
+   "ms": 74,
+   "rebote": false,
+   "botones": 4
+  },
+  {
+   "nombre": "pestana:Operación/Cierres diarios",
+   "href": "/operacion/cierres-diarios",
+   "url": "/operacion/cierres-diarios",
+   "ms": 83,
+   "rebote": false,
+   "botones": 4
   },
   {
    "nombre": "pestana:Operación/Admisiones a grupos",
    "href": "/admisiones",
    "url": "/admisiones",
-   "ms": 78,
+   "ms": 62,
    "rebote": false,
    "botones": 2
   },
@@ -75,7 +91,7 @@
    "nombre": "pestana:Operación/Solicitudes escaladas",
    "href": "/operacion/solicitudes-escaladas",
    "url": "/operacion/solicitudes-escaladas",
-   "ms": 97,
+   "ms": 79,
    "rebote": false,
    "botones": 5
   },
@@ -83,7 +99,7 @@
    "nombre": "menu:Cumplimiento",
    "href": "/cumplimiento/verificaciones",
    "url": "/cumplimiento/verificaciones",
-   "ms": 132,
+   "ms": 74,
    "rebote": false,
    "botones": 9
   },
@@ -91,7 +107,7 @@
    "nombre": "pestana:Cumplimiento/Alertas de monitoreo",
    "href": "/cumplimiento/alertas",
    "url": "/cumplimiento/alertas",
-   "ms": 139,
+   "ms": 92,
    "rebote": false,
    "botones": 12
   },
@@ -99,7 +115,7 @@
    "nombre": "pestana:Cumplimiento/Casos de investigación",
    "href": "/cumplimiento/casos",
    "url": "/cumplimiento/casos",
-   "ms": 94,
+   "ms": 69,
    "rebote": false,
    "botones": 7
   },
@@ -107,7 +123,7 @@
    "nombre": "pestana:Cumplimiento/Reportes a la UIF",
    "href": "/cumplimiento/uif/reportes",
    "url": "/cumplimiento/uif/reportes",
-   "ms": 125,
+   "ms": 89,
    "rebote": false,
    "botones": 11
   },
@@ -115,7 +131,7 @@
    "nombre": "pestana:Cumplimiento/Requerimientos de autoridad",
    "href": "/cumplimiento/uif/requerimientos",
    "url": "/cumplimiento/uif/requerimientos",
-   "ms": 136,
+   "ms": 97,
    "rebote": false,
    "botones": 9
   },
@@ -123,7 +139,7 @@
    "nombre": "pestana:Cumplimiento/Actas de comité",
    "href": "/cumplimiento/actas",
    "url": "/cumplimiento/actas",
-   "ms": 103,
+   "ms": 77,
    "rebote": false,
    "botones": 3
   },
@@ -131,7 +147,7 @@
    "nombre": "pestana:Cumplimiento/Riesgo y seguridad",
    "href": "/cumplimiento/riesgos/eventos",
    "url": "/cumplimiento/riesgos/eventos",
-   "ms": 109,
+   "ms": 69,
    "rebote": false,
    "botones": 7
   },
@@ -139,45 +155,29 @@
    "nombre": "subpestana:Cumplimiento/Riesgo y seguridad/Pruebas de continuidad",
    "href": "/cumplimiento/continuidad",
    "url": "/cumplimiento/continuidad",
-   "ms": 119,
+   "ms": 68,
    "rebote": false
   },
   {
    "nombre": "subpestana:Cumplimiento/Riesgo y seguridad/Incidentes de seguridad",
    "href": "/cumplimiento/seguridad/incidentes",
    "url": "/cumplimiento/seguridad/incidentes",
-   "ms": 113,
+   "ms": 66,
    "rebote": false
   },
   {
    "nombre": "menu:Contabilidad",
    "href": "/contabilidad",
    "url": "/contabilidad",
-   "ms": 199,
+   "ms": 87,
    "rebote": false,
-   "botones": 4
-  },
-  {
-   "nombre": "pestana:Contabilidad/Cierres diarios",
-   "href": "/operacion/cierres-diarios",
-   "url": "/operacion/cierres-diarios",
-   "ms": 113,
-   "rebote": false,
-   "botones": 4
-  },
-  {
-   "nombre": "pestana:Contabilidad/Conciliación de custodia",
-   "href": "/operacion/custodia",
-   "url": "/operacion/custodia",
-   "ms": 108,
-   "rebote": false,
-   "botones": 4
+   "botones": 2
   },
   {
    "nombre": "pestana:Contabilidad/Presupuesto",
    "href": "/contabilidad/presupuesto",
    "url": "/contabilidad/presupuesto",
-   "ms": 110,
+   "ms": 81,
    "rebote": false,
    "botones": 6
   },
@@ -185,7 +185,7 @@
    "nombre": "pestana:Contabilidad/Compras y cuentas por pagar",
    "href": "/contabilidad/compras",
    "url": "/contabilidad/compras",
-   "ms": 145,
+   "ms": 73,
    "rebote": false,
    "botones": 10
   },
@@ -193,15 +193,15 @@
    "nombre": "pestana:Contabilidad/Cuentas por cobrar",
    "href": "/contabilidad/cobros",
    "url": "/contabilidad/cobros",
-   "ms": 108,
+   "ms": 74,
    "rebote": false,
-   "botones": 8
+   "botones": 7
   },
   {
    "nombre": "menu:Publicidad",
    "href": "/publicidad/anunciantes",
    "url": "/publicidad/anunciantes",
-   "ms": 126,
+   "ms": 71,
    "rebote": false,
    "botones": 4
   },
@@ -209,7 +209,7 @@
    "nombre": "pestana:Publicidad/Campañas",
    "href": "/publicidad/campanas",
    "url": "/publicidad/campanas",
-   "ms": 95,
+   "ms": 65,
    "rebote": false,
    "botones": 10
   },
@@ -217,15 +217,15 @@
    "nombre": "pestana:Publicidad/Moderación",
    "href": "/publicidad/moderacion",
    "url": "/publicidad/moderacion",
-   "ms": 163,
+   "ms": 79,
    "rebote": false,
-   "botones": 5
+   "botones": 3
   },
   {
    "nombre": "pestana:Publicidad/Desempeño",
    "href": "/publicidad/desempeno",
    "url": "/publicidad/desempeno",
-   "ms": 85,
+   "ms": 57,
    "rebote": false,
    "botones": 2
   },
@@ -233,7 +233,7 @@
    "nombre": "pestana:Publicidad/Liquidación",
    "href": "/publicidad/liquidacion",
    "url": "/publicidad/liquidacion",
-   "ms": 106,
+   "ms": 71,
    "rebote": false,
    "botones": 2
   },
@@ -241,7 +241,7 @@
    "nombre": "menu:Sistemas",
    "href": "/sistemas/servicios",
    "url": "/sistemas/servicios",
-   "ms": 81,
+   "ms": 66,
    "rebote": false,
    "botones": 2
   },
@@ -249,7 +249,7 @@
    "nombre": "pestana:Sistemas/Despliegues",
    "href": "/sistemas/despliegues",
    "url": "/sistemas/despliegues",
-   "ms": 85,
+   "ms": 71,
    "rebote": false,
    "botones": 2
   },
@@ -257,7 +257,7 @@
    "nombre": "pestana:Sistemas/Base de datos",
    "href": "/sistemas/base-de-datos",
    "url": "/sistemas/base-de-datos",
-   "ms": 100,
+   "ms": 68,
    "rebote": false,
    "botones": 2
   },
@@ -265,7 +265,7 @@
    "nombre": "pestana:Sistemas/Respaldos",
    "href": "/sistemas/respaldos",
    "url": "/sistemas/respaldos",
-   "ms": 72,
+   "ms": 58,
    "rebote": false,
    "botones": 2
   },
@@ -273,7 +273,7 @@
    "nombre": "pestana:Sistemas/Integraciones",
    "href": "/sistemas/proveedores",
    "url": "/sistemas/proveedores",
-   "ms": 101,
+   "ms": 55,
    "rebote": false,
    "botones": 2
   },
@@ -281,58 +281,58 @@
    "nombre": "subpestana:Sistemas/Integraciones/Outbox y descartados",
    "href": "/sistemas/outbox",
    "url": "/sistemas/outbox",
-   "ms": 122,
+   "ms": 59,
    "rebote": false
   },
   {
    "nombre": "subpestana:Sistemas/Integraciones/Webhooks",
    "href": "/sistemas/webhooks",
    "url": "/sistemas/webhooks",
-   "ms": 87,
+   "ms": 66,
    "rebote": false
   },
   {
    "nombre": "pestana:Sistemas/Personal y accesos",
    "href": "/sistemas/usuarios-internos",
    "url": "/sistemas/usuarios-internos",
-   "ms": 94,
+   "ms": 74,
    "rebote": false,
-   "botones": 6
+   "botones": 5
   },
   {
    "nombre": "subpestana:Sistemas/Personal y accesos/Roles internos",
    "href": "/sistemas/roles-internos",
    "url": "/sistemas/roles-internos",
-   "ms": 99,
+   "ms": 79,
    "rebote": false
   },
   {
    "nombre": "subpestana:Sistemas/Personal y accesos/Permisos internos",
    "href": "/sistemas/permisos-internos",
    "url": "/sistemas/permisos-internos",
-   "ms": 90,
+   "ms": 81,
    "rebote": false
   },
   {
    "nombre": "subpestana:Sistemas/Personal y accesos/Revisión de accesos",
    "href": "/sistemas/accesos",
    "url": "/sistemas/accesos",
-   "ms": 151,
+   "ms": 69,
    "rebote": false
   },
   {
    "nombre": "pestana:Sistemas/Registro del sistema",
    "href": "/sistemas/bitacora",
    "url": "/sistemas/bitacora",
-   "ms": 128,
+   "ms": 82,
    "rebote": false,
-   "botones": 4
+   "botones": 1
   },
   {
    "nombre": "menu:Configuración",
    "href": "/configuracion/tarifario",
    "url": "/configuracion/tarifario",
-   "ms": 137,
+   "ms": 68,
    "rebote": false,
    "botones": 8
   },
@@ -340,7 +340,7 @@
    "nombre": "pestana:Configuración/Mensajería",
    "href": "/configuracion/mensajeria",
    "url": "/configuracion/mensajeria",
-   "ms": 130,
+   "ms": 84,
    "rebote": false,
    "botones": 13
   },
@@ -348,7 +348,7 @@
    "nombre": "pestana:Configuración/Reportes",
    "href": "/configuracion/reportes",
    "url": "/configuracion/reportes",
-   "ms": 114,
+   "ms": 90,
    "rebote": false,
    "botones": 10
   },
@@ -356,15 +356,15 @@
    "nombre": "pestana:Configuración/Catálogos operativos",
    "href": "/sistemas/catalogos-operativos",
    "url": "/sistemas/catalogos-operativos",
-   "ms": 133,
+   "ms": 64,
    "rebote": false,
-   "botones": 4
+   "botones": 1
   },
   {
    "nombre": "pestana:Configuración/Catálogo de datos",
    "href": "/tablero/catalogo-de-datos",
    "url": "/tablero/catalogo-de-datos",
-   "ms": 120,
+   "ms": 80,
    "rebote": false,
    "botones": 9
   }
@@ -384,7 +384,7 @@
   {
    "url": "http://127.0.0.1:4301/operacion/solicitudes-escaladas",
    "tipo": "consola",
-   "texto": "ERROR {mensaje: No encontramos lo que buscabas., codigo: undefined, estado: 404, sinConexion: false, trazaId: 99502b7c6618dcc8b67af942ac75019a}"
+   "texto": "ERROR {mensaje: No encontramos lo que buscabas., codigo: undefined, estado: 404, sinConexion: false, trazaId: 007eb8fb0be26d738865422226bf727b}"
   }
  ]
 }
