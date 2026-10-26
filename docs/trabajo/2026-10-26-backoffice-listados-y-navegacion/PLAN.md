@@ -25,16 +25,16 @@
 ## H0 — Base compartida (la hace el agente principal antes de repartir)
 **CA:** Dado cualquier listado del backoffice, cuando se arma con el kit, entonces tiene buscador multicampo, N selectores, exportar CSV/JSON de lo filtrado, acciones de fila con ícono + nombre y paginación completa.
 **DoD:** `yarn workspace @aportaya/ui test:front` y `yarn workspace @aportaya/backoffice test:front` verdes en lo nuevo · `typecheck` y `lint` del backoffice y ui en 0.
-**Estado:** EN CURSO
+**Estado:** HECHO para `packages/ui` (commit `c9ac3966`): unitarias 40 archivos / 201 pruebas, a11y 2 / 9, `typecheck` 0, `lint` «All files pass» — `evidencia/H0-ui-test.txt`. La adopción en el backoffice la verifica cada franja.
 
 | ID | Microtarea | CA (binario) | DoD | Estado |
 |---|---|---|---|---|
-| H0.S1.M1 | ~45 íconos nuevos en `ap-icono` (editar, eliminar, descargar, csv, json, guardar, aprobar, rechazar, enviar…) | `nombre="editar"` pinta un trazo | spec `icono` | TODO |
-| H0.S1.M2 | `ap-boton` acepta `icono` (aditivo) | con `icono` hay svg antes del texto; sin él, igual que antes | spec `boton` | TODO |
-| H0.S1.M3 | `ap-acciones-de-fila`: Ver/Editar/Eliminar ícono + nombre, Eliminar con confirmación | emite `eliminar` solo tras confirmar | spec | TODO |
-| H0.S1.M4 | `exportar-listado`: CSV (RFC 4180, BOM, `;`-seguro, anti fórmula) y JSON de filas filtradas | comillas/saltos/`=` escapados; vacío → solo encabezado | spec | TODO |
-| H0.S1.M5 | `crearListado()` (señales): búsqueda multicampo sin acentos, N filtros, orden, página, filas por página, acotado | 25 filas · 10 por página → 3 páginas; búsqueda «jose» encuentra «José» | spec | TODO |
-| H0.S1.M6 | `ap-listado`: compone barra de filtros + exportar + tabla + paginación + estados | cargando/vacío/error/lista | spec + a11y | TODO |
+| H0.S1.M1 | ~55 íconos nuevos en `ap-icono` (editar, eliminar, descargar, csv, json, guardar, aprobar, rechazar, enviar…) | `nombre="editar"` pinta un trazo | spec `icono` | HECHO |
+| H0.S1.M2 | `ap-boton` acepta `icono` (aditivo) | con `icono` hay svg antes del texto; sin él, igual que antes | spec `boton` | HECHO |
+| H0.S1.M3 | `ap-acciones-de-fila`: Ver/Editar/Eliminar ícono + nombre, Eliminar con confirmación | emite `eliminar` solo tras confirmar | spec | HECHO |
+| H0.S1.M4 | `exportar-listado`: CSV (RFC 4180, BOM, `;`-seguro, anti fórmula) y JSON de filas filtradas | comillas/saltos/`=` escapados; vacío → solo encabezado | spec | HECHO |
+| H0.S1.M5 | `crearListado()` (señales): búsqueda multicampo sin acentos, N filtros, orden, página, filas por página, acotado | 25 filas · 10 por página → 3 páginas; búsqueda «jose» encuentra «José» | spec | HECHO |
+| H0.S1.M6 | `ap-listado`: compone barra de filtros + exportar + tabla + paginación + estados | cargando/vacío/error/lista | spec + a11y | HECHO |
 
 ## H1 — Navegación y shell (franja A)
 **CA:** Dado un operador con todos los permisos, cuando pulsa cada entrada del menú y cada pestaña, entonces llega a esa sección (sin rebote), en ≤ 300 ms tras la primera carga, y el menú tiene ≤ 7 entradas de primer nivel con ícono.
