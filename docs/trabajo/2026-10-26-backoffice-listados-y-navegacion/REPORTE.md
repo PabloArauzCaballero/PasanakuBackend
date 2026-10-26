@@ -15,7 +15,7 @@
 | H2–H6 (86) | Todas las vistas de Operación, Cumplimiento, Sistemas, Contabilidad, Configuración, Publicidad, Tablero y Admisiones con la anatomía del kit, íconos y los tres niveles (aceptado / límite / error) | ver cada `franjas/*.md` | B 135 + 26 a11y · C 142 + 14 · D 149 + 18 · E 214 + 13 · F 174 + 13; recorridos en navegador 0 FAIL |
 | H7.M1 | Integración de las 6 ramas | `git merge --no-ff` ×6 | sin conflictos |
 | H7.M2 | Regresión unitaria, a11y, typecheck, lint, build | `evidencia/H7-regresion-backoffice.txt` | backoffice 170 / **1218 PASS**, a11y 45 / 92 PASS, tsc 0, lint OK, build 446,66 kB sin advertencias · ui 201 + 9 PASS |
-| H7.M3 | e2e completo del backoffice, sin reintentos | `npx playwright test --retries=0` | `evidencia/H7-e2e.txt` |
+| H7.M3 | e2e completo del backoffice, sin reintentos | `npx playwright test --retries=0` | **166 passed (5.7m)**, 0 fallos, tras los arreglos de la revisión · `evidencia/H7-e2e.txt` |
 | H7.M4 | Sonda de navegación después | `ROL=… node e2e/apoyo/sonda-de-navegacion.mjs` | `evidencia/sonda-despues-*.json` |
 | H7.M5 | Revisión independiente (frontend-reviewer) y corrección de sus hallazgos B1, I1, I2, I3, I6, M1, M2 | commit `dc44f29d` | specs nuevos de ida y vuelta del cursor, CSV con monedas y exportación sin permiso |
 
@@ -45,6 +45,7 @@ backoffice · Test Files 170 passed (170) · Tests 1218 passed (1218)
 backoffice · a11y Test Files 45 passed (45) · Tests 92 passed (92)
 backoffice · build Initial total 446.66 kB (0 advertencias)
 ui         · Test Files 40 passed (40) · Tests 201 passed (201) · a11y 9 passed · tsc 0 · lint OK
+e2e        · 166 passed (5.7m) · --retries=0
 sonda      · {"rol":"oficial","vistas":30,"rebotes":0,"lentas":0,"errores":0}
 sonda      · {"rol":"PLATAFORMA","vistas":43,"rebotes":0,"lentas":0,"errores":0}
 ```

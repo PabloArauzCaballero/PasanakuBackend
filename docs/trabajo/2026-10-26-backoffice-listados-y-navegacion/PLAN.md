@@ -39,7 +39,7 @@
 ## H1 — Navegación y shell (franja A)
 **CA:** Dado un operador con todos los permisos, cuando pulsa cada entrada del menú y cada pestaña, entonces llega a esa sección (sin rebote), en ≤ 300 ms tras la primera carga, y el menú tiene ≤ 7 entradas de primer nivel con ícono.
 **DoD:** sonda de navegación sin rebotes + specs del shell + e2e `shell.e2e.ts` verdes · capturas 3 anchos × 2 temas.
-**Estado:** TODO
+**Estado:** A MEDIAS — 12/13; la precarga (H1.S1.M5) queda A MEDIAS por el peor caso. Detalle en `franjas/a.md`.
 
 | ID | Microtarea | CA | DoD | Estado |
 |---|---|---|---|---|
@@ -53,18 +53,18 @@ Cada franja aplica H0 a **todos** los listados de su sección, con la misma DoD:
 
 | ID | Franja | Sección | Estado |
 |---|---|---|---|
-| H2 | B | `rutas/operacion` | TODO |
-| H3 | C | `rutas/cumplimiento` | TODO |
-| H4 | D | `rutas/sistemas` | TODO |
-| H5 | E | `rutas/contabilidad`, `rutas/configuracion` | TODO |
-| H6 | F | `rutas/publicidad`, `rutas/tablero`, `rutas/admisiones` | TODO |
+| H2 | B | `rutas/operacion` | HECHO (contra el doble) |
+| H3 | C | `rutas/cumplimiento` | HECHO (contra el doble) |
+| H4 | D | `rutas/sistemas` | HECHO (contra el doble) |
+| H5 | E | `rutas/contabilidad`, `rutas/configuracion` | HECHO (contra el doble) |
+| H6 | F | `rutas/publicidad`, `rutas/tablero`, `rutas/admisiones` | HECHO (contra el doble) |
 
 El detalle por microtarea de cada franja lo escribe el subagente en `franjas/<letra>.md` de esta carpeta, con el mismo formato (CA binario + DoD con comando + estado).
 
 ## H7 — Integración y regresión (agente principal)
 **CA:** Con las seis franjas integradas, todo compila, la suite del backoffice y de ui está verde y la sonda recorre todas las vistas sin errores nuevos de consola/red.
 **DoD:** `yarn typecheck`, `yarn lint`, `test:front`, `test:a11y` (backoffice y ui) · sonda «después» · e2e del backoffice · revisión independiente (`frontend-reviewer`).
-**Estado:** TODO
+**Estado:** HECHO — unitarias 1218, a11y 92, e2e 166 sin reintentos, sonda 0 rebotes; hallazgos de la revisión corregidos (`dc44f29d`) salvo los registrados como decisión en `REPORTE.md`.
 
 ## Riesgos y bloqueos previstos
 | Riesgo | Impacto | Mitigación |
