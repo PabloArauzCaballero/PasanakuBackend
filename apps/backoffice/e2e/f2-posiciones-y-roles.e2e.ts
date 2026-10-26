@@ -120,26 +120,32 @@ test.describe('[doble del contrato pedido] saldos y posiciones en el backoffice'
   })
 })
 
-/** Qué ve cada rol del catálogo y a qué NO puede entrar aunque escriba la dirección. */
-const SECCIONES = ['Operación', 'Cumplimiento', 'Admisiones', 'Sistemas', 'Contabilidad', 'Publicidad'] as const
+/**
+ * Qué ve cada rol del catálogo y a qué NO puede entrar aunque escriba la dirección. Desde el recorte del 2026-10-26
+ * (siete entradas) Admisiones es una pestaña de Operación y Ayuda vive en el menú de usuario; y una entrada aparece solo
+ * si el rol puede abrir alguna de sus pestañas (por eso ADMIN_PLATAFORMA ya no ve «Sistemas»: la guardia de rol lo rebotaba).
+ */
+const SECCIONES = ['Operación', 'Cumplimiento', 'Contabilidad', 'Publicidad', 'Sistemas', 'Configuración'] as const
 const ROLES: { rol: string; ve: (typeof SECCIONES)[number][]; prohibida: string; billeteraDeTerceros: boolean }[] = [
   { rol: 'PARTICIPANTE', ve: [], prohibida: '/operacion/estado', billeteraDeTerceros: false },
   { rol: 'SOPORTE', ve: ['Operación'], prohibida: '/admisiones', billeteraDeTerceros: true },
   // F4: el catálogo sembrado le concede RECLAMO_VER y SOLICITUD_INGRESO_VER/RESOLVER, que piden operacion/reclamos y operacion/solicitudes-escaladas:
-  // por eso ve «Operación». Contabilidad sigue ajena (no tiene ningún CONTABILIDAD_ERP_*).
-  { rol: 'ADMIN_PLATAFORMA', ve: ['Operación', 'Cumplimiento', 'Admisiones', 'Sistemas'], prohibida: '/contabilidad', billeteraDeTerceros: false },
+  // por eso ve «Operación». Contabilidad sigue ajena (no tiene ningún CONTABILIDAD_ERP_*). Sistemas exige además el rol PLATAFORMA o SEGURIDAD.
+  { rol: 'ADMIN_PLATAFORMA', ve: ['Operación', 'Cumplimiento', 'Configuración'], prohibida: '/contabilidad', billeteraDeTerceros: false },
   { rol: 'CONTABILIDAD', ve: ['Operación', 'Contabilidad'], prohibida: '/cumplimiento', billeteraDeTerceros: true },
 ]
 
 test.describe('[token de prueba, permisos del catálogo] recorrido por roles sin acciones ajenas', () => {
   for (const { rol, ve, prohibida, billeteraDeTerceros } of ROLES) {
-    test(`${rol}: el menú ofrece solo ${ve.length ? ve.join(', ') : 'Inicio y Ayuda'}; lo ajeno no monta ni escribiendo la dirección`, async ({ page }) => {
+    test(`${rol}: el menú ofrece solo ${ve.length ? ve.join(', ') : 'Inicio'} (y Ayuda en el menú de usuario); lo ajeno no monta ni escribiendo la dirección`, async ({ page }) => {
       const consola: string[] = []
       page.on('pageerror', (e) => consola.push(e.message))
       await iniciarSesionDePrueba(page, permisosDe(rol), rol)
       const menu = page.getByRole('navigation', { name: 'Secciones del backoffice' })
       await expect(menu.getByRole('link', { name: 'Inicio', exact: true })).toBeVisible()
-      await expect(menu.getByRole('link', { name: 'Ayuda' })).toBeVisible()
+      await page.locator('ap-menu-de-usuario .disparador').click()
+      await expect(page.getByRole('menuitem', { name: 'Centro de ayuda' })).toBeVisible()
+      await page.keyboard.press('Escape')
       for (const s of SECCIONES) await expect(menu.getByRole('link', { name: s, exact: true })).toHaveCount(ve.includes(s) ? 1 : 0)
 
       await navegarSinRecargar(page, prohibida)

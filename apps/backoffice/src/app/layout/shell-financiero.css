@@ -20,7 +20,8 @@
 .salir:disabled { cursor: progress; opacity: .7; }
 /* En el cajón del celular, «Salir» va sobre superficie clara. */
 ap-cajon-lateral .salir { width: auto; border: 0; color: var(--text); }
-ap-cajon-lateral ap-menu-lateral { display: block; margin: calc(var(--s4) * -1); padding: var(--s3); background: linear-gradient(160deg, var(--n900) 0%, color-mix(in srgb, var(--g900) 55%, var(--n900)) 55%, var(--g800) 100%); min-height: 100%; }
+/* El margen negativo cubre el relleno del cuerpo del cajón por los cuatro lados: la altura suma los dos rellenos, o queda una franja clara abajo. */
+ap-cajon-lateral ap-menu-lateral { display: block; margin: calc(var(--s4) * -1); padding: var(--s3); background: linear-gradient(160deg, var(--n900) 0%, color-mix(in srgb, var(--g900) 55%, var(--n900)) 55%, var(--g800) 100%); min-height: calc(100% + var(--s4) * 2); }
 
 .cabecera {
   grid-area: cabecera; position: sticky; top: 0; z-index: 10; display: flex; align-items: center; gap: var(--s3); padding: var(--s2) var(--s4);
@@ -29,16 +30,18 @@ ap-cajon-lateral ap-menu-lateral { display: block; margin: calc(var(--s4) * -1);
 .hamburguesa { display: inline-flex; align-items: center; justify-content: center; width: var(--area-tactil); height: var(--area-tactil); margin-left: calc(var(--s2) * -1); border: 0; border-radius: var(--r-md); background: transparent; color: var(--text); cursor: pointer; }
 .hamburguesa:hover { background: var(--surface-2); }
 .marca-chica { display: inline-flex; }
-.vista { flex: 1; min-width: 0; display: grid; gap: calc(var(--s1) / 2); }
+.vista { flex: 1 1 calc(var(--s7) * 5); min-width: 0; display: grid; gap: calc(var(--s1) / 2); }
 .titulo-vista { margin: 0; font: var(--t-cuerpo-fuerte); color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.buscador { flex: 0 1 calc(var(--s7) * 8); }
+.buscador { flex: 0 1 calc(var(--s7) * 5); min-width: calc(var(--s7) * 3); }
 
 main { grid-area: contenido; min-width: 0; display: grid; grid-template-columns: minmax(0, 1fr); align-content: start; gap: var(--s4); padding: var(--s4) var(--s4) calc(var(--s7) + var(--s4)); }
 /* Cada pantalla entra con la misma transición: el elemento que el router crea es el que se anima. */
 main > :not(router-outlet, ap-nota-de-vista, ap-pestanas-de-seccion) { animation: entrar-vista var(--mov-entrada) var(--curva-llega); }
 @keyframes entrar-vista { from { opacity: 0; transform: translateY(var(--s2)); } }
 
-@media (min-width: 64rem) { main { padding: var(--s5) var(--s5) calc(var(--s7) + var(--s5)); } .cabecera { padding: var(--s2) var(--s5); } }
+/* En escritorio el título no cede su lugar al buscador: se achica el buscador, no «Outbox y descart…». */
+@media (min-width: 64rem) { .vista { flex-shrink: 0; } main { padding: var(--s5) var(--s5) calc(var(--s7) + var(--s5)); } .cabecera { padding: var(--s2) var(--s5); } }
 @media (max-width: 48rem) { .buscador { display: none; } }
-@media (max-width: 40rem) { .cabecera { padding: var(--s2) var(--s3); } main { padding: var(--s3) var(--s3) calc(var(--s7) + var(--s3)); } }
+/* En el celular la cabecera muestra solo el título: las migas no entran y el cajón ya dice dónde estás. */
+@media (max-width: 40rem) { .vista ap-migas { display: none; } .cabecera { padding: var(--s2) var(--s3); } main { padding: var(--s3) var(--s3) calc(var(--s7) + var(--s3)); } }
 @media (prefers-reduced-motion: reduce) { main > * { animation: none; } }

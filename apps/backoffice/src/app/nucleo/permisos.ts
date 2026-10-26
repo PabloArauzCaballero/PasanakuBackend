@@ -1,7 +1,9 @@
 import { inject } from '@angular/core'
 import { toObservable } from '@angular/core/rxjs-interop'
-import { CanMatchFn, Router } from '@angular/router'
+import { CanMatchFn, RedirectFunction, Router } from '@angular/router'
 import { filter, map, take } from 'rxjs'
+import { MENU, type Entrada } from './menu'
+import { destinoDe } from './navegacion'
 import { Sesion } from './sesion'
 
 /**
@@ -41,5 +43,16 @@ export function requiereSesion(): CanMatchFn {
         return router.createUrlTree(['/ingreso'], { queryParams: { volverA: rutaPedida } })
       }),
     )
+  }
+}
+
+/**
+ * `redirectTo` de la raíz de una sección: a la primera pestaña que **esta** sesión puede abrir (`menu.ts`), no a una
+ * fija que la guardia de esa pestaña rebotaría al tablero. Sin ninguna, al `respaldo` de siempre.
+ */
+export function aterrizaje(seccion: Entrada['ruta'], respaldo: string): RedirectFunction {
+  return () => {
+    const entrada = MENU.flatMap((g) => g.entradas).find((e) => e.ruta === seccion)
+    return (entrada && destinoDe(entrada, inject(Sesion))) ?? respaldo
   }
 }
