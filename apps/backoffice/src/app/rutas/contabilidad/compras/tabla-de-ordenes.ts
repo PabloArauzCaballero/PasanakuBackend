@@ -26,7 +26,6 @@ const COLUMNAS: Columna<OrdenDeCompra>[] = [
   { clave: 'creadaEn', titulo: 'Creada' },
   { clave: 'monto', titulo: 'Monto', numerica: true },
   { clave: 'estado', titulo: 'Estado' },
-  { clave: 'ordenCompraId', titulo: 'Facturable' },
 ]
 
 const EXPORTABLES = [
@@ -36,6 +35,7 @@ const EXPORTABLES = [
   { clave: 'creadaEn', titulo: 'Creada' },
   { clave: 'monto', titulo: 'Monto', valor: (o: OrdenDeCompra) => textoDeImporte(o.monto) },
   { clave: 'estado', titulo: 'Estado', valor: (o: OrdenDeCompra) => t.estadosOrden[o.estado] },
+  { clave: 'facturable', titulo: 'Facturable', valor: (o: OrdenDeCompra) => (puedeFacturarse(o) ? 'Sí' : motivoParaNoFacturar(o)) },
 ]
 
 /**
@@ -56,22 +56,22 @@ const EXPORTABLES = [
     <ap-tabla-por-cursor [titulo]="t.ordenes" [columnas]="COLUMNAS" [listado]="listado" [identidad]="identidad" [exportables]="EXPORTABLES" nombreDeRegistros="órdenes" [textoVacio]="t.enCeroOrdenes" ayudaDeBusqueda="Busca por número, proveedor o centro de costo en la página cargada: el servidor no busca por texto.">
       <ng-template #celda let-o let-columna="columna">
         @switch (columna.clave) {
-          @case ('centroCostoNombre') { {{ centro(o) }} }
+          @case ('centroCostoNombre') { <span class="texto">{{ centro(o) }}</span> }
           @case ('creadaEn') { <ap-fecha [iso]="o.creadaEn" [conHora]="false" /> }
           @case ('monto') { <ap-monto [monto]="o.monto.monto" [moneda]="o.monto.moneda" etiqueta="Monto de la orden" /> }
           @case ('estado') { <ap-chip-estado [tono]="o.estado === 'CANCELADA' ? 'error' : o.estado === 'BORRADOR' ? 'neutro' : 'ok'">{{ etiqueta(o) }}</ap-chip-estado> }
-          @case ('ordenCompraId') {
-            @if (facturable(o)) { <span class="si">Sí</span> } @else { <span class="motivo">{{ motivo(o) }}</span> }
-          }
-          @default { {{ o[columna.clave] }} }
+          @default { <span class="texto">{{ o[columna.clave] }}</span> }
         }
       </ng-template>
       <ng-template #acciones let-o>
-        @if (aprobable(o)) {
-          <ap-acciones-de-fila [fila]="'Orden ' + o.numero">
-            <button type="button" apAccionDeFila [disabled]="enviando() === o.ordenCompraId" [attr.aria-label]="'Aprobar la orden ' + o.numero" (click)="preguntar(o)"><ap-icono nombre="aprobar" tamano="s4" /><span>Aprobar</span></button>
-          </ap-acciones-de-fila>
-        } @else { <span class="motivo">Sin acciones</span> }
+        <div class="accion">
+          @if (aprobable(o)) {
+            <ap-acciones-de-fila [fila]="'Orden ' + o.numero">
+              <button type="button" apAccionDeFila [disabled]="enviando() === o.ordenCompraId" [attr.aria-label]="'Aprobar la orden ' + o.numero" (click)="preguntar(o)"><ap-icono nombre="aprobar" tamano="s4" /><span>Aprobar</span></button>
+            </ap-acciones-de-fila>
+          }
+          @if (facturable(o)) { <span class="si"><ap-icono nombre="verificado" tamano="s4" />Facturable: Sí</span> } @else { <span class="motivo">{{ motivo(o) }}</span> }
+        </div>
       </ng-template>
     </ap-tabla-por-cursor>
     @if (elegida(); as o) {
@@ -79,9 +79,12 @@ const EXPORTABLES = [
     }
   `,
   styles: `
+    /* Los textos largos se parten en la celda: así la tabla entra en su marco y la columna fija de acciones no tapa un importe. */
+    .texto { display: inline-block; min-width: 8rem; white-space: normal; overflow-wrap: anywhere; }
     :host { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s4); min-width: 0; }
-    .motivo { color: var(--text-2); white-space: normal; font: var(--t-cuerpo-chico); }
-    .si { color: var(--ok-texto); }
+    .accion { display: grid; gap: var(--s1); justify-items: end; }
+    .motivo { display: block; max-width: 13rem; color: var(--text-2); white-space: normal; font: var(--t-cuerpo-chico); text-align: right; }
+    .si { display: inline-flex; align-items: center; gap: var(--s1); color: var(--ok-texto); font: var(--t-cuerpo-chico); }
   `,
 })
 export class TablaDeOrdenes {

@@ -64,8 +64,8 @@ const EXPORTABLES = [
       <ap-tabla-por-cursor [titulo]="t.titulo" [columnas]="COLUMNAS" [listado]="listado" [identidad]="identidad" [exportables]="EXPORTABLES" nombreDeRegistros="cuentas" [textoVacio]="t.enCero" ayudaDeBusqueda="Busca por origen o tercero en la página cargada: el servidor no busca por texto.">
         <ng-template #celda let-c let-columna="columna">
           @switch (columna.clave) {
-            @case ('origenTipo') { {{ origen(c) }} }
-            @case ('terceroRazonSocial') { {{ tercero(c) }} }
+            @case ('origenTipo') { <span class="texto">{{ origen(c) }}</span> }
+            @case ('terceroRazonSocial') { <span class="texto">{{ tercero(c) }}</span> }
             @case ('fechaVencimiento') { <ap-fecha [iso]="c.fechaVencimiento" [conHora]="false" /> }
             @case ('monto') { <ap-monto [monto]="c.monto.monto" [moneda]="c.monto.moneda" etiqueta="Monto de la cuenta" /> }
             @case ('saldoPendiente') { <ap-monto [monto]="c.saldoPendiente.monto" [moneda]="c.saldoPendiente.moneda" [etiqueta]="t.saldoPendiente" /> }
@@ -90,9 +90,11 @@ const EXPORTABLES = [
     }
   `,
   styles: `
+    /* Los textos largos se parten en la celda: así la tabla entra en su marco y la columna fija de acciones no tapa un importe. */
+    .texto { display: inline-block; min-width: 8rem; white-space: normal; overflow-wrap: anywhere; }
     .pantalla { padding: var(--s5); display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s4); min-width: 0; }
     .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr)); gap: var(--s3); }
-    .motivo { display: block; max-width: 22rem; color: var(--text-2); white-space: normal; font: var(--t-cuerpo-chico); }
+    .motivo { display: block; max-width: 13rem; color: var(--text-2); white-space: normal; font: var(--t-cuerpo-chico); }
   `,
 })
 export class PantallaDeCobros {

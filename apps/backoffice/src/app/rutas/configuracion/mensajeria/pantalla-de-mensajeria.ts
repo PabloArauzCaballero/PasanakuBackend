@@ -25,7 +25,7 @@ const PESTANAS: Pestana[] = [
   template: `
     <section class="pantalla">
       <ap-cabecera-de-pagina eyebrow="Configuración · CU-80 y CU-83" [titulo]="t.titulo" [descripcion]="t.proposito" icono="mensaje" />
-      <ap-alerta tono="info" titulo="Solo lectura">{{ comun.soloLectura }} No se muestran destinatarios ni contenido.</ap-alerta>
+      <ap-alerta tono="info">{{ comun.soloLectura }} No se muestran destinatarios ni contenido.</ap-alerta>
       <ap-pestanas etiqueta="Mensajería" [pestanas]="PESTANAS" [(elegida)]="pestana" />
       <div role="tabpanel" [id]="'panel-' + pestana()" [attr.aria-labelledby]="'pestana-' + pestana()">
         @if (pestana() === 'plantillas') { <ap-tabla-de-plantillas /> } @else { <ap-tabla-de-envios /> }

@@ -60,7 +60,7 @@ const EXPORTABLES = [
           @case ('monto') { <ap-monto [monto]="f.monto.monto" [moneda]="f.monto.moneda" etiqueta="Monto de la factura" /> }
           @case ('saldoPendiente') { <ap-monto [monto]="f.saldoPendiente.monto" [moneda]="f.saldoPendiente.moneda" [etiqueta]="t.saldoPendiente" /> }
           @case ('estado') { <ap-chip-estado [tono]="f.estado === 'PAGADA' ? 'ok' : f.estado === 'ANULADA' ? 'error' : 'aviso'">{{ etiqueta(f) }}</ap-chip-estado> }
-          @default { {{ f[columna.clave] }} }
+          @default { <span class="texto">{{ f[columna.clave] }}</span> }
         }
       </ng-template>
       <ng-template #acciones let-f>
@@ -79,9 +79,11 @@ const EXPORTABLES = [
     }
   `,
   styles: `
+    /* Los textos largos se parten en la celda: así la tabla entra en su marco y la columna fija de acciones no tapa un importe. */
+    .texto { display: inline-block; min-width: 8rem; white-space: normal; overflow-wrap: anywhere; }
     :host { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s4); min-width: 0; }
     .vence { display: inline-flex; flex-wrap: wrap; align-items: center; gap: var(--s2); }
-    .motivo { display: block; max-width: 22rem; color: var(--text-2); white-space: normal; font: var(--t-cuerpo-chico); }
+    .motivo { display: block; max-width: 13rem; color: var(--text-2); white-space: normal; font: var(--t-cuerpo-chico); }
   `,
 })
 export class TablaDeFacturas {

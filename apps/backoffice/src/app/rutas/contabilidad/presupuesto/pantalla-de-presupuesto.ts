@@ -73,13 +73,15 @@ const EXPORTABLES = [
             }
             @case ('fechaInicioPeriodo') { {{ periodo(p) }} }
             @case ('estado') { <ap-chip-estado [tono]="p.estado === 'APROBADO' ? 'ok' : 'neutro'">{{ etiqueta(p) }}</ap-chip-estado> }
-            @default { {{ p[columna.clave] }} }
+            @default { <span class="texto">{{ p[columna.clave] }}</span> }
           }
         </ng-template>
       </ap-tabla-por-cursor>
     </section>
   `,
   styles: `
+    /* Los textos largos se parten en la celda: así la tabla entra en su marco y la columna fija de acciones no tapa un importe. */
+    .texto { display: inline-block; min-width: 8rem; white-space: normal; overflow-wrap: anywhere; }
     .pantalla { padding: var(--s5); display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s4); min-width: 0; }
     .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr)); gap: var(--s3); }
     .desviacion { display: inline-flex; flex-wrap: wrap; align-items: center; gap: var(--s2); justify-content: flex-end; }

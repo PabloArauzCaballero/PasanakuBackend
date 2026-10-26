@@ -71,7 +71,7 @@ const EXPORTABLES = [
             @case ('depreciacionAcumulada') { <ap-monto [monto]="a.depreciacionAcumulada.monto" [moneda]="a.depreciacionAcumulada.moneda" [etiqueta]="t.acumulada" /> }
             @case ('valorEnLibros') { <ap-monto [monto]="a.valorEnLibros.monto" [moneda]="a.valorEnLibros.moneda" [etiqueta]="t.valorEnLibros" /> }
             @case ('estado') { <ap-chip-estado [tono]="a.estado === 'ACTIVO' ? 'ok' : 'neutro'">{{ etiqueta(a) }}</ap-chip-estado> }
-            @default { {{ a[columna.clave] }} }
+            @default { <span class="texto">{{ a[columna.clave] }}</span> }
           }
         </ng-template>
         <ng-template #acciones let-a>
@@ -87,9 +87,11 @@ const EXPORTABLES = [
     </section>
   `,
   styles: `
+    /* Los textos largos se parten en la celda: así la tabla entra en su marco y la columna fija de acciones no tapa un importe. */
+    .texto { display: inline-block; min-width: 8rem; white-space: normal; overflow-wrap: anywhere; }
     .pantalla { padding: var(--s5); display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s4); min-width: 0; }
     .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr)); gap: var(--s3); }
-    .motivo { display: block; max-width: 22rem; color: var(--text-2); white-space: normal; font: var(--t-cuerpo-chico); }
+    .motivo { display: block; max-width: 13rem; color: var(--text-2); white-space: normal; font: var(--t-cuerpo-chico); }
   `,
 })
 export class PantallaDeActivos {
