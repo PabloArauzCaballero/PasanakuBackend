@@ -32,14 +32,15 @@ ap-cajon-lateral ap-menu-lateral { display: block; margin: calc(var(--s4) * -1);
 .marca-chica { display: inline-flex; }
 .vista { flex: 1 1 calc(var(--s7) * 5); min-width: 0; display: grid; gap: calc(var(--s1) / 2); }
 .titulo-vista { margin: 0; font: var(--t-cuerpo-fuerte); color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.buscador { flex: 0 1 calc(var(--s7) * 6); }
+.buscador { flex: 0 1 calc(var(--s7) * 5); min-width: calc(var(--s7) * 3); }
 
 main { grid-area: contenido; min-width: 0; display: grid; grid-template-columns: minmax(0, 1fr); align-content: start; gap: var(--s4); padding: var(--s4) var(--s4) calc(var(--s7) + var(--s4)); }
 /* Cada pantalla entra con la misma transición: el elemento que el router crea es el que se anima. */
 main > :not(router-outlet, ap-nota-de-vista, ap-pestanas-de-seccion) { animation: entrar-vista var(--mov-entrada) var(--curva-llega); }
 @keyframes entrar-vista { from { opacity: 0; transform: translateY(var(--s2)); } }
 
-@media (min-width: 64rem) { main { padding: var(--s5) var(--s5) calc(var(--s7) + var(--s5)); } .cabecera { padding: var(--s2) var(--s5); } }
+/* En escritorio el título no cede su lugar al buscador: se achica el buscador, no «Outbox y descart…». */
+@media (min-width: 64rem) { .vista { flex-shrink: 0; } main { padding: var(--s5) var(--s5) calc(var(--s7) + var(--s5)); } .cabecera { padding: var(--s2) var(--s5); } }
 @media (max-width: 48rem) { .buscador { display: none; } }
 /* En el celular la cabecera muestra solo el título: las migas no entran y el cajón ya dice dónde estás. */
 @media (max-width: 40rem) { .vista ap-migas { display: none; } .cabecera { padding: var(--s2) var(--s3); } main { padding: var(--s3) var(--s3) calc(var(--s7) + var(--s3)); } }

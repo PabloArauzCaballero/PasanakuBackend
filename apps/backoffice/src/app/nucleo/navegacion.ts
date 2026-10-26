@@ -42,7 +42,7 @@ export function entradasVisibles(c: Credenciales, menu: readonly Grupo[] = MENU)
 const coincide = (url: string, ruta: string) => url === ruta || url.startsWith(ruta + '/')
 const sinConsulta = (url: string) => url.split(/[?#]/)[0]!
 
-/** La entrada dueña de una URL: la de prefijo o pestaña más larga que la contiene (`/operacion/custodia` es Contabilidad). */
+/** La entrada dueña de una URL: la de prefijo o pestaña más larga que la contiene (`/admisiones` es Operación). */
 export function entradaDe(url: string, menu: readonly Grupo[] = MENU): Entrada | undefined {
   const ruta = sinConsulta(url)
   let mejor: { e: Entrada; largo: number } | undefined

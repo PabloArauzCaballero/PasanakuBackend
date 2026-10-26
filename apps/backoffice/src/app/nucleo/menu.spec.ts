@@ -55,6 +55,8 @@ describe('menú del backoffice', () => {
   it('inválido: una sección cuyas pestañas no puede abrir ninguna no se dibuja, aunque tenga el permiso de sección', () => {
     // `ver:operacion` por TESORERIA, sin AUDITORIA_LEER ni los permisos finos: ninguna pestaña de Operación abre.
     expect(textos(sesion(['TESORERIA']))).toEqual(['Inicio'])
+    // Con AUDITORIA_LEER abre custodia y cierres, que son de Operación: no aparece una «Contabilidad» que no tiene.
+    expect(textos(sesion(['TESORERIA', 'AUDITORIA_LEER']))).toEqual(['Inicio', 'Operación'])
     expect(cumple([{ permisos: [], roles: [] }], sesion(['TESORERIA']))).toBe(false)
     expect(cumple([{ roles: ['PLATAFORMA'] }], sesion([], ''))).toBe(false)
   })
@@ -63,7 +65,7 @@ describe('menú del backoffice', () => {
     expect(entradaDe('/tablero/catalogo-de-datos/comun/pago')?.ruta).toBe('configuracion')
     expect(entradaDe('/tablero/financiero')?.ruta).toBe('tablero')
     expect(entradaDe('/sistemas/outbox?pagina=2')?.ruta).toBe('sistemas')
-    expect(entradaDe('/operacion/custodia')?.ruta).toBe('contabilidad')
+    expect(entradaDe('/operacion/custodia')?.ruta).toBe('operacion')
     expect(entradaDe('/operacion/estado')?.ruta).toBe('operacion')
     expect(entradaDe('/admisiones/9a')?.ruta).toBe('operacion')
     expect(entradaDe('/otra')).toBeUndefined()

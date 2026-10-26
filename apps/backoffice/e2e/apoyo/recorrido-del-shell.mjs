@@ -111,7 +111,7 @@ async function ir(page, ruta) {
     await page.locator('[aria-invalid="true"]').first().waitFor()
     verificar('ingreso · límite · código de 3 dígitos se marca en el campo', (await page.getByText('El código tiene 6 dígitos').count()) > 0)
   })
-  await page.screenshot({ path: `${carpeta}/ingreso-codigo-incompleto-375.png` })
+  await page.screenshot({ path: `${carpeta}/ingreso-codigo-incompleto-1280.png` })
   await intento('ingreso · aceptado', async () => {
     await page.route('**/api/v1/sesiones', (r) => r.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ sesionId: 's', expiraEn: new Date(Date.now() + 3.6e6).toISOString(), requiereFactorAdicional: false, dispositivoConfiable: true, tokenAcceso: token('PLATAFORMA') }) }), { times: 1 })
     await page.getByLabel('Código de verificación').fill('123456')
@@ -138,7 +138,12 @@ async function ir(page, ruta) {
     await page.waitForURL(/\/sistemas\/outbox/)
     verificar('pestañas · grupo Integraciones → subpestaña Outbox', (await page.locator('ap-pestanas-de-seccion a[aria-current="page"]').innerText()).includes('Outbox'))
   })
-  for (const [n, oscuro] of [['claro', false]]) await page.screenshot({ path: `${carpeta}/shell-sistemas-outbox-1280-${n}.png` })
+  await page.screenshot({ path: `${carpeta}/shell-sistemas-outbox-1280-claro.png` })
+  {
+    // Nada de la cabecera queda fuera de la pantalla (el menú de usuario es lo último a la derecha).
+    const derecha = await page.locator('ap-menu-de-usuario').evaluate((e) => e.getBoundingClientRect().right)
+    verificar('1280 · la cabecera entra entera (menú de usuario visible)', derecha <= 1280, `borde derecho=${Math.round(derecha)}px`)
+  }
 
   await intento('buscador', async () => {
     const caja = page.getByRole('combobox', { name: 'Buscar en el backoffice' })

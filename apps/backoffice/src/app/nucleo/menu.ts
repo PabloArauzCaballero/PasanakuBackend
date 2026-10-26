@@ -12,8 +12,8 @@ export type Requisito = { readonly permisos?: readonly string[]; readonly roles?
 export type Credenciales = { puede(permiso: string): boolean; rol(): string | null }
 
 /**
- * Una pestaña de sección. `ruta` es absoluta (una pestaña puede vivir en otra rama de URL: «Cierres diarios» está en
- * `/operacion/...` pero es trabajo de Contabilidad). `requiere` es la **cadena entera** de guardias que la ruta
+ * Una pestaña de sección. `ruta` es absoluta (una pestaña puede vivir en otra rama de URL: «Admisiones a grupos» es
+ * `/admisiones` y vive en Operación; «Catálogo de datos» es `/tablero/...` y vive en Configuración). `requiere` es la **cadena entera** de guardias que la ruta
  * atraviesa (sección y pantalla): todas tienen que cumplirse. Una pestaña con `grupo` no tiene ruta propia: lleva a la
  * primera de su grupo que la sesión puede abrir y despliega las demás como subpestañas.
  */
@@ -84,6 +84,10 @@ export const MENU: readonly Grupo[] = [
           { ruta: '/operacion/desembolsos', texto: 'Desembolsos', icono: 'entrega', requiere: [OPERACION, p('ENTREGA_EJECUTAR', 'AUDITORIA_LEER')] },
           { ruta: '/operacion/reversos', texto: 'Reversos', icono: 'deshacer', requiere: [OPERACION, p('AUDITORIA_LEER')] },
           { ruta: '/operacion/reclamos', texto: 'Reclamos', icono: 'mensaje', requiere: [OPERACION, p('RECLAMO_VER')] },
+          // Custodia y cierre diario siguen en Operación: los abre `ver:operacion` (TESORERIA, CONTABILIDAD). En la entrada
+          // Contabilidad le mostraban esa sección a roles sin `ver:contabilidad` (el administrador de plataforma).
+          { ruta: '/operacion/custodia', texto: 'Conciliación de custodia', icono: 'banco', requiere: [OPERACION, p('AUDITORIA_LEER')] },
+          { ruta: '/operacion/cierres-diarios', texto: 'Cierres diarios', icono: 'reloj', requiere: [OPERACION, p('AUDITORIA_LEER')] },
           { ruta: '/admisiones', texto: 'Admisiones a grupos', icono: 'personaMas', requiere: [p('ver:admisiones')] },
           { ruta: '/operacion/solicitudes-escaladas', texto: 'Solicitudes escaladas', icono: 'bandera', requiere: [OPERACION, p('SOLICITUD_INGRESO_VER')] },
         ],
@@ -117,8 +121,6 @@ export const MENU: readonly Grupo[] = [
         prefijos: ['/contabilidad'],
         pantallas: [
           { ruta: '/contabilidad', texto: 'Períodos contables', icono: 'calendario', requiere: [CONTABILIDAD] },
-          { ruta: '/operacion/cierres-diarios', texto: 'Cierres diarios', icono: 'reloj', requiere: [OPERACION, p('AUDITORIA_LEER')] },
-          { ruta: '/operacion/custodia', texto: 'Conciliación de custodia', icono: 'banco', requiere: [OPERACION, p('AUDITORIA_LEER')] },
           { ruta: '/contabilidad/presupuesto', texto: 'Presupuesto', icono: 'grafico', requiere: [CONTABILIDAD, p('CONTABILIDAD_ERP_PRESUPUESTO')] },
           { ruta: '/contabilidad/compras', texto: 'Compras y cuentas por pagar', icono: 'recibo', requiere: [CONTABILIDAD, p('CONTABILIDAD_ERP_COMPRAS')] },
           { ruta: '/contabilidad/cobros', texto: 'Cuentas por cobrar', icono: 'moneda', requiere: [CONTABILIDAD, p('CONTABILIDAD_ERP_COBRAR')] },
