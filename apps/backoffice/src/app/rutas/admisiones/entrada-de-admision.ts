@@ -46,9 +46,9 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
     </section>
   `,
   styles: `
-    .pantalla { padding: var(--s5); display: grid; gap: var(--s4); min-width: 0; }
-    .tarjeta { display: grid; gap: var(--s4); padding: var(--s5); border: var(--borde-fino) solid var(--border); border-radius: var(--r-lg); background: var(--surface); box-shadow: var(--sombra-1); min-width: 0; }
-    .panel { display: grid; gap: var(--s4); min-width: 0; }
+    .pantalla { padding: var(--s5); display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s4); min-width: 0; }
+    .tarjeta { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s4); padding: var(--s5); border: var(--borde-fino) solid var(--border); border-radius: var(--r-lg); background: var(--surface); box-shadow: var(--sombra-1); min-width: 0; }
+    .panel { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s4); min-width: 0; }
     .fila { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: start; gap: var(--s3); }
     .fila ap-boton { margin-top: var(--s5); }
     .aviso { margin: 0; color: var(--text-2); }

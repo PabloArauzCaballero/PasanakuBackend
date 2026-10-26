@@ -32,11 +32,11 @@ const t = textosCatalogo
         @switch (columna.clave) {
           @case ('tabla') {
             <a class="nombre" [routerLink]="['/tablero/catalogo-de-datos', f.esquema, f.tabla]">{{ f.tabla }}</a>
-            <span class="que-es">{{ f.queEs }}</span>
           }
+          @case ('queEs') { <span class="que-es">{{ f.queEs }}</span> }
           @case ('esquema') {
             <code>{{ f.esquema }}</code>
-            @if (f.infraestructura) { <span class="que-es">{{ t.infraestructura }}</span> }
+            @if (f.infraestructura) { <span class="infra">{{ t.infraestructura }}</span> }
           }
           @case ('estado') { <ap-chip-estado [tono]="f.tonoEstado">{{ f.estado }}</ap-chip-estado> }
           @case ('revision') { <ap-chip-estado [tono]="f.tonoRevision">{{ f.revision }}</ap-chip-estado> }
@@ -52,11 +52,12 @@ const t = textosCatalogo
     :host { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s4); min-width: 0; }
     .barra { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--s3); }
     .resumen { margin: 0; color: var(--text-2); font: var(--t-cuerpo-chico); }
-    .nombre { display: block; color: var(--text); font-family: var(--mono); font-size: .92em; font-weight: 600; text-decoration: none; overflow-wrap: anywhere; }
+    .nombre { display: block; min-width: 14ch; color: var(--text); font-family: var(--mono); font-size: .92em; font-weight: 600; text-decoration: none; overflow-wrap: anywhere; }
     .nombre:hover { color: var(--brand-texto); text-decoration: underline; }
     .nombre:focus-visible { outline: var(--borde-foco) solid var(--g300); outline-offset: var(--borde-desfase); }
-    .que-es { display: block; margin-top: var(--s1); min-width: 24ch; max-width: 40ch; color: var(--text-2); font: var(--t-cuerpo-chico); white-space: normal; }
+    .que-es { display: block; min-width: 20ch; max-width: 40ch; color: var(--text-2); font: var(--t-cuerpo-chico); white-space: normal; }
     code { font-family: var(--mono); font-size: .92em; }
+    .infra { display: block; color: var(--text-2); font: var(--t-cuerpo-chico); }
   `,
 })
 export class ListaDeTablas {
@@ -75,6 +76,7 @@ export class ListaDeTablas {
   // Lo que se viene a mirar va primero (como en el portal de Atlas): la tabla con lo que es, su estado y su revisión.
   protected readonly columnas: Columna<FilaDeTabla>[] = [
     { clave: 'tabla', titulo: t.columnasLista.tabla },
+    { clave: 'queEs', titulo: 'Qué es' },
     { clave: 'esquema', titulo: t.columnasLista.esquema },
     { clave: 'estado', titulo: t.columnasLista.estado },
     { clave: 'revision', titulo: t.columnasLista.revision },

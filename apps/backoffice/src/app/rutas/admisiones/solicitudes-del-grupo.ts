@@ -28,9 +28,10 @@ const ORIGEN = (s: SolicitudDeIngreso) => (s.porEnlace ? t.porEnlace : t.porPost
     <ap-listado [titulo]="t.listaTitulo" [columnas]="columnas" [listado]="listado" [carga]="carga()" [identidad]="porId" [exportables]="exportables" nombreDeRegistros="solicitudes" [ayudaDeBusqueda]="t.listaAyuda" [textoVacio]="t.listaVacia" [explicacionVacio]="t.listaVaciaExplicacion" (reintentar)="solicitudes.reload()">
       <ng-template #celda let-s let-columna="columna">
         @switch (columna.clave) {
-          @case ('nombreVisible') { <span class="quien"><ap-icono nombre="persona" tamano="s4" />{{ s.nombreVisible || t.sinNombre }}</span> @if (s.mensaje) { <span class="mensaje">{{ s.mensaje }}</span> } }
+          @case ('nombreVisible') { <span class="quien"><ap-icono nombre="persona" tamano="s4" />{{ s.nombreVisible || t.sinNombre }}</span> }
+          @case ('mensaje') { <span class="mensaje">{{ s.mensaje || '—' }}</span> }
           @case ('porEnlace') { <ap-chip-estado [tono]="s.porEnlace ? 'info' : 'neutro'">{{ origen(s) }}</ap-chip-estado> }
-          @case ('fechaSolicitud') { <ap-fecha [iso]="s.fechaSolicitud" /> }
+          @case ('fechaSolicitud') { <ap-fecha [iso]="s.fechaSolicitud" [conHora]="false" /> }
           @case ('puntaje') { {{ s.puntaje ?? '—' }} }
           @default { {{ s[columna.clave] }} }
         }
@@ -43,8 +44,10 @@ const ORIGEN = (s: SolicitudDeIngreso) => (s.porEnlace ? t.porEnlace : t.porPost
     </ap-listado>
   `,
   styles: `
+    /* El host de ap-listado es una grilla de columna automática: sin esto, una tabla ancha lo ensancha (pedido al dueño del kit). */
+    ap-listado { grid-template-columns: minmax(0, 1fr); }
     .quien { display: inline-flex; align-items: center; gap: var(--s2); font-weight: 600; color: var(--text); }
-    .mensaje { display: block; margin-top: var(--s1); max-width: 40ch; color: var(--text-2); font: var(--t-cuerpo-chico); white-space: normal; overflow-wrap: anywhere; }
+    .mensaje { display: block; max-width: 40ch; color: var(--text-2); font: var(--t-cuerpo-chico); white-space: normal; overflow-wrap: anywhere; }
   `,
 })
 export class SolicitudesDelGrupo {
@@ -71,6 +74,7 @@ export class SolicitudesDelGrupo {
   })
   protected readonly columnas: Columna<SolicitudDeIngreso>[] = [
     { clave: 'nombreVisible', titulo: 'Quién la pide', ordenable: true },
+    { clave: 'mensaje', titulo: 'Mensaje' },
     { clave: 'cuposSolicitados', titulo: 'Cupos', numerica: true, ordenable: true },
     { clave: 'puntaje', titulo: 'Puntaje', ordenable: true },
     { clave: 'porEnlace', titulo: 'Origen', ordenable: true },

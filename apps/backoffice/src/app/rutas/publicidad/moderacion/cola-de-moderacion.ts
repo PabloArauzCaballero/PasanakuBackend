@@ -42,7 +42,8 @@ const RECURSOS: Record<PiezaCreativa['tipoRecurso'], string> = { IMAGEN: 'Imagen
         <ap-barra-de-lotes accionesDeListado [hayMas]="lotes.hayMas()" [cargando]="lotes.cargandoMas()" [error]="lotes.errorDeMas()" (cargarMas)="lotes.cargarMas()" />
         <ng-template #celda let-p let-columna="columna">
           @switch (columna.clave) {
-            @case ('titulo') { <span class="titulo">{{ p.titulo }}</span> @if (p.texto) { <span class="texto">{{ p.texto }}</span> } }
+            @case ('titulo') { <span class="titulo">{{ p.titulo }}</span> }
+            @case ('texto') { <span class="texto">{{ p.texto || '—' }}</span> }
             @case ('tipoRecurso') { <span class="recurso"><ap-icono [nombre]="p.tipoRecurso === 'VIDEO' ? 'reproducir' : 'imagen'" tamano="s4" />{{ textoDeRecurso(p) }}</span> }
             @case ('estadoModeracion') { <ap-chip-estado [tono]="tonoDe(p)">{{ textoDeEstado(p) }}</ap-chip-estado> }
             @case ('creadaEn') { <ap-fecha [iso]="p.creadaEn" [conHora]="false" /> }
@@ -63,10 +64,12 @@ const RECURSOS: Record<PiezaCreativa['tipoRecurso'], string> = { IMAGEN: 'Imagen
     <ap-dialogo-de-moderacion (resuelta)="alResolver($event.pieza, $event.decision)" />
   `,
   styles: `
-    .pantalla { padding: var(--s5); display: grid; gap: var(--s4); min-width: 0; }
+    /* El host de ap-listado es una grilla de columna automática: sin esto, una tabla ancha lo ensancha (pedido al dueño del kit). */
+    ap-listado { grid-template-columns: minmax(0, 1fr); }
+    .pantalla { padding: var(--s5); display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s4); min-width: 0; }
     .cifras { display: grid; gap: var(--s3); grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr)); }
-    .titulo { display: block; font-weight: 600; color: var(--text); overflow-wrap: anywhere; }
-    .texto { display: block; margin-top: var(--s1); color: var(--text-2); font: var(--t-cuerpo-chico); max-width: 40ch; white-space: normal; }
+    .titulo { display: block; min-width: 14ch; max-width: 34ch; font-weight: 600; color: var(--text); white-space: normal; overflow-wrap: anywhere; }
+    .texto { display: block; min-width: 18ch; max-width: 40ch; color: var(--text-2); font: var(--t-cuerpo-chico); white-space: normal; overflow-wrap: anywhere; }
     .recurso { display: inline-flex; align-items: center; gap: var(--s1); }
     .peligro { color: var(--err-texto); }
   `,
@@ -104,6 +107,7 @@ export class ColaDeModeracion {
   })
   protected readonly columnas: Columna<PiezaCreativa>[] = [
     { clave: 'titulo', titulo: 'Título', ordenable: true },
+    { clave: 'texto', titulo: 'Texto' },
     { clave: 'tipoRecurso', titulo: 'Recurso', ordenable: true },
     { clave: 'estadoModeracion', titulo: 'Estado', ordenable: true },
     { clave: 'creadaEn', titulo: 'Subida', ordenable: true },

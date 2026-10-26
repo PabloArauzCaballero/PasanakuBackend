@@ -25,7 +25,7 @@ export const textosAdmisiones = {
   listaVacia: 'Este grupo no tiene solicitudes pendientes.',
   listaVaciaExplicacion: 'Las resueltas quedan en el historial de cada solicitud.',
   sinNombre: 'Sin nombre visible',
-  porEnlace: 'Con el enlace del grupo',
+  porEnlace: 'Por enlace',
   porPostulacion: 'Postulación',
   resolverFila: 'Resolver',
   volver: 'Volver a las solicitudes',

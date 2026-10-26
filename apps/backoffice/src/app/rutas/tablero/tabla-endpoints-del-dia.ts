@@ -41,6 +41,8 @@ import { textosTablero } from './textos'
     </section>
   `,
   styles: `
+    /* El host de ap-listado es una grilla de columna automática: sin esto, una tabla ancha lo ensancha (pedido al dueño del kit). */
+    ap-listado { grid-template-columns: minmax(0, 1fr); }
     .bloque { display: grid; gap: var(--s3); min-width: 0; }
     .bloque > * { min-width: 0; }
     /* Una ruta plantilla no tiene espacios: sin corte, en móvil ensancha la tarjeta (prueba visual H9). */

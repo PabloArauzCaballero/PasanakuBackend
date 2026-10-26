@@ -53,7 +53,7 @@ import type { SalidaLiquidacion } from 'clientes/angular/publicidad/model/salida
     </ap-dialogo>
   `,
   styles: `
-    .pantalla { padding: var(--s5); display: grid; gap: var(--s4); min-width: 0; }
+    .pantalla { padding: var(--s5); display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s4); min-width: 0; }
     .resultado { display: grid; gap: var(--s3); max-width: 32rem; }
     ap-boton { justify-self: start; }
     .enlace { display: inline-flex; align-items: center; gap: var(--s1); min-height: var(--area-tactil); color: var(--brand-texto); font-weight: 600; justify-self: start; }
