@@ -22,11 +22,13 @@ export type Moneda = 'BOB' | 'USD'
 export type Importe = { monto: string; moneda: Moneda }
 
 /**
- * El importe para un CSV/JSON: la cadena decimal del contrato tal cual, con su moneda («1240.50 BOB»). Nunca pasa por
- * `Number`: lo que se exporta es exactamente lo que respondió el servidor (regla 91.1.1).
+ * El importe para un CSV/JSON: la moneda y la cadena decimal del contrato tal cual («BOB 1240.50», «BOB -359.90»). Nunca
+ * pasa por `Number`: lo que se exporta es exactamente lo que respondió el servidor (regla 91.1.1). La moneda va
+ * **primero** a propósito: un texto que empieza con `-` dispara la defensa contra fórmulas del CSV, que le antepone `'`
+ * y dejaría una desviación negativa como «'-359.90 BOB».
  */
 export function textoDeImporte(importe: Importe | null | undefined): string {
-  return importe ? `${importe.monto} ${importe.moneda}` : ''
+  return importe ? `${importe.moneda} ${importe.monto}` : ''
 }
 
 /** El contexto HTTP que exige toda operación con efecto de `erp.yaml` (invariante 7). */

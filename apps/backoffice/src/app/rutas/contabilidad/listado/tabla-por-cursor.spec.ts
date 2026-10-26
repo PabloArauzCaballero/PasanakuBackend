@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it } from 'vitest'
 import { aCsv } from '@aportaya/ui/exportar-listado/exportar'
 import type { Columna } from '@aportaya/ui/tabla-de-datos/tabla-de-datos'
 import { cargadorPorCursor, type PedidoPorCursor } from '../../../nucleo/tabla/cursor'
+import { textoDeImporte } from '../dominio/contrato-erp'
 import { crearListadoPorCursor } from './listado-por-cursor'
 import { TablaPorCursor } from './tabla-por-cursor'
 
@@ -28,7 +29,7 @@ const servidor = { datos: FILAS, pedidos: [] as PedidoPorCursor<number>[], falla
 })
 class Anfitrion {
   readonly columnas: Columna<Fila>[] = [{ clave: 'id', titulo: 'Código' }, { clave: 'nombre', titulo: 'Nombre' }, { clave: 'estado', titulo: 'Estado' }]
-  readonly exportables = [{ clave: 'id', titulo: 'Código' }, { clave: 'monto', titulo: 'Monto', valor: (f: Fila) => `${f.monto} BOB` }]
+  readonly exportables = [{ clave: 'id', titulo: 'Código' }, { clave: 'monto', titulo: 'Monto', valor: (f: Fila) => textoDeImporte({ monto: f.monto, moneda: 'BOB' }) }]
   readonly id = (f: Fila) => f.id
   readonly listado = crearListadoPorCursor<Fila>({
     cargador: cargadorPorCursor<Fila, number>(async (pedido) => {
@@ -139,7 +140,11 @@ describe('ap-tabla-por-cursor · listado paginado en el servidor', () => {
   it('aceptado · CSV de lo filtrado con el importe como texto exacto y su moneda', () => {
     f.componentInstance.listado.buscar('F-2')
     const csv = aCsv(f.componentInstance.exportables, f.componentInstance.listado.visibles())
-    expect(csv.split('\r\n').slice(0, 2)).toEqual(['﻿Código,Monto', 'F-2,2.50 BOB'])
+    expect(csv.split('\r\n').slice(0, 2)).toEqual(['﻿Código,Monto', 'F-2,BOB 2.50'])
+  })
+
+  it('límite · un importe negativo sale exacto en el CSV, sin el apóstrofo de la defensa contra fórmulas', () => {
+    expect(aCsv([{ clave: 'd', titulo: 'Desviación', valor: () => textoDeImporte({ monto: '-359.90', moneda: 'BOB' }) }], [{}])).toContain('\r\nBOB -359.90\r\n')
   })
 
   it('límite · búsqueda sin coincidencias ofrece «Quitar filtros» y lo vuelve a mostrar todo', async () => {
