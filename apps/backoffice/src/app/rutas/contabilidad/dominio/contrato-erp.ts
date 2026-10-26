@@ -21,6 +21,14 @@ export type Moneda = 'BOB' | 'USD'
 /** Importe como CADENA decimal, igual que el esquema `Monto` de `erp.yaml`. Nunca un number. */
 export type Importe = { monto: string; moneda: Moneda }
 
+/**
+ * El importe para un CSV/JSON: la cadena decimal del contrato tal cual, con su moneda («1240.50 BOB»). Nunca pasa por
+ * `Number`: lo que se exporta es exactamente lo que respondió el servidor (regla 91.1.1).
+ */
+export function textoDeImporte(importe: Importe | null | undefined): string {
+  return importe ? `${importe.monto} ${importe.moneda}` : ''
+}
+
 /** El contexto HTTP que exige toda operación con efecto de `erp.yaml` (invariante 7). */
 export function contextoConClave(): HttpContext {
   return contextoIdempotente()
