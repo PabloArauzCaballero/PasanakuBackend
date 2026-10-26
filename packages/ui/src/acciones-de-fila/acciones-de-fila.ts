@@ -7,7 +7,7 @@ import { Icono } from '../icono/icono'
  * Eliminar, cada una solo si quien aloja la tabla la pide — y solo debe pedirla si el contrato tiene la
  * operación detrás (un botón sin endpoint es un botón muerto). Eliminar nunca se ofrece sobre registros
  * append-only (asientos, bitácoras, movimientos: regla 91.1.3). Eliminar pregunta antes y recién después
- * emite. Las acciones de dominio (Revisar, Aprobar…) se proyectan al lado con el mismo aspecto
+ * emite. Las acciones de dominio (Revisar, Aprobar…) se proyectan entre Ver y Editar con el mismo aspecto
  * (`<button apAccionDeFila>` o cualquier contenido).
  *
  * El nombre accesible de cada botón dice **qué fila** («Editar Juana Pérez»): en una tabla hay N «Editar».
@@ -18,10 +18,10 @@ import { Icono } from '../icono/icono'
   imports: [DialogoDeConfirmacion, Icono],
   host: { role: 'group', '[attr.aria-label]': '"Acciones de " + fila()' },
   template: `
-    <ng-content />
     @if (ver()) {
       <button type="button" class="accion" [attr.aria-label]="textoVer() + ' ' + fila()" (click)="verPulsado.emit()"><ap-icono nombre="ojo" tamano="s4" /><span>{{ textoVer() }}</span></button>
     }
+    <ng-content />
     @if (editar()) {
       <button type="button" class="accion" [disabled]="ocupada()" [attr.aria-label]="textoEditar() + ' ' + fila()" (click)="editarPulsado.emit()"><ap-icono nombre="editar" tamano="s4" /><span>{{ textoEditar() }}</span></button>
     }
