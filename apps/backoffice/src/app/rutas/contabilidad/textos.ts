@@ -15,7 +15,7 @@ export const textosContabilidad = {
     proposito: 'Fijar el mes: una vez cerrado, nadie puede asentar hacia atrás y los libros dejan de moverse solos.',
     cargando: 'Cargando los períodos del ejercicio',
     enCero: 'Este ejercicio todavía no tiene períodos.',
-    asentar: 'Asentar en este período',
+    admiteAsientos: 'Admite asientos: está abierto.',
     cerrar: 'Cerrar el período',
     cerrarIrreversible: 'El cierre es irreversible: no existe reabrir un período.',
     confirmarCierre: (nombre: string) => `Vas a cerrar ${nombre}. El cierre es irreversible y ningún asiento podrá registrarse en ese mes después.`,
