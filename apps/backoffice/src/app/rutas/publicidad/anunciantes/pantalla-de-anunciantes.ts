@@ -1,188 +1,136 @@
-import { ChangeDetectionStrategy, Component, PendingTasks, effect, inject, signal, untracked } from '@angular/core'
+import { ChangeDetectionStrategy, Component, computed, inject, signal, viewChild } from '@angular/core'
+import { Router } from '@angular/router'
+import { AccionesDeFila } from '@aportaya/ui/acciones-de-fila/acciones-de-fila'
+import { Alerta } from '@aportaya/ui/alerta/alerta'
 import { Boton } from '@aportaya/ui/boton/boton'
 import { CabeceraDePagina } from '@aportaya/ui/cabecera-de-pagina/cabecera-de-pagina'
-import { Dialogo } from '@aportaya/ui/dialogo/dialogo'
-import { Campo } from '@aportaya/ui/campo/campo'
-import { CampoMonto, aCadenaDelContrato } from '@aportaya/ui/campo-monto/campo-monto'
 import { ChipEstado } from '@aportaya/ui/chip-estado/chip-estado'
+import { Icono } from '@aportaya/ui/icono/icono'
+import { crearListado } from '@aportaya/ui/listado/crear-listado'
+import { ListadoDeDatos } from '@aportaya/ui/listado/listado'
 import { Monto } from '@aportaya/ui/monto/monto'
-import { Paginacion } from '@aportaya/ui/paginacion/paginacion'
-import { TablaDeDatos, type Columna, type EstadoColeccion, type Orden } from '@aportaya/ui/tabla-de-datos/tabla-de-datos'
+import { TarjetaKPI } from '@aportaya/ui/tarjeta-kpi/tarjeta-kpi'
+import type { Columna } from '@aportaya/ui/tabla-de-datos/tabla-de-datos'
+import type { ColumnaExportable } from '@aportaya/ui/exportar-listado/exportar'
 import { ExplicadorDeVista } from '../../../nucleo/explicador-de-vista'
 import { Sesion } from '../../../nucleo/sesion'
-import type { ErrorTraducido } from '../../../nucleo/errores'
-import { accionesDeAnunciante, cargadorDeAnunciantes, type Anunciante } from '../dominio/cu110-anunciantes'
+import { BarraDeLotes } from '../barra-de-lotes'
+import { lotesDeAnunciantes, type Anunciante } from '../dominio/cu110-anunciantes'
+import { filtroEnElServidor } from '../dominio/lotes-por-cursor'
 import { textosPublicidad } from '../textos'
-import { EntradaAnuncianteMonedaEnum, EntradaAnuncianteTipoEnum } from 'clientes/angular/publicidad/model/entradaAnunciante'
+import { FormularioDeAnunciante } from './formulario-de-anunciante'
 
-const COLUMNAS: Columna<Anunciante>[] = [
-  { clave: 'razonSocialFacturacion', titulo: 'Razón social' },
-  { clave: 'tipo', titulo: 'Tipo' },
-  { clave: 'estado', titulo: 'Estado' },
-  { clave: 'limiteGastoMensual', titulo: 'Límite mensual', numerica: true },
-]
-const TAMANO_DE_PAGINA = 50
+const t = textosPublicidad.anunciantes
+const TIPOS: Record<Anunciante['tipo'], string> = { ORGANIZADOR: 'Organizador', SOCIO_COMERCIAL: 'Socio comercial' }
+const limite = (a: Anunciante) => (a.limiteGastoMensual ? `${a.limiteGastoMensual.monto} ${a.limiteGastoMensual.moneda}` : t.sinLimite)
 
 /**
- * CU-110 · Anunciantes. Migrada al organismo canónico `@aportaya/ui/tabla-de-datos`
- * (PR7 §H4.S1.M2) — antes usaba `TablaDeDatosVirtualizada`.
+ * CU-110 · Anunciantes, con la anatomía única del listado (2026-10-26): cifras de lo cargado, buscador por razón
+ * social, tipo, estado y cuenta, filtros de estado (en el servidor), tipo y moneda (en lo cargado), CSV/JSON de lo
+ * filtrado y paginación. El contrato **no tiene** editar ni eliminar anunciante: la fila ofrece lo que sí existe
+ * detrás —el desempeño y la liquidación de su cuenta publicitaria (CU-113/114)—.
  */
 @Component({
   selector: 'ap-pantalla-de-anunciantes',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [Boton, CabeceraDePagina, Dialogo, Campo, CampoMonto, ChipEstado, Monto, TablaDeDatos, Paginacion],
+  imports: [AccionesDeFila, Alerta, BarraDeLotes, Boton, CabeceraDePagina, ChipEstado, FormularioDeAnunciante, Icono, ListadoDeDatos, Monto, TarjetaKPI],
   template: `
     <section class="pantalla">
-      <ap-cabecera-de-pagina [titulo]="t.titulo" [descripcion]="t.proposito" icono="persona">
+      <ap-cabecera-de-pagina eyebrow="Publicidad" [titulo]="t.titulo" [descripcion]="t.proposito" icono="megafono">
         @if (puedeGestionar()) {
-          <ap-boton acciones (pulsado)="abrir()">{{ t.nuevoAnunciante }}</ap-boton>
+          <ap-boton acciones icono="personaMas" variante="primario" (pulsado)="formulario().abrir()">{{ t.nuevoAnunciante }}</ap-boton>
         }
       </ap-cabecera-de-pagina>
-      <ap-tabla-de-datos
-        [titulo]="t.titulo"
-        [columnas]="COLUMNAS"
-        [estado]="estado()"
-        [(orden)]="orden"
-        [identidad]="identidad"
-        textoVacio="Todavía no hay anunciantes."
-      >
+      <div class="cifras">
+        <ap-tarjeta-kpi etiqueta="Cargados" [valor]="'' + lotes.filas().length" icono="lista" [pista]="lotes.hayMas() ? 'Hay más en el servidor' : 'Todos los del filtro'" />
+        <ap-tarjeta-kpi etiqueta="Activos" [valor]="'' + cuenta('ACTIVO')" icono="verificado" tono="ok" pista="En lo cargado" />
+        <ap-tarjeta-kpi etiqueta="Suspendidos" [valor]="'' + cuenta('SUSPENDIDO')" icono="pausa" [tono]="cuenta('SUSPENDIDO') ? 'aviso' : 'neutro'" pista="En lo cargado" />
+        <ap-tarjeta-kpi etiqueta="Dados de baja" [valor]="'' + cuenta('DADO_DE_BAJA')" icono="prohibido" pista="En lo cargado" />
+      </div>
+      @if (creado()) { <ap-alerta tono="ok">{{ t.creado }}</ap-alerta> }
+      <ap-listado [titulo]="t.titulo" [columnas]="columnas" [listado]="listado" [carga]="lotes.carga()" [identidad]="porId" [exportables]="exportables" nombreDeRegistros="anunciantes" [ayudaDeBusqueda]="t.ayudaBusqueda" [textoVacio]="t.sinAnunciantes" [explicacionVacio]="t.explicacionVacio" (reintentar)="lotes.recargar()">
+        <ap-barra-de-lotes accionesDeListado [hayMas]="lotes.hayMas()" [cargando]="lotes.cargandoMas()" [error]="lotes.errorDeMas()" (cargarMas)="lotes.cargarMas()" />
         <ng-template #celda let-a let-columna="columna">
           @switch (columna.clave) {
-            @case ('tipo') {
-              {{ a.tipo === 'ORGANIZADOR' ? 'Organizador' : 'Socio comercial' }}
-            }
-            @case ('estado') {
-              <ap-chip-estado [tono]="a.estado === 'ACTIVO' ? 'ok' : a.estado === 'DADO_DE_BAJA' ? 'error' : 'neutro'">{{ textoDeEstado(a) }}</ap-chip-estado>
-            }
+            @case ('razonSocialFacturacion') { <span class="nombre"><ap-icono [nombre]="a.tipo === 'ORGANIZADOR' ? 'grupo' : 'banco'" tamano="s4" />{{ a.razonSocialFacturacion }}</span> }
+            @case ('tipo') { {{ textoDeTipo(a) }} }
+            @case ('estado') { <ap-chip-estado [tono]="a.estado === 'ACTIVO' ? 'ok' : a.estado === 'DADO_DE_BAJA' ? 'error' : 'aviso'">{{ textoDeEstado(a) }}</ap-chip-estado> }
             @case ('limiteGastoMensual') {
-              @if (a.limiteGastoMensual) {
-                <ap-monto [monto]="a.limiteGastoMensual.monto" [moneda]="a.limiteGastoMensual.moneda" [etiqueta]="t.columnaLimite" />
-              } @else {
-                {{ t.sinLimite }}
-              }
+              @if (a.limiteGastoMensual) { <ap-monto [monto]="a.limiteGastoMensual.monto" [moneda]="a.limiteGastoMensual.moneda" [etiqueta]="t.columnaLimite" /> } @else { {{ t.sinLimite }} }
             }
-            @default {
-              {{ a[columna.clave] }}
-            }
+            @default { {{ a[columna.clave] }} }
           }
         </ng-template>
-      </ap-tabla-de-datos>
-      <ap-paginacion [(pagina)]="pagina" [totalDeFilas]="total()" [porPagina]="tamanoDePagina" />
+        <ng-template #acciones let-a>
+          @if (a.cuentaPublicitariaId) {
+            <ap-acciones-de-fila [fila]="a.razonSocialFacturacion">
+              <button type="button" apAccionDeFila [attr.aria-label]="'Desempeño de ' + a.razonSocialFacturacion" (click)="irA('desempeno', a)"><ap-icono nombre="grafico" tamano="s4" /><span>Desempeño</span></button>
+              <button type="button" apAccionDeFila [attr.aria-label]="'Liquidar ' + a.razonSocialFacturacion" (click)="irA('liquidacion', a)"><ap-icono nombre="recibo" tamano="s4" /><span>Liquidar</span></button>
+            </ap-acciones-de-fila>
+          } @else { <span class="sin-cuenta">{{ t.sinCuenta }}</span> }
+        </ng-template>
+      </ap-listado>
     </section>
-
-    <ap-dialogo [titulo]="t.nuevoAnunciante" [textoDeConfirmar]="t.guardar" [abierto]="dialogoAbierto()" (abiertoChange)="dialogoAbierto.set($event)" (confirmar)="guardar()" (cancelar)="cerrar()" [cargando]="guardando()">
-      <div class="formulario">
-        <ap-campo [etiqueta]="t.razonSocial" [(valor)]="razonSocial" [error]="intentoGuardar() && !razonSocial() ? 'Obligatorio' : undefined" />
-        <ap-campo-monto [etiqueta]="t.limiteGasto" [(valor)]="limite" />
-      </div>
-    </ap-dialogo>
+    <ap-formulario-de-anunciante (creado)="alCrear()" />
   `,
   styles: `
-    .pantalla { padding: var(--s5); max-width: 68rem; display: grid; gap: var(--s4); }
-    .formulario { display: grid; gap: var(--s3); }
+    .pantalla { padding: var(--s5); display: grid; gap: var(--s4); min-width: 0; }
+    .cifras { display: grid; gap: var(--s3); grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr)); }
+    .nombre { display: inline-flex; align-items: center; gap: var(--s2); font-weight: 600; color: var(--text); overflow-wrap: anywhere; }
+    .sin-cuenta { color: var(--text-3); font: var(--t-cuerpo-chico); }
   `,
 })
 export class PantallaDeAnunciantes {
   private readonly sesion = inject(Sesion)
-  private readonly acciones = accionesDeAnunciante()
-  private readonly cargador = cargadorDeAnunciantes()
-  private readonly tareasPendientes = inject(PendingTasks)
-  protected readonly t = textosPublicidad.anunciantes
-  protected readonly COLUMNAS = COLUMNAS
-  protected readonly tamanoDePagina = TAMANO_DE_PAGINA
-  protected readonly identidad = (a: Anunciante) => a.anuncianteId
+  private readonly router = inject(Router)
+  protected readonly t = t
+  protected readonly textoDeTipo = (a: Anunciante) => TIPOS[a.tipo]
+  protected readonly textoDeEstado = (a: Anunciante) => t.estados[a.estado]
+  protected readonly formulario = viewChild.required(FormularioDeAnunciante)
+  protected readonly lotes = lotesDeAnunciantes()
+  protected readonly creado = signal(false)
   protected readonly puedeGestionar = () => this.sesion.puede('PUBLICIDAD_ANUNCIANTES')
-  protected readonly textoDeEstado = (a: Anunciante) => this.t.estados[a.estado]
+  protected readonly porId = (a: Anunciante) => a.anuncianteId
+  protected readonly cuenta = (estado: Anunciante['estado']) => this.porEstado()[estado] ?? 0
+  private readonly porEstado = computed(() => this.lotes.filas().reduce<Record<string, number>>((n, a) => ({ ...n, [a.estado]: (n[a.estado] ?? 0) + 1 }), {}))
 
-  protected readonly pagina = signal(1)
-  protected readonly orden = signal<Orden | null>(null)
-  protected readonly total = signal(0)
-  protected readonly estado = signal<EstadoColeccion<Anunciante>>({ tipo: 'cargando' })
-  private contadorDePeticion = 0
-
-  protected readonly dialogoAbierto = signal(false)
-  protected readonly guardando = signal(false)
-  protected readonly intentoGuardar = signal(false)
-  protected readonly razonSocial = signal('')
-  protected readonly limite = signal('')
+  protected readonly listado = crearListado<Anunciante>({
+    filas: this.lotes.filas,
+    camposDeBusqueda: ['razonSocialFacturacion', (a) => TIPOS[a.tipo], (a) => t.estados[a.estado], 'cuentaPublicitariaId'],
+    filtros: [
+      { nombre: 'estado', etiqueta: 'Estado', valor: (a) => a.estado, opciones: (['ACTIVO', 'SUSPENDIDO', 'DADO_DE_BAJA'] as const).map((v) => ({ valor: v, texto: t.estados[v] })), ayuda: 'Se consulta al servidor.' },
+      { nombre: 'tipo', etiqueta: 'Tipo', valor: (a) => a.tipo, texto: (v) => TIPOS[v as Anunciante['tipo']] ?? v },
+      { nombre: 'moneda', etiqueta: 'Moneda del límite', valor: (a) => a.limiteGastoMensual?.moneda ?? 'SIN_LIMITE', texto: (v) => (v === 'SIN_LIMITE' ? t.sinLimite : v) },
+    ],
+    valorParaOrden: (a, clave) => (clave === 'limiteGastoMensual' ? (a.limiteGastoMensual?.monto ?? '') : (a as Record<string, unknown>)[clave]),
+  })
+  protected readonly columnas: Columna<Anunciante>[] = [
+    { clave: 'razonSocialFacturacion', titulo: 'Razón social', ordenable: true },
+    { clave: 'tipo', titulo: 'Tipo', ordenable: true },
+    { clave: 'estado', titulo: 'Estado', ordenable: true },
+    { clave: 'limiteGastoMensual', titulo: 'Límite mensual', numerica: true, ordenable: true },
+  ]
+  protected readonly exportables: ColumnaExportable<Anunciante>[] = [
+    { clave: 'anuncianteId', titulo: 'Identificador' },
+    { clave: 'razonSocialFacturacion', titulo: 'Razón social' },
+    { clave: 'tipo', titulo: 'Tipo', valor: (a) => TIPOS[a.tipo] },
+    { clave: 'estado', titulo: 'Estado', valor: (a) => t.estados[a.estado] },
+    { clave: 'cuentaPublicitariaId', titulo: 'Cuenta publicitaria' },
+    { clave: 'limiteGastoMensual', titulo: 'Límite mensual', valor: limite },
+    { clave: 'creadoEn', titulo: 'Alta' },
+  ]
 
   constructor() {
-    inject(ExplicadorDeVista).fijar(this.t.proposito)
-    effect(() => {
-      const pedido = { pagina: this.pagina(), tamano: this.tamanoDePagina, orden: this.orden(), filtros: {} }
-      // `cargar` resuelve por `firstValueFrom` fuera de la petición HTTP misma: sin registrarla
-      // como tarea pendiente, `ApplicationRef.isStable()` (zoneless) da por estable la app en
-      // cuanto el interceptor de HTTP libera SU tarea (`finalize` sobre el observable), antes de
-      // que este `await` termine de escribir `estado`. `whenStable()` de un test entonces
-      // resuelve mudo, con la tabla todavía en 'cargando'. `PendingTasks.run` mantiene la app
-      // inestable hasta que la promesa completa — HTTP incluido — termina de verdad.
-      untracked(() => this.tareasPendientes.run(() => this.cargar(pedido)))
-    })
+    inject(ExplicadorDeVista).fijar(t.proposito)
+    filtroEnElServidor(this.listado, this.lotes)
   }
 
-  /** Pide la página al cargador HTTP y descarta el resultado si ya se pidió una página más nueva mientras tanto. */
-  private async cargar(pedido: { pagina: number; tamano: number; orden: Orden | null; filtros: Record<string, string> }): Promise<void> {
-    const id = ++this.contadorDePeticion
-    this.estado.update((actual) => (actual.tipo === 'lista' ? { ...actual, obsoleta: true } : { tipo: 'cargando' }))
-    try {
-      const respuesta = await this.cargador(pedido)
-      if (id !== this.contadorDePeticion) return // respuesta atrasada: no reemplaza la vigente ni revive selección descartada
-      this.total.set(respuesta.total)
-      this.estado.set({ tipo: 'lista', filas: respuesta.filas })
-    } catch (error) {
-      if (id !== this.contadorDePeticion) return
-      this.estado.set({ tipo: 'error', ...aEstadoDeError(error, id) })
-    }
+  protected irA(destino: 'desempeno' | 'liquidacion', a: Anunciante): void {
+    void this.router.navigate(['/publicidad', destino], { queryParams: { cuenta: a.cuentaPublicitariaId } })
   }
 
-  /** Vuelve a pedir la página vigente desde cero (tras dar de alta un anunciante); `cargar` ya descarta lo atrasado por su cuenta. */
-  private recargar(): void {
-    const pedido = { pagina: this.pagina(), tamano: this.tamanoDePagina, orden: this.orden(), filtros: {} }
-    this.tareasPendientes.run(() => this.cargar(pedido))
+  protected alCrear(): void {
+    this.creado.set(true)
+    this.lotes.recargar()
   }
-
-  abrir(): void {
-    this.razonSocial.set('')
-    this.limite.set('')
-    this.intentoGuardar.set(false)
-    this.dialogoAbierto.set(true)
-  }
-
-  cerrar(): void {
-    this.dialogoAbierto.set(false)
-  }
-
-  async guardar(): Promise<void> {
-    this.intentoGuardar.set(true)
-    if (!this.razonSocial().trim()) return
-    this.guardando.set(true)
-    try {
-      const limiteContrato = this.limite() ? aCadenaDelContrato(this.limite()) : null
-      await this.acciones.darDeAlta({
-        tipo: EntradaAnuncianteTipoEnum.SocioComercial,
-        razonSocialFacturacion: this.razonSocial(),
-        moneda: EntradaAnuncianteMonedaEnum.Bob,
-        ...(limiteContrato ? { limiteGastoMensual: limiteContrato } : {}),
-      })
-      this.cerrar()
-      this.recargar()
-    } finally {
-      this.guardando.set(false)
-    }
-  }
-}
-
-/**
- * `erroresInterceptor` (`nucleo/errores.interceptor.ts`) ya traduce cualquier error HTTP a
- * `ErrorTraducido` con `trazaId` — el identificador de petición real del repo, no uno
- * inventado para esta pantalla. Si por algo no llega traducido (falla fuera de HTTP), se
- * cae al `motivo` genérico con el número de petición local como identificador.
- */
-function aEstadoDeError(error: unknown, idLocal: number): { idPeticion: string; motivo: 'sin-permiso' | 'no-encontrado' | 'desconocido'; mensaje: string } {
-  const e = error as Partial<ErrorTraducido> | null
-  if (e && typeof e.mensaje === 'string') {
-    const motivo = e.estado === 403 ? 'sin-permiso' : e.estado === 404 ? 'no-encontrado' : 'desconocido'
-    return { idPeticion: e.trazaId ?? String(idLocal), motivo, mensaje: (e.codigo && textosPublicidad.errores[e.codigo]) || e.mensaje }
-  }
-  return { idPeticion: String(idLocal), motivo: 'desconocido', mensaje: 'No se pudo cargar la lista de anunciantes.' }
 }

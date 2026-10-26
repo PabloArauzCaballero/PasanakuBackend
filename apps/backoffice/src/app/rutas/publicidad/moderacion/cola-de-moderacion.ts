@@ -1,161 +1,130 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core'
-import { Boton } from '@aportaya/ui/boton/boton'
+import { ChangeDetectionStrategy, Component, computed, inject, signal, viewChild } from '@angular/core'
+import { AccionesDeFila } from '@aportaya/ui/acciones-de-fila/acciones-de-fila'
 import { CabeceraDePagina } from '@aportaya/ui/cabecera-de-pagina/cabecera-de-pagina'
-import { Dialogo } from '@aportaya/ui/dialogo/dialogo'
-import { Campo } from '@aportaya/ui/campo/campo'
 import { ChipEstado } from '@aportaya/ui/chip-estado/chip-estado'
-import { ErrorDeEnvio } from '@aportaya/ui/error-de-envio/error-de-envio'
 import { Fecha } from '@aportaya/ui/fecha/fecha'
+import { Icono } from '@aportaya/ui/icono/icono'
+import { crearListado } from '@aportaya/ui/listado/crear-listado'
+import { ListadoDeDatos } from '@aportaya/ui/listado/listado'
+import { TarjetaKPI } from '@aportaya/ui/tarjeta-kpi/tarjeta-kpi'
+import type { Columna } from '@aportaya/ui/tabla-de-datos/tabla-de-datos'
+import type { ColumnaExportable } from '@aportaya/ui/exportar-listado/exportar'
 import { ExplicadorDeVista } from '../../../nucleo/explicador-de-vista'
-import type { ErrorTraducido } from '../../../nucleo/errores'
 import { Sesion } from '../../../nucleo/sesion'
-import { TablaDeDatosVirtualizada } from '../../../nucleo/tabla/tabla-de-datos-virtualizada'
-import type { ColumnaVirtual } from '../../../nucleo/tabla/tipos'
-import { EstadoDeListado, observarListado } from '../../contabilidad/listado/estado-de-listado'
-import { accionesDeModeracion, cargadorDePiezasPendientes, type PiezaCreativa } from '../dominio/cu112-moderacion'
+import { BarraDeLotes } from '../barra-de-lotes'
+import { lotesDePiezas, type EstadoModeracion, type PiezaCreativa } from '../dominio/cu112-moderacion'
+import { filtroEnElServidor } from '../dominio/lotes-por-cursor'
 import { textosPublicidad } from '../textos'
-import { EntradaRevisionDecisionEnum } from 'clientes/angular/publicidad/model/entradaRevision'
+import { DialogoDeModeracion, type DecisionDeModeracion } from './dialogo-de-moderacion'
 
-type Decision = 'APROBADA' | 'RECHAZADA'
-
-const COLUMNAS: ColumnaVirtual<PiezaCreativa>[] = [
-  { clave: 'titulo', titulo: 'Título', ancho: '2' },
-  { clave: 'tipoRecurso', titulo: 'Recurso' },
-  { clave: 'creadaEn', titulo: 'Subida' },
-  { clave: 'piezaCreativaId', titulo: 'Acciones', ancho: '2' },
-]
+const t = textosPublicidad.moderacion
+const RECURSOS: Record<PiezaCreativa['tipoRecurso'], string> = { IMAGEN: 'Imagen', VIDEO: 'Video' }
 
 /**
- * CU-112 · **Cola de moderación — gate de entrada del carril.** Toda pieza nace PENDIENTE y solo pasa a
- * APROBADA/RECHAZADA acá (`moderarPieza`).
+ * CU-112 · **Cola de moderación — gate de entrada del carril.** Toda pieza nace PENDIENTE y solo pasa a APROBADA o
+ * RECHAZADA acá. Abre en la cola (PENDIENTE, lo que el contrato devuelve sin filtro); el selector de estado deja mirar
+ * lo ya resuelto, sin acciones. Cada fila ofrece «Ver pieza» (el recurso, en otra pestaña) y, si está pendiente y la
+ * sesión tiene `PUBLICIDAD_MODERAR`, «Aprobar» y «Rechazar». Lo que el servidor confirma queda marcado en la fila.
  */
 @Component({
   selector: 'ap-cola-de-moderacion',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [Boton, CabeceraDePagina, Dialogo, Campo, ChipEstado, ErrorDeEnvio, EstadoDeListado, Fecha, TablaDeDatosVirtualizada],
+  imports: [AccionesDeFila, BarraDeLotes, CabeceraDePagina, ChipEstado, DialogoDeModeracion, Fecha, Icono, ListadoDeDatos, TarjetaKPI],
   template: `
     <section class="pantalla">
-      <ap-cabecera-de-pagina [titulo]="t.titulo" [descripcion]="t.proposito" icono="ojo" />
-      <ap-estado-de-listado [error]="listado.error()" [vacio]="listado.vacio()" [mensajeVacio]="t.sinPiezas" />
-      <ap-tabla-de-datos-virtualizada [titulo]="t.titulo" [columnas]="COLUMNAS" [cargador]="listado.cargador" [ordenPermitido]="[]" [identidad]="identidad">
+      <ap-cabecera-de-pagina eyebrow="Publicidad" [titulo]="t.titulo" [descripcion]="t.proposito" icono="escudo" />
+      <div class="cifras">
+        <ap-tarjeta-kpi etiqueta="En la vista" [valor]="'' + lotes.filas().length" icono="imagen" [pista]="lotes.hayMas() ? 'Hay más en el servidor' : 'Todas las del filtro'" />
+        <ap-tarjeta-kpi etiqueta="Aprobadas ahora" [valor]="'' + cuenta('APROBADA')" icono="aprobar" tono="ok" pista="En esta sesión" />
+        <ap-tarjeta-kpi etiqueta="Rechazadas ahora" [valor]="'' + cuenta('RECHAZADA')" icono="rechazar" [tono]="cuenta('RECHAZADA') ? 'error' : 'neutro'" pista="En esta sesión" />
+      </div>
+      <ap-listado [titulo]="t.titulo" [columnas]="columnas" [listado]="listado" [carga]="lotes.carga()" [identidad]="porId" [exportables]="exportables" nombreDeRegistros="piezas" [ayudaDeBusqueda]="t.ayudaBusqueda" [textoVacio]="t.sinPiezas" [explicacionVacio]="t.explicacionVacio" (reintentar)="lotes.recargar()">
+        <ap-barra-de-lotes accionesDeListado [hayMas]="lotes.hayMas()" [cargando]="lotes.cargandoMas()" [error]="lotes.errorDeMas()" (cargarMas)="lotes.cargarMas()" />
         <ng-template #celda let-p let-columna="columna">
           @switch (columna.clave) {
-            @case ('tipoRecurso') {
-              <ap-chip-estado tono="info">{{ p.tipoRecurso }}</ap-chip-estado>
-              <a class="ver" [href]="p.urlRecurso" target="_blank" rel="noopener noreferrer" [attr.aria-label]="t.verPieza(p.titulo)">Ver</a>
-            }
-            @case ('creadaEn') {
-              <ap-fecha [iso]="p.creadaEn" [conHora]="false" />
-            }
-            @case ('piezaCreativaId') {
-              @if (resultado(p); as r) {
-                <ap-chip-estado [tono]="r === 'APROBADA' ? 'ok' : 'error'">{{ t.estados[r] }}</ap-chip-estado>
-              } @else if (puedeModerarEsta()) {
-                <div class="acciones">
-                  <ap-boton (pulsado)="abrir(p, 'APROBADA')">{{ t.aprobar }}</ap-boton>
-                  <ap-boton variante="fantasma" (pulsado)="abrir(p, 'RECHAZADA')">{{ t.rechazar }}</ap-boton>
-                </div>
-              }
-            }
-            @default {
-              {{ p[columna.clave] }}
-            }
+            @case ('titulo') { <span class="titulo">{{ p.titulo }}</span> @if (p.texto) { <span class="texto">{{ p.texto }}</span> } }
+            @case ('tipoRecurso') { <span class="recurso"><ap-icono [nombre]="p.tipoRecurso === 'VIDEO' ? 'reproducir' : 'imagen'" tamano="s4" />{{ textoDeRecurso(p) }}</span> }
+            @case ('estadoModeracion') { <ap-chip-estado [tono]="tonoDe(p)">{{ textoDeEstado(p) }}</ap-chip-estado> }
+            @case ('creadaEn') { <ap-fecha [iso]="p.creadaEn" [conHora]="false" /> }
+            @default { {{ p[columna.clave] }} }
           }
         </ng-template>
-      </ap-tabla-de-datos-virtualizada>
+        <ng-template #acciones let-p>
+          <ap-acciones-de-fila [fila]="p.titulo">
+            <a apAccionDeFila [href]="p.urlRecurso" target="_blank" rel="noopener noreferrer" [attr.aria-label]="t.verPieza(p.titulo)"><ap-icono nombre="externo" tamano="s4" /><span>Ver pieza</span></a>
+            @if (estadoDe(p) === 'PENDIENTE' && puedeModerar()) {
+              <button type="button" apAccionDeFila [attr.aria-label]="t.aprobar + ' ' + p.titulo" (click)="dialogo().abrir(p, 'APROBADA')"><ap-icono nombre="aprobar" tamano="s4" /><span>Aprobar</span></button>
+              <button type="button" apAccionDeFila class="peligro" [attr.aria-label]="t.rechazar + ' ' + p.titulo" (click)="dialogo().abrir(p, 'RECHAZADA')"><ap-icono nombre="rechazar" tamano="s4" /><span>Rechazar</span></button>
+            }
+          </ap-acciones-de-fila>
+        </ng-template>
+      </ap-listado>
     </section>
-
-    @if (seleccionada(); as p) {
-      <ap-dialogo
-        [titulo]="decision() === 'APROBADA' ? t.aprobar : t.rechazar"
-        [textoDeConfirmar]="decision() === 'APROBADA' ? t.aprobar : t.rechazar"
-        [destructivo]="decision() === 'RECHAZADA'"
-        [abierto]="dialogoAbierto()"
-        [cargando]="enviando()"
-        (abiertoChange)="dialogoAbierto.set($event)"
-        (confirmar)="confirmar()"
-        (cancelar)="cerrar()"
-      >
-        <p>{{ decision() === 'APROBADA' ? t.confirmarAprobar(p.titulo) : t.confirmarRechazar(p.titulo) }}</p>
-        <p class="nota">{{ t.autorLoDecideElServidor }}</p>
-        @if (decision() === 'RECHAZADA') {
-          <ap-campo [etiqueta]="t.motivoDeRechazo" [(valor)]="motivo" [error]="motivoVacio() ? t.faltaMotivo : undefined" />
-        }
-        <ap-error-de-envio [error]="errorDeEnvio()" />
-      </ap-dialogo>
-    }
+    <ap-dialogo-de-moderacion (resuelta)="alResolver($event.pieza, $event.decision)" />
   `,
   styles: `
-    .pantalla { padding: var(--s5); max-width: 68rem; display: grid; gap: var(--s4); }
-    .acciones { display: flex; gap: var(--s2); }
-    .ver { margin-left: var(--s2); color: var(--text); }
-    .ver:focus-visible { outline: var(--borde-foco) solid var(--g300); outline-offset: var(--borde-desfase); }
-    .nota { color: var(--text-2); font-size: .9em; }
+    .pantalla { padding: var(--s5); display: grid; gap: var(--s4); min-width: 0; }
+    .cifras { display: grid; gap: var(--s3); grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr)); }
+    .titulo { display: block; font-weight: 600; color: var(--text); overflow-wrap: anywhere; }
+    .texto { display: block; margin-top: var(--s1); color: var(--text-2); font: var(--t-cuerpo-chico); max-width: 40ch; white-space: normal; }
+    .recurso { display: inline-flex; align-items: center; gap: var(--s1); }
+    .peligro { color: var(--err-texto); }
   `,
 })
 export class ColaDeModeracion {
-  constructor() {
-    inject(ExplicadorDeVista).fijar(this.t.proposito)
-  }
   private readonly sesion = inject(Sesion)
-  private readonly acciones = accionesDeModeracion()
-  protected readonly t = textosPublicidad.moderacion
-  protected readonly COLUMNAS = COLUMNAS
-  protected readonly identidad = (p: PiezaCreativa) => p.piezaCreativaId
-  protected readonly listado = observarListado(cargadorDePiezasPendientes(), textosPublicidad.errores)
+  protected readonly t = t
+  protected readonly dialogo = viewChild.required(DialogoDeModeracion)
+  protected readonly lotes = lotesDePiezas()
+  /** Lo que el servidor ya confirmó (2xx), por pieza: la fila cambia de estado sin esperar a recargar. */
+  protected readonly resueltas = signal<Readonly<Record<string, DecisionDeModeracion>>>({})
+  private readonly filas = computed(() => this.lotes.filas().map((p) => ({ ...p, estadoModeracion: this.resueltas()[p.piezaCreativaId] ?? p.estadoModeracion })))
+  protected readonly porId = (p: PiezaCreativa) => p.piezaCreativaId
+  protected readonly puedeModerar = () => this.sesion.puede('PUBLICIDAD_MODERAR')
+  protected readonly estadoDe = (p: PiezaCreativa) => p.estadoModeracion
+  protected readonly textoDeEstado = (p: PiezaCreativa) => t.estados[p.estadoModeracion]
+  protected readonly textoDeRecurso = (p: PiezaCreativa) => RECURSOS[p.tipoRecurso]
+  protected readonly tonoDe = (p: PiezaCreativa) => (p.estadoModeracion === 'APROBADA' ? 'ok' : p.estadoModeracion === 'RECHAZADA' ? 'error' : 'aviso')
+  protected readonly cuenta = (d: DecisionDeModeracion) => Object.values(this.resueltas()).filter((x) => x === d).length
 
-  protected readonly seleccionada = signal<PiezaCreativa | null>(null)
-  protected readonly decision = signal<Decision>('APROBADA')
-  protected readonly dialogoAbierto = signal(false)
-  protected readonly motivo = signal('')
-  protected readonly intentoConfirmar = signal(false)
-  protected readonly enviando = signal(false)
-  protected readonly errorDeEnvio = signal<ErrorTraducido | null>(null)
-  /** Lo que el servidor ya confirmó (2xx), por pieza. */
-  protected readonly resueltas = signal<Readonly<Record<string, Decision>>>({})
-  protected readonly motivoVacio = () => this.intentoConfirmar() && this.decision() === 'RECHAZADA' && this.motivo().trim().length === 0
-  protected readonly resultado = (p: PiezaCreativa): Decision | undefined => this.resueltas()[p.piezaCreativaId]
+  protected readonly listado = crearListado<PiezaCreativa>({
+    filas: this.filas,
+    camposDeBusqueda: ['titulo', 'texto', (p) => RECURSOS[p.tipoRecurso], 'anuncianteId', 'piezaCreativaId'],
+    filtros: [
+      {
+        nombre: 'estado',
+        etiqueta: 'Estado de moderación',
+        valor: (p) => (p.estadoModeracion === 'PENDIENTE' ? '' : p.estadoModeracion),
+        opciones: (['APROBADA', 'RECHAZADA'] as EstadoModeracion[]).map((v) => ({ valor: v, texto: t.estados[v] })),
+        textoTodos: 'Pendientes (la cola)',
+        ayuda: 'Se consulta al servidor. Sin elegir, la cola de pendientes.',
+      },
+      { nombre: 'tipo', etiqueta: 'Recurso', valor: (p) => p.tipoRecurso, texto: (v) => RECURSOS[v as PiezaCreativa['tipoRecurso']] ?? v },
+    ],
+  })
+  protected readonly columnas: Columna<PiezaCreativa>[] = [
+    { clave: 'titulo', titulo: 'Título', ordenable: true },
+    { clave: 'tipoRecurso', titulo: 'Recurso', ordenable: true },
+    { clave: 'estadoModeracion', titulo: 'Estado', ordenable: true },
+    { clave: 'creadaEn', titulo: 'Subida', ordenable: true },
+  ]
+  protected readonly exportables: ColumnaExportable<PiezaCreativa>[] = [
+    { clave: 'piezaCreativaId', titulo: 'Identificador' },
+    { clave: 'titulo', titulo: 'Título' },
+    { clave: 'texto', titulo: 'Texto' },
+    { clave: 'tipoRecurso', titulo: 'Recurso', valor: (p) => RECURSOS[p.tipoRecurso] },
+    { clave: 'estadoModeracion', titulo: 'Estado', valor: (p) => t.estados[p.estadoModeracion] },
+    { clave: 'urlRecurso', titulo: 'Dirección del recurso' },
+    { clave: 'anuncianteId', titulo: 'Anunciante' },
+    { clave: 'creadaEn', titulo: 'Subida' },
+  ]
 
-  /** Sin `PUBLICIDAD_MODERAR` no se dibujan los botones (el servidor igual lo exige). */
-  protected puedeModerarEsta(): boolean {
-    return this.sesion.puede('PUBLICIDAD_MODERAR')
+  constructor() {
+    inject(ExplicadorDeVista).fijar(t.proposito)
+    filtroEnElServidor(this.listado, this.lotes)
   }
 
-  abrir(p: PiezaCreativa, decision: Decision): void {
-    this.seleccionada.set(p)
-    this.decision.set(decision)
-    this.motivo.set('')
-    this.intentoConfirmar.set(false)
-    this.errorDeEnvio.set(null)
-    this.dialogoAbierto.set(true)
-  }
-
-  cerrar(): void {
-    this.dialogoAbierto.set(false)
-    this.seleccionada.set(null)
-  }
-
-  async confirmar(): Promise<void> {
-    const p = this.seleccionada()
-    if (!p || this.enviando()) return
-    if (this.decision() === 'RECHAZADA') {
-      this.intentoConfirmar.set(true)
-      if (this.motivo().trim().length === 0) return
-    }
-    this.enviando.set(true)
-    this.errorDeEnvio.set(null)
-    const decision = this.decision()
-    try {
-      const decisionEnum = decision === 'APROBADA' ? EntradaRevisionDecisionEnum.Aprobada : EntradaRevisionDecisionEnum.Rechazada
-      await this.acciones.moderar(p.piezaCreativaId, { decision: decisionEnum, ...(decision === 'RECHAZADA' ? { motivo: this.motivo() } : {}) })
-      this.resueltas.update((r) => ({ ...r, [p.piezaCreativaId]: decision }))
-      this.cerrar()
-    } catch (e) {
-      const error = e as ErrorTraducido
-      const propio = error?.codigo ? textosPublicidad.errores[error.codigo] : undefined
-      this.errorDeEnvio.set(propio ? { ...error, mensaje: propio } : error)
-    } finally {
-      this.enviando.set(false)
-    }
+  protected alResolver(p: PiezaCreativa, decision: DecisionDeModeracion): void {
+    this.resueltas.update((r) => ({ ...r, [p.piezaCreativaId]: decision }))
   }
 }
