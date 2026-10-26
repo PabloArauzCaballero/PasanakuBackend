@@ -10,7 +10,8 @@ import { BANDEJAS, lectorDeBandejas, type DefinicionDeBandeja } from './dominio/
 import { TarjetaDeBandeja, type EstadoDeTarjeta } from './tarjeta-de-bandeja'
 import { textosTablero } from './textos'
 
-type Acceso = { ruta: string; texto: string; permiso: string; descripcion: string; icono: NombreDeIcono }
+/** `roles`: además del permiso, la ruta exige uno de estos roles (la guardia `soloRolesDeSistemas`, que no se exporta). */
+type Acceso = { ruta: string; texto: string; permiso: string; descripcion: string; icono: NombreDeIcono; roles?: readonly string[] }
 
 /**
  * H1.S4.M1 (B2) · El punto de entrada tras iniciar sesión, en tres bloques:
@@ -65,7 +66,7 @@ type Acceso = { ruta: string; texto: string; permiso: string; descripcion: strin
         <h2 id="tablero-accesos-titulo"><ap-icono nombre="enlace" tamano="s5" />{{ t.accesos.titulo }}</h2>
         <ul class="grilla accesos" data-tutorial-id="tablero-accesos">
           @for (a of accesos; track a.ruta) {
-            @if (sesion.puede(a.permiso)) {
+            @if (visible(a)) {
               <li>
                 <a [routerLink]="'/' + a.ruta" [attr.data-tutorial-id]="'tablero-' + a.ruta">
                   <span class="texto"><ap-icono [nombre]="a.icono" tamano="s4" />{{ a.texto }}</span>
@@ -119,8 +120,13 @@ export class Tablero {
     { ruta: 'contabilidad', texto: 'Contabilidad', permiso: 'ver:contabilidad', descripcion: 'Períodos, presupuestos y estados financieros.', icono: 'libro' },
     { ruta: 'publicidad', texto: 'Publicidad', permiso: 'ver:publicidad', descripcion: 'Campañas y ofertas.', icono: 'megafono' },
     { ruta: 'configuracion', texto: 'Configuración', permiso: 'ver:configuracion', descripcion: 'Tarifario, mensajería y reportes, de solo lectura.', icono: 'engranaje' },
-    { ruta: 'sistemas', texto: 'Sistemas', permiso: 'ver:sistemas', descripcion: 'Salud de servicios, despliegues y respaldos.', icono: 'servidor' },
+    { ruta: 'sistemas', texto: 'Sistemas', permiso: 'ver:sistemas', descripcion: 'Salud de servicios, despliegues y respaldos.', icono: 'servidor', roles: ['PLATAFORMA', 'SEGURIDAD'] },
   ]
+
+  /** Un acceso que la ruta rechazaría (rebote silencioso a otra sección) no se ofrece: sería un botón que «no funciona». */
+  protected visible(a: Acceso): boolean {
+    return this.sesion.puede(a.permiso) && (!a.roles || a.roles.includes(this.sesion.rol() ?? ''))
+  }
 
   constructor() {
     inject(ExplicadorDeVista).fijar(textosTablero.proposito)
