@@ -1,0 +1,11 @@
+[
+  {
+    "origen": "Venta de servicio",
+    "tercero": "Cooperativa Ñuñoa",
+    "fechaVencimiento": "2026-11-01",
+    "monto": "BOB 300.00",
+    "cobrado": "BOB 0.00",
+    "saldoPendiente": "BOB 300.00",
+    "estado": "Pendiente"
+  }
+]

@@ -1,0 +1,13 @@
+[
+  {
+    "codigo": "PLANTILLA_7",
+    "evento": "EVENTO_7",
+    "canal": "WHATSAPP",
+    "aprobacion": "Borrador",
+    "activa": "Inactiva",
+    "version": 1,
+    "idioma": "es",
+    "vigenteDesde": "2026-09-01T04:00:00Z",
+    "vigenteHasta": "no disponible"
+  }
+]
