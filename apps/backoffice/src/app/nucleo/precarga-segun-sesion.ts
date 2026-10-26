@@ -11,9 +11,9 @@ import { EMPTY, Observable, filter, first, from, isObservable, firstValueFrom, s
  * pestaña sin su permiso) no se descarga. El router vuelve a llamar a la estrategia después de cada navegación, así
  * que lo que se habilita al iniciar sesión se precarga entonces. No es seguridad: el servidor decide igual.
  *
- * **De a `SIMULTANEAS` por vez.** Medido con la red estrangulada: si la persona hace clic mientras se precargan todas
+ * **De a una ruta por vez (`SIMULTANEAS`), sin fichas.** Medido con la red estrangulada: si la persona hace clic mientras se precargan todas
  * las secciones a la vez, el código de la que pidió espera en la cola del navegador detrás de las otras (26 s con
- * 200 KB/s). Con un tope, su descarga compite con dos como mucho. El turno se libera cuando el router avisa que el
+ * 200 KB/s). Con un tope, su descarga compite con una como mucho. El turno se libera cuando el router avisa que el
  * archivo de esa ruta llegó (`RouteConfigLoadEnd`), no cuando terminan sus hijas: esperar a las hijas, que hacen cola
  * detrás, trabaría la precarga. Y mientras hay una navegación en curso no arranca ninguna nueva: lo que la persona
  * pidió no hace cola detrás de lo que tal vez pida.
@@ -34,12 +34,18 @@ export class PrecargaSegunSesion implements PreloadingStrategy {
       if (e instanceof NavigationStart) this.navegando = true
       else if (e instanceof NavigationEnd || e instanceof NavigationCancel || e instanceof NavigationError) {
         this.navegando = false
-        while (this.enCurso < SIMULTANEAS && this.espera.length) this.espera.shift()!()
+        // Se retoma en el próximo reposo, no ya: la vista recién abierta todavía está pintando y pidiendo sus datos.
+        void enReposo().then(() => {
+          while (!this.navegando && this.enCurso < SIMULTANEAS && this.espera.length) this.espera.shift()!()
+        })
       }
     })
   }
 
   preload(route: Route, load: () => Observable<unknown>): Observable<unknown> {
+    // Las fichas (`casos/:casoId`) se abren desde su listado, que ya está precargado; bajarlas todas de antemano
+    // era la mitad de los archivos y competía con el clic de la persona.
+    if (route.path?.includes(':')) return EMPTY
     return from(this.permitida(route)).pipe(switchMap((ok) => (ok ? from(enReposo()).pipe(switchMap(() => this.conTurno(route, load))) : EMPTY)))
   }
 
@@ -54,7 +60,9 @@ export class PrecargaSegunSesion implements PreloadingStrategy {
         liberado = true
         aviso?.unsubscribe()
         this.enCurso--
-        if (!this.navegando) this.espera.shift()?.()
+        void enReposo().then(() => {
+          if (!this.navegando && this.enCurso < SIMULTANEAS) this.espera.shift()?.()
+        })
       }
       const arrancar = () => {
         if (suscriptor.closed) return
@@ -100,7 +108,7 @@ export class PrecargaSegunSesion implements PreloadingStrategy {
  * no la leen. Una guardia que la necesitara y fallara cuenta como «no precargar» (el `catch` de arriba), nunca rompe.
  */
 /** Cuántas rutas se precargan a la vez. */
-const SIMULTANEAS = 2
+const SIMULTANEAS = 1
 
 const SIN_INSTANTANEA = {} as PartialMatchRouteSnapshot
 

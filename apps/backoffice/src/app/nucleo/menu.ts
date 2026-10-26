@@ -1,5 +1,6 @@
 import type { NombreDeIcono } from '@aportaya/ui/icono/icono'
 import type { Seccion as NombreDeSeccion } from '../layout/icono-de-seccion'
+import { ENTRADAS_DE_CUMPLIMIENTO } from '../rutas/cumplimiento/compartido/navegacion'
 
 /**
  * Una condición de acceso: alcanza con **uno** de sus permisos (`Sesion.puede`) o con que el rol de la sesión sea
@@ -52,12 +53,14 @@ const CONFIGURACION = p('ver:configuracion')
 const SISTEMAS = [p('ver:sistemas'), { roles: ['PLATAFORMA', 'SEGURIDAD'] }] as const
 
 const sis = (ruta: string, texto: string, icono: NombreDeIcono): Pantalla => ({ ruta: `/sistemas/${ruta}`, texto, icono, requiere: SISTEMAS })
-const cum = (ruta: string, texto: string, icono: NombreDeIcono, ...codigos: string[]): Pantalla => ({
-  ruta: `/cumplimiento/${ruta}`,
-  texto,
-  icono,
-  requiere: codigos.length ? [CUMPLIMIENTO, pr(...codigos)] : [CUMPLIMIENTO],
-})
+/**
+ * Las pestañas de Cumplimiento toman sus códigos de `ENTRADAS_DE_CUMPLIMIENTO` (la lista de la franja C, que también
+ * usa `cumplimiento.routes.ts` en sus guardias): una sola lista para la ruta y para la pestaña.
+ */
+const cum = (ruta: string, texto: string, icono: NombreDeIcono): Pantalla => {
+  const codigos = ENTRADAS_DE_CUMPLIMIENTO.find((e) => e.ruta === `/cumplimiento/${ruta}`)?.codigos ?? []
+  return { ruta: `/cumplimiento/${ruta}`, texto, icono, requiere: [CUMPLIMIENTO, pr(...codigos)] }
+}
 
 /**
  * El árbol del menú: siete entradas y, en cada sección, hasta ocho pestañas (A1, 2026-10-26: antes eran diez entradas
@@ -91,19 +94,19 @@ export const MENU: readonly Grupo[] = [
         prefijos: ['/cumplimiento'],
         pantallas: [
           cum('verificaciones', 'Verificación de identidad', 'verificado'),
-          { ...cum('alertas', 'Alertas de monitoreo', 'alerta'), requiere: [CUMPLIMIENTO, p('CUMPLIMIENTO_ALERTAS')] },
-          { ...cum('casos', 'Casos de investigación', 'carpeta'), requiere: [CUMPLIMIENTO, p('CUMPLIMIENTO_CASOS')] },
-          cum('uif/reportes', 'Reportes a la UIF', 'enviar', 'CUMPLIMIENTO_REPORTAR', 'AUDITORIA_LEER'),
-          cum('uif/requerimientos', 'Requerimientos de autoridad', 'balanza', 'OFICIAL_CUMPLIMIENTO', 'AUDITORIA_LEER'),
-          cum('actas', 'Actas de comité', 'documento', 'OFICIAL_CUMPLIMIENTO', 'AUDITORIA_LEER'),
+          cum('alertas', 'Alertas de monitoreo', 'alerta'),
+          cum('casos', 'Casos de investigación', 'carpeta'),
+          cum('uif/reportes', 'Reportes a la UIF', 'enviar'),
+          cum('uif/requerimientos', 'Requerimientos de autoridad', 'balanza'),
+          cum('actas', 'Actas de comité', 'documento'),
           {
             ruta: '/cumplimiento/riesgos/eventos',
             texto: 'Riesgo y seguridad',
             icono: 'escudo',
             grupo: [
-              cum('riesgos/eventos', 'Eventos de riesgo operativo', 'advertencia', 'RESPONSABLE_RIESGOS', 'AUDITORIA_LEER'),
-              cum('continuidad', 'Pruebas de continuidad', 'actividad', 'RESPONSABLE_RIESGOS', 'AUDITORIA_LEER'),
-              cum('seguridad/incidentes', 'Incidentes de seguridad', 'candado', 'RESPONSABLE_SEGURIDAD', 'AUDITORIA_LEER'),
+              cum('riesgos/eventos', 'Eventos de riesgo operativo', 'advertencia'),
+              cum('continuidad', 'Pruebas de continuidad', 'actividad'),
+              cum('seguridad/incidentes', 'Incidentes de seguridad', 'candado'),
             ],
           },
         ],

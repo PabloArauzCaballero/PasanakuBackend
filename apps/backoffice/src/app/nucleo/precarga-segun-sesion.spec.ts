@@ -50,14 +50,17 @@ describe('PrecargaSegunSesion', () => {
     expect(sinSesion.load).not.toHaveBeenCalled()
   })
 
-  it('límite: de a dos por vez; la tercera arranca cuando llega una de las anteriores', async () => {
+  it('límite: de a una por vez; la siguiente arranca cuando llega la anterior; las fichas con parámetro no se precargan', async () => {
     sesion.abrir('t', [], 'oficial')
-    const llegadas = [new Subject<string>(), new Subject<string>(), new Subject<string>()]
+    const llegadas = [new Subject<string>(), new Subject<string>()]
     const loads = llegadas.map((s) => vi.fn(() => s.asObservable()))
     loads.forEach((load, i) => estrategia.preload({ path: `r${i}`, loadChildren: () => [] }, load).subscribe())
-    await vi.waitFor(() => expect(loads[1]).toHaveBeenCalled())
-    expect(loads.map((l) => l.mock.calls.length)).toEqual([1, 1, 0])
+    await vi.waitFor(() => expect(loads[0]).toHaveBeenCalled())
+    expect(loads.map((l) => l.mock.calls.length)).toEqual([1, 0])
     llegadas[0]!.next('listo')
-    await vi.waitFor(() => expect(loads[2]).toHaveBeenCalled())
+    await vi.waitFor(() => expect(loads[1]).toHaveBeenCalled())
+    const ficha = correr({ path: 'casos/:casoId', loadComponent: () => Promise.resolve(class {}) })
+    expect(await ficha.valores).toEqual([])
+    expect(ficha.load).not.toHaveBeenCalled()
   })
 })
