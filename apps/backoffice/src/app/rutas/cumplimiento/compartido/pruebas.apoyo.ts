@@ -3,12 +3,12 @@ import { HttpTestingController, provideHttpClientTesting, type TestRequest } fro
 import { provideZonelessChangeDetection, type Type } from '@angular/core'
 import { TestBed, type ComponentFixture } from '@angular/core/testing'
 import { By } from '@angular/platform-browser'
+import { TablaDeDatos } from '@aportaya/ui/tabla-de-datos/tabla-de-datos'
 import { provideRouter } from '@angular/router'
 import { erroresInterceptor } from '../../../nucleo/errores.interceptor'
 import { GATEWAY } from '../../../nucleo/gateway'
 import { idempotenciaInterceptor, olvidarIntentos } from '../../../nucleo/idempotencia.interceptor'
 import { Sesion } from '../../../nucleo/sesion'
-import { TablaDeDatosVirtualizada } from '../../../nucleo/tabla/tabla-de-datos-virtualizada'
 import { trazaInterceptor } from '../../../nucleo/traza.interceptor'
 
 /**
@@ -47,9 +47,20 @@ export async function asentar(fixture: ComponentFixture<unknown>): Promise<void>
 
 export const textoDe = (fixture: ComponentFixture<unknown>): string => (fixture.nativeElement as HTMLElement).textContent ?? ''
 
-/** Las filas que recibió la tabla (el viewport virtual de jsdom no tiene alto, así que no se miran en el DOM). */
+/** Las filas que recibió la tabla de la bandeja (la página visible, ya buscada). Sin tabla —vacío, error—, ninguna. */
 export function filasDe<F>(fixture: ComponentFixture<unknown>): F[] {
-  return (fixture.debugElement.query(By.directive(TablaDeDatosVirtualizada)).componentInstance as TablaDeDatosVirtualizada<F & object>).filas() as F[]
+  const tabla = fixture.debugElement.query(By.directive(TablaDeDatos))
+  return tabla ? ((tabla.componentInstance as TablaDeDatos<F & object>).filas() as F[]) : []
+}
+
+/** El botón visible cuyo texto contiene `texto` (los botones del kit dicen qué hacen: «Volver a intentar», «Decidir»…). */
+export function boton(fixture: ComponentFixture<unknown>, texto: string): HTMLButtonElement | undefined {
+  return [...(fixture.nativeElement as HTMLElement).querySelectorAll('button')].find((b) => (b.textContent ?? '').includes(texto)) as HTMLButtonElement | undefined
+}
+
+/** La bandeja de cursor de la pantalla montada, para cambiar filtros y página como lo haría la barra. */
+export function bandejaDe<B>(fixture: ComponentFixture<unknown>): B {
+  return (fixture.componentInstance as { bandeja: B }).bandeja
 }
 
 /** Responde un rechazo con el cuerpo de error del contrato (`Error`: codigo, mensaje, trazaId). */

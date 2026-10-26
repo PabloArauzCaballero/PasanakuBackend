@@ -22,7 +22,7 @@ import { textosCumplimiento } from '../textos'
       <label for="respuesta">{{ t.respuesta }}</label>
       <textarea id="respuesta" [value]="respuesta()" (input)="alEscribir($any($event.target).value)" rows="6"></textarea>
 
-      <ap-boton variante="primario" (pulsado)="enviar()">{{ t.enviar }}</ap-boton>
+      <ap-boton variante="primario" icono="enviar" (pulsado)="enviar()">{{ t.enviar }}</ap-boton>
     </section>
   `,
   styles: `

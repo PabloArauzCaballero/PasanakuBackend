@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest'
-import { asentar, filasDe, GW, montar, rechazar, textoDe } from '../compartido/pruebas.apoyo'
+import { By } from '@angular/platform-browser'
+import { aCsv } from '@aportaya/ui/exportar-listado/exportar'
+import { ExportarListado } from '@aportaya/ui/exportar-listado/exportar-listado'
+import type { Bandeja } from '../compartido/bandeja-por-cursor'
+import { asentar, bandejaDe, filasDe, GW, montar, rechazar, textoDe } from '../compartido/pruebas.apoyo'
 import { PantallaDeActas } from './pantalla-de-actas'
 import { PantallaDeEventos } from './pantalla-de-eventos'
 import { PantallaDeIncidentes } from './pantalla-de-incidentes'
@@ -51,19 +55,18 @@ describe('PantallaDeActas · CU-94 listarActasDeComite', () => {
 
 describe('PantallaDeEventos · CU-54 listarEventosDeRiesgo', () => {
   const URL = `${GW}/cumplimiento/riesgos/eventos`
-  it('correcto: pérdidas con su moneda vía ap-monto; estados con explode: true', async () => {
+  it('correcto: pérdidas con su moneda vía ap-monto (también en el archivo); el estado viaja al servidor', async () => {
     const { fixture, http } = montar(PantallaDeEventos, ['AUDITORIA_LEER'], 'RESPONSABLE_RIESGOS')
     http.expectOne((r) => r.url === URL).flush({ items: [EVENTO] })
     await asentar(fixture)
     const pantalla = fixture.componentInstance as unknown as { celda: (e: typeof EVENTO, c: string) => unknown }
     expect(pantalla.celda(EVENTO, 'perdidaNeta')).toEqual({ monto: '1000.00', moneda: 'BOB' })
     expect(pantalla.celda(EVENTO, 'estado')).toBe('En análisis')
-    const cola = fixture.debugElement.query((d) => d.name === 'ap-cola-de-lectura').componentInstance
-    cola.estados.set(['REGISTRADO', 'CERRADO'])
-    fixture.detectChanges()
-    await asentar(fixture)
+    const exportar = fixture.debugElement.query(By.directive(ExportarListado)).componentInstance as ExportarListado<typeof EVENTO>
+    expect(aCsv(exportar.columnas(), exportar.filas())).toContain('1000.00 BOB')
+    bandejaDe<Bandeja<typeof EVENTO>>(fixture).filtrar('estados', 'CERRADO')
     const pedido = http.expectOne((r) => r.url === URL)
-    expect(pedido.request.params.getAll('estados')).toEqual(['REGISTRADO', 'CERRADO'])
+    expect(pedido.request.params.getAll('estados')).toEqual(['CERRADO'])
     pedido.flush({ items: [] })
     http.verify()
   })

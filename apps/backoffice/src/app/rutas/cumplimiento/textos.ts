@@ -6,7 +6,7 @@ export const textosCumplimiento = {
       'Mirar el documento y la cara de quien abre una cuenta, y decidir. La decisión es de una persona y queda con su nombre.',
     cargando: 'Cargando los expedientes',
     filtrar: 'Filtrar por estado',
-    buscarExpediente: 'Buscar por nombre, teléfono o correo',
+    buscarExpediente: 'Buscar por nombre, teléfono, correo o documento',
     telefono: 'Teléfono',
     correo: 'Correo',
     sinCorreo: 'No registrado',
