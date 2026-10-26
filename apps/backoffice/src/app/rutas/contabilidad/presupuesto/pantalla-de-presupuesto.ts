@@ -80,7 +80,7 @@ const EXPORTABLES = [
     </section>
   `,
   styles: `
-    .pantalla { padding: var(--s5); display: grid; gap: var(--s4); min-width: 0; }
+    .pantalla { padding: var(--s5); display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s4); min-width: 0; }
     .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr)); gap: var(--s3); }
     .desviacion { display: inline-flex; flex-wrap: wrap; align-items: center; gap: var(--s2); justify-content: flex-end; }
     .desviacion.sobre { color: var(--err-texto); }

@@ -79,6 +79,7 @@ export const textosContabilidad = {
     vencimiento: 'Vence',
     saldoPendiente: 'Saldo pendiente',
     segregacion: 'Quien aprobó la factura no puede autorizar su pago (R-CTB-05). Esta cuenta aprobó esta factura.',
+    segregacionGeneral: 'Quien aprobó una factura no puede autorizar su pago (R-CTB-05). Cada fila dice si esta cuenta puede pagarla y, si no, por qué.',
     sinPermisoDePago: 'Registrar el pago es de Tesorería: esta cuenta no tiene CONTABILIDAD_ERP_PAGAR.',
     confirmarPago: (numero: string) => `Vas a registrar el pago de la factura ${numero}. El pago es append-only: para corregirlo hace falta un movimiento inverso.`,
     estadosOrden: { BORRADOR: 'Borrador', APROBADA: 'Aprobada', RECIBIDA_PARCIAL: 'Recibida en parte', RECIBIDA_TOTAL: 'Recibida', CANCELADA: 'Cancelada' } as const,

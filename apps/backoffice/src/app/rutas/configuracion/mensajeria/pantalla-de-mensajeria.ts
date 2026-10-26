@@ -33,7 +33,7 @@ const PESTANAS: Pestana[] = [
     </section>
   `,
   styles: `
-    .pantalla { padding: var(--s5); display: grid; gap: var(--s4); min-width: 0; }
+    .pantalla { padding: var(--s5); display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s4); min-width: 0; }
     [role='tabpanel'] { min-width: 0; }
   `,
 })

@@ -46,7 +46,10 @@ export type ConfigDeListadoPorCursor<T> = {
 /** Las etiquetas de un enum del contrato como opciones de un selector (el valor es el código, el texto la etiqueta). */
 export const opcionesDe = (etiquetas: Readonly<Record<string, string>>): Opcion[] => Object.entries(etiquetas).map(([valor, texto]) => ({ valor, texto }))
 
-type ErrorLeido ={ mensaje: string; trazaId?: string; codigo?: string }
+/** La marca de recarga dentro de los filtros de la consulta (ver el `effect`): ningún contrato tiene un parámetro así. */
+const RECARGA = '__recarga'
+
+type ErrorLeido = { mensaje: string; trazaId?: string; codigo?: string }
 
 /** Lo que llega ya traducido por `erroresInterceptor`, o se traduce acá con el mismo catálogo. Nunca el cuerpo crudo. */
 export function leerError(e: unknown, textos: Readonly<Record<string, string>> = {}): ErrorLeido {
@@ -72,17 +75,26 @@ export function crearListadoPorCursor<T>(config: ConfigDeListadoPorCursor<T>) {
   // La página entera ya está filtrada por el servidor: el kit no vuelve a paginarla (100 = el tope de `limite`).
   const local = crearListado<T>({ filas, camposDeBusqueda: config.camposDeBusqueda, filtros: config.filtros, porPagina: 100, opcionesPorPagina: [100] })
   let pedido = 0
+  // `cargadorPorCursor` (nucleo) devuelve un total que BAJA al volver atrás después de conocer la última página: lo
+  // calcula con las filas vistas hasta la página pedida. Para una misma consulta (tamaño + filtro) el total conocido no
+  // baja: así «Siguiente» no se apaga en la página 2 de 3. Pedido al dueño de `nucleo/tabla/cursor.ts` en el informe.
+  let conocido = { clave: '', total: 0 }
 
   effect(() => {
-    const consulta = { pagina: pagina(), tamano: porPagina(), orden: null, filtros: valorDelServidor() ? { [config.servidor!.nombre]: valorDelServidor() } : {} }
-    vuelta()
+    const filtros: Record<string, string> = valorDelServidor() ? { [config.servidor!.nombre]: valorDelServidor() } : {}
+    // Una recarga es una consulta NUEVA para `cargadorPorCursor`: así olvida los cursores y el final que conocía (los datos
+    // pudieron cambiar). La marca no viaja al servidor: los adaptadores solo leen `estado`.
+    if (vuelta() > 0) filtros[RECARGA] = String(vuelta())
+    const consulta = { pagina: pagina(), tamano: porPagina(), orden: null, filtros }
     const este = ++pedido
     untracked(() => carga.set({ tipo: 'cargando' }))
     config.cargador(consulta).then(
       (respuesta) => {
         if (este !== pedido) return
+        const clave = JSON.stringify([consulta.tamano, consulta.filtros])
+        conocido = { clave, total: conocido.clave === clave ? Math.max(conocido.total, respuesta.total) : respuesta.total }
         filas.set(respuesta.filas)
-        total.set(respuesta.total)
+        total.set(conocido.total)
         carga.set({ tipo: 'lista' })
       },
       (e: unknown) => {

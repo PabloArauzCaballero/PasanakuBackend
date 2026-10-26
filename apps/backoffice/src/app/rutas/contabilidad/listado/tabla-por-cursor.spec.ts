@@ -87,6 +87,34 @@ describe('ap-tabla-por-cursor · listado paginado en el servidor', () => {
     expect(texto(el.querySelector('ap-paginacion .resumen'))).toBe('Página 3 de 3')
   })
 
+  it('aceptado · volver atrás después de conocer la última página no esconde las siguientes (Anterior desde la 3 → «2 de 3», 1 → «1 de 3»)', async () => {
+    ;(Array.from(el.querySelectorAll('ap-paginacion .pasos button')).at(1) as HTMLButtonElement).click()
+    await estable(f)
+    f.componentInstance.listado.irAPagina(3)
+    await estable(f)
+    f.componentInstance.listado.irAPagina(2)
+    await estable(f)
+    expect(texto(el.querySelector('ap-paginacion .resumen'))).toBe('Página 2 de 3')
+    expect((Array.from(el.querySelectorAll('ap-paginacion .pasos button')).at(1) as HTMLButtonElement).disabled).toBe(false)
+    f.componentInstance.listado.irAPagina(1)
+    await estable(f)
+    expect(texto(el.querySelector('ap-paginacion .resumen'))).toBe('Página 1 de 3')
+  })
+
+  it('aceptado · recargar en la página 1 después de conocer la última no apaga «Siguiente» (tras una mutación)', async () => {
+    f.componentInstance.listado.irAPagina(2)
+    await estable(f)
+    f.componentInstance.listado.irAPagina(3)
+    await estable(f)
+    f.componentInstance.listado.irAPagina(1)
+    await estable(f)
+    f.componentInstance.listado.recargar()
+    await estable(f)
+    expect(servidor.pedidos.at(-1)?.cursor).toBeNull()
+    expect(texto(el.querySelector('ap-paginacion .resumen'))).toBe('Página 1 de 2')
+    expect((Array.from(el.querySelectorAll('ap-paginacion .pasos button')).at(1) as HTMLButtonElement).disabled).toBe(false)
+  })
+
   it('aceptado · filas por página = 20 vuelve a la 1 y lo pide al servidor', async () => {
     f.componentInstance.listado.cambiarPorPagina(20)
     await estable(f)

@@ -90,7 +90,7 @@ const EXPORTABLES = [
     }
   `,
   styles: `
-    .pantalla { padding: var(--s5); display: grid; gap: var(--s4); min-width: 0; }
+    .pantalla { padding: var(--s5); display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s4); min-width: 0; }
     .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr)); gap: var(--s3); }
     .motivo { display: block; max-width: 22rem; color: var(--text-2); white-space: normal; font: var(--t-cuerpo-chico); }
   `,

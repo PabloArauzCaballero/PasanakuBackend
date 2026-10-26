@@ -3,7 +3,6 @@ import { Alerta } from '@aportaya/ui/alerta/alerta'
 import { Boton } from '@aportaya/ui/boton/boton'
 import { CabeceraDePagina } from '@aportaya/ui/cabecera-de-pagina/cabecera-de-pagina'
 import { ErrorDeEnvio } from '@aportaya/ui/error-de-envio/error-de-envio'
-import { Fecha } from '@aportaya/ui/fecha/fecha'
 import { GrupoRadio } from '@aportaya/ui/grupo-radio/grupo-radio'
 import { Icono } from '@aportaya/ui/icono/icono'
 import { SeccionDeExpediente } from '@aportaya/ui/seccion-de-expediente/seccion-de-expediente'
@@ -34,7 +33,7 @@ import { guardarArchivo } from './guardar-archivo'
 @Component({
   selector: 'ap-pantalla-de-estados-financieros',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ErrorDeEnvio, Alerta, Boton, CabeceraDePagina, Fecha, GrupoRadio, Icono, SeccionDeExpediente],
+  imports: [ErrorDeEnvio, Alerta, Boton, CabeceraDePagina, GrupoRadio, Icono, SeccionDeExpediente],
   template: `
     <section class="pantalla">
       <ap-cabecera-de-pagina eyebrow="Contabilidad · CU-106" [titulo]="t.titulo" [descripcion]="t.proposito" icono="balanza" />
@@ -50,7 +49,6 @@ import { guardarArchivo } from './guardar-archivo'
           <h2><ap-icono nombre="documento" tamano="s4" />Estado financiero generado</h2>
           <ap-seccion-de-expediente [titulo]="etiquetaDeTipo(g.tipo)" [datos]="datosDe(g)" [actualizadoIso]="g.generadoEn">
             <p class="hash-ayuda">{{ t.hashExplicacion }}</p>
-            <ap-fecha [iso]="g.generadoEn" />
             <ap-boton icono="descargar" [cargando]="descargando()" (pulsado)="descargar(g)">{{ t.descargar }}</ap-boton>
           </ap-seccion-de-expediente>
         }
@@ -66,7 +64,7 @@ import { guardarArchivo } from './guardar-archivo'
     </section>
   `,
   styles: `
-    .pantalla { padding: var(--s5); display: grid; gap: var(--s4); min-width: 0; }
+    .pantalla { padding: var(--s5); display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s4); min-width: 0; }
     .tarjeta { display: grid; gap: var(--s4); justify-items: start; width: 100%; max-width: 56rem; margin-inline: auto; padding: var(--s5); border: var(--borde-fino) solid var(--border); border-radius: var(--r-lg); background: var(--surface); box-shadow: var(--sombra-1); }
     .tarjeta > ap-alerta, .tarjeta > ap-seccion-de-expediente, .tarjeta > ap-grupo-radio { justify-self: stretch; }
     h2, .periodo, .listo { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s2); margin: 0; }

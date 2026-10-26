@@ -79,7 +79,7 @@ const EXPORTABLES = [
     }
   `,
   styles: `
-    :host { display: grid; gap: var(--s4); min-width: 0; }
+    :host { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s4); min-width: 0; }
     .vence { display: inline-flex; flex-wrap: wrap; align-items: center; gap: var(--s2); }
     .motivo { display: block; max-width: 22rem; color: var(--text-2); white-space: normal; font: var(--t-cuerpo-chico); }
   `,
