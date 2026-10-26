@@ -68,4 +68,41 @@ describe('TablaEndpointsDelDia · «no sabemos» no es «nadie llamó»', () => 
     expect(texto).toContain('No pudimos leer el tráfico')
     expect(texto).not.toContain('Todavía nadie llamó')
   })
+
+  async function montar(responder: (r: ReturnType<HttpTestingController['expectOne']>) => void) {
+    const fixture = TestBed.createComponent(TablaEndpointsDelDia)
+    fixture.detectChanges()
+    TestBed.inject(ApplicationRef).tick()
+    responder(http.expectOne((r) => r.url === URL))
+    await fixture.whenStable()
+    fixture.detectChanges()
+    return fixture
+  }
+  const filas = (raiz: HTMLElement) => [...raiz.querySelectorAll('ap-tabla-de-datos tbody tr')].map((tr) => tr.textContent ?? '')
+
+  it('correcto: abre ordenada por solicitudes (la más llamada primero), filtra por servicio y exporta lo filtrado', async () => {
+    const fixture = await montar((r) =>
+      r.flush(base({ endpoints: [
+        { servicio: 'grupos', metodo: 'GET', ruta: '/grupos/{id}', solicitudes: 3, errores4xx: 0, errores5xx: 0 },
+        { servicio: 'pagos', metodo: 'POST', ruta: '/pagos', solicitudes: 1200, errores4xx: 2, errores5xx: 0 },
+      ] })),
+    )
+    const raiz = fixture.nativeElement as HTMLElement
+    expect(filas(raiz)[0]).toContain('/pagos')
+    const select = [...raiz.querySelectorAll('ap-lista-de-opciones')].find((l) => l.textContent?.includes('Servicio'))!.querySelector('select')!
+    select.value = 'grupos'
+    select.dispatchEvent(new Event('change'))
+    fixture.detectChanges()
+    expect(filas(raiz)).toHaveLength(1)
+    expect(raiz.querySelector('ap-exportar-listado')?.textContent).toContain('1 fila')
+  })
+
+  it('inválido: un 500 se dice con su código de seguimiento y «Volver a intentar» vuelve a pedir', async () => {
+    const fixture = await montar((r) => r.flush({ mensaje: 'x', trazaId: 'tz-e' }, { status: 500, statusText: 'x' }))
+    const raiz = fixture.nativeElement as HTMLElement
+    expect(raiz.querySelector('[role="alert"]')).not.toBeNull()
+    ;[...raiz.querySelectorAll('button')].find((b) => b.textContent?.includes('Volver a intentar'))!.click()
+    TestBed.inject(ApplicationRef).tick()
+    expect(http.match((r) => r.url === URL)).toHaveLength(1)
+  })
 })

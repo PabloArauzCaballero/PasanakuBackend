@@ -1,89 +1,113 @@
-import { HttpTestingController } from '@angular/common/http/testing'
 import { describe, expect, it } from 'vitest'
-import { configurarListado, esperar, GW, montarListado, textoDe } from '../../contabilidad/listado/listado.apoyo'
-import { pagina, pieza } from '../publicidad.apoyo'
+import { boton, buscar, configurar, elegir, esperar, GW, montar, pagina, pieza, texto } from '../publicidad.apoyo'
 import { ColaDeModeracion } from './cola-de-moderacion'
 
 /**
- * H1.S3.M3 · CU-112 · La cola sobre `listarPiezasCreativas` por cursor. Moderación por identidad separada: sin
+ * H1.S3.M3 · CU-112 · La cola sobre `listarPiezasCreativas` por lotes. Moderación por identidad separada: sin
  * `PUBLICIDAD_MODERAR` no hay botones; R-PUB-05 (quien subió no modera) lo decide el servidor con `AP-CU112-03`.
  */
-const URL = `${GW}/publicidad/piezas-creativas?limite=50&estadoModeracion=PENDIENTE`
+const URL = `${GW}/publicidad/piezas-creativas?limite=100&estadoModeracion=PENDIENTE`
 const REVISION = `${GW}/publicidad/piezas-creativas/p-1/revision`
 
-/** Botones de la FILA (el diálogo abierto repite el texto en su botón de confirmar). */
-function botones(f: { nativeElement: HTMLElement }, texto: string): HTMLButtonElement[] {
-  return [...f.nativeElement.querySelectorAll('[role="cell"] ap-boton button')].filter((b) => (b as HTMLElement).textContent?.includes(texto)) as HTMLButtonElement[]
+async function confirmar(accion: string, f: Parameters<typeof esperar>[0]): Promise<void> {
+  boton(document.querySelector('ap-dialogo-de-moderacion')!, accion)!.click()
+  await esperar(f)
 }
 
-async function abrirYConfirmar(http: HttpTestingController, f: Awaited<ReturnType<typeof montarListado<ColaDeModeracion>>>, accion: string) {
-  botones(f, accion)[0]!.click()
-  await esperar(f)
-  const confirmar = [...document.querySelectorAll('ap-dialogo button')].find((b) => (b as HTMLElement).textContent?.trim() === accion) as HTMLButtonElement
-  confirmar.click()
-  await esperar(f)
-  return http
-}
-
-describe('ColaDeModeracion · CU-112 por cursor', () => {
-  it('correcto · la pieza se ve (enlace al recurso, fecha) y con el permiso se ofrece aprobar y rechazar', async () => {
-    const http = configurarListado(['PUBLICIDAD_MODERAR'])
-    const f = await montarListado(http, ColaDeModeracion, URL, { cuerpo: pagina([pieza()]) })
-    expect(textoDe(f)).toContain('Banner de aniversario')
-    expect(f.nativeElement.querySelector('a.ver')?.getAttribute('href')).toBe('https://cdn.aportaya.test/p-1.png')
-    expect(f.nativeElement.querySelector('a.ver')?.getAttribute('rel')).toBe('noopener noreferrer')
-    expect(botones(f, 'Aprobar pieza')).toHaveLength(1)
-    expect(botones(f, 'Rechazar pieza')).toHaveLength(1)
+describe('ColaDeModeracion · CU-112', () => {
+  it('aceptado · la pieza se ve con «Ver pieza» (otra pestaña, sin opener) y con el permiso se ofrece aprobar y rechazar', async () => {
+    const http = configurar(['PUBLICIDAD_MODERAR'])
+    const f = await montar(ColaDeModeracion)
+    http.expectOne(URL).flush(pagina([pieza()]))
+    await esperar(f)
+    expect(texto(f)).toContain('Banner de aniversario')
+    const ver = f.nativeElement.querySelector('a[apAccionDeFila]') as HTMLAnchorElement
+    expect(ver.getAttribute('href')).toBe('https://cdn.aportaya.test/p-1.png')
+    expect(ver.getAttribute('rel')).toBe('noopener noreferrer')
+    expect(boton(f.nativeElement, 'Aprobar pieza Banner de aniversario')).toBeDefined()
+    expect(boton(f.nativeElement, 'Rechazar pieza Banner de aniversario')).toBeDefined()
   })
 
-  it('identidad separada · sin PUBLICIDAD_MODERAR no se dibuja ni aprobar ni rechazar', async () => {
-    const http = configurarListado([])
-    const f = await montarListado(http, ColaDeModeracion, URL, { cuerpo: pagina([pieza()]) })
-    expect(botones(f, 'Aprobar pieza')).toHaveLength(0)
-    expect(botones(f, 'Rechazar pieza')).toHaveLength(0)
-  })
-
-  it('aprobar: la fila muestra «Aprobada» solo después del 2xx', async () => {
-    const http = configurarListado(['PUBLICIDAD_MODERAR'])
-    const f = await montarListado(http, ColaDeModeracion, URL, { cuerpo: pagina([pieza()]) })
-    await abrirYConfirmar(http, f, 'Aprobar pieza')
+  it('aceptado · aprobar: la fila muestra «Aprobada» solo después del 2xx y deja de ofrecer la decisión', async () => {
+    const http = configurar(['PUBLICIDAD_MODERAR'])
+    const f = await montar(ColaDeModeracion)
+    http.expectOne(URL).flush(pagina([pieza()]))
+    await esperar(f)
+    boton(f.nativeElement, 'Aprobar pieza Banner de aniversario')!.click()
+    await esperar(f)
+    await confirmar('Aprobar pieza', f)
     const req = http.expectOne(REVISION)
     expect(req.request.body).toEqual({ decision: 'APROBADA' })
-    expect(f.nativeElement.querySelector('[role="cell"] ap-chip-estado:not([tono="info"])')).toBeNull()
-    req.flush({ revisionId: 'r-1', estadoModeracion: 'APROBADA' }, { status: 201, statusText: 'Created' })
+    expect(f.nativeElement.querySelector('ap-tabla-de-datos')?.textContent).not.toContain('Aprobada')
+    req.flush({ piezaCreativaId: 'p-1', estadoModeracion: 'APROBADA' }, { status: 201, statusText: 'Created' })
     await esperar(f)
-    expect(textoDe(f)).toContain('Aprobada')
-    expect(botones(f, 'Aprobar pieza')).toHaveLength(0)
+    expect(f.nativeElement.querySelector('ap-tabla-de-datos')?.textContent).toContain('Aprobada')
+    expect(boton(f.nativeElement, 'Aprobar pieza Banner de aniversario')).toBeUndefined()
   })
 
-  it('inválido · 422 AP-CU112-03 (quien subió la pieza intenta moderarla): lo dice y la pieza NO queda resuelta', async () => {
-    const http = configurarListado(['PUBLICIDAD_MODERAR'])
-    const f = await montarListado(http, ColaDeModeracion, URL, { cuerpo: pagina([pieza()]) })
-    await abrirYConfirmar(http, f, 'Aprobar pieza')
+  it('aceptado · el estado consulta al servidor (lo ya resuelto) y la búsqueda cubre el texto de la pieza', async () => {
+    const http = configurar(['PUBLICIDAD_MODERAR'])
+    const f = await montar(ColaDeModeracion)
+    http.expectOne(URL).flush(pagina([pieza(), pieza({ piezaCreativaId: 'p-2', titulo: 'Otra', texto: 'Promoción de octubre' })]))
+    await esperar(f)
+    await buscar(f, 'octubre')
+    expect(texto(f)).toContain('1 de 2 piezas')
+    await buscar(f, '')
+    await elegir(f, 'Estado de moderación', 'RECHAZADA')
+    http.expectOne(`${GW}/publicidad/piezas-creativas?limite=100&estadoModeracion=RECHAZADA`).flush(pagina([pieza({ estadoModeracion: 'RECHAZADA' })]))
+    await esperar(f)
+    expect(boton(f.nativeElement.querySelector('ap-tabla-de-datos')!, /^Aprobar pieza/)).toBeUndefined()
+  })
+
+  it('límite · sin PUBLICIDAD_MODERAR no se dibuja ni aprobar ni rechazar', async () => {
+    const http = configurar([])
+    const f = await montar(ColaDeModeracion)
+    http.expectOne(URL).flush(pagina([pieza()]))
+    await esperar(f)
+    expect(boton(f.nativeElement.querySelector('ap-tabla-de-datos')!, /^Aprobar pieza/)).toBeUndefined()
+    expect(boton(f.nativeElement.querySelector('ap-tabla-de-datos')!, /^Rechazar pieza/)).toBeUndefined()
+  })
+
+  it('límite · rechazar sin motivo no envía nada; cola vacía lo dice', async () => {
+    const http = configurar(['PUBLICIDAD_MODERAR'])
+    const f = await montar(ColaDeModeracion)
+    http.expectOne(URL).flush(pagina([pieza()]))
+    await esperar(f)
+    boton(f.nativeElement, 'Rechazar pieza Banner de aniversario')!.click()
+    await esperar(f)
+    await confirmar('Rechazar pieza', f)
+    expect(http.match(REVISION)).toHaveLength(0)
+    expect(document.body.textContent).toContain('El rechazo exige un motivo escrito.')
+    f.destroy()
+    const g = await montar(ColaDeModeracion)
+    http.expectOne(URL).flush(pagina([]))
+    await esperar(g)
+    expect(texto(g)).toContain('No hay piezas en este estado.')
+  })
+
+  it('error · 422 AP-CU112-03 (quien subió la pieza intenta moderarla): lo dice y la pieza NO queda resuelta', async () => {
+    const http = configurar(['PUBLICIDAD_MODERAR'])
+    const f = await montar(ColaDeModeracion)
+    http.expectOne(URL).flush(pagina([pieza()]))
+    await esperar(f)
+    boton(f.nativeElement, 'Aprobar pieza Banner de aniversario')!.click()
+    await esperar(f)
+    await confirmar('Aprobar pieza', f)
     http.expectOne(REVISION).flush({ codigo: 'AP-CU112-03', mensaje: 'interno', trazaId: 'tz-3' }, { status: 422, statusText: 'x' })
     await esperar(f)
     expect(document.body.textContent).toContain('Quien subió esta pieza no puede moderarla (R-PUB-05)')
     expect(document.body.textContent).not.toContain('interno')
-    expect(botones(f, 'Aprobar pieza')).toHaveLength(1)
+    expect(boton(f.nativeElement, 'Aprobar pieza Banner de aniversario')).toBeDefined()
   })
 
-  it('límite · rechazar sin motivo no envía nada', async () => {
-    const http = configurarListado(['PUBLICIDAD_MODERAR'])
-    const f = await montarListado(http, ColaDeModeracion, URL, { cuerpo: pagina([pieza()]) })
-    await abrirYConfirmar(http, f, 'Rechazar pieza')
-    expect(http.match(REVISION)).toHaveLength(0)
-    expect(document.body.textContent).toContain('El rechazo exige un motivo escrito.')
-  })
-
-  it('límite · cola vacía lo dice', async () => {
-    const http = configurarListado(['PUBLICIDAD_MODERAR'])
-    const f = await montarListado(http, ColaDeModeracion, URL, { cuerpo: pagina([]) })
-    expect(textoDe(f)).toContain('No hay piezas pendientes de moderación.')
-  })
-
-  it('inválido · 403 en la cola: alerta traducida', async () => {
-    const http = configurarListado(['PUBLICIDAD_MODERAR'])
-    const f = await montarListado(http, ColaDeModeracion, URL, { status: 403, cuerpo: { mensaje: 'interno' } })
-    expect(f.nativeElement.querySelector('ap-estado-de-listado [role="alert"]')?.textContent).toContain('No tenés acceso a esto.')
+  it('error · 403 en la cola: alerta traducida y «Volver a intentar» repite el pedido', async () => {
+    const http = configurar(['PUBLICIDAD_MODERAR'])
+    const f = await montar(ColaDeModeracion)
+    http.expectOne(URL).flush({ mensaje: 'interno' }, { status: 403, statusText: 'x' })
+    await esperar(f)
+    expect(f.nativeElement.querySelector('[role="alert"]')?.textContent).toContain('No tenés acceso a esto.')
+    boton(f.nativeElement, /Volver a intentar|Reintentar/)!.click()
+    await esperar(f)
+    expect(http.match(URL)).toHaveLength(1)
   })
 })

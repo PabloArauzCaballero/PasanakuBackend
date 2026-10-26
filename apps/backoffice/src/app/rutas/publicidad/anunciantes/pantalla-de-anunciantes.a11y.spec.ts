@@ -12,7 +12,7 @@ import { Sesion } from '../../../nucleo/sesion'
 import { PantallaDeAnunciantes } from './pantalla-de-anunciantes'
 import { anunciante, pagina } from '../publicidad.apoyo'
 
-const URL = 'http://gw/api/v1/publicidad/anunciantes?limite=50'
+const URL = 'http://gw/api/v1/publicidad/anunciantes?limite=100'
 
 describe('PantallaDeAnunciantes · accesibilidad', () => {
   it('sin violaciones serias, con la tabla canónica cargada', async () => {

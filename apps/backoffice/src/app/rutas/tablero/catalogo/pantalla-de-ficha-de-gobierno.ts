@@ -34,7 +34,7 @@ import { textosGobierno as t } from './textos-gobierno'
     <ap-estado-de-pantalla [recurso]="remoto" [mensajeVacio]="textos.ficha.noExiste(esquema() + '.' + tabla())" [etiquetaDeCarga]="textos.cargando" (reintentar)="remoto.reload()">
       @if (ficha(); as f) {
         <ap-cabecera-de-pagina icono="baseDeDatos" [eyebrow]="t.eyebrow" [titulo]="t.configurar" [descripcion]="t.descripcion(f.esquema + '.' + f.tabla)">
-          <ap-boton acciones variante="fantasma" tamano="sm" (pulsado)="volver()">{{ t.volver }}</ap-boton>
+          <ap-boton acciones variante="fantasma" tamano="sm" icono="flechaIzquierda" (pulsado)="volver()">{{ t.volver }}</ap-boton>
         </ap-cabecera-de-pagina>
         <form class="formulario" (submit)="$event.preventDefault(); pedirConfirmacion()">
           <ap-tarjeta [relieve]="true">
@@ -58,8 +58,8 @@ import { textosGobierno as t } from './textos-gobierno'
           </ap-tarjeta>
           @if (error()) { <ap-estado-de-error [titulo]="t.noSeGuardo" [mensaje]="error()!" [conReintento]="false" /> }
           <div class="acciones">
-            <ap-boton variante="fantasma" (pulsado)="volver()">{{ t.cancelar }}</ap-boton>
-            <ap-boton variante="primario" tipo="submit" [deshabilitado]="cambios() === 0 || guardando()" [cargando]="guardando()">{{ t.guardar }}</ap-boton>
+            <ap-boton variante="fantasma" icono="cerrar" (pulsado)="volver()">{{ t.cancelar }}</ap-boton>
+            <ap-boton variante="primario" icono="guardar" tipo="submit" [deshabilitado]="cambios() === 0 || guardando()" [cargando]="guardando()">{{ t.guardar }}</ap-boton>
           </div>
         </form>
         <ap-dialogo-de-confirmacion [titulo]="t.confirmarTitulo" [descripcion]="t.confirmarDescripcion(f.esquema + '.' + f.tabla, cambios())" [textoDeConfirmar]="t.guardar" [cargando]="guardando()" [(abierto)]="confirmando" (confirmar)="guardar()" />

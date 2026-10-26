@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core'
 import { RouterLink } from '@angular/router'
 import { ChipEstado } from '@aportaya/ui/chip-estado/chip-estado'
 import { Fecha } from '@aportaya/ui/fecha/fecha'
+import { Icono } from '@aportaya/ui/icono/icono'
 import type { DefinicionDeBandeja, LecturaDeBandeja } from './dominio/bandejas'
 import { textosTablero } from './textos'
 
@@ -15,10 +16,10 @@ export type EstadoDeTarjeta = { tipo: 'cargando' } | (LecturaDeBandeja & { consu
 @Component({
   selector: 'ap-tarjeta-de-bandeja',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ChipEstado, Fecha, RouterLink],
+  imports: [ChipEstado, Fecha, Icono, RouterLink],
   template: `
     <article class="tarjeta" [attr.aria-labelledby]="'bandeja-' + bandeja().id" [attr.data-bandeja]="bandeja().id">
-      <h3 [id]="'bandeja-' + bandeja().id">{{ bandeja().titulo }}</h3>
+      <h3 [id]="'bandeja-' + bandeja().id"><span class="loseta" aria-hidden="true"><ap-icono [nombre]="bandeja().icono" tamano="s4" /></span>{{ bandeja().titulo }}</h3>
       <p class="definicion">{{ bandeja().definicion }}</p>
       @switch (estado().tipo) {
         @case ('cargando') {
@@ -41,16 +42,17 @@ export type EstadoDeTarjeta = { tipo: 'cargando' } | (LecturaDeBandeja & { consu
       @if (consultadaEn(); as iso) {
         <p class="hora">{{ t.consultadaEl }} <ap-fecha [iso]="iso" /></p>
       }
-      <a class="abrir" [routerLink]="bandeja().ruta">{{ t.abrir }}</a>
+      <a class="abrir" [routerLink]="bandeja().ruta" [attr.aria-label]="t.abrir + ': ' + bandeja().titulo">{{ t.abrir }}<ap-icono nombre="flechaDerecha" tamano="s4" /></a>
     </article>
   `,
   styles: `
     .tarjeta { display: grid; gap: var(--s2); align-content: start; padding: var(--s4); border: var(--borde-fino) solid var(--border); border-radius: var(--r-lg); background: var(--surface); height: 100%; }
-    h3 { margin: 0; font-size: 1em; color: var(--text); }
+    h3 { display: flex; align-items: center; gap: var(--s2); margin: 0; font-size: 1em; color: var(--text); }
+    .loseta { display: inline-flex; flex: none; align-items: center; justify-content: center; width: calc(var(--s6) + var(--s1)); height: calc(var(--s6) + var(--s1)); border-radius: var(--r-md); background: var(--brand-bg); color: var(--brand-texto); }
     .definicion, .hora, .cargando, .traza { margin: 0; color: var(--text-2); font-size: .9em; }
     .error { display: grid; gap: var(--s1); }
     .error p { margin: 0; color: var(--text); }
-    .abrir { display: inline-flex; align-items: center; min-height: var(--area-tactil); color: var(--brand-texto); font-weight: 600; }
+    .abrir { display: inline-flex; align-items: center; gap: var(--s1); justify-self: start; min-height: var(--area-tactil); color: var(--brand-texto); font-weight: 600; }
     .abrir:focus-visible { outline: var(--borde-foco) solid var(--g300); outline-offset: var(--borde-desfase); }
   `,
 })

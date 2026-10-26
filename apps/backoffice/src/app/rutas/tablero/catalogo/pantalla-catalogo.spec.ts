@@ -2,9 +2,10 @@ import { provideHttpClient } from '@angular/common/http'
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing'
 import { ApplicationRef, provideZonelessChangeDetection } from '@angular/core'
 import { TestBed } from '@angular/core/testing'
-import { provideRouter } from '@angular/router'
+import { provideRouter, Router } from '@angular/router'
 import { RouterTestingHarness } from '@angular/router/testing'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
+import { Sesion } from '../../../nucleo/sesion'
 import { GATEWAY } from '../../../nucleo/gateway'
 import { CREDENCIAL, OBLIGACION, paginaDe, resumen, tabla } from './catalogo-sintetico'
 import { PantallaCatalogo } from './pantalla-catalogo'
@@ -15,7 +16,7 @@ const tablasCon = (consulta: string) => `${BASE}/tablas?${consulta}`
 
 /** Datos → Catálogo de datos: los cuatro estados, la página pedida al servidor y el estado en la URL. */
 describe('PantallaCatalogo · cargando, con datos, vacío de búsqueda y error', () => {
-  async function abrir(url: string) {
+  async function abrir(url: string, permisos: string[] = []) {
     TestBed.configureTestingModule({
       providers: [
         provideZonelessChangeDetection(),
@@ -25,6 +26,7 @@ describe('PantallaCatalogo · cargando, con datos, vacío de búsqueda y error',
         { provide: GATEWAY, useValue: 'http://gw/api/v1' },
       ],
     })
+    TestBed.inject(Sesion).abrir('t', permisos, 'operador')
     const arnes = await RouterTestingHarness.create(url)
     TestBed.inject(ApplicationRef).tick()
     return { arnes, http: TestBed.inject(HttpTestingController) }
@@ -96,5 +98,29 @@ describe('PantallaCatalogo · cargando, con datos, vacío de búsqueda y error',
     const t = await texto(arnes)
     expect(t).not.toContain('stack interno')
     expect(t).toContain('Volver a intentar')
+  })
+
+  it('correcto: la página filtrada se descarga (el botón dice cuántas filas) y cada fila ofrece «Ver ficha»; sin permiso no hay «Editar»', async () => {
+    const { arnes, http } = await abrir('/tablero/catalogo-de-datos')
+    http.expectOne(RESUMEN).flush(resumen())
+    http.expectOne(tablasCon('pagina=1&limite=20')).flush(paginaDe([OBLIGACION, CREDENCIAL], 1, 20, 2))
+    await texto(arnes)
+    const raiz = arnes.routeNativeElement!
+    expect(raiz.querySelector('ap-exportar-listado')?.textContent).toContain('2 filas')
+    const navegar = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true)
+    raiz.querySelector<HTMLButtonElement>('button[aria-label="Ver ficha aportes.obligacion_aporte"]')!.click()
+    expect(navegar).toHaveBeenCalledWith(['/tablero/catalogo-de-datos', 'aportes', 'obligacion_aporte'])
+    expect(raiz.querySelector('button[aria-label^="Editar"]')).toBeNull()
+    expect(raiz.querySelector('button[aria-label^="Eliminar"]')).toBeNull()
+  })
+
+  it('correcto: con CATALOGO_DATOS_EDITAR, «Editar» lleva a la ficha de gobierno (CU-130)', async () => {
+    const { arnes, http } = await abrir('/tablero/catalogo-de-datos', ['CATALOGO_DATOS_EDITAR'])
+    http.expectOne(RESUMEN).flush(resumen())
+    http.expectOne(tablasCon('pagina=1&limite=20')).flush(paginaDe([OBLIGACION], 1, 20, 1))
+    await texto(arnes)
+    const navegar = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true)
+    arnes.routeNativeElement!.querySelector<HTMLButtonElement>('button[aria-label="Editar aportes.obligacion_aporte"]')!.click()
+    expect(navegar).toHaveBeenCalledWith(['/tablero/catalogo-de-datos', 'aportes', 'obligacion_aporte', 'ficha'])
   })
 })

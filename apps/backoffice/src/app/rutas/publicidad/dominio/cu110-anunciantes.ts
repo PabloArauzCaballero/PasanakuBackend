@@ -5,6 +5,7 @@ import { GATEWAY } from '../../../nucleo/gateway'
 import { contextoIdempotente } from '../../../nucleo/idempotencia.interceptor'
 import type { CargadorDePagina } from '../../../nucleo/tabla/tipos'
 import { cargadorPublicidadPorCursor, type Dinero } from './contrato-publicidad'
+import { lotesPorCursor } from './lotes-por-cursor'
 import type { EntradaAnunciante } from 'clientes/angular/publicidad/model/entradaAnunciante'
 import type { SalidaAnunciante } from 'clientes/angular/publicidad/model/salidaAnunciante'
 import type { EntradaSocio } from 'clientes/angular/publicidad/model/entradaSocio'
@@ -40,6 +41,11 @@ export function cargarAnunciantes(http: HttpClient, gateway: string): CargadorDe
 
 export function cargadorDeAnunciantes(): CargadorDePagina<Anunciante> {
   return cargarAnunciantes(inject(HttpClient), inject(GATEWAY))
+}
+
+/** El listado por lotes de 100 (ver `lotes-por-cursor.ts`): el estado viaja al servidor como `estados`. */
+export function lotesDeAnunciantes() {
+  return lotesPorCursor<Anunciante>('/publicidad/anunciantes', (filtros, params) => (filtros['estado'] ? params.set('estados', filtros['estado']) : params))
 }
 
 export function recursoDeSocio(socioId: () => string | undefined) {
