@@ -4,7 +4,8 @@
 //
 // Uso: `ROL=PLATAFORMA PERMISOS_ARCHIVO=permisos.txt node e2e/apoyo/medir-latencia-del-menu.mjs [baseURL] [salida.json]`
 // Variables: LATENCIA_MS (150), CPU (4), REPOSO_MS (1500: cuánto tiempo sin pedidos de red se considera «reposo»
-// antes de empezar a medir; simula a quien mira el tablero antes de hacer clic).
+// antes de empezar a medir; simula a quien mira el tablero antes de hacer clic). SIN_REPOSO=1 hace clic apenas pinta
+// cada vista, sin esperar a que la red quede quieta: el peor caso para una precarga.
 import { chromium } from 'playwright'
 import { readFileSync, writeFileSync } from 'node:fs'
 
@@ -45,6 +46,7 @@ await cdp.send('Emulation.setCPUThrottlingRate', { rate: cpu })
 
 /** Espera a que la red quede quieta `reposo` ms seguidos: una condición sobre la red, no una espera fija. */
 async function esperarReposo() {
+  if (process.env.SIN_REPOSO) return
   await page.waitForFunction(
     (ms) => {
       const w = window
@@ -86,6 +88,6 @@ for (const e of enlaces) {
   medidas.push({ entrada: e.texto, destino: e.href, url: page.url().replace(base, ''), ms, chunksPedidosAlNavegar: js, pinto: ok })
   await esperarReposo()
 }
-writeFileSync(salida, JSON.stringify({ rol, latencia, cpu, chunksAntesDeMedir, chunksEnReposo, medidas }, null, 1))
+writeFileSync(salida, JSON.stringify({ rol, sinReposo: Boolean(process.env.SIN_REPOSO), latencia, cpu, chunksAntesDeMedir, chunksEnReposo, medidas }, null, 1))
 console.log(JSON.stringify({ entradas: medidas.length, mediana: medidas.map((m) => m.ms).sort((a, b) => a - b)[Math.floor(medidas.length / 2)], max: Math.max(...medidas.map((m) => m.ms)) }))
 await navegador.close()

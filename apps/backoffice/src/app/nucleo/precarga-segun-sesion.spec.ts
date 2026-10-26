@@ -1,6 +1,6 @@
 import { provideZonelessChangeDetection } from '@angular/core'
 import { TestBed } from '@angular/core/testing'
-import type { Route } from '@angular/router'
+import { provideRouter, type Route } from '@angular/router'
 import { firstValueFrom, of, toArray, defaultIfEmpty, Subject } from 'rxjs'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { requierePermiso, requiereSesion } from './permisos'
@@ -12,7 +12,7 @@ describe('PrecargaSegunSesion', () => {
   let estrategia: PrecargaSegunSesion
   let sesion: Sesion
   beforeEach(() => {
-    TestBed.configureTestingModule({ providers: [provideZonelessChangeDetection()] })
+    TestBed.configureTestingModule({ providers: [provideZonelessChangeDetection(), provideRouter([])] })
     estrategia = TestBed.inject(PrecargaSegunSesion)
     sesion = TestBed.inject(Sesion)
   })
@@ -48,5 +48,16 @@ describe('PrecargaSegunSesion', () => {
     const sinSesion = correr({ path: '', canMatch: [requiereSesion()], loadChildren: () => [] })
     expect(await sinSesion.valores).toEqual([])
     expect(sinSesion.load).not.toHaveBeenCalled()
+  })
+
+  it('límite: de a dos por vez; la tercera arranca cuando llega una de las anteriores', async () => {
+    sesion.abrir('t', [], 'oficial')
+    const llegadas = [new Subject<string>(), new Subject<string>(), new Subject<string>()]
+    const loads = llegadas.map((s) => vi.fn(() => s.asObservable()))
+    loads.forEach((load, i) => estrategia.preload({ path: `r${i}`, loadChildren: () => [] }, load).subscribe())
+    await vi.waitFor(() => expect(loads[1]).toHaveBeenCalled())
+    expect(loads.map((l) => l.mock.calls.length)).toEqual([1, 1, 0])
+    llegadas[0]!.next('listo')
+    await vi.waitFor(() => expect(loads[2]).toHaveBeenCalled())
   })
 })
