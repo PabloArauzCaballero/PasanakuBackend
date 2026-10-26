@@ -57,8 +57,8 @@ const EXPORTABLES = [
       <ap-cabecera-de-pagina eyebrow="Contabilidad · CU-104" [titulo]="t.titulo" [descripcion]="t.proposito" icono="moneda" />
       <div class="kpis">
         <ap-tarjeta-kpi etiqueta="Cuentas en la página" [valor]="'' + listado.filas().length" icono="lista" />
-        <ap-tarjeta-kpi etiqueta="Por cobrar" [valor]="'' + porCobrar()" icono="reloj" tono="aviso" pista="Pendientes o cobradas en parte" />
-        <ap-tarjeta-kpi etiqueta="Incobrables" [valor]="'' + incobrables()" icono="prohibido" [tono]="incobrables() > 0 ? 'error' : 'neutro'" />
+        <ap-tarjeta-kpi etiqueta="Por cobrar en la página" [valor]="'' + porCobrar()" icono="reloj" tono="aviso" pista="Pendientes o cobradas en parte" />
+        <ap-tarjeta-kpi etiqueta="Incobrables en la página" [valor]="'' + incobrables()" icono="prohibido" [tono]="incobrables() > 0 ? 'error' : 'neutro'" />
       </div>
       @if (cobrada(); as nombre) { <ap-alerta tono="ok" titulo="Cobro registrado">El cobro de {{ nombre }} quedó registrado. La lista ya muestra el saldo nuevo.</ap-alerta> }
       <ap-tabla-por-cursor [titulo]="t.titulo" [columnas]="COLUMNAS" [listado]="listado" [identidad]="identidad" [exportables]="EXPORTABLES" nombreDeRegistros="cuentas" [textoVacio]="t.enCero" ayudaDeBusqueda="Busca por origen o tercero en la página cargada: el servidor no busca por texto.">

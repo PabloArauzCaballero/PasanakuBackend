@@ -18,19 +18,15 @@ export const COLUMNAS: Columna<FilaBitacora>[] = [
   { clave: 'acciones', titulo: 'Acciones', fijaDerecha: true },
 ]
 
-/** CSV/JSON: los campos del evento como se ven, con el hash completo (es lo que se coteja). */
+/** CSV/JSON: solo las columnas que la tabla muestra (regla 90.2: no se exporta lo que no se ve), con el hash completo. */
 export const EXPORTABLES: ColumnaExportable<FilaBitacora>[] = [
   { clave: 'secuencia', titulo: 'Secuencia' },
   { clave: 'fechaHora', titulo: 'Fecha y hora' },
   { clave: 'entidad', titulo: 'Entidad' },
-  { clave: 'entidadId', titulo: 'ID de entidad' },
   { clave: 'accion', titulo: 'Acción' },
   { clave: 'actorRol', titulo: 'Rol del actor' },
   { clave: 'origen', titulo: 'Origen' },
-  { clave: 'motivo', titulo: 'Motivo' },
-  { clave: 'correlationId', titulo: 'Correlation ID' },
   { clave: 'hashRegistro', titulo: 'Hash del registro' },
-  { clave: 'hashAnterior', titulo: 'Hash anterior' },
 ]
 
 const opciones = (valores: readonly string[]): Opcion[] => valores.map((v) => ({ valor: v, texto: v }))

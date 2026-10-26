@@ -16,6 +16,7 @@ import { GATEWAY } from '../../../nucleo/gateway'
 import { erroresInterceptor } from '../../../nucleo/errores.interceptor'
 import { trazaInterceptor } from '../../../nucleo/traza.interceptor'
 import { PantallaDeExpedientes } from './pantalla-de-expedientes'
+import { Sesion } from '../../../nucleo/sesion'
 
 const URL = 'http://gw/api/v1/identidad/verificaciones'
 
@@ -92,7 +93,8 @@ describe('PantallaDeExpedientes · listado (buscar, filtrar, paginar, descargar)
   })
   afterEach(() => http.verify())
 
-  async function montar(respuesta: ExpedienteEnRevision[]) {
+  async function montar(respuesta: ExpedienteEnRevision[], permisos: string[] = []) {
+    TestBed.inject(Sesion).abrir('token', permisos, 'OFICIAL_CUMPLIMIENTO')
     const fixture = TestBed.createComponent(PantallaDeExpedientes)
     fixture.detectChanges()
     http.expectOne(URL).flush(respuesta)
@@ -123,8 +125,13 @@ describe('PantallaDeExpedientes · listado (buscar, filtrar, paginar, descargar)
     await fixture.whenStable()
   })
 
-  it('correcto: la descarga lleva lo filtrado con los valores que se ven, sin ids internos', async () => {
+  it('sin el permiso de exportación de expedientes no se ofrece la descarga (datos de identidad, regla 90.2)', async () => {
     const { fixture } = await montar([expedienteBase()])
+    expect(fixture.debugElement.query(By.directive(ExportarListado))).toBeNull()
+  })
+
+  it('correcto: la descarga lleva lo filtrado con los valores que se ven, sin ids internos', async () => {
+    const { fixture } = await montar([expedienteBase()], ['exportar:expedientes-de-identidad'])
     const exportar = fixture.debugElement.query(By.directive(ExportarListado)).componentInstance as ExportarListado<ExpedienteEnRevision>
     const csv = aCsv(exportar.columnas(), exportar.filas())
     expect(csv).toContain('Nombre,Teléfono,Correo,Documento,Vencimiento del documento,Fotos,Estado')

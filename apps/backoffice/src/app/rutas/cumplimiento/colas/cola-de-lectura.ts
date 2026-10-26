@@ -39,7 +39,7 @@ export function exportablesDeCelda<T>(columnas: readonly Columna<T>[], celda: (f
     <ap-marco-de-cumplimiento [titulo]="titulo()" [proposito]="proposito()" [icono]="icono()">
       <div acciones class="acciones"><ng-content select="[acciones]" /></div>
       <ng-content />
-      <ap-listado-de-bandeja [titulo]="tabla()" [columnas]="columnas()" [bandeja]="bandeja()" [identidad]="identidad()" [exportables]="exportables()" [nombreDeRegistros]="nombreDeRegistros()" [textoVacio]="vacio()" [ayudaDeBusqueda]="ayudaDeBusqueda()">
+      <ap-listado-de-bandeja recursoDeExportacion="cumplimiento-colas" [titulo]="tabla()" [columnas]="columnas()" [bandeja]="bandeja()" [identidad]="identidad()" [exportables]="exportables()" [nombreDeRegistros]="nombreDeRegistros()" [textoVacio]="vacio()" [ayudaDeBusqueda]="ayudaDeBusqueda()">
         <ng-template #celda let-f let-columna="columna">
           @if (importe(f, columna.clave); as i) { <ap-monto [monto]="i.monto" [moneda]="i.moneda" /> }
           @else { {{ texto(f, columna.clave) }} }

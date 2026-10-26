@@ -59,8 +59,8 @@ const EXPORTABLES = [
       <ap-cabecera-de-pagina eyebrow="Contabilidad · CU-105" [titulo]="t.titulo" [descripcion]="t.proposito" icono="paquete" />
       <div class="kpis">
         <ap-tarjeta-kpi etiqueta="Activos en la página" [valor]="'' + listado.filas().length" icono="paquete" />
-        <ap-tarjeta-kpi etiqueta="Por depreciar este período" [valor]="'' + porDepreciar()" icono="calendario" [tono]="porDepreciar() > 0 ? 'aviso' : 'ok'" />
-        <ap-tarjeta-kpi etiqueta="Fuera de uso" [valor]="'' + fueraDeUso()" icono="prohibido" />
+        <ap-tarjeta-kpi etiqueta="Por depreciar en la página" [valor]="'' + porDepreciar()" icono="calendario" [tono]="porDepreciar() > 0 ? 'aviso' : 'ok'" />
+        <ap-tarjeta-kpi etiqueta="Fuera de uso en la página" [valor]="'' + fueraDeUso()" icono="prohibido" />
       </div>
       @if (depreciado(); as codigo) { <ap-alerta tono="ok" titulo="Cuota calculada">El activo {{ codigo }} ya tiene su cuota del período. La lista muestra el valor en libros nuevo.</ap-alerta> }
       <ap-error-de-envio [error]="errorDeEnvio()" />

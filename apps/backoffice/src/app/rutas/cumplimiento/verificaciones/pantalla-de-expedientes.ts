@@ -13,6 +13,7 @@ import { crearResolver, expedientesEnEstado, POR_DECIDIR, recortar, vencimientoD
 import { textosCumplimiento } from '../textos'
 import type { Decision } from './decision-de-expediente'
 import { TarjetaDeExpediente } from './tarjeta-de-expediente'
+import { Exportador } from '../../../nucleo/exportador'
 
 const T = textosCumplimiento.verificaciones
 const CARAS = Object.values(CaraDelExpediente)
@@ -46,7 +47,7 @@ const EXPORTABLES: ColumnaExportable<ExpedienteEnRevision>[] = [
       <ap-barra-de-filtros data-tutorial-id="cumplimiento-filtros" etiqueta="Filtros de expedientes" [etiquetaDeBusqueda]="t.buscarExpediente" ayudaDeBusqueda="El estado se pide al servidor; la búsqueda, el vencimiento y las fotos filtran lo ya cargado." [busqueda]="listado.busqueda()" [selectores]="selectores()" textoLimpiar="Limpiar filtros" (busquedaChange)="listado.buscar($event)" (selectorChange)="alFiltrar($event)" (limpiar)="limpiar()" />
       <div class="barra">
         <p class="resumen" aria-live="polite">{{ resumen() }}</p>
-        <ap-exportar-listado nombre="expedientes de identidad" [columnas]="EXPORTABLES" [filas]="listado.filtradas()" [deshabilitado]="!cola.hasValue()" />
+        @if (exportador.puedeExportar('expedientes-de-identidad')) { <ap-exportar-listado nombre="expedientes de identidad" [columnas]="EXPORTABLES" [filas]="listado.filtradas()" [deshabilitado]="!cola.hasValue()" /> }
       </div>
       <ap-estado-de-pantalla data-tutorial-id="cumplimiento-cola" [recurso]="cola" [vacio]="vacio" [mensajeVacio]="mensajeVacio()" [motivoVacio]="listado.hayCriterios() ? 'porFiltro' : 'sinDatos'" [accionVacio]="listado.hayCriterios() ? 'Quitar filtros' : undefined" (actuarEnVacio)="limpiar()" [etiquetaDeCarga]="t.cargando" (reintentar)="cola.reload()">
         @if (cola.hasValue()) {
@@ -68,6 +69,8 @@ const EXPORTABLES: ColumnaExportable<ExpedienteEnRevision>[] = [
   `,
 })
 export class PantallaDeExpedientes {
+  /** Datos de identidad sin enmascarar: la descarga en el navegador solo con `exportar:expedientes-de-identidad` (regla 90.2). */
+  protected readonly exportador = inject(Exportador)
   constructor() {
     inject(ExplicadorDeVista).fijar(this.t.proposito)
   }
@@ -110,8 +113,11 @@ export class PantallaDeExpedientes {
   private readonly enviarDecision = crearResolver()
 
   protected alFiltrar({ nombre, valor }: { nombre: string; valor: string }): void {
-    if (nombre === 'estado') this.estado.set(valor || POR_DECIDIR)
-    else this.listado.filtrar(nombre, valor)
+    if (nombre === 'estado') {
+      // Otro estado es otra consulta: seguir en la página N de la anterior muestra una lista que nadie pidió.
+      this.estado.set(valor || POR_DECIDIR)
+      this.listado.irAPagina(1)
+    } else this.listado.filtrar(nombre, valor)
   }
 
   protected limpiar(): void {

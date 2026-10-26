@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, TemplateRef, computed, contentChild, input, model } from '@angular/core'
+import { ChangeDetectionStrategy, Component, TemplateRef, computed, contentChild, inject, input, model } from '@angular/core'
 import { NgTemplateOutlet } from '@angular/common'
 import { BarraDeFiltros } from '@aportaya/ui/barra-de-filtros/barra-de-filtros'
 import { Esqueleto } from '@aportaya/ui/esqueleto/esqueleto'
@@ -8,6 +8,7 @@ import type { ColumnaExportable } from '@aportaya/ui/exportar-listado/exportar'
 import { ExportarListado } from '@aportaya/ui/exportar-listado/exportar-listado'
 import { Paginacion } from '@aportaya/ui/paginacion/paginacion'
 import { TablaDeDatos, type Columna } from '@aportaya/ui/tabla-de-datos/tabla-de-datos'
+import { Exportador } from '../../../nucleo/exportador'
 import type { Bandeja } from './bandeja-por-cursor'
 
 const CLAVE_ACCIONES = '__acciones'
@@ -33,7 +34,7 @@ const CLAVE_ACCIONES = '__acciones'
       <div class="barra">
         <p class="resumen" aria-live="polite">{{ resumen() }}</p>
         <div class="acciones"><ng-content select="[accionesDeListado]" />
-          <ap-exportar-listado [nombre]="titulo() + ' pagina ' + b.pagina()" [columnas]="columnasExportables()" [filas]="b.filtradas()" [deshabilitado]="c.tipo !== 'lista'" />
+          @if (puedeExportar()) { <ap-exportar-listado [nombre]="titulo() + ' pagina ' + b.pagina()" [columnas]="columnasExportables()" [filas]="b.filtradas()" [deshabilitado]="c.tipo !== 'lista'" /> }
         </div>
       </div>
     }
@@ -74,7 +75,14 @@ const CLAVE_ACCIONES = '__acciones'
   `,
 })
 export class ListadoDeBandeja<T extends object> {
+  private readonly exportador = inject(Exportador)
   readonly titulo = input.required<string>()
+  /**
+   * Datos sujetos a reserva (regla 90.2): la descarga en el navegador no deja huella ni tope, así que solo aparece con el
+   * permiso de exportación del recurso (`exportar:<recurso>`, el de CU-58). Sin recurso no hay descarga.
+   */
+  readonly recursoDeExportacion = input<string>()
+  readonly puedeExportar = computed(() => !!this.recursoDeExportacion() && this.exportador.puedeExportar(this.recursoDeExportacion()!))
   readonly columnas = input.required<Columna<T>[]>()
   readonly bandeja = input.required<Bandeja<T>>()
   readonly identidad = input.required<(f: T) => string>()

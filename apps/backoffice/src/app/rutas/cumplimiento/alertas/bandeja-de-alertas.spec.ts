@@ -70,8 +70,15 @@ describe('BandejaDeAlertas · CU-44 listarBandejaDeAlertas', () => {
     http.verify()
   })
 
-  it('correcto: CSV y JSON bajan lo filtrado con los valores como se ven y sin identificadores internos', async () => {
+  it('sin el permiso de exportación del recurso no se ofrece la descarga (regla 90.2)', async () => {
     const { fixture, http } = montar(BandejaDeAlertas, ['CUMPLIMIENTO_ALERTAS'])
+    http.expectOne((r) => r.url === URL).flush({ items: [ALERTA] })
+    await asentar(fixture)
+    expect(fixture.debugElement.query(By.directive(ExportarListado))).toBeNull()
+  })
+
+  it('correcto: CSV y JSON bajan lo filtrado con los valores como se ven y sin identificadores internos', async () => {
+    const { fixture, http } = montar(BandejaDeAlertas, ['CUMPLIMIENTO_ALERTAS', 'exportar:cumplimiento-alertas'])
     http.expectOne((r) => r.url === URL).flush({ items: [ALERTA, OTRA] })
     await asentar(fixture)
     bandeja(fixture).buscar('R-PEP')

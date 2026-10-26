@@ -60,7 +60,7 @@ const EXPORTABLES: ColumnaExportable<AlertaEnBandeja>[] = [
       }
       @if (puedeAbrir()) { <p class="ayuda"><ap-icono nombre="info" tamano="s4" />{{ t.elegirAlertas }}</p> }
       @if (recibo()) { <ap-alerta tono="ok">{{ recibo() }}</ap-alerta> }
-      <ap-listado-de-bandeja [titulo]="t.tabla" [columnas]="COLUMNAS" [bandeja]="bandeja" [identidad]="identidad" [exportables]="EXPORTABLES" nombreDeRegistros="alertas" [textoVacio]="t.vacio" [explicacionVacio]="t.explicacionVacio" ayudaDeBusqueda="Busca por regla, tipología, severidad o estado en la página cargada: el servidor no admite búsqueda. Estado y severidad filtran en el servidor." [seleccionable]="puedeAbrir()" [(elegidas)]="elegidas">
+      <ap-listado-de-bandeja recursoDeExportacion="cumplimiento-alertas" [titulo]="t.tabla" [columnas]="COLUMNAS" [bandeja]="bandeja" [identidad]="identidad" [exportables]="EXPORTABLES" nombreDeRegistros="alertas" [textoVacio]="t.vacio" [explicacionVacio]="t.explicacionVacio" ayudaDeBusqueda="Busca por regla, tipología, severidad o estado en la página cargada: el servidor no admite búsqueda. Estado y severidad filtran en el servidor." [seleccionable]="puedeAbrir()" [(elegidas)]="elegidas">
         <ng-template #celda let-a let-columna="columna">
           @switch (columna.clave) {
             @case ('severidad') { <ap-chip-estado [tono]="tono(a.severidad)">{{ severidad(a) }}</ap-chip-estado> }

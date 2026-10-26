@@ -56,7 +56,7 @@ describe('PantallaDeActas · CU-94 listarActasDeComite', () => {
 describe('PantallaDeEventos · CU-54 listarEventosDeRiesgo', () => {
   const URL = `${GW}/cumplimiento/riesgos/eventos`
   it('correcto: pérdidas con su moneda vía ap-monto (también en el archivo); el estado viaja al servidor', async () => {
-    const { fixture, http } = montar(PantallaDeEventos, ['AUDITORIA_LEER'], 'RESPONSABLE_RIESGOS')
+    const { fixture, http } = montar(PantallaDeEventos, ['AUDITORIA_LEER', 'exportar:cumplimiento-colas'], 'RESPONSABLE_RIESGOS')
     http.expectOne((r) => r.url === URL).flush({ items: [EVENTO] })
     await asentar(fixture)
     const pantalla = fixture.componentInstance as unknown as { celda: (e: typeof EVENTO, c: string) => unknown }

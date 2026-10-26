@@ -54,7 +54,7 @@ const EXPORTABLES: ColumnaExportable<ReporteRegulatorioEnLista>[] = [
       @if (puedeOperar()) { <ap-boton acciones variante="primario" icono="mas" (pulsado)="preparando.set(true)">{{ t.preparar }}</ap-boton> }
       @if (recibo()) { <ap-alerta tono="ok">{{ recibo() }}</ap-alerta> }
       <p class="nota"><ap-icono nombre="info" tamano="s4" />{{ t.sinMoneda }}</p>
-      <ap-listado-de-bandeja [titulo]="t.tabla" [columnas]="COLUMNAS" [bandeja]="bandeja" [identidad]="identidad" [exportables]="EXPORTABLES" nombreDeRegistros="reportes" [textoVacio]="t.vacio" [explicacionVacio]="t.explicacionVacio" ayudaDeBusqueda="Busca por período o estado en la página cargada: el servidor no admite búsqueda. El estado filtra en el servidor.">
+      <ap-listado-de-bandeja recursoDeExportacion="uif-reportes" [titulo]="t.tabla" [columnas]="COLUMNAS" [bandeja]="bandeja" [identidad]="identidad" [exportables]="EXPORTABLES" nombreDeRegistros="reportes" [textoVacio]="t.vacio" [explicacionVacio]="t.explicacionVacio" ayudaDeBusqueda="Busca por período o estado en la página cargada: el servidor no admite búsqueda. El estado filtra en el servidor.">
         <ng-template #celda let-r let-columna="columna">
           @switch (columna.clave) {
             @case ('fechaCorte') { {{ dia(r.fechaCorte) }} }

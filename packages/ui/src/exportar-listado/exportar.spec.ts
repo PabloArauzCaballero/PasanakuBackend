@@ -42,6 +42,10 @@ describe('exportar listado', () => {
     expect(celdaCsv('-1,250.00')).toBe('"-1,250.00"')
     expect(celdaCsv('-359.90 Bs')).toBe('-359.90 Bs')
     expect(celdaCsv('-1+2')).toBe("'-1+2")
+    expect(celdaCsv('-Bs 1.240,50')).toBe('"-Bs 1.240,50"')
+    expect(celdaCsv('-US$ 10,00')).toBe('"-US$ 10,00"')
+    expect(celdaCsv('-2 cmd')).toBe("'-2 cmd")
+    expect(celdaCsv('-1 SUM')).toBe("'-1 SUM")
   })
 
   it('inválido: un objeto anidado sin formateador sale como JSON, no como [object Object]', () => {

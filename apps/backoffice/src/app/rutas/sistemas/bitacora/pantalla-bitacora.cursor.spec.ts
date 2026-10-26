@@ -4,6 +4,7 @@ import { provideZonelessChangeDetection } from '@angular/core'
 import { TestBed, type ComponentFixture } from '@angular/core/testing'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { GATEWAY } from '../../../nucleo/gateway'
+import { Sesion } from '../../../nucleo/sesion'
 import { elegir, estabilizar, pulsar, texto } from '../compartido/pruebas.apoyo'
 import type { EventoBitacora, PaginaDeBitacora } from '../dominio/bitacora'
 import { PantallaBitacora } from './pantalla-bitacora'
@@ -37,6 +38,8 @@ describe('PantallaBitacora · paginación por cursor del servidor (auditoria.yam
   beforeEach(() => {
     TestBed.configureTestingModule({ providers: [provideZonelessChangeDetection(), provideHttpClient(), provideHttpClientTesting(), { provide: GATEWAY, useValue: 'http://gw/api/v1' }] })
     http = TestBed.inject(HttpTestingController)
+    // La descarga de la bitácora exige su permiso de exportación (regla 90.2): esta suite la ejercita.
+    TestBed.inject(Sesion).abrir('token', ['exportar:bitacora'], 'PLATAFORMA')
     f = TestBed.createComponent(PantallaBitacora)
     f.detectChanges()
   })

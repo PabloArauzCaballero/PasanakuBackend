@@ -53,7 +53,7 @@ const EXPORTABLES: ColumnaExportable<CasoEnBandeja>[] = [
   template: `
     <ap-marco-de-cumplimiento [titulo]="t.titulo" [proposito]="t.proposito" icono="carpeta">
       @if (recibo()) { <ap-alerta tono="ok">{{ recibo() }}</ap-alerta> }
-      <ap-listado-de-bandeja [titulo]="t.tabla" [columnas]="COLUMNAS" [bandeja]="bandeja" [identidad]="identidad" [exportables]="EXPORTABLES" nombreDeRegistros="casos" [textoVacio]="t.vacio" [explicacionVacio]="t.explicacionVacio" ayudaDeBusqueda="Busca por código, prioridad, estado o decisión en la página cargada: el servidor no admite búsqueda. El estado filtra en el servidor.">
+      <ap-listado-de-bandeja recursoDeExportacion="cumplimiento-casos" [titulo]="t.tabla" [columnas]="COLUMNAS" [bandeja]="bandeja" [identidad]="identidad" [exportables]="EXPORTABLES" nombreDeRegistros="casos" [textoVacio]="t.vacio" [explicacionVacio]="t.explicacionVacio" ayudaDeBusqueda="Busca por código, prioridad, estado o decisión en la página cargada: el servidor no admite búsqueda. El estado filtra en el servidor.">
         <ng-template #celda let-c let-columna="columna">
           @switch (columna.clave) {
             @case ('prioridad') { {{ prioridad(c) }} }

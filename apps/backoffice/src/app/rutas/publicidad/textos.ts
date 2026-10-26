@@ -160,6 +160,7 @@ export const textosPublicidad = {
     periodo: 'Período',
     cuenta: 'Cuenta publicitaria',
     totalAFacturar: 'Total a facturar',
+    sinMoneda: 'El consumo se informa en la moneda de la cuenta: el contrato no la repite en esta consulta, y la factura la toma de la cuenta.',
     liquidar: 'Liquidar período',
     yaLiquidado: 'Este período ya fue liquidado para esta cuenta.',
     sinConsumo: 'No hay consumo en el período: no hay obligación de facturar cero.',

@@ -21,8 +21,12 @@ function valorDe<T>(fila: T, c: ColumnaExportable<T>): Celda {
   return typeof v === 'object' ? JSON.stringify(v) : (v as Celda)
 }
 
-/** Un importe o cantidad, con separadores de miles y una unidad opcional: «-359.90», «-1.250,00 Bs». */
-const NUMERO = /^-?\d[\d.,\s]*(\s?[A-Za-z]{1,4})?$/
+/**
+ * Un número o un importe con su moneda delante o detrás: «-359.90», «-1.250,00», «-Bs 1.240,50», «-359.90 Bs»,
+ * «BOB -359.90». Solo monedas conocidas: «-2 cmd» o «-1 SUM» no pasan y se neutralizan.
+ */
+const MONEDA = '(?:Bs|BOB|USD|US\\$|\\$)'
+const NUMERO = new RegExp(`^-?\\s?(?:${MONEDA}\\s?)?-?\\d[\\d.,]*(?:\\s?${MONEDA})?$`)
 
 /**
  * Una celda de CSV según RFC 4180: entre comillas si trae separador, comillas o saltos, con las comillas

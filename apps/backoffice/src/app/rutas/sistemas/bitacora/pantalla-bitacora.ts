@@ -19,6 +19,7 @@ import { textosSistemas } from '../textos'
 import { CajonDetalleEvento } from './cajon-detalle-evento'
 import { ACCIONES, COLUMNAS, ENTIDADES, EXPORTABLES, acortar, tonoAccion, type FilaBitacora } from './columnas-de-bitacora'
 import { crearPaginadorPorCursor } from './paginador-por-cursor'
+import { Exportador } from '../../../nucleo/exportador'
 
 /**
  * Registro inmutable del sistema (`comun.bitacora_evento`, encadenado por hash SHA-256). Es **append-only**: la única
@@ -42,7 +43,7 @@ import { crearPaginadorPorCursor } from './paginador-por-cursor'
       <ap-barra-de-filtros etiqueta="Filtros del registro del sistema" [etiquetaDeBusqueda]="t.buscar" ayudaDeBusqueda="Busca en la página cargada por entidad, acción, rol del actor, origen, motivo o hash. Entidad y acción filtran en el servidor." [busqueda]="enPagina.busqueda()" [selectores]="selectores()" textoLimpiar="Limpiar filtros" (busquedaChange)="enPagina.buscar($event)" (selectorChange)="filtrar($event.nombre, $event.valor)" (limpiar)="limpiar()" />
       <div class="barra">
         <p class="resumen" aria-live="polite">{{ resumen() }}</p>
-        <ap-exportar-listado nombre="registro del sistema" [columnas]="exportables" [filas]="enPagina.filtradas()" [deshabilitado]="carga().tipo !== 'lista'" />
+        @if (exportador.puedeExportar('bitacora')) { <ap-exportar-listado nombre="registro del sistema" [columnas]="exportables" [filas]="enPagina.filtradas()" [deshabilitado]="carga().tipo !== 'lista'" /> }
       </div>
       @switch (carga().tipo) {
         @case ('cargando') { <ap-esqueleto [lineas]="6" [etiqueta]="t.cargando" /> }
@@ -83,6 +84,8 @@ import { crearPaginadorPorCursor } from './paginador-por-cursor'
   `,
 })
 export class PantallaBitacora {
+  /** La bitácora es auditoría: la descarga en el navegador solo con `exportar:bitacora` (regla 90.2). */
+  protected readonly exportador = inject(Exportador)
   constructor() {
     inject(ExplicadorDeVista).fijar(this.t.proposito)
     // Cada página que llega le da al paginador el cursor de la siguiente (y lo deja avanzar si se pidió «Ir a N»).

@@ -6,6 +6,7 @@ import { Router, provideRouter } from '@angular/router'
 import type { UsuarioInternoResumen } from 'clientes/angular/identidad'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { GATEWAY } from '../../../nucleo/gateway'
+import { Sesion } from '../../../nucleo/sesion'
 import { conteoDeExportacion, elegir, estabilizar, filasVisibles, listadoDe, pulsar, resumenDePaginas, texto } from '../compartido/pruebas.apoyo'
 import { PantallaUsuariosInternos } from './pantalla-usuarios-internos'
 
@@ -35,6 +36,8 @@ describe('PantallaUsuariosInternos · listado y operaciones del contrato (identi
   beforeEach(() => {
     TestBed.configureTestingModule({ providers: [provideZonelessChangeDetection(), provideRouter([]), provideHttpClient(), provideHttpClientTesting(), { provide: GATEWAY, useValue: GW }] })
     http = TestBed.inject(HttpTestingController)
+    // La descarga de usuarios internos exige su permiso de exportación (regla 90.2): esta suite la ejercita.
+    TestBed.inject(Sesion).abrir('token', ['exportar:usuarios-internos'], 'PLATAFORMA')
     f = TestBed.createComponent(PantallaUsuariosInternos)
   })
   afterEach(() => http.verify())

@@ -15,6 +15,7 @@ import { accionesDeLiquidacion, recursoDeConsumo } from '../dominio/cu113-cu114-
 import { traducirError } from '../dominio/lotes-por-cursor'
 import { textosPublicidad } from '../textos'
 import type { SalidaLiquidacion } from 'clientes/angular/publicidad/model/salidaLiquidacion'
+import { importeSinMoneda } from '../../operacion/comun/importe-sin-moneda'
 
 /**
  * CU-114 · Liquidación. **Gate del carril**: consulta el mismo `recursoDeConsumo` que `PantallaDeDesempeno` antes de
@@ -33,7 +34,8 @@ import type { SalidaLiquidacion } from 'clientes/angular/publicidad/model/salida
       <ap-estado-de-pantalla [recurso]="consumo" [mensajeVacio]="t.elegi" [etiquetaDeCarga]="t.cargando" (reintentar)="consumo.reload()">
         @if (valor(); as c) {
           <div class="resultado">
-            <ap-tarjeta-kpi [etiqueta]="t.totalAFacturar" [valor]="c.total" icono="moneda" [pista]="pedido()?.anunciante + ' · ' + c.periodo" />
+            <ap-tarjeta-kpi [etiqueta]="t.totalAFacturar" [valor]="cifra(c.total)" icono="moneda" [pista]="'Moneda no registrada · ' + pedido()?.anunciante + ' · ' + c.periodo" />
+            <p class="nota">{{ t.sinMoneda }}</p>
             @if (factura(); as f) {
               <ap-alerta tono="ok" [titulo]="t.liquidada">{{ textoDeFactura(f) }}</ap-alerta>
             } @else if (c.total === '0.00') {
@@ -49,6 +51,7 @@ import type { SalidaLiquidacion } from 'clientes/angular/publicidad/model/salida
 
     <ap-dialogo [titulo]="t.liquidar" [textoDeConfirmar]="t.liquidar" [(abierto)]="dialogoAbierto" [cargando]="liquidando()" (confirmar)="confirmarLiquidar()" (cancelar)="dialogoAbierto.set(false)">
       <p>{{ t.confirmarLiquidar(pedido()?.periodo ?? '') }}</p>
+      @if (valor(); as c) { <p><strong>{{ t.totalAFacturar }}: {{ cifra(c.total) }}</strong> · moneda no registrada</p> }
       <ap-error-de-envio [error]="error()" />
     </ap-dialogo>
   `,
@@ -56,11 +59,14 @@ import type { SalidaLiquidacion } from 'clientes/angular/publicidad/model/salida
     .pantalla { padding: var(--s5); display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s4); min-width: 0; }
     .resultado { display: grid; gap: var(--s3); max-width: 32rem; }
     ap-boton { justify-self: start; }
+    .nota { margin: 0; color: var(--text-2); font: var(--t-cuerpo-chico); }
     .enlace { display: inline-flex; align-items: center; gap: var(--s1); min-height: var(--area-tactil); color: var(--brand-texto); font-weight: 600; justify-self: start; }
     .enlace:focus-visible { outline: var(--borde-foco) solid var(--g300); outline-offset: var(--borde-desfase); }
   `,
 })
 export class PantallaDeLiquidacion {
+  /** El consumo no trae moneda (A-F4): la cifra agrupada y la aclaración, nunca una moneda supuesta (regla 91.1.2). */
+  protected readonly cifra = importeSinMoneda
   private readonly acciones = accionesDeLiquidacion()
   protected readonly t = textosPublicidad.liquidacion
   protected readonly pedido = signal<PedidoDeConsumo | null>(null)

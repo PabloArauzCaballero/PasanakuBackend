@@ -55,7 +55,7 @@ const EXPORTABLES: ColumnaExportable<RequerimientoEnLista>[] = [
     <ap-marco-de-cumplimiento [titulo]="t.titulo" [proposito]="t.proposito" icono="balanza">
       @if (puedeOperar()) { <ap-boton acciones variante="primario" icono="mas" (pulsado)="registrando.set(true)">{{ t.registrar }}</ap-boton> }
       @if (recibo()) { <ap-alerta tono="ok">{{ recibo() }}</ap-alerta> }
-      <ap-listado-de-bandeja [titulo]="t.tabla" [columnas]="COLUMNAS" [bandeja]="bandeja" [identidad]="identidad" [exportables]="EXPORTABLES" nombreDeRegistros="requerimientos" [textoVacio]="t.vacio" [explicacionVacio]="t.explicacionVacio" ayudaDeBusqueda="Busca por oficio, autoridad o estado en la página cargada: el servidor no admite búsqueda. El estado filtra en el servidor.">
+      <ap-listado-de-bandeja recursoDeExportacion="uif-requerimientos" [titulo]="t.tabla" [columnas]="COLUMNAS" [bandeja]="bandeja" [identidad]="identidad" [exportables]="EXPORTABLES" nombreDeRegistros="requerimientos" [textoVacio]="t.vacio" [explicacionVacio]="t.explicacionVacio" ayudaDeBusqueda="Busca por oficio, autoridad o estado en la página cargada: el servidor no admite búsqueda. El estado filtra en el servidor.">
         <ng-template #celda let-r let-columna="columna">
           @switch (columna.clave) {
             @case ('autoridad') { {{ autoridad(r) }} }

@@ -18,6 +18,7 @@ import { textosSistemas } from '../textos'
 import { GestorDeUsuarioInterno } from './gestor-de-usuario-interno'
 import { ModalAltaUsuarioInterno } from './modal-alta-usuario-interno'
 import { ModalAsignarRoles } from './modal-asignar-roles'
+import { Exportador } from '../../../nucleo/exportador'
 
 type Usuario = UsuarioInternoResumen
 const ESTADO: Record<string, string> = { ACTIVO: 'Activo', SUSPENDIDO: 'Suspendido' }
@@ -41,7 +42,7 @@ const segundoFactor = (u: Usuario) => (u.tieneSegundoFactor ? 'Configurado' : 'P
         <ap-boton acciones variante="primario" icono="personaMas" (pulsado)="mostrarAlta.set(true)">{{ t.nuevoUsuario }}</ap-boton>
       </ap-cabecera-de-pagina>
       <ap-cifras-de-sistemas etiqueta="Resumen de usuarios internos" [cifras]="cifras()" />
-      <ap-listado [titulo]="t.titulo" [columnas]="columnas" [listado]="listado" [carga]="carga()" [identidad]="identidad" ayudaDeBusqueda="Busca por nombre, correo, código, departamento, cargo o rol." [exportables]="exportables" nombreDeRegistros="usuarios" [textoVacio]="t.vacio" explicacionVacio="Dá de alta al primer operador interno con su rol inicial." accionVacio="Dar de alta" (primeraAccion)="mostrarAlta.set(true)" (reintentar)="recurso.reload()">
+      <ap-listado [titulo]="t.titulo" [columnas]="columnas" [listado]="listado" [carga]="carga()" [identidad]="identidad" ayudaDeBusqueda="Busca por nombre, correo, código, departamento, cargo o rol." [exportables]="exportables" [exportable]="exportador.puedeExportar('usuarios-internos')" nombreDeRegistros="usuarios" [textoVacio]="t.vacio" explicacionVacio="Dá de alta al primer operador interno con su rol inicial." accionVacio="Dar de alta" (primeraAccion)="mostrarAlta.set(true)" (reintentar)="recurso.reload()">
         <ng-template #celda let-u let-c="columna">
           @switch (c.clave) {
             @case ('nombres') { <strong>{{ u.nombres }} {{ u.apellidos }}</strong><span class="sub">{{ u.correo }}</span> }
@@ -86,6 +87,8 @@ const segundoFactor = (u: Usuario) => (u.tieneSegundoFactor ? 'Configurado' : 'P
   `,
 })
 export class PantallaUsuariosInternos {
+  /** Correos y datos del personal: la descarga en el navegador solo con `exportar:usuarios-internos` (regla 90.2). */
+  protected readonly exportador = inject(Exportador)
   constructor() {
     inject(ExplicadorDeVista).fijar(this.t.proposito)
   }
