@@ -3,9 +3,10 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { provideZonelessChangeDetection } from '@angular/core'
 import { TestBed } from '@angular/core/testing'
 import { ActivatedRoute, provideRouter } from '@angular/router'
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { UsuarioInternoDetalle } from 'clientes/angular/identidad'
 import { GATEWAY } from '../../../nucleo/gateway'
+import { estabilizar, pulsar } from '../compartido/pruebas.apoyo'
 import { PantallaUsuarioInternoDetalle } from './pantalla-usuario-interno-detalle'
 
 const USUARIO_DETALLE: UsuarioInternoDetalle = {
@@ -61,5 +62,36 @@ describe('PantallaUsuarioInternoDetalle', () => {
     expect(texto).toContain('USR-001')
     expect(texto).toContain('RISK_ANALYST')
     expect(texto).toContain('ALERTAS_RIESGO_LEER')
+  })
+})
+
+describe('PantallaUsuarioInternoDetalle · acciones sin prompt()', () => {
+  it('Suspender abre el diálogo con motivo y manda PATCH estado=SUSPENDIDO; nunca usa window.prompt', async () => {
+    TestBed.configureTestingModule({
+      providers: [provideZonelessChangeDetection(), provideRouter([]), provideHttpClient(), provideHttpClientTesting(), { provide: GATEWAY, useValue: 'http://gw/api/v1' }, { provide: ActivatedRoute, useValue: { snapshot: { paramMap: { get: () => 'u-1' } } } }],
+    })
+    const http = TestBed.inject(HttpTestingController)
+    const prompt = vi.spyOn(window, 'prompt')
+    const f = TestBed.createComponent(PantallaUsuarioInternoDetalle)
+    f.detectChanges()
+    http.expectOne('http://gw/api/v1/usuarios-internos/u-1').flush(USUARIO_DETALLE)
+    const el = await estabilizar(f)
+    pulsar(el, 'Suspender cuenta')
+    await estabilizar(f)
+    const d = el.querySelector('dialog[open]')!
+    const area = d.querySelector('textarea') as HTMLTextAreaElement
+    area.value = 'Licencia prolongada'
+    area.dispatchEvent(new Event('input'))
+    await estabilizar(f)
+    pulsar(d, 'Suspender')
+    const req = http.expectOne('http://gw/api/v1/usuarios-internos/u-1')
+    expect(req.request.method).toBe('PATCH')
+    expect(req.request.body).toEqual({ estado: 'SUSPENDIDO', motivo: 'Licencia prolongada' })
+    req.flush(USUARIO_DETALLE)
+    f.detectChanges()
+    http.expectOne('http://gw/api/v1/usuarios-internos/u-1').flush(USUARIO_DETALLE)
+    await estabilizar(f)
+    expect(prompt).not.toHaveBeenCalled()
+    http.verify()
   })
 })

@@ -1,0 +1,52 @@
+[
+  {
+    "codigoPublico": "USR-001",
+    "nombres": "Nombre1 Prueba",
+    "correo": "op1@aportaya.test",
+    "departamento": "TECNOLOGIA",
+    "cargo": "Analista",
+    "roles": "RISK_ANALYST | AUDITOR",
+    "tieneSegundoFactor": "Pendiente",
+    "estado": "Suspendido"
+  },
+  {
+    "codigoPublico": "USR-006",
+    "nombres": "Nombre6 Prueba",
+    "correo": "op6@aportaya.test",
+    "departamento": "RIESGOS",
+    "cargo": "Analista",
+    "roles": "RISK_ANALYST",
+    "tieneSegundoFactor": "Configurado",
+    "estado": "Suspendido"
+  },
+  {
+    "codigoPublico": "USR-011",
+    "nombres": "Nombre11 Prueba",
+    "correo": "op11@aportaya.test",
+    "departamento": "TECNOLOGIA",
+    "cargo": "Analista",
+    "roles": "RISK_ANALYST",
+    "tieneSegundoFactor": "Configurado",
+    "estado": "Suspendido"
+  },
+  {
+    "codigoPublico": "USR-016",
+    "nombres": "Nombre16 Prueba",
+    "correo": "op16@aportaya.test",
+    "departamento": "RIESGOS",
+    "cargo": "Analista",
+    "roles": "RISK_ANALYST",
+    "tieneSegundoFactor": "Pendiente",
+    "estado": "Suspendido"
+  },
+  {
+    "codigoPublico": "USR-021",
+    "nombres": "Nombre21 Prueba",
+    "correo": "op21@aportaya.test",
+    "departamento": "TECNOLOGIA",
+    "cargo": "Analista",
+    "roles": "RISK_ANALYST | AUDITOR",
+    "tieneSegundoFactor": "Configurado",
+    "estado": "Suspendido"
+  }
+]
