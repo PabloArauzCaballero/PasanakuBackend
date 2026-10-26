@@ -1,4 +1,8 @@
+import { provideHttpClient } from '@angular/common/http'
+import { provideHttpClientTesting } from '@angular/common/http/testing'
 import { provideZonelessChangeDetection } from '@angular/core'
+import { provideRouter } from '@angular/router'
+import { GATEWAY } from '../../../nucleo/gateway'
 import { TestBed } from '@angular/core/testing'
 import { axe } from 'vitest-axe'
 import { describe, expect, it } from 'vitest'
@@ -15,7 +19,7 @@ class ServicioBorradorEnMemoria {
 
 describe('PantallaDeCaso · accesibilidad', () => {
   it('sin violaciones serias, con la causal sin elegir y el botón deshabilitado', async () => {
-    TestBed.configureTestingModule({ providers: [provideZonelessChangeDetection(), { provide: ServicioBorrador, useValue: new ServicioBorradorEnMemoria() }] })
+    TestBed.configureTestingModule({ providers: [provideZonelessChangeDetection(), provideRouter([]), provideHttpClient(), provideHttpClientTesting(), { provide: GATEWAY, useValue: 'http://gw/api/v1' }, { provide: ServicioBorrador, useValue: new ServicioBorradorEnMemoria() }] })
     const fixture = TestBed.createComponent(PantallaDeCaso)
     fixture.componentRef.setInput('casoId', 'caso-a11y')
     fixture.detectChanges()
