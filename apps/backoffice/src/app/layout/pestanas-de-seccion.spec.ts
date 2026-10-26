@@ -25,7 +25,7 @@ describe('PestanasDeSeccion', () => {
     const el = await abrir('/sistemas/outbox')
     const [principal, sub] = Array.from(el.querySelectorAll('nav'))
     expect(principal?.getAttribute('aria-label')).toBe('Pantallas de Sistemas')
-    expect(textos(principal)).toEqual(['Servicios y SLO', 'Despliegues e interruptores', 'Base y migraciones', 'Respaldos', 'Integraciones', 'Personal y accesos', 'Registro del sistema'])
+    expect(textos(principal)).toEqual(['Servicios y SLO', 'Despliegues', 'Base de datos', 'Respaldos', 'Integraciones', 'Personal y accesos', 'Registro del sistema'])
     expect(principal?.querySelectorAll('a ap-icono').length).toBe(7)
     expect(principal?.querySelector('a.activa')?.textContent?.trim()).toBe('Integraciones')
     expect(sub?.getAttribute('aria-label')).toBe('Pantallas de Integraciones')

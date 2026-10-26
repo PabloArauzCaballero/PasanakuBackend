@@ -149,8 +149,8 @@ export const MENU: readonly Grupo[] = [
         prefijos: ['/sistemas'],
         pantallas: [
           sis('servicios', 'Servicios y SLO', 'servidor'),
-          sis('despliegues', 'Despliegues e interruptores', 'interruptor'),
-          sis('base-de-datos', 'Base y migraciones', 'baseDeDatos'),
+          sis('despliegues', 'Despliegues', 'interruptor'),
+          sis('base-de-datos', 'Base de datos', 'baseDeDatos'),
           sis('respaldos', 'Respaldos', 'nube'),
           {
             ruta: '/sistemas/proveedores',

@@ -1,6 +1,8 @@
 // Sonda de navegación (DOBLE DE SESIÓN, igual que `sesion-e2e.ts`): entra con todos los permisos, recorre cada entrada
 // del menú y cada pestaña de sección midiendo cuánto tarda en pintar la vista, y junta errores de consola y respuestas
-// 4xx/5xx. Uso: `node e2e/apoyo/sonda-de-navegacion.mjs [baseURL] [salida.json]`. No es una prueba: es un diagnóstico.
+// 4xx/5xx. Uso: `ROL=PLATAFORMA PERMISOS_ARCHIVO=permisos.txt node e2e/apoyo/sonda-de-navegacion.mjs [baseURL] [salida.json]`.
+// No es una prueba: es un diagnóstico. Un clic cuyo destino ya es la URL actual no se mide (no es una navegación);
+// uno que termina fuera de su `href` es un **rebote** y se lista aparte. Recorre también las subpestañas de grupo.
 import { chromium } from 'playwright'
 import { readFileSync, writeFileSync } from 'node:fs'
 
@@ -8,8 +10,9 @@ const base = process.argv[2] ?? 'http://127.0.0.1:4300'
 const salida = process.argv[3] ?? 'sonda.json'
 const permisos = (process.env.PERMISOS_ARCHIVO ? readFileSync(process.env.PERMISOS_ARCHIVO, 'utf8') : '').split(/\s+/).filter(Boolean)
 
+const rol = process.env.ROL ?? 'oficial'
 function token(p) {
-  const b = Buffer.from(JSON.stringify({ permisos: p, rol: 'oficial', sub: 'sonda' })).toString('base64url')
+  const b = Buffer.from(JSON.stringify({ permisos: p, rol, sub: 'sonda' })).toString('base64url')
   return `sonda.${b}.firma`
 }
 
@@ -36,8 +39,11 @@ await page.getByLabel('Código de verificación').fill('123456')
 await page.waitForURL(/\/tablero$/, { timeout: 30000 })
 
 const medidas = []
-async function medir(nombre, accion) {
+const rebotes = []
+const sinRuta = (u) => u.replace(base, '').split(/[?#]/)[0]
+async function medir(nombre, href, accion) {
   const antes = page.url()
+  if (sinRuta(antes) === href) return
   const t0 = Date.now()
   await accion()
   try {
@@ -52,20 +58,25 @@ async function medir(nombre, accion) {
       return t.length > 40 && !/Cargando…?\s*$/.test(t.trim())
     }, null, { timeout: 8000 })
   } catch {}
-  medidas.push({ nombre, url: page.url().replace(base, ''), ms: Date.now() - t0 })
+  const url = sinRuta(page.url())
+  const rebote = !(url === href || url.startsWith(href + '/'))
+  medidas.push({ nombre, href, url, ms: Date.now() - t0, rebote })
+  if (rebote) rebotes.push({ nombre, href, url })
 }
+const enlacesDe = (sel) => page.locator(sel).evaluateAll((as) => as.map((a) => ({ texto: a.textContent.trim(), href: a.getAttribute('href') })))
 
-const enlaces = await page.locator('ap-menu-lateral a').evaluateAll((as) => as.map((a) => ({ texto: a.textContent.trim(), href: a.getAttribute('href') })))
+const enlaces = await enlacesDe('ap-menu-lateral a')
 for (const e of enlaces) {
-  await medir('menu:' + e.texto, () => page.locator(`ap-menu-lateral a[href="${e.href}"]`).first().click())
-  const pestanas = await page.locator('ap-pestanas-de-seccion a').evaluateAll((as) => as.map((a) => ({ texto: a.textContent.trim(), href: a.getAttribute('href') })))
+  await medir('menu:' + e.texto, e.href, () => page.locator(`ap-menu-lateral a[href="${e.href}"]`).first().click())
+  const pestanas = await enlacesDe('ap-pestanas-de-seccion nav:not(.sub) a')
   for (const p of pestanas) {
-    if (p.href === e.href) continue
-    await medir(`pestana:${e.texto}/${p.texto}`, () => page.locator(`ap-pestanas-de-seccion a[href="${p.href}"]`).first().click())
-    const botones = await page.locator('main#contenido button:visible').count()
-    medidas.at(-1).botones = botones
+    await medir(`pestana:${e.texto}/${p.texto}`, p.href, () => page.locator(`ap-pestanas-de-seccion nav:not(.sub) a[href="${p.href}"]`).first().click())
+    if (medidas.at(-1)?.href === p.href) medidas.at(-1).botones = await page.locator('main#contenido button:visible').count()
+    for (const h of await enlacesDe('ap-pestanas-de-seccion nav.sub a')) {
+      await medir(`subpestana:${e.texto}/${p.texto}/${h.texto}`, h.href, () => page.locator(`ap-pestanas-de-seccion nav.sub a[href="${h.href}"]`).first().click())
+    }
   }
 }
-writeFileSync(salida, JSON.stringify({ medidas, errores }, null, 1))
-console.log(JSON.stringify({ vistas: medidas.length, lentas: medidas.filter((m) => m.ms > 1500).length, errores: errores.length }))
+writeFileSync(salida, JSON.stringify({ rol, entradas: enlaces, medidas, rebotes, errores }, null, 1))
+console.log(JSON.stringify({ rol, vistas: medidas.length, rebotes: rebotes.length, lentas: medidas.filter((m) => m.ms > 1500).length, errores: errores.length }))
 await navegador.close()

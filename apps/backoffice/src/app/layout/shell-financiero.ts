@@ -59,7 +59,8 @@ const ANGOSTO = '(max-width: 64rem)'
           <a class="marca-chica" routerLink="/tablero" aria-label="Inicio"><ap-simbolo-de-marca /></a>
         }
         <div class="vista">
-          @if (migas().length) { <ap-migas [migas]="migas()" (navegar)="ir($event)" /> }
+          <!-- La última miga es la pantalla actual, que ya es el título de abajo: no se repite (antes se apilaban en tres líneas). -->
+          @if (migas().length > 1) { <ap-migas [migas]="migas().slice(0, -1)" (navegar)="ir($event)" /> }
           <p class="titulo-vista">{{ tituloDeVista() }}</p>
         </div>
         <ap-buscador-global class="buscador" />
