@@ -16,6 +16,8 @@ import 'orden_de_cobro.dart';
 import 'ruleta_del_sorteo.dart';
 import 'textos_detalle_del_grupo.dart';
 
+part 'pantalla_sorteo_orden.dart';
+
 /// El sorteo de turnos (CU-60, 2026-10-20). El organizador toca «Girar»: el servidor
 /// compromete y revela, y la ruleta muestra el resultado persona por persona. Con el
 /// sorteo ya hecho, cualquiera ve acá el orden de cobro. Con movimiento reducido no
@@ -176,8 +178,8 @@ class _PantallaSorteoState extends ConsumerState<PantallaSorteo>
             cargando: _sorteando,
             onPressed: () => _girar(d),
           ),
-        if (orden.isNotEmpty) ...[
-          OrdenDeCobro(
+        if (orden.isNotEmpty)
+          _OrdenConCierre(
             puestos: [
               for (final cupo in orden)
                 (
@@ -185,17 +187,8 @@ class _PantallaSorteoState extends ConsumerState<PantallaSorteo>
                   soyYo: yo == cupo,
                 ),
             ],
+            sorteando: _sorteando,
           ),
-          if (!_sorteando) ...[
-            const SizedBox(height: Espacio.s4),
-            Boton(
-              texto: TextosDetalleDelGrupo.listo,
-              variante: BotonVariante.secundario,
-              expandido: true,
-              onPressed: () => context.canPop() ? context.pop() : null,
-            ),
-          ],
-        ],
         const SizedBox(height: Espacio.s5),
       ],
     );
