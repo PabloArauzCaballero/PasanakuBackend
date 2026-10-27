@@ -1,6 +1,6 @@
 # Reporte — Backoffice: rediseño de la anatomía compartida y pasada pantalla por pantalla
 
-> **AVANCE: 26 / 28 — 92,9 %.** Desplegado en TEST el rediseño, la salud real de Servicios y el estado neutro «sin fuente» (bundle verificado). H5 (errores sin rojo, botones con un solo color de acción, menú «Más» en Usuarios internos) queda en verde local y falta verificarlo en vivo (H5.M7). Sigue abierto: la columna fija de acciones del Catálogo de datos (H2.M3). En TEST el servicio ERP responde 500 a todo: es del host, no del front.
+> **AVANCE: 28 / 29 — 96,6 %.** En TEST (bundle `main-TYZJDBS4.js`, 18:05 UTC) están el rediseño, la salud real de Servicios, el estado neutro «sin fuente», los errores sin rojo, los botones con un solo color de acción y el menú «Más» de Usuarios internos. Corregidas las dos columnas tapadas (Usuarios internos y Catálogo de datos); falta la segunda pasada visual independiente sobre las capturas finales (H2.M3). En TEST el servicio ERP responde 500 a todo: es del host, no del front.
 
 - Fecha: 2026-10-27 · Plan: [PLAN.md](./PLAN.md) · Doble revisión: [evidencia/doble-revision.md](./evidencia/doble-revision.md)
 - Ramas: PasanakuFrontend `claude/admiring-fermi-mdayfj` (`add44f26`, `40f66da1`) · PasanakuBackend `claude/admiring-fermi-mdayfj` (`071092e5`), PR [PabloArauzCaballero/PasanakuBackend#197](https://github.com/PabloArauzCaballero/PasanakuBackend/pull/197) a `dev`.
@@ -17,33 +17,27 @@
 | H3.M2 | e2e del backoffice | `npx playwright test --retries=0` | **166 passed (5.1m)** |
 | H3.M3 | Commit y push en PasanakuFrontend | `git push` | rama creada en origin |
 | H4.M1 | Port a PasanakuBackend (el repo que construye TEST) | typecheck, lint, test, build allí | ver Evidencia |
+| H4.M2–M3 | PRs #197–#208 a `dev` y `test`, bundle en vivo verificado | `curl` + `grep` | ver Evidencia |
 
 ## A medias
 
 ### H2.M3 — Segunda pasada adversarial
-- Qué anda: el revisor independiente revisó las 44 rutas; se corrigieron 2 bloqueantes (uno era falso: no había desborde de página, igual se cambió el carril de acciones), 4 mayores y varios menores.
-- Qué no anda: la columna fija de acciones tapa «Sensibilidad» (Catálogo de datos) y «Segundo factor/Estado» (Usuarios internos) a 1280. Un intento de acotar su ancho empeoró la superposición y se revirtió.
-- Qué falta exactamente: decidir el patrón (menú «Más acciones» de fila, o acciones solo en la ficha) y repetir las dos pasadas sobre la re-captura.
-- Dónde quedó: `packages/ui/src/acciones-de-fila/`, `tabla-de-datos/`; compila, tests en verde.
-
-### H4.M2 — Llevarlo a `test`
-- Qué anda: PR #197 a `dev` abierto con el CI corriendo.
-- Qué no anda: el host todavía sirve la versión anterior (el bundle en vivo contiene «Notas de la vista»).
-- Qué falta exactamente: CI verde → merge a `dev` → PR `dev` → `test` → merge; el temporizador del host reconstruye en ≤ 2 min.
-- Dónde quedó: PasanakuBackend `claude/admiring-fermi-mdayfj`.
+- Qué anda: los dos hallazgos que quedaban abiertos están corregidos. Usuarios internos: Ver + «Más» (H5.M5). Catálogo de datos › Columnas: «Revisar» en la celda del nombre, sin columna fija (H5.M8). Capturas en `evidencia/h5/`.
+- Qué no anda: nada conocido.
+- Qué falta exactamente: que un revisor independiente (`visual-reviewer`) repita la segunda pasada sobre las capturas finales; quien implementó no se aprueba.
+- Dónde quedó: PasanakuBackend `claude/admiring-fermi-mdayfj`; compila, tests en verde.
 
 ### H5 — Errores sin rojo y botones (agregado en la sesión)
 - Hecho y verificado local: `ap-estado-de-error` neutro con ícono ámbar; 502/503/504 con texto propio; secundario y fantasma
   neutros solo en el backoffice; ícono en todo `ap-boton`; Usuarios internos con Ver + «Más»; «Actualizar» oculto sin fuente;
   «Abrir caso» sin «con 0 alertas»; sin códigos CU en la descripción de Admisiones.
 - Evidencia: `evidencia/h5/` (error 503 forzado claro/oscuro, menú «Más» claro/oscuro, botones). Salidas abajo.
-- Falta: H5.M7, ver el bundle nuevo en vivo.
+- En vivo: `main-TYZJDBS4.js` contiene «Más acciones para», «Este servicio no está disponible» y la regla neutra de `ap-boton.v-secundario`.
 
 ## Pendiente
 
 | ID | Estado | Qué lo destraba |
 |---|---|---|
-| H5.M7 | TODO | Merge a `test` y verificar el bundle en vivo |
 | ERP en TEST | Fuera de este repo de front | `/api/v1/erp/**` responde 500 sin sesión: el contenedor `erp` no contesta en el host. Lo destraba quien opera el VPS (`docker ps`, log de `erp`) |
 
 ## Evidencia

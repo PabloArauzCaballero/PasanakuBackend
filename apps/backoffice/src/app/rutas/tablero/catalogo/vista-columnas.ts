@@ -41,7 +41,10 @@ const SENSIBILIDADES: Record<string, string> = { NINGUNA: 'Ninguna', PERSONAL: '
             @case ('revision') { <ap-chip-estado [tono]="c.tonoRevision">{{ c.revision }}</ap-chip-estado> }
             @case ('negocio') { <span class="largo">{{ c.negocio }}</span> }
             @case ('sistema') { <span class="largo">{{ c.sistema }}</span> }
-            @case ('acciones') { <ap-boton variante="secundario" tamano="sm" [icono]="puedeEditar() ? 'editar' : 'ojo'" (pulsado)="revisar(c.columna)">{{ puedeEditar() ? t.revisar : t.ver }}</ap-boton> }
+            @case ('nombre') {
+              <!-- La acción va con el nombre: como columna fija a la derecha tapaba «Sistema» y «Sensibilidad». -->
+              <span class="columna"><code>{{ c.nombre }}</code><ap-boton variante="secundario" tamano="sm" [icono]="puedeEditar() ? 'editar' : 'ojo'" (pulsado)="revisar(c.columna)">{{ puedeEditar() ? t.revisar : t.ver }}</ap-boton></span>
+            }
             @default { {{ c[columna.clave] }} }
           }
         </ng-template>
@@ -52,6 +55,8 @@ const SENSIBILIDADES: Record<string, string> = { NINGUNA: 'Ninguna', PERSONAL: '
   styles: `
     :host { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s4); min-width: 0; }
     .cifras { display: grid; gap: var(--s3); grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr)); }
+    .columna { display: grid; gap: var(--s2); justify-items: start; }
+    code { font-family: var(--mono); font-size: .92em; overflow-wrap: anywhere; }
     .largo { display: block; min-width: 14rem; white-space: normal; overflow-wrap: anywhere; }
   `,
 })
@@ -77,7 +82,7 @@ export class VistaColumnas {
   ])
   protected readonly porId = (c: FilaDeColumna) => c.id
   protected readonly columnas: Columna<FilaDeColumna>[] = [
-    { clave: 'nombre', titulo: this.t.tabla.nombre, mono: true },
+    { clave: 'nombre', titulo: this.t.tabla.nombre },
     { clave: 'tipo', titulo: this.t.tabla.tipo },
     { clave: 'negocio', titulo: this.t.tabla.negocio },
     { clave: 'sensibilidad', titulo: this.t.tabla.sensibilidad },
@@ -85,7 +90,6 @@ export class VistaColumnas {
     { clave: 'sistema', titulo: this.t.tabla.sistema },
     { clave: 'revision', titulo: this.t.tabla.revision },
     { clave: 'confianza', titulo: this.t.tabla.confianza },
-    { clave: 'acciones', titulo: this.t.tabla.acciones, fijaDerecha: true },
   ]
 
   protected elegir(nombre: string, valor: string): void {
