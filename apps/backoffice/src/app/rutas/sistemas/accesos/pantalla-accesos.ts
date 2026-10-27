@@ -21,9 +21,9 @@ import { textosSistemas } from '../textos'
   template: `
     <section class="pantalla">
       <ap-cabecera-de-pagina eyebrow="Sistemas" [titulo]="t.titulo" [descripcion]="t.proposito" icono="llave">
-        <ap-boton acciones icono="recarga" [deshabilitado]="accesos.isLoading()" (pulsado)="accesos.reload()">Actualizar</ap-boton>
+        <ap-boton acciones variante="fantasma" icono="recarga" [deshabilitado]="accesos.isLoading()" (pulsado)="accesos.reload()">Actualizar</ap-boton>
       </ap-cabecera-de-pagina>
-      <ap-cifras-de-sistemas etiqueta="Resumen de accesos" [cifras]="cifras()" />
+      <ap-cifras-de-sistemas etiqueta="Resumen de accesos" [cifras]="cifras()" [carga]="carga()" />
       <ap-listado [titulo]="t.titulo" [columnas]="columnas" [listado]="listado" [carga]="carga()" ayudaDeBusqueda="Busca por persona, rol, ámbito o fecha de otorgamiento." nombreDeRegistros="accesos" [textoVacio]="t.vacio" explicacionVacio="Cuando se otorgue un acceso, aparece acá con su rol y su ámbito." (reintentar)="accesos.reload()" />
     </section>
   `,

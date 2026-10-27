@@ -81,7 +81,7 @@ const dinero = (d: { monto: string; moneda: string }) => `${d.monto} ${d.moneda}
   styles: `
     /* El host de ap-listado es una grilla de columna automática: sin esto, una tabla ancha lo ensancha (pedido al dueño del kit). */
     ap-listado { grid-template-columns: minmax(0, 1fr); }
-    .pantalla { padding: var(--s5); display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s4); min-width: 0; }
+    .pantalla { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s4); min-width: 0; }
     .cifras { display: grid; gap: var(--s3); grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr)); }
     .nombre { display: inline-block; min-width: 14ch; max-width: 30ch; font-weight: 600; color: var(--text); white-space: normal; overflow-wrap: anywhere; }
     .sin-accion { color: var(--text-3); font: var(--t-cuerpo-chico); }

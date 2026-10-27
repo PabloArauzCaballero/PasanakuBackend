@@ -12,7 +12,8 @@ import { formatearMonto } from '@aportaya/ui/monto/formatear'
   template: `<span class="cifra">{{ cifra() }}</span> <span class="nota">· moneda no registrada</span>`,
   styles: `
     .cifra { white-space: nowrap; font-family: var(--font-d); font-variant-numeric: tabular-nums; }
-    .nota { color: var(--text-2); font-size: .875rem; }
+    /* El espacio entre los dos spans lo borra el compilador (preserveWhitespaces: false): el aire lo pone el margen. */
+    .nota { margin-left: var(--s1); color: var(--text-2); font-size: .875rem; }
   `,
 })
 export class ImporteSinMoneda {

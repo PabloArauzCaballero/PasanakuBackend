@@ -56,7 +56,7 @@ import { importeSinMoneda } from '../../operacion/comun/importe-sin-moneda'
     </ap-dialogo>
   `,
   styles: `
-    .pantalla { padding: var(--s5); display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s4); min-width: 0; }
+    .pantalla { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s4); min-width: 0; }
     .resultado { display: grid; gap: var(--s3); max-width: 32rem; }
     ap-boton { justify-self: start; }
     .nota { margin: 0; color: var(--text-2); font: var(--t-cuerpo-chico); }

@@ -48,7 +48,7 @@ import { ModalAsignarRoles } from './modal-asignar-roles'
             </div>
             <ap-seccion-clave-valor titulo="Datos de organización" [items]="datos()" />
             <section aria-labelledby="titulo-roles">
-              <h2 id="titulo-roles">{{ t.rolesAsignados }} (CU-08)</h2>
+              <h2 id="titulo-roles">{{ t.rolesAsignados }}</h2>
               <p class="chips">@for (r of u.roles; track r) { <code>{{ r }}</code> } @empty { <span class="sub">Sin roles asignados.</span> }</p>
             </section>
             <section aria-labelledby="titulo-permisos">

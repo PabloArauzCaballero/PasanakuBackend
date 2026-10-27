@@ -27,9 +27,9 @@ const mfaDe = (p: PermisoCatalogo) => (p.requiereMfa ? 'Requiere MFA' : 'No')
   template: `
     <section class="pantalla">
       <ap-cabecera-de-pagina eyebrow="Sistemas · Identidad" [titulo]="t.titulo" [descripcion]="t.proposito" icono="candado">
-        <ap-boton acciones icono="recarga" [deshabilitado]="recurso.isLoading()" (pulsado)="recurso.reload()">Actualizar</ap-boton>
+        <ap-boton acciones variante="fantasma" icono="recarga" [deshabilitado]="recurso.isLoading()" (pulsado)="recurso.reload()">Actualizar</ap-boton>
       </ap-cabecera-de-pagina>
-      <ap-cifras-de-sistemas etiqueta="Resumen de permisos" [cifras]="cifras()" />
+      <ap-cifras-de-sistemas etiqueta="Resumen de permisos" [cifras]="cifras()" [carga]="carga()" />
       <ap-listado [titulo]="t.titulo" [columnas]="columnas" [listado]="listado" [carga]="carga()" ayudaDeBusqueda="Busca por código, recurso, acción o descripción del permiso." [exportables]="exportables" nombreDeRegistros="permisos" [textoVacio]="t.vacio" explicacionVacio="Los permisos los define el servicio de identidad; cuando existan, aparecen acá." (reintentar)="recurso.reload()">
         <ng-template #celda let-p let-c="columna">
           @switch (c.clave) {

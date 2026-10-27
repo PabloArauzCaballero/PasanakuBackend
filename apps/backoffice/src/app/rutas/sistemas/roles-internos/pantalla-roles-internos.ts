@@ -28,15 +28,15 @@ const origenDe = (r: RolCatalogo) => (r.esSistema ? 'Sistema' : 'Personalizado')
   template: `
     <section class="pantalla">
       <ap-cabecera-de-pagina eyebrow="Sistemas · Identidad" [titulo]="t.titulo" [descripcion]="t.proposito" icono="escudo">
-        <ap-boton acciones icono="recarga" [deshabilitado]="recurso.isLoading()" (pulsado)="recurso.reload()">Actualizar</ap-boton>
+        <ap-boton acciones variante="fantasma" icono="recarga" [deshabilitado]="recurso.isLoading()" (pulsado)="recurso.reload()">Actualizar</ap-boton>
       </ap-cabecera-de-pagina>
-      <ap-cifras-de-sistemas etiqueta="Resumen de roles" [cifras]="cifras()" />
+      <ap-cifras-de-sistemas etiqueta="Resumen de roles" [cifras]="cifras()" [carga]="carga()" />
       <ap-listado [titulo]="t.titulo" [columnas]="columnas" [listado]="listado" [carga]="carga()" ayudaDeBusqueda="Busca por código, nombre, descripción o un permiso que tenga el rol." [exportables]="exportables" nombreDeRegistros="roles" [textoVacio]="t.vacio" explicacionVacio="Los roles internos los define el servicio de identidad; cuando existan, aparecen acá." (reintentar)="recurso.reload()">
         <ng-template #celda let-r let-c="columna">
           @switch (c.clave) {
             @case ('codigo') { <code>{{ r.codigo }}</code> }
             @case ('esSistema') { <ap-chip-estado [tono]="r.esSistema ? 'neutro' : 'ok'">{{ origen(r) }}</ap-chip-estado> }
-            @case ('permisos') { {{ r.permisos.length }} permisos }
+            @case ('permisos') { {{ r.permisos.length }} {{ r.permisos.length === 1 ? 'permiso' : 'permisos' }} }
             @default { {{ r[c.clave] ?? '—' }} }
           }
         </ng-template>

@@ -48,7 +48,7 @@ const EXPORTABLES: ColumnaExportable<RetiroEnRevision>[] = [
   imports: [AccionesDeFila, CabeceraDePagina, ChipEstado, Fecha, Icono, Monto, ListadoPorCursorVista],
   template: `
     <section class="pantalla">
-      <ap-cabecera-de-pagina eyebrow="Operación · CU-11" [titulo]="t.titulo" [descripcion]="t.proposito" icono="retiro" />
+      <ap-cabecera-de-pagina eyebrow="Operación" [titulo]="t.titulo" [descripcion]="t.proposito" icono="retiro" />
       <ap-listado-por-cursor [titulo]="t.titulo" [columnas]="COLUMNAS" [fuente]="l" [exportables]="EXPORTABLES" [identidad]="identidad" [ayudaDeBusqueda]="t.ayudaBusqueda" [textoVacio]="t.vacio" [explicacionVacio]="t.explicacionVacio" [textoDenegado]="t.denegado" nombreDeRegistros="retiros" nombreDeRegistro="retiro">
         <ng-template #celda let-r let-columna="columna">
           @switch (columna.clave) {
@@ -71,7 +71,7 @@ const EXPORTABLES: ColumnaExportable<RetiroEnRevision>[] = [
     </section>
   `,
   styles: `
-    .pantalla { padding: var(--s5); display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s5); min-width: 0; }
+    .pantalla { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s5); min-width: 0; }
     .propia { display: inline-flex; align-items: center; gap: var(--s1); color: var(--text-2); font: var(--t-cuerpo-chico); white-space: normal; }
   `,
 })

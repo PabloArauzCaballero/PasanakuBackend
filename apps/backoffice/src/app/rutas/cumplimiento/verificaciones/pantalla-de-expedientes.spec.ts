@@ -136,7 +136,7 @@ describe('PantallaDeExpedientes · listado (buscar, filtrar, paginar, descargar)
     const csv = aCsv(exportar.columnas(), exportar.filas())
     expect(csv).toContain('Nombre,Teléfono,Correo,Documento,Vencimiento del documento,Fotos,Estado')
     // El «+» inicial del teléfono sale con «'» delante: el kit neutraliza lo que una planilla leería como fórmula.
-    expect(csv).toContain("Ana Torres,'+59170000001,ana@example.test,CI 1234567 SC,Vigente,Incompletas,EN_REVISION")
+    expect(csv).toContain("Ana Torres,'+59170000001,ana@example.test,CI 1234567 SC,Vigente,Incompletas,En revisión")
     expect(csv).not.toContain('u-1')
   })
 

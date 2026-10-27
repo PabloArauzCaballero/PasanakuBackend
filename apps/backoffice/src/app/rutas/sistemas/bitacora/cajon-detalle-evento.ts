@@ -4,6 +4,7 @@ import { CajonLateral } from '@aportaya/ui/cajon-lateral/cajon-lateral'
 import { SeccionClaveValor, type ClaveValor } from '@aportaya/ui/seccion-clave-valor/seccion-clave-valor'
 import type { EventoBitacora } from '../dominio/bitacora'
 import { textosSistemas } from '../textos'
+import { formatearFecha } from '@aportaya/ui/fecha/fecha'
 
 /**
  * Cajón lateral con el detalle exhaustivo de un evento de bitácora (comun.bitacora_evento):
@@ -73,7 +74,7 @@ export class CajonDetalleEvento {
     return [
       { etiqueta: 'ID Evento', valor: e.id, mono: true },
       { etiqueta: 'Secuencia', valor: `#${e.secuencia}` },
-      { etiqueta: 'Fecha y hora', valor: e.fechaHora },
+      { etiqueta: 'Fecha y hora', valor: formatearFecha(e.fechaHora) },
       { etiqueta: 'Entidad', valor: e.entidad },
       { etiqueta: 'ID Entidad', valor: e.entidadId, mono: true },
       { etiqueta: 'Acción', valor: e.accion },

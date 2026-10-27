@@ -27,7 +27,7 @@ const PROPOSITO_ESTADO =
 /**
  * `operacion/estado` de la maqueta («Arquitectura y estado del proyecto»). La arquitectura es constante; la salud la
  * pregunta `auditoria` ahora. Es una colección chica que ya está en el navegador: va con el kit de listado (búsqueda,
- * filtros por nivel y salud, CSV/JSON de lo filtrado). La exportación con huella del servidor (CU-58) sigue aparte.
+ * filtros por nivel y salud, CSV/JSON de lo filtrado). La exportación con huella del servidor sigue aparte.
  */
 @Component({
   selector: 'ap-pantalla-de-estado',
@@ -36,9 +36,9 @@ const PROPOSITO_ESTADO =
   template: `
     <section class="pantalla">
       <ap-cabecera-de-pagina class="cabecera" eyebrow="Operación · arquitectura" titulo="Arquitectura y estado del proyecto" [descripcion]="proposito" icono="servidor">
-        <ap-boton acciones icono="recarga" [cargando]="salud.isLoading()" (pulsado)="salud.reload()">Volver a consultar</ap-boton>
+        <ap-boton acciones variante="fantasma" icono="recarga" [cargando]="salud.isLoading()" (pulsado)="salud.reload()">Volver a consultar</ap-boton>
         @if (exportador.puedeExportar('estado-plataforma')) {
-          <ap-boton acciones variante="primario" icono="descargar" (pulsado)="exportar()">Exportar con huella (CU-58)</ap-boton>
+          <ap-boton acciones variante="primario" icono="descargar" (pulsado)="exportar()">Exportar con huella</ap-boton>
         }
       </ap-cabecera-de-pagina>
       <div class="cifras">
@@ -61,7 +61,7 @@ const PROPOSITO_ESTADO =
     </section>
   `,
   styles: `
-    .pantalla { padding: var(--s5); display: flex; flex-direction: column; gap: var(--s5); }
+    .pantalla { display: flex; flex-direction: column; gap: var(--s5); }
     .pantalla > * { min-width: 0; }
     /* ap-listado no acota su columna (pedido a H0 en franjas/b.md): sin esto la tabla empuja la página a 768 px. */
     ap-listado { grid-template-columns: minmax(0, 1fr); }

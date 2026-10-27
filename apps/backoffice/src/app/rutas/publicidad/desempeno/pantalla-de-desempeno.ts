@@ -34,7 +34,7 @@ import { textosPublicidad } from '../textos'
     </section>
   `,
   styles: `
-    .pantalla { padding: var(--s5); display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s4); min-width: 0; }
+    .pantalla { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s4); min-width: 0; }
     .resultado { display: grid; gap: var(--s3); max-width: 32rem; }
     .nota { margin: 0; color: var(--text-2); font: var(--t-cuerpo-chico); }
     .enlace { display: inline-flex; align-items: center; gap: var(--s1); min-height: var(--area-tactil); color: var(--brand-texto); font-weight: 600; justify-self: start; }

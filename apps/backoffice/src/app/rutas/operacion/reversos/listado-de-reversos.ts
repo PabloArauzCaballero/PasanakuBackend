@@ -44,7 +44,7 @@ const EXPORTABLES: ColumnaExportable<ReversoEnLista>[] = [
   imports: [CabeceraDePagina, ChipEstado, Fecha, ImporteSinMoneda, ListadoPorCursorVista],
   template: `
     <section class="pantalla">
-      <ap-cabecera-de-pagina eyebrow="Operación · CU-14" [titulo]="t.titulo" [descripcion]="t.proposito" icono="deshacer" />
+      <ap-cabecera-de-pagina eyebrow="Operación" [titulo]="t.titulo" [descripcion]="t.proposito" icono="deshacer" />
       <ap-listado-por-cursor [titulo]="t.titulo" [columnas]="COLUMNAS" [fuente]="l" [exportables]="EXPORTABLES" [identidad]="identidad" [ayudaDeBusqueda]="t.ayudaBusqueda" [textoVacio]="t.vacio" [explicacionVacio]="t.explicacionVacio" [textoDenegado]="t.denegado" nombreDeRegistros="reversos" nombreDeRegistro="reverso">
         <ng-template #celda let-r let-columna="columna">
           @switch (columna.clave) {
@@ -54,15 +54,18 @@ const EXPORTABLES: ColumnaExportable<ReversoEnLista>[] = [
             @case ('estado') { <ap-chip-estado [tono]="tonoDe(r)">{{ estadoDe(r) }}</ap-chip-estado> }
             @case ('montoReversado') { <ap-importe-sin-moneda [monto]="r.montoReversado" /> }
             @case ('motivo') { <span class="largo">{{ r.motivo }}</span> }
-            @default { <span class="id">{{ r[columna.clave] }}</span> }
+            @default { <span class="id" [attr.title]="r[columna.clave]">{{ r[columna.clave] }}</span> }
           }
         </ng-template>
       </ap-listado-por-cursor>
     </section>
   `,
   styles: `
-    .pantalla { padding: var(--s5); display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s5); min-width: 0; }
-    .largo, .id { display: block; white-space: normal; overflow-wrap: anywhere; }
+    .pantalla { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s5); min-width: 0; }
+    /* Identificadores en una línea, recortados con «…»: el valor completo va en el title y en la descarga (antes se partían letra a letra y la fila medía 200 px). */
+    .id { display: inline-block; max-width: 22ch; overflow: hidden; text-overflow: ellipsis; vertical-align: bottom; font-family: var(--mono); font-size: .92em; }
+    /* El motivo es texto libre: se parte en líneas, pero con un ancho mínimo legible (antes se partía letra a letra). */
+    .largo { display: block; min-width: 24ch; max-width: 48ch; white-space: normal; overflow-wrap: anywhere; }
   `,
 })
 export class ListadoDeReversos {

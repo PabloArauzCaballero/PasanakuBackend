@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core'
+import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core'
 import { toSignal } from '@angular/core/rxjs-interop'
 import { NavigationEnd, Router } from '@angular/router'
 import { filter, map, startWith } from 'rxjs'
@@ -24,7 +24,7 @@ import { textosDelRecorrido } from './textos-del-recorrido'
   imports: [Boton],
   template: `
     @if (tutorial(); as t) {
-      <ap-boton variante="fantasma" tamano="sm" (pulsado)="abrir()">
+      <ap-boton [variante]="variante()" tamano="sm" icono="libro" (pulsado)="abrir()">
         {{ continuar() ? 'Continuar el tutorial' : textos.lanzador }}
       </ap-boton>
     }
@@ -32,6 +32,8 @@ import { textosDelRecorrido } from './textos-del-recorrido'
   styles: `:host { display: inline-flex; }`,
 })
 export class LanzadorDeTutorial {
+  /** En una barra densa (la del backoffice) va como enlace; en el sitio, con borde. */
+  readonly variante = input<'fantasma' | 'enlace'>('fantasma')
   protected readonly textos = textosDelRecorrido
   private readonly registro = inject(RegistroDeTutoriales)
   private readonly motor = inject(MotorDeTutoriales)

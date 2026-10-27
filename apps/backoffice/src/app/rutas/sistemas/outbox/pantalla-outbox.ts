@@ -25,9 +25,9 @@ const ESTADO: Record<MensajeOutbox['estado'], string> = { pendiente: 'Pendiente'
   template: `
     <section class="pantalla">
       <ap-cabecera-de-pagina eyebrow="Sistemas" [titulo]="t.titulo" [descripcion]="t.proposito" icono="bandeja">
-        <ap-boton acciones icono="recarga" [deshabilitado]="outbox.isLoading()" (pulsado)="outbox.reload()">Actualizar</ap-boton>
+        <ap-boton acciones variante="fantasma" icono="recarga" [deshabilitado]="outbox.isLoading()" (pulsado)="outbox.reload()">Actualizar</ap-boton>
       </ap-cabecera-de-pagina>
-      <ap-cifras-de-sistemas etiqueta="Resumen de la bandeja de salida" [cifras]="cifras()" />
+      <ap-cifras-de-sistemas etiqueta="Resumen de la bandeja de salida" [cifras]="cifras()" [carga]="carga()" />
       <ap-listado titulo="Bandeja de salida" [columnas]="columnasOutbox" [listado]="mensajes" [carga]="carga()" ayudaDeBusqueda="Busca por tipo de mensaje, estado o fecha de creación." [exportables]="exportablesOutbox" nombreDeRegistros="mensajes" [textoVacio]="t.vacio" explicacionVacio="Cuando un servicio publique un evento, aparece acá hasta que se entregue." (reintentar)="outbox.reload()">
         <ng-template #celda let-f let-c="columna">
           @if (c.clave === 'estado') { <ap-chip-estado [tono]="f.estado === 'entregado' ? 'ok' : 'aviso'">{{ estadoDe(f) }}</ap-chip-estado> } @else { {{ f[c.clave] }} }

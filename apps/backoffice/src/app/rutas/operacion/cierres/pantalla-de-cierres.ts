@@ -42,7 +42,7 @@ const EXPORTABLES: ColumnaExportable<CierreDiarioEnLista>[] = [
   imports: [Alerta, Boton, CabeceraDePagina, ChipEstado, Fecha, ImporteSinMoneda, ListadoPorCursorVista, FormularioDeCierre],
   template: `
     <section class="pantalla">
-      <ap-cabecera-de-pagina eyebrow="Contabilidad · CU-51" [titulo]="t.titulo" [descripcion]="t.proposito" icono="calendario">
+      <ap-cabecera-de-pagina eyebrow="Contabilidad" [titulo]="t.titulo" [descripcion]="t.proposito" icono="calendario">
         @if (puedeCerrar() && !formularioAbierto()) {
           <ap-boton acciones variante="primario" icono="candado" (pulsado)="formularioAbierto.set(true)">{{ t.formulario.abrir }}</ap-boton>
         }
@@ -72,7 +72,7 @@ const EXPORTABLES: ColumnaExportable<CierreDiarioEnLista>[] = [
     </section>
   `,
   styles: `
-    .pantalla { padding: var(--s5); display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s5); min-width: 0; }
+    .pantalla { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s5); min-width: 0; }
     .tarjeta { display: grid; gap: var(--s4); padding: var(--s5); border: var(--borde-fino) solid var(--border); border-radius: var(--r-lg); background: var(--surface); box-shadow: var(--sombra-1); }
     .cerrar { display: flex; justify-content: flex-end; }
     .nota { display: block; color: var(--text-2); font: var(--t-cuerpo-chico); }

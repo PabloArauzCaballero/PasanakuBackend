@@ -1,1 +1,4 @@
 @import '@aportaya/ui/estilos.css';
+
+/* `router-outlet` es un ancla vacía: si cuenta como hija de una grilla con `gap`, suma un hueco fantasma arriba de cada pantalla. */
+router-outlet { display: none; }

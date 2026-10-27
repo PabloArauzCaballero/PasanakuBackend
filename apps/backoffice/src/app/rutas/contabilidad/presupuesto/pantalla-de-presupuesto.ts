@@ -53,7 +53,7 @@ const EXPORTABLES = [
   imports: [Alerta, CabeceraDePagina, ChipEstado, Monto, TablaPorCursor, TarjetaKPI],
   template: `
     <section class="pantalla">
-      <ap-cabecera-de-pagina eyebrow="Contabilidad · CU-101" [titulo]="t.titulo" [descripcion]="t.proposito" icono="grafico" />
+      <ap-cabecera-de-pagina eyebrow="Contabilidad" [titulo]="t.titulo" [descripcion]="t.proposito" icono="grafico" />
       <div class="kpis">
         <ap-tarjeta-kpi etiqueta="Partidas en la página" [valor]="'' + listado.filas().length" icono="lista" />
         <ap-tarjeta-kpi etiqueta="Sobre lo presupuestado" [valor]="'' + sobreEnPagina()" icono="advertencia" [tono]="sobreEnPagina() > 0 ? 'error' : 'neutro'" pista="Desviaciones a explicar" />
@@ -82,7 +82,7 @@ const EXPORTABLES = [
   styles: `
     /* Los textos largos se parten en la celda: así la tabla entra en su marco y la columna fija de acciones no tapa un importe. */
     .texto { display: inline-block; min-width: 8rem; white-space: normal; overflow-wrap: anywhere; }
-    .pantalla { padding: var(--s5); display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s4); min-width: 0; }
+    .pantalla { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s4); min-width: 0; }
     .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr)); gap: var(--s3); }
     .desviacion { display: inline-flex; flex-wrap: wrap; align-items: center; gap: var(--s2); justify-content: flex-end; }
     .desviacion.sobre { color: var(--err-texto); }

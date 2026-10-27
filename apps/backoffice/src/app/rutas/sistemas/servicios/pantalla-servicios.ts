@@ -27,9 +27,9 @@ const ESTADO: Record<EstadoServicio['estado'], string> = { operativo: 'Operativo
   template: `
     <section class="pantalla">
       <ap-cabecera-de-pagina data-tutorial-id="sistemas-servicios" eyebrow="Sistemas" [titulo]="t.titulo" [descripcion]="t.proposito" icono="servidor">
-        <ap-boton acciones icono="recarga" [deshabilitado]="servicios.isLoading()" (pulsado)="servicios.reload()">Actualizar</ap-boton>
+        <ap-boton acciones variante="fantasma" icono="recarga" [deshabilitado]="servicios.isLoading()" (pulsado)="servicios.reload()">Actualizar</ap-boton>
       </ap-cabecera-de-pagina>
-      <ap-cifras-de-sistemas etiqueta="Resumen de servicios" [cifras]="cifras()" />
+      <ap-cifras-de-sistemas etiqueta="Resumen de servicios" [cifras]="cifras()" [carga]="carga()" />
       <ap-listado data-tutorial-id="sistemas-servicios-estado" [titulo]="t.titulo" [columnas]="columnas" [listado]="listado" [carga]="carga()" ayudaDeBusqueda="Busca por nombre del servicio, estado o fecha de la última interrupción." [exportables]="exportables" nombreDeRegistros="servicios" [textoVacio]="t.vacio" explicacionVacio="Cuando un servicio publique su SLO, aparece acá con su presupuesto de error." (reintentar)="servicios.reload()">
         <ng-template #celda let-f let-c="columna">
           @if (c.clave === 'estado') { <ap-chip-estado [tono]="tonoDe(f)">{{ estadoDe(f) }}</ap-chip-estado> } @else { {{ f[c.clave] }} }

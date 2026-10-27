@@ -30,8 +30,11 @@ export type Miga = { texto: string; ruta?: string }
   `,
   styles: `
     :host { display: block; }
-    ol { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s1); margin: 0; padding: 0; list-style: none; font: var(--t-ayuda); color: var(--text-3); }
+    /* Una sola línea: si no entra, se acortan las migas intermedias, nunca se parten en dos renglones. */
+    ol { display: flex; flex-wrap: nowrap; align-items: center; gap: var(--s1); margin: 0; padding: 0; list-style: none; font: var(--t-cuerpo-chico); color: var(--text-3); white-space: nowrap; }
     li { display: inline-flex; align-items: center; gap: var(--s1); min-width: 0; }
+    li a, li span { overflow: hidden; text-overflow: ellipsis; }
+    li:last-child { flex: none; }
     a { color: inherit; text-decoration: none; border-radius: var(--r-sm); transition: color var(--mov-micro) ease-out; }
     a:hover { color: var(--text); text-decoration: underline; }
     a:focus-visible { outline: var(--borde-foco) solid var(--g300); outline-offset: var(--borde-desfase); }

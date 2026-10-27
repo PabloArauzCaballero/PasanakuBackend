@@ -19,7 +19,7 @@ import { asignadorRolesUsuarioInterno, catalogoRoles } from '../dominio/usuarios
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [AreaDeTexto, Casilla, Dialogo, ErrorDeEnvio, Esqueleto],
   template: `
-    <ap-dialogo titulo="Modificar roles asignados (CU-08)" [textoDeConfirmar]="enviando() ? 'Guardando…' : 'Confirmar roles'" [cargando]="enviando()" [confirmarDeshabilitado]="!esValido() || enviando()" [puedeDescartar]="puedeCerrar" [abierto]="true" (confirmar)="guardar()" (cancelar)="cerrar.emit()">
+    <ap-dialogo titulo="Modificar roles asignados" [textoDeConfirmar]="enviando() ? 'Guardando…' : 'Confirmar roles'" [cargando]="enviando()" [confirmarDeshabilitado]="!esValido() || enviando()" [puedeDescartar]="puedeCerrar" [abierto]="true" (confirmar)="guardar()" (cancelar)="cerrar.emit()">
       <p class="ayuda">Marcá los roles que corresponden a las funciones del operador. Tiene que quedar al menos uno.</p>
       <fieldset class="lista-seleccion" [disabled]="enviando()">
         <legend>Roles disponibles</legend>

@@ -33,7 +33,7 @@ type Acceso = { ruta: string; texto: string; permiso: string; descripcion: strin
         <div class="cabecera">
           <h2 id="tablero-accion"><ap-icono nombre="bandeja" tamano="s5" />{{ t.accion.titulo }}</h2>
           @if (visibles().length > 0) {
-            <ap-boton icono="recarga" [cargando]="consultando()" (pulsado)="actualizar()">{{ t.accion.actualizar }}</ap-boton>
+            <ap-boton variante="fantasma" icono="recarga" [cargando]="consultando()" (pulsado)="actualizar()">{{ t.accion.actualizar }}</ap-boton>
           }
         </div>
         <p class="explicacion">{{ t.accion.explicacion }}</p>
@@ -80,7 +80,7 @@ type Acceso = { ruta: string; texto: string; permiso: string; descripcion: strin
     </section>
   `,
   styles: `
-    .pantalla { padding: var(--s5); display: grid; gap: var(--s5); }
+    .pantalla { display: grid; gap: var(--s5); }
     h1, h2, h3 { margin: 0; }
     h2 { display: flex; align-items: center; gap: var(--s2); font-size: 1.15em; }
     h3 { display: flex; align-items: center; gap: var(--s2); font-size: 1em; }
@@ -89,6 +89,7 @@ type Acceso = { ruta: string; texto: string; permiso: string; descripcion: strin
     .explicacion, .vacio, .indicador p { margin: 0; color: var(--text-2); }
     .grilla { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr)); gap: var(--s4); }
     .indicador { display: grid; gap: var(--s2); align-content: start; padding: var(--s4); border: var(--borde-fino) dashed var(--border); border-radius: var(--r-lg); background: var(--surface); }
+    .indicador ap-chip-estado { justify-self: start; }
     .accesos a { display: block; min-height: var(--area-tactil); padding: var(--s4); border: var(--borde-fino) solid var(--border); border-radius: var(--r-lg); background: var(--surface); text-decoration: none; }
     .accesos a:focus-visible { outline: var(--borde-foco) solid var(--g300); outline-offset: var(--borde-desfase); }
     .texto { display: flex; align-items: center; gap: var(--s2); font-weight: 600; color: var(--text); }

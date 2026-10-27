@@ -35,9 +35,9 @@ import { textosCumplimiento } from '../textos'
       {{ t.fotos }}:
       @for (cara of caras; track cara) {
         @if (expediente().fotos.includes(cara)) {
-          <span class="tiene">{{ cara }}</span>
+          <span class="tiene">{{ t.caras[cara] ?? cara }}</span>
         } @else {
-          <span class="falta">{{ cara }} {{ t.faltante }}</span>
+          <span class="falta">{{ t.caras[cara] ?? cara }} {{ t.faltante }}</span>
         }
       }
       <ap-boton variante="fantasma" [icono]="abierto() ? 'ojoCerrado' : 'imagen'" [deshabilitado]="expediente().fotos.length === 0" (pulsado)="alternar()">
@@ -49,7 +49,7 @@ import { textosCumplimiento } from '../textos'
       <div class="tira">
         @for (cara of caras; track cara) {
           <figure>
-            <figcaption>{{ cara }}</figcaption>
+            <figcaption>{{ t.caras[cara] ?? cara }}</figcaption>
             @if (url()[cara]; as u) {
               <img [src]="u" [alt]="t.fotoDe + ' ' + expediente().nombreCompleto + ' — ' + cara" />
             } @else if (fallo()[cara]) {

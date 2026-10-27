@@ -27,11 +27,12 @@ test('escritorio: grupos, pestañas de la sección activa, migas y título; capt
   await expect(pestanas.getByRole('link', { name: 'Integraciones' })).toHaveClass(/activa/)
   const sub = page.getByRole('navigation', { name: 'Pantallas de Integraciones' })
   await expect(sub.getByRole('link', { name: 'Outbox y descartados' })).toHaveAttribute('aria-current', 'page')
-  // Las migas llevan hasta el grupo; la pantalla actual es el título de la vista (no se repite).
+  // Una sola línea de migas: sección › pantalla actual. «Inicio» está en el menú lateral y el grupo en las pestañas (2026-10-27).
   const migas = page.getByRole('navigation', { name: 'Migas de pan' })
-  await expect(migas).toContainText('Inicio')
+  await expect(migas).not.toContainText('Inicio')
   await expect(migas).toContainText('Sistemas')
-  await expect(migas).toContainText('Integraciones')
+  await expect(migas).not.toContainText('Integraciones')
+  await expect(migas.locator('[aria-current="page"]')).toHaveText('Outbox y descartados')
   await expect(page.locator('.titulo-vista')).toHaveText('Outbox y descartados')
   await todas(page, P, 'shell-outbox')
 
