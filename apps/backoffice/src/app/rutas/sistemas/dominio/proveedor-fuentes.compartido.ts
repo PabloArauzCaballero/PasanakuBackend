@@ -1,5 +1,6 @@
 import { InjectionToken, type Provider } from '@angular/core'
 import { adaptadorFuenteNoDisponible } from './adaptador-fuente-no-disponible'
+import { puertoSaludDeServicios } from './salud-de-servicios'
 import {
   PUERTO_ACCESOS,
   PUERTO_BASE_DE_DATOS,
@@ -18,10 +19,11 @@ export type ModoFuentesDeSistemas = 'produccion' | 'demo'
 /** Si la fuente activa es la simulada: lo que decide si `banner-datos-de-ejemplo` se pinta. */
 export const ES_FUENTE_SIMULADA = new InjectionToken<boolean>('aportaya.sistemas.esFuenteSimulada')
 
-/** Los nueve puertos con la fuente no disponible — el único resultado posible en producción. */
+/** Los puertos de producción: servicios contra su contrato real; los otros ocho, con la fuente no disponible. */
 export function proveedoresFuenteNoDisponible(): Provider[] {
   return [
-    { provide: PUERTO_SERVICIOS, useValue: { obtener: adaptadorFuenteNoDisponible.servicios } },
+    // La salud de servicios sí tiene contrato real (auditoria): el resto de los puertos todavía no.
+    { provide: PUERTO_SERVICIOS, useFactory: puertoSaludDeServicios },
     { provide: PUERTO_DESPLIEGUES, useValue: { obtener: adaptadorFuenteNoDisponible.despliegues } },
     { provide: PUERTO_BASE_DE_DATOS, useValue: { obtener: adaptadorFuenteNoDisponible.baseDeDatos } },
     { provide: PUERTO_RESPALDOS, useValue: { obtener: adaptadorFuenteNoDisponible.respaldos } },

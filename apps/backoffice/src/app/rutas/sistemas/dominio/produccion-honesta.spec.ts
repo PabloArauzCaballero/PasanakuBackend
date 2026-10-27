@@ -5,7 +5,7 @@ import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { afterEach, describe, expect, it } from 'vitest'
 import { BannerDatosDeEjemplo } from '../banner-datos-de-ejemplo/banner-datos-de-ejemplo'
-import { PantallaServicios } from '../servicios/pantalla-servicios'
+import { PantallaDespliegues } from '../despliegues/pantalla-despliegues'
 import { detectarModoFuentesDeSistemas, provideFuentesDeSistemas } from './proveedor-fuentes'
 
 /**
@@ -51,7 +51,9 @@ describe('detectarModoFuentesDeSistemas · solo la etiqueta exacta enciende el m
   })
 })
 
-@Component({ imports: [BannerDatosDeEjemplo, PantallaServicios], template: `<ap-banner-datos-de-ejemplo /><ap-pantalla-servicios />` })
+// Despliegues todavía no tiene contrato real: es la que ejercita la indisponibilidad honesta. Servicios ya lee de
+// auditoria (`salud-de-servicios.spec.ts`).
+@Component({ imports: [BannerDatosDeEjemplo, PantallaDespliegues], template: `<ap-banner-datos-de-ejemplo /><ap-pantalla-despliegues />` })
 class SeccionComoEnProduccion {}
 
 describe('pantalla de sistemas con el proveedor de producción · indisponibilidad honesta', () => {
