@@ -91,7 +91,7 @@ Hipótesis: ninguna se presenta como hecho.
 |---|---|---|---|---|
 | H3.M1 | `ng test` backoffice + ui, a11y, lint, typecheck, build | todo en verde | salidas en `evidencia/` | HECHO |
 | H3.M2 | e2e del backoffice (`--retries=0`) | sin fallos nuevos | salida en `evidencia/` | HECHO |
-| H3.M3 | Commit, push a `claude/admiring-fermi-mdayfj`, `REPORTE.md` | push OK | `git log` | TODO |
+| H3.M3 | Commit, push a `claude/admiring-fermi-mdayfj`, `REPORTE.md` | push OK | `git log` | HECHO |
 
 ## Riesgos y bloqueos previstos
 | Riesgo | Impacto | Mitigación |
@@ -107,6 +107,6 @@ PasanakuBackend (el repo que construye ese host), entonces el bundle servido ya 
 
 | ID | Microtarea | CA (binario) | DoD | Estado |
 |---|---|---|---|---|
-| H4.M1 | Portar el cambio a PasanakuBackend en `claude/admiring-fermi-mdayfj` | rama empujada, typecheck y tests del backoffice allí en verde | salidas | TODO |
-| H4.M2 | PR a `dev` y de `dev` a `test` | PRs abiertos | URL | TODO |
+| H4.M1 | Portar el cambio a PasanakuBackend en `claude/admiring-fermi-mdayfj` | rama empujada, typecheck y tests del backoffice allí en verde | salidas | HECHO |
+| H4.M2 | PR a `dev` y de `dev` a `test` | PRs abiertos | URL | A MEDIAS |
 | H4.M3 | Verificar el bundle en vivo | sin «Notas de la vista» | `curl … \| grep -c` = 0 | TODO |
