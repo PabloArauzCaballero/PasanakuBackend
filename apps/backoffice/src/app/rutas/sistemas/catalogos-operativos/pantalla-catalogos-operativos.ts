@@ -31,7 +31,7 @@ const TONO: Record<string, Tono> = { VIGENTE: 'ok', EN_REVISION: 'aviso', OBSOLE
   template: `
     <section class="pantalla">
       <ap-cabecera-de-pagina eyebrow="Sistemas · Auditoría" [titulo]="t.titulo" [descripcion]="t.proposito" icono="lista">
-        <ap-boton acciones variante="fantasma" icono="recarga" [deshabilitado]="recurso.isLoading()" (pulsado)="recurso.reload()">Actualizar</ap-boton>
+        @if (carga().tipo !== 'sin-fuente') { <ap-boton acciones variante="fantasma" icono="recarga" [deshabilitado]="recurso.isLoading()" (pulsado)="recurso.reload()">Actualizar</ap-boton> }
       </ap-cabecera-de-pagina>
       <ap-cifras-de-sistemas etiqueta="Resumen de catálogos" [cifras]="cifras()" [carga]="carga()" />
       <ap-listado [titulo]="t.titulo" [columnas]="columnas" [listado]="listado" [carga]="carga()" [identidad]="identidad" [ayudaDeBusqueda]="t.buscar + ' o descripción.'" [exportables]="exportables" nombreDeRegistros="catálogos" [textoVacio]="t.vacio" explicacionVacio="Los catálogos los publica el servicio de auditoría; cuando existan, aparecen acá con su versión vigente." (reintentar)="recurso.reload()">

@@ -118,12 +118,13 @@ export function probarVistaDePuerto<T>(caso: CasoDeVistaDePuerto<T>): void {
 
   // Sin contrato no es una falla: se dice en un estado neutro (2026-10-27). La caja roja con «Volver a intentar» se leía
   // como una caída y reintentar no podía cambiar nada.
-  it('sin fuente: estado neutro con su explicación, sin caja de error, sin reintento y sin cifras', async () => {
+  it('sin fuente: estado neutro con su explicación, sin caja de error, sin reintento, sin «Actualizar» y sin cifras', async () => {
     const obtener = vi.fn(() => Promise.reject({ tipo: 'fuente-no-disponible', mensaje: 'Ningún servicio publica todavía estos datos.' }))
     const el = await estabilizar(montar(obtener))
     expect(el.querySelector('ap-estado-de-error')).toBeNull()
     expect(texto(el.querySelector('ap-listado ap-estado-vacio'))).toContain('Ningún servicio publica todavía estos datos.')
     expect(Array.from(el.querySelectorAll('button')).some((b) => b.textContent?.includes('Volver a intentar'))).toBe(false)
+    expect(Array.from(el.querySelectorAll('button')).some((b) => b.textContent?.includes('Actualizar'))).toBe(false)
     expect(el.querySelectorAll('ap-tarjeta-kpi').length).toBe(0)
   })
 
@@ -132,6 +133,7 @@ export function probarVistaDePuerto<T>(caso: CasoDeVistaDePuerto<T>): void {
     const f = montar(obtener)
     const el = await estabilizar(f)
     expect(texto(el.querySelector('ap-estado-de-error'))).toContain('El servicio no respondió a tiempo.')
+    expect(Array.from(el.querySelectorAll('button')).some((b) => b.textContent?.includes('Actualizar'))).toBe(true)
     pulsar(el, 'Volver a intentar')
     await estabilizar(f)
     expect(obtener).toHaveBeenCalledTimes(2)

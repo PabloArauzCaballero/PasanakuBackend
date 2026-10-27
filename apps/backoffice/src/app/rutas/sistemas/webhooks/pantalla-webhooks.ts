@@ -23,7 +23,7 @@ const ESTADO: Record<Webhook['ultimoEstado'], string> = { ok: 'Entregado', error
   template: `
     <section class="pantalla">
       <ap-cabecera-de-pagina eyebrow="Sistemas" [titulo]="t.titulo" [descripcion]="t.proposito" icono="rayo">
-        <ap-boton acciones variante="fantasma" icono="recarga" [deshabilitado]="webhooks.isLoading()" (pulsado)="webhooks.reload()">Actualizar</ap-boton>
+        @if (carga().tipo !== 'sin-fuente') { <ap-boton acciones variante="fantasma" icono="recarga" [deshabilitado]="webhooks.isLoading()" (pulsado)="webhooks.reload()">Actualizar</ap-boton> }
       </ap-cabecera-de-pagina>
       <ap-cifras-de-sistemas etiqueta="Resumen de webhooks" [cifras]="cifras()" [carga]="carga()" />
       <ap-listado [titulo]="t.titulo" [columnas]="columnas" [listado]="listado" [carga]="carga()" ayudaDeBusqueda="Busca por origen, dirección o estado de la última entrega." [exportables]="exportables" nombreDeRegistros="webhooks" [textoVacio]="t.vacio" explicacionVacio="Cuando se configure un webhook, aparece acá con su última entrega." (reintentar)="webhooks.reload()">
