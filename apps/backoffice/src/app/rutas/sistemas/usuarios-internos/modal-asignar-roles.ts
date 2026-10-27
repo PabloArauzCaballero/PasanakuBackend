@@ -1,67 +1,49 @@
-import { ChangeDetectionStrategy, Component, HostListener, input, output, signal } from '@angular/core'
-import { FormsModule } from '@angular/forms'
-import { Boton } from '@aportaya/ui/boton/boton'
+import { ChangeDetectionStrategy, Component, computed, input, linkedSignal, output, signal } from '@angular/core'
+import { AreaDeTexto } from '@aportaya/ui/area-de-texto/area-de-texto'
+import { Casilla } from '@aportaya/ui/casilla/casilla'
+import { Dialogo } from '@aportaya/ui/dialogo/dialogo'
 import { ErrorDeEnvio, type ErrorParaVista } from '@aportaya/ui/error-de-envio/error-de-envio'
+import { Esqueleto } from '@aportaya/ui/esqueleto/esqueleto'
 import type { EntradaAsignarRolesUsuarioInterno } from 'clientes/angular/identidad'
+import { mensajeDeError } from '../compartido/carga'
 import { asignadorRolesUsuarioInterno, catalogoRoles } from '../dominio/usuarios-internos'
 
+/**
+ * CU-08 · asignar los roles de un usuario interno (PUT `/usuarios-internos/{id}/roles` con motivo). Se monta con
+ * `@if` y abre el `ap-dialogo` nativo al nacer: foco atrapado, `Escape` cierra y el foco vuelve a quien lo abrió.
+ * La selección arranca en los roles vigentes (`linkedSignal`, sin el `setTimeout` de antes) y un fallo conserva la
+ * selección y el motivo, con el error traducido.
+ */
 @Component({
   selector: 'ap-modal-asignar-roles',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [Boton, FormsModule, ErrorDeEnvio],
+  imports: [AreaDeTexto, Casilla, Dialogo, ErrorDeEnvio, Esqueleto],
   template: `
-    <div class="telon">
-      <div class="caja" role="dialog" aria-modal="true" aria-labelledby="modal-roles-titulo">
-        <header>
-          <h2 id="modal-roles-titulo">Modificar roles asignados (CU-08)</h2>
-          <ap-boton variante="fantasma" (pulsado)="cerrar.emit()" aria-label="Cerrar modal">✕</ap-boton>
-        </header>
-
-        <form (ngSubmit)="guardar()">
-          <p class="ayuda">Seleccioná los roles que corresponden a las funciones del operador:</p>
-
-          <div class="lista-seleccion">
-            @for (r of roles.hasValue() ? (roles.value() ?? []) : []; track r.id) {
-              <label class="item-rol">
-                <input type="checkbox" [checked]="rolesSeleccionados().includes(r.codigo)" (change)="toggleRol(r.codigo)" [disabled]="enviando()" />
-                <div>
-                  <strong>{{ r.nombre }}</strong>
-                  <span class="subtexto">{{ r.departamento }} · {{ r.descripcion }}</span>
-                </div>
-              </label>
-            }
-          </div>
-
-          <label class="motivo-label">
-            <span>Motivo formal del cambio de roles (obligatorio)</span>
-            <textarea [(ngModel)]="motivo" name="motivo" rows="3" placeholder="Ej: Aprobado por el comité de operaciones..." required [disabled]="enviando()"></textarea>
-          </label>
-
-          <ap-error-de-envio [error]="error()" />
-
-          <footer>
-            <ap-boton variante="fantasma" (pulsado)="cerrar.emit()" [deshabilitado]="enviando()">Cancelar</ap-boton>
-            <ap-boton tipo="submit" variante="primario" [deshabilitado]="enviando() || !esValido()">
-              {{ enviando() ? 'Guardando...' : 'Confirmar roles' }}
-            </ap-boton>
-          </footer>
-        </form>
-      </div>
-    </div>
+    <ap-dialogo titulo="Modificar roles asignados (CU-08)" [textoDeConfirmar]="enviando() ? 'Guardando…' : 'Confirmar roles'" [cargando]="enviando()" [confirmarDeshabilitado]="!esValido() || enviando()" [puedeDescartar]="puedeCerrar" [abierto]="true" (confirmar)="guardar()" (cancelar)="cerrar.emit()">
+      <p class="ayuda">Marcá los roles que corresponden a las funciones del operador. Tiene que quedar al menos uno.</p>
+      <fieldset class="lista-seleccion" [disabled]="enviando()">
+        <legend>Roles disponibles</legend>
+        @if (roles.isLoading()) {
+          <ap-esqueleto [lineas]="3" etiqueta="Cargando el catálogo de roles" />
+        } @else if (roles.error()) {
+          <p class="subtexto">{{ errorDeCatalogo() }}</p>
+        } @else {
+          @for (r of roles.value() ?? []; track r.id) {
+            <ap-casilla [marcada]="rolesSeleccionados().includes(r.codigo)" (marcadaChange)="toggleRol(r.codigo)">
+              <strong>{{ r.nombre }}</strong> <span class="subtexto">{{ r.codigo }} · {{ r.departamento || 'Sin departamento' }}</span>
+            </ap-casilla>
+          }
+        }
+      </fieldset>
+      <ap-area-de-texto etiqueta="Motivo formal del cambio de roles" [(valor)]="motivo" [maximo]="200" [deshabilitado]="enviando()" ayuda="Obligatorio para la auditoría. Mínimo 5 caracteres." />
+      <ap-error-de-envio [error]="error()" />
+    </ap-dialogo>
   `,
   styles: `
-    .telon { position: fixed; inset: 0; background: var(--overlay); display: flex; align-items: center; justify-content: center; z-index: var(--z-modal); padding: var(--s4); }
-    .caja { background: var(--surface); border: var(--borde-fino) solid var(--border); border-radius: var(--r-xl); padding: var(--s5); width: 100%; max-width: 38rem; max-height: 90vh; overflow-y: auto; display: flex; flex-direction: column; gap: var(--s4); box-shadow: var(--sombra-lg); }
-    header { display: flex; justify-content: space-between; align-items: center; }
-    h2 { margin: 0; font-size: 1.25rem; font-weight: 600; color: var(--text); }
-    p.ayuda { margin: 0; font-size: .875rem; color: var(--text-2); }
-    form { display: flex; flex-direction: column; gap: var(--s3); }
-    .lista-seleccion { max-height: 18rem; overflow-y: auto; display: flex; flex-direction: column; gap: var(--s2); border: var(--borde-fino) solid var(--border); border-radius: var(--r-md); padding: var(--s3); background: var(--surface-2); }
-    .item-rol { display: flex; gap: var(--s3); align-items: flex-start; cursor: pointer; }
-    .subtexto { display: block; font-size: .75rem; color: var(--text-3); }
-    .motivo-label { display: flex; flex-direction: column; gap: var(--s1); font-size: .875rem; color: var(--text-2); }
-    textarea { padding: var(--s2); border: var(--borde-fino) solid var(--border); border-radius: var(--r-md); background: var(--surface-2); color: var(--text); font: inherit; resize: vertical; }
-    footer { display: flex; justify-content: flex-end; gap: var(--s2); margin-top: var(--s2); }
+    .ayuda { margin: 0 0 var(--s3); font: var(--t-cuerpo-chico); color: var(--text-2); }
+    .lista-seleccion { display: grid; gap: var(--s1); max-height: calc(var(--s7) * 5); overflow-y: auto; margin: 0 0 var(--s3); padding: var(--s3); border: var(--borde-fino) solid var(--border); border-radius: var(--r-md); background: var(--surface-2); }
+    legend { padding: 0 var(--s1); font: var(--t-campo-etiqueta); color: var(--text-2); }
+    .subtexto { font: var(--t-ayuda); color: var(--text-3); overflow-wrap: anywhere; }
   `,
 })
 export class ModalAsignarRoles {
@@ -70,35 +52,18 @@ export class ModalAsignarRoles {
   readonly cerrar = output<void>()
   readonly guardado = output<void>()
 
-  @HostListener('document:keydown.escape')
-  protected alPresionarEscape(): void {
-    if (!this.enviando()) {
-      this.cerrar.emit()
-    }
-  }
-
   private readonly ejecutarAsignacion = asignadorRolesUsuarioInterno()
-
   protected readonly roles = catalogoRoles()
-  protected readonly rolesSeleccionados = signal<string[]>([])
+  protected readonly rolesSeleccionados = linkedSignal<string[]>(() => [...this.rolesActuales()])
   protected readonly motivo = signal('')
   protected readonly enviando = signal(false)
   protected readonly error = signal<ErrorParaVista | null>(null)
-
-  constructor() {
-    // Inicializar roles seleccionados con los vigentes
-    setTimeout(() => {
-      this.rolesSeleccionados.set([...this.rolesActuales()])
-    }, 0)
-  }
+  protected readonly puedeCerrar = () => !this.enviando()
+  protected readonly errorDeCatalogo = computed(() => mensajeDeError(this.roles.error(), 'No se pudo cargar el catálogo de roles.').mensaje)
 
   protected toggleRol(codigo: string): void {
     const actuales = this.rolesSeleccionados()
-    if (actuales.includes(codigo)) {
-      this.rolesSeleccionados.set(actuales.filter((c) => c !== codigo))
-    } else {
-      this.rolesSeleccionados.set([...actuales, codigo])
-    }
+    this.rolesSeleccionados.set(actuales.includes(codigo) ? actuales.filter((c) => c !== codigo) : [...actuales, codigo])
   }
 
   protected esValido(): boolean {
@@ -109,20 +74,15 @@ export class ModalAsignarRoles {
     if (!this.esValido() || this.enviando()) return
     this.enviando.set(true)
     this.error.set(null)
-
-    const payload: EntradaAsignarRolesUsuarioInterno = {
-      roles: this.rolesSeleccionados(),
-      motivo: this.motivo().trim(),
-    }
-
+    const payload: EntradaAsignarRolesUsuarioInterno = { roles: this.rolesSeleccionados(), motivo: this.motivo().trim() }
     this.ejecutarAsignacion(this.usuarioId(), payload).subscribe({
       next: () => {
         this.enviando.set(false)
         this.guardado.emit()
       },
-      error: (err) => {
+      error: (e: unknown) => {
         this.enviando.set(false)
-        this.error.set({ mensaje: err.error?.mensaje ?? 'Error al asignar los roles.' })
+        this.error.set(mensajeDeError(e, 'No se pudieron asignar los roles. Probá de nuevo.'))
       },
     })
   }

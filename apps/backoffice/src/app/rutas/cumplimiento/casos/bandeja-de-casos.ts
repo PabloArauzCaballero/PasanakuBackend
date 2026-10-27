@@ -1,86 +1,108 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core'
+import { Router } from '@angular/router'
+import { AccionesDeFila } from '@aportaya/ui/acciones-de-fila/acciones-de-fila'
 import { Alerta } from '@aportaya/ui/alerta/alerta'
-import { Boton } from '@aportaya/ui/boton/boton'
 import { ChipEstado } from '@aportaya/ui/chip-estado/chip-estado'
-import { ChipsDeFiltro } from '@aportaya/ui/chips-de-filtro/chips-de-filtro'
+import type { ColumnaExportable } from '@aportaya/ui/exportar-listado/exportar'
 import { formatearFecha } from '@aportaya/ui/fecha/fecha'
+import { Icono } from '@aportaya/ui/icono/icono'
+import type { Columna } from '@aportaya/ui/tabla-de-datos/tabla-de-datos'
 import type { CasoEnBandeja, SalidaDecisionCasoLft } from 'clientes/angular/cumplimiento'
 import { Sesion } from '../../../nucleo/sesion'
-import { TablaDeDatosVirtualizada } from '../../../nucleo/tabla/tabla-de-datos-virtualizada'
-import type { ColumnaVirtual } from '../../../nucleo/tabla/tipos'
 import { tieneAlguno } from '../compartido/acceso'
-import { filtrosDe, observarBandeja } from '../compartido/bandeja'
-import { EstadoDeBandejaVista } from '../compartido/estado-de-bandeja'
+import { crearBandeja } from '../compartido/bandeja-por-cursor'
+import { opcionesDe } from '../compartido/campos'
+import { ListadoDeBandeja } from '../compartido/listado-de-bandeja'
 import { MarcoDeCumplimiento } from '../compartido/marco'
 import { cargadorDeCasos } from '../dominio/cu44-bandejas'
 import { textosLft } from '../textos-lft'
 import { DecidirCaso } from './decidir-caso'
 
 const T = textosLft.casos
-const COLUMNAS: ColumnaVirtual<CasoEnBandeja>[] = [
-  { clave: 'codigo', titulo: T.columnas.codigo },
+const COLUMNAS: Columna<CasoEnBandeja>[] = [
+  { clave: 'codigo', titulo: T.columnas.codigo, mono: true },
   { clave: 'prioridad', titulo: T.columnas.prioridad },
   { clave: 'estado', titulo: T.columnas.estado },
-  { clave: 'plazoLimite', titulo: T.columnas.plazoLimite, ancho: '2' },
+  { clave: 'plazoLimite', titulo: T.columnas.plazoLimite },
   { clave: 'vencido', titulo: T.columnas.vencido },
-  { clave: 'decision', titulo: T.columnas.decision, ancho: '2' },
+  { clave: 'decision', titulo: T.columnas.decision },
+]
+const prioridad = (c: CasoEnBandeja) => textosLft.prioridades[c.prioridad] ?? c.prioridad
+const estado = (c: CasoEnBandeja) => textosLft.estadosDeCaso[c.estado] ?? c.estado
+const plazo = (c: CasoEnBandeja) => (c.vencido ? T.vencido : T.enPlazo)
+const decision = (c: CasoEnBandeja) => (c.decision ? (textosLft.decisiones[c.decision] ?? c.decision) : 'Sin decidir')
+const EXPORTABLES: ColumnaExportable<CasoEnBandeja>[] = [
+  { clave: 'codigo', titulo: T.columnas.codigo },
+  { clave: 'prioridad', titulo: T.columnas.prioridad, valor: prioridad },
+  { clave: 'estado', titulo: T.columnas.estado, valor: estado },
+  { clave: 'plazoLimite', titulo: T.columnas.plazoLimite, valor: (c) => formatearFecha(c.plazoLimite) },
+  { clave: 'vencido', titulo: T.columnas.vencido, valor: plazo },
+  { clave: 'decision', titulo: T.columnas.decision, valor: decision },
 ]
 
 /**
- * CU-44 · la bandeja de casos LFT (`listarBandejaDeCasos`): el que vence antes primero, con el
- * plazo GUARDADO al abrir (`vencido` lo calcula el servidor con su hora). No viaja la persona,
- * el resumen ni los hallazgos. «Decidir» abre `DecidirCaso` sobre un caso no cerrado.
+ * CU-44 · la bandeja de casos LFT (`listarBandejaDeCasos`): el que vence antes primero, con el plazo GUARDADO al
+ * abrir (`vencido` lo calcula el servidor con su hora). No viaja la persona, el resumen ni los hallazgos. Acciones de
+ * fila: «Ver» abre la ficha del caso y «Decidir» (`decidirCasoLft`) sobre un caso no cerrado y sin decisión. Un caso
+ * es expediente: no se edita ni se elimina, y el contrato no tiene esas operaciones.
  */
 @Component({
   selector: 'ap-bandeja-de-casos',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [MarcoDeCumplimiento, EstadoDeBandejaVista, TablaDeDatosVirtualizada, ChipsDeFiltro, ChipEstado, Boton, Alerta, DecidirCaso],
+  imports: [MarcoDeCumplimiento, ListadoDeBandeja, AccionesDeFila, ChipEstado, Alerta, Icono, DecidirCaso],
   template: `
-    <ap-marco-de-cumplimiento [titulo]="t.titulo" [proposito]="t.proposito">
-      <ap-chips-de-filtro [etiqueta]="t.filtroEstado" [filtros]="FILTROS_ESTADO" [(elegidos)]="estados" />
+    <ap-marco-de-cumplimiento [titulo]="t.titulo" [proposito]="t.proposito" icono="carpeta">
       @if (recibo()) { <ap-alerta tono="ok">{{ recibo() }}</ap-alerta> }
-      <ap-estado-de-bandeja [estado]="bandeja.estado()" [error]="bandeja.error()" [textoVacio]="t.vacio" [explicacionVacio]="t.explicacionVacio" [conFiltros]="estados().length > 0" (reintentar)="bandeja.recargar()" (quitarFiltros)="estados.set([])" />
-      @for (m of [bandeja.montaje()]; track m) {
-        <div [hidden]="bandeja.estado() === 'denegado' || bandeja.estado() === 'vacio'">
-          <ap-tabla-de-datos-virtualizada [titulo]="t.tabla" [columnas]="COLUMNAS" [cargador]="bandeja.cargador" [ordenPermitido]="[]" [identidad]="identidad" [filtros]="filtros()" [tamanoDePagina]="25">
-            <ng-template #celda let-c let-columna="columna">
-              @switch (columna.clave) {
-                @case ('prioridad') { {{ prioridades[c.prioridad] ?? c.prioridad }} }
-                @case ('estado') { {{ estados_[c.estado] ?? c.estado }} }
-                @case ('plazoLimite') { {{ fecha(c.plazoLimite) }} }
-                @case ('vencido') { <ap-chip-estado [tono]="c.vencido ? 'error' : 'neutro'">{{ c.vencido ? t.vencido : t.enPlazo }}</ap-chip-estado> }
-                @case ('decision') {
-                  @if (c.decision) { {{ decisiones[c.decision] ?? c.decision }} }
-                  @else if (c.estado !== 'CERRADO' && puedeDecidir()) { <ap-boton tamano="sm" (pulsado)="decidir(c)">{{ t.decidir }} {{ c.codigo }}</ap-boton> }
-                }
-                @default { {{ c[columna.clave] }} }
-              }
-            </ng-template>
-          </ap-tabla-de-datos-virtualizada>
-        </div>
-      }
+      <ap-listado-de-bandeja recursoDeExportacion="cumplimiento-casos" [titulo]="t.tabla" [columnas]="COLUMNAS" [bandeja]="bandeja" [identidad]="identidad" [exportables]="EXPORTABLES" nombreDeRegistros="casos" [textoVacio]="t.vacio" [explicacionVacio]="t.explicacionVacio" ayudaDeBusqueda="Busca por código, prioridad, estado o decisión en la página cargada: el servidor no admite búsqueda. El estado filtra en el servidor.">
+        <ng-template #celda let-c let-columna="columna">
+          @switch (columna.clave) {
+            @case ('prioridad') { {{ prioridad(c) }} }
+            @case ('estado') { {{ estado(c) }} }
+            @case ('plazoLimite') { {{ fecha(c.plazoLimite) }} }
+            @case ('vencido') { <ap-chip-estado [tono]="c.vencido ? 'error' : 'neutro'">{{ plazo(c) }}</ap-chip-estado> }
+            @case ('decision') { {{ decision(c) }} }
+            @default { {{ c[columna.clave] }} }
+          }
+        </ng-template>
+        <ng-template #acciones let-c>
+          <ap-acciones-de-fila [fila]="'caso ' + c.codigo" [ver]="true" (verPulsado)="ver(c)">
+            @if (puedeDecidir() && sePuedeDecidir(c)) {
+              <button type="button" apAccionDeFila [attr.aria-label]="t.decidir + ' el caso ' + c.codigo" (click)="decidir(c)"><ap-icono nombre="balanza" tamano="s4" /><span>{{ t.decidir }}</span></button>
+            }
+          </ap-acciones-de-fila>
+        </ng-template>
+      </ap-listado-de-bandeja>
     </ap-marco-de-cumplimiento>
     @if (puedeDecidir()) { <ap-decidir-caso [(abierto)]="dialogoAbierto" [caso]="elegido()" (decidio)="alDecidir($event)" /> }
   `,
 })
 export class BandejaDeCasos {
   private readonly sesion = inject(Sesion)
+  private readonly router = inject(Router)
   protected readonly t = T
   protected readonly COLUMNAS = COLUMNAS
-  protected readonly FILTROS_ESTADO = Object.entries(textosLft.estadosDeCaso).map(([valor, texto]) => ({ valor, texto }))
-  protected readonly estados_ = textosLft.estadosDeCaso
-  protected readonly prioridades = textosLft.prioridades
-  protected readonly decisiones = textosLft.decisiones
-  protected readonly bandeja = observarBandeja(cargadorDeCasos())
+  protected readonly EXPORTABLES = EXPORTABLES
+  protected readonly prioridad = prioridad
+  protected readonly estado = estado
+  protected readonly plazo = plazo
+  protected readonly decision = decision
+  protected readonly bandeja = crearBandeja<CasoEnBandeja>({
+    cargador: cargadorDeCasos(),
+    camposDeBusqueda: ['codigo', prioridad, estado, decision],
+    filtros: [{ nombre: 'estados', etiqueta: 'Estado', opciones: opcionesDe(textosLft.estadosDeCaso), textoTodos: 'Los no cerrados' }],
+  })
   protected readonly identidad = (c: CasoEnBandeja) => c.casoId
   protected readonly fecha = (iso: string) => formatearFecha(iso)
+  protected readonly sePuedeDecidir = (c: CasoEnBandeja) => c.estado !== 'CERRADO' && !c.decision
 
-  protected readonly estados = signal<string[]>([])
-  protected readonly filtros = computed(() => filtrosDe({ estados: this.estados() }))
   protected readonly puedeDecidir = computed(() => tieneAlguno(this.sesion, ['CUMPLIMIENTO_CASOS']))
   protected readonly elegido = signal<CasoEnBandeja | null>(null)
   protected readonly dialogoAbierto = signal(false)
   protected readonly recibo = signal<string | null>(null)
+
+  protected ver(caso: CasoEnBandeja): void {
+    void this.router.navigate(['/cumplimiento/casos', caso.casoId])
+  }
 
   protected decidir(caso: CasoEnBandeja): void {
     this.elegido.set(caso)
@@ -89,6 +111,8 @@ export class BandejaDeCasos {
 
   protected alDecidir(salida: SalidaDecisionCasoLft): void {
     this.recibo.set(textosLft.decision.recibo(this.decisiones[salida.decision] ?? salida.decision, salida.alertasCerradas, salida.fueraDePlazo))
-    this.bandeja.recargar()
+    void this.bandeja.recargar()
   }
+
+  private readonly decisiones = textosLft.decisiones
 }

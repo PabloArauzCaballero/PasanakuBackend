@@ -5,6 +5,7 @@ import { GATEWAY } from '../../../nucleo/gateway'
 import { contextoIdempotente } from '../../../nucleo/idempotencia.interceptor'
 import type { CargadorDePagina } from '../../../nucleo/tabla/tipos'
 import { cargadorPublicidadPorCursor } from './contrato-publicidad'
+import { lotesPorCursor } from './lotes-por-cursor'
 import type { EntradaRevision } from 'clientes/angular/publicidad/model/entradaRevision'
 import type { SalidaRevision } from 'clientes/angular/publicidad/model/salidaRevision'
 
@@ -55,6 +56,14 @@ export function cargarPiezasPendientes(http: HttpClient, gateway: string): Carga
 
 export function cargadorDePiezasPendientes(): CargadorDePagina<PiezaCreativa> {
   return cargarPiezasPendientes(inject(HttpClient), inject(GATEWAY))
+}
+
+/**
+ * La cola por lotes de 100. `estadoModeracion` acepta un solo valor y por omisión es PENDIENTE (la cola); elegir
+ * APROBADA o RECHAZADA muestra lo ya resuelto, sin acciones.
+ */
+export function lotesDePiezas() {
+  return lotesPorCursor<PiezaCreativa>('/publicidad/piezas-creativas', (filtros, params) => params.set('estadoModeracion', filtros['estado'] || 'PENDIENTE'))
 }
 
 export async function moderarPieza(http: HttpClient, gateway: string, piezaId: string, entrada: EntradaRevision): Promise<SalidaRevision> {

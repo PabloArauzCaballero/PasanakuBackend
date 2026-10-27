@@ -51,7 +51,8 @@ test.describe('sistemas — sin contrato real, nunca datos de ejemplo (con sesi�
       // No hay servicio "sistemas" real ni mock que lo cubra en este sandbox: el
       // estado esperado es el de error accionable, nunca el de éxito con datos de
       // ejemplo — eso es lo que este caso prueba.
-      await expect(page.getByRole('alert')).toBeVisible()
+      // Una pantalla con dos listados (outbox y descartados) muestra un error por listado: alcanza con que haya al menos uno.
+      await expect(page.getByRole('alert').first()).toBeVisible()
       await expect(page.locator('body')).not.toContainText('99.95')
     })
   }

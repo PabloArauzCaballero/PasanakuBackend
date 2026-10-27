@@ -1,0 +1,256 @@
+PASS · presupuesto · aceptado · lista 10 de 25 con limite=10 — /api/v1/erp/partidas-presupuestarias?limite=10
+PASS · presupuesto · aceptado · buscar «nandu»
+PASS · presupuesto · aceptado · filtro local «Centro de costo» — 5 filas
+PASS · presupuesto · aceptado · filtro del servidor «Estado del presupuesto» → estados=APROBADO — /api/v1/erp/partidas-presupuestarias?limite=10&estados=APROBADO
+PASS · presupuesto · aceptado · filas por página 20 → limite=20
+PASS · presupuesto · aceptado · Siguiente pide con el cursor; «Ir a 3» muestra 5; Anterior vuelve — /api/v1/erp/partidas-presupuestarias?limite=10&antesDe=2026-01-01&antesDeId=00000000-0000-4000-8000-000000000010
+PASS · presupuesto · aceptado · CSV y JSON de lo filtrado — presupuesto-por-centro-de-costo-2026-10-26.csv (2 líneas: «Marketing,Operación Ñandú,abril 2026,BOB 1000.00,BOB 640.10,BOB -359.90,Borrador») · presupuesto-por-centro-de-costo-2026-10-26.json (1)
+PASS · presupuesto · aceptado · capturas 1280/768/375 claro + 1280 oscuro, sin scroll horizontal
+PASS · presupuesto · límite · búsqueda sin coincidencias → «Quitar filtros»
+PASS · presupuesto · límite · colección vacía → vacío orientado sin paginación — No hay partidas presupuestarias para este ejercicio. Las partidas aparecen cuand
+PASS · presupuesto · límite · una sola fila → «Página 1 de 1»
+PASS · presupuesto · error · 500 → mensaje accionable sin crudo; «Volver a intentar» repite — No se pudo cargar presupuesto por centro de costo. Algo salió mal de nuestro lado. Probá de nuevo en un moment
+PASS · presupuesto · error · 403 → mensaje accionable sin crudo; «Volver a intentar» repite — No se pudo cargar presupuesto por centro de costo. No tenés acceso a esto. Código de seguimiento: tz-franja-e-
+PASS · compras-ordenes · aceptado · lista 10 de 25 con limite=10 — /api/v1/erp/ordenes-de-compra?limite=10
+PASS · compras-ordenes · aceptado · buscar «OC-0005»
+PASS · compras-ordenes · aceptado · filtro local «Centro de costo» — 3 filas
+PASS · compras-ordenes · aceptado · filtro del servidor «Estado de la orden» → estados=BORRADOR — /api/v1/erp/ordenes-de-compra?limite=10&estados=BORRADOR
+PASS · compras-ordenes · aceptado · filas por página 20 → limite=20
+PASS · compras-ordenes · aceptado · Siguiente pide con el cursor; «Ir a 3» muestra 5; Anterior vuelve — /api/v1/erp/ordenes-de-compra?limite=10&antesDe=2026-01-01&antesDeId=00000000-0000-4000-8000-000000000010
+PASS · compras-ordenes · aceptado · CSV y JSON de lo filtrado — ordenes-de-compra-2026-10-26.csv (2 líneas: «OC-0005,Proveedor Andino SRL,Tecnología,2026-09-01T12:00:00Z,BOB 805.00,Borrador,La orden ») · ordenes-de-compra-2026-10-26.json (1)
+PASS · compras-ordenes · aceptado · «Aprobar» OC-0005 → POST /aprobacion con Idempotency-Key y recarga — POST /api/v1/erp/ordenes-de-compra/00000000-0000-4000-8000-000000000005/aprobacion · Idempotency-Key 0770b1f0…
+PASS · compras-ordenes · error · aprobación con 500 → error traducido, botón libre
+PASS · compras-ordenes · aceptado · capturas 1280/768/375 claro + 1280 oscuro, sin scroll horizontal
+PASS · compras-ordenes · límite · búsqueda sin coincidencias → «Quitar filtros»
+PASS · compras-ordenes · límite · colección vacía → vacío orientado sin paginación — No hay órdenes de compra con estos filtros. Todavía no hay nada acá.
+PASS · compras-ordenes · límite · una sola fila → «Página 1 de 1»
+PASS · compras-ordenes · error · 500 → mensaje accionable sin crudo; «Volver a intentar» repite — No se pudo cargar órdenes de compra. Algo salió mal de nuestro lado. Probá de nuevo en un momento. Código de s
+PASS · compras-ordenes · error · 403 → mensaje accionable sin crudo; «Volver a intentar» repite — No se pudo cargar órdenes de compra. No tenés acceso a esto. Código de seguimiento: tz-franja-e-403 Volver a i
+PASS · compras-facturas · aceptado · lista 10 de 25 con limite=10 — /api/v1/erp/facturas-de-proveedor?limite=10
+PASS · compras-facturas · aceptado · buscar «F-0003»
+PASS · compras-facturas · aceptado · filtro local «Vencimiento» — 2 filas
+PASS · compras-facturas · aceptado · filtro del servidor «Estado de la factura» → estados=APROBADA — /api/v1/erp/facturas-de-proveedor?limite=10&estados=APROBADA
+PASS · compras-facturas · aceptado · filas por página 20 → limite=20
+PASS · compras-facturas · aceptado · Siguiente pide con el cursor; «Ir a 3» muestra 5; Anterior vuelve — /api/v1/erp/facturas-de-proveedor?limite=10&antesDe=2026-01-01&antesDeId=00000000-0000-4000-8000-000000000010
+PASS · compras-facturas · aceptado · CSV y JSON de lo filtrado — facturas-de-proveedor-2026-10-26.csv (2 líneas: «F-0003,Proveedor Andino SRL,2026-09-02,2099-10-02,BOB 800.00,BOB 0.00,BOB 800.00,Registrad») · facturas-de-proveedor-2026-10-26.json (1)
+PASS · compras-facturas · aceptado · «Registrar el pago» F-0001 → POST /pagos con monto exacto y recarga — /api/v1/erp/facturas-de-proveedor/00000000-0000-4000-8000-000000000001/pagos · {"monto":"100.50","moneda":"BOB","formaPago":"TRANSFERENCIA"}
+PASS · compras-facturas · aceptado · capturas 1280/768/375 claro + 1280 oscuro, sin scroll horizontal
+PASS · compras-facturas · límite · búsqueda sin coincidencias → «Quitar filtros»
+PASS · compras-facturas · límite · colección vacía → vacío orientado sin paginación — No hay facturas de proveedor con estos filtros. Todavía no hay nada acá.
+PASS · compras-facturas · límite · una sola fila → «Página 1 de 1»
+PASS · compras-facturas · error · 500 → mensaje accionable sin crudo; «Volver a intentar» repite — No se pudo cargar facturas de proveedor. Algo salió mal de nuestro lado. Probá de nuevo en un momento. Código 
+PASS · compras-facturas · error · 403 → mensaje accionable sin crudo; «Volver a intentar» repite — No se pudo cargar facturas de proveedor. No tenés acceso a esto. Código de seguimiento: tz-franja-e-403 Volver
+PASS · cobros · aceptado · lista 10 de 25 con limite=10 — /api/v1/erp/cuentas-por-cobrar?limite=10
+PASS · cobros · aceptado · buscar «nunoa»
+PASS · cobros · aceptado · filtro local «Origen» — 4 filas
+PASS · cobros · aceptado · filtro del servidor «Estado de la cuenta» → estados=INCOBRABLE — /api/v1/erp/cuentas-por-cobrar?limite=10&estados=INCOBRABLE
+PASS · cobros · aceptado · filas por página 20 → limite=20
+PASS · cobros · aceptado · Siguiente pide con el cursor; «Ir a 3» muestra 5; Anterior vuelve — /api/v1/erp/cuentas-por-cobrar?limite=10&antesDe=2026-01-01&antesDeId=00000000-0000-4000-8000-000000000010
+PASS · cobros · aceptado · CSV y JSON de lo filtrado — cuentas-por-cobrar-2026-10-26.csv (2 líneas: «Venta de servicio,Cooperativa Ñuñoa,2026-11-01,BOB 300.00,BOB 0.00,BOB 300.00,Pendiente») · cuentas-por-cobrar-2026-10-26.json (1)
+PASS · cobros · error · cobro con 500 → conserva lo escrito y el botón no queda trabado
+PASS · cobros · aceptado · reintento del cobro → POST /cobros con monto 50.00 y recarga — /api/v1/erp/cuentas-por-cobrar/00000000-0000-4000-8000-000000000001/cobros · {"monto":"50.00","formaCobro":"TRANSFERENCIA"} · clave bac34ef8…
+PASS · cobros · aceptado · capturas 1280/768/375 claro + 1280 oscuro, sin scroll horizontal
+PASS · cobros · límite · búsqueda sin coincidencias → «Quitar filtros»
+PASS · cobros · límite · colección vacía → vacío orientado sin paginación — No hay cuentas por cobrar con estos filtros. Todavía no hay nada acá.
+PASS · cobros · límite · una sola fila → «Página 1 de 1»
+PASS · cobros · error · 500 → mensaje accionable sin crudo; «Volver a intentar» repite — No se pudo cargar cuentas por cobrar. Algo salió mal de nuestro lado. Probá de nuevo en un momento. Código de 
+PASS · cobros · error · 403 → mensaje accionable sin crudo; «Volver a intentar» repite — No se pudo cargar cuentas por cobrar. No tenés acceso a esto. Código de seguimiento: tz-franja-e-403 Volver a 
+PASS · activos · aceptado · lista 10 de 25 con limite=10 — /api/v1/erp/activos?limite=10
+PASS · activos · aceptado · buscar «AF-005»
+PASS · activos · aceptado · filtro local «Categoría» — 5 filas
+PASS · activos · aceptado · filtro del servidor «Estado del activo» → estados=DADO_DE_BAJA — /api/v1/erp/activos?limite=10&estados=DADO_DE_BAJA
+PASS · activos · aceptado · filas por página 20 → limite=20
+PASS · activos · aceptado · Siguiente pide con el cursor; «Ir a 3» muestra 5; Anterior vuelve — /api/v1/erp/activos?limite=10&antesDe=2026-01-01&antesDeId=00000000-0000-4000-8000-000000000010
+PASS · activos · aceptado · CSV y JSON de lo filtrado — activos-fijos-2026-10-26.csv (2 líneas: «AF-005,Servidor de oficina con almacenamiento redundante y fuente doble para la sala de có») · activos-fijos-2026-10-26.json (1)
+PASS · activos · aceptado · «Depreciar» AF-001 → POST /depreciaciones con el período y recarga — /api/v1/erp/activos/00000000-0000-4000-8000-000000000001/depreciaciones · {"periodoContableId":"b6ab0151-f825-4175-8e8e-6024aed062c6"}
+PASS · activos · aceptado · capturas 1280/768/375 claro + 1280 oscuro, sin scroll horizontal
+PASS · activos · límite · búsqueda sin coincidencias → «Quitar filtros»
+PASS · activos · límite · colección vacía → vacío orientado sin paginación — No hay activos fijos con estos filtros. Todavía no hay nada acá.
+PASS · activos · límite · una sola fila → «Página 1 de 1»
+PASS · activos · error · 500 → mensaje accionable sin crudo; «Volver a intentar» repite — No se pudo cargar activos fijos. Algo salió mal de nuestro lado. Probá de nuevo en un momento. Código de segui
+PASS · activos · error · 403 → mensaje accionable sin crudo; «Volver a intentar» repite — No se pudo cargar activos fijos. No tenés acceso a esto. Código de seguimiento: tz-franja-e-403 Volver a inten
+PASS · periodo · aceptado · período de hoy, ejercicios, meses; sin «Asentar»; cerrar → POST /cierre — /api/v1/erp/periodos/1ca325ab-0e51-468d-82f2-e3262af4ec38/cierre · {"glosa":"Cierre de enero 1"}
+PASS · estados · error · Prism repite un hash vacío junto al documento → NO se entrega el archivo y se dice por qué
+PASS · estados · aceptado · generar → POST; descargar → GET documento (doble con el hash generado) y el navegador recibe el archivo — /api/v1/erp/periodos/b6ab0151-f825-4175-8e8e-6024aed062c6/estados-financieros · archivo balance-general-enero-1-hashCont.pdf (14 bytes, hash hashContenido)
+PASS · configuracion · aceptado · inicio con tres accesos con ícono que navegan
+PASS · tarifario · aceptado · lista 10 de 25 con limite=10 — /api/v1/tarifas/tarifarios?limite=10
+PASS · tarifario · aceptado · buscar «tarifa general»
+PASS · tarifario · aceptado · filtro local «Moneda» — 5 filas
+PASS · tarifario · aceptado · filtro del servidor «Estado» → estados=VIGENTE — /api/v1/tarifas/tarifarios?limite=10&estados=VIGENTE
+PASS · tarifario · aceptado · filas por página 20 → limite=20
+PASS · tarifario · aceptado · Siguiente pide con el cursor; «Ir a 3» muestra 5; Anterior vuelve — /api/v1/tarifas/tarifarios?limite=10&antesDe=2026-01-01&antesDeId=00000000-0000-4000-8000-000000000010
+PASS · tarifario · aceptado · CSV y JSON de lo filtrado — historial-del-tarifario-2026-10-26.csv (2 líneas: «TAR-1,1,Tarifa general,En preaviso,USD,2026-11-01T04:00:00Z,no disponible,30,no disponible») · historial-del-tarifario-2026-10-26.json (1)
+PASS · tarifario · aceptado · capturas 1280/768/375 claro + 1280 oscuro, sin scroll horizontal
+PASS · tarifario · límite · búsqueda sin coincidencias → «Quitar filtros»
+PASS · tarifario · límite · colección vacía → vacío orientado sin paginación — Todavía no hay tarifarios publicados. Todavía no hay nada acá.
+PASS · tarifario · límite · una sola fila → «Página 1 de 1»
+PASS · tarifario · error · 500 → mensaje accionable sin crudo; «Volver a intentar» repite — No se pudo cargar historial del tarifario. Algo salió mal de nuestro lado. Probá de nuevo en un momento. Códig
+PASS · tarifario · error · 403 → mensaje accionable sin crudo; «Volver a intentar» repite — No se pudo cargar historial del tarifario. No tenés acceso a esto. Código de seguimiento: tz-franja-e-403 Volv
+PASS · mensajeria-plantillas · aceptado · lista 10 de 25 con limite=10 — /api/v1/notificaciones/plantillas?limite=10
+PASS · mensajeria-plantillas · aceptado · buscar «PLANTILLA_7»
+PASS · mensajeria-plantillas · aceptado · filtro local «Canal» — 5 filas
+PASS · mensajeria-plantillas · aceptado · filtro del servidor «Aprobación» → estados=RECHAZADA — /api/v1/notificaciones/plantillas?limite=10&estados=RECHAZADA
+PASS · mensajeria-plantillas · aceptado · filas por página 20 → limite=20
+PASS · mensajeria-plantillas · aceptado · Siguiente pide con el cursor; «Ir a 3» muestra 5; Anterior vuelve — /api/v1/notificaciones/plantillas?limite=10&antesDe=2026-01-01&antesDeId=00000000-0000-4000-8000-000000000010
+PASS · mensajeria-plantillas · aceptado · CSV y JSON de lo filtrado — plantillas-2026-10-26.csv (2 líneas: «PLANTILLA_7,EVENTO_7,WHATSAPP,Borrador,Inactiva,1,es,2026-09-01T04:00:00Z,no disponible») · plantillas-2026-10-26.json (1)
+PASS · mensajeria-plantillas · aceptado · capturas 1280/768/375 claro + 1280 oscuro, sin scroll horizontal
+PASS · mensajeria-plantillas · límite · búsqueda sin coincidencias → «Quitar filtros»
+PASS · mensajeria-plantillas · límite · colección vacía → vacío orientado sin paginación — Todavía no hay plantillas cargadas. Todavía no hay nada acá.
+PASS · mensajeria-plantillas · límite · una sola fila → «Página 1 de 1»
+PASS · mensajeria-plantillas · error · 500 → mensaje accionable sin crudo; «Volver a intentar» repite — No se pudo cargar plantillas. Algo salió mal de nuestro lado. Probá de nuevo en un momento. Código de seguimie
+PASS · mensajeria-plantillas · error · 403 → mensaje accionable sin crudo; «Volver a intentar» repite — No se pudo cargar plantillas. No tenés acceso a esto. Código de seguimiento: tz-franja-e-403 Volver a intentar
+PASS · mensajeria-envios · aceptado · lista 10 de 25 con limite=10 — /api/v1/notificaciones/envios?limite=10
+PASS · mensajeria-envios · aceptado · buscar «E-EJEMPLO»
+PASS · mensajeria-envios · aceptado · filtro local «Proveedor» — 5 filas
+PASS · mensajeria-envios · aceptado · filtro del servidor «Estado» → estados=FALLIDO — /api/v1/notificaciones/envios?limite=10&estados=FALLIDO
+PASS · mensajeria-envios · aceptado · filas por página 20 → limite=20
+PASS · mensajeria-envios · aceptado · Siguiente pide con el cursor; «Ir a 3» muestra 5; Anterior vuelve — /api/v1/notificaciones/envios?limite=10&antesDe=2026-01-01&antesDeId=00000000-0000-4000-8000-000000000010
+PASS · mensajeria-envios · aceptado · CSV y JSON de lo filtrado — envios-2026-10-26.csv (3 líneas: «2026-10-16T12:00:00Z,WHATSAPP,PROVEEDOR_B,Fallido,3 / 3,0.0125 USD,E-EJEMPLO,no disponible») · envios-2026-10-26.json (2)
+PASS · mensajeria-envios · aceptado · capturas 1280/768/375 claro + 1280 oscuro, sin scroll horizontal
+PASS · mensajeria-envios · límite · búsqueda sin coincidencias → «Quitar filtros»
+PASS · mensajeria-envios · límite · colección vacía → vacío orientado sin paginación — Todavía no hay envíos registrados. Todavía no hay nada acá.
+PASS · mensajeria-envios · límite · una sola fila → «Página 1 de 1»
+PASS · mensajeria-envios · error · 500 → mensaje accionable sin crudo; «Volver a intentar» repite — No se pudo cargar envíos. Algo salió mal de nuestro lado. Probá de nuevo en un momento. Código de seguimiento:
+PASS · mensajeria-envios · error · 403 → mensaje accionable sin crudo; «Volver a intentar» repite — No se pudo cargar envíos. No tenés acceso a esto. Código de seguimiento: tz-franja-e-403 Volver a intentar
+PASS · reportes-catalogo · aceptado · lista 10 de 25 con limite=10 — /api/v1/reportes?limite=10
+PASS · reportes-catalogo · aceptado · buscar «reporte 9»
+PASS · reportes-catalogo · aceptado · filtro local «Tipo» — 5 filas
+PASS · reportes-catalogo · aceptado · filas por página 20 → limite=20
+PASS · reportes-catalogo · aceptado · Siguiente pide con el cursor; «Ir a 3» muestra 5; Anterior vuelve — /api/v1/reportes?limite=10&despuesDe=2026-01-01&despuesDeId=00000000-0000-4000-8000-000000000010
+PASS · reportes-catalogo · aceptado · CSV y JSON de lo filtrado — catalogo-de-reportes-2026-10-26.csv (2 líneas: «Reporte 9,FINANCIERO,Sintético,AUDITORIA_LEER,Datos sensibles: pide justificación») · catalogo-de-reportes-2026-10-26.json (1)
+PASS · reportes-catalogo · aceptado · capturas 1280/768/375 claro + 1280 oscuro, sin scroll horizontal
+PASS · reportes-catalogo · límite · búsqueda sin coincidencias → «Quitar filtros»
+PASS · reportes-catalogo · límite · colección vacía → vacío orientado sin paginación — No hay reportes activos en el catálogo. Todavía no hay nada acá.
+PASS · reportes-catalogo · límite · una sola fila → «Página 1 de 1»
+PASS · reportes-catalogo · error · 500 → mensaje accionable sin crudo; «Volver a intentar» repite — No se pudo cargar catálogo de reportes. Algo salió mal de nuestro lado. Probá de nuevo en un momento. Código d
+PASS · reportes-catalogo · error · 403 → mensaje accionable sin crudo; «Volver a intentar» repite — No se pudo cargar catálogo de reportes. No tenés acceso a esto. Código de seguimiento: tz-franja-e-403 Volver 
+PASS · reportes-ejecuciones · aceptado · lista 10 de 25 con limite=10 — /api/v1/reportes/ejecuciones?limite=10
+PASS · reportes-ejecuciones · aceptado · buscar «reporte 2»
+PASS · reportes-ejecuciones · aceptado · filtro del servidor «Estado» → estados=FALLIDA — /api/v1/reportes/ejecuciones?limite=10&estados=FALLIDA
+PASS · reportes-ejecuciones · aceptado · filas por página 20 → limite=20
+PASS · reportes-ejecuciones · aceptado · Siguiente pide con el cursor; «Ir a 3» muestra 5; Anterior vuelve — /api/v1/reportes/ejecuciones?limite=10&antesDe=2026-01-01&antesDeId=00000000-0000-4000-8000-000000000010
+PASS · reportes-ejecuciones · aceptado · CSV y JSON de lo filtrado — historial-de-ejecuciones-2026-10-26.csv (3 líneas: «2026-10-16T12:00:00Z,Reporte 2,Fallida,1,15,no disponible,no disponible») · historial-de-ejecuciones-2026-10-26.json (2)
+PASS · reportes-ejecuciones · aceptado · capturas 1280/768/375 claro + 1280 oscuro, sin scroll horizontal
+PASS · reportes-ejecuciones · límite · búsqueda sin coincidencias → «Quitar filtros»
+PASS · reportes-ejecuciones · límite · colección vacía → vacío orientado sin paginación — Todavía nadie ejecutó un reporte. Todavía no hay nada acá.
+PASS · reportes-ejecuciones · límite · una sola fila → «Página 1 de 1»
+PASS · reportes-ejecuciones · error · 500 → mensaje accionable sin crudo; «Volver a intentar» repite — No se pudo cargar historial de ejecuciones. Algo salió mal de nuestro lado. Probá de nuevo en un momento. Códi
+PASS · reportes-ejecuciones · error · 403 → mensaje accionable sin crudo; «Volver a intentar» repite — No se pudo cargar historial de ejecuciones. No tenés acceso a esto. Código de seguimiento: tz-franja-e-403 Vol
+{
+ "pasos": 138,
+ "fallos": 0,
+ "erroresDeRed": 22,
+ "provocados": 22,
+ "consola": [
+  {
+   "url": "http://127.0.0.1:4305/contabilidad/presupuesto",
+   "tipo": "consola",
+   "texto": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+  },
+  {
+   "url": "http://127.0.0.1:4305/contabilidad/presupuesto",
+   "tipo": "consola",
+   "texto": "Failed to load resource: the server responded with a status of 403 (Forbidden)"
+  },
+  {
+   "url": "http://127.0.0.1:4305/contabilidad/compras",
+   "tipo": "consola",
+   "texto": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+  },
+  {
+   "url": "http://127.0.0.1:4305/contabilidad/compras",
+   "tipo": "consola",
+   "texto": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+  },
+  {
+   "url": "http://127.0.0.1:4305/contabilidad/compras",
+   "tipo": "consola",
+   "texto": "Failed to load resource: the server responded with a status of 403 (Forbidden)"
+  },
+  {
+   "url": "http://127.0.0.1:4305/contabilidad/compras",
+   "tipo": "consola",
+   "texto": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+  },
+  {
+   "url": "http://127.0.0.1:4305/contabilidad/compras",
+   "tipo": "consola",
+   "texto": "Failed to load resource: the server responded with a status of 403 (Forbidden)"
+  },
+  {
+   "url": "http://127.0.0.1:4305/contabilidad/cobros",
+   "tipo": "consola",
+   "texto": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+  },
+  {
+   "url": "http://127.0.0.1:4305/contabilidad/cobros",
+   "tipo": "consola",
+   "texto": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+  },
+  {
+   "url": "http://127.0.0.1:4305/contabilidad/cobros",
+   "tipo": "consola",
+   "texto": "Failed to load resource: the server responded with a status of 403 (Forbidden)"
+  },
+  {
+   "url": "http://127.0.0.1:4305/contabilidad/activos/b6ab0151-f825-4175-8e8e-6024aed062c6",
+   "tipo": "consola",
+   "texto": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+  },
+  {
+   "url": "http://127.0.0.1:4305/contabilidad/activos/b6ab0151-f825-4175-8e8e-6024aed062c6",
+   "tipo": "consola",
+   "texto": "Failed to load resource: the server responded with a status of 403 (Forbidden)"
+  },
+  {
+   "url": "http://127.0.0.1:4305/configuracion/tarifario",
+   "tipo": "consola",
+   "texto": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+  },
+  {
+   "url": "http://127.0.0.1:4305/configuracion/tarifario",
+   "tipo": "consola",
+   "texto": "Failed to load resource: the server responded with a status of 403 (Forbidden)"
+  },
+  {
+   "url": "http://127.0.0.1:4305/configuracion/mensajeria",
+   "tipo": "consola",
+   "texto": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+  },
+  {
+   "url": "http://127.0.0.1:4305/configuracion/mensajeria",
+   "tipo": "consola",
+   "texto": "Failed to load resource: the server responded with a status of 403 (Forbidden)"
+  },
+  {
+   "url": "http://127.0.0.1:4305/configuracion/mensajeria",
+   "tipo": "consola",
+   "texto": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+  },
+  {
+   "url": "http://127.0.0.1:4305/configuracion/mensajeria",
+   "tipo": "consola",
+   "texto": "Failed to load resource: the server responded with a status of 403 (Forbidden)"
+  },
+  {
+   "url": "http://127.0.0.1:4305/configuracion/reportes",
+   "tipo": "consola",
+   "texto": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+  },
+  {
+   "url": "http://127.0.0.1:4305/configuracion/reportes",
+   "tipo": "consola",
+   "texto": "Failed to load resource: the server responded with a status of 403 (Forbidden)"
+  },
+  {
+   "url": "http://127.0.0.1:4305/configuracion/reportes",
+   "tipo": "consola",
+   "texto": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+  },
+  {
+   "url": "http://127.0.0.1:4305/configuracion/reportes",
+   "tipo": "consola",
+   "texto": "Failed to load resource: the server responded with a status of 403 (Forbidden)"
+  }
+ ]
+}

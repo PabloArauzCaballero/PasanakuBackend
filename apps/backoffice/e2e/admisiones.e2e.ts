@@ -245,6 +245,8 @@ test.describe('[UI con red simulada] admisión humana en backoffice', () => {
     await ingresar(page)
     await page.getByRole('link', { name: /Solicitudes de ingreso/ }).click()
     await expect(page.getByRole('heading', { name: 'Abrir una solicitud' })).toBeVisible()
+    // La entrada abre en «Pendientes de un grupo» (2026-10-26); abrir por identificador es la otra pestaña.
+    await page.getByRole('tab', { name: 'Por identificador' }).click()
     await page.getByLabel(/Identificador de la solicitud/).fill('no-es-un-uuid')
     await page.getByRole('button', { name: 'Abrir solicitud' }).click()
     await expect(page.getByText('Ese identificador no tiene el formato de una solicitud.')).toBeVisible()

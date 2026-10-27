@@ -1,65 +1,78 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core'
 import { ActivatedRoute, Router } from '@angular/router'
-import { Boton } from '@aportaya/ui/boton/boton'
+import { AccionesDeFila } from '@aportaya/ui/acciones-de-fila/acciones-de-fila'
 import { CabeceraDePagina } from '@aportaya/ui/cabecera-de-pagina/cabecera-de-pagina'
+import { ChipEstado } from '@aportaya/ui/chip-estado/chip-estado'
+import type { ColumnaExportable } from '@aportaya/ui/exportar-listado/exportar'
 import { Fecha } from '@aportaya/ui/fecha/fecha'
+import { Icono } from '@aportaya/ui/icono/icono'
 import { Monto } from '@aportaya/ui/monto/monto'
+import type { Columna } from '@aportaya/ui/tabla-de-datos/tabla-de-datos'
 import { ExplicadorDeVista } from '../../../nucleo/explicador-de-vista'
-import { TablaDeDatosVirtualizada } from '../../../nucleo/tabla/tabla-de-datos-virtualizada'
-import type { ColumnaVirtual } from '../../../nucleo/tabla/tipos'
-import { EstadoDeBandejaVista } from '../comun/estado-de-bandeja'
-import { bandejaDeRetiros, type RetiroEnRevision } from './dominio/cu11-retiros-en-revision'
+import { fechaComoSeVe, montoComoSeVe } from '../comun/como-se-ve'
+import { crearListadoPorCursor } from '../comun/listado-por-cursor'
+import { ListadoPorCursorVista } from '../comun/listado-por-cursor-vista'
+import { pedidorDeRetirosEnRevision, type RetiroEnRevision } from './dominio/cu11-retiros-en-revision'
 import { textosRetiros } from './textos'
 
 const T = textosRetiros.bandeja
-const COLUMNAS: ColumnaVirtual<RetiroEnRevision>[] = [
-  { clave: 'solicitadaEn', titulo: T.columnas.solicitadaEn },
-  { clave: 'solicitado', titulo: T.columnas.solicitado, numerica: true },
-  { clave: 'costo', titulo: T.columnas.costo, numerica: true },
-  { clave: 'neto', titulo: T.columnas.neto, numerica: true },
-  { clave: 'mfaVerificado', titulo: T.columnas.mfaVerificado },
-  { clave: 'ventanaEnfriamientoHasta', titulo: T.columnas.ventanaEnfriamientoHasta },
-  { clave: 'ordenRetiroId', titulo: T.columnas.ordenRetiroId, ancho: '1.4' },
+const C = T.columnas
+const COLUMNAS: Columna<RetiroEnRevision>[] = [
+  { clave: 'solicitadaEn', titulo: C.solicitadaEn },
+  { clave: 'solicitado', titulo: C.solicitado, numerica: true },
+  { clave: 'costo', titulo: C.costo, numerica: true },
+  { clave: 'neto', titulo: C.neto, numerica: true },
+  { clave: 'mfaVerificado', titulo: C.mfaVerificado },
+  { clave: 'ventanaEnfriamientoHasta', titulo: C.ventanaEnfriamientoHasta },
+]
+const segundoFactor = (r: RetiroEnRevision) => (r.mfaVerificado ? T.conSegundoFactor : T.sinSegundoFactor)
+const quienDecide = (r: RetiroEnRevision) => (r.puedeDecidir ? T.decideOtro : T.propia)
+const EXPORTABLES: ColumnaExportable<RetiroEnRevision>[] = [
+  { clave: 'ordenRetiroId', titulo: C.ordenRetiroId },
+  { clave: 'solicitadaEn', titulo: C.solicitadaEn, valor: (r) => fechaComoSeVe(r.solicitadaEn) },
+  { clave: 'solicitado', titulo: C.solicitado, valor: (r) => montoComoSeVe(r.solicitado) },
+  { clave: 'costo', titulo: C.costo, valor: (r) => montoComoSeVe(r.costo) },
+  { clave: 'neto', titulo: C.neto, valor: (r) => montoComoSeVe(r.neto) },
+  { clave: 'mfaVerificado', titulo: C.mfaVerificado, valor: segundoFactor },
+  { clave: 'ventanaEnfriamientoHasta', titulo: C.ventanaEnfriamientoHasta, valor: (r) => fechaComoSeVe(r.ventanaEnfriamientoHasta) || T.sinEnfriamiento },
+  { clave: 'puedeDecidir', titulo: C.quienDecide, valor: quienDecide },
 ]
 
 /**
- * CU-11 · bandeja de retiros en revisión.
+ * CU-11 · bandeja de retiros en revisión (`listarRetirosEnRevision`, cursor ascendente). La única acción de fila es
+ * la del dominio, «Revisar y decidir» (`aprobarRetiro`); una orden propia no se decide (lo vuelve a rechazar el servidor).
  */
 @Component({
   selector: 'ap-bandeja-de-retiros',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [Boton, CabeceraDePagina, Fecha, Monto, TablaDeDatosVirtualizada, EstadoDeBandejaVista],
+  imports: [AccionesDeFila, CabeceraDePagina, ChipEstado, Fecha, Icono, Monto, ListadoPorCursorVista],
   template: `
     <section class="pantalla">
-      <ap-cabecera-de-pagina [titulo]="t.titulo" [descripcion]="t.proposito" icono="retiro" />
-      <ap-estado-de-bandeja [estado]="b.estado()" [error]="b.error()" [vacio]="t.vacio" [explicacionVacio]="t.explicacionVacio" [denegado]="t.denegado" (reintentar)="b.reintentar()" />
-      @if (b.estado() !== 'denegado' && b.estado() !== 'vacio') {
-        @for (v of [b.version()]; track v) {
-          <ap-tabla-de-datos-virtualizada [titulo]="t.titulo" [columnas]="COLUMNAS" [cargador]="b.cargador" [ordenPermitido]="[]" [identidad]="identidad" [tamanoDePagina]="25">
-            <ng-template #celda let-r let-columna="columna">
-              @switch (columna.clave) {
-                @case ('solicitadaEn') { <ap-fecha [iso]="r.solicitadaEn" /> }
-                @case ('solicitado') { <ap-monto [monto]="r.solicitado.monto" [moneda]="r.solicitado.moneda" [etiqueta]="t.columnas.solicitado" /> }
-                @case ('costo') { <ap-monto [monto]="r.costo.monto" [moneda]="r.costo.moneda" [etiqueta]="t.columnas.costo" /> }
-                @case ('neto') { <ap-monto [monto]="r.neto.monto" [moneda]="r.neto.moneda" [etiqueta]="t.columnas.neto" /> }
-                @case ('mfaVerificado') { {{ r.mfaVerificado ? t.conSegundoFactor : t.sinSegundoFactor }} }
-                @case ('ventanaEnfriamientoHasta') {
-                  @if (r.ventanaEnfriamientoHasta) { <ap-fecha [iso]="r.ventanaEnfriamientoHasta" /> } @else { {{ t.sinEnfriamiento }} }
-                }
-                @case ('ordenRetiroId') {
-                  @if (r.puedeDecidir) { <ap-boton variante="primario" (pulsado)="abrir(r)">{{ t.decidir }}</ap-boton> }
-                  @else { <span class="propia">{{ t.propia }}</span> }
-                }
-              }
-            </ng-template>
-          </ap-tabla-de-datos-virtualizada>
-        }
-      }
+      <ap-cabecera-de-pagina eyebrow="Operación · CU-11" [titulo]="t.titulo" [descripcion]="t.proposito" icono="retiro" />
+      <ap-listado-por-cursor [titulo]="t.titulo" [columnas]="COLUMNAS" [fuente]="l" [exportables]="EXPORTABLES" [identidad]="identidad" [ayudaDeBusqueda]="t.ayudaBusqueda" [textoVacio]="t.vacio" [explicacionVacio]="t.explicacionVacio" [textoDenegado]="t.denegado" nombreDeRegistros="retiros" nombreDeRegistro="retiro">
+        <ng-template #celda let-r let-columna="columna">
+          @switch (columna.clave) {
+            @case ('solicitadaEn') { <ap-fecha [iso]="r.solicitadaEn" /> }
+            @case ('mfaVerificado') { <ap-chip-estado [tono]="r.mfaVerificado ? 'ok' : 'aviso'">{{ segundoFactor(r) }}</ap-chip-estado> }
+            @case ('ventanaEnfriamientoHasta') { @if (r.ventanaEnfriamientoHasta) { <ap-fecha [iso]="r.ventanaEnfriamientoHasta" /> } @else { {{ t.sinEnfriamiento }} } }
+            @default { <ap-monto [monto]="r[columna.clave].monto" [moneda]="r[columna.clave].moneda" [etiqueta]="columna.titulo" /> }
+          }
+        </ng-template>
+        <ng-template #acciones let-r>
+          <ap-acciones-de-fila [fila]="'retiro ' + r.ordenRetiroId">
+            @if (r.puedeDecidir) {
+              <button type="button" apAccionDeFila [attr.aria-label]="t.decidir + ' el retiro ' + r.ordenRetiroId" (click)="abrir(r)"><ap-icono nombre="aprobar" tamano="s4" /><span>{{ t.decidir }}</span></button>
+            } @else {
+              <span class="propia"><ap-icono nombre="candado" tamano="s4" />{{ t.propia }}</span>
+            }
+          </ap-acciones-de-fila>
+        </ng-template>
+      </ap-listado-por-cursor>
     </section>
   `,
   styles: `
-    .pantalla { padding: var(--s5); max-width: 72rem; display: grid; gap: var(--s4); }
-    .propia { color: var(--text-2); white-space: normal; }
+    .pantalla { padding: var(--s5); display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s5); min-width: 0; }
+    .propia { display: inline-flex; align-items: center; gap: var(--s1); color: var(--text-2); font: var(--t-cuerpo-chico); white-space: normal; }
   `,
 })
 export class BandejaDeRetiros {
@@ -68,8 +81,17 @@ export class BandejaDeRetiros {
   }
   protected readonly t = T
   protected readonly COLUMNAS = COLUMNAS
-  protected readonly b = bandejaDeRetiros()
+  protected readonly EXPORTABLES = EXPORTABLES
+  protected readonly segundoFactor = segundoFactor
   protected readonly identidad = (r: RetiroEnRevision) => r.ordenRetiroId
+  protected readonly l = crearListadoPorCursor({
+    pedir: pedidorDeRetirosEnRevision(),
+    camposDeBusqueda: ['ordenRetiroId', (r) => montoComoSeVe(r.solicitado), (r) => montoComoSeVe(r.neto), (r) => fechaComoSeVe(r.solicitadaEn), segundoFactor],
+    filtrosLocales: [
+      { nombre: 'segundoFactor', etiqueta: C.mfaVerificado, valor: segundoFactor },
+      { nombre: 'quienDecide', etiqueta: C.quienDecide, valor: quienDecide },
+    ],
+  })
   private readonly router = inject(Router)
   private readonly ruta = inject(ActivatedRoute)
 

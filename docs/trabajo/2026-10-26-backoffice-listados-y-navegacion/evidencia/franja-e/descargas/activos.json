@@ -1,0 +1,13 @@
+[
+  {
+    "codigo": "AF-005",
+    "descripcion": "Servidor de oficina con almacenamiento redundante y fuente doble para la sala de cómputo",
+    "categoria": "Vehículos",
+    "fechaAdquisicion": "2026-01-15",
+    "vidaUtilMeses": 36,
+    "costo": "BOB 3600.00",
+    "acumulada": "BOB 900.00",
+    "valorEnLibros": "BOB 2700.00",
+    "estado": "En uso"
+  }
+]

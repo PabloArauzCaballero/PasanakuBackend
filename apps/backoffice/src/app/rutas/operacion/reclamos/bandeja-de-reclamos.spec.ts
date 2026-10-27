@@ -1,108 +1,62 @@
-import { provideHttpClient, withInterceptors } from '@angular/common/http'
-import { HttpTestingController, provideHttpClientTesting, type TestRequest } from '@angular/common/http/testing'
-import { provideZonelessChangeDetection } from '@angular/core'
-import { ComponentFixture, TestBed } from '@angular/core/testing'
-import { provideRouter } from '@angular/router'
+import type { HttpTestingController } from '@angular/common/http/testing'
 import { ejemploDe } from '@aportaya/simulado'
 import { beforeEach, describe, expect, it } from 'vitest'
-import { erroresInterceptor } from '../../../nucleo/errores.interceptor'
-import { GATEWAY } from '../../../nucleo/gateway'
-import { idempotenciaInterceptor, olvidarIntentos } from '../../../nucleo/idempotencia.interceptor'
-import { Sesion } from '../../../nucleo/sesion'
-import { TablaDeDatosVirtualizada } from '../../../nucleo/tabla/tabla-de-datos-virtualizada'
+import { asentar, boton, configurar, filasDe, GW, montar, responder, texto } from '../comun/bandeja.apoyo'
 import type { ReclamoEnBandeja } from '../dominio/cu52-reclamos'
 import { BandejaDeReclamos } from './bandeja-de-reclamos'
 
 /**
- * **UI contra HTTP simulado** (no prueba integración con `cumplimiento`). Filas del ejemplo generado del contrato
- * (sintético). Cubre la guarda de RECLAMO_ATENDER, vacío, 403, 422, y que tras responder (200) se anuncia y se recarga.
+ * **UI contra HTTP simulado** de la bandeja de reclamos (CU-52). Filas: el ejemplo generado del contrato (sintético) y
+ * variaciones suyas. Tres niveles: aceptado (página, filtros, responder), límite (vacío, cerrado, sin permiso) y error.
  */
-const GW = 'http://gw/api/v1'
-const OK = ejemploDe('cumplimiento', 'listarBandejaDeReclamos', 'ok').cuerpo as { items: ReclamoEnBandeja[] }
+const URL = `${GW}/reclamos`
+const OK = ejemploDe('cumplimiento', 'listarBandejaDeReclamos', 'ok').cuerpo as { items: ReclamoEnBandeja[]; proximoLimite: string; proximoId: string }
 const FILA = { ...OK.items[0]!, estado: 'EN_ANALISIS', montoReclamado: null } as ReclamoEnBandeja
+const CERRADO = { ...FILA, reclamoId: '77777777-7777-4777-8777-777777777777', codigo: 'RC-CERRADO', estado: 'CERRADO', canalIngreso: 'TELEFONO' } as ReclamoEnBandeja
 const FICHA = ejemploDe('cumplimiento', 'consultarReclamo', 'ok').cuerpo as object
-const listado = (r: { url: string; method: string }) => r.method === 'GET' && r.url === `${GW}/reclamos`
+const VACIA = { items: [], proximoLimite: null, proximoId: null }
 
 describe('BandejaDeReclamos · [UI contra HTTP simulado] CU-52', () => {
   let http: HttpTestingController
-  beforeEach(() => {
-    olvidarIntentos()
-    if (!Element.prototype.scrollTo) Element.prototype.scrollTo = () => {}
-    TestBed.configureTestingModule({
-      providers: [
-        provideZonelessChangeDetection(),
-        provideRouter([]),
-        provideHttpClient(withInterceptors([idempotenciaInterceptor, erroresInterceptor])),
-        provideHttpClientTesting(),
-        { provide: GATEWAY, useValue: GW },
-      ],
-    })
-    http = TestBed.inject(HttpTestingController)
-  })
+  beforeEach(() => (http = configurar()))
+  const listado = () => http.expectOne((r) => r.method === 'GET' && r.url === URL)
+  const l = (f: { componentInstance: BandejaDeReclamos }) => f.componentInstance['l']
+  const responderEn = (f: { nativeElement: HTMLElement }) => [...f.nativeElement.querySelectorAll<HTMLButtonElement>('button[apAccionDeFila]')]
 
-  async function montar(permisos: string[]): Promise<ComponentFixture<BandejaDeReclamos>> {
-    TestBed.inject(Sesion).abrir('t', permisos, 'operador')
-    const f = TestBed.createComponent(BandejaDeReclamos)
-    f.detectChanges()
-    await f.whenStable()
-    return f
-  }
-  async function responder(f: ComponentFixture<unknown>, p: TestRequest, cuerpo: object, estado = 200) {
-    p.flush(cuerpo, { status: estado, statusText: 'x' })
-    await new Promise((r) => setTimeout(r, 0))
-    await f.whenStable()
-    f.detectChanges()
-  }
-  const texto = (f: ComponentFixture<unknown>) => (f.nativeElement as HTMLElement).textContent ?? ''
-
-  it('correcto: la primera página va sin estados (el servidor trae los abiertos) y la tabla recibe las filas tal cual', async () => {
-    const f = await montar(['RECLAMO_VER'])
-    const req = http.expectOne(listado)
+  it('aceptado: la primera página va sin estados (el servidor trae los abiertos) y la tabla recibe las filas tal cual', async () => {
+    const f = await montar(BandejaDeReclamos, ['RECLAMO_VER'])
+    const req = listado()
     expect(req.request.params.has('estados')).toBe(false)
+    expect(req.request.params.get('limite')).toBe('10')
     await responder(f, req, OK)
-    const tabla = f.debugElement.query((d) => d.componentInstance instanceof TablaDeDatosVirtualizada).componentInstance as TablaDeDatosVirtualizada<ReclamoEnBandeja>
-    expect(tabla.filas()).toEqual(OK.items)
+    expect(filasDe<ReclamoEnBandeja>(f)).toEqual(OK.items)
   })
 
-  it('segregación: sin RECLAMO_ATENDER no se abre la respuesta ni se pide la ficha', async () => {
-    const f = await montar(['RECLAMO_VER'])
-    await responder(f, http.expectOne(listado), OK)
-    f.componentInstance['abrir'](FILA)
-    f.detectChanges()
-    expect(f.nativeElement.querySelector('ap-respuesta-a-reclamo')).toBeNull()
-    http.expectNone(`${GW}/reclamos/${FILA.reclamoId}`)
+  it('aceptado: el estado viaja al servidor; canal y búsqueda trabajan sobre la página; Siguiente usa (despuesDeLimite, despuesDeId)', async () => {
+    const f = await montar(BandejaDeReclamos, ['RECLAMO_VER'])
+    await responder(f, listado(), OK)
+    l(f).filtrar('estados', 'CERRADO')
+    const req = listado()
+    expect(req.request.params.getAll('estados')).toEqual(['CERRADO'])
+    await responder(f, req, { ...OK, items: [FILA, CERRADO] })
+    l(f).filtrar('canal', 'TELEFONO')
+    await asentar(f)
+    expect(filasDe<ReclamoEnBandeja>(f)).toEqual([CERRADO])
+    l(f).filtrar('canal', '')
+    l(f).buscar('rc-cerrado')
+    await asentar(f)
+    expect(filasDe<ReclamoEnBandeja>(f)).toEqual([CERRADO])
+    boton(f, 'Siguiente')!.click()
+    const segunda = listado()
+    expect(segunda.request.params.get('despuesDeLimite')).toBe(OK.proximoLimite)
+    expect(segunda.request.params.get('despuesDeId')).toBe(OK.proximoId)
+    await responder(f, segunda, VACIA)
   })
 
-  it('límite: un reclamo cerrado no se responde aunque se tenga el permiso', async () => {
-    const f = await montar(['RECLAMO_VER', 'RECLAMO_ATENDER'])
-    await responder(f, http.expectOne(listado), OK)
-    f.componentInstance['abrir']({ ...FILA, estado: 'CERRADO' } as ReclamoEnBandeja)
-    f.detectChanges()
-    expect(f.nativeElement.querySelector('ap-respuesta-a-reclamo')).toBeNull()
-  })
-
-  it('límite: bandeja vacía explicada', async () => {
-    const f = await montar(['RECLAMO_VER'])
-    await responder(f, http.expectOne(listado), { items: [], proximoLimite: null, proximoId: null })
-    expect(texto(f)).toContain('No hay reclamos en estos estados.')
-  })
-
-  it('inválido: 403 ⇒ sin acceso y sin tabla; 422 AP-CU52-07 ⇒ error traducido', async () => {
-    let f = await montar(['RECLAMO_VER'])
-    await responder(f, http.expectOne(listado), { codigo: 'AP-GW-403', mensaje: 'x', trazaId: 't' }, 403)
-    expect(texto(f)).toContain('No tenés acceso a esta bandeja.')
-    expect(f.nativeElement.querySelector('ap-tabla-de-datos-virtualizada')).toBeNull()
-    const g = await montar(['RECLAMO_VER'])
-    await responder(g, http.expectOne(listado), { codigo: 'AP-CU52-07', mensaje: 'crudo', trazaId: 'traza-7' }, 422)
-    f = g
-    expect(texto(f)).toContain('No pudimos traer la bandeja.')
-    expect(texto(f)).not.toContain('crudo')
-  })
-
-  it('responder: con el 200 se anuncia el cierre (no antes) y la bandeja se vuelve a pedir', async () => {
-    const f = await montar(['RECLAMO_VER', 'RECLAMO_ATENDER'])
-    await responder(f, http.expectOne(listado), OK)
-    f.componentInstance['abrir'](FILA)
+  it('aceptado: «Responder» pide la ficha; con el 200 del POST se anuncia el cierre (no antes) y la bandeja se vuelve a pedir', async () => {
+    const f = await montar(BandejaDeReclamos, ['RECLAMO_VER', 'RECLAMO_ATENDER'])
+    await responder(f, listado(), { ...OK, items: [FILA] })
+    responderEn(f)[0]!.click()
     f.detectChanges()
     await responder(f, http.expectOne(`${GW}/reclamos/${FILA.reclamoId}`), FICHA)
     const hija = f.debugElement.query((d) => d.name === 'ap-respuesta-a-reclamo').componentInstance
@@ -115,6 +69,42 @@ describe('BandejaDeReclamos · [UI contra HTTP simulado] CU-52', () => {
     expect(post.request.body).toEqual({ resultado: 'DESFAVORABLE', respuesta: 'No corresponde: la comisión figura en el tarifario vigente.' })
     await responder(f, post, ejemploDe('cumplimiento', 'responderReclamo', 'ok').cuerpo as object)
     expect(texto(f)).toContain(`Respuesta registrada: el reclamo ${FILA.codigo} quedó cerrado.`)
-    await responder(f, http.expectOne(listado), OK)
+    await responder(f, listado(), OK)
+  })
+
+  it('límite: sin RECLAMO_ATENDER no hay «Responder» ni se pide la ficha; un reclamo cerrado tampoco se responde', async () => {
+    const f = await montar(BandejaDeReclamos, ['RECLAMO_VER'])
+    await responder(f, listado(), { ...OK, items: [FILA] })
+    expect(responderEn(f)).toHaveLength(0)
+    expect(texto(f)).toContain('Lo responde quien atiende reclamos')
+    f.componentInstance['abrir'](FILA)
+    f.detectChanges()
+    expect(f.nativeElement.querySelector('ap-respuesta-a-reclamo')).toBeNull()
+    http.expectNone(`${GW}/reclamos/${FILA.reclamoId}`)
+    const g = await montar(BandejaDeReclamos, ['RECLAMO_VER', 'RECLAMO_ATENDER'])
+    await responder(g, listado(), { ...OK, items: [CERRADO] })
+    expect(responderEn(g)).toHaveLength(0)
+    expect(texto(g)).toContain('Ya respondido')
+  })
+
+  it('límite: bandeja vacía explicada', async () => {
+    const f = await montar(BandejaDeReclamos, ['RECLAMO_VER'])
+    await responder(f, listado(), VACIA)
+    expect(texto(f)).toContain('No hay reclamos en estos estados.')
+  })
+
+  it('error: 403 ⇒ sin acceso y sin tabla; 422 AP-CU52-07 ⇒ error accionable sin el crudo y «Volver a intentar»', async () => {
+    const f = await montar(BandejaDeReclamos, ['RECLAMO_VER'])
+    await responder(f, listado(), { codigo: 'AP-GW-403', mensaje: 'x', trazaId: 't' }, 403)
+    expect(texto(f)).toContain('No tenés acceso a esta bandeja.')
+    expect(filasDe(f)).toBeNull()
+    l(f).recargar()
+    await responder(f, listado(), { codigo: 'AP-CU52-07', mensaje: 'crudo', trazaId: 'traza-7' }, 422)
+    expect(texto(f)).toContain('No se pudo cargar reclamos.')
+    expect(texto(f)).toContain('traza-7')
+    expect(texto(f)).not.toContain('crudo')
+    boton(f, 'Volver a intentar')!.click()
+    await responder(f, listado(), OK)
+    expect(filasDe<ReclamoEnBandeja>(f)).toEqual(OK.items)
   })
 })

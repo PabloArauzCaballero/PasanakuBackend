@@ -1,5 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core'
+import { RouterLink } from '@angular/router'
 import { Alerta } from '@aportaya/ui/alerta/alerta'
+import { Icono } from '@aportaya/ui/icono/icono'
 import { CabeceraDePagina } from '@aportaya/ui/cabecera-de-pagina/cabecera-de-pagina'
 import { EstadoDePantalla } from '@aportaya/ui/estado-de-pantalla/estado-de-pantalla'
 import { ExplicadorDeVista } from '../../nucleo/explicador-de-vista'
@@ -25,10 +27,11 @@ const PERMISO_DE_RESOLUCION = 'ADMIN_PLATAFORMA'
 @Component({
   selector: 'ap-pantalla-de-admision',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [Alerta, CabeceraDePagina, EstadoDePantalla, FormularioDeResolucion, HistorialDeAdmision],
+  imports: [Alerta, CabeceraDePagina, EstadoDePantalla, FormularioDeResolucion, HistorialDeAdmision, Icono, RouterLink],
   template: `
     <section class="pantalla">
-      <ap-cabecera-de-pagina [titulo]="t.titulo" [descripcion]="t.proposito" icono="grupo" />
+      <ap-cabecera-de-pagina eyebrow="Admisiones" [titulo]="t.titulo" [descripcion]="t.proposito" icono="balanza" />
+      <a class="volver" routerLink="/admisiones"><ap-icono nombre="flechaIzquierda" tamano="s4" />{{ t.volver }}</a>
       <ap-estado-de-pantalla [recurso]="historial" [vacio]="sinDecisiones" [mensajeVacio]="t.sinDecisiones" [etiquetaDeCarga]="t.cargando" (reintentar)="historial.reload()">
         @if (historial.hasValue()) {
           <div class="cuerpo">
@@ -56,7 +59,9 @@ const PERMISO_DE_RESOLUCION = 'ADMIN_PLATAFORMA'
     </section>
   `,
   styles: `
-    .pantalla { padding: var(--s5); max-width: 44rem; display: flex; flex-direction: column; gap: var(--s5); }
+    .pantalla { padding: var(--s5); display: flex; flex-direction: column; gap: var(--s5); width: 100%; max-width: 64rem; margin-inline: auto; box-sizing: border-box; }
+    .volver { display: inline-flex; align-items: center; gap: var(--s1); align-self: flex-start; min-height: var(--area-tactil); color: var(--brand-texto); font-weight: 600; }
+    .volver:focus-visible { outline: var(--borde-foco) solid var(--g300); outline-offset: var(--borde-desfase); }
     h1 { margin: 0; }
     .cuerpo { display: flex; flex-direction: column; gap: var(--s5); }
   `,

@@ -55,6 +55,8 @@ export class FichaDeFactura {
   protected readonly t = textosContabilidad.compras
   readonly factura = input.required<FacturaDeProveedor>()
   readonly cerrada = output<void>()
+  /** Solo tras el 2xx del servidor: quien aloja la ficha recarga la lista y lo dice. */
+  readonly pagada = output<void>()
   protected readonly abierto = signal(true)
   protected readonly enviando = signal(false)
   protected readonly errorDeEnvio = signal<ErrorTraducido | null>(null)
@@ -111,6 +113,7 @@ export class FichaDeFactura {
     }).subscribe({
       next: () => {
         this.enviando.set(false)
+        this.pagada.emit()
         this.cambiarApertura(false)
       },
       error: (e: ErrorTraducido) => {

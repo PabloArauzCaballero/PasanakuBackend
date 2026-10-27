@@ -1,84 +1,47 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core'
+import { Alerta } from '@aportaya/ui/alerta/alerta'
 import { CabeceraDePagina } from '@aportaya/ui/cabecera-de-pagina/cabecera-de-pagina'
-import { ChipEstado } from '@aportaya/ui/chip-estado/chip-estado'
-import { Fecha } from '@aportaya/ui/fecha/fecha'
+import { Pestanas, type Pestana } from '@aportaya/ui/pestanas/pestanas'
 import { ExplicadorDeVista } from '../../../nucleo/explicador-de-vista'
-import { BarraDeFiltros } from '../../../nucleo/filtros/barra-de-filtros'
-import { TablaDeDatosVirtualizada } from '../../../nucleo/tabla/tabla-de-datos-virtualizada'
-import type { CargadorDePagina, ColumnaVirtual } from '../../../nucleo/tabla/tipos'
-import { AvisoDeListado } from '../aviso-de-listado'
+import type { CargadorDePagina } from '../../../nucleo/tabla/tipos'
+import { crearListadoPorCursor, filtroInicialDeLaUrl, opcionesDe } from '../../contabilidad/listado/listado-por-cursor'
 import { cargadorDeDefiniciones, cargadorDeEjecuciones, type DefinicionDeReporteEnLista, type EjecucionDeReporteEnLista } from '../dominio/cu58-reportes'
-import { EstadoDeListado, NO_DISPONIBLE } from '../dominio/listado'
-import { chipsDe, filtroDeEstadoDesdeUrl } from '../filtro-de-estado'
 import { textosConfiguracion } from '../textos'
+import { TablaDeCatalogo, TablaDeEjecuciones } from './tablas-de-reportes'
 
-const COLUMNAS_CATALOGO: ColumnaVirtual<DefinicionDeReporteEnLista>[] = [
-  { clave: 'nombre', titulo: 'Reporte' },
-  { clave: 'tipo', titulo: 'Tipo' },
-  { clave: 'descripcion', titulo: 'Descripción', ancho: '2' },
-  { clave: 'permisoRequerido', titulo: 'Permiso para ejecutarlo' },
-  { clave: 'contieneDatosSensibles', titulo: 'Sensibilidad' },
+const PESTANAS: Pestana[] = [
+  { valor: 'catalogo', texto: 'Catálogo de reportes' },
+  { valor: 'ejecuciones', texto: 'Historial de ejecuciones' },
 ]
-
-/** Sin quién lo pidió ni sus parámetros: el contrato no publica los parámetros y la persona no hace falta para auditar. */
-const COLUMNAS_EJECUCIONES: ColumnaVirtual<EjecucionDeReporteEnLista>[] = [
-  { clave: 'iniciadaEn', titulo: 'Iniciada' },
-  { clave: 'definicionId', titulo: 'Reporte' },
-  { clave: 'estado', titulo: 'Estado' },
-  { clave: 'filasGeneradas', titulo: 'Filas', numerica: true },
-  { clave: 'duracionMs', titulo: 'Duración (ms)', numerica: true },
-  { clave: 'hashResultado', titulo: 'Huella del resultado' },
-  { clave: 'finalizadaEn', titulo: 'Finalizada' },
-]
+const ESTADOS: Record<string, string> = textosConfiguracion.reportes.estados
 
 /**
- * CU-58 · Catálogo de reportes e historial de ejecuciones, de solo lectura. El nombre de cada ejecución se toma del
- * catálogo ya cargado; si su definición no está en lo cargado se muestra el identificador, no un nombre supuesto.
+ * CU-58 · Catálogo de reportes e historial de ejecuciones, de solo lectura y en una tarjeta con pestañas. Los dos
+ * listados se arman acá (contenedor) y las tablas solo dibujan: así el historial nombra cada ejecución con las páginas
+ * del catálogo ya vistas, aunque la pestaña del catálogo no esté abierta; si la definición no se vio, queda el
+ * identificador, nunca un nombre supuesto.
+ *
+ * Ejecutar un reporte (`ejecutarReporte`) y la exportación con huella y tope del servidor (`nucleo/exportador.ts`)
+ * **no son parte de esta pantalla** y no se tocan: «Descargar CSV / JSON» de acá baja lo filtrado del listado en el
+ * navegador, que es otra cosa.
  */
 @Component({
   selector: 'ap-pantalla-de-reportes',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [AvisoDeListado, CabeceraDePagina, BarraDeFiltros, ChipEstado, Fecha, TablaDeDatosVirtualizada],
+  imports: [Alerta, CabeceraDePagina, Pestanas, TablaDeCatalogo, TablaDeEjecuciones],
   template: `
     <section class="pantalla">
-      <ap-cabecera-de-pagina [titulo]="t.titulo" [descripcion]="t.proposito" icono="libro" />
-      <p class="nota">{{ comun.soloLectura }}</p>
-
-      <ap-aviso-de-listado [error]="catalogo.error()" [vacio]="catalogo.vacio()" [mensajeVacio]="t.definiciones.vacio" (reintentar)="catalogo.reintentar()" />
-      @if (!catalogo.error() && !catalogo.vacio()) {
-        <ap-tabla-de-datos-virtualizada [titulo]="t.definiciones.titulo" [columnas]="columnasCatalogo" [cargador]="cargadorCatalogo" [ordenPermitido]="[]" [identidad]="idDefinicion" [alturaDeViewport]="320">
-          <ng-template #celda let-r let-columna="columna">
-            @switch (columna.clave) {
-              @case ('contieneDatosSensibles') {
-                <ap-chip-estado [tono]="r.contieneDatosSensibles ? 'aviso' : 'neutro'">{{ r.contieneDatosSensibles ? t.sensible : t.noSensible }}</ap-chip-estado>
-              }
-              @default { {{ r[columna.clave] ?? noDisponible }} }
-            }
-          </ng-template>
-        </ap-tabla-de-datos-virtualizada>
-      }
-
-      <p class="nota">{{ t.ejecuciones.corte }}</p>
-      <ap-barra-de-filtros [etiqueta]="comun.estado" [incluirBusqueda]="false" [definiciones]="chips" />
-      <ap-aviso-de-listado [error]="historial.error()" [vacio]="historial.vacio()" [conFiltro]="!!filtros()['estado']" [mensajeVacio]="t.ejecuciones.vacio" (reintentar)="historial.reintentar()" />
-      @if (!historial.error() && !historial.vacio()) {
-        <ap-tabla-de-datos-virtualizada [titulo]="t.ejecuciones.titulo" [columnas]="columnasEjecuciones" [cargador]="cargadorHistorial" [ordenPermitido]="[]" [identidad]="idEjecucion" [filtros]="filtros()">
-          <ng-template #celda let-r let-columna="columna">
-            @switch (columna.clave) {
-              @case ('iniciadaEn') { <ap-fecha [iso]="r.iniciadaEn" /> }
-              @case ('finalizadaEn') { @if (r.finalizadaEn) { <ap-fecha [iso]="r.finalizadaEn" /> } @else { {{ noDisponible }} } }
-              @case ('definicionId') { {{ nombres()[r.definicionId] ?? r.definicionId }} }
-              @case ('estado') { <ap-chip-estado>{{ etiquetas[r.estado] ?? r.estado }}</ap-chip-estado> }
-              @default { {{ r[columna.clave] ?? noDisponible }} }
-            }
-          </ng-template>
-        </ap-tabla-de-datos-virtualizada>
-      }
+      <ap-cabecera-de-pagina eyebrow="Configuración · CU-58" [titulo]="t.titulo" [descripcion]="t.proposito" icono="documento" />
+      <ap-alerta tono="info">{{ comun.soloLectura }}</ap-alerta>
+      <ap-pestanas etiqueta="Reportes" [pestanas]="PESTANAS" [(elegida)]="pestana" />
+      <div role="tabpanel" [id]="'panel-' + pestana()" [attr.aria-labelledby]="'pestana-' + pestana()">
+        @if (pestana() === 'catalogo') { <ap-tabla-de-catalogo [listado]="catalogo" /> } @else { <ap-tabla-de-ejecuciones [listado]="historial" [nombres]="nombres()" /> }
+      </div>
     </section>
   `,
   styles: `
-    .pantalla { padding: var(--s5); display: grid; gap: var(--s4); }
-    .nota { margin: 0; color: var(--text-2); }
+    .pantalla { padding: var(--s5); display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s4); min-width: 0; }
+    [role='tabpanel'] { min-width: 0; }
   `,
 })
 export class PantallaDeReportes {
@@ -88,20 +51,24 @@ export class PantallaDeReportes {
 
   protected readonly t = textosConfiguracion.reportes
   protected readonly comun = textosConfiguracion.comun
-  protected readonly noDisponible = NO_DISPONIBLE
-  protected readonly etiquetas: Record<string, string> = textosConfiguracion.reportes.estados
-  protected readonly columnasCatalogo = COLUMNAS_CATALOGO
-  protected readonly columnasEjecuciones = COLUMNAS_EJECUCIONES
-  protected readonly chips = chipsDe(textosConfiguracion.reportes.estados)
-  protected readonly filtros = filtroDeEstadoDesdeUrl(Object.keys(textosConfiguracion.reportes.estados))
-  protected readonly catalogo = new EstadoDeListado()
-  protected readonly historial = new EstadoDeListado()
+  protected readonly PESTANAS = PESTANAS
+  private readonly filtroDeLaUrl = filtroInicialDeLaUrl(opcionesDe(ESTADOS))
+  protected readonly pestana = signal(this.filtroDeLaUrl ? 'ejecuciones' : 'catalogo')
   /** Nombre por definición, de las páginas del catálogo que ya se vieron. */
   protected readonly nombres = signal<Readonly<Record<string, string>>>({})
-  protected readonly cargadorCatalogo = this.catalogo.envolver(this.recordandoNombres(cargadorDeDefiniciones()))
-  protected readonly cargadorHistorial = this.historial.envolver(cargadorDeEjecuciones())
-  protected readonly idDefinicion = (r: DefinicionDeReporteEnLista) => r.definicionId
-  protected readonly idEjecucion = (r: EjecucionDeReporteEnLista) => r.ejecucionId
+  protected readonly catalogo = crearListadoPorCursor<DefinicionDeReporteEnLista>({
+    cargador: this.recordandoNombres(cargadorDeDefiniciones()),
+    camposDeBusqueda: ['nombre', 'tipo', 'descripcion'],
+    filtros: [
+      { nombre: 'tipo', etiqueta: 'Tipo', valor: (r) => r.tipo },
+      { nombre: 'sensibilidad', etiqueta: 'Sensibilidad', valor: (r) => (r.contieneDatosSensibles ? 'SI' : 'NO'), opciones: [{ valor: 'SI', texto: this.t.sensible }, { valor: 'NO', texto: this.t.noSensible }] },
+    ],
+  })
+  protected readonly historial = crearListadoPorCursor<EjecucionDeReporteEnLista>({
+    cargador: cargadorDeEjecuciones(),
+    camposDeBusqueda: [(r) => this.nombres()[r.definicionId] ?? r.definicionId, 'hashResultado'],
+    servidor: { nombre: 'estado', etiqueta: textosConfiguracion.comun.estado, opciones: opcionesDe(ESTADOS), inicial: this.filtroDeLaUrl },
+  })
 
   private recordandoNombres(cargador: CargadorDePagina<DefinicionDeReporteEnLista>): CargadorDePagina<DefinicionDeReporteEnLista> {
     return async (pedido) => {

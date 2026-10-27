@@ -6,6 +6,7 @@ import { Dialogo } from '@aportaya/ui/dialogo/dialogo'
 import { ErrorDeEnvio } from '@aportaya/ui/error-de-envio/error-de-envio'
 import { EstadoDePantalla } from '@aportaya/ui/estado-de-pantalla/estado-de-pantalla'
 import { Fecha } from '@aportaya/ui/fecha/fecha'
+import { Icono } from '@aportaya/ui/icono/icono'
 import { ExplicadorDeVista } from '../../../nucleo/explicador-de-vista'
 import { Sesion } from '../../../nucleo/sesion'
 import {
@@ -27,18 +28,24 @@ import type { ErrorTraducido } from '../../../nucleo/errores'
 
 const EJERCICIO_INEXISTENTE = 'AP-CU100-05'
 
-/** CU-100 · Abrir y cerrar el período contable (Contabilidad). */
+/**
+ * CU-100 · Abrir y cerrar el período contable (Contabilidad). Un período abierto dice que **admite asientos**, pero no
+ * ofrece «Asentar»: ningún contrato publica el alta de un asiento desde el backoffice (los escribe `nucleo-financiero`
+ * a partir de cada operación), y un botón sin operación detrás es un botón muerto. Cerrar sí: `cerrarPeriodoContable`.
+ */
 @Component({
   selector: 'ap-pantalla-de-periodo',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ErrorDeEnvio, Boton, CabeceraDePagina, ChipEstado, Dialogo, EstadoDePantalla, Fecha, PeriodoDeHoy, SelectorDeEjercicios],
+  imports: [ErrorDeEnvio, Boton, Icono, CabeceraDePagina, ChipEstado, Dialogo, EstadoDePantalla, Fecha, PeriodoDeHoy, SelectorDeEjercicios],
   template: `
     <section class="pantalla">
-      <ap-cabecera-de-pagina data-tutorial-id="contabilidad-periodo" [titulo]="t.titulo" [descripcion]="t.proposito" icono="calendario" />
-      <p class="aviso">{{ t.cerrarIrreversible }}</p>
+      <ap-cabecera-de-pagina data-tutorial-id="contabilidad-periodo" eyebrow="Contabilidad · CU-100" [titulo]="t.titulo" [descripcion]="t.proposito" icono="calendario" />
+      <p class="aviso"><ap-icono nombre="candado" tamano="s4" />{{ t.cerrarIrreversible }}</p>
 
-      <ap-periodo-de-hoy [periodo]="valorVigente()" [error]="errorVigente()" />
-      <ap-selector-de-ejercicios [elegido]="ejercicioElegido()" />
+      <div class="arriba">
+        <ap-periodo-de-hoy class="tarjeta" [periodo]="valorVigente()" [error]="errorVigente()" />
+        <ap-selector-de-ejercicios class="tarjeta" [elegido]="ejercicioElegido()" />
+      </div>
 
       @if (ejercicioElegido()) {
         <ap-estado-de-pantalla
@@ -69,12 +76,12 @@ const EJERCICIO_INEXISTENTE = 'AP-CU100-05'
                 }
                 @if (p.cerradoEn) { <p class="nota">{{ t.cerradoEl }} <ap-fecha [iso]="p.cerradoEn" /></p> }
                 @if (puedeAsentar(p)) {
-                  <ap-boton (pulsado)="asentar(p)">{{ t.asentar }}</ap-boton>
+                  <p class="admite"><ap-icono nombre="verificado" tamano="s4" />{{ t.admiteAsientos }}</p>
                 } @else {
                   <p class="motivo">{{ motivo(p) }}</p>
                 }
                 @if (puedeCerrarlo(p) && puedeOperarElCierre()) {
-                  <ap-boton variante="primario" (pulsado)="abrirConfirmacion(p)">{{ t.cerrar }}</ap-boton>
+                  <ap-boton variante="primario" icono="candado" (pulsado)="abrirConfirmacion(p)">{{ t.cerrar }}</ap-boton>
                 }
               </li>
             }
@@ -102,14 +109,18 @@ const EJERCICIO_INEXISTENTE = 'AP-CU100-05'
     }
   `,
   styles: `
-    .pantalla { padding: var(--s5); max-width: 56rem; display: grid; gap: var(--s4); }
+    .pantalla { padding: var(--s5); display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s4); min-width: 0; }
+    .arriba { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr)); gap: var(--s4); }
+    .tarjeta { padding: var(--s4); border: var(--borde-fino) solid var(--border); border-radius: var(--r-lg); background: var(--surface); box-shadow: var(--sombra-1); }
+    .aviso, .admite { display: flex; align-items: center; gap: var(--s2); }
+    .admite { margin: 0; color: var(--ok-texto); font-weight: 600; }
     h1, h2, h3 { margin: 0; }
     h2 { font-size: 1.05em; }
     h3 { font-size: 1em; }
     .aviso, .nota, .motivo { color: var(--text-2); margin: 0; }
     .traza { display: block; margin-top: var(--s1); color: var(--text-2); font-size: .85em; }
-    .meses { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--s3); }
-    .mes { border: var(--borde-fino) solid var(--border); border-radius: var(--r-lg); background: var(--surface); padding: var(--s4); display: grid; gap: var(--s3); }
+    .meses { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 18rem), 1fr)); gap: var(--s3); }
+    .mes { border: var(--borde-fino) solid var(--border); border-radius: var(--r-lg); background: var(--surface); padding: var(--s4); display: grid; gap: var(--s3); align-content: start; }
     .mes.cerrado { background: var(--surface-2); }
     .cabecera { display: flex; align-items: center; justify-content: space-between; gap: var(--s3); }
     .chips { display: inline-flex; gap: var(--s2); }
@@ -146,7 +157,6 @@ export class PantallaDePeriodo {
   protected readonly dialogoAbierto = signal(false)
   protected readonly cerrando = signal(false)
   protected readonly errorDeEnvio = signal<ErrorTraducido | null>(null)
-  protected readonly asentadoEn = signal<string | null>(null)
   private readonly enviarCierre = crearCierreDePeriodo()
 
   protected puedeAsentar = puedeAsentarEn
@@ -154,11 +164,6 @@ export class PantallaDePeriodo {
   protected cuadraElCierre = cuadra
   protected puedeCerrarlo = (p: PeriodoContable) => puedeCerrar(p, this.lista())
   protected etiqueta = (p: PeriodoContable) => this.t.estados[p.estado]
-
-  /** Deja el período elegido para el alta de asiento; el formulario es de CU-103. */
-  protected asentar(p: PeriodoContable): void {
-    this.asentadoEn.set(p.periodoId)
-  }
 
   protected abrirConfirmacion(p: PeriodoContable): void {
     this.elegido.set(p)

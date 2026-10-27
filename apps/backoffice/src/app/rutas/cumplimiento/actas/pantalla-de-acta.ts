@@ -33,7 +33,7 @@ import { textosCumplimiento } from '../textos'
         <p class="bloqueo" role="alert">{{ mensajeDeBloqueo(motivo) }}</p>
       }
 
-      <ap-boton variante="primario" [deshabilitado]="!puedeCerrar()" (pulsado)="cerrar()">{{ t.cerrar }}</ap-boton>
+      <ap-boton variante="primario" icono="candado" [deshabilitado]="!puedeCerrar()" (pulsado)="cerrar()">{{ t.cerrar }}</ap-boton>
     </section>
   `,
   styles: `

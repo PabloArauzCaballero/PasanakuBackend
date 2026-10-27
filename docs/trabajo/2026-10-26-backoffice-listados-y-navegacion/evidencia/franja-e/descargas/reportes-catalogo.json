@@ -1,0 +1,9 @@
+[
+  {
+    "nombre": "Reporte 9",
+    "tipo": "FINANCIERO",
+    "descripcion": "Sintético",
+    "permisoRequerido": "AUDITORIA_LEER",
+    "sensibilidad": "Datos sensibles: pide justificación"
+  }
+]

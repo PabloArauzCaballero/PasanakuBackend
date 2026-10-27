@@ -1,0 +1,19 @@
+Automatically searching for and using Vitest configuration file.
+❯ Building...
+✔ Building...
+Application bundle generation complete. [20.148 seconds] - 2026-10-27T03:57:21.702Z
+
+(!) Your Vite config uses features that are unsupported by `configLoader: 'native'`, which is planned to become the default in a future major version of Vite:
+  - ESM syntax in a file loaded as CommonJS (vitest-base.config.ts:1:1). Use a `.mjs` extension or set `"type": "module"` in the closest package.json
+Set `VITE_CONFIG_NATIVE_IGNORE_WARNING=true` to suppress this warning.
+
+ RUN  v4.1.11 /home/user/PasanakuBackend/apps/backoffice
+
+Not implemented: Window's confirm() method
+Not implemented: Window's confirm() method
+
+ Test Files  173 passed (173)
+      Tests  1237 passed (1237)
+   Start at  03:57:22
+   Duration  37.43s (transform 4.48s, setup 1.01s, import 3.65s, tests 31.67s, environment 416ms)
+
