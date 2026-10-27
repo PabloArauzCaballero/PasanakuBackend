@@ -86,6 +86,8 @@ export function mensajeDe(codigo: string | undefined, estado: number): string {
     case 403: return 'No tenés acceso a esto.'
     case 404: return 'No encontramos lo que buscabas.'
     case 409: return 'Esta operación ya se hizo o cambió mientras tanto. Revisá el estado antes de repetirla.'
+    // El servicio no está levantado o no contesta: se dice que es del servicio y que se puede volver a probar.
+    case 502: case 503: case 504: return 'Este servicio no está disponible en este momento. Probá de nuevo en unos minutos.'
     case 0: return 'No hay conexión. Te mostramos lo último que vimos; para operar hace falta señal.'
     default: return 'Algo salió mal de nuestro lado. Probá de nuevo en un momento.'
   }

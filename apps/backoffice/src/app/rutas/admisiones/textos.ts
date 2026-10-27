@@ -14,7 +14,7 @@ export const textosAdmisiones = {
   buscarSinListado: 'Todavía no hay un listado de solicitudes pendientes: cada una se abre por su identificador.',
   bandejaTitulo: 'Solicitudes de ingreso a grupos',
   bandejaProposito:
-    'Bandeja de admisión humana (CU-68): revisá postulaciones, evaluá las propuestas de los administradores y resolvé el ingreso.',
+    'Bandeja de admisión humana: revisá postulaciones, evaluá las propuestas de los administradores y resolvé el ingreso.',
   busqueda: 'Buscar solicitud',
   ayudaBusqueda: 'Buscá por nombre del postulante, código de grupo o identificador.',
   filtrarEstado: 'Filtrar por estado',

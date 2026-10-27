@@ -40,7 +40,7 @@ const FILAS_POR_PAGINA = [10, 20, 50]
             <ap-campo [etiqueta]="t.buscarEtiqueta" [ayuda]="t.buscarAyuda" [error]="error()" [(valor)]="id" />
           </div>
           <div class="accion-directa">
-            <ap-boton variante="primario" tipo="submit">{{ t.buscarAccion }}</ap-boton>
+            <ap-boton variante="primario" tipo="submit" icono="buscar">{{ t.buscarAccion }}</ap-boton>
           </div>
         </form>
       </section>

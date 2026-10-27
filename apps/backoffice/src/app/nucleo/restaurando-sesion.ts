@@ -26,7 +26,7 @@ function rutaInternaOTablero(destino: string | null): string {
         <section class="tarjeta" role="alert" aria-live="assertive">
           <h1>No pudimos confirmar tu sesión</h1>
           <p>El servicio de identidad no respondió a tiempo. Tus datos no se perdieron.</p>
-          <ap-boton variante="primario" [cargando]="reintentando()" [deshabilitado]="reintentando()" (pulsado)="reintentar()">
+          <ap-boton variante="primario" icono="recarga" [cargando]="reintentando()" [deshabilitado]="reintentando()" (pulsado)="reintentar()">
             Reintentar
           </ap-boton>
         </section>

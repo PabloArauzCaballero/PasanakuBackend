@@ -108,5 +108,25 @@ PasanakuBackend (el repo que construye ese host), entonces el bundle servido ya 
 | ID | Microtarea | CA (binario) | DoD | Estado |
 |---|---|---|---|---|
 | H4.M1 | Portar el cambio a PasanakuBackend en `claude/admiring-fermi-mdayfj` | rama empujada, typecheck y tests del backoffice allí en verde | salidas | HECHO |
-| H4.M2 | PR a `dev` y de `dev` a `test` | PRs abiertos | URL | A MEDIAS |
-| H4.M3 | Verificar el bundle en vivo | sin «Notas de la vista» | `curl … \| grep -c` = 0 | TODO |
+| H4.M2 | PR a `dev` y de `dev` a `test` | PRs abiertos | URL | HECHO |
+| H4.M3 | Verificar el bundle en vivo | sin «Notas de la vista» | `curl … \| grep -c` = 0 | HECHO |
+
+## H5 — Nada en rojo por una lectura caída; botones con un solo color de acción (agregado 2026-10-27, pedido en la sesión)
+**CA:** Dado el backoffice en TEST, cuando un servicio no responde, entonces la pantalla muestra una tarjeta neutra con
+qué pasó y «Volver a intentar», sin rojo; y en toda pantalla hay un solo botón con color (el primario) y todo botón
+lleva ícono.
+**DoD:** typecheck, lint, `test:front`, `test:a11y`, build, e2e dirigido, capturas en `evidencia/h5/`, bundle en vivo.
+
+Hallazgo: sondeo sin sesión de las 138 rutas GET que usa el backoffice contra el gateway de TEST. `/api/v1/erp/**`
+responde 500 antes de autenticar (servicio ERP caído en el host); el resto responde 401 (enrutado). `extraccion/accesos`
+responde 404 y no se llama (Accesos ya es «sin fuente»).
+
+| ID | Microtarea | CA (binario) | DoD | Estado |
+|---|---|---|---|---|
+| H5.M1 | `ap-estado-de-error` neutro: tarjeta de superficie, ícono ámbar, «Volver a intentar» con ícono | sin `--err` en el componente | captura `evidencia/h5/error-503-*` | HECHO |
+| H5.M2 | 502/503/504 dicen que el servicio no está disponible y que se puede volver a probar | spec de `errores` | `test:front` | HECHO |
+| H5.M3 | Secundario y fantasma neutros en el backoffice (solo `styles.css` del backoffice) | un solo botón con color por pantalla | captura `botones-neutros.png` | HECHO |
+| H5.M4 | Ícono en los 13 botones que no lo tenían | `grep` de `<ap-boton` sin ícono = 0 | `grep` | HECHO |
+| H5.M5 | Usuarios internos: Ver + «Más» (Roles, Suspender/Reactivar, Desbloquear, Editar) | fila de una línea; menú no recortado | captura `usuarios-internos-menu-mas*` + spec de mutaciones | HECHO |
+| H5.M6 | Sistemas sin fuente sin «Actualizar» | spec compartida de Sistemas | `test:front` | HECHO |
+| H5.M7 | Desplegar a TEST y verificar el bundle | bundle nuevo con los cambios | `curl` + `grep` | TODO |

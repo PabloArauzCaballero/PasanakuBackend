@@ -1,6 +1,6 @@
 # Reporte — Backoffice: rediseño de la anatomía compartida y pasada pantalla por pantalla
 
-> **AVANCE: 17 / 21 — 81,0 %.** La revisión visual independiente RECHAZÓ la primera entrega (58/100); se corrigieron sus hallazgos salvo dos (columna fija de acciones tapando columnas en Catálogo de datos y Usuarios internos). El despliegue a TEST depende de que se mergee el PR de PasanakuBackend a `dev` y luego a `test`.
+> **AVANCE: 26 / 28 — 92,9 %.** Desplegado en TEST el rediseño, la salud real de Servicios y el estado neutro «sin fuente» (bundle verificado). H5 (errores sin rojo, botones con un solo color de acción, menú «Más» en Usuarios internos) queda en verde local y falta verificarlo en vivo (H5.M7). Sigue abierto: la columna fija de acciones del Catálogo de datos (H2.M3). En TEST el servicio ERP responde 500 a todo: es del host, no del front.
 
 - Fecha: 2026-10-27 · Plan: [PLAN.md](./PLAN.md) · Doble revisión: [evidencia/doble-revision.md](./evidencia/doble-revision.md)
 - Ramas: PasanakuFrontend `claude/admiring-fermi-mdayfj` (`add44f26`, `40f66da1`) · PasanakuBackend `claude/admiring-fermi-mdayfj` (`071092e5`), PR [PabloArauzCaballero/PasanakuBackend#197](https://github.com/PabloArauzCaballero/PasanakuBackend/pull/197) a `dev`.
@@ -32,11 +32,19 @@
 - Qué falta exactamente: CI verde → merge a `dev` → PR `dev` → `test` → merge; el temporizador del host reconstruye en ≤ 2 min.
 - Dónde quedó: PasanakuBackend `claude/admiring-fermi-mdayfj`.
 
+### H5 — Errores sin rojo y botones (agregado en la sesión)
+- Hecho y verificado local: `ap-estado-de-error` neutro con ícono ámbar; 502/503/504 con texto propio; secundario y fantasma
+  neutros solo en el backoffice; ícono en todo `ap-boton`; Usuarios internos con Ver + «Más»; «Actualizar» oculto sin fuente;
+  «Abrir caso» sin «con 0 alertas»; sin códigos CU en la descripción de Admisiones.
+- Evidencia: `evidencia/h5/` (error 503 forzado claro/oscuro, menú «Más» claro/oscuro, botones). Salidas abajo.
+- Falta: H5.M7, ver el bundle nuevo en vivo.
+
 ## Pendiente
 
 | ID | Estado | Qué lo destraba |
 |---|---|---|
-| H4.M3 | TODO | Verificar el bundle en vivo tras el merge a `test` (`curl` + `grep -c "Notas de la vista"` = 0) |
+| H5.M7 | TODO | Merge a `test` y verificar el bundle en vivo |
+| ERP en TEST | Fuera de este repo de front | `/api/v1/erp/**` responde 500 sin sesión: el contenedor `erp` no contesta en el host. Lo destraba quien opera el VPS (`docker ps`, log de `erp`) |
 
 ## Evidencia
 
@@ -56,6 +64,17 @@ backoffice test:a11y 92 passed · build exit 0, aviso: bundle inicial 502.25 kB 
 
 Servidor de TEST antes del merge
 curl https://backoffice.aportaya.161.97.85.216.sslip.io/admisiones → 200; main-B7OY5X42.js contiene «Notas de la vista»
+```
+
+```text
+H5 (PasanakuBackend)
+backoffice typecheck exit=0 · lint exit=0 · test:front 175 archivos, 1254 passed · test:a11y 92 passed
+backoffice build exit 0 · Initial total 502.62 kB (mismo aviso de presupuesto que antes)
+ui test:front 196 passed
+e2e admisiones + tableros-por-rol + sistemas*: 25 passed (2.5m) --retries=0
+Sondeo de TEST sin sesión (138 rutas GET del backoffice): 89×401, 45×500 que a los minutos pasaron a 401,
+/api/v1/erp/** 500 estable, /api/v1/extraccion/accesos 404 (no se llama)
+Bundle en vivo main-KUQ5N3ML.js (17:26 UTC) contiene «sin datos conectados»; main-DBKGXQCQ.js (17:43 UTC) trae #206
 ```
 
 Capturas: `evidencia/antes/`, `evidencia/despues-1280/`, `despues-oscuro/`, `despues-768/`, `despues-375/`.
