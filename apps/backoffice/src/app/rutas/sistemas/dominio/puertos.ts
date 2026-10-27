@@ -67,7 +67,7 @@ export type ErrorFuenteNoDisponible = {
 export function errorFuenteNoDisponible(nombreDeRecurso: string): ErrorFuenteNoDisponible {
   return {
     tipo: 'fuente-no-disponible',
-    mensaje: `No pudimos traer «${nombreDeRecurso}»: todavía no existe un origen de datos real para esta pantalla.`,
+    mensaje: `Ningún servicio publica todavía «${nombreDeRecurso}». No es una falla: cuando exista esa fuente, la información aparece acá.`,
   }
 }
 

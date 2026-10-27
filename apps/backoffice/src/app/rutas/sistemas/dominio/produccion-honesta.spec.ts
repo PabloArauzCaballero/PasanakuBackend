@@ -57,7 +57,7 @@ describe('detectarModoFuentesDeSistemas · solo la etiqueta exacta enciende el m
 class SeccionComoEnProduccion {}
 
 describe('pantalla de sistemas con el proveedor de producción · indisponibilidad honesta', () => {
-  it('aun con la etiqueta demo encendida: sin banner de ejemplo, con error accionable y sin cifras de ejemplo', async () => {
+  it('aun con la etiqueta demo encendida: sin banner de ejemplo, con el estado «sin datos conectados» y sin cifras de ejemplo', async () => {
     TestBed.configureTestingModule({ providers: [provideZonelessChangeDetection(), ...provideFuentesDeSistemas('demo')] })
     const fixture = TestBed.createComponent(SeccionComoEnProduccion)
     fixture.detectChanges()
@@ -65,7 +65,7 @@ describe('pantalla de sistemas con el proveedor de producción · indisponibilid
     fixture.detectChanges()
     const raiz = fixture.nativeElement as HTMLElement
     expect(raiz.textContent).not.toContain('Datos de ejemplo.')
-    expect(raiz.querySelector('[role="alert"]')).toBeTruthy()
+    expect(raiz.querySelector('ap-estado-vacio')?.textContent).toContain('todavía sin datos conectados')
     expect(raiz.textContent).not.toMatch(/\d+(\.\d+)?%/)
   })
 })
