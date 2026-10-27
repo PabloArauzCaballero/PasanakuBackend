@@ -38,8 +38,17 @@ ANTERIOR=$(cat /opt/aportaya/ultimo-construido 2>/dev/null || echo "")
 
 marca "test avanzo: ${ANTERIOR:0:7} -> ${REMOTO:0:7}"
 git fetch -q --depth 50 origin test || { marca "fetch fallo"; exit 1; }
-CAMBIOS=$(git diff --name-only "${ANTERIOR:-HEAD}" FETCH_HEAD 2>/dev/null || echo TODO)
-git checkout -q FETCH_HEAD
+# El diff entre dos commits solo necesita los dos arboles, no la historia entre ellos. Con
+# `--depth 50` el commit anterior puede quedar afuera si el salto es grande: el diff falla y
+# CAMBIOS vale TODO. Se trae el anterior por su sha para no caer ahi sin necesidad.
+if [ -n "$ANTERIOR" ] && ! git cat-file -e "${ANTERIOR}^{commit}" 2>/dev/null; then
+  git fetch -q --depth 1 origin "$ANTERIOR" 2>/dev/null || marca "no se pudo traer ${ANTERIOR:0:7}; se reconstruye todo"
+fi
+CAMBIOS=$(git diff --name-only "${ANTERIOR:-HEAD}" "$REMOTO" 2>/dev/null || echo TODO)
+[ -n "$CAMBIOS" ] || CAMBIOS=TODO
+git checkout -q "$REMOTO"
+# TODO tiene que alcanzar a todo, no solo a los servicios: cada condicion de abajo lo mira.
+TODO_O() { [ "$CAMBIOS" = "TODO" ] || echo "$CAMBIOS" | grep -qE "$1"; }
 
 # Una falla de construccion NO puede pasar inadvertida: antes se marcaba y el script
 # seguia igual hasta `desplegando`, asi que el log decia «listo en <sha>» mientras
@@ -78,7 +87,7 @@ for s in ${SERVICIOS:-}; do construir /opt/aportaya/bin/construir.sh "$s" servic
 # no esta en el host Coolify para los contenedores viejos, falla al crear los nuevos
 # («No such image») y el backend queda en CERO. Reconstruirla solo cuando el commit toca
 # sql/ hacia que no se recuperara sola nunca. Medido dos veces: 2026-09-17 y 2026-09-21.
-if echo "$CAMBIOS" | grep -qE '^(sql/|despliegue/aplicar-esquema.sh|despliegue/Dockerfile.esquema)' \
+if TODO_O '^(sql/|despliegue/aplicar-esquema.sh|despliegue/Dockerfile.esquema)' \
    || ! docker image inspect aportaya/esquema:test >/dev/null 2>&1; then
   construir docker build -f despliegue/Dockerfile.esquema -t aportaya/esquema:test .
 fi
@@ -87,9 +96,16 @@ fi
 # el Dockerfile, `yarn install --immutable` se cae en getWorkspaceByDescriptor; si falta
 # aca, un commit que toque solo ese paquete no reconstruye ningun front.
 FRONT_ANGULAR='^(packages/ui/|packages/tokens/|packages/tutoriales/|packages/simulado/|packages/dominio-cliente/|clientes/angular/)'
-echo "$CAMBIOS" | grep -qE "^apps/backoffice/|$FRONT_ANGULAR" && \
+# Los dos Dockerfile copian `clientes/angular`, que no se versiona (ADR-016): sin
+# regenerarlo, un cambio de contrato construye el front contra el cliente de la corrida
+# anterior. Se regenera una vez, antes de cualquiera de los dos.
+CONTRATO='^servicios/[^/]+/src/main/resources/openapi/'
+if TODO_O "^apps/backoffice/|^apps/web/|$FRONT_ANGULAR|$CONTRATO"; then
+  construir /opt/aportaya/bin/generar-clientes.sh
+fi
+TODO_O "^apps/backoffice/|$FRONT_ANGULAR|$CONTRATO" && \
   construir docker build -f apps/backoffice/docker/Dockerfile.backoffice --build-arg CONF_NGINX=apps/backoffice/docker/nginx.desplegado.conf -t aportaya/backoffice:test .
-echo "$CAMBIOS" | grep -qE "^apps/web/|$FRONT_ANGULAR" && \
+TODO_O "^apps/web/|$FRONT_ANGULAR|$CONTRATO" && \
   construir docker build -f apps/web/docker/Dockerfile.web -t aportaya/web:test .
 
 # El movil va por su guion, NO por `docker build` pelado: el Dockerfile trae los clientes
@@ -99,7 +115,7 @@ echo "$CAMBIOS" | grep -qE "^apps/web/|$FRONT_ANGULAR" && \
 # ultima corrida a mano: del 17 al 21 de septiembre la app movil fallaba con
 # `Type 'ContratoVigente' not found` y se desplegaba la imagen vieja sin avisar.
 # Tambien lo dispara un cambio de contrato, que es lo que deja viejo al cliente generado.
-echo "$CAMBIOS" | grep -qE '^(apps/movil/|packages/diseno_flutter/|packages/tokens/|servicios/[^/]+/src/main/resources/openapi/)' && \
+TODO_O '^(apps/movil/|packages/diseno_flutter/|packages/tokens/|servicios/[^/]+/src/main/resources/openapi/)' && \
   construir /opt/aportaya/bin/construir-movil-web.sh
 
 # No se despliega un sha cuyas imagenes no construyeron todas: desplegar igual es lo que
