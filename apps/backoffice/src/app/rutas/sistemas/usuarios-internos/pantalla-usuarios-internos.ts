@@ -38,10 +38,10 @@ const segundoFactor = (u: Usuario) => (u.tieneSegundoFactor ? 'Configurado' : 'P
   template: `
     <section class="pantalla">
       <ap-cabecera-de-pagina eyebrow="Sistemas · Identidad" [titulo]="t.titulo" [descripcion]="t.proposito" icono="persona">
-        <ap-boton acciones icono="recarga" [deshabilitado]="recurso.isLoading()" (pulsado)="recurso.reload()">Actualizar</ap-boton>
+        <ap-boton acciones variante="fantasma" icono="recarga" [deshabilitado]="recurso.isLoading()" (pulsado)="recurso.reload()">Actualizar</ap-boton>
         <ap-boton acciones variante="primario" icono="personaMas" (pulsado)="mostrarAlta.set(true)">{{ t.nuevoUsuario }}</ap-boton>
       </ap-cabecera-de-pagina>
-      <ap-cifras-de-sistemas etiqueta="Resumen de usuarios internos" [cifras]="cifras()" />
+      <ap-cifras-de-sistemas etiqueta="Resumen de usuarios internos" [cifras]="cifras()" [carga]="carga()" />
       <ap-listado [titulo]="t.titulo" [columnas]="columnas" [listado]="listado" [carga]="carga()" [identidad]="identidad" ayudaDeBusqueda="Busca por nombre, correo, código, departamento, cargo o rol." [exportables]="exportables" [exportable]="exportador.puedeExportar('usuarios-internos')" nombreDeRegistros="usuarios" [textoVacio]="t.vacio" explicacionVacio="Dá de alta al primer operador interno con su rol inicial." accionVacio="Dar de alta" (primeraAccion)="mostrarAlta.set(true)" (reintentar)="recurso.reload()">
         <ng-template #celda let-u let-c="columna">
           @switch (c.clave) {

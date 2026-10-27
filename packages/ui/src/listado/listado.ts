@@ -9,6 +9,7 @@ import type { ColumnaExportable } from '../exportar-listado/exportar'
 import { Paginacion } from '../paginacion/paginacion'
 import { TablaDeDatos, type Columna, type Densidad } from '../tabla-de-datos/tabla-de-datos'
 import type { Listado } from './crear-listado'
+import { nombreSegunCantidad } from './singular'
 
 /** La columna que agrega `#acciones`: no choca con un campo real porque ningún contrato usa este nombre. */
 const CLAVE_ACCIONES = '__acciones'
@@ -42,7 +43,7 @@ export type CargaDeListado = { tipo: 'cargando' } | { tipo: 'lista' } | { tipo: 
     <div class="barra">
       <p class="resumen" aria-live="polite">{{ resumen() }}</p>
       <div class="acciones"><ng-content select="[accionesDeListado]" />
-        @if (exportable()) {
+        @if (exportable() && carga().tipo !== 'error') {
           <ap-exportar-listado [nombre]="nombreDeExportacion() ?? titulo()" [columnas]="columnasExportables()" [filas]="listado().filtradas()" [conJson]="conJson()" [deshabilitado]="carga().tipo !== 'lista'" />
         }
       </div>
@@ -63,7 +64,7 @@ export type CargaDeListado = { tipo: 'cargando' } | { tipo: 'lista' } | { tipo: 
             <ap-estado-vacio [titulo]="textoVacio()" [explicacion]="explicacionVacio()" [accionPropia]="accionVacio() ?? ''" (actuar)="primeraAccion.emit()" />
           }
         } @else {
-          <ap-tabla-de-datos [titulo]="titulo()" [columnas]="columnasVisibles()" [filas]="listado().visibles()" [identidad]="identidad()" [densidad]="densidad()" [orden]="listado().orden()" (ordenado)="listado().orden.set($event)" [plantillaDeCelda]="combinada" />
+          <ap-tabla-de-datos [titulo]="titulo()" [tituloVisible]="false" [columnas]="columnasVisibles()" [filas]="listado().visibles()" [identidad]="identidad()" [densidad]="densidad()" [orden]="listado().orden()" (ordenado)="listado().orden.set($event)" [plantillaDeCelda]="combinada" />
           <ap-paginacion [etiqueta]="'Paginación de ' + titulo()" [pagina]="listado().pagina()" (paginaChange)="listado().irAPagina($event)" [totalDeFilas]="listado().total()" [porPagina]="listado().porPagina()" (porPaginaChange)="listado().cambiarPorPagina($event)" [opcionesPorPagina]="listado().opcionesPorPagina" [nombreDeRegistros]="nombreDeRegistros()" />
         }
       }
@@ -72,6 +73,8 @@ export type CargaDeListado = { tipo: 'cargando' } | { tipo: 'lista' } | { tipo: 
   styles: `
     :host { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s4); min-width: 0; }
     .barra { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--s3); }
+    /* Con error no hay resumen ni nada que bajar: la barra vacía no deja un hueco. */
+    .barra:has(.resumen:empty):not(:has(button)) { display: none; }
     .resumen { margin: 0; color: var(--text-2); font: var(--t-cuerpo-chico); }
     .acciones { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s2); }
   `,
@@ -116,7 +119,8 @@ export class ListadoDeDatos<T extends object> {
   readonly resumen = computed(() => {
     if (this.carga().tipo !== 'lista') return ''
     const l = this.listado()
-    return l.hayCriterios() ? `${l.total()} de ${l.filas().length} ${this.nombreDeRegistros()}` : `${l.total()} ${this.nombreDeRegistros()}`
+    const nombre = (n: number) => nombreSegunCantidad(n, this.nombreDeRegistros())
+    return l.hayCriterios() ? `${l.total()} de ${l.filas().length} ${nombre(l.filas().length)}` : `${l.total()} ${nombre(l.total())}`
   })
   readonly mensajeDeError = computed(() => {
     const c = this.carga()

@@ -14,6 +14,7 @@ import { cargaDe, filasDe } from '../compartido/carga'
 import { CifrasDeSistemas, contar, type Cifra } from '../compartido/cifras'
 import { catalogosOperativos, type CatalogoOperativoResumen } from '../dominio/catalogos-operativos'
 import { textosSistemas } from '../textos'
+import { Fecha } from '@aportaya/ui/fecha/fecha'
 
 type FilaCatalogo = CatalogoOperativoResumen & { conteoElementos?: string }
 const ESTADO: Record<string, string> = { VIGENTE: 'Vigente', EN_REVISION: 'En revisión', OBSOLETO: 'Obsoleto' }
@@ -26,18 +27,19 @@ const TONO: Record<string, Tono> = { VIGENTE: 'ok', EN_REVISION: 'aviso', OBSOLE
 @Component({
   selector: 'ap-pantalla-catalogos-operativos',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [AccionesDeFila, Boton, CabeceraDePagina, ChipEstado, CifrasDeSistemas, ListadoDeDatos],
+  imports: [AccionesDeFila, Boton, CabeceraDePagina, ChipEstado, CifrasDeSistemas, Fecha, ListadoDeDatos],
   template: `
     <section class="pantalla">
       <ap-cabecera-de-pagina eyebrow="Sistemas · Auditoría" [titulo]="t.titulo" [descripcion]="t.proposito" icono="lista">
-        <ap-boton acciones icono="recarga" [deshabilitado]="recurso.isLoading()" (pulsado)="recurso.reload()">Actualizar</ap-boton>
+        <ap-boton acciones variante="fantasma" icono="recarga" [deshabilitado]="recurso.isLoading()" (pulsado)="recurso.reload()">Actualizar</ap-boton>
       </ap-cabecera-de-pagina>
-      <ap-cifras-de-sistemas etiqueta="Resumen de catálogos" [cifras]="cifras()" />
+      <ap-cifras-de-sistemas etiqueta="Resumen de catálogos" [cifras]="cifras()" [carga]="carga()" />
       <ap-listado [titulo]="t.titulo" [columnas]="columnas" [listado]="listado" [carga]="carga()" [identidad]="identidad" [ayudaDeBusqueda]="t.buscar + ' o descripción.'" [exportables]="exportables" nombreDeRegistros="catálogos" [textoVacio]="t.vacio" explicacionVacio="Los catálogos los publica el servicio de auditoría; cuando existan, aparecen acá con su versión vigente." (reintentar)="recurso.reload()">
         <ng-template #celda let-c let-col="columna">
           @switch (col.clave) {
             @case ('codigo') { <code>{{ c.codigo }}</code> }
             @case ('estado') { <ap-chip-estado [tono]="tono(c)">{{ estado(c) }}</ap-chip-estado> }
+            @case ('vigenteDesde') { @if (c.vigenteDesde) { <ap-fecha [iso]="c.vigenteDesde" [conHora]="false" /> } @else { — } }
             @case ('conteoElementos') { <span class="conteo">{{ c.elementosActivos }} / {{ c.totalElementos }}</span> }
             @default { {{ c[col.clave] }} }
           }
@@ -86,7 +88,7 @@ export class PantallaCatalogosOperativos {
       { etiqueta: 'Catálogos', valor: contar(f), icono: 'lista' },
       { etiqueta: 'Vigentes', valor: contar(f, (c) => c.estado === 'VIGENTE'), icono: 'verificado', tono: 'ok' },
       { etiqueta: 'En revisión', valor: contar(f, (c) => c.estado === 'EN_REVISION'), icono: 'reloj', tono: 'aviso' },
-      { etiqueta: 'Elementos activos', valor: String(f.reduce((s, c) => s + c.elementosActivos, 0)), icono: 'etiqueta', pista: `de ${f.reduce((s, c) => s + c.totalElementos, 0)} elementos` },
+      { etiqueta: 'Elementos activos', valor: String(f.reduce((s, c) => s + c.elementosActivos, 0)), icono: 'etiqueta', pista: `de ${f.reduce((s, c) => s + c.totalElementos, 0)} en total` },
     ]
   })
   protected readonly columnas: Columna<FilaCatalogo>[] = [

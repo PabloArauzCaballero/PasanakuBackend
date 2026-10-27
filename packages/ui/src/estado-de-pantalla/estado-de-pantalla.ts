@@ -73,6 +73,8 @@ export const RAMA_DE: Record<ResourceStatus, 'cargando' | 'obsoleto' | 'error' |
   styles: `
     :host { display: block; }
     .error { text-align: left; } .vacio { padding: var(--s5); text-align: center; }
+    /* El vacío del kit ya es una tarjeta con su relleno: sin esto quedaba metida 24 px respecto del resto de la pantalla. */
+    .vacio:has(> ap-estado-vacio) { padding: 0; }
     .mensaje { color: var(--text); margin: 0 0 var(--s2); }
     .traza { color: var(--text-3); font-size: 0.85em; margin: 0 0 var(--s4); }
     .vacio p { color: var(--text-2); margin: 0; }

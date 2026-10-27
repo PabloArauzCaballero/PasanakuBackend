@@ -11,10 +11,10 @@ export type Selector = { nombre: string; etiqueta: string; opciones: readonly Op
 const ESPERA_DE_BUSQUEDA_MS = 350
 
 /**
- * La barra de filtros de un listado, como en el portal de Atlas: una tarjeta con el buscador
- * (que espera a que se deje de escribir antes de avisar), un selector por criterio con una opción
- * «Todos» explicada, y «Limpiar». Es presentacional: quien la aloja guarda el estado (en la URL)
- * y vuelve a la primera página al cambiar un filtro.
+ * La barra de filtros de un listado: el buscador (que espera a que se deje de escribir antes de avisar), un selector
+ * por criterio con una opción «Todos» explicada, y «Limpiar». Va en una fila sobre el lienzo, sin tarjeta: la tarjeta
+ * con media fila vacía pesaba más que la tabla que filtra (2026-10-27). Es presentacional: quien la aloja guarda el
+ * estado y vuelve a la primera página al cambiar un filtro.
  */
 @Component({
   selector: 'ap-barra-de-filtros',
@@ -36,16 +36,19 @@ const ESPERA_DE_BUSQUEDA_MS = 350
     }
   `,
   styles: `
-    /* Grilla y no fila flexible: con cinco filtros, el último ya no se estira solo a todo el ancho. */
-    :host { container-type: inline-size; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 11rem), 1fr)); align-items: end; gap: var(--s3); padding: var(--s3); border: var(--borde-fino) solid var(--border); border-radius: var(--r-lg); background: var(--surface); box-shadow: var(--sombra-1); }
-    /* El buscador ocupa toda la fila en angosto y dos columnas cuando hay lugar: es el filtro que más se usa. */
-    .buscador { display: flex; align-items: center; gap: var(--s1); grid-column: 1 / -1; min-width: 0; }
-    @container (min-width: 36rem) { .buscador { grid-column: span 2; } }
+    /* Fila flexible: el buscador crece (es el filtro que más se usa) y cada selector tiene un ancho acotado, así cinco
+       filtros no estiran el último a toda la fila ni uno solo deja media barra vacía. */
+    :host { display: flex; flex-wrap: wrap; align-items: flex-end; gap: var(--s3); }
+    .buscador { position: relative; display: flex; align-items: center; flex: 2 1 calc(var(--s7) * 4.5); min-width: 0; }
     ap-campo-busqueda { flex: 1; min-width: 0; }
-    .ayuda { display: inline-flex; align-items: center; justify-content: center; width: var(--area-tactil); height: var(--area-tactil); padding: 0; border: 0; border-radius: var(--r-pill); background: transparent; color: var(--text-3); cursor: help; }
+    /* La ayuda vive dentro del borde del campo, a la derecha, en vez de colgar suelta al costado. */
+    .buscador:has(.ayuda) ap-campo-busqueda { --campo-busqueda-fin: var(--area-tactil); }
+    .buscador > ap-tooltip { position: absolute; right: var(--s1); display: inline-flex; }
+    .ayuda { display: inline-flex; align-items: center; justify-content: center; width: calc(var(--area-tactil) - var(--s2)); height: calc(var(--area-tactil) - var(--s2)); padding: 0; border: 0; border-radius: var(--r-sm); background: transparent; color: var(--text-3); cursor: help; }
+    .ayuda:hover { color: var(--text); background: var(--surface-2); }
     .ayuda:focus-visible { outline: var(--borde-foco) solid var(--g300); outline-offset: var(--borde-desfase); }
-    ap-lista-de-opciones { min-width: 0; }
-    ap-boton { justify-self: end; }
+    ap-lista-de-opciones { flex: 1 1 calc(var(--s7) * 3); max-width: calc(var(--s7) * 5.5); min-width: 0; }
+    ap-boton { flex: none; }
   `,
 })
 export class BarraDeFiltros implements OnDestroy {

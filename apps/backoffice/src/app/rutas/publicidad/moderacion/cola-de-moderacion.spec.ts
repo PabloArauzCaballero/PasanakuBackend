@@ -95,7 +95,7 @@ describe('ColaDeModeracion · CU-112', () => {
     await confirmar('Aprobar pieza', f)
     http.expectOne(REVISION).flush({ codigo: 'AP-CU112-03', mensaje: 'interno', trazaId: 'tz-3' }, { status: 422, statusText: 'x' })
     await esperar(f)
-    expect(document.body.textContent).toContain('Quien subió esta pieza no puede moderarla (R-PUB-05)')
+    expect(document.body.textContent).toContain('Quien subió esta pieza no puede moderarla')
     expect(document.body.textContent).not.toContain('interno')
     expect(boton(f.nativeElement, 'Aprobar pieza Banner de aniversario')).toBeDefined()
   })

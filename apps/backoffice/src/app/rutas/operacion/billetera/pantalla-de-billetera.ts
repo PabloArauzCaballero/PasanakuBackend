@@ -24,8 +24,8 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
   imports: [EstadoDePantalla, PosicionesDeSaldo, Alerta, Boton, CabeceraDePagina, Campo, DatePipe],
   template: `
     <section class="pantalla">
-      <ap-cabecera-de-pagina data-tutorial-id="operacion-billetera" eyebrow="Operación · CU-13" [titulo]="t.titulo" [descripcion]="t.proposito" icono="billetera">
-        <ap-boton acciones icono="recarga" [cargando]="saldo.isLoading()" (pulsado)="saldo.reload()">{{ t.actualizar }}</ap-boton>
+      <ap-cabecera-de-pagina data-tutorial-id="operacion-billetera" eyebrow="Operación" [titulo]="t.titulo" [descripcion]="t.proposito" icono="billetera">
+        <ap-boton acciones variante="fantasma" icono="recarga" [cargando]="saldo.isLoading()" (pulsado)="saldo.reload()">{{ t.actualizar }}</ap-boton>
       </ap-cabecera-de-pagina>
       <div class="cuerpo">
         <section class="tarjeta" [attr.aria-label]="t.saldoDe">
@@ -54,7 +54,7 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
     </section>
   `,
   styles: `
-    .pantalla { padding: var(--s5); display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s5); min-width: 0; }
+    .pantalla { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s5); min-width: 0; }
     .cuerpo { display: grid; gap: var(--s5); }
     @media (min-width: 64rem) { .cuerpo { grid-template-columns: 2fr 1fr; align-items: start; } }
     .tarjeta { display: grid; gap: var(--s4); min-width: 0; padding: var(--s5); border: var(--borde-fino) solid var(--border); border-radius: var(--r-lg); background: var(--surface); box-shadow: var(--sombra-1); }

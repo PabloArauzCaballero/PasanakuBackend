@@ -14,6 +14,7 @@ import { textosCumplimiento } from '../textos'
 import type { Decision } from './decision-de-expediente'
 import { TarjetaDeExpediente } from './tarjeta-de-expediente'
 import { Exportador } from '../../../nucleo/exportador'
+import { nombreSegunCantidad } from '@aportaya/ui/listado/singular'
 
 const T = textosCumplimiento.verificaciones
 const CARAS = Object.values(CaraDelExpediente)
@@ -28,7 +29,7 @@ const EXPORTABLES: ColumnaExportable<ExpedienteEnRevision>[] = [
   { clave: 'documento', titulo: 'Documento', valor: (e) => e.documento ?? T.sinDocumento },
   { clave: 'vencimiento', titulo: 'Vencimiento del documento', valor: textoVencimiento },
   { clave: 'fotos', titulo: T.fotos, valor: textoFotos },
-  { clave: 'estado', titulo: 'Estado' },
+  { clave: 'estado', titulo: 'Estado', valor: (e) => T.estados[e.estado] ?? e.estado },
 ]
 
 /**
@@ -62,7 +63,7 @@ const EXPORTABLES: ColumnaExportable<ExpedienteEnRevision>[] = [
     </section>
   `,
   styles: `
-    .pantalla { padding: var(--s5) var(--s4); display: flex; flex-direction: column; gap: var(--s4); min-width: 0; }
+    .pantalla { display: flex; flex-direction: column; gap: var(--s4); min-width: 0; }
     .barra { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--s3); }
     .resumen { margin: 0; color: var(--text-2); font: var(--t-cuerpo-chico); }
     .cola { list-style: none; margin: 0 0 var(--s4); padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 26rem), 1fr)); gap: var(--s4); }
@@ -99,10 +100,10 @@ export class PantallaDeExpedientes {
     etiqueta: 'Estado',
     textoTodos: T.filtroPorDecidir,
     valor: this.estado() === POR_DECIDIR ? '' : this.estado(),
-    opciones: Object.values(ExpedienteEnRevisionEstadoEnum).map((e) => ({ valor: e, texto: e })),
+    opciones: Object.values(ExpedienteEnRevisionEstadoEnum).map((e) => ({ valor: e, texto: T.estados[e] ?? e })),
   }))
   protected readonly selectores = computed(() => [this.selectorDeEstado(), ...this.listado.selectores()])
-  protected readonly resumen = computed(() => (this.cola.hasValue() ? `${this.listado.total()} de ${this.recortados().length} expedientes` : ''))
+  protected readonly resumen = computed(() => (this.cola.hasValue() ? `${this.listado.total()} de ${this.recortados().length} ${nombreSegunCantidad(this.recortados().length, 'expedientes')}` : ''))
   /** Vacío es lo que queda DESPUÉS del recorte y de los filtros: con `POR_DECIDIR` la respuesta trae también los resueltos. */
   protected readonly vacio = (): boolean => this.listado.total() === 0
   protected readonly mensajeVacio = computed(() => (this.listado.hayCriterios() ? this.t.sinCoincidencias : this.t.sinPendientes))

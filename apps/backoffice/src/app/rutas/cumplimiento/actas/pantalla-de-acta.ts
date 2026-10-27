@@ -37,7 +37,7 @@ import { textosCumplimiento } from '../textos'
     </section>
   `,
   styles: `
-    .pantalla { padding: var(--s5); max-width: 40rem; display: flex; flex-direction: column; gap: var(--s4); }
+    .pantalla { max-width: 40rem; display: flex; flex-direction: column; gap: var(--s4); }
     .votos { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--s2); }
     .votos li { display: flex; align-items: center; gap: var(--s3); }
     .motivo { color: var(--text-3); font-size: .9em; }

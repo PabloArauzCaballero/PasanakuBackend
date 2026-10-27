@@ -36,7 +36,7 @@ import { guardarArchivo } from './guardar-archivo'
   imports: [ErrorDeEnvio, Alerta, Boton, CabeceraDePagina, GrupoRadio, Icono, SeccionDeExpediente],
   template: `
     <section class="pantalla">
-      <ap-cabecera-de-pagina eyebrow="Contabilidad · CU-106" [titulo]="t.titulo" [descripcion]="t.proposito" icono="balanza" />
+      <ap-cabecera-de-pagina eyebrow="Contabilidad" [titulo]="t.titulo" [descripcion]="t.proposito" icono="balanza" />
       <div class="tarjeta">
         <p class="periodo"><ap-icono nombre="calendario" tamano="s4" />Período: <strong>{{ nombre() }}</strong></p>
         <ap-alerta [tono]="provisorio() ? 'aviso' : 'info'">{{ provisorio() ? t.provisorio : t.definitivo }}</ap-alerta>
@@ -64,7 +64,7 @@ import { guardarArchivo } from './guardar-archivo'
     </section>
   `,
   styles: `
-    .pantalla { padding: var(--s5); display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s4); min-width: 0; }
+    .pantalla { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s4); min-width: 0; }
     .tarjeta { display: grid; gap: var(--s4); justify-items: start; width: 100%; max-width: 56rem; margin-inline: auto; padding: var(--s5); border: var(--borde-fino) solid var(--border); border-radius: var(--r-lg); background: var(--surface); box-shadow: var(--sombra-1); }
     .tarjeta > ap-alerta, .tarjeta > ap-seccion-de-expediente, .tarjeta > ap-grupo-radio { justify-self: stretch; }
     h2, .periodo, .listo { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s2); margin: 0; }

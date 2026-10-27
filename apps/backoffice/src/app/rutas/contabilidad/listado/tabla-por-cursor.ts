@@ -9,6 +9,7 @@ import type { ColumnaExportable } from '@aportaya/ui/exportar-listado/exportar'
 import { Paginacion } from '@aportaya/ui/paginacion/paginacion'
 import { TablaDeDatos, type Columna } from '@aportaya/ui/tabla-de-datos/tabla-de-datos'
 import type { ListadoPorCursor } from './listado-por-cursor'
+import { nombreSegunCantidad } from '@aportaya/ui/listado/singular'
 
 const CLAVE_ACCIONES = '__acciones'
 
@@ -50,7 +51,7 @@ const CLAVE_ACCIONES = '__acciones'
             <ap-estado-vacio [titulo]="textoVacio()" [explicacion]="explicacionVacio()" />
           }
         } @else {
-          <ap-tabla-de-datos [titulo]="titulo()" [columnas]="columnasVisibles()" [filas]="listado().visibles()" [identidad]="identidad()" [plantillaDeCelda]="combinada" />
+          <ap-tabla-de-datos [titulo]="titulo()" [tituloVisible]="false" [columnas]="columnasVisibles()" [filas]="listado().visibles()" [identidad]="identidad()" [plantillaDeCelda]="combinada" />
         }
         @if (listado().filas().length > 0 || listado().pagina() > 1) {
           <ap-paginacion [etiqueta]="'Paginación de ' + titulo()" [pagina]="listado().pagina()" (paginaChange)="listado().irAPagina($event)" [totalDeFilas]="listado().total()" [porPagina]="listado().porPagina()" (porPaginaChange)="listado().cambiarPorPagina($event)" [opcionesPorPagina]="listado().opcionesPorPagina" [conRegistros]="false" />
@@ -89,7 +90,8 @@ export class TablaPorCursor<T extends object> {
     if (l.carga().tipo !== 'lista') return ''
     const n = l.visibles().length
     const enPagina = l.filas().length
-    return l.local.hayCriterios() ? `${n} de ${enPagina} ${this.nombreDeRegistros()} en esta página` : `${enPagina} ${this.nombreDeRegistros()} en la página ${l.pagina()}`
+    const nombre = (cuantos: number) => nombreSegunCantidad(cuantos, this.nombreDeRegistros())
+    return l.local.hayCriterios() ? `${n} de ${enPagina} ${nombre(enPagina)} en esta página` : `${enPagina} ${nombre(enPagina)} en la página ${l.pagina()}`
   })
   readonly mensajeDeError = computed(() => {
     const c = this.listado().carga()

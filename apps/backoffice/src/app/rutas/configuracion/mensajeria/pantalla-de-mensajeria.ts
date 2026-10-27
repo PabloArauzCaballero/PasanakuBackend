@@ -24,7 +24,7 @@ const PESTANAS: Pestana[] = [
   imports: [Alerta, CabeceraDePagina, Pestanas, TablaDeEnvios, TablaDePlantillas],
   template: `
     <section class="pantalla">
-      <ap-cabecera-de-pagina eyebrow="Configuración · CU-80 y CU-83" [titulo]="t.titulo" [descripcion]="t.proposito" icono="mensaje" />
+      <ap-cabecera-de-pagina eyebrow="Configuración" [titulo]="t.titulo" [descripcion]="t.proposito" icono="mensaje" />
       <ap-alerta tono="info">{{ comun.soloLectura }} No se muestran destinatarios ni contenido.</ap-alerta>
       <ap-pestanas etiqueta="Mensajería" [pestanas]="PESTANAS" [(elegida)]="pestana" />
       <div role="tabpanel" [id]="'panel-' + pestana()" [attr.aria-labelledby]="'pestana-' + pestana()">
@@ -33,7 +33,7 @@ const PESTANAS: Pestana[] = [
     </section>
   `,
   styles: `
-    .pantalla { padding: var(--s5); display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s4); min-width: 0; }
+    .pantalla { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s4); min-width: 0; }
     [role='tabpanel'] { min-width: 0; }
   `,
 })

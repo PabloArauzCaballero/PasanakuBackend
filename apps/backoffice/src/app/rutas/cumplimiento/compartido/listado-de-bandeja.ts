@@ -10,6 +10,7 @@ import { Paginacion } from '@aportaya/ui/paginacion/paginacion'
 import { TablaDeDatos, type Columna } from '@aportaya/ui/tabla-de-datos/tabla-de-datos'
 import { Exportador } from '../../../nucleo/exportador'
 import type { Bandeja } from './bandeja-por-cursor'
+import { nombreSegunCantidad } from '@aportaya/ui/listado/singular'
 
 const CLAVE_ACCIONES = '__acciones'
 
@@ -59,7 +60,7 @@ const CLAVE_ACCIONES = '__acciones'
             <ap-estado-vacio [titulo]="textoVacio()" [explicacion]="explicacionVacio()" />
           }
         } @else {
-          <ap-tabla-de-datos [titulo]="titulo()" [columnas]="columnasVisibles()" [filas]="b.filtradas()" [identidad]="identidad()" [seleccionable]="seleccionable()" [(elegidas)]="elegidas" [plantillaDeCelda]="combinada" />
+          <ap-tabla-de-datos [titulo]="titulo()" [tituloVisible]="false" [columnas]="columnasVisibles()" [filas]="b.filtradas()" [identidad]="identidad()" [seleccionable]="seleccionable()" [(elegidas)]="elegidas" [plantillaDeCelda]="combinada" />
         }
         @if (b.filas().length > 0 || b.pagina() > 1) {
           <ap-paginacion [etiqueta]="'Paginación de ' + titulo()" [pagina]="b.pagina()" (paginaChange)="b.irAPagina($event)" [totalDeFilas]="b.total()" [porPagina]="b.porPagina()" (porPaginaChange)="b.cambiarPorPagina($event)" [opcionesPorPagina]="b.opcionesPorPagina" [conRegistros]="false" />
@@ -111,7 +112,8 @@ export class ListadoDeBandeja<T extends object> {
     const b = this.bandeja()
     if (b.carga().tipo !== 'lista') return ''
     const n = b.filtradas().length
-    const base = b.busqueda() ? `${n} de ${b.filas().length} ${this.nombreDeRegistros()}` : `${n} ${this.nombreDeRegistros()}`
+    const nombre = (cuantos: number) => nombreSegunCantidad(cuantos, this.nombreDeRegistros())
+    const base = b.busqueda() ? `${n} de ${b.filas().length} ${nombre(b.filas().length)}` : `${n} ${nombre(n)}`
     return `${base} en la página ${b.pagina()}${b.hayMas() ? ' · hay más' : ''}`
   })
 

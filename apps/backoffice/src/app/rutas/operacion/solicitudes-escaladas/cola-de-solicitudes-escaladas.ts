@@ -27,7 +27,7 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
   imports: [Alerta, Boton, CabeceraDePagina, Campo, EstadoVacio],
   template: `
     <section class="pantalla">
-      <ap-cabecera-de-pagina eyebrow="Operación · D-15" [titulo]="t.titulo" [descripcion]="t.proposito" icono="personaMas" />
+      <ap-cabecera-de-pagina eyebrow="Operación" [titulo]="t.titulo" [descripcion]="t.proposito" icono="personaMas" />
       <ap-estado-vacio icono="enlace" [titulo]="t.sinContrato" [explicacion]="t.sinContratoExplicacion" />
       <section class="tarjeta" [attr.aria-label]="t.abrirTitulo">
         <h2>{{ t.abrirTitulo }}</h2>
@@ -43,7 +43,7 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
     </section>
   `,
   styles: `
-    .pantalla { padding: var(--s5); display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s5); min-width: 0; }
+    .pantalla { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s5); min-width: 0; }
     .tarjeta { display: grid; gap: var(--s4); padding: var(--s5); border: var(--borde-fino) solid var(--border); border-radius: var(--r-lg); background: var(--surface); box-shadow: var(--sombra-1); }
     h2 { margin: 0; font: var(--t-titulo-3); color: var(--text); }
     form { display: grid; gap: var(--s3); }

@@ -30,3 +30,15 @@ body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--
 h1, h2, h3 { font-family: var(--font-d); letter-spacing: -0.02em; line-height: 1.15; margin: 0; }
 :focus-visible { outline: var(--borde-foco) solid var(--g300); outline-offset: var(--borde-desfase); }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+
+/*
+ * Tabla más ancha que su marco (ap-tabla-de-datos): una sombra en el borde dice que hay columnas del otro lado. Los
+ * fondos «local» la tapan al llegar al extremo; los otros la dejan fija. Va acá y no en el CSS del componente para no
+ * pasar su presupuesto de 4 kB (2026-10-27).
+ */
+ap-tabla-de-datos .desplazable {
+  background: linear-gradient(90deg, var(--surface) 30%, transparent) local, linear-gradient(270deg, var(--surface) 30%, transparent) 100% 0 local,
+    linear-gradient(90deg, var(--border), transparent), linear-gradient(270deg, var(--border), transparent) 100% 0;
+  background-size: var(--s6) 100%, var(--s6) 100%, var(--s3) 100%, var(--s3) 100%; background-repeat: no-repeat;
+}
+@media (max-width: 40em) { ap-tabla-de-datos .desplazable { background: none; } }

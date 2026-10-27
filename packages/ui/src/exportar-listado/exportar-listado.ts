@@ -4,8 +4,9 @@ import { aCsv, aJson, descargar, nombreDeArchivo, type ColumnaExportable } from 
 
 /**
  * «Descargar CSV» y «Descargar JSON» de las filas **filtradas** de un listado (todas las páginas, no solo la
- * visible). Con cero filas igual baja el archivo con el encabezado: el vacío también es una respuesta. El
- * botón dice cuántas filas van a salir, para que nadie descargue «lo que ve» creyendo que es todo.
+ * visible). Con cero filas igual baja el archivo con el encabezado: el vacío también es una respuesta. Cuántas filas
+ * van a salir lo dicen el `title` de cada botón y un texto para lector de pantalla: a la vista ya está el resumen del
+ * listado, y un tercer contador al lado de los botones era ruido (2026-10-27).
  */
 @Component({
   selector: 'ap-exportar-listado',
@@ -13,19 +14,19 @@ import { aCsv, aJson, descargar, nombreDeArchivo, type ColumnaExportable } from 
   imports: [Icono],
   host: { role: 'group', '[attr.aria-label]': '"Descargar " + nombre()' },
   template: `
-    <button type="button" [disabled]="deshabilitado()" (click)="bajar('csv')"><ap-icono nombre="archivoCsv" tamano="s4" /><span>Descargar CSV</span></button>
+    <button type="button" [disabled]="deshabilitado()" [title]="'Descargar ' + cuenta() + ' en CSV'" (click)="bajar('csv')"><ap-icono nombre="descargar" tamano="s4" /><span>Descargar CSV</span></button>
     @if (conJson()) {
-      <button type="button" [disabled]="deshabilitado()" (click)="bajar('json')"><ap-icono nombre="archivoJson" tamano="s4" /><span>Descargar JSON</span></button>
+      <button type="button" [disabled]="deshabilitado()" [title]="'Descargar ' + cuenta() + ' en JSON'" (click)="bajar('json')"><ap-icono nombre="descargar" tamano="s4" /><span>Descargar JSON</span></button>
     }
-    <span class="cuenta" aria-live="polite">{{ filas().length }} {{ filas().length === 1 ? 'fila' : 'filas' }}</span>
+    <span class="cuenta" aria-live="polite">{{ cuenta() }}</span>
   `,
   styles: `
-    :host { display: inline-flex; flex-wrap: wrap; align-items: center; gap: var(--s2); }
-    button { display: inline-flex; align-items: center; gap: var(--s1); min-height: var(--area-tactil); padding: 0 var(--s3); border: var(--borde-fino) solid var(--border); border-radius: var(--r-md); background: var(--surface); color: var(--text); font: var(--t-cuerpo-chico); font-weight: 600; cursor: pointer; transition: background-color var(--mov-micro) ease-out; }
-    button:hover:not(:disabled) { background: var(--surface-2); }
+    :host { display: inline-flex; flex-wrap: wrap; align-items: center; gap: var(--s1); }
+    button { display: inline-flex; align-items: center; gap: var(--s2); min-height: var(--area-tactil); padding: 0 var(--s3); border: 0; border-radius: var(--r-md); background: transparent; color: var(--text-2); font: var(--t-cuerpo-chico); font-weight: 500; cursor: pointer; transition: background-color var(--mov-micro) ease-out, color var(--mov-micro) ease-out; }
+    button:hover:not(:disabled) { background: var(--surface-2); color: var(--text); }
     button:disabled { opacity: .5; cursor: not-allowed; }
     button:focus-visible { outline: var(--borde-foco) solid var(--g300); outline-offset: var(--borde-desfase); }
-    .cuenta { color: var(--text-3); font: var(--t-cuerpo-chico); }
+    .cuenta { position: absolute; width: var(--borde-fino); height: var(--borde-fino); overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
   `,
 })
 export class ExportarListado<T> {
@@ -38,6 +39,7 @@ export class ExportarListado<T> {
   readonly deshabilitado = input(false)
   readonly descargado = output<{ formato: 'csv' | 'json'; filas: number }>()
   private readonly base = computed(() => this.nombre())
+  protected readonly cuenta = computed(() => `${this.filas().length} ${this.filas().length === 1 ? 'fila' : 'filas'}`)
 
   bajar(formato: 'csv' | 'json'): void {
     const contenido = formato === 'csv' ? aCsv(this.columnas(), this.filas()) : aJson(this.columnas(), this.filas())

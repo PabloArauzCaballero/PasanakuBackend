@@ -31,7 +31,7 @@ export type { Columna, Densidad, EstadoColeccion, Orden } from './tabla-de-datos
   imports: [BotonCopiar, Casilla, Icono, NgTemplateOutlet, Girador, Esqueleto],
   host: { '[class.densidad-compacta]': "densidad() === 'compacta'" },
   template: `
-    <div class="marco" [class.con-cabecera]="cabecera()">
+    <div class="marco" [class.con-cabecera]="cabecera()" [class.sin-titulo]="!tituloVisible()">
       @if (cabecera()) {
         <div class="cabecera-tabla">
           <span class="registros">{{ textoRegistros() }}</span>
@@ -142,6 +142,8 @@ export class TablaDeDatos<T extends object> {
   /** El total del servidor cuando la página es una parte; sin él, cuenta las filas visibles. */
   readonly totalDeRegistros = input<number>()
   readonly altoMaximo = input(false)
+  /** `false` deja el título solo para el lector de pantalla: dentro de un listado ya lo dice la cabecera de la pantalla. */
+  readonly tituloVisible = input(true)
   /** La tabla como texto tabulado (encabezados + valores crudos), para el botón de copiar. */
   readonly comoTexto = (): string =>
     [this.columnas().map((c) => c.titulo), ...this.filasVisibles().map((f) => this.columnas().map((c) => String(f[c.clave] ?? '')))].map((l) => l.join('\t')).join('\n')

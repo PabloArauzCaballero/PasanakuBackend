@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core'
+import { ChangeDetectionStrategy, Component, ElementRef, afterRenderEffect, computed, inject, signal, viewChild } from '@angular/core'
 import { RouterLink } from '@angular/router'
 import { Icono } from '@aportaya/ui/icono/icono'
 import { entradaDe, pantallaActiva, pantallasVisibles } from '../nucleo/navegacion'
@@ -20,7 +20,7 @@ import { UrlActual } from './url-actual'
   template: `
     @if (seccion(); as s) {
       @if (pantallas().length) {
-        <nav [attr.aria-label]="'Pantallas de ' + s.texto">
+        <nav #carril [attr.aria-label]="'Pantallas de ' + s.texto" [class.mas-izq]="masIzq()" [class.mas-der]="masDer()" (scroll)="medir(carril)">
           <ul>
             @for (p of pantallas(); track p.texto) {
               <li>
@@ -49,12 +49,16 @@ import { UrlActual } from './url-actual'
   `,
   styles: `
     :host { display: grid; gap: var(--s2); min-width: 0; }
-    nav { border-bottom: var(--borde-fino) solid var(--border); overflow-x: auto; scrollbar-width: none; }
+    nav { border-bottom: var(--borde-fino) solid var(--border); overflow-x: auto; scrollbar-width: none; scroll-behavior: smooth; }
+    /* Si hay pestañas fuera de la vista, el borde se desvanece de ese lado: se ve que el carril sigue (antes cortaba «Adm…» en seco). */
+    nav.mas-der { mask-image: linear-gradient(to right, var(--n900) calc(100% - var(--s7)), transparent); }
+    nav.mas-izq { mask-image: linear-gradient(to left, var(--n900) calc(100% - var(--s7)), transparent); }
+    nav.mas-izq.mas-der { mask-image: linear-gradient(to right, transparent, var(--n900) var(--s7), var(--n900) calc(100% - var(--s7)), transparent); }
     nav::-webkit-scrollbar { display: none; }
     ul { list-style: none; display: flex; gap: var(--s1); margin: 0; padding: 0; }
     a {
       position: relative; display: inline-flex; align-items: center; gap: var(--s2); min-height: var(--area-tactil); padding: 0 var(--s3);
-      color: var(--text-2); font: var(--t-etiqueta); letter-spacing: var(--t-etiqueta-track); text-decoration: none; white-space: nowrap;
+      color: var(--text-2); font: var(--t-cuerpo-chico); font-weight: 500; text-decoration: none; white-space: nowrap;
       border-radius: var(--r-sm) var(--r-sm) 0 0; transition: color var(--mov-micro) ease-out, background-color var(--mov-micro) ease-out;
     }
     a:hover { color: var(--text); background: var(--surface-2); }
@@ -93,4 +97,23 @@ export class PestanasDeSeccion {
     return a ? { hoja: a.hoja, pantalla: this.pantallas().find((p) => p.texto === a.pantalla.texto) ?? a.pantalla } : undefined
   })
   protected readonly subpantallas = computed(() => this.activa()?.pantalla.grupo ?? [])
+  protected readonly masIzq = signal(false)
+  protected readonly masDer = signal(false)
+  private readonly carril = viewChild<ElementRef<HTMLElement>>('carril')
+
+  constructor() {
+    // Después de pintar: la pestaña activa queda a la vista aunque esté al final del carril, y se mide si sobra carril.
+    afterRenderEffect(() => {
+      this.activa()
+      const nav = this.carril()?.nativeElement
+      if (!nav) return
+      nav.querySelector<HTMLElement>('a.activa')?.scrollIntoView?.({ block: 'nearest', inline: 'nearest' })
+      this.medir(nav)
+    })
+  }
+
+  protected medir(nav: HTMLElement): void {
+    this.masIzq.set(nav.scrollLeft > 1)
+    this.masDer.set(nav.scrollLeft + nav.clientWidth < nav.scrollWidth - 1)
+  }
 }

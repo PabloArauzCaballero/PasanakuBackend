@@ -24,7 +24,7 @@ import { ExplicadorDeVista } from '../../../nucleo/explicador-de-vista'
     </section>
   `,
   styles: `
-    .pantalla { padding: var(--s5) var(--s4); display: flex; flex-direction: column; gap: var(--s4); min-width: 0; }
+    .pantalla { display: flex; flex-direction: column; gap: var(--s4); min-width: 0; }
     .tarjeta { display: grid; justify-items: center; gap: var(--s3); padding: var(--s5); border: var(--borde-fino) solid var(--border); border-radius: var(--r-lg); background: var(--surface); box-shadow: var(--sombra-1); }
     a { display: inline-flex; align-items: center; gap: var(--s1); min-height: var(--area-tactil); color: var(--brand-texto); font-weight: 600; text-decoration: none; }
     a:focus-visible { outline: var(--borde-foco) solid var(--g300); outline-offset: var(--borde-desfase); }

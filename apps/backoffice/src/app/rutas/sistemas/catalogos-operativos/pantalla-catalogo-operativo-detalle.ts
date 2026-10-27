@@ -35,7 +35,7 @@ const estadoDe = (e: ElementoCatalogoOperativo) => (e.activo ? 'Activo' : 'Inact
       <ap-estado-de-pantalla [recurso]="recursoCatalogo" [vacio]="esVacioCatalogo" [mensajeVacio]="t.vacio" [etiquetaDeCarga]="t.cargando" (reintentar)="recursoCatalogo.reload()">
         @if (recursoCatalogo.hasValue() && recursoCatalogo.value(); as c) {
           <ap-cabecera-de-pagina [eyebrow]="t.detalleTitulo" [titulo]="c.nombre" [descripcion]="c.descripcion" icono="lista">
-            <ap-boton acciones icono="recarga" (pulsado)="recargar()">Actualizar</ap-boton>
+            <ap-boton acciones variante="fantasma" icono="recarga" (pulsado)="recargar()">Actualizar</ap-boton>
           </ap-cabecera-de-pagina>
           <article class="ficha">
             <ap-chip-estado [tono]="c.estado === 'VIGENTE' ? 'ok' : c.estado === 'EN_REVISION' ? 'aviso' : 'neutro'">{{ c.estado }}</ap-chip-estado>

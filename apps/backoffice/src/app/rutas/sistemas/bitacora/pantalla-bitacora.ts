@@ -20,6 +20,7 @@ import { CajonDetalleEvento } from './cajon-detalle-evento'
 import { ACCIONES, COLUMNAS, ENTIDADES, EXPORTABLES, acortar, tonoAccion, type FilaBitacora } from './columnas-de-bitacora'
 import { crearPaginadorPorCursor } from './paginador-por-cursor'
 import { Exportador } from '../../../nucleo/exportador'
+import { Fecha } from '@aportaya/ui/fecha/fecha'
 
 /**
  * Registro inmutable del sistema (`comun.bitacora_evento`, encadenado por hash SHA-256). Es **append-only**: la única
@@ -33,13 +34,13 @@ import { Exportador } from '../../../nucleo/exportador'
 @Component({
   selector: 'ap-pantalla-bitacora',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [AccionesDeFila, BarraDeFiltros, Boton, CabeceraDePagina, CajonDetalleEvento, ChipEstado, CifrasDeSistemas, Esqueleto, EstadoDeError, EstadoVacio, ExportarListado, Paginacion, TablaDeDatos],
+  imports: [AccionesDeFila, BarraDeFiltros, Boton, CabeceraDePagina, CajonDetalleEvento, ChipEstado, CifrasDeSistemas, Esqueleto, EstadoDeError, EstadoVacio, ExportarListado, Fecha, Paginacion, TablaDeDatos],
   template: `
     <section class="pantalla">
       <ap-cabecera-de-pagina eyebrow="Sistemas · Auditoría" [titulo]="t.titulo" [descripcion]="t.proposito" icono="libro">
-        <ap-boton acciones icono="recarga" [deshabilitado]="recurso.isLoading()" (pulsado)="recurso.reload()">Actualizar</ap-boton>
+        <ap-boton acciones variante="fantasma" icono="recarga" [deshabilitado]="recurso.isLoading()" (pulsado)="recurso.reload()">Actualizar</ap-boton>
       </ap-cabecera-de-pagina>
-      <ap-cifras-de-sistemas etiqueta="Resumen de la página del registro" [cifras]="cifras()" />
+      <ap-cifras-de-sistemas etiqueta="Resumen de la página del registro" [cifras]="cifras()" [carga]="carga()" />
       <ap-barra-de-filtros etiqueta="Filtros del registro del sistema" [etiquetaDeBusqueda]="t.buscar" ayudaDeBusqueda="Busca en la página cargada por entidad, acción, rol del actor, origen, motivo o hash. Entidad y acción filtran en el servidor." [busqueda]="enPagina.busqueda()" [selectores]="selectores()" textoLimpiar="Limpiar filtros" (busquedaChange)="enPagina.buscar($event)" (selectorChange)="filtrar($event.nombre, $event.valor)" (limpiar)="limpiar()" />
       <div class="barra">
         <p class="resumen" aria-live="polite">{{ resumen() }}</p>
@@ -56,13 +57,14 @@ import { Exportador } from '../../../nucleo/exportador'
               <ap-estado-vacio [titulo]="t.vacio" explicacion="Cada cambio con efecto en el sistema deja un evento acá, encadenado por hash." />
             }
           } @else {
-            <ap-tabla-de-datos [titulo]="t.titulo" [columnas]="columnas" [filas]="enPagina.filtradas()" [identidad]="identidad" [orden]="enPagina.orden()" (ordenado)="enPagina.orden.set($event)" [plantillaDeCelda]="celda" />
+            <ap-tabla-de-datos [titulo]="t.titulo" [tituloVisible]="false" [columnas]="columnas" [filas]="enPagina.filtradas()" [identidad]="identidad" [orden]="enPagina.orden()" (ordenado)="enPagina.orden.set($event)" [plantillaDeCelda]="celda" />
           }
           <ap-paginacion etiqueta="Paginación del registro del sistema" [pagina]="paginador.pagina()" (paginaChange)="paginador.irAPagina($event)" [totalDeFilas]="paginador.totalDeFilas()" [conRegistros]="paginador.conTotal()" [porPagina]="paginador.porPagina()" (porPaginaChange)="paginador.cambiarPorPagina($event)" [opcionesPorPagina]="paginador.opcionesPorPagina" nombreDeRegistros="eventos (aprox.)" />
         }
       }
       <ng-template #celda let-e let-c="columna">
         @switch (c.clave) {
+          @case ('fechaHora') { <ap-fecha [iso]="e.fechaHora" /> }
           @case ('accion') { <ap-chip-estado [tono]="tono(e.accion)">{{ e.accion }}</ap-chip-estado> }
           @case ('hashRegistro') { <code class="hash" [attr.title]="e.hashRegistro">{{ corto(e.hashRegistro) }}</code> }
           @case ('actor') { {{ e.actorRol || corto(e.actorUsuarioId) || '—' }} }

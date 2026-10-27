@@ -1,4 +1,4 @@
-/** Los textos del Punto de Reclamo (CU-52) en el backoffice, en voz de marca. */
+/** Los textos del Punto de Reclamo en el backoffice, en voz de marca. */
 export const textosReclamos = {
   titulo: 'Reclamos',
   proposito: 'Atender cada reclamo dentro de su plazo. El plazo se calculó y se guardó al ingresar: acá no se recalcula.',
@@ -32,11 +32,11 @@ export const textosReclamos = {
     respuestaEtiqueta: 'Respuesta para la persona',
     respuestaRequerida: 'Escribí la respuesta: es lo que la persona va a leer.',
     respuestaLarga: 'La respuesta admite hasta 4000 caracteres.',
-    devolucionEtiqueta: 'Identificador de la devolución (CU-33)',
+    devolucionEtiqueta: 'Identificador de la devolución',
     devolucionAyuda: 'Un reclamo favorable con monto se cierra con la devolución ya ejecutada por tarifas.',
     devolucionRequerida: 'Un reclamo favorable con monto necesita el identificador de la devolución ejecutada.',
     devolucionFormato: 'Ese identificador no tiene el formato de una devolución.',
-    faltaReparacion: 'El servidor no encontró la reparación: registrá la devolución (CU-33) y pegá su identificador.',
+    faltaReparacion: 'El servidor no encontró la reparación: registrá la devolución y pegá su identificador.',
     yaCerrado: 'Este reclamo ya tiene otra respuesta registrada. Actualizá la bandeja.',
     sinConfirmar: 'No pudimos confirmar si la respuesta quedó registrada. Lo escrito se conserva: podés reintentar sin duplicarla.',
     hecho: (codigo: string) => `Respuesta registrada: el reclamo ${codigo} quedó cerrado.`,

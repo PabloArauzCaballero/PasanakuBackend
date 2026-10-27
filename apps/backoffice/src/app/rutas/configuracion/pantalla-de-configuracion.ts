@@ -35,7 +35,7 @@ import { textosConfiguracion } from './textos'
     </section>
   `,
   styles: `
-    .pantalla { padding: var(--s5); display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s4); min-width: 0; }
+    .pantalla { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s4); min-width: 0; }
     .vacio { margin: 0; color: var(--text-2); }
     .accesos { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 18rem), 1fr)); gap: var(--s4); }
     a { display: flex; box-sizing: border-box; height: 100%; align-items: center; gap: var(--s3); min-height: var(--area-tactil); padding: var(--s4); border: var(--borde-fino) solid var(--border); border-radius: var(--r-lg); background: var(--surface); box-shadow: var(--sombra-1); text-decoration: none; transition: border-color var(--mov-micro) ease-out, box-shadow var(--mov-micro) ease-out; }

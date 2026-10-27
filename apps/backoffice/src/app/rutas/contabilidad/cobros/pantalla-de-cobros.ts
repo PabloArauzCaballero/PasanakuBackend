@@ -54,7 +54,7 @@ const EXPORTABLES = [
   imports: [AccionesDeFila, Alerta, CabeceraDePagina, ChipEstado, Fecha, Icono, Monto, TablaPorCursor, TarjetaKPI, FichaDeCobro],
   template: `
     <section class="pantalla">
-      <ap-cabecera-de-pagina eyebrow="Contabilidad · CU-104" [titulo]="t.titulo" [descripcion]="t.proposito" icono="moneda" />
+      <ap-cabecera-de-pagina eyebrow="Contabilidad" [titulo]="t.titulo" [descripcion]="t.proposito" icono="moneda" />
       <div class="kpis">
         <ap-tarjeta-kpi etiqueta="Cuentas en la página" [valor]="'' + listado.filas().length" icono="lista" />
         <ap-tarjeta-kpi etiqueta="Por cobrar en la página" [valor]="'' + porCobrar()" icono="reloj" tono="aviso" pista="Pendientes o cobradas en parte" />
@@ -92,7 +92,7 @@ const EXPORTABLES = [
   styles: `
     /* Los textos largos se parten en la celda: así la tabla entra en su marco y la columna fija de acciones no tapa un importe. */
     .texto { display: inline-block; min-width: 8rem; white-space: normal; overflow-wrap: anywhere; }
-    .pantalla { padding: var(--s5); display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s4); min-width: 0; }
+    .pantalla { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s4); min-width: 0; }
     .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr)); gap: var(--s3); }
     .motivo { display: block; max-width: 13rem; color: var(--text-2); white-space: normal; font: var(--t-cuerpo-chico); }
   `,

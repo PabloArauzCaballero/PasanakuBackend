@@ -23,9 +23,9 @@ const ESTADO: Record<Incidente['estado'], string> = { abierto: 'Abierto', cerrad
   template: `
     <section class="pantalla">
       <ap-cabecera-de-pagina eyebrow="Sistemas" [titulo]="t.titulo" [descripcion]="t.proposito" icono="advertencia">
-        <ap-boton acciones icono="recarga" [deshabilitado]="incidentes.isLoading()" (pulsado)="incidentes.reload()">Actualizar</ap-boton>
+        <ap-boton acciones variante="fantasma" icono="recarga" [deshabilitado]="incidentes.isLoading()" (pulsado)="incidentes.reload()">Actualizar</ap-boton>
       </ap-cabecera-de-pagina>
-      <ap-cifras-de-sistemas etiqueta="Resumen de incidentes" [cifras]="cifras()" />
+      <ap-cifras-de-sistemas etiqueta="Resumen de incidentes" [cifras]="cifras()" [carga]="carga()" />
       <ap-listado [titulo]="t.titulo" [columnas]="columnas" [listado]="listado" [carga]="carga()" ayudaDeBusqueda="Busca por título, severidad, estado o fecha de apertura." [exportables]="exportables" nombreDeRegistros="incidentes" [textoVacio]="t.vacio" explicacionVacio="Cuando se declare un incidente, aparece acá con su severidad." (reintentar)="incidentes.reload()">
         <ng-template #celda let-f let-c="columna">
           @switch (c.clave) {

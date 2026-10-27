@@ -30,7 +30,7 @@ const CLAVE_ACCIONES = '__acciones'
       <div class="barra">
         <p class="resumen" aria-live="polite">{{ resumen() }}</p>
         <div class="acciones"><ng-content select="[accionesDeListado]" />
-          <ap-exportar-listado [nombre]="titulo()" [columnas]="exportables()" [filas]="fuente().local.filtradas()" [deshabilitado]="fuente().estado() !== 'lista'" />
+          @if (fuente().estado() !== 'error') { <ap-exportar-listado [nombre]="titulo()" [columnas]="exportables()" [filas]="fuente().local.filtradas()" [deshabilitado]="fuente().estado() !== 'lista'" /> }
         </div>
       </div>
       <ng-template #combinada let-f let-c="columna">
@@ -50,7 +50,7 @@ const CLAVE_ACCIONES = '__acciones'
               <ap-estado-vacio titulo="Esta página ya no trae registros." explicacion="Volvé a la página anterior." />
             }
           } @else {
-            <ap-tabla-de-datos [titulo]="titulo()" [columnas]="columnasVisibles()" [filas]="fuente().local.visibles()" [identidad]="identidad()" [plantillaDeCelda]="combinada" />
+            <ap-tabla-de-datos [titulo]="titulo()" [tituloVisible]="false" [columnas]="columnasVisibles()" [filas]="fuente().local.visibles()" [identidad]="identidad()" [plantillaDeCelda]="combinada" />
           }
         }
       }
@@ -62,6 +62,7 @@ const CLAVE_ACCIONES = '__acciones'
   styles: `
     :host { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s4); min-width: 0; }
     .barra { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--s3); }
+    .barra:has(.resumen:empty):not(:has(button)) { display: none; }
     .resumen { margin: 0; color: var(--text-2); font: var(--t-cuerpo-chico); }
     .acciones { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s2); }
   `,

@@ -59,7 +59,9 @@ const CLAVE = 'ap-menu:plegados'
     ul[hidden] { display: none; }
     a { display: flex; align-items: center; gap: var(--s3); min-height: var(--area-tactil); padding: var(--s2) var(--s3); border-radius: var(--r-md); font: var(--t-cuerpo); color: color-mix(in srgb, var(--white) 78%, transparent); text-decoration: none; transition: background-color var(--mov-micro) ease-out, color var(--mov-micro) ease-out; }
     a:hover { background: color-mix(in srgb, var(--white) 8%, transparent); color: var(--white); }
-    a.activo { background: color-mix(in srgb, var(--white) 12%, transparent); color: var(--white); font-weight: 600; box-shadow: inset 0 0 0 var(--borde-fino) color-mix(in srgb, var(--white) 10%, transparent); }
+    /* La activa: superficie apenas más clara y una barra verde a la izquierda, no solo un color (95.4.6). */
+    a.activo { background: color-mix(in srgb, var(--white) 9%, transparent); color: var(--white); font-weight: 600; box-shadow: inset var(--borde-foco) 0 0 0 var(--g300); }
+    a.activo ap-icono-de-seccion { color: var(--g300); }
     a:focus-visible { outline: var(--borde-foco) solid var(--g300); outline-offset: var(--borde-desfase); }
   `,
 })
