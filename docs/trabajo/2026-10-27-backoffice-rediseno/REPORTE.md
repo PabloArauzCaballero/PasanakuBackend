@@ -1,6 +1,6 @@
 # Reporte — Backoffice: rediseño de la anatomía compartida y pasada pantalla por pantalla
 
-> **AVANCE: 26 / 28 — 92,9 %.** Desplegado en TEST el rediseño, la salud real de Servicios y el estado neutro «sin fuente» (bundle verificado). H5 (errores sin rojo, botones con un solo color de acción, menú «Más» en Usuarios internos) queda en verde local y falta verificarlo en vivo (H5.M7). Sigue abierto: la columna fija de acciones del Catálogo de datos (H2.M3). En TEST el servicio ERP responde 500 a todo: es del host, no del front.
+> **AVANCE: 27 / 28 — 96,4 %.** En TEST (bundle `main-TYZJDBS4.js`, 18:05 UTC) están el rediseño, la salud real de Servicios, el estado neutro «sin fuente», los errores sin rojo, los botones con un solo color de acción y el menú «Más» de Usuarios internos. Sigue abierto: la columna fija de acciones del Catálogo de datos (H2.M3). En TEST el servicio ERP responde 500 a todo: es del host, no del front.
 
 - Fecha: 2026-10-27 · Plan: [PLAN.md](./PLAN.md) · Doble revisión: [evidencia/doble-revision.md](./evidencia/doble-revision.md)
 - Ramas: PasanakuFrontend `claude/admiring-fermi-mdayfj` (`add44f26`, `40f66da1`) · PasanakuBackend `claude/admiring-fermi-mdayfj` (`071092e5`), PR [PabloArauzCaballero/PasanakuBackend#197](https://github.com/PabloArauzCaballero/PasanakuBackend/pull/197) a `dev`.
@@ -37,13 +37,12 @@
   neutros solo en el backoffice; ícono en todo `ap-boton`; Usuarios internos con Ver + «Más»; «Actualizar» oculto sin fuente;
   «Abrir caso» sin «con 0 alertas»; sin códigos CU en la descripción de Admisiones.
 - Evidencia: `evidencia/h5/` (error 503 forzado claro/oscuro, menú «Más» claro/oscuro, botones). Salidas abajo.
-- Falta: H5.M7, ver el bundle nuevo en vivo.
+- En vivo: `main-TYZJDBS4.js` contiene «Más acciones para», «Este servicio no está disponible» y la regla neutra de `ap-boton.v-secundario`.
 
 ## Pendiente
 
 | ID | Estado | Qué lo destraba |
 |---|---|---|
-| H5.M7 | TODO | Merge a `test` y verificar el bundle en vivo |
 | ERP en TEST | Fuera de este repo de front | `/api/v1/erp/**` responde 500 sin sesión: el contenedor `erp` no contesta en el host. Lo destraba quien opera el VPS (`docker ps`, log de `erp`) |
 
 ## Evidencia
