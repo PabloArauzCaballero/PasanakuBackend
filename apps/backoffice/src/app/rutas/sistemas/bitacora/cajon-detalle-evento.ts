@@ -43,7 +43,7 @@ import { formatearFecha } from '@aportaya/ui/fecha/fecha'
           </div>
         </div>
       }
-      <ap-boton acciones variante="fantasma" (pulsado)="abierto.set(false)">Cerrar</ap-boton>
+      <ap-boton acciones variante="fantasma" icono="cerrar" (pulsado)="abierto.set(false)">Cerrar</ap-boton>
     </ap-cajon-lateral>
   `,
   styles: `

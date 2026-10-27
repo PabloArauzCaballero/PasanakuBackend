@@ -152,6 +152,7 @@ describe('BandejaDeAlertas · CU-44 listarBandejaDeAlertas', () => {
     await asentar(fixture)
     const principal = () => fixture.nativeElement.querySelector('ap-cabecera-de-pagina ap-boton button') as HTMLButtonElement
     expect(principal().disabled).toBe(true)
+    expect(principal().textContent?.trim()).toBe('Abrir caso')
     fixture.componentInstance['elegidas'].set([ALERTA.alertaId])
     fixture.detectChanges()
     expect(principal().disabled).toBe(false)

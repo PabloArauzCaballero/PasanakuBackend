@@ -39,7 +39,7 @@ type FilaAdmision = SolicitudDeAdmision & { acciones?: string }
           @case ('fechaSolicitud') { <time [attr.datetime]="fila.fechaSolicitud">{{ dia(fila.fechaSolicitud) }}</time> }
           @case ('estado') { <ap-chip-estado [tono]="tonoEstado(fila.estado)">{{ fila.estado }}</ap-chip-estado> }
           @case ('acciones') {
-            <ap-boton variante="fantasma" tamano="sm" [routerLink]="['/admisiones', fila.solicitudId]">
+            <ap-boton variante="fantasma" tamano="sm" icono="ojo" [routerLink]="['/admisiones', fila.solicitudId]">
               {{ t.verExpediente }}
             </ap-boton>
           }
