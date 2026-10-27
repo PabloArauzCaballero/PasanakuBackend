@@ -35,7 +35,7 @@ type Vista = (typeof VISTAS)[number]
     <ap-estado-de-pantalla [recurso]="remoto" [mensajeVacio]="t.noExiste(esquema() + '.' + tabla())" [etiquetaDeCarga]="textos.cargando" (reintentar)="remoto.reload()">
       @if (ficha(); as f) {
         <ap-cabecera-de-pagina icono="baseDeDatos" [eyebrow]="t.eyebrow" [titulo]="f.esquema + '.' + f.tabla" [descripcion]="f.negocio.queEs ?? t.sinDescripcion">
-          @if (puedeEditar()) { <ap-boton acciones variante="primario" tamano="sm" (pulsado)="editar()">{{ t.editar }}</ap-boton> }
+          @if (puedeEditar()) { <ap-boton acciones variante="primario" tamano="sm" icono="editar" (pulsado)="editar()">{{ t.editar }}</ap-boton> }
           @if (personales()) { <ap-chip-estado acciones tono="pii">{{ textos.columnasLista.personales }}</ap-chip-estado> }
           <ap-chip-estado acciones [tono]="tonoRevision()">{{ revision() }}</ap-chip-estado>
           <ap-chip-estado acciones [tono]="tonoEstado()">{{ estado() }}</ap-chip-estado>

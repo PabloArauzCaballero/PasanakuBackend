@@ -8,7 +8,7 @@ export const textosLft = {
     explicacionVacio: 'Sin filtros se muestran las abiertas y en análisis. Cuando una regla dispare, aparece acá.',
     filtroEstado: 'Filtrar por estado',
     filtroSeveridad: 'Filtrar por severidad',
-    abrirCaso: (n: number) => (n === 1 ? 'Abrir caso con 1 alerta' : `Abrir caso con ${n} alertas`),
+    abrirCaso: (n: number) => (n === 0 ? 'Abrir caso' : n === 1 ? 'Abrir caso con 1 alerta' : `Abrir caso con ${n} alertas`),
     elegirAlertas: 'Marcá las alertas de un mismo titular para agruparlas en un caso.',
     columnas: { reglaCodigo: 'Regla', tipologia: 'Tipología', severidad: 'Severidad', estado: 'Estado', detectadaEn: 'Detectada', casoId: 'Caso' },
     sinCaso: 'Sin caso',
