@@ -25,4 +25,10 @@ class BarridoTest {
     void ningunUmbralEnElCodigo() {
         barrido.ningunUmbralEnElCodigo();
     }
+
+    @Test
+    @DisplayName("con-contexto-sin-transaccion: todo caso de uso que llama conContexto abre su transaccion")
+    void ningunConContextoSinTransaccion() {
+        barrido.ningunConContextoSinTransaccion();
+    }
 }

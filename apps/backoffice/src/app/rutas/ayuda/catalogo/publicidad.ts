@@ -44,8 +44,8 @@ export const crearUnaCampana: TutorialDefinicion = {
     },
     {
       id: 'el-formulario',
-      titulo: 'Dos datos, y los dos obligatorios',
-      descripcion: 'Nombre y presupuesto. El presupuesto se escribe como monto, con su moneda: la pantalla nunca recalcula plata por su cuenta.',
+      titulo: 'Los datos de la campaña',
+      descripcion: 'Nombre, la cuenta del anunciante, el presupuesto como monto con su moneda y al menos un conjunto de anuncios: la pantalla nunca recalcula plata por su cuenta.',
       objetivo: 'publicidad-formulario-campana',
       posicion: 'derecha',
       esperaMs: 5000,

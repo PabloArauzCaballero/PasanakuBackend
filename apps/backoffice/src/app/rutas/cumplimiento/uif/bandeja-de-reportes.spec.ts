@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import type { ReporteRegulatorioEnLista } from 'clientes/angular/cumplimiento'
-import { asentar, filasDe, GW, montar, rechazar, textoDe } from '../compartido/pruebas.apoyo'
+import type { Bandeja } from '../compartido/bandeja-por-cursor'
+import { asentar, bandejaDe, filasDe, GW, montar, rechazar, textoDe } from '../compartido/pruebas.apoyo'
 import { BandejaDeReportes } from './bandeja-de-reportes'
 
 const URL = `${GW}/uif/reportes`
@@ -17,7 +18,7 @@ const REPORTE = {
 }
 
 describe('BandejaDeReportes · CU-43 listarReportesRegulatorios', () => {
-  it('correcto: filas del contrato; los estados viajan repetidos (explode: true) y el cursor es antesDe/antesDeId', async () => {
+  it('correcto: filas del contrato; el estado viaja al servidor y un filtro nuevo vuelve a la primera página (sin antesDe)', async () => {
     const { fixture, http } = montar(BandejaDeReportes, ['CUMPLIMIENTO_REPORTAR'])
     http.expectOne((r) => r.url === URL).flush({ items: [REPORTE], proximoAntesDe: '2026-09-30', proximoAntesDeId: REPORTE.reporteId })
     await asentar(fixture)
@@ -25,11 +26,9 @@ describe('BandejaDeReportes · CU-43 listarReportesRegulatorios', () => {
     // El monto viaja sin moneda: la pantalla lo declara en vez de inventarle una.
     expect(textoDe(fixture)).toContain('moneda no informada por el contrato')
 
-    fixture.componentInstance['estados'].set(['GENERADO', 'APROBADO'])
-    fixture.detectChanges()
-    await asentar(fixture)
+    bandejaDe<Bandeja<ReporteRegulatorioEnLista>>(fixture).filtrar('estados', 'APROBADO')
     const pedido = http.expectOne((r) => r.url === URL)
-    expect(pedido.request.params.getAll('estados')).toEqual(['GENERADO', 'APROBADO'])
+    expect(pedido.request.params.getAll('estados')).toEqual(['APROBADO'])
     expect(pedido.request.params.has('antesDe')).toBe(false)
     pedido.flush({ items: [] })
     http.verify()
@@ -64,15 +63,24 @@ describe('BandejaDeReportes · CU-43 listarReportesRegulatorios', () => {
     expect(fixture.nativeElement.querySelector('ap-aprobar-y-enviar')).toBeNull()
   })
 
-  it('con CUMPLIMIENTO_REPORTAR, aprobar abre la confirmación con la consecuencia exacta del período elegido', async () => {
+  it('con CUMPLIMIENTO_REPORTAR, la acción de fila «Aprobar» abre la confirmación con la consecuencia exacta del período elegido', async () => {
     const { fixture, http } = montar(BandejaDeReportes, ['CUMPLIMIENTO_REPORTAR'])
     http.expectOne((r) => r.url === URL).flush({ items: [REPORTE] })
     await asentar(fixture)
     expect(textoDe(fixture)).toContain('Preparar un reporte')
-    fixture.componentInstance['aprobar'](REPORTE as unknown as ReporteRegulatorioEnLista)
+    ;(fixture.nativeElement.querySelector('[aria-label="Aprobar y registrar envío del período 2026-09"]') as HTMLButtonElement).click()
     fixture.detectChanges()
     const texto = textoDe(fixture)
     expect(texto).toContain('Aprobar y registrar el envío de 2026-09')
     expect(texto).toContain('El sistema no transmite el archivo')
+  })
+
+  it('un reporte que no está GENERADO (p. ej. ENVIADO) no ofrece aprobar, y nada ofrece Editar ni Eliminar', async () => {
+    const { fixture, http } = montar(BandejaDeReportes, ['CUMPLIMIENTO_REPORTAR'])
+    http.expectOne((r) => r.url === URL).flush({ items: [{ ...REPORTE, estado: 'ENVIADO' }] })
+    await asentar(fixture)
+    expect(fixture.nativeElement.querySelector('[aria-label^="Aprobar y registrar envío"]')).toBeNull()
+    expect(textoDe(fixture)).not.toMatch(/Editar|Eliminar/)
+    expect(textoDe(fixture)).toContain('Enviado')
   })
 })

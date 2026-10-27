@@ -1,0 +1,455 @@
+{
+ "resultados": [
+  {
+   "vista": "usuarios-1280",
+   "nivel": "límite",
+   "caso": "sin desborde horizontal del documento",
+   "veredicto": "PASS",
+   "detalle": "exceso 0px · div.shell < li | a.activa < li | div.desplazable < table | div.desplazable < tr"
+  },
+  {
+   "vista": "roles-1280",
+   "nivel": "límite",
+   "caso": "sin desborde horizontal del documento",
+   "veredicto": "PASS",
+   "detalle": "exceso 0px · div.shell < li | a < li | a.activa < li"
+  },
+  {
+   "vista": "permisos-1280",
+   "nivel": "límite",
+   "caso": "sin desborde horizontal del documento",
+   "veredicto": "PASS",
+   "detalle": "exceso 0px · div.shell < li | a < li | a.activa < li"
+  },
+  {
+   "vista": "catalogos-1280",
+   "nivel": "límite",
+   "caso": "sin desborde horizontal del documento",
+   "veredicto": "PASS",
+   "detalle": "exceso 0px · div.shell < li | a < li | a.activa < li | div.desplazable < table"
+  },
+  {
+   "vista": "catalogo-ficha-1280",
+   "nivel": "límite",
+   "caso": "sin desborde horizontal del documento",
+   "veredicto": "PASS",
+   "detalle": "exceso 0px · div.shell < li | a < li | a.activa < li"
+  },
+  {
+   "vista": "bitacora-1280",
+   "nivel": "límite",
+   "caso": "sin desborde horizontal del documento",
+   "veredicto": "PASS",
+   "detalle": "exceso 0px · div.shell < li | a < li | a.activa < li | div.desplazable < table"
+  },
+  {
+   "vista": "usuario-ficha-1280",
+   "nivel": "límite",
+   "caso": "sin desborde horizontal del documento",
+   "veredicto": "PASS",
+   "detalle": "exceso 0px · div.shell < li | a.activa < li | a < li"
+  },
+  {
+   "vista": "servicios-1280",
+   "nivel": "límite",
+   "caso": "sin desborde horizontal del documento",
+   "veredicto": "PASS",
+   "detalle": "exceso 0px · div.shell < li"
+  },
+  {
+   "vista": "despliegues-1280",
+   "nivel": "límite",
+   "caso": "sin desborde horizontal del documento",
+   "veredicto": "PASS",
+   "detalle": "exceso 0px · div.shell < li"
+  },
+  {
+   "vista": "base-1280",
+   "nivel": "límite",
+   "caso": "sin desborde horizontal del documento",
+   "veredicto": "PASS",
+   "detalle": "exceso 0px · div.shell < li"
+  },
+  {
+   "vista": "respaldos-1280",
+   "nivel": "límite",
+   "caso": "sin desborde horizontal del documento",
+   "veredicto": "PASS",
+   "detalle": "exceso 0px · div.shell < li"
+  },
+  {
+   "vista": "proveedores-1280",
+   "nivel": "límite",
+   "caso": "sin desborde horizontal del documento",
+   "veredicto": "PASS",
+   "detalle": "exceso 0px · div.shell < li"
+  },
+  {
+   "vista": "outbox-1280",
+   "nivel": "límite",
+   "caso": "sin desborde horizontal del documento",
+   "veredicto": "PASS",
+   "detalle": "exceso 0px · div.shell < li"
+  },
+  {
+   "vista": "webhooks-1280",
+   "nivel": "límite",
+   "caso": "sin desborde horizontal del documento",
+   "veredicto": "PASS",
+   "detalle": "exceso 0px · div.shell < li"
+  },
+  {
+   "vista": "accesos-1280",
+   "nivel": "límite",
+   "caso": "sin desborde horizontal del documento",
+   "veredicto": "PASS",
+   "detalle": "exceso 0px · a.activa < li | div.shell < li"
+  },
+  {
+   "vista": "incidentes-1280",
+   "nivel": "límite",
+   "caso": "sin desborde horizontal del documento",
+   "veredicto": "PASS",
+   "detalle": "exceso 0px · a < li | a.activa < li | div.shell < li"
+  },
+  {
+   "vista": "usuarios-768",
+   "nivel": "límite",
+   "caso": "sin desborde horizontal del documento",
+   "veredicto": "PASS",
+   "detalle": "exceso 0px · div.shell.angosto < li | a.activa < li | div.desplazable < table | div.desplazable < tr"
+  },
+  {
+   "vista": "roles-768",
+   "nivel": "límite",
+   "caso": "sin desborde horizontal del documento",
+   "veredicto": "PASS",
+   "detalle": "exceso 0px · div.shell.angosto < li | a < li | a.activa < li | div.desplazable < table"
+  },
+  {
+   "vista": "permisos-768",
+   "nivel": "límite",
+   "caso": "sin desborde horizontal del documento",
+   "veredicto": "PASS",
+   "detalle": "exceso 0px · div.shell.angosto < li | a < li | a.activa < li | div.desplazable < table"
+  },
+  {
+   "vista": "catalogos-768",
+   "nivel": "límite",
+   "caso": "sin desborde horizontal del documento",
+   "veredicto": "PASS",
+   "detalle": "exceso 0px · div.shell.angosto < li | a < li | a.activa < li | div.desplazable < table"
+  },
+  {
+   "vista": "catalogo-ficha-768",
+   "nivel": "límite",
+   "caso": "sin desborde horizontal del documento",
+   "veredicto": "PASS",
+   "detalle": "exceso 0px · div.shell.angosto < li | a < li | a.activa < li"
+  },
+  {
+   "vista": "bitacora-768",
+   "nivel": "límite",
+   "caso": "sin desborde horizontal del documento",
+   "veredicto": "PASS",
+   "detalle": "exceso 0px · div.shell.angosto < li | a < li | a.activa < li | div.desplazable < table"
+  },
+  {
+   "vista": "usuario-ficha-768",
+   "nivel": "límite",
+   "caso": "sin desborde horizontal del documento",
+   "veredicto": "PASS",
+   "detalle": "exceso 0px · div.shell.angosto < li | a.activa < li | a < li"
+  },
+  {
+   "vista": "servicios-768",
+   "nivel": "límite",
+   "caso": "sin desborde horizontal del documento",
+   "veredicto": "PASS",
+   "detalle": "exceso 0px · div.shell.angosto < li | div.desplazable < table | div.desplazable < th | div.desplazable < tr"
+  },
+  {
+   "vista": "despliegues-768",
+   "nivel": "límite",
+   "caso": "sin desborde horizontal del documento",
+   "veredicto": "PASS",
+   "detalle": "exceso 0px · div.shell.angosto < li"
+  },
+  {
+   "vista": "base-768",
+   "nivel": "límite",
+   "caso": "sin desborde horizontal del documento",
+   "veredicto": "PASS",
+   "detalle": "exceso 0px · div.shell.angosto < li"
+  },
+  {
+   "vista": "respaldos-768",
+   "nivel": "límite",
+   "caso": "sin desborde horizontal del documento",
+   "veredicto": "PASS",
+   "detalle": "exceso 0px · div.shell.angosto < li"
+  },
+  {
+   "vista": "proveedores-768",
+   "nivel": "límite",
+   "caso": "sin desborde horizontal del documento",
+   "veredicto": "PASS",
+   "detalle": "exceso 0px · div.shell.angosto < li"
+  },
+  {
+   "vista": "outbox-768",
+   "nivel": "límite",
+   "caso": "sin desborde horizontal del documento",
+   "veredicto": "PASS",
+   "detalle": "exceso 0px · a.activa < li | div.shell.angosto < li | div.desplazable < table | div.desplazable < tr"
+  },
+  {
+   "vista": "webhooks-768",
+   "nivel": "límite",
+   "caso": "sin desborde horizontal del documento",
+   "veredicto": "PASS",
+   "detalle": "exceso 0px · a < li | a.activa < li | div.shell.angosto < li"
+  },
+  {
+   "vista": "accesos-768",
+   "nivel": "límite",
+   "caso": "sin desborde horizontal del documento",
+   "veredicto": "PASS",
+   "detalle": "exceso 0px · a < li | a.activa < li | div.shell.angosto < li"
+  },
+  {
+   "vista": "incidentes-768",
+   "nivel": "límite",
+   "caso": "sin desborde horizontal del documento",
+   "veredicto": "PASS",
+   "detalle": "exceso 0px · a < li | a.activa < li | div.shell.angosto < li | div.desplazable < table"
+  },
+  {
+   "vista": "usuarios-375",
+   "nivel": "límite",
+   "caso": "sin desborde horizontal del documento",
+   "veredicto": "PASS",
+   "detalle": "exceso 0px · div.shell.angosto < li | a.activa < li | span.texto < button | button.accion < svg"
+  },
+  {
+   "vista": "roles-375",
+   "nivel": "límite",
+   "caso": "sin desborde horizontal del documento",
+   "veredicto": "PASS",
+   "detalle": "exceso 0px · div.shell.angosto < li | a < li | a.activa < li"
+  },
+  {
+   "vista": "permisos-375",
+   "nivel": "límite",
+   "caso": "sin desborde horizontal del documento",
+   "veredicto": "PASS",
+   "detalle": "exceso 0px · div.shell.angosto < li | a < li | a.activa < li"
+  },
+  {
+   "vista": "catalogos-375",
+   "nivel": "límite",
+   "caso": "sin desborde horizontal del documento",
+   "veredicto": "PASS",
+   "detalle": "exceso 0px · div.shell.angosto < li | a < li | a.activa < li"
+  },
+  {
+   "vista": "catalogo-ficha-375",
+   "nivel": "límite",
+   "caso": "sin desborde horizontal del documento",
+   "veredicto": "PASS",
+   "detalle": "exceso 0px · div.shell.angosto < li | a < li | a.activa < li"
+  },
+  {
+   "vista": "bitacora-375",
+   "nivel": "límite",
+   "caso": "sin desborde horizontal del documento",
+   "veredicto": "PASS",
+   "detalle": "exceso 0px · div.shell.angosto < li | a < li | a.activa < li"
+  },
+  {
+   "vista": "usuario-ficha-375",
+   "nivel": "límite",
+   "caso": "sin desborde horizontal del documento",
+   "veredicto": "PASS",
+   "detalle": "exceso 0px · div.shell.angosto < li | a.activa < li | a < li | ap-boton.t-base.v-secundario < ap-boton.t-base.v-secundario"
+  },
+  {
+   "vista": "servicios-375",
+   "nivel": "límite",
+   "caso": "sin desborde horizontal del documento",
+   "veredicto": "PASS",
+   "detalle": "exceso 0px · div.shell.angosto < li"
+  },
+  {
+   "vista": "despliegues-375",
+   "nivel": "límite",
+   "caso": "sin desborde horizontal del documento",
+   "veredicto": "PASS",
+   "detalle": "exceso 0px · div.shell.angosto < li"
+  },
+  {
+   "vista": "base-375",
+   "nivel": "límite",
+   "caso": "sin desborde horizontal del documento",
+   "veredicto": "PASS",
+   "detalle": "exceso 0px · a.activa < li | div.shell.angosto < li"
+  },
+  {
+   "vista": "respaldos-375",
+   "nivel": "límite",
+   "caso": "sin desborde horizontal del documento",
+   "veredicto": "PASS",
+   "detalle": "exceso 0px · a < li | a.activa < li | div.shell.angosto < li | span.texto < ap-chip-estado"
+  },
+  {
+   "vista": "proveedores-375",
+   "nivel": "límite",
+   "caso": "sin desborde horizontal del documento",
+   "veredicto": "PASS",
+   "detalle": "exceso 0px · a < li | a.activa < li | div.shell.angosto < li"
+  },
+  {
+   "vista": "outbox-375",
+   "nivel": "límite",
+   "caso": "sin desborde horizontal del documento",
+   "veredicto": "PASS",
+   "detalle": "exceso 0px · a < li | a.activa < li | div.shell.angosto < li"
+  },
+  {
+   "vista": "webhooks-375",
+   "nivel": "límite",
+   "caso": "sin desborde horizontal del documento",
+   "veredicto": "PASS",
+   "detalle": "exceso 0px · a < li | a.activa < li | div.shell.angosto < li"
+  },
+  {
+   "vista": "accesos-375",
+   "nivel": "límite",
+   "caso": "sin desborde horizontal del documento",
+   "veredicto": "PASS",
+   "detalle": "exceso 0px · a < li | a.activa < li | div.shell.angosto < li"
+  },
+  {
+   "vista": "incidentes-375",
+   "nivel": "límite",
+   "caso": "sin desborde horizontal del documento",
+   "veredicto": "PASS",
+   "detalle": "exceso 0px · a < li | a.activa < li | div.shell.angosto < li"
+  },
+  {
+   "vista": "usuarios-1280-oscuro",
+   "nivel": "límite",
+   "caso": "sin desborde horizontal del documento",
+   "veredicto": "PASS",
+   "detalle": "exceso 0px · div.shell < li | a.activa < li | div.desplazable < table | div.desplazable < tr"
+  },
+  {
+   "vista": "roles-1280-oscuro",
+   "nivel": "límite",
+   "caso": "sin desborde horizontal del documento",
+   "veredicto": "PASS",
+   "detalle": "exceso 0px · div.shell < li | a < li | a.activa < li"
+  },
+  {
+   "vista": "permisos-1280-oscuro",
+   "nivel": "límite",
+   "caso": "sin desborde horizontal del documento",
+   "veredicto": "PASS",
+   "detalle": "exceso 0px · div.shell < li | a < li | a.activa < li"
+  },
+  {
+   "vista": "catalogos-1280-oscuro",
+   "nivel": "límite",
+   "caso": "sin desborde horizontal del documento",
+   "veredicto": "PASS",
+   "detalle": "exceso 0px · div.shell < li | a < li | a.activa < li | div.desplazable < table"
+  },
+  {
+   "vista": "catalogo-ficha-1280-oscuro",
+   "nivel": "límite",
+   "caso": "sin desborde horizontal del documento",
+   "veredicto": "PASS",
+   "detalle": "exceso 0px · div.shell < li | a < li | a.activa < li"
+  },
+  {
+   "vista": "bitacora-1280-oscuro",
+   "nivel": "límite",
+   "caso": "sin desborde horizontal del documento",
+   "veredicto": "PASS",
+   "detalle": "exceso 0px · div.shell < li | a < li | a.activa < li | div.desplazable < table"
+  },
+  {
+   "vista": "usuario-ficha-1280-oscuro",
+   "nivel": "límite",
+   "caso": "sin desborde horizontal del documento",
+   "veredicto": "PASS",
+   "detalle": "exceso 0px · div.shell < li | a.activa < li | a < li"
+  },
+  {
+   "vista": "servicios-1280-oscuro",
+   "nivel": "límite",
+   "caso": "sin desborde horizontal del documento",
+   "veredicto": "PASS",
+   "detalle": "exceso 0px · div.shell < li"
+  },
+  {
+   "vista": "despliegues-1280-oscuro",
+   "nivel": "límite",
+   "caso": "sin desborde horizontal del documento",
+   "veredicto": "PASS",
+   "detalle": "exceso 0px · div.shell < li"
+  },
+  {
+   "vista": "base-1280-oscuro",
+   "nivel": "límite",
+   "caso": "sin desborde horizontal del documento",
+   "veredicto": "PASS",
+   "detalle": "exceso 0px · div.shell < li"
+  },
+  {
+   "vista": "respaldos-1280-oscuro",
+   "nivel": "límite",
+   "caso": "sin desborde horizontal del documento",
+   "veredicto": "PASS",
+   "detalle": "exceso 0px · div.shell < li"
+  },
+  {
+   "vista": "proveedores-1280-oscuro",
+   "nivel": "límite",
+   "caso": "sin desborde horizontal del documento",
+   "veredicto": "PASS",
+   "detalle": "exceso 0px · div.shell < li"
+  },
+  {
+   "vista": "outbox-1280-oscuro",
+   "nivel": "límite",
+   "caso": "sin desborde horizontal del documento",
+   "veredicto": "PASS",
+   "detalle": "exceso 0px · div.shell < li"
+  },
+  {
+   "vista": "webhooks-1280-oscuro",
+   "nivel": "límite",
+   "caso": "sin desborde horizontal del documento",
+   "veredicto": "PASS",
+   "detalle": "exceso 0px · div.shell < li"
+  },
+  {
+   "vista": "accesos-1280-oscuro",
+   "nivel": "límite",
+   "caso": "sin desborde horizontal del documento",
+   "veredicto": "PASS",
+   "detalle": "exceso 0px · a.activa < li | div.shell < li"
+  },
+  {
+   "vista": "incidentes-1280-oscuro",
+   "nivel": "límite",
+   "caso": "sin desborde horizontal del documento",
+   "veredicto": "PASS",
+   "detalle": "exceso 0px · a < li | a.activa < li | div.shell < li"
+  }
+ ],
+ "consola": [],
+ "red_4xx_5xx": [],
+ "peticiones": 96
+}

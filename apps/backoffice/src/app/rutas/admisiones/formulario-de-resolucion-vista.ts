@@ -35,6 +35,7 @@ export type EnvioResolucion = 'inactivo' | 'enviando' | 'confirmado' | 'sinConfi
             <div accion class="acciones">
               <ap-boton
                 variante="primario"
+                icono="buscar"
                 [cargando]="envio() === 'verificando'"
                 [deshabilitado]="envio() === 'verificando'"
                 (pulsado)="verificar.emit()"
@@ -69,7 +70,7 @@ export type EnvioResolucion = 'inactivo' | 'enviando' | 'confirmado' | 'sinConfi
             [(valor)]="motivo"
           />
           <div class="acciones">
-            <ap-boton variante="primario" tipo="submit" [cargando]="enviando()" [deshabilitado]="bloqueado()">
+            <ap-boton variante="primario" tipo="submit" icono="enviar" [cargando]="enviando()" [deshabilitado]="bloqueado()">
               {{ envio() === 'noRegistrada' ? t.reintentar : enviando() ? t.resolviendo : t.resolver }}
             </ap-boton>
           </div>

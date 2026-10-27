@@ -1,6 +1,6 @@
 import { inject } from '@angular/core'
 import { CanMatchFn, Router, Routes } from '@angular/router'
-import { requierePermiso } from '../../nucleo/permisos'
+import { aterrizaje, requierePermiso } from '../../nucleo/permisos'
 import { Sesion } from '../../nucleo/sesion'
 
 /** Como `requierePermiso`, pero basta con UNO de los permisos (el contrato de `listarDesembolsos` acepta dos). */
@@ -26,7 +26,9 @@ export const rutasOperacion: Routes = [
   // H12.S1.M1 · antes redirigía a la billetera de una cuenta FIJA (un UUID de ejemplo) a cualquier operador que
   // entrara a la sección: la puerta de entrada de operación es la pantalla que no depende de ninguna cuenta ni
   // permiso fino. La billetera de un tercero se abre por enlace, con su cuenta, y la gobierna su permiso.
-  { path: '', pathMatch: 'full', redirectTo: 'estado' },
+  // 2026-10-26 (A1) · la raíz aterriza en la primera pestaña que la sesión puede abrir; `estado` queda como respaldo y
+  // sigue respondiendo por URL, aunque salió de las pestañas (repetía «Servicios y SLO» de Sistemas).
+  { path: '', pathMatch: 'full', redirectTo: aterrizaje('operacion', 'estado') },
   {
     path: 'billetera/:cuentaId',
     loadComponent: () => import('./billetera/pantalla-de-billetera').then((m) => m.PantallaDeBilletera),

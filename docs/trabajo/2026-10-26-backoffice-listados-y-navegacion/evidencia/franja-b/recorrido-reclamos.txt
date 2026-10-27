@@ -1,0 +1,27 @@
+PASS reclamos: primera página GET /reclamos?limite=10 sin cursor
+PASS reclamos: la tabla pinta la página del simulado
+PASS reclamos: Siguiente pide con el cursor (despuesDeId=3ca8f4eb…)
+PASS reclamos: Anterior vuelve a la página 1 sin cursor
+PASS reclamos: Filas por página = 20 pide limite=20
+PASS reclamos: filtro Estado=Cerrado viaja como estados=CERRADO
+PASS reclamos: filtro local Canal=App no vuelve a pedir y deja la fila
+PASS reclamos: buscar por reclamoId encuentra la fila
+PASS reclamos: CSV sin coincidencias baja solo el encabezado (reclamos-2026-10-26.csv)
+PASS reclamos: CSV de lo filtrado con el importe como se ve («4,44 (moneda no registrada)») · reclamos-2026-10-26.csv
+PASS reclamos: JSON con 1 fila(s) filtrada(s) · reclamos-2026-10-26.json
+PASS reclamos: acción de fila — abre el diálogo y pide GET /reclamos/:id
+PASS reclamos: límite · 25 filas, 10 por página ⇒ 10 en la página 1
+PASS reclamos: límite · Ir a 3 ⇒ última página parcial (5 filas) y Siguiente deshabilitado
+PASS reclamos: límite · una sola fila ⇒ Página 1 de 1
+PASS reclamos: límite · texto largo a 375 px sin desborde horizontal de la página
+PASS reclamos: límite · colección vacía ⇒ vacío explicado («No hay reclamos en estos estados.»)
+PASS reclamos: error · 500 ⇒ mensaje accionable con código de seguimiento, sin el crudo
+PASS reclamos: error · «Volver a intentar» repite la petición y se recupera
+PASS reclamos: error · 403 ⇒ «No tenés acceso a esta bandeja.»
+PASS reclamos: 768px light sin desborde horizontal (scrollWidth=768)
+PASS reclamos: 768px light consola sin errores
+PASS reclamos: 375px light sin desborde horizontal (scrollWidth=375)
+PASS reclamos: 375px light consola sin errores
+PASS reclamos: 1280px dark sin desborde horizontal (scrollWidth=1280)
+PASS reclamos: 1280px dark consola sin errores
+PASS reclamos: consola sin errores (salvo los 403/500 provocados) []

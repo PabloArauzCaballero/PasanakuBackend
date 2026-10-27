@@ -6,13 +6,15 @@ import '../atomos/progreso.dart';
 import '../atomos/tono.dart';
 import '../tokens/tokens.dart';
 
+part 'insignia_tile_partes.dart';
+
 /// Niveles de prestigio de cada insignia o logro en la mesa de juego.
 enum InsigniaTier {
-  bronce(Color(0xFFCD7F32), Color(0xFFFAF0E6)),
-  plata(Color(0xFF94A3B8), Color(0xFFF1F5F9)),
-  oro(Color(0xFFF59E0B), Color(0xFFFEF3C7)),
-  diamante(Color(0xFF0284C7), Color(0xFFE0F2FE)),
-  esmeralda(Color(0xFF10B981), Color(0xFFD1FAE5));
+  bronce(Paleta.o600, Paleta.o100),
+  plata(Paleta.n400, Paleta.n100),
+  oro(Paleta.warn, Paleta.warnbg),
+  diamante(Paleta.info, Paleta.infobg),
+  esmeralda(Paleta.ok, Paleta.okbg);
 
   const InsigniaTier(this.colorPrimario, this.colorFondo);
   final Color colorPrimario;
@@ -83,99 +85,7 @@ class InsigniaTile extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: conseguida
-                      ? tier.colorPrimario.withValues(alpha: 0.18)
-                      : t.surface2,
-                  border: Border.all(
-                    color: conseguida ? tier.colorPrimario : t.border,
-                    width: 1.5,
-                  ),
-                ),
-                child: Center(
-                  child: Icon(
-                    conseguida
-                        ? icono
-                        : (progreso != null ? icono : Icons.lock_outline),
-                    color: conseguida ? tier.colorPrimario : t.text3,
-                    size: 24,
-                  ),
-                ),
-              ),
-              const SizedBox(width: Espacio.s3),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            nombre,
-                            style: Tipo.titulo3.copyWith(
-                              color: conseguida ? t.text : t.text2,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                        ),
-                        if (conseguida)
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: Espacio.s2,
-                              vertical: 2,
-                            ),
-                            decoration: BoxDecoration(
-                              color: tier.colorPrimario.withValues(alpha: 0.15),
-                              borderRadius: BorderRadius.circular(Radios.sm),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(
-                                  Icons.auto_awesome,
-                                  size: 13,
-                                  color: tier.colorPrimario,
-                                ),
-                                const SizedBox(width: 4),
-                                Text(
-                                  '+$puntos pts',
-                                  style: Tipo.etiqueta.copyWith(
-                                    color: tier.colorPrimario,
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          )
-                        else
-                          ChipEstado(
-                            texto: progreso != null ? 'En curso' : 'Bloqueada',
-                            tono: progreso != null ? Tono.aviso : Tono.neutro,
-                          ),
-                      ],
-                    ),
-                    const SizedBox(height: Espacio.s1),
-                    Text(
-                      conseguida && flavorText != null
-                          ? flavorText!
-                          : descripcion,
-                      style: Tipo.cuerpoChico.copyWith(
-                        color: conseguida ? t.text2 : t.text3,
-                        height: 1.35,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
+          _EncabezadoDeInsignia(this),
           if (!conseguida && progreso != null) ...[
             const SizedBox(height: Espacio.s3),
             Progreso(

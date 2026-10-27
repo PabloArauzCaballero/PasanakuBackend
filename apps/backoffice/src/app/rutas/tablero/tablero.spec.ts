@@ -10,11 +10,11 @@ import { Tablero } from './tablero'
 
 const GW = 'http://gw/api/v1'
 
-function montar(permisos: string[]) {
+function montar(permisos: string[], rol = 'BACKOFFICE') {
   TestBed.configureTestingModule({
     providers: [provideZonelessChangeDetection(), provideHttpClient(), provideHttpClientTesting(), provideRouter([]), { provide: GATEWAY, useValue: GW }],
   })
-  TestBed.inject(Sesion).abrir('t', permisos, 'BACKOFFICE', 'op-1')
+  TestBed.inject(Sesion).abrir('t', permisos, rol, 'op-1')
   const fixture = TestBed.createComponent(Tablero)
   fixture.detectChanges()
   return { fixture, http: TestBed.inject(HttpTestingController), raiz: fixture.nativeElement as HTMLElement }
@@ -145,5 +145,20 @@ describe('Tablero · monitoreo y accesos', () => {
     const href = (id: string) => raiz.querySelector<HTMLAnchorElement>(`[data-tutorial-id="tablero-${id}"]`)?.getAttribute('href')
     expect(href('tablero/financiero')).toBe('/tablero/financiero')
     expect(href('tablero/catalogo-de-datos')).toBe('/tablero/catalogo-de-datos')
+  })
+
+  it('límite: «Sistemas» solo se ofrece a los roles que su ruta deja entrar (si no, rebotaría a Operación)', () => {
+    const sinRol = montar(['ver:sistemas']).raiz
+    expect(sinRol.querySelector('[data-tutorial-id="tablero-sistemas"]')).toBeNull()
+    TestBed.resetTestingModule()
+    const conRol = montar(['ver:sistemas'], 'PLATAFORMA').raiz
+    expect(conRol.querySelector('[data-tutorial-id="tablero-sistemas"]')).not.toBeNull()
+  })
+
+  it('cada tarjeta de bandeja dice a cuál lleva su «Abrir bandeja» y lleva ícono', () => {
+    const { raiz } = montar(['RETIRO_APROBAR'])
+    const enlace = tarjeta(raiz, 'retiros')!.querySelector('a.abrir')!
+    expect(enlace.getAttribute('aria-label')).toBe('Abrir bandeja: Retiros en revisión')
+    expect(tarjeta(raiz, 'retiros')!.querySelector('h3 ap-icono')).not.toBeNull()
   })
 })

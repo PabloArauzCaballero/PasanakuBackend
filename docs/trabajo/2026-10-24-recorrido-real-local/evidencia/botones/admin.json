@@ -1,0 +1,607 @@
+[
+  {
+    "ruta": "/tablero",
+    "final": "/tablero",
+    "controles": 12,
+    "pulsados": 12,
+    "saltados": [],
+    "hallazgos": [
+      {
+        "control": "Solicitudes de ingreso Resolver quién entra a un grupo.",
+        "malas": [
+          "GET /grupos/solicitudes 404"
+        ],
+        "consola": [
+          "Failed to load resource: the server responded with a status of 404 (Not Found)"
+        ]
+      }
+    ]
+  },
+  {
+    "ruta": "/tablero/financiero",
+    "final": "/tablero",
+    "controles": 0,
+    "pulsados": 0,
+    "saltados": [],
+    "hallazgos": [],
+    "redirigida": true
+  },
+  {
+    "ruta": "/tablero/sistemas",
+    "final": "/tablero/sistemas",
+    "controles": 4,
+    "pulsados": 4,
+    "saltados": [],
+    "hallazgos": []
+  },
+  {
+    "ruta": "/tablero/catalogo-de-datos",
+    "final": "/tablero/catalogo-de-datos",
+    "controles": 38,
+    "pulsados": 37,
+    "saltados": [],
+    "hallazgos": [
+      {
+        "control": "Anterior",
+        "problema": "no se pudo pulsar: locator.click: Timeout 2500ms exceeded."
+      }
+    ]
+  },
+  {
+    "ruta": "/tablero/comercial",
+    "final": "/tablero",
+    "controles": 0,
+    "pulsados": 0,
+    "saltados": [],
+    "hallazgos": [],
+    "redirigida": true
+  },
+  {
+    "ruta": "/operacion",
+    "final": "/operacion/estado",
+    "controles": 11,
+    "pulsados": 9,
+    "saltados": [],
+    "hallazgos": [
+      {
+        "control": "Anterior",
+        "problema": "no se pudo pulsar: locator.click: Timeout 2500ms exceeded."
+      },
+      {
+        "control": "Siguiente",
+        "problema": "no se pudo pulsar: locator.click: Timeout 2500ms exceeded."
+      }
+    ]
+  },
+  {
+    "ruta": "/operacion/reclamos",
+    "final": "/operacion/reclamos",
+    "controles": 9,
+    "pulsados": 7,
+    "saltados": [],
+    "hallazgos": []
+  },
+  {
+    "ruta": "/operacion/solicitudes-escaladas",
+    "final": "/operacion/solicitudes-escaladas",
+    "controles": 5,
+    "pulsados": 3,
+    "saltados": [],
+    "hallazgos": [
+      {
+        "control": "Postulante",
+        "malas": [
+          "GET /grupos/solicitudes-escaladas 404"
+        ],
+        "consola": [
+          "Failed to load resource: the server responded with a status of 404 (Not Found)",
+          "ERROR {mensaje: No encontramos lo que buscabas., codigo: AP-VAL-05, estado: 404, sinConexion: false, trazaId: 4aac2eae-d6d8-856b-1967-993c2964bd34}"
+        ]
+      },
+      {
+        "control": "Vencía para el organizador",
+        "malas": [
+          "GET /grupos/solicitudes-escaladas 404"
+        ],
+        "consola": [
+          "Failed to load resource: the server responded with a status of 404 (Not Found)",
+          "ERROR {mensaje: No encontramos lo que buscabas., codigo: AP-VAL-05, estado: 404, sinConexion: false, trazaId: 191394f2-eccd-97f8-c5b3-39bb3de12afd}"
+        ]
+      },
+      {
+        "control": "Anterior",
+        "problema": "no se pudo pulsar: locator.click: Timeout 2500ms exceeded."
+      },
+      {
+        "control": "Siguiente",
+        "problema": "no se pudo pulsar: locator.click: Timeout 2500ms exceeded."
+      }
+    ]
+  },
+  {
+    "ruta": "/operacion/retiros",
+    "final": "/tablero",
+    "controles": 0,
+    "pulsados": 0,
+    "saltados": [],
+    "hallazgos": [],
+    "redirigida": true
+  },
+  {
+    "ruta": "/operacion/custodia",
+    "final": "/operacion/custodia",
+    "controles": 3,
+    "pulsados": 1,
+    "saltados": [],
+    "hallazgos": [
+      {
+        "control": "Anterior",
+        "problema": "no se pudo pulsar: locator.click: Timeout 2500ms exceeded."
+      },
+      {
+        "control": "Siguiente",
+        "problema": "no se pudo pulsar: locator.click: Timeout 2500ms exceeded."
+      }
+    ]
+  },
+  {
+    "ruta": "/operacion/cierres-diarios",
+    "final": "/operacion/cierres-diarios",
+    "controles": 3,
+    "pulsados": 1,
+    "saltados": [],
+    "hallazgos": [
+      {
+        "control": "Anterior",
+        "problema": "no se pudo pulsar: locator.click: Timeout 2500ms exceeded."
+      },
+      {
+        "control": "Siguiente",
+        "problema": "no se pudo pulsar: locator.click: Timeout 2500ms exceeded."
+      }
+    ]
+  },
+  {
+    "ruta": "/operacion/reversos",
+    "final": "/operacion/reversos",
+    "controles": 5,
+    "pulsados": 5,
+    "saltados": [],
+    "hallazgos": []
+  },
+  {
+    "ruta": "/operacion/desembolsos",
+    "final": "/operacion/desembolsos",
+    "controles": 10,
+    "pulsados": 9,
+    "saltados": [],
+    "hallazgos": []
+  },
+  {
+    "ruta": "/operacion/estado",
+    "final": "/operacion/estado",
+    "controles": 11,
+    "pulsados": 9,
+    "saltados": [],
+    "hallazgos": [
+      {
+        "control": "Anterior",
+        "problema": "no se pudo pulsar: locator.click: Timeout 2500ms exceeded."
+      },
+      {
+        "control": "Siguiente",
+        "problema": "no se pudo pulsar: locator.click: Timeout 2500ms exceeded."
+      }
+    ]
+  },
+  {
+    "ruta": "/cumplimiento",
+    "final": "/cumplimiento/verificaciones",
+    "controles": 6,
+    "pulsados": 6,
+    "saltados": [],
+    "hallazgos": []
+  },
+  {
+    "ruta": "/cumplimiento/verificaciones",
+    "final": "/cumplimiento/verificaciones",
+    "controles": 6,
+    "pulsados": 6,
+    "saltados": [],
+    "hallazgos": []
+  },
+  {
+    "ruta": "/cumplimiento/alertas",
+    "final": "/tablero",
+    "controles": 0,
+    "pulsados": 0,
+    "saltados": [],
+    "hallazgos": [],
+    "redirigida": true
+  },
+  {
+    "ruta": "/cumplimiento/casos",
+    "final": "/tablero",
+    "controles": 0,
+    "pulsados": 0,
+    "saltados": [],
+    "hallazgos": [],
+    "redirigida": true
+  },
+  {
+    "ruta": "/cumplimiento/uif/reportes",
+    "final": "/cumplimiento/uif/reportes",
+    "controles": 10,
+    "pulsados": 8,
+    "saltados": [],
+    "hallazgos": [
+      {
+        "control": "Anterior",
+        "problema": "no se pudo pulsar: locator.click: Timeout 2500ms exceeded."
+      },
+      {
+        "control": "Siguiente",
+        "problema": "no se pudo pulsar: locator.click: Timeout 2500ms exceeded."
+      }
+    ]
+  },
+  {
+    "ruta": "/cumplimiento/uif/requerimientos",
+    "final": "/cumplimiento/uif/requerimientos",
+    "controles": 6,
+    "pulsados": 6,
+    "saltados": [],
+    "hallazgos": []
+  },
+  {
+    "ruta": "/cumplimiento/continuidad",
+    "final": "/cumplimiento/continuidad",
+    "controles": 1,
+    "pulsados": 1,
+    "saltados": [],
+    "hallazgos": []
+  },
+  {
+    "ruta": "/cumplimiento/actas",
+    "final": "/cumplimiento/actas",
+    "controles": 3,
+    "pulsados": 1,
+    "saltados": [],
+    "hallazgos": [
+      {
+        "control": "Anterior",
+        "problema": "no se pudo pulsar: locator.click: Timeout 2500ms exceeded."
+      },
+      {
+        "control": "Siguiente",
+        "problema": "no se pudo pulsar: locator.click: Timeout 2500ms exceeded."
+      }
+    ]
+  },
+  {
+    "ruta": "/cumplimiento/riesgos/eventos",
+    "final": "/cumplimiento/riesgos/eventos",
+    "controles": 7,
+    "pulsados": 5,
+    "saltados": [],
+    "hallazgos": [
+      {
+        "control": "Anterior",
+        "problema": "no se pudo pulsar: locator.click: Timeout 2500ms exceeded."
+      },
+      {
+        "control": "Siguiente",
+        "problema": "no se pudo pulsar: locator.click: Timeout 2500ms exceeded."
+      }
+    ]
+  },
+  {
+    "ruta": "/cumplimiento/seguridad/incidentes",
+    "final": "/cumplimiento/seguridad/incidentes",
+    "controles": 6,
+    "pulsados": 6,
+    "saltados": [],
+    "hallazgos": []
+  },
+  {
+    "ruta": "/admisiones",
+    "final": "/admisiones",
+    "controles": 4,
+    "pulsados": 4,
+    "saltados": [],
+    "hallazgos": []
+  },
+  {
+    "ruta": "/sistemas",
+    "final": "/sistemas/servicios",
+    "controles": 2,
+    "pulsados": 2,
+    "saltados": [],
+    "hallazgos": []
+  },
+  {
+    "ruta": "/sistemas/servicios",
+    "final": "/sistemas/servicios",
+    "controles": 2,
+    "pulsados": 2,
+    "saltados": [],
+    "hallazgos": []
+  },
+  {
+    "ruta": "/sistemas/despliegues",
+    "final": "/sistemas/despliegues",
+    "controles": 2,
+    "pulsados": 2,
+    "saltados": [],
+    "hallazgos": []
+  },
+  {
+    "ruta": "/sistemas/base-de-datos",
+    "final": "/sistemas/base-de-datos",
+    "controles": 2,
+    "pulsados": 2,
+    "saltados": [],
+    "hallazgos": []
+  },
+  {
+    "ruta": "/sistemas/respaldos",
+    "final": "/sistemas/respaldos",
+    "controles": 2,
+    "pulsados": 2,
+    "saltados": [],
+    "hallazgos": []
+  },
+  {
+    "ruta": "/sistemas/proveedores",
+    "final": "/sistemas/proveedores",
+    "controles": 2,
+    "pulsados": 2,
+    "saltados": [],
+    "hallazgos": []
+  },
+  {
+    "ruta": "/sistemas/outbox",
+    "final": "/sistemas/outbox",
+    "controles": 2,
+    "pulsados": 2,
+    "saltados": [],
+    "hallazgos": []
+  },
+  {
+    "ruta": "/sistemas/webhooks",
+    "final": "/sistemas/webhooks",
+    "controles": 2,
+    "pulsados": 2,
+    "saltados": [],
+    "hallazgos": []
+  },
+  {
+    "ruta": "/sistemas/accesos",
+    "final": "/sistemas/accesos",
+    "controles": 2,
+    "pulsados": 2,
+    "saltados": [],
+    "hallazgos": []
+  },
+  {
+    "ruta": "/sistemas/incidentes",
+    "final": "/sistemas/incidentes",
+    "controles": 2,
+    "pulsados": 2,
+    "saltados": [],
+    "hallazgos": []
+  },
+  {
+    "ruta": "/sistemas/usuarios-internos",
+    "final": "/sistemas/usuarios-internos",
+    "controles": 8,
+    "pulsados": 5,
+    "saltados": [],
+    "hallazgos": []
+  },
+  {
+    "ruta": "/sistemas/roles-internos",
+    "final": "/sistemas/roles-internos",
+    "controles": 12,
+    "pulsados": 12,
+    "saltados": [],
+    "hallazgos": []
+  },
+  {
+    "ruta": "/sistemas/permisos-internos",
+    "final": "/sistemas/permisos-internos",
+    "controles": 7,
+    "pulsados": 7,
+    "saltados": [],
+    "hallazgos": []
+  },
+  {
+    "ruta": "/sistemas/operaciones",
+    "final": "/sistemas/operaciones",
+    "controles": 635,
+    "pulsados": 40,
+    "saltados": [],
+    "hallazgos": []
+  },
+  {
+    "ruta": "/sistemas/flujos",
+    "final": "/sistemas/flujos",
+    "controles": 315,
+    "pulsados": 37,
+    "saltados": [
+      "POST /billetera/qr/pagos Pagar un QR interno confirmando des",
+      "POST /pagos/reembolsos/{reembolsoId}/aprobacion Aprobar y ej",
+      "POST /pagos/{pagoId}/disputas Registrar una disputa recibida"
+    ],
+    "hallazgos": []
+  },
+  {
+    "ruta": "/sistemas/bitacora",
+    "final": "/sistemas/bitacora",
+    "controles": 3,
+    "pulsados": 3,
+    "saltados": [],
+    "hallazgos": []
+  },
+  {
+    "ruta": "/sistemas/catalogos-operativos",
+    "final": "/sistemas/catalogos-operativos",
+    "controles": 11,
+    "pulsados": 11,
+    "saltados": [],
+    "hallazgos": []
+  },
+  {
+    "ruta": "/contabilidad",
+    "final": "/tablero",
+    "controles": 0,
+    "pulsados": 0,
+    "saltados": [],
+    "hallazgos": [],
+    "redirigida": true
+  },
+  {
+    "ruta": "/contabilidad/presupuesto",
+    "final": "/tablero",
+    "controles": 0,
+    "pulsados": 0,
+    "saltados": [],
+    "hallazgos": [],
+    "redirigida": true
+  },
+  {
+    "ruta": "/contabilidad/compras",
+    "final": "/tablero",
+    "controles": 0,
+    "pulsados": 0,
+    "saltados": [],
+    "hallazgos": [],
+    "redirigida": true
+  },
+  {
+    "ruta": "/contabilidad/cobros",
+    "final": "/tablero",
+    "controles": 0,
+    "pulsados": 0,
+    "saltados": [],
+    "hallazgos": [],
+    "redirigida": true
+  },
+  {
+    "ruta": "/ayuda",
+    "final": "/ayuda",
+    "controles": 19,
+    "pulsados": 12,
+    "saltados": [],
+    "hallazgos": []
+  },
+  {
+    "ruta": "/publicidad",
+    "final": "/tablero",
+    "controles": 12,
+    "pulsados": 12,
+    "saltados": [],
+    "hallazgos": [
+      {
+        "control": "Solicitudes de ingreso Resolver quién entra a un grupo.",
+        "malas": [
+          "GET /grupos/solicitudes 404"
+        ],
+        "consola": [
+          "Failed to load resource: the server responded with a status of 404 (Not Found)"
+        ]
+      }
+    ]
+  },
+  {
+    "ruta": "/publicidad/anunciantes",
+    "final": "/tablero",
+    "controles": 0,
+    "pulsados": 0,
+    "saltados": [],
+    "hallazgos": [],
+    "redirigida": true
+  },
+  {
+    "ruta": "/publicidad/campanas",
+    "final": "/tablero",
+    "controles": 0,
+    "pulsados": 0,
+    "saltados": [],
+    "hallazgos": [],
+    "redirigida": true
+  },
+  {
+    "ruta": "/publicidad/moderacion",
+    "final": "/tablero",
+    "controles": 0,
+    "pulsados": 0,
+    "saltados": [],
+    "hallazgos": [],
+    "redirigida": true
+  },
+  {
+    "ruta": "/publicidad/desempeno",
+    "final": "/tablero",
+    "controles": 0,
+    "pulsados": 0,
+    "saltados": [],
+    "hallazgos": [],
+    "redirigida": true
+  },
+  {
+    "ruta": "/publicidad/liquidacion",
+    "final": "/tablero",
+    "controles": 0,
+    "pulsados": 0,
+    "saltados": [],
+    "hallazgos": [],
+    "redirigida": true
+  },
+  {
+    "ruta": "/configuracion",
+    "final": "/configuracion",
+    "controles": 4,
+    "pulsados": 4,
+    "saltados": [],
+    "hallazgos": []
+  },
+  {
+    "ruta": "/configuracion/tarifario",
+    "final": "/configuracion/tarifario",
+    "controles": 8,
+    "pulsados": 7,
+    "saltados": [],
+    "hallazgos": []
+  },
+  {
+    "ruta": "/configuracion/mensajeria",
+    "final": "/configuracion/mensajeria",
+    "controles": 13,
+    "pulsados": 11,
+    "saltados": [],
+    "hallazgos": [
+      {
+        "control": "Anterior",
+        "problema": "no se pudo pulsar: locator.click: Timeout 2500ms exceeded."
+      }
+    ]
+  },
+  {
+    "ruta": "/configuracion/reportes",
+    "final": "/configuracion/reportes",
+    "controles": 8,
+    "pulsados": 6,
+    "saltados": [],
+    "hallazgos": [
+      {
+        "control": "Anterior",
+        "problema": "no se pudo pulsar: locator.click: Timeout 2500ms exceeded."
+      },
+      {
+        "control": "Siguiente",
+        "problema": "no se pudo pulsar: locator.click: Timeout 2500ms exceeded."
+      }
+    ]
+  }
+]

@@ -1,0 +1,26 @@
+PASS reversos: primera página GET /contabilidad/reversos?limite=10 sin cursor
+PASS reversos: la tabla pinta la página del simulado
+PASS reversos: Siguiente pide con el cursor (antesDeId=32fe0d80…)
+PASS reversos: Anterior vuelve a la página 1 sin cursor
+PASS reversos: Filas por página = 20 pide limite=20
+PASS reversos: filtro Estado=Rechazado viaja como estados=RECHAZADO
+PASS reversos: filtro local Tipo=Anulación no vuelve a pedir y deja la fila
+PASS reversos: buscar por reversoId encuentra la fila
+PASS reversos: CSV sin coincidencias baja solo el encabezado (reversos-2026-10-26.csv)
+PASS reversos: CSV de lo filtrado con el importe como se ve («4,44 (moneda no registrada)») · reversos-2026-10-26.csv
+PASS reversos: JSON con 1 fila(s) filtrada(s) · reversos-2026-10-26.json
+PASS reversos: límite · 25 filas, 10 por página ⇒ 10 en la página 1
+PASS reversos: límite · Ir a 3 ⇒ última página parcial (5 filas) y Siguiente deshabilitado
+PASS reversos: límite · una sola fila ⇒ Página 1 de 1
+PASS reversos: límite · texto largo a 375 px sin desborde horizontal de la página
+PASS reversos: límite · colección vacía ⇒ vacío explicado («No hay reversos en estos estados.»)
+PASS reversos: error · 500 ⇒ mensaje accionable con código de seguimiento, sin el crudo
+PASS reversos: error · «Volver a intentar» repite la petición y se recupera
+PASS reversos: error · 403 ⇒ «No tenés acceso a esta bandeja.»
+PASS reversos: 768px light sin desborde horizontal (scrollWidth=768)
+PASS reversos: 768px light consola sin errores
+PASS reversos: 375px light sin desborde horizontal (scrollWidth=375)
+PASS reversos: 375px light consola sin errores
+PASS reversos: 1280px dark sin desborde horizontal (scrollWidth=1280)
+PASS reversos: 1280px dark consola sin errores
+PASS reversos: consola sin errores (salvo los 403/500 provocados) []

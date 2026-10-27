@@ -1,4 +1,8 @@
+import { provideHttpClient } from '@angular/common/http'
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing'
 import { provideZonelessChangeDetection } from '@angular/core'
+import { provideRouter } from '@angular/router'
+import { GATEWAY } from '../../../nucleo/gateway'
 import { TestBed } from '@angular/core/testing'
 import { describe, expect, it } from 'vitest'
 import { ServicioBorrador } from '../../../nucleo/borrador'
@@ -28,7 +32,7 @@ const borradorCompartido = new ServicioBorradorEnMemoria()
 
 async function montar(casoId = 'caso-1') {
   TestBed.resetTestingModule()
-  TestBed.configureTestingModule({ providers: [provideZonelessChangeDetection(), { provide: ServicioBorrador, useValue: borradorCompartido }] })
+  TestBed.configureTestingModule({ providers: [provideZonelessChangeDetection(), provideRouter([]), provideHttpClient(), provideHttpClientTesting(), { provide: GATEWAY, useValue: 'http://gw/api/v1' }, { provide: ServicioBorrador, useValue: borradorCompartido }] })
   const fixture = TestBed.createComponent(PantallaDeCaso)
   fixture.componentRef.setInput('casoId', casoId)
   fixture.detectChanges()
@@ -66,5 +70,33 @@ describe('PantallaDeCaso · gate del carril', () => {
     const segunda = await montar('caso-borrador')
     expect(segunda.nativeElement.querySelector('textarea').value).toBe('La contraparte fraccionó cinco depósitos el mismo día.')
     expect(segunda.nativeElement.textContent).toContain('Se recuperó un borrador')
+  })
+
+  it('«Confirmar decisión» ya no es un botón muerto: abre la decisión real del caso con la causal y la narrativa como borrador de la conclusión', async () => {
+    const fixture = await montar('caso-decidir')
+    ;(fixture.nativeElement.querySelector('input[type="radio"]') as HTMLInputElement).click()
+    const area = fixture.nativeElement.querySelector('textarea#narrativa') as HTMLTextAreaElement
+    area.value = 'Cinco depósitos bajo el umbral el mismo día.'
+    area.dispatchEvent(new Event('input'))
+    fixture.detectChanges()
+    ;(fixture.nativeElement.querySelector('ap-formulario-de-caso ap-boton button') as HTMLButtonElement).click()
+    fixture.detectChanges()
+    await fixture.whenStable()
+    fixture.detectChanges()
+    expect(fixture.nativeElement.textContent).toContain('Decidir el caso caso-decidir')
+    const conclusion = [...fixture.nativeElement.querySelectorAll('dialog textarea')].at(-1) as HTMLTextAreaElement
+    expect(conclusion.value).toBe('Causal: Fraccionamiento de operaciones. Cinco depósitos bajo el umbral el mismo día.')
+  })
+
+  it('el borrador se borra recién cuando el servidor registró la decisión, y se ve el recibo', async () => {
+    const fixture = await montar('caso-recibo')
+    const http = TestBed.inject(HttpTestingController)
+    await borradorCompartido.guardar('cumplimiento:caso:caso-recibo:narrativa', 'texto')
+    ;(fixture.componentInstance as unknown as { alDecidir: (s: unknown) => void }).alDecidir({ decision: 'DESCARTAR', alertasCerradas: 2, fueraDePlazo: false })
+    fixture.detectChanges()
+    await new Promise((r) => setTimeout(r, 0))
+    expect(await borradorCompartido.leer('cumplimiento:caso:caso-recibo:narrativa')).toBeUndefined()
+    expect(fixture.nativeElement.textContent).toContain('Decisión registrada: Descartar. Se cerraron 2 alertas.')
+    http.verify()
   })
 })

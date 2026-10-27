@@ -1,0 +1,11 @@
+# JWKS (identidad, 127.0.1.17:8080)
+{"keys":[{"kty":"RSA","e":"AQAB","kid":"841f0164-880a-4bb8-9653-db1f92d81f46","n":"kGBrSrAA344GqoLLOB1rmtsqX2_7bvD8mru1e
+HTTP 200
+# readiness
+{"status":"UP"}
+HTTP 200
+# liveness
+{"status":"UP"}
+HTTP 200
+# GET /usuarios/yo sin token
+HTTP 401

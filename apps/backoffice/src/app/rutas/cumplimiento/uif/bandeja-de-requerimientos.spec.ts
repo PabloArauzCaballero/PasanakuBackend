@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import type { RequerimientoEnLista } from 'clientes/angular/cumplimiento'
-import { asentar, filasDe, GW, montar, rechazar, textoDe } from '../compartido/pruebas.apoyo'
+import type { Bandeja } from '../compartido/bandeja-por-cursor'
+import { asentar, bandejaDe, filasDe, GW, montar, rechazar, textoDe } from '../compartido/pruebas.apoyo'
 import { BandejaDeRequerimientos } from './bandeja-de-requerimientos'
 
 const URL = `${GW}/uif/requerimientos`
@@ -36,16 +37,14 @@ describe('BandejaDeRequerimientos · CU-45 listarRequerimientosDeAutoridad', () 
     expect(fixture.nativeElement.querySelector('ap-responder-requerimiento')).toBeNull()
   })
 
-  it('límite: vacío con su porqué; filtro con explode: true', async () => {
+  it('límite: vacío con su porqué; el filtro de estado viaja al servidor', async () => {
     const { fixture, http } = montar(BandejaDeRequerimientos, ['AUDITORIA_LEER'], 'AUDITOR_INTERNO')
     http.expectOne((r) => r.url === URL).flush({ items: [] })
     await asentar(fixture)
     expect(textoDe(fixture)).toContain('No hay requerimientos en estos estados.')
-    fixture.componentInstance['estados'].set(['VENCIDO', 'RECIBIDO'])
-    fixture.detectChanges()
-    await asentar(fixture)
+    bandejaDe<Bandeja<RequerimientoEnLista>>(fixture).filtrar('estados', 'VENCIDO')
     const pedido = http.expectOne((r) => r.url === URL)
-    expect(pedido.request.params.getAll('estados')).toEqual(['VENCIDO', 'RECIBIDO'])
+    expect(pedido.request.params.getAll('estados')).toEqual(['VENCIDO'])
     pedido.flush({ items: [] })
   })
 
@@ -61,5 +60,16 @@ describe('BandejaDeRequerimientos · CU-45 listarRequerimientosDeAutoridad', () 
     rechazar(http.expectOne((r) => r.url === URL), 422, 'AP-CU45-05')
     await asentar(fixture)
     expect(textoDe(fixture)).toContain('El filtro de la lista no es válido')
+  })
+
+  it('acción de fila «Responder»: abre la respuesta del oficio; un oficio respondido no la ofrece', async () => {
+    const { fixture, http } = montar(BandejaDeRequerimientos, [], 'OFICIAL_CUMPLIMIENTO')
+    http.expectOne((r) => r.url === URL).flush({ items: [REQ, { ...REQ, requerimientoId: 'r-2', numeroOficio: 'OF-2026-115', estado: 'RESPONDIDO' }] })
+    await asentar(fixture)
+    expect(fixture.nativeElement.querySelector('[aria-label="Responder el oficio OF-2026-115"]')).toBeNull()
+    ;(fixture.nativeElement.querySelector('[aria-label="Responder el oficio OF-2026-114"]') as HTMLButtonElement).click()
+    fixture.detectChanges()
+    expect(fixture.componentInstance['elegido']()?.numeroOficio).toBe('OF-2026-114')
+    expect(textoDe(fixture)).not.toMatch(/Editar|Eliminar/)
   })
 })

@@ -7,6 +7,7 @@ import bo.aportaya.grupos.web.generado.modelo.CalendarioDeAportes;
 import bo.aportaya.grupos.web.generado.modelo.EntradaDecisionDeIngreso;
 import bo.aportaya.grupos.web.generado.modelo.Participacion;
 import bo.aportaya.grupos.web.generado.modelo.SalidaDecisionDeIngreso;
+import bo.aportaya.grupos.web.generado.modelo.SolicitudDeAdmision;
 import bo.aportaya.grupos.web.generado.modelo.SolicitudDeIngreso;
 import bo.aportaya.plataforma.dominio.CodigoError;
 import bo.aportaya.plataforma.dominio.ErrorDeNegocio;
@@ -92,6 +93,36 @@ abstract class RutasDeSolicitudes extends RutasDeAdmision {
                     o.setFechaSolicitud(s.fecha());
                     o.setNombreVisible(s.nombreVisible());
                     o.setPorEnlace(s.porEnlace());
+                    return o;
+                })
+                .toList();
+        return ResponseEntity.ok(lista);
+    }
+
+    /** H4.B.M1: la bandeja de «Admisiones» del backoffice, para quien puede VER solicitudes de ingreso. */
+    @Override
+    @Permiso("SOLICITUD_INGRESO_VER")
+    public ResponseEntity<java.util.List<SolicitudDeAdmision>> listarBandejaDeAdmisiones(
+            String estado, Integer limite) {
+        Traza.marcarCasoDeUso("CU-68", "bandeja");
+        var lista = cu68Decision.bandeja(estado, limite, sesion.actual()).stream()
+                .map(s -> {
+                    var o = new SolicitudDeAdmision();
+                    o.setSolicitudId(s.id());
+                    o.setUsuarioId(s.usuarioId());
+                    // `grupos` no lee `identidad`: sin nombre visible, el id corto identifica a la persona.
+                    o.setPostulante(
+                            s.nombreVisible() == null || s.nombreVisible().isBlank()
+                                    ? "Usuario " + s.usuarioId().toString().substring(0, 8)
+                                    : s.nombreVisible());
+                    o.setGrupoId(s.grupoId());
+                    o.setGrupoCodigo(s.grupoCodigo());
+                    o.setCuposSolicitados(s.cuposSolicitados());
+                    o.setMensaje(s.mensaje());
+                    o.setPuntaje(s.puntaje() == null ? null : s.puntaje().toPlainString());
+                    o.setPorEnlace(s.porEnlace());
+                    o.setEstado(SolicitudDeAdmision.EstadoEnum.fromValue(s.estado()));
+                    o.setFechaSolicitud(s.fecha());
                     return o;
                 })
                 .toList();

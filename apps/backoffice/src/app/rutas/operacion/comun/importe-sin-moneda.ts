@@ -11,8 +11,7 @@ import { formatearMonto } from '@aportaya/ui/monto/formatear'
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `<span class="cifra">{{ cifra() }}</span> <span class="nota">· moneda no registrada</span>`,
   styles: `
-    :host { white-space: nowrap; }
-    .cifra { font-family: var(--font-d); font-variant-numeric: tabular-nums; }
+    .cifra { white-space: nowrap; font-family: var(--font-d); font-variant-numeric: tabular-nums; }
     .nota { color: var(--text-2); font-size: .875rem; }
   `,
 })

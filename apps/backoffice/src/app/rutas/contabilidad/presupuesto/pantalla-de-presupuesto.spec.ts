@@ -1,17 +1,16 @@
-import { provideHttpClient, withInterceptors } from '@angular/common/http'
-import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing'
-import { provideZonelessChangeDetection } from '@angular/core'
-import { TestBed, type ComponentFixture } from '@angular/core/testing'
-import { provideRouter } from '@angular/router'
+import { HttpTestingController } from '@angular/common/http/testing'
+import { TestBed } from '@angular/core/testing'
+import { Router } from '@angular/router'
 import { beforeEach, describe, expect, it } from 'vitest'
-import { GATEWAY } from '../../../nucleo/gateway'
-import { erroresInterceptor } from '../../../nucleo/errores.interceptor'
-import { Sesion } from '../../../nucleo/sesion'
 import type { PartidaPresupuestaria } from '../dominio/cu101-presupuestos'
+import { configurarListado, esperar, GW, montarListado, textoDe } from '../listado/listado.apoyo'
 import { PantallaDePresupuesto } from './pantalla-de-presupuesto'
 
-/** H1.S3.M2 · CU-101 · la pantalla sobre el listado por cursor real. Datos sintéticos con la forma de `PartidaEnLista`. */
-const URL = 'http://gw/api/v1/erp/partidas-presupuestarias?limite=50'
+/**
+ * H5.S1.M1 · CU-101 sobre el listado por cursor (`crearListadoPorCursor`), contra `HttpTestingController` (doble
+ * declarado del gateway, regla 65). Datos sintéticos con la forma de `PartidaEnLista`. Tres niveles.
+ */
+const URL = `${GW}/erp/partidas-presupuestarias?limite=10`
 
 function partida(parcial: Partial<PartidaPresupuestaria> = {}): PartidaPresupuestaria {
   return {
@@ -32,71 +31,80 @@ function partida(parcial: Partial<PartidaPresupuestaria> = {}): PartidaPresupues
   }
 }
 
-async function esperar(fixture: ComponentFixture<unknown>): Promise<void> {
-  await new Promise((r) => setTimeout(r, 0))
-  fixture.detectChanges()
-}
+const dos = () => ({
+  items: [partida(), partida({ partidaId: 'pp-2', centroCostoNombre: 'Marketing', estado: 'BORRADOR', montoEjecutado: { monto: '10.00', moneda: 'BOB' } })],
+  proximoAntesDe: null,
+  proximoAntesDeId: null,
+})
 
 describe('PantallaDePresupuesto · CU-101 por cursor', () => {
   let http: HttpTestingController
+  beforeEach(() => (http = configurarListado(['CONTABILIDAD_ERP_PRESUPUESTO'])))
 
-  beforeEach(() => {
-    if (!Element.prototype.scrollTo) Element.prototype.scrollTo = () => {}
-    TestBed.configureTestingModule({
-      providers: [
-        provideZonelessChangeDetection(),
-        provideRouter([]),
-        provideHttpClient(withInterceptors([erroresInterceptor])),
-        provideHttpClientTesting(),
-        { provide: GATEWAY, useValue: 'http://gw/api/v1' },
-      ],
-    })
-    http = TestBed.inject(HttpTestingController)
-    TestBed.inject(Sesion).abrir('t', ['CONTABILIDAD_ERP_PRESUPUESTO'], 'contabilidad')
+  it('aceptado · nombra el período en español, no la cuenta contable (que es de nucleo-financiero), y resalta la desviación', async () => {
+    const f = await montarListado(http, PantallaDePresupuesto, URL, { cuerpo: dos() })
+    expect(textoDe(f)).toContain('marzo 2026')
+    expect(textoDe(f)).toContain('Operación 2026')
+    expect(textoDe(f)).not.toContain('cta-1')
+    expect(f.nativeElement.querySelectorAll('.desviacion.sobre')).toHaveLength(1)
   })
 
-  async function montar(responder: (url: string) => void) {
-    const fixture = TestBed.createComponent(PantallaDePresupuesto)
-    fixture.detectChanges()
-    await esperar(fixture)
-    responder(URL)
-    await esperar(fixture)
-    await esperar(fixture)
-    return fixture
-  }
-
-  it('correcto · nombra el período en español, no la cuenta contable (que es de nucleo-financiero), y resalta la desviación', async () => {
-    const fixture = await montar((url) => http.expectOne(url).flush({ items: [partida()], proximoAntesDe: null, proximoAntesDeId: null }))
-    const texto = fixture.nativeElement.textContent as string
-    expect(texto).toContain('marzo 2026')
-    expect(texto).toContain('Operación 2026')
-    expect(texto).not.toContain('cta-1')
-    expect(fixture.nativeElement.querySelector('.desviacion.sobre')).not.toBeNull()
-    expect(fixture.nativeElement.querySelector('ap-estado-de-listado')?.textContent?.trim()).toBe('')
+  it('aceptado · cifras de la página: partidas, sobre lo presupuestado y aprobadas (conteos, no sumas)', async () => {
+    const f = await montarListado(http, PantallaDePresupuesto, URL, { cuerpo: dos() })
+    const kpis = Array.from(f.nativeElement.querySelectorAll('ap-tarjeta-kpi .valor') as NodeListOf<HTMLElement>).map((k) => k.textContent?.trim())
+    expect(kpis).toEqual(['2', '1', '1'])
   })
 
-  it('no ofrece ordenar por columna: el orden lo fija el servidor y ordenar una página mentiría sobre el resto', async () => {
-    const fixture = await montar((url) => http.expectOne(url).flush({ items: [partida()] }))
-    expect(fixture.nativeElement.querySelectorAll('[role="columnheader"] button')).toHaveLength(0)
+  it('aceptado · el estado viaja al servidor como `estados`; centro de costo filtra la página cargada', async () => {
+    const f = await montarListado(http, PantallaDePresupuesto, URL, { cuerpo: dos() })
+    const pantalla = f.componentInstance as unknown as { listado: { filtrar(n: string, v: string): void } }
+    pantalla.listado.filtrar('centro', 'Marketing')
+    await esperar(f)
+    http.expectNone(() => true)
+    expect(f.nativeElement.querySelectorAll('tbody tr')).toHaveLength(1)
+    pantalla.listado.filtrar('estado', 'APROBADO')
+    await esperar(f)
+    http.expectOne(`${URL}&estados=APROBADO`).flush({ items: [partida()] })
+    await esperar(f)
+    await esperar(f)
+    expect(textoDe(f)).toContain('Tecnología')
   })
 
-  it('límite · sin partidas lo dice', async () => {
-    const fixture = await montar((url) => http.expectOne(url).flush({ items: [], proximoAntesDe: null, proximoAntesDeId: null }))
-    expect(fixture.nativeElement.textContent).toContain('No hay partidas presupuestarias')
+  it('aceptado · el enlace `?filtro=APROBADO` de un expediente abre la bandeja ya filtrada', async () => {
+    await TestBed.inject(Router).navigateByUrl('/?filtro=APROBADO')
+    const f = await montarListado(http, PantallaDePresupuesto, `${URL}&estados=APROBADO`, { cuerpo: { items: [partida()] } })
+    expect(textoDe(f)).toContain('Tecnología')
   })
 
-  it('inválido · 403: alerta con el mensaje traducido, sin el cuerpo del backend', async () => {
-    const fixture = await montar((url) => http.expectOne(url).flush({ mensaje: 'detalle interno', trazaId: 'tz-9' }, { status: 403, statusText: 'Forbidden' }))
-    const alerta = fixture.nativeElement.querySelector('ap-estado-de-listado [role="alert"]') as HTMLElement
+  it('aceptado · no ofrece ordenar por columna ni acciones de fila: el orden lo fija el servidor y no hay operación por partida', async () => {
+    const f = await montarListado(http, PantallaDePresupuesto, URL, { cuerpo: dos() })
+    expect(f.nativeElement.querySelectorAll('th button')).toHaveLength(0)
+    expect(f.nativeElement.querySelector('ap-acciones-de-fila')).toBeNull()
+    expect(textoDe(f)).toContain('Descargar CSV')
+  })
+
+  it('límite · sin partidas lo dice y explica cuándo aparecen', async () => {
+    const f = await montarListado(http, PantallaDePresupuesto, URL, { cuerpo: { items: [], proximoAntesDe: null, proximoAntesDeId: null } })
+    expect(textoDe(f)).toContain('No hay partidas presupuestarias')
+    expect(textoDe(f)).toContain('cuando el Directorio aprueba')
+  })
+
+  it('error · 403: mensaje traducido con su código de seguimiento, sin el cuerpo del backend', async () => {
+    const f = await montarListado(http, PantallaDePresupuesto, URL, { status: 403, cuerpo: { mensaje: 'detalle interno', trazaId: 'tz-9' } })
+    const alerta = f.nativeElement.querySelector('ap-estado-de-error[role="alert"]') as HTMLElement
     expect(alerta.textContent).toContain('No tenés acceso a esto.')
     expect(alerta.textContent).toContain('tz-9')
-    expect(fixture.nativeElement.textContent).not.toContain('detalle interno')
+    expect(textoDe(f)).not.toContain('detalle interno')
   })
 
-  it('inválido · 422 AP-CU101-04: filtro inválido, con el texto del dominio', async () => {
-    const fixture = await montar((url) =>
-      http.expectOne(url).flush({ codigo: 'AP-CU101-04', mensaje: 'interno', trazaId: 'tz-4' }, { status: 422, statusText: 'Unprocessable Entity' }),
-    )
-    expect(fixture.nativeElement.querySelector('ap-estado-de-listado [role="alert"]')?.textContent).toContain('El filtro de la lista no es válido')
+  it('error · 422 AP-CU101-04: filtro inválido con el texto del dominio, y «Volver a intentar» repite el pedido', async () => {
+    const f = await montarListado(http, PantallaDePresupuesto, URL, { status: 422, cuerpo: { codigo: 'AP-CU101-04', mensaje: 'interno', trazaId: 'tz-4' } })
+    expect(f.nativeElement.querySelector('ap-estado-de-error')?.textContent).toContain('El filtro de la lista no es válido')
+    ;(f.nativeElement.querySelector('ap-estado-de-error button') as HTMLButtonElement).click()
+    await esperar(f)
+    http.expectOne(URL).flush(dos())
+    await esperar(f)
+    await esperar(f)
+    expect(f.nativeElement.querySelectorAll('tbody tr')).toHaveLength(2)
   })
 })

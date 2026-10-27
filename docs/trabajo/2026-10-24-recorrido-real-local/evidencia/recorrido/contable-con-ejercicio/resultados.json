@@ -1,0 +1,47 @@
+[
+  {
+    "ruta": "/contabilidad",
+    "url": "/contabilidad",
+    "titulo": "Períodos contables",
+    "carga": false,
+    "error": false,
+    "vacio": false,
+    "filas": 0,
+    "texto": "Contabilidad ERP—qué es este módulo y esta vista (para qué sirve y cómo funciona) Períodos contables Fijar el mes: una vez cerrado, nadie puede asentar hacia at",
+    "desborda": false,
+    "redirigida": false,
+    "peticiones": 4,
+    "malas": [],
+    "consola": []
+  },
+  {
+    "ruta": "/contabilidad/presupuesto",
+    "url": "/contabilidad/presupuesto",
+    "titulo": "Presupuesto por centro de costo",
+    "carga": false,
+    "error": false,
+    "vacio": true,
+    "filas": 0,
+    "texto": "Contabilidad ERP—qué es este módulo y esta vista (para qué sirve y cómo funciona) Presupuesto por centro de costo Comparar lo que el Directorio autorizó antes d",
+    "desborda": false,
+    "redirigida": false,
+    "peticiones": 1,
+    "malas": [],
+    "consola": []
+  },
+  {
+    "ruta": "/contabilidad/compras",
+    "url": "/contabilidad/compras",
+    "titulo": "Compras y cuentas por pagar",
+    "carga": false,
+    "error": false,
+    "vacio": true,
+    "filas": 0,
+    "texto": "Contabilidad ERP—qué es este módulo y esta vista (para qué sirve y cómo funciona) Compras y cuentas por pagar Que ninguna obligación de pagar exista antes de un",
+    "desborda": false,
+    "redirigida": false,
+    "peticiones": 1,
+    "malas": [],
+    "consola": []
+  }
+]

@@ -3,7 +3,7 @@ import { Injectable, computed, inject, signal } from '@angular/core'
 import { firstValueFrom } from 'rxjs'
 import { normalizar, SIN_FILTROS, urlDeTablas, type PaginaDeTablasDelCatalogo } from '../rutas/tablero/catalogo/dominio'
 import { GATEWAY } from './gateway'
-import { MENU } from './menu'
+import { entradasVisibles, hojas, pantallasVisibles } from './navegacion'
 import { Sesion } from './sesion'
 
 /** Un resultado del buscador global: a dónde lleva y cómo se describe. */
@@ -23,12 +23,15 @@ export class IndiceDeBusqueda {
   private readonly tablas = signal<Resultado[]>([])
   private pedidas = false
 
+  // Las mismas pantallas que el menú le muestra a esta sesión: un resultado que rebota al tablero es un botón roto.
   private readonly pantallas = computed<Resultado[]>(() =>
-    MENU.flatMap((g) => g.entradas)
-      .filter((e) => this.sesion.puede(e.permiso))
+    entradasVisibles(this.sesion)
+      .flatMap((grupo) => grupo.entradas)
       .flatMap((e) => [
         { tipo: 'pantalla' as const, texto: e.texto, detalle: g(e.texto), ruta: e.destino },
-        ...(e.hijos ?? []).map((h) => ({ tipo: 'pantalla' as const, texto: h.texto, detalle: e.texto, ruta: h.ruta ? `${e.destino}/${h.ruta}` : e.destino })),
+        ...pantallasVisibles(e, this.sesion)
+          .flatMap((p) => hojas(p).map((h) => ({ h, p })))
+          .map(({ h, p }) => ({ tipo: 'pantalla' as const, texto: h.texto, detalle: p.grupo ? `${e.texto} · ${p.texto}` : e.texto, ruta: h.ruta })),
       ]),
   )
 
@@ -56,7 +59,9 @@ export class IndiceDeBusqueda {
       void this.cargarTablas()
     }
     const coincide = (r: Resultado) => normalizar(r.texto).includes(q) || normalizar(r.detalle).includes(q) || normalizar(r.texto.replaceAll('_', ' ')).includes(q)
-    return [...this.pantallas().filter(coincide), ...this.tablas().filter(coincide)].slice(0, maximo)
+    // Una sección y su primera pestaña comparten ruta: se muestra una sola vez (la lista se identifica por ruta).
+    const vistas = new Set<string>()
+    return [...this.pantallas().filter(coincide), ...this.tablas().filter(coincide)].filter((r) => !vistas.has(r.ruta) && vistas.add(r.ruta)).slice(0, maximo)
   }
 }
 

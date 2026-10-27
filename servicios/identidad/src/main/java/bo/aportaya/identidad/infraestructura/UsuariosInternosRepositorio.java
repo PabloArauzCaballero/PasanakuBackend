@@ -163,7 +163,7 @@ public class UsuariosInternosRepositorio {
                 .set(USUARIO.TELEFONO_E164, entrada.getTelefono())
                 .set(USUARIO.FECHA_NACIMIENTO, LocalDate.of(1990, 1, 1))
                 .set(USUARIO.ESTADO, "ACTIVO")
-                .set(USUARIO.NIVEL_KYC, "ESTANDAR")
+                .set(USUARIO.NIVEL_KYC, "NINGUNO")
                 .set(USUARIO.IDIOMA, "ES_BO")
                 .set(USUARIO.ZONA_HORARIA, "America/La_Paz")
                 .set(USUARIO.FECHA_REGISTRO, ahora)
@@ -181,11 +181,13 @@ public class UsuariosInternosRepositorio {
         // Contrasena provisional
         String provisional = generarContrasenaProvisional();
         String hash = hasheador.hashear(provisional.toCharArray());
+        HasheadorDeCredencial.Parametros kdf = hasheador.parametros();
         dsl.insertInto(CREDENCIAL_ACCESO)
                 .set(CREDENCIAL_ACCESO.ID, UUID.randomUUID())
                 .set(CREDENCIAL_ACCESO.USUARIO_ID, usuarioId)
                 .set(CREDENCIAL_ACCESO.HASH_CONTRASENA, hash)
-                .set(CREDENCIAL_ACCESO.ALGORITMO, "ARGON2ID")
+                .set(CREDENCIAL_ACCESO.ALGORITMO, kdf.algoritmo())
+                .set(CREDENCIAL_ACCESO.PARAMETROS_KDF, org.jooq.JSONB.valueOf(kdf.comoJson()))
                 .set(CREDENCIAL_ACCESO.REQUIERE_CAMBIO, true)
                 .set(CREDENCIAL_ACCESO.CAMBIADA_EN, ahora)
                 .execute();

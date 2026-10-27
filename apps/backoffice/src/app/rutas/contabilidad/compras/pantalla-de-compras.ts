@@ -17,13 +17,9 @@ const PESTANAS: Pestana[] = [
  * `docs/Flujo de pantallas · backoffice administrador` §5): primero la orden autorizada,
  * después la factura que de ella nace. Cada una es un organismo con su propio archivo.
  *
- * **Por qué pestañas y no las dos tablas una debajo de la otra.** `TablaDeDatosVirtualizada`
- * trae su `Paginacion`, que es un landmark `navigation` con nombre fijo («Paginación»):
- * dos tablas a la vez en el DOM dan dos landmarks con el mismo nombre accesible, y
- * `axe` lo marca como violación `landmark-unique` — un lector de pantalla no sabría cuál
- * de las dos paginaciones está recorriendo. Con pestañas hay una sola tabla montada por
- * vez y el problema desaparece sin tocar el shell. Queda anotado como hueco de
- * `packages/ui`/`nucleo` en `planes/informes/carril-B3.md`.
+ * **Por qué pestañas y no las dos tablas una debajo de la otra.** Es una sola tarjeta de trabajo (regla del cliente:
+ * pestañas donde cabe una) y hay un solo listado montado por vez: una sola barra de filtros y una sola paginación
+ * en el DOM, sin landmarks repetidos.
  */
 @Component({
   selector: 'ap-pantalla-de-compras',
@@ -31,8 +27,8 @@ const PESTANAS: Pestana[] = [
   imports: [Alerta, CabeceraDePagina, Pestanas, TablaDeOrdenes, TablaDeFacturas],
   template: `
     <section class="pantalla">
-      <ap-cabecera-de-pagina [titulo]="t.titulo" [descripcion]="t.proposito" icono="libro" />
-      <ap-alerta tono="info" titulo="Registrar no es pagar">{{ t.segregacion }}</ap-alerta>
+      <ap-cabecera-de-pagina eyebrow="Contabilidad · CU-102 y CU-103" [titulo]="t.titulo" [descripcion]="t.proposito" icono="recibo" />
+      <ap-alerta tono="info" titulo="Registrar no es pagar">{{ t.segregacionGeneral }}</ap-alerta>
       <ap-pestanas etiqueta="Compras y cuentas por pagar" [pestanas]="PESTANAS" [(elegida)]="pestana" />
       <div role="tabpanel" [id]="'panel-' + pestana()" [attr.aria-labelledby]="'pestana-' + pestana()">
         @if (pestana() === 'ordenes') {
@@ -44,7 +40,8 @@ const PESTANAS: Pestana[] = [
     </section>
   `,
   styles: `
-    .pantalla { padding: var(--s5); max-width: 80rem; display: grid; gap: var(--s4); }
+    .pantalla { padding: var(--s5); display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s4); min-width: 0; }
+    [role='tabpanel'] { min-width: 0; }
   `,
 })
 export class PantallaDeCompras {

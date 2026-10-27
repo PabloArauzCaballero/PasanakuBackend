@@ -6,36 +6,8 @@ import { Esqueleto } from '../esqueleto/esqueleto'
 import { Girador } from '../girador/girador'
 import { Icono } from '../icono/icono'
 
-/** `fijaDerecha`: la columna (de acciones) queda pegada al borde derecho al desplazar; `mono`: identificadores y códigos. */
-export type Columna<T> = { clave: keyof T & string; titulo: string; ordenable?: boolean; numerica?: boolean; fijaDerecha?: boolean; mono?: boolean }
-export type Orden = { clave: string; sentido: 'asc' | 'desc' }
-export type Densidad = 'confortable' | 'compacta'
-
-/**
- * Estado de una colección paginada, provisto por quien consume la tabla (regla: "pagina y
- * filtra quien la usa; ella solo muestra la página" — la tabla nunca hace `fetch`).
- *
- * **Contrato provisorio (regla 65 / ambigüedad Q-J1 del carril PR7).** El tipo de estado
- * "real" del repo (`ViewState`) lo publica Leo en PR8 y todavía no está en `dev`. Mientras
- * tanto este es el doble en tres niveles declarado, contra el que cierra este carril:
- *
- * - **correcto** — `{ tipo: 'lista', filas }` con una colección de filas válidas.
- * - **límite** — `{ tipo: 'lista', filas: [] }` (colección vacía), `{ tipo: 'lista', filas: [f] }`
- *   (una sola fila) y `{ tipo: 'lista', filas, obsoleta: true }` (la respuesta vigente se marcó
- *   vieja porque ya se pidió una más nueva: la tabla la sigue mostrando tal cual, nunca la
- *   reemplaza ni resucita una selección que el consumidor ya descartó).
- * - **inválido** — `{ tipo: 'error', idPeticion, motivo, mensaje }`, con `motivo` distinguiendo
- *   un error sin permiso, un recurso no encontrado y un error genérico con su propio mensaje.
- *
- * **Microtarea de adopción diferida (declarada, no resuelta acá):** cuando `ViewState<T>` esté
- * en `dev`, se agrega un adaptador `ViewState<T[]> → EstadoColeccion<T>` en el punto donde cada
- * consumidor arma este valor; la plantilla del organismo no cambia porque ya consume la unión
- * discriminada por `tipo`, no una forma concreta de `ViewState`.
- */
-export type EstadoColeccion<T> =
-  | { tipo: 'cargando' }
-  | { tipo: 'lista'; filas: T[]; obsoleta?: boolean }
-  | { tipo: 'error'; idPeticion: string; motivo: 'sin-permiso' | 'no-encontrado' | 'desconocido'; mensaje: string }
+import type { Columna, Densidad, EstadoColeccion, Orden } from './tabla-de-datos-tipos'
+export type { Columna, Densidad, EstadoColeccion, Orden } from './tabla-de-datos-tipos'
 
 /**
  * El organismo canónico de tabla de datos (único; ver `tabla-de-datos-virtualizada` en
@@ -126,8 +98,8 @@ export type EstadoColeccion<T> =
                 @for (c of columnas(); track c.clave) {
                   <td role="cell" [class.numerica]="c.numerica" [class.fija]="c.fijaDerecha" [class.mono]="c.mono">
                     <span class="etiqueta-movil" aria-hidden="true">{{ c.titulo }}</span>
-                    @if (celda()) {
-                      <ng-container *ngTemplateOutlet="celda()!; context: { $implicit: f, columna: c }" />
+                    @if (plantilla(); as p) {
+                      <ng-container *ngTemplateOutlet="p; context: { $implicit: f, columna: c }" />
                     } @else {
                       {{ f[c.clave] }}
                     }
@@ -155,6 +127,9 @@ export class TablaDeDatos<T extends object> {
   readonly orden = model<Orden | null>(null)
   readonly ordenado = output<Orden>()
   readonly celda = contentChild<TemplateRef<{ $implicit: T; columna: Columna<T> }>>('celda')
+  /** La plantilla de celda que llega de un organismo que envuelve a la tabla (`ap-listado`); la proyectada gana. */
+  readonly plantillaDeCelda = input<TemplateRef<{ $implicit: T; columna: Columna<T> }> | null>(null)
+  readonly plantilla = computed(() => this.celda() ?? this.plantillaDeCelda())
 
   /** Estado de colección opcional (regla 65 / Q-J1). `null` conserva el comportamiento previo a esta extensión. */
   readonly estado = input<EstadoColeccion<T> | null>(null)

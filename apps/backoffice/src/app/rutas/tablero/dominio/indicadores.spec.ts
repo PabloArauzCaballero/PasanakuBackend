@@ -124,6 +124,8 @@ describe('formato · exacto, sin pasar por number', () => {
 
   it('límite: sin variación, cero y negativa se dicen distinto', () => {
     expect(variacionEnPalabras(undefined)).toBe('Sin comparación con el período anterior')
+    // El backend real manda `null`, no «ausente»: antes lanzaba TypeError al leer `.startsWith`.
+    expect(variacionEnPalabras(null)).toBe('Sin comparación con el período anterior')
     expect(variacionEnPalabras('0.00')).toBe('Igual que el período anterior')
     expect(variacionEnPalabras('-8.25')).toBe('8,25 % menos que el período anterior')
   })

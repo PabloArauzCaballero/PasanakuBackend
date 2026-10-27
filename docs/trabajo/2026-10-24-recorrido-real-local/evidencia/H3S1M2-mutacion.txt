@@ -1,0 +1,6 @@
+# H3.S1.M2 prueba de mutacion: sin @Transactional en listar(), identidad:testBarrido debe FALLAR (exit=1)
+BarridoTest > con-contexto-sin-transaccion: todo caso de uso que llama conContexto abre su transaccion FAILED
+    java.lang.AssertionError: [con-contexto-sin-transaccion: conContexto exige una transaccion abierta (SET LOCAL)] 
+    Expecting empty but was: ["main/java/bo/aportaya/identidad/aplicacion/GestionarUsuariosInternos.java:48  metodo publico `listar` llama a conContexto sin @Transactional: SET LOCAL fuera de una transaccion no fija nada y el cliente recibe 422 AP-DOM-01 (SinTransaccion)"]
+> Task :servicios:identidad:testBarrido FAILED
+BUILD FAILED in 17s
