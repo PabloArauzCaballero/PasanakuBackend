@@ -37,6 +37,8 @@ describe('VistaColumnas', () => {
   function celdas(el: HTMLElement, clave: string): string[] {
     return Array.from(el.querySelectorAll('tbody tr')).map((tr) => {
       const td = tr.querySelectorAll('td')[clave === 'revision' ? 6 : 0]
+      // La celda del nombre lleva también la acción «Revisar»: el nombre es el `code`.
+      if (clave === 'nombre') return td?.querySelector('code')?.textContent ?? ''
       return Array.from(td?.childNodes ?? [])
         .filter((n) => n.nodeType === Node.TEXT_NODE || (n instanceof HTMLElement && !n.classList.contains('etiqueta-movil')))
         .map((n) => n.textContent)
