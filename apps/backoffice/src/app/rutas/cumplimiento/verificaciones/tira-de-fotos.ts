@@ -40,7 +40,7 @@ import { textosCumplimiento } from '../textos'
           <span class="falta">{{ cara }} {{ t.faltante }}</span>
         }
       }
-      <ap-boton variante="fantasma" [deshabilitado]="expediente().fotos.length === 0" (pulsado)="alternar()">
+      <ap-boton variante="fantasma" [icono]="abierto() ? 'ojoCerrado' : 'imagen'" [deshabilitado]="expediente().fotos.length === 0" (pulsado)="alternar()">
         {{ abierto() ? t.ocultarFotos : t.verFotos }}
       </ap-boton>
     </p>

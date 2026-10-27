@@ -1,3 +1,5 @@
+import type { NombreDeIcono } from '@aportaya/ui/icono/icono'
+
 /** Los textos de configuración (tarifario, mensajería, reportes), en voz de marca. Todo de solo lectura. */
 export const textosConfiguracion = {
   comun: {
@@ -12,9 +14,9 @@ export const textosConfiguracion = {
     titulo: 'Configuración',
     proposito: 'Consultar cómo está configurada la plataforma: tarifas, mensajes y reportes. Nada de esto se edita desde acá.',
     secciones: [
-      { ruta: 'tarifario', texto: 'Tarifario', descripcion: 'Versiones publicadas, vigencia, preaviso y simulación de impacto.', permisos: ['TARIFARIO_PUBLICAR', 'AUDITORIA_LEER'] },
-      { ruta: 'mensajeria', texto: 'Mensajería', descripcion: 'Plantillas vigentes y auditoría de envíos, sin destinatarios.', permisos: ['AUDITORIA_LEER'] },
-      { ruta: 'reportes', texto: 'Reportes', descripcion: 'Catálogo de reportes e historial de ejecuciones.', permisos: ['AUDITORIA_LEER'] },
+      { ruta: 'tarifario', texto: 'Tarifario', descripcion: 'Versiones publicadas, vigencia, preaviso y simulación de impacto.', permisos: ['TARIFARIO_PUBLICAR', 'AUDITORIA_LEER'], icono: 'etiqueta' as NombreDeIcono },
+      { ruta: 'mensajeria', texto: 'Mensajería', descripcion: 'Plantillas vigentes y auditoría de envíos, sin destinatarios.', permisos: ['AUDITORIA_LEER'], icono: 'mensaje' as NombreDeIcono },
+      { ruta: 'reportes', texto: 'Reportes', descripcion: 'Catálogo de reportes e historial de ejecuciones.', permisos: ['AUDITORIA_LEER'], icono: 'documento' as NombreDeIcono },
     ],
     sinSecciones: 'Tu rol no tiene acceso a ninguna parte de la configuración.',
   },

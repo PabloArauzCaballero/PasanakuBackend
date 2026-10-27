@@ -7,6 +7,10 @@ import { GATEWAY } from '../../nucleo/gateway'
  * CU-04 · cerrar la sesión. Contrato real: `DELETE /sesion` (`cerrarSesion`), que revoca
  * la sesión del token y toda su familia de refresh. Es idempotente y no recibe ningún
  * identificador del cliente: no hay forma de cerrar la sesión de otro.
+ *
+ * **Sin** `YA_REINTENTADA`, a propósito: con el token de acceso vencido, el `401` dispara el refresco y el reintento,
+ * y es ese `DELETE` reintentado el que revoca la familia de refresh. Marcado, la cookie HttpOnly seguía válida y
+ * `AuthBootstrap` restauraba la sesión al recargar: «Salir» no cerraba nada (`cerrar-sesion.spec.ts`).
  */
 export function crearCerrarSesion(): () => Observable<unknown> {
   const http = inject(HttpClient)

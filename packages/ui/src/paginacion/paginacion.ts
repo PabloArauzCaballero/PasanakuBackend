@@ -18,7 +18,7 @@ import { Icono } from '../icono/icono'
         <label class="por-pagina">
           <span>Filas por página</span>
           <select [value]="porPagina()" (change)="cambiarTamano($any($event.target).value)">
-            @for (n of opcionesPorPagina(); track n) { <option [value]="n">{{ n }}</option> }
+            @for (n of opcionesPorPagina(); track n) { <option [value]="n" [selected]="n === porPagina()">{{ n }}</option> }
           </select>
         </label>
       }

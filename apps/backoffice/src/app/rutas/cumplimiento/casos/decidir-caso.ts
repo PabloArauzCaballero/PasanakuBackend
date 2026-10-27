@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, input, model, output, signal } from '@angular/core'
+import { ChangeDetectionStrategy, Component, computed, effect, input, model, output, signal, untracked } from '@angular/core'
 import { Campo } from '@aportaya/ui/campo/campo'
 import { Dialogo } from '@aportaya/ui/dialogo/dialogo'
 import { ErrorDeEnvio } from '@aportaya/ui/error-de-envio/error-de-envio'
@@ -57,7 +57,15 @@ export class DecidirCaso {
 
   readonly abierto = model(false)
   readonly caso = input<CasoEnBandeja | null>(null)
+  /** Lo que ya se escribió en la ficha del caso: se ofrece como punto de partida de la conclusión, no la pisa. */
+  readonly conclusionInicial = input('')
   readonly decidio = output<SalidaDecisionCasoLft>()
+
+  constructor() {
+    effect(() => {
+      if (this.abierto() && this.conclusionInicial() && !untracked(this.conclusion)) this.conclusion.set(this.conclusionInicial())
+    })
+  }
 
   protected readonly decision = signal<Decision | null>(null)
   protected readonly conclusion = signal('')

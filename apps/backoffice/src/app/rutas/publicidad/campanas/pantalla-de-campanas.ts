@@ -1,170 +1,151 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core'
-import { toSignal } from '@angular/core/rxjs-interop'
-import { ActivatedRoute, RouterLink } from '@angular/router'
-import type { Filtro } from '@aportaya/ui/chips-de-filtro/chips-de-filtro'
-import { Fecha } from '@aportaya/ui/fecha/fecha'
-import { BarraDeFiltros } from '../../../nucleo/filtros/barra-de-filtros'
-import { EstadoDeListado, observarListado } from '../../contabilidad/listado/estado-de-listado'
+import { ChangeDetectionStrategy, Component, computed, inject, signal, viewChild } from '@angular/core'
+import { Router } from '@angular/router'
+import { AccionesDeFila } from '@aportaya/ui/acciones-de-fila/acciones-de-fila'
+import { Alerta } from '@aportaya/ui/alerta/alerta'
 import { Boton } from '@aportaya/ui/boton/boton'
 import { CabeceraDePagina } from '@aportaya/ui/cabecera-de-pagina/cabecera-de-pagina'
-import { Dialogo } from '@aportaya/ui/dialogo/dialogo'
-import { Campo } from '@aportaya/ui/campo/campo'
-import { CampoMonto, aCadenaDelContrato } from '@aportaya/ui/campo-monto/campo-monto'
 import { ChipEstado } from '@aportaya/ui/chip-estado/chip-estado'
+import { Fecha } from '@aportaya/ui/fecha/fecha'
+import { Icono } from '@aportaya/ui/icono/icono'
+import { crearListado } from '@aportaya/ui/listado/crear-listado'
+import { ListadoDeDatos } from '@aportaya/ui/listado/listado'
 import { Monto } from '@aportaya/ui/monto/monto'
+import { TarjetaKPI } from '@aportaya/ui/tarjeta-kpi/tarjeta-kpi'
+import type { Columna } from '@aportaya/ui/tabla-de-datos/tabla-de-datos'
+import type { ColumnaExportable } from '@aportaya/ui/exportar-listado/exportar'
+import type { Tono } from '@aportaya/ui/tono/tono'
 import { ExplicadorDeVista } from '../../../nucleo/explicador-de-vista'
 import { Sesion } from '../../../nucleo/sesion'
-import { TablaDeDatosVirtualizada } from '../../../nucleo/tabla/tabla-de-datos-virtualizada'
-import type { ColumnaVirtual } from '../../../nucleo/tabla/tipos'
-import { accionesDeCampana, cargadorDeCampanas, type Campana } from '../dominio/cu111-campanas'
+import { BarraDeLotes } from '../barra-de-lotes'
+import { ESTADOS_DE_CAMPANA, lotesDeCampanas, type Campana } from '../dominio/cu111-campanas'
+import { filtroEnElServidor } from '../dominio/lotes-por-cursor'
 import { textosPublicidad } from '../textos'
-import { EntradaCampanaMonedaEnum, EntradaCampanaObjetivoEnum } from 'clientes/angular/publicidad/model/entradaCampana'
+import { FormularioDeCampana } from './formulario-de-campana'
 
-const COLUMNAS: ColumnaVirtual<Campana>[] = [
-  { clave: 'nombre', titulo: 'Campaña', ancho: '2' },
-  { clave: 'estado', titulo: 'Estado' },
-  { clave: 'fechaInicio', titulo: 'Inicio' },
-  { clave: 'presupuestoTotal', titulo: 'Presupuesto', numerica: true },
-  { clave: 'presupuestoConsumido', titulo: 'Consumido', numerica: true },
-  { clave: 'campanaId', titulo: 'Aprobación' },
-]
-
-const FILTROS: Filtro[] = [
-  { valor: 'EN_REVISION', texto: 'En revisión' },
-  { valor: 'ACTIVA', texto: 'Activa' },
-  { valor: 'PAUSADA', texto: 'Pausada' },
-  { valor: 'RECHAZADA', texto: 'Rechazada' },
-  { valor: 'FINALIZADA', texto: 'Finalizada' },
-  { valor: 'BORRADOR', texto: 'Borrador' },
-]
+const t = textosPublicidad.campanas
+const TONOS: Record<Campana['estado'], Tono> = { BORRADOR: 'apagado', EN_REVISION: 'aviso', ACTIVA: 'ok', PAUSADA: 'neutro', RECHAZADA: 'error', FINALIZADA: 'info' }
+const dinero = (d: { monto: string; moneda: string }) => `${d.monto} ${d.moneda}`
 
 /**
- * CU-111 · Lado **gestión**: crear campañas. Nunca aprueba desde acá — el botón de
- * aprobar/rechazar vive en `PanelDeAprobacionDeCampana`, montado por una ruta distinta
- * con su propio `canMatch` (`PUBLICIDAD_APROBAR_CAMPANA`), no por un `if` en esta
- * pantalla.
+ * CU-111 · Campañas. La lista es la cola de Operaciones (`listarCampanas` exige `PUBLICIDAD_APROBAR_CAMPANA`) y abre en
+ * «En revisión», que es lo que espera a alguien; «Todos» pide los seis estados. Quien gestiona crea desde acá; aprobar o
+ * rechazar vive en otra ruta con su propio `canMatch` (segregación de funciones), a la que lleva «Revisar». El contrato
+ * no tiene editar, pausar ni eliminar campaña: la fila no los ofrece.
  */
 @Component({
   selector: 'ap-pantalla-de-campanas',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [BarraDeFiltros, Boton, CabeceraDePagina, Dialogo, Campo, CampoMonto, ChipEstado, EstadoDeListado, Fecha, Monto, RouterLink, TablaDeDatosVirtualizada],
+  imports: [AccionesDeFila, Alerta, BarraDeLotes, Boton, CabeceraDePagina, ChipEstado, Fecha, FormularioDeCampana, Icono, ListadoDeDatos, Monto, TarjetaKPI],
   template: `
     <section class="pantalla">
-      <ap-cabecera-de-pagina
-        data-tutorial-id="publicidad-campanas"
-        [titulo]="t.tituloGestion"
-        [descripcion]="t.propositoGestion"
-        icono="estrella"
-      >
+      <ap-cabecera-de-pagina data-tutorial-id="publicidad-campanas" eyebrow="Publicidad" [titulo]="t.tituloGestion" [descripcion]="t.propositoGestion" icono="estrella">
         @if (puedeGestionar()) {
-          <ap-boton acciones data-tutorial-id="publicidad-nueva-campana" (pulsado)="abrir()">{{ t.nuevaCampana }}</ap-boton>
+          <ap-boton acciones data-tutorial-id="publicidad-nueva-campana" icono="mas" variante="primario" (pulsado)="formulario().abrir()">{{ t.nuevaCampana }}</ap-boton>
         }
       </ap-cabecera-de-pagina>
+      @if (creada()) { <ap-alerta tono="ok">{{ t.creada }}</ap-alerta> }
       @if (puedeVerLaCola()) {
-        <ap-barra-de-filtros etiqueta="Estado" [incluirBusqueda]="false" [definiciones]="FILTROS" />
-        <p class="nota">{{ t.porOmision }}</p>
-        <ap-estado-de-listado [error]="listado.error()" [vacio]="listado.vacio()" [mensajeVacio]="t.sinCampanas" [filtrado]="!!filtrosActivos()['estado']" />
-        @if (!listado.error() && !listado.vacio()) {
-          <ap-tabla-de-datos-virtualizada data-tutorial-id="publicidad-tabla-campanas" [titulo]="t.tituloGestion" [columnas]="COLUMNAS" [cargador]="listado.cargador" [ordenPermitido]="[]" [identidad]="identidad" [filtros]="filtrosActivos()">
-            <ng-template #celda let-c let-columna="columna">
-              @switch (columna.clave) {
-                @case ('estado') {
-                  <ap-chip-estado [tono]="c.estado === 'ACTIVA' ? 'ok' : c.estado === 'RECHAZADA' ? 'error' : 'neutro'">{{ textoDeEstado(c) }}</ap-chip-estado>
-                }
-                @case ('fechaInicio') { <ap-fecha [iso]="c.fechaInicio" [conHora]="false" /> }
-                @case ('presupuestoTotal') { <ap-monto [monto]="c.presupuestoTotal.monto" [moneda]="c.presupuestoTotal.moneda" [etiqueta]="t.columnaPresupuesto" /> }
-                @case ('presupuestoConsumido') { <ap-monto [monto]="c.presupuestoConsumido.monto" [moneda]="c.presupuestoConsumido.moneda" [etiqueta]="t.columnaConsumido" /> }
-                @case ('campanaId') {
-                  @if (c.estado === 'EN_REVISION') { <a [routerLink]="'/publicidad/campanas/' + c.campanaId + '/aprobacion'">{{ t.revisar }}</a> }
-                }
-                @default {
-                  {{ c[columna.clave] }}
-                }
-              }
-            </ng-template>
-          </ap-tabla-de-datos-virtualizada>
-        }
+        <div class="cifras">
+          <ap-tarjeta-kpi etiqueta="Cargadas" [valor]="'' + lotes.filas().length" icono="lista" [pista]="lotes.hayMas() ? 'Hay más en el servidor' : 'Todas las del filtro'" />
+          <ap-tarjeta-kpi etiqueta="En revisión" [valor]="'' + cuenta('EN_REVISION')" icono="reloj" [tono]="cuenta('EN_REVISION') ? 'aviso' : 'neutro'" pista="Esperan aprobación" />
+          <ap-tarjeta-kpi etiqueta="Activas" [valor]="'' + cuenta('ACTIVA')" icono="reproducir" tono="ok" pista="En lo cargado" />
+          <ap-tarjeta-kpi etiqueta="Rechazadas" [valor]="'' + cuenta('RECHAZADA')" icono="rechazar" pista="En lo cargado" />
+        </div>
+        <ap-listado data-tutorial-id="publicidad-tabla-campanas" [titulo]="t.tituloLista" [columnas]="columnas" [listado]="listado" [carga]="lotes.carga()" [identidad]="porId" [exportables]="exportables" nombreDeRegistros="campañas" [ayudaDeBusqueda]="t.ayudaBusqueda" [textoVacio]="t.sinCampanas" [explicacionVacio]="t.porOmision" (reintentar)="lotes.recargar()">
+          <ap-barra-de-lotes accionesDeListado [hayMas]="lotes.hayMas()" [cargando]="lotes.cargandoMas()" [error]="lotes.errorDeMas()" (cargarMas)="lotes.cargarMas()" />
+          <ng-template #celda let-c let-columna="columna">
+            @switch (columna.clave) {
+              @case ('nombre') { <span class="nombre">{{ c.nombre }}</span> }
+              @case ('estado') { <ap-chip-estado [tono]="tonoDe(c)">{{ textoDeEstado(c) }}</ap-chip-estado> }
+              @case ('objetivo') { {{ textoDeObjetivo(c) }} }
+              @case ('fechaInicio') { <ap-fecha [iso]="c.fechaInicio" [conHora]="false" /> }
+              @case ('presupuestoTotal') { <ap-monto [monto]="c.presupuestoTotal.monto" [moneda]="c.presupuestoTotal.moneda" [etiqueta]="t.columnaPresupuesto" /> }
+              @case ('presupuestoConsumido') { <ap-monto [monto]="c.presupuestoConsumido.monto" [moneda]="c.presupuestoConsumido.moneda" [etiqueta]="t.columnaConsumido" /> }
+              @default { {{ c[columna.clave] }} }
+            }
+          </ng-template>
+          <ng-template #acciones let-c>
+            @if (c.estado === 'EN_REVISION') {
+              <ap-acciones-de-fila [fila]="c.nombre">
+                <button type="button" apAccionDeFila [attr.aria-label]="t.revisar + ' ' + c.nombre" (click)="revisar(c)"><ap-icono nombre="aprobar" tamano="s4" /><span>{{ t.revisar }}</span></button>
+              </ap-acciones-de-fila>
+            } @else { <span class="sin-accion">{{ t.sinAccion }}</span> }
+          </ng-template>
+        </ap-listado>
       } @else {
-        <p class="nota" role="status">{{ t.soloOperaciones }}</p>
+        <ap-alerta tono="info">{{ t.soloOperaciones }}</ap-alerta>
       }
     </section>
-
-    <ap-dialogo [titulo]="t.nuevaCampana" [textoDeConfirmar]="t.guardar" [abierto]="dialogoAbierto()" [cargando]="guardando()" (abiertoChange)="dialogoAbierto.set($event)" (confirmar)="guardar()" (cancelar)="cerrar()">
-      <div class="formulario" data-tutorial-id="publicidad-formulario-campana">
-        <ap-campo [etiqueta]="t.nombre" [(valor)]="nombre" [error]="intentoGuardar() && !nombre() ? 'Obligatorio' : undefined" />
-        <ap-campo-monto [etiqueta]="t.presupuestoTotal" [(valor)]="presupuesto" [error]="intentoGuardar() && !presupuesto() ? 'Obligatorio' : undefined" />
-      </div>
-    </ap-dialogo>
+    <ap-formulario-de-campana (creada)="alCrear()" />
   `,
   styles: `
-    .pantalla { padding: var(--s5); max-width: 68rem; display: grid; gap: var(--s4); }
-    .nota { color: var(--text-2); margin: 0; }
-    a { color: var(--text); }
-    a:focus-visible { outline: var(--borde-foco) solid var(--g300); outline-offset: var(--borde-desfase); }
-    .formulario { display: grid; gap: var(--s3); }
+    /* El host de ap-listado es una grilla de columna automática: sin esto, una tabla ancha lo ensancha (pedido al dueño del kit). */
+    ap-listado { grid-template-columns: minmax(0, 1fr); }
+    .pantalla { padding: var(--s5); display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s4); min-width: 0; }
+    .cifras { display: grid; gap: var(--s3); grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr)); }
+    .nombre { display: inline-block; min-width: 14ch; max-width: 30ch; font-weight: 600; color: var(--text); white-space: normal; overflow-wrap: anywhere; }
+    .sin-accion { color: var(--text-3); font: var(--t-cuerpo-chico); }
   `,
 })
 export class PantallaDeCampanas {
-  constructor() {
-    inject(ExplicadorDeVista).fijar(this.t.propositoGestion)
-  }
   private readonly sesion = inject(Sesion)
-  private readonly acciones = accionesDeCampana()
-  protected readonly t = textosPublicidad.campanas
-  protected readonly COLUMNAS = COLUMNAS
-  protected readonly FILTROS = FILTROS
-  protected readonly identidad = (c: Campana) => c.campanaId
-  protected readonly listado = observarListado(cargadorDeCampanas(), textosPublicidad.errores)
+  private readonly router = inject(Router)
+  protected readonly t = t
+  protected readonly formulario = viewChild.required(FormularioDeCampana)
+  protected readonly lotes = lotesDeCampanas()
+  protected readonly creada = signal(false)
+  protected readonly porId = (c: Campana) => c.campanaId
   protected readonly puedeGestionar = () => this.sesion.puede('PUBLICIDAD_ANUNCIANTES')
   protected readonly puedeVerLaCola = () => this.sesion.puede('PUBLICIDAD_APROBAR_CAMPANA')
-  protected readonly textoDeEstado = (c: Campana) => this.t.estados[c.estado]
-  private readonly queryParamMap = toSignal(inject(ActivatedRoute).queryParamMap, { requireSync: false })
-  protected readonly filtrosActivos = computed<Record<string, string>>(() => {
-    const elegido = this.queryParamMap()?.get('filtro')?.split(',').filter(Boolean)[0]
-    return elegido ? { estado: elegido } : ({} as Record<string, string>)
+  protected readonly textoDeEstado = (c: Campana) => t.estados[c.estado]
+  protected readonly textoDeObjetivo = (c: Campana) => t.objetivos[c.objetivo]
+  protected readonly tonoDe = (c: Campana) => TONOS[c.estado]
+  protected readonly cuenta = (estado: Campana['estado']) => this.porEstado()[estado] ?? 0
+  private readonly porEstado = computed(() => this.lotes.filas().reduce<Record<string, number>>((n, c) => ({ ...n, [c.estado]: (n[c.estado] ?? 0) + 1 }), {}))
+
+  protected readonly listado = crearListado<Campana>({
+    filas: this.lotes.filas,
+    camposDeBusqueda: ['nombre', (c) => t.estados[c.estado], (c) => t.objetivos[c.objetivo], 'campanaId', 'anuncianteId'],
+    filtros: [
+      { nombre: 'estado', etiqueta: 'Estado', valor: (c) => c.estado, opciones: ESTADOS_DE_CAMPANA.map((v) => ({ valor: v, texto: t.estados[v] })), ayuda: 'Se consulta al servidor. «Todos» trae los seis estados.' },
+      { nombre: 'objetivo', etiqueta: 'Objetivo', valor: (c) => c.objetivo, texto: (v) => t.objetivos[v as Campana['objetivo']] ?? v },
+      { nombre: 'moneda', etiqueta: 'Moneda', valor: (c) => c.presupuestoTotal.moneda },
+    ],
+    valorParaOrden: (c, clave) => (clave === 'presupuestoTotal' ? c.presupuestoTotal.monto : clave === 'presupuestoConsumido' ? c.presupuestoConsumido.monto : (c as Record<string, unknown>)[clave]),
   })
+  protected readonly columnas: Columna<Campana>[] = [
+    { clave: 'nombre', titulo: 'Campaña', ordenable: true },
+    { clave: 'estado', titulo: 'Estado', ordenable: true },
+    { clave: 'objetivo', titulo: 'Objetivo', ordenable: true },
+    { clave: 'fechaInicio', titulo: 'Inicio', ordenable: true },
+    { clave: 'presupuestoTotal', titulo: 'Presupuesto', numerica: true, ordenable: true },
+    { clave: 'presupuestoConsumido', titulo: 'Consumido', numerica: true, ordenable: true },
+  ]
+  protected readonly exportables: ColumnaExportable<Campana>[] = [
+    { clave: 'campanaId', titulo: 'Identificador' },
+    { clave: 'nombre', titulo: 'Campaña' },
+    { clave: 'estado', titulo: 'Estado', valor: (c) => t.estados[c.estado] },
+    { clave: 'objetivo', titulo: 'Objetivo', valor: (c) => t.objetivos[c.objetivo] },
+    { clave: 'fechaInicio', titulo: 'Inicio' },
+    { clave: 'presupuestoTotal', titulo: 'Presupuesto', valor: (c) => dinero(c.presupuestoTotal) },
+    { clave: 'presupuestoConsumido', titulo: 'Consumido', valor: (c) => dinero(c.presupuestoConsumido) },
+    { clave: 'anuncianteId', titulo: 'Anunciante' },
+  ]
 
-  protected readonly dialogoAbierto = signal(false)
-  protected readonly guardando = signal(false)
-  protected readonly intentoGuardar = signal(false)
-  protected readonly nombre = signal('')
-  protected readonly presupuesto = signal('')
-
-  abrir(): void {
-    this.nombre.set('')
-    this.presupuesto.set('')
-    this.intentoGuardar.set(false)
-    this.dialogoAbierto.set(true)
+  constructor() {
+    inject(ExplicadorDeVista).fijar(t.propositoGestion)
+    // La cola abre en lo que espera a alguien; el efecto de abajo hace la primera consulta con este filtro.
+    this.listado.filtrar('estado', 'EN_REVISION')
+    if (this.puedeVerLaCola()) filtroEnElServidor(this.listado, this.lotes)
   }
 
-  cerrar(): void {
-    this.dialogoAbierto.set(false)
+  /** La campaña viaja en el estado de la navegación: el contrato no tiene `GET /campanas/{id}` para releerla. */
+  protected revisar(c: Campana): void {
+    void this.router.navigate(['/publicidad/campanas', c.campanaId, 'aprobacion'], { state: { campana: c } })
   }
 
-  async guardar(): Promise<void> {
-    this.intentoGuardar.set(true)
-    const presupuestoContrato = this.presupuesto() ? aCadenaDelContrato(this.presupuesto()) : null
-    if (!this.nombre().trim() || !presupuestoContrato) return
-    this.guardando.set(true)
-    try {
-      // Hueco declarado: esta pantalla no captura todavía la cuenta publicitaria del
-      // anunciante autenticado ni los conjuntos (`EntradaCampana.conjuntos` exige
-      // mínimo 1) — el servidor va a rechazar esto con AP-CU111-0x hasta que se sume
-      // el formulario de conjuntos (fuera del alcance que fijó `docs/Flujo de
-      // pantallas · backoffice administrador.md` §6 para F14). Queda anotado en el
-      // informe del carril como pendiente, no oculto.
-      await this.acciones.crear({
-        cuentaPublicitariaId: '00000000-0000-4000-8000-000000000000',
-        nombre: this.nombre(),
-        objetivo: EntradaCampanaObjetivoEnum.VisibilidadMarca,
-        presupuestoTotal: presupuestoContrato,
-        moneda: EntradaCampanaMonedaEnum.Bob,
-        fechaInicio: new Date().toISOString(),
-        conjuntos: [],
-      })
-      this.cerrar()
-    } finally {
-      this.guardando.set(false)
-    }
+  protected alCrear(): void {
+    this.creada.set(true)
+    if (this.puedeVerLaCola()) this.lotes.recargar()
   }
 }

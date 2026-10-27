@@ -33,24 +33,27 @@ type Envio = 'inactivo' | 'enviando' | 'confirmado' | 'sinConfirmar' | 'rechazad
   imports: [Alerta, Boton, CabeceraDePagina, Campo, GrupoRadio, Monto],
   template: `
     <section class="pantalla" aria-labelledby="titulo-retiro">
-      <ap-cabecera-de-pagina id="titulo-retiro" [titulo]="t.titulo" [descripcion]="t.proposito" icono="retiro" />
-      <p class="aviso">{{ t.sinListado }}</p>
+      <ap-cabecera-de-pagina id="titulo-retiro" eyebrow="Operación · CU-11" [titulo]="t.titulo" [descripcion]="t.proposito" icono="retiro">
+        <ap-boton acciones variante="secundario" icono="flechaIzquierda" (pulsado)="volver()">{{ t.volverABandeja }}</ap-boton>
+      </ap-cabecera-de-pagina>
+      @if (!resumen) { <p class="aviso">{{ t.sinListado }}</p> }
+      <div class="cuerpo" [class.con-resumen]="!!resumen">
       @if (resumen; as r) {
-        <dl class="resumen" [attr.aria-label]="t.resumen">
+        <dl class="resumen tarjeta" [attr.aria-label]="t.resumen">
           <dt>{{ t.bandeja.columnas.solicitado }}</dt><dd><ap-monto [monto]="r.solicitado.monto" [moneda]="r.solicitado.moneda" /></dd>
           <dt>{{ t.bandeja.columnas.costo }}</dt><dd><ap-monto [monto]="r.costo.monto" [moneda]="r.costo.moneda" /></dd>
           <dt>{{ t.bandeja.columnas.neto }}</dt><dd><ap-monto [monto]="r.neto.monto" [moneda]="r.neto.moneda" /></dd>
         </dl>
       }
 
+      <div class="tarjeta">
       @if (resultado(); as r) {
         <ap-alerta [tono]="r.estado === 'AUTORIZADA' ? 'ok' : 'info'">
           {{ r.estado === 'AUTORIZADA' ? t.confirmadaAutorizada : t.confirmadaRechazada }}
           <span class="traza">{{ t.aprobadaPor }} {{ r.aprobadaPor }}</span>
         </ap-alerta>
-        <div class="acciones">
-          <ap-boton variante="secundario" (pulsado)="ordenId() ? volver() : otra()">{{ ordenId() ? t.volverABandeja : t.otra }}</ap-boton>
-        </div>
+        <!-- Con la orden fijada por la ruta, «Volver a la bandeja» ya está en la cabecera. -->
+        @if (!ordenId()) { <div class="acciones"><ap-boton variante="secundario" icono="mas" (pulsado)="otra()">{{ t.otra }}</ap-boton></div> }
       } @else {
         @if (!puedeAprobar()) {
           <ap-alerta tono="info">{{ t.sinPermiso }}</ap-alerta>
@@ -80,16 +83,21 @@ type Envio = 'inactivo' | 'enviando' | 'confirmado' | 'sinConfirmar' | 'rechazad
           }
           <ap-campo [etiqueta]="t.motivoEtiqueta" [ayuda]="t.motivoAyuda" [error]="errorMotivo()" [deshabilitado]="bloqueado()" [(valor)]="motivo" />
           <div class="acciones">
-            <ap-boton variante="primario" tipo="submit" [cargando]="envio() === 'enviando'" [deshabilitado]="bloqueado()">
+            <ap-boton variante="primario" tipo="submit" icono="enviar" [cargando]="envio() === 'enviando'" [deshabilitado]="bloqueado()">
               {{ envio() === 'sinConfirmar' ? t.reintentar : envio() === 'enviando' ? t.resolviendo : t.resolver }}
             </ap-boton>
           </div>
         </form>
       }
+      </div>
+      </div>
     </section>
   `,
   styles: `
-    .pantalla { padding: var(--s5); max-width: 40rem; display: flex; flex-direction: column; gap: var(--s4); }
+    .pantalla { padding: var(--s5); display: flex; flex-direction: column; gap: var(--s5); min-width: 0; }
+    .cuerpo { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s5); align-items: start; }
+    @media (min-width: 64rem) { .cuerpo.con-resumen { grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); } }
+    .tarjeta { display: flex; flex-direction: column; gap: var(--s4); min-width: 0; padding: var(--s5); border: var(--borde-fino) solid var(--border); border-radius: var(--r-lg); background: var(--surface); box-shadow: var(--sombra-1); }
     .pantalla > * { margin: 0; }
     .aviso, .advertencia { color: var(--text-2); }
     .traza { display: block; margin-top: var(--s1); font-size: .875rem; overflow-wrap: anywhere; }
@@ -97,7 +105,7 @@ type Envio = 'inactivo' | 'enviando' | 'confirmado' | 'sinConfirmar' | 'rechazad
     .bloque { border: 0; margin: 0; padding: 0; min-width: 0; }
     .error-campo { margin: 0; color: var(--err-texto); font-size: .875rem; }
     .acciones { display: flex; gap: var(--s2); flex-wrap: wrap; }
-    .resumen { display: grid; grid-template-columns: auto 1fr; gap: var(--s1) var(--s3); margin: 0; } dd { margin: 0; }
+    .resumen { display: grid; grid-template-columns: auto 1fr; gap: var(--s2) var(--s3); margin: 0; } dd { margin: 0; text-align: right; }
   `,
 })
 export class PantallaDeAprobacionDeRetiro {

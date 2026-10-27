@@ -4,7 +4,7 @@ import type { DesembolsoEnLista } from 'clientes/angular/entregas/model/desembol
 import type { PaginaDeDesembolsos } from 'clientes/angular/entregas/model/paginaDeDesembolsos'
 import { GATEWAY } from '../../../../nucleo/gateway'
 import type { PedirPorCursor } from '../../../../nucleo/tabla/cursor'
-import { bandejaPorCursor, cursorDe, estadosDe, pedirJson, type Bandeja } from '../../dominio/bandeja-por-cursor'
+import { cursorDe, estadosDe, pedirJson } from '../../dominio/bandeja-por-cursor'
 
 export type { DesembolsoEnLista }
 
@@ -28,6 +28,7 @@ export function pedirDesembolsos(http: HttpClient, gateway: string): PedirPorCur
   }
 }
 
-export function bandejaDeDesembolsos(): Bandeja<DesembolsoEnLista> {
-  return bandejaPorCursor(pedirDesembolsos(inject(HttpClient), inject(GATEWAY)))
+/** Fábrica en contexto de inyección: la pantalla no importa `HttpClient`. */
+export function pedidorDeDesembolsos(): PedirPorCursor<DesembolsoEnLista, Cursor> {
+  return pedirDesembolsos(inject(HttpClient), inject(GATEWAY))
 }

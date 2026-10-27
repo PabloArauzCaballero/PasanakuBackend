@@ -10,7 +10,8 @@ h2 { font: var(--t-titulo-3); font-weight: 600; color: var(--text); margin: 0; }
 .esqueleto-superpuesto { position: absolute; inset: 0; background: var(--surface); padding: var(--s4); z-index: 2; }
 .fila { display: flex; align-items: center; border-top: var(--borde-fino) solid var(--border); transition: background-color var(--mov-micro) ease; } .fila:hover:not(.fila-cabecera) { background: color-mix(in srgb, var(--surface-2) 65%, transparent); }
 .fila-cabecera { border-top: 0; background: color-mix(in srgb, var(--surface-2) 85%, var(--surface)); font-weight: 600; font-size: 0.8125rem; letter-spacing: 0.02em; color: var(--text-2); } .fila:first-child { border-top: 0; }
-.celda { padding: var(--s3) var(--s4); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.875rem; }
+.celda { padding: var(--s3) var(--s4); flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: var(--t-cuerpo-chico); color: var(--text); }
+.fila-cabecera .celda { font: var(--t-cabecera-tabla); letter-spacing: var(--t-cabecera-tabla-track); text-transform: uppercase; color: var(--text-3); white-space: normal; }
 .celda.numerica { text-align: right; font-variant-numeric: tabular-nums; } .celda.marca { flex: 0 0 var(--s7); }
 .viewport {
   width: 100%;

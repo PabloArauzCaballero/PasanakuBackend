@@ -8,8 +8,9 @@ import type { CargadorDePagina, PaginaServidor, PedidoDePagina } from './tipos'
  *
  * - La página N se pide con el cursor que devolvió la N-1 (guardado acá). Si se salta a una página cuyo cursor no se
  *   conoce, se recorre desde la última conocida: nunca se calcula un cursor.
- * - El total que ve la tabla es «filas ya vistas + una página más si hay próxima»: la paginación ofrece avanzar solo
- *   cuando el servidor dijo que hay más.
+ * - El total que ve la tabla sale de **todo lo recorrido**, no de la página actual: con el final conocido es
+ *   «páginas completas + largo de la última»; sin él, «lo más lejos que se llegó + una página». Volver de la 3 a la 1 no
+ *   achica el total: antes lo recalculaba desde la página pedida y las siguientes quedaban inalcanzables.
  * - Cambiar filtros, orden o tamaño reinicia los cursores: un cursor solo vale para la consulta que lo produjo.
  */
 export type PaginaPorCursor<T, C> = { items: T[]; siguiente: C | null }
@@ -23,6 +24,8 @@ export function cargadorPorCursor<T, C>(pedir: PedirPorCursor<T, C>): CargadorDe
   // cursores[n] = cursor con el que se pide la página n + 1 (la primera va sin cursor).
   let cursores: (C | null)[] = [null]
   let fin: number | null = null
+  let largoDelFin = 0
+  let maximoVisto = 0
 
   return async (pedido: PedidoDePagina): Promise<PaginaServidor<T>> => {
     const clave = JSON.stringify([pedido.tamano, pedido.orden, Object.entries(pedido.filtros).sort()])
@@ -30,6 +33,8 @@ export function cargadorPorCursor<T, C>(pedir: PedirPorCursor<T, C>): CargadorDe
       consulta = clave
       cursores = [null]
       fin = null
+      largoDelFin = 0
+      maximoVisto = 0
     }
     const objetivo = Math.max(0, pedido.pagina - 1)
     let indice = Math.min(objetivo, cursores.length - 1)
@@ -40,9 +45,12 @@ export function cargadorPorCursor<T, C>(pedir: PedirPorCursor<T, C>): CargadorDe
       pagina = await pedir({ limite: pedido.tamano, cursor: pagina.siguiente, filtros: pedido.filtros })
     }
     if (pagina.siguiente !== null) cursores[indice + 1] = pagina.siguiente
-    else fin = indice
-    const vistas = indice * pedido.tamano + pagina.items.length
-    const total = fin === null ? vistas + pedido.tamano : vistas
+    else {
+      fin = indice
+      largoDelFin = pagina.items.length
+    }
+    maximoVisto = Math.max(maximoVisto, indice * pedido.tamano + pagina.items.length)
+    const total = fin === null ? maximoVisto + pedido.tamano : fin * pedido.tamano + largoDelFin
     return { filas: pagina.items, total }
   }
 }

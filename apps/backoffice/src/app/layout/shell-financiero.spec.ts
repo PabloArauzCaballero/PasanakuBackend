@@ -30,7 +30,7 @@ describe('ShellFinanciero · salir y rol legible', () => {
     })
     http = TestBed.inject(HttpTestingController)
     sesion = TestBed.inject(Sesion)
-    sesion.abrir('token', ['ver:tablero', 'ver:operacion'], 'ADMIN_PLATAFORMA')
+    sesion.abrir('token', ['ver:tablero', 'RECLAMO_VER'], 'ADMIN_PLATAFORMA')
   })
 
   function montar(): HTMLElement {
@@ -63,14 +63,32 @@ describe('ShellFinanciero · salir y rol legible', () => {
     expect(sesion.abierta()).toBe(false)
   })
 
-  it('el menú solo ofrece lo que el permiso habilita y la cabecera muestra el rol legible', () => {
+  it('si el servidor devuelve 500, también sale y vuelve al ingreso', () => {
+    const router = TestBed.inject(Router)
+    const destinos: string[] = []
+    router.navigateByUrl = ((url: string) => { destinos.push(url); return Promise.resolve(true) }) as Router['navigateByUrl']
     const el = montar()
-    const enlaces = Array.from(el.querySelectorAll('ap-menu-lateral .entrada-fila > a')).map((a) => a.textContent?.trim())
-    expect(enlaces).toEqual(['Inicio', 'Operación', 'Ayuda']) // Ayuda es de todos
-    const hijos = Array.from(el.querySelectorAll('ap-menu-lateral .hijos a')).map((a) => a.textContent?.trim())
-    expect(hijos).toContain('Desembolsos')
-    expect(hijos).toContain('Arquitectura y estado')
+
+    ;(Array.from(el.querySelectorAll('button')).find((b) => b.textContent?.includes('Salir')) as HTMLButtonElement).click()
+    http.expectOne(`${GATEWAY_TEST}/sesion`).flush({ codigo: 'AP-500' }, { status: 500, statusText: 'Server Error' })
+
+    expect(sesion.abierta()).toBe(false)
+    expect(destinos).toEqual(['/ingreso'])
+  })
+
+  it('el menú solo ofrece lo que la sesión puede abrir; Ayuda está en el menú de usuario; la cabecera muestra el rol legible', () => {
+    const fixture = TestBed.createComponent(ShellFinanciero)
+    fixture.detectChanges()
+    const el = fixture.nativeElement as HTMLElement
+    const enlaces = Array.from(el.querySelectorAll('ap-menu-lateral a')).map((a) => a.textContent?.trim())
+    expect(enlaces).toEqual(['Inicio', 'Operación'])
     expect(el.querySelector('[data-tutorial-id="cabecera-rol"]')?.textContent?.trim()).toBe('Administración de plataforma')
+    ;(el.querySelector('ap-menu-de-usuario .disparador') as HTMLButtonElement).click()
+    fixture.detectChanges()
+    const opciones = Array.from(el.querySelectorAll('ap-menu-de-usuario [role="menuitem"]')).map((o) => o.textContent?.trim())
+    expect(opciones).toEqual(['Centro de ayuda', 'Salir'])
+    expect(el.querySelector('ap-menu-de-usuario a[role="menuitem"]')?.getAttribute('href')).toBe('/ayuda')
+    expect(el.querySelectorAll('ap-menu-de-usuario [role="menuitem"] ap-icono, ap-menu-de-usuario [role="menuitem"] ap-icono-de-seccion')).toHaveLength(2)
   })
 
   it('rolLegible convierte el código en texto para personas', () => {

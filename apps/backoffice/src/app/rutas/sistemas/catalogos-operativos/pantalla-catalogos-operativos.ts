@@ -1,89 +1,61 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core'
+import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core'
 import { Router } from '@angular/router'
+import { AccionesDeFila } from '@aportaya/ui/acciones-de-fila/acciones-de-fila'
 import { Boton } from '@aportaya/ui/boton/boton'
 import { CabeceraDePagina } from '@aportaya/ui/cabecera-de-pagina/cabecera-de-pagina'
-import { CampoBusqueda } from '@aportaya/ui/campo-busqueda/campo-busqueda'
 import { ChipEstado } from '@aportaya/ui/chip-estado/chip-estado'
-import { EstadoDePantalla } from '@aportaya/ui/estado-de-pantalla/estado-de-pantalla'
-import { TablaDeDatos, type Columna } from '@aportaya/ui/tabla-de-datos/tabla-de-datos'
+import type { ColumnaExportable } from '@aportaya/ui/exportar-listado/exportar'
+import { crearListado } from '@aportaya/ui/listado/crear-listado'
+import { ListadoDeDatos } from '@aportaya/ui/listado/listado'
+import type { Columna } from '@aportaya/ui/tabla-de-datos/tabla-de-datos'
 import type { Tono } from '@aportaya/ui/tono/tono'
 import { ExplicadorDeVista } from '../../../nucleo/explicador-de-vista'
-import {
-  catalogosOperativos,
-  type CatalogoOperativoResumen,
-} from '../dominio/catalogos-operativos'
+import { cargaDe, filasDe } from '../compartido/carga'
+import { CifrasDeSistemas, contar, type Cifra } from '../compartido/cifras'
+import { catalogosOperativos, type CatalogoOperativoResumen } from '../dominio/catalogos-operativos'
 import { textosSistemas } from '../textos'
 
-type FilaCatalogo = CatalogoOperativoResumen & {
-  conteoElementos?: string
-  acciones?: string
-}
+type FilaCatalogo = CatalogoOperativoResumen & { conteoElementos?: string }
+const ESTADO: Record<string, string> = { VIGENTE: 'Vigente', EN_REVISION: 'En revisión', OBSOLETO: 'Obsoleto' }
+const TONO: Record<string, Tono> = { VIGENTE: 'ok', EN_REVISION: 'aviso', OBSOLETO: 'neutro' }
 
+/**
+ * Catálogos operativos (`GET /auditoria/catalogos`). La cabecera de un catálogo no se edita ni se borra por contrato;
+ * la acción de fila es **Ver**, que lleva a la ficha, donde sí se activan o desactivan sus elementos.
+ */
 @Component({
   selector: 'ap-pantalla-catalogos-operativos',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [
-    Boton,
-    CabeceraDePagina,
-    CampoBusqueda,
-    ChipEstado,
-    EstadoDePantalla,
-    TablaDeDatos,
-  ],
+  imports: [AccionesDeFila, Boton, CabeceraDePagina, ChipEstado, CifrasDeSistemas, ListadoDeDatos],
   template: `
     <section class="pantalla">
-      <ap-cabecera-de-pagina [titulo]="t.titulo" [descripcion]="t.proposito" icono="baseDeDatos" />
-
-      <div class="filtros" role="search" aria-label="Búsqueda de catálogos operativos">
-        <div class="busqueda-contenedor">
-          <ap-campo-busqueda [etiqueta]="t.buscar" [(valor)]="busqueda" />
-        </div>
-      </div>
-
-      <ap-estado-de-pantalla
-        [recurso]="recurso"
-        [vacio]="esVacio"
-        [mensajeVacio]="t.vacio"
-        [etiquetaDeCarga]="t.cargando"
-        (reintentar)="recurso.reload()"
-      >
-        @if (recurso.hasValue() && recurso.value(); as catalogos) {
-          <ap-tabla-de-datos
-            [titulo]="t.titulo"
-            [columnas]="columnas"
-            [filas]="filasFiltradas()"
-          >
-            <ng-template #celda let-fila let-columna="columna">
-              @if (columna.clave === 'codigo') {
-                <code class="codigo">{{ fila.codigo }}</code>
-              } @else if (columna.clave === 'estado') {
-                <ap-chip-estado [tono]="tonoEstado(fila.estado)">
-                  {{ fila.estado }}
-                </ap-chip-estado>
-              } @else if (columna.clave === 'conteoElementos') {
-                <span class="conteo">{{ fila.elementosActivos }} / {{ fila.totalElementos }}</span>
-              } @else if (columna.clave === 'acciones') {
-                <ap-boton
-                  variante="fantasma"
-                  (pulsado)="irADetalle(fila.codigo)"
-                >
-                  {{ t.verElementos }}
-                </ap-boton>
-              } @else {
-                {{ fila[columna.clave] }}
-              }
-            </ng-template>
-          </ap-tabla-de-datos>
-        }
-      </ap-estado-de-pantalla>
+      <ap-cabecera-de-pagina eyebrow="Sistemas · Auditoría" [titulo]="t.titulo" [descripcion]="t.proposito" icono="lista">
+        <ap-boton acciones icono="recarga" [deshabilitado]="recurso.isLoading()" (pulsado)="recurso.reload()">Actualizar</ap-boton>
+      </ap-cabecera-de-pagina>
+      <ap-cifras-de-sistemas etiqueta="Resumen de catálogos" [cifras]="cifras()" />
+      <ap-listado [titulo]="t.titulo" [columnas]="columnas" [listado]="listado" [carga]="carga()" [identidad]="identidad" [ayudaDeBusqueda]="t.buscar + ' o descripción.'" [exportables]="exportables" nombreDeRegistros="catálogos" [textoVacio]="t.vacio" explicacionVacio="Los catálogos los publica el servicio de auditoría; cuando existan, aparecen acá con su versión vigente." (reintentar)="recurso.reload()">
+        <ng-template #celda let-c let-col="columna">
+          @switch (col.clave) {
+            @case ('codigo') { <code>{{ c.codigo }}</code> }
+            @case ('estado') { <ap-chip-estado [tono]="tono(c)">{{ estado(c) }}</ap-chip-estado> }
+            @case ('conteoElementos') { <span class="conteo">{{ c.elementosActivos }} / {{ c.totalElementos }}</span> }
+            @default { {{ c[col.clave] }} }
+          }
+        </ng-template>
+        <ng-template #acciones let-c>
+          <ap-acciones-de-fila [fila]="c.nombre" [ver]="true" [textoVer]="t.verElementos" (verPulsado)="irADetalle(c.codigo)" />
+        </ng-template>
+      </ap-listado>
     </section>
   `,
   styles: `
-    .pantalla { padding: 0; max-width: 72rem; display: flex; flex-direction: column; gap: var(--s5); }
-    .filtros { display: flex; flex-wrap: wrap; align-items: flex-end; gap: var(--s3); }
-    .busqueda-contenedor { flex: 1; min-width: 14rem; }
-    .codigo { font-family: var(--f-mono); font-size: 0.85em; color: var(--text); background: var(--surface-2); padding: var(--s1) var(--s2); border-radius: var(--r-sm); }
-    .conteo { font-variant-numeric: tabular-nums; font-weight: 500; }
+    :host { display: block; min-width: 0; }
+    /* La tabla se desplaza dentro de su marco: las acciones van en una sola línea en vez de apilarse y estirar la fila. */
+    ap-acciones-de-fila { flex-wrap: nowrap; }
+    .pantalla { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s5); min-width: 0; }
+    /* ap-listado deja sus pistas en «auto»: sin esto la tabla ensancha la página en vez de desplazarse en su marco. */ ap-listado { grid-template-columns: minmax(0, 1fr); }
+    code { padding: 0 var(--s1); border-radius: var(--r-sm); background: var(--surface-2); font: var(--t-ayuda); font-family: var(--f-mono); color: var(--text-2); overflow-wrap: anywhere; }
+    .conteo { font-variant-numeric: tabular-nums; font-weight: 600; }
   `,
 })
 export class PantallaCatalogosOperativos {
@@ -94,44 +66,56 @@ export class PantallaCatalogosOperativos {
   }
 
   protected readonly t = textosSistemas.catalogosOperativos
-  readonly busqueda = signal('')
-
   protected readonly recurso = catalogosOperativos()
-
-  protected readonly esVacio = (items: CatalogoOperativoResumen[]) => items.length === 0
-
-  protected readonly filasFiltradas = computed<FilaCatalogo[]>(() => {
-    const items = this.recurso.value()
-    if (!items) return []
-    const termino = this.busqueda().trim().toLowerCase()
-    if (!termino) return items
-    return items.filter(
-      (c) =>
-        c.codigo.toLowerCase().includes(termino) ||
-        c.nombre.toLowerCase().includes(termino) ||
-        c.dueno.toLowerCase().includes(termino) ||
-        c.descripcion.toLowerCase().includes(termino),
-    )
+  protected readonly carga = cargaDe(this.recurso)
+  private readonly filas = filasDe<FilaCatalogo>(this.recurso)
+  protected readonly identidad = (c: FilaCatalogo) => c.codigo
+  protected readonly listado = crearListado<FilaCatalogo>({
+    filas: this.filas,
+    camposDeBusqueda: ['codigo', 'nombre', 'dueno', 'descripcion', 'version'],
+    filtros: [
+      { nombre: 'estado', etiqueta: 'Estado', valor: (c) => c.estado, texto: (v) => ESTADO[v] ?? v },
+      { nombre: 'dueno', etiqueta: 'Dueño', valor: (c) => c.dueno },
+    ],
+    porPagina: 10,
+    valorParaOrden: (c, clave) => (clave === 'conteoElementos' ? c.elementosActivos : (c as unknown as Record<string, unknown>)[clave]),
   })
-
+  protected readonly cifras = computed<Cifra[]>(() => {
+    const f = this.filas()
+    return [
+      { etiqueta: 'Catálogos', valor: contar(f), icono: 'lista' },
+      { etiqueta: 'Vigentes', valor: contar(f, (c) => c.estado === 'VIGENTE'), icono: 'verificado', tono: 'ok' },
+      { etiqueta: 'En revisión', valor: contar(f, (c) => c.estado === 'EN_REVISION'), icono: 'reloj', tono: 'aviso' },
+      { etiqueta: 'Elementos activos', valor: String(f.reduce((s, c) => s + c.elementosActivos, 0)), icono: 'etiqueta', pista: `de ${f.reduce((s, c) => s + c.totalElementos, 0)} elementos` },
+    ]
+  })
   protected readonly columnas: Columna<FilaCatalogo>[] = [
-    { clave: 'codigo', titulo: 'Código' },
+    { clave: 'codigo', titulo: 'Código', ordenable: true },
     { clave: 'nombre', titulo: 'Catálogo', ordenable: true },
     { clave: 'dueno', titulo: 'Dueño', ordenable: true },
     { clave: 'version', titulo: 'Versión' },
-    { clave: 'conteoElementos', titulo: 'Activos / Total' },
+    { clave: 'conteoElementos', titulo: 'Activos / Total', numerica: true, ordenable: true },
+    { clave: 'vigenteDesde', titulo: 'Vigencia', ordenable: true },
+    { clave: 'estado', titulo: 'Estado', ordenable: true },
+  ]
+  protected readonly exportables: ColumnaExportable<FilaCatalogo>[] = [
+    { clave: 'codigo', titulo: 'Código' },
+    { clave: 'nombre', titulo: 'Catálogo' },
+    { clave: 'dueno', titulo: 'Dueño' },
+    { clave: 'version', titulo: 'Versión' },
+    { clave: 'elementosActivos', titulo: 'Elementos activos' },
+    { clave: 'totalElementos', titulo: 'Elementos totales' },
     { clave: 'vigenteDesde', titulo: 'Vigencia' },
-    { clave: 'estado', titulo: 'Estado' },
-    { clave: 'acciones', titulo: 'Acciones' },
+    { clave: 'estado', titulo: 'Estado', valor: (c) => ESTADO[c.estado] ?? c.estado },
   ]
 
-  protected tonoEstado(estado: string): Tono {
-    if (estado === 'VIGENTE') return 'ok'
-    if (estado === 'EN_REVISION') return 'aviso'
-    return 'neutro'
+  protected estado(c: FilaCatalogo): string {
+    return ESTADO[c.estado] ?? c.estado
   }
-
+  protected tono(c: FilaCatalogo): Tono {
+    return TONO[c.estado] ?? 'neutro'
+  }
   protected irADetalle(codigo: string): void {
-    this.router.navigate(['/sistemas/catalogos-operativos', codigo])
+    void this.router.navigate(['/sistemas/catalogos-operativos', codigo])
   }
 }

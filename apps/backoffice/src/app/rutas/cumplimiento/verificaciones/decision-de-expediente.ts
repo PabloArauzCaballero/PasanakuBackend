@@ -34,6 +34,7 @@ export type Decision = { decision: DecisionDeVerificacionDecisionEnum; motivo?: 
     <div class="acciones">
       <ap-boton
         variante="primario"
+        icono="aprobar"
         [deshabilitado]="!aprobable() || ocupado()"
         [cargando]="enCurso() === decisiones.Aprobar"
         (pulsado)="decidir.emit({ decision: decisiones.Aprobar })"
@@ -42,6 +43,7 @@ export type Decision = { decision: DecisionDeVerificacionDecisionEnum; motivo?: 
       </ap-boton>
       <ap-boton
         variante="peligro"
+        icono="rechazar"
         [deshabilitado]="!motivo().trim() || ocupado()"
         [cargando]="enCurso() === decisiones.Rechazar"
         (pulsado)="decidir.emit({ decision: decisiones.Rechazar, motivo: motivo().trim() })"

@@ -15,7 +15,8 @@ describe('BuscadorGlobal', () => {
     TestBed.configureTestingModule({
       providers: [provideZonelessChangeDetection(), provideRouter([]), provideHttpClient(), provideHttpClientTesting(), { provide: GATEWAY, useValue: 'http://gw/api/v1' }],
     })
-    TestBed.inject(Sesion).abrir('token', ['ver:tablero', 'ver:sistemas'], 'ADMIN_PLATAFORMA')
+    // Sistemas exige además el rol de sistemas (F1): sin él, el buscador no ofrece sus pantallas.
+    TestBed.inject(Sesion).abrir('token', ['ver:tablero', 'ver:sistemas'], 'PLATAFORMA')
     destinos = []
     const router = TestBed.inject(Router)
     router.navigateByUrl = ((url: string) => {
@@ -67,5 +68,12 @@ describe('BuscadorGlobal', () => {
     escribir(fixture, input, 'cumplim')
     expect(el.querySelectorAll('[role="option"]')).toHaveLength(0)
     expect(el.querySelector('.nada')?.textContent).toContain('Nada coincide')
+  })
+
+  it('inválido (F1): con el permiso de sistemas pero sin su rol, el buscador no ofrece pantallas que rebotarían', () => {
+    TestBed.inject(Sesion).abrir('token', ['ver:tablero', 'ver:sistemas'], 'oficial')
+    const { fixture, el, input } = montar()
+    escribir(fixture, input, 'outb')
+    expect(el.querySelectorAll('[role="option"]')).toHaveLength(0)
   })
 })
