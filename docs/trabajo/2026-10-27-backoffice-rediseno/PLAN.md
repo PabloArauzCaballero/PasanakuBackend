@@ -130,3 +130,4 @@ responde 404 y no se llama (Accesos ya es «sin fuente»).
 | H5.M5 | Usuarios internos: Ver + «Más» (Roles, Suspender/Reactivar, Desbloquear, Editar) | fila de una línea; menú no recortado | captura `usuarios-internos-menu-mas*` + spec de mutaciones | HECHO |
 | H5.M6 | Sistemas sin fuente sin «Actualizar» | spec compartida de Sistemas | `test:front` | HECHO |
 | H5.M7 | Desplegar a TEST y verificar el bundle | bundle nuevo con los cambios | `curl` + `grep` | HECHO |
+| H5.M8 | Catálogo de datos › Columnas: «Revisar» pasa a la celda del nombre y se quita la columna fija que tapaba «Sistema»/«Sensibilidad» | ninguna columna tapada a 1280/768/375, claro y oscuro | capturas `catalogo-columnas-*` + `vista-columnas.spec` + e2e `catalogo-gobierno` | HECHO |
