@@ -116,11 +116,22 @@ export function probarVistaDePuerto<T>(caso: CasoDeVistaDePuerto<T>): void {
     expect(filasVisibles(el)).toBe(1)
   })
 
-  it('error: la fuente no disponible muestra el mensaje accionable y «Volver a intentar» vuelve a pedir', async () => {
-    const obtener = vi.fn(() => Promise.reject({ tipo: 'fuente-no-disponible', mensaje: 'No pudimos traer los datos: todavía no existe un origen real.' }))
+  // Sin contrato no es una falla: se dice en un estado neutro (2026-10-27). La caja roja con «Volver a intentar» se leía
+  // como una caída y reintentar no podía cambiar nada.
+  it('sin fuente: estado neutro con su explicación, sin caja de error, sin reintento y sin cifras', async () => {
+    const obtener = vi.fn(() => Promise.reject({ tipo: 'fuente-no-disponible', mensaje: 'Ningún servicio publica todavía estos datos.' }))
+    const el = await estabilizar(montar(obtener))
+    expect(el.querySelector('ap-estado-de-error')).toBeNull()
+    expect(texto(el.querySelector('ap-listado ap-estado-vacio'))).toContain('Ningún servicio publica todavía estos datos.')
+    expect(Array.from(el.querySelectorAll('button')).some((b) => b.textContent?.includes('Volver a intentar'))).toBe(false)
+    expect(el.querySelectorAll('ap-tarjeta-kpi').length).toBe(0)
+  })
+
+  it('error: una falla real del servicio sí muestra el error accionable y «Volver a intentar» vuelve a pedir', async () => {
+    const obtener = vi.fn(() => Promise.reject({ mensaje: 'El servicio no respondió a tiempo.' }))
     const f = montar(obtener)
     const el = await estabilizar(f)
-    expect(texto(el.querySelector('ap-estado-de-error'))).toContain('todavía no existe un origen real')
+    expect(texto(el.querySelector('ap-estado-de-error'))).toContain('El servicio no respondió a tiempo.')
     pulsar(el, 'Volver a intentar')
     await estabilizar(f)
     expect(obtener).toHaveBeenCalledTimes(2)

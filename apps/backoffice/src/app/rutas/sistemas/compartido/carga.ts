@@ -28,12 +28,21 @@ export function cargaDe(recurso: ResourceRef<unknown>): Signal<CargaDeListado> {
   return computed<CargaDeListado>(() => {
     const estado = recurso.status()
     if (estado === 'error') {
+      const sinFuente = fuenteNoDisponible(recurso.error())
+      if (sinFuente) return { tipo: 'sin-fuente', mensaje: sinFuente }
       const { mensaje, trazaId } = mensajeDeError(recurso.error())
       return { tipo: 'error', mensaje, idPeticion: trazaId }
     }
     if (estado === 'loading' || (estado === 'reloading' && !recurso.hasValue())) return { tipo: 'cargando' }
     return { tipo: 'lista' }
   })
+}
+
+/** El mensaje de `ErrorFuenteNoDisponible` (la pantalla todavía no tiene contrato), desenvolviendo el error de `resource()`. */
+function fuenteNoDisponible(e: unknown): string | undefined {
+  if (e instanceof Error && e.cause !== undefined) return fuenteNoDisponible(e.cause)
+  if (e && typeof e === 'object' && (e as { tipo?: unknown }).tipo === 'fuente-no-disponible') return (e as { mensaje: string }).mensaje
+  return undefined
 }
 
 /** Las filas del recurso, o ninguna mientras carga o si falló (`value()` lanza en error). */
