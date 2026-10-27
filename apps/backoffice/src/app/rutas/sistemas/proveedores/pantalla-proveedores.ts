@@ -23,7 +23,7 @@ import { textosSistemas } from '../textos'
   template: `
     <section class="pantalla">
       <ap-cabecera-de-pagina eyebrow="Sistemas" [titulo]="t.titulo" [descripcion]="t.proposito" icono="enlace">
-        <ap-boton acciones variante="fantasma" icono="recarga" [deshabilitado]="proveedores.isLoading()" (pulsado)="proveedores.reload()">Actualizar</ap-boton>
+        @if (carga().tipo !== 'sin-fuente') { <ap-boton acciones variante="fantasma" icono="recarga" [deshabilitado]="proveedores.isLoading()" (pulsado)="proveedores.reload()">Actualizar</ap-boton> }
       </ap-cabecera-de-pagina>
       <ap-cifras-de-sistemas etiqueta="Resumen de proveedores" [cifras]="cifras()" [carga]="carga()" />
       <ap-listado [titulo]="t.titulo" [columnas]="columnas" [listado]="listado" [carga]="carga()" ayudaDeBusqueda="Busca por nombre del proveedor, categoría o moneda." [exportables]="exportables" nombreDeRegistros="proveedores" [textoVacio]="t.vacio" explicacionVacio="Cuando se registre un proveedor externo, aparece acá con su costo real." (reintentar)="proveedores.reload()">

@@ -22,7 +22,7 @@ const ESTADO: Record<Migracion['estado'], string> = { aplicada: 'Aplicada', pend
   template: `
     <section class="pantalla">
       <ap-cabecera-de-pagina eyebrow="Sistemas" [titulo]="t.titulo" [descripcion]="t.proposito" icono="baseDeDatos">
-        <ap-boton acciones variante="fantasma" icono="recarga" [deshabilitado]="migraciones.isLoading()" (pulsado)="migraciones.reload()">Actualizar</ap-boton>
+        @if (carga().tipo !== 'sin-fuente') { <ap-boton acciones variante="fantasma" icono="recarga" [deshabilitado]="migraciones.isLoading()" (pulsado)="migraciones.reload()">Actualizar</ap-boton> }
       </ap-cabecera-de-pagina>
       <ap-cifras-de-sistemas etiqueta="Resumen de migraciones" [cifras]="cifras()" [carga]="carga()" />
       <ap-listado [titulo]="t.titulo" [columnas]="columnas" [listado]="listado" [carga]="carga()" ayudaDeBusqueda="Busca por nombre de la migración, estado o fecha de aplicación." [exportables]="exportables" nombreDeRegistros="migraciones" [textoVacio]="t.vacio" explicacionVacio="Cuando el pipeline registre una migración, aparece acá con su estado." (reintentar)="migraciones.reload()">

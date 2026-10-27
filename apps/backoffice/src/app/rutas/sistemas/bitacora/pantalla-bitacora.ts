@@ -38,7 +38,7 @@ import { Fecha } from '@aportaya/ui/fecha/fecha'
   template: `
     <section class="pantalla">
       <ap-cabecera-de-pagina eyebrow="Sistemas · Auditoría" [titulo]="t.titulo" [descripcion]="t.proposito" icono="libro">
-        <ap-boton acciones variante="fantasma" icono="recarga" [deshabilitado]="recurso.isLoading()" (pulsado)="recurso.reload()">Actualizar</ap-boton>
+        @if (carga().tipo !== 'sin-fuente') { <ap-boton acciones variante="fantasma" icono="recarga" [deshabilitado]="recurso.isLoading()" (pulsado)="recurso.reload()">Actualizar</ap-boton> }
       </ap-cabecera-de-pagina>
       <ap-cifras-de-sistemas etiqueta="Resumen de la página del registro" [cifras]="cifras()" [carga]="carga()" />
       <ap-barra-de-filtros etiqueta="Filtros del registro del sistema" [etiquetaDeBusqueda]="t.buscar" ayudaDeBusqueda="Busca en la página cargada por entidad, acción, rol del actor, origen, motivo o hash. Entidad y acción filtran en el servidor." [busqueda]="enPagina.busqueda()" [selectores]="selectores()" textoLimpiar="Limpiar filtros" (busquedaChange)="enPagina.buscar($event)" (selectorChange)="filtrar($event.nombre, $event.valor)" (limpiar)="limpiar()" />
