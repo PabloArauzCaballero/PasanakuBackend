@@ -59,7 +59,7 @@ const PERMISO_DE_RESOLUCION = 'ADMIN_PLATAFORMA'
     </section>
   `,
   styles: `
-    .pantalla { padding: var(--s5); display: flex; flex-direction: column; gap: var(--s5); width: 100%; max-width: 64rem; margin-inline: auto; box-sizing: border-box; }
+    .pantalla { display: flex; flex-direction: column; gap: var(--s5); width: 100%; max-width: 64rem; margin-inline: auto; box-sizing: border-box; }
     .volver { display: inline-flex; align-items: center; gap: var(--s1); align-self: flex-start; min-height: var(--area-tactil); color: var(--brand-texto); font-weight: 600; }
     .volver:focus-visible { outline: var(--borde-foco) solid var(--g300); outline-offset: var(--borde-desfase); }
     h1 { margin: 0; }

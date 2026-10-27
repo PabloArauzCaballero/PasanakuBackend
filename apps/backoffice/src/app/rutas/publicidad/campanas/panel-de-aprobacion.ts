@@ -62,7 +62,7 @@ type Decision = 'APROBAR' | 'RECHAZAR'
     </ap-dialogo>
   `,
   styles: `
-    .pantalla { padding: var(--s5); display: grid; gap: var(--s4); justify-items: center; }
+    .pantalla { display: grid; gap: var(--s4); justify-items: center; }
     .pantalla > * { width: 100%; max-width: 56rem; }
     .tarjeta { display: grid; gap: var(--s4); padding: var(--s5); border: var(--borde-fino) solid var(--border); border-radius: var(--r-lg); background: var(--surface); box-shadow: var(--sombra-1); min-width: 0; }
     .id { font-family: var(--mono); overflow-wrap: anywhere; }

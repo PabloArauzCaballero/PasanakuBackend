@@ -33,7 +33,7 @@ type Envio = 'inactivo' | 'enviando' | 'confirmado' | 'sinConfirmar' | 'rechazad
   imports: [Alerta, Boton, CabeceraDePagina, Campo, GrupoRadio, Monto],
   template: `
     <section class="pantalla" aria-labelledby="titulo-retiro">
-      <ap-cabecera-de-pagina id="titulo-retiro" eyebrow="Operación · CU-11" [titulo]="t.titulo" [descripcion]="t.proposito" icono="retiro">
+      <ap-cabecera-de-pagina id="titulo-retiro" eyebrow="Operación" [titulo]="t.titulo" [descripcion]="t.proposito" icono="retiro">
         <ap-boton acciones variante="secundario" icono="flechaIzquierda" (pulsado)="volver()">{{ t.volverABandeja }}</ap-boton>
       </ap-cabecera-de-pagina>
       @if (!resumen) { <p class="aviso">{{ t.sinListado }}</p> }
@@ -94,7 +94,7 @@ type Envio = 'inactivo' | 'enviando' | 'confirmado' | 'sinConfirmar' | 'rechazad
     </section>
   `,
   styles: `
-    .pantalla { padding: var(--s5); display: flex; flex-direction: column; gap: var(--s5); min-width: 0; }
+    .pantalla { display: flex; flex-direction: column; gap: var(--s5); min-width: 0; }
     .cuerpo { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s5); align-items: start; }
     @media (min-width: 64rem) { .cuerpo.con-resumen { grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); } }
     .tarjeta { display: flex; flex-direction: column; gap: var(--s4); min-width: 0; padding: var(--s5); border: var(--borde-fino) solid var(--border); border-radius: var(--r-lg); background: var(--surface); box-shadow: var(--sombra-1); }

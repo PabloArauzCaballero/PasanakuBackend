@@ -1,18 +1,20 @@
 import { ChangeDetectionStrategy, Component, computed, input, model } from '@angular/core'
 import { Icono } from '../icono/icono'
+import { nombreSegunCantidad } from '../listado/singular'
 
 /**
  * «Página 2 de 7 · 134 registros», filas por página, ir a una página y Anterior/Siguiente, como
  * en el portal de Atlas. Dice la página para todos, no solo con la vista. Cambiar las filas por
  * página vuelve a la primera: seguir en la página 6 de otro tamaño muestra otra cosa.
  */
+
 @Component({
   selector: 'ap-paginacion',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [Icono],
   host: { role: 'navigation', '[attr.aria-label]': 'etiqueta()' },
   template: `
-    <span class="resumen" aria-live="polite">Página {{ pagina() }} de {{ total() }}@if (conRegistros()) { · {{ totalDeFilas() }} {{ nombreDeRegistros() }}}</span>
+    <span class="resumen" aria-live="polite">Página {{ pagina() }} de {{ total() }}@if (conRegistros()) { · {{ totalDeFilas() }} {{ nombreSegunCantidad(totalDeFilas(), nombreDeRegistros()) }}}</span>
     <div class="controles">
       @if (opcionesPorPagina().length > 1) {
         <label class="por-pagina">
@@ -57,6 +59,7 @@ export class Paginacion {
   readonly opcionesPorPagina = input<readonly number[]>([])
   readonly conRegistros = input(true)
   readonly nombreDeRegistros = input('registros')
+  protected readonly nombreSegunCantidad = nombreSegunCantidad
   readonly total = computed(() => Math.max(1, Math.ceil(this.totalDeFilas() / this.porPagina())))
 
   cambiarTamano(valor: string): void {

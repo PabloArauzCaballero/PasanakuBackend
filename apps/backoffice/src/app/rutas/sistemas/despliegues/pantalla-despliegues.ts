@@ -34,9 +34,9 @@ const ESTADO: Record<Despliegue['estado'], string> = { exitoso: 'Exitoso', 'en c
   template: `
     <section class="pantalla">
       <ap-cabecera-de-pagina eyebrow="Sistemas" [titulo]="t.titulo" [descripcion]="t.proposito" icono="paquete">
-        <ap-boton acciones icono="recarga" [deshabilitado]="despliegues.isLoading()" (pulsado)="despliegues.reload()">Actualizar</ap-boton>
+        <ap-boton acciones variante="fantasma" icono="recarga" [deshabilitado]="despliegues.isLoading()" (pulsado)="despliegues.reload()">Actualizar</ap-boton>
       </ap-cabecera-de-pagina>
-      <ap-cifras-de-sistemas etiqueta="Resumen de despliegues" [cifras]="cifras()" />
+      <ap-cifras-de-sistemas etiqueta="Resumen de despliegues" [cifras]="cifras()" [carga]="carga()" />
       <ap-listado titulo="Despliegues" [columnas]="columnas" [listado]="listado" [carga]="carga()" ayudaDeBusqueda="Busca por servicio, versión, quién desplegó o estado." nombreDeRegistros="despliegues" [textoVacio]="t.vacio" explicacionVacio="Cuando el pipeline publique un despliegue, aparece acá con su estado." (reintentar)="despliegues.reload()">
         <ng-template #celda let-f let-c="columna">
           @if (c.clave === 'estado') { <ap-chip-estado [tono]="f.estado === 'exitoso' ? 'ok' : f.estado === 'revertido' ? 'error' : 'info'">{{ estadoDe(f) }}</ap-chip-estado> } @else { {{ f[c.clave] }} }

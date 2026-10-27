@@ -17,6 +17,7 @@ import { cargadorDeReportes, sePuedeEnviar, type Recibo } from '../dominio/cu43-
 import { textosUif } from '../textos-uif'
 import { AprobarYEnviar } from './aprobar-y-enviar'
 import { PrepararReporte } from './preparar-reporte'
+import { importeSinMoneda } from '../../operacion/comun/importe-sin-moneda'
 
 const T = textosUif.reportes
 const COLUMNAS: Columna<ReporteRegulatorioEnLista>[] = [
@@ -61,6 +62,7 @@ const EXPORTABLES: ColumnaExportable<ReporteRegulatorioEnLista>[] = [
             @case ('fechaLimite') { {{ dia(r.fechaLimite) }} }
             @case ('estado') { {{ estado(r) }} }
             @case ('cantidadRegistros') { {{ registros(r) }} }
+            @case ('montoTotal') { {{ cifra(r.montoTotal) }} }
             @default { {{ r[columna.clave] }} }
           }
         </ng-template>
@@ -85,6 +87,8 @@ const EXPORTABLES: ColumnaExportable<ReporteRegulatorioEnLista>[] = [
 export class BandejaDeReportes {
   private readonly sesion = inject(Sesion)
   protected readonly t = T
+  /** «4.44» → «4,44»: agrupado como el resto de los importes, sin inventarle moneda (la columna ya lo aclara). */
+  protected readonly cifra = importeSinMoneda
   protected readonly COLUMNAS = COLUMNAS
   protected readonly EXPORTABLES = EXPORTABLES
   protected readonly estado = estado

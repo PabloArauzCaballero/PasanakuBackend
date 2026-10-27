@@ -13,7 +13,7 @@ import { TAMANO_DE_LOTE } from './dominio/lotes-por-cursor'
   imports: [Boton],
   template: `
     @if (hayMas()) {
-      <ap-boton icono="descargar" variante="secundario" [cargando]="cargando()" (pulsado)="cargarMas.emit()">Cargar {{ tamano }} más</ap-boton>
+      <ap-boton icono="descargar" variante="fantasma" tamano="sm" [cargando]="cargando()" (pulsado)="cargarMas.emit()">Cargar {{ tamano }} más</ap-boton>
     }
     @if (error(); as e) { <span class="error" role="alert">{{ e }}</span> }
   `,

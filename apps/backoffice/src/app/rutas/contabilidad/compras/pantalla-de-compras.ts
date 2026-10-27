@@ -27,7 +27,7 @@ const PESTANAS: Pestana[] = [
   imports: [Alerta, CabeceraDePagina, Pestanas, TablaDeOrdenes, TablaDeFacturas],
   template: `
     <section class="pantalla">
-      <ap-cabecera-de-pagina eyebrow="Contabilidad · CU-102 y CU-103" [titulo]="t.titulo" [descripcion]="t.proposito" icono="recibo" />
+      <ap-cabecera-de-pagina eyebrow="Contabilidad" [titulo]="t.titulo" [descripcion]="t.proposito" icono="recibo" />
       <ap-alerta tono="info" titulo="Registrar no es pagar">{{ t.segregacionGeneral }}</ap-alerta>
       <ap-pestanas etiqueta="Compras y cuentas por pagar" [pestanas]="PESTANAS" [(elegida)]="pestana" />
       <div role="tabpanel" [id]="'panel-' + pestana()" [attr.aria-labelledby]="'pestana-' + pestana()">
@@ -40,7 +40,7 @@ const PESTANAS: Pestana[] = [
     </section>
   `,
   styles: `
-    .pantalla { padding: var(--s5); display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s4); min-width: 0; }
+    .pantalla { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s4); min-width: 0; }
     [role='tabpanel'] { min-width: 0; }
   `,
 })

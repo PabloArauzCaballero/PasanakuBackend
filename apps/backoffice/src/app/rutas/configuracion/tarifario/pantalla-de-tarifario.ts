@@ -55,7 +55,7 @@ const TONO: Record<TarifarioEnLista['estado'], Tono> = { VIGENTE: 'ok', EN_PREAV
   imports: [Alerta, CabeceraDePagina, ChipEstado, Fecha, TablaPorCursor],
   template: `
     <section class="pantalla">
-      <ap-cabecera-de-pagina eyebrow="Configuración · CU-34" [titulo]="t.titulo" [descripcion]="t.proposito" icono="etiqueta" />
+      <ap-cabecera-de-pagina eyebrow="Configuración" [titulo]="t.titulo" [descripcion]="t.proposito" icono="etiqueta" />
       <ap-alerta tono="info">{{ comun.soloLectura }}</ap-alerta>
       <ap-tabla-por-cursor [titulo]="t.titulo" [columnas]="COLUMNAS" [listado]="listado" [identidad]="identidad" [exportables]="EXPORTABLES" nombreDeRegistros="versiones" [textoVacio]="t.vacio" ayudaDeBusqueda="Busca por código o nombre en la página cargada: el servidor no busca por texto.">
         <ng-template #celda let-r let-columna="columna">
@@ -71,7 +71,7 @@ const TONO: Record<TarifarioEnLista['estado'], Tono> = { VIGENTE: 'ok', EN_PREAV
     </section>
   `,
   styles: `
-    .pantalla { padding: var(--s5); display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s4); min-width: 0; }
+    .pantalla { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s4); min-width: 0; }
   `,
 })
 export class PantallaDeTarifario {

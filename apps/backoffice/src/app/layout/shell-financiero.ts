@@ -5,7 +5,6 @@ import { finalize } from 'rxjs'
 import { CajonLateral } from '@aportaya/ui/cajon-lateral/cajon-lateral'
 import { Icono } from '@aportaya/ui/icono/icono'
 import { Migas } from '@aportaya/ui/migas/migas'
-import { NotaDeVista } from '@aportaya/ui/nota-de-vista/nota-de-vista'
 import { EncendidoDeTutorial } from '@aportaya/tutoriales/encendido'
 import { AnfitrionDeTutorial } from '@aportaya/tutoriales/anfitrion-de-tutorial'
 import { LanzadorDeTutorial } from '@aportaya/tutoriales/lanzador-de-tutorial'
@@ -18,6 +17,7 @@ import { crearCerrarSesion } from './dominio/cerrar-sesion'
 import { IconoDeSeccion } from './icono-de-seccion'
 import { MenuDeUsuario } from './menu-de-usuario'
 import { MenuLateral } from './menu-lateral'
+import { NotaDeLaVista } from './nota-de-la-vista'
 import { PestanasDeSeccion } from './pestanas-de-seccion'
 import { SimboloDeMarca } from './simbolo-de-marca'
 import { UrlActual } from './url-actual'
@@ -27,9 +27,10 @@ const ANGOSTO = '(max-width: 64rem)'
 
 /**
  * El shell del backoffice con la anatomía del portal interno de Atlas: barra lateral oscura con la
- * marca y el menú por grupos (`ap-menu-lateral`, una entrada por sección), cabecera fija con migas,
- * título de la vista, buscador global, lanzador del tutorial y menú de quien opera; abajo, las
- * pestañas de la sección, las «Notas de la vista» plegadas y el `router-outlet`. En el celular la barra es un cajón que abre la hamburguesa.
+ * marca y el menú por grupos (`ap-menu-lateral`, una entrada por sección), cabecera fija con una sola línea de
+ * migas que termina en la vista actual, el botón «Sobre esta pantalla» (las notas de la vista, en un panel que
+ * flota en vez de ocupar una franja en cada pantalla), buscador global, lanzador del tutorial y menú de quien
+ * opera; abajo, las pestañas de la sección y el `router-outlet`. En el celular la barra es un cajón que abre la hamburguesa.
  *
  * **El menú oculta por comodidad**; el permiso real lo exige `canMatch` en cada ruta y lo verifica
  * el servidor — este componente no es la barrera de seguridad.
@@ -37,7 +38,7 @@ const ANGOSTO = '(max-width: 64rem)'
 @Component({
   selector: 'ap-shell-financiero',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterOutlet, RouterLink, CajonLateral, Icono, Migas, NotaDeVista, LanzadorDeTutorial, AnfitrionDeTutorial, BuscadorGlobal, CampanaDeNotificaciones, IconoDeSeccion, MenuDeUsuario, MenuLateral, PestanasDeSeccion, SimboloDeMarca],
+  imports: [RouterOutlet, RouterLink, CajonLateral, Icono, Migas, LanzadorDeTutorial, AnfitrionDeTutorial, BuscadorGlobal, CampanaDeNotificaciones, IconoDeSeccion, MenuDeUsuario, MenuLateral, NotaDeLaVista, PestanasDeSeccion, SimboloDeMarca],
   template: `
     <div class="shell" [class.angosto]="angosto()">
       @if (!angosto()) {
@@ -59,19 +60,19 @@ const ANGOSTO = '(max-width: 64rem)'
           <a class="marca-chica" routerLink="/tablero" aria-label="Inicio"><ap-simbolo-de-marca /></a>
         }
         <div class="vista">
-          <!-- La última miga es la pantalla actual, que ya es el título de abajo: no se repite (antes se apilaban en tres líneas). -->
-          @if (migas().length > 1) { <ap-migas [migas]="migas().slice(0, -1)" (navegar)="ir($event)" /> }
-          <p class="titulo-vista">{{ tituloDeVista() }}</p>
+          <!-- Una sola línea: «Operación › Desembolsos». El título grande vive en la cabecera de la pantalla; acá no se repite. -->
+          @if (migas().length > 1) { <ap-migas class="migas" [migas]="migasVisibles()" (navegar)="ir($event)" /> }
+          <p class="titulo-vista" [class.solo-angosto]="migas().length > 1">{{ tituloDeVista() }}</p>
+          @if (explicador.texto(); as texto) { <ap-nota-de-la-vista [texto]="texto" /> }
         </div>
         <ap-buscador-global class="buscador" />
         <!-- En el celular el lanzador vive en el cajón del menú: la cabecera no tiene lugar para su texto. -->
-        @if (!angosto()) { <ap-lanzador-de-tutorial data-tutorial-id="lanzador-de-tutorial" /> }
+        @if (!angosto()) { <ap-lanzador-de-tutorial variante="enlace" data-tutorial-id="lanzador-de-tutorial" /> }
         <ap-campana-de-notificaciones />
         <ap-menu-de-usuario [saliendo]="saliendo()" (salir)="salir()" />
       </header>
       <main id="contenido">
         <ap-pestanas-de-seccion />
-        @if (explicador.texto(); as texto) { <ap-nota-de-vista clave="vista">{{ texto }}</ap-nota-de-vista> }
         <router-outlet />
       </main>
       @defer (when tutorial.activo()) { <ap-anfitrion-de-tutorial /> }
@@ -91,6 +92,14 @@ export class ShellFinanciero {
   protected readonly angosto = signal(typeof matchMedia === 'function' && matchMedia(ANGOSTO).matches)
   private readonly url = inject(UrlActual).url
   protected readonly migas = computed(() => migasDe(this.url(), this.titulo.getTitle(), this.sesion))
+  /**
+   * «Sección › Pantalla». «Inicio» ya está en el menú lateral y el grupo intermedio («Personal y accesos») en las
+   * pestañas: con los cuatro niveles la cabecera solo podía mostrar «Si… › Pers… ›» (2026-10-27).
+   */
+  protected readonly migasVisibles = computed(() => {
+    const m = this.migas()
+    return m.length > 2 ? [m[1]!, m.at(-1)!] : m
+  })
   protected readonly tituloDeVista = computed(() => this.migas().at(-1)?.texto ?? this.titulo.getTitle().replace(/\s*·\s*AportaYa\s*$/, ''))
 
   constructor() {

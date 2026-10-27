@@ -49,7 +49,7 @@ const EXPORTABLES: ColumnaExportable<ReclamoEnBandeja>[] = [
   imports: [AccionesDeFila, Alerta, CabeceraDePagina, ChipEstado, Fecha, Icono, ImporteSinMoneda, ListadoPorCursorVista, RespuestaAReclamo],
   template: `
     <section class="pantalla">
-      <ap-cabecera-de-pagina data-tutorial-id="operacion-reclamos" eyebrow="Operación · CU-52" [titulo]="t.titulo" [descripcion]="t.proposito" icono="mensaje" />
+      <ap-cabecera-de-pagina data-tutorial-id="operacion-reclamos" eyebrow="Operación" [titulo]="t.titulo" [descripcion]="t.proposito" icono="mensaje" />
       @if (hecho(); as h) { <ap-alerta tono="ok">{{ h }}</ap-alerta> }
       <p class="norma"><ap-icono nombre="reloj" tamano="s4" />{{ t.plazo }}: {{ t.norma }}. El servidor lo calculó al ingresar el reclamo.</p>
       <ap-listado-por-cursor [titulo]="t.titulo" [columnas]="COLUMNAS" [fuente]="l" [exportables]="EXPORTABLES" [identidad]="identidad" [ayudaDeBusqueda]="t.ayudaBusqueda" [textoVacio]="t.vacio" [explicacionVacio]="t.explicacionVacio" [textoDenegado]="t.denegado" nombreDeRegistros="reclamos" nombreDeRegistro="reclamo">
@@ -62,7 +62,7 @@ const EXPORTABLES: ColumnaExportable<ReclamoEnBandeja>[] = [
               <span class="plazo"><ap-fecha [iso]="r.limiteVigente" /><ap-chip-estado [tono]="r.vencido ? 'error' : 'ok'">{{ r.vencido ? t.vencido : t.enPlazo }}</ap-chip-estado></span>
             }
             @case ('montoReclamado') { @if (r.montoReclamado) { <ap-importe-sin-moneda [monto]="r.montoReclamado" /> } @else { {{ t.sinMonto }} } }
-            @default { <span class="id">{{ r[columna.clave] }}</span> }
+            @default { <span class="id" [attr.title]="r[columna.clave]">{{ r[columna.clave] }}</span> }
           }
         </ng-template>
         <ng-template #acciones let-r>
@@ -81,10 +81,11 @@ const EXPORTABLES: ColumnaExportable<ReclamoEnBandeja>[] = [
     }
   `,
   styles: `
-    .pantalla { padding: var(--s5); display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s5); min-width: 0; }
+    .pantalla { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s5); min-width: 0; }
     .plazo { display: inline-flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: var(--s2); }
     .norma { margin: 0; display: flex; align-items: center; gap: var(--s2); color: var(--text-2); font: var(--t-cuerpo-chico); }
-    .id { display: block; white-space: normal; overflow-wrap: anywhere; }
+    /* Identificadores en una línea, recortados con «…»: el valor completo va en el title y en la descarga (antes se partían letra a letra y la fila medía 200 px). */
+    .id { display: inline-block; max-width: 22ch; overflow: hidden; text-overflow: ellipsis; vertical-align: bottom; font-family: var(--mono); font-size: .92em; }
     .nota { color: var(--text-2); font: var(--t-cuerpo-chico); white-space: normal; }
   `,
 })

@@ -23,9 +23,9 @@ const RESTAURACION = { vencida: 'Vencida', alDia: 'Al día' } as const
   template: `
     <section class="pantalla">
       <ap-cabecera-de-pagina eyebrow="Sistemas" [titulo]="t.titulo" [descripcion]="t.proposito" icono="nube">
-        <ap-boton acciones icono="recarga" [deshabilitado]="respaldos.isLoading()" (pulsado)="respaldos.reload()">Actualizar</ap-boton>
+        <ap-boton acciones variante="fantasma" icono="recarga" [deshabilitado]="respaldos.isLoading()" (pulsado)="respaldos.reload()">Actualizar</ap-boton>
       </ap-cabecera-de-pagina>
-      <ap-cifras-de-sistemas etiqueta="Resumen de respaldos" [cifras]="cifras()" />
+      <ap-cifras-de-sistemas etiqueta="Resumen de respaldos" [cifras]="cifras()" [carga]="carga()" />
       <ap-listado [titulo]="t.titulo" [columnas]="columnas" [listado]="listado" [carga]="carga()" ayudaDeBusqueda="Busca por origen del respaldo o por fecha." [exportables]="exportables" nombreDeRegistros="respaldos" [textoVacio]="t.vacio" explicacionVacio="Cuando se tome el primer respaldo, aparece acá con su última restauración probada." (reintentar)="respaldos.reload()">
         <ng-template #celda let-f let-c="columna">
           @if (c.clave === 'ultimaRestauracionProbadaEl') {

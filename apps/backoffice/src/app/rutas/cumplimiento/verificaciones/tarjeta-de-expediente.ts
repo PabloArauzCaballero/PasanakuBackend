@@ -32,7 +32,7 @@ const CARAS = Object.values(CaraDelExpediente)
         </ul>
         <ap-vencimiento-del-documento [expediente]="e" />
       </div>
-      <ap-chip-estado [tono]="tono(e)">{{ e.estado }}</ap-chip-estado>
+      <ap-chip-estado [tono]="tono(e)">{{ t.estados[e.estado] ?? e.estado }}</ap-chip-estado>
     </header>
     <ap-tira-de-fotos [expediente]="e" />
     @if (pendiente(e)) {

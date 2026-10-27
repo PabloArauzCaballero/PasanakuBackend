@@ -32,7 +32,7 @@ describe('BandejaDeAlertas · CU-44 listarBandejaDeAlertas', () => {
     pedido.flush({ items: [ALERTA], proximoFecha: '2026-10-10T14:00:00Z', proximoId: ALERTA.alertaId })
     await asentar(fixture)
     expect(filasDe<AlertaEnBandeja>(fixture).map((a) => a.alertaId)).toEqual([ALERTA.alertaId])
-    expect(textoDe(fixture)).toContain('1 alertas en la página 1 · hay más')
+    expect(textoDe(fixture)).toContain('1 alerta en la página 1 · hay más')
     http.verify()
   })
 

@@ -37,7 +37,7 @@ import type { ErrorTraducido } from '../../../nucleo/errores'
     </section>
   `,
   styles: `
-    .pantalla { padding: var(--s5) var(--s4); display: flex; flex-direction: column; gap: var(--s4); min-width: 0; }
+    .pantalla { display: flex; flex-direction: column; gap: var(--s4); min-width: 0; }
     .tarjeta { display: grid; gap: var(--s3); padding: var(--s5); border: var(--borde-fino) solid var(--border); border-radius: var(--r-lg); background: var(--surface); box-shadow: var(--sombra-1); }
     h2 { display: flex; align-items: center; gap: var(--s2); margin: 0 0 var(--s3); font: var(--t-titulo-3); }
   `,

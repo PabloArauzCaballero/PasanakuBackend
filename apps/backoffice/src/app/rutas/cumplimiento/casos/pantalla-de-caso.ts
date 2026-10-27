@@ -52,7 +52,7 @@ import { FormularioDeCaso } from './formulario-de-caso'
     </section>
   `,
   styles: `
-    .pantalla { padding: var(--s5) var(--s4); display: flex; flex-direction: column; gap: var(--s4); min-width: 0; }
+    .pantalla { display: flex; flex-direction: column; gap: var(--s4); min-width: 0; }
     .tarjeta { padding: var(--s5); border: var(--borde-fino) solid var(--border); border-radius: var(--r-lg); background: var(--surface); box-shadow: var(--sombra-1); }
     .volver { display: inline-flex; align-items: center; gap: var(--s1); align-self: flex-start; min-height: var(--area-tactil); color: var(--brand-texto); font: var(--t-cuerpo-chico); font-weight: 600; text-decoration: none; }
     .volver:focus-visible { outline: var(--borde-foco) solid var(--g300); outline-offset: var(--borde-desfase); }

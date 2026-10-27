@@ -39,7 +39,7 @@ const EJERCICIO_INEXISTENTE = 'AP-CU100-05'
   imports: [ErrorDeEnvio, Boton, Icono, CabeceraDePagina, ChipEstado, Dialogo, EstadoDePantalla, Fecha, PeriodoDeHoy, SelectorDeEjercicios],
   template: `
     <section class="pantalla">
-      <ap-cabecera-de-pagina data-tutorial-id="contabilidad-periodo" eyebrow="Contabilidad · CU-100" [titulo]="t.titulo" [descripcion]="t.proposito" icono="calendario" />
+      <ap-cabecera-de-pagina data-tutorial-id="contabilidad-periodo" eyebrow="Contabilidad" [titulo]="t.titulo" [descripcion]="t.proposito" icono="calendario" />
       <p class="aviso"><ap-icono nombre="candado" tamano="s4" />{{ t.cerrarIrreversible }}</p>
 
       <div class="arriba">
@@ -109,7 +109,7 @@ const EJERCICIO_INEXISTENTE = 'AP-CU100-05'
     }
   `,
   styles: `
-    .pantalla { padding: var(--s5); display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s4); min-width: 0; }
+    .pantalla { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s4); min-width: 0; }
     .arriba { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr)); gap: var(--s4); }
     .tarjeta { padding: var(--s4); border: var(--borde-fino) solid var(--border); border-radius: var(--r-lg); background: var(--surface); box-shadow: var(--sombra-1); }
     .aviso, .admite { display: flex; align-items: center; gap: var(--s2); }

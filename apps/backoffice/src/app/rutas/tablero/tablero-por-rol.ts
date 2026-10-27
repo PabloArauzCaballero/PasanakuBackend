@@ -93,7 +93,7 @@ export type TipoDeTablero = 'financiero' | 'comercial' | 'sistemas'
   `,
   styles: `
     .pantalla > * { min-width: 0; }
-    .pantalla { padding: var(--s5); display: grid; gap: var(--s5); }
+    .pantalla { display: grid; gap: var(--s5); }
     h1, h2 { margin: 0; }
     h2 { font-size: 1.15em; }
     .periodo { display: flex; flex-wrap: wrap; align-items: end; gap: var(--s4); }

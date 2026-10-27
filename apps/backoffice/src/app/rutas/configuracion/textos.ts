@@ -22,7 +22,7 @@ export const textosConfiguracion = {
   },
   tarifario: {
     titulo: 'Historial del tarifario',
-    proposito: 'Cada versión del tarifario con su vigencia, el preaviso y la última simulación de impacto (CU-34).',
+    proposito: 'Cada versión del tarifario con su vigencia, el preaviso y la última simulación de impacto.',
     vacio: 'Todavía no hay tarifarios publicados.',
     deltaSinMoneda: 'sin moneda en el contrato',
     usuarios: 'usuarios',
@@ -30,7 +30,7 @@ export const textosConfiguracion = {
   },
   mensajeria: {
     titulo: 'Mensajería',
-    proposito: 'Qué plantilla rige cada mensaje y cómo salieron los envíos (CU-80, CU-83). No se muestran destinatarios ni contenido.',
+    proposito: 'Qué plantilla rige cada mensaje y cómo salieron los envíos. No se muestran destinatarios ni contenido.',
     plantillas: { titulo: 'Plantillas', vacio: 'Todavía no hay plantillas cargadas.' },
     envios: { titulo: 'Envíos', vacio: 'Todavía no hay envíos registrados.' },
     activa: 'Activa',
@@ -49,7 +49,7 @@ export const textosConfiguracion = {
   },
   reportes: {
     titulo: 'Reportes',
-    proposito: 'Qué reportes ofrece el backoffice y quién ejecutó cuál, cuándo y con qué resultado (CU-58).',
+    proposito: 'Qué reportes ofrece el backoffice y quién ejecutó cuál, cuándo y con qué resultado.',
     definiciones: { titulo: 'Catálogo de reportes', vacio: 'No hay reportes activos en el catálogo.' },
     ejecuciones: {
       titulo: 'Historial de ejecuciones',

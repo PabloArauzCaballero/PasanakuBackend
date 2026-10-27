@@ -82,7 +82,7 @@ const FILAS_POR_PAGINA = [10, 20, 50]
     </section>
   `,
   styles: `
-    .pantalla { padding: var(--s5); max-width: 76rem; display: flex; flex-direction: column; gap: var(--s4); }
+    .pantalla { display: flex; flex-direction: column; gap: var(--s4); }
     .tarjeta-directa { padding: var(--s4); background: var(--surface); border: var(--borde-fino) solid var(--border); border-radius: var(--r-lg); display: flex; flex-direction: column; gap: var(--s3); box-shadow: var(--sombra-1); }
     .titulo-directo { margin: 0; font-size: 1.1rem; font-weight: 600; color: var(--text); }
     .descripcion-directa { margin: var(--s1) 0 0; font-size: 0.875rem; color: var(--text-2); }

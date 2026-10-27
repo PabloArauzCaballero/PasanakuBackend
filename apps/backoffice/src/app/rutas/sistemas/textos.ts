@@ -118,7 +118,7 @@ export const textosSistemas = {
   },
   bitacora: {
     titulo: 'Registro del sistema',
-    proposito: 'Bitácora inmutable de eventos y cambios del sistema (comun.bitacora_evento), encadenada por hash SHA-256.',
+    proposito: 'Bitácora inmutable de los eventos y cambios del sistema. Cada evento queda encadenado al anterior por su huella (SHA-256): no se puede borrar ni editar sin que se note.',
     cargando: 'Cargando registro del sistema',
     vacio: 'No se encontraron eventos de bitácora registrados.',
     buscar: 'Buscar por entidad o acción',

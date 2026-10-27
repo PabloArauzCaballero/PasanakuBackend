@@ -38,10 +38,10 @@ const segundoFactor = (u: Usuario) => (u.tieneSegundoFactor ? 'Configurado' : 'P
   template: `
     <section class="pantalla">
       <ap-cabecera-de-pagina eyebrow="Sistemas · Identidad" [titulo]="t.titulo" [descripcion]="t.proposito" icono="persona">
-        <ap-boton acciones icono="recarga" [deshabilitado]="recurso.isLoading()" (pulsado)="recurso.reload()">Actualizar</ap-boton>
+        <ap-boton acciones variante="fantasma" icono="recarga" [deshabilitado]="recurso.isLoading()" (pulsado)="recurso.reload()">Actualizar</ap-boton>
         <ap-boton acciones variante="primario" icono="personaMas" (pulsado)="mostrarAlta.set(true)">{{ t.nuevoUsuario }}</ap-boton>
       </ap-cabecera-de-pagina>
-      <ap-cifras-de-sistemas etiqueta="Resumen de usuarios internos" [cifras]="cifras()" />
+      <ap-cifras-de-sistemas etiqueta="Resumen de usuarios internos" [cifras]="cifras()" [carga]="carga()" />
       <ap-listado [titulo]="t.titulo" [columnas]="columnas" [listado]="listado" [carga]="carga()" [identidad]="identidad" ayudaDeBusqueda="Busca por nombre, correo, código, departamento, cargo o rol." [exportables]="exportables" [exportable]="exportador.puedeExportar('usuarios-internos')" nombreDeRegistros="usuarios" [textoVacio]="t.vacio" explicacionVacio="Dá de alta al primer operador interno con su rol inicial." accionVacio="Dar de alta" (primeraAccion)="mostrarAlta.set(true)" (reintentar)="recurso.reload()">
         <ng-template #celda let-u let-c="columna">
           @switch (c.clave) {
@@ -77,8 +77,9 @@ const segundoFactor = (u: Usuario) => (u.tieneSegundoFactor ? 'Configurado' : 'P
   `,
   styles: `
     :host { display: block; min-width: 0; }
-    /* La tabla se desplaza dentro de su marco: las acciones van en una sola línea en vez de apilarse y estirar la fila. */
-    ap-acciones-de-fila { flex-wrap: nowrap; }
+    /* Hasta cinco acciones por fila: en una sola línea la columna fija medía ~450 px y tapaba «Segundo factor» y «Estado».
+       Se envuelven en dos líneas dentro de un ancho acotado (2026-10-27). */
+    ap-acciones-de-fila { max-width: calc(var(--s7) * 6); }
     .pantalla { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s5); min-width: 0; }
     /* ap-listado deja sus pistas en «auto»: sin esto la tabla ensancha la página en vez de desplazarse en su marco. */ ap-listado { grid-template-columns: minmax(0, 1fr); }
     .sub { display: block; font: var(--t-ayuda); color: var(--text-3); overflow-wrap: anywhere; }
