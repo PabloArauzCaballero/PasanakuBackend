@@ -20,11 +20,14 @@ export type Cifra = { etiqueta: string; valor: string; icono: NombreDeIcono; ton
   imports: [TarjetaKPI],
   host: { role: 'group', '[attr.aria-label]': 'etiqueta()' },
   template: `
-    @for (c of cifras(); track c.etiqueta) {
-      @if (conDatos()) {
-        <ap-tarjeta-kpi [etiqueta]="c.etiqueta" [valor]="c.valor" [icono]="c.icono" [tono]="c.tono ?? 'neutro'" [pista]="c.pista" />
-      } @else {
-        <ap-tarjeta-kpi [etiqueta]="c.etiqueta" valor="—" [icono]="c.icono" tono="neutro" [pista]="carga()?.tipo === 'error' ? 'Sin datos' : 'Cargando…'" />
+    <!-- Sin fuente no hay nada que contar: ni ceros ni guiones, la pantalla ya lo explica abajo. -->
+    @if (carga()?.tipo !== 'sin-fuente') {
+      @for (c of cifras(); track c.etiqueta) {
+        @if (conDatos()) {
+          <ap-tarjeta-kpi [etiqueta]="c.etiqueta" [valor]="c.valor" [icono]="c.icono" [tono]="c.tono ?? 'neutro'" [pista]="c.pista" />
+        } @else {
+          <ap-tarjeta-kpi [etiqueta]="c.etiqueta" valor="—" [icono]="c.icono" tono="neutro" [pista]="carga()?.tipo === 'error' ? 'Sin datos' : 'Cargando…'" />
+        }
       }
     }
   `,

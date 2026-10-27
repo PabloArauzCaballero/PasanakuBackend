@@ -44,13 +44,12 @@ describe('PantallaServicios · los cuatro estados', () => {
     expect(fixture.nativeElement.textContent).toContain('Todavía no hay servicios reportando estado.')
   })
 
-  it('error: con la fuente no disponible, muestra el estado de error accionable, nunca datos de ejemplo', async () => {
-    const fixture = montar(() => Promise.reject({ tipo: 'fuente-no-disponible', mensaje: 'No pudimos traer «Estado de servicios».' }))
+  it('sin fuente: lo dice en un estado neutro, nunca con datos de ejemplo', async () => {
+    const fixture = montar(() => Promise.reject({ tipo: 'fuente-no-disponible', mensaje: 'Ningún servicio publica todavía «Estado de servicios».' }))
     fixture.detectChanges()
     await fixture.whenStable()
     fixture.detectChanges()
-    const alerta = fixture.nativeElement.querySelector('[role="alert"]')
-    expect(alerta).toBeTruthy()
+    expect(fixture.nativeElement.querySelector('ap-estado-vacio')?.textContent).toContain('Ningún servicio publica todavía')
     expect(fixture.nativeElement.textContent).not.toContain('99.95')
   })
 })

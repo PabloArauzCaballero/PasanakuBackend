@@ -15,7 +15,11 @@ import { nombreSegunCantidad } from './singular'
 const CLAVE_ACCIONES = '__acciones'
 
 /** De dónde están las filas: el listado no sabe de red, solo de este estado. `lista` = las filas ya están en `listado`. */
-export type CargaDeListado = { tipo: 'cargando' } | { tipo: 'lista' } | { tipo: 'error'; mensaje: string; idPeticion?: string }
+/**
+ * `sin-fuente`: la pantalla todavía no tiene de dónde traer datos (no hay contrato). No es una falla: se dice con un
+ * estado neutro, sin reintento ni filtros, en vez de la caja roja de error que se leía como una caída (2026-10-27).
+ */
+export type CargaDeListado = { tipo: 'cargando' } | { tipo: 'lista' } | { tipo: 'error'; mensaje: string; idPeticion?: string } | { tipo: 'sin-fuente'; mensaje: string }
 
 /**
  * **El listado del backoffice, una sola anatomía para todas las vistas** (2026-10-26):
@@ -37,13 +41,13 @@ export type CargaDeListado = { tipo: 'cargando' } | { tipo: 'lista' } | { tipo: 
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [BarraDeFiltros, Esqueleto, EstadoDeError, EstadoVacio, ExportarListado, NgTemplateOutlet, Paginacion, TablaDeDatos],
   template: `
-    @if (conFiltros()) {
+    @if (conFiltros() && carga().tipo !== 'sin-fuente') {
       <ap-barra-de-filtros [etiqueta]="'Filtros de ' + titulo()" [etiquetaDeBusqueda]="etiquetaDeBusqueda()" [ayudaDeBusqueda]="ayudaDeBusqueda()" [busqueda]="listado().busqueda()" [selectores]="listado().selectores()" textoLimpiar="Limpiar filtros" (busquedaChange)="listado().buscar($event)" (selectorChange)="listado().filtrar($event.nombre, $event.valor)" (limpiar)="listado().limpiar()" />
     }
     <div class="barra">
       <p class="resumen" aria-live="polite">{{ resumen() }}</p>
       <div class="acciones"><ng-content select="[accionesDeListado]" />
-        @if (exportable() && carga().tipo !== 'error') {
+        @if (exportable() && carga().tipo !== 'error' && carga().tipo !== 'sin-fuente') {
           <ap-exportar-listado [nombre]="nombreDeExportacion() ?? titulo()" [columnas]="columnasExportables()" [filas]="listado().filtradas()" [conJson]="conJson()" [deshabilitado]="carga().tipo !== 'lista'" />
         }
       </div>
@@ -55,6 +59,7 @@ export type CargaDeListado = { tipo: 'cargando' } | { tipo: 'lista' } | { tipo: 
     </ng-template>
     @switch (carga().tipo) {
       @case ('cargando') { <ap-esqueleto [lineas]="6" [etiqueta]="'Cargando ' + titulo()" /> }
+      @case ('sin-fuente') { <ap-estado-vacio icono="enlace" [titulo]="titulo() + ': todavía sin datos conectados.'" [explicacion]="mensajeSinFuente()" /> }
       @case ('error') { <ap-estado-de-error [titulo]="'No se pudo cargar ' + titulo().toLowerCase() + '.'" [mensaje]="mensajeDeError()" [trazaId]="idDePeticion()" (reintentar)="reintentar.emit()" /> }
       @default {
         @if (listado().total() === 0) {
@@ -125,6 +130,10 @@ export class ListadoDeDatos<T extends object> {
   readonly mensajeDeError = computed(() => {
     const c = this.carga()
     return c.tipo === 'error' ? c.mensaje : undefined
+  })
+  readonly mensajeSinFuente = computed(() => {
+    const c = this.carga()
+    return c.tipo === 'sin-fuente' ? c.mensaje : undefined
   })
   readonly idDePeticion = computed(() => {
     const c = this.carga()
