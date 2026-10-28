@@ -45,3 +45,28 @@ Veredicto del revisor: **RECHAZADA, 58/100**, sobre `cap/final-*`. Hallazgos y q
 | MENOR | Resto (títulos de pestaña ≠ H1, mismo ícono, etc.) | Anotados, sin cambio |
 
 Re-captura posterior a las correcciones: `despues-1280/`, `despues-oscuro/`, `despues-375/`, `despues-768/`. La segunda pasada **no se repitió** sobre la re-captura final: el peldaño visual queda en `VERIFIED_FUNCTIONAL_ONLY` para las dos pantallas con hallazgos abiertos (Catálogo de datos y Usuarios internos) y `ACEPTABLE CON RESERVAS` para el resto, según la nota del revisor.
+
+## Segunda pasada repetida sobre la versión final (2026-10-28, `visual-reviewer`, independiente)
+
+44 rutas × 1280 claro, 1280 oscuro, 375 claro, 375 oscuro, más error 503 forzado (1280 y 375 oscuro), menú «Más» y
+pestaña Columnas del catálogo. Cuatro rondas más un cierre; cada ronda sobre capturas nuevas, juzgando por la captura.
+
+| Ronda | Puntaje | Rechazadas por el frontend | Qué quedó abierto |
+|---|---|---|---|
+| 1 | 66 | 31 | tablas cortadas a 1280, ceros en rojo, concordancia del título de error, jerga, plurales, enums crudos, calendario invisible en oscuro |
+| 2 | 79 | 8 | regresiones del corte de línea: identificadores partidos, fechas en 3–4 renglones |
+| 3 | 80 | 5 | `min-width: 16ch` general volvió a desbordar tablas; columna fija tapando «Estado» |
+| 4 | 86 | 1 | pestaña Columnas del catálogo: «Confianza» cortada |
+| Cierre | 89 | **0** | — |
+
+Nota final: **ninguna pantalla RECHAZADA por el frontend**; todas ACEPTABLE CON RESERVAS (menores abiertos: migas y
+pestañas truncadas a 1280, «September» en el campo de mes nativo, «Limpiar»/«Quitar filtros», alturas de tarjetas del
+tablero, foco del menú «Más», tabla acotada sin indicio de que sigue).
+
+Rechazadas **solo por decisión del dueño** (no del frontend): las 7 pantallas de Sistemas sin fuente (accesos, base de
+datos, despliegues, outbox, proveedores, respaldos, webhooks). Para escalar: rojo semántico en alertas reales
+(Descuadre, Vencido, Crítica, Bloqueado, Rechazar), códigos «CU-xx» en el panel «Cómo funciona esta pantalla» (los
+exigen tests vigentes) y «(regla 91.1.2)», que viene en el dato del catálogo.
+
+No cubierto: estado de carga (esqueleto), foco por teclado en el menú «Más», panel de explicación abierto, la línea de
+confianza con un valor real (el simulado no la trae).

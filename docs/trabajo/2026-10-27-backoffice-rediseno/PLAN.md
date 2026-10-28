@@ -84,7 +84,7 @@ Hipótesis: ninguna se presenta como hecho.
 |---|---|---|---|---|
 | H2.M1 | Revisión de las 44 capturas después de H1, lista de defectos por pantalla | archivo con 44 líneas | `wc -l` | HECHO |
 | H2.M2 | Corrección de los defectos encontrados (se agregan como microtareas H2.Mn al descubrirlos) | cada defecto con su estado | re-captura | HECHO |
-| H2.M3 | Segunda pasada adversarial con nota por pantalla | ninguna RECHAZADA entregada | `evidencia/doble-revision.md` | A MEDIAS |
+| H2.M3 | Segunda pasada adversarial con nota por pantalla | ninguna RECHAZADA entregada | `evidencia/doble-revision.md` | HECHO |
 
 ## H3 — Regresión y entrega
 | ID | Microtarea | CA (binario) | DoD | Estado |
@@ -141,6 +141,6 @@ error, entonces ninguna pantalla queda RECHAZADA por causa del frontend.
 |---|---|---|---|---|
 | H6.M1 | Ronda 1 del revisor sobre las 44 rutas × 3 variantes + especiales | veredicto escrito | informe | HECHO |
 | H6.M2 | Corregir lo atribuible al frontend (tablas, ceros en rojo, títulos de error, jerga, plurales, enums, `color-scheme`, KPI, catálogo) | revisor: corregido | rondas 2–4 | HECHO |
-| H6.M3 | Rondas 2–4 hasta que no quede RECHAZADA por el frontend | 0 rechazadas por el frontend | informe de cierre | EN CURSO |
+| H6.M3 | Rondas 2–4 hasta que no quede RECHAZADA por el frontend | 0 rechazadas por el frontend | informe de cierre | HECHO |
 | H6.M4 | e2e del backoffice | sin fallos nuevos | `playwright test --retries=0` | HECHO |
 | H6.M5 | PR a `dev` y a `test`, y bundle en vivo | bundle nuevo con los cambios | `curl` + `grep` | TODO |

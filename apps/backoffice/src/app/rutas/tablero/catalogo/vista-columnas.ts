@@ -59,7 +59,7 @@ const SENSIBILIDADES: Record<string, string> = { NINGUNA: 'Ninguna', PERSONAL: '
     .columna { display: grid; gap: var(--s2); justify-items: start; }
     code { font-family: var(--mono); font-size: .92em; overflow-wrap: anywhere; }
     .sistema { display: block; margin-top: var(--s1); color: var(--text-3); font: var(--t-ayuda); }
-    .largo { display: block; min-width: 12rem; white-space: normal; overflow-wrap: anywhere; }
+    .largo { display: block; min-width: 12rem; white-space: normal; overflow-wrap: anywhere; text-align: start; }
   `,
 })
 export class VistaColumnas {
