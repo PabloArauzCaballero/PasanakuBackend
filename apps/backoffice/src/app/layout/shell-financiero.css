@@ -53,7 +53,7 @@ main > :not(router-outlet, ap-pestanas-de-seccion) { animation: entrar-vista var
 @keyframes entrar-vista { from { opacity: 0; transform: translateY(var(--s2)); } }
 
 /* En escritorio el título no cede su lugar al buscador: se achica el buscador, no «Outbox y descart…». */
-@media (min-width: 64rem) { main { padding: var(--s4) var(--s6) calc(var(--s7) + var(--s5)); } .cabecera { padding: var(--s2) var(--s6); } }
+@media (min-width: 64rem) { main { padding: var(--s4) var(--s5) calc(var(--s7) + var(--s5)); } .cabecera { padding: var(--s2) var(--s5); } }
 @media (max-width: 48rem) { .buscador { display: none; } }
 /* En el celular la cabecera muestra solo el título: las migas no entran y el cajón ya dice dónde estás. */
 @media (max-width: 40rem) { .vista .migas { display: none; } .titulo-vista.solo-angosto { display: block; } .cabecera { padding: var(--s2) var(--s3); } main { padding: var(--s3) var(--s3) calc(var(--s7) + var(--s3)); gap: var(--s4); } }

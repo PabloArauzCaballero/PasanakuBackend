@@ -90,7 +90,7 @@ describe('BandejaDeRetiros · [UI contra HTTP simulado] CU-11', () => {
   it('error: 500 ⇒ error accionable con código de seguimiento; «Volver a intentar» repite el pedido', async () => {
     const f = await montar(BandejaDeRetiros, ['RETIRO_APROBAR'])
     await responder(f, pedido(), { codigo: 'AP-GW-500', mensaje: 'crudo del backend', trazaId: 'traza-1' }, 500)
-    expect(texto(f)).toContain('No se pudo cargar retiros en revisión.')
+    expect(texto(f)).toContain('Retiros en revisión: no se pudo cargar la información.')
     expect(texto(f)).toContain('traza-1')
     expect(texto(f)).not.toContain('crudo del backend')
     boton(f, 'Volver a intentar')!.click()

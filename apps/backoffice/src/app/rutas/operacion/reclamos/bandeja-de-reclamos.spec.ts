@@ -100,7 +100,7 @@ describe('BandejaDeReclamos · [UI contra HTTP simulado] CU-52', () => {
     expect(filasDe(f)).toBeNull()
     l(f).recargar()
     await responder(f, listado(), { codigo: 'AP-CU52-07', mensaje: 'crudo', trazaId: 'traza-7' }, 422)
-    expect(texto(f)).toContain('No se pudo cargar reclamos.')
+    expect(texto(f)).toContain('Reclamos: no se pudo cargar la información.')
     expect(texto(f)).toContain('traza-7')
     expect(texto(f)).not.toContain('crudo')
     boton(f, 'Volver a intentar')!.click()

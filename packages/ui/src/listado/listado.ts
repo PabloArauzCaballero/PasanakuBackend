@@ -59,8 +59,8 @@ export type CargaDeListado = { tipo: 'cargando' } | { tipo: 'lista' } | { tipo: 
     </ng-template>
     @switch (carga().tipo) {
       @case ('cargando') { <ap-esqueleto [lineas]="6" [etiqueta]="'Cargando ' + titulo()" /> }
-      @case ('sin-fuente') { <ap-estado-vacio icono="enlace" [titulo]="titulo() + ': todavía sin datos conectados.'" [explicacion]="mensajeSinFuente()" /> }
-      @case ('error') { <ap-estado-de-error [titulo]="'No se pudo cargar ' + titulo().toLowerCase() + '.'" [mensaje]="mensajeDeError()" [trazaId]="idDePeticion()" (reintentar)="reintentar.emit()" /> }
+      @case ('sin-fuente') { <ap-estado-vacio icono="reloj" [titulo]="titulo() + ': todavía no hay datos para mostrar.'" [explicacion]="mensajeSinFuente()" /> }
+      @case ('error') { <ap-estado-de-error [titulo]="titulo() + ': no se pudo cargar la información.'" [mensaje]="mensajeDeError()" [trazaId]="idDePeticion()" (reintentar)="reintentar.emit()" /> }
       @default {
         @if (listado().total() === 0) {
           @if (listado().hayCriterios()) {

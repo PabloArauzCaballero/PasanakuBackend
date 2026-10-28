@@ -45,12 +45,15 @@ const dinero = (d: { monto: string; moneda: string }) => `${d.monto} ${d.moneda}
       </ap-cabecera-de-pagina>
       @if (creada()) { <ap-alerta tono="ok">{{ t.creada }}</ap-alerta> }
       @if (puedeVerLaCola()) {
-        <div class="cifras">
-          <ap-tarjeta-kpi etiqueta="Cargadas" [valor]="'' + lotes.filas().length" icono="lista" [pista]="lotes.hayMas() ? 'Hay más en el servidor' : 'Todas las del filtro'" />
-          <ap-tarjeta-kpi etiqueta="En revisión" [valor]="'' + cuenta('EN_REVISION')" icono="reloj" [tono]="cuenta('EN_REVISION') ? 'aviso' : 'neutro'" pista="Esperan aprobación" />
-          <ap-tarjeta-kpi etiqueta="Activas" [valor]="'' + cuenta('ACTIVA')" icono="reproducir" tono="ok" pista="En lo cargado" />
-          <ap-tarjeta-kpi etiqueta="Rechazadas" [valor]="'' + cuenta('RECHAZADA')" icono="rechazar" pista="En lo cargado" />
-        </div>
+        <!-- Las cifras cuentan lo cargado: sin carga (error o cargando) no se muestran, un «0» afirmaría algo que no se midió. -->
+        @if (lotes.carga().tipo === 'lista') {
+          <div class="cifras">
+            <ap-tarjeta-kpi etiqueta="Cargadas" [valor]="'' + lotes.filas().length" icono="lista" [pista]="lotes.hayMas() ? 'Hay más en el servidor' : 'Todas las del filtro'" />
+            <ap-tarjeta-kpi etiqueta="En revisión" [valor]="'' + cuenta('EN_REVISION')" icono="reloj" [tono]="cuenta('EN_REVISION') ? 'aviso' : 'neutro'" pista="Esperan aprobación" />
+            <ap-tarjeta-kpi etiqueta="Activas" [valor]="'' + cuenta('ACTIVA')" icono="reproducir" tono="ok" pista="En lo cargado" />
+            <ap-tarjeta-kpi etiqueta="Rechazadas" [valor]="'' + cuenta('RECHAZADA')" icono="rechazar" pista="En lo cargado" />
+          </div>
+        }
         <ap-listado data-tutorial-id="publicidad-tabla-campanas" [titulo]="t.tituloLista" [columnas]="columnas" [listado]="listado" [carga]="lotes.carga()" [identidad]="porId" [exportables]="exportables" nombreDeRegistros="campañas" [ayudaDeBusqueda]="t.ayudaBusqueda" [textoVacio]="t.sinCampanas" [explicacionVacio]="t.porOmision" (reintentar)="lotes.recargar()">
           <ap-barra-de-lotes accionesDeListado [hayMas]="lotes.hayMas()" [cargando]="lotes.cargandoMas()" [error]="lotes.errorDeMas()" (cargarMas)="lotes.cargarMas()" />
           <ng-template #celda let-c let-columna="columna">

@@ -85,7 +85,7 @@ const EXPORTABLES: ColumnaExportable<ReclamoEnBandeja>[] = [
     .plazo { display: inline-flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: var(--s2); }
     .norma { margin: 0; display: flex; align-items: center; gap: var(--s2); color: var(--text-2); font: var(--t-cuerpo-chico); }
     /* Identificadores en una línea, recortados con «…»: el valor completo va en el title y en la descarga (antes se partían letra a letra y la fila medía 200 px). */
-    .id { display: inline-block; max-width: 22ch; overflow: hidden; text-overflow: ellipsis; vertical-align: bottom; font-family: var(--mono); font-size: .92em; }
+    .id { display: inline-block; max-width: 10ch; overflow: hidden; text-overflow: ellipsis; vertical-align: bottom; font-family: var(--mono); font-size: .92em; }
     .nota { color: var(--text-2); font: var(--t-cuerpo-chico); white-space: normal; }
   `,
 })

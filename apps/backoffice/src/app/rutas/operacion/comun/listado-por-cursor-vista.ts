@@ -39,7 +39,7 @@ const CLAVE_ACCIONES = '__acciones'
       </ng-template>
       @switch (fuente().estado()) {
         @case ('cargando') { <ap-esqueleto [lineas]="6" [etiqueta]="'Cargando ' + titulo().toLowerCase()" /> }
-        @case ('error') { <ap-estado-de-error [titulo]="'No se pudo cargar ' + titulo().toLowerCase() + '.'" [mensaje]="fuente().error()?.mensaje" [trazaId]="fuente().error()?.trazaId" (reintentar)="fuente().recargar()" /> }
+        @case ('error') { <ap-estado-de-error [titulo]="titulo() + ': no se pudo cargar la información.'" [mensaje]="fuente().error()?.mensaje" [trazaId]="fuente().error()?.trazaId" (reintentar)="fuente().recargar()" /> }
         @default {
           @if (fuente().local.total() === 0) {
             @if (fuente().hayCriterios()) {

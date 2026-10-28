@@ -24,7 +24,7 @@ describe('BandejaDeReportes · CU-43 listarReportesRegulatorios', () => {
     await asentar(fixture)
     expect(filasDe<ReporteRegulatorioEnLista>(fixture)[0]?.periodo).toBe('2026-09')
     // El monto viaja sin moneda: la pantalla lo declara en vez de inventarle una.
-    expect(textoDe(fixture)).toContain('moneda no informada por el contrato')
+    expect(textoDe(fixture)).toContain('Monto total (moneda sin especificar)')
 
     bandejaDe<Bandeja<ReporteRegulatorioEnLista>>(fixture).filtrar('estados', 'APROBADO')
     const pedido = http.expectOne((r) => r.url === URL)

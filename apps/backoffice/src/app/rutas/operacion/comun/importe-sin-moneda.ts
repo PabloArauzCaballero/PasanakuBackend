@@ -9,7 +9,7 @@ import { formatearMonto } from '@aportaya/ui/monto/formatear'
 @Component({
   selector: 'ap-importe-sin-moneda',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `<span class="cifra">{{ cifra() }}</span> <span class="nota">· moneda no registrada</span>`,
+  template: `<span class="cifra">{{ cifra() }}</span> <span class="nota" title="La moneda de este importe no está especificada">· sin moneda</span>`,
   styles: `
     .cifra { white-space: nowrap; font-family: var(--font-d); font-variant-numeric: tabular-nums; }
     /* El espacio entre los dos spans lo borra el compilador (preserveWhitespaces: false): el aire lo pone el margen. */

@@ -22,9 +22,9 @@ export function montoComoSeVe(d: ImporteConMoneda | null | undefined): string {
 export function sinMonedaComoSeVe(monto: string | null | undefined): string {
   if (!monto) return ''
   try {
-    return `${importeSinMoneda(monto)} (moneda no registrada)`
+    return `${importeSinMoneda(monto)} (moneda sin especificar)`
   } catch {
-    return `${monto} (moneda no registrada)`
+    return `${monto} (moneda sin especificar)`
   }
 }
 

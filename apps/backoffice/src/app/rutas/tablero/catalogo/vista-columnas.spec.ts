@@ -36,7 +36,7 @@ describe('VistaColumnas', () => {
   /** El texto de una celda sin la etiqueta que la tabla repite para el celular. */
   function celdas(el: HTMLElement, clave: string): string[] {
     return Array.from(el.querySelectorAll('tbody tr')).map((tr) => {
-      const td = tr.querySelectorAll('td')[clave === 'revision' ? 6 : 0]
+      const td = tr.querySelectorAll('td')[clave === 'revision' ? 5 : 0]
       // La celda del nombre lleva también la acción «Revisar»: el nombre es el `code`.
       if (clave === 'nombre') return td?.querySelector('code')?.textContent ?? ''
       return Array.from(td?.childNodes ?? [])

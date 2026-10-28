@@ -62,7 +62,7 @@ describe('PantallaPermisosInternos', () => {
     const texto = (fixture.nativeElement as HTMLElement).textContent ?? ''
     expect(texto).toContain('ALERTAS_RIESGO_LEER')
     expect(texto).toContain('CIERRES_DIARIOS_GESTIONAR')
-    expect(texto).toContain('CRITICO')
+    expect(texto).toContain('Crítico')
     expect(texto).toContain('Exige motivo')
   })
 })

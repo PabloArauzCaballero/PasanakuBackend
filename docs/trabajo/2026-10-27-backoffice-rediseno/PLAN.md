@@ -131,3 +131,16 @@ responde 404 y no se llama (Accesos ya es «sin fuente»).
 | H5.M6 | Sistemas sin fuente sin «Actualizar» | spec compartida de Sistemas | `test:front` | HECHO |
 | H5.M7 | Desplegar a TEST y verificar el bundle | bundle nuevo con los cambios | `curl` + `grep` | HECHO |
 | H5.M8 | Catálogo de datos › Columnas: «Revisar» pasa a la celda del nombre y se quita la columna fija que tapaba «Sistema»/«Sensibilidad» | ninguna columna tapada a 1280/768/375, claro y oscuro | capturas `catalogo-columnas-*` + `vista-columnas.spec` + e2e `catalogo-gobierno` | HECHO |
+
+## H6 — Segunda pasada visual independiente (agregado 2026-10-28, pedido en la sesión)
+**CA:** Dado el backoffice en su versión final, cuando `visual-reviewer` lo revisa en 1280/375, claro/oscuro y estados de
+error, entonces ninguna pantalla queda RECHAZADA por causa del frontend.
+**DoD:** veredicto escrito del revisor por ronda (`evidencia/doble-revision.md`), gates en verde, e2e del backoffice.
+
+| ID | Microtarea | CA (binario) | DoD | Estado |
+|---|---|---|---|---|
+| H6.M1 | Ronda 1 del revisor sobre las 44 rutas × 3 variantes + especiales | veredicto escrito | informe | HECHO |
+| H6.M2 | Corregir lo atribuible al frontend (tablas, ceros en rojo, títulos de error, jerga, plurales, enums, `color-scheme`, KPI, catálogo) | revisor: corregido | rondas 2–4 | HECHO |
+| H6.M3 | Rondas 2–4 hasta que no quede RECHAZADA por el frontend | 0 rechazadas por el frontend | informe de cierre | EN CURSO |
+| H6.M4 | e2e del backoffice | sin fallos nuevos | `playwright test --retries=0` | HECHO |
+| H6.M5 | PR a `dev` y a `test`, y bundle en vivo | bundle nuevo con los cambios | `curl` + `grep` | TODO |
