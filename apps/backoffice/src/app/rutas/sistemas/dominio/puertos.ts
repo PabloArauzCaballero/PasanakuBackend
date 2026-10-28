@@ -64,10 +64,10 @@ export type ErrorFuenteNoDisponible = {
   readonly trazaId?: string
 }
 
-export function errorFuenteNoDisponible(nombreDeRecurso: string): ErrorFuenteNoDisponible {
+export function errorFuenteNoDisponible(): ErrorFuenteNoDisponible {
   return {
     tipo: 'fuente-no-disponible',
-    mensaje: `Ningún servicio publica todavía «${nombreDeRecurso}». No es una falla: cuando exista esa fuente, la información aparece acá.`,
+    mensaje: 'Esta información va a aparecer acá cuando el sistema que la registra esté conectado. No es una falla y no hace falta hacer nada.',
   }
 }
 

@@ -24,7 +24,7 @@ export const textosTablero = {
     explicacion: 'Indicadores de la plataforma. Solo mostramos los que un servicio publica; el resto lo decimos.',
     noDisponible: 'Indicador no disponible',
     indicadores: <{ id: string; icono: NombreDeIcono; titulo: string; motivo: string }[]>[
-      { id: 'integraciones', icono: 'enlace', titulo: 'Salud de integraciones', motivo: 'Ningún servicio publica todavía una proyección del estado de los proveedores externos.' },
+      { id: 'integraciones', icono: 'enlace', titulo: 'Salud de integraciones', motivo: 'Todavía no se registra el estado de los proveedores externos; cuando se registre, aparece acá.' },
       { id: 'conciliacion', icono: 'balanza', titulo: 'Conciliación del día', motivo: 'No hay proyección de la conciliación diaria: el resultado se ve en la bandeja de operación.' },
     ],
   },

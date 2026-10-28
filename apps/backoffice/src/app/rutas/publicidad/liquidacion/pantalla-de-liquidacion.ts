@@ -51,7 +51,7 @@ import { importeSinMoneda } from '../../operacion/comun/importe-sin-moneda'
 
     <ap-dialogo [titulo]="t.liquidar" [textoDeConfirmar]="t.liquidar" [(abierto)]="dialogoAbierto" [cargando]="liquidando()" (confirmar)="confirmarLiquidar()" (cancelar)="dialogoAbierto.set(false)">
       <p>{{ t.confirmarLiquidar(pedido()?.periodo ?? '') }}</p>
-      @if (valor(); as c) { <p><strong>{{ t.totalAFacturar }}: {{ cifra(c.total) }}</strong> · moneda no registrada</p> }
+      @if (valor(); as c) { <p><strong>{{ t.totalAFacturar }}: {{ cifra(c.total) }}</strong> · moneda sin especificar</p> }
       <ap-error-de-envio [error]="error()" />
     </ap-dialogo>
   `,

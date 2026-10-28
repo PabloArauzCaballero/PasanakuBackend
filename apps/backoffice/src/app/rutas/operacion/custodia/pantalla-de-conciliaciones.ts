@@ -83,7 +83,7 @@ const EXPORTABLES: ColumnaExportable<ConciliacionEnLista>[] = [
     .tarjeta { display: grid; gap: var(--s4); padding: var(--s5); border: var(--borde-fino) solid var(--border); border-radius: var(--r-lg); background: var(--surface); box-shadow: var(--sombra-1); }
     .cerrar { display: flex; justify-content: flex-end; }
     /* Identificadores en una línea, recortados con «…»: el valor completo va en el title y en la descarga (antes se partían letra a letra y la fila medía 200 px). */
-    .id { display: inline-block; max-width: 22ch; overflow: hidden; text-overflow: ellipsis; vertical-align: bottom; font-family: var(--mono); font-size: .92em; }
+    .id { display: inline-block; max-width: 10ch; overflow: hidden; text-overflow: ellipsis; vertical-align: bottom; font-family: var(--mono); font-size: .92em; }
     .diferencia { display: inline-flex; align-items: center; gap: var(--s1); flex-wrap: wrap; }
     .descuadre { color: var(--err-texto); }
   `,

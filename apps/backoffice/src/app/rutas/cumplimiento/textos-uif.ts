@@ -10,7 +10,7 @@ export const textosUif = {
     preparar: 'Preparar un reporte',
     aprobar: 'Aprobar y registrar envío',
     enCero: 'En cero',
-    sinMoneda: 'Monto total (moneda no informada por el contrato)',
+    sinMoneda: 'Monto total (moneda sin especificar)',
     columnas: { periodo: 'Período', fechaCorte: 'Corte', fechaLimite: 'Fecha límite', estado: 'Estado', cantidadRegistros: 'Registros', montoTotal: 'Monto total', reporteId: 'Acción' },
   },
   estadosDeReporte: {

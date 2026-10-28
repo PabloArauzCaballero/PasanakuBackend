@@ -13,6 +13,9 @@ export type Cifra = { etiqueta: string; valor: string; icono: NombreDeIcono; ton
  *
  * Mientras no hay filas (cargando o con error) cada cifra dice «—», no «0»: con la carga caída, «0 caídos» afirmaba
  * algo que nadie midió (2026-10-27).
+ *
+ * Un tono de aviso o de error solo se pinta si hay algo que contar: «Caídos 0» o «Sin segundo factor 0» en rojo
+ * alarmaban por una buena noticia (2026-10-28). El verde de «ok» sí acompaña al cero.
  */
 @Component({
   selector: 'ap-cifras-de-sistemas',
@@ -24,7 +27,7 @@ export type Cifra = { etiqueta: string; valor: string; icono: NombreDeIcono; ton
     @if (carga()?.tipo !== 'sin-fuente') {
       @for (c of cifras(); track c.etiqueta) {
         @if (conDatos()) {
-          <ap-tarjeta-kpi [etiqueta]="c.etiqueta" [valor]="c.valor" [icono]="c.icono" [tono]="c.tono ?? 'neutro'" [pista]="c.pista" />
+          <ap-tarjeta-kpi [etiqueta]="c.etiqueta" [valor]="c.valor" [icono]="c.icono" [tono]="tonoDe(c)" [pista]="c.pista" />
         } @else {
           <ap-tarjeta-kpi [etiqueta]="c.etiqueta" valor="—" [icono]="c.icono" tono="neutro" [pista]="carga()?.tipo === 'error' ? 'Sin datos' : 'Cargando…'" />
         }
@@ -39,6 +42,13 @@ export class CifrasDeSistemas {
   /** El estado de la carga de la pantalla; sin él, las cifras se muestran tal cual (consumidores previos). */
   readonly carga = input<CargaDeListado>()
   protected readonly conDatos = computed(() => (this.carga()?.tipo ?? 'lista') === 'lista')
+  protected readonly tonoDe = tonoDeCifra
+}
+
+/** El tono con que se pinta una cifra: aviso y error, solo si el valor no es cero. */
+export function tonoDeCifra(c: Cifra): Tono {
+  const tono = c.tono ?? 'neutro'
+  return (tono === 'aviso' || tono === 'error') && Number(c.valor) === 0 ? 'neutro' : tono
 }
 
 /** Cuántas filas cumplen la condición, como texto para una cifra. */

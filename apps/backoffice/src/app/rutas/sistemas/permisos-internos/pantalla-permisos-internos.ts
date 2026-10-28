@@ -16,6 +16,8 @@ import { textosSistemas } from '../textos'
 
 const RIESGOS = ['BAJO', 'MEDIO', 'ALTO', 'CRITICO'] as const
 const TONO: Record<string, Tono> = { CRITICO: 'error', ALTO: 'aviso', MEDIO: 'neutro', BAJO: 'ok' }
+const RIESGO: Record<string, string> = { BAJO: 'Bajo', MEDIO: 'Medio', ALTO: 'Alto', CRITICO: 'Crítico' }
+const riesgoDe = (p: PermisoCatalogo) => RIESGO[p.nivelRiesgo] ?? p.nivelRiesgo
 const motivoDe = (p: PermisoCatalogo) => (p.exigeMotivo ? 'Exige motivo' : 'Estándar')
 const mfaDe = (p: PermisoCatalogo) => (p.requiereMfa ? 'Requiere MFA' : 'No')
 
@@ -34,7 +36,7 @@ const mfaDe = (p: PermisoCatalogo) => (p.requiereMfa ? 'Requiere MFA' : 'No')
         <ng-template #celda let-p let-c="columna">
           @switch (c.clave) {
             @case ('codigo') { <code>{{ p.codigo }}</code> }
-            @case ('nivelRiesgo') { <ap-chip-estado [tono]="tono(p)">{{ p.nivelRiesgo }}</ap-chip-estado> }
+            @case ('nivelRiesgo') { <ap-chip-estado [tono]="tono(p)">{{ riesgo(p) }}</ap-chip-estado> }
             @case ('exigeMotivo') { <ap-chip-estado [tono]="p.exigeMotivo ? 'aviso' : 'neutro'">{{ motivo(p) }}</ap-chip-estado> }
             @case ('requiereMfa') { <ap-chip-estado [tono]="p.requiereMfa ? 'aviso' : 'neutro'">{{ mfa(p) }}</ap-chip-estado> }
             @default { {{ p[c.clave] }} }
@@ -65,7 +67,7 @@ export class PantallaPermisosInternos {
     filas: this.filas,
     camposDeBusqueda: ['codigo', 'recurso', 'accion', 'descripcion'],
     filtros: [
-      { nombre: 'riesgo', etiqueta: 'Riesgo', valor: (p) => p.nivelRiesgo, opciones: RIESGOS.map((r) => ({ valor: r, texto: r })) },
+      { nombre: 'riesgo', etiqueta: 'Riesgo', valor: (p) => p.nivelRiesgo, opciones: RIESGOS.map((r) => ({ valor: r, texto: RIESGO[r]! })) },
       { nombre: 'recurso', etiqueta: 'Recurso', valor: (p) => p.recurso },
       { nombre: 'motivo', etiqueta: 'Motivo', valor: motivoDe },
       { nombre: 'mfa', etiqueta: 'MFA', valor: mfaDe },
@@ -94,11 +96,12 @@ export class PantallaPermisosInternos {
     { clave: 'codigo', titulo: 'Permiso' },
     { clave: 'recurso', titulo: 'Recurso' },
     { clave: 'accion', titulo: 'Acción' },
-    { clave: 'nivelRiesgo', titulo: 'Riesgo' },
+    { clave: 'nivelRiesgo', titulo: 'Riesgo', valor: riesgoDe },
     { clave: 'exigeMotivo', titulo: 'Motivo', valor: motivoDe },
     { clave: 'requiereMfa', titulo: 'MFA', valor: mfaDe },
     { clave: 'descripcion', titulo: 'Descripción' },
   ]
+  protected readonly riesgo = riesgoDe
   protected tono(p: PermisoCatalogo): Tono {
     return TONO[p.nivelRiesgo] ?? 'neutro'
   }

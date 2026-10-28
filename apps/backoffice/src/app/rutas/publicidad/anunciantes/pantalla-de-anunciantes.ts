@@ -41,12 +41,15 @@ const limite = (a: Anunciante) => (a.limiteGastoMensual ? `${a.limiteGastoMensua
           <ap-boton acciones icono="personaMas" variante="primario" (pulsado)="formulario().abrir()">{{ t.nuevoAnunciante }}</ap-boton>
         }
       </ap-cabecera-de-pagina>
-      <div class="cifras">
-        <ap-tarjeta-kpi etiqueta="Cargados" [valor]="'' + lotes.filas().length" icono="lista" [pista]="lotes.hayMas() ? 'Hay más en el servidor' : 'Todos los del filtro'" />
-        <ap-tarjeta-kpi etiqueta="Activos" [valor]="'' + cuenta('ACTIVO')" icono="verificado" tono="ok" pista="En lo cargado" />
-        <ap-tarjeta-kpi etiqueta="Suspendidos" [valor]="'' + cuenta('SUSPENDIDO')" icono="pausa" [tono]="cuenta('SUSPENDIDO') ? 'aviso' : 'neutro'" pista="En lo cargado" />
-        <ap-tarjeta-kpi etiqueta="Dados de baja" [valor]="'' + cuenta('DADO_DE_BAJA')" icono="prohibido" pista="En lo cargado" />
-      </div>
+      <!-- Las cifras cuentan lo cargado: sin carga (error o cargando) no se muestran, un «0» afirmaría algo que no se midió. -->
+      @if (lotes.carga().tipo === 'lista') {
+        <div class="cifras">
+          <ap-tarjeta-kpi etiqueta="Cargados" [valor]="'' + lotes.filas().length" icono="lista" [pista]="lotes.hayMas() ? 'Hay más en el servidor' : 'Todos los del filtro'" />
+          <ap-tarjeta-kpi etiqueta="Activos" [valor]="'' + cuenta('ACTIVO')" icono="verificado" tono="ok" pista="En lo cargado" />
+          <ap-tarjeta-kpi etiqueta="Suspendidos" [valor]="'' + cuenta('SUSPENDIDO')" icono="pausa" [tono]="cuenta('SUSPENDIDO') ? 'aviso' : 'neutro'" pista="En lo cargado" />
+          <ap-tarjeta-kpi etiqueta="Dados de baja" [valor]="'' + cuenta('DADO_DE_BAJA')" icono="prohibido" pista="En lo cargado" />
+        </div>
+      }
       @if (creado()) { <ap-alerta tono="ok">{{ t.creado }}</ap-alerta> }
       <ap-listado [titulo]="t.titulo" [columnas]="columnas" [listado]="listado" [carga]="lotes.carga()" [identidad]="porId" [exportables]="exportables" nombreDeRegistros="anunciantes" [ayudaDeBusqueda]="t.ayudaBusqueda" [textoVacio]="t.sinAnunciantes" [explicacionVacio]="t.explicacionVacio" (reintentar)="lotes.recargar()">
         <ap-barra-de-lotes accionesDeListado [hayMas]="lotes.hayMas()" [cargando]="lotes.cargandoMas()" [error]="lotes.errorDeMas()" (cargarMas)="lotes.cargarMas()" />

@@ -42,7 +42,7 @@ const CLAVE_ACCIONES = '__acciones'
     </ng-template>
     @switch (listado().carga().tipo) {
       @case ('cargando') { <ap-esqueleto [lineas]="6" [etiqueta]="'Cargando ' + titulo().toLowerCase()" /> }
-      @case ('error') { <ap-estado-de-error [titulo]="'No se pudo cargar ' + titulo().toLowerCase() + '.'" [mensaje]="mensajeDeError()" [trazaId]="idDePeticion()" (reintentar)="listado().recargar()" /> }
+      @case ('error') { <ap-estado-de-error [titulo]="titulo() + ': no se pudo cargar la información.'" [mensaje]="mensajeDeError()" [trazaId]="idDePeticion()" (reintentar)="listado().recargar()" /> }
       @default {
         @if (listado().visibles().length === 0) {
           @if (listado().hayCriterios()) {

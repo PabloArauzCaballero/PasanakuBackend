@@ -48,8 +48,7 @@ const segundoFactor = (u: Usuario) => (u.tieneSegundoFactor ? 'Configurado' : 'P
             @case ('nombres') { <strong>{{ u.nombres }} {{ u.apellidos }}</strong><span class="sub">{{ u.correo }}</span> }
             @case ('roles') { <span class="roles">@for (r of u.roles; track r) { <code>{{ r }}</code> }</span> }
             @case ('estado') {
-              <ap-chip-estado [tono]="u.estado === 'ACTIVO' ? 'ok' : 'aviso'">{{ estado(u) }}</ap-chip-estado>
-              @if (u.bloqueadoHasta) { <ap-chip-estado tono="error">Bloqueado</ap-chip-estado> }
+              <span class="chips"><ap-chip-estado [tono]="u.estado === 'ACTIVO' ? 'ok' : 'aviso'">{{ estado(u) }}</ap-chip-estado>@if (u.bloqueadoHasta) { <ap-chip-estado tono="error">Bloqueado</ap-chip-estado> }</span>
             }
             @case ('tieneSegundoFactor') { <ap-chip-estado [tono]="u.tieneSegundoFactor ? 'ok' : 'neutro'">{{ factor(u) }}</ap-chip-estado> }
             @default { {{ u[c.clave] }} }
@@ -96,7 +95,8 @@ const segundoFactor = (u: Usuario) => (u.tieneSegundoFactor ? 'Configurado' : 'P
     .menu [apAccionDeFila] { justify-content: flex-start; width: 100%; border-color: transparent; }
     .pantalla { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s5); min-width: 0; }
     /* ap-listado deja sus pistas en «auto»: sin esto la tabla ensancha la página en vez de desplazarse en su marco. */ ap-listado { grid-template-columns: minmax(0, 1fr); }
-    .sub { display: block; font: var(--t-ayuda); color: var(--text-3); overflow-wrap: anywhere; }
+    .sub { display: block; font: var(--t-ayuda); color: var(--text-3); overflow-wrap: break-word; }
+    .chips { display: inline-flex; flex-wrap: wrap; gap: var(--s1); }
     .roles { display: flex; flex-wrap: wrap; gap: var(--s1); }
     code { padding: 0 var(--s1); border-radius: var(--r-sm); background: var(--surface-2); font: var(--t-ayuda); font-family: var(--f-mono); color: var(--text-2); }
   `,

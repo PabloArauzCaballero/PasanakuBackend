@@ -31,6 +31,14 @@ const _codigo =
     'abababababababababababababababababababababababababababababababab';
 const _web = 'https://app.aportaya.161.97.85.216.sslip.io';
 
+/// Un enlace vigente vence siempre en el futuro: con una fecha fija (el 26 de octubre de
+/// 2026) las pruebas del organizador empezaron a fallar solas al pasar ese día, porque
+/// `EnlacesDelGrupo.vigente` descarta el enlace vencido y el QR nunca aparece.
+final _expira = DateTime.now()
+    .toUtc()
+    .add(const Duration(days: 7))
+    .toIso8601String();
+
 String _token({required bool habilitada}) {
   String parte(Object v) =>
       base64Url.encode(utf8.encode(jsonEncode(v))).replaceAll('=', '');
@@ -99,7 +107,7 @@ void main() {
         (s) => s.reply(201, {
           'enlaceId': _codigo.split('.').first,
           'codigo': _codigo,
-          'expiraEn': '2026-10-26T20:00:00Z',
+          'expiraEn': _expira,
         }),
       )
       ..onPost(
@@ -111,7 +119,7 @@ void main() {
           'moneda': 'BOB',
           'periodicidad': 'MENSUAL',
           'cuposLibres': 2,
-          'expiraEn': '2026-10-26T20:00:00Z',
+          'expiraEn': _expira,
         }),
         data: Matchers.any,
       );
@@ -353,7 +361,7 @@ void main() {
         'moneda': 'BOB',
         'periodicidad': 'MENSUAL',
         'cuposLibres': cupos,
-        'expiraEn': '2026-10-26T20:00:00Z',
+        'expiraEn': _expira,
       }),
       data: Matchers.any,
     );

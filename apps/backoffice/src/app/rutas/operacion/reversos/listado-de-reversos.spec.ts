@@ -79,7 +79,7 @@ describe('ListadoDeReversos · [UI contra HTTP simulado] CU-14', () => {
     expect(filasDe(f)).toBeNull()
     l(f).recargar()
     await responder(f, pedido(), { codigo: 'AP-CU14-04', mensaje: 'crudo', trazaId: 'traza-14' }, 422)
-    expect(texto(f)).toContain('No se pudo cargar reversos.')
+    expect(texto(f)).toContain('Reversos: no se pudo cargar la información.')
     expect(texto(f)).not.toContain('crudo')
     boton(f, 'Volver a intentar')!.click()
     await responder(f, pedido(), OK)

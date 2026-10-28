@@ -35,9 +35,9 @@ type FilaAdmision = SolicitudDeAdmision & { acciones?: string }
           @case ('postulante') { <strong>{{ fila.postulante }}</strong> }
           @case ('grupoCodigo') { <span class="chip-grupo">{{ fila.grupoCodigo }}</span> }
           @case ('cuposSolicitados') { <span class="cupos">{{ fila.cuposSolicitados }}</span> }
-          @case ('puntaje') { <span class="puntaje">{{ fila.puntaje ?? '—' }}</span> }
+          @case ('puntaje') { <span class="puntaje">{{ puntaje(fila.puntaje) }}</span> }
           @case ('fechaSolicitud') { <time [attr.datetime]="fila.fechaSolicitud">{{ dia(fila.fechaSolicitud) }}</time> }
-          @case ('estado') { <ap-chip-estado [tono]="tonoEstado(fila.estado)">{{ fila.estado }}</ap-chip-estado> }
+          @case ('estado') { <ap-chip-estado [tono]="tonoEstado(fila.estado)">{{ estadoLegible(fila.estado) }}</ap-chip-estado> }
           @case ('acciones') {
             <ap-boton variante="fantasma" tamano="sm" icono="ojo" [routerLink]="['/admisiones', fila.solicitudId]">
               {{ t.verExpediente }}
@@ -72,6 +72,19 @@ export class TablaDeAdmisiones {
     { clave: 'estado', titulo: 'Estado' },
     { clave: 'acciones', titulo: 'Acción', fijaDerecha: true },
   ]
+
+  /** El estado en palabras («Pendiente»), nunca el código del contrato en mayúsculas. */
+  protected estadoLegible(estado: string): string {
+    const texto = (estado ?? '').toLowerCase().replace(/_/g, ' ')
+    return texto.charAt(0).toUpperCase() + texto.slice(1)
+  }
+
+  /** El puntaje con coma decimal, como el resto de las cifras («0,82»). */
+  protected puntaje(valor: number | string | null | undefined): string {
+    if (valor === null || valor === undefined || valor === '') return '—'
+    const n = Number(valor)
+    return Number.isFinite(n) ? n.toLocaleString('es-BO', { maximumFractionDigits: 2 }) : String(valor)
+  }
 
   protected tonoEstado(estado: string): Tono {
     const est = estado.toUpperCase()
