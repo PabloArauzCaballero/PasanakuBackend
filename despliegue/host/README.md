@@ -12,6 +12,20 @@ Aca se versiona lo que se pudo auditar linea por linea. Los demas (`construir.sh
 host: pasan credenciales de base por `--build-arg` y no entran a un repositorio sin
 separarlas antes. **Eso queda pendiente.**
 
+## Se actualiza solo (desde 2026-10-28)
+
+`reconstruir-si-cambio.sh` se instala a si mismo desde el repo al final de cada corrida
+(`actualizar_guion`): basta instalarlo **una vez** a mano; despues, cada cambio que entra a
+`test` rige desde la corrida siguiente. Ademas etiqueta las imagenes de backoffice y web
+con `aportaya.commit=<sha>` y no despliega si la etiqueta no es la del commit.
+
+Ver que esta al dia:
+
+```bash
+ssh root@161.97.85.216 'grep -c actualizar_guion /opt/aportaya/bin/reconstruir-si-cambio.sh; \
+  docker image inspect -f "{{index .Config.Labels \"aportaya.commit\"}}" aportaya/backoffice:test aportaya/web:test'
+```
+
 ## Instalar
 
 ```bash
