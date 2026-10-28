@@ -12,12 +12,14 @@ Aca se versiona lo que se pudo auditar linea por linea. Los demas (`construir.sh
 host: pasan credenciales de base por `--build-arg` y no entran a un repositorio sin
 separarlas antes. **Eso queda pendiente.**
 
-## Se actualiza solo (desde 2026-10-28)
+## Avisa cuando la copia del host quedo vieja (desde 2026-10-28)
 
-`reconstruir-si-cambio.sh` se instala a si mismo desde el repo al final de cada corrida
-(`actualizar_guion`): basta instalarlo **una vez** a mano; despues, cada cambio que entra a
-`test` rige desde la corrida siguiente. Ademas etiqueta las imagenes de backoffice y web
-con `aportaya.commit=<sha>` y no despliega si la etiqueta no es la del commit.
+`reconstruir-si-cambio.sh` **no se instala solo**: corre como root y `test` no exige
+revision, asi que instalarse desde la rama seria una consola root para cualquiera que
+empuje ahi. Al final de cada corrida compara su copia con la del repo y, si difieren,
+deja `AVISO: el guion del host difiere…` en `/opt/aportaya/logs/autodespliegue.log`.
+Ademas etiqueta las imagenes de backoffice y web con `aportaya.commit=<sha>` y no despliega
+si la etiqueta no es la del commit.
 
 Ver que esta al dia:
 

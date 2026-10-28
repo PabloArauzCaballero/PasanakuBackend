@@ -30,11 +30,15 @@ fi
 cd /opt/aportaya/repo
 REG=/opt/aportaya/logs/autodespliegue.log
 marca() { echo "[$(date +%FT%T)] $*" >> "$REG"; }
+# Avisa, NO instala: este guion corre como root en el host, y `test` no exige revision.
+# Instalarse solo desde la rama le daria una consola root a cualquiera que empuje a
+# `test` (revision de seguridad, 2026-10-28). La instalacion sigue siendo a mano; lo que
+# ya no puede pasar es que la copia del host quede distinta sin que el log lo diga.
 actualizar_guion() {
   local nuevo=/opt/aportaya/repo/despliegue/host/reconstruir-si-cambio.sh
   local actual=/opt/aportaya/bin/reconstruir-si-cambio.sh
   if [ -f "$nuevo" ] && ! cmp -s "$nuevo" "$actual"; then
-    install -m 755 "$nuevo" "$actual" && marca "guion actualizado desde el repo"
+    marca "AVISO: el guion del host difiere del de test; instalar a mano (despliegue/host/README.md)"
   fi
 }
 
@@ -159,7 +163,6 @@ echo "$REMOTO" > /opt/aportaya/ultimo-construido
 rm -f /opt/aportaya/ultimo-fallido
 marca "listo en ${REMOTO:0:7}"
 
-# El guion se actualiza solo desde el repo: la copia del host no puede volver a quedar
-# distinta de la versionada (el 2026-10-27 corria otra version y nadie lo sabia). Rige
-# desde la corrida siguiente, que el temporizador lanza en dos minutos.
+# Si la copia del host quedo distinta de la versionada, el log lo dice (el 2026-10-27
+# corria otra version y nadie lo sabia).
 actualizar_guion
