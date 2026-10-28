@@ -9,6 +9,7 @@ import { NO_DISPONIBLE } from '../dominio/listado'
 import { textosConfiguracion } from '../textos'
 
 const t = textosConfiguracion.mensajeria
+const canalLegible = (canal: string) => t.canales[canal] ?? canal
 const ESTADOS: Record<string, string> = t.estadosEnvio
 const estado = (r: EnvioEnLista) => ESTADOS[r.estado] ?? r.estado
 /**
@@ -31,7 +32,7 @@ const COLUMNAS: Columna<EnvioEnLista>[] = [
 
 const EXPORTABLES = [
   { clave: 'encoladoEn', titulo: 'Encolado' },
-  { clave: 'canal', titulo: 'Canal' },
+  { clave: 'canal', titulo: 'Canal', valor: (r: { canal: string }) => canalLegible(r.canal) },
   { clave: 'proveedor', titulo: 'Proveedor' },
   { clave: 'estado', titulo: 'Estado', valor: estado },
   { clave: 'intentos', titulo: 'Intentos', valor: (r: EnvioEnLista) => `${r.intentos} / ${r.maxIntentos}` },
@@ -57,6 +58,7 @@ const EXPORTABLES = [
           @case ('costo') { <span class="cifra">{{ costo(r) }}</span> }
           @case ('encoladoEn') { <ap-fecha [iso]="r.encoladoEn" /> }
           @case ('entregadoEn') { @if (r.entregadoEn) { <ap-fecha [iso]="r.entregadoEn" /> } @else { {{ noDisponible }} } }
+          @case ('canal') { {{ canal(r.canal) }} }
           @default { {{ r[columna.clave] ?? noDisponible }} }
         }
       </ng-template>
@@ -71,6 +73,7 @@ export class TablaDeEnvios {
   protected readonly t = t
   protected readonly COLUMNAS = COLUMNAS
   protected readonly EXPORTABLES = EXPORTABLES
+  protected readonly canal = canalLegible
   protected readonly noDisponible = NO_DISPONIBLE
   protected readonly estado = estado
   protected readonly costo = costo
@@ -80,7 +83,7 @@ export class TablaDeEnvios {
     camposDeBusqueda: ['proveedor', 'canal', 'codigoError'],
     servidor: { nombre: 'estado', etiqueta: textosConfiguracion.comun.estado, opciones: opcionesDe(ESTADOS), inicial: filtroInicialDeLaUrl(opcionesDe(ESTADOS)) },
     filtros: [
-      { nombre: 'canal', etiqueta: 'Canal', valor: (r) => r.canal },
+      { nombre: 'canal', etiqueta: 'Canal', valor: (r) => r.canal, texto: canalLegible },
       { nombre: 'proveedor', etiqueta: 'Proveedor', valor: (r) => r.proveedor },
     ],
   })

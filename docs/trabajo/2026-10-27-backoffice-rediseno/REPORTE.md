@@ -1,6 +1,6 @@
 # Reporte — Backoffice: rediseño de la anatomía compartida y pasada pantalla por pantalla
 
-> **AVANCE: 28 / 29 — 96,6 %.** En TEST (bundle `main-TYZJDBS4.js`, 18:05 UTC) están el rediseño, la salud real de Servicios, el estado neutro «sin fuente», los errores sin rojo, los botones con un solo color de acción y el menú «Más» de Usuarios internos. Corregidas las dos columnas tapadas (Usuarios internos y Catálogo de datos); falta la segunda pasada visual independiente sobre las capturas finales (H2.M3). En TEST el servicio ERP responde 500 a todo: es del host, no del front.
+> **AVANCE: 33 / 34 — 97,1 %.** Revisión visual independiente repetida sobre la versión final: **0 pantallas rechazadas por el frontend** (89/100). Quedan 7 rechazadas solo por decisión del dueño (Sistemas sin fuente). Falta H6.M5: PR a `dev` y `test` y verificar el bundle en vivo. En TEST el servicio ERP responde 500 a todo: es del host, no del front.
 
 - Fecha: 2026-10-27 · Plan: [PLAN.md](./PLAN.md) · Doble revisión: [evidencia/doble-revision.md](./evidencia/doble-revision.md)
 - Ramas: PasanakuFrontend `claude/admiring-fermi-mdayfj` (`add44f26`, `40f66da1`) · PasanakuBackend `claude/admiring-fermi-mdayfj` (`071092e5`), PR [PabloArauzCaballero/PasanakuBackend#197](https://github.com/PabloArauzCaballero/PasanakuBackend/pull/197) a `dev`.
@@ -21,11 +21,16 @@
 
 ## A medias
 
-### H2.M3 — Segunda pasada adversarial
-- Qué anda: los dos hallazgos que quedaban abiertos están corregidos. Usuarios internos: Ver + «Más» (H5.M5). Catálogo de datos › Columnas: «Revisar» en la celda del nombre, sin columna fija (H5.M8). Capturas en `evidencia/h5/`.
-- Qué no anda: nada conocido.
-- Qué falta exactamente: que un revisor independiente (`visual-reviewer`) repita la segunda pasada sobre las capturas finales; quien implementó no se aprueba.
+### H6 — Revisión visual independiente sobre la versión final
+- Qué anda: 4 rondas + cierre de `visual-reviewer` (66 → 89/100); 0 pantallas rechazadas por el frontend. Detalle en `evidencia/doble-revision.md`.
+- Qué no anda: 7 pantallas de Sistemas sin fuente quedan rechazadas por decisión de producto (mostrarlas con el aviso o sacarlas del menú).
+- Qué falta exactamente: H6.M5 (PR a `dev` y `test`, bundle en vivo) y las decisiones del dueño listadas en «Decisiones».
 - Dónde quedó: PasanakuBackend `claude/admiring-fermi-mdayfj`; compila, tests en verde.
+
+E2E completo del backoffice: 158 passed / 11 failed. 9 eran `sistemas-sin-contrato` esperando el error rojo que #203 reemplazó por el
+estado neutro (TEST_BUG; se actualizó para exigir el estado neutro y ningún `alert`: 11/11). Los otros 2 fallan igual sobre `origin/test`
+sin estos cambios (preexistentes, no tocados): `admisiones.e2e.ts:243` (pestaña «Por identificador» inexistente) y
+`f2-posiciones-y-roles.e2e.ts:140` (ADMIN_PLATAFORMA ve «Sistemas» en el menú; revisar quién debe verlo).
 
 ### H5 — Errores sin rojo y botones (agregado en la sesión)
 - Hecho y verificado local: `ap-estado-de-error` neutro con ícono ámbar; 502/503/504 con texto propio; secundario y fantasma

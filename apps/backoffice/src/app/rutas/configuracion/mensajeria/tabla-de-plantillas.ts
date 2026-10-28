@@ -9,6 +9,7 @@ import { NO_DISPONIBLE } from '../dominio/listado'
 import { textosConfiguracion } from '../textos'
 
 const t = textosConfiguracion.mensajeria
+const canalLegible = (canal: string) => t.canales[canal] ?? canal
 const APROBACION: Record<string, string> = t.estadosPlantilla
 const aprobacion = (r: PlantillaEnLista) => APROBACION[r.estadoAprobacion] ?? r.estadoAprobacion
 const activa = (r: PlantillaEnLista) => (r.activa ? t.activa : t.inactiva)
@@ -28,7 +29,7 @@ const COLUMNAS: Columna<PlantillaEnLista>[] = [
 const EXPORTABLES = [
   { clave: 'codigo', titulo: 'Código' },
   { clave: 'evento', titulo: 'Evento' },
-  { clave: 'canal', titulo: 'Canal' },
+  { clave: 'canal', titulo: 'Canal', valor: (r: { canal: string }) => canalLegible(r.canal) },
   { clave: 'aprobacion', titulo: 'Aprobación', valor: aprobacion },
   { clave: 'activa', titulo: 'Activa', valor: activa },
   { clave: 'version', titulo: 'Versión' },
@@ -54,6 +55,7 @@ const EXPORTABLES = [
           @case ('activa') { {{ activa(r) }} }
           @case ('vigenteDesde') { <ap-fecha [iso]="r.vigenteDesde" /> }
           @case ('vigenteHasta') { @if (r.vigenteHasta) { <ap-fecha [iso]="r.vigenteHasta" /> } @else { {{ noDisponible }} } }
+          @case ('canal') { {{ canal(r.canal) }} }
           @default { {{ r[columna.clave] ?? noDisponible }} }
         }
       </ng-template>
@@ -65,6 +67,7 @@ export class TablaDePlantillas {
   protected readonly t = t
   protected readonly COLUMNAS = COLUMNAS
   protected readonly EXPORTABLES = EXPORTABLES
+  protected readonly canal = canalLegible
   protected readonly noDisponible = NO_DISPONIBLE
   protected readonly aprobacion = aprobacion
   protected readonly activa = activa
@@ -74,7 +77,7 @@ export class TablaDePlantillas {
     camposDeBusqueda: ['codigo', 'evento', 'idioma'],
     servidor: { nombre: 'estado', etiqueta: 'Aprobación', opciones: opcionesDe(APROBACION) },
     filtros: [
-      { nombre: 'canal', etiqueta: 'Canal', valor: (r) => r.canal },
+      { nombre: 'canal', etiqueta: 'Canal', valor: (r) => r.canal, texto: canalLegible },
       { nombre: 'activa', etiqueta: 'Activa', valor: (r) => (r.activa ? 'SI' : 'NO'), opciones: [{ valor: 'SI', texto: t.activa }, { valor: 'NO', texto: t.inactiva }] },
     ],
   })

@@ -45,14 +45,21 @@ const ROL_DE_SISTEMAS = 'PLATAFORMA'
 
 test.describe('sistemas — sin contrato real, nunca datos de ejemplo (con sesión de prueba)', () => {
   for (const { ruta } of RUTAS) {
-    test(`/sistemas/${ruta}: con sesión ve el error accionable, nunca "99.95" en pantalla`, async ({ page }) => {
+    test(`/sistemas/${ruta}: con sesión ve un estado honesto, nunca "99.95" en pantalla`, async ({ page }) => {
       await abrirSesionDePruebaYNavegar(page, PERMISOS_DE_SISTEMAS, ROL_DE_SISTEMAS, `/sistemas/${ruta}`)
 
-      // No hay servicio "sistemas" real ni mock que lo cubra en este sandbox: el
-      // estado esperado es el de error accionable, nunca el de éxito con datos de
-      // ejemplo — eso es lo que este caso prueba.
-      // Una pantalla con dos listados (outbox y descartados) muestra un error por listado: alcanza con que haya al menos uno.
-      await expect(page.getByRole('alert').first()).toBeVisible()
+      if (ruta === 'servicios') {
+        // Servicios sí tiene fuente real (`GET /indicadores/operacion/servicios`, auditoria): ve su tabla o, si el
+        // servicio falla, el error accionable.
+        await expect(page.getByRole('table').or(page.getByRole('alert')).first()).toBeVisible()
+      } else {
+        // Sin contrato que liste estos datos no es una falla (2026-10-27, «que ninguna cosa salga en rojo»): el
+        // estado es neutro y explica qué falta, sin caja de error ni reintento. Antes se esperaba el error.
+        // Una pantalla con dos listados (outbox y descartados) muestra un aviso por listado: alcanza con el primero.
+        const aviso = page.getByRole('status').filter({ hasText: 'Esta información va a aparecer acá' }).first()
+        await expect(aviso).toBeVisible()
+        await expect(page.getByRole('alert')).toHaveCount(0)
+      }
       await expect(page.locator('body')).not.toContainText('99.95')
     })
   }

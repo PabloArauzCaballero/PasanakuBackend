@@ -54,11 +54,14 @@ const EXPORTABLES = [
   template: `
     <section class="pantalla">
       <ap-cabecera-de-pagina eyebrow="Contabilidad" [titulo]="t.titulo" [descripcion]="t.proposito" icono="grafico" />
-      <div class="kpis">
-        <ap-tarjeta-kpi etiqueta="Partidas en la página" [valor]="'' + listado.filas().length" icono="lista" />
-        <ap-tarjeta-kpi etiqueta="Sobre lo presupuestado" [valor]="'' + sobreEnPagina()" icono="advertencia" [tono]="sobreEnPagina() > 0 ? 'error' : 'neutro'" pista="Desviaciones a explicar" />
-        <ap-tarjeta-kpi etiqueta="Aprobadas" [valor]="'' + aprobadasEnPagina()" icono="aprobar" tono="ok" />
-      </div>
+      <!-- Las cifras cuentan lo cargado: sin carga (error o cargando) no se muestran, un «0» afirmaría algo que no se midió. -->
+      @if (listado.carga().tipo === 'lista') {
+        <div class="kpis">
+          <ap-tarjeta-kpi etiqueta="Partidas en la página" [valor]="'' + listado.filas().length" icono="lista" />
+          <ap-tarjeta-kpi etiqueta="Sobre lo presupuestado" [valor]="'' + sobreEnPagina()" icono="advertencia" [tono]="sobreEnPagina() > 0 ? 'error' : 'neutro'" pista="Desviaciones a explicar" />
+          <ap-tarjeta-kpi etiqueta="Aprobadas" [valor]="'' + aprobadasEnPagina()" icono="aprobar" tono="ok" />
+        </div>
+      }
       <ap-alerta tono="info" titulo="Mide, no bloquea">{{ t.noBloquea }}</ap-alerta>
       <ap-tabla-por-cursor [titulo]="t.titulo" [columnas]="COLUMNAS" [listado]="listado" [identidad]="identidad" [exportables]="EXPORTABLES" nombreDeRegistros="partidas" [textoVacio]="t.enCero" explicacionVacio="Las partidas aparecen cuando el Directorio aprueba un presupuesto para el ejercicio." ayudaDeBusqueda="Busca por centro de costo, presupuesto o período en la página cargada: el servidor no busca por texto.">
         <ng-template #celda let-p let-columna="columna">

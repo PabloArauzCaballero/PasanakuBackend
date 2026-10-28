@@ -63,9 +63,9 @@ const EXPORTABLES: ColumnaExportable<ReversoEnLista>[] = [
   styles: `
     .pantalla { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s5); min-width: 0; }
     /* Identificadores en una línea, recortados con «…»: el valor completo va en el title y en la descarga (antes se partían letra a letra y la fila medía 200 px). */
-    .id { display: inline-block; max-width: 22ch; overflow: hidden; text-overflow: ellipsis; vertical-align: bottom; font-family: var(--mono); font-size: .92em; }
+    .id { display: inline-block; max-width: 10ch; overflow: hidden; text-overflow: ellipsis; vertical-align: bottom; font-family: var(--mono); font-size: .92em; }
     /* El motivo es texto libre: se parte en líneas, pero con un ancho mínimo legible (antes se partía letra a letra). */
-    .largo { display: block; min-width: 24ch; max-width: 48ch; white-space: normal; overflow-wrap: anywhere; }
+    .largo { display: block; min-width: 12ch; max-width: 40ch; white-space: normal; overflow-wrap: anywhere; }
   `,
 })
 export class ListadoDeReversos {

@@ -126,8 +126,9 @@ export class PantallaBitacora {
   protected readonly resumen = computed(() => {
     if (this.carga().tipo !== 'lista') return ''
     const enPagina = this.enPagina.filas().length
-    const base = `Página ${this.paginador.pagina()} · ${enPagina} eventos`
-    return this.enPagina.hayCriterios() ? `${this.enPagina.total()} de ${enPagina} eventos en la página ${this.paginador.pagina()}` : base
+    const eventos = enPagina === 1 ? 'evento' : 'eventos'
+    const base = `Página ${this.paginador.pagina()} · ${enPagina} ${eventos}`
+    return this.enPagina.hayCriterios() ? `${this.enPagina.total()} de ${enPagina} ${eventos} en la página ${this.paginador.pagina()}` : base
   })
   protected readonly cifras = computed<Cifra[]>(() => {
     const f = this.filas()

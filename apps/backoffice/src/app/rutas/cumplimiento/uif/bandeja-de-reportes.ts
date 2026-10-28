@@ -71,6 +71,8 @@ const EXPORTABLES: ColumnaExportable<ReporteRegulatorioEnLista>[] = [
             <ap-acciones-de-fila [fila]="'reporte ' + r.periodo">
               @if (sePuedeEnviar(r)) {
                 <button type="button" apAccionDeFila [attr.aria-label]="t.aprobar + ' del período ' + r.periodo" (click)="aprobar(r)"><ap-icono nombre="enviar" tamano="s4" /><span>{{ t.aprobar }}</span></button>
+              } @else {
+                <span class="sin-accion">Sin envío pendiente</span>
               }
             </ap-acciones-de-fila>
           </ng-template>
@@ -82,7 +84,7 @@ const EXPORTABLES: ColumnaExportable<ReporteRegulatorioEnLista>[] = [
       <ap-aprobar-y-enviar [(abierto)]="aprobando" [reporte]="elegido()" (envio)="alEnviar($event)" />
     }
   `,
-  styles: `.nota { display: flex; align-items: center; gap: var(--s1); margin: 0; color: var(--text-3); font: var(--t-cuerpo-chico); }`,
+  styles: `.sin-accion { color: var(--text-3); font: var(--t-cuerpo-chico); white-space: nowrap; } .nota { display: flex; align-items: center; gap: var(--s1); margin: 0; color: var(--text-3); font: var(--t-cuerpo-chico); }`,
 })
 export class BandejaDeReportes {
   private readonly sesion = inject(Sesion)

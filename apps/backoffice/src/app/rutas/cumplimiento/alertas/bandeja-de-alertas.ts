@@ -73,7 +73,7 @@ const EXPORTABLES: ColumnaExportable<AlertaEnBandeja>[] = [
         @if (puedeAbrir()) {
           <ng-template #acciones let-a>
             <ap-acciones-de-fila [fila]="a.reglaCodigo">
-              @if (!a.casoId) { <button type="button" apAccionDeFila [attr.aria-label]="'Abrir caso con la alerta ' + a.reglaCodigo" (click)="abrirCon([a.alertaId])"><ap-icono nombre="carpeta" tamano="s4" /><span>Abrir caso</span></button> }
+              @if (!a.casoId) { <button type="button" apAccionDeFila [attr.aria-label]="'Abrir caso con la alerta ' + a.reglaCodigo" (click)="abrirCon([a.alertaId])"><ap-icono nombre="carpeta" tamano="s4" /><span>Abrir caso</span></button> } @else { <span class="sin-accion">Ya está en un caso</span> }
             </ap-acciones-de-fila>
           </ng-template>
         }
@@ -81,7 +81,7 @@ const EXPORTABLES: ColumnaExportable<AlertaEnBandeja>[] = [
     </ap-marco-de-cumplimiento>
     @if (puedeAbrir()) { <ap-abrir-caso [(abierto)]="dialogoAbierto" [alertaIds]="paraAbrir()" (abrio)="alAbrir($event)" /> }
   `,
-  styles: `.ayuda { display: flex; align-items: center; gap: var(--s1); margin: 0; color: var(--text-3); font: var(--t-cuerpo-chico); }`,
+  styles: `.sin-accion { color: var(--text-3); font: var(--t-cuerpo-chico); white-space: nowrap; } .ayuda { display: flex; align-items: center; gap: var(--s1); margin: 0; color: var(--text-3); font: var(--t-cuerpo-chico); }`,
 })
 export class BandejaDeAlertas {
   private readonly sesion = inject(Sesion)

@@ -70,7 +70,7 @@ describe('PantallaDeConciliaciones · [UI contra HTTP simulado] CU-50', () => {
     expect(filasDe(f)).toBeNull()
     l(f).recargar()
     await responder(f, listado(), { codigo: 'AP-CU50-04', mensaje: 'crudo', trazaId: 'traza-50' }, 422)
-    expect(texto(f)).toContain('No se pudo cargar historial de conciliaciones.')
+    expect(texto(f)).toContain('Historial de conciliaciones: no se pudo cargar la información.')
     expect(texto(f)).not.toContain('crudo')
     boton(f, 'Volver a intentar')!.click()
     await responder(f, listado(), OK)

@@ -33,11 +33,14 @@ const RECURSOS: Record<PiezaCreativa['tipoRecurso'], string> = { IMAGEN: 'Imagen
   template: `
     <section class="pantalla">
       <ap-cabecera-de-pagina eyebrow="Publicidad" [titulo]="t.titulo" [descripcion]="t.proposito" icono="escudo" />
-      <div class="cifras">
-        <ap-tarjeta-kpi etiqueta="En la vista" [valor]="'' + lotes.filas().length" icono="imagen" [pista]="lotes.hayMas() ? 'Hay más en el servidor' : 'Todas las del filtro'" />
-        <ap-tarjeta-kpi etiqueta="Aprobadas ahora" [valor]="'' + cuenta('APROBADA')" icono="aprobar" tono="ok" pista="En esta sesión" />
-        <ap-tarjeta-kpi etiqueta="Rechazadas ahora" [valor]="'' + cuenta('RECHAZADA')" icono="rechazar" [tono]="cuenta('RECHAZADA') ? 'error' : 'neutro'" pista="En esta sesión" />
-      </div>
+      <!-- Las cifras cuentan lo cargado: sin carga (error o cargando) no se muestran, un «0» afirmaría algo que no se midió. -->
+      @if (lotes.carga().tipo === 'lista') {
+        <div class="cifras">
+          <ap-tarjeta-kpi etiqueta="En la vista" [valor]="'' + lotes.filas().length" icono="imagen" [pista]="lotes.hayMas() ? 'Hay más en el servidor' : 'Todas las del filtro'" />
+          <ap-tarjeta-kpi etiqueta="Aprobadas ahora" [valor]="'' + cuenta('APROBADA')" icono="aprobar" tono="ok" pista="En esta sesión" />
+          <ap-tarjeta-kpi etiqueta="Rechazadas ahora" [valor]="'' + cuenta('RECHAZADA')" icono="rechazar" [tono]="cuenta('RECHAZADA') ? 'error' : 'neutro'" pista="En esta sesión" />
+        </div>
+      }
       <ap-listado [titulo]="t.titulo" [columnas]="columnas" [listado]="listado" [carga]="lotes.carga()" [identidad]="porId" [exportables]="exportables" nombreDeRegistros="piezas" [ayudaDeBusqueda]="t.ayudaBusqueda" [textoVacio]="t.sinPiezas" [explicacionVacio]="t.explicacionVacio" (reintentar)="lotes.recargar()">
         <ap-barra-de-lotes accionesDeListado [hayMas]="lotes.hayMas()" [cargando]="lotes.cargandoMas()" [error]="lotes.errorDeMas()" (cargarMas)="lotes.cargarMas()" />
         <ng-template #celda let-p let-columna="columna">

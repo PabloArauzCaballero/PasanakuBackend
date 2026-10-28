@@ -42,3 +42,34 @@ ap-tabla-de-datos .desplazable {
   background-size: var(--s6) 100%, var(--s6) 100%, var(--s3) 100%, var(--s3) 100%; background-repeat: no-repeat;
 }
 @media (max-width: 40em) { ap-tabla-de-datos .desplazable { background: none; } }
+
+/*
+ * Controles nativos (calendario del campo de mes, flechas del select, barras de desplazamiento) en el esquema del
+ * tema: sin esto el ícono del calendario quedaba negro sobre el fondo oscuro (2026-10-28).
+ */
+:root { color-scheme: light dark; }
+:root[data-theme='light'] { color-scheme: light; }
+:root[data-theme='dark'] { color-scheme: dark; }
+
+/*
+ * Celdas de texto que se parten en líneas (2026-10-28): con todo en una línea, las tablas de escritorio desbordaban su
+ * marco y la última columna («Estado», «Acciones») quedaba cortada o tapada por la columna fija. Identificadores
+ * (monoespaciado), cifras y la columna de acciones siguen en una línea.
+ */
+ap-tabla-de-datos td:not(.mono, .numerica, .fija, .marca) { white-space: normal; }
+/* Una fecha ocupa a lo sumo dos renglones («15 ene 2026,» / «06:30 (La Paz)»): sin piso se partía en cuatro. */
+ap-tabla-de-datos td ap-fecha { display: inline-block; min-width: 14ch; }
+/* Menos aire a los costados de cada celda: en una tabla de nueve columnas eran 288 px de relleno. */
+@media (min-width: 40.01em) { ap-tabla-de-datos :is(th, td) { padding-inline: var(--s3); } }
+/* Los títulos de columna también se parten en palabras: «Descuadres abiertos» no tiene por qué ensanchar la tabla. */
+ap-tabla-de-datos th:not(.fija) { white-space: normal; }
+/* Lo que no se lee partido sigue en una línea: identificadores, códigos, pastillas e importes (2026-10-28). */
+ap-tabla-de-datos td :is(code, .id, .mono, ap-chip-estado, ap-monto, .cifra) { white-space: nowrap; }
+@media (max-width: 40em) {
+  /* En tarjeta, una pastilla larga baja a su propia línea en vez de salirse; la columna fija deja de ser fija. */
+  ap-tabla-de-datos td { flex-wrap: wrap; }
+  /* Doble clase: le gana a `.fija` del componente, que suma el atributo del encapsulado. */
+  ap-tabla-de-datos td.fija.fija { position: static; box-shadow: none; }
+  /* En la tarjeta sobra lugar: el identificador se ve entero en vez de cortado con «…». */
+  ap-tabla-de-datos td .id.id { max-width: none; white-space: normal; overflow-wrap: anywhere; }
+}

@@ -11,10 +11,11 @@ import { TablaPorCursor } from '../../contabilidad/listado/tabla-por-cursor'
 import { cargadorDeTarifarios, type TarifarioEnLista } from '../dominio/cu34-tarifarios'
 import { NO_DISPONIBLE } from '../dominio/listado'
 import { textosConfiguracion } from '../textos'
+import { importeSinMoneda } from '../../operacion/comun/importe-sin-moneda'
 
 const t = textosConfiguracion.tarifario
 const ESTADOS: Record<string, string> = t.estados
-const simulacion = (r: TarifarioEnLista) => (r.simulacion ? `${r.simulacion.deltaIngresoEstimado} (${t.deltaSinMoneda}) · ${r.simulacion.usuariosImpactados} ${t.usuarios}` : NO_DISPONIBLE)
+const simulacion = (r: TarifarioEnLista) => (r.simulacion ? `${importeSinMoneda(String(r.simulacion.deltaIngresoEstimado))} (${t.deltaSinMoneda}) · ${t.usuarios(Number(r.simulacion.usuariosImpactados))}` : NO_DISPONIBLE)
 
 const COLUMNAS: Columna<TarifarioEnLista>[] = [
   { clave: 'codigo', titulo: 'Código', mono: true },

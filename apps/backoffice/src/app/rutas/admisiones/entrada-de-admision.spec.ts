@@ -83,10 +83,10 @@ describe('EntradaDeAdmision · Bandeja de solicitudes de ingreso', () => {
     const texto = (fixture.nativeElement as HTMLElement).textContent ?? ''
     expect(texto).toContain('Marcelo Rojas')
     expect(texto).toContain('PSK-0042')
-    expect(texto).toContain('PENDIENTE')
+    expect(texto).toContain('Pendiente')
     expect(texto).toContain('Elena Quispe')
     expect(texto).toContain('PSK-0088')
-    expect(texto).toContain('ACEPTADA')
+    expect(texto).toContain('Aceptada')
   })
 
   it('filtra solicitudes por término de búsqueda y por estado mediante queryParams', async () => {

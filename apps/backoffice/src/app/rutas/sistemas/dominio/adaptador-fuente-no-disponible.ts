@@ -22,13 +22,13 @@ import {
  * de retorno distinta (`obtener(): Promise<T>` con un `T` diferente cada vez).
  */
 export const adaptadorFuenteNoDisponible = {
-  servicios: (): Promise<EstadoServicio[]> => Promise.reject(errorFuenteNoDisponible('Estado de servicios')),
-  despliegues: (): Promise<DespliguesEInterruptores> => Promise.reject(errorFuenteNoDisponible('Despliegues e interruptores')),
-  baseDeDatos: (): Promise<Migracion[]> => Promise.reject(errorFuenteNoDisponible('Base y migraciones')),
-  respaldos: (): Promise<Respaldo[]> => Promise.reject(errorFuenteNoDisponible('Respaldos')),
-  proveedores: (): Promise<Proveedor[]> => Promise.reject(errorFuenteNoDisponible('Proveedores')),
-  outbox: (): Promise<OutboxYDescartados> => Promise.reject(errorFuenteNoDisponible('Outbox y descartados')),
-  webhooks: (): Promise<Webhook[]> => Promise.reject(errorFuenteNoDisponible('Webhooks')),
-  accesos: (): Promise<Acceso[]> => Promise.reject(errorFuenteNoDisponible('Accesos')),
-  incidentes: (): Promise<Incidente[]> => Promise.reject(errorFuenteNoDisponible('Incidentes')),
+  servicios: (): Promise<EstadoServicio[]> => Promise.reject(errorFuenteNoDisponible()),
+  despliegues: (): Promise<DespliguesEInterruptores> => Promise.reject(errorFuenteNoDisponible()),
+  baseDeDatos: (): Promise<Migracion[]> => Promise.reject(errorFuenteNoDisponible()),
+  respaldos: (): Promise<Respaldo[]> => Promise.reject(errorFuenteNoDisponible()),
+  proveedores: (): Promise<Proveedor[]> => Promise.reject(errorFuenteNoDisponible()),
+  outbox: (): Promise<OutboxYDescartados> => Promise.reject(errorFuenteNoDisponible()),
+  webhooks: (): Promise<Webhook[]> => Promise.reject(errorFuenteNoDisponible()),
+  accesos: (): Promise<Acceso[]> => Promise.reject(errorFuenteNoDisponible()),
+  incidentes: (): Promise<Incidente[]> => Promise.reject(errorFuenteNoDisponible()),
 } as const
