@@ -24,8 +24,8 @@
 | H1.M3a | «Crear mi cuenta» abre el alta directo; el tour queda en «¿Cómo funciona?» | `/registro` tras el toque | `flutter test test/widget/portada_test.dart` | HECHO |
 | H1.M3b | La portada dice qué hay que tener a mano (`LoQueNecesitas`) | los cuatro textos visibles | `flutter test test/widget/portada_test.dart` | HECHO |
 | H1.M3c | Goldens de la portada regenerados con Flutter 3.44.8 (la del CI) y mirados | golden nuevo coincide | `flutter test test/goldens/h10_portada_visual_test.dart test/goldens/h8_portada_mfa_oscuro_test.dart` | HECHO |
-| H1.M3d | Suites completas de la app sin regresiones | front, a11y y goldens en verde | `flutter test …` (3.44.8) | EN CURSO |
-| H1.M4 | Capturas «después» y comparación | capturas en `evidencia/` | build web + Playwright | TODO |
+| H1.M3d | Suites completas de la app sin regresiones | front, a11y y goldens en verde | `flutter test …` (3.44.8) | HECHO |
+| H1.M4 | Capturas «después» y comparación | capturas en `evidencia/` | build web + Playwright | HECHO |
 
 ## Decisiones
 - El tour deja de ser obligatorio antes del alta (skill `signup`/`onboarding`: no atrapar en tutoriales). Cambia el requisito que fijaba `portada_test.dart`; la prueba se actualizó al requisito nuevo (pedido de Pablo, 2026-10-28), no se debilitó.
