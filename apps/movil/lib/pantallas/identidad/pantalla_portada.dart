@@ -10,15 +10,20 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import 'garantias_de_portada.dart';
+import 'lo_que_necesitas.dart';
 import 'textos.dart';
 
 /// **La bienvenida**: lo primero que ve alguien que abre AportaYa, tal como la
 /// maqueta (`identidad/bienvenida`).
 ///
 /// Centrada, con aire y con una sola idea: la marca, qué es esto en dos líneas, y las
-/// dos puertas abajo. «Crear mi cuenta» lleva al tour antes del alta; «¿Cómo
-/// funciona?» permite abrirlo sin iniciar el registro. Quien ya tiene cuenta entra
-/// desde su puerta directa, sin pasar por cuatro láminas que no necesita.
+/// dos puertas abajo. «Crear mi cuenta» lleva directo al alta: quien ya decidió no
+/// tiene que pasar cuatro láminas para empezar. El tour queda en «¿Cómo funciona?»,
+/// para quien quiere entender antes. Quien ya tiene cuenta entra desde su puerta.
+///
+/// Debajo de las garantías dice qué hay que tener a mano (`LoQueNecesitas`): el
+/// carnet, el celular y el correo, y buena luz. Así nadie descubre a mitad del alta
+/// que le falta el carnet.
 ///
 /// Sobre la maqueta suma dos cosas, y las dos por el mismo motivo —tres elementos
 /// sueltos sobre un papel liso se ven vacíos, no tranquilos—: el aura de marca de
@@ -80,7 +85,13 @@ class PantallaDePortada extends StatelessWidget {
                           ),
                           const KeyedSubtree(
                             key: ValueKey('portada-garantias'),
-                            child: GarantiasDePortada(),
+                            child: Column(
+                              children: [
+                                GarantiasDePortada(),
+                                SizedBox(height: Espacio.s4),
+                                LoQueNecesitas(),
+                              ],
+                            ),
                           ),
                         ],
                       ),
@@ -146,7 +157,7 @@ class _Salidas extends StatelessWidget {
           texto: TextosIdentidad.portadaCrearCuenta,
           variante: BotonVariante.primario,
           expandido: true,
-          onPressed: () => context.push('/tour'),
+          onPressed: () => context.push('/registro'),
         ),
         const SizedBox(height: Espacio.s2),
         Boton(
