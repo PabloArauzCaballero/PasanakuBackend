@@ -14,6 +14,9 @@ on:
   workflow_dispatch: {}
   push:
     branches:
+      # `test` siempre: el APK sale del mismo commit que la app web espejo del host
+      # (construir-movil-web.sh, que el autodespliegue dispara con las mismas rutas).
+      - test
       - justin/fix/alta-fecha-actividad-autocaptura
       - pablo/feature/verificacion-correo-gmail-test
     paths:
@@ -21,7 +24,7 @@ on:
       - packages/diseno_flutter/**
       - packages/tokens/**
       - .github/workflows/apk-de-prueba.yml
-      - servicios/identidad/src/main/resources/openapi/**
+      - servicios/*/src/main/resources/openapi/**
 
 concurrency:
   group: apk-de-prueba-${{ github.ref }}

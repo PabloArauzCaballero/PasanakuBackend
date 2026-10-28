@@ -30,6 +30,13 @@ fi
 cd /opt/aportaya/repo
 REG=/opt/aportaya/logs/autodespliegue.log
 marca() { echo "[$(date +%FT%T)] $*" >> "$REG"; }
+actualizar_guion() {
+  local nuevo=/opt/aportaya/repo/despliegue/host/reconstruir-si-cambio.sh
+  local actual=/opt/aportaya/bin/reconstruir-si-cambio.sh
+  if [ -f "$nuevo" ] && ! cmp -s "$nuevo" "$actual"; then
+    install -m 755 "$nuevo" "$actual" && marca "guion actualizado desde el repo"
+  fi
+}
 
 REMOTO=$(git ls-remote https://github.com/PabloArauzCaballero/PasanakuBackend.git refs/heads/test | cut -f1)
 [ -n "$REMOTO" ] || { marca "no se pudo leer la rama test"; exit 0; }
@@ -104,9 +111,9 @@ if TODO_O "^apps/backoffice/|^apps/web/|$FRONT_ANGULAR|$CONTRATO"; then
   construir /opt/aportaya/bin/generar-clientes.sh
 fi
 TODO_O "^apps/backoffice/|$FRONT_ANGULAR|$CONTRATO" && \
-  construir docker build -f apps/backoffice/docker/Dockerfile.backoffice --build-arg CONF_NGINX=apps/backoffice/docker/nginx.desplegado.conf -t aportaya/backoffice:test .
+  construir docker build -f apps/backoffice/docker/Dockerfile.backoffice --build-arg CONF_NGINX=apps/backoffice/docker/nginx.desplegado.conf --label "aportaya.commit=$REMOTO" -t aportaya/backoffice:test .
 TODO_O "^apps/web/|$FRONT_ANGULAR|$CONTRATO" && \
-  construir docker build -f apps/web/docker/Dockerfile.web -t aportaya/web:test .
+  construir docker build -f apps/web/docker/Dockerfile.web --label "aportaya.commit=$REMOTO" -t aportaya/web:test .
 
 # El movil va por su guion, NO por `docker build` pelado: el Dockerfile trae los clientes
 # con `COPY clientes/dart clientes/dart` desde el clon, y esa carpeta no esta versionada
@@ -121,11 +128,28 @@ TODO_O '^(apps/movil/|packages/diseno_flutter/|packages/tokens/|servicios/[^/]+/
 # No se despliega un sha cuyas imagenes no construyeron todas: desplegar igual es lo que
 # hacia que el log dijera «listo» sobre imagenes viejas. Se marca el sha como visto para
 # no reconstruirlo cada dos minutos para siempre; el arreglo va en un commit nuevo.
+# Una construccion «exitosa» no prueba que la imagen sea la de este commit: el
+# 2026-10-27 el log dijo «listo en 608cdf1» con aportaya/backoffice:test de dos dias
+# antes. Cada front construido aca lleva la etiqueta aportaya.commit; si se pidio
+# reconstruirlo y la etiqueta no es este sha, cuenta como falla y no se despliega.
+verificar_imagen() {
+  local imagen="$1" etiqueta
+  etiqueta=$(docker image inspect -f '{{index .Config.Labels "aportaya.commit"}}' "$imagen" 2>/dev/null || echo "")
+  if [ "$etiqueta" != "$REMOTO" ]; then
+    marca "FALLA $imagen quedo en '${etiqueta:0:7}', no en ${REMOTO:0:7}"
+    FALLAS=$((FALLAS + 1))
+    FALLIDAS="$FALLIDAS $imagen"
+  fi
+}
+TODO_O "^apps/backoffice/|$FRONT_ANGULAR|$CONTRATO" && verificar_imagen aportaya/backoffice:test
+TODO_O "^apps/web/|$FRONT_ANGULAR|$CONTRATO" && verificar_imagen aportaya/web:test
+
 if [ "$FALLAS" -gt 0 ]; then
   echo "$REMOTO" > /opt/aportaya/ultimo-construido
   echo "${REMOTO:0:7}:$FALLIDAS" > /opt/aportaya/ultimo-fallido
   marca "SIN DESPLEGAR — $FALLAS construccion(es) fallaron:$FALLIDAS"
   marca "el sha ${REMOTO:0:7} queda marcado; corregir y empujar un commit nuevo"
+  actualizar_guion
   exit 1
 fi
 
@@ -134,3 +158,8 @@ marca "desplegando"
 echo "$REMOTO" > /opt/aportaya/ultimo-construido
 rm -f /opt/aportaya/ultimo-fallido
 marca "listo en ${REMOTO:0:7}"
+
+# El guion se actualiza solo desde el repo: la copia del host no puede volver a quedar
+# distinta de la versionada (el 2026-10-27 corria otra version y nadie lo sabia). Rige
+# desde la corrida siguiente, que el temporizador lanza en dos minutos.
+actualizar_guion
