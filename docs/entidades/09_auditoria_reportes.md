@@ -579,6 +579,23 @@ aprendizaje en vez de en un susto que se repite.
 reclamo masivo de usuarios con la caída que lo causó, ni decidir con fundamento
 sobre las consecuencias (perdonar mora, reprogramar entregas, compensar).
 
+### `DisponibilidadServicioDia` / `disponibilidad_servicio_dia`
+
+**Qué es.** El resumen de un día UTC de un servicio: cuántos minutos se le preguntó si
+estaba listo (`minutosMedidos`), en cuántos contestó que sí (`minutosArriba`) y la última
+vez que no (`ultimaInterrupcionEn`). `auditoria` lo suma una vez por minuto.
+
+**Para qué sirve (negocio).** Es de donde salen la disponibilidad de 30 días y el
+presupuesto de error contra el SLO (99,5 %) que muestra Sistemas › Servicios. Con eso,
+quien opera decide si se puede desplegar algo riesgoso o si hay que frenar y estabilizar.
+`ultimoMinutoEn` hace que el mismo minuto no se cuente dos veces aunque el trabajo se
+reintente o corran dos instancias.
+
+**Por qué debe existir.** La sonda de salud solo dice cómo está cada servicio *ahora*.
+Sin historia no hay disponibilidad que mostrar, y un incidente operativo no se puede
+contrastar con lo que se midió. Se guarda un renglón por día y no cada medición: alcanza
+para la ventana y no exige borrar filas.
+
 ---
 
 ## Resumen: qué se cae si se quita cada bloque

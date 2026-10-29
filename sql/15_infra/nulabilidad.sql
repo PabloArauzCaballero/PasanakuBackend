@@ -56,6 +56,7 @@ ALTER TABLE auditoria.alerta_cumplimiento ALTER COLUMN resuelta_en DROP NOT NULL
 ALTER TABLE auditoria.coincidencia_lista ALTER COLUMN revisada_en DROP NOT NULL;
 ALTER TABLE auditoria.coincidencia_lista ALTER COLUMN revisada_por DROP NOT NULL;
 ALTER TABLE auditoria.definicion_indicador ALTER COLUMN vigente_hasta DROP NOT NULL;
+ALTER TABLE auditoria.disponibilidad_servicio_dia ALTER COLUMN ultima_interrupcion_en DROP NOT NULL;
 ALTER TABLE auditoria.ejecucion_reporte ALTER COLUMN finalizada_en DROP NOT NULL;
 ALTER TABLE auditoria.ejecucion_reporte ALTER COLUMN grupo_id DROP NOT NULL;
 ALTER TABLE auditoria.ejecucion_reporte ALTER COLUMN hash_resultado DROP NOT NULL;

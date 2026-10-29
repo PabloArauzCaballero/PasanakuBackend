@@ -739,6 +739,26 @@ Sin esta tabla la definición vive en el código, y entonces se pierde en cuanto
 | `cache_minutos` | SMALLINT | Atributo que representa cache minutos en el modelo de `definicion_reporte`. | SMALLINT, obligatoria. | NINGUNA |
 | `activa` | BOOLEAN | Indicador booleano que determina si la entidad se encuentra actualmente operativa. | BOOLEAN, obligatoria. | NINGUNA |
 
+### `disponibilidad_servicio_dia`
+
+**Qué es.** El resumen de un día UTC de un servicio: cuántos minutos se le preguntó si estaba listo (`minutosMedidos`), en cuántos contestó que sí (`minutosArriba`) y la última vez que no (`ultimaInterrupcionEn`). `auditoria` lo suma una vez por minuto.
+
+**Para qué sirve.** Es de donde salen la disponibilidad de 30 días y el presupuesto de error contra el SLO (99,5 %) que muestra Sistemas › Servicios. Con eso, quien opera decide si se puede desplegar algo riesgoso o si hay que frenar y estabilizar. `ultimoMinutoEn` hace que el mismo minuto no se cuente dos veces aunque el trabajo se reintente o corran dos instancias.
+
+**Por qué existe.** La sonda de salud solo dice cómo está cada servicio *ahora*. Sin historia no hay disponibilidad que mostrar, y un incidente operativo no se puede contrastar con lo que se midió. Se guarda un renglón por día y no cada medición: alcanza para la ventana y no exige borrar filas.
+
+**Sistema.** Vive en el esquema `auditoria`; la escribe y la lee solo el servicio `auditoria` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
+| `servicio` | VARCHAR(60) | Atributo que representa servicio en el modelo de `disponibilidad_servicio_dia`. | VARCHAR(60), obligatoria, restricción única. | NINGUNA |
+| `dia` | DATE | Atributo que representa dia en el modelo de `disponibilidad_servicio_dia`. | DATE, obligatoria. | NINGUNA |
+| `minutos_medidos` | INTEGER | Atributo que representa minutos medidos en el modelo de `disponibilidad_servicio_dia`. | INTEGER, obligatoria. | NINGUNA |
+| `minutos_arriba` | INTEGER | Atributo que representa minutos arriba en el modelo de `disponibilidad_servicio_dia`. | INTEGER, obligatoria. | NINGUNA |
+| `ultima_interrupcion_en` | TIMESTAMPTZ | Marca temporal o fecha de ultima interrupcion en `disponibilidad_servicio_dia`. | TIMESTAMPTZ, opcional. | NINGUNA |
+| `ultimo_minuto_en` | TIMESTAMPTZ | Marca temporal o fecha de ultimo minuto en `disponibilidad_servicio_dia`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+
 ### `ejecucion_reporte`
 
 **Qué es.** Cada corrida de un reporte, con parámetros, resultado y quién la pidió.
