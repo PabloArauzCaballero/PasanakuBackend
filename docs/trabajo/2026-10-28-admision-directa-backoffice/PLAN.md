@@ -60,6 +60,7 @@ acepta o rechaza con motivo, entonces queda APROBADA/RECHAZADA, con cupo reserva
 |---|---|---|---|---|
 | H3.S1.M1 | Typecheck + tests backoffice y ui | 0 errores | salida pegada en evidencia/ | HECHO |
 | H3.S1.M2 | PR a `test` y `dev`, desplegar TEST, ejercitar en navegador | solicitud resuelta en TEST + captura | captura + consulta a la base | TODO |
+| H3.S1.M3 | (agregada 2026-10-29) CI: formato `spotless` de `grupos`, colección Postman regenerada y deriva bóveda→DDL de `auditoria.disponibilidad_servicio_dia` heredada de #233 (solo comentarios) | los chequeos de CI que este PR puso en rojo vuelven a verde | `gh pr checks 235` | EN CURSO |
 
 ## Riesgos y bloqueos previstos
 | Riesgo | Impacto | Mitigación |

@@ -184,7 +184,8 @@ class CU68AceptarIngresoTest extends BaseDeCU68 {
     }
 
     private ContextoSesion backoffice(UUID usuario) {
-        return ContextoSesion.de(usuario, "ADMIN_PLATAFORMA", new Traza(UUID.randomUUID().toString()));
+        return ContextoSesion.de(
+                usuario, "ADMIN_PLATAFORMA", new Traza(UUID.randomUUID().toString()));
     }
 
     @Test
@@ -222,8 +223,8 @@ class CU68AceptarIngresoTest extends BaseDeCU68 {
     @DisplayName("rechaza: nadie decide su propia solicitud, ni siquiera con rol de backoffice")
     void backofficeNoDecideLaSuya() {
         UUID[] a = armar(true);
-        assertThatThrownBy(() -> transaccion.execute(e -> decidirCU()
-                        .decidir(a[3], true, null, new java.math.BigDecimal("700"), backoffice(a[2]))))
+        assertThatThrownBy(() -> transaccion.execute(
+                        e -> decidirCU().decidir(a[3], true, null, new java.math.BigDecimal("700"), backoffice(a[2]))))
                 .isInstanceOf(ErrorDeNegocio.class)
                 .hasMessageContaining("no existe");
         assertThat(dslFixtura

@@ -1,6 +1,6 @@
 # Reporte — Backoffice decide admisiones + sin pestañas ni ícono de cabecera
 
-> **AVANCE: 7 / 8 — 87,5 %.**
+> **AVANCE: 7 / 9 — 77,8 %.**
 
 - Fecha: 2026-10-29 · Plan: [PLAN.md](./PLAN.md) · Rama: `claude/admision-directa-backoffice-20261028` (desde `origin/test`)
 - Peldaño de evidencia alcanzado: backend `TESTED` (integración contra Postgres real) · frontend `TESTED` · TEST sin ejercitar todavía → el trabajo queda en `TESTED`, no `VERIFIED`.
@@ -46,6 +46,7 @@ Base TEST (solo lectura, antes del cambio): 2 solicitudes `PENDIENTE`, 0 filas e
 ## Desvíos del plan
 - Los specs de la pantalla esperaban `whenStable()` con el pedido nuevo a la bandeja sin responder y se colgaban: se ajustaron para responderlo (no se debilitó ninguna aserción).
 - El caso «vacío» del spec cambió por requisito: antes afirmaba que sin propuesta NO se ofrecía decidir (el defecto reportado); ahora afirma que se ofrece.
+- CI del PR #235: faltaba `spotlessApply` en el test nuevo y regenerar `postman/coleccion/grupos.postman_collection.json` (la descripción del contrato cambió). Además se regeneró con `scripts/generar_ddl.py` la deriva de comentarios de `auditoria.disponibilidad_servicio_dia` que dejó #233 (fuera de alcance, agregada al plan como H3.S1.M3 porque deja `test` en rojo para todos).
 - Regla 70 (1 subagente): se lanzaron 2 agentes de auditoría de solo lectura en paralelo por pedido explícito de Pablo.
 
 ## Riesgos residuales
