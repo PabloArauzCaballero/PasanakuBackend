@@ -18,7 +18,7 @@
 ## H1 — `auditoria:testBarrido` pasa
 **CA:** Dado `dev` con este cambio, cuando corre `BarridoTest` de `auditoria`, entonces `sin-umbral-literal` y `tamano-archivo` pasan, y las pruebas existentes de salud, disponibilidad e indicadores siguen verdes.
 **DoD:** réplica local del barrido sin hallazgos · `spotlessCheck` equivalente en el CI · `auditoria:test` y `auditoria:webTest` verdes en el CI de la rama.
-**Estado:** A MEDIAS (código escrito y réplica del barrido en verde; falta el CI real)
+**Estado:** DESCARTADO (el usuario decidió el 2026-10-29 quedarse con el arreglo de #262; el código de este plan se retiró de la rama)
 
 | ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
 |---|---|---|---|---|

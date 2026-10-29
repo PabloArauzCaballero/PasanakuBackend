@@ -1,6 +1,6 @@
-# Reporte — barrido de reglas propias de `servicios/auditoria`
+# Reporte — barrido de reglas propias de `servicios/auditoria` (DESCARTADO)
 
-> **AVANCE: 3 / 4 — 75,0 %.** Las tres microtareas de código están hechas contra una réplica local del barrido; la cuarta (que `auditoria:testBarrido` pase en el CI real) todavía no se ejecutó.
+> **AVANCE: 0 / 4 — 0,0 %. TRABAJO DESCARTADO.** Por decisión del usuario (2026-10-29), el arreglo del barrido de `auditoria` es el del PR #262 (commit 088547a6). Los cambios de código de este trabajo se retiraron de la rama; este informe queda como historia.
 
 - Fecha: 2026-10-29 · Plan: [PLAN.md](./PLAN.md) · Rama(s): `claude/awesome-turing-5wmr4r` (la misma del PR #266: es la única rama de trabajo autorizada, así que este arreglo viaja en ese PR)
 - Peldaño de evidencia alcanzado: `WRITTEN`, con la regla reproducida localmente (no compila ni corre Gradle aquí). No se afirma `RUNS` ni `TESTED`.
@@ -48,3 +48,9 @@
 ## Decisiones y ambigüedades
 - Que el 99,5 % salga solo de `application.yml` (y no de una tabla de catálogo sembrada): es la lectura mínima de «umbrales son catálogo» que no inventa tabla ni migración, porque el valor ya vive en configuración desde la decisión de Pablo del 2026-10-29. Si se prefiere una tabla `auditoria.parametro`, es un cambio de esquema aparte. A confirmar con **Pablo**.
 - Que `BigDecimal.TEN.pow(2)` es aceptable para la base 100. A confirmar con quien mantiene el barrido (`plataforma/comun-pruebas`).
+
+## Cierre: descartado a favor de #262
+- Decidido por: el usuario, 2026-10-29 («quédate con el de #262»), tras ver que había dos arreglos paralelos del mismo barrido.
+- Qué se retiró: `SaludDeServicios`, `DisponibilidadDelServicio`, `IndicadoresController` y `SaludDeServiciosWebTest` vuelven al estado de `dev`, y se borró `CatalogoDeDatosController`. Se hizo con un commit normal, sin reescribir historia.
+- Qué se aprendió y vale para #262 (hechos medidos en el CI de este PR): (1) `scripts/generar_postman.py` solo lee los `@Permiso` de `*Controller.java`; partir un controlador moviendo operaciones a otro archivo hace perder los casos «sin sesión» de Postman. #262 evita el problema extrayendo mapeos (`MapeoDeSistemas`, `MapeoDeTablero`) y dejando las operaciones en el controlador. (2) `spotless` pide una sola línea para `when(...).thenReturn(...)` cuando cabe.
+- Evidencia que se conserva: [01-replica-del-barrido.txt](./evidencia/01-replica-del-barrido.txt) (réplica local de las dos reglas del barrido).

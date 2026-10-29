@@ -63,18 +63,12 @@ class SaludDeServiciosWebTest {
     @MockitoBean
     private bo.aportaya.auditoria.aplicacion.CU131RevisarColumna cu131;
 
-    /** El estado de ahora y nada medido: el objetivo viaja igual, porque la respuesta siempre lo trae. */
-    private static SaludDeServicios.Salida soloElEstado(Instant consultadoEn, List<SaludDeServicio> servicios) {
-        return new SaludDeServicios.Salida(
-                consultadoEn, servicios, java.util.Map.of(), new java.math.BigDecimal("99.5"));
-    }
-
     @Test
     @DisplayName(
             "estado · con TABLERO_SISTEMAS_VER: 200 con ARRIBA, DEGRADADO y CAIDO, y sin latencia el que no contestó")
     void tresEstados() throws Exception {
         when(salud.consultar())
-                .thenReturn(soloElEstado(
+                .thenReturn(new SaludDeServicios.Salida(
                         Instant.parse("2026-10-17T15:00:00Z"),
                         List.of(
                                 new SaludDeServicio("identidad", Estado.ARRIBA, Optional.of(12L)),
@@ -123,7 +117,8 @@ class SaludDeServiciosWebTest {
     @Test
     @DisplayName("estado · AUDITORIA_LEER también la ve")
     void auditor() throws Exception {
-        when(salud.consultar()).thenReturn(soloElEstado(Instant.parse("2026-10-17T15:00:00Z"), List.of()));
+        when(salud.consultar())
+                .thenReturn(new SaludDeServicios.Salida(Instant.parse("2026-10-17T15:00:00Z"), List.of()));
         mvc.perform(get("/indicadores/operacion/servicios").with(Sesiones.como("AUDITOR_INTERNO", "AUDITORIA_LEER")))
                 .andExpect(status().isOk());
     }
