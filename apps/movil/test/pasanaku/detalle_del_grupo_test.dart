@@ -160,6 +160,32 @@ void main() {
     );
 
     testWidgets(
+      'correcto: «Ver quién pidió unirse» va debajo de invitar y abre las solicitudes',
+      (tester) async {
+        final (:dio, :adaptador) = dioSimulado();
+        adaptador.onGet(
+          '/grupos/$_grupo/detalle',
+          (s) => s.reply(200, _detalle()),
+        );
+        final visitadas = await _montar(
+          tester,
+          const SeccionDelGrupo(grupoId: _grupo),
+          dio,
+        );
+        final invitar = tester.getTopLeft(
+          find.text('Invitar a alguien a mi grupo'),
+        );
+        final solicitudes = tester.getTopLeft(
+          find.text('Ver quién pidió unirse'),
+        );
+        expect(solicitudes.dy, greaterThan(invitar.dy));
+        await tester.tap(find.text('Ver quién pidió unirse'));
+        await asentar(tester);
+        expect(visitadas, ['/pasanaku/grupos/$_grupo/solicitudes']);
+      },
+    );
+
+    testWidgets(
       'límite: con todos firmados el organizador ve «Iniciar sorteo»',
       (tester) async {
         final (:dio, :adaptador) = dioSimulado();
@@ -176,6 +202,7 @@ void main() {
           dio,
         );
         expect(find.text('Invitar a alguien a mi grupo'), findsNothing);
+        expect(find.text('Ver quién pidió unirse'), findsNothing);
         await tester.tap(find.text('Iniciar sorteo'));
         await asentar(tester);
         expect(visitadas, ['/pasanaku/grupos/$_grupo/sorteo']);
@@ -193,6 +220,7 @@ void main() {
         await _montar(tester, const SeccionDelGrupo(grupoId: _grupo), dio);
         expect(find.text('Te falta firmar el reglamento'), findsOneWidget);
         expect(find.text('Invitar a alguien a mi grupo'), findsNothing);
+        expect(find.text('Ver quién pidió unirse'), findsNothing);
         await tester.tap(find.text('Juan Mamani'));
         await asentar(tester);
         expect(find.text('Sin turno todavía'), findsOneWidget);
