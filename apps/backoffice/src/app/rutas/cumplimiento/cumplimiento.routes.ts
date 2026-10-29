@@ -28,9 +28,17 @@ export const rutasCumplimiento: Routes = [
   { path: '', pathMatch: 'full', redirectTo: aterrizaje('cumplimiento', 'verificaciones') },
   {
     path: 'verificaciones',
+    // `full`: si no, su `canMatch` corre por prefijo sobre `verificaciones/:id` y la ficha caería en la bandeja.
+    pathMatch: 'full',
     canMatch: [guardiaDe('verificaciones')],
     loadComponent: () => import('./verificaciones/pantalla-de-expedientes').then((m) => m.PantallaDeExpedientes),
     title: 'Verificación de identidad · AportaYa',
+  },
+  {
+    path: 'verificaciones/:verificacionId',
+    canMatch: [guardiaDe('verificaciones')],
+    loadComponent: () => import('./verificaciones/ficha-de-expediente').then((m) => m.FichaDeExpediente),
+    title: 'Expediente de identidad · AportaYa',
   },
   {
     path: 'alertas',

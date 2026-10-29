@@ -62,17 +62,38 @@ describe('PantallaDeExpedientes · correo de contacto', () => {
     return (fixture.nativeElement as HTMLElement).textContent ?? ''
   }
 
-  it('muestra el correo recibido del expediente y lo nombra en el buscador', async () => {
+  it('muestra el correo recibido del expediente bajo el teléfono y lo nombra en el buscador', async () => {
     const texto = await renderizar('ana@example.test')
 
-    expect(texto).toContain('Correo: ana@example.test')
-    expect(texto).toContain('Buscar por nombre, teléfono, correo o documento')
+    expect(texto).toContain('ana@example.test')
+    expect(texto).toContain('Buscar por nombre, teléfono, correo, documento o estado')
   })
 
   it('explica cuando el expediente antiguo no trae correo', async () => {
     const texto = await renderizar()
 
-    expect(texto).toContain('Correo: No registrado')
+    expect(texto).toContain('Sin correo registrado')
+  })
+
+  it('correcto (2026-10-28): es una tabla con los datos en palabras y «Revisar» lleva a la ficha', async () => {
+    const fixture = TestBed.createComponent(PantallaDeExpedientes)
+    fixture.detectChanges()
+    http.expectOne(URL).flush([{ ...expediente('ana@example.test'), fechaExpiracionDocumento: '2030-05-10' }])
+    await fixture.whenStable()
+    fixture.detectChanges()
+    const el = fixture.nativeElement as HTMLElement
+    expect(el.querySelector('table')).not.toBeNull()
+    const cabeceras = Array.from(el.querySelectorAll('thead th')).map((th) => th.textContent?.trim())
+    for (const c of ['Persona', 'Documento', 'Fotos', 'Estado', 'Iniciada', 'Acción']) expect(cabeceras.join('|')).toContain(c)
+    const fila = el.querySelector('tbody tr')?.textContent ?? ''
+    expect(fila).toContain('Cédula de identidad · Santa Cruz')
+    expect(fila).toContain('10 may 2030')
+    expect(fila).toContain('0 de 5')
+    expect(fila).toContain('En revisión')
+    expect(fila).not.toContain('EN_REVISION')
+    const revisar = Array.from(el.querySelectorAll('tbody a')).find((a) => a.textContent?.includes('Revisar')) as HTMLAnchorElement
+    expect(revisar.getAttribute('href')).toBe('/v-1')
+    expect(revisar.getAttribute('aria-label')).toBe('Revisar el expediente de Ana Torres')
   })
 })
 
@@ -82,7 +103,7 @@ describe('PantallaDeExpedientes · listado (buscar, filtrar, paginar, descargar)
   const muchos = (n: number): ExpedienteEnRevision[] =>
     Array.from({ length: n }, (_, i) => ({ ...expedienteBase(), verificacionId: `v-${i + 1}`, nombreCompleto: `Persona ${i + 1}`, telefono: `+5917000${String(i).padStart(4, '0')}` }))
   function expedienteBase(): ExpedienteEnRevision {
-    return { verificacionId: 'v-1', usuarioId: 'u-1', nombreCompleto: 'Ana Torres', telefono: '+59170000001', correo: 'ana@example.test', documento: 'CI 1234567 SC', estado: ExpedienteEnRevisionEstadoEnum.EnRevision, iniciadaEn: '2026-10-10T10:00:00Z', documentoVigente: true, fechaExpiracionDocumento: '2030-01-01', fotos: [] }
+    return { verificacionId: 'v-1', usuarioId: 'u-1', nombreCompleto: 'Ana Torres', telefono: '+59170000001', correo: 'ana@example.test', documento: 'CI SC', estado: ExpedienteEnRevisionEstadoEnum.EnRevision, iniciadaEn: '2026-10-10T10:00:00Z', documentoVigente: true, fechaExpiracionDocumento: '2030-01-01', fotos: [] }
   }
 
   beforeEach(() => {
@@ -104,15 +125,15 @@ describe('PantallaDeExpedientes · listado (buscar, filtrar, paginar, descargar)
     return { fixture, p, texto: () => (fixture.nativeElement as HTMLElement).textContent ?? '' }
   }
 
-  it('correcto: busca por nombre, teléfono, correo y documento sin acentos; filtra por vencimiento', async () => {
-    const otra = { ...expedienteBase(), verificacionId: 'v-2', nombreCompleto: 'José Quispe', telefono: '+59171111111', correo: 'jose@example.test', documento: 'CI 7654321 LP', documentoVigente: false }
+  it('correcto: busca por nombre, teléfono, correo y documento en palabras sin acentos; filtra por vigencia', async () => {
+    const otra = { ...expedienteBase(), verificacionId: 'v-2', nombreCompleto: 'José Quispe', telefono: '+59171111111', correo: 'jose@example.test', documento: 'CI LP', documentoVigente: false }
     const { fixture, p } = await montar([expedienteBase(), otra])
-    for (const termino of ['jose', '71111111', 'jose@example', '7654321']) {
+    for (const termino of ['jose', '71111111', 'jose@example', 'la paz']) {
       p.listado.buscar(termino)
       expect(p.listado.filtradas().map((e) => e.verificacionId), termino).toEqual(['v-2'])
     }
     p.listado.buscar('')
-    p.alFiltrar({ nombre: 'vencimiento', valor: 'Documento vencido' })
+    p.alFiltrar({ nombre: 'vencimiento', valor: 'Vencido' })
     fixture.detectChanges()
     expect(p.listado.filtradas().map((e) => e.verificacionId)).toEqual(['v-2'])
   })
@@ -134,30 +155,30 @@ describe('PantallaDeExpedientes · listado (buscar, filtrar, paginar, descargar)
     const { fixture } = await montar([expedienteBase()], ['exportar:expedientes-de-identidad'])
     const exportar = fixture.debugElement.query(By.directive(ExportarListado)).componentInstance as ExportarListado<ExpedienteEnRevision>
     const csv = aCsv(exportar.columnas(), exportar.filas())
-    expect(csv).toContain('Nombre,Teléfono,Correo,Documento,Vencimiento del documento,Fotos,Estado')
+    expect(csv).toContain('Persona,Teléfono,Correo,Documento,Vencimiento del documento,Vigencia,Fotos,Estado,Iniciada,Resuelta,Motivo del rechazo')
     // El «+» inicial del teléfono sale con «'» delante: el kit neutraliza lo que una planilla leería como fórmula.
-    expect(csv).toContain("Ana Torres,'+59170000001,ana@example.test,CI 1234567 SC,Vigente,Incompletas,En revisión")
+    expect(csv).toContain("Ana Torres,'+59170000001,ana@example.test,Cédula de identidad · Santa Cruz,1 ene 2030,Vigente,0 de 5,En revisión,\"10 oct 2026, 06:00 (La Paz)\",Sin resolver,")
     expect(csv).not.toContain('u-1')
   })
 
   it('límite: 25 expedientes con 10 por página → página 1 de 3; ir a la 3 muestra 5', async () => {
     const { fixture, p, texto } = await montar(muchos(25))
     expect(texto()).toContain('Página 1 de 3')
-    expect(fixture.nativeElement.querySelectorAll('ap-tarjeta-de-expediente').length).toBe(10)
+    expect(fixture.nativeElement.querySelectorAll('tbody tr').length).toBe(10)
     p.listado.irAPagina(3)
     fixture.detectChanges()
-    expect(fixture.nativeElement.querySelectorAll('ap-tarjeta-de-expediente').length).toBe(5)
+    expect(fixture.nativeElement.querySelectorAll('tbody tr').length).toBe(5)
   })
 
   it('límite: una búsqueda sin coincidencias explica por qué y ofrece «Quitar filtros», que vuelve a mostrar todo', async () => {
     const { fixture, p, texto } = await montar([expedienteBase()])
     p.listado.buscar('zzz')
     fixture.detectChanges()
-    expect(texto()).toContain('No hay expedientes que coincidan con la búsqueda.')
+    expect(texto()).toContain('Ningún registro coincide con la búsqueda o los filtros.')
     const quitar = [...fixture.nativeElement.querySelectorAll('button')].find((b: HTMLButtonElement) => b.textContent?.includes('Quitar filtros')) as HTMLButtonElement
     quitar.click()
     fixture.detectChanges()
-    expect(fixture.nativeElement.querySelectorAll('ap-tarjeta-de-expediente').length).toBe(1)
+    expect(fixture.nativeElement.querySelectorAll('tbody tr').length).toBe(1)
   })
 
   it('inválido: un 500 muestra un error accionable y «Volver a intentar» repite el pedido', async () => {

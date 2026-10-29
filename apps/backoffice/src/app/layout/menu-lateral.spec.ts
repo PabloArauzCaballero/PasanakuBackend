@@ -76,6 +76,18 @@ describe('MenuLateral', () => {
     expect(textos(el, 'h2.rotulo')).toContain('Plataforma')
   })
 
+  it('correcto (2026-10-28): el rótulo «Plataforma» lleva su ícono y abre su primera sección', async () => {
+    const { fixture, el } = await montar(['ver:sistemas'], '/tablero', 'PLATAFORMA')
+    const rotulo = el.querySelector('h2.rotulo a') as HTMLAnchorElement
+    expect(rotulo.textContent?.trim()).toBe('Plataforma')
+    expect(rotulo.querySelector('ap-icono-de-seccion')).not.toBeNull()
+    expect(rotulo.getAttribute('href')).toBe('/sistemas/servicios')
+    const emitidos: unknown[] = []
+    fixture.componentInstance.navegado.subscribe((v) => emitidos.push(v))
+    rotulo.click()
+    expect(emitidos).toHaveLength(1)
+  })
+
   it('límite: en un subgrupo se marca la hoja exacta (la ruta más larga), no la primera del grupo', async () => {
     const { el } = await montar(['ver:sistemas'], '/sistemas/roles-internos', 'PLATAFORMA')
     expect(textos(el, 'a[aria-current="page"]')).toEqual(['Roles internos'])

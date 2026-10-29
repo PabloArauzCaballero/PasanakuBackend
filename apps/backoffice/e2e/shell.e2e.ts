@@ -17,33 +17,33 @@ test('escritorio: grupos, pestañas de la sección activa, migas y título; capt
   await iniciarSesionDePrueba(page, PERMISOS, 'PLATAFORMA')
   await navegarSinRecargar(page, '/sistemas/outbox')
   const menu = page.getByRole('navigation', { name: 'Secciones del backoffice' })
-  // El grupo de la sección activa está abierto.
-  await expect(menu.getByRole('button', { name: /Plataforma/ })).toHaveAttribute('aria-expanded', 'true')
-  // Una entrada por sección: la pantalla vive en las pestañas de la sección, no en el menú lateral.
-  await expect(menu.getByRole('link', { name: 'Sistemas' })).toHaveAttribute('aria-current', 'page')
-  await expect(menu.getByRole('link', { name: 'Outbox y descartados' })).toHaveCount(0)
-  // Outbox vive en el grupo «Integraciones»: la pestaña del grupo se marca y la subfila marca la pantalla.
-  const pestanas = page.getByRole('navigation', { name: 'Pantallas de Sistemas' })
-  await expect(pestanas.getByRole('link', { name: 'Integraciones' })).toHaveClass(/activa/)
-  const sub = page.getByRole('navigation', { name: 'Pantallas de Integraciones' })
-  await expect(sub.getByRole('link', { name: 'Outbox y descartados' })).toHaveAttribute('aria-current', 'page')
+  // «Plataforma» es un rótulo fijo (2026-10-28): un enlace con ícono, nada que plegar.
+  await expect(menu.getByRole('link', { name: 'Plataforma' })).toHaveAttribute('href', '/sistemas/servicios')
+  await expect(menu.locator('[aria-expanded]')).toHaveCount(0)
+  // Las pantallas de la sección están fijas debajo de ella (2026-10-28): la actual se marca con aria-current.
+  await expect(menu.getByRole('link', { name: 'Sistemas' })).toHaveClass(/activo/)
+  await expect(menu.getByRole('link', { name: 'Outbox por servicio' })).toHaveAttribute('aria-current', 'page')
+  // Sin pestañas de sección (2026-10-28, `5d0f8d99`): Outbox se lista en el menú dentro de su subgrupo «Integraciones».
+  await expect(menu.getByRole('list', { name: 'Integraciones' }).getByRole('link', { name: 'Outbox por servicio' })).toHaveAttribute('aria-current', 'page')
+  await expect(page.getByRole('navigation', { name: 'Pantallas de Sistemas' })).toHaveCount(0)
   // Una sola línea de migas: sección › pantalla actual. «Inicio» está en el menú lateral y el grupo en las pestañas (2026-10-27).
   const migas = page.getByRole('navigation', { name: 'Migas de pan' })
   await expect(migas).not.toContainText('Inicio')
   await expect(migas).toContainText('Sistemas')
   await expect(migas).not.toContainText('Integraciones')
-  await expect(migas.locator('[aria-current="page"]')).toHaveText('Outbox y descartados')
-  await expect(page.locator('.titulo-vista')).toHaveText('Outbox y descartados')
+  await expect(migas.locator('[aria-current="page"]')).toHaveText('Outbox por servicio')
+  await expect(page.locator('.titulo-vista')).toHaveText('Outbox por servicio')
   await todas(page, P, 'shell-outbox')
 
-  // Plegar un grupo se recuerda; el de la ruta activa no se pliega, así que se pliega desde el inicio.
+  // El rótulo no se pliega y abre su primera sección; sus entradas siguen a la vista desde cualquier sección.
   await page.setViewportSize({ width: 1280, height: 900 })
-  await menu.getByRole('link', { name: 'Inicio' }).click()
+  // Sin «Inicio» en el menú: al inicio se vuelve con el logo.
+  await page.getByRole('link', { name: /AportaYa/ }).first().click()
   await expect(page).toHaveURL(/\/tablero$/)
-  const plataforma = menu.getByRole('button', { name: /Plataforma/ })
-  await plataforma.click()
-  await expect(plataforma).toHaveAttribute('aria-expanded', 'false')
-  await expect(menu.getByRole('link', { name: 'Sistemas' })).toBeHidden()
+  await expect(menu.getByRole('link', { name: 'Sistemas' })).toBeVisible()
+  await menu.getByRole('link', { name: 'Plataforma' }).click()
+  await expect(page).toHaveURL(/\/sistemas\/servicios$/)
+  await expect(menu.getByRole('link', { name: 'Servicios y SLO' })).toHaveAttribute('aria-current', 'page')
 })
 
 test('cabecera: el menú de usuario muestra el rol y ofrece salir; el buscador abre una pantalla con el teclado', async ({ page }) => {
@@ -64,7 +64,7 @@ test('cabecera: el menú de usuario muestra el rol y ofrece salir; el buscador a
   const buscador = page.getByRole('combobox', { name: 'Buscar en el backoffice' })
   await expect(buscador).toBeFocused()
   await buscador.fill('outb')
-  await expect(page.getByRole('option', { name: /Outbox y descartados/ })).toBeVisible()
+  await expect(page.getByRole('option', { name: /Outbox por servicio/ })).toBeVisible()
   await capturar(page, P, 'buscador', 'escritorio', 'dark')
   await page.keyboard.press('Enter')
   await expect(page).toHaveURL(/\/sistemas\/outbox$/)

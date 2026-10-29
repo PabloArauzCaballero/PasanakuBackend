@@ -1,0 +1,23 @@
+
+Running 17 tests using 1 worker
+
+  ✓   1 [chromium] › e2e/shell.e2e.ts:15:5 › escritorio: grupos, pestañas de la sección activa, migas y título; capturas en 3 anchos × 2 temas (4.4s)
+  ✓   2 [chromium] › e2e/shell.e2e.ts:49:5 › cabecera: el menú de usuario muestra el rol y ofrece salir; el buscador abre una pantalla con el teclado (3.3s)
+  ✓   3 [chromium] › e2e/shell.e2e.ts:73:5 › celular: la hamburguesa abre el cajón con el menú y navegar lo cierra (2.3s)
+  ✓   4 [chromium] › e2e/tutoriales.e2e.ts:31:7 › centro de tutoriales › se llega desde el menú y lista los tutoriales con su avance (1.3s)
+  ✓   5 [chromium] › e2e/tutoriales.e2e.ts:39:7 › centro de tutoriales › el buscador recorta la lista y el vacío explica por qué (1.7s)
+  ✓   6 [chromium] › e2e/tutoriales.e2e.ts:46:7 › centro de tutoriales › comenzar un tutorial abre el globo sobre la pantalla real y el teclado lo recorre (1.8s)
+  ✓   7 [chromium] › e2e/tutoriales.e2e.ts:62:7 › centro de tutoriales › Escape en el primer paso cierra; a la mitad pregunta antes de abandonar (2.1s)
+  ✓   8 [chromium] › e2e/tutoriales.e2e.ts:80:7 › centro de tutoriales › el tour contextual aparece en la cabecera de una pantalla con tutorial (1.7s)
+  ✓   9 [chromium] › e2e/tutoriales.e2e.ts:87:7 › centro de tutoriales › lo dejado a medias se retoma donde quedó (2.0s)
+  ✓  10 [chromium] › e2e/verificacion-de-identidad.e2e.ts:54:5 › correcto: la cola es una tabla; «Revisar» abre la ficha con sus pestañas; aprobar resuelve y la cola se actualiza (2.6s)
+  ✓  11 [chromium] › e2e/verificacion-de-identidad.e2e.ts:76:5 › límite e inválido: el menú fija «Plataforma»; un expediente sin fotos ni fecha explica por qué no se aprueba; un id inexistente lo dice (2.0s)
+  ✓  12 [chromium] › e2e/verificacion-de-identidad.e2e.ts:98:9 › capturas — movil × light (2.8s)
+  ✓  13 [chromium] › e2e/verificacion-de-identidad.e2e.ts:98:9 › capturas — movil × dark (2.7s)
+  ✓  14 [chromium] › e2e/verificacion-de-identidad.e2e.ts:98:9 › capturas — tablet × light (2.9s)
+  ✓  15 [chromium] › e2e/verificacion-de-identidad.e2e.ts:98:9 › capturas — tablet × dark (2.7s)
+  ✓  16 [chromium] › e2e/verificacion-de-identidad.e2e.ts:98:9 › capturas — escritorio × light (3.2s)
+  ✓  17 [chromium] › e2e/verificacion-de-identidad.e2e.ts:98:9 › capturas — escritorio × dark (3.1s)
+
+  17 passed (1.1m)
+EXIT 0
