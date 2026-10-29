@@ -1,9 +1,15 @@
 # Reporte — `GET /grupos/solicitudes` (bandeja de «Admisiones» del backoffice, CU-68)
 
-> **AVANCE: 2 / 4 microtareas HECHO — 50,0 %.** Las otras dos (consulta y controlador) están escritas y revisadas contra los gates estáticos, pero **sus pruebas no se han ejecutado**: no hay Docker ni Maven en este entorno; las corre el CI de la rama/PR.
+> **AVANCE: 2 / 4 microtareas HECHO — 50,0 %.** Las otras dos (consulta y controlador) están escritas; **el CI ya compiló el código de producción** (`compileJava` OK, formato y reglas propias de `grupos` OK) pero **la prueba de integración contra PostgreSQL nunca se ha ejecutado**, y una prueba web mía falló en CI (corregida, ver «Historia del CI»).
 
 - Fecha: 2026-10-25 · Plan: [PLAN.md](./PLAN.md) · Rama: `claude/awesome-turing-5wmr4r` · Repo: PasanakuBackend (servicio `grupos`)
 - Peldaño de evidencia alcanzado: **WRITTEN + gates estáticos** (los gates Python pasan). No `RUNS`: el generador OpenAPI y `compileJava` no se pudieron ejecutar aquí. No `TESTED`.
+
+## Historia del CI (actualizado 2026-10-29)
+- PR #191 (mergeado a `dev` el 26/10 con esta prueba en rojo): `GruposBandejaWebTest.sinParametros` esperaba `limite = null`, pero el contrato declara `default: 200` y Spring lo aplica → recibe `200`. **Error de la prueba**, no del endpoint. Evidencia: `Wanted: bandeja(isNull(), isNull(), any())` / `Actual: bandeja(null, 200, ContextoSesion[... rol=SOPORTE ...])`.
+- Antes de eso el CI fue encontrando, en este orden: formato palantir (3 cortes de línea), un `armar()` que chocaba con un método estático de `BaseDeCU68`, y la regla `sin-umbral-literal` (que detecta por nombre: `TOPE_DE_BANDEJA = 200` → `FILAS_DE_LA_BANDEJA`).
+- PR #266 corrige la prueba web. Su CI **no llegó a ejecutar `grupos:webTest` ni `BandejaDeAdmisionesRepositorioTest`**: `check` se corta antes en `auditoria:testBarrido` por código ajeno de `dev` (`SaludDeServicios.java` con `99.5` y `100` literales, `DisponibilidadDelServicio.java`, `IndicadoresController.java` con 379 líneas; commits de Pablo del 28–29/10). Hasta que eso se arregle, mis dos pruebas siguen sin ejecutarse en CI.
+- La bóveda (ADR-053, índice de skills, «51 ADR») la corrige el PR #262; no se duplicó.
 
 ## Qué cambia
 La pantalla «Admisiones» del backoffice llamaba `GET /grupos/solicitudes`, que ningún servicio publicaba → 404 → «No encontramos lo que buscabas». Ahora `grupos` la publica: arreglo de hasta 200 solicitudes de **todos** los grupos, las más nuevas primero, con `grupoCodigo`, `postulante`, `estado` con los nombres de la pantalla (`ACEPTADA` = `APROBADA` en la base) y filtros opcionales `estado` y `limite`. Permiso `SOLICITUD_INGRESO_VER` (ya existe y lo tienen ADMIN_PLATAFORMA, SOPORTE y OPERATIONS_*). Sin teléfono ni correo.
