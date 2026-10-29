@@ -1,9 +1,9 @@
 # Reporte — Backoffice decide admisiones + sin pestañas ni ícono de cabecera
 
-> **AVANCE: 7 / 9 — 77,8 %.**
+> **AVANCE: 8 / 9 — 88,9 %.**
 
 - Fecha: 2026-10-29 · Plan: [PLAN.md](./PLAN.md) · Rama: `claude/admision-directa-backoffice-20261028` (desde `origin/test`)
-- Peldaño de evidencia alcanzado: backend `TESTED` (integración contra Postgres real) · frontend `TESTED` · TEST sin ejercitar todavía → el trabajo queda en `TESTED`, no `VERIFIED`.
+- Peldaño de evidencia alcanzado: backend `TESTED` (integración contra Postgres real) · frontend `TESTED` · en TEST, la decisión directa del administrador quedó persistida (solicitud, participante y evento) → `VERIFIED_FUNCTIONAL_ONLY` (consola y red del navegador no revisadas por el agente).
 
 ## Completado
 | ID | Qué se logró | Comando | Resultado |
@@ -15,6 +15,7 @@
 | H2.S1.M1 | Shell sin `<ap-pestanas-de-seccion>` | mismo comando | PASS |
 | H2.S1.M2 | `CabeceraDePagina` sin loseta ni input `icono`; 60 pantallas sin el atributo | `ng test` cabecera (ui) | PASS 3/3 — `evidencia/vitest-ui.txt` |
 | H3.S1.M1 | Typecheck backoffice y ui | `yarn typecheck` | EXIT 0, 0 errores |
+| H3.S1.M2 | Un ADMIN_PLATAFORMA que no organiza el grupo aprobó una solicitud desde el backoffice en TEST: `APROBADA`, participante `ACEPTADO_PENDIENTE_FIRMA` y evento `grupos.ingreso_aceptado` en la misma marca de tiempo | consultas de solo lectura en TEST | PASS — `evidencia/verificacion-en-test.txt` |
 
 ## A medias
 ninguna
@@ -22,7 +23,6 @@ ninguna
 ## Pendiente
 | ID | Estado | Qué lo destraba |
 |---|---|---|
-| H3.S1.M2 | TODO | Merge a `test`, reconstrucción en el VPS y ejercicio en el navegador sobre la solicitud pendiente de TEST |
 
 ## Evidencia
 ```text

@@ -1,0 +1,15 @@
+# Verificación en TEST (161.97.85.216) — 2026-10-29, solo lectura. UUIDs recortados a 8 caracteres; nombre del participante omitido (regla 90.2.3).
+# Pablo decidió la solicitud desde el backoffice (navegador) con una sesión ADMIN_PLATAFORMA que NO es la organizadora del grupo.
+$ psql: grupos.solicitud_ingreso (6324f76a-…)
+estado APROBADA · revisada_por d6a6d6d4-… · fecha_resolucion 2026-10-29 17:12:34 -04 · grupo 1a25d2a1-…
+$ psql: roles vigentes de d6a6d6d4-… (identidad.asignacion_rol)
+ADMIN_PLATAFORMA
+$ psql: ¿quien decidió es el organizador del grupo?
+f  (grupo ABIERTO_A_INSCRIPCION)
+$ psql: grupos.participante del solicitante en ese grupo
+ACEPTADO_PENDIENTE_FIRMA · es_organizador f · fecha_ingreso 2026-10-29 17:12:34 -04 (misma transacción que la resolución)
+$ psql: grupos.evento_dominio con agregado_id 6324f76a-…
+grupos.ingreso_solicitado
+grupos.ingreso_aceptado  payload {decision: APROBADA, motivo: <texto escrito por Pablo>, participanteId: e9baee20-…}
+# La otra solicitud (1c78562e-…) sigue PENDIENTE.
+No cubierto: consola y red del navegador durante la decisión (la hizo Pablo, no el agente); el rechazo directo en TEST.
