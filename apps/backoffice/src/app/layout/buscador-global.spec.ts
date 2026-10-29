@@ -43,7 +43,7 @@ describe('BuscadorGlobal', () => {
     expect(input.getAttribute('role')).toBe('combobox')
     escribir(fixture, input, 'outb')
     const opciones = Array.from(el.querySelectorAll('[role="option"]')).map((o) => o.querySelector('.texto')?.textContent)
-    expect(opciones).toEqual(['Outbox y descartados'])
+    expect(opciones).toEqual(['Outbox por servicio'])
     input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }))
     fixture.detectChanges()
     expect(destinos).toEqual(['/sistemas/outbox'])

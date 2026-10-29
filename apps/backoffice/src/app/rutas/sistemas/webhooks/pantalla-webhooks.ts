@@ -51,12 +51,13 @@ export class PantallaWebhooks {
   private readonly filas = filasDe<Webhook>(this.webhooks)
   protected readonly listado = crearListado<Webhook>({
     filas: this.filas,
-    camposDeBusqueda: ['origen', (w) => DIRECCION[w.direccion], (w) => ESTADO[w.ultimoEstado], 'ultimaEntregaEl'],
+    camposDeBusqueda: ['origen', (w) => DIRECCION[w.direccion], (w) => ESTADO[w.ultimoEstado], (w) => w.detalle ?? '', 'ultimaEntregaEl'],
     filtros: [
       { nombre: 'direccion', etiqueta: 'Dirección', valor: (w) => w.direccion, texto: (v) => DIRECCION[v as Webhook['direccion']] ?? v },
       { nombre: 'estado', etiqueta: 'Último estado', valor: (w) => w.ultimoEstado, texto: (v) => ESTADO[v as Webhook['ultimoEstado']] ?? v },
     ],
     porPagina: 10,
+    valorParaOrden: (w, clave) => (clave === 'ultimaEntregaEl' ? (w.ultimaEntregaIso ?? w.ultimaEntregaEl) : w[clave as keyof Webhook]),
   })
   protected readonly cifras = computed<Cifra[]>(() => {
     const f = this.filas()
@@ -71,7 +72,8 @@ export class PantallaWebhooks {
     { clave: 'origen', titulo: 'Origen', ordenable: true },
     { clave: 'direccion', titulo: 'Dirección', ordenable: true },
     { clave: 'ultimoEstado', titulo: 'Último estado', ordenable: true },
-    { clave: 'ultimaEntregaEl', titulo: 'Última entrega', ordenable: true },
+    { clave: 'detalle', titulo: 'Detalle' },
+    { clave: 'ultimaEntregaEl', titulo: 'Recibido el', ordenable: true },
   ]
   protected readonly exportables: ColumnaExportable<Webhook>[] = [
     { clave: 'origen', titulo: 'Origen' },

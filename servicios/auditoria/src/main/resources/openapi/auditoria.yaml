@@ -495,6 +495,53 @@ paths:
         '401':
           $ref: '#/components/responses/NoAutenticado'
 
+  /indicadores/operacion/outbox:
+    get:
+      operationId: consultarOutboxPorServicio      # Sistemas › Outbox (2026-10-29)
+      summary: El outbox de cada servicio, ahora
+      description: >-
+        Lo que el relevo de cada servicio publica en Prometheus (comun-mensajeria, Relevo): eventos PENDIENTE y FALLIDO
+        en su outbox ahora, la edad del mas viejo tomado, y cuantas publicaciones salieron bien y mal en las ultimas 24 h
+        (increase, aproximado por la extrapolacion de Prometheus). auditoria no lee el esquema de ningun servicio (regla
+        98.1). fuenteDisponible false significa que Prometheus no respondio: no se sabe, distinto de una lista vacia.
+        Exige TABLERO_SISTEMAS_VER o AUDITORIA_LEER.
+      responses:
+        '200':
+          description: El outbox por servicio
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaOutboxPorServicio' }
+        '403':
+          description: Sin TABLERO_SISTEMAS_VER ni AUDITORIA_LEER
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+
+  /indicadores/operacion/incidentes:
+    get:
+      operationId: listarIncidentesOperativos      # Sistemas › Incidentes (2026-10-29)
+      summary: Los incidentes operativos registrados, del mas reciente al mas viejo
+      description: >-
+        Lee auditoria.incidente_operativo. Orden determinista: detectadoEn descendente y despues id. Paginado por
+        numero de pagina. No devuelve impacto_monetario: la tabla no guarda su moneda (regla 91.1.2) y un importe sin
+        moneda no se publica. Exige TABLERO_SISTEMAS_VER o AUDITORIA_LEER.
+      parameters:
+        - { name: estado, in: query, required: false, schema: { $ref: '#/components/schemas/EstadoDeIncidenteOperativo' } }
+        - { name: severidad, in: query, required: false, schema: { $ref: '#/components/schemas/SeveridadDeIncidenteOperativo' } }
+        - { name: pagina, in: query, required: false, schema: { type: integer, minimum: 1, maximum: 1000, default: 1 } }
+        - { name: limite, in: query, required: false, schema: { type: integer, minimum: 1, maximum: 100, default: 50 } }
+      responses:
+        '200':
+          description: La pagina pedida (vacia si no hay incidentes o si la pagina pasa del final)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PaginaDeIncidentesOperativos' }
+        '400':
+          description: Un filtro fuera de su dominio (AP-VAL, lo responde el manejador comun)
+        '403':
+          description: Sin TABLERO_SISTEMAS_VER ni AUDITORIA_LEER
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+
   /indicadores/catalogo-de-datos:
     get:
       operationId: obtenerCatalogoDeDatos      # tableros por rol · H7 catalogo de datos (D14)
@@ -987,6 +1034,55 @@ components:
           type: array
           maxItems: 100
           items: { $ref: '#/components/schemas/EndpointDelDia' }
+    SalidaOutboxPorServicio:
+      type: object
+      additionalProperties: false
+      required: [consultadoEn, fuenteDisponible, servicios]
+      properties:
+        consultadoEn: { type: string, format: date-time }
+        fuenteDisponible: { type: boolean }
+        servicios: { type: array, maxItems: 40, items: { $ref: '#/components/schemas/OutboxDeServicio' } }
+    OutboxDeServicio:
+      type: object
+      additionalProperties: false
+      required: [servicio]
+      properties:
+        servicio: { type: string, maxLength: 60 }
+        pendientes: { type: integer, format: int64, minimum: 0, description: 'Ausente si el servicio no lo publico' }
+        fallidos: { type: integer, format: int64, minimum: 0 }
+        edadMasViejoSegundos: { type: integer, format: int64, minimum: 0 }
+        publicados24h: { type: integer, format: int64, minimum: 0 }
+        erroresDePublicacion24h: { type: integer, format: int64, minimum: 0 }
+    EstadoDeIncidenteOperativo:
+      type: string
+      enum: [DETECTADO, MITIGADO, POST_MORTEM, RESUELTO]
+    SeveridadDeIncidenteOperativo:
+      type: string
+      enum: [SEV1, SEV2, SEV3]
+    IncidenteOperativo:
+      type: object
+      additionalProperties: false
+      required: [id, codigo, titulo, severidad, sistemaAfectado, estado, detectadoEn, impactoUsuarios]
+      properties:
+        id: { type: string, format: uuid }
+        codigo: { type: string, maxLength: 20 }
+        titulo: { type: string, maxLength: 160 }
+        severidad: { $ref: '#/components/schemas/SeveridadDeIncidenteOperativo' }
+        sistemaAfectado: { type: string, maxLength: 60 }
+        estado: { $ref: '#/components/schemas/EstadoDeIncidenteOperativo' }
+        detectadoEn: { type: string, format: date-time }
+        resueltoEn: { type: string, format: date-time, description: 'Ausente mientras no se resolvio' }
+        impactoUsuarios: { type: integer, minimum: 0 }
+    PaginaDeIncidentesOperativos:
+      type: object
+      additionalProperties: false
+      required: [items, pagina, limite, total, totalPaginas]
+      properties:
+        items: { type: array, maxItems: 100, items: { $ref: '#/components/schemas/IncidenteOperativo' } }
+        pagina: { type: integer, minimum: 1 }
+        limite: { type: integer, minimum: 1 }
+        total: { type: integer, minimum: 0 }
+        totalPaginas: { type: integer, minimum: 0 }
     SalidaSaludDeServicios:
       type: object
       additionalProperties: false

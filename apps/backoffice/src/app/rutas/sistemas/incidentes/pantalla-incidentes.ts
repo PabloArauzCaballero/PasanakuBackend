@@ -26,12 +26,12 @@ const ESTADO: Record<Incidente['estado'], string> = { abierto: 'Abierto', cerrad
         @if (carga().tipo !== 'sin-fuente') { <ap-boton acciones variante="fantasma" icono="recarga" [deshabilitado]="incidentes.isLoading()" (pulsado)="incidentes.reload()">Actualizar</ap-boton> }
       </ap-cabecera-de-pagina>
       <ap-cifras-de-sistemas etiqueta="Resumen de incidentes" [cifras]="cifras()" [carga]="carga()" />
-      <ap-listado [titulo]="t.titulo" [columnas]="columnas" [listado]="listado" [carga]="carga()" ayudaDeBusqueda="Busca por título, severidad, estado o fecha de apertura." [exportables]="exportables" nombreDeRegistros="incidentes" [textoVacio]="t.vacio" explicacionVacio="Cuando se declare un incidente, aparece acá con su severidad." (reintentar)="incidentes.reload()">
+      <ap-listado [titulo]="t.titulo" [columnas]="columnas" [listado]="listado" [carga]="carga()" ayudaDeBusqueda="Busca por código, título, severidad, estado, etapa o sistema afectado." [exportables]="exportables" nombreDeRegistros="incidentes" [textoVacio]="t.vacio" explicacionVacio="Cuando se declare un incidente, aparece acá con su severidad." (reintentar)="incidentes.reload()">
         <ng-template #celda let-f let-c="columna">
           @switch (c.clave) {
             @case ('estado') { <ap-chip-estado [tono]="f.estado === 'abierto' ? 'aviso' : 'ok'">{{ estadoDe(f) }}</ap-chip-estado> }
             @case ('severidad') { <ap-chip-estado [tono]="f.severidad === 'sev1' ? 'error' : f.severidad === 'sev2' ? 'aviso' : 'neutro'">{{ severidadDe(f) }}</ap-chip-estado> }
-            @default { {{ f[c.clave] }} }
+            @default { {{ f[c.clave] ?? '—' }} }
           }
         </ng-template>
       </ap-listado>
@@ -51,12 +51,14 @@ export class PantallaIncidentes {
   private readonly filas = filasDe<Incidente>(this.incidentes)
   protected readonly listado = crearListado<Incidente>({
     filas: this.filas,
-    camposDeBusqueda: ['titulo', (i) => SEVERIDAD[i.severidad], (i) => ESTADO[i.estado], 'abiertoEl'],
+    camposDeBusqueda: ['titulo', (i) => SEVERIDAD[i.severidad], (i) => ESTADO[i.estado], (i) => i.etapa ?? '', (i) => i.sistema ?? '', 'abiertoEl'],
     filtros: [
       { nombre: 'severidad', etiqueta: 'Severidad', valor: (i) => i.severidad, texto: (v) => SEVERIDAD[v as Incidente['severidad']] ?? v },
       { nombre: 'estado', etiqueta: 'Estado', valor: (i) => i.estado, texto: (v) => ESTADO[v as Incidente['estado']] ?? v },
     ],
     porPagina: 10,
+    // «20 oct 2026» ordenado como texto no respeta el calendario: se ordena por el instante cuando lo hay.
+    valorParaOrden: (i, clave) => (clave === 'abiertoEl' ? (i.abiertoElIso ?? i.abiertoEl) : i[clave as keyof Incidente]),
   })
   protected readonly cifras = computed<Cifra[]>(() => {
     const f = this.filas()
@@ -71,7 +73,9 @@ export class PantallaIncidentes {
     { clave: 'titulo', titulo: 'Incidente', ordenable: true },
     { clave: 'severidad', titulo: 'Severidad', ordenable: true },
     { clave: 'estado', titulo: 'Estado', ordenable: true },
-    { clave: 'abiertoEl', titulo: 'Abierto el', ordenable: true },
+    { clave: 'etapa', titulo: 'Etapa', ordenable: true },
+    { clave: 'sistema', titulo: 'Sistema afectado', ordenable: true },
+    { clave: 'abiertoEl', titulo: 'Detectado el', ordenable: true },
   ]
   protected readonly exportables: ColumnaExportable<Incidente>[] = [
     { clave: 'titulo', titulo: 'Incidente' },

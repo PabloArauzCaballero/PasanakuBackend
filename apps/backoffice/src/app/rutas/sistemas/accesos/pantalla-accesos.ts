@@ -24,7 +24,7 @@ import { textosSistemas } from '../textos'
         @if (carga().tipo !== 'sin-fuente') { <ap-boton acciones variante="fantasma" icono="recarga" [deshabilitado]="accesos.isLoading()" (pulsado)="accesos.reload()">Actualizar</ap-boton> }
       </ap-cabecera-de-pagina>
       <ap-cifras-de-sistemas etiqueta="Resumen de accesos" [cifras]="cifras()" [carga]="carga()" />
-      <ap-listado [titulo]="t.titulo" [columnas]="columnas" [listado]="listado" [carga]="carga()" ayudaDeBusqueda="Busca por persona, rol, ámbito o fecha de otorgamiento." nombreDeRegistros="accesos" [textoVacio]="t.vacio" explicacionVacio="Cuando se otorgue un acceso, aparece acá con su rol y su ámbito." (reintentar)="accesos.reload()" />
+      <ap-listado [titulo]="t.titulo" [columnas]="columnas" [listado]="listado" [carga]="carga()" ayudaDeBusqueda="Busca por persona, rol, ámbito o estado de la cuenta." nombreDeRegistros="accesos" [textoVacio]="t.vacio" explicacionVacio="Cuando se otorgue un acceso, aparece acá con su rol y su ámbito." (reintentar)="accesos.reload()" />
     </section>
   `,
   styles: `:host { display: block; min-width: 0; } .pantalla { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s5); min-width: 0; } /* ap-listado deja sus pistas en «auto»: sin esto la tabla ensancha la página en vez de desplazarse en su marco. */ ap-listado { grid-template-columns: minmax(0, 1fr); }`,
@@ -41,10 +41,11 @@ export class PantallaAccesos {
   private readonly filas = filasDe<Acceso>(this.accesos)
   protected readonly listado = crearListado<Acceso>({
     filas: this.filas,
-    camposDeBusqueda: ['persona', 'rol', 'ambito', 'otorgadoEl'],
+    camposDeBusqueda: ['persona', 'rol', 'ambito', (a) => a.estado ?? ''],
     filtros: [
       { nombre: 'rol', etiqueta: 'Rol', valor: (a) => a.rol },
       { nombre: 'ambito', etiqueta: 'Ámbito', valor: (a) => a.ambito },
+      { nombre: 'segundoFactor', etiqueta: 'Segundo factor', valor: (a) => a.segundoFactor },
     ],
     porPagina: 10,
   })
@@ -54,12 +55,15 @@ export class PantallaAccesos {
       { etiqueta: 'Accesos', valor: contar(f), icono: 'llave' },
       { etiqueta: 'Personas', valor: String(new Set(f.map((a) => a.persona)).size), icono: 'persona' },
       { etiqueta: 'Roles distintos', valor: String(new Set(f.map((a) => a.rol)).size), icono: 'escudo' },
+      // Lo primero que mira una revisión: personas con acceso y sin segundo factor.
+      { etiqueta: 'Sin segundo factor', valor: String(new Set(f.filter((a) => a.segundoFactor === 'No').map((a) => a.persona)).size), icono: 'candado', tono: 'aviso' },
     ]
   })
   protected readonly columnas: Columna<Acceso>[] = [
     { clave: 'persona', titulo: 'Persona', ordenable: true },
     { clave: 'rol', titulo: 'Rol', ordenable: true },
     { clave: 'ambito', titulo: 'Ámbito', ordenable: true },
-    { clave: 'otorgadoEl', titulo: 'Otorgado el', ordenable: true },
+    { clave: 'estado', titulo: 'Estado de la cuenta', ordenable: true },
+    { clave: 'segundoFactor', titulo: 'Segundo factor', ordenable: true },
   ]
 }

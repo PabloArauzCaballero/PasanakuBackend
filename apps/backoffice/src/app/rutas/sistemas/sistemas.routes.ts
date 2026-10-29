@@ -34,7 +34,7 @@ export const rutasSistemas: Routes = [
       { path: 'base-de-datos', loadComponent: () => import('./base-datos/pantalla-base-datos').then((m) => m.PantallaBaseDeDatos), title: 'Base de datos · Sistemas · AportaYa' },
       { path: 'respaldos', loadComponent: () => import('./respaldos/pantalla-respaldos').then((m) => m.PantallaRespaldos), title: 'Respaldos · Sistemas · AportaYa' },
       { path: 'proveedores', loadComponent: () => import('./proveedores/pantalla-proveedores').then((m) => m.PantallaProveedores), title: 'Proveedores · Sistemas · AportaYa' },
-      { path: 'outbox', loadComponent: () => import('./outbox/pantalla-outbox').then((m) => m.PantallaOutbox), title: 'Outbox y descartados · Sistemas · AportaYa' },
+      { path: 'outbox', loadComponent: () => import('./outbox/pantalla-outbox').then((m) => m.PantallaOutbox), title: 'Outbox por servicio · Sistemas · AportaYa' },
       { path: 'webhooks', loadComponent: () => import('./webhooks/pantalla-webhooks').then((m) => m.PantallaWebhooks), title: 'Webhooks · Sistemas · AportaYa' },
       { path: 'accesos', loadComponent: () => import('./accesos/pantalla-accesos').then((m) => m.PantallaAccesos), title: 'Accesos · Sistemas · AportaYa' },
       { path: 'incidentes', loadComponent: () => import('./incidentes/pantalla-incidentes').then((m) => m.PantallaIncidentes), title: 'Incidentes · Sistemas · AportaYa' },

@@ -56,7 +56,7 @@ describe('MenuLateral', () => {
       'Base de datos',
       'Respaldos',
       'Proveedores',
-      'Outbox y descartados',
+      'Outbox por servicio',
       'Webhooks',
       'Usuarios internos',
       'Roles internos',
@@ -69,7 +69,7 @@ describe('MenuLateral', () => {
     expect(textos(sistemas, '.subgrupo')).toEqual(['Integraciones', 'Personal y accesos', 'Endpoints y flujos'])
     expect(sistemas.querySelectorAll('a ap-icono').length).toBe(14)
     // La pantalla actual se marca con aria-current, no solo con color; la sección, con su barra.
-    expect(el.querySelector('a[aria-current="page"]')?.textContent?.trim()).toBe('Outbox y descartados')
+    expect(el.querySelector('a[aria-current="page"]')?.textContent?.trim()).toBe('Outbox por servicio')
     expect(el.querySelector('a.seccion.activo')?.textContent?.trim()).toBe('Sistemas')
     // Nada se pliega: ningún control de despliegue y los grupos son rótulos, no botones.
     expect(el.querySelector('[aria-expanded]')).toBeNull()
