@@ -1,0 +1,14 @@
+# Verificación en TEST (161.97.85.216) — 2026-10-29, solo lectura, tras el despliegue de c5372e3 (#287 + #289)
+$ docker ps -a | grep ^esquema-
+esquema-n3wymuuo076w9prwo5i293bx-20261029T213805 Exited (0)
+$ docker logs (último job del esquema, cola)
+esquema: 443 tablas en pasanaku
+esquema: listo
+$ psql: select jsonb_typeof(parametros_esperados), count(*) from auditoria.definicion_reporte group by 1
+array|10            (antes del despliegue: object|10)
+$ psql: lectura del motor (jsonb_to_recordset) sobre CARTERA_EN_MORA y CONCILIACION_DIARIA
+CARTERA_EN_MORA|grupo_id|UUID|f
+CONCILIACION_DIARIA|fecha|FECHA|t
+$ psql: select count(*), count(distinct nombre) from auditoria.definicion_reporte
+10|10               (sin duplicados)
+No cubierto: POST /reportes/{id}/ejecuciones con sesión real (falta token de TEST) y la pantalla en el navegador.

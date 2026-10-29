@@ -11,7 +11,11 @@
 | H0 (agregada) | `parametros_esperados` de las 10 definiciones sembradas en la forma que lee el motor (`[{nombre,tipo,obligatorio}]`, tipos del validador) + `generar_semillas.py` con `"actualizar"` declarado (`ON CONFLICT … DO UPDATE … WHERE … IS DISTINCT FROM`) | Postgres 16 descartable: semilla vieja → nueva ×2; `CU58SemillasTest` | ver Evidencia |
 
 ## A medias
-ninguna
+### Verificación en TEST
+- Qué anda: tras desplegar `c5372e3` (#287 + #289) las 10 definiciones quedaron `array|10` y la lectura del motor (`jsonb_to_recordset`) responde sin error (`evidencia/verificacion-en-test.txt`).
+- Qué no anda: nada observado en rojo.
+- Qué falta exactamente: ejecutar un reporte con sesión real (`POST /reportes/{id}/ejecuciones`) y verlo en la pantalla; necesita un token de TEST.
+- Dónde quedó: solo evidencia, sin cambio de código.
 
 ## Pendiente
 | ID | Estado | Qué lo destraba |
@@ -19,7 +23,6 @@ ninguna
 | H1.S1.M1 | TODO | Exponer `parametrosEsperados` en `DefinicionDeReporteEnLista` |
 | H1.S2.M1–M2 | TODO | Formulario de ejecución en el backoffice |
 | H1.S3.M1 | TODO | Regresión del frontend (cuando haya frontend) |
-| Verificación en TEST | TODO | Merge + despliegue: `jsonb_typeof = array` en 10/10 y la consulta del motor sin error |
 
 ## Evidencia
 ```text
