@@ -2,12 +2,16 @@ import 'package:aportaya_diseno/atomos/campo_contrasena.dart';
 import 'package:aportaya_diseno/atomos/boton.dart';
 import 'package:aportaya_diseno/atomos/boton_variante.dart';
 import 'package:aportaya_diseno/tokens/tokens.dart';
+import 'package:aportaya_diseno/atomos/iconos_de_marca.dart';
+import 'package:aportaya_diseno/moleculas/intro_de_pantalla.dart';
+import 'package:aportaya_diseno/moleculas/tarjeta.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'dominio/estado_cuenta.dart';
 import 'dominio/validaciones.dart';
 import 'textos.dart';
+import 'textos_de_tramites.dart';
 
 /// CU-09 — cambiar credenciales.
 class PantallaDeContrasena extends ConsumerStatefulWidget {
@@ -41,24 +45,39 @@ class _PantallaDeContrasenaState extends ConsumerState<PantallaDeContrasena> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              CampoContrasena(
-                etiqueta: TextosIdentidad.contrasenaActual,
-                controlador: _actual,
-                onChanged: (_) => setState(() {}),
+              const IntroDePantalla(
+                icono: IconosDeMarca.contrasena,
+                titulo: TextosDeTramites.contrasenaTitulo,
+                explicacion: TextosDeTramites.contrasenaExplicacion,
               ),
-              const SizedBox(height: Espacio.s3),
-              CampoContrasena(
-                etiqueta: TextosIdentidad.contrasenaNueva,
-                controlador: _nueva,
-                fortaleza: fortalezaContrasena(_nueva.text),
-                error: _nueva.text.isEmpty
-                    ? null
-                    : errorContrasena(_nueva.text),
-                onChanged: (_) => setState(() {}),
+              Tarjeta(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    CampoContrasena(
+                      etiqueta: TextosIdentidad.contrasenaActual,
+                      controlador: _actual,
+                      onChanged: (_) => setState(() {}),
+                    ),
+                    const SizedBox(height: Espacio.s3),
+                    CampoContrasena(
+                      etiqueta: TextosIdentidad.contrasenaNueva,
+                      controlador: _nueva,
+                      fortaleza: fortalezaContrasena(_nueva.text),
+                      error: _nueva.text.isEmpty
+                          ? null
+                          : errorContrasena(_nueva.text),
+                      onChanged: (_) => setState(() {}),
+                    ),
+                  ],
+                ),
               ),
               const SizedBox(height: Espacio.s5),
               Boton(
                 texto: TextosIdentidad.guardar,
+                motivoDeBloqueo: valido
+                    ? null
+                    : TextosDeTramites.contrasenaBloqueo,
                 variante: BotonVariante.primario,
                 expandido: true,
                 onPressed: valido
