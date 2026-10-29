@@ -4,9 +4,12 @@ import 'package:aportaya_diseno/atomos/tono.dart';
 import 'package:aportaya_diseno/moleculas/alerta.dart';
 import 'package:aportaya_diseno/moviles/hoja_de_confirmacion.dart';
 import 'package:aportaya_diseno/tokens/tokens.dart';
+import 'package:aportaya_diseno/atomos/iconos_de_marca.dart';
+import 'package:aportaya_diseno/moleculas/intro_de_pantalla.dart';
 import 'package:flutter/material.dart';
 
 import 'textos.dart';
+import 'textos_de_tramites.dart';
 
 /// CU-09 — solicitar la baja. Confirmación explícita y sin ambigüedad: el botón de
 /// peligro pide un segundo toque en un diálogo, y explica que hace falta saldo en
@@ -26,6 +29,12 @@ class PantallaDeBaja extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              const IntroDePantalla(
+                icono: IconosDeMarca.darDeBaja,
+                titulo: TextosDeTramites.bajaTitulo,
+                explicacion: TextosDeTramites.bajaExplicacion,
+                peligro: true,
+              ),
               const Alerta(titulo: TextosIdentidad.avisoBaja, tono: Tono.aviso),
               const SizedBox(height: Espacio.s5),
               Boton(
