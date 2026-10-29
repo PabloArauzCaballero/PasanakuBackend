@@ -22,7 +22,7 @@ const ESTADO: Record<Incidente['estado'], string> = { abierto: 'Abierto', cerrad
   imports: [Boton, CabeceraDePagina, ChipEstado, CifrasDeSistemas, ListadoDeDatos],
   template: `
     <section class="pantalla">
-      <ap-cabecera-de-pagina eyebrow="Sistemas" [titulo]="t.titulo" [descripcion]="t.proposito" icono="advertencia">
+      <ap-cabecera-de-pagina eyebrow="Sistemas" [titulo]="t.titulo" [descripcion]="t.proposito">
         @if (carga().tipo !== 'sin-fuente') { <ap-boton acciones variante="fantasma" icono="recarga" [deshabilitado]="incidentes.isLoading()" (pulsado)="incidentes.reload()">Actualizar</ap-boton> }
       </ap-cabecera-de-pagina>
       <ap-cifras-de-sistemas etiqueta="Resumen de incidentes" [cifras]="cifras()" [carga]="carga()" />

@@ -90,4 +90,11 @@ Future<void> cargarFuentesReales() async {
   await familia('MaterialIcons', [
     '$sdk/bin/cache/artifacts/material_fonts/MaterialIcons-Regular.otf',
   ]);
+  // Los íconos Lucide (ADR-053) vienen de un paquete: su familia lleva el prefijo.
+  final cache =
+      Platform.environment['PUB_CACHE'] ??
+      '${Platform.environment['HOME']}/.pub-cache';
+  await familia('packages/lucide_icons_flutter/Lucide', [
+    '$cache/hosted/pub.dev/lucide_icons_flutter-3.1.20/assets/lucide.ttf',
+  ]);
 }

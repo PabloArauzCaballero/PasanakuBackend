@@ -49,7 +49,7 @@ const EXPORTABLES: ColumnaExportable<ReclamoEnBandeja>[] = [
   imports: [AccionesDeFila, Alerta, CabeceraDePagina, ChipEstado, Fecha, Icono, ImporteSinMoneda, ListadoPorCursorVista, RespuestaAReclamo],
   template: `
     <section class="pantalla">
-      <ap-cabecera-de-pagina data-tutorial-id="operacion-reclamos" eyebrow="Operación" [titulo]="t.titulo" [descripcion]="t.proposito" icono="mensaje" />
+      <ap-cabecera-de-pagina data-tutorial-id="operacion-reclamos" eyebrow="Operación" [titulo]="t.titulo" [descripcion]="t.proposito" />
       @if (hecho(); as h) { <ap-alerta tono="ok">{{ h }}</ap-alerta> }
       <p class="norma"><ap-icono nombre="reloj" tamano="s4" />{{ t.plazo }}: {{ t.norma }}. El servidor lo calculó al ingresar el reclamo.</p>
       <ap-listado-por-cursor [titulo]="t.titulo" [columnas]="COLUMNAS" [fuente]="l" [exportables]="EXPORTABLES" [identidad]="identidad" [ayudaDeBusqueda]="t.ayudaBusqueda" [textoVacio]="t.vacio" [explicacionVacio]="t.explicacionVacio" [textoDenegado]="t.denegado" nombreDeRegistros="reclamos" nombreDeRegistro="reclamo">

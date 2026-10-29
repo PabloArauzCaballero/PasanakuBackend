@@ -7,9 +7,14 @@ import 'vista_de_tutoriales.dart';
 
 /// Conecta una fila del catálogo con las acciones del motor de tutoriales.
 class TarjetaDeTutorialEnLista extends ConsumerWidget {
-  const TarjetaDeTutorialEnLista({super.key, required this.fila});
+  const TarjetaDeTutorialEnLista({
+    super.key,
+    required this.fila,
+    this.destacada = false,
+  });
 
   final TutorialEnLista fila;
+  final bool destacada;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -17,6 +22,7 @@ class TarjetaDeTutorialEnLista extends ConsumerWidget {
     final progresos = ref.read(progresoDeTutorialesProvider.notifier);
     return TarjetaDeTutorial(
       fila: fila,
+      destacada: destacada,
       alComenzar: () => motor.iniciar(
         fila.tutorial.id,
         repeticiones: fila.progreso?.repeticiones ?? 0,

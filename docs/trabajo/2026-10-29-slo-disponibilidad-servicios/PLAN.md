@@ -43,7 +43,7 @@
 **CA:** Dado que `auditoria` tomó muestras, cuando un operador abre Sistemas › Servicios, entonces
 ve por servicio la disponibilidad, el presupuesto contra 99,5 % y la última interrupción.
 **DoD:** tests dirigidos verdes; en TEST, respuesta real del endpoint con los campos y captura de la pantalla.
-**Estado:** EN CURSO — falta H1.S3.M3 (TEST)
+**Estado:** HECHO (funcional; captura visual pendiente)
 
 ### H1.S1 — Persistencia de muestras
 | ID | Microtarea | CA (binario) | DoD | Estado |
@@ -63,7 +63,7 @@ ve por servicio la disponibilidad, el presupuesto contra 99,5 % y la última int
 |---|---|---|---|---|
 | H1.S3.M1 | Contrato + controlador con los campos opcionales | web test verde | `./gradlew :servicios:auditoria:webTest` verde | HECHO |
 | H1.S3.M2 | Pantalla formatea los campos (y «—» si faltan) | spec verde | `npx ng test --include='src/app/rutas/sistemas/**/*.spec.ts'` verde | HECHO |
-| H1.S3.M3 | Desplegado en TEST: endpoint real con datos | respuesta con campos | curl autenticado / captura | TODO |
+| H1.S3.M3 | Desplegado en TEST: endpoint real con datos | respuesta con campos | curl autenticado / captura | HECHO |
 
 ## Riesgos
 | Riesgo | Impacto | Mitigación |

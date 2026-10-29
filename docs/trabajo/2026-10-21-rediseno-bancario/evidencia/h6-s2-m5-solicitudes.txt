@@ -1,0 +1,13 @@
+H6.S2.M5 — Solicitudes y Pedir cupo (peldaño TESTED)
+
+Solicitudes: tarjeta con avatar, nombre, fecha (día de calendario), puntaje y cupos como ChipEstado, mensaje del solicitante entre comillas, Aceptar primario y Rechazar secundario. Vacío con título y acción de orientación.
+Pedir cupo: cabecera de sección (sin AppBar), aviso «Tu cupo queda en espera», selector 1/2/3, barra de acción con «Pedir mi cupo»; confirmación en EstadoDeTramite con etapas y la lista de «qué ve de vos» como tarjeta.
+Comandos:
+  flutter test test/pasanaku/solicitudes_del_grupo_test.dart -> 3, All tests passed
+  flutter test test/pasanaku/pantalla_pedir_cupo_test.dart -> 3, All tests passed (incluye doble toque y cuerpo enviado)
+  dart analyze --fatal-infos (apps/movil) -> No issues found!
+  flutter test test/unidad test/widget test/contrato test/identidad test/pasanaku test/a11y test/billetera -> 803, All tests passed
+  flutter test test/goldens -> 274, All tests passed
+  capturas FLUJOS=grupos -> 516, All tests passed; mirados pedir-cupo y solicitudes (claro/oscuro, 360 y vacío)
+Corrección de diseño propia: el puntaje se muestra como chip «Puntaje N», no como «nivel» (sin escala en el contrato).
+No cubierto: aceptar/rechazar contra backend real; el éxito de aceptar con fuentes reales; ruta de error de pedir cupo solo verificada por EstadoError (sin captura de ese estado en la confirmación).

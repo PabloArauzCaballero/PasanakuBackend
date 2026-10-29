@@ -22,7 +22,7 @@ const RESTAURACION = { vencida: 'Vencida', alDia: 'Al día' } as const
   imports: [Boton, CabeceraDePagina, ChipEstado, CifrasDeSistemas, ListadoDeDatos],
   template: `
     <section class="pantalla">
-      <ap-cabecera-de-pagina eyebrow="Sistemas" [titulo]="t.titulo" [descripcion]="t.proposito" icono="nube">
+      <ap-cabecera-de-pagina eyebrow="Sistemas" [titulo]="t.titulo" [descripcion]="t.proposito">
         @if (carga().tipo !== 'sin-fuente') { <ap-boton acciones variante="fantasma" icono="recarga" [deshabilitado]="respaldos.isLoading()" (pulsado)="respaldos.reload()">Actualizar</ap-boton> }
       </ap-cabecera-de-pagina>
       <ap-cifras-de-sistemas etiqueta="Resumen de respaldos" [cifras]="cifras()" [carga]="carga()" />

@@ -1,8 +1,9 @@
 import 'package:aportaya_cliente_grupos/aportaya_cliente_grupos.dart';
 import 'package:aportaya_diseno/atomos/boton.dart';
 import 'package:aportaya_diseno/atomos/boton_variante.dart';
+import 'package:aportaya_diseno/atomos/codigo_q_r.dart';
+import 'package:aportaya_diseno/atomos/iconos_de_marca.dart';
 import 'package:aportaya_diseno/atomos/fecha.dart';
-import 'package:aportaya_diseno/moleculas/tarjeta.dart';
 import 'package:aportaya_diseno/moviles/mostrar_snackbar.dart';
 import 'package:aportaya_diseno/tokens/tokens.dart';
 import 'package:flutter/material.dart';
@@ -77,48 +78,62 @@ class _InvitacionCreadaState extends ConsumerState<InvitacionCreada> {
     return ListView(
       padding: const EdgeInsets.all(Espacio.s4),
       children: [
-        Tarjeta(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(Espacio.s2),
-                    decoration: BoxDecoration(
-                      color: t.okBg,
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(Icons.check_rounded, color: t.okTexto),
-                  ),
-                  const SizedBox(width: Espacio.s3),
-                  Expanded(
-                    child: Text(
-                      TextosInvitacion.invitacionCreadaTitulo,
-                      style: Tipo.titulo3.copyWith(color: t.text),
-                    ),
-                  ),
-                ],
+        // El éxito va centrado y sin caja: es el momento de «listo», no una ficha de datos.
+        Column(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(Espacio.s4),
+              decoration: BoxDecoration(color: t.okBg, shape: BoxShape.circle),
+              child: Icon(
+                IconosDeMarca.listo,
+                size: Espacio.s6 + Espacio.s2,
+                color: t.okTexto,
               ),
-              const SizedBox(height: Espacio.s3),
+            ),
+            const SizedBox(height: Espacio.s3),
+            Semantics(
+              header: true,
+              child: Text(
+                TextosInvitacion.invitacionCreadaTitulo,
+                textAlign: TextAlign.center,
+                style: Tipo.titulo2.copyWith(color: t.text),
+              ),
+            ),
+            const SizedBox(height: Espacio.s1),
+            Text(
+              TextosInvitacion.invitacionCreadaPara(widget.telefono),
+              textAlign: TextAlign.center,
+              style: Tipo.cuerpo.copyWith(color: t.text2),
+            ),
+            if (vence != null) ...[
+              const SizedBox(height: Espacio.s1),
               Text(
-                TextosInvitacion.invitacionCreadaPara(widget.telefono),
-                style: Tipo.cuerpo.copyWith(color: t.text2),
-              ),
-              if (vence != null) ...[
-                const SizedBox(height: Espacio.s1),
-                Text(
-                  TextosInvitacion.invitacionVence(
-                    Fecha.formatear(vence.toUtc().toIso8601String()),
-                  ),
-                  style: Tipo.cuerpoChico.copyWith(color: t.text3),
+                TextosInvitacion.invitacionVence(
+                  Fecha.formatear(vence.toUtc().toIso8601String()),
                 ),
-              ],
+                textAlign: TextAlign.center,
+                style: Tipo.cuerpoChico.copyWith(color: t.text3),
+              ),
             ],
-          ),
+          ],
         ),
         if (enlace != null) ...[
-          const SizedBox(height: Espacio.s4),
+          const SizedBox(height: Espacio.s5),
+          // Para quien está al lado: el mismo enlace como QR, que lee «Escanear invitación».
+          Center(
+            child: CodigoQR(
+              key: const ValueKey('qr-invitacion'),
+              contenido: enlace,
+              etiqueta: TextosInvitacion.qrEtiqueta,
+            ),
+          ),
+          const SizedBox(height: Espacio.s2),
+          Text(
+            TextosInvitacion.mostrarElQr,
+            textAlign: TextAlign.center,
+            style: Tipo.cuerpoChico.copyWith(color: t.text2),
+          ),
+          const SizedBox(height: Espacio.s5),
           Text(
             TextosInvitacion.enlaceDeInvitacion,
             style: Tipo.etiqueta.copyWith(color: t.text2),

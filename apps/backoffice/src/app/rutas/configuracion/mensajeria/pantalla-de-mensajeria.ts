@@ -24,7 +24,7 @@ const PESTANAS: Pestana[] = [
   imports: [Alerta, CabeceraDePagina, Pestanas, TablaDeEnvios, TablaDePlantillas],
   template: `
     <section class="pantalla">
-      <ap-cabecera-de-pagina eyebrow="Configuración" [titulo]="t.titulo" [descripcion]="t.proposito" icono="mensaje" />
+      <ap-cabecera-de-pagina eyebrow="Configuración" [titulo]="t.titulo" [descripcion]="t.proposito" />
       <ap-alerta tono="info">{{ comun.soloLectura }} No se muestran destinatarios ni contenido.</ap-alerta>
       <ap-pestanas etiqueta="Mensajería" [pestanas]="PESTANAS" [(elegida)]="pestana" />
       <div role="tabpanel" [id]="'panel-' + pestana()" [attr.aria-labelledby]="'pestana-' + pestana()">

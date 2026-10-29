@@ -31,7 +31,7 @@ const ESTADOS: Record<string, string> = textosConfiguracion.reportes.estados
   imports: [Alerta, CabeceraDePagina, Pestanas, TablaDeCatalogo, TablaDeEjecuciones],
   template: `
     <section class="pantalla">
-      <ap-cabecera-de-pagina eyebrow="Configuración" [titulo]="t.titulo" [descripcion]="t.proposito" icono="documento" />
+      <ap-cabecera-de-pagina eyebrow="Configuración" [titulo]="t.titulo" [descripcion]="t.proposito" />
       <ap-alerta tono="info">{{ comun.soloLectura }}</ap-alerta>
       <ap-pestanas etiqueta="Reportes" [pestanas]="PESTANAS" [(elegida)]="pestana" />
       <div role="tabpanel" [id]="'panel-' + pestana()" [attr.aria-labelledby]="'pestana-' + pestana()">

@@ -3,18 +3,25 @@ import 'package:flutter/material.dart';
 import '../atomos/hundido_al_tocar.dart';
 import '../tokens/tokens.dart';
 
-/// Recargar · Retirar · Vales · Aportes: cuatro accesos, cada uno con ícono y nombre.
+/// Los accesos de la billetera como **círculos** con su nombre debajo, el lenguaje de
+/// las apps bancarias (ADR-053). Cada círculo es una superficie elevada con el ícono en
+/// verde de marca; [destacada] (si hay) va en verde sólido: es lo que la persona viene a
+/// hacer. Cuatro como máximo: más que eso ya no es «rápido».
 class AccionesRapidas extends StatelessWidget {
-  const AccionesRapidas({super.key, required this.acciones});
+  const AccionesRapidas({super.key, required this.acciones, this.destacada});
+
   final List<({String texto, IconData icono, VoidCallback onTap})> acciones;
+
+  /// Índice de la acción principal, o `null` si ninguna se destaca.
+  final int? destacada;
 
   @override
   Widget build(BuildContext context) {
     final t = Tokens.of(context);
-    final texto = Theme.of(context).textTheme;
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        for (final a in acciones)
+        for (final (i, a) in acciones.indexed)
           Expanded(
             child: Semantics(
               button: true,
@@ -23,24 +30,41 @@ class AccionesRapidas extends StatelessWidget {
               child: HundidoAlTocar(
                 child: InkWell(
                   onTap: a.onTap,
-                  borderRadius: BorderRadius.circular(Radios.md),
+                  customBorder: const StadiumBorder(),
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: Espacio.s2),
+                    padding: const EdgeInsets.symmetric(vertical: Espacio.s1),
                     child: Column(
                       children: [
-                        Container(
-                          width: Tactil.minimo,
-                          height: Tactil.minimo,
+                        DecoratedBox(
                           decoration: BoxDecoration(
-                            color: t.surface2,
-                            borderRadius: BorderRadius.circular(Radios.md),
+                            shape: BoxShape.circle,
+                            color: i == destacada ? t.verdeSolido : t.surface,
+                            border:
+                                Theme.of(context).brightness == Brightness.dark
+                                ? Border.all(color: t.border)
+                                : null,
+                            boxShadow: Elevacion.tarjeta(t),
                           ),
-                          child: Icon(a.icono, color: t.accentTexto),
+                          child: SizedBox.square(
+                            dimension: Tactil.minimo + Espacio.s2,
+                            child: Icon(
+                              a.icono,
+                              size: Espacio.s5,
+                              color: i == destacada
+                                  ? t.sobreVerdeSolido
+                                  : t.brandTexto,
+                            ),
+                          ),
                         ),
-                        const SizedBox(height: Espacio.s1),
+                        const SizedBox(height: Espacio.s2),
                         Text(
                           a.texto,
-                          style: texto.labelMedium?.copyWith(color: t.text2),
+                          textAlign: TextAlign.center,
+                          maxLines: 2,
+                          style: Tipo.cuerpoChico.copyWith(
+                            color: t.text2,
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
                       ],
                     ),

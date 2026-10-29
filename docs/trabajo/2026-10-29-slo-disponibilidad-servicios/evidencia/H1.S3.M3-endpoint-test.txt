@@ -1,0 +1,102 @@
+login 200 token 
+GET /indicadores/operacion/servicios 200
+{
+ "consultadoEn": "2026-10-29T02:18:13.494695Z",
+ "servicios": [
+  {
+   "servicio": "identidad",
+   "estado": "ARRIBA",
+   "latenciaMs": 107,
+   "disponibilidad30d": "100.00",
+   "presupuestoErrorRestante": "100.0",
+   "minutosMedidos30d": 11,
+   "ultimaInterrupcion": null
+  },
+  {
+   "servicio": "nucleo-financiero",
+   "estado": "ARRIBA",
+   "latenciaMs": 105,
+   "disponibilidad30d": "72.72",
+   "presupuestoErrorRestante": "-5354.6",
+   "minutosMedidos30d": 11,
+   "ultimaInterrupcion": "2026-10-29T02:15:00Z"
+  },
+  {
+   "servicio": "aportes",
+   "estado": "ARRIBA",
+   "latenciaMs": 105,
+   "disponibilidad30d": "100.00",
+   "presupuestoErrorRestante": "100.0",
+   "minutosMedidos30d": 11,
+   "ultimaInterrupcion": null
+  },
+  {
+   "servicio": "tarifas",
+   "estado": "ARRIBA",
+   "latenciaMs": 105,
+   "disponibilidad30d": "54.54",
+   "presupuestoErrorRestante": "-8991.0",
+   "minutosMedidos30d": 11,
+   "ultimaInterrupcion": "2026-10-29T02:16:00Z"
+  },
+  {
+   "servicio": "grupos",
+   "estado": "ARRIBA",
+   "latenciaMs": 106,
+   "disponibilidad30d": "81.81",
+   "presupuestoErrorRestante": "-3536.4",
+   "minutosMedidos30d": 11,
+   "ultimaInterrupcion": "2026-10-29T02:15:00Z"
+  },
+  {
+   "servicio": "entregas",
+   "estado": "ARRIBA",
+   "latenciaMs": 106,
+   "disponibilidad30d": "90.90",
+   "presupuestoErrorRestante": "-1718.2",
+   "minutosMedidos30d": 11,
+   "ultimaInterrupcion": "2026-10-29T02:07:00Z"
+  },
+  {
+   "servicio": "garantia",
+   "estado": "ARRIBA",
+   "latenciaMs": 104,
+   "disponibilidad30d": "81.81",
+   "presupuestoErrorRestante": "-3536.4",
+   "minutosMedidos30d": 11,
+   "ultimaInterrupcion": "2026-10-29T02:15:00Z"
+  },
+  {
+   "servicio": "notificaciones",
+   "estado": "ARRIBA",
+   "latenciaMs": 105,
+   "disponibilidad30d": "72.72",
+   "presupuestoErrorRestante": "-5354.6",
+   "minutosMedidos30d": 11,
+   "ultimaInterrupcion": "2026-10-29T02:15:00Z"
+  },
+  {
+   "servicio": "organizador",
+   "estado": "ARRIBA",
+   "latenciaMs": 111,
+   "disponibilidad30d": "72.72",
+   "presupuestoErrorRestante": "-5354.6",
+   "minutosMedidos30d": 11,
+   "ultimaInterrupcion": "2026-10-29T02:15:00Z"
+  },
+  {
+   "servicio": "cumplimiento",
+   "estado": "ARRIBA",
+   "latenciaMs": 105,
+   "disponibilidad30d": "100.00",
+   "presupuestoErrorRestante": "100.0",
+   "minutosMedidos30d": 11,
+   "ultimaInterrupcion": null
+  },
+  {
+   "servicio": "auditoria",
+   "estado": "CAIDO",
+   "latenciaMs": null,
+   "disponibilidad30d": "100.00",
+   "presupuestoErrorRestante": "100.0",
+ 

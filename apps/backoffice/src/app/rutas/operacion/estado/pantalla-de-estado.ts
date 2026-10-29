@@ -35,7 +35,7 @@ const PROPOSITO_ESTADO =
   imports: [Boton, CabeceraDePagina, ChipEstado, ListadoDeDatos, TarjetaKPI],
   template: `
     <section class="pantalla">
-      <ap-cabecera-de-pagina class="cabecera" eyebrow="Operación · arquitectura" titulo="Arquitectura y estado del proyecto" [descripcion]="proposito" icono="servidor">
+      <ap-cabecera-de-pagina class="cabecera" eyebrow="Operación · arquitectura" titulo="Arquitectura y estado del proyecto" [descripcion]="proposito">
         <ap-boton acciones variante="fantasma" icono="recarga" [cargando]="salud.isLoading()" (pulsado)="salud.reload()">Volver a consultar</ap-boton>
         @if (exportador.puedeExportar('estado-plataforma')) {
           <ap-boton acciones variante="primario" icono="descargar" (pulsado)="exportar()">Exportar con huella</ap-boton>

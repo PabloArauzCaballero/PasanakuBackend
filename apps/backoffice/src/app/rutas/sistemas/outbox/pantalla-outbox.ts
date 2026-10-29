@@ -23,7 +23,7 @@ import { textosSistemas } from '../textos'
   imports: [Boton, CabeceraDePagina, ChipEstado, CifrasDeSistemas, ListadoDeDatos],
   template: `
     <section class="pantalla">
-      <ap-cabecera-de-pagina eyebrow="Sistemas" [titulo]="t.titulo" [descripcion]="t.proposito" icono="bandeja">
+      <ap-cabecera-de-pagina eyebrow="Sistemas" [titulo]="t.titulo" [descripcion]="t.proposito">
         <ap-boton acciones variante="fantasma" icono="recarga" [deshabilitado]="outbox.isLoading()" (pulsado)="outbox.reload()">Volver a consultar</ap-boton>
       </ap-cabecera-de-pagina>
       @if (consultadoA(); as hora) { <p class="nota" role="status">Consultado a las {{ hora }} (hora de La Paz).</p> }

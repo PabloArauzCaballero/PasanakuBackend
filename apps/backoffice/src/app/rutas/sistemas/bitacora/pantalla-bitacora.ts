@@ -37,7 +37,7 @@ import { Fecha } from '@aportaya/ui/fecha/fecha'
   imports: [AccionesDeFila, BarraDeFiltros, Boton, CabeceraDePagina, CajonDetalleEvento, ChipEstado, CifrasDeSistemas, Esqueleto, EstadoDeError, EstadoVacio, ExportarListado, Fecha, Paginacion, TablaDeDatos],
   template: `
     <section class="pantalla">
-      <ap-cabecera-de-pagina eyebrow="Sistemas · Auditoría" [titulo]="t.titulo" [descripcion]="t.proposito" icono="libro">
+      <ap-cabecera-de-pagina eyebrow="Sistemas · Auditoría" [titulo]="t.titulo" [descripcion]="t.proposito">
         @if (carga().tipo !== 'sin-fuente') { <ap-boton acciones variante="fantasma" icono="recarga" [deshabilitado]="recurso.isLoading()" (pulsado)="recurso.reload()">Actualizar</ap-boton> }
       </ap-cabecera-de-pagina>
       <ap-cifras-de-sistemas etiqueta="Resumen de la página del registro" [cifras]="cifras()" [carga]="carga()" />

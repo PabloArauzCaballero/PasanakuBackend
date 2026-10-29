@@ -13,9 +13,12 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   test('Elevacion compone las sombras semánticas con roles de cada tema', () {
     for (final tema in [Tokens.claro, Tokens.oscuro]) {
+      // ADR-053: toda elevación que se separa del fondo va en dos capas.
+      expect(Elevacion.fila(tema), [tema.sombra1]);
       expect(Elevacion.tarjeta(tema), [tema.sombra1, tema.sombra2]);
       expect(Elevacion.destacada(tema), [tema.sombra2]);
-      expect(Elevacion.superpuesta(tema), [tema.sombra3]);
+      expect(Elevacion.heroe(tema), [tema.sombra1, tema.sombraHeroe]);
+      expect(Elevacion.superpuesta(tema), [tema.sombra1, tema.sombra3]);
     }
   });
 

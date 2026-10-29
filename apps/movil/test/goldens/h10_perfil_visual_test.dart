@@ -60,8 +60,6 @@ void main() {
           findsOneWidget,
         );
         expect(find.text(TextosIdentidad.verGuiaOtraVez), findsOneWidget);
-        expect(find.text(TextosIdentidad.cerrarSesion), findsOneWidget);
-        expect(find.text(TextosIdentidad.tituloBaja), findsOneWidget);
         expect(find.text('@'), findsNothing);
         expect(tester.takeException(), isNull);
 
@@ -72,6 +70,22 @@ void main() {
             'h10-perfil-inicial-$tema-$ancho-130.png',
           ),
         );
+
+        // Cerrar sesión y dar de baja quedan bajo el pliegue (perfil con cabecera de
+        // verificación y lista agrupada, ADR-053): se miden después del golden, que es la
+        // pantalla como se abre, desplazando HASTA ellos.
+        for (final texto in [
+          TextosIdentidad.cerrarSesion,
+          TextosIdentidad.tituloBaja,
+        ]) {
+          await tester.dragUntilVisible(
+            find.text(texto),
+            find.byType(ListView).first,
+            const Offset(0, -200),
+          );
+          expect(find.text(texto), findsOneWidget);
+        }
+        expect(tester.takeException(), isNull);
       });
     }
   }

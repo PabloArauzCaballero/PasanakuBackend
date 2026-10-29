@@ -27,7 +27,7 @@ type Acceso = { ruta: string; texto: string; permiso: string; descripcion: strin
   imports: [Boton, CabeceraDePagina, ChipEstado, Icono, RouterLink, TarjetaDeBandeja],
   template: `
     <section class="pantalla">
-      <ap-cabecera-de-pagina eyebrow="Inicio" [titulo]="t.titulo" [descripcion]="t.proposito" icono="casa" />
+      <ap-cabecera-de-pagina eyebrow="Inicio" [titulo]="t.titulo" [descripcion]="t.proposito" />
 
       <section class="bloque" aria-labelledby="tablero-accion">
         <div class="cabecera">

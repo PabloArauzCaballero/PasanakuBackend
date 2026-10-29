@@ -16,7 +16,7 @@ import { textosCumplimiento } from '../textos'
   imports: [Boton, CabeceraDePagina, RelojDePlazo],
   template: `
     <section class="pantalla">
-      <ap-cabecera-de-pagina [titulo]="t.titulo" [descripcion]="t.proposito" icono="advertencia" />
+      <ap-cabecera-de-pagina [titulo]="t.titulo" [descripcion]="t.proposito" />
       <ap-reloj-de-plazo [etiqueta]="t.plazo" [venceIso]="reclamo().plazoVenceEn" [ahoraIso]="ahoraIso()" [norma]="t.norma" />
 
       <label for="respuesta">{{ t.respuesta }}</label>

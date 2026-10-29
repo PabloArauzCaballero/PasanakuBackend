@@ -25,7 +25,7 @@ import { textosSistemas } from '../textos'
   imports: [Boton, CabeceraDePagina, ChipEstado, CifrasDeSistemas, ListadoDeDatos, RouterLink],
   template: `
     <section class="pantalla">
-      <ap-cabecera-de-pagina eyebrow="Sistemas" [titulo]="t.titulo" [descripcion]="t.proposito" icono="baseDeDatos">
+      <ap-cabecera-de-pagina eyebrow="Sistemas" [titulo]="t.titulo" [descripcion]="t.proposito">
         <ap-boton acciones variante="fantasma" icono="recarga" [deshabilitado]="resumen.isLoading() || salud.isLoading()" (pulsado)="recargar()">Volver a consultar</ap-boton>
       </ap-cabecera-de-pagina>
       <p class="nota">{{ t.nota }} <a class="enlace" routerLink="/tablero/catalogo-de-datos">Ver cada tabla en el Catálogo de datos</a>.</p>

@@ -14,7 +14,7 @@ import { ExplicadorDeVista } from '../../../nucleo/explicador-de-vista'
   imports: [CabeceraDePagina],
   template: `
     <section class="pantalla">
-      <ap-cabecera-de-pagina eyebrow="Cumplimiento" [titulo]="titulo()" [descripcion]="proposito()" [icono]="icono()">
+      <ap-cabecera-de-pagina eyebrow="Cumplimiento" [titulo]="titulo()" [descripcion]="proposito()">
         <div acciones class="acciones"><ng-content select="[acciones]" /></div>
       </ap-cabecera-de-pagina>
       <ng-content />

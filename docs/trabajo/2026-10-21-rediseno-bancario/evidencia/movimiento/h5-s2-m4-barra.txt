@@ -1,0 +1,18 @@
+# H5.S2.M4 — Píldora de la barra con resorte (2026-10-21) · TESTED + cuadros (sin MP4)
+Pregunta de `animate`: ¿de dónde viene y a dónde va? La píldora de la pestaña activa se desliza del
+casillero anterior al nuevo (antes se apagaba en una y se encendía en otra). Propósito: orientación.
+- Una sola píldora, posición en casilleros, SpringSimulation(Movimiento.resorteCritico), conserva
+  la velocidad si se toca otra pestaña a mitad (interrumpible). Solo anima transform (sin layout).
+- reducirMovimiento(context) → value = meta, sin animación.
+- Casillero del ícono de alto fijo; la barra crece con el tamaño de texto (píldora anclada arriba).
+- Etiquetas con `Tipo.pestana` (token).
+Prueba (packages/diseno_flutter/test/widget/barra_pestanas_resorte_test.dart): pasa por posiciones
+intermedias a 120 ms, no se pasa del destino, queda detrás del ícono, y llega de una vez con
+movimiento reducido. Mutante (sin animación): falla «Expected a value less than 658.67, Actual 658.67».
+$ (packages/diseno_flutter) flutter test test/unidad test/widget test/a11y test/goldens → 00:40 +158: All tests passed!
+$ (apps/movil) flutter test test/unidad test/widget test/contrato test/identidad test/pasanaku test/a11y → 03:28 +771: All tests passed!
+$ flutter test test/goldens → 01:34 +274: All tests passed!
+$ flutter test test/capturas/movimiento --update-goldens → +4 (28 cuadros: normal/reducido × claro/oscuro × 0–400 ms)
+Mirado: barra-tira.png (3 columnas: normal claro, reducido claro, normal oscuro).
+No cubierto: MP4, perfil de rendimiento (RepaintBoundary, H5.S3.M1), dispositivo real, y que el
+botón central y el scroll no compitan visualmente con la píldora cuando pasa por detrás.

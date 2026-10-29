@@ -24,7 +24,7 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
   imports: [EstadoDePantalla, PosicionesDeSaldo, Alerta, Boton, CabeceraDePagina, Campo, DatePipe],
   template: `
     <section class="pantalla">
-      <ap-cabecera-de-pagina data-tutorial-id="operacion-billetera" eyebrow="Operación" [titulo]="t.titulo" [descripcion]="t.proposito" icono="billetera">
+      <ap-cabecera-de-pagina data-tutorial-id="operacion-billetera" eyebrow="Operación" [titulo]="t.titulo" [descripcion]="t.proposito">
         <ap-boton acciones variante="fantasma" icono="recarga" [cargando]="saldo.isLoading()" (pulsado)="saldo.reload()">{{ t.actualizar }}</ap-boton>
       </ap-cabecera-de-pagina>
       <div class="cuerpo">

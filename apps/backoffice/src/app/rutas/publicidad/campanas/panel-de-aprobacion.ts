@@ -33,7 +33,7 @@ type Decision = 'APROBAR' | 'RECHAZAR'
   imports: [Alerta, Boton, CabeceraDePagina, Campo, Dialogo, ErrorDeEnvio, Icono, RouterLink, SeccionClaveValor],
   template: `
     <section class="pantalla">
-      <ap-cabecera-de-pagina eyebrow="Publicidad · campañas" [titulo]="t.tituloAprobacion" [descripcion]="t.propositoAprobacion" icono="aprobar" />
+      <ap-cabecera-de-pagina eyebrow="Publicidad · campañas" [titulo]="t.tituloAprobacion" [descripcion]="t.propositoAprobacion" />
       <div class="tarjeta">
         @if (campana(); as c) {
           <ap-seccion-clave-valor [titulo]="c.nombre" [items]="detalle()" />

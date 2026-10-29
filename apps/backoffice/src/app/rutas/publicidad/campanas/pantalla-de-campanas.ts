@@ -38,7 +38,7 @@ const dinero = (d: { monto: string; moneda: string }) => `${d.monto} ${d.moneda}
   imports: [AccionesDeFila, Alerta, BarraDeLotes, Boton, CabeceraDePagina, ChipEstado, Fecha, FormularioDeCampana, Icono, ListadoDeDatos, Monto, TarjetaKPI],
   template: `
     <section class="pantalla">
-      <ap-cabecera-de-pagina data-tutorial-id="publicidad-campanas" eyebrow="Publicidad" [titulo]="t.tituloGestion" [descripcion]="t.propositoGestion" icono="estrella">
+      <ap-cabecera-de-pagina data-tutorial-id="publicidad-campanas" eyebrow="Publicidad" [titulo]="t.tituloGestion" [descripcion]="t.propositoGestion">
         @if (puedeGestionar()) {
           <ap-boton acciones data-tutorial-id="publicidad-nueva-campana" icono="mas" variante="primario" (pulsado)="formulario().abrir()">{{ t.nuevaCampana }}</ap-boton>
         }

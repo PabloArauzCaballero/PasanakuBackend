@@ -44,7 +44,7 @@ const EXPORTABLES: ColumnaExportable<ReversoEnLista>[] = [
   imports: [CabeceraDePagina, ChipEstado, Fecha, ImporteSinMoneda, ListadoPorCursorVista],
   template: `
     <section class="pantalla">
-      <ap-cabecera-de-pagina eyebrow="Operación" [titulo]="t.titulo" [descripcion]="t.proposito" icono="deshacer" />
+      <ap-cabecera-de-pagina eyebrow="Operación" [titulo]="t.titulo" [descripcion]="t.proposito" />
       <ap-listado-por-cursor [titulo]="t.titulo" [columnas]="COLUMNAS" [fuente]="l" [exportables]="EXPORTABLES" [identidad]="identidad" [ayudaDeBusqueda]="t.ayudaBusqueda" [textoVacio]="t.vacio" [explicacionVacio]="t.explicacionVacio" [textoDenegado]="t.denegado" nombreDeRegistros="reversos" nombreDeRegistro="reverso">
         <ng-template #celda let-r let-columna="columna">
           @switch (columna.clave) {

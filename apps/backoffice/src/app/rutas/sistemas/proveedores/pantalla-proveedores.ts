@@ -22,7 +22,7 @@ import { textosSistemas } from '../textos'
   imports: [Boton, CabeceraDePagina, CifrasDeSistemas, ListadoDeDatos, Monto],
   template: `
     <section class="pantalla">
-      <ap-cabecera-de-pagina eyebrow="Sistemas" [titulo]="t.titulo" [descripcion]="t.proposito" icono="enlace">
+      <ap-cabecera-de-pagina eyebrow="Sistemas" [titulo]="t.titulo" [descripcion]="t.proposito">
         @if (carga().tipo !== 'sin-fuente') { <ap-boton acciones variante="fantasma" icono="recarga" [deshabilitado]="proveedores.isLoading()" (pulsado)="proveedores.reload()">Actualizar</ap-boton> }
       </ap-cabecera-de-pagina>
       <ap-cifras-de-sistemas etiqueta="Resumen de proveedores" [cifras]="cifras()" [carga]="carga()" />

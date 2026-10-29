@@ -140,3 +140,28 @@ export function solicitudesDeAdmision() {
   const gateway = inject(GATEWAY)
   return httpResource<SolicitudDeAdmision[]>(() => `${gateway}/grupos/solicitudes`)
 }
+
+/** Lo que acepta `POST /grupos/solicitudes/{id}/decision` (`EntradaDecisionDeIngreso`: motivo de 5 a 300). */
+export type EntradaDecisionDirecta = { decision: ResultadoDeAdmision; motivo: string }
+export type SalidaDecisionDirecta = { solicitudId: string; estado: 'APROBADA' | 'RECHAZADA' | string; participanteId?: string | null; cupoId?: string | null }
+export const MOTIVO_DIRECTO_MINIMO = 5
+export const MOTIVO_DIRECTO_MAXIMO = 300
+
+/**
+ * `POST /grupos/solicitudes/{id}/decision` (`decidirSolicitudDeIngreso`): la puerta directa, la misma del
+ * organizador. Backoffice la usa cuando no hay propuesta que resolver. Con la admisión humana obligatoria el
+ * servidor la cierra con 422 `AP-CU68-15`. Repetir la MISMA decisión devuelve lo ya resuelto: reintentar con la
+ * misma clave no duplica nada.
+ */
+export function crearDecidirDirecto(): (solicitudId: string, entrada: EntradaDecisionDirecta, clave: string) => Observable<SalidaDecisionDirecta> {
+  const http = inject(HttpClient)
+  const gateway = inject(GATEWAY)
+  return (solicitudId, entrada, clave) =>
+    http.post<SalidaDecisionDirecta>(`${gateway}/grupos/solicitudes/${solicitudId}/decision`, entrada, {
+      context: new HttpContext().set(CLAVE_IDEMPOTENCIA, clave),
+    })
+}
+
+/** El estado de una solicitud en la bandeja (`ACEPTADA`, `RECHAZADA`, `PENDIENTE`…), o null si no figura. */
+export const estadoEnBandeja = (bandeja: readonly SolicitudDeAdmision[], solicitudId: string): string | null =>
+  bandeja.find((s) => s.solicitudId === solicitudId)?.estado ?? null
