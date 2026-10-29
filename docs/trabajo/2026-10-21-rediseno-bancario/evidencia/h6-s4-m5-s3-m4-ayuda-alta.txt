@@ -1,0 +1,11 @@
+# H6.S4.M5 · H6.S3.M4 (parciales) — Ayuda y Alta (2026-10-21) · TESTED + prueba visual
+Ayuda: un solo primario (el recomendado); el resto, secundarios. Los filtros no se tocan: un test
+exige «varias líneas, nunca carrusel» (A12 registrada).
+Alta: CabeceraDeFase con eyebrow en brandTexto, título tituloPantalla y barra de 8 dp. Se mantiene
+exactamente un LinearProgressIndicator (aserción existente).
+$ python3 scripts/verificar_frontend.py movil → TODO OK
+$ flutter test test/unidad test/widget test/contrato test/identidad test/pasanaku test/a11y → 03:24 +771: All tests passed!
+$ flutter test test/goldens --update-goldens → +274 ; flutter test test/goldens → 01:32 +274: All tests passed!
+Rojo: golden de cabecera_fase_2_360 (test/identidad) por cambio visual intencional → regenerado y mirado.
+Goldens cambiados: 60 (alta 45, ayuda 7, cabecera 1 y variantes), mirados en una hoja.
+No cubierto: los seis pasos del alta no se rediseñaron; buscador/temas de Ayuda.

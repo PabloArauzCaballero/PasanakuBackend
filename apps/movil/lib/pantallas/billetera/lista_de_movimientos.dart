@@ -1,6 +1,6 @@
 import 'package:aportaya_cliente_nucleofinanciero/aportaya_cliente_nucleofinanciero.dart';
-import 'package:aportaya_diseno/dinero/formatear.dart';
 import 'package:aportaya_diseno/moleculas/aparicion_escalonada.dart';
+import 'package:aportaya_diseno/moleculas/fila_de_movimiento.dart' as diseno;
 import 'package:aportaya_diseno/moleculas/seccion.dart';
 import 'package:aportaya_diseno/tokens/tokens.dart';
 import 'package:flutter/material.dart';
@@ -69,6 +69,8 @@ class ListaDeMovimientos extends StatelessWidget {
   );
 }
 
+/// Adapta un movimiento del contrato a la fila del sistema de diseño. El contrato solo dice el
+/// sentido (no el tipo), así que la fila muestra entra/sale y no adivina por la glosa.
 class FilaDeMovimiento extends StatelessWidget {
   const FilaDeMovimiento({super.key, required this.movimiento});
 
@@ -76,7 +78,6 @@ class FilaDeMovimiento extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final t = Tokens.of(context);
     final esCredito =
         movimiento.sentido == MovimientoBilleteraSentidoEnum.CREDITO;
     final instante = movimiento.registradoEn.toLocal();
@@ -85,55 +86,15 @@ class FilaDeMovimiento extends StatelessWidget {
         '${instante.month.toString().padLeft(2, '0')} · '
         '${instante.hour.toString().padLeft(2, '0')}:'
         '${instante.minute.toString().padLeft(2, '0')}';
-    final importe = formatearMonto(
-      monto: movimiento.monto.monto,
+    final crudo = movimiento.monto.monto;
+    final absoluto = crudo.startsWith('-') ? crudo.substring(1) : crudo;
+    return diseno.FilaDeMovimiento(
+      concepto: movimiento.glosa,
+      // El signo lo da `sentido`; `Dinero` admite «-» y el contrato no dice si viene, así que
+      // se normaliza para no escribir nunca «--».
+      monto: esCredito ? absoluto : '-$absoluto',
       moneda: movimiento.monto.moneda.value,
-    );
-    return Semantics(
-      label:
-          '${esCredito ? 'Crédito' : 'Débito'}: ${movimiento.glosa}, $importe, $fecha',
-      child: ExcludeSemantics(
-        child: ListTile(
-          contentPadding: EdgeInsets.zero,
-          leading: Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: t.surface2,
-              borderRadius: BorderRadius.circular(Radios.md),
-            ),
-            child: Icon(
-              esCredito ? Icons.south_west : Icons.north_east,
-              // El sentido identifica el tipo de movimiento, no su estado.
-              color: t.text2,
-              size: 20,
-            ),
-          ),
-          title: Text(
-            movimiento.glosa,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: Tipo.cuerpo.copyWith(
-              color: t.text,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          subtitle: Text(
-            fecha,
-            style: Tipo.cuerpoChico.copyWith(color: t.text3),
-          ),
-          trailing: Text(
-            '${esCredito ? '+' : '−'}$importe',
-            style: Tipo.cuerpo.copyWith(
-              color: t.text,
-              fontWeight: FontWeight.w600,
-              fontFamily: Fuente.display,
-              fontFeatures: const [FontFeature.tabularFigures()],
-            ),
-          ),
-          minTileHeight: 56,
-        ),
-      ),
+      detalle: fecha,
     );
   }
 }

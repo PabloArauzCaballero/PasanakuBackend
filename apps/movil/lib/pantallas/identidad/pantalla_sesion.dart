@@ -2,10 +2,8 @@ import 'dart:async';
 
 import 'package:aportaya_diseno/atomos/boton.dart';
 import 'package:aportaya_diseno/atomos/boton_variante.dart';
-import 'package:aportaya_diseno/atomos/marca.dart';
 import 'package:aportaya_diseno/moleculas/aparicion_escalonada.dart';
 import 'package:aportaya_diseno/moleculas/barra_de_accion.dart';
-import 'package:aportaya_diseno/moleculas/cabecera.dart';
 import 'package:aportaya_diseno/tokens/tokens.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -13,6 +11,7 @@ import 'package:go_router/go_router.dart';
 
 import 'dominio/estado_sesion.dart';
 import 'avisos_de_sesion.dart';
+import 'banda_de_ingreso.dart';
 import 'sesion_pie.dart';
 import 'sacudida_de_credenciales.dart';
 import 'campos_de_sesion.dart';
@@ -111,42 +110,24 @@ class _PantallaDeSesionState extends ConsumerState<PantallaDeSesion>
             .catchError((Object _) {}),
       );
     });
-    final t = Tokens.of(context);
     return Scaffold(
       key: const Key('pantalla-de-ingreso'),
-      body: SafeArea(
-        bottom: false,
-        child: Column(
-          children: [
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: Espacio.s4),
-              child: CabeceraDeSeccion(titulo: ''),
-            ),
-            Expanded(
-              child: ListView(
-                padding: const EdgeInsets.fromLTRB(
-                  Espacio.s4,
-                  0,
-                  Espacio.s4,
-                  Espacio.s4,
+      // Sin `SafeArea` arriba: la banda verde se extiende detrás de la barra de estado.
+      body: Column(
+        children: [
+          Expanded(
+            child: ListView(
+              padding: EdgeInsets.zero,
+              children: [
+                const BandaDeIngreso(
+                  saludo: TextosIdentidad.sesionSaludo,
+                  titular: TextosIdentidad.sesionTitular,
                 ),
-                children: [
-                  AparicionEscalonada(
+                Padding(
+                  padding: const EdgeInsets.all(Espacio.s4),
+                  child: AparicionEscalonada(
                     children: [
-                      const Marca(tamano: 52),
-                      const SizedBox(height: Espacio.s4),
-                      Text(
-                        TextosIdentidad.sesionSaludo,
-                        style: Tipo.cuerpo.copyWith(color: t.text2),
-                      ),
-                      Semantics(
-                        header: true,
-                        child: Text(
-                          TextosIdentidad.sesionTitular,
-                          style: Tipo.titulo1.copyWith(color: t.text),
-                        ),
-                      ),
-                      const SizedBox(height: Espacio.s5),
+                      const SizedBox(height: Espacio.s2),
                       ...avisosDeSesion(
                         cuentaRecienCreada: widget.cuentaRecienCreada,
                         motivoDeSalida: _motivoDeSalida,
@@ -167,27 +148,27 @@ class _PantallaDeSesionState extends ConsumerState<PantallaDeSesion>
                       notaDeCustodia(context),
                     ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-            BarraDeAccion(
-              hijo: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Boton(
-                    texto: TextosIdentidad.ingresar,
-                    icono: Icons.login,
-                    variante: BotonVariante.primario,
-                    expandido: true,
-                    cargando: estado.enviando,
-                    onPressed: _valido ? _ingresar : null,
-                  ),
-                  const SesionSinCuenta(),
-                ],
-              ),
+          ),
+          BarraDeAccion(
+            hijo: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Boton(
+                  texto: TextosIdentidad.ingresar,
+                  icono: Icons.login,
+                  variante: BotonVariante.primario,
+                  expandido: true,
+                  cargando: estado.enviando,
+                  onPressed: _valido ? _ingresar : null,
+                ),
+                const SesionSinCuenta(),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

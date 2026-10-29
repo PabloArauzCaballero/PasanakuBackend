@@ -48,16 +48,19 @@ class Boton extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = Tokens.of(context);
     final (fondo, frente, borde) = switch (variante) {
-      BotonVariante.primario => (t.accent, t.accentInk, null),
-      BotonVariante.secundario => (t.surface2, t.text, t.border),
-      BotonVariante.fantasma => (Colors.transparent, t.text2, t.border),
+      BotonVariante.primario => (t.verdeSolido, t.sobreVerdeSolido, null),
+      // Pagar o aportar algo que vence: el único naranja de la pantalla.
+      BotonVariante.urgencia => (t.accent, t.accentInk, null),
+      BotonVariante.secundario => (t.surface, t.text, t.fieldBorder),
+      BotonVariante.fantasma => (Colors.transparent, t.text2, t.fieldBorder),
       // Una acción irreversible (dar de baja, rechazar) se pinta en rojo sólido.
       BotonVariante.peligro => (t.rojoSolido, t.sobreRojoSolido, null),
-      BotonVariante.enlace => (Colors.transparent, t.accentTexto, null),
+      BotonVariante.enlace => (Colors.transparent, t.brandTexto, null),
     };
     final alto = switch (tamano) {
+      // 52 por omisión (ADR-053): el botón de una app de plata se toca con el pulgar.
       BotonTamano.sm => Tactil.minimo - Espacio.s2,
-      BotonTamano.base => Tactil.minimo,
+      BotonTamano.base => Tactil.minimo + Espacio.s1,
       BotonTamano.lg => Tactil.minimo + Espacio.s2,
     };
     // Deshabilitado no es «el mismo botón, más pálido»: es otro color. Bajarle la
@@ -88,16 +91,16 @@ class Boton extends StatelessWidget {
       padding: WidgetStatePropertyAll(
         EdgeInsets.symmetric(horizontal: expandido ? Espacio.s2 : Espacio.s4),
       ),
-      shape: WidgetStatePropertyAll(
-        RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(Radios.md),
-          side: borde == null
-              ? BorderSide.none
-              : BorderSide(
-                  color: apagado ? t.border : borde,
-                  width: Borde.fino,
-                ),
-        ),
+      // Píldora. El contorno va en `side` y no en la forma: Material le da prioridad al
+      // `side` del tema sobre el de la forma. Apagado conserva el contorno aunque la
+      // variante no lo tenga: sin forma, se lee como texto suelto (hallazgo T3).
+      shape: const WidgetStatePropertyAll(StadiumBorder()),
+      side: WidgetStatePropertyAll(
+        apagado && fondo != Colors.transparent
+            ? BorderSide(color: t.fieldBorder, width: Borde.fino)
+            : borde == null
+            ? BorderSide.none
+            : BorderSide(color: borde, width: Borde.fino),
       ),
       textStyle: const WidgetStatePropertyAll(Tipo.boton),
     );
@@ -134,7 +137,8 @@ class Boton extends StatelessWidget {
     final boton = FilledButton(
       onPressed: _habilitado
           ? () {
-              if (variante == BotonVariante.primario) {
+              if (variante == BotonVariante.primario ||
+                  variante == BotonVariante.urgencia) {
                 unawaited(AlcanceHaptica.maybeOf(context)?.botonPrimario());
               }
               onPressed!();
@@ -151,7 +155,7 @@ class Boton extends StatelessWidget {
           ? SuperficieViva(
               color: fondo,
               colorDelTexto: frente,
-              radio: Radios.md,
+              radio: Radios.pill,
               activo: _habilitado,
               cargando: cargando,
               child: boton,

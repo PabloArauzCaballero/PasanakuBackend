@@ -1,4 +1,6 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
+
+import '../atomos/iconos_de_marca.dart';
 
 /// Qué pasó, no si el número sube o baja: cada tipo lleva su ícono (regla 1 de la maqueta).
 enum TipoDeMovimiento {
@@ -16,16 +18,16 @@ enum TipoDeMovimiento {
 
 extension TipoDeMovimientoIcono on TipoDeMovimiento {
   IconData get icono => switch (this) {
-    TipoDeMovimiento.aporte => Icons.groups_outlined,
-    TipoDeMovimiento.recargaQR => Icons.qr_code_2,
-    TipoDeMovimiento.recargaTransferencia => Icons.account_balance_outlined,
-    TipoDeMovimiento.retiro => Icons.outbox_outlined,
-    TipoDeMovimiento.entrega => Icons.card_giftcard_outlined,
-    TipoDeMovimiento.comision => Icons.receipt_long_outlined,
-    TipoDeMovimiento.reverso => Icons.undo,
-    TipoDeMovimiento.debitoRechazado => Icons.block_outlined,
-    TipoDeMovimiento.bono => Icons.celebration_outlined,
-    TipoDeMovimiento.transferencia => Icons.swap_horiz,
+    TipoDeMovimiento.aporte => IconosDeMarca.aportar,
+    TipoDeMovimiento.recargaQR => IconosDeMarca.qr,
+    TipoDeMovimiento.recargaTransferencia => IconosDeMarca.ingresoDesdeBanco,
+    TipoDeMovimiento.retiro => IconosDeMarca.salidaAlBanco,
+    TipoDeMovimiento.entrega => IconosDeMarca.entregaDelFondo,
+    TipoDeMovimiento.comision => IconosDeMarca.comision,
+    TipoDeMovimiento.reverso => IconosDeMarca.reverso,
+    TipoDeMovimiento.debitoRechazado => IconosDeMarca.rechazado,
+    TipoDeMovimiento.bono => IconosDeMarca.bono,
+    TipoDeMovimiento.transferencia => IconosDeMarca.movimientos,
   };
 
   String get nombre => switch (this) {

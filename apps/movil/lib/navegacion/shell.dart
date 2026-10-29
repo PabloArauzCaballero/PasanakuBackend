@@ -2,6 +2,7 @@ import 'aviso_de_verificacion.dart';
 import 'vigilante_de_aprobacion.dart';
 import 'dart:async';
 
+import 'package:aportaya_diseno/atomos/iconos_de_marca.dart';
 import 'package:aportaya_diseno/moviles/alcance_haptica.dart';
 import 'package:aportaya_diseno/moviles/anclas_de_tutorial.dart';
 import 'package:aportaya_diseno/moviles/barra_pestanas.dart';
@@ -10,7 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-/// La tab bar de la app: Inicio · Grupos · Movimientos · Perfil.
+/// La tab bar de la app: Inicio · Grupos · [QR] · Movimientos · Perfil (ADR-053, A6).
 ///
 /// **El shell no dibuja cabecera.** Antes ponía una barra con «AportaYa» y la campana,
 /// y encima cada pantalla ponía su propio título: dos cabeceras apiladas para una sola
@@ -29,41 +30,31 @@ class ShellPrincipal extends ConsumerWidget {
 
   final StatefulNavigationShell navigationShell;
 
+  // Ayuda salió de la barra (ADR-053, A6): vive en la cabecera del inicio y en el perfil.
   static const _destinos = [
     (
       texto: 'Inicio',
-      icono: Icons.home_outlined,
-      iconoActivo: Icons.home,
+      icono: IconosDeMarca.inicio,
       rama: 0,
       ruta: '/billetera/inicio',
     ),
     (
       texto: 'Grupos',
-      icono: Icons.donut_large_outlined,
-      iconoActivo: Icons.donut_large,
+      icono: IconosDeMarca.grupos,
       rama: 1,
       ruta: '/pasanaku/mi-estado',
     ),
     (
       texto: 'Movimientos',
-      icono: Icons.swap_horiz_outlined,
-      iconoActivo: Icons.swap_horiz,
+      icono: IconosDeMarca.movimientos,
       rama: 0,
       ruta: '/billetera/extracto',
     ),
     (
       texto: 'Perfil',
-      icono: Icons.person_outline,
-      iconoActivo: Icons.person,
+      icono: IconosDeMarca.perfil,
       rama: 2,
       ruta: '/identidad/perfil',
-    ),
-    (
-      texto: 'Ayuda',
-      icono: Icons.help_outline,
-      iconoActivo: Icons.help,
-      rama: 3,
-      ruta: '/soporte/ayuda',
     ),
   ];
 
@@ -94,21 +85,29 @@ class ShellPrincipal extends ConsumerWidget {
               (
                 texto: d.texto,
                 icono: d.icono,
-                iconoActivo: d.iconoActivo,
+                iconoActivo: d.icono,
                 novedades: 0,
               ),
           ],
           actual: actual,
+          // El QR del medio abre el escáner de invitaciones: es lo más rápido para entrar
+          // a un grupo (A6). Se apila encima de la pestaña actual, como el de la cabecera.
+          central: (
+            icono: IconosDeMarca.escanear,
+            etiqueta: 'Escanear invitación',
+            alTocar: () {
+              unawaited(AlcanceHaptica.maybeOf(context)?.seleccion());
+              context.push('/pasanaku/escanear');
+            },
+          ),
           onChanged: (i) {
             final d = _destinos[i];
             // El mismo golpecito que da el sistema al cambiar de pestaña: confirma el
             // toque sin esperar a que la pantalla nueva termine de dibujarse.
             unawaited(AlcanceHaptica.maybeOf(context)?.seleccion());
-            if (d.rama == navigationShell.currentIndex) {
-              context.go(d.ruta);
-            } else {
-              navigationShell.goBranch(d.rama, initialLocation: true);
-            }
+            // Siempre a la ruta del destino (H6.S4.M8): con `goBranch(rama, initialLocation)`
+            // «Movimientos» desde otra rama caía en la casa de la rama, que es Inicio.
+            context.go(d.ruta);
           },
         ),
       ),
@@ -119,8 +118,8 @@ class ShellPrincipal extends ConsumerWidget {
   /// marca el que coincide con la ubicación actual, no siempre el primero.
   int _indiceVisibleDesde(int rama, String ubicacion) => switch (rama) {
     1 => 1,
-    2 => 3,
-    3 => 4,
+    // Ayuda (rama 3) cuelga del perfil desde que dejó la barra.
+    2 || 3 => 3,
     _ => ubicacion.startsWith('/billetera/extracto') ? 2 : 0,
   };
 }

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'tokens/tokens.dart';
 import 'tema_de_campos.dart';
 import 'tema_de_controles.dart';
+import 'tema_de_superficies.dart';
 import 'moviles/transicion_de_eje.dart';
 
 /// Los dos temas se construyen desde `tokens.dart` (generado). Ningún `Colors.*`.
@@ -47,15 +48,7 @@ ThemeData temaDesde(Tokens t, Brightness brillo) {
     extensions: [t],
   );
   return base.copyWith(
-    appBarTheme: AppBarTheme(
-      backgroundColor: t.bg,
-      surfaceTintColor: Colors.transparent,
-      foregroundColor: t.text,
-      elevation: 0,
-      scrolledUnderElevation: 0,
-      centerTitle: false,
-      titleTextStyle: Tipo.titulo2.copyWith(color: t.text),
-    ),
+    appBarTheme: cabeceraDesde(t),
     // Eje lateral corto + fundido, sin escalar nada (ver `TransicionDeEje`). En iOS,
     // la del sistema: es la única que trae deslizar desde el borde para volver.
     // Están las seis y no solo las tres de los teléfonos: en la web
@@ -81,16 +74,7 @@ ThemeData temaDesde(Tokens t, Brightness brillo) {
     filledButtonTheme: FilledButtonThemeData(style: botonRellenoDesde(t)),
     outlinedButtonTheme: OutlinedButtonThemeData(style: botonBordeDesde(t)),
     textButtonTheme: TextButtonThemeData(style: botonTextoDesde(t)),
-    cardTheme: CardThemeData(
-      color: t.surface,
-      surfaceTintColor: Colors.transparent,
-      elevation: 0,
-      margin: EdgeInsets.zero,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(Radios.lg),
-        side: BorderSide(color: t.border, width: Borde.fino),
-      ),
-    ),
+    cardTheme: tarjetaDesde(t, brillo),
     listTileTheme: ListTileThemeData(
       iconColor: t.text2,
       textColor: t.text,
@@ -101,34 +85,9 @@ ThemeData temaDesde(Tokens t, Brightness brillo) {
         borderRadius: BorderRadius.circular(Radios.md),
       ),
     ),
-    snackBarTheme: SnackBarThemeData(
-      behavior: SnackBarBehavior.floating,
-      backgroundColor: t.text,
-      contentTextStyle: Tipo.cuerpo.copyWith(color: t.bg),
-      actionTextColor: t.bg,
-      insetPadding: const EdgeInsets.all(Espacio.s4),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(Radios.md),
-      ),
-    ),
-    bottomSheetTheme: BottomSheetThemeData(
-      backgroundColor: t.surface,
-      surfaceTintColor: Colors.transparent,
-      showDragHandle: true,
-      dragHandleColor: t.border,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(Radios.xl)),
-      ),
-    ),
-    dialogTheme: DialogThemeData(
-      backgroundColor: t.surface,
-      surfaceTintColor: Colors.transparent,
-      titleTextStyle: Tipo.titulo2.copyWith(color: t.text),
-      contentTextStyle: Tipo.cuerpo.copyWith(color: t.text2),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(Radios.xl),
-      ),
-    ),
+    snackBarTheme: avisoDesde(t),
+    bottomSheetTheme: hojaDesde(t),
+    dialogTheme: dialogoDesde(t),
     chipTheme: ChipThemeData(
       backgroundColor: t.surface2,
       selectedColor: t.brandBg,

@@ -28,6 +28,9 @@ class TextosInvitacion {
   static const noSePudoAbrir =
       'No pudimos abrir esa app. Copiá el enlace y pegalo en el chat que quieras.';
   static String invitacionVence(String cuando) => 'Vence el $cuando.';
+  static const qrEtiqueta = 'Código QR de la invitación';
+  static const mostrarElQr =
+      'Si está con vos, mostrale este QR: lo lee desde «Escanear invitación».';
   static const enlaceDeInvitacion = 'Enlace de la invitación';
   static const copiarEnlace = 'Copiar enlace';
   static const copiado = 'Copiado';

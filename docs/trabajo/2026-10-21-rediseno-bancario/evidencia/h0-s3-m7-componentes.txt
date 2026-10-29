@@ -1,0 +1,6 @@
+# H0.S3.M7 — Catálogo de componentes, ANTES
+$ (packages/diseno_flutter) flutter test test/capturas --update-goldens --dart-define=FASE=antes
+00:03 +14: All tests passed!
+7 grupos × 2 temas = 14 PNG en evidencia/componentes/antes/ + registro.txt
+Organismos · claro	A RenderFlex overflowed by 22 pixels on the right.
+Organismos · oscuro	A RenderFlex overflowed by 22 pixels on the right.

@@ -1,7 +1,9 @@
 import 'package:aportaya_diseno/atomos/campo.dart';
 import 'package:aportaya_diseno/atomos/boton.dart';
 import 'package:aportaya_diseno/atomos/boton_variante.dart';
+import 'package:aportaya_diseno/atomos/iconos_de_marca.dart';
 import 'package:aportaya_diseno/moleculas/cabecera.dart';
+import 'package:aportaya_diseno/moleculas/seccion.dart';
 import 'package:aportaya_diseno/tokens/tokens.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -10,6 +12,7 @@ import 'package:go_router/go_router.dart';
 import 'dominio/estado_cuenta.dart';
 import 'dominio/estado_sesion.dart';
 import 'textos.dart';
+import 'textos_del_perfil.dart';
 import 'fila_de_accion_de_perfil.dart';
 import 'package:aportaya_diseno/moviles/anclas_de_tutorial.dart';
 import '../../proveedores/tutoriales.dart';
@@ -56,7 +59,10 @@ class _PantallaDePerfilState extends ConsumerState<PantallaDePerfil> {
             children: [
               const MarcaDeTutorial(
                 id: 'identidad.perfil',
-                hijo: CabeceraDeInicio(titulo: TextosIdentidad.tituloPerfil),
+                hijo: CabeceraDeInicio(
+                  saludo: TextosPerfil.saludo,
+                  titulo: TextosIdentidad.tituloPerfil,
+                ),
               ),
               const SizedBox(height: Espacio.s4),
               const SeccionVerificacionKyc(),
@@ -71,30 +77,43 @@ class _PantallaDePerfilState extends ConsumerState<PantallaDePerfil> {
                 ayuda: TextosIdentidad.correoNoEditable,
               ),
               const SizedBox(height: Espacio.s5),
-              FilaDeAccionDePerfil(
-                claveSemantica: const ValueKey('perfil-fila-contrasena'),
-                texto: TextosIdentidad.tituloContrasenaNueva,
-                pista: 'Abrí el cambio de contraseña.',
-                onPressed: () => context.push('/identidad/contrasena'),
+              const TituloDeSeccion(titulo: TextosPerfil.seccionSeguridad),
+              GrupoDeFilas(
+                filas: [
+                  FilaDeAccionDePerfil(
+                    claveSemantica: const ValueKey('perfil-fila-contrasena'),
+                    icono: IconosDeMarca.contrasena,
+                    texto: TextosIdentidad.tituloContrasenaNueva,
+                    pista: 'Abrí el cambio de contraseña.',
+                    onPressed: () => context.push('/identidad/contrasena'),
+                  ),
+                  FilaDeAccionDePerfil(
+                    claveSemantica: const ValueKey('perfil-fila-guia'),
+                    icono: IconosDeMarca.guia,
+                    texto: TextosIdentidad.verGuiaOtraVez,
+                    pista: 'Reiniciá y abrí la guía de inicio.',
+                    onPressed: () =>
+                        ref.read(verGuiaDeInicioOtraVezProvider)().ignore(),
+                  ),
+                  // Ayuda dejó la barra de pestañas (ADR-053, A6) y cuelga de acá.
+                  FilaDeAccionDePerfil(
+                    claveSemantica: const ValueKey('perfil-fila-ayuda'),
+                    icono: IconosDeMarca.ayuda,
+                    texto: 'Ayuda',
+                    pista: 'Abrí el centro de ayuda.',
+                    onPressed: () => context.go('/soporte/ayuda'),
+                  ),
+                ],
               ),
-              const SizedBox(height: Espacio.s2),
-              FilaDeAccionDePerfil(
-                claveSemantica: const ValueKey('perfil-fila-guia'),
-                texto: TextosIdentidad.verGuiaOtraVez,
-                pista: 'Reiniciá y abrí la guía de inicio.',
-                onPressed: () =>
-                    ref.read(verGuiaDeInicioOtraVezProvider)().ignore(),
-              ),
-              const SizedBox(height: Espacio.s3),
+              const SizedBox(height: Espacio.s5),
               // Cerrar sesión no estaba en ningún lado: se podía entrar y no salir.
-              // Va antes de «dar de baja» y con otra variante, porque son cosas muy
-              // distintas —una se deshace volviendo a ingresar, la otra no— y en una
-              // app de dinero no pueden parecerse.
+              // Y «dar de baja» no se parece: una se deshace volviendo a ingresar, la otra
+              // no, y en una app de dinero no pueden verse iguales.
               Boton(
                 texto: _cerrandoSesion
                     ? 'Cerrando sesión…'
                     : TextosIdentidad.cerrarSesion,
-                variante: BotonVariante.fantasma,
+                variante: BotonVariante.secundario,
                 expandido: true,
                 cargando: _cerrandoSesion,
                 onPressed: () async {
@@ -105,13 +124,22 @@ class _PantallaDePerfilState extends ConsumerState<PantallaDePerfil> {
                       .cerrarSesion();
                 },
               ),
-              const SizedBox(height: Espacio.s3),
-              Boton(
-                texto: TextosIdentidad.tituloBaja,
-                variante: BotonVariante.peligro,
-                expandido: true,
-                onPressed: () => context.push('/identidad/baja'),
+              const SizedBox(height: Espacio.s5),
+              // Lo irreversible, al final y sin competir: una fila roja, no el segundo botón
+              // más grande de la pantalla. La baja pide confirmación en su propia pantalla.
+              GrupoDeFilas(
+                filas: [
+                  FilaDeAccionDePerfil(
+                    claveSemantica: const ValueKey('perfil-fila-baja'),
+                    icono: IconosDeMarca.darDeBaja,
+                    texto: TextosIdentidad.tituloBaja,
+                    pista: 'Abrí la baja de tu cuenta.',
+                    destructiva: true,
+                    onPressed: () => context.push('/identidad/baja'),
+                  ),
+                ],
               ),
+              const SizedBox(height: Espacio.s6),
             ],
           ),
         ),

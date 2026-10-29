@@ -20,6 +20,9 @@ class EstadoDePantalla<T> extends StatelessWidget {
     required this.reintentar,
     this.vacio,
     this.motivoVacio = MotivoVacio.sinDatos,
+    this.tituloVacio,
+    this.iconoVacio,
+    this.accionVacio,
     this.esqueleto,
     this.etiquetaDeCarga = 'Cargando',
     this.etiquetaDeTraza = 'Referencia',
@@ -31,6 +34,12 @@ class EstadoDePantalla<T> extends StatelessWidget {
   final bool Function(T dato)? vacio;
   final String mensajeVacio;
   final MotivoVacio motivoVacio;
+
+  /// Lo que el vacío ofrece (ver [EstadoVacio]): nombre de lo que falta, su ícono y la acción
+  /// que lo resuelve.
+  final String? tituloVacio;
+  final IconData? iconoVacio;
+  final Widget? accionVacio;
   final VoidCallback reintentar;
   final Widget? esqueleto;
   final String etiquetaDeCarga;
@@ -58,7 +67,13 @@ class EstadoDePantalla<T> extends StatelessWidget {
       ),
       data: (dato) {
         if (vacio?.call(dato) ?? false) {
-          return EstadoVacio(mensaje: mensajeVacio, motivo: motivoVacio);
+          return EstadoVacio(
+            mensaje: mensajeVacio,
+            motivo: motivoVacio,
+            titulo: tituloVacio,
+            icono: iconoVacio,
+            accion: accionVacio,
+          );
         }
         return exito(dato);
       },
