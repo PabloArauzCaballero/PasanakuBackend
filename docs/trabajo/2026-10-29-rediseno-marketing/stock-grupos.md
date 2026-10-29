@@ -18,8 +18,8 @@
 |---|---|---|---|---|
 | M1 | Copy y jerarquía de crear/invitar/unirse/pedir/aportar | Cada pantalla tiene entrada que dice qué pasa, CTA con verbo y motivo del botón apagado | `flutter test test/pasanaku test/widget` en verde | HECHO |
 | M2 | Quitar promesas de avisos que el backend no manda | Ningún texto de este flujo dice «te avisamos»/«le avisamos» | `grep -rn "avisamos" lib/pantallas/pasanaku` sin resultados en textos usados | HECHO |
-| M3 | Gate y suite completa | analyze, `verificar_frontend.py movil` y suite del brief en verde | salidas literales en el reporte final | ver reporte |
-| M4 | Capturas «después» miradas | 360/412, claro/oscuro de las pantallas cambiadas revisadas | copiadas a `scratchpad/marketing/despues/grupos/` | ver reporte |
+| M3 | Gate y suite completa | analyze, `verificar_frontend.py movil` y suite del brief en verde | `No issues found!` · `TODO OK` · `08:36 +1125: All tests passed!` | HECHO |
+| M4 | Capturas «después» miradas | 360/412, claro/oscuro de las pantallas cambiadas revisadas | 510 capturas (`+510: All tests passed!`), copiadas a `scratchpad/marketing/despues/grupos/`; revisadas nuevo, invitar, invitar-numero, pedir-cupo, unirse, aportar | HECHO |
 
 ## Hallazgo que motivó M2 (con fuente)
 
@@ -71,3 +71,23 @@ unirse» y, aceptado, el grupo aparece en «Grupos».
 - Con `aportaya.grupos.admision.humana-obligatoria` encendido (producción), la decisión del
   organizador la resuelve backoffice. Los textos siguen diciendo «decide el organizador», como
   antes; confirmar con negocio si hay que nombrar la revisión.
+
+## Verificación
+
+- `dart analyze --fatal-infos lib test` → `No issues found!`
+- `python3 scripts/verificar_frontend.py movil` → `TODO OK`
+- Suite del brief (unidad, widget, contrato, identidad, pasanaku, a11y, goldens, billetera,
+  navegacion) → `08:36 +1125: All tests passed!`. Ningún golden falló: no se regeneró ninguno.
+- Pruebas con texto esperado actualizado (solo el texto): `pantalla_aportar_test`
+  («Aportar Bs 4,44», «Tu aporte quedó registrado»), `pantalla_mi_puntaje_test`
+  («a partir de tu historial»), `pantalla_pedir_cupo_test` («aparece en tu lista recién
+  cuando te acepte»), `pantallas_enlace_del_grupo_test` («Listo, tu pedido está en la lista
+  del organizador»).
+
+## No cubierto
+
+- «Grupo creado» y el éxito de «Pedir unirme» no están en el harness de capturas: se
+  verificaron con sus pruebas de widget, sin captura mirada.
+- `enlace-de-grupo` en el harness abre con sesión anónima y muestra el ingreso.
+- Los clientes Dart generados se copiaron del checkout principal (no versionados); no se
+  regeneraron con `./gradlew generateOpenApiClients`.
