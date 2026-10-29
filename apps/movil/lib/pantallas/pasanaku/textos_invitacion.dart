@@ -16,7 +16,7 @@ class TextosInvitacion {
   static const telefonoInvitado = 'Celular de la persona';
   static const nombreSugerido = 'Cómo la conocés (opcional)';
   static const canalInvitacion = 'Por dónde se la vas a mandar';
-  static const enviarInvitacion = 'Invitar';
+  static const enviarInvitacion = 'Crear la invitación';
   static const invitacionCreadaTitulo = 'Invitación creada';
   // AportaYa no manda SMS ni WhatsApp por su cuenta: el enlace sale del teléfono de
   // quien invita (2026-10-18). Decir «le va a llegar» prometía un envío que no existe.
@@ -51,8 +51,6 @@ class TextosInvitacion {
   static const verMisGrupos = 'Ver mis grupos';
   static const reintentar = 'Reintentar';
   static const enviandoInvitacion = 'Enviando la invitación…';
-  static const invitacionEnviada =
-      'Listo. Le avisamos, con quién y a qué grupo.';
 
   // Escanear una invitación
   static const tituloEscanear = 'Escanear invitación';

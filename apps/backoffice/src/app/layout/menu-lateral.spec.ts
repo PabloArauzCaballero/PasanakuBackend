@@ -93,6 +93,16 @@ describe('MenuLateral', () => {
     expect(textos(el, 'a[aria-current="page"]')).toEqual(['Roles internos'])
   })
 
+  it('límite (2026-10-29): un rótulo largo que se corta con «…» conserva el texto completo en title y su nombre accesible', async () => {
+    const { el } = await montar(['ver:operacion', 'ver:postulaciones', 'ver:admisiones'], '/postulaciones-organizador')
+    const largo = Array.from(el.querySelectorAll('a')).find((a) => a.textContent?.trim() === 'Postulaciones a organizador')!
+    expect(largo.getAttribute('title')).toBe('Postulaciones a organizador')
+    expect(largo.getAttribute('aria-label')).toBeNull()
+    expect(largo.getAttribute('aria-current')).toBe('page')
+    expect(el.querySelector('.subgrupo')?.getAttribute('title')).toBe('Grupos y admisiones')
+    for (const a of Array.from(el.querySelectorAll('a'))) expect(a.getAttribute('title')).toBe(a.textContent?.trim())
+  })
+
   it('accesibilidad: sin violaciones serias con el menú completo de sistemas', async () => {
     const { el } = await montar(['ver:sistemas', 'ver:configuracion', 'AUDITORIA_LEER', 'TABLERO_SISTEMAS_VER'], '/sistemas/servicios', 'PLATAFORMA')
     expect(await axe(el)).toHaveNoViolations()

@@ -11,6 +11,7 @@ import 'tarjeta_de_aporte.dart';
 import 'dominio/estado_de_mora.dart';
 import 'textos.dart';
 import 'package:aportaya_diseno/moviles/anclas_de_tutorial.dart';
+import 'package:aportaya_diseno/organismos/pantalla_con_cabecera.dart';
 
 /// Estado del aporte y restricción vigente, **solo con hechos guardados**. Ni
 /// `EstadoDelParticipante` ni `RestriccionVigente` traen días de mora ni fecha
@@ -44,56 +45,58 @@ class PantallaMiEstado extends ConsumerWidget {
     final restriccion = ref.watch(restriccionVigenteProvider(usuarioId));
     final nombre = nombreDelGrupo;
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          nombre == null || nombre.isEmpty ? TextosPasanaku.tituloMora : nombre,
-        ),
-      ),
-      body: SafeArea(
-        // Deslizar hacia abajo vuelve a pedir el estado del aporte y la restricción.
-        child: RefreshIndicator(
-          onRefresh: () async {
-            ref.invalidate(estadoDelParticipanteProvider(participanteId));
-            ref.invalidate(restriccionVigenteProvider(usuarioId));
-            await ref
-                .read(estadoDelParticipanteProvider(participanteId).future)
-                .then((_) {}, onError: (Object _) {});
-          },
-          child: SingleChildScrollView(
-            physics: const AlwaysScrollableScrollPhysics(),
-            padding: const EdgeInsets.all(Espacio.s4),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                MarcaDeTutorial(
-                  id: 'pasanaku.mi-estado',
-                  hijo: EstadoDePantalla<EstadoDelParticipante>(
-                    valor: estado,
-                    etiquetaDeCarga: TextosPasanaku.cargando,
-                    mensajeVacio: TextosPasanaku.alDia,
-                    reintentar: () => ref.invalidate(
-                      estadoDelParticipanteProvider(participanteId),
+      // Cabecera grande que se compacta al desplazar (ADR-053, H4.S2.M6).
+      body: PantallaConCabecera(
+        titulo: nombre == null || nombre.isEmpty
+            ? TextosPasanaku.tituloMora
+            : nombre,
+        cuerpo: SafeArea(
+          top: false,
+          // Deslizar hacia abajo vuelve a pedir el estado del aporte y la restricción.
+          child: RefreshIndicator(
+            onRefresh: () async {
+              ref.invalidate(estadoDelParticipanteProvider(participanteId));
+              ref.invalidate(restriccionVigenteProvider(usuarioId));
+              await ref
+                  .read(estadoDelParticipanteProvider(participanteId).future)
+                  .then((_) {}, onError: (Object _) {});
+            },
+            child: SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: const EdgeInsets.all(Espacio.s4),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  MarcaDeTutorial(
+                    id: 'pasanaku.mi-estado',
+                    hijo: EstadoDePantalla<EstadoDelParticipante>(
+                      valor: estado,
+                      etiquetaDeCarga: TextosPasanaku.cargando,
+                      mensajeVacio: TextosPasanaku.alDia,
+                      reintentar: () => ref.invalidate(
+                        estadoDelParticipanteProvider(participanteId),
+                      ),
+                      exito: (e) => TarjetaDeAporte(e: e),
                     ),
-                    exito: (e) => TarjetaDeAporte(e: e),
                   ),
-                ),
-                const SizedBox(height: Espacio.s5),
-                EstadoDePantalla(
-                  valor: restriccion,
-                  etiquetaDeCarga: TextosPasanaku.cargando,
-                  mensajeVacio: TextosPasanaku.sinRestriccion,
-                  reintentar: () =>
-                      ref.invalidate(restriccionVigenteProvider(usuarioId)),
-                  exito: (r) => AvisoDeRestriccion(
-                    vigente: r.vigente,
-                    // La restricción no trae moneda y la app opera solo en bolivianos
-                    // (`Dinero`: BOB).
-                    montoQueLaLevanta: _importe(r.montoQueLaLevanta, 'BOB'),
+                  const SizedBox(height: Espacio.s5),
+                  EstadoDePantalla(
+                    valor: restriccion,
+                    etiquetaDeCarga: TextosPasanaku.cargando,
+                    mensajeVacio: TextosPasanaku.sinRestriccion,
+                    reintentar: () =>
+                        ref.invalidate(restriccionVigenteProvider(usuarioId)),
+                    exito: (r) => AvisoDeRestriccion(
+                      vigente: r.vigente,
+                      // La restricción no trae moneda y la app opera solo en bolivianos
+                      // (`Dinero`: BOB).
+                      montoQueLaLevanta: _importe(r.montoQueLaLevanta, 'BOB'),
+                    ),
                   ),
-                ),
-                const SizedBox(height: Espacio.s5),
-                AccionesDeGrupo(grupoId: grupoId),
-              ],
+                  const SizedBox(height: Espacio.s5),
+                  AccionesDeGrupo(grupoId: grupoId),
+                ],
+              ),
             ),
           ),
         ),

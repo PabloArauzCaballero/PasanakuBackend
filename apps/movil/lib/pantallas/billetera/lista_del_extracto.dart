@@ -1,4 +1,6 @@
 import 'package:aportaya_cliente_nucleofinanciero/aportaya_cliente_nucleofinanciero.dart';
+import 'package:aportaya_diseno/atomos/boton.dart';
+import 'package:aportaya_diseno/atomos/boton_variante.dart';
 import 'package:aportaya_diseno/atomos/fecha.dart';
 import 'package:aportaya_diseno/atomos/iconos_de_marca.dart';
 import 'package:aportaya_diseno/atomos/selector_segmentado.dart';
@@ -60,12 +62,18 @@ class _ListaDelExtractoState extends ConsumerState<ListaDelExtracto> {
           ),
           error: (_, _) => Row(
             children: [
-              const Expanded(child: Text(TextosBilletera.errorMovimientos)),
-              TextButton(
+              Expanded(
+                child: Text(
+                  TextosBilletera.errorMovimientos,
+                  style: Tipo.cuerpoChico.copyWith(color: t.text2),
+                ),
+              ),
+              Boton(
+                texto: TextosBilletera.reintentar,
+                variante: BotonVariante.enlace,
                 onPressed: () => ref.invalidate(
                   movimientosBilleteraProvider(widget.cuentaId),
                 ),
-                child: const Text(TextosBilletera.reintentar),
               ),
             ],
           ),

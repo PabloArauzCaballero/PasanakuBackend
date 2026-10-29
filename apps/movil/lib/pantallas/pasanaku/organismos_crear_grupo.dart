@@ -3,11 +3,10 @@ import 'package:aportaya_diseno/atomos/boton_variante.dart';
 import 'package:aportaya_diseno/atomos/campo.dart';
 import 'package:aportaya_diseno/atomos/campo_monto.dart';
 import 'package:aportaya_diseno/atomos/casilla.dart';
-import 'package:aportaya_diseno/atomos/tono.dart';
 import 'package:aportaya_diseno/dinero/formatear.dart';
-import 'package:aportaya_diseno/errores.dart';
-import 'package:aportaya_diseno/moleculas/alerta.dart';
+import 'package:aportaya_diseno/atomos/iconos_de_marca.dart';
 import 'package:aportaya_diseno/moleculas/barra_de_accion.dart';
+import 'package:aportaya_diseno/moleculas/intro_de_pantalla.dart';
 import 'package:aportaya_diseno/moleculas/pregunta.dart';
 import 'package:aportaya_diseno/tokens/tokens.dart';
 import 'package:flutter/material.dart';
@@ -17,6 +16,8 @@ import 'grilla_de_opciones.dart';
 import 'grupo_creado.dart';
 import 'opciones_de_grupo.dart';
 import 'pantalla_crear_grupo.dart';
+import 'rechazo_al_crear.dart';
+import 'textos_de_conversion.dart';
 import 'textos.dart';
 
 /// El formulario, como conversación: una pregunta por bloque, las opciones
@@ -56,6 +57,12 @@ class FormularioCrearGrupo extends StatelessWidget {
                   Espacio.s5,
                 ),
                 children: [
+                  // Qué se arma acá y qué pasa después, antes de la primera pregunta.
+                  const IntroDePantalla(
+                    icono: IconosDeMarca.grupos,
+                    titulo: TextosDeConversion.crearTitulo,
+                    explicacion: TextosDeConversion.crearExplicacion,
+                  ),
                   Pregunta(
                     etiqueta: TextosPasanaku.nombreDelGrupo,
                     control: Campo(
@@ -127,7 +134,7 @@ class FormularioCrearGrupo extends StatelessWidget {
                   Espacio.s4,
                   0,
                 ),
-                child: _RechazoAlCrear(error: estado.error!),
+                child: RechazoAlCrear(error: estado.error!),
               ),
             BarraDeAccion(
               hijo: Boton(
@@ -135,6 +142,10 @@ class FormularioCrearGrupo extends StatelessWidget {
                 variante: BotonVariante.primario,
                 expandido: true,
                 cargando: estado.isLoading,
+                // Un botón apagado dice por qué (pasanaku-diseno §4).
+                motivoDeBloqueo: controles.completo
+                    ? null
+                    : TextosDeConversion.crearBloqueado,
                 onPressed: controles.completo
                     ? () {
                         controles.fechaDeInicio ??= DateTime.now().add(
@@ -165,26 +176,5 @@ class FormularioCrearGrupo extends StatelessWidget {
       // Todavía está escribiendo: no hay consecuencia que adelantar.
       return null;
     }
-  }
-}
-
-/// El rechazo de crear grupo, en lenguaje humano y con la traza para soporte.
-class _RechazoAlCrear extends StatelessWidget {
-  const _RechazoAlCrear({required this.error});
-  final Object error;
-
-  @override
-  Widget build(BuildContext context) {
-    final presentable = error is ErrorPresentable
-        ? error as ErrorPresentable
-        : null;
-    final traza = presentable?.trazaId;
-    return Alerta(
-      titulo:
-          presentable?.mensaje ??
-          'No pudimos crear el grupo. Probá de nuevo en un momento.',
-      detalle: traza == null ? null : 'Código de seguimiento: $traza',
-      tono: Tono.error,
-    );
   }
 }

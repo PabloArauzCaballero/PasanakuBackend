@@ -3,6 +3,7 @@ import 'package:aportaya_diseno/atomos/iconos_de_marca.dart';
 import 'package:aportaya_diseno/moleculas/intro_de_pantalla.dart';
 import 'package:aportaya_diseno/moleculas/tarjeta.dart';
 import 'package:flutter/material.dart';
+import 'package:aportaya_diseno/organismos/pantalla_con_cabecera.dart';
 
 import 'textos.dart';
 import 'textos_de_verificacion_del_grupo.dart';
@@ -22,35 +23,38 @@ class PantallaReclamoPendiente extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = Tokens.of(context);
     return Scaffold(
-      appBar: AppBar(title: const Text(TextosPasanaku.tituloReclamo)),
-      body: Padding(
-        padding: const EdgeInsets.all(Espacio.s4),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const IntroDePantalla(
-              icono: IconosDeMarca.ayuda,
-              titulo: TextosDeVerificacionDelGrupo.reclamoTitulo,
-              explicacion: TextosPasanaku.contratoPendienteHueco,
-            ),
-            Tarjeta(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    TextosDeVerificacionDelGrupo.reclamoInstancias,
-                    style: Tipo.cuerpoFuerte.copyWith(color: t.text),
-                  ),
-                  const SizedBox(height: Espacio.s1),
-                  Text(
-                    TextosPasanaku.segundaInstanciaDisponible,
-                    style: Tipo.cuerpoChico.copyWith(color: t.text2),
-                  ),
-                ],
+      // Cabecera grande que se compacta al desplazar (ADR-053, H4.S2.M6).
+      body: PantallaConCabecera(
+        titulo: TextosPasanaku.tituloReclamo,
+        cuerpo: Padding(
+          padding: const EdgeInsets.all(Espacio.s4),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const IntroDePantalla(
+                icono: IconosDeMarca.ayuda,
+                titulo: TextosDeVerificacionDelGrupo.reclamoTitulo,
+                explicacion: TextosPasanaku.contratoPendienteHueco,
               ),
-            ),
-          ],
+              Tarjeta(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      TextosDeVerificacionDelGrupo.reclamoInstancias,
+                      style: Tipo.cuerpoFuerte.copyWith(color: t.text),
+                    ),
+                    const SizedBox(height: Espacio.s1),
+                    Text(
+                      TextosPasanaku.segundaInstanciaDisponible,
+                      style: Tipo.cuerpoChico.copyWith(color: t.text2),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
