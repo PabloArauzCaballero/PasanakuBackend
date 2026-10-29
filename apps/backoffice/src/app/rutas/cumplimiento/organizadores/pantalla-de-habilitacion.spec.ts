@@ -47,14 +47,52 @@ describe('PantallaDeHabilitacionOrganizador · CU-90 sobre el contrato real de o
     const peticion = http.expectOne(URL)
     expect(peticion.request.method).toBe('POST')
     expect(peticion.request.headers.get('Idempotency-Key')).toBeTruthy()
-    peticion.flush({ habilitado: true, nivel: 'BASICO', limiteDeGrupos: 3, limiteDeMonto: '5000.00', gruposActivos: 0 })
+    // `habilitarOrganizador` responde `SalidaHabilitacion` (organizador.yaml), no `Habilitacion`.
+    peticion.flush({ organizadorId: ORGANIZADOR, estado: 'HABILITADO', faltantes: [] })
     fixture.detectChanges()
     await Promise.resolve()
 
     // Tras habilitar, la pantalla vuelve a pedir el estado al servidor: nunca lo ajusta en memoria.
     http.expectOne(URL).flush({ habilitado: true, nivel: 'BASICO', limiteDeGrupos: 3, limiteDeMonto: '5000.00', gruposActivos: 0 })
     await fixture.whenStable()
+    fixture.detectChanges()
     expect(fixture.nativeElement.textContent).toContain('Habilitado')
+    expect(fixture.nativeElement.textContent).toContain('quedó habilitado')
+  }, 10000)
+
+  it('límite: si no se habilitó, dice en qué estado quedó y qué le falta, en las palabras del servidor', async () => {
+    const fixture = await montar()
+    http.expectOne(URL).flush({ habilitado: false, nivel: 'BASICO', limiteDeGrupos: 3, limiteDeMonto: '5000.00', gruposActivos: 0 })
+    await fixture.whenStable()
+    ;(fixture.nativeElement.querySelector('ap-boton button') as HTMLButtonElement).click()
+    fixture.detectChanges()
+    await Promise.resolve()
+    http.expectOne(URL).flush({
+      organizadorId: ORGANIZADOR,
+      estado: 'CAPACITACION_PENDIENTE',
+      faltantes: [{ codigo: 'CAPACITACION', motivo: 'Falta aprobar la capacitación vigente.' }],
+    })
+    fixture.detectChanges()
+    await Promise.resolve()
+    http.expectOne(URL).flush({ habilitado: false, nivel: 'BASICO', limiteDeGrupos: 3, limiteDeMonto: '5000.00', gruposActivos: 0 })
+    await fixture.whenStable()
+    fixture.detectChanges()
+    expect(fixture.nativeElement.textContent).toContain('CAPACITACION_PENDIENTE')
+    expect(fixture.nativeElement.textContent).toContain('Falta aprobar la capacitación vigente.')
+  }, 10000)
+
+  it('inválido: un rechazo del servidor se muestra traducido, sin el texto crudo', async () => {
+    const fixture = await montar()
+    http.expectOne(URL).flush({ habilitado: false, nivel: 'BASICO', limiteDeGrupos: 3, limiteDeMonto: '5000.00', gruposActivos: 0 })
+    await fixture.whenStable()
+    ;(fixture.nativeElement.querySelector('ap-boton button') as HTMLButtonElement).click()
+    fixture.detectChanges()
+    await Promise.resolve()
+    http.expectOne(URL).flush({ codigo: 'AP-CU90-05', mensaje: 'crudo del backend', trazaId: 't' }, { status: 422, statusText: 'x' })
+    await fixture.whenStable()
+    fixture.detectChanges()
+    expect(fixture.nativeElement.textContent).not.toContain('crudo del backend')
+    expect(fixture.nativeElement.textContent).toContain('requisitos obligatorios')
   }, 10000)
 
   it('un organizador ya habilitado no muestra el botón de habilitar', async () => {
