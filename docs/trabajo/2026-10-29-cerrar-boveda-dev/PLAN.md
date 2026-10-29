@@ -25,6 +25,7 @@
 | H1.S1.M4 | «50 ADR» → «51 ADR» en el Plan maestro | cifra = vigente | «ninguna cifra desfasada» OK | HECHO |
 | H1.S1.M5 | *(agregada)* Asignar a `F1-M` las 13 skills huérfanas en `planes/19` (aparecieron al correr `verificar_carriles.py`, antes oculto tras el fallo de la bóveda) | «289/291 asignadas» → todas | `verificar_carriles.py` sin FALLA | HECHO |
 | H1.S1.M6 | *(agregada)* `verificar_carriles.py`: nombre de skill de 3+ letras (`aso`, `cro`) | script reconoce skills de 3 letras sin falso positivo en «skill nombrada que no exista» | `verificar_carriles.py` → TODO OK | HECHO |
+| H1.S1.M7 | *(agregada)* CU-68: dos criterios de backoffice en la bóveda y 2.ª prueba con nombre de criterio (`verificar_criterios.py` fallaba en CI de la PR) | bóveda y pruebas coinciden | `verificar_criterios.py` → «Sin divergencias» | HECHO |
 
 ### H1.S2 — Verificar y entregar
 | ID | Microtarea | CA (binario) | DoD | Estado |
@@ -40,4 +41,5 @@
 | Concurrencia con otra sesión que escribe en `dev` | conflicto | volver a consultar el estado antes de abrir/mergear |
 
 ## Desvíos del plan
+- Se agregó H1.S1.M7: la CI de la PR #262 mostró que `verificar_criterios.py` fallaba en CU-68 (pruebas de #235 sin criterio en la bóveda); estaba latente porque ese job solo corre si el cambio lo activa. Cambio de código: solo el `@DisplayName` de una prueba (`CU68AceptarIngresoTest`), sin tocar aserciones.
 - Se agregaron H1.S1.M5 y H1.S1.M6: el paso «Verificar los carriles» no corría mientras fallaba la bóveda y tenía su propia falla (13 skills sin carril; el script no veía nombres de 3 letras).

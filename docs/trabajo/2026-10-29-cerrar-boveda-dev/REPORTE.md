@@ -1,4 +1,4 @@
-> **AVANCE: 7 / 9 — 77,8 %.** Los 6 cambios documentales y la verificación local están hechos; falta la CI de la PR, el merge a `dev` y el mismo cambio en `test` (H1.S2.M2, H1.S2.M3).
+> **AVANCE: 8 / 10 — 80,0 %.** Los 7 cambios y la verificación local están hechos; falta que la CI de las PR quede verde, el merge a `dev` y el mismo cambio en `test` (H1.S2.M2, H1.S2.M3).
 
 # Reporte — Poner en verde la verificación de la bóveda en `dev`/`test`
 
@@ -14,6 +14,7 @@
 | H1.S1.M4 | «51 ADR» en el Plan maestro | ídem | PASS |
 | H1.S1.M5 | 13 skills asignadas a `F1-M` en `planes/19` | `python3 scripts/verificar_carriles.py` | PASS (TODO OK con avisos) · `evidencia/verificar_carriles-despues.txt` |
 | H1.S1.M6 | `verificar_carriles.py` reconoce skills de 3 letras | ídem | PASS |
+| H1.S1.M7 | CU-68: criterios de backoffice en la bóveda + `@DisplayName` de la 2.ª prueba alineado | `python3 scripts/verificar_criterios.py` | PASS «Sin divergencias entre la boveda y el codigo» · `evidencia/verificar_criterios-despues.txt` |
 | H1.S2.M1 | Pasos del job «Bóveda…» corridos en local | `verificar_seguridad.py`, `verificar_boveda.py`, `verificar_carriles.py`, `generar_k8s.py`, `generar_ddl.py`, `generar_semillas.py`, `git diff --quiet -- sql/` | todos exit 0 · `evidencia/` |
 
 ## A medias
@@ -38,6 +39,7 @@ FALLA · 278/291 skills asignadas — huérfanas: aso, copy-editing, copywriting
 Después: `evidencia/*-despues.txt`.
 
 ## No cubierto
+- `./gradlew test` de `servicios/grupos`: el cambio de código es solo un `@DisplayName`; no se ejecutó la prueba Java en local.
 - La CI de GitHub (todavía no corrió sobre este cambio).
 - El job de PostgreSQL real no se re-ejecutó en local; ya pasaba en `dev` (run 40875015485) y este cambio no toca SQL.
 - `Motivo` y `Cómo se verifica` de ADR-053 citan los reportes del rediseño; no se volvió a ejecutar `flutter test` ni `dart analyze`.
