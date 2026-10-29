@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS auditoria.disponibilidad_servicio_dia (
   CONSTRAINT pk_disponibilidad_servicio_dia PRIMARY KEY (id)
 );
 
-COMMENT ON TABLE auditoria.disponibilidad_servicio_dia IS 'Módulo 09 — Auditoría, Reportes y Cumplimiento. Poder demostrar todo lo anterior ante un reclamo o un regulador';
+COMMENT ON TABLE auditoria.disponibilidad_servicio_dia IS 'Módulo 09 — Auditoría, Reportes y Cumplimiento. El resumen de un día UTC de un servicio: cuántos minutos se le preguntó si estaba listo (minutosMedidos), en cuántos contestó que sí (minutosArriba) y la última vez que no (ultimaInterrupcionEn). auditoria lo suma una vez por minuto.';
 COMMENT ON COLUMN auditoria.disponibilidad_servicio_dia.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN auditoria.disponibilidad_servicio_dia.servicio IS 'UQ+dia';
 COMMENT ON COLUMN auditoria.disponibilidad_servicio_dia.ultima_interrupcion_en IS 'NULL';
