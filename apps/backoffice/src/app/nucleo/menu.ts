@@ -77,7 +77,7 @@ export const MENU: readonly Grupo[] = [
     titulo: null,
     icono: 'tablero',
     entradas: [
-      { ruta: 'tablero', texto: 'Inicio', prefijos: ['/tablero'], destino: '/tablero' },
+      // Sin entrada «Inicio» (2026-10-28, pedido de Pablo): al inicio se vuelve con el logo AportaYa, y el menú arranca en Operación.
       {
         ruta: 'operacion',
         texto: 'Operación',
@@ -173,6 +173,14 @@ export const MENU: readonly Grupo[] = [
               sis('permisos-internos', 'Permisos internos', 'llave'),
               sis('accesos', 'Revisión de accesos', 'candado'),
             ],
+          },
+          // La metadata real de cada endpoint (catalogo-operaciones.json de auditoria) y los flujos entre servicios: habían
+          // salido del menú en A1 y solo se llegaba por URL. En grupo para no pasar de ocho pestañas por sección.
+          {
+            ruta: '/sistemas/operaciones',
+            texto: 'Endpoints y flujos',
+            icono: 'libro',
+            grupo: [sis('operaciones', 'Operaciones del sistema', 'lista'), sis('flujos', 'Mapa de flujos', 'relacion')],
           },
           sis('bitacora', 'Registro del sistema', 'historial'),
         ],

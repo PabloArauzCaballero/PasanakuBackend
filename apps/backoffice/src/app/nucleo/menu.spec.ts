@@ -10,9 +10,9 @@ const textos = (c: Credenciales) => entradasVisibles(c).flatMap((g) => g.entrada
 
 /** El árbol del menú (A1), sus requisitos (F1) y las migas que salen de la URL. */
 describe('menú del backoffice', () => {
-  it('correcto: siete entradas de primer nivel, ninguna sección con más de ocho pestañas, todas con ícono y ruta absoluta', () => {
+  it('correcto: seis entradas de primer nivel (sin «Inicio»: se vuelve con el logo, 2026-10-28), ninguna sección con más de ocho pestañas, todas con ícono y ruta absoluta', () => {
     const entradas = MENU.flatMap((g) => g.entradas)
-    expect(entradas.map((e) => e.texto)).toEqual(['Inicio', 'Operación', 'Cumplimiento', 'Contabilidad', 'Publicidad', 'Sistemas', 'Configuración'])
+    expect(entradas.map((e) => e.texto)).toEqual(['Operación', 'Cumplimiento', 'Contabilidad', 'Publicidad', 'Sistemas', 'Configuración'])
     for (const e of entradas) {
       expect(e.pantallas?.length ?? 0, e.texto).toBeLessThanOrEqual(8)
       for (const h of (e.pantallas ?? []).flatMap(hojas)) {
@@ -54,16 +54,17 @@ describe('menú del backoffice', () => {
 
   it('inválido: una sección cuyas pestañas no puede abrir ninguna no se dibuja, aunque tenga el permiso de sección', () => {
     // `ver:operacion` por TESORERIA, sin AUDITORIA_LEER ni los permisos finos: ninguna pestaña de Operación abre.
-    expect(textos(sesion(['TESORERIA']))).toEqual(['Inicio'])
+    expect(textos(sesion(['TESORERIA']))).toEqual([])
     // Con AUDITORIA_LEER abre custodia y cierres, que son de Operación: no aparece una «Contabilidad» que no tiene.
-    expect(textos(sesion(['TESORERIA', 'AUDITORIA_LEER']))).toEqual(['Inicio', 'Operación'])
+    expect(textos(sesion(['TESORERIA', 'AUDITORIA_LEER']))).toEqual(['Operación'])
     expect(cumple([{ permisos: [], roles: [] }], sesion(['TESORERIA']))).toBe(false)
     expect(cumple([{ roles: ['PLATAFORMA'] }], sesion([], ''))).toBe(false)
   })
 
   it('correcto: la entrada de una URL es la de prefijo o pestaña más larga que la contiene', () => {
     expect(entradaDe('/tablero/catalogo-de-datos/comun/pago')?.ruta).toBe('configuracion')
-    expect(entradaDe('/tablero/financiero')?.ruta).toBe('tablero')
+    // Sin entrada «Inicio» (2026-10-28) el tablero no es de ninguna sección: igual que antes, sin migas ni pestañas.
+    expect(entradaDe('/tablero/financiero')).toBeUndefined()
     expect(entradaDe('/sistemas/outbox?pagina=2')?.ruta).toBe('sistemas')
     expect(entradaDe('/operacion/custodia')?.ruta).toBe('operacion')
     expect(entradaDe('/operacion/estado')?.ruta).toBe('operacion')

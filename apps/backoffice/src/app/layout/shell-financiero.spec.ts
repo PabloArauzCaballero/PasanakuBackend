@@ -80,8 +80,10 @@ describe('ShellFinanciero · salir y rol legible', () => {
     const fixture = TestBed.createComponent(ShellFinanciero)
     fixture.detectChanges()
     const el = fixture.nativeElement as HTMLElement
-    const enlaces = Array.from(el.querySelectorAll('ap-menu-lateral a')).map((a) => a.textContent?.trim())
-    expect(enlaces).toEqual(['Inicio', 'Operación'])
+    const secciones = Array.from(el.querySelectorAll('ap-menu-lateral a.seccion')).map((a) => a.textContent?.trim())
+    expect(secciones).toEqual(['Operación'])
+    // Al inicio se vuelve con el logo, no con una entrada «Inicio».
+    expect(el.querySelector('a.marca')?.getAttribute('href')).toBe('/tablero')
     expect(el.querySelector('[data-tutorial-id="cabecera-rol"]')?.textContent?.trim()).toBe('Administración de plataforma')
     ;(el.querySelector('ap-menu-de-usuario .disparador') as HTMLButtonElement).click()
     fixture.detectChanges()

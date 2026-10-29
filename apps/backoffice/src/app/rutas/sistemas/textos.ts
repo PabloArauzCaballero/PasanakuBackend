@@ -4,7 +4,7 @@ export const textosSistemas = {
     titulo: 'Sistemas',
     servicios: 'Servicios y SLO',
     despliegues: 'Despliegues e interruptores',
-    baseDeDatos: 'Base y migraciones',
+    baseDeDatos: 'Base de datos',
     respaldos: 'Respaldos',
     proveedores: 'Proveedores',
     outbox: 'Outbox y descartados',
@@ -56,7 +56,7 @@ export const textosSistemas = {
     cargando: 'Cargando perfil',
   },
   servicios: {
-    proposito: 'Ver el estado de cada servicio y su presupuesto de error del SLO, para decidir si hay que actuar.',
+    proposito: 'Ver si cada servicio está arriba ahora, cuánto tardó en contestar y su nivel de criticidad, para decidir si hay que actuar.',
     titulo: 'Estado de servicios',
     cargando: 'Cargando el estado de los servicios',
     vacio: 'Todavía no hay servicios reportando estado.',
@@ -72,10 +72,11 @@ export const textosSistemas = {
     dobleConfirmacionCuerpo: 'Requiere que dos personas distintas lo confirmen. Ya lo pediste vos; hace falta otra sesión para cerrarlo.',
   },
   baseDeDatos: {
-    proposito: 'Ver el estado de la base y qué migraciones están aplicadas o pendientes.',
-    titulo: 'Base y migraciones',
+    proposito: 'Ver cada esquema de la base con su servicio dueño, sus cifras y si ese servicio alcanza la base ahora.',
+    titulo: 'Base de datos',
     cargando: 'Cargando el estado de la base',
-    vacio: 'No hay migraciones registradas.',
+    vacio: 'La base no informó ningún esquema.',
+    nota: 'El esquema se genera desde el modelo y se aplica en cada despliegue: no hay migraciones sueltas que listar.',
   },
   respaldos: {
     proposito: 'Ver los respaldos y cuándo se probó por última vez la restauración de cada uno.',
