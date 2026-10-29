@@ -1,7 +1,9 @@
+import 'package:aportaya_diseno/atomos/selector_segmentado.dart';
 import 'package:aportaya_diseno/moleculas/tarjeta.dart';
 import 'package:aportaya_diseno/tokens/tokens.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:aportaya_diseno/organismos/pantalla_con_cabecera.dart';
 
 import 'dominio/pautas_de_fotos.dart';
 import 'ilustraciones/ilustracion_de_pauta.dart';
@@ -22,55 +24,50 @@ class _PantallaDePautasDeFotosState extends State<PantallaDePautasDeFotos> {
     final t = Tokens.of(context);
     final consejos = _selfie ? pautasDeSelfie : pautasDeDocumento;
     return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          tooltip: 'Volver',
-          onPressed: () {
-            if (context.canPop()) {
-              context.pop();
-            } else {
-              context.go('/registro');
-            }
-          },
-          icon: const Icon(Icons.arrow_back),
-        ),
-        title: const Text('Pautas para tus fotos'),
-      ),
-      body: SafeArea(
-        top: false,
-        child: ListView(
-          padding: const EdgeInsets.fromLTRB(
-            Espacio.s4,
-            Espacio.s2,
-            Espacio.s4,
-            Espacio.s7,
+      // Cabecera grande que se compacta al desplazar (ADR-053, H4.S2.M6).
+      body: PantallaConCabecera(
+        titulo: 'Pautas para tus fotos',
+        // Llegando por enlace directo no hay a dónde volver: se vuelve al registro.
+        alVolver: () {
+          if (context.canPop()) {
+            context.pop();
+          } else {
+            context.go('/registro');
+          }
+        },
+        cuerpo: SafeArea(
+          top: false,
+          child: ListView(
+            padding: const EdgeInsets.fromLTRB(
+              Espacio.s4,
+              Espacio.s2,
+              Espacio.s4,
+              Espacio.s7,
+            ),
+            children: [
+              Text(
+                'Así se ve una foto que se valida a la primera, y así una que no.',
+                style: Tipo.cuerpo.copyWith(color: t.text),
+              ),
+              const SizedBox(height: Espacio.s5),
+              // El selector del sistema: verde de marca, no el naranja de Material
+              // (el naranja se reserva para la urgencia de pagar).
+              SelectorSegmentado<bool>(
+                opciones: const {false: 'Documento', true: 'Foto de frente'},
+                valor: _selfie,
+                onChanged: (selfie) => setState(() => _selfie = selfie),
+              ),
+              const SizedBox(height: Espacio.s5),
+              Text(
+                _selfie
+                    ? 'Pautas para las fotos de rostro'
+                    : 'Pautas para el documento de identidad',
+                style: Tipo.titulo2.copyWith(color: t.text),
+              ),
+              const SizedBox(height: Espacio.s3),
+              for (final consejo in consejos) _TarjetaDePauta(consejo: consejo),
+            ],
           ),
-          children: [
-            Text(
-              'Así se ve una foto que se valida a la primera, y así una que no.',
-              style: Tipo.cuerpo.copyWith(color: t.text),
-            ),
-            const SizedBox(height: Espacio.s5),
-            SegmentedButton<bool>(
-              showSelectedIcon: false,
-              segments: const [
-                ButtonSegment(value: false, label: Text('Documento')),
-                ButtonSegment(value: true, label: Text('Foto de frente')),
-              ],
-              selected: {_selfie},
-              onSelectionChanged: (seleccion) =>
-                  setState(() => _selfie = seleccion.single),
-            ),
-            const SizedBox(height: Espacio.s5),
-            Text(
-              _selfie
-                  ? 'Pautas para las fotos de rostro'
-                  : 'Pautas para el documento de identidad',
-              style: Tipo.titulo2.copyWith(color: t.text),
-            ),
-            const SizedBox(height: Espacio.s3),
-            for (final consejo in consejos) _TarjetaDePauta(consejo: consejo),
-          ],
         ),
       ),
     );

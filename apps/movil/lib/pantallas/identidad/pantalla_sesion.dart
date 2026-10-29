@@ -164,6 +164,18 @@ class _PantallaDeSesionState extends ConsumerState<PantallaDeSesion>
                   cargando: estado.enviando,
                   onPressed: _valido ? _ingresar : null,
                 ),
+                // Un botón apagado dice por qué (`pasanaku-diseno` §4).
+                if (!_valido)
+                  Padding(
+                    padding: const EdgeInsets.only(top: Espacio.s2),
+                    child: Text(
+                      TextosIdentidad.ingresarFaltaDato,
+                      textAlign: TextAlign.center,
+                      style: Tipo.ayuda.copyWith(
+                        color: Tokens.of(context).text2,
+                      ),
+                    ),
+                  ),
                 const SesionSinCuenta(),
               ],
             ),

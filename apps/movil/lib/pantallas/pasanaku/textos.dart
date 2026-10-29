@@ -17,10 +17,8 @@ class TextosPasanaku {
   static const crearGrupoBoton = 'Crear grupo';
   static const creandoGrupo = 'Creando el grupo…';
   static const grupoCreadoTitulo = 'Grupo creado';
-  static String fondoPorPeriodo(String importe) =>
-      'Fondo por período: $importe';
   static const grupoCreado =
-      'Grupo creado. Está congelando el precio; en un momento se abre para inscripciones.';
+      'Estamos dejando fija la tarifa del grupo. En un momento queda abierto para que se sume tu gente.';
   static const requisitosTitulo = 'Requisitos para organizar';
   static const requisitosAyuda =
       'Los umbrales los fija el contrato de habilitación de organizadores, no esta app.';
@@ -31,25 +29,25 @@ class TextosPasanaku {
   static const tituloPedirCupo = 'Pedir mi cupo';
   static const pedirCupoBoton = 'Pedir mi cupo';
   static const cuposSolicitados = 'Cuántos cupos pedís';
-  static const mensajeOpcional = 'Un mensaje para quien decide (opcional)';
+  static const mensajeOpcional = 'Un mensaje para el organizador (opcional)';
   static const enviandoPedido = 'Enviando tu pedido…';
   static const pedidoEnviadoTitulo = 'Tu pedido de cupo';
   static const pasosDelPedido = [
     'Pedido enviado',
     'Decide el organizador',
-    'Te avisamos',
+    'Lo ves en tus grupos',
   ];
-  static const cupoEnEspera = 'Tu cupo queda en espera';
+  static const cupoEnEspera = 'Pedí tu lugar en el grupo';
   static const quienDecide =
       'Quién decide: el organizador del grupo, con el puntaje de emparejamiento como guía.';
   static const enCuanto =
-      'En cuánto: no hay plazo fijo; te avisamos apenas responda.';
+      'En cuánto: no hay plazo fijo. Si te acepta, el grupo aparece en tu lista de «Grupos».';
   static const queVeDeVos =
       'Qué ve de vos: tu puntaje y los motivos generales, nunca tus datos personales ni los de otros postulantes.';
   static const tresSalidas =
       'Tres salidas posibles: te acepta con el cupo, te rechaza con un motivo, o el grupo se cierra sin que responda.';
   static const cupoNoOcupadoAviso =
-      'Pedir el cupo no lo ocupa todavía: tu lista de grupos no lo va a mostrar hasta que te acepten.';
+      'El organizador ve tu pedido y decide. Pedir no ocupa el cupo: el grupo aparece en tu lista recién cuando te acepte.';
   static const puntajeTitulo = 'Por qué te propusimos este puntaje';
 
   // Permuta de turnos (CU-62)
@@ -103,7 +101,7 @@ class TextosPasanaku {
   static const descuentoPorNivel = 'Descuento por tu nivel';
   static const neto = 'Neto a recibir el turno';
   static const aportando = 'Cobrando tu aporte…';
-  static const aporteConfirmado = 'Aporte registrado.';
+  static const aporteConfirmado = 'Tu aporte quedó registrado';
   static const aporteDelPeriodo = 'Aporte de este período';
   static const loFijaElReglamento = 'Lo fija el reglamento de tu grupo.';
   static const comoPagas = 'Cómo pagás';
@@ -139,7 +137,7 @@ class TextosPasanaku {
   static const comoRegularizar = 'Cómo regularizar';
   static const alDia = 'Estás al día con este grupo.';
   static const sinParticipacion =
-      'Todavía no participás en ningún grupo. Cuando entres a uno, acá ves cómo vas con tus aportes.';
+      'Todavía no participás en ningún grupo. Unite con el QR o el enlace que te mandó el organizador, u organizá uno con tu gente.';
   static const sinRestriccion = 'No tenés restricciones vigentes.';
   // Tarjeta de aporte (ADR-053): cada cifra con su nombre a la vista.
   static const alDiaTitulo = 'Estás al día';
@@ -154,7 +152,7 @@ class TextosPasanaku {
   static const etiquetaPuntaje = 'Tu puntaje';
   static const etiquetaNivel = 'Tu nivel';
   static const origenDelPuntaje =
-      'Lo calcula el servicio de transparencia a partir de tu historial en AportaYa.';
+      'Lo calculamos a partir de tu historial en AportaYa.';
   static const sinHistorial =
       'Todavía no tenés historial suficiente para un puntaje — no es una sanción, es que recién empezás.';
 

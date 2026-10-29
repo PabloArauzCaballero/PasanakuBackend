@@ -4,6 +4,7 @@ import 'package:aportaya_diseno/atomos/boton.dart';
 import 'package:aportaya_diseno/atomos/boton_variante.dart';
 import 'package:aportaya_diseno/atomos/campo.dart';
 import 'package:aportaya_diseno/atomos/iconos_de_marca.dart';
+import 'package:aportaya_diseno/dinero/formatear.dart';
 import 'package:aportaya_diseno/moleculas/cabecera.dart';
 import 'package:aportaya_diseno/moleculas/chips_de_filtro.dart';
 import 'package:aportaya_diseno/moleculas/seccion.dart';
@@ -17,6 +18,7 @@ import 'dominio/cu21_cobrar_aporte.dart';
 import 'tarjeta_del_monto_del_periodo.dart';
 import '../../proveedores/haptica.dart';
 import 'textos.dart';
+import 'textos_de_conversion.dart';
 
 const _canales = <({String clave, String texto, IconData icono})>[
   (
@@ -107,6 +109,7 @@ class _PantallaAportarState extends ConsumerState<PantallaAportar> {
                             const SizedBox(height: Espacio.s5),
                             Campo(
                               etiqueta: TextosPasanaku.referenciaDelPago,
+                              ayuda: TextosDeConversion.referenciaAyuda,
                               controlador: _referencia,
                               onChanged: (_) => setState(() {}),
                             ),
@@ -129,11 +132,20 @@ class _PantallaAportarState extends ConsumerState<PantallaAportar> {
                     bottom: Espacio.s4,
                   ),
                   // «Aportar» es pagar algo que vence: la única acción en naranja (A2).
+                  // El verbo con la cifra: se sabe qué se paga antes de tocar.
                   child: Boton(
-                    texto: TextosPasanaku.aportarBoton,
+                    texto: TextosDeConversion.aportarCon(
+                      formatearMonto(
+                        monto: widget.montoDelPeriodo,
+                        moneda: 'BOB',
+                      ),
+                    ),
                     variante: BotonVariante.urgencia,
                     expandido: true,
                     cargando: estado.isLoading,
+                    motivoDeBloqueo: _referencia.text.trim().isEmpty
+                        ? TextosDeConversion.aportarBloqueado
+                        : null,
                     onPressed: _referencia.text.trim().isEmpty
                         ? null
                         : () => ref

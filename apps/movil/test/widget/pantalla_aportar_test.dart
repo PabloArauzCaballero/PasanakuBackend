@@ -46,12 +46,12 @@ void main() {
       final (:dio, adaptador: _) = dioSimulado();
       await abrir(tester, dio);
       const tokens = Tokens.claro;
-      final boton = find.widgetWithText(Boton, 'Aportar');
+      final boton = find.widgetWithText(Boton, 'Aportar Bs 4,44');
       expect(boton, findsOneWidget);
       // Sin referencia, el botón no hace nada.
       await tester.tap(boton);
       await tester.pump();
-      expect(find.text('Aporte registrado.'), findsNothing);
+      expect(find.text('Tu aporte quedó registrado'), findsNothing);
       await tester.enterText(find.byType(TextField), 'REF-123');
       await tester.pump();
       // Habilitado, es el único botón con superficie viva de la pantalla: naranja (A2).
@@ -73,9 +73,9 @@ void main() {
     await abrir(tester, dio);
     await tester.enterText(find.byType(TextField), 'REF-123');
     await tester.pump();
-    await tester.tap(find.widgetWithText(Boton, 'Aportar'));
+    await tester.tap(find.widgetWithText(Boton, 'Aportar Bs 4,44'));
     await asentar(tester);
-    expect(find.text('Aporte registrado.'), findsOneWidget);
+    expect(find.text('Tu aporte quedó registrado'), findsOneWidget);
     expect(find.text('Pendiente'), findsOneWidget);
     expect(find.textContaining('PENDIENTE'), findsNothing);
     expect(find.textContaining('misma clave'), findsNothing);

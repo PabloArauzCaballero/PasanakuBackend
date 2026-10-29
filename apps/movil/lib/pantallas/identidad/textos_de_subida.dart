@@ -8,6 +8,8 @@ class TextosDeSubida {
   static String subiendo(CaraDelCarril cara) =>
       'Subiendo ${_nombreCorto(cara)}…';
   static const detalle = 'Se guarda cifrada en tu expediente.';
+  // Una fila pendiente dice que espera su turno: el «—» mudo parecía un error.
+  static const enEspera = 'En espera';
   static const lenta =
       'Está tardando más de lo normal. Podés esperar o cancelar y volver a intentar.';
   static const reintentar = 'Reintentar';

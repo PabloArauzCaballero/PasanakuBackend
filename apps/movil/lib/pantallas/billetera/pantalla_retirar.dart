@@ -2,12 +2,9 @@ import 'package:aportaya_diseno/atomos/boton.dart';
 import 'package:aportaya_diseno/atomos/boton_variante.dart';
 import 'package:aportaya_diseno/atomos/campo.dart';
 import 'package:aportaya_diseno/atomos/campo_monto_grande.dart';
-import 'package:aportaya_diseno/atomos/iconos_de_marca.dart';
-import 'package:aportaya_diseno/atomos/tono.dart';
+import 'package:aportaya_diseno/moleculas/alerta.dart';
 import 'package:aportaya_diseno/moleculas/cabecera.dart';
 import 'package:aportaya_diseno/moleculas/tarjeta.dart';
-import 'package:aportaya_diseno/organismos/estado_de_tramite.dart';
-import 'package:aportaya_diseno/atomos/monto.dart';
 import 'package:aportaya_diseno/organismos/estado_error.dart';
 import 'package:aportaya_diseno/tokens/tokens.dart';
 import 'package:flutter/material.dart';
@@ -15,6 +12,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../dominio/cu11_retirar_saldo.dart';
 import '../../dominio/proteccion_de_pantalla_dinero.dart';
+import 'comprobante_de_retiro.dart';
 import 'textos.dart';
 
 /// CU-11 — retirar saldo. **Hueco declarado:** CU-18 (registrar y verificar cuenta
@@ -57,28 +55,7 @@ class _PantallaRetirarState extends ConsumerState<PantallaRetirar>
               const CabeceraDeSeccion(titulo: TextosBilletera.retirar),
               Expanded(
                 child: resultado != null
-                    // «Instruido» no es «llegó»: el banco todavía tiene que acreditarlo.
-                    ? Center(
-                        child: EstadoDeTramite(
-                          icono: IconosDeMarca.tramiteListo,
-                          tono: Tono.ok,
-                          titulo: TextosBilletera.retiroInstruido,
-                          extra: Monto(
-                            monto: resultado.montoNeto.monto,
-                            moneda: resultado.montoNeto.moneda.value,
-                            etiqueta: TextosBilletera.monto,
-                            estilo: Tipo.cifraGrande.copyWith(
-                              color: Tokens.of(context).text,
-                            ),
-                          ),
-                          pasos: const [
-                            TextosBilletera.pasoInstruido,
-                            TextosBilletera.pasoEnCamino,
-                            TextosBilletera.pasoAcreditadoEnTuCuenta,
-                          ],
-                          pasoActual: 1,
-                        ),
-                      )
+                    ? Center(child: ComprobanteDeRetiro(resultado: resultado))
                     : SingleChildScrollView(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -110,6 +87,11 @@ class _PantallaRetirarState extends ConsumerState<PantallaRetirar>
                                   ),
                                 ],
                               ),
+                            ),
+                            const SizedBox(height: Espacio.s4),
+                            const Alerta(
+                              titulo: TextosBilletera.comoSigueElRetiro,
+                              detalle: TextosBilletera.comoSigueElRetiroDetalle,
                             ),
                             const SizedBox(height: Espacio.s4),
                             if (estado.hasError)

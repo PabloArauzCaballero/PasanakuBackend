@@ -4,8 +4,11 @@ import 'package:aportaya_diseno/atomos/boton_variante.dart';
 import 'package:aportaya_diseno/atomos/campo_monto_grande.dart';
 import 'package:aportaya_diseno/atomos/iconos_de_marca.dart';
 import 'package:aportaya_diseno/atomos/selector_segmentado.dart';
+import 'package:aportaya_diseno/atomos/monto.dart';
 import 'package:aportaya_diseno/atomos/tono.dart';
+import 'package:aportaya_diseno/moleculas/alerta.dart';
 import 'package:aportaya_diseno/moleculas/cabecera.dart';
+import 'package:aportaya_diseno/moleculas/pregunta.dart';
 import 'package:aportaya_diseno/organismos/estado_de_tramite.dart';
 import 'package:aportaya_diseno/organismos/estado_error.dart';
 import 'package:aportaya_diseno/tokens/tokens.dart';
@@ -61,10 +64,13 @@ class _PantallaRecargarState extends ConsumerState<PantallaRecargar>
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
                             const SizedBox(height: Espacio.s3),
-                            SelectorSegmentado<String>(
-                              opciones: _medios,
-                              valor: _medio,
-                              onChanged: (v) => setState(() => _medio = v),
+                            Pregunta(
+                              etiqueta: TextosBilletera.medioDePago,
+                              control: SelectorSegmentado<String>(
+                                opciones: _medios,
+                                valor: _medio,
+                                onChanged: (v) => setState(() => _medio = v),
+                              ),
                             ),
                             const SizedBox(height: Espacio.s7),
                             // Atajos de importe: comodidad de la pantalla, no un parámetro
@@ -74,7 +80,13 @@ class _PantallaRecargarState extends ConsumerState<PantallaRecargar>
                               sugeridos: const [50, 100, 200, 500],
                               onChanged: (v) => setState(() => _monto = v),
                             ),
-                            const SizedBox(height: Espacio.s5),
+                            const SizedBox(height: Espacio.s6),
+                            const Alerta(
+                              titulo: TextosBilletera.comoSigueLaRecarga,
+                              detalle:
+                                  TextosBilletera.comoSigueLaRecargaDetalle,
+                            ),
+                            const SizedBox(height: Espacio.s4),
                             if (estado.hasError)
                               EstadoError(
                                 error: estado.error!,
@@ -122,11 +134,19 @@ class _Confirmacion extends StatelessWidget {
   /// dice y no muestra una etapa «Acreditada» como cumplida.
   @override
   Widget build(BuildContext context) {
-    return const EstadoDeTramite(
+    return EstadoDeTramite(
       icono: IconosDeMarca.enEspera,
       tono: Tono.info,
       titulo: TextosBilletera.recargaPendiente,
-      pasos: [
+      detalle: TextosBilletera.recargaPendienteDetalle,
+      // Lo que el servidor dice que se va a acreditar (puede descontar el costo del proveedor).
+      extra: Monto(
+        monto: orden.acreditara.monto,
+        moneda: orden.acreditara.moneda.value,
+        etiqueta: TextosBilletera.montoAAcreditar,
+        estilo: Tipo.cifraGrande.copyWith(color: Tokens.of(context).text),
+      ),
+      pasos: const [
         TextosBilletera.pasoPedida,
         TextosBilletera.pasoConfirmaElBanco,
         TextosBilletera.pasoAcreditada,

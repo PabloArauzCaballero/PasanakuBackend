@@ -10,8 +10,11 @@ import 'textos.dart';
 /// promesas nuevas —custodia, registro y turno a la vista son las láminas 2, 1 y 3—,
 /// son las mismas, arriba.
 ///
-/// Van en `Wrap` y no en `Row`: con el texto en 200 % una fila fija se sale de la
-/// pantalla, y tres pastillas que bajan a dos renglones se siguen leyendo.
+/// Van en una fila de tres columnas (2026-10-29): a 360 dp las tres pastillas en
+/// `Wrap` caían una por renglón y parecían tres botones apilados, y empujaban fuera
+/// de la vista la lista de lo que se pide. Cada columna es `Expanded` y su texto
+/// baja de renglón en vez de desbordarse, así que con el texto en 200 % se sigue
+/// leyendo.
 class GarantiasDePortada extends StatelessWidget {
   const GarantiasDePortada({super.key});
 
@@ -28,42 +31,53 @@ class GarantiasDePortada extends StatelessWidget {
   ];
 
   @override
-  Widget build(BuildContext context) => Wrap(
-    alignment: WrapAlignment.center,
-    spacing: Espacio.s2,
-    runSpacing: Espacio.s2,
-    children: [
-      for (final g in _garantias) _Pastilla(icono: g.icono, texto: g.texto),
-    ],
+  // `IntrinsicHeight`: las tres tarjetas miden lo mismo aunque una baje a dos
+  // renglones (son tres hijos; el costo de medir dos veces es despreciable).
+  Widget build(BuildContext context) => IntrinsicHeight(
+    child: Row(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        for (final (i, g) in _garantias.indexed) ...[
+          if (i > 0) const SizedBox(width: Espacio.s2),
+          Expanded(
+            child: _Garantia(icono: g.icono, texto: g.texto),
+          ),
+        ],
+      ],
+    ),
   );
 }
 
-class _Pastilla extends StatelessWidget {
-  const _Pastilla({required this.icono, required this.texto});
+class _Garantia extends StatelessWidget {
+  const _Garantia({required this.icono, required this.texto});
 
   final IconData icono;
   final String texto;
 
+  // Roles neutros (no de estado ni de marca): son contexto, no una acción.
   @override
   Widget build(BuildContext context) {
     final t = Tokens.of(context);
     return DecoratedBox(
       decoration: BoxDecoration(
         color: t.surface2,
-        borderRadius: BorderRadius.circular(Radios.pill),
+        borderRadius: BorderRadius.circular(Radios.md),
         border: Border.all(color: t.border, width: Borde.fino),
       ),
       child: Padding(
         padding: const EdgeInsets.symmetric(
-          horizontal: Espacio.s3,
+          horizontal: Espacio.s1,
           vertical: Espacio.s2,
         ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
+        child: Column(
           children: [
-            Icon(icono, size: Espacio.s4, color: t.text2),
-            const SizedBox(width: Espacio.s2),
-            Text(texto, style: Tipo.cuerpoChico.copyWith(color: t.text2)),
+            Icon(icono, size: Espacio.s5, color: t.text2),
+            const SizedBox(height: Espacio.s1),
+            Text(
+              texto,
+              textAlign: TextAlign.center,
+              style: Tipo.cuerpoChico.copyWith(color: t.text2),
+            ),
           ],
         ),
       ),
