@@ -26,3 +26,14 @@ TABLERO_SISTEMAS_VER, USUARIOS_INTERNOS_*, ROLES_INTERNOS_*, PERMISOS_INTERNOS_L
 | 10 | Desembolsos, reversos, actas, eventos de riesgo, incidentes: backend con escrituras, UI sin acciones | FALTA UI | ver auditoría | sí: alcance |
 
 Contabilidad y Publicidad no abren para ADMIN_PLATAFORMA por diseño de semillas (segregación), no por defecto.
+
+## Avance del loop (2026-10-29)
+
+| # | Ítem | Estado | Dónde |
+|---|---|---|---|
+| 0 | Admisiones sin propuesta | Mergeado (#235/#238); probado en TEST hasta la guardia (403 → 422) | `2026-10-28-admision-directa-backoffice` |
+| 1a | Postulaciones a organizador | Mergeado (#249/#250; corrección de menú #254/#255) | `2026-10-29-postulaciones-organizador` |
+| 8 | Grupos (consulta) | PR #271/#272 | `2026-10-29-grupos-en-backoffice` |
+| 4 | Tarifario: poner en vigencia | PR (este) | `2026-10-29-tarifario-vigencia` |
+| 3 | Solicitudes escaladas | **DECISION_REQUIRED**: no existe regla de escalamiento en `grupos` (ni estado ESCALADA en `solicitud_ingreso`); la «D-15» citada en la pantalla es otra decisión (ADR-051, fondo mutual). Pregunta a Pablo: ¿qué es una solicitud escalada (¿pendiente > 48 h?) o se quita la pantalla, ya que Admisiones lista y resuelve todas? | — |
+| 4b | Tarifario: publicar versión nueva | **DECISION_REQUIRED** (Finanzas/Legal): el contrato no trae precios y exige acta, aprobador, URL y hash | — |
