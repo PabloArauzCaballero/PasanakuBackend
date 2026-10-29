@@ -34,3 +34,13 @@ Pablo respondió «lo más recomendado y cómodo para el usuario». Interpretaci
 - Ítems 2 y 9 (reclamos, UIF, requerimientos, continuidad, custodia, cierres): **se mantiene la segregación de funciones** en las semillas (ISO/IEC 27001:2022 control 5.3, COSO; ya fijado por `nucleo/matriz-de-roles.spec.ts`). Para que el operador de TEST pueda decidir, se le asignan **roles adicionales** (SOPORTE / roles de cumplimiento) por la pantalla de usuarios internos (CU-08) desde un segundo usuario interno, porque AP-08-04 prohíbe autoasignarse. No se toca la semilla de ADMIN_PLATAFORMA.
 - Ítem 8 (módulos que faltan): **se empieza por Grupos** (consulta de grupos y sus participantes); después participantes, garantía y organizadores.
 - Prueba real de admisiones en TEST: la hace Pablo desde el navegador; el agente verifica en la base.
+## Avance del loop (2026-10-29)
+
+| # | Ítem | Estado | Dónde |
+|---|---|---|---|
+| 0 | Admisiones sin propuesta | Mergeado (#235/#238); probado en TEST hasta la guardia (403 → 422) | `2026-10-28-admision-directa-backoffice` |
+| 1a | Postulaciones a organizador | Mergeado (#249/#250; corrección de menú #254/#255) | `2026-10-29-postulaciones-organizador` |
+| 8 | Grupos (consulta) | PR #271/#272 | `2026-10-29-grupos-en-backoffice` |
+| 4 | Tarifario: poner en vigencia | PR (este) | `2026-10-29-tarifario-vigencia` |
+| 3 | Solicitudes escaladas | **DECISION_REQUIRED**: no existe regla de escalamiento en `grupos` (ni estado ESCALADA en `solicitud_ingreso`); la «D-15» citada en la pantalla es otra decisión (ADR-051, fondo mutual). Pregunta a Pablo: ¿qué es una solicitud escalada (¿pendiente > 48 h?) o se quita la pantalla, ya que Admisiones lista y resuelve todas? | — |
+| 4b | Tarifario: publicar versión nueva | **DECISION_REQUIRED** (Finanzas/Legal): el contrato no trae precios y exige acta, aprobador, URL y hash | — |
