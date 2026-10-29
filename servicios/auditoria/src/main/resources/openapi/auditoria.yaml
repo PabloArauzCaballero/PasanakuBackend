@@ -1155,6 +1155,20 @@ components:
         descripcion: { type: string }
         permisoRequerido: { type: string }
         contieneDatosSensibles: { type: boolean }
+        parametrosEsperados:
+          type: array
+          description: >-
+            Los parametros que `ejecutarReporte` acepta para esta definicion (su lista blanca), para que quien lo
+            ejecuta sepa que pedir. `tipo` usa el vocabulario del validador (UUID, FECHA, ENTERO, DECIMAL, BOOLEANO,
+            TEXTO). Opcional: una definicion sin parametros lo trae vacio.
+          items:
+            type: object
+            additionalProperties: false
+            required: [nombre, tipo, obligatorio]
+            properties:
+              nombre: { type: string }
+              tipo: { type: string }
+              obligatorio: { type: boolean }
     PaginaDeEjecucionesDeReporte:
       type: object
       additionalProperties: false

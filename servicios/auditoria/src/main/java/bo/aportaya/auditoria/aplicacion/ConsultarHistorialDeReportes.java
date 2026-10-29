@@ -35,7 +35,8 @@ public class ConsultarHistorialDeReportes {
             String nombre,
             String descripcion,
             String permisoRequerido,
-            boolean sensible) {}
+            boolean sensible,
+            List<bo.aportaya.auditoria.dominio.ParametrosDeReporte.Esperado> esperados) {}
 
     public record Ejecucion(
             UUID ejecucionId,
@@ -60,7 +61,13 @@ public class ConsultarHistorialDeReportes {
                         dsl -> historial.definiciones(dsl, despuesDe.orElse(null), despuesDeId.orElse(null), limite))
                 .stream()
                 .map(d -> new Definicion(
-                        d.id(), d.tipo(), d.nombre(), d.descripcion(), d.permisoRequerido(), d.sensible()))
+                        d.id(),
+                        d.tipo(),
+                        d.nombre(),
+                        d.descripcion(),
+                        d.permisoRequerido(),
+                        d.sensible(),
+                        d.esperados()))
                 .toList();
         Optional<Definicion> ultima = items.size() == limite ? Optional.of(items.get(limite - 1)) : Optional.empty();
         return new Pagina<>(items, ultima.map(Definicion::nombre), ultima.map(Definicion::definicionId));

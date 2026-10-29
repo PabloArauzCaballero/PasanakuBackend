@@ -1,5 +1,6 @@
 package bo.aportaya.auditoria.infraestructura;
 
+import bo.aportaya.auditoria.dominio.ParametrosDeReporte;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -15,7 +16,8 @@ import org.springframework.stereotype.Component;
 public class HistorialDeReportesRepositorio {
 
     public List<Definicion> definiciones(DSLContext dsl, String despuesDe, UUID despuesDeId, int limite) {
-        return dsl.fetch(
+        return dsl
+                .fetch(
                         """
                 SELECT id, tipo, nombre, descripcion, permiso_requerido, contiene_datos_sensibles
                   FROM auditoria.definicion_reporte
@@ -34,7 +36,35 @@ public class HistorialDeReportesRepositorio {
                         f.get("nombre", String.class),
                         f.get("descripcion", String.class),
                         f.get("permiso_requerido", String.class),
-                        f.get("contiene_datos_sensibles", Boolean.class)));
+                        f.get("contiene_datos_sensibles", Boolean.class),
+                        List.of()))
+                .stream()
+                .map(d -> conEsperados(dsl, d))
+                .toList();
+    }
+
+    /**
+     * Los parametros que el motor acepta, leidos como los lee el motor ({@code jsonb_to_recordset}, ver
+     * {@code ReporteRepositorio#esperadosDe}). Una fila con otra forma no tumba el listado: se lista sin parametros y
+     * el motor la rechaza al ejecutar, que es donde se decide.
+     */
+    private static Definicion conEsperados(DSLContext dsl, Definicion d) {
+        var esperados = dsl.fetch(
+                        """
+                        SELECT p.nombre, p.tipo, coalesce(p.obligatorio, false) AS obligatorio
+                          FROM auditoria.definicion_reporte d,
+                               LATERAL jsonb_to_recordset(CASE WHEN jsonb_typeof(d.parametros_esperados) = 'array'
+                                                              THEN d.parametros_esperados ELSE '[]'::jsonb END)
+                                    AS p(nombre text, tipo text, obligatorio boolean)
+                         WHERE d.id = ?
+                        """,
+                        d.id())
+                .map(f -> new ParametrosDeReporte.Esperado(
+                        f.get("nombre", String.class),
+                        f.get("tipo", String.class),
+                        Boolean.TRUE.equals(f.get("obligatorio", Boolean.class))));
+        return new Definicion(
+                d.id(), d.tipo(), d.nombre(), d.descripcion(), d.permisoRequerido(), d.sensible(), esperados);
     }
 
     public List<Ejecucion> ejecuciones(
@@ -67,7 +97,13 @@ public class HistorialDeReportesRepositorio {
     }
 
     public record Definicion(
-            UUID id, String tipo, String nombre, String descripcion, String permisoRequerido, boolean sensible) {}
+            UUID id,
+            String tipo,
+            String nombre,
+            String descripcion,
+            String permisoRequerido,
+            boolean sensible,
+            List<ParametrosDeReporte.Esperado> esperados) {}
 
     public record Ejecucion(
             UUID id,

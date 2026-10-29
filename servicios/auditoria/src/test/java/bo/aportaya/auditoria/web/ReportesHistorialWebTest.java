@@ -52,11 +52,19 @@ class ReportesHistorialWebTest {
     private ConsultarHistorialDeReportes historial;
 
     @Test
-    @DisplayName("200: el catalogo trae el permiso de cada reporte y NO la consulta base")
+    @DisplayName("200: el catalogo trae el permiso y los parametros que acepta cada reporte, y NO la consulta base")
     void catalogo() throws Exception {
         when(historial.definiciones(any(), any(), anyInt(), any()))
                 .thenReturn(new Pagina<>(
-                        List.of(new Definicion(ID, "CARTERA_EN_MORA", "Cartera", "Mora por grupo", "REPORTE_X", true)),
+                        List.of(new Definicion(
+                                ID,
+                                "CARTERA_EN_MORA",
+                                "Cartera",
+                                "Mora por grupo",
+                                "REPORTE_X",
+                                true,
+                                List.of(new bo.aportaya.auditoria.dominio.ParametrosDeReporte.Esperado(
+                                        "grupo_id", "UUID", false)))),
                         Optional.of("Cartera"),
                         Optional.of(ID)));
 
@@ -65,6 +73,10 @@ class ReportesHistorialWebTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.items[0].permisoRequerido").value("REPORTE_X"))
                 .andExpect(jsonPath("$.items[0].contieneDatosSensibles").value(true))
+                .andExpect(jsonPath("$.items[0].parametrosEsperados[0].nombre").value("grupo_id"))
+                .andExpect(jsonPath("$.items[0].parametrosEsperados[0].tipo").value("UUID"))
+                .andExpect(jsonPath("$.items[0].parametrosEsperados[0].obligatorio")
+                        .value(false))
                 .andExpect(jsonPath("$.proximoDespuesDe").value("Cartera"))
                 .andReturn()
                 .getResponse()
