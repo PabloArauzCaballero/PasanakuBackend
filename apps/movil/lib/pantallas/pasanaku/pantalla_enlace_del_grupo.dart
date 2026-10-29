@@ -8,7 +8,6 @@ import 'package:aportaya_diseno/tokens/tokens.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
 import 'package:aportaya_diseno/errores.dart';
 import 'compartir_invitacion.dart';
@@ -156,9 +155,6 @@ class _PantallaEnlaceDelGrupoState
                         );
                       }
                     }),
-                  ),
-                  alVerSolicitudes: () => context.push(
-                    '/pasanaku/grupos/${widget.grupoId}/solicitudes',
                   ),
                 );
               },

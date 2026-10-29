@@ -16,6 +16,7 @@ import 'package:go_router/go_router.dart';
 import 'dominio/detalle_del_grupo.dart';
 import 'tarjeta_de_integrante.dart';
 import 'textos_detalle_del_grupo.dart';
+import 'textos_enlace_del_grupo.dart';
 import 'textos_invitacion.dart';
 
 /// El grupo por dentro (2026-10-20): resumen, lo que me toca hacer (firmar, sortear,
@@ -126,6 +127,15 @@ class VistaDelGrupo extends StatelessWidget {
             onPressed: () => context.push(
               '/pasanaku/grupos/$id/invitar?nombre=${Uri.encodeQueryComponent(d.nombre)}',
             ),
+          ),
+          const SizedBox(height: Espacio.s3),
+          // Quién pidió unirse va acá, debajo de invitar, y no dentro de «Invitar»
+          // (decisión del usuario 2026-10-28): esa pantalla queda solo con QR y enlace.
+          Boton(
+            texto: TextosEnlaceDelGrupo.verSolicitudes,
+            variante: BotonVariante.secundario,
+            expandido: true,
+            onPressed: () => context.push('/pasanaku/grupos/$id/solicitudes'),
           ),
           const SizedBox(height: Espacio.s3),
         ],
