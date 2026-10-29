@@ -51,7 +51,7 @@ class PantallaDeDispositivos extends ConsumerWidget {
                 ),
                 const SizedBox(height: Espacio.s5),
                 Boton(
-                  texto: TextosIdentidad.continuar,
+                  texto: TextosDeTramites.dispositivosSeguir,
                   variante: BotonVariante.primario,
                   expandido: true,
                   onPressed: () => context.go('/billetera/inicio'),

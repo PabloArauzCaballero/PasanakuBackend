@@ -3,8 +3,12 @@ library;
 
 class TextosNotificaciones {
   static const titulo = 'Notificaciones';
-  static const tituloVacio = 'Estás al día';
-  static const sinAvisos =
-      'Todavía no tenés avisos. Acá vas a ver todo lo que '
-      'pase con tu cuenta, aunque se te escape una notificación.';
+  // El vacío dice qué es esta lista, sin afirmar «estás al día» (la bandeja no sabe si
+  // hay algo pendiente en otro lado) ni prometer que va a mostrar «todo».
+  static const tituloVacio = 'Todavía no tenés avisos';
+  static const sinAvisos = 'Esta lista junta los avisos sobre tu cuenta.';
+
+  static const ahora = 'ahora';
+  static String haceMinutos(int n) => 'hace $n min';
+  static String haceHoras(int n) => 'hace $n h';
 }

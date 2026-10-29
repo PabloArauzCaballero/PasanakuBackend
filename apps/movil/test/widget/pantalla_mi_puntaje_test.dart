@@ -34,7 +34,7 @@ void main() {
         expect(find.text('720'), findsOneWidget);
         expect(find.text('En construccion'), findsOneWidget);
         expect(
-          find.textContaining('servicio de transparencia'),
+          find.textContaining('a partir de tu historial'),
           findsOneWidget,
         );
       },

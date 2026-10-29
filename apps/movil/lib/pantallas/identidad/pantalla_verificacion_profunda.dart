@@ -1,6 +1,7 @@
 import 'package:aportaya_diseno/atomos/campo.dart';
 import 'package:aportaya_diseno/atomos/boton.dart';
 import 'package:aportaya_diseno/atomos/boton_variante.dart';
+import 'package:aportaya_diseno/atomos/grupo_radio.dart';
 import 'package:aportaya_diseno/tokens/tokens.dart';
 import 'package:aportaya_diseno/atomos/iconos_de_marca.dart';
 import 'package:aportaya_diseno/moleculas/intro_de_pantalla.dart';
@@ -61,17 +62,22 @@ class _PantallaDeVerificacionProfundaState
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      const Text(TextosIdentidad.preguntaPep),
-                      const SizedBox(height: Espacio.s3),
-                      SegmentedButton<bool>(
-                        segments: const [
-                          ButtonSegment(value: false, label: Text('No')),
-                          ButtonSegment(value: true, label: Text('Sí')),
-                        ],
-                        selected: {?_esPep},
-                        emptySelectionAllowed: true,
-                        onSelectionChanged: (v) =>
-                            setState(() => _esPep = v.isEmpty ? null : v.first),
+                      Text(
+                        TextosIdentidad.preguntaPep,
+                        style: Tipo.cuerpoFuerte.copyWith(
+                          color: Tokens.of(context).text,
+                        ),
+                      ),
+                      const SizedBox(height: Espacio.s2),
+                      // El radio del sistema, sin opción marcada de antemano: en una
+                      // declaración de cumplimiento la respuesta la elige la persona.
+                      GrupoRadio<bool>(
+                        opciones: const {
+                          false: TextosDeTramites.pepNo,
+                          true: TextosDeTramites.pepSi,
+                        },
+                        valor: _esPep,
+                        onChanged: (v) => setState(() => _esPep = v),
                       ),
                       if (_esPep == true) ...[
                         const SizedBox(height: Espacio.s3),
@@ -86,7 +92,7 @@ class _PantallaDeVerificacionProfundaState
                 ),
                 const SizedBox(height: Espacio.s5),
                 Boton(
-                  texto: TextosIdentidad.continuar,
+                  texto: TextosDeTramites.pepConfirmar,
                   variante: BotonVariante.primario,
                   expandido: true,
                   motivoDeBloqueo: _esPep == null

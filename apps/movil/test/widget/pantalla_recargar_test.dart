@@ -67,10 +67,9 @@ void main() {
       );
       expect(claves, hasLength(1));
       expect(claves.single, isNotNull);
+      expect(find.text('Tu recarga quedó en camino.'), findsOneWidget);
       expect(
-        find.text(
-          'Tu recarga quedó en camino. Te avisamos cuando el banco la confirme.',
-        ),
+        find.text('Te avisamos cuando el banco la confirme.'),
         findsOneWidget,
       );
     },
