@@ -1,4 +1,4 @@
-> **AVANCE: 10 / 12 — 83,3 %.** Los 9 cambios y su verificación local están hechos; falta que la CI de las PR quede verde, el merge a `dev` y el mismo cambio en `test` (H1.S2.M2, H1.S2.M3).
+> **AVANCE: 11 / 13 — 84,6 %.** Los 10 cambios y su verificación local están hechos; falta que la CI de las PR quede verde, el merge a `dev` y el mismo cambio en `test` (H1.S2.M2, H1.S2.M3).
 
 # Reporte — Poner en verde la verificación de la bóveda en `dev`/`test`
 
@@ -17,6 +17,7 @@
 | H1.S1.M7 | CU-68: criterios de backoffice en la bóveda + `@DisplayName` de la 2.ª prueba alineado | `python3 scripts/verificar_criterios.py` | PASS «Sin divergencias entre la boveda y el codigo» · `evidencia/verificar_criterios-despues.txt` |
 | H1.S1.M8 | Generador de Compose declara `SALUD_OBJETIVO_SLO`; `docker-compose.coolify.yml` regenerado (1 línea) | `python3 scripts/generar_compose.py --coolify` · `python3 scripts/auditoria/verificar_limites_compose.py` · `git diff --exit-code -- docker-compose.coolify.yml despliegue/coolify/` | PASS exit 0 · `evidencia/compose-despues.txt` |
 | H1.S1.M9 | `auditoria`: sin literales SLO en el código y `IndicadoresController` de 379 a 254 líneas (mapeos a `MapeoDeTablero` y `MapeoDeSistemas`) | `./gradlew :servicios:auditoria:spotlessCheck` · `check -x test -x jacocoTestCoverageVerification -x jacocoTestReport` · `testBarrido` · `test` · `webTest --rerun` | PASS: BUILD SUCCESSFUL en todos; `test` 58/58, `webTest` 82/82 · `evidencia/gradle-auditoria-*.txt` |
+| H1.S1.M10 | `GruposBandejaWebTest.sinParametros` alineado con el default `limite=200` del contrato (TEST_BUG demostrado) | `./gradlew :servicios:grupos:webTest --rerun` · `./gradlew check -x test -x jacocoTestCoverageVerification -x jacocoTestReport --continue` · `./gradlew testBarrido compileJava erroresCatalogo --continue` · `./gradlew spotlessCheck` | PASS: grupos/webTest 114/114; el resto BUILD SUCCESSFUL · `evidencia/gradle-grupos-webtest.txt`, `evidencia/gradle-check-completo.txt` |
 | H1.S2.M1 | Pasos del job «Bóveda…» corridos en local | `verificar_seguridad.py`, `verificar_boveda.py`, `verificar_carriles.py`, `generar_k8s.py`, `generar_ddl.py`, `generar_semillas.py`, `git diff --quiet -- sql/` | todos exit 0 · `evidencia/` |
 
 ## A medias
@@ -51,7 +52,7 @@ Después: `evidencia/*-despues.txt`.
 - La captura antes/después de web y backoffice del rediseño (H2.S5.M1, H8.S3.M2) sigue sin re-verificarse; el ADR lo declara como casilla abierta.
 
 ## Desvíos del plan
-Agregadas H1.S1.M5 y H1.S1.M6 (ver PLAN).
+Agregadas H1.S1.M7 a H1.S1.M10 (cuatro fallos latentes que fue mostrando la CI de la PR; ver PLAN). Agregadas H1.S1.M5 y H1.S1.M6 (ver PLAN).
 
 ## Riesgos residuales
 - `@Value("${aportaya.salud.objetivo-slo}")` ya no tiene default en el código: si alguien arranca `auditoria` con otra configuración que no incluya `application.yml`, falla al iniciar (comportamiento buscado por la regla 90.3.4: la configuración inválida o ausente detiene el servicio).

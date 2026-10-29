@@ -28,6 +28,7 @@
 | H1.S1.M7 | *(agregada)* CU-68: dos criterios de backoffice en la bóveda y 2.ª prueba con nombre de criterio (`verificar_criterios.py` fallaba en CI de la PR) | bóveda y pruebas coinciden | `verificar_criterios.py` → «Sin divergencias» | HECHO |
 | H1.S1.M8 | *(agregada)* `generar_compose.py` declara `SALUD_OBJETIVO_SLO` (default 99.5, el de `application.yml`) y se regenera `docker-compose.coolify.yml` (paso 6h de la CI fallaba) | el generador termina sin «variables que ningún valor cubre» y no deja diff | `generar_compose.py --coolify` + `verificar_limites_compose.py` + `git diff --exit-code` → exit 0 | HECHO |
 | H1.S1.M9 | *(agregada)* `auditoria`: sin cifras SLO en el código (el 99,5 queda solo en `application.yml`) y `IndicadoresController` < 300 líneas con los mapeos en `MapeoDeTablero`/`MapeoDeSistemas` (paso 3 de la CI fallaba: `testBarrido`) | `testBarrido` sin hallazgos; mismo comportamiento | `./gradlew :servicios:auditoria:testBarrido` · `check -x test` · `test` · `webTest` → BUILD SUCCESSFUL | HECHO |
+| H1.S1.M10 | *(agregada)* `GruposBandejaWebTest.sinParametros` verifica el default del contrato (`limite` = 200) en vez de `null` (la CI del job Gradle fallaba en `grupos:webTest`) | las 114 pruebas web de `grupos` pasan; el job Gradle completo pasa en local | `./gradlew check -x test -x jacocoTestCoverageVerification -x jacocoTestReport --continue` · `testBarrido compileJava erroresCatalogo` · `spotlessCheck` → BUILD SUCCESSFUL | HECHO |
 
 ### H1.S2 — Verificar y entregar
 | ID | Microtarea | CA (binario) | DoD | Estado |
@@ -43,6 +44,7 @@
 | Concurrencia con otra sesión que escribe en `dev` | conflicto | volver a consultar el estado antes de abrir/mergear |
 
 ## Desvíos del plan
+- Se agregó H1.S1.M10: quinto fallo latente (CI de la PR #262, job Gradle, `grupos:webTest`). Clasificación `TEST_BUG` (regla 80.4) con reproducción local: el contrato `grupos.yaml` declara `limite` con `default: 200` (commit f8f5b3af, 2026-10-25) y el generador 7.14.0 lo aplica en la interfaz; el test escrito en el mismo commit esperaba `null`. El comportamiento de producción (tope 200) es el documentado; se corrige el test, sin tocar el contrato.
 - Se agregó H1.S1.M9: cuarto fallo latente (CI de la PR #262, paso 3, `testBarrido`): `sin-umbral-literal` y `tamano-archivo` sobre código del SLO de servicios (#233). Cambio de código acotado a `servicios/auditoria`; sin cambio de contrato ni de comportamiento (82 pruebas web y 58 de módulo en verde).
 - Se agregó H1.S1.M8: tercer fallo latente que mostró la CI de la PR #262 (paso 6h): la variable `SALUD_OBJETIVO_SLO` de `auditoria` (SLO de servicios, #233) no estaba en el generador del Compose.
 - Se agregó H1.S1.M7: la CI de la PR #262 mostró que `verificar_criterios.py` fallaba en CU-68 (pruebas de #235 sin criterio en la bóveda); estaba latente porque ese job solo corre si el cambio lo activa. Cambio de código: solo el `@DisplayName` de una prueba (`CU68AceptarIngresoTest`), sin tocar aserciones.

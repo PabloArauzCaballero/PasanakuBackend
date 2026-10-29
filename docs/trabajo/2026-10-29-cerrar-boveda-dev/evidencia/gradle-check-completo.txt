@@ -1,0 +1,6 @@
+$ ./gradlew check -x test -x jacocoTestCoverageVerification -x jacocoTestReport --continue
+BUILD SUCCESSFUL in 3m 49s
+$ ./gradlew testBarrido compileJava erroresCatalogo --continue   (pasos 3b, 4 y 4b de la CI)
+BUILD SUCCESSFUL in 5s
+$ ./gradlew spotlessCheck   (paso 2 de la CI)
+BUILD SUCCESSFUL in 2s
