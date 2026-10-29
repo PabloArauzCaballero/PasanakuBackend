@@ -7,6 +7,7 @@ import 'package:aportaya_diseno/moleculas/intro_de_pantalla.dart';
 import 'package:aportaya_diseno/moleculas/tarjeta.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:aportaya_diseno/organismos/pantalla_con_cabecera.dart';
 
 import 'dominio/estado_cuenta.dart';
 import 'textos.dart';
@@ -39,60 +40,66 @@ class _PantallaDeVerificacionProfundaState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Verificación adicional')),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(Espacio.s4),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const IntroDePantalla(
-                icono: IconosDeMarca.expediente,
-                titulo: TextosDeTramites.pepTitulo,
-                explicacion: TextosDeTramites.pepExplicacion,
-              ),
-              Tarjeta(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    const Text(TextosIdentidad.preguntaPep),
-                    const SizedBox(height: Espacio.s3),
-                    SegmentedButton<bool>(
-                      segments: const [
-                        ButtonSegment(value: false, label: Text('No')),
-                        ButtonSegment(value: true, label: Text('Sí')),
-                      ],
-                      selected: {?_esPep},
-                      emptySelectionAllowed: true,
-                      onSelectionChanged: (v) =>
-                          setState(() => _esPep = v.isEmpty ? null : v.first),
-                    ),
-                    if (_esPep == true) ...[
-                      const SizedBox(height: Espacio.s3),
-                      Campo(
-                        etiqueta: TextosIdentidad.detallePep,
-                        controlador: _detalle,
-                        lineas: 3,
-                      ),
-                    ],
-                  ],
+      // Cabecera grande que se compacta al desplazar (ADR-053, H4.S2.M6).
+      body: PantallaConCabecera(
+        titulo: 'Verificación adicional',
+        cuerpo: SafeArea(
+          top: false,
+          // Sin desplazamiento propio, la cabecera no se compactaría y el botón
+          // quedaría bajo el pliegue en una pantalla chica.
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(Espacio.s4),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const IntroDePantalla(
+                  icono: IconosDeMarca.expediente,
+                  titulo: TextosDeTramites.pepTitulo,
+                  explicacion: TextosDeTramites.pepExplicacion,
                 ),
-              ),
-              const SizedBox(height: Espacio.s5),
-              Boton(
-                texto: TextosIdentidad.continuar,
-                variante: BotonVariante.primario,
-                expandido: true,
-                motivoDeBloqueo: _esPep == null
-                    ? TextosDeTramites.pepBloqueo
-                    : null,
-                onPressed: _esPep == null
-                    ? null
-                    : () => ref
-                          .read(pepProvider.notifier)
-                          .declarar(esPep: _esPep!, detalle: _detalle.text),
-              ),
-            ],
+                Tarjeta(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      const Text(TextosIdentidad.preguntaPep),
+                      const SizedBox(height: Espacio.s3),
+                      SegmentedButton<bool>(
+                        segments: const [
+                          ButtonSegment(value: false, label: Text('No')),
+                          ButtonSegment(value: true, label: Text('Sí')),
+                        ],
+                        selected: {?_esPep},
+                        emptySelectionAllowed: true,
+                        onSelectionChanged: (v) =>
+                            setState(() => _esPep = v.isEmpty ? null : v.first),
+                      ),
+                      if (_esPep == true) ...[
+                        const SizedBox(height: Espacio.s3),
+                        Campo(
+                          etiqueta: TextosIdentidad.detallePep,
+                          controlador: _detalle,
+                          lineas: 3,
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+                const SizedBox(height: Espacio.s5),
+                Boton(
+                  texto: TextosIdentidad.continuar,
+                  variante: BotonVariante.primario,
+                  expandido: true,
+                  motivoDeBloqueo: _esPep == null
+                      ? TextosDeTramites.pepBloqueo
+                      : null,
+                  onPressed: _esPep == null
+                      ? null
+                      : () => ref
+                            .read(pepProvider.notifier)
+                            .declarar(esPep: _esPep!, detalle: _detalle.text),
+                ),
+              ],
+            ),
           ),
         ),
       ),

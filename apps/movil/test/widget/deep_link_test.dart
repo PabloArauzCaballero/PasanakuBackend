@@ -100,7 +100,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(router.state.uri.path, '/registro/pautas');
-    expect(find.text('Pautas para tus fotos'), findsOneWidget);
+    expect(encabezadoDePantalla('Pautas para tus fotos'), findsOneWidget);
     expect(find.text('Pautas para el documento de identidad'), findsOneWidget);
     expect(find.byType(ShellPrincipal), findsNothing);
     expect(find.byType(BarraPestanas), findsNothing);
