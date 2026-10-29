@@ -90,8 +90,16 @@ export const MENU: readonly Grupo[] = [
           // Contabilidad le mostraban esa sección a roles sin `ver:contabilidad` (el administrador de plataforma).
           { ruta: '/operacion/custodia', texto: 'Conciliación de custodia', icono: 'banco', requiere: [OPERACION, p('AUDITORIA_LEER')] },
           { ruta: '/operacion/cierres-diarios', texto: 'Cierres diarios', icono: 'reloj', requiere: [OPERACION, p('AUDITORIA_LEER')] },
-          { ruta: '/admisiones', texto: 'Admisiones a grupos', icono: 'personaMas', requiere: [p('ver:admisiones')] },
-          { ruta: '/postulaciones-organizador', texto: 'Postulaciones a organizador', icono: 'persona', requiere: [p('ver:postulaciones')] },
+          // Quién entra: a un grupo (CU-68) o como organizador (CU-90). Agrupadas para no pasar de ocho pestañas.
+          {
+            ruta: '/admisiones',
+            texto: 'Admisiones',
+            icono: 'personaMas',
+            grupo: [
+              { ruta: '/admisiones', texto: 'Admisiones a grupos', icono: 'personaMas', requiere: [p('ver:admisiones')] },
+              { ruta: '/postulaciones-organizador', texto: 'Postulaciones a organizador', icono: 'persona', requiere: [p('ver:postulaciones')] },
+            ],
+          },
           { ruta: '/operacion/solicitudes-escaladas', texto: 'Solicitudes escaladas', icono: 'bandera', requiere: [OPERACION, p('SOLICITUD_INGRESO_VER')] },
         ],
       },
