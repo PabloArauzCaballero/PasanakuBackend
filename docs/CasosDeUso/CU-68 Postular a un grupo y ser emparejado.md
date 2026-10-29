@@ -195,6 +195,14 @@ Dada una solicitud de ingreso PENDIENTE con un cupo libre
 Cuando el organizador del grupo la acepta
 Entonces reserva el cupo, crea al participante pendiente de firma y deja el evento
 
+Dada una solicitud PENDIENTE sin propuesta
+Cuando backoffice la acepta
+Entonces reserva el cupo y queda APROBADA a su nombre
+
+Dado un grupo sin cupos libres
+Cuando backoffice acepta una solicitud PENDIENTE
+Entonces recibe el mismo «ya no hay cupos» que el organizador
+
 Dado un grupo con solicitudes en distintos estados y otras de otros grupos
 Cuando su organizador pide la cola
 Entonces solo ve las PENDIENTES de SU grupo
