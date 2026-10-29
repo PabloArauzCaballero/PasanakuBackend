@@ -1,6 +1,6 @@
 part of 'rutas.dart';
 
-/// Retiro, permuta, verificación del sorteo, transparencia, estado, puntaje, turno, aporte y reclamo.
+/// Retiro, traspaso del cupo, permuta, verificación del sorteo, transparencia, estado, puntaje, turno, aporte y reclamo.
 /// Vive aparte solo por tamaño: `rutasPasanaku` la inserta en el mismo lugar, así el orden no cambia.
 final List<RouteBase> _rutasDeOperacion = [
   GoRoute(
@@ -9,6 +9,15 @@ final List<RouteBase> _rutasDeOperacion = [
     builder: (context, state) => PantallaRetiro(
       grupoId: state.pathParameters['grupoId']!,
       participanteId: state.uri.queryParameters['participante'] ?? '',
+    ),
+  ),
+  GoRoute(
+    path: '/pasanaku/grupos/:grupoId/cupos/:cupoId/traspaso',
+    name: 'pasanaku.traspaso',
+    builder: (context, state) => PantallaTraspaso(
+      grupoId: state.pathParameters['grupoId']!,
+      cupoId: state.pathParameters['cupoId']!,
+      acuerdoId: state.uri.queryParameters['acuerdo'],
     ),
   ),
   GoRoute(

@@ -387,6 +387,50 @@ void main() {
       );
     }
 
+    testWidgets('quien sale se va de la ruleta; al final se rearma con todos', (
+      tester,
+    ) async {
+      final (:dio, :adaptador) = dioSimulado();
+      adaptador
+        ..onGet('/grupos/$_grupo/detalle', (s) => s.reply(200, completo()))
+        ..onPost(
+          '/grupos/$_grupo/sorteo',
+          (s) => s.reply(201, {
+            'sorteoId': 'c6900000-0000-4000-8000-0000000000c1',
+            'hashSemilla': _hash,
+            'algoritmo': 'FISHER_YATES_SHA256',
+          }),
+        )
+        ..onPost(
+          '/grupos/$_grupo/sorteo/revelacion',
+          (s) => s.reply(200, {
+            'sorteoId': 'c6900000-0000-4000-8000-0000000000c1',
+            'verificado': true,
+            'cuposEnOrden': [_cupos[2], _cupos[0], _cupos[1]],
+          }),
+          data: Matchers.any,
+        );
+      await _montar(tester, const PantallaSorteo(grupoId: _grupo), dio);
+      List<String> enRueda() =>
+          tester.widget<RuletaDelSorteo>(find.byType(RuletaDelSorteo)).nombres;
+      expect(enRueda(), hasLength(3));
+      await tester.tap(find.text('Girar la ruleta'));
+      final vistos = <String>[];
+      for (var i = 0; i < 600; i++) {
+        await tester.pump(const Duration(milliseconds: 50));
+        final ahora = enRueda().join('|');
+        if (vistos.isEmpty || vistos.last != ahora) vistos.add(ahora);
+      }
+      // Sale Ana: quedan Rosa y Juan; sale Rosa: queda Juan; al final, los tres en orden.
+      expect(vistos, contains('Rosa Quispe|Juan Mamani'));
+      expect(vistos, contains('Juan Mamani'));
+      expect(vistos.last, 'Ana Choque|Rosa Quispe|Juan Mamani');
+      expect(
+        tester.widget<RuletaDelSorteo>(find.byType(RuletaDelSorteo)).puestos,
+        {0: 1, 1: 2, 2: 3},
+      );
+    });
+
     testWidgets('límite: con el sorteo ya hecho se ve el orden sin girar', (
       tester,
     ) async {
