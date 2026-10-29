@@ -40,6 +40,10 @@ menu-y-guardias árbol limpio:   Tests 2 failed | 85 passed (87) · 57.11s
 - Accesibilidad automática (no se agregó spec a11y para estas pantallas).
 - `medidos` del contrato (opcional): no se envía.
 
+## Regresión introducida y corregida (2026-10-29)
+- Tras mergear #249, la regresión completa del backoffice en `test` (ea6dd5ed) dio **1 failed | 1284 passed**: `nucleo/menu.spec.ts` exige máximo 8 pestañas por sección y Operación quedó con 9 al sumar «Postulaciones a organizador». Fue un defecto de este trabajo (no se corrió la regresión completa antes del PR).
+- Corrección: «Admisiones a grupos» y «Postulaciones a organizador» pasan a un subgrupo «Admisiones» dentro de Operación (mismo patrón que «Riesgo y seguridad»). Regresión completa: **182 archivos, 1285/1285 en verde** (`evidencia/regresion-con-arreglo.txt`).
+
 ## Desvíos del plan
 - Los tipos se importan de `clientes/angular/organizador/model/models` y no del índice raíz: con el cliente regenerado en el worktree, el índice raíz no exponía los modelos nuevos (`PaginaDeBandeja`, `SalidaHabilitacion`) aunque `model/models.ts` sí. Hay precedente de importar por `model/` (`rutas/publicidad/campanas/formulario-de-campana.ts`). Causa raíz no determinada; se anota.
 - Se agregó H1.S1.M6 (traducciones de errores), no prevista.
