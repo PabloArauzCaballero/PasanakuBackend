@@ -5,6 +5,7 @@ import 'package:aportaya_diseno/atomos/campo_monto_grande.dart';
 import 'package:aportaya_diseno/atomos/iconos_de_marca.dart';
 import 'package:aportaya_diseno/atomos/tono.dart';
 import 'package:aportaya_diseno/moleculas/cabecera.dart';
+import 'package:aportaya_diseno/moleculas/tarjeta.dart';
 import 'package:aportaya_diseno/organismos/estado_de_tramite.dart';
 import 'package:aportaya_diseno/atomos/monto.dart';
 import 'package:aportaya_diseno/organismos/estado_error.dart';
@@ -88,16 +89,27 @@ class _PantallaRetirarState extends ConsumerState<PantallaRetirar>
                               onChanged: (v) => setState(() => _monto = v),
                             ),
                             const SizedBox(height: Espacio.s6),
-                            Campo(
-                              etiqueta: TextosBilletera.cuentaDestino,
-                              onChanged: (v) =>
-                                  setState(() => _instrumentoDestinoId = v),
-                            ),
-                            const SizedBox(height: Espacio.s3),
-                            Campo(
-                              etiqueta: TextosBilletera.factorMfa,
-                              tipoDeTeclado: TextInputType.number,
-                              onChanged: (v) => setState(() => _factorMfa = v),
+                            Tarjeta(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  Campo(
+                                    etiqueta: TextosBilletera.cuentaDestino,
+                                    ayuda: TextosBilletera.ayudaCuentaDestino,
+                                    onChanged: (v) => setState(
+                                      () => _instrumentoDestinoId = v,
+                                    ),
+                                  ),
+                                  const SizedBox(height: Espacio.s3),
+                                  Campo(
+                                    etiqueta: TextosBilletera.factorMfa,
+                                    ayuda: TextosBilletera.ayudaFactorMfa,
+                                    tipoDeTeclado: TextInputType.number,
+                                    onChanged: (v) =>
+                                        setState(() => _factorMfa = v),
+                                  ),
+                                ],
+                              ),
                             ),
                             const SizedBox(height: Espacio.s4),
                             if (estado.hasError)
@@ -121,6 +133,11 @@ class _PantallaRetirarState extends ConsumerState<PantallaRetirar>
                     variante: BotonVariante.primario,
                     expandido: true,
                     cargando: estado.isLoading,
+                    motivoDeBloqueo: TextosBilletera.motivoRetiro(
+                      hayMonto: _monto != null,
+                      hayCuenta: _instrumentoDestinoId.isNotEmpty,
+                      factorCompleto: _factorMfa.length == 6,
+                    ),
                     onPressed: _puedeEnviar
                         ? () => notifier.enviar(
                             cuentaId: widget.cuentaId,

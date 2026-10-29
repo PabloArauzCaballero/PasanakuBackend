@@ -96,6 +96,7 @@ class _PantallaRecargarState extends ConsumerState<PantallaRecargar>
                     variante: BotonVariante.primario,
                     expandido: true,
                     cargando: estado.isLoading,
+                    motivoDeBloqueo: TextosBilletera.motivoRecarga,
                     onPressed: _monto == null
                         ? null
                         : () => notifier.enviar(

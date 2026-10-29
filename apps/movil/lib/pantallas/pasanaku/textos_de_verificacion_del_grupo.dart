@@ -28,6 +28,10 @@ abstract final class TextosDeVerificacionDelGrupo {
   static String desdeBloque(int bloque, String componente) =>
       'Desde el bloque $bloque: $componente';
 
+  static const turnoSorteoExplicacion =
+      'El sorteo deja un compromiso guardado antes de sortear y revela la semilla después. Con esos datos podés reproducir el orden.';
+  static const comprobarSorteo = 'Comprobar el sorteo';
+
   static const reclamoTitulo = 'Tu reclamo';
   static const reclamoInstancias = 'Si la respuesta no te convence';
 }
