@@ -1,36 +1,33 @@
 ❯ Building...
 ✔ Building...
 Initial chunk files | Names                      |  Raw size | Estimated transfer size
-main-W5ATVIBR.js    | main                       | 191.25 kB |                48.90 kB
+main-OA2ZAEAK.js    | main                       | 185.92 kB |                48.12 kB
 chunk-ClTk9wxt.js   | -                          | 165.73 kB |                49.26 kB
 chunk-B6Wg98ne.js   | -                          | 132.98 kB |                34.91 kB
 styles-QCZKEJS4.css | styles                     |  11.74 kB |                 2.27 kB
 chunk-6hRO0rGA.js   | -                          |   1.92 kB |               792 bytes
 
-                    | Initial total              | 503.62 kB |               136.14 kB
+                    | Initial total              | 498.29 kB |               135.36 kB
 
 Lazy chunk files    | Names                      |  Raw size | Estimated transfer size
-chunk-CZKb6_5I.js   | -                          |   1.03 MB |                77.59 kB
+chunk-znt-S2bo.js   | -                          |   1.07 MB |                81.29 kB
 chunk-CSo2lGPA.js   | -                          |  37.81 kB |                 3.89 kB
-chunk-8tvpps8T.js   | ficha-de-tabla             |  37.55 kB |                 9.06 kB
+chunk-Cf3SICUa.js   | ficha-de-tabla             |  37.49 kB |                 9.03 kB
 chunk-Dvmk2-3y.js   | -                          |  30.79 kB |                 3.74 kB
-chunk-CZ9lUdgQ.js   | pantalla-de-conciliaciones |  21.76 kB |                 6.28 kB
-chunk-BzrphRx9.js   | pantalla-operacion-detalle |  21.09 kB |                 5.29 kB
-chunk-kzcvNQbS.js   | pantalla-de-compras        |  19.89 kB |                 5.37 kB
-chunk-DbADVKtZ.js   | pantalla-de-expedientes    |  19.19 kB |                 5.64 kB
-chunk-BDQLdfWI.js   | pantalla-usuarios-internos |  17.41 kB |                 5.21 kB
-chunk-DCZZlybX.js   | pantalla-bitacora          |  17.37 kB |                 5.55 kB
-chunk-3loBtLIF.js   | pantalla-de-campanas       |  16.98 kB |                 5.04 kB
-chunk-vpAvjr0I.js   | pantalla-de-admision       |  16.84 kB |                 4.71 kB
-chunk-BP616ybr.js   | bandeja-de-reclamos        |  16.54 kB |                 5.68 kB
-chunk-DRjePqMc.js   | pantalla-de-cierres        |  16.41 kB |                 5.12 kB
-chunk-Bn0ZS66S.js   | pantalla-de-ingreso        |  16.13 kB |                 5.06 kB
+chunk-DPsvmk14.js   | pantalla-de-conciliaciones |  21.74 kB |                 6.28 kB
+chunk-c7jS7L_B.js   | pantalla-operacion-detalle |  21.06 kB |                 5.29 kB
+chunk-CtYmXxPK.js   | pantalla-de-admision       |  21.00 kB |                 5.27 kB
+chunk-Ch26oWhn.js   | pantalla-de-compras        |  19.87 kB |                 5.37 kB
+chunk-BxvE4Vzw.js   | pantalla-de-expedientes    |  19.16 kB |                 5.64 kB
+chunk-BFn99Heu.js   | pantalla-usuarios-internos |  17.40 kB |                 5.22 kB
+chunk-CpYRbldX.js   | pantalla-bitacora          |  17.36 kB |                 5.54 kB
+chunk-P_252LII.js   | pantalla-de-campanas       |  16.96 kB |                 5.04 kB
+chunk-rq4H7cve.js   | bandeja-de-reclamos        |  16.52 kB |                 5.67 kB
+chunk-C_QqH5EX.js   | pantalla-de-cierres        |  16.38 kB |                 5.11 kB
+chunk-DWwM2IMk.js   | pantalla-de-ingreso        |  16.13 kB |                 5.07 kB
 ...and 148 more lazy chunks files. Use "--verbose" to show all the files.
 
-Application bundle generation complete. [15.343 seconds] - 2026-10-29T11:34:38.369Z
-
-[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mbundle initial exceeded maximum budget. Budget 500.00 kB was not met by 3.62 kB with a total of 503.62 kB.[0m
-
+Application bundle generation complete. [21.523 seconds] - 2026-10-29T11:50:47.770Z
 
 Output location: /Users/pablo/Documents/GitHub/Pasanaku-pend/apps/backoffice/dist/backoffice
 
