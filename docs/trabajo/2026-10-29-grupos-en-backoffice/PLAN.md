@@ -30,11 +30,11 @@
 | H1.S1.M1 | Contrato: dos operaciones + esquemas `GrupoDeBackoffice`, `DetalleDeGrupoDeBackoffice`, `ParticipanteDeBackoffice` | sin campos de contacto ni importes por persona | `./gradlew :servicios:grupos:compileJava` (genera interfaz) | HECHO |
 | H1.S1.M2 | Consulta jOOQ + rutas | admin 200; AUDITORIA_LEER 200; PARTICIPANTE 403; sin token 401 | `webTest` del controlador | HECHO |
 | H1.S1.M3 | Integración contra Postgres real | listado acotado, filtro por estado, detalle con participantes, grupo inexistente 422 | `integrationTest` | HECHO |
-| H1.S2.M1 | Cliente Angular regenerado + dominio | tipos generados | `yarn typecheck` | TODO |
-| H1.S2.M2 | Pantalla de listado | carga / datos / vacío / error | spec dirigido | TODO |
-| H1.S2.M3 | Pantalla de detalle | datos + participantes; inexistente → mensaje | spec dirigido | TODO |
-| H1.S2.M4 | Menú (≤ 8 pestañas), sección, ruta | menu.spec + menu-y-guardias + matriz de roles | specs | TODO |
-| H1.S3.M1 | Regresión completa backoffice + grupos | sin rojos nuevos | suites completas, comparadas con el árbol limpio | TODO |
+| H1.S2.M1 | Cliente Angular regenerado + dominio | tipos generados | `yarn typecheck` | HECHO |
+| H1.S2.M2 | Pantalla de listado | carga / datos / vacío / error | spec dirigido | HECHO |
+| H1.S2.M3 | Pantalla de detalle | datos + participantes; inexistente → mensaje | spec dirigido | HECHO |
+| H1.S2.M4 | Menú (≤ 8 pestañas), sección, ruta | menu.spec + menu-y-guardias + matriz de roles | specs | HECHO |
+| H1.S3.M1 | Regresión completa backoffice + grupos | sin rojos nuevos | suites completas, comparadas con el árbol limpio | HECHO |
 | H1.S3.M2 | Postman + `generar_ddl`/CI coherentes | CI sin rojos nuevos | `gh pr checks` | TODO |
 | H1.S3.M3 | Verificación en TEST | listado con los grupos reales | llamada con token + captura | TODO |
 
