@@ -60,6 +60,11 @@ CAMBIOS=$(git diff --name-only "${ANTERIOR:-HEAD}" "$REMOTO" 2>/dev/null || echo
 git checkout -q "$REMOTO"
 # TODO tiene que alcanzar a todo, no solo a los servicios: cada condicion de abajo lo mira.
 TODO_O() { [ "$CAMBIOS" = "TODO" ] || echo "$CAMBIOS" | grep -qE "$1"; }
+# Una imagen que no esta en el host se reconstruye aunque el commit no la toque: el compose
+# las pide con `pull_policy: never`, y una faltante deja ese servicio caido despues del
+# despliegue. El 2026-10-29 la limpieza de Coolify borro backoffice y web entre el build y el
+# despliegue; nada las reponia y el despliegue fallo con «No such image».
+falta() { ! docker image inspect "$1" >/dev/null 2>&1; }
 
 # Una falla de construccion NO puede pasar inadvertida: antes se marcaba y el script
 # seguia igual hasta `desplegando`, asi que el log decia «listo en <sha>» mientras
@@ -89,6 +94,11 @@ else
   SERVICIOS=$(echo "$CAMBIOS" | grep -oE '^servicios/[^/]+' | cut -d/ -f2 | sort -u)
   echo "$CAMBIOS" | grep -q '^plataforma/gateway/' && construir /opt/aportaya/bin/construir.sh gateway plataforma
 fi
+falta aportaya/gateway:test && construir /opt/aportaya/bin/construir.sh gateway plataforma
+for s in $(ls -d servicios/*/ | xargs -n1 basename); do
+  falta "aportaya/$s:test" && SERVICIOS="${SERVICIOS:-} $s"
+done
+SERVICIOS=$(echo ${SERVICIOS:-} | tr ' ' '\n' | sort -u)
 for s in ${SERVICIOS:-}; do construir /opt/aportaya/bin/construir.sh "$s" servicios; done
 
 # El esquema viaja con el despliegue, pero su imagen lleva sql/ adentro.
@@ -111,12 +121,14 @@ FRONT_ANGULAR='^(packages/ui/|packages/tokens/|packages/tutoriales/|packages/sim
 # regenerarlo, un cambio de contrato construye el front contra el cliente de la corrida
 # anterior. Se regenera una vez, antes de cualquiera de los dos.
 CONTRATO='^servicios/[^/]+/src/main/resources/openapi/'
-if TODO_O "^apps/backoffice/|^apps/web/|$FRONT_ANGULAR|$CONTRATO"; then
+FALTA_BACKOFFICE=0; falta aportaya/backoffice:test && FALTA_BACKOFFICE=1
+FALTA_WEB=0; falta aportaya/web:test && FALTA_WEB=1
+if TODO_O "^apps/backoffice/|^apps/web/|$FRONT_ANGULAR|$CONTRATO" || [ $FALTA_BACKOFFICE = 1 ] || [ $FALTA_WEB = 1 ]; then
   construir /opt/aportaya/bin/generar-clientes.sh
 fi
-TODO_O "^apps/backoffice/|$FRONT_ANGULAR|$CONTRATO" && \
+{ TODO_O "^apps/backoffice/|$FRONT_ANGULAR|$CONTRATO" || [ $FALTA_BACKOFFICE = 1 ]; } && \
   construir docker build -f apps/backoffice/docker/Dockerfile.backoffice --build-arg CONF_NGINX=apps/backoffice/docker/nginx.desplegado.conf --label "aportaya.commit=$REMOTO" -t aportaya/backoffice:test .
-TODO_O "^apps/web/|$FRONT_ANGULAR|$CONTRATO" && \
+{ TODO_O "^apps/web/|$FRONT_ANGULAR|$CONTRATO" || [ $FALTA_WEB = 1 ]; } && \
   construir docker build -f apps/web/docker/Dockerfile.web --label "aportaya.commit=$REMOTO" -t aportaya/web:test .
 
 # El movil va por su guion, NO por `docker build` pelado: el Dockerfile trae los clientes
@@ -126,7 +138,8 @@ TODO_O "^apps/web/|$FRONT_ANGULAR|$CONTRATO" && \
 # ultima corrida a mano: del 17 al 21 de septiembre la app movil fallaba con
 # `Type 'ContratoVigente' not found` y se desplegaba la imagen vieja sin avisar.
 # Tambien lo dispara un cambio de contrato, que es lo que deja viejo al cliente generado.
-TODO_O '^(apps/movil/|packages/diseno_flutter/|packages/tokens/|servicios/[^/]+/src/main/resources/openapi/)' && \
+{ TODO_O '^(apps/movil/|packages/diseno_flutter/|packages/tokens/|servicios/[^/]+/src/main/resources/openapi/)' \
+    || falta aportaya/movil-web:test; } && \
   construir /opt/aportaya/bin/construir-movil-web.sh
 
 # No se despliega un sha cuyas imagenes no construyeron todas: desplegar igual es lo que
@@ -145,8 +158,17 @@ verificar_imagen() {
     FALLIDAS="$FALLIDAS $imagen"
   fi
 }
-TODO_O "^apps/backoffice/|$FRONT_ANGULAR|$CONTRATO" && verificar_imagen aportaya/backoffice:test
-TODO_O "^apps/web/|$FRONT_ANGULAR|$CONTRATO" && verificar_imagen aportaya/web:test
+{ TODO_O "^apps/backoffice/|$FRONT_ANGULAR|$CONTRATO" || [ $FALTA_BACKOFFICE = 1 ]; } && verificar_imagen aportaya/backoffice:test
+{ TODO_O "^apps/web/|$FRONT_ANGULAR|$CONTRATO" || [ $FALTA_WEB = 1 ]; } && verificar_imagen aportaya/web:test
+# Y antes de desplegar, que esten TODAS: una que falta tira su servicio aunque el resto este bien.
+for imagen in aportaya/gateway:test aportaya/esquema:test aportaya/backoffice:test aportaya/web:test \
+              aportaya/movil-web:test $(ls -d servicios/*/ | xargs -n1 basename | sed 's|.*|aportaya/&:test|'); do
+  if falta "$imagen"; then
+    marca "FALLA $imagen no esta en el host"
+    FALLAS=$((FALLAS + 1))
+    FALLIDAS="$FALLIDAS $imagen"
+  fi
+done
 
 if [ "$FALLAS" -gt 0 ]; then
   echo "$REMOTO" > /opt/aportaya/ultimo-construido
