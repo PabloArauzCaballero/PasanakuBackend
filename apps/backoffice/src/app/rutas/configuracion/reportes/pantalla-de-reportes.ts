@@ -3,10 +3,12 @@ import { Alerta } from '@aportaya/ui/alerta/alerta'
 import { CabeceraDePagina } from '@aportaya/ui/cabecera-de-pagina/cabecera-de-pagina'
 import { Pestanas, type Pestana } from '@aportaya/ui/pestanas/pestanas'
 import { ExplicadorDeVista } from '../../../nucleo/explicador-de-vista'
+import { Sesion } from '../../../nucleo/sesion'
 import type { CargadorDePagina } from '../../../nucleo/tabla/tipos'
 import { crearListadoPorCursor, filtroInicialDeLaUrl, opcionesDe } from '../../contabilidad/listado/listado-por-cursor'
 import { cargadorDeDefiniciones, cargadorDeEjecuciones, type DefinicionDeReporteEnLista, type EjecucionDeReporteEnLista } from '../dominio/cu58-reportes'
 import { textosConfiguracion } from '../textos'
+import { FormularioDeEjecucion } from './formulario-de-ejecucion'
 import { TablaDeCatalogo, TablaDeEjecuciones } from './tablas-de-reportes'
 
 const PESTANAS: Pestana[] = [
@@ -21,21 +23,24 @@ const ESTADOS: Record<string, string> = textosConfiguracion.reportes.estados
  * del catálogo ya vistas, aunque la pestaña del catálogo no esté abierta; si la definición no se vio, queda el
  * identificador, nunca un nombre supuesto.
  *
- * Ejecutar un reporte (`ejecutarReporte`) y la exportación con huella y tope del servidor (`nucleo/exportador.ts`)
- * **no son parte de esta pantalla** y no se tocan: «Descargar CSV / JSON» de acá baja lo filtrado del listado en el
- * navegador, que es otra cosa.
+ * «Ejecutar» abre el formulario de `ejecutarReporte` (`formulario-de-ejecucion.ts`) en los reportes que el permiso de la
+ * sesión alcanza; la ejecución queda en el historial. La descarga del archivo exportado (`descargarExportacion`) no es
+ * parte de esta pantalla. «Descargar CSV / JSON» de acá baja lo filtrado del listado en el navegador, que es otra cosa.
  */
 @Component({
   selector: 'ap-pantalla-de-reportes',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [Alerta, CabeceraDePagina, Pestanas, TablaDeCatalogo, TablaDeEjecuciones],
+  imports: [Alerta, CabeceraDePagina, FormularioDeEjecucion, Pestanas, TablaDeCatalogo, TablaDeEjecuciones],
   template: `
     <section class="pantalla">
       <ap-cabecera-de-pagina eyebrow="Configuración" [titulo]="t.titulo" [descripcion]="t.proposito" />
-      <ap-alerta tono="info">{{ comun.soloLectura }}</ap-alerta>
+      <ap-alerta tono="info">{{ t.ayudaDeAcciones }}</ap-alerta>
+      @if (elegida(); as d) {
+        <ap-formulario-de-ejecucion [definicion]="d" (ejecutada)="historial.recargar()" (cerrar)="elegida.set(null)" />
+      }
       <ap-pestanas etiqueta="Reportes" [pestanas]="PESTANAS" [(elegida)]="pestana" />
       <div role="tabpanel" [id]="'panel-' + pestana()" [attr.aria-labelledby]="'pestana-' + pestana()">
-        @if (pestana() === 'catalogo') { <ap-tabla-de-catalogo [listado]="catalogo" /> } @else { <ap-tabla-de-ejecuciones [listado]="historial" [nombres]="nombres()" /> }
+        @if (pestana() === 'catalogo') { <ap-tabla-de-catalogo [listado]="catalogo" [puede]="puede" (ejecutar)="elegida.set($event)" /> } @else { <ap-tabla-de-ejecuciones [listado]="historial" [nombres]="nombres()" /> }
       </div>
     </section>
   `,
@@ -50,7 +55,10 @@ export class PantallaDeReportes {
   }
 
   protected readonly t = textosConfiguracion.reportes
-  protected readonly comun = textosConfiguracion.comun
+  private readonly sesion = inject(Sesion)
+  /** El permiso de cada reporte lo decide la sesión; el servidor lo exige igual (`CU58EjecutarReporte`). */
+  protected readonly puede = (permiso: string): boolean => this.sesion.puede(permiso)
+  protected readonly elegida = signal<DefinicionDeReporteEnLista | null>(null)
   protected readonly PESTANAS = PESTANAS
   private readonly filtroDeLaUrl = filtroInicialDeLaUrl(opcionesDe(ESTADOS))
   protected readonly pestana = signal(this.filtroDeLaUrl ? 'ejecuciones' : 'catalogo')
