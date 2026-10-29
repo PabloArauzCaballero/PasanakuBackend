@@ -51,6 +51,8 @@ export const PERMISOS_POR_SECCION: Readonly<Record<string, readonly string[]>> =
   // Accesos y factores de operadores, catálogos, despliegues e interruptores.
   // Solicitudes de ingreso a grupos: resolver la admisión es de la plataforma (`@Permiso("ADMIN_PLATAFORMA")` en `grupos`).
   'ver:admisiones': ['ADMIN_PLATAFORMA'],
+  // Postulaciones a organizador (CU-90): bandeja, expediente y resolución son `@Permiso("ADMIN_PLATAFORMA")` en `organizador`.
+  'ver:postulaciones': ['ADMIN_PLATAFORMA'],
   // Catálogo de datos con su ficha de gobierno (CU-130): el mismo permiso que exige su ruta.
   'ver:catalogo': ['TABLERO_SISTEMAS_VER'],
   'ver:sistemas': ['ACCESOS_ADMINISTRAR', 'SEGURIDAD_ACCESO_RESTABLECER', 'SEGURIDAD_FACTOR_REINSCRIBIR', 'CATALOGO_EDITAR'],

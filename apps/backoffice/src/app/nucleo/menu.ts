@@ -80,7 +80,7 @@ export const MENU: readonly Grupo[] = [
       {
         ruta: 'operacion',
         texto: 'Operación',
-        prefijos: ['/operacion', '/admisiones'],
+        prefijos: ['/operacion', '/admisiones', '/postulaciones-organizador'],
         pantallas: [
           { ruta: '/operacion/retiros', texto: 'Retiros en revisión', icono: 'retiro', requiere: [OPERACION, p('RETIRO_APROBAR')] },
           { ruta: '/operacion/desembolsos', texto: 'Desembolsos', icono: 'entrega', requiere: [OPERACION, p('ENTREGA_EJECUTAR', 'AUDITORIA_LEER')] },
@@ -91,6 +91,7 @@ export const MENU: readonly Grupo[] = [
           { ruta: '/operacion/custodia', texto: 'Conciliación de custodia', icono: 'banco', requiere: [OPERACION, p('AUDITORIA_LEER')] },
           { ruta: '/operacion/cierres-diarios', texto: 'Cierres diarios', icono: 'reloj', requiere: [OPERACION, p('AUDITORIA_LEER')] },
           { ruta: '/admisiones', texto: 'Admisiones a grupos', icono: 'personaMas', requiere: [p('ver:admisiones')] },
+          { ruta: '/postulaciones-organizador', texto: 'Postulaciones a organizador', icono: 'persona', requiere: [p('ver:postulaciones')] },
           { ruta: '/operacion/solicitudes-escaladas', texto: 'Solicitudes escaladas', icono: 'bandera', requiere: [OPERACION, p('SOLICITUD_INGRESO_VER')] },
         ],
       },
