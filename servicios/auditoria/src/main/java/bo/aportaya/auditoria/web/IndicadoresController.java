@@ -5,6 +5,7 @@ import bo.aportaya.auditoria.aplicacion.CU131RevisarColumna;
 import bo.aportaya.auditoria.aplicacion.CU98PublicarTablero;
 import bo.aportaya.auditoria.aplicacion.CatalogoDeDatosVigente;
 import bo.aportaya.auditoria.aplicacion.ConsultarCatalogoDeDatos;
+import bo.aportaya.auditoria.aplicacion.ConsultarIncidentesOperativos;
 import bo.aportaya.auditoria.aplicacion.EndpointsDelDia;
 import bo.aportaya.auditoria.aplicacion.SaludDeServicios;
 import bo.aportaya.auditoria.dominio.FamiliasVisibles;
@@ -13,11 +14,14 @@ import bo.aportaya.auditoria.web.generado.modelo.CatalogoDeDatos;
 import bo.aportaya.auditoria.web.generado.modelo.EndpointDelDia;
 import bo.aportaya.auditoria.web.generado.modelo.EntradaFichaDeGobierno;
 import bo.aportaya.auditoria.web.generado.modelo.EntradaRevisionDeColumna;
+import bo.aportaya.auditoria.web.generado.modelo.EstadoDeIncidenteOperativo;
 import bo.aportaya.auditoria.web.generado.modelo.EstadoDeRevision;
 import bo.aportaya.auditoria.web.generado.modelo.EstadoDeTabla;
 import bo.aportaya.auditoria.web.generado.modelo.FichaDeGobierno;
+import bo.aportaya.auditoria.web.generado.modelo.IncidenteOperativo;
 import bo.aportaya.auditoria.web.generado.modelo.Indicador;
 import bo.aportaya.auditoria.web.generado.modelo.IndicadorSerieInner;
+import bo.aportaya.auditoria.web.generado.modelo.PaginaDeIncidentesOperativos;
 import bo.aportaya.auditoria.web.generado.modelo.PaginaDeTablasDelCatalogo;
 import bo.aportaya.auditoria.web.generado.modelo.ResumenDelCatalogo;
 import bo.aportaya.auditoria.web.generado.modelo.RevisionDeColumna;
@@ -25,6 +29,7 @@ import bo.aportaya.auditoria.web.generado.modelo.SalidaEndpointsDelDia;
 import bo.aportaya.auditoria.web.generado.modelo.SalidaSaludDeServicios;
 import bo.aportaya.auditoria.web.generado.modelo.SalidaTablero;
 import bo.aportaya.auditoria.web.generado.modelo.SensibilidadDeTabla;
+import bo.aportaya.auditoria.web.generado.modelo.SeveridadDeIncidenteOperativo;
 import bo.aportaya.auditoria.web.generado.modelo.TablaDelCatalogo;
 import bo.aportaya.auditoria.web.generado.modelo.TipoDeTabla;
 import bo.aportaya.plataforma.web.seguridad.Permiso;
@@ -60,6 +65,7 @@ public class IndicadoresController implements IndicadoresApi {
     private final CU130GobernarFichaDeTabla cu130;
     private final CU131RevisarColumna cu131;
     private final ConsultarCatalogoDeDatos catalogo;
+    private final ConsultarIncidentesOperativos incidentes;
 
     public IndicadoresController(
             CU98PublicarTablero cu98,
@@ -70,7 +76,8 @@ public class IndicadoresController implements IndicadoresApi {
             SesionDeLaPeticion sesion,
             CU130GobernarFichaDeTabla cu130,
             CU131RevisarColumna cu131,
-            ConsultarCatalogoDeDatos catalogo) {
+            ConsultarCatalogoDeDatos catalogo,
+            ConsultarIncidentesOperativos incidentes) {
         this.cu98 = cu98;
         this.endpointsDelDia = endpointsDelDia;
         this.catalogoDeDatos = catalogoDeDatos;
@@ -80,6 +87,7 @@ public class IndicadoresController implements IndicadoresApi {
         this.cu130 = cu130;
         this.cu131 = cu131;
         this.catalogo = catalogo;
+        this.incidentes = incidentes;
     }
 
     @Override
@@ -189,6 +197,41 @@ public class IndicadoresController implements IndicadoresApi {
         } catch (JsonProcessingException e) {
             throw new IllegalStateException("El catalogo de datos no cumple el contrato CatalogoDeDatos", e);
         }
+    }
+
+    /** Sistemas › Incidentes: una pagina de auditoria.incidente_operativo. Traduce y delega. */
+    @Override
+    @Permiso("TABLERO_SISTEMAS_VER")
+    @PermisoAlternativo({"AUDITORIA_LEER"})
+    public ResponseEntity<PaginaDeIncidentesOperativos> listarIncidentesOperativos(
+            EstadoDeIncidenteOperativo estado,
+            SeveridadDeIncidenteOperativo severidad,
+            Integer pagina,
+            Integer limite) {
+        Traza.marcarCasoDeUso("TABLERO-SISTEMAS", "operacion/incidentes");
+        var resultado = incidentes.listar(
+                Optional.ofNullable(estado).map(EstadoDeIncidenteOperativo::getValue),
+                Optional.ofNullable(severidad).map(SeveridadDeIncidenteOperativo::getValue),
+                pagina == null ? 1 : pagina,
+                limite == null ? 50 : limite,
+                sesion.actual());
+        var items = resultado.items().stream()
+                .map(f -> {
+                    var i = new IncidenteOperativo(
+                            f.id(),
+                            f.codigo(),
+                            f.titulo(),
+                            SeveridadDeIncidenteOperativo.fromValue(f.severidad()),
+                            f.sistemaAfectado(),
+                            EstadoDeIncidenteOperativo.fromValue(f.estado()),
+                            f.detectadoEn(),
+                            f.impactoUsuarios());
+                    f.resueltoEn().ifPresent(i::setResueltoEn);
+                    return i;
+                })
+                .toList();
+        return ResponseEntity.ok(new PaginaDeIncidentesOperativos(
+                items, resultado.pagina(), resultado.limite(), resultado.total(), resultado.totalPaginas()));
     }
 
     /** Catalogo de datos · H2 — las cifras, los esquemas y los modulos, sin una columna. Traduce y delega. */

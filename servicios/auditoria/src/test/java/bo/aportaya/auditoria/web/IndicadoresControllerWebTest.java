@@ -42,6 +42,11 @@ class IndicadoresControllerWebTest {
 
     // Catalogo de datos · H2: comparte controlador; no se llama aca.
 
+    // Sistemas › Incidentes: comparte controlador; no se llama aca.
+
+    @MockitoBean
+    private bo.aportaya.auditoria.aplicacion.ConsultarIncidentesOperativos consultarIncidentes;
+
     @MockitoBean
     private bo.aportaya.auditoria.aplicacion.ConsultarCatalogoDeDatos consultarCatalogo;
 

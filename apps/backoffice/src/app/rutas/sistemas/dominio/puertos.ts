@@ -45,17 +45,27 @@ export type Migracion = { id: string; nombre: string; aplicadaEl: string | null;
 
 export type Respaldo = { id: string; origen: string; tomadoEl: string; ultimaRestauracionProbadaEl: string | null }
 
-export type Proveedor = { id: string; nombre: string; categoria: string; costoRealUltimoPeriodo: string; moneda: string }
+/** Un proveedor externo. Sin costo registrado en el período, `costoRealUltimoPeriodo` y `moneda` quedan vacíos (la vista dice «—»). */
+export type Proveedor = { id: string; nombre: string; categoria: string; costoRealUltimoPeriodo: string; moneda: string; activo?: string; periodo?: string }
 
 export type MensajeOutbox = { id: string; tipo: string; creadoEl: string; estado: 'pendiente' | 'entregado' }
 export type MensajeDescartado = { id: string; tipo: string; motivo: string; descartadoEl: string }
 export type OutboxYDescartados = { mensajes: MensajeOutbox[]; descartados: MensajeDescartado[] }
 
-export type Webhook = { id: string; direccion: 'entrante' | 'saliente'; origen: string; ultimoEstado: 'ok' | 'error'; ultimaEntregaEl: string }
+/** Un webhook recibido. `detalle` es el estado tal como lo registró el servicio dueño (procesado, duplicado, rechazado…). */
+export type Webhook = { id: string; direccion: 'entrante' | 'saliente'; origen: string; ultimoEstado: 'ok' | 'error'; ultimaEntregaEl: string; detalle?: string; ultimaEntregaIso?: string }
 
-export type Acceso = { id: string; persona: string; rol: string; ambito: string; otorgadoEl: string }
+/**
+ * Un acceso = una persona interna con un rol. `estado` y `segundoFactor` los trae identidad (`UsuarioInternoResumen`);
+ * `otorgadoEl` no lo publica ningún contrato todavía y el adaptador real lo deja en «—».
+ */
+export type Acceso = { id: string; persona: string; rol: string; ambito: string; otorgadoEl: string; estado?: string; segundoFactor?: string }
 
-export type Incidente = { id: string; titulo: string; severidad: 'sev1' | 'sev2' | 'sev3'; estado: 'abierto' | 'cerrado'; abiertoEl: string }
+/**
+ * Un incidente. `estado` resume si sigue afectando (abierto) o ya se restableció (cerrado); `etapa` y `sistema` los
+ * trae el adaptador real (`auditoria.incidente_operativo`): Detectado, Mitigado, Post mortem o Resuelto.
+ */
+export type Incidente = { id: string; titulo: string; severidad: 'sev1' | 'sev2' | 'sev3'; estado: 'abierto' | 'cerrado'; abiertoEl: string; etapa?: string; sistema?: string; abiertoElIso?: string }
 
 // ---- El error de dominio que emite la fuente no disponible -------------------------
 

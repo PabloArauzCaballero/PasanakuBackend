@@ -40,6 +40,10 @@ class PagosEnrutamientoYWebhookWebTest {
     @Autowired
     private MockMvc mvc;
 
+    // Sistemas › Proveedores y Webhooks: comparte controlador.
+    @MockitoBean
+    private bo.aportaya.aportes.aplicacion.ConsultarPlataformaDePagos consultarPlataforma;
+
     @MockitoBean
     private CU19ReembolsarPago cu19;
 
