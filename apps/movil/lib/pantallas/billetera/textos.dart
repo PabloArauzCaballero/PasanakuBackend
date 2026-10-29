@@ -15,13 +15,16 @@ abstract final class TextosBilletera {
   static const pasoInstruido = 'Instruido';
   static const pasoEnCamino = 'En camino al banco';
   static const pasoAcreditadoEnTuCuenta = 'En tu cuenta';
-  static const tituloSinPasanakus = 'Armá tu primer pasanaku';
+  // El título acompaña a la acción principal del vacío («Unirme a un grupo»): casi todo el que
+  // llega lo hace porque alguien lo invitó.
+  static const tituloSinPasanakus = 'Sumate a tu primer pasanaku';
   static const crearUnGrupo = 'Crear un grupo';
   static const entrarConEnlace = 'Entrar con un enlace o QR';
   static const verTodos = 'Ver todos';
-  static const todos = 'Todos';
+  // Lleva al extracto, no a una lista completa: el enlace dice adónde va.
+  static const todos = 'Ver extracto';
   static const sinPasanakus =
-      'Todavía no estás en ningún pasanaku. Cuando entres a uno, lo vas a ver acá.';
+      'Todavía no estás en ningún pasanaku. Si te invitaron, entrá con su enlace o QR.';
   static const cargandoPasanakus = 'Cargando tus pasanakus';
   static const avisoFirmar = 'Te falta firmar el reglamento';
   static const avisoAtrasado = 'Tenés un aporte atrasado';
@@ -47,10 +50,11 @@ abstract final class TextosBilletera {
   static const verAportesPendientes = 'Ver aportes pendientes';
   static const movimientos = 'Movimientos';
   static const sinMovimientos =
-      'Todavía no tenés movimientos. Cuando recargues saldo van a aparecer acá.';
+      'Todavía no tenés movimientos. Tu primera recarga va a aparecer acá.';
   static const alCorteDe = 'Actualizado';
   static const cargandoMovimientos = 'Cargando movimientos';
-  static const errorMovimientos = 'No pudimos cargar tus movimientos.';
+  static const errorMovimientos =
+      'No pudimos cargar tus movimientos. Probá de nuevo en un momento.';
   static const reintentar = 'Reintentar';
   static const recargar = 'Recargar';
   static const aportar = 'Aportar';
@@ -61,17 +65,48 @@ abstract final class TextosBilletera {
   static const transferir = 'Transferir';
   static const extracto = 'Extracto';
   static const monto = 'Monto';
-  static const recargaPendiente =
-      'Tu recarga quedó en camino. Te avisamos cuando el banco la confirme.';
-  static const retiroInstruido =
-      'Tu retiro quedó instruido. El saldo retenido se libera cuando el banco confirma el pago.';
+  // Recarga y retiro: el título dice dónde está la operación y el detalle, qué falta. Ninguno
+  // dice que la plata ya llegó (regla 91.3); el aviso lo respaldan las plantillas aprobadas
+  // RECARGA_ACREDITADA (sql/60_semillas/15-eventos-y-plantillas.sql).
+  static const recargaPendiente = 'Tu recarga quedó en camino.';
+  static const recargaPendienteDetalle =
+      'Te avisamos cuando el banco la confirme.';
+  static const retiroInstruido = 'Tu retiro quedó instruido.';
+  static const retiroInstruidoDetalle =
+      'El saldo retenido se libera cuando el banco confirma el pago.';
+  // Antes de enviar, lo mismo en futuro: qué pasa al tocar el botón (sin plazos).
+  static const comoSigueLaRecarga = 'El saldo no cambia al instante';
+  static const comoSigueLaRecargaDetalle =
+      'Primero se crea la orden. La plata aparece en tu billetera cuando el banco confirma el pago.';
+  static const comoSigueElRetiro = 'El monto queda retenido';
+  static const comoSigueElRetiroDetalle =
+      'Lo separamos de tu saldo disponible hasta que el banco confirme el pago a tu cuenta.';
+  static const medioDePago = 'Cómo vas a pagar';
+  static const montoAAcreditar = 'Monto a acreditar';
+  static const montoNeto = 'Monto neto';
+  static const costoDelRetiro = 'Costo del retiro';
   static const transferenciaHecha = 'Transferencia hecha';
+  static const saldoDespues = 'Tu saldo después de transferir';
+  static const tipoDeDestino = 'A quién le transferís';
+  static const aliasDeQuienRecibe = 'Alias de quien recibe';
+  static const grupoQueRecibe = 'Identificador del grupo';
   static const cuentaDestino = 'Cuenta de destino';
   static const alias = 'Alias';
   static const concepto = 'Concepto';
   static const enviarConMfa = 'Confirmar con tu segundo factor';
   static const factorMfa = 'Código de tu segundo factor';
   static const motivoRecarga = 'Escribí cuánto querés recargar.';
+  static String? motivoTransferencia({
+    required bool hayMonto,
+    required bool hayDestino,
+    required bool hayConcepto,
+  }) => !hayMonto
+      ? 'Escribí cuánto querés transferir.'
+      : !hayDestino
+      ? 'Indicá a quién le transferís.'
+      : !hayConcepto
+      ? 'Escribí un concepto.'
+      : null;
   static const ayudaCuentaDestino = 'La cuenta donde vas a recibir la plata.';
   static const ayudaFactorMfa = 'Son 6 números.';
   static String? motivoRetiro({
@@ -91,7 +126,10 @@ abstract final class TextosBilletera {
   static const sinExtracto = 'Todavía no generaste ningún extracto.';
   static const elegiUnPeriodo = 'Elegí un período';
   static const sinExtractoDetalle =
-      'Generá un extracto para ver tu saldo al cierre y cuántos movimientos tuviste en esas fechas.';
+      'Elegí las fechas y te mostramos tu saldo al cierre, cada movimiento y un certificado de saldo para compartir.';
+  static const generandoExtracto = 'Generando tu extracto';
+  static const sinMovimientosEnElPeriodo =
+      'No tuviste movimientos en esas fechas. Probá con otro período.';
   static const elegirOtroPeriodo = 'Elegir otro período';
   static const periodo = 'Período';
   static const filtroTodos = 'Todos';
