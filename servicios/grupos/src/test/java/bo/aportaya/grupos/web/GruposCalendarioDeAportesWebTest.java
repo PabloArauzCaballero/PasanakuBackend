@@ -110,6 +110,9 @@ class GruposCalendarioDeAportesWebTest {
     @MockitoBean
     private IntegrantesDelGrupo integrantesDelGrupo;
 
+    @MockitoBean
+    private GruposDeBackoffice gruposDeBackoffice;
+
     private static CalendarioDeAportes calendario(List<CalendarioDeAportes.Cupo> cupos) {
         return new CalendarioDeAportes(
                 PERIODO,
