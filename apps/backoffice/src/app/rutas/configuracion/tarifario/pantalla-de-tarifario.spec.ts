@@ -1,10 +1,12 @@
-import { provideHttpClient } from '@angular/common/http'
+import { provideHttpClient, withInterceptors } from '@angular/common/http'
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing'
 import { provideZonelessChangeDetection } from '@angular/core'
 import { TestBed } from '@angular/core/testing'
 import { provideRouter } from '@angular/router'
 import { describe, expect, it } from 'vitest'
+import { erroresInterceptor } from '../../../nucleo/errores.interceptor'
 import { GATEWAY } from '../../../nucleo/gateway'
+import { Sesion } from '../../../nucleo/sesion'
 import { PantallaDeTarifario } from './pantalla-de-tarifario'
 
 const GW = 'http://gw/api/v1'
@@ -87,5 +89,61 @@ describe('PantallaDeTarifario · historial de solo lectura', () => {
     await pintar(fixture)
     expect(raiz.textContent).toContain('TAR-EJEMPLO')
     http.verify()
+  })
+})
+
+describe('PantallaDeTarifario · poner en vigencia (CU-34, contra HTTP simulado)', () => {
+  async function montarConPermiso(permisos: string[]) {
+    TestBed.configureTestingModule({
+      providers: [
+        provideZonelessChangeDetection(),
+        provideHttpClient(withInterceptors([erroresInterceptor])),
+        provideHttpClientTesting(),
+        provideRouter([]),
+        { provide: GATEWAY, useValue: GW },
+      ],
+    })
+    TestBed.inject(Sesion).abrir('t', permisos, 'oficial', 'op-1')
+    const fixture = TestBed.createComponent(PantallaDeTarifario)
+    fixture.detectChanges()
+    await fixture.whenStable()
+    const http = TestBed.inject(HttpTestingController)
+    http.expectOne((r) => r.url === URL).flush({ items: [FILA, { ...FILA, tarifarioId: 't-0', version: 2, estado: 'VIGENTE' }] })
+    await pintar(fixture)
+    return { fixture, http, raiz: fixture.nativeElement as HTMLElement }
+  }
+  const pantalla = (f: { componentInstance: unknown }) =>
+    f.componentInstance as { pedirConfirmacion(r: typeof FILA): void; activar(r: typeof FILA): void }
+
+  it('correcto: solo la versión EN_PREAVISO ofrece «Poner en vigencia»; confirmar llama al contrato, avisa y recarga', async () => {
+    const { fixture, http, raiz } = await montarConPermiso(['TARIFARIO_PUBLICAR'])
+    expect(botones(raiz).filter((b) => b === 'Poner en vigencia')).toHaveLength(1)
+    pantalla(fixture).pedirConfirmacion(FILA)
+    pantalla(fixture).activar(FILA)
+    const req = http.expectOne(`${URL}/t-1/vigencia`)
+    expect(req.request.method).toBe('POST')
+    req.flush({ tarifarioId: 't-1', estado: 'VIGENTE', desde: '2026-11-01T04:00:00Z' })
+    await pintar(fixture)
+    expect(raiz.textContent).toContain('TAR-EJEMPLO v3 quedó vigente')
+    http.expectOne((r) => r.url === URL).flush({ items: [{ ...FILA, estado: 'VIGENTE' }] })
+  })
+
+  it('límite: sin TARIFARIO_PUBLICAR no hay columna de acción ni botón, y la pantalla sigue siendo de lectura', async () => {
+    const { raiz } = await montarConPermiso(['AUDITORIA_LEER'])
+    expect(botones(raiz)).not.toContain('Poner en vigencia')
+    expect(raiz.textContent).toContain('Solo lectura')
+  })
+
+  it('inválido: si el preaviso no se cumplió (AP-CU34-01) lo explica en español, sin el texto crudo, y recarga', async () => {
+    const { fixture, http, raiz } = await montarConPermiso(['TARIFARIO_PUBLICAR'])
+    pantalla(fixture).pedirConfirmacion(FILA)
+    pantalla(fixture).activar(FILA)
+    http
+      .expectOne(`${URL}/t-1/vigencia`)
+      .flush({ codigo: 'AP-CU34-01', mensaje: 'crudo del backend', trazaId: 't' }, { status: 422, statusText: 'x' })
+    await pintar(fixture)
+    expect(raiz.textContent).toContain('Todavía no se cumple el preaviso')
+    expect(raiz.textContent).not.toContain('crudo del backend')
+    http.expectOne((r) => r.url === URL).flush({ items: [FILA] })
   })
 })
