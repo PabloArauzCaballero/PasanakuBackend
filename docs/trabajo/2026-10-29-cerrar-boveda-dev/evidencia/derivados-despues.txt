@@ -1,0 +1,10 @@
+conexiones en el pico: 700 de 1000 que acepta PgBouncer
+total: 36 archivos generados · reglas de ADR-037 verificadas
+generar_k8s exit=0
+sql/ generado: 343 tablas · 686 claves foráneas · 786 índices · 532 CHECK
+Sin pendientes a nivel de datos.
+generar_ddl exit=0
+Actualizado: sql/60_semillas/sembrar.sql con \ir 24-metadata-comentarios.sql
+Guardado mapa de esquemas: /tmp/claude-0/-home-user/0bfdb13b-9dc3-5b9a-bf8b-2610328aa990/scratchpad/wt-dev/scripts/metadata_enriquecida.json
+generar_semillas exit=0
+sql/ sin divergencia (git diff --quiet exit 0)
