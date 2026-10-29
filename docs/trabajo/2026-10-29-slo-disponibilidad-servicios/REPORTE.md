@@ -1,6 +1,6 @@
 # Reporte — Disponibilidad 30d, presupuesto de error y última interrupción en Sistemas › Servicios
 
-> **AVANCE: 9 / 10 — 90,0 %.** Falta H1.S3.M3: verlo con datos reales en TEST.
+> **AVANCE: 10 / 10 — 100,0 %.** Verificado en TEST con datos reales; falta solo la captura visual (`VERIFIED_FUNCTIONAL_ONLY`).
 
 - Fecha: 2026-10-29 · Plan: [PLAN.md](./PLAN.md) · Rama: `claude/slo-disponibilidad-20261029` (PR #222 → dev, mergeado; PR #223 → test)
 - Peldaño de evidencia: backend en `TESTED` (regresión del módulo verde contra Postgres real); frontend en
@@ -18,6 +18,7 @@
 | H1.S3.M2 | La pantalla formatea los campos y deja «—» si no hay medición | `npx ng test --include='src/app/rutas/sistemas/**/*.spec.ts'` + `tsc -p tsconfig.app.json` | PASS, 170/170, tsc exit 0 · `evidencia/H1.S3.M2-frontend.txt` |
 | H1.S4.M1 | Narrativa de la tabla y cifra de tablas en los planes | `verificar_narrativas.py`, `verificar_boveda.py` | PASS · `evidencia/verificadores-ci.txt` |
 | H1.S4.M2 | «Última interrupción» se ordena por instante | spec de sistemas | PASS |
+| H1.S3.M3 | En TEST, auditoria muestrea cada minuto y el endpoint devuelve los campos | login real + `GET /api/v1/indicadores/operacion/servicios` | PASS, 200 con `disponibilidad30d`, `presupuestoErrorRestante`, `ultimaInterrupcion` · `evidencia/H1.S3.M3-endpoint-test.txt` |
 
 ## A medias
 Ninguna.
@@ -25,7 +26,7 @@ Ninguna.
 ## Pendiente
 | ID | Estado | Qué lo destraba |
 |---|---|---|
-| H1.S3.M3 | TODO | Mergear el PR #223 a `test` cuando termine el despliegue en curso (`ec4e9ad`). Después, esperar el rebuild del host (auditoria, esquema y backoffice) y unos minutos de muestreo, y leer el endpoint real. |
+Ninguna.
 
 ## Evidencia
 ```text
@@ -40,7 +41,8 @@ PSQLException: column "ultimo_minuto_en" is of type timestamp with time zone but
 ```
 
 ## No cubierto
-- No se observó el sistema en TEST todavía (H1.S3.M3).
+- `ultimaInterrupcion` llega como `null` (no ausente) cuando nunca hubo una; el backoffice lo trata igual («—»).
+- Con 11 minutos medidos, los reinicios del despliegue pesan mucho: varios servicios muestran presupuesto negativo. Es lo medido; se normaliza a medida que se acumulan los 30 días.
 - Prueba visual (capturas por viewport y tema): la estructura de la pantalla no cambió, solo el
   texto de tres celdas. Queda pendiente igual: `VERIFIED_FUNCTIONAL_ONLY` como máximo hasta capturarla.
 - Con varias instancias de auditoria la protección es ShedLock más la escritura condicionada. La

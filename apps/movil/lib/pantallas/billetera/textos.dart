@@ -5,6 +5,19 @@ abstract final class TextosBilletera {
   static const disponible = 'Disponible';
   static const enPasanakus = 'En pasanakus';
   static const tusPasanakus = 'Tus pasanakus';
+  // Estados de una operación de dinero: dónde está, sin decir que ya pasó (regla 91.3).
+  static const montoARecargar = 'Monto a recargar';
+  static const montoARetirar = 'Monto a retirar';
+  static const montoATransferir = 'Monto a transferir';
+  static const pasoPedida = 'Pedida';
+  static const pasoConfirmaElBanco = 'Confirma el banco';
+  static const pasoAcreditada = 'Acreditada';
+  static const pasoInstruido = 'Instruido';
+  static const pasoEnCamino = 'En camino al banco';
+  static const pasoAcreditadoEnTuCuenta = 'En tu cuenta';
+  static const tituloSinPasanakus = 'Armá tu primer pasanaku';
+  static const crearUnGrupo = 'Crear un grupo';
+  static const entrarConEnlace = 'Entrar con un enlace o QR';
   static const verTodos = 'Ver todos';
   static const todos = 'Todos';
   static const sinPasanakus =
@@ -15,7 +28,6 @@ abstract final class TextosBilletera {
   static const avisoSuspendido = 'Tu participación está suspendida';
   static const verMisGrupos = 'Ver mis grupos';
   static const unirmeAUnGrupo = 'Unirme a un grupo';
-  static const crearUnGrupo = 'Crear un grupo';
   static String todoAlDia(int n) => n == 1
       ? 'Estás en 1 grupo · todo al día'
       : 'Estás en $n grupos · todo al día';
@@ -31,6 +43,7 @@ abstract final class TextosBilletera {
   // entidad queda la cuenta de custodia —solo «una entidad supervisada por ASFI»—; el «Banco Unión»
   // venía de datos de ejemplo de la maqueta. Cuando producto confirme la entidad, se agrega acá.
   static const custodia = 'En custodia, separado del dinero de la empresa';
+
   static const verAportesPendientes = 'Ver aportes pendientes';
   static const movimientos = 'Movimientos';
   static const sinMovimientos =
@@ -62,4 +75,24 @@ abstract final class TextosBilletera {
   static const hasta = 'Hasta';
   static const generarExtracto = 'Generar extracto';
   static const sinExtracto = 'Todavía no generaste ningún extracto.';
+  static const elegiUnPeriodo = 'Elegí un período';
+  static const sinExtractoDetalle =
+      'Generá un extracto para ver tu saldo al cierre y cuántos movimientos tuviste en esas fechas.';
+  static const elegirOtroPeriodo = 'Elegir otro período';
+  static const periodo = 'Período';
+  static const filtroTodos = 'Todos';
+  static const filtroEntradas = 'Entradas';
+  static const filtroSalidas = 'Salidas';
+  static const detalleDelPeriodo = 'Detalle del período';
+  static const sinMovimientosConEseFiltro =
+      'No hay movimientos de este tipo en el período. Probá con «Todos».';
+  static const lecturaCorta =
+      'Mostramos tus últimos 100 movimientos; los más viejos del período pueden no aparecer.';
+  static const compartirCertificado = 'Compartir certificado de saldo';
+  static const noSePudoCompartir =
+      'No pudimos abrir otra app para compartirlo.';
+  static String certificado(String periodo, String moneda, String saldo) =>
+      'Certificado de saldo AportaYa\nPeríodo: $periodo\nSaldo al cierre: $moneda $saldo';
+  static const saldoFinalDelPeriodo = 'Saldo al cierre del período';
+  static const movimientosDelPeriodo = 'Movimientos en el período';
 }

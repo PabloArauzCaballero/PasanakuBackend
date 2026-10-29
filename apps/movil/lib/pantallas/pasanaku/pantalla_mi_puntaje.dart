@@ -1,5 +1,9 @@
 import 'package:aportaya_cliente_transparencia/aportaya_cliente_transparencia.dart';
+import 'package:aportaya_diseno/atomos/chip_estado.dart';
+import 'package:aportaya_diseno/atomos/iconos_de_marca.dart';
 import 'package:aportaya_diseno/atomos/numero_que_sube.dart';
+import 'package:aportaya_diseno/atomos/tono.dart';
+import 'package:aportaya_diseno/moleculas/tarjeta.dart';
 import 'package:aportaya_diseno/moleculas/cabecera.dart';
 import 'package:aportaya_diseno/organismos/estado_de_pantalla.dart';
 import 'package:aportaya_diseno/tokens/tokens.dart';
@@ -34,6 +38,8 @@ class PantallaMiPuntaje extends ConsumerWidget {
                   valor: puntaje,
                   etiquetaDeCarga: TextosPasanaku.cargando,
                   mensajeVacio: TextosPasanaku.sinHistorial,
+                  tituloVacio: TextosPasanaku.tituloSinHistorial,
+                  iconoVacio: IconosDeMarca.recienEmpiezas,
                   vacio: (p) => !p.tieneHistorial,
                   reintentar: () => ref.invalidate(puntajeProvider(usuarioId)),
                   exito: (p) => _Puntaje(puntaje: p, t: t),
@@ -59,25 +65,62 @@ class _Puntaje extends StatelessWidget {
     // se muestra tal cual en vez de romper la pantalla: el número es información de la
     // persona, la animación es un adorno, y el adorno nunca puede tapar el dato.
     final entero = int.tryParse(puntaje.puntaje);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
+    return ListView(
+      padding: const EdgeInsets.only(top: Espacio.s4, bottom: Espacio.s6),
       children: [
-        const SizedBox(height: Espacio.s4),
-        if (entero == null)
-          Text(puntaje.puntaje, style: Tipo.cifraGrande.copyWith(color: t.text))
-        else
-          NumeroQueSube(
-            valor: entero,
-            etiqueta: TextosPasanaku.tituloMiPuntaje,
-            estilo: Tipo.cifraGrande.copyWith(color: t.text),
+        Tarjeta(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Icon(
+                    IconosDeMarca.reputacion,
+                    size: Espacio.s6,
+                    color: t.brandTexto,
+                  ),
+                  const SizedBox(width: Espacio.s2),
+                  Expanded(
+                    child: Text(
+                      TextosPasanaku.etiquetaPuntaje,
+                      style: Tipo.cuerpoChico.copyWith(color: t.text2),
+                    ),
+                  ),
+                  ChipEstado(
+                    texto: _legible(puntaje.nivelDeConfianza),
+                    tono: Tono.info,
+                  ),
+                ],
+              ),
+              const SizedBox(height: Espacio.s3),
+              if (entero == null)
+                Text(
+                  puntaje.puntaje,
+                  style: Tipo.cifraGrande.copyWith(color: t.text),
+                )
+              else
+                NumeroQueSube(
+                  valor: entero,
+                  etiqueta: TextosPasanaku.tituloMiPuntaje,
+                  estilo: Tipo.cifraGrande.copyWith(color: t.text),
+                ),
+              const SizedBox(height: Espacio.s3),
+              Divider(height: 1, color: t.border),
+              const SizedBox(height: Espacio.s3),
+              Text(
+                TextosPasanaku.origenDelPuntaje,
+                style: Tipo.cuerpoChico.copyWith(color: t.text2),
+              ),
+            ],
           ),
-        const SizedBox(height: Espacio.s2),
-        Text(
-          puntaje.nivelDeConfianza,
-          style: Tipo.cuerpo.copyWith(color: t.text2),
         ),
       ],
     );
+  }
+
+  /// `EN_CONSTRUCCION` → «En construcción»: solo formato, sin traducir valores del servidor.
+  static String _legible(String nivel) {
+    final plano = nivel.replaceAll('_', ' ').toLowerCase().trim();
+    return plano.isEmpty ? nivel : plano[0].toUpperCase() + plano.substring(1);
   }
 }

@@ -1,0 +1,13 @@
+# H0.S2.M5 — Recorrido web real · H0.S2.M6 — Grabador de movimiento
+$ yarn install --immutable   (COREPACK_NPM_REGISTRY=https://registry.npmjs.org: repo.yarnpkg.com está bloqueado por el proxy)
+Done with warnings in 29s
+$ yarn workspace @aportaya/simulado mock   → Simulado OpenAPI escuchando en el puerto 4010 (289 rutas)
+$ (apps/movil) flutter build web --profile --no-web-resources-cdn --dart-define=API=http://localhost:4010/api/v1   → ✓ Built build/web
+$ python3 -m http.server 8080 --bind 127.0.0.1 (build/web)
+$ node herramientas/recorrer_web.cjs antes
+11 capturas + video en evidencia/web/antes   (exit 0: sin errores de consola ni 4xx/5xx, salvo el 404 conocido de /api/v1/version)
+Pasos: portada → ingreso → ingreso lleno → segundo factor → inicio → tutorial → inicio sin tutorial → grupos → movimientos → perfil → inicio
+
+$ bash herramientas/cuadros_de_video.sh evidencia/web/antes/recorrido__412.webm evidencia/movimiento/recorrido-antes
+duración 18,08 s → recorrido-antes__t0/t50/t100.png
+Desvío: el video sale en WebM (lo que graba Playwright), no MP4; se reproduce en el navegador y ffmpeg lo lee.

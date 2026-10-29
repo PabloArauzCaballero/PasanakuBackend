@@ -3,7 +3,7 @@ import 'package:aportaya_diseno/tokens/tokens.dart';
 import 'package:flutter/material.dart';
 
 import 'dominio/mis_grupos.dart';
-import 'pantalla_mis_grupos.dart';
+import 'tarjeta_de_mi_grupo.dart';
 import 'textos.dart';
 
 /// La pestaña «Grupos» en dos partes (2026-10-20): los que organizo y en los que

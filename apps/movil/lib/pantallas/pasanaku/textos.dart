@@ -34,6 +34,12 @@ class TextosPasanaku {
   static const mensajeOpcional = 'Un mensaje para quien decide (opcional)';
   static const enviandoPedido = 'Enviando tu pedido…';
   static const pedidoEnviadoTitulo = 'Tu pedido de cupo';
+  static const pasosDelPedido = [
+    'Pedido enviado',
+    'Decide el organizador',
+    'Te avisamos',
+  ];
+  static const cupoEnEspera = 'Tu cupo queda en espera';
   static const quienDecide =
       'Quién decide: el organizador del grupo, con el puntaje de emparejamiento como guía.';
   static const enCuanto =
@@ -98,6 +104,12 @@ class TextosPasanaku {
   static const neto = 'Neto a recibir el turno';
   static const aportando = 'Cobrando tu aporte…';
   static const aporteConfirmado = 'Aporte registrado.';
+  static const aporteDelPeriodo = 'Aporte de este período';
+  static const loFijaElReglamento = 'Lo fija el reglamento de tu grupo.';
+  static const comoPagas = 'Cómo pagás';
+  static const pagoYaRegistrado =
+      'Ya habíamos registrado este pago: no se cobró dos veces.';
+  static const referenciaDelPago = 'Referencia del pago';
 
   // Entrega (CU-22)
   static const tituloEntrega = 'Recibir el fondo';
@@ -115,11 +127,12 @@ class TextosPasanaku {
       tope == null ? 'Participás · $n' : 'Participás · $n de $tope';
   static const sinGruposOrganizados = 'Todavía no organizás ningún grupo.';
   static const sinGruposParticipados = 'Todavía no participás en otros grupos.';
+  static const saludoMisGrupos = 'Pasanakus';
+  static const etiquetaAportePorPeriodo = 'Aporte por período';
+  static const verEstadoDelGrupo = 'Ver el estado del grupo';
   static const grupoSinNombre = 'Grupo';
   static const organizasEsteGrupo = 'Organizás este grupo';
   static const participasEnEsteGrupo = 'Participás en este grupo';
-  static String aportePorPeriodo(String monto) =>
-      'Aporte de $monto por período';
   static String diasDesdeVencimiento(int dias) => dias <= 0
       ? 'Tu aporte vence hoy.'
       : 'Tu aporte está a $dias día${dias == 1 ? '' : 's'} de su plazo, vencido el';
@@ -127,14 +140,21 @@ class TextosPasanaku {
   static const alDia = 'Estás al día con este grupo.';
   static const sinParticipacion =
       'Todavía no participás en ningún grupo. Cuando entres a uno, acá ves cómo vas con tus aportes.';
-  static String deudaVigente(String monto) =>
-      'Tenés una deuda vigente de $monto con el grupo.';
-  static String porAportarAviso(String monto) =>
-      'Por aportar este período: $monto.';
   static const sinRestriccion = 'No tenés restricciones vigentes.';
-  static String restriccionVigente(String monto) =>
-      'Tenés una restricción vigente. Se levanta pagando $monto.';
+  // Tarjeta de aporte (ADR-053): cada cifra con su nombre a la vista.
+  static const alDiaTitulo = 'Estás al día';
+  static const etiquetaDeudaVigente = 'Deuda vigente con el grupo';
+  static const etiquetaPorAportar = 'Por aportar este período';
+  static const etiquetaObligacionesAbiertas = 'Obligaciones abiertas';
+  static const tituloRestriccion = 'Tenés una restricción vigente';
+  static String levantaRestriccion(String monto) =>
+      'Se levanta pagando $monto.';
   static const tituloMiPuntaje = 'Tu puntaje de reputación';
+  static const tituloSinHistorial = 'Recién empezás';
+  static const etiquetaPuntaje = 'Tu puntaje';
+  static const etiquetaNivel = 'Tu nivel';
+  static const origenDelPuntaje =
+      'Lo calcula el servicio de transparencia a partir de tu historial en AportaYa.';
   static const sinHistorial =
       'Todavía no tenés historial suficiente para un puntaje — no es una sanción, es que recién empezás.';
 

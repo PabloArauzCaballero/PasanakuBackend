@@ -1,0 +1,26 @@
+# H4.S2.M4 — FilaDeMovimiento (2026-10-21)
+
+Peldaño: TESTED + prueba visual (catálogo con fuentes reales, componentes/intermedio-h4/moleculas__*).
+
+Cambio: una sola fila. La app tenía su propia `FilaDeMovimiento` (ListTile de fábrica) duplicando
+la molécula del paquete (regla 95.1.3); ahora es un adaptador contrato → molécula. Avatar redondo
+(Lucide por tipo o, sin tipo, por sentido: ambigüedad A10), signo siempre (+ / − U+2212, fintech-ux
+money-display), cifras tabulares, un anuncio por fila para el lector, y con texto grande el importe
+baja de renglón (se achica antes de partirse).
+
+Clasificación de rojos (regla 80.4):
+- roles_de_color_no_estado_test y roles_color_acento_test buscaban `Icons.groups_outlined` /
+  `Icons.south_west`: TEST_BUG por A4 (Lucide). Se conserva la aserción del requisito (ícono en text2).
+- h8_break_ui_test «40 movimientos · 200 %» contaba `ListTile` (implementación): TEST_BUG (regla
+  80.2.2) → cuenta `FilaDeMovimiento`, sigue exigiendo 40.
+- fila_de_movimiento_test a 200 % con fuente de bloques: «RenderFlex overflowed by 52 px» →
+  PRODUCT_BUG → FittedBox.scaleDown en el importe apilado.
+
+$ (packages/diseno_flutter) flutter test test/widget/fila_de_movimiento_test.dart → 00:00 +4: All tests passed!
+$ (packages/diseno_flutter) dart analyze --fatal-infos → No issues found!
+$ (packages/diseno_flutter) flutter test test/unidad test/widget test/a11y --timeout 60s → 00:18 +127: All tests passed!
+$ (packages/diseno_flutter) flutter test test/goldens --update-goldens → 00:04 +18: All tests passed!
+$ (apps/movil) dart analyze --fatal-infos → No issues found!
+$ (apps/movil) flutter test test/unidad test/widget test/contrato test/identidad test/pasanaku test/a11y → 01:54 +769: All tests passed!
+$ (apps/movil) flutter test test/goldens --timeout 60s → 00:51 +274: All tests passed!
+Goldens: 10 cambiados, mirados (revision-goldens.md).

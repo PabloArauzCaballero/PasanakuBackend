@@ -1,0 +1,74 @@
+# H4.S2.M2 · H4.S2.M3 · H4.S3.M1 — tarjeta héroe del saldo y acciones circulares (2026-10-21)
+
+Peldaño: TESTED (paquete y app) + prueba visual de Inicio (intermedio-h4) con fuentes y sombras reales.
+No VERIFIED: falta recorrerlo en la web contra Prism con consola y red (H6.S1.M1).
+
+## Línea base de los goldens antes de regenerar (worktree en 7752e1b = merge-base con dev)
+$ (packages/diseno_flutter, base) flutter test test/goldens --timeout 60s
+00:04 +18: All tests passed!
+$ (apps/movil, base, clientes Dart enlazados) flutter test test/goldens --timeout 60s
+00:52 +274: All tests passed!   (0 «Pixel test failed»)
+→ toda diferencia de píxeles posterior viene del rediseño, no de la plataforma.
+
+## Clasificación de los rojos (regla 80.4)
+- roles_de_color_no_estado_test «acciones y valores no semánticos no usan verde» (claro y oscuro):
+  TEST_BUG por requisito nuevo A2 (la acción común es verde de marca). Reescrito con MÁS
+  aserciones: ícono brandTexto sobre surface, círculo, y la destacada en verdeSolido/sobreVerdeSolido.
+- inicio_de_billetera_test, 10 rojos a 360 px / texto 130 %:
+  · «RenderFlex overflowed by 36 px» en _Chip («Retenido Bs 150,00» con fuente de bloques):
+    PRODUCT_BUG → el chip ahora usa Wrap (la cifra baja de renglón).
+  · «RenderFlex overflowed by 2.3 px» en el chip de custodia: PRODUCT_BUG → desaparece con el
+    cambio siguiente.
+  · «Found 0 widgets with text containing En custodia, separado del dinero de la empresa»:
+    PRODUCT_BUG mío — había recortado la garantía a un chip «En custodia» y la frase completa
+    quedaba solo para el lector. Restituida visible, con escudo, debajo de las cifras.
+- pantalla_de_saldo_test «éxito»: el lector anunciaba
+  «Saldo disponible: Bs 1.240,00⏎En custodia, separado del dinero de la empresa» (sondeo del
+  árbol de semántica) → PRODUCT_BUG de a11y: la frase sin nodo propio se pegaba al saldo.
+  _Garantia ahora es MergeSemantics. Además «Retenido ⏎Retenido: Bs 150,00» (doble) → la
+  etiqueta visible queda fuera de la semántica; Monto ya la anuncia.
+- pantalla_de_saldo_test «vacío»: TEST_BUG de entorno de prueba — lienzo de 800×600 y la sección
+  Movimientos queda fuera del cache del ListView con la tarjeta héroe. Se usa
+  `conSuperficieDeTelefono` (el mismo helper documentado que ya usa el test de éxito). Sin
+  debilitar aserciones.
+- test/capturas (paquete) rojo con `flutter test` a secas: NO es gate — son capturas que solo se
+  corren con --update-goldens (CI corre test:front, test:goldens, test:a11y; nunca test/capturas).
+
+## Test nuevo: test/widget/encabezado_de_saldo_test.dart (paquete), montado en ListView como la app
+$ flutter test test/widget/encabezado_de_saldo_test.dart
+00:00 +4: All tests passed!
+Prueba de que muerde (mutante: _Garantia sin MergeSemantics):
+  Actual: ... Found 0 widgets with a semantics label matching the pattern  (saldo)
+  Actual: ... Found 0 widgets with a semantics label named "Saldo ...      (oculto)
+00:01 +2 -2: Some tests failed.
+Sin mutante: 00:00 +4: All tests passed!
+(En un SingleChildScrollView el mutante sobrevivía: por eso el test monta en ListView.)
+
+## Pirámide
+$ (packages/diseno_flutter) dart analyze --fatal-infos → No issues found!
+$ (packages/diseno_flutter) flutter test test/unidad test/widget test/a11y test/goldens --timeout 60s
+00:19 +141: All tests passed!
+$ (apps/movil) dart analyze --fatal-infos → No issues found!
+$ (apps/movil) flutter test test/unidad test/widget test/contrato test/identidad test/pasanaku test/a11y --timeout 60s
+01:53 +769: All tests passed!
+$ (apps/movil) flutter test test/goldens --update-goldens → 00:50 +274: All tests passed!
+$ (apps/movil) flutter test test/goldens --timeout 60s     → 00:49 +274: All tests passed!
+$ python3 scripts/verificar_frontend.py diseno → TODO OK
+
+## Goldens regenerados y MIRADOS
+- Paquete: 19 PNG (antes|después en hojas, claro y oscuro). Además, la muestra «Racha rota ·
+  Poner al día la cuota» pasó a `urgencia` (es pagar algo que vence: A2).
+- App: 288 PNG en 16 hojas antes|después, una por una. Ver revision-goldens.md.
+
+## Capturas con fuentes reales: evidencia/intermedio-h4/billetera/ (150 PNG, 5 pantallas ×
+   5 estados × 3 viewports × 2 temas)
+$ flutter test test/capturas/rediseno --update-goldens --dart-define=FASE=intermedio-h4 --dart-define=FLUJOS=billetera
+00:27 +156: All tests passed!
+Mirado: inicio datos 360 claro/oscuro, peorCaso 360, vacío 412 oscuro, datos 600 claro.
+
+## Compresión
+$ python3 herramientas/comprimir_capturas.py evidencia/intermedio-h4
+150 capturas · 5.8 MB → 2.0 MB
+Mirado a 2× el héroe de inicio 412 claro, original vs comprimido: el degradado oscuro muestra
+manchas leves de cuantización en el comprimido. Es del formato de la evidencia (256 colores sin
+tramado), no del producto: los originales se regeneran con el arnés.
