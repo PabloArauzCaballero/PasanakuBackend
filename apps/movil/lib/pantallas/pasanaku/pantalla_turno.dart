@@ -5,6 +5,7 @@ import 'package:aportaya_diseno/moleculas/tarjeta.dart';
 import 'package:aportaya_diseno/organismos/estado_de_pantalla.dart';
 import 'package:aportaya_diseno/organismos/panel_sorteo.dart';
 import 'package:aportaya_diseno/tokens/tokens.dart';
+import 'package:aportaya_diseno/organismos/pantalla_con_cabecera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -36,72 +37,77 @@ class PantallaTurno extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final paquete = ref.watch(paqueteDelSorteoProvider(sorteoId));
     return Scaffold(
-      appBar: AppBar(title: const Text(TextosPasanaku.tituloTurno)),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(Espacio.s4),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Tarjeta(
-                child: RielDeTurnos(
-                  total: total,
-                  actual: turnoActual,
-                  mio: miTurno,
+      // Cabecera grande que se compacta al desplazar (ADR-053, H4.S2.M6).
+      body: PantallaConCabecera(
+        titulo: TextosPasanaku.tituloTurno,
+        cuerpo: SafeArea(
+          top: false,
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(Espacio.s4),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Tarjeta(
+                  child: RielDeTurnos(
+                    total: total,
+                    actual: turnoActual,
+                    mio: miTurno,
+                  ),
                 ),
-              ),
-              const SizedBox(height: Espacio.s5),
-              Text(
-                TextosPasanaku.sorteoTitulo,
-                style: Tipo.titulo3.copyWith(color: Tokens.of(context).text),
-              ),
-              const SizedBox(height: Espacio.s1),
-              Text(
-                TextosDeVerificacionDelGrupo.turnoSorteoExplicacion,
-                style: Tipo.cuerpoChico.copyWith(
-                  color: Tokens.of(context).text2,
+                const SizedBox(height: Espacio.s5),
+                Text(
+                  TextosPasanaku.sorteoTitulo,
+                  style: Tipo.titulo3.copyWith(color: Tokens.of(context).text),
                 ),
-              ),
-              const SizedBox(height: Espacio.s3),
-              EstadoDePantalla(
-                valor: paquete,
-                etiquetaDeCarga: TextosPasanaku.cargando,
-                mensajeVacio: 'Todavía no hay sorteo para este grupo.',
-                reintentar: () =>
-                    ref.invalidate(paqueteDelSorteoProvider(sorteoId)),
-                exito: (p) => Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Tarjeta(
-                      child: PanelSorteo(
-                        pasos: [
-                          (
-                            nombre: 'Compromiso publicado',
-                            hash: p.hashComprometido,
-                            cuando: 'Antes de sortear',
-                          ),
-                          if (p.semillaRevelada != null)
+                const SizedBox(height: Espacio.s1),
+                Text(
+                  TextosDeVerificacionDelGrupo.turnoSorteoExplicacion,
+                  style: Tipo.cuerpoChico.copyWith(
+                    color: Tokens.of(context).text2,
+                  ),
+                ),
+                const SizedBox(height: Espacio.s3),
+                EstadoDePantalla(
+                  valor: paquete,
+                  etiquetaDeCarga: TextosPasanaku.cargando,
+                  mensajeVacio: 'Todavía no hay sorteo para este grupo.',
+                  reintentar: () =>
+                      ref.invalidate(paqueteDelSorteoProvider(sorteoId)),
+                  exito: (p) => Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Tarjeta(
+                        child: PanelSorteo(
+                          pasos: [
                             (
-                              nombre: 'Semilla revelada',
-                              hash: p.semillaRevelada!,
-                              cuando: 'Al revelar',
+                              nombre: 'Compromiso publicado',
+                              hash: p.hashComprometido,
+                              cuando: 'Antes de sortear',
                             ),
-                        ],
-                        coincide: null,
+                            if (p.semillaRevelada != null)
+                              (
+                                nombre: 'Semilla revelada',
+                                hash: p.semillaRevelada!,
+                                cuando: 'Al revelar',
+                              ),
+                          ],
+                          coincide: null,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: Espacio.s4),
-                    Boton(
-                      texto: TextosDeVerificacionDelGrupo.comprobarSorteo,
-                      variante: BotonVariante.secundario,
-                      expandido: true,
-                      onPressed: () =>
-                          context.push('/pasanaku/sorteos/$sorteoId/verificar'),
-                    ),
-                  ],
+                      const SizedBox(height: Espacio.s4),
+                      Boton(
+                        texto: TextosDeVerificacionDelGrupo.comprobarSorteo,
+                        variante: BotonVariante.secundario,
+                        expandido: true,
+                        onPressed: () => context.push(
+                          '/pasanaku/sorteos/$sorteoId/verificar',
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
