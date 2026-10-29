@@ -107,6 +107,9 @@ class GruposInvitacionesWebTest {
     @MockitoBean
     private IntegrantesDelGrupo integrantesDelGrupo;
 
+    @MockitoBean
+    private GruposDeBackoffice gruposDeBackoffice;
+
     private InvitacionRegistrada invitacion(UUID emisor, UUID grupo) {
         return new InvitacionRegistrada(
                 "ENVIADA", (short) 1, grupo, OffsetDateTime.now().plusDays(1), TOKEN, emisor);

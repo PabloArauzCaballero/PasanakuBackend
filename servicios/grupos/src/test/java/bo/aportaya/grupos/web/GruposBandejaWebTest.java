@@ -101,6 +101,9 @@ class GruposBandejaWebTest {
     @MockitoBean
     private IntegrantesDelGrupo integrantesDelGrupo;
 
+    @MockitoBean
+    private GruposDeBackoffice gruposDeBackoffice;
+
     private static FilaDeBandeja fila(String estado, String nombreVisible) {
         return new FilaDeBandeja(
                 SOLICITUD,

@@ -1,10 +1,37 @@
 import type { NombreDeIcono } from '@aportaya/ui/icono/icono'
+import type { Seccion as NombreDeSeccion } from '../layout/icono-de-seccion'
 import { ENTRADAS_DE_CUMPLIMIENTO } from '../rutas/cumplimiento/compartido/navegacion'
 
-// Los tipos del menú viven en `menu.tipos.ts` (el barrido de tamaño pone el tope en 200 líneas por archivo); se
-// reexportan acá para que quien importa de `./menu` no cambie.
-import type { Grupo, Pantalla, Requisito } from './menu.tipos'
-export type { Credenciales, Entrada, Grupo, Pantalla, Requisito } from './menu.tipos'
+/** Una condición de acceso: alcanza con **uno** de sus permisos (`Sesion.puede`) o con que el rol sea uno de sus `roles`.
+ * La misma forma que las guardias (`requierePermiso`, `requiereAlguno`, `soloRolesDeSistemas`), como dato: el menú pregunta sin navegar. */
+export type Requisito = { readonly permisos?: readonly string[]; readonly roles?: readonly string[] }
+/** Lo que el menú necesita de la sesión. `Sesion` lo cumple tal cual. */
+export type Credenciales = { puede(permiso: string): boolean; rol(): string | null }
+
+/**
+ * Una pestaña de sección. `ruta` es absoluta (una pestaña puede vivir en otra rama de URL: «Admisiones a grupos» es
+ * `/admisiones` y vive en Operación; «Catálogo de datos» es `/tablero/...` y vive en Configuración). `requiere` es la **cadena entera** de guardias que la ruta
+ * atraviesa (sección y pantalla): todas tienen que cumplirse. Una pestaña con `grupo` no tiene ruta propia: lleva a la
+ * primera de su grupo que la sesión puede abrir y despliega las demás como subpestañas.
+ */
+export type Pantalla = {
+  readonly ruta: string
+  readonly texto: string
+  readonly icono: NombreDeIcono
+  readonly requiere?: readonly Requisito[]
+  readonly grupo?: readonly Pantalla[]
+}
+/** Una entrada del menú lateral. Con `pantallas` va a la primera que la sesión puede abrir (y se oculta si no abre ninguna);
+ * sin ellas, a `destino` si cumple `requiere`. `prefijos`: URLs de la sección que no son pestaña (fichas, raíces, enlaces). */
+export type Entrada = {
+  readonly ruta: NombreDeSeccion
+  readonly texto: string
+  readonly prefijos: readonly string[]
+  readonly destino?: string
+  readonly requiere?: readonly Requisito[]
+  readonly pantallas?: readonly Pantalla[]
+}
+export type Grupo = { titulo: string | null; icono: NombreDeSeccion; entradas: readonly Entrada[] }
 
 // La cadena de cada sección, copiada de `app.routes.ts` y de cada `*.routes.ts`. `menu-y-guardias.spec.ts` navega con
 // el router real y falla si una pestaña visible rebota o una oculta abre: así esta copia no puede divergir en silencio.
@@ -16,10 +43,7 @@ const CUMPLIMIENTO = p('ver:cumplimiento')
 const CONTABILIDAD = p('ver:contabilidad')
 const PUBLICIDAD = p('ver:publicidad')
 const CONFIGURACION = p('ver:configuracion')
-/**
- * `ver:sistemas` y además rol PLATAFORMA o SEGURIDAD, o el rol de catálogo que identidad agrega a `permisos`
- * (`rutas/sistemas/guardia-rol-sistemas.ts`: el claim `rol` del token real es siempre `OPERADOR`).
- */
+/** `ver:sistemas` y rol PLATAFORMA o SEGURIDAD, o el de catálogo que identidad agrega a `permisos` (`guardia-rol-sistemas.ts`: el `rol` del token real es siempre `OPERADOR`). */
 const SISTEMAS = [p('ver:sistemas'), { roles: ['PLATAFORMA', 'SEGURIDAD'], permisos: ['ADMIN_PLATAFORMA', 'RESPONSABLE_SEGURIDAD'] }] as const
 
 const sis = (ruta: string, texto: string, icono: NombreDeIcono): Pantalla => ({ ruta: `/sistemas/${ruta}`, texto, icono, requiere: SISTEMAS })
@@ -47,7 +71,7 @@ export const MENU: readonly Grupo[] = [
       {
         ruta: 'operacion',
         texto: 'Operación',
-        prefijos: ['/operacion', '/admisiones', '/postulaciones-organizador'],
+        prefijos: ['/operacion', '/admisiones', '/postulaciones-organizador', '/grupos'],
         pantallas: [
           { ruta: '/operacion/retiros', texto: 'Retiros en revisión', icono: 'retiro', requiere: [OPERACION, p('RETIRO_APROBAR')] },
           { ruta: '/operacion/desembolsos', texto: 'Desembolsos', icono: 'entrega', requiere: [OPERACION, p('ENTREGA_EJECUTAR', 'AUDITORIA_LEER')] },
@@ -57,16 +81,13 @@ export const MENU: readonly Grupo[] = [
           // Contabilidad le mostraban esa sección a roles sin `ver:contabilidad` (el administrador de plataforma).
           { ruta: '/operacion/custodia', texto: 'Conciliación de custodia', icono: 'banco', requiere: [OPERACION, p('AUDITORIA_LEER')] },
           { ruta: '/operacion/cierres-diarios', texto: 'Cierres diarios', icono: 'reloj', requiere: [OPERACION, p('AUDITORIA_LEER')] },
-          // Quién entra: a un grupo (CU-68) o como organizador (CU-90). Agrupadas para no pasar de ocho pestañas.
-          {
-            ruta: '/admisiones',
-            texto: 'Admisiones',
-            icono: 'personaMas',
-            grupo: [
+          // Los grupos y quién entra: a un grupo (CU-68) o como organizador (CU-90). Agrupadas para no pasar de ocho pestañas.
+          { ruta: '/admisiones', texto: 'Grupos y admisiones', icono: 'grupo', grupo: [
               { ruta: '/admisiones', texto: 'Admisiones a grupos', icono: 'personaMas', requiere: [p('ver:admisiones')] },
               { ruta: '/postulaciones-organizador', texto: 'Postulaciones a organizador', icono: 'persona', requiere: [p('ver:postulaciones')] },
-            ],
-          },
+              // Al final: Operación sigue abriendo en Admisiones, donde está la decisión del día (menu.spec).
+              { ruta: '/grupos', texto: 'Grupos', icono: 'grupo', requiere: [p('ver:grupos')] },
+          ] },
           { ruta: '/operacion/solicitudes-escaladas', texto: 'Solicitudes escaladas', icono: 'bandera', requiere: [OPERACION, p('SOLICITUD_INGRESO_VER')] },
         ],
       },
@@ -121,7 +142,7 @@ export const MENU: readonly Grupo[] = [
   // Última a propósito: es la sección a la que se vuelve, no por la que se empieza.
   {
     titulo: 'Plataforma',
-    icono: 'configuracion',
+    icono: 'plataforma',
     entradas: [
       {
         ruta: 'sistemas',

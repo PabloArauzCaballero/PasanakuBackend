@@ -108,6 +108,9 @@ class GruposHistorialAdmisionWebTest {
     @MockitoBean
     private IntegrantesDelGrupo integrantesDelGrupo;
 
+    @MockitoBean
+    private GruposDeBackoffice gruposDeBackoffice;
+
     @Test
     @DisplayName(
             "backoffice con SOLICITUD_INGRESO_VER (ADMIN_PLATAFORMA) llega al caso de uso: ya no es 403 de la guardia")

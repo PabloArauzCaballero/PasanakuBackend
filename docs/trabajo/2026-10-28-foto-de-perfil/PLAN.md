@@ -23,7 +23,7 @@
 ## H1 — La persona sube y ve su foto de perfil
 **CA:** Dado una persona con sesión, cuando elige una foto en Perfil, entonces la ve como avatar y sigue ahí al volver a abrir la app.
 **DoD:** tests backend + tests de la app en verde; prueba real contra TEST (PUT→GET devuelve los mismos bytes; `url_avatar` con clave `s3://perfil/...`).
-**Estado:** TODO
+**Estado:** A MEDIAS
 
 ### H1.S1 — Backend
 | ID | Microtarea | CA (binario) | DoD | Estado |
@@ -42,13 +42,13 @@
 | H1.S2b.M1 | Formato spotless + Postman regenerado (míos) | `spotlessCheck` y `generar_postman.py` sin diff | spotlessCheck exit 0; regenerar deja 0 archivos con diff | HECHO (a3ba0f10) |
 | H1.S2b.M2 | Deriva de DDL ajena (`disponibilidad_servicio_dia`, de c51a17cf) que bloquea el check de esquema | `generar_ddl.py` sin diff | regenerar deja 0 archivos con diff | HECHO (c769bed6) — fuera del alcance original, agregada porque bloquea la PR |
 | H1.S2b.M4 | `dart format` de mi test y de `pantalla_del_grupo.dart` (viene sin formato desde dev #229) | `yarn lint` de movil exit 0 | `dart format --set-exit-if-changed` + `verificar_frontend.py movil` → TODO OK | HECHO |
-| H1.S2b.M3 | CI de la PR en verde salvo lo preexistente | Formato, contratos y esquema en pass | `gh pr checks 236` | EN CURSO — falta: que termine la corrida tras c769bed6 |
+| H1.S2b.M3 | CI de la PR en verde salvo lo preexistente | Formato, contratos y esquema en pass | `gh pr checks 236` | A MEDIAS — formato, contratos y esquema pasaron en la 2.ª corrida; la corrida final sobre b50dfe3f no se esperó: Pablo pidió mergear «de una vez» con los rojos ajenos (bóveda, barrido de auditoria) |
 
 ### H1.S3 — Integración real
 | ID | Microtarea | CA (binario) | DoD | Estado |
 |---|---|---|---|---|
-| H1.S3.M1 | PR a dev y test, despliegue en TEST | Commit desplegado en TEST | PRs mergeadas + healthcheck de identidad | TODO |
-| H1.S3.M2 | Prueba real en TEST: PUT, GET, perfil, sin sesión 401, otro tipo 422 | Bytes iguales; `url_avatar` = clave | salida de `curl` en `evidencia/` | TODO |
+| H1.S3.M1 | PR a dev y test, despliegue en TEST | Commit desplegado en TEST | PRs mergeadas + healthcheck de identidad | HECHO — #236/#237 mergeadas; contenedor identidad 20261029T123741 healthy con CU07FotoDePerfil.class |
+| H1.S3.M2 | Prueba real en TEST: PUT, GET, perfil, sin sesión 401, otro tipo 422 | Bytes iguales; `url_avatar` = clave | salida de `curl` en `evidencia/` | A MEDIAS — sin sesión: 401 en PUT/GET (también en una ruta inexistente, así que no prueba la ruta). Falta PUT→GET real con sesión: no hay cuenta sintética en TEST |
 
 ## Hallazgos de la ejecución
 - Las suites de identidad están partidas (`test`, `webTest`, `integrationTest`, `testBarrido`): un `--tests` sobre `test` no corre los `CU*Test` ni los `*WebTest`.
@@ -57,6 +57,15 @@
 - CI de la PR (1.ª corrida): 4 fallas. Mías: spotless de identidad y Postman sin regenerar. Ajenas: deriva de DDL de c51a17cf (latente en dev porque el check se salteó por impacto) y bóveda (ADR-053 fuera del índice y sin secciones, índice de skills, «50 ADR» en el plan maestro), que también falla en el workflow de bóveda de dev 029c8998. La bóveda NO se toca acá.
 - CI (2.ª corrida): `:servicios:auditoria:testBarrido` falla por `SaludDeServicios.java:42,55` y `DisponibilidadDelServicio.java:18` (cifras literales) e `IndicadoresController.java` 309 líneas — código del SLO, no de esta PR. NO se toca: es un refactor de otro servicio.
 - `origin/dev` avanzó durante el trabajo (#229–#232, rediseño bancario de la app): se integra antes de la PR.
+
+## H2 — Cada APK de prueba se instala encima del anterior (agregado 2026-10-29, pedido de Pablo)
+**CA:** Dado un APK de prueba instalado, cuando se instala el siguiente, entonces Android lo acepta como actualización (misma firma).
+**DoD:** `apksigner verify --print-certs` del APK publicado = huella de la keystore estable.
+**Estado:** HECHO
+
+| ID | Microtarea | CA (binario) | DoD | Estado |
+|---|---|---|---|---|
+| H2.S1.M1 | Keystore estable + refirmado con apksigner en `apk-de-prueba.yml` | apk-prueba-18 firmado con f8f513e5… | `apksigner verify --print-certs aportaya-test-18.apk` → `f8f513e5…` | HECHO (#247/#248 no alcanzó: apk-17 salió cc59616a…; #251/#253 sí) |
 
 ## Riesgos y bloqueos previstos
 | Riesgo | Impacto | Mitigación |

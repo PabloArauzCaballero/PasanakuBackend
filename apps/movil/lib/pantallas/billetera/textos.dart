@@ -71,6 +71,20 @@ abstract final class TextosBilletera {
   static const concepto = 'Concepto';
   static const enviarConMfa = 'Confirmar con tu segundo factor';
   static const factorMfa = 'Código de tu segundo factor';
+  static const motivoRecarga = 'Escribí cuánto querés recargar.';
+  static const ayudaCuentaDestino = 'La cuenta donde vas a recibir la plata.';
+  static const ayudaFactorMfa = 'Son 6 números.';
+  static String? motivoRetiro({
+    required bool hayMonto,
+    required bool hayCuenta,
+    required bool factorCompleto,
+  }) => !hayMonto
+      ? 'Escribí cuánto querés retirar.'
+      : !hayCuenta
+      ? 'Indicá la cuenta de destino.'
+      : !factorCompleto
+      ? 'Escribí los 6 números de tu segundo factor.'
+      : null;
   static const desde = 'Desde';
   static const hasta = 'Hasta';
   static const generarExtracto = 'Generar extracto';

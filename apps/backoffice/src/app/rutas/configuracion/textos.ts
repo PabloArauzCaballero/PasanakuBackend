@@ -27,6 +27,12 @@ export const textosConfiguracion = {
     deltaSinMoneda: 'sin moneda',
     usuarios: (n: number) => (n === 1 ? '1 usuario' : `${n} usuarios`),
     estados: { ARCHIVADO: 'Archivado', BORRADOR: 'Borrador', EN_PREAVISO: 'En preaviso', SUSTITUIDO: 'Sustituido', VIGENTE: 'Vigente' },
+    ayudaDeAcciones: 'Las versiones en preaviso se ponen en vigencia acá cuando vence su preaviso. Publicar una versión nueva no se hace desde esta pantalla.',
+    ponerVigente: 'Poner en vigencia',
+    confirmarTitulo: (codigo: string, version: number) => `¿Poner en vigencia ${codigo} v${version}?`,
+    confirmarDescripcion: 'La versión vigente hoy queda sustituida y deja de aplicarse desde ahora. No se puede deshacer: para volver atrás hay que publicar otra versión.',
+    confirmar: 'Poner en vigencia',
+    puesto: (codigo: string, version: number) => `${codigo} v${version} quedó vigente. La versión anterior quedó sustituida.`,
   },
   mensajeria: {
     canales: <Record<string, string>>{ CORREO: 'Correo', SMS: 'SMS', WHATSAPP: 'WhatsApp', PUSH: 'Notificación push', IN_APP: 'En la app' },
