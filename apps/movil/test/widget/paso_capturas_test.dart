@@ -18,6 +18,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
+import '../comun.dart';
 import '../goldens/cargar_fuentes_de_aplicacion.dart';
 
 Captura _captura(CaraDelCarril cara) => Captura(
@@ -231,7 +232,7 @@ void main() {
 
     await tester.tap(find.text('Ver pautas para tus fotos'));
     await tester.pumpAndSettle();
-    expect(find.text('Pautas para tus fotos'), findsOneWidget);
+    expect(encabezadoDePantalla('Pautas para tus fotos'), findsOneWidget);
     expect(find.text('Buena iluminación'), findsOneWidget);
     expect(find.text('Correcto'), findsWidgets);
     expect(find.text('Incorrecto'), findsWidgets);
@@ -242,8 +243,12 @@ void main() {
     await tester.scrollUntilVisible(
       find.text('Sin accesorios'),
       300,
+      // La lista de pautas, no el Scrollable de la cabecera que se compacta.
       scrollable: find.descendant(
-        of: find.byType(PantallaDePautasDeFotos),
+        of: find.descendant(
+          of: find.byType(PantallaDePautasDeFotos),
+          matching: find.byType(ListView),
+        ),
         matching: find.byType(Scrollable),
       ),
     );

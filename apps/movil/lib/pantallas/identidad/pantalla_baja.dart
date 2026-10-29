@@ -7,6 +7,7 @@ import 'package:aportaya_diseno/tokens/tokens.dart';
 import 'package:aportaya_diseno/atomos/iconos_de_marca.dart';
 import 'package:aportaya_diseno/moleculas/intro_de_pantalla.dart';
 import 'package:flutter/material.dart';
+import 'package:aportaya_diseno/organismos/pantalla_con_cabecera.dart';
 
 import 'textos.dart';
 import 'textos_de_tramites.dart';
@@ -22,40 +23,51 @@ class PantallaDeBaja extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text(TextosIdentidad.tituloBaja)),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(Espacio.s4),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const IntroDePantalla(
-                icono: IconosDeMarca.darDeBaja,
-                titulo: TextosDeTramites.bajaTitulo,
-                explicacion: TextosDeTramites.bajaExplicacion,
-                peligro: true,
-              ),
-              const Alerta(titulo: TextosIdentidad.avisoBaja, tono: Tono.aviso),
-              const SizedBox(height: Espacio.s5),
-              Boton(
-                texto: TextosIdentidad.confirmarBaja,
-                variante: BotonVariante.peligro,
-                expandido: true,
-                onPressed: () => HojaDeConfirmacion.mostrar<void>(
-                  context,
-                  hoja: HojaDeConfirmacion(
-                    titulo: TextosIdentidad.tituloBaja,
-                    detalle: const Alerta(
-                      titulo: TextosIdentidad.avisoBaja,
-                      tono: Tono.aviso,
+      // Cabecera grande que se compacta al desplazar (ADR-053, H4.S2.M6).
+      body: PantallaConCabecera(
+        titulo: TextosIdentidad.tituloBaja,
+        cuerpo: SafeArea(
+          top: false,
+          // Sin desplazamiento propio, la cabecera no se compactaría y el botón
+          // quedaría bajo el pliegue en una pantalla chica.
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(Espacio.s4),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const IntroDePantalla(
+                  icono: IconosDeMarca.darDeBaja,
+                  titulo: TextosDeTramites.bajaTitulo,
+                  explicacion: TextosDeTramites.bajaExplicacion,
+                  peligro: true,
+                ),
+                const Alerta(
+                  titulo: TextosDeTramites.bajaConsecuencia,
+                  detalle: TextosDeTramites.bajaCondicion,
+                  tono: Tono.aviso,
+                ),
+                const SizedBox(height: Espacio.s5),
+                Boton(
+                  texto: TextosDeTramites.bajaBoton,
+                  variante: BotonVariante.peligro,
+                  expandido: true,
+                  onPressed: () => HojaDeConfirmacion.mostrar<void>(
+                    context,
+                    hoja: HojaDeConfirmacion(
+                      titulo: TextosIdentidad.tituloBaja,
+                      detalle: const Alerta(
+                        titulo: TextosDeTramites.bajaConsecuencia,
+                        detalle: TextosDeTramites.bajaCondicion,
+                        tono: Tono.aviso,
+                      ),
+                      textoConfirmar: TextosIdentidad.confirmarBaja,
+                      peligro: true,
+                      onConfirmar: () => Navigator.of(context).pop(),
                     ),
-                    textoConfirmar: TextosIdentidad.confirmarBaja,
-                    peligro: true,
-                    onConfirmar: () => Navigator.of(context).pop(),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
