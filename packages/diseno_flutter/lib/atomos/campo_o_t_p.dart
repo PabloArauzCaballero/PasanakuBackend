@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../tokens/tokens.dart';
+import 'borde_con_halo.dart';
 
 /// Seis celdas para códigos de verificación y PIN (CU-01, CU-04). Se anuncia como un
 /// solo campo; el foco avanza solo y borrar retrocede.
@@ -105,7 +106,7 @@ class _CampoOTPState extends State<CampoOTP> {
                   decoration: InputDecoration(
                     counterText: '',
                     filled: true,
-                    fillColor: t.field,
+                    fillColor: t.surface2,
                     contentPadding: EdgeInsets.zero,
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(Radios.md),
@@ -114,12 +115,15 @@ class _CampoOTPState extends State<CampoOTP> {
                         width: Borde.fino,
                       ),
                     ),
-                    focusedBorder: OutlineInputBorder(
+                    // El mismo foco que `Campo`: línea de marca y anillo suave.
+                    focusedBorder: BordeConHalo(
                       borderRadius: BorderRadius.circular(Radios.md),
                       borderSide: BorderSide(
-                        color: t.brand,
-                        width: Borde.foco - Borde.fino,
+                        color: widget.error != null ? t.err : t.brand,
+                        width: Borde.desfase,
                       ),
+                      halo: widget.error != null ? t.errBg : t.halo,
+                      anchoDeHalo: Borde.foco,
                     ),
                   ),
                   onChanged: (v) => _cambio(i, v),
