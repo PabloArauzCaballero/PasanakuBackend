@@ -156,14 +156,14 @@ class GruposBandejaWebTest {
     }
 
     @Test
-    @DisplayName("200: sin parametros el filtro y el limite van vacios (el caso de uso aplica el tope)")
+    @DisplayName("200: sin parametros no hay filtro y el limite es el default del contrato (200)")
     void sinParametros() throws Exception {
         when(cu68Decision.bandeja(any(), any(), any())).thenReturn(List.of());
 
         mvc.perform(get("/grupos/solicitudes").with(Sesiones.como("SOPORTE", "SOLICITUD_INGRESO_VER")))
                 .andExpect(status().isOk());
 
-        verify(cu68Decision).bandeja(isNull(), isNull(), any());
+        verify(cu68Decision).bandeja(isNull(), eq(200), any());
     }
 
     @Test
