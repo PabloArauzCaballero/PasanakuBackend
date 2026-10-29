@@ -72,7 +72,8 @@ class CU07FotoDePerfilTest {
     }
 
     private static ContextoSesion ctx(UUID usuario) {
-        return ContextoSesion.de(usuario, "PARTICIPANTE", new Traza(UUID.randomUUID().toString()));
+        return ContextoSesion.de(
+                usuario, "PARTICIPANTE", new Traza(UUID.randomUUID().toString()));
     }
 
     private static void subir(UUID usuario, byte[] bytes) {
@@ -90,11 +91,14 @@ class CU07FotoDePerfilTest {
 
         subir(usuario, JPEG);
 
-        assertThat(urlAvatar(usuario)).startsWith("s3://perfil/" + usuario + "/foto-").endsWith(".jpg");
+        assertThat(urlAvatar(usuario))
+                .startsWith("s3://perfil/" + usuario + "/foto-")
+                .endsWith(".jpg");
         var vista = tx.execute(s -> foto.ver(ctx(usuario))).orElseThrow();
         assertThat(vista.tipoMime()).isEqualTo("image/jpeg");
         assertThat(vista.datos().readAllBytes()).isEqualTo(JPEG);
-        assertThat(tx.execute(s -> perfil.ejecutar(ctx(usuario))).tieneFotoDePerfil()).isTrue();
+        assertThat(tx.execute(s -> perfil.ejecutar(ctx(usuario))).tieneFotoDePerfil())
+                .isTrue();
     }
 
     @Test
@@ -103,7 +107,8 @@ class CU07FotoDePerfilTest {
 
         java.util.Optional<ContenidoAlmacenado> vista = tx.execute(s -> foto.ver(ctx(usuario)));
         assertThat(vista).isEmpty();
-        assertThat(tx.execute(s -> perfil.ejecutar(ctx(usuario))).tieneFotoDePerfil()).isFalse();
+        assertThat(tx.execute(s -> perfil.ejecutar(ctx(usuario))).tieneFotoDePerfil())
+                .isFalse();
     }
 
     @Test
@@ -113,7 +118,8 @@ class CU07FotoDePerfilTest {
 
         java.util.Optional<ContenidoAlmacenado> vista = tx.execute(s -> foto.ver(ctx(usuario)));
         assertThat(vista).isEmpty();
-        assertThat(tx.execute(s -> perfil.ejecutar(ctx(usuario))).tieneFotoDePerfil()).isFalse();
+        assertThat(tx.execute(s -> perfil.ejecutar(ctx(usuario))).tieneFotoDePerfil())
+                .isFalse();
     }
 
     @Test
@@ -126,7 +132,8 @@ class CU07FotoDePerfilTest {
 
         assertThat(urlAvatar(usuario)).isNotEqualTo(primera).endsWith(".png");
         assertThat(almacen.objetos).containsKey(primera);
-        assertThat(tx.execute(s -> foto.ver(ctx(usuario))).orElseThrow().tipoMime()).isEqualTo("image/png");
+        assertThat(tx.execute(s -> foto.ver(ctx(usuario))).orElseThrow().tipoMime())
+                .isEqualTo("image/png");
     }
 
     @Test
@@ -163,12 +170,18 @@ class CU07FotoDePerfilTest {
                 throw new UncheckedIOException(e);
             }
             ambito.exigirQueQuepa(datos.length);
-            String tipo = datos[0] == (byte) 0xFF ? "image/jpeg" : datos[0] == (byte) 0x89 ? "image/png" : "application/pdf";
+            String tipo =
+                    datos[0] == (byte) 0xFF ? "image/jpeg" : datos[0] == (byte) 0x89 ? "image/png" : "application/pdf";
             ambito.exigirTipoAdmitido(tipo);
             var clave = new ClaveObjeto(
                     "s3",
-                    "%s/%s/%s-%s%s".formatted(ambito.prefijo(), destino.carpeta(), destino.etiqueta(), UUID.randomUUID(),
-                            tipo.equals("image/png") ? ".png" : ".jpg"));
+                    "%s/%s/%s-%s%s"
+                            .formatted(
+                                    ambito.prefijo(),
+                                    destino.carpeta(),
+                                    destino.etiqueta(),
+                                    UUID.randomUUID(),
+                                    tipo.equals("image/png") ? ".png" : ".jpg"));
             objetos.put(clave.toString(), datos);
             tipos.put(clave.toString(), tipo);
             return new ArchivoGuardado(clave, "sha", tipo, datos.length);

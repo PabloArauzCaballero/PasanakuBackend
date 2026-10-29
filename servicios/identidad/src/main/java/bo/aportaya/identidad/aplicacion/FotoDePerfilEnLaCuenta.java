@@ -27,8 +27,10 @@ public class FotoDePerfilEnLaCuenta {
 
     @Transactional
     public void anotar(ContextoSesion ctx, ClaveObjeto clave) {
-        datos.conContexto(ctx, dsl -> dsl.execute(
-                "UPDATE identidad.usuario SET url_avatar = ? WHERE id = ?", clave.toString(), ctx.usuarioId()));
+        datos.conContexto(
+                ctx,
+                dsl -> dsl.execute(
+                        "UPDATE identidad.usuario SET url_avatar = ? WHERE id = ?", clave.toString(), ctx.usuarioId()));
     }
 
     /**

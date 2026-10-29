@@ -211,7 +211,8 @@ public abstract class ExpedienteController extends InvitacionesController {
     @Override
     @Permiso("PARTICIPANTE")
     public ResponseEntity<org.springframework.core.io.Resource> verMiFotoDePerfil() {
-        return fotoDePerfil.ver(sesion.actual())
+        return fotoDePerfil
+                .ver(sesion.actual())
                 .map(contenido -> ResponseEntity.ok()
                         .contentType(org.springframework.http.MediaType.parseMediaType(
                                 contenido.tipoMime() == null ? "application/octet-stream" : contenido.tipoMime()))

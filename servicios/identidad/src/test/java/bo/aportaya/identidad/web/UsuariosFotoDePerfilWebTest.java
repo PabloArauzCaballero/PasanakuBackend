@@ -51,7 +51,8 @@ class UsuariosFotoDePerfilWebTest {
 
     private static final String RUTA = "/usuarios/yo/foto-de-perfil";
     /** Cabecera JPEG (FF D8 FF): sintetica, no es la cara de nadie. */
-    private static final byte[] FOTO = {(byte) 0xFF, (byte) 0xD8, (byte) 0xFF, (byte) 0xE0, 0, 0x10, 'J', 'F', 'I', 'F'};
+    private static final byte[] FOTO = {(byte) 0xFF, (byte) 0xD8, (byte) 0xFF, (byte) 0xE0, 0, 0x10, 'J', 'F', 'I', 'F'
+    };
 
     @Autowired
     private MockMvc mvc;
@@ -110,7 +111,8 @@ class UsuariosFotoDePerfilWebTest {
     @Test
     @DisplayName("Sin sesion: 401 al subir y al ver, y no se toca el almacen")
     void sinSesion() throws Exception {
-        mvc.perform(multipart(RUTA).file(new MockMultipartFile("archivo", "yo.jpg", "image/jpeg", FOTO))
+        mvc.perform(multipart(RUTA)
+                        .file(new MockMultipartFile("archivo", "yo.jpg", "image/jpeg", FOTO))
                         .with(r -> {
                             r.setMethod("PUT");
                             return r;
@@ -123,7 +125,8 @@ class UsuariosFotoDePerfilWebTest {
     @Test
     @DisplayName("Correcto: sube con la sesion de quien llama y responde 204")
     void subeLaPropia() throws Exception {
-        mvc.perform(multipart(RUTA).file(new MockMultipartFile("archivo", "yo.jpg", "image/jpeg", FOTO))
+        mvc.perform(multipart(RUTA)
+                        .file(new MockMultipartFile("archivo", "yo.jpg", "image/jpeg", FOTO))
                         .with(r -> {
                             r.setMethod("PUT");
                             return r;
@@ -131,7 +134,10 @@ class UsuariosFotoDePerfilWebTest {
                         .with(Sesiones.como("PARTICIPANTE")))
                 .andExpect(status().isNoContent());
         verify(fotoDePerfil)
-                .cambiar(argThat(ctx -> Sesiones.USUARIO.equals(ctx.usuarioId())), any(), eq((long) FOTO.length),
+                .cambiar(
+                        argThat(ctx -> Sesiones.USUARIO.equals(ctx.usuarioId())),
+                        any(),
+                        eq((long) FOTO.length),
                         eq("yo.jpg"));
     }
 
@@ -141,7 +147,8 @@ class UsuariosFotoDePerfilWebTest {
         doThrow(new ErrorDeDominio("Ese tipo de archivo no se admite aca: application/pdf"))
                 .when(fotoDePerfil)
                 .cambiar(any(), any(), anyLong(), any());
-        mvc.perform(multipart(RUTA).file(new MockMultipartFile("archivo", "yo.pdf", "application/pdf", FOTO))
+        mvc.perform(multipart(RUTA)
+                        .file(new MockMultipartFile("archivo", "yo.pdf", "application/pdf", FOTO))
                         .with(r -> {
                             r.setMethod("PUT");
                             return r;
