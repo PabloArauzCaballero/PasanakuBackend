@@ -53,6 +53,9 @@ class TextosEnlaceDelGrupo {
 
   // Solicitudes
   static const tituloSolicitudes = 'Quién pidió unirse';
+  static const tituloSinSolicitudes = 'Nadie pidió unirse todavía';
+  static String conPuntaje(String p) => 'Puntaje $p';
+  static String cuposPedidos(int n) => n == 1 ? '1 cupo' : '$n cupos';
   static const sinSolicitudes =
       'Todavía nadie pidió unirse. Cuando alguien abra el enlace, aparece acá.';
   static const sinNombre = 'Persona todavía sin nombre';

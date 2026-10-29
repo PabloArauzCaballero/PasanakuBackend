@@ -12,10 +12,11 @@ import '../comun.dart';
 void main() {
   for (final brillo in Brightness.values) {
     testWidgets(
-      'las acciones usan el acento; lo irreversible, rojo, en tema $brillo',
+      'la acción es verde, la urgencia naranja y lo irreversible rojo, en tema $brillo',
       (tester) async {
         final tokens = brillo == Brightness.dark ? Tokens.oscuro : Tokens.claro;
         for (final variante in [
+          BotonVariante.urgencia,
           BotonVariante.secundario,
           BotonVariante.fantasma,
           BotonVariante.peligro,
@@ -31,11 +32,18 @@ void main() {
           final frente = boton.style!.foregroundColor!.resolve({});
 
           switch (variante) {
+            case BotonVariante.urgencia:
+              // ADR-053 (A2): el naranja queda solo para pagar o aportar algo que vence.
+              final superficie = tester.widget<SuperficieViva>(
+                find.byType(SuperficieViva),
+              );
+              expect(superficie.color, tokens.accent, reason: '$variante');
+              expect(frente, tokens.accentInk, reason: '$variante');
             case BotonVariante.secundario:
               final superficie = tester.widget<SuperficieViva>(
                 find.byType(SuperficieViva),
               );
-              expect(superficie.color, tokens.surface2, reason: '$variante');
+              expect(superficie.color, tokens.surface, reason: '$variante');
               expect(
                 superficie.colorDelTexto,
                 tokens.text,
@@ -57,7 +65,7 @@ void main() {
             case BotonVariante.fantasma:
               expect(frente, tokens.text2, reason: '$variante');
             case BotonVariante.enlace:
-              expect(frente, tokens.accentTexto, reason: '$variante');
+              expect(frente, tokens.brandTexto, reason: '$variante');
             case BotonVariante.primario:
               fail('La matriz no pretende cubrir $variante');
           }
@@ -66,9 +74,10 @@ void main() {
         final estiloEnlace = botonTextoDesde(tokens);
         expect(
           estiloEnlace.foregroundColor!.resolve({}),
-          tokens.accentTexto,
+          tokens.brandTexto,
           reason:
-              'TextButton usa el acento de acción en vez del verde de marca',
+              'ADR-053 (A2): la acción común es verde de marca; el naranja '
+              'queda para la urgencia de pagar',
         );
 
         await tester.pumpWidget(
@@ -80,13 +89,14 @@ void main() {
         final botonReintentar = tester.widget<FilledButton>(
           find.byType(FilledButton),
         );
+        // Reintentar es la acción principal de un error: verde, no naranja.
         expect(
           botonReintentar.style!.backgroundColor!.resolve({}),
-          tokens.accent,
+          tokens.verdeSolido,
         );
         expect(
           botonReintentar.style!.foregroundColor!.resolve({}),
-          tokens.accentInk,
+          tokens.sobreVerdeSolido,
         );
       },
     );

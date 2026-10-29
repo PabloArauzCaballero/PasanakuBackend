@@ -2,29 +2,35 @@ import 'package:flutter/material.dart';
 
 import 'tokens/tokens.dart';
 
-/// Los tres botones de Material, con el mismo alto de toque y la misma forma que la
-/// bóveda le da a `.btn`. Separado de `tema.dart` por el barrido de 200 líneas.
-ButtonStyle _base(Tokens t) => ButtonStyle(
-  minimumSize: const WidgetStatePropertyAll(Size(0, Tactil.minimo)),
-  padding: const WidgetStatePropertyAll(
-    EdgeInsets.symmetric(horizontal: Espacio.s4),
-  ),
-  textStyle: const WidgetStatePropertyAll(Tipo.boton),
-  shape: WidgetStatePropertyAll(
-    RoundedRectangleBorder(borderRadius: BorderRadius.circular(Radios.md)),
-  ),
-  elevation: const WidgetStatePropertyAll(0),
+/// Los tres botones de Material, con el mismo alto de toque y la forma de píldora del
+/// rediseño bancario (ADR-053). Separado de `tema.dart` por el barrido de 200 líneas.
+ButtonStyle _base(Tokens t) => const ButtonStyle(
+  minimumSize: WidgetStatePropertyAll(Size(0, Tactil.minimo)),
+  padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: Espacio.s4)),
+  textStyle: WidgetStatePropertyAll(Tipo.boton),
+  shape: WidgetStatePropertyAll(StadiumBorder()),
+  elevation: WidgetStatePropertyAll(0),
   visualDensity: VisualDensity.standard,
 );
 
+/// La acción principal es verde (ADR-053, A2); el naranja queda para la urgencia de
+/// pagar, que la pide `Boton` con su variante. Apagado conserva el contorno: un botón
+/// sin forma se lee como texto suelto (hallazgo T3 de la revisión del antes).
 ButtonStyle botonRellenoDesde(Tokens t) => _base(t).copyWith(
   backgroundColor: WidgetStateProperty.resolveWith(
-    (e) => e.contains(WidgetState.disabled) ? t.surface2 : t.accent,
+    (e) => e.contains(WidgetState.disabled) ? t.surface2 : t.verdeSolido,
   ),
   foregroundColor: WidgetStateProperty.resolveWith(
-    (e) => e.contains(WidgetState.disabled) ? t.text3 : t.accentInk,
+    (e) => e.contains(WidgetState.disabled) ? t.text3 : t.sobreVerdeSolido,
   ),
-  overlayColor: WidgetStatePropertyAll(t.accentInk.withValues(alpha: 0.08)),
+  side: WidgetStateProperty.resolveWith(
+    (e) => e.contains(WidgetState.disabled)
+        ? BorderSide(color: t.fieldBorder, width: Borde.fino)
+        : BorderSide.none,
+  ),
+  overlayColor: WidgetStatePropertyAll(
+    t.sobreVerdeSolido.withValues(alpha: 0.08),
+  ),
 );
 
 ButtonStyle botonBordeDesde(Tokens t) => _base(t).copyWith(
@@ -42,12 +48,12 @@ ButtonStyle botonBordeDesde(Tokens t) => _base(t).copyWith(
 
 ButtonStyle botonTextoDesde(Tokens t) => _base(t).copyWith(
   foregroundColor: WidgetStateProperty.resolveWith(
-    (e) => e.contains(WidgetState.disabled) ? t.text3 : t.accentTexto,
+    (e) => e.contains(WidgetState.disabled) ? t.text3 : t.brandTexto,
   ),
   padding: const WidgetStatePropertyAll(
     EdgeInsets.symmetric(horizontal: Espacio.s2),
   ),
-  overlayColor: WidgetStatePropertyAll(t.accent.withValues(alpha: 0.08)),
+  overlayColor: WidgetStatePropertyAll(t.brand.withValues(alpha: 0.08)),
 );
 
 CheckboxThemeData casillaDesde(Tokens t) => CheckboxThemeData(

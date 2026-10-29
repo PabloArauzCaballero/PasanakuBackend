@@ -1,0 +1,8 @@
+H6.S2.M4 — Invitar (peldaño TESTED)
+
+Cambio: InvitacionCreada con éxito centrado, QR del enlace con CodigoQR (átomo existente), texto «mostrale este QR», enlace seleccionable, botones de compartir y copiar.
+Sin beneficio para ambos ni conteos: el negocio no los define. El enlace nunca se loguea (regla 90.2.9).
+Tests: invitacion_creada_test y pantallas_de_h_tema_y_desborde_test pasan; usan superficie de teléfono y scrollUntilVisible porque el QR empuja el enlace bajo el pliegue (ENVIRONMENT del arnés, aserciones intactas).
+Vista: render con fuente de bloques, claro y oscuro, 360 px.
+  verificar_frontend movil -> TODO OK; flutter test test/pasanaku test/widget test/a11y test/goldens -> All tests passed
+No cubierto: formulario de invitar (sin cambios); éxito a pantalla completa con fuentes reales; backend real; lectura del QR con cámara real.

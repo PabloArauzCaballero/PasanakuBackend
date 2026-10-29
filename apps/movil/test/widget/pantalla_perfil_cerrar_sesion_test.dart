@@ -113,6 +113,11 @@ void main() {
   testWidgets('muestra el cierre en curso y no duplica el cierre', (
     tester,
   ) async {
+    // Con la cabecera del perfil (ADR-053) «Cerrar sesión» queda bajo los 600 dp del lienzo
+    // por omisión: se mide en un teléfono, como el resto de las pantallas de este carril.
+    tester.view.physicalSize = const Size(1080, 2280);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
     final sesion = _SesionIdentidadFalsa();
     final router = GoRouter(
       initialLocation: '/perfil',
