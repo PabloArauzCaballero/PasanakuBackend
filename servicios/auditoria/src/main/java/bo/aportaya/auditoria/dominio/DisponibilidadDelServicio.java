@@ -15,7 +15,8 @@ import java.util.Optional;
 public record DisponibilidadDelServicio(
         String servicio, long minutosMedidos, long minutosArriba, Optional<Instant> ultimaInterrupcion) {
 
-    private static final BigDecimal CIEN = BigDecimal.valueOf(100);
+    /** La base del porcentaje (10²): una unidad de medida, no un umbral. */
+    private static final BigDecimal CIEN = BigDecimal.TEN.pow(2);
 
     public DisponibilidadDelServicio {
         if (minutosMedidos < 0 || minutosArriba < 0 || minutosArriba > minutosMedidos) {
@@ -34,16 +35,23 @@ public record DisponibilidadDelServicio(
     }
 
     /**
+     * Un SLO de 100 % no tiene presupuesto de error (dividir por cero no es una respuesta) y uno de 0 % o negativo
+     * no es un objetivo: el unico valido esta estrictamente entre 0 y 100.
+     */
+    public static void exigirObjetivoValido(BigDecimal objetivo) {
+        if (objetivo.signum() <= 0 || objetivo.compareTo(CIEN) >= 0) {
+            throw new IllegalArgumentException("objetivo de SLO fuera de (0, 100): " + objetivo);
+        }
+    }
+
+    /**
      * Cuanto del presupuesto de error queda, en porcentaje con un decimal: 100 sin caidas, 0 al agotarlo, negativo
      * cuando el SLO ya no se cumple (se dice, no se esconde en un cero). Vacio si no hay medicion.
      *
      * @param objetivo el SLO en porcentaje, por ejemplo 99.5
      */
     public Optional<BigDecimal> presupuestoRestante(BigDecimal objetivo) {
-        if (objetivo.signum() <= 0 || objetivo.compareTo(CIEN) >= 0) {
-            // Un SLO de 100 % no tiene presupuesto: dividir por cero no es una respuesta.
-            throw new IllegalArgumentException("objetivo de SLO fuera de (0, 100): " + objetivo);
-        }
+        exigirObjetivoValido(objetivo);
         if (minutosMedidos == 0) {
             return Optional.empty();
         }

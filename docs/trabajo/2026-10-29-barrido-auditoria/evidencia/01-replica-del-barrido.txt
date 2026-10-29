@@ -1,0 +1,26 @@
+$ git archive HEAD servicios/auditoria | tar -x -C antes   # HEAD = 23dd3955
+$ python3 -I replica_barrido.py antes/servicios/auditoria
+tamano-archivo  src/main/java/bo/aportaya/auditoria/web/IndicadoresController.java  379 lineas
+sin-umbral-literal  src/main/java/bo/aportaya/auditoria/aplicacion/SaludDeServicios.java:43  static final BigDecimal OBJETIVO_POR_OMISION = new BigDecimal("99.5");
+sin-umbral-literal  src/main/java/bo/aportaya/auditoria/aplicacion/SaludDeServicios.java:61  if (objetivoSlo.signum() <= 0 || objetivoSlo.compareTo(BigDecimal.valueOf(100)) >= 0) {
+sin-umbral-literal  src/main/java/bo/aportaya/auditoria/dominio/DisponibilidadDelServicio.java:18  private static final BigDecimal CIEN = BigDecimal.valueOf(100);
+HALLAZGOS: 4
+exit=1
+
+$ python3 -I replica_barrido.py be-dev/servicios/auditoria   # arbol de trabajo con el cambio
+HALLAZGOS: 0
+exit=0
+
+$ grep -rn "99\.5" servicios/auditoria/src/main/java
+servicios/auditoria/src/main/java/bo/aportaya/auditoria/dominio/DisponibilidadDelServicio.java:51:     * @param objetivo el SLO en porcentaje, por ejemplo 99.5
+grep exit=0  <- la unica coincidencia es un comentario javadoc (@param ... por ejemplo 99.5); el barrido ignora lineas de comentario
+
+$ wc -l IndicadoresController.java RutasDelCatalogoDeDatos.java
+  264 IndicadoresController.java
+  150 RutasDelCatalogoDeDatos.java
+  414 total
+
+# (salida de la corrida del script de comparacion hecha en esta sesion, pegada literal)
+# comparacion de los 11 metodos publicos con sus @Override/@Permiso/@PermisoAlternativo/@Deprecated, original vs. los dos archivos nuevos
+metodos original: 11  nuevos: 11  IGUALES ; lineas del bloque movido ausentes del original: []
+imports: sin faltantes ni sobrantes en ninguno de los dos archivos (heuristica por nombre simple)

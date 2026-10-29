@@ -31,16 +31,7 @@ public class SaludDeServicios {
             Instant consultadoEn,
             List<SaludDeServicio> servicios,
             Map<String, DisponibilidadDelServicio> disponibilidad,
-            BigDecimal objetivoSlo) {
-
-        /** Sin nada medido: el estado de ahora solo. */
-        public Salida(Instant consultadoEn, List<SaludDeServicio> servicios) {
-            this(consultadoEn, servicios, Map.of(), OBJETIVO_POR_OMISION);
-        }
-    }
-
-    /** El SLO acordado el 2026-10-29: 99,5 % en 30 dias para todos los servicios. */
-    static final BigDecimal OBJETIVO_POR_OMISION = new BigDecimal("99.5");
+            BigDecimal objetivoSlo) {}
 
     private final SondaDeSalud sonda;
     private final RegistroDeDisponibilidad registro;
@@ -57,10 +48,10 @@ public class SaludDeServicios {
             SondaDeSalud sonda,
             RegistroDeDisponibilidad registro,
             Reloj reloj,
-            @Value("${aportaya.salud.objetivo-slo:99.5}") BigDecimal objetivoSlo) {
-        if (objetivoSlo.signum() <= 0 || objetivoSlo.compareTo(BigDecimal.valueOf(100)) >= 0) {
-            throw new IllegalArgumentException("aportaya.salud.objetivo-slo fuera de (0, 100): " + objetivoSlo);
-        }
+            // El objetivo sale de application.yml (SALUD_OBJETIVO_SLO) y de ningun otro lado: sin la propiedad el
+            // servicio no arranca, en vez de arrancar con una cifra escondida en el codigo.
+            @Value("${aportaya.salud.objetivo-slo}") BigDecimal objetivoSlo) {
+        DisponibilidadDelServicio.exigirObjetivoValido(objetivoSlo);
         this.sonda = sonda;
         this.registro = registro;
         this.reloj = reloj;
