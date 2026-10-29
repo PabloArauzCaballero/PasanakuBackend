@@ -1,26 +1,47 @@
 import 'dart:math' as math;
 
-import 'package:aportaya_diseno/atomos/colores_de_turno.dart';
 import 'package:aportaya_diseno/tokens/tokens.dart';
 import 'package:flutter/material.dart';
 
+import 'marco_de_ruleta.dart';
+import 'pintor_de_ruleta.dart';
 import 'textos_detalle_del_grupo.dart';
 
-/// La ruleta del sorteo (2026-10-20, la de la maqueta): un segmento por integrante, en
-/// el orden de los cupos, con el color de la rueda del grupo. La aguja queda arriba y
-/// la ruleta gira [angulo] radianes. **No decide nada**: el orden lo devolvió el
-/// servidor; la ruleta solo lo muestra, persona por persona.
+/// La ruleta del sorteo: un gajo por integrante, en el orden de los cupos, con el color
+/// de la rueda del grupo. **No decide nada**: el orden lo devolvió el servidor; la
+/// ruleta solo lo muestra, persona por persona (`OrquestaDelSorteo` la mueve).
+///
+/// Capas, de atrás hacia adelante: sombra, disco que gira ([angulo]), aro con focos y
+/// vidrio (quietos), centro con el puesto que se está sorteando y la aguja.
 class RuletaDelSorteo extends StatelessWidget {
   const RuletaDelSorteo({
     super.key,
     required this.nombres,
     required this.angulo,
-    this.diametro = 280,
+    this.diametro = 300,
+    this.puestos = const {},
+    this.ganador,
+    this.resalte = 0,
+    this.luces = 0,
+    this.todas = false,
+    this.aleta = 0,
+    this.centro,
   });
 
   final List<String> nombres;
   final double angulo;
   final double diametro;
+
+  /// Gajo → puesto que ya le salió (1 = primero).
+  final Map<int, int> puestos;
+  final int? ganador;
+  final double resalte;
+  final double luces;
+  final bool todas;
+  final double aleta;
+
+  /// Lo que dice el centro: el puesto que se sortea («2.º») o «TURNO».
+  final String? centro;
 
   /// El giro que deja el segmento [indice] bajo la aguja, en la vuelta que sigue a
   /// [desde] más [vueltas] vueltas completas.
@@ -39,45 +60,66 @@ class RuletaDelSorteo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final t = Tokens.of(context);
+    final disco = diametro * 0.86;
+    final aguja = diametro * 0.13;
     return Semantics(
       label: TextosDetalleDelGrupo.ruletaEtiqueta,
       image: true,
-      child: SizedBox.square(
-        dimension: diametro,
+      child: SizedBox(
+        width: diametro,
+        height: diametro + aguja * 0.35,
         child: Stack(
           alignment: Alignment.center,
           children: [
-            Transform.rotate(
-              angle: angulo,
-              child: CustomPaint(
-                size: Size.square(diametro),
-                painter: _PintorDeRuleta(
-                  nombres: nombres,
-                  borde: t.bg,
-                  estilo: Tipo.etiqueta.copyWith(color: Paleta.ink),
+            Positioned(
+              top: aguja * 0.35,
+              child: SizedBox.square(
+                dimension: diametro,
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    DecoratedBox(
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Paleta.ink.withValues(alpha: 0.18),
+                            blurRadius: diametro * 0.12,
+                            offset: Offset(0, diametro * 0.02),
+                          ),
+                        ],
+                      ),
+                      child: SizedBox.square(dimension: diametro),
+                    ),
+                    Transform.rotate(
+                      angle: angulo,
+                      child: CustomPaint(
+                        size: Size.square(disco),
+                        painter: PintorDeRuleta(
+                          nombres: nombres,
+                          puestos: puestos,
+                          ganador: ganador,
+                          resalte: resalte,
+                        ),
+                      ),
+                    ),
+                    CustomPaint(
+                      size: Size.square(diametro),
+                      painter: PintorDeMarco(luces: luces, todas: todas),
+                    ),
+                    _Centro(
+                      diametro: diametro * 0.27,
+                      texto: centro ?? 'TURNO',
+                    ),
+                  ],
                 ),
-              ),
-            ),
-            Container(
-              width: diametro * 0.26,
-              height: diametro * 0.26,
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                color: t.surface,
-                shape: BoxShape.circle,
-                border: Border.all(color: t.border, width: Borde.fino),
-              ),
-              child: Text(
-                'TURNO',
-                style: Tipo.etiqueta.copyWith(color: t.text2),
               ),
             ),
             Positioned(
               top: 0,
               child: CustomPaint(
-                size: const Size(Espacio.s5, Espacio.s5),
-                painter: _PintorDeAguja(t.text),
+                size: Size(aguja * 0.78, aguja),
+                painter: PintorDeAguja(aleta: aleta),
               ),
             ),
           ],
@@ -87,78 +129,41 @@ class RuletaDelSorteo extends StatelessWidget {
   }
 }
 
-class _PintorDeRuleta extends CustomPainter {
-  _PintorDeRuleta({
-    required this.nombres,
-    required this.borde,
-    required this.estilo,
-  });
-  final List<String> nombres;
-  final Color borde;
-  final TextStyle estilo;
+class _Centro extends StatelessWidget {
+  const _Centro({required this.diametro, required this.texto});
+
+  final double diametro;
+  final String texto;
 
   @override
-  void paint(Canvas canvas, Size size) {
-    final n = nombres.length;
-    if (n == 0) return;
-    final centro = size.center(Offset.zero);
-    final radio = size.width / 2;
-    final paso = 2 * math.pi / n;
-    final rect = Rect.fromCircle(center: centro, radius: radio);
-    for (var i = 0; i < n; i++) {
-      // El segmento 0 empieza en la aguja (arriba) y siguen en el sentido del reloj.
-      final inicio = -math.pi / 2 + i * paso;
-      canvas.drawArc(
-        rect,
-        inicio,
-        paso,
-        true,
-        Paint()..color = ColoresDeTurno.de(i),
-      );
-      canvas.drawArc(
-        rect,
-        inicio,
-        paso,
-        true,
-        Paint()
-          ..color = borde
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = 2,
-      );
-      final nombre = nombres[i].split(' ').first;
-      final texto = TextPainter(
-        text: TextSpan(text: nombre, style: estilo),
-        textDirection: TextDirection.ltr,
-        maxLines: 1,
-        ellipsis: '…',
-      )..layout(maxWidth: radio * 0.55);
-      canvas.save();
-      canvas.translate(centro.dx, centro.dy);
-      canvas.rotate(inicio + paso / 2);
-      texto.paint(canvas, Offset(radio * 0.36, -texto.height / 2));
-      canvas.restore();
-    }
+  Widget build(BuildContext context) {
+    return Container(
+      width: diametro,
+      height: diametro,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        gradient: const RadialGradient(
+          center: Alignment(-0.3, -0.4),
+          colors: [Paleta.g500, Paleta.g800],
+        ),
+        border: Border.all(color: Paleta.g300, width: Borde.desfase),
+        boxShadow: [
+          BoxShadow(
+            color: Paleta.ink.withValues(alpha: 0.4),
+            blurRadius: diametro * 0.12,
+          ),
+        ],
+      ),
+      child: Padding(
+        padding: EdgeInsets.all(diametro * 0.12),
+        child: FittedBox(
+          child: Text(
+            texto,
+            style: Tipo.cifraGrande.copyWith(color: Paleta.crema),
+          ),
+        ),
+      ),
+    );
   }
-
-  @override
-  bool shouldRepaint(_PintorDeRuleta viejo) =>
-      viejo.nombres != nombres || viejo.borde != borde;
-}
-
-class _PintorDeAguja extends CustomPainter {
-  _PintorDeAguja(this.color);
-  final Color color;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final camino = Path()
-      ..moveTo(0, 0)
-      ..lineTo(size.width, 0)
-      ..lineTo(size.width / 2, size.height)
-      ..close();
-    canvas.drawPath(camino, Paint()..color = color);
-  }
-
-  @override
-  bool shouldRepaint(_PintorDeAguja viejo) => viejo.color != color;
 }

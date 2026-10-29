@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:math' as math;
+
 import 'package:aportaya_cliente_grupos/aportaya_cliente_grupos.dart';
 import 'package:aportaya_diseno/atomos/boton.dart';
 import 'package:aportaya_diseno/atomos/boton_variante.dart';
@@ -11,15 +14,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../proveedores/haptica.dart';
+import 'anuncio_del_sorteo.dart';
 import 'dominio/detalle_del_grupo.dart';
 import 'orden_de_cobro.dart';
+import 'orquesta_del_sorteo.dart';
 import 'ruleta_del_sorteo.dart';
 import 'textos_detalle_del_grupo.dart';
 
 part 'pantalla_sorteo_orden.dart';
+part 'pantalla_sorteo_vista.dart';
 
-/// El sorteo de turnos (CU-60, 2026-10-20). El organizador toca «Girar»: el servidor
-/// compromete y revela, y la ruleta muestra el resultado persona por persona. Con el
+/// El sorteo de turnos (CU-60). El organizador toca «Girar»: el servidor compromete y
+/// revela, y la ruleta pone en escena el resultado persona por persona — amague, giro
+/// que frena, aguja que golpea las clavijas, el gajo que brilla y su cartel. Con el
 /// sorteo ya hecho, cualquiera ve acá el orden de cobro. Con movimiento reducido no
 /// gira: el orden aparece entero.
 class PantallaSorteo extends ConsumerStatefulWidget {
@@ -32,21 +40,20 @@ class PantallaSorteo extends ConsumerStatefulWidget {
 
 class _PantallaSorteoState extends ConsumerState<PantallaSorteo>
     with SingleTickerProviderStateMixin {
-  late final AnimationController _giro;
-  double _angulo = 0;
+  late final OrquestaDelSorteo _orquesta = OrquestaDelSorteo(this, alTic: _tic);
   bool _sorteando = false;
+  bool _ceremonia = false;
+  int? _enJuego;
   String? _error;
   final List<String> _revelados = [];
 
-  @override
-  void initState() {
-    super.initState();
-    _giro = AnimationController(vsync: this);
-  }
+  void _tic() => unawaited(
+    ref.read(hapticaProvider).seleccion().catchError((Object _) {}),
+  );
 
   @override
   void dispose() {
-    _giro.dispose();
+    _orquesta.dispose();
     super.dispose();
   }
 
@@ -55,6 +62,7 @@ class _PantallaSorteoState extends ConsumerState<PantallaSorteo>
     final quieto = MediaQuery.of(context).disableAnimations;
     setState(() {
       _sorteando = true;
+      _ceremonia = !quieto;
       _error = null;
       _revelados.clear();
     });
@@ -67,11 +75,31 @@ class _PantallaSorteoState extends ConsumerState<PantallaSorteo>
             : null,
       );
       final cupos = d.integrantes.map((i) => i.cupoId).toList();
+      final yo = d.integrantes.where((i) => i.soyYo).map((i) => i.cupoId);
       for (var k = 0; k < orden.length && mounted; k++) {
         if (!quieto) {
-          await _girarHasta(cupos.indexOf(orden[k]), cupos.length, k);
+          setState(() => _enJuego = k + 1);
+          final gajo = cupos.indexOf(orden[k]);
+          if (gajo >= 0) {
+            await _orquesta.girarHasta(gajo, cupos.length, primera: k == 0);
+          }
         }
-        if (mounted) setState(() => _revelados.add(orden[k]));
+        if (!mounted) return;
+        setState(() => _revelados.add(orden[k]));
+        if (!quieto) {
+          if (yo.contains(orden[k])) {
+            unawaited(
+              ref.read(hapticaProvider).exito().catchError((Object _) {}),
+            );
+          }
+          await _orquesta.pausa(
+            Duration(milliseconds: math.min(900, 1400 - 60 * k)),
+          );
+        }
+      }
+      if (!quieto && mounted) {
+        setState(() => _enJuego = null);
+        await _orquesta.celebrar();
       }
       ref.invalidate(detalleDelGrupoProvider(widget.grupoId));
     } on Object catch (e) {
@@ -87,29 +115,9 @@ class _PantallaSorteoState extends ConsumerState<PantallaSorteo>
     }
   }
 
-  /// La primera vuelta es larga, para que se vea que gira; las demás, cortas.
-  Future<void> _girarHasta(int indice, int segmentos, int paso) async {
-    if (indice < 0) return;
-    final desde = _angulo;
-    final hasta = RuletaDelSorteo.anguloPara(
-      indice,
-      segmentos,
-      desde: desde,
-      vueltas: paso == 0 ? 4 : 1,
-    );
-    final curva = CurvedAnimation(parent: _giro, curve: Curves.easeOutCubic);
-    void mover() =>
-        setState(() => _angulo = desde + (hasta - desde) * curva.value);
-    _giro.duration = Duration(milliseconds: paso == 0 ? 2600 : 900);
-    _giro.addListener(mover);
-    await _giro.forward(from: 0);
-    _giro.removeListener(mover);
-  }
-
   @override
   Widget build(BuildContext context) {
     final detalle = ref.watch(detalleDelGrupoProvider(widget.grupoId));
-    final error = _error;
     return Scaffold(
       body: SafeArea(
         child: ListView(
@@ -121,76 +129,11 @@ class _PantallaSorteoState extends ConsumerState<PantallaSorteo>
               mensajeVacio: '',
               reintentar: () =>
                   ref.invalidate(detalleDelGrupoProvider(widget.grupoId)),
-              exito: (d) => _contenido(context, d, error),
+              exito: (d) => _contenido(context, d),
             ),
           ],
         ),
       ),
-    );
-  }
-
-  Widget _contenido(BuildContext context, DetalleDelGrupo d, String? error) {
-    final t = Tokens.of(context);
-    final nombres = {
-      for (final i in d.integrantes)
-        i.cupoId: i.nombre ?? TextosDetalleDelGrupo.sinNombre,
-    };
-    final yo = d.integrantes
-        .where((i) => i.soyYo)
-        .map((i) => i.cupoId)
-        .firstOrNull;
-    // Sorteo ya revelado: el orden sale de los turnos del detalle.
-    final yaSorteado = [...d.integrantes.where((i) => i.turno != null)]
-      ..sort((a, b) => a.turno!.compareTo(b.turno!));
-    final orden = _revelados.isNotEmpty || _sorteando
-        ? _revelados
-        : yaSorteado.map((i) => i.cupoId).toList();
-    final puedeGirar =
-        d.puedeSortear ||
-        d.sorteo?.estado == SorteoDelDetalleEstadoEnum.COMPROMETIDO;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Text(
-          TextosDetalleDelGrupo.sorteoAyuda,
-          style: Tipo.cuerpoChico.copyWith(color: t.text2),
-        ),
-        const SizedBox(height: Espacio.s4),
-        Center(
-          child: RuletaDelSorteo(
-            nombres: [for (final i in d.integrantes) nombres[i.cupoId]!],
-            angulo: _angulo,
-          ),
-        ),
-        const SizedBox(height: Espacio.s4),
-        if (error != null) ...[
-          Alerta(titulo: error, tono: Tono.error),
-          const SizedBox(height: Espacio.s3),
-        ],
-        if (puedeGirar && orden.isEmpty)
-          Boton(
-            key: const ValueKey('girar-ruleta'),
-            texto: _sorteando
-                ? TextosDetalleDelGrupo.girando
-                : TextosDetalleDelGrupo.girar,
-            variante: BotonVariante.primario,
-            expandido: true,
-            cargando: _sorteando,
-            onPressed: () => _girar(d),
-          ),
-        if (orden.isNotEmpty)
-          _OrdenConCierre(
-            puestos: [
-              for (final cupo in orden)
-                (
-                  nombre: nombres[cupo] ?? TextosDetalleDelGrupo.sinNombre,
-                  soyYo: yo == cupo,
-                ),
-            ],
-            sorteando: _sorteando,
-          ),
-        const SizedBox(height: Espacio.s5),
-      ],
     );
   }
 }
