@@ -2,11 +2,8 @@ import type { NombreDeIcono } from '@aportaya/ui/icono/icono'
 import type { Seccion as NombreDeSeccion } from '../layout/icono-de-seccion'
 import { ENTRADAS_DE_CUMPLIMIENTO } from '../rutas/cumplimiento/compartido/navegacion'
 
-/**
- * Una condición de acceso: alcanza con **uno** de sus permisos (`Sesion.puede`) o con que el rol de la sesión sea
- * uno de sus `roles`. Es la misma forma que tienen las guardias de las rutas (`requierePermiso`, `requiereAlguno`,
- * `soloRolesDeSistemas`), escrita como dato para que el menú pueda preguntar sin navegar.
- */
+/** Una condición de acceso: alcanza con **uno** de sus permisos (`Sesion.puede`) o con que el rol sea uno de sus `roles`.
+ * La misma forma que las guardias (`requierePermiso`, `requiereAlguno`, `soloRolesDeSistemas`), como dato: el menú pregunta sin navegar. */
 export type Requisito = { readonly permisos?: readonly string[]; readonly roles?: readonly string[] }
 /** Lo que el menú necesita de la sesión. `Sesion` lo cumple tal cual. */
 export type Credenciales = { puede(permiso: string): boolean; rol(): string | null }
@@ -24,11 +21,8 @@ export type Pantalla = {
   readonly requiere?: readonly Requisito[]
   readonly grupo?: readonly Pantalla[]
 }
-/**
- * Una entrada del menú lateral. Con `pantallas`, el enlace va a la primera pestaña que la sesión puede abrir, y la
- * entrada se oculta si no puede abrir ninguna; sin `pantallas`, va a `destino` si cumple `requiere`. `prefijos` son las
- * URLs que pertenecen a la sección aunque no sean una pestaña (fichas, raíces, pantallas que solo se abren por enlace).
- */
+/** Una entrada del menú lateral. Con `pantallas` va a la primera que la sesión puede abrir (y se oculta si no abre ninguna);
+ * sin ellas, a `destino` si cumple `requiere`. `prefijos`: URLs de la sección que no son pestaña (fichas, raíces, enlaces). */
 export type Entrada = {
   readonly ruta: NombreDeSeccion
   readonly texto: string
