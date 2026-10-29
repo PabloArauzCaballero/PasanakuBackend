@@ -6,6 +6,7 @@ import 'package:aportaya_diseno/organismos/estado_vacio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:aportaya_diseno/organismos/pantalla_con_cabecera.dart';
 
 import '../../dominio/cu13_cuenta_propia.dart';
 import '../../dominio/errores.dart';
@@ -171,8 +172,14 @@ class PantallaConCuenta extends ConsumerWidget {
     final resuelta = ref.watch(cuentaPropiaProvider).asData?.value;
     if (resuelta != null) return construir(resuelta.cuentaId);
     return Scaffold(
-      appBar: AppBar(title: Text(titulo)),
-      body: SafeArea(child: ResolverCuenta(construir: construir)),
+      // Cabecera grande que se compacta al desplazar (ADR-053, H4.S2.M6).
+      body: PantallaConCabecera(
+        titulo: titulo,
+        cuerpo: SafeArea(
+          top: false,
+          child: ResolverCuenta(construir: construir),
+        ),
+      ),
     );
   }
 }
