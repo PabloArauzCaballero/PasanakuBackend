@@ -1,3 +1,4 @@
+import 'package:aportaya_diseno/atomos/selector_segmentado.dart';
 import 'package:aportaya_diseno/moleculas/tarjeta.dart';
 import 'package:aportaya_diseno/tokens/tokens.dart';
 import 'package:flutter/material.dart';
@@ -49,15 +50,12 @@ class _PantallaDePautasDeFotosState extends State<PantallaDePautasDeFotos> {
                 style: Tipo.cuerpo.copyWith(color: t.text),
               ),
               const SizedBox(height: Espacio.s5),
-              SegmentedButton<bool>(
-                showSelectedIcon: false,
-                segments: const [
-                  ButtonSegment(value: false, label: Text('Documento')),
-                  ButtonSegment(value: true, label: Text('Foto de frente')),
-                ],
-                selected: {_selfie},
-                onSelectionChanged: (seleccion) =>
-                    setState(() => _selfie = seleccion.single),
+              // El selector del sistema: verde de marca, no el naranja de Material
+              // (el naranja se reserva para la urgencia de pagar).
+              SelectorSegmentado<bool>(
+                opciones: const {false: 'Documento', true: 'Foto de frente'},
+                valor: _selfie,
+                onChanged: (selfie) => setState(() => _selfie = selfie),
               ),
               const SizedBox(height: Espacio.s5),
               Text(

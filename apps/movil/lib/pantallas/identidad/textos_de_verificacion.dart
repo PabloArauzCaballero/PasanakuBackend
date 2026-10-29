@@ -24,16 +24,19 @@ class TextosDeVerificacion {
   static const rechazadaTitulo = 'No pudimos validar tu documento';
   static const intentarDeNuevo = 'Intentar de nuevo';
   static const seguirConElRegistro = 'Entrar a AportaYa';
-  static const irALaApp = 'Ir a la app';
+  static const irALaApp = 'Seguir en la app';
   static const activarCuenta = 'Activar mi cuenta';
   // Verificación diferida (2026-10-17): la cuenta se crea sin carnet y la
   // verificación se pide al mover dinero o entrar a un pasanaku.
   static const avisoSinVerificar =
       'Verificá tu identidad para mover dinero y participar en pasanakus.';
   static const requeridaTitulo = 'Verificá tu identidad';
+  // Lo mismo que pide el paso del carnet y el de actividad, sin un tiempo que no
+  // está medido (2026-10-29).
   static const requeridaDetalle =
-      'Para mover dinero y participar en pasanakus necesitamos confirmar que sos '
-      'vos. Te pedimos tu carnet, unas fotos y tu actividad: toma unos minutos.';
+      'Para mover plata y entrar a un pasanaku necesitamos confirmar que sos vos. '
+      'Tené a mano tu carnet: le sacás foto de los dos lados, te sacás unas fotos '
+      'de la cara y nos contás a qué te dedicás.';
   static const requeridaVerificar = 'Verificar mi identidad';
   static const requeridaAhoraNo = 'Ahora no';
   static const requeridaEnRevisionDetalle =
@@ -51,8 +54,8 @@ class TextosDeVerificacion {
   static const enviandoVerificacion = 'Enviando tus datos…';
   static const enviarVerificacion = 'Enviar mis datos';
   static const enviarVerificacionDetalle =
-      'Vamos a enviar tu carnet y tus fotos para que una persona los revise. '
-      'Mientras tanto podés seguir usando la app.';
+      'Último paso: mandamos tu carnet y tus fotos para que una persona los '
+      'revise. Mientras tanto podés seguir usando la app.';
   static const cuentaActivada =
       'Tu identidad fue verificada. Ya podés usar la billetera y los grupos.';
   static const avisoVerificando =

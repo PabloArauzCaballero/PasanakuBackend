@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 
 import 'textos_de_portada.dart';
 
-/// Qué hay que tener a mano para el alta, dicho en la bienvenida.
+/// Qué te va a pedir el alta, dicho en la bienvenida.
 ///
 /// Quien empieza el alta sin el carnet cerca la abandona en el paso del documento.
 /// Decirlo antes de «Crear mi cuenta» quita la sorpresa: la persona decide con lo que
@@ -11,13 +11,13 @@ import 'textos_de_portada.dart';
 class LoQueNecesitas extends StatelessWidget {
   const LoQueNecesitas({super.key});
 
+  // En el orden del alta: el contacto es el paso 1; el carnet, el 3.
   static const _items = <({IconData icono, String texto})>[
-    (icono: Icons.badge_outlined, texto: TextosDePortada.necesitasCarnet),
     (
       icono: Icons.smartphone_outlined,
       texto: TextosDePortada.necesitasContacto,
     ),
-    (icono: Icons.wb_sunny_outlined, texto: TextosDePortada.necesitasLuz),
+    (icono: Icons.badge_outlined, texto: TextosDePortada.necesitasCarnet),
   ];
 
   @override
@@ -60,6 +60,12 @@ class LoQueNecesitas extends StatelessWidget {
                   ],
                 ),
               ],
+              const SizedBox(height: Espacio.s3),
+              // Quita el miedo a empezar sin el carnet: es verdad (se puede saltar).
+              Text(
+                TextosDePortada.necesitasDespues,
+                style: Tipo.ayuda.copyWith(color: t.text3),
+              ),
             ],
           ),
         ),
