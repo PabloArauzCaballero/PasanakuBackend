@@ -91,3 +91,30 @@ class _Garantia extends StatelessWidget {
     );
   }
 }
+
+/// Lo que entra y sale al ocultar o mostrar el saldo (H5.S2.M7): la cifra que se va se
+/// desenfoca mientras se funde, así el número deja de leerse antes de desaparecer. Con
+/// movimiento reducido el cambio es inmediato (la duración llega en cero).
+Widget _desenfoqueYFundido(
+  Widget hijo,
+  Animation<double> avance,
+) => AnimatedBuilder(
+  animation: avance,
+  child: FadeTransition(opacity: avance, child: hijo),
+  builder: (context, conFundido) {
+    final sigma = Movimiento.desenfoqueDeSaldo * (1 - avance.value);
+    // El filtro está siempre en el árbol y se apaga con `enabled`: ponerlo y
+    // sacarlo cambiaba la forma del árbol, recreaba la cifra que se iba y su
+    // rodillo volvía a arrancar desde cero — mostraba importes que no eran.
+    return ImageFiltered(
+      enabled: sigma >= 0.01,
+      imageFilter: ImageFilter.blur(sigmaX: sigma, sigmaY: sigma),
+      child: conFundido,
+    );
+  },
+);
+
+/// Mientras conviven la cifra que se va y la que llega, las dos quedan alineadas a la
+/// izquierda, donde vive el saldo: centradas, la que llega saltaba al final.
+Widget _alineadasALaIzquierda(Widget? actual, List<Widget> previas) =>
+    Stack(alignment: Alignment.centerLeft, children: [...previas, ?actual]);
