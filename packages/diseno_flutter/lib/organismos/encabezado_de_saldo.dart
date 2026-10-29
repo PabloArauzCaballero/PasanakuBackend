@@ -1,3 +1,5 @@
+import 'dart:ui' show ImageFilter;
+
 import 'package:flutter/material.dart';
 
 import '../atomos/iconos_de_marca.dart';
@@ -109,6 +111,8 @@ class _EncabezadoDeSaldoState extends State<EncabezadoDeSaldo> {
                 padding: const EdgeInsets.only(right: Espacio.s3),
                 child: AnimatedSwitcher(
                   duration: duracion(context, Movimiento.ocultarSaldo),
+                  transitionBuilder: _desenfoqueYFundido,
+                  layoutBuilder: _alineadasALaIzquierda,
                   child: _oculto
                       ? Semantics(
                           key: const ValueKey('oculto'),
