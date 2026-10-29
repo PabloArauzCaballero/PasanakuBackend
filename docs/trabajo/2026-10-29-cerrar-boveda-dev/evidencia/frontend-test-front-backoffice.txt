@@ -1,0 +1,4 @@
+$ (apps/backoffice) yarn run test:front
+ Test Files  183 passed (183)
+      Tests  1285 passed (1285)
+exit=0
