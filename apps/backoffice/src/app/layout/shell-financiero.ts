@@ -43,7 +43,7 @@ const ANGOSTO = '(max-width: 64rem)'
     <div class="shell" [class.angosto]="angosto()">
       @if (!angosto()) {
         <aside class="lateral">
-          <a class="marca" routerLink="/tablero"><ap-simbolo-de-marca [sobreOscuro]="true" /><span><strong>AportaYa</strong><small>Backoffice</small></span></a>
+          <a class="marca" routerLink="/tablero" aria-label="AportaYa Backoffice · ir al inicio" title="Ir al inicio"><ap-simbolo-de-marca [sobreOscuro]="true" /><span><strong>AportaYa</strong><small>Backoffice</small></span></a>
           <ap-menu-lateral class="menu" />
           <button type="button" class="salir" [disabled]="saliendo()" (click)="salir()"><ap-icono-de-seccion nombre="salir" />{{ saliendo() ? 'Saliendo…' : 'Salir' }}</button>
         </aside>
@@ -57,7 +57,7 @@ const ANGOSTO = '(max-width: 64rem)'
       <header class="cabecera">
         @if (angosto()) {
           <button type="button" class="hamburguesa" aria-label="Abrir el menú" (click)="menuAbierto.set(true)"><ap-icono nombre="menu" tamano="s5" /></button>
-          <a class="marca-chica" routerLink="/tablero" aria-label="Inicio"><ap-simbolo-de-marca /></a>
+          <a class="marca-chica" routerLink="/tablero" aria-label="AportaYa · ir al inicio" title="Ir al inicio"><ap-simbolo-de-marca /></a>
         }
         <div class="vista">
           <!-- Una sola línea: «Operación › Desembolsos». El título grande vive en la cabecera de la pantalla; acá no se repite. -->
