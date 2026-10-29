@@ -8,6 +8,7 @@ import 'package:go_router/go_router.dart';
 import 'proveedor_bandeja.dart';
 import 'textos.dart';
 import 'package:aportaya_diseno/moviles/anclas_de_tutorial.dart';
+import 'package:aportaya_diseno/atomos/iconos_de_marca.dart';
 
 /// `/notificaciones/bandeja`. Compone `ItemDeNotificacion` por cada aviso; la lista
 /// vive en Riverpod, no en la pantalla (regla del organismo/molécula: sin lógica).
@@ -20,7 +21,11 @@ class PantallaDeBandeja extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(title: const Text(TextosNotificaciones.titulo)),
       body: avisos.isEmpty
-          ? const EstadoVacio(mensaje: TextosNotificaciones.sinAvisos)
+          ? const EstadoVacio(
+              icono: IconosDeMarca.avisos,
+              titulo: TextosNotificaciones.tituloVacio,
+              mensaje: TextosNotificaciones.sinAvisos,
+            )
           : MarcaDeTutorial(
               id: 'notificaciones.bandeja',
               hijo: ListView.separated(
