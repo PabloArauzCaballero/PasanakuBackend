@@ -36,6 +36,14 @@
 |---|---|---|---|---|
 | H1.S2.M1 | Proveedor de la foto + subida (dio) | 404 → sin foto; subida invalida la lectura | `flutter test test/widget/pantalla_perfil_foto_test.dart` verde | HECHO (4/4) |
 | H1.S2.M2 | Avatar y «Cambiar foto» en Perfil (cargando/error/vacío) | Se ve el avatar y el botón; error accionable | mismo test + `flutter analyze` sin errores nuevos | HECHO (perfil 10/10; analyze sin issues) |
+### H1.S2b — CI de la PR (agregada 2026-10-29)
+| ID | Microtarea | CA (binario) | DoD | Estado |
+|---|---|---|---|---|
+| H1.S2b.M1 | Formato spotless + Postman regenerado (míos) | `spotlessCheck` y `generar_postman.py` sin diff | spotlessCheck exit 0; regenerar deja 0 archivos con diff | HECHO (a3ba0f10) |
+| H1.S2b.M2 | Deriva de DDL ajena (`disponibilidad_servicio_dia`, de c51a17cf) que bloquea el check de esquema | `generar_ddl.py` sin diff | regenerar deja 0 archivos con diff | HECHO (c769bed6) — fuera del alcance original, agregada porque bloquea la PR |
+| H1.S2b.M4 | `dart format` de mi test y de `pantalla_del_grupo.dart` (viene sin formato desde dev #229) | `yarn lint` de movil exit 0 | `dart format --set-exit-if-changed` + `verificar_frontend.py movil` → TODO OK | HECHO |
+| H1.S2b.M3 | CI de la PR en verde salvo lo preexistente | Formato, contratos y esquema en pass | `gh pr checks 236` | EN CURSO — falta: que termine la corrida tras c769bed6 |
+
 ### H1.S3 — Integración real
 | ID | Microtarea | CA (binario) | DoD | Estado |
 |---|---|---|---|---|
@@ -46,6 +54,8 @@
 - Las suites de identidad están partidas (`test`, `webTest`, `integrationTest`, `testBarrido`): un `--tests` sobre `test` no corre los `CU*Test` ni los `*WebTest`.
 - `integrationTest` completo: 201 tests, 1 falla (`CU04Test` criterio 3). Aislado pasa en la rama y en `2189e607`: depende del orden o del estado compartido; no se probó que sea preexistente en la suite completa.
 - `flutter test test/widget`: 213 OK y 4 fallas, las MISMAS 4 en `2189e607` sin el cambio → preexistentes.
+- CI de la PR (1.ª corrida): 4 fallas. Mías: spotless de identidad y Postman sin regenerar. Ajenas: deriva de DDL de c51a17cf (latente en dev porque el check se salteó por impacto) y bóveda (ADR-053 fuera del índice y sin secciones, índice de skills, «50 ADR» en el plan maestro), que también falla en el workflow de bóveda de dev 029c8998. La bóveda NO se toca acá.
+- CI (2.ª corrida): `:servicios:auditoria:testBarrido` falla por `SaludDeServicios.java:42,55` y `DisponibilidadDelServicio.java:18` (cifras literales) e `IndicadoresController.java` 309 líneas — código del SLO, no de esta PR. NO se toca: es un refactor de otro servicio.
 - `origin/dev` avanzó durante el trabajo (#229–#232, rediseño bancario de la app): se integra antes de la PR.
 
 ## Riesgos y bloqueos previstos

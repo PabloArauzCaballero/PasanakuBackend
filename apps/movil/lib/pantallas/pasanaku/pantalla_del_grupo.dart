@@ -34,9 +34,7 @@ class PantallaDelGrupo extends ConsumerWidget {
           child: ListView(
             physics: const AlwaysScrollableScrollPhysics(),
             padding: const EdgeInsets.all(Espacio.s4),
-            children: [
-              SeccionDelGrupo(grupoId: grupoId),
-            ],
+            children: [SeccionDelGrupo(grupoId: grupoId)],
           ),
         ),
       ),

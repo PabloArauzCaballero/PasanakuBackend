@@ -28,91 +28,86 @@ class _SesionIdentidadFalsa extends SesionIdentidadNotifier {
 }
 
 void main() {
-  testWidgets(
-    'acciones de perfil son filas accesibles con respuesta al toque',
-    (tester) async {
-      var guiaReiniciada = false;
-      final router = GoRouter(
-        initialLocation: '/perfil',
-        routes: [
-          GoRoute(path: '/perfil', builder: (_, _) => const PantallaDePerfil()),
-          GoRoute(
-            path: '/identidad/contrasena',
-            builder: (_, _) =>
-                const Scaffold(body: Text('Cambio de contraseña')),
-          ),
-        ],
-      );
-      addTearDown(router.dispose);
-
-      await tester.pumpWidget(
-        ProviderScope(
-          overrides: [
-            verGuiaDeInicioOtraVezProvider.overrideWithValue(() async {
-              guiaReiniciada = true;
-              return true;
-            }),
-          ],
-          child: MaterialApp.router(
-            theme: temaDesde(Tokens.claro, Brightness.light),
-            routerConfig: router,
-          ),
+  testWidgets('acciones de perfil son filas accesibles con respuesta al toque', (
+    tester,
+  ) async {
+    var guiaReiniciada = false;
+    final router = GoRouter(
+      initialLocation: '/perfil',
+      routes: [
+        GoRoute(path: '/perfil', builder: (_, _) => const PantallaDePerfil()),
+        GoRoute(
+          path: '/identidad/contrasena',
+          builder: (_, _) => const Scaffold(body: Text('Cambio de contraseña')),
         ),
-      );
+      ],
+    );
+    addTearDown(router.dispose);
 
-      const filaContrasena = ValueKey('perfil-fila-contrasena');
-      const filaGuia = ValueKey('perfil-fila-guia');
-      for (final key in [filaContrasena, filaGuia]) {
-        final fila = find.byKey(key);
-        expect(fila, findsOneWidget);
-        expect(
-          tester.getSize(fila).height,
-          greaterThanOrEqualTo(Tactil.minimo),
-        );
-        expect(
-          find.descendant(of: fila, matching: find.byType(HundidoAlTocar)),
-          findsOneWidget,
-        );
-        final semantics = tester.getSemantics(fila).getSemanticsData();
-        expect(semantics.label, isNotEmpty);
-        expect(semantics.hint, isNotEmpty);
-        expect(semantics.flagsCollection.isButton, isTrue);
-        expect(semantics.hasAction(SemanticsAction.tap), isTrue);
-      }
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          verGuiaDeInicioOtraVezProvider.overrideWithValue(() async {
+            guiaReiniciada = true;
+            return true;
+          }),
+        ],
+        child: MaterialApp.router(
+          theme: temaDesde(Tokens.claro, Brightness.light),
+          routerConfig: router,
+        ),
+      ),
+    );
 
-      // Con la foto de perfil arriba (2026-10-28) la fila queda bajo el borde de
-      // los 800×600 del test: se llega desplazándose, como lo haría la persona.
-      await tester.ensureVisible(find.text('Cambiar contraseña'));
-      await tester.pumpAndSettle();
-      final gesto = await tester.startGesture(
-        tester.getCenter(find.text('Cambiar contraseña')),
-      );
-      await tester.pump();
-      await tester.pump(Movimiento.micro);
-      final transformacion = find
-          .ancestor(
-            of: find.text('Cambiar contraseña'),
-            matching: find.byType(Transform),
-          )
-          .first;
+    const filaContrasena = ValueKey('perfil-fila-contrasena');
+    const filaGuia = ValueKey('perfil-fila-guia');
+    for (final key in [filaContrasena, filaGuia]) {
+      final fila = find.byKey(key);
+      expect(fila, findsOneWidget);
+      expect(tester.getSize(fila).height, greaterThanOrEqualTo(Tactil.minimo));
       expect(
-        tester.widget<Transform>(transformacion).transform.storage[0],
-        closeTo(0.97, 0.001),
+        find.descendant(of: fila, matching: find.byType(HundidoAlTocar)),
+        findsOneWidget,
       );
-      await gesto.cancel();
-      await tester.pumpAndSettle();
+      final semantics = tester.getSemantics(fila).getSemanticsData();
+      expect(semantics.label, isNotEmpty);
+      expect(semantics.hint, isNotEmpty);
+      expect(semantics.flagsCollection.isButton, isTrue);
+      expect(semantics.hasAction(SemanticsAction.tap), isTrue);
+    }
 
-      await tester.tap(find.byKey(filaContrasena));
-      await tester.pumpAndSettle();
-      expect(find.text('Cambio de contraseña'), findsOneWidget);
-      router.pop();
-      await tester.pumpAndSettle();
+    // Con la foto de perfil arriba (2026-10-28) la fila queda bajo el borde de
+    // los 800×600 del test: se llega desplazándose, como lo haría la persona.
+    await tester.ensureVisible(find.text('Cambiar contraseña'));
+    await tester.pumpAndSettle();
+    final gesto = await tester.startGesture(
+      tester.getCenter(find.text('Cambiar contraseña')),
+    );
+    await tester.pump();
+    await tester.pump(Movimiento.micro);
+    final transformacion = find
+        .ancestor(
+          of: find.text('Cambiar contraseña'),
+          matching: find.byType(Transform),
+        )
+        .first;
+    expect(
+      tester.widget<Transform>(transformacion).transform.storage[0],
+      closeTo(0.97, 0.001),
+    );
+    await gesto.cancel();
+    await tester.pumpAndSettle();
 
-      await tester.tap(find.byKey(filaGuia));
-      await tester.pump();
-      expect(guiaReiniciada, isTrue);
-    },
-  );
+    await tester.tap(find.byKey(filaContrasena));
+    await tester.pumpAndSettle();
+    expect(find.text('Cambio de contraseña'), findsOneWidget);
+    router.pop();
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(filaGuia));
+    await tester.pump();
+    expect(guiaReiniciada, isTrue);
+  });
 
   testWidgets('muestra el cierre en curso y no duplica el cierre', (
     tester,
