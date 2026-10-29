@@ -1,7 +1,4 @@
 import 'package:aportaya_cliente_aportes/aportaya_cliente_aportes.dart';
-import 'package:aportaya_diseno/atomos/chip_estado.dart';
-import 'package:aportaya_diseno/atomos/monto.dart';
-import 'package:aportaya_diseno/atomos/tono.dart';
 import 'package:aportaya_diseno/dinero/formatear.dart';
 import 'package:aportaya_diseno/organismos/estado_de_pantalla.dart';
 import 'package:aportaya_diseno/tokens/tokens.dart';
@@ -10,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'acciones_de_grupo.dart';
 import 'pantalla_mis_grupos.dart';
+import 'tarjeta_de_aporte.dart';
 import 'dominio/estado_de_mora.dart';
 import 'textos.dart';
 import 'package:aportaya_diseno/moviles/anclas_de_tutorial.dart';
@@ -76,7 +74,7 @@ class PantallaMiEstado extends ConsumerWidget {
                     reintentar: () => ref.invalidate(
                       estadoDelParticipanteProvider(participanteId),
                     ),
-                    exito: (e) => _Aportes(e: e),
+                    exito: (e) => TarjetaDeAporte(e: e),
                   ),
                 ),
                 const SizedBox(height: Espacio.s5),
@@ -86,7 +84,12 @@ class PantallaMiEstado extends ConsumerWidget {
                   mensajeVacio: TextosPasanaku.sinRestriccion,
                   reintentar: () =>
                       ref.invalidate(restriccionVigenteProvider(usuarioId)),
-                  exito: (r) => _Restriccion(r: r),
+                  exito: (r) => AvisoDeRestriccion(
+                    vigente: r.vigente,
+                    // La restricción no trae moneda y la app opera solo en bolivianos
+                    // (`Dinero`: BOB).
+                    montoQueLaLevanta: _importe(r.montoQueLaLevanta, 'BOB'),
+                  ),
                 ),
                 const SizedBox(height: Espacio.s5),
                 AccionesDeGrupo(grupoId: grupoId),
@@ -95,68 +98,6 @@ class PantallaMiEstado extends ConsumerWidget {
           ),
         ),
       ),
-    );
-  }
-}
-
-class _Aportes extends StatelessWidget {
-  const _Aportes({required this.e});
-  final EstadoDelParticipante e;
-
-  @override
-  Widget build(BuildContext context) {
-    final texto = Theme.of(context).textTheme;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        ChipEstado(
-          texto: e.alDia ? 'Al día' : 'Con deuda vigente',
-          tono: e.alDia ? Tono.ok : Tono.aviso,
-        ),
-        const SizedBox(height: Espacio.s3),
-        if (!e.alDia) ...[
-          Text(
-            TextosPasanaku.deudaVigente(
-              _importe(e.deudaVigente, e.moneda.value),
-            ),
-            style: texto.bodyMedium,
-          ),
-          const SizedBox(height: Espacio.s2),
-        ],
-        Monto(
-          monto: e.porAportar,
-          moneda: e.moneda.value,
-          etiqueta: TextosPasanaku.porAportarAviso(
-            _importe(e.porAportar, e.moneda.value),
-          ),
-        ),
-        const SizedBox(height: Espacio.s2),
-        Text(
-          'Obligaciones abiertas: ${e.obligacionesAbiertas}',
-          style: texto.bodySmall,
-        ),
-      ],
-    );
-  }
-}
-
-class _Restriccion extends StatelessWidget {
-  const _Restriccion({required this.r});
-  final dynamic r;
-
-  @override
-  Widget build(BuildContext context) {
-    final texto = Theme.of(context).textTheme;
-    if (!(r.vigente as bool)) {
-      return Text(TextosPasanaku.sinRestriccion, style: texto.bodyMedium);
-    }
-    return Text(
-      // La restricción no trae moneda y la app opera solo en bolivianos (`Dinero`: BOB).
-      TextosPasanaku.restriccionVigente(
-        _importe(r.montoQueLaLevanta as String, 'BOB'),
-      ),
-      style: texto.bodyMedium,
     );
   }
 }

@@ -20,12 +20,17 @@ class TarjetaDeTutorial extends StatelessWidget {
     required this.alComenzar,
     required this.alContinuar,
     required this.alReiniciar,
+    this.destacada = false,
   });
 
   final TutorialEnLista fila;
   final VoidCallback alComenzar;
   final VoidCallback alContinuar;
   final VoidCallback alReiniciar;
+
+  /// Solo el tutorial recomendado lleva la acción principal (ADR-053): con cinco tarjetas y
+  /// cinco botones primarios a todo el ancho, ninguno era «el» siguiente paso.
+  final bool destacada;
 
   @override
   Widget build(BuildContext context) {
@@ -87,7 +92,9 @@ class TarjetaDeTutorial extends StatelessWidget {
                       : fila.estado == EstadoDeProgreso.completado
                       ? TextosSoporte.repetir
                       : TextosSoporte.comenzar,
-                  variante: BotonVariante.primario,
+                  variante: destacada
+                      ? BotonVariante.primario
+                      : BotonVariante.secundario,
                   onPressed: fila.continuable ? alContinuar : alComenzar,
                 ),
               ),

@@ -17,6 +17,10 @@ class TextosDeVerificacion {
       'Tu identidad ya está verificada. Tocá «Activar mi cuenta» para empezar a usar '
       'la billetera y los grupos.';
   static const aprobadaTitulo = 'Identidad verificada';
+  static const pasoRecibido = 'Recibido';
+  static const pasoEnRevision = 'En revisión';
+  static const pasoListo = 'Listo';
+  static const pasoRechazado = 'Rechazado';
   static const rechazadaTitulo = 'No pudimos validar tu documento';
   static const intentarDeNuevo = 'Intentar de nuevo';
   static const seguirConElRegistro = 'Entrar a AportaYa';
