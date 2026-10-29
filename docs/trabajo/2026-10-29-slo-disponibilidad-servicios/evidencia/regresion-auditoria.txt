@@ -1,0 +1,3 @@
+test: tests=55 fallas=0 errores=0 omitidos=0
+webTest: tests=75 fallas=0 errores=0 omitidos=0
+integrationTest: tests=70 fallas=0 errores=0 omitidos=0

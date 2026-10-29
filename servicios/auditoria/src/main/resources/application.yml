@@ -32,6 +32,9 @@ aportaya:
   salud:
     servicios: identidad,nucleo-financiero,aportes,tarifas,grupos,entregas,garantia,notificaciones,organizador,cumplimiento,auditoria,transparencia,erp,publicidad
     plantilla: http://%s:8080/actuator/health/readiness
+    # sistemas/servicios: el SLO de todos los servicios (decision del 2026-10-29) y cada cuanto se mide.
+    objetivo-slo: ${SALUD_OBJETIVO_SLO:99.5}
+    muestreo-cron: "0 * * * * *"
   indicadores:
     relleno:
       meses: ${INDICADORES_RELLENO_MESES:0}

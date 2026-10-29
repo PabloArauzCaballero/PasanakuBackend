@@ -146,9 +146,23 @@ public class IndicadoresController implements IndicadoresApi {
                                     bo.aportaya.auditoria.web.generado.modelo.SaludDeServicio.EstadoEnum.fromValue(
                                             r.estado().name()));
                             r.latenciaMs().ifPresent(fila::setLatenciaMs);
+                            var medido = salida.disponibilidad().get(r.servicio());
+                            if (medido != null) {
+                                fila.setMinutosMedidos30d(medido.minutosMedidos());
+                                medido.disponibilidad()
+                                        .map(BigDecimal::toPlainString)
+                                        .ifPresent(fila::setDisponibilidad30d);
+                                medido.presupuestoRestante(salida.objetivoSlo())
+                                        .map(BigDecimal::toPlainString)
+                                        .ifPresent(fila::setPresupuestoErrorRestante);
+                                medido.ultimaInterrupcion()
+                                        .map(i -> i.atOffset(java.time.ZoneOffset.UTC))
+                                        .ifPresent(fila::setUltimaInterrupcion);
+                            }
                             return fila;
                         })
                         .toList());
+        cuerpo.setObjetivoSlo(salida.objetivoSlo().toPlainString());
         return ResponseEntity.ok(cuerpo);
     }
 
