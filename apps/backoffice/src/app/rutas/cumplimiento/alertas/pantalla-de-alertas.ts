@@ -14,7 +14,7 @@ import { textosCumplimiento } from '../textos'
   imports: [CabeceraDePagina, PanelDeFactores],
   template: `
     <section class="pantalla">
-      <ap-cabecera-de-pagina [titulo]="t.titulo" [descripcion]="t.proposito" icono="alerta" />
+      <ap-cabecera-de-pagina [titulo]="t.titulo" [descripcion]="t.proposito" />
       <p class="aviso">{{ t.aviso }}</p>
 
       <section aria-labelledby="hechos">

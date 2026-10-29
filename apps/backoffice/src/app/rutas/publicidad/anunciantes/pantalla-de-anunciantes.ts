@@ -36,7 +36,7 @@ const limite = (a: Anunciante) => (a.limiteGastoMensual ? `${a.limiteGastoMensua
   imports: [AccionesDeFila, Alerta, BarraDeLotes, Boton, CabeceraDePagina, ChipEstado, FormularioDeAnunciante, Icono, ListadoDeDatos, Monto, TarjetaKPI],
   template: `
     <section class="pantalla">
-      <ap-cabecera-de-pagina eyebrow="Publicidad" [titulo]="t.titulo" [descripcion]="t.proposito" icono="megafono">
+      <ap-cabecera-de-pagina eyebrow="Publicidad" [titulo]="t.titulo" [descripcion]="t.proposito">
         @if (puedeGestionar()) {
           <ap-boton acciones icono="personaMas" variante="primario" (pulsado)="formulario().abrir()">{{ t.nuevoAnunciante }}</ap-boton>
         }

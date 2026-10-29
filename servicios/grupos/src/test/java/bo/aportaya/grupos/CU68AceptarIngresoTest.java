@@ -183,6 +183,55 @@ class CU68AceptarIngresoTest extends BaseDeCU68 {
                 .isEqualTo("PENDIENTE");
     }
 
+    private ContextoSesion backoffice(UUID usuario) {
+        return ContextoSesion.de(usuario, "ADMIN_PLATAFORMA", new Traza(UUID.randomUUID().toString()));
+    }
+
+    @Test
+    @DisplayName(
+            "Dada una solicitud PENDIENTE sin propuesta · Cuando backoffice la acepta · Entonces reserva el cupo y queda APROBADA a su nombre")
+    void backofficeAcepta() {
+        UUID[] a = armar(true);
+        UUID operador = fixtura.usuario();
+        var r = transaccion.execute(
+                e -> decidirCU().decidir(a[3], true, null, new java.math.BigDecimal("700"), backoffice(operador)));
+
+        assertThat(r.estado()).isEqualTo("APROBADA");
+        assertThat(dslFixtura
+                        .fetchOne("SELECT estado, revisada_por FROM grupos.solicitud_ingreso WHERE id = ?", a[3])
+                        .intoMap())
+                .containsEntry("estado", "APROBADA")
+                .containsEntry("revisada_por", operador);
+        assertThat(dslFixtura
+                        .fetchOne("SELECT estado FROM grupos.cupo WHERE id = ?", r.cupoId())
+                        .get(0))
+                .isEqualTo("RESERVADO");
+    }
+
+    @Test
+    @DisplayName("límite: backoffice sin cupos libres recibe el mismo «ya no hay cupos» que el organizador")
+    void backofficeSinCupos() {
+        UUID[] a = armar(false);
+        assertThatThrownBy(() -> transaccion.execute(e -> decidirCU()
+                        .decidir(a[3], true, null, new java.math.BigDecimal("700"), backoffice(fixtura.usuario()))))
+                .isInstanceOf(ErrorDeNegocio.class)
+                .hasMessageContaining("cupos");
+    }
+
+    @Test
+    @DisplayName("rechaza: nadie decide su propia solicitud, ni siquiera con rol de backoffice")
+    void backofficeNoDecideLaSuya() {
+        UUID[] a = armar(true);
+        assertThatThrownBy(() -> transaccion.execute(e -> decidirCU()
+                        .decidir(a[3], true, null, new java.math.BigDecimal("700"), backoffice(a[2]))))
+                .isInstanceOf(ErrorDeNegocio.class)
+                .hasMessageContaining("no existe");
+        assertThat(dslFixtura
+                        .fetchOne("SELECT estado FROM grupos.solicitud_ingreso WHERE id = ?", a[3])
+                        .get(0))
+                .isEqualTo("PENDIENTE");
+    }
+
     @Test
     @DisplayName("rechaza: decidir lo contrario de lo ya resuelto es un error, no un reintento")
     void contrarioNoEsReintento() {

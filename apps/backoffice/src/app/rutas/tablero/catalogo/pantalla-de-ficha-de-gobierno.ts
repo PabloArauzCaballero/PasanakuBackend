@@ -33,7 +33,7 @@ import { textosGobierno as t } from './textos-gobierno'
   template: `
     <ap-estado-de-pantalla [recurso]="remoto" [mensajeVacio]="textos.ficha.noExiste(esquema() + '.' + tabla())" [etiquetaDeCarga]="textos.cargando" (reintentar)="remoto.reload()">
       @if (ficha(); as f) {
-        <ap-cabecera-de-pagina icono="baseDeDatos" [eyebrow]="t.eyebrow" [titulo]="t.configurar" [descripcion]="t.descripcion(f.esquema + '.' + f.tabla)">
+        <ap-cabecera-de-pagina [eyebrow]="t.eyebrow" [titulo]="t.configurar" [descripcion]="t.descripcion(f.esquema + '.' + f.tabla)">
           <ap-boton acciones variante="fantasma" tamano="sm" icono="flechaIzquierda" (pulsado)="volver()">{{ t.volver }}</ap-boton>
         </ap-cabecera-de-pagina>
         <form class="formulario" (submit)="$event.preventDefault(); pedirConfirmacion()">

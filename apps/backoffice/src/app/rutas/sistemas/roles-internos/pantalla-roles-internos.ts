@@ -27,7 +27,7 @@ const origenDe = (r: RolCatalogo) => (r.esSistema ? 'Sistema' : 'Personalizado')
   imports: [AccionesDeFila, Boton, CabeceraDePagina, CajonLateral, ChipEstado, CifrasDeSistemas, ListadoDeDatos],
   template: `
     <section class="pantalla">
-      <ap-cabecera-de-pagina eyebrow="Sistemas · Identidad" [titulo]="t.titulo" [descripcion]="t.proposito" icono="escudo">
+      <ap-cabecera-de-pagina eyebrow="Sistemas · Identidad" [titulo]="t.titulo" [descripcion]="t.proposito">
         @if (carga().tipo !== 'sin-fuente') { <ap-boton acciones variante="fantasma" icono="recarga" [deshabilitado]="recurso.isLoading()" (pulsado)="recurso.reload()">Actualizar</ap-boton> }
       </ap-cabecera-de-pagina>
       <ap-cifras-de-sistemas etiqueta="Resumen de roles" [cifras]="cifras()" [carga]="carga()" />

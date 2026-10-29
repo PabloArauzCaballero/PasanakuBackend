@@ -38,7 +38,6 @@ const PESTANAS: Pestana[] = [
     @if (operacion(); as op) {
       <section class="detalle-op">
         <ap-cabecera-de-pagina
-          icono="baseDeDatos"
           [eyebrow]="'Sistemas · ' + op.servicio"
           [titulo]="op.metodo + ' ' + op.ruta"
           [descripcion]="op.proposito"

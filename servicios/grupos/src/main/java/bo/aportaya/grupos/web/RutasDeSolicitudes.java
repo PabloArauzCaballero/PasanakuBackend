@@ -12,6 +12,7 @@ import bo.aportaya.grupos.web.generado.modelo.SolicitudDeIngreso;
 import bo.aportaya.plataforma.dominio.CodigoError;
 import bo.aportaya.plataforma.dominio.ErrorDeNegocio;
 import bo.aportaya.plataforma.web.seguridad.Permiso;
+import bo.aportaya.plataforma.web.seguridad.PermisoAlternativo;
 import bo.aportaya.plataforma.web.seguridad.SesionDeLaPeticion;
 import bo.aportaya.plataforma.web.traza.Traza;
 import java.util.UUID;
@@ -129,8 +130,14 @@ abstract class RutasDeSolicitudes extends RutasDeAdmision {
         return ResponseEntity.ok(lista);
     }
 
+    /**
+     * Dos poblaciones: el organizador del grupo ({@code GRUPO_ADMINISTRAR}) y backoffice ({@code ADMIN_PLATAFORMA}),
+     * que sin propuesta del organizador no tiene expediente que resolver. El caso de uso vuelve a decidir sobre el
+     * RECURSO: un organizador de otro grupo o el propio solicitante siguen recibiendo la negativa.
+     */
     @Override
     @Permiso("GRUPO_ADMINISTRAR")
+    @PermisoAlternativo({"ADMIN_PLATAFORMA"})
     public ResponseEntity<SalidaDecisionDeIngreso> decidirSolicitudDeIngreso(
             UUID solicitudId, UUID idempotencyKey, EntradaDecisionDeIngreso cuerpo) {
         Traza.marcarCasoDeUso("CU-68", solicitudId.toString());

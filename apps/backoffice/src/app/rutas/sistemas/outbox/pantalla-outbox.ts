@@ -24,7 +24,7 @@ const ESTADO: Record<MensajeOutbox['estado'], string> = { pendiente: 'Pendiente'
   imports: [Boton, CabeceraDePagina, ChipEstado, CifrasDeSistemas, ListadoDeDatos],
   template: `
     <section class="pantalla">
-      <ap-cabecera-de-pagina eyebrow="Sistemas" [titulo]="t.titulo" [descripcion]="t.proposito" icono="bandeja">
+      <ap-cabecera-de-pagina eyebrow="Sistemas" [titulo]="t.titulo" [descripcion]="t.proposito">
         @if (carga().tipo !== 'sin-fuente') { <ap-boton acciones variante="fantasma" icono="recarga" [deshabilitado]="outbox.isLoading()" (pulsado)="outbox.reload()">Actualizar</ap-boton> }
       </ap-cabecera-de-pagina>
       <ap-cifras-de-sistemas etiqueta="Resumen de la bandeja de salida" [cifras]="cifras()" [carga]="carga()" />

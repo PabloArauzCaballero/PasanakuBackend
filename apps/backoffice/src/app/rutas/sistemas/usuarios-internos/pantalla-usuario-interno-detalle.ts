@@ -28,7 +28,7 @@ import { ModalAsignarRoles } from './modal-asignar-roles'
       <ap-migas [migas]="[{ texto: 'Usuarios internos', ruta: '/sistemas/usuarios-internos' }, { texto: titulo() }]" />
       <ap-estado-de-pantalla [recurso]="recurso" [vacio]="esVacio" [mensajeVacio]="t.vacio" [etiquetaDeCarga]="t.cargando" (reintentar)="recurso.reload()">
         @if (recurso.hasValue() && recurso.value(); as u) {
-          <ap-cabecera-de-pagina [eyebrow]="t.detalle" [titulo]="u.nombres + ' ' + u.apellidos" [descripcion]="u.cargo + ' · ' + u.departamento" icono="persona">
+          <ap-cabecera-de-pagina [eyebrow]="t.detalle" [titulo]="u.nombres + ' ' + u.apellidos" [descripcion]="u.cargo + ' · ' + u.departamento">
             <ap-boton acciones icono="editar" (pulsado)="gestor().editar(u)">{{ t.editarUsuario }}</ap-boton>
             <ap-boton acciones icono="escudo" (pulsado)="mostrarModalRoles.set(true)">Modificar roles</ap-boton>
             <ap-boton acciones [icono]="u.estado === 'ACTIVO' ? 'pausa' : 'reproducir'" [variante]="u.estado === 'ACTIVO' ? 'peligro' : 'secundario'" (pulsado)="gestor().cambiarEstado(u)">{{ u.estado === 'ACTIVO' ? 'Suspender cuenta' : 'Reactivar cuenta' }}</ap-boton>

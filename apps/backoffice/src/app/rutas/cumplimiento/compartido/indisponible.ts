@@ -16,7 +16,7 @@ import { ExplicadorDeVista } from '../../../nucleo/explicador-de-vista'
   imports: [CabeceraDePagina, EstadoVacio, Icono, RouterLink],
   template: `
     <section class="pantalla">
-      <ap-cabecera-de-pagina eyebrow="Cumplimiento" [titulo]="titulo()" [descripcion]="proposito()" icono="advertencia" />
+      <ap-cabecera-de-pagina eyebrow="Cumplimiento" [titulo]="titulo()" [descripcion]="proposito()" />
       <div class="tarjeta">
       <ap-estado-vacio titulo="Esta consulta todavía no está disponible." [explicacion]="motivo()" />
       @if (destino()) { <a [routerLink]="destino()">{{ textoDestino() }}<ap-icono nombre="flechaDerecha" tamano="s4" /></a> }

@@ -33,7 +33,7 @@ type Envio = 'inactivo' | 'enviando' | 'confirmado' | 'sinConfirmar' | 'rechazad
   imports: [Alerta, Boton, CabeceraDePagina, Campo, GrupoRadio, Monto],
   template: `
     <section class="pantalla" aria-labelledby="titulo-retiro">
-      <ap-cabecera-de-pagina id="titulo-retiro" eyebrow="Operación" [titulo]="t.titulo" [descripcion]="t.proposito" icono="retiro">
+      <ap-cabecera-de-pagina id="titulo-retiro" eyebrow="Operación" [titulo]="t.titulo" [descripcion]="t.proposito">
         <ap-boton acciones variante="secundario" icono="flechaIzquierda" (pulsado)="volver()">{{ t.volverABandeja }}</ap-boton>
       </ap-cabecera-de-pagina>
       @if (!resumen) { <p class="aviso">{{ t.sinListado }}</p> }

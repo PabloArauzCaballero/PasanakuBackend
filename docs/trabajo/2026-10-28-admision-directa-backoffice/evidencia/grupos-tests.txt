@@ -1,0 +1,3 @@
+<testsuite name="bo.aportaya.grupos.CU68AceptarIngresoTest" tests="10" skipped="0" failures="0" errors="0"
+<testsuite name="CU-68 · decisión del organizador sobre una solicitud de ingreso" tests="5" skipped="0" failures="0" errors="0"
+<testsuite name="CU-68 · mis participaciones (lo que la app necesita para abrir sus pantallas)" tests="2" skipped="0" failures="0" errors="0"

@@ -85,4 +85,13 @@ export const textosAdmisiones = {
   otraResolucion: 'Otra persona ya resolvió esta solicitud. Revisá el historial.',
   sinConexion: 'Estás sin conexión. Lo que escribiste se conserva; vas a poder enviarlo cuando vuelva la señal.',
   cambio: 'La solicitud cambió mientras la mirabas. Actualizamos el expediente: revisá la última decisión antes de resolver.',
+  directoAyuda: 'El administrador del grupo no propuso nada. Podés aceptar o rechazar directamente; queda a tu nombre y con tu motivo.',
+  motivoDirectoAyuda: 'Obligatorio, entre 5 y 300 caracteres. Queda registrado con tu nombre.',
+  motivoDirectoCorto: 'El motivo necesita al menos 5 caracteres.',
+  motivoDirectoLargo: 'El motivo admite hasta 300 caracteres.',
+  confirmadaAceptada: 'Solicitud aceptada. Se reservó el cupo y la persona queda pendiente de firmar el reglamento.',
+  confirmadaRechazada: 'Solicitud rechazada. Se le avisa a la persona con tu motivo.',
+  esperaPropuesta: 'Este entorno exige que el administrador del grupo proponga primero. Cuando lo haga, la propuesta aparece acá para que la resuelvas.',
+  yaAceptada: 'Esta solicitud ya fue aceptada. La decisión no se puede cambiar.',
+  yaRechazada: 'Esta solicitud ya fue rechazada. La decisión no se puede cambiar.',
 } as const

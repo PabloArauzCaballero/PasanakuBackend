@@ -15,7 +15,7 @@ import { textosCumplimiento } from '../textos'
   imports: [Boton, CabeceraDePagina, ChipEstado],
   template: `
     <section class="pantalla">
-      <ap-cabecera-de-pagina [titulo]="t.titulo" [descripcion]="t.proposito" icono="libro" />
+      <ap-cabecera-de-pagina [titulo]="t.titulo" [descripcion]="t.proposito" />
 
       <p>{{ t.quorum }}: {{ acta().asistentes.length }} / {{ acta().quorumMinimo }}</p>
 

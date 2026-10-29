@@ -37,7 +37,7 @@ export type TipoDeTablero = 'financiero' | 'comercial' | 'sistemas'
   imports: [CabeceraDePagina, EstadoDePantalla, GrupoDeIndicadores, Icono, SelectorSegmentado, TablaEndpointsDelDia],
   template: `
     <section class="pantalla">
-      <ap-cabecera-de-pagina [titulo]="encabezado().titulo" [descripcion]="encabezado().proposito" [icono]="icono()" eyebrow="Tableros" />
+      <ap-cabecera-de-pagina [titulo]="encabezado().titulo" [descripcion]="encabezado().proposito" eyebrow="Tableros" />
 
       <form class="periodo" (submit)="$event.preventDefault()">
         <ap-selector-segmentado [etiqueta]="t.granularidad" [segmentos]="t.segmentos" [(elegido)]="granularidad" />

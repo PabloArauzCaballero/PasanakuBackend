@@ -20,7 +20,7 @@ import { textosPublicidad } from '../textos'
   imports: [CabeceraDePagina, ConsultaDeConsumo, EstadoDePantalla, Icono, RouterLink, TarjetaKPI],
   template: `
     <section class="pantalla">
-      <ap-cabecera-de-pagina eyebrow="Publicidad" [titulo]="t.titulo" [descripcion]="t.proposito" icono="grafico" />
+      <ap-cabecera-de-pagina eyebrow="Publicidad" [titulo]="t.titulo" [descripcion]="t.proposito" />
       <ap-consulta-de-consumo [textoAccion]="t.buscar" (consulta)="consultar($event)" />
       <ap-estado-de-pantalla [recurso]="consumo" [mensajeVacio]="t.elegi" [etiquetaDeCarga]="t.cargando" (reintentar)="consumo.reload()">
         @if (valor(); as c) {
