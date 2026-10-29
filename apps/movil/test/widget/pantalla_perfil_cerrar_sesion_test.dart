@@ -80,6 +80,10 @@ void main() {
         expect(semantics.hasAction(SemanticsAction.tap), isTrue);
       }
 
+      // Con la foto de perfil arriba (2026-10-28) la fila queda bajo el borde de
+      // los 800×600 del test: se llega desplazándose, como lo haría la persona.
+      await tester.ensureVisible(find.text('Cambiar contraseña'));
+      await tester.pumpAndSettle();
       final gesto = await tester.startGesture(
         tester.getCenter(find.text('Cambiar contraseña')),
       );
