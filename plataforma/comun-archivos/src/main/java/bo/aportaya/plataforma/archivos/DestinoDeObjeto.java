@@ -55,6 +55,17 @@ public record DestinoDeObjeto(String carpeta, String etiqueta) {
                 + deExpediente(usuarioId, "x").carpeta() + "/";
     }
 
+    /**
+     * La foto de perfil de alguien: {@code perfil/<usuarioId>/foto-…}. Misma regla que el
+     * expediente: la carpeta es el id, nunca el nombre, y cambiar la foto agrega un objeto.
+     */
+    public static DestinoDeObjeto deFotoDePerfil(java.util.UUID usuarioId) {
+        if (usuarioId == null) {
+            throw new ErrorDeDominio("Una foto de perfil sin usuario no tiene carpeta");
+        }
+        return new DestinoDeObjeto(usuarioId.toString(), "foto");
+    }
+
     /** El reparto viejo por fecha, para lo que no pertenece a nadie en particular. */
     public static DestinoDeObjeto porFecha() {
         var hoy = java.time.LocalDate.now();

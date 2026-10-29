@@ -46,6 +46,7 @@ import org.springframework.test.web.servlet.MockMvc;
         types = {
             bo.aportaya.identidad.aplicacion.ActivarRolOrganizador.class,
             bo.aportaya.identidad.aplicacion.ConsultarMiPerfil.class,
+            bo.aportaya.identidad.aplicacion.CU07FotoDePerfil.class,
             bo.aportaya.identidad.aplicacion.CU02IniciarVerificacion.class,
             bo.aportaya.identidad.aplicacion.GuardarBorradorOnboarding.class
         })
