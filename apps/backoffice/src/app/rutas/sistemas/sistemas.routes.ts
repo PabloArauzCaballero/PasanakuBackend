@@ -31,7 +31,7 @@ export const rutasSistemas: Routes = [
       { path: '', pathMatch: 'full', redirectTo: 'servicios' },
       { path: 'servicios', loadComponent: () => import('./servicios/pantalla-servicios').then((m) => m.PantallaServicios), title: 'Servicios y SLO · Sistemas · AportaYa' },
       { path: 'despliegues', loadComponent: () => import('./despliegues/pantalla-despliegues').then((m) => m.PantallaDespliegues), title: 'Despliegues e interruptores · Sistemas · AportaYa' },
-      { path: 'base-de-datos', loadComponent: () => import('./base-datos/pantalla-base-datos').then((m) => m.PantallaBaseDeDatos), title: 'Base y migraciones · Sistemas · AportaYa' },
+      { path: 'base-de-datos', loadComponent: () => import('./base-datos/pantalla-base-datos').then((m) => m.PantallaBaseDeDatos), title: 'Base de datos · Sistemas · AportaYa' },
       { path: 'respaldos', loadComponent: () => import('./respaldos/pantalla-respaldos').then((m) => m.PantallaRespaldos), title: 'Respaldos · Sistemas · AportaYa' },
       { path: 'proveedores', loadComponent: () => import('./proveedores/pantalla-proveedores').then((m) => m.PantallaProveedores), title: 'Proveedores · Sistemas · AportaYa' },
       { path: 'outbox', loadComponent: () => import('./outbox/pantalla-outbox').then((m) => m.PantallaOutbox), title: 'Outbox y descartados · Sistemas · AportaYa' },

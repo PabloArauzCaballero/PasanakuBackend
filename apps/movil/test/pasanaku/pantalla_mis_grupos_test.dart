@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:aportaya_movil/pantallas/pasanaku/pantalla_mi_estado.dart';
 import 'package:aportaya_movil/pantallas/pasanaku/pantalla_mis_grupos.dart';
+import 'package:aportaya_movil/pantallas/pasanaku/tarjeta_de_mi_grupo.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 

@@ -1,24 +1,22 @@
-import { ChangeDetectionStrategy, Component, computed, inject, input, output, signal } from '@angular/core'
+import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core'
 import { RouterLink } from '@angular/router'
 import { Icono } from '@aportaya/ui/icono/icono'
-import { MENU, type Entrada, type Grupo } from '../nucleo/menu'
-import { entradaDe, entradasVisibles } from '../nucleo/navegacion'
+import { MENU, type Entrada, type Grupo, type Pantalla } from '../nucleo/menu'
+import { entradaDe, entradasVisibles, pantallaActiva, pantallasVisibles } from '../nucleo/navegacion'
 import { Sesion } from '../nucleo/sesion'
 import { IconoDeSeccion } from './icono-de-seccion'
 import { UrlActual } from './url-actual'
 
-const CLAVE = 'ap-menu:plegados'
-
 /**
- * La navegación del backoffice: grupos plegables con rótulo en mayúsculas y **una entrada por sección**. Las
- * pantallas de cada sección no se despliegan acá: viven en las pestañas de sección (`ap-pestanas-de-seccion`), como
- * en el portal interno de Atlas — el menú pasó de más de cuarenta enlaces a uno por sección. El grupo de la ruta
- * actual arranca abierto; lo que se pliega a mano se recuerda en la sesión. Se usa en la barra lateral y en el cajón
- * del celular.
+ * La navegación del backoffice: grupos **fijos** con rótulo en mayúsculas y, debajo de cada sección, **todas** sus
+ * pantallas con su ícono — también las de un subgrupo («Integraciones», «Personal y accesos»), con sangría. Nada se
+ * pliega (2026-10-28, pedido de Pablo: «fijo, no desplegable, scrolleable hacia abajo»): la que se desplaza es la barra
+ * lateral (`.lateral { overflow-y: auto }` en `shell-financiero.css`). Se usa en la barra lateral y en el cajón del
+ * celular.
  *
- * Una entrada se dibuja solo si la sesión puede abrir **alguna** de sus pestañas, y lleva a la primera que puede abrir
- * (`entradasVisibles`): antes filtraba solo por el permiso de sección y «Sistemas» rebotaba a Operación a quien no
- * tenía el rol de sistemas (F1).
+ * Una entrada se dibuja solo si la sesión puede abrir **alguna** de sus pantallas, y lleva a la primera que puede abrir
+ * (`entradasVisibles`); debajo se listan solo las que puede abrir (`pantallasVisibles`): el menú no ofrece lo que
+ * después rebota (F1). El permiso real lo sigue exigiendo la guardia de cada ruta.
  */
 @Component({
   selector: 'ap-menu-lateral',
@@ -28,18 +26,38 @@ const CLAVE = 'ap-menu:plegados'
   template: `
     @for (g of visibles(); track g.titulo) {
       <section class="grupo">
-        @if (g.titulo) {
-          <button type="button" class="rotulo" [attr.aria-expanded]="abierto(g)" [attr.aria-controls]="idDe(g)" (click)="alternar(g)">
-            <span>{{ g.titulo }}</span>
-            <ap-icono nombre="chevronAbajo" tamano="s4" class="chevron" [class.plegado]="!abierto(g)" />
-          </button>
-        }
-        <ul [id]="idDe(g)" [hidden]="!abierto(g)">
+        @if (g.titulo) { <h2 class="rotulo">{{ g.titulo }}</h2> }
+        <ul>
           @for (e of g.entradas; track e.ruta) {
             <li>
-              <a [routerLink]="e.destino" [attr.data-tutorial-id]="'menu-' + e.ruta" [class.activo]="activa(e)" [attr.aria-current]="activa(e) ? 'page' : null" (click)="navegado.emit()">
+              <a class="seccion" [routerLink]="e.destino" [attr.data-tutorial-id]="'menu-' + e.ruta" [class.activo]="activa(e)" (click)="navegado.emit()">
                 <ap-icono-de-seccion [nombre]="e.ruta" /><span>{{ e.texto }}</span>
               </a>
+              @let pantallas = pantallasDe(e);
+              @if (pantallas.length) {
+                <ul class="pantallas" [attr.aria-label]="'Pantallas de ' + e.texto">
+                  @for (p of pantallas; track p.texto) {
+                    <li>
+                      @if (p.grupo) {
+                        <span class="subgrupo"><ap-icono [nombre]="p.icono" tamano="s4" /><span>{{ p.texto }}</span></span>
+                        <ul class="pantallas anidadas" [attr.aria-label]="p.texto">
+                          @for (h of p.grupo; track h.ruta) {
+                            <li>
+                              <a [routerLink]="h.ruta" [class.activo]="esActual(h.ruta)" [attr.aria-current]="esActual(h.ruta) ? 'page' : null" (click)="navegado.emit()">
+                                <ap-icono [nombre]="h.icono" tamano="s4" /><span>{{ h.texto }}</span>
+                              </a>
+                            </li>
+                          }
+                        </ul>
+                      } @else {
+                        <a [routerLink]="p.ruta" [class.activo]="esActual(p.ruta)" [attr.aria-current]="esActual(p.ruta) ? 'page' : null" (click)="navegado.emit()">
+                          <ap-icono [nombre]="p.icono" tamano="s4" /><span>{{ p.texto }}</span>
+                        </a>
+                      }
+                    </li>
+                  }
+                </ul>
+              }
             </li>
           }
         </ul>
@@ -47,22 +65,23 @@ const CLAVE = 'ap-menu:plegados'
     }
   `,
   styles: `
-    :host { display: grid; align-content: start; gap: var(--s2); color: var(--white); }
-    .rotulo { display: flex; width: 100%; align-items: center; gap: var(--s2); min-height: var(--area-tactil); padding: 0 var(--s3); border: 0; border-radius: var(--r-md); background: transparent; color: color-mix(in srgb, var(--white) 55%, transparent); font: var(--t-eyebrow); letter-spacing: var(--t-eyebrow-track); text-transform: uppercase; text-align: left; cursor: pointer; }
-    .rotulo:hover { color: var(--white); background: color-mix(in srgb, var(--white) 6%, transparent); }
-    .rotulo:focus-visible { outline: var(--borde-foco) solid var(--g300); outline-offset: var(--borde-desfase); }
-    .rotulo span { flex: 1; }
-    .chevron { transition: transform var(--mov-entrada) var(--curva-llega); }
-    .chevron.plegado { transform: rotate(-90deg); }
+    :host { display: grid; align-content: start; gap: var(--s3); color: var(--white); }
+    .grupo { display: grid; gap: var(--s1); }
+    .rotulo { margin: 0; padding: var(--s2) var(--s3) var(--s1); color: color-mix(in srgb, var(--white) 55%, transparent); font: var(--t-eyebrow); letter-spacing: var(--t-eyebrow-track); text-transform: uppercase; }
     ul { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--s1); }
-    /* El atributo hidden pierde contra un display propio: un grupo plegado se vería igual que abierto. */
-    ul[hidden] { display: none; }
     a { display: flex; align-items: center; gap: var(--s3); min-height: var(--area-tactil); padding: var(--s2) var(--s3); border-radius: var(--r-md); font: var(--t-cuerpo); color: color-mix(in srgb, var(--white) 78%, transparent); text-decoration: none; transition: background-color var(--mov-micro) ease-out, color var(--mov-micro) ease-out; }
     a:hover { background: color-mix(in srgb, var(--white) 8%, transparent); color: var(--white); }
     /* La activa: superficie apenas más clara y una barra verde a la izquierda, no solo un color (95.4.6). */
     a.activo { background: color-mix(in srgb, var(--white) 9%, transparent); color: var(--white); font-weight: 600; box-shadow: inset var(--borde-foco) 0 0 0 var(--g300); }
-    a.activo ap-icono-de-seccion { color: var(--g300); }
+    a.activo ap-icono-de-seccion, a.activo ap-icono { color: var(--g300); }
     a:focus-visible { outline: var(--borde-foco) solid var(--g300); outline-offset: var(--borde-desfase); }
+    /* Las pantallas de la sección, siempre a la vista: sangría y un filete que las ata a su sección. */
+    .pantallas { gap: calc(var(--s1) / 2); margin: calc(var(--s1) / 2) 0 var(--s2) var(--s4); padding-left: var(--s2); border-left: var(--borde-fino) solid color-mix(in srgb, var(--white) 14%, transparent); }
+    .pantallas a { gap: var(--s2); min-height: calc(var(--area-tactil) - var(--s2)); padding: var(--s1) var(--s2); font: var(--t-cuerpo-chico); color: color-mix(in srgb, var(--white) 70%, transparent); }
+    .pantallas a span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .subgrupo { display: flex; align-items: center; gap: var(--s2); padding: var(--s1) var(--s2); font: var(--t-cuerpo-chico); font-weight: 600; color: color-mix(in srgb, var(--white) 60%, transparent); }
+    .anidadas { margin-left: var(--s3); }
+    @media (prefers-reduced-motion: reduce) { a { transition: none; } }
   `,
 })
 export class MenuLateral {
@@ -71,49 +90,24 @@ export class MenuLateral {
   /** El cajón del celular se cierra al navegar. */
   readonly navegado = output<void>()
   readonly menu = input<readonly Grupo[]>(MENU)
-  private readonly plegados = signal<string[]>(leerPlegados())
 
   readonly visibles = computed(() => entradasVisibles(this.sesion, this.menu()))
 
-  idDe(g: Grupo): string {
-    return 'menu-grupo-' + (g.titulo ?? 'inicio').toLowerCase()
-  }
-  /** Abierto salvo que se haya plegado a mano; el grupo de la ruta activa se abre siempre. */
-  abierto(g: Grupo): boolean {
-    if (!g.titulo) return true
-    if (g.entradas.some((e) => this.activa(e))) return true
-    return !this.plegados().includes(g.titulo)
+  /** Las pantallas que esta sesión puede abrir, con los subgrupos ya filtrados. */
+  pantallasDe(e: Entrada): Pantalla[] {
+    return pantallasVisibles(e, this.sesion)
   }
   /** La sección dueña de la URL: `/tablero/catalogo-de-datos` es Configuración, no Inicio. */
   private readonly entradaActiva = computed(() => entradaDe(this.url(), this.menu()))
   activa(e: Entrada): boolean {
     return this.entradaActiva()?.ruta === e.ruta
   }
-  alternar(g: Grupo): void {
-    if (!g.titulo) return
-    const t = g.titulo
-    this.plegados.update((p) => (p.includes(t) ? p.filter((x) => x !== t) : [...p, t]))
-    guardarPlegados(this.plegados())
-  }
-}
-
-function leerPlegados(): string[] {
-  return leerAlmacen(CLAVE)
-}
-function guardarPlegados(p: string[]): void {
-  guardarAlmacen(CLAVE, p)
-}
-function leerAlmacen(clave: string): string[] {
-  try {
-    return JSON.parse(sessionStorage.getItem(clave) ?? '[]') as string[]
-  } catch {
-    return []
-  }
-}
-function guardarAlmacen(clave: string, p: string[]): void {
-  try {
-    sessionStorage.setItem(clave, JSON.stringify(p))
-  } catch {
-    // Sin almacenamiento el menú funciona igual, solo no recuerda.
+  /** La pantalla de la URL: la de ruta más larga que la contiene (`pantallaActiva`), no cualquier prefijo. */
+  private readonly hojaActual = computed(() => {
+    const e = this.entradaActiva()
+    return e ? pantallaActiva(e, this.url())?.hoja.ruta : undefined
+  })
+  esActual(ruta: string): boolean {
+    return this.hojaActual() === ruta
   }
 }

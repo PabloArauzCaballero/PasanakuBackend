@@ -1,0 +1,4 @@
+$ curl -s -o /dev/null -w '%{http_code}' https://api.aportaya.161.97.85.216.sslip.io/api/v1/indicadores/operacion/servicios
+401
+$ curl -s -o /dev/null -w '%{http_code}' https://api.aportaya.161.97.85.216.sslip.io/api/v1/indicadores/catalogo-de-datos/resumen
+401

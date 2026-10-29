@@ -89,6 +89,31 @@ abstract final class Movimiento {
     damping: 19,
   );
 
+  /// Resorte por omisión de la interfaz (ADR-053, `apple-design` §4): amortiguación
+  /// crítica (ζ = 1, sin rebote) y respuesta de 0,35 s. Rigidez k = (2π / 0,35)² ≈ 322
+  /// con masa 1; amortiguación c = 2·ζ·√k ≈ 35,9. Para indicadores que se deslizan
+  /// (la píldora de la pestaña) y hojas que se acomodan.
+  static const resorteCritico = SpringDescription(
+    mass: 1,
+    stiffness: 322,
+    damping: 35.9,
+  );
+
+  /// Resorte con impulso: solo después de un gesto que traía velocidad (soltar una
+  /// hoja arrastrada, revolear una tarjeta). ζ = 0,8 y respuesta de 0,3 s:
+  /// k = (2π / 0,3)² ≈ 439; c = 2·0,8·√439 ≈ 33,5. Un rebote apenas visible.
+  static const resorteConImpulso = SpringDescription(
+    mass: 1,
+    stiffness: 439,
+    damping: 33.5,
+  );
+
+  /// Separación entre elementos de una entrada escalonada (Inicio, listas cortas).
+  static const pasoEscalonado = Duration(milliseconds: 30);
+
+  /// Ocultar o mostrar el saldo: desenfoque y fundido, rápido porque se repite.
+  static const ocultarSaldo = Duration(milliseconds: 160);
+
   /// Cuánto se corre lateralmente una pantalla al entrar, en píxeles lógicos.
   /// Treinta es lo que usa Material para su eje compartido: se lee como dirección
   /// sin que la pantalla viaje.

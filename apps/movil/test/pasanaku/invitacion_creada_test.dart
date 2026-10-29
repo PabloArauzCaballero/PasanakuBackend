@@ -29,6 +29,12 @@ void main() {
     String canal = 'ENLACE',
     bool abre = true,
   }) async {
+    // Con el QR la pantalla es más alta que la superficie por defecto del test, y la lista
+    // construye perezosa: se prueba en una superficie de teléfono.
+    tester.view.physicalSize = const Size(1080, 2280);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
     final compartir = _CompartirFalso(abre: abre);
     await tester.pumpWidget(
       ProviderScope(

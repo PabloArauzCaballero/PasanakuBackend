@@ -1,0 +1,36 @@
+❯ Building...
+✔ Building...
+Initial chunk files | Names                      |  Raw size | Estimated transfer size
+main-4MW4HON6.js    | main                       | 189.85 kB |                48.90 kB
+chunk-ClTk9wxt.js   | -                          | 165.73 kB |                49.26 kB
+chunk-B6Wg98ne.js   | -                          | 132.98 kB |                34.91 kB
+styles-QCZKEJS4.css | styles                     |  11.74 kB |                 2.27 kB
+chunk-6hRO0rGA.js   | -                          |   1.92 kB |               792 bytes
+
+                    | Initial total              | 502.23 kB |               136.14 kB
+
+Lazy chunk files    | Names                      |  Raw size | Estimated transfer size
+chunk-CZKb6_5I.js   | -                          |   1.03 MB |                77.59 kB
+chunk-CSo2lGPA.js   | -                          |  37.81 kB |                 3.89 kB
+chunk-BeW9_Kp4.js   | ficha-de-tabla             |  37.53 kB |                 9.06 kB
+chunk-Dvmk2-3y.js   | -                          |  30.79 kB |                 3.74 kB
+chunk-eHx-rtg3.js   | pantalla-de-conciliaciones |  21.76 kB |                 6.25 kB
+chunk-C1LBmNhJ.js   | pantalla-operacion-detalle |  21.09 kB |                 5.29 kB
+chunk-OVVBkkjo.js   | tablero-por-rol            |  20.76 kB |                 6.20 kB
+chunk-BXLGs88a.js   | pantalla-de-compras        |  19.89 kB |                 5.38 kB
+chunk-BXNURZbH.js   | pantalla-de-expedientes    |  19.19 kB |                 5.66 kB
+chunk-Dkk_D73F.js   | pantalla-usuarios-internos |  17.42 kB |                 5.20 kB
+chunk-BpsjUTpj.js   | pantalla-bitacora          |  17.37 kB |                 5.52 kB
+chunk-2L5kDQ-R.js   | pantalla-de-campanas       |  16.98 kB |                 5.03 kB
+chunk-DhwVBUXL.js   | pantalla-de-admision       |  16.84 kB |                 4.70 kB
+chunk-BNI6zyzz.js   | bandeja-de-reclamos        |  16.54 kB |                 5.70 kB
+chunk-p-7QE6c1.js   | pantalla-de-cierres        |  16.41 kB |                 5.13 kB
+...and 147 more lazy chunks files. Use "--verbose" to show all the files.
+
+Application bundle generation complete. [7.699 seconds] - 2026-10-29T01:30:33.298Z
+
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mbundle initial exceeded maximum budget. Budget 500.00 kB was not met by 2.23 kB with a total of 502.23 kB.[0m
+
+
+Output location: /Users/pablo/Documents/GitHub/Pasanaku-sistemas/apps/backoffice/dist/backoffice
+

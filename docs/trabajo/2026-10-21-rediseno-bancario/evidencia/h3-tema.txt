@@ -1,0 +1,11 @@
+# H3 — Tema global
+Archivos: packages/diseno_flutter/lib/tema.dart (200 → 159 líneas), tema_de_superficies.dart (nuevo), tema_de_controles.dart
+- Tarjeta de Material: sin borde en claro, borde sutil en oscuro, radio xl (24).
+- AppBar: transparente sobre el fondo, título en Bricolage, 64 de alto.
+- Hoja: radio xxl (28) y agarradera fieldBorder 40×5. Diálogo: radio xxl. Aviso: radio lg.
+- Botones de Material: píldora; relleno en verde (A2); apagado con contorno (T3); enlace en brandTexto.
+$ dart analyze --fatal-infos (paquete y app) → No issues found!
+$ (packages/diseno_flutter) flutter test test/unidad test/widget test/a11y → 00:16 +119: All tests passed!
+  · roles_de_color_accion_test: TEST_BUG por requisito nuevo (A2) → TextButton espera brandTexto.
+$ (apps/movil) 4 goldens con cambio visual intencional regenerados y mirados (pautas públicas, ingreso con sesión caducada).
+$ capturas testigo: evidencia/intermedio-h3/{perfil,entrada} (arnés, 300 capturas, All tests passed).
