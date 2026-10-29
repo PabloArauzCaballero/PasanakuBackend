@@ -2,8 +2,8 @@ import { provideHttpClient } from '@angular/common/http'
 import { provideHttpClientTesting } from '@angular/common/http/testing'
 import { provideZonelessChangeDetection } from '@angular/core'
 import { TestBed } from '@angular/core/testing'
-import { Router, provideRouter } from '@angular/router'
-import { beforeEach, describe, expect, it } from 'vitest'
+import { Router, provideRouter, type Routes } from '@angular/router'
+import { beforeAll, beforeEach, describe, expect, it } from 'vitest'
 import { routes } from '../app.routes'
 import { GATEWAY } from './gateway'
 import { MENU } from './menu'
@@ -38,6 +38,26 @@ const casos: Caso[] = [
   { nombre: 'ACCESOS_ADMINISTRAR · SEGURIDAD', permisos: ['ACCESOS_ADMINISTRAR'], rol: 'SEGURIDAD' },
 ]
 
+/**
+ * Carga una vez, antes de la matriz, cada pantalla perezosa (`loadComponent`) y cada rama (`loadChildren`), en
+ * profundidad. Sin esto el primer caso pagaba el `import()` en frío de todas las rutas —4270 ms solo, más de 5 s dentro
+ * de la suite completa— y agotaba el plazo; los demás las encontraban en la caché de módulos (≈300 ms). No cambia qué
+ * se navega ni qué se afirma: saca el costo de carga del caso que mide.
+ */
+async function precargar(rutas: Routes): Promise<void> {
+  for (const r of rutas) {
+    if (r.loadComponent) await r.loadComponent()
+    if (r.children) await precargar(r.children)
+    if (r.loadChildren) {
+      const hijas = await r.loadChildren()
+      if (Array.isArray(hijas)) await precargar(hijas)
+    }
+  }
+}
+
+/** Plazo propio de la carga única: crece con cada pantalla nueva y no tiene por qué competir con el de un caso. */
+const PLAZO_DE_PRECARGA_MS = 60_000
+
 const enRuta = (url: string, ruta: string) => {
   const u = url.split(/[?#]/)[0]!
   return u === ruta || u.startsWith(ruta + '/')
@@ -46,6 +66,7 @@ const enRuta = (url: string, ruta: string) => {
 describe('menú ⇔ guardias de las rutas', () => {
   let router: Router
   let sesion: Sesion
+  beforeAll(() => precargar(routes), PLAZO_DE_PRECARGA_MS)
   beforeEach(() => {
     TestBed.configureTestingModule({
       providers: [provideZonelessChangeDetection(), provideRouter(routes), provideHttpClient(), provideHttpClientTesting(), { provide: GATEWAY, useValue: '/api/v1' }],
