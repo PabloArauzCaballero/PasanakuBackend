@@ -32,7 +32,7 @@ import { textosTablero } from './textos'
             @switch (columna.clave) {
               @case ('ruta') { <code class="ruta">@for (s of segmentos(f.ruta); track $index) {<span>{{ s }}</span><wbr />}</code> }
               @case ('metodo') { <ap-chip-estado tono="info">{{ f.metodo }}</ap-chip-estado> }
-              @case ('errores') { <span [class.con-errores]="f.orden.errores > 0">{{ f.errores }}</span> }
+              @case ('errores') { <span class="errores" [class.con-errores]="f.orden.errores > 0">{{ f.errores }}</span> }
               @default { {{ f[columna.clave] }} }
             }
           </ng-template>
@@ -46,7 +46,10 @@ import { textosTablero } from './textos'
     .bloque { display: grid; gap: var(--s3); min-width: 0; }
     .bloque > * { min-width: 0; }
     /* Una ruta plantilla no tiene espacios: sin corte, en móvil ensancha la tarjeta (prueba visual H9). */
-    .ruta { min-width: 0; white-space: normal; overflow-wrap: anywhere; }
+    /* Piso de 12ch: sin él, un «Servicio» largo dejaba la ruta en dos letras por renglón («rut» / «a»). */
+    .ruta { display: inline-block; min-width: 12ch; white-space: normal; overflow-wrap: anywhere; }
+    /* «1 5xx · 1 4xx» en un renglón. */
+    .errores { white-space: nowrap; }
     h2 { display: flex; align-items: center; gap: var(--s2); margin: 0; font-size: 1.15em; }
     .explicacion { margin: 0; color: var(--text-2); }
     .con-errores { color: var(--err-texto); font-weight: 600; }

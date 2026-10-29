@@ -86,7 +86,7 @@ export type TipoDeTablero = 'financiero' | 'comercial' | 'sistemas'
         @for (g of grupos(); track g.nombre) {
           <ap-grupo-de-indicadores [nombre]="g.nombre" [tarjetas]="g.tarjetas" />
         }
-        <p class="explicacion">{{ t.calculo }}</p>
+        <p class="explicacion pie">{{ t.calculo }}</p>
       </ap-estado-de-pantalla>
       @if (tipo() === 'sistemas') { <ap-tabla-endpoints-del-dia /> }
     </section>
@@ -102,6 +102,9 @@ export type TipoDeTablero = 'financiero' | 'comercial' | 'sistemas'
     .campo input:focus-visible { outline: var(--borde-foco) solid var(--g300); outline-offset: var(--borde-desfase); }
     .aviso, .explicacion { margin: 0; color: var(--text-2); }
     .bloque { display: grid; gap: var(--s3); }
+    /* Lo proyectado en ap-estado-de-pantalla no hereda el gap de .pantalla: sin esto «Latencia» quedaba pegado a la grilla de arriba. */
+    ap-grupo-de-indicadores { display: block; margin-top: var(--s5); }
+    .explicacion.pie { margin-top: var(--s4); }
     h2 { display: flex; align-items: center; gap: var(--s2); }
     .embudo { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--s3); }
     .embudo li { display: grid; grid-template-columns: minmax(10rem, 14rem) 1fr auto; align-items: center; gap: var(--s3); }

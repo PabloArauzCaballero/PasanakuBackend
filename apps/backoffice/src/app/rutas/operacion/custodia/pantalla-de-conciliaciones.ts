@@ -64,7 +64,7 @@ const EXPORTABLES: ColumnaExportable<ConciliacionEnLista>[] = [
       <ap-listado-por-cursor [titulo]="t.historial" [columnas]="COLUMNAS" [fuente]="l" [exportables]="EXPORTABLES" [identidad]="identidad" [ayudaDeBusqueda]="t.ayudaBusqueda" [textoVacio]="t.vacio" [explicacionVacio]="t.explicacionVacio" [textoDenegado]="t.denegado" nombreDeRegistros="conciliaciones" nombreDeRegistro="conciliación">
         <ng-template #celda let-r let-columna="columna">
           @switch (columna.clave) {
-            @case ('fecha') { {{ dia(r.fecha) }} }
+            @case ('fecha') { <span class="dia">{{ dia(r.fecha) }}</span> }
             @case ('cuentaCustodiaId') { <span class="id" [attr.title]="r.cuentaCustodiaId">{{ r.cuentaCustodiaId }}</span> }
             @case ('diferencia') {
               <span class="diferencia" [class.descuadre]="!esCero(r.diferencia.monto)"><ap-icono [nombre]="esCero(r.diferencia.monto) ? 'verificado' : 'advertencia'" tamano="s4" /><strong>{{ cuadreDe(r) }}</strong> <ap-monto [monto]="r.diferencia.monto" [moneda]="r.diferencia.moneda" [etiqueta]="t.columnas.diferencia" /></span>
@@ -82,6 +82,8 @@ const EXPORTABLES: ColumnaExportable<ConciliacionEnLista>[] = [
     .pantalla { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s5); min-width: 0; }
     .tarjeta { display: grid; gap: var(--s4); padding: var(--s5); border: var(--borde-fino) solid var(--border); border-radius: var(--r-lg); background: var(--surface); box-shadow: var(--sombra-1); }
     .cerrar { display: flex; justify-content: flex-end; }
+    /* «15 ene 2026» en un renglón: la regla global parte el texto de las celdas y la fecha corta quedaba en dos. */
+    .dia { white-space: nowrap; }
     /* Identificadores en una línea, recortados con «…»: el valor completo va en el title y en la descarga (antes se partían letra a letra y la fila medía 200 px). */
     .id { display: inline-block; max-width: 10ch; overflow: hidden; text-overflow: ellipsis; vertical-align: bottom; font-family: var(--mono); font-size: .92em; }
     .diferencia { display: inline-flex; align-items: center; gap: var(--s1); flex-wrap: wrap; }

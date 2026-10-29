@@ -58,7 +58,7 @@ const EXPORTABLES: ColumnaExportable<CierreDiarioEnLista>[] = [
       <ap-listado-por-cursor [titulo]="t.historial" [columnas]="COLUMNAS" [fuente]="l" [exportables]="EXPORTABLES" [identidad]="identidad" [ayudaDeBusqueda]="t.ayudaBusqueda" [textoVacio]="t.vacio" [explicacionVacio]="t.explicacionVacio" [textoDenegado]="t.denegado" nombreDeRegistros="cierres" nombreDeRegistro="cierre">
         <ng-template #celda let-r let-columna="columna">
           @switch (columna.clave) {
-            @case ('fecha') { {{ dia(r.fecha) }} }
+            @case ('fecha') { <span class="dia">{{ dia(r.fecha) }}</span> }
             @case ('cantidadPagos') { {{ r.cantidadPagos }} }
             @case ('cuadrado') {
               <ap-chip-estado [tono]="r.cuadrado ? 'ok' : 'aviso'">{{ r.cuadrado ? t.cuadrado : t.conObservaciones }}</ap-chip-estado>
@@ -75,6 +75,8 @@ const EXPORTABLES: ColumnaExportable<CierreDiarioEnLista>[] = [
     .pantalla { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s5); min-width: 0; }
     .tarjeta { display: grid; gap: var(--s4); padding: var(--s5); border: var(--borde-fino) solid var(--border); border-radius: var(--r-lg); background: var(--surface); box-shadow: var(--sombra-1); }
     .cerrar { display: flex; justify-content: flex-end; }
+    /* «15 ene 2026» en un renglón: la regla global parte el texto de las celdas y la fecha corta quedaba en dos. */
+    .dia { white-space: nowrap; }
     .nota { display: block; color: var(--text-2); font: var(--t-cuerpo-chico); }
   `,
 })
