@@ -1,7 +1,7 @@
 Automatically searching for and using Vitest configuration file.
 ❯ Building...
 ✔ Building...
-Application bundle generation complete. [5.312 seconds] - 2026-10-29T01:26:39.991Z
+Application bundle generation complete. [8.945 seconds] - 2026-10-29T01:29:14.225Z
 
 (!) Your Vite config uses features that are unsupported by `configLoader: 'native'`, which is planned to become the default in a future major version of Vite:
   - ESM syntax in a file loaded as CommonJS (vitest-base.config.ts:1:1). Use a `.mjs` extension or set `"type": "module"` in the closest package.json
@@ -90,10 +90,10 @@ Not implemented: HTMLCanvasElement's getContext() method: without installing the
 Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
 Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
 Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
-Not implemented: Window's confirm() method
-Not implemented: Window's confirm() method
 Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
 Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: Window's confirm() method
+Not implemented: Window's confirm() method
 Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
 Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
 Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
@@ -102,7 +102,7 @@ Not implemented: HTMLCanvasElement's getContext() method: without installing the
 Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
 
 [2m Test Files [22m [1m[32m221 passed[39m[22m[90m (221)[39m
-[2m      Tests [22m [1m[32m1345 passed[39m[22m[90m (1345)[39m
-[2m   Start at [22m 21:26:40
-[2m   Duration [22m 29.79s[2m (transform 1.21s, setup 241ms, import 1.02s, tests 28.08s, environment 266ms)[22m
+[2m      Tests [22m [1m[32m1350 passed[39m[22m[90m (1350)[39m
+[2m   Start at [22m 21:29:14
+[2m   Duration [22m 30.31s[2m (transform 1.39s, setup 266ms, import 1.19s, tests 28.40s, environment 273ms)[22m
 

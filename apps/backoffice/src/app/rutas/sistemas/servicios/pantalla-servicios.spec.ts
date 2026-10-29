@@ -1,77 +1,68 @@
-import { provideHttpClient } from '@angular/common/http'
-import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing'
 import { provideZonelessChangeDetection } from '@angular/core'
 import { TestBed } from '@angular/core/testing'
-import { SaludDeServicioEstadoEnum as E, type SalidaSaludDeServicios } from 'clientes/angular/auditoria'
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
-import { GATEWAY } from '../../../nucleo/gateway'
+import { describe, expect, it } from 'vitest'
+import { PUERTO_SERVICIOS, type EstadoServicio } from '../dominio/puertos'
 import { PantallaServicios } from './pantalla-servicios'
+import { probarVistaDePuerto } from '../compartido/pruebas.apoyo'
 
-const URL = 'http://gw/api/v1/indicadores/operacion/servicios'
-
-// Sintético: la forma de `SalidaSaludDeServicios` (auditoria.yaml), no una medición real.
-const DOS: SalidaSaludDeServicios = {
-  consultadoEn: '2026-10-28T19:04:05Z',
-  servicios: [
-    { servicio: 'identidad', estado: E.Arriba, latenciaMs: 12 },
-    { servicio: 'aportes', estado: E.Caido },
-  ],
+const SERVICIO: EstadoServicio = {
+  id: 's-1',
+  nombre: 'nucleo-financiero',
+  estado: 'operativo',
+  disponibilidad30d: '99.95%',
+  presupuestoErrorRestante: '68%',
+  ultimaInterrupcion: '2026-07-02',
 }
 
-describe('PantallaServicios · contra consultarSaludDeServicios (HTTP)', () => {
-  let http: HttpTestingController
-
-  beforeEach(() => {
-    TestBed.configureTestingModule({
-      providers: [provideZonelessChangeDetection(), provideHttpClient(), provideHttpClientTesting(), { provide: GATEWAY, useValue: 'http://gw/api/v1' }],
-    })
-    http = TestBed.inject(HttpTestingController)
+function montar(obtener: () => Promise<EstadoServicio[]>) {
+  TestBed.configureTestingModule({
+    providers: [provideZonelessChangeDetection(), { provide: PUERTO_SERVICIOS, useValue: { obtener } }],
   })
-  afterEach(() => http.verify())
+  return TestBed.createComponent(PantallaServicios)
+}
 
-  async function montar(responder: (h: HttpTestingController) => void) {
-    const fixture = TestBed.createComponent(PantallaServicios)
+describe('PantallaServicios · los cuatro estados', () => {
+  it('cargando: se ve el estado de carga antes de que resuelva la promesa', () => {
+    const fixture = montar(() => new Promise(() => {}))
     fixture.detectChanges()
-    responder(http)
+    expect(fixture.nativeElement.querySelector('[role="status"]')).toBeTruthy()
+  })
+
+  it('datos: pinta la tabla con las filas que trae el puerto', async () => {
+    const fixture = montar(() => Promise.resolve([SERVICIO]))
+    fixture.detectChanges()
     await fixture.whenStable()
     fixture.detectChanges()
-    return fixture.nativeElement as HTMLElement
-  }
+    expect(fixture.nativeElement.textContent).toContain('nucleo-financiero')
+  })
 
-  it('cargando: antes de que conteste auditoria se ve el estado de carga', () => {
-    const fixture = TestBed.createComponent(PantallaServicios)
+  it('vacío: sin servicios, muestra el mensaje de vacío del dominio (nunca la tabla)', async () => {
+    const fixture = montar(() => Promise.resolve([]))
     fixture.detectChanges()
-    expect(fixture.nativeElement.textContent).toContain('Cargando')
-    http.expectOne(URL)
+    await fixture.whenStable()
+    fixture.detectChanges()
+    expect(fixture.nativeElement.textContent).toContain('Todavía no hay servicios reportando estado.')
   })
 
-  it('correcto: pinta la salud que contestó cada servicio, con su latencia y la hora de la consulta', async () => {
-    const el = await montar((h) => h.expectOne(URL).flush(DOS))
-    const texto = el.textContent ?? ''
-    expect(texto).toContain('identidad')
-    expect(texto).toContain('arriba')
-    expect(texto).toContain('12 ms')
-    expect(texto).toContain('no responde')
-    expect(texto).toContain('Consultado a las 15:04:05')
-    expect(texto).not.toContain('99.95')
+  it('sin fuente: lo dice en un estado neutro, nunca con datos de ejemplo', async () => {
+    const fixture = montar(() => Promise.reject({ tipo: 'fuente-no-disponible', mensaje: 'Ningún servicio publica todavía «Estado de servicios».' }))
+    fixture.detectChanges()
+    await fixture.whenStable()
+    fixture.detectChanges()
+    expect(fixture.nativeElement.querySelector('ap-estado-vacio')?.textContent).toContain('Ningún servicio publica todavía')
+    expect(fixture.nativeElement.textContent).not.toContain('99.95')
   })
+})
 
-  it('límite: si auditoria no trae ningún servicio, los catorce quedan «sin dato» (nunca «arriba»)', async () => {
-    const el = await montar((h) => h.expectOne(URL).flush({ consultadoEn: '2026-10-28T19:04:05Z', servicios: [] }))
-    const chips = Array.from(el.querySelectorAll('ap-chip-estado')).map((c) => c.textContent?.trim())
-    expect(chips.length).toBeGreaterThan(0)
-    expect(chips.every((c) => c === 'sin dato')).toBe(true)
-  })
+const ESTADOS: EstadoServicio['estado'][] = ['operativo', 'degradado', 'caido']
 
-  it('inválido: con 500 muestra el error accionable con reintento, sin filas inventadas', async () => {
-    const el = await montar((h) => h.expectOne(URL).flush({ codigo: 'AP-INT' }, { status: 500, statusText: 'Server Error' }))
-    expect(el.querySelector('[role="alert"]')).toBeTruthy()
-    expect(el.textContent).not.toContain('identidad')
-  })
-
-  it('inválido: con 403 (sin TABLERO_SISTEMAS_VER) tampoco pinta servicios', async () => {
-    const el = await montar((h) => h.expectOne(URL).flush({ codigo: 'AP-AUT' }, { status: 403, statusText: 'Forbidden' }))
-    expect(el.querySelectorAll('ap-chip-estado').length).toBe(0)
-    expect(el.textContent).not.toContain('identidad')
+describe('PantallaServicios · listado del kit en los tres niveles (contra un doble del puerto)', () => {
+  probarVistaDePuerto<EstadoServicio>({
+    componente: PantallaServicios,
+    puerto: PUERTO_SERVICIOS,
+    filas: (n) => Array.from({ length: n }, (_, i) => ({ ...SERVICIO, id: `s-${i + 1}`, nombre: i === 3 ? 'pasarela-qr' : `servicio-${i + 1}`, estado: ESTADOS[i % 3]! })),
+    textoVacio: 'Todavía no hay servicios reportando estado.',
+    busqueda: { termino: 'pasarela', esperadas: 1 },
+    filtro: { etiqueta: 'Estado', valor: 'caido', esperadas: 8 },
   })
 })

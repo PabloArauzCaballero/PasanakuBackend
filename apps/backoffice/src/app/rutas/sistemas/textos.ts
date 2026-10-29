@@ -56,7 +56,7 @@ export const textosSistemas = {
     cargando: 'Cargando perfil',
   },
   servicios: {
-    proposito: 'Ver si cada servicio está arriba ahora, cuánto tardó en contestar y su nivel de criticidad, para decidir si hay que actuar.',
+    proposito: 'Ver el estado de cada servicio y su presupuesto de error del SLO, para decidir si hay que actuar.',
     titulo: 'Estado de servicios',
     cargando: 'Cargando el estado de los servicios',
     vacio: 'Todavía no hay servicios reportando estado.',

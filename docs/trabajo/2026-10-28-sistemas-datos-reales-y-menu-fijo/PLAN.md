@@ -30,7 +30,7 @@
 
 | ID | Microtarea | CA (binario) | DoD | Estado |
 |---|---|---|---|---|
-| H1.S1.M1 | Servicios y SLO lee `/indicadores/operacion/servicios` | Spec: con respuesta HTTP de 2 servicios pinta ambos con su salud; con 500, error; con 403, sin permiso | `npx ng test --include=**/sistemas/servicios/**` PASS | HECHO (6/6, `evidencia/H1.S1.M1-servicios.txt`) |
+| H1.S1.M1 | Servicios y SLO lee `/indicadores/operacion/servicios` | Spec: con respuesta HTTP de 2 servicios pinta ambos con su salud; con 500, error; con 403, sin permiso | `npx ng test --include=**/sistemas/servicios/**` PASS | DESCARTADO: ya estaba cableado en `test` por el puerto (`dominio/salud-de-servicios.ts`, commit `d0374660`) y #222 (en `dev`) le suma disponibilidad 30d y presupuesto de error. Mi reescritura se revirtió (decisión de Claude, 2026-10-28, por error de descubrimiento propio). |
 | H1.S1.M2 | Base de datos lee resumen del catálogo + salud | Spec: pinta un esquema por fila con servicio dueño, tablas y «alcanza la base» | `npx ng test --include=**/sistemas/base-datos/**` PASS | HECHO (`evidencia/H1.S1.M2-base-datos.txt`) |
 | H1.S1.M3 | Operaciones, Mapa de flujos y Catálogo de datos visibles bajo Sistemas | `menu-y-guardias.spec.ts` y spec del menú PASS con las nuevas entradas | `npx ng test --include=**/nucleo/**` PASS | HECHO (agrupadas en «Endpoints y flujos», `evidencia/H2.S1.M1-menu.txt`) |
 
