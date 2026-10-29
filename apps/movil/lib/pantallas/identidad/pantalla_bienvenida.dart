@@ -38,7 +38,7 @@ class PantallaDeBienvenida extends StatelessWidget {
                   constraints: const BoxConstraints(maxWidth: 480),
                   child: PanelBienvenida(
                     nombre: datos.nombres.isEmpty
-                        ? 'nueva cuenta'
+                        ? TextosIdentidad.bienvenidaSinNombre
                         : datos.nombres,
                     // Hueco: el monto del bono lo define el catálogo del backend
                     // (`servicios/identidad` o promociones); no está en la bóveda de
@@ -49,12 +49,12 @@ class PantallaDeBienvenida extends StatelessWidget {
                     moneda: 'BOB',
                     pasos: [
                       (
-                        texto: 'Ir a tu billetera',
+                        texto: TextosIdentidad.bienvenidaIrABilletera,
                         hecho: false,
                         onTap: () => context.go('/billetera/inicio'),
                       ),
                       (
-                        texto: 'Completar tu perfil',
+                        texto: TextosIdentidad.bienvenidaCompletarPerfil,
                         hecho: false,
                         onTap: () => context.push('/identidad/perfil'),
                       ),

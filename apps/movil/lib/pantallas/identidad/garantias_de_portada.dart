@@ -50,25 +50,33 @@ class _Garantia extends StatelessWidget {
   final IconData icono;
   final String texto;
 
+  // Roles neutros (no de estado ni de marca): son contexto, no una acción.
   @override
   Widget build(BuildContext context) {
     final t = Tokens.of(context);
-    return Column(
-      children: [
-        DecoratedBox(
-          decoration: BoxDecoration(color: t.brandBg, shape: BoxShape.circle),
-          child: Padding(
-            padding: const EdgeInsets.all(Espacio.s3),
-            child: Icon(icono, size: Espacio.s5, color: t.brandTexto),
-          ),
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: t.surface2,
+        borderRadius: BorderRadius.circular(Radios.md),
+        border: Border.all(color: t.border, width: Borde.fino),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: Espacio.s1,
+          vertical: Espacio.s2,
         ),
-        const SizedBox(height: Espacio.s2),
-        Text(
-          texto,
-          textAlign: TextAlign.center,
-          style: Tipo.cuerpoChico.copyWith(color: t.text2),
+        child: Column(
+          children: [
+            Icon(icono, size: Espacio.s5, color: t.text2),
+            const SizedBox(height: Espacio.s1),
+            Text(
+              texto,
+              textAlign: TextAlign.center,
+              style: Tipo.cuerpoChico.copyWith(color: t.text2),
+            ),
+          ],
         ),
-      ],
+      ),
     );
   }
 }

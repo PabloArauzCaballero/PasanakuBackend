@@ -121,11 +121,14 @@ class _Contenido extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Icon(icono, size: 56, color: t.brand),
+        Icon(icono, size: Espacio.s7, color: t.brand),
         const SizedBox(height: Espacio.s4),
-        Text(titulo, style: Theme.of(context).textTheme.titleLarge),
+        Semantics(
+          header: true,
+          child: Text(titulo, style: Tipo.titulo2.copyWith(color: t.text)),
+        ),
         const SizedBox(height: Espacio.s2),
-        Text(detalle),
+        Text(detalle, style: Tipo.cuerpo.copyWith(color: t.text2)),
         const Spacer(),
         // En revisión, lo útil es preguntar si ya la aprobaron, ahí mismo: si la
         // aprobaron, la cuenta se activa y se sigue con la operación (2026-10-19).

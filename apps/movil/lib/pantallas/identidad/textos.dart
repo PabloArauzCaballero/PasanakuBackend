@@ -20,8 +20,8 @@ class TextosIdentidad {
   static const bienvenidaTitulo =
       'El pasanaku de siempre,\ncon las cuentas claras';
   static const bienvenidaTexto =
-      'Aportá cada período, recibí tu entrega cuando te toca y mirá el estado del '
-      'grupo desde el celular. Cada movimiento queda registrado.';
+      'Aportá, recibí tu entrega cuando te toca y mirá el estado del grupo '
+      'desde el celular. Cada movimiento queda registrado.';
   static const tour1Titulo = 'El pasanaku de siempre,';
   static const tour1Destacado = 'sin el cuaderno';
   static const tour1Texto =
@@ -81,8 +81,8 @@ class TextosIdentidad {
       'Todavía no se envía nada al banco.';
   // Paso 1: qué viene después, y que el carnet se puede postergar (2026-10-17).
   static const registroIntro =
-      'Primero, cómo te contactamos y con qué contraseña entrás. Después te '
-      'pedimos tu carnet: si no lo tenés a mano, podés dejarlo para más tarde.';
+      'Primero, tu contacto y una contraseña. El carnet viene después, y lo '
+      'podés dejar para más tarde.';
   static const pasoDatos = 'Tus datos';
   static const pasoContrasena = 'Tu contraseña';
   static const pasoCorreo = 'Confirmar correo';
@@ -161,7 +161,7 @@ class TextosIdentidad {
   static const explicacionMfaCorreo =
       'Para cuidar tu cuenta te mandamos un código de 6 dígitos al correo de tu '
       'cuenta. Escribilo para terminar de entrar.';
-  static const confirmarMfa = 'Confirmar y entrar';
+  static const confirmarMfa = 'Confirmar';
   static const etiquetaCodigoMfa = 'Código de verificación';
   static const mfaReenviar = 'Reenviar código por correo';
   static const mfaReenvioAceptado =
@@ -171,7 +171,6 @@ class TextosIdentidad {
       'escribinos a soporte.';
   static const ingresarFaltaDato =
       'Escribí tu celular (o correo) y tu contraseña para ingresar.';
-  static const mfaFaltaCodigo = 'Completá los 6 dígitos para confirmar.';
   static const dispositivoDeConfianza =
       'Confiar en este dispositivo por 30 días';
   static const tusDispositivos = 'Tus dispositivos';
