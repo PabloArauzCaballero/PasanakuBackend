@@ -1,6 +1,0 @@
-$ (apps/backoffice) yarn run lint
-All files pass linting.
-TODO OK
-exit=0
-$ (apps/backoffice) yarn run typecheck   # tsc app + tsc spec
-exit=0

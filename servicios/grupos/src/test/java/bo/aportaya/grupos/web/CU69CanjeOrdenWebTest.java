@@ -116,6 +116,9 @@ class CU69CanjeOrdenWebTest {
     @MockitoBean
     private IntegrantesDelGrupo integrantesDelGrupo;
 
+    @MockitoBean
+    private GruposDeBackoffice gruposDeBackoffice;
+
     @BeforeEach
     void escenario() {
         when(cu69.consultar(any(), any()))

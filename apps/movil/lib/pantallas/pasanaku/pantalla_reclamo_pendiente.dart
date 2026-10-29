@@ -1,7 +1,11 @@
 import 'package:aportaya_diseno/tokens/tokens.dart';
+import 'package:aportaya_diseno/atomos/iconos_de_marca.dart';
+import 'package:aportaya_diseno/moleculas/intro_de_pantalla.dart';
+import 'package:aportaya_diseno/moleculas/tarjeta.dart';
 import 'package:flutter/material.dart';
 
 import 'textos.dart';
+import 'textos_de_verificacion_del_grupo.dart';
 
 /// CU-52/53 · reclamo. **Hueco declarado, no un olvido:** `cumplimiento` reserva el
 /// prefijo `/reclamos` (comentario de cabecera de su OpenAPI) y hasta documenta los
@@ -17,23 +21,34 @@ class PantallaReclamoPendiente extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = Tokens.of(context);
-    final texto = Theme.of(context).textTheme;
     return Scaffold(
       appBar: AppBar(title: const Text(TextosPasanaku.tituloReclamo)),
       body: Padding(
         padding: const EdgeInsets.all(Espacio.s4),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(
-              TextosPasanaku.contratoPendienteHueco,
-              style: texto.bodyLarge?.copyWith(color: t.text),
+            const IntroDePantalla(
+              icono: IconosDeMarca.ayuda,
+              titulo: TextosDeVerificacionDelGrupo.reclamoTitulo,
+              explicacion: TextosPasanaku.contratoPendienteHueco,
             ),
-            const SizedBox(height: Espacio.s3),
-            Text(
-              TextosPasanaku.segundaInstanciaDisponible,
-              style: texto.bodyMedium?.copyWith(color: t.text2),
+            Tarjeta(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    TextosDeVerificacionDelGrupo.reclamoInstancias,
+                    style: Tipo.cuerpoFuerte.copyWith(color: t.text),
+                  ),
+                  const SizedBox(height: Espacio.s1),
+                  Text(
+                    TextosPasanaku.segundaInstanciaDisponible,
+                    style: Tipo.cuerpoChico.copyWith(color: t.text2),
+                  ),
+                ],
+              ),
             ),
           ],
         ),
