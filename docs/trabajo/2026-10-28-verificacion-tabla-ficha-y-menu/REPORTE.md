@@ -87,3 +87,17 @@ Arreglos de base que sí entran, porque tocan archivos de este cambio o rompían
 - `nucleo/menu.ts` (202) y `admisiones/pantalla-de-admision.spec.ts` (212) excedían las 200 líneas en `test`: una documentación en una línea y 13 líneas en blanco entre pruebas. Ninguna aserción cambió.
 
 CI de GitHub no corre en el repositorio: «The job was not started because recent account payments have failed or your spending limit needs to be increased». La verificación es la local de arriba.
+
+## Aplicado en `PasanakuBackend` (2026-10-29, rama `claude/loving-tesla-bpulmt`, PR a `dev` y a `test`)
+El backoffice de `PasanakuBackend` es donde se desarrolla hoy (`test` de `PasanakuFrontend` es su espejo) e iba 31 archivos por delante. El mismo diff del port a `test` aplica limpio sobre `dev` y `test`, que tienen el backoffice idéntico.
+
+```text
+yarn typecheck → EXIT 0 · yarn lint → All files pass linting · TODO OK
+yarn test:front → Test Files 182 passed (182) · Tests 1288 passed (1288)
+yarn test:a11y → Test Files 45 passed (45) · Tests 94 passed (94)
+playwright shell + verificacion-de-identidad + tutoriales --retries=0 → 17 passed
+playwright suite completa → 161 passed · 16 failed (antes de corregir shell.e2e: 2 de esas 16)
+playwright admisiones + f2-posiciones-y-roles + sistemas-sin-contrato sobre origin/dev SIN este cambio → 14 failed · 15 passed
+```
+
+Las 14 restantes fallan igual en `origin/dev` sin este cambio (`admisiones` ×2, `f2-posiciones-y-roles` ×4, `sistemas-sin-contrato` ×8): no son de este trabajo. `shell.e2e.ts` además buscaba «Outbox y descartados», renombrada «Outbox por servicio» en `9a2a3a75`: se actualizó el nombre.
