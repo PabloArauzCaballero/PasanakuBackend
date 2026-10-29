@@ -43,6 +43,7 @@ y toma la version nueva en la corrida siguiente.
 | # | Antes | Ahora |
 | --- | --- | --- |
 | 1 | El esquema se reconstruia solo si el commit tocaba `sql/` | Tambien si la imagen no esta en el host (`docker image inspect`) |
+| 1b | Solo el esquema se reponia si faltaba (2026-10-29) | Cualquier imagen faltante (gateway, los quince servicios, backoffice, web, movil-web) se reconstruye, y antes de desplegar se verifica que esten las veinte |
 | 2 | El movil se construia con `docker build` pelado | Va por `construir-movil-web.sh`, que regenera `clientes/dart` primero |
 | 3 | Una falla marcaba el log y **desplegaba igual** | Con una falla no se despliega, y el log dice cuales fueron |
 | 4 | Los fronts no conocian `packages/tutoriales` | Entra en el disparador, junto con `ui` y `tokens` |
