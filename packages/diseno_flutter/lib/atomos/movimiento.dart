@@ -114,6 +114,10 @@ abstract final class Movimiento {
   /// Ocultar o mostrar el saldo: desenfoque y fundido, rápido porque se repite.
   static const ocultarSaldo = Duration(milliseconds: 160);
 
+  /// Cuánto se desenfoca la cifra que se va al ocultar o mostrar el saldo (sigma, en
+  /// píxeles lógicos). Lo justo para que el número deje de leerse antes de desaparecer.
+  static const desenfoqueDeSaldo = 6.0;
+
   /// Cuánto se corre lateralmente una pantalla al entrar, en píxeles lógicos.
   /// Treinta es lo que usa Material para su eje compartido: se lee como dirección
   /// sin que la pantalla viaje.
