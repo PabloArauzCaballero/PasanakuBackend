@@ -85,7 +85,7 @@ export const textosCatalogo = {
       filtros: { sensibilidad: 'Sensibilidad', revision: 'Revisión', sinRevisar: 'Sin revisar' },
       registros: 'Columnas',
       vacio: 'Ninguna columna coincide.',
-      tabla: { nombre: 'Columna', tipo: 'Tipo', negocio: 'Negocio', sistema: 'Sistema', sensibilidad: 'Sensibilidad', nulos: 'Nulos', revision: 'Revisión', confianza: 'Confianza', acciones: 'Acciones' },
+      tabla: { nombre: 'Columna', tipo: 'Tipo', negocio: 'Negocio', sistema: 'Sistema', sensibilidad: 'Sensibilidad', nulos: 'Nulos', revision: 'Revisión', confianza: 'Confianza' },
       revisar: 'Revisar',
       ver: 'Ver revisión',
     },

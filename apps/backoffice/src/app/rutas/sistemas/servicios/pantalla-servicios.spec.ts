@@ -3,6 +3,7 @@ import { TestBed } from '@angular/core/testing'
 import { describe, expect, it } from 'vitest'
 import { PUERTO_SERVICIOS, type EstadoServicio } from '../dominio/puertos'
 import { PantallaServicios } from './pantalla-servicios'
+import { probarVistaDePuerto } from '../compartido/pruebas.apoyo'
 
 const SERVICIO: EstadoServicio = {
   id: 's-1',
@@ -43,13 +44,25 @@ describe('PantallaServicios · los cuatro estados', () => {
     expect(fixture.nativeElement.textContent).toContain('Todavía no hay servicios reportando estado.')
   })
 
-  it('error: con la fuente no disponible, muestra el estado de error accionable, nunca datos de ejemplo', async () => {
-    const fixture = montar(() => Promise.reject({ tipo: 'fuente-no-disponible', mensaje: 'No pudimos traer «Estado de servicios».' }))
+  it('sin fuente: lo dice en un estado neutro, nunca con datos de ejemplo', async () => {
+    const fixture = montar(() => Promise.reject({ tipo: 'fuente-no-disponible', mensaje: 'Ningún servicio publica todavía «Estado de servicios».' }))
     fixture.detectChanges()
     await fixture.whenStable()
     fixture.detectChanges()
-    const alerta = fixture.nativeElement.querySelector('[role="alert"]')
-    expect(alerta).toBeTruthy()
+    expect(fixture.nativeElement.querySelector('ap-estado-vacio')?.textContent).toContain('Ningún servicio publica todavía')
     expect(fixture.nativeElement.textContent).not.toContain('99.95')
+  })
+})
+
+const ESTADOS: EstadoServicio['estado'][] = ['operativo', 'degradado', 'caido']
+
+describe('PantallaServicios · listado del kit en los tres niveles (contra un doble del puerto)', () => {
+  probarVistaDePuerto<EstadoServicio>({
+    componente: PantallaServicios,
+    puerto: PUERTO_SERVICIOS,
+    filas: (n) => Array.from({ length: n }, (_, i) => ({ ...SERVICIO, id: `s-${i + 1}`, nombre: i === 3 ? 'pasarela-qr' : `servicio-${i + 1}`, estado: ESTADOS[i % 3]! })),
+    textoVacio: 'Todavía no hay servicios reportando estado.',
+    busqueda: { termino: 'pasarela', esperadas: 1 },
+    filtro: { etiqueta: 'Estado', valor: 'caido', esperadas: 8 },
   })
 })

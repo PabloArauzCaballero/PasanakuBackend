@@ -1,0 +1,271 @@
+{
+ "rol": "oficial",
+ "entradas": [
+  {
+   "texto": "Inicio",
+   "href": "/tablero"
+  },
+  {
+   "texto": "Operación",
+   "href": "/operacion/retiros"
+  },
+  {
+   "texto": "Cumplimiento",
+   "href": "/cumplimiento/verificaciones"
+  },
+  {
+   "texto": "Contabilidad",
+   "href": "/contabilidad"
+  },
+  {
+   "texto": "Publicidad",
+   "href": "/publicidad/anunciantes"
+  },
+  {
+   "texto": "Configuración",
+   "href": "/configuracion/tarifario"
+  }
+ ],
+ "medidas": [
+  {
+   "nombre": "menu:Operación",
+   "href": "/operacion/retiros",
+   "url": "/operacion/retiros",
+   "ms": 217,
+   "rebote": false,
+   "botones": 7
+  },
+  {
+   "nombre": "pestana:Operación/Desembolsos",
+   "href": "/operacion/desembolsos",
+   "url": "/operacion/desembolsos",
+   "ms": 118,
+   "rebote": false,
+   "botones": 6
+  },
+  {
+   "nombre": "pestana:Operación/Reversos",
+   "href": "/operacion/reversos",
+   "url": "/operacion/reversos",
+   "ms": 107,
+   "rebote": false,
+   "botones": 6
+  },
+  {
+   "nombre": "pestana:Operación/Reclamos",
+   "href": "/operacion/reclamos",
+   "url": "/operacion/reclamos",
+   "ms": 342,
+   "rebote": false,
+   "botones": 4
+  },
+  {
+   "nombre": "pestana:Operación/Conciliación de custodia",
+   "href": "/operacion/custodia",
+   "url": "/operacion/custodia",
+   "ms": 83,
+   "rebote": false,
+   "botones": 5
+  },
+  {
+   "nombre": "pestana:Operación/Cierres diarios",
+   "href": "/operacion/cierres-diarios",
+   "url": "/operacion/cierres-diarios",
+   "ms": 77,
+   "rebote": false,
+   "botones": 7
+  },
+  {
+   "nombre": "pestana:Operación/Admisiones a grupos",
+   "href": "/admisiones",
+   "url": "/admisiones",
+   "ms": 62,
+   "rebote": false,
+   "botones": 4
+  },
+  {
+   "nombre": "pestana:Operación/Solicitudes escaladas",
+   "href": "/operacion/solicitudes-escaladas",
+   "url": "/operacion/solicitudes-escaladas",
+   "ms": 74,
+   "rebote": false,
+   "botones": 2
+  },
+  {
+   "nombre": "menu:Cumplimiento",
+   "href": "/cumplimiento/verificaciones",
+   "url": "/cumplimiento/verificaciones",
+   "ms": 80,
+   "rebote": false,
+   "botones": 9
+  },
+  {
+   "nombre": "pestana:Cumplimiento/Alertas de monitoreo",
+   "href": "/cumplimiento/alertas",
+   "url": "/cumplimiento/alertas",
+   "ms": 110,
+   "rebote": false,
+   "botones": 7
+  },
+  {
+   "nombre": "pestana:Cumplimiento/Casos de investigación",
+   "href": "/cumplimiento/casos",
+   "url": "/cumplimiento/casos",
+   "ms": 82,
+   "rebote": false,
+   "botones": 7
+  },
+  {
+   "nombre": "pestana:Cumplimiento/Reportes a la UIF",
+   "href": "/cumplimiento/uif/reportes",
+   "url": "/cumplimiento/uif/reportes",
+   "ms": 90,
+   "rebote": false,
+   "botones": 7
+  },
+  {
+   "nombre": "pestana:Cumplimiento/Requerimientos de autoridad",
+   "href": "/cumplimiento/uif/requerimientos",
+   "url": "/cumplimiento/uif/requerimientos",
+   "ms": 94,
+   "rebote": false,
+   "botones": 8
+  },
+  {
+   "nombre": "pestana:Cumplimiento/Actas de comité",
+   "href": "/cumplimiento/actas",
+   "url": "/cumplimiento/actas",
+   "ms": 98,
+   "rebote": false,
+   "botones": 6
+  },
+  {
+   "nombre": "pestana:Cumplimiento/Riesgo y seguridad",
+   "href": "/cumplimiento/riesgos/eventos",
+   "url": "/cumplimiento/riesgos/eventos",
+   "ms": 75,
+   "rebote": false,
+   "botones": 6
+  },
+  {
+   "nombre": "subpestana:Cumplimiento/Riesgo y seguridad/Pruebas de continuidad",
+   "href": "/cumplimiento/continuidad",
+   "url": "/cumplimiento/continuidad",
+   "ms": 71,
+   "rebote": false
+  },
+  {
+   "nombre": "subpestana:Cumplimiento/Riesgo y seguridad/Incidentes de seguridad",
+   "href": "/cumplimiento/seguridad/incidentes",
+   "url": "/cumplimiento/seguridad/incidentes",
+   "ms": 86,
+   "rebote": false
+  },
+  {
+   "nombre": "menu:Contabilidad",
+   "href": "/contabilidad",
+   "url": "/contabilidad",
+   "ms": 122,
+   "rebote": false,
+   "botones": 2
+  },
+  {
+   "nombre": "pestana:Contabilidad/Presupuesto",
+   "href": "/contabilidad/presupuesto",
+   "url": "/contabilidad/presupuesto",
+   "ms": 76,
+   "rebote": false,
+   "botones": 6
+  },
+  {
+   "nombre": "pestana:Contabilidad/Compras y cuentas por pagar",
+   "href": "/contabilidad/compras",
+   "url": "/contabilidad/compras",
+   "ms": 68,
+   "rebote": false,
+   "botones": 6
+  },
+  {
+   "nombre": "pestana:Contabilidad/Cuentas por cobrar",
+   "href": "/contabilidad/cobros",
+   "url": "/contabilidad/cobros",
+   "ms": 70,
+   "rebote": false,
+   "botones": 7
+  },
+  {
+   "nombre": "menu:Publicidad",
+   "href": "/publicidad/anunciantes",
+   "url": "/publicidad/anunciantes",
+   "ms": 87,
+   "rebote": false,
+   "botones": 15
+  },
+  {
+   "nombre": "pestana:Publicidad/Campañas",
+   "href": "/publicidad/campanas",
+   "url": "/publicidad/campanas",
+   "ms": 84,
+   "rebote": false,
+   "botones": 9
+  },
+  {
+   "nombre": "pestana:Publicidad/Moderación",
+   "href": "/publicidad/moderacion",
+   "url": "/publicidad/moderacion",
+   "ms": 78,
+   "rebote": false,
+   "botones": 14
+  },
+  {
+   "nombre": "pestana:Publicidad/Desempeño",
+   "href": "/publicidad/desempeno",
+   "url": "/publicidad/desempeno",
+   "ms": 82,
+   "rebote": false,
+   "botones": 2
+  },
+  {
+   "nombre": "pestana:Publicidad/Liquidación",
+   "href": "/publicidad/liquidacion",
+   "url": "/publicidad/liquidacion",
+   "ms": 71,
+   "rebote": false,
+   "botones": 2
+  },
+  {
+   "nombre": "menu:Configuración",
+   "href": "/configuracion/tarifario",
+   "url": "/configuracion/tarifario",
+   "ms": 79,
+   "rebote": false,
+   "botones": 6
+  },
+  {
+   "nombre": "pestana:Configuración/Mensajería",
+   "href": "/configuracion/mensajeria",
+   "url": "/configuracion/mensajeria",
+   "ms": 69,
+   "rebote": false,
+   "botones": 6
+  },
+  {
+   "nombre": "pestana:Configuración/Reportes",
+   "href": "/configuracion/reportes",
+   "url": "/configuracion/reportes",
+   "ms": 70,
+   "rebote": false,
+   "botones": 6
+  },
+  {
+   "nombre": "pestana:Configuración/Catálogo de datos",
+   "href": "/tablero/catalogo-de-datos",
+   "url": "/tablero/catalogo-de-datos",
+   "ms": 86,
+   "rebote": false,
+   "botones": 9
+  }
+ ],
+ "rebotes": [],
+ "errores": []
+}

@@ -1,69 +1,67 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject, input, output, signal, untracked } from '@angular/core'
-import { Router, RouterLink, RouterLinkActive } from '@angular/router'
-import { toSignal } from '@angular/core/rxjs-interop'
-import { filter, map, startWith } from 'rxjs'
-import { NavigationEnd } from '@angular/router'
-import { MENU, type Entrada, type Grupo } from '../nucleo/menu'
-import { Sesion } from '../nucleo/sesion'
+import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core'
+import { RouterLink } from '@angular/router'
 import { Icono } from '@aportaya/ui/icono/icono'
+import { MENU, type Entrada, type Grupo, type Pantalla } from '../nucleo/menu'
+import { entradaDe, entradasVisibles, pantallaActiva, pantallasVisibles } from '../nucleo/navegacion'
+import { Sesion } from '../nucleo/sesion'
 import { IconoDeSeccion } from './icono-de-seccion'
+import { UrlActual } from './url-actual'
 
 /**
- * La navegación del backoffice: grupos con rótulo en mayúsculas, una entrada por
- * sección y sus pantallas con su respectivo ícono. Solo la sección activa queda desplegada;
- * las demás se pliegan y se abren con el botón de la flecha. Se usa en la barra lateral y en el cajón del celular.
+ * La navegación del backoffice: grupos **fijos** con rótulo en mayúsculas y, debajo de cada sección, **todas** sus
+ * pantallas con su ícono — también las de un subgrupo («Integraciones», «Personal y accesos»), con sangría. Nada se
+ * pliega (2026-10-28, pedido de Pablo: «fijo, no desplegable, scrolleable hacia abajo»): la que se desplaza es la barra
+ * lateral (`.lateral { overflow-y: auto }` en `shell-financiero.css`). Se usa en la barra lateral y en el cajón del
+ * celular.
+ *
+ * El rótulo de un grupo («Plataforma») lleva su ícono y es un enlace a la primera sección del grupo que la sesión
+ * puede abrir: fijo, nunca desplegable (2026-10-28).
+ *
+ * Una entrada se dibuja solo si la sesión puede abrir **alguna** de sus pantallas, y lleva a la primera que puede abrir
+ * (`entradasVisibles`); debajo se listan solo las que puede abrir (`pantallasVisibles`): el menú no ofrece lo que
+ * después rebota (F1). El permiso real lo sigue exigiendo la guardia de cada ruta.
  */
 @Component({
   selector: 'ap-menu-lateral',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, RouterLinkActive, IconoDeSeccion, Icono],
+  imports: [RouterLink, Icono, IconoDeSeccion],
   host: { role: 'navigation', 'aria-label': 'Secciones del backoffice', 'data-tutorial-id': 'menu-principal' },
   template: `
     @for (g of visibles(); track g.titulo) {
       <section class="grupo">
         @if (g.titulo) {
-          <div class="rotulo" [id]="idDe(g)">
-            <span>{{ g.titulo }}</span>
-          </div>
+          <h2 class="rotulo"><a [routerLink]="g.entradas[0]?.destino" [attr.data-tutorial-id]="'menu-grupo-' + g.icono" (click)="navegado.emit()"><ap-icono-de-seccion [nombre]="g.icono" /><span>{{ g.titulo }}</span></a></h2>
         }
-        <ul [id]="idDe(g) + '-lista'">
+        <ul>
           @for (e of g.entradas; track e.ruta) {
             <li>
-              <div class="entrada-fila">
-                <a [routerLink]="e.destino" [attr.data-tutorial-id]="'menu-' + e.ruta" routerLinkActive="activo" ariaCurrentWhenActive="page" [routerLinkActiveOptions]="{ exact: e.destino === '/tablero' }" (click)="alNavegar()">
-                  <ap-icono-de-seccion [nombre]="e.ruta" class="icono-padre" />
-                  <span class="texto-entrada">{{ e.texto }}</span>
-                </a>
-                @if (e.hijos?.length) {
-                  <button
-                    type="button"
-                    class="plegar"
-                    [class.abierto]="abierta(e)"
-                    [attr.aria-expanded]="abierta(e)"
-                    [attr.aria-controls]="'menu-hijos-' + e.ruta"
-                    [attr.aria-label]="(abierta(e) ? 'Ocultar las pantallas de ' : 'Mostrar las pantallas de ') + e.texto"
-                    [attr.title]="abierta(e) ? 'Ocultar pantallas' : 'Mostrar pantallas'"
-                    (click)="alternar(e)"
-                  >
-                    <ap-icono nombre="chevronDerecha" tamano="s4" />
-                  </button>
-                }
-              </div>
-              @if (e.hijos?.length) {
-                <div class="plegable" [class.abierto]="abierta(e)" [attr.inert]="abierta(e) ? null : ''">
-                <ul class="hijos" [id]="'menu-hijos-' + e.ruta">
-                  @for (h of e.hijos; track h.ruta) {
+              <a class="seccion" [routerLink]="e.destino" [attr.data-tutorial-id]="'menu-' + e.ruta" [class.activo]="activa(e)" (click)="navegado.emit()">
+                <ap-icono-de-seccion [nombre]="e.ruta" /><span>{{ e.texto }}</span>
+              </a>
+              @let pantallas = pantallasDe(e);
+              @if (pantallas.length) {
+                <ul class="pantallas" [attr.aria-label]="'Pantallas de ' + e.texto">
+                  @for (p of pantallas; track p.texto) {
                     <li>
-                      <a [routerLink]="h.ruta ? e.destino + '/' + h.ruta : e.destino" routerLinkActive="activo" ariaCurrentWhenActive="page" [routerLinkActiveOptions]="{ exact: true }" (click)="navegado.emit()">
-                        @if (h.icono) {
-                          <ap-icono-de-seccion [nombre]="h.icono" class="icono-hijo" />
-                        }
-                        <span class="texto-hijo">{{ h.texto }}</span>
-                      </a>
+                      @if (p.grupo) {
+                        <span class="subgrupo"><ap-icono [nombre]="p.icono" tamano="s4" /><span>{{ p.texto }}</span></span>
+                        <ul class="pantallas anidadas" [attr.aria-label]="p.texto">
+                          @for (h of p.grupo; track h.ruta) {
+                            <li>
+                              <a [routerLink]="h.ruta" [class.activo]="esActual(h.ruta)" [attr.aria-current]="esActual(h.ruta) ? 'page' : null" (click)="navegado.emit()">
+                                <ap-icono [nombre]="h.icono" tamano="s4" /><span>{{ h.texto }}</span>
+                              </a>
+                            </li>
+                          }
+                        </ul>
+                      } @else {
+                        <a [routerLink]="p.ruta" [class.activo]="esActual(p.ruta)" [attr.aria-current]="esActual(p.ruta) ? 'page' : null" (click)="navegado.emit()">
+                          <ap-icono [nombre]="p.icono" tamano="s4" /><span>{{ p.texto }}</span>
+                        </a>
+                      }
                     </li>
                   }
                 </ul>
-                </div>
               }
             </li>
           }
@@ -71,63 +69,52 @@ import { IconoDeSeccion } from './icono-de-seccion'
       </section>
     }
   `,
-  styleUrl: './menu-lateral.css',
+  styles: `
+    :host { display: grid; align-content: start; gap: var(--s3); color: var(--white); }
+    .grupo { display: grid; gap: var(--s1); }
+    /* El rótulo de grupo: ícono + texto fijos, y un enlace que abre la primera sección del grupo (2026-10-28). */
+    .rotulo { margin: 0; font: inherit; }
+    .rotulo a { color: color-mix(in srgb, var(--white) 62%, transparent); font: var(--t-cuerpo-chico); font-weight: 600; }
+    ul { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--s1); }
+    a { display: flex; align-items: center; gap: var(--s3); min-height: var(--area-tactil); padding: var(--s2) var(--s3); border-radius: var(--r-md); font: var(--t-cuerpo); color: color-mix(in srgb, var(--white) 78%, transparent); text-decoration: none; transition: background-color var(--mov-micro) ease-out, color var(--mov-micro) ease-out; }
+    a:hover { background: color-mix(in srgb, var(--white) 8%, transparent); color: var(--white); }
+    /* La activa: superficie apenas más clara y una barra verde a la izquierda, no solo un color (95.4.6). */
+    a.activo { background: color-mix(in srgb, var(--white) 9%, transparent); color: var(--white); font-weight: 600; box-shadow: inset var(--borde-foco) 0 0 0 var(--g300); }
+    a.activo ap-icono-de-seccion, a.activo ap-icono { color: var(--g300); }
+    a:focus-visible { outline: var(--borde-foco) solid var(--g300); outline-offset: var(--borde-desfase); }
+    /* Las pantallas de la sección, siempre a la vista: sangría y un filete que las ata a su sección. */
+    .pantallas { gap: calc(var(--s1) / 2); margin: calc(var(--s1) / 2) 0 var(--s2) var(--s4); padding-left: var(--s2); border-left: var(--borde-fino) solid color-mix(in srgb, var(--white) 14%, transparent); }
+    .pantallas a { gap: var(--s2); min-height: calc(var(--area-tactil) - var(--s2)); padding: var(--s1) var(--s2); font: var(--t-cuerpo-chico); color: color-mix(in srgb, var(--white) 70%, transparent); }
+    .pantallas a span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .subgrupo { display: flex; align-items: center; gap: var(--s2); padding: var(--s1) var(--s2); font: var(--t-cuerpo-chico); font-weight: 600; color: color-mix(in srgb, var(--white) 60%, transparent); }
+    .anidadas { margin-left: var(--s3); }
+    @media (prefers-reduced-motion: reduce) { a { transition: none; } }
+  `,
 })
 export class MenuLateral {
   private readonly sesion = inject(Sesion)
-  private readonly router = inject(Router)
+  private readonly url = inject(UrlActual).url
   /** El cajón del celular se cierra al navegar. */
   readonly navegado = output<void>()
   readonly menu = input<readonly Grupo[]>(MENU)
-  private readonly url = toSignal(
-    this.router.events.pipe(
-      filter((e): e is NavigationEnd => e instanceof NavigationEnd),
-      map((e) => e.urlAfterRedirects),
-      startWith(this.router.url),
-    ),
-    { initialValue: this.router.url },
-  )
 
-  readonly visibles = computed(() =>
-    this.menu()
-      .map((g) => ({ ...g, entradas: g.entradas.filter((e) => this.sesion.puede(e.permiso)) }))
-      .filter((g) => g.entradas.length > 0),
-  )
+  readonly visibles = computed(() => entradasVisibles(this.sesion, this.menu()))
 
-  idDe(g: Grupo): string {
-    return 'menu-grupo-' + (g.titulo ?? 'inicio').toLowerCase()
+  /** Las pantallas que esta sesión puede abrir, con los subgrupos ya filtrados. */
+  pantallasDe(e: Entrada): Pantalla[] {
+    return pantallasVisibles(e, this.sesion)
   }
-
-  /**
-   * Lo que la persona plegó o desplegó a mano, por sección. Se vacía al cambiar de sección:
-   * así el menú vuelve a mostrar abierta solo la sección en la que está.
-   */
-  private readonly aMano = signal<Readonly<Record<string, boolean>>>({})
-  private readonly seccionActual = computed(() => this.visibles().flatMap((g) => g.entradas).find((e) => this.activa(e))?.ruta ?? null)
-
-  constructor() {
-    effect(() => {
-      this.seccionActual()
-      untracked(() => this.aMano.set({}))
-    })
-  }
-
-  /** Abierta si la persona la abrió a mano o, si no la tocó, cuando es la sección activa. */
-  abierta(e: Entrada): boolean {
-    return this.aMano()[e.ruta] ?? this.activa(e)
-  }
-
-  alternar(e: Entrada): void {
-    const siguiente = !this.abierta(e)
-    this.aMano.update((m) => ({ ...m, [e.ruta]: siguiente }))
-  }
-
+  /** La sección dueña de la URL: `/tablero/catalogo-de-datos` es Configuración, no Inicio. */
+  private readonly entradaActiva = computed(() => entradaDe(this.url(), this.menu()))
   activa(e: Entrada): boolean {
-    const url = this.url().split('?')[0]!
-    return url === e.destino || url.startsWith(e.destino + '/')
+    return this.entradaActiva()?.ruta === e.ruta
   }
-
-  alNavegar(): void {
-    this.navegado.emit()
+  /** La pantalla de la URL: la de ruta más larga que la contiene (`pantallaActiva`), no cualquier prefijo. */
+  private readonly hojaActual = computed(() => {
+    const e = this.entradaActiva()
+    return e ? pantallaActiva(e, this.url())?.hoja.ruta : undefined
+  })
+  esActual(ruta: string): boolean {
+    return this.hojaActual() === ruta
   }
 }

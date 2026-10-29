@@ -58,6 +58,10 @@ RUN flutter build web --release \
 
 # ---------------------------------------------------------------- ejecucion ---
 FROM nginxinc/nginx-unprivileged:1.27-alpine AS ejecucion
+# La limpieza diaria de Coolify borra toda imagen sin contenedor que no lleve esta
+# etiqueta, y esta imagen la construye el host, no Coolify: sin ella el despliegue
+# siguiente falla con «No such image» (ver despliegue/TEST.md).
+LABEL coolify.managed=true
 COPY apps/movil/docker/nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=construccion /construccion/apps/movil/build/web /usr/share/nginx/html
 COPY apps/movil/docker/assetlinks.json /usr/share/nginx/html/assetlinks.json

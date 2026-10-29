@@ -1,12 +1,14 @@
-import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, input, signal } from '@angular/core'
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, input, signal } from '@angular/core'
 import { Boton } from '@aportaya/ui/boton/boton'
 import { CaraDelExpediente, type ExpedienteEnRevision } from 'clientes/angular/identidad'
-import { carpetaDelExpediente, crearPedirContenido } from '../dominio/cu02-expedientes'
+import { crearPedirContenido } from '../dominio/cu02-expedientes'
+import { caraEnPalabras } from '../dominio/cu02-presentacion'
 import { textosCumplimiento } from '../textos'
 
 /**
- * Las tres caras del expediente: anverso, reverso y prueba de vida, **una al lado de
- * la otra**.
+ * Las cinco caras del expediente —anverso, reverso, selfie y los dos perfiles—, **una al
+ * lado de la otra**, con su nombre en palabras. Qué cara está cargada lo dice la pestaña que
+ * la aloja (`ap-vista-fotos-del-expediente`); acá solo el botón y las fotos.
  *
  * Juntas y no de a una: aprobar es cotejar la cara contra el documento, y cotejar es
  * mirar las dos a la vez. Antes cada foto reemplazaba a la anterior en el mismo
@@ -27,20 +29,8 @@ import { textosCumplimiento } from '../textos'
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [Boton],
   template: `
-    <p class="carpeta">
-      {{ t.carpeta }}: <code>{{ carpeta() }}</code>
-    </p>
-
     <p class="fotos">
-      {{ t.fotos }}:
-      @for (cara of caras; track cara) {
-        @if (expediente().fotos.includes(cara)) {
-          <span class="tiene">{{ cara }}</span>
-        } @else {
-          <span class="falta">{{ cara }} {{ t.faltante }}</span>
-        }
-      }
-      <ap-boton variante="fantasma" [deshabilitado]="expediente().fotos.length === 0" (pulsado)="alternar()">
+      <ap-boton variante="fantasma" [icono]="abierto() ? 'ojoCerrado' : 'imagen'" [deshabilitado]="expediente().fotos.length === 0" (pulsado)="alternar()">
         {{ abierto() ? t.ocultarFotos : t.verFotos }}
       </ap-boton>
     </p>
@@ -49,9 +39,9 @@ import { textosCumplimiento } from '../textos'
       <div class="tira">
         @for (cara of caras; track cara) {
           <figure>
-            <figcaption>{{ cara }}</figcaption>
+            <figcaption>{{ nombre(cara) }}</figcaption>
             @if (url()[cara]; as u) {
-              <img [src]="u" [alt]="t.fotoDe + ' ' + expediente().nombreCompleto + ' — ' + cara" />
+              <img [src]="u" [alt]="t.fotoDe + ' ' + expediente().nombreCompleto + ' — ' + nombre(cara)" />
             } @else if (fallo()[cara]) {
               <!-- Una foto que no llega lo dice y ofrece reintentar. Quedarse «cargando»
                    para siempre hace que quien revisa espere por algo que nunca va a venir. -->
@@ -68,11 +58,7 @@ import { textosCumplimiento } from '../textos'
   `,
   styles: `
     :host { display: flex; flex-direction: column; gap: var(--s3); }
-    .carpeta { margin: 0; color: var(--text-2); font-size: .8125rem; }
-    .carpeta code { font-family: var(--fuente-mono, monospace); overflow-wrap: anywhere; }
     .fotos { display: flex; align-items: center; gap: var(--s2); flex-wrap: wrap; margin: 0; color: var(--text-2); font-size: .875rem; }
-    .tiene { color: var(--text-2); font-weight: 600; }
-    .falta { color: var(--text-3); }
     /* Las tres juntas; en pantalla angosta se apilan solas y no rompen el ancho. */
     .tira { display: grid; grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr)); gap: var(--s3); }
     figure { margin: 0; display: flex; flex-direction: column; gap: var(--s1); }
@@ -94,7 +80,7 @@ export class TiraDeFotos {
   protected readonly abierto = signal(false)
   protected readonly url = signal<Partial<Record<CaraDelExpediente, string>>>({})
   protected readonly fallo = signal<Partial<Record<CaraDelExpediente, boolean>>>({})
-  protected readonly carpeta = computed(() => carpetaDelExpediente(this.expediente().usuarioId))
+  protected readonly nombre = caraEnPalabras
 
   private readonly pedirContenido = crearPedirContenido()
 

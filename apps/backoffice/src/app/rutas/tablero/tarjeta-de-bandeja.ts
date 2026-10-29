@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, input, output } from '@angular/core
 import { RouterLink } from '@angular/router'
 import { ChipEstado } from '@aportaya/ui/chip-estado/chip-estado'
 import { Fecha } from '@aportaya/ui/fecha/fecha'
+import { Icono } from '@aportaya/ui/icono/icono'
 import type { DefinicionDeBandeja, LecturaDeBandeja } from './dominio/bandejas'
 import { textosTablero } from './textos'
 
@@ -15,10 +16,10 @@ export type EstadoDeTarjeta = { tipo: 'cargando' } | (LecturaDeBandeja & { consu
 @Component({
   selector: 'ap-tarjeta-de-bandeja',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ChipEstado, Fecha, RouterLink],
+  imports: [ChipEstado, Fecha, Icono, RouterLink],
   template: `
     <article class="tarjeta" [attr.aria-labelledby]="'bandeja-' + bandeja().id" [attr.data-bandeja]="bandeja().id">
-      <h3 [id]="'bandeja-' + bandeja().id">{{ bandeja().titulo }}</h3>
+      <h3 [id]="'bandeja-' + bandeja().id"><span class="loseta" aria-hidden="true"><ap-icono [nombre]="bandeja().icono" tamano="s4" /></span>{{ bandeja().titulo }}</h3>
       <p class="definicion">{{ bandeja().definicion }}</p>
       @switch (estado().tipo) {
         @case ('cargando') {
@@ -46,13 +47,14 @@ export type EstadoDeTarjeta = { tipo: 'cargando' } | (LecturaDeBandeja & { consu
       @if (consultadaEn(); as iso) {
         <p class="hora">{{ estado().tipo === 'error' ? t.intentoEl : t.consultadaEl }} <ap-fecha [iso]="iso" /></p>
       }
-      <a class="abrir" [routerLink]="bandeja().ruta">{{ t.abrir }}</a>
+      <a class="abrir" [routerLink]="bandeja().ruta" [attr.aria-label]="t.abrir + ': ' + bandeja().titulo">{{ t.abrir }}<ap-icono nombre="flechaDerecha" tamano="s4" /></a>
     </article>
   `,
   styles: `
     :host { display: block; height: 100%; }
     .tarjeta { display: flex; flex-direction: column; gap: var(--s2); align-content: start; padding: var(--s4); border: var(--borde-fino) solid var(--border); border-radius: var(--r-lg); background: var(--surface); height: 100%; box-sizing: border-box; }
-    h3 { margin: 0; font-size: 1.05em; font-weight: 600; color: var(--text); }
+    .loseta { display: inline-flex; flex: none; align-items: center; justify-content: center; width: calc(var(--s6) + var(--s1)); height: calc(var(--s6) + var(--s1)); border-radius: var(--r-md); background: var(--brand-bg); color: var(--brand-texto); }
+    h3 { display: flex; align-items: center; gap: var(--s2); margin: 0; font-size: 1.05em; font-weight: 600; color: var(--text); }
     .definicion { margin: 0; color: var(--text-2); font-size: .9em; line-height: 1.4; }
     .cargando { margin: 0; color: var(--text-2); font-size: .9em; }
     ap-chip-estado { justify-self: start; width: fit-content; }
@@ -64,7 +66,7 @@ export type EstadoDeTarjeta = { tipo: 'cargando' } | (LecturaDeBandeja & { consu
     .boton-reintentar:hover { background: color-mix(in srgb, var(--surface) 60%, var(--border)); border-color: var(--text-2); }
     .boton-reintentar:focus-visible { outline: var(--borde-foco) solid var(--g300); outline-offset: var(--borde-desfase); }
     .hora { margin-top: auto; margin-bottom: 0; color: var(--text-2); font-size: .85em; padding-top: var(--s2); border-top: var(--borde-fino) solid color-mix(in srgb, var(--border) 40%, transparent); }
-    .abrir { display: inline-flex; align-items: center; min-height: var(--area-tactil); color: var(--brand-texto); font-weight: 600; text-decoration: none; }
+    .abrir { display: inline-flex; align-items: center; gap: var(--s1); justify-self: start; min-height: var(--area-tactil); color: var(--brand-texto); font-weight: 600; text-decoration: none; }
     .abrir:hover { text-decoration: underline; }
     .abrir:focus-visible { outline: var(--borde-foco) solid var(--g300); outline-offset: var(--borde-desfase); }
   `,

@@ -6,11 +6,15 @@ import 'package:aportaya_diseno/atomos/chip_estado.dart';
 import 'package:aportaya_diseno/atomos/tono.dart';
 import 'package:aportaya_diseno/organismos/estado_error.dart';
 import 'package:aportaya_diseno/tokens/tokens.dart';
+import 'package:aportaya_diseno/atomos/iconos_de_marca.dart';
+import 'package:aportaya_diseno/moleculas/intro_de_pantalla.dart';
+import 'package:aportaya_diseno/moleculas/tarjeta.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'dominio/cu65_solicitar_retiro.dart';
 import 'textos.dart';
+import 'textos_de_tramites_del_grupo.dart';
 
 /// CU-65 · solicitar el retiro. La posición se muestra ANTES de confirmar y con el
 /// texto exacto que llega — nunca se recalcula del lado del cliente.
@@ -58,7 +62,9 @@ class _PantallaRetiroState extends ConsumerState<PantallaRetiro> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     ChipEstado(
-                      texto: resultado.posicion.name,
+                      texto: TextosDeTramitesDelGrupo.posicionDeRetiro(
+                        resultado.posicion.name,
+                      ),
                       tono: resultado.posicion.name == 'DEUDORA'
                           ? Tono.aviso
                           : Tono.ok,
@@ -70,17 +76,30 @@ class _PantallaRetiroState extends ConsumerState<PantallaRetiro> {
               : Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Campo(
-                      etiqueta: TextosPasanaku.motivoRetiro,
-                      controlador: _motivo,
-                      lineas: 3,
-                      onChanged: (_) => setState(() {}),
+                    const IntroDePantalla(
+                      icono: IconosDeMarca.sale,
+                      titulo: TextosDeTramitesDelGrupo.retiroTitulo,
+                      explicacion: TextosDeTramitesDelGrupo.retiroExplicacion,
+                      peligro: true,
                     ),
-                    const SizedBox(height: Espacio.s3),
-                    Casilla(
-                      etiqueta: TextosPasanaku.aceptoPlanDePago,
-                      valor: _aceptaPlan,
-                      onChanged: (v) => setState(() => _aceptaPlan = v),
+                    Tarjeta(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Campo(
+                            etiqueta: TextosPasanaku.motivoRetiro,
+                            controlador: _motivo,
+                            lineas: 3,
+                            onChanged: (_) => setState(() {}),
+                          ),
+                          const SizedBox(height: Espacio.s3),
+                          Casilla(
+                            etiqueta: TextosPasanaku.aceptoPlanDePago,
+                            valor: _aceptaPlan,
+                            onChanged: (v) => setState(() => _aceptaPlan = v),
+                          ),
+                        ],
+                      ),
                     ),
                     const SizedBox(height: Espacio.s4),
                     if (estado.hasError)
@@ -92,7 +111,11 @@ class _PantallaRetiroState extends ConsumerState<PantallaRetiro> {
                     Boton(
                       texto: TextosPasanaku.pedirRetiro,
                       variante: BotonVariante.peligro,
+                      expandido: true,
                       cargando: estado.isLoading,
+                      motivoDeBloqueo: _motivo.text.trim().length < 10
+                          ? TextosDeTramitesDelGrupo.motivoCorto
+                          : null,
                       onPressed: _motivo.text.trim().length < 10
                           ? null
                           : () => ref

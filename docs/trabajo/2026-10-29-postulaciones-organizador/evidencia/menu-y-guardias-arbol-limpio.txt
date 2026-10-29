@@ -1,0 +1,96 @@
+Automatically searching for and using Vitest configuration file.
+❯ Building...
+✔ Building...
+Application bundle generation complete. [163.571 seconds] - 2026-10-29T12:12:36.095Z
+
+(!) Your Vite config uses features that are unsupported by `configLoader: 'native'`, which is planned to become the default in a future major version of Vite:
+  - ESM syntax in a file loaded as CommonJS (vitest-base.config.ts:1:1). Use a `.mjs` extension or set `"type": "module"` in the closest package.json
+Set `VITE_CONFIG_NATIVE_IGNORE_WARNING=true` to suppress this warning.
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.11 [39m[90m/Users/pablo/Documents/GitHub/Pasanaku-admision/apps/backoffice[39m
+
+ [31m❯[39m [30m[42m backoffice [49m[39m src/app/nucleo/menu-y-guardias.spec.ts [2m([22m[2m87 tests[22m[2m | [22m[31m2 failed[39m[2m)[22m[33m 41823[2mms[22m[39m
+[31m     [31m×[31m 'todos · PLATAFORMA': lo visible abre sin rebote y lo oculto rebota[39m[33m 5082[2mms[22m[39m
+[31m     [31m×[31m 'todos · oficial': lo visible abre sin rebote y lo oculto rebota[39m[33m 1824[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 2 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m [30m[42m backoffice [49m[39m src/app/nucleo/menu-y-guardias.spec.ts[2m > [22mmenú ⇔ guardias de las rutas[2m > [22m'todos · PLATAFORMA': lo visible abre sin rebote y lo oculto rebota
+[31m[1mError[22m: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".[39m
+[36m [2m❯[22m src/app/nucleo/menu-y-guardias.spec.ts:[2m62:16[22m[39m
+    [90m 60|[39m   })
+    [90m 61|[39m
+    [90m 62|[39m   it.each(casos)('$nombre: lo visible abre sin rebote y lo oculto rebo…
+    [90m   |[39m                [31m^[39m
+    [90m 63|[39m     sesion[33m.[39m[34mabrir[39m([32m'token'[39m[33m,[39m permisos[33m,[39m rol)
+    [90m 64|[39m     const visibles = new Set(entradasVisibles(sesion).flatMap((g) => g…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m [30m[42m backoffice [49m[39m src/app/nucleo/menu-y-guardias.spec.ts[2m > [22mmenú ⇔ guardias de las rutas[2m > [22m'todos · oficial': lo visible abre sin rebote y lo oculto rebota
+[31m[1mAssertionError[22m: expected [ …(40) ] to deeply equal [][39m
+
+- Expected
++ Received
+
+- []
++ [
++   "/cumplimiento/alertas: menú muestra, la ruta rebota a /cumplimiento/verificaciones",
++   "/cumplimiento/casos: menú muestra, la ruta rebota a /cumplimiento/verificaciones",
++   "/cumplimiento/uif/reportes: menú muestra, la ruta rebota a /cumplimiento/verificaciones",
++   "/cumplimiento/uif/requerimientos: menú muestra, la ruta rebota a /cumplimiento/verificaciones",
++   "/cumplimiento/actas: menú muestra, la ruta rebota a /cumplimiento/verificaciones",
++   "/cumplimiento/riesgos/eventos: menú muestra, la ruta rebota a /cumplimiento/verificaciones",
++   "/cumplimiento/continuidad: menú muestra, la ruta rebota a /cumplimiento/verificaciones",
++   "/cumplimiento/seguridad/incidentes: menú muestra, la ruta rebota a /cumplimiento/verificaciones",
++   "/contabilidad: menú muestra, la ruta rebota a /cumplimiento/verificaciones",
++   "/contabilidad/presupuesto: menú muestra, la ruta rebota a /cumplimiento/verificaciones",
++   "/contabilidad/compras: menú muestra, la ruta rebota a /cumplimiento/verificaciones",
++   "/contabilidad/cobros: menú muestra, la ruta rebota a /cumplimiento/verificaciones",
++   "/publicidad/anunciantes: menú muestra, la ruta rebota a /cumplimiento/verificaciones",
++   "/publicidad/campanas: menú muestra, la ruta rebota a /cumplimiento/verificaciones",
++   "/publicidad/moderacion: menú muestra, la ruta rebota a /cumplimiento/verificaciones",
++   "/publicidad/desempeno: menú muestra, la ruta rebota a /cumplimiento/verificaciones",
++   "/publicidad/liquidacion: menú muestra, la ruta rebota a /cumplimiento/verificaciones",
++   "/sistemas/servicios: menú muestra, la ruta rebota a /cumplimiento/verificaciones",
++   "/sistemas/despliegues: menú muestra, la ruta rebota a /cumplimiento/verificaciones",
++   "/sistemas/base-de-datos: menú muestra, la ruta rebota a /cumplimiento/verificaciones",
++   "/sistemas/respaldos: menú muestra, la ruta rebota a /cumplimiento/verificaciones",
++   "/sistemas/proveedores: menú muestra, la ruta rebota a /cumplimiento/verificaciones",
++   "/sistemas/outbox: menú muestra, la ruta rebota a /cumplimiento/verificaciones",
++   "/sistemas/webhooks: menú muestra, la ruta rebota a /cumplimiento/verificaciones",
++   "/sistemas/usuarios-internos: menú muestra, la ruta rebota a /cumplimiento/verificaciones",
++   "/sistemas/roles-internos: menú muestra, la ruta rebota a /cumplimiento/verificaciones",
++   "/sistemas/permisos-internos: menú muestra, la ruta rebota a /cumplimiento/verificaciones",
++   "/sistemas/accesos: menú muestra, la ruta rebota a /cumplimiento/verificaciones",
++   "/sistemas/operaciones: menú muestra, la ruta rebota a /cumplimiento/verificaciones",
++   "/sistemas/flujos: menú muestra, la ruta rebota a /cumplimiento/verificaciones",
++   "/sistemas/bitacora: menú muestra, la ruta rebota a /cumplimiento/verificaciones",
++   "/configuracion/tarifario: menú muestra, la ruta rebota a /cumplimiento/verificaciones",
++   "/configuracion/mensajeria: menú muestra, la ruta rebota a /cumplimiento/verificaciones",
++   "/configuracion/reportes: menú muestra, la ruta rebota a /cumplimiento/verificaciones",
++   "/sistemas/catalogos-operativos: menú muestra, la ruta rebota a /cumplimiento/verificaciones",
++   "/tablero/catalogo-de-datos: menú muestra, la ruta rebota a /cumplimiento/verificaciones",
++   "entrada → /operacion/retiros rebota a /cumplimiento/verificaciones",
++   "entrada → /contabilidad rebota a /cumplimiento/verificaciones",
++   "entrada → /publicidad/anunciantes rebota a /cumplimiento/verificaciones",
++   "entrada → /sistemas/servicios rebota a /cumplimiento/verificaciones",
++ ]
+
+[36m [2m❯[22m src/app/nucleo/menu-y-guardias.spec.ts:[2m79:21[22m[39m
+    [90m 77|[39m       if (!enRuta(router.url, destino)) errores.push(`entrada → ${dest…
+    [90m 78|[39m     }
+    [90m 79|[39m     [34mexpect[39m(errores)[33m.[39m[34mtoEqual[39m([])
+    [90m   |[39m                     [31m^[39m
+    [90m 80|[39m   })
+    [90m 81|[39m })
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m2 failed[39m[22m[2m | [22m[1m[32m85 passed[39m[22m[90m (87)[39m
+[2m   Start at [22m 08:12:41
+[2m   Duration [22m 57.11s[2m (transform 14.39s, setup 3.36s, import 5.27s, tests 41.82s, environment 5.53s)[22m
+

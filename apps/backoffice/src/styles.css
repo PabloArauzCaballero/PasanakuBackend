@@ -1,1 +1,14 @@
 @import '@aportaya/ui/estilos.css';
+
+/* `router-outlet` es un ancla vacía: si cuenta como hija de una grilla con `gap`, suma un hueco fantasma arriba de cada pantalla. */
+router-outlet { display: none; }
+
+/*
+ * Botones del backoffice (2026-10-27). Un solo botón con color por pantalla: el primario. Antes convivían el primario
+ * oscuro, el secundario verde relleno y el fantasma con borde verde, y la pantalla no decía cuál era la acción. Ahora
+ * el secundario y el fantasma son neutros (superficie, borde y texto de lectura) y las acciones de fila los acompañan.
+ * Solo en el backoffice: el sitio y la app conservan su paleta.
+ */
+ap-boton.v-secundario { --c: var(--surface); --tinta: var(--text); }
+ap-boton.v-secundario button { border-color: var(--field-border); }
+ap-boton.v-fantasma, ap-acciones-de-fila { --brand: var(--field-border); --brand-texto: var(--text); --brand-bg: var(--surface-2); }

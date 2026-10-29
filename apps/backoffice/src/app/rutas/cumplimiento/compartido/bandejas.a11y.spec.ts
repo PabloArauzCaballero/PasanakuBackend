@@ -3,6 +3,8 @@ import { describe, expect, it } from 'vitest'
 import { BandejaDeAlertas } from '../alertas/bandeja-de-alertas'
 import { BandejaDeCasos } from '../casos/bandeja-de-casos'
 import { PantallaDeContinuidad } from '../colas/pantalla-de-continuidad'
+import { PantallaDeEventos } from '../colas/pantalla-de-eventos'
+import { BandejaDeReportes } from '../uif/bandeja-de-reportes'
 import { ContenedorDeAlerta } from '../alertas/contenedor-de-alerta'
 import { RegistrarRequerimiento } from '../uif/registrar-requerimiento'
 import { asentar, GW, montar, rechazar } from './pruebas.apoyo'
@@ -42,6 +44,20 @@ describe('bandejas de cumplimiento · accesibilidad', () => {
 
   it('indisponibilidad honesta (CU-97), sin violaciones', async () => {
     const { fixture } = montar(ContenedorDeAlerta, [], 'OPERADOR', { alertaId: 'x' })
+    expect(await axe(fixture.nativeElement)).toHaveNoViolations()
+  })
+
+  it('reportes UIF con acción de fila «Aprobar y enviar», sin violaciones', async () => {
+    const { fixture, http } = montar(BandejaDeReportes, ['CUMPLIMIENTO_REPORTAR'])
+    http.expectOne((r) => r.url === `${GW}/uif/reportes`).flush({ items: [{ reporteId: 'r-1', catalogoReporteId: 'c', periodo: '2026-09', fechaCorte: '2026-09-30', fechaLimite: '2026-10-10', estado: 'GENERADO', cantidadRegistros: 3, reporteEnCero: false, montoTotal: '10.00' }] })
+    await asentar(fixture)
+    expect(await axe(fixture.nativeElement)).toHaveNoViolations()
+  })
+
+  it('cola de eventos vacía (sin datos), sin violaciones', async () => {
+    const { fixture, http } = montar(PantallaDeEventos, ['AUDITORIA_LEER'], 'RESPONSABLE_RIESGOS')
+    http.expectOne((r) => r.url === `${GW}/cumplimiento/riesgos/eventos`).flush({ items: [] })
+    await asentar(fixture)
     expect(await axe(fixture.nativeElement)).toHaveNoViolations()
   })
 })

@@ -6,8 +6,9 @@ export const textosReversos = {
   explicacionVacio: 'Sin filtro se muestran todos los reversos.',
   denegado: 'Los reversos los consulta quien tiene el permiso de auditoría.',
   filtroEtiqueta: 'Estado',
+  ayudaBusqueda: 'El estado se filtra en el servidor. La búsqueda mira la página cargada: motivo, quién autorizó, transacción, monto, tipo o estado.',
   pendiente: 'Sin ejecutar',
   estados: { SOLICITADO: 'Solicitado', AUTORIZADO: 'Autorizado', EJECUTADO: 'Ejecutado', RECHAZADO: 'Rechazado' },
   tipos: { ANULACION: 'Anulación', CONTRACARGO: 'Contracargo', ERROR_OPERATIVO: 'Error operativo', ORDEN_AUTORIDAD: 'Orden de autoridad' },
-  columnas: { solicitadaEn: 'Solicitado el', tipo: 'Tipo', estado: 'Estado', montoReversado: 'Monto reversado', motivo: 'Motivo', autorizadaPor: 'Autorizado por', transaccionOriginalId: 'Transacción original', ejecutadaEn: 'Ejecutado el' },
+  columnas: { reversoId: 'Reverso', solicitadaEn: 'Solicitado el', tipo: 'Tipo', estado: 'Estado', montoReversado: 'Monto reversado', motivo: 'Motivo', autorizadaPor: 'Autorizado por', transaccionOriginalId: 'Transacción original', ejecutadaEn: 'Ejecutado el' },
 } as const

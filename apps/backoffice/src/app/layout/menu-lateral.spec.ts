@@ -1,6 +1,7 @@
 import { Component, provideZonelessChangeDetection } from '@angular/core'
 import { TestBed } from '@angular/core/testing'
 import { Router, provideRouter } from '@angular/router'
+import { axe } from 'vitest-axe'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { Sesion } from '../nucleo/sesion'
 import { MenuLateral } from './menu-lateral'
@@ -16,8 +17,8 @@ describe('MenuLateral', () => {
     sesion = TestBed.inject(Sesion)
   })
 
-  async function montar(permisos: string[], url = '/tablero') {
-    sesion.abrir('token', permisos, 'ADMIN_PLATAFORMA')
+  async function montar(permisos: string[], url = '/tablero', rol = 'ADMIN_PLATAFORMA') {
+    sesion.abrir('token', permisos, rol)
     await TestBed.inject(Router).navigateByUrl(url)
     const fixture = TestBed.createComponent(MenuLateral)
     fixture.detectChanges()
@@ -25,62 +26,75 @@ describe('MenuLateral', () => {
     fixture.detectChanges()
     return { fixture, el: fixture.nativeElement as HTMLElement }
   }
+  const textos = (el: Element, selector: string) => Array.from(el.querySelectorAll(selector)).map((a) => a.textContent?.trim())
 
-  it('correcto: solo los grupos con alguna entrada permitida; cada entrada conserva su gancho de tutorial', async () => {
-    const { el } = await montar(['ver:tablero', 'ver:operacion'])
-    expect(Array.from(el.querySelectorAll('.rotulo span')).map((s) => s.textContent)).toEqual(['Operación', 'Plataforma'])
-    expect(Array.from(el.querySelectorAll('a[data-tutorial-id]')).map((a) => a.getAttribute('data-tutorial-id'))).toEqual(['menu-tablero', 'menu-operacion', 'menu-ayuda'])
+  it('correcto: solo las entradas con alguna pantalla que la sesión abre; sin «Inicio» (al inicio se vuelve con el logo)', async () => {
+    const { el } = await montar(['ver:tablero', 'RECLAMO_VER'])
+    expect(textos(el, '.rotulo')).toEqual([])
+    expect(Array.from(el.querySelectorAll('a[data-tutorial-id]')).map((a) => a.getAttribute('data-tutorial-id'))).toEqual(['menu-operacion'])
+    expect(textos(el, 'a')).not.toContain('Inicio')
+    // La entrada lleva a la pantalla que abre, no a una fija que rebotaría; debajo, solo la que puede abrir.
+    expect(el.querySelector('a[data-tutorial-id="menu-operacion"]')?.getAttribute('href')).toBe('/operacion/reclamos')
+    expect(textos(el, '.pantallas a')).toEqual(['Reclamos'])
     expect(el.getAttribute('data-tutorial-id')).toBe('menu-principal')
   })
 
-  // Requisito cambiado el 2026-10-21 (pedido de Pablo: «comprimí las opciones»): antes todas las
-  // secciones estaban siempre abiertas; ahora solo la activa se despliega y el resto se pliega.
-  function abiertas(el: HTMLElement): string[] {
-    return Array.from(el.querySelectorAll('.plegable.abierto .hijos')).map((u) => u.id)
-  }
-
-  it('correcto: solo la sección activa muestra sus pantallas, con sus íconos', async () => {
-    const { el } = await montar(['ver:tablero', 'ver:operacion', 'ver:sistemas'], '/sistemas/servicios')
-    expect(abiertas(el)).toEqual(['menu-hijos-sistemas'])
-    const hijos = Array.from(el.querySelectorAll('.plegable.abierto .hijos a'))
-    expect(hijos.map((a) => a.textContent?.trim())).toContain('Permisos internos')
-    expect(el.querySelectorAll('.plegable.abierto .hijos a ap-icono-de-seccion').length).toBe(hijos.length)
-    // Las pantallas plegadas no se alcanzan con el teclado.
-    expect(el.querySelector('#menu-hijos-operacion')!.closest('.plegable')!.hasAttribute('inert')).toBe(true)
+  it('límite (F1): con el permiso de sistemas pero sin el rol, Sistemas no se dibuja; con PLATAFORMA lleva a /sistemas/servicios', async () => {
+    const sinRol = await montar(['ACCESOS_ADMINISTRAR'], '/tablero', 'oficial')
+    expect(sinRol.el.querySelector('a[data-tutorial-id="menu-sistemas"]')).toBeNull()
+    sinRol.fixture.destroy()
+    const conRol = await montar(['ACCESOS_ADMINISTRAR'], '/tablero', 'PLATAFORMA')
+    expect(conRol.el.querySelector('a[data-tutorial-id="menu-sistemas"]')?.getAttribute('href')).toBe('/sistemas/servicios')
   })
 
-  it('límite: en el inicio ninguna sección queda desplegada', async () => {
-    const { el } = await montar(['ver:tablero', 'ver:operacion', 'ver:sistemas'], '/tablero')
-    expect(abiertas(el)).toEqual([])
+  it('correcto: Sistemas fijo con todas sus pantallas a la vista y su ícono, incluidas las de los subgrupos y la metadata', async () => {
+    const { el } = await montar(['ver:tablero', 'ver:sistemas', 'TABLERO_SISTEMAS_VER'], '/sistemas/outbox', 'PLATAFORMA')
+    const sistemas = el.querySelector('ul[aria-label="Pantallas de Sistemas"]')!
+    expect(textos(sistemas, 'a')).toEqual([
+      'Servicios y SLO',
+      'Despliegues',
+      'Base de datos',
+      'Respaldos',
+      'Proveedores',
+      'Outbox por servicio',
+      'Webhooks',
+      'Usuarios internos',
+      'Roles internos',
+      'Permisos internos',
+      'Revisión de accesos',
+      'Operaciones del sistema',
+      'Mapa de flujos',
+      'Registro del sistema',
+    ])
+    expect(textos(sistemas, '.subgrupo')).toEqual(['Integraciones', 'Personal y accesos', 'Endpoints y flujos'])
+    expect(sistemas.querySelectorAll('a ap-icono').length).toBe(14)
+    // La pantalla actual se marca con aria-current, no solo con color; la sección, con su barra.
+    expect(el.querySelector('a[aria-current="page"]')?.textContent?.trim()).toBe('Outbox por servicio')
+    expect(el.querySelector('a.seccion.activo')?.textContent?.trim()).toBe('Sistemas')
+    // Nada se pliega: ningún control de despliegue y los grupos son rótulos, no botones.
+    expect(el.querySelector('[aria-expanded]')).toBeNull()
+    expect(textos(el, 'h2.rotulo')).toContain('Plataforma')
   })
 
-  it('correcto: el botón de la flecha despliega y vuelve a plegar una sección, con aria-expanded', async () => {
-    const { fixture, el } = await montar(['ver:tablero', 'ver:operacion', 'ver:sistemas'], '/tablero')
-    const boton = el.querySelector<HTMLButtonElement>('button[aria-controls="menu-hijos-operacion"]')!
-    expect(boton.getAttribute('aria-expanded')).toBe('false')
-    expect(boton.getAttribute('aria-label')).toBe('Mostrar las pantallas de Operación')
-    boton.click()
-    fixture.detectChanges()
-    expect(boton.getAttribute('aria-expanded')).toBe('true')
-    expect(abiertas(el)).toEqual(['menu-hijos-operacion'])
-    boton.click()
-    fixture.detectChanges()
-    expect(abiertas(el)).toEqual([])
+  it('correcto (2026-10-28): el rótulo «Plataforma» lleva su ícono y abre su primera sección', async () => {
+    const { fixture, el } = await montar(['ver:sistemas'], '/tablero', 'PLATAFORMA')
+    const rotulo = el.querySelector('h2.rotulo a') as HTMLAnchorElement
+    expect(rotulo.textContent?.trim()).toBe('Plataforma')
+    expect(rotulo.querySelector('ap-icono-de-seccion')).not.toBeNull()
+    expect(rotulo.getAttribute('href')).toBe('/sistemas/servicios')
+    const emitidos: unknown[] = []
+    fixture.componentInstance.navegado.subscribe((v) => emitidos.push(v))
+    rotulo.click()
+    expect(emitidos).toHaveLength(1)
   })
 
-  it('correcto: al navegar a otra sección se pliega la anterior y se abre la nueva', async () => {
-    const { fixture, el } = await montar(['ver:tablero', 'ver:operacion', 'ver:sistemas'], '/sistemas/servicios')
-    await TestBed.inject(Router).navigateByUrl('/operacion/reclamos')
-    fixture.detectChanges()
-    await fixture.whenStable()
-    fixture.detectChanges()
-    expect(abiertas(el)).toEqual(['menu-hijos-operacion'])
+  it('límite: en un subgrupo se marca la hoja exacta (la ruta más larga), no la primera del grupo', async () => {
+    const { el } = await montar(['ver:sistemas'], '/sistemas/roles-internos', 'PLATAFORMA')
+    expect(textos(el, 'a[aria-current="page"]')).toEqual(['Roles internos'])
   })
 
-  it('límite: todas las opciones tienen ícono y solo las secciones con pantallas tienen botón de plegar', async () => {
-    const { el } = await montar(['ver:tablero', 'ver:operacion', 'ver:cumplimiento', 'ver:admisiones'])
-    const todosLosEnlaces = el.querySelectorAll('a')
-    expect(el.querySelectorAll('a ap-icono-de-seccion').length).toBe(todosLosEnlaces.length)
-    expect(Array.from(el.querySelectorAll('button.plegar')).map((b) => b.getAttribute('aria-controls'))).toEqual(['menu-hijos-operacion', 'menu-hijos-cumplimiento'])
+  it('accesibilidad: sin violaciones serias con el menú completo de sistemas', async () => {
+    const { el } = await montar(['ver:sistemas', 'ver:configuracion', 'AUDITORIA_LEER', 'TABLERO_SISTEMAS_VER'], '/sistemas/servicios', 'PLATAFORMA')
+    expect(await axe(el)).toHaveNoViolations()
   })
 })

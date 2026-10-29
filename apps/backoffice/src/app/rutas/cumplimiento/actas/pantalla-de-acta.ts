@@ -15,7 +15,7 @@ import { textosCumplimiento } from '../textos'
   imports: [Boton, CabeceraDePagina, ChipEstado],
   template: `
     <section class="pantalla">
-      <ap-cabecera-de-pagina [titulo]="t.titulo" [descripcion]="t.proposito" icono="libro" />
+      <ap-cabecera-de-pagina [titulo]="t.titulo" [descripcion]="t.proposito" />
 
       <p>{{ t.quorum }}: {{ acta().asistentes.length }} / {{ acta().quorumMinimo }}</p>
 
@@ -33,11 +33,11 @@ import { textosCumplimiento } from '../textos'
         <p class="bloqueo" role="alert">{{ mensajeDeBloqueo(motivo) }}</p>
       }
 
-      <ap-boton variante="primario" [deshabilitado]="!puedeCerrar()" (pulsado)="cerrar()">{{ t.cerrar }}</ap-boton>
+      <ap-boton variante="primario" icono="candado" [deshabilitado]="!puedeCerrar()" (pulsado)="cerrar()">{{ t.cerrar }}</ap-boton>
     </section>
   `,
   styles: `
-    .pantalla { padding: var(--s5); max-width: 40rem; display: flex; flex-direction: column; gap: var(--s4); }
+    .pantalla { max-width: 40rem; display: flex; flex-direction: column; gap: var(--s4); }
     .votos { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--s2); }
     .votos li { display: flex; align-items: center; gap: var(--s3); }
     .motivo { color: var(--text-3); font-size: .9em; }

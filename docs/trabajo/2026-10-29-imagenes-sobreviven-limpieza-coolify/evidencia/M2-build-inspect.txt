@@ -1,0 +1,3 @@
+sha256:f6016ea3a47be568561e8d67dae31be43e7080986079117e365af6d5bc9ab646
+build exit=0
+coolify.managed en aportaya/backoffice:prueba-etiqueta = true

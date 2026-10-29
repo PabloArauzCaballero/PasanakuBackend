@@ -1,0 +1,2 @@
+323:`coolify.managed=true`. Las nuestras no son de ninguno de los dos casos: las construye el
+333:`LABEL coolify.managed=true` en la etapa final. Las imágenes que se reemplazan quedan

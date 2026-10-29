@@ -31,7 +31,7 @@ export type { Columna, Densidad, EstadoColeccion, Orden } from './tabla-de-datos
   imports: [BotonCopiar, Casilla, Icono, NgTemplateOutlet, Girador, Esqueleto],
   host: { '[class.densidad-compacta]': "densidad() === 'compacta'" },
   template: `
-    <div class="marco" [class.con-cabecera]="cabecera()">
+    <div class="marco" [class.con-cabecera]="cabecera()" [class.sin-titulo]="!tituloVisible()">
       @if (cabecera()) {
         <div class="cabecera-tabla">
           <span class="registros">{{ textoRegistros() }}</span>
@@ -98,8 +98,8 @@ export type { Columna, Densidad, EstadoColeccion, Orden } from './tabla-de-datos
                 @for (c of columnas(); track c.clave) {
                   <td role="cell" [class.numerica]="c.numerica" [class.fija]="c.fijaDerecha" [class.mono]="c.mono">
                     <span class="etiqueta-movil" aria-hidden="true">{{ c.titulo }}</span>
-                    @if (celda()) {
-                      <ng-container *ngTemplateOutlet="celda()!; context: { $implicit: f, columna: c }" />
+                    @if (plantilla(); as p) {
+                      <ng-container *ngTemplateOutlet="p; context: { $implicit: f, columna: c }" />
                     } @else {
                       {{ f[c.clave] }}
                     }
@@ -127,6 +127,9 @@ export class TablaDeDatos<T extends object> {
   readonly orden = model<Orden | null>(null)
   readonly ordenado = output<Orden>()
   readonly celda = contentChild<TemplateRef<{ $implicit: T; columna: Columna<T> }>>('celda')
+  /** La plantilla de celda que llega de un organismo que envuelve a la tabla (`ap-listado`); la proyectada gana. */
+  readonly plantillaDeCelda = input<TemplateRef<{ $implicit: T; columna: Columna<T> }> | null>(null)
+  readonly plantilla = computed(() => this.celda() ?? this.plantillaDeCelda())
 
   /** Estado de colección opcional (regla 65 / Q-J1). `null` conserva el comportamiento previo a esta extensión. */
   readonly estado = input<EstadoColeccion<T> | null>(null)
@@ -139,6 +142,8 @@ export class TablaDeDatos<T extends object> {
   /** El total del servidor cuando la página es una parte; sin él, cuenta las filas visibles. */
   readonly totalDeRegistros = input<number>()
   readonly altoMaximo = input(false)
+  /** `false` deja el título solo para el lector de pantalla: dentro de un listado ya lo dice la cabecera de la pantalla. */
+  readonly tituloVisible = input(true)
   /** La tabla como texto tabulado (encabezados + valores crudos), para el botón de copiar. */
   readonly comoTexto = (): string =>
     [this.columnas().map((c) => c.titulo), ...this.filasVisibles().map((f) => this.columnas().map((c) => String(f[c.clave] ?? '')))].map((l) => l.join('\t')).join('\n')

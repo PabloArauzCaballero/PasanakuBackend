@@ -32,7 +32,10 @@ class CU80PlantillasTest extends BaseDeNotificaciones {
     }
 
     private static ConsultarMensajeria consultas() {
-        return new ConsultarMensajeria(new Datos(dsl), new AuditoriaDeMensajeriaRepositorio());
+        return new ConsultarMensajeria(
+                new Datos(dsl),
+                new AuditoriaDeMensajeriaRepositorio(),
+                new bo.aportaya.notificaciones.infraestructura.PlataformaDeMensajeriaRepositorio());
     }
 
     private static ContextoSesion auditoria(UUID usuario) {

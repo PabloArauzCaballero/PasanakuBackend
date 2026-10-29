@@ -1,0 +1,6 @@
+00:05 +58 -1: /Users/pablo/Documents/GitHub/Pasanaku-foto/apps/movil/test/widget/pantalla_perfil_cerrar_sesion_test.dart: acciones de perfil son filas accesibles con respuesta al toque [E]
+00:10 +135 -2: /Users/pablo/Documents/GitHub/Pasanaku-foto/apps/movil/test/widget/paso_capturas_test.dart: cinco láminas, avance tras guardar y puntos tocables [E]
+00:11 +138 -3: /Users/pablo/Documents/GitHub/Pasanaku-foto/apps/movil/test/widget/pautas_publicas_golden_test.dart: captura pautas públicas en 360 dp [E]
+00:11 +139 -4: /Users/pablo/Documents/GitHub/Pasanaku-foto/apps/movil/test/widget/paso_capturas_test.dart: el marco conserva las dos elevaciones tokenizadas [E]
+00:13 +181 -5: /Users/pablo/Documents/GitHub/Pasanaku-foto/apps/movil/test/widget/ilustracion_de_pauta_golden_test.dart: golden de las nueve escenas de ejemplo [E]
+00:19 +233 -5: Some tests failed.

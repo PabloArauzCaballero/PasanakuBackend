@@ -86,7 +86,7 @@ import { accionParaTecla, enfocarFilaPorId } from './navegacion-por-teclado'
               <div class="celda marca" role="cell"><ap-casilla [marcada]="elegidas().includes(identidad()(f))" (marcadaChange)="marcar(identidad()(f), $event)"><span class="oculto">Seleccionar fila</span></ap-casilla></div>
             }
             @for (c of columnas(); track c.clave) {
-              <div class="celda" role="cell" [class.numerica]="c.numerica" [style.flex]="c.ancho ?? '1'">
+              <div class="celda" role="cell" [class.numerica]="c.numerica" [style.flex]="c.ancho ?? '1'" [attr.title]="celda() ? null : f[c.clave]">
                 @if (celda()) {
                   <ng-container *ngTemplateOutlet="celda()!; context: { $implicit: f, columna: c }" />
                 } @else {

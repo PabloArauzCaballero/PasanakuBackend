@@ -1,113 +1,100 @@
-import { provideHttpClient, withInterceptors } from '@angular/common/http'
-import { HttpTestingController, provideHttpClientTesting, type TestRequest } from '@angular/common/http/testing'
-import { provideZonelessChangeDetection } from '@angular/core'
-import { ComponentFixture, TestBed } from '@angular/core/testing'
-import { provideRouter, Router } from '@angular/router'
+import type { HttpTestingController } from '@angular/common/http/testing'
+import { TestBed } from '@angular/core/testing'
+import { Router } from '@angular/router'
 import { ejemploDe } from '@aportaya/simulado'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { erroresInterceptor } from '../../../nucleo/errores.interceptor'
-import { GATEWAY } from '../../../nucleo/gateway'
-import { Sesion } from '../../../nucleo/sesion'
-import { TablaDeDatosVirtualizada } from '../../../nucleo/tabla/tabla-de-datos-virtualizada'
+import { asentar, boton, configurar, filasDe, GW, montar, PAGINA_VACIA_ASC, responder, texto } from '../comun/bandeja.apoyo'
 import { BandejaDeRetiros } from './bandeja-de-retiros'
 import type { RetiroEnRevision } from './dominio/cu11-retiros-en-revision'
 
 /**
  * **UI contra HTTP simulado** (no prueba integración con `nucleo-financiero`). Las filas salen del ejemplo generado
- * del contrato (`packages/simulado`, sintético). Cubre: página con datos y avance por cursor, vacío, `puedeDecidir=false`,
- * 403 y 422 `AP-CU11-14`.
+ * del contrato (`packages/simulado`, sintético) y de variaciones suyas. Tres niveles: aceptado, límite y error.
  */
-const URL = 'http://gw/api/v1/billetera/retiros'
+const URL = `${GW}/billetera/retiros`
 const OK = ejemploDe('nucleo-financiero', 'listarRetirosEnRevision', 'ok').cuerpo as { items: RetiroEnRevision[]; proximoFecha: string; proximoId: string }
 const FILA = OK.items[0]!
+const PROPIA: RetiroEnRevision = { ...FILA, ordenRetiroId: '11111111-1111-4111-8111-111111111111', puedeDecidir: false, mfaVerificado: false }
 
 describe('BandejaDeRetiros · [UI contra HTTP simulado] CU-11', () => {
   let http: HttpTestingController
-  beforeEach(() => {
-    if (!Element.prototype.scrollTo) Element.prototype.scrollTo = () => {}
-    TestBed.configureTestingModule({
-      providers: [
-        provideZonelessChangeDetection(),
-        provideRouter([]),
-        provideHttpClient(withInterceptors([erroresInterceptor])),
-        provideHttpClientTesting(),
-        { provide: GATEWAY, useValue: 'http://gw/api/v1' },
-      ],
-    })
-    http = TestBed.inject(HttpTestingController)
-    TestBed.inject(Sesion).abrir('t', ['RETIRO_APROBAR'], 'TESORERIA', 'tes-1')
-  })
-
-  async function montar(): Promise<ComponentFixture<BandejaDeRetiros>> {
-    const f = TestBed.createComponent(BandejaDeRetiros)
-    f.detectChanges()
-    await f.whenStable()
-    return f
-  }
+  beforeEach(() => (http = configurar()))
   const pedido = () => http.expectOne((r) => r.url === URL)
-  async function responder(f: ComponentFixture<unknown>, p: TestRequest, cuerpo: object, estado = 200) {
-    p.flush(cuerpo, { status: estado, statusText: 'x' })
-    await new Promise((r) => setTimeout(r, 0))
-    await f.whenStable()
-    f.detectChanges()
-  }
-  const texto = (f: ComponentFixture<unknown>) => (f.nativeElement as HTMLElement).textContent ?? ''
-  const tabla = (f: ComponentFixture<unknown>) => f.debugElement.query((d) => d.componentInstance instanceof TablaDeDatosVirtualizada)
+  const l = (f: { componentInstance: BandejaDeRetiros }) => f.componentInstance['l']
 
-  it('correcto: pide la primera página sin cursor y la siguiente con el cursor (proximoFecha, proximoId) del servidor', async () => {
-    const f = await montar()
+  it('aceptado: pide 10 sin cursor, pinta la página con su monto y moneda, y Siguiente pide con (proximoFecha, proximoId)', async () => {
+    const f = await montar(BandejaDeRetiros, ['RETIRO_APROBAR'])
     const primera = pedido()
-    expect(primera.request.method).toBe('GET')
-    expect(primera.request.params.get('limite')).toBe('25')
+    expect(primera.request.params.get('limite')).toBe('10')
     expect(primera.request.params.has('despuesDeFecha')).toBe(false)
     await responder(f, primera, OK)
-    expect(f.componentInstance['b'].estado()).toBe('datos')
-    const t = tabla(f).componentInstance as TablaDeDatosVirtualizada<RetiroEnRevision>
-    expect(t.filas()).toEqual(OK.items)
-    t.pagina.set(2)
-    f.detectChanges()
+    expect(filasDe<RetiroEnRevision>(f)).toEqual(OK.items)
+    expect(texto(f)).toContain('Bs')
+    boton(f, 'Siguiente')!.click()
     const segunda = pedido()
     expect(segunda.request.params.get('despuesDeFecha')).toBe(OK.proximoFecha)
     expect(segunda.request.params.get('despuesDeId')).toBe(OK.proximoId)
-    await responder(f, segunda, { items: [], proximoFecha: null, proximoId: null })
+    await responder(f, segunda, PAGINA_VACIA_ASC)
   })
 
-  it('límite: la bandeja vacía lo explica y no muestra error', async () => {
-    const f = await montar()
-    await responder(f, pedido(), { items: [], proximoFecha: null, proximoId: null })
-    expect(texto(f)).toContain('No hay retiros esperando una segunda firma.')
-    expect(texto(f)).not.toContain('No pudimos traer')
-  })
-
-  it('límite: una fila propia (puedeDecidir=false) no navega a decidir; una ajena abre retiros/:ordenId con la fila', async () => {
-    const f = await montar()
-    await responder(f, pedido(), OK)
-    const router = TestBed.inject(Router)
-    const navegar = vi.spyOn(router, 'navigate').mockResolvedValue(true)
-    f.componentInstance['abrir']({ ...FILA, puedeDecidir: false })
-    expect(navegar).not.toHaveBeenCalled()
-    f.componentInstance['abrir'](FILA)
+  it('aceptado: «Revisar y decidir» abre retiros/:ordenId con la fila; una orden propia no ofrece el botón', async () => {
+    const f = await montar(BandejaDeRetiros, ['RETIRO_APROBAR'])
+    await responder(f, pedido(), { ...OK, items: [FILA, PROPIA] })
+    const navegar = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true)
+    const botones = [...(f.nativeElement as HTMLElement).querySelectorAll('button[apAccionDeFila]')]
+    expect(botones).toHaveLength(1)
+    ;(botones[0] as HTMLButtonElement).click()
     expect(navegar).toHaveBeenCalledWith([FILA.ordenRetiroId], expect.objectContaining({ state: { retiro: FILA } }))
+    expect(texto(f)).toContain('La pediste vos')
   })
 
-  it('inválido: 403 muestra «sin acceso» y no deja la tabla', async () => {
-    const f = await montar()
+  it('aceptado: el buscador y los filtros locales trabajan sobre la página cargada sin volver a pedir', async () => {
+    const f = await montar(BandejaDeRetiros, ['RETIRO_APROBAR'])
+    await responder(f, pedido(), { ...OK, items: [FILA, PROPIA] })
+    l(f).filtrar('segundoFactor', 'Sin segundo factor')
+    await asentar(f)
+    expect(filasDe<RetiroEnRevision>(f)).toEqual([PROPIA])
+    l(f).limpiar()
+    l(f).buscar(FILA.ordenRetiroId.slice(0, 8))
+    await asentar(f)
+    expect(filasDe<RetiroEnRevision>(f)).toEqual([FILA])
+    http.expectNone((r) => r.url === URL)
+  })
+
+  it('límite: bandeja vacía ⇒ lo explica, sin tabla ni error', async () => {
+    const f = await montar(BandejaDeRetiros, ['RETIRO_APROBAR'])
+    await responder(f, pedido(), PAGINA_VACIA_ASC)
+    expect(texto(f)).toContain('No hay retiros esperando una segunda firma.')
+    expect(filasDe(f)).toBeNull()
+  })
+
+  it('límite: búsqueda sin coincidencias ⇒ vacío por filtro con «Quitar filtros», que vuelve a mostrar la página', async () => {
+    const f = await montar(BandejaDeRetiros, ['RETIRO_APROBAR'])
+    await responder(f, pedido(), OK)
+    l(f).buscar('no-existe-nada')
+    await asentar(f)
+    expect(texto(f)).toContain('Ningún registro de esta página coincide')
+    boton(f, 'Quitar filtros')!.click()
+    await asentar(f)
+    expect(filasDe<RetiroEnRevision>(f)).toEqual(OK.items)
+  })
+
+  it('error: 403 ⇒ «sin acceso», sin tabla ni mensaje crudo', async () => {
+    const f = await montar(BandejaDeRetiros, ['RETIRO_APROBAR'])
     await responder(f, pedido(), { codigo: 'AP-GW-403', mensaje: 'crudo', trazaId: 't' }, 403)
     expect(texto(f)).toContain('No tenés acceso a esta bandeja.')
-    expect(tabla(f)).toBeNull()
+    expect(filasDe(f)).toBeNull()
     expect(texto(f)).not.toContain('crudo')
   })
 
-  it('inválido: 422 AP-CU11-14 se muestra traducido, con traza, y «Reintentar» vuelve a pedir', async () => {
-    const f = await montar()
-    await responder(f, pedido(), { codigo: 'AP-CU11-14', mensaje: 'crudo del backend', trazaId: 'traza-1' }, 422)
-    expect(texto(f)).toContain('No pudimos traer la bandeja.')
+  it('error: 500 ⇒ error accionable con código de seguimiento; «Volver a intentar» repite el pedido', async () => {
+    const f = await montar(BandejaDeRetiros, ['RETIRO_APROBAR'])
+    await responder(f, pedido(), { codigo: 'AP-GW-500', mensaje: 'crudo del backend', trazaId: 'traza-1' }, 500)
+    expect(texto(f)).toContain('Retiros en revisión: no se pudo cargar la información.')
     expect(texto(f)).toContain('traza-1')
     expect(texto(f)).not.toContain('crudo del backend')
-    f.componentInstance['b'].reintentar()
-    f.detectChanges()
-    await f.whenStable()
+    boton(f, 'Volver a intentar')!.click()
     await responder(f, pedido(), OK)
-    expect(f.componentInstance['b'].estado()).toBe('datos')
+    expect(filasDe<RetiroEnRevision>(f)).toEqual(OK.items)
   })
 })

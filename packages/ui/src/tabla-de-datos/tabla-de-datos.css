@@ -1,21 +1,24 @@
-.marco { border: var(--borde-fino) solid var(--border); border-radius: var(--r-lg); background: var(--surface); }
+.marco { border: var(--borde-fino) solid var(--border); border-radius: var(--r-lg); background: var(--surface); box-shadow: var(--sombra-1); }
 table { width: 100%; border-collapse: collapse; color: var(--text); }
 caption { text-align: left; padding: var(--s3) var(--s4); font-weight: 600; color: var(--text-2); }
-th, td { padding: var(--s3) var(--s4); text-align: left; border-top: var(--borde-fino) solid var(--border); white-space: nowrap; }
-th { position: sticky; top: 0; z-index: 1; color: var(--text-3); font: var(--t-cabecera-tabla); letter-spacing: var(--t-cabecera-tabla-track); text-transform: uppercase; background: var(--surface-2); box-shadow: 0 var(--borde-fino) 0 0 var(--border); }
+th, td { padding: var(--s3) var(--s4); text-align: left; vertical-align: middle; border-top: var(--borde-fino) solid var(--border); white-space: nowrap; font: var(--t-cuerpo-chico); }
+.sin-titulo thead tr:first-child th { border-top: 0; }
+th { position: sticky; top: 0; z-index: 1; color: var(--text-3); font: var(--t-campo-etiqueta); font-weight: 500; background: var(--surface-2); box-shadow: 0 var(--borde-fino) 0 0 var(--border); }
 tbody tr { transition: background-color var(--mov-micro) ease-out; }
-tbody tr:hover td { background: color-mix(in srgb, var(--surface-2) 60%, var(--surface)); }
-.mono { font-family: var(--mono); font-size: .92em; }
+@media (hover: hover) { tbody tr:hover td { background: color-mix(in srgb, var(--surface-2) 60%, var(--surface)); } }
+/* El monoespaciado se ve más grande a igual cuerpo: se compensa para que «codigo» no sobresalga de su fila. */
+.mono { font-family: var(--mono); font-size: .8em; }
 /* La columna de acciones queda a la vista al desplazar una tabla ancha; la sombra dice que hay más a la izquierda. */
 .fija { position: sticky; right: 0; z-index: 2; background: var(--surface); box-shadow: calc(var(--s2) * -1) 0 var(--s2) calc(var(--s2) * -1) color-mix(in srgb, var(--ink) 15%, transparent); }
-th.fija { z-index: 3; }
+th.fija { z-index: 3; background: var(--surface-2); }
 .cabecera-tabla { display: flex; align-items: center; justify-content: space-between; gap: var(--s2); padding: var(--s2) var(--s3) var(--s2) var(--s4); border-bottom: var(--borde-fino) solid var(--border); }
 .registros { font: var(--t-cabecera-tabla); letter-spacing: var(--t-cabecera-tabla-track); text-transform: uppercase; color: var(--text-3); }
 .cuenta { display: inline-flex; align-items: center; gap: var(--s1); }
 .total { padding: 0 var(--s2); border-radius: var(--r-sm); background: var(--surface-2); color: var(--text); font-family: var(--mono); font-size: .85em; font-weight: 600; }
-.con-cabecera caption { position: absolute; width: var(--borde-fino); height: var(--borde-fino); overflow: hidden; clip: rect(0 0 0 0); }
+.sin-titulo caption, .con-cabecera caption { position: absolute; width: var(--borde-fino); height: var(--borde-fino); overflow: hidden; clip: rect(0 0 0 0); }
 .desplazable {
   overflow-x: auto;
+  border-radius: inherit;
   scrollbar-width: thin;
   scrollbar-color: color-mix(in srgb, var(--border) 80%, transparent) transparent;
 }
@@ -46,8 +49,10 @@ button:focus-visible { outline: var(--borde-foco) solid var(--g300); outline-off
  * Los role explícitos de arriba sostienen la semántica de tabla aunque el layout deje
  * de ser table visualmente (WAI-ARIA Authoring Practices, "responsive tables"). */
 @media (max-width: 40em) {
-  .marco { overflow-x: visible; border: 0; background: transparent; }
+  .marco { overflow-x: visible; border: 0; background: transparent; box-shadow: none; }
   table, thead, tbody, tr, th, td { display: block; width: 100%; }
+  /* Con la tabla en bloque, el caption quedaba al ancho mínimo: una palabra por línea. */
+  caption { display: block; width: 100%; }
   thead tr { position: absolute; width: var(--borde-fino); height: var(--borde-fino); overflow: hidden; clip: rect(0 0 0 0); }
   tbody tr { margin-bottom: var(--s4); border: var(--borde-fino) solid var(--border); border-radius: var(--r-lg); background: var(--surface); padding: var(--s2) var(--s4); }
   tbody tr:last-child { margin-bottom: 0; }
@@ -56,5 +61,5 @@ button:focus-visible { outline: var(--borde-foco) solid var(--g300); outline-off
   td:first-child { border-top: 0; }
   td.numerica { text-align: right; }
   td.marca { justify-content: flex-start; }
-  .etiqueta-movil { display: inline-block; flex: none; font-weight: 600; color: var(--text-2); text-align: left; }
+  .etiqueta-movil { display: inline-block; flex: none; font-family: var(--font-b); font-weight: 600; color: var(--text-2); text-align: left; }
 }

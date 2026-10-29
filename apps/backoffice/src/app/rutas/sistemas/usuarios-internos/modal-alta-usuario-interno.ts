@@ -1,139 +1,81 @@
-import { ChangeDetectionStrategy, Component, HostListener, output, signal } from '@angular/core'
-import { FormsModule } from '@angular/forms'
-import { Boton } from '@aportaya/ui/boton/boton'
+import { ChangeDetectionStrategy, Component, computed, linkedSignal, output, signal } from '@angular/core'
+import { Campo } from '@aportaya/ui/campo/campo'
+import { Dialogo } from '@aportaya/ui/dialogo/dialogo'
 import { ErrorDeEnvio, type ErrorParaVista } from '@aportaya/ui/error-de-envio/error-de-envio'
+import { ListaDeOpciones, type Opcion } from '@aportaya/ui/lista-de-opciones/lista-de-opciones'
 import type { EntradaAltaUsuarioInterno } from 'clientes/angular/identidad'
-import { catalogoRoles, creadorUsuarioInterno } from '../dominio/usuarios-internos'
+import { mensajeDeError } from '../compartido/carga'
+import { DEPARTAMENTOS_INTERNOS, catalogoRoles, creadorUsuarioInterno } from '../dominio/usuarios-internos'
 
+const CORREO = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+/**
+ * Alta de usuario interno (POST `/usuarios-internos` con `Idempotency-Key`, que pone `contextoIdempotente`). El rol
+ * inicial arranca en el **primero que trae el catálogo** —antes arrancaba en un código fijo que el catálogo podía no
+ * tener— y cada campo dice su error. Un rechazo del servidor deja todo lo escrito y muestra el mensaje traducido.
+ */
 @Component({
   selector: 'ap-modal-alta-usuario-interno',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [Boton, FormsModule, ErrorDeEnvio],
+  imports: [Campo, Dialogo, ErrorDeEnvio, ListaDeOpciones],
   template: `
-    <div class="telon">
-      <div class="caja" role="dialog" aria-modal="true" aria-labelledby="modal-alta-titulo">
-        <header>
-          <h2 id="modal-alta-titulo">Dar de alta usuario interno</h2>
-          <ap-boton variante="fantasma" (pulsado)="cerrar.emit()" aria-label="Cerrar modal">✕</ap-boton>
-        </header>
-
-        <form (ngSubmit)="guardar()">
-          <div class="fila-doble">
-            <label>
-              <span>Nombres</span>
-              <input type="text" [(ngModel)]="nombres" name="nombres" required [disabled]="enviando()" />
-            </label>
-            <label>
-              <span>Apellidos</span>
-              <input type="text" [(ngModel)]="apellidos" name="apellidos" required [disabled]="enviando()" />
-            </label>
-          </div>
-
-          <div class="fila-doble">
-            <label>
-              <span>Correo institucional</span>
-              <input type="email" [(ngModel)]="correo" name="correo" required [disabled]="enviando()" />
-            </label>
-            <label>
-              <span>Teléfono móvil</span>
-              <input type="tel" [(ngModel)]="telefono" name="telefono" placeholder="+591..." required [disabled]="enviando()" />
-            </label>
-          </div>
-
-          <div class="fila-doble">
-            <label>
-              <span>Departamento</span>
-              <select [(ngModel)]="departamento" name="departamento" required [disabled]="enviando()">
-                <option value="OPERACIONES">OPERACIONES</option>
-                <option value="RIESGOS">RIESGOS</option>
-                <option value="CUMPLIMIENTO">CUMPLIMIENTO</option>
-                <option value="TECNOLOGIA">TECNOLOGIA</option>
-                <option value="COBRANZAS">COBRANZAS</option>
-                <option value="GOBERNANZA_DATOS">GOBERNANZA_DATOS</option>
-                <option value="AUDITORIA">AUDITORIA</option>
-                <option value="EJECUTIVO">EJECUTIVO</option>
-              </select>
-            </label>
-            <label>
-              <span>Cargo</span>
-              <input type="text" [(ngModel)]="cargo" name="cargo" required [disabled]="enviando()" />
-            </label>
-          </div>
-
-          <label>
-            <span>Rol inicial</span>
-            <select [(ngModel)]="rolCodigo" name="rolCodigo" required [disabled]="enviando()">
-              @for (r of roles.hasValue() ? (roles.value() ?? []) : []; track r.id) {
-                <option [value]="r.codigo">{{ r.nombre }} ({{ r.departamento }})</option>
-              }
-            </select>
-          </label>
-
-          <p class="nota">Al crear el usuario, se le asignará una contraseña provisional que deberá cambiar en su primer ingreso.</p>
-          <ap-error-de-envio [error]="error()" />
-
-          <footer>
-            <ap-boton variante="fantasma" (pulsado)="cerrar.emit()" [deshabilitado]="enviando()">Cancelar</ap-boton>
-            <ap-boton tipo="submit" variante="primario" [deshabilitado]="enviando() || !esValido()">
-              {{ enviando() ? 'Creando...' : 'Crear usuario' }}
-            </ap-boton>
-          </footer>
-        </form>
+    <ap-dialogo titulo="Dar de alta un usuario interno" [textoDeConfirmar]="enviando() ? 'Creando…' : 'Crear usuario'" [cargando]="enviando()" [confirmarDeshabilitado]="!esValido() || enviando()" [puedeDescartar]="puedeCerrar" [abierto]="true" (confirmar)="guardar()" (cancelar)="cerrar.emit()">
+      <div class="campos">
+        <ap-campo etiqueta="Nombres" [(valor)]="nombres" autocompletar="given-name" [deshabilitado]="enviando()" [error]="errorDe('nombres')" />
+        <ap-campo etiqueta="Apellidos" [(valor)]="apellidos" autocompletar="family-name" [deshabilitado]="enviando()" [error]="errorDe('apellidos')" />
+        <ap-campo etiqueta="Correo institucional" tipo="email" [(valor)]="correo" autocompletar="email" [deshabilitado]="enviando()" [error]="errorDe('correo')" />
+        <ap-campo etiqueta="Teléfono móvil" tipo="tel" [(valor)]="telefono" marcador="+591…" autocompletar="tel" [deshabilitado]="enviando()" [error]="errorDe('telefono')" />
+        <ap-lista-de-opciones etiqueta="Departamento" [opciones]="departamentos" [(valor)]="departamento" [deshabilitado]="enviando()" />
+        <ap-campo etiqueta="Cargo" [(valor)]="cargo" [deshabilitado]="enviando()" [error]="errorDe('cargo')" />
       </div>
-    </div>
+      <ap-lista-de-opciones etiqueta="Rol inicial" [opciones]="opcionesDeRol()" [(valor)]="rolCodigo" [deshabilitado]="enviando() || opcionesDeRol().length === 0" [error]="errorDeRoles()" />
+      <p class="nota">Se le asigna una contraseña provisional que tiene que cambiar en su primer ingreso.</p>
+      <ap-error-de-envio [error]="error()" />
+    </ap-dialogo>
   `,
   styles: `
-    .telon { position: fixed; inset: 0; background: var(--overlay); display: flex; align-items: center; justify-content: center; z-index: var(--z-modal); padding: var(--s4); }
-    .caja { background: var(--surface); border: var(--borde-fino) solid var(--border); border-radius: var(--r-xl); padding: var(--s5); width: 100%; max-width: 36rem; max-height: 90vh; overflow-y: auto; display: flex; flex-direction: column; gap: var(--s4); box-shadow: var(--sombra-lg); }
-    header { display: flex; justify-content: space-between; align-items: center; }
-    h2 { margin: 0; font-size: 1.25rem; font-weight: 600; color: var(--text); }
-    form { display: flex; flex-direction: column; gap: var(--s3); }
-    .fila-doble { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s3); }
-    label { display: flex; flex-direction: column; gap: var(--s1); font-size: .875rem; color: var(--text-2); }
-    input, select { min-height: 2.75rem; padding: 0 var(--s3); border: var(--borde-fino) solid var(--border); border-radius: var(--r-md); background: var(--surface-2); color: var(--text); font: inherit; }
-    .nota { margin: 0; font-size: .8125rem; color: var(--text-3); }
-    footer { display: flex; justify-content: flex-end; gap: var(--s2); margin-top: var(--s2); }
+    .campos { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr)); gap: var(--s3); margin-bottom: var(--s3); }
+    .nota { margin: var(--s3) 0 0; font: var(--t-ayuda); color: var(--text-3); }
   `,
 })
 export class ModalAltaUsuarioInterno {
   readonly cerrar = output<void>()
   readonly guardado = output<void>()
 
-  @HostListener('document:keydown.escape')
-  protected alPresionarEscape(): void {
-    if (!this.enviando()) {
-      this.cerrar.emit()
-    }
-  }
-
   private readonly ejecutarCreacion = creadorUsuarioInterno()
-
   protected readonly roles = catalogoRoles()
+  protected readonly departamentos: Opcion[] = DEPARTAMENTOS_INTERNOS.map((d) => ({ valor: d, texto: d }))
+  protected readonly opcionesDeRol = computed<Opcion[]>(() => (this.roles.hasValue() ? (this.roles.value() ?? []) : []).map((r) => ({ valor: r.codigo, texto: r.departamento ? `${r.nombre} (${r.departamento})` : r.nombre })))
   protected readonly nombres = signal('')
   protected readonly apellidos = signal('')
   protected readonly correo = signal('')
   protected readonly telefono = signal('')
-  protected readonly departamento = signal('OPERACIONES')
+  protected readonly departamento = signal<string>(DEPARTAMENTOS_INTERNOS[0])
   protected readonly cargo = signal('')
-  protected readonly rolCodigo = signal('OPERATIONS_ANALYST')
+  protected readonly rolCodigo = linkedSignal(() => this.opcionesDeRol()[0]?.valor ?? '')
   protected readonly enviando = signal(false)
   protected readonly error = signal<ErrorParaVista | null>(null)
+  protected readonly puedeCerrar = () => !this.enviando()
+  protected readonly errorDeRoles = computed(() => (this.roles.error() ? mensajeDeError(this.roles.error(), 'No se pudo cargar el catálogo de roles.').mensaje : undefined))
+
+  /** El error de un campo recién cuando la persona escribió algo: un formulario vacío no arranca en rojo. */
+  protected errorDe(campo: 'nombres' | 'apellidos' | 'correo' | 'telefono' | 'cargo'): string | undefined {
+    const v = this[campo]().trim()
+    if (v === '') return undefined
+    if (campo === 'correo') return CORREO.test(v) ? undefined : 'Escribí un correo válido (nombre@dominio).'
+    if (campo === 'telefono') return v.length >= 8 ? undefined : 'El teléfono tiene que tener al menos 8 caracteres.'
+    return v.length >= 2 ? undefined : 'Tiene que tener al menos 2 caracteres.'
+  }
 
   protected esValido(): boolean {
-    return (
-      this.nombres().trim().length >= 2 &&
-      this.apellidos().trim().length >= 2 &&
-      this.correo().includes('@') &&
-      this.telefono().trim().length >= 8 &&
-      this.cargo().trim().length >= 2
-    )
+    const campos = [this.nombres(), this.apellidos(), this.correo(), this.telefono(), this.cargo()].map((v) => v.trim())
+    return campos.every((v) => v !== '') && (['nombres', 'apellidos', 'correo', 'telefono', 'cargo'] as const).every((c) => !this.errorDe(c)) && this.rolCodigo() !== ''
   }
 
   protected guardar(): void {
     if (!this.esValido() || this.enviando()) return
     this.enviando.set(true)
     this.error.set(null)
-
     const payload: EntradaAltaUsuarioInterno = {
       nombres: this.nombres().trim(),
       apellidos: this.apellidos().trim(),
@@ -143,15 +85,14 @@ export class ModalAltaUsuarioInterno {
       cargo: this.cargo().trim(),
       rolCodigo: this.rolCodigo(),
     }
-
     this.ejecutarCreacion(payload).subscribe({
       next: () => {
         this.enviando.set(false)
         this.guardado.emit()
       },
-      error: (err) => {
+      error: (e: unknown) => {
         this.enviando.set(false)
-        this.error.set({ mensaje: err.error?.mensaje ?? 'Error al dar de alta el usuario interno.' })
+        this.error.set(mensajeDeError(e, 'No se pudo dar de alta el usuario interno. Probá de nuevo.'))
       },
     })
   }

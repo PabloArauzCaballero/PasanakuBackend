@@ -1,52 +1,60 @@
 /* El shell: barra lateral oscura fija, cabecera fija «de vidrio» y el lienzo del contenido. Sin literales: todo por tokens. */
-.shell { display: grid; grid-template-columns: 17.5rem minmax(0, 1fr); grid-template-rows: auto 1fr; grid-template-areas: 'lateral cabecera' 'lateral contenido'; min-height: 100dvh; background: var(--bg); }
+.shell { display: grid; grid-template-columns: 16rem minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr); grid-template-areas: 'lateral cabecera' 'lateral contenido'; min-height: 100dvh; background: linear-gradient(to right, var(--n900) 16rem, var(--bg) 16rem); }
+.shell.angosto { background: var(--bg); }
 .shell.angosto { grid-template-columns: minmax(0, 1fr); grid-template-areas: 'cabecera' 'contenido'; }
 
+/*
+ * Barra lateral: carbón liso (2026-10-27). El degradé carbón → verde competía con el contenido y en oscuro se fundía con
+ * él; ahora el verde de la marca queda para lo que significa algo: la entrada activa.
+ */
 .lateral {
-  grid-area: lateral; position: sticky; top: 0; height: 100dvh; display: flex; flex-direction: column; gap: var(--s3); padding: var(--s4) var(--s3); min-width: 0;
-  color: var(--text); overflow-y: auto; scrollbar-width: thin;
-  scrollbar-color: color-mix(in srgb, var(--border) 80%, transparent) transparent;
-  background: var(--surface);
-  border-right: var(--borde-fino) solid var(--border);
-  box-shadow: var(--borde-fino) 0 0 0 var(--border);
+  grid-area: lateral; position: sticky; top: 0; align-self: start; height: 100dvh; display: flex; flex-direction: column; gap: var(--s3); padding: var(--s3); min-width: 0;
+  color: var(--white); overflow-y: auto; scrollbar-width: thin; background: var(--n900);
+  border-right: var(--borde-fino) solid color-mix(in srgb, var(--white) 8%, transparent);
 }
-.lateral::-webkit-scrollbar { width: var(--s2); }
-.lateral::-webkit-scrollbar-track { background: transparent; }
-.lateral::-webkit-scrollbar-thumb { background: color-mix(in srgb, var(--border) 80%, transparent); border-radius: var(--r-pill); }
-.lateral::-webkit-scrollbar-thumb:hover { background: var(--text-3); }
-
-.marca { display: flex; align-items: center; gap: var(--s3); padding: var(--s2) var(--s3) var(--s3); border-bottom: var(--borde-fino) solid var(--border); color: inherit; text-decoration: none; border-radius: var(--r-md); transition: background-color var(--mov-micro) ease; }
-.marca:hover { background: var(--surface-2); }
+.marca { display: flex; align-items: center; gap: var(--s3); min-height: var(--s7); padding: 0 var(--s2); color: inherit; text-decoration: none; border-radius: var(--r-md); }
 .marca span { display: grid; line-height: 1.2; }
-.marca strong { font: var(--t-cuerpo-fuerte); letter-spacing: .08em; text-transform: uppercase; color: var(--text); }
-.marca small { font-size: 0.75rem; letter-spacing: 0.04em; color: var(--verde-solido); font-weight: 600; }
+.marca strong { font: var(--t-cuerpo-fuerte); letter-spacing: .04em; text-transform: uppercase; }
+.marca small { font: var(--t-ayuda); color: color-mix(in srgb, var(--white) 60%, transparent); }
 .marca:focus-visible, .salir:focus-visible, .hamburguesa:focus-visible, .marca-chica:focus-visible { outline: var(--borde-foco) solid var(--g300); outline-offset: var(--borde-desfase); }
 .menu { flex: 1; }
-.salir { display: flex; align-items: center; gap: var(--s3); width: 100%; min-height: var(--area-tactil); padding: var(--s3) var(--s3) var(--s2); border: 0; border-top: var(--borde-fino) solid var(--border); border-radius: var(--r-md); background: transparent; color: var(--text-2); font: var(--t-cuerpo-chico); font-weight: 500; cursor: pointer; transition: all var(--mov-micro) ease-out; margin-top: auto; }
-.salir:hover:not(:disabled) { color: var(--err-texto); background: color-mix(in srgb, var(--err) 10%, transparent); }
+.salir { display: flex; align-items: center; gap: var(--s3); width: 100%; min-height: var(--area-tactil); padding: 0 var(--s3); border: 0; border-radius: var(--r-md); background: transparent; color: color-mix(in srgb, var(--white) 72%, transparent); font: var(--t-cuerpo-chico); cursor: pointer; transition: color var(--mov-micro) ease-out; }
+.salir:hover:not(:disabled) { color: var(--white); background: color-mix(in srgb, var(--white) 6%, transparent); }
 .salir:disabled { cursor: progress; opacity: .7; }
 /* En el cajón del celular, «Salir» va sobre superficie clara. */
 ap-cajon-lateral .salir { width: auto; border: 0; color: var(--text); }
-ap-cajon-lateral ap-menu-lateral { display: block; margin: calc(var(--s4) * -1); padding: var(--s3); background: var(--surface); min-height: 100%; }
+/* El margen negativo cubre el relleno del cuerpo del cajón por los cuatro lados: la altura suma los dos rellenos, o queda una franja clara abajo. */
+ap-cajon-lateral ap-menu-lateral { display: block; margin: calc(var(--s4) * -1); padding: var(--s3); background: var(--n900); min-height: calc(100% + var(--s4) * 2); }
 
 .cabecera {
-  grid-area: cabecera; position: sticky; top: 0; z-index: 10; display: flex; align-items: center; gap: var(--s3); padding: var(--s2) var(--s4);
-  border-bottom: var(--borde-fino) solid var(--border); background: color-mix(in srgb, var(--surface) 86%, transparent); backdrop-filter: blur(1.125rem) saturate(1.25); -webkit-backdrop-filter: blur(1.125rem) saturate(1.25);
-  box-shadow: var(--sombra-1);
+  grid-area: cabecera; position: sticky; top: 0; z-index: 10; display: flex; align-items: center; gap: var(--s3); min-height: calc(var(--s7) + var(--s3)); padding: var(--s2) var(--s4);
+  border-bottom: var(--borde-fino) solid var(--border); background: color-mix(in srgb, var(--surface) 86%, transparent); backdrop-filter: blur(var(--s4));
 }
 .hamburguesa { display: inline-flex; align-items: center; justify-content: center; width: var(--area-tactil); height: var(--area-tactil); margin-left: calc(var(--s2) * -1); border: 0; border-radius: var(--r-md); background: transparent; color: var(--text); cursor: pointer; }
 .hamburguesa:hover { background: var(--surface-2); }
 .marca-chica { display: inline-flex; }
-.vista { flex: 1; min-width: min(calc(var(--s7) * 4), 30%); display: grid; gap: calc(var(--s1) / 2); }
-.titulo-vista { margin: 0; font: var(--t-cuerpo-fuerte); letter-spacing: -0.01em; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.buscador { flex: 0 1 calc(var(--s7) * 8); min-width: 0; }
+.vista { position: relative; flex: 1 1 auto; min-width: 0; display: flex; align-items: center; gap: var(--s1); }
+.migas { min-width: 0; }
+.titulo-vista { margin: 0; min-width: 0; font: var(--t-cuerpo-fuerte); color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* Con migas, el título ya es la última miga: solo se muestra donde las migas no entran (celular). */
+.titulo-vista.solo-angosto { display: none; }
+.buscador { flex: 0 1 calc(var(--s7) * 5); min-width: calc(var(--s7) * 3); }
+/* Las migas ceden primero las intermedias (con «…») y la vista actual nunca: así la cabecera no desborda la página. */
+.cabecera > :not(.vista) { flex-shrink: 0; }
+.cabecera > .buscador { flex-shrink: 6; min-width: calc(var(--s7) * 3); }
 
-main { grid-area: contenido; min-width: 0; display: grid; grid-template-columns: minmax(0, 1fr); align-content: start; gap: var(--s4); padding: var(--s4) var(--s4) calc(var(--s7) + var(--s4)); }
+/*
+ * Un solo contenedor para todas las pantallas (2026-10-27): el relleno y el ancho máximo los pone `main`, no cada
+ * pantalla (antes se sumaban y cada vista empezaba en otra x). Centrado a un ancho cómodo de tabla en pantallas anchas.
+ */
+main { grid-area: contenido; min-width: 0; display: grid; grid-template-columns: minmax(0, 1fr); align-content: start; gap: var(--s5); width: 100%; max-width: calc(var(--s7) * 30); margin-inline: auto; padding: var(--s4) var(--s4) calc(var(--s7) + var(--s4)); box-sizing: border-box; }
 /* Cada pantalla entra con la misma transición: el elemento que el router crea es el que se anima. */
-main > :not(router-outlet, ap-nota-de-vista) { animation: entrar-vista var(--mov-entrada) var(--curva-llega); }
+main > :not(router-outlet) { animation: entrar-vista var(--mov-entrada) var(--curva-llega); }
 @keyframes entrar-vista { from { opacity: 0; transform: translateY(var(--s2)); } }
 
-@media (min-width: 64rem) { main { padding: var(--s5) var(--s5) calc(var(--s7) + var(--s5)); } .cabecera { padding: var(--s2) var(--s5); } }
+/* En escritorio el título no cede su lugar al buscador: se achica el buscador, no «Outbox y descart…». */
+@media (min-width: 64rem) { main { padding: var(--s4) var(--s5) calc(var(--s7) + var(--s5)); } .cabecera { padding: var(--s2) var(--s5); } }
 @media (max-width: 48rem) { .buscador { display: none; } }
-@media (max-width: 40rem) { .cabecera { padding: var(--s2) var(--s3); } main { padding: var(--s3) var(--s3) calc(var(--s7) + var(--s3)); } }
+/* En el celular la cabecera muestra solo el título: las migas no entran y el cajón ya dice dónde estás. */
+@media (max-width: 40rem) { .vista .migas { display: none; } .titulo-vista.solo-angosto { display: block; } .cabecera { padding: var(--s2) var(--s3); } main { padding: var(--s3) var(--s3) calc(var(--s7) + var(--s3)); gap: var(--s4); } }
 @media (prefers-reduced-motion: reduce) { main > * { animation: none; } }

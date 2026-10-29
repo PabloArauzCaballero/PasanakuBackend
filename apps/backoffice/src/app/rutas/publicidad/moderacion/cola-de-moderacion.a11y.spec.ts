@@ -11,7 +11,7 @@ import { Sesion } from '../../../nucleo/sesion'
 import { ColaDeModeracion } from './cola-de-moderacion'
 import { pagina, pieza } from '../publicidad.apoyo'
 
-const URL = 'http://gw/api/v1/publicidad/piezas-creativas?limite=50&estadoModeracion=PENDIENTE'
+const URL = 'http://gw/api/v1/publicidad/piezas-creativas?limite=100&estadoModeracion=PENDIENTE'
 
 describe('ColaDeModeracion · accesibilidad', () => {
   let http: HttpTestingController

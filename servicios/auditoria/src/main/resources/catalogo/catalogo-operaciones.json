@@ -546,6 +546,74 @@
     }
   },
   {
+    "id": "src-listarProveedoresDePago",
+    "servicio": "src",
+    "metodo": "GET",
+    "ruta": "/pagos/proveedores",
+    "operationId": "listarProveedoresDePago",
+    "modulo": "src",
+    "cu": null,
+    "proposito": "Los proveedores de pago dados de alta, por prioridad",
+    "explicacionNegocio": "Solo lectura de aportes.proveedor_pago. Nunca devuelve referencia_credenciales ni url_base. Orden prioridad y codigo. Exige TABLERO_SISTEMAS_VER o AUDITORIA_LEER.",
+    "explicacionSistema": "Servicio `src`, controlador Spring `@RestController`. Implementa la interfaz generada `SrcApi`. Transaccionalidad garantizada en organismo jOOQ.",
+    "permiso": "REQUIERE_SESION",
+    "riesgo": "ALTO",
+    "sensible": true,
+    "pideSesion": true,
+    "idempotencia": false,
+    "tablasImpactadas": [],
+    "dtoEntrada": null,
+    "dtoSalida": {
+      "nombre": "ResponsePayload",
+      "campos": []
+    },
+    "payloadEjemplo": null,
+    "payloadRespuesta": [
+      {
+        "id": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+        "codigo": "Ejemplo de texto",
+        "nombre": "Ejemplo de texto",
+        "tipo": "BANCO",
+        "activo": true,
+        "soportaWebhook": true,
+        "prioridad": 1
+      }
+    ],
+    "flujo": {
+      "id": "administracion-usuarios-y-permisos",
+      "nombre": "Gobierno de identidades internas, roles de backoffice y sesiones",
+      "paso": "Paso operativo `listarProveedoresDePago`",
+      "precondicion": "El servicio src debe validar la existencia y vigencia de las entidades involucradas.",
+      "exito": "Se completa la transacción de negocio y se dispara la notificación u outbox correspondiente.",
+      "decisiones": [
+        {
+          "codigo": "EXITO",
+          "http": 200,
+          "condicion": "Petición válida y autorizada. Precondiciones cumplidas.",
+          "siguiente": "Transición exitosa al siguiente paso del flujo o persistencia."
+        },
+        {
+          "codigo": "AP-SISTEMA-01",
+          "http": 422,
+          "condicion": "Violación de regla de negocio o estado no válido.",
+          "siguiente": "Rechazo controlado con mensaje explicativo."
+        },
+        {
+          "codigo": "NO_AUTORIZADO",
+          "http": 401,
+          "condicion": "Token ausente, vencido o firma inválida.",
+          "siguiente": "Exige reautenticación en pantalla de ingreso."
+        },
+        {
+          "codigo": "ACCESO_DENEGADO",
+          "http": 403,
+          "condicion": "Rol o permiso insuficiente para esta operación.",
+          "siguiente": "Bloqueo por seguridad RBAC."
+        }
+      ]
+    }
+  },
+  {
     "id": "src-darDeAltaProveedor",
     "servicio": "src",
     "metodo": "POST",
@@ -715,6 +783,88 @@
         {
           "codigo": "EXITO",
           "http": 201,
+          "condicion": "Petición válida y autorizada. Precondiciones cumplidas.",
+          "siguiente": "Transición exitosa al siguiente paso del flujo o persistencia."
+        },
+        {
+          "codigo": "AP-SISTEMA-01",
+          "http": 422,
+          "condicion": "Violación de regla de negocio o estado no válido.",
+          "siguiente": "Rechazo controlado con mensaje explicativo."
+        },
+        {
+          "codigo": "NO_AUTORIZADO",
+          "http": 401,
+          "condicion": "Token ausente, vencido o firma inválida.",
+          "siguiente": "Exige reautenticación en pantalla de ingreso."
+        },
+        {
+          "codigo": "ACCESO_DENEGADO",
+          "http": 403,
+          "condicion": "Rol o permiso insuficiente para esta operación.",
+          "siguiente": "Bloqueo por seguridad RBAC."
+        }
+      ]
+    }
+  },
+  {
+    "id": "src-listarWebhooksRecibidos",
+    "servicio": "src",
+    "metodo": "GET",
+    "ruta": "/pagos/webhooks-recibidos",
+    "operationId": "listarWebhooksRecibidos",
+    "modulo": "src",
+    "cu": null,
+    "proposito": "Los ultimos webhooks recibidos de las pasarelas",
+    "explicacionNegocio": "Solo lectura de aportes.webhook_pasarela, del mas reciente al mas viejo (recibido_en desc, id). Nunca devuelve el payload, la firma, la clave de idempotencia ni el error de procesamiento en crudo. Exige TABLERO_SISTEMAS_VER o AUDITORIA_LEER.",
+    "explicacionSistema": "Servicio `src`, controlador Spring `@RestController`. Implementa la interfaz generada `SrcApi`. Transaccionalidad garantizada en organismo jOOQ.",
+    "permiso": "REQUIERE_SESION",
+    "riesgo": "ALTO",
+    "sensible": true,
+    "pideSesion": true,
+    "idempotencia": false,
+    "tablasImpactadas": [],
+    "dtoEntrada": {
+      "nombre": "Parametros_listarWebhooksRecibidos",
+      "campos": [
+        {
+          "nombre": "limite",
+          "tipo": "integer",
+          "requerido": false,
+          "validacion": "Ubicación: query",
+          "descripcion": "Parámetro limite"
+        }
+      ]
+    },
+    "dtoSalida": {
+      "nombre": "ResponsePayload",
+      "campos": []
+    },
+    "payloadEjemplo": {
+      "limite": "1"
+    },
+    "payloadRespuesta": [
+      {
+        "id": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+        "proveedorCodigo": "Ejemplo de texto",
+        "evento": "Ejemplo de texto",
+        "estado": "DESCARTADO",
+        "firmaValida": true,
+        "recibidoEn": "2026-10-20T14:30:00Z",
+        "procesadoEn": "2026-10-20T14:30:00Z",
+        "intentos": 0
+      }
+    ],
+    "flujo": {
+      "id": "administracion-usuarios-y-permisos",
+      "nombre": "Gobierno de identidades internas, roles de backoffice y sesiones",
+      "paso": "Paso operativo `listarWebhooksRecibidos`",
+      "precondicion": "El servicio src debe validar la existencia y vigencia de las entidades involucradas.",
+      "exito": "Se completa la transacción de negocio y se dispara la notificación u outbox correspondiente.",
+      "decisiones": [
+        {
+          "codigo": "EXITO",
+          "http": 200,
           "condicion": "Petición válida y autorizada. Precondiciones cumplidas.",
           "siguiente": "Transición exitosa al siguiente paso del flujo o persistencia."
         },
@@ -3382,7 +3532,7 @@
     "modulo": "src",
     "cu": null,
     "proposito": "La salud de cada servicio, consultada ahora",
-    "explicacionNegocio": "auditoria pregunta el readiness (/actuator/health/readiness) de cada servicio por la red interna, en paralelo y con timeout de 2 s, y devuelve lo que contesto cada uno: ARRIBA (200), DEGRADADO (respondio con otro estado, tipicamente 503 OUT_OF_SERVICE) o CAIDO (no respondio a tiempo o rechazo la conexion). El resultado se reusa 10 s: abrir la pantalla muchas veces no multiplica las consultas. Exige TABLERO_SISTEMAS_VER o AUDITORIA_LEER.",
+    "explicacionNegocio": "auditoria pregunta el readiness (/actuator/health/readiness) de cada servicio por la red interna, en paralelo y con timeout de 2 s, y devuelve lo que contesto cada uno: ARRIBA (200), DEGRADADO (respondio con otro estado, tipicamente 503 OUT_OF_SERVICE) o CAIDO (no respondio a tiempo o rechazo la conexion). El resultado se reusa 10 s: abrir la pantalla muchas veces no multiplica las consultas. Ademas, auditoria mide el readiness una vez por minuto y devuelve por servicio la disponibilidad de los ultimos 30 dias, el presupuesto de error restante contra objetivoSlo y la ultima interrupcion. Exige TABLERO_SISTEMAS_VER o AUDITORIA_LEER.",
     "explicacionSistema": "Servicio `src`, controlador Spring `@RestController`. Implementa la interfaz generada `SrcApi`. Transaccionalidad garantizada en organismo jOOQ.",
     "permiso": "REQUIERE_SESION",
     "riesgo": "BAJO",
@@ -3407,6 +3557,13 @@
           "requerido": true,
           "validacion": "@NotNull / Requerido",
           "descripcion": "Campo servicios de la operación"
+        },
+        {
+          "nombre": "objetivoSlo",
+          "tipo": "string",
+          "requerido": false,
+          "validacion": "Validación estándar de tipo",
+          "descripcion": "El SLO de disponibilidad en porcentaje, cadena decimal (por ejemplo 99.5); el mismo para todos"
         }
       ]
     },
@@ -3415,12 +3572,238 @@
       "consultadoEn": "2026-10-20T14:30:00Z",
       "servicios": [
         {}
-      ]
+      ],
+      "objetivoSlo": "Ejemplo de texto"
     },
     "flujo": {
       "id": "administracion-usuarios-y-permisos",
       "nombre": "Gobierno de identidades internas, roles de backoffice y sesiones",
       "paso": "Paso operativo `consultarSaludDeServicios`",
+      "precondicion": "El servicio src debe validar la existencia y vigencia de las entidades involucradas.",
+      "exito": "Se completa la transacción de negocio y se dispara la notificación u outbox correspondiente.",
+      "decisiones": [
+        {
+          "codigo": "EXITO",
+          "http": 200,
+          "condicion": "Petición válida y autorizada. Precondiciones cumplidas.",
+          "siguiente": "Transición exitosa al siguiente paso del flujo o persistencia."
+        },
+        {
+          "codigo": "AP-SISTEMA-01",
+          "http": 422,
+          "condicion": "Violación de regla de negocio o estado no válido.",
+          "siguiente": "Rechazo controlado con mensaje explicativo."
+        },
+        {
+          "codigo": "NO_AUTORIZADO",
+          "http": 401,
+          "condicion": "Token ausente, vencido o firma inválida.",
+          "siguiente": "Exige reautenticación en pantalla de ingreso."
+        },
+        {
+          "codigo": "ACCESO_DENEGADO",
+          "http": 403,
+          "condicion": "Rol o permiso insuficiente para esta operación.",
+          "siguiente": "Bloqueo por seguridad RBAC."
+        }
+      ]
+    }
+  },
+  {
+    "id": "src-consultarOutboxPorServicio",
+    "servicio": "src",
+    "metodo": "GET",
+    "ruta": "/indicadores/operacion/outbox",
+    "operationId": "consultarOutboxPorServicio",
+    "modulo": "src",
+    "cu": null,
+    "proposito": "El outbox de cada servicio, ahora",
+    "explicacionNegocio": "Lo que el relevo de cada servicio publica en Prometheus (comun-mensajeria, Relevo): eventos PENDIENTE y FALLIDO en su outbox ahora, la edad del mas viejo tomado, y cuantas publicaciones salieron bien y mal en las ultimas 24 h (increase, aproximado por la extrapolacion de Prometheus). auditoria no lee el esquema de ningun servicio (regla 98.1). fuenteDisponible false significa que Prometheus no respondio: no se sabe, distinto de una lista vacia. Exige TABLERO_SISTEMAS_VER o AUDITORIA_LEER.",
+    "explicacionSistema": "Servicio `src`, controlador Spring `@RestController`. Implementa la interfaz generada `SrcApi`. Transaccionalidad garantizada en organismo jOOQ.",
+    "permiso": "REQUIERE_SESION",
+    "riesgo": "BAJO",
+    "sensible": false,
+    "pideSesion": true,
+    "idempotencia": false,
+    "tablasImpactadas": [],
+    "dtoEntrada": null,
+    "dtoSalida": {
+      "nombre": "SalidaOutboxPorServicio",
+      "campos": [
+        {
+          "nombre": "consultadoEn",
+          "tipo": "string (date-time)",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido",
+          "descripcion": "Campo consultadoEn de la operación"
+        },
+        {
+          "nombre": "fuenteDisponible",
+          "tipo": "boolean",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido",
+          "descripcion": "Campo fuenteDisponible de la operación"
+        },
+        {
+          "nombre": "servicios",
+          "tipo": "array",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido",
+          "descripcion": "Campo servicios de la operación"
+        }
+      ]
+    },
+    "payloadEjemplo": null,
+    "payloadRespuesta": {
+      "consultadoEn": "2026-10-20T14:30:00Z",
+      "fuenteDisponible": true,
+      "servicios": [
+        {}
+      ]
+    },
+    "flujo": {
+      "id": "administracion-usuarios-y-permisos",
+      "nombre": "Gobierno de identidades internas, roles de backoffice y sesiones",
+      "paso": "Paso operativo `consultarOutboxPorServicio`",
+      "precondicion": "El servicio src debe validar la existencia y vigencia de las entidades involucradas.",
+      "exito": "Se completa la transacción de negocio y se dispara la notificación u outbox correspondiente.",
+      "decisiones": [
+        {
+          "codigo": "EXITO",
+          "http": 200,
+          "condicion": "Petición válida y autorizada. Precondiciones cumplidas.",
+          "siguiente": "Transición exitosa al siguiente paso del flujo o persistencia."
+        },
+        {
+          "codigo": "AP-SISTEMA-01",
+          "http": 422,
+          "condicion": "Violación de regla de negocio o estado no válido.",
+          "siguiente": "Rechazo controlado con mensaje explicativo."
+        },
+        {
+          "codigo": "NO_AUTORIZADO",
+          "http": 401,
+          "condicion": "Token ausente, vencido o firma inválida.",
+          "siguiente": "Exige reautenticación en pantalla de ingreso."
+        },
+        {
+          "codigo": "ACCESO_DENEGADO",
+          "http": 403,
+          "condicion": "Rol o permiso insuficiente para esta operación.",
+          "siguiente": "Bloqueo por seguridad RBAC."
+        }
+      ]
+    }
+  },
+  {
+    "id": "src-listarIncidentesOperativos",
+    "servicio": "src",
+    "metodo": "GET",
+    "ruta": "/indicadores/operacion/incidentes",
+    "operationId": "listarIncidentesOperativos",
+    "modulo": "src",
+    "cu": null,
+    "proposito": "Los incidentes operativos registrados, del mas reciente al mas viejo",
+    "explicacionNegocio": "Lee auditoria.incidente_operativo. Orden determinista: detectadoEn descendente y despues id. Paginado por numero de pagina. No devuelve impacto_monetario: la tabla no guarda su moneda (regla 91.1.2) y un importe sin moneda no se publica. Exige TABLERO_SISTEMAS_VER o AUDITORIA_LEER.",
+    "explicacionSistema": "Servicio `src`, controlador Spring `@RestController`. Implementa la interfaz generada `SrcApi`. Transaccionalidad garantizada en organismo jOOQ.",
+    "permiso": "REQUIERE_SESION",
+    "riesgo": "BAJO",
+    "sensible": false,
+    "pideSesion": true,
+    "idempotencia": false,
+    "tablasImpactadas": [],
+    "dtoEntrada": {
+      "nombre": "Parametros_listarIncidentesOperativos",
+      "campos": [
+        {
+          "nombre": "estado",
+          "tipo": "string",
+          "requerido": false,
+          "validacion": "Ubicación: query",
+          "descripcion": "Parámetro estado"
+        },
+        {
+          "nombre": "severidad",
+          "tipo": "string",
+          "requerido": false,
+          "validacion": "Ubicación: query",
+          "descripcion": "Parámetro severidad"
+        },
+        {
+          "nombre": "pagina",
+          "tipo": "integer",
+          "requerido": false,
+          "validacion": "Ubicación: query",
+          "descripcion": "Parámetro pagina"
+        },
+        {
+          "nombre": "limite",
+          "tipo": "integer",
+          "requerido": false,
+          "validacion": "Ubicación: query",
+          "descripcion": "Parámetro limite"
+        }
+      ]
+    },
+    "dtoSalida": {
+      "nombre": "PaginaDeIncidentesOperativos",
+      "campos": [
+        {
+          "nombre": "items",
+          "tipo": "array",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido",
+          "descripcion": "Campo items de la operación"
+        },
+        {
+          "nombre": "pagina",
+          "tipo": "integer",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido; Mín: 1",
+          "descripcion": "Campo pagina de la operación"
+        },
+        {
+          "nombre": "limite",
+          "tipo": "integer",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido; Mín: 1",
+          "descripcion": "Campo limite de la operación"
+        },
+        {
+          "nombre": "total",
+          "tipo": "integer",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido; Mín: 0",
+          "descripcion": "Campo total de la operación"
+        },
+        {
+          "nombre": "totalPaginas",
+          "tipo": "integer",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido; Mín: 0",
+          "descripcion": "Campo totalPaginas de la operación"
+        }
+      ]
+    },
+    "payloadEjemplo": {
+      "estado": "1",
+      "severidad": "1",
+      "pagina": "1",
+      "limite": "1"
+    },
+    "payloadRespuesta": {
+      "items": [
+        {}
+      ],
+      "pagina": 1,
+      "limite": 1,
+      "total": 0,
+      "totalPaginas": 0
+    },
+    "flujo": {
+      "id": "administracion-usuarios-y-permisos",
+      "nombre": "Gobierno de identidades internas, roles de backoffice y sesiones",
+      "paso": "Paso operativo `listarIncidentesOperativos`",
       "precondicion": "El servicio src debe validar la existencia y vigencia de las entidades involucradas.",
       "exito": "Se completa la transacción de negocio y se dispara la notificación u outbox correspondiente.",
       "decisiones": [
@@ -3459,8 +3842,8 @@
     "operationId": "obtenerCatalogoDeDatos",
     "modulo": "src",
     "cu": null,
-    "proposito": "El catalogo de datos de toda la plataforma",
-    "explicacionNegocio": "Cada esquema, tabla y columna con su explicacion de negocio (las fichas de docs/entidades) y de sistema (derivada del modelo: servicio dueño, append-only, claves, reglas nombradas), las relaciones y la sensibilidad de cada columna. Lo genera scripts/catalogo_de_datos.py; no se calcula en la peticion. Vive bajo /indicadores, junto al desglose de sistemas, porque es parte del tablero de sistemas y el gateway ya enruta ese prefijo a auditoria. Describe el esquema completo de la base, por eso NO es un archivo estatico del backoffice: exige TABLERO_SISTEMAS_VER o AUDITORIA_LEER. No contiene datos de personas, solo la estructura.",
+    "proposito": "El catalogo de datos de toda la plataforma (deprecado)",
+    "explicacionNegocio": "DEPRECADO desde 2026-10-21: descarga el catalogo entero (~2 MB) en una sola respuesta. Usar obtenerResumenDelCatalogo, listarTablasDelCatalogo y obtenerTablaDelCatalogo. Se mantiene sin cambios de forma hasta que ningun cliente lo pida (regla 96.4.1). Retiro (regla 98.1.3): el backoffice se despliega aparte de auditoria, asi que se quita recien cuando el backoffice que usa las tres operaciones este en TEST y en PROD; la fecha la confirman Marcelo/Pablo y se escribe aca. Cada esquema, tabla y columna con su explicacion de negocio (las fichas de docs/entidades) y de sistema (derivada del modelo: servicio dueño, append-only, claves, reglas nombradas), las relaciones y la sensibilidad de cada columna. Lo genera scripts/catalogo_de_datos.py; no se calcula en la peticion. Vive bajo /indicadores, junto al desglose de sistemas, porque es parte del tablero de sistemas y el gateway ya enruta ese prefijo a auditoria. Describe el esquema completo de la base, por eso NO es un archivo estatico del backoffice: exige TABLERO_SISTEMAS_VER o AUDITORIA_LEER. No contiene datos de personas, solo la estructura.",
     "explicacionSistema": "Servicio `src`, controlador Spring `@RestController`. Implementa la interfaz generada `SrcApi`. Transaccionalidad garantizada en organismo jOOQ.",
     "permiso": "REQUIERE_SESION",
     "riesgo": "BAJO",
@@ -3478,6 +3861,13 @@
           "requerido": true,
           "validacion": "@NotNull / Requerido",
           "descripcion": "Campo esquemas de la operación"
+        },
+        {
+          "nombre": "detalleDeEsquemas",
+          "tipo": "array",
+          "requerido": false,
+          "validacion": "Validación estándar de tipo",
+          "descripcion": "Campo detalleDeEsquemas de la operación"
         },
         {
           "nombre": "tablas",
@@ -3499,6 +3889,9 @@
     "payloadRespuesta": {
       "esquemas": [
         "Ejemplo de texto"
+      ],
+      "detalleDeEsquemas": [
+        {}
       ],
       "tablas": [
         {}
@@ -3522,6 +3915,619 @@
         },
         {
           "codigo": "AP-SISTEMA-01",
+          "http": 422,
+          "condicion": "Violación de regla de negocio o estado no válido.",
+          "siguiente": "Rechazo controlado con mensaje explicativo."
+        },
+        {
+          "codigo": "NO_AUTORIZADO",
+          "http": 401,
+          "condicion": "Token ausente, vencido o firma inválida.",
+          "siguiente": "Exige reautenticación en pantalla de ingreso."
+        },
+        {
+          "codigo": "ACCESO_DENEGADO",
+          "http": 403,
+          "condicion": "Rol o permiso insuficiente para esta operación.",
+          "siguiente": "Bloqueo por seguridad RBAC."
+        }
+      ]
+    }
+  },
+  {
+    "id": "src-obtenerResumenDelCatalogo",
+    "servicio": "src",
+    "metodo": "GET",
+    "ruta": "/indicadores/catalogo-de-datos/resumen",
+    "operationId": "obtenerResumenDelCatalogo",
+    "modulo": "src",
+    "cu": "CU-130",
+    "proposito": "Las cifras del catalogo, sus esquemas y lo que se puede filtrar",
+    "explicacionNegocio": "Lo que la pantalla muestra antes de la primera tabla: cuantas tablas, columnas y relaciones hay, cada esquema con su servicio dueño y sus cifras, cuantas tablas hay por estado y por revision de su ficha (CU-130), los modulos del modelo y las politicas de retencion que se pueden asignar. Sin columnas ni narrativa: pesa unos pocos KB. Exige TABLERO_SISTEMAS_VER o AUDITORIA_LEER.",
+    "explicacionSistema": "Servicio `src`, controlador Spring `@RestController`. Implementa la interfaz generada `SrcApi`. Transaccionalidad garantizada en organismo jOOQ.",
+    "permiso": "REQUIERE_SESION",
+    "riesgo": "BAJO",
+    "sensible": false,
+    "pideSesion": true,
+    "idempotencia": false,
+    "tablasImpactadas": [],
+    "dtoEntrada": null,
+    "dtoSalida": {
+      "nombre": "ResumenDelCatalogo",
+      "campos": [
+        {
+          "nombre": "tablas",
+          "tipo": "integer",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido; Mín: 0",
+          "descripcion": "Campo tablas de la operación"
+        },
+        {
+          "nombre": "tablasDeNegocio",
+          "tipo": "integer",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido; Mín: 0",
+          "descripcion": "Campo tablasDeNegocio de la operación"
+        },
+        {
+          "nombre": "tablasDeInfraestructura",
+          "tipo": "integer",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido; Mín: 0",
+          "descripcion": "Campo tablasDeInfraestructura de la operación"
+        },
+        {
+          "nombre": "columnas",
+          "tipo": "integer",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido; Mín: 0",
+          "descripcion": "Campo columnas de la operación"
+        },
+        {
+          "nombre": "columnasRevisadas",
+          "tipo": "integer",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido; Mín: 0",
+          "descripcion": "Columnas con una revision guardada (CU-131)"
+        },
+        {
+          "nombre": "relaciones",
+          "tipo": "integer",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido; Mín: 0",
+          "descripcion": "Campo relaciones de la operación"
+        },
+        {
+          "nombre": "conDatosPersonales",
+          "tipo": "integer",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido; Mín: 0",
+          "descripcion": "Campo conDatosPersonales de la operación"
+        },
+        {
+          "nombre": "conDatosFinancieros",
+          "tipo": "integer",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido; Mín: 0",
+          "descripcion": "Campo conDatosFinancieros de la operación"
+        },
+        {
+          "nombre": "criticasParaAuditoria",
+          "tipo": "integer",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido; Mín: 0",
+          "descripcion": "Campo criticasParaAuditoria de la operación"
+        },
+        {
+          "nombre": "sinResponsable",
+          "tipo": "integer",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido; Mín: 0",
+          "descripcion": "Campo sinResponsable de la operación"
+        },
+        {
+          "nombre": "porEstado",
+          "tipo": "ConteoPorEstadoDeTabla",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido",
+          "descripcion": "Campo porEstado de la operación"
+        },
+        {
+          "nombre": "porRevision",
+          "tipo": "ConteoPorEstadoDeRevision",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido",
+          "descripcion": "Campo porRevision de la operación"
+        },
+        {
+          "nombre": "esquemas",
+          "tipo": "array",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido",
+          "descripcion": "Campo esquemas de la operación"
+        },
+        {
+          "nombre": "modulos",
+          "tipo": "array",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido",
+          "descripcion": "Campo modulos de la operación"
+        },
+        {
+          "nombre": "politicasDeRetencion",
+          "tipo": "array",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido",
+          "descripcion": "Campo politicasDeRetencion de la operación"
+        }
+      ]
+    },
+    "payloadEjemplo": null,
+    "payloadRespuesta": {
+      "tablas": 0,
+      "tablasDeNegocio": 0,
+      "tablasDeInfraestructura": 0,
+      "columnas": 0,
+      "columnasRevisadas": 0,
+      "relaciones": 0,
+      "conDatosPersonales": 0,
+      "conDatosFinancieros": 0,
+      "criticasParaAuditoria": 0,
+      "sinResponsable": 0,
+      "porEstado": {
+        "ACTIVA": {},
+        "PLANIFICADA": {},
+        "CANDIDATA_A_RETIRO": {},
+        "RETIRADA": {},
+        "DESHABILITADA": {}
+      },
+      "porRevision": {
+        "DETECTADA": {},
+        "NECESITA_REVISION": {},
+        "APROBADA": {},
+        "RECHAZADA": {}
+      },
+      "esquemas": [
+        {}
+      ],
+      "modulos": [
+        {}
+      ],
+      "politicasDeRetencion": [
+        {}
+      ]
+    },
+    "flujo": {
+      "id": "gobierno-catalogo-y-metadatos",
+      "nombre": "Gobernanza del catálogo de datos, retención y revisiones",
+      "paso": "Paso operativo `obtenerResumenDelCatalogo`",
+      "precondicion": "El servicio src debe validar la existencia y vigencia de las entidades involucradas.",
+      "exito": "Se completa la transacción de negocio y se dispara la notificación u outbox correspondiente.",
+      "decisiones": [
+        {
+          "codigo": "EXITO",
+          "http": 200,
+          "condicion": "Petición válida y autorizada. Precondiciones cumplidas.",
+          "siguiente": "Transición exitosa al siguiente paso del flujo o persistencia."
+        },
+        {
+          "codigo": "AP-CU-130-01",
+          "http": 422,
+          "condicion": "Violación de regla de negocio o estado no válido.",
+          "siguiente": "Rechazo controlado con mensaje explicativo."
+        },
+        {
+          "codigo": "NO_AUTORIZADO",
+          "http": 401,
+          "condicion": "Token ausente, vencido o firma inválida.",
+          "siguiente": "Exige reautenticación en pantalla de ingreso."
+        },
+        {
+          "codigo": "ACCESO_DENEGADO",
+          "http": 403,
+          "condicion": "Rol o permiso insuficiente para esta operación.",
+          "siguiente": "Bloqueo por seguridad RBAC."
+        }
+      ]
+    }
+  },
+  {
+    "id": "src-listarTablasDelCatalogo",
+    "servicio": "src",
+    "metodo": "GET",
+    "ruta": "/indicadores/catalogo-de-datos/tablas",
+    "operationId": "listarTablasDelCatalogo",
+    "modulo": "src",
+    "cu": null,
+    "proposito": "Las tablas del catalogo, filtradas y paginadas en el servidor",
+    "explicacionNegocio": "Una fila por tabla, sin columnas ni narrativa larga: nombre, esquema, servicio, modulo, que es, cifras, clasificacion por sensibilidad y su ficha de gobierno. Orden fijo esquema y tabla. Paginacion por numero de pagina y no por cursor a proposito: el catalogo es un recurso estatico del servicio (cambia con el despliegue, no con los datos), asi que una pagina no se corre entre dos pedidos. `q` busca sin acentos ni mayusculas en el nombre de la tabla, sus columnas, el esquema y lo que la ficha dice que es. Exige TABLERO_SISTEMAS_VER o AUDITORIA_LEER.",
+    "explicacionSistema": "Servicio `src`, controlador Spring `@RestController`. Implementa la interfaz generada `SrcApi`. Transaccionalidad garantizada en organismo jOOQ.",
+    "permiso": "REQUIERE_SESION",
+    "riesgo": "BAJO",
+    "sensible": false,
+    "pideSesion": true,
+    "idempotencia": false,
+    "tablasImpactadas": [],
+    "dtoEntrada": {
+      "nombre": "Parametros_listarTablasDelCatalogo",
+      "campos": [
+        {
+          "nombre": "q",
+          "tipo": "string",
+          "requerido": false,
+          "validacion": "Ubicación: query",
+          "descripcion": "Parámetro q"
+        },
+        {
+          "nombre": "esquema",
+          "tipo": "string",
+          "requerido": false,
+          "validacion": "Ubicación: query",
+          "descripcion": "Parámetro esquema"
+        },
+        {
+          "nombre": "modulo",
+          "tipo": "string",
+          "requerido": false,
+          "validacion": "Ubicación: query",
+          "descripcion": "Parámetro modulo"
+        },
+        {
+          "nombre": "tipo",
+          "tipo": "string",
+          "requerido": false,
+          "validacion": "Ubicación: query",
+          "descripcion": "Parámetro tipo"
+        },
+        {
+          "nombre": "estado",
+          "tipo": "string",
+          "requerido": false,
+          "validacion": "Ubicación: query",
+          "descripcion": "Parámetro estado"
+        },
+        {
+          "nombre": "revision",
+          "tipo": "string",
+          "requerido": false,
+          "validacion": "Ubicación: query",
+          "descripcion": "Parámetro revision"
+        },
+        {
+          "nombre": "sensibilidad",
+          "tipo": "string",
+          "requerido": false,
+          "validacion": "Ubicación: query",
+          "descripcion": "Parámetro sensibilidad"
+        },
+        {
+          "nombre": "pagina",
+          "tipo": "integer",
+          "requerido": false,
+          "validacion": "Ubicación: query",
+          "descripcion": "Parámetro pagina"
+        },
+        {
+          "nombre": "limite",
+          "tipo": "integer",
+          "requerido": false,
+          "validacion": "Ubicación: query",
+          "descripcion": "Parámetro limite"
+        }
+      ]
+    },
+    "dtoSalida": {
+      "nombre": "PaginaDeTablasDelCatalogo",
+      "campos": [
+        {
+          "nombre": "items",
+          "tipo": "array",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido",
+          "descripcion": "Campo items de la operación"
+        },
+        {
+          "nombre": "pagina",
+          "tipo": "integer",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido; Mín: 1",
+          "descripcion": "Campo pagina de la operación"
+        },
+        {
+          "nombre": "limite",
+          "tipo": "integer",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido; Mín: 1",
+          "descripcion": "Campo limite de la operación"
+        },
+        {
+          "nombre": "total",
+          "tipo": "integer",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido; Mín: 0",
+          "descripcion": "Campo total de la operación"
+        },
+        {
+          "nombre": "totalPaginas",
+          "tipo": "integer",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido; Mín: 0",
+          "descripcion": "Campo totalPaginas de la operación"
+        }
+      ]
+    },
+    "payloadEjemplo": {
+      "q": "1",
+      "esquema": "1",
+      "modulo": "1",
+      "tipo": "1",
+      "estado": "1",
+      "revision": "1",
+      "sensibilidad": "1",
+      "pagina": "1",
+      "limite": "1"
+    },
+    "payloadRespuesta": {
+      "items": [
+        {}
+      ],
+      "pagina": 1,
+      "limite": 1,
+      "total": 0,
+      "totalPaginas": 0
+    },
+    "flujo": {
+      "id": "administracion-usuarios-y-permisos",
+      "nombre": "Gobierno de identidades internas, roles de backoffice y sesiones",
+      "paso": "Paso operativo `listarTablasDelCatalogo`",
+      "precondicion": "El servicio src debe validar la existencia y vigencia de las entidades involucradas.",
+      "exito": "Se completa la transacción de negocio y se dispara la notificación u outbox correspondiente.",
+      "decisiones": [
+        {
+          "codigo": "EXITO",
+          "http": 200,
+          "condicion": "Petición válida y autorizada. Precondiciones cumplidas.",
+          "siguiente": "Transición exitosa al siguiente paso del flujo o persistencia."
+        },
+        {
+          "codigo": "AP-SISTEMA-01",
+          "http": 422,
+          "condicion": "Violación de regla de negocio o estado no válido.",
+          "siguiente": "Rechazo controlado con mensaje explicativo."
+        },
+        {
+          "codigo": "NO_AUTORIZADO",
+          "http": 401,
+          "condicion": "Token ausente, vencido o firma inválida.",
+          "siguiente": "Exige reautenticación en pantalla de ingreso."
+        },
+        {
+          "codigo": "ACCESO_DENEGADO",
+          "http": 403,
+          "condicion": "Rol o permiso insuficiente para esta operación.",
+          "siguiente": "Bloqueo por seguridad RBAC."
+        }
+      ]
+    }
+  },
+  {
+    "id": "src-obtenerTablaDelCatalogo",
+    "servicio": "src",
+    "metodo": "GET",
+    "ruta": "/indicadores/catalogo-de-datos/tablas/{esquema}/{tabla}",
+    "operationId": "obtenerTablaDelCatalogo",
+    "modulo": "src",
+    "cu": "CU-131",
+    "proposito": "La ficha completa de una tabla del catalogo",
+    "explicacionNegocio": "La tabla con sus columnas (y la revision de cada una, CU-131), sus relaciones salientes y entrantes con cardinalidad, restriccion y accion al borrar tal como las aplica la base, su narrativa de negocio y de sistema, y su ficha de gobierno (CU-130). Exige TABLERO_SISTEMAS_VER o AUDITORIA_LEER.",
+    "explicacionSistema": "Servicio `src`, controlador Spring `@RestController`. Implementa la interfaz generada `SrcApi`. Transaccionalidad garantizada en organismo jOOQ.",
+    "permiso": "REQUIERE_SESION",
+    "riesgo": "BAJO",
+    "sensible": false,
+    "pideSesion": true,
+    "idempotencia": false,
+    "tablasImpactadas": [],
+    "dtoEntrada": {
+      "nombre": "Parametros_obtenerTablaDelCatalogo",
+      "campos": [
+        {
+          "nombre": "esquema",
+          "tipo": "string",
+          "requerido": true,
+          "validacion": "Ubicación: path",
+          "descripcion": "Parámetro esquema"
+        },
+        {
+          "nombre": "tabla",
+          "tipo": "string",
+          "requerido": true,
+          "validacion": "Ubicación: path",
+          "descripcion": "Parámetro tabla"
+        }
+      ]
+    },
+    "dtoSalida": {
+      "nombre": "TablaDelCatalogo",
+      "campos": [
+        {
+          "nombre": "tabla",
+          "tipo": "string",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido",
+          "descripcion": "Campo tabla de la operación"
+        },
+        {
+          "nombre": "esquema",
+          "tipo": "string",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido",
+          "descripcion": "Campo esquema de la operación"
+        },
+        {
+          "nombre": "tipo",
+          "tipo": "TipoDeTabla",
+          "requerido": false,
+          "validacion": "Valores: NEGOCIO, INFRAESTRUCTURA",
+          "descripcion": "NEGOCIO sale del modelo; INFRAESTRUCTURA es la mensajeria que el generador agrega a cada esquema"
+        },
+        {
+          "nombre": "modulo",
+          "tipo": "string",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido",
+          "descripcion": "Modulo del modelo (01..15); 00 en la infraestructura de mensajeria"
+        },
+        {
+          "nombre": "nombreModulo",
+          "tipo": "string",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido",
+          "descripcion": "Campo nombreModulo de la operación"
+        },
+        {
+          "nombre": "servicio",
+          "tipo": "string",
+          "requerido": false,
+          "validacion": "Validación estándar de tipo",
+          "descripcion": "Servicio dueño; ausente en los esquemas compartidos catalogo y comun"
+        },
+        {
+          "nombre": "appendOnly",
+          "tipo": "boolean",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido",
+          "descripcion": "Campo appendOnly de la operación"
+        },
+        {
+          "nombre": "clasificacion",
+          "tipo": "ClasificacionDeTabla",
+          "requerido": false,
+          "validacion": "Validación estándar de tipo",
+          "descripcion": "Cuantas columnas de cada sensibilidad tiene la tabla (derivado de los nombres de columna)"
+        },
+        {
+          "nombre": "negocio",
+          "tipo": "NegocioDeTabla",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido",
+          "descripcion": "Campo negocio de la operación"
+        },
+        {
+          "nombre": "notaDeSistema",
+          "tipo": "string",
+          "requerido": false,
+          "validacion": "Validación estándar de tipo",
+          "descripcion": "El parrafo «A nivel de sistema» de la ficha, si lo tiene"
+        },
+        {
+          "nombre": "reglas",
+          "tipo": "array",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido",
+          "descripcion": "Reglas nombradas de docs/Restricciones.md"
+        },
+        {
+          "nombre": "columnas",
+          "tipo": "array",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido",
+          "descripcion": "Campo columnas de la operación"
+        },
+        {
+          "nombre": "relaciones",
+          "tipo": "RelacionesDeTabla",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido",
+          "descripcion": "Campo relaciones de la operación"
+        },
+        {
+          "nombre": "sistema",
+          "tipo": "string",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido",
+          "descripcion": "Narrativa de sistema derivada del modelo"
+        },
+        {
+          "nombre": "operaciones",
+          "tipo": "array",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido",
+          "descripcion": "Los casos de uso que nombran esta tabla (el [[tabla]] de docs/CasosDeUso/CU-*.md) y los endpoints que los ejecutan (la columna CU de docs/catalogo-de-flujos/matriz.md). No dice que esos endpoints escriban la tabla: dice que el caso de uso la involucra. Vacio en la infraestructura y en las tablas que ningun caso de uso nombra."
+        },
+        {
+          "nombre": "gobierno",
+          "tipo": "FichaDeGobierno",
+          "requerido": false,
+          "validacion": "Validación estándar de tipo",
+          "descripcion": "CU-130 · la ficha de gobierno de la tabla. Sin ficha guardada vale ACTIVA, DETECTADA, version 0."
+        }
+      ]
+    },
+    "payloadEjemplo": {
+      "esquema": "1",
+      "tabla": "1"
+    },
+    "payloadRespuesta": {
+      "tabla": "Ejemplo de texto",
+      "esquema": "Ejemplo de texto",
+      "tipo": "NEGOCIO",
+      "modulo": "Ejemplo de texto",
+      "nombreModulo": "Ejemplo de texto",
+      "servicio": "Ejemplo de texto",
+      "appendOnly": true,
+      "clasificacion": {
+        "personales": {},
+        "financieros": {},
+        "secretos": {},
+        "derivados": {}
+      },
+      "negocio": {
+        "queEs": {},
+        "negocio": {},
+        "porQue": {}
+      },
+      "notaDeSistema": "Ejemplo de texto",
+      "reglas": [
+        "Ejemplo de texto"
+      ],
+      "columnas": [
+        {}
+      ],
+      "relaciones": {
+        "salientes": {},
+        "entrantes": {}
+      },
+      "sistema": "Ejemplo de texto",
+      "operaciones": [
+        {}
+      ],
+      "gobierno": {
+        "estado": {},
+        "estadoRevision": {},
+        "responsable": {},
+        "politicaRetencionId": {},
+        "criticaParaAuditoria": {},
+        "notaRevision": {},
+        "revisadoPor": {},
+        "actualizadoEn": {},
+        "version": {}
+      }
+    },
+    "flujo": {
+      "id": "gobierno-catalogo-y-metadatos",
+      "nombre": "Gobernanza del catálogo de datos, retención y revisiones",
+      "paso": "Paso operativo `obtenerTablaDelCatalogo`",
+      "precondicion": "El servicio src debe validar la existencia y vigencia de las entidades involucradas.",
+      "exito": "Se completa la transacción de negocio y se dispara la notificación u outbox correspondiente.",
+      "decisiones": [
+        {
+          "codigo": "EXITO",
+          "http": 200,
+          "condicion": "Petición válida y autorizada. Precondiciones cumplidas.",
+          "siguiente": "Transición exitosa al siguiente paso del flujo o persistencia."
+        },
+        {
+          "codigo": "AP-CU-131-01",
           "http": 422,
           "condicion": "Violación de regla de negocio o estado no válido.",
           "siguiente": "Rechazo controlado con mensaje explicativo."
@@ -15603,6 +16609,99 @@
     }
   },
   {
+    "id": "src-listarBandejaDeAdmisiones",
+    "servicio": "src",
+    "metodo": "GET",
+    "ruta": "/grupos/solicitudes",
+    "operationId": "listarBandejaDeAdmisiones",
+    "modulo": "src",
+    "cu": null,
+    "proposito": "Solicitudes de ingreso de TODOS los grupos, para el backoffice",
+    "explicacionNegocio": "La bandeja de «Admisiones»: las solicitudes de cualquier grupo, las mas nuevas primero, con el codigo del grupo y el nombre con que se presento quien pide entrar. Distinta de `/grupos/{grupoId}/solicitudes`, que es la cola PENDIENTE de un solo grupo para su organizador. Sin telefono ni correo de nadie. `estado` usa los nombres de la pantalla: `ACEPTADA` es lo que la base guarda como `APROBADA`. Acotada a `limite` filas (maximo 200); la pantalla filtra y pagina sobre ese arreglo.",
+    "explicacionSistema": "Servicio `src`, controlador Spring `@RestController`. Implementa la interfaz generada `SrcApi`. Transaccionalidad garantizada en organismo jOOQ.",
+    "permiso": "REQUIERE_SESION",
+    "riesgo": "BAJO",
+    "sensible": false,
+    "pideSesion": true,
+    "idempotencia": false,
+    "tablasImpactadas": [],
+    "dtoEntrada": {
+      "nombre": "Parametros_listarBandejaDeAdmisiones",
+      "campos": [
+        {
+          "nombre": "estado",
+          "tipo": "string",
+          "requerido": false,
+          "validacion": "Ubicación: query",
+          "descripcion": "Parámetro estado"
+        },
+        {
+          "nombre": "limite",
+          "tipo": "integer",
+          "requerido": false,
+          "validacion": "Ubicación: query",
+          "descripcion": "Parámetro limite"
+        }
+      ]
+    },
+    "dtoSalida": {
+      "nombre": "ResponsePayload",
+      "campos": []
+    },
+    "payloadEjemplo": {
+      "estado": "1",
+      "limite": "1"
+    },
+    "payloadRespuesta": [
+      {
+        "solicitudId": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+        "usuarioId": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+        "postulante": "Ejemplo de texto",
+        "grupoId": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+        "grupoCodigo": "Ejemplo de texto",
+        "cuposSolicitados": 1,
+        "mensaje": "valor",
+        "puntaje": "valor",
+        "porEnlace": true,
+        "estado": "PENDIENTE",
+        "fechaSolicitud": "2026-10-20T14:30:00Z"
+      }
+    ],
+    "flujo": {
+      "id": "administracion-usuarios-y-permisos",
+      "nombre": "Gobierno de identidades internas, roles de backoffice y sesiones",
+      "paso": "Paso operativo `listarBandejaDeAdmisiones`",
+      "precondicion": "El servicio src debe validar la existencia y vigencia de las entidades involucradas.",
+      "exito": "Se completa la transacción de negocio y se dispara la notificación u outbox correspondiente.",
+      "decisiones": [
+        {
+          "codigo": "EXITO",
+          "http": 200,
+          "condicion": "Petición válida y autorizada. Precondiciones cumplidas.",
+          "siguiente": "Transición exitosa al siguiente paso del flujo o persistencia."
+        },
+        {
+          "codigo": "AP-SISTEMA-01",
+          "http": 422,
+          "condicion": "Violación de regla de negocio o estado no válido.",
+          "siguiente": "Rechazo controlado con mensaje explicativo."
+        },
+        {
+          "codigo": "NO_AUTORIZADO",
+          "http": 401,
+          "condicion": "Token ausente, vencido o firma inválida.",
+          "siguiente": "Exige reautenticación en pantalla de ingreso."
+        },
+        {
+          "codigo": "ACCESO_DENEGADO",
+          "http": 403,
+          "condicion": "Rol o permiso insuficiente para esta operación.",
+          "siguiente": "Bloqueo por seguridad RBAC."
+        }
+      ]
+    }
+  },
+  {
     "id": "src-proponerAdmision",
     "servicio": "src",
     "metodo": "POST",
@@ -18458,6 +19557,101 @@
     }
   },
   {
+    "id": "src-consultarMisLimites",
+    "servicio": "src",
+    "metodo": "GET",
+    "ruta": "/grupos/mis-limites",
+    "operationId": "consultarMisLimites",
+    "modulo": "src",
+    "cu": null,
+    "proposito": "Cuantos grupos organizo y en cuantos participo, contra su tope",
+    "explicacionNegocio": "Para que la app muestre los contadores y no ofrezca lo que el servidor va a rechazar. Los topes se aplican al crear (AP-CU20-06) y al entrar a un grupo (AP-CU69-15); esto solo los informa. `limiteDeOrganizar` es nulo si la persona no esta habilitada como organizadora.",
+    "explicacionSistema": "Servicio `src`, controlador Spring `@RestController`. Implementa la interfaz generada `SrcApi`. Transaccionalidad garantizada en organismo jOOQ.",
+    "permiso": "REQUIERE_SESION",
+    "riesgo": "BAJO",
+    "sensible": false,
+    "pideSesion": true,
+    "idempotencia": false,
+    "tablasImpactadas": [],
+    "dtoEntrada": null,
+    "dtoSalida": {
+      "nombre": "MisLimites",
+      "campos": [
+        {
+          "nombre": "organizados",
+          "tipo": "integer",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido; Mín: 0",
+          "descripcion": "Campo organizados de la operación"
+        },
+        {
+          "nombre": "limiteDeOrganizar",
+          "tipo": [
+            "integer",
+            "null"
+          ],
+          "requerido": false,
+          "validacion": "Mín: 0",
+          "descripcion": "Campo limiteDeOrganizar de la operación"
+        },
+        {
+          "nombre": "participaciones",
+          "tipo": "integer",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido; Mín: 0",
+          "descripcion": "Campo participaciones de la operación"
+        },
+        {
+          "nombre": "limiteDeParticipar",
+          "tipo": "integer",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido; Mín: 0",
+          "descripcion": "Campo limiteDeParticipar de la operación"
+        }
+      ]
+    },
+    "payloadEjemplo": null,
+    "payloadRespuesta": {
+      "organizados": 0,
+      "limiteDeOrganizar": "valor",
+      "participaciones": 0,
+      "limiteDeParticipar": 0
+    },
+    "flujo": {
+      "id": "administracion-usuarios-y-permisos",
+      "nombre": "Gobierno de identidades internas, roles de backoffice y sesiones",
+      "paso": "Paso operativo `consultarMisLimites`",
+      "precondicion": "El servicio src debe validar la existencia y vigencia de las entidades involucradas.",
+      "exito": "Se completa la transacción de negocio y se dispara la notificación u outbox correspondiente.",
+      "decisiones": [
+        {
+          "codigo": "EXITO",
+          "http": 200,
+          "condicion": "Petición válida y autorizada. Precondiciones cumplidas.",
+          "siguiente": "Transición exitosa al siguiente paso del flujo o persistencia."
+        },
+        {
+          "codigo": "AP-SISTEMA-01",
+          "http": 422,
+          "condicion": "Violación de regla de negocio o estado no válido.",
+          "siguiente": "Rechazo controlado con mensaje explicativo."
+        },
+        {
+          "codigo": "NO_AUTORIZADO",
+          "http": 401,
+          "condicion": "Token ausente, vencido o firma inválida.",
+          "siguiente": "Exige reautenticación en pantalla de ingreso."
+        },
+        {
+          "codigo": "ACCESO_DENEGADO",
+          "http": 403,
+          "condicion": "Rol o permiso insuficiente para esta operación.",
+          "siguiente": "Bloqueo por seguridad RBAC."
+        }
+      ]
+    }
+  },
+  {
     "id": "src-listarMisParticipaciones",
     "servicio": "src",
     "metodo": "GET",
@@ -18569,8 +19763,6 @@
         "mensaje": "valor",
         "puntaje": "valor",
         "nombreVisible": "valor",
-        "telefono": "valor",
-        "correo": "valor",
         "porEnlace": true,
         "estado": "PENDIENTE",
         "fechaSolicitud": "2026-10-20T14:30:00Z"
@@ -18611,6 +19803,402 @@
     }
   },
   {
+    "id": "src-consultarDetalleDelGrupo",
+    "servicio": "src",
+    "metodo": "GET",
+    "ruta": "/grupos/{grupoId}/detalle",
+    "operationId": "consultarDetalleDelGrupo",
+    "modulo": "src",
+    "cu": null,
+    "proposito": "El grupo visto por uno de sus integrantes",
+    "explicacionNegocio": "Resumen del grupo y una fila por cupo: quien lo ocupa (nombre visible), si ya firmo el reglamento y su turno cuando hubo sorteo. Solo para integrantes del grupo. No lleva telefono ni correo de nadie (decision del dueño 2026-10-20). Dice ademas si quien consulta tiene que firmar y si puede iniciar el sorteo.",
+    "explicacionSistema": "Servicio `src`, controlador Spring `@RestController`. Implementa la interfaz generada `SrcApi`. Transaccionalidad garantizada en organismo jOOQ.",
+    "permiso": "REQUIERE_SESION",
+    "riesgo": "BAJO",
+    "sensible": false,
+    "pideSesion": true,
+    "idempotencia": false,
+    "tablasImpactadas": [],
+    "dtoEntrada": {
+      "nombre": "Parametros_consultarDetalleDelGrupo",
+      "campos": [
+        {
+          "nombre": "grupoId",
+          "tipo": "string",
+          "requerido": true,
+          "validacion": "Ubicación: path",
+          "descripcion": "Parámetro grupoId"
+        }
+      ]
+    },
+    "dtoSalida": {
+      "nombre": "DetalleDelGrupo",
+      "campos": [
+        {
+          "nombre": "grupoId",
+          "tipo": "string (uuid)",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido",
+          "descripcion": "Campo grupoId de la operación"
+        },
+        {
+          "nombre": "nombre",
+          "tipo": "string",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido; Máx: 120",
+          "descripcion": "Campo nombre de la operación"
+        },
+        {
+          "nombre": "estado",
+          "tipo": "string",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido",
+          "descripcion": "Campo estado de la operación"
+        },
+        {
+          "nombre": "montoAporte",
+          "tipo": "string",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido; Patrón: ^\\d+\\.\\d{2}$",
+          "descripcion": "Campo montoAporte de la operación"
+        },
+        {
+          "nombre": "moneda",
+          "tipo": "string",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido; Máx: 3",
+          "descripcion": "Campo moneda de la operación"
+        },
+        {
+          "nombre": "periodicidad",
+          "tipo": "string",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido",
+          "descripcion": "Campo periodicidad de la operación"
+        },
+        {
+          "nombre": "cuposTotales",
+          "tipo": "integer",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido; Mín: 1",
+          "descripcion": "Campo cuposTotales de la operación"
+        },
+        {
+          "nombre": "cuposOcupados",
+          "tipo": "integer",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido; Mín: 0",
+          "descripcion": "Campo cuposOcupados de la operación"
+        },
+        {
+          "nombre": "soyOrganizador",
+          "tipo": "boolean",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido",
+          "descripcion": "Campo soyOrganizador de la operación"
+        },
+        {
+          "nombre": "debeFirmar",
+          "tipo": "boolean",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido",
+          "descripcion": "Quien consulta fue aceptado y todavia no firmo el reglamento"
+        },
+        {
+          "nombre": "puedeSortear",
+          "tipo": "boolean",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido",
+          "descripcion": "Quien consulta organiza el grupo, todos firmaron y todavia no hubo sorteo"
+        },
+        {
+          "nombre": "reglamento",
+          "tipo": "ReglamentoParaFirmar",
+          "requerido": false,
+          "validacion": "Validación estándar de tipo",
+          "descripcion": "Campo reglamento de la operación"
+        },
+        {
+          "nombre": "sorteo",
+          "tipo": "SorteoDelDetalle",
+          "requerido": false,
+          "validacion": "Validación estándar de tipo",
+          "descripcion": "Campo sorteo de la operación"
+        },
+        {
+          "nombre": "integrantes",
+          "tipo": "array",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido",
+          "descripcion": "Campo integrantes de la operación"
+        }
+      ]
+    },
+    "payloadEjemplo": {
+      "grupoId": "ejemplo-uuid"
+    },
+    "payloadRespuesta": {
+      "grupoId": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+      "nombre": "Ejemplo de texto",
+      "estado": "Ejemplo de texto",
+      "montoAporte": "150.00",
+      "moneda": "Ejemplo de texto",
+      "periodicidad": "Ejemplo de texto",
+      "cuposTotales": 1,
+      "cuposOcupados": 0,
+      "soyOrganizador": true,
+      "debeFirmar": true,
+      "puedeSortear": true,
+      "reglamento": {
+        "texto": {},
+        "hash": {}
+      },
+      "sorteo": {
+        "sorteoId": {},
+        "estado": {}
+      },
+      "integrantes": [
+        {}
+      ]
+    },
+    "flujo": {
+      "id": "administracion-usuarios-y-permisos",
+      "nombre": "Gobierno de identidades internas, roles de backoffice y sesiones",
+      "paso": "Paso operativo `consultarDetalleDelGrupo`",
+      "precondicion": "El servicio src debe validar la existencia y vigencia de las entidades involucradas.",
+      "exito": "Se completa la transacción de negocio y se dispara la notificación u outbox correspondiente.",
+      "decisiones": [
+        {
+          "codigo": "EXITO",
+          "http": 200,
+          "condicion": "Petición válida y autorizada. Precondiciones cumplidas.",
+          "siguiente": "Transición exitosa al siguiente paso del flujo o persistencia."
+        },
+        {
+          "codigo": "AP-SISTEMA-01",
+          "http": 422,
+          "condicion": "Violación de regla de negocio o estado no válido.",
+          "siguiente": "Rechazo controlado con mensaje explicativo."
+        },
+        {
+          "codigo": "NO_AUTORIZADO",
+          "http": 401,
+          "condicion": "Token ausente, vencido o firma inválida.",
+          "siguiente": "Exige reautenticación en pantalla de ingreso."
+        },
+        {
+          "codigo": "ACCESO_DENEGADO",
+          "http": 403,
+          "condicion": "Rol o permiso insuficiente para esta operación.",
+          "siguiente": "Bloqueo por seguridad RBAC."
+        }
+      ]
+    }
+  },
+  {
+    "id": "src-consultarSiCompartenGrupo",
+    "servicio": "src",
+    "metodo": "GET",
+    "ruta": "/grupos/{grupoId}/integrantes/{usuarioId}/comparte",
+    "operationId": "consultarSiCompartenGrupo",
+    "modulo": "src",
+    "cu": null,
+    "proposito": "Si quien pregunta y otra persona son integrantes del mismo grupo",
+    "explicacionNegocio": "Lo preguntan `identidad` (el telefono) y `transparencia` (la reputacion) antes de mostrarle a alguien el perfil de un integrante: el dueño decidio el 2026-10-21 que esos datos los ve solo quien esta en el mismo grupo, y la pertenencia es de este servicio. Quien pregunta sale del token, nunca de la peticion. Integrante es quien esta en el grupo y no se fue (ni RETIRADO, EXPULSADO, REEMPLAZADO, POSTULANTE o INVITADO), igual que en `/detalle`. No dice nada mas: ni el estado ni el cupo del otro.",
+    "explicacionSistema": "Servicio `src`, controlador Spring `@RestController`. Implementa la interfaz generada `SrcApi`. Transaccionalidad garantizada en organismo jOOQ.",
+    "permiso": "REQUIERE_SESION",
+    "riesgo": "BAJO",
+    "sensible": false,
+    "pideSesion": true,
+    "idempotencia": false,
+    "tablasImpactadas": [],
+    "dtoEntrada": {
+      "nombre": "Parametros_consultarSiCompartenGrupo",
+      "campos": [
+        {
+          "nombre": "grupoId",
+          "tipo": "string",
+          "requerido": true,
+          "validacion": "Ubicación: path",
+          "descripcion": "Parámetro grupoId"
+        },
+        {
+          "nombre": "usuarioId",
+          "tipo": "string",
+          "requerido": true,
+          "validacion": "Ubicación: path",
+          "descripcion": "Parámetro usuarioId"
+        }
+      ]
+    },
+    "dtoSalida": {
+      "nombre": "PertenenciaCompartida",
+      "campos": [
+        {
+          "nombre": "comparten",
+          "tipo": "boolean",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido",
+          "descripcion": "Campo comparten de la operación"
+        }
+      ]
+    },
+    "payloadEjemplo": {
+      "grupoId": "ejemplo-uuid",
+      "usuarioId": "ejemplo-uuid"
+    },
+    "payloadRespuesta": {
+      "comparten": true
+    },
+    "flujo": {
+      "id": "administracion-usuarios-y-permisos",
+      "nombre": "Gobierno de identidades internas, roles de backoffice y sesiones",
+      "paso": "Paso operativo `consultarSiCompartenGrupo`",
+      "precondicion": "El servicio src debe validar la existencia y vigencia de las entidades involucradas.",
+      "exito": "Se completa la transacción de negocio y se dispara la notificación u outbox correspondiente.",
+      "decisiones": [
+        {
+          "codigo": "EXITO",
+          "http": 200,
+          "condicion": "Petición válida y autorizada. Precondiciones cumplidas.",
+          "siguiente": "Transición exitosa al siguiente paso del flujo o persistencia."
+        },
+        {
+          "codigo": "AP-SISTEMA-01",
+          "http": 422,
+          "condicion": "Violación de regla de negocio o estado no válido.",
+          "siguiente": "Rechazo controlado con mensaje explicativo."
+        },
+        {
+          "codigo": "NO_AUTORIZADO",
+          "http": 401,
+          "condicion": "Token ausente, vencido o firma inválida.",
+          "siguiente": "Exige reautenticación en pantalla de ingreso."
+        },
+        {
+          "codigo": "ACCESO_DENEGADO",
+          "http": 403,
+          "condicion": "Rol o permiso insuficiente para esta operación.",
+          "siguiente": "Bloqueo por seguridad RBAC."
+        }
+      ]
+    }
+  },
+  {
+    "id": "src-firmarReglamentoDelGrupo",
+    "servicio": "src",
+    "metodo": "POST",
+    "ruta": "/grupos/{grupoId}/reglamento/firma",
+    "operationId": "firmarReglamentoDelGrupo",
+    "modulo": "src",
+    "cu": null,
+    "proposito": "Firmar el reglamento y ocupar el cupo reservado",
+    "explicacionNegocio": "Quien fue aceptado (o el organizador) firma el texto EXACTO del reglamento, identificado por su hash: queda ACTIVO y su cupo pasa de RESERVADO a OCUPADO. Con la ultima firma, si todos los cupos estan ocupados, el grupo pasa a CONFORMADO y se arma su calendario de periodos, que es lo que el sorteo necesita. Firmar otra vez no repite nada.",
+    "explicacionSistema": "Servicio `src`, controlador Spring `@RestController`. Implementa la interfaz generada `SrcApi`. Transaccionalidad garantizada en organismo jOOQ.",
+    "permiso": "REQUIERE_SESION",
+    "riesgo": "MEDIO",
+    "sensible": false,
+    "pideSesion": true,
+    "idempotencia": false,
+    "tablasImpactadas": [
+      {
+        "esquema": "src",
+        "tabla": "outbox_evento",
+        "operacion": "INSERT",
+        "impacto": "Registra el evento transaccional correspondiente para mensajería asíncrona hacia Kafka.",
+        "principal": false,
+        "auditoria": true
+      }
+    ],
+    "dtoEntrada": {
+      "nombre": "EntradaFirmaDeReglamento",
+      "campos": [
+        {
+          "nombre": "hashReglamento",
+          "tipo": "string",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido; Patrón: ^[0-9a-f]{64}$",
+          "descripcion": "Campo hashReglamento de la operación"
+        },
+        {
+          "nombre": "aceptaReglamento",
+          "tipo": "boolean",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido",
+          "descripcion": "Campo aceptaReglamento de la operación"
+        }
+      ]
+    },
+    "dtoSalida": {
+      "nombre": "SalidaFirmaDeReglamento",
+      "campos": [
+        {
+          "nombre": "participanteId",
+          "tipo": "string (uuid)",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido",
+          "descripcion": "Campo participanteId de la operación"
+        },
+        {
+          "nombre": "estadoDelGrupo",
+          "tipo": "string",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido",
+          "descripcion": "Campo estadoDelGrupo de la operación"
+        },
+        {
+          "nombre": "grupoConformado",
+          "tipo": "boolean",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido",
+          "descripcion": "Campo grupoConformado de la operación"
+        }
+      ]
+    },
+    "payloadEjemplo": {
+      "hashReglamento": "Ejemplo de texto",
+      "aceptaReglamento": true
+    },
+    "payloadRespuesta": {
+      "participanteId": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+      "estadoDelGrupo": "Ejemplo de texto",
+      "grupoConformado": true
+    },
+    "flujo": {
+      "id": "administracion-usuarios-y-permisos",
+      "nombre": "Gobierno de identidades internas, roles de backoffice y sesiones",
+      "paso": "Paso operativo `firmarReglamentoDelGrupo`",
+      "precondicion": "El servicio src debe validar la existencia y vigencia de las entidades involucradas.",
+      "exito": "Se completa la transacción de negocio y se dispara la notificación u outbox correspondiente.",
+      "decisiones": [
+        {
+          "codigo": "EXITO",
+          "http": 201,
+          "condicion": "Petición válida y autorizada. Precondiciones cumplidas.",
+          "siguiente": "Transición exitosa al siguiente paso del flujo o persistencia."
+        },
+        {
+          "codigo": "AP-SISTEMA-01",
+          "http": 422,
+          "condicion": "Violación de regla de negocio o estado no válido.",
+          "siguiente": "Rechazo controlado con mensaje explicativo."
+        },
+        {
+          "codigo": "NO_AUTORIZADO",
+          "http": 401,
+          "condicion": "Token ausente, vencido o firma inválida.",
+          "siguiente": "Exige reautenticación en pantalla de ingreso."
+        },
+        {
+          "codigo": "ACCESO_DENEGADO",
+          "http": 403,
+          "condicion": "Rol o permiso insuficiente para esta operación.",
+          "siguiente": "Bloqueo por seguridad RBAC."
+        }
+      ]
+    }
+  },
+  {
     "id": "src-decidirSolicitudDeIngreso",
     "servicio": "src",
     "metodo": "POST",
@@ -18619,7 +20207,7 @@
     "modulo": "src",
     "cu": null,
     "proposito": "Aceptar o rechazar una solicitud de ingreso",
-    "explicacionNegocio": "Quien decide es el organizador del grupo. Aceptada, EN LA MISMA TRANSACCION: se reserva un cupo libre, nace el participante pendiente de firmar el reglamento y se emite el evento. Rechazada, queda el motivo en el evento.\nINTERRUPTOR `aportaya.grupos.admision.humana-obligatoria` (decision pendiente de negocio y cumplimiento): encendido (valor de produccion) esta puerta se cierra con 422 `AP-CU68-15` y la decision del organizador pasa por `proponerAdmision`, que resuelve backoffice; apagado conserva el comportamiento de TEST.",
+    "explicacionNegocio": "Quien decide es el organizador del grupo o backoffice (ADMIN_PLATAFORMA): sin propuesta del organizador no hay expediente que backoffice pueda resolver, y la solicitud quedaba sin nadie que la decidiera. Nadie decide su propia solicitud. Aceptada, EN LA MISMA TRANSACCION: se reserva un cupo libre, nace el participante pendiente de firmar el reglamento y se emite el evento. Rechazada, queda el motivo en el evento.\nINTERRUPTOR `aportaya.grupos.admision.humana-obligatoria` (decision pendiente de negocio y cumplimiento): encendido (valor de produccion) esta puerta se cierra con 422 `AP-CU68-15` y la decision del organizador pasa por `proponerAdmision`, que resuelve backoffice; apagado conserva el comportamiento de TEST.",
     "explicacionSistema": "Servicio `src`, controlador Spring `@RestController`. Implementa la interfaz generada `SrcApi`. Transaccionalidad garantizada en organismo jOOQ.",
     "permiso": "REQUIERE_SESION",
     "riesgo": "MEDIO",
@@ -22349,6 +23937,95 @@
       "id": "administracion-usuarios-y-permisos",
       "nombre": "Gobierno de identidades internas, roles de backoffice y sesiones",
       "paso": "Paso operativo `consultarMiPerfil`",
+      "precondicion": "El servicio src debe validar la existencia y vigencia de las entidades involucradas.",
+      "exito": "Se completa la transacción de negocio y se dispara la notificación u outbox correspondiente.",
+      "decisiones": [
+        {
+          "codigo": "EXITO",
+          "http": 200,
+          "condicion": "Petición válida y autorizada. Precondiciones cumplidas.",
+          "siguiente": "Transición exitosa al siguiente paso del flujo o persistencia."
+        },
+        {
+          "codigo": "AP-SISTEMA-01",
+          "http": 422,
+          "condicion": "Violación de regla de negocio o estado no válido.",
+          "siguiente": "Rechazo controlado con mensaje explicativo."
+        },
+        {
+          "codigo": "NO_AUTORIZADO",
+          "http": 401,
+          "condicion": "Token ausente, vencido o firma inválida.",
+          "siguiente": "Exige reautenticación en pantalla de ingreso."
+        },
+        {
+          "codigo": "ACCESO_DENEGADO",
+          "http": 403,
+          "condicion": "Rol o permiso insuficiente para esta operación.",
+          "siguiente": "Bloqueo por seguridad RBAC."
+        }
+      ]
+    }
+  },
+  {
+    "id": "src-consultarContactoEnGrupo",
+    "servicio": "src",
+    "metodo": "GET",
+    "ruta": "/identidad/contactos/grupos/{grupoId}/integrantes/{usuarioId}",
+    "operationId": "consultarContactoEnGrupo",
+    "modulo": "src",
+    "cu": null,
+    "proposito": "El telefono de un integrante, para otro integrante del mismo grupo",
+    "explicacionNegocio": "El dueño decidio el 2026-10-21 que el telefono de un integrante lo ve solo quien esta en el mismo grupo. La pertenencia es de `grupos`: se le pregunta con el token de quien llama (`GET /grupos/{grupoId}/integrantes/{usuarioId}/comparte`) y, si no responde o responde que no, es el mismo 403 que para quien no comparte el grupo. Quien pregunta sale del token. Devuelve el telefono y nada mas: ni correo, ni documento, ni estado de la cuenta.",
+    "explicacionSistema": "Servicio `src`, controlador Spring `@RestController`. Implementa la interfaz generada `SrcApi`. Transaccionalidad garantizada en organismo jOOQ.",
+    "permiso": "REQUIERE_SESION",
+    "riesgo": "BAJO",
+    "sensible": false,
+    "pideSesion": true,
+    "idempotencia": false,
+    "tablasImpactadas": [],
+    "dtoEntrada": {
+      "nombre": "Parametros_consultarContactoEnGrupo",
+      "campos": [
+        {
+          "nombre": "grupoId",
+          "tipo": "string",
+          "requerido": true,
+          "validacion": "Ubicación: path",
+          "descripcion": "Parámetro grupoId"
+        },
+        {
+          "nombre": "usuarioId",
+          "tipo": "string",
+          "requerido": true,
+          "validacion": "Ubicación: path",
+          "descripcion": "Parámetro usuarioId"
+        }
+      ]
+    },
+    "dtoSalida": {
+      "nombre": "ContactoEnGrupo",
+      "campos": [
+        {
+          "nombre": "telefonoE164",
+          "tipo": "string",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido; Patrón: ^\\+[1-9][0-9]{7,14}$",
+          "descripcion": "Campo telefonoE164 de la operación"
+        }
+      ]
+    },
+    "payloadEjemplo": {
+      "grupoId": "ejemplo-uuid",
+      "usuarioId": "ejemplo-uuid"
+    },
+    "payloadRespuesta": {
+      "telefonoE164": "Ejemplo de texto"
+    },
+    "flujo": {
+      "id": "administracion-usuarios-y-permisos",
+      "nombre": "Gobierno de identidades internas, roles de backoffice y sesiones",
+      "paso": "Paso operativo `consultarContactoEnGrupo`",
       "precondicion": "El servicio src debe validar la existencia y vigencia de las entidades involucradas.",
       "exito": "Se completa la transacción de negocio y se dispara la notificación u outbox correspondiente.",
       "decisiones": [
@@ -26807,6 +28484,155 @@
         {
           "codigo": "EXITO",
           "http": 201,
+          "condicion": "Petición válida y autorizada. Precondiciones cumplidas.",
+          "siguiente": "Transición exitosa al siguiente paso del flujo o persistencia."
+        },
+        {
+          "codigo": "AP-SISTEMA-01",
+          "http": 422,
+          "condicion": "Violación de regla de negocio o estado no válido.",
+          "siguiente": "Rechazo controlado con mensaje explicativo."
+        },
+        {
+          "codigo": "NO_AUTORIZADO",
+          "http": 401,
+          "condicion": "Token ausente, vencido o firma inválida.",
+          "siguiente": "Exige reautenticación en pantalla de ingreso."
+        },
+        {
+          "codigo": "ACCESO_DENEGADO",
+          "http": 403,
+          "condicion": "Rol o permiso insuficiente para esta operación.",
+          "siguiente": "Bloqueo por seguridad RBAC."
+        }
+      ]
+    }
+  },
+  {
+    "id": "src-listarProveedoresDeMensajeria",
+    "servicio": "src",
+    "metodo": "GET",
+    "ruta": "/notificaciones/proveedores",
+    "operationId": "listarProveedoresDeMensajeria",
+    "modulo": "src",
+    "cu": null,
+    "proposito": "Los proveedores de mensajeria dados de alta, por prioridad",
+    "explicacionNegocio": "Solo lectura de notificaciones.proveedor_mensajeria. Nunca devuelve referencia_credenciales ni url_base, y tampoco costo_por_mensaje: la tabla no guarda su moneda (regla 91.1.2). Exige TABLERO_SISTEMAS_VER o AUDITORIA_LEER.",
+    "explicacionSistema": "Servicio `src`, controlador Spring `@RestController`. Implementa la interfaz generada `SrcApi`. Transaccionalidad garantizada en organismo jOOQ.",
+    "permiso": "REQUIERE_SESION",
+    "riesgo": "BAJO",
+    "sensible": false,
+    "pideSesion": true,
+    "idempotencia": false,
+    "tablasImpactadas": [],
+    "dtoEntrada": null,
+    "dtoSalida": {
+      "nombre": "ResponsePayload",
+      "campos": []
+    },
+    "payloadEjemplo": null,
+    "payloadRespuesta": [
+      {
+        "id": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+        "codigo": "Ejemplo de texto",
+        "nombre": "Ejemplo de texto",
+        "canales": "Ejemplo de texto",
+        "activo": true,
+        "prioridad": 1,
+        "saludPorcentaje": "Ejemplo de texto"
+      }
+    ],
+    "flujo": {
+      "id": "administracion-usuarios-y-permisos",
+      "nombre": "Gobierno de identidades internas, roles de backoffice y sesiones",
+      "paso": "Paso operativo `listarProveedoresDeMensajeria`",
+      "precondicion": "El servicio src debe validar la existencia y vigencia de las entidades involucradas.",
+      "exito": "Se completa la transacción de negocio y se dispara la notificación u outbox correspondiente.",
+      "decisiones": [
+        {
+          "codigo": "EXITO",
+          "http": 200,
+          "condicion": "Petición válida y autorizada. Precondiciones cumplidas.",
+          "siguiente": "Transición exitosa al siguiente paso del flujo o persistencia."
+        },
+        {
+          "codigo": "AP-SISTEMA-01",
+          "http": 422,
+          "condicion": "Violación de regla de negocio o estado no válido.",
+          "siguiente": "Rechazo controlado con mensaje explicativo."
+        },
+        {
+          "codigo": "NO_AUTORIZADO",
+          "http": 401,
+          "condicion": "Token ausente, vencido o firma inválida.",
+          "siguiente": "Exige reautenticación en pantalla de ingreso."
+        },
+        {
+          "codigo": "ACCESO_DENEGADO",
+          "http": 403,
+          "condicion": "Rol o permiso insuficiente para esta operación.",
+          "siguiente": "Bloqueo por seguridad RBAC."
+        }
+      ]
+    }
+  },
+  {
+    "id": "src-listarEventosDeEntregaRecibidos",
+    "servicio": "src",
+    "metodo": "GET",
+    "ruta": "/notificaciones/webhooks-recibidos",
+    "operationId": "listarEventosDeEntregaRecibidos",
+    "modulo": "src",
+    "cu": null,
+    "proposito": "Los ultimos avisos de entrega que mandaron los proveedores de mensajeria",
+    "explicacionNegocio": "Solo lectura de notificaciones.evento_entrega_mensaje con el proveedor y el canal de su envio, del mas reciente al mas viejo (recibido_en desc, id). Nunca devuelve el payload ni la clave de idempotencia, ni nada que identifique a quien recibio el mensaje. Exige TABLERO_SISTEMAS_VER o AUDITORIA_LEER.",
+    "explicacionSistema": "Servicio `src`, controlador Spring `@RestController`. Implementa la interfaz generada `SrcApi`. Transaccionalidad garantizada en organismo jOOQ.",
+    "permiso": "REQUIERE_SESION",
+    "riesgo": "ALTO",
+    "sensible": true,
+    "pideSesion": true,
+    "idempotencia": false,
+    "tablasImpactadas": [],
+    "dtoEntrada": {
+      "nombre": "Parametros_listarEventosDeEntregaRecibidos",
+      "campos": [
+        {
+          "nombre": "limite",
+          "tipo": "integer",
+          "requerido": false,
+          "validacion": "Ubicación: query",
+          "descripcion": "Parámetro limite"
+        }
+      ]
+    },
+    "dtoSalida": {
+      "nombre": "ResponsePayload",
+      "campos": []
+    },
+    "payloadEjemplo": {
+      "limite": "1"
+    },
+    "payloadRespuesta": [
+      {
+        "id": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+        "proveedorCodigo": "Ejemplo de texto",
+        "canal": "Ejemplo de texto",
+        "tipoEvento": "ENTREGADO",
+        "recibidoEn": "2026-10-20T14:30:00Z",
+        "fechaHoraProveedor": "2026-10-20T14:30:00Z",
+        "codigoError": "Ejemplo de texto"
+      }
+    ],
+    "flujo": {
+      "id": "administracion-usuarios-y-permisos",
+      "nombre": "Gobierno de identidades internas, roles de backoffice y sesiones",
+      "paso": "Paso operativo `listarEventosDeEntregaRecibidos`",
+      "precondicion": "El servicio src debe validar la existencia y vigencia de las entidades involucradas.",
+      "exito": "Se completa la transacción de negocio y se dispara la notificación u outbox correspondiente.",
+      "decisiones": [
+        {
+          "codigo": "EXITO",
+          "http": 200,
           "condicion": "Petición válida y autorizada. Precondiciones cumplidas.",
           "siguiente": "Transición exitosa al siguiente paso del flujo o persistencia."
         },
@@ -38293,6 +40119,85 @@
     }
   },
   {
+    "id": "src-listarCostosDeProveedor",
+    "servicio": "src",
+    "metodo": "GET",
+    "ruta": "/tarifas/costos-de-proveedor",
+    "operationId": "listarCostosDeProveedor",
+    "modulo": "src",
+    "cu": null,
+    "proposito": "El costo real de cada proveedor en un periodo, por moneda",
+    "explicacionNegocio": "Suma exacta (DECIMAL, sin redondeo) de tarifas.costo_proveedor_operacion.costo_total del periodo, agrupada por proveedor y moneda: dos monedas son dos filas, nunca se suman entre si (regla 91.1.2). proveedorId es el id de aportes.proveedor_pago (la FK fk_costo_proveedor_operacion_proveedor_id): solo hay costos de proveedores de pago. Orden proveedorId y moneda. Exige TABLERO_SISTEMAS_VER o AUDITORIA_LEER.",
+    "explicacionSistema": "Servicio `src`, controlador Spring `@RestController`. Implementa la interfaz generada `SrcApi`. Transaccionalidad garantizada en organismo jOOQ.",
+    "permiso": "REQUIERE_SESION",
+    "riesgo": "BAJO",
+    "sensible": false,
+    "pideSesion": true,
+    "idempotencia": false,
+    "tablasImpactadas": [],
+    "dtoEntrada": {
+      "nombre": "Parametros_listarCostosDeProveedor",
+      "campos": [
+        {
+          "nombre": "periodo",
+          "tipo": "string",
+          "requerido": true,
+          "validacion": "Ubicación: query",
+          "descripcion": "Parámetro periodo"
+        }
+      ]
+    },
+    "dtoSalida": {
+      "nombre": "ResponsePayload",
+      "campos": []
+    },
+    "payloadEjemplo": {
+      "periodo": "1"
+    },
+    "payloadRespuesta": [
+      {
+        "proveedorId": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+        "periodo": "Ejemplo de texto",
+        "moneda": "Ejemplo de texto",
+        "costoTotal": "Ejemplo de texto",
+        "operaciones": 0
+      }
+    ],
+    "flujo": {
+      "id": "administracion-usuarios-y-permisos",
+      "nombre": "Gobierno de identidades internas, roles de backoffice y sesiones",
+      "paso": "Paso operativo `listarCostosDeProveedor`",
+      "precondicion": "El servicio src debe validar la existencia y vigencia de las entidades involucradas.",
+      "exito": "Se completa la transacción de negocio y se dispara la notificación u outbox correspondiente.",
+      "decisiones": [
+        {
+          "codigo": "EXITO",
+          "http": 200,
+          "condicion": "Petición válida y autorizada. Precondiciones cumplidas.",
+          "siguiente": "Transición exitosa al siguiente paso del flujo o persistencia."
+        },
+        {
+          "codigo": "AP-SISTEMA-01",
+          "http": 422,
+          "condicion": "Violación de regla de negocio o estado no válido.",
+          "siguiente": "Rechazo controlado con mensaje explicativo."
+        },
+        {
+          "codigo": "NO_AUTORIZADO",
+          "http": 401,
+          "condicion": "Token ausente, vencido o firma inválida.",
+          "siguiente": "Exige reautenticación en pantalla de ingreso."
+        },
+        {
+          "codigo": "ACCESO_DENEGADO",
+          "http": 403,
+          "condicion": "Rol o permiso insuficiente para esta operación.",
+          "siguiente": "Bloqueo por seguridad RBAC."
+        }
+      ]
+    }
+  },
+  {
     "id": "src-crearSegmento",
     "servicio": "src",
     "metodo": "POST",
@@ -40893,6 +42798,179 @@
         {
           "codigo": "EXITO",
           "http": 201,
+          "condicion": "Petición válida y autorizada. Precondiciones cumplidas.",
+          "siguiente": "Transición exitosa al siguiente paso del flujo o persistencia."
+        },
+        {
+          "codigo": "AP-SISTEMA-01",
+          "http": 422,
+          "condicion": "Violación de regla de negocio o estado no válido.",
+          "siguiente": "Rechazo controlado con mensaje explicativo."
+        },
+        {
+          "codigo": "NO_AUTORIZADO",
+          "http": 401,
+          "condicion": "Token ausente, vencido o firma inválida.",
+          "siguiente": "Exige reautenticación en pantalla de ingreso."
+        },
+        {
+          "codigo": "ACCESO_DENEGADO",
+          "http": 403,
+          "condicion": "Rol o permiso insuficiente para esta operación.",
+          "siguiente": "Bloqueo por seguridad RBAC."
+        }
+      ]
+    }
+  },
+  {
+    "id": "src-consultarPerfilEnGrupo",
+    "servicio": "src",
+    "metodo": "GET",
+    "ruta": "/reputacion/{usuarioId}/perfil-en-grupo/{grupoId}",
+    "operationId": "consultarPerfilEnGrupo",
+    "modulo": "src",
+    "cu": null,
+    "proposito": "La reputacion de un integrante, para otro integrante del mismo grupo",
+    "explicacionNegocio": "Lo que la app muestra al abrir el perfil de un integrante: el puntaje y su nivel de confianza, la puntualidad, los grupos completados y abandonados, los incumplimientos abiertos, la antiguedad y las insignias vigentes. El dueño decidio el 2026-10-21 que lo ve solo quien esta en el mismo grupo: la pertenencia es de `grupos` y se le pregunta con el token de quien llama (`GET /grupos/{grupoId}/integrantes/{usuarioId}/comparte`); si no responde o responde que no, 403. Sin montos ni datos bancarios. Quien no tiene historial NO tiene ceros: `tieneHistorial=false` y las cifras en null.",
+    "explicacionSistema": "Servicio `src`, controlador Spring `@RestController`. Implementa la interfaz generada `SrcApi`. Transaccionalidad garantizada en organismo jOOQ.",
+    "permiso": "REQUIERE_SESION",
+    "riesgo": "BAJO",
+    "sensible": false,
+    "pideSesion": true,
+    "idempotencia": false,
+    "tablasImpactadas": [],
+    "dtoEntrada": {
+      "nombre": "Parametros_consultarPerfilEnGrupo",
+      "campos": [
+        {
+          "nombre": "usuarioId",
+          "tipo": "string",
+          "requerido": true,
+          "validacion": "Ubicación: path",
+          "descripcion": "Parámetro usuarioId"
+        },
+        {
+          "nombre": "grupoId",
+          "tipo": "string",
+          "requerido": true,
+          "validacion": "Ubicación: path",
+          "descripcion": "Parámetro grupoId"
+        }
+      ]
+    },
+    "dtoSalida": {
+      "nombre": "PerfilDeReputacionEnGrupo",
+      "campos": [
+        {
+          "nombre": "tieneHistorial",
+          "tipo": "boolean",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido",
+          "descripcion": "Campo tieneHistorial de la operación"
+        },
+        {
+          "nombre": "puntaje",
+          "tipo": [
+            "string",
+            "null"
+          ],
+          "requerido": false,
+          "validacion": "Validación estándar de tipo",
+          "descripcion": "Campo puntaje de la operación"
+        },
+        {
+          "nombre": "nivelDeConfianza",
+          "tipo": "string",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido",
+          "descripcion": "Campo nivelDeConfianza de la operación"
+        },
+        {
+          "nombre": "indicePuntualidad",
+          "tipo": [
+            "string",
+            "null"
+          ],
+          "requerido": false,
+          "validacion": "Validación estándar de tipo",
+          "descripcion": "Campo indicePuntualidad de la operación"
+        },
+        {
+          "nombre": "gruposCompletados",
+          "tipo": [
+            "integer",
+            "null"
+          ],
+          "requerido": false,
+          "validacion": "Mín: 0",
+          "descripcion": "Campo gruposCompletados de la operación"
+        },
+        {
+          "nombre": "gruposAbandonados",
+          "tipo": [
+            "integer",
+            "null"
+          ],
+          "requerido": false,
+          "validacion": "Mín: 0",
+          "descripcion": "Campo gruposAbandonados de la operación"
+        },
+        {
+          "nombre": "incumplimientosAbiertos",
+          "tipo": [
+            "integer",
+            "null"
+          ],
+          "requerido": false,
+          "validacion": "Mín: 0",
+          "descripcion": "Campo incumplimientosAbiertos de la operación"
+        },
+        {
+          "nombre": "antiguedadMeses",
+          "tipo": [
+            "integer",
+            "null"
+          ],
+          "requerido": false,
+          "validacion": "Mín: 0",
+          "descripcion": "Campo antiguedadMeses de la operación"
+        },
+        {
+          "nombre": "insignias",
+          "tipo": "array",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido",
+          "descripcion": "Una por insignia del catalogo, como mucho (las revocadas no aparecen)."
+        }
+      ]
+    },
+    "payloadEjemplo": {
+      "usuarioId": "ejemplo-uuid",
+      "grupoId": "ejemplo-uuid"
+    },
+    "payloadRespuesta": {
+      "tieneHistorial": true,
+      "puntaje": "valor",
+      "nivelDeConfianza": "Ejemplo de texto",
+      "indicePuntualidad": "valor",
+      "gruposCompletados": "valor",
+      "gruposAbandonados": "valor",
+      "incumplimientosAbiertos": "valor",
+      "antiguedadMeses": "valor",
+      "insignias": [
+        {}
+      ]
+    },
+    "flujo": {
+      "id": "administracion-usuarios-y-permisos",
+      "nombre": "Gobierno de identidades internas, roles de backoffice y sesiones",
+      "paso": "Paso operativo `consultarPerfilEnGrupo`",
+      "precondicion": "El servicio src debe validar la existencia y vigencia de las entidades involucradas.",
+      "exito": "Se completa la transacción de negocio y se dispara la notificación u outbox correspondiente.",
+      "decisiones": [
+        {
+          "codigo": "EXITO",
+          "http": 200,
           "condicion": "Petición válida y autorizada. Precondiciones cumplidas.",
           "siguiente": "Transición exitosa al siguiente paso del flujo o persistencia."
         },

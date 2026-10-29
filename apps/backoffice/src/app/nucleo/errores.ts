@@ -36,6 +36,11 @@ const CATALOGO: Readonly<Record<string, string>> = {
   'AP-CU68-13': 'Quien decide la sustitución no puede ser quien queda como administrador. Lo tiene que resolver otra persona.',
   'AP-CU68-14': 'La persona elegida no está habilitada como organizadora. Habilitala antes de designarla.',
   'AP-CU68-15': 'Este grupo exige admisión humana: la decisión del organizador es una propuesta y la resuelve backoffice.',
+  'AP-CU90-03': 'La postulación no existe o ya fue resuelta. Actualizá el expediente y revisá la última decisión.',
+  'AP-CU90-04': 'No podés resolver tu propia postulación. La tiene que decidir otra persona.',
+  'AP-CU90-05': 'La persona todavía no cumple los requisitos obligatorios para ser organizadora. Revisá lo que falta antes de aprobar.',
+  'AP-CU90-07': 'Faltan datos de la decisión. Elegí el resultado y escribí el motivo.',
+  'AP-CU90-08': 'La postulación cambió mientras la mirabas. Actualizá el expediente y revisá la última decisión antes de repetir.',
   'AP-CU69-05': 'Esa invitación ya no es válida.',
   'AP-CU11-10': 'No podés resolver un retiro que pediste vos. Lo tiene que resolver otra persona con permiso.',
   'AP-CU14-02': 'Quien autoriza un reverso no puede ejecutarlo. Es otra persona.',
@@ -86,6 +91,8 @@ export function mensajeDe(codigo: string | undefined, estado: number): string {
     case 403: return 'No tenés acceso a esto.'
     case 404: return 'No encontramos lo que buscabas.'
     case 409: return 'Esta operación ya se hizo o cambió mientras tanto. Revisá el estado antes de repetirla.'
+    // El servicio no está levantado o no contesta: se dice que es del servicio y que se puede volver a probar.
+    case 502: case 503: case 504: return 'Este servicio no está disponible en este momento. Probá de nuevo en unos minutos.'
     case 0: return 'No hay conexión. Te mostramos lo último que vimos; para operar hace falta señal.'
     default: return 'Algo salió mal de nuestro lado. Probá de nuevo en un momento.'
   }

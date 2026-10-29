@@ -3,8 +3,9 @@ import 'package:flutter/material.dart';
 import '../tokens/tokens.dart';
 import 'superficie_viva.dart';
 
-/// Acción principal flotante: 56 dp, naranja. Una por pantalla, si hay. Lleva la
-/// misma piel que el botón primario (`SuperficieViva`): profundidad, resorte y brillo.
+/// Acción principal flotante: círculo de 56 dp en verde de marca (ADR-053). Una por
+/// pantalla, si hay. Lleva la piel del botón primario (`SuperficieViva`): profundidad,
+/// resorte y brillo.
 class BotonFlotante extends StatelessWidget {
   const BotonFlotante({
     super.key,
@@ -21,9 +22,9 @@ class BotonFlotante extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = Tokens.of(context);
     return SuperficieViva(
-      color: t.accent,
-      colorDelTexto: t.accentInk,
-      radio: Radios.lg,
+      color: t.verdeSolido,
+      colorDelTexto: t.sobreVerdeSolido,
+      radio: Radios.pill,
       brilla: true,
       child: FloatingActionButton(
         onPressed: onPressed,
@@ -33,10 +34,8 @@ class BotonFlotante extends StatelessWidget {
         hoverElevation: 0,
         highlightElevation: 0,
         backgroundColor: Colors.transparent,
-        foregroundColor: t.accentInk,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(Radios.lg),
-        ),
+        foregroundColor: t.sobreVerdeSolido,
+        shape: const CircleBorder(),
         child: Icon(icono),
       ),
     );

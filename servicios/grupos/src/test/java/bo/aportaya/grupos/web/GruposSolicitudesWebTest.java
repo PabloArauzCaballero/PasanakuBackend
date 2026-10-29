@@ -136,6 +136,33 @@ class GruposSolicitudesWebTest {
         }
 
         @Test
+        @DisplayName("CU-68 · 200: backoffice (ADMIN_PLATAFORMA) rechaza con motivo sin propuesta del organizador")
+        void backofficeDecide() throws Exception {
+            when(cu68Decision.solicitante(org.mockito.ArgumentMatchers.eq(solicitud), any()))
+                    .thenReturn(java.util.UUID.randomUUID());
+            when(afuera.reputacion(any()))
+                    .thenReturn(new HechosDeOtrosServicios.Reputacion(true, new java.math.BigDecimal("700")));
+            when(cu68Decision.decidir(
+                            org.mockito.ArgumentMatchers.eq(solicitud),
+                            org.mockito.ArgumentMatchers.eq(false),
+                            org.mockito.ArgumentMatchers.eq("perfil incompleto"),
+                            any(),
+                            any()))
+                    .thenReturn(new bo.aportaya.grupos.aplicacion.CU68AceptarIngreso.Resultado(
+                            solicitud, "RECHAZADA", null, null));
+
+            mvc.perform(post("/grupos/solicitudes/{id}/decision", solicitud)
+                            .with(Sesiones.como("ADMIN_PLATAFORMA", "ADMIN_PLATAFORMA"))
+                            .header(
+                                    "Idempotency-Key",
+                                    java.util.UUID.randomUUID().toString())
+                            .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                            .content("{\"decision\":\"RECHAZAR\",\"motivo\":\"perfil incompleto\"}"))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.estado").value("RECHAZADA"));
+        }
+
+        @Test
         @DisplayName("CU-68 · 403: un participante, sin GRUPO_ADMINISTRAR, no decide")
         void participanteNoDecide() throws Exception {
             mvc.perform(post("/grupos/solicitudes/{id}/decision", solicitud)

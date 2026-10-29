@@ -27,7 +27,7 @@ const SENSIBILIDADES: Record<string, string> = { NINGUNA: 'Ninguna', PERSONAL: '
       <ap-tarjeta-kpi [etiqueta]="t.metricas.personales" [valor]="'' + cifras().personales" icono="persona" [tono]="cifras().personales ? 'pii' : 'neutro'" />
       <ap-tarjeta-kpi [etiqueta]="t.metricas.financieras" [valor]="'' + cifras().financieras" icono="aporte" [tono]="cifras().financieras ? 'info' : 'neutro'" />
       <ap-tarjeta-kpi [etiqueta]="t.metricas.descritas" [valor]="'' + cifras().descritas" icono="libro" [pista]="textos.metricas.pista(cifras().descritas, cifras().columnas)" />
-      <ap-tarjeta-kpi [etiqueta]="t.metricas.aprobadas" [valor]="'' + cifras().aprobadas" icono="verificado" [tono]="cifras().aprobadas === cifras().columnas ? 'ok' : 'aviso'" [pista]="textos.metricas.pista(cifras().aprobadas, cifras().columnas)" />
+      <ap-tarjeta-kpi [etiqueta]="t.metricas.aprobadas" [valor]="'' + cifras().aprobadas" icono="verificado" [tono]="cifras().aprobadas === cifras().columnas ? 'ok' : 'neutro'" [pista]="textos.metricas.pista(cifras().aprobadas, cifras().columnas)" />
     </div>
     <ap-barra-de-filtros [etiquetaDeBusqueda]="t.busqueda" [ayudaDeBusqueda]="t.ayudaDeBusqueda" [busqueda]="q()" [selectores]="selectores()" (busquedaChange)="q.set($event)" (selectorChange)="elegir($event.nombre, $event.valor)" (limpiar)="limpiar()" />
     @if (encontradas().length === 0) {
@@ -38,10 +38,14 @@ const SENSIBILIDADES: Record<string, string> = { NINGUNA: 'Ninguna', PERSONAL: '
           @switch (columna.clave) {
             @case ('tipo') { <ap-chip-estado tono="info">{{ c.tipo }}</ap-chip-estado> }
             @case ('sensibilidad') { <ap-chip-estado [tono]="c.tonoSensibilidad">{{ c.sensibilidad }}</ap-chip-estado> }
-            @case ('revision') { <ap-chip-estado [tono]="c.tonoRevision">{{ c.revision }}</ap-chip-estado> }
-            @case ('negocio') { <span class="largo">{{ c.negocio }}</span> }
-            @case ('sistema') { <span class="largo">{{ c.sistema }}</span> }
-            @case ('acciones') { <ap-boton variante="secundario" tamano="sm" (pulsado)="revisar(c.columna)">{{ puedeEditar() ? t.revisar : t.ver }}</ap-boton> }
+            <!-- La confianza va bajo la revisión: como columna aparte, la tabla no entraba a 1280. -->
+            @case ('revision') { <ap-chip-estado [tono]="c.tonoRevision">{{ c.revision }}</ap-chip-estado>@if (c.confianza !== '—') { <span class="sistema">{{ t.tabla.confianza }}: {{ c.confianza }}</span> } }
+            <!-- Negocio y sistema en una sola columna (2026-10-28): como dos columnas largas, la tabla no entraba a 1280. -->
+            @case ('negocio') { <span class="largo">{{ c.negocio }}</span>@if (c.sistema) { <span class="largo sistema">{{ t.tabla.sistema }}: {{ c.sistema }}</span> } }
+            @case ('nombre') {
+              <!-- La acción va con el nombre: como columna fija a la derecha tapaba «Sistema» y «Sensibilidad». -->
+              <span class="columna"><code>{{ c.nombre }}</code><ap-boton variante="secundario" tamano="sm" [icono]="puedeEditar() ? 'editar' : 'ojo'" (pulsado)="revisar(c.columna)">{{ puedeEditar() ? t.revisar : t.ver }}</ap-boton></span>
+            }
             @default { {{ c[columna.clave] }} }
           }
         </ng-template>
@@ -52,7 +56,10 @@ const SENSIBILIDADES: Record<string, string> = { NINGUNA: 'Ninguna', PERSONAL: '
   styles: `
     :host { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s4); min-width: 0; }
     .cifras { display: grid; gap: var(--s3); grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr)); }
-    .largo { display: block; min-width: 14rem; white-space: normal; overflow-wrap: anywhere; }
+    .columna { display: grid; gap: var(--s2); justify-items: start; }
+    code { font-family: var(--mono); font-size: .92em; overflow-wrap: anywhere; }
+    .sistema { display: block; margin-top: var(--s1); color: var(--text-3); font: var(--t-ayuda); }
+    .largo { display: block; min-width: 12rem; white-space: normal; overflow-wrap: anywhere; text-align: start; }
   `,
 })
 export class VistaColumnas {
@@ -77,15 +84,12 @@ export class VistaColumnas {
   ])
   protected readonly porId = (c: FilaDeColumna) => c.id
   protected readonly columnas: Columna<FilaDeColumna>[] = [
-    { clave: 'nombre', titulo: this.t.tabla.nombre, mono: true },
+    { clave: 'nombre', titulo: this.t.tabla.nombre },
     { clave: 'tipo', titulo: this.t.tabla.tipo },
     { clave: 'negocio', titulo: this.t.tabla.negocio },
     { clave: 'sensibilidad', titulo: this.t.tabla.sensibilidad },
     { clave: 'nulos', titulo: this.t.tabla.nulos },
-    { clave: 'sistema', titulo: this.t.tabla.sistema },
     { clave: 'revision', titulo: this.t.tabla.revision },
-    { clave: 'confianza', titulo: this.t.tabla.confianza },
-    { clave: 'acciones', titulo: this.t.tabla.acciones, fijaDerecha: true },
   ]
 
   protected elegir(nombre: string, valor: string): void {

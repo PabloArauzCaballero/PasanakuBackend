@@ -4,8 +4,6 @@ import {
   type DespliguesEInterruptores,
   type EstadoServicio,
   type Incidente,
-  type Migracion,
-  type OutboxYDescartados,
   type Proveedor,
   type Respaldo,
   type Webhook,
@@ -17,18 +15,26 @@ import {
  * pantalla lo pinta con `EstadoDePantalla` como el estado de error accionable que pide
  * el kill-test — "la fuente no está disponible", nunca un `99.95 %` de ejemplo.
  *
- * Nueve fábricas, una por puerto, cada una con el nombre correcto del recurso en el
+ * Siete fábricas, una por puerto, cada una con el nombre correcto del recurso en el
  * mensaje de error — un objeto y no una sola clase porque cada puerto tiene una firma
  * de retorno distinta (`obtener(): Promise<T>` con un `T` diferente cada vez).
  */
 export const adaptadorFuenteNoDisponible = {
-  servicios: (): Promise<EstadoServicio[]> => Promise.reject(errorFuenteNoDisponible('Estado de servicios')),
-  despliegues: (): Promise<DespliguesEInterruptores> => Promise.reject(errorFuenteNoDisponible('Despliegues e interruptores')),
-  baseDeDatos: (): Promise<Migracion[]> => Promise.reject(errorFuenteNoDisponible('Base y migraciones')),
-  respaldos: (): Promise<Respaldo[]> => Promise.reject(errorFuenteNoDisponible('Respaldos')),
-  proveedores: (): Promise<Proveedor[]> => Promise.reject(errorFuenteNoDisponible('Proveedores')),
-  outbox: (): Promise<OutboxYDescartados> => Promise.reject(errorFuenteNoDisponible('Outbox y descartados')),
-  webhooks: (): Promise<Webhook[]> => Promise.reject(errorFuenteNoDisponible('Webhooks')),
-  accesos: (): Promise<Acceso[]> => Promise.reject(errorFuenteNoDisponible('Accesos')),
-  incidentes: (): Promise<Incidente[]> => Promise.reject(errorFuenteNoDisponible('Incidentes')),
+  servicios: (): Promise<EstadoServicio[]> => Promise.reject(errorFuenteNoDisponible()),
+  despliegues: (): Promise<DespliguesEInterruptores> =>
+    Promise.reject(
+      errorFuenteNoDisponible(
+        'Todavía ningún sistema registra los despliegues: hoy se hacen a mano en el servidor y no dejan rastro consultable. No es una falla de esta pantalla.',
+      ),
+    ),
+  respaldos: (): Promise<Respaldo[]> =>
+    Promise.reject(
+      errorFuenteNoDisponible(
+        'Los respaldos se toman antes de cada despliegue, pero quedan como archivos en el servidor sin registro consultable. Falta decidir quién los registra.',
+      ),
+    ),
+  proveedores: (): Promise<Proveedor[]> => Promise.reject(errorFuenteNoDisponible()),
+  webhooks: (): Promise<Webhook[]> => Promise.reject(errorFuenteNoDisponible()),
+  accesos: (): Promise<Acceso[]> => Promise.reject(errorFuenteNoDisponible()),
+  incidentes: (): Promise<Incidente[]> => Promise.reject(errorFuenteNoDisponible()),
 } as const

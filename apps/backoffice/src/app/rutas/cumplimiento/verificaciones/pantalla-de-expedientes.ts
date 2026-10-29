@@ -1,185 +1,170 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core'
-import { FormsModule } from '@angular/forms'
-import { Boton } from '@aportaya/ui/boton/boton'
+import { RouterLink } from '@angular/router'
+import { AccionesDeFila } from '@aportaya/ui/acciones-de-fila/acciones-de-fila'
+import { BarraDeFiltros, type Selector } from '@aportaya/ui/barra-de-filtros/barra-de-filtros'
 import { CabeceraDePagina } from '@aportaya/ui/cabecera-de-pagina/cabecera-de-pagina'
 import { ChipEstado } from '@aportaya/ui/chip-estado/chip-estado'
-import { EstadoDePantalla } from '@aportaya/ui/estado-de-pantalla/estado-de-pantalla'
-import { ErrorDeEnvio } from '@aportaya/ui/error-de-envio/error-de-envio'
-import {
-  CaraDelExpediente,
-  ExpedienteEnRevisionEstadoEnum,
-  type ExpedienteEnRevision,
-} from 'clientes/angular/identidad'
+import type { ColumnaExportable } from '@aportaya/ui/exportar-listado/exportar'
+import { Fecha, formatearDia, formatearFecha } from '@aportaya/ui/fecha/fecha'
+import { Icono } from '@aportaya/ui/icono/icono'
+import { crearListado } from '@aportaya/ui/listado/crear-listado'
+import { ListadoDeDatos } from '@aportaya/ui/listado/listado'
+import type { Columna } from '@aportaya/ui/tabla-de-datos/tabla-de-datos'
+import type { ExpedienteEnRevision } from 'clientes/angular/identidad'
 import { ExplicadorDeVista } from '../../../nucleo/explicador-de-vista'
-import { crearResolver, expedientesEnEstado, coincideConBusqueda, esPendiente, POR_DECIDIR, recortar, tonoDelExpediente, vencimientoDe } from '../dominio/cu02-expedientes'
-import type { ErrorTraducido } from '../../../nucleo/errores'
-import { textosCumplimiento } from '../textos'
-import { DecisionDeExpediente, type Decision } from './decision-de-expediente'
-import { VencimientoDelDocumento } from './vencimiento-del-documento'
-import { TiraDeFotos } from './tira-de-fotos'
+import { Exportador } from '../../../nucleo/exportador'
+import { cargaDe } from '../../sistemas/compartido/carga'
+import { expedientesEnEstado, POR_DECIDIR, recortar, tonoDelExpediente, vencimientoDe } from '../dominio/cu02-expedientes'
+import { documentoEnPalabras, estadoEnPalabras, fotosCompletas, fotosEnNumeros, OPCIONES_DE_ESTADO, tiempoEnCola, vencimientoEnPalabras } from '../dominio/cu02-presentacion'
+import { textosVerificaciones } from './textos-verificaciones'
+
+const T = textosVerificaciones.bandeja
+const C = T.columnas
+const documento = (e: ExpedienteEnRevision) => documentoEnPalabras(e.documento).texto
+const correo = (e: ExpedienteEnRevision) => e.correo || T.sinCorreo
+const fotos = (e: ExpedienteEnRevision) => (fotosCompletas(e) ? T.fotosCompletas : T.fotosIncompletas)
+/**
+ * Cinco columnas y la de acción: con siete, a 1440 px la tabla escondía fotos, estado y fecha detrás del
+ * desplazamiento horizontal. El contacto va debajo del nombre y el vencimiento debajo del documento.
+ */
+const COLUMNAS: Columna<ExpedienteEnRevision>[] = [
+  { clave: 'nombreCompleto', titulo: C.persona, ordenable: true },
+  { clave: 'documento', titulo: C.documento, ordenable: true },
+  { clave: 'fotos', titulo: C.fotos },
+  { clave: 'estado', titulo: C.estado, ordenable: true },
+  { clave: 'iniciadaEn', titulo: C.iniciada, ordenable: true },
+]
+/** El archivo lleva lo que la tabla muestra, en palabras (sin ids internos ni fotos). Ver A3 del 2026-10-26. */
+const EXPORTABLES: ColumnaExportable<ExpedienteEnRevision>[] = [
+  { clave: 'nombreCompleto', titulo: C.persona },
+  { clave: 'telefono', titulo: C.telefono },
+  { clave: 'correo', titulo: C.correo, valor: correo },
+  { clave: 'documento', titulo: C.documento, valor: documento },
+  { clave: 'fechaExpiracionDocumento', titulo: C.vencimiento, valor: (e) => (e.fechaExpiracionDocumento ? formatearDia(e.fechaExpiracionDocumento) : T.sinFecha) },
+  { clave: 'documentoVigente', titulo: C.vigencia, valor: vencimientoEnPalabras },
+  { clave: 'fotos', titulo: C.fotos, valor: fotosEnNumeros },
+  { clave: 'estado', titulo: C.estado, valor: (e) => estadoEnPalabras(e.estado) },
+  { clave: 'iniciadaEn', titulo: C.iniciada, valor: (e) => formatearFecha(e.iniciadaEn) },
+  { clave: 'resueltaEn', titulo: C.resuelta, valor: (e) => (e.resueltaEn ? formatearFecha(e.resueltaEn) : T.sinResolver) },
+  { clave: 'motivoRechazo', titulo: C.motivo, valor: (e) => e.motivoRechazo ?? '' },
+]
 
 /**
- * CU-02 · el portal de riesgo: la cola de expedientes de identidad y la decisión.
+ * CU-02 · la cola de expedientes de identidad, **en tabla** con la anatomía de `ap-listado` (2026-10-28). El estado
+ * viaja al servidor (`?estado=`); «Por decidir» pide sin filtro y recorta los dos estados que esperan a una persona.
+ * Sobre lo cargado se busca, se filtra por vencimiento y fotos, se ordena, se pagina y se descarga lo filtrado tal
+ * como se ve. La decisión se toma en la ficha (`verificaciones/:id`), con el expediente entero a la vista: decidir
+ * desde una fila es decidir sin mirar.
  */
 @Component({
   selector: 'ap-pantalla-de-expedientes',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ErrorDeEnvio, EstadoDePantalla, CabeceraDePagina, ChipEstado, Boton, FormsModule, TiraDeFotos, DecisionDeExpediente, VencimientoDelDocumento],
+  imports: [AccionesDeFila, BarraDeFiltros, CabeceraDePagina, ChipEstado, Fecha, Icono, ListadoDeDatos, RouterLink],
   template: `
     <section class="pantalla">
-      <ap-cabecera-de-pagina [titulo]="t.titulo" [descripcion]="t.proposito" icono="verificado" />
-
-      <div class="filtros" role="group" data-tutorial-id="cumplimiento-filtros" [attr.aria-label]="t.filtrar">
-        @for (e of estados; track e) {
-          <ap-boton [variante]="estado() === e ? 'primario' : 'fantasma'" [presionado]="estado() === e" (pulsado)="estado.set(e)">
-            {{ etiquetaDeFiltro(e) }}
-          </ap-boton>
-        }
-      </div>
-
-      <label class="busqueda">
-        <span>{{ t.buscarExpediente }}</span>
-        <input type="search" [ngModel]="busqueda()" (ngModelChange)="busqueda.set($event)" [attr.aria-label]="t.buscarExpediente" />
-      </label>
-
-      <ap-estado-de-pantalla
-        data-tutorial-id="cumplimiento-cola"
-        [recurso]="cola"
-        [vacio]="vacio"
-        [mensajeVacio]="mensajeVacio()"
-        [etiquetaDeCarga]="t.cargando"
-        (reintentar)="cola.reload()"
-      >
-        @if (cola.hasValue()) {
-          <ul class="cola">
-            @for (e of visibles(); track e.verificacionId) {
-              <li>
-                <header>
-                  <div>
-                    <h2>{{ e.nombreCompleto }}</h2>
-                    <p class="telefono">{{ t.telefono }}: {{ e.telefono }}</p>
-                    <p class="correo">{{ t.correo }}: {{ e.correo || t.sinCorreo }}</p>
-                    <p class="doc">{{ e.documento ?? t.sinDocumento }}</p>
-                    <ap-vencimiento-del-documento [expediente]="e" />
-                  </div>
-                  <ap-chip-estado [tono]="tonoDe(e)">{{ e.estado }}</ap-chip-estado>
-                </header>
-
-                <ap-tira-de-fotos [expediente]="e" />
-                @if (pendiente(e)) {
-                  <ap-decision-de-expediente
-                    [verificacionId]="e.verificacionId"
-                    [completo]="completo(e)"
-                    [vencimiento]="vencimientoDe(e)"
-                    [ocupado]="resolviendo() !== null"
-                    [enCurso]="resolviendo()?.id === e.verificacionId ? resolviendo()!.decision : null"
-                    (decidir)="resolver(e, $event)"
-                  />
-                  <ap-error-de-envio [error]="errores()[e.verificacionId] ?? null" />
-                } @else if (e.motivoRechazo) {
-                  <p class="aviso">{{ t.motivo }}: {{ e.motivoRechazo }}</p>
-                }
-              </li>
+      <ap-cabecera-de-pagina eyebrow="Cumplimiento · CU-02" [titulo]="t.titulo" [descripcion]="t.descripcion" />
+      <ap-barra-de-filtros data-tutorial-id="cumplimiento-filtros" etiqueta="Filtros de expedientes" [etiquetaDeBusqueda]="t.buscar" [ayudaDeBusqueda]="t.ayudaBusqueda" [busqueda]="listado.busqueda()" [selectores]="selectores()" textoLimpiar="Limpiar filtros" (busquedaChange)="listado.buscar($event)" (selectorChange)="alFiltrar($event)" (limpiar)="limpiar()" />
+      <ap-listado data-tutorial-id="cumplimiento-cola" [titulo]="t.titulo" [columnas]="COLUMNAS" [listado]="listado" [carga]="carga()" [conFiltros]="false" [identidad]="porId" [exportable]="exportador.puedeExportar('expedientes-de-identidad')" nombreDeExportacion="expedientes de identidad" [exportables]="EXPORTABLES" nombreDeRegistros="expedientes" [textoVacio]="vacio()" [explicacionVacio]="t.explicacionVacio" textoAcciones="Acción" (reintentar)="cola.reload()">
+        <ng-template #celda let-e let-columna="columna">
+          @switch (columna.clave) {
+            @case ('nombreCompleto') {
+              <span class="apilado">
+                <a class="persona" [routerLink]="e.verificacionId"><ap-icono nombre="persona" tamano="s4" />{{ e.nombreCompleto }}</a>
+                <span class="tenue">{{ e.telefono }} · {{ correo(e) }}</span>
+              </span>
             }
-          </ul>
-        }
-      </ap-estado-de-pantalla>
+            @case ('documento') {
+              <span class="apilado">
+                <span [class.tenue]="!e.documento">{{ documento(e) }}</span>
+                <span class="vence">
+                  @if (e.fechaExpiracionDocumento) { <span class="tenue">Vence {{ dia(e.fechaExpiracionDocumento) }}</span> }
+                  <ap-chip-estado [tono]="vence(e) === 'vigente' ? 'ok' : 'aviso'">{{ vence(e) === 'sin-fecha' ? t.sinFecha : vigencia(e) }}</ap-chip-estado>
+                </span>
+              </span>
+            }
+            @case ('fotos') { <ap-chip-estado [tono]="completas(e) ? 'ok' : 'aviso'" [icono]="completas(e) ? 'imagen' : 'advertencia'">{{ enNumeros(e) }}</ap-chip-estado> }
+            @case ('estado') { <ap-chip-estado [tono]="tono(e)">{{ estado(e.estado) }}</ap-chip-estado> }
+            @case ('iniciadaEn') { <span class="apilado"><ap-fecha [iso]="e.iniciadaEn" [conHora]="false" /><span class="tenue">{{ enCola(e) }}</span></span> }
+          }
+        </ng-template>
+        <ng-template #acciones let-e>
+          <ap-acciones-de-fila [fila]="'expediente de ' + e.nombreCompleto">
+            <a apAccionDeFila [routerLink]="e.verificacionId" [attr.aria-label]="(pendiente(e) ? t.revisar : t.ver) + ' el expediente de ' + e.nombreCompleto"><ap-icono [nombre]="pendiente(e) ? 'aprobar' : 'ojo'" tamano="s4" /><span>{{ pendiente(e) ? t.revisar : t.ver }}</span></a>
+          </ap-acciones-de-fila>
+        </ng-template>
+      </ap-listado>
     </section>
   `,
   styles: `
-    .pantalla { padding: var(--s5); max-width: 52rem; display: flex; flex-direction: column; gap: var(--s4); }
-    .filtros { display: flex; gap: var(--s2); flex-wrap: wrap; }
-    .busqueda { display: flex; flex-direction: column; gap: var(--s1); max-width: 32rem; color: var(--text-2); font-size: .875rem; }
-    .busqueda input { min-height: 2.75rem; padding: 0 var(--s3); border: var(--borde-fino) solid var(--border); border-radius: var(--r-md); background: var(--surface); color: var(--text); font: inherit; }
-    .cola { list-style: none; padding: 0; display: flex; flex-direction: column; gap: var(--s4); }
-    .cola li { border: var(--borde-fino) solid var(--border); border-radius: var(--r-lg); padding: var(--s4); display: flex; flex-direction: column; gap: var(--s3); }
-    header { display: flex; justify-content: space-between; align-items: flex-start; gap: var(--s3); }
-    h2 { margin: 0; font-size: 1.05rem; }
-    .doc { margin: 0; color: var(--text-2); font-size: .875rem; }
-    .telefono { margin: 0; color: var(--text-2); font-size: .875rem; }
-    .correo { margin: 0; color: var(--text-2); font-size: .875rem; }
-    .aviso { margin: 0; color: var(--aviso-texto); font-size: .875rem; }
+    .pantalla { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s4); min-width: 0; }
+    .persona { display: inline-flex; align-items: center; gap: var(--s2); color: var(--text); font-weight: 600; text-decoration: none; }
+    .persona:hover { color: var(--brand-texto); text-decoration: underline; }
+    .persona:focus-visible { outline: var(--borde-foco) solid var(--g300); outline-offset: var(--borde-desfase); }
+    .apilado { display: inline-grid; gap: var(--s1); justify-items: start; }
+    .tenue { color: var(--text-3); font: var(--t-cuerpo-chico); }
+    .vence { display: inline-flex; flex-wrap: wrap; align-items: center; gap: var(--s2); }
+    a[apAccionDeFila] { text-decoration: none; }
   `,
 })
 export class PantallaDeExpedientes {
+  /** Datos de identidad sin enmascarar: la descarga en el navegador solo con `exportar:expedientes-de-identidad` (regla 90.2). */
+  protected readonly exportador = inject(Exportador)
   constructor() {
-    inject(ExplicadorDeVista).fijar(this.t.proposito)
+    inject(ExplicadorDeVista).fijar(textosVerificaciones.notaDeVista)
   }
-  protected readonly t = textosCumplimiento.verificaciones
-  /**
-   * La cola de trabajo primero y por omisión; después los del contrato, no una lista
-   * paralela — dos listas de lo mismo divergen.
-   */
-  protected readonly estados: readonly string[] = [POR_DECIDIR, ...Object.values(ExpedienteEnRevisionEstadoEnum)]
-  protected readonly caras = Object.values(CaraDelExpediente)
-
-  protected readonly estado = signal<string>(POR_DECIDIR)
-  protected readonly busqueda = signal('')
-  protected readonly cola = expedientesEnEstado(this.estado)
-  /**
-   * El error de la última decisión, por expediente: se ve en la tarjeta donde se tomó. Se guarda el error traducido
-   * entero (no solo el texto) para que `ap-error-de-envio` distinga «no pasó» de «no sabemos si pasó».
-   */
-  protected readonly errores = signal<Readonly<Record<string, ErrorTraducido>>>({})
-  /** La decisión en vuelo; mientras haya una, no se dispara otra. */
-  protected readonly resolviendo = signal<{ id: string; decision: Decision['decision'] } | null>(null)
-  /**
-   * Lo que se pinta. `POR_DECIDIR` se recorta acá porque el backend filtra por UN
-   * estado y los que esperan una persona son dos.
-   */
-  protected readonly visibles = computed(() => {
-    return recortar(this.cola.hasValue() ? (this.cola.value() ?? []) : [], this.estado()).filter((e) =>
-      coincideConBusqueda(e, this.busqueda()),
-    )
+  protected readonly t = T
+  protected readonly COLUMNAS = COLUMNAS
+  protected readonly EXPORTABLES = EXPORTABLES
+  protected readonly porId = (e: ExpedienteEnRevision) => e.verificacionId
+  protected readonly documento = documento
+  protected readonly dia = formatearDia
+  protected readonly correo = correo
+  protected readonly estado = estadoEnPalabras
+  protected readonly vigencia = vencimientoEnPalabras
+  protected readonly vence = vencimientoDe
+  protected readonly completas = fotosCompletas
+  protected readonly enNumeros = fotosEnNumeros
+  protected readonly tono = tonoDelExpediente
+  /** Referencia para ordenar el trabajo, con el reloj de quien mira; la fecha de arriba es la del servidor. */
+  protected readonly enCola = (e: ExpedienteEnRevision) => (e.resueltaEn ? 'Tardó ' : 'Hace ') + tiempoEnCola(e, new Date()).toLowerCase()
+  protected readonly pendiente = (e: ExpedienteEnRevision) => recortar([e], POR_DECIDIR).length > 0
+  /** La cola de trabajo primero y por omisión; después los del contrato, no una lista paralela. */
+  protected readonly estadoPedido = signal<string>(POR_DECIDIR)
+  protected readonly cola = expedientesEnEstado(this.estadoPedido)
+  protected readonly carga = cargaDe(this.cola)
+  /** `POR_DECIDIR` se recorta acá porque el backend filtra por UN estado y los que esperan una persona son dos. */
+  private readonly recortados = computed(() => recortar(this.cola.hasValue() ? (this.cola.value() ?? []) : [], this.estadoPedido()))
+  protected readonly listado = crearListado<ExpedienteEnRevision>({
+    filas: this.recortados,
+    camposDeBusqueda: ['nombreCompleto', 'telefono', 'correo', documento, (e) => estadoEnPalabras(e.estado)],
+    filtros: [
+      { nombre: 'vencimiento', etiqueta: C.vigencia, valor: vencimientoEnPalabras },
+      { nombre: 'fotos', etiqueta: C.fotos, valor: fotos },
+    ],
+    ordenInicial: { clave: 'iniciadaEn', sentido: 'asc' },
+    porPagina: 10,
+    opcionesPorPagina: [5, 10, 20, 50],
   })
+  private readonly selectorDeEstado = computed<Selector>(() => ({
+    nombre: 'estado',
+    etiqueta: C.estado,
+    textoTodos: T.porDecidir,
+    valor: this.estadoPedido() === POR_DECIDIR ? '' : this.estadoPedido(),
+    opciones: OPCIONES_DE_ESTADO,
+  }))
+  protected readonly selectores = computed(() => [this.selectorDeEstado(), ...this.listado.selectores()])
+  protected readonly vacio = computed(() => (this.estadoPedido() === POR_DECIDIR ? T.sinPendientes : T.sinEnEstado(estadoEnPalabras(this.estadoPedido()))))
 
-  /**
-   * Vacío es lo que queda DESPUÉS del recorte: con `POR_DECIDIR` la respuesta trae
-   * también los resueltos, y decir «no hay nada» porque el recorte los sacó sería
-   * mentir al revés — mostrar la lista vacía sin explicar por qué.
-   */
-  protected readonly vacio = (): boolean => this.visibles().length === 0
-  protected readonly mensajeVacio = computed(() =>
-    this.busqueda().trim() ? this.t.sinCoincidencias : this.t.sinPendientes,
-  )
-
-  /** `POR_DECIDIR` no es un estado del contrato: se nombra en castellano, no en mayúsculas. */
-  protected etiquetaDeFiltro(estado: string): string {
-    return estado === POR_DECIDIR ? this.t.filtroPorDecidir : estado
+  protected alFiltrar({ nombre, valor }: { nombre: string; valor: string }): void {
+    if (nombre === 'estado') {
+      // Otro estado es otra consulta: seguir en la página N de la anterior muestra una lista que nadie pidió.
+      this.estadoPedido.set(valor || POR_DECIDIR)
+      this.listado.irAPagina(1)
+    } else this.listado.filtrar(nombre, valor)
   }
 
-  private readonly enviarDecision = crearResolver()
-
-  /** Sin las cinco fotos no se aprueba: aprobar a ciegas es no revisar. */
-  protected completo(e: ExpedienteEnRevision): boolean {
-    return this.caras.every((c) => e.fotos.includes(c))
-  }
-
-  /** Lo decide el servidor (`documentoVigente`), no el reloj de quien mira. */
-  protected readonly vencimientoDe = vencimientoDe
-
-  /** Un expediente ya resuelto no se vuelve a decidir desde acá (regla pura en el dominio). */
-  protected readonly pendiente = esPendiente
-  protected readonly tonoDe = tonoDelExpediente
-
-  protected resolver(e: ExpedienteEnRevision, { decision, motivo }: Decision): void {
-    const id = e.verificacionId
-    this.resolviendo.set({ id, decision })
-    this.errores.update((m) => {
-      const resto = { ...m }
-      delete resto[id]
-      return resto
-    })
-    this.enviarDecision(id, { decision, motivo }).subscribe({
-      next: () => {
-        this.resolviendo.set(null)
-        this.cola.reload()
-      },
-      // Callarlo dejaba al operador creyendo que decidió: el error se ve en la tarjeta.
-      error: (err: ErrorTraducido) => {
-        this.resolviendo.set(null)
-        this.errores.update((m) => ({ ...m, [id]: { ...err, mensaje: err?.mensaje ?? this.t.decisionFallo } }))
-      },
-    })
+  protected limpiar(): void {
+    this.listado.limpiar()
+    this.estadoPedido.set(POR_DECIDIR)
   }
 }

@@ -67,7 +67,7 @@ final class OrganizadorDecideIngreso {
                 throw new ErrorDeNegocio(CodigoError.de(68, 8), "Esa solicitud no existe.");
             }
             UUID grupoId = s.get("grupo_id", UUID.class);
-            exigirOrganizador(dsl, grupoId, ctx.usuarioId());
+            exigirQuienDecide(dsl, grupoId, s.get("usuario_id", UUID.class), ctx);
 
             // Todas las decisiones del mismo grupo toman primero esta fila: dos aceptaciones no pueden
             // ocupar el ultimo cupo a la vez.
@@ -188,9 +188,25 @@ final class OrganizadorDecideIngreso {
             if (s == null) {
                 throw new ErrorDeNegocio(CodigoError.de(68, 8), "Esa solicitud no existe.");
             }
-            exigirOrganizador(dsl, s.get("grupo_id", UUID.class), ctx.usuarioId());
+            exigirQuienDecide(dsl, s.get("grupo_id", UUID.class), s.get("usuario_id", UUID.class), ctx);
             return s.get("usuario_id", UUID.class);
         });
+    }
+
+    /**
+     * Decide el organizador del grupo o backoffice. Backoffice entra por esta puerta cuando la admision humana no es
+     * obligatoria: sin propuesta del organizador no hay expediente que resolver ({@code ck_decision_ingreso_propuesta}),
+     * y sin esto la solicitud quedaba sin nadie que pudiera decidirla desde el backoffice. Nadie decide su propia
+     * solicitud, tenga el rol que tenga.
+     */
+    private static void exigirQuienDecide(DSLContext dsl, UUID grupoId, UUID solicitante, ContextoSesion ctx) {
+        if (solicitante.equals(ctx.usuarioId())) {
+            throw new ErrorDeNegocio(CodigoError.de(68, 8), "Esa solicitud no existe.");
+        }
+        if ("ADMIN_PLATAFORMA".equals(ctx.rol()) || "BACKOFFICE".equals(ctx.rol())) {
+            return;
+        }
+        exigirOrganizador(dsl, grupoId, ctx.usuarioId());
     }
 
     /** Solo el organizador del grupo decide: el permiso global no alcanza (BOLA). */

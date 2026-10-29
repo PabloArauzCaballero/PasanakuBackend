@@ -1,0 +1,2 @@
+$ flutter pub get (diseno_flutter, movil)
+exit 0 en ambos

@@ -7,6 +7,7 @@ import 'package:aportaya_diseno/tokens/tokens.dart';
 import 'package:aportaya_movil/app.dart';
 import 'package:aportaya_movil/navegacion/rutas.dart';
 import 'package:aportaya_movil/pantallas/identidad/textos.dart';
+import 'package:aportaya_movil/pantallas/identidad/textos_de_portada.dart';
 import 'package:aportaya_movil/proveedores/capacidades.dart';
 import 'package:aportaya_movil/proveedores/sesion.dart';
 import 'package:aportaya_movil/infraestructura/capacidades.dart';
@@ -17,7 +18,11 @@ import 'package:go_router/go_router.dart';
 
 import '../comun.dart';
 
-/// **La entrada, como la maqueta**: bienvenida → tour de cuatro láminas → alta.
+/// **La entrada**: bienvenida → alta, y el tour de cuatro láminas a pedido.
+///
+/// «Crear mi cuenta» va directo al alta (2026-10-28, pedido de Pablo con las skills de
+/// signup/onboarding: un tour obligatorio es fricción para quien ya decidió). El tour
+/// se abre desde «¿Cómo funciona?».
 ///
 /// La app arrancaba dentro de una billetera ajena; después, en una sola pantalla con
 /// todo junto y alineada a la izquierda. La maqueta (`identidad/bienvenida` y
@@ -42,7 +47,7 @@ void main() {
   }
 
   Future<void> abrirTour(WidgetTester tester) async {
-    await tester.tap(find.text(TextosIdentidad.portadaCrearCuenta));
+    await tester.tap(find.text(TextosIdentidad.portadaComoFunciona));
     await tester.pumpAndSettle();
   }
 
@@ -140,9 +145,32 @@ void main() {
     expect(find.byType(BarraPestanas), findsNothing);
   });
 
-  testWidgets('«Crear mi cuenta» abre el tour de cuatro láminas', (
+  testWidgets('«Crear mi cuenta» abre el alta directo, sin pasar por el tour', (
     tester,
   ) async {
+    final router = await abrir(tester);
+    await tester.tap(find.text(TextosIdentidad.portadaCrearCuenta));
+    await tester.pumpAndSettle();
+    expect(router.state.uri.toString(), '/registro');
+    expect(find.byType(PageView), findsNothing);
+    expect(find.byType(BarraPestanas), findsNothing);
+  });
+
+  testWidgets('la bienvenida dice qué hay que tener a mano para el alta', (
+    tester,
+  ) async {
+    await abrir(tester);
+    for (final texto in [
+      TextosDePortada.necesitasTitulo,
+      TextosDePortada.necesitasCarnet,
+      TextosDePortada.necesitasContacto,
+      TextosDePortada.necesitasLuz,
+    ]) {
+      expect(find.text(texto), findsOneWidget);
+    }
+  });
+
+  testWidgets('el tour sigue teniendo cuatro láminas', (tester) async {
     final router = await abrir(tester);
     await abrirTour(tester);
     expect(router.state.uri.toString(), '/tour');

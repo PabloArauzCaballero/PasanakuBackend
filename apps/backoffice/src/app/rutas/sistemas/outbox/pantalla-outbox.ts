@@ -1,46 +1,41 @@
-import { ChangeDetectionStrategy, Component, inject, resource } from '@angular/core'
+import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core'
+import { Boton } from '@aportaya/ui/boton/boton'
 import { CabeceraDePagina } from '@aportaya/ui/cabecera-de-pagina/cabecera-de-pagina'
 import { ChipEstado } from '@aportaya/ui/chip-estado/chip-estado'
-import { EstadoDePantalla } from '@aportaya/ui/estado-de-pantalla/estado-de-pantalla'
-import { TablaDeDatos, type Columna } from '@aportaya/ui/tabla-de-datos/tabla-de-datos'
+import type { ColumnaExportable } from '@aportaya/ui/exportar-listado/exportar'
+import { crearListado } from '@aportaya/ui/listado/crear-listado'
+import { ListadoDeDatos, type CargaDeListado } from '@aportaya/ui/listado/listado'
+import type { Columna } from '@aportaya/ui/tabla-de-datos/tabla-de-datos'
 import { ExplicadorDeVista } from '../../../nucleo/explicador-de-vista'
-import { PUERTO_OUTBOX, type MensajeDescartado, type MensajeOutbox, type OutboxYDescartados } from '../dominio/puertos'
+import { horaDeConsulta } from '../../operacion/estado/dominio/estado-del-sistema'
+import { cargaDe } from '../compartido/carga'
+import { CifrasDeSistemas, type Cifra } from '../compartido/cifras'
+import { filasDeOutbox, recursoOutbox, type FilaDeOutbox } from '../dominio/outbox'
 import { textosSistemas } from '../textos'
 
-/** GATE: la cola de descartados es visible, con el motivo de cada mensaje a la vista (no en un detalle escondido). */
+/**
+ * Sistemas › Outbox por servicio, con lo que publica el relevo de cada uno (ver `dominio/outbox.ts`). De solo lectura:
+ * los fallidos los rescata el propio relevo cada cinco minutos (`Relevo.rescatarFallidos`), no esta vista.
+ */
 @Component({
   selector: 'ap-pantalla-outbox',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CabeceraDePagina, TablaDeDatos, ChipEstado, EstadoDePantalla],
+  imports: [Boton, CabeceraDePagina, ChipEstado, CifrasDeSistemas, ListadoDeDatos],
   template: `
     <section class="pantalla">
-      <ap-cabecera-de-pagina [titulo]="t.titulo" [descripcion]="t.proposito" icono="campana" />
-      <ap-estado-de-pantalla [recurso]="outbox" [vacio]="esVacio" [mensajeVacio]="t.vacio" [etiquetaDeCarga]="t.cargando" (reintentar)="outbox.reload()">
-        @if (outbox.hasValue() && outbox.value(); as datos) {
-          <section>
-            <ap-tabla-de-datos [titulo]="'Bandeja de salida'" [columnas]="columnasOutbox" [filas]="datos.mensajes">
-              <ng-template #celda let-fila let-columna="columna">
-                @if (columna.clave === 'estado') {
-                  <ap-chip-estado [tono]="fila.estado === 'entregado' ? 'ok' : 'aviso'">{{ fila.estado }}</ap-chip-estado>
-                } @else {
-                  {{ fila[columna.clave] }}
-                }
-              </ng-template>
-            </ap-tabla-de-datos>
-          </section>
-          <section>
-            <h2>{{ t.tituloDescartados }}</h2>
-            @if (datos.descartados.length === 0) {
-              <p>{{ t.vacioDescartados }}</p>
-            } @else {
-              <ap-tabla-de-datos [titulo]="t.tituloDescartados" [columnas]="columnasDescartados" [filas]="datos.descartados" />
-            }
-          </section>
-        }
-      </ap-estado-de-pantalla>
+      <ap-cabecera-de-pagina eyebrow="Sistemas" [titulo]="t.titulo" [descripcion]="t.proposito">
+        <ap-boton acciones variante="fantasma" icono="recarga" [deshabilitado]="outbox.isLoading()" (pulsado)="outbox.reload()">Volver a consultar</ap-boton>
+      </ap-cabecera-de-pagina>
+      @if (consultadoA(); as hora) { <p class="nota" role="status">Consultado a las {{ hora }} (hora de La Paz).</p> }
+      <ap-cifras-de-sistemas etiqueta="Resumen del outbox" [cifras]="cifras()" [carga]="carga()" />
+      <ap-listado [titulo]="t.titulo" [columnas]="columnas" [listado]="listado" [carga]="carga()" ayudaDeBusqueda="Busca por servicio o estado." [exportables]="exportables" nombreDeRegistros="servicios" [textoVacio]="t.vacio" [explicacionVacio]="t.explicacionVacio" (reintentar)="outbox.reload()">
+        <ng-template #celda let-f let-c="columna">
+          @if (c.clave === 'estado') { <ap-chip-estado [tono]="f.tono">{{ f.estado }}</ap-chip-estado> } @else { {{ f[c.clave] }} }
+        </ng-template>
+      </ap-listado>
     </section>
   `,
-  styles: `.pantalla { padding: 0; max-width: 60rem; display: flex; flex-direction: column; gap: var(--s5); }`,
+  styles: `:host { display: block; min-width: 0; } .pantalla { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s5); min-width: 0; } .nota { margin: 0; color: var(--text-2); font: var(--t-cuerpo-chico); } /* ap-listado deja sus pistas en «auto»: sin esto la tabla ensancha la página en vez de desplazarse en su marco. */ ap-listado { grid-template-columns: minmax(0, 1fr); }`,
 })
 export class PantallaOutbox {
   constructor() {
@@ -48,17 +43,39 @@ export class PantallaOutbox {
   }
 
   protected readonly t = textosSistemas.outbox
-  private readonly puerto = inject(PUERTO_OUTBOX)
-  protected readonly outbox = resource({ loader: () => this.puerto.obtener() })
-  protected readonly esVacio = (datos: OutboxYDescartados) => datos.mensajes.length === 0
-  protected readonly columnasOutbox: Columna<MensajeOutbox>[] = [
-    { clave: 'tipo', titulo: 'Tipo', ordenable: true },
-    { clave: 'creadoEl', titulo: 'Creado el' },
-    { clave: 'estado', titulo: 'Estado' },
+  protected readonly outbox = recursoOutbox()
+  private readonly salida = computed(() => (this.outbox.hasValue() ? this.outbox.value() : undefined))
+  /** Prometheus no respondió: no se sabe. Se dice como «sin fuente», no como lista vacía. */
+  protected readonly carga = computed<CargaDeListado>(() =>
+    this.salida()?.fuenteDisponible === false ? { tipo: 'sin-fuente', mensaje: this.t.sinFuente } : this.cargaHttp(),
+  )
+  private readonly cargaHttp = cargaDe(this.outbox)
+  private readonly filas = computed(() => (this.salida()?.fuenteDisponible ? filasDeOutbox(this.salida()!) : []))
+  protected readonly consultadoA = computed(() => (this.salida()?.fuenteDisponible ? horaDeConsulta(this.salida()!.consultadoEn) : null))
+  protected readonly listado = crearListado<FilaDeOutbox>({
+    filas: this.filas,
+    camposDeBusqueda: ['servicio', 'estado'],
+    filtros: [{ nombre: 'estado', etiqueta: 'Estado', valor: (f) => f.estado }],
+    porPagina: 20,
+    valorParaOrden: (f, clave) => (clave === 'pendientes' ? f.pendientesN : clave === 'fallidos' ? f.fallidosN : f[clave as keyof FilaDeOutbox]),
+  })
+  protected readonly cifras = computed<Cifra[]>(() => {
+    const f = this.filas()
+    const suma = (v: (x: FilaDeOutbox) => number) => f.reduce((a, x) => a + v(x), 0).toLocaleString('es-BO')
+    return [
+      { etiqueta: 'Servicios', valor: String(f.length), icono: 'servidor' },
+      { etiqueta: 'Pendientes', valor: suma((x) => x.pendientesN), icono: 'reloj', tono: 'aviso' },
+      { etiqueta: 'Fallidos', valor: suma((x) => x.fallidosN), icono: 'alerta', tono: 'error' },
+    ]
+  })
+  protected readonly columnas: Columna<FilaDeOutbox>[] = [
+    { clave: 'servicio', titulo: 'Servicio', ordenable: true, mono: true },
+    { clave: 'estado', titulo: 'Estado', ordenable: true },
+    { clave: 'pendientes', titulo: 'Pendientes', ordenable: true, numerica: true },
+    { clave: 'fallidos', titulo: 'Fallidos', ordenable: true, numerica: true },
+    { clave: 'esperaMasLarga', titulo: 'Espera más larga' },
+    { clave: 'publicados24h', titulo: 'Publicados 24 h', numerica: true },
+    { clave: 'errores24h', titulo: 'Errores al publicar 24 h', numerica: true },
   ]
-  protected readonly columnasDescartados: Columna<MensajeDescartado>[] = [
-    { clave: 'tipo', titulo: 'Tipo', ordenable: true },
-    { clave: 'motivo', titulo: 'Motivo' },
-    { clave: 'descartadoEl', titulo: 'Descartado el' },
-  ]
+  protected readonly exportables: ColumnaExportable<FilaDeOutbox>[] = this.columnas.map((c) => ({ clave: c.clave as string, titulo: c.titulo }))
 }

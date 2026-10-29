@@ -1,62 +1,61 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core'
-import { Boton } from '@aportaya/ui/boton/boton'
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core'
+import { RouterLink } from '@angular/router'
 import { CabeceraDePagina } from '@aportaya/ui/cabecera-de-pagina/cabecera-de-pagina'
-import { Campo } from '@aportaya/ui/campo/campo'
-import { Monto } from '@aportaya/ui/monto/monto'
 import { EstadoDePantalla } from '@aportaya/ui/estado-de-pantalla/estado-de-pantalla'
+import { Icono } from '@aportaya/ui/icono/icono'
+import { TarjetaKPI } from '@aportaya/ui/tarjeta-kpi/tarjeta-kpi'
 import { ExplicadorDeVista } from '../../../nucleo/explicador-de-vista'
+import { ConsultaDeConsumo, type PedidoDeConsumo } from '../consulta-de-consumo'
 import { recursoDeConsumo } from '../dominio/cu113-cu114-consumo'
 import { textosPublicidad } from '../textos'
 
 /**
- * CU-113 · Panel de desempeño (lectura). **Gate del carril**: usa exactamente el mismo
- * `recursoDeConsumo` (dominio compartido) que `PantallaDeLiquidacion`.
+ * CU-113 · Panel de desempeño (lectura). **Gate del carril**: usa exactamente el mismo `recursoDeConsumo` (dominio
+ * compartido) que `PantallaDeLiquidacion`. `SalidaConsumo` no trae la moneda: el total se muestra como cadena, sin
+ * inventar «BOB» (regla 91.1.2), y se dice.
  */
 @Component({
   selector: 'ap-pantalla-de-desempeno',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [Boton, CabeceraDePagina, Campo, Monto, EstadoDePantalla],
+  imports: [CabeceraDePagina, ConsultaDeConsumo, EstadoDePantalla, Icono, RouterLink, TarjetaKPI],
   template: `
     <section class="pantalla">
-      <ap-cabecera-de-pagina [titulo]="t.titulo" [descripcion]="t.proposito" icono="comision" />
-      <div class="filtros">
-        <ap-campo [etiqueta]="t.cuenta" [(valor)]="cuentaId" />
-        <ap-campo [etiqueta]="t.periodo" [(valor)]="periodo" marcador="2026-09" />
-        <ap-boton (pulsado)="buscar()">{{ t.buscar }}</ap-boton>
-      </div>
-
-      <ap-estado-de-pantalla [recurso]="consumo" [mensajeVacio]="'Consultá una cuenta y un período.'" [etiquetaDeCarga]="t.cargando" (reintentar)="consumo.reload()">
-        @if (consumo.value(); as c) {
-          <section class="resultado">
-            <p class="etiqueta">{{ t.totalConsumido }}</p>
-            <ap-monto [monto]="c.total" moneda="BOB" />
-            <p class="nota">{{ t.mismoDatoQueLiquidacion }}</p>
-          </section>
+      <ap-cabecera-de-pagina eyebrow="Publicidad" [titulo]="t.titulo" [descripcion]="t.proposito" />
+      <ap-consulta-de-consumo [textoAccion]="t.buscar" (consulta)="consultar($event)" />
+      <ap-estado-de-pantalla [recurso]="consumo" [mensajeVacio]="t.elegi" [etiquetaDeCarga]="t.cargando" (reintentar)="consumo.reload()">
+        @if (valor(); as c) {
+          <div class="resultado">
+            <ap-tarjeta-kpi [etiqueta]="t.totalConsumido" [valor]="c.total" icono="moneda" [pista]="pedido()?.anunciante + ' · ' + c.periodo" />
+            <p class="nota">{{ t.mismoDatoQueLiquidacion }} {{ t.sinMoneda }}</p>
+            <a class="enlace" routerLink="/publicidad/liquidacion" [queryParams]="{ cuenta: pedido()?.cuenta, periodo: pedido()?.periodo }"><ap-icono nombre="recibo" tamano="s4" />{{ t.irALiquidar }}</a>
+          </div>
         }
       </ap-estado-de-pantalla>
     </section>
   `,
   styles: `
-    .pantalla { padding: var(--s5); max-width: 48rem; display: grid; gap: var(--s4); }
-    .filtros { display: flex; flex-wrap: wrap; align-items: flex-end; gap: var(--s3); }
-    .resultado { display: grid; gap: var(--s2); }
-    .etiqueta { color: var(--text-2); margin: 0; }
-    .nota { font-size: .85em; color: var(--text-2); }
+    .pantalla { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s4); min-width: 0; }
+    .resultado { display: grid; gap: var(--s3); max-width: 32rem; }
+    .nota { margin: 0; color: var(--text-2); font: var(--t-cuerpo-chico); }
+    .enlace { display: inline-flex; align-items: center; gap: var(--s1); min-height: var(--area-tactil); color: var(--brand-texto); font-weight: 600; justify-self: start; }
+    .enlace:focus-visible { outline: var(--borde-foco) solid var(--g300); outline-offset: var(--borde-desfase); }
   `,
 })
 export class PantallaDeDesempeno {
+  protected readonly t = textosPublicidad.desempeno
+  protected readonly pedido = signal<PedidoDeConsumo | null>(null)
+  protected readonly consumo = recursoDeConsumo(() => this.pedido()?.cuenta, () => this.pedido()?.periodo)
+  /** En error, `value()` lanza: se lee solo si hay valor. */
+  protected readonly valor = computed(() => (this.consumo.hasValue() ? this.consumo.value() : undefined))
+
   constructor() {
     inject(ExplicadorDeVista).fijar(this.t.proposito)
   }
-  protected readonly t = textosPublicidad.desempeno
-  protected readonly cuentaId = signal('')
-  protected readonly periodo = signal('')
-  private readonly cuentaConsultada = signal<string | undefined>(undefined)
-  private readonly periodoConsultado = signal<string | undefined>(undefined)
-  protected readonly consumo = recursoDeConsumo(() => this.cuentaConsultada(), () => this.periodoConsultado())
 
-  buscar(): void {
-    this.cuentaConsultada.set(this.cuentaId() || undefined)
-    this.periodoConsultado.set(this.periodo() || undefined)
+  /** Consultar lo mismo otra vez vuelve a pedirlo: el operador espera ver el dato de ahora. */
+  protected consultar(p: PedidoDeConsumo): void {
+    const igual = this.pedido()?.cuenta === p.cuenta && this.pedido()?.periodo === p.periodo
+    this.pedido.set(p)
+    if (igual) this.consumo.reload()
   }
 }

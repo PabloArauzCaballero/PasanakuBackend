@@ -1,10 +1,21 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core'
+import { RouterLink } from '@angular/router'
 import { Alerta } from '@aportaya/ui/alerta/alerta'
+import { Icono } from '@aportaya/ui/icono/icono'
 import { CabeceraDePagina } from '@aportaya/ui/cabecera-de-pagina/cabecera-de-pagina'
 import { EstadoDePantalla } from '@aportaya/ui/estado-de-pantalla/estado-de-pantalla'
 import { ExplicadorDeVista } from '../../nucleo/explicador-de-vista'
 import { Sesion } from '../../nucleo/sesion'
-import { historialDe, propuestaVigente, resolucionDe, revisionActual, type DecisionDeIngreso } from './dominio/cu68-admision'
+import {
+  estadoEnBandeja,
+  historialDe,
+  propuestaVigente,
+  resolucionDe,
+  revisionActual,
+  solicitudesDeAdmision,
+  type SalidaDecisionDirecta,
+} from './dominio/cu68-admision'
+import { FormularioDeDecisionDirecta } from './formulario-de-decision-directa'
 import { FormularioDeResolucion } from './formulario-de-resolucion'
 import { HistorialDeAdmision } from './historial-de-admision'
 import { textosAdmisiones } from './textos'
@@ -25,16 +36,25 @@ const PERMISO_DE_RESOLUCION = 'ADMIN_PLATAFORMA'
 @Component({
   selector: 'ap-pantalla-de-admision',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [Alerta, CabeceraDePagina, EstadoDePantalla, FormularioDeResolucion, HistorialDeAdmision],
+  imports: [Alerta, CabeceraDePagina, EstadoDePantalla, FormularioDeDecisionDirecta, FormularioDeResolucion, HistorialDeAdmision, Icono, RouterLink],
   template: `
     <section class="pantalla">
-      <ap-cabecera-de-pagina [titulo]="t.titulo" [descripcion]="t.proposito" icono="grupo" />
-      <ap-estado-de-pantalla [recurso]="historial" [vacio]="sinDecisiones" [mensajeVacio]="t.sinDecisiones" [etiquetaDeCarga]="t.cargando" (reintentar)="historial.reload()">
+      <ap-cabecera-de-pagina eyebrow="Admisiones" [titulo]="t.titulo" [descripcion]="t.proposito" />
+      <a class="volver" routerLink="/admisiones"><ap-icono nombre="flechaIzquierda" tamano="s4" />{{ t.volver }}</a>
+      <ap-estado-de-pantalla [recurso]="historial" [mensajeVacio]="t.sinDecisiones" [etiquetaDeCarga]="t.cargando" (reintentar)="historial.reload()">
         @if (historial.hasValue()) {
           <div class="cuerpo">
             <ap-historial-de-admision [decisiones]="decisiones()" />
             @if (resolucion()) {
               <ap-alerta [tono]="registradaAhora() ? 'ok' : 'info'">{{ registradaAhora() ? t.confirmada : t.resolucionCerrada }}</ap-alerta>
+            } @else if (decididaAhora(); as d) {
+              <ap-alerta tono="ok">{{ d.estado === 'APROBADA' ? t.confirmadaAceptada : t.confirmadaRechazada }}</ap-alerta>
+            } @else if (estado() === 'ACEPTADA' || estado() === 'APROBADA') {
+              <ap-alerta tono="info">{{ t.yaAceptada }}</ap-alerta>
+            } @else if (estado() === 'RECHAZADA') {
+              <ap-alerta tono="info">{{ t.yaRechazada }}</ap-alerta>
+            } @else if (estado() !== null && estado() !== 'PENDIENTE') {
+              <ap-alerta tono="info">{{ t.resolucionCerrada }}</ap-alerta>
             } @else if (!puedeResolver()) {
               <ap-alerta tono="info">{{ t.sinPermiso }}</ap-alerta>
             } @else if (esPropiaLaPropuesta()) {
@@ -47,8 +67,10 @@ const PERMISO_DE_RESOLUCION = 'ADMIN_PLATAFORMA'
                 (registrada)="alRegistrar()"
                 (desactualizada)="historial.reload()"
               />
+            } @else if (exigePropuesta()) {
+              <ap-alerta tono="info">{{ t.esperaPropuesta }}</ap-alerta>
             } @else {
-              <ap-alerta tono="info">{{ t.sinDecisiones }}</ap-alerta>
+              <ap-formulario-de-decision-directa [solicitudId]="solicitudId()" (decidida)="alDecidir($event)" (exigePropuesta)="exigePropuesta.set(true)" />
             }
           </div>
         }
@@ -56,7 +78,9 @@ const PERMISO_DE_RESOLUCION = 'ADMIN_PLATAFORMA'
     </section>
   `,
   styles: `
-    .pantalla { padding: var(--s5); max-width: 44rem; display: flex; flex-direction: column; gap: var(--s5); }
+    .pantalla { display: flex; flex-direction: column; gap: var(--s5); width: 100%; max-width: 64rem; margin-inline: auto; box-sizing: border-box; }
+    .volver { display: inline-flex; align-items: center; gap: var(--s1); align-self: flex-start; min-height: var(--area-tactil); color: var(--brand-texto); font-weight: 600; }
+    .volver:focus-visible { outline: var(--borde-foco) solid var(--g300); outline-offset: var(--borde-desfase); }
     h1 { margin: 0; }
     .cuerpo { display: flex; flex-direction: column; gap: var(--s5); }
   `,
@@ -71,7 +95,11 @@ export class PantallaDeAdmision {
   }
 
   protected readonly historial = historialDe(this.solicitudId)
-  protected readonly sinDecisiones = (h: DecisionDeIngreso[]): boolean => h.length === 0
+  /** El estado de la solicitud sale de la bandeja: la decisión directa no deja historial de expediente. */
+  private readonly bandeja = solicitudesDeAdmision()
+  protected readonly decididaAhora = signal<SalidaDecisionDirecta | null>(null)
+  protected readonly exigePropuesta = signal(false)
+  protected readonly estado = computed(() => estadoEnBandeja(this.bandeja.value() ?? [], this.solicitudId()))
   protected readonly registradaAhora = signal(false)
 
   protected readonly decisiones = computed(() => this.historial.hasValue() ? (this.historial.value() ?? []) : [])
@@ -85,6 +113,11 @@ export class PantallaDeAdmision {
     const yo = this.sesion.sujeto()
     return p !== null && yo !== null && p.actorId === yo
   })
+
+  protected alDecidir(salida: SalidaDecisionDirecta): void {
+    this.decididaAhora.set(salida)
+    this.bandeja.reload()
+  }
 
   protected alRegistrar(): void {
     this.registradaAhora.set(true)

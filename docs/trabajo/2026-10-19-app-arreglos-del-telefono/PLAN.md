@@ -104,13 +104,13 @@ Hallazgo: el paso «Cómo entrás» del alta (`pasos_alta/paso_cuenta.dart`) val
 
 ## H10 — Despliegue de TEST frenado por `json_serializable 6.15.0`
 Hallazgo: `/opt/aportaya/logs/autodespliegue.log` — 12:30 `construir-movil-web.sh` OK en d36c3a0; 14:23 FALLA en 5402d23 (#149) en `apps/movil/scripts/generar-clientes.sh`: `json_serializable-6.15.0 … 'createSortedFieldSet' is imported from both …source_helper`. Los `pubspec.yaml` de `clientes/dart/*` son generados y no tienen lockfile; en local resolvía 6.14.1.
-**Estado:** EN CURSO
+**Estado:** HECHO
 
 | ID | Microtarea | CA (binario) | DoD | Estado |
 |---|---|---|---|---|
 | H10.M1 | `generar-clientes.sh` fija `json_serializable: 6.14.1` con `pubspec_overrides.yaml` | Los 11 clientes compilan | `bash apps/movil/scripts/generar-clientes.sh` → 11 «overridden in», sin error | HECHO |
 | H10.M1b | La causa era `source_helper 1.4.0` (publicada 2026-10-19 18:07Z), no `json_serializable`: el despliegue de d449cf2 falló igual con 6.14.1. Se fija también `source_helper: 1.3.13` | Sin fijarlo, local reproduce el error; fijado, compila | `dart run build_runner build` en `clientes/dart/identidad` con y sin el override | HECHO |
-| H10.M2 | TEST despliega el commit con #149 | `autodespliegue.log` dice «listo en <sha>» | log del servidor | TODO |
+| H10.M2 | TEST despliega el commit con #149 | `autodespliegue.log` dice «listo en <sha>» | log del servidor | HECHO — «listo en 198bef9» (15:03); la app web de TEST trae el aviso nuevo |
 
 ## Riesgos y bloqueos previstos
 | Riesgo | Impacto | Mitigación |

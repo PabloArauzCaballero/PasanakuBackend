@@ -21,7 +21,7 @@ export type EnvioResolucion = 'inactivo' | 'enviando' | 'confirmado' | 'sinConfi
     } @else {
       <section aria-labelledby="titulo-resolver">
         <h2 id="titulo-resolver">{{ t.resolverTitulo }}</h2>
-        <p class="ayuda">{{ t.resolverAyuda }}</p>
+        <p class="ayuda">{{ ayuda() || t.resolverAyuda }}</p>
 
         @if (sinRed()) {
           <ap-alerta tono="aviso">{{ t.sinConexion }}</ap-alerta>
@@ -35,6 +35,7 @@ export type EnvioResolucion = 'inactivo' | 'enviando' | 'confirmado' | 'sinConfi
             <div accion class="acciones">
               <ap-boton
                 variante="primario"
+                icono="buscar"
                 [cargando]="envio() === 'verificando'"
                 [deshabilitado]="envio() === 'verificando'"
                 (pulsado)="verificar.emit()"
@@ -63,13 +64,13 @@ export type EnvioResolucion = 'inactivo' | 'enviando' | 'confirmado' | 'sinConfi
           }
           <ap-campo
             [etiqueta]="t.motivoEtiqueta"
-            [ayuda]="t.motivoAyuda"
+            [ayuda]="ayudaMotivo() || t.motivoAyuda"
             [error]="errorMotivo()"
             [deshabilitado]="bloqueado()"
             [(valor)]="motivo"
           />
           <div class="acciones">
-            <ap-boton variante="primario" tipo="submit" [cargando]="enviando()" [deshabilitado]="bloqueado()">
+            <ap-boton variante="primario" tipo="submit" icono="enviar" [cargando]="enviando()" [deshabilitado]="bloqueado()">
               {{ envio() === 'noRegistrada' ? t.reintentar : enviando() ? t.resolviendo : t.resolver }}
             </ap-boton>
           </div>
@@ -102,6 +103,9 @@ export class FormularioDeResolucionVista {
   readonly bloqueado = input<boolean>(false)
   readonly enviando = input<boolean>(false)
   readonly opciones = input<OpcionDeRadio[]>([])
+  /** Textos de ayuda propios del camino directo; vacíos, los de la resolución sobre una propuesta. */
+  readonly ayuda = input<string>('')
+  readonly ayudaMotivo = input<string>('')
 
   readonly enviar = output<void>()
   readonly verificar = output<void>()

@@ -40,6 +40,30 @@ export type EntradaDecisionDeIngreso = {
   propuestaId?: string
 }
 
+/**
+ * `SolicitudDeIngreso` de `grupos.yaml` (`listarSolicitudesDeIngreso`, `GET /grupos/{grupoId}/solicitudes`): las
+ * PENDIENTES de un grupo, la más antigua primero, como mucho 200. Trae el primer nombre e inicial de quien pide, no su
+ * documento ni su contacto. El contrato la describe como «la cola del organizador»: si el servidor no se la abre a
+ * backoffice responde 403, y la pantalla lo dice (ambigüedad registrada en el informe de la franja F).
+ */
+export type SolicitudDeIngreso = {
+  solicitudId: string
+  usuarioId: string
+  cuposSolicitados: number
+  mensaje?: string | null
+  puntaje?: string | null
+  nombreVisible?: string | null
+  porEnlace?: boolean
+  estado: 'PENDIENTE' | 'APROBADA' | 'RECHAZADA' | 'EXPIRADA' | string
+  fechaSolicitud: string
+}
+
+/** Las solicitudes pendientes del grupo pedido; sin grupo, no pide nada. */
+export function solicitudesDelGrupo(grupoId: Signal<string>) {
+  const gateway = inject(GATEWAY)
+  return httpResource<SolicitudDeIngreso[]>(() => (grupoId() ? `${gateway}/grupos/${grupoId()}/solicitudes` : undefined))
+}
+
 /** El motivo que acepta el contrato (`maxLength: 1000`). */
 export const MOTIVO_MAXIMO = 1000
 
@@ -116,3 +140,28 @@ export function solicitudesDeAdmision() {
   const gateway = inject(GATEWAY)
   return httpResource<SolicitudDeAdmision[]>(() => `${gateway}/grupos/solicitudes`)
 }
+
+/** Lo que acepta `POST /grupos/solicitudes/{id}/decision` (`EntradaDecisionDeIngreso`: motivo de 5 a 300). */
+export type EntradaDecisionDirecta = { decision: ResultadoDeAdmision; motivo: string }
+export type SalidaDecisionDirecta = { solicitudId: string; estado: 'APROBADA' | 'RECHAZADA' | string; participanteId?: string | null; cupoId?: string | null }
+export const MOTIVO_DIRECTO_MINIMO = 5
+export const MOTIVO_DIRECTO_MAXIMO = 300
+
+/**
+ * `POST /grupos/solicitudes/{id}/decision` (`decidirSolicitudDeIngreso`): la puerta directa, la misma del
+ * organizador. Backoffice la usa cuando no hay propuesta que resolver. Con la admisión humana obligatoria el
+ * servidor la cierra con 422 `AP-CU68-15`. Repetir la MISMA decisión devuelve lo ya resuelto: reintentar con la
+ * misma clave no duplica nada.
+ */
+export function crearDecidirDirecto(): (solicitudId: string, entrada: EntradaDecisionDirecta, clave: string) => Observable<SalidaDecisionDirecta> {
+  const http = inject(HttpClient)
+  const gateway = inject(GATEWAY)
+  return (solicitudId, entrada, clave) =>
+    http.post<SalidaDecisionDirecta>(`${gateway}/grupos/solicitudes/${solicitudId}/decision`, entrada, {
+      context: new HttpContext().set(CLAVE_IDEMPOTENCIA, clave),
+    })
+}
+
+/** El estado de una solicitud en la bandeja (`ACEPTADA`, `RECHAZADA`, `PENDIENTE`…), o null si no figura. */
+export const estadoEnBandeja = (bandeja: readonly SolicitudDeAdmision[], solicitudId: string): string | null =>
+  bandeja.find((s) => s.solicitudId === solicitudId)?.estado ?? null

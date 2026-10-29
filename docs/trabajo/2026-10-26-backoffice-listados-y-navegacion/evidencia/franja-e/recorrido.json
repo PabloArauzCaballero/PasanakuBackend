@@ -1,0 +1,1384 @@
+{
+ "resumen": {
+  "pasos": 138,
+  "fallos": 0,
+  "erroresDeRed": 22,
+  "provocados": 22,
+  "consola": [
+   {
+    "url": "http://127.0.0.1:4305/contabilidad/presupuesto",
+    "tipo": "consola",
+    "texto": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+   },
+   {
+    "url": "http://127.0.0.1:4305/contabilidad/presupuesto",
+    "tipo": "consola",
+    "texto": "Failed to load resource: the server responded with a status of 403 (Forbidden)"
+   },
+   {
+    "url": "http://127.0.0.1:4305/contabilidad/compras",
+    "tipo": "consola",
+    "texto": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+   },
+   {
+    "url": "http://127.0.0.1:4305/contabilidad/compras",
+    "tipo": "consola",
+    "texto": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+   },
+   {
+    "url": "http://127.0.0.1:4305/contabilidad/compras",
+    "tipo": "consola",
+    "texto": "Failed to load resource: the server responded with a status of 403 (Forbidden)"
+   },
+   {
+    "url": "http://127.0.0.1:4305/contabilidad/compras",
+    "tipo": "consola",
+    "texto": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+   },
+   {
+    "url": "http://127.0.0.1:4305/contabilidad/compras",
+    "tipo": "consola",
+    "texto": "Failed to load resource: the server responded with a status of 403 (Forbidden)"
+   },
+   {
+    "url": "http://127.0.0.1:4305/contabilidad/cobros",
+    "tipo": "consola",
+    "texto": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+   },
+   {
+    "url": "http://127.0.0.1:4305/contabilidad/cobros",
+    "tipo": "consola",
+    "texto": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+   },
+   {
+    "url": "http://127.0.0.1:4305/contabilidad/cobros",
+    "tipo": "consola",
+    "texto": "Failed to load resource: the server responded with a status of 403 (Forbidden)"
+   },
+   {
+    "url": "http://127.0.0.1:4305/contabilidad/activos/b6ab0151-f825-4175-8e8e-6024aed062c6",
+    "tipo": "consola",
+    "texto": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+   },
+   {
+    "url": "http://127.0.0.1:4305/contabilidad/activos/b6ab0151-f825-4175-8e8e-6024aed062c6",
+    "tipo": "consola",
+    "texto": "Failed to load resource: the server responded with a status of 403 (Forbidden)"
+   },
+   {
+    "url": "http://127.0.0.1:4305/configuracion/tarifario",
+    "tipo": "consola",
+    "texto": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+   },
+   {
+    "url": "http://127.0.0.1:4305/configuracion/tarifario",
+    "tipo": "consola",
+    "texto": "Failed to load resource: the server responded with a status of 403 (Forbidden)"
+   },
+   {
+    "url": "http://127.0.0.1:4305/configuracion/mensajeria",
+    "tipo": "consola",
+    "texto": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+   },
+   {
+    "url": "http://127.0.0.1:4305/configuracion/mensajeria",
+    "tipo": "consola",
+    "texto": "Failed to load resource: the server responded with a status of 403 (Forbidden)"
+   },
+   {
+    "url": "http://127.0.0.1:4305/configuracion/mensajeria",
+    "tipo": "consola",
+    "texto": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+   },
+   {
+    "url": "http://127.0.0.1:4305/configuracion/mensajeria",
+    "tipo": "consola",
+    "texto": "Failed to load resource: the server responded with a status of 403 (Forbidden)"
+   },
+   {
+    "url": "http://127.0.0.1:4305/configuracion/reportes",
+    "tipo": "consola",
+    "texto": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+   },
+   {
+    "url": "http://127.0.0.1:4305/configuracion/reportes",
+    "tipo": "consola",
+    "texto": "Failed to load resource: the server responded with a status of 403 (Forbidden)"
+   },
+   {
+    "url": "http://127.0.0.1:4305/configuracion/reportes",
+    "tipo": "consola",
+    "texto": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+   },
+   {
+    "url": "http://127.0.0.1:4305/configuracion/reportes",
+    "tipo": "consola",
+    "texto": "Failed to load resource: the server responded with a status of 403 (Forbidden)"
+   }
+  ]
+ },
+ "resultados": [
+  {
+   "vista": "presupuesto",
+   "nivel": "aceptado",
+   "paso": "lista 10 de 25 con limite=10",
+   "veredicto": "PASS",
+   "detalle": "/api/v1/erp/partidas-presupuestarias?limite=10"
+  },
+  {
+   "vista": "presupuesto",
+   "nivel": "aceptado",
+   "paso": "buscar «nandu»",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "presupuesto",
+   "nivel": "aceptado",
+   "paso": "filtro local «Centro de costo»",
+   "veredicto": "PASS",
+   "detalle": "5 filas"
+  },
+  {
+   "vista": "presupuesto",
+   "nivel": "aceptado",
+   "paso": "filtro del servidor «Estado del presupuesto» → estados=APROBADO",
+   "veredicto": "PASS",
+   "detalle": "/api/v1/erp/partidas-presupuestarias?limite=10&estados=APROBADO"
+  },
+  {
+   "vista": "presupuesto",
+   "nivel": "aceptado",
+   "paso": "filas por página 20 → limite=20",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "presupuesto",
+   "nivel": "aceptado",
+   "paso": "Siguiente pide con el cursor; «Ir a 3» muestra 5; Anterior vuelve",
+   "veredicto": "PASS",
+   "detalle": "/api/v1/erp/partidas-presupuestarias?limite=10&antesDe=2026-01-01&antesDeId=00000000-0000-4000-8000-000000000010"
+  },
+  {
+   "vista": "presupuesto",
+   "nivel": "aceptado",
+   "paso": "CSV y JSON de lo filtrado",
+   "veredicto": "PASS",
+   "detalle": "presupuesto-por-centro-de-costo-2026-10-26.csv (2 líneas: «Marketing,Operación Ñandú,abril 2026,BOB 1000.00,BOB 640.10,BOB -359.90,Borrador») · presupuesto-por-centro-de-costo-2026-10-26.json (1)"
+  },
+  {
+   "vista": "presupuesto",
+   "nivel": "aceptado",
+   "paso": "capturas 1280/768/375 claro + 1280 oscuro, sin scroll horizontal",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "presupuesto",
+   "nivel": "límite",
+   "paso": "búsqueda sin coincidencias → «Quitar filtros»",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "presupuesto",
+   "nivel": "límite",
+   "paso": "colección vacía → vacío orientado sin paginación",
+   "veredicto": "PASS",
+   "detalle": "No hay partidas presupuestarias para este ejercicio. Las partidas aparecen cuand"
+  },
+  {
+   "vista": "presupuesto",
+   "nivel": "límite",
+   "paso": "una sola fila → «Página 1 de 1»",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "presupuesto",
+   "nivel": "error",
+   "paso": "500 → mensaje accionable sin crudo; «Volver a intentar» repite",
+   "veredicto": "PASS",
+   "detalle": "No se pudo cargar presupuesto por centro de costo. Algo salió mal de nuestro lado. Probá de nuevo en un moment"
+  },
+  {
+   "vista": "presupuesto",
+   "nivel": "error",
+   "paso": "403 → mensaje accionable sin crudo; «Volver a intentar» repite",
+   "veredicto": "PASS",
+   "detalle": "No se pudo cargar presupuesto por centro de costo. No tenés acceso a esto. Código de seguimiento: tz-franja-e-"
+  },
+  {
+   "vista": "compras-ordenes",
+   "nivel": "aceptado",
+   "paso": "lista 10 de 25 con limite=10",
+   "veredicto": "PASS",
+   "detalle": "/api/v1/erp/ordenes-de-compra?limite=10"
+  },
+  {
+   "vista": "compras-ordenes",
+   "nivel": "aceptado",
+   "paso": "buscar «OC-0005»",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "compras-ordenes",
+   "nivel": "aceptado",
+   "paso": "filtro local «Centro de costo»",
+   "veredicto": "PASS",
+   "detalle": "3 filas"
+  },
+  {
+   "vista": "compras-ordenes",
+   "nivel": "aceptado",
+   "paso": "filtro del servidor «Estado de la orden» → estados=BORRADOR",
+   "veredicto": "PASS",
+   "detalle": "/api/v1/erp/ordenes-de-compra?limite=10&estados=BORRADOR"
+  },
+  {
+   "vista": "compras-ordenes",
+   "nivel": "aceptado",
+   "paso": "filas por página 20 → limite=20",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "compras-ordenes",
+   "nivel": "aceptado",
+   "paso": "Siguiente pide con el cursor; «Ir a 3» muestra 5; Anterior vuelve",
+   "veredicto": "PASS",
+   "detalle": "/api/v1/erp/ordenes-de-compra?limite=10&antesDe=2026-01-01&antesDeId=00000000-0000-4000-8000-000000000010"
+  },
+  {
+   "vista": "compras-ordenes",
+   "nivel": "aceptado",
+   "paso": "CSV y JSON de lo filtrado",
+   "veredicto": "PASS",
+   "detalle": "ordenes-de-compra-2026-10-26.csv (2 líneas: «OC-0005,Proveedor Andino SRL,Tecnología,2026-09-01T12:00:00Z,BOB 805.00,Borrador,La orden ») · ordenes-de-compra-2026-10-26.json (1)"
+  },
+  {
+   "vista": "compras-ordenes",
+   "nivel": "aceptado",
+   "paso": "«Aprobar» OC-0005 → POST /aprobacion con Idempotency-Key y recarga",
+   "veredicto": "PASS",
+   "detalle": "POST /api/v1/erp/ordenes-de-compra/00000000-0000-4000-8000-000000000005/aprobacion · Idempotency-Key 0770b1f0…"
+  },
+  {
+   "vista": "compras-ordenes",
+   "nivel": "error",
+   "paso": "aprobación con 500 → error traducido, botón libre",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "compras-ordenes",
+   "nivel": "aceptado",
+   "paso": "capturas 1280/768/375 claro + 1280 oscuro, sin scroll horizontal",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "compras-ordenes",
+   "nivel": "límite",
+   "paso": "búsqueda sin coincidencias → «Quitar filtros»",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "compras-ordenes",
+   "nivel": "límite",
+   "paso": "colección vacía → vacío orientado sin paginación",
+   "veredicto": "PASS",
+   "detalle": "No hay órdenes de compra con estos filtros. Todavía no hay nada acá."
+  },
+  {
+   "vista": "compras-ordenes",
+   "nivel": "límite",
+   "paso": "una sola fila → «Página 1 de 1»",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "compras-ordenes",
+   "nivel": "error",
+   "paso": "500 → mensaje accionable sin crudo; «Volver a intentar» repite",
+   "veredicto": "PASS",
+   "detalle": "No se pudo cargar órdenes de compra. Algo salió mal de nuestro lado. Probá de nuevo en un momento. Código de s"
+  },
+  {
+   "vista": "compras-ordenes",
+   "nivel": "error",
+   "paso": "403 → mensaje accionable sin crudo; «Volver a intentar» repite",
+   "veredicto": "PASS",
+   "detalle": "No se pudo cargar órdenes de compra. No tenés acceso a esto. Código de seguimiento: tz-franja-e-403 Volver a i"
+  },
+  {
+   "vista": "compras-facturas",
+   "nivel": "aceptado",
+   "paso": "lista 10 de 25 con limite=10",
+   "veredicto": "PASS",
+   "detalle": "/api/v1/erp/facturas-de-proveedor?limite=10"
+  },
+  {
+   "vista": "compras-facturas",
+   "nivel": "aceptado",
+   "paso": "buscar «F-0003»",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "compras-facturas",
+   "nivel": "aceptado",
+   "paso": "filtro local «Vencimiento»",
+   "veredicto": "PASS",
+   "detalle": "2 filas"
+  },
+  {
+   "vista": "compras-facturas",
+   "nivel": "aceptado",
+   "paso": "filtro del servidor «Estado de la factura» → estados=APROBADA",
+   "veredicto": "PASS",
+   "detalle": "/api/v1/erp/facturas-de-proveedor?limite=10&estados=APROBADA"
+  },
+  {
+   "vista": "compras-facturas",
+   "nivel": "aceptado",
+   "paso": "filas por página 20 → limite=20",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "compras-facturas",
+   "nivel": "aceptado",
+   "paso": "Siguiente pide con el cursor; «Ir a 3» muestra 5; Anterior vuelve",
+   "veredicto": "PASS",
+   "detalle": "/api/v1/erp/facturas-de-proveedor?limite=10&antesDe=2026-01-01&antesDeId=00000000-0000-4000-8000-000000000010"
+  },
+  {
+   "vista": "compras-facturas",
+   "nivel": "aceptado",
+   "paso": "CSV y JSON de lo filtrado",
+   "veredicto": "PASS",
+   "detalle": "facturas-de-proveedor-2026-10-26.csv (2 líneas: «F-0003,Proveedor Andino SRL,2026-09-02,2099-10-02,BOB 800.00,BOB 0.00,BOB 800.00,Registrad») · facturas-de-proveedor-2026-10-26.json (1)"
+  },
+  {
+   "vista": "compras-facturas",
+   "nivel": "aceptado",
+   "paso": "«Registrar el pago» F-0001 → POST /pagos con monto exacto y recarga",
+   "veredicto": "PASS",
+   "detalle": "/api/v1/erp/facturas-de-proveedor/00000000-0000-4000-8000-000000000001/pagos · {\"monto\":\"100.50\",\"moneda\":\"BOB\",\"formaPago\":\"TRANSFERENCIA\"}"
+  },
+  {
+   "vista": "compras-facturas",
+   "nivel": "aceptado",
+   "paso": "capturas 1280/768/375 claro + 1280 oscuro, sin scroll horizontal",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "compras-facturas",
+   "nivel": "límite",
+   "paso": "búsqueda sin coincidencias → «Quitar filtros»",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "compras-facturas",
+   "nivel": "límite",
+   "paso": "colección vacía → vacío orientado sin paginación",
+   "veredicto": "PASS",
+   "detalle": "No hay facturas de proveedor con estos filtros. Todavía no hay nada acá."
+  },
+  {
+   "vista": "compras-facturas",
+   "nivel": "límite",
+   "paso": "una sola fila → «Página 1 de 1»",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "compras-facturas",
+   "nivel": "error",
+   "paso": "500 → mensaje accionable sin crudo; «Volver a intentar» repite",
+   "veredicto": "PASS",
+   "detalle": "No se pudo cargar facturas de proveedor. Algo salió mal de nuestro lado. Probá de nuevo en un momento. Código "
+  },
+  {
+   "vista": "compras-facturas",
+   "nivel": "error",
+   "paso": "403 → mensaje accionable sin crudo; «Volver a intentar» repite",
+   "veredicto": "PASS",
+   "detalle": "No se pudo cargar facturas de proveedor. No tenés acceso a esto. Código de seguimiento: tz-franja-e-403 Volver"
+  },
+  {
+   "vista": "cobros",
+   "nivel": "aceptado",
+   "paso": "lista 10 de 25 con limite=10",
+   "veredicto": "PASS",
+   "detalle": "/api/v1/erp/cuentas-por-cobrar?limite=10"
+  },
+  {
+   "vista": "cobros",
+   "nivel": "aceptado",
+   "paso": "buscar «nunoa»",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "cobros",
+   "nivel": "aceptado",
+   "paso": "filtro local «Origen»",
+   "veredicto": "PASS",
+   "detalle": "4 filas"
+  },
+  {
+   "vista": "cobros",
+   "nivel": "aceptado",
+   "paso": "filtro del servidor «Estado de la cuenta» → estados=INCOBRABLE",
+   "veredicto": "PASS",
+   "detalle": "/api/v1/erp/cuentas-por-cobrar?limite=10&estados=INCOBRABLE"
+  },
+  {
+   "vista": "cobros",
+   "nivel": "aceptado",
+   "paso": "filas por página 20 → limite=20",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "cobros",
+   "nivel": "aceptado",
+   "paso": "Siguiente pide con el cursor; «Ir a 3» muestra 5; Anterior vuelve",
+   "veredicto": "PASS",
+   "detalle": "/api/v1/erp/cuentas-por-cobrar?limite=10&antesDe=2026-01-01&antesDeId=00000000-0000-4000-8000-000000000010"
+  },
+  {
+   "vista": "cobros",
+   "nivel": "aceptado",
+   "paso": "CSV y JSON de lo filtrado",
+   "veredicto": "PASS",
+   "detalle": "cuentas-por-cobrar-2026-10-26.csv (2 líneas: «Venta de servicio,Cooperativa Ñuñoa,2026-11-01,BOB 300.00,BOB 0.00,BOB 300.00,Pendiente») · cuentas-por-cobrar-2026-10-26.json (1)"
+  },
+  {
+   "vista": "cobros",
+   "nivel": "error",
+   "paso": "cobro con 500 → conserva lo escrito y el botón no queda trabado",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "cobros",
+   "nivel": "aceptado",
+   "paso": "reintento del cobro → POST /cobros con monto 50.00 y recarga",
+   "veredicto": "PASS",
+   "detalle": "/api/v1/erp/cuentas-por-cobrar/00000000-0000-4000-8000-000000000001/cobros · {\"monto\":\"50.00\",\"formaCobro\":\"TRANSFERENCIA\"} · clave bac34ef8…"
+  },
+  {
+   "vista": "cobros",
+   "nivel": "aceptado",
+   "paso": "capturas 1280/768/375 claro + 1280 oscuro, sin scroll horizontal",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "cobros",
+   "nivel": "límite",
+   "paso": "búsqueda sin coincidencias → «Quitar filtros»",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "cobros",
+   "nivel": "límite",
+   "paso": "colección vacía → vacío orientado sin paginación",
+   "veredicto": "PASS",
+   "detalle": "No hay cuentas por cobrar con estos filtros. Todavía no hay nada acá."
+  },
+  {
+   "vista": "cobros",
+   "nivel": "límite",
+   "paso": "una sola fila → «Página 1 de 1»",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "cobros",
+   "nivel": "error",
+   "paso": "500 → mensaje accionable sin crudo; «Volver a intentar» repite",
+   "veredicto": "PASS",
+   "detalle": "No se pudo cargar cuentas por cobrar. Algo salió mal de nuestro lado. Probá de nuevo en un momento. Código de "
+  },
+  {
+   "vista": "cobros",
+   "nivel": "error",
+   "paso": "403 → mensaje accionable sin crudo; «Volver a intentar» repite",
+   "veredicto": "PASS",
+   "detalle": "No se pudo cargar cuentas por cobrar. No tenés acceso a esto. Código de seguimiento: tz-franja-e-403 Volver a "
+  },
+  {
+   "vista": "activos",
+   "nivel": "aceptado",
+   "paso": "lista 10 de 25 con limite=10",
+   "veredicto": "PASS",
+   "detalle": "/api/v1/erp/activos?limite=10"
+  },
+  {
+   "vista": "activos",
+   "nivel": "aceptado",
+   "paso": "buscar «AF-005»",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "activos",
+   "nivel": "aceptado",
+   "paso": "filtro local «Categoría»",
+   "veredicto": "PASS",
+   "detalle": "5 filas"
+  },
+  {
+   "vista": "activos",
+   "nivel": "aceptado",
+   "paso": "filtro del servidor «Estado del activo» → estados=DADO_DE_BAJA",
+   "veredicto": "PASS",
+   "detalle": "/api/v1/erp/activos?limite=10&estados=DADO_DE_BAJA"
+  },
+  {
+   "vista": "activos",
+   "nivel": "aceptado",
+   "paso": "filas por página 20 → limite=20",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "activos",
+   "nivel": "aceptado",
+   "paso": "Siguiente pide con el cursor; «Ir a 3» muestra 5; Anterior vuelve",
+   "veredicto": "PASS",
+   "detalle": "/api/v1/erp/activos?limite=10&antesDe=2026-01-01&antesDeId=00000000-0000-4000-8000-000000000010"
+  },
+  {
+   "vista": "activos",
+   "nivel": "aceptado",
+   "paso": "CSV y JSON de lo filtrado",
+   "veredicto": "PASS",
+   "detalle": "activos-fijos-2026-10-26.csv (2 líneas: «AF-005,Servidor de oficina con almacenamiento redundante y fuente doble para la sala de có») · activos-fijos-2026-10-26.json (1)"
+  },
+  {
+   "vista": "activos",
+   "nivel": "aceptado",
+   "paso": "«Depreciar» AF-001 → POST /depreciaciones con el período y recarga",
+   "veredicto": "PASS",
+   "detalle": "/api/v1/erp/activos/00000000-0000-4000-8000-000000000001/depreciaciones · {\"periodoContableId\":\"b6ab0151-f825-4175-8e8e-6024aed062c6\"}"
+  },
+  {
+   "vista": "activos",
+   "nivel": "aceptado",
+   "paso": "capturas 1280/768/375 claro + 1280 oscuro, sin scroll horizontal",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "activos",
+   "nivel": "límite",
+   "paso": "búsqueda sin coincidencias → «Quitar filtros»",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "activos",
+   "nivel": "límite",
+   "paso": "colección vacía → vacío orientado sin paginación",
+   "veredicto": "PASS",
+   "detalle": "No hay activos fijos con estos filtros. Todavía no hay nada acá."
+  },
+  {
+   "vista": "activos",
+   "nivel": "límite",
+   "paso": "una sola fila → «Página 1 de 1»",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "activos",
+   "nivel": "error",
+   "paso": "500 → mensaje accionable sin crudo; «Volver a intentar» repite",
+   "veredicto": "PASS",
+   "detalle": "No se pudo cargar activos fijos. Algo salió mal de nuestro lado. Probá de nuevo en un momento. Código de segui"
+  },
+  {
+   "vista": "activos",
+   "nivel": "error",
+   "paso": "403 → mensaje accionable sin crudo; «Volver a intentar» repite",
+   "veredicto": "PASS",
+   "detalle": "No se pudo cargar activos fijos. No tenés acceso a esto. Código de seguimiento: tz-franja-e-403 Volver a inten"
+  },
+  {
+   "vista": "periodo",
+   "nivel": "aceptado",
+   "paso": "período de hoy, ejercicios, meses; sin «Asentar»; cerrar → POST /cierre",
+   "veredicto": "PASS",
+   "detalle": "/api/v1/erp/periodos/1ca325ab-0e51-468d-82f2-e3262af4ec38/cierre · {\"glosa\":\"Cierre de enero 1\"}"
+  },
+  {
+   "vista": "estados",
+   "nivel": "error",
+   "paso": "Prism repite un hash vacío junto al documento → NO se entrega el archivo y se dice por qué",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "estados",
+   "nivel": "aceptado",
+   "paso": "generar → POST; descargar → GET documento (doble con el hash generado) y el navegador recibe el archivo",
+   "veredicto": "PASS",
+   "detalle": "/api/v1/erp/periodos/b6ab0151-f825-4175-8e8e-6024aed062c6/estados-financieros · archivo balance-general-enero-1-hashCont.pdf (14 bytes, hash hashContenido)"
+  },
+  {
+   "vista": "configuracion",
+   "nivel": "aceptado",
+   "paso": "inicio con tres accesos con ícono que navegan",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "tarifario",
+   "nivel": "aceptado",
+   "paso": "lista 10 de 25 con limite=10",
+   "veredicto": "PASS",
+   "detalle": "/api/v1/tarifas/tarifarios?limite=10"
+  },
+  {
+   "vista": "tarifario",
+   "nivel": "aceptado",
+   "paso": "buscar «tarifa general»",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "tarifario",
+   "nivel": "aceptado",
+   "paso": "filtro local «Moneda»",
+   "veredicto": "PASS",
+   "detalle": "5 filas"
+  },
+  {
+   "vista": "tarifario",
+   "nivel": "aceptado",
+   "paso": "filtro del servidor «Estado» → estados=VIGENTE",
+   "veredicto": "PASS",
+   "detalle": "/api/v1/tarifas/tarifarios?limite=10&estados=VIGENTE"
+  },
+  {
+   "vista": "tarifario",
+   "nivel": "aceptado",
+   "paso": "filas por página 20 → limite=20",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "tarifario",
+   "nivel": "aceptado",
+   "paso": "Siguiente pide con el cursor; «Ir a 3» muestra 5; Anterior vuelve",
+   "veredicto": "PASS",
+   "detalle": "/api/v1/tarifas/tarifarios?limite=10&antesDe=2026-01-01&antesDeId=00000000-0000-4000-8000-000000000010"
+  },
+  {
+   "vista": "tarifario",
+   "nivel": "aceptado",
+   "paso": "CSV y JSON de lo filtrado",
+   "veredicto": "PASS",
+   "detalle": "historial-del-tarifario-2026-10-26.csv (2 líneas: «TAR-1,1,Tarifa general,En preaviso,USD,2026-11-01T04:00:00Z,no disponible,30,no disponible») · historial-del-tarifario-2026-10-26.json (1)"
+  },
+  {
+   "vista": "tarifario",
+   "nivel": "aceptado",
+   "paso": "capturas 1280/768/375 claro + 1280 oscuro, sin scroll horizontal",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "tarifario",
+   "nivel": "límite",
+   "paso": "búsqueda sin coincidencias → «Quitar filtros»",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "tarifario",
+   "nivel": "límite",
+   "paso": "colección vacía → vacío orientado sin paginación",
+   "veredicto": "PASS",
+   "detalle": "Todavía no hay tarifarios publicados. Todavía no hay nada acá."
+  },
+  {
+   "vista": "tarifario",
+   "nivel": "límite",
+   "paso": "una sola fila → «Página 1 de 1»",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "tarifario",
+   "nivel": "error",
+   "paso": "500 → mensaje accionable sin crudo; «Volver a intentar» repite",
+   "veredicto": "PASS",
+   "detalle": "No se pudo cargar historial del tarifario. Algo salió mal de nuestro lado. Probá de nuevo en un momento. Códig"
+  },
+  {
+   "vista": "tarifario",
+   "nivel": "error",
+   "paso": "403 → mensaje accionable sin crudo; «Volver a intentar» repite",
+   "veredicto": "PASS",
+   "detalle": "No se pudo cargar historial del tarifario. No tenés acceso a esto. Código de seguimiento: tz-franja-e-403 Volv"
+  },
+  {
+   "vista": "mensajeria-plantillas",
+   "nivel": "aceptado",
+   "paso": "lista 10 de 25 con limite=10",
+   "veredicto": "PASS",
+   "detalle": "/api/v1/notificaciones/plantillas?limite=10"
+  },
+  {
+   "vista": "mensajeria-plantillas",
+   "nivel": "aceptado",
+   "paso": "buscar «PLANTILLA_7»",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "mensajeria-plantillas",
+   "nivel": "aceptado",
+   "paso": "filtro local «Canal»",
+   "veredicto": "PASS",
+   "detalle": "5 filas"
+  },
+  {
+   "vista": "mensajeria-plantillas",
+   "nivel": "aceptado",
+   "paso": "filtro del servidor «Aprobación» → estados=RECHAZADA",
+   "veredicto": "PASS",
+   "detalle": "/api/v1/notificaciones/plantillas?limite=10&estados=RECHAZADA"
+  },
+  {
+   "vista": "mensajeria-plantillas",
+   "nivel": "aceptado",
+   "paso": "filas por página 20 → limite=20",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "mensajeria-plantillas",
+   "nivel": "aceptado",
+   "paso": "Siguiente pide con el cursor; «Ir a 3» muestra 5; Anterior vuelve",
+   "veredicto": "PASS",
+   "detalle": "/api/v1/notificaciones/plantillas?limite=10&antesDe=2026-01-01&antesDeId=00000000-0000-4000-8000-000000000010"
+  },
+  {
+   "vista": "mensajeria-plantillas",
+   "nivel": "aceptado",
+   "paso": "CSV y JSON de lo filtrado",
+   "veredicto": "PASS",
+   "detalle": "plantillas-2026-10-26.csv (2 líneas: «PLANTILLA_7,EVENTO_7,WHATSAPP,Borrador,Inactiva,1,es,2026-09-01T04:00:00Z,no disponible») · plantillas-2026-10-26.json (1)"
+  },
+  {
+   "vista": "mensajeria-plantillas",
+   "nivel": "aceptado",
+   "paso": "capturas 1280/768/375 claro + 1280 oscuro, sin scroll horizontal",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "mensajeria-plantillas",
+   "nivel": "límite",
+   "paso": "búsqueda sin coincidencias → «Quitar filtros»",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "mensajeria-plantillas",
+   "nivel": "límite",
+   "paso": "colección vacía → vacío orientado sin paginación",
+   "veredicto": "PASS",
+   "detalle": "Todavía no hay plantillas cargadas. Todavía no hay nada acá."
+  },
+  {
+   "vista": "mensajeria-plantillas",
+   "nivel": "límite",
+   "paso": "una sola fila → «Página 1 de 1»",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "mensajeria-plantillas",
+   "nivel": "error",
+   "paso": "500 → mensaje accionable sin crudo; «Volver a intentar» repite",
+   "veredicto": "PASS",
+   "detalle": "No se pudo cargar plantillas. Algo salió mal de nuestro lado. Probá de nuevo en un momento. Código de seguimie"
+  },
+  {
+   "vista": "mensajeria-plantillas",
+   "nivel": "error",
+   "paso": "403 → mensaje accionable sin crudo; «Volver a intentar» repite",
+   "veredicto": "PASS",
+   "detalle": "No se pudo cargar plantillas. No tenés acceso a esto. Código de seguimiento: tz-franja-e-403 Volver a intentar"
+  },
+  {
+   "vista": "mensajeria-envios",
+   "nivel": "aceptado",
+   "paso": "lista 10 de 25 con limite=10",
+   "veredicto": "PASS",
+   "detalle": "/api/v1/notificaciones/envios?limite=10"
+  },
+  {
+   "vista": "mensajeria-envios",
+   "nivel": "aceptado",
+   "paso": "buscar «E-EJEMPLO»",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "mensajeria-envios",
+   "nivel": "aceptado",
+   "paso": "filtro local «Proveedor»",
+   "veredicto": "PASS",
+   "detalle": "5 filas"
+  },
+  {
+   "vista": "mensajeria-envios",
+   "nivel": "aceptado",
+   "paso": "filtro del servidor «Estado» → estados=FALLIDO",
+   "veredicto": "PASS",
+   "detalle": "/api/v1/notificaciones/envios?limite=10&estados=FALLIDO"
+  },
+  {
+   "vista": "mensajeria-envios",
+   "nivel": "aceptado",
+   "paso": "filas por página 20 → limite=20",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "mensajeria-envios",
+   "nivel": "aceptado",
+   "paso": "Siguiente pide con el cursor; «Ir a 3» muestra 5; Anterior vuelve",
+   "veredicto": "PASS",
+   "detalle": "/api/v1/notificaciones/envios?limite=10&antesDe=2026-01-01&antesDeId=00000000-0000-4000-8000-000000000010"
+  },
+  {
+   "vista": "mensajeria-envios",
+   "nivel": "aceptado",
+   "paso": "CSV y JSON de lo filtrado",
+   "veredicto": "PASS",
+   "detalle": "envios-2026-10-26.csv (3 líneas: «2026-10-16T12:00:00Z,WHATSAPP,PROVEEDOR_B,Fallido,3 / 3,0.0125 USD,E-EJEMPLO,no disponible») · envios-2026-10-26.json (2)"
+  },
+  {
+   "vista": "mensajeria-envios",
+   "nivel": "aceptado",
+   "paso": "capturas 1280/768/375 claro + 1280 oscuro, sin scroll horizontal",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "mensajeria-envios",
+   "nivel": "límite",
+   "paso": "búsqueda sin coincidencias → «Quitar filtros»",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "mensajeria-envios",
+   "nivel": "límite",
+   "paso": "colección vacía → vacío orientado sin paginación",
+   "veredicto": "PASS",
+   "detalle": "Todavía no hay envíos registrados. Todavía no hay nada acá."
+  },
+  {
+   "vista": "mensajeria-envios",
+   "nivel": "límite",
+   "paso": "una sola fila → «Página 1 de 1»",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "mensajeria-envios",
+   "nivel": "error",
+   "paso": "500 → mensaje accionable sin crudo; «Volver a intentar» repite",
+   "veredicto": "PASS",
+   "detalle": "No se pudo cargar envíos. Algo salió mal de nuestro lado. Probá de nuevo en un momento. Código de seguimiento:"
+  },
+  {
+   "vista": "mensajeria-envios",
+   "nivel": "error",
+   "paso": "403 → mensaje accionable sin crudo; «Volver a intentar» repite",
+   "veredicto": "PASS",
+   "detalle": "No se pudo cargar envíos. No tenés acceso a esto. Código de seguimiento: tz-franja-e-403 Volver a intentar"
+  },
+  {
+   "vista": "reportes-catalogo",
+   "nivel": "aceptado",
+   "paso": "lista 10 de 25 con limite=10",
+   "veredicto": "PASS",
+   "detalle": "/api/v1/reportes?limite=10"
+  },
+  {
+   "vista": "reportes-catalogo",
+   "nivel": "aceptado",
+   "paso": "buscar «reporte 9»",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "reportes-catalogo",
+   "nivel": "aceptado",
+   "paso": "filtro local «Tipo»",
+   "veredicto": "PASS",
+   "detalle": "5 filas"
+  },
+  {
+   "vista": "reportes-catalogo",
+   "nivel": "aceptado",
+   "paso": "filas por página 20 → limite=20",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "reportes-catalogo",
+   "nivel": "aceptado",
+   "paso": "Siguiente pide con el cursor; «Ir a 3» muestra 5; Anterior vuelve",
+   "veredicto": "PASS",
+   "detalle": "/api/v1/reportes?limite=10&despuesDe=2026-01-01&despuesDeId=00000000-0000-4000-8000-000000000010"
+  },
+  {
+   "vista": "reportes-catalogo",
+   "nivel": "aceptado",
+   "paso": "CSV y JSON de lo filtrado",
+   "veredicto": "PASS",
+   "detalle": "catalogo-de-reportes-2026-10-26.csv (2 líneas: «Reporte 9,FINANCIERO,Sintético,AUDITORIA_LEER,Datos sensibles: pide justificación») · catalogo-de-reportes-2026-10-26.json (1)"
+  },
+  {
+   "vista": "reportes-catalogo",
+   "nivel": "aceptado",
+   "paso": "capturas 1280/768/375 claro + 1280 oscuro, sin scroll horizontal",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "reportes-catalogo",
+   "nivel": "límite",
+   "paso": "búsqueda sin coincidencias → «Quitar filtros»",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "reportes-catalogo",
+   "nivel": "límite",
+   "paso": "colección vacía → vacío orientado sin paginación",
+   "veredicto": "PASS",
+   "detalle": "No hay reportes activos en el catálogo. Todavía no hay nada acá."
+  },
+  {
+   "vista": "reportes-catalogo",
+   "nivel": "límite",
+   "paso": "una sola fila → «Página 1 de 1»",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "reportes-catalogo",
+   "nivel": "error",
+   "paso": "500 → mensaje accionable sin crudo; «Volver a intentar» repite",
+   "veredicto": "PASS",
+   "detalle": "No se pudo cargar catálogo de reportes. Algo salió mal de nuestro lado. Probá de nuevo en un momento. Código d"
+  },
+  {
+   "vista": "reportes-catalogo",
+   "nivel": "error",
+   "paso": "403 → mensaje accionable sin crudo; «Volver a intentar» repite",
+   "veredicto": "PASS",
+   "detalle": "No se pudo cargar catálogo de reportes. No tenés acceso a esto. Código de seguimiento: tz-franja-e-403 Volver "
+  },
+  {
+   "vista": "reportes-ejecuciones",
+   "nivel": "aceptado",
+   "paso": "lista 10 de 25 con limite=10",
+   "veredicto": "PASS",
+   "detalle": "/api/v1/reportes/ejecuciones?limite=10"
+  },
+  {
+   "vista": "reportes-ejecuciones",
+   "nivel": "aceptado",
+   "paso": "buscar «reporte 2»",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "reportes-ejecuciones",
+   "nivel": "aceptado",
+   "paso": "filtro del servidor «Estado» → estados=FALLIDA",
+   "veredicto": "PASS",
+   "detalle": "/api/v1/reportes/ejecuciones?limite=10&estados=FALLIDA"
+  },
+  {
+   "vista": "reportes-ejecuciones",
+   "nivel": "aceptado",
+   "paso": "filas por página 20 → limite=20",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "reportes-ejecuciones",
+   "nivel": "aceptado",
+   "paso": "Siguiente pide con el cursor; «Ir a 3» muestra 5; Anterior vuelve",
+   "veredicto": "PASS",
+   "detalle": "/api/v1/reportes/ejecuciones?limite=10&antesDe=2026-01-01&antesDeId=00000000-0000-4000-8000-000000000010"
+  },
+  {
+   "vista": "reportes-ejecuciones",
+   "nivel": "aceptado",
+   "paso": "CSV y JSON de lo filtrado",
+   "veredicto": "PASS",
+   "detalle": "historial-de-ejecuciones-2026-10-26.csv (3 líneas: «2026-10-16T12:00:00Z,Reporte 2,Fallida,1,15,no disponible,no disponible») · historial-de-ejecuciones-2026-10-26.json (2)"
+  },
+  {
+   "vista": "reportes-ejecuciones",
+   "nivel": "aceptado",
+   "paso": "capturas 1280/768/375 claro + 1280 oscuro, sin scroll horizontal",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "reportes-ejecuciones",
+   "nivel": "límite",
+   "paso": "búsqueda sin coincidencias → «Quitar filtros»",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "reportes-ejecuciones",
+   "nivel": "límite",
+   "paso": "colección vacía → vacío orientado sin paginación",
+   "veredicto": "PASS",
+   "detalle": "Todavía nadie ejecutó un reporte. Todavía no hay nada acá."
+  },
+  {
+   "vista": "reportes-ejecuciones",
+   "nivel": "límite",
+   "paso": "una sola fila → «Página 1 de 1»",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "reportes-ejecuciones",
+   "nivel": "error",
+   "paso": "500 → mensaje accionable sin crudo; «Volver a intentar» repite",
+   "veredicto": "PASS",
+   "detalle": "No se pudo cargar historial de ejecuciones. Algo salió mal de nuestro lado. Probá de nuevo en un momento. Códi"
+  },
+  {
+   "vista": "reportes-ejecuciones",
+   "nivel": "error",
+   "paso": "403 → mensaje accionable sin crudo; «Volver a intentar» repite",
+   "veredicto": "PASS",
+   "detalle": "No se pudo cargar historial de ejecuciones. No tenés acceso a esto. Código de seguimiento: tz-franja-e-403 Vol"
+  }
+ ],
+ "errores": [
+  {
+   "url": "http://127.0.0.1:4305/contabilidad/presupuesto",
+   "tipo": "red",
+   "texto": "500 GET /api/v1/erp/partidas-presupuestarias?limite=10"
+  },
+  {
+   "url": "http://127.0.0.1:4305/contabilidad/presupuesto",
+   "tipo": "consola",
+   "texto": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+  },
+  {
+   "url": "http://127.0.0.1:4305/contabilidad/presupuesto",
+   "tipo": "red",
+   "texto": "403 GET /api/v1/erp/partidas-presupuestarias?limite=10"
+  },
+  {
+   "url": "http://127.0.0.1:4305/contabilidad/presupuesto",
+   "tipo": "consola",
+   "texto": "Failed to load resource: the server responded with a status of 403 (Forbidden)"
+  },
+  {
+   "url": "http://127.0.0.1:4305/contabilidad/compras",
+   "tipo": "red",
+   "texto": "500 POST /api/v1/erp/ordenes-de-compra/00000000-0000-4000-8000-000000000005/aprobacion"
+  },
+  {
+   "url": "http://127.0.0.1:4305/contabilidad/compras",
+   "tipo": "consola",
+   "texto": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+  },
+  {
+   "url": "http://127.0.0.1:4305/contabilidad/compras",
+   "tipo": "red",
+   "texto": "500 GET /api/v1/erp/ordenes-de-compra?limite=10"
+  },
+  {
+   "url": "http://127.0.0.1:4305/contabilidad/compras",
+   "tipo": "consola",
+   "texto": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+  },
+  {
+   "url": "http://127.0.0.1:4305/contabilidad/compras",
+   "tipo": "red",
+   "texto": "403 GET /api/v1/erp/ordenes-de-compra?limite=10"
+  },
+  {
+   "url": "http://127.0.0.1:4305/contabilidad/compras",
+   "tipo": "consola",
+   "texto": "Failed to load resource: the server responded with a status of 403 (Forbidden)"
+  },
+  {
+   "url": "http://127.0.0.1:4305/contabilidad/compras",
+   "tipo": "red",
+   "texto": "500 GET /api/v1/erp/facturas-de-proveedor?limite=10"
+  },
+  {
+   "url": "http://127.0.0.1:4305/contabilidad/compras",
+   "tipo": "consola",
+   "texto": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+  },
+  {
+   "url": "http://127.0.0.1:4305/contabilidad/compras",
+   "tipo": "red",
+   "texto": "403 GET /api/v1/erp/facturas-de-proveedor?limite=10"
+  },
+  {
+   "url": "http://127.0.0.1:4305/contabilidad/compras",
+   "tipo": "consola",
+   "texto": "Failed to load resource: the server responded with a status of 403 (Forbidden)"
+  },
+  {
+   "url": "http://127.0.0.1:4305/contabilidad/cobros",
+   "tipo": "red",
+   "texto": "500 POST /api/v1/erp/cuentas-por-cobrar/00000000-0000-4000-8000-000000000001/cobros"
+  },
+  {
+   "url": "http://127.0.0.1:4305/contabilidad/cobros",
+   "tipo": "consola",
+   "texto": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+  },
+  {
+   "url": "http://127.0.0.1:4305/contabilidad/cobros",
+   "tipo": "red",
+   "texto": "500 GET /api/v1/erp/cuentas-por-cobrar?limite=10"
+  },
+  {
+   "url": "http://127.0.0.1:4305/contabilidad/cobros",
+   "tipo": "consola",
+   "texto": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+  },
+  {
+   "url": "http://127.0.0.1:4305/contabilidad/cobros",
+   "tipo": "red",
+   "texto": "403 GET /api/v1/erp/cuentas-por-cobrar?limite=10"
+  },
+  {
+   "url": "http://127.0.0.1:4305/contabilidad/cobros",
+   "tipo": "consola",
+   "texto": "Failed to load resource: the server responded with a status of 403 (Forbidden)"
+  },
+  {
+   "url": "http://127.0.0.1:4305/contabilidad/activos/b6ab0151-f825-4175-8e8e-6024aed062c6",
+   "tipo": "red",
+   "texto": "500 GET /api/v1/erp/activos?limite=10"
+  },
+  {
+   "url": "http://127.0.0.1:4305/contabilidad/activos/b6ab0151-f825-4175-8e8e-6024aed062c6",
+   "tipo": "consola",
+   "texto": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+  },
+  {
+   "url": "http://127.0.0.1:4305/contabilidad/activos/b6ab0151-f825-4175-8e8e-6024aed062c6",
+   "tipo": "red",
+   "texto": "403 GET /api/v1/erp/activos?limite=10"
+  },
+  {
+   "url": "http://127.0.0.1:4305/contabilidad/activos/b6ab0151-f825-4175-8e8e-6024aed062c6",
+   "tipo": "consola",
+   "texto": "Failed to load resource: the server responded with a status of 403 (Forbidden)"
+  },
+  {
+   "url": "http://127.0.0.1:4305/configuracion/tarifario",
+   "tipo": "red",
+   "texto": "500 GET /api/v1/tarifas/tarifarios?limite=10"
+  },
+  {
+   "url": "http://127.0.0.1:4305/configuracion/tarifario",
+   "tipo": "consola",
+   "texto": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+  },
+  {
+   "url": "http://127.0.0.1:4305/configuracion/tarifario",
+   "tipo": "red",
+   "texto": "403 GET /api/v1/tarifas/tarifarios?limite=10"
+  },
+  {
+   "url": "http://127.0.0.1:4305/configuracion/tarifario",
+   "tipo": "consola",
+   "texto": "Failed to load resource: the server responded with a status of 403 (Forbidden)"
+  },
+  {
+   "url": "http://127.0.0.1:4305/configuracion/mensajeria",
+   "tipo": "red",
+   "texto": "500 GET /api/v1/notificaciones/plantillas?limite=10"
+  },
+  {
+   "url": "http://127.0.0.1:4305/configuracion/mensajeria",
+   "tipo": "consola",
+   "texto": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+  },
+  {
+   "url": "http://127.0.0.1:4305/configuracion/mensajeria",
+   "tipo": "red",
+   "texto": "403 GET /api/v1/notificaciones/plantillas?limite=10"
+  },
+  {
+   "url": "http://127.0.0.1:4305/configuracion/mensajeria",
+   "tipo": "consola",
+   "texto": "Failed to load resource: the server responded with a status of 403 (Forbidden)"
+  },
+  {
+   "url": "http://127.0.0.1:4305/configuracion/mensajeria",
+   "tipo": "red",
+   "texto": "500 GET /api/v1/notificaciones/envios?limite=10"
+  },
+  {
+   "url": "http://127.0.0.1:4305/configuracion/mensajeria",
+   "tipo": "consola",
+   "texto": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+  },
+  {
+   "url": "http://127.0.0.1:4305/configuracion/mensajeria",
+   "tipo": "red",
+   "texto": "403 GET /api/v1/notificaciones/envios?limite=10"
+  },
+  {
+   "url": "http://127.0.0.1:4305/configuracion/mensajeria",
+   "tipo": "consola",
+   "texto": "Failed to load resource: the server responded with a status of 403 (Forbidden)"
+  },
+  {
+   "url": "http://127.0.0.1:4305/configuracion/reportes",
+   "tipo": "red",
+   "texto": "500 GET /api/v1/reportes?limite=10"
+  },
+  {
+   "url": "http://127.0.0.1:4305/configuracion/reportes",
+   "tipo": "consola",
+   "texto": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+  },
+  {
+   "url": "http://127.0.0.1:4305/configuracion/reportes",
+   "tipo": "red",
+   "texto": "403 GET /api/v1/reportes?limite=10"
+  },
+  {
+   "url": "http://127.0.0.1:4305/configuracion/reportes",
+   "tipo": "consola",
+   "texto": "Failed to load resource: the server responded with a status of 403 (Forbidden)"
+  },
+  {
+   "url": "http://127.0.0.1:4305/configuracion/reportes",
+   "tipo": "red",
+   "texto": "500 GET /api/v1/reportes/ejecuciones?limite=10"
+  },
+  {
+   "url": "http://127.0.0.1:4305/configuracion/reportes",
+   "tipo": "consola",
+   "texto": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+  },
+  {
+   "url": "http://127.0.0.1:4305/configuracion/reportes",
+   "tipo": "red",
+   "texto": "403 GET /api/v1/reportes/ejecuciones?limite=10"
+  },
+  {
+   "url": "http://127.0.0.1:4305/configuracion/reportes",
+   "tipo": "consola",
+   "texto": "Failed to load resource: the server responded with a status of 403 (Forbidden)"
+  }
+ ],
+ "mutaciones": [
+  {
+   "metodo": "POST",
+   "url": "/api/v1/sesion/refrescar",
+   "clave": null,
+   "cuerpo": null
+  },
+  {
+   "metodo": "POST",
+   "url": "/api/v1/sesiones",
+   "clave": null,
+   "cuerpo": "{\"telefonoE164\":\"+59171234567\",\"credencial\":\"contrasena-e2e\",\"huellaDispositivo\":\"web-66fbf1c1b68745eec55ac5b1ed69184b\",\"plataforma\":\"WEB\"}"
+  },
+  {
+   "metodo": "POST",
+   "url": "/api/v1/sesiones",
+   "clave": null,
+   "cuerpo": "{\"telefonoE164\":\"+59171234567\",\"credencial\":\"contrasena-e2e\",\"huellaDispositivo\":\"web-66fbf1c1b68745eec55ac5b1ed69184b\",\"plataforma\":\"WEB\",\"factor\":{\"tipo\":\"TOTP\",\"valor\":\"123456\"}}"
+  },
+  {
+   "metodo": "POST",
+   "url": "/api/v1/erp/ordenes-de-compra/00000000-0000-4000-8000-000000000005/aprobacion",
+   "clave": "0770b1f0-81e4-460e-a498-13de126984f9",
+   "cuerpo": "{}"
+  },
+  {
+   "metodo": "POST",
+   "url": "/api/v1/erp/ordenes-de-compra/00000000-0000-4000-8000-000000000005/aprobacion",
+   "clave": "878fd7fc-8613-4be9-898a-2d60f5183728",
+   "cuerpo": "{}"
+  },
+  {
+   "metodo": "POST",
+   "url": "/api/v1/erp/facturas-de-proveedor/00000000-0000-4000-8000-000000000001/pagos",
+   "clave": "133e48f0-7cef-4b8b-8d29-32eff11d241b",
+   "cuerpo": "{\"monto\":\"100.50\",\"moneda\":\"BOB\",\"formaPago\":\"TRANSFERENCIA\"}"
+  },
+  {
+   "metodo": "POST",
+   "url": "/api/v1/erp/cuentas-por-cobrar/00000000-0000-4000-8000-000000000001/cobros",
+   "clave": "bac34ef8-b6db-40c7-805c-4d64bac6e7ad",
+   "cuerpo": "{\"monto\":\"50.00\",\"formaCobro\":\"TRANSFERENCIA\"}"
+  },
+  {
+   "metodo": "POST",
+   "url": "/api/v1/erp/cuentas-por-cobrar/00000000-0000-4000-8000-000000000001/cobros",
+   "clave": "bac34ef8-b6db-40c7-805c-4d64bac6e7ad",
+   "cuerpo": "{\"monto\":\"50.00\",\"formaCobro\":\"TRANSFERENCIA\"}"
+  },
+  {
+   "metodo": "POST",
+   "url": "/api/v1/erp/activos/00000000-0000-4000-8000-000000000001/depreciaciones",
+   "clave": "046b7aae-af13-4a27-ae32-1aa9467020e9",
+   "cuerpo": "{\"periodoContableId\":\"b6ab0151-f825-4175-8e8e-6024aed062c6\"}"
+  },
+  {
+   "metodo": "POST",
+   "url": "/api/v1/erp/periodos/1ca325ab-0e51-468d-82f2-e3262af4ec38/cierre",
+   "clave": "81d8f1b8-5bbb-46be-9f22-754192a1396b",
+   "cuerpo": "{\"glosa\":\"Cierre de enero 1\"}"
+  },
+  {
+   "metodo": "POST",
+   "url": "/api/v1/erp/periodos/b6ab0151-f825-4175-8e8e-6024aed062c6/estados-financieros",
+   "clave": "eafd07e0-37a9-4a6a-8d05-98aa9d66aec8",
+   "cuerpo": "{\"tipo\":\"BALANCE_GENERAL\"}"
+  },
+  {
+   "metodo": "POST",
+   "url": "/api/v1/erp/periodos/b6ab0151-f825-4175-8e8e-6024aed062c6/estados-financieros",
+   "clave": "19523c76-8ac1-4dd0-b6c6-0958d097b283",
+   "cuerpo": "{\"tipo\":\"BALANCE_GENERAL\"}"
+  }
+ ]
+}

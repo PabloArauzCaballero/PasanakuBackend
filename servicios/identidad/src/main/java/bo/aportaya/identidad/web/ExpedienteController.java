@@ -4,6 +4,7 @@ import bo.aportaya.identidad.aplicacion.CU02ActualizarFechaExpiracion;
 import bo.aportaya.identidad.aplicacion.CU02ConsultarEstadoDeVerificacion;
 import bo.aportaya.identidad.aplicacion.CU02GuardarFotoDelExpediente;
 import bo.aportaya.identidad.aplicacion.CU02IniciarVerificacion;
+import bo.aportaya.identidad.aplicacion.CU07FotoDePerfil;
 import bo.aportaya.identidad.aplicacion.ConsultarMiPerfil;
 import bo.aportaya.identidad.aplicacion.ConsumirInvitacion;
 import bo.aportaya.identidad.web.generado.modelo.ArchivoDelExpediente;
@@ -20,6 +21,7 @@ import bo.aportaya.plataforma.web.traza.Traza;
 import jakarta.servlet.http.HttpServletRequest;
 import java.time.Duration;
 import java.util.UUID;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -41,6 +43,7 @@ public abstract class ExpedienteController extends InvitacionesController {
     private final ConsultarMiPerfil miPerfil;
     private final CU02IniciarVerificacion iniciarVerificacion;
     private final String pimienta;
+    private CU07FotoDePerfil fotoDePerfil;
 
     /** El token que devuelve el alta y autoriza las fotos de ESA persona; el alta lo emite desde la subclase. */
     protected final TokenDeAlta tokenDeAlta;
@@ -176,6 +179,48 @@ public abstract class ExpedienteController extends InvitacionesController {
         salida.setNombreVisible(p.nombreVisible());
         salida.setNombreCompleto(p.nombreCompleto());
         salida.setTelefono(p.telefono());
+        salida.setTieneFotoDePerfil(p.tieneFotoDePerfil());
         return ResponseEntity.ok(salida);
+    }
+
+    /**
+     * Por setter y no por constructor: {@link UsuariosController} ya recibe veintidos dependencias y vive
+     * al borde de las 300 lineas. Spring lo inyecta antes de atender cualquier peticion.
+     */
+    @Autowired
+    void conFotoDePerfil(CU07FotoDePerfil fotoDePerfil) {
+        this.fotoDePerfil = fotoDePerfil;
+    }
+
+    /** CU-07: la foto de perfil propia. Sin id en la ruta: sale de la sesion. */
+    @Override
+    @Permiso("PARTICIPANTE")
+    public ResponseEntity<Void> cambiarMiFotoDePerfil(MultipartFile archivo) {
+        Traza.marcarCasoDeUso("CU-07", "foto-de-perfil");
+        try {
+            fotoDePerfil.cambiar(
+                    sesion.actual(), archivo.getInputStream(), archivo.getSize(), archivo.getOriginalFilename());
+        } catch (java.io.IOException e) {
+            throw new bo.aportaya.plataforma.dominio.ErrorDeDominio(
+                    "Se corto la subida de la foto. Probá de nuevo.", e);
+        }
+        return ResponseEntity.noContent().build();
+    }
+
+    /** Los bytes, por el servicio dueno: el almacen no es publico (ADR-034). 404 sin cuerpo si no hay foto. */
+    @Override
+    @Permiso("PARTICIPANTE")
+    public ResponseEntity<org.springframework.core.io.Resource> verMiFotoDePerfil() {
+        return fotoDePerfil
+                .ver(sesion.actual())
+                .map(contenido -> ResponseEntity.ok()
+                        .contentType(org.springframework.http.MediaType.parseMediaType(
+                                contenido.tipoMime() == null ? "application/octet-stream" : contenido.tipoMime()))
+                        .contentLength(contenido.bytes())
+                        // Es la cara de alguien: no se queda en caches compartidas.
+                        .header("Cache-Control", "private, no-store")
+                        .body((org.springframework.core.io.Resource)
+                                new org.springframework.core.io.InputStreamResource(contenido.datos())))
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 }

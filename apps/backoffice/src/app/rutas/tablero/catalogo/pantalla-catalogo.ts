@@ -31,7 +31,7 @@ const VISTAS = ['tablas', 'esquemas'] as const
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [BarraDeFiltros, CabeceraDePagina, ChipEstado, EstadoDePantalla, EstadoVacio, Paginacion, Pestanas, RouterLink, TablaDeDatos, TarjetaKPI, VistaEsquemas],
   template: `
-    <ap-cabecera-de-pagina icono="baseDeDatos" [eyebrow]="t.eyebrow" [titulo]="t.titulo" [descripcion]="t.descripcion" />
+    <ap-cabecera-de-pagina [eyebrow]="t.eyebrow" [titulo]="t.titulo" [descripcion]="t.descripcion" />
     @if (resumen(); as r) {
       <div class="cifras">
         <ap-tarjeta-kpi [etiqueta]="t.metricas.total" [valor]="'' + r.tablas" icono="baseDeDatos" [pista]="t.metricas.pistaTablas(r.tablasDeNegocio, r.tablasDeInfraestructura)" />
@@ -58,12 +58,14 @@ const VISTAS = ['tablas', 'esquemas'] as const
                 <ng-template #celda let-f let-columna="columna">
                   @switch (columna.clave) {
                     @case ('tabla') {
-                      <a class="nombre" [routerLink]="['/tablero/catalogo-de-datos', f.esquema, f.tabla]">{{ f.tabla }}</a>
-                      <span class="que-es">{{ f.queEs }}</span>
+                      <!-- Nombre y descripción en un solo bloque: en el celular la fila es flexible y como dos piezas se partían letra a letra. -->
+                      <span class="tabla">
+                        <a class="nombre" [routerLink]="['/tablero/catalogo-de-datos', f.esquema, f.tabla]">{{ f.tabla }}</a>
+                        <span class="que-es">{{ f.queEs }}</span>
+                      </span>
                     }
                     @case ('esquema') {
-                      <code>{{ f.esquema }}</code>
-                      @if (f.infraestructura) { <span class="que-es">{{ t.infraestructura }}</span> }
+                      <span class="tabla"><code>{{ f.esquema }}</code>@if (f.infraestructura) { <span class="que-es">{{ t.infraestructura }}</span> }</span>
                     }
                     @case ('estado') { <ap-chip-estado [tono]="f.tonoEstado">{{ f.estado }}</ap-chip-estado> }
                     @case ('revision') { <ap-chip-estado [tono]="f.tonoRevision">{{ f.revision }}</ap-chip-estado> }
@@ -86,8 +88,10 @@ const VISTAS = ['tablas', 'esquemas'] as const
     .nombre { display: block; color: var(--text); font-family: var(--mono); font-size: .92em; font-weight: 600; text-decoration: none; overflow-wrap: anywhere; }
     .nombre:hover { color: var(--brand-texto); text-decoration: underline; }
     .nombre:focus-visible { outline: var(--borde-foco) solid var(--g300); outline-offset: var(--borde-desfase); }
-    .que-es { display: block; margin-top: var(--s1); min-width: 24ch; max-width: 40ch; color: var(--text-2); font: var(--t-cuerpo-chico); white-space: normal; }
+    .que-es { display: block; margin-top: var(--s1); min-width: 18ch; max-width: 32ch; color: var(--text-2); font: var(--t-cuerpo-chico); white-space: normal; }
     code { font-family: var(--mono); font-size: .92em; }
+    .tabla { display: block; min-width: 0; text-align: left; }
+    @media (max-width: 40em) { .que-es { min-width: 0; max-width: none; } }
   `,
 })
 export class PantallaCatalogo {

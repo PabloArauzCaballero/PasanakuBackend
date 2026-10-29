@@ -6,7 +6,7 @@ export { ES_FUENTE_SIMULADA, detectarModoFuentesDeSistemas, type ModoFuentesDeSi
 /**
  * H2.S2.M1/M2 — la versión SEGURA de `provideFuentesDeSistemas`, la que se compila
  * **por omisión, incluida `production`**: entrega la fuente no disponible en los
- * nueve puertos, pase lo que pase en `modo`.
+ * siete puertos, pase lo que pase en `modo`.
  *
  * Este archivo nunca importa el paquete de simulado — ni siquiera con import
  * dinámico — así el build de producción no puede incluir los mocks por

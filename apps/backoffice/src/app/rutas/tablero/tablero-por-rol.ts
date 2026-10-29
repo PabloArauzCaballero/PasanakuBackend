@@ -1,9 +1,8 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal } from '@angular/core'
 import { CabeceraDePagina } from '@aportaya/ui/cabecera-de-pagina/cabecera-de-pagina'
-import { ChipEstado } from '@aportaya/ui/chip-estado/chip-estado'
 import { EstadoDePantalla } from '@aportaya/ui/estado-de-pantalla/estado-de-pantalla'
 import { SelectorSegmentado } from '@aportaya/ui/selector-segmentado/selector-segmentado'
-import { TarjetaKPI } from '@aportaya/ui/tarjeta-kpi/tarjeta-kpi'
+import { Icono } from '@aportaya/ui/icono/icono'
 import { ExplicadorDeVista } from '../../nucleo/explicador-de-vista'
 import {
   ESPERADOS_COMERCIAL,
@@ -17,6 +16,7 @@ import {
   type SalidaTablero,
   type Tarjeta,
 } from './dominio/indicadores'
+import { GrupoDeIndicadores } from './grupo-de-indicadores'
 import { TablaEndpointsDelDia } from './tabla-endpoints-del-dia'
 import { textosTablero } from './textos'
 
@@ -34,10 +34,10 @@ export type TipoDeTablero = 'financiero' | 'comercial' | 'sistemas'
 @Component({
   selector: 'ap-tablero-por-rol',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CabeceraDePagina, ChipEstado, EstadoDePantalla, SelectorSegmentado, TablaEndpointsDelDia, TarjetaKPI],
+  imports: [CabeceraDePagina, EstadoDePantalla, GrupoDeIndicadores, Icono, SelectorSegmentado, TablaEndpointsDelDia],
   template: `
     <section class="pantalla">
-      <ap-cabecera-de-pagina [titulo]="encabezado().titulo" [descripcion]="encabezado().proposito" [icono]="icono()" />
+      <ap-cabecera-de-pagina [titulo]="encabezado().titulo" [descripcion]="encabezado().proposito" eyebrow="Tableros" />
 
       <form class="periodo" (submit)="$event.preventDefault()">
         <ap-selector-segmentado [etiqueta]="t.granularidad" [segmentos]="t.segmentos" [(elegido)]="granularidad" />
@@ -69,7 +69,7 @@ export type TipoDeTablero = 'financiero' | 'comercial' | 'sistemas'
 
         @if (tipo() === 'comercial') {
           <section class="bloque" aria-labelledby="tablero-embudo">
-            <h2 id="tablero-embudo">{{ t.embudo.titulo }}</h2>
+            <h2 id="tablero-embudo"><ap-icono nombre="filtro" tamano="s5" />{{ t.embudo.titulo }}</h2>
             <p class="explicacion">{{ t.embudo.explicacion }}</p>
             <ol class="embudo">
               @for (paso of pasos(); track paso.nombre) {
@@ -84,35 +84,7 @@ export type TipoDeTablero = 'financiero' | 'comercial' | 'sistemas'
         }
 
         @for (g of grupos(); track g.nombre) {
-          <section class="bloque" [attr.aria-label]="g.nombre">
-            <h2>{{ g.nombre }}</h2>
-            <ul class="grilla">
-              @for (k of g.tarjetas; track k.codigo) {
-                <li [attr.data-indicador]="k.codigo">
-                  @switch (k.estado) {
-                    @case ('valor') {
-                      <ap-tarjeta-kpi [etiqueta]="k.nombre" [valor]="k.moneda ? k.valor! : k.texto!" [moneda]="k.moneda" [variacion]="k.variacion" />
-                      @if (k.casos !== undefined) { <p class="casos">{{ t.casos(k.casos) }}</p> }
-                    }
-                    @case ('suprimido') {
-                      <div class="sin-valor" role="group" [attr.aria-label]="k.nombre">
-                        <p class="rotulo">{{ k.nombre }}</p>
-                        <ap-chip-estado tono="neutro">{{ t.suprimido }}</ap-chip-estado>
-                        <p class="explicacion">{{ t.suprimidoExplicacion(k.minimoCasos) }}</p>
-                      </div>
-                    }
-                    @default {
-                      <div class="sin-valor" role="group" [attr.aria-label]="k.nombre">
-                        <p class="rotulo">{{ k.nombre }}</p>
-                        <ap-chip-estado tono="neutro">{{ t.sinDatos }}</ap-chip-estado>
-                        <p class="explicacion">{{ t.sinDatosExplicacion }}</p>
-                      </div>
-                    }
-                  }
-                </li>
-              }
-            </ul>
-          </section>
+          <ap-grupo-de-indicadores [nombre]="g.nombre" [tarjetas]="g.tarjetas" />
         }
         <p class="explicacion">{{ t.calculo }}</p>
       </ap-estado-de-pantalla>
@@ -121,20 +93,16 @@ export type TipoDeTablero = 'financiero' | 'comercial' | 'sistemas'
   `,
   styles: `
     .pantalla > * { min-width: 0; }
-    .pantalla { padding: var(--s5); display: grid; gap: var(--s5); }
+    .pantalla { display: grid; gap: var(--s5); }
     h1, h2 { margin: 0; }
     h2 { font-size: 1.15em; }
     .periodo { display: flex; flex-wrap: wrap; align-items: end; gap: var(--s4); }
     .campo { display: grid; gap: var(--s1); font-weight: 600; color: var(--text-2); }
     .campo input { min-height: var(--area-tactil); padding: 0 var(--s3); border: var(--borde-fino) solid var(--border); border-radius: var(--r-sm); background: var(--surface); color: var(--text); font: inherit; }
     .campo input:focus-visible { outline: var(--borde-foco) solid var(--g300); outline-offset: var(--borde-desfase); }
-    .aviso, .explicacion, .casos { margin: 0; color: var(--text-2); }
-    .casos { margin-top: var(--s1); font-size: .85em; }
+    .aviso, .explicacion { margin: 0; color: var(--text-2); }
     .bloque { display: grid; gap: var(--s3); }
-    .grilla { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr)); gap: var(--s4); }
-    .sin-valor { display: grid; gap: var(--s2); align-content: start; height: 100%; box-sizing: border-box; padding: var(--s4); border: var(--borde-fino) dashed var(--border); border-radius: var(--r-lg); background: var(--surface); }
-    .sin-valor p { margin: 0; }
-    .rotulo { color: var(--text-2); font-weight: 600; font-size: .9em; }
+    h2 { display: flex; align-items: center; gap: var(--s2); }
     .embudo { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--s3); }
     .embudo li { display: grid; grid-template-columns: minmax(10rem, 14rem) 1fr auto; align-items: center; gap: var(--s3); }
     .barra { display: block; height: var(--s3); border-radius: var(--r-sm); background: var(--surface-2); overflow: hidden; }

@@ -1,91 +1,88 @@
-import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core'
-import { toSignal } from '@angular/core/rxjs-interop'
-import { ActivatedRoute, Router } from '@angular/router'
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core'
 import { CabeceraDePagina } from '@aportaya/ui/cabecera-de-pagina/cabecera-de-pagina'
 import { ChipEstado } from '@aportaya/ui/chip-estado/chip-estado'
-import type { Filtro } from '@aportaya/ui/chips-de-filtro/chips-de-filtro'
+import type { ColumnaExportable } from '@aportaya/ui/exportar-listado/exportar'
 import { Fecha } from '@aportaya/ui/fecha/fecha'
-import { BarraDeFiltros } from '../../../nucleo/filtros/barra-de-filtros'
+import type { Columna } from '@aportaya/ui/tabla-de-datos/tabla-de-datos'
 import { ExplicadorDeVista } from '../../../nucleo/explicador-de-vista'
-import { TablaDeDatosVirtualizada } from '../../../nucleo/tabla/tabla-de-datos-virtualizada'
-import type { ColumnaVirtual } from '../../../nucleo/tabla/tipos'
-import { EstadoDeBandejaVista } from '../comun/estado-de-bandeja'
+import { fechaComoSeVe, sinMonedaComoSeVe } from '../comun/como-se-ve'
 import { ImporteSinMoneda } from '../comun/importe-sin-moneda'
-import { bandejaDeReversos, type ReversoEnLista } from './dominio/cu14-reversos'
+import { crearListadoPorCursor } from '../comun/listado-por-cursor'
+import { ListadoPorCursorVista } from '../comun/listado-por-cursor-vista'
+import { pedidorDeReversos, type ReversoEnLista } from './dominio/cu14-reversos'
 import { textosReversos } from './textos'
 
 const T = textosReversos
 type Estado = keyof typeof T.estados
+type Tipo = keyof typeof T.tipos
 const TONO: Record<Estado, 'ok' | 'aviso' | 'error' | 'info'> = { SOLICITADO: 'info', AUTORIZADO: 'aviso', EJECUTADO: 'ok', RECHAZADO: 'error' }
 const CLAVES = ['solicitadaEn', 'tipo', 'estado', 'montoReversado', 'motivo', 'autorizadaPor', 'transaccionOriginalId', 'ejecutadaEn'] as const
-const COLUMNAS: ColumnaVirtual<ReversoEnLista>[] = CLAVES.map((clave) => ({ clave, titulo: T.columnas[clave], numerica: clave === 'montoReversado' }))
+const COLUMNAS: Columna<ReversoEnLista>[] = CLAVES.map((clave) => ({ clave, titulo: T.columnas[clave], numerica: clave === 'montoReversado' }))
+const estadoDe = (r: ReversoEnLista) => T.estados[r.estado as Estado] ?? r.estado
+const tipoDe = (r: ReversoEnLista) => T.tipos[r.tipo as Tipo] ?? r.tipo
+const C = T.columnas
+const EXPORTABLES: ColumnaExportable<ReversoEnLista>[] = [
+  { clave: 'reversoId', titulo: C.reversoId },
+  { clave: 'solicitadaEn', titulo: C.solicitadaEn, valor: (r) => fechaComoSeVe(r.solicitadaEn) },
+  { clave: 'tipo', titulo: C.tipo, valor: tipoDe },
+  { clave: 'estado', titulo: C.estado, valor: estadoDe },
+  { clave: 'montoReversado', titulo: C.montoReversado, valor: (r) => sinMonedaComoSeVe(r.montoReversado) },
+  { clave: 'motivo', titulo: C.motivo },
+  { clave: 'autorizadaPor', titulo: C.autorizadaPor },
+  { clave: 'transaccionOriginalId', titulo: C.transaccionOriginalId },
+  { clave: 'ejecutadaEn', titulo: C.ejecutadaEn, valor: (r) => fechaComoSeVe(r.ejecutadaEn) || T.pendiente },
+]
 
 /**
- * CU-14 · listado de reversos de solo lectura para Tesorería y Auditoría (AUDITORIA_LEER).
+ * CU-14 · listado de reversos de solo lectura para Tesorería y Auditoría (AUDITORIA_LEER). Un reverso es un registro
+ * contable: no se edita ni se elimina (regla 91.1.3), así que la fila no tiene acciones. El estado viaja al servidor
+ * (`estados`); tipo, búsqueda y descarga trabajan sobre la página cargada.
  */
 @Component({
   selector: 'ap-listado-de-reversos',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CabeceraDePagina, ChipEstado, Fecha, BarraDeFiltros, TablaDeDatosVirtualizada, EstadoDeBandejaVista, ImporteSinMoneda],
+  imports: [CabeceraDePagina, ChipEstado, Fecha, ImporteSinMoneda, ListadoPorCursorVista],
   template: `
     <section class="pantalla">
-      <ap-cabecera-de-pagina [titulo]="t.titulo" [descripcion]="t.proposito" icono="recarga" />
-      <ap-barra-de-filtros [etiqueta]="t.filtroEtiqueta" [incluirBusqueda]="false" [definiciones]="filtrosDeEstado" />
-      <ap-estado-de-bandeja [estado]="b.estado()" [error]="b.error()" [vacio]="t.vacio" [explicacionVacio]="t.explicacionVacio" [denegado]="t.denegado" [conFiltro]="!!filtrosActivos()['estados']" (reintentar)="b.reintentar()" (quitarFiltros)="quitarFiltros()" />
-      @if (b.estado() !== 'denegado' && b.estado() !== 'vacio') {
-        @for (v of [b.version()]; track v) {
-          <ap-tabla-de-datos-virtualizada [titulo]="t.titulo" [columnas]="COLUMNAS" [cargador]="b.cargador" [ordenPermitido]="[]" [identidad]="identidad" [filtros]="filtrosActivos()" [tamanoDePagina]="25">
-            <ng-template #celda let-r let-columna="columna">
-              @switch (columna.clave) {
-                @case ('solicitadaEn') { <ap-fecha [iso]="r.solicitadaEn" /> }
-                @case ('ejecutadaEn') { @if (r.ejecutadaEn) { <ap-fecha [iso]="r.ejecutadaEn" /> } @else { {{ t.pendiente }} } }
-                @case ('tipo') { {{ tipoDe(r) }} }
-                @case ('estado') { <ap-chip-estado [tono]="tonoDe(r)">{{ estadoDe(r) }}</ap-chip-estado> }
-                @case ('montoReversado') { <ap-importe-sin-moneda [monto]="r.montoReversado" /> }
-                @default { {{ r[columna.clave] }} }
-              }
-            </ng-template>
-          </ap-tabla-de-datos-virtualizada>
-        }
-      }
+      <ap-cabecera-de-pagina eyebrow="Operación" [titulo]="t.titulo" [descripcion]="t.proposito" />
+      <ap-listado-por-cursor [titulo]="t.titulo" [columnas]="COLUMNAS" [fuente]="l" [exportables]="EXPORTABLES" [identidad]="identidad" [ayudaDeBusqueda]="t.ayudaBusqueda" [textoVacio]="t.vacio" [explicacionVacio]="t.explicacionVacio" [textoDenegado]="t.denegado" nombreDeRegistros="reversos" nombreDeRegistro="reverso">
+        <ng-template #celda let-r let-columna="columna">
+          @switch (columna.clave) {
+            @case ('solicitadaEn') { <ap-fecha [iso]="r.solicitadaEn" /> }
+            @case ('ejecutadaEn') { @if (r.ejecutadaEn) { <ap-fecha [iso]="r.ejecutadaEn" /> } @else { {{ t.pendiente }} } }
+            @case ('tipo') { {{ tipoDe(r) }} }
+            @case ('estado') { <ap-chip-estado [tono]="tonoDe(r)">{{ estadoDe(r) }}</ap-chip-estado> }
+            @case ('montoReversado') { <ap-importe-sin-moneda [monto]="r.montoReversado" /> }
+            @case ('motivo') { <span class="largo">{{ r.motivo }}</span> }
+            @default { <span class="id" [attr.title]="r[columna.clave]">{{ r[columna.clave] }}</span> }
+          }
+        </ng-template>
+      </ap-listado-por-cursor>
     </section>
   `,
   styles: `
-    .pantalla { padding: var(--s5); max-width: 80rem; display: grid; gap: var(--s4); }
+    .pantalla { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s5); min-width: 0; }
+    /* Identificadores en una línea, recortados con «…»: el valor completo va en el title y en la descarga (antes se partían letra a letra y la fila medía 200 px). */
+    .id { display: inline-block; max-width: 10ch; overflow: hidden; text-overflow: ellipsis; vertical-align: bottom; font-family: var(--mono); font-size: .92em; }
+    /* El motivo es texto libre: se parte en líneas, pero con un ancho mínimo legible (antes se partía letra a letra). */
+    .largo { display: block; min-width: 12ch; max-width: 40ch; white-space: normal; overflow-wrap: anywhere; }
   `,
 })
 export class ListadoDeReversos {
   constructor() {
     inject(ExplicadorDeVista).fijar(this.t.proposito)
   }
-  private readonly router = inject(Router)
-  private readonly ruta = inject(ActivatedRoute)
   protected readonly t = T
+  protected readonly tonoDe = (r: ReversoEnLista) => TONO[r.estado as Estado]
   protected readonly COLUMNAS = COLUMNAS
-  protected readonly b = bandejaDeReversos()
+  protected readonly EXPORTABLES = EXPORTABLES
+  protected readonly estadoDe = estadoDe
+  protected readonly tipoDe = tipoDe
   protected readonly identidad = (r: ReversoEnLista) => r.reversoId
-  protected readonly filtrosDeEstado: Filtro[] = (Object.keys(T.estados) as Estado[]).map((valor) => ({ valor, texto: T.estados[valor] }))
-  private readonly queryParamMap = toSignal(this.ruta.queryParamMap, { requireSync: false })
-  protected readonly filtrosActivos = computed<Record<string, string>>(() => {
-    const elegidos = this.queryParamMap()?.get('filtro')?.split(',').filter(Boolean) ?? []
-    const filtros: Record<string, string> = {}
-    if (elegidos.length) filtros['estados'] = elegidos.join(',')
-    return filtros
+  protected readonly l = crearListadoPorCursor({
+    pedir: pedidorDeReversos(),
+    camposDeBusqueda: ['motivo', 'autorizadaPor', 'transaccionOriginalId', 'reversoId', (r) => sinMonedaComoSeVe(r.montoReversado), tipoDe, estadoDe],
+    filtrosDeServidor: [{ nombre: 'estados', etiqueta: T.filtroEtiqueta, opciones: (Object.keys(T.estados) as Estado[]).map((valor) => ({ valor, texto: T.estados[valor] })), textoTodos: 'Todos' }],
+    filtrosLocales: [{ nombre: 'tipo', etiqueta: T.columnas.tipo, valor: (r) => r.tipo, texto: (v) => T.tipos[v as Tipo] ?? v }],
   })
-
-  protected estadoDe(r: ReversoEnLista): string {
-    return T.estados[r.estado as Estado]
-  }
-
-  protected tonoDe(r: ReversoEnLista): 'ok' | 'aviso' | 'error' | 'info' {
-    return TONO[r.estado as Estado]
-  }
-
-  protected tipoDe(r: ReversoEnLista): string {
-    return T.tipos[r.tipo as keyof typeof T.tipos]
-  }
-
-  protected quitarFiltros(): void {
-    void this.router.navigate([], { relativeTo: this.ruta, queryParams: { filtro: null }, queryParamsHandling: 'merge' })
-  }
 }

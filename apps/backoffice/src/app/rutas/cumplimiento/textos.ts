@@ -6,7 +6,7 @@ export const textosCumplimiento = {
       'Mirar el documento y la cara de quien abre una cuenta, y decidir. La decisión es de una persona y queda con su nombre.',
     cargando: 'Cargando los expedientes',
     filtrar: 'Filtrar por estado',
-    buscarExpediente: 'Buscar por nombre, teléfono o correo',
+    buscarExpediente: 'Buscar por nombre, teléfono, correo o documento',
     telefono: 'Teléfono',
     correo: 'Correo',
     sinCorreo: 'No registrado',
@@ -17,6 +17,9 @@ export const textosCumplimiento = {
     fotos: 'Fotos',
     fotoDe: 'Foto del expediente de',
     faltante: '(falta)',
+    /** El estado y las caras como se leen, no como los manda el contrato («EN_REVISION», «PERFIL_IZQUIERDO»). */
+    estados: { PENDIENTE: 'Pendiente', EN_REVISION: 'En revisión', APROBADA: 'Aprobada', RECHAZADA: 'Rechazada' } as Record<string, string>,
+    caras: { ANVERSO: 'Anverso', REVERSO: 'Reverso', SELFIE: 'Selfie', PERFIL_IZQUIERDO: 'Perfil izquierdo', PERFIL_DERECHO: 'Perfil derecho' } as Record<string, string>,
     verFotos: 'Ver las fotos',
     ocultarFotos: 'Ocultar las fotos',
     cargandoFoto: 'Cargando…',

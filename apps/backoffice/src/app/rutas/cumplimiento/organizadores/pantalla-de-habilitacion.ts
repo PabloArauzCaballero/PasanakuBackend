@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, inject, input, signal } from '@angu
 import { Boton } from '@aportaya/ui/boton/boton'
 import { CabeceraDePagina } from '@aportaya/ui/cabecera-de-pagina/cabecera-de-pagina'
 import { ChipEstado } from '@aportaya/ui/chip-estado/chip-estado'
+import { Icono } from '@aportaya/ui/icono/icono'
 import { EstadoDePantalla } from '@aportaya/ui/estado-de-pantalla/estado-de-pantalla'
 import { SeccionDeExpediente } from '@aportaya/ui/seccion-de-expediente/seccion-de-expediente'
 import type { Habilitacion } from 'clientes/angular/organizador'
@@ -17,26 +18,28 @@ import type { ErrorTraducido } from '../../../nucleo/errores'
 @Component({
   selector: 'ap-pantalla-de-habilitacion-organizador',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ErrorDeEnvio, EstadoDePantalla, CabeceraDePagina, ChipEstado, Boton, SeccionDeExpediente],
+  imports: [ErrorDeEnvio, EstadoDePantalla, CabeceraDePagina, ChipEstado, Boton, Icono, SeccionDeExpediente],
   template: `
     <section class="pantalla">
-      <ap-cabecera-de-pagina [titulo]="t.titulo" [descripcion]="t.proposito" icono="persona" />
-      <ap-estado-de-pantalla [recurso]="habilitacion" [vacio]="vacio" [mensajeVacio]="t.noHabilitado" [etiquetaDeCarga]="t.cargando" (reintentar)="habilitacion.reload()">
+      <ap-cabecera-de-pagina eyebrow="Cumplimiento · organizadores" [titulo]="t.titulo" [descripcion]="t.proposito" />
+      <div class="tarjeta"><ap-estado-de-pantalla [recurso]="habilitacion" [vacio]="vacio" [mensajeVacio]="t.noHabilitado" [etiquetaDeCarga]="t.cargando" (reintentar)="habilitacion.reload()">
         @if (habilitacion.hasValue() && habilitacion.value(); as h) {
-          <h2>Estado de la habilitación</h2>
+          <h2><ap-icono nombre="escudo" tamano="s4" />Estado de la habilitación</h2>
           <ap-error-de-envio [error]="errorDeEnvio()" />
           <ap-seccion-de-expediente [titulo]="t.titulo" [datos]="datosDe(h)">
             <ap-chip-estado [tono]="h.habilitado ? 'ok' : 'neutro'">{{ h.habilitado ? t.habilitado : t.noHabilitado }}</ap-chip-estado>
             @if (!h.habilitado) {
-              <ap-boton variante="primario" [cargando]="habilitando()" (pulsado)="habilitar()">{{ t.habilitar }}</ap-boton>
+              <ap-boton variante="primario" icono="aprobar" [cargando]="habilitando()" (pulsado)="habilitar()">{{ t.habilitar }}</ap-boton>
             }
           </ap-seccion-de-expediente>
         }
-      </ap-estado-de-pantalla>
+      </ap-estado-de-pantalla></div>
     </section>
   `,
   styles: `
-    .pantalla { padding: var(--s5); max-width: 40rem; display: flex; flex-direction: column; gap: var(--s4); }
+    .pantalla { display: flex; flex-direction: column; gap: var(--s4); min-width: 0; }
+    .tarjeta { display: grid; gap: var(--s3); padding: var(--s5); border: var(--borde-fino) solid var(--border); border-radius: var(--r-lg); background: var(--surface); box-shadow: var(--sombra-1); }
+    h2 { display: flex; align-items: center; gap: var(--s2); margin: 0 0 var(--s3); font: var(--t-titulo-3); }
   `,
 })
 export class PantallaDeHabilitacionOrganizador {

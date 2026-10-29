@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, signal } from '@angular/core'
+import { AccionesDeFila } from '../acciones-de-fila/acciones-de-fila'
 import { AreaDeTexto } from '../area-de-texto/area-de-texto'
 import { BarraDeFiltros } from '../barra-de-filtros/barra-de-filtros'
 import { Boton } from '../boton/boton'
@@ -13,13 +14,19 @@ import { CabeceraDeSeccion } from '../cabecera-de-seccion/cabecera-de-seccion'
 import { ChipEstado } from '../chip-estado/chip-estado'
 import { Esqueleto } from '../esqueleto/esqueleto'
 import { EstadoDeError } from '../estado-de-error/estado-de-error'
+import { ExportarListado } from '../exportar-listado/exportar-listado'
+import { crearListado } from '../listado/crear-listado'
+import { ListadoDeDatos } from '../listado/listado'
 import { ListaDeOpciones } from '../lista-de-opciones/lista-de-opciones'
 import { Migas } from '../migas/migas'
 import { NotaDeVista } from '../nota-de-vista/nota-de-vista'
 import { Paginacion } from '../paginacion/paginacion'
 import { TarjetaKPI } from '../tarjeta-kpi/tarjeta-kpi'
+import type { Columna } from '../tabla-de-datos/tabla-de-datos'
 import { Tooltip } from '../tooltip/tooltip'
 import { SeccionDeCatalogo } from './seccion'
+
+type Muestra = { id: string; tabla: string; esquema: string }
 
 /**
  * La anatomía de una pantalla del backoffice (la del portal interno de Atlas, con las piezas de
@@ -29,7 +36,7 @@ import { SeccionDeCatalogo } from './seccion'
 @Component({
   selector: 'ap-catalogo-backoffice',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [AreaDeTexto, BarraDeFiltros, Boton, BotonCopiar, CajonLateral, CodigoCopiable, DialogoDeConfirmacion, Pestanas, SeccionClaveValor, CabeceraDePagina, CabeceraDeSeccion, ChipEstado, Esqueleto, EstadoDeError, ListaDeOpciones, Migas, NotaDeVista, Paginacion, TarjetaKPI, Tooltip, SeccionDeCatalogo],
+  imports: [AccionesDeFila, AreaDeTexto, ExportarListado, ListadoDeDatos, BarraDeFiltros, Boton, BotonCopiar, CajonLateral, CodigoCopiable, DialogoDeConfirmacion, Pestanas, SeccionClaveValor, CabeceraDePagina, CabeceraDeSeccion, ChipEstado, Esqueleto, EstadoDeError, ListaDeOpciones, Migas, NotaDeVista, Paginacion, TarjetaKPI, Tooltip, SeccionDeCatalogo],
   template: `
     <ap-seccion-de-catalogo nombre="Anatomía del backoffice" ancla="backoffice">
       <ap-migas [migas]="[{ texto: 'Inicio', ruta: '/' }, { texto: 'Sistemas', ruta: '/sistemas' }, { texto: 'Catálogo de datos' }]" />
@@ -55,6 +62,11 @@ import { SeccionDeCatalogo } from './seccion'
       <ap-esqueleto forma="filas" [lineas]="4" etiqueta="Consultando el catálogo" />
       <ap-estado-de-error mensaje="Probá de nuevo en un momento." trazaId="9cfecf77-a16b" />
       <ap-paginacion etiqueta="Paginación del catálogo" [totalDeFilas]="338" [pagina]="1" [opcionesPorPagina]="[10, 20, 50]" />
+      <ap-listado titulo="Tablas de muestra" ayudaDeBusqueda="Busca por tabla y esquema." [columnas]="columnasDeMuestra" [listado]="muestra">
+        <ng-template #acciones let-f><ap-acciones-de-fila [fila]="f.tabla" [ver]="true" [editar]="true" [eliminar]="true" /></ng-template>
+      </ap-listado>
+      <ap-exportar-listado nombre="tablas de muestra" [columnas]="columnasDeMuestra" [filas]="filasDeMuestra" />
+      <div class="chips"><ap-boton icono="guardar" variante="primario">Guardar</ap-boton><ap-boton icono="descargar">Descargar</ap-boton><ap-boton icono="eliminar" variante="peligro">Eliminar</ap-boton></div>
       <ap-pestanas etiqueta="Vista de la ficha" estilo="segmentada" [pestanas]="[{ valor: 'general', texto: 'Vista general' }, { valor: 'columnas', texto: 'Columnas', cuenta: 18 }, { valor: 'gobierno', texto: 'Gobierno' }]" [(elegida)]="vista" />
       @for (v of ['general', 'columnas', 'gobierno']; track v) {
         <div role="tabpanel" [id]="'panel-' + v" [attr.aria-labelledby]="'pestana-' + v" [hidden]="vista() !== v">Panel «{{ v }}»: lo dibuja quien usa las pestañas.</div>
@@ -84,6 +96,9 @@ export class CatalogoBackoffice {
   readonly vista = signal('general')
   readonly cajon = signal(false)
   readonly confirmacion = signal(false)
+  readonly filasDeMuestra: Muestra[] = Array.from({ length: 23 }, (_, i) => ({ id: `t${i}`, tabla: `tabla_${i + 1}`, esquema: i % 3 ? 'aportes' : 'grupos' }))
+  readonly columnasDeMuestra: Columna<Muestra>[] = [{ clave: 'tabla', titulo: 'Tabla', ordenable: true }, { clave: 'esquema', titulo: 'Esquema' }]
+  readonly muestra = crearListado<Muestra>({ filas: signal(this.filasDeMuestra), camposDeBusqueda: ['tabla', 'esquema'], filtros: [{ nombre: 'esquema', etiqueta: 'Esquema', valor: (f) => f.esquema }] })
   readonly selectores = [
     { nombre: 'estado', etiqueta: 'Estado', valor: '', opciones: [{ valor: 'ACTIVA', texto: 'Activa' }, { valor: 'RETIRADA', texto: 'Retirada' }], ayuda: 'Si la tabla sigue en uso.' },
     { nombre: 'revision', etiqueta: 'Revisión', valor: 'APROBADA', opciones: [{ valor: 'APROBADA', texto: 'Aprobada' }] },

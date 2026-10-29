@@ -30,6 +30,17 @@ fi
 cd /opt/aportaya/repo
 REG=/opt/aportaya/logs/autodespliegue.log
 marca() { echo "[$(date +%FT%T)] $*" >> "$REG"; }
+# Avisa, NO instala: este guion corre como root en el host, y `test` no exige revision.
+# Instalarse solo desde la rama le daria una consola root a cualquiera que empuje a
+# `test` (revision de seguridad, 2026-10-28). La instalacion sigue siendo a mano; lo que
+# ya no puede pasar es que la copia del host quede distinta sin que el log lo diga.
+actualizar_guion() {
+  local nuevo=/opt/aportaya/repo/despliegue/host/reconstruir-si-cambio.sh
+  local actual=/opt/aportaya/bin/reconstruir-si-cambio.sh
+  if [ -f "$nuevo" ] && ! cmp -s "$nuevo" "$actual"; then
+    marca "AVISO: el guion del host difiere del de test; instalar a mano (despliegue/host/README.md)"
+  fi
+}
 
 REMOTO=$(git ls-remote https://github.com/PabloArauzCaballero/PasanakuBackend.git refs/heads/test | cut -f1)
 [ -n "$REMOTO" ] || { marca "no se pudo leer la rama test"; exit 0; }
@@ -38,8 +49,22 @@ ANTERIOR=$(cat /opt/aportaya/ultimo-construido 2>/dev/null || echo "")
 
 marca "test avanzo: ${ANTERIOR:0:7} -> ${REMOTO:0:7}"
 git fetch -q --depth 50 origin test || { marca "fetch fallo"; exit 1; }
-CAMBIOS=$(git diff --name-only "${ANTERIOR:-HEAD}" FETCH_HEAD 2>/dev/null || echo TODO)
-git checkout -q FETCH_HEAD
+# El diff entre dos commits solo necesita los dos arboles, no la historia entre ellos. Con
+# `--depth 50` el commit anterior puede quedar afuera si el salto es grande: el diff falla y
+# CAMBIOS vale TODO. Se trae el anterior por su sha para no caer ahi sin necesidad.
+if [ -n "$ANTERIOR" ] && ! git cat-file -e "${ANTERIOR}^{commit}" 2>/dev/null; then
+  git fetch -q --depth 1 origin "$ANTERIOR" 2>/dev/null || marca "no se pudo traer ${ANTERIOR:0:7}; se reconstruye todo"
+fi
+CAMBIOS=$(git diff --name-only "${ANTERIOR:-HEAD}" "$REMOTO" 2>/dev/null || echo TODO)
+[ -n "$CAMBIOS" ] || CAMBIOS=TODO
+git checkout -q "$REMOTO"
+# TODO tiene que alcanzar a todo, no solo a los servicios: cada condicion de abajo lo mira.
+TODO_O() { [ "$CAMBIOS" = "TODO" ] || echo "$CAMBIOS" | grep -qE "$1"; }
+# Una imagen que no esta en el host se reconstruye aunque el commit no la toque: el compose
+# las pide con `pull_policy: never`, y una faltante deja ese servicio caido despues del
+# despliegue. El 2026-10-29 la limpieza de Coolify borro backoffice y web entre el build y el
+# despliegue; nada las reponia y el despliegue fallo con «No such image».
+falta() { ! docker image inspect "$1" >/dev/null 2>&1; }
 
 # Una falla de construccion NO puede pasar inadvertida: antes se marcaba y el script
 # seguia igual hasta `desplegando`, asi que el log decia «listo en <sha>» mientras
@@ -69,6 +94,11 @@ else
   SERVICIOS=$(echo "$CAMBIOS" | grep -oE '^servicios/[^/]+' | cut -d/ -f2 | sort -u)
   echo "$CAMBIOS" | grep -q '^plataforma/gateway/' && construir /opt/aportaya/bin/construir.sh gateway plataforma
 fi
+falta aportaya/gateway:test && construir /opt/aportaya/bin/construir.sh gateway plataforma
+for s in $(ls -d servicios/*/ | xargs -n1 basename); do
+  falta "aportaya/$s:test" && SERVICIOS="${SERVICIOS:-} $s"
+done
+SERVICIOS=$(echo ${SERVICIOS:-} | tr ' ' '\n' | sort -u)
 for s in ${SERVICIOS:-}; do construir /opt/aportaya/bin/construir.sh "$s" servicios; done
 
 # El esquema viaja con el despliegue, pero su imagen lleva sql/ adentro.
@@ -78,7 +108,7 @@ for s in ${SERVICIOS:-}; do construir /opt/aportaya/bin/construir.sh "$s" servic
 # no esta en el host Coolify para los contenedores viejos, falla al crear los nuevos
 # («No such image») y el backend queda en CERO. Reconstruirla solo cuando el commit toca
 # sql/ hacia que no se recuperara sola nunca. Medido dos veces: 2026-09-17 y 2026-09-21.
-if echo "$CAMBIOS" | grep -qE '^(sql/|despliegue/aplicar-esquema.sh|despliegue/Dockerfile.esquema)' \
+if TODO_O '^(sql/|despliegue/aplicar-esquema.sh|despliegue/Dockerfile.esquema)' \
    || ! docker image inspect aportaya/esquema:test >/dev/null 2>&1; then
   construir docker build -f despliegue/Dockerfile.esquema -t aportaya/esquema:test .
 fi
@@ -87,10 +117,19 @@ fi
 # el Dockerfile, `yarn install --immutable` se cae en getWorkspaceByDescriptor; si falta
 # aca, un commit que toque solo ese paquete no reconstruye ningun front.
 FRONT_ANGULAR='^(packages/ui/|packages/tokens/|packages/tutoriales/|packages/simulado/|packages/dominio-cliente/|clientes/angular/)'
-echo "$CAMBIOS" | grep -qE "^apps/backoffice/|$FRONT_ANGULAR" && \
-  construir docker build -f apps/backoffice/docker/Dockerfile.backoffice --build-arg CONF_NGINX=apps/backoffice/docker/nginx.desplegado.conf -t aportaya/backoffice:test .
-echo "$CAMBIOS" | grep -qE "^apps/web/|$FRONT_ANGULAR" && \
-  construir docker build -f apps/web/docker/Dockerfile.web -t aportaya/web:test .
+# Los dos Dockerfile copian `clientes/angular`, que no se versiona (ADR-016): sin
+# regenerarlo, un cambio de contrato construye el front contra el cliente de la corrida
+# anterior. Se regenera una vez, antes de cualquiera de los dos.
+CONTRATO='^servicios/[^/]+/src/main/resources/openapi/'
+FALTA_BACKOFFICE=0; falta aportaya/backoffice:test && FALTA_BACKOFFICE=1
+FALTA_WEB=0; falta aportaya/web:test && FALTA_WEB=1
+if TODO_O "^apps/backoffice/|^apps/web/|$FRONT_ANGULAR|$CONTRATO" || [ $FALTA_BACKOFFICE = 1 ] || [ $FALTA_WEB = 1 ]; then
+  construir /opt/aportaya/bin/generar-clientes.sh
+fi
+{ TODO_O "^apps/backoffice/|$FRONT_ANGULAR|$CONTRATO" || [ $FALTA_BACKOFFICE = 1 ]; } && \
+  construir docker build -f apps/backoffice/docker/Dockerfile.backoffice --build-arg CONF_NGINX=apps/backoffice/docker/nginx.desplegado.conf --label "aportaya.commit=$REMOTO" -t aportaya/backoffice:test .
+{ TODO_O "^apps/web/|$FRONT_ANGULAR|$CONTRATO" || [ $FALTA_WEB = 1 ]; } && \
+  construir docker build -f apps/web/docker/Dockerfile.web --label "aportaya.commit=$REMOTO" -t aportaya/web:test .
 
 # El movil va por su guion, NO por `docker build` pelado: el Dockerfile trae los clientes
 # con `COPY clientes/dart clientes/dart` desde el clon, y esa carpeta no esta versionada
@@ -99,17 +138,44 @@ echo "$CAMBIOS" | grep -qE "^apps/web/|$FRONT_ANGULAR" && \
 # ultima corrida a mano: del 17 al 21 de septiembre la app movil fallaba con
 # `Type 'ContratoVigente' not found` y se desplegaba la imagen vieja sin avisar.
 # Tambien lo dispara un cambio de contrato, que es lo que deja viejo al cliente generado.
-echo "$CAMBIOS" | grep -qE '^(apps/movil/|packages/diseno_flutter/|packages/tokens/|servicios/[^/]+/src/main/resources/openapi/)' && \
+{ TODO_O '^(apps/movil/|packages/diseno_flutter/|packages/tokens/|servicios/[^/]+/src/main/resources/openapi/)' \
+    || falta aportaya/movil-web:test; } && \
   construir /opt/aportaya/bin/construir-movil-web.sh
 
 # No se despliega un sha cuyas imagenes no construyeron todas: desplegar igual es lo que
 # hacia que el log dijera «listo» sobre imagenes viejas. Se marca el sha como visto para
 # no reconstruirlo cada dos minutos para siempre; el arreglo va en un commit nuevo.
+# Una construccion «exitosa» no prueba que la imagen sea la de este commit: el
+# 2026-10-27 el log dijo «listo en 608cdf1» con aportaya/backoffice:test de dos dias
+# antes. Cada front construido aca lleva la etiqueta aportaya.commit; si se pidio
+# reconstruirlo y la etiqueta no es este sha, cuenta como falla y no se despliega.
+verificar_imagen() {
+  local imagen="$1" etiqueta
+  etiqueta=$(docker image inspect -f '{{index .Config.Labels "aportaya.commit"}}' "$imagen" 2>/dev/null || echo "")
+  if [ "$etiqueta" != "$REMOTO" ]; then
+    marca "FALLA $imagen quedo en '${etiqueta:0:7}', no en ${REMOTO:0:7}"
+    FALLAS=$((FALLAS + 1))
+    FALLIDAS="$FALLIDAS $imagen"
+  fi
+}
+{ TODO_O "^apps/backoffice/|$FRONT_ANGULAR|$CONTRATO" || [ $FALTA_BACKOFFICE = 1 ]; } && verificar_imagen aportaya/backoffice:test
+{ TODO_O "^apps/web/|$FRONT_ANGULAR|$CONTRATO" || [ $FALTA_WEB = 1 ]; } && verificar_imagen aportaya/web:test
+# Y antes de desplegar, que esten TODAS: una que falta tira su servicio aunque el resto este bien.
+for imagen in aportaya/gateway:test aportaya/esquema:test aportaya/backoffice:test aportaya/web:test \
+              aportaya/movil-web:test $(ls -d servicios/*/ | xargs -n1 basename | sed 's|.*|aportaya/&:test|'); do
+  if falta "$imagen"; then
+    marca "FALLA $imagen no esta en el host"
+    FALLAS=$((FALLAS + 1))
+    FALLIDAS="$FALLIDAS $imagen"
+  fi
+done
+
 if [ "$FALLAS" -gt 0 ]; then
   echo "$REMOTO" > /opt/aportaya/ultimo-construido
   echo "${REMOTO:0:7}:$FALLIDAS" > /opt/aportaya/ultimo-fallido
   marca "SIN DESPLEGAR — $FALLAS construccion(es) fallaron:$FALLIDAS"
   marca "el sha ${REMOTO:0:7} queda marcado; corregir y empujar un commit nuevo"
+  actualizar_guion
   exit 1
 fi
 
@@ -118,3 +184,7 @@ marca "desplegando"
 echo "$REMOTO" > /opt/aportaya/ultimo-construido
 rm -f /opt/aportaya/ultimo-fallido
 marca "listo en ${REMOTO:0:7}"
+
+# Si la copia del host quedo distinta de la versionada, el log lo dice (el 2026-10-27
+# corria otra version y nadie lo sabia).
+actualizar_guion
