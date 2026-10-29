@@ -82,17 +82,12 @@ export const MENU: readonly Grupo[] = [
           { ruta: '/operacion/custodia', texto: 'Conciliación de custodia', icono: 'banco', requiere: [OPERACION, p('AUDITORIA_LEER')] },
           { ruta: '/operacion/cierres-diarios', texto: 'Cierres diarios', icono: 'reloj', requiere: [OPERACION, p('AUDITORIA_LEER')] },
           // Los grupos y quién entra: a un grupo (CU-68) o como organizador (CU-90). Agrupadas para no pasar de ocho pestañas.
-          {
-            ruta: '/admisiones',
-            texto: 'Grupos y admisiones',
-            icono: 'grupo',
-            grupo: [
+          { ruta: '/admisiones', texto: 'Grupos y admisiones', icono: 'grupo', grupo: [
               { ruta: '/admisiones', texto: 'Admisiones a grupos', icono: 'personaMas', requiere: [p('ver:admisiones')] },
               { ruta: '/postulaciones-organizador', texto: 'Postulaciones a organizador', icono: 'persona', requiere: [p('ver:postulaciones')] },
               // Al final: Operación sigue abriendo en Admisiones, donde está la decisión del día (menu.spec).
               { ruta: '/grupos', texto: 'Grupos', icono: 'grupo', requiere: [p('ver:grupos')] },
-            ],
-          },
+          ] },
           { ruta: '/operacion/solicitudes-escaladas', texto: 'Solicitudes escaladas', icono: 'bandera', requiere: [OPERACION, p('SOLICITUD_INGRESO_VER')] },
         ],
       },
