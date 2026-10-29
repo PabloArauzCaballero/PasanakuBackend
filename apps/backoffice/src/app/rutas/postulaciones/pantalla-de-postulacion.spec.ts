@@ -107,6 +107,17 @@ describe('PantallaDePostulacion · [UI contra HTTP simulado] CU-90', () => {
     expect(texto(f)).toContain('ya estaba registrada')
   })
 
+  it('correcto: una decisión que creó al organizador enlaza a su habilitación', async () => {
+    const ORG = 'org-sintetico-1'
+    const f = await montar({
+      ...expediente('APROBADA', ['REVISAR'], 1),
+      decisiones: [{ ...(DECISION as object), organizadorId: ORG, nueva: true }],
+    } as unknown as ExpedienteDeHabilitacion)
+    const enlace = (f.nativeElement as HTMLElement).querySelector('a.habilitacion')
+    expect(enlace?.textContent).toContain('Ver la habilitación del organizador')
+    expect(enlace?.getAttribute('href')).toBe(`/cumplimiento/organizadores/${ORG}/habilitacion`)
+  })
+
   it('límite: sin acciones declaradas no se ofrece ningún formulario', async () => {
     const f = await montar(expediente('RECHAZADA', [], 1))
     expect(formulario(f)).toBeUndefined()

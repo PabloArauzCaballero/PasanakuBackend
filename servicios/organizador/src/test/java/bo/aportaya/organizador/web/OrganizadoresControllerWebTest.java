@@ -175,6 +175,26 @@ class OrganizadoresControllerWebTest {
                     .andExpect(jsonPath("$.limiteDeMonto").value("50000.00"))
                     .andExpect(jsonPath("$.gruposActivos").value(3));
         }
+
+        @Test
+        @DisplayName("CU-90 · backoffice (ADMIN_PLATAFORMA) lee la habilitación para decidir si habilita")
+        void backofficeLeeLaHabilitacion() throws Exception {
+            when(habilitaciones.ejecutar(any(), any()))
+                    .thenReturn(new ConsultarHabilitacion.Habilitacion(false, "BASICO", 0, BigDecimal.ZERO, 0));
+
+            mvc.perform(get("/organizadores/{id}/habilitacion", ORGANIZADOR)
+                            .with(Sesiones.como("ADMIN_PLATAFORMA", "ADMIN_PLATAFORMA")))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.habilitado").value(false));
+        }
+
+        @Test
+        @DisplayName("CU-90 · 403: un participante sin GRUPO_CREAR no lee la habilitación de un organizador")
+        void participanteNoLeeLaHabilitacion() throws Exception {
+            mvc.perform(get("/organizadores/{id}/habilitacion", ORGANIZADOR).with(Sesiones.como("PARTICIPANTE")))
+                    .andExpect(status().isForbidden());
+            verifyNoInteractions(habilitaciones);
+        }
     }
 
     @Nested

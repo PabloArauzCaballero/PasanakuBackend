@@ -94,5 +94,7 @@ export const textosCumplimiento = {
     limiteDeGrupos: 'Límite de grupos',
     limiteDeMonto: 'Límite de monto',
     gruposActivos: 'Grupos activos',
+    quedoHabilitado: 'El organizador quedó habilitado: ya puede abrir grupos dentro de sus límites.',
+    noSeHabilito: (estado: string) => `No se habilitó: el organizador sigue en ${estado}. Le falta:`,
   },
 } as const
