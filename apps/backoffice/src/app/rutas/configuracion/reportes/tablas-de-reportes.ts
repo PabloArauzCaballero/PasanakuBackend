@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component, input } from '@angular/core'
+import { ChangeDetectionStrategy, Component, input, output } from '@angular/core'
+import { Boton } from '@aportaya/ui/boton/boton'
 import { ChipEstado } from '@aportaya/ui/chip-estado/chip-estado'
 import { Fecha } from '@aportaya/ui/fecha/fecha'
 import type { Columna } from '@aportaya/ui/tabla-de-datos/tabla-de-datos'
@@ -18,6 +19,7 @@ const COLUMNAS_CATALOGO: Columna<DefinicionDeReporteEnLista>[] = [
   { clave: 'descripcion', titulo: 'Descripción' },
   { clave: 'permisoRequerido', titulo: 'Permiso para ejecutarlo', mono: true },
   { clave: 'contieneDatosSensibles', titulo: 'Sensibilidad' },
+  { clave: 'accion' as Extract<keyof DefinicionDeReporteEnLista, string>, titulo: 'Acción', fijaDerecha: true },
 ]
 
 const EXPORTABLES_CATALOGO = [
@@ -28,25 +30,37 @@ const EXPORTABLES_CATALOGO = [
   { clave: 'sensibilidad', titulo: 'Sensibilidad', valor: sensibilidad },
 ]
 
-/** CU-58 · El catálogo de reportes, presentacional: el listado lo arma la pantalla. Sin acciones (solo lectura). */
+/**
+ * CU-58 · El catálogo de reportes, presentacional: el listado y el permiso los da la pantalla. «Ejecutar» solo donde la
+ * sesión tiene el `permisoRequerido` del reporte; si no, dice cuál falta (el servidor lo exige igual).
+ */
 @Component({
   selector: 'ap-tabla-de-catalogo',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ChipEstado, TablaPorCursor],
+  imports: [Boton, ChipEstado, TablaPorCursor],
   template: `
     <ap-tabla-por-cursor [titulo]="t.definiciones.titulo" [columnas]="COLUMNAS" [listado]="listado()" [identidad]="identidad" [exportables]="EXPORTABLES" nombreDeRegistros="reportes" [textoVacio]="t.definiciones.vacio" ayudaDeBusqueda="Busca por nombre, tipo o descripción en la página cargada: el servidor no busca por texto.">
       <ng-template #celda let-r let-columna="columna">
         @switch (columna.clave) {
+          @case ('accion') {
+            @if (puede()(r.permisoRequerido)) {
+              <ap-boton variante="secundario" tamano="sm" icono="reproducir" (pulsado)="ejecutar.emit(r)">{{ t.ejecutar }}</ap-boton>
+            } @else {
+              <span class="requiere">{{ t.requiere(r.permisoRequerido) }}</span>
+            }
+          }
           @case ('contieneDatosSensibles') { <ap-chip-estado [tono]="r.contieneDatosSensibles ? 'aviso' : 'neutro'" [icono]="r.contieneDatosSensibles ? 'candado' : undefined">{{ sensibilidad(r) }}</ap-chip-estado> }
           @default { {{ r[columna.clave] ?? noDisponible }} }
         }
       </ng-template>
     </ap-tabla-por-cursor>
   `,
-  styles: `:host { display: block; min-width: 0; }`,
+  styles: `:host { display: block; min-width: 0; } .requiere { color: var(--text-2); font-size: .8125rem; }`,
 })
 export class TablaDeCatalogo {
   readonly listado = input.required<ListadoPorCursor<DefinicionDeReporteEnLista>>()
+  readonly puede = input<(permiso: string) => boolean>(() => false)
+  readonly ejecutar = output<DefinicionDeReporteEnLista>()
   protected readonly t = t
   protected readonly COLUMNAS = COLUMNAS_CATALOGO
   protected readonly EXPORTABLES = EXPORTABLES_CATALOGO
