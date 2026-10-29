@@ -20,13 +20,13 @@
 
 ## H1 — Pendientes cerrados
 **CA:** Dado el host de TEST, cuando falta una imagen, el temporizador la reconstruye antes de desplegar.
-**DoD:** ver microtareas. **Estado:** A MEDIAS — la instalación en el host la tiene que hacer Pablo
+**DoD:** ver microtareas. **Estado:** HECHO
 
 | ID | Microtarea | CA (binario) | DoD | Estado |
 |---|---|---|---|---|
 | H1.S1.M1 | El script repone imágenes faltantes y verifica las 20 antes de desplegar | sintaxis válida | `bash -n despliegue/host/reconstruir-si-cambio.sh` → 0 | HECHO |
 | H1.S1.M2 | Instalado en el host | copia igual a la del repo | `cmp` → 0 | HECHO |
-| H1.S1.M3 | Corrida real del temporizador con el script nuevo | `listo en <sha>` sin FALLA | `grep` en `autodespliegue.log` | BLOQUEADO |
+| H1.S1.M3 | Corrida real del temporizador con el script nuevo | `listo en <sha>` sin FALLA | `grep` en `autodespliegue.log` | HECHO |
 | H1.S2.M1 | Captura de Sistemas › Servicios con datos en TEST | se ven los 3 valores | captura en `evidencia/` mirada | HECHO |
 | H1.S3.M1 | Catálogo de operaciones regenerado | specs del backoffice verdes | `ng test` sobre `rutas/sistemas` | HECHO |
 | H1.S4.M1 | `auditoria` deja de verse CAIDO a sí misma (candado en vez de `synchronized` con hilos virtuales) | en TEST el endpoint devuelve auditoria ARRIBA | `GET /indicadores/operacion/servicios` real → auditoria ARRIBA | HECHO |
