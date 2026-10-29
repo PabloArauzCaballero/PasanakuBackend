@@ -1,0 +1,4 @@
+organizador webTest: tests=43 failures=0
+organizador integrationTest: tests=118 failures=0
+spotlessCheck + testBarrido: EXIT 0 (OrganizadoresController 275 lineas)
+yarn lint: EXIT 0 · yarn typecheck: EXIT 0
