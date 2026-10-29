@@ -12,7 +12,7 @@
 - Decisiones tomadas (a confirmar con Pablo):
   1. **99,5 %**: se retira la constante `OBJETIVO_POR_OMISION` y el `:99.5` del `@Value`; la única fuente es `application.yml`. Sin la propiedad, el servicio no arranca (regla 90.3.4), en vez de arrancar con una cifra escondida en el código. Consecuencia: el constructor de conveniencia `Salida(consultadoEn, servicios)` solo lo usaba un test, y se retira (el test pasa el objetivo explícito).
   2. **100**: es la base del porcentaje (una unidad, no un umbral regulatorio). Se expresa como `BigDecimal.TEN.pow(2)` (mismo valor, misma escala 0). La validación `(0, 100)` del objetivo, que estaba duplicada en dos clases, pasa a un solo método en `DisponibilidadDelServicio`. Declarado: esto satisface la forma de la regla; la regla no distingue «unidad» de «umbral» y no se le agrega una excepción aquí.
-  3. **Controlador**: el bloque del catálogo de datos (6 operaciones, ~150 líneas) pasa a `RutasDelCatalogoDeDatos`, clase abstracta de paquete que implementa `IndicadoresApi`, y `IndicadoresController` la extiende. Es el mismo patrón que `grupos/web/RutasDeAdmision → RutasDeSolicitudes → …`. Rutas, permisos y cuerpos no cambian.
+  3. **Controlador**: el bloque del catálogo de datos (6 operaciones, ~150 líneas) pasa a `CatalogoDeDatosController`, clase abstracta de paquete que implementa `IndicadoresApi`, y `IndicadoresController` la extiende. Es el mismo patrón que `grupos/web/RutasDeAdmision → RutasDeSolicitudes → …`. Rutas, permisos y cuerpos no cambian.
 - Limitación de verificación: Gradle/Maven no corren en este entorno (descargas bloqueadas, ver `2026-10-25-checks-diseno-flutter/REPORTE.md`). Se reproduce la regla con un script que replica las dos reglas del barrido sobre `servicios/auditoria`; la verificación real es la del CI de la rama.
 
 ## H1 — `auditoria:testBarrido` pasa
@@ -24,13 +24,13 @@
 |---|---|---|---|---|
 | H1.M1 | Retirar el `99.5` del código de `SaludDeServicios` (constante y valor por omisión) y el constructor de conveniencia; ajustar la línea 121 del web test | no queda `99.5` en código de `src/main/java` de `auditoria` (solo un ejemplo en un javadoc) | `grep -rn '99\.5' servicios/auditoria/src/main/java` + réplica del barrido (`evidencia/01-replica-del-barrido.txt`) | HECHO (contra la réplica; el CI aún no corrió) |
 | H1.M2 | Retirar los `BigDecimal.valueOf(100)` (`CIEN` y la validación del constructor) con una sola validación del objetivo | la réplica del barrido no marca ni `DisponibilidadDelServicio` ni `SaludDeServicios` | réplica del barrido (`evidencia/01-replica-del-barrido.txt`) | HECHO (contra la réplica; el CI aún no corrió) |
-| H1.M3 | Mover el bloque del catálogo de datos de `IndicadoresController` a `RutasDelCatalogoDeDatos` | `IndicadoresController` < 300 líneas, ningún archivo nuevo ≥ 300, mismas anotaciones por método | `wc -l` + réplica del barrido + comparación de las firmas y `@Permiso` antes/después (`evidencia/01-replica-del-barrido.txt`) | HECHO (contra la réplica; el CI aún no corrió) |
+| H1.M3 | Mover el bloque del catálogo de datos de `IndicadoresController` a `CatalogoDeDatosController` | `IndicadoresController` < 300 líneas, ningún archivo nuevo ≥ 300, mismas anotaciones por método | `wc -l` + réplica del barrido + comparación de las firmas y `@Permiso` antes/después (`evidencia/01-replica-del-barrido.txt`) | HECHO (contra la réplica; el CI aún no corrió) |
 | H1.M4 | Entrega: push, CI de la rama y estado del PR | `auditoria:testBarrido` pasa en el CI | `actions_list` sobre el run de la rama | TODO |
 
 ## Riesgos y bloqueos previstos
 | Riesgo | Impacto | Mitigación |
 |---|---|---|
 | Una propiedad faltante en algún perfil de arranque (`SALUD_OBJETIVO_SLO` sin valor) | el servicio no arranca | el yml trae `:99.5` como valor por omisión de la variable de entorno, así que el arranque normal no cambia; las pruebas de contexto cargan el mismo yml |
-| `RutasDelCatalogoDeDatos` de paquete no se ve en un escaneo de Spring/Security | rutas del catálogo sin `@Permiso` aplicado | mismo patrón ya en producción en `grupos`; las pruebas web de catálogo y `AutorizacionNegativaTest` lo ejercen en el CI |
+| `CatalogoDeDatosController` de paquete no se ve en un escaneo de Spring/Security | rutas del catálogo sin `@Permiso` aplicado | mismo patrón ya en producción en `grupos`; las pruebas web de catálogo y `AutorizacionNegativaTest` lo ejercen en el CI |
 | `spotless` (palantir, 120 col.) reformatea | job rojo | se formatea a mano a 120 columnas y se corrigen los diffs que imprima el CI |
 | El CI sigue sin llegar a `grupos` por otro rojo nuevo | PR #266 no se desbloquea | se lista en el REPORTE, sin esconderlo |

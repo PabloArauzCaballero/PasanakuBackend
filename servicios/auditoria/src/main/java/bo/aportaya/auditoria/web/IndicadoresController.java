@@ -42,7 +42,7 @@ import org.springframework.web.bind.annotation.RestController;
  * de ser el numero de la tabla.
  */
 @RestController
-public class IndicadoresController extends RutasDelCatalogoDeDatos {
+public class IndicadoresController extends CatalogoDeDatosController {
 
     private final CU98PublicarTablero cu98;
     private final EndpointsDelDia endpointsDelDia;

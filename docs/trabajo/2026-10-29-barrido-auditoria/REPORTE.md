@@ -10,7 +10,7 @@
 |---|---|---|---|
 | H1.M1 | `SaludDeServicios` ya no lleva el `99.5` en el código: se retiró `OBJETIVO_POR_OMISION`, el `:99.5` del `@Value` y el constructor de conveniencia de `Salida` (que solo usaban dos pruebas) | `python3 -I replica_barrido.py be-dev/servicios/auditoria` | PASS contra la réplica: 0 hallazgos ([evidencia](./evidencia/01-replica-del-barrido.txt)) |
 | H1.M2 | Los dos `BigDecimal.valueOf(100)` desaparecen: la base del porcentaje es `BigDecimal.TEN.pow(2)` y la validación `(0, 100)` del SLO está en un solo método, `DisponibilidadDelServicio.exigirObjetivoValido` | ídem | PASS contra la réplica |
-| H1.M3 | `IndicadoresController` baja de 379 a 264 líneas; el bloque del catálogo de datos (6 operaciones) vive en `RutasDelCatalogoDeDatos` (150 líneas) | `wc -l` + comparación de los 11 métodos públicos con sus anotaciones | PASS: 11 = 11, anotaciones idénticas, ningún archivo ≥ 300 |
+| H1.M3 | `IndicadoresController` baja de 379 a 264 líneas; el bloque del catálogo de datos (6 operaciones) vive en `CatalogoDeDatosController` (150 líneas) | `wc -l` + comparación de los 11 métodos públicos con sus anotaciones | PASS: 11 = 11, anotaciones idénticas, ningún archivo ≥ 300 |
 
 ## A medias
 ### H1.M4 — que el CI real pase `auditoria:testBarrido`
@@ -27,7 +27,7 @@
 
 ## Evidencia
 - [01-replica-del-barrido.txt](./evidencia/01-replica-del-barrido.txt): salida literal antes/después y la comparación de métodos; el script que la produce, [replica_barrido.py](./evidencia/replica_barrido.py), copia las regex y el límite de `SinUmbralLiteral` y `TamanoDeArchivo`.
-- Archivos: `servicios/auditoria/src/main/java/bo/aportaya/auditoria/{aplicacion/SaludDeServicios,dominio/DisponibilidadDelServicio,web/IndicadoresController}.java`, nuevo `web/RutasDelCatalogoDeDatos.java`, y `src/test/.../web/SaludDeServiciosWebTest.java` (un helper `soloElEstado` en lugar del constructor retirado; las aserciones no cambian).
+- Archivos: `servicios/auditoria/src/main/java/bo/aportaya/auditoria/{aplicacion/SaludDeServicios,dominio/DisponibilidadDelServicio,web/IndicadoresController}.java`, nuevo `web/CatalogoDeDatosController.java`, y `src/test/.../web/SaludDeServiciosWebTest.java` (un helper `soloElEstado` en lugar del constructor retirado; las aserciones no cambian).
 
 ## No cubierto
 - Compilación, `spotlessCheck` y todas las pruebas de `auditoria`: no se ejecutaron. Los puntos de mayor riesgo son que el generador de OpenAPI exponga `IndicadoresApi` tal como lo asume la clase abstracta y que `@Permiso` se resuelva sobre los métodos heredados de una clase de paquete (mismo patrón que `grupos/web/RutasDe*`, en producción, pero no ejercitado aquí).
@@ -36,13 +36,14 @@
 
 ## Desvíos del plan
 - CI del commit 3fe73702 (run 40885070706): `spotlessCheck` (paso 2) falló en `:servicios:auditoria` por dos diffs de formato míos, tal como anticipaba el riesgo del PLAN: una línea en blanco de más antes de `mapear` en `IndicadoresController` y un `when(...).thenReturn(...)` que cabe en una línea en `SaludDeServiciosWebTest.auditor()`. Se aplicaron literal en el commit siguiente. `testBarrido` y `compileJava` no llegaron a ejecutarse en ese run (el paso 2 corta).
+- CI del commit 78169dc9 (run 40888767656), job «Contratos y clientes generados»: **regresión mía**. `scripts/generar_postman.py` lee los `@Permiso` solo de `*Controller.java`; al mover las 6 operaciones del catálogo a `RutasDelCatalogoDeDatos.java` perdieron su permiso y las colecciones de `auditoria` dejaron de generar sus casos «error · sin sesión». Ese job estaba omitido en los runs anteriores, por eso no se vio antes. Reproducido en local (`generar_postman.py` modificaba `postman/{coleccion,humo}/auditoria.*.json`). Arreglo: la clase base se renombra `CatalogoDeDatosController` (sin tocar el generador ni las colecciones de otros servicios); tras el cambio `generar_postman.py` no deja diff, `verificar_pruebas_web.py` sigue en 41/41 e `inventario_endpoints.py` en 0 hallazgos. Nota: `grupos` ya tiene el mismo hueco con sus clases `Rutas*` (el generador las lista como «sin @Permiso hallado»); no se tocó.
 - Hay un arreglo paralelo del mismo barrido en el PR #262 (commit 088547a6, otra sesión); se comentó en el PR #266 y queda a decisión de Pablo cuál de los dos aterriza.
 - Código: ninguno más. El PLAN prevía «`wc -l` + réplica» para M3 y se añadió la comparación automática de firmas y anotaciones.
 
 ## Riesgos residuales
 - Quien lance `auditoria` fuera de Compose/CI sin `application.yml` de recursos y sin la propiedad lo verá fallar al arrancar (era silencioso antes). Es el comportamiento pedido por la regla 90.3.4.
 - `BigDecimal.TEN.pow(2)` satisface la forma de la regla; la regla no distingue una unidad (la base del 100 %) de un umbral regulatorio y no se le añadió una excepción en este cambio.
-- `RutasDelCatalogoDeDatos` es el primer corte en cadena de `auditoria`; si el controlador vuelve a crecer, el siguiente corte natural es la salud/outbox/incidentes de Sistemas.
+- `CatalogoDeDatosController` es el primer corte en cadena de `auditoria`; si el controlador vuelve a crecer, el siguiente corte natural es la salud/outbox/incidentes de Sistemas.
 
 ## Decisiones y ambigüedades
 - Que el 99,5 % salga solo de `application.yml` (y no de una tabla de catálogo sembrada): es la lectura mínima de «umbrales son catálogo» que no inventa tabla ni migración, porque el valor ya vive en configuración desde la decisión de Pablo del 2026-10-29. Si se prefiere una tabla `auditoria.parametro`, es un cambio de esquema aparte. A confirmar con **Pablo**.

@@ -30,8 +30,12 @@ import org.springframework.http.ResponseEntity;
  * Catalogo de datos del tablero de sistemas (H7, H2, CU-130 y CU-131): la mitad de {@code IndicadoresApi} que lee y
  * gobierna el catalogo. Traduce y delega, sin logica; vive aparte para que {@link IndicadoresController} no pase de
  * las 300 lineas que el barrido de tamano permite, con el mismo corte en cadena que usa {@code grupos}.
+ *
+ * <p>Se llama {@code *Controller} a proposito: {@code scripts/generar_postman.py} lee los {@code @Permiso} solo de
+ * los archivos que terminan en {@code Controller.java}, y con otro nombre las colecciones perderian los casos
+ * «sin sesion» de estas operaciones.
  */
-abstract class RutasDelCatalogoDeDatos implements IndicadoresApi {
+abstract class CatalogoDeDatosController implements IndicadoresApi {
 
     private final CatalogoDeDatosVigente catalogoDeDatos;
     private final ObjectMapper mapper;
@@ -40,7 +44,7 @@ abstract class RutasDelCatalogoDeDatos implements IndicadoresApi {
     private final CU131RevisarColumna cu131;
     private final ConsultarCatalogoDeDatos catalogo;
 
-    protected RutasDelCatalogoDeDatos(
+    protected CatalogoDeDatosController(
             CatalogoDeDatosVigente catalogoDeDatos,
             ObjectMapper mapper,
             SesionDeLaPeticion sesion,
