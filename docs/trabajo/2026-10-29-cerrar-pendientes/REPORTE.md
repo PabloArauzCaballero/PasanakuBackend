@@ -1,6 +1,6 @@
 # Reporte — Cerrar los pendientes del 2026-10-29
 
-> **AVANCE: 4 / 6 — 66,7 %.** 2 BLOQUEADO: instalar el script en el host necesita que Pablo lo corra.
+> **AVANCE: 5 / 6 — 83,3 %.** Script instalado en el host (09:56:50); H1.S1.M3 se cierra con la corrida que dispara este commit.
 
 - Fecha: 2026-10-29 · Plan: [PLAN.md](./PLAN.md) · Rama: `claude/cerrar-pendientes-20261029` (PRs #239/#240 y #241/#242, mergeados en dev y test)
 - Peldaño: `VERIFIED` para la pantalla de SLO y para el arreglo de `auditoria` (runtime en TEST, con captura); `TESTED` para el catálogo; `WRITTEN` + `bash -n` para el script del host.
@@ -11,6 +11,7 @@
 | H1.S1.M1 | El script repone cualquier imagen faltante y verifica las 20 antes de desplegar | `bash -n despliegue/host/reconstruir-si-cambio.sh` | PASS, exit 0 · `evidencia/M1-sintaxis.txt` |
 | H1.S2.M1 | Captura real de Sistemas › Servicios en TEST, en escritorio (claro y oscuro), tablet y móvil | Playwright con login real | PASS: «Operativos 14 · Caídos 0», con disponibilidad, presupuesto e interrupción · `evidencia/slo-*.png` (revisadas) |
 | H1.S3.M1 | Catálogo de operaciones regenerado (estaba atrasado desde el 20-10) | `ng test` sobre rutas/sistemas + `auditoria` test/webTest | PASS, 171/171, 55 y 75 · `evidencia/S3-*.txt` |
+| H1.S1.M2 | Script instalado en el host por Pablo | `sha256sum /opt/aportaya/bin/reconstruir-si-cambio.sh` | PASS, `3d985970db014fe1` = versión de `origin/test` |
 | H1.S4.M1 | `auditoria` ya no se ve CAIDO a sí misma | 3 × `GET /indicadores/operacion/servicios` real, sin caché | PASS: `[]` (ningún servicio fuera de ARRIBA) · `evidencia/S4-no-arriba.txt` |
 
 ## A medias
@@ -19,7 +20,6 @@ Ninguna.
 ## Pendiente
 | ID | Estado | Qué lo destraba |
 |---|---|---|
-| H1.S1.M2 | BLOQUEADO | La sesión no tiene permiso para escribir como root en el host. Pablo: `scp despliegue/host/reconstruir-si-cambio.sh root@161.97.85.216:/tmp/ && ssh root@161.97.85.216 'cp -p /opt/aportaya/bin/reconstruir-si-cambio.sh /opt/aportaya/bin/reconstruir-si-cambio.sh.bak-20261029 && install -m 755 /tmp/reconstruir-si-cambio.sh /opt/aportaya/bin/'` |
 | H1.S1.M3 | BLOQUEADO | Depende de M2: la siguiente corrida del temporizador después de instalarlo. |
 
 ## Evidencia
@@ -41,6 +41,7 @@ después de ReentrantLock (952e606 desplegado):
   `jdk.virtualThreadScheduler.parallelism=1`. La evidencia es de runtime en TEST.
 
 ## Desvíos del plan
+- El primer intento de instalación se corrió desde la copia local atrasada y dejó una versión vieja (hash `023c8364…`). Se reinstaló desde `git show origin/test:…`. El respaldo `reconstruir-si-cambio.sh.bak-20261029` guarda el script que corría antes.
 - Se agregó H1.S4.M1. La captura mostró «Caídos 1» con `auditoria` sana: era un bug real, el
   mismo de la primera captura de Pablo.
 
