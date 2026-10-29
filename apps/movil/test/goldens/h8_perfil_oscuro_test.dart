@@ -27,7 +27,23 @@ void main() {
     expect(MediaQuery.textScalerOf(contexto).scale(10), closeTo(13, 0.001));
     expect(find.text(TextosIdentidad.tituloPerfil), findsOneWidget);
     expect(find.text('Correo'), findsOneWidget);
+    // Con la foto de perfil (#236) «Cerrar sesión» quedó debajo del pliegue a 360 px y
+    // 130 %: la lista no la construye hasta desplazarse. Se busca desplazando y se
+    // vuelve arriba para la captura.
+    final lista = find
+        .descendant(
+          of: find.byType(PantallaDePerfil),
+          matching: find.byType(Scrollable),
+        )
+        .first;
+    await tester.scrollUntilVisible(
+      find.text(TextosIdentidad.cerrarSesion),
+      200,
+      scrollable: lista,
+    );
     expect(find.text(TextosIdentidad.cerrarSesion), findsOneWidget);
+    await tester.drag(lista, const Offset(0, 4000));
+    await asentar(tester);
     expect(tester.takeException(), isNull);
     await expectLater(
       find.byType(PantallaDePerfil),
