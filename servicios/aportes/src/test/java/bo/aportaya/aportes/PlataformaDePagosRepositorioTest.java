@@ -15,7 +15,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 /** Sistemas › Proveedores y Webhooks contra Postgres real. Codigos propios por prueba: el contenedor se comparte. */
-class PlataformaDePagosTest extends BaseDeAportes {
+class PlataformaDePagosRepositorioTest extends BaseDeAportes {
 
     private final ConsultarPlataformaDePagos consulta =
             new ConsultarPlataformaDePagos(new Datos(dsl), new PlataformaDePagosRepositorio());

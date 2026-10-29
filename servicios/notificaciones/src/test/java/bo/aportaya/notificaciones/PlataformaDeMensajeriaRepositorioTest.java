@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test;
  * Sistemas › Proveedores y Webhooks de notificaciones contra Postgres real. El acuse se inserta como dato: todavia no
  * hay codigo que escriba {@code evento_entrega_mensaje} (ver {@code CU83EnviosTest}). Datos sinteticos.
  */
-class PlataformaDeMensajeriaTest extends BaseDeNotificaciones {
+class PlataformaDeMensajeriaRepositorioTest extends BaseDeNotificaciones {
 
     private final ConsultarMensajeria consulta = new ConsultarMensajeria(
             new Datos(dsl), new AuditoriaDeMensajeriaRepositorio(), new PlataformaDeMensajeriaRepositorio());

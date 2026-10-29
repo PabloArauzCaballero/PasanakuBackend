@@ -17,7 +17,7 @@ import org.junit.jupiter.api.Test;
  * Sistemas › Proveedores · el costo real por periodo contra Postgres real: suma DECIMAL exacta, una fila por moneda,
  * otro periodo no entra. Proveedores con id propio por prueba (el contenedor se comparte). Datos sinteticos.
  */
-class CostosDeProveedorTest extends BaseDeTarifas {
+class CostosDeProveedorRepositorioTest extends BaseDeTarifas {
 
     private final ConsultarCostosDeProveedor consulta =
             new ConsultarCostosDeProveedor(new Datos(dsl), new CostosDeProveedorRepositorio());

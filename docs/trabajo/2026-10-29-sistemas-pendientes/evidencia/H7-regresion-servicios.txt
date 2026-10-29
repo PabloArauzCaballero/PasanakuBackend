@@ -1,0 +1,16 @@
+== auditoria exit=0 :: BUILD SUCCESSFUL in 51s
+integrationTest: archivos=15 tests=73 fallas=0 errores=0 []
+test: archivos=13 tests=58 fallas=0 errores=0 []
+webTest: archivos=15 tests=82 fallas=0 errores=0 []
+== aportes exit=0 :: BUILD SUCCESSFUL in 1m
+integrationTest: archivos=25 tests=121 fallas=0 errores=0 []
+test: archivos=9 tests=49 fallas=0 errores=0 []
+webTest: archivos=11 tests=50 fallas=0 errores=0 []
+== notificaciones exit=0 :: BUILD SUCCESSFUL in 48s
+integrationTest: archivos=12 tests=74 fallas=0 errores=0 []
+test: archivos=1 tests=5 fallas=0 errores=0 []
+webTest: archivos=9 tests=46 fallas=0 errores=0 []
+== tarifas exit=0 :: BUILD SUCCESSFUL in 1m 4s
+integrationTest: archivos=18 tests=108 fallas=0 errores=0 []
+test: archivos=2 tests=7 fallas=0 errores=0 []
+webTest: archivos=9 tests=37 fallas=0 errores=0 []

@@ -17,7 +17,7 @@ import org.junit.jupiter.api.Test;
  * Sistemas › Incidentes contra Postgres real. Los incidentes de cada prueba llevan fechas de 2099 y un prefijo propio:
  * el contenedor se comparte, asi que se compara lo propio y no el total de la tabla. Datos sinteticos.
  */
-class IncidentesOperativosTest extends BaseDeAuditoria {
+class IncidentesOperativosRepositorioTest extends BaseDeAuditoria {
 
     private final ConsultarIncidentesOperativos consulta =
             new ConsultarIncidentesOperativos(new Datos(dsl), new IncidentesOperativosRepositorio());
