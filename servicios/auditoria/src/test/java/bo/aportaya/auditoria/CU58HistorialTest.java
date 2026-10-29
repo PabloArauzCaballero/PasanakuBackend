@@ -62,6 +62,56 @@ class CU58HistorialTest extends BaseDeAuditoria {
         return filas;
     }
 
+    /** Todas las páginas del catálogo, para encontrar una definición por id sin depender del orden. */
+    private List<ConsultarHistorialDeReportes.Definicion> todoElCatalogo() {
+        var filas = new ArrayList<ConsultarHistorialDeReportes.Definicion>();
+        Optional<String> despues = Optional.empty();
+        Optional<UUID> despuesId = Optional.empty();
+        do {
+            var a = despues;
+            var b = despuesId;
+            var p = transaccion.execute(t -> historial().definiciones(a, b, 50, operador()));
+            filas.addAll(p.items());
+            despues = p.proximo();
+            despuesId = p.proximoId();
+        } while (despuesId.isPresent());
+        return filas;
+    }
+
+    @Test
+    @DisplayName("el catálogo trae los parámetros que acepta cada reporte, leídos como los lee el motor")
+    void catalogoConParametros() {
+        UUID id = reportes.definicionDeReporte(
+                "con parametros " + UUID.randomUUID(),
+                PERMISO,
+                false,
+                "SELECT 1",
+                "[{\"nombre\": \"desde\", \"tipo\": \"FECHA\", \"obligatorio\": true},"
+                        + " {\"nombre\": \"grupo_id\", \"tipo\": \"UUID\"}]");
+
+        var definicion = todoElCatalogo().stream()
+                .filter(d -> d.definicionId().equals(id))
+                .findFirst()
+                .orElseThrow();
+        assertThat(definicion.esperados())
+                .containsExactlyInAnyOrder(
+                        new bo.aportaya.auditoria.dominio.ParametrosDeReporte.Esperado("desde", "FECHA", true),
+                        new bo.aportaya.auditoria.dominio.ParametrosDeReporte.Esperado("grupo_id", "UUID", false));
+    }
+
+    @Test
+    @DisplayName("límite: una definición con la forma vieja (objeto) no tumba el catálogo; se lista sin parámetros")
+    void catalogoConFormaVieja() {
+        UUID id = reportes.definicionDeReporte(
+                "forma vieja " + UUID.randomUUID(), PERMISO, false, "SELECT 1", "{\"fecha\": \"date\"}");
+
+        var definicion = todoElCatalogo().stream()
+                .filter(d -> d.definicionId().equals(id))
+                .findFirst()
+                .orElseThrow();
+        assertThat(definicion.esperados()).isEmpty();
+    }
+
     @Test
     @DisplayName(
             "Dada una definición activa y otra inactiva · Cuando el backoffice lista el catálogo de reportes · Entonces ve la activa con su permiso requerido y sin la consulta base")
