@@ -101,8 +101,7 @@ class BandejaDeAdmisionesRepositorioTest extends BaseDeCU68 {
                 .fetchOne("SELECT codigo_publico FROM grupos.grupo WHERE id = ?", a.grupoA())
                 .get(0, String.class);
 
-        var fila = solo(bandeja(null, null), Set.of(a.pendienteA()))
-                .get(0);
+        var fila = solo(bandeja(null, null), Set.of(a.pendienteA())).get(0);
 
         assertThat(fila.grupoCodigo()).isEqualTo(codigoA);
         assertThat(fila.nombreVisible()).isEqualTo("Ana Rojas");
