@@ -73,21 +73,21 @@ Patrones a copiar: contrato primero (`openapi/*.yaml` → interfaz generada), co
 
 | ID | Microtarea | CA | DoD | Estado |
 |---|---|---|---|---|
-| H5.S1.M1 | `comun-mensajeria`: medidor `aportaya.outbox.eventos{estado}` de la propia tabla | con 2 pendientes y 1 fallido, el medidor da 2 y 1 | `./gradlew :plataforma:comun-mensajeria:test` | TODO |
-| H5.S1.M2 | auditoria `GET /indicadores/operacion/outbox` sobre Prometheus (`ConsultaPrometheus`) | Prometheus caído → `fuenteDisponible: false`, no 500 | test auditoria | TODO |
-| H5.S2.M1 | Pantalla Outbox con la nueva forma | spec en tres niveles | `ng test` | TODO |
+| H5.S1.M1 | `comun-mensajeria`: medidor `aportaya.outbox.eventos{estado}` de la propia tabla | con 2 pendientes y 1 fallido, el medidor da 2 y 1 | `./gradlew :plataforma:comun-mensajeria:test` | DESCARTADO: los medidores ya existen en Relevo.java (pendientes, fallidos, edad, publicaciones_total); decisión de Claude por descubrimiento |
+| H5.S1.M2 | auditoria `GET /indicadores/operacion/outbox` sobre Prometheus (`ConsultaPrometheus`) | Prometheus caído → `fuenteDisponible: false`, no 500 | test auditoria | HECHO (evidencia/H5-outbox-auditoria.txt) |
+| H5.S2.M1 | Pantalla Outbox con la nueva forma | spec en tres niveles | `ng test` | HECHO (evidencia/H5-outbox-front.txt) |
 
 ## H6 — Despliegues y Respaldos
 | ID | Microtarea | CA | DoD | Estado |
 |---|---|---|---|---|
-| H6.S1.M1 | Propuesta escrita de registro (tabla, quién escribe, contrato) y la pantalla lo explica en vez de «fuente no disponible» genérico | documento + texto en pantalla | revisión del documento | TODO |
+| H6.S1.M1 | Propuesta escrita de registro (tabla, quién escribe, contrato) y la pantalla lo explica en vez de «fuente no disponible» genérico | documento + texto en pantalla | revisión del documento | HECHO (entregables/brecha-observabilidad.md; mensaje concreto en pantalla) |
 
 ## H7 — TEST y cierre
 | ID | Microtarea | CA | DoD | Estado |
 |---|---|---|---|---|
 | H7.S1.M1 | Regresión: backoffice completo + tests de los servicios tocados + build | todo verde | comandos pegados | TODO |
 | H7.S1.M2 | Despliegue a TEST según `despliegue/TEST.md` y verificación con sesión real | las pestañas muestran datos en TEST | capturas en TEST | TODO |
-| H7.S1.M3 | Deuda: `PUERTO_BASE_DE_DATOS` sin uso | el puerto se retira del árbol | `ng test` | TODO |
+| H7.S1.M3 | Deuda: `PUERTO_BASE_DE_DATOS` sin uso | el puerto se retira del árbol | `ng test` | HECHO: PUERTO_BASE_DE_DATOS y PUERTO_OUTBOX retirados (evidencia/H7-regresion-front.txt) |
 | H7.S1.M4 | `nucleo/menu.ts` vuelve a ≤200 líneas (lo pasé a 202 en #224; `verificar_frontend` falla) | `verificar_frontend` sin fallas | `python3 scripts/verificar_frontend.py` | HECHO (evidencia/verificadores-ci.txt) |
 
 ## Riesgos

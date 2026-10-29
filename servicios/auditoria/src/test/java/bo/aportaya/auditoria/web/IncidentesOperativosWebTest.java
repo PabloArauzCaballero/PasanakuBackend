@@ -36,6 +36,9 @@ class IncidentesOperativosWebTest {
     @MockitoBean
     private ConsultarIncidentesOperativos incidentes;
 
+    @MockitoBean
+    private bo.aportaya.auditoria.aplicacion.OutboxPorServicio outboxPorServicio;
+
     // Comparten controlador; no se llaman aca.
     @MockitoBean
     private bo.aportaya.auditoria.aplicacion.ConsultarCatalogoDeDatos consultarCatalogo;

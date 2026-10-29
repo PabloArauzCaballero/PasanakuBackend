@@ -48,6 +48,9 @@ class IndicadoresControllerWebTest {
     private bo.aportaya.auditoria.aplicacion.ConsultarIncidentesOperativos consultarIncidentes;
 
     @MockitoBean
+    private bo.aportaya.auditoria.aplicacion.OutboxPorServicio outboxPorServicio;
+
+    @MockitoBean
     private bo.aportaya.auditoria.aplicacion.ConsultarCatalogoDeDatos consultarCatalogo;
 
     @MockitoBean

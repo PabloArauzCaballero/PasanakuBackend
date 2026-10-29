@@ -160,7 +160,7 @@ export const MENU: readonly Grupo[] = [
             ruta: '/sistemas/proveedores',
             texto: 'Integraciones',
             icono: 'enlace',
-            grupo: [sis('proveedores', 'Proveedores', 'paquete'), sis('outbox', 'Outbox y descartados', 'bandeja'), sis('webhooks', 'Webhooks', 'enlace')],
+            grupo: [sis('proveedores', 'Proveedores', 'paquete'), sis('outbox', 'Outbox por servicio', 'bandeja'), sis('webhooks', 'Webhooks', 'enlace')],
           },
           {
             ruta: '/sistemas/usuarios-internos',

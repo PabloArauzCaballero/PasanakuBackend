@@ -7,6 +7,7 @@ import bo.aportaya.auditoria.aplicacion.CatalogoDeDatosVigente;
 import bo.aportaya.auditoria.aplicacion.ConsultarCatalogoDeDatos;
 import bo.aportaya.auditoria.aplicacion.ConsultarIncidentesOperativos;
 import bo.aportaya.auditoria.aplicacion.EndpointsDelDia;
+import bo.aportaya.auditoria.aplicacion.OutboxPorServicio;
 import bo.aportaya.auditoria.aplicacion.SaludDeServicios;
 import bo.aportaya.auditoria.dominio.FamiliasVisibles;
 import bo.aportaya.auditoria.web.generado.IndicadoresApi;
@@ -26,6 +27,7 @@ import bo.aportaya.auditoria.web.generado.modelo.PaginaDeTablasDelCatalogo;
 import bo.aportaya.auditoria.web.generado.modelo.ResumenDelCatalogo;
 import bo.aportaya.auditoria.web.generado.modelo.RevisionDeColumna;
 import bo.aportaya.auditoria.web.generado.modelo.SalidaEndpointsDelDia;
+import bo.aportaya.auditoria.web.generado.modelo.SalidaOutboxPorServicio;
 import bo.aportaya.auditoria.web.generado.modelo.SalidaSaludDeServicios;
 import bo.aportaya.auditoria.web.generado.modelo.SalidaTablero;
 import bo.aportaya.auditoria.web.generado.modelo.SensibilidadDeTabla;
@@ -66,6 +68,7 @@ public class IndicadoresController implements IndicadoresApi {
     private final CU131RevisarColumna cu131;
     private final ConsultarCatalogoDeDatos catalogo;
     private final ConsultarIncidentesOperativos incidentes;
+    private final OutboxPorServicio outbox;
 
     public IndicadoresController(
             CU98PublicarTablero cu98,
@@ -77,7 +80,8 @@ public class IndicadoresController implements IndicadoresApi {
             CU130GobernarFichaDeTabla cu130,
             CU131RevisarColumna cu131,
             ConsultarCatalogoDeDatos catalogo,
-            ConsultarIncidentesOperativos incidentes) {
+            ConsultarIncidentesOperativos incidentes,
+            OutboxPorServicio outbox) {
         this.cu98 = cu98;
         this.endpointsDelDia = endpointsDelDia;
         this.catalogoDeDatos = catalogoDeDatos;
@@ -88,6 +92,7 @@ public class IndicadoresController implements IndicadoresApi {
         this.cu131 = cu131;
         this.catalogo = catalogo;
         this.incidentes = incidentes;
+        this.outbox = outbox;
     }
 
     @Override
@@ -197,6 +202,28 @@ public class IndicadoresController implements IndicadoresApi {
         } catch (JsonProcessingException e) {
             throw new IllegalStateException("El catalogo de datos no cumple el contrato CatalogoDeDatos", e);
         }
+    }
+
+    /** Sistemas › Outbox: lo que cada relevo publica en Prometheus. Traduce y delega. */
+    @Override
+    @Permiso("TABLERO_SISTEMAS_VER")
+    @PermisoAlternativo({"AUDITORIA_LEER"})
+    public ResponseEntity<SalidaOutboxPorServicio> consultarOutboxPorServicio() {
+        Traza.marcarCasoDeUso("TABLERO-SISTEMAS", "operacion/outbox");
+        var salida = outbox.consultar();
+        var servicios = salida.servicios().stream()
+                .map(o -> {
+                    var x = new bo.aportaya.auditoria.web.generado.modelo.OutboxDeServicio(o.servicio());
+                    o.pendientes().ifPresent(x::setPendientes);
+                    o.fallidos().ifPresent(x::setFallidos);
+                    o.edadMasViejoSegundos().ifPresent(x::setEdadMasViejoSegundos);
+                    o.publicados24h().ifPresent(x::setPublicados24h);
+                    o.errores24h().ifPresent(x::setErroresDePublicacion24h);
+                    return x;
+                })
+                .toList();
+        return ResponseEntity.ok(new SalidaOutboxPorServicio(
+                salida.consultadoEn().atOffset(java.time.ZoneOffset.UTC), salida.fuenteDisponible(), servicios));
     }
 
     /** Sistemas › Incidentes: una pagina de auditoria.incidente_operativo. Traduce y delega. */

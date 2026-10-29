@@ -58,6 +58,9 @@ class CatalogoPorPartesWebTest {
     private bo.aportaya.auditoria.aplicacion.ConsultarIncidentesOperativos consultarIncidentes;
 
     @MockitoBean
+    private bo.aportaya.auditoria.aplicacion.OutboxPorServicio outboxPorServicio;
+
+    @MockitoBean
     private ConsultarCatalogoDeDatos consultarCatalogo;
 
     // El resto del controlador: no se llama aca.

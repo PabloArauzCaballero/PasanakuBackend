@@ -495,6 +495,27 @@ paths:
         '401':
           $ref: '#/components/responses/NoAutenticado'
 
+  /indicadores/operacion/outbox:
+    get:
+      operationId: consultarOutboxPorServicio      # Sistemas › Outbox (2026-10-29)
+      summary: El outbox de cada servicio, ahora
+      description: >-
+        Lo que el relevo de cada servicio publica en Prometheus (comun-mensajeria, Relevo): eventos PENDIENTE y FALLIDO
+        en su outbox ahora, la edad del mas viejo tomado, y cuantas publicaciones salieron bien y mal en las ultimas 24 h
+        (increase, aproximado por la extrapolacion de Prometheus). auditoria no lee el esquema de ningun servicio (regla
+        98.1). fuenteDisponible false significa que Prometheus no respondio: no se sabe, distinto de una lista vacia.
+        Exige TABLERO_SISTEMAS_VER o AUDITORIA_LEER.
+      responses:
+        '200':
+          description: El outbox por servicio
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaOutboxPorServicio' }
+        '403':
+          description: Sin TABLERO_SISTEMAS_VER ni AUDITORIA_LEER
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+
   /indicadores/operacion/incidentes:
     get:
       operationId: listarIncidentesOperativos      # Sistemas › Incidentes (2026-10-29)
@@ -1013,6 +1034,25 @@ components:
           type: array
           maxItems: 100
           items: { $ref: '#/components/schemas/EndpointDelDia' }
+    SalidaOutboxPorServicio:
+      type: object
+      additionalProperties: false
+      required: [consultadoEn, fuenteDisponible, servicios]
+      properties:
+        consultadoEn: { type: string, format: date-time }
+        fuenteDisponible: { type: boolean }
+        servicios: { type: array, maxItems: 40, items: { $ref: '#/components/schemas/OutboxDeServicio' } }
+    OutboxDeServicio:
+      type: object
+      additionalProperties: false
+      required: [servicio]
+      properties:
+        servicio: { type: string, maxLength: 60 }
+        pendientes: { type: integer, format: int64, minimum: 0, description: 'Ausente si el servicio no lo publico' }
+        fallidos: { type: integer, format: int64, minimum: 0 }
+        edadMasViejoSegundos: { type: integer, format: int64, minimum: 0 }
+        publicados24h: { type: integer, format: int64, minimum: 0 }
+        erroresDePublicacion24h: { type: integer, format: int64, minimum: 0 }
     EstadoDeIncidenteOperativo:
       type: string
       enum: [DETECTADO, MITIGADO, POST_MORTEM, RESUELTO]

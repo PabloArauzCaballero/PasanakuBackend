@@ -29,9 +29,9 @@ describe('PestanasDeSeccion', () => {
     expect(principal?.querySelectorAll('a ap-icono').length).toBe(8)
     expect(principal?.querySelector('a.activa')?.textContent?.trim()).toBe('Integraciones')
     expect(sub?.getAttribute('aria-label')).toBe('Pantallas de Integraciones')
-    expect(textos(sub)).toEqual(['Proveedores', 'Outbox y descartados', 'Webhooks'])
+    expect(textos(sub)).toEqual(['Proveedores', 'Outbox por servicio', 'Webhooks'])
     const actual = el.querySelector('a[aria-current="page"]')
-    expect(actual?.textContent?.trim()).toBe('Outbox y descartados')
+    expect(actual?.textContent?.trim()).toBe('Outbox por servicio')
     expect(actual?.getAttribute('href')).toBe('/sistemas/outbox')
   })
 
