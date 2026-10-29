@@ -26,3 +26,11 @@ TABLERO_SISTEMAS_VER, USUARIOS_INTERNOS_*, ROLES_INTERNOS_*, PERMISOS_INTERNOS_L
 | 10 | Desembolsos, reversos, actas, eventos de riesgo, incidentes: backend con escrituras, UI sin acciones | FALTA UI | ver auditoría | sí: alcance |
 
 Contabilidad y Publicidad no abren para ADMIN_PLATAFORMA por diseño de semillas (segregación), no por defecto.
+
+## Decisiones de Pablo (2026-10-29)
+
+Pablo respondió «lo más recomendado y cómodo para el usuario». Interpretación registrada (confirmar si no era esto):
+
+- Ítems 2 y 9 (reclamos, UIF, requerimientos, continuidad, custodia, cierres): **se mantiene la segregación de funciones** en las semillas (ISO/IEC 27001:2022 control 5.3, COSO; ya fijado por `nucleo/matriz-de-roles.spec.ts`). Para que el operador de TEST pueda decidir, se le asignan **roles adicionales** (SOPORTE / roles de cumplimiento) por la pantalla de usuarios internos (CU-08) desde un segundo usuario interno, porque AP-08-04 prohíbe autoasignarse. No se toca la semilla de ADMIN_PLATAFORMA.
+- Ítem 8 (módulos que faltan): **se empieza por Grupos** (consulta de grupos y sus participantes); después participantes, garantía y organizadores.
+- Prueba real de admisiones en TEST: la hace Pablo desde el navegador; el agente verifica en la base.
