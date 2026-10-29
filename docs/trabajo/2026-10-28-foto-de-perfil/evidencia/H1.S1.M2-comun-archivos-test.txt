@@ -1,0 +1,8 @@
+> Task :plataforma:comun-archivos:classes
+> Task :plataforma:comun-archivos:compileTestJava
+> Task :plataforma:comun-archivos:testClasses
+> Task :plataforma:comun-archivos:test
+
+BUILD SUCCESSFUL in 1s
+15 actionable tasks: 5 executed, 10 up-to-date
+Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.7.1/userguide/configuration_cache_enabling.html

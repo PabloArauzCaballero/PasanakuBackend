@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http_mock_adapter/http_mock_adapter.dart';
 
@@ -133,6 +134,7 @@ Widget conApp(
   Brightness brillo = Brightness.light,
   bool movimientoReducido = false,
   Haptica? haptica,
+  List<Override> extra = const [],
 }) => ProviderScope(
   // Igual que en main.dart: sin reintentos automáticos.
   retry: (retryCount, error) => null,
@@ -140,6 +142,7 @@ Widget conApp(
     almacenSeguroProvider.overrideWithValue(AlmacenEnMemoria()),
     dioProvider.overrideWithValue(dio),
     if (haptica != null) hapticaProvider.overrideWithValue(haptica),
+    ...extra,
   ],
   child: MaterialApp(
     theme: temaDesde(Tokens.claro, Brightness.light),

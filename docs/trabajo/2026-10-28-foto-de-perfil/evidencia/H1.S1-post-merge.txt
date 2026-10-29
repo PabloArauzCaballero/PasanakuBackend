@@ -1,0 +1,5 @@
+test: tests=45 fallas=0
+webTest: tests=152 fallas=0
+testBarrido: tests=3 fallas=0
+TEST-bo.aportaya.identidad.CU07FotoDePerfilTest.xml tests="6" skipped="0" failures="0"
+TEST-bo.aportaya.identidad.CU07MiPerfilTest.xml tests="6" skipped="0" failures="0"

@@ -744,6 +744,49 @@ paths:
           content:
             application/json:
               schema: { $ref: '#/components/schemas/MiPerfil' }
+  /usuarios/yo/foto-de-perfil:
+    put:
+      operationId: cambiarMiFotoDePerfil      # CU-07 (2026-10-28)
+      summary: Sube la foto de perfil de la cuenta de la sesion y la deja vigente
+      description: >-
+        La foto va al servidor de archivos y en `usuario.url_avatar` queda la clave del
+        objeto, nunca una URL publica (ADR-034). El tipo se decide por los primeros bytes:
+        JPEG o PNG, hasta 5 MB. Es un reemplazo: repetir la subida deja vigente la ultima
+        foto, por eso no pide `Idempotency-Key`. Sin id en la ruta: sale de la sesion.
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [archivo]
+              properties:
+                archivo:
+                  type: string
+                  format: binary
+      responses:
+        '204':
+          description: Guardada; la foto vigente es la recien subida
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '422': { $ref: '#/components/responses/ReglaDeNegocio' }
+    get:
+      operationId: verMiFotoDePerfil          # CU-07 (2026-10-28)
+      summary: Los bytes de la foto de perfil de la cuenta de la sesion
+      description: >-
+        El binario y no un enlace: el almacen vive en la red interna (ADR-034), igual que
+        `verContenidoDeFoto`. 404 si la cuenta todavia no tiene foto; la app muestra las
+        iniciales. `Cache-Control: private, no-store`.
+      responses:
+        '200':
+          description: La foto
+          content:
+            image/jpeg:
+              schema: { type: string, format: binary }
+            image/png:
+              schema: { type: string, format: binary }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '404':
+          description: La cuenta todavia no tiene foto de perfil (sin cuerpo)
   /identidad/contactos/grupos/{grupoId}/integrantes/{usuarioId}:
     get:
       operationId: consultarContactoEnGrupo     # perfil del integrante (2026-10-21)
@@ -1041,6 +1084,11 @@ components:
           type: [string, 'null']
           maxLength: 20
           description: Telefono E.164 de la propia cuenta. Null si todavia no lo cargo.
+        tieneFotoDePerfil:
+          type: boolean
+          description: >-
+            Si la cuenta tiene foto de perfil. Los bytes se piden aparte con
+            `verMiFotoDePerfil`. Opcional para no romper a quien ya consume `MiPerfil`.
         estadoDeCuenta:
           type: string
           description: >-
