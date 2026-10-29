@@ -213,7 +213,6 @@ public class IndicadoresController extends RutasDelCatalogoDeDatos {
                 items, resultado.pagina(), resultado.limite(), resultado.total(), resultado.totalPaginas()));
     }
 
-
     private static SalidaTablero mapear(CU98PublicarTablero.SalidaTablero salida) {
         SalidaTablero cuerpo = new SalidaTablero(
                 salida.periodo(),

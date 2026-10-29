@@ -17,7 +17,7 @@
 - Qué anda: la réplica de las dos reglas del barrido da exactamente los 4 hallazgos que el CI dio en `dev` (run 40878468838) antes del cambio y 0 después.
 - Qué no anda: no sé si compila ni si las pruebas de `auditoria` siguen verdes; Gradle no corre en este entorno.
 - Qué falta exactamente: el CI de la rama (push y run nuevo); si aparece un diff de `spotless`, aplicarlo; confirmar que `auditoria:test`/`webTest` pasan y que el job llega por fin a `grupos:webTest` y a `BandejaDeAdmisionesRepositorioTest`.
-- Dónde quedó: archivos tocados en [Evidencia](#evidencia); en el árbol de trabajo, todavía sin commit en el momento de escribir esto.
+- Dónde quedó: archivos tocados en [Evidencia](#evidencia); commits 3fe73702 y el de formato, en la rama del PR #266.
 
 ## Pendiente
 | ID | Estado | Qué lo destraba |
@@ -35,7 +35,9 @@
 - Los otros reds de `dev` (f5, bóveda, `AdmisionDelGrupoSustitucionTest`).
 
 ## Desvíos del plan
-- Ninguno en el código. El PLAN prevía «`wc -l` + réplica» para M3 y se añadió la comparación automática de firmas y anotaciones.
+- CI del commit 3fe73702 (run 40885070706): `spotlessCheck` (paso 2) falló en `:servicios:auditoria` por dos diffs de formato míos, tal como anticipaba el riesgo del PLAN: una línea en blanco de más antes de `mapear` en `IndicadoresController` y un `when(...).thenReturn(...)` que cabe en una línea en `SaludDeServiciosWebTest.auditor()`. Se aplicaron literal en el commit siguiente. `testBarrido` y `compileJava` no llegaron a ejecutarse en ese run (el paso 2 corta).
+- Hay un arreglo paralelo del mismo barrido en el PR #262 (commit 088547a6, otra sesión); se comentó en el PR #266 y queda a decisión de Pablo cuál de los dos aterriza.
+- Código: ninguno más. El PLAN prevía «`wc -l` + réplica» para M3 y se añadió la comparación automática de firmas y anotaciones.
 
 ## Riesgos residuales
 - Quien lance `auditoria` fuera de Compose/CI sin `application.yml` de recursos y sin la propiedad lo verá fallar al arrancar (era silencioso antes). Es el comportamiento pedido por la regla 90.3.4.

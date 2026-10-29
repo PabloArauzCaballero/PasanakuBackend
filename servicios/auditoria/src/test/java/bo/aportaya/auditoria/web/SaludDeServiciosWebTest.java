@@ -123,8 +123,7 @@ class SaludDeServiciosWebTest {
     @Test
     @DisplayName("estado · AUDITORIA_LEER también la ve")
     void auditor() throws Exception {
-        when(salud.consultar())
-                .thenReturn(soloElEstado(Instant.parse("2026-10-17T15:00:00Z"), List.of()));
+        when(salud.consultar()).thenReturn(soloElEstado(Instant.parse("2026-10-17T15:00:00Z"), List.of()));
         mvc.perform(get("/indicadores/operacion/servicios").with(Sesiones.como("AUDITOR_INTERNO", "AUDITORIA_LEER")))
                 .andExpect(status().isOk());
     }
