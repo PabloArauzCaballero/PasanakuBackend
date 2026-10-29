@@ -481,7 +481,9 @@ paths:
         auditoria pregunta el readiness (/actuator/health/readiness) de cada servicio por la red interna, en paralelo
         y con timeout de 2 s, y devuelve lo que contesto cada uno: ARRIBA (200), DEGRADADO (respondio con otro estado,
         tipicamente 503 OUT_OF_SERVICE) o CAIDO (no respondio a tiempo o rechazo la conexion). El resultado se reusa
-        10 s: abrir la pantalla muchas veces no multiplica las consultas. Exige TABLERO_SISTEMAS_VER o AUDITORIA_LEER.
+        10 s: abrir la pantalla muchas veces no multiplica las consultas. Ademas, auditoria mide el readiness una vez
+        por minuto y devuelve por servicio la disponibilidad de los ultimos 30 dias, el presupuesto de error restante
+        contra objetivoSlo y la ultima interrupcion. Exige TABLERO_SISTEMAS_VER o AUDITORIA_LEER.
       responses:
         '200':
           description: La salud consultada
@@ -995,6 +997,9 @@ components:
           type: array
           maxItems: 40
           items: { $ref: '#/components/schemas/SaludDeServicio' }
+        objetivoSlo:
+          type: string
+          description: 'El SLO de disponibilidad en porcentaje, cadena decimal (por ejemplo 99.5); el mismo para todos'
     SaludDeServicio:
       type: object
       additionalProperties: false
@@ -1003,6 +1008,24 @@ components:
         servicio: { type: string, maxLength: 60 }
         estado: { type: string, enum: [ARRIBA, DEGRADADO, CAIDO] }
         latenciaMs: { type: integer, format: int64, description: 'Cuanto tardo en contestar; ausente si no contesto' }
+        disponibilidad30d:
+          type: string
+          description: >-
+            Porcentaje de minutos que contesto 200 sobre los minutos medidos en los ultimos 30 dias UTC, cadena
+            decimal truncada a dos decimales. Ausente si todavia no hay nada medido.
+        presupuestoErrorRestante:
+          type: string
+          description: >-
+            Cuanto queda del presupuesto de error contra objetivoSlo, en porcentaje con un decimal: 100 sin caidas,
+            0 agotado, negativo si el SLO ya no se cumple. Ausente si todavia no hay nada medido.
+        minutosMedidos30d:
+          type: integer
+          format: int64
+          description: 'Minutos medidos en la ventana; los minutos sin medicion no cuentan ni a favor ni en contra'
+        ultimaInterrupcion:
+          type: string
+          format: date-time
+          description: 'El ultimo minuto medido en que no contesto 200 (DEGRADADO o CAIDO); ausente si nunca'
     EndpointDelDia:
       type: object
       additionalProperties: false

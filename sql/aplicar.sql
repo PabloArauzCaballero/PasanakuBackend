@@ -223,6 +223,7 @@ SET search_path TO aportes, auditoria, cumplimiento, entregas, erp, garantia, gr
 \ir 10_tablas/09_auditoria_reportes/proceso_anonimizacion.sql
 \ir 10_tablas/09_auditoria_reportes/ticket_soporte.sql
 \ir 10_tablas/09_auditoria_reportes/incidente_operativo.sql
+\ir 10_tablas/09_auditoria_reportes/disponibilidad_servicio_dia.sql
 --    módulo 10 — Billetera, Custodia y Dinero Electrónico
 \ir 10_tablas/10_billetera_custodia/politica_billetera.sql
 \ir 10_tablas/10_billetera_custodia/cuenta_billetera.sql

@@ -33,9 +33,9 @@
   {
    "nombre": "auditoria",
    "descripcion": "Auditoría, Reportes y Cumplimiento. Poder demostrar todo lo anterior ante un reclamo o un regulador.",
-   "tablas": 21,
-   "tablasDeNegocio": 18,
-   "columnas": 214,
+   "tablas": 22,
+   "tablasDeNegocio": 19,
+   "columnas": 221,
    "relaciones": 23,
    "appendOnly": 1,
    "conDatosPersonales": 0,
@@ -5991,6 +5991,105 @@
      ]
     }
    ]
+  },
+  {
+   "tabla": "disponibilidad_servicio_dia",
+   "esquema": "auditoria",
+   "tipo": "NEGOCIO",
+   "modulo": "09",
+   "nombreModulo": "Auditoría, Reportes y Cumplimiento",
+   "servicio": "auditoria",
+   "appendOnly": false,
+   "negocio": {
+    "queEs": "El resumen de un día UTC de un servicio: cuántos minutos se le preguntó si estaba listo (minutosMedidos), en cuántos contestó que sí (minutosArriba) y la última vez que no (ultimaInterrupcionEn). auditoria lo suma una vez por minuto.",
+    "negocio": "Es de donde salen la disponibilidad de 30 días y el presupuesto de error contra el SLO (99,5 %) que muestra Sistemas › Servicios. Con eso, quien opera decide si se puede desplegar algo riesgoso o si hay que frenar y estabilizar. ultimoMinutoEn hace que el mismo minuto no se cuente dos veces aunque el trabajo se reintente o corran dos instancias.",
+    "porQue": "La sonda de salud solo dice cómo está cada servicio *ahora*. Sin historia no hay disponibilidad que mostrar, y un incidente operativo no se puede contrastar con lo que se midió. Se guarda un renglón por día y no cada medición: alcanza para la ventana y no exige borrar filas."
+   },
+   "reglas": [],
+   "columnas": [
+    {
+     "nombre": "id",
+     "tipo": "UUID",
+     "nulable": false,
+     "pk": true,
+     "negocio": "Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.",
+     "origenNegocio": "convencion",
+     "sistema": "UUID, obligatoria, clave primaria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "servicio",
+     "tipo": "VARCHAR(60)",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Atributo que representa servicio en el modelo de disponibilidad_servicio_dia.",
+     "origenNegocio": "convencion",
+     "sistema": "VARCHAR(60), obligatoria, restricción única.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "dia",
+     "tipo": "DATE",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Atributo que representa dia en el modelo de disponibilidad_servicio_dia.",
+     "origenNegocio": "convencion",
+     "sistema": "DATE, obligatoria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "minutos_medidos",
+     "tipo": "INTEGER",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Atributo que representa minutos medidos en el modelo de disponibilidad_servicio_dia.",
+     "origenNegocio": "convencion",
+     "sistema": "INTEGER, obligatoria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "minutos_arriba",
+     "tipo": "INTEGER",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Atributo que representa minutos arriba en el modelo de disponibilidad_servicio_dia.",
+     "origenNegocio": "convencion",
+     "sistema": "INTEGER, obligatoria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "ultima_interrupcion_en",
+     "tipo": "TIMESTAMPTZ",
+     "nulable": true,
+     "pk": false,
+     "negocio": "Marca temporal o fecha de ultima interrupcion en disponibilidad_servicio_dia.",
+     "origenNegocio": "convencion",
+     "sistema": "TIMESTAMPTZ, opcional.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "ultimo_minuto_en",
+     "tipo": "TIMESTAMPTZ",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Marca temporal o fecha de ultimo minuto en disponibilidad_servicio_dia.",
+     "origenNegocio": "convencion",
+     "sistema": "TIMESTAMPTZ, obligatoria.",
+     "sensibilidad": "NINGUNA"
+    }
+   ],
+   "relaciones": {
+    "salientes": [],
+    "entrantes": []
+   },
+   "sistema": "Vive en el esquema auditoria; la escribe y la lee solo el servicio auditoria (regla 98.1.1): otro servicio la conoce por su API o por sus eventos.",
+   "clasificacion": {
+    "personales": 0,
+    "financieros": 0,
+    "secretos": 0,
+    "derivados": 0
+   },
+   "operaciones": []
   },
   {
    "tabla": "ejecucion_reporte",

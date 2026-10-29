@@ -54,6 +54,8 @@ export class PantallaServicios {
     camposDeBusqueda: ['nombre', (s) => ESTADO[s.estado], 'ultimaInterrupcion'],
     filtros: [{ nombre: 'estado', etiqueta: 'Estado', valor: (s) => s.estado, texto: (v) => ESTADO[v as EstadoServicio['estado']] ?? v }],
     porPagina: 10,
+    // «20 oct 2026, …» ordenado como texto pone octubre antes que septiembre: se ordena por el instante.
+    valorParaOrden: (s, clave) => (clave === 'ultimaInterrupcion' ? (s.ultimaInterrupcionIso ?? '') : s[clave as keyof EstadoServicio]),
   })
   protected readonly cifras = computed<Cifra[]>(() => {
     const f = this.filas()

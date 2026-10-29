@@ -24,6 +24,8 @@ export type EstadoServicio = {
   disponibilidad30d: string
   presupuestoErrorRestante: string
   ultimaInterrupcion: string
+  /** El instante ISO de la última interrupción, para ordenar por fecha y no por el texto formateado. */
+  ultimaInterrupcionIso?: string
 }
 
 export type Despliegue = {

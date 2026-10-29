@@ -487,6 +487,18 @@ package "Datos Personales y Soporte" {
     + declarar()
     + cerrar(postMortemUrl)
   }
+
+  class DisponibilidadServicioDia {
+    - id: UUID
+    - servicio: String
+    - dia: Date
+    - minutosMedidos: Integer
+    - minutosArriba: Integer
+    - ultimaInterrupcionEn: DateTime
+    - ultimoMinutoEn: DateTime
+    --
+    + sumarMinuto(estado, minuto)
+  }
 }
 
 ' ---------- Relaciones ----------
@@ -936,6 +948,17 @@ entity "incidente_operativo" as incop {
   resuelto_en : TIMESTAMPTZ <<NULL>>
   causa_raiz : TEXT <<NULL>>
   acciones_correctivas : TEXT <<NULL>>
+}
+
+entity "disponibilidad_servicio_dia" as dispdia {
+  * id : UUID <<PK>>
+  --
+  servicio : VARCHAR(60) <<UQ+dia>>
+  dia : DATE
+  minutos_medidos : INTEGER
+  minutos_arriba : INTEGER
+  ultima_interrupcion_en : TIMESTAMPTZ <<NULL>>
+  ultimo_minuto_en : TIMESTAMPTZ
 }
 
 defrep ||--o{ ejerep : "se ejecuta como"

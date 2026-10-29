@@ -1,0 +1,13 @@
+sql/40_reglas/restricciones.sql: 20 bloques SQL, 173 restricciones · sql/50_verificacion/verificaciones.sql: 1 bloque(s) de control
+minimos  → sql/60_semillas: 23 archivos, 983 filas
+dev      → sql/61_dev: 18 archivos, 634 filas
+volumen  → sql/62_volumen: 12 archivos, 5964 filas
+         → despliegue/ensayos/sembrar_test.sh: bloque SQL-GENERADO al dia (67 lineas)
+         → despliegue/ensayos/sandbox_licencia_test.sh: bloque SQL-GENERADO al dia (12 lineas)
+         → despliegue/ensayos/politica_invitacion_test.sh: bloque SQL-GENERADO al dia (39 lineas)
+total: 7581 filas de semilla · validadas contra el modelo
+Generado: /private/tmp/claude-501/-Users-pablo-Documents-GitHub-Pasanaku/95666f0c-c6ac-4e0b-be41-e89a82af1f7e/scratchpad/wt/sql/60_semillas/24-metadata-comentarios.sql (4173 líneas, 343 tablas, 3741 columnas)
+Actualizado: sql/60_semillas/sembrar.sql con \ir 24-metadata-comentarios.sql
+Guardado mapa de esquemas: /private/tmp/claude-501/-Users-pablo-Documents-GitHub-Pasanaku/95666f0c-c6ac-4e0b-be41-e89a82af1f7e/scratchpad/wt/scripts/metadata_enriquecida.json
+sql/ generado: 343 tablas · 686 claves foráneas · 786 índices · 532 CHECK
+Sin pendientes a nivel de datos.

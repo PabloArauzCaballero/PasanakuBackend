@@ -1,0 +1,29 @@
+> Task :plataforma:comun-dominio:jar
+> Task :plataforma:comun-mensajeria:jar
+> Task :plataforma:comun-web:erroresCatalogo
+catalogo de errores: 263 restricciones -> 141 reglas · errores-restricciones.properties
+mensajes de regla: 170 · errores-reglas.properties
+  AVISO: 3 reglas con restriccion y sin fila en la boveda: R-BIL-21, R-BIL-22, R-UIF-13
+> Task :plataforma:comun-web:compileJava UP-TO-DATE
+> Task :plataforma:comun-web:processResources
+> Task :plataforma:comun-web:classes
+> Task :plataforma:comun-web:jar
+> Task :plataforma:comun-web:compileTestFixturesJava
+> Task :plataforma:comun-web:processTestFixturesResources NO-SOURCE
+> Task :plataforma:comun-web:testFixturesClasses
+> Task :plataforma:comun-web:testFixturesJar
+> Task :servicios:auditoria:compileJava
+> Task :servicios:auditoria:classes
+> Task :plataforma:comun-pruebas:compileJava
+> Task :plataforma:comun-pruebas:classes
+> Task :plataforma:comun-pruebas:jar
+> Task :servicios:auditoria:compileTestJava
+> Task :servicios:auditoria:testClasses
+> Task :servicios:auditoria:test
+BUILD SUCCESSFUL in 4s
+33 actionable tasks: 18 executed, 15 up-to-date
+Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.7.1/userguide/configuration_cache_enabling.html
+<testsuite name="bo.aportaya.auditoria.ArquitecturaTest" tests="5" skipped="0" failures="0" errors="0"
+<testsuite name="bo.aportaya.auditoria.aplicacion.SaludDeServiciosTest" tests="3" skipped="0" failures="0" errors="0"
+<testsuite name="bo.aportaya.auditoria.dominio.DisponibilidadDelServicioTest" tests="7" skipped="0" failures="0" errors="0"
+<testsuite name="bo.aportaya.auditoria.trabajos.MuestreoDeDisponibilidadTest" tests="1" skipped="0" failures="0" errors="0"
