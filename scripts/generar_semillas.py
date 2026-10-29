@@ -34,6 +34,7 @@ Formato de cada archivo:
         {
           "tabla": "cuenta_contable",
           "conflicto": ["codigo"],       // ON CONFLICT (…) DO NOTHING
+          "actualizar": ["columna"],     // opcional: ON CONFLICT (…) DO UPDATE SET columna = EXCLUDED.columna
           "filas": [ { "codigo": "1.1.01", … } ]
         }
       ]
@@ -204,9 +205,19 @@ def bloque_sql(b, dev=False):
     columnas = list(dict.fromkeys(c for f in filas for c in f))
     conflicto = b.get("conflicto", [])
 
+    # `actualizar` corrige una fila de catálogo ya sembrada sin tocar la base a mano: solo las columnas
+    # declaradas, y solo si cambiaron (IS DISTINCT FROM), así la segunda corrida no escribe nada.
+    actualizar = b.get("actualizar", [])
+    if actualizar and (not conflicto or conflicto == "ninguno"):
+        raise SystemExit(f"{tabla}: `actualizar` exige `conflicto` con columnas")
+
     def cola():
         if conflicto == "ninguno":
             return ";"
+        if conflicto and actualizar:
+            asignaciones = ", ".join(f"{c} = EXCLUDED.{c}" for c in actualizar)
+            cambio = " OR ".join(f"{tabla}.{c} IS DISTINCT FROM EXCLUDED.{c}" for c in actualizar)
+            return f"\nON CONFLICT ({', '.join(conflicto)}) DO UPDATE SET {asignaciones}\n  WHERE {cambio};"
         if conflicto:
             return f"\nON CONFLICT ({', '.join(conflicto)}) DO NOTHING;"
         return "\nON CONFLICT DO NOTHING;"
