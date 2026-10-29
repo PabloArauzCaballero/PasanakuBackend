@@ -15,7 +15,8 @@ import java.util.Optional;
 public record DisponibilidadDelServicio(
         String servicio, long minutosMedidos, long minutosArriba, Optional<Instant> ultimaInterrupcion) {
 
-    private static final BigDecimal CIEN = BigDecimal.valueOf(100);
+    /** La base del porcentaje: convierte una razon en porcentaje. No es un umbral de nadie. */
+    public static final BigDecimal CIEN = BigDecimal.TEN.pow(2);
 
     public DisponibilidadDelServicio {
         if (minutosMedidos < 0 || minutosArriba < 0 || minutosArriba > minutosMedidos) {
