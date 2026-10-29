@@ -73,11 +73,13 @@ jobs:
           yarn workspace @aportaya/diseno-flutter build
           yarn workspace @aportaya/movil build
 
-      # Siempre la MISMA firma. Sin esto, cada maquina de Actions generaba su propia
-      # ~/.android/debug.keystore y cada APK salia con otro certificado (comprobado:
-      # apk-prueba-12 a55de554…, apk-prueba-13 b4a20ff6…): Android no deja instalar
-      # uno encima del otro y obligaba a desinstalar la app en cada prueba. La clave
-      # es de depuracion (alias y claves estandar de Android), no la de la tienda.
+      # Siempre la MISMA firma. Cada maquina de Actions generaba su propia clave de
+      # depuracion y cada APK salia con otro certificado (apk-prueba-12 a55de554…,
+      # apk-prueba-13 b4a20ff6…): Android no deja instalar uno encima del otro.
+      # Dejar la keystore en ~/.android/debug.keystore NO alcanzo (apk-prueba-17 salio
+      # cc59616a… con la keystore f8f513e5… ya en su lugar), asi que despues de compilar
+      # se vuelve a firmar con apksigner y se comprueba la huella. Es una clave de
+      # depuracion (alias y claves estandar de Android), no la de la tienda.
       - name: firma de depuracion estable
         env:
           APK_DEBUG_KEYSTORE: ${{ secrets.APK_DEBUG_KEYSTORE }}
@@ -86,9 +88,11 @@ jobs:
             echo "::error::Falta el secreto APK_DEBUG_KEYSTORE: el APK saldria con una firma nueva y no se instalaria encima del anterior."
             exit 1
           fi
-          mkdir -p ~/.android
-          echo "$APK_DEBUG_KEYSTORE" | base64 -d > ~/.android/debug.keystore
-          keytool -list -v -keystore ~/.android/debug.keystore -storepass android | grep -m1 'SHA256:'
+          echo "$APK_DEBUG_KEYSTORE" | base64 -d > "$RUNNER_TEMP/firma-apk.keystore"
+          huella=$(keytool -list -v -keystore "$RUNNER_TEMP/firma-apk.keystore" -storepass android \
+            | grep -m1 'SHA256:' | sed 's/.*SHA256: *//' | tr -d ':' | tr 'A-F' 'a-f')
+          echo "HUELLA_APK=$huella" >> "$GITHUB_ENV"
+          echo "huella esperada: $huella"
 
       - name: flutter build apk (release, contra TEST)
         working-directory: apps/movil
@@ -100,6 +104,22 @@ jobs:
           mv build/app/outputs/flutter-apk/app-release.apk \
             "build/aportaya-test-${{ github.run_number }}.apk"
           ls -l build/*.apk
+
+      - name: firmar con la clave estable y comprobar la huella
+        working-directory: apps/movil
+        run: |
+          apk="build/aportaya-test-${{ github.run_number }}.apk"
+          apksigner=$(ls -d "$ANDROID_HOME"/build-tools/* | sort -V | tail -1)/apksigner
+          "$apksigner" sign --ks "$RUNNER_TEMP/firma-apk.keystore" --ks-pass pass:android \
+            --ks-key-alias androiddebugkey --key-pass pass:android "$apk"
+          "$apksigner" verify "$apk"
+          firmado=$("$apksigner" verify --print-certs "$apk" | grep -m1 'SHA-256 digest' | sed 's/.*digest: *//')
+          echo "huella del APK: $firmado"
+          if [ "$firmado" != "$HUELLA_APK" ]; then
+            echo "::error::El APK salio firmado con $firmado y no con la clave estable $HUELLA_APK."
+            exit 1
+          fi
+          rm -f "$RUNNER_TEMP/firma-apk.keystore"
 
       - uses: actions/upload-artifact@v4
         with:
