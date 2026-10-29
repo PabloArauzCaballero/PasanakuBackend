@@ -98,6 +98,9 @@ class GruposCalendarioWebTest {
     @MockitoBean
     private IntegrantesDelGrupo integrantesDelGrupo;
 
+    @MockitoBean
+    private GruposDeBackoffice gruposDeBackoffice;
+
     private static CU59CalcularPlazo.SalidaVencimiento delPrimeroDeMayo() {
         return new CU59CalcularPlazo.SalidaVencimiento(
                 Instant.parse("2026-05-02T02:00:00Z"),
