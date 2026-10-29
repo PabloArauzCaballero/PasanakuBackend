@@ -73,6 +73,23 @@ jobs:
           yarn workspace @aportaya/diseno-flutter build
           yarn workspace @aportaya/movil build
 
+      # Siempre la MISMA firma. Sin esto, cada maquina de Actions generaba su propia
+      # ~/.android/debug.keystore y cada APK salia con otro certificado (comprobado:
+      # apk-prueba-12 a55de554…, apk-prueba-13 b4a20ff6…): Android no deja instalar
+      # uno encima del otro y obligaba a desinstalar la app en cada prueba. La clave
+      # es de depuracion (alias y claves estandar de Android), no la de la tienda.
+      - name: firma de depuracion estable
+        env:
+          APK_DEBUG_KEYSTORE: ${{ secrets.APK_DEBUG_KEYSTORE }}
+        run: |
+          if [ -z "$APK_DEBUG_KEYSTORE" ]; then
+            echo "::error::Falta el secreto APK_DEBUG_KEYSTORE: el APK saldria con una firma nueva y no se instalaria encima del anterior."
+            exit 1
+          fi
+          mkdir -p ~/.android
+          echo "$APK_DEBUG_KEYSTORE" | base64 -d > ~/.android/debug.keystore
+          keytool -list -v -keystore ~/.android/debug.keystore -storepass android | grep -m1 'SHA256:'
+
       - name: flutter build apk (release, contra TEST)
         working-directory: apps/movil
         run: |
