@@ -35,10 +35,16 @@ class PantallaDeBaja extends StatelessWidget {
                 explicacion: TextosDeTramites.bajaExplicacion,
                 peligro: true,
               ),
-              const Alerta(titulo: TextosIdentidad.avisoBaja, tono: Tono.aviso),
+              // La consecuencia es el título; la condición, el detalle (antes, una sola
+              // oración larga en naranja).
+              const Alerta(
+                titulo: TextosDeTramites.bajaConsecuencia,
+                detalle: TextosDeTramites.bajaCondicion,
+                tono: Tono.aviso,
+              ),
               const SizedBox(height: Espacio.s5),
               Boton(
-                texto: TextosIdentidad.confirmarBaja,
+                texto: TextosDeTramites.bajaBoton,
                 variante: BotonVariante.peligro,
                 expandido: true,
                 onPressed: () => HojaDeConfirmacion.mostrar<void>(
@@ -46,7 +52,8 @@ class PantallaDeBaja extends StatelessWidget {
                   hoja: HojaDeConfirmacion(
                     titulo: TextosIdentidad.tituloBaja,
                     detalle: const Alerta(
-                      titulo: TextosIdentidad.avisoBaja,
+                      titulo: TextosDeTramites.bajaConsecuencia,
+                      detalle: TextosDeTramites.bajaCondicion,
                       tono: Tono.aviso,
                     ),
                     textoConfirmar: TextosIdentidad.confirmarBaja,
