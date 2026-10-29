@@ -2,12 +2,12 @@ import 'package:aportaya_diseno/atomos/boton.dart';
 import 'package:aportaya_diseno/atomos/boton_variante.dart';
 import 'package:aportaya_diseno/atomos/campo.dart';
 import 'package:aportaya_diseno/atomos/selector_segmentado.dart';
-import 'package:aportaya_diseno/moleculas/alerta.dart';
+import 'package:aportaya_diseno/atomos/iconos_de_marca.dart';
+import 'package:aportaya_diseno/moleculas/intro_de_pantalla.dart';
 import 'package:aportaya_diseno/moleculas/barra_de_accion.dart';
 import 'package:aportaya_diseno/moleculas/cabecera.dart';
 import 'package:aportaya_diseno/moleculas/pregunta.dart';
 import 'package:aportaya_diseno/organismos/estado_error.dart';
-import 'package:aportaya_diseno/atomos/tono.dart';
 import 'package:aportaya_diseno/tokens/tokens.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -110,12 +110,13 @@ class _Formulario extends StatelessWidget {
         child: ListView(
           padding: const EdgeInsets.all(Espacio.s4),
           children: [
-            const Alerta(
+            // Qué pide y quién decide, como entrada y no como alerta: no es un problema.
+            const IntroDePantalla(
+              icono: IconosDeMarca.solicitudes,
               titulo: TextosPasanaku.cupoEnEspera,
-              detalle: TextosPasanaku.cupoNoOcupadoAviso,
-              tono: Tono.info,
+              explicacion: TextosPasanaku.cupoNoOcupadoAviso,
             ),
-            const SizedBox(height: Espacio.s5),
+            const SizedBox(height: Espacio.s1),
             Pregunta(
               etiqueta: TextosPasanaku.cuposSolicitados,
               control: SelectorSegmentado<int>(
