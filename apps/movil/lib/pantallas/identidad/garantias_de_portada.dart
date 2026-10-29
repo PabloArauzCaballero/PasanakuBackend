@@ -31,16 +31,20 @@ class GarantiasDePortada extends StatelessWidget {
   ];
 
   @override
-  Widget build(BuildContext context) => Row(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      for (final (i, g) in _garantias.indexed) ...[
-        if (i > 0) const SizedBox(width: Espacio.s2),
-        Expanded(
-          child: _Garantia(icono: g.icono, texto: g.texto),
-        ),
+  // `IntrinsicHeight`: las tres tarjetas miden lo mismo aunque una baje a dos
+  // renglones (son tres hijos; el costo de medir dos veces es despreciable).
+  Widget build(BuildContext context) => IntrinsicHeight(
+    child: Row(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        for (final (i, g) in _garantias.indexed) ...[
+          if (i > 0) const SizedBox(width: Espacio.s2),
+          Expanded(
+            child: _Garantia(icono: g.icono, texto: g.texto),
+          ),
+        ],
       ],
-    ],
+    ),
   );
 }
 
