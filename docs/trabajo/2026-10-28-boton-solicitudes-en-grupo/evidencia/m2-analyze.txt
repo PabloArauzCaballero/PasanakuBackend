@@ -1,0 +1,6 @@
+$ flutter analyze lib/pantallas/pasanaku test/pasanaku/detalle_del_grupo_test.dart test/pasanaku/pantallas_enlace_del_grupo_test.dart
+Analyzing 3 items...                                            
+No issues found! (ran in 85.2s)
+
+$ dart format --output=none --set-exit-if-changed <4 archivos tocados>
+Formatted 4 files (0 changed) in 0.03 seconds.

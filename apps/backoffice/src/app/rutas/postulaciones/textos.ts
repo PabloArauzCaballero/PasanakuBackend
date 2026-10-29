@@ -39,6 +39,7 @@ export const textosPostulaciones = {
   decisiones: { APROBAR: 'Aprobar', RECHAZAR: 'Rechazar', CONFIRMAR: 'Confirmar', REVOCAR: 'Revocar' } as Record<string, string>,
   revision: 'Revisión',
   sinAcciones: 'No hay nada que decidir sobre esta postulación por ahora.',
+  verHabilitacion: 'Ver la habilitación del organizador',
 
   resolverTitulo: 'Tu resolución',
   resolverAyuda: 'Aprobá solo si cumple los requisitos; si rechazás, explicá por qué. La persona ve el motivo.',

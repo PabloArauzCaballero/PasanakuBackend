@@ -50,6 +50,9 @@ import { textosPostulaciones } from './textos'
                         <ap-chip-estado [tono]="d.decision === 'APROBAR' || d.decision === 'CONFIRMAR' ? 'ok' : 'error'">{{ t.decisiones[d.decision] ?? d.decision }}</ap-chip-estado>
                       </header>
                       <p class="motivo">{{ d.motivo }}</p>
+                      @if (d.organizadorId) {
+                        <a class="habilitacion" [routerLink]="['/cumplimiento/organizadores', d.organizadorId, 'habilitacion']">{{ t.verHabilitacion }}</a>
+                      }
                       <p class="meta">
                         {{ t.revision }} {{ d.revision }} ·
                         <time [attr.datetime]="d.ocurridaEn">{{ d.ocurridaEn | date: 'dd/MM/yyyy HH:mm' : '-0400' }} (La Paz)</time>
@@ -88,6 +91,7 @@ import { textosPostulaciones } from './textos'
     header { display: flex; justify-content: space-between; align-items: center; gap: var(--s3); flex-wrap: wrap; }
     .motivo { margin: 0; overflow-wrap: anywhere; }
     .meta { margin: 0; color: var(--text-2); font-size: .875rem; }
+    .habilitacion { color: var(--color-primario); font-weight: 600; }
   `,
 })
 export class PantallaDePostulacion {

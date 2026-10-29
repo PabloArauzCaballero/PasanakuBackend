@@ -7,6 +7,7 @@ import 'package:aportaya_diseno/atomos/iconos_de_marca.dart';
 import 'package:aportaya_diseno/moleculas/intro_de_pantalla.dart';
 import 'package:aportaya_diseno/moleculas/tarjeta.dart';
 import 'package:aportaya_diseno/moleculas/fila_de_dato.dart';
+import 'package:aportaya_diseno/organismos/pantalla_con_cabecera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -26,17 +27,22 @@ class PantallaTransparencia extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final verificacion = ref.watch(verificarCadenaProvider(grupoId));
     return Scaffold(
-      appBar: AppBar(title: const Text(TextosPasanaku.tituloTransparencia)),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(Espacio.s4),
-          child: EstadoDePantalla<SalidaVerificacionCadena>(
-            valor: verificacion,
-            etiquetaDeCarga: TextosPasanaku.cargando,
-            mensajeVacio: 'Este grupo todavía no tiene bloques sellados.',
-            vacio: (v) => v.bloquesVerificados == 0,
-            reintentar: () => ref.invalidate(verificarCadenaProvider(grupoId)),
-            exito: (v) => _Resultado(v: v),
+      // Cabecera grande que se compacta al desplazar (ADR-053, H4.S2.M6).
+      body: PantallaConCabecera(
+        titulo: TextosPasanaku.tituloTransparencia,
+        cuerpo: SafeArea(
+          top: false,
+          child: Padding(
+            padding: const EdgeInsets.all(Espacio.s4),
+            child: EstadoDePantalla<SalidaVerificacionCadena>(
+              valor: verificacion,
+              etiquetaDeCarga: TextosPasanaku.cargando,
+              mensajeVacio: 'Este grupo todavía no tiene bloques sellados.',
+              vacio: (v) => v.bloquesVerificados == 0,
+              reintentar: () =>
+                  ref.invalidate(verificarCadenaProvider(grupoId)),
+              exito: (v) => _Resultado(v: v),
+            ),
           ),
         ),
       ),
