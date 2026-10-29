@@ -40,6 +40,14 @@ Ninguna.
 
 ## Evidencia
 ```text
+$ despliegue de ec4e9ad (autodespliegue.log): … OK movil-web en 633s · [21:30:34] desplegando · [21:30:35] listo en ec4e9ad
+$ por cada aportaya/*:test → docker image inspect -f '{{index .Config.Labels "coolify.managed"}}'
+movil-web=true web=true esquema=true transparencia=true tarifas=true publicidad=true organizador=true
+nucleo-financiero=true notificaciones=true inversiones=true identidad=true grupos=true garantia=true erp=true
+entregas=true cumplimiento=true auditoria=true aportes=true gateway=true backoffice=true   (20/20)
+backoffice 200 · web 200 · app 200
+```
+```text
 $ docker exec coolify-db psql … "select … from server_settings …"
 localhost|0 0 * * *|80|t
 $ … docker_cleanup_executions (última)
@@ -60,8 +68,7 @@ despues: aportaya/prueba-limpieza:con-etiqueta
 Ninguno.
 
 ## Riesgos residuales
-- Hasta que el temporizador reconstruya cada imagen con este commit, las imágenes actuales siguen
-  sin etiqueta y solo las protege tener un contenedor que las use.
+- (Resuelto 2026-10-28 21:30 hora del host: el despliegue de ec4e9ad reconstruyó las 20 imágenes y todas llevan la etiqueta.)
 - La versión versionada de `despliegue/host/reconstruir-si-cambio.sh`, que verifica cada imagen
   antes de desplegar, **no está instalada** en el host: el host corre la del 16-10. Su
   instalación es manual por decisión de la revisión del 28-10.
