@@ -101,6 +101,9 @@ class GruposSolicitudesWebTest {
     @MockitoBean
     private IntegrantesDelGrupo integrantesDelGrupo;
 
+    @MockitoBean
+    private GruposDeBackoffice gruposDeBackoffice;
+
     @Nested
     @DisplayName("CU-68 · decisión del organizador sobre una solicitud de ingreso")
     class DecisionDeIngreso {

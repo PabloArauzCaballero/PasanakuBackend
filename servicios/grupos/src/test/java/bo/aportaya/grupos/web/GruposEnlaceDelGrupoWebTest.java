@@ -58,7 +58,8 @@ import org.springframework.test.web.servlet.MockMvc;
             CU69Invitar.class,
             RespuestasAOtrosServicios.class,
             SorteoDelGrupo.class,
-            IntegrantesDelGrupo.class
+            IntegrantesDelGrupo.class,
+            GruposDeBackoffice.class
         })
 class GruposEnlaceDelGrupoWebTest {
 

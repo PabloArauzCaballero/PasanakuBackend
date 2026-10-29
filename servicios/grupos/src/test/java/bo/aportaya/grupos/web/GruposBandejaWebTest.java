@@ -101,6 +101,9 @@ class GruposBandejaWebTest {
     @MockitoBean
     private IntegrantesDelGrupo integrantesDelGrupo;
 
+    @MockitoBean
+    private GruposDeBackoffice gruposDeBackoffice;
+
     private static FilaDeBandeja fila(String estado, String nombreVisible) {
         return new FilaDeBandeja(
                 SOLICITUD,
@@ -156,13 +159,15 @@ class GruposBandejaWebTest {
     }
 
     @Test
-    @DisplayName("200: sin parametros no hay filtro y el limite es el default del contrato (200)")
+    @DisplayName("200: sin parametros el filtro va vacio y el limite es el del contrato (200, el tope)")
     void sinParametros() throws Exception {
         when(cu68Decision.bandeja(any(), any(), any())).thenReturn(List.of());
 
         mvc.perform(get("/grupos/solicitudes").with(Sesiones.como("SOPORTE", "SOLICITUD_INGRESO_VER")))
                 .andExpect(status().isOk());
 
+        // El contrato declara `limite` con default 200 y el generador lo aplica en la interfaz: el caso de uso
+        // recibe 200, no null. Es el mismo tope que el caso de uso aplicaria ante un null.
         verify(cu68Decision).bandeja(isNull(), eq(200), any());
     }
 

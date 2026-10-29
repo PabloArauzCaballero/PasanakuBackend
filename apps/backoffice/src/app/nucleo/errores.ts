@@ -21,6 +21,9 @@ const CATALOGO: Readonly<Record<string, string>> = {
   'AP-CU04-06': 'Tu segundo factor no está enrolado. Pedí el enrolamiento a otra persona con permiso.',
   // CU-68 · admisión y sustitución de administrador. Algunos números los reutilizan operaciones distintas del
   // servidor (06, 08, 09 y 10): el texto cubre ambos sentidos y dice qué hacer en cada uno.
+  'AP-CU34-01': 'Todavía no se cumple el preaviso de este tarifario. Podrás ponerlo en vigencia cuando venza.',
+  'AP-CU34-02': 'Este tarifario ya no se puede poner en vigencia: no existe, ya está vigente o fue sustituido. Actualizá la lista.',
+  'AP-CU34-03': 'Este tarifario no tiene expediente de cambio aprobado: no se puede poner en vigencia.',
   'AP-CU68-01': 'La persona tiene una restricción vigente y no puede entrar a un grupo hasta que se levante.',
   'AP-CU68-02': 'La persona necesita elevar su nivel de verificación antes de entrar a este grupo.',
   'AP-CU68-03': 'La reputación de la persona todavía no alcanza para este grupo.',

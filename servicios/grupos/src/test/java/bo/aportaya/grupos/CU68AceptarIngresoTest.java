@@ -210,7 +210,8 @@ class CU68AceptarIngresoTest extends BaseDeCU68 {
     }
 
     @Test
-    @DisplayName("límite: backoffice sin cupos libres recibe el mismo «ya no hay cupos» que el organizador")
+    @DisplayName(
+            "Dado un grupo sin cupos libres · Cuando backoffice acepta una solicitud PENDIENTE · Entonces recibe el mismo «ya no hay cupos» que el organizador")
     void backofficeSinCupos() {
         UUID[] a = armar(false);
         assertThatThrownBy(() -> transaccion.execute(e -> decidirCU()

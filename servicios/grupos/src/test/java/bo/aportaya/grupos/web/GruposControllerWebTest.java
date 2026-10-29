@@ -71,6 +71,7 @@ import org.springframework.test.web.servlet.MockMvc;
             RespuestasAOtrosServicios.class,
             SorteoDelGrupo.class,
             IntegrantesDelGrupo.class,
+            GruposDeBackoffice.class,
         })
 class GruposControllerWebTest {
 
