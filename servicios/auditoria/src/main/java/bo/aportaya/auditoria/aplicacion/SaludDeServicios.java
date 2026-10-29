@@ -19,7 +19,8 @@ import org.springframework.stereotype.Service;
  * llamadas internas. Lo que vuelve lleva la hora en que se pregunto, para que la pantalla diga de cuando es.
  *
  * <p>sistemas/servicios · junto al estado de ahora va lo medido en la ventana del SLO ({@link RegistroDeDisponibilidad})
- * y el objetivo contra el que se mide el presupuesto de error.
+ * y el objetivo contra el que se mide el presupuesto de error. El objetivo (99,5 % en 30 dias para todos los
+ * servicios, decision del 2026-10-29) se configura en {@code application.yml}; el codigo no lo repite.
  */
 @Service
 public class SaludDeServicios {
@@ -31,16 +32,7 @@ public class SaludDeServicios {
             Instant consultadoEn,
             List<SaludDeServicio> servicios,
             Map<String, DisponibilidadDelServicio> disponibilidad,
-            BigDecimal objetivoSlo) {
-
-        /** Sin nada medido: el estado de ahora solo. */
-        public Salida(Instant consultadoEn, List<SaludDeServicio> servicios) {
-            this(consultadoEn, servicios, Map.of(), OBJETIVO_POR_OMISION);
-        }
-    }
-
-    /** El SLO acordado el 2026-10-29: 99,5 % en 30 dias para todos los servicios. */
-    static final BigDecimal OBJETIVO_POR_OMISION = new BigDecimal("99.5");
+            BigDecimal objetivoSlo) {}
 
     private final SondaDeSalud sonda;
     private final RegistroDeDisponibilidad registro;
@@ -57,8 +49,8 @@ public class SaludDeServicios {
             SondaDeSalud sonda,
             RegistroDeDisponibilidad registro,
             Reloj reloj,
-            @Value("${aportaya.salud.objetivo-slo:99.5}") BigDecimal objetivoSlo) {
-        if (objetivoSlo.signum() <= 0 || objetivoSlo.compareTo(BigDecimal.valueOf(100)) >= 0) {
+            @Value("${aportaya.salud.objetivo-slo}") BigDecimal objetivoSlo) {
+        if (objetivoSlo.signum() <= 0 || objetivoSlo.compareTo(DisponibilidadDelServicio.CIEN) >= 0) {
             throw new IllegalArgumentException("aportaya.salud.objetivo-slo fuera de (0, 100): " + objetivoSlo);
         }
         this.sonda = sonda;

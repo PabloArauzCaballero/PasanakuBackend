@@ -25,6 +25,14 @@ class BandejaDeAdmisionesRepositorioTest extends BaseDeCU68 {
         return new CU68AceptarIngreso(new Datos(dsl), new Outbox("grupos"));
     }
 
+    /**
+     * `bandeja` es {@code @Transactional(readOnly = true)}: en produccion lo abre el proxy de Spring, y aca
+     * `cu()` arma el caso de uso a mano, sin proxy. Sin esta transaccion `conContexto` se niega.
+     */
+    private List<FilaDeBandeja> bandeja(String estado, Integer limite, ContextoSesion ctx) {
+        return transaccion.execute(e -> cu().bandeja(estado, limite, ctx));
+    }
+
     /** SOPORTE: un rol del backoffice que la RLS de solicitud_ingreso NO deja pasar por si sola. */
     private ContextoSesion soporte() {
         return ContextoSesion.de(
@@ -39,7 +47,7 @@ class BandejaDeAdmisionesRepositorioTest extends BaseDeCU68 {
                 INSERT INTO grupos.solicitud_ingreso
                     (id, grupo_id, usuario_id, cupos_solicitados, mensaje, estado, nombre_visible,
                      fecha_solicitud, revisada_por, fecha_resolucion)
-                VALUES (?, ?, ?, 1, 'quiero entrar', ?, ?, now() - ?::interval, ?, ?)
+                VALUES (?, ?, ?, 1, 'quiero entrar', ?, ?, now() - ?::interval, ?, ?::timestamptz)
                 """,
                 id,
                 grupo,
@@ -80,7 +88,7 @@ class BandejaDeAdmisionesRepositorioTest extends BaseDeCU68 {
     void variosGruposDeLaMasNuevaALaMasVieja() {
         var a = dejarArmadas();
 
-        var filas = solo(cu().bandeja(null, null, soporte()), a.todas());
+        var filas = solo(bandeja(null, null, soporte()), a.todas());
 
         assertThat(filas)
                 .extracting(FilaDeBandeja::id)
@@ -96,8 +104,7 @@ class BandejaDeAdmisionesRepositorioTest extends BaseDeCU68 {
                 .fetchOne("SELECT codigo_publico FROM grupos.grupo WHERE id = ?", a.grupoA())
                 .get(0, String.class);
 
-        var fila = solo(cu().bandeja(null, null, soporte()), Set.of(a.pendienteA()))
-                .get(0);
+        var fila = solo(bandeja(null, null, soporte()), Set.of(a.pendienteA())).get(0);
 
         assertThat(fila.grupoCodigo()).isEqualTo(codigoA);
         assertThat(fila.nombreVisible()).isEqualTo("Ana Rojas");
@@ -109,7 +116,7 @@ class BandejaDeAdmisionesRepositorioTest extends BaseDeCU68 {
     void aprobadaSeLlamaAceptada() {
         var a = dejarArmadas();
 
-        var todas = solo(cu().bandeja(null, null, soporte()), a.todas());
+        var todas = solo(bandeja(null, null, soporte()), a.todas());
 
         assertThat(todas)
                 .filteredOn(f -> f.id().equals(a.aprobadaA()))
@@ -123,13 +130,13 @@ class BandejaDeAdmisionesRepositorioTest extends BaseDeCU68 {
     void filtraPorEstadoConLosNombresDeLaPantalla() {
         var a = dejarArmadas();
 
-        assertThat(solo(cu().bandeja("ACEPTADA", null, soporte()), a.todas()))
+        assertThat(solo(bandeja("ACEPTADA", null, soporte()), a.todas()))
                 .extracting(FilaDeBandeja::id)
                 .containsExactly(a.aprobadaA());
-        assertThat(solo(cu().bandeja("PENDIENTE", null, soporte()), a.todas()))
+        assertThat(solo(bandeja("PENDIENTE", null, soporte()), a.todas()))
                 .extracting(FilaDeBandeja::id)
                 .containsExactly(a.pendienteB(), a.pendienteA());
-        assertThat(solo(cu().bandeja("EXPIRADA", null, soporte()), a.todas())).isEmpty();
+        assertThat(solo(bandeja("EXPIRADA", null, soporte()), a.todas())).isEmpty();
     }
 
     @Test
@@ -137,7 +144,7 @@ class BandejaDeAdmisionesRepositorioTest extends BaseDeCU68 {
     void estadoDesconocidoNoCoincide() {
         var a = dejarArmadas();
 
-        assertThat(solo(cu().bandeja("TAL_VEZ", null, soporte()), a.todas())).isEmpty();
+        assertThat(solo(bandeja("TAL_VEZ", null, soporte()), a.todas())).isEmpty();
     }
 
     @Test
@@ -145,8 +152,8 @@ class BandejaDeAdmisionesRepositorioTest extends BaseDeCU68 {
     void limiteAcotaLaLista() {
         dejarArmadas();
 
-        assertThat(cu().bandeja(null, 1, soporte())).hasSize(1);
-        assertThat(cu().bandeja(null, 0, soporte())).hasSize(1);
-        assertThat(cu().bandeja(null, 100_000, soporte())).hasSizeLessThanOrEqualTo(200);
+        assertThat(bandeja(null, 1, soporte())).hasSize(1);
+        assertThat(bandeja(null, 0, soporte())).hasSize(1);
+        assertThat(bandeja(null, 100_000, soporte())).hasSizeLessThanOrEqualTo(200);
     }
 }

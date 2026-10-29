@@ -1,0 +1,3 @@
+$ ./gradlew :servicios:auditoria:test
+> Task :buildSrc:checkKotlinGradlePluginConfigurationErrors SKIPPED
+BUILD SUCCESSFUL in 14s
