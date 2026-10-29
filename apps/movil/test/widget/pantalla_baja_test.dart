@@ -14,7 +14,7 @@ void main() {
         home: const PantallaDeBaja(),
       ),
     );
-    await tester.tap(find.text('Confirmar baja').first);
+    await tester.tap(find.text('Dar de baja mi cuenta'));
     await tester.pumpAndSettle();
 
     expect(find.text('Dar de baja tu cuenta'), findsWidgets);

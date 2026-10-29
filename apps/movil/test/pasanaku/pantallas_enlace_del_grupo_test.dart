@@ -386,7 +386,10 @@ void main() {
         expect(find.textContaining('tu nombre completo'), findsOneWidget);
         await tester.tap(find.text('Pedir unirme'));
         await asentar(tester);
-        expect(find.text('Listo, le avisamos al organizador'), findsOneWidget);
+        expect(
+          find.text('Listo, tu pedido está en la lista del organizador'),
+          findsOneWidget,
+        );
       },
     );
 

@@ -45,9 +45,10 @@ class VistaEnlaceDelGrupo extends StatelessWidget {
       children: [
         if (e == null)
           EstadoVacio(
+            titulo: trabajando ? null : TextosEnlaceDelGrupo.sinEnlaceTitulo,
             mensaje: trabajando
                 ? TextosEnlaceDelGrupo.preparando
-                : '${TextosEnlaceDelGrupo.sinEnlaceTitulo}. ${TextosEnlaceDelGrupo.sinEnlaceDetalle}',
+                : TextosEnlaceDelGrupo.sinEnlaceDetalle,
             accion: Boton(
               key: const ValueKey('crear-enlace-del-grupo'),
               texto: TextosEnlaceDelGrupo.crearEnlace,

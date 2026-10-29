@@ -197,7 +197,7 @@ void main() {
             );
             expect(find.text(TextosDeSubida.detalle), findsOneWidget);
             expect(find.text(TextosDeSubida.cancelarLaSubida), findsOneWidget);
-            expect(find.text('—'), findsNWidgets(4));
+            expect(find.text(TextosDeSubida.enEspera), findsNWidgets(4));
             final continuar = tester.widget<FilledButton>(
               find.ancestor(
                 of: find.text(TextosDeSubida.continuar),
@@ -212,7 +212,7 @@ void main() {
               find.text(TextosDeSubida.repetirFotoDe(CaraDelCarril.anverso)),
               findsOneWidget,
             );
-            expect(find.text('—'), findsNWidgets(4));
+            expect(find.text(TextosDeSubida.enEspera), findsNWidgets(4));
             final continuar = tester.widget<FilledButton>(
               find.ancestor(
                 of: find.text(TextosDeSubida.continuar),

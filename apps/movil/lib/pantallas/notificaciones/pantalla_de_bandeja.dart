@@ -69,9 +69,13 @@ class PantallaDeBandeja extends ConsumerWidget {
   /// relativa simple alcanza para la bandeja y no agrega dependencia.
   String _cuandoLegible(DateTime cuando) {
     final diferencia = DateTime.now().difference(cuando);
-    if (diferencia.inMinutes < 1) return 'ahora';
-    if (diferencia.inMinutes < 60) return 'hace ${diferencia.inMinutes} min';
-    if (diferencia.inHours < 24) return 'hace ${diferencia.inHours} h';
+    if (diferencia.inMinutes < 1) return TextosNotificaciones.ahora;
+    if (diferencia.inMinutes < 60) {
+      return TextosNotificaciones.haceMinutos(diferencia.inMinutes);
+    }
+    if (diferencia.inHours < 24) {
+      return TextosNotificaciones.haceHoras(diferencia.inHours);
+    }
     final d = cuando;
     return '${d.day.toString().padLeft(2, '0')}/${d.month.toString().padLeft(2, '0')}';
   }

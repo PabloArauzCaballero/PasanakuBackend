@@ -1,4 +1,6 @@
 import 'package:aportaya_cliente_nucleofinanciero/aportaya_cliente_nucleofinanciero.dart';
+import 'package:aportaya_diseno/atomos/boton.dart';
+import 'package:aportaya_diseno/atomos/boton_variante.dart';
 import 'package:aportaya_diseno/moleculas/aparicion_escalonada.dart';
 import 'package:aportaya_diseno/moleculas/fila_de_movimiento.dart' as diseno;
 import 'package:aportaya_diseno/moleculas/seccion.dart';
@@ -29,10 +31,16 @@ class ListaDeMovimientos extends StatelessWidget {
     error: (_, _) => Panel(
       hijo: Row(
         children: [
-          const Expanded(child: Text(TextosBilletera.errorMovimientos)),
-          TextButton(
+          Expanded(
+            child: Text(
+              TextosBilletera.errorMovimientos,
+              style: Tipo.cuerpoChico.copyWith(color: Tokens.of(context).text2),
+            ),
+          ),
+          Boton(
+            texto: TextosBilletera.reintentar,
+            variante: BotonVariante.enlace,
             onPressed: reintentar,
-            child: const Text(TextosBilletera.reintentar),
           ),
         ],
       ),

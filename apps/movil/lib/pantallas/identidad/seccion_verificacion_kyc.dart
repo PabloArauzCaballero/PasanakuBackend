@@ -4,6 +4,7 @@ import 'package:aportaya_diseno/atomos/boton_variante.dart';
 import 'package:aportaya_diseno/atomos/chip_estado.dart';
 import 'package:aportaya_diseno/atomos/iconos_de_marca.dart';
 import 'package:aportaya_diseno/atomos/tono.dart';
+import 'package:aportaya_diseno/moleculas/alerta.dart';
 import 'package:aportaya_diseno/moleculas/tarjeta.dart';
 import 'package:aportaya_diseno/tokens/tokens.dart';
 import 'package:flutter/material.dart';
@@ -11,6 +12,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'dominio/kyc_del_titular.dart';
+import 'textos_del_perfil.dart';
 
 /// La verificación de identidad como **cabecera del perfil** (ADR-053): un escudo en un
 /// círculo de marca, el estado en un chip con texto y, si falta evidencia, la acción para
@@ -45,7 +47,7 @@ class SeccionVerificacionKyc extends ConsumerWidget {
               const SizedBox(width: Espacio.s3),
               Expanded(
                 child: Text(
-                  'Verificación de identidad (KYC)',
+                  TextosPerfil.identidadTitulo,
                   style: Tipo.titulo3.copyWith(color: t.text),
                 ),
               ),
@@ -54,19 +56,31 @@ class SeccionVerificacionKyc extends ConsumerWidget {
           const SizedBox(height: Espacio.s4),
           estado.when(
             loading: () => Text(
-              'Consultando tu verificación…',
+              TextosPerfil.identidadConsultando,
               style: Tipo.cuerpo.copyWith(color: t.text2),
             ),
-            error: (_, _) => Boton(
-              texto: 'No pudimos consultar el estado. Reintentar',
-              variante: BotonVariante.secundario,
-              expandido: true,
-              onPressed: () => ref.invalidate(kycDeLaSesionProvider),
+            // Qué pasó y la acción, separados: antes la oración entera era el botón.
+            error: (_, _) => Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const Alerta(
+                  tono: Tono.error,
+                  titulo: TextosPerfil.identidadErrorTitulo,
+                  detalle: TextosPerfil.identidadErrorDetalle,
+                ),
+                const SizedBox(height: Espacio.s3),
+                Boton(
+                  texto: TextosPerfil.identidadReintentar,
+                  variante: BotonVariante.secundario,
+                  expandido: true,
+                  onPressed: () => ref.invalidate(kycDeLaSesionProvider),
+                ),
+              ],
             ),
             data: (expediente) {
               if (expediente == null) {
                 return Text(
-                  'Iniciá sesión para consultar tu verificación.',
+                  TextosPerfil.identidadSinSesion,
                   style: Tipo.cuerpo.copyWith(color: t.text2),
                 );
               }
@@ -85,13 +99,10 @@ class SeccionVerificacionKyc extends ConsumerWidget {
                   if (faltantes.isNotEmpty &&
                       kycAdmiteCorreccion(expediente)) ...[
                     const SizedBox(height: Espacio.s3),
-                    Text(
-                      'Para completar tu expediente falta: ${faltantes.join(', ')}.',
-                      style: cuerpo,
-                    ),
+                    Text(TextosPerfil.identidadFalta(faltantes), style: cuerpo),
                     const SizedBox(height: Espacio.s3),
                     Boton(
-                      texto: 'Completar expediente',
+                      texto: TextosPerfil.identidadCompletar,
                       variante: BotonVariante.primario,
                       expandido: true,
                       onPressed: () =>
@@ -99,18 +110,12 @@ class SeccionVerificacionKyc extends ConsumerWidget {
                     ),
                   ] else if (kycAdmiteCorreccion(expediente)) ...[
                     const SizedBox(height: Espacio.s3),
-                    Text(
-                      'Tu expediente está completo. La aprobación sigue siendo manual.',
-                      style: cuerpo,
-                    ),
+                    Text(TextosPerfil.identidadCompleta, style: cuerpo),
                   ],
                   if (expediente.estado ==
                       EstadoDeVerificacionEstadoEnum.RECHAZADA) ...[
                     const SizedBox(height: Espacio.s3),
-                    Text(
-                      'Revisá el motivo informado y contactá soporte para conocer los próximos pasos.',
-                      style: cuerpo,
-                    ),
+                    Text(TextosPerfil.identidadRechazada, style: cuerpo),
                   ],
                 ],
               );
