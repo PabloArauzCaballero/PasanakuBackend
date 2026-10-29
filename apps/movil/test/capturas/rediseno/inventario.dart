@@ -52,6 +52,7 @@ class PantallaDeCaptura {
 const _grupo = 'ed65a0cc-a1e4-425c-8c81-b2908f49b328';
 const _participante = '55555555-5555-4555-8555-555555555555';
 const _sorteo = '22222222-2222-4222-8222-222222222222';
+const _cupo = 'b2fd19a1-1568-4d7f-8586-a1b22c866172';
 const _obligacion = '33333333-3333-4333-8333-333333333333';
 const _codigo =
     '12345678-1234-4234-8234-123456789abc.'
@@ -185,6 +186,13 @@ const pantallasDeCaptura = <PantallaDeCaptura>[
     'transparencia',
     '/pasanaku/grupos/$_grupo/transparencia',
     patron: '/pasanaku/grupos/:grupoId/transparencia',
+  ),
+  // El cupo del ejemplo `ok` de `consultarDetalleDelGrupo` (el mío, `soyYo`).
+  PantallaDeCaptura(
+    'grupos',
+    'traspaso',
+    '/pasanaku/grupos/$_grupo/cupos/$_cupo/traspaso',
+    patron: '/pasanaku/grupos/:grupoId/cupos/:cupoId/traspaso',
   ),
   PantallaDeCaptura('grupos', 'permuta', '/pasanaku/turnos/permuta'),
   PantallaDeCaptura(
