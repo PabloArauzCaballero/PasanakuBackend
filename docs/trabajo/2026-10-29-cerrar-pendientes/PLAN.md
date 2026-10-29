@@ -29,3 +29,4 @@
 | H1.S1.M3 | Corrida real del temporizador con el script nuevo | `listo en <sha>` sin FALLA | `grep` en `autodespliegue.log` | TODO |
 | H1.S2.M1 | Captura de Sistemas › Servicios con datos en TEST | se ven los 3 valores | captura en `evidencia/` mirada | TODO |
 | H1.S3.M1 | Catálogo de operaciones regenerado | specs del backoffice verdes | `ng test` sobre `rutas/sistemas` | TODO |
+| H1.S4.M1 | `auditoria` deja de verse CAIDO a sí misma (candado en vez de `synchronized` con hilos virtuales) | en TEST el endpoint devuelve auditoria ARRIBA | `GET /indicadores/operacion/servicios` real → auditoria ARRIBA | TODO |

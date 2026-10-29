@@ -9,6 +9,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.locks.ReentrantLock;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -45,6 +46,11 @@ public class SaludDeServicios {
     private final RegistroDeDisponibilidad registro;
     private final Reloj reloj;
     private final BigDecimal objetivoSlo;
+    // Un candado y no `synchronized`: auditoria corre en hilos virtuales (ADR-015) y en Java 21 un hilo virtual que
+    // espera dentro de `synchronized` inmoviliza su hilo portador. Con 0,5 CPU hay UN solo portador: la peticion que
+    // esperaba la sonda dejaba sin donde correr a la consulta de auditoria a si misma, que vencia el plazo y salia
+    // CAIDO en la pantalla («Caidos 1» con el servicio sano, medido en TEST el 2026-10-29).
+    private final ReentrantLock candado = new ReentrantLock();
     private Salida ultima;
 
     public SaludDeServicios(
@@ -61,13 +67,18 @@ public class SaludDeServicios {
         this.objetivoSlo = objetivoSlo;
     }
 
-    public synchronized Salida consultar() {
-        Instant ahora = reloj.ahora();
-        if (ultima == null || !ahora.isBefore(ultima.consultadoEn().plus(VIGENCIA))) {
-            // Primero la red y despues la base: la lectura de lo medido abre su propia transaccion corta.
-            List<SaludDeServicio> servicios = sonda.consultar();
-            ultima = new Salida(ahora, servicios, registro.enLaVentana(ahora), objetivoSlo);
+    public Salida consultar() {
+        candado.lock();
+        try {
+            Instant ahora = reloj.ahora();
+            if (ultima == null || !ahora.isBefore(ultima.consultadoEn().plus(VIGENCIA))) {
+                // Primero la red y despues la base: la lectura de lo medido abre su propia transaccion corta.
+                List<SaludDeServicio> servicios = sonda.consultar();
+                ultima = new Salida(ahora, servicios, registro.enLaVentana(ahora), objetivoSlo);
+            }
+            return ultima;
+        } finally {
+            candado.unlock();
         }
-        return ultima;
     }
 }
