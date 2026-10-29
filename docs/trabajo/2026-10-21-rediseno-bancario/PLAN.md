@@ -368,7 +368,7 @@ por componente · `test/a11y` PASS.
 | H4.S1.M5 | `ChipEstado` con ícono + texto + tono (nunca solo color) | 4 tonos × 2 temas | captura | TODO |
 | H4.S1.M6 | `Esqueleto` con brillo diagonal de baja frecuencia (se apaga con reducir movimiento) | Video | MP4 normal + reducido | TODO |
 | H4.S1.M7 | `Casilla` e `Interruptor` sin `ListTile` de fábrica | Captura | golden `atomos_seleccion_*` | TODO |
-| H4.S1.M8 | Campos (`Campo`, `CampoMonto`, `CampoOTP`): relleno suave, foco con anillo de marca y monto grande centrado | Captura de los estados | golden `atomos_campos_*` | TODO |
+| H4.S1.M8 | Campos (`Campo`, `CampoMonto`, `CampoOTP`): relleno suave, foco con anillo de marca y monto grande centrado | Captura de los estados | golden `atomos_campos_*` | HECHO (2026-10-29, tanda de pulido: relleno `surface2`, `BordeConHalo` con el token `halo` y anillo de error; golden `atomos_campos_*` regenerado; 3 pruebas en `campo_relleno_y_halo_test` con mutante; el monto grande ya estaba centrado en `CampoMontoGrande`) |
 | H4.S1.M9 | Iconografía: agregar `lucide_icons_flutter: 3.1.20` (con ADR-053), mapa único `IconosDeMarca` (sustantivo → `LucideIcons.*`) en `diseno_flutter` y barrido de los ~185 `Icons.*` | `git grep -n "Icons\." apps/movil/lib` sin `Icons.` de Material (salvo excepciones listadas) | grep pegado + capturas | A MEDIAS (anda: dependencia fijada, `IconosDeMarca` con 22 sustantivos, fuente cargada en las capturas; falta: barrido de los 91 `Icons.` que quedan en `apps/movil/lib` y la lista de excepciones) |
 
 ### H4.S2 — Moléculas
@@ -379,7 +379,7 @@ por componente · `test/a11y` PASS.
 | H4.S2.M3 | `AccionesRapidas` → círculos de 56 dp con etiqueta y entrada escalonada | Captura + video | idem | A MEDIAS (anda: círculos de 56 dp con la acción destacada en verde sólido, test de roles; falta: entrada escalonada y su MP4, que dependen de H5) |
 | H4.S2.M4 | `FilaDeMovimiento`: avatar por tipo, monto con signo y color + ícono, y subtítulo con hora | Captura de los tipos | captura | HECHO |
 | H4.S2.M5 | `ItemPasanaku` → **tarjeta de grupo** con rueda mini, progreso del ciclo y avatares apilados | Captura en datos y peor caso | captura | TODO |
-| H4.S2.M6 | `Cabecera` grande que se compacta al desplazar (reemplaza el `AppBar` de fábrica) | Video del colapso | MP4 | TODO |
+| H4.S2.M6 | `Cabecera` grande que se compacta al desplazar (reemplaza el `AppBar` de fábrica) | Video del colapso | MP4 | A MEDIAS (anda: `PantallaConCabecera` con 4 pruebas (compacta, sin contenido debajo, un encabezado para el lector, título largo al 200 %), MP4 claro/oscuro en `evidencia/movimiento/cabecera`, y turno, verificar sorteo y transparencia migradas; falta: migrar las otras 19 pantallas con `AppBar`, franja por franja) |
 | H4.S2.M7 | `Alerta`, `Seccion`, `Pestanas`, `BarraDePasos`, `ChipsDeFiltro`, `TarjetaKPI` y `RielDeTurnos` re-estilizados | Una captura por componente | golden `moleculas_*` | A MEDIAS (anda: BotonDeCabecera en círculo, píldora de pestañas; falta Alerta, Seccion, Pestanas, BarraDePasos, ChipsDeFiltro, TarjetaKPI y RielDeTurnos) |
 
 ### H4.S3 — Organismos y móviles
@@ -408,13 +408,13 @@ perfil de rendimiento sin cuadros > 16 ms en la pantalla de Inicio (`flutter run
 |---|---|---|---|---|
 | H5.S1.M1 | Auditoría con `find-animation-opportunities` sobre todas las pantallas, como tabla «momento → propósito → pieza» | ≥ 1 decisión por flujo (animar o no) | `movimiento/oportunidades.md` | TODO |
 | H5.S1.M2 | Vocabulario común (`animation-vocabulary`): nombre exacto de cada efecto usado | Glosario | archivo | TODO |
-| H5.S2.M1 | Entrada escalonada de Inicio (héroe → acciones → secciones, 30 ms de paso) | Video | MP4 + 3 cuadros | TODO |
+| H5.S2.M1 | Entrada escalonada de Inicio (héroe → acciones → secciones, 30 ms de paso) | Video | MP4 + 3 cuadros | A MEDIAS (anda desde 0922bade: las filas del feed entran con 30 ms de paso; el héroe y las secciones no esperan, por decisión fijada en `pantalla_de_saldo_test` — además la guía mide el héroe apenas existe y quedaría corrida; falta: el MP4 y los 3 cuadros) |
 | H5.S2.M2 | Rodillo de cifra del saldo al refrescar | Video | MP4 | TODO |
 | H5.S2.M3 | Hero compartido: tarjeta de grupo → detalle del grupo | Video | MP4 | TODO |
 | H5.S2.M4 | Indicador de pestaña con resorte | Video | MP4 | A MEDIAS (anda: una sola píldora que se desliza con resorte crítico (k 322, c 35,9), interrumpible, y llega de una vez con movimiento reducido; 3 tests con mutante y 28 cuadros en `evidencia/movimiento/barra`; falta: el MP4 normal/reducido que pide el DoD) |
 | H5.S2.M5 | Hoja interrumpible con gesto (arrastrar, soltar y rebote; `apple-design` §momentum) | Video | MP4 | TODO |
 | H5.S2.M6 | Arrastrar para refrescar personalizado (marca que gira) | Video | MP4 | TODO |
-| H5.S2.M7 | Ocultar o mostrar el saldo con desenfoque y fundido | Video | MP4 | TODO |
+| H5.S2.M7 | Ocultar o mostrar el saldo con desenfoque y fundido | Video | MP4 | HECHO (2026-10-29: 4 pruebas con mutante, incluida la regresión de la cifra que se recreaba; MP4 normal y reducido, claro y oscuro, en `evidencia/movimiento/saldo-oculto`) |
 | H5.S2.M8 | Éxito de aporte: check que se dibuja, háptico `mediumImpact` y celebración | Video | MP4 | TODO |
 | H5.S2.M9 | Prueba de diez segundos en cada pantalla raíz: nada se mueve solo salvo esqueleto y turno actual | Video de 10 s por pantalla raíz | 5 MP4 + nota | TODO |
 | H5.S3.M1 | `fixing-motion-performance`: `RepaintBoundary` en héroe y barra, sin animar layout | Perfil sin jank | salida del perfil pegada | TODO |

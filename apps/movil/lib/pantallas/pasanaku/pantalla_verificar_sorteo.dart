@@ -6,6 +6,7 @@ import 'package:aportaya_diseno/atomos/iconos_de_marca.dart';
 import 'package:aportaya_diseno/moleculas/intro_de_pantalla.dart';
 import 'package:aportaya_diseno/moleculas/tarjeta.dart';
 import 'package:aportaya_diseno/moleculas/fila_de_dato.dart';
+import 'package:aportaya_diseno/organismos/pantalla_con_cabecera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -25,80 +26,87 @@ class PantallaVerificarSorteo extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final verificacion = ref.watch(verificarSorteoProvider(sorteoId));
     return Scaffold(
-      appBar: AppBar(title: const Text(TextosPasanaku.tituloVerificacion)),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(Espacio.s4),
-          child: EstadoDePantalla(
-            valor: verificacion,
-            etiquetaDeCarga: TextosPasanaku.cargando,
-            mensajeVacio: 'Este sorteo todavía no tiene semilla revelada.',
-            reintentar: () => ref.invalidate(verificarSorteoProvider(sorteoId)),
-            exito: (v) => SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  const IntroDePantalla(
-                    icono: IconosDeMarca.verificada,
-                    titulo: TextosDeVerificacionDelGrupo.sorteoTitulo,
-                    explicacion: TextosPasanaku.verificacionAyuda,
-                  ),
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: ChipEstado(
-                      texto: v.verifica
-                          ? TextosPasanaku.coincideSi
-                          : TextosPasanaku.coincideNo,
-                      tono: v.verifica ? Tono.ok : Tono.error,
-                      icono: v.verifica ? Icons.verified : Icons.error_outline,
+      // Cabecera grande que se compacta al desplazar (ADR-053, H4.S2.M6).
+      body: PantallaConCabecera(
+        titulo: TextosPasanaku.tituloVerificacion,
+        cuerpo: SafeArea(
+          top: false,
+          child: Padding(
+            padding: const EdgeInsets.all(Espacio.s4),
+            child: EstadoDePantalla(
+              valor: verificacion,
+              etiquetaDeCarga: TextosPasanaku.cargando,
+              mensajeVacio: 'Este sorteo todavía no tiene semilla revelada.',
+              reintentar: () =>
+                  ref.invalidate(verificarSorteoProvider(sorteoId)),
+              exito: (v) => SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    const IntroDePantalla(
+                      icono: IconosDeMarca.verificada,
+                      titulo: TextosDeVerificacionDelGrupo.sorteoTitulo,
+                      explicacion: TextosPasanaku.verificacionAyuda,
                     ),
-                  ),
-                  const SizedBox(height: Espacio.s4),
-                  Text(
-                    TextosDeVerificacionDelGrupo.datosParaReproducir,
-                    style: Tipo.titulo3.copyWith(
-                      color: Tokens.of(context).text,
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: ChipEstado(
+                        texto: v.verifica
+                            ? TextosPasanaku.coincideSi
+                            : TextosPasanaku.coincideNo,
+                        tono: v.verifica ? Tono.ok : Tono.error,
+                        icono: v.verifica
+                            ? Icons.verified
+                            : Icons.error_outline,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: Espacio.s2),
-                  Tarjeta(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        FilaDeDato(
-                          etiqueta: TextosPasanaku.hashComprometido,
-                          valor: v.hashEsperado,
-                        ),
-                        FilaDeDato(
-                          etiqueta:
-                              TextosDeVerificacionDelGrupo.hashRecomputado,
-                          valor: v.hashRecomputado,
-                        ),
-                        FilaDeDato(
-                          etiqueta: TextosPasanaku.semillaRevelada,
-                          valor: v.paquete.semilla,
-                        ),
-                        FilaDeDato(
-                          etiqueta: TextosDeVerificacionDelGrupo.metodo,
-                          valor: v.paquete.metodo,
-                        ),
-                        FilaDeDato(
-                          etiqueta: TextosPasanaku.ordenPublicado,
-                          valor: v.paquete.cupos.join(', '),
-                        ),
-                        FilaDeDato(
-                          etiqueta:
-                              TextosDeVerificacionDelGrupo.ordenReproducido,
-                          valor: v.ordenCoincide
-                              ? TextosDeVerificacionDelGrupo.ordenCoincide
-                              : TextosDeVerificacionDelGrupo.ordenNoCoincide(
-                                  v.primerCupoDiscrepante,
-                                ),
-                        ),
-                      ],
+                    const SizedBox(height: Espacio.s4),
+                    Text(
+                      TextosDeVerificacionDelGrupo.datosParaReproducir,
+                      style: Tipo.titulo3.copyWith(
+                        color: Tokens.of(context).text,
+                      ),
                     ),
-                  ),
-                ],
+                    const SizedBox(height: Espacio.s2),
+                    Tarjeta(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          FilaDeDato(
+                            etiqueta: TextosPasanaku.hashComprometido,
+                            valor: v.hashEsperado,
+                          ),
+                          FilaDeDato(
+                            etiqueta:
+                                TextosDeVerificacionDelGrupo.hashRecomputado,
+                            valor: v.hashRecomputado,
+                          ),
+                          FilaDeDato(
+                            etiqueta: TextosPasanaku.semillaRevelada,
+                            valor: v.paquete.semilla,
+                          ),
+                          FilaDeDato(
+                            etiqueta: TextosDeVerificacionDelGrupo.metodo,
+                            valor: v.paquete.metodo,
+                          ),
+                          FilaDeDato(
+                            etiqueta: TextosPasanaku.ordenPublicado,
+                            valor: v.paquete.cupos.join(', '),
+                          ),
+                          FilaDeDato(
+                            etiqueta:
+                                TextosDeVerificacionDelGrupo.ordenReproducido,
+                            valor: v.ordenCoincide
+                                ? TextosDeVerificacionDelGrupo.ordenCoincide
+                                : TextosDeVerificacionDelGrupo.ordenNoCoincide(
+                                    v.primerCupoDiscrepante,
+                                  ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
