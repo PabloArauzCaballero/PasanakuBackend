@@ -96,4 +96,38 @@ void main() {
       );
     },
   );
+
+  testWidgets('deslizar hacia abajo sigue refrescando dentro de la cabecera', (
+    t,
+  ) async {
+    // Mi estado y el detalle del grupo refrescan con el gesto: el `RefreshIndicator`
+    // vive en el cuerpo, dentro del desplazamiento anidado de la cabecera.
+    t.view.physicalSize = const Size(360, 640);
+    t.view.devicePixelRatio = 1;
+    addTearDown(t.view.reset);
+    var refrescos = 0;
+    await t.pumpWidget(
+      conTema(
+        Scaffold(
+          body: PantallaConCabecera(
+            titulo: 'Título',
+            cuerpo: RefreshIndicator(
+              onRefresh: () async => refrescos++,
+              child: ListView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                children: [
+                  for (var i = 0; i < 40; i++)
+                    SizedBox(height: 50, child: Text('fila $i')),
+                ],
+              ),
+            ),
+          ),
+        ),
+        pantallaEntera: true,
+      ),
+    );
+    await t.fling(find.text('fila 1'), const Offset(0, 400), 1000);
+    await t.pumpAndSettle();
+    expect(refrescos, 1);
+  });
 }

@@ -9,6 +9,7 @@ import 'proveedor_bandeja.dart';
 import 'textos.dart';
 import 'package:aportaya_diseno/moviles/anclas_de_tutorial.dart';
 import 'package:aportaya_diseno/atomos/iconos_de_marca.dart';
+import 'package:aportaya_diseno/organismos/pantalla_con_cabecera.dart';
 
 /// `/notificaciones/bandeja`. Compone `ItemDeNotificacion` por cada aviso; la lista
 /// vive en Riverpod, no en la pantalla (regla del organismo/molécula: sin lógica).
@@ -19,35 +20,38 @@ class PantallaDeBandeja extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final avisos = ref.watch(bandejaProvider);
     return Scaffold(
-      appBar: AppBar(title: const Text(TextosNotificaciones.titulo)),
-      body: avisos.isEmpty
-          ? const EstadoVacio(
-              icono: IconosDeMarca.avisos,
-              titulo: TextosNotificaciones.tituloVacio,
-              mensaje: TextosNotificaciones.sinAvisos,
-            )
-          : MarcaDeTutorial(
-              id: 'notificaciones.bandeja',
-              hijo: ListView.separated(
-                itemCount: avisos.length,
-                separatorBuilder: (_, _) => const Divider(height: 1),
-                itemBuilder: (context, i) {
-                  final a = avisos[i];
-                  return ItemDeNotificacion(
-                    titulo: a.titulo,
-                    detalle: a.detalle,
-                    cuando: _cuandoLegible(a.cuando),
-                    tono: _tonoDesde(a.tono),
-                    leida: a.leida,
-                    onTap: () {
-                      ref.read(bandejaProvider.notifier).marcarLeida(a.id);
-                      final ruta = a.ruta;
-                      if (ruta != null) context.push(ruta);
-                    },
-                  );
-                },
+      // Cabecera grande que se compacta al desplazar (ADR-053, H4.S2.M6).
+      body: PantallaConCabecera(
+        titulo: TextosNotificaciones.titulo,
+        cuerpo: avisos.isEmpty
+            ? const EstadoVacio(
+                icono: IconosDeMarca.avisos,
+                titulo: TextosNotificaciones.tituloVacio,
+                mensaje: TextosNotificaciones.sinAvisos,
+              )
+            : MarcaDeTutorial(
+                id: 'notificaciones.bandeja',
+                hijo: ListView.separated(
+                  itemCount: avisos.length,
+                  separatorBuilder: (_, _) => const Divider(height: 1),
+                  itemBuilder: (context, i) {
+                    final a = avisos[i];
+                    return ItemDeNotificacion(
+                      titulo: a.titulo,
+                      detalle: a.detalle,
+                      cuando: _cuandoLegible(a.cuando),
+                      tono: _tonoDesde(a.tono),
+                      leida: a.leida,
+                      onTap: () {
+                        ref.read(bandejaProvider.notifier).marcarLeida(a.id);
+                        final ruta = a.ruta;
+                        if (ruta != null) context.push(ruta);
+                      },
+                    );
+                  },
+                ),
               ),
-            ),
+      ),
     );
   }
 

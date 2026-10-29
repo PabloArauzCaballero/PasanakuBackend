@@ -7,6 +7,7 @@ import 'package:aportaya_diseno/tokens/tokens.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:aportaya_diseno/organismos/pantalla_con_cabecera.dart';
 
 import '../../dominio/puertos/visor_qr.dart';
 import '../../navegacion/lectura_de_qr.dart';
@@ -93,53 +94,57 @@ class _PantallaEscanearState extends ConsumerState<PantallaEscanear> {
   Widget build(BuildContext context) {
     final construirVisor = ref.watch(visorQrProvider);
     return Scaffold(
-      appBar: AppBar(title: const Text(TextosInvitacion.tituloEscanear)),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(Espacio.s4),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const Text(TextosInvitacion.escanearAyuda),
-              const SizedBox(height: Espacio.s3),
-              if (_problemaDeCamara case final problema?)
-                _avisoDeCamara(problema)
-              else
-                SizedBox(
-                  height: 320,
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(Radios.md),
-                    child: Semantics(
-                      label: TextosInvitacion.tituloEscanear,
-                      child: construirVisor(
-                        alLeer: _alLeer,
-                        problema: _alFallarLaCamara,
+      // Cabecera grande que se compacta al desplazar (ADR-053, H4.S2.M6).
+      body: PantallaConCabecera(
+        titulo: TextosInvitacion.tituloEscanear,
+        cuerpo: SafeArea(
+          top: false,
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(Espacio.s4),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const Text(TextosInvitacion.escanearAyuda),
+                const SizedBox(height: Espacio.s3),
+                if (_problemaDeCamara case final problema?)
+                  _avisoDeCamara(problema)
+                else
+                  SizedBox(
+                    height: 320,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(Radios.md),
+                      child: Semantics(
+                        label: TextosInvitacion.tituloEscanear,
+                        child: construirVisor(
+                          alLeer: _alLeer,
+                          problema: _alFallarLaCamara,
+                        ),
                       ),
                     ),
                   ),
+                if (_rechazo != null) ...[
+                  const SizedBox(height: Espacio.s3),
+                  Semantics(
+                    liveRegion: true,
+                    child: Alerta(titulo: _rechazo!, tono: Tono.error),
+                  ),
+                ],
+                const SizedBox(height: Espacio.s5),
+                Campo(
+                  etiqueta: TextosInvitacion.pegarEnlaceEtiqueta,
+                  controlador: _enlace,
+                  tipoDeTeclado: TextInputType.url,
+                  onSubmitted: (_) => _usarEnlace(),
                 ),
-              if (_rechazo != null) ...[
                 const SizedBox(height: Espacio.s3),
-                Semantics(
-                  liveRegion: true,
-                  child: Alerta(titulo: _rechazo!, tono: Tono.error),
+                Boton(
+                  texto: TextosInvitacion.usarEnlace,
+                  variante: BotonVariante.secundario,
+                  expandido: true,
+                  onPressed: _usarEnlace,
                 ),
               ],
-              const SizedBox(height: Espacio.s5),
-              Campo(
-                etiqueta: TextosInvitacion.pegarEnlaceEtiqueta,
-                controlador: _enlace,
-                tipoDeTeclado: TextInputType.url,
-                onSubmitted: (_) => _usarEnlace(),
-              ),
-              const SizedBox(height: Espacio.s3),
-              Boton(
-                texto: TextosInvitacion.usarEnlace,
-                variante: BotonVariante.secundario,
-                expandido: true,
-                onPressed: _usarEnlace,
-              ),
-            ],
+            ),
           ),
         ),
       ),
