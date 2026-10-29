@@ -2,11 +2,15 @@ import 'package:aportaya_diseno/atomos/campo.dart';
 import 'package:aportaya_diseno/atomos/boton.dart';
 import 'package:aportaya_diseno/atomos/boton_variante.dart';
 import 'package:aportaya_diseno/tokens/tokens.dart';
+import 'package:aportaya_diseno/atomos/iconos_de_marca.dart';
+import 'package:aportaya_diseno/moleculas/intro_de_pantalla.dart';
+import 'package:aportaya_diseno/moleculas/tarjeta.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'dominio/estado_cuenta.dart';
 import 'textos.dart';
+import 'textos_de_tramites.dart';
 
 /// CU-02 (elevar nivel de debida diligencia) + CU-03 (declaración PEP), una sola
 /// pantalla como marca `planes/12` fila 2.8 de la maqueta: la elevación de nivel
@@ -42,31 +46,46 @@ class _PantallaDeVerificacionProfundaState
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Text(TextosIdentidad.preguntaPep),
-              const SizedBox(height: Espacio.s3),
-              SegmentedButton<bool>(
-                segments: const [
-                  ButtonSegment(value: false, label: Text('No')),
-                  ButtonSegment(value: true, label: Text('Sí')),
-                ],
-                selected: {?_esPep},
-                emptySelectionAllowed: true,
-                onSelectionChanged: (v) =>
-                    setState(() => _esPep = v.isEmpty ? null : v.first),
+              const IntroDePantalla(
+                icono: IconosDeMarca.expediente,
+                titulo: TextosDeTramites.pepTitulo,
+                explicacion: TextosDeTramites.pepExplicacion,
               ),
-              if (_esPep == true) ...[
-                const SizedBox(height: Espacio.s3),
-                Campo(
-                  etiqueta: TextosIdentidad.detallePep,
-                  controlador: _detalle,
-                  lineas: 3,
+              Tarjeta(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    const Text(TextosIdentidad.preguntaPep),
+                    const SizedBox(height: Espacio.s3),
+                    SegmentedButton<bool>(
+                      segments: const [
+                        ButtonSegment(value: false, label: Text('No')),
+                        ButtonSegment(value: true, label: Text('Sí')),
+                      ],
+                      selected: {?_esPep},
+                      emptySelectionAllowed: true,
+                      onSelectionChanged: (v) =>
+                          setState(() => _esPep = v.isEmpty ? null : v.first),
+                    ),
+                    if (_esPep == true) ...[
+                      const SizedBox(height: Espacio.s3),
+                      Campo(
+                        etiqueta: TextosIdentidad.detallePep,
+                        controlador: _detalle,
+                        lineas: 3,
+                      ),
+                    ],
+                  ],
                 ),
-              ],
+              ),
               const SizedBox(height: Espacio.s5),
               Boton(
                 texto: TextosIdentidad.continuar,
                 variante: BotonVariante.primario,
                 expandido: true,
+                motivoDeBloqueo: _esPep == null
+                    ? TextosDeTramites.pepBloqueo
+                    : null,
                 onPressed: _esPep == null
                     ? null
                     : () => ref
