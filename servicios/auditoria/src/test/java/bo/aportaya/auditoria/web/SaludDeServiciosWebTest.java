@@ -73,7 +73,9 @@ class SaludDeServiciosWebTest {
                         List.of(
                                 new SaludDeServicio("identidad", Estado.ARRIBA, Optional.of(12L)),
                                 new SaludDeServicio("aportes", Estado.DEGRADADO, Optional.of(40L)),
-                                new SaludDeServicio("erp", Estado.CAIDO, Optional.empty()))));
+                                new SaludDeServicio("erp", Estado.CAIDO, Optional.empty())),
+                        java.util.Map.of(),
+                        new java.math.BigDecimal("99.5")));
 
         mvc.perform(get("/indicadores/operacion/servicios")
                         .with(Sesiones.como("ADMIN_PLATAFORMA", "TABLERO_SISTEMAS_VER")))
@@ -118,7 +120,11 @@ class SaludDeServiciosWebTest {
     @DisplayName("estado · AUDITORIA_LEER también la ve")
     void auditor() throws Exception {
         when(salud.consultar())
-                .thenReturn(new SaludDeServicios.Salida(Instant.parse("2026-10-17T15:00:00Z"), List.of()));
+                .thenReturn(new SaludDeServicios.Salida(
+                        Instant.parse("2026-10-17T15:00:00Z"),
+                        List.of(),
+                        java.util.Map.of(),
+                        new java.math.BigDecimal("99.5")));
         mvc.perform(get("/indicadores/operacion/servicios").with(Sesiones.como("AUDITOR_INTERNO", "AUDITORIA_LEER")))
                 .andExpect(status().isOk());
     }

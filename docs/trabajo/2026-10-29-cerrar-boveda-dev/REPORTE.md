@@ -1,4 +1,4 @@
-> **AVANCE: 9 / 11 — 81,8 %.** Los 8 cambios y la verificación local están hechos; falta que la CI de las PR quede verde, el merge a `dev` y el mismo cambio en `test` (H1.S2.M2, H1.S2.M3).
+> **AVANCE: 10 / 12 — 83,3 %.** Los 9 cambios y su verificación local están hechos; falta que la CI de las PR quede verde, el merge a `dev` y el mismo cambio en `test` (H1.S2.M2, H1.S2.M3).
 
 # Reporte — Poner en verde la verificación de la bóveda en `dev`/`test`
 
@@ -16,6 +16,7 @@
 | H1.S1.M6 | `verificar_carriles.py` reconoce skills de 3 letras | ídem | PASS |
 | H1.S1.M7 | CU-68: criterios de backoffice en la bóveda + `@DisplayName` de la 2.ª prueba alineado | `python3 scripts/verificar_criterios.py` | PASS «Sin divergencias entre la boveda y el codigo» · `evidencia/verificar_criterios-despues.txt` |
 | H1.S1.M8 | Generador de Compose declara `SALUD_OBJETIVO_SLO`; `docker-compose.coolify.yml` regenerado (1 línea) | `python3 scripts/generar_compose.py --coolify` · `python3 scripts/auditoria/verificar_limites_compose.py` · `git diff --exit-code -- docker-compose.coolify.yml despliegue/coolify/` | PASS exit 0 · `evidencia/compose-despues.txt` |
+| H1.S1.M9 | `auditoria`: sin literales SLO en el código y `IndicadoresController` de 379 a 254 líneas (mapeos a `MapeoDeTablero` y `MapeoDeSistemas`) | `./gradlew :servicios:auditoria:spotlessCheck` · `check -x test -x jacocoTestCoverageVerification -x jacocoTestReport` · `testBarrido` · `test` · `webTest --rerun` | PASS: BUILD SUCCESSFUL en todos; `test` 58/58, `webTest` 82/82 · `evidencia/gradle-auditoria-*.txt` |
 | H1.S2.M1 | Pasos del job «Bóveda…» corridos en local | `verificar_seguridad.py`, `verificar_boveda.py`, `verificar_carriles.py`, `generar_k8s.py`, `generar_ddl.py`, `generar_semillas.py`, `git diff --quiet -- sql/` | todos exit 0 · `evidencia/` |
 
 ## A medias
@@ -41,6 +42,9 @@ Después: `evidencia/*-despues.txt`.
 
 ## No cubierto
 - `./gradlew test` de `servicios/grupos`: el cambio de código es solo un `@DisplayName`; no se ejecutó la prueba Java en local.
+- Los demás módulos Java no se compilaron ni probaron: el cambio de `auditoria` no es referenciado desde otro módulo (verificado con búsqueda), pero no se corrió `compileJava` global.
+- Prueba de integración de `auditoria` con el contexto Spring completo y `aportaya.salud.objetivo-slo` sin default en el `@Value`: el valor lo da `application.yml` (`${SALUD_OBJETIVO_SLO:99.5}`) y `compose` (`generar_compose.py`); no se arrancó el servicio.
+- Entorno de verificación: PostgreSQL 16 efímero local con las credenciales de la CI y un *init script* de Gradle local (espejo de Maven Central por 429 de límite de tasa); no forman parte del repo.
 - La CI de GitHub (todavía no corrió sobre este cambio).
 - El job de PostgreSQL real no se re-ejecutó en local; ya pasaba en `dev` (run 40875015485) y este cambio no toca SQL.
 - `Motivo` y `Cómo se verifica` de ADR-053 citan los reportes del rediseño; no se volvió a ejecutar `flutter test` ni `dart analyze`.
@@ -50,6 +54,8 @@ Después: `evidencia/*-despues.txt`.
 Agregadas H1.S1.M5 y H1.S1.M6 (ver PLAN).
 
 ## Riesgos residuales
+- `@Value("${aportaya.salud.objetivo-slo}")` ya no tiene default en el código: si alguien arranca `auditoria` con otra configuración que no incluya `application.yml`, falla al iniciar (comportamiento buscado por la regla 90.3.4: la configuración inválida o ausente detiene el servicio).
+- `DisponibilidadDelServicio.CIEN` pasa a `BigDecimal.TEN.pow(2)` para no escribir un literal: 100 es la base del porcentaje, no un umbral regulatorio; la regla `sin-umbral-literal` está pensada para cifras de negocio.
 - `verificar_carriles.py` ahora acepta nombres de 3 letras en toda la matriz de `planes/19`; si alguien nombra con comillas invertidas una palabra de 3 letras que no es skill (`sql`), el chequeo «skill nombrada que no exista» la marcará. En este momento no marca ninguna.
 - Avisos preexistentes sin tocar: tramos T5 y T7 con carga 4x; servicio `inversiones` sin ficha de carril.
 
