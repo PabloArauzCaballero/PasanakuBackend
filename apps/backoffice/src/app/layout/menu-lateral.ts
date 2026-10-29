@@ -14,6 +14,9 @@ import { UrlActual } from './url-actual'
  * lateral (`.lateral { overflow-y: auto }` en `shell-financiero.css`). Se usa en la barra lateral y en el cajón del
  * celular.
  *
+ * El rótulo de un grupo («Plataforma») lleva su ícono y es un enlace a la primera sección del grupo que la sesión
+ * puede abrir: fijo, nunca desplegable (2026-10-28).
+ *
  * Una entrada se dibuja solo si la sesión puede abrir **alguna** de sus pantallas, y lleva a la primera que puede abrir
  * (`entradasVisibles`); debajo se listan solo las que puede abrir (`pantallasVisibles`): el menú no ofrece lo que
  * después rebota (F1). El permiso real lo sigue exigiendo la guardia de cada ruta.
@@ -26,7 +29,9 @@ import { UrlActual } from './url-actual'
   template: `
     @for (g of visibles(); track g.titulo) {
       <section class="grupo">
-        @if (g.titulo) { <h2 class="rotulo">{{ g.titulo }}</h2> }
+        @if (g.titulo) {
+          <h2 class="rotulo"><a [routerLink]="g.entradas[0]?.destino" [attr.data-tutorial-id]="'menu-grupo-' + g.icono" (click)="navegado.emit()"><ap-icono-de-seccion [nombre]="g.icono" /><span>{{ g.titulo }}</span></a></h2>
+        }
         <ul>
           @for (e of g.entradas; track e.ruta) {
             <li>
@@ -67,7 +72,9 @@ import { UrlActual } from './url-actual'
   styles: `
     :host { display: grid; align-content: start; gap: var(--s3); color: var(--white); }
     .grupo { display: grid; gap: var(--s1); }
-    .rotulo { margin: 0; padding: var(--s2) var(--s3) var(--s1); color: color-mix(in srgb, var(--white) 55%, transparent); font: var(--t-eyebrow); letter-spacing: var(--t-eyebrow-track); text-transform: uppercase; }
+    /* El rótulo de grupo: ícono + texto fijos, y un enlace que abre la primera sección del grupo (2026-10-28). */
+    .rotulo { margin: 0; font: inherit; }
+    .rotulo a { color: color-mix(in srgb, var(--white) 62%, transparent); font: var(--t-cuerpo-chico); font-weight: 600; }
     ul { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--s1); }
     a { display: flex; align-items: center; gap: var(--s3); min-height: var(--area-tactil); padding: var(--s2) var(--s3); border-radius: var(--r-md); font: var(--t-cuerpo); color: color-mix(in srgb, var(--white) 78%, transparent); text-decoration: none; transition: background-color var(--mov-micro) ease-out, color var(--mov-micro) ease-out; }
     a:hover { background: color-mix(in srgb, var(--white) 8%, transparent); color: var(--white); }

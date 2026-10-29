@@ -1,0 +1,12 @@
+Automatically searching for and using Vitest configuration file.
+❯ Building...
+✔ Building...
+Application bundle generation complete. [18.363 seconds] - 2026-10-28T20:27:24.130Z
+[1m[30m[46m RUN [49m[39m[22m [36mv5.0.5 [39m[90m/home/user/PasanakuFrontend/apps/backoffice[39m
+Not implemented: Window's confirm() method
+Not implemented: Window's confirm() method
+[2m Test Files [22m [1m[32m172 passed[39m[22m[90m (172)[39m
+[2m      Tests [22m [1m[32m1233 passed[39m[22m[90m (1233)[39m
+[2m   Start at [22m 20:27:24
+[2m   Duration [22m 42.13s[2m (tests 87%, transform 7%, setup 2%, import 2%, environment 2%)[22m
+EXIT 0
