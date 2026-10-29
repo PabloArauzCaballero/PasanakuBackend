@@ -106,6 +106,8 @@ describe('matriz de roles · qué secciones abre cada rol del catálogo', () => 
     expect(alcanza('BILLETERA_VER_TERCEROS', admin, true)).toBe(false)
     expect(alcanza('ADMIN_PLATAFORMA', tokenDe('SOPORTE'), true)).toBe(false)
     expect(alcanza('ver:admisiones', tokenDe('SOPORTE'), true)).toBe(false)
+    expect(alcanza('ver:postulaciones', tokenDe('SOPORTE'), true)).toBe(false)
+    expect(alcanza('ver:postulaciones', admin, true)).toBe(true)
   })
 
   it('billetera de un tercero: solo la ven los roles que el catálogo habilita, y quien solo atiende reclamos por otra vía no', () => {

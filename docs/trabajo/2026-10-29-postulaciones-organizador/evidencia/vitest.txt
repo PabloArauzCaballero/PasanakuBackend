@@ -1,0 +1,69 @@
+Automatically searching for and using Vitest configuration file.
+❯ Building...
+✔ Building...
+Application bundle generation complete. [64.004 seconds] - 2026-10-29T12:08:50.491Z
+
+(!) Your Vite config uses features that are unsupported by `configLoader: 'native'`, which is planned to become the default in a future major version of Vite:
+  - ESM syntax in a file loaded as CommonJS (vitest-base.config.ts:1:1). Use a `.mjs` extension or set `"type": "module"` in the closest package.json
+Set `VITE_CONFIG_NATIVE_IGNORE_WARNING=true` to suppress this warning.
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.11 [39m[90m/Users/pablo/Documents/GitHub/Pasanaku-admision/apps/backoffice[39m
+
+ [31m❯[39m [30m[42m backoffice [49m[39m src/app/nucleo/menu-y-guardias.spec.ts [2m([22m[2m87 tests[22m[2m | [22m[31m2 failed[39m[2m)[22m[33m 25761[2mms[22m[39m
+[31m     [31m×[31m 'todos · PLATAFORMA': lo visible abre sin rebote y lo oculto rebota[39m[33m 5086[2mms[22m[39m
+[31m     [31m×[31m 'todos · oficial': lo visible abre sin rebote y lo oculto rebota[39m[33m 1453[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 2 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m [30m[42m backoffice [49m[39m src/app/nucleo/menu-y-guardias.spec.ts[2m > [22mmenú ⇔ guardias de las rutas[2m > [22m'todos · PLATAFORMA': lo visible abre sin rebote y lo oculto rebota
+[31m[1mError[22m: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".[39m
+[36m [2m❯[22m src/app/nucleo/menu-y-guardias.spec.ts:[2m62:16[22m[39m
+    [90m 60|[39m   })
+    [90m 61|[39m
+    [90m 62|[39m   it.each(casos)('$nombre: lo visible abre sin rebote y lo oculto rebo…
+    [90m   |[39m                [31m^[39m
+    [90m 63|[39m     sesion[33m.[39m[34mabrir[39m([32m'token'[39m[33m,[39m permisos[33m,[39m rol)
+    [90m 64|[39m     const visibles = new Set(entradasVisibles(sesion).flatMap((g) => g…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m [30m[42m backoffice [49m[39m src/app/nucleo/menu-y-guardias.spec.ts[2m > [22mmenú ⇔ guardias de las rutas[2m > [22m'todos · oficial': lo visible abre sin rebote y lo oculto rebota
+[31m[1mAssertionError[22m: expected [ …(13) ] to deeply equal [][39m
+
+- Expected
++ Received
+
+- []
++ [
++   "/operacion/desembolsos: menú muestra, la ruta rebota a /operacion/retiros",
++   "/operacion/reversos: menú muestra, la ruta rebota a /operacion/retiros",
++   "/operacion/reclamos: menú muestra, la ruta rebota a /operacion/retiros",
++   "/operacion/custodia: menú muestra, la ruta rebota a /operacion/retiros",
++   "/operacion/cierres-diarios: menú muestra, la ruta rebota a /operacion/retiros",
++   "/admisiones: menú muestra, la ruta rebota a /operacion/retiros",
++   "/postulaciones-organizador: menú muestra, la ruta rebota a /operacion/retiros",
++   "/operacion/solicitudes-escaladas: menú muestra, la ruta rebota a /operacion/retiros",
++   "/cumplimiento/verificaciones: menú muestra, la ruta rebota a /operacion/retiros",
++   "/cumplimiento/alertas: menú muestra, la ruta rebota a /operacion/retiros",
++   "/cumplimiento/casos: menú muestra, la ruta rebota a /operacion/retiros",
++   "/cumplimiento/uif/reportes: menú muestra, la ruta rebota a /operacion/retiros",
++   "/cumplimiento/uif/requerimientos: menú muestra, la ruta rebota a /operacion/retiros",
++ ]
+
+[36m [2m❯[22m src/app/nucleo/menu-y-guardias.spec.ts:[2m79:21[22m[39m
+    [90m 77|[39m       if (!enRuta(router.url, destino)) errores.push(`entrada → ${dest…
+    [90m 78|[39m     }
+    [90m 79|[39m     [34mexpect[39m(errores)[33m.[39m[34mtoEqual[39m([])
+    [90m   |[39m                     [31m^[39m
+    [90m 80|[39m   })
+    [90m 81|[39m })
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m3 passed[39m[22m[90m (4)[39m
+[2m      Tests [22m [1m[31m2 failed[39m[22m[2m | [22m[1m[32m138 passed[39m[22m[90m (140)[39m
+[2m   Start at [22m 08:08:51
+[2m   Duration [22m 30.94s[2m (transform 5.64s, setup 654ms, import 1.49s, tests 27.02s, environment 1.36s)[22m
+
