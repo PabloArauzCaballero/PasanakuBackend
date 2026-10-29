@@ -22,8 +22,13 @@ void main() {
     ),
   );
 
+  // La cabecera que se compacta suma su propio Scrollable (el del NestedScrollView):
+  // se desplaza la lista de pautas, que es la que tiene el contenido.
   Finder lista() => find.descendant(
-    of: find.byType(PantallaDePautasDeFotos),
+    of: find.descendant(
+      of: find.byType(PantallaDePautasDeFotos),
+      matching: find.byType(ListView),
+    ),
     matching: find.byType(Scrollable),
   );
 
@@ -55,7 +60,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(router.state.uri.path, '/registro/pautas');
-    expect(find.text('Pautas para tus fotos'), findsOneWidget);
+    expect(encabezadoDePantalla('Pautas para tus fotos'), findsOneWidget);
     expect(find.text('Pautas para el documento de identidad'), findsOneWidget);
     expect(find.byType(ShellPrincipal), findsNothing);
     expect(find.byType(BarraPestanas), findsNothing);

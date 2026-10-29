@@ -13,6 +13,7 @@ import 'package:aportaya_diseno/organismos/estado_vacio.dart';
 import 'package:aportaya_diseno/tokens/tokens.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:aportaya_diseno/organismos/pantalla_con_cabecera.dart';
 
 import 'dominio/cu02_actualizar_fecha_expiracion.dart';
 import 'dominio/capturas_del_expediente.dart';
@@ -37,8 +38,7 @@ class _PantallaCompletarKycState extends ConsumerState<PantallaCompletarKyc> {
   DateTime? _fecha;
   bool _guardandoFecha = false;
   final Set<CaraDelCarril> _subiendo = {};
-  String? _error;
-  String? _trazaId;
+  String? _error, _trazaId;
 
   void _mostrarError(Object error, {required String mensajeDesconocido}) {
     if (!mounted) return;
@@ -53,8 +53,7 @@ class _PantallaCompletarKycState extends ConsumerState<PantallaCompletarKyc> {
     if (fecha == null || _guardandoFecha) return;
     setState(() {
       _guardandoFecha = true;
-      _error = null;
-      _trazaId = null;
+      _error = _trazaId = null;
     });
     try {
       await ref
@@ -76,8 +75,7 @@ class _PantallaCompletarKycState extends ConsumerState<PantallaCompletarKyc> {
     if (captura == null) return;
     setState(() {
       _subiendo.add(cara);
-      _error = null;
-      _trazaId = null;
+      _error = _trazaId = null;
     });
     try {
       await ref
@@ -99,17 +97,20 @@ class _PantallaCompletarKycState extends ConsumerState<PantallaCompletarKyc> {
 
   @override
   Widget build(BuildContext context) {
-    final resultado = ref.watch(kycDelTitularProvider(widget.usuarioId));
+    final kyc = kycDelTitularProvider(widget.usuarioId);
     return Scaffold(
-      appBar: AppBar(title: const Text(TextoCompletarKyc.titulo)),
-      body: SafeArea(
-        child: EstadoDePantalla<EstadoDeVerificacion>(
-          valor: resultado,
-          etiquetaDeCarga: TextoCompletarKyc.cargando,
-          mensajeVacio: TextoCompletarKyc.revisionTerminada,
-          reintentar: () =>
-              ref.invalidate(kycDelTitularProvider(widget.usuarioId)),
-          exito: _contenido,
+      // Cabecera grande que se compacta al desplazar (ADR-053, H4.S2.M6).
+      body: PantallaConCabecera(
+        titulo: TextoCompletarKyc.titulo,
+        cuerpo: SafeArea(
+          top: false,
+          child: EstadoDePantalla<EstadoDeVerificacion>(
+            valor: ref.watch(kyc),
+            etiquetaDeCarga: TextoCompletarKyc.cargando,
+            mensajeVacio: TextoCompletarKyc.revisionTerminada,
+            reintentar: () => ref.invalidate(kyc),
+            exito: _contenido,
+          ),
         ),
       ),
     );
@@ -129,7 +130,6 @@ class _PantallaCompletarKycState extends ConsumerState<PantallaCompletarKyc> {
     final faltaFecha = expediente.fechaExpiracionDocumento == null;
     final hoy = DateTime.now();
     final fechaVisible = _fecha ?? expediente.fechaExpiracionDocumento;
-    final todoCompleto = !faltanIzquierda && !faltanDerecha && !faltaFecha;
     final seccion = Tipo.titulo3.copyWith(color: Tokens.of(context).text);
     return ListView(
       padding: const EdgeInsets.all(Espacio.s4),
@@ -186,7 +186,7 @@ class _PantallaCompletarKycState extends ConsumerState<PantallaCompletarKyc> {
             onPressed: _fecha == null ? null : _guardarFecha,
           ),
         ],
-        if (todoCompleto) ...[
+        if (!faltanIzquierda && !faltanDerecha && !faltaFecha) ...[
           const SizedBox(height: Espacio.s4),
           const Alerta(
             tono: Tono.ok,
