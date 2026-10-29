@@ -47,6 +47,9 @@ class _PantallaSorteoState extends ConsumerState<PantallaSorteo>
   String? _error;
   final List<String> _revelados = [];
 
+  /// Quienes todavía no salieron: los únicos gajos de la ruleta durante la ceremonia.
+  final List<String> _restantes = [];
+
   void _tic() => unawaited(
     ref.read(hapticaProvider).seleccion().catchError((Object _) {}),
   );
@@ -74,14 +77,25 @@ class _PantallaSorteoState extends ConsumerState<PantallaSorteo>
             ? sorteo!.sorteoId
             : null,
       );
-      final cupos = d.integrantes.map((i) => i.cupoId).toList();
       final yo = d.integrantes.where((i) => i.soyYo).map((i) => i.cupoId);
+      setState(() {
+        _restantes
+          ..clear()
+          ..addAll(d.integrantes.map((i) => i.cupoId).whereType<String>());
+      });
       for (var k = 0; k < orden.length && mounted; k++) {
         if (!quieto) {
           setState(() => _enJuego = k + 1);
-          final gajo = cupos.indexOf(orden[k]);
-          if (gajo >= 0) {
-            await _orquesta.girarHasta(gajo, cupos.length, primera: k == 0);
+          final gajo = _restantes.indexOf(orden[k]);
+          if (_restantes.length == 1) {
+            // Queda una sola persona: el último turno es suyo, sin girar.
+            await _orquesta.senalar(0);
+          } else if (gajo >= 0) {
+            await _orquesta.girarHasta(
+              gajo,
+              _restantes.length,
+              primera: k == 0,
+            );
           }
         }
         if (!mounted) return;
@@ -95,6 +109,13 @@ class _PantallaSorteoState extends ConsumerState<PantallaSorteo>
           await _orquesta.pausa(
             Duration(milliseconds: math.min(900, 1400 - 60 * k)),
           );
+          // Quien salió se va de la ruleta: su gajo se angosta y los demás lo cubren.
+          await _orquesta.retirar();
+          if (!mounted) return;
+          setState(() {
+            _orquesta.olvidarGanador();
+            _restantes.remove(orden[k]);
+          });
         }
       }
       if (!quieto && mounted) {

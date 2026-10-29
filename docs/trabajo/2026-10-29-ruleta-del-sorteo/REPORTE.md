@@ -1,6 +1,6 @@
 # Reporte — La ruleta del sorteo, con ceremonia
 
-> **AVANCE: 5 / 5 — 100 %.** El sorteo de turnos (CU-60) se pone en escena con una ruleta nueva. El orden lo sigue decidiendo el servidor (semilla sellada); la ruleta solo lo muestra.
+> **AVANCE: 6 / 6 — 100 %.** El sorteo de turnos (CU-60) se pone en escena con una ruleta nueva. El orden lo sigue decidiendo el servidor (semilla sellada); la ruleta solo lo muestra.
 
 - Fecha: 2026-10-29 · Rama: `claude/sorteo-ruleta`
 - Peldaño: **TESTED** + prueba visual (video de la ceremonia completa a 2×, claro y oscuro). No VERIFIED en dispositivo.
@@ -12,6 +12,7 @@
 | R2 | `OrquestaDelSorteo`: amague, giro largo que frena (después, cortos), la aguja golpea cada clavija con háptico, el gajo ganador brilla, pausa entre puestos y cierre con los focos parpadeando. Un solo `Ticker` que se apaga quieto | `detalle_del_grupo_test` 12/12 (incluye movimiento reducido y rechazo del servidor) |
 | R3 | Cartel por puesto que entra con resorte; si sos vos: «¡Te tocó el N.º turno!» y al terminar queda el tuyo | capturas |
 | R4 | El orden de cobro usa el color del gajo de cada persona (antes, el de la posición: no coincidía con la ruleta) y cada fila entra al salir | capturas |
+| R6 | **Quien sale se va de la ruleta** (pedido de Pablo): su gajo se angosta hasta desaparecer y los demás lo cubren; el próximo giro es solo entre quienes faltan; el último no gira (su turno es el que queda); al final la ruleta se rearma con todos en su puesto | prueba nueva «quien sale se va de la ruleta» (falla con el mutante que no los saca) |
 | R5 | Gate y regresión | `dart analyze` sin issues · `verificar_frontend.py movil` TODO OK · app +1129 |
 
 ## A medias

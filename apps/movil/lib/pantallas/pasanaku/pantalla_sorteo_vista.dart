@@ -40,21 +40,34 @@ extension _VistaDelSorteo on _PantallaSorteoState {
           builder: (context, limites) => Center(
             child: ListenableBuilder(
               listenable: _orquesta,
-              builder: (context, _) => RuletaDelSorteo(
-                nombres: [for (final c in cupos) nombres[c]!],
-                diametro: math.min(limites.maxWidth * 0.9, 340),
-                angulo: _orquesta.angulo,
-                puestos: {
-                  for (var k = 0; k < orden.length; k++)
-                    cupos.indexOf(orden[k]): k + 1,
-                },
-                ganador: _orquesta.ganador,
-                resalte: _orquesta.resalte,
-                luces: _orquesta.luces,
-                todas: _orquesta.todas,
-                aleta: _orquesta.aleta,
-                centro: _enJuego == null ? null : '$_enJuego.º',
-              ),
+              builder: (context, _) {
+                // Durante la ceremonia, solo quienes faltan: quien sale se va de la
+                // ruleta. Con el orden completo, se rearma con todos en su puesto.
+                final enCeremonia = _ceremonia && _restantes.isNotEmpty;
+                final completo =
+                    !enCeremonia &&
+                    orden.isNotEmpty &&
+                    orden.length == cupos.length;
+                final enRueda = enCeremonia
+                    ? _restantes
+                    : (completo ? orden : cupos);
+                return RuletaDelSorteo(
+                  nombres: [for (final c in enRueda) nombres[c]!],
+                  colores: [for (final c in enRueda) cupos.indexOf(c)],
+                  diametro: math.min(limites.maxWidth * 0.9, 340),
+                  angulo: completo ? 0 : _orquesta.angulo,
+                  puestos: completo
+                      ? {for (var k = 0; k < orden.length; k++) k: k + 1}
+                      : const {},
+                  ganador: enCeremonia ? _orquesta.ganador : null,
+                  resalte: _orquesta.resalte,
+                  salida: _orquesta.salida,
+                  luces: _orquesta.luces,
+                  todas: _orquesta.todas,
+                  aleta: _orquesta.aleta,
+                  centro: _enJuego == null ? null : '$_enJuego.º',
+                );
+              },
             ),
           ),
         ),

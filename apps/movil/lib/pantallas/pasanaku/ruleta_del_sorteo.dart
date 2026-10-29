@@ -7,8 +7,8 @@ import 'marco_de_ruleta.dart';
 import 'pintor_de_ruleta.dart';
 import 'textos_detalle_del_grupo.dart';
 
-/// La ruleta del sorteo: un gajo por integrante, en el orden de los cupos, con el color
-/// de la rueda del grupo. **No decide nada**: el orden lo devolvió el servidor; la
+/// La ruleta del sorteo: un gajo por integrante que todavía no salió, con el color de
+/// su persona; quien sale se va de la ruleta. **No decide nada**: el orden lo devolvió el servidor; la
 /// ruleta solo lo muestra, persona por persona (`OrquestaDelSorteo` la mueve).
 ///
 /// Capas, de atrás hacia adelante: sombra, disco que gira ([angulo]), aro con focos y
@@ -19,8 +19,10 @@ class RuletaDelSorteo extends StatelessWidget {
     required this.nombres,
     required this.angulo,
     this.diametro = 300,
+    this.colores,
     this.puestos = const {},
     this.ganador,
+    this.salida = 0,
     this.resalte = 0,
     this.luces = 0,
     this.todas = false,
@@ -32,9 +34,15 @@ class RuletaDelSorteo extends StatelessWidget {
   final double angulo;
   final double diametro;
 
-  /// Gajo → puesto que ya le salió (1 = primero).
+  /// Índice de color de cada gajo (el de la persona); por omisión, su lugar.
+  final List<int>? colores;
+
+  /// Gajo → puesto, para el resumen final (1 = primero).
   final Map<int, int> puestos;
   final int? ganador;
+
+  /// Cuánto se fue el gajo ganador (0 → 1): se angosta hasta desaparecer.
+  final double salida;
   final double resalte;
   final double luces;
   final bool todas;
@@ -97,9 +105,13 @@ class RuletaDelSorteo extends StatelessWidget {
                         size: Size.square(disco),
                         painter: PintorDeRuleta(
                           nombres: nombres,
+                          colores:
+                              colores ??
+                              List.generate(nombres.length, (i) => i),
                           puestos: puestos,
                           ganador: ganador,
                           resalte: resalte,
+                          salida: salida,
                         ),
                       ),
                     ),

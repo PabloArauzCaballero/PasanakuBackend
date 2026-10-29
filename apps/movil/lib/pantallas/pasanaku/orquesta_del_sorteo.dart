@@ -25,6 +25,7 @@ class OrquestaDelSorteo extends ChangeNotifier {
   double aleta = 0;
   double luces = 0;
   double resalte = 0;
+  double salida = 0;
   int? ganador;
   bool todas = false;
 
@@ -62,6 +63,29 @@ class OrquestaDelSorteo extends ChangeNotifier {
       (t) => angulo = arranque + (hasta - arranque) * t,
     );
     angulo = hasta;
+    ganador = indice;
+    await _correr(const Duration(milliseconds: 420), Curves.easeOutBack, (t) {
+      resalte = t.clamp(0.0, 1.0);
+    });
+  }
+
+  /// Quien salió se va de la ruleta: su gajo se angosta hasta desaparecer.
+  Future<void> retirar() => _correr(
+    const Duration(milliseconds: 620),
+    Curves.easeInOutCubic,
+    (t) => salida = t,
+  );
+
+  /// Deja la ruleta lista para el próximo giro, ya sin el gajo que se fue.
+  void olvidarGanador() {
+    ganador = null;
+    resalte = 0;
+    salida = 0;
+    notifyListeners();
+  }
+
+  /// Sin giro: cuando queda una sola persona, el último turno es suyo.
+  Future<void> senalar(int indice) async {
     ganador = indice;
     await _correr(const Duration(milliseconds: 420), Curves.easeOutBack, (t) {
       resalte = t.clamp(0.0, 1.0);
