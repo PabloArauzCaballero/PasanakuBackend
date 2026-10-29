@@ -1,6 +1,6 @@
 # Reporte — `GET /grupos/solicitudes` (bandeja de «Admisiones» del backoffice, CU-68)
 
-> **AVANCE: 2 / 4 microtareas HECHO — 50,0 %.** Las otras dos (consulta y controlador) están escritas; **el CI ya compiló el código de producción** (`compileJava` OK, formato y reglas propias de `grupos` OK) pero **la prueba de integración contra PostgreSQL nunca se ha ejecutado**, y una prueba web mía falló en CI (corregida, ver «Historia del CI»).
+> **AVANCE: 3 / 4 microtareas HECHO — 75,0 %.** La capa web está probada en CI (`13b · webTest` verde). La consulta contra PostgreSQL (H1.M2) **se ejecutó por primera vez y falló por un error de mi fixture** (`fecha_resolucion` enviada como `varchar`); corregido y a la espera del CI.
 
 - Fecha: 2026-10-25 · Plan: [PLAN.md](./PLAN.md) · Rama: `claude/awesome-turing-5wmr4r` · Repo: PasanakuBackend (servicio `grupos`)
 - Peldaño de evidencia alcanzado: **WRITTEN + gates estáticos** (los gates Python pasan). No `RUNS`: el generador OpenAPI y `compileJava` no se pudieron ejecutar aquí. No `TESTED`.
@@ -10,6 +10,8 @@
 - Antes de eso el CI fue encontrando, en este orden: formato palantir (3 cortes de línea), un `armar()` que chocaba con un método estático de `BaseDeCU68`, y la regla `sin-umbral-literal` (que detecta por nombre: `TOPE_DE_BANDEJA = 200` → `FILAS_DE_LA_BANDEJA`).
 - PR #266 corrige la prueba web. Su CI **no llegó a ejecutar `grupos:webTest` ni `BandejaDeAdmisionesRepositorioTest`**: `check` se corta antes en `auditoria:testBarrido` por código ajeno de `dev` (`SaludDeServicios.java` con `99.5` y `100` literales, `DisponibilidadDelServicio.java`, `IndicadoresController.java` con 379 líneas; commits de Pablo del 28–29/10). Hasta que eso se arregle, mis dos pruebas siguen sin ejecutarse en CI.
 - La bóveda (ADR-053, índice de skills, «51 ADR») la corrige el PR #262; no se duplicó.
+- 2026-10-29, run 40885561359 (commit fcce23b7, ya con el barrido de `auditoria` arreglado): «Formato, reglas propias y compilacion» verde, `13 · test` verde y **`13b · webTest` verde** (ejecuta los `webTest` de todos los módulos; no revisé el informe por clase). Primera vez que `grupos:webTest` corre en este PR.
+- Mismo run, `14 · integrationTest`: `271 tests completed, 6 failed`, los 6 de `BandejaDeAdmisionesRepositorioTest`, todos por el mismo `PSQLException: column "fecha_resolucion" is of type timestamp with time zone but expression is of type character varying` en el `INSERT` del helper `solicitud(...)` (línea 37) para la fila resuelta. **Causa: el fixture**, no la consulta de producción (que aún no llegó a ejecutarse). Corrección: la base pone la fecha con `CASE WHEN ? THEN now() END` y el test pasa un booleano. Hasta ver el CI siguiente, las aserciones de la consulta siguen sin haberse ejecutado.
 
 ## Qué cambia
 La pantalla «Admisiones» del backoffice llamaba `GET /grupos/solicitudes`, que ningún servicio publicaba → 404 → «No encontramos lo que buscabas». Ahora `grupos` la publica: arreglo de hasta 200 solicitudes de **todos** los grupos, las más nuevas primero, con `grupoCodigo`, `postulante`, `estado` con los nombres de la pantalla (`ACEPTADA` = `APROBADA` en la base) y filtros opcionales `estado` y `limite`. Permiso `SOLICITUD_INGRESO_VER` (ya existe y lo tienen ADMIN_PLATAFORMA, SOPORTE y OPERATIONS_*). Sin teléfono ni correo.
