@@ -49,10 +49,7 @@ const CUMPLIMIENTO = p('ver:cumplimiento')
 const CONTABILIDAD = p('ver:contabilidad')
 const PUBLICIDAD = p('ver:publicidad')
 const CONFIGURACION = p('ver:configuracion')
-/**
- * `ver:sistemas` y además rol PLATAFORMA o SEGURIDAD, o el rol de catálogo que identidad agrega a `permisos`
- * (`rutas/sistemas/guardia-rol-sistemas.ts`: el claim `rol` del token real es siempre `OPERADOR`).
- */
+/** `ver:sistemas` y rol PLATAFORMA o SEGURIDAD, o el de catálogo que identidad agrega a `permisos` (`guardia-rol-sistemas.ts`: el `rol` del token real es siempre `OPERADOR`). */
 const SISTEMAS = [p('ver:sistemas'), { roles: ['PLATAFORMA', 'SEGURIDAD'], permisos: ['ADMIN_PLATAFORMA', 'RESPONSABLE_SEGURIDAD'] }] as const
 
 const sis = (ruta: string, texto: string, icono: NombreDeIcono): Pantalla => ({ ruta: `/sistemas/${ruta}`, texto, icono, requiere: SISTEMAS })
@@ -145,7 +142,7 @@ export const MENU: readonly Grupo[] = [
   // Última a propósito: es la sección a la que se vuelve, no por la que se empieza.
   {
     titulo: 'Plataforma',
-    icono: 'configuracion',
+    icono: 'plataforma',
     entradas: [
       {
         ruta: 'sistemas',

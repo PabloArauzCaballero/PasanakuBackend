@@ -1,0 +1,5 @@
+  ✓  16 [chromium] › e2e/verificacion-de-identidad.e2e.ts:98:9 › capturas — escritorio × light (3.2s)
+  ✓  17 [chromium] › e2e/verificacion-de-identidad.e2e.ts:98:9 › capturas — escritorio × dark (3.1s)
+
+  17 passed (1.1m)
+EXIT 0
