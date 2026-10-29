@@ -101,3 +101,18 @@ playwright admisiones + f2-posiciones-y-roles + sistemas-sin-contrato sobre orig
 ```
 
 Las 14 restantes fallan igual en `origin/dev` sin este cambio (`admisiones` ×2, `f2-posiciones-y-roles` ×4, `sistemas-sin-contrato` ×8): no son de este trabajo. `shell.e2e.ts` además buscaba «Outbox y descartados», renombrada «Outbox por servicio» en `9a2a3a75`: se actualizó el nombre.
+
+### PR a `test` (#261): `test` avanzó mientras tanto
+`test` recibió #249, #251, #254, #256 y #259 (postulaciones de organizador, Operación en ocho pestañas) y después #265 (`dev` → `test`), que llevó a `test` el cambio ya mezclado en `dev` por #260; GitHub cerró #261 como mezclado por eso. La rama mezclada con ese `test` se volvió a verificar:
+
+```text
+yarn typecheck → EXIT 0
+yarn test:front → 184 passed (184) · 1300 passed (1300)   [1.ª corrida: 2 fallos en menu-y-guardias.spec.ts, ver abajo]
+yarn test:a11y → 45 passed (45) · 94 passed (94)
+playwright shell + verificacion-de-identidad + tutoriales --retries=0 → 17 passed
+```
+
+- `nucleo/menu.ts` llegaba a 209 líneas en `test` (#254) y quedó en 206 en `dev` y `test` tras #260/#265: el PR de seguimiento lo deja en 200 (dos documentaciones compactadas, sin tocar código).
+- `yarn lint` sigue en rojo por un error que **ya está en `origin/test`**: `rutas/postulaciones/bandeja-de-postulaciones.ts:1:78 'signal' is defined but never used` (#249). No es de este trabajo y no se tocó; el arreglo es quitar `signal` de ese import.
+- Riesgo registrado: en la 1.ª corrida completa de `test:front` sobre la rama, `menu-y-guardias.spec.ts` agotó los 5 s en el caso «todos · PLATAFORMA» y el caso siguiente heredó el estado del router. No se reprodujo: solo 87/87, y la suite completa repetida 184/1300 en verde; sobre `origin/test` la suite completa dio 182/1285 en verde. Es un archivo de 87 navegaciones con el router real y el plazo por omisión de 5 s.
+- Causa medida del intermitente: el caso «todos · PLATAFORMA» es el primero de la matriz y paga la carga en frío de las ~40 rutas. Solo tarda 4076 ms con este cambio y **5026 ms (falla por plazo) en `test` antes de #260** (`952e606e`). Es un problema de tiempos de la prueba, previo a este trabajo; no se tocó (subir el plazo o precalentar las rutas es decisión de quien mantiene esa matriz).
