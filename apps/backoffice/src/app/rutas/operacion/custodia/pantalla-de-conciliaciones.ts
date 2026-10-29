@@ -48,7 +48,7 @@ const EXPORTABLES: ColumnaExportable<ConciliacionEnLista>[] = [
   imports: [Alerta, Boton, CabeceraDePagina, ChipEstado, Icono, Monto, ListadoPorCursorVista, FormularioDeConciliacion],
   template: `
     <section class="pantalla">
-      <ap-cabecera-de-pagina eyebrow="Tesorería" [titulo]="t.titulo" [descripcion]="t.proposito" icono="balanza">
+      <ap-cabecera-de-pagina eyebrow="Tesorería" [titulo]="t.titulo" [descripcion]="t.proposito">
         @if (puedeConciliar() && !formularioAbierto()) {
           <ap-boton acciones variante="primario" icono="mas" (pulsado)="formularioAbierto.set(true)">{{ t.formulario.abrir }}</ap-boton>
         }

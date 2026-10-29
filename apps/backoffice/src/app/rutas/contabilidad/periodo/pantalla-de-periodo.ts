@@ -39,7 +39,7 @@ const EJERCICIO_INEXISTENTE = 'AP-CU100-05'
   imports: [ErrorDeEnvio, Boton, Icono, CabeceraDePagina, ChipEstado, Dialogo, EstadoDePantalla, Fecha, PeriodoDeHoy, SelectorDeEjercicios],
   template: `
     <section class="pantalla">
-      <ap-cabecera-de-pagina data-tutorial-id="contabilidad-periodo" eyebrow="Contabilidad" [titulo]="t.titulo" [descripcion]="t.proposito" icono="calendario" />
+      <ap-cabecera-de-pagina data-tutorial-id="contabilidad-periodo" eyebrow="Contabilidad" [titulo]="t.titulo" [descripcion]="t.proposito" />
       <p class="aviso"><ap-icono nombre="candado" tamano="s4" />{{ t.cerrarIrreversible }}</p>
 
       <div class="arriba">

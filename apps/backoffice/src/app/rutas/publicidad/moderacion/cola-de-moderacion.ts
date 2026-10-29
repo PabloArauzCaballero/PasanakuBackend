@@ -32,7 +32,7 @@ const RECURSOS: Record<PiezaCreativa['tipoRecurso'], string> = { IMAGEN: 'Imagen
   imports: [AccionesDeFila, BarraDeLotes, CabeceraDePagina, ChipEstado, DialogoDeModeracion, Fecha, Icono, ListadoDeDatos, TarjetaKPI],
   template: `
     <section class="pantalla">
-      <ap-cabecera-de-pagina eyebrow="Publicidad" [titulo]="t.titulo" [descripcion]="t.proposito" icono="escudo" />
+      <ap-cabecera-de-pagina eyebrow="Publicidad" [titulo]="t.titulo" [descripcion]="t.proposito" />
       <!-- Las cifras cuentan lo cargado: sin carga (error o cargando) no se muestran, un «0» afirmaría algo que no se midió. -->
       @if (lotes.carga().tipo === 'lista') {
         <div class="cifras">

@@ -13,7 +13,7 @@ import { textosConfiguracion } from './textos'
   imports: [CabeceraDePagina, Icono, RouterLink],
   template: `
     <section class="pantalla">
-      <ap-cabecera-de-pagina eyebrow="Configuración" [titulo]="t.titulo" [descripcion]="t.proposito" icono="engranaje" />
+      <ap-cabecera-de-pagina eyebrow="Configuración" [titulo]="t.titulo" [descripcion]="t.proposito" />
       @if (secciones().length === 0) {
         <p role="status" class="vacio">{{ t.sinSecciones }}</p>
       } @else {

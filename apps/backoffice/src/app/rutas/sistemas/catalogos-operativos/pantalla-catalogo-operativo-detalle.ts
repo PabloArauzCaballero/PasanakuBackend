@@ -34,7 +34,7 @@ const estadoDe = (e: ElementoCatalogoOperativo) => (e.activo ? 'Activo' : 'Inact
       <ap-migas [migas]="[{ texto: t.titulo, ruta: '/sistemas/catalogos-operativos' }, { texto: codigo() ?? t.detalleTitulo }]" />
       <ap-estado-de-pantalla [recurso]="recursoCatalogo" [vacio]="esVacioCatalogo" [mensajeVacio]="t.vacio" [etiquetaDeCarga]="t.cargando" (reintentar)="recursoCatalogo.reload()">
         @if (recursoCatalogo.hasValue() && recursoCatalogo.value(); as c) {
-          <ap-cabecera-de-pagina [eyebrow]="t.detalleTitulo" [titulo]="c.nombre" [descripcion]="c.descripcion" icono="lista">
+          <ap-cabecera-de-pagina [eyebrow]="t.detalleTitulo" [titulo]="c.nombre" [descripcion]="c.descripcion">
             @if (carga().tipo !== 'sin-fuente') { <ap-boton acciones variante="fantasma" icono="recarga" (pulsado)="recargar()">Actualizar</ap-boton> }
           </ap-cabecera-de-pagina>
           <article class="ficha">

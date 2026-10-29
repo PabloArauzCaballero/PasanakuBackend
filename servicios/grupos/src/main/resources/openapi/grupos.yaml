@@ -834,7 +834,9 @@ paths:
       operationId: decidirSolicitudDeIngreso    # CU-68
       summary: Aceptar o rechazar una solicitud de ingreso
       description: >-
-        Quien decide es el organizador del grupo. Aceptada, EN LA MISMA TRANSACCION:
+        Quien decide es el organizador del grupo o backoffice (ADMIN_PLATAFORMA): sin propuesta del organizador
+        no hay expediente que backoffice pueda resolver, y la solicitud quedaba sin nadie que la decidiera.
+        Nadie decide su propia solicitud. Aceptada, EN LA MISMA TRANSACCION:
         se reserva un cupo libre, nace el participante pendiente de firmar el
         reglamento y se emite el evento. Rechazada, queda el motivo en el evento.
 

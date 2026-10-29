@@ -54,7 +54,7 @@ const EXPORTABLES = [
   imports: [AccionesDeFila, Alerta, CabeceraDePagina, ChipEstado, Fecha, Icono, Monto, TablaPorCursor, TarjetaKPI, FichaDeCobro],
   template: `
     <section class="pantalla">
-      <ap-cabecera-de-pagina eyebrow="Contabilidad" [titulo]="t.titulo" [descripcion]="t.proposito" icono="moneda" />
+      <ap-cabecera-de-pagina eyebrow="Contabilidad" [titulo]="t.titulo" [descripcion]="t.proposito" />
       <!-- Las cifras cuentan lo cargado: sin carga (error o cargando) no se muestran, un «0» afirmaría algo que no se midió. -->
       @if (listado.carga().tipo === 'lista') {
         <div class="kpis">

@@ -21,7 +21,7 @@ import type { ErrorTraducido } from '../../../nucleo/errores'
   imports: [ErrorDeEnvio, EstadoDePantalla, CabeceraDePagina, ChipEstado, Boton, Icono, SeccionDeExpediente],
   template: `
     <section class="pantalla">
-      <ap-cabecera-de-pagina eyebrow="Cumplimiento · organizadores" [titulo]="t.titulo" [descripcion]="t.proposito" icono="personaMas" />
+      <ap-cabecera-de-pagina eyebrow="Cumplimiento · organizadores" [titulo]="t.titulo" [descripcion]="t.proposito" />
       <div class="tarjeta"><ap-estado-de-pantalla [recurso]="habilitacion" [vacio]="vacio" [mensajeVacio]="t.noHabilitado" [etiquetaDeCarga]="t.cargando" (reintentar)="habilitacion.reload()">
         @if (habilitacion.hasValue() && habilitacion.value(); as h) {
           <h2><ap-icono nombre="escudo" tamano="s4" />Estado de la habilitación</h2>
