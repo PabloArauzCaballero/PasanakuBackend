@@ -97,6 +97,9 @@ class GruposAdmisionHumanaWebTest {
     @MockitoBean
     private IntegrantesDelGrupo integrantesDelGrupo;
 
+    @MockitoBean
+    private GruposDeBackoffice gruposDeBackoffice;
+
     private org.springframework.test.web.servlet.ResultActions decidir() throws Exception {
         return mvc.perform(post("/grupos/solicitudes/{id}/decision", SOLICITUD)
                 .with(Sesiones.como("ORGANIZADOR", "GRUPO_ADMINISTRAR"))

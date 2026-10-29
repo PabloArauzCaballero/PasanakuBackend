@@ -84,6 +84,58 @@ paths:
                 items: { $ref: '#/components/schemas/SolicitudDeAdmision' }
         '422':
           $ref: '#/components/responses/ReglaDeNegocio'
+  /grupos/backoffice:
+    get:
+      operationId: listarGruposDeBackoffice   # Backoffice · consulta de grupos (2026-10-29)
+      summary: Todos los grupos, para el backoffice
+      description: >-
+        Solo lectura. Para quien opera la plataforma (ADMIN_PLATAFORMA) o la audita (AUDITORIA_LEER). Datos del
+        grupo, nunca de una persona: sin organizador, telefono ni correo. Acotada a `limite` filas (maximo 200).
+        Orden: primero los que aun no tienen fecha de inicio (se estan armando), despues por fecha de inicio de la
+        mas reciente a la mas vieja, y el codigo como desempate estable (la tabla no guarda fecha de creacion).
+      parameters:
+        - name: estado
+          in: query
+          required: false
+          schema: { type: string, maxLength: 30 }
+        - name: limite
+          in: query
+          required: false
+          schema: { type: integer, minimum: 1, maximum: 200, default: 200 }
+      responses:
+        '200':
+          description: Grupos, el mas nuevo primero
+          content:
+            application/json:
+              schema:
+                type: array
+                maxItems: 200
+                items: { $ref: '#/components/schemas/GrupoDeBackoffice' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+
+  /grupos/backoffice/{grupoId}:
+    get:
+      operationId: consultarGrupoDeBackoffice   # Backoffice · consulta de grupos (2026-10-29)
+      summary: Un grupo con sus cupos y quien ocupa cada uno, para el backoffice
+      description: >-
+        Solo lectura, mismos permisos que el listado. Por cupo: numero, estado, el alias con que la persona se
+        presento al grupo y si es quien lo organiza. Sin importes atribuibles a una persona ni datos de contacto.
+        AP-CU64-01 el grupo no existe.
+      parameters:
+        - name: grupoId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: El grupo y sus cupos
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DetalleDeGrupoDeBackoffice' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+
   /grupos/solicitudes/{solicitudId}/propuestas:
     post:
       operationId: proponerAdmision
@@ -1475,6 +1527,40 @@ components:
       properties:
         decision: { type: string, enum: [ACEPTAR, RECHAZAR] }
         motivo:   { type: [string, 'null'], minLength: 5, maxLength: 300 }
+    GrupoDeBackoffice:
+      type: object
+      additionalProperties: false
+      required: [grupoId, codigo, nombre, estado, montoAporte, moneda, periodicidad, cuposTotales, cuposOcupados]
+      properties:
+        grupoId:       { type: string, format: uuid }
+        codigo:        { type: string }
+        nombre:        { type: string }
+        estado:        { type: string }
+        montoAporte:   { type: string, pattern: '^\d+\.\d{2}$', description: Decimal exacto en texto, nunca float }
+        moneda:        { type: string, minLength: 3, maxLength: 3 }
+        periodicidad:  { type: string }
+        cuposTotales:  { type: integer }
+        cuposOcupados: { type: integer }
+        fechaInicio:   { type: [string, 'null'], format: date }
+    CupoDeBackoffice:
+      type: object
+      additionalProperties: false
+      required: [numero, estado, esOrganizador]
+      properties:
+        numero:        { type: integer }
+        estado:        { type: string }
+        alias:         { type: [string, 'null'], description: El nombre con que la persona se presento al grupo; null si el cupo esta libre }
+        estadoParticipante: { type: [string, 'null'] }
+        esOrganizador: { type: boolean }
+    DetalleDeGrupoDeBackoffice:
+      type: object
+      additionalProperties: false
+      required: [grupo, cupos]
+      properties:
+        grupo: { $ref: '#/components/schemas/GrupoDeBackoffice' }
+        cupos:
+          type: array
+          items: { $ref: '#/components/schemas/CupoDeBackoffice' }
     SalidaDecisionDeIngreso:
       type: object
       additionalProperties: false

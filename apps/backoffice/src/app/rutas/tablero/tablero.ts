@@ -118,6 +118,7 @@ export class Tablero {
     { ruta: 'operacion/retiros', texto: 'Aprobación de retiros', permiso: 'RETIRO_APROBAR', descripcion: 'Segunda firma de un retiro: autorizar o rechazar.', icono: 'retiro' },
     { ruta: 'cumplimiento', texto: 'Cumplimiento', permiso: 'ver:cumplimiento', descripcion: 'UIF, alertas, casos y gobierno.', icono: 'escudo' },
     { ruta: 'admisiones', texto: 'Solicitudes de ingreso', permiso: 'ver:admisiones', descripcion: 'Resolver quién entra a un grupo.', icono: 'personaMas' },
+    { ruta: 'grupos', texto: 'Grupos', permiso: 'ver:grupos', descripcion: 'Todos los pasanakus y quién ocupa cada cupo.', icono: 'grupo' },
     { ruta: 'postulaciones-organizador', texto: 'Postulaciones a organizador', permiso: 'ver:postulaciones', descripcion: 'Aprobar o rechazar a quien pide organizar grupos.', icono: 'persona' },
     { ruta: 'contabilidad', texto: 'Contabilidad', permiso: 'ver:contabilidad', descripcion: 'Períodos, presupuestos y estados financieros.', icono: 'libro' },
     { ruta: 'publicidad', texto: 'Publicidad', permiso: 'ver:publicidad', descripcion: 'Campañas y ofertas.', icono: 'megafono' },

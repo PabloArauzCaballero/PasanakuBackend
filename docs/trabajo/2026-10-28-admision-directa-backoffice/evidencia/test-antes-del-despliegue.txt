@@ -1,0 +1,3 @@
+2026-10-29 TEST antes del despliegue (grupos de hace 9 h), operador ADMIN_PLATAFORMA:
+GET  /api/v1/grupos/solicitudes -> HTTP 200
+POST /api/v1/grupos/solicitudes/<uuid inexistente>/decision -> HTTP 403 codigo=AP-SEG-01
