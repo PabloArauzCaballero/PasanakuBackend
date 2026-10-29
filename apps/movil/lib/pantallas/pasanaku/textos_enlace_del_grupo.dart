@@ -7,8 +7,7 @@ class TextosEnlaceDelGrupo {
   static const titulo = 'Invitar al grupo';
   static const sinEnlaceTitulo = 'Un enlace para todo el grupo';
   static const sinEnlaceDetalle =
-      'Creá un enlace y compartilo por WhatsApp o mostrá su QR. Quien lo abra pide '
-      'unirse y vos decidís a quién aceptar. Sirve 7 días o hasta que se llene el grupo.';
+      'Compartilo por WhatsApp o mostrá su QR. Sirve 7 días o hasta que se llene el grupo.';
   static const crearEnlace = 'Crear enlace del grupo';
   static const preparando = 'Preparando la invitación…';
   static const qrEtiqueta = 'Código QR para unirse al grupo';
@@ -57,7 +56,7 @@ class TextosEnlaceDelGrupo {
   static String conPuntaje(String p) => 'Puntaje $p';
   static String cuposPedidos(int n) => n == 1 ? '1 cupo' : '$n cupos';
   static const sinSolicitudes =
-      'Todavía nadie pidió unirse. Cuando alguien abra el enlace, aparece acá.';
+      'Cuando alguien abra el enlace o el QR del grupo y pida unirse, aparece acá para que decidas.';
   static const sinNombre = 'Persona todavía sin nombre';
   static const porEnlace = 'Pidió con el enlace del grupo';
   static String pidioEl(String cuando) => 'Pidió el $cuando';
@@ -76,10 +75,12 @@ class TextosEnlaceDelGrupo {
       'Este grupo ya está completo. Pedile al organizador que te avise si se libera un cupo.';
   static const pedirUnirme = 'Pedir unirme';
   static const avisoDeDatos =
-      'Al pedir unirte, el organizador ve tu nombre completo para saber quién sos.';
-  static const pedidoEnviado = 'Listo, le avisamos al organizador';
+      'El organizador ve tu nombre completo para saber quién sos, y decide si te acepta.';
+  // Sin «le avisamos»: el pedido queda en la lista del organizador, nadie lo notifica.
+  static const pedidoEnviado =
+      'Listo, tu pedido está en la lista del organizador';
   static const pedidoEnviadoDetalle =
-      'El organizador revisa tu pedido y te acepta o no. Cuando te acepte, el grupo '
+      'Lo ve en «Quién pidió unirse» y decide si te acepta. Cuando te acepte, el grupo '
       'aparece en «Grupos».';
   static const verMisGrupos = 'Ir a mis grupos';
   static const verificarPrimero =
