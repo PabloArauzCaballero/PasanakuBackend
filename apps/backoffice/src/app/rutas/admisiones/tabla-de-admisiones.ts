@@ -28,7 +28,7 @@ type FilaAdmision = SolicitudDeAdmision & { acciones?: string }
       <ng-template #celda let-fila let-columna="columna">
         @switch (columna.clave) {
           @case ('solicitudId') {
-            <a [routerLink]="['/admisiones', fila.solicitudId]" class="enlace-mono" [attr.aria-label]="'Abrir solicitud ' + fila.solicitudId">
+            <a [routerLink]="['/admisiones', fila.solicitudId]" class="enlace-mono" [title]="fila.solicitudId" [attr.aria-label]="'Abrir solicitud ' + fila.solicitudId">
               <code>{{ acortarUuid(fila.solicitudId) }}</code>
             </a>
           }
@@ -53,6 +53,8 @@ type FilaAdmision = SolicitudDeAdmision & { acciones?: string }
     .enlace-mono:hover { text-decoration: underline; }
     .chip-grupo { font-family: var(--f-mono, monospace); font-size: 0.85em; padding: var(--s1) var(--s2); border-radius: var(--r-sm); background: var(--surface-2); border: var(--borde-fino) solid var(--border); color: var(--text); }
     .cupos, .puntaje { font-variant-numeric: tabular-nums; font-weight: 500; }
+    /* «20 oct 2026» en un renglón: la regla global parte el texto de las celdas y la fecha corta quedaba en dos. */
+    time { white-space: nowrap; }
   `,
 })
 export class TablaDeAdmisiones {

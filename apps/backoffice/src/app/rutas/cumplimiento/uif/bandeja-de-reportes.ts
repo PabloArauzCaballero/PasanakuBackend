@@ -58,8 +58,8 @@ const EXPORTABLES: ColumnaExportable<ReporteRegulatorioEnLista>[] = [
       <ap-listado-de-bandeja recursoDeExportacion="uif-reportes" [titulo]="t.tabla" [columnas]="COLUMNAS" [bandeja]="bandeja" [identidad]="identidad" [exportables]="EXPORTABLES" nombreDeRegistros="reportes" [textoVacio]="t.vacio" [explicacionVacio]="t.explicacionVacio" ayudaDeBusqueda="Busca por período o estado en la página cargada: el servidor no admite búsqueda. El estado filtra en el servidor.">
         <ng-template #celda let-r let-columna="columna">
           @switch (columna.clave) {
-            @case ('fechaCorte') { {{ dia(r.fechaCorte) }} }
-            @case ('fechaLimite') { {{ dia(r.fechaLimite) }} }
+            @case ('fechaCorte') { <span class="dia">{{ dia(r.fechaCorte) }}</span> }
+            @case ('fechaLimite') { <span class="dia">{{ dia(r.fechaLimite) }}</span> }
             @case ('estado') { {{ estado(r) }} }
             @case ('cantidadRegistros') { {{ registros(r) }} }
             @case ('montoTotal') { {{ cifra(r.montoTotal) }} }
@@ -84,7 +84,8 @@ const EXPORTABLES: ColumnaExportable<ReporteRegulatorioEnLista>[] = [
       <ap-aprobar-y-enviar [(abierto)]="aprobando" [reporte]="elegido()" (envio)="alEnviar($event)" />
     }
   `,
-  styles: `.sin-accion { color: var(--text-3); font: var(--t-cuerpo-chico); white-space: nowrap; } .nota { display: flex; align-items: center; gap: var(--s1); margin: 0; color: var(--text-3); font: var(--t-cuerpo-chico); }`,
+  // `.dia`: «15 ene 2026» en un renglón (la regla global parte el texto de las celdas).
+  styles: `.dia { white-space: nowrap; } .sin-accion { color: var(--text-3); font: var(--t-cuerpo-chico); white-space: nowrap; } .nota { display: flex; align-items: center; gap: var(--s1); margin: 0; color: var(--text-3); font: var(--t-cuerpo-chico); }`,
 })
 export class BandejaDeReportes {
   private readonly sesion = inject(Sesion)

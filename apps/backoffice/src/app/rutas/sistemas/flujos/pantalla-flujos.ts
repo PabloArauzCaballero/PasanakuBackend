@@ -38,7 +38,7 @@ import { ServicioFlujos } from './dominio/servicio-flujos'
                 @if (f.dinero) {
                   <ap-chip-estado tono="ok">Mueve dinero</ap-chip-estado>
                 }
-                <span class="chip-cus">{{ f.cus.join(' · ') }}</span>
+                <span class="chip-cus">@for (cu of f.cus; track cu; let ultimo = $last) {<span class="cu">{{ cu }}</span>@if (!ultimo) { · }}</span>
               </div>
             </header>
 
@@ -51,7 +51,7 @@ import { ServicioFlujos } from './dominio/servicio-flujos'
                   <a [routerLink]="['/sistemas/operaciones', op.id]" class="card-op-enlace">
                     <div class="op-fila-sup">
                       <ap-chip-estado [tono]="tonoMetodo(op.metodo)">{{ op.metodo }}</ap-chip-estado>
-                      <code class="op-ruta">{{ op.ruta }}</code>
+                      <code class="op-ruta" [title]="op.ruta">{{ op.ruta }}</code>
                     </div>
                     <span class="op-prop">{{ op.proposito }}</span>
                     <span class="op-decisiones">{{ op.flujo.decisiones.length }} decisiones / respuestas</span>
@@ -75,6 +75,8 @@ import { ServicioFlujos } from './dominio/servicio-flujos'
     .codigo-flujo { font-family: var(--f-mono, monospace); font-size: 0.75rem; color: var(--text-apagado); }
     .titulo-flujo { margin: 0; font-size: 1.15rem; font-weight: 600; color: var(--text); }
     .badges-flujo { display: flex; align-items: center; gap: 0.5rem; }
+    /* Cada código entero en su renglón: «CU-» quedaba arriba y «100» abajo a 390 px. */
+    .cu { white-space: nowrap; }
     .chip-cus { font-size: 0.75rem; font-weight: 600; padding: 0.2rem 0.5rem; border-radius: var(--r-sm); background: var(--fondo-control); color: var(--text); }
     .objetivo-flujo { margin: 0; font-size: 0.875rem; line-height: 1.45; color: var(--text-suave); }
     .pasos-operaciones { display: flex; flex-direction: column; gap: var(--s2); }
