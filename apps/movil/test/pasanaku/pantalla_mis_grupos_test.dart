@@ -198,7 +198,17 @@ void main() {
     );
     await asentar(tester);
 
-    expect(find.text('Pasanaku de la oficina'), findsOneWidget);
+    // La cabecera pinta el título dos veces (grande y compacto) pero hay un solo
+    // encabezado para el lector: ese es el título de la pantalla.
+    expect(
+      find.ancestor(
+        of: find.text('Pasanaku de la oficina'),
+        matching: find.byWidgetPredicate(
+          (w) => w is Semantics && (w.properties.header ?? false),
+        ),
+      ),
+      findsOneWidget,
+    );
     expect(find.text('Estado de tu aporte'), findsNothing);
   });
 }

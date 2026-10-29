@@ -10,6 +10,7 @@ import 'package:aportaya_diseno/atomos/chip_estado.dart';
 import 'package:aportaya_diseno/atomos/tono.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:aportaya_diseno/organismos/pantalla_con_cabecera.dart';
 
 import 'dominio/cu62_solicitar_permuta.dart';
 import 'textos.dart';
@@ -46,69 +47,74 @@ class _PantallaPermutaState extends ConsumerState<PantallaPermuta> {
     final estado = ref.watch(solicitarPermutaProvider);
     final resultado = estado.value;
     return Scaffold(
-      appBar: AppBar(title: const Text(TextosPasanaku.tituloPermuta)),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(Espacio.s4),
-          child: resultado != null
-              ? Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Text(TextosPasanaku.permutaPendiente),
-                    const SizedBox(height: Espacio.s2),
-                    ChipEstado(
-                      texto: TextosDeTramitesDelGrupo.estadoDePermuta(
-                        resultado.estado.name,
+      // Cabecera grande que se compacta al desplazar (ADR-053, H4.S2.M6).
+      body: PantallaConCabecera(
+        titulo: TextosPasanaku.tituloPermuta,
+        cuerpo: SafeArea(
+          top: false,
+          child: Padding(
+            padding: const EdgeInsets.all(Espacio.s4),
+            child: resultado != null
+                ? Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Text(TextosPasanaku.permutaPendiente),
+                      const SizedBox(height: Espacio.s2),
+                      ChipEstado(
+                        texto: TextosDeTramitesDelGrupo.estadoDePermuta(
+                          resultado.estado.name,
+                        ),
+                        tono: Tono.info,
                       ),
-                      tono: Tono.info,
-                    ),
-                  ],
-                )
-              : Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    const IntroDePantalla(
-                      icono: IconosDeMarca.periodo,
-                      titulo: TextosDeTramitesDelGrupo.permutaTitulo,
-                      explicacion: TextosDeTramitesDelGrupo.permutaExplicacion,
-                    ),
-                    Tarjeta(
-                      child: Campo(
-                        etiqueta: TextosPasanaku.motivoPermuta,
-                        controlador: _motivo,
-                        lineas: 3,
-                        onChanged: (_) => setState(() {}),
+                    ],
+                  )
+                : Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      const IntroDePantalla(
+                        icono: IconosDeMarca.periodo,
+                        titulo: TextosDeTramitesDelGrupo.permutaTitulo,
+                        explicacion:
+                            TextosDeTramitesDelGrupo.permutaExplicacion,
                       ),
-                    ),
-                    const SizedBox(height: Espacio.s4),
-                    if (estado.hasError)
-                      EstadoError(
-                        error: estado.error!,
-                        reintentar: () =>
-                            ref.invalidate(solicitarPermutaProvider),
+                      Tarjeta(
+                        child: Campo(
+                          etiqueta: TextosPasanaku.motivoPermuta,
+                          controlador: _motivo,
+                          lineas: 3,
+                          onChanged: (_) => setState(() {}),
+                        ),
                       ),
-                    Boton(
-                      texto: TextosPasanaku.pedirPermuta,
-                      variante: BotonVariante.primario,
-                      expandido: true,
-                      cargando: estado.isLoading,
-                      motivoDeBloqueo: _motivo.text.trim().length < 10
-                          ? TextosDeTramitesDelGrupo.motivoCorto
-                          : null,
-                      onPressed: _motivo.text.trim().length < 10
-                          ? null
-                          : () => ref
-                                .read(solicitarPermutaProvider.notifier)
-                                .enviar(
-                                  turnoOrigenId: widget.turnoOrigenId,
-                                  turnoDestinoId: widget.turnoDestinoId,
-                                  contraparteId: widget.contraparteId,
-                                  motivo: _motivo.text.trim(),
-                                ),
-                    ),
-                  ],
-                ),
+                      const SizedBox(height: Espacio.s4),
+                      if (estado.hasError)
+                        EstadoError(
+                          error: estado.error!,
+                          reintentar: () =>
+                              ref.invalidate(solicitarPermutaProvider),
+                        ),
+                      Boton(
+                        texto: TextosPasanaku.pedirPermuta,
+                        variante: BotonVariante.primario,
+                        expandido: true,
+                        cargando: estado.isLoading,
+                        motivoDeBloqueo: _motivo.text.trim().length < 10
+                            ? TextosDeTramitesDelGrupo.motivoCorto
+                            : null,
+                        onPressed: _motivo.text.trim().length < 10
+                            ? null
+                            : () => ref
+                                  .read(solicitarPermutaProvider.notifier)
+                                  .enviar(
+                                    turnoOrigenId: widget.turnoOrigenId,
+                                    turnoDestinoId: widget.turnoDestinoId,
+                                    contraparteId: widget.contraparteId,
+                                    motivo: _motivo.text.trim(),
+                                  ),
+                      ),
+                    ],
+                  ),
+          ),
         ),
       ),
     );

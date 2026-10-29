@@ -25,7 +25,6 @@ class VistaEnlaceDelGrupo extends StatelessWidget {
     required this.alCopiar,
     required this.alGenerarOtro,
     required this.alAnular,
-    required this.alVerSolicitudes,
   });
 
   final String? enlace;
@@ -37,7 +36,6 @@ class VistaEnlaceDelGrupo extends StatelessWidget {
   final ValueChanged<String> alCopiar;
   final VoidCallback alGenerarOtro;
   final VoidCallback alAnular;
-  final VoidCallback alVerSolicitudes;
 
   @override
   Widget build(BuildContext context) {
@@ -47,9 +45,10 @@ class VistaEnlaceDelGrupo extends StatelessWidget {
       children: [
         if (e == null)
           EstadoVacio(
+            titulo: trabajando ? null : TextosEnlaceDelGrupo.sinEnlaceTitulo,
             mensaje: trabajando
                 ? TextosEnlaceDelGrupo.preparando
-                : '${TextosEnlaceDelGrupo.sinEnlaceTitulo}. ${TextosEnlaceDelGrupo.sinEnlaceDetalle}',
+                : TextosEnlaceDelGrupo.sinEnlaceDetalle,
             accion: Boton(
               key: const ValueKey('crear-enlace-del-grupo'),
               texto: TextosEnlaceDelGrupo.crearEnlace,
@@ -60,13 +59,6 @@ class VistaEnlaceDelGrupo extends StatelessWidget {
           )
         else
           ..._conEnlace(context, e),
-        const SizedBox(height: Espacio.s4),
-        Boton(
-          texto: TextosEnlaceDelGrupo.verSolicitudes,
-          variante: BotonVariante.secundario,
-          expandido: true,
-          onPressed: alVerSolicitudes,
-        ),
       ],
     );
   }

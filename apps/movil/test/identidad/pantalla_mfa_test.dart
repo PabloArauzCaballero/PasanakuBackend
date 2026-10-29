@@ -82,7 +82,7 @@ void main() {
       ) async {
         await montar(tester);
         expect(find.text('Verificación en dos pasos'), findsOneWidget);
-        expect(find.textContaining('te pedimos un código más'), findsOneWidget);
+        expect(find.textContaining('te pedimos un código de 6 dígitos'), findsOneWidget);
         expect(confirmar(tester).onPressed, isNull);
 
         await tester.enterText(find.byType(TextField).first, '12345');
@@ -141,12 +141,12 @@ void main() {
         await asentar(tester);
         expect(pedidos, 1);
         await tester.scrollUntilVisible(
-          find.textContaining('correo de verificacion fue aceptado'),
+          find.textContaining('Te mandamos un código nuevo'),
           180,
           scrollable: find.byType(Scrollable).first,
         );
         expect(
-          find.textContaining('correo de verificacion fue aceptado'),
+          find.textContaining('Te mandamos un código nuevo'),
           findsOneWidget,
         );
         expect(tester.takeException(), isNull);
@@ -164,15 +164,15 @@ void main() {
           await tester.tap(find.text('Reenviar código por correo'));
           await asentar(tester);
           await tester.scrollUntilVisible(
-            find.textContaining('no confirmo un envio al correo'),
+            find.textContaining('No pudimos confirmar que el correo salió'),
             180,
             scrollable: find.byType(Scrollable).first,
           );
           expect(
-            find.textContaining('no confirmo un envio al correo'),
+            find.textContaining('No pudimos confirmar que el correo salió'),
             findsOneWidget,
           );
-          expect(find.textContaining('fue aceptado para envio'), findsNothing);
+          expect(find.textContaining('Te mandamos un código nuevo'), findsNothing);
           expect(tester.takeException(), isNull);
         },
       );

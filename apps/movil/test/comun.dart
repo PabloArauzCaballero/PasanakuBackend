@@ -16,6 +16,16 @@ import 'package:aportaya_movil/dominio/puertos/haptica.dart';
 import 'package:aportaya_movil/proveedores/haptica.dart';
 import 'package:aportaya_movil/proveedores/sesion.dart';
 
+/// El título de una pantalla con `PantallaConCabecera` se dibuja dos veces (el grande
+/// y la copia chica que entra al compactar), pero el lector lo anuncia una sola vez:
+/// como encabezado. Esto encuentra ese único encabezado.
+Finder encabezadoDePantalla(String titulo) => find.ancestor(
+  of: find.text(titulo),
+  matching: find.byWidgetPredicate(
+    (w) => w is Semantics && (w.properties.header ?? false),
+  ),
+);
+
 /// Almacén en memoria: las pruebas no tocan el Keystore.
 class AlmacenEnMemoria implements AlmacenSeguro {
   final _datos = <String, String>{};

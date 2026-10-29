@@ -75,7 +75,7 @@ void main() {
       expect(claves, hasLength(1));
       expect(find.text('Tu pedido de cupo'), findsOneWidget);
       expect(
-        find.textContaining('no lo va a mostrar hasta que te acepten'),
+        find.textContaining('aparece en tu lista recién cuando te acepte'),
         findsOneWidget,
       );
     },

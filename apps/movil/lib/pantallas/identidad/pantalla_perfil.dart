@@ -74,7 +74,7 @@ class _PantallaDePerfilState extends ConsumerState<PantallaDePerfil> {
               // desde acá rompía la relación con la verificación hecha; lo único
               // editable del perfil es la contraseña (2026-10-19).
               Campo(
-                etiqueta: 'Correo',
+                etiqueta: TextosPerfil.correo,
                 controlador: _correo,
                 habilitado: false,
                 ayuda: TextosIdentidad.correoNoEditable,
@@ -87,14 +87,14 @@ class _PantallaDePerfilState extends ConsumerState<PantallaDePerfil> {
                     claveSemantica: const ValueKey('perfil-fila-contrasena'),
                     icono: IconosDeMarca.contrasena,
                     texto: TextosIdentidad.tituloContrasenaNueva,
-                    pista: 'Abrí el cambio de contraseña.',
+                    pista: TextosPerfil.pistaContrasena,
                     onPressed: () => context.push('/identidad/contrasena'),
                   ),
                   FilaDeAccionDePerfil(
                     claveSemantica: const ValueKey('perfil-fila-guia'),
                     icono: IconosDeMarca.guia,
                     texto: TextosIdentidad.verGuiaOtraVez,
-                    pista: 'Reiniciá y abrí la guía de inicio.',
+                    pista: TextosPerfil.pistaGuia,
                     onPressed: () =>
                         ref.read(verGuiaDeInicioOtraVezProvider)().ignore(),
                   ),
@@ -102,8 +102,8 @@ class _PantallaDePerfilState extends ConsumerState<PantallaDePerfil> {
                   FilaDeAccionDePerfil(
                     claveSemantica: const ValueKey('perfil-fila-ayuda'),
                     icono: IconosDeMarca.ayuda,
-                    texto: 'Ayuda',
-                    pista: 'Abrí el centro de ayuda.',
+                    texto: TextosPerfil.ayuda,
+                    pista: TextosPerfil.pistaAyuda,
                     onPressed: () => context.go('/soporte/ayuda'),
                   ),
                 ],
@@ -114,7 +114,7 @@ class _PantallaDePerfilState extends ConsumerState<PantallaDePerfil> {
               // no, y en una app de dinero no pueden verse iguales.
               Boton(
                 texto: _cerrandoSesion
-                    ? 'Cerrando sesión…'
+                    ? TextosPerfil.cerrandoSesion
                     : TextosIdentidad.cerrarSesion,
                 variante: BotonVariante.secundario,
                 expandido: true,
@@ -136,7 +136,7 @@ class _PantallaDePerfilState extends ConsumerState<PantallaDePerfil> {
                     claveSemantica: const ValueKey('perfil-fila-baja'),
                     icono: IconosDeMarca.darDeBaja,
                     texto: TextosIdentidad.tituloBaja,
-                    pista: 'Abrí la baja de tu cuenta.',
+                    pista: TextosPerfil.pistaBaja,
                     destructiva: true,
                     onPressed: () => context.push('/identidad/baja'),
                   ),

@@ -52,9 +52,9 @@ void main() {
         expect(Theme.of(contexto).brightness, brillo);
         expect(MediaQuery.textScalerOf(contexto).scale(10), closeTo(13, 0.001));
         expect(find.text(TextosIdentidad.tituloBienvenida), findsOneWidget);
-        expect(find.text('Bienvenida, nueva cuenta'), findsOneWidget);
-        expect(find.text('Ir a tu billetera'), findsOneWidget);
-        expect(find.text('Completar tu perfil'), findsOneWidget);
+        expect(find.text('Bienvenida, tu cuenta está lista'), findsOneWidget);
+        expect(find.text('Ver mi billetera'), findsOneWidget);
+        expect(find.text('Completar mi perfil'), findsOneWidget);
         expect(find.text('Te acreditamos '), findsNothing);
         final panel = tester.getRect(find.byType(PanelBienvenida));
         final areaUtil = tester.getRect(find.byType(SafeArea).first);

@@ -29,6 +29,9 @@ class FotosPendientesKyc extends StatelessWidget {
             titulo: cara == CaraDelCarril.perfilIzquierdo
                 ? TextoCompletarKyc.perfilIzquierdo
                 : TextoCompletarKyc.perfilDerecho,
+            consejo: cara == CaraDelCarril.perfilIzquierdo
+                ? TextoCompletarKyc.consejoIzquierdo
+                : TextoCompletarKyc.consejoDerecho,
             cargando: subiendo.contains(cara),
             onPressed: () => onCapturar(cara),
           ),
@@ -43,11 +46,15 @@ class FotoPendienteKyc extends StatelessWidget {
   const FotoPendienteKyc({
     super.key,
     required this.titulo,
+    required this.consejo,
     required this.cargando,
     required this.onPressed,
   });
 
   final String titulo;
+
+  /// Cómo se toma esa foto, en una línea (la misma indicación que la captura del alta).
+  final String consejo;
   final bool cargando;
   final VoidCallback onPressed;
 
@@ -67,7 +74,7 @@ class FotoPendienteKyc extends StatelessWidget {
                   Text(titulo, style: Tipo.cuerpo.copyWith(color: t.text)),
                   const SizedBox(height: Espacio.s1),
                   Text(
-                    TextoCompletarKyc.consejoFoto,
+                    consejo,
                     style: Tipo.cuerpoChico.copyWith(color: t.text2),
                   ),
                 ],

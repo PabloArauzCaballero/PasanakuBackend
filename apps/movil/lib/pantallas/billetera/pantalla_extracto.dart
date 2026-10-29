@@ -40,6 +40,31 @@ class _PantallaExtractoState extends ConsumerState<PantallaExtracto>
     with ConProteccionDePantalla<PantallaExtracto> {
   late DateTimeRange? _rango = widget.rangoInicial;
 
+  Future<void> _elegirPeriodo() async {
+    final ahora = DateTime.now();
+    final elegido = await showDateRangePicker(
+      context: context,
+      firstDate: ahora.subtract(const Duration(days: 365)),
+      lastDate: ahora,
+    );
+    if (elegido != null) setState(() => _rango = elegido);
+  }
+
+  /// La acción de elegir fechas. Sin período es la única acción de la pantalla y va dentro
+  /// del vacío que la explica; con período pasa arriba, en tono menor. La guía la señala
+  /// en los dos casos.
+  Widget _botonDePeriodo({required bool primario}) => MarcaDeTutorial(
+    id: 'billetera.extracto',
+    hijo: Boton(
+      texto: primario
+          ? TextosBilletera.generarExtracto
+          : TextosBilletera.elegirOtroPeriodo,
+      variante: primario ? BotonVariante.primario : BotonVariante.secundario,
+      expandido: true,
+      onPressed: _elegirPeriodo,
+    ),
+  );
+
   @override
   Widget build(BuildContext context) {
     final rango = _rango;
@@ -51,27 +76,10 @@ class _PantallaExtractoState extends ConsumerState<PantallaExtracto>
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const CabeceraDeSeccion(titulo: TextosBilletera.extracto),
-              const SizedBox(height: Espacio.s2),
-              MarcaDeTutorial(
-                id: 'billetera.extracto',
-                hijo: Boton(
-                  texto: rango == null
-                      ? TextosBilletera.generarExtracto
-                      : TextosBilletera.elegirOtroPeriodo,
-                  variante: rango == null
-                      ? BotonVariante.primario
-                      : BotonVariante.secundario,
-                  onPressed: () async {
-                    final ahora = DateTime.now();
-                    final elegido = await showDateRangePicker(
-                      context: context,
-                      firstDate: ahora.subtract(const Duration(days: 365)),
-                      lastDate: ahora,
-                    );
-                    if (elegido != null) setState(() => _rango = elegido);
-                  },
-                ),
-              ),
+              if (rango != null) ...[
+                const SizedBox(height: Espacio.s2),
+                _botonDePeriodo(primario: false),
+              ],
               const SizedBox(height: Espacio.s4),
               // Deslizar hacia abajo vuelve a pedir el extracto elegido (2026-10-19).
               Expanded(
@@ -94,10 +102,11 @@ class _PantallaExtractoState extends ConsumerState<PantallaExtracto>
                     }
                   },
                   hijo: rango == null
-                      ? const EstadoVacio(
+                      ? EstadoVacio(
                           icono: IconosDeMarca.periodo,
                           titulo: TextosBilletera.elegiUnPeriodo,
                           mensaje: TextosBilletera.sinExtractoDetalle,
+                          accion: _botonDePeriodo(primario: true),
                         )
                       : EstadoDePantalla(
                           valor: ref.watch(
@@ -109,8 +118,9 @@ class _PantallaExtractoState extends ConsumerState<PantallaExtracto>
                               ),
                             ),
                           ),
-                          etiquetaDeCarga: TextosBilletera.cargandoSaldo,
-                          mensajeVacio: TextosBilletera.sinMovimientos,
+                          etiquetaDeCarga: TextosBilletera.generandoExtracto,
+                          mensajeVacio:
+                              TextosBilletera.sinMovimientosEnElPeriodo,
                           vacio: (e) => (e.cantidadMovimientos ?? 0) == 0,
                           reintentar: () => ref.invalidate(
                             extractoProvider(

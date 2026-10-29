@@ -11,6 +11,7 @@ import '../../proveedores/idempotencia.dart';
 import '../../proveedores/sesion.dart';
 import 'dominio/cu69_unirse_por_enlace.dart';
 import 'tarjetas_de_unirse.dart';
+import 'textos_de_conversion.dart';
 import 'textos_invitacion.dart';
 import 'vistas_de_unirse.dart';
 
@@ -176,6 +177,9 @@ class _PantallaUnirseState extends ConsumerState<PantallaUnirse> {
                   variante: BotonVariante.primario,
                   expandido: true,
                   cargando: _enviando,
+                  motivoDeBloqueo: _aceptaReglamento
+                      ? null
+                      : TextosDeConversion.unirseBloqueado,
                   onPressed: _aceptaReglamento && !_enviando ? _aceptar : null,
                 ),
               ),
