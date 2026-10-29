@@ -136,6 +136,10 @@ void main() {
       ),
     );
 
+    // La foto de perfil (2026-10-28) baja el botón fuera de los 800×600 del test:
+    // se llega a él desplazándose, como lo haría la persona.
+    await tester.ensureVisible(find.text('Cerrar sesión'));
+    await tester.pump();
     await tester.tap(find.text('Cerrar sesión'));
     await tester.pump();
 

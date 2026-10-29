@@ -11,6 +11,7 @@ import 'dominio/estado_cuenta.dart';
 import 'dominio/estado_sesion.dart';
 import 'textos.dart';
 import 'fila_de_accion_de_perfil.dart';
+import 'foto_de_perfil_editable.dart';
 import 'package:aportaya_diseno/moviles/anclas_de_tutorial.dart';
 import '../../proveedores/tutoriales.dart';
 import 'seccion_verificacion_kyc.dart';
@@ -59,6 +60,8 @@ class _PantallaDePerfilState extends ConsumerState<PantallaDePerfil> {
                 hijo: CabeceraDeInicio(titulo: TextosIdentidad.tituloPerfil),
               ),
               const SizedBox(height: Espacio.s4),
+              const FotoDePerfilEditable(),
+              const SizedBox(height: Espacio.s5),
               const SeccionVerificacionKyc(),
               const SizedBox(height: Espacio.s3),
               // El correo identifica la cuenta: se muestra, no se edita. Cambiarlo

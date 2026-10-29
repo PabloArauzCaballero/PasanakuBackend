@@ -1,0 +1,12 @@
+test: tests=45 failures=0 errors=0 skipped=0
+webTest: tests=152 failures=0 errors=0 skipped=0
+testBarrido: tests=3 failures=0 errors=0 skipped=0
+integrationTest: tests=201 failures=1 errors=0 skipped=0
+
+# integrationTest completo (rama, 45m 2s): tests=201 failures=1
+#   CU04Test > Dado cinco intentos fallidos consecutivos · Cuando ocurre el sexto · Entonces existe un bloqueo_cuenta vigente
+#   Expecting Optional[AP-CU04-01] to contain "AP-CU04-05" (CU04Test.java:107)
+# CU04Test aislado sobre origin/dev (2189e607): tests=15 failures=0 · BUILD SUCCESSFUL in 11s
+# CU04Test aislado sobre la rama:              tests=15 failures=0 · BUILD SUCCESSFUL in 7s
+# Clasificacion: falla dependiente del orden/estado compartido de la suite completa; no reproducible aislada en ninguna
+# de las dos ramas. NO se corrio la suite completa sobre origin/dev para probar que es preexistente.
