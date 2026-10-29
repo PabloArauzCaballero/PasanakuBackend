@@ -164,7 +164,7 @@ void main() {
       TextosDePortada.necesitasTitulo,
       TextosDePortada.necesitasCarnet,
       TextosDePortada.necesitasContacto,
-      TextosDePortada.necesitasLuz,
+      TextosDePortada.necesitasDespues,
     ]) {
       expect(find.text(texto), findsOneWidget);
     }

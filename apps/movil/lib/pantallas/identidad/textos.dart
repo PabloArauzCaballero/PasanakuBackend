@@ -3,43 +3,30 @@
 class TextosIdentidad {
   TextosIdentidad._();
 
-  static const tituloBienvenida = 'Bienvenido a AportaYa';
+  static const tituloBienvenida = 'Tu cuenta en AportaYa';
+  // Sin nombre (la ruta no recibe datos): el panel dice «Bienvenida, <esto>».
+  static const bienvenidaSinNombre = 'tu cuenta está lista';
+  static const bienvenidaIrABilletera = 'Ver mi billetera';
+  static const bienvenidaCompletarPerfil = 'Completar mi perfil';
   static const cargando = 'Un momento…';
 
-  // Portada: lo primero que ve alguien que abre la app. Explica el producto en los
-  // términos en que la gente ya lo conoce —el pasanaku de toda la vida— y dice qué
-  // cambia acá, sin jerga financiera ni promesas de rendimiento.
-  static const portadaTitular =
-      'El pasanaku de siempre,\ncon las cuentas claras';
-  static const portadaBajada =
-      'Armá una rueda con tu gente, poné lo mismo cada turno y cobrá cuando te toca. '
-      'Sin confiar de memoria.';
-  static const portadaRuedaTitulo = 'Tu rueda, a la vista';
-  static const portadaRuedaDetalle =
-      'Quién puso, quién cobró y a quién le toca.';
-  static const portadaSorteoTitulo = 'El turno no se arregla';
-  static const portadaSorteoDetalle =
-      'Se sortea, y cualquiera del grupo puede comprobarlo.';
-  static const portadaCustodiaTitulo = 'La plata no la tenemos nosotros';
-  static const portadaCustodiaDetalle =
-      'Queda en una cuenta de custodia, aparte del dinero de la empresa.';
-  static const portadaSaltar = 'Saltar';
+  static const portadaSaltar = 'Crear cuenta';
   static const portadaComoFunciona = '¿Cómo funciona?';
   static const tourSiguiente = 'Siguiente';
-  static const tourEmpezar = 'Empezar';
-  // La bienvenida y las cuatro láminas del tour, con el texto exacto de la maqueta
-  // (`docs/Views/AportaYa-Maqueta.html`: `bienvenida` y `const TOUR`). La segunda
-  // línea destacada usa el mismo rol neutral que el resto del título.
+  static const tourEmpezar = 'Crear mi cuenta';
+  // La bienvenida y las cuatro láminas del tour (`docs/Views/AportaYa-Maqueta.html`).
+  // Titular verificable (2026-10-29, skill copywriting): «cuentas claras» lo prueba
+  // el registro de cada movimiento; «plata segura» no se puede comprobar en una línea.
   static const bienvenidaTitulo =
-      'El pasanaku de siempre,\ncon la plata segura';
+      'El pasanaku de siempre,\ncon las cuentas claras';
   static const bienvenidaTexto =
-      'Aportá, cobrá tu turno y mirá el estado del grupo desde el celular. '
-      'Cada movimiento queda registrado.';
+      'Aportá cada período, recibí tu entrega cuando te toca y mirá el estado del '
+      'grupo desde el celular. Cada movimiento queda registrado.';
   static const tour1Titulo = 'El pasanaku de siempre,';
   static const tour1Destacado = 'sin el cuaderno';
   static const tour1Texto =
-      'Los mismos turnos, la misma confianza. Lo que cambia es que ya nadie tiene '
-      'que juntar, guardar ni acordarse de nada.';
+      'Los mismos turnos y la misma gente. Lo que cambia es que nadie tiene que '
+      'juntar ni guardar la plata, y cada aporte queda anotado.';
   static const tour2Titulo = 'Tu plata está';
   static const tour2Destacado = 'en custodia';
   static const tour2Texto =
@@ -92,9 +79,10 @@ class TextosIdentidad {
   static const registroPie =
       'Al continuar guardamos estos datos para abrir tu cuenta. '
       'Todavía no se envía nada al banco.';
+  // Paso 1: qué viene después, y que el carnet se puede postergar (2026-10-17).
   static const registroIntro =
-      'Con estos datos abrimos tu billetera. Tienen que coincidir con tu '
-      'documento: si no coinciden, la verificación se frena.';
+      'Primero, cómo te contactamos y con qué contraseña entrás. Después te '
+      'pedimos tu carnet: si no lo tenés a mano, podés dejarlo para más tarde.';
   static const pasoDatos = 'Tus datos';
   static const pasoContrasena = 'Tu contraseña';
   static const pasoCorreo = 'Confirmar correo';
@@ -163,16 +151,27 @@ class TextosIdentidad {
   static const contrasena = 'Contraseña';
   static const ingresar = 'Ingresar';
   static const tituloMfa = 'Verificación en dos pasos';
-  static const mfaIndicacion =
-      'Ingresá el código de seis dígitos solicitado para proteger tu ingreso.';
   static const mfaSinCodigoAyuda =
       'El código se envía al correo verificado de tu cuenta. Si no tenés acceso a '
       'ese correo, comunicate con soporte de AportaYa.';
   static const explicacionMfa =
-      'Para cuidar tu cuenta te pedimos un código más. Escribí los 6 dígitos de '
-      'tu segundo factor y confirmá para terminar de ingresar.';
-  static const confirmarMfa = 'Confirmar';
-  static const etiquetaCodigoMfa = 'Código de tu segundo factor';
+      'Para cuidar tu cuenta te pedimos un código de 6 dígitos además de tu '
+      'contraseña. Escribilo para terminar de entrar.';
+  // Solo cuando el servidor confirmó que lo mandó por correo.
+  static const explicacionMfaCorreo =
+      'Para cuidar tu cuenta te mandamos un código de 6 dígitos al correo de tu '
+      'cuenta. Escribilo para terminar de entrar.';
+  static const confirmarMfa = 'Confirmar y entrar';
+  static const etiquetaCodigoMfa = 'Código de verificación';
+  static const mfaReenviar = 'Reenviar código por correo';
+  static const mfaReenvioAceptado =
+      'Te mandamos un código nuevo. Revisá Recibidos y también Spam.';
+  static const mfaReenvioSinConfirmar =
+      'No pudimos confirmar que el correo salió. Probá de nuevo en un momento o '
+      'escribinos a soporte.';
+  static const ingresarFaltaDato =
+      'Escribí tu celular (o correo) y tu contraseña para ingresar.';
+  static const mfaFaltaCodigo = 'Completá los 6 dígitos para confirmar.';
   static const dispositivoDeConfianza =
       'Confiar en este dispositivo por 30 días';
   static const tusDispositivos = 'Tus dispositivos';
