@@ -39,7 +39,7 @@ class BandejaDeAdmisionesRepositorioTest extends BaseDeCU68 {
                 INSERT INTO grupos.solicitud_ingreso
                     (id, grupo_id, usuario_id, cupos_solicitados, mensaje, estado, nombre_visible,
                      fecha_solicitud, revisada_por, fecha_resolucion)
-                VALUES (?, ?, ?, 1, 'quiero entrar', ?, ?, now() - ?::interval, ?, ?)
+                VALUES (?, ?, ?, 1, 'quiero entrar', ?, ?, now() - ?::interval, ?, ?::timestamptz)
                 """,
                 id,
                 grupo,

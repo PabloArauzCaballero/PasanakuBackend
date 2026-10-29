@@ -1,0 +1,6 @@
+Reproducción local (PostgreSQL 16, esquema grupos aplicado). Parámetro vinculado como texto, que es como jOOQ vincula el OffsetDateTime en SQL plano.
+== SQL del test SIN cast ==
+ERROR:  column "fecha_resolucion" is of type timestamp with time zone but expression is of type text
+== SQL del test CON ?::timestamptz ==
+PREPARE analizado sin error de tipos
+No cubierto: no hay daemon Docker en esta sesión; el integrationTest (Testcontainers) solo se ejercita en la CI.
