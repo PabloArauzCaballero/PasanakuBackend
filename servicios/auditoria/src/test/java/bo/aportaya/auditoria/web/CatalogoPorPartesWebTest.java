@@ -52,6 +52,14 @@ class CatalogoPorPartesWebTest {
     @Autowired
     private MockMvc mvc;
 
+    // Sistemas › Incidentes: comparte controlador; no se llama aca.
+
+    @MockitoBean
+    private bo.aportaya.auditoria.aplicacion.ConsultarIncidentesOperativos consultarIncidentes;
+
+    @MockitoBean
+    private bo.aportaya.auditoria.aplicacion.OutboxPorServicio outboxPorServicio;
+
     @MockitoBean
     private ConsultarCatalogoDeDatos consultarCatalogo;
 

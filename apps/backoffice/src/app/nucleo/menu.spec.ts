@@ -74,11 +74,11 @@ describe('menú del backoffice', () => {
 
   it('migas: Inicio › Sección › [Grupo ›] Pantalla; una ficha agrega el título; el inicio no tiene migas', () => {
     expect(migasDe('/tablero', 'Tablero · AportaYa')).toEqual([])
-    expect(migasDe('/sistemas/outbox', 'Outbox y descartados · Sistemas · AportaYa')).toEqual([
+    expect(migasDe('/sistemas/outbox', 'Outbox por servicio · Sistemas · AportaYa')).toEqual([
       { texto: 'Inicio', ruta: '/tablero' },
       { texto: 'Sistemas', ruta: '/sistemas/servicios' },
       { texto: 'Integraciones', ruta: '/sistemas/proveedores' },
-      { texto: 'Outbox y descartados' },
+      { texto: 'Outbox por servicio' },
     ])
     expect(migasDe('/cumplimiento/casos/8f1', 'Caso de cumplimiento · AportaYa')).toEqual([
       { texto: 'Inicio', ruta: '/tablero' },

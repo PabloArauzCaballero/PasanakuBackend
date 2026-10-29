@@ -33,7 +33,7 @@ const ESTADO: Record<Despliegue['estado'], string> = { exitoso: 'Exitoso', 'en c
   imports: [Alerta, Boton, CabeceraDePagina, Campo, ChipEstado, CifrasDeSistemas, Dialogo, Icono, InterruptorUI, ListadoDeDatos],
   template: `
     <section class="pantalla">
-      <ap-cabecera-de-pagina eyebrow="Sistemas" [titulo]="t.titulo" [descripcion]="t.proposito" icono="paquete">
+      <ap-cabecera-de-pagina eyebrow="Sistemas" [titulo]="t.titulo" [descripcion]="t.proposito">
         @if (carga().tipo !== 'sin-fuente') { <ap-boton acciones variante="fantasma" icono="recarga" [deshabilitado]="despliegues.isLoading()" (pulsado)="despliegues.reload()">Actualizar</ap-boton> }
       </ap-cabecera-de-pagina>
       <ap-cifras-de-sistemas etiqueta="Resumen de despliegues" [cifras]="cifras()" [carga]="carga()" />

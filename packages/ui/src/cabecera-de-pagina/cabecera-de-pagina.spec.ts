@@ -7,7 +7,7 @@ import { CabeceraDeSeccion } from '../cabecera-de-seccion/cabecera-de-seccion'
 @Component({
   imports: [CabeceraDePagina, CabeceraDeSeccion],
   template: `
-    <ap-cabecera-de-pagina icono="baseDeDatos" eyebrow="Sistemas" titulo="Catálogo de datos" descripcion="Cada tabla con su estado.">
+    <ap-cabecera-de-pagina eyebrow="Sistemas" titulo="Catálogo de datos" descripcion="Cada tabla con su estado.">
       <button acciones type="button">Exportar</button>
       <button acciones type="button">Nueva</button>
     </ap-cabecera-de-pagina>
@@ -25,13 +25,13 @@ describe('CabeceraDePagina y CabeceraDeSeccion', () => {
     return fixture.nativeElement as HTMLElement
   }
 
-  it('correcto: eyebrow, un solo h1 con el título, descripción, ícono decorativo y las acciones proyectadas', () => {
+  it('correcto: eyebrow, un solo h1 con el título, descripción, sin ícono al lado del título, y las acciones proyectadas', () => {
     const el = montar()
     expect(el.querySelector('.eyebrow')?.textContent?.trim()).toBe('Sistemas')
     expect(el.querySelectorAll('h1')).toHaveLength(1)
     expect(el.querySelector('h1')?.textContent?.trim()).toBe('Catálogo de datos')
     expect(el.querySelector('.descripcion')?.textContent?.trim()).toBe('Cada tabla con su estado.')
-    expect(el.querySelector('.loseta')?.getAttribute('aria-hidden')).toBe('true')
+    expect(el.querySelector('ap-cabecera-de-pagina ap-icono')).toBeNull()
     expect(Array.from(el.querySelectorAll('.acciones button')).map((b) => b.textContent?.trim())).toEqual(['Exportar', 'Nueva'])
   })
 

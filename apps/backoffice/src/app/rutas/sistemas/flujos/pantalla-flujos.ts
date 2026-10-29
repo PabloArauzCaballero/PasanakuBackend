@@ -15,7 +15,6 @@ import { ServicioFlujos } from './dominio/servicio-flujos'
   template: `
     <section class="pantalla-flujos">
       <ap-cabecera-de-pagina
-        icono="libro"
         eyebrow="Sistemas · Recorridos"
         titulo="Mapa de flujos del sistema"
         descripcion="Catálogo transversal de los ciclos y procesos de AportaYa: cada recorrido encadena operaciones, contratos, precondiciones y todas las bifurcaciones de decisión posibles."

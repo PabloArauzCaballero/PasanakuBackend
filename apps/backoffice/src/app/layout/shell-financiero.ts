@@ -18,7 +18,6 @@ import { IconoDeSeccion } from './icono-de-seccion'
 import { MenuDeUsuario } from './menu-de-usuario'
 import { MenuLateral } from './menu-lateral'
 import { NotaDeLaVista } from './nota-de-la-vista'
-import { PestanasDeSeccion } from './pestanas-de-seccion'
 import { SimboloDeMarca } from './simbolo-de-marca'
 import { UrlActual } from './url-actual'
 
@@ -38,7 +37,7 @@ const ANGOSTO = '(max-width: 64rem)'
 @Component({
   selector: 'ap-shell-financiero',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterOutlet, RouterLink, CajonLateral, Icono, Migas, LanzadorDeTutorial, AnfitrionDeTutorial, BuscadorGlobal, CampanaDeNotificaciones, IconoDeSeccion, MenuDeUsuario, MenuLateral, NotaDeLaVista, PestanasDeSeccion, SimboloDeMarca],
+  imports: [RouterOutlet, RouterLink, CajonLateral, Icono, Migas, LanzadorDeTutorial, AnfitrionDeTutorial, BuscadorGlobal, CampanaDeNotificaciones, IconoDeSeccion, MenuDeUsuario, MenuLateral, NotaDeLaVista, SimboloDeMarca],
   template: `
     <div class="shell" [class.angosto]="angosto()">
       @if (!angosto()) {
@@ -72,7 +71,6 @@ const ANGOSTO = '(max-width: 64rem)'
         <ap-menu-de-usuario [saliendo]="saliendo()" (salir)="salir()" />
       </header>
       <main id="contenido">
-        <ap-pestanas-de-seccion />
         <router-outlet />
       </main>
       @defer (when tutorial.activo()) { <ap-anfitrion-de-tutorial /> }

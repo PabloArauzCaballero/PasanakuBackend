@@ -66,8 +66,8 @@ const cum = (ruta: string, texto: string, icono: NombreDeIcono): Pantalla => {
 }
 
 /**
- * El árbol del menú: siete entradas y, en cada sección, hasta ocho pestañas (A1, 2026-10-26: antes eran diez entradas
- * y hasta catorce pestañas, con duplicados). Lo que salió del menú **sigue respondiendo por URL**: ni una ruta ni un
+ * El árbol del menú: seis entradas (sin «Inicio» desde 2026-10-28: se vuelve con el logo) y hasta ocho pestañas por
+ * sección (A1, 2026-10-26: antes eran diez entradas y hasta catorce pestañas, con duplicados). Lo que salió del menú **sigue respondiendo por URL**: ni una ruta ni un
  * permiso cambió. El porqué de cada recorte está en `docs/trabajo/2026-10-26-backoffice-listados-y-navegacion/franjas/a.md`.
  *
  * **El menú oculta por comodidad**; el permiso real lo exige `canMatch` en cada ruta y lo verifica el servidor.
@@ -77,7 +77,6 @@ export const MENU: readonly Grupo[] = [
     titulo: null,
     icono: 'tablero',
     entradas: [
-      // Sin entrada «Inicio» (2026-10-28, pedido de Pablo): al inicio se vuelve con el logo AportaYa, y el menú arranca en Operación.
       {
         ruta: 'operacion',
         texto: 'Operación',
@@ -161,7 +160,7 @@ export const MENU: readonly Grupo[] = [
             ruta: '/sistemas/proveedores',
             texto: 'Integraciones',
             icono: 'enlace',
-            grupo: [sis('proveedores', 'Proveedores', 'paquete'), sis('outbox', 'Outbox y descartados', 'bandeja'), sis('webhooks', 'Webhooks', 'enlace')],
+            grupo: [sis('proveedores', 'Proveedores', 'paquete'), sis('outbox', 'Outbox por servicio', 'bandeja'), sis('webhooks', 'Webhooks', 'enlace')],
           },
           {
             ruta: '/sistemas/usuarios-internos',
@@ -174,8 +173,7 @@ export const MENU: readonly Grupo[] = [
               sis('accesos', 'Revisión de accesos', 'candado'),
             ],
           },
-          // La metadata real de cada endpoint (catalogo-operaciones.json de auditoria) y los flujos entre servicios: habían
-          // salido del menú en A1 y solo se llegaba por URL. En grupo para no pasar de ocho pestañas por sección.
+          // Metadata real de endpoints y flujos (fuera del menú desde A1); en grupo para no pasar de ocho pestañas.
           {
             ruta: '/sistemas/operaciones',
             texto: 'Endpoints y flujos',

@@ -26,7 +26,7 @@ const ESTADO: Record<EstadoServicio['estado'], string> = { operativo: 'Operativo
   imports: [Boton, CabeceraDePagina, ChipEstado, CifrasDeSistemas, ListadoDeDatos],
   template: `
     <section class="pantalla">
-      <ap-cabecera-de-pagina data-tutorial-id="sistemas-servicios" eyebrow="Sistemas" [titulo]="t.titulo" [descripcion]="t.proposito" icono="servidor">
+      <ap-cabecera-de-pagina data-tutorial-id="sistemas-servicios" eyebrow="Sistemas" [titulo]="t.titulo" [descripcion]="t.proposito">
         @if (carga().tipo !== 'sin-fuente') { <ap-boton acciones variante="fantasma" icono="recarga" [deshabilitado]="servicios.isLoading()" (pulsado)="servicios.reload()">Actualizar</ap-boton> }
       </ap-cabecera-de-pagina>
       <ap-cifras-de-sistemas etiqueta="Resumen de servicios" [cifras]="cifras()" [carga]="carga()" />

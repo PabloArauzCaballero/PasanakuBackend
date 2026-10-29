@@ -546,6 +546,74 @@
     }
   },
   {
+    "id": "src-listarProveedoresDePago",
+    "servicio": "src",
+    "metodo": "GET",
+    "ruta": "/pagos/proveedores",
+    "operationId": "listarProveedoresDePago",
+    "modulo": "src",
+    "cu": null,
+    "proposito": "Los proveedores de pago dados de alta, por prioridad",
+    "explicacionNegocio": "Solo lectura de aportes.proveedor_pago. Nunca devuelve referencia_credenciales ni url_base. Orden prioridad y codigo. Exige TABLERO_SISTEMAS_VER o AUDITORIA_LEER.",
+    "explicacionSistema": "Servicio `src`, controlador Spring `@RestController`. Implementa la interfaz generada `SrcApi`. Transaccionalidad garantizada en organismo jOOQ.",
+    "permiso": "REQUIERE_SESION",
+    "riesgo": "ALTO",
+    "sensible": true,
+    "pideSesion": true,
+    "idempotencia": false,
+    "tablasImpactadas": [],
+    "dtoEntrada": null,
+    "dtoSalida": {
+      "nombre": "ResponsePayload",
+      "campos": []
+    },
+    "payloadEjemplo": null,
+    "payloadRespuesta": [
+      {
+        "id": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+        "codigo": "Ejemplo de texto",
+        "nombre": "Ejemplo de texto",
+        "tipo": "BANCO",
+        "activo": true,
+        "soportaWebhook": true,
+        "prioridad": 1
+      }
+    ],
+    "flujo": {
+      "id": "administracion-usuarios-y-permisos",
+      "nombre": "Gobierno de identidades internas, roles de backoffice y sesiones",
+      "paso": "Paso operativo `listarProveedoresDePago`",
+      "precondicion": "El servicio src debe validar la existencia y vigencia de las entidades involucradas.",
+      "exito": "Se completa la transacción de negocio y se dispara la notificación u outbox correspondiente.",
+      "decisiones": [
+        {
+          "codigo": "EXITO",
+          "http": 200,
+          "condicion": "Petición válida y autorizada. Precondiciones cumplidas.",
+          "siguiente": "Transición exitosa al siguiente paso del flujo o persistencia."
+        },
+        {
+          "codigo": "AP-SISTEMA-01",
+          "http": 422,
+          "condicion": "Violación de regla de negocio o estado no válido.",
+          "siguiente": "Rechazo controlado con mensaje explicativo."
+        },
+        {
+          "codigo": "NO_AUTORIZADO",
+          "http": 401,
+          "condicion": "Token ausente, vencido o firma inválida.",
+          "siguiente": "Exige reautenticación en pantalla de ingreso."
+        },
+        {
+          "codigo": "ACCESO_DENEGADO",
+          "http": 403,
+          "condicion": "Rol o permiso insuficiente para esta operación.",
+          "siguiente": "Bloqueo por seguridad RBAC."
+        }
+      ]
+    }
+  },
+  {
     "id": "src-darDeAltaProveedor",
     "servicio": "src",
     "metodo": "POST",
@@ -715,6 +783,88 @@
         {
           "codigo": "EXITO",
           "http": 201,
+          "condicion": "Petición válida y autorizada. Precondiciones cumplidas.",
+          "siguiente": "Transición exitosa al siguiente paso del flujo o persistencia."
+        },
+        {
+          "codigo": "AP-SISTEMA-01",
+          "http": 422,
+          "condicion": "Violación de regla de negocio o estado no válido.",
+          "siguiente": "Rechazo controlado con mensaje explicativo."
+        },
+        {
+          "codigo": "NO_AUTORIZADO",
+          "http": 401,
+          "condicion": "Token ausente, vencido o firma inválida.",
+          "siguiente": "Exige reautenticación en pantalla de ingreso."
+        },
+        {
+          "codigo": "ACCESO_DENEGADO",
+          "http": 403,
+          "condicion": "Rol o permiso insuficiente para esta operación.",
+          "siguiente": "Bloqueo por seguridad RBAC."
+        }
+      ]
+    }
+  },
+  {
+    "id": "src-listarWebhooksRecibidos",
+    "servicio": "src",
+    "metodo": "GET",
+    "ruta": "/pagos/webhooks-recibidos",
+    "operationId": "listarWebhooksRecibidos",
+    "modulo": "src",
+    "cu": null,
+    "proposito": "Los ultimos webhooks recibidos de las pasarelas",
+    "explicacionNegocio": "Solo lectura de aportes.webhook_pasarela, del mas reciente al mas viejo (recibido_en desc, id). Nunca devuelve el payload, la firma, la clave de idempotencia ni el error de procesamiento en crudo. Exige TABLERO_SISTEMAS_VER o AUDITORIA_LEER.",
+    "explicacionSistema": "Servicio `src`, controlador Spring `@RestController`. Implementa la interfaz generada `SrcApi`. Transaccionalidad garantizada en organismo jOOQ.",
+    "permiso": "REQUIERE_SESION",
+    "riesgo": "ALTO",
+    "sensible": true,
+    "pideSesion": true,
+    "idempotencia": false,
+    "tablasImpactadas": [],
+    "dtoEntrada": {
+      "nombre": "Parametros_listarWebhooksRecibidos",
+      "campos": [
+        {
+          "nombre": "limite",
+          "tipo": "integer",
+          "requerido": false,
+          "validacion": "Ubicación: query",
+          "descripcion": "Parámetro limite"
+        }
+      ]
+    },
+    "dtoSalida": {
+      "nombre": "ResponsePayload",
+      "campos": []
+    },
+    "payloadEjemplo": {
+      "limite": "1"
+    },
+    "payloadRespuesta": [
+      {
+        "id": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+        "proveedorCodigo": "Ejemplo de texto",
+        "evento": "Ejemplo de texto",
+        "estado": "DESCARTADO",
+        "firmaValida": true,
+        "recibidoEn": "2026-10-20T14:30:00Z",
+        "procesadoEn": "2026-10-20T14:30:00Z",
+        "intentos": 0
+      }
+    ],
+    "flujo": {
+      "id": "administracion-usuarios-y-permisos",
+      "nombre": "Gobierno de identidades internas, roles de backoffice y sesiones",
+      "paso": "Paso operativo `listarWebhooksRecibidos`",
+      "precondicion": "El servicio src debe validar la existencia y vigencia de las entidades involucradas.",
+      "exito": "Se completa la transacción de negocio y se dispara la notificación u outbox correspondiente.",
+      "decisiones": [
+        {
+          "codigo": "EXITO",
+          "http": 200,
           "condicion": "Petición válida y autorizada. Precondiciones cumplidas.",
           "siguiente": "Transición exitosa al siguiente paso del flujo o persistencia."
         },
@@ -3429,6 +3579,231 @@
       "id": "administracion-usuarios-y-permisos",
       "nombre": "Gobierno de identidades internas, roles de backoffice y sesiones",
       "paso": "Paso operativo `consultarSaludDeServicios`",
+      "precondicion": "El servicio src debe validar la existencia y vigencia de las entidades involucradas.",
+      "exito": "Se completa la transacción de negocio y se dispara la notificación u outbox correspondiente.",
+      "decisiones": [
+        {
+          "codigo": "EXITO",
+          "http": 200,
+          "condicion": "Petición válida y autorizada. Precondiciones cumplidas.",
+          "siguiente": "Transición exitosa al siguiente paso del flujo o persistencia."
+        },
+        {
+          "codigo": "AP-SISTEMA-01",
+          "http": 422,
+          "condicion": "Violación de regla de negocio o estado no válido.",
+          "siguiente": "Rechazo controlado con mensaje explicativo."
+        },
+        {
+          "codigo": "NO_AUTORIZADO",
+          "http": 401,
+          "condicion": "Token ausente, vencido o firma inválida.",
+          "siguiente": "Exige reautenticación en pantalla de ingreso."
+        },
+        {
+          "codigo": "ACCESO_DENEGADO",
+          "http": 403,
+          "condicion": "Rol o permiso insuficiente para esta operación.",
+          "siguiente": "Bloqueo por seguridad RBAC."
+        }
+      ]
+    }
+  },
+  {
+    "id": "src-consultarOutboxPorServicio",
+    "servicio": "src",
+    "metodo": "GET",
+    "ruta": "/indicadores/operacion/outbox",
+    "operationId": "consultarOutboxPorServicio",
+    "modulo": "src",
+    "cu": null,
+    "proposito": "El outbox de cada servicio, ahora",
+    "explicacionNegocio": "Lo que el relevo de cada servicio publica en Prometheus (comun-mensajeria, Relevo): eventos PENDIENTE y FALLIDO en su outbox ahora, la edad del mas viejo tomado, y cuantas publicaciones salieron bien y mal en las ultimas 24 h (increase, aproximado por la extrapolacion de Prometheus). auditoria no lee el esquema de ningun servicio (regla 98.1). fuenteDisponible false significa que Prometheus no respondio: no se sabe, distinto de una lista vacia. Exige TABLERO_SISTEMAS_VER o AUDITORIA_LEER.",
+    "explicacionSistema": "Servicio `src`, controlador Spring `@RestController`. Implementa la interfaz generada `SrcApi`. Transaccionalidad garantizada en organismo jOOQ.",
+    "permiso": "REQUIERE_SESION",
+    "riesgo": "BAJO",
+    "sensible": false,
+    "pideSesion": true,
+    "idempotencia": false,
+    "tablasImpactadas": [],
+    "dtoEntrada": null,
+    "dtoSalida": {
+      "nombre": "SalidaOutboxPorServicio",
+      "campos": [
+        {
+          "nombre": "consultadoEn",
+          "tipo": "string (date-time)",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido",
+          "descripcion": "Campo consultadoEn de la operación"
+        },
+        {
+          "nombre": "fuenteDisponible",
+          "tipo": "boolean",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido",
+          "descripcion": "Campo fuenteDisponible de la operación"
+        },
+        {
+          "nombre": "servicios",
+          "tipo": "array",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido",
+          "descripcion": "Campo servicios de la operación"
+        }
+      ]
+    },
+    "payloadEjemplo": null,
+    "payloadRespuesta": {
+      "consultadoEn": "2026-10-20T14:30:00Z",
+      "fuenteDisponible": true,
+      "servicios": [
+        {}
+      ]
+    },
+    "flujo": {
+      "id": "administracion-usuarios-y-permisos",
+      "nombre": "Gobierno de identidades internas, roles de backoffice y sesiones",
+      "paso": "Paso operativo `consultarOutboxPorServicio`",
+      "precondicion": "El servicio src debe validar la existencia y vigencia de las entidades involucradas.",
+      "exito": "Se completa la transacción de negocio y se dispara la notificación u outbox correspondiente.",
+      "decisiones": [
+        {
+          "codigo": "EXITO",
+          "http": 200,
+          "condicion": "Petición válida y autorizada. Precondiciones cumplidas.",
+          "siguiente": "Transición exitosa al siguiente paso del flujo o persistencia."
+        },
+        {
+          "codigo": "AP-SISTEMA-01",
+          "http": 422,
+          "condicion": "Violación de regla de negocio o estado no válido.",
+          "siguiente": "Rechazo controlado con mensaje explicativo."
+        },
+        {
+          "codigo": "NO_AUTORIZADO",
+          "http": 401,
+          "condicion": "Token ausente, vencido o firma inválida.",
+          "siguiente": "Exige reautenticación en pantalla de ingreso."
+        },
+        {
+          "codigo": "ACCESO_DENEGADO",
+          "http": 403,
+          "condicion": "Rol o permiso insuficiente para esta operación.",
+          "siguiente": "Bloqueo por seguridad RBAC."
+        }
+      ]
+    }
+  },
+  {
+    "id": "src-listarIncidentesOperativos",
+    "servicio": "src",
+    "metodo": "GET",
+    "ruta": "/indicadores/operacion/incidentes",
+    "operationId": "listarIncidentesOperativos",
+    "modulo": "src",
+    "cu": null,
+    "proposito": "Los incidentes operativos registrados, del mas reciente al mas viejo",
+    "explicacionNegocio": "Lee auditoria.incidente_operativo. Orden determinista: detectadoEn descendente y despues id. Paginado por numero de pagina. No devuelve impacto_monetario: la tabla no guarda su moneda (regla 91.1.2) y un importe sin moneda no se publica. Exige TABLERO_SISTEMAS_VER o AUDITORIA_LEER.",
+    "explicacionSistema": "Servicio `src`, controlador Spring `@RestController`. Implementa la interfaz generada `SrcApi`. Transaccionalidad garantizada en organismo jOOQ.",
+    "permiso": "REQUIERE_SESION",
+    "riesgo": "BAJO",
+    "sensible": false,
+    "pideSesion": true,
+    "idempotencia": false,
+    "tablasImpactadas": [],
+    "dtoEntrada": {
+      "nombre": "Parametros_listarIncidentesOperativos",
+      "campos": [
+        {
+          "nombre": "estado",
+          "tipo": "string",
+          "requerido": false,
+          "validacion": "Ubicación: query",
+          "descripcion": "Parámetro estado"
+        },
+        {
+          "nombre": "severidad",
+          "tipo": "string",
+          "requerido": false,
+          "validacion": "Ubicación: query",
+          "descripcion": "Parámetro severidad"
+        },
+        {
+          "nombre": "pagina",
+          "tipo": "integer",
+          "requerido": false,
+          "validacion": "Ubicación: query",
+          "descripcion": "Parámetro pagina"
+        },
+        {
+          "nombre": "limite",
+          "tipo": "integer",
+          "requerido": false,
+          "validacion": "Ubicación: query",
+          "descripcion": "Parámetro limite"
+        }
+      ]
+    },
+    "dtoSalida": {
+      "nombre": "PaginaDeIncidentesOperativos",
+      "campos": [
+        {
+          "nombre": "items",
+          "tipo": "array",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido",
+          "descripcion": "Campo items de la operación"
+        },
+        {
+          "nombre": "pagina",
+          "tipo": "integer",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido; Mín: 1",
+          "descripcion": "Campo pagina de la operación"
+        },
+        {
+          "nombre": "limite",
+          "tipo": "integer",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido; Mín: 1",
+          "descripcion": "Campo limite de la operación"
+        },
+        {
+          "nombre": "total",
+          "tipo": "integer",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido; Mín: 0",
+          "descripcion": "Campo total de la operación"
+        },
+        {
+          "nombre": "totalPaginas",
+          "tipo": "integer",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido; Mín: 0",
+          "descripcion": "Campo totalPaginas de la operación"
+        }
+      ]
+    },
+    "payloadEjemplo": {
+      "estado": "1",
+      "severidad": "1",
+      "pagina": "1",
+      "limite": "1"
+    },
+    "payloadRespuesta": {
+      "items": [
+        {}
+      ],
+      "pagina": 1,
+      "limite": 1,
+      "total": 0,
+      "totalPaginas": 0
+    },
+    "flujo": {
+      "id": "administracion-usuarios-y-permisos",
+      "nombre": "Gobierno de identidades internas, roles de backoffice y sesiones",
+      "paso": "Paso operativo `listarIncidentesOperativos`",
       "precondicion": "El servicio src debe validar la existencia y vigencia de las entidades involucradas.",
       "exito": "Se completa la transacción de negocio y se dispara la notificación u outbox correspondiente.",
       "decisiones": [
@@ -19832,7 +20207,7 @@
     "modulo": "src",
     "cu": null,
     "proposito": "Aceptar o rechazar una solicitud de ingreso",
-    "explicacionNegocio": "Quien decide es el organizador del grupo. Aceptada, EN LA MISMA TRANSACCION: se reserva un cupo libre, nace el participante pendiente de firmar el reglamento y se emite el evento. Rechazada, queda el motivo en el evento.\nINTERRUPTOR `aportaya.grupos.admision.humana-obligatoria` (decision pendiente de negocio y cumplimiento): encendido (valor de produccion) esta puerta se cierra con 422 `AP-CU68-15` y la decision del organizador pasa por `proponerAdmision`, que resuelve backoffice; apagado conserva el comportamiento de TEST.",
+    "explicacionNegocio": "Quien decide es el organizador del grupo o backoffice (ADMIN_PLATAFORMA): sin propuesta del organizador no hay expediente que backoffice pueda resolver, y la solicitud quedaba sin nadie que la decidiera. Nadie decide su propia solicitud. Aceptada, EN LA MISMA TRANSACCION: se reserva un cupo libre, nace el participante pendiente de firmar el reglamento y se emite el evento. Rechazada, queda el motivo en el evento.\nINTERRUPTOR `aportaya.grupos.admision.humana-obligatoria` (decision pendiente de negocio y cumplimiento): encendido (valor de produccion) esta puerta se cierra con 422 `AP-CU68-15` y la decision del organizador pasa por `proponerAdmision`, que resuelve backoffice; apagado conserva el comportamiento de TEST.",
     "explicacionSistema": "Servicio `src`, controlador Spring `@RestController`. Implementa la interfaz generada `SrcApi`. Transaccionalidad garantizada en organismo jOOQ.",
     "permiso": "REQUIERE_SESION",
     "riesgo": "MEDIO",
@@ -28109,6 +28484,155 @@
         {
           "codigo": "EXITO",
           "http": 201,
+          "condicion": "Petición válida y autorizada. Precondiciones cumplidas.",
+          "siguiente": "Transición exitosa al siguiente paso del flujo o persistencia."
+        },
+        {
+          "codigo": "AP-SISTEMA-01",
+          "http": 422,
+          "condicion": "Violación de regla de negocio o estado no válido.",
+          "siguiente": "Rechazo controlado con mensaje explicativo."
+        },
+        {
+          "codigo": "NO_AUTORIZADO",
+          "http": 401,
+          "condicion": "Token ausente, vencido o firma inválida.",
+          "siguiente": "Exige reautenticación en pantalla de ingreso."
+        },
+        {
+          "codigo": "ACCESO_DENEGADO",
+          "http": 403,
+          "condicion": "Rol o permiso insuficiente para esta operación.",
+          "siguiente": "Bloqueo por seguridad RBAC."
+        }
+      ]
+    }
+  },
+  {
+    "id": "src-listarProveedoresDeMensajeria",
+    "servicio": "src",
+    "metodo": "GET",
+    "ruta": "/notificaciones/proveedores",
+    "operationId": "listarProveedoresDeMensajeria",
+    "modulo": "src",
+    "cu": null,
+    "proposito": "Los proveedores de mensajeria dados de alta, por prioridad",
+    "explicacionNegocio": "Solo lectura de notificaciones.proveedor_mensajeria. Nunca devuelve referencia_credenciales ni url_base, y tampoco costo_por_mensaje: la tabla no guarda su moneda (regla 91.1.2). Exige TABLERO_SISTEMAS_VER o AUDITORIA_LEER.",
+    "explicacionSistema": "Servicio `src`, controlador Spring `@RestController`. Implementa la interfaz generada `SrcApi`. Transaccionalidad garantizada en organismo jOOQ.",
+    "permiso": "REQUIERE_SESION",
+    "riesgo": "BAJO",
+    "sensible": false,
+    "pideSesion": true,
+    "idempotencia": false,
+    "tablasImpactadas": [],
+    "dtoEntrada": null,
+    "dtoSalida": {
+      "nombre": "ResponsePayload",
+      "campos": []
+    },
+    "payloadEjemplo": null,
+    "payloadRespuesta": [
+      {
+        "id": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+        "codigo": "Ejemplo de texto",
+        "nombre": "Ejemplo de texto",
+        "canales": "Ejemplo de texto",
+        "activo": true,
+        "prioridad": 1,
+        "saludPorcentaje": "Ejemplo de texto"
+      }
+    ],
+    "flujo": {
+      "id": "administracion-usuarios-y-permisos",
+      "nombre": "Gobierno de identidades internas, roles de backoffice y sesiones",
+      "paso": "Paso operativo `listarProveedoresDeMensajeria`",
+      "precondicion": "El servicio src debe validar la existencia y vigencia de las entidades involucradas.",
+      "exito": "Se completa la transacción de negocio y se dispara la notificación u outbox correspondiente.",
+      "decisiones": [
+        {
+          "codigo": "EXITO",
+          "http": 200,
+          "condicion": "Petición válida y autorizada. Precondiciones cumplidas.",
+          "siguiente": "Transición exitosa al siguiente paso del flujo o persistencia."
+        },
+        {
+          "codigo": "AP-SISTEMA-01",
+          "http": 422,
+          "condicion": "Violación de regla de negocio o estado no válido.",
+          "siguiente": "Rechazo controlado con mensaje explicativo."
+        },
+        {
+          "codigo": "NO_AUTORIZADO",
+          "http": 401,
+          "condicion": "Token ausente, vencido o firma inválida.",
+          "siguiente": "Exige reautenticación en pantalla de ingreso."
+        },
+        {
+          "codigo": "ACCESO_DENEGADO",
+          "http": 403,
+          "condicion": "Rol o permiso insuficiente para esta operación.",
+          "siguiente": "Bloqueo por seguridad RBAC."
+        }
+      ]
+    }
+  },
+  {
+    "id": "src-listarEventosDeEntregaRecibidos",
+    "servicio": "src",
+    "metodo": "GET",
+    "ruta": "/notificaciones/webhooks-recibidos",
+    "operationId": "listarEventosDeEntregaRecibidos",
+    "modulo": "src",
+    "cu": null,
+    "proposito": "Los ultimos avisos de entrega que mandaron los proveedores de mensajeria",
+    "explicacionNegocio": "Solo lectura de notificaciones.evento_entrega_mensaje con el proveedor y el canal de su envio, del mas reciente al mas viejo (recibido_en desc, id). Nunca devuelve el payload ni la clave de idempotencia, ni nada que identifique a quien recibio el mensaje. Exige TABLERO_SISTEMAS_VER o AUDITORIA_LEER.",
+    "explicacionSistema": "Servicio `src`, controlador Spring `@RestController`. Implementa la interfaz generada `SrcApi`. Transaccionalidad garantizada en organismo jOOQ.",
+    "permiso": "REQUIERE_SESION",
+    "riesgo": "ALTO",
+    "sensible": true,
+    "pideSesion": true,
+    "idempotencia": false,
+    "tablasImpactadas": [],
+    "dtoEntrada": {
+      "nombre": "Parametros_listarEventosDeEntregaRecibidos",
+      "campos": [
+        {
+          "nombre": "limite",
+          "tipo": "integer",
+          "requerido": false,
+          "validacion": "Ubicación: query",
+          "descripcion": "Parámetro limite"
+        }
+      ]
+    },
+    "dtoSalida": {
+      "nombre": "ResponsePayload",
+      "campos": []
+    },
+    "payloadEjemplo": {
+      "limite": "1"
+    },
+    "payloadRespuesta": [
+      {
+        "id": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+        "proveedorCodigo": "Ejemplo de texto",
+        "canal": "Ejemplo de texto",
+        "tipoEvento": "ENTREGADO",
+        "recibidoEn": "2026-10-20T14:30:00Z",
+        "fechaHoraProveedor": "2026-10-20T14:30:00Z",
+        "codigoError": "Ejemplo de texto"
+      }
+    ],
+    "flujo": {
+      "id": "administracion-usuarios-y-permisos",
+      "nombre": "Gobierno de identidades internas, roles de backoffice y sesiones",
+      "paso": "Paso operativo `listarEventosDeEntregaRecibidos`",
+      "precondicion": "El servicio src debe validar la existencia y vigencia de las entidades involucradas.",
+      "exito": "Se completa la transacción de negocio y se dispara la notificación u outbox correspondiente.",
+      "decisiones": [
+        {
+          "codigo": "EXITO",
+          "http": 200,
           "condicion": "Petición válida y autorizada. Precondiciones cumplidas.",
           "siguiente": "Transición exitosa al siguiente paso del flujo o persistencia."
         },
@@ -39570,6 +40094,85 @@
         {
           "codigo": "EXITO",
           "http": 201,
+          "condicion": "Petición válida y autorizada. Precondiciones cumplidas.",
+          "siguiente": "Transición exitosa al siguiente paso del flujo o persistencia."
+        },
+        {
+          "codigo": "AP-SISTEMA-01",
+          "http": 422,
+          "condicion": "Violación de regla de negocio o estado no válido.",
+          "siguiente": "Rechazo controlado con mensaje explicativo."
+        },
+        {
+          "codigo": "NO_AUTORIZADO",
+          "http": 401,
+          "condicion": "Token ausente, vencido o firma inválida.",
+          "siguiente": "Exige reautenticación en pantalla de ingreso."
+        },
+        {
+          "codigo": "ACCESO_DENEGADO",
+          "http": 403,
+          "condicion": "Rol o permiso insuficiente para esta operación.",
+          "siguiente": "Bloqueo por seguridad RBAC."
+        }
+      ]
+    }
+  },
+  {
+    "id": "src-listarCostosDeProveedor",
+    "servicio": "src",
+    "metodo": "GET",
+    "ruta": "/tarifas/costos-de-proveedor",
+    "operationId": "listarCostosDeProveedor",
+    "modulo": "src",
+    "cu": null,
+    "proposito": "El costo real de cada proveedor en un periodo, por moneda",
+    "explicacionNegocio": "Suma exacta (DECIMAL, sin redondeo) de tarifas.costo_proveedor_operacion.costo_total del periodo, agrupada por proveedor y moneda: dos monedas son dos filas, nunca se suman entre si (regla 91.1.2). proveedorId es el id de aportes.proveedor_pago (la FK fk_costo_proveedor_operacion_proveedor_id): solo hay costos de proveedores de pago. Orden proveedorId y moneda. Exige TABLERO_SISTEMAS_VER o AUDITORIA_LEER.",
+    "explicacionSistema": "Servicio `src`, controlador Spring `@RestController`. Implementa la interfaz generada `SrcApi`. Transaccionalidad garantizada en organismo jOOQ.",
+    "permiso": "REQUIERE_SESION",
+    "riesgo": "BAJO",
+    "sensible": false,
+    "pideSesion": true,
+    "idempotencia": false,
+    "tablasImpactadas": [],
+    "dtoEntrada": {
+      "nombre": "Parametros_listarCostosDeProveedor",
+      "campos": [
+        {
+          "nombre": "periodo",
+          "tipo": "string",
+          "requerido": true,
+          "validacion": "Ubicación: query",
+          "descripcion": "Parámetro periodo"
+        }
+      ]
+    },
+    "dtoSalida": {
+      "nombre": "ResponsePayload",
+      "campos": []
+    },
+    "payloadEjemplo": {
+      "periodo": "1"
+    },
+    "payloadRespuesta": [
+      {
+        "proveedorId": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+        "periodo": "Ejemplo de texto",
+        "moneda": "Ejemplo de texto",
+        "costoTotal": "Ejemplo de texto",
+        "operaciones": 0
+      }
+    ],
+    "flujo": {
+      "id": "administracion-usuarios-y-permisos",
+      "nombre": "Gobierno de identidades internas, roles de backoffice y sesiones",
+      "paso": "Paso operativo `listarCostosDeProveedor`",
+      "precondicion": "El servicio src debe validar la existencia y vigencia de las entidades involucradas.",
+      "exito": "Se completa la transacción de negocio y se dispara la notificación u outbox correspondiente.",
+      "decisiones": [
+        {
+          "codigo": "EXITO",
+          "http": 200,
           "condicion": "Petición válida y autorizada. Precondiciones cumplidas.",
           "siguiente": "Transición exitosa al siguiente paso del flujo o persistencia."
         },

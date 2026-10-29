@@ -1,5 +1,40 @@
 # Brecha de observabilidad — propuesta, no contrato (Q-J2)
 
+> **Estado al 2026-10-29.** Siete de las nueve pantallas ya leen contratos reales; solo **Despliegues** y
+> **Respaldos** siguen sin fuente. El texto original de este documento queda abajo como historia.
+
+| Pantalla | Contrato real | Fuente |
+|---|---|---|
+| Servicios y SLO | `GET /indicadores/operacion/servicios` (auditoria) | readiness medido cada minuto |
+| Base de datos | `GET /indicadores/catalogo-de-datos/resumen` + salud (auditoria) | catálogo del modelo |
+| Outbox | `GET /indicadores/operacion/outbox` (auditoria) | métricas del relevo en Prometheus |
+| Incidentes | `GET /indicadores/operacion/incidentes` (auditoria) | `auditoria.incidente_operativo` |
+| Webhooks | `GET /pagos/webhooks-recibidos` (aportes) + `GET /notificaciones/webhooks-recibidos` | `webhook_pasarela`, `evento_entrega_mensaje` |
+| Proveedores | `GET /pagos/proveedores`, `GET /notificaciones/proveedores`, `GET /tarifas/costos-de-proveedor` | `proveedor_pago`, `proveedor_mensajeria`, `costo_proveedor_operacion` |
+| Revisión de accesos | `GET /usuarios-internos` (identidad) | `usuario_interno` y roles |
+| **Despliegues** | — | **ninguna**: el despliegue de TEST es manual (`despliegue/TEST.md`) y no deja registro |
+| **Respaldos** | — | **ninguna**: `pg_dump` previo a cada despliegue en `/opt/aportaya/respaldos/` (`despliegue/TEST.md:505`), sin registro |
+
+### Propuesta para Despliegues y Respaldos (DECISION_REQUIRED · Pablo)
+
+Una sola pieza resuelve las dos: **un registro de operaciones de plataforma en `auditoria`**, que escribe el
+procedimiento de despliegue y que la pantalla lee.
+
+1. Modelo (por `scripts/modelo.py`, nunca DDL a mano): `auditoria.despliegue_registrado` (servicio, version/sha,
+   desplegado_en, desplegado_por, resultado) y `auditoria.respaldo_registrado` (origen, archivo, tamano_bytes,
+   tomado_en, verificado_con_pg_restore, restauracion_probada_en).
+2. Quién escribe: el paso «Etapa 2 · respaldo» y el cierre del despliegue de `despliegue/TEST.md`, con un `psql`
+   del rol de despliegue. Es la única parte que conoce el sha y el archivo del respaldo.
+3. Contratos: `GET /indicadores/operacion/despliegues` y `GET /indicadores/operacion/respaldos` (auditoria,
+   `TABLERO_SISTEMAS_VER`), iguales en forma a Incidentes.
+4. Interruptores: no hay modelo de banderas en ningún servicio. La doble confirmación del lado servidor que pide
+   la pantalla es un caso de uso nuevo con su debido proceso, y queda fuera de esta propuesta.
+
+Lo que hay que decidir: si el registro lo escribe el script de despliegue (propuesta) o Coolify, y si
+«restauración probada» se carga a mano o la escribe `despliegue/ensayos/restauracion/ensayo_restauracion.sh`.
+
+---
+
 Las nueve pantallas de `apps/backoffice/src/app/rutas/sistemas/` esperan hoy la
 siguiente forma de datos. **Ninguna de estas nueve secciones es un contrato real**: no
 existe un OpenAPI de "indicadores"/"tablero"/"plataforma" — se buscó en

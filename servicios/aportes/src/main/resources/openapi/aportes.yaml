@@ -165,6 +165,25 @@ paths:
         '422': { $ref: '#/components/responses/ReglaDeNegocio' }
 
   /pagos/proveedores:
+    get:
+      operationId: listarProveedoresDePago      # Sistemas › Proveedores (2026-10-29)
+      summary: Los proveedores de pago dados de alta, por prioridad
+      description: >-
+        Solo lectura de aportes.proveedor_pago. Nunca devuelve referencia_credenciales ni url_base. Orden prioridad y
+        codigo. Exige TABLERO_SISTEMAS_VER o AUDITORIA_LEER.
+      responses:
+        '200':
+          description: Los proveedores
+          content:
+            application/json:
+              schema:
+                type: array
+                maxItems: 200
+                items: { $ref: '#/components/schemas/ProveedorDePagoResumen' }
+        '403':
+          description: Sin TABLERO_SISTEMAS_VER ni AUDITORIA_LEER
+        '401':
+          description: Sin sesion
     post:
       operationId: darDeAltaProveedor          # CU-99
       summary: Dar de alta un proveedor de pago
@@ -186,6 +205,32 @@ paths:
             application/json:
               schema: { $ref: '#/components/schemas/SalidaProveedor' }
         '422': { $ref: '#/components/responses/ReglaDeNegocio' }
+
+  /pagos/webhooks-recibidos:
+    get:
+      operationId: listarWebhooksRecibidos      # Sistemas › Webhooks (2026-10-29)
+      summary: Los ultimos webhooks recibidos de las pasarelas
+      description: >-
+        Solo lectura de aportes.webhook_pasarela, del mas reciente al mas viejo (recibido_en desc, id). Nunca devuelve
+        el payload, la firma, la clave de idempotencia ni el error de procesamiento en crudo. Exige TABLERO_SISTEMAS_VER
+        o AUDITORIA_LEER.
+      parameters:
+        - { name: limite, in: query, required: false, schema: { type: integer, minimum: 1, maximum: 100, default: 50 } }
+      responses:
+        '200':
+          description: Los webhooks
+          content:
+            application/json:
+              schema:
+                type: array
+                maxItems: 100
+                items: { $ref: '#/components/schemas/WebhookRecibido' }
+        '400':
+          description: limite fuera de su dominio
+        '403':
+          description: Sin TABLERO_SISTEMAS_VER ni AUDITORIA_LEER
+        '401':
+          description: Sin sesion
 
   /pagos/enrutamiento:
     post:
@@ -608,6 +653,31 @@ components:
         prioridad:           { type: integer, minimum: 1, maximum: 999 }
         tieneContratoVigente: { type: boolean }
         pruebasCompletas:     { type: boolean }
+    ProveedorDePagoResumen:
+      type: object
+      additionalProperties: false
+      required: [id, codigo, nombre, tipo, activo, soportaWebhook, prioridad]
+      properties:
+        id: { type: string, format: uuid }
+        codigo: { type: string, maxLength: 30 }
+        nombre: { type: string, maxLength: 80 }
+        tipo: { type: string, enum: [BANCO, BILLETERA, PASARELA] }
+        activo: { type: boolean }
+        soportaWebhook: { type: boolean }
+        prioridad: { type: integer }
+    WebhookRecibido:
+      type: object
+      additionalProperties: false
+      required: [id, proveedorCodigo, evento, estado, firmaValida, recibidoEn, intentos]
+      properties:
+        id: { type: string, format: uuid }
+        proveedorCodigo: { type: string, maxLength: 30 }
+        evento: { type: string, maxLength: 60 }
+        estado: { type: string, enum: [DESCARTADO, DUPLICADO, FALLIDO, PROCESADO, RECIBIDO] }
+        firmaValida: { type: boolean }
+        recibidoEn: { type: string, format: date-time }
+        procesadoEn: { type: string, format: date-time }
+        intentos: { type: integer, minimum: 0 }
     SalidaProveedor:
       type: object
       additionalProperties: false

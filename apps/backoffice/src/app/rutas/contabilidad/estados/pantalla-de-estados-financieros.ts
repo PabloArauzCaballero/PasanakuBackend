@@ -36,7 +36,7 @@ import { guardarArchivo } from './guardar-archivo'
   imports: [ErrorDeEnvio, Alerta, Boton, CabeceraDePagina, GrupoRadio, Icono, SeccionDeExpediente],
   template: `
     <section class="pantalla">
-      <ap-cabecera-de-pagina eyebrow="Contabilidad" [titulo]="t.titulo" [descripcion]="t.proposito" icono="balanza" />
+      <ap-cabecera-de-pagina eyebrow="Contabilidad" [titulo]="t.titulo" [descripcion]="t.proposito" />
       <div class="tarjeta">
         <p class="periodo"><ap-icono nombre="calendario" tamano="s4" />Período: <strong>{{ nombre() }}</strong></p>
         <ap-alerta [tono]="provisorio() ? 'aviso' : 'info'">{{ provisorio() ? t.provisorio : t.definitivo }}</ap-alerta>

@@ -1,6 +1,8 @@
 package bo.aportaya.notificaciones.aplicacion;
 
+import bo.aportaya.notificaciones.dominio.PlataformaDeMensajeria;
 import bo.aportaya.notificaciones.infraestructura.AuditoriaDeMensajeriaRepositorio;
+import bo.aportaya.notificaciones.infraestructura.PlataformaDeMensajeriaRepositorio;
 import bo.aportaya.plataforma.datos.Datos;
 import bo.aportaya.plataforma.dominio.CodigoError;
 import bo.aportaya.plataforma.dominio.ContextoSesion;
@@ -36,10 +38,25 @@ public class ConsultarMensajeria {
 
     private final Datos datos;
     private final AuditoriaDeMensajeriaRepositorio auditoria;
+    private final PlataformaDeMensajeriaRepositorio plataforma;
 
-    public ConsultarMensajeria(Datos datos, AuditoriaDeMensajeriaRepositorio auditoria) {
+    public ConsultarMensajeria(
+            Datos datos, AuditoriaDeMensajeriaRepositorio auditoria, PlataformaDeMensajeriaRepositorio plataforma) {
         this.datos = datos;
         this.auditoria = auditoria;
+        this.plataforma = plataforma;
+    }
+
+    /** Sistemas › Proveedores: los proveedores de mensajeria, sin credenciales ni costo sin moneda. */
+    @Transactional(readOnly = true)
+    public List<PlataformaDeMensajeria.Proveedor> proveedores(ContextoSesion ctx) {
+        return datos.conContexto(ctx, plataforma::proveedores);
+    }
+
+    /** Sistemas › Webhooks: los ultimos avisos de entrega de los proveedores, sin payload. */
+    @Transactional(readOnly = true)
+    public List<PlataformaDeMensajeria.EventoDeEntrega> eventosDeEntrega(int limite, ContextoSesion ctx) {
+        return datos.conContexto(ctx, dsl -> plataforma.eventos(dsl, limite));
     }
 
     @Transactional(readOnly = true)

@@ -31,7 +31,7 @@ const VISTAS = ['tablas', 'esquemas'] as const
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [BarraDeFiltros, CabeceraDePagina, ChipEstado, EstadoDePantalla, EstadoVacio, Paginacion, Pestanas, RouterLink, TablaDeDatos, TarjetaKPI, VistaEsquemas],
   template: `
-    <ap-cabecera-de-pagina icono="baseDeDatos" [eyebrow]="t.eyebrow" [titulo]="t.titulo" [descripcion]="t.descripcion" />
+    <ap-cabecera-de-pagina [eyebrow]="t.eyebrow" [titulo]="t.titulo" [descripcion]="t.descripcion" />
     @if (resumen(); as r) {
       <div class="cifras">
         <ap-tarjeta-kpi [etiqueta]="t.metricas.total" [valor]="'' + r.tablas" icono="baseDeDatos" [pista]="t.metricas.pistaTablas(r.tablasDeNegocio, r.tablasDeInfraestructura)" />

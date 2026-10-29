@@ -1,0 +1,192 @@
+Automatically searching for and using Vitest configuration file.
+❯ Building...
+✔ Building...
+Application bundle generation complete. [1873.225 seconds] - 2026-10-29T07:49:58.138Z
+
+(!) Your Vite config uses features that are unsupported by `configLoader: 'native'`, which is planned to become the default in a future major version of Vite:
+  - ESM syntax in a file loaded as CommonJS (vitest-base.config.ts:1:1). Use a `.mjs` extension or set `"type": "module"` in the closest package.json
+Set `VITE_CONFIG_NATIVE_IGNORE_WARNING=true` to suppress this warning.
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.11 [39m[90m/Users/pablo/Documents/GitHub/Pasanaku-admision/apps/backoffice[39m
+
+ [31m❯[39m [30m[42m backoffice [49m[39m src/app/nucleo/menu-y-guardias.spec.ts [2m([22m[2m87 tests[22m[2m | [22m[31m2 failed[39m[2m)[22m[33m 1606359[2mms[22m[39m
+[31m     [31m×[31m 'CONTABILIDAD_ERP_COMPRAS · rol CONTAB…': lo visible abre sin rebote y lo oculto rebota[39m[33m 929987[2mms[22m[39m
+[31m     [31m×[31m 'ACCESOS_ADMINISTRAR · SEGURIDAD': lo visible abre sin rebote y lo oculto rebota[39m[33m 667973[2mms[22m[39m
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+ [31m❯[39m [30m[42m backoffice [49m[39m src/app/nucleo/entrada-estricta.spec.ts [2m([22m[2m10 tests[22m[2m | [22m[31m10 failed[39m[2m)[22m[32m 12[2mms[22m[39m
+[31m     [31m×[31m erp · cierre de período: { glosa }[39m[32m 3[2mms[22m[39m
+[31m     [31m×[31m erp · pago de factura de proveedor: { monto, moneda, formaPago } — el autorizante sale del token, no del cuerpo[39m[32m 1[2mms[22m[39m
+[31m     [31m×[31m erp · pago de factura de proveedor: QR no es una forma de pago a proveedor (el contrato la alinea con ck_pago_a_proveedor_forma_pago)[39m[32m 1[2mms[22m[39m
+[31m     [31m×[31m erp · alta de factura de proveedor: el aprobador sale del token, el cuerpo solo dice si aprueba (`aprobar`), nunca quién (`aprobadaPor`)[39m[32m 1[2mms[22m[39m
+[31m     [31m×[31m erp · cobro de una cuenta por cobrar: { monto, formaCobro }[39m[32m 1[2mms[22m[39m
+[31m     [31m×[31m erp · depreciación de un activo: { periodoContableId }[39m[32m 1[2mms[22m[39m
+[31m     [31m×[31m erp · estados financieros: { tipo }[39m[32m 1[2mms[22m[39m
+[31m     [31m×[31m grupos · resolución de admisión: { decision, motivo, revisionEsperada, propuestaId }[39m[32m 1[2mms[22m[39m
+[31m     [31m×[31m nucleo-financiero · aprobación de retiro: { desenlace } y { desenlace, motivo }[39m[32m 4[2mms[22m[39m
+[31m     [31m×[31m el validador detecta un campo de más (la prueba no es vacía)[39m[32m 1[2mms[22m[39m
+Not implemented: Window's confirm() method
+Not implemented: Window's confirm() method
+
+[31m⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 12 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m [30m[42m backoffice [49m[39m src/app/nucleo/entrada-estricta.spec.ts[2m > [22mentrada estricta · los cuerpos de la capa de dominio cumplen el contrato (sin campos de más)[2m > [22merp · cierre de período: { glosa }
+[31m[1mError[22m: ENOENT: no such file or directory, open '/Users/pablo/Documents/GitHub/Pasanaku-admision/packages/simulado/generado/erp.json'[39m
+[36m [2m❯[22m documento src/app/nucleo/entrada-estricta.spec.ts:[2m43:20[22m[39m
+    [90m 41|[39m   [35mlet[39m d [33m=[39m documentos[33m.[39m[35mget[39m(servicio)
+    [90m 42|[39m   [35mif[39m ([33m![39md) {
+    [90m 43|[39m     d = JSON.parse(readFileSync(join(GENERADO, `${servicio}.json`), 'u…
+    [90m   |[39m                    [31m^[39m
+    [90m 44|[39m     documentos[33m.[39m[35mset[39m(servicio[33m,[39m d)
+    [90m 45|[39m   }
+[90m [2m❯[22m errores src/app/nucleo/entrada-estricta.spec.ts:[2m51:13[22m[39m
+[90m [2m❯[22m src/app/nucleo/entrada-estricta.spec.ts:[2m80:12[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/12]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m [30m[42m backoffice [49m[39m src/app/nucleo/entrada-estricta.spec.ts[2m > [22mentrada estricta · los cuerpos de la capa de dominio cumplen el contrato (sin campos de más)[2m > [22merp · pago de factura de proveedor: { monto, moneda, formaPago } — el autorizante sale del token, no del cuerpo
+[31m[1mError[22m: ENOENT: no such file or directory, open '/Users/pablo/Documents/GitHub/Pasanaku-admision/packages/simulado/generado/erp.json'[39m
+[36m [2m❯[22m documento src/app/nucleo/entrada-estricta.spec.ts:[2m43:20[22m[39m
+    [90m 41|[39m   [35mlet[39m d [33m=[39m documentos[33m.[39m[35mget[39m(servicio)
+    [90m 42|[39m   [35mif[39m ([33m![39md) {
+    [90m 43|[39m     d = JSON.parse(readFileSync(join(GENERADO, `${servicio}.json`), 'u…
+    [90m   |[39m                    [31m^[39m
+    [90m 44|[39m     documentos[33m.[39m[35mset[39m(servicio[33m,[39m d)
+    [90m 45|[39m   }
+[90m [2m❯[22m errores src/app/nucleo/entrada-estricta.spec.ts:[2m51:13[22m[39m
+[90m [2m❯[22m src/app/nucleo/entrada-estricta.spec.ts:[2m90:12[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/12]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m [30m[42m backoffice [49m[39m src/app/nucleo/entrada-estricta.spec.ts[2m > [22mentrada estricta · los cuerpos de la capa de dominio cumplen el contrato (sin campos de más)[2m > [22merp · pago de factura de proveedor: QR no es una forma de pago a proveedor (el contrato la alinea con ck_pago_a_proveedor_forma_pago)
+[31m[1mError[22m: ENOENT: no such file or directory, open '/Users/pablo/Documents/GitHub/Pasanaku-admision/packages/simulado/generado/erp.json'[39m
+[36m [2m❯[22m documento src/app/nucleo/entrada-estricta.spec.ts:[2m43:20[22m[39m
+    [90m 41|[39m   [35mlet[39m d [33m=[39m documentos[33m.[39m[35mget[39m(servicio)
+    [90m 42|[39m   [35mif[39m ([33m![39md) {
+    [90m 43|[39m     d = JSON.parse(readFileSync(join(GENERADO, `${servicio}.json`), 'u…
+    [90m   |[39m                    [31m^[39m
+    [90m 44|[39m     documentos[33m.[39m[35mset[39m(servicio[33m,[39m d)
+    [90m 45|[39m   }
+[90m [2m❯[22m errores src/app/nucleo/entrada-estricta.spec.ts:[2m51:13[22m[39m
+[90m [2m❯[22m src/app/nucleo/entrada-estricta.spec.ts:[2m100:77[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/12]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m [30m[42m backoffice [49m[39m src/app/nucleo/entrada-estricta.spec.ts[2m > [22mentrada estricta · los cuerpos de la capa de dominio cumplen el contrato (sin campos de más)[2m > [22merp · alta de factura de proveedor: el aprobador sale del token, el cuerpo solo dice si aprueba (`aprobar`), nunca quién (`aprobadaPor`)
+[31m[1mError[22m: ENOENT: no such file or directory, open '/Users/pablo/Documents/GitHub/Pasanaku-admision/packages/simulado/generado/erp.json'[39m
+[36m [2m❯[22m documento src/app/nucleo/entrada-estricta.spec.ts:[2m43:20[22m[39m
+    [90m 41|[39m   [35mlet[39m d [33m=[39m documentos[33m.[39m[35mget[39m(servicio)
+    [90m 42|[39m   [35mif[39m ([33m![39md) {
+    [90m 43|[39m     d = JSON.parse(readFileSync(join(GENERADO, `${servicio}.json`), 'u…
+    [90m   |[39m                    [31m^[39m
+    [90m 44|[39m     documentos[33m.[39m[35mset[39m(servicio[33m,[39m d)
+    [90m 45|[39m   }
+[90m [2m❯[22m errores src/app/nucleo/entrada-estricta.spec.ts:[2m51:13[22m[39m
+[90m [2m❯[22m src/app/nucleo/entrada-estricta.spec.ts:[2m118:12[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/12]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m [30m[42m backoffice [49m[39m src/app/nucleo/entrada-estricta.spec.ts[2m > [22mentrada estricta · los cuerpos de la capa de dominio cumplen el contrato (sin campos de más)[2m > [22merp · cobro de una cuenta por cobrar: { monto, formaCobro }
+[31m[1mError[22m: ENOENT: no such file or directory, open '/Users/pablo/Documents/GitHub/Pasanaku-admision/packages/simulado/generado/erp.json'[39m
+[36m [2m❯[22m documento src/app/nucleo/entrada-estricta.spec.ts:[2m43:20[22m[39m
+    [90m 41|[39m   [35mlet[39m d [33m=[39m documentos[33m.[39m[35mget[39m(servicio)
+    [90m 42|[39m   [35mif[39m ([33m![39md) {
+    [90m 43|[39m     d = JSON.parse(readFileSync(join(GENERADO, `${servicio}.json`), 'u…
+    [90m   |[39m                    [31m^[39m
+    [90m 44|[39m     documentos[33m.[39m[35mset[39m(servicio[33m,[39m d)
+    [90m 45|[39m   }
+[90m [2m❯[22m errores src/app/nucleo/entrada-estricta.spec.ts:[2m51:13[22m[39m
+[90m [2m❯[22m src/app/nucleo/entrada-estricta.spec.ts:[2m128:12[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/12]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m [30m[42m backoffice [49m[39m src/app/nucleo/entrada-estricta.spec.ts[2m > [22mentrada estricta · los cuerpos de la capa de dominio cumplen el contrato (sin campos de más)[2m > [22merp · depreciación de un activo: { periodoContableId }
+[31m[1mError[22m: ENOENT: no such file or directory, open '/Users/pablo/Documents/GitHub/Pasanaku-admision/packages/simulado/generado/erp.json'[39m
+[36m [2m❯[22m documento src/app/nucleo/entrada-estricta.spec.ts:[2m43:20[22m[39m
+    [90m 41|[39m   [35mlet[39m d [33m=[39m documentos[33m.[39m[35mget[39m(servicio)
+    [90m 42|[39m   [35mif[39m ([33m![39md) {
+    [90m 43|[39m     d = JSON.parse(readFileSync(join(GENERADO, `${servicio}.json`), 'u…
+    [90m   |[39m                    [31m^[39m
+    [90m 44|[39m     documentos[33m.[39m[35mset[39m(servicio[33m,[39m d)
+    [90m 45|[39m   }
+[90m [2m❯[22m errores src/app/nucleo/entrada-estricta.spec.ts:[2m51:13[22m[39m
+[90m [2m❯[22m src/app/nucleo/entrada-estricta.spec.ts:[2m134:12[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/12]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m [30m[42m backoffice [49m[39m src/app/nucleo/entrada-estricta.spec.ts[2m > [22mentrada estricta · los cuerpos de la capa de dominio cumplen el contrato (sin campos de más)[2m > [22merp · estados financieros: { tipo }
+[31m[1mError[22m: ENOENT: no such file or directory, open '/Users/pablo/Documents/GitHub/Pasanaku-admision/packages/simulado/generado/erp.json'[39m
+[36m [2m❯[22m documento src/app/nucleo/entrada-estricta.spec.ts:[2m43:20[22m[39m
+    [90m 41|[39m   [35mlet[39m d [33m=[39m documentos[33m.[39m[35mget[39m(servicio)
+    [90m 42|[39m   [35mif[39m ([33m![39md) {
+    [90m 43|[39m     d = JSON.parse(readFileSync(join(GENERADO, `${servicio}.json`), 'u…
+    [90m   |[39m                    [31m^[39m
+    [90m 44|[39m     documentos[33m.[39m[35mset[39m(servicio[33m,[39m d)
+    [90m 45|[39m   }
+[90m [2m❯[22m errores src/app/nucleo/entrada-estricta.spec.ts:[2m51:13[22m[39m
+[90m [2m❯[22m src/app/nucleo/entrada-estricta.spec.ts:[2m140:12[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/12]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m [30m[42m backoffice [49m[39m src/app/nucleo/entrada-estricta.spec.ts[2m > [22mentrada estricta · los cuerpos de la capa de dominio cumplen el contrato (sin campos de más)[2m > [22mgrupos · resolución de admisión: { decision, motivo, revisionEsperada, propuestaId }
+[31m[1mError[22m: ENOENT: no such file or directory, open '/Users/pablo/Documents/GitHub/Pasanaku-admision/packages/simulado/generado/grupos.json'[39m
+[36m [2m❯[22m documento src/app/nucleo/entrada-estricta.spec.ts:[2m43:20[22m[39m
+    [90m 41|[39m   [35mlet[39m d [33m=[39m documentos[33m.[39m[35mget[39m(servicio)
+    [90m 42|[39m   [35mif[39m ([33m![39md) {
+    [90m 43|[39m     d = JSON.parse(readFileSync(join(GENERADO, `${servicio}.json`), 'u…
+    [90m   |[39m                    [31m^[39m
+    [90m 44|[39m     documentos[33m.[39m[35mset[39m(servicio[33m,[39m d)
+    [90m 45|[39m   }
+[90m [2m❯[22m errores src/app/nucleo/entrada-estricta.spec.ts:[2m51:13[22m[39m
+[90m [2m❯[22m src/app/nucleo/entrada-estricta.spec.ts:[2m147:12[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/12]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m [30m[42m backoffice [49m[39m src/app/nucleo/entrada-estricta.spec.ts[2m > [22mentrada estricta · los cuerpos de la capa de dominio cumplen el contrato (sin campos de más)[2m > [22mnucleo-financiero · aprobación de retiro: { desenlace } y { desenlace, motivo }
+[31m[1mError[22m: ENOENT: no such file or directory, open '/Users/pablo/Documents/GitHub/Pasanaku-admision/packages/simulado/generado/nucleo-financiero.json'[39m
+[36m [2m❯[22m documento src/app/nucleo/entrada-estricta.spec.ts:[2m43:20[22m[39m
+    [90m 41|[39m   [35mlet[39m d [33m=[39m documentos[33m.[39m[35mget[39m(servicio)
+    [90m 42|[39m   [35mif[39m ([33m![39md) {
+    [90m 43|[39m     d = JSON.parse(readFileSync(join(GENERADO, `${servicio}.json`), 'u…
+    [90m   |[39m                    [31m^[39m
+    [90m 44|[39m     documentos[33m.[39m[35mset[39m(servicio[33m,[39m d)
+    [90m 45|[39m   }
+[90m [2m❯[22m errores src/app/nucleo/entrada-estricta.spec.ts:[2m51:13[22m[39m
+[90m [2m❯[22m src/app/nucleo/entrada-estricta.spec.ts:[2m154:14[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/12]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m [30m[42m backoffice [49m[39m src/app/nucleo/entrada-estricta.spec.ts[2m > [22mentrada estricta · los cuerpos de la capa de dominio cumplen el contrato (sin campos de más)[2m > [22mel validador detecta un campo de más (la prueba no es vacía)
+[31m[1mError[22m: ENOENT: no such file or directory, open '/Users/pablo/Documents/GitHub/Pasanaku-admision/packages/simulado/generado/nucleo-financiero.json'[39m
+[36m [2m❯[22m documento src/app/nucleo/entrada-estricta.spec.ts:[2m43:20[22m[39m
+    [90m 41|[39m   [35mlet[39m d [33m=[39m documentos[33m.[39m[35mget[39m(servicio)
+    [90m 42|[39m   [35mif[39m ([33m![39md) {
+    [90m 43|[39m     d = JSON.parse(readFileSync(join(GENERADO, `${servicio}.json`), 'u…
+    [90m   |[39m                    [31m^[39m
+    [90m 44|[39m     documentos[33m.[39m[35mset[39m(servicio[33m,[39m d)
+    [90m 45|[39m   }
+[90m [2m❯[22m errores src/app/nucleo/entrada-estricta.spec.ts:[2m51:13[22m[39m
+[90m [2m❯[22m src/app/nucleo/entrada-estricta.spec.ts:[2m159:12[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/12]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m [30m[42m backoffice [49m[39m src/app/nucleo/menu-y-guardias.spec.ts[2m > [22mmenú ⇔ guardias de las rutas[2m > [22m'CONTABILIDAD_ERP_COMPRAS · rol CONTAB…': lo visible abre sin rebote y lo oculto rebota
+[41m[1m FAIL [22m[49m [30m[42m backoffice [49m[39m src/app/nucleo/menu-y-guardias.spec.ts[2m > [22mmenú ⇔ guardias de las rutas[2m > [22m'ACCESOS_ADMINISTRAR · SEGURIDAD': lo visible abre sin rebote y lo oculto rebota
+[31m[1mError[22m: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".[39m
+[36m [2m❯[22m src/app/nucleo/menu-y-guardias.spec.ts:[2m62:16[22m[39m
+    [90m 60|[39m   })
+    [90m 61|[39m
+    [90m 62|[39m   it.each(casos)('$nombre: lo visible abre sin rebote y lo oculto rebo…
+    [90m   |[39m                [31m^[39m
+    [90m 63|[39m     sesion[33m.[39m[34mabrir[39m([32m'token'[39m[33m,[39m permisos[33m,[39m rol)
+    [90m 64|[39m     const visibles = new Set(entradasVisibles(sesion).flatMap((g) => g…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/12]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m2 failed[39m[22m[2m | [22m[1m[32m174 passed[39m[22m[90m (176)[39m
+[2m      Tests [22m [1m[31m12 failed[39m[22m[2m | [22m[1m[32m1252 passed[39m[22m[90m (1264)[39m
+[2m   Start at [22m 03:49:58
+[2m   Duration [22m 1621.70s[2m (transform 1.45s, setup 298ms, import 1.39s, tests 1619.39s, environment 270ms)[22m
+

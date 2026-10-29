@@ -44,7 +44,7 @@ const EXPORTABLES: ColumnaExportable<ExpedienteEnRevision>[] = [
   imports: [BarraDeFiltros, CabeceraDePagina, EstadoDePantalla, ExportarListado, Paginacion, TarjetaDeExpediente],
   template: `
     <section class="pantalla">
-      <ap-cabecera-de-pagina eyebrow="Cumplimiento" [titulo]="t.titulo" [descripcion]="t.proposito" icono="verificado" />
+      <ap-cabecera-de-pagina eyebrow="Cumplimiento" [titulo]="t.titulo" [descripcion]="t.proposito" />
       <ap-barra-de-filtros data-tutorial-id="cumplimiento-filtros" etiqueta="Filtros de expedientes" [etiquetaDeBusqueda]="t.buscarExpediente" ayudaDeBusqueda="El estado se pide al servidor; la búsqueda, el vencimiento y las fotos filtran lo ya cargado." [busqueda]="listado.busqueda()" [selectores]="selectores()" textoLimpiar="Limpiar filtros" (busquedaChange)="listado.buscar($event)" (selectorChange)="alFiltrar($event)" (limpiar)="limpiar()" />
       <div class="barra">
         <p class="resumen" aria-live="polite">{{ resumen() }}</p>

@@ -1,8 +1,7 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core'
-import { Icono, NombreDeIcono } from '../icono/icono'
 
 /**
- * La cabecera de toda pantalla del backoffice: loseta con el ícono del módulo, título, descripción y un carril de
+ * La cabecera de toda pantalla del backoffice: título, descripción y un carril de
  * acciones. Va sobre el lienzo, no dentro de una tarjeta: un bloque llamativo que no significa nada compite con lo que
  * sí tiene algo que decir.
  *
@@ -17,11 +16,9 @@ import { Icono, NombreDeIcono } from '../icono/icono'
 @Component({
   selector: 'ap-cabecera-de-pagina',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [Icono],
   template: `
     <header>
       <div class="identidad">
-        @if (icono()) { <span class="loseta" aria-hidden="true"><ap-icono [nombre]="icono()!" tamano="s5" /></span> }
         <div class="textos">
           @if (eyebrow()) { <p class="eyebrow">{{ eyebrow() }}</p> }
           <h1>{{ titulo() }}</h1>
@@ -35,7 +32,6 @@ import { Icono, NombreDeIcono } from '../icono/icono'
     :host { display: block; }
     header { display: flex; flex-direction: column; gap: var(--s4); }
     .identidad { display: flex; align-items: flex-start; gap: var(--s3); min-width: 0; }
-    .loseta { display: none; flex: none; width: var(--s7); height: var(--s7); align-items: center; justify-content: center; border: var(--borde-fino) solid var(--border); border-radius: var(--r-md); background: var(--surface); color: var(--brand-texto); box-shadow: var(--sombra-1); }
     .textos { min-width: 0; }
     .eyebrow { margin: 0 0 var(--s1); font: var(--t-eyebrow); letter-spacing: var(--t-eyebrow-track); text-transform: uppercase; color: var(--text-3); }
     /* En el celular el título se recompone en vez de encogerse: el rol titulo-1 en un teléfono angosto parte en tres líneas. */
@@ -45,8 +41,7 @@ import { Icono, NombreDeIcono } from '../icono/icono'
     .acciones { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s2); }
     .acciones:empty { display: none; }
     @media (min-width: 40rem) {
-      .loseta { display: inline-flex; }
-      .eyebrow { display: none; }
+        .eyebrow { display: none; }
       h1 { font: var(--t-titulo-1); letter-spacing: var(--t-titulo-1-track); }
     }
     @media (min-width: 64rem) {
@@ -59,5 +54,4 @@ export class CabeceraDePagina {
   readonly titulo = input.required<string>()
   readonly eyebrow = input<string>()
   readonly descripcion = input<string>()
-  readonly icono = input<NombreDeIcono>()
 }

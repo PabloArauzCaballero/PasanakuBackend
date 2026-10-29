@@ -27,7 +27,7 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
   imports: [Alerta, Boton, CabeceraDePagina, Campo, EstadoVacio],
   template: `
     <section class="pantalla">
-      <ap-cabecera-de-pagina eyebrow="Operación" [titulo]="t.titulo" [descripcion]="t.proposito" icono="personaMas" />
+      <ap-cabecera-de-pagina eyebrow="Operación" [titulo]="t.titulo" [descripcion]="t.proposito" />
       <ap-estado-vacio icono="enlace" [titulo]="t.sinContrato" [explicacion]="t.sinContratoExplicacion" />
       <section class="tarjeta" [attr.aria-label]="t.abrirTitulo">
         <h2>{{ t.abrirTitulo }}</h2>

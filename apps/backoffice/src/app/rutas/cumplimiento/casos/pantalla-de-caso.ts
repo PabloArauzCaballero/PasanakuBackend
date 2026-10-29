@@ -28,7 +28,7 @@ import { FormularioDeCaso } from './formulario-de-caso'
   template: `
     <section class="pantalla">
       <a class="volver" routerLink="/cumplimiento/casos"><ap-icono nombre="flechaIzquierda" tamano="s4" />Volver a los casos</a>
-      <ap-cabecera-de-pagina [eyebrow]="'Cumplimiento · caso ' + casoId()" [titulo]="t.titulo" [descripcion]="t.proposito" icono="carpeta" />
+      <ap-cabecera-de-pagina [eyebrow]="'Cumplimiento · caso ' + casoId()" [titulo]="t.titulo" [descripcion]="t.proposito" />
       @if (recibo()) { <ap-alerta tono="ok">{{ recibo() }}</ap-alerta> }
       <div class="tarjeta">
       <ap-formulario-de-caso

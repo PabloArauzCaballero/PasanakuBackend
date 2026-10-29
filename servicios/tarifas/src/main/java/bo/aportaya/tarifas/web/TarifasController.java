@@ -7,9 +7,11 @@ import bo.aportaya.plataforma.web.traza.Traza;
 import bo.aportaya.tarifas.aplicacion.CU34PublicarTarifario;
 import bo.aportaya.tarifas.aplicacion.CU35CerrarLiquidacion;
 import bo.aportaya.tarifas.aplicacion.CU36ResolverPrecio;
+import bo.aportaya.tarifas.aplicacion.ConsultarCostosDeProveedor;
 import bo.aportaya.tarifas.aplicacion.ConsultarTarifarioVigente;
 import bo.aportaya.tarifas.aplicacion.ConsultarTarifarios;
 import bo.aportaya.tarifas.web.generado.TarifasApi;
+import bo.aportaya.tarifas.web.generado.modelo.CostoDeProveedor;
 import bo.aportaya.tarifas.web.generado.modelo.EntradaLiquidacion;
 import bo.aportaya.tarifas.web.generado.modelo.EntradaPublicacion;
 import bo.aportaya.tarifas.web.generado.modelo.EntradaSegmento;
@@ -46,6 +48,7 @@ public class TarifasController implements TarifasApi {
     private final CU34PublicarTarifario cu34;
     private final CU35CerrarLiquidacion cu35;
     private final CU36ResolverPrecio cu36;
+    private final ConsultarCostosDeProveedor costos;
     private final SesionDeLaPeticion sesion;
 
     public TarifasController(
@@ -54,12 +57,14 @@ public class TarifasController implements TarifasApi {
             CU34PublicarTarifario cu34,
             CU35CerrarLiquidacion cu35,
             CU36ResolverPrecio cu36,
+            ConsultarCostosDeProveedor costos,
             SesionDeLaPeticion sesion) {
         this.vigentes = vigentes;
         this.historial = historial;
         this.cu34 = cu34;
         this.cu35 = cu35;
         this.cu36 = cu36;
+        this.costos = costos;
         this.sesion = sesion;
     }
 
@@ -210,5 +215,17 @@ public class TarifasController implements TarifasApi {
 
         var estado = salida.yaExistia() ? HttpStatus.OK : HttpStatus.CREATED;
         return ResponseEntity.status(estado).body(respuesta);
+    }
+
+    /** Sistemas › Proveedores: el costo real de cada proveedor en un periodo, por moneda. */
+    @Override
+    @Permiso("TABLERO_SISTEMAS_VER")
+    @PermisoAlternativo({"AUDITORIA_LEER"})
+    public ResponseEntity<List<CostoDeProveedor>> listarCostosDeProveedor(String periodo) {
+        Traza.marcarCasoDeUso("TABLERO-SISTEMAS", "tarifas/costos-de-proveedor");
+        return ResponseEntity.ok(costos.delPeriodo(periodo, sesion.actual()).stream()
+                .map(c -> new CostoDeProveedor(
+                        c.proveedorId(), c.periodo(), c.moneda(), c.costoTotal().toPlainString(), c.operaciones()))
+                .toList());
     }
 }

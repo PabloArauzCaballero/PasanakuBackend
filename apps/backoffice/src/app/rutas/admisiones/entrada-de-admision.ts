@@ -28,7 +28,7 @@ const FILAS_POR_PAGINA = [10, 20, 50]
   imports: [BarraDeFiltros, Boton, CabeceraDePagina, Campo, EstadoDePantalla, EstadoVacio, Paginacion, TablaDeAdmisiones],
   template: `
     <section class="pantalla">
-      <ap-cabecera-de-pagina [titulo]="t.bandejaTitulo" [descripcion]="t.bandejaProposito" icono="grupo" />
+      <ap-cabecera-de-pagina [titulo]="t.bandejaTitulo" [descripcion]="t.bandejaProposito" />
 
       <section class="tarjeta-directa" aria-labelledby="titulo-abrir-directo">
         <div class="cabecera-directa">

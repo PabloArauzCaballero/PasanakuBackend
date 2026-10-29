@@ -8,7 +8,7 @@ describe('PantallaAccesos · listado del kit en los tres niveles', () => {
   probarVistaDePuerto<Acceso>({
     componente: PantallaAccesos,
     puerto: PUERTO_ACCESOS,
-    filas: (n) => Array.from({ length: n }, (_, i) => ({ id: `a-${i + 1}`, persona: i === 9 ? 'José Quispe' : `Persona ${i + 1}`, rol: i % 3 ? 'PLATAFORMA' : 'SEGURIDAD', ambito: 'sistemas', otorgadoEl: '2026-09-01' })),
+    filas: (n) => Array.from({ length: n }, (_, i) => ({ id: `a-${i + 1}`, persona: i === 9 ? 'José Quispe' : `Persona ${i + 1}`, rol: i % 3 ? 'PLATAFORMA' : 'SEGURIDAD', ambito: 'sistemas', otorgadoEl: '—', estado: 'Activo', segundoFactor: i % 4 ? 'Sí' : 'No' })),
     textoVacio: 'No hay accesos registrados.',
     busqueda: { termino: 'jose', esperadas: 1 },
     filtro: { etiqueta: 'Rol', valor: 'SEGURIDAD', esperadas: 9 },

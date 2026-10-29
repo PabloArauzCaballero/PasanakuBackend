@@ -325,6 +325,33 @@ paths:
               schema: { $ref: '#/components/schemas/SalidaLiquidacion' }
         '422': { $ref: '#/components/responses/ReglaDeNegocio' }
 
+  /tarifas/costos-de-proveedor:
+    get:
+      operationId: listarCostosDeProveedor      # Sistemas › Proveedores (2026-10-29)
+      summary: El costo real de cada proveedor en un periodo, por moneda
+      description: >-
+        Suma exacta (DECIMAL, sin redondeo) de tarifas.costo_proveedor_operacion.costo_total del periodo, agrupada por
+        proveedor y moneda: dos monedas son dos filas, nunca se suman entre si (regla 91.1.2). proveedorId es el id
+        de aportes.proveedor_pago (la FK fk_costo_proveedor_operacion_proveedor_id): solo hay costos de proveedores de pago. Orden proveedorId y moneda. Exige
+        TABLERO_SISTEMAS_VER o AUDITORIA_LEER.
+      parameters:
+        - { name: periodo, in: query, required: true, schema: { type: string, pattern: '^[0-9]{4}-(0[1-9]|1[0-2])$' } }
+      responses:
+        '200':
+          description: Los costos del periodo (vacio si no hubo operaciones)
+          content:
+            application/json:
+              schema:
+                type: array
+                maxItems: 500
+                items: { $ref: '#/components/schemas/CostoDeProveedor' }
+        '400':
+          description: periodo ausente o con otro formato
+        '403':
+          description: Sin TABLERO_SISTEMAS_VER ni AUDITORIA_LEER
+        '401':
+          description: Sin sesion
+
   /tarifas/segmentos:
     post:
       operationId: crearSegmento               # CU-36
@@ -731,6 +758,16 @@ components:
         moneda:
           type: string
           enum: [BOB, USD]
+    CostoDeProveedor:
+      type: object
+      additionalProperties: false
+      required: [proveedorId, periodo, moneda, costoTotal, operaciones]
+      properties:
+        proveedorId: { type: string, format: uuid }
+        periodo: { type: string }
+        moneda: { type: string, minLength: 3, maxLength: 3 }
+        costoTotal: { type: string, description: 'Decimal exacto en texto' }
+        operaciones: { type: integer, minimum: 0 }
     Error:
       type: object
       additionalProperties: false

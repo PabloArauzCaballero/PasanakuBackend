@@ -49,7 +49,7 @@ ap-cajon-lateral ap-menu-lateral { display: block; margin: calc(var(--s4) * -1);
  */
 main { grid-area: contenido; min-width: 0; display: grid; grid-template-columns: minmax(0, 1fr); align-content: start; gap: var(--s5); width: 100%; max-width: calc(var(--s7) * 30); margin-inline: auto; padding: var(--s4) var(--s4) calc(var(--s7) + var(--s4)); box-sizing: border-box; }
 /* Cada pantalla entra con la misma transición: el elemento que el router crea es el que se anima. */
-main > :not(router-outlet, ap-pestanas-de-seccion) { animation: entrar-vista var(--mov-entrada) var(--curva-llega); }
+main > :not(router-outlet) { animation: entrar-vista var(--mov-entrada) var(--curva-llega); }
 @keyframes entrar-vista { from { opacity: 0; transform: translateY(var(--s2)); } }
 
 /* En escritorio el título no cede su lugar al buscador: se achica el buscador, no «Outbox y descart…». */

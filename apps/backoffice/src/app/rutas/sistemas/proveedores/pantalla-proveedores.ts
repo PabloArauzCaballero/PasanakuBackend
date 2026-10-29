@@ -22,15 +22,15 @@ import { textosSistemas } from '../textos'
   imports: [Boton, CabeceraDePagina, CifrasDeSistemas, ListadoDeDatos, Monto],
   template: `
     <section class="pantalla">
-      <ap-cabecera-de-pagina eyebrow="Sistemas" [titulo]="t.titulo" [descripcion]="t.proposito" icono="enlace">
+      <ap-cabecera-de-pagina eyebrow="Sistemas" [titulo]="t.titulo" [descripcion]="t.proposito">
         @if (carga().tipo !== 'sin-fuente') { <ap-boton acciones variante="fantasma" icono="recarga" [deshabilitado]="proveedores.isLoading()" (pulsado)="proveedores.reload()">Actualizar</ap-boton> }
       </ap-cabecera-de-pagina>
       <ap-cifras-de-sistemas etiqueta="Resumen de proveedores" [cifras]="cifras()" [carga]="carga()" />
       <ap-listado [titulo]="t.titulo" [columnas]="columnas" [listado]="listado" [carga]="carga()" ayudaDeBusqueda="Busca por nombre del proveedor, categoría o moneda." [exportables]="exportables" nombreDeRegistros="proveedores" [textoVacio]="t.vacio" explicacionVacio="Cuando se registre un proveedor externo, aparece acá con su costo real." (reintentar)="proveedores.reload()">
         <ng-template #celda let-f let-c="columna">
           @if (c.clave === 'costoRealUltimoPeriodo') {
-            <ap-monto [monto]="f.costoRealUltimoPeriodo" [moneda]="f.moneda" [etiqueta]="'Costo real de ' + f.nombre" />
-          } @else { {{ f[c.clave] }} }
+            @if (f.moneda) { <ap-monto [monto]="f.costoRealUltimoPeriodo" [moneda]="f.moneda" [etiqueta]="'Costo real de ' + f.nombre" /> } @else { — }
+          } @else { {{ f[c.clave] || '—' }} }
         </ng-template>
       </ap-listado>
     </section>
@@ -49,10 +49,11 @@ export class PantallaProveedores {
   private readonly filas = filasDe<Proveedor>(this.proveedores)
   protected readonly listado = crearListado<Proveedor>({
     filas: this.filas,
-    camposDeBusqueda: ['nombre', 'categoria', 'moneda'],
+    camposDeBusqueda: ['nombre', 'categoria', 'moneda', (p) => p.activo ?? ''],
     filtros: [
       { nombre: 'categoria', etiqueta: 'Categoría', valor: (p) => p.categoria },
       { nombre: 'moneda', etiqueta: 'Moneda', valor: (p) => p.moneda },
+      { nombre: 'activo', etiqueta: 'Estado', valor: (p) => p.activo },
     ],
     porPagina: 10,
   })
@@ -61,12 +62,14 @@ export class PantallaProveedores {
     return [
       { etiqueta: 'Proveedores', valor: contar(f), icono: 'enlace' },
       { etiqueta: 'Categorías', valor: String(new Set(f.map((p) => p.categoria)).size), icono: 'etiqueta' },
-      { etiqueta: 'Monedas', valor: String(new Set(f.map((p) => p.moneda)).size), icono: 'moneda', pista: 'Los costos no se suman entre monedas.' },
+      { etiqueta: 'Monedas', valor: String(new Set(f.map((p) => p.moneda).filter(Boolean)).size), icono: 'moneda', pista: 'Los costos no se suman entre monedas.' },
     ]
   })
   protected readonly columnas: Columna<Proveedor>[] = [
     { clave: 'nombre', titulo: 'Proveedor', ordenable: true },
     { clave: 'categoria', titulo: 'Categoría', ordenable: true },
+    { clave: 'activo', titulo: 'Estado', ordenable: true },
+    { clave: 'periodo', titulo: 'Período del costo' },
     { clave: 'costoRealUltimoPeriodo', titulo: 'Costo real (último período)', numerica: true, ordenable: true },
   ]
   protected readonly exportables: ColumnaExportable<Proveedor>[] = [

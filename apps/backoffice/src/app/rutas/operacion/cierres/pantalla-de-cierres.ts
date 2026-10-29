@@ -42,7 +42,7 @@ const EXPORTABLES: ColumnaExportable<CierreDiarioEnLista>[] = [
   imports: [Alerta, Boton, CabeceraDePagina, ChipEstado, Fecha, ImporteSinMoneda, ListadoPorCursorVista, FormularioDeCierre],
   template: `
     <section class="pantalla">
-      <ap-cabecera-de-pagina eyebrow="Contabilidad" [titulo]="t.titulo" [descripcion]="t.proposito" icono="calendario">
+      <ap-cabecera-de-pagina eyebrow="Contabilidad" [titulo]="t.titulo" [descripcion]="t.proposito">
         @if (puedeCerrar() && !formularioAbierto()) {
           <ap-boton acciones variante="primario" icono="candado" (pulsado)="formularioAbierto.set(true)">{{ t.formulario.abrir }}</ap-boton>
         }
