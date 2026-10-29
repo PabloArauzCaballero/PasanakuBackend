@@ -80,7 +80,7 @@ class _PantallaDeContrasenaState extends ConsumerState<PantallaDeContrasena> {
                 ),
                 const SizedBox(height: Espacio.s5),
                 Boton(
-                  texto: TextosIdentidad.guardar,
+                  texto: TextosDeTramites.contrasenaGuardar,
                   motivoDeBloqueo: valido
                       ? null
                       : TextosDeTramites.contrasenaBloqueo,
