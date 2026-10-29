@@ -63,6 +63,21 @@ Revolut) y delegó las cuatro decisiones abiertas en «lo más recomendado» (20
    - Nada disparado por la persona supera 320 ms (`pasanaku-movimiento`).
    - Todo respeta «reducir movimiento».
 
+## Motivo
+
+La persona usuaria pidió que la app se vea como sus apps bancarias hermanas y delegó las cuatro
+decisiones abiertas en «lo más recomendado» (2026-10-21). La revisión del «antes» mostró una app
+correcta pero genérica, así que el cambio es de **forma**, no de función: se separa lo que se puede
+hacer (verde) de lo que hay que hacer ya (naranja de urgencia de pago) y se da protagonismo al saldo.
+
+Lucide se eligió porque conserva la API `IconData` (los átomos no cambian de firma) y porque su
+mantenimiento cumple la regla 90.4.2, que descartó `phosphor_flutter`. Los pares de color se
+**midieron** en claro y oscuro en vez de copiarse de la lámina: por eso el fondo claro y
+`accentTexto` difieren de ella.
+
+> Las secciones «Motivo» y «Cómo se verifica» se redactaron el 2026-10-29, después de aceptada la
+> decisión, solo con lo que este ADR y los reportes citados ya dicen. No cambian la decisión.
+
 ## Alternativas descartadas
 
 | Alternativa | Por qué no |
@@ -81,3 +96,20 @@ Revolut) y delegó las cuatro decisiones abiertas en «lo más recomendado» (20
 - **Dependencia nueva**: `lucide_icons_flutter 3.1.20` en `packages/diseno_flutter`; el
   lockfile se versiona. Sube de versión solo por decisión explícita.
 - **Sin cambios** en dominio, providers, contratos, sesión ni cálculos de dinero.
+
+## Cómo se verifica
+
+- [x] Análisis estático de la app y del paquete de diseño: `dart analyze --fatal-infos` →
+      «No issues found» en `movil` y `diseno`
+      (`docs/trabajo/2026-10-29-rediseno-bancario-al-repo-desplegado/REPORTE.md`, H1.M2).
+- [x] Pruebas, con accesibilidad incluida (`tutoriales_a11y`): `flutter test` → `diseno` +128 ·
+      `movil` +828 (mismo reporte, H1.M3).
+- [x] Goldens regenerados con Flutter 3.44.8 y mirados: `flutter test test/goldens` → `diseno` +18 ·
+      `movil` +274 (mismo reporte, H1.M4).
+- [x] Tanda 2 (pantallas de trámite): `verificar_frontend.py movil/diseno` → TODO OK; goldens
+      `diseno` +149 · `movil` +274
+      (`docs/trabajo/2026-10-29-rediseno-bancario-tanda-2/REPORTE.md`, T2.M4 y T2.M5).
+- [ ] Dispositivo real: no se ejercitó (tanda 2, «No cubierto»).
+- [ ] Web y backoffice con los valores nuevos de los roles compartidos: la captura antes/después
+      (H2.S5.M1, H8.S3.M2 de `docs/trabajo/2026-10-21-rediseno-bancario/`) no se volvió a
+      ejecutar al redactar esta sección.

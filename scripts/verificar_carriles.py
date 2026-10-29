@@ -110,12 +110,12 @@ def skills_de_la_matriz():
     """Todo lo que planes/19 §1 y §2 nombran entre comillas invertidas."""
     t = P19.read_text(encoding="utf-8")
     seccion = t[t.index("## 1 · Arranque de máquina"):t.index("## 3 · Conflicto cero")]
-    nombradas = set(re.findall(r"`([a-z0-9-]{4,})`", seccion))
+    nombradas = set(re.findall(r"`([a-z0-9-]{3,})`", seccion))
     filas = {}
     tabla = seccion[seccion.index("### Y las propias de cada carril"):]
     for m in re.finditer(r"^\|\s*([^|]+?)\s*\|\s*([^|]+?)\s*\|\s*$", tabla, re.M):
         carriles = re.findall(r"`([^`]+)`", m.group(1))
-        propias = set(re.findall(r"`([a-z0-9-]{4,})`", m.group(2)))
+        propias = set(re.findall(r"`([a-z0-9-]{3,})`", m.group(2)))
         for lane in carriles:
             filas[lane] = propias
     return nombradas, filas

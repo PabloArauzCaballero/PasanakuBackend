@@ -352,3 +352,23 @@ notas de implementación en React/Tailwind se traducen a Flutter y a `diseno_flu
 Descartadas: `ihlamury/design-skills` (marcas como Monzo o N26, extraídas automáticamente de sus webs
 de marketing; imponen reglas absurdas, como cuerpo de texto rojo en extra negrita) y
 `awesome-skills/mobile-app-design` (React Native; lo cubren `mobile-native` y `flutter-development`).
+
+## Marketing y redacción de terceros (rediseño bancario, 2026-10-21)
+
+Diez skills de `coreyhaines31/marketingskills` (MIT), instaladas para el rediseño
+(`docs/trabajo/2026-10-21-rediseno-bancario`, commit `579ddeac`), también en `.agents/skills/`.
+Son **oficio**: si chocan con las reglas, el `CLAUDE.md` o los tokens de AportaYa, ganan esos.
+El commit de instalación no registró el SHA de origen; queda declarado acá en vez de inventarlo.
+
+| Skill | Cuándo usarla | Procedencia |
+|---|---|---|
+| `aso` | When the user wants to audit or optimize an App Store or Google Play listing. | github.com/coreyhaines31/marketingskills · MIT · SHA no registrado al instalar |
+| `copy-editing` | When the user wants to edit, review, or improve existing marketing copy, or refresh outdated content. | github.com/coreyhaines31/marketingskills · MIT · SHA no registrado al instalar |
+| `copywriting` | When the user wants to write, rewrite, or improve marketing copy for any page, including homepage, landing pages, pricing pages, feature pages, about pages, or product pages. | github.com/coreyhaines31/marketingskills · MIT · SHA no registrado al instalar |
+| `cro` | When the user wants to optimize, improve, or increase conversions on any marketing page or form — including homepage, landing pages, pricing pages, feature pages, lead capture forms, or contact forms. | github.com/coreyhaines31/marketingskills · MIT · SHA no registrado al instalar |
+| `marketing-ideas` | When the user needs marketing ideas, inspiration, or strategies for their SaaS or software product. | github.com/coreyhaines31/marketingskills · MIT · SHA no registrado al instalar |
+| `marketing-psychology` | When the user wants to apply psychological principles, mental models, or behavioral science to marketing. | github.com/coreyhaines31/marketingskills · MIT · SHA no registrado al instalar |
+| `onboarding` | When the user wants to optimize post-signup onboarding, user activation, first-run experience, or time-to-value. | github.com/coreyhaines31/marketingskills · MIT · SHA no registrado al instalar |
+| `product-marketing` | When the user wants to create or update their product marketing context document. | github.com/coreyhaines31/marketingskills · MIT · SHA no registrado al instalar |
+| `referrals` | When the user wants to create, optimize, or analyze a referral program, affiliate program, or word-of-mouth strategy. | github.com/coreyhaines31/marketingskills · MIT · SHA no registrado al instalar |
+| `signup` | When the user wants to optimize signup, registration, account creation, or trial activation flows. | github.com/coreyhaines31/marketingskills · MIT · SHA no registrado al instalar |
