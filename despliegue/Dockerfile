@@ -92,6 +92,10 @@ RUN mkdir -p /nativo /tmp/nativo && cd /tmp/nativo \
 # sano y despues devolvia 500 al intentar verificar la contrasena.
 # Fijada por digest (H2.S4.M2), mismo criterio que la etapa de construccion.
 FROM eclipse-temurin@sha256:7739f0ffce786528961eea6bf46d9610ee968ac6127c9b2e93494757bdecce9f AS runtime
+# La limpieza diaria de Coolify borra toda imagen sin contenedor que no lleve esta
+# etiqueta, y esta imagen la construye el host, no Coolify: sin ella el despliegue
+# siguiente falla con «No such image» (ver despliegue/TEST.md).
+LABEL coolify.managed=true
 ARG SERVICIO
 ENV SERVICIO=${SERVICIO}
 

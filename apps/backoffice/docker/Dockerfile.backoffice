@@ -18,6 +18,10 @@ COPY apps/backoffice apps/backoffice
 RUN yarn workspace @aportaya/tokens build && yarn workspace @aportaya/backoffice build
 
 FROM nginxinc/nginx-unprivileged:1.27-alpine AS ejecucion
+# La limpieza diaria de Coolify borra toda imagen sin contenedor que no lleve esta
+# etiqueta, y esta imagen la construye el host, no Coolify: sin ella el despliegue
+# siguiente falla con «No such image» (ver despliegue/TEST.md).
+LABEL coolify.managed=true
 # La configuracion de nginx se elige al construir: la de siempre por omision, y la
 # de un entorno desplegado (meta del gateway + /api/ al gateway) con
 # --build-arg CONF_NGINX=apps/backoffice/docker/nginx.desplegado.conf
