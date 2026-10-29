@@ -18,6 +18,7 @@ import 'pantalla_permuta.dart';
 import 'pantalla_reclamo_pendiente.dart';
 import 'pantalla_retiro.dart';
 import 'pantalla_transparencia.dart';
+import 'pantalla_traspaso.dart';
 import 'pantalla_turno.dart';
 import 'pantalla_escanear.dart';
 import 'pantalla_unirse.dart';
