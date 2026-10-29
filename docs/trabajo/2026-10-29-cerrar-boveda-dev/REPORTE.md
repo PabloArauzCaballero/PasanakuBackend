@@ -1,4 +1,4 @@
-> **AVANCE: 11 / 13 — 84,6 %.** Los 10 cambios y su verificación local están hechos; falta que la CI de las PR quede verde, el merge a `dev` y el mismo cambio en `test` (H1.S2.M2, H1.S2.M3).
+> **AVANCE: 12 / 14 — 85,7 %.** Los 11 cambios y su verificación local están hechos; falta que la CI de las PR quede verde, el merge a `dev` y el mismo cambio en `test` (H1.S2.M2, H1.S2.M3).
 
 # Reporte — Poner en verde la verificación de la bóveda en `dev`/`test`
 
@@ -18,6 +18,7 @@
 | H1.S1.M8 | Generador de Compose declara `SALUD_OBJETIVO_SLO`; `docker-compose.coolify.yml` regenerado (1 línea) | `python3 scripts/generar_compose.py --coolify` · `python3 scripts/auditoria/verificar_limites_compose.py` · `git diff --exit-code -- docker-compose.coolify.yml despliegue/coolify/` | PASS exit 0 · `evidencia/compose-despues.txt` |
 | H1.S1.M9 | `auditoria`: sin literales SLO en el código y `IndicadoresController` de 379 a 254 líneas (mapeos a `MapeoDeTablero` y `MapeoDeSistemas`) | `./gradlew :servicios:auditoria:spotlessCheck` · `check -x test -x jacocoTestCoverageVerification -x jacocoTestReport` · `testBarrido` · `test` · `webTest --rerun` | PASS: BUILD SUCCESSFUL en todos; `test` 58/58, `webTest` 82/82 · `evidencia/gradle-auditoria-*.txt` |
 | H1.S1.M10 | `GruposBandejaWebTest.sinParametros` alineado con el default `limite=200` del contrato (TEST_BUG demostrado) | `./gradlew :servicios:grupos:webTest --rerun` · `./gradlew check -x test -x jacocoTestCoverageVerification -x jacocoTestReport --continue` · `./gradlew testBarrido compileJava erroresCatalogo --continue` · `./gradlew spotlessCheck` | PASS: grupos/webTest 114/114; el resto BUILD SUCCESSFUL · `evidencia/gradle-grupos-webtest.txt`, `evidencia/gradle-check-completo.txt` |
+| H1.S1.M11 | Backoffice: `signal` sin uso retirado; `menu.ts` y `pantalla-de-admision.spec.ts` por debajo de 200 líneas sin perder pruebas | `yarn run lint` · `yarn run typecheck` · `yarn run test:front` (en `apps/backoffice`, Node 22.23.4) | PASS: lint exit 0 (ESLint + barrido), typecheck exit 0, test:front 183 archivos / 1285 pruebas · `evidencia/frontend-*.txt` |
 | H1.S2.M1 | Pasos del job «Bóveda…» corridos en local | `verificar_seguridad.py`, `verificar_boveda.py`, `verificar_carriles.py`, `generar_k8s.py`, `generar_ddl.py`, `generar_semillas.py`, `git diff --quiet -- sql/` | todos exit 0 · `evidencia/` |
 
 ## A medias
@@ -45,6 +46,7 @@ Después: `evidencia/*-despues.txt`.
 - `./gradlew test` de `servicios/grupos`: el cambio de código es solo un `@DisplayName`; no se ejecutó la prueba Java en local.
 - Los demás módulos Java no se compilaron ni probaron: el cambio de `auditoria` no es referenciado desde otro módulo (verificado con búsqueda), pero no se corrió `compileJava` global.
 - Prueba de integración de `auditoria` con el contexto Spring completo y `aportaya.salud.objetivo-slo` sin default en el `@Value`: el valor lo da `application.yml` (`${SALUD_OBJETIVO_SLO:99.5}`) y `compose` (`generar_compose.py`); no se arrancó el servicio.
+- Frontend: no se ejecutaron en local `test:a11y`, los builds (`ng build` bajo presupuesto), los e2e de Playwright (web y backoffice), ni nada de Flutter (no hay SDK). Los cubre la CI de la PR.
 - Entorno de verificación: PostgreSQL 16 efímero local con las credenciales de la CI y un *init script* de Gradle local (espejo de Maven Central por 429 de límite de tasa); no forman parte del repo.
 - La CI de GitHub (todavía no corrió sobre este cambio).
 - El job de PostgreSQL real no se re-ejecutó en local; ya pasaba en `dev` (run 40875015485) y este cambio no toca SQL.
