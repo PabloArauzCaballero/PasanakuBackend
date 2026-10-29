@@ -66,7 +66,7 @@ export function tonoDeGrupo(estado: string): Tono {
                 @case ('nombre') { <strong>{{ fila.nombre }}</strong> }
                 @case ('montoAporte') { <ap-monto [monto]="fila.montoAporte" [moneda]="fila.moneda" /> }
                 @case ('cuposOcupados') { <span class="cifra">{{ fila.cuposOcupados }} / {{ fila.cuposTotales }}</span> }
-                @case ('fechaInicio') { {{ fila.fechaInicio ? dia(fila.fechaInicio) : t.sinFecha }} }
+                @case ('fechaInicio') { <span class="dia">{{ fila.fechaInicio ? dia(fila.fechaInicio) : t.sinFecha }}</span> }
                 @case ('estado') { <ap-chip-estado [tono]="tono(fila.estado)">{{ t.estados[fila.estado] ?? fila.estado }}</ap-chip-estado> }
                 @case ('acciones') {
                   <ap-boton variante="fantasma" tamano="sm" icono="ojo" [routerLink]="['/grupos', fila.grupoId]">{{ t.verGrupo }}</ap-boton>
@@ -83,6 +83,8 @@ export function tonoDeGrupo(estado: string): Tono {
     .enlace-mono { color: var(--color-primario); text-decoration: none; font-weight: 600; }
     .enlace-mono:hover { text-decoration: underline; }
     .cifra { font-variant-numeric: tabular-nums; }
+    /* «15 ene 2026» en un renglón: la regla global parte el texto de las celdas y la fecha corta quedaba en dos. */
+    .dia { white-space: nowrap; }
   `,
 })
 export class ListadoDeGrupos {

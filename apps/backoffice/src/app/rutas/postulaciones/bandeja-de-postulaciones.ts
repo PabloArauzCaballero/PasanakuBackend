@@ -50,7 +50,7 @@ export function tonoDeEstado(estado: string): Tono {
             <ng-template #celda let-fila let-columna="columna">
               @switch (columna.clave) {
                 @case ('solicitudId') {
-                  <a [routerLink]="['/postulaciones-organizador', fila.solicitudId]" class="enlace-mono" [attr.aria-label]="t.verExpediente + ' ' + fila.solicitudId">
+                  <a [routerLink]="['/postulaciones-organizador', fila.solicitudId]" class="enlace-mono" [title]="fila.solicitudId" [attr.aria-label]="t.verExpediente + ' ' + fila.solicitudId">
                     <code>{{ acortar(fila.solicitudId) }}</code>
                   </a>
                 }
@@ -80,7 +80,11 @@ export function tonoDeEstado(estado: string): Tono {
     .enlace-mono:hover { text-decoration: underline; }
     .cifra { font-variant-numeric: tabular-nums; }
     .pendiente { display: block; margin-top: var(--s1); font-size: .8125rem; color: var(--text-2); }
-    .paginas { display: flex; gap: var(--s2); justify-content: flex-end; flex-wrap: wrap; }
+    .paginas { display: flex; gap: var(--s2); justify-content: flex-end; flex-wrap: wrap; margin-top: var(--s4); }
+    /* «15 ene 2026» en un renglón: la regla global parte el texto de las celdas y la fecha corta quedaba en dos. */
+    time { white-space: nowrap; }
+    /* Cinco estados no entran a 390 px: el selector desplaza dentro de sí en vez de empujar la página (+173 px). */
+    ap-selector-segmentado { max-width: 100%; overflow-x: auto; scrollbar-width: thin; }
   `,
 })
 export class BandejaDePostulaciones {

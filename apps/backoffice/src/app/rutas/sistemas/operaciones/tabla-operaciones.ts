@@ -52,7 +52,7 @@ import type { OperacionDelSistema } from './dominio/tipos'
             </div>
           }
           @case ('flujo') {
-            <span class="flujo-badge">{{ op.flujo.nombre }}</span>
+            <span class="flujo-badge" [title]="op.flujo.nombre">{{ op.flujo.nombre }}</span>
           }
           @case ('riesgo') {
             <ap-chip-estado [tono]="tonoRiesgo(op.riesgo)">{{ op.riesgo }}</ap-chip-estado>
@@ -69,8 +69,11 @@ import type { OperacionDelSistema } from './dominio/tipos'
   `,
   styles: `
     :host { display: block; width: 100%; min-width: 0; }
-    .col-ruta { display: flex; flex-direction: column; gap: var(--s1); min-width: 14rem; }
-    .enlace-mono { font-family: var(--f-mono, monospace); font-size: 0.875rem; color: var(--brand-texto); text-decoration: none; font-weight: 600; }
+    /* min(): en la tarjeta de 390 px el piso de 14rem empujaba la ruta fuera de la tarjeta. */
+    .col-ruta { display: flex; flex-direction: column; gap: var(--s1); min-width: min(14rem, 100%); }
+    /* Una ruta larga («/indicadores/catalogo-de-datos/{esquema}/…») se parte en sus barras en vez de salirse. */
+    .enlace-mono { font-family: var(--f-mono, monospace); font-size: 0.875rem; color: var(--brand-texto); text-decoration: none; font-weight: 600; overflow-wrap: anywhere; }
+    @media (max-width: 40em) { .enlace-mono code { white-space: normal; } }
     .enlace-mono:hover { text-decoration: underline; }
     .subtexto { font-size: 0.75rem; color: var(--text-apagado); }
     .servicio-tag { display: flex; flex-direction: column; gap: 0.25rem; }
