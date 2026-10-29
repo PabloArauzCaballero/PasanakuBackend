@@ -1,4 +1,4 @@
-> **AVANCE: 8 / 10 — 80,0 %.** Los 7 cambios y la verificación local están hechos; falta que la CI de las PR quede verde, el merge a `dev` y el mismo cambio en `test` (H1.S2.M2, H1.S2.M3).
+> **AVANCE: 9 / 11 — 81,8 %.** Los 8 cambios y la verificación local están hechos; falta que la CI de las PR quede verde, el merge a `dev` y el mismo cambio en `test` (H1.S2.M2, H1.S2.M3).
 
 # Reporte — Poner en verde la verificación de la bóveda en `dev`/`test`
 
@@ -15,6 +15,7 @@
 | H1.S1.M5 | 13 skills asignadas a `F1-M` en `planes/19` | `python3 scripts/verificar_carriles.py` | PASS (TODO OK con avisos) · `evidencia/verificar_carriles-despues.txt` |
 | H1.S1.M6 | `verificar_carriles.py` reconoce skills de 3 letras | ídem | PASS |
 | H1.S1.M7 | CU-68: criterios de backoffice en la bóveda + `@DisplayName` de la 2.ª prueba alineado | `python3 scripts/verificar_criterios.py` | PASS «Sin divergencias entre la boveda y el codigo» · `evidencia/verificar_criterios-despues.txt` |
+| H1.S1.M8 | Generador de Compose declara `SALUD_OBJETIVO_SLO`; `docker-compose.coolify.yml` regenerado (1 línea) | `python3 scripts/generar_compose.py --coolify` · `python3 scripts/auditoria/verificar_limites_compose.py` · `git diff --exit-code -- docker-compose.coolify.yml despliegue/coolify/` | PASS exit 0 · `evidencia/compose-despues.txt` |
 | H1.S2.M1 | Pasos del job «Bóveda…» corridos en local | `verificar_seguridad.py`, `verificar_boveda.py`, `verificar_carriles.py`, `generar_k8s.py`, `generar_ddl.py`, `generar_semillas.py`, `git diff --quiet -- sql/` | todos exit 0 · `evidencia/` |
 
 ## A medias

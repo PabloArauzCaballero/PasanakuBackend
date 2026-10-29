@@ -40,6 +40,8 @@ COMUNES = {
     # Tableros: relleno de indicadores al arrancar (meses y dias cerrados hacia atras).
     "INDICADORES_RELLENO_MESES": "13",
     "INDICADORES_RELLENO_DIAS": "35",
+    # SLO de disponibilidad de todos los servicios (decision del 2026-10-29); el mismo default que application.yml.
+    "SALUD_OBJETIVO_SLO": "99.5",
     "PROMETHEUS_URL": "http://prometheus:9090",
     "BD_URL": "jdbc:postgresql://pgbouncer:6432/pasanaku",
     "BD_CLAVE": "pasanaku",
@@ -164,6 +166,7 @@ DE_DESARROLLO = {
 COMUNES_DESPLEGADO = {
     "INDICADORES_RELLENO_MESES": "${INDICADORES_RELLENO_MESES:-13}",
     "INDICADORES_RELLENO_DIAS": "${INDICADORES_RELLENO_DIAS:-35}",
+    "SALUD_OBJETIVO_SLO": "${SALUD_OBJETIVO_SLO:-99.5}",
     # Vacio por omision en TEST: sin Prometheus en el host, el tablero de sistemas dice «fuente no disponible».
     "PROMETHEUS_URL": "${PROMETHEUS_URL:-}",
     "BD_URL": "jdbc:postgresql://pgbouncer:6432/pasanaku",
