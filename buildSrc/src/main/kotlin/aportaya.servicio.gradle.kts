@@ -47,8 +47,9 @@ extra["log4j2.version"] = "2.25.5"
 extra["postgresql.version"] = "42.7.12"
 extra["commons-lang3.version"] = "3.18.0"
 // GHSA-rcgg-9c38-7xpx (opentelemetry-api 1.49.0, el que trae el BOM de Boot 3.5.16): corregido en 1.62.0.
+// GHSA-ccrj-gw8r-854m (opentelemetry-api 1.62.0, OSV-Scanner 2026-10-30): corregido en 1.67.0.
 // La API de OpenTelemetry es estable y compatible hacia atrás; el bridge de Micrometer la usa sin cambios.
-extra["opentelemetry.version"] = "1.62.0"
+extra["opentelemetry.version"] = "1.67.0"
 
 // Estas transitivas no las fija el BOM. Las restricciones no agregan paquetes a
 // modulos que no los usan; actualizan solamente los que ya llegan por otra via.
@@ -60,6 +61,11 @@ dependencies {
             add(alcance, "org.bouncycastle:bcprov-jdk18on:1.85.2")
             add(alcance, "org.bouncycastle:bcpkix-jdk18on:1.85.2")
             add(alcance, "org.bouncycastle:bcutil-jdk18on:1.85.2")
+            // Trivy (job «bootJar y docker build», paso 17b2) sobre la imagen de identidad, 2026-10-30: HIGH con parche publicado.
+            // guava 33.4.8-jre llega por io.minio:minio 8.6.0 (CVE-2026-102554, corregido en 33.7.2-jre) y snappy-java 1.1.10.7 por
+            // kafka-clients (CVE-2026-108106 y CVE-2026-93451, corregidos en 1.1.10.9). Los demas servicios traian 1.1.10.5.
+            add(alcance, "com.google.guava:guava:33.7.2-jre")
+            add(alcance, "org.xerial.snappy:snappy-java:1.1.10.9")
         }
     }
 }

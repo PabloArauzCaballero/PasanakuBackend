@@ -33,9 +33,11 @@ export type Opcion = { valor: string; texto: string; descripcion?: string }
     :host { display: block; min-width: 0; }
     .etiqueta { display: flex; align-items: center; gap: var(--s1); margin-bottom: var(--s1); }
     label { font: var(--t-campo-etiqueta); color: var(--text-2); }
-    .ayuda-boton { display: inline-flex; align-items: center; justify-content: center; width: var(--s5); height: var(--s5); padding: 0; border: 0; border-radius: var(--r-pill); background: transparent; color: var(--text-3); cursor: help; }
-    .ayuda-boton:focus-visible { outline: var(--borde-foco) solid var(--g300); outline-offset: var(--borde-desfase); }
-    select { width: 100%; min-height: var(--area-tactil); padding: var(--s2) var(--s3); border: var(--borde-fino) solid var(--borde-control); border-radius: var(--r-md); background: var(--field); color: var(--text); font: inherit; }
+    .ayuda-boton { display: inline-flex; align-items: center; justify-content: center; width: var(--area-tactil); height: var(--area-tactil); margin: calc((var(--s5) - var(--area-tactil)) / 2); padding: 0; border: 0; border-radius: var(--r-pill); background: transparent; color: var(--text-3); cursor: help; }
+    /* El botón mide el área táctil (44 px); el margen negativo conserva el hueco de 24 px y el anillo de foco rodea el mismo círculo de siempre. */
+    .ayuda-boton:focus-visible { outline: var(--borde-foco) solid var(--g300); outline-offset: calc(var(--borde-desfase) - (var(--area-tactil) - var(--s5)) / 2); }
+    /* Posicionado: pinta (y recibe el clic) por encima de los 10 px que el botón de ayuda, ya de 44 px, le solapa. */
+    select { position: relative; width: 100%; min-height: var(--area-tactil); padding: var(--s2) var(--s3); border: var(--borde-fino) solid var(--borde-control); border-radius: var(--r-md); background: var(--field); color: var(--text); font: inherit; }
     select:focus-visible { outline: var(--borde-foco) solid var(--g300); outline-offset: var(--borde-desfase); }
     select:disabled { background: var(--surface-2); color: var(--text-3); cursor: not-allowed; }
     :host(.con-error) select { border-color: var(--err); }

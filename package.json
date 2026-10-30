@@ -28,9 +28,26 @@
     "typescript": "~5.9.2"
   },
   "resolutions": {
-    "@scalar/json-magic/undici": "7.29.1",
+    "@hono/node-server@npm:2.1.1": "2.1.3",
+    "@modelcontextprotocol/server@npm:2.0.0": "2.3.0",
+    "@scalar/json-magic/undici": "7.30.1",
+    "@vitest/mocker@npm:4.1.11": "4.1.12",
+    "body-parser@npm:^2.2.1": "2.4.0",
+    "fast-uri@npm:^3.0.1": "3.1.9",
     "handlebars": "4.7.10",
-    "lodash": "4.18.1"
+    "hono@npm:4.13.8": "4.13.11",
+    "hono@npm:^4.13.7": "4.13.11",
+    "lodash": "4.18.1",
+    "qs@npm:^6.14.0": "6.16.1",
+    "qs@npm:^6.15.2": "6.16.1",
+    "undici@npm:^7.21.0": "7.30.1",
+    "undici@npm:^8.4.1": "8.12.2",
+    "vite@npm:8.3.0": "8.3.3",
+    "vite@npm:^6.0.0 || ^7.0.0 || ^8.0.0": "8.2.4",
+    "zod@npm:4.6.5": "4.6.6",
+    "zod@npm:^4.2.0": "4.6.6",
+    "zod@npm:^4.4.3": "4.6.6",
+    "zod@npm:^4.0.10": "4.6.6"
   },
   "engines": {
     "node": ">=22"
