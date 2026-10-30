@@ -38,7 +38,7 @@ class TarjetaDeSubasta extends StatelessWidget {
     final estado = TextosDeLaSubasta.estados[s.estado.value] ?? s.estado.value;
     final cifra = masAlta == null ? bs(s.montoBase) : bs(masAlta);
     final rotulo = masAlta == null
-        ? TextosDeLaSubasta.sinOfertas
+        ? TextosDeLaSubasta.precioBase
         : TextosDeLaSubasta.ofertaMasAlta;
     return Tarjeta(
       key: ValueKey('subasta-${s.subastaId}'),
@@ -68,7 +68,7 @@ class TarjetaDeSubasta extends StatelessWidget {
           Text(cifra, style: Tipo.cifra.copyWith(color: t.text)),
           const SizedBox(height: Espacio.s2),
           Text(
-            '${masAlta == null ? '${TextosDeLaSubasta.base} ${bs(s.montoBase)}' : TextosDeLaSubasta.ofertas(s.cantidadDePujas)}'
+            '${masAlta == null ? TextosDeLaSubasta.sinOfertas : TextosDeLaSubasta.ofertas(s.cantidadDePujas)}'
             ' · ${TextosDeLaSubasta.cierra} ${Fecha.formatear(s.cierraEn.toLocal().toIso8601String())}',
             style: Tipo.cuerpoChico.copyWith(color: t.text2),
           ),

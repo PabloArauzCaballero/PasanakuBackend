@@ -34,7 +34,6 @@ abstract final class TextosDeLaSubasta {
   // Estado de una subasta
   static const ofertaMasAlta = 'Oferta más alta';
   static const sinOfertas = 'Todavía nadie ofreció';
-  static const base = 'Base';
   static const aporte = 'Aporte';
   static const cierra = 'Cierra';
   static String ofertas(int n) => n == 1 ? '1 oferta' : '$n ofertas';

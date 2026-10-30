@@ -28,13 +28,24 @@ Map<String, dynamic> subastaSintetica({
   'montoAporte': {'monto': '200.00', 'moneda': 'BOB'},
   'montoBase': {'monto': '1500.00', 'moneda': 'BOB'},
   'montoMasAlto': masAlto == null ? null : {'monto': masAlto, 'moneda': 'BOB'},
-  'montoMinimo': {'monto': masAlto ?? '1500.00', 'moneda': 'BOB'},
+  // Como el servidor: un centavo más que la más alta; sin ofertas, la base. En
+  // centavos enteros: un importe nunca pasa por un double (regla 91.1.1).
+  'montoMinimo': {
+    'monto': masAlto == null ? '1500.00' : _unCentavoMas(masAlto),
+    'moneda': 'BOB',
+  },
   'estado': estado,
   'cierraEn': '2026-11-02T12:00:00Z',
   'cantidadDePujas': pujas,
   'soyElSaliente': soyElSaliente,
   'miPuja': miPuja,
 };
+
+String _unCentavoMas(String monto) {
+  final centavos = int.parse(monto.replaceAll('.', '')) + 1;
+  final texto = centavos.toString().padLeft(3, '0');
+  return '${texto.substring(0, texto.length - 2)}.${texto.substring(texto.length - 2)}';
+}
 
 typedef _Envio = ({String path, String? clave, Map<String, dynamic>? cuerpo});
 

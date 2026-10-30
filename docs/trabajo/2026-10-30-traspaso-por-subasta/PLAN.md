@@ -103,16 +103,16 @@ pendientes de H6.M2. Regresión: test 40/40 · webTest 60/60 · integrationTest 
 ## H4 — Aviso a todos los usuarios
 | ID | Microtarea | CA | DoD | Estado |
 |---|---|---|---|---|
-| H4.M1 | `notificaciones` consume `entregas.subasta_abierta` y notifica a todos (idempotente por evento) | un evento = un aviso por usuario | prueba del consumidor | TODO |
+| H4.M1 | `notificaciones` consume `entregas.subasta_abierta` y notifica a todos (idempotente por evento) | un evento = un aviso por usuario | el evento `entregas.subasta_abierta` sale por el outbox (CU64SubastaDeCupoTest). La app NO tiene push (sin Firebase) ni bandeja conectada al backend, y `notificaciones` no consume eventos: el aviso llega dentro de la app («Cupos en subasta» en el inicio). Falta el canal push | A MEDIAS |
 
 ## H5 — App: subastar, ver y pujar
 | ID | Microtarea | CA | DoD | Estado |
 |---|---|---|---|---|
-| H5.M1 | «Subastar mi cupo» reemplaza el traspaso con votación | precio base + plazo + confirmación → POST único | `flutter test test/pasanaku/...subasta...` | TODO |
-| H5.M2 | Lista «Cupos en subasta» (todos los usuarios) con 4 estados | carga/datos/vacío/error | test de widget | TODO |
-| H5.M3 | Detalle + pujar (oferta más alta, mínimo, saldo, hoja de confirmación) | 409 «alguien ofreció más» en el paso; sin doble envío | test de widget | TODO |
-| H5.M4 | Gates de la app | analyze, verificar_frontend, suite | comandos | TODO |
-| H5.M5 | Capturas 360/412 claro/oscuro miradas | capturas | test de capturas | TODO |
+| H5.M1 | «Subastar mi cupo» reemplaza el traspaso con votación | precio base + plazo + confirmación → POST único | `flutter test test/pasanaku/subastar_cupo_test.dart` 5/5 | HECHO |
+| H5.M2 | Lista «Cupos en subasta» (todos los usuarios) con 4 estados | carga/datos/vacío/error | `flutter test test/pasanaku/pujar_en_subasta_test.dart` (lista, vacío, error) | HECHO |
+| H5.M3 | Detalle + pujar (oferta más alta, mínimo, saldo, hoja de confirmación) | 409 «alguien ofreció más» en el paso; sin doble envío | idem (ofrecer, sin aceptar, AP-CU136-04, saliente, superado) — 13/13 entre los dos | HECHO |
+| H5.M4 | Gates de la app | analyze, verificar_frontend, suite | `dart analyze --fatal-infos lib test` sin issues · suite 1160: 0 regresiones contra la línea base en esta máquina (`evidencia/h5-app-regresion.txt`) · gate: 1 falla AJENA (`lib/dominio/errores.dart` 203 líneas, llegó de origin/test a989582c) | HECHO |
+| H5.M5 | Capturas 360/412 claro/oscuro miradas | capturas | `flutter test test/capturas/subasta_capturas_test.dart --update-goldens` 12/12 · capturas miradas (`evidencia/capturas/`) | HECHO |
 
 ## H6 — Desplegado en TEST y recorrido real
 | ID | Microtarea | CA | DoD | Estado |
