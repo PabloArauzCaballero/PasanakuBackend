@@ -2,7 +2,7 @@
 
 > **AVANCE: 6 / 6 — 100 %.**
 
-- Fecha: 2026-10-30 · Plan: [PLAN.md](./PLAN.md) · Rama: `claude/traspaso-por-subasta` (árbol de trabajo compartido; solo se tocaron `.md` y un script de evidencia)
+- Fecha: 2026-10-30 · Plan: [PLAN.md](./PLAN.md) · Rama: `pablo/feat/backoffice-como-atlas-h0-h1-2026-10-18`, commit `7767060b` (el checkout compartido estaba en esa rama al commitear, no en `claude/traspaso-por-subasta` como mostraba el estado inicial de la sesión; solo se tocaron `.md` y un script de evidencia)
 - Peldaño de evidencia alcanzado: trabajo **solo documental**; la escalera de código (regla 30) no aplica.
   Cada DoD es una observación sobre disco ejecutada y pegada en `evidencia/`. Ningún comportamiento del
   sistema cambió: **no se implementó nada**, y el reporte no dice lo contrario.
