@@ -49,13 +49,13 @@
 ### H2.S2 — Lo que `15` ocultaba
 | ID | Microtarea | CA (binario) | DoD | Estado |
 |---|---|---|---|---|
-| H2.S2.M1 | Ver si `16 · sagaTest` y `16b` cobertura pasan | pasan en la CI de la PR, o se agrega una microtarea por cada rojo | CI (`sagaTest` necesita Docker: no corre en local) | TODO |
+| H2.S2.M1 | Ver si `16 · sagaTest` y `16b` cobertura pasan | pasan en la CI de la PR, o se agrega una microtarea por cada rojo | CI (`sagaTest` necesita Docker: no corre en local) · «Los cinco corredores» de #316 (run 40991387140, head 70f836b4): success, con `16` y `16b`. En #315 el job cortó antes, en `14` (ver H2.S8) | HECHO |
 
 ### H2.S3 — Trivy (`17b2`)
 | ID | Microtarea | CA (binario) | DoD | Estado |
 |---|---|---|---|---|
 | H2.S3.M1 | Leer el informe: qué CVE, qué paquete, si hay versión corregida | lista exacta | log del paso `17b2` · `evidencia/trivy-y-locks.txt` | HECHO |
-| H2.S3.M2 | Subir `guava` y `snappy-java` (restricciones + lockfiles) y nombrar `libbrotli1` en el Dockerfile | los 4 hallazgos desaparecen de Trivy | compila y pasan las pruebas de `identidad` · lockfiles: solo cambian guava, snappy y las transitivas de guava · **falta** construir la imagen y correr Trivy (CI) | A MEDIAS |
+| H2.S3.M2 | Subir `guava` y `snappy-java` (restricciones + lockfiles) y nombrar `libbrotli1` en el Dockerfile | los 4 hallazgos desaparecen de Trivy | compila y pasan las pruebas de `identidad` · lockfiles: solo cambian guava, snappy y las transitivas de guava · CI de #315 (head c6757463): «bootJar y docker build» success y check «Trivy» success; igual en #316 | HECHO |
 
 ### H2.S4 — Criterios de CU-58 (`verificar_criterios.py`, escondido por el impacto del cambio)
 | ID | Microtarea | CA (binario) | DoD | Estado |
@@ -75,8 +75,14 @@
 ### H2.S7 — OSV-Scanner (rojo latente: el job solo corre cuando se tocan dependencias, y esta PR toca lockfiles)
 | ID | Microtarea | CA (binario) | DoD | Estado |
 |---|---|---|---|---|
-| H2.S7.M1 | `opentelemetry` 1.62.0 → 1.67.0 (GHSA-ccrj-gw8r-854m, en los 15 lockfiles de Gradle) | compila y pasan las pruebas de unidad de `gateway`, `identidad` y `auditoria` | `./gradlew … test webTest testBarrido` → BUILD SUCCESSFUL · lockfiles: solo cambia la familia OpenTelemetry y sus `okhttp`/`okio` · **falta** el escáner real (CI) | A MEDIAS |
-| H2.S7.M2 | 28 paquetes npm de `yarn.lock` (undici, vite, zod, hono, qs, fast-uri, body-parser, @hono/node-server, @modelcontextprotocol/server, @vitest/mocker) a su versión corregida, con `resolutions` porque la cadena de Angular los fija exactos | `yarn npm audit` sin vulnerabilidades; lint, tipos, pruebas, builds y e2e del sitio igual que antes | `yarn lint` 10/10 · `ui` 196+9, `web` 74+8, `backoffice` 1321+94 · builds OK · e2e del sitio 36/36 · **falta** el escáner real (CI) | A MEDIAS |
+| H2.S7.M1 | `opentelemetry` 1.62.0 → 1.67.0 (GHSA-ccrj-gw8r-854m, en los 15 lockfiles de Gradle) | compila y pasan las pruebas de unidad de `gateway`, `identidad` y `auditoria` | `./gradlew … test webTest testBarrido` → BUILD SUCCESSFUL · lockfiles: solo cambia la familia OpenTelemetry y sus `okhttp`/`okio` · CI de #315 (head c6757463): «Dependencias vulnerables (OSV-Scanner) / osv-scan» success; igual en #316 | HECHO |
+| H2.S7.M2 | 28 paquetes npm de `yarn.lock` (undici, vite, zod, hono, qs, fast-uri, body-parser, @hono/node-server, @modelcontextprotocol/server, @vitest/mocker) a su versión corregida, con `resolutions` porque la cadena de Angular los fija exactos | `yarn npm audit` sin vulnerabilidades; lint, tipos, pruebas, builds y e2e del sitio igual que antes | `yarn lint` 10/10 · `ui` 196+9, `web` 74+8, `backoffice` 1321+94 · builds OK · e2e del sitio 36/36 · CI de #315 y #316: osv-scan success | HECHO |
+
+### H2.S8 — `GruposDeBackofficeRepositorioTest.listado` intermitente (`14 · integrationTest`; falló en la CI de #315 y pasó en #316 con el mismo código)
+| ID | Microtarea | CA (binario) | DoD | Estado |
+|---|---|---|---|---|
+| H2.S8.M1 | Demostrar la causa: `listar(null, null)` ordena por `fecha_inicio DESC NULLS FIRST, codigo_publico, id` con `LIMIT 200`; la fixture pone `fecha_inicio = hoy` y un `codigo_publico` aleatorio en una base compartida sin limpieza | con más de 200 grupos de hoy, algunos quedan fuera del listado | SQL contra PostgreSQL local, en transacción con `ROLLBACK`: de 300 grupos, 100 fuera del listado de 200 | HECHO |
+| H2.S8.M2 | La prueba fija la `fecha_inicio` de su grupo en el futuro (`CURRENT_DATE + 3650`) antes de listar, sin tocar ninguna aserción | el grupo de la prueba siempre cae dentro de los primeros 200 | SQL: el peor `codigo_publico` entra primero · spotless/compileTestJava de `grupos` → exit 0 · `evidencia/listado-grupos-backoffice.txt` · **falta** `integrationTest` (solo corre en la CI; no hay Docker acá) | A MEDIAS |
 
 ## H3 — Entrega
 | ID | Microtarea | CA (binario) | DoD | Estado |
