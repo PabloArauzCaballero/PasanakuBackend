@@ -14,6 +14,7 @@ CREATE TABLE IF NOT EXISTS grupos.acuerdo (
   abstenciones                       SMALLINT NOT NULL,
   estado                             VARCHAR(15) NOT NULL,
   referencia_afectada_id             UUID,
+  entrante_participante_id           UUID,
   abierto_en                         TIMESTAMPTZ DEFAULT now() NOT NULL,
   cierra_en                          TIMESTAMPTZ NOT NULL,
   resuelto_en                        TIMESTAMPTZ,

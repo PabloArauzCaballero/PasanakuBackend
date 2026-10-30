@@ -2,6 +2,7 @@ package bo.aportaya.grupos.infraestructura;
 
 import static bo.aportaya.grupos.generado.Tables.ACUERDO;
 import static bo.aportaya.grupos.generado.Tables.CUPO;
+import static bo.aportaya.grupos.generado.Tables.PARTICIPANTE;
 import static bo.aportaya.grupos.generado.Tables.VOTO_PARTICIPANTE;
 
 import bo.aportaya.grupos.dominio.ComputoDeVotacion.Sentido;
@@ -36,6 +37,7 @@ public class AcuerdoRepositorio {
             UUID propuestoPor,
             BigDecimal quorum,
             Optional<UUID> afectado,
+            Optional<UUID> entrante,
             OffsetDateTime abiertoEn,
             OffsetDateTime cierraEn) {
         return dsl.insertInto(ACUERDO)
@@ -49,6 +51,7 @@ public class AcuerdoRepositorio {
                 .set(ACUERDO.ABSTENCIONES, (short) 0)
                 .set(ACUERDO.ESTADO, "ABIERTO")
                 .set(ACUERDO.REFERENCIA_AFECTADA_ID, afectado.orElse(null))
+                .set(ACUERDO.ENTRANTE_PARTICIPANTE_ID, entrante.orElse(null))
                 .set(ACUERDO.ABIERTO_EN, abiertoEn)
                 .set(ACUERDO.CIERRA_EN, cierraEn)
                 .returning(ACUERDO.ID)
@@ -62,6 +65,7 @@ public class AcuerdoRepositorio {
                         ACUERDO.ESTADO,
                         ACUERDO.QUORUM_REQUERIDO,
                         ACUERDO.REFERENCIA_AFECTADA_ID,
+                        ACUERDO.ENTRANTE_PARTICIPANTE_ID,
                         ACUERDO.CIERRA_EN)
                 .from(ACUERDO)
                 .where(ACUERDO.ID.eq(acuerdoId))
@@ -74,6 +78,7 @@ public class AcuerdoRepositorio {
                         fila.get(ACUERDO.ESTADO),
                         fila.get(ACUERDO.QUORUM_REQUERIDO),
                         Optional.ofNullable(fila.get(ACUERDO.REFERENCIA_AFECTADA_ID)),
+                        Optional.ofNullable(fila.get(ACUERDO.ENTRANTE_PARTICIPANTE_ID)),
                         fila.get(ACUERDO.CIERRA_EN)));
     }
 
@@ -160,8 +165,12 @@ public class AcuerdoRepositorio {
                         ACUERDO.ESTADO,
                         ACUERDO.DESCRIPCION,
                         ACUERDO.REFERENCIA_AFECTADA_ID,
+                        PARTICIPANTE.USUARIO_ID,
                         ACUERDO.CIERRA_EN)
                 .from(ACUERDO)
+                // Quien entra, como usuario: es lo que la app conoce de cada integrante.
+                .leftJoin(PARTICIPANTE)
+                .on(PARTICIPANTE.ID.eq(ACUERDO.ENTRANTE_PARTICIPANTE_ID))
                 .where(condicion)
                 .orderBy(ACUERDO.ABIERTO_EN.desc(), ACUERDO.ID)
                 .limit(50)
@@ -171,6 +180,7 @@ public class AcuerdoRepositorio {
                         r.get(ACUERDO.ESTADO),
                         r.get(ACUERDO.DESCRIPCION),
                         Optional.ofNullable(r.get(ACUERDO.REFERENCIA_AFECTADA_ID)),
+                        Optional.ofNullable(r.get(PARTICIPANTE.USUARIO_ID)),
                         r.get(ACUERDO.CIERRA_EN)));
     }
 
@@ -180,6 +190,7 @@ public class AcuerdoRepositorio {
             String estado,
             BigDecimal quorum,
             Optional<UUID> afectado,
+            Optional<UUID> entrante,
             OffsetDateTime cierraEn) {}
 
     public record ComputoResumen(short aFavor, short enContra, short abstenciones) {}

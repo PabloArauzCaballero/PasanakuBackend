@@ -66,6 +66,7 @@ public class CU63Acordar {
                     entrada.propuestoPor(),
                     entrada.quorumRequerido(),
                     entrada.afectado(),
+                    entrada.entrante(),
                     ahora,
                     entrada.cierraEn());
 
@@ -159,7 +160,10 @@ public class CU63Acordar {
             ContextoSesion ctx) {
         Optional<String> tipo =
                 tipoDelContrato.map(t -> TipoDeAcuerdo.deContrato(t).name());
-        return datos.conContexto(ctx, dsl -> acuerdos.delGrupo(dsl, grupoId, tipo, estado, afectado));
+        // Quien entra es OTRO participante, y la politica de fila deja ver solo la propia: la lectura va
+        // con rol de sistema. Quien llama ya se comprobo que participa del grupo (AcuerdosController).
+        return datos.conContexto(
+                ctx, dsl -> Datos.comoSistema(dsl, () -> acuerdos.delGrupo(dsl, grupoId, tipo, estado, afectado)));
     }
 
     private ComputoResumen resumen(ComputoDeVotacion computo) {
@@ -176,5 +180,19 @@ public class CU63Acordar {
             UUID propuestoPor,
             BigDecimal quorumRequerido,
             Optional<UUID> afectado,
-            OffsetDateTime cierraEn) {}
+            OffsetDateTime cierraEn,
+            Optional<UUID> entrante) {
+
+        /** Sin persona entrante: todo acuerdo que no es un traspaso. */
+        public EntradaPropuesta(
+                UUID grupoId,
+                String tipo,
+                String descripcion,
+                UUID propuestoPor,
+                BigDecimal quorumRequerido,
+                Optional<UUID> afectado,
+                OffsetDateTime cierraEn) {
+            this(grupoId, tipo, descripcion, propuestoPor, quorumRequerido, afectado, cierraEn, Optional.empty());
+        }
+    }
 }

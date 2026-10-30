@@ -431,6 +431,7 @@ paths:
         '422':
           $ref: '#/components/responses/ReglaDeNegocio'
           # AP-CU63-01 PROPONENTE_NO_HABILITADO · AP-CU63-02 ACUERDO_DUPLICADO
+          # AP-CU63-06 TRASPASO_SIN_ENTRANTE (TRASPASO_CUPO sin cupo, sin quien entra, o quien entra no participa)
 
   /acuerdos/{acuerdoId}/votos:
     post:
@@ -1222,6 +1223,12 @@ components:
           enum: [CONDONACION, EXPULSION, PERMUTA, TRASPASO_CUPO, CAMBIO_REGLAMENTO, DISOLUCION, REPETIR_SORTEO]
         descripcion:          { type: string, minLength: 20, maxLength: 1000 }
         referenciaAfectadaId: { type: [string, 'null'], format: uuid }
+        usuarioEntranteId:
+          type: [string, 'null']
+          format: uuid
+          description: >-
+            Solo en TRASPASO_CUPO, y ahi obligatorio: quien entra al cupo. El grupo vota el traspaso
+            a ESA persona, y CU-64 solo acepta el acuerdo para ella.
         diasVotacion:         { type: integer, minimum: 1, maximum: 15, default: 5 }
     EntradaVoto:
       type: object
@@ -1239,6 +1246,7 @@ components:
         estado:               { type: string, enum: [ABIERTO, APROBADO, EJECUTADO, EXPIRADO, RECHAZADO] }
         descripcion:          { type: string }
         referenciaAfectadaId: { type: [string, 'null'], format: uuid }
+        usuarioEntranteId:    { type: [string, 'null'], format: uuid, description: En un traspaso, quien entra al cupo }
         cierraEn:             { type: string, format: date-time }
     SalidaAcuerdo:
       type: object

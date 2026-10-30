@@ -43,6 +43,7 @@ class AcuerdosListadoWebTest {
     private static final UUID ACUERDO = UUID.fromString("c2100000-0000-4000-8000-000000000002");
     private static final UUID CUPO = UUID.fromString("c2100000-0000-4000-8000-000000000003");
     private static final UUID PARTICIPANTE = UUID.fromString("c2100000-0000-4000-8000-000000000004");
+    private static final UUID ENTRANTE = UUID.fromString("c2100000-0000-4000-8000-000000000005");
 
     @Autowired
     private MockMvc mvc;
@@ -69,6 +70,7 @@ class AcuerdosListadoWebTest {
                         "APROBADO",
                         "Traspaso del cupo 2 a Ana",
                         Optional.of(CUPO),
+                        Optional.of(ENTRANTE),
                         OffsetDateTime.of(2026, 11, 5, 12, 0, 0, 0, ZoneOffset.UTC))));
 
         mvc.perform(get("/acuerdos")
@@ -81,7 +83,8 @@ class AcuerdosListadoWebTest {
                 .andExpect(jsonPath("$[0].acuerdoId").value(ACUERDO.toString()))
                 .andExpect(jsonPath("$[0].tipo").value("TRASPASO_CUPO"))
                 .andExpect(jsonPath("$[0].estado").value("APROBADO"))
-                .andExpect(jsonPath("$[0].referenciaAfectadaId").value(CUPO.toString()));
+                .andExpect(jsonPath("$[0].referenciaAfectadaId").value(CUPO.toString()))
+                .andExpect(jsonPath("$[0].usuarioEntranteId").value(ENTRANTE.toString()));
     }
 
     @Test
