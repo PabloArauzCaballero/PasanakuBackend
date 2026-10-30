@@ -47,6 +47,7 @@ import org.springframework.test.web.servlet.MockMvc;
         })
 @Import(GruposDeBackoffice.class)
 @MockitoBean(types = bo.aportaya.grupos.aplicacion.CU69EnlaceDeGrupo.class)
+@MockitoBean(types = bo.aportaya.grupos.aplicacion.CU64TraspasoPorSubasta.class)
 class GruposDeBackofficeWebTest {
 
     private static final UUID GRUPO = UUID.fromString("c9900000-0000-4000-8000-000000000001");

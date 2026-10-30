@@ -164,6 +164,26 @@ ALTER TABLE entregas.orden_desembolso
   ADD CONSTRAINT fk_orden_desembolso_proveedor_id
   FOREIGN KEY (proveedor_id) REFERENCES aportes.proveedor_pago (id) ON DELETE RESTRICT ON UPDATE CASCADE;
 
+ALTER TABLE entregas.puja_subasta DROP CONSTRAINT IF EXISTS fk_puja_subasta_subasta_cupo_id;
+ALTER TABLE entregas.puja_subasta
+  ADD CONSTRAINT fk_puja_subasta_subasta_cupo_id
+  FOREIGN KEY (subasta_cupo_id) REFERENCES entregas.subasta_cupo (id) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+ALTER TABLE entregas.subasta_cupo DROP CONSTRAINT IF EXISTS fk_subasta_cupo_cupo_id;
+ALTER TABLE entregas.subasta_cupo
+  ADD CONSTRAINT fk_subasta_cupo_cupo_id
+  FOREIGN KEY (cupo_id) REFERENCES grupos.cupo (id) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+ALTER TABLE entregas.subasta_cupo DROP CONSTRAINT IF EXISTS fk_subasta_cupo_grupo_id;
+ALTER TABLE entregas.subasta_cupo
+  ADD CONSTRAINT fk_subasta_cupo_grupo_id
+  FOREIGN KEY (grupo_id) REFERENCES grupos.grupo (id) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+ALTER TABLE entregas.subasta_cupo DROP CONSTRAINT IF EXISTS fk_subasta_cupo_participante_origen_id;
+ALTER TABLE entregas.subasta_cupo
+  ADD CONSTRAINT fk_subasta_cupo_participante_origen_id
+  FOREIGN KEY (participante_origen_id) REFERENCES grupos.participante (id) ON DELETE RESTRICT ON UPDATE CASCADE;
+
 ALTER TABLE entregas.validacion_pre_entrega DROP CONSTRAINT IF EXISTS fk_validacion_pre_entrega_entrega_id;
 ALTER TABLE entregas.validacion_pre_entrega
   ADD CONSTRAINT fk_validacion_pre_entrega_entrega_id

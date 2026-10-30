@@ -3,6 +3,7 @@ package bo.aportaya.entregas;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 /**
  * El punto de arranque de entregas. No tiene logica: si aparece un if sobre una
@@ -13,6 +14,9 @@ import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
  */
 @SpringBootApplication
 @ConfigurationPropertiesScan
+// Sin esto el @Scheduled del cierre de subastas (trabajos/CierreDeSubastas) nunca suena: las subastas quedarian
+// ABIERTAS para siempre y la plata de los postores, retenida.
+@EnableScheduling
 public class Aplicacion {
 
     public static void main(String[] argumentos) {
