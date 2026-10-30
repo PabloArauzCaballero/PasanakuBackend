@@ -71,6 +71,19 @@ abstract final class TextosBilletera {
   static const recargaPendiente = 'Tu recarga quedó en camino.';
   static const recargaPendienteDetalle =
       'Te avisamos cuando el banco la confirme.';
+  // QR dinámico de la orden: la persona lo escanea desde la app de su banco.
+  static const pagaConElQr = 'Pagá con este QR';
+  static const pagaConElQrDetalle =
+      'Escanealo desde la app de tu banco. Tu saldo sube cuando el banco confirma el pago.';
+  static const qrDeLaRecarga = 'Código QR para pagar tu recarga';
+  // QR de ambiente de prueba: no lo paga ningún banco; se simula el pago.
+  static const qrDePrueba = 'QR de prueba';
+  static const qrDePruebaDetalle =
+      'Este QR no se puede pagar desde un banco. Tocá «Simular pago» para probar cómo sube tu saldo.';
+  static const simularPago = 'Simular pago';
+  static const tuSaldo = 'Tu saldo';
+  static const recargaAcreditada = 'Tu recarga se acreditó.';
+  static const recargaAcreditadaDetalle = 'Ya está en tu saldo disponible.';
   static const retiroInstruido = 'Tu retiro quedó instruido.';
   static const retiroInstruidoDetalle =
       'El saldo retenido se libera cuando el banco confirma el pago.';
