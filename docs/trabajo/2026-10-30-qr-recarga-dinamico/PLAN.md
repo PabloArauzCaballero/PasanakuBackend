@@ -89,7 +89,7 @@ anterior al nuevo, sin pasar por cero, y el lector de pantalla anuncia el valor 
 |---|---|---|---|---|
 | H3.S1.M1 | Regresión `nucleo-financiero` completa | suite verde | `./gradlew :servicios:nucleo-financiero:test` | HECHO — `evidencia/h3-regresion-backend.txt` (676/676) |
 | H3.S1.M2 | Regresión móvil + `flutter analyze` | verde | `flutter test` · `flutter analyze` | A MEDIAS — 2238 verdes; 353 rojos idénticos a origin/test (goldens, preexistentes) · `evidencia/h3-regresion-movil.txt` |
-| H3.S1.M3 | PRs a `test` y `dev` | PR abierto con reporte | `gh pr view` | EN CURSO — commit y PR a test/dev |
+| H3.S1.M3 | PRs a `test` y `dev` | PR abierto con reporte | `gh pr view` | HECHO — #341 (test, e132bc86) y #342 (dev, 0376fb4c) mergeados; espejo sincronizado |
 
 ## Riesgos y bloqueos previstos
 | Riesgo | Impacto | Mitigación |
