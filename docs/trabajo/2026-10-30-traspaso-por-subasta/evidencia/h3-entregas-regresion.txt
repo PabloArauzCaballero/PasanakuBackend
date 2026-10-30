@@ -159,3 +159,15 @@ entregas integrationTest total 129 fallas 128
 # la corrida anterior (128/129 rojas) murio por EOFException del contenedor Postgres (ENVIRONMENT: carga 35-46, otras sesiones con Testcontainers). Re-corrida:
 $ ./gradlew :servicios:entregas:integrationTest --rerun-tasks
 entregas integrationTest total 129 fallas 0
+# tras partir TransicionesDeSubasta (barrido de 300 lineas) e integrar origin/test
+  FAIL testBarrido BarridoTest tamano-archivo: ningun archivo llega a 300 lineas | java.lang.AssertionError: [tamano-archivo: 300 lineas o mas bloquean — son varias piezas que nadie separo] 
+Expecting empty but was: ["test/java/bo/aportaya/entregas/CU64SubastaDeCupoTest.java  410 lineas (limite 300)"]
+entregas testBarrido total 2 fallas 1
+entregas test total 40 fallas 0
+entregas webTest total 60 fallas 0
+entregas integrationTest total 130 fallas 0
+# CU64SubastaDeCupoTest partida en dos (barrido de 300 lineas tambien en pruebas)
+CU64CierreDeSubastaTest tests 6 fallas 0
+CU64SubastaDeCupoTest tests 10 fallas 0
+total CU64 (subasta) 16 fallas 0
+testBarrido 2 fallas 0

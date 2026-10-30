@@ -14,3 +14,11 @@ bo.aportaya.nucleofinanciero.CU13MercadoTest tests 8 fallas 0
    PASS reintento: la misma clave devuelve el mismo pago sin otro asiento, aunque la oferta ya este LIQUIDADA
    PASS cuadre: el precio cuenta centavos, el reparto suma exactamente el precio y no sobra residuo
 $ ./gradlew :servicios:nucleo-financiero:webTest  ->  total 79 fallas 0
+# regresion completa antes del PR (tras integrar origin/test)
+nucleo-financiero integrationTest total 507 fallas 0
+  FAIL BarridoTest tamano-archivo: ningun archivo llega a 300 lineas | java.lang.AssertionError: [tamano-archivo: 300 lineas o mas bloquean — son varias piezas que nadie separo] 
+Expecting empty but was: ["main/java/bo/aportaya/nucleofinanciero/aplicacion/CU10RecargarSaldo.java  317 lineas 
+nucleo-financiero testBarrido total 2 fallas 1
+  FAIL BarridoTest tamano-archivo: ningun archivo llega a 300 lineas | java.lang.AssertionError: [tamano-archivo: 300 lineas o mas bloquean — son varias piezas que nadie separo] 
+Expecting empty but was: ["main/java/bo/aportaya/entregas/aplicacion/TransicionesDeSubasta.java  374 lineas (lim
+entregas testBarrido total 2 fallas 1

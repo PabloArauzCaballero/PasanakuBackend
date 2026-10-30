@@ -3,6 +3,7 @@ package bo.aportaya.entregas;
 import bo.aportaya.entregas.aplicacion.ConsultasDeSubasta;
 import bo.aportaya.entregas.aplicacion.SubastaDelCupo;
 import bo.aportaya.entregas.aplicacion.TransicionesDeSubasta;
+import bo.aportaya.entregas.aplicacion.TransicionesDelCierre;
 import bo.aportaya.entregas.infraestructura.PujaRepositorio;
 import bo.aportaya.entregas.infraestructura.SubastaRepositorio;
 import bo.aportaya.plataforma.datos.Datos;
@@ -44,7 +45,9 @@ abstract class BaseDeSubasta extends BaseDeEntregas {
         var gestor = transaccion.getTransactionManager();
         var pasos = conTransaccion(
                 new TransicionesDeSubasta(datos, subastas, pujas, new Outbox("entregas"), reloj), gestor);
-        subastaCU = new SubastaDelCupo(gruposSubasta, fondosDoble, pasos, reloj);
+        var cierre = conTransaccion(
+                new TransicionesDelCierre(datos, subastas, pujas, new Outbox("entregas"), reloj), gestor);
+        subastaCU = new SubastaDelCupo(gruposSubasta, fondosDoble, pasos, cierre, reloj);
         consultasCU = conTransaccion(new ConsultasDeSubasta(datos, subastas, pujas, reloj), gestor);
     }
 

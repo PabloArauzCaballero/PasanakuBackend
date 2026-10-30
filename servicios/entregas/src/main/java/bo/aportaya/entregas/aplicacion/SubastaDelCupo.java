@@ -46,13 +46,19 @@ public class SubastaDelCupo {
     private final GruposParaSubasta grupos;
     private final FondosDelComprador fondos;
     private final TransicionesDeSubasta pasos;
+    private final TransicionesDelCierre cierre;
     private final Reloj reloj;
 
     public SubastaDelCupo(
-            GruposParaSubasta grupos, FondosDelComprador fondos, TransicionesDeSubasta pasos, Reloj reloj) {
+            GruposParaSubasta grupos,
+            FondosDelComprador fondos,
+            TransicionesDeSubasta pasos,
+            TransicionesDelCierre cierre,
+            Reloj reloj) {
         this.grupos = grupos;
         this.fondos = fondos;
         this.pasos = pasos;
+        this.cierre = cierre;
         this.reloj = reloj;
     }
 
@@ -182,7 +188,7 @@ public class SubastaDelCupo {
                     if (s.cierraEn().toInstant().isAfter(reloj.ahora())) {
                         return s.estado();
                     }
-                    pasos.cerrar(subastaId, ctx);
+                    cierre.cerrar(subastaId, ctx);
                     if ("ABIERTA".equals(pasos.ver(subastaId, ctx).estado())) {
                         return "ABIERTA";
                     }
@@ -192,14 +198,14 @@ public class SubastaDelCupo {
                     var t = grupos.traspasar(
                             s.grupoId(), s.cupoId(), s.id(), ganadora.postorUsuarioId(), s.participanteOrigenId());
                     if (t.respuesta() == GruposParaSubasta.Respuesta.RECHAZADO) {
-                        pasos.fallida(subastaId, "grupos no pudo pasar el cupo al ganador.", ctx);
+                        cierre.fallida(subastaId, "grupos no pudo pasar el cupo al ganador.", ctx);
                         devolverSuperadas(Optional.of(subastaId), ctx);
                         continue;
                     }
                     if (t.respuesta() != GruposParaSubasta.Respuesta.OK) {
                         return s.estado();
                     }
-                    pasos.traspasada(subastaId, t.traspasoId().orElseThrow(), ctx);
+                    cierre.traspasada(subastaId, t.traspasoId().orElseThrow(), ctx);
                 }
                 case "LIQUIDANDO" -> {
                     var ganadora = pasos.puja(s.pujaGanadoraId().orElseThrow(), ctx);
@@ -212,7 +218,7 @@ public class SubastaDelCupo {
                     if (pago.resultado() != FondosDelComprador.Resultado.OK) {
                         return s.estado();
                     }
-                    pasos.vendida(subastaId, pago.referencia(), ctx);
+                    cierre.vendida(subastaId, pago.referencia(), ctx);
                 }
                 default -> {
                     return s.estado();
