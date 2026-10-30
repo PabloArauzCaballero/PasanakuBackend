@@ -3,6 +3,7 @@ package bo.aportaya.grupos.web;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -57,10 +58,25 @@ class AcuerdoDeTraspasoWebTest {
     @MockitoBean
     private Consultas consultas;
 
+    private static final UUID PROPONENTE = UUID.fromString("c2200000-0000-4000-8000-000000000006");
+
     @BeforeEach
     void politica() {
         when(consultas.politicaDelGrupo(eq(GRUPO), any()))
                 .thenReturn(Optional.of(new PoliticaDelGrupo("ESTANDAR", 60, new BigDecimal("0.66"), 2)));
+        when(consultas.participanteDe(eq(GRUPO), any(), any())).thenReturn(Optional.of(PROPONENTE));
+    }
+
+    @Test
+    @DisplayName("quien no participa del grupo no averigua quien es del grupo (AP-CU63-01, sin mirar al entrante)")
+    void deAfueraNoAveriguaIntegrantes() throws Exception {
+        when(consultas.participanteDe(eq(GRUPO), any(), any())).thenReturn(Optional.empty());
+
+        proponer(",\"referenciaAfectadaId\":\"" + CUPO + "\",\"usuarioEntranteId\":\"" + USUARIO_ENTRANTE + "\"")
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(jsonPath("$.codigo").value("AP-CU63-01"));
+        verify(consultas, never()).participanteDeOtro(any(), any(), any());
+        verifyNoInteractions(cu63);
     }
 
     private ResultActions proponer(String extra) throws Exception {

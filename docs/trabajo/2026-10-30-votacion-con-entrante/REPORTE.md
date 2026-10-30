@@ -29,6 +29,9 @@ Ninguna dentro del alcance.
 ## Desvíos del plan
 - Se reemplazó la prueba «si las dos no coinciden, no avanza» por «la contraseña se pide una vez y se puede ver lo escrito»: el requisito cambió, no se debilitó.
 
+## Seguimiento de seguridad
+- Revisión automática: con un `TRASPASO_CUPO`, un extraño al grupo podía averiguar si alguien es integrante (la respuesta sobre quién entra salía antes de comprobar al proponente). Ahora se comprueba primero que quien propone participe (AP-CU63-01) y no se consulta al entrante. Prueba `AcuerdoDeTraspasoWebTest` · mutante (sin la comprobación) → rojo. `webTest` y unitarias en verde.
+
 ## Riesgos residuales
 - `columnas_agregadas.sql` no es un sistema de migraciones: solo agrega columnas opcionales.
 
