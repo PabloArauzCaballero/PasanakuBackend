@@ -66,7 +66,8 @@ class CU58SemillasTest extends BaseDeAuditoria {
     }
 
     @Test
-    @DisplayName("idempotente: sembrar dos veces no duplica ni cambia definiciones")
+    @DisplayName(
+            "Dado el catálogo de reportes ya sembrado · Cuando se siembra por segunda vez · Entonces no se duplica ni cambia ninguna definición")
     void idempotente() throws IOException {
         sembrar();
         long primera = definiciones();
@@ -76,7 +77,7 @@ class CU58SemillasTest extends BaseDeAuditoria {
 
     @Test
     @DisplayName(
-            "cada definición sembrada se lee con sus parámetros y tipos que el validador conoce, y acepta valores válidos")
+            "Dadas las definiciones de reporte sembradas · Cuando el motor lee los parámetros de cada una · Entonces cada una trae sus parámetros con tipos que el validador conoce y acepta valores válidos")
     void elMotorLeeTodasLasSembradas() throws IOException {
         sembrar();
         // Por NOMBRE, la clave de conflicto de la semilla: otras pruebas crean definiciones con los mismos tipos.
@@ -100,7 +101,8 @@ class CU58SemillasTest extends BaseDeAuditoria {
     }
 
     @Test
-    @DisplayName("límite: el grupo de la cartera en mora es opcional (antes «uuid?»); la fecha de la conciliación no")
+    @DisplayName(
+            "Dadas las definiciones de la cartera en mora y de la conciliación sembradas · Cuando el motor lee sus parámetros · Entonces el grupo de la cartera es opcional y la fecha de la conciliación es obligatoria")
     void obligatorios() throws IOException {
         sembrar();
         var repositorio = new ReporteRepositorio();
