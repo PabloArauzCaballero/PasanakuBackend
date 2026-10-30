@@ -356,7 +356,8 @@ class CU64SubastaDeCupoTest extends BaseDeSubasta {
     // ------------------------------------------------------------------ listar
 
     @Test
-    @DisplayName("La lista para todos trae las ABIERTAS en orden de cierre, sin las canceladas ni las vencidas; por cupo trae la última en cualquier estado")
+    @DisplayName(
+            "La lista para todos trae las ABIERTAS en orden de cierre, sin las canceladas ni las vencidas; por cupo trae la última en cualquier estado")
     void listaDeAbiertas() {
         var primero = cupoSubastable();
         UUID antes = abrir(primero, "1000.00");
@@ -379,7 +380,10 @@ class CU64SubastaDeCupoTest extends BaseDeSubasta {
                 .orElseThrow();
         assertThat(vista.soyElSaliente()).isFalse();
         assertThat(vista.miPuja()).isEmpty();
-        assertThat(consultasCU.delCupo(tercero.e().cupoId(), contextoDe(mira)).orElseThrow().estado())
+        assertThat(consultasCU
+                        .delCupo(tercero.e().cupoId(), contextoDe(mira))
+                        .orElseThrow()
+                        .estado())
                 .isEqualTo("CANCELADA");
     }
 
