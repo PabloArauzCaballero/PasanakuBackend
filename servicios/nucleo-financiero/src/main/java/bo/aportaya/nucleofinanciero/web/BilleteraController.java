@@ -149,6 +149,14 @@ public class BilleteraController implements BilleteraApi {
         return fondeo.acreditarRecarga(ordenId, sesion.actual());
     }
 
+    // Solo con el proveedor de prueba: fuera de el, 404 como una ruta que no existe.
+    @Override
+    @Permiso("BILLETERA_OPERAR")
+    public ResponseEntity<SalidaAcreditacion> pagarRecargaDePrueba(UUID ordenId, UUID idempotencyKey) {
+        Traza.marcarCasoDeUso("CU-10", ordenId.toString());
+        return fondeo.pagarRecargaDePrueba(ordenId, sesion.actual());
+    }
+
     @Override
     @Permiso("BILLETERA_OPERAR")
     public ResponseEntity<SalidaRetiro> solicitarRetiro(UUID idempotencyKey, EntradaRetiro cuerpo) {

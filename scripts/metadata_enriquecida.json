@@ -103,5 +103,5 @@
       "sistema": "Esquema compartido; todo servicio puede insertar su rastro de eventos/auditoría pero ningún servicio puede leer ni modificar el de otro salvo svc_auditoria."
     }
   },
-  "columnas_explicadas": 3742
+  "columnas_explicadas": 3744
 }

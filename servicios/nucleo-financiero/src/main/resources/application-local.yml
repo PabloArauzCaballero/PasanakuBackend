@@ -10,6 +10,12 @@ aportaya:
     # false = cualquier sesion autenticada con el campo presente alcanza; el valor
     # por omision sigue siendo exigirlo incluso en local, a proposito.
     doble-local: false
+  recarga:
+    qr:
+      # prueba = RecargasProveedorLocal: QR dinamico de PRUEBA (no pagable) y «Simular pago».
+      # proveedor = RecargasProveedorSimulado (contrato ficticio de herramientas/proveedor_simulado).
+      # Cuando exista el banco real, su adaptador entra por el mismo puerto (ProveedorDeRecargas).
+      modo: prueba
   retiro-local:
     monto-rechazado: 666.66
     monto-en-timeout: 111.11

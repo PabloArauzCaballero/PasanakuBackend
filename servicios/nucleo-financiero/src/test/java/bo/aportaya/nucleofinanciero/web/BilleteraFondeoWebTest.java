@@ -15,6 +15,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import bo.aportaya.nucleofinanciero.aplicacion.CU10RecargarSaldo;
 import bo.aportaya.nucleofinanciero.aplicacion.CU11RetirarSaldo;
 import bo.aportaya.nucleofinanciero.aplicacion.CotizarOperacion;
+import bo.aportaya.nucleofinanciero.aplicacion.RecargasConProveedor;
+import bo.aportaya.nucleofinanciero.dominio.puertos.ProveedorDeRecargas.CobroQr;
 import bo.aportaya.plataforma.pruebas.web.PruebaWeb;
 import bo.aportaya.plataforma.pruebas.web.Sesiones;
 import java.time.OffsetDateTime;
@@ -43,23 +45,69 @@ class BilleteraFondeoWebTest extends BaseDeOperacionesWeb {
                     .formatted(CUENTA);
 
     @Test
-    @DisplayName("recarga · 201 con lo que se acreditará, y la Idempotency-Key llega como clave del caso de uso")
+    @DisplayName("recarga · 201 con lo que se acreditará y el QR dinámico; la Idempotency-Key llega como clave")
     void recarga() throws Exception {
-        when(recargas.solicitar(any(), any()))
-                .thenReturn(new CU10RecargarSaldo.SalidaSolicitud(
-                        UUID.randomUUID(),
-                        "PENDIENTE",
-                        OffsetDateTime.of(2026, 10, 17, 12, 0, 0, 0, ZoneOffset.UTC),
-                        bob("500.00")));
+        when(recargas.solicitarConQr(any(), any()))
+                .thenReturn(solicitada(Optional.of(new CobroQr("PASANAKU-PRUEBA|NO-PAGABLE|ref=x", "PRUEBA"))));
 
         mvc.perform(operar(post("/billetera/recargas"), RECARGA, "BILLETERA_OPERAR"))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.acreditara.monto").value("500.00"))
-                .andExpect(jsonPath("$.estado").value("PENDIENTE"));
+                .andExpect(jsonPath("$.estado").value("PENDIENTE"))
+                .andExpect(jsonPath("$.cobroQr.contenido").value("PASANAKU-PRUEBA|NO-PAGABLE|ref=x"))
+                .andExpect(jsonPath("$.cobroQr.origen").value("PRUEBA"));
 
         var entrada = ArgumentCaptor.forClass(CU10RecargarSaldo.EntradaSolicitud.class);
-        verify(recargas).solicitar(entrada.capture(), any());
+        verify(recargas).solicitarConQr(entrada.capture(), any());
         assertThat(entrada.getValue().claveIdempotencia()).isEqualTo(CLAVE);
+    }
+
+    @Test
+    @DisplayName("recarga · si el proveedor no emite QR, cobroQr no viaja")
+    void recargaSinQr() throws Exception {
+        when(recargas.solicitarConQr(any(), any())).thenReturn(solicitada(Optional.empty()));
+
+        mvc.perform(operar(post("/billetera/recargas"), RECARGA, "BILLETERA_OPERAR"))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.cobroQr").doesNotExist());
+    }
+
+    @Test
+    @DisplayName("pago de prueba · 200 con el saldo resultante cuando el ambiente tiene el doble de prueba")
+    void pagoDePrueba() throws Exception {
+        UUID orden = UUID.randomUUID();
+        when(pagoDePrueba.disponible()).thenReturn(true);
+        when(pagoDePrueba.pagar(eq(orden), any()))
+                .thenReturn(new CU10RecargarSaldo.SalidaAcreditacion(orden, UUID.randomUUID(), bob("650.00")));
+
+        mvc.perform(operar(post("/billetera/recargas/{id}/pago-de-prueba", orden), "", "BILLETERA_OPERAR"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.ordenRecargaId").value(orden.toString()))
+                .andExpect(jsonPath("$.saldoDespues.monto").value("650.00"));
+    }
+
+    @Test
+    @DisplayName("pago de prueba · 404 como ruta inexistente sin el doble; 403 con solo BILLETERA_VER")
+    void pagoDePruebaRechazos() throws Exception {
+        UUID orden = UUID.randomUUID();
+        when(pagoDePrueba.disponible()).thenReturn(false);
+
+        mvc.perform(operar(post("/billetera/recargas/{id}/pago-de-prueba", orden), "", "BILLETERA_OPERAR"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.codigo").value("AP-VAL-05"));
+        mvc.perform(operar(post("/billetera/recargas/{id}/pago-de-prueba", orden), "", "BILLETERA_VER"))
+                .andExpect(status().isForbidden());
+        verify(pagoDePrueba, org.mockito.Mockito.never()).pagar(any(), any());
+    }
+
+    private static RecargasConProveedor.Solicitada solicitada(Optional<CobroQr> qr) {
+        return new RecargasConProveedor.Solicitada(
+                new CU10RecargarSaldo.SalidaSolicitud(
+                        UUID.randomUUID(),
+                        "PENDIENTE",
+                        OffsetDateTime.of(2026, 10, 17, 12, 0, 0, 0, ZoneOffset.UTC),
+                        bob("500.00")),
+                qr);
     }
 
     @Test

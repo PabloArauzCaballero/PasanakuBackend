@@ -3166,6 +3166,8 @@ COMMENT ON COLUMN nucleo_financiero.orden_recarga.clave_idempotencia IS '[NEGOCI
 COMMENT ON COLUMN nucleo_financiero.orden_recarga.solicitada_en IS '[NEGOCIO] Marca temporal o fecha de solicitada en `orden_recarga`. [SISTEMA] timestamptz, obligatoria (NOT NULL).';
 COMMENT ON COLUMN nucleo_financiero.orden_recarga.acreditada_en IS '[NEGOCIO] Marca temporal o fecha de acreditada en `orden_recarga`. [SISTEMA] timestamptz, opcional.';
 COMMENT ON COLUMN nucleo_financiero.orden_recarga.expira_en IS '[NEGOCIO] Marca temporal o fecha de expira en `orden_recarga`. [SISTEMA] timestamptz, opcional.';
+COMMENT ON COLUMN nucleo_financiero.orden_recarga.qr_contenido IS '[NEGOCIO] Atributo que representa qr contenido en el modelo de `orden_recarga`. [SISTEMA] varchar(512), opcional.';
+COMMENT ON COLUMN nucleo_financiero.orden_recarga.qr_origen IS '[NEGOCIO] Atributo que representa qr origen en el modelo de `orden_recarga`. [SISTEMA] varchar(10), opcional.';
 COMMENT ON TABLE nucleo_financiero.orden_retiro IS '[NEGOCIO] El *cash-in* y el *cash-out*: los dos puntos donde el dinero cruza la frontera entre el mundo bancario y el saldo de la app.. Son las operaciones de mayor riesgo del sistema, y por eso son asimétricas a propósito:
 
 - **La recarga es optimista**: se acredita cuando el banco confirma, se enlaza con [[pago]] (M3) y con el movimiento real de la cuenta de custodia.

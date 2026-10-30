@@ -1,0 +1,9 @@
+$ ./gradlew :servicios:nucleo-financiero:integrationTest --tests "*ArranqueRecargaQrTest"  (exit=0)
+<testsuite name="bo.aportaya.nucleofinanciero.ArranqueRecargaQrTest$EnProduccionPorOmision" tests="1" skipped="0" failures="0" errors="0"
+<testcase name="elProveedorEsElAdaptadorDeSiempre()"
+<testsuite name="bo.aportaya.nucleofinanciero.ArranqueRecargaQrTest$EnTest" tests="1" skipped="0" failures="0" errors="0"
+<testcase name="elQrEsDePruebaYSePuedeSimularElPago()"
+<testsuite name="bo.aportaya.nucleofinanciero.ArranqueRecargaQrTest" tests="1" skipped="0" failures="0" errors="0"
+<testcase name="enProduccionElModoPruebaNoArranca()"
+
+Intentos previos (TEST_BUG, sin cambiar aserciones): 1) .properties() son defaults y el perfil production las pisaba -> 'url must start with jdbc'; se pasaron como argumentos.

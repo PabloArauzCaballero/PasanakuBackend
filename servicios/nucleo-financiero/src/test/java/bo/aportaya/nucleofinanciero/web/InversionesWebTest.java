@@ -17,6 +17,7 @@ import bo.aportaya.nucleofinanciero.aplicacion.CU15EmitirExtracto;
 import bo.aportaya.nucleofinanciero.aplicacion.CU17BloquearPorAutoridad;
 import bo.aportaya.nucleofinanciero.aplicacion.ConsultarMovimientosBilletera;
 import bo.aportaya.nucleofinanciero.aplicacion.ConsultarSaldo;
+import bo.aportaya.nucleofinanciero.aplicacion.PagoDeRecargaDePrueba;
 import bo.aportaya.nucleofinanciero.dominio.puertos.CotizadorDeComision;
 import bo.aportaya.nucleofinanciero.dominio.puertos.SegundoFactor;
 import bo.aportaya.plataforma.dominio.Dinero;
@@ -103,6 +104,9 @@ class InversionesWebTest {
 
     @MockitoBean
     private BandejaDeRetiros bandeja;
+
+    @MockitoBean
+    private PagoDeRecargaDePrueba pagoDePrueba;
 
     @MockitoBean
     private bo.aportaya.nucleofinanciero.aplicacion.CotizarOperacion cotizaciones;
