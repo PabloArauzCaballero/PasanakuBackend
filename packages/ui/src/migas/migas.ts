@@ -36,6 +36,8 @@ export type Miga = { texto: string; ruta?: string }
     li a, li span { overflow: hidden; text-overflow: ellipsis; }
     li:last-child { flex: none; }
     a { color: inherit; text-decoration: none; border-radius: var(--r-sm); transition: color var(--mov-micro) ease-out; }
+    /* El enlace mide el área táctil (44 px) sin engrosar la fila: el relleno vertical la completa y el margen negativo devuelve la altura de una línea. */
+    li a { padding-block: calc((var(--area-tactil) - 1lh) / 2); margin-block: calc((1lh - var(--area-tactil)) / 2); }
     a:hover { color: var(--text); text-decoration: underline; }
     a:focus-visible { outline: var(--borde-foco) solid var(--g300); outline-offset: var(--borde-desfase); }
     [aria-current='page'] { color: var(--text); font-weight: 600; }
