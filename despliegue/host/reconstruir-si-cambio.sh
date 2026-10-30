@@ -46,6 +46,12 @@ REMOTO=$(git ls-remote https://github.com/PabloArauzCaballero/PasanakuBackend.gi
 [ -n "$REMOTO" ] || { marca "no se pudo leer la rama test"; exit 0; }
 ANTERIOR=$(cat /opt/aportaya/ultimo-construido 2>/dev/null || echo "")
 [ "$REMOTO" = "$ANTERIOR" ] && exit 0
+# Un sha que ya fallo no se reintenta cada dos minutos, pero tampoco pasa a ser el ANTERIOR:
+# el 30/10 c3fd625 fallo en `grupos`, se marco como construido, test avanzo a d77dd21 (que no
+# toca `grupos`) y se desplego la imagen VIEJA de `grupos` con «listo». El proximo commit se
+# compara contra el ultimo que SI se desplego, y lo que fallo se vuelve a construir.
+FALLIDO=$(cut -d: -f1 /opt/aportaya/ultimo-fallido 2>/dev/null || echo "")
+[ -n "$FALLIDO" ] && [ "${REMOTO:0:7}" = "$FALLIDO" ] && exit 0
 
 marca "test avanzo: ${ANTERIOR:0:7} -> ${REMOTO:0:7}"
 git fetch -q --depth 50 origin test || { marca "fetch fallo"; exit 1; }
@@ -90,6 +96,37 @@ construir() {
   }
 }
 
+# El esquema se aplica ANTES de compilar los servicios: la construccion genera las clases de
+# jOOQ introspeccionando la base VIVA (construir.sh), asi que una columna nueva tiene que estar
+# ya en la base. El 30/10 `acuerdo.entrante_participante_id` llegaba recien con el despliegue,
+# `grupos` no compilaba sin ella y el despliegue nunca llegaba: huevo y gallina. Es el mismo
+# aplicar-esquema.sh del job de Coolify (solo expande; ver despliegue/TEST.md), con el entorno
+# de ese job: las credenciales no viven en este guion y el archivo temporal es 600.
+aplicar_esquema() {
+  local job env r
+  job=$(docker ps -a --format '{{.Names}}' | grep '^esquema-' | head -n1)
+  [ -n "$job" ] || { echo "no hay un job de esquema del que tomar el entorno"; return 1; }
+  env=$(mktemp); chmod 600 "$env"
+  docker inspect "$job" --format '{{range .Config.Env}}{{println .}}{{end}}' \
+    | grep -E '^(PGHOST|PGUSER|PGPASSWORD|PGDATABASE|PGPORT|ROLES_CLAVE)=' > "$env"
+  docker run --rm --network aportaya-interna --env-file "$env" aportaya/esquema:test; r=$?
+  rm -f "$env"
+  return $r
+}
+
+# El esquema viaja con el despliegue, pero su imagen lleva sql/ adentro.
+#
+# La segunda condicion no es defensiva de mas: los quince servicios la piden con
+# `pull_policy: never` y `condition: service_completed_successfully`, asi que si el tag
+# no esta en el host Coolify para los contenedores viejos, falla al crear los nuevos
+# («No such image») y el backend queda en CERO. Reconstruirla solo cuando el commit toca
+# sql/ hacia que no se recuperara sola nunca. Medido dos veces: 2026-09-17 y 2026-09-21.
+if TODO_O '^(sql/|despliegue/aplicar-esquema.sh|despliegue/Dockerfile.esquema)' \
+   || ! docker image inspect aportaya/esquema:test >/dev/null 2>&1; then
+  construir docker build -f despliegue/Dockerfile.esquema -t aportaya/esquema:test . \
+    && TODO_O '^(sql/|despliegue/aplicar-esquema.sh)' && construir aplicar_esquema
+fi
+
 # Lo troncal (plataforma, esquema, gradle) obliga a rehacer los quince servicios.
 # `plataforma/gateway/` es SOLO el gateway; el resto de plataforma/ lo comparten los
 # catorce servicios y obliga a rehacerlos.
@@ -108,17 +145,6 @@ done
 SERVICIOS=$(echo ${SERVICIOS:-} | tr ' ' '\n' | sort -u)
 for s in ${SERVICIOS:-}; do construir /opt/aportaya/bin/construir.sh "$s" servicios; done
 
-# El esquema viaja con el despliegue, pero su imagen lleva sql/ adentro.
-#
-# La segunda condicion no es defensiva de mas: los quince servicios la piden con
-# `pull_policy: never` y `condition: service_completed_successfully`, asi que si el tag
-# no esta en el host Coolify para los contenedores viejos, falla al crear los nuevos
-# («No such image») y el backend queda en CERO. Reconstruirla solo cuando el commit toca
-# sql/ hacia que no se recuperara sola nunca. Medido dos veces: 2026-09-17 y 2026-09-21.
-if TODO_O '^(sql/|despliegue/aplicar-esquema.sh|despliegue/Dockerfile.esquema)' \
-   || ! docker image inspect aportaya/esquema:test >/dev/null 2>&1; then
-  construir docker build -f despliegue/Dockerfile.esquema -t aportaya/esquema:test .
-fi
 
 # Todo workspace nuevo del monorepo se agrega ACA y en los dos Dockerfile: si falta en
 # el Dockerfile, `yarn install --immutable` se cae en getWorkspaceByDescriptor; si falta
@@ -178,7 +204,6 @@ for imagen in aportaya/gateway:test aportaya/esquema:test aportaya/backoffice:te
 done
 
 if [ "$FALLAS" -gt 0 ]; then
-  echo "$REMOTO" > /opt/aportaya/ultimo-construido
   echo "${REMOTO:0:7}:$FALLIDAS" > /opt/aportaya/ultimo-fallido
   marca "SIN DESPLEGAR — $FALLAS construccion(es) fallaron:$FALLIDAS"
   marca "el sha ${REMOTO:0:7} queda marcado; corregir y empujar un commit nuevo"

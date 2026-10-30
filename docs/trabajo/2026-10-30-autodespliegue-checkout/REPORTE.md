@@ -1,6 +1,6 @@
 # Reporte — El autodespliegue de TEST no puede decir «listo» si no cambió de commit
 
-> **AVANCE: 1 / 2 — 50,0 %.**
+> **AVANCE: 3 / 4 — 75,0 %.**
 
 - Fecha: 2026-10-30 · Plan: [PLAN.md](./PLAN.md) · Rama: `claude/autodespliegue-checkout-20261030` (desde `origin/test`)
 - Peldaño: `TESTED` en un clon descartable · el guion del host se instala a mano (`despliegue/host/README.md`), así que en TEST rige recién cuando se instale.
@@ -9,11 +9,13 @@
 | ID | Qué se logró | Comando | Resultado |
 |---|---|---|---|
 | H1.M1 | Checkout con `-f` y verificación `HEAD = REMOTO`; si falla, `FALLA` en el log y `exit 1` (no hay «listo» ni despliegue) | clon descartable: línea vieja vs bloque nuevo extraído del guion | PASS — `evidencia/prueba-checkout.txt` |
+| H1.M3 | Un sha fallido no se reintenta pero tampoco pasa a ser el ANTERIOR; ante falla ya no se escribe `ultimo-construido` | fragmento del guion en un directorio temporal | PASS — `evidencia/prueba-sha-fallido.txt` |
+| H1.M2 | PRs #326 (test) y #327 (dev) | `gh pr view` | abiertos |
 
 ## A medias
-### H1.M2 — PR e instalación
-- Qué anda: el cambio en `despliegue/host/reconstruir-si-cambio.sh`, `bash -n` OK, prueba en verde.
-- Qué no anda: el host sigue con la copia vieja hasta que se instale.
+### H1.M4 — Esquema antes de compilar
+- Qué anda: `aplicar_esquema` usa el mismo comando que Pablo corrió a mano el 30/10 (`esquema: listo`, columna creada); `bash -n` OK.
+- Qué no anda: no se ejercitó dentro del guion (necesita instalarlo en el host y un commit que toque `sql/`).
 - Qué falta exactamente: merge de los PRs a `test` y `dev`; en el host, `install -m 755 despliegue/host/reconstruir-si-cambio.sh /opt/aportaya/bin/` (a mano por diseño, revisión de seguridad 2026-10-28).
 - Dónde quedó: rama `claude/autodespliegue-checkout-20261030`, compila (`bash -n`).
 
