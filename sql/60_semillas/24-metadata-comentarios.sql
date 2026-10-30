@@ -732,6 +732,7 @@ COMMENT ON COLUMN grupos.acuerdo.votos_en_contra IS '[NEGOCIO] Atributo que repr
 COMMENT ON COLUMN grupos.acuerdo.abstenciones IS '[NEGOCIO] Atributo que representa abstenciones en el modelo de `acuerdo`. [SISTEMA] smallint, obligatoria (NOT NULL).';
 COMMENT ON COLUMN grupos.acuerdo.estado IS '[NEGOCIO] Estado operativo o fase del ciclo de vida en que se encuentra el registro. [SISTEMA] varchar(15), obligatoria (NOT NULL).';
 COMMENT ON COLUMN grupos.acuerdo.referencia_afectada_id IS '[NEGOCIO] Identificador de referencia para el concepto de referencia afectada en `acuerdo`. [SISTEMA] uuid, opcional.';
+COMMENT ON COLUMN grupos.acuerdo.entrante_participante_id IS '[NEGOCIO] Identificador de referencia para el concepto de entrante participante en `acuerdo`. [SISTEMA] uuid, opcional.';
 COMMENT ON COLUMN grupos.acuerdo.abierto_en IS '[NEGOCIO] Marca temporal o fecha de abierto en `acuerdo`. [SISTEMA] timestamptz, obligatoria (NOT NULL).';
 COMMENT ON COLUMN grupos.acuerdo.cierra_en IS '[NEGOCIO] Marca temporal o fecha de cierra en `acuerdo`. [SISTEMA] timestamptz, obligatoria (NOT NULL).';
 COMMENT ON COLUMN grupos.acuerdo.resuelto_en IS '[NEGOCIO] Marca temporal o fecha de resuelto en `acuerdo`. [SISTEMA] timestamptz, opcional.';

@@ -421,6 +421,7 @@ ALTER TABLE garantia.score_riesgo_incumplimiento ALTER COLUMN grupo_id DROP NOT 
 ALTER TABLE garantia.subrogacion ALTER COLUMN documento_respaldo_url DROP NOT NULL;
 ALTER TABLE grupos.aceptacion_reglamento ALTER COLUMN token_firma_id DROP NOT NULL;
 ALTER TABLE grupos.acuerdo ALTER COLUMN ejecutado_en DROP NOT NULL;
+ALTER TABLE grupos.acuerdo ALTER COLUMN entrante_participante_id DROP NOT NULL;
 ALTER TABLE grupos.acuerdo ALTER COLUMN referencia_afectada_id DROP NOT NULL;
 ALTER TABLE grupos.acuerdo ALTER COLUMN resuelto_en DROP NOT NULL;
 ALTER TABLE grupos.configuracion_grupo ALTER COLUMN politica_mora_id DROP NOT NULL;

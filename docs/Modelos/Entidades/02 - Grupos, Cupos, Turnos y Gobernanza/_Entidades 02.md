@@ -39,5 +39,5 @@ Las **27 tablas** de este módulo. Justificación de negocio en [[02_grupos_turn
 | [[criterio_emparejamiento]] | 8 | 0 | 1 |
 | [[propuesta_grupo]] | 10 | 2 | 1 |
 | [[propuesta_postulacion]] | 4 | 2 | 0 |
-| [[acuerdo]] | 15 | 2 | 8 |
+| [[acuerdo]] | 16 | 2 | 8 |
 | [[voto_participante]] | 7 | 2 | 0 |

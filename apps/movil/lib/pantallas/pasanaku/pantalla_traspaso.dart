@@ -45,7 +45,6 @@ const _misGrupos = '/pasanaku';
 class _PantallaTraspasoState extends ConsumerState<PantallaTraspaso>
     with _EnvioDelTraspaso {
   var _paso = 0;
-  String? _elegido;
 
   /// Volver retrocede un paso; desde el primero (o con el traspaso hecho) sale.
   void _volver() {
