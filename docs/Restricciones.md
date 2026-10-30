@@ -1906,6 +1906,7 @@ ALTER TABLE evaluacion_riesgo_producto
 | R-GRP-17 | Las decisiones humanas de admisión se conservan íntegras, una por revisión y con motivo | Debido proceso · Evidencia oponible | [[CU-68 Postular a un grupo y ser emparejado]] |
 | R-GRP-19 | Cambiar de administrador es una decisión de backoffice conservada íntegra; el administrador saliente conserva sus cupos y obligaciones | Debido proceso · Continuidad del grupo | [[CU-68 Postular a un grupo y ser emparejado]] |
 | R-GRP-18 | El plantel, el calendario y las reglas del sorteo se congelan al comprometerlo y no se reescriben | Transparencia · Evidencia oponible | [[CU-60 Sortear los turnos]] |
+| R-GRP-20 | El sorteo se compromete solo con el grupo `CONFORMADO` —todos los cupos ocupados, o iniciado por el organizador con al menos el 75 % (`ceil(0,75 × cupos_totales)`) y achicado a los ocupados— y con el primer aporte **acreditado** en cada cupo ocupado. Plata prometida no habilita el sorteo | Confianza · Decisión del dueño 2026-10-30 | [[CU-60 Sortear los turnos]] · [[CU-21 Cobrar el aporte del período]] |
 
 ```sql
 -- R-GRP-01 · una entrega por turno y por período
