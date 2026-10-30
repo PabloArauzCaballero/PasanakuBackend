@@ -1,0 +1,4 @@
+dart format 3.12.2, apps/movil (mismo comando que el lint de la CI)
+ANTES : Formatted 620 files (3 changed)  [ruleta_del_sorteo_test, pantalla_mfa_test, pantalla_mi_puntaje_test]
+DESPUES: Formatted 620 files (0 changed), exit 0
+Nota: los avisos de flutter_lints son por no haber corrido pub get en local; no afectan el formato.
