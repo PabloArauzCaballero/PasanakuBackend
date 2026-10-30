@@ -1,9 +1,9 @@
-> **AVANCE: 12 / 18 — 66,7 %.** Verificado en local; la CI de la PR ya pasó «Los cinco corredores» y «bootJar y docker build» (Trivy) con los cambios de Java, y mostró dos rojos nuevos que ahora están corregidos pero sin confirmar en la CI: Postman (H2.S6, hecho en local) y OSV-Scanner (H2.S7, `A MEDIAS`). Faltan además las dos entregas por PR.
+> **AVANCE: 17 / 24 — 70,8 %.** #315 y #316 las mergeó PabloArauzCaballero a las 02:33 UTC con dos rojos sin resolver: `14 · integrationTest` (una prueba intermitente de `grupos`: la corrección hizo pasar `14` en la CI de #322/#323, pero esa CI además marcó un SQL concatenado mío, ya corregido en local y pendiente de la CI) y los dos jobs de iOS (H2.S9: BLOQUEADO, no reproducible sin macOS). Frontend, Postman, OSV-Scanner, la imagen y Trivy pasaron en la CI de esas PR.
 
 # Reporte — Dejar en verde los rojos que quedaron en `dev`
 
 - Fecha: 2026-10-30 · Plan: [PLAN.md](./PLAN.md) · Rama: `claude/modest-bell-jz1x9e` (desde `origin/dev` ae38c444)
-- Peldaño de evidencia alcanzado: **TESTED** en local para cada cambio (comandos y salidas en `evidencia/`); el CSS de `ui` además tiene **prueba visual real** (capturas por viewport y tema, miradas en dos pasadas). No es `REGRESSION_VERIFIED`: la CI de la PR todavía no corrió, y `sagaTest`, la imagen y Trivy solo se ejercitan allí.
+- Peldaño de evidencia alcanzado: **TESTED** en local para cada cambio (comandos y salidas en `evidencia/`) y **observado en la CI** para el job Frontend, Postman, OSV-Scanner, la imagen, Trivy y (en #316) los cinco corredores, medidos sobre la cabeza c6757463; el CSS de `ui` además tiene **prueba visual real** (capturas por viewport y tema, miradas en dos pasadas). No es `REGRESSION_VERIFIED`: la corrección de H2.S8 todavía no corrió en la CI y esta cabeza reinicia los checks.
 
 ## Completado
 | ID | Qué se logró | Comando | Resultado |
@@ -17,28 +17,32 @@
 | H2.S6.M1 | Postman regenerado: la CI de la PR falló en «Contratos y clientes generados» por la operación `listarAcuerdos` de #311/#313 | `python3 scripts/generar_postman.py` | 2 colecciones actualizadas, solo cambios aditivos |
 | H2.S5.M1 | Criterios de CU-64 sin divergencias (rojo nuevo que llegó con el merge de `dev`) | `python3 scripts/verificar_criterios.py` | 6 FALLAS → «Sin divergencias…»; spotless/compile/barrido/contractTest OK |
 | H2.S4.M1 | Criterios de CU-58 sin divergencias | `python3 scripts/verificar_criterios.py` | 5 FALLAS → «Sin divergencias entre la boveda y el codigo.» |
+| H2.S2.M1 | `16 · sagaTest` y `16b` cobertura pasan | CI de #316 (run 40991387140, head 70f836b4), «Los cinco corredores» | success (en #315 el job cortó antes, en `14`: H2.S8) |
+| H2.S3.M2 | Los 4 hallazgos de Trivy desaparecen (guava, snappy-java, libbrotli1) | CI de #315 y #316: «bootJar y docker build» y check «Trivy» | success en ambas, cabeza c6757463 |
+| H2.S7.M1–M2 | OpenTelemetry 1.67.0 y los 28 paquetes npm sin avisos de OSV | CI de #315 y #316: «Dependencias vulnerables (OSV-Scanner) / osv-scan» | success en ambas, cabeza c6757463 |
+| H2.S8.M1 | Causa de la prueba intermitente demostrada | SQL contra PostgreSQL local en transacción con `ROLLBACK` | 100 de 300 grupos de hoy quedan fuera del `LIMIT 200` · `evidencia/listado-grupos-backoffice.txt` |
 
 ## A medias
-### H2.S3.M2 — Trivy
-- Qué anda: `guava` 33.7.2-jre y `snappy-java` 1.1.10.9 en las restricciones de `aportaya.servicio.gradle.kts`; los 14 lockfiles cambian solo en esas dependencias y las transitivas de guava; `identidad` compila y pasan sus pruebas de unidad y web; `notificaciones` y `gateway` compilan. `libbrotli1` nombrado en `despliegue/Dockerfile`.
-- Qué no anda / no se probó: no se construyó la imagen ni se corrió Trivy (no hay Docker en la sesión). No sé si la imagen resultante trae `libbrotli1 1.1.0-2ubuntu0.1`.
-- Qué falta exactamente: que el paso `17b2` de la CI de la PR pase. Si `libbrotli1` sigue marcado, el digest base necesita otra solución (p. ej. `apt-get upgrade` o un digest nuevo).
-- Dónde quedó: rama `claude/modest-bell-jz1x9e`; compila.
+### H2.S8.M2 — `GruposDeBackofficeRepositorioTest.listado` intermitente (`14 · integrationTest`)
+- Qué anda: la causa está demostrada (el listado ordena por `fecha_inicio DESC NULLS FIRST, codigo_publico, id` con `LIMIT 200`; la fixture pone `fecha_inicio = hoy` y un código aleatorio en una base compartida sin limpieza, así que con más de 200 grupos el de la prueba entra o no al azar). La prueba ahora fija la `fecha_inicio` de su grupo en el futuro antes de listar; las aserciones no cambiaron. `spotlessCheck` y `compileTestJava` de `grupos`: exit 0. Falló en #315 y pasó en #316 con el mismo código (clasificación `TEST_BUG`, regla 80.4).
+- Qué no anda / no se probó: no corrí `integrationTest` (necesita Docker, que la sesión no tiene), así que la corrección no se observó en ejecución.
+- Qué falta exactamente: que `14 · integrationTest` pase en la CI de las dos PR con esta cabeza.
+- Dónde quedó: rama `claude/modest-bell-jz1x9e`; solo `servicios/grupos/src/test/.../GruposDeBackofficeRepositorioTest.java`, que compila.
 
-### H2.S7 — OSV-Scanner (opentelemetry y 28 paquetes npm)
-- Qué anda: `opentelemetry` 1.67.0 en los 15 lockfiles; `yarn.lock` con las versiones corregidas vía `resolutions`; `yarn npm audit` sin vulnerabilidades (solo queda un aviso de deprecación de `eslint`); lint, tipos, pruebas, builds y e2e del sitio con los mismos resultados que antes; `gateway`, `identidad` y `auditoria` pasan sus pruebas.
-- Qué no anda / no se probó: no pude correr `osv-scanner` (la descarga de un binario externo fue denegada), así que no sé si queda algún aviso de OSV que `yarn npm audit` no ve. `integrationTest` con OpenTelemetry 1.67.0 solo corre en la CI.
-- Qué falta exactamente: que el job «Dependencias vulnerables (OSV-Scanner)» pase en la CI de la PR.
-- Dónde quedó: rama `claude/modest-bell-jz1x9e`; `package.json` (resolutions), `yarn.lock`, `buildSrc/.../aportaya.servicio.gradle.kts` y los lockfiles.
+### H3.S1.M1 / M2 — entrega de #315 (`dev`) y #316 (`test`)
+- Qué anda: las dos PR se abrieron, quedaron sin conflictos y las mergeó PabloArauzCaballero a las 02:33 UTC. Con ese merge `dev` y `test` ganan el arreglo de `f1`, `f5`, `f6`, `contractTest`, los criterios de CU-58/CU-64, Postman, OSV y Trivy (todos observados en verde en la CI de las PR).
+- Qué no anda: se mergearon con `mergeable_state: unstable`: `14 · integrationTest` (H2.S8) y los jobs de iOS (H2.S9) estaban en rojo. El CA «checks sin fallos» (regla 35.2) no se cumplió.
+- Qué falta exactamente: H3.S2 (la corrección de H2.S8 en `dev` y `test`) y H2.S9.
+- Dónde quedó: `dev` y `test` ya contienen las PR; la corrección de H2.S8 y las actualizaciones de plan y reporte están en la rama `claude/modest-bell-jz1x9e` (+ merge de `dev`), sin mergear.
 
 ## Pendiente
 | ID | Estado | Qué lo destraba |
 |---|---|---|
-| H2.S2.M1 | TODO | CI: `16 · sagaTest` y `16b` cobertura corren recién cuando `15` pasa; si hay rojos debajo, entran como microtareas |
-| H3.S1.M1 / M2 | TODO | abrir las dos PR y verificar `mergeable` y los checks reales |
+| H2.S9.M1 | BLOQUEADO | Jobs de iOS: `ld: framework 'Pods_Runner' not found` al compilar con `patrol test` (Xcode 26.3, macos-15). Hace falta reproducirlo en un Mac con Xcode (`pod install` + `xcodebuild build-for-testing` de `apps/movil/ios`); lo destraba el dueño de la app móvil. En el run base de `dev` estaban `skipped`, no verdes |
+| H3.S2.M1 / M2 | TODO | abrir el PR de seguimiento a `dev` y su gemelo a `test`, y que sus checks reales queden verdes antes de mergear |
 
 ## Evidencia
-Ver `evidencia/`: `dart-format.txt`, `f5-catalogo-44px.txt`, `f6-e2e-backoffice.txt`, `trivy-y-locks.txt`, `java-y-boveda.txt` y `visual/` (escritorio y teléfono, claro y oscuro, antes | después; más foco y hover de los botones de ayuda). Extracto del cambio de `f5`:
+Ver `evidencia/`: `dart-format.txt`, `f5-catalogo-44px.txt`, `f6-e2e-backoffice.txt`, `trivy-y-locks.txt`, `java-y-boveda.txt`, `listado-grupos-backoffice.txt` y `visual/` (escritorio y teléfono, claro y oscuro, antes | después; más foco y hover de los botones de ayuda). Extracto del cambio de `f5`:
 ```text
 ANTES : 11 controles < 44 px (a «Inicio», a «Sistemas», button «Notas de la vista», 5 «Ayuda sobre…», «Vista general», «Columnas 18», «Gobierno»)
 DESPUES: yarn workspace @aportaya/web test:e2e → 36 passed (34.3s)
@@ -46,18 +50,22 @@ Solape del botón de ayuda (44 px) sobre el control de abajo: elementFromPoint �
 ```
 
 ## No cubierto
-- La corrida **completa** de `f6` con las tres correcciones juntas (corrí cada spec por separado; la completa la hace la CI) y `f7` (se saltea sin backend vivo).
-- `integrationTest`, `sagaTest`, el build de la imagen y Trivy: no hay Docker en la sesión.
+- `f7` (se saltea sin backend vivo); el job Frontend completo terminó en success en la CI, pero no leí paso por paso su salida.
+- `integrationTest`, `sagaTest`, el build de la imagen y Trivy no corren en la sesión (no hay Docker): solo los vi en la CI. La corrección de H2.S8 no tiene aún ninguna corrida.
+- `GruposDeBackofficeRepositorioTest.listado` no es la única prueba que cuenta con una base compartida sin limpieza: no revisé las demás.
 - `flutter analyze` y `flutter test` (no hay SDK de Flutter; solo se bajó `dart` para el formato). Las goldens y los simuladores iOS son de otros jobs.
 - Estados de hover/foco del resto de componentes tocados (solo se capturaron los de la ayuda de la lista y de la barra de filtros); no se probó en un dispositivo táctil real.
 - El aviso de presupuesto del bundle del backoffice ya existía (502,05 kB sin mis cambios, 502,20 kB con ellos); no lo toqué.
 
 ## Desvíos del plan
-Ver «Desvíos del plan» en [PLAN.md](./PLAN.md): se agregaron H1.S3 y H2.S4, y el README de `identidad` no declara un CU-07 «parcial».
+- La primera versión de la corrección de H2.S8 partía el SQL con `"…" + "…"`. El verificador de seguridad (`verificar_seguridad.py`, prohibición 2 «SQL concatenado») lo marcó en la CI de #322/#323 y dejó rojos «La boveda y el esquema no divergen» y «Bóveda, seguridad, carriles y despliegue coherentes». No corrí ese verificador antes de subir. Corregido con un bloque de texto (H2.S8.M3); `verificar_boveda`, `verificar_criterios`, `verificar_carriles` y `verificar_seguridad` ahora salen con 0 en local.
+- Las PR #315 y #316 se mergearon antes de que llegara la corrección de H2.S8; por eso H2.S8 y las actualizaciones de plan y reporte viajan en un PR de seguimiento (H3.S2) y no en las PR originales.
+Ver «Desvíos del plan» en [PLAN.md](./PLAN.md): se agregaron H1.S3, H2.S4 a H2.S8 (todos nacieron al ejecutar lo que la CI mostraba o escondía), y el README de `identidad` no declara un CU-07 «parcial».
 
 ## Riesgos residuales
 - Los botones de ayuda ahora tienen 44×44 px con margen negativo: un clic en los ~10 px que rodean el icono abre el tooltip en vez de caer en un vecino que no sea el control de debajo (ese lo cubrí con `position: relative`). Otros vecinos interactivos pegados a una ayuda podrían quedar parcialmente tapados; no los busqué.
-- Subir `guava` y `snappy-java` en todos los servicios es un cambio de ejecución: las pruebas de integración y de saga de los 15 módulos solo corren en la CI.
+- Subir `guava`, `snappy-java` y OpenTelemetry en todos los servicios es un cambio de ejecución: sus pruebas de integración y de saga solo corren en la CI (en #316 pasaron; en #315 `14` cortó por H2.S8, ajeno a las versiones).
+- La base de integración compartida sin limpieza hace que cualquier prueba que afirme pertenecer a un listado global con tope se vuelva intermitente a medida que se agregan pruebas.
 - `CU07FotoDePerfil` seguirá chocando con el CU-07 de la bóveda hasta que su autor decida el nombre.
 
 ## Decisiones y ambigüedades
