@@ -50,10 +50,23 @@ import org.springframework.test.web.servlet.MockMvc;
 @Import(IntegrantesDelGrupo.class)
 @MockitoBean(
         types = {
-            CanjearInvitacion.class, CU20CrearGrupo.class, CU59CalcularPlazo.class, CU64TraspasarCupo.class,
-            CU65Retirarse.class, CU68Postular.class, CU68AceptarIngreso.class, InvitacionesWeb.class,
-            AdmisionDelGrupo.class, CU69Invitar.class, RespuestasAOtrosServicios.class, SorteoDelGrupo.class,
-            CU69EnlaceDeGrupo.class, Consultas.class, HechosDeOtrosServicios.class, GruposDeBackoffice.class
+            CanjearInvitacion.class,
+            CU20CrearGrupo.class,
+            CU59CalcularPlazo.class,
+            CU64TraspasarCupo.class,
+            bo.aportaya.grupos.aplicacion.CU64TraspasoPorSubasta.class,
+            CU65Retirarse.class,
+            CU68Postular.class,
+            CU68AceptarIngreso.class,
+            InvitacionesWeb.class,
+            AdmisionDelGrupo.class,
+            CU69Invitar.class,
+            RespuestasAOtrosServicios.class,
+            SorteoDelGrupo.class,
+            CU69EnlaceDeGrupo.class,
+            Consultas.class,
+            HechosDeOtrosServicios.class,
+            GruposDeBackoffice.class
         })
 class GruposDetalleYFirmaWebTest {
 

@@ -254,6 +254,12 @@ void main() {
           '/grupos/participaciones',
           (s) => s.reply(200, <Object>[]),
         );
+        // «Cupos en subasta» también pide lo suyo (CU-64 por subasta, 2026-10-30).
+        adaptador.onGet(
+          '/entregas/subastas',
+          (s) => s.reply(200, {'pagina': 0, 'subastas': <Object>[]}),
+          queryParameters: {'limite': 20, 'pagina': 0},
+        );
         // Primero el gateway falla; después responde. Registrar la ruta de nuevo
         // reemplaza la respuesta anterior.
         adaptador.onGet(

@@ -21,12 +21,16 @@ export 'package:aportaya_cliente_entregas/src/model/entrada_fondeo_del_pozo.dart
 export 'package:aportaya_cliente_entregas/src/model/entrada_liquidacion.dart';
 export 'package:aportaya_cliente_entregas/src/model/entrada_oferta.dart';
 export 'package:aportaya_cliente_entregas/src/model/entrada_orden_desembolso.dart';
+export 'package:aportaya_cliente_entregas/src/model/entrada_puja.dart';
 export 'package:aportaya_cliente_entregas/src/model/entrada_registro_cuenta.dart';
 export 'package:aportaya_cliente_entregas/src/model/entrada_respuesta_desembolso.dart';
+export 'package:aportaya_cliente_entregas/src/model/entrada_subasta.dart';
 export 'package:aportaya_cliente_entregas/src/model/error.dart';
+export 'package:aportaya_cliente_entregas/src/model/mi_puja.dart';
 export 'package:aportaya_cliente_entregas/src/model/oferta_para_pago.dart';
 export 'package:aportaya_cliente_entregas/src/model/pagina_de_desembolsos.dart';
 export 'package:aportaya_cliente_entregas/src/model/pagina_de_ofertas.dart';
+export 'package:aportaya_cliente_entregas/src/model/pagina_de_subastas.dart';
 export 'package:aportaya_cliente_entregas/src/model/salida_autorizacion.dart';
 export 'package:aportaya_cliente_entregas/src/model/salida_cancelacion_de_oferta.dart';
 export 'package:aportaya_cliente_entregas/src/model/salida_compra.dart';
@@ -36,8 +40,10 @@ export 'package:aportaya_cliente_entregas/src/model/salida_intento_desembolso.da
 export 'package:aportaya_cliente_entregas/src/model/salida_liquidacion.dart';
 export 'package:aportaya_cliente_entregas/src/model/salida_oferta.dart';
 export 'package:aportaya_cliente_entregas/src/model/salida_orden_desembolso.dart';
+export 'package:aportaya_cliente_entregas/src/model/salida_puja.dart';
 export 'package:aportaya_cliente_entregas/src/model/salida_registro_cuenta.dart';
 export 'package:aportaya_cliente_entregas/src/model/salida_verificacion_cuenta.dart';
 export 'package:aportaya_cliente_entregas/src/model/verificar_cuenta_destino_request.dart';
 export 'package:aportaya_cliente_entregas/src/model/vista_de_oferta.dart';
+export 'package:aportaya_cliente_entregas/src/model/vista_de_subasta.dart';
 
