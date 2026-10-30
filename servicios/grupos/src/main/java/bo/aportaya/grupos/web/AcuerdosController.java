@@ -81,6 +81,11 @@ public class AcuerdosController implements AcuerdosApi {
         if (cuerpo.getTipo() != EntradaAcuerdo.TipoEnum.TRASPASO_CUPO) {
             return Optional.empty();
         }
+        // Primero, que quien propone sea del grupo: si no, la respuesta sobre quien entra le diria a un
+        // extraño si esa persona participa de un grupo ajeno.
+        consultas
+                .participanteDe(cuerpo.getGrupoId(), ctx.usuarioId(), ctx)
+                .orElseThrow(() -> new ErrorDeNegocio(CodigoError.de(63, 1), "No participas de ese grupo."));
         if (cuerpo.getReferenciaAfectadaId() == null || cuerpo.getUsuarioEntranteId() == null) {
             throw sinEntrante();
         }
