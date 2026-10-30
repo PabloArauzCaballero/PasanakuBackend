@@ -175,7 +175,8 @@ test.describe('[UI con red simulada] admisión humana en backoffice', () => {
     await irA(page, `/admisiones/${SOLICITUD}`)
     await expect(page.getByRole('status', { name: 'Cargando el expediente de la solicitud' })).toBeVisible()
     await capturar(page, 'cargando', 'escritorio', 'light')
-    await expect(page.getByText('todavía no propuso una decisión')).toBeVisible()
+    // Desde 4f873212 (2026-10-29) backoffice decide aunque el administrador no haya propuesto: el vacío lo dice y lo invita a resolver.
+    await expect(page.getByText('El administrador del grupo no propuso nada')).toBeVisible()
     await capturar(page, 'vacio', 'movil', 'light')
 
     await page.unroute(`**/api/v1/grupos/solicitudes/${SOLICITUD}/decisiones`)
@@ -245,8 +246,7 @@ test.describe('[UI con red simulada] admisión humana en backoffice', () => {
     await ingresar(page)
     await page.getByRole('link', { name: /Solicitudes de ingreso/ }).click()
     await expect(page.getByRole('heading', { name: 'Abrir una solicitud' })).toBeVisible()
-    // La entrada abre en «Pendientes de un grupo» (2026-10-26); abrir por identificador es la otra pestaña.
-    await page.getByRole('tab', { name: 'Por identificador' }).click()
+    // Desde 4f873212 (2026-10-29) la entrada no tiene pestañas: el formulario de abrir por identificador está siempre a la vista.
     await page.getByLabel(/Identificador de la solicitud/).fill('no-es-un-uuid')
     await page.getByRole('button', { name: 'Abrir solicitud' }).click()
     await expect(page.getByText('Ese identificador no tiene el formato de una solicitud.')).toBeVisible()
