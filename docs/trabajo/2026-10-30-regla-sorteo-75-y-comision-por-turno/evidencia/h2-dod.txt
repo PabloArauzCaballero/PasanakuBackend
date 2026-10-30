@@ -1,0 +1,34 @@
+$ head -3 docs/trabajo/2026-10-30-regla-sorteo-75-y-comision-por-turno/ANALISIS-COMISION.md
+# Análisis — Cuánto cobrar por cada turno (vuelta) del pasanaku
+
+- Fecha: 2026-10-30 · Autor: sesión `pasanaku-1f` a pedido de Pablo · Estado: **recomendación, no decisión**.
+
+$ grep -c "^|" docs/trabajo/2026-10-30-regla-sorteo-75-y-comision-por-turno/ANALISIS-COMISION.md   # filas de tabla
+29
+
+$ grep -n "Recomendación en una línea" -A3 docs/trabajo/2026-10-30-regla-sorteo-75-y-comision-por-turno/ANALISIS-COMISION.md | head -5
+8:## 1. Recomendación en una línea
+9-
+10-**Cobrar el 2 % de la bolsa bruta por cada turno, deducido al liquidar la entrega, impuestos incluidos,
+11-con piso de Bs 10 y techo de Bs 300.** Mismo concepto que ya existe (`COM_ENTREGA`), misma forma de
+
+$ grep -c "PRIMER_APORTE_PENDIENTE\|nace al iniciar" "docs/CasosDeUso/CU-60 Sortear los turnos.md"
+3
+
+$ tail -1 docs/trabajo/2026-10-30-regla-sorteo-75-y-comision-por-turno/evidencia/modelo_comision.txt; ls docs/trabajo/2026-10-30-regla-sorteo-75-y-comision-por-turno/evidencia
+  20 × Bs  1000:    840.00   3360.00   5040.00   6720.00   8400.00   (tarifas: 0.3%, 1.0%, 1.5%, 2.0%, 2.5%)
+avisos-sesiones.md
+h1-dod.txt
+h2-dod.txt
+modelo_comision.py
+modelo_comision.txt
+
+$ git status --short -- docs/Restricciones.md "docs/CasosDeUso/CU-60 Sortear los turnos.md" docs/trabajo/2026-10-30-regla-sorteo-75-y-comision-por-turno
+ M "docs/CasosDeUso/CU-60 Sortear los turnos.md"
+ M docs/Restricciones.md
+?? docs/trabajo/2026-10-30-regla-sorteo-75-y-comision-por-turno/
+
+$ git diff --stat -- docs/Restricciones.md "docs/CasosDeUso/CU-60 Sortear los turnos.md"
+ docs/CasosDeUso/CU-60 Sortear los turnos.md | 18 +++++++++++++++---
+ docs/Restricciones.md                       |  1 +
+ 2 files changed, 16 insertions(+), 3 deletions(-)

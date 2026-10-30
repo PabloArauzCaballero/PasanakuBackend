@@ -19,15 +19,25 @@ normas: [Transparencia con el consumidor, RF-19]
 
 - **Actor principal:** el sistema, cuando el grupo se completa.
 - **Actores secundarios:** organizador (convoca), participantes (aportan entropía).
-- **Disparador:** el grupo alcanza `cupos_ocupados = cupos_totales` y todos
-  firmaron el reglamento.
+- **Disparador:** el grupo queda `CONFORMADO` —porque alcanzó
+  `cupos_ocupados = cupos_totales`, o porque el organizador lo inició con al menos el
+  75 % de los cupos (`ceil(0,75 × cupos_totales)`) y el grupo se achicó a los ocupados—,
+  todos firmaron el reglamento **y cada cupo ocupado tiene su primer aporte acreditado**
+  (`R-GRP-20`, decisión del dueño 2026-10-30).
 
 ## Precondiciones
 
 1. [[grupo]] en estado `CONFORMADO` y `modalidad_turnos = 'SORTEO_ALEATORIO'`.
 2. Todos los [[cupo]] están `OCUPADO` y cada [[participante]] tiene
-   [[aceptacion_reglamento]].
+   [[aceptacion_reglamento]]. Un grupo iniciado al 75 % ya se achicó, así que acá
+   «todos» es el 100 % de su tamaño nuevo.
 3. No existe [[sorteo_turnos]] previo para el grupo (`R-GRP-05`).
+4. Cada [[cupo]] `OCUPADO` tiene la [[obligacion_aporte]] del primer período en
+   `ACREDITADO` ([[CU-21 Cobrar el aporte del período]]). El sorteo se hace con plata
+   cobrada, no prometida (`R-GRP-20`). La primera obligación **nace al iniciar el grupo**: la
+   operación de inicio (`POST /grupos/{grupoId}/inicio`, carril «arenas e inicio 75») abre el
+   cobro del período 1 para cada cupo del grupo ya achicado, y el sorteo se habilita cuando todas
+   están `ACREDITADO` por webhook verificado (decisión del dueño 2026-10-30).
 
 ## Flujo principal
 
@@ -66,6 +76,7 @@ normas: [Transparencia con el consumidor, RF-19]
 | 3a | Un participante no aporta entropía | El sorteo sigue: la entropía de los participantes **suma**, no condiciona |
 | 4a | La verificación del hash falla | **El sorteo se anula**: se registra el incidente ([[incidente_operativo]]), se notifica a todos y se recomienza con semilla nueva. Jamás se publica un resultado cuyo hash no cierra |
 | 4b | Se cae el proceso a mitad | La transacción revierte entera: o hay turnos completos o no hay ninguno |
+| 1b | Un cupo ocupado no pagó la primera cuota | El compromiso se rechaza con `PRIMER_APORTE_PENDIENTE`; el organizador ve qué cupos faltan y el sorteo espera. No se sortea con plata prometida (`R-GRP-20`) |
 | — | Alguien pide repetir el sorteo | Solo por [[acuerdo]] del grupo con quórum ([[CU-63 Proponer y votar un acuerdo]]), y queda el sorteo anterior visible |
 
 ## Postcondiciones
@@ -109,6 +120,7 @@ export const ErroresCU60 = {
 | `FECHA_DE_REVELADO_FUTURA` | Se pidió revelar antes de la fecha comprometida: el compromiso sería inútil |
 | `HASH_NO_VERIFICA` | La semilla revelada no reproduce el hash. **Aborta, no asigna turnos y abre incidente** |
 | `REGLAMENTO_SIN_FIRMAR` | Algún participante no aceptó el reglamento que fija el método de sorteo |
+| `PRIMER_APORTE_PENDIENTE` | Algún cupo ocupado no tiene acreditado el aporte del primer período (`R-GRP-20`). Código propuesto `AP-CU60-11` (del 1 al 10 ya están tomados en `CodigoError.de(60, n)`); **sin implementar** al 2026-10-30 |
 
 ## Descomposición atómica
 
