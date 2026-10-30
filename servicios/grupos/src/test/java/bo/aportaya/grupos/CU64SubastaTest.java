@@ -42,11 +42,15 @@ class CU64SubastaTest extends BaseDeCU64 {
     private final CU64TraspasoPorSubasta subasta = conMaximo(Integer.MAX_VALUE);
 
     private ContextoSesion como(UUID usuario) {
-        return ContextoSesion.de(usuario, "PARTICIPANTE", new Traza(UUID.randomUUID().toString()));
+        return ContextoSesion.de(
+                usuario, "PARTICIPANTE", new Traza(UUID.randomUUID().toString()));
     }
 
     private ContextoSesion servicio() {
-        return ContextoSesion.de(UUID.randomUUID(), "SERVICIO_ENTREGAS", new Traza(UUID.randomUUID().toString()));
+        return ContextoSesion.de(
+                UUID.randomUUID(),
+                "SERVICIO_ENTREGAS",
+                new Traza(UUID.randomUUID().toString()));
     }
 
     private CU64TraspasoPorSubasta.Traspaso adjudicar(Escenario e, UUID subastaId, UUID ganador) {
@@ -60,7 +64,12 @@ class CU64SubastaTest extends BaseDeCU64 {
     }
 
     private Optional<NoElegible> elegibilidadEnTx(
-            CU64TraspasoPorSubasta caso, UUID grupo, boolean restriccion, boolean kyc, boolean rep, ContextoSesion ctx) {
+            CU64TraspasoPorSubasta caso,
+            UUID grupo,
+            boolean restriccion,
+            boolean kyc,
+            boolean rep,
+            ContextoSesion ctx) {
         return transaccion.execute(t -> caso.elegibilidad(grupo, restriccion, kyc, rep, ctx));
     }
 
@@ -69,7 +78,8 @@ class CU64SubastaTest extends BaseDeCU64 {
     }
 
     @Test
-    @DisplayName("Dado el titular al día · Cuando pregunta si puede subastar su cupo · Entonces es subastable y ve el aporte del grupo")
+    @DisplayName(
+            "Dado el titular al día · Cuando pregunta si puede subastar su cupo · Entonces es subastable y ve el aporte del grupo")
     void elTitularPuedeSubastar() {
         Escenario e = escenarioConTurno();
         var s = transaccion.execute(t -> subasta.subastabilidad(
@@ -79,10 +89,13 @@ class CU64SubastaTest extends BaseDeCU64 {
         assertThat(s.participanteId()).isEqualTo(e.saliente());
         assertThat(s.montoAporte()).isPositive();
         assertThat(s.moneda()).hasSize(3);
+        assertThat(s.nombreDelGrupo()).isNotBlank();
+        assertThat(s.periodicidad()).isNotBlank();
     }
 
     @Test
-    @DisplayName("Dado otro integrante · Cuando pregunta por un cupo que no es suyo · Entonces AP-CU64-06 y no se dice de quién es")
+    @DisplayName(
+            "Dado otro integrante · Cuando pregunta por un cupo que no es suyo · Entonces AP-CU64-06 y no se dice de quién es")
     void otroNoPuedeSubastarloAjeno() {
         Escenario e = escenarioConTurno();
         assertThatThrownBy(() -> transaccion.execute(t -> subasta.subastabilidad(
@@ -91,7 +104,8 @@ class CU64SubastaTest extends BaseDeCU64 {
     }
 
     @Test
-    @DisplayName("Dado un titular con deuda o un turno ya cobrado · Cuando pregunta · Entonces no es subastable y dice por qué")
+    @DisplayName(
+            "Dado un titular con deuda o un turno ya cobrado · Cuando pregunta · Entonces no es subastable y dice por qué")
     void conDeudaOConTurnoCobradoNoSeSubasta() {
         Escenario e = escenarioConTurno();
         var conDeuda = transaccion.execute(t -> subasta.subastabilidad(
@@ -105,7 +119,8 @@ class CU64SubastaTest extends BaseDeCU64 {
     }
 
     @Test
-    @DisplayName("Dado un ganador de afuera del grupo · Cuando entregas pide el traspaso · Entonces entra ACTIVO, el cupo es suyo, el saliente queda RETIRADO y el turno no se mueve")
+    @DisplayName(
+            "Dado un ganador de afuera del grupo · Cuando entregas pide el traspaso · Entonces entra ACTIVO, el cupo es suyo, el saliente queda RETIRADO y el turno no se mueve")
     void elGanadorDeAfueraEntraConElCupo() {
         Escenario e = escenarioConTurno();
         UUID ganador = fixtura.usuario();
@@ -128,7 +143,8 @@ class CU64SubastaTest extends BaseDeCU64 {
     }
 
     @Test
-    @DisplayName("Dado un traspaso por subasta ya aplicado · Cuando entregas lo repite · Entonces devuelve el mismo traspaso y no hay un segundo")
+    @DisplayName(
+            "Dado un traspaso por subasta ya aplicado · Cuando entregas lo repite · Entonces devuelve el mismo traspaso y no hay un segundo")
     void repetirNoTraspasaDosVeces() {
         Escenario e = escenarioConTurno();
         UUID ganador = fixtura.usuario();
@@ -144,14 +160,18 @@ class CU64SubastaTest extends BaseDeCU64 {
                 .isEqualTo(1);
         assertThat(dsl.fetchCount(
                         org.jooq.impl.DSL.table("grupos.participante"),
-                        org.jooq.impl.DSL.field("grupo_id")
+                        org.jooq
+                                .impl
+                                .DSL
+                                .field("grupo_id")
                                 .eq(e.grupo())
                                 .and(org.jooq.impl.DSL.field("usuario_id").eq(ganador))))
                 .isEqualTo(1);
     }
 
     @Test
-    @DisplayName("Dado un cupo que ya no es del saliente · Cuando entregas pide el traspaso · Entonces AP-CU64-01 y nada cambia")
+    @DisplayName(
+            "Dado un cupo que ya no es del saliente · Cuando entregas pide el traspaso · Entonces AP-CU64-01 y nada cambia")
     void siElCupoYaNoEsDelSalienteSeRechaza() {
         Escenario e = escenarioConTurno();
         UUID ganador = fixtura.usuario();
@@ -163,7 +183,8 @@ class CU64SubastaTest extends BaseDeCU64 {
     }
 
     @Test
-    @DisplayName("Dados dos cierres simultáneos del mismo cupo con ganadores distintos · Entonces uno solo se lleva el cupo y el otro recibe AP-CU64-01")
+    @DisplayName(
+            "Dados dos cierres simultáneos del mismo cupo con ganadores distintos · Entonces uno solo se lleva el cupo y el otro recibe AP-CU64-01")
     void dosCierresALaVezUnSoloGanador() throws Exception {
         Escenario e = escenarioConTurno();
         List<UUID> ganadores = List.of(fixtura.usuario(), fixtura.usuario());
@@ -196,7 +217,8 @@ class CU64SubastaTest extends BaseDeCU64 {
     }
 
     @Test
-    @DisplayName("Dado quien quiere pujar · Cuando tiene restricción, KYC o reputación insuficiente · Entonces no es elegible y se dice el motivo, en ese orden")
+    @DisplayName(
+            "Dado quien quiere pujar · Cuando tiene restricción, KYC o reputación insuficiente · Entonces no es elegible y se dice el motivo, en ese orden")
     void elegibilidadEnElOrdenDeLaPostulacion() {
         Escenario e = escenarioConTurno();
         var ctx = como(fixtura.usuario());
@@ -204,12 +226,12 @@ class CU64SubastaTest extends BaseDeCU64 {
         assertThat(subasta.elegibilidad(e.grupo(), false, false, false, ctx)).contains(NoElegible.KYC_INSUFICIENTE);
         assertThat(subasta.elegibilidad(e.grupo(), false, true, false, ctx))
                 .contains(NoElegible.REPUTACION_INSUFICIENTE);
-        assertThat(elegibilidadEnTx(subasta, e.grupo(), false, true, true, ctx))
-                .isEmpty();
+        assertThat(elegibilidadEnTx(subasta, e.grupo(), false, true, true, ctx)).isEmpty();
     }
 
     @Test
-    @DisplayName("Dado alguien que ya llegó al máximo de grupos · Cuando quiere pujar en otro · Entonces MAXIMO_DE_GRUPOS; si ya está en este grupo, puede")
+    @DisplayName(
+            "Dado alguien que ya llegó al máximo de grupos · Cuando quiere pujar en otro · Entonces MAXIMO_DE_GRUPOS; si ya está en este grupo, puede")
     void maximoDeGrupos() {
         Escenario e = escenarioConTurno();
         var conTope = conMaximo(1);

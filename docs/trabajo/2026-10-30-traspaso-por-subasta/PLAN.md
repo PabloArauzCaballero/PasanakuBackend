@@ -86,18 +86,19 @@ retenida, las superadas se liberan, y al vencer el plazo el cupo pasa a la más 
 cobra exactamente esa puja; sin pujas, la subasta queda VENCIDA y nada se mueve.
 **DoD:** `./gradlew :servicios:entregas:test :servicios:entregas:integrationTest` en verde; prueba de
 concurrencia (dos pujas a la vez); prueba de idempotencia (misma clave dos veces); asientos y cuadre (regla 91.6).
-**Estado:** TODO
+**Estado:** A MEDIAS — TESTED contra dobles declarados de grupos y billetera (regla 65); asientos reales del libro
+pendientes de H6.M2. Regresión: test 40/40 · webTest 60/60 · integrationTest 129/129 (`evidencia/h3-entregas-regresion.txt`).
 
 | ID | Microtarea | CA | DoD | Estado |
 |---|---|---|---|---|
-| H3.M1 | Modelo: tablas `subasta_cupo` + `puja_subasta` en el `.puml` → DDL generado | `generar_ddl.py` sin pendientes; tabla y columna en el SQL | `python3 scripts/generar_ddl.py` | TODO |
+| H3.M1 | Modelo: tablas `subasta_cupo` + `puja_subasta` en el `.puml` → DDL generado | `generar_ddl.py` sin pendientes; tabla y columna en el SQL | `python3 scripts/generar_ddl.py` → «Sin pendientes a nivel de datos», 2 tablas nuevas (solo aditivo) | HECHO |
 | H3.M2 | ~~`HechosDeGruposPorHttp.turno()`~~ — la subasta no usa el mercado por turno | — | — | DESCARTADO (decisión técnica 2026-10-30: la subasta es del cupo y tiene su propio agregado; el defecto del mercado a precio fijo queda anotado en el REPORTE) |
-| H3.M3 | Publicar subasta (precio base, plazo) | crea oferta SUBASTA; emite `entregas.subasta_abierta` | prueba de integración | TODO |
-| H3.M4 | Pujar: retener → la más alta bajo candado → superada se libera | dos pujas simultáneas: una gana, la otra recibe rechazo y su saldo vuelve | prueba de concurrencia | TODO |
-| H3.M5 | Listar subastas abiertas para todos + detalle con la más alta | lista paginada, orden determinista; sin datos personales | prueba web | TODO |
-| H3.M6 | Cierre programado: adjudica a la más alta → alta en grupos → cesión con la retención → pago | saliente cobra = puja; cupo del ganador; sin pujas = VENCIDA | prueba de integración | TODO |
-| H3.M7 | «Oferta para pago» de una subasta adjudicada = monto ganador, cargos 0 | nucleo acepta el pago | prueba web | TODO |
-| H3.M8 | Cancelar subasta sin pujas | con pujas: rechazo; sin pujas: CANCELADA | prueba web | TODO |
+| H3.M3 | Publicar subasta (precio base, plazo) | crea oferta SUBASTA; emite `entregas.subasta_abierta` | `integrationTest --tests *CU64SubastaDeCupoTest` 16/16 | HECHO |
+| H3.M4 | Pujar: retener → la más alta bajo candado → superada se libera | dos pujas simultáneas: una gana, la otra recibe rechazo y su saldo vuelve | `integrationTest --tests *CU64SubastaDeCupoTest` 16/16 (6 pujas simultáneas: 1 vigente, total del sistema intacto) | HECHO |
+| H3.M5 | Listar subastas abiertas para todos + detalle con la más alta | lista paginada, orden determinista; sin datos personales | `integrationTest --tests *CU64SubastaDeCupoTest` 16/16 (lista + por cupo); HTTP cubierto solo por el barrido de seguridad | HECHO |
+| H3.M6 | Cierre programado: adjudica a la más alta → alta en grupos → cesión con la retención → pago | saliente cobra = puja; cupo del ganador; sin pujas = VENCIDA | `integrationTest --tests *CU64SubastaDeCupoTest` 16/16 (vendida, desierta, grupos caído, billetera caída, grupos rechaza) | HECHO |
+| H3.M7 | «Oferta para pago» de una subasta adjudicada = monto ganador, cargos 0 | nucleo acepta el pago | probado en la consulta (`paraElPago`); la ida y vuelta real nucleo→entregas se ve en H6.M2 | A MEDIAS |
+| H3.M8 | Cancelar subasta sin pujas | con pujas: rechazo; sin pujas: CANCELADA | `integrationTest --tests *CU64SubastaDeCupoTest` 16/16 | HECHO |
 
 ## H4 — Aviso a todos los usuarios
 | ID | Microtarea | CA | DoD | Estado |

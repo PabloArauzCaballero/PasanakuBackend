@@ -5,7 +5,6 @@ import bo.aportaya.nucleofinanciero.aplicacion.CU14ReversarTransaccion;
 import bo.aportaya.nucleofinanciero.aplicacion.CU15EmitirExtracto;
 import bo.aportaya.nucleofinanciero.aplicacion.ConsultarMovimientosBilletera;
 import bo.aportaya.nucleofinanciero.aplicacion.ConsultarSaldo;
-import bo.aportaya.nucleofinanciero.web.generado.BilleteraApi;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.CuentaDeLaSesion;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.EntradaAcreditacionRescate;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.EntradaAprobacionRetiro;

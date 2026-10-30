@@ -16,14 +16,18 @@ import org.springframework.stereotype.Component;
 public class SubastaDeCupoRepositorio {
 
     /** El aporte del grupo, en su moneda: es lo que el ganador va a tener que seguir pagando. */
-    public record Aporte(BigDecimal monto, String moneda) {}
+    public record Aporte(BigDecimal monto, String moneda, String nombreDelGrupo, String periodicidad) {}
 
     public Optional<Aporte> aporteDelGrupo(DSLContext dsl, UUID grupoId) {
-        return Optional.ofNullable(dsl.select(GRUPO.MONTO_APORTE, GRUPO.MONEDA)
+        return Optional.ofNullable(dsl.select(GRUPO.MONTO_APORTE, GRUPO.MONEDA, GRUPO.NOMBRE, GRUPO.PERIODICIDAD)
                         .from(GRUPO)
                         .where(GRUPO.ID.eq(grupoId))
                         .fetchOne())
-                .map(f -> new Aporte(f.get(GRUPO.MONTO_APORTE), f.get(GRUPO.MONEDA)));
+                .map(f -> new Aporte(
+                        f.get(GRUPO.MONTO_APORTE),
+                        f.get(GRUPO.MONEDA),
+                        f.get(GRUPO.NOMBRE),
+                        f.get(GRUPO.PERIODICIDAD)));
     }
 
     /** El participante ACTIVO de esa persona en ese grupo, si ya esta dentro. */

@@ -1390,9 +1390,11 @@ components:
     SubastabilidadDelCupo:
       type: object
       additionalProperties: false
-      required: [grupoId, cupoId, participanteId, subastable, montoAporte]
+      required: [grupoId, cupoId, participanteId, subastable, montoAporte, nombreDelGrupo, periodicidad]
       properties:
         grupoId:        { type: string, format: uuid }
+        nombreDelGrupo: { type: string, maxLength: 120 }
+        periodicidad:   { type: string, maxLength: 15 }
         cupoId:         { type: string, format: uuid }
         participanteId: { type: string, format: uuid }
         subastable:     { type: boolean }

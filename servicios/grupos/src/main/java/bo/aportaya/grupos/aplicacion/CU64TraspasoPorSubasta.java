@@ -65,7 +65,9 @@ public class CU64TraspasoPorSubasta {
             UUID participanteId,
             Optional<Impedimento> impedimento,
             BigDecimal montoAporte,
-            String moneda) {}
+            String moneda,
+            String nombreDelGrupo,
+            String periodicidad) {}
 
     public enum NoElegible {
         RESTRICCION_VIGENTE,
@@ -93,7 +95,14 @@ public class CU64TraspasoPorSubasta {
                     ? Optional.of(Impedimento.CUPO_NO_TRASPASABLE)
                     : salienteAlDia ? Optional.empty() : Optional.of(Impedimento.SALIENTE_CON_DEUDA);
             return new Subastabilidad(
-                    grupoId, cupoId, titularQueLlama.get(), impedimento, aporte.monto(), aporte.moneda());
+                    grupoId,
+                    cupoId,
+                    titularQueLlama.get(),
+                    impedimento,
+                    aporte.monto(),
+                    aporte.moneda(),
+                    aporte.nombreDelGrupo(),
+                    aporte.periodicidad());
         });
     }
 
@@ -118,9 +127,8 @@ public class CU64TraspasoPorSubasta {
             return Optional.of(NoElegible.REPUTACION_INSUFICIENTE);
         }
         return datos.conContexto(ctx, dsl -> {
-            boolean yaEsta = subastas
-                    .participanteActivo(dsl, grupoId, ctx.usuarioId())
-                    .isPresent();
+            boolean yaEsta =
+                    subastas.participanteActivo(dsl, grupoId, ctx.usuarioId()).isPresent();
             boolean sinLugar = !yaEsta
                     && emparejamientos.participacionesVivas(dsl, ctx.usuarioId())
                             >= emparejamientos.maximoDeParticipaciones();
@@ -141,44 +149,47 @@ public class CU64TraspasoPorSubasta {
             UUID salienteParticipanteId,
             ContextoSesion ctx) {
         var ahora = reloj.ahora().atOffset(ZoneOffset.UTC);
-        return datos.conContexto(ctx, dsl -> Datos.comoSistema(dsl, () -> {
-            var cupo = traspasos
-                    .bloquearCupo(dsl, cupoId)
-                    .filter(c -> c.grupoId().equals(grupoId))
-                    .orElseThrow(() -> new ErrorDeNegocio(CodigoError.de(64, 1), "Ese cupo no existe."));
+        return datos.conContexto(
+                ctx,
+                dsl -> Datos.comoSistema(dsl, () -> {
+                    var cupo = traspasos
+                            .bloquearCupo(dsl, cupoId)
+                            .filter(c -> c.grupoId().equals(grupoId))
+                            .orElseThrow(() -> new ErrorDeNegocio(CodigoError.de(64, 1), "Ese cupo no existe."));
 
-            var yaDentro = subastas.participanteActivo(dsl, grupoId, ganadorUsuarioId);
-            if (yaDentro.isPresent() && cupo.participanteId().equals(yaDentro)) {
-                var previo = subastas.traspasoHacia(dsl, cupoId, yaDentro.get());
-                if (previo.isPresent()) {
-                    return new Traspaso(previo.get(), yaDentro.get());
-                }
-            }
-            if (!cupo.participanteId().equals(Optional.of(salienteParticipanteId))
-                    || !"OCUPADO".equals(cupo.estado())
-                    || cupo.turnoCobrado()) {
-                var motivo = TraspasoAdmisible.Motivo.CUPO_NO_TRASPASABLE;
-                throw new ErrorDeNegocio(CodigoError.de(64, motivo.numero()), motivo.mensaje());
-            }
+                    var yaDentro = subastas.participanteActivo(dsl, grupoId, ganadorUsuarioId);
+                    if (yaDentro.isPresent() && cupo.participanteId().equals(yaDentro)) {
+                        var previo = subastas.traspasoHacia(dsl, cupoId, yaDentro.get());
+                        if (previo.isPresent()) {
+                            return new Traspaso(previo.get(), yaDentro.get());
+                        }
+                    }
+                    if (!cupo.participanteId().equals(Optional.of(salienteParticipanteId))
+                            || !"OCUPADO".equals(cupo.estado())
+                            || cupo.turnoCobrado()) {
+                        var motivo = TraspasoAdmisible.Motivo.CUPO_NO_TRASPASABLE;
+                        throw new ErrorDeNegocio(CodigoError.de(64, motivo.numero()), motivo.mensaje());
+                    }
 
-            UUID entrante = yaDentro.orElseGet(() -> subastas.altaDelGanador(dsl, grupoId, ganadorUsuarioId, ahora));
-            UUID traspaso = traspasos.registrar(
-                    dsl, cupoId, salienteParticipanteId, entrante, MOTIVO, true, Optional.empty(), ahora);
-            traspasos.traspasar(dsl, cupoId, entrante, salienteParticipanteId, MOTIVO, ahora);
+                    UUID entrante =
+                            yaDentro.orElseGet(() -> subastas.altaDelGanador(dsl, grupoId, ganadorUsuarioId, ahora));
+                    UUID traspaso = traspasos.registrar(
+                            dsl, cupoId, salienteParticipanteId, entrante, MOTIVO, true, Optional.empty(), ahora);
+                    traspasos.traspasar(dsl, cupoId, entrante, salienteParticipanteId, MOTIVO, ahora);
 
-            outbox.emitir(
-                    dsl,
-                    new EventoDominio(
-                            "grupos.cupo_traspasado",
-                            "traspaso_cupo",
-                            traspaso,
-                            Map.of(
-                                    "grupoId", grupoId.toString(),
-                                    "cupoId", cupoId.toString(),
-                                    "motivo", "SUBASTA",
-                                    "subastaId", subastaId.toString()),
-                            UUID.fromString(ctx.traza().id())));
-            return new Traspaso(traspaso, entrante);
-        }));
+                    outbox.emitir(
+                            dsl,
+                            new EventoDominio(
+                                    "grupos.cupo_traspasado",
+                                    "traspaso_cupo",
+                                    traspaso,
+                                    Map.of(
+                                            "grupoId", grupoId.toString(),
+                                            "cupoId", cupoId.toString(),
+                                            "motivo", "SUBASTA",
+                                            "subastaId", subastaId.toString()),
+                                    UUID.fromString(ctx.traza().id())));
+                    return new Traspaso(traspaso, entrante);
+                }));
     }
 }

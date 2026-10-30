@@ -309,7 +309,13 @@ ALTER TABLE entregas.intento_desembolso ALTER COLUMN mensaje_proveedor DROP NOT 
 ALTER TABLE entregas.intento_desembolso ALTER COLUMN reintentable_en DROP NOT NULL;
 ALTER TABLE entregas.orden_desembolso ALTER COLUMN acreditada_en DROP NOT NULL;
 ALTER TABLE entregas.orden_desembolso ALTER COLUMN referencia_proveedor DROP NOT NULL;
+ALTER TABLE entregas.puja_subasta ALTER COLUMN retencion_ref DROP NOT NULL;
 ALTER TABLE entregas.regla_entrega ALTER COLUMN rol_que_puede_omitir DROP NOT NULL;
+ALTER TABLE entregas.subasta_cupo ALTER COLUMN liquidacion_ref DROP NOT NULL;
+ALTER TABLE entregas.subasta_cupo ALTER COLUMN monto_ganador DROP NOT NULL;
+ALTER TABLE entregas.subasta_cupo ALTER COLUMN motivo_fallo DROP NOT NULL;
+ALTER TABLE entregas.subasta_cupo ALTER COLUMN puja_ganadora_id DROP NOT NULL;
+ALTER TABLE entregas.subasta_cupo ALTER COLUMN traspaso_ref DROP NOT NULL;
 ALTER TABLE entregas.validacion_pre_entrega ALTER COLUMN justificacion_omision DROP NOT NULL;
 ALTER TABLE entregas.validacion_pre_entrega ALTER COLUMN omitida_por DROP NOT NULL;
 ALTER TABLE entregas.validacion_pre_entrega ALTER COLUMN valor_esperado DROP NOT NULL;

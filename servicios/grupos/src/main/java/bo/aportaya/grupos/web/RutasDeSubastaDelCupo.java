@@ -81,6 +81,8 @@ abstract class RutasDeSubastaDelCupo extends RutasDelGrupo {
         respuesta.setGrupoId(s.grupoId());
         respuesta.setCupoId(s.cupoId());
         respuesta.setParticipanteId(s.participanteId());
+        respuesta.setNombreDelGrupo(s.nombreDelGrupo());
+        respuesta.setPeriodicidad(s.periodicidad());
         respuesta.setSubastable(s.impedimento().isEmpty());
         respuesta.setMotivo(s.impedimento()
                 .map(i -> SubastabilidadDelCupo.MotivoEnum.fromValue(i.name()))
@@ -113,8 +115,8 @@ abstract class RutasDeSubastaDelCupo extends RutasDelGrupo {
 
         var respuesta = new ElegibilidadParaSubasta();
         respuesta.setElegible(motivo.isEmpty());
-        respuesta.setMotivo(
-                motivo.map(m -> ElegibilidadParaSubasta.MotivoEnum.fromValue(m.name())).orElse(null));
+        respuesta.setMotivo(motivo.map(m -> ElegibilidadParaSubasta.MotivoEnum.fromValue(m.name()))
+                .orElse(null));
         return ResponseEntity.ok(respuesta);
     }
 

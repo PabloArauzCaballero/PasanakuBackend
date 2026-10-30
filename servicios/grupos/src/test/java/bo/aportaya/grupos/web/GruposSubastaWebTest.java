@@ -142,13 +142,22 @@ class GruposSubastaWebTest {
                         true, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO, 0, "BOB"));
         when(porSubasta.subastabilidad(eq(GRUPO), eq(CUPO), eq(Optional.of(SALIENTE)), eq(true), any()))
                 .thenReturn(new CU64TraspasoPorSubasta.Subastabilidad(
-                        GRUPO, CUPO, SALIENTE, Optional.empty(), new BigDecimal("500"), "BOB"));
+                        GRUPO,
+                        CUPO,
+                        SALIENTE,
+                        Optional.empty(),
+                        new BigDecimal("500"),
+                        "BOB",
+                        "Pasanaku del barrio",
+                        "MENSUAL"));
         mvc.perform(get("/grupos/" + GRUPO + "/cupos/" + CUPO + "/subastabilidad")
                         .with(Sesiones.como("PARTICIPANTE", "PARTICIPANTE")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.subastable").value(true))
                 .andExpect(jsonPath("$.montoAporte.monto").value("500.00"))
-                .andExpect(jsonPath("$.montoAporte.moneda").value("BOB"));
+                .andExpect(jsonPath("$.montoAporte.moneda").value("BOB"))
+                .andExpect(jsonPath("$.nombreDelGrupo").value("Pasanaku del barrio"))
+                .andExpect(jsonPath("$.periodicidad").value("MENSUAL"));
     }
 
     @Test

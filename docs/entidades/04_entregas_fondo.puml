@@ -627,6 +627,44 @@ entity "cesion_derecho" as cesion {
   version : INTEGER
 }
 
+entity "subasta_cupo" as subasta {
+  * id : UUID <<PK>>
+  --
+  # grupo_id : UUID <<FK, IDX>>
+  # cupo_id : UUID <<FK, IDX>>
+  # participante_origen_id : UUID <<FK>>
+  vendedor_usuario_id : UUID <<IDX>>
+  nombre_grupo : VARCHAR(120)
+  periodicidad : VARCHAR(15)
+  moneda : CHAR(3)
+  monto_aporte : DECIMAL(14,2) <<CK: > 0>>
+  monto_base : DECIMAL(14,2) <<CK: > 0>>
+  monto_ganador : DECIMAL(14,2) <<NULL>>
+  estado : VARCHAR(12) <<CK: ABIERTA|ADJUDICADA|LIQUIDANDO|VENDIDA|DESIERTA|CANCELADA|FALLIDA, IDX>>
+  abierta_en : TIMESTAMPTZ
+  cierra_en : TIMESTAMPTZ <<IDX>>
+  puja_ganadora_id : UUID <<NULL>>
+  traspaso_ref : UUID <<NULL>>
+  liquidacion_ref : UUID <<NULL>>
+  motivo_fallo : VARCHAR(200) <<NULL>>
+  clave_idempotencia : VARCHAR(80) <<UQ>>
+  version : INTEGER
+}
+
+entity "puja_subasta" as puja {
+  * id : UUID <<PK>>
+  --
+  # subasta_cupo_id : UUID <<FK, IDX>>
+  postor_usuario_id : UUID <<IDX>>
+  moneda : CHAR(3)
+  monto : DECIMAL(14,2) <<CK: > 0>>
+  estado : VARCHAR(12) <<CK: PENDIENTE|VIGENTE|SUPERADA|LIBERADA|GANADORA|RECHAZADA, IDX>>
+  retencion_ref : UUID <<NULL>>
+  clave_idempotencia : VARCHAR(80) <<UQ>>
+  creada_en : TIMESTAMPTZ
+  version : INTEGER
+}
+
 entrega ||--o{ deduc : "descuenta"
 entrega ||--|{ valid : "valida con"
 entrega ||--o{ ordendes : "desembolsa via"
@@ -640,6 +678,7 @@ ctabco ||--o{ ordendes : "recibe"
 
 entrega ||--o| fondeo : "se fondea con"
 ofturno ||--o| cesion : "se liquida en"
+subasta ||--o{ puja : "recibe"
 
 note top of entrega
   <b>Restricciones clave</b>
