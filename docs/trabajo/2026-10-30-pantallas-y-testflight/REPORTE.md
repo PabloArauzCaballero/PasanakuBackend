@@ -1,6 +1,6 @@
 # Reporte — Pantallas flojas de la app móvil (skills de marketing) y relanzamiento en TestFlight
 
-> **AVANCE: 11 / 13 — 84,6 %.** Build 202610301429 subido a App Store Connect. 1 microtarea DESCARTADO (no suma) y 1 A MEDIAS (PRs abiertos, sin mergear al escribir esto).
+> **AVANCE: 12 / 13 — 92,3 %.** Build 202610301429 en TestFlight (procesado `VALID`, interno `IN_BETA_TESTING`). PRs #335 y #336 mergeados. 1 microtarea DESCARTADO (no suma).
 
 - Fecha: 2026-10-30 · Plan: [PLAN.md](./PLAN.md) · Ramas: `claude/pantallas-y-marketing-20261030` (PR #335 → test), `claude/pantallas-y-marketing-dev-20261030` (PR #336 → dev)
 - Peldaño de evidencia: **TESTED** (analyze limpio, suite sin fallos nuevos) + prueba visual a 412 en claro. No `VERIFIED`: no se abrió el build en un teléfono contra TEST.
@@ -18,14 +18,11 @@
 | H2.S2.M2 | Billetera sin «Hola» suelto | captura `billetera/inicio` | PASS |
 | H2.S2.M3 | Transparencia vacía sin jerga | captura `grupos/transparencia` (vacío) | PASS |
 | H2.S3.M1 | Regresión sin fallos nuevos | `flutter analyze` · `flutter test …` árbol limpio vs cambios | PASS · [regresion.txt](./evidencia/regresion.txt) |
+| H3.S1.M2 | PRs mergeados a test (#335) y dev (#336); CI sin fallos, 1 check pendiente al mergear, por pedido de Pablo | `gh pr view 335/336 --json state` | MERGED |
 | H3.S1.M1 | Build 202610301429 subido | `xcodebuild -exportArchive … -authenticationKey*` | `Upload succeeded` · [subida.txt](./evidencia/subida.txt) |
 
 ## A medias
-### H3.S1.M2 — PRs a test y dev
-- Qué anda: rama pusheada; PR #335 (test) y PR #336 (dev, mismos dos commits cherry-pickeados sobre `origin/dev`).
-- Qué no anda: al escribir esto el CI estaba `pending`; no están mergeados.
-- Qué falta exactamente: CI en verde y merge de ambos. Si el job de goldens del CI falla en bienvenida/billetera, regenerar esos goldens en el CI de macOS.
-- Dónde quedó: worktrees `../Pasanaku-pantallas` y `../Pasanaku-pantallas-dev`; ambos compilan.
+ninguna
 
 ## Pendiente
 ninguna

@@ -658,6 +658,8 @@ ALTER TABLE nucleo_financiero.orden_recarga ALTER COLUMN instrumento_fondeo_id D
 ALTER TABLE nucleo_financiero.orden_recarga ALTER COLUMN medio DROP NOT NULL;
 ALTER TABLE nucleo_financiero.orden_recarga ALTER COLUMN pago_id DROP NOT NULL;
 ALTER TABLE nucleo_financiero.orden_recarga ALTER COLUMN proveedor_id DROP NOT NULL;
+ALTER TABLE nucleo_financiero.orden_recarga ALTER COLUMN qr_contenido DROP NOT NULL;
+ALTER TABLE nucleo_financiero.orden_recarga ALTER COLUMN qr_origen DROP NOT NULL;
 ALTER TABLE nucleo_financiero.orden_recarga ALTER COLUMN referencia_externa DROP NOT NULL;
 ALTER TABLE nucleo_financiero.orden_recarga ALTER COLUMN transaccion_id DROP NOT NULL;
 ALTER TABLE nucleo_financiero.orden_retiro ALTER COLUMN aprobada_por DROP NOT NULL;

@@ -16,6 +16,7 @@ import bo.aportaya.nucleofinanciero.aplicacion.CU15EmitirExtracto;
 import bo.aportaya.nucleofinanciero.aplicacion.CU17BloquearPorAutoridad;
 import bo.aportaya.nucleofinanciero.aplicacion.ConsultarMovimientosBilletera;
 import bo.aportaya.nucleofinanciero.aplicacion.ConsultarSaldo;
+import bo.aportaya.nucleofinanciero.aplicacion.PagoDeRecargaDePrueba;
 import bo.aportaya.nucleofinanciero.dominio.puertos.CotizadorDeComision;
 import bo.aportaya.nucleofinanciero.dominio.puertos.SegundoFactor;
 import bo.aportaya.plataforma.dominio.Dinero;
@@ -89,6 +90,9 @@ class BilleteraSaldoWebTest {
 
     @MockitoBean
     private BandejaDeRetiros bandeja;
+
+    @MockitoBean
+    private PagoDeRecargaDePrueba pagoDePrueba;
 
     // El controlador delega recargas y retiros en FondeoDeLaBilletera: se usa el real, con sus colaboradores
     // doblados, para que "acreditar" siga probando el camino HTTP de punta a punta.

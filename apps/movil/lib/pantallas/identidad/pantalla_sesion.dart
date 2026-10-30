@@ -12,6 +12,7 @@ import 'package:go_router/go_router.dart';
 import 'dominio/estado_sesion.dart';
 import 'avisos_de_sesion.dart';
 import 'banda_de_ingreso.dart';
+import 'continuar_alta.dart';
 import 'sesion_pie.dart';
 import 'sacudida_de_credenciales.dart';
 import 'campos_de_sesion.dart';
@@ -177,6 +178,7 @@ class _PantallaDeSesionState extends ConsumerState<PantallaDeSesion>
                     ),
                   ),
                 const SesionSinCuenta(),
+                const SesionContinuarAlta(),
               ],
             ),
           ),
