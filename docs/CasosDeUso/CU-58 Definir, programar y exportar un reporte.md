@@ -194,6 +194,27 @@ Entonces ve la activa con su permiso requerido y sin la consulta base
 Dadas dos ejecuciones completadas y una fallida por permiso
 Cuando el backoffice lista el historial filtrando por COMPLETADA
 Entonces ve las dos completadas, de la más reciente a la más antigua, con su hash
+
+# Parámetros y catálogo sembrado (ejecutar reportes desde el catálogo)
+Dado el catálogo de reportes ya sembrado
+Cuando se siembra por segunda vez
+Entonces no se duplica ni cambia ninguna definición
+
+Dadas las definiciones de reporte sembradas
+Cuando el motor lee los parámetros de cada una
+Entonces cada una trae sus parámetros con tipos que el validador conoce y acepta valores válidos
+
+Dadas las definiciones de la cartera en mora y de la conciliación sembradas
+Cuando el motor lee sus parámetros
+Entonces el grupo de la cartera es opcional y la fecha de la conciliación es obligatoria
+
+Dada una definición con parámetros
+Cuando el backoffice lista el catálogo de reportes
+Entonces cada reporte trae los parámetros que acepta, leídos como los lee el motor
+
+Dada una definición con parámetros en la forma vieja (un objeto)
+Cuando el backoffice lista el catálogo de reportes
+Entonces se lista sin parámetros y el catálogo no falla
 ```
 
 ## Ver también
