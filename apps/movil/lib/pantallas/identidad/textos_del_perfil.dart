@@ -3,6 +3,7 @@
 /// plazos ni resultados que decide otra persona o el servidor.
 abstract final class TextosPerfil {
   static const saludo = 'Cuenta';
+  static const seccionCuenta = 'Tu cuenta';
   static const seccionSeguridad = 'Seguridad y ayuda';
   static const correo = 'Correo';
   static const cerrandoSesion = 'Cerrando sesión…';

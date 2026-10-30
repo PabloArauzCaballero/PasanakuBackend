@@ -57,6 +57,8 @@ class TextosInvitacion {
   static const escanearAyuda =
       'Apuntá la cámara al QR de la invitación que te mandó el organizador.';
   static const escanearAbriendo = 'Abriendo la cámara…';
+  static const escanearPista = 'Centrá el QR dentro del marco';
+  static const sinCamaraTitulo = '¿No podés escanear?';
   static const escanearRechazo =
       'Ese QR no es una invitación de AportaYa. Probá con otro.';
   static const camaraDenegadaTitulo = 'No podemos usar la cámara';
