@@ -7,6 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../pasanaku/pantalla_subastas.dart';
+import '../pasanaku/textos_de_la_subasta.dart';
 import 'acciones_de_saldo.dart';
 import 'lista_de_movimientos.dart';
 import 'resumen_de_pasanakus.dart';
@@ -54,6 +56,14 @@ class CuerpoDeSaldo extends StatelessWidget {
         const SizedBox(height: Espacio.s5),
         const TituloDeSeccion(titulo: TextosBilletera.tusPasanakus),
         const ResumenDePasanakus(),
+        const SizedBox(height: Espacio.s5),
+        // CU-64 por subasta: a todos les llega el cupo que alguien pone en subasta.
+        TituloDeSeccion(
+          titulo: TextosDeLaSubasta.cuposEnSubasta,
+          accion: TextosDeLaSubasta.verTodos,
+          alTocarAccion: () => context.push('/pasanaku/subastas'),
+        ),
+        const ListaDeSubastas(maximo: 3),
         const SizedBox(height: Espacio.s5),
         TituloDeSeccion(
           titulo: TextosBilletera.movimientos,
