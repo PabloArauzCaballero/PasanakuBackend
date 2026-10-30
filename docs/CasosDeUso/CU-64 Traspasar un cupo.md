@@ -155,6 +155,11 @@ Entonces se rechaza con SALIENTE_CON_DEUDA
 Dado un entrante con KYC por debajo del mínimo del grupo
 Cuando acepta la invitación
 Entonces se rechaza con ENTRANTE_SIN_KYC y se le ofrece elevar su nivel
+
+# Traspaso por el titular, con la votación del grupo
+Dado un cupo con turno futuro y la votación aprobada de ese cupo
+Cuando su titular traspasa al entrante
+Entonces el cupo cambia de participante y el acuerdo queda EJECUTADO
 ```
 
 ## Ver también

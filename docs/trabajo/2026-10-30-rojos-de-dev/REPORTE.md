@@ -1,4 +1,4 @@
-> **AVANCE: 10 / 14 — 71,4 %.** Todo lo corregido está verificado en local; **falta la CI real**: H2.S2.M1 (`sagaTest` y cobertura, que no corren sin Docker) y H2.S3.M2 (confirmar que Trivy ya no marca los 4 hallazgos) siguen abiertas, y las dos entregas por PR (H3) no están hechas.
+> **AVANCE: 11 / 15 — 73,3 %.** Todo lo corregido está verificado en local; **falta la CI real**: H2.S2.M1 (`sagaTest` y cobertura, que no corren sin Docker) y H2.S3.M2 (confirmar que Trivy ya no marca los 4 hallazgos) siguen abiertas, y las dos entregas por PR (H3) no están hechas.
 
 # Reporte — Dejar en verde los rojos que quedaron en `dev`
 
@@ -14,6 +14,7 @@
 | H1.S3.M1–M3 | 14 pruebas e2e del backoffice atrasadas, actualizadas al comportamiento actual | `playwright test` de las 3 specs | admisiones+sistemas 28 passed; roles 10 passed · `evidencia/f6-e2e-backoffice.txt` |
 | H2.S1.M1–M2 | `15 · contractTest` en verde | `./gradlew contractTest` | FAILED → BUILD SUCCESSFUL en todos los módulos |
 | H2.S3.M1 | Hallazgos de Trivy listados | log del paso 17b2 | 4 HIGH con parche · `evidencia/trivy-y-locks.txt` |
+| H2.S5.M1 | Criterios de CU-64 sin divergencias (rojo nuevo que llegó con el merge de `dev`) | `python3 scripts/verificar_criterios.py` | 6 FALLAS → «Sin divergencias…»; spotless/compile/barrido/contractTest OK |
 | H2.S4.M1 | Criterios de CU-58 sin divergencias | `python3 scripts/verificar_criterios.py` | 5 FALLAS → «Sin divergencias entre la boveda y el codigo.» |
 
 ## A medias
@@ -54,6 +55,6 @@ Ver «Desvíos del plan» en [PLAN.md](./PLAN.md): se agregaron H1.S3 y H2.S4, y
 
 ## Decisiones y ambigüedades
 1. **CU-07 / `identidad`** — a confirmar con el autor del commit 509dad69: ¿se renombra la clase o se asigna otro CU a la foto de perfil? Mientras tanto el README dice qué es y avisa la discrepancia.
-2. **Escenarios de CU-58** — a confirmar con quien hizo #287/#290: redacté los cinco escenarios solo con lo que ya verifica cada prueba.
+2. **Escenarios de CU-58 y CU-64** — a confirmar con quien hizo #287/#290 y #311/#313: redacté el escenario nuevo de CU-64 y los cinco de CU-58 solo con lo que ya verifica cada prueba; en CU-64 los cinco nombres de rechazo pasaron a empezar con «rechaza», como en `CU64Test`.
 3. **44 px en el backoffice** — a confirmar con diseño: se cumplió el contrato del catálogo (44 px) en los componentes que el backoffice tenía compactos; si el backoffice quiere densidad de escritorio, lo correcto es una variante explícita (hoy no existe), no relajar la prueba.
 4. **Pruebas e2e atrasadas** — los cambios de producto que las dejaron atrás eran intencionales (4f873212, 5d0f8d99, 3d4344e3); se actualizó la prueba, no el producto.

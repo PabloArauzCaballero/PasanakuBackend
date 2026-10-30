@@ -62,6 +62,11 @@
 |---|---|---|---|---|
 | H2.S4.M1 | 5 escenarios nuevos en la bóveda y `@DisplayName` de las 5 pruebas alineado (sin tocar aserciones) | el verificador no encuentra divergencias | `python3 scripts/verificar_criterios.py` → «Sin divergencias entre la boveda y el codigo.» · spotless/compile/testBarrido de `auditoria` OK | HECHO |
 
+### H2.S5 — Criterios de CU-64 (rojo nuevo: llegó con #311 y #313 mientras se trabajaba)
+| ID | Microtarea | CA (binario) | DoD | Estado |
+|---|---|---|---|---|
+| H2.S5.M1 | Un escenario nuevo para el camino feliz de `CU64TitularYAcuerdoTest` y los 5 nombres de rechazo con el prefijo «rechaza» que la convención de `verificar_criterios.py` exime (sin tocar aserciones) | el verificador no encuentra divergencias | `python3 scripts/verificar_criterios.py` → «Sin divergencias…» · spotless/compileTestJava/testBarrido/contractTest → BUILD SUCCESSFUL | HECHO |
+
 ## H3 — Entrega
 | ID | Microtarea | CA (binario) | DoD | Estado |
 |---|---|---|---|---|
@@ -76,6 +81,6 @@
 | Concurrencia con otras sesiones que escriben en `dev` | conflictos o rojos nuevos ajenos | consultar el estado antes de abrir y de mergear |
 
 ## Desvíos del plan
-- Se agregaron H1.S3 (14 pruebas de `f6`) y H2.S4 (5 criterios de CU-58): no estaban en el plan, salieron al correr localmente lo que la CI no ejecutaba (`f6`, `verificar_criterios.py`). Se clasificaron como pruebas atrasadas por cambios intencionales de otras sesiones, con evidencia en cada caso.
+- Se agregaron H1.S3 (14 pruebas de `f6`), H2.S4 (5 criterios de CU-58) y H2.S5 (6 de CU-64, que llegaron con el merge de `dev` del mismo día): no estaban en el plan, salieron al correr localmente lo que la CI no ejecutaba (`f6`, `verificar_criterios.py`). Se clasificaron como pruebas atrasadas por cambios intencionales de otras sesiones, con evidencia en cada caso.
 - H2.S1 no usa «Parcial»: el CU-07 de la bóveda ya está implementado en `auditoria`; documentar el prefijo de `identidad` como un CU-07 «parcial» habría escrito el error de etiqueta como si fuera hecho.
 - Mi corrida local del e2e del backoffice regeneró cientos de capturas versionadas (`docs/trabajo/**/capturas`, `evidencia/`, `apps/web/capturas`); se restauraron y no forman parte del cambio.
