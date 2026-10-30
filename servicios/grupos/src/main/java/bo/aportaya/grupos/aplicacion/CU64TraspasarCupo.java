@@ -94,6 +94,10 @@ public class CU64TraspasarCupo {
                             // El voto es sobre ESTE cupo: un acuerdo aprobado para otro cupo no autoriza este.
                             .filter(a ->
                                     a.afectado().map(entrada.cupoId()::equals).orElse(false))
+                            // Y sobre ESTA persona: el grupo voto a quien entra, no un cupo libre para cualquiera.
+                            .filter(a -> a.entrante()
+                                    .map(entrada.entranteId()::equals)
+                                    .orElse(false))
                             .isPresent();
 
             TraspasoAdmisible.impedimento(

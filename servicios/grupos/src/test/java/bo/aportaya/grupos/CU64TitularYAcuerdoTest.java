@@ -3,9 +3,14 @@ package bo.aportaya.grupos;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import bo.aportaya.grupos.aplicacion.CU63Acordar;
 import bo.aportaya.grupos.aplicacion.CU64TraspasarCupo.EntradaTraspaso;
+import bo.aportaya.grupos.infraestructura.AcuerdoRepositorio;
+import bo.aportaya.plataforma.datos.Datos;
 import bo.aportaya.plataforma.dominio.CodigoError;
 import bo.aportaya.plataforma.dominio.ErrorDeNegocio;
+import bo.aportaya.plataforma.dominio.Reloj;
+import bo.aportaya.plataforma.mensajeria.Outbox;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -27,7 +32,7 @@ class CU64TitularYAcuerdoTest extends BaseDeCU64 {
             "Dado un cupo con turno futuro y la votación aprobada de ese cupo · Cuando su titular traspasa al entrante · Entonces el cupo cambia de participante y el acuerdo queda EJECUTADO")
     void titularConAcuerdoDeSuCupo() {
         Escenario escenario = escenarioConTurno();
-        UUID acuerdo = acuerdo(escenario.grupo(), escenario.cupo(), "APROBADO");
+        UUID acuerdo = acuerdo(escenario.grupo(), escenario.cupo(), "APROBADO", escenario.entrante());
 
         ejecutar(escenario, Optional.of(acuerdo), escenario.grupo(), escenario.saliente());
 
@@ -52,7 +57,7 @@ class CU64TitularYAcuerdoTest extends BaseDeCU64 {
     void acuerdoDeOtroCupo() {
         Escenario escenario = escenarioConTurno();
         UUID otroCupo = cuposDe(escenario.grupo()).get(1);
-        UUID acuerdo = acuerdo(escenario.grupo(), otroCupo, "APROBADO");
+        UUID acuerdo = acuerdo(escenario.grupo(), otroCupo, "APROBADO", escenario.entrante());
 
         assertThatThrownBy(() -> ejecutar(escenario, Optional.of(acuerdo), escenario.grupo(), escenario.saliente()))
                 .extracting(e -> ((ErrorDeNegocio) e).codigo())
@@ -63,7 +68,7 @@ class CU64TitularYAcuerdoTest extends BaseDeCU64 {
     @DisplayName("rechaza un acuerdo ya EJECUTADO: no vuelve a autorizar (AP-CU64-05)")
     void acuerdoYaUsado() {
         Escenario escenario = escenarioConTurno();
-        UUID acuerdo = acuerdo(escenario.grupo(), escenario.cupo(), "EJECUTADO");
+        UUID acuerdo = acuerdo(escenario.grupo(), escenario.cupo(), "EJECUTADO", escenario.entrante());
 
         assertThatThrownBy(() -> ejecutar(escenario, Optional.of(acuerdo), escenario.grupo(), escenario.saliente()))
                 .extracting(e -> ((ErrorDeNegocio) e).codigo())
@@ -74,7 +79,7 @@ class CU64TitularYAcuerdoTest extends BaseDeCU64 {
     @DisplayName("rechaza a quien no tiene el cupo, aunque haya votacion aprobada (AP-CU64-06)")
     void soloElTitular() {
         Escenario escenario = escenarioConTurno();
-        UUID acuerdo = acuerdo(escenario.grupo(), escenario.cupo(), "APROBADO");
+        UUID acuerdo = acuerdo(escenario.grupo(), escenario.cupo(), "APROBADO", escenario.entrante());
         UUID otroParticipante = titularDelCupo(cuposDe(escenario.grupo()).get(1));
 
         assertThatThrownBy(() -> ejecutar(escenario, Optional.of(acuerdo), escenario.grupo(), otroParticipante))
@@ -88,7 +93,7 @@ class CU64TitularYAcuerdoTest extends BaseDeCU64 {
     @DisplayName("rechaza un cupo que no es del grupo de la ruta (AP-CU64-01)")
     void cupoDeOtroGrupo() {
         Escenario escenario = escenarioConTurno();
-        UUID acuerdo = acuerdo(escenario.grupo(), escenario.cupo(), "APROBADO");
+        UUID acuerdo = acuerdo(escenario.grupo(), escenario.cupo(), "APROBADO", escenario.entrante());
 
         assertThatThrownBy(() -> ejecutar(escenario, Optional.of(acuerdo), UUID.randomUUID(), escenario.saliente()))
                 .extracting(e -> ((ErrorDeNegocio) e).codigo())
@@ -96,28 +101,80 @@ class CU64TitularYAcuerdoTest extends BaseDeCU64 {
     }
 
     @Test
-    @DisplayName("concurrencia: dos pedidos simultaneos con el MISMO acuerdo y distinto entrante traspasan UNA vez")
-    void mismoAcuerdoEnParalelo() throws Exception {
+    @DisplayName("rechaza la votacion aprobada para OTRA persona: no autoriza a meter a esta (AP-CU64-05)")
+    void acuerdoParaOtraPersona() {
+        Escenario escenario = escenarioConTurno();
+        UUID votada = fixtura.participanteSuelto(escenario.grupo());
+        UUID acuerdo = acuerdo(escenario.grupo(), escenario.cupo(), "APROBADO", votada);
+
+        assertThatThrownBy(() -> ejecutar(escenario, Optional.of(acuerdo), escenario.grupo(), escenario.saliente()))
+                .extracting(e -> ((ErrorDeNegocio) e).codigo())
+                .isEqualTo(CodigoError.de(64, 5));
+        assertThat(titularDelCupo(escenario.cupo())).isEqualTo(escenario.saliente());
+        assertThat(estadoDelAcuerdo(acuerdo)).isEqualTo("APROBADO");
+    }
+
+    @Test
+    @DisplayName("rechaza la votacion de traspaso que no dice quien entra (AP-CU64-05)")
+    void acuerdoSinEntrante() {
         Escenario escenario = escenarioConTurno();
         UUID acuerdo = acuerdo(escenario.grupo(), escenario.cupo(), "APROBADO");
-        UUID otroEntrante = fixtura.participanteSuelto(escenario.grupo());
+
+        assertThatThrownBy(() -> ejecutar(escenario, Optional.of(acuerdo), escenario.grupo(), escenario.saliente()))
+                .extracting(e -> ((ErrorDeNegocio) e).codigo())
+                .isEqualTo(CodigoError.de(64, 5));
+    }
+
+    @Test
+    @DisplayName("rls · la lista de votaciones dice a quien entra aunque sea otro participante")
+    void listadoDiceQuienEntra() {
+        Escenario escenario = escenarioConTurno();
+        UUID acuerdo = acuerdo(escenario.grupo(), escenario.cupo(), "APROBADO", escenario.entrante());
+        var acordar =
+                new CU63Acordar(new Datos(dsl), new AcuerdoRepositorio(), new Outbox("grupos"), Reloj.delSistema());
+
+        var filas = transaccion.execute(e -> acordar.delGrupo(
+                escenario.grupo(),
+                Optional.of("TRASPASO_CUPO"),
+                Optional.empty(),
+                Optional.of(escenario.cupo()),
+                contexto()));
+
+        UUID usuarioEntrante = dsl.fetchOne(
+                        "SELECT usuario_id FROM grupos.participante WHERE id = ?", escenario.entrante())
+                .get(0, UUID.class);
+        assertThat(filas).singleElement().satisfies(f -> {
+            assertThat(f.id()).isEqualTo(acuerdo);
+            assertThat(f.usuarioEntrante()).contains(usuarioEntrante);
+        });
+    }
+
+    @Test
+    @DisplayName("concurrencia: dos pedidos simultaneos con el MISMO acuerdo traspasan UNA vez")
+    void mismoAcuerdoEnParalelo() throws Exception {
+        Escenario escenario = escenarioConTurno();
+        UUID acuerdo = acuerdo(escenario.grupo(), escenario.cupo(), "APROBADO", escenario.entrante());
         var hilos = Executors.newFixedThreadPool(2);
         try {
             var listo = new CountDownLatch(1);
             Callable<String> a = () -> intento(listo, escenario, escenario.entrante(), acuerdo);
-            Callable<String> b = () -> intento(listo, escenario, otroEntrante, acuerdo);
+            Callable<String> b = () -> intento(listo, escenario, escenario.entrante(), acuerdo);
             var fa = hilos.submit(a);
             var fb = hilos.submit(b);
             listo.countDown();
 
-            assertThat(List.of(fa.get(), fb.get())).containsExactlyInAnyOrder("TRASPASADO", "AP-CU64-05");
+            // Si se cruzan, el segundo espera el bloqueo del acuerdo y se rechaza; si llega despues, es un
+            // reintento y recibe el mismo traspaso. Nunca dos traspasos.
+            assertThat(List.of(fa.get(), fb.get()))
+                    .contains("TRASPASADO")
+                    .allMatch(r -> r.equals("TRASPASADO") || r.equals("AP-CU64-05"));
         } finally {
             hilos.shutdownNow();
         }
         assertThat(dsl.fetchCount(
                         DSL.table("grupos.traspaso_cupo"), DSL.field("cupo_id").eq(escenario.cupo())))
                 .isEqualTo(1);
-        assertThat(titularDelCupo(escenario.cupo())).isIn(escenario.entrante(), otroEntrante);
+        assertThat(titularDelCupo(escenario.cupo())).isEqualTo(escenario.entrante());
         assertThat(estadoDelAcuerdo(acuerdo)).isEqualTo("EJECUTADO");
     }
 
@@ -156,20 +213,27 @@ class CU64TitularYAcuerdoTest extends BaseDeCU64 {
     }
 
     private UUID acuerdo(UUID grupo, UUID cupo, String estado) {
+        return acuerdo(grupo, cupo, estado, null);
+    }
+
+    /** El acuerdo de un traspaso: el cupo y la persona que el grupo voto que entre. */
+    private UUID acuerdo(UUID grupo, UUID cupo, String estado, UUID entrante) {
         UUID id = UUID.randomUUID();
         dslFixtura.execute(
                 """
                 INSERT INTO grupos.acuerdo
                     (id, grupo_id, tipo, descripcion, propuesto_por, quorum_requerido, votos_a_favor,
-                     votos_en_contra, abstenciones, estado, referencia_afectada_id, abierto_en, cierra_en)
-                VALUES (?, ?, 'ADMISION_REEMPLAZO', 'traspaso de prueba', ?, 0.600, 3, 0, 0, ?, ?,
+                     votos_en_contra, abstenciones, estado, referencia_afectada_id, entrante_participante_id,
+                     abierto_en, cierra_en)
+                VALUES (?, ?, 'ADMISION_REEMPLAZO', 'traspaso de prueba', ?, 0.600, 3, 0, 0, ?, ?, ?,
                         now() - interval '2 days', now() - interval '1 day')
                 """,
                 id,
                 grupo,
                 fixtura.usuario(),
                 estado,
-                cupo);
+                cupo,
+                entrante);
         return id;
     }
 

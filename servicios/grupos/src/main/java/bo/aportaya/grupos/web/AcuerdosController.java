@@ -9,6 +9,7 @@ import bo.aportaya.grupos.web.generado.modelo.EntradaAcuerdo;
 import bo.aportaya.grupos.web.generado.modelo.EntradaVoto;
 import bo.aportaya.grupos.web.generado.modelo.SalidaAcuerdo;
 import bo.aportaya.plataforma.dominio.CodigoError;
+import bo.aportaya.plataforma.dominio.ContextoSesion;
 import bo.aportaya.plataforma.dominio.ErrorDeNegocio;
 import bo.aportaya.plataforma.dominio.Reloj;
 import bo.aportaya.plataforma.web.seguridad.Permiso;
@@ -62,13 +63,35 @@ public class AcuerdosController implements AcuerdosApi {
                         ctx.usuarioId(),
                         politica.quorum(),
                         Optional.ofNullable(cuerpo.getReferenciaAfectadaId()),
-                        reloj.ahora().atOffset(ZoneOffset.UTC).plusDays(cuerpo.getDiasVotacion())),
+                        reloj.ahora().atOffset(ZoneOffset.UTC).plusDays(cuerpo.getDiasVotacion()),
+                        entranteDelTraspaso(cuerpo, ctx)),
                 ctx);
 
         var respuesta = new SalidaAcuerdo();
         respuesta.setAcuerdoId(acuerdoId);
         respuesta.setEstado("EN_VOTACION");
         return ResponseEntity.status(HttpStatus.CREATED).body(respuesta);
+    }
+
+    /**
+     * Un traspaso se vota con nombre y apellido: el cupo y la persona que entra. Sin eso, una
+     * votacion aprobada le serviria al titular para meter a cualquiera (AP-CU63-06).
+     */
+    private Optional<UUID> entranteDelTraspaso(EntradaAcuerdo cuerpo, ContextoSesion ctx) {
+        if (cuerpo.getTipo() != EntradaAcuerdo.TipoEnum.TRASPASO_CUPO) {
+            return Optional.empty();
+        }
+        if (cuerpo.getReferenciaAfectadaId() == null || cuerpo.getUsuarioEntranteId() == null) {
+            throw sinEntrante();
+        }
+        return Optional.of(consultas
+                .participanteDeOtro(cuerpo.getGrupoId(), cuerpo.getUsuarioEntranteId(), ctx)
+                .orElseThrow(AcuerdosController::sinEntrante));
+    }
+
+    private static ErrorDeNegocio sinEntrante() {
+        return new ErrorDeNegocio(
+                CodigoError.de(63, 6), "El traspaso se vota sobre un cupo y una persona del grupo que entra.");
     }
 
     @Override
@@ -118,6 +141,7 @@ public class AcuerdosController implements AcuerdosApi {
                     salida.setEstado(AcuerdoDelGrupo.EstadoEnum.fromValue(a.estado()));
                     salida.setDescripcion(a.descripcion());
                     salida.setReferenciaAfectadaId(a.afectado().orElse(null));
+                    salida.setUsuarioEntranteId(a.usuarioEntrante().orElse(null));
                     salida.setCierraEn(a.cierraEn());
                     return salida;
                 })
