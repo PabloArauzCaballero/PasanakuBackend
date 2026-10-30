@@ -22,20 +22,20 @@
 | ID | Microtarea | CA | DoD | Estado |
 |---|---|---|---|---|
 | H1.S1.M1 | El Dockerfile lee la clave de un secreto de BuildKit (`--mount=type=secret`) y, si no hay secreto, usa el ARG | con el secreto, la salida del build no tiene la clave; sin el secreto (CI y compose), construye igual | build local de `identidad` en las dos variantes, con `grep` de la clave en la salida | HECHO (evidencia/H1-dockerfile-secreto.txt) |
-| H1.S1.M2 | `construir.sh` del host pasa `--secret id=bd_clave_admin,env=BD_CLAVE_ADMIN` y deja de pasar el `--build-arg` | la próxima construcción en TEST no imprime la clave | `grep -c` de la clave en el log nuevo = 0 | TODO |
-| H1.S1.M3 | Tachar la clave en el log existente (y en sus rotaciones) | `grep -c` = 0 | comando pegado | TODO |
-| H1.S2.M1 | Cambiar la clave del rol `pasanaku` en TEST y actualizar cada lugar del host que la guarda | con la clave vieja la conexión falla; con la nueva funciona; los servicios siguen sanos | `psql` con las dos claves + healthchecks | TODO |
+| H1.S1.M2 | `construir.sh` del host pasa `--secret id=bd_clave_admin,env=BD_CLAVE_ADMIN` y deja de pasar el `--build-arg` | la próxima construcción en TEST no imprime la clave | `grep -c` de la clave en el log nuevo = 0 | HECHO (evidencia/H1-construir-con-secreto-en-test.txt) |
+| H1.S1.M3 | Tachar la clave en el log existente (y en sus rotaciones) | `grep -c` = 0 | comando pegado | HECHO (evidencia/H1-construir-con-secreto-en-test.txt) |
+| H1.S2.M1 | Cambiar la clave del rol `pasanaku` en TEST y actualizar cada lugar del host que la guarda | con la clave vieja la conexión falla; con la nueva funciona; los servicios siguen sanos | `psql` con las dos claves + healthchecks | BLOQUEADO: el clasificador de permisos negó escribir en los almacenes de secretos (.env del host y Coolify). Script listo, no ejecutado; lo destraba Pablo (permiso o correrlo él). Acción sobre algo compartido, no se simula (regla 65 §1) |
 
 ## H2 — El espejo queda igual que origin
 | ID | Microtarea | CA | DoD | Estado |
 |---|---|---|---|---|
-| H2.S1.M1 | `test` del espejo: merge con el árbol de `origin/test` y los dos padres, push normal | `git diff origin/test frontend-mirror/test` vacío | comando pegado | TODO |
-| H2.S1.M2 | `dev` del espejo: ídem con `origin/dev` | `git diff origin/dev frontend-mirror/dev` vacío | comando pegado | TODO |
+| H2.S1.M1 | `test` del espejo: merge con el árbol de `origin/test` y los dos padres, push normal | `git diff origin/test frontend-mirror/test` vacío | comando pegado | HECHO (evidencia/H2-espejo.txt) |
+| H2.S1.M2 | `dev` del espejo: ídem con `origin/dev` | `git diff origin/dev frontend-mirror/dev` vacío | comando pegado | HECHO (evidencia/H2-espejo.txt) |
 
 ## H3 — Cierre
 | ID | Microtarea | CA | DoD | Estado |
 |---|---|---|---|---|
-| H3.S1.M1 | PR del Dockerfile a `test` y a `dev`, mergeados; TEST despliega en `listo` | `listo en <commit>` sin `FALLA` | líneas del log | TODO |
+| H3.S1.M1 | PR del Dockerfile a `test` y a `dev`, mergeados; TEST despliega en `listo` | `listo en <commit>` sin `FALLA` | líneas del log | HECHO: #331 (test) y #332 (dev) mergeados; «listo en f4fa141» 14:01:09 (evidencia/H1-construir-con-secreto-en-test.txt) |
 
 ## Riesgos
 | Riesgo | Impacto | Mitigación |

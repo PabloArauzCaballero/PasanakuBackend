@@ -1,0 +1,11 @@
+# H2 — espejo sincronizado 2026-10-30T17:59:40Z. Merge con el árbol de origin y los dos padres, push normal (sin force).
+## test
+espejo bf7bfbb3  padres: ecb2f5a6 f4fa141c
+origin/test = f4fa141c
+git diff --name-only origin/test frontend-mirror/test | wc -l → 0
+merge-base --is-ancestor origin/test frontend-mirror/test → si
+## dev
+espejo 3c948ae8  padres: 4ff57a63 3e330450
+origin/dev = 3e330450
+git diff --name-only origin/dev frontend-mirror/dev | wc -l → 0
+merge-base --is-ancestor origin/dev frontend-mirror/dev → si
