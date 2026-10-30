@@ -154,7 +154,7 @@
    "descripcion": "Billetera, Custodia y Dinero Electrónico. El saldo no se guarda: se deriva, y todos los días cuadra contra el banco.",
    "tablas": 33,
    "tablasDeNegocio": 30,
-   "columnas": 382,
+   "columnas": 384,
    "relaciones": 74,
    "appendOnly": 8,
    "conDatosPersonales": 5,
@@ -67236,6 +67236,26 @@
      "negocio": "Marca temporal o fecha de expira en orden_recarga.",
      "origenNegocio": "convencion",
      "sistema": "TIMESTAMPTZ, opcional.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "qr_contenido",
+     "tipo": "VARCHAR(512)",
+     "nulable": true,
+     "pk": false,
+     "negocio": "Atributo que representa qr contenido en el modelo de orden_recarga.",
+     "origenNegocio": "convencion",
+     "sistema": "VARCHAR(512), opcional.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "qr_origen",
+     "tipo": "VARCHAR(10)",
+     "nulable": true,
+     "pk": false,
+     "negocio": "Atributo que representa qr origen en el modelo de orden_recarga.",
+     "origenNegocio": "convencion",
+     "sistema": "VARCHAR(10), opcional.",
      "sensibilidad": "NINGUNA"
     }
    ],

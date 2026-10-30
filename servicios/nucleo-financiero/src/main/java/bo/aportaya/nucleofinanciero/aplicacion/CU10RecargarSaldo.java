@@ -2,7 +2,6 @@ package bo.aportaya.nucleofinanciero.aplicacion;
 
 import bo.aportaya.nucleofinanciero.aplicacion.CU40EvaluarLimites.EntradaLimites;
 import bo.aportaya.nucleofinanciero.dominio.CostoDeOperacion;
-import bo.aportaya.nucleofinanciero.dominio.puertos.ProveedorDeRecargas.CobroQr;
 import bo.aportaya.nucleofinanciero.dominio.puertos.ProveedorDeRecargas.Confirmacion;
 import bo.aportaya.nucleofinanciero.infraestructura.CuentaBilleteraRepositorio;
 import bo.aportaya.nucleofinanciero.infraestructura.LibroDeBilletera;
@@ -157,24 +156,6 @@ public class CU10RecargarSaldo {
             }
             return orden;
         });
-    }
-
-    /**
-     * Deja el QR del proveedor en la orden y devuelve el que quedo guardado: en un reintento es el de la
-     * primera vez. No mueve saldo; solo es la instruccion de pago que la persona va a escanear.
-     */
-    @Transactional
-    public Optional<CobroQr> guardarQr(UUID ordenId, CobroQr cobro, ContextoSesion ctx) {
-        return datos.conContexto(ctx, dsl -> {
-            ordenes.guardarQr(dsl, ordenId, cobro);
-            return ordenes.cobroQr(dsl, ordenId);
-        });
-    }
-
-    /** El QR de una orden del titular (la titularidad la exige {@link #consultarPropia}). */
-    @Transactional(readOnly = true)
-    public Optional<CobroQr> cobroQr(UUID ordenId, ContextoSesion ctx) {
-        return datos.conContexto(ctx, dsl -> ordenes.cobroQr(dsl, ordenId));
     }
 
     /**

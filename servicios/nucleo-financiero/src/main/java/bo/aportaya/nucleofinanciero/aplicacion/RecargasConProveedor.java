@@ -38,6 +38,7 @@ public class RecargasConProveedor {
     private final CotizarOperacion cotizaciones;
     private final OrdenesExistentes existentes;
     private final RegistrarDiscrepancia discrepancias;
+    private final QrDeLaRecarga qrs;
 
     public RecargasConProveedor(
             CU10RecargarSaldo recargas,
@@ -45,13 +46,15 @@ public class RecargasConProveedor {
             ProveedorDeRecargas proveedor,
             CotizarOperacion cotizaciones,
             OrdenesExistentes existentes,
-            RegistrarDiscrepancia discrepancias) {
+            RegistrarDiscrepancia discrepancias,
+            QrDeLaRecarga qrs) {
         this.recargas = recargas;
         this.rechazos = rechazos;
         this.proveedor = proveedor;
         this.cotizaciones = cotizaciones;
         this.existentes = existentes;
         this.discrepancias = discrepancias;
+        this.qrs = qrs;
     }
 
     public CU10RecargarSaldo.SalidaSolicitud solicitar(CU10RecargarSaldo.EntradaSolicitud entrada, ContextoSesion ctx) {
@@ -87,7 +90,7 @@ public class RecargasConProveedor {
         // para consultar/reintentar, nunca autoriza un abono.
         Optional<CobroQr> qr = proveedor
                 .solicitar(salida.ordenRecargaId(), entrada.monto())
-                .flatMap(cobro -> recargas.guardarQr(salida.ordenRecargaId(), cobro, ctx));
+                .flatMap(cobro -> qrs.guardar(salida.ordenRecargaId(), cobro, ctx));
         return new Solicitada(salida, qr);
     }
 

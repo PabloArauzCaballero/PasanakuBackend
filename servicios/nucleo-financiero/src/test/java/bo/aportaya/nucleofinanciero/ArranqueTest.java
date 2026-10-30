@@ -38,7 +38,7 @@ class ArranqueTest {
 
     /** Los prefijos reservados de este servicio (scripts/modelo.py). */
     private static final java.util.List<String> PREFIJOS =
-            java.util.List.of("/billetera", "/custodia", "/puntos-atencion", "/contabilidad");
+            java.util.List.of("/billetera", "/custodia", "/puntos-atencion", "/contabilidad", "/recargas-de-prueba");
 
     @DynamicPropertySource
     static void configuracion(DynamicPropertyRegistry registro) {

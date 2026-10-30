@@ -8144,6 +8144,8 @@ Guardar la evaluación importa por dos razones opuestas: cuando el motor **acert
 | `solicitada_en` | TIMESTAMPTZ | Marca temporal o fecha de solicitada en `orden_recarga`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 | `acreditada_en` | TIMESTAMPTZ | Marca temporal o fecha de acreditada en `orden_recarga`. | TIMESTAMPTZ, opcional. | NINGUNA |
 | `expira_en` | TIMESTAMPTZ | Marca temporal o fecha de expira en `orden_recarga`. | TIMESTAMPTZ, opcional. | NINGUNA |
+| `qr_contenido` | VARCHAR(512) | Atributo que representa qr contenido en el modelo de `orden_recarga`. | VARCHAR(512), opcional. | NINGUNA |
+| `qr_origen` | VARCHAR(10) | Atributo que representa qr origen en el modelo de `orden_recarga`. | VARCHAR(10), opcional. | NINGUNA |
 
 ### `orden_retiro`
 
