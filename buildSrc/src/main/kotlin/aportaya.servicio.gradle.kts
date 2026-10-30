@@ -60,6 +60,11 @@ dependencies {
             add(alcance, "org.bouncycastle:bcprov-jdk18on:1.85.2")
             add(alcance, "org.bouncycastle:bcpkix-jdk18on:1.85.2")
             add(alcance, "org.bouncycastle:bcutil-jdk18on:1.85.2")
+            // Trivy (job «bootJar y docker build», paso 17b2) sobre la imagen de identidad, 2026-10-30: HIGH con parche publicado.
+            // guava 33.4.8-jre llega por io.minio:minio 8.6.0 (CVE-2026-102554, corregido en 33.7.2-jre) y snappy-java 1.1.10.7 por
+            // kafka-clients (CVE-2026-108106 y CVE-2026-93451, corregidos en 1.1.10.9). Los demas servicios traian 1.1.10.5.
+            add(alcance, "com.google.guava:guava:33.7.2-jre")
+            add(alcance, "org.xerial.snappy:snappy-java:1.1.10.9")
         }
     }
 }
