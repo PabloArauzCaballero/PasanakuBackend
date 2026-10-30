@@ -37,7 +37,11 @@ class PantallaTransparencia extends ConsumerWidget {
             child: EstadoDePantalla<SalidaVerificacionCadena>(
               valor: verificacion,
               etiquetaDeCarga: TextosPasanaku.cargando,
-              mensajeVacio: 'Este grupo todavía no tiene bloques sellados.',
+              // Sin «bloques sellados»: la persona no sabe qué es un bloque. Qué va a ver y para qué.
+              mensajeVacio:
+                  'Todavía no hay registros en este grupo. Cuando empiece a moverse, '
+                  'cada registro queda sellado acá y cualquiera puede comprobar que '
+                  'nadie lo cambió.',
               vacio: (v) => v.bloquesVerificados == 0,
               reintentar: () =>
                   ref.invalidate(verificarCadenaProvider(grupoId)),
