@@ -66,8 +66,20 @@ abstract final class TextosDelTraspaso {
   static const condicionAcuerdo = 'El grupo aprobó el traspaso en una votación';
   static const acuerdoAdjunto = 'Votación aprobada adjunta.';
   static const acuerdoFalta =
-      'La app todavía no puede abrir ni adjuntar esa votación. Sin ella, '
-      'el traspaso se rechaza.';
+      'Todavía no pediste la votación. Pedila abajo: el grupo vota y, aprobada, '
+      'volvés acá a traspasar.';
+  static String acuerdoAbierto(DateTime cierra) =>
+      'El grupo está votando, hasta el ${cierra.day}/${cierra.month}. Cuando se '
+      'apruebe, volvés acá a traspasar.';
+  static const acuerdoRevisando = 'Revisando la votación del grupo…';
+  static const pedirVotacion = 'Pedir la votación al grupo';
+  static const esperandoVotacion = 'Esperando la votación';
+  static const votacionEnCurso = 'El grupo está votando tu traspaso.';
+  static String descripcionDeVotacion(
+    int numero,
+    String entrante,
+    String motivo,
+  ) => 'Traspaso del cupo N° $numero a $entrante. Motivo: $motivo';
 
   static const continuar = 'Continuar';
   static const volver = 'Volver';

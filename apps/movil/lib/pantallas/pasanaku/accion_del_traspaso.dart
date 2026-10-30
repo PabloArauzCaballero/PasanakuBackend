@@ -4,10 +4,12 @@ import 'package:aportaya_diseno/atomos/boton_tamano.dart';
 import 'package:aportaya_diseno/moleculas/barra_de_accion.dart';
 import 'package:flutter/material.dart';
 
+import 'dominio/votacion_del_traspaso.dart';
 import 'textos_del_traspaso.dart';
 
 /// La acción grande de abajo, siempre en el mismo lugar: «Continuar» en los dos
-/// primeros pasos, «Traspasar cupo» en la revisión (abre la hoja de confirmación) e
+/// primeros pasos; en la revisión, «Pedir la votación al grupo», «Esperando la
+/// votación» o, aprobada, «Traspasar cupo» (abre la hoja de confirmación); e
 /// «Ir a mis grupos» en el comprobante. Mientras se envía, queda bloqueada.
 class AccionDelTraspaso extends StatelessWidget {
   const AccionDelTraspaso({
@@ -21,6 +23,9 @@ class AccionDelTraspaso extends StatelessWidget {
     required this.alContinuar,
     required this.alTraspasar,
     required this.alTerminar,
+    this.votacion,
+    this.pidiendo = false,
+    this.alPedirVotacion,
   });
 
   final int paso;
@@ -34,6 +39,11 @@ class AccionDelTraspaso extends StatelessWidget {
   final VoidCallback alContinuar;
   final VoidCallback alTraspasar;
   final VoidCallback alTerminar;
+
+  /// La votación del cupo: sin aprobada, en la revisión se pide o se espera.
+  final VotacionDelCupo? votacion;
+  final bool pidiendo;
+  final VoidCallback? alPedirVotacion;
 
   bool get _motivoValido => largoDelMotivo >= 10 && largoDelMotivo <= 300;
 
@@ -52,11 +62,28 @@ class AccionDelTraspaso extends StatelessWidget {
               _motivoValido ? null : TextosDelTraspaso.motivoCorto,
               _motivoValido ? alContinuar : null,
             ),
-            _ => (
-              TextosDelTraspaso.traspasar,
-              null,
-              enviando || confirmando ? null : alTraspasar,
-            ),
+            _ => switch (votacion) {
+              VotacionAprobada() => (
+                TextosDelTraspaso.traspasar,
+                null,
+                enviando || confirmando ? null : alTraspasar,
+              ),
+              VotacionAbierta() => (
+                TextosDelTraspaso.esperandoVotacion,
+                TextosDelTraspaso.votacionEnCurso,
+                null,
+              ),
+              SinVotacion() => (
+                TextosDelTraspaso.pedirVotacion,
+                null,
+                pidiendo ? null : alPedirVotacion,
+              ),
+              null => (
+                TextosDelTraspaso.traspasar,
+                TextosDelTraspaso.acuerdoRevisando,
+                null,
+              ),
+            },
           };
     return BarraDeAccion(
       hijo: Boton(
@@ -65,7 +92,7 @@ class AccionDelTraspaso extends StatelessWidget {
         variante: BotonVariante.primario,
         tamano: BotonTamano.lg,
         expandido: true,
-        cargando: enviando && !listo,
+        cargando: (enviando || pidiendo) && !listo,
         motivoDeBloqueo: bloqueo,
         onPressed: alTocar,
       ),
