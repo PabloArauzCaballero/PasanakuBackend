@@ -20,6 +20,7 @@ Modulo 01 de la boveda — Identidad, Usuarios y Seguridad.
 | CU-01 | Registro y apertura de billetera | **Implementado** |
 | CU-02 | Revisar el expediente de identidad | **Implementado** |
 | CU-04 | Autenticar con MFA y registrar dispositivo | **Implementado** |
+| CU-07 | Foto de perfil propia: subir y ver. *El código la rotula CU-07; en la bóveda el CU-07 es «Ejercer derechos sobre datos personales» y lo implementa `auditoria`* | **Implementado** |
 | CU-08 | Asignar y revocar roles de operador | **Implementado** |
 | CU-09 | Cambiar credenciales y solicitar la baja | **Implementado** |
 | CU-05 | Aceptar contrato de adhesión y tarifario | ⬜ sin implementar |

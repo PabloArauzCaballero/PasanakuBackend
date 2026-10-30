@@ -1,0 +1,7 @@
+$ python3 -I replica_cu_readme.py .   # dev ae38c444, SIN el cambio
+DIVERGENCIAS: ["identidad: implementa ['07'] y su README no los nombra"]
+exit=1
+
+$ python3 -I replica_cu_readme.py .   # CON el cambio
+DIVERGENCIAS: []
+exit=0
