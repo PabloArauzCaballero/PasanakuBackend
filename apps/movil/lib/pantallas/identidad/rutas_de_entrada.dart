@@ -72,8 +72,12 @@ final List<RouteBase> rutasDeEntrada = [
   GoRoute(
     path: '/registro',
     name: 'identidad.registro',
-    pageBuilder: (context, state) =>
-        paginaConTransicionDeMarca(state, const PantallaDeRegistro()),
+    pageBuilder: (context, state) => paginaConTransicionDeMarca(
+      state,
+      PantallaDeRegistro(
+        continuar: state.uri.queryParameters['continuar'] == '1',
+      ),
+    ),
   ),
   GoRoute(
     path: '/registro/pautas',

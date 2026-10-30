@@ -380,3 +380,27 @@ que un organizador tenga que acordarse. Como todo grupo tiene un organizador hum
 **A nivel de sistema.** R-DES-05: una cesión viva por turno, entre partes distintas. Sin `retencion_ref` no hay `FONDOS_RETENIDOS`, `TITULO_ASIGNADO` ni `LIQUIDADA`. `LIQUIDADA` exige `liquidacion_ref` y fecha, y `FALLIDA` exige motivo. `clave_idempotencia` única.
 
 *Fuente: CU-22 (R-DES-05); `docs/Restricciones.md`.*
+
+### `SubastaCupo` / `subasta_cupo`
+
+**Qué es.** El cupo que su titular pone en subasta: precio base, plazo de cierre y el estado de la venta, de `ABIERTA` hasta `VENDIDA`, `DESIERTA`, `CANCELADA` o `FALLIDA`.
+
+**Para qué sirve (negocio).** Que quien ya no puede seguir en el pasanaku venda su lugar sin votación del grupo: cualquiera que cumpla lo que pide el grupo ofrece, gana la oferta más alta al cierre y el turno no se mueve.
+
+**Por qué debe existir.** El cierre cruza tres servicios (entregas adjudica, grupos pasa el cupo, la billetera paga) y lo irreversible va al final. Sin un registro con estados no se sabe en qué paso quedó una subasta interrumpida ni a quién se adjudicó.
+
+**A nivel de sistema.** `monto_aporte` y `monto_base` mayores que cero, con `moneda`. `puja_ganadora_id`, `traspaso_ref` y `liquidacion_ref` se llenan a medida que avanza el cierre; `FALLIDA` lleva `motivo_fallo`. `clave_idempotencia` y `version` para que el cierre programado no adjudique dos veces.
+
+*Fuente: CU-64 (traspaso por subasta, PR #346); `sql/10_tablas/04_entregas_fondo/subasta_cupo.sql`.*
+
+### `PujaSubasta` / `puja_subasta`
+
+**Qué es.** Una oferta por un cupo en subasta: quién ofrece, cuánto y en qué estado está (`VIGENTE`, `SUPERADA`, `LIBERADA`, `GANADORA`, `RECHAZADA`).
+
+**Para qué sirve (negocio).** Que ofrecer sea serio y no cueste plata a quien pierde: el monto queda retenido en la billetera del postor y, si alguien lo supera, se le devuelve al instante.
+
+**Por qué debe existir.** Cada puja mueve saldo retenido (`retencion_ref`). Sin su registro no hay forma de liberar la retención correcta cuando la superan, ni de saber cuál ganó al cierre.
+
+**A nivel de sistema.** `monto` mayor que cero, con `moneda`. La retención la crea y la libera `nucleo-financiero` (CU-13, liberación de mercado). `clave_idempotencia` para que reintentar una oferta no retenga dos veces.
+
+*Fuente: CU-64 y CU-13 (PR #346); `sql/10_tablas/04_entregas_fondo/puja_subasta.sql`.*

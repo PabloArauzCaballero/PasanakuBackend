@@ -1,0 +1,7 @@
+00:00 +0: al escribir el correo se olvida el código guardado: siempre se pide uno nuevo, y confirmarlo es lo que trae el borrador
+00:00 +1: correcto: continuar pide código nuevo y al confirmarlo vuelve al paso pendiente con lo cargado
+00:00 +2: límite: sin borrador en el servidor, el código queda confirmado y el alta sigue desde el principio
+00:00 +3: inválido: código rechazado deja el error y no inventa datos
+00:00 +4: el login ofrece continuar el registro y lleva al alta en modo continuar, con el aviso
+00:00 +5: el alta normal no muestra el aviso de continuar
+00:00 +6: All tests passed!

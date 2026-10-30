@@ -9,6 +9,7 @@ import '../dominio/validaciones.dart';
 import '../textos_del_alta.dart';
 import 'bloque_clave_de_cuenta.dart';
 import 'bloque_contacto_de_cuenta.dart';
+import '../continuar_alta.dart';
 import 'tarjeta_de_confianza.dart';
 
 /// Fase 1 — contacto y contraseña en el paso «cuenta» (CU-01).
@@ -21,7 +22,8 @@ import 'tarjeta_de_confianza.dart';
 /// primer paso ya se puede contrastar la clave con el teléfono; si el CI aún no se
 /// ingresó, su relación con la clave se valida al final en el servidor.
 class PasoCuenta extends ConsumerStatefulWidget {
-  const PasoCuenta({super.key});
+  const PasoCuenta({super.key, this.continuar = false});
+  final bool continuar;
 
   @override
   ConsumerState<PasoCuenta> createState() => _PasoCuentaState();
@@ -142,7 +144,10 @@ class _PasoCuentaState extends ConsumerState<PasoCuenta> {
     if (_errorClave != null) return;
     final notifier = ref.read(altaProvider.notifier);
     notifier.elegirContrasena(_clave.text);
-    final enviado = await notifier.solicitarCodigoCorreo();
+    // Continuar siempre pide un código: confirmarlo es lo que trae el borrador.
+    final enviado = await notifier.solicitarCodigoCorreo(
+      nuevo: widget.continuar,
+    );
     if (enviado) notifier.siguiente();
   }
 
@@ -154,6 +159,7 @@ class _PasoCuentaState extends ConsumerState<PasoCuenta> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          if (widget.continuar) const AvisoDeContinuarAlta(),
           BloqueContactoDeCuenta(
             telefono: _telefono,
             correo: _correo,

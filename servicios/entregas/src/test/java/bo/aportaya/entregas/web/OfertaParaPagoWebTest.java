@@ -38,6 +38,7 @@ import org.springframework.test.web.servlet.MockMvc;
  */
 @PruebaWeb(EntregasController.class)
 @Import(MercadoWeb.class)
+@org.springframework.test.context.bean.override.mockito.MockitoBean(types = bo.aportaya.entregas.web.SubastasWeb.class)
 class OfertaParaPagoWebTest {
 
     private static final UUID OFERTA = UUID.fromString("b8100000-0000-4000-8000-000000000001");

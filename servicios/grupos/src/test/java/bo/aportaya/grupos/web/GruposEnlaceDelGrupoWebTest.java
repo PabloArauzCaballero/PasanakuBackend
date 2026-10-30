@@ -50,6 +50,7 @@ import org.springframework.test.web.servlet.MockMvc;
             CU20CrearGrupo.class,
             CU59CalcularPlazo.class,
             CU64TraspasarCupo.class,
+            bo.aportaya.grupos.aplicacion.CU64TraspasoPorSubasta.class,
             CU65Retirarse.class,
             CU68Postular.class,
             CU68AceptarIngreso.class,

@@ -27,6 +27,7 @@ export 'package:aportaya_cliente_grupos/src/model/detalle_enlace_del_grupo.dart'
 export 'package:aportaya_cliente_grupos/src/model/detalle_enlace_invitacion.dart';
 export 'package:aportaya_cliente_grupos/src/model/dia_salteado.dart';
 export 'package:aportaya_cliente_grupos/src/model/dinero.dart';
+export 'package:aportaya_cliente_grupos/src/model/elegibilidad_para_subasta.dart';
 export 'package:aportaya_cliente_grupos/src/model/entrada_aceptacion_invitacion.dart';
 export 'package:aportaya_cliente_grupos/src/model/entrada_acuerdo.dart';
 export 'package:aportaya_cliente_grupos/src/model/entrada_codigo_de_enlace.dart';
@@ -44,6 +45,7 @@ export 'package:aportaya_cliente_grupos/src/model/entrada_revelacion.dart';
 export 'package:aportaya_cliente_grupos/src/model/entrada_solicitud_por_enlace.dart';
 export 'package:aportaya_cliente_grupos/src/model/entrada_sustitucion_administrador.dart';
 export 'package:aportaya_cliente_grupos/src/model/entrada_traspaso.dart';
+export 'package:aportaya_cliente_grupos/src/model/entrada_traspaso_por_subasta.dart';
 export 'package:aportaya_cliente_grupos/src/model/entrada_voto.dart';
 export 'package:aportaya_cliente_grupos/src/model/error.dart';
 export 'package:aportaya_cliente_grupos/src/model/grupo_de_backoffice.dart';
@@ -68,9 +70,11 @@ export 'package:aportaya_cliente_grupos/src/model/salida_postulacion.dart';
 export 'package:aportaya_cliente_grupos/src/model/salida_retiro.dart';
 export 'package:aportaya_cliente_grupos/src/model/salida_solicitud_por_enlace.dart';
 export 'package:aportaya_cliente_grupos/src/model/salida_traspaso.dart';
+export 'package:aportaya_cliente_grupos/src/model/salida_traspaso_por_subasta.dart';
 export 'package:aportaya_cliente_grupos/src/model/salida_vencimiento_local.dart';
 export 'package:aportaya_cliente_grupos/src/model/solicitud_de_admision.dart';
 export 'package:aportaya_cliente_grupos/src/model/solicitud_de_ingreso.dart';
 export 'package:aportaya_cliente_grupos/src/model/sorteo_del_detalle.dart';
+export 'package:aportaya_cliente_grupos/src/model/subastabilidad_del_cupo.dart';
 export 'package:aportaya_cliente_grupos/src/model/sustitucion_administrador.dart';
 

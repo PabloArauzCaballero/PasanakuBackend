@@ -1,0 +1,65 @@
+{
+  "servicio": "grupos",
+  "operacion": "consultarSubastabilidadDelCupo",
+  "metodo": "get",
+  "ruta": "/grupos/{grupoId}/cupos/{cupoId}/subastabilidad",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "grupoId": "7c9bb5a2-39ef-4c06-8574-69a4b68b91a8",
+        "nombreDelGrupo": "nombreDelGrupo",
+        "periodicidad": "periodicidad",
+        "cupoId": "e4ce5dde-6ddd-4086-876e-cc2a852abbe6",
+        "participanteId": "ab50be73-d336-4311-8866-ad627e86d184",
+        "subastable": true,
+        "motivo": "CUPO_NO_TRASPASABLE",
+        "montoAporte": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        }
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "grupoId": "7c9bb5a2-39ef-4c06-8574-69a4b68b91a8",
+        "nombreDelGrupo": "nombreDelGrupo",
+        "periodicidad": "periodicidad",
+        "cupoId": "e4ce5dde-6ddd-4086-876e-cc2a852abbe6",
+        "participanteId": "ab50be73-d336-4311-8866-ad627e86d184",
+        "subastable": false,
+        "motivo": "CUPO_NO_TRASPASABLE",
+        "montoAporte": {
+          "monto": "0.00",
+          "moneda": "BOB"
+        }
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "grupoId": "7c9bb5a2-39ef-4c06-8574-69a4b68b91a8",
+        "nombreDelGrupo": "nombreDelGrupo",
+        "periodicidad": "periodicidad",
+        "cupoId": "e4ce5dde-6ddd-4086-876e-cc2a852abbe6",
+        "participanteId": "ab50be73-d336-4311-8866-ad627e86d184",
+        "subastable": true,
+        "motivo": "CUPO_NO_TRASPASABLE",
+        "montoAporte": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        }
+      }
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU64-06",
+        "mensaje": "No es titular",
+        "detalle": {},
+        "trazaId": "traza-consultarSubastabilidadDelCupo-rechazo"
+      }
+    }
+  }
+}

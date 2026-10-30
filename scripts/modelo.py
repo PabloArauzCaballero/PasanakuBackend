@@ -204,7 +204,7 @@ PREFIJOS = {
     # pasaba su propia prueba de prefijos.
     "identidad":         ["/identidad", "/usuarios", "/usuarios-internos", "/sesion", "/sesiones", "/roles", "/permisos"],
     "grupos":            ["/grupos", "/turnos", "/acuerdos"],
-    "nucleo_financiero": ["/billetera", "/custodia", "/puntos-atencion", "/contabilidad"],
+    "nucleo_financiero": ["/billetera", "/custodia", "/puntos-atencion", "/contabilidad", "/recargas-de-prueba"],
     "aportes":           ["/aportes", "/pagos", "/qr", "/conciliacion"],
     "entregas":          ["/entregas", "/desembolsos", "/cuentas-bancarias"],
     "notificaciones":    ["/notificaciones"],

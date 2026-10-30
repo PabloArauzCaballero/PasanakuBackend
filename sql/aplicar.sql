@@ -113,6 +113,8 @@ SET search_path TO aportes, auditoria, cumplimiento, entregas, erp, garantia, gr
 \ir 10_tablas/04_entregas_fondo/fondeo_entrega.sql
 \ir 10_tablas/04_entregas_fondo/oferta_turno.sql
 \ir 10_tablas/04_entregas_fondo/cesion_derecho.sql
+\ir 10_tablas/04_entregas_fondo/subasta_cupo.sql
+\ir 10_tablas/04_entregas_fondo/puja_subasta.sql
 --    módulo 05 — Notificaciones y Comunicaciones
 \ir 10_tablas/05_notificaciones/evento_notificable.sql
 \ir 10_tablas/05_notificaciones/plantilla_mensaje.sql

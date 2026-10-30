@@ -11,12 +11,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import bo.aportaya.nucleofinanciero.aplicacion.BandejaDeRetiros;
 import bo.aportaya.nucleofinanciero.aplicacion.CU10RecargarSaldo;
 import bo.aportaya.nucleofinanciero.aplicacion.CU11RetirarSaldo;
+import bo.aportaya.nucleofinanciero.aplicacion.CU13LiberarRetencionDelMercado;
 import bo.aportaya.nucleofinanciero.aplicacion.CU13RetenerSaldo;
 import bo.aportaya.nucleofinanciero.aplicacion.CU14ReversarTransaccion;
 import bo.aportaya.nucleofinanciero.aplicacion.CU15EmitirExtracto;
 import bo.aportaya.nucleofinanciero.aplicacion.CU17BloquearPorAutoridad;
 import bo.aportaya.nucleofinanciero.aplicacion.ConsultarMovimientosBilletera;
 import bo.aportaya.nucleofinanciero.aplicacion.ConsultarSaldo;
+import bo.aportaya.nucleofinanciero.aplicacion.RecargasConProveedor;
 import bo.aportaya.nucleofinanciero.dominio.puertos.CotizadorDeComision;
 import bo.aportaya.nucleofinanciero.dominio.puertos.SegundoFactor;
 import bo.aportaya.plataforma.dominio.Dinero;
@@ -44,6 +46,7 @@ import org.springframework.test.web.servlet.MockMvc;
         value = BilleteraController.class,
         properties = {"aportaya.retiro.doble-aprobacion-desde=5000.00"})
 @org.springframework.context.annotation.Import(FondeoDeLaBilletera.class)
+@MockitoBean(types = {CU13LiberarRetencionDelMercado.class, RecargasConProveedor.class})
 class InversionesWebTest {
 
     private static final UUID CUENTA = UUID.fromString("eeeeeeee-0000-4000-8000-000000000001");
@@ -69,9 +72,6 @@ class InversionesWebTest {
 
     @MockitoBean
     private CU10RecargarSaldo cu10;
-
-    @MockitoBean
-    private bo.aportaya.nucleofinanciero.aplicacion.RecargasConProveedor recargas;
 
     @MockitoBean
     private CU11RetirarSaldo cu11;

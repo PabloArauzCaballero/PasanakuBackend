@@ -162,6 +162,41 @@ Entonces se rechaza con ENTRANTE_SIN_KYC y se le ofrece elevar su nivel
 Dado un cupo con turno futuro y la votación aprobada de ese cupo
 Cuando su titular traspasa al entrante
 Entonces el cupo cambia de participante y el acuerdo queda EJECUTADO
+
+Dado el titular al día
+Cuando pregunta si puede subastar su cupo
+Entonces es subastable y ve el aporte del grupo
+
+Dado otro integrante
+Cuando pregunta por un cupo que no es suyo
+Entonces AP-CU64-06 y no se dice de quién es
+
+Dado un titular con deuda o un turno ya cobrado
+Cuando pregunta
+Entonces no es subastable y dice por qué
+
+Dado un ganador de afuera del grupo
+Cuando entregas pide el traspaso
+Entonces entra ACTIVO, el cupo es suyo, el saliente queda RETIRADO y el turno no se mueve
+
+Dado un traspaso por subasta ya aplicado
+Cuando entregas lo repite
+Entonces devuelve el mismo traspaso y no hay un segundo
+
+Dado un cupo que ya no es del saliente
+Cuando entregas pide el traspaso
+Entonces AP-CU64-01 y nada cambia
+
+Dados dos cierres simultáneos del mismo cupo con ganadores distintos
+Entonces uno solo se lleva el cupo y el otro recibe AP-CU64-01
+
+Dado quien quiere pujar
+Cuando tiene restricción, KYC o reputación insuficiente
+Entonces no es elegible y se dice el motivo, en ese orden
+
+Dado alguien que ya llegó al máximo de grupos
+Cuando quiere pujar en otro
+Entonces MAXIMO_DE_GRUPOS; si ya está en este grupo, puede
 ```
 
 La votación es sobre el cupo **y** la persona que entra (decisión 2026-10-30): una votación

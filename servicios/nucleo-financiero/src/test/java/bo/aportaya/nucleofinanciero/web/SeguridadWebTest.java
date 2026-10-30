@@ -30,6 +30,8 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
         properties = {
             "aportaya.retiro.doble-aprobacion-desde=5000.00",
         })
+@org.springframework.test.context.bean.override.mockito.MockitoBean(
+        types = bo.aportaya.nucleofinanciero.aplicacion.CU13LiberarRetencionDelMercado.class)
 class SeguridadWebTest extends SabanaDeSeguridadWeb {
 
     @MockitoBean
@@ -37,6 +39,9 @@ class SeguridadWebTest extends SabanaDeSeguridadWeb {
 
     @MockitoBean
     private bo.aportaya.nucleofinanciero.aplicacion.RecargasConProveedor recargasConProveedor;
+
+    @MockitoBean
+    private bo.aportaya.nucleofinanciero.aplicacion.PagoDeRecargaDePrueba pagoDeRecargaDePrueba;
 
     @MockitoBean
     private CU11RetirarSaldo cu11RetirarSaldo;

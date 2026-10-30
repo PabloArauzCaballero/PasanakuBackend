@@ -39,6 +39,8 @@ import org.springframework.test.web.servlet.MockMvc;
  * la base vive en {@code CU50ConciliacionesTest}, {@code CU51CierresTest} y {@code CU14ReversosTest}.
  */
 @PruebaWeb({CustodiaController.class, ContabilidadController.class})
+@org.springframework.test.context.bean.override.mockito.MockitoBean(
+        types = bo.aportaya.nucleofinanciero.aplicacion.CU13LiberarRetencionDelMercado.class)
 class CustodiaControllerWebTest {
     private static final UUID CUSTODIA = UUID.fromString("eeeeeeee-0000-4000-8000-000000000050");
     private static final UUID CONCILIACION = UUID.fromString("eeeeeeee-0000-4000-8000-000000000051");
