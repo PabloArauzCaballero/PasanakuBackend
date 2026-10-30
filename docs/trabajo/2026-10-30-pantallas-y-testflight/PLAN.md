@@ -52,7 +52,7 @@ Defectos y prioridad en `evidencia/diagnostico.md`.
 | ID | Microtarea | CA | DoD | Estado |
 |---|---|---|---|---|
 | H3.S1.M1 | Compilar, firmar y subir | build aceptado | `bash scripts/testflight_ios.sh` → `EXPORT SUCCEEDED` | HECHO (build 202610301429, `evidencia/subida.txt`) |
-| H3.S1.M2 | PR a test y a dev | PRs abiertos con la regresión pegada | `gh pr view` | TODO |
+| H3.S1.M2 | PR a test y a dev | PRs abiertos con la regresión pegada | `gh pr view` | HECHO (MERGED) |
 
 ## Riesgos y bloqueos previstos
 | Riesgo | Impacto | Mitigación |

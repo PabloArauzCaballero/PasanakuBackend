@@ -30,7 +30,10 @@ import '../../proveedores/haptica.dart';
 /// mostrar. **No es un `StatefulWidget` de 600 líneas** — cada paso es su propio
 /// archivo en `pasos_alta/`.
 class PantallaDeRegistro extends ConsumerStatefulWidget {
-  const PantallaDeRegistro({super.key});
+  const PantallaDeRegistro({super.key, this.continuar = false});
+
+  /// Desde «Continuar mi registro» del login (§ continuar_alta.dart).
+  final bool continuar;
 
   @override
   ConsumerState<PantallaDeRegistro> createState() => _PantallaDeRegistroState();
@@ -62,7 +65,7 @@ class _PantallaDeRegistroState extends ConsumerState<PantallaDeRegistro>
     ref.listen(altaProvider, alCambiarEstadoDelAlta);
 
     Widget cuerpo() => switch (estado.paso) {
-      PasoAlta.cuenta => const PasoCuenta(),
+      PasoAlta.cuenta => PasoCuenta(continuar: widget.continuar),
       PasoAlta.correo => const PasoCorreo(),
       PasoAlta.documento => const PasoDocumento(),
       PasoAlta.datos => const PasoDatos(),
