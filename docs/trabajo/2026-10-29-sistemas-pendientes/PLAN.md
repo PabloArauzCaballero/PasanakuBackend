@@ -85,8 +85,8 @@ Patrones a copiar: contrato primero (`openapi/*.yaml` → interfaz generada), co
 ## H7 — TEST y cierre
 | ID | Microtarea | CA | DoD | Estado |
 |---|---|---|---|---|
-| H7.S1.M1 | Regresión: backoffice completo + tests de los servicios tocados + build | todo verde | comandos pegados | TODO |
-| H7.S1.M2 | Despliegue a TEST según `despliegue/TEST.md` y verificación con sesión real | las pestañas muestran datos en TEST | capturas en TEST | TODO |
+| H7.S1.M1 | Regresión: backoffice completo + tests de los servicios tocados + build | todo verde | comandos pegados | HECHO (evidencia/H7-regresion-servicios.txt, H7-regresion-front.txt, H7-build.txt) |
+| H7.S1.M2 | Despliegue a TEST según `despliegue/TEST.md` y verificación con sesión real | las pestañas muestran datos en TEST | capturas en TEST | A MEDIAS: desplegado (host en c3fd625, que contiene 310124e); 401 sin sesión en los 7 endpoints (evidencia/H7-test-sin-sesion.txt); falta ingresar con sesión real |
 | H7.S1.M3 | Deuda: `PUERTO_BASE_DE_DATOS` sin uso | el puerto se retira del árbol | `ng test` | HECHO: PUERTO_BASE_DE_DATOS y PUERTO_OUTBOX retirados (evidencia/H7-regresion-front.txt) |
 | H7.S1.M4 | `nucleo/menu.ts` vuelve a ≤200 líneas (lo pasé a 202 en #224; `verificar_frontend` falla) | `verificar_frontend` sin fallas | `python3 scripts/verificar_frontend.py` | HECHO (evidencia/verificadores-ci.txt) |
 
