@@ -1,4 +1,4 @@
-> **AVANCE: 17 / 23 — 73,9 %.** #315 y #316 las mergeó PabloArauzCaballero a las 02:33 UTC con dos rojos sin resolver: `14 · integrationTest` (una prueba intermitente de `grupos`: causa demostrada y corregida en este seguimiento, falta la CI) y los dos jobs de iOS (H2.S9: BLOQUEADO, no reproducible sin macOS). Frontend, Postman, OSV-Scanner, la imagen y Trivy pasaron en la CI de esas PR.
+> **AVANCE: 17 / 24 — 70,8 %.** #315 y #316 las mergeó PabloArauzCaballero a las 02:33 UTC con dos rojos sin resolver: `14 · integrationTest` (una prueba intermitente de `grupos`: la corrección hizo pasar `14` en la CI de #322/#323, pero esa CI además marcó un SQL concatenado mío, ya corregido en local y pendiente de la CI) y los dos jobs de iOS (H2.S9: BLOQUEADO, no reproducible sin macOS). Frontend, Postman, OSV-Scanner, la imagen y Trivy pasaron en la CI de esas PR.
 
 # Reporte — Dejar en verde los rojos que quedaron en `dev`
 
@@ -58,6 +58,7 @@ Solape del botón de ayuda (44 px) sobre el control de abajo: elementFromPoint �
 - El aviso de presupuesto del bundle del backoffice ya existía (502,05 kB sin mis cambios, 502,20 kB con ellos); no lo toqué.
 
 ## Desvíos del plan
+- La primera versión de la corrección de H2.S8 partía el SQL con `"…" + "…"`. El verificador de seguridad (`verificar_seguridad.py`, prohibición 2 «SQL concatenado») lo marcó en la CI de #322/#323 y dejó rojos «La boveda y el esquema no divergen» y «Bóveda, seguridad, carriles y despliegue coherentes». No corrí ese verificador antes de subir. Corregido con un bloque de texto (H2.S8.M3); `verificar_boveda`, `verificar_criterios`, `verificar_carriles` y `verificar_seguridad` ahora salen con 0 en local.
 - Las PR #315 y #316 se mergearon antes de que llegara la corrección de H2.S8; por eso H2.S8 y las actualizaciones de plan y reporte viajan en un PR de seguimiento (H3.S2) y no en las PR originales.
 Ver «Desvíos del plan» en [PLAN.md](./PLAN.md): se agregaron H1.S3, H2.S4 a H2.S8 (todos nacieron al ejecutar lo que la CI mostraba o escondía), y el README de `identidad` no declara un CU-07 «parcial».
 
