@@ -33,10 +33,7 @@ void main() {
         await tester.pumpAndSettle();
         expect(find.text('720'), findsOneWidget);
         expect(find.text('En construccion'), findsOneWidget);
-        expect(
-          find.textContaining('a partir de tu historial'),
-          findsOneWidget,
-        );
+        expect(find.textContaining('a partir de tu historial'), findsOneWidget);
       },
     );
   }

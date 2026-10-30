@@ -73,7 +73,9 @@ void main() {
     ('claro', Brightness.light),
     ('oscuro', Brightness.dark),
   ]) {
-    testWidgets('ruleta del sorteo · $nombre', skip: _salida.isEmpty, (t) async {
+    testWidgets('ruleta del sorteo · $nombre', skip: _salida.isEmpty, (
+      t,
+    ) async {
       final (:dio, :adaptador) = dioSimulado();
       adaptador
         ..onGet('/grupos/$_grupo/detalle', (s) => s.reply(200, _detalle()))
@@ -123,10 +125,8 @@ void main() {
       final dir = '$_salida/$nombre';
       Directory(dir).createSync(recursive: true);
       var cuadro = 0;
-      Future<void> foto() => fotoSinExigir(
-        t,
-        '$dir/${(cuadro++).toString().padLeft(4, '0')}.png',
-      );
+      Future<void> foto() =>
+          fotoSinExigir(t, '$dir/${(cuadro++).toString().padLeft(4, '0')}.png');
       await foto();
       await t.tap(find.text('Girar la ruleta'));
       // Se filma hasta que la pantalla deja de pedir cuadros (fin de la ceremonia).

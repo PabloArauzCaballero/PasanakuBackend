@@ -82,7 +82,10 @@ void main() {
       ) async {
         await montar(tester);
         expect(find.text('Verificación en dos pasos'), findsOneWidget);
-        expect(find.textContaining('te pedimos un código de 6 dígitos'), findsOneWidget);
+        expect(
+          find.textContaining('te pedimos un código de 6 dígitos'),
+          findsOneWidget,
+        );
         expect(confirmar(tester).onPressed, isNull);
 
         await tester.enterText(find.byType(TextField).first, '12345');
@@ -172,7 +175,10 @@ void main() {
             find.textContaining('No pudimos confirmar que el correo salió'),
             findsOneWidget,
           );
-          expect(find.textContaining('Te mandamos un código nuevo'), findsNothing);
+          expect(
+            find.textContaining('Te mandamos un código nuevo'),
+            findsNothing,
+          );
           expect(tester.takeException(), isNull);
         },
       );
