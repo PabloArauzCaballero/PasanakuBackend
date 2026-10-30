@@ -95,7 +95,6 @@ class _PasoCuentaState extends ConsumerState<PasoCuenta> {
     return null;
   }
 
-
   String? _visible(String? error) => _intentado ? error : null;
 
   String get _telefonoCompleto => _telefono.text.isEmpty

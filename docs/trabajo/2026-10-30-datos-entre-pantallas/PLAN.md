@@ -38,3 +38,9 @@
 |---|---|---|
 | Refrescar en cada toque de pestaña suma pedidos | Algo más de tráfico | Riverpod 3 conserva el valor previo mientras recarga: no hay parpadeo de «cargando» |
 | La prueba en el iPhone exige build nuevo a TestFlight | La verificación visual real queda para Pablo | Se declara `VERIFIED_FUNCTIONAL_ONLY` hasta tener captura del dispositivo |
+
+### H1.S3 — Desbloquear CI (agregada 2026-10-30)
+El job «Frontend — Flutter y Angular» de #339/#340 falla en `yarn run lint` porque `paso_cuenta.dart` no pasa `dart format` en `origin/test`. Es preexistente pero bloquea el merge.
+| ID | Microtarea | CA (binario) | DoD | Estado |
+|---|---|---|---|---|
+| H1.S3.M1 | `dart format` de `paso_cuenta.dart` (solo espacios, sin lógica) | El lint de la app pasa | `dart format --output=none --set-exit-if-changed lib test && python3 ../../scripts/verificar_frontend.py movil` → exit 0 | HECHO |
