@@ -1,0 +1,9 @@
+LINEA BASE en esta maquina: apps/movil de origin/test (sin los 4 archivos modificados por la subasta)
+$ flutter test <7 archivos> --timeout 90s
+  24/24 fallan  test/goldens/h10_billetera_visual_test.dart
+  24/24 fallan  test/goldens/h10_tour_visual_test.dart
+  2/2 fallan  test/goldens/pantalla_de_saldo_golden_test.dart
+  1/4 fallan  test/identidad/componentes_de_fase_test.dart
+  2/3 fallan  test/identidad/motivo_de_salida_en_ingreso_test.dart
+  0/9 fallan  test/widget/pantalla_de_saldo_test.dart
+  2/4 fallan  test/widget/paso_capturas_test.dart

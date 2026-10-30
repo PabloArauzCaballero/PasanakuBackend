@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "AportaYa · nucleo-financiero",
-    "description": "# AportaYa · nucleo-financiero\n\nGenerado por `scripts/generar_postman.py` desde `servicios/*/src/main/resources/openapi/`.\n**No se edita a mano**: la proxima generacion lo pisa, y una coleccion editada a mano\nprueba una API que ya no existe.\n\n**28 operaciones.** Cada peticion trae su cuerpo de ejemplo derivado del\nesquema, la clave de idempotencia donde el contrato la exige, el permiso que pide\n—leido de los `@Permiso` del codigo— y los rechazos `AP-CU` que declara.\n\nElegi un entorno de `postman/entornos/` antes de disparar nada.\n",
+    "description": "# AportaYa · nucleo-financiero\n\nGenerado por `scripts/generar_postman.py` desde `servicios/*/src/main/resources/openapi/`.\n**No se edita a mano**: la proxima generacion lo pisa, y una coleccion editada a mano\nprueba una API que ya no existe.\n\n**29 operaciones.** Cada peticion trae su cuerpo de ejemplo derivado del\nesquema, la clave de idempotencia donde el contrato la exige, el permiso que pide\n—leido de los `@Permiso` del codigo— y los rechazos `AP-CU` que declara.\n\nElegi un entorno de `postman/entornos/` antes de disparar nada.\n",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
@@ -770,6 +770,85 @@
           ]
         },
         "description": "## Ejecuta una retencion de compra del mercado a favor del vendedor\n\n[CONTRATO · SOLO SERVICIO] Lo pide `entregas` (identidad de servicio `SERVICIO_ENTREGAS`; una sesion de usuario final recibe 403 aunque tenga `BILLETERA_OPERAR`). NO lleva cuerpo: el beneficiario y el reparto NO los dicta quien llama. Se derivan en el servidor: la retencion `COMPRA_EN_MERCADO` nombra la oferta (`referencia_id`); se le pregunta a `entregas` quien es el vendedor, cual es el precio y cuales son los cargos (si no responde o no informa los cargos, no se paga). Reparto (decision adoptada por delegacion del dueno, 2026-10-11): el comprador paga el precio, que tiene que ser exactamente lo retenido (`AP-CU13-06` si no); el vendedor recibe `precio - cargos` y la plataforma los `cargos`, cada uno con su linea en la transaccion (regla 91.3.4); los cargos van entre 0 y el precio (`AP-CU13-06` si no). Una retencion se ejecuta una sola vez: la repetida con la misma `Idempotency-Key` devuelve el mismo resultado sin otro asiento; pagada o liberada se rechaza (R-BIL-24).\n\n| | |\n| --- | --- |\n| **Servicio** | `nucleo-financiero` |\n| **Operacion** | `pagarAlTercero` |\n| **Ruta** | `POST /api/v1/billetera/retenciones/{retencionId}/pago-a-tercero` |\n| **Permiso** | `SERVICIO_ENTREGAS` |\n| **Idempotencia** | exige `Idempotency-Key`; se manda un `{{$guid}}` nuevo por intento |\n| **Respuestas** | `200`, `422`, `401`, `403` |\n\n### Rechazos que declara el contrato\n\n| Codigo | Motivo |\n| --- | --- |\n| `AP-CU13-03` | Retencion ya ejecutada |\n| `AP-CU13-04` | Clave de otra operacion |\n| `AP-CU13-05` | Motivo incompatible |\n| `AP-CU13-06` | Monto distinto de lo retenido |\n| `AP-CU13-07` | Cuenta de sistema no configurada |\n| `AP-CU13-08` | Destinatario invalido |\n| `AP-CU13-09` | Solo servicio |\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos."
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// Lo que se le exige a TODA respuesta del sistema, sin excepcion.",
+              "const esperadas = [200, 401, 403, 422];",
+              "",
+              "pm.test(\"responde con un codigo que el contrato declara\", () => {",
+              "    pm.expect(esperadas).to.include(pm.response.code);",
+              "});",
+              "",
+              "pm.test(\"no filtra la traza al cliente\", () => {",
+              "    const cuerpo = pm.response.text();",
+              "    // Un stack trace en la respuesta le cuenta al atacante como esta hecho el",
+              "    // servidor. Es una de las dieciocho prohibiciones del contrato.",
+              "    pm.expect(cuerpo).to.not.match(/at bo\\.aportaya\\./);",
+              "    pm.expect(cuerpo).to.not.include(\"java.lang.\");",
+              "});",
+              "",
+              "if (pm.response.code === 422) {",
+              "    pm.test(\"el rechazo trae su codigo AP-CU\", () => {",
+              "        pm.expect(pm.response.json()).to.have.property(\"codigo\").that.matches(/^AP-CU\\d+-\\d+$/);",
+              "    });",
+              "}",
+              "",
+              "// Encadena: lo que devuelve esta peticion queda disponible para la siguiente.",
+              "if (pm.response.code < 300) {",
+              "    const cuerpo = pm.response.json();",
+              "    for (const [clave, valor] of Object.entries(cuerpo || {})) {",
+              "        if (typeof valor === \"string\" && /^[0-9a-f]{8}-[0-9a-f]{4}-/i.test(valor)) {",
+              "            pm.collectionVariables.set(clave, valor);",
+              "        }",
+              "    }",
+              "}",
+              ""
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "liberarRetencionDelMercado · Devuelve al postor el saldo de una puja superada o de una compra que no se completo",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}",
+            "description": "Uno nuevo por intento. Repetir el mismo debe devolver la MISMA respuesta y un solo efecto (invariante 7)."
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}{{prefijo_api}}/billetera/retenciones/:retencionId/liberacion-de-mercado",
+          "host": [
+            "{{base_url}}{{prefijo_api}}"
+          ],
+          "path": [
+            "billetera",
+            "retenciones",
+            ":retencionId",
+            "liberacion-de-mercado"
+          ],
+          "variable": [
+            {
+              "key": "retencionId",
+              "value": "{{retencionId}}",
+              "description": "Identificador; se encadena desde una peticion anterior."
+            }
+          ]
+        },
+        "description": "## Devuelve al postor el saldo de una puja superada o de una compra que no se completo\n\n[CONTRATO · SOLO SERVICIO] Lo pide `entregas` (`SERVICIO_ENTREGAS`; una sesion de usuario final recibe 403 aunque tenga `BILLETERA_OPERAR`). Existe porque al postor lo supera OTRA persona, en su sesion, o la subasta cierra en un trabajo programado: el dueno de la retencion no esta para liberarla. Solo para retenciones `COMPRA_EN_MERCADO` (AP-CU13-08 si no) y solo LIBERA: la plata vuelve a su dueno, nunca va a otro. Una retencion ya cerrada responde AP-CU13-03 con su estado, igual que el cierre del titular: liberada dos veces es el resultado que se queria. Sin cuerpo.\n\n| | |\n| --- | --- |\n| **Servicio** | `nucleo-financiero` |\n| **Operacion** | `liberarRetencionDelMercado` |\n| **Ruta** | `POST /api/v1/billetera/retenciones/{retencionId}/liberacion-de-mercado` |\n| **Permiso** | _no declarado en el codigo_ |\n| **Idempotencia** | exige `Idempotency-Key`; se manda un `{{$guid}}` nuevo por intento |\n| **Respuestas** | `200`, `422`, `401`, `403` |\n\n### Rechazos que declara el contrato\n\n| Codigo | Motivo |\n| --- | --- |\n| `AP-CU13-03` | Retencion ya ejecutada |\n| `AP-CU13-09` | Solo servicio |\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos."
       },
       "response": [],
       "event": [

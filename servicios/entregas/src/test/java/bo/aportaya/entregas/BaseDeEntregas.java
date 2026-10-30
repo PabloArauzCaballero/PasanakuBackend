@@ -144,7 +144,8 @@ abstract class BaseDeEntregas {
     }
 
     @SuppressWarnings("unchecked")
-    private static <T> T conTransaccion(T objetivo, org.springframework.transaction.PlatformTransactionManager gestor) {
+    protected static <T> T conTransaccion(
+            T objetivo, org.springframework.transaction.PlatformTransactionManager gestor) {
         var interceptor = new org.springframework.transaction.interceptor.TransactionInterceptor();
         interceptor.setTransactionManager(gestor);
         interceptor.setTransactionAttributeSource(

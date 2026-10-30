@@ -54,7 +54,7 @@ import org.springframework.web.bind.annotation.RestController;
  * contesta a los demas para que ellos tampoco tengan que leer su esquema.
  */
 @RestController
-public class GruposController extends RutasDelGrupo {
+public class GruposController extends RutasDeSubastaDelCupo {
 
     /** El proceso que atiende lo publico: fijo, para poder leerlo en la bitacora. */
     private static final UUID PROCESO_PUBLICO = UUID.fromString("00000000-0000-0000-0000-0000000000f1");
