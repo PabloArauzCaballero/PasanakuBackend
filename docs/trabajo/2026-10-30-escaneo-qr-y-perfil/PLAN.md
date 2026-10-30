@@ -51,6 +51,12 @@
 |---|---|---|---|---|
 | H3.S1.M1 | Suite completa de la app + lint | sin fallos nuevos frente a `origin/test` | `flutter test` y `flutter analyze` (comparar con línea base) | HECHO |
 
+## H4 — Integración y TestFlight (pedido de Pablo: «que no quede nada pendiente y a testflight»)
+| ID | Microtarea | CA (binario) | DoD (comando) | Estado |
+|---|---|---|---|---|
+| H4.S1.M1 | PR a `test` y gemelo a `dev`, mergeados | ambos PR en `MERGED` | `gh pr view 351/352 --json state` | HECHO |
+| H4.S1.M2 | Build de iOS desde `origin/test` subido a App Store Connect | `EXPORT SUCCEEDED` | `scripts/testflight_ios.sh --solo-compilar` + `xcodebuild -exportArchive … -authenticationKey*` | HECHO |
+
 ## Riesgos y bloqueos previstos
 | Riesgo | Impacto | Mitigación |
 |---|---|---|
