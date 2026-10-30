@@ -23,7 +23,7 @@
 ## H1 — Continuar el alta desde el login
 **CA:** Dado un borrador en el servidor, cuando la persona toca «Continuar mi registro» en el login y confirma el código de su correo, entonces el alta queda en el paso pendiente con los datos guardados.
 **DoD:** tests de widget dirigidos en verde · `flutter analyze` limpio · verificador de 200 líneas OK · regresión sin fallos nuevos.
-**Estado:** EN CURSO
+**Estado:** HECHO
 
 | ID | Microtarea | CA (binario) | DoD | Estado |
 |---|---|---|---|---|
@@ -31,4 +31,4 @@
 | H1.S1.M2 | Modo continuar en el paso 1: aviso + código nuevo | con `continuar`, `solicitar` se llama con `nueva: true` y se ve el aviso | test widget | HECHO |
 | H1.S1.M3 | Restauración tras confirmar salta al paso pendiente | confirmar con borrador `pasoPendiente: datos` deja el alta en `datos` | test (doble del servidor: correcto, borrador vacío, error) | HECHO |
 | H1.S1.M4 | Regresión | sin fallos nuevos vs árbol limpio | `flutter test …` | HECHO (`evidencia/regresion.txt`) |
-| H1.S1.M5 | PRs a test y dev + TestFlight | build aceptado | `xcodebuild -exportArchive` → `Upload succeeded` | EN CURSO |
+| H1.S1.M5 | PRs a test y dev + TestFlight | build aceptado | `xcodebuild -exportArchive` → `Upload succeeded` | HECHO (202610301458; PRs MERGED) |
