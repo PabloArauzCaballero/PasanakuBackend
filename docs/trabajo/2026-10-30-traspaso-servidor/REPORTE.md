@@ -1,6 +1,6 @@
 # Reporte — Traspaso de cupo que funciona de punta a punta
 
-> **AVANCE: 4 / 4 — 100 %.**
+> **AVANCE: 5 / 5 — 100 %.**
 
 - Fecha: 2026-10-30 · Plan: [PLAN.md](./PLAN.md) · Rama: `claude/traspaso-servidor`
 - Peldaño de evidencia alcanzado: `TESTED` (integración contra Postgres real con Testcontainers + widget tests de la app contra un backend simulado). No se ejercitó en el servidor TEST desplegado.
@@ -12,6 +12,8 @@
 | H1.S1.M2 | `GET /acuerdos?grupoId&tipo&estado&referenciaAfectadaId` para participantes (AP-CU63-01 a quien no participa, 403 sin permiso) | idem | PASS |
 | H1.S2.M1 | La app lee la votación del cupo: sin votación ofrece «Pedir la votación al grupo» (POST /acuerdos TRASPASO_CUPO sobre el cupo, con clave de idempotencia); abierta muestra «Esperando la votación»; aprobada traspasa enviando su `acuerdoId` | `flutter test test/pasanaku/pantalla_traspaso_test.dart` | PASS 14/14 |
 | H1.S2.M2 | Regresión de la app y gate | `flutter test test/unidad … test/navegacion --timeout 90s` · `python3 scripts/verificar_frontend.py movil` · `dart analyze --fatal-infos lib test` | PASS — 1146 pruebas, gate OK, sin issues |
+
+| H1.S1.M3 | Carrera: dos pedidos simultáneos con el MISMO acuerdo (y distinto entrante) traspasaban los dos. Ahora el acuerdo se gasta primero con un UPDATE condicionado a APROBADO; el segundo espera el bloqueo, no encuentra la fila y recibe AP-CU64-05 | `./gradlew :servicios:grupos:integrationTest` | PASS — integración 282/282, web 126/126, unitarios 72/72; mutante (ignorar el resultado del UPDATE) hace fallar la prueba de concurrencia |
 
 Mutantes: quitar la comprobación del titular o el filtro por cupo hace fallar la suite (exit=1 en ambos).
 

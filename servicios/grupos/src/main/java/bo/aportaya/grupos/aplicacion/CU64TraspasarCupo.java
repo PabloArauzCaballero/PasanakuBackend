@@ -116,6 +116,15 @@ public class CU64TraspasarCupo {
             // cada titular tocar solo lo suyo. La autorizacion (permiso, acuerdo aprobado, reglas de
             // admision) ya se comprobo arriba, asi que la escritura va con rol de sistema (B8).
             UUID traspaso = Datos.comoSistema(dsl, () -> {
+                // El acuerdo se usa una vez, y se gasta ANTES de mover nada: el UPDATE condicionado a
+                // APROBADO bloquea la fila, asi que dos pedidos simultaneos con el mismo acuerdo no
+                // traspasan los dos. El segundo espera, no encuentra la fila APROBADA y se rechaza.
+                if (entrada.acuerdoId().isPresent()
+                        && !acuerdos.marcarEjecutado(dsl, entrada.acuerdoId().get(), ahora)) {
+                    var motivo = TraspasoAdmisible.Motivo.ACUERDO_REQUERIDO;
+                    throw new ErrorDeNegocio(CodigoError.de(64, motivo.numero()), motivo.mensaje());
+                }
+
                 UUID registrado = traspasos.registrar(
                         dsl,
                         entrada.cupoId(),
@@ -127,9 +136,6 @@ public class CU64TraspasarCupo {
                         ahora);
 
                 traspasos.traspasar(dsl, entrada.cupoId(), entrada.entranteId(), saliente, MOTIVO_CODIFICADO, ahora);
-
-                // El acuerdo se usa una vez: queda EJECUTADO y ya no autoriza otro traspaso.
-                entrada.acuerdoId().ifPresent(id -> acuerdos.marcarEjecutado(dsl, id, ahora));
 
                 return registrado;
             });

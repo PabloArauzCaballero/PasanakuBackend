@@ -137,13 +137,14 @@ public class AcuerdoRepositorio {
     }
 
     /** El acuerdo ya produjo su efecto: no vuelve a autorizar nada. */
-    public void marcarEjecutado(DSLContext dsl, UUID acuerdoId, OffsetDateTime ahora) {
-        dsl.update(ACUERDO)
-                .set(ACUERDO.ESTADO, "EJECUTADO")
-                .set(ACUERDO.EJECUTADO_EN, ahora)
-                .where(ACUERDO.ID.eq(acuerdoId))
-                .and(ACUERDO.ESTADO.eq("APROBADO"))
-                .execute();
+    public boolean marcarEjecutado(DSLContext dsl, UUID acuerdoId, OffsetDateTime ahora) {
+        return dsl.update(ACUERDO)
+                        .set(ACUERDO.ESTADO, "EJECUTADO")
+                        .set(ACUERDO.EJECUTADO_EN, ahora)
+                        .where(ACUERDO.ID.eq(acuerdoId))
+                        .and(ACUERDO.ESTADO.eq("APROBADO"))
+                        .execute()
+                == 1;
     }
 
     /** Los acuerdos del grupo, filtrados; los mas nuevos primero. */
