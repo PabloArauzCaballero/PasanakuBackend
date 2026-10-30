@@ -1,0 +1,12 @@
+== 1) linea VIEJA con clon sucio
+error: Your local changes to the following files would be overwritten by checkout:
+	clientes/dart/x.dart
+Please commit your changes or stash them before you switch branches.
+Aborting
+exit 1 · HEAD=a9ae333 (REMOTO=556be69)
+== 2) bloque NUEVO con clon sucio
+siguio · HEAD=556be69 · porcelain=0
+exit 0
+== 3) bloque NUEVO con checkout imposible (sha inexistente)
+[marca] FALLA el checkout de 0000000; el arbol sigue en 556be69
+exit 1

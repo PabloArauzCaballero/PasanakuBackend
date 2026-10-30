@@ -57,7 +57,14 @@ if [ -n "$ANTERIOR" ] && ! git cat-file -e "${ANTERIOR}^{commit}" 2>/dev/null; t
 fi
 CAMBIOS=$(git diff --name-only "${ANTERIOR:-HEAD}" "$REMOTO" 2>/dev/null || echo TODO)
 [ -n "$CAMBIOS" ] || CAMBIOS=TODO
-git checkout -q "$REMOTO"
+# `-f`: la generacion de clientes reescribe archivos versionados de `clientes/dart`, y con
+# ellos modificados el checkout fallaba en silencio (sin `set -e`): se desplegaba el HEAD
+# viejo y el log decia «listo en <sha nuevo>». Del 29 al 30/10 TEST quedo asi en 9f642eb.
+# Este clon no es lugar de trabajo; lo que pisa `-f` se regenera en esta misma corrida.
+if ! git checkout -q -f "$REMOTO" || [ "$(git rev-parse HEAD)" != "$REMOTO" ]; then
+  marca "FALLA el checkout de ${REMOTO:0:7}; el arbol sigue en $(git rev-parse --short HEAD)"
+  exit 1
+fi
 # TODO tiene que alcanzar a todo, no solo a los servicios: cada condicion de abajo lo mira.
 TODO_O() { [ "$CAMBIOS" = "TODO" ] || echo "$CAMBIOS" | grep -qE "$1"; }
 # Una imagen que no esta en el host se reconstruye aunque el commit no la toque: el compose
