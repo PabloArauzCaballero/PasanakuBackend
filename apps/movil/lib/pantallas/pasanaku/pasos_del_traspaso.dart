@@ -116,12 +116,14 @@ class PasoRevisar extends StatelessWidget {
     required this.entrante,
     required this.nombreDelGrupo,
     required this.hayAcuerdo,
+    this.detalleAcuerdo,
     this.rechazo,
   });
   final IntegranteDelGrupo mio;
   final IntegranteDelGrupo entrante;
   final String nombreDelGrupo;
   final bool hayAcuerdo;
+  final String? detalleAcuerdo;
   final RechazoDelTraspaso? rechazo;
 
   @override
@@ -139,7 +141,11 @@ class PasoRevisar extends StatelessWidget {
         const SizedBox(height: Espacio.s3),
         LoQueNoSeMueve(turno: mio.turno),
         const SizedBox(height: Espacio.s3),
-        CondicionesDelTraspaso(hayAcuerdo: hayAcuerdo, rechazo: r),
+        CondicionesDelTraspaso(
+          hayAcuerdo: hayAcuerdo,
+          detalleAcuerdo: detalleAcuerdo,
+          rechazo: r,
+        ),
         if (r != null && r.lugar == LugarDelRechazo.general) ...[
           const SizedBox(height: Espacio.s3),
           Alerta(

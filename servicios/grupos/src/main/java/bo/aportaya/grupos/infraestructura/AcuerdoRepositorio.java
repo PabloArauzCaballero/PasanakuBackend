@@ -6,6 +6,7 @@ import static bo.aportaya.grupos.generado.Tables.VOTO_PARTICIPANTE;
 
 import bo.aportaya.grupos.dominio.ComputoDeVotacion.Sentido;
 import bo.aportaya.grupos.dominio.ComputoDeVotacion.VotoPonderado;
+import bo.aportaya.grupos.dominio.ResumenDeAcuerdo;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -133,6 +134,44 @@ public class AcuerdoRepositorio {
                 .set(ACUERDO.RESUELTO_EN, ahora)
                 .where(ACUERDO.ID.eq(acuerdoId))
                 .execute();
+    }
+
+    /** El acuerdo ya produjo su efecto: no vuelve a autorizar nada. */
+    public boolean marcarEjecutado(DSLContext dsl, UUID acuerdoId, OffsetDateTime ahora) {
+        return dsl.update(ACUERDO)
+                        .set(ACUERDO.ESTADO, "EJECUTADO")
+                        .set(ACUERDO.EJECUTADO_EN, ahora)
+                        .where(ACUERDO.ID.eq(acuerdoId))
+                        .and(ACUERDO.ESTADO.eq("APROBADO"))
+                        .execute()
+                == 1;
+    }
+
+    /** Los acuerdos del grupo, filtrados; los mas nuevos primero. */
+    public List<ResumenDeAcuerdo> delGrupo(
+            DSLContext dsl, UUID grupoId, Optional<String> tipo, Optional<String> estado, Optional<UUID> afectado) {
+        var condicion = ACUERDO.GRUPO_ID.eq(grupoId);
+        if (tipo.isPresent()) condicion = condicion.and(ACUERDO.TIPO.eq(tipo.get()));
+        if (estado.isPresent()) condicion = condicion.and(ACUERDO.ESTADO.eq(estado.get()));
+        if (afectado.isPresent()) condicion = condicion.and(ACUERDO.REFERENCIA_AFECTADA_ID.eq(afectado.get()));
+        return dsl.select(
+                        ACUERDO.ID,
+                        ACUERDO.TIPO,
+                        ACUERDO.ESTADO,
+                        ACUERDO.DESCRIPCION,
+                        ACUERDO.REFERENCIA_AFECTADA_ID,
+                        ACUERDO.CIERRA_EN)
+                .from(ACUERDO)
+                .where(condicion)
+                .orderBy(ACUERDO.ABIERTO_EN.desc(), ACUERDO.ID)
+                .limit(50)
+                .fetch(r -> new ResumenDeAcuerdo(
+                        r.get(ACUERDO.ID),
+                        r.get(ACUERDO.TIPO),
+                        r.get(ACUERDO.ESTADO),
+                        r.get(ACUERDO.DESCRIPCION),
+                        Optional.ofNullable(r.get(ACUERDO.REFERENCIA_AFECTADA_ID)),
+                        r.get(ACUERDO.CIERRA_EN)));
     }
 
     public record Acuerdo(

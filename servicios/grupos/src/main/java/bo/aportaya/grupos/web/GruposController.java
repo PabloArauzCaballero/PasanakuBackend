@@ -195,7 +195,7 @@ public class GruposController extends RutasDelGrupo {
     }
 
     @Override
-    @Permiso("GRUPO_ADMINISTRAR")
+    @Permiso("PARTICIPANTE")
     public ResponseEntity<SalidaTraspaso> traspasarCupo(
             UUID grupoId, UUID cupoId, UUID idempotencyKey, EntradaTraspaso cuerpo) {
         var ctx = sesion.actual();
@@ -205,10 +205,10 @@ public class GruposController extends RutasDelGrupo {
                 .politicaDelGrupo(grupoId, ctx)
                 .orElseThrow(() -> new ErrorDeNegocio(CodigoError.de(64, 1), "Ese grupo no existe."));
         var entrante = afuera.reputacion(cuerpo.getUsuarioEntranteId());
-        var saliente = consultas
-                .participanteDe(grupoId, ctx.usuarioId(), ctx)
-                .map(afuera::estadoDePagos)
-                .orElseGet(() -> afuera.estadoDePagos(ctx.usuarioId()));
+        // Traspasa el titular del cupo (lo comprueba CU-64) y la deuda que se mira es la suya.
+        UUID titular =
+                consultas.participanteDe(grupoId, ctx.usuarioId(), ctx).orElseThrow(CU64TraspasarCupo::noEsTitular);
+        var saliente = afuera.estadoDePagos(titular);
 
         // La clave foranea del traspaso apunta a `participante`, no a `usuario` (B21): el entrante tiene
         // que ser participante del grupo. Si no lo es, se dice, en vez de responder 500.
@@ -228,9 +228,11 @@ public class GruposController extends RutasDelGrupo {
                         politica.kycMinimo(),
                         entrante.puntaje().intValue(),
                         politica.reputacionMinima(),
-                        cuerpo.getAcuerdoId() != null,
+                        false, // R-GRP-10: el traspaso SIEMPRE se vota (decision 2026-10-30).
                         true,
-                        Optional.ofNullable(cuerpo.getAcuerdoId())),
+                        Optional.ofNullable(cuerpo.getAcuerdoId()),
+                        Optional.of(grupoId),
+                        Optional.of(titular)),
                 ctx);
 
         var respuesta = new SalidaTraspaso();
