@@ -32,6 +32,15 @@ class GruposDeBackofficeRepositorioTest extends BaseDeCU68 {
             "listado: trae el grupo con su aporte exacto y su ocupación; el filtro por estado lo deja afuera si no coincide")
     void listado() {
         UUID grupo = fixtura.grupoConformado(3);
+        // Base compartida y listado con tope (200, fecha_inicio DESC): con la fecha de hoy de la fixture, el
+        // grupo entra o no según su código aleatorio. Una fecha futura lo deja siempre primero.
+        dslFixtura.execute(
+                """
+                UPDATE grupos.grupo
+                   SET fecha_inicio = CURRENT_DATE + 3650, fecha_fin_estimada = CURRENT_DATE + 3830
+                 WHERE id = ?
+                """,
+                grupo);
 
         var todos = transaccion.execute(e -> consultas().listar(null, null, operador()));
         var fila = todos.stream().filter(g -> g.id().equals(grupo)).findFirst().orElseThrow();

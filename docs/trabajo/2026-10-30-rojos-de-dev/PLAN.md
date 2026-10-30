@@ -49,13 +49,13 @@
 ### H2.S2 — Lo que `15` ocultaba
 | ID | Microtarea | CA (binario) | DoD | Estado |
 |---|---|---|---|---|
-| H2.S2.M1 | Ver si `16 · sagaTest` y `16b` cobertura pasan | pasan en la CI de la PR, o se agrega una microtarea por cada rojo | CI (`sagaTest` necesita Docker: no corre en local) | TODO |
+| H2.S2.M1 | Ver si `16 · sagaTest` y `16b` cobertura pasan | pasan en la CI de la PR, o se agrega una microtarea por cada rojo | CI (`sagaTest` necesita Docker: no corre en local) · «Los cinco corredores» de #316 (run 40991387140, head 70f836b4): success, con `16` y `16b`. En #315 el job cortó antes, en `14` (ver H2.S8) | HECHO |
 
 ### H2.S3 — Trivy (`17b2`)
 | ID | Microtarea | CA (binario) | DoD | Estado |
 |---|---|---|---|---|
 | H2.S3.M1 | Leer el informe: qué CVE, qué paquete, si hay versión corregida | lista exacta | log del paso `17b2` · `evidencia/trivy-y-locks.txt` | HECHO |
-| H2.S3.M2 | Subir `guava` y `snappy-java` (restricciones + lockfiles) y nombrar `libbrotli1` en el Dockerfile | los 4 hallazgos desaparecen de Trivy | compila y pasan las pruebas de `identidad` · lockfiles: solo cambian guava, snappy y las transitivas de guava · **falta** construir la imagen y correr Trivy (CI) | A MEDIAS |
+| H2.S3.M2 | Subir `guava` y `snappy-java` (restricciones + lockfiles) y nombrar `libbrotli1` en el Dockerfile | los 4 hallazgos desaparecen de Trivy | compila y pasan las pruebas de `identidad` · lockfiles: solo cambian guava, snappy y las transitivas de guava · CI de #315 (head c6757463): «bootJar y docker build» success y check «Trivy» success; igual en #316 | HECHO |
 
 ### H2.S4 — Criterios de CU-58 (`verificar_criterios.py`, escondido por el impacto del cambio)
 | ID | Microtarea | CA (binario) | DoD | Estado |
@@ -75,14 +75,28 @@
 ### H2.S7 — OSV-Scanner (rojo latente: el job solo corre cuando se tocan dependencias, y esta PR toca lockfiles)
 | ID | Microtarea | CA (binario) | DoD | Estado |
 |---|---|---|---|---|
-| H2.S7.M1 | `opentelemetry` 1.62.0 → 1.67.0 (GHSA-ccrj-gw8r-854m, en los 15 lockfiles de Gradle) | compila y pasan las pruebas de unidad de `gateway`, `identidad` y `auditoria` | `./gradlew … test webTest testBarrido` → BUILD SUCCESSFUL · lockfiles: solo cambia la familia OpenTelemetry y sus `okhttp`/`okio` · **falta** el escáner real (CI) | A MEDIAS |
-| H2.S7.M2 | 28 paquetes npm de `yarn.lock` (undici, vite, zod, hono, qs, fast-uri, body-parser, @hono/node-server, @modelcontextprotocol/server, @vitest/mocker) a su versión corregida, con `resolutions` porque la cadena de Angular los fija exactos | `yarn npm audit` sin vulnerabilidades; lint, tipos, pruebas, builds y e2e del sitio igual que antes | `yarn lint` 10/10 · `ui` 196+9, `web` 74+8, `backoffice` 1321+94 · builds OK · e2e del sitio 36/36 · **falta** el escáner real (CI) | A MEDIAS |
+| H2.S7.M1 | `opentelemetry` 1.62.0 → 1.67.0 (GHSA-ccrj-gw8r-854m, en los 15 lockfiles de Gradle) | compila y pasan las pruebas de unidad de `gateway`, `identidad` y `auditoria` | `./gradlew … test webTest testBarrido` → BUILD SUCCESSFUL · lockfiles: solo cambia la familia OpenTelemetry y sus `okhttp`/`okio` · CI de #315 (head c6757463): «Dependencias vulnerables (OSV-Scanner) / osv-scan» success; igual en #316 | HECHO |
+| H2.S7.M2 | 28 paquetes npm de `yarn.lock` (undici, vite, zod, hono, qs, fast-uri, body-parser, @hono/node-server, @modelcontextprotocol/server, @vitest/mocker) a su versión corregida, con `resolutions` porque la cadena de Angular los fija exactos | `yarn npm audit` sin vulnerabilidades; lint, tipos, pruebas, builds y e2e del sitio igual que antes | `yarn lint` 10/10 · `ui` 196+9, `web` 74+8, `backoffice` 1321+94 · builds OK · e2e del sitio 36/36 · CI de #315 y #316: osv-scan success | HECHO |
+
+### H2.S8 — `GruposDeBackofficeRepositorioTest.listado` intermitente (`14 · integrationTest`; falló en la CI de #315 y pasó en #316 con el mismo código)
+| ID | Microtarea | CA (binario) | DoD | Estado |
+|---|---|---|---|---|
+| H2.S8.M1 | Demostrar la causa: `listar(null, null)` ordena por `fecha_inicio DESC NULLS FIRST, codigo_publico, id` con `LIMIT 200`; la fixture pone `fecha_inicio = hoy` y un `codigo_publico` aleatorio en una base compartida sin limpieza | con más de 200 grupos de hoy, algunos quedan fuera del listado | SQL contra PostgreSQL local, en transacción con `ROLLBACK`: de 300 grupos, 100 fuera del listado de 200 | HECHO |
+| H2.S8.M2 | La prueba fija la `fecha_inicio` de su grupo en el futuro (`CURRENT_DATE + 3650`) antes de listar, sin tocar ninguna aserción | el grupo de la prueba siempre cae dentro de los primeros 200 | SQL: el peor `codigo_publico` entra primero · spotless/compileTestJava de `grupos` → exit 0 · `evidencia/listado-grupos-backoffice.txt` · CI de #322/#323 (head 6f9d37ed): «Los cinco corredores» success, es decir `14` pasa con la corrección · **falta** re-verificar tras el cambio posterior de H2.S8.M3 (regla 30.4) | A MEDIAS |
+| H2.S8.M3 | La corrección no usa SQL concatenado: el verificador de seguridad la marcó en la CI de #322/#323 (`GruposDeBackofficeRepositorioTest.java:38`, prohibición 2); es un defecto mío | `verificar_seguridad.py` sin fallas | `python3 scripts/verificar_seguridad.py` → «4182 archivos de código sin patrones prohibidos» · spotlessCheck y compileTestJava de `grupos` → exit 0 con jOOQ regenerado · **falta** la CI | A MEDIAS |
+
+### H2.S9 — Jobs de iOS (macOS) en rojo: `Release iOS` y `App — navegación en simulador iOS` (latentes: estaban `skipped` mientras el Frontend fallaba en `f1`)
+| ID | Microtarea | CA (binario) | DoD | Estado |
+|---|---|---|---|---|
+| H2.S9.M1 | Clasificar y, si se puede, corregir el fallo de compilación nativa | el job pasa, o queda clasificado con evidencia | Log de #315 (run 40991358281, jobs 123863328508 y 123863328471): `patrol test` → `xcodebuild build-for-testing` → `ld: framework 'Pods_Runner' not found` → `** TEST BUILD FAILED **` (exit 65), en los dos jobs y en las dos PR. En el run base de `dev` (ae38c444) ambos estaban `skipped`, así que no hay corrida verde reciente con la cual comparar. Clasificación: `ENVIRONMENT` (toolchain nativo; no lo toca ningún archivo de este trabajo) · BLOQUEADO: no hay macOS ni Xcode en la sesión para reproducirlo, y simular el contrato no aplica (no es una dependencia de otro: es un build nativo). Lo destraba quien tenga un Mac con Xcode 26.3 (`pod install` + `xcodebuild build-for-testing` de `apps/movil/ios/Runner.xcworkspace`); dueño: el de la app móvil | BLOQUEADO |
 
 ## H3 — Entrega
 | ID | Microtarea | CA (binario) | DoD | Estado |
 |---|---|---|---|---|
-| H3.S1.M1 | PR a `dev`, checks sin fallos, `mergeable` | PR mergeable | `mergeable` + checks en el estado real | TODO |
-| H3.S1.M2 | Mismo cambio a `test` (rama propia desde `test`, cherry-pick) | PR mergeable | ídem | TODO |
+| H3.S1.M1 | PR a `dev`, checks sin fallos, `mergeable` | PR mergeable | #315 la mergeó PabloArauzCaballero a las 02:33 UTC, con `mergeable_state: unstable`: `14 · integrationTest` (H2.S8) y los dos jobs de iOS (H2.S9) en rojo. El CA «checks sin fallos» no se cumplió | A MEDIAS |
+| H3.S1.M2 | Mismo cambio a `test` (rama propia desde `test`, cherry-pick) | PR mergeable | #316, mergeada a las 02:33 UTC en las mismas condiciones | A MEDIAS |
+| H3.S2.M1 | PR de seguimiento a `dev` con la corrección de H2.S8 (rama de `dev` + commit cdd79852; las PR anteriores ya estaban mergeadas) | PR mergeable con `14 · integrationTest` en verde | `pull_request_read` + checks reales | TODO |
+| H3.S2.M2 | Gemelo hacia `test` (rama propia desde `test`, cherry-pick) | ídem | ídem | TODO |
 
 ## Riesgos y bloqueos previstos
 | Riesgo | Impacto | Mitigación |
