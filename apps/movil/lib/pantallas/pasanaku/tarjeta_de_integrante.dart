@@ -1,5 +1,4 @@
 import 'package:aportaya_cliente_grupos/aportaya_cliente_grupos.dart';
-import 'package:aportaya_diseno/atomos/avatar.dart';
 import 'package:aportaya_diseno/atomos/chip_estado.dart';
 import 'package:aportaya_diseno/atomos/colores_de_turno.dart';
 import 'package:aportaya_diseno/atomos/tono.dart';
@@ -7,6 +6,7 @@ import 'package:aportaya_diseno/moleculas/tarjeta.dart';
 import 'package:aportaya_diseno/tokens/tokens.dart';
 import 'package:flutter/material.dart';
 
+import 'avatar_del_integrante.dart';
 import 'pantalla_detalle_miembro.dart';
 import 'textos_detalle_del_grupo.dart';
 
@@ -55,7 +55,7 @@ class TarjetaDeIntegrante extends StatelessWidget {
               child: Icon(Icons.person_add_alt_1_outlined, color: t.text3),
             )
           else
-            Avatar(nombre: _nombre),
+            AvatarDelIntegrante(nombre: _nombre, soyYo: integrante.soyYo),
           const SizedBox(width: Espacio.s3),
           Expanded(
             child: Column(

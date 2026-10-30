@@ -1,4 +1,5 @@
 import 'aviso_de_verificacion.dart';
+import 'refrescar_al_cambiar_de_pestana.dart';
 import 'vigilante_de_aprobacion.dart';
 import 'dart:async';
 
@@ -105,6 +106,7 @@ class ShellPrincipal extends ConsumerWidget {
             // El mismo golpecito que da el sistema al cambiar de pestaña: confirma el
             // toque sin esperar a que la pantalla nueva termine de dibujarse.
             unawaited(AlcanceHaptica.maybeOf(context)?.seleccion());
+            refrescarAlCambiarDePestana(ref);
             // Siempre a la ruta del destino (H6.S4.M8): con `goBranch(rama, initialLocation)`
             // «Movimientos» desde otra rama caía en la casa de la rama, que es Inicio.
             context.go(d.ruta);

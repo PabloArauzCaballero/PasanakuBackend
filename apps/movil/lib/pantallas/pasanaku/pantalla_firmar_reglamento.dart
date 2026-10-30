@@ -13,6 +13,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'dominio/detalle_del_grupo.dart';
+import 'dominio/mis_grupos.dart';
 import 'tarjetas_de_unirse.dart';
 import 'textos_detalle_del_grupo.dart';
 
@@ -46,6 +47,8 @@ class _PantallaFirmarReglamentoState
         hash,
       );
       ref.invalidate(detalleDelGrupoProvider(widget.grupoId));
+      // «Tus pasanakus» y «Mis grupos» muestran «Falta firmar»: también cambian.
+      ref.invalidate(misGruposProvider);
       if (!mounted) return;
       mostrarSnackbar(
         context,
