@@ -103,6 +103,7 @@ final class OrganizadorDecideIngreso {
             UUID participanteId = null;
             UUID cupoId = null;
             if (aceptar) {
+                GrupoAbierto.exigir(dsl, grupoId);
                 Record cupo = dsl.fetchOne(
                         """
                         SELECT id FROM grupos.cupo

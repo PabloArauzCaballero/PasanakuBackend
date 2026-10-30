@@ -162,6 +162,8 @@ class GruposControllerWebTest {
             when(afuera.organizadorHabilitadoDelUsuario(any())).thenReturn(java.util.Optional.of(UUID.randomUUID()));
             when(afuera.limiteDeGruposDelOrganizador(any())).thenReturn(java.util.OptionalInt.of(2));
             when(afuera.nivelDeKyc(any())).thenReturn("BASICO");
+            // La arena del organizador (2026-10-30): ALTA solo trae un desbloqueo PROPUESTO, que no limita.
+            when(afuera.arenaDe(any())).thenReturn(ArenasDePrueba.con("800.00"));
             when(cu20.ejecutar(any(), any())).thenReturn(new CU20CrearGrupo.SalidaCreacion(GRUPO, "250.00"));
 
             crear(GRUPO_NUEVO)

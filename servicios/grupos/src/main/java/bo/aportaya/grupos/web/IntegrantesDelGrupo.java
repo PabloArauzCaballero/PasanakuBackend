@@ -1,9 +1,14 @@
 package bo.aportaya.grupos.web;
 
 import bo.aportaya.grupos.aplicacion.CU69FirmarReglamento;
+import bo.aportaya.grupos.aplicacion.CU69IniciarGrupo;
 import bo.aportaya.grupos.aplicacion.ConsultarDetalleDelGrupo;
+import bo.aportaya.grupos.dominio.Arenas;
+import bo.aportaya.grupos.dominio.InicioDelGrupo;
+import bo.aportaya.grupos.dominio.puertos.HechosDeOtrosServicios;
 import bo.aportaya.grupos.web.generado.modelo.DetalleDelGrupo;
 import bo.aportaya.grupos.web.generado.modelo.EntradaFirmaDeReglamento;
+import bo.aportaya.grupos.web.generado.modelo.GrupoIniciado;
 import bo.aportaya.grupos.web.generado.modelo.IntegranteDelGrupo;
 import bo.aportaya.grupos.web.generado.modelo.ReglamentoParaFirmar;
 import bo.aportaya.grupos.web.generado.modelo.SalidaFirmaDeReglamento;
@@ -13,6 +18,7 @@ import bo.aportaya.plataforma.dominio.ContextoSesion;
 import bo.aportaya.plataforma.dominio.ErrorDeNegocio;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.UUID;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 /**
@@ -26,16 +32,33 @@ class IntegrantesDelGrupo {
     private final CU69FirmarReglamento firma;
     private final HttpServletRequest peticion;
     private final bo.aportaya.grupos.aplicacion.ConsultarMisLimites limites;
+    private final CU69IniciarGrupo inicio;
+    private final HechosDeOtrosServicios afuera;
+    private final int porcentajeParaIniciar;
 
+    @SuppressWarnings("checkstyle:ParameterNumber")
     IntegrantesDelGrupo(
             ConsultarDetalleDelGrupo detalle,
             CU69FirmarReglamento firma,
             HttpServletRequest peticion,
-            bo.aportaya.grupos.aplicacion.ConsultarMisLimites limites) {
+            bo.aportaya.grupos.aplicacion.ConsultarMisLimites limites,
+            CU69IniciarGrupo inicio,
+            HechosDeOtrosServicios afuera,
+            @Value("${aportaya.grupos.inicio.porcentaje}") int porcentajeParaIniciar) {
         this.detalle = detalle;
         this.firma = firma;
         this.peticion = peticion;
         this.limites = limites;
+        this.inicio = inicio;
+        this.afuera = afuera;
+        this.porcentajeParaIniciar = porcentajeParaIniciar;
+    }
+
+    /** CU-69 · el organizador inicia el grupo al 75 %; la regla y la autorizacion sobre el grupo las decide el caso. */
+    GrupoIniciado iniciar(UUID grupoId, UUID clave, ContextoSesion ctx) {
+        var i = inicio.iniciar(grupoId, clave, ctx);
+        return new GrupoIniciado(
+                i.grupoId(), GrupoIniciado.EstadoEnum.fromValue(i.estado()), i.cuposTotales(), i.numPeriodos());
     }
 
     bo.aportaya.grupos.web.generado.modelo.MisLimites misLimites(ContextoSesion ctx) {
@@ -68,7 +91,27 @@ class IntegrantesDelGrupo {
             salida.setSorteo(
                     new SorteoDelDetalle(d.sorteoId(), SorteoDelDetalle.EstadoEnum.fromValue(d.sorteoEstado())));
         }
+        if (d.inicio() != null) inicioYArena(salida, d, ctx);
         return salida;
+    }
+
+    /**
+     * El inicio al 75 % y la arena minima (2026-10-30). {@code puedoIniciar} orienta a la app; lo que decide es el
+     * servidor al iniciar. La arena minima se nombra con el catalogo de {@code transparencia}: si no contesta, el
+     * detalle sale sin ella (es informativa; el ingreso la exige igual, y ahi si falla cerrado).
+     */
+    private void inicioYArena(DetalleDelGrupo salida, ConsultarDetalleDelGrupo.Detalle d, ContextoSesion ctx) {
+        var i = d.inicio();
+        salida.setMinimoParaIniciar(
+                Math.max(1, InicioDelGrupo.minimoParaIniciar(d.cuposTotales(), porcentajeParaIniciar)));
+        salida.setPuedoIniciar(d.soyOrganizador()
+                && InicioDelGrupo.sePuedeIniciar(
+                        d.estado(), i.firmados(), i.reservados(), d.cuposTotales(), porcentajeParaIniciar));
+        if (i.reputacionMinima() != null && i.reputacionMinima().signum() > 0) {
+            afuera.arenaDe(ctx.usuarioId())
+                    .flatMap(a -> Arenas.codigoDeLaMinima(a.catalogo(), i.reputacionMinima()))
+                    .ifPresent(salida::setArenaMinima);
+        }
     }
 
     bo.aportaya.grupos.web.generado.modelo.PertenenciaCompartida comparten(

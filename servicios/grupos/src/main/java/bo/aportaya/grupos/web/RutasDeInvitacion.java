@@ -101,8 +101,11 @@ abstract class RutasDeInvitacion extends RutasDeSolicitudes {
             throw new ErrorDeNegocio(CodigoError.de(69, 5), "Esa invitacion ya no es valida.");
         var postulacion = new EntradaPostulacion(cuerpo.getCuposSolicitados()).mensaje(cuerpo.getMensaje());
         var entrada = MapeoDePostulacion.entrada(grupoId, postulacion, consultas, afuera, afinidad, ctx);
-        // Consumir el enlace es irreversible: todo lo que se puede saber de antemano se comprueba ANTES.
-        canjes.comprobarAntesDeConsumir(invitacionId, entrada, ctx);
+        // Consumir el enlace es irreversible: todo lo que se puede saber de antemano se comprueba ANTES. La arena
+        // tambien, salvo en el reintento de un canje completo, que devuelve la misma solicitud (regla 96.3.3).
+        if (!canjes.comprobarAntesDeConsumir(invitacionId, entrada, ctx)) {
+            MapeoDePostulacion.exigirArena(grupoId, consultas, afuera, ctx);
+        }
         var recibo = afuera.consumirInvitacion(invitacion.tokenId(), grupoId, idempotencyKey, cuerpo.getToken());
         if (!idempotencyKey.equals(recibo.clave()))
             throw new ErrorDeNegocio(CodigoError.de(69, 5), "No se confirmó el canje.");

@@ -12,8 +12,12 @@ export 'package:aportaya_cliente_transparencia/src/auth/oauth.dart';
 export 'package:aportaya_cliente_transparencia/src/api/default_api.dart';
 
 export 'package:aportaya_cliente_transparencia/src/model/alerta_de_riesgo.dart';
+export 'package:aportaya_cliente_transparencia/src/model/arena_del_catalogo.dart';
+export 'package:aportaya_cliente_transparencia/src/model/arena_del_puntaje.dart';
+export 'package:aportaya_cliente_transparencia/src/model/arena_siguiente.dart';
 export 'package:aportaya_cliente_transparencia/src/model/bloque_publicado.dart';
 export 'package:aportaya_cliente_transparencia/src/model/componente.dart';
+export 'package:aportaya_cliente_transparencia/src/model/desbloqueo_de_arena.dart';
 export 'package:aportaya_cliente_transparencia/src/model/entrada_certificado.dart';
 export 'package:aportaya_cliente_transparencia/src/model/entrada_cierre_alerta.dart';
 export 'package:aportaya_cliente_transparencia/src/model/entrada_compensacion.dart';

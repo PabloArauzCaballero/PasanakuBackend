@@ -41,7 +41,11 @@ class AdmisionDelGrupoSustitucionTest {
     void armar() {
         sustitucion = mock(SustituirAdministrador.class);
         afuera = mock(HechosDeOtrosServicios.class);
-        adaptador = new AdmisionDelGrupo(mock(CU68AceptarIngreso.class), sustitucion, afuera);
+        adaptador = new AdmisionDelGrupo(
+                mock(CU68AceptarIngreso.class),
+                sustitucion,
+                afuera,
+                mock(bo.aportaya.grupos.aplicacion.Consultas.class));
         backoffice = ContextoSesion.de(
                 UUID.randomUUID(), "BACKOFFICE", new Traza(UUID.randomUUID().toString()));
         cuerpo = new EntradaSustitucionAdministrador();

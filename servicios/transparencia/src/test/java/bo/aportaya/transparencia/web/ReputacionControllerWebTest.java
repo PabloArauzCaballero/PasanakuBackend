@@ -19,9 +19,12 @@ import bo.aportaya.transparencia.aplicacion.CU75EmitirCertificado;
 import bo.aportaya.transparencia.aplicacion.CU76PublicarResena;
 import bo.aportaya.transparencia.aplicacion.CU97EvaluarRiesgo;
 import bo.aportaya.transparencia.aplicacion.ConsultarPuntaje;
+import bo.aportaya.transparencia.aplicacion.ListarArenas;
+import bo.aportaya.transparencia.dominio.ArenasDeReputacion;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
@@ -85,6 +88,21 @@ class ReputacionControllerWebTest {
 
     @MockitoBean
     private CU97EvaluarRiesgo cu97;
+
+    @MockitoBean
+    private ListarArenas arenas;
+
+    private static final ArenasDeReputacion.Arena SEMILLA = new ArenasDeReputacion.Arena(
+            "SEMILLA",
+            "Semilla",
+            1,
+            new BigDecimal("500.00"),
+            new BigDecimal("550.00"),
+            new ArenasDeReputacion.Desbloqueo(6, new BigDecimal("200.00"), "BOB", "PROPUESTO"));
+    private static final ArenasDeReputacion.Arena BROTE =
+            new ArenasDeReputacion.Arena("BROTE", "Brote", 2, new BigDecimal("550.00"), new BigDecimal("600.00"), null);
+    private static final ArenasDeReputacion.Arena INTI =
+            new ArenasDeReputacion.Arena("INTI", "Inti", 10, new BigDecimal("980"), new BigDecimal("1000"), null);
 
     @Nested
     @DisplayName("GET /reputacion/{usuarioId}/puntaje")
@@ -272,6 +290,99 @@ class ReputacionControllerWebTest {
                             .content("{}"))
                     .andExpect(status().isForbidden());
             verifyNoInteractions(cu97);
+        }
+    }
+
+    @Nested
+    @DisplayName("Arenas (2026-10-30) — catálogo y arena del puntaje")
+    class Arenas {
+
+        @Test
+        @DisplayName(
+                "GET /reputacion/arenas · 200: tramos y aporte como cadenas con dos decimales, desbloqueo con estado")
+        void catalogo() throws Exception {
+            when(arenas.ejecutar(any())).thenReturn(List.of(SEMILLA, INTI));
+
+            mvc.perform(get("/reputacion/arenas").with(Sesiones.como("PARTICIPANTE")))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$[0].codigo").value("SEMILLA"))
+                    .andExpect(jsonPath("$[0].orden").value(1))
+                    .andExpect(jsonPath("$[0].desde").value("500.00"))
+                    .andExpect(jsonPath("$[0].hasta").value("550.00"))
+                    .andExpect(jsonPath("$[0].desbloqueo.cuposMax").value(6))
+                    .andExpect(jsonPath("$[0].desbloqueo.aporteMax").value("200.00"))
+                    .andExpect(jsonPath("$[0].desbloqueo.moneda").value("BOB"))
+                    .andExpect(jsonPath("$[0].desbloqueo.estado").value("PROPUESTO"))
+                    // 980 de la base sale "980.00": el patron Decimal del contrato exige dos decimales.
+                    .andExpect(jsonPath("$[1].desde").value("980.00"))
+                    .andExpect(jsonPath("$[1].hasta").value("1000.00"))
+                    .andExpect(jsonPath("$[1].desbloqueo").doesNotExist());
+        }
+
+        @Test
+        @DisplayName("GET /reputacion/arenas · 200 con lista vacía si no hay modelo vigente")
+        void sinModelo() throws Exception {
+            when(arenas.ejecutar(any())).thenReturn(List.of());
+
+            mvc.perform(get("/reputacion/arenas").with(Sesiones.como("PARTICIPANTE")))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.length()").value(0));
+        }
+
+        @Test
+        @DisplayName("GET /reputacion/arenas · 401 sin sesión, sin llegar al caso")
+        void sinSesion() throws Exception {
+            mvc.perform(get("/reputacion/arenas")).andExpect(status().isUnauthorized());
+            verifyNoInteractions(arenas);
+        }
+
+        @Test
+        @DisplayName("puntaje · 549,99 en Semilla: progreso como cadena de cuatro decimales y la siguiente")
+        void arenaDelPuntaje() throws Exception {
+            when(puntajes.ejecutar(any(), any()))
+                    .thenReturn(new ConsultarPuntaje.Puntaje(
+                            true,
+                            new BigDecimal("549.99"),
+                            "BASICO",
+                            new ArenasDeReputacion.Ubicacion(SEMILLA, BROTE, new BigDecimal("0.9998"))));
+
+            mvc.perform(get("/reputacion/{id}/puntaje", USUARIO).with(Sesiones.como("PARTICIPANTE")))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.arena.codigo").value("SEMILLA"))
+                    .andExpect(jsonPath("$.arena.nombre").value("Semilla"))
+                    .andExpect(jsonPath("$.arena.desde").value("500.00"))
+                    .andExpect(jsonPath("$.arena.hasta").value("550.00"))
+                    .andExpect(jsonPath("$.arena.progreso").value("0.9998"))
+                    .andExpect(jsonPath("$.arena.siguiente.codigo").value("BROTE"))
+                    .andExpect(jsonPath("$.arena.siguiente.desde").value("550.00"));
+        }
+
+        @Test
+        @DisplayName("puntaje · en la última arena no viaja siguiente y el máximo llena la barra")
+        void ultimaArena() throws Exception {
+            when(puntajes.ejecutar(any(), any()))
+                    .thenReturn(new ConsultarPuntaje.Puntaje(
+                            true,
+                            new BigDecimal("1000.00"),
+                            "REFERENTE",
+                            new ArenasDeReputacion.Ubicacion(INTI, null, new BigDecimal("1.0000"))));
+
+            mvc.perform(get("/reputacion/{id}/puntaje", USUARIO).with(Sesiones.como("PARTICIPANTE")))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.arena.codigo").value("INTI"))
+                    .andExpect(jsonPath("$.arena.progreso").value("1.0000"))
+                    .andExpect(jsonPath("$.arena.siguiente").doesNotExist());
+        }
+
+        @Test
+        @DisplayName("puntaje · sin catálogo de arenas la respuesta omite la arena en vez de inventarla")
+        void sinArena() throws Exception {
+            when(puntajes.ejecutar(any(), any()))
+                    .thenReturn(new ConsultarPuntaje.Puntaje(false, BigDecimal.ZERO, "SIN_HISTORIAL"));
+
+            mvc.perform(get("/reputacion/{id}/puntaje", USUARIO).with(Sesiones.como("PARTICIPANTE")))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.arena").doesNotExist());
         }
     }
 }

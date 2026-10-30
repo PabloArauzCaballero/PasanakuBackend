@@ -1,6 +1,7 @@
 package bo.aportaya.grupos.aplicacion;
 
 import bo.aportaya.grupos.dominio.CalendarioDeAportes;
+import bo.aportaya.grupos.dominio.CondicionesDeIngreso;
 import bo.aportaya.grupos.dominio.PaqueteDeSorteo;
 import bo.aportaya.grupos.dominio.PoliticaDelGrupo;
 import bo.aportaya.grupos.infraestructura.CalendarioDeAportesRepositorio;
@@ -74,6 +75,59 @@ public class Consultas {
     @Transactional(readOnly = true)
     public Optional<PoliticaDelGrupo> politicaDelGrupo(UUID grupoId, ContextoSesion ctx) {
         return datos.conContexto(ctx, dsl -> consultas.politicaDelGrupo(dsl, grupoId));
+    }
+
+    /**
+     * Lo que el grupo pide a quien entra (arena minima, cupos, aporte) y su estado, para comparar con la arena del
+     * entrante ANTES de la transaccion del ingreso (2026-10-30). Con rol de sistema: quien todavia no es integrante no
+     * ve la fila del grupo por su politica, y una fila invisible no puede leerse como «el grupo no pide nada». Vacio
+     * solo si el grupo no existe.
+     */
+    @Transactional(readOnly = true)
+    public Optional<CondicionesDeIngreso> condicionesDeIngreso(UUID grupoId, ContextoSesion ctx) {
+        ContextoSesion interno =
+                ContextoSesion.deSistema(ctx.usuarioId(), new Traza(ctx.traza().id()));
+        return datos.conContexto(interno, dsl -> Optional.ofNullable(dsl.fetchOne(CONDICIONES, grupoId))
+                .map(Consultas::condiciones));
+    }
+
+    /** Quien pidio entrar y las condiciones de ese grupo, para decidir una solicitud con su arena a la vista. */
+    @Transactional(readOnly = true)
+    public Optional<Solicitante> solicitanteConCondiciones(UUID solicitudId, ContextoSesion ctx) {
+        ContextoSesion interno =
+                ContextoSesion.deSistema(ctx.usuarioId(), new Traza(ctx.traza().id()));
+        return datos.conContexto(interno, dsl -> Optional.ofNullable(dsl.fetchOne(
+                        "SELECT usuario_id, grupo_id, estado FROM grupos.solicitud_ingreso WHERE id = ?", solicitudId))
+                .flatMap(s -> Optional.ofNullable(dsl.fetchOne(CONDICIONES, s.get("grupo_id", UUID.class)))
+                        .map(g -> new Solicitante(
+                                s.get("usuario_id", UUID.class), condiciones(g), s.get("estado", String.class)))));
+    }
+
+    /**
+     * {@code estadoSolicitud}: una solicitud que ya no esta PENDIENTE no se vuelve a decidir; repetir la misma decision
+     * devuelve la de antes sin preguntar la arena (regla 96.3.3).
+     */
+    public record Solicitante(UUID usuarioId, CondicionesDeIngreso condiciones, String estadoSolicitud) {
+        public Solicitante(UUID usuarioId, CondicionesDeIngreso condiciones) {
+            this(usuarioId, condiciones, "PENDIENTE");
+        }
+
+        public boolean pendiente() {
+            return "PENDIENTE".equals(estadoSolicitud);
+        }
+    }
+
+    private static final String CONDICIONES =
+            "SELECT id, estado, reputacion_minima, cupos_totales, monto_aporte, moneda FROM grupos.grupo WHERE id = ?";
+
+    private static CondicionesDeIngreso condiciones(org.jooq.Record g) {
+        return new CondicionesDeIngreso(
+                g.get("id", UUID.class),
+                g.get("estado", String.class),
+                g.get("reputacion_minima", java.math.BigDecimal.class),
+                g.get("cupos_totales", Integer.class),
+                g.get("monto_aporte", java.math.BigDecimal.class),
+                g.get("moneda", String.class).trim());
     }
 
     @Transactional(readOnly = true)

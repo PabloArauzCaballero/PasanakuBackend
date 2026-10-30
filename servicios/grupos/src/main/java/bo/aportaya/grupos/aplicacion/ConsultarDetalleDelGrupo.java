@@ -47,8 +47,12 @@ public class ConsultarDetalleDelGrupo {
             Record g = dsl.fetchOne(
                     """
                     SELECT nombre, estado, monto_aporte, moneda, periodicidad, cupos_totales, cupos_ocupados,
-                           modalidad_turnos
-                      FROM grupos.grupo WHERE id = ?
+                           modalidad_turnos, reputacion_minima,
+                           (SELECT count(*) FROM grupos.cupo c
+                             WHERE c.grupo_id = g.id AND c.estado = 'OCUPADO')::int AS firmados,
+                           (SELECT count(*) FROM grupos.cupo c
+                             WHERE c.grupo_id = g.id AND c.estado = 'RESERVADO')::int AS reservados
+                      FROM grupos.grupo g WHERE id = ?
                     """,
                     grupoId);
             Record reglamento = dsl.fetchOne(
@@ -76,8 +80,11 @@ public class ConsultarDetalleDelGrupo {
                                      WHERE t.cupo_id = c.id AND t.estado <> 'ANULADO'
                                      ORDER BY t.orden_asignado LIMIT 1) AS turno
                               FROM grupos.cupo c
+                              JOIN grupos.grupo g ON g.id = c.grupo_id
                               LEFT JOIN grupos.participante p ON p.id = c.participante_id
-                             WHERE c.grupo_id = ?
+                             -- Iniciado el grupo, los cupos libres quedaron numerados por encima de cupos_totales: no
+                             -- son del ciclo y no se muestran (CU69IniciarGrupo).
+                             WHERE c.grupo_id = ? AND c.numero <= g.cupos_totales
                              ORDER BY c.numero
                             """,
                             ctx.usuarioId(),
@@ -125,7 +132,11 @@ public class ConsultarDetalleDelGrupo {
                     reglamento == null ? null : reglamento.get("hash_contenido", String.class),
                     sorteo == null ? null : sorteo.get("id", UUID.class),
                     sorteo == null ? null : sorteo.get("estado", String.class),
-                    integrantes);
+                    integrantes,
+                    new Inicio(
+                            g.get("reputacion_minima", BigDecimal.class),
+                            g.get("firmados", Integer.class),
+                            g.get("reservados", Integer.class)));
         });
     }
 
@@ -199,5 +210,52 @@ public class ConsultarDetalleDelGrupo {
             String reglamentoHash,
             UUID sorteoId,
             String sorteoEstado,
-            List<Integrante> integrantes) {}
+            List<Integrante> integrantes,
+            Inicio inicio) {
+
+        /** Sin los datos del inicio: la forma de antes del 2026-10-30. */
+        @SuppressWarnings("checkstyle:ParameterNumber")
+        public Detalle(
+                UUID grupoId,
+                String nombre,
+                String estado,
+                BigDecimal montoAporte,
+                String moneda,
+                String periodicidad,
+                int cuposTotales,
+                int cuposOcupados,
+                boolean soyOrganizador,
+                boolean debeFirmar,
+                boolean puedeSortear,
+                String reglamentoTexto,
+                String reglamentoHash,
+                UUID sorteoId,
+                String sorteoEstado,
+                List<Integrante> integrantes) {
+            this(
+                    grupoId,
+                    nombre,
+                    estado,
+                    montoAporte,
+                    moneda,
+                    periodicidad,
+                    cuposTotales,
+                    cuposOcupados,
+                    soyOrganizador,
+                    debeFirmar,
+                    puedeSortear,
+                    reglamentoTexto,
+                    reglamentoHash,
+                    sorteoId,
+                    sorteoEstado,
+                    integrantes,
+                    null);
+        }
+    }
+
+    /**
+     * Lo que hace falta para el inicio al 75 % y la arena minima (2026-10-30): el {@code desde} de la arena minima, los
+     * cupos OCUPADO (firmados) y los RESERVADO (aceptados sin firmar). {@code cuposOcupados} cuenta los dos juntos.
+     */
+    public record Inicio(BigDecimal reputacionMinima, int firmados, int reservados) {}
 }

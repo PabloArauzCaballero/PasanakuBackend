@@ -122,7 +122,8 @@ public class GruposController extends RutasDelGrupo {
                         codigoTarifario,
                         servicioDeLicencia,
                         sesion.actual().usuarioId(),
-                        idempotencyKey),
+                        idempotencyKey,
+                        () -> cu20.yaCreado(idempotencyKey, sesion.actual())),
                 sesion.actual());
 
         var respuesta = new SalidaGrupo();
@@ -204,17 +205,23 @@ public class GruposController extends RutasDelGrupo {
         var politica = consultas
                 .politicaDelGrupo(grupoId, ctx)
                 .orElseThrow(() -> new ErrorDeNegocio(CodigoError.de(64, 1), "Ese grupo no existe."));
-        var entrante = afuera.reputacion(cuerpo.getUsuarioEntranteId());
         // Traspasa el titular del cupo (lo comprueba CU-64) y la deuda que se mira es la suya.
         UUID titular =
                 consultas.participanteDe(grupoId, ctx.usuarioId(), ctx).orElseThrow(CU64TraspasarCupo::noEsTitular);
-        var saliente = afuera.estadoDePagos(titular);
 
         // La clave foranea del traspaso apunta a `participante`, no a `usuario` (B21): el entrante tiene
         // que ser participante del grupo. Si no lo es, se dice, en vez de responder 500.
         UUID entranteParticipante = consultas
                 .participanteDeOtro(grupoId, cuerpo.getUsuarioEntranteId(), ctx)
                 .orElseThrow(() -> new ErrorDeNegocio(CodigoError.de(64, 1), "Quien entra no participa de ese grupo."));
+        // La arena del entrante se mira DESPUES de saber que quien llama integra el grupo y que el entrante tambien:
+        // antes, cualquiera la usaba como oraculo de la reputacion de cualquier persona (regla 90.2.8). Y no en el
+        // reintento del mismo traspaso, que devuelve el original (regla 96.3.3).
+        var entrante = cu64.yaTraspasado(cupoId, Optional.ofNullable(cuerpo.getAcuerdoId()), entranteParticipante, ctx)
+                ? afuera.reputacion(cuerpo.getUsuarioEntranteId())
+                : ArenaDelIngreso.alTraspasar(
+                        afuera, consultas.condicionesDeIngreso(grupoId, ctx), cuerpo.getUsuarioEntranteId());
+        var saliente = afuera.estadoDePagos(titular);
 
         UUID traspasoId = cu64.ejecutar(
                 new CU64TraspasarCupo.EntradaTraspaso(
@@ -258,8 +265,11 @@ public class GruposController extends RutasDelGrupo {
         var ctx = sesion.actual();
         Traza.marcarCasoDeUso("CU-68", grupoId.toString());
 
-        var salida =
-                cu68.postular(MapeoDePostulacion.entrada(grupoId, cuerpo, consultas, afuera, afinidadNeutra, ctx), ctx);
+        var entrada = MapeoDePostulacion.entrada(grupoId, cuerpo, consultas, afuera, afinidadNeutra, ctx);
+        // Postular no tiene reintento que devuelva lo anterior (una segunda postulacion es AP-CU68-06): la arena se
+        // exige siempre.
+        MapeoDePostulacion.exigirArena(grupoId, consultas, afuera, ctx);
+        var salida = cu68.postular(entrada, ctx);
 
         var respuesta = new SalidaPostulacion();
         respuesta.setSolicitudId(salida.solicitudId());

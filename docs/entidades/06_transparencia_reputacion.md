@@ -260,6 +260,58 @@ sostenible.
 
 ---
 
+### `Arena` / `arena`
+
+**Qué es.** Los tramos con nombre en que se parte la escala del puntaje de un modelo
+(con el v1: Campamento, Semilla, Brote… hasta Inti). Cada arena es un intervalo
+[`desde`, `hasta`) del puntaje; la última incluye su `hasta`.
+
+**Para qué sirve (negocio).** El puntaje es un número continuo y abstracto; la arena lo
+vuelve un lugar con nombre, con una barra continua hacia la siguiente, y le da al
+organizador una frontera que entiende («este grupo es desde Aguayo»). La arena **no se
+gana ni se escribe**: se deriva del puntaje, que a su vez se deriva de eventos. Nadie
+sube de arena a mano (regla 91.4.2).
+
+`desde` es incluido y `hasta` excluido, salvo en la última arena del modelo, que incluye
+su `hasta` (el máximo). Las arenas cuelgan del modelo: si un modelo nuevo cambia la
+escala, trae sus propias arenas en vez de reinterpretar las del anterior.
+
+**Por qué debe existir.** Sin arenas, la «arena mínima» de un grupo sería un número
+suelto (`reputacion_minima`) que nadie entiende, y cada pantalla inventaría sus propios
+cortes. Con el catálogo en la base, la app, grupos y transparencia leen el mismo corte.
+
+- `codigo`: Código estable de la arena dentro de su modelo (`SEMILLA`, `BROTE`…). Es lo que viaja entre servicios y lo que guarda un grupo como arena mínima.
+- `orden`: Posición de la arena en la escala, de la más baja (0) a la más alta. Ordena el camino de arenas en la app.
+- `desde`: Puntaje desde el que se está en esta arena, incluido.
+- `hasta`: Puntaje donde empieza la siguiente, excluido; en la última arena, el máximo del modelo, incluido.
+
+---
+
+### `DesbloqueoArena` / `desbloqueo_arena`
+
+**Qué es.** Lo que desbloquea una arena (a lo sumo uno por arena): cuántos cupos
+totales puede tener como máximo un grupo y cuánto aporte por periodo como máximo, con
+su moneda, puede crear o integrar quien está en esa arena. Lleva un `estado`: solo el
+`VIGENTE` limita.
+
+**Para qué sirve (negocio).** El desbloqueo es un **parámetro financiero**: limita cuánto
+dinero ajeno puede comprometer alguien según su historial, y crece a medida que la
+persona sube de arena. Por eso se siembra `PROPUESTO` y solo limita cuando está
+`VIGENTE` (regla 97.5.4); mientras tanto se muestra, pero no rechaza. Pasar a `VIGENTE`
+se hace en el seeder (`seeders/minimos/16-reputacion-y-scoring.json`, que actualiza la
+fila existente por su arena), nunca con un `UPDATE` a mano sobre la base.
+
+**Por qué debe existir.** Sin un tope por arena, quien recién llega podría crear o entrar
+a un grupo de cuarenta cupos y aportes altos sin historial que lo respalde. Separarlo de
+`arena` deja que el tramo exista sin límite (una arena sin desbloqueo no limita) y que el
+límite se confirme por separado.
+
+- `cupos_max`: Cupos totales máximos del grupo que puede crear o integrar quien está en la arena.
+- `aporte_max`: Aporte máximo por periodo, en `moneda`, del grupo que puede crear o integrar quien está en la arena.
+- `estado`: `PROPUESTO` se muestra pero no limita; solo `VIGENTE` se aplica.
+
+---
+
 ### `ServicioReputacion` — Servicio de dominio
 
 **Qué es.** El orquestador: registra eventos, recalcula usuarios, recalcula en

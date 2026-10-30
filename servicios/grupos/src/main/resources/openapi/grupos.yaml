@@ -38,6 +38,8 @@ paths:
               schema: { $ref: '#/components/schemas/SalidaCanjeInvitacion' }
         '422':
           $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU69-17 GRUPO_YA_INICIADO · AP-CU68-03 REPUTACION_INSUFICIENTE (detalle.arenaMinima)
+          # AP-CU69-18 DESBLOQUEO_DE_ARENA_EXCEDIDO (detalle.cuposMax, detalle.aporteMax, detalle.moneda)
   /grupos/{grupoId}/invitaciones/{invitacionId}/revocacion:
     post:
       operationId: revocarInvitacionDelGrupo     # CU-69
@@ -154,7 +156,10 @@ paths:
           content:
             application/json:
               schema: { $ref: '#/components/schemas/DecisionIngreso' }
-        '422': { $ref: '#/components/responses/ReglaDeNegocio' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # Al proponer ACEPTAR: AP-CU69-17 GRUPO_YA_INICIADO
+          # AP-CU68-03 REPUTACION_INSUFICIENTE (detalle.arenaMinima) · AP-CU69-18 DESBLOQUEO_DE_ARENA_EXCEDIDO
   /grupos/solicitudes/{solicitudId}/resoluciones:
     post:
       operationId: resolverAdmision
@@ -173,7 +178,10 @@ paths:
           content:
             application/json:
               schema: { $ref: '#/components/schemas/DecisionIngreso' }
-        '422': { $ref: '#/components/responses/ReglaDeNegocio' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # Al aprobar (reserva cupos, es un ingreso): AP-CU69-17 GRUPO_YA_INICIADO
+          # AP-CU68-03 REPUTACION_INSUFICIENTE (detalle.arenaMinima) · AP-CU69-18 DESBLOQUEO_DE_ARENA_EXCEDIDO
   /grupos/{grupoId}/administrador/sustitucion:
     post:
       operationId: sustituirAdministrador
@@ -307,6 +315,43 @@ paths:
   #       responses:
   #         '200': …
   #         '422': { $ref: '#/components/responses/ReglaDeNegocio' }
+
+  /grupos/{grupoId}/inicio:
+    post:
+      operationId: iniciarGrupo                # CU-69 · inicio al 75 % (2026-10-30)
+      summary: El organizador inicia el grupo con al menos el 75 % de los cupos ocupados
+      description: >-
+        Transicion ABIERTO_A_INSCRIPCION → CONFORMADO pedida por quien organiza el grupo, con su
+        renglon en el historial de estados. Se puede iniciar con ceil(0,75 × cuposTotales) cupos
+        OCUPADO (reglamento firmado) o mas; antes responde 422 `AP-CU69-16` con el conteo. La
+        precondicion va en la escritura: el UPDATE exige el estado ABIERTO_A_INSCRIPCION y el
+        conteo, asi dos inicios a la vez no achican dos veces.
+
+        Al iniciar, el grupo SE ACHICA: los cupos LIBRE dejan de existir para el ciclo y
+        `cuposTotales` y `numPeriodos` pasan a ser los ocupados (nunca menos de 3). Desde ese
+        momento no entra nadie mas por ningun camino (`AP-CU69-17`). Con cupos RESERVADO
+        (alguien aceptado que todavia no firmo) no se inicia (`AP-CU69-19`): achicar le quitaria
+        el lugar a quien ya fue aceptado.
+
+        Idempotente por clave: repetir con la misma `Idempotency-Key` devuelve el resultado
+        original; una clave nueva sobre un grupo ya iniciado responde `AP-CU69-17`.
+      parameters:
+        - name: grupoId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+        - $ref: '#/components/parameters/ClaveIdempotencia'
+      responses:
+        '200':
+          description: El grupo iniciado, ya achicado a sus cupos ocupados
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/GrupoIniciado' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU69-16 UMBRAL_DE_INICIO_NO_ALCANZADO (detalle.ocupados, detalle.minimoRequerido, detalle.cuposTotales)
+          # AP-CU69-17 GRUPO_YA_INICIADO        · AP-CU69-19 FIRMAS_PENDIENTES (detalle.reservados)
+          # AP-CU69-07 EMISOR_NO_HABILITADO (no organiza el grupo) · AP-CU69-12 GRUPO_TODAVIA_NO_ABIERTO
 
   /grupos/{grupoId}/sorteo:
     post:
@@ -566,6 +611,10 @@ paths:
           # AP-CU64-01 CUPO_NO_TRASPASABLE     · AP-CU64-02 SALIENTE_CON_DEUDA
           # AP-CU64-03 ENTRANTE_SIN_KYC        · AP-CU64-04 ENTRANTE_SIN_REPUTACION
           # AP-CU64-05 ACUERDO_REQUERIDO       · AP-CU64-06 NO_ES_TITULAR
+          # Arena minima (2026-10-30): quien entra por debajo de la arena minima del grupo es
+          # AP-CU64-04 ENTRANTE_SIN_REPUTACION (detalle.arenaMinima): el codigo de este caso de uso
+          # para ese mismo motivo, no AP-CU68-03. Su desbloqueo excedido: AP-CU69-18.
+          # El traspaso NO es un ingreso nuevo: AP-CU69-17 no aplica (el cupo ya existe y sigue ocupado).
 
   /grupos/{grupoId}/invitaciones:
     post:
@@ -606,6 +655,10 @@ paths:
           # AP-CU69-07 EMISOR_NO_HABILITADO
           # AP-CU69-08 LIMITE_DIARIO_DE_INVITACIONES (emitido por identidad)
           # AP-CU69-09 INVITACION_VIGENTE_EXISTENTE (revocarla antes de emitir otra)
+          # AP-CU69-17 GRUPO_YA_INICIADO (2026-10-30)
+          # La arena minima y el desbloqueo (AP-CU68-03 · AP-CU69-18) NO se informan al emitir: decirle a
+          # quien invita que el invitado no llega a la arena es contarle la reputacion de otra persona
+          # (regla 90.2.8). Se aplican cuando el invitado canjea o acepta, en su propia sesion.
 
   /grupos/{grupoId}/enlace-del-grupo:
     post:
@@ -688,6 +741,8 @@ paths:
           $ref: '#/components/responses/ReglaDeNegocio'
           # AP-CU69-11 ENLACE_INVALIDO · AP-CU69-03 YA_ES_PARTICIPANTE
           # AP-CU68-02 KYC_INSUFICIENTE · AP-CU68-04 SIN_CUPOS_LIBRES · AP-CU68-01 RESTRICCION_VIGENTE
+          # AP-CU69-17 GRUPO_YA_INICIADO · AP-CU68-03 REPUTACION_INSUFICIENTE (detalle.arenaMinima)
+          # AP-CU69-18 DESBLOQUEO_DE_ARENA_EXCEDIDO (detalle.cuposMax, detalle.aporteMax, detalle.moneda)
 
   /grupos/invitaciones/enlace/consultar:
     post:
@@ -731,6 +786,9 @@ paths:
               schema: { $ref: '#/components/schemas/SalidaAceptacionInvitacion' }
         '422':
           $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU69-10 ADMISION_HUMANA_OBLIGATORIA · AP-CU69-17 GRUPO_YA_INICIADO
+          # AP-CU68-03 REPUTACION_INSUFICIENTE (detalle.arenaMinima)
+          # AP-CU69-18 DESBLOQUEO_DE_ARENA_EXCEDIDO (detalle.cuposMax, detalle.aporteMax, detalle.moneda)
 
   /grupos/obligaciones/admisibilidad:
     get:
@@ -956,6 +1014,8 @@ paths:
           $ref: '#/components/responses/ReglaDeNegocio'
           # AP-CU68-04 SIN_CUPOS_LIBRES · AP-CU68-08 SOLICITUD_NO_ENCONTRADA
           # AP-CU68-09 SOLICITUD_YA_RESUELTA · AP-CU68-10 MOTIVO_REQUERIDO
+          # Al ACEPTAR: AP-CU69-17 GRUPO_YA_INICIADO · AP-CU68-03 REPUTACION_INSUFICIENTE (detalle.arenaMinima)
+          # AP-CU69-18 DESBLOQUEO_DE_ARENA_EXCEDIDO (el puntaje pudo bajar desde que se pidio)
 
   /grupos/{grupoId}/postulaciones:
     post:
@@ -992,6 +1052,8 @@ paths:
           # AP-CU68-03 REPUTACION_INSUFICIENTE · AP-CU68-04 SIN_CUPOS_LIBRES
           # AP-CU68-05 CONCENTRACION_DE_RIESGO · AP-CU68-06 SOLICITUD_DUPLICADA
           # AP-CU68-07 PROPUESTA_EXPIRADA
+          # AP-CU69-17 GRUPO_YA_INICIADO · AP-CU68-03 tambien por arena minima (detalle.arenaMinima)
+          # AP-CU69-18 DESBLOQUEO_DE_ARENA_EXCEDIDO (detalle.cuposMax, detalle.aporteMax, detalle.moneda)
 
   /grupos:
     post:
@@ -1030,6 +1092,9 @@ paths:
           # AP-CU20-01 SIN_TARIFARIO_VIGENTE     · AP-CU20-02 ORGANIZADOR_NO_HABILITADO
           # AP-CU20-03 TARIFA_YA_CONGELADA       · AP-CU20-04 SERVICIO_NO_AUTORIZADO
           # AP-CU20-05 KYC_INSUFICIENTE_DEL_CREADOR · AP-CU20-06 LIMITE_DE_GRUPOS_ALCANZADO
+          # AP-CU20-07 DESBLOQUEO_DE_ARENA_EXCEDIDO (cupos o aporte por encima de lo que desbloquea la arena del
+          #            organizador; solo cuentan los desbloqueos VIGENTE · detalle.cuposMax, detalle.aporteMax, detalle.moneda)
+          # AP-CU20-08 ARENA_MINIMA_INVALIDA (no esta en el catalogo, o esta por encima de la arena del organizador)
 
   /grupos/participantes/alias/{alias}:
     get:
@@ -1179,6 +1244,14 @@ components:
             organizador lo lleva la plataforma, y entonces nadie cobra por administrarlo
             (RN-18).
         permitePermutaDeTurnos: { type: boolean, default: false }
+        arenaMinima:
+          type: [string, 'null']
+          pattern: '^[A-Z][A-Z_]{1,29}$'
+          description: >-
+            Codigo de la arena minima para entrar (catalogo `GET /reputacion/arenas` de
+            `transparencia`). Entra quien tiene un puntaje mayor o igual al `desde` de esa arena.
+            Omitida o nula: la arena actual del organizador; sin organizador, sin arena minima.
+            No puede estar por encima de la arena del organizador (AP-CU20-08).
     SalidaGrupo:
       type: object
       additionalProperties: false
@@ -1524,12 +1597,36 @@ components:
         puedeSortear:
           type: boolean
           description: Quien consulta organiza el grupo, todos firmaron y todavia no hubo sorteo
+        arenaMinima:
+          type: [string, 'null']
+          pattern: '^[A-Z][A-Z_]{1,29}$'
+          description: Codigo de la arena minima para entrar; nula si el grupo no la pide
+        minimoParaIniciar:
+          type: integer
+          minimum: 1
+          description: >-
+            Cupos OCUPADO que hacen falta para iniciar: ceil(0,75 × cuposTotales). Solo tiene
+            sentido en ABIERTO_A_INSCRIPCION; «faltan N» es minimoParaIniciar − cuposOcupados.
+        puedoIniciar:
+          type: boolean
+          description: >-
+            Quien consulta organiza el grupo, el grupo esta en ABIERTO_A_INSCRIPCION, alcanza
+            minimoParaIniciar y no hay cupos RESERVADO. Lo que decide es el servidor al iniciar.
         reglamento: { $ref: '#/components/schemas/ReglamentoParaFirmar' }
         sorteo:     { $ref: '#/components/schemas/SorteoDelDetalle' }
         integrantes:
           type: array
           maxItems: 60
           items: { $ref: '#/components/schemas/IntegranteDelGrupo' }
+    GrupoIniciado:
+      type: object
+      additionalProperties: false
+      required: [grupoId, estado, cuposTotales, numPeriodos]
+      properties:
+        grupoId:      { type: string, format: uuid }
+        estado:       { type: string, enum: [CONFORMADO] }
+        cuposTotales: { type: integer, minimum: 3, description: Los cupos ocupados al iniciar; los libres dejaron de existir }
+        numPeriodos:  { type: integer, minimum: 3, description: Igual a cuposTotales despues del achique }
     ReglamentoParaFirmar:
       type: object
       additionalProperties: false

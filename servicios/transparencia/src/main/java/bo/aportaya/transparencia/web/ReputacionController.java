@@ -11,6 +11,8 @@ import bo.aportaya.transparencia.aplicacion.CU75EmitirCertificado;
 import bo.aportaya.transparencia.aplicacion.CU76PublicarResena;
 import bo.aportaya.transparencia.aplicacion.CU97EvaluarRiesgo;
 import bo.aportaya.transparencia.aplicacion.ConsultarPuntaje;
+import bo.aportaya.transparencia.aplicacion.ListarArenas;
+import bo.aportaya.transparencia.web.generado.modelo.ArenaDelCatalogo;
 import bo.aportaya.transparencia.web.generado.modelo.EntradaCertificado;
 import bo.aportaya.transparencia.web.generado.modelo.EntradaCierreAlerta;
 import bo.aportaya.transparencia.web.generado.modelo.EntradaCompensacion;
@@ -32,6 +34,7 @@ import bo.aportaya.transparencia.web.generado.modelo.SalidaPuntaje;
 import bo.aportaya.transparencia.web.generado.modelo.SalidaResena;
 import bo.aportaya.transparencia.web.generado.modelo.SalidaSellado;
 import bo.aportaya.transparencia.web.generado.modelo.SalidaSnapshot;
+import java.util.List;
 import java.util.UUID;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -48,6 +51,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class ReputacionController extends RutasDePerfilEnGrupo {
 
     private final ConsultarPuntaje puntajes;
+    private final ListarArenas arenas;
     private final CU70RegistrarEventoReputacion cu70;
     private final CU71RecalcularPuntaje cu71;
     private final CU72SellarBloque cu72;
@@ -59,6 +63,7 @@ public class ReputacionController extends RutasDePerfilEnGrupo {
 
     public ReputacionController(
             ConsultarPuntaje puntajes,
+            ListarArenas arenas,
             CU70RegistrarEventoReputacion cu70,
             CU71RecalcularPuntaje cu71,
             CU72SellarBloque cu72,
@@ -69,6 +74,7 @@ public class ReputacionController extends RutasDePerfilEnGrupo {
             SesionDeLaPeticion sesion) {
         super(sesion);
         this.puntajes = puntajes;
+        this.arenas = arenas;
         this.cu70 = cu70;
         this.cu71 = cu71;
         this.cu72 = cu72;
@@ -96,7 +102,26 @@ public class ReputacionController extends RutasDePerfilEnGrupo {
         respuesta.setTieneHistorial(puntaje.tieneHistorial());
         respuesta.setPuntaje(puntaje.puntaje().toPlainString());
         respuesta.setNivelDeConfianza(puntaje.nivelDeConfianza());
+        if (puntaje.arena() != null) {
+            respuesta.setArena(MapeoDeReputacion.arenaDelPuntaje(puntaje.arena()));
+        }
         return ResponseEntity.ok(respuesta);
+    }
+
+    /**
+     * El catalogo de arenas del modelo vigente, de la mas baja a la mas alta.
+     *
+     * <p>Requiere sesion como todo {@code /reputacion}, pero ningun permiso de mas: es un
+     * catalogo publico dentro de la app, sin datos de nadie.
+     */
+    @Override
+    @Permiso("PARTICIPANTE")
+    public ResponseEntity<List<ArenaDelCatalogo>> listarArenas() {
+        Traza.marcarCasoDeUso("ARENAS", "catalogo");
+
+        return ResponseEntity.ok(arenas.ejecutar(sesion.actual()).stream()
+                .map(MapeoDeReputacion::arena)
+                .toList());
     }
 
     @Override

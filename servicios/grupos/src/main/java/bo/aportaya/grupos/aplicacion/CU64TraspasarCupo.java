@@ -50,6 +50,19 @@ public class CU64TraspasarCupo {
         this.reloj = reloj;
     }
 
+    /**
+     * Si el MISMO acuerdo ya traspaso este cupo a este entrante (el reintento que {@link #ejecutar} devuelve). La API
+     * lo pregunta antes de exigir la arena del entrante: el reintento devuelve el traspaso original aunque
+     * {@code transparencia} no conteste o el puntaje haya cambiado (regla 96.3.3).
+     */
+    @Transactional(readOnly = true)
+    public boolean yaTraspasado(UUID cupoId, Optional<UUID> acuerdoId, UUID entranteId, ContextoSesion ctx) {
+        if (acuerdoId.isEmpty()) return false;
+        return datos.conContexto(ctx, dsl -> traspasos
+                .yaTraspasado(dsl, cupoId, acuerdoId.get(), entranteId)
+                .isPresent());
+    }
+
     @Transactional
     public UUID ejecutar(EntradaTraspaso entrada, ContextoSesion ctx) {
         OffsetDateTime ahora = reloj.ahora().atOffset(ZoneOffset.UTC);

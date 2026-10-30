@@ -73,8 +73,10 @@ public class ConsultarGruposDeBackoffice {
                                    p.estado AS estado_participante,
                                    coalesce(p.es_organizador, false) AS es_organizador
                               FROM grupos.cupo c
+                              JOIN grupos.grupo g ON g.id = c.grupo_id
                               LEFT JOIN grupos.participante p ON p.id = c.participante_id
-                             WHERE c.grupo_id = ?
+                             -- Los cupos que el inicio al 75 % dejo afuera del ciclo (numero > cupos_totales) no se listan.
+                             WHERE c.grupo_id = ? AND c.numero <= g.cupos_totales
                              ORDER BY c.numero
                             """,
                             grupoId)

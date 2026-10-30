@@ -152,6 +152,15 @@ abstract class RutasDeSolicitudes extends RutasDeAdmision {
         // Primero se comprueba que quien decide es el organizador y se sabe quien pidio entrar; la
         // reputacion se pregunta afuera, ANTES de abrir la transaccion de decidir (invariante 6).
         var solicitante = cu68Decision.solicitante(solicitudId, ctx);
+        if (cuerpo.getDecision() == EntradaDecisionDeIngreso.DecisionEnum.ACEPTAR) {
+            // Entre que pidio y que lo aceptan el puntaje pudo bajar: la arena se mira al aceptar (2026-10-30). Una
+            // solicitud ya resuelta no: repetir la decision devuelve la de antes (regla 96.3.3).
+            consultas
+                    .solicitanteConCondiciones(solicitudId, ctx)
+                    .filter(Consultas.Solicitante::pendiente)
+                    .ifPresent(
+                            s -> ArenaDelIngreso.exigir(afuera, java.util.Optional.of(s.condiciones()), s.usuarioId()));
+        }
         var reputacion = afuera.reputacion(solicitante).puntaje();
         var r = cu68Decision.decidir(
                 solicitudId,

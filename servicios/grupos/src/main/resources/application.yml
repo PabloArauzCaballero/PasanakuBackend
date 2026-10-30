@@ -82,6 +82,10 @@ aportaya:
     enlace-del-grupo:
       # Decision del dueño (2026-10-19): el enlace del grupo sirve hasta llenarse o 7 dias.
       vigencia-dias: 7
+    inicio:
+      # Decision del dueño (2026-10-30): el organizador inicia el grupo con al menos este PORCENTAJE (entero) de los
+      # cupos ocupados, redondeado hacia arriba: ceil(75 × 10 / 100) = 8 de 10. Contrato iniciarGrupo (AP-CU69-16).
+      porcentaje: 75
     sustitucion:
       # DECISION PENDIENTE (negocio y cumplimiento): al revocarse la habilitacion del organizador, sustituye al
       # administrador una PERSONA de backoffice (false, supuesto vigente) o el proceso con una regla sintetica (true)?

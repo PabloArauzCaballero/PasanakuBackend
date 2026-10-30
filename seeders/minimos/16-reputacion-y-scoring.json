@@ -85,6 +85,49 @@
         { "codigo": "REFERENTE", "nombre": "Referente", "descripcion": "Invitaste a personas que después cumplieron", "criterio": "5 invitaciones aceptadas cuyos titulares completaron al menos un ciclo sin incumplimientos declarados.", "icono_url": "https://cdn.pasanaku.bo/insignias/referente.svg" },
         { "codigo": "VETERANO", "nombre": "Veterano", "descripcion": "Dos años en la plataforma con la cuenta al día", "criterio": "24 meses corridos con la cuenta activa, la verificación de identidad vigente y sin deuda castigada.", "icono_url": "https://cdn.pasanaku.bo/insignias/veterano.svg" }
       ]
+    },
+    {
+      "tabla": "arena",
+      "conflicto": [
+        "modelo_id",
+        "codigo"
+      ],
+      "actualizar": ["nombre", "orden", "desde", "hasta"],
+      "comentario": "Arenas del modelo v1 — catálogo interno PROPUESTO por Claude 2026-10-30, confirmar con Pablo (docs/trabajo/2026-10-30-arenas-e-inicio-75/PLAN.md). Diseño de producto propio, sin fuente externa; nombres originales. Tramos [desde, hasta) sobre la escala 0–1000; la última incluye su hasta. Quien recién llega (base 500) arranca en Semilla. Un cambio de nombre, orden o tramo se corrige acá y `actualizar` lo aplica sobre una base ya sembrada; el id de la arena no cambia.",
+      "filas": [
+        { "modelo_id": { "$ref": "modelo_scoring", "version": "v1" }, "codigo": "CAMPAMENTO", "nombre": "Campamento", "orden": 0, "desde": "0.00", "hasta": "500.00" },
+        { "modelo_id": { "$ref": "modelo_scoring", "version": "v1" }, "codigo": "SEMILLA", "nombre": "Semilla", "orden": 1, "desde": "500.00", "hasta": "550.00" },
+        { "modelo_id": { "$ref": "modelo_scoring", "version": "v1" }, "codigo": "BROTE", "nombre": "Brote", "orden": 2, "desde": "550.00", "hasta": "600.00" },
+        { "modelo_id": { "$ref": "modelo_scoring", "version": "v1" }, "codigo": "AGUAYO", "nombre": "Aguayo", "orden": 3, "desde": "600.00", "hasta": "650.00" },
+        { "modelo_id": { "$ref": "modelo_scoring", "version": "v1" }, "codigo": "FERIA", "nombre": "Feria", "orden": 4, "desde": "650.00", "hasta": "700.00" },
+        { "modelo_id": { "$ref": "modelo_scoring", "version": "v1" }, "codigo": "MERCADO", "nombre": "Mercado", "orden": 5, "desde": "700.00", "hasta": "760.00" },
+        { "modelo_id": { "$ref": "modelo_scoring", "version": "v1" }, "codigo": "ALTIPLANO", "nombre": "Altiplano", "orden": 6, "desde": "760.00", "hasta": "820.00" },
+        { "modelo_id": { "$ref": "modelo_scoring", "version": "v1" }, "codigo": "SALAR", "nombre": "Salar", "orden": 7, "desde": "820.00", "hasta": "880.00" },
+        { "modelo_id": { "$ref": "modelo_scoring", "version": "v1" }, "codigo": "ILLIMANI", "nombre": "Illimani", "orden": 8, "desde": "880.00", "hasta": "940.00" },
+        { "modelo_id": { "$ref": "modelo_scoring", "version": "v1" }, "codigo": "CONDOR", "nombre": "Cóndor", "orden": 9, "desde": "940.00", "hasta": "980.00" },
+        { "modelo_id": { "$ref": "modelo_scoring", "version": "v1" }, "codigo": "INTI", "nombre": "Inti", "orden": 10, "desde": "980.00", "hasta": "1000.00" }
+      ]
+    },
+    {
+      "tabla": "desbloqueo_arena",
+      "conflicto": [
+        "arena_id"
+      ],
+      "actualizar": ["cupos_max", "aporte_max", "moneda", "estado"],
+      "comentario": "Desbloqueos por arena — valores SINTÉTICOS PROPUESTOS por Claude 2026-10-30, sin fuente ni confirmación de negocio ni de cumplimiento (regla 97.5.4). Se siembran PROPUESTO: se muestran y NO limitan. Pasar a VIGENTE exige la confirmación de Pablo y de cumplimiento, y se hace en este seeder, no en la base: `actualizar` vuelve a escribir cupos, aporte, moneda y estado sobre una base ya sembrada, y solo si cambiaron.",
+      "filas": [
+        { "arena_id": { "$ref": "arena", "modelo_id": { "$ref": "modelo_scoring", "version": "v1" }, "codigo": "CAMPAMENTO" }, "cupos_max": 5, "aporte_max": "100.00", "moneda": "BOB", "estado": "PROPUESTO" },
+        { "arena_id": { "$ref": "arena", "modelo_id": { "$ref": "modelo_scoring", "version": "v1" }, "codigo": "SEMILLA" }, "cupos_max": 6, "aporte_max": "200.00", "moneda": "BOB", "estado": "PROPUESTO" },
+        { "arena_id": { "$ref": "arena", "modelo_id": { "$ref": "modelo_scoring", "version": "v1" }, "codigo": "BROTE" }, "cupos_max": 8, "aporte_max": "300.00", "moneda": "BOB", "estado": "PROPUESTO" },
+        { "arena_id": { "$ref": "arena", "modelo_id": { "$ref": "modelo_scoring", "version": "v1" }, "codigo": "AGUAYO" }, "cupos_max": 10, "aporte_max": "500.00", "moneda": "BOB", "estado": "PROPUESTO" },
+        { "arena_id": { "$ref": "arena", "modelo_id": { "$ref": "modelo_scoring", "version": "v1" }, "codigo": "FERIA" }, "cupos_max": 12, "aporte_max": "700.00", "moneda": "BOB", "estado": "PROPUESTO" },
+        { "arena_id": { "$ref": "arena", "modelo_id": { "$ref": "modelo_scoring", "version": "v1" }, "codigo": "MERCADO" }, "cupos_max": 15, "aporte_max": "1000.00", "moneda": "BOB", "estado": "PROPUESTO" },
+        { "arena_id": { "$ref": "arena", "modelo_id": { "$ref": "modelo_scoring", "version": "v1" }, "codigo": "ALTIPLANO" }, "cupos_max": 18, "aporte_max": "1500.00", "moneda": "BOB", "estado": "PROPUESTO" },
+        { "arena_id": { "$ref": "arena", "modelo_id": { "$ref": "modelo_scoring", "version": "v1" }, "codigo": "SALAR" }, "cupos_max": 20, "aporte_max": "2000.00", "moneda": "BOB", "estado": "PROPUESTO" },
+        { "arena_id": { "$ref": "arena", "modelo_id": { "$ref": "modelo_scoring", "version": "v1" }, "codigo": "ILLIMANI" }, "cupos_max": 24, "aporte_max": "3000.00", "moneda": "BOB", "estado": "PROPUESTO" },
+        { "arena_id": { "$ref": "arena", "modelo_id": { "$ref": "modelo_scoring", "version": "v1" }, "codigo": "CONDOR" }, "cupos_max": 30, "aporte_max": "4000.00", "moneda": "BOB", "estado": "PROPUESTO" },
+        { "arena_id": { "$ref": "arena", "modelo_id": { "$ref": "modelo_scoring", "version": "v1" }, "codigo": "INTI" }, "cupos_max": 40, "aporte_max": "5000.00", "moneda": "BOB", "estado": "PROPUESTO" }
+      ]
     }
   ]
 }

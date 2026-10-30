@@ -94,8 +94,11 @@ public class CU20CrearGrupo {
         }
 
         return datos.conContexto(ctx, dsl -> {
-            String huella = hash(
-                    entrada.datos().toString() + "|" + entrada.organizador() + "|" + entrada.permitePermutaDeTurnos());
+            // En la huella entra la arena PEDIDA, no la minima derivada: omitida, la minima sale de la arena actual del
+            // organizador, que puede cambiar entre el alta y su reintento; y las altas de antes conservan su huella.
+            String huella = hash(entrada.datos().toString() + "|" + entrada.organizador() + "|"
+                    + entrada.permitePermutaDeTurnos()
+                    + (entrada.arenaMinimaPedida() != null ? "|" + entrada.arenaMinimaPedida() : ""));
             var anterior = creacion.altaAnterior(dsl, ctx.usuarioId(), entrada.claveIdempotencia());
             if (anterior.isPresent()) {
                 var alta = anterior.get();
@@ -107,7 +110,13 @@ public class CU20CrearGrupo {
             }
             exigirCupoDeOrganizador(dsl, entrada.organizador().orElseThrow(), entrada.limiteDeGrupos());
             UUID grupo = creacion.crear(
-                    dsl, entrada.datos(), codigoPublico(), entrada.organizador(), quorumPorOmision, ahora);
+                    dsl,
+                    entrada.datos(),
+                    codigoPublico(),
+                    entrada.organizador(),
+                    quorumPorOmision,
+                    entrada.reputacionMinima(),
+                    ahora);
             creacion.configurar(dsl, grupo, entrada.permitePermutaDeTurnos());
 
             String reglamento = textoDelReglamento(entrada.datos());
@@ -138,6 +147,18 @@ public class CU20CrearGrupo {
 
             return new SalidaCreacion(grupo, entrada.datos().fondoPorPeriodo().toString());
         });
+    }
+
+    /**
+     * Si esta clave ya creo un grupo de quien llama. Se pregunta ANTES de pedirle la arena a {@code transparencia}:
+     * el reintento de un alta hecha devuelve el grupo original aunque transparencia no conteste o la arena haya
+     * cambiado (regla 96.3.3). La huella la sigue comparando {@link #ejecutar}.
+     */
+    @Transactional(readOnly = true)
+    public boolean yaCreado(UUID claveIdempotencia, ContextoSesion ctx) {
+        if (claveIdempotencia == null) return false;
+        return datos.conContexto(ctx, dsl -> creacion.altaAnterior(dsl, ctx.usuarioId(), claveIdempotencia)
+                .isPresent());
     }
 
     /**
@@ -213,7 +234,66 @@ public class CU20CrearGrupo {
             boolean permitePermutaDeTurnos,
             UUID claveIdempotencia,
             int limiteDeGrupos,
-            String nombreDelCreador) {}
+            String nombreDelCreador,
+            BigDecimal reputacionMinima,
+            String arenaMinimaPedida) {
+
+        /** Con la minima ya resuelta y sin arena pedida (la del organizador por omision). */
+        @SuppressWarnings("checkstyle:ParameterNumber")
+        public EntradaCreacion(
+                GrupoNuevo datos,
+                Optional<UUID> organizador,
+                boolean organizadorHabilitado,
+                Optional<UUID> tarifarioVigenteId,
+                boolean licenciaHabilitaElServicio,
+                boolean permitePermutaDeTurnos,
+                UUID claveIdempotencia,
+                int limiteDeGrupos,
+                String nombreDelCreador,
+                BigDecimal reputacionMinima) {
+            this(
+                    datos,
+                    organizador,
+                    organizadorHabilitado,
+                    tarifarioVigenteId,
+                    licenciaHabilitaElServicio,
+                    permitePermutaDeTurnos,
+                    claveIdempotencia,
+                    limiteDeGrupos,
+                    nombreDelCreador,
+                    reputacionMinima,
+                    null);
+        }
+
+        /**
+         * Sin arena minima (reputacion_minima 0): la forma de antes de las arenas, para los llamadores que no la
+         * resuelven. La API siempre la resuelve ({@code MapeoDeAltaDeGrupo}).
+         */
+        @SuppressWarnings("checkstyle:ParameterNumber")
+        public EntradaCreacion(
+                GrupoNuevo datos,
+                Optional<UUID> organizador,
+                boolean organizadorHabilitado,
+                Optional<UUID> tarifarioVigenteId,
+                boolean licenciaHabilitaElServicio,
+                boolean permitePermutaDeTurnos,
+                UUID claveIdempotencia,
+                int limiteDeGrupos,
+                String nombreDelCreador) {
+            this(
+                    datos,
+                    organizador,
+                    organizadorHabilitado,
+                    tarifarioVigenteId,
+                    licenciaHabilitaElServicio,
+                    permitePermutaDeTurnos,
+                    claveIdempotencia,
+                    limiteDeGrupos,
+                    nombreDelCreador,
+                    BigDecimal.ZERO,
+                    null);
+        }
+    }
 
     public record SalidaCreacion(UUID grupoId, String fondoPorPeriodo) {}
 }

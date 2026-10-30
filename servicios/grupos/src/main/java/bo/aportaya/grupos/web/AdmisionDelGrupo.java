@@ -1,6 +1,7 @@
 package bo.aportaya.grupos.web;
 
 import bo.aportaya.grupos.aplicacion.CU68AceptarIngreso;
+import bo.aportaya.grupos.aplicacion.Consultas;
 import bo.aportaya.grupos.aplicacion.SustituirAdministrador;
 import bo.aportaya.grupos.dominio.DecisionDeIngreso;
 import bo.aportaya.grupos.dominio.puertos.HechosDeOtrosServicios;
@@ -19,12 +20,17 @@ public class AdmisionDelGrupo {
     private final CU68AceptarIngreso admision;
     private final SustituirAdministrador sustitucion;
     private final HechosDeOtrosServicios afuera;
+    private final Consultas consultas;
 
     public AdmisionDelGrupo(
-            CU68AceptarIngreso admision, SustituirAdministrador sustitucion, HechosDeOtrosServicios afuera) {
+            CU68AceptarIngreso admision,
+            SustituirAdministrador sustitucion,
+            HechosDeOtrosServicios afuera,
+            Consultas consultas) {
         this.admision = admision;
         this.sustitucion = sustitucion;
         this.afuera = afuera;
+        this.consultas = consultas;
     }
 
     /**
@@ -56,6 +62,16 @@ public class AdmisionDelGrupo {
 
     public DecisionIngreso decidir(
             UUID solicitud, UUID clave, EntradaDecisionIngreso cuerpo, ContextoSesion ctx, boolean resolver) {
+        if (cuerpo.getDecision() == EntradaDecisionIngreso.DecisionEnum.ACEPTAR
+                && admision.exigeArenaAlAceptar(solicitud, clave, ctx, resolver)) {
+            // Proponer y resolver ACEPTAR llevan a reservar un cupo: la arena del solicitante se mira antes, afuera de
+            // la transaccion (invariante 6), y SOLO despues de autorizar a quien decide (sin eso, la respuesta era un
+            // oraculo de la reputacion ajena) y de descartar un reintento con la misma clave. Rechazar no pide nada.
+            consultas
+                    .solicitanteConCondiciones(solicitud, ctx)
+                    .ifPresent(
+                            s -> ArenaDelIngreso.exigir(afuera, java.util.Optional.of(s.condiciones()), s.usuarioId()));
+        }
         var entrada = new CU68AceptarIngreso.Entrada(
                 solicitud,
                 clave,

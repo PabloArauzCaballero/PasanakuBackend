@@ -47,3 +47,35 @@ INSERT INTO insignia_logro (codigo, nombre, descripcion, criterio, icono_url) VA
   ('REFERENTE', 'Referente', 'Invitaste a personas que después cumplieron', '5 invitaciones aceptadas cuyos titulares completaron al menos un ciclo sin incumplimientos declarados.', 'https://cdn.pasanaku.bo/insignias/referente.svg'),
   ('VETERANO', 'Veterano', 'Dos años en la plataforma con la cuenta al día', '24 meses corridos con la cuenta activa, la verificación de identidad vigente y sin deuda castigada.', 'https://cdn.pasanaku.bo/insignias/veterano.svg')
 ON CONFLICT (codigo) DO NOTHING;
+
+-- Arenas del modelo v1 — catálogo interno PROPUESTO por Claude 2026-10-30, confirmar con Pablo (docs/trabajo/2026-10-30-arenas-e-inicio-75/PLAN.md). Diseño de producto propio, sin fuente externa; nombres originales. Tramos [desde, hasta) sobre la escala 0–1000; la última incluye su hasta. Quien recién llega (base 500) arranca en Semilla. Un cambio de nombre, orden o tramo se corrige acá y `actualizar` lo aplica sobre una base ya sembrada; el id de la arena no cambia.
+INSERT INTO arena (modelo_id, codigo, nombre, orden, desde, hasta) VALUES
+  ((SELECT id FROM modelo_scoring WHERE version = 'v1'), 'CAMPAMENTO', 'Campamento', 0, '0.00', '500.00'),
+  ((SELECT id FROM modelo_scoring WHERE version = 'v1'), 'SEMILLA', 'Semilla', 1, '500.00', '550.00'),
+  ((SELECT id FROM modelo_scoring WHERE version = 'v1'), 'BROTE', 'Brote', 2, '550.00', '600.00'),
+  ((SELECT id FROM modelo_scoring WHERE version = 'v1'), 'AGUAYO', 'Aguayo', 3, '600.00', '650.00'),
+  ((SELECT id FROM modelo_scoring WHERE version = 'v1'), 'FERIA', 'Feria', 4, '650.00', '700.00'),
+  ((SELECT id FROM modelo_scoring WHERE version = 'v1'), 'MERCADO', 'Mercado', 5, '700.00', '760.00'),
+  ((SELECT id FROM modelo_scoring WHERE version = 'v1'), 'ALTIPLANO', 'Altiplano', 6, '760.00', '820.00'),
+  ((SELECT id FROM modelo_scoring WHERE version = 'v1'), 'SALAR', 'Salar', 7, '820.00', '880.00'),
+  ((SELECT id FROM modelo_scoring WHERE version = 'v1'), 'ILLIMANI', 'Illimani', 8, '880.00', '940.00'),
+  ((SELECT id FROM modelo_scoring WHERE version = 'v1'), 'CONDOR', 'Cóndor', 9, '940.00', '980.00'),
+  ((SELECT id FROM modelo_scoring WHERE version = 'v1'), 'INTI', 'Inti', 10, '980.00', '1000.00')
+ON CONFLICT (modelo_id, codigo) DO UPDATE SET nombre = EXCLUDED.nombre, orden = EXCLUDED.orden, desde = EXCLUDED.desde, hasta = EXCLUDED.hasta
+  WHERE arena.nombre IS DISTINCT FROM EXCLUDED.nombre OR arena.orden IS DISTINCT FROM EXCLUDED.orden OR arena.desde IS DISTINCT FROM EXCLUDED.desde OR arena.hasta IS DISTINCT FROM EXCLUDED.hasta;
+
+-- Desbloqueos por arena — valores SINTÉTICOS PROPUESTOS por Claude 2026-10-30, sin fuente ni confirmación de negocio ni de cumplimiento (regla 97.5.4). Se siembran PROPUESTO: se muestran y NO limitan. Pasar a VIGENTE exige la confirmación de Pablo y de cumplimiento, y se hace en este seeder, no en la base: `actualizar` vuelve a escribir cupos, aporte, moneda y estado sobre una base ya sembrada, y solo si cambiaron.
+INSERT INTO desbloqueo_arena (arena_id, cupos_max, aporte_max, moneda, estado) VALUES
+  ((SELECT id FROM arena WHERE modelo_id = (SELECT id FROM modelo_scoring WHERE version = 'v1') AND codigo = 'CAMPAMENTO'), 5, '100.00', 'BOB', 'PROPUESTO'),
+  ((SELECT id FROM arena WHERE modelo_id = (SELECT id FROM modelo_scoring WHERE version = 'v1') AND codigo = 'SEMILLA'), 6, '200.00', 'BOB', 'PROPUESTO'),
+  ((SELECT id FROM arena WHERE modelo_id = (SELECT id FROM modelo_scoring WHERE version = 'v1') AND codigo = 'BROTE'), 8, '300.00', 'BOB', 'PROPUESTO'),
+  ((SELECT id FROM arena WHERE modelo_id = (SELECT id FROM modelo_scoring WHERE version = 'v1') AND codigo = 'AGUAYO'), 10, '500.00', 'BOB', 'PROPUESTO'),
+  ((SELECT id FROM arena WHERE modelo_id = (SELECT id FROM modelo_scoring WHERE version = 'v1') AND codigo = 'FERIA'), 12, '700.00', 'BOB', 'PROPUESTO'),
+  ((SELECT id FROM arena WHERE modelo_id = (SELECT id FROM modelo_scoring WHERE version = 'v1') AND codigo = 'MERCADO'), 15, '1000.00', 'BOB', 'PROPUESTO'),
+  ((SELECT id FROM arena WHERE modelo_id = (SELECT id FROM modelo_scoring WHERE version = 'v1') AND codigo = 'ALTIPLANO'), 18, '1500.00', 'BOB', 'PROPUESTO'),
+  ((SELECT id FROM arena WHERE modelo_id = (SELECT id FROM modelo_scoring WHERE version = 'v1') AND codigo = 'SALAR'), 20, '2000.00', 'BOB', 'PROPUESTO'),
+  ((SELECT id FROM arena WHERE modelo_id = (SELECT id FROM modelo_scoring WHERE version = 'v1') AND codigo = 'ILLIMANI'), 24, '3000.00', 'BOB', 'PROPUESTO'),
+  ((SELECT id FROM arena WHERE modelo_id = (SELECT id FROM modelo_scoring WHERE version = 'v1') AND codigo = 'CONDOR'), 30, '4000.00', 'BOB', 'PROPUESTO'),
+  ((SELECT id FROM arena WHERE modelo_id = (SELECT id FROM modelo_scoring WHERE version = 'v1') AND codigo = 'INTI'), 40, '5000.00', 'BOB', 'PROPUESTO')
+ON CONFLICT (arena_id) DO UPDATE SET cupos_max = EXCLUDED.cupos_max, aporte_max = EXCLUDED.aporte_max, moneda = EXCLUDED.moneda, estado = EXCLUDED.estado
+  WHERE desbloqueo_arena.cupos_max IS DISTINCT FROM EXCLUDED.cupos_max OR desbloqueo_arena.aporte_max IS DISTINCT FROM EXCLUDED.aporte_max OR desbloqueo_arena.moneda IS DISTINCT FROM EXCLUDED.moneda OR desbloqueo_arena.estado IS DISTINCT FROM EXCLUDED.estado;

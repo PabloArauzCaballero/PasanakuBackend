@@ -35,6 +35,7 @@ public class HechosPorHttp implements HechosDeOtrosServicios {
     private final ClienteConCircuito notificaciones;
     private final ClienteConCircuito identidad;
     private final TokensDeInvitacionPorHttp tokens;
+    private final ArenasPorHttp arenas;
 
     @Autowired
     @SuppressWarnings("checkstyle:ParameterNumber")
@@ -58,6 +59,7 @@ public class HechosPorHttp implements HechosDeOtrosServicios {
         this.notificaciones = new ClienteConCircuito(constructor, urlNotificaciones, "notificaciones", circuito);
         this.identidad = new ClienteConCircuito(constructor, urlIdentidad, "identidad", circuito);
         this.tokens = new TokensDeInvitacionPorHttp(identidad);
+        this.arenas = new ArenasPorHttp(this.transparencia);
     }
 
     /** Con los parametros del plan de resiliencia: la usan las pruebas del adaptador. */
@@ -159,6 +161,11 @@ public class HechosPorHttp implements HechosDeOtrosServicios {
                 .consultar("/reputacion/" + usuarioId + "/puntaje", Puntaje.class)
                 .map(p -> new Reputacion(p.tieneHistorial(), new BigDecimal(p.puntaje())))
                 .orElse(new Reputacion(false, BigDecimal.ZERO));
+    }
+
+    @Override
+    public Optional<bo.aportaya.grupos.dominio.Arenas.DeLaPersona> arenaDe(UUID usuarioId) {
+        return arenas.de(usuarioId);
     }
 
     @Override

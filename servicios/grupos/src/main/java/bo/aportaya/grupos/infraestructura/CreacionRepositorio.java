@@ -81,6 +81,19 @@ public class CreacionRepositorio {
             Optional<UUID> organizador,
             BigDecimal quorum,
             OffsetDateTime ahora) {
+        return crear(dsl, datos, codigoPublico, organizador, quorum, BigDecimal.ZERO, ahora);
+    }
+
+    /** Con la arena minima ya resuelta: el {@code desde} de esa arena, o 0 si el grupo no pide ninguna. */
+    @SuppressWarnings("checkstyle:ParameterNumber")
+    public UUID crear(
+            DSLContext dsl,
+            GrupoNuevo datos,
+            String codigoPublico,
+            Optional<UUID> organizador,
+            BigDecimal quorum,
+            BigDecimal reputacionMinima,
+            OffsetDateTime ahora) {
         return dsl.insertInto(GRUPO)
                 .set(GRUPO.CODIGO_PUBLICO, codigoPublico)
                 .set(GRUPO.NOMBRE, datos.nombre())
@@ -102,7 +115,7 @@ public class CreacionRepositorio {
                 .set(GRUPO.ORGANIZADOR_ID, organizador.orElse(null))
                 .set(GRUPO.ES_AUTOGESTIONADO, organizador.isEmpty())
                 .set(GRUPO.REQUIERE_KYC_MINIMO, "BASICO")
-                .set(GRUPO.REPUTACION_MINIMA, BigDecimal.ZERO)
+                .set(GRUPO.REPUTACION_MINIMA, reputacionMinima)
                 .set(GRUPO.DIAS_GRACIA, (short) 3)
                 .set(GRUPO.APLICA_RECARGO_MORA, true)
                 .set(GRUPO.USA_FONDO_GARANTIA, false)

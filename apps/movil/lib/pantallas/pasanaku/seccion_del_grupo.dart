@@ -15,6 +15,7 @@ import 'package:go_router/go_router.dart';
 
 import 'acceso_al_traspaso.dart';
 import 'dominio/detalle_del_grupo.dart';
+import 'inicio_del_grupo.dart';
 import 'tarjeta_de_integrante.dart';
 import 'textos_detalle_del_grupo.dart';
 import 'textos_enlace_del_grupo.dart';
@@ -84,6 +85,11 @@ class VistaDelGrupo extends StatelessWidget {
           ),
         ),
         const SizedBox(height: Espacio.s3),
+        // Inicio al 75 % (2026-10-30): cuánto falta y, para quien organiza, Iniciar.
+        if (InicioDelGrupo.aplica(d)) ...[
+          InicioDelGrupo(detalle: d),
+          const SizedBox(height: Espacio.s3),
+        ],
         if (d.debeFirmar) ...[
           const Alerta(
             titulo: TextosDetalleDelGrupo.debesFirmar,
@@ -123,7 +129,10 @@ class VistaDelGrupo extends StatelessWidget {
         if (d.soyOrganizador && !completo) ...[
           Boton(
             texto: TextosInvitacion.accionInvitar,
-            variante: BotonVariante.primario,
+            // Una sola acción primaria: cuando ya se puede iniciar, iniciar manda.
+            variante: d.puedoIniciar == true
+                ? BotonVariante.secundario
+                : BotonVariante.primario,
             expandido: true,
             onPressed: () => context.push(
               '/pasanaku/grupos/$id/invitar?nombre=${Uri.encodeQueryComponent(d.nombre)}',

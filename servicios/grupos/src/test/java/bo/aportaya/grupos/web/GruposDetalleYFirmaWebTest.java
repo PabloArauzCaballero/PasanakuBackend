@@ -46,14 +46,27 @@ import org.springframework.test.web.servlet.MockMvc;
             "aportaya.grupo.servicio-de-licencia=http://cumplimiento:8080",
             "aportaya.grupo.tope-de-reenvios-de-invitacion=3",
             "aportaya.grupos.admision.humana-obligatoria=false",
+            "aportaya.grupos.inicio.porcentaje=75",
         })
 @Import(IntegrantesDelGrupo.class)
 @MockitoBean(
         types = {
-            CanjearInvitacion.class, CU20CrearGrupo.class, CU59CalcularPlazo.class, CU64TraspasarCupo.class,
-            CU65Retirarse.class, CU68Postular.class, CU68AceptarIngreso.class, InvitacionesWeb.class,
-            AdmisionDelGrupo.class, CU69Invitar.class, RespuestasAOtrosServicios.class, SorteoDelGrupo.class,
-            CU69EnlaceDeGrupo.class, Consultas.class, HechosDeOtrosServicios.class, GruposDeBackoffice.class
+            CanjearInvitacion.class,
+            CU20CrearGrupo.class,
+            CU59CalcularPlazo.class,
+            CU64TraspasarCupo.class,
+            CU65Retirarse.class,
+            CU68Postular.class,
+            CU68AceptarIngreso.class,
+            InvitacionesWeb.class,
+            AdmisionDelGrupo.class,
+            CU69Invitar.class,
+            RespuestasAOtrosServicios.class,
+            SorteoDelGrupo.class,
+            CU69EnlaceDeGrupo.class,
+            Consultas.class,
+            GruposDeBackoffice.class,
+            bo.aportaya.grupos.aplicacion.CU69IniciarGrupo.class
         })
 class GruposDetalleYFirmaWebTest {
 
@@ -70,6 +83,10 @@ class GruposDetalleYFirmaWebTest {
 
     @MockitoBean
     private CU69FirmarReglamento firma;
+
+    /** La arena minima se nombra con el catalogo de transparencia (doble, catalogo SINTETICO). */
+    @MockitoBean
+    private HechosDeOtrosServicios afuera;
 
     @MockitoBean
     private bo.aportaya.grupos.aplicacion.ConsultarMisLimites limites;
@@ -112,6 +129,59 @@ class GruposDetalleYFirmaWebTest {
                 .andExpect(jsonPath("$.integrantes[1].soyYo").value(true))
                 .andExpect(jsonPath("$.integrantes[0].telefono").doesNotExist())
                 .andExpect(jsonPath("$.integrantes[0].correo").doesNotExist());
+    }
+
+    /** El organizador de un grupo de 10 que pide MEDIA, con {@code firmados} OCUPADO y {@code reservados} sin firmar. */
+    private static ConsultarDetalleDelGrupo.Detalle paraIniciar(int firmados, int reservados) {
+        var d = unDetalle();
+        return new ConsultarDetalleDelGrupo.Detalle(
+                d.grupoId(),
+                d.nombre(),
+                d.estado(),
+                d.montoAporte(),
+                d.moneda(),
+                d.periodicidad(),
+                10,
+                firmados + reservados,
+                true,
+                false,
+                false,
+                d.reglamentoTexto(),
+                d.reglamentoHash(),
+                null,
+                null,
+                d.integrantes(),
+                new ConsultarDetalleDelGrupo.Inicio(new BigDecimal("500.00"), firmados, reservados));
+    }
+
+    @Test
+    @DisplayName("CU-69 · 200 (2026-10-30): minimoParaIniciar, puedoIniciar y la arena minima por su codigo")
+    void detalleConInicioYArena() throws Exception {
+        org.mockito.Mockito.when(afuera.arenaDe(any())).thenReturn(ArenasDePrueba.con("650.00"));
+        when(detalle.consultar(eq(GRUPO), any())).thenReturn(paraIniciar(8, 0));
+        mvc.perform(get("/grupos/{g}/detalle", GRUPO).with(Sesiones.como("PARTICIPANTE")))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.minimoParaIniciar").value(8))
+                .andExpect(jsonPath("$.puedoIniciar").value(true))
+                .andExpect(jsonPath("$.arenaMinima").value("MEDIA"));
+
+        when(detalle.consultar(eq(GRUPO), any())).thenReturn(paraIniciar(7, 0));
+        mvc.perform(get("/grupos/{g}/detalle", GRUPO).with(Sesiones.como("PARTICIPANTE")))
+                .andExpect(jsonPath("$.puedoIniciar").value(false));
+        when(detalle.consultar(eq(GRUPO), any())).thenReturn(paraIniciar(8, 1));
+        mvc.perform(get("/grupos/{g}/detalle", GRUPO).with(Sesiones.como("PARTICIPANTE")))
+                .andExpect(jsonPath("$.puedoIniciar").value(false));
+    }
+
+    @Test
+    @DisplayName("CU-69 · 200: sin respuesta de transparencia el detalle sale igual, sin arenaMinima")
+    void detalleSinTransparencia() throws Exception {
+        org.mockito.Mockito.when(afuera.arenaDe(any())).thenReturn(java.util.Optional.empty());
+        when(detalle.consultar(eq(GRUPO), any())).thenReturn(paraIniciar(8, 0));
+        mvc.perform(get("/grupos/{g}/detalle", GRUPO).with(Sesiones.como("PARTICIPANTE")))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.minimoParaIniciar").value(8))
+                .andExpect(jsonPath("$.arenaMinima").doesNotExist());
     }
 
     @Test

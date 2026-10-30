@@ -12,6 +12,7 @@ import bo.aportaya.transparencia.aplicacion.CU75EmitirCertificado;
 import bo.aportaya.transparencia.aplicacion.CU76PublicarResena;
 import bo.aportaya.transparencia.aplicacion.CU97EvaluarRiesgo;
 import bo.aportaya.transparencia.aplicacion.ConsultarPuntaje;
+import bo.aportaya.transparencia.aplicacion.ListarArenas;
 import bo.aportaya.transparencia.aplicacion.ListarBloques;
 import bo.aportaya.transparencia.dominio.puertos.PaquetesDeSorteo;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -64,6 +65,9 @@ class SeguridadWebTest extends SabanaDeSeguridadWeb {
 
     @MockitoBean
     private ListarBloques listarBloques;
+
+    @MockitoBean
+    private ListarArenas listarArenas;
 
     @MockitoBean
     private PaquetesDeSorteo paquetesDeSorteo;

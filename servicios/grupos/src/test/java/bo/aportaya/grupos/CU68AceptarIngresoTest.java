@@ -28,7 +28,8 @@ class CU68AceptarIngresoTest extends BaseDeCU68 {
 
     /** Un grupo de 2 cupos: el organizador ocupa el 1, el 2 queda LIBRE. Devuelve {grupo, organizador, solicitante, solicitud}. */
     private UUID[] armar(boolean cupoLibre) {
-        UUID grupo = fixtura.grupoConformado(3);
+        // Abierto a inscripcion: iniciado (CONFORMADO) ya no acepta a nadie (AP-CU69-17, CU69IngresoCerradoTest).
+        UUID grupo = fixtura.grupoAbierto(3);
         UUID organizador = fixtura.usuario();
         UUID participanteOrg = UUID.randomUUID();
         dslFixtura.execute(

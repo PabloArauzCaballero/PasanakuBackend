@@ -68,6 +68,15 @@ public interface HechosDeOtrosServicios {
     /** El puntaje de reputacion. Lo dice {@code transparencia}. */
     Reputacion reputacion(UUID usuarioId);
 
+    /**
+     * La arena de una persona, con su puntaje para comparar y el catalogo de arenas (2026-10-30). Lo dice
+     * {@code transparencia}. Vacio si no contesta, o si contesta sin catalogo: quien llama NO deja entrar ni crear
+     * (falla cerrado, regla 98.2.4), porque sin la arena no se sabe si alcanza la minima ni que desbloquea.
+     */
+    default java.util.Optional<bo.aportaya.grupos.dominio.Arenas.DeLaPersona> arenaDe(UUID usuarioId) {
+        return java.util.Optional.empty();
+    }
+
     /** Si esta en la lista de restriccion, y con cuanto sale. Lo dice {@code garantia}. */
     Restriccion restriccion(UUID usuarioId);
 

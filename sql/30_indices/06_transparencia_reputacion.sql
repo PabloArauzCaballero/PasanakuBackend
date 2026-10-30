@@ -67,6 +67,21 @@ CREATE UNIQUE INDEX IF NOT EXISTS uq_insignia_logro_codigo
 CREATE INDEX IF NOT EXISTS ix_insignia_otorgada_usuario_id
   ON transparencia.insignia_otorgada (usuario_id);
 
+CREATE INDEX IF NOT EXISTS ix_arena_modelo_id
+  ON transparencia.arena (modelo_id);
+
+CREATE UNIQUE INDEX IF NOT EXISTS uq_arena_modelo_id_codigo
+  ON transparencia.arena (modelo_id, codigo);
+
+CREATE UNIQUE INDEX IF NOT EXISTS uq_arena_modelo_id_orden
+  ON transparencia.arena (modelo_id, orden);
+
+CREATE UNIQUE INDEX IF NOT EXISTS uq_desbloqueo_arena_arena_id
+  ON transparencia.desbloqueo_arena (arena_id);
+
+CREATE INDEX IF NOT EXISTS ix_desbloqueo_arena_estado
+  ON transparencia.desbloqueo_arena (estado);
+
 CREATE INDEX IF NOT EXISTS ix_metrica_grupo_grupo_id
   ON transparencia.metrica_grupo (grupo_id);
 

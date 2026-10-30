@@ -19,6 +19,7 @@ import bo.aportaya.transparencia.aplicacion.CU76PublicarResena;
 import bo.aportaya.transparencia.aplicacion.CU97EvaluarRiesgo;
 import bo.aportaya.transparencia.aplicacion.ConsultarPerfilEnGrupo;
 import bo.aportaya.transparencia.aplicacion.ConsultarPuntaje;
+import bo.aportaya.transparencia.aplicacion.ListarArenas;
 import bo.aportaya.transparencia.dominio.PerfilDeReputacionEnGrupo;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
@@ -39,7 +40,7 @@ import org.springframework.test.web.servlet.MockMvc;
         types = {
             ConsultarPuntaje.class, CU70RegistrarEventoReputacion.class, CU71RecalcularPuntaje.class,
             CU72SellarBloque.class, CU74EvaluarInsignias.class, CU75EmitirCertificado.class,
-            CU76PublicarResena.class, CU97EvaluarRiesgo.class
+            CU76PublicarResena.class, CU97EvaluarRiesgo.class, ListarArenas.class
         })
 class PerfilEnGrupoWebTest {
 

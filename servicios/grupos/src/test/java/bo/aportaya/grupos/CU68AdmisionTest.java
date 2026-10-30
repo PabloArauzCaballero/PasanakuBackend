@@ -219,4 +219,47 @@ class CU68AdmisionTest extends BaseDeCU68 {
                         .get(0))
                 .isEqualTo("PENDIENTE");
     }
+
+    @Test
+    @DisplayName("arena al aceptar (2026-10-30): autoriza ANTES de que la API mire la arena del solicitante, con el rol"
+            + " del servicio; el reintento de la misma clave no la vuelve a pedir")
+    void exigeArenaAlAceptarAutorizaPrimeroYReconoceElReintento() {
+        // El organizador de OTRO grupo: rechazado sin saber nada del solicitante (no hay oraculo de reputacion).
+        UUID otroGrupo = grupoConCupoLibre();
+        var otro = dslFixtura.fetchOne(
+                "SELECT id, usuario_id FROM grupos.participante WHERE grupo_id=? ORDER BY id LIMIT 1", otroGrupo);
+        dslFixtura.execute("UPDATE grupos.participante SET es_organizador=true WHERE id=?", otro.get("id", UUID.class));
+        var organizadorAjeno = sesion(otro.get("usuario_id", UUID.class), "ORGANIZADOR");
+        assertThatThrownBy(() -> transaccion.execute(tx -> {
+                    dsl.execute("SET LOCAL ROLE svc_grupos");
+                    return admision.exigeArenaAlAceptar(solicitud, UUID.randomUUID(), organizadorAjeno, false);
+                }))
+                .isInstanceOf(ErrorDeNegocio.class)
+                .extracting(e -> ((ErrorDeNegocio) e).codigo().valor())
+                .isEqualTo("AP-CU68-06");
+        // Resolver es de backoffice: un organizador no llega a la arena por esa puerta.
+        assertThatThrownBy(() -> transaccion.execute(
+                        tx -> admision.exigeArenaAlAceptar(solicitud, UUID.randomUUID(), administrador, true)))
+                .isInstanceOf(ErrorDeNegocio.class)
+                .extracting(e -> ((ErrorDeNegocio) e).codigo().valor())
+                .isEqualTo("AP-CU68-06");
+
+        // El administrador del grupo, con una clave nueva: hay que mirar la arena.
+        var entrada = propuesta("ACEPTAR", 0);
+        assertThat(transaccion.<Boolean>execute(tx -> {
+                    dsl.execute("SET LOCAL ROLE svc_grupos");
+                    return admision.exigeArenaAlAceptar(solicitud, entrada.clave(), administrador, false);
+                }))
+                .isTrue();
+        var original = transaccion.execute(tx -> admision.proponer(entrada, administrador));
+        // Con la misma clave ya registrada: no se pregunta, y proponer devuelve la original.
+        assertThat(transaccion.<Boolean>execute(tx -> {
+                    dsl.execute("SET LOCAL ROLE svc_grupos");
+                    return admision.exigeArenaAlAceptar(solicitud, entrada.clave(), administrador, false);
+                }))
+                .isFalse();
+        assertThat(transaccion.<bo.aportaya.grupos.dominio.DecisionDeIngreso>execute(
+                        tx -> admision.proponer(entrada, administrador)))
+                .isEqualTo(original);
+    }
 }

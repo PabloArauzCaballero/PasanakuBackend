@@ -1,6 +1,7 @@
 package bo.aportaya.grupos.infraestructura;
 
 import static bo.aportaya.grupos.generado.Tables.CUPO;
+import static bo.aportaya.grupos.generado.Tables.GRUPO;
 import static bo.aportaya.grupos.generado.Tables.SORTEO_TURNOS;
 import static bo.aportaya.grupos.generado.Tables.TURNO;
 
@@ -31,10 +32,15 @@ public class SorteoRepositorio {
                 .fetch(CUPO.ID);
     }
 
-    /** Un grupo a medio armar no se sortea: quedan cupos libres. */
+    /** Un grupo a medio armar no se sortea: quedan cupos libres. Los que dejo afuera el inicio al 75 % no cuentan. */
     public boolean estaConformado(DSLContext dsl, UUID grupoId) {
-        return dsl.fetchCount(CUPO, CUPO.GRUPO_ID.eq(grupoId).and(CUPO.ESTADO.ne("OCUPADO"))) == 0
-                && dsl.fetchCount(CUPO, CUPO.GRUPO_ID.eq(grupoId)) > 0;
+        var delCiclo = CUPO.GRUPO_ID
+                .eq(grupoId)
+                .and(CUPO.NUMERO.le(dsl.select(GRUPO.CUPOS_TOTALES)
+                        .from(GRUPO)
+                        .where(GRUPO.ID.eq(grupoId))
+                        .asField()));
+        return dsl.fetchCount(CUPO, delCiclo.and(CUPO.ESTADO.ne("OCUPADO"))) == 0 && dsl.fetchCount(CUPO, delCiclo) > 0;
     }
 
     /** Cada participante con su reglamento aceptado, o no hay sorteo. */
