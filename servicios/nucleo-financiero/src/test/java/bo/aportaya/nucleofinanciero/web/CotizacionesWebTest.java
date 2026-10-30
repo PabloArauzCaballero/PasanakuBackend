@@ -44,6 +44,8 @@ import org.springframework.test.web.servlet.MockMvc;
         value = BilleteraController.class,
         properties = {"aportaya.retiro.doble-aprobacion-desde=5000.00"})
 @Import(FondeoDeLaBilletera.class)
+@org.springframework.test.context.bean.override.mockito.MockitoBean(
+        types = bo.aportaya.nucleofinanciero.aplicacion.CU13LiberarRetencionDelMercado.class)
 class CotizacionesWebTest {
     private static final UUID CUENTA = UUID.fromString("eeeeeeee-0000-4000-8000-0000000000b1");
     private static final UUID COTIZACION = UUID.fromString("eeeeeeee-0000-4000-8000-0000000000b2");

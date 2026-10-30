@@ -1,0 +1,38 @@
+{
+  "servicio": "grupos",
+  "operacion": "consultarElegibilidadParaSubasta",
+  "metodo": "get",
+  "ruta": "/grupos/{grupoId}/elegibilidad-para-subasta",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "elegible": true,
+        "motivo": "RESTRICCION_VIGENTE"
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "elegible": false,
+        "motivo": "RESTRICCION_VIGENTE"
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "elegible": true,
+        "motivo": "RESTRICCION_VIGENTE"
+      }
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU68-04",
+        "mensaje": "Sin cupos libres",
+        "detalle": {},
+        "trazaId": "traza-consultarElegibilidadParaSubasta-rechazo"
+      }
+    }
+  }
+}

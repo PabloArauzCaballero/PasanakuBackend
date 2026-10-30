@@ -77,6 +77,9 @@ class EntregasControllerWebTest {
     @MockitoBean
     private MercadoWeb mercado;
 
+    @MockitoBean
+    private bo.aportaya.entregas.web.SubastasWeb subastasWeb;
+
     private static Dinero bob(String monto) {
         return Dinero.de(monto, Moneda.BOB);
     }
