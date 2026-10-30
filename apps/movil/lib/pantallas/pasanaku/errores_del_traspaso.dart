@@ -39,6 +39,10 @@ const Map<String, (LugarDelRechazo, String)> _porCodigo = {
     LugarDelRechazo.acuerdo,
     'El grupo tiene que aprobar este traspaso en una votación antes de hacerlo.',
   ),
+  'AP-CU64-06': (
+    LugarDelRechazo.cupo,
+    'Este cupo ya no es tuyo: solo quien lo tiene puede traspasarlo.',
+  ),
 };
 
 /// Sin el permiso del servidor (403): se dice qué pasa, no «algo salió mal».

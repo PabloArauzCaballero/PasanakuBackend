@@ -13,9 +13,12 @@ import 'accion_del_traspaso.dart';
 import 'comprobante_del_traspaso.dart';
 import 'dominio/cu64_traspasar_cupo.dart';
 import 'dominio/detalle_del_grupo.dart';
+import 'dominio/votacion_del_traspaso.dart';
 import 'errores_del_traspaso.dart';
 import 'pasos_del_traspaso.dart';
 import 'textos_del_traspaso.dart';
+
+part 'pantalla_traspaso_envio.dart';
 
 /// CU-64 · traspasar mi cupo, en tres pasos y una hoja de confirmación. Con la forma de
 /// una orden P2P (pasos, tarjeta de la orden, contraparte, condiciones, acción grande
@@ -39,17 +42,10 @@ class PantallaTraspaso extends ConsumerStatefulWidget {
 
 const _misGrupos = '/pasanaku';
 
-class _PantallaTraspasoState extends ConsumerState<PantallaTraspaso> {
-  final _motivo = TextEditingController();
+class _PantallaTraspasoState extends ConsumerState<PantallaTraspaso>
+    with _EnvioDelTraspaso {
   var _paso = 0;
-  var _confirmando = false;
   String? _elegido;
-
-  @override
-  void dispose() {
-    _motivo.dispose();
-    super.dispose();
-  }
 
   /// Volver retrocede un paso; desde el primero (o con el traspaso hecho) sale.
   void _volver() {
@@ -77,6 +73,10 @@ class _PantallaTraspasoState extends ConsumerState<PantallaTraspaso> {
     final entrante = candidatos
         .where((c) => c.usuarioId == _elegido)
         .firstOrNull;
+    final votacion = widget.acuerdoId != null
+        ? VotacionAprobada(widget.acuerdoId!)
+        : ref.watch(votacionDelCupoProvider(_cupo)).value;
+    final pidiendo = ref.watch(pedirVotacionProvider).isLoading;
     final envio = ref.watch(traspasarCupoProvider);
     final salida = envio.value;
     final listo = salida != null && mio != null && entrante != null;
@@ -142,7 +142,8 @@ class _PantallaTraspasoState extends ConsumerState<PantallaTraspaso> {
                         mio: mio,
                         entrante: entrante!,
                         nombreDelGrupo: d.nombre,
-                        hayAcuerdo: widget.acuerdoId != null,
+                        hayAcuerdo: votacion is VotacionAprobada,
+                        detalleAcuerdo: _detalleDe(votacion),
                         rechazo: envio.hasError
                             ? rechazoDelTraspaso(envio.error!)
                             : null,
@@ -167,31 +168,10 @@ class _PantallaTraspasoState extends ConsumerState<PantallaTraspaso> {
               alContinuar: () => setState(() => _paso++),
               alTraspasar: () => _confirmarYEnviar(mio, entrante!),
               alTerminar: () => context.go(_misGrupos),
+              votacion: votacion,
+              pidiendo: pidiendo,
+              alPedirVotacion: () => _pedirVotacion(mio, entrante),
             ),
     );
-  }
-
-  /// Un toque abre UNA hoja: mientras está abierta (o se envía), la acción no responde.
-  Future<void> _confirmarYEnviar(
-    IntegranteDelGrupo mio,
-    IntegranteDelGrupo entrante,
-  ) async {
-    if (_confirmando) return;
-    setState(() => _confirmando = true);
-    final motivo = _motivo.text.trim();
-    final si = await confirmarTraspaso(
-      context,
-      ResumenDelTraspaso(mio: mio, entrante: entrante, motivo: motivo),
-    );
-    if (!mounted) return;
-    setState(() => _confirmando = false);
-    if (!si) return;
-    await ref.read(traspasarCupoProvider.notifier).enviar((
-      grupoId: widget.grupoId,
-      cupoId: widget.cupoId,
-      usuarioEntranteId: entrante.usuarioId!,
-      motivo: motivo,
-      acuerdoId: widget.acuerdoId,
-    ));
   }
 }
