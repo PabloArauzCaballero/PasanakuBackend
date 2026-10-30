@@ -1,0 +1,5 @@
+Suite completa apps/movil, --concurrency=1, reporter json
+base origin/test ebe0ceb0: 2570 tests, 353 fallas
+con cambios: 2574 tests, 353 fallas
+fallas nuevas: 0 · fallas que desaparecen: 0
+348 de 353 en test/goldens y test/capturas (comparacion de pixeles); 5 en identidad/componentes_de_fase, identidad/motivo_de_salida_en_ingreso, widget/paso_capturas — todas preexistentes.
