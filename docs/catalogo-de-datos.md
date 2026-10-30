@@ -3237,6 +3237,29 @@ Son dos conversaciones completamente distintas con dos personas distintas. Un so
 | `creada_en` | TIMESTAMPTZ | Marca temporal UTC en que la entidad fue creada en la base de datos. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 | `acreditada_en` | TIMESTAMPTZ | Marca temporal o fecha de acreditada en `orden_desembolso`. | TIMESTAMPTZ, opcional. | NINGUNA |
 
+### `puja_subasta`
+
+**Qué es.** Una oferta por un cupo en subasta: quién ofrece, cuánto y en qué estado está (`VIGENTE`, `SUPERADA`, `LIBERADA`, `GANADORA`, `RECHAZADA`).
+
+**Para qué sirve.** Que ofrecer sea serio y no cueste plata a quien pierde: el monto queda retenido en la billetera del postor y, si alguien lo supera, se le devuelve al instante.
+
+**Por qué existe.** Cada puja mueve saldo retenido (`retencion_ref`). Sin su registro no hay forma de liberar la retención correcta cuando la superan, ni de saber cuál ganó al cierre.
+
+**Sistema.** Vive en el esquema `entregas`; la escribe y la lee solo el servicio `entregas` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `subasta_cupo`.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
+| `subasta_cupo_id` | UUID | Referencia por clave foránea a la entidad `subasta_cupo`. | UUID, obligatoria, referencia a `subasta_cupo`, índice b-tree. | NINGUNA |
+| `postor_usuario_id` | UUID | Identificador de referencia para el concepto de postor usuario en `puja_subasta`. | UUID, obligatoria, índice b-tree. | NINGUNA |
+| `moneda` | CHAR(3) | Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2). | CHAR(3), obligatoria. | NINGUNA |
+| `monto` | DECIMAL(14,2) | Importe monetario principal de la transacción o concepto financiero. | DECIMAL(14,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `estado` | VARCHAR(12) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(12), obligatoria, índice b-tree. | NINGUNA |
+| `retencion_ref` | UUID | Atributo que representa retencion ref en el modelo de `puja_subasta`. | UUID, opcional. | NINGUNA |
+| `clave_idempotencia` | VARCHAR(80) | Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4). | VARCHAR(80), obligatoria, restricción única. | NINGUNA |
+| `creada_en` | TIMESTAMPTZ | Marca temporal UTC en que la entidad fue creada en la base de datos. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `version` | INTEGER | Número de versión para control de concurrencia optimista y auditoría de modificaciones. | INTEGER, obligatoria. | NINGUNA |
+
 ### `regla_entrega`
 
 **Qué es.** El catálogo de controles previos, con su orden, si bloquean y quién puede omitirlos.
@@ -3276,6 +3299,39 @@ Son dos conversaciones completamente distintas con dos personas distintas. Un so
 | `lock_until` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
 | `locked_at` | TIMESTAMPTZ | — | TIMESTAMPTZ, obligatoria. | NINGUNA |
 | `locked_by` | VARCHAR(255) | — | VARCHAR(255), obligatoria. | NINGUNA |
+
+### `subasta_cupo`
+
+**Qué es.** El cupo que su titular pone en subasta: precio base, plazo de cierre y el estado de la venta, de `ABIERTA` hasta `VENDIDA`, `DESIERTA`, `CANCELADA` o `FALLIDA`.
+
+**Para qué sirve.** Que quien ya no puede seguir en el pasanaku venda su lugar sin votación del grupo: cualquiera que cumpla lo que pide el grupo ofrece, gana la oferta más alta al cierre y el turno no se mueve.
+
+**Por qué existe.** El cierre cruza tres servicios (entregas adjudica, grupos pasa el cupo, la billetera paga) y lo irreversible va al final. Sin un registro con estados no se sabe en qué paso quedó una subasta interrumpida ni a quién se adjudicó.
+
+**Sistema.** Vive en el esquema `entregas`; la escribe y la lee solo el servicio `entregas` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `grupos.cupo`, `grupos.grupo`, `grupos.participante`. La referencian `puja_subasta`.
+
+| Columna | Tipo | Negocio | Sistema | Sensibilidad |
+|---|---|---|---|---|
+| `id` | UUID | Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. | UUID, obligatoria, clave primaria. | NINGUNA |
+| `grupo_id` | UUID | Referencia al grupo de pasanaku en el que se enmarca esta operación. | UUID, obligatoria, referencia a `grupo`, índice b-tree. | NINGUNA |
+| `cupo_id` | UUID | Referencia por clave foránea a la entidad `cupo`. | UUID, obligatoria, referencia a `cupo`, índice b-tree. | NINGUNA |
+| `participante_origen_id` | UUID | Referencia por clave foránea a la entidad `participante`. | UUID, obligatoria, referencia a `participante`. | NINGUNA |
+| `vendedor_usuario_id` | UUID | Identificador de referencia para el concepto de vendedor usuario en `subasta_cupo`. | UUID, obligatoria, índice b-tree. | NINGUNA |
+| `nombre_grupo` | VARCHAR(120) | Atributo que representa nombre grupo en el modelo de `subasta_cupo`. | VARCHAR(120), obligatoria. | NINGUNA |
+| `periodicidad` | VARCHAR(15) | Atributo que representa periodicidad en el modelo de `subasta_cupo`. | VARCHAR(15), obligatoria. | NINGUNA |
+| `moneda` | CHAR(3) | Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2). | CHAR(3), obligatoria. | NINGUNA |
+| `monto_aporte` | DECIMAL(14,2) | Importe monetario correspondiente a aporte en `subasta_cupo`. | DECIMAL(14,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `monto_base` | DECIMAL(14,2) | Importe monetario correspondiente a base en `subasta_cupo`. | DECIMAL(14,2), obligatoria, sensibilidad financiero. | FINANCIERO |
+| `monto_ganador` | DECIMAL(14,2) | Importe monetario correspondiente a ganador en `subasta_cupo`. | DECIMAL(14,2), opcional, sensibilidad financiero. | FINANCIERO |
+| `estado` | VARCHAR(12) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(12), obligatoria, índice b-tree. | NINGUNA |
+| `abierta_en` | TIMESTAMPTZ | Marca temporal o fecha de abierta en `subasta_cupo`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
+| `cierra_en` | TIMESTAMPTZ | Marca temporal o fecha de cierra en `subasta_cupo`. | TIMESTAMPTZ, obligatoria, índice b-tree. | NINGUNA |
+| `puja_ganadora_id` | UUID | Identificador de referencia para el concepto de puja ganadora en `subasta_cupo`. | UUID, opcional. | NINGUNA |
+| `traspaso_ref` | UUID | Atributo que representa traspaso ref en el modelo de `subasta_cupo`. | UUID, opcional. | NINGUNA |
+| `liquidacion_ref` | UUID | Atributo que representa liquidacion ref en el modelo de `subasta_cupo`. | UUID, opcional. | NINGUNA |
+| `motivo_fallo` | VARCHAR(200) | Atributo que representa motivo fallo en el modelo de `subasta_cupo`. | VARCHAR(200), opcional. | NINGUNA |
+| `clave_idempotencia` | VARCHAR(80) | Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4). | VARCHAR(80), obligatoria, restricción única. | NINGUNA |
+| `version` | INTEGER | Número de versión para control de concurrencia optimista y auditoría de modificaciones. | INTEGER, obligatoria. | NINGUNA |
 
 ### `validacion_pre_entrega`
 
@@ -5195,7 +5251,7 @@ El caso que justifica toda la separación: **un participante abandona en el per�
 
 **Casos de uso que la nombran.** CU-20 Crear grupo y congelar tarifario (`crearGrupo`, `consultarNivelKyc`, `consultarHabilitacion`, `consultarTarifarioVigente`) · CU-60 Sortear los turnos (`comprometerSorteo`, `revelarSorteo`, `verificarSorteo`) · CU-64 Traspasar un cupo (`traspasarCupo`, `consultarPuntaje`) · CU-68 Postular a un grupo y ser emparejado (`contarMorosos`, `consultarRestriccion`, `solicitarIngresoPorEnlace`, `generarEnlaceDelGrupo`, `postularAlGrupo`)
 
-**Sistema.** Vive en el esquema `grupos`; la escribe y la lee solo el servicio `grupos` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `grupo`, `participante`. La referencian `aportes.obligacion_aporte`, `entregas.entrega_fondo`, `entregas.oferta_turno`, `garantia.reemplazo_participante`, `garantia.registro_incumplimiento`, `traspaso_cupo`, `turno`.
+**Sistema.** Vive en el esquema `grupos`; la escribe y la lee solo el servicio `grupos` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `grupo`, `participante`. La referencian `aportes.obligacion_aporte`, `entregas.entrega_fondo`, `entregas.oferta_turno`, `entregas.subasta_cupo`, `garantia.reemplazo_participante`, `garantia.registro_incumplimiento`, `traspaso_cupo`, `turno`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
@@ -5321,7 +5377,7 @@ El caso que justifica toda la separación: **un participante abandona en el per�
 
 **Casos de uso que la nombran.** CU-20 Crear grupo y congelar tarifario (`crearGrupo`, `consultarNivelKyc`, `consultarHabilitacion`, `consultarTarifarioVigente`) · CU-60 Sortear los turnos (`comprometerSorteo`, `revelarSorteo`, `verificarSorteo`) · CU-63 Proponer y votar un acuerdo (`proponerAcuerdo`, `votarAcuerdo`) · CU-68 Postular a un grupo y ser emparejado (`contarMorosos`, `consultarRestriccion`, `solicitarIngresoPorEnlace`, `generarEnlaceDelGrupo`, `postularAlGrupo`)
 
-**Sistema.** Vive en el esquema `grupos`; la escribe y la lee solo el servicio `grupos` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `organizador.organizador`. La referencian `acuerdo`, `aportes.obligacion_aporte`, `aportes.politica_mora`, `auditoria.alerta_cumplimiento`, `auditoria.ejecucion_reporte`, `catalogo.dia_no_habil`, `comun.bitacora_evento`, `configuracion_grupo`, `cupo`, `enlace_grupo`, `entregas.entrega_fondo`, `entregas.oferta_turno`, `garantia.alerta_temprana`, `garantia.aval_participante`, `garantia.cobertura_respaldo`, `garantia.deuda_participante`, `garantia.disolucion_anticipada`, `garantia.fondo_garantia`, `garantia.plan_contingencia`, `garantia.politica_cobertura`, `garantia.politica_sancion`, `garantia.reemplazo_participante`, `garantia.registro_incumplimiento`, `garantia.reserva_respaldo`, `garantia.score_riesgo_incumplimiento`, `historial_estado_grupo`, `invitacion`, `notificaciones.programacion_recordatorio`, `nucleo_financiero.asiento_contable`, `nucleo_financiero.cuenta_billetera`, `nucleo_financiero.cuenta_contable`, `nucleo_financiero.transaccion_billetera`, `nucleo_financiero.transferencia_p2p`, `organizador.tarea_automatizada`, `participante`, `periodo`, `propuesta_grupo`, `reglamento_grupo`, `solicitud_ingreso`, `sorteo_turnos`, `tarifas.asignacion_tarifario`, `tarifas.devengo_comision`, `tarifas.exencion_comision`, `tarifas.tarifa_congelada_grupo`, `transparencia.bloque_transparencia`, `transparencia.evento_reputacion`, `transparencia.metrica_grupo`, `transparencia.resena_participante`, `turno`.
+**Sistema.** Vive en el esquema `grupos`; la escribe y la lee solo el servicio `grupos` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `organizador.organizador`. La referencian `acuerdo`, `aportes.obligacion_aporte`, `aportes.politica_mora`, `auditoria.alerta_cumplimiento`, `auditoria.ejecucion_reporte`, `catalogo.dia_no_habil`, `comun.bitacora_evento`, `configuracion_grupo`, `cupo`, `enlace_grupo`, `entregas.entrega_fondo`, `entregas.oferta_turno`, `entregas.subasta_cupo`, `garantia.alerta_temprana`, `garantia.aval_participante`, `garantia.cobertura_respaldo`, `garantia.deuda_participante`, `garantia.disolucion_anticipada`, `garantia.fondo_garantia`, `garantia.plan_contingencia`, `garantia.politica_cobertura`, `garantia.politica_sancion`, `garantia.reemplazo_participante`, `garantia.registro_incumplimiento`, `garantia.reserva_respaldo`, `garantia.score_riesgo_incumplimiento`, `historial_estado_grupo`, `invitacion`, `notificaciones.programacion_recordatorio`, `nucleo_financiero.asiento_contable`, `nucleo_financiero.cuenta_billetera`, `nucleo_financiero.cuenta_contable`, `nucleo_financiero.transaccion_billetera`, `nucleo_financiero.transferencia_p2p`, `organizador.tarea_automatizada`, `participante`, `periodo`, `propuesta_grupo`, `reglamento_grupo`, `solicitud_ingreso`, `sorteo_turnos`, `tarifas.asignacion_tarifario`, `tarifas.devengo_comision`, `tarifas.exencion_comision`, `tarifas.tarifa_congelada_grupo`, `transparencia.bloque_transparencia`, `transparencia.evento_reputacion`, `transparencia.metrica_grupo`, `transparencia.resena_participante`, `turno`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
@@ -5424,7 +5480,7 @@ El caso que justifica toda la separación: **un participante abandona en el per�
 
 **Casos de uso que la nombran.** CU-20 Crear grupo y congelar tarifario (`crearGrupo`, `consultarNivelKyc`, `consultarHabilitacion`, `consultarTarifarioVigente`) · CU-60 Sortear los turnos (`comprometerSorteo`, `revelarSorteo`, `verificarSorteo`) · CU-63 Proponer y votar un acuerdo (`proponerAcuerdo`, `votarAcuerdo`) · CU-64 Traspasar un cupo (`traspasarCupo`, `consultarPuntaje`) · CU-65 Retirarse de un grupo (`solicitarRetiro`) · CU-68 Postular a un grupo y ser emparejado (`contarMorosos`, `consultarRestriccion`, `solicitarIngresoPorEnlace`, `generarEnlaceDelGrupo`, `postularAlGrupo`)
 
-**Sistema.** Vive en el esquema `grupos`; la escribe y la lee solo el servicio `grupos` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `grupo`, `identidad.usuario`, `participante`. La referencian `aceptacion_reglamento`, `aportes.obligacion_aporte`, `aportes.plan_regularizacion`, `cupo`, `entregas.cesion_derecho`, `entregas.entrega_fondo`, `entregas.oferta_turno`, `garantia.aval_participante`, `garantia.descargo_participante`, `garantia.deuda_participante`, `garantia.devolucion_fondo`, `garantia.liquidacion_participante`, `garantia.reemplazo_participante`, `garantia.registro_incumplimiento`, `garantia.sancion`, `nucleo_financiero.cuenta_contable`, `participante`, `solicitud_permuta`, `solicitud_retiro`, `tarifas.devengo_comision`, `transparencia.evento_reputacion`, `transparencia.resena_participante`, `traspaso_cupo`, `voto_participante`. Reglas nombradas: `uq_participante_vigente_grupo_usuario`.
+**Sistema.** Vive en el esquema `grupos`; la escribe y la lee solo el servicio `grupos` (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de `grupo`, `identidad.usuario`, `participante`. La referencian `aceptacion_reglamento`, `aportes.obligacion_aporte`, `aportes.plan_regularizacion`, `cupo`, `entregas.cesion_derecho`, `entregas.entrega_fondo`, `entregas.oferta_turno`, `entregas.subasta_cupo`, `garantia.aval_participante`, `garantia.descargo_participante`, `garantia.deuda_participante`, `garantia.devolucion_fondo`, `garantia.liquidacion_participante`, `garantia.reemplazo_participante`, `garantia.registro_incumplimiento`, `garantia.sancion`, `nucleo_financiero.cuenta_contable`, `participante`, `solicitud_permuta`, `solicitud_retiro`, `tarifas.devengo_comision`, `transparencia.evento_reputacion`, `transparencia.resena_participante`, `traspaso_cupo`, `voto_participante`. Reglas nombradas: `uq_participante_vigente_grupo_usuario`.
 
 | Columna | Tipo | Negocio | Sistema | Sensibilidad |
 |---|---|---|---|---|
