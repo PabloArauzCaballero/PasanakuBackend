@@ -13,3 +13,4 @@ $ ./gradlew :servicios:nucleo-financiero:check :plataforma:gateway:check -x test
 BUILD SUCCESSFUL in 15s
 verificar_seguridad/boveda/carriles/contratos_limites/pruebas_web/criterios/validar_flujos/inventario/narrativas: exit 0; generar_ddl/postman/gateway/catalogo sin diff tras regenerar
 $ flutter test (dirigidos + capturas) -> 00:05 +25: All tests passed! · dart analyze --fatal-infos -> No issues found!
+- Frontend CI (#348): apps/movil/lib/dominio/errores.dart 203 lineas (>200) por AP-CU10-05 -> el texto pasa a ContextoErrorApi.pagoDeRecargaDePrueba (por ruta /recargas-de-prueba/); errores.dart vuelve a 200. movil `yarn lint` exit 0; flutter dirigidos+capturas 25/25; unidad de errores 42/42; analyze limpio.
