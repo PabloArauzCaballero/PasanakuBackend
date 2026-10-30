@@ -23,6 +23,7 @@
 ## Pendiente
 | ID | Estado | Qué lo destraba |
 |---|---|---|
+| Merge de #339 (test) y #340 (dev) | BLOQUEADO | `test` ya está en rojo en su HEAD desde #343 (QR dinámico): «Bóveda, seguridad, carriles…» marca SQL concatenado en `servicios/nucleo-financiero/src/test/java/bo/aportaya/nucleofinanciero/CU10QrDinamicoTest.java:106,111`, y «Contratos y clientes generados» pide regenerar la colección Postman de nucleo-financiero (27→28 operaciones). Esas fallas cortan la cadena y el job «Frontend — Flutter y Angular» queda salteado. Lo destraba quien sea dueño del carril QR dinámico. Después hay que re-correr CI de #339/#340 y mergear. En la primera corrida, antes de que entrara #343, el único fallo del job Flutter era el formato de `paso_cuenta.dart`, ya corregido (H1.S3.M1) |
 | Foto de OTROS integrantes | fuera de alcance (no planificada) | Contrato nuevo en identidad para leer la foto de otra persona + verificar consentimiento (regla 90.2.8). Decisión de Pablo |
 
 ## Evidencia
