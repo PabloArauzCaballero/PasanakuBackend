@@ -30,9 +30,15 @@ final class VotacionAprobada extends VotacionDelCupo {
   final String acuerdoId;
 }
 
-typedef CupoDelGrupo = ({String grupoId, String cupoId});
+/// El cupo y quién entra: el grupo vota el traspaso a ESA persona (decisión 2026-10-30).
+typedef CupoDelGrupo = ({
+  String grupoId,
+  String cupoId,
+  String? usuarioEntranteId,
+});
 
-/// La votación del cupo, leída del servidor: la aprobada manda; si no, la abierta.
+/// La votación del cupo, leída del servidor: manda la aprobada para quien entra; si no, la
+/// abierta (hay una sola abierta por cupo, sea para quien sea).
 final votacionDelCupoProvider = FutureProvider.autoDispose
     .family<VotacionDelCupo, CupoDelGrupo>((ref, c) async {
       ref.watch(generacionDeSesionProvider);
@@ -44,7 +50,12 @@ final votacionDelCupoProvider = FutureProvider.autoDispose
         );
         final acuerdos = r.data ?? const <AcuerdoDelGrupo>[];
         final aprobada = acuerdos
-            .where((a) => a.estado == AcuerdoDelGrupoEstadoEnum.APROBADO)
+            .where(
+              (a) =>
+                  a.estado == AcuerdoDelGrupoEstadoEnum.APROBADO &&
+                  a.usuarioEntranteId != null &&
+                  a.usuarioEntranteId == c.usuarioEntranteId,
+            )
             .firstOrNull;
         if (aprobada != null) return VotacionAprobada(aprobada.acuerdoId);
         final abierta = acuerdos
@@ -57,8 +68,9 @@ final votacionDelCupoProvider = FutureProvider.autoDispose
       }
     });
 
-/// Pedir la votación del traspaso: abre un acuerdo TRASPASO_CUPO sobre el cupo. Una
-/// clave de idempotencia por cupo: tocar dos veces no abre dos votaciones.
+/// Pedir la votación del traspaso: abre un acuerdo TRASPASO_CUPO sobre el cupo y quien
+/// entra. Una clave de idempotencia por cupo y persona: tocar dos veces no abre dos
+/// votaciones.
 class PedirVotacion extends AsyncNotifier<void> {
   @override
   Future<void> build() async {
@@ -68,7 +80,7 @@ class PedirVotacion extends AsyncNotifier<void> {
   Future<void> pedir(CupoDelGrupo c, String descripcion) async {
     if (state.isLoading) return;
     final claves = ref.read(idempotenciaProvider.notifier);
-    final formulario = 'cu63-votar-traspaso-${c.cupoId}';
+    final formulario = 'cu63-votar-traspaso-${c.cupoId}-${c.usuarioEntranteId}';
     state = const AsyncLoading<void>();
     try {
       await DefaultApi(ref.read(dioProvider)).proponerAcuerdo(
@@ -78,6 +90,7 @@ class PedirVotacion extends AsyncNotifier<void> {
           tipo: EntradaAcuerdoTipoEnum.TRASPASO_CUPO,
           descripcion: descripcion,
           referenciaAfectadaId: c.cupoId,
+          usuarioEntranteId: c.usuarioEntranteId,
         ),
       );
       claves.cerrar(formulario);

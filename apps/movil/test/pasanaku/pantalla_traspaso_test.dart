@@ -19,12 +19,13 @@ const _motivo = 'Me mudo de ciudad y Ana sigue en el grupo';
 const _acuerdo = '44444444-4444-4444-8444-444444444444';
 
 /// La votación del traspaso de este cupo (CU-63), como la lista el servidor.
-Map<String, dynamic> _votacion(String estado) => {
+Map<String, dynamic> _votacion(String estado, {String entrante = _ana}) => {
   'acuerdoId': _acuerdo,
   'tipo': 'TRASPASO_CUPO',
   'estado': estado,
   'descripcion': 'Traspaso del cupo 1 a Ana',
   'referenciaAfectadaId': _cupo,
+  'usuarioEntranteId': entrante,
   'cierraEn': '2026-11-05T12:00:00Z',
 };
 
@@ -84,6 +85,8 @@ Future<(DioAdapter, List<_Envio>)> _montar(
   WidgetTester t, {
   List<Map<String, dynamic>>? votaciones,
 }) async {
+  // El mock HTTP resuelve por ruta: un onPost('/acuerdos') pisaria al GET de la votacion.
+  // El POST de pedir la votacion se responde aca, despues de anotarlo.
   t.view.physicalSize = const Size(412, 2400);
   t.view.devicePixelRatio = 1;
   addTearDown(t.view.reset);
@@ -98,6 +101,15 @@ Future<(DioAdapter, List<_Envio>)> _montar(
             clave: o.headers['Idempotency-Key'] as String?,
             cuerpo: o.data,
           ));
+        }
+        if (o.method == 'POST' && o.path == '/acuerdos') {
+          return h.resolve(
+            Response(
+              requestOptions: o,
+              statusCode: 201,
+              data: {'acuerdoId': _acuerdo, 'estado': 'EN_VOTACION'},
+            ),
+          );
         }
         h.next(o);
       },
@@ -190,12 +202,7 @@ void main() {
   testWidgets('sin votación: pide al grupo que vote ESTE cupo y no traspasa', (
     t,
   ) async {
-    final (adaptador, envios) = await _montar(t, votaciones: const []);
-    adaptador.onPost(
-      '/acuerdos',
-      (s) => s.reply(201, {'acuerdoId': _acuerdo}),
-      data: Matchers.any,
-    );
+    final (_, envios) = await _montar(t, votaciones: const []);
     await _hastaRevisar(t);
     expect(find.text('Traspasar cupo'), findsNothing);
     await t.tap(find.text('Pedir la votación al grupo'));
@@ -204,8 +211,22 @@ void main() {
     final cuerpo = _cuerpo(envios.single.cuerpo);
     expect(cuerpo['tipo'], 'TRASPASO_CUPO');
     expect(cuerpo['referenciaAfectadaId'], _cupo);
+    expect(cuerpo['usuarioEntranteId'], _ana);
     expect(cuerpo['grupoId'], _g);
     expect(envios.single.clave, isNotEmpty);
+  });
+
+  testWidgets('la votación aprobada para otra persona no sirve para Ana', (
+    t,
+  ) async {
+    final (_, envios) = await _montar(
+      t,
+      votaciones: [_votacion('APROBADO', entrante: 'beto')],
+    );
+    await _hastaRevisar(t);
+    expect(find.text('Traspasar cupo'), findsNothing);
+    expect(find.text('Pedir la votación al grupo'), findsOneWidget);
+    expect(envios, isEmpty);
   });
 
   testWidgets('votación abierta: espera, sin poder traspasar todavía', (

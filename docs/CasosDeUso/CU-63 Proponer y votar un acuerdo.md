@@ -91,6 +91,7 @@ export const ErroresCU63 = {
   VOTO_YA_EMITIDO:          'AP-CU63-03',
   VOTACION_CERRADA:         'AP-CU63-04',
   PARTE_INTERESADA:         'AP-CU63-05',
+  TRASPASO_SIN_ENTRANTE:    'AP-CU63-06',
 } as const
 ```
 
@@ -101,6 +102,7 @@ export const ErroresCU63 = {
 | `VOTO_YA_EMITIDO` | El participante ya votó; el voto no se cambia |
 | `VOTACION_CERRADA` | Se votó fuera de plazo o sobre un acuerdo ya resuelto |
 | `PARTE_INTERESADA` | El votante es el afectado directo: su voto se registra como `ABSTENCION_FORZADA` y no pondera |
+| `TRASPASO_SIN_ENTRANTE` | Un `TRASPASO_CUPO` sin el cupo, sin la persona que entra, o con alguien que no participa del grupo |
 
 ## Descomposición atómica
 

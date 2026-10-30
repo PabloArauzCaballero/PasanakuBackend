@@ -3384,7 +3384,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"grupoId\": \"{{grupoId}}\",\n  \"tipo\": \"CONDONACION\",\n  \"descripcion\": \"descripcion-de-prueba\",\n  \"referenciaAfectadaId\": \"{{referenciaAfectadaId}}\",\n  \"diasVotacion\": 1\n}",
+              "raw": "{\n  \"grupoId\": \"{{grupoId}}\",\n  \"tipo\": \"CONDONACION\",\n  \"descripcion\": \"descripcion-de-prueba\",\n  \"referenciaAfectadaId\": \"{{referenciaAfectadaId}}\",\n  \"usuarioEntranteId\": \"{{usuarioEntranteId}}\",\n  \"diasVotacion\": 1\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -3480,7 +3480,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"grupoId\": \"{{id}}\",\n  \"tipo\": \"REPETIR_SORTEO\",\n  \"descripcion\": \"LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL\",\n  \"referenciaAfectadaId\": \"{{id}}\",\n  \"diasVotacion\": 1\n}",
+              "raw": "{\n  \"grupoId\": \"{{id}}\",\n  \"tipo\": \"REPETIR_SORTEO\",\n  \"descripcion\": \"LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL\",\n  \"referenciaAfectadaId\": \"{{id}}\",\n  \"usuarioEntranteId\": \"{{id}}\",\n  \"diasVotacion\": 1\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -3542,7 +3542,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"grupoId\": \"{{grupoId}}\",\n  \"tipo\": \"CONDONACION\",\n  \"descripcion\": \"descripcion-de-prueba\",\n  \"referenciaAfectadaId\": \"{{referenciaAfectadaId}}\",\n  \"diasVotacion\": 1\n}",
+              "raw": "{\n  \"grupoId\": \"{{grupoId}}\",\n  \"tipo\": \"CONDONACION\",\n  \"descripcion\": \"descripcion-de-prueba\",\n  \"referenciaAfectadaId\": \"{{referenciaAfectadaId}}\",\n  \"usuarioEntranteId\": \"{{usuarioEntranteId}}\",\n  \"diasVotacion\": 1\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -3608,7 +3608,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"tipo\": \"CONDONACION\",\n  \"descripcion\": \"descripcion-de-prueba\",\n  \"referenciaAfectadaId\": \"{{referenciaAfectadaId}}\",\n  \"diasVotacion\": 1,\n  \"campoQueNoExiste\": \"additionalProperties: false tiene que rechazarlo\"\n}",
+              "raw": "{\n  \"tipo\": \"CONDONACION\",\n  \"descripcion\": \"descripcion-de-prueba\",\n  \"referenciaAfectadaId\": \"{{referenciaAfectadaId}}\",\n  \"usuarioEntranteId\": \"{{usuarioEntranteId}}\",\n  \"diasVotacion\": 1,\n  \"campoQueNoExiste\": \"additionalProperties: false tiene que rechazarlo\"\n}",
               "options": {
                 "raw": {
                   "language": "json"

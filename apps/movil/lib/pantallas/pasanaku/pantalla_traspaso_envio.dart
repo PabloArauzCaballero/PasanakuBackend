@@ -5,8 +5,13 @@ part of 'pantalla_traspaso.dart';
 mixin _EnvioDelTraspaso on ConsumerState<PantallaTraspaso> {
   final _motivo = TextEditingController();
   var _confirmando = false;
+  String? _elegido;
 
-  CupoDelGrupo get _cupo => (grupoId: widget.grupoId, cupoId: widget.cupoId);
+  CupoDelGrupo get _cupo => (
+    grupoId: widget.grupoId,
+    cupoId: widget.cupoId,
+    usuarioEntranteId: _elegido,
+  );
 
   @override
   void dispose() {

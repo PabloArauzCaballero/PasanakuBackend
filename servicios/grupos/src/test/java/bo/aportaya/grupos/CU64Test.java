@@ -154,14 +154,16 @@ class CU64Test extends BaseDeCU64 {
                 """
                 INSERT INTO grupos.acuerdo
                     (id, grupo_id, tipo, descripcion, propuesto_por, quorum_requerido, votos_a_favor,
-                     votos_en_contra, abstenciones, estado, referencia_afectada_id, abierto_en, cierra_en)
-                VALUES (?, ?, 'ADMISION_REEMPLAZO', 'traspaso de prueba', ?, 0.600, 3, 0, 0, 'APROBADO', ?,
+                     votos_en_contra, abstenciones, estado, referencia_afectada_id, entrante_participante_id,
+                     abierto_en, cierra_en)
+                VALUES (?, ?, 'ADMISION_REEMPLAZO', 'traspaso de prueba', ?, 0.600, 3, 0, 0, 'APROBADO', ?, ?,
                         now() - interval '2 days', now() - interval '1 day')
                 """,
                 acuerdo,
                 escenario.grupo(),
                 fixtura.usuario(),
-                escenario.cupo());
+                escenario.cupo(),
+                escenario.entrante());
 
         UUID primero = ejecutarConAcuerdo(escenario, acuerdo);
         UUID segundo = ejecutarConAcuerdo(escenario, acuerdo);

@@ -69,14 +69,9 @@ void main() {
     return contenedor;
   }
 
-  Future<void> escribir(
-    WidgetTester tester,
-    String clave,
-    String repetida,
-  ) async {
+  Future<void> escribir(WidgetTester tester, String clave) async {
     final campos = find.byType(TextField);
     await tester.enterText(campos.at(2), clave);
-    await tester.enterText(campos.at(3), repetida);
     await tester.pump();
     await tester.ensureVisible(find.text('Continuar'));
     await tester.pumpAndSettle();
@@ -84,16 +79,13 @@ void main() {
     await asentar(tester);
   }
 
-  testWidgets('una clave de ocho o más, repetida bien, avanza de paso', (
-    tester,
-  ) async {
+  testWidgets('una clave de ocho o más avanza de paso', (tester) async {
     final c = await montar(tester);
     expect(find.text('Mínimo 8 caracteres'), findsOneWidget);
-    expect(find.text('Igual a la de arriba'), findsOneWidget);
     expect(find.text('CÓMO ENTRÁS'), findsOneWidget);
     expect(find.byType(TarjetaDeConfianza), findsOneWidget);
 
-    await escribir(tester, 'una-clave-larga-2026', 'una-clave-larga-2026');
+    await escribir(tester, 'una-clave-larga-2026');
 
     expect(c.read(altaProvider).contrasena, 'una-clave-larga-2026');
     expect(c.read(altaProvider).paso, PasoAlta.correo);
@@ -102,7 +94,7 @@ void main() {
   testWidgets('una clave corta no avanza y dice por qué', (tester) async {
     final c = await montar(tester);
 
-    await escribir(tester, 'corta', 'corta');
+    await escribir(tester, 'corta');
 
     expect(c.read(altaProvider).paso, PasoAlta.cuenta);
     expect(find.textContaining('ocho'), findsWidgets);
@@ -124,22 +116,30 @@ void main() {
       final sugerencia = texto.split('por ejemplo: ').last;
       expect(errorContrasena(sugerencia), isNull, reason: sugerencia);
 
-      await escribir(tester, 'mi clave 2026', 'mi clave 2026');
+      await escribir(tester, 'mi clave 2026');
       expect(c.read(altaProvider).paso, PasoAlta.cuenta);
 
       // Con la sugerida, sí avanza.
-      await escribir(tester, sugerencia, sugerencia);
+      await escribir(tester, sugerencia);
       expect(c.read(altaProvider).paso, PasoAlta.correo);
     },
   );
 
-  testWidgets('si las dos no coinciden, no avanza', (tester) async {
-    final c = await montar(tester);
+  // 2026-10-30: la contraseña se pide UNA vez, con el botón para verla; la confirmación
+  // reemplazaba la prueba de «si las dos no coinciden, no avanza».
+  testWidgets('la contraseña se pide una vez y se puede ver lo escrito', (
+    tester,
+  ) async {
+    await montar(tester);
+    expect(find.text('Confirmar contraseña'), findsNothing);
+    expect(find.byTooltip('Mostrar contraseña'), findsOneWidget);
 
-    await escribir(tester, 'una-clave-larga-2026', 'una-clave-larga-2027');
-
-    expect(c.read(altaProvider).paso, PasoAlta.cuenta);
-    expect(find.textContaining('no coinciden'), findsOneWidget);
+    final campo = find.byType(TextField).at(2);
+    await tester.enterText(campo, 'una-clave-larga-2026');
+    expect(tester.widget<TextField>(campo).obscureText, isTrue);
+    await tester.tap(find.byTooltip('Mostrar contraseña'));
+    await tester.pump();
+    expect(tester.widget<TextField>(campo).obscureText, isFalse);
   });
 
   testWidgets('el rechazo del servidor aparece y enfoca el campo de clave', (
@@ -181,7 +181,7 @@ void main() {
 
       // La misma regla que aplica `PoliticaDeClave`. Gastar un viaje al servidor para
       // enterarse al final del alta sería el peor momento para descubrirlo.
-      await escribir(tester, 'mi78123456segura', 'mi78123456segura');
+      await escribir(tester, 'mi78123456segura');
 
       expect(c.read(altaProvider).paso, PasoAlta.cuenta);
       expect(find.textContaining('celular'), findsWidgets);

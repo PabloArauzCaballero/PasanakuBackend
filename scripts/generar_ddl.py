@@ -60,6 +60,17 @@ TABLA_ESQUEMA = {}
 # NULLS NOT DISTINCT o no impide el duplicado.
 OPCIONALES = {}
 
+# Columnas que se agregaron al modelo DESPUES de que existiera una base: el
+# `CREATE TABLE IF NOT EXISTS` no las crea sobre una base ya hecha, asi que se
+# emiten tambien como `ADD COLUMN IF NOT EXISTS` (15_infra/columnas_agregadas.sql).
+# Solo columnas opcionales: agregar una columna NULL no reescribe la tabla ni puede
+# fallar por datos existentes. Una columna obligatoria nueva es un trabajo aparte.
+COLUMNAS_AGREGADAS = {
+    # 2026-10-30 · CU-64: la votacion del traspaso dice a quien entra.
+    ("acuerdo", "entrante_participante_id"),
+}
+COMENTARIO_AGREGADA = {}
+
 # search_path para la sesion que APLICA el esquema y siembra: ve todos los
 # esquemas. Los roles de servicio tienen el suyo, mucho mas estrecho (02_esquemas).
 SEARCH_PATH_SQL = ("SET search_path TO "
@@ -442,6 +453,7 @@ def generar():
 
     pendientes = []
     opcionales = []          # (esquema.tabla, columna) que el modelo declara NULL
+    agregadas = []           # (esquema.tabla, columna, tipo) de COLUMNAS_AGREGADAS
     total_tablas = total_fks = total_indices = total_checks = 0
 
     for k, d in sorted(mods.items()):
@@ -476,6 +488,10 @@ def generar():
                         partes.append("NOT NULL")
                     elif col["nulo"] and not col["generated"] and not col["pk"]:
                         opcionales.append((f'{TABLA_ESQUEMA[tabla]}.{tabla}', n))
+                if (tabla, n) in COLUMNAS_AGREGADAS:
+                    if not col["nulo"] or col["generated"] or col["pk"]:
+                        raise SystemExit(f"{tabla}.{n}: solo se agregan columnas opcionales")
+                    agregadas.append((f'{TABLA_ESQUEMA[tabla]}.{tabla}', n, tipo))
 
                 lineas.append(" ".join(partes))
 
@@ -504,7 +520,11 @@ def generar():
 
                 ficha = narrativas.get(tabla, {}).get("columnas", {})
                 nota = ficha.get(a_camel(n)) or ficha.get(n) or CONVENCIONES.get(n)
-                if nota or col["anot"]:
+                if (nota or col["anot"]) and (tabla, n) in COLUMNAS_AGREGADAS:
+                    # Sobre una base ya hecha la columna todavia no existe cuando corre
+                    # el archivo de la tabla: el comentario va despues del ADD COLUMN.
+                    COMENTARIO_AGREGADA[(tabla, n)] = comentario(nota) if nota else col["anot"]
+                elif nota or col["anot"]:
                     comentarios.append((n, comentario(nota) if nota else col["anot"]))
 
                 if col["fk"]:
@@ -668,6 +688,9 @@ def generar():
     escribir_infra_borradores()
     escribir_permisos_finales()
     escribir_append_only()
+    if {(t.split('.', 1)[1], c) for t, c, _ in agregadas} != COLUMNAS_AGREGADAS:
+        raise SystemExit("COLUMNAS_AGREGADAS nombra columnas que el modelo no tiene")
+    escribir_columnas_agregadas(agregadas)
     escribir_convergencia(opcionales)
     escribir_orquestador(mods)
 
@@ -1100,6 +1123,30 @@ def escribir_append_only():
     (d / "append_only.sql").write_text("\n".join(L), encoding="utf-8")
 
 
+def escribir_columnas_agregadas(agregadas):
+    """Crea, sobre una base que YA existe, las columnas opcionales nuevas del modelo.
+
+    Igual que la nulabilidad, no es un sistema de migraciones: solo agrega columnas
+    NULL listadas en COLUMNAS_AGREGADAS. Sobre una base recien creada no hace nada.
+    """
+    L = ["-- Columnas opcionales agregadas al modelo, sobre una base que ya existe.",
+         "-- Generado por scripts/generar_ddl.py — no editar a mano.",
+         "--",
+         "-- Solo agrega columnas NULL (COLUMNAS_AGREGADAS del generador): no reescribe",
+         "-- la tabla ni puede fallar por datos existentes. Sobre una base recien creada",
+         "-- no hace nada: la columna ya nace con la tabla.",
+         ""]
+    for tabla, columna, tipo in sorted(agregadas):
+        L.append(f"ALTER TABLE {tabla} ADD COLUMN IF NOT EXISTS {columna} {tipo};")
+        nota = COMENTARIO_AGREGADA.get((tabla.split('.', 1)[1], columna))
+        if nota:
+            L.append(f"COMMENT ON COLUMN {tabla}.{columna} IS '{nota}';")
+    L.append("")
+    d = OUT / "15_infra"
+    d.mkdir(parents=True, exist_ok=True)
+    (d / "columnas_agregadas.sql").write_text("\n".join(L), encoding="utf-8")
+
+
 def escribir_convergencia(opcionales):
     """Pone al dia la nulabilidad de una base que YA existe.
 
@@ -1239,6 +1286,8 @@ def escribir_orquestador(mods):
             L.append(f"\\ir 10_tablas/{carpeta}/{d['entidades'][alias]['tabla']}.sql")
     L += ["", "-- 2b) Infraestructura de mensajería por esquema (ADR-027)",
           "\\ir 15_infra/mensajeria.sql"]
+    L += ["", "-- 2b') Columnas opcionales nuevas sobre una base que ya existe.",
+          "\\ir 15_infra/columnas_agregadas.sql"]
     L += ["", "-- 2c) Nulabilidad al día sobre una base que ya existe.",
           "--     Solo afloja lo que el modelo declara opcional; no es un sistema de",
           "--     migraciones. Sobre una base recién creada no hace nada.",

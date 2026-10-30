@@ -1030,6 +1030,7 @@ entity "acuerdo" as acuerdo {
   abstenciones : SMALLINT
   estado : VARCHAR(15) <<CK>>
   referencia_afectada_id : UUID <<NULL, polimorfica>>
+  entrante_participante_id : UUID <<NULL>>
   abierto_en : TIMESTAMPTZ
   cierra_en : TIMESTAMPTZ
   resuelto_en : TIMESTAMPTZ <<NULL>>
@@ -1102,6 +1103,9 @@ note bottom of acuerdo
   referencia_afectada_id es polimorfica segun
   "tipo": participante.id, turno.id o
   registro_incumplimiento.id (M8).
+  entrante_participante_id: en un traspaso
+  (ADMISION_REEMPLAZO), quien entra al cupo;
+  NULL en los demas tipos.
 end note
 
 @enduml
