@@ -160,6 +160,22 @@ Y la retención queda EJECUTADA una sola vez
 Dado una persona con una billetera BOB activa
 Cuando pregunta por su billetera propia
 Entonces recibe la suya y no la de otra persona
+
+Dada la puja retenida de Bs 500 de un postor con Bs 1.000
+Cuando entregas la libera con su identidad de servicio
+Entonces la retención queda LIBERADA y el postor vuelve a tener Bs 1.000 disponibles
+
+Dada una retención ya liberada
+Cuando entregas la vuelve a liberar
+Entonces AP-CU13-03 con estado LIBERADA y el saldo no se duplica
+
+Dada una sesión de usuario final
+Cuando intenta liberar la retención de otro por esta vía
+Entonces AP-CU13-09 y la retención sigue RETENIDA
+
+Dada una retención que no es de una compra en el mercado
+Cuando entregas la quiere liberar
+Entonces AP-CU13-08 y no se toca
 ```
 
 ## Ver también
