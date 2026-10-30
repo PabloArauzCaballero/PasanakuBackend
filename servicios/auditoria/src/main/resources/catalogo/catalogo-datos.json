@@ -110,7 +110,7 @@
    "descripcion": "Grupos, Cupos, Turnos y Gobernanza. Reglas del juego, orden de cobro y decisiones colectivas.",
    "tablas": 29,
    "tablasDeNegocio": 26,
-   "columnas": 308,
+   "columnas": 309,
    "relaciones": 51,
    "appendOnly": 4,
    "conDatosPersonales": 2,
@@ -39746,6 +39746,16 @@
      "nulable": true,
      "pk": false,
      "negocio": "Identificador de referencia para el concepto de referencia afectada en acuerdo.",
+     "origenNegocio": "convencion",
+     "sistema": "UUID, opcional.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "entrante_participante_id",
+     "tipo": "UUID",
+     "nulable": true,
+     "pk": false,
+     "negocio": "Identificador de referencia para el concepto de entrante participante en acuerdo.",
      "origenNegocio": "convencion",
      "sistema": "UUID, opcional.",
      "sensibilidad": "NINGUNA"

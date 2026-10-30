@@ -5099,6 +5099,7 @@ En el pasanaku presencial esto se resuelve en reunión. Digitalmente, `Acuerdo` 
 | `abstenciones` | SMALLINT | Atributo que representa abstenciones en el modelo de `acuerdo`. | SMALLINT, obligatoria. | NINGUNA |
 | `estado` | VARCHAR(15) | Estado operativo o fase del ciclo de vida en que se encuentra el registro. | VARCHAR(15), obligatoria. | NINGUNA |
 | `referencia_afectada_id` | UUID | Identificador de referencia para el concepto de referencia afectada en `acuerdo`. | UUID, opcional. | NINGUNA |
+| `entrante_participante_id` | UUID | Identificador de referencia para el concepto de entrante participante en `acuerdo`. | UUID, opcional. | NINGUNA |
 | `abierto_en` | TIMESTAMPTZ | Marca temporal o fecha de abierto en `acuerdo`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 | `cierra_en` | TIMESTAMPTZ | Marca temporal o fecha de cierra en `acuerdo`. | TIMESTAMPTZ, obligatoria. | NINGUNA |
 | `resuelto_en` | TIMESTAMPTZ | Marca temporal o fecha de resuelto en `acuerdo`. | TIMESTAMPTZ, opcional. | NINGUNA |
