@@ -567,6 +567,93 @@ paths:
           # AP-CU64-03 ENTRANTE_SIN_KYC        · AP-CU64-04 ENTRANTE_SIN_REPUTACION
           # AP-CU64-05 ACUERDO_REQUERIDO       · AP-CU64-06 NO_ES_TITULAR
 
+  /grupos/{grupoId}/cupos/{cupoId}/subastabilidad:
+    get:
+      operationId: consultarSubastabilidadDelCupo   # CU-64 por subasta
+      summary: Si quien llama puede poner su cupo en subasta, y lo que entregas necesita saber
+      description: >-
+        Lo pregunta `entregas` ANTES de abrir una subasta, con el token de quien subasta. Solo
+        contesta al titular del cupo (AP-CU64-06 a cualquier otro). `subastable` es falso con su
+        `motivo` cuando el cupo no esta OCUPADO, su turno ya se cobro o el titular tiene deuda
+        vencida: la deuda no viaja con el cupo (R-GRP-11).
+      parameters:
+        - name: grupoId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+        - name: cupoId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: Los hechos del cupo, sin datos de nadie mas
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SubastabilidadDelCupo' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU64-01 el cupo no es de ese grupo · AP-CU64-06 NO_ES_TITULAR
+
+  /grupos/{grupoId}/elegibilidad-para-subasta:
+    get:
+      operationId: consultarElegibilidadParaSubasta   # CU-64 por subasta
+      summary: Si quien llama puede pujar por un cupo de ese grupo
+      description: >-
+        Lo pregunta `entregas` antes de aceptar una puja, con el token de quien puja. Mira lo
+        mismo que una postulacion (restriccion vigente, KYC minimo del grupo, reputacion minima
+        si hay historial, maximo de grupos) y nada del grupo que no sea su politica.
+      parameters:
+        - name: grupoId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: Elegible o no, con el motivo
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ElegibilidadParaSubasta' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU68-04 el grupo no existe
+
+  /grupos/{grupoId}/cupos/{cupoId}/traspasos-por-subasta:
+    post:
+      operationId: traspasarCupoPorSubasta   # CU-64 por subasta
+      summary: El cupo pasa al ganador de una subasta cerrada
+      description: >-
+        [CONTRATO · SOLO SERVICIO] Lo pide `entregas` (`SERVICIO_ENTREGAS`) al cerrar la subasta,
+        ANTES de pagarle al saliente: lo compensable va primero (regla 98.3.5). En una sola
+        transaccion da de alta al ganador como participante ACTIVO (si no lo era), le pasa el cupo
+        y deja al saliente RETIRADO. Sin votacion (decision del dueno, 2026-10-30). El turno no se
+        mueve y la deuda vencida se queda con el saliente. Idempotente: si el cupo ya es del
+        ganador, devuelve ese mismo traspaso. Si el cupo ya no es del saliente, AP-CU64-01.
+      parameters:
+        - name: grupoId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+        - name: cupoId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+        - $ref: '#/components/parameters/ClaveIdempotencia'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaTraspasoPorSubasta' }
+      responses:
+        '200':
+          description: Cupo traspasado (o el mismo traspaso si se repite)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaTraspasoPorSubasta' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU64-01 CUPO_NO_TRASPASABLE (ya no es del saliente, no esta OCUPADO o su turno se cobro)
+
   /grupos/{grupoId}/invitaciones:
     post:
       operationId: invitarAlGrupo              # CU-69
@@ -1300,6 +1387,45 @@ components:
       required: [traspasoId]
       properties:
         traspasoId: { type: string, format: uuid }
+    SubastabilidadDelCupo:
+      type: object
+      additionalProperties: false
+      required: [grupoId, cupoId, participanteId, subastable, montoAporte, nombreDelGrupo, periodicidad]
+      properties:
+        grupoId:        { type: string, format: uuid }
+        nombreDelGrupo: { type: string, maxLength: 120 }
+        periodicidad:   { type: string, maxLength: 15 }
+        cupoId:         { type: string, format: uuid }
+        participanteId: { type: string, format: uuid }
+        subastable:     { type: boolean }
+        motivo:
+          type: [string, 'null']
+          enum: [CUPO_NO_TRASPASABLE, SALIENTE_CON_DEUDA, null]
+        montoAporte:    { $ref: '#/components/schemas/Dinero' }
+    ElegibilidadParaSubasta:
+      type: object
+      additionalProperties: false
+      required: [elegible]
+      properties:
+        elegible: { type: boolean }
+        motivo:
+          type: [string, 'null']
+          enum: [RESTRICCION_VIGENTE, KYC_INSUFICIENTE, REPUTACION_INSUFICIENTE, MAXIMO_DE_GRUPOS, null]
+    EntradaTraspasoPorSubasta:
+      type: object
+      additionalProperties: false
+      required: [subastaId, ganadorUsuarioId, salienteParticipanteId]
+      properties:
+        subastaId:              { type: string, format: uuid }
+        ganadorUsuarioId:       { type: string, format: uuid }
+        salienteParticipanteId: { type: string, format: uuid }
+    SalidaTraspasoPorSubasta:
+      type: object
+      additionalProperties: false
+      required: [traspasoId, participanteEntranteId]
+      properties:
+        traspasoId:             { type: string, format: uuid }
+        participanteEntranteId: { type: string, format: uuid }
     EntradaInvitacion:
       type: object
       additionalProperties: false

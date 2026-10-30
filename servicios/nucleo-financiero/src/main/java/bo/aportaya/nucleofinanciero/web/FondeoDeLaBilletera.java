@@ -8,6 +8,7 @@ import bo.aportaya.nucleofinanciero.aplicacion.CuentaPropia;
 import bo.aportaya.nucleofinanciero.aplicacion.OrdenesExistentes;
 import bo.aportaya.nucleofinanciero.aplicacion.RecargasConProveedor;
 import bo.aportaya.nucleofinanciero.dominio.puertos.SegundoFactor;
+import bo.aportaya.nucleofinanciero.web.generado.modelo.CobroQrRecarga;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.CuentaDeLaSesion;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.EntradaAprobacionRetiro;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.EntradaCotizacionOperacion;
@@ -111,7 +112,7 @@ class FondeoDeLaBilletera {
     }
 
     ResponseEntity<SalidaRecarga> solicitarRecarga(UUID clave, EntradaRecarga cuerpo, ContextoSesion ctx) {
-        var salida = recargas.solicitar(
+        var solicitada = recargas.solicitarConQr(
                 new CU10RecargarSaldo.EntradaSolicitud(
                         clave.toString(),
                         cuerpo.getCuentaBilleteraId(),
@@ -122,18 +123,27 @@ class FondeoDeLaBilletera {
                         Optional.ofNullable(cuerpo.getInstrumentoFondeoId()),
                         Optional.ofNullable(cuerpo.getCotizacionId())),
                 ctx);
+        var salida = solicitada.salida();
 
         var respuesta = new SalidaRecarga();
         respuesta.setOrdenRecargaId(salida.ordenRecargaId());
         respuesta.setEstado(salida.estado());
         respuesta.setExpiraEn(salida.expiraEn());
         respuesta.setAcreditara(MapeoDeBilletera.dinero(salida.acreditara()));
+        solicitada.qr().ifPresent(qr -> {
+            var cobro = new CobroQrRecarga();
+            cobro.setContenido(qr.contenido());
+            cobro.setOrigen(CobroQrRecarga.OrigenEnum.fromValue(qr.origen()));
+            respuesta.setCobroQr(cobro);
+        });
         return ResponseEntity.status(HttpStatus.CREATED).body(respuesta);
     }
 
     ResponseEntity<SalidaAcreditacion> acreditarRecarga(UUID ordenId, ContextoSesion ctx) {
-        var salida = recargas.confirmar(ordenId, ctx);
+        return acreditacion(recargas.confirmar(ordenId, ctx));
+    }
 
+    private static ResponseEntity<SalidaAcreditacion> acreditacion(CU10RecargarSaldo.SalidaAcreditacion salida) {
         var respuesta = new SalidaAcreditacion();
         respuesta.setOrdenRecargaId(salida.ordenRecargaId());
         respuesta.setTransaccionId(salida.transaccionId());

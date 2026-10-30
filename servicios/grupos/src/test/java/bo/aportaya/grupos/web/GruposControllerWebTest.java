@@ -59,6 +59,7 @@ import org.springframework.test.web.servlet.MockMvc;
 @MockitoBean(
         types = {
             bo.aportaya.grupos.aplicacion.CU69EnlaceDeGrupo.class,
+            bo.aportaya.grupos.aplicacion.CU64TraspasoPorSubasta.class,
             bo.aportaya.grupos.aplicacion.CanjearInvitacion.class,
             CU64TraspasarCupo.class,
             CU65Retirarse.class,

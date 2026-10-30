@@ -1,0 +1,54 @@
+{
+  "servicio": "grupos",
+  "operacion": "traspasarCupoPorSubasta",
+  "metodo": "post",
+  "ruta": "/grupos/{grupoId}/cupos/{cupoId}/traspasos-por-subasta",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "traspasoId": "dec4ef23-6551-44d5-8446-a140a4415f3f",
+        "participanteEntranteId": "06855015-6c84-43c7-8a01-d3d27309d3dc"
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "traspasoId": "dec4ef23-6551-44d5-8446-a140a4415f3f",
+        "participanteEntranteId": "06855015-6c84-43c7-8a01-d3d27309d3dc"
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "traspasoId": "dec4ef23-6551-44d5-8446-a140a4415f3f",
+        "participanteEntranteId": "06855015-6c84-43c7-8a01-d3d27309d3dc"
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "traspasoId": "dec4ef23-6551-44d5-8446-a140a4415f3f",
+        "participanteEntranteId": "06855015-6c84-43c7-8a01-d3d27309d3dc"
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU64-01",
+        "mensaje": "Cupo no traspasable",
+        "detalle": {},
+        "trazaId": "traza-traspasarCupoPorSubasta-rechazo"
+      }
+    }
+  }
+}

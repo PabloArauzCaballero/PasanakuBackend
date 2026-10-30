@@ -65,11 +65,12 @@ class CU10ProveedorTest extends BaseDeBilletera {
                 rechazos,
                 new ProveedorDeRecargas() {
                     @Override
-                    public void solicitar(UUID referencia, Dinero monto) {
+                    public Optional<CobroQr> solicitar(UUID referencia, Dinero monto) {
                         assertThat(TransactionSynchronizationManager.isActualTransactionActive())
                                 .isFalse();
                         confirmaciones.putIfAbsent(
                                 referencia, new Confirmacion(referencia, UUID.randomUUID(), monto, "PENDIENTE", null));
+                        return Optional.empty();
                     }
 
                     @Override
@@ -81,7 +82,8 @@ class CU10ProveedorTest extends BaseDeBilletera {
                 },
                 new CotizarOperacion(new FlujosDePrueba.TarifaGratuita(), Reloj.delSistema(), false),
                 FlujosDePrueba.existentes(),
-                discrepancias);
+                discrepancias,
+                FlujosDePrueba.qr());
     }
 
     @AfterEach

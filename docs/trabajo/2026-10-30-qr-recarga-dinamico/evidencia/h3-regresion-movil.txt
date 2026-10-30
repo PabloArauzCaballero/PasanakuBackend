@@ -1,0 +1,59 @@
+$ flutter test   (apps/movil, suite entera, rama)  — 26 min
++2238 ~3 -353: Some tests failed
+
+$ flutter test <los 51 archivos con fallas>   (worktree limpio origin/test ebe0ceb0, mismos clientes y tokens)
++1350 -353: Some tests failed
+
+Comparacion de nombres de test fallidos (comm): rama=     353 base=     353; solo en la rama=0; solo en la base=0
+Clasificacion: ENVIRONMENT/preexistente — goldens y capturas (Pixel test failed / non-existent file). Archivos:
+  30 test/goldens/h10_verificacion_visual_test.dart
+  30 test/capturas/rediseno/capturas_test.dart
+  24 test/goldens/h10_tour_visual_test.dart
+  24 test/goldens/h10_billetera_visual_test.dart
+  24 test/capturas/h17_capturas_test.dart
+  20 test/goldens/h10_grupos_mi_estado_visual_test.dart
+  18 test/goldens/h10_mfa_visual_test.dart
+  18 test/goldens/h10_ingreso_visual_test.dart
+  12 test/goldens/h10_subida_visual_test.dart
+  12 test/goldens/h10_ayuda_visual_test.dart
+   7 test/goldens/h10_perfil_visual_test.dart
+   6 test/goldens/pantalla_escanear_golden_test.dart
+   6 test/goldens/h8_break_ui_test.dart
+   6 test/goldens/h1_candado_visual_test.dart
+   6 test/goldens/h10_prueba_vida_visual_test.dart
+   6 test/goldens/h10_candado_visual_test.dart
+   6 test/goldens/h10_camara_visual_test.dart
+   6 test/goldens/h10_bienvenida_visual_test.dart
+   6 test/goldens/h10_alta_documento_visual_test.dart
+   6 test/goldens/h10_alta_datos_visual_test.dart
+   6 test/goldens/h10_alta_cuenta_visual_test.dart
+   6 test/goldens/h10_alta_correo_visual_test.dart
+   6 test/goldens/h10_alta_contrato_visual_test.dart
+   6 test/goldens/h10_alta_actividad_visual_test.dart
+   6 test/capturas/h17_billetera_acciones_test.dart
+   4 test/goldens/h8_portada_mfa_oscuro_test.dart
+   4 test/goldens/h8_grupos_mi_estado_oscuro_test.dart
+   4 test/goldens/h10_portada_visual_test.dart
+   4 test/capturas/movimiento/saldo_oculto_test.dart
+   4 test/capturas/movimiento/barra_de_pestanas_test.dart
+   3 test/goldens/h10_texto_200_test.dart
+   2 test/widget/paso_capturas_test.dart
+   2 test/identidad/motivo_de_salida_en_ingreso_test.dart
+   2 test/goldens/pantalla_de_saldo_golden_test.dart
+   2 test/goldens/h8_subida_oscura_test.dart
+   2 test/goldens/h8_ingreso_oscuro_test.dart
+   2 test/goldens/h8_camara_identidad_permiso_oscuro_test.dart
+   2 test/capturas/movimiento/cabecera_que_se_compacta_test.dart
+   1 test/widget/pautas_publicas_golden_test.dart
+   1 test/widget/ilustracion_de_pauta_golden_test.dart
+   1 test/identidad/h4_ci_icono_visual_test.dart
+   1 test/identidad/componentes_de_fase_test.dart
+   1 test/goldens/transiciones_golden_test.dart
+   1 test/goldens/h8_verificacion_oscura_test.dart
+   1 test/goldens/h8_tour_oscuro_test.dart
+   1 test/goldens/h8_prueba_vida_oscura_test.dart
+   1 test/goldens/h8_perfil_oscuro_test.dart
+   1 test/goldens/h8_centro_ayuda_oscuro_test.dart
+   1 test/goldens/h8_bienvenida_oscuro_test.dart
+   1 test/goldens/h8_alta_oscura_test.dart
+   1 test/capturas/rediseno/inventario_test.dart

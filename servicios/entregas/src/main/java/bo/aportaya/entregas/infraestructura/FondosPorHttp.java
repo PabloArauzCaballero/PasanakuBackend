@@ -153,6 +153,33 @@ public class FondosPorHttp implements FondosDelComprador {
         }
     }
 
+    @Override
+    public Resultado devolver(UUID retencionRef, String clave) {
+        Optional<String> token = servicio.vigente();
+        if (token.isEmpty()) {
+            BITACORA.warn("devolver sin credencial de servicio: queda para reintentar");
+            return Resultado.NO_DISPONIBLE;
+        }
+        try {
+            var cierre = nucleo.ejecutar(rest -> rest.post()
+                    .uri("/billetera/retenciones/{id}/liberacion-de-mercado", retencionRef)
+                    .header(HttpHeaders.AUTHORIZATION, "Bearer " + token.get())
+                    .header("Idempotency-Key", llaveDe(clave).toString())
+                    .retrieve()
+                    .body(Cierre.class));
+            return cierre != null && retencionRef.equals(cierre.retencionId()) && "LIBERADA".equals(cierre.estado())
+                    ? Resultado.OK
+                    : registrar("devolver", new IllegalStateException("respuesta ilegible"))
+                            .resultado();
+        } catch (RestClientResponseException rechazo) {
+            return yaLiberada(rechazo)
+                    ? Resultado.OK
+                    : registrar("devolver", rechazo).resultado();
+        } catch (RuntimeException noSePudo) {
+            return registrar("devolver", noSePudo).resultado();
+        }
+    }
+
     /** 422 AP-CU13-03 con el estado ya LIBERADA en el detalle (nunca por el texto del mensaje). */
     private static boolean yaLiberada(RestClientResponseException rechazo) {
         if (rechazo.getStatusCode().value() != 422) {

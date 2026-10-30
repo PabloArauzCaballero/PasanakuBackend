@@ -74,4 +74,46 @@ void main() {
       );
     },
   );
+
+  testWidgets(
+    'con QR en la orden, la pantalla muestra el QR en vez del reloj de arena',
+    (tester) async {
+      final (:dio, :adaptador) = dioSimulado();
+      adaptador.onPost(
+        ruta,
+        (s) => s.reply(
+          201,
+          ejemplo(
+            'nucleo-financiero',
+            'solicitarRecarga',
+            'qrDePrueba',
+          )['cuerpo'],
+        ),
+      );
+      adaptador.onGet(
+        '/billetera/$cuenta/saldo',
+        (s) => s.reply(
+          200,
+          ejemplo('nucleo-financiero', 'consultarSaldo', 'ok')['cuerpo'],
+        ),
+      );
+
+      await tester.pumpWidget(
+        conApp(const PantallaRecargar(cuentaId: cuenta), dio: dio),
+      );
+      await tester.pump();
+      await tester.enterText(find.byType(TextField).first, '150,00');
+      await tester.pump();
+      await tester.tap(find.widgetWithText(FilledButton, 'Recargar'));
+      await asentar(tester);
+
+      expect(
+        find.bySemanticsLabel('Código QR para pagar tu recarga'),
+        findsOneWidget,
+      );
+      expect(find.text('QR de prueba'), findsOneWidget);
+      expect(find.text('Simular pago'), findsOneWidget);
+      expect(find.text('Tu recarga quedó en camino.'), findsNothing);
+    },
+  );
 }

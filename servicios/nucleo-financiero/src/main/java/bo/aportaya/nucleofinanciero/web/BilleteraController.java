@@ -5,7 +5,6 @@ import bo.aportaya.nucleofinanciero.aplicacion.CU14ReversarTransaccion;
 import bo.aportaya.nucleofinanciero.aplicacion.CU15EmitirExtracto;
 import bo.aportaya.nucleofinanciero.aplicacion.ConsultarMovimientosBilletera;
 import bo.aportaya.nucleofinanciero.aplicacion.ConsultarSaldo;
-import bo.aportaya.nucleofinanciero.web.generado.BilleteraApi;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.CuentaDeLaSesion;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.EntradaAcreditacionRescate;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.EntradaAprobacionRetiro;
@@ -66,7 +65,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @Permiso("BILLETERA_OPERAR")
-public class BilleteraController implements BilleteraApi {
+public class BilleteraController extends RutasDelMercadoDeLaBilletera {
 
     private final FondeoDeLaBilletera fondeo;
     private final QrDeLaBilletera qr;

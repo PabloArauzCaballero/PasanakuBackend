@@ -4,12 +4,20 @@ import bo.aportaya.nucleofinanciero.dominio.puertos.ProveedorDeRecargas;
 import bo.aportaya.plataforma.dominio.Dinero;
 import java.net.URI;
 import java.time.Duration;
+import java.util.Optional;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
-/** Adaptador del contrato ficticio local. Sin configuracion no confirma ningun ingreso. */
+/**
+ * Adaptador del contrato ficticio local. Sin configuracion no confirma ningun ingreso.
+ *
+ * <p>Es el bean salvo que {@code aportaya.recarga.qr.modo=prueba}, que lo reemplaza por
+ * {@link RecargasProveedorLocal}.
+ */
 @Component
+@ConditionalOnProperty(name = "aportaya.recarga.qr.modo", havingValue = "proveedor", matchIfMissing = true)
 public class RecargasProveedorSimulado implements ProveedorDeRecargas {
 
     private final ClienteProveedorSimulado cliente;
@@ -25,8 +33,10 @@ public class RecargasProveedorSimulado implements ProveedorDeRecargas {
     }
 
     @Override
-    public void solicitar(UUID referencia, Dinero monto) {
+    public Optional<CobroQr> solicitar(UUID referencia, Dinero monto) {
         cliente.enviar(referencia, monto);
+        // El contrato ficticio local no emite QR: confirma o rechaza por referencia, nada mas.
+        return Optional.empty();
     }
 
     @Override
