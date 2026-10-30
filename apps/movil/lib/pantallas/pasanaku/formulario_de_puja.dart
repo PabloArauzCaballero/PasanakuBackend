@@ -88,7 +88,9 @@ class _FormularioDePujaState extends ConsumerState<FormularioDePuja> {
         if (rechazo != null)
           Alerta(
             titulo: rechazo.mensaje,
-            detalle: rechazo.traza == null ? null : 'Referencia ${rechazo.traza}',
+            detalle: rechazo.traza == null
+                ? null
+                : 'Referencia ${rechazo.traza}',
             tono: Tono.error,
           ),
         const SizedBox(height: Espacio.s3),
