@@ -497,15 +497,14 @@
           }
         ],
         "url": {
-          "raw": "{{base_url}}{{prefijo_api}}/billetera/recargas/:ordenId/pago-de-prueba",
+          "raw": "{{base_url}}{{prefijo_api}}/recargas-de-prueba/:ordenId/pago",
           "host": [
             "{{base_url}}{{prefijo_api}}"
           ],
           "path": [
-            "billetera",
-            "recargas",
+            "recargas-de-prueba",
             ":ordenId",
-            "pago-de-prueba"
+            "pago"
           ],
           "variable": [
             {
@@ -515,7 +514,7 @@
             }
           ]
         },
-        "description": "## Da por pagado el QR de prueba de una orden propia y la acredita\n\n[CONTRATO] Existe SOLO donde el proveedor de recargas es el doble de prueba (perfil local/test con `aportaya.recarga.qr.modo=prueba`). En cualquier otro ambiente responde 404, igual que una ruta inexistente.\nNo es un segundo camino para mover saldo: el doble pasa a decir CONFIRMADO para esa orden y la acreditacion es la misma de `acreditarRecarga` (mismo asiento, idempotente por orden). Solo el titular, y solo si el QR guardado de la orden es de origen PRUEBA. Repetirlo devuelve la misma transaccion.\n\n| | |\n| --- | --- |\n| **Servicio** | `nucleo-financiero` |\n| **Operacion** | `pagarRecargaDePrueba` |\n| **Ruta** | `POST /api/v1/billetera/recargas/{ordenId}/pago-de-prueba` |\n| **Permiso** | `BILLETERA_OPERAR` |\n| **Idempotencia** | exige `Idempotency-Key`; se manda un `{{$guid}}` nuevo por intento |\n| **Respuestas** | `200`, `404`, `422`, `401` |\n\n### Rechazos que declara el contrato\n\n_El contrato no declara rechazos de negocio para esta operacion._\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos."
+        "description": "## Da por pagado el QR de prueba de una orden propia y la acredita\n\n[CONTRATO] Existe SOLO donde el proveedor de recargas es el doble de prueba (perfil local/test con `aportaya.recarga.qr.modo=prueba`). En cualquier otro ambiente responde 404, igual que una ruta inexistente. Vive bajo `/recargas-de-prueba` para que la ruta misma diga que no es una operacion de produccion.\nNo es un segundo camino para mover saldo: el doble pasa a decir CONFIRMADO para esa orden y la acreditacion es la misma de `acreditarRecarga` (mismo asiento, idempotente por orden). Solo el titular, y solo si el QR guardado de la orden es de origen PRUEBA. Repetirlo devuelve la misma transaccion.\n\n| | |\n| --- | --- |\n| **Servicio** | `nucleo-financiero` |\n| **Operacion** | `pagarRecargaDePrueba` |\n| **Ruta** | `POST /api/v1/recargas-de-prueba/{ordenId}/pago` |\n| **Permiso** | `BILLETERA_OPERAR` |\n| **Idempotencia** | exige `Idempotency-Key`; se manda un `{{$guid}}` nuevo por intento |\n| **Respuestas** | `200`, `404`, `422`, `401` |\n\n### Rechazos que declara el contrato\n\n_El contrato no declara rechazos de negocio para esta operacion._\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos."
       },
       "response": [],
       "event": [

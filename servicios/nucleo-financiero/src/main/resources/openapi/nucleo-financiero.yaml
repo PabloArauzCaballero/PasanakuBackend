@@ -216,14 +216,15 @@ paths:
         '401':
           $ref: '#/components/responses/NoAutenticado'
 
-  /billetera/recargas/{ordenId}/pago-de-prueba:
+  /recargas-de-prueba/{ordenId}/pago:
     post:
       operationId: pagarRecargaDePrueba       # CU-10 · solo ambientes de prueba
       summary: Da por pagado el QR de prueba de una orden propia y la acredita
       description: >-
         [CONTRATO] Existe SOLO donde el proveedor de recargas es el doble de prueba
         (perfil local/test con `aportaya.recarga.qr.modo=prueba`). En cualquier otro
-        ambiente responde 404, igual que una ruta inexistente.
+        ambiente responde 404, igual que una ruta inexistente. Vive bajo `/recargas-de-prueba`
+        para que la ruta misma diga que no es una operacion de produccion.
 
         No es un segundo camino para mover saldo: el doble pasa a decir CONFIRMADO para
         esa orden y la acreditacion es la misma de `acreditarRecarga` (mismo asiento,

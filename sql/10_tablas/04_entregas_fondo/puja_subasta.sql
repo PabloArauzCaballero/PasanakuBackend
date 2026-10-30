@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS entregas.puja_subasta (
   CONSTRAINT ck_puja_subasta_estado CHECK (estado IN ('PENDIENTE', 'VIGENTE', 'SUPERADA', 'LIBERADA', 'GANADORA', 'RECHAZADA'))
 );
 
-COMMENT ON TABLE entregas.puja_subasta IS 'Módulo 04 — Entregas de Fondo. Que la bolsa llegue completa, a la persona correcta, una sola vez';
+COMMENT ON TABLE entregas.puja_subasta IS 'Módulo 04 — Entregas de Fondo. Una oferta por un cupo en subasta: quién ofrece, cuánto y en qué estado está (VIGENTE, SUPERADA, LIBERADA, GANADORA, RECHAZADA).';
 COMMENT ON COLUMN entregas.puja_subasta.id IS 'Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.';
 COMMENT ON COLUMN entregas.puja_subasta.subasta_cupo_id IS 'FK, IDX';
 COMMENT ON COLUMN entregas.puja_subasta.postor_usuario_id IS 'IDX';

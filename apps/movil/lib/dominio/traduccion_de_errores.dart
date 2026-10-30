@@ -58,6 +58,9 @@ ContextoErrorApi _contextoError(RequestOptions request) {
   if (request.method.toUpperCase() == 'POST' && path.endsWith('/grupos')) {
     return ContextoErrorApi.crearGrupo;
   }
+  if (path.startsWith('/recargas-de-prueba/')) {
+    return ContextoErrorApi.pagoDeRecargaDePrueba;
+  }
   if (RegExp(r'/usuarios/[^/]+/verificacion$').hasMatch(path)) {
     return ContextoErrorApi.estadoDeVerificacion;
   }

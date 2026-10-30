@@ -75,10 +75,10 @@
   {
    "nombre": "entregas",
    "descripcion": "Entregas de Fondo. Que la bolsa llegue completa, a la persona correcta, una sola vez.",
-   "tablas": 17,
-   "tablasDeNegocio": 13,
-   "columnas": 198,
-   "relaciones": 34,
+   "tablas": 19,
+   "tablasDeNegocio": 15,
+   "columnas": 228,
+   "relaciones": 38,
    "appendOnly": 0,
    "conDatosPersonales": 1,
    "servicio": "entregas"
@@ -154,7 +154,7 @@
    "descripcion": "Billetera, Custodia y Dinero Electrónico. El saldo no se guarda: se deriva, y todos los días cuadra contra el banco.",
    "tablas": 33,
    "tablasDeNegocio": 30,
-   "columnas": 382,
+   "columnas": 384,
    "relaciones": 74,
    "appendOnly": 8,
    "conDatosPersonales": 5,
@@ -25745,6 +25745,150 @@
    ]
   },
   {
+   "tabla": "puja_subasta",
+   "esquema": "entregas",
+   "tipo": "NEGOCIO",
+   "modulo": "04",
+   "nombreModulo": "Entregas de Fondo",
+   "servicio": "entregas",
+   "appendOnly": false,
+   "negocio": {
+    "queEs": "Una oferta por un cupo en subasta: quién ofrece, cuánto y en qué estado está (VIGENTE, SUPERADA, LIBERADA, GANADORA, RECHAZADA).",
+    "negocio": "Que ofrecer sea serio y no cueste plata a quien pierde: el monto queda retenido en la billetera del postor y, si alguien lo supera, se le devuelve al instante.",
+    "porQue": "Cada puja mueve saldo retenido (retencion_ref). Sin su registro no hay forma de liberar la retención correcta cuando la superan, ni de saber cuál ganó al cierre."
+   },
+   "notaDeSistema": "monto mayor que cero, con moneda. La retención la crea y la libera nucleo-financiero (CU-13, liberación de mercado). clave_idempotencia para que reintentar una oferta no retenga dos veces.\n\n*Fuente: CU-64 y CU-13 (PR #346); sql/10_tablas/04_entregas_fondo/puja_subasta.sql.*",
+   "reglas": [],
+   "columnas": [
+    {
+     "nombre": "id",
+     "tipo": "UUID",
+     "nulable": false,
+     "pk": true,
+     "negocio": "Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.",
+     "origenNegocio": "convencion",
+     "sistema": "UUID, obligatoria, clave primaria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "subasta_cupo_id",
+     "tipo": "UUID",
+     "nulable": false,
+     "pk": false,
+     "referencia": "subasta_cupo",
+     "negocio": "Referencia por clave foránea a la entidad subasta_cupo.",
+     "origenNegocio": "convencion",
+     "sistema": "UUID, obligatoria, referencia a subasta_cupo, índice b-tree.",
+     "sensibilidad": "NINGUNA",
+     "esquemaReferencia": "entregas"
+    },
+    {
+     "nombre": "postor_usuario_id",
+     "tipo": "UUID",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Identificador de referencia para el concepto de postor usuario en puja_subasta.",
+     "origenNegocio": "convencion",
+     "sistema": "UUID, obligatoria, índice b-tree.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "moneda",
+     "tipo": "CHAR(3)",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2).",
+     "origenNegocio": "convencion",
+     "sistema": "CHAR(3), obligatoria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "monto",
+     "tipo": "DECIMAL(14,2)",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Importe monetario principal de la transacción o concepto financiero.",
+     "origenNegocio": "convencion",
+     "sistema": "DECIMAL(14,2), obligatoria, sensibilidad financiero.",
+     "sensibilidad": "FINANCIERO"
+    },
+    {
+     "nombre": "estado",
+     "tipo": "VARCHAR(12)",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Estado operativo o fase del ciclo de vida en que se encuentra el registro.",
+     "origenNegocio": "convencion",
+     "sistema": "VARCHAR(12), obligatoria, índice b-tree.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "retencion_ref",
+     "tipo": "UUID",
+     "nulable": true,
+     "pk": false,
+     "negocio": "Atributo que representa retencion ref en el modelo de puja_subasta.",
+     "origenNegocio": "convencion",
+     "sistema": "UUID, opcional.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "clave_idempotencia",
+     "tipo": "VARCHAR(80)",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4).",
+     "origenNegocio": "convencion",
+     "sistema": "VARCHAR(80), obligatoria, restricción única.",
+     "sensibilidad": "NINGUNA",
+     "unica": true
+    },
+    {
+     "nombre": "creada_en",
+     "tipo": "TIMESTAMPTZ",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Marca temporal UTC en que la entidad fue creada en la base de datos.",
+     "origenNegocio": "convencion",
+     "sistema": "TIMESTAMPTZ, obligatoria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "version",
+     "tipo": "INTEGER",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Número de versión para control de concurrencia optimista y auditoría de modificaciones.",
+     "origenNegocio": "convencion",
+     "sistema": "INTEGER, obligatoria.",
+     "sensibilidad": "NINGUNA"
+    }
+   ],
+   "relaciones": {
+    "salientes": [
+     {
+      "columna": "subasta_cupo_id",
+      "tabla": "subasta_cupo",
+      "esquema": "entregas",
+      "columnaDestino": "id",
+      "restriccion": "fk_puja_subasta_subasta_cupo_id",
+      "alBorrar": "RESTRICT",
+      "cardinalidad": "N:1",
+      "obligatoria": true
+     }
+    ],
+    "entrantes": []
+   },
+   "sistema": "Vive en el esquema entregas; la escribe y la lee solo el servicio entregas (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de subasta_cupo.",
+   "clasificacion": {
+    "personales": 0,
+    "financieros": 1,
+    "secretos": 0,
+    "derivados": 0
+   },
+   "operaciones": []
+  },
+  {
    "tabla": "regla_entrega",
    "esquema": "entregas",
    "tipo": "NEGOCIO",
@@ -25951,6 +26095,285 @@
    "clasificacion": {
     "personales": 0,
     "financieros": 0,
+    "secretos": 0,
+    "derivados": 0
+   },
+   "operaciones": []
+  },
+  {
+   "tabla": "subasta_cupo",
+   "esquema": "entregas",
+   "tipo": "NEGOCIO",
+   "modulo": "04",
+   "nombreModulo": "Entregas de Fondo",
+   "servicio": "entregas",
+   "appendOnly": false,
+   "negocio": {
+    "queEs": "El cupo que su titular pone en subasta: precio base, plazo de cierre y el estado de la venta, de ABIERTA hasta VENDIDA, DESIERTA, CANCELADA o FALLIDA.",
+    "negocio": "Que quien ya no puede seguir en el pasanaku venda su lugar sin votación del grupo: cualquiera que cumpla lo que pide el grupo ofrece, gana la oferta más alta al cierre y el turno no se mueve.",
+    "porQue": "El cierre cruza tres servicios (entregas adjudica, grupos pasa el cupo, la billetera paga) y lo irreversible va al final. Sin un registro con estados no se sabe en qué paso quedó una subasta interrumpida ni a quién se adjudicó."
+   },
+   "notaDeSistema": "monto_aporte y monto_base mayores que cero, con moneda. puja_ganadora_id, traspaso_ref y liquidacion_ref se llenan a medida que avanza el cierre; FALLIDA lleva motivo_fallo. clave_idempotencia y version para que el cierre programado no adjudique dos veces.\n\n*Fuente: CU-64 (traspaso por subasta, PR #346); sql/10_tablas/04_entregas_fondo/subasta_cupo.sql.*",
+   "reglas": [],
+   "columnas": [
+    {
+     "nombre": "id",
+     "tipo": "UUID",
+     "nulable": false,
+     "pk": true,
+     "negocio": "Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.",
+     "origenNegocio": "convencion",
+     "sistema": "UUID, obligatoria, clave primaria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "grupo_id",
+     "tipo": "UUID",
+     "nulable": false,
+     "pk": false,
+     "referencia": "grupo",
+     "negocio": "Referencia al grupo de pasanaku en el que se enmarca esta operación.",
+     "origenNegocio": "convencion",
+     "sistema": "UUID, obligatoria, referencia a grupo, índice b-tree.",
+     "sensibilidad": "NINGUNA",
+     "esquemaReferencia": "grupos"
+    },
+    {
+     "nombre": "cupo_id",
+     "tipo": "UUID",
+     "nulable": false,
+     "pk": false,
+     "referencia": "cupo",
+     "negocio": "Referencia por clave foránea a la entidad cupo.",
+     "origenNegocio": "convencion",
+     "sistema": "UUID, obligatoria, referencia a cupo, índice b-tree.",
+     "sensibilidad": "NINGUNA",
+     "esquemaReferencia": "grupos"
+    },
+    {
+     "nombre": "participante_origen_id",
+     "tipo": "UUID",
+     "nulable": false,
+     "pk": false,
+     "referencia": "participante",
+     "negocio": "Referencia por clave foránea a la entidad participante.",
+     "origenNegocio": "convencion",
+     "sistema": "UUID, obligatoria, referencia a participante.",
+     "sensibilidad": "NINGUNA",
+     "esquemaReferencia": "grupos"
+    },
+    {
+     "nombre": "vendedor_usuario_id",
+     "tipo": "UUID",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Identificador de referencia para el concepto de vendedor usuario en subasta_cupo.",
+     "origenNegocio": "convencion",
+     "sistema": "UUID, obligatoria, índice b-tree.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "nombre_grupo",
+     "tipo": "VARCHAR(120)",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Atributo que representa nombre grupo en el modelo de subasta_cupo.",
+     "origenNegocio": "convencion",
+     "sistema": "VARCHAR(120), obligatoria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "periodicidad",
+     "tipo": "VARCHAR(15)",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Atributo que representa periodicidad en el modelo de subasta_cupo.",
+     "origenNegocio": "convencion",
+     "sistema": "VARCHAR(15), obligatoria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "moneda",
+     "tipo": "CHAR(3)",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2).",
+     "origenNegocio": "convencion",
+     "sistema": "CHAR(3), obligatoria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "monto_aporte",
+     "tipo": "DECIMAL(14,2)",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Importe monetario correspondiente a aporte en subasta_cupo.",
+     "origenNegocio": "convencion",
+     "sistema": "DECIMAL(14,2), obligatoria, sensibilidad financiero.",
+     "sensibilidad": "FINANCIERO"
+    },
+    {
+     "nombre": "monto_base",
+     "tipo": "DECIMAL(14,2)",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Importe monetario correspondiente a base en subasta_cupo.",
+     "origenNegocio": "convencion",
+     "sistema": "DECIMAL(14,2), obligatoria, sensibilidad financiero.",
+     "sensibilidad": "FINANCIERO"
+    },
+    {
+     "nombre": "monto_ganador",
+     "tipo": "DECIMAL(14,2)",
+     "nulable": true,
+     "pk": false,
+     "negocio": "Importe monetario correspondiente a ganador en subasta_cupo.",
+     "origenNegocio": "convencion",
+     "sistema": "DECIMAL(14,2), opcional, sensibilidad financiero.",
+     "sensibilidad": "FINANCIERO"
+    },
+    {
+     "nombre": "estado",
+     "tipo": "VARCHAR(12)",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Estado operativo o fase del ciclo de vida en que se encuentra el registro.",
+     "origenNegocio": "convencion",
+     "sistema": "VARCHAR(12), obligatoria, índice b-tree.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "abierta_en",
+     "tipo": "TIMESTAMPTZ",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Marca temporal o fecha de abierta en subasta_cupo.",
+     "origenNegocio": "convencion",
+     "sistema": "TIMESTAMPTZ, obligatoria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "cierra_en",
+     "tipo": "TIMESTAMPTZ",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Marca temporal o fecha de cierra en subasta_cupo.",
+     "origenNegocio": "convencion",
+     "sistema": "TIMESTAMPTZ, obligatoria, índice b-tree.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "puja_ganadora_id",
+     "tipo": "UUID",
+     "nulable": true,
+     "pk": false,
+     "negocio": "Identificador de referencia para el concepto de puja ganadora en subasta_cupo.",
+     "origenNegocio": "convencion",
+     "sistema": "UUID, opcional.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "traspaso_ref",
+     "tipo": "UUID",
+     "nulable": true,
+     "pk": false,
+     "negocio": "Atributo que representa traspaso ref en el modelo de subasta_cupo.",
+     "origenNegocio": "convencion",
+     "sistema": "UUID, opcional.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "liquidacion_ref",
+     "tipo": "UUID",
+     "nulable": true,
+     "pk": false,
+     "negocio": "Atributo que representa liquidacion ref en el modelo de subasta_cupo.",
+     "origenNegocio": "convencion",
+     "sistema": "UUID, opcional.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "motivo_fallo",
+     "tipo": "VARCHAR(200)",
+     "nulable": true,
+     "pk": false,
+     "negocio": "Atributo que representa motivo fallo en el modelo de subasta_cupo.",
+     "origenNegocio": "convencion",
+     "sistema": "VARCHAR(200), opcional.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "clave_idempotencia",
+     "tipo": "VARCHAR(80)",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4).",
+     "origenNegocio": "convencion",
+     "sistema": "VARCHAR(80), obligatoria, restricción única.",
+     "sensibilidad": "NINGUNA",
+     "unica": true
+    },
+    {
+     "nombre": "version",
+     "tipo": "INTEGER",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Número de versión para control de concurrencia optimista y auditoría de modificaciones.",
+     "origenNegocio": "convencion",
+     "sistema": "INTEGER, obligatoria.",
+     "sensibilidad": "NINGUNA"
+    }
+   ],
+   "relaciones": {
+    "salientes": [
+     {
+      "columna": "grupo_id",
+      "tabla": "grupo",
+      "esquema": "grupos",
+      "columnaDestino": "id",
+      "restriccion": "fk_subasta_cupo_grupo_id",
+      "alBorrar": "RESTRICT",
+      "cardinalidad": "N:1",
+      "obligatoria": true
+     },
+     {
+      "columna": "cupo_id",
+      "tabla": "cupo",
+      "esquema": "grupos",
+      "columnaDestino": "id",
+      "restriccion": "fk_subasta_cupo_cupo_id",
+      "alBorrar": "RESTRICT",
+      "cardinalidad": "N:1",
+      "obligatoria": true
+     },
+     {
+      "columna": "participante_origen_id",
+      "tabla": "participante",
+      "esquema": "grupos",
+      "columnaDestino": "id",
+      "restriccion": "fk_subasta_cupo_participante_origen_id",
+      "alBorrar": "RESTRICT",
+      "cardinalidad": "N:1",
+      "obligatoria": true
+     }
+    ],
+    "entrantes": [
+     {
+      "columna": "subasta_cupo_id",
+      "tabla": "puja_subasta",
+      "esquema": "entregas",
+      "columnaDestino": "id",
+      "restriccion": "fk_puja_subasta_subasta_cupo_id",
+      "alBorrar": "RESTRICT",
+      "cardinalidad": "N:1",
+      "obligatoria": true
+     }
+    ]
+   },
+   "sistema": "Vive en el esquema entregas; la escribe y la lee solo el servicio entregas (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de grupos.cupo, grupos.grupo, grupos.participante. La referencian puja_subasta.",
+   "clasificacion": {
+    "personales": 0,
+    "financieros": 3,
     "secretos": 0,
     "derivados": 0
    },
@@ -40780,6 +41203,16 @@
      },
      {
       "columna": "cupo_id",
+      "tabla": "subasta_cupo",
+      "esquema": "entregas",
+      "columnaDestino": "id",
+      "restriccion": "fk_subasta_cupo_cupo_id",
+      "alBorrar": "RESTRICT",
+      "cardinalidad": "N:1",
+      "obligatoria": true
+     },
+     {
+      "columna": "cupo_id",
       "tabla": "registro_incumplimiento",
       "esquema": "garantia",
       "columnaDestino": "id",
@@ -40800,7 +41233,7 @@
      }
     ]
    },
-   "sistema": "Vive en el esquema grupos; la escribe y la lee solo el servicio grupos (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de grupo, participante. La referencian aportes.obligacion_aporte, entregas.entrega_fondo, entregas.oferta_turno, garantia.reemplazo_participante, garantia.registro_incumplimiento, traspaso_cupo, turno.",
+   "sistema": "Vive en el esquema grupos; la escribe y la lee solo el servicio grupos (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de grupo, participante. La referencian aportes.obligacion_aporte, entregas.entrega_fondo, entregas.oferta_turno, entregas.subasta_cupo, garantia.reemplazo_participante, garantia.registro_incumplimiento, traspaso_cupo, turno.",
    "clasificacion": {
     "personales": 0,
     "financieros": 0,
@@ -42056,6 +42489,16 @@
      },
      {
       "columna": "grupo_id",
+      "tabla": "subasta_cupo",
+      "esquema": "entregas",
+      "columnaDestino": "id",
+      "restriccion": "fk_subasta_cupo_grupo_id",
+      "alBorrar": "RESTRICT",
+      "cardinalidad": "N:1",
+      "obligatoria": true
+     },
+     {
+      "columna": "grupo_id",
       "tabla": "programacion_recordatorio",
       "esquema": "notificaciones",
       "columnaDestino": "id",
@@ -42346,7 +42789,7 @@
      }
     ]
    },
-   "sistema": "Vive en el esquema grupos; la escribe y la lee solo el servicio grupos (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de organizador.organizador. La referencian acuerdo, aportes.obligacion_aporte, aportes.politica_mora, auditoria.alerta_cumplimiento, auditoria.ejecucion_reporte, catalogo.dia_no_habil, comun.bitacora_evento, configuracion_grupo, cupo, enlace_grupo, entregas.entrega_fondo, entregas.oferta_turno, garantia.alerta_temprana, garantia.aval_participante, garantia.cobertura_respaldo, garantia.deuda_participante, garantia.disolucion_anticipada, garantia.fondo_garantia, garantia.plan_contingencia, garantia.politica_cobertura, garantia.politica_sancion, garantia.reemplazo_participante, garantia.registro_incumplimiento, garantia.reserva_respaldo, garantia.score_riesgo_incumplimiento, historial_estado_grupo, invitacion, notificaciones.programacion_recordatorio, nucleo_financiero.asiento_contable, nucleo_financiero.cuenta_billetera, nucleo_financiero.cuenta_contable, nucleo_financiero.transaccion_billetera, nucleo_financiero.transferencia_p2p, organizador.tarea_automatizada, participante, periodo, propuesta_grupo, reglamento_grupo, solicitud_ingreso, sorteo_turnos, tarifas.asignacion_tarifario, tarifas.devengo_comision, tarifas.exencion_comision, tarifas.tarifa_congelada_grupo, transparencia.bloque_transparencia, transparencia.evento_reputacion, transparencia.metrica_grupo, transparencia.resena_participante, turno.",
+   "sistema": "Vive en el esquema grupos; la escribe y la lee solo el servicio grupos (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de organizador.organizador. La referencian acuerdo, aportes.obligacion_aporte, aportes.politica_mora, auditoria.alerta_cumplimiento, auditoria.ejecucion_reporte, catalogo.dia_no_habil, comun.bitacora_evento, configuracion_grupo, cupo, enlace_grupo, entregas.entrega_fondo, entregas.oferta_turno, entregas.subasta_cupo, garantia.alerta_temprana, garantia.aval_participante, garantia.cobertura_respaldo, garantia.deuda_participante, garantia.disolucion_anticipada, garantia.fondo_garantia, garantia.plan_contingencia, garantia.politica_cobertura, garantia.politica_sancion, garantia.reemplazo_participante, garantia.registro_incumplimiento, garantia.reserva_respaldo, garantia.score_riesgo_incumplimiento, historial_estado_grupo, invitacion, notificaciones.programacion_recordatorio, nucleo_financiero.asiento_contable, nucleo_financiero.cuenta_billetera, nucleo_financiero.cuenta_contable, nucleo_financiero.transaccion_billetera, nucleo_financiero.transferencia_p2p, organizador.tarea_automatizada, participante, periodo, propuesta_grupo, reglamento_grupo, solicitud_ingreso, sorteo_turnos, tarifas.asignacion_tarifario, tarifas.devengo_comision, tarifas.exencion_comision, tarifas.tarifa_congelada_grupo, transparencia.bloque_transparencia, transparencia.evento_reputacion, transparencia.metrica_grupo, transparencia.resena_participante, turno.",
    "clasificacion": {
     "personales": 0,
     "financieros": 1,
@@ -43269,6 +43712,16 @@
       "obligatoria": true
      },
      {
+      "columna": "participante_origen_id",
+      "tabla": "subasta_cupo",
+      "esquema": "entregas",
+      "columnaDestino": "id",
+      "restriccion": "fk_subasta_cupo_participante_origen_id",
+      "alBorrar": "RESTRICT",
+      "cardinalidad": "N:1",
+      "obligatoria": true
+     },
+     {
       "columna": "participante_id",
       "tabla": "evento_reputacion",
       "esquema": "transparencia",
@@ -43390,7 +43843,7 @@
      }
     ]
    },
-   "sistema": "Vive en el esquema grupos; la escribe y la lee solo el servicio grupos (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de grupo, identidad.usuario, participante. La referencian aceptacion_reglamento, aportes.obligacion_aporte, aportes.plan_regularizacion, cupo, entregas.cesion_derecho, entregas.entrega_fondo, entregas.oferta_turno, garantia.aval_participante, garantia.descargo_participante, garantia.deuda_participante, garantia.devolucion_fondo, garantia.liquidacion_participante, garantia.reemplazo_participante, garantia.registro_incumplimiento, garantia.sancion, nucleo_financiero.cuenta_contable, participante, solicitud_permuta, solicitud_retiro, tarifas.devengo_comision, transparencia.evento_reputacion, transparencia.resena_participante, traspaso_cupo, voto_participante. Reglas nombradas: uq_participante_vigente_grupo_usuario.",
+   "sistema": "Vive en el esquema grupos; la escribe y la lee solo el servicio grupos (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de grupo, identidad.usuario, participante. La referencian aceptacion_reglamento, aportes.obligacion_aporte, aportes.plan_regularizacion, cupo, entregas.cesion_derecho, entregas.entrega_fondo, entregas.oferta_turno, entregas.subasta_cupo, garantia.aval_participante, garantia.descargo_participante, garantia.deuda_participante, garantia.devolucion_fondo, garantia.liquidacion_participante, garantia.reemplazo_participante, garantia.registro_incumplimiento, garantia.sancion, nucleo_financiero.cuenta_contable, participante, solicitud_permuta, solicitud_retiro, tarifas.devengo_comision, transparencia.evento_reputacion, transparencia.resena_participante, traspaso_cupo, voto_participante. Reglas nombradas: uq_participante_vigente_grupo_usuario.",
    "clasificacion": {
     "personales": 0,
     "financieros": 0,
@@ -67236,6 +67689,26 @@
      "negocio": "Marca temporal o fecha de expira en orden_recarga.",
      "origenNegocio": "convencion",
      "sistema": "TIMESTAMPTZ, opcional.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "qr_contenido",
+     "tipo": "VARCHAR(512)",
+     "nulable": true,
+     "pk": false,
+     "negocio": "Atributo que representa qr contenido en el modelo de orden_recarga.",
+     "origenNegocio": "convencion",
+     "sistema": "VARCHAR(512), opcional.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "qr_origen",
+     "tipo": "VARCHAR(10)",
+     "nulable": true,
+     "pk": false,
+     "negocio": "Atributo que representa qr origen en el modelo de orden_recarga.",
+     "origenNegocio": "convencion",
+     "sistema": "VARCHAR(10), opcional.",
      "sensibilidad": "NINGUNA"
     }
    ],

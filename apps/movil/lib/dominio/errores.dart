@@ -81,9 +81,6 @@ const Map<String, String> _catalogo = {
   'AP-CU12-07':
       'Ese QR no es válido. Pedí que te generen uno nuevo desde AportaYa.',
   'AP-CU12-08': 'Ese QR venció. Pedí que te generen uno nuevo.',
-  // CU-10 · la recarga no se pudo confirmar (vencida, ya cerrada o sin confirmación del proveedor).
-  'AP-CU10-05':
-      'No pudimos confirmar esta recarga. Si pasó mucho tiempo, empezá una recarga nueva.',
   'AP-CU12-09': 'Ese QR ya se usó. Cada QR se paga una sola vez.',
   'AP-CU12-10':
       'Este QR es de un banco o de otra red de pagos y todavía no aceptamos pagos con QR interoperable. '

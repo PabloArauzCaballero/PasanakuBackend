@@ -6,7 +6,6 @@ import bo.aportaya.nucleofinanciero.aplicacion.CU11RetirarSaldo;
 import bo.aportaya.nucleofinanciero.aplicacion.CotizarOperacion;
 import bo.aportaya.nucleofinanciero.aplicacion.CuentaPropia;
 import bo.aportaya.nucleofinanciero.aplicacion.OrdenesExistentes;
-import bo.aportaya.nucleofinanciero.aplicacion.PagoDeRecargaDePrueba;
 import bo.aportaya.nucleofinanciero.aplicacion.RecargasConProveedor;
 import bo.aportaya.nucleofinanciero.dominio.puertos.SegundoFactor;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.CobroQrRecarga;
@@ -23,7 +22,6 @@ import bo.aportaya.nucleofinanciero.web.generado.modelo.SalidaCotizacionOperacio
 import bo.aportaya.nucleofinanciero.web.generado.modelo.SalidaRecarga;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.SalidaRetiro;
 import bo.aportaya.plataforma.dominio.ContextoSesion;
-import bo.aportaya.plataforma.web.errores.ErrorApi;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.Optional;
@@ -59,7 +57,6 @@ class FondeoDeLaBilletera {
     private final OrdenesExistentes existentes;
     private final SegundoFactor segundoFactor;
     private final BandejaDeRetiros bandeja;
-    private final PagoDeRecargaDePrueba pagoDePrueba;
     private final BigDecimal desdeCuandoSonDosFirmas;
 
     @SuppressWarnings("checkstyle:ParameterNumber")
@@ -71,7 +68,6 @@ class FondeoDeLaBilletera {
             OrdenesExistentes existentes,
             SegundoFactor segundoFactor,
             BandejaDeRetiros bandeja,
-            PagoDeRecargaDePrueba pagoDePrueba,
             @Value("${aportaya.retiro.doble-aprobacion-desde}") BigDecimal desdeCuandoSonDosFirmas) {
         this.recargas = recargas;
         this.cu11 = cu11;
@@ -80,7 +76,6 @@ class FondeoDeLaBilletera {
         this.existentes = existentes;
         this.segundoFactor = segundoFactor;
         this.bandeja = bandeja;
-        this.pagoDePrueba = pagoDePrueba;
         this.desdeCuandoSonDosFirmas = desdeCuandoSonDosFirmas;
     }
 
@@ -146,22 +141,6 @@ class FondeoDeLaBilletera {
 
     ResponseEntity<SalidaAcreditacion> acreditarRecarga(UUID ordenId, ContextoSesion ctx) {
         return acreditacion(recargas.confirmar(ordenId, ctx));
-    }
-
-    /**
-     * Sin proveedor de prueba la operacion no existe, y tiene que verse igual que cualquier ruta
-     * inexistente: el mismo 404 y el mismo cuerpo que arma {@code ManejadorGlobalDeErrores#rutaInexistente}.
-     * Se responde aca y no lanzando {@code NoResourceFoundException}: es chequeada, la interfaz generada no
-     * la declara, y el proxy de {@code @Permiso} la convertia en un 500 ({@code UndeclaredThrowableException}).
-     */
-    @SuppressWarnings({"unchecked", "rawtypes"})
-    ResponseEntity<SalidaAcreditacion> pagarRecargaDePrueba(UUID ordenId, ContextoSesion ctx) {
-        if (!pagoDePrueba.disponible()) {
-            return (ResponseEntity) ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(ErrorApi.de(
-                            "AP-VAL-05", "Esa ruta no existe.", bo.aportaya.plataforma.web.traza.Traza.actual()));
-        }
-        return acreditacion(pagoDePrueba.pagar(ordenId, ctx));
     }
 
     private static ResponseEntity<SalidaAcreditacion> acreditacion(CU10RecargarSaldo.SalidaAcreditacion salida) {
