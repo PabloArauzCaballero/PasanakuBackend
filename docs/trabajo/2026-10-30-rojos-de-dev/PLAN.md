@@ -67,6 +67,17 @@
 |---|---|---|---|---|
 | H2.S5.M1 | Un escenario nuevo para el camino feliz de `CU64TitularYAcuerdoTest` y los 5 nombres de rechazo con el prefijo «rechaza» que la convención de `verificar_criterios.py` exime (sin tocar aserciones) | el verificador no encuentra divergencias | `python3 scripts/verificar_criterios.py` → «Sin divergencias…» · spotless/compileTestJava/testBarrido/contractTest → BUILD SUCCESSFUL | HECHO |
 
+### H2.S6 — Postman desactualizado (rojo nuevo: «Contratos y clientes generados», llegó con #311 y #313)
+| ID | Microtarea | CA (binario) | DoD | Estado |
+|---|---|---|---|---|
+| H2.S6.M1 | Regenerar las colecciones Postman de `grupos` (falta `listarAcuerdos`; cambia la descripción de `traspasarCupo`) | el generador no deja diff | `python3 scripts/generar_postman.py && git diff --exit-code -- postman/` → exit 0 | HECHO |
+
+### H2.S7 — OSV-Scanner (rojo latente: el job solo corre cuando se tocan dependencias, y esta PR toca lockfiles)
+| ID | Microtarea | CA (binario) | DoD | Estado |
+|---|---|---|---|---|
+| H2.S7.M1 | `opentelemetry` 1.62.0 → 1.67.0 (GHSA-ccrj-gw8r-854m, en los 15 lockfiles de Gradle) | compila y pasan las pruebas de unidad de `gateway`, `identidad` y `auditoria` | `./gradlew … test webTest testBarrido` → BUILD SUCCESSFUL · lockfiles: solo cambia la familia OpenTelemetry y sus `okhttp`/`okio` · **falta** el escáner real (CI) | A MEDIAS |
+| H2.S7.M2 | 28 paquetes npm de `yarn.lock` (undici, vite, zod, hono, qs, fast-uri, body-parser, @hono/node-server, @modelcontextprotocol/server, @vitest/mocker) a su versión corregida, con `resolutions` porque la cadena de Angular los fija exactos | `yarn npm audit` sin vulnerabilidades; lint, tipos, pruebas, builds y e2e del sitio igual que antes | `yarn lint` 10/10 · `ui` 196+9, `web` 74+8, `backoffice` 1321+94 · builds OK · e2e del sitio 36/36 · **falta** el escáner real (CI) | A MEDIAS |
+
 ## H3 — Entrega
 | ID | Microtarea | CA (binario) | DoD | Estado |
 |---|---|---|---|---|
@@ -81,6 +92,6 @@
 | Concurrencia con otras sesiones que escriben en `dev` | conflictos o rojos nuevos ajenos | consultar el estado antes de abrir y de mergear |
 
 ## Desvíos del plan
-- Se agregaron H1.S3 (14 pruebas de `f6`), H2.S4 (5 criterios de CU-58) y H2.S5 (6 de CU-64, que llegaron con el merge de `dev` del mismo día): no estaban en el plan, salieron al correr localmente lo que la CI no ejecutaba (`f6`, `verificar_criterios.py`). Se clasificaron como pruebas atrasadas por cambios intencionales de otras sesiones, con evidencia en cada caso.
+- Se agregaron H1.S3 (14 pruebas de `f6`), H2.S4 (5 criterios de CU-58) y H2.S5 (6 de CU-64, que llegaron con el merge de `dev` del mismo día), H2.S6 (Postman) y H2.S7 (OSV): los dos últimos aparecieron en la CI de la propia PR: no estaban en el plan, salieron al correr localmente lo que la CI no ejecutaba (`f6`, `verificar_criterios.py`). Se clasificaron como pruebas atrasadas por cambios intencionales de otras sesiones, con evidencia en cada caso.
 - H2.S1 no usa «Parcial»: el CU-07 de la bóveda ya está implementado en `auditoria`; documentar el prefijo de `identidad` como un CU-07 «parcial» habría escrito el error de etiqueta como si fuera hecho.
 - Mi corrida local del e2e del backoffice regeneró cientos de capturas versionadas (`docs/trabajo/**/capturas`, `evidencia/`, `apps/web/capturas`); se restauraron y no forman parte del cambio.
