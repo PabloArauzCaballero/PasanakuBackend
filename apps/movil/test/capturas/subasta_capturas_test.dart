@@ -34,7 +34,11 @@ void main() {
         (s) => s.reply(200, {
           'pagina': 0,
           'subastas': [
-            subastaSintetica(soyElSaliente: false, masAlto: '1800.00', pujas: 2),
+            subastaSintetica(
+              soyElSaliente: false,
+              masAlto: '1800.00',
+              pujas: 2,
+            ),
             otra,
           ],
         }),
@@ -70,7 +74,14 @@ void main() {
         testWidgets('subasta · $nombre · $ancho dp · $tema', (t) async {
           final (:dio, :adaptador) = dioSimulado();
           responder(adaptador);
-          await montarParaCaptura(t, pantalla, dio, brillo, tam, escalaDeTexto: 1.0);
+          await montarParaCaptura(
+            t,
+            pantalla,
+            dio,
+            brillo,
+            tam,
+            escalaDeTexto: 1.0,
+          );
           await asentar(t);
           await fotoDeCaptura(
             t,
