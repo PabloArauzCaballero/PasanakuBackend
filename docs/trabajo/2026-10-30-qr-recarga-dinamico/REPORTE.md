@@ -1,6 +1,6 @@
 # Reporte — QR bancario dinámico en la recarga, y ver subir el saldo
 
-> **AVANCE: 13 / 15 — 86,7 %.** Regresión móvil con 353 rojos **preexistentes** (idénticos en `origin/test`).
+> **AVANCE: 14 / 15 — 93,3 %.** Regresión móvil con 353 rojos **preexistentes** (idénticos en `origin/test`).
 
 - Fecha: 2026-10-30 · Plan: [PLAN.md](./PLAN.md) · Rama: `claude/qr-recarga-dinamico-20261030` (base `origin/test` `ebe0ceb0`)
 - Peldaño de evidencia alcanzado: backend `TESTED` (+ deriva de esquema verificada contra el guion real de
@@ -38,6 +38,7 @@
 | H2.S1.M3 | Simular pago: el saldo sube **desde 500 a 650** (a mitad de la animación vale entre 500 y 650, nunca 0), termina exacto, 1 pedido con clave, 1 háptico de éxito; con movimiento reducido aparece entero | idem | PASS |
 | H2.S1.M4 | Prueba visual: 3 estados × 360/412/768 × claro/oscuro, sin desborde, **miradas** (2 rondas) | `flutter test test/capturas/qr_recarga_capturas_test.dart --update-goldens` | PASS 18/18 — `evidencia/capturas/` |
 | H2.S1.M5 | El rechazo `AP-CU10-05` se explica con texto propio y una sola acción de reintento (misma clave) | `flutter test test/widget/cobro_de_recarga_test.dart` | PASS |
+| H3.S1.M3 | PR #341 → `test` (merge `e132bc86`) y #342 → `dev` (merge `0376fb4c`); `frontend-mirror` sincronizado (`test` 13e03b06, `dev` 2fc369ee, mismo árbol que origin) | `gh pr view 341/342` · `git diff --quiet origin/<b> frontend-mirror/<b>` | PASS |
 | H3.S1.M1 | Regresión backend completa del servicio | `./gradlew :servicios:nucleo-financiero:test integrationTest webTest` | PASS 676/676 — `evidencia/h3-regresion-backend.txt` |
 
 ## A medias
@@ -61,7 +62,7 @@
 
 | ID | Estado | Qué lo destraba |
 |---|---|---|
-| H3.S1.M3 | TODO | PR a `test` y gemelo a `dev`, mergeados; push a `origin` y `frontend-mirror` |
+| — | ninguna | — |
 
 ## Evidencia
 
@@ -119,6 +120,11 @@
 - **Fallos encontrados y corregidos:** `PRODUCT_BUG` — sin doble, el pago de prueba devolvía **500** en vez de 404
   (el proxy de `@Permiso` envolvía la excepción en `UndeclaredThrowableException`); se responde el 404 estándar
   directamente. `TEST_BUG` ×5, sin debilitar aserciones (detalle en cada archivo de evidencia).
+
+## Procesos y recursos al cerrar
+- Contenedores `pg-qr-recarga` y `pg-qr-viejo`: detenidos (eran `--rm`). Worktree base temporal: eliminado.
+- Queda el worktree `../Pasanaku-qr` (rama ya publicada); se puede borrar con `git worktree remove ../Pasanaku-qr`.
+- **No se desplegó en TEST desde esta sesión.**
 
 ## Riesgos residuales y deuda
 - **TEST necesita el cliente Dart regenerado en el host:** el camino automático no regenera `clientes/dart`
