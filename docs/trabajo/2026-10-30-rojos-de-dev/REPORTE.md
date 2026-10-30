@@ -1,4 +1,4 @@
-> **AVANCE: 17 / 20 — 85,0 %.** En la CI de la cabeza anterior (c6757463) pasaron el job Frontend, Postman, OSV-Scanner, «bootJar y docker build» y Trivy en las dos PR, y «Los cinco corredores» completo en #316. En #315 cortó `14 · integrationTest` por una prueba intermitente de `grupos` (H2.S8): causa demostrada y corregida en esta cabeza, falta que la CI la confirme (`A MEDIAS`). Faltan las dos entregas por PR (mergeables y con checks reales).
+> **AVANCE: 17 / 23 — 73,9 %.** #315 y #316 las mergeó PabloArauzCaballero a las 02:33 UTC con dos rojos sin resolver: `14 · integrationTest` (una prueba intermitente de `grupos`: causa demostrada y corregida en este seguimiento, falta la CI) y los dos jobs de iOS (H2.S9: BLOQUEADO, no reproducible sin macOS). Frontend, Postman, OSV-Scanner, la imagen y Trivy pasaron en la CI de esas PR.
 
 # Reporte — Dejar en verde los rojos que quedaron en `dev`
 
@@ -29,10 +29,17 @@
 - Qué falta exactamente: que `14 · integrationTest` pase en la CI de las dos PR con esta cabeza.
 - Dónde quedó: rama `claude/modest-bell-jz1x9e`; solo `servicios/grupos/src/test/.../GruposDeBackofficeRepositorioTest.java`, que compila.
 
+### H3.S1.M1 / M2 — entrega de #315 (`dev`) y #316 (`test`)
+- Qué anda: las dos PR se abrieron, quedaron sin conflictos y las mergeó PabloArauzCaballero a las 02:33 UTC. Con ese merge `dev` y `test` ganan el arreglo de `f1`, `f5`, `f6`, `contractTest`, los criterios de CU-58/CU-64, Postman, OSV y Trivy (todos observados en verde en la CI de las PR).
+- Qué no anda: se mergearon con `mergeable_state: unstable`: `14 · integrationTest` (H2.S8) y los jobs de iOS (H2.S9) estaban en rojo. El CA «checks sin fallos» (regla 35.2) no se cumplió.
+- Qué falta exactamente: H3.S2 (la corrección de H2.S8 en `dev` y `test`) y H2.S9.
+- Dónde quedó: `dev` y `test` ya contienen las PR; la corrección de H2.S8 y las actualizaciones de plan y reporte están en la rama `claude/modest-bell-jz1x9e` (+ merge de `dev`), sin mergear.
+
 ## Pendiente
 | ID | Estado | Qué lo destraba |
 |---|---|---|
-| H3.S1.M1 / M2 | TODO | las dos PR están abiertas (#315 → `dev`, #316 → `test`); falta que sus checks queden en verde con la cabeza nueva y verificar `mergeable` antes de mergear |
+| H2.S9.M1 | BLOQUEADO | Jobs de iOS: `ld: framework 'Pods_Runner' not found` al compilar con `patrol test` (Xcode 26.3, macos-15). Hace falta reproducirlo en un Mac con Xcode (`pod install` + `xcodebuild build-for-testing` de `apps/movil/ios`); lo destraba el dueño de la app móvil. En el run base de `dev` estaban `skipped`, no verdes |
+| H3.S2.M1 / M2 | TODO | abrir el PR de seguimiento a `dev` y su gemelo a `test`, y que sus checks reales queden verdes antes de mergear |
 
 ## Evidencia
 Ver `evidencia/`: `dart-format.txt`, `f5-catalogo-44px.txt`, `f6-e2e-backoffice.txt`, `trivy-y-locks.txt`, `java-y-boveda.txt`, `listado-grupos-backoffice.txt` y `visual/` (escritorio y teléfono, claro y oscuro, antes | después; más foco y hover de los botones de ayuda). Extracto del cambio de `f5`:
@@ -51,6 +58,7 @@ Solape del botón de ayuda (44 px) sobre el control de abajo: elementFromPoint �
 - El aviso de presupuesto del bundle del backoffice ya existía (502,05 kB sin mis cambios, 502,20 kB con ellos); no lo toqué.
 
 ## Desvíos del plan
+- Las PR #315 y #316 se mergearon antes de que llegara la corrección de H2.S8; por eso H2.S8 y las actualizaciones de plan y reporte viajan en un PR de seguimiento (H3.S2) y no en las PR originales.
 Ver «Desvíos del plan» en [PLAN.md](./PLAN.md): se agregaron H1.S3, H2.S4 a H2.S8 (todos nacieron al ejecutar lo que la CI mostraba o escondía), y el README de `identidad` no declara un CU-07 «parcial».
 
 ## Riesgos residuales

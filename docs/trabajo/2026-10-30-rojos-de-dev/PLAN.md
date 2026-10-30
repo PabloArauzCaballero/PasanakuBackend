@@ -84,11 +84,18 @@
 | H2.S8.M1 | Demostrar la causa: `listar(null, null)` ordena por `fecha_inicio DESC NULLS FIRST, codigo_publico, id` con `LIMIT 200`; la fixture pone `fecha_inicio = hoy` y un `codigo_publico` aleatorio en una base compartida sin limpieza | con más de 200 grupos de hoy, algunos quedan fuera del listado | SQL contra PostgreSQL local, en transacción con `ROLLBACK`: de 300 grupos, 100 fuera del listado de 200 | HECHO |
 | H2.S8.M2 | La prueba fija la `fecha_inicio` de su grupo en el futuro (`CURRENT_DATE + 3650`) antes de listar, sin tocar ninguna aserción | el grupo de la prueba siempre cae dentro de los primeros 200 | SQL: el peor `codigo_publico` entra primero · spotless/compileTestJava de `grupos` → exit 0 · `evidencia/listado-grupos-backoffice.txt` · **falta** `integrationTest` (solo corre en la CI; no hay Docker acá) | A MEDIAS |
 
+### H2.S9 — Jobs de iOS (macOS) en rojo: `Release iOS` y `App — navegación en simulador iOS` (latentes: estaban `skipped` mientras el Frontend fallaba en `f1`)
+| ID | Microtarea | CA (binario) | DoD | Estado |
+|---|---|---|---|---|
+| H2.S9.M1 | Clasificar y, si se puede, corregir el fallo de compilación nativa | el job pasa, o queda clasificado con evidencia | Log de #315 (run 40991358281, jobs 123863328508 y 123863328471): `patrol test` → `xcodebuild build-for-testing` → `ld: framework 'Pods_Runner' not found` → `** TEST BUILD FAILED **` (exit 65), en los dos jobs y en las dos PR. En el run base de `dev` (ae38c444) ambos estaban `skipped`, así que no hay corrida verde reciente con la cual comparar. Clasificación: `ENVIRONMENT` (toolchain nativo; no lo toca ningún archivo de este trabajo) · BLOQUEADO: no hay macOS ni Xcode en la sesión para reproducirlo, y simular el contrato no aplica (no es una dependencia de otro: es un build nativo). Lo destraba quien tenga un Mac con Xcode 26.3 (`pod install` + `xcodebuild build-for-testing` de `apps/movil/ios/Runner.xcworkspace`); dueño: el de la app móvil | BLOQUEADO |
+
 ## H3 — Entrega
 | ID | Microtarea | CA (binario) | DoD | Estado |
 |---|---|---|---|---|
-| H3.S1.M1 | PR a `dev`, checks sin fallos, `mergeable` | PR mergeable | `mergeable` + checks en el estado real | TODO |
-| H3.S1.M2 | Mismo cambio a `test` (rama propia desde `test`, cherry-pick) | PR mergeable | ídem | TODO |
+| H3.S1.M1 | PR a `dev`, checks sin fallos, `mergeable` | PR mergeable | #315 la mergeó PabloArauzCaballero a las 02:33 UTC, con `mergeable_state: unstable`: `14 · integrationTest` (H2.S8) y los dos jobs de iOS (H2.S9) en rojo. El CA «checks sin fallos» no se cumplió | A MEDIAS |
+| H3.S1.M2 | Mismo cambio a `test` (rama propia desde `test`, cherry-pick) | PR mergeable | #316, mergeada a las 02:33 UTC en las mismas condiciones | A MEDIAS |
+| H3.S2.M1 | PR de seguimiento a `dev` con la corrección de H2.S8 (rama de `dev` + commit cdd79852; las PR anteriores ya estaban mergeadas) | PR mergeable con `14 · integrationTest` en verde | `pull_request_read` + checks reales | TODO |
+| H3.S2.M2 | Gemelo hacia `test` (rama propia desde `test`, cherry-pick) | ídem | ídem | TODO |
 
 ## Riesgos y bloqueos previstos
 | Riesgo | Impacto | Mitigación |
