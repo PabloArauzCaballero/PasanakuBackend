@@ -30,7 +30,7 @@
 | H1.S1.M2 | Puerto `ProveedorDeRecargas.solicitar` devuelve `Optional<CobroQr>`; dobles y adaptador simulado adaptados sin cambiar comportamiento | `./gradlew :servicios:nucleo-financiero:compileTestJava` | PASS (exit 0) |
 | H1.S1.M3 | Doble `RecargasProveedorLocal` en 3 niveles (correcto / límite / inválido) | `… test --tests '*RecargasProveedorLocalTest'` | PASS 9/9 — `evidencia/h1-tests-dirigidos.txt` |
 | H1.S2.M1 | La orden guarda y devuelve el QR; reintento con la misma clave = misma orden y mismo QR | `… integrationTest --tests '*CU10QrDinamicoTest'` | PASS 6/6 (PostgreSQL real) |
-| H1.S2.M2 | Contrato: `SalidaRecarga.cobroQr` opcional + `POST /billetera/recargas/{ordenId}/pago-de-prueba` | `… webTest` | PASS 82/82 |
+| H1.S2.M2 | Contrato: `SalidaRecarga.cobroQr` opcional + `POST /recargas-de-prueba/{ordenId}/pago` | `… webTest` | PASS 82/82 |
 | H1.S2.M3 | Pago de prueba: acredita una vez (repetido = misma transacción), ajeno rechazado, sin QR de prueba rechazado; HTTP 200 / 404 `AP-VAL-05` sin doble / 403 con `BILLETERA_VER` | idem | PASS |
 | H1.S2.M4 | Perfil `local` (TEST) → doble de prueba activo; producción → adaptador de siempre; producción + `modo=prueba` → no arranca | `… integrationTest --tests '*ArranqueRecargaQrTest'` | PASS 3/3 — `evidencia/h1-s2-m4-arranque.txt` |
 | H2.S1.M1 | Cliente Dart regenerado: `cobroQr`, `CobroQrRecargaOrigenEnum`, `pagarRecargaDePrueba` | `generarClienteDart --no-build-cache` + `build_runner` | PASS — `evidencia/h2-s1-m1-cliente-dart.txt` |
@@ -120,6 +120,13 @@
 - **Fallos encontrados y corregidos:** `PRODUCT_BUG` — sin doble, el pago de prueba devolvía **500** en vez de 404
   (el proxy de `@Permiso` envolvía la excepción en `UndeclaredThrowableException`); se responde el 404 estándar
   directamente. `TEST_BUG` ×5, sin debilitar aserciones (detalle en cada archivo de evidencia).
+
+## Arreglo posterior: rojo de `test` causado por #341/#343
+Avisado por otras sesiones (#339/#340 caídos). Causas, todas propias: SQL concatenado en un test (regla del
+proyecto), Postman y catálogo de datos sin regenerar, y tres archivos sobre 300 líneas (`testBarrido`, que no
+corrí antes del PR). Arreglo: `QrDeLaRecarga` separado del caso de uso; el endpoint de prueba pasa a
+**`POST /recargas-de-prueba/{ordenId}/pago`** (controlador propio, prefijo reservado en `scripts/modelo.py`, gateway
+regenerado); derivados regenerados. Evidencia: `evidencia/h4-arreglo-ci.txt`.
 
 ## Procesos y recursos al cerrar
 - Contenedores `pg-qr-recarga` y `pg-qr-viejo`: detenidos (eran `--rm`). Worktree base temporal: eliminado.

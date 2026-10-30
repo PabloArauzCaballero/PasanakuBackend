@@ -41,6 +41,9 @@ class SeguridadWebTest extends SabanaDeSeguridadWeb {
     private bo.aportaya.nucleofinanciero.aplicacion.RecargasConProveedor recargasConProveedor;
 
     @MockitoBean
+    private bo.aportaya.nucleofinanciero.aplicacion.PagoDeRecargaDePrueba pagoDeRecargaDePrueba;
+
+    @MockitoBean
     private CU11RetirarSaldo cu11RetirarSaldo;
 
     // El controlador tambien lee los movimientos recientes: sin este doble el contexto no carga.

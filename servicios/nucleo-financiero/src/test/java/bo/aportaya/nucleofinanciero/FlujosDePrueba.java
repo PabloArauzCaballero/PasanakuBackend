@@ -4,6 +4,7 @@ import bo.aportaya.nucleofinanciero.aplicacion.CU10RechazarRecarga;
 import bo.aportaya.nucleofinanciero.aplicacion.CU11InstruirRetiro;
 import bo.aportaya.nucleofinanciero.aplicacion.CotizarOperacion;
 import bo.aportaya.nucleofinanciero.aplicacion.OrdenesExistentes;
+import bo.aportaya.nucleofinanciero.aplicacion.QrDeLaRecarga;
 import bo.aportaya.nucleofinanciero.aplicacion.RecargasConProveedor;
 import bo.aportaya.nucleofinanciero.aplicacion.RegistrarDiscrepancia;
 import bo.aportaya.nucleofinanciero.aplicacion.RetirosConProveedor;
@@ -50,6 +51,13 @@ final class FlujosDePrueba {
         return recargas(proveedor, new CotizarOperacion(cotizador, Reloj.delSistema(), exigirPrevia));
     }
 
+    /** El QR de las ordenes, con su transaccion como en el servicio desplegado. */
+    static QrDeLaRecarga qr() {
+        return TransaccionalDePrueba.conTransaccion(
+                new QrDeLaRecarga(new Datos(BaseDeBilletera.dsl), new OrdenRecargaRepositorio()),
+                BaseDeBilletera.transaccion.getTransactionManager());
+    }
+
     /** El flujo con las cotizaciones que se le pasen (por ejemplo, con un reloj que se adelanta). */
     static RecargasConProveedor recargas(ProveedorDeRecargas proveedor, CotizarOperacion cotizaciones) {
         var manager = BaseDeBilletera.transaccion.getTransactionManager();
@@ -72,7 +80,8 @@ final class FlujosDePrueba {
                                 new DiscrepanciaRepositorio(),
                                 new Outbox("nucleo_financiero"),
                                 Reloj.delSistema()),
-                        manager));
+                        manager),
+                qr());
     }
 
     static OrdenesExistentes existentes() {

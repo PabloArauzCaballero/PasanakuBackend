@@ -1541,15 +1541,14 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}{{prefijo_api}}/billetera/recargas/:ordenId/pago-de-prueba",
+              "raw": "{{base_url}}{{prefijo_api}}/recargas-de-prueba/:ordenId/pago",
               "host": [
                 "{{base_url}}{{prefijo_api}}"
               ],
               "path": [
-                "billetera",
-                "recargas",
+                "recargas-de-prueba",
                 ":ordenId",
-                "pago-de-prueba"
+                "pago"
               ],
               "variable": [
                 {
@@ -1633,15 +1632,14 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}{{prefijo_api}}/billetera/recargas/:ordenId/pago-de-prueba",
+              "raw": "{{base_url}}{{prefijo_api}}/recargas-de-prueba/:ordenId/pago",
               "host": [
                 "{{base_url}}{{prefijo_api}}"
               ],
               "path": [
-                "billetera",
-                "recargas",
+                "recargas-de-prueba",
                 ":ordenId",
-                "pago-de-prueba"
+                "pago"
               ],
               "variable": [
                 {
@@ -1691,15 +1689,14 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}{{prefijo_api}}/billetera/recargas/:ordenId/pago-de-prueba",
+              "raw": "{{base_url}}{{prefijo_api}}/recargas-de-prueba/:ordenId/pago",
               "host": [
                 "{{base_url}}{{prefijo_api}}"
               ],
               "path": [
-                "billetera",
-                "recargas",
+                "recargas-de-prueba",
                 ":ordenId",
-                "pago-de-prueba"
+                "pago"
               ],
               "variable": [
                 {
