@@ -63,12 +63,16 @@ queda participante ACTIVO del grupo (o se rechaza con código).
 
 > Desvío (2026-10-30): H1.M1 era «hechos del turno»; la subasta es del CUPO (antes del sorteo no hay turno), así que la consulta es de subastabilidad del cupo. El arreglo de `HechosDeGruposPorHttp.turno()` del mercado a precio fijo queda FUERA (H3.M2 DESCARTADO).
 
+### H1.S1 — Rutas de grupos para la subasta
+**CA:** las tres rutas responden según el contrato.
+**DoD:** `integrationTest --tests *CU64SubastaTest` + `webTest`.
+
 | ID | Microtarea | CA (binario) | DoD | Estado |
 |---|---|---|---|---|
-| H1.M1 | `GET /grupos/{g}/cupos/{c}/subastabilidad` (solo el titular): subastable o motivo, y el aporte | titular ve subastable; otro recibe AP-CU64-06; deuda o turno cobrado → no subastable | `integrationTest --tests *CU64SubastaTest` + `webTest` | HECHO |
-| H1.M2 | `GET /grupos/{g}/elegibilidad-para-subasta`: restricción, KYC, reputación (con historial), máximo de grupos | elegible/no elegible con motivo, en ese orden | idem | HECHO |
-| H1.M3 | `POST /grupos/{g}/cupos/{c}/traspasos-por-subasta` (`SERVICIO_ENTREGAS`): alta del ganador + traspaso en una transacción, idempotente, serializado por candado del cupo | ganador de afuera entra ACTIVO con el cupo; repetir = mismo traspaso; dos cierres a la vez = uno solo; participante → 403 | idem | HECHO |
-| H1.M4 | Obligaciones de los períodos futuros al ganador | las emite `aportes` desde el calendario de `grupos`, que lee el titular actual del cupo (`CalendarioDelPeriodoPorHttp.java:41`): no hace falta código. Sin prueba de punta a punta todavía | recorrido H6.M2 | A MEDIAS |
+| H1.S1.M1 | `GET /grupos/{g}/cupos/{c}/subastabilidad` (solo el titular): subastable o motivo, y el aporte | titular ve subastable; otro recibe AP-CU64-06; deuda o turno cobrado → no subastable | `integrationTest --tests *CU64SubastaTest` + `webTest` | HECHO |
+| H1.S1.M2 | `GET /grupos/{g}/elegibilidad-para-subasta`: restricción, KYC, reputación (con historial), máximo de grupos | elegible/no elegible con motivo, en ese orden | idem | HECHO |
+| H1.S1.M3 | `POST /grupos/{g}/cupos/{c}/traspasos-por-subasta` (`SERVICIO_ENTREGAS`): alta del ganador + traspaso en una transacción, idempotente, serializado por candado del cupo | ganador de afuera entra ACTIVO con el cupo; repetir = mismo traspaso; dos cierres a la vez = uno solo; participante → 403 | idem | HECHO |
+| H1.S1.M4 | Obligaciones de los períodos futuros al ganador | las emite `aportes` desde el calendario de `grupos`, que lee el titular actual del cupo (`CalendarioDelPeriodoPorHttp.java:41`): no hace falta código. Sin prueba de punta a punta todavía | recorrido H6.M2 | A MEDIAS |
 
 ## H2 — `nucleo-financiero` libera retenciones del mercado servicio-a-servicio
 **CA:** Dada una retención `COMPRA_EN_MERCADO`, cuando `entregas` la libera con su identidad de
@@ -76,9 +80,13 @@ servicio, entonces el saldo vuelve al dueño; una sesión de usuario recibe 403.
 **DoD:** `./gradlew :servicios:nucleo-financiero:test` en verde con pruebas nuevas.
 **Estado:** HECHO (peldaño TESTED; el pago al saliente NO necesitó cambios en nucleo: pregunta a `entregas` por `GET /entregas/mercado/ofertas/{id}`, ver F6)
 
+### H2.S1 — Liberación de servicio
+**CA:** la retención vuelve a su dueño.
+**DoD:** `integrationTest --tests *CU13LiberacionDelMercadoTest`.
+
 | ID | Microtarea | CA | DoD | Estado |
 |---|---|---|---|---|
-| H2.M1 | `POST /billetera/retenciones/{id}/liberacion-de-mercado` (`SERVICIO_ENTREGAS`), solo `COMPRA_EN_MERCADO` | libera y el saldo vuelve al postor; usuario → AP-CU13-09; repetir → AP-CU13-03 sin duplicar; otra retención → AP-CU13-08 | `integrationTest --tests *CU13LiberacionDelMercadoTest` 4/4 · `webTest` 79/79 | HECHO |
+| H2.S1.M1 | `POST /billetera/retenciones/{id}/liberacion-de-mercado` (`SERVICIO_ENTREGAS`), solo `COMPRA_EN_MERCADO` | libera y el saldo vuelve al postor; usuario → AP-CU13-09; repetir → AP-CU13-03 sin duplicar; otra retención → AP-CU13-08 | `integrationTest --tests *CU13LiberacionDelMercadoTest` 4/4 · `webTest` 79/79 | HECHO |
 
 ## H3 — `entregas`: la subasta
 **CA:** Dado un cupo en subasta, cuando varios usuarios pujan, entonces solo la más alta queda
@@ -89,36 +97,52 @@ concurrencia (dos pujas a la vez); prueba de idempotencia (misma clave dos veces
 **Estado:** A MEDIAS — TESTED contra dobles declarados de grupos y billetera (regla 65); asientos reales del libro
 pendientes de H6.M2. Regresión: test 40/40 · webTest 60/60 · integrationTest 129/129 (`evidencia/h3-entregas-regresion.txt`).
 
+### H3.S1 — Subasta en entregas
+**CA:** abrir, pujar y cerrar con pago.
+**DoD:** `integrationTest --tests *CU64*` + regresión del módulo.
+
 | ID | Microtarea | CA | DoD | Estado |
 |---|---|---|---|---|
-| H3.M1 | Modelo: tablas `subasta_cupo` + `puja_subasta` en el `.puml` → DDL generado | `generar_ddl.py` sin pendientes; tabla y columna en el SQL | `python3 scripts/generar_ddl.py` → «Sin pendientes a nivel de datos», 2 tablas nuevas (solo aditivo) | HECHO |
-| H3.M2 | ~~`HechosDeGruposPorHttp.turno()`~~ — la subasta no usa el mercado por turno | — | — | DESCARTADO (decisión técnica 2026-10-30: la subasta es del cupo y tiene su propio agregado; el defecto del mercado a precio fijo queda anotado en el REPORTE) |
-| H3.M3 | Publicar subasta (precio base, plazo) | crea oferta SUBASTA; emite `entregas.subasta_abierta` | `integrationTest --tests *CU64SubastaDeCupoTest` 16/16 | HECHO |
-| H3.M4 | Pujar: retener → la más alta bajo candado → superada se libera | dos pujas simultáneas: una gana, la otra recibe rechazo y su saldo vuelve | `integrationTest --tests *CU64SubastaDeCupoTest` 16/16 (6 pujas simultáneas: 1 vigente, total del sistema intacto) | HECHO |
-| H3.M5 | Listar subastas abiertas para todos + detalle con la más alta | lista paginada, orden determinista; sin datos personales | `integrationTest --tests *CU64SubastaDeCupoTest` 16/16 (lista + por cupo); HTTP cubierto solo por el barrido de seguridad | HECHO |
-| H3.M6 | Cierre programado: adjudica a la más alta → alta en grupos → cesión con la retención → pago | saliente cobra = puja; cupo del ganador; sin pujas = VENCIDA | `integrationTest --tests *CU64SubastaDeCupoTest` 16/16 (vendida, desierta, grupos caído, billetera caída, grupos rechaza) | HECHO |
-| H3.M7 | «Oferta para pago» de una subasta adjudicada = monto ganador, cargos 0 | nucleo acepta el pago | probado en la consulta (`paraElPago`); la ida y vuelta real nucleo→entregas se ve en H6.M2 | A MEDIAS |
-| H3.M8 | Cancelar subasta sin pujas | con pujas: rechazo; sin pujas: CANCELADA | `integrationTest --tests *CU64SubastaDeCupoTest` 16/16 | HECHO |
+| H3.S1.M1 | Modelo: tablas `subasta_cupo` + `puja_subasta` en el `.puml` → DDL generado | `generar_ddl.py` sin pendientes; tabla y columna en el SQL | `python3 scripts/generar_ddl.py` → «Sin pendientes a nivel de datos», 2 tablas nuevas (solo aditivo) | HECHO |
+| H3.S1.M2 | ~~`HechosDeGruposPorHttp.turno()`~~ — la subasta no usa el mercado por turno | — | — | DESCARTADO (decisión técnica 2026-10-30: la subasta es del cupo y tiene su propio agregado; el defecto del mercado a precio fijo queda anotado en el REPORTE) |
+| H3.S1.M3 | Publicar subasta (precio base, plazo) | crea oferta SUBASTA; emite `entregas.subasta_abierta` | `integrationTest --tests *CU64SubastaDeCupoTest` 16/16 | HECHO |
+| H3.S1.M4 | Pujar: retener → la más alta bajo candado → superada se libera | dos pujas simultáneas: una gana, la otra recibe rechazo y su saldo vuelve | `integrationTest --tests *CU64SubastaDeCupoTest` 16/16 (6 pujas simultáneas: 1 vigente, total del sistema intacto) | HECHO |
+| H3.S1.M5 | Listar subastas abiertas para todos + detalle con la más alta | lista paginada, orden determinista; sin datos personales | `integrationTest --tests *CU64SubastaDeCupoTest` 16/16 (lista + por cupo); HTTP cubierto solo por el barrido de seguridad | HECHO |
+| H3.S1.M6 | Cierre programado: adjudica a la más alta → alta en grupos → cesión con la retención → pago | saliente cobra = puja; cupo del ganador; sin pujas = VENCIDA | `integrationTest --tests *CU64SubastaDeCupoTest` 16/16 (vendida, desierta, grupos caído, billetera caída, grupos rechaza) | HECHO |
+| H3.S1.M7 | «Oferta para pago» de una subasta adjudicada = monto ganador, cargos 0 | nucleo acepta el pago | probado en la consulta (`paraElPago`); la ida y vuelta real nucleo→entregas se ve en H6.M2 | A MEDIAS |
+| H3.S1.M8 | Cancelar subasta sin pujas | con pujas: rechazo; sin pujas: CANCELADA | `integrationTest --tests *CU64SubastaDeCupoTest` 16/16 | HECHO |
 
 ## H4 — Aviso a todos los usuarios
+### H4.S1 — Aviso
+**CA:** el evento sale y el aviso llega.
+**DoD:** prueba del evento + canal.
+
 | ID | Microtarea | CA | DoD | Estado |
 |---|---|---|---|---|
-| H4.M1 | `notificaciones` consume `entregas.subasta_abierta` y notifica a todos (idempotente por evento) | un evento = un aviso por usuario | el evento `entregas.subasta_abierta` sale por el outbox (CU64SubastaDeCupoTest). La app NO tiene push (sin Firebase) ni bandeja conectada al backend, y `notificaciones` no consume eventos: el aviso llega dentro de la app («Cupos en subasta» en el inicio). Falta el canal push | A MEDIAS |
+| H4.S1.M1 | `notificaciones` consume `entregas.subasta_abierta` y notifica a todos (idempotente por evento) | un evento = un aviso por usuario | el evento `entregas.subasta_abierta` sale por el outbox (CU64SubastaDeCupoTest). La app NO tiene push (sin Firebase) ni bandeja conectada al backend, y `notificaciones` no consume eventos: el aviso llega dentro de la app («Cupos en subasta» en el inicio). Falta el canal push | A MEDIAS |
 
 ## H5 — App: subastar, ver y pujar
+### H5.S1 — Pantallas de la app
+**CA:** subastar, ver y ofrecer.
+**DoD:** `flutter test` dirigido + regresión + capturas.
+
 | ID | Microtarea | CA | DoD | Estado |
 |---|---|---|---|---|
-| H5.M1 | «Subastar mi cupo» reemplaza el traspaso con votación | precio base + plazo + confirmación → POST único | `flutter test test/pasanaku/subastar_cupo_test.dart` 5/5 | HECHO |
-| H5.M2 | Lista «Cupos en subasta» (todos los usuarios) con 4 estados | carga/datos/vacío/error | `flutter test test/pasanaku/pujar_en_subasta_test.dart` (lista, vacío, error) | HECHO |
-| H5.M3 | Detalle + pujar (oferta más alta, mínimo, saldo, hoja de confirmación) | 409 «alguien ofreció más» en el paso; sin doble envío | idem (ofrecer, sin aceptar, AP-CU136-04, saliente, superado) — 13/13 entre los dos | HECHO |
-| H5.M4 | Gates de la app | analyze, verificar_frontend, suite | `dart analyze --fatal-infos lib test` sin issues · suite 1160: 0 regresiones contra la línea base en esta máquina (`evidencia/h5-app-regresion.txt`) · gate: 1 falla AJENA (`lib/dominio/errores.dart` 203 líneas, llegó de origin/test a989582c) | HECHO |
-| H5.M5 | Capturas 360/412 claro/oscuro miradas | capturas | `flutter test test/capturas/subasta_capturas_test.dart --update-goldens` 12/12 · capturas miradas (`evidencia/capturas/`) | HECHO |
+| H5.S1.M1 | «Subastar mi cupo» reemplaza el traspaso con votación | precio base + plazo + confirmación → POST único | `flutter test test/pasanaku/subastar_cupo_test.dart` 5/5 | HECHO |
+| H5.S1.M2 | Lista «Cupos en subasta» (todos los usuarios) con 4 estados | carga/datos/vacío/error | `flutter test test/pasanaku/pujar_en_subasta_test.dart` (lista, vacío, error) | HECHO |
+| H5.S1.M3 | Detalle + pujar (oferta más alta, mínimo, saldo, hoja de confirmación) | 409 «alguien ofreció más» en el paso; sin doble envío | idem (ofrecer, sin aceptar, AP-CU136-04, saliente, superado) — 13/13 entre los dos | HECHO |
+| H5.S1.M4 | Gates de la app | analyze, verificar_frontend, suite | `dart analyze --fatal-infos lib test` sin issues · suite 1160: 0 regresiones contra la línea base en esta máquina (`evidencia/h5-app-regresion.txt`) · gate: 1 falla AJENA (`lib/dominio/errores.dart` 203 líneas, llegó de origin/test a989582c) | HECHO |
+| H5.S1.M5 | Capturas 360/412 claro/oscuro miradas | capturas | `flutter test test/capturas/subasta_capturas_test.dart --update-goldens` 12/12 · capturas miradas (`evidencia/capturas/`) | HECHO |
 
 ## H6 — Desplegado en TEST y recorrido real
+### H6.S1 — Despliegue y recorrido
+**CA:** en TEST de punta a punta.
+**DoD:** healthchecks + recorrido real.
+
 | ID | Microtarea | CA | DoD | Estado |
 |---|---|---|---|---|
-| H6.M1 | PR a `dev` y `test`, desplegar y aplicar SQL | servicios sanos | healthchecks | TODO |
-| H6.M2 | Recorrido real: subastar, dos pujas de dos usuarios, cierre, cupo cambia, saldos | asientos y saldos cuadran | script + salida | TODO |
+| H6.S1.M1 | PR a `dev` y `test`, desplegar y aplicar SQL | servicios sanos | healthchecks | TODO |
+| H6.S1.M2 | Recorrido real: subastar, dos pujas de dos usuarios, cierre, cupo cambia, saldos | asientos y saldos cuadran | script + salida | TODO |
 
 ## Riesgos y bloqueos previstos
 | Riesgo | Impacto | Mitigación |
