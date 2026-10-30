@@ -6,6 +6,7 @@ import 'package:aportaya_diseno/tokens/tokens.dart';
 import 'package:aportaya_diseno/atomos/iconos_de_marca.dart';
 import 'package:aportaya_diseno/moleculas/intro_de_pantalla.dart';
 import 'package:aportaya_diseno/moleculas/tarjeta.dart';
+import 'package:aportaya_diseno/moleculas/barra_de_accion.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:aportaya_diseno/organismos/pantalla_con_cabecera.dart';
@@ -42,72 +43,80 @@ class _PantallaDeVerificacionProfundaState
   Widget build(BuildContext context) {
     return Scaffold(
       // Cabecera grande que se compacta al desplazar (ADR-053, H4.S2.M6).
-      body: PantallaConCabecera(
-        titulo: 'Verificación adicional',
-        cuerpo: SafeArea(
-          top: false,
-          // Sin desplazamiento propio, la cabecera no se compactaría y el botón
-          // quedaría bajo el pliegue en una pantalla chica.
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(Espacio.s4),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const IntroDePantalla(
-                  icono: IconosDeMarca.expediente,
-                  titulo: TextosDeTramites.pepTitulo,
-                  explicacion: TextosDeTramites.pepExplicacion,
-                ),
-                Tarjeta(
+      // La acción, anclada abajo como en pedir cupo: dentro del cuerpo, para que
+      // suba con el teclado mientras se escribe.
+      body: Column(
+        children: [
+          Expanded(
+            child: PantallaConCabecera(
+              titulo: 'Verificación adicional',
+              cuerpo: SafeArea(
+                top: false,
+                // Sin desplazamiento propio, la cabecera no se compactaría.
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(Espacio.s4),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      Text(
-                        TextosIdentidad.preguntaPep,
-                        style: Tipo.cuerpoFuerte.copyWith(
-                          color: Tokens.of(context).text,
+                      const IntroDePantalla(
+                        icono: IconosDeMarca.expediente,
+                        titulo: TextosDeTramites.pepTitulo,
+                        explicacion: TextosDeTramites.pepExplicacion,
+                      ),
+                      Tarjeta(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Text(
+                              TextosIdentidad.preguntaPep,
+                              style: Tipo.cuerpoFuerte.copyWith(
+                                color: Tokens.of(context).text,
+                              ),
+                            ),
+                            const SizedBox(height: Espacio.s2),
+                            // El radio del sistema, sin opción marcada de antemano: en una
+                            // declaración de cumplimiento la respuesta la elige la persona.
+                            GrupoRadio<bool>(
+                              opciones: const {
+                                false: TextosDeTramites.pepNo,
+                                true: TextosDeTramites.pepSi,
+                              },
+                              valor: _esPep,
+                              onChanged: (v) => setState(() => _esPep = v),
+                            ),
+                            if (_esPep == true) ...[
+                              const SizedBox(height: Espacio.s3),
+                              Campo(
+                                etiqueta: TextosIdentidad.detallePep,
+                                controlador: _detalle,
+                                lineas: 3,
+                              ),
+                            ],
+                          ],
                         ),
                       ),
-                      const SizedBox(height: Espacio.s2),
-                      // El radio del sistema, sin opción marcada de antemano: en una
-                      // declaración de cumplimiento la respuesta la elige la persona.
-                      GrupoRadio<bool>(
-                        opciones: const {
-                          false: TextosDeTramites.pepNo,
-                          true: TextosDeTramites.pepSi,
-                        },
-                        valor: _esPep,
-                        onChanged: (v) => setState(() => _esPep = v),
-                      ),
-                      if (_esPep == true) ...[
-                        const SizedBox(height: Espacio.s3),
-                        Campo(
-                          etiqueta: TextosIdentidad.detallePep,
-                          controlador: _detalle,
-                          lineas: 3,
-                        ),
-                      ],
                     ],
                   ),
                 ),
-                const SizedBox(height: Espacio.s5),
-                Boton(
-                  texto: TextosDeTramites.pepConfirmar,
-                  variante: BotonVariante.primario,
-                  expandido: true,
-                  motivoDeBloqueo: _esPep == null
-                      ? TextosDeTramites.pepBloqueo
-                      : null,
-                  onPressed: _esPep == null
-                      ? null
-                      : () => ref
-                            .read(pepProvider.notifier)
-                            .declarar(esPep: _esPep!, detalle: _detalle.text),
-                ),
-              ],
+              ),
             ),
           ),
-        ),
+          BarraDeAccion(
+            hijo: Boton(
+              texto: TextosDeTramites.pepConfirmar,
+              variante: BotonVariante.primario,
+              expandido: true,
+              motivoDeBloqueo: _esPep == null
+                  ? TextosDeTramites.pepBloqueo
+                  : null,
+              onPressed: _esPep == null
+                  ? null
+                  : () => ref
+                        .read(pepProvider.notifier)
+                        .declarar(esPep: _esPep!, detalle: _detalle.text),
+            ),
+          ),
+        ],
       ),
     );
   }

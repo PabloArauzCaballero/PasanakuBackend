@@ -37,8 +37,9 @@ class PantallaDeSaldo extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                // Sin «Hola» suelto: sin el nombre de la persona se leía como un dato
+                // que faltaba cargar.
                 const CabeceraDeInicio(
-                  saludo: 'Hola',
                   titulo: TextosBilletera.titulo,
                   acciones: [AccionDeAyuda(), AccionDeAvisos()],
                 ),
