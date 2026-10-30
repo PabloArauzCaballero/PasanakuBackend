@@ -26,16 +26,20 @@ import { abrirSesionDePruebaYNavegar } from './apoyo/sesion-de-prueba'
  * método público `Sesion.abrir(...)` que `nucleo/sesion.ts` ya define. No se edita
  * `nucleo/sesion*`, `nucleo/permisos.ts` ni `app.config.ts` (fuera de mi reserva).
  */
+// `fuente`: la ruta ya consulta un contrato real. Hoy solo `despliegues` y `respaldos` no la tienen (nadie registra
+// esos datos: la pantalla lo dice, ver «Todavía ningún sistema registra los despliegues»); las otras siete (servicios,
+// base de datos, proveedores, outbox, webhooks, accesos e incidentes) muestran su tabla. Al nacer una fuente nueva,
+// la ruta pasa a `fuente: true` y se le exige la tabla o el error accionable, que es más que el aviso neutro.
 const RUTAS = [
-  { ruta: 'servicios', selectorTitulo: 'h1' },
-  { ruta: 'despliegues', selectorTitulo: 'h1' },
-  { ruta: 'base-de-datos', selectorTitulo: 'h1' },
-  { ruta: 'respaldos', selectorTitulo: 'h1' },
-  { ruta: 'proveedores', selectorTitulo: 'h1' },
-  { ruta: 'outbox', selectorTitulo: 'h1' },
-  { ruta: 'webhooks', selectorTitulo: 'h1' },
-  { ruta: 'accesos', selectorTitulo: 'h1' },
-  { ruta: 'incidentes', selectorTitulo: 'h1' },
+  { ruta: 'servicios', selectorTitulo: 'h1', fuente: true },
+  { ruta: 'despliegues', selectorTitulo: 'h1', fuente: false },
+  { ruta: 'base-de-datos', selectorTitulo: 'h1', fuente: true },
+  { ruta: 'respaldos', selectorTitulo: 'h1', fuente: false },
+  { ruta: 'proveedores', selectorTitulo: 'h1', fuente: true },
+  { ruta: 'outbox', selectorTitulo: 'h1', fuente: true },
+  { ruta: 'webhooks', selectorTitulo: 'h1', fuente: true },
+  { ruta: 'accesos', selectorTitulo: 'h1', fuente: true },
+  { ruta: 'incidentes', selectorTitulo: 'h1', fuente: true },
 ]
 
 // ACCESOS_ADMINISTRAR abre `ver:sistemas` (nucleo/secciones.ts); PLATAFORMA pasa
@@ -43,20 +47,21 @@ const RUTAS = [
 const PERMISOS_DE_SISTEMAS = ['ACCESOS_ADMINISTRAR']
 const ROL_DE_SISTEMAS = 'PLATAFORMA'
 
-test.describe('sistemas — sin contrato real, nunca datos de ejemplo (con sesión de prueba)', () => {
-  for (const { ruta } of RUTAS) {
+test.describe('sistemas — datos reales o un estado honesto, nunca datos de ejemplo (con sesión de prueba)', () => {
+  for (const { ruta, fuente } of RUTAS) {
     test(`/sistemas/${ruta}: con sesión ve un estado honesto, nunca "99.95" en pantalla`, async ({ page }) => {
       await abrirSesionDePruebaYNavegar(page, PERMISOS_DE_SISTEMAS, ROL_DE_SISTEMAS, `/sistemas/${ruta}`)
 
-      if (ruta === 'servicios') {
-        // Servicios sí tiene fuente real (`GET /indicadores/operacion/servicios`, auditoria): ve su tabla o, si el
-        // servicio falla, el error accionable.
+      if (fuente) {
+        // Con fuente real (p. ej. `GET /indicadores/operacion/servicios`, auditoria): ve su tabla o, si la fuente
+        // falla, el error accionable.
         await expect(page.getByRole('table').or(page.getByRole('alert')).first()).toBeVisible()
       } else {
         // Sin contrato que liste estos datos no es una falla (2026-10-27, «que ninguna cosa salga en rojo»): el
         // estado es neutro y explica qué falta, sin caja de error ni reintento. Antes se esperaba el error.
-        // Una pantalla con dos listados (outbox y descartados) muestra un aviso por listado: alcanza con el primero.
-        const aviso = page.getByRole('status').filter({ hasText: 'Esta información va a aparecer acá' }).first()
+        // El aviso es un `status` con «todavía no hay datos para mostrar» (cambió de «Esta información va a aparecer acá»
+        // al registrar la causa en cada pantalla); si una pantalla muestra dos, alcanza con el primero.
+        const aviso = page.getByRole('status').filter({ hasText: 'todavía no hay datos para mostrar' }).first()
         await expect(aviso).toBeVisible()
         await expect(page.getByRole('alert')).toHaveCount(0)
       }

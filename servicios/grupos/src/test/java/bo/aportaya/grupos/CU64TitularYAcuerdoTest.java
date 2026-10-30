@@ -23,7 +23,8 @@ import org.junit.jupiter.api.Test;
 class CU64TitularYAcuerdoTest extends BaseDeCU64 {
 
     @Test
-    @DisplayName("el titular, con la votacion de SU cupo aprobada, traspasa y el acuerdo queda EJECUTADO")
+    @DisplayName(
+            "Dado un cupo con turno futuro y la votación aprobada de ese cupo · Cuando su titular traspasa al entrante · Entonces el cupo cambia de participante y el acuerdo queda EJECUTADO")
     void titularConAcuerdoDeSuCupo() {
         Escenario escenario = escenarioConTurno();
         UUID acuerdo = acuerdo(escenario.grupo(), escenario.cupo(), "APROBADO");
@@ -35,7 +36,7 @@ class CU64TitularYAcuerdoTest extends BaseDeCU64 {
     }
 
     @Test
-    @DisplayName("sin acuerdo no hay traspaso: el grupo siempre lo vota (AP-CU64-05)")
+    @DisplayName("rechaza el traspaso sin acuerdo: el grupo siempre lo vota (AP-CU64-05)")
     void sinAcuerdoNoHayTraspaso() {
         Escenario escenario = escenarioConTurno();
 
@@ -47,7 +48,7 @@ class CU64TitularYAcuerdoTest extends BaseDeCU64 {
     }
 
     @Test
-    @DisplayName("la votacion aprobada de OTRO cupo no autoriza este (AP-CU64-05)")
+    @DisplayName("rechaza la votacion aprobada de OTRO cupo: no autoriza este (AP-CU64-05)")
     void acuerdoDeOtroCupo() {
         Escenario escenario = escenarioConTurno();
         UUID otroCupo = cuposDe(escenario.grupo()).get(1);
@@ -59,7 +60,7 @@ class CU64TitularYAcuerdoTest extends BaseDeCU64 {
     }
 
     @Test
-    @DisplayName("un acuerdo ya EJECUTADO no vuelve a autorizar (AP-CU64-05)")
+    @DisplayName("rechaza un acuerdo ya EJECUTADO: no vuelve a autorizar (AP-CU64-05)")
     void acuerdoYaUsado() {
         Escenario escenario = escenarioConTurno();
         UUID acuerdo = acuerdo(escenario.grupo(), escenario.cupo(), "EJECUTADO");
@@ -70,7 +71,7 @@ class CU64TitularYAcuerdoTest extends BaseDeCU64 {
     }
 
     @Test
-    @DisplayName("quien no tiene el cupo no lo traspasa, aunque haya votacion aprobada (AP-CU64-06)")
+    @DisplayName("rechaza a quien no tiene el cupo, aunque haya votacion aprobada (AP-CU64-06)")
     void soloElTitular() {
         Escenario escenario = escenarioConTurno();
         UUID acuerdo = acuerdo(escenario.grupo(), escenario.cupo(), "APROBADO");
@@ -84,7 +85,7 @@ class CU64TitularYAcuerdoTest extends BaseDeCU64 {
     }
 
     @Test
-    @DisplayName("el cupo tiene que ser del grupo de la ruta (AP-CU64-01)")
+    @DisplayName("rechaza un cupo que no es del grupo de la ruta (AP-CU64-01)")
     void cupoDeOtroGrupo() {
         Escenario escenario = escenarioConTurno();
         UUID acuerdo = acuerdo(escenario.grupo(), escenario.cupo(), "APROBADO");

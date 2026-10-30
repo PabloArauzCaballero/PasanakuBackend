@@ -1,0 +1,7 @@
+contractTest (todos los modulos): antes → DocumentacionVivaContratoTest FAILED «identidad: implementa [07] y su README no los nombra» (20 pruebas, 1 falla)
+                                  despues → BUILD SUCCESSFUL (todos los modulos, 1m28s)
+verificar_criterios.py: antes → 5 FALLAS «CU-58 · auditoria: prueba sin criterio en la boveda» ; despues → «Sin divergencias entre la boveda y el codigo.»
+verificar_boveda / carriles / pruebas_web / narrativas → exit 0
+auditoria: spotlessCheck + compileTestJava + testBarrido → BUILD SUCCESSFUL
+sagaTest: no corre en local (Testcontainers: «Could not find a valid Docker environment»).
+Hallazgo (no resuelto aqui): CU07FotoDePerfil (identidad) usa el prefijo CU07 pero en la boveda CU-07 es «Ejercer derechos sobre datos personales», implementado en auditoria (CU07EjercerDerechos).

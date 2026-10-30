@@ -79,7 +79,8 @@ class CU58HistorialTest extends BaseDeAuditoria {
     }
 
     @Test
-    @DisplayName("el catálogo trae los parámetros que acepta cada reporte, leídos como los lee el motor")
+    @DisplayName(
+            "Dada una definición con parámetros · Cuando el backoffice lista el catálogo de reportes · Entonces cada reporte trae los parámetros que acepta, leídos como los lee el motor")
     void catalogoConParametros() {
         UUID id = reportes.definicionDeReporte(
                 "con parametros " + UUID.randomUUID(),
@@ -100,7 +101,8 @@ class CU58HistorialTest extends BaseDeAuditoria {
     }
 
     @Test
-    @DisplayName("límite: una definición con la forma vieja (objeto) no tumba el catálogo; se lista sin parámetros")
+    @DisplayName(
+            "Dada una definición con parámetros en la forma vieja (un objeto) · Cuando el backoffice lista el catálogo de reportes · Entonces se lista sin parámetros y el catálogo no falla")
     void catalogoConFormaVieja() {
         UUID id = reportes.definicionDeReporte(
                 "forma vieja " + UUID.randomUUID(), PERMISO, false, "SELECT 1", "{\"fecha\": \"date\"}");

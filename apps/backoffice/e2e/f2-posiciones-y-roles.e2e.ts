@@ -123,7 +123,7 @@ test.describe('[doble del contrato pedido] saldos y posiciones en el backoffice'
 /**
  * Qué ve cada rol del catálogo y a qué NO puede entrar aunque escriba la dirección. Desde el recorte del 2026-10-26
  * (siete entradas) Admisiones es una pestaña de Operación y Ayuda vive en el menú de usuario; y una entrada aparece solo
- * si el rol puede abrir alguna de sus pestañas (por eso ADMIN_PLATAFORMA ya no ve «Sistemas»: la guardia de rol lo rebotaba).
+ * si el rol puede abrir alguna de sus pestañas (ADMIN_PLATAFORMA vuelve a ver «Sistemas» desde que su guardia de rol lo acepta).
  */
 const SECCIONES = ['Operación', 'Cumplimiento', 'Contabilidad', 'Publicidad', 'Sistemas', 'Configuración'] as const
 const ROLES: { rol: string; ve: (typeof SECCIONES)[number][]; prohibida: string; billeteraDeTerceros: boolean }[] = [
@@ -131,18 +131,22 @@ const ROLES: { rol: string; ve: (typeof SECCIONES)[number][]; prohibida: string;
   { rol: 'SOPORTE', ve: ['Operación'], prohibida: '/admisiones', billeteraDeTerceros: true },
   // F4: el catálogo sembrado le concede RECLAMO_VER y SOLICITUD_INGRESO_VER/RESOLVER, que piden operacion/reclamos y operacion/solicitudes-escaladas:
   // por eso ve «Operación». Contabilidad sigue ajena (no tiene ningún CONTABILIDAD_ERP_*). Sistemas exige además el rol PLATAFORMA o SEGURIDAD.
-  { rol: 'ADMIN_PLATAFORMA', ve: ['Operación', 'Cumplimiento', 'Configuración'], prohibida: '/contabilidad', billeteraDeTerceros: false },
+  // Sistemas sí: desde 3d4344e3 (2026-10-21) `soloRolesDeSistemas` acepta el rol de catálogo ADMIN_PLATAFORMA (lo lee de `permisos`), y
+  // `matriz-de-roles.spec.ts` lo espera. La guardia que lo rebotaba era la de antes de ese cambio.
+  { rol: 'ADMIN_PLATAFORMA', ve: ['Operación', 'Cumplimiento', 'Sistemas', 'Configuración'], prohibida: '/contabilidad', billeteraDeTerceros: false },
   { rol: 'CONTABILIDAD', ve: ['Operación', 'Contabilidad'], prohibida: '/cumplimiento', billeteraDeTerceros: true },
 ]
 
 test.describe('[token de prueba, permisos del catálogo] recorrido por roles sin acciones ajenas', () => {
   for (const { rol, ve, prohibida, billeteraDeTerceros } of ROLES) {
-    test(`${rol}: el menú ofrece solo ${ve.length ? ve.join(', ') : 'Inicio'} (y Ayuda en el menú de usuario); lo ajeno no monta ni escribiendo la dirección`, async ({ page }) => {
+    test(`${rol}: el menú ofrece solo ${ve.length ? ve.join(', ') : 'ninguna sección'} (y Ayuda en el menú de usuario); lo ajeno no monta ni escribiendo la dirección`, async ({ page }) => {
       const consola: string[] = []
       page.on('pageerror', (e) => consola.push(e.message))
       await iniciarSesionDePrueba(page, permisosDe(rol), rol)
       const menu = page.getByRole('navigation', { name: 'Secciones del backoffice' })
-      await expect(menu.getByRole('link', { name: 'Inicio', exact: true })).toBeVisible()
+      // Sin «Inicio» en el menú desde 2026-10-28 (5d0f8d99, ver nucleo/menu.ts): al tablero se vuelve con el logo, para todos los roles.
+      await expect(menu.getByRole('link', { name: 'Inicio', exact: true })).toHaveCount(0)
+      await expect(page.getByRole('link', { name: /ir al inicio/ })).toHaveAttribute('href', '/tablero')
       await page.locator('ap-menu-de-usuario .disparador').click()
       await expect(page.getByRole('menuitem', { name: 'Centro de ayuda' })).toBeVisible()
       await page.keyboard.press('Escape')
