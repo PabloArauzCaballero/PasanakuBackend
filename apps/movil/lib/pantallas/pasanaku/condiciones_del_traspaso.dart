@@ -56,9 +56,13 @@ class CondicionesDelTraspaso extends StatelessWidget {
   const CondicionesDelTraspaso({
     super.key,
     required this.hayAcuerdo,
+    this.detalleAcuerdo,
     this.rechazo,
   });
   final bool hayAcuerdo;
+
+  /// Dónde está la votación (pedida, abierta…); si falta, el texto de aprobada/falta.
+  final String? detalleAcuerdo;
   final RechazoDelTraspaso? rechazo;
 
   String? _en(LugarDelRechazo lugar) =>
@@ -97,9 +101,11 @@ class CondicionesDelTraspaso extends StatelessWidget {
             icono: IconosDeMarca.grupos,
             neutra: true,
             titulo: TextosDelTraspaso.condicionAcuerdo,
-            detalle: hayAcuerdo
-                ? TextosDelTraspaso.acuerdoAdjunto
-                : TextosDelTraspaso.acuerdoFalta,
+            detalle:
+                detalleAcuerdo ??
+                (hayAcuerdo
+                    ? TextosDelTraspaso.acuerdoAdjunto
+                    : TextosDelTraspaso.acuerdoFalta),
             rechazo: _en(LugarDelRechazo.acuerdo),
           ),
         ],

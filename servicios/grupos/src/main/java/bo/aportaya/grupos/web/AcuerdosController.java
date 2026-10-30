@@ -2,7 +2,9 @@ package bo.aportaya.grupos.web;
 
 import bo.aportaya.grupos.aplicacion.CU63Acordar;
 import bo.aportaya.grupos.aplicacion.Consultas;
+import bo.aportaya.grupos.dominio.TipoDeAcuerdo;
 import bo.aportaya.grupos.web.generado.AcuerdosApi;
+import bo.aportaya.grupos.web.generado.modelo.AcuerdoDelGrupo;
 import bo.aportaya.grupos.web.generado.modelo.EntradaAcuerdo;
 import bo.aportaya.grupos.web.generado.modelo.EntradaVoto;
 import bo.aportaya.grupos.web.generado.modelo.SalidaAcuerdo;
@@ -13,6 +15,7 @@ import bo.aportaya.plataforma.web.seguridad.Permiso;
 import bo.aportaya.plataforma.web.seguridad.SesionDeLaPeticion;
 import bo.aportaya.plataforma.web.traza.Traza;
 import java.time.ZoneOffset;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.http.HttpStatus;
@@ -20,7 +23,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * Las paginas de {@code /acuerdos}: proponer y votar.
+ * Las paginas de {@code /acuerdos}: listar, proponer y votar.
  *
  * <p>El quorum no lo elige quien propone: sale del reglamento del grupo. Si lo pusiera
  * el proponente, cualquiera podria abrir una votacion con el quorum que le convenga y
@@ -89,5 +92,35 @@ public class AcuerdosController implements AcuerdosApi {
         respuesta.setAcuerdoId(acuerdoId);
         respuesta.setEstado(cu63.resolver(acuerdoId, ctx));
         return ResponseEntity.status(HttpStatus.CREATED).body(respuesta);
+    }
+
+    @Override
+    @Permiso("PARTICIPANTE")
+    public ResponseEntity<List<AcuerdoDelGrupo>> listarAcuerdos(
+            UUID grupoId, String tipo, String estado, UUID referenciaAfectadaId) {
+        var ctx = sesion.actual();
+        Traza.marcarCasoDeUso("CU-63", grupoId.toString());
+        // Las votaciones de un grupo son de sus participantes: nadie de afuera las lista.
+        consultas
+                .participanteDe(grupoId, ctx.usuarioId(), ctx)
+                .orElseThrow(() -> new ErrorDeNegocio(CodigoError.de(63, 1), "No participas de ese grupo."));
+        var filas = cu63.delGrupo(
+                grupoId,
+                Optional.ofNullable(tipo),
+                Optional.ofNullable(estado),
+                Optional.ofNullable(referenciaAfectadaId),
+                ctx);
+        return ResponseEntity.ok(filas.stream()
+                .map(a -> {
+                    var salida = new AcuerdoDelGrupo();
+                    salida.setAcuerdoId(a.id());
+                    salida.setTipo(TipoDeAcuerdo.valueOf(a.tipo()).aContrato());
+                    salida.setEstado(AcuerdoDelGrupo.EstadoEnum.fromValue(a.estado()));
+                    salida.setDescripcion(a.descripcion());
+                    salida.setReferenciaAfectadaId(a.afectado().orElse(null));
+                    salida.setCierraEn(a.cierraEn());
+                    return salida;
+                })
+                .toList());
     }
 }

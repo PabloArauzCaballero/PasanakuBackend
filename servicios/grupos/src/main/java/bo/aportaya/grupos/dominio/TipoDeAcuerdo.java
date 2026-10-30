@@ -49,4 +49,16 @@ public enum TipoDeAcuerdo {
     public boolean tieneParteInteresada() {
         return this == EXPULSION_PARTICIPANTE || this == CONDONACION_MORA;
     }
+
+    /** El nombre del contrato para este tipo: la vuelta de {@link #deContrato(String)}. */
+    public String aContrato() {
+        return switch (this) {
+            case CONDONACION_MORA -> "CONDONACION";
+            case EXPULSION_PARTICIPANTE -> "EXPULSION";
+            case PERMUTA_TURNOS -> "PERMUTA";
+            case ADMISION_REEMPLAZO -> "TRASPASO_CUPO";
+            case DISOLUCION_ANTICIPADA -> "DISOLUCION";
+            default -> name();
+        };
+    }
 }

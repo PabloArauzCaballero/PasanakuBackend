@@ -2,6 +2,7 @@ package bo.aportaya.grupos.aplicacion;
 
 import bo.aportaya.grupos.dominio.ComputoDeVotacion;
 import bo.aportaya.grupos.dominio.ComputoDeVotacion.Sentido;
+import bo.aportaya.grupos.dominio.ResumenDeAcuerdo;
 import bo.aportaya.grupos.dominio.TipoDeAcuerdo;
 import bo.aportaya.grupos.infraestructura.AcuerdoRepositorio;
 import bo.aportaya.grupos.infraestructura.AcuerdoRepositorio.ComputoResumen;
@@ -15,6 +16,7 @@ import bo.aportaya.plataforma.mensajeria.Outbox;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -145,6 +147,19 @@ public class CU63Acordar {
                             UUID.fromString(ctx.traza().id())));
             return estado;
         });
+    }
+
+    /** Los acuerdos del grupo, filtrados: para que quien pidio un traspaso encuentre su votacion. */
+    @Transactional(readOnly = true)
+    public List<ResumenDeAcuerdo> delGrupo(
+            UUID grupoId,
+            Optional<String> tipoDelContrato,
+            Optional<String> estado,
+            Optional<UUID> afectado,
+            ContextoSesion ctx) {
+        Optional<String> tipo =
+                tipoDelContrato.map(t -> TipoDeAcuerdo.deContrato(t).name());
+        return datos.conContexto(ctx, dsl -> acuerdos.delGrupo(dsl, grupoId, tipo, estado, afectado));
     }
 
     private ComputoResumen resumen(ComputoDeVotacion computo) {

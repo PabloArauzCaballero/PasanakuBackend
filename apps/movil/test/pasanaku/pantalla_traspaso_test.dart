@@ -16,6 +16,17 @@ const _cupo = '22222222-2222-4222-8222-222222222222';
 const _ana = '33333333-3333-4333-8333-333333333333';
 const _post = '/grupos/$_g/cupos/$_cupo/traspasos';
 const _motivo = 'Me mudo de ciudad y Ana sigue en el grupo';
+const _acuerdo = '44444444-4444-4444-8444-444444444444';
+
+/// La votación del traspaso de este cupo (CU-63), como la lista el servidor.
+Map<String, dynamic> _votacion(String estado) => {
+  'acuerdoId': _acuerdo,
+  'tipo': 'TRASPASO_CUPO',
+  'estado': estado,
+  'descripcion': 'Traspaso del cupo 1 a Ana',
+  'referenciaAfectadaId': _cupo,
+  'cierraEn': '2026-11-05T12:00:00Z',
+};
 
 Map<String, dynamic> _integrante(
   int n, {
@@ -69,7 +80,10 @@ Map<String, dynamic> _cuerpo(Object? c) =>
 
 typedef _Envio = ({String? clave, Object? cuerpo});
 
-Future<(DioAdapter, List<_Envio>)> _montar(WidgetTester t) async {
+Future<(DioAdapter, List<_Envio>)> _montar(
+  WidgetTester t, {
+  List<Map<String, dynamic>>? votaciones,
+}) async {
   t.view.physicalSize = const Size(412, 2400);
   t.view.devicePixelRatio = 1;
   addTearDown(t.view.reset);
@@ -79,7 +93,7 @@ Future<(DioAdapter, List<_Envio>)> _montar(WidgetTester t) async {
     0,
     InterceptorsWrapper(
       onRequest: (o, h) {
-        if (o.method == 'POST' && o.path == _post) {
+        if (o.method == 'POST' && (o.path == _post || o.path == '/acuerdos')) {
           envios.add((
             clave: o.headers['Idempotency-Key'] as String?,
             cuerpo: o.data,
@@ -90,6 +104,15 @@ Future<(DioAdapter, List<_Envio>)> _montar(WidgetTester t) async {
     ),
   );
   adaptador.onGet('/grupos/$_g/detalle', (s) => s.reply(200, _detalle()));
+  adaptador.onGet(
+    '/acuerdos',
+    (s) => s.reply(200, votaciones ?? [_votacion('APROBADO')]),
+    queryParameters: {
+      'grupoId': _g,
+      'tipo': 'TRASPASO_CUPO',
+      'referenciaAfectadaId': _cupo,
+    },
+  );
   await t.pumpWidget(
     conApp(
       const PantallaTraspaso(grupoId: _g, cupoId: _cupo),
@@ -156,12 +179,49 @@ void main() {
       final cuerpo = _cuerpo(envios.single.cuerpo);
       expect(cuerpo['usuarioEntranteId'], _ana);
       expect(cuerpo['motivo'], _motivo);
-      expect(cuerpo.containsKey('acuerdoId'), isFalse);
+      // El grupo siempre vota el traspaso: viaja la votación aprobada de ESTE cupo.
+      expect(cuerpo['acuerdoId'], _acuerdo);
       expect(find.text('Cupo traspasado'), findsOneWidget);
       expect(find.text('Traspaso ae0661ac'), findsOneWidget);
       expect(find.text('Ir a mis grupos'), findsOneWidget);
     },
   );
+
+  testWidgets('sin votación: pide al grupo que vote ESTE cupo y no traspasa', (
+    t,
+  ) async {
+    final (adaptador, envios) = await _montar(t, votaciones: const []);
+    adaptador.onPost(
+      '/acuerdos',
+      (s) => s.reply(201, {'acuerdoId': _acuerdo}),
+      data: Matchers.any,
+    );
+    await _hastaRevisar(t);
+    expect(find.text('Traspasar cupo'), findsNothing);
+    await t.tap(find.text('Pedir la votación al grupo'));
+    await asentar(t);
+    expect(envios, hasLength(1));
+    final cuerpo = _cuerpo(envios.single.cuerpo);
+    expect(cuerpo['tipo'], 'TRASPASO_CUPO');
+    expect(cuerpo['referenciaAfectadaId'], _cupo);
+    expect(cuerpo['grupoId'], _g);
+    expect(envios.single.clave, isNotEmpty);
+  });
+
+  testWidgets('votación abierta: espera, sin poder traspasar todavía', (
+    t,
+  ) async {
+    final (_, envios) = await _montar(t, votaciones: [_votacion('ABIERTO')]);
+    await _hastaRevisar(t);
+    expect(find.text('Esperando la votación'), findsOneWidget);
+    expect(find.text('Traspasar cupo'), findsNothing);
+    await t.tap(
+      find.byKey(const ValueKey('accion-del-traspaso')),
+      warnIfMissed: false,
+    );
+    await asentar(t);
+    expect(envios, isEmpty);
+  });
 
   testWidgets('sin confirmar no se envía nada', (t) async {
     final (adaptador, envios) = await _montar(t);
@@ -217,6 +277,7 @@ void main() {
     'AP-CU64-03': ('no tiene el nivel de verificación', 1),
     'AP-CU64-04': ('no llega a la reputación mínima', 2),
     'AP-CU64-05': ('aprobar este traspaso en una votación', 3),
+    'AP-CU64-06': ('solo quien lo tiene puede traspasarlo', null),
   };
   for (final MapEntry(key: codigo, value: (texto, fila)) in casos.entries) {
     testWidgets('$codigo se muestra donde corresponde y conserva lo cargado', (

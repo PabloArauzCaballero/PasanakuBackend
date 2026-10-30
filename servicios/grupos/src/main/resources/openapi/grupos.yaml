@@ -372,6 +372,41 @@ paths:
           # AP-CU60-08 SORTEO_ANULADO · AP-CU60-09 CALENDARIO_AUSENTE · AP-CU60-10 NO_ADMINISTRA_EL_GRUPO
 
   /acuerdos:
+    get:
+      operationId: listarAcuerdos              # CU-63
+      summary: Los acuerdos de un grupo, filtrados
+      description: >-
+        Para que quien pidio un traspaso (CU-64) encuentre la votacion de SU cupo y,
+        aprobada, la adjunte. Solo para participantes del grupo. Los mas nuevos
+        primero, hasta 50.
+      parameters:
+        - name: grupoId
+          in: query
+          required: true
+          schema: { type: string, format: uuid }
+        - name: tipo
+          in: query
+          required: false
+          schema: { type: string, enum: [CONDONACION, EXPULSION, PERMUTA, TRASPASO_CUPO, CAMBIO_REGLAMENTO, DISOLUCION, REPETIR_SORTEO] }
+        - name: estado
+          in: query
+          required: false
+          schema: { type: string, enum: [ABIERTO, APROBADO, EJECUTADO, EXPIRADO, RECHAZADO] }
+        - name: referenciaAfectadaId
+          in: query
+          required: false
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: Acuerdos del grupo
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/AcuerdoDelGrupo' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU63-01 NO_PARTICIPA_DEL_GRUPO
     post:
       operationId: proponerAcuerdo             # CU-63
       summary: Proponer un acuerdo y abrir su votación
@@ -493,6 +528,10 @@ paths:
       operationId: traspasarCupo               # CU-64
       summary: Traspasar un cupo a otro participante
       description: >-
+        Lo ejecuta quien tiene el cupo, con la votacion del grupo APROBADA sobre ese
+        cupo (acuerdo TRASPASO_CUPO con referenciaAfectadaId = cupoId; siempre se
+        exige, decision 2026-10-30). El acuerdo se usa una sola vez.
+
         El TURNO no se toca: la posicion en el calendario es del cupo, no de la
         persona. Si se moviera, traspasar seria una forma de adelantar el propio
         turno y el sorteo dejaria de significar nada.
@@ -525,7 +564,7 @@ paths:
           $ref: '#/components/responses/ReglaDeNegocio'
           # AP-CU64-01 CUPO_NO_TRASPASABLE     · AP-CU64-02 SALIENTE_CON_DEUDA
           # AP-CU64-03 ENTRANTE_SIN_KYC        · AP-CU64-04 ENTRANTE_SIN_REPUTACION
-          # AP-CU64-05 ACUERDO_REQUERIDO
+          # AP-CU64-05 ACUERDO_REQUERIDO       · AP-CU64-06 NO_ES_TITULAR
 
   /grupos/{grupoId}/invitaciones:
     post:
@@ -1190,6 +1229,17 @@ components:
       required: [voto]
       properties:
         voto: { type: string, enum: [A_FAVOR, EN_CONTRA, ABSTENCION] }
+    AcuerdoDelGrupo:
+      type: object
+      additionalProperties: false
+      required: [acuerdoId, tipo, estado, descripcion, cierraEn]
+      properties:
+        acuerdoId:            { type: string, format: uuid }
+        tipo:                 { type: string, description: Tipo del contrato (TRASPASO_CUPO, PERMUTA, ...) }
+        estado:               { type: string, enum: [ABIERTO, APROBADO, EJECUTADO, EXPIRADO, RECHAZADO] }
+        descripcion:          { type: string }
+        referenciaAfectadaId: { type: [string, 'null'], format: uuid }
+        cierraEn:             { type: string, format: date-time }
     SalidaAcuerdo:
       type: object
       additionalProperties: false
