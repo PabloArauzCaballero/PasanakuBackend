@@ -1,0 +1,13 @@
+f6 · apps/backoffice e2e (ng serve + mock de simulado, 1 worker). Nunca habia corrido en la CI desde que f5 falla.
+1a corrida completa (codigo de dev + mi CSS):  14 failed, 163 passed (9.5 min)
+  admisiones.e2e.ts:170 «estados: cargando, vacío y error»      → buscaba 'todavía no propuso una decisión' (texto cambiado en 4f873212)
+  admisiones.e2e.ts:243 «puerta de entrada»                       → buscaba la pestaña «Por identificador» (4f873212 quitó las pestañas)
+  f2-posiciones-y-roles.e2e.ts:140 x4 (PARTICIPANTE, SOPORTE, ADMIN_PLATAFORMA, CONTABILIDAD)
+                                                                   → buscaba el enlace «Inicio» en el menu (quitado el 2026-10-28, 5d0f8d99: se vuelve con el logo)
+  sistemas-sin-contrato.e2e.ts:48 x8 (despliegues, base-de-datos, respaldos, proveedores, outbox, webhooks, accesos, incidentes)
+                                                                   → 6 rutas ya tienen fuente real; despliegues y respaldos cambiaron el texto del aviso
+Ademas, al ajustar el menu: ADMIN_PLATAFORMA ve «Sistemas» (soloRolesDeSistemas lo acepta desde 3d4344e3; matriz-de-roles.spec.ts lo espera).
+Tras actualizar las 3 pruebas:
+  admisiones + f2-posiciones-y-roles + sistemas-sin-contrato → 28 passed, 1 failed (ADMIN_PLATAFORMA/Sistemas)
+  f2-posiciones-y-roles.e2e.ts (tras corregir ADMIN_PLATAFORMA)                → 10 passed
+No cubierto: la corrida completa de f6 con las 3 correcciones (se hace en la CI) y f7 (humo, se saltea sin backend vivo).
