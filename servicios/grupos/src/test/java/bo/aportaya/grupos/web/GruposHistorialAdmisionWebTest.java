@@ -49,6 +49,7 @@ import org.springframework.test.web.servlet.MockMvc;
             "aportaya.grupo.tope-de-reenvios-de-invitacion=3",
         })
 @MockitoBean(types = bo.aportaya.grupos.aplicacion.CU69EnlaceDeGrupo.class)
+@MockitoBean(types = bo.aportaya.grupos.aplicacion.CU64TraspasoPorSubasta.class)
 class GruposHistorialAdmisionWebTest {
 
     private static final UUID SOLICITUD = UUID.fromString("c6a00000-0000-4000-8000-000000000002");

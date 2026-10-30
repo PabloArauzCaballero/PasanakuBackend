@@ -1,6 +1,6 @@
 part of 'rutas.dart';
 
-/// Retiro, traspaso del cupo, permuta, verificación del sorteo, transparencia, estado, puntaje, turno, aporte y reclamo.
+/// Retiro, traspaso y subasta del cupo, permuta, verificación del sorteo, transparencia, estado, puntaje, turno, aporte y reclamo.
 /// Vive aparte solo por tamaño: `rutasPasanaku` la inserta en el mismo lugar, así el orden no cambia.
 final List<RouteBase> _rutasDeOperacion = [
   GoRoute(
@@ -19,6 +19,26 @@ final List<RouteBase> _rutasDeOperacion = [
       cupoId: state.pathParameters['cupoId']!,
       acuerdoId: state.uri.queryParameters['acuerdo'],
     ),
+  ),
+  // CU-64 por subasta (2026-10-30): el titular subasta su cupo; cualquiera ve y ofrece.
+  GoRoute(
+    path: '/pasanaku/grupos/:grupoId/cupos/:cupoId/subasta',
+    name: 'pasanaku.subastarCupo',
+    builder: (context, state) => PantallaSubastarCupo(
+      grupoId: state.pathParameters['grupoId']!,
+      cupoId: state.pathParameters['cupoId']!,
+    ),
+  ),
+  GoRoute(
+    path: '/pasanaku/subastas',
+    name: 'pasanaku.subastas',
+    builder: (context, state) => const PantallaSubastas(),
+  ),
+  GoRoute(
+    path: '/pasanaku/subastas/:subastaId',
+    name: 'pasanaku.subasta',
+    builder: (context, state) =>
+        PantallaSubasta(subastaId: state.pathParameters['subastaId']!),
   ),
   GoRoute(
     path: '/pasanaku/turnos/permuta',
