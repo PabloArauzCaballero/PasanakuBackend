@@ -6,8 +6,13 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import bo.aportaya.grupos.aplicacion.CU64TraspasarCupo.EntradaTraspaso;
 import bo.aportaya.plataforma.dominio.CodigoError;
 import bo.aportaya.plataforma.dominio.ErrorDeNegocio;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executors;
+import org.jooq.impl.DSL;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -89,11 +94,52 @@ class CU64TitularYAcuerdoTest extends BaseDeCU64 {
                 .isEqualTo(CodigoError.de(64, 1));
     }
 
+    @Test
+    @DisplayName("concurrencia: dos pedidos simultaneos con el MISMO acuerdo y distinto entrante traspasan UNA vez")
+    void mismoAcuerdoEnParalelo() throws Exception {
+        Escenario escenario = escenarioConTurno();
+        UUID acuerdo = acuerdo(escenario.grupo(), escenario.cupo(), "APROBADO");
+        UUID otroEntrante = fixtura.participanteSuelto(escenario.grupo());
+        var hilos = Executors.newFixedThreadPool(2);
+        try {
+            var listo = new CountDownLatch(1);
+            Callable<String> a = () -> intento(listo, escenario, escenario.entrante(), acuerdo);
+            Callable<String> b = () -> intento(listo, escenario, otroEntrante, acuerdo);
+            var fa = hilos.submit(a);
+            var fb = hilos.submit(b);
+            listo.countDown();
+
+            assertThat(List.of(fa.get(), fb.get())).containsExactlyInAnyOrder("TRASPASADO", "AP-CU64-05");
+        } finally {
+            hilos.shutdownNow();
+        }
+        assertThat(dsl.fetchCount(
+                        DSL.table("grupos.traspaso_cupo"), DSL.field("cupo_id").eq(escenario.cupo())))
+                .isEqualTo(1);
+        assertThat(titularDelCupo(escenario.cupo())).isIn(escenario.entrante(), otroEntrante);
+        assertThat(estadoDelAcuerdo(acuerdo)).isEqualTo("EJECUTADO");
+    }
+
+    private String intento(CountDownLatch listo, Escenario escenario, UUID entrante, UUID acuerdo) throws Exception {
+        listo.await();
+        try {
+            ejecutar(escenario, entrante, Optional.of(acuerdo), escenario.grupo(), escenario.saliente());
+            return "TRASPASADO";
+        } catch (ErrorDeNegocio e) {
+            return e.codigo().toString();
+        }
+    }
+
     private UUID ejecutar(Escenario escenario, Optional<UUID> acuerdo, UUID grupoDeLaRuta, UUID quienLlama) {
+        return ejecutar(escenario, escenario.entrante(), acuerdo, grupoDeLaRuta, quienLlama);
+    }
+
+    private UUID ejecutar(
+            Escenario escenario, UUID entrante, Optional<UUID> acuerdo, UUID grupoDeLaRuta, UUID quienLlama) {
         return transaccion.execute(e -> traspasar.ejecutar(
                 new EntradaTraspaso(
                         escenario.cupo(),
-                        escenario.entrante(),
+                        entrante,
                         "Me mudo a otra ciudad",
                         true,
                         "COMPLETO",

@@ -18,5 +18,6 @@
 |---|---|---|---|---|
 | H1.S1.M1 | CU-64: titular, grupo de la ruta, acuerdo del cupo, uso único | 6 casos de `CU64TitularYAcuerdoTest` | `gradle :servicios:grupos:test` | HECHO |
 | H1.S1.M2 | GET /acuerdos del grupo (participantes) | 3 casos de `AcuerdosListadoWebTest` | `gradle :servicios:grupos:test` | HECHO |
+| H1.S1.M3 | Gastar el acuerdo de forma atómica (hallazgo de revisión de seguridad: carrera con el mismo acuerdo) | dos pedidos en paralelo → un solo traspaso | `gradle :servicios:grupos:integrationTest` | HECHO |
 | H1.S2.M1 | App: pedir votación / esperar / traspasar con el acuerdo aprobado | `pantalla_traspaso_test` 14/14 | `flutter test test/pasanaku/pantalla_traspaso_test.dart` | HECHO |
 | H1.S2.M2 | Regresión app + gate de frontend | suite completa verde | `flutter test ...` + `verificar_frontend.py movil` | HECHO |
