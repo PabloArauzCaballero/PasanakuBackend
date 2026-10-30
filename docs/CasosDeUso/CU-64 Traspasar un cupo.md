@@ -90,6 +90,7 @@ export const ErroresCU64 = {
   ENTRANTE_SIN_KYC:       'AP-CU64-03',
   ENTRANTE_SIN_REPUTACION:'AP-CU64-04',
   ACUERDO_REQUERIDO:      'AP-CU64-05',
+  NO_ES_TITULAR:          'AP-CU64-06',
 } as const
 ```
 
@@ -100,6 +101,7 @@ export const ErroresCU64 = {
 | `ENTRANTE_SIN_KYC` | El entrante no alcanza el `requiere_kyc_minimo` del grupo |
 | `ENTRANTE_SIN_REPUTACION` | El entrante no alcanza la `reputacion_minima` fijada en el reglamento |
 | `ACUERDO_REQUERIDO` | El reglamento exige aprobación del grupo y no hay acuerdo aprobado |
+| `NO_ES_TITULAR` | Quien pide el traspaso no tiene el cupo |
 
 ## Descomposición atómica
 
@@ -161,6 +163,9 @@ Dado un cupo con turno futuro y la votación aprobada de ese cupo
 Cuando su titular traspasa al entrante
 Entonces el cupo cambia de participante y el acuerdo queda EJECUTADO
 ```
+
+La votación es sobre el cupo **y** la persona que entra (decisión 2026-10-30): una votación
+aprobada para otra persona, o que no dice quién entra, se rechaza con `ACUERDO_REQUERIDO`.
 
 ## Ver también
 

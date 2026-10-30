@@ -381,6 +381,9 @@ SET search_path TO aportes, auditoria, cumplimiento, entregas, erp, garantia, gr
 -- 2b) Infraestructura de mensajería por esquema (ADR-027)
 \ir 15_infra/mensajeria.sql
 
+-- 2b') Columnas opcionales nuevas sobre una base que ya existe.
+\ir 15_infra/columnas_agregadas.sql
+
 -- 2c) Nulabilidad al día sobre una base que ya existe.
 --     Solo afloja lo que el modelo declara opcional; no es un sistema de
 --     migraciones. Sobre una base recién creada no hace nada.

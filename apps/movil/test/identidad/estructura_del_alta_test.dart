@@ -84,7 +84,6 @@ void main() {
     await tester.enterText(find.byType(TextField).at(0), '71000090');
     await tester.enterText(find.byType(TextField).at(1), 'rosa@example.com');
     await tester.enterText(find.byType(TextField).at(2), 'clave-segura-2026');
-    await tester.enterText(find.byType(TextField).at(3), 'clave-segura-2026');
     await tester.pump();
     expect(contenedor.read(altaProvider).datos.telefono, '+59171000090');
     expect(contenedor.read(altaProvider).datos.correo, 'rosa@example.com');
@@ -162,7 +161,7 @@ void main() {
         .toList();
     expect(camposCuenta[0].controller!.text, '71000090');
     expect(camposCuenta[1].controller!.text, 'rosa@example.com');
+    // La contraseña se pide una sola vez (2026-10-30): no hay campo de confirmación.
     expect(camposCuenta[2].controller!.text, 'clave-segura-2026');
-    expect(camposCuenta[3].controller!.text, 'clave-segura-2026');
   });
 }

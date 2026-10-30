@@ -20,7 +20,6 @@ class TextosDelAlta {
       'Con esta contraseña vas a entrar a tu billetera. Elegí una que puedas '
       'recordar y que no uses en otro lado.';
   static const claveNueva = 'Contraseña';
-  static const claveRepetir = 'Confirmar contraseña';
   static const claveAyuda = 'Ocho caracteres o más.';
   static const ejemploPrimerNombre = 'Ej.: María';
   static const ejemploSegundoNombre = 'Ej.: Fernanda';
@@ -29,7 +28,6 @@ class TextosDelAlta {
   static const ejemploTelefono = '71234567';
   static const ejemploCorreo = 'tu@correo.com';
   static const ejemploContrasena = 'Mínimo 8 caracteres';
-  static const ejemploRepetirContrasena = 'Igual a la de arriba';
   static const ejemploNumeroDocumento = 'Ej.: 8452136';
   static const ejemploCodigo = '6 dígitos';
   static const claveCorta = 'Todavía es corta: tienen que ser ocho o más.';
@@ -37,7 +35,6 @@ class TextosDelAlta {
       'No uses tu celular adentro de la contraseña.';
   static const claveConDocumento =
       'No uses tu número de documento adentro de la contraseña.';
-  static const clavesNoCoinciden = 'Las dos no coinciden. Revisá la segunda.';
   static const claveAvisoTitulo = 'Nadie de AportaYa te la va a pedir';
   static const claveAvisoDetalle =
       'Ni por teléfono, ni por correo, ni por WhatsApp. Quien te la pida está '

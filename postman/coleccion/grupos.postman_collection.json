@@ -1255,10 +1255,10 @@
           ],
           "variable": []
         },
-        "description": "## Proponer un acuerdo y abrir su votación\n\nNingun efecto colectivo se ejecuta sin acuerdo aprobado, y el efecto va en la MISMA transaccion que la aprobacion: si el efecto falla, el acuerdo no queda aprobado sin su efecto — que seria un grupo convencido de que decidio algo que no ocurrio.\n\n| | |\n| --- | --- |\n| **Servicio** | `grupos` |\n| **Operacion** | `proponerAcuerdo` |\n| **Ruta** | `POST /api/v1/acuerdos` |\n| **Permiso** | `PARTICIPANTE` |\n| **Idempotencia** | exige `Idempotency-Key`; se manda un `{{$guid}}` nuevo por intento |\n| **Respuestas** | `201`, `422` |\n\n### Rechazos que declara el contrato\n\n| Codigo | Motivo |\n| --- | --- |\n| `AP-CU63-01` | Proponente no habilitado |\n| `AP-CU63-02` | Acuerdo duplicado |\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos.",
+        "description": "## Proponer un acuerdo y abrir su votación\n\nNingun efecto colectivo se ejecuta sin acuerdo aprobado, y el efecto va en la MISMA transaccion que la aprobacion: si el efecto falla, el acuerdo no queda aprobado sin su efecto — que seria un grupo convencido de que decidio algo que no ocurrio.\n\n| | |\n| --- | --- |\n| **Servicio** | `grupos` |\n| **Operacion** | `proponerAcuerdo` |\n| **Ruta** | `POST /api/v1/acuerdos` |\n| **Permiso** | `PARTICIPANTE` |\n| **Idempotencia** | exige `Idempotency-Key`; se manda un `{{$guid}}` nuevo por intento |\n| **Respuestas** | `201`, `422` |\n\n### Rechazos que declara el contrato\n\n| Codigo | Motivo |\n| --- | --- |\n| `AP-CU63-01` | Proponente no habilitado |\n| `AP-CU63-02` | Acuerdo duplicado |\n| `AP-CU63-06` | Traspaso sin entrante |\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos.",
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"grupoId\": \"{{grupoId}}\",\n  \"tipo\": \"CONDONACION\",\n  \"descripcion\": \"descripcion-de-prueba\",\n  \"referenciaAfectadaId\": \"{{referenciaAfectadaId}}\",\n  \"diasVotacion\": 1\n}",
+          "raw": "{\n  \"grupoId\": \"{{grupoId}}\",\n  \"tipo\": \"CONDONACION\",\n  \"descripcion\": \"descripcion-de-prueba\",\n  \"referenciaAfectadaId\": \"{{referenciaAfectadaId}}\",\n  \"usuarioEntranteId\": \"{{usuarioEntranteId}}\",\n  \"diasVotacion\": 1\n}",
           "options": {
             "raw": {
               "language": "json"
