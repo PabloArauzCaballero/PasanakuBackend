@@ -18,7 +18,6 @@ import bo.aportaya.nucleofinanciero.aplicacion.ConsultarSaldo;
 import bo.aportaya.nucleofinanciero.aplicacion.CotizarOperacion;
 import bo.aportaya.nucleofinanciero.aplicacion.CuentaPropia;
 import bo.aportaya.nucleofinanciero.aplicacion.OrdenesExistentes;
-import bo.aportaya.nucleofinanciero.aplicacion.PagoDeRecargaDePrueba;
 import bo.aportaya.nucleofinanciero.aplicacion.RecargasConProveedor;
 import bo.aportaya.nucleofinanciero.dominio.puertos.SegundoFactor;
 import bo.aportaya.plataforma.dominio.CodigoError;
@@ -78,9 +77,6 @@ class CotizacionesWebTest {
 
     @MockitoBean
     private BandejaDeRetiros bandeja;
-
-    @MockitoBean
-    private PagoDeRecargaDePrueba pagoDePrueba;
 
     @MockitoBean
     private QrDeLaBilletera qr;

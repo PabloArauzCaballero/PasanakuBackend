@@ -48,7 +48,7 @@ void main() {
             }),
           );
           adaptador.onPost(
-            '/billetera/recargas/$_orden/pago-de-prueba',
+            '/recargas-de-prueba/$_orden/pago',
             (s) => estado == 'error'
                 ? s.reply(422, {
                     'codigo': 'AP-CU10-05',

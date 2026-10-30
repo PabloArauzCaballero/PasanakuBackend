@@ -82,7 +82,8 @@ class CU10ProveedorTest extends BaseDeBilletera {
                 },
                 new CotizarOperacion(new FlujosDePrueba.TarifaGratuita(), Reloj.delSistema(), false),
                 FlujosDePrueba.existentes(),
-                discrepancias);
+                discrepancias,
+                FlujosDePrueba.qr());
     }
 
     @AfterEach

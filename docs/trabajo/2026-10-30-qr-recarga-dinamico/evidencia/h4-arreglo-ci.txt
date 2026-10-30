@@ -1,0 +1,15 @@
+## Arreglo del rojo de test tras #341/#343 (2026-10-30)
+
+Checks caidos en #339/#340 y causa:
+- verificar_seguridad.py: SQL concatenado en CU10QrDinamicoTest.java:106,111 -> bloques de texto.
+- Contrato Postman sin regenerar -> scripts/generar_postman.py.
+- BarridoTest (<300 lineas): CU10RecargarSaldo 317, BilleteraController 305, InversionesWebTest 303 -> QrDeLaRecarga aparte; endpoint movido a /recargas-de-prueba/{ordenId}/pago (RecargasDePruebaController, prefijo reservado en scripts/modelo.py, gateway regenerado); WebTests revertidos a origin/test.
+- Catalogo de datos sin regenerar (qr_contenido/qr_origen) -> catalogo_de_datos.py --escribir.
+
+$ ./gradlew :servicios:nucleo-financiero:integrationTest :servicios:nucleo-financiero:webTest :plataforma:gateway:test --continue
+BUILD SUCCESSFUL in 4m 17s
+integrationTest 503/503 · webTest 82/82 (test 94/94 y testBarrido 2/2 en la corrida previa)
+$ ./gradlew :servicios:nucleo-financiero:check :plataforma:gateway:check -x test -x jacocoTestCoverageVerification -x jacocoTestReport
+BUILD SUCCESSFUL in 15s
+verificar_seguridad/boveda/carriles/contratos_limites/pruebas_web/criterios/validar_flujos/inventario/narrativas: exit 0; generar_ddl/postman/gateway/catalogo sin diff tras regenerar
+$ flutter test (dirigidos + capturas) -> 00:05 +25: All tests passed! · dart analyze --fatal-infos -> No issues found!

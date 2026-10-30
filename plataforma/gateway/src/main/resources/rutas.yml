@@ -125,7 +125,7 @@ spring:
             - id: nucleo_financiero
               uri: http://nucleo-financiero:8080
               predicates:
-                - Path=/api/v1/billetera/**,/api/v1/contabilidad/**,/api/v1/custodia/**,/api/v1/puntos-atencion/**
+                - Path=/api/v1/billetera/**,/api/v1/contabilidad/**,/api/v1/custodia/**,/api/v1/puntos-atencion/**,/api/v1/recargas-de-prueba/**
               filters:
                 - StripPrefix=2
             - id: organizador

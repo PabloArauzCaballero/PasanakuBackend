@@ -11,7 +11,7 @@ import '../comun.dart';
 const cuenta = '11111111-1111-4111-8111-111111111111';
 const orden = '9b3e8dff-d7e2-4c41-8cdc-b1be7320ca40';
 const rutaSaldo = '/billetera/$cuenta/saldo';
-const rutaPago = '/billetera/recargas/$orden/pago-de-prueba';
+const rutaPago = '/recargas-de-prueba/$orden/pago';
 
 class _Haptica implements Haptica {
   int exitos = 0;

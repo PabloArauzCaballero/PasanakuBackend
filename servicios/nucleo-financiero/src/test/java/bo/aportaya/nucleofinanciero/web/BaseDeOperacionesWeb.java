@@ -12,7 +12,6 @@ import bo.aportaya.nucleofinanciero.aplicacion.ConsultarSaldo;
 import bo.aportaya.nucleofinanciero.aplicacion.CotizarOperacion;
 import bo.aportaya.nucleofinanciero.aplicacion.CuentaPropia;
 import bo.aportaya.nucleofinanciero.aplicacion.OrdenesExistentes;
-import bo.aportaya.nucleofinanciero.aplicacion.PagoDeRecargaDePrueba;
 import bo.aportaya.nucleofinanciero.aplicacion.RecargasConProveedor;
 import bo.aportaya.nucleofinanciero.dominio.puertos.CotizadorDeComision;
 import bo.aportaya.nucleofinanciero.dominio.puertos.SegundoFactor;
@@ -81,9 +80,6 @@ abstract class BaseDeOperacionesWeb {
 
     @MockitoBean
     protected BandejaDeRetiros bandeja;
-
-    @MockitoBean
-    protected PagoDeRecargaDePrueba pagoDePrueba;
 
     @MockitoBean
     protected CotizarOperacion cotizaciones;
