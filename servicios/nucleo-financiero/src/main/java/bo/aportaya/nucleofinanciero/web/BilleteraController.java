@@ -66,7 +66,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @Permiso("BILLETERA_OPERAR")
-public class BilleteraController implements BilleteraApi {
+public class BilleteraController extends RutasDelMercadoDeLaBilletera {
 
     private final FondeoDeLaBilletera fondeo;
     private final QrDeLaBilletera qr;

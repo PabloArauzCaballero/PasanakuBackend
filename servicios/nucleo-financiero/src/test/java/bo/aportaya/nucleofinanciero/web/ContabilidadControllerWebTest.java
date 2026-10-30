@@ -31,6 +31,8 @@ import org.springframework.test.web.servlet.ResultActions;
  * {@code CU51CierreDesdeContabilidadTest}.
  */
 @PruebaWeb(ContabilidadController.class)
+@org.springframework.test.context.bean.override.mockito.MockitoBean(
+        types = bo.aportaya.nucleofinanciero.aplicacion.CU13LiberarRetencionDelMercado.class)
 class ContabilidadControllerWebTest {
     private static final LocalDate DIA = LocalDate.of(2026, 3, 10);
     private static final UUID CIERRE = UUID.fromString("eeeeeeee-0000-4000-8000-000000000061");

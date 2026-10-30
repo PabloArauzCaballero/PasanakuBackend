@@ -74,11 +74,11 @@ queda participante ACTIVO del grupo (o se rechaza con código).
 **CA:** Dada una retención `COMPRA_EN_MERCADO`, cuando `entregas` la libera con su identidad de
 servicio, entonces el saldo vuelve al dueño; una sesión de usuario recibe 403.
 **DoD:** `./gradlew :servicios:nucleo-financiero:test` en verde con pruebas nuevas.
-**Estado:** TODO
+**Estado:** HECHO (peldaño TESTED; el pago al saliente NO necesitó cambios en nucleo: pregunta a `entregas` por `GET /entregas/mercado/ofertas/{id}`, ver F6)
 
 | ID | Microtarea | CA | DoD | Estado |
 |---|---|---|---|---|
-| H2.M1 | `POST /billetera/retenciones/{id}/liberacion-de-mercado` (`SERVICIO_ENTREGAS`), idempotente | libera; 403 a usuario; repetir = mismo resultado | prueba web + integración | TODO |
+| H2.M1 | `POST /billetera/retenciones/{id}/liberacion-de-mercado` (`SERVICIO_ENTREGAS`), solo `COMPRA_EN_MERCADO` | libera y el saldo vuelve al postor; usuario → AP-CU13-09; repetir → AP-CU13-03 sin duplicar; otra retención → AP-CU13-08 | `integrationTest --tests *CU13LiberacionDelMercadoTest` 4/4 · `webTest` 79/79 | HECHO |
 
 ## H3 — `entregas`: la subasta
 **CA:** Dado un cupo en subasta, cuando varios usuarios pujan, entonces solo la más alta queda
