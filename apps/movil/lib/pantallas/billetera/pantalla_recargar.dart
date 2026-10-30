@@ -17,6 +17,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../dominio/cu10_recargar_saldo.dart';
 import '../../dominio/proteccion_de_pantalla_dinero.dart';
+import 'cobro_de_recarga.dart';
 import 'textos.dart';
 
 const _medios = {
@@ -58,7 +59,12 @@ class _PantallaRecargarState extends ConsumerState<PantallaRecargar>
               const CabeceraDeSeccion(titulo: TextosBilletera.recargar),
               Expanded(
                 child: orden != null
-                    ? Center(child: _Confirmacion(orden: orden))
+                    ? orden.cobroQr != null
+                          ? CobroDeRecarga(
+                              orden: orden,
+                              cuentaId: widget.cuentaId,
+                            )
+                          : Center(child: _Confirmacion(orden: orden))
                     : SingleChildScrollView(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,

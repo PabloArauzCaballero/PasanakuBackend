@@ -4,6 +4,7 @@ import bo.aportaya.nucleofinanciero.aplicacion.RegistrarDiscrepancia.EntradaDisc
 import bo.aportaya.nucleofinanciero.dominio.DiscrepanciaDelProveedor;
 import bo.aportaya.nucleofinanciero.dominio.DiscrepanciaDelProveedor.Tipo;
 import bo.aportaya.nucleofinanciero.dominio.puertos.ProveedorDeRecargas;
+import bo.aportaya.nucleofinanciero.dominio.puertos.ProveedorDeRecargas.CobroQr;
 import bo.aportaya.nucleofinanciero.dominio.puertos.ProveedorDeRecargas.Confirmacion;
 import bo.aportaya.nucleofinanciero.infraestructura.OrdenRecargaRepositorio.Orden;
 import bo.aportaya.plataforma.dominio.CodigoError;
@@ -54,6 +55,15 @@ public class RecargasConProveedor {
     }
 
     public CU10RecargarSaldo.SalidaSolicitud solicitar(CU10RecargarSaldo.EntradaSolicitud entrada, ContextoSesion ctx) {
+        return solicitarConQr(entrada, ctx).salida();
+    }
+
+    /**
+     * Abre la orden y devuelve, ademas, el QR dinamico que el proveedor emitio para pagarla. El QR se
+     * guarda en una transaccion propia DESPUES de hablar con el proveedor: la red nunca va dentro de la
+     * transaccion. Si el proveedor no emite QR, la orden sigue valida y el QR viaja vacio.
+     */
+    public Solicitada solicitarConQr(CU10RecargarSaldo.EntradaSolicitud entrada, ContextoSesion ctx) {
         // El precio lo dicta tarifas y se confirma contra la cotizacion que la persona vio. Un reintento
         // de una orden ya abierta no exige una cotizacion vigente: ya se acepto la primera vez.
         var costo = cotizaciones.confirmar(
@@ -75,9 +85,13 @@ public class RecargasConProveedor {
                 ctx);
         // La intencion ya esta persistida. Un timeout mantiene la misma referencia
         // para consultar/reintentar, nunca autoriza un abono.
-        proveedor.solicitar(salida.ordenRecargaId(), entrada.monto());
-        return salida;
+        Optional<CobroQr> qr = proveedor
+                .solicitar(salida.ordenRecargaId(), entrada.monto())
+                .flatMap(cobro -> recargas.guardarQr(salida.ordenRecargaId(), cobro, ctx));
+        return new Solicitada(salida, qr);
     }
+
+    public record Solicitada(CU10RecargarSaldo.SalidaSolicitud salida, Optional<CobroQr> qr) {}
 
     public CU10RecargarSaldo.SalidaAcreditacion confirmar(UUID ordenId, ContextoSesion ctx) {
         var orden = recargas.consultarPropia(ordenId, ctx);

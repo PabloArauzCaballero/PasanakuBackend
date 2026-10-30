@@ -54,8 +54,9 @@ class CU10CotizacionTest extends BaseDeBilletera {
         flujo = FlujosDePrueba.recargas(
                 new ProveedorDeRecargas() {
                     @Override
-                    public void solicitar(UUID referencia, Dinero monto) {
+                    public Optional<CobroQr> solicitar(UUID referencia, Dinero monto) {
                         enviadas.add(referencia);
+                        return Optional.empty();
                     }
 
                     @Override

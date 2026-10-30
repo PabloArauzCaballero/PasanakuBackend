@@ -1,0 +1,15 @@
+$ flutter test test/widget/cobro_de_recarga_test.dart test/widget/pantalla_recargar_test.dart --reporter expanded
+00:00 +0: test/widget/cobro_de_recarga_test.dart: muestra el QR de la orden, el sello de prueba y el saldo actual
+00:01 +1: test/widget/pantalla_recargar_test.dart: doble toque en la recarga: una sola petición, la misma clave de idempotencia
+00:02 +2: test/widget/pantalla_recargar_test.dart: doble toque en la recarga: una sola petición, la misma clave de idempotencia
+00:02 +2: test/widget/cobro_de_recarga_test.dart: si el pago falla, lo dice y el saldo no cambia
+00:02 +3: test/widget/pantalla_recargar_test.dart: doble toque en la recarga: una sola petición, la misma clave de idempotencia
+00:02 +4: test/widget/pantalla_recargar_test.dart: doble toque en la recarga: una sola petición, la misma clave de idempotencia
+00:02 +5: test/widget/pantalla_recargar_test.dart: doble toque en la recarga: una sola petición, la misma clave de idempotencia
+00:02 +6: test/widget/pantalla_recargar_test.dart: con QR en la orden, la pantalla muestra el QR en vez del reloj de arena
+00:03 +7: All tests passed!
+
+Intentos previos (todos TEST_BUG, sin debilitar requisitos): Map<dynamic,dynamic> en el armado del ejemplo; boton fuera de la superficie 800x600 (ensureVisible); etiqueta real del reintento es «Volver a intentar» (leida de estado_error.dart:108).
+
+$ dart analyze --fatal-infos  (apps/movil)
+No issues found!  (tras envolver un if en llaves en el test: curly_braces_in_flow_control_structures)

@@ -1,0 +1,70 @@
+{
+  "servicio": "nucleo-financiero",
+  "operacion": "pagarRecargaDePrueba",
+  "metodo": "post",
+  "ruta": "/billetera/recargas/{ordenId}/pago-de-prueba",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "ordenRecargaId": "0332ab27-7418-4b81-872a-f0a6774b06a8",
+        "transaccionId": "b77459fb-a680-4709-81f4-1ef25df4a104",
+        "saldoDespues": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        }
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "ordenRecargaId": "0332ab27-7418-4b81-872a-f0a6774b06a8",
+        "transaccionId": "b77459fb-a680-4709-81f4-1ef25df4a104",
+        "saldoDespues": {
+          "monto": "0.00",
+          "moneda": "BOB"
+        }
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "ordenRecargaId": "0332ab27-7418-4b81-872a-f0a6774b06a8",
+        "transaccionId": "b77459fb-a680-4709-81f4-1ef25df4a104",
+        "saldoDespues": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        }
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "ordenRecargaId": "0332ab27-7418-4b81-872a-f0a6774b06a8",
+        "transaccionId": "b77459fb-a680-4709-81f4-1ef25df4a104",
+        "saldoDespues": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        }
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 404,
+      "cuerpo": {
+        "codigo": "AP-CU10-05",
+        "mensaje": "Orden expirada",
+        "detalle": {},
+        "trazaId": "traza-pagarRecargaDePrueba-rechazo"
+      }
+    }
+  }
+}

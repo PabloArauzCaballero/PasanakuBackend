@@ -69,6 +69,22 @@
         "detalle": {},
         "trazaId": "traza-solicitarRecarga-rechazo"
       }
+    },
+    "qrDePrueba": {
+      "estado": 201,
+      "cuerpo": {
+        "ordenRecargaId": "9b3e8dff-d7e2-4c41-8cdc-b1be7320ca40",
+        "estado": "PENDIENTE",
+        "expiraEn": "2026-01-15T10:30:00Z",
+        "acreditara": {
+          "monto": "150.00",
+          "moneda": "BOB"
+        },
+        "cobroQr": {
+          "contenido": "PASANAKU-PRUEBA|NO-PAGABLE|ref=9b3e8dff-d7e2-4c41-8cdc-b1be7320ca40|monto=150.00|BOB",
+          "origen": "PRUEBA"
+        }
+      }
     }
   }
 }
