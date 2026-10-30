@@ -44,3 +44,5 @@ Pablo respondió «lo más recomendado y cómodo para el usuario». Interpretaci
 | 4 | Tarifario: poner en vigencia | PR (este) | `2026-10-29-tarifario-vigencia` |
 | 3 | Solicitudes escaladas | **DECISION_REQUIRED**: no existe regla de escalamiento en `grupos` (ni estado ESCALADA en `solicitud_ingreso`); la «D-15» citada en la pantalla es otra decisión (ADR-051, fondo mutual). Pregunta a Pablo: ¿qué es una solicitud escalada (¿pendiente > 48 h?) o se quita la pantalla, ya que Admisiones lista y resuelve todas? | — |
 | 4b | Tarifario: publicar versión nueva | **DECISION_REQUIRED** (Finanzas/Legal): el contrato no trae precios y exige acta, aprobador, URL y hash | — |
+| 5 | Reportes: ejecutar | **BLOQUEADO (DECISION_REQUIRED)**: ningún reporte sembrado ejecuta en TEST (semilla con forma de objeto, motor espera arreglo; reproducido). Ver `2026-10-29-ejecutar-reportes/PLAN.md` | — |
+| 1 | Habilitación de organizador | PR #285/#286 | `2026-10-29-habilitacion-organizador` |

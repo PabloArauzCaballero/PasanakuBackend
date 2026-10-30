@@ -1,0 +1,12 @@
+# 2026-10-30T05:34:26Z — TEST, sin credenciales; HEAD del host c3fd625 contiene 310124e
+401  GET /indicadores/operacion/incidentes
+401  GET /indicadores/operacion/outbox
+401  GET /pagos/proveedores
+401  GET /pagos/webhooks-recibidos
+401  GET /notificaciones/proveedores
+401  GET /notificaciones/webhooks-recibidos
+401  GET /tarifas/costos-de-proveedor?periodo=2026-09
+404  GET /no-existe-control
+401  GET /pagos/no-existe
+401  GET /indicadores/operacion/no-existe
+401  GET /tarifas/no-existe
