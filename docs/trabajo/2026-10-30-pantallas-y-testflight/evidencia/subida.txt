@@ -1,0 +1,13 @@
+$ bash scripts/testflight_ios.sh
+xcode: Xcode 26.6 | flutter: 3.44.8 | build: 202610301429
+commit: 828795f1 rama: claude/pantallas-y-marketing-20261030
+archivo: /Users/pablo/Documents/GitHub/Pasanaku-pantallas/apps/movil/build/ios/archive/Runner.xcarchive
+error: exportArchive Failed to Use Accounts
+** EXPORT FAILED **
+(exit 70: la cuenta de Xcode no estaba disponible para firmar)
+
+$ xcodebuild -exportArchive -archivePath …/Runner.xcarchive … -allowProvisioningUpdates -authenticationKey*  (clave y emisor ASC no se pegan)
+2026-10-30 14:33:32.881 xcodebuild[12249:5804637] Progress 100%: Uploaded package is processing.
+2026-10-30 14:33:32.888 xcodebuild[12249:5804637] Progress 100%: Upload succeeded.
+Uploaded Runner
+** EXPORT SUCCEEDED **
