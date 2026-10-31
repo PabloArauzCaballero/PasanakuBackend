@@ -2,7 +2,7 @@
   "servicio": "nucleo-financiero",
   "operacion": "pagarRecargaDePrueba",
   "metodo": "post",
-  "ruta": "/billetera/recargas/{ordenId}/pago-de-prueba",
+  "ruta": "/recargas-de-prueba/{ordenId}/pago",
   "escenarios": {
     "ok": {
       "estado": 200,

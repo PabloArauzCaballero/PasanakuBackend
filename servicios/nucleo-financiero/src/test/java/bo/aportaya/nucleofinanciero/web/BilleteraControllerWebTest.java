@@ -18,7 +18,6 @@ import bo.aportaya.nucleofinanciero.aplicacion.CU15EmitirExtracto;
 import bo.aportaya.nucleofinanciero.aplicacion.CU17BloquearPorAutoridad;
 import bo.aportaya.nucleofinanciero.aplicacion.ConsultarMovimientosBilletera;
 import bo.aportaya.nucleofinanciero.aplicacion.ConsultarSaldo;
-import bo.aportaya.nucleofinanciero.aplicacion.PagoDeRecargaDePrueba;
 import bo.aportaya.nucleofinanciero.dominio.puertos.CotizadorDeComision;
 import bo.aportaya.nucleofinanciero.dominio.puertos.SegundoFactor;
 import bo.aportaya.plataforma.dominio.Dinero;
@@ -53,6 +52,8 @@ import org.springframework.test.web.servlet.MockMvc;
         value = BilleteraController.class,
         properties = {"aportaya.retiro.doble-aprobacion-desde=5000.00"})
 @org.springframework.context.annotation.Import(FondeoDeLaBilletera.class)
+@org.springframework.test.context.bean.override.mockito.MockitoBean(
+        types = bo.aportaya.nucleofinanciero.aplicacion.CU13LiberarRetencionDelMercado.class)
 class BilleteraControllerWebTest {
     private static final UUID CUENTA = UUID.fromString("eeeeeeee-0000-4000-8000-000000000001");
     private static final UUID TRANSACCION = UUID.fromString("eeeeeeee-0000-4000-8000-000000000002");
@@ -99,9 +100,6 @@ class BilleteraControllerWebTest {
 
     @MockitoBean
     private BandejaDeRetiros bandeja;
-
-    @MockitoBean
-    private PagoDeRecargaDePrueba pagoDePrueba;
 
     // El controlador delega recargas y retiros en FondeoDeLaBilletera: se usa el real, con sus colaboradores
     // doblados, para que "acreditar" siga probando el camino HTTP de punta a punta.

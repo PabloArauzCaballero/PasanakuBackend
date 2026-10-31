@@ -5,7 +5,6 @@ import bo.aportaya.nucleofinanciero.aplicacion.CU14ReversarTransaccion;
 import bo.aportaya.nucleofinanciero.aplicacion.CU15EmitirExtracto;
 import bo.aportaya.nucleofinanciero.aplicacion.ConsultarMovimientosBilletera;
 import bo.aportaya.nucleofinanciero.aplicacion.ConsultarSaldo;
-import bo.aportaya.nucleofinanciero.web.generado.BilleteraApi;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.CuentaDeLaSesion;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.EntradaAcreditacionRescate;
 import bo.aportaya.nucleofinanciero.web.generado.modelo.EntradaAprobacionRetiro;
@@ -66,7 +65,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @Permiso("BILLETERA_OPERAR")
-public class BilleteraController implements BilleteraApi {
+public class BilleteraController extends RutasDelMercadoDeLaBilletera {
 
     private final FondeoDeLaBilletera fondeo;
     private final QrDeLaBilletera qr;
@@ -147,14 +146,6 @@ public class BilleteraController implements BilleteraApi {
     public ResponseEntity<SalidaAcreditacion> acreditarRecarga(UUID ordenId, UUID idempotencyKey) {
         Traza.marcarCasoDeUso("CU-10", ordenId.toString());
         return fondeo.acreditarRecarga(ordenId, sesion.actual());
-    }
-
-    // Solo con el proveedor de prueba: fuera de el, 404 como una ruta que no existe.
-    @Override
-    @Permiso("BILLETERA_OPERAR")
-    public ResponseEntity<SalidaAcreditacion> pagarRecargaDePrueba(UUID ordenId, UUID idempotencyKey) {
-        Traza.marcarCasoDeUso("CU-10", ordenId.toString());
-        return fondeo.pagarRecargaDePrueba(ordenId, sesion.actual());
     }
 
     @Override

@@ -22,14 +22,17 @@ public class PagoDeRecargaDePrueba {
 
     private final RecargasConProveedor recargas;
     private final CU10RecargarSaldo ordenes;
+    private final QrDeLaRecarga qrs;
     private final Optional<SimuladorDePagoDeRecarga> simulador;
 
     public PagoDeRecargaDePrueba(
             RecargasConProveedor recargas,
             CU10RecargarSaldo ordenes,
+            QrDeLaRecarga qrs,
             ObjectProvider<SimuladorDePagoDeRecarga> simulador) {
         this.recargas = recargas;
         this.ordenes = ordenes;
+        this.qrs = qrs;
         this.simulador = Optional.ofNullable(simulador.getIfAvailable());
     }
 
@@ -41,7 +44,7 @@ public class PagoDeRecargaDePrueba {
     public CU10RecargarSaldo.SalidaAcreditacion pagar(UUID ordenId, ContextoSesion ctx) {
         var proveedor = simulador.orElseThrow(() -> new IllegalStateException("Sin proveedor de prueba."));
         var orden = ordenes.consultarPropia(ordenId, ctx);
-        boolean dePrueba = ordenes.cobroQr(ordenId, ctx)
+        boolean dePrueba = qrs.deLaOrden(ordenId, ctx)
                 .map(qr -> "PRUEBA".equals(qr.origen()))
                 .orElse(false);
         if (!dePrueba) {

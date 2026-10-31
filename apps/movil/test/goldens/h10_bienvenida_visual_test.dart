@@ -59,7 +59,13 @@ void main() {
         final panel = tester.getRect(find.byType(PanelBienvenida));
         final areaUtil = tester.getRect(find.byType(SafeArea).first);
         expect(panel.center.dx, closeTo(areaUtil.center.dx, 1));
-        expect(panel.center.dy, closeTo(areaUtil.center.dy, 1));
+        // Arriba, no centrado (2026-10-30): centrado dejaba media pantalla vacía sobre
+        // el panel. Va debajo del título y empieza antes de la mitad del área útil.
+        final titulo = tester.getRect(
+          find.text(TextosIdentidad.tituloBienvenida),
+        );
+        expect(panel.top, greaterThanOrEqualTo(titulo.bottom));
+        expect(panel.top, lessThan(areaUtil.center.dy));
         expect(tester.takeException(), isNull);
 
         await expectLater(

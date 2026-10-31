@@ -18,7 +18,6 @@ import bo.aportaya.nucleofinanciero.aplicacion.ConsultarSaldo;
 import bo.aportaya.nucleofinanciero.aplicacion.CotizarOperacion;
 import bo.aportaya.nucleofinanciero.aplicacion.CuentaPropia;
 import bo.aportaya.nucleofinanciero.aplicacion.OrdenesExistentes;
-import bo.aportaya.nucleofinanciero.aplicacion.PagoDeRecargaDePrueba;
 import bo.aportaya.nucleofinanciero.aplicacion.RecargasConProveedor;
 import bo.aportaya.nucleofinanciero.dominio.puertos.SegundoFactor;
 import bo.aportaya.plataforma.dominio.CodigoError;
@@ -44,6 +43,8 @@ import org.springframework.test.web.servlet.MockMvc;
         value = BilleteraController.class,
         properties = {"aportaya.retiro.doble-aprobacion-desde=5000.00"})
 @Import(FondeoDeLaBilletera.class)
+@org.springframework.test.context.bean.override.mockito.MockitoBean(
+        types = bo.aportaya.nucleofinanciero.aplicacion.CU13LiberarRetencionDelMercado.class)
 class CotizacionesWebTest {
     private static final UUID CUENTA = UUID.fromString("eeeeeeee-0000-4000-8000-0000000000b1");
     private static final UUID COTIZACION = UUID.fromString("eeeeeeee-0000-4000-8000-0000000000b2");
@@ -78,9 +79,6 @@ class CotizacionesWebTest {
 
     @MockitoBean
     private BandejaDeRetiros bandeja;
-
-    @MockitoBean
-    private PagoDeRecargaDePrueba pagoDePrueba;
 
     @MockitoBean
     private QrDeLaBilletera qr;

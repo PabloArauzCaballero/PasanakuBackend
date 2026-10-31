@@ -41,6 +41,8 @@ import org.springframework.test.web.servlet.MockMvc;
         value = BilleteraController.class,
         properties = {"aportaya.retiro.doble-aprobacion-desde=5000.00"})
 @Import(QrDeLaBilletera.class)
+@org.springframework.test.context.bean.override.mockito.MockitoBean(
+        types = bo.aportaya.nucleofinanciero.aplicacion.CU13LiberarRetencionDelMercado.class)
 class QrControllerWebTest {
     private static final UUID CUENTA = UUID.fromString("eeeeeeee-0000-4000-8000-0000000000a1");
     private static final UUID QR = UUID.fromString("eeeeeeee-0000-4000-8000-0000000000a2");

@@ -37,6 +37,8 @@ import org.springframework.http.MediaType;
         value = BilleteraController.class,
         properties = {"aportaya.retiro.doble-aprobacion-desde=5000.00"})
 @org.springframework.context.annotation.Import(FondeoDeLaBilletera.class)
+@org.springframework.test.context.bean.override.mockito.MockitoBean(
+        types = bo.aportaya.nucleofinanciero.aplicacion.CU13LiberarRetencionDelMercado.class)
 class BilleteraFondeoWebTest extends BaseDeOperacionesWeb {
 
     private static final String RECARGA =
@@ -70,34 +72,6 @@ class BilleteraFondeoWebTest extends BaseDeOperacionesWeb {
         mvc.perform(operar(post("/billetera/recargas"), RECARGA, "BILLETERA_OPERAR"))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.cobroQr").doesNotExist());
-    }
-
-    @Test
-    @DisplayName("pago de prueba · 200 con el saldo resultante cuando el ambiente tiene el doble de prueba")
-    void pagoDePrueba() throws Exception {
-        UUID orden = UUID.randomUUID();
-        when(pagoDePrueba.disponible()).thenReturn(true);
-        when(pagoDePrueba.pagar(eq(orden), any()))
-                .thenReturn(new CU10RecargarSaldo.SalidaAcreditacion(orden, UUID.randomUUID(), bob("650.00")));
-
-        mvc.perform(operar(post("/billetera/recargas/{id}/pago-de-prueba", orden), "", "BILLETERA_OPERAR"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.ordenRecargaId").value(orden.toString()))
-                .andExpect(jsonPath("$.saldoDespues.monto").value("650.00"));
-    }
-
-    @Test
-    @DisplayName("pago de prueba · 404 como ruta inexistente sin el doble; 403 con solo BILLETERA_VER")
-    void pagoDePruebaRechazos() throws Exception {
-        UUID orden = UUID.randomUUID();
-        when(pagoDePrueba.disponible()).thenReturn(false);
-
-        mvc.perform(operar(post("/billetera/recargas/{id}/pago-de-prueba", orden), "", "BILLETERA_OPERAR"))
-                .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.codigo").value("AP-VAL-05"));
-        mvc.perform(operar(post("/billetera/recargas/{id}/pago-de-prueba", orden), "", "BILLETERA_VER"))
-                .andExpect(status().isForbidden());
-        verify(pagoDePrueba, org.mockito.Mockito.never()).pagar(any(), any());
     }
 
     private static RecargasConProveedor.Solicitada solicitada(Optional<CobroQr> qr) {

@@ -36,6 +36,16 @@ import org.springframework.beans.factory.support.StaticListableBeanFactory;
  * ({@link RecargasProveedorLocal}), no un mock.
  */
 class CU10QrDinamicoTest extends BaseDeBilletera {
+    private static final String TRANSACCIONES_DE_LA_CUENTA =
+            """
+            SELECT count(DISTINCT transaccion_id)::int FROM nucleo_financiero.movimiento_billetera
+             WHERE cuenta_billetera_id = ?""";
+    private static final String DEBITOS_IGUAL_CREDITOS =
+            """
+            SELECT sum(CASE sentido WHEN 'DEBITO' THEN monto ELSE 0 END)::text || '='
+                   || sum(CASE sentido WHEN 'CREDITO' THEN monto ELSE 0 END)::text
+              FROM nucleo_financiero.movimiento_billetera WHERE transaccion_id = ?""";
+
     private UUID cuenta;
     private ContextoSesion titular;
     private RecargasProveedorLocal proveedor;
@@ -51,7 +61,7 @@ class CU10QrDinamicoTest extends BaseDeBilletera {
         titular = contextoDe(usuario);
         proveedor = new RecargasProveedorLocal();
         flujo = flujoCon(proveedor);
-        pago = new PagoDeRecargaDePrueba(flujo, recargaTransaccional(), simulador(proveedor));
+        pago = new PagoDeRecargaDePrueba(flujo, recargaTransaccional(), FlujosDePrueba.qr(), simulador(proveedor));
     }
 
     @AfterEach
@@ -102,17 +112,8 @@ class CU10QrDinamicoTest extends BaseDeBilletera {
         assertThat(texto("SELECT estado FROM nucleo_financiero.orden_recarga WHERE id=?", orden))
                 .isEqualTo("ACREDITADA");
         // Una sola transaccion, de dos patas que cuadran.
-        assertThat(contar(
-                        "SELECT count(DISTINCT transaccion_id)::int FROM nucleo_financiero.movimiento_billetera"
-                                + " WHERE cuenta_billetera_id=?",
-                        cuenta))
-                .isEqualTo(1);
-        assertThat(texto(
-                        "SELECT sum(CASE sentido WHEN 'DEBITO' THEN monto ELSE 0 END)::text || '=' ||"
-                                + " sum(CASE sentido WHEN 'CREDITO' THEN monto ELSE 0 END)::text"
-                                + " FROM nucleo_financiero.movimiento_billetera WHERE transaccion_id=?",
-                        primera.transaccionId()))
-                .isEqualTo("150.00=150.00");
+        assertThat(contar(TRANSACCIONES_DE_LA_CUENTA, cuenta)).isEqualTo(1);
+        assertThat(texto(DEBITOS_IGUAL_CREDITOS, primera.transaccionId())).isEqualTo("150.00=150.00");
     }
 
     @Test
@@ -148,6 +149,7 @@ class CU10QrDinamicoTest extends BaseDeBilletera {
         var sinDoble = new PagoDeRecargaDePrueba(
                 flujo,
                 recargaTransaccional(),
+                FlujosDePrueba.qr(),
                 new StaticListableBeanFactory().getBeanProvider(SimuladorDePagoDeRecarga.class));
 
         assertThat(sinDoble.disponible()).isFalse();
@@ -181,7 +183,8 @@ class CU10QrDinamicoTest extends BaseDeBilletera {
                 proveedorDeRecargas,
                 new CotizarOperacion(new FlujosDePrueba.TarifaGratuita(), Reloj.delSistema(), false),
                 FlujosDePrueba.existentes(),
-                discrepancias);
+                discrepancias,
+                FlujosDePrueba.qr());
     }
 
     private static org.springframework.beans.factory.ObjectProvider<SimuladorDePagoDeRecarga> simulador(

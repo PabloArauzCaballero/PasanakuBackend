@@ -216,14 +216,15 @@ paths:
         '401':
           $ref: '#/components/responses/NoAutenticado'
 
-  /billetera/recargas/{ordenId}/pago-de-prueba:
+  /recargas-de-prueba/{ordenId}/pago:
     post:
       operationId: pagarRecargaDePrueba       # CU-10 · solo ambientes de prueba
       summary: Da por pagado el QR de prueba de una orden propia y la acredita
       description: >-
         [CONTRATO] Existe SOLO donde el proveedor de recargas es el doble de prueba
         (perfil local/test con `aportaya.recarga.qr.modo=prueba`). En cualquier otro
-        ambiente responde 404, igual que una ruta inexistente.
+        ambiente responde 404, igual que una ruta inexistente. Vive bajo `/recargas-de-prueba`
+        para que la ruta misma diga que no es una operacion de produccion.
 
         No es un segundo camino para mover saldo: el doble pasa a decir CONFIRMADO para
         esa orden y la acreditacion es la misma de `acreditarRecarga` (mismo asiento,
@@ -341,6 +342,39 @@ paths:
           # AP-CU13-03 RETENCION_YA_EJECUTADA · AP-CU13-04 CLAVE_DE_OTRA_OPERACION
           # AP-CU13-05 MOTIVO_INCOMPATIBLE · AP-CU13-06 MONTO_DISTINTO_DE_LO_RETENIDO
           # AP-CU13-07 CUENTA_DE_SISTEMA_NO_CONFIGURADA · AP-CU13-08 DESTINATARIO_INVALIDO
+          # AP-CU13-09 SOLO_SERVICIO
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '403':
+          $ref: '#/components/responses/NoAutenticado'
+
+  /billetera/retenciones/{retencionId}/liberacion-de-mercado:
+    post:
+      operationId: liberarRetencionDelMercado   # CU-13
+      summary: Devuelve al postor el saldo de una puja superada o de una compra que no se completo
+      description: >-
+        [CONTRATO · SOLO SERVICIO] Lo pide `entregas` (`SERVICIO_ENTREGAS`; una sesion de usuario
+        final recibe 403 aunque tenga `BILLETERA_OPERAR`). Existe porque al postor lo supera OTRA
+        persona, en su sesion, o la subasta cierra en un trabajo programado: el dueno de la retencion
+        no esta para liberarla. Solo para retenciones `COMPRA_EN_MERCADO` (AP-CU13-08 si no) y solo
+        LIBERA: la plata vuelve a su dueno, nunca va a otro. Una retencion ya cerrada responde
+        AP-CU13-03 con su estado, igual que el cierre del titular: liberada dos veces es el resultado
+        que se queria. Sin cuerpo.
+      parameters:
+        - name: retencionId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+        - $ref: '#/components/parameters/ClaveIdempotencia'
+      responses:
+        '200':
+          description: Liberada, con el saldo resultante del postor
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaCierreRetencion' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU13-03 RETENCION_YA_EJECUTADA · AP-CU13-08 no es de una compra en el mercado
           # AP-CU13-09 SOLO_SERVICIO
         '401':
           $ref: '#/components/responses/NoAutenticado'

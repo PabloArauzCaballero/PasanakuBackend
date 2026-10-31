@@ -1326,6 +1326,38 @@ COMMENT ON COLUMN entregas.cesion_derecho.creada_en IS '[NEGOCIO] Marca temporal
 COMMENT ON COLUMN entregas.cesion_derecho.titulo_asignado_en IS '[NEGOCIO] Marca temporal o fecha de titulo asignado en `cesion_derecho`. [SISTEMA] timestamptz, opcional.';
 COMMENT ON COLUMN entregas.cesion_derecho.liquidada_en IS '[NEGOCIO] Marca temporal o fecha de liquidada en `cesion_derecho`. [SISTEMA] timestamptz, opcional.';
 COMMENT ON COLUMN entregas.cesion_derecho.version IS '[NEGOCIO] Número de versión para control de concurrencia optimista y auditoría de modificaciones. [SISTEMA] integer, obligatoria (NOT NULL).';
+COMMENT ON TABLE entregas.subasta_cupo IS '[NEGOCIO] El cupo que su titular pone en subasta: precio base, plazo de cierre y el estado de la venta, de `ABIERTA` hasta `VENDIDA`, `DESIERTA`, `CANCELADA` o `FALLIDA`.. Que quien ya no puede seguir en el pasanaku venda su lugar sin votación del grupo: cualquiera que cumpla lo que pide el grupo ofrece, gana la oferta más alta al cierre y el turno no se mueve. [SISTEMA] Esquema `entregas`, servicio dueño `entregas`.';
+COMMENT ON COLUMN entregas.subasta_cupo.id IS '[NEGOCIO] Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. [SISTEMA] uuid, obligatoria (NOT NULL), clave primaria (PK).';
+COMMENT ON COLUMN entregas.subasta_cupo.grupo_id IS '[NEGOCIO] Referencia al grupo de pasanaku en el que se enmarca esta operación. [SISTEMA] uuid, obligatoria (NOT NULL), clave foránea (FK) hacia `grupo`, con índice B-tree.';
+COMMENT ON COLUMN entregas.subasta_cupo.cupo_id IS '[NEGOCIO] Referencia por clave foránea a la entidad `cupo`. [SISTEMA] uuid, obligatoria (NOT NULL), clave foránea (FK) hacia `cupo`, con índice B-tree.';
+COMMENT ON COLUMN entregas.subasta_cupo.participante_origen_id IS '[NEGOCIO] Referencia por clave foránea a la entidad `participante`. [SISTEMA] uuid, obligatoria (NOT NULL), clave foránea (FK) hacia `participante`.';
+COMMENT ON COLUMN entregas.subasta_cupo.vendedor_usuario_id IS '[NEGOCIO] Identificador de referencia para el concepto de vendedor usuario en `subasta_cupo`. [SISTEMA] uuid, obligatoria (NOT NULL), con índice B-tree.';
+COMMENT ON COLUMN entregas.subasta_cupo.nombre_grupo IS '[NEGOCIO] Atributo que representa nombre grupo en el modelo de `subasta_cupo`. [SISTEMA] varchar(120), obligatoria (NOT NULL).';
+COMMENT ON COLUMN entregas.subasta_cupo.periodicidad IS '[NEGOCIO] Atributo que representa periodicidad en el modelo de `subasta_cupo`. [SISTEMA] varchar(15), obligatoria (NOT NULL).';
+COMMENT ON COLUMN entregas.subasta_cupo.moneda IS '[NEGOCIO] Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2). [SISTEMA] char(3), obligatoria (NOT NULL).';
+COMMENT ON COLUMN entregas.subasta_cupo.monto_aporte IS '[NEGOCIO] Importe monetario correspondiente a aporte en `subasta_cupo`. [SISTEMA] decimal(14,2), obligatoria (NOT NULL), sensibilidad FINANCIERO.';
+COMMENT ON COLUMN entregas.subasta_cupo.monto_base IS '[NEGOCIO] Importe monetario correspondiente a base en `subasta_cupo`. [SISTEMA] decimal(14,2), obligatoria (NOT NULL), sensibilidad FINANCIERO.';
+COMMENT ON COLUMN entregas.subasta_cupo.monto_ganador IS '[NEGOCIO] Importe monetario correspondiente a ganador en `subasta_cupo`. [SISTEMA] decimal(14,2), opcional, sensibilidad FINANCIERO.';
+COMMENT ON COLUMN entregas.subasta_cupo.estado IS '[NEGOCIO] Estado operativo o fase del ciclo de vida en que se encuentra el registro. [SISTEMA] varchar(12), obligatoria (NOT NULL), con índice B-tree.';
+COMMENT ON COLUMN entregas.subasta_cupo.abierta_en IS '[NEGOCIO] Marca temporal o fecha de abierta en `subasta_cupo`. [SISTEMA] timestamptz, obligatoria (NOT NULL).';
+COMMENT ON COLUMN entregas.subasta_cupo.cierra_en IS '[NEGOCIO] Marca temporal o fecha de cierra en `subasta_cupo`. [SISTEMA] timestamptz, obligatoria (NOT NULL), con índice B-tree.';
+COMMENT ON COLUMN entregas.subasta_cupo.puja_ganadora_id IS '[NEGOCIO] Identificador de referencia para el concepto de puja ganadora en `subasta_cupo`. [SISTEMA] uuid, opcional.';
+COMMENT ON COLUMN entregas.subasta_cupo.traspaso_ref IS '[NEGOCIO] Atributo que representa traspaso ref en el modelo de `subasta_cupo`. [SISTEMA] uuid, opcional.';
+COMMENT ON COLUMN entregas.subasta_cupo.liquidacion_ref IS '[NEGOCIO] Atributo que representa liquidacion ref en el modelo de `subasta_cupo`. [SISTEMA] uuid, opcional.';
+COMMENT ON COLUMN entregas.subasta_cupo.motivo_fallo IS '[NEGOCIO] Atributo que representa motivo fallo en el modelo de `subasta_cupo`. [SISTEMA] varchar(200), opcional.';
+COMMENT ON COLUMN entregas.subasta_cupo.clave_idempotencia IS '[NEGOCIO] Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4). [SISTEMA] varchar(80), obligatoria (NOT NULL), restricción UNIQUE.';
+COMMENT ON COLUMN entregas.subasta_cupo.version IS '[NEGOCIO] Número de versión para control de concurrencia optimista y auditoría de modificaciones. [SISTEMA] integer, obligatoria (NOT NULL).';
+COMMENT ON TABLE entregas.puja_subasta IS '[NEGOCIO] Una oferta por un cupo en subasta: quién ofrece, cuánto y en qué estado está (`VIGENTE`, `SUPERADA`, `LIBERADA`, `GANADORA`, `RECHAZADA`).. Que ofrecer sea serio y no cueste plata a quien pierde: el monto queda retenido en la billetera del postor y, si alguien lo supera, se le devuelve al instante. [SISTEMA] Esquema `entregas`, servicio dueño `entregas`.';
+COMMENT ON COLUMN entregas.puja_subasta.id IS '[NEGOCIO] Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios. [SISTEMA] uuid, obligatoria (NOT NULL), clave primaria (PK).';
+COMMENT ON COLUMN entregas.puja_subasta.subasta_cupo_id IS '[NEGOCIO] Referencia por clave foránea a la entidad `subasta_cupo`. [SISTEMA] uuid, obligatoria (NOT NULL), clave foránea (FK) hacia `subasta_cupo`, con índice B-tree.';
+COMMENT ON COLUMN entregas.puja_subasta.postor_usuario_id IS '[NEGOCIO] Identificador de referencia para el concepto de postor usuario en `puja_subasta`. [SISTEMA] uuid, obligatoria (NOT NULL), con índice B-tree.';
+COMMENT ON COLUMN entregas.puja_subasta.moneda IS '[NEGOCIO] Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2). [SISTEMA] char(3), obligatoria (NOT NULL).';
+COMMENT ON COLUMN entregas.puja_subasta.monto IS '[NEGOCIO] Importe monetario principal de la transacción o concepto financiero. [SISTEMA] decimal(14,2), obligatoria (NOT NULL), sensibilidad FINANCIERO.';
+COMMENT ON COLUMN entregas.puja_subasta.estado IS '[NEGOCIO] Estado operativo o fase del ciclo de vida en que se encuentra el registro. [SISTEMA] varchar(12), obligatoria (NOT NULL), con índice B-tree.';
+COMMENT ON COLUMN entregas.puja_subasta.retencion_ref IS '[NEGOCIO] Atributo que representa retencion ref en el modelo de `puja_subasta`. [SISTEMA] uuid, opcional.';
+COMMENT ON COLUMN entregas.puja_subasta.clave_idempotencia IS '[NEGOCIO] Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4). [SISTEMA] varchar(80), obligatoria (NOT NULL), restricción UNIQUE.';
+COMMENT ON COLUMN entregas.puja_subasta.creada_en IS '[NEGOCIO] Marca temporal UTC en que la entidad fue creada en la base de datos. [SISTEMA] timestamptz, obligatoria (NOT NULL).';
+COMMENT ON COLUMN entregas.puja_subasta.version IS '[NEGOCIO] Número de versión para control de concurrencia optimista y auditoría de modificaciones. [SISTEMA] integer, obligatoria (NOT NULL).';
 
 -- ===========================================================================
 -- MÓDULO 05 — NOTIFICACIONES Y COMUNICACIONES

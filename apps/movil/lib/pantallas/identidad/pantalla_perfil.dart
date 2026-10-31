@@ -67,9 +67,10 @@ class _PantallaDePerfilState extends ConsumerState<PantallaDePerfil> {
               ),
               const SizedBox(height: Espacio.s4),
               const FotoDePerfilEditable(),
-              const SizedBox(height: Espacio.s5),
+              const SizedBox(height: Espacio.s6),
+              const TituloDeSeccion(titulo: TextosPerfil.seccionCuenta),
               const SeccionVerificacionKyc(),
-              const SizedBox(height: Espacio.s3),
+              const SizedBox(height: Espacio.s4),
               // El correo identifica la cuenta: se muestra, no se edita. Cambiarlo
               // desde acá rompía la relación con la verificación hecha; lo único
               // editable del perfil es la contraseña (2026-10-19).
@@ -79,7 +80,7 @@ class _PantallaDePerfilState extends ConsumerState<PantallaDePerfil> {
                 habilitado: false,
                 ayuda: TextosIdentidad.correoNoEditable,
               ),
-              const SizedBox(height: Espacio.s5),
+              const SizedBox(height: Espacio.s6),
               const TituloDeSeccion(titulo: TextosPerfil.seccionSeguridad),
               GrupoDeFilas(
                 filas: [

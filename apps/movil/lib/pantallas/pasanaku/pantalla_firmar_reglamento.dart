@@ -13,6 +13,7 @@ import 'package:go_router/go_router.dart';
 
 import 'aviso_de_refirma.dart';
 import 'dominio/detalle_del_grupo.dart';
+import 'dominio/mis_grupos.dart';
 import 'errores_de_firma.dart';
 import 'tarjetas_de_unirse.dart';
 import 'textos_de_refirma_y_etapa.dart';
@@ -51,6 +52,8 @@ class _PantallaFirmarReglamentoState
         hash,
       );
       ref.invalidate(detalleDelGrupoProvider(widget.grupoId));
+      // «Tus pasanakus» y «Mis grupos» muestran «Falta firmar»: también cambian.
+      ref.invalidate(misGruposProvider);
       if (!mounted) return;
       mostrarSnackbar(
         context,
