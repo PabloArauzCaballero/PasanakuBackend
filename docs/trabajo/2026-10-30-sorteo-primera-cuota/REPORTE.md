@@ -1,6 +1,6 @@
 # Reporte — El sorteo exige la primera cuota pagada (R-GRP-20): lado `aportes` + precondición en `grupos`
 
-> **AVANCE: 19 / 19 — 100 %.** (H1–H4: 13 · H5, emisión del evento tomada de `pasanaku-c1` a su pedido: 6)
+> **AVANCE: 28 / 29 — 96,6 %.** (H1–H4: 13 · H5, emisión del evento tomada de `pasanaku-c1` a su pedido: 6 · H6, CI de #369 en verde: 9 de 10; la última, los checks del PR sobre `756b9ae7c`+docs, está EN CURSO)
 
 - Fecha: 2026-10-30 · Plan: [PLAN.md](./PLAN.md) · Rama: `claude/sorteo-primera-cuota-20261030` desde `origin/test` (worktree `Pasanaku-wt-sorteo`)
 - Peldaño de evidencia alcanzado: **`TESTED` + regresión de módulo** en los dos servicios (`grupos` 513/513, `aportes` 236/236, contra PostgreSQL real con Testcontainers y dobles declarados para lo remoto). **No es `VERIFIED`**: el camino real Kafka → `aportes` y `grupos` → HTTP → `aportes` con los dos procesos levantados no se ejercitó, y el evento que dispara todo lo emite el carril de `pasanaku-c1`, que todavía no lo publicó. Ver «No cubierto».
@@ -129,3 +129,26 @@ Con esto se cumple la condición acordada con `pasanaku-c1` para mergear #369 (�
 Deuda que c1 deja registrada y sigue abierta: la regla «versión vigente del reglamento» está escrita dos veces
 (`SorteoRepositorio.todosAceptaronElReglamento`, usada por `puedeSortear`, y `AceptacionVigenteRepositorio`,
 usada por `CU60Sortear`). Unificarla queda fuera de este alcance; se anota, no se arregla.
+
+## Anexo — H6 · CI de #369 en verde (2026-10-31, 07:0x–07:2x UTC)
+
+El primer CI del PR (corridas `41163590299`/`41163590150` sobre `9eb51b85`) tenía tres jobs en rojo. Ninguno era de
+c1 ni del merge: todos salían de este trabajo y no se habían visto porque los gates fallaban en cascada (el paso 6
+tapaba al 6b, 6d, 6h y 6i). Se reprodujeron en local uno por uno y se corrigieron:
+
+| ID | Qué fallaba | Qué se hizo | Comando | Resultado · evidencia |
+|---|---|---|---|---|
+| H6.S1.M1 | «Contratos y clientes generados»: `postman/` con diff (el OpenAPI de `aportes` ganó `/primera-cuota`) | Colecciones regeneradas (`aportes` y, por el comentario de códigos, `grupos`) | `python3 scripts/generar_postman.py && git diff --exit-code -- postman/` | exit 0 · `evidencia/h6-regenerar-sin-diff.txt` |
+| H6.S1.M2 | `verificar_boveda.py`: «códigos de error correlativos ['CU-60']» (el bloque iba 01..05, 11, 12) | `AP-CU60-06..10`, que ya existían en código, documentados en el CU-60 con nombre y fila | `python3 scripts/verificar_boveda.py` | `OK · códigos de error correlativos` · `evidencia/h6-gates-boveda.txt` |
+| H6.S1.M3 | `verificar_boveda.py`: planes dicen 174 restricciones, son 175 (`R-GRP-20`) | `planes/00`, `05`, `06` → 175 | ídem | `TODO OK` · ídem |
+| H6.S1.M4 | `verificar_criterios.py` (paso 6d, antes tapado): 8 pruebas de `CU21PrimeraCuotaTest` y 4 de CU-60 sin escenario Gherkin; `AP-CU60-11/12` sin declarar en `grupos.yaml` | 12 escenarios en los Gherkin de CU-21 y CU-60 (texto = `DisplayName`, unido por « · »); comentario de 11/12 en `grupos.yaml` | `python3 scripts/verificar_criterios.py` | `Sin divergencias entre la boveda y el codigo.` · `evidencia/h6-gates-boveda-completos.txt` |
+| H6.S1.M5 | `verificar_seguridad.py` (6b): `docs/Seguridad.md` dice 174 | → 175 | `python3 scripts/verificar_seguridad.py` | `TODO OK · 8 aviso(s)` · `evidencia/h6-regenerar-sin-diff.txt` |
+| H6.S1.M6 | Catálogo de datos (6i) desactualizado: la entrada CU-60 con sus tres endpoints aparece por los cambios del documento | Regenerado y commiteado | `python3 -I scripts/catalogo_de_datos.py --escribir && git diff --exit-code -- …` | exit 0 · ídem |
+| H6.S1.M7 | `generar_compose.py --coolify` (6h): «aportes: GRUPO_INICIADO_CONSUMO_HABILITADO» sin valor | Bandera en `DE_DESARROLLO` (`true`) y `DE_ENTORNO` (`${…:-true}`); `docker-compose.coolify.yml` regenerado (+1 línea) | `python3 scripts/generar_compose.py --coolify && python3 scripts/auditoria/verificar_limites_compose.py && git diff --exit-code -- docker-compose.coolify.yml despliegue/coolify/` | exit 0 · `evidencia/h6-compose.txt` |
+| H6.S2.M1 | `testBarrido`: `CU60Sortear.java` 311 líneas (límite 300) | `RequisitosDelSorteo` (ayudante estático: `AP-CU60-05`, `11`, `12`); constructor intacto | `./gradlew :servicios:grupos:testBarrido` · `wc -l` | exit 0 · 289 líneas · `evidencia/h6-barrido-y-cu60.txt` |
+| H6.S2.M2 | `testBarrido`: `CU60Test.java` 368 líneas | Cuatro pruebas a `CU60RequisitosTest extends BaseDeCU60` | ídem · `:servicios:grupos:integrationTest --tests '*CU60*'` | 258 líneas · CU60RequisitosTest 4/4, CU60SnapshotTest 10/10, CU60Test 12/12 · ídem |
+| H6.S3.M1 | Regresión + checks del PR | Regresión completa de `grupos` sobre el árbol final; `check` estático; push | `./gradlew :servicios:grupos:spotlessCheck :servicios:grupos:test :servicios:grupos:webTest :servicios:grupos:integrationTest :servicios:grupos:testBarrido` | **623/623, 0 fallos** · `evidencia/h6-grupos-regresion.txt`, `h6-grupos-check-estatico.txt` · **checks de #369: EN CURSO** |
+
+`aportes` no cambió de código en H6 (solo Gherkin de CU-21, Postman y Compose): vale la regresión 237/237 de
+`evidencia/aportes-regresion-test-con-364.txt`. Fuera de alcance y anotado: `despliegue/compose/servicios.yml`
+está en `.gitignore` (se regenera en cada máquina), así que la bandera llega a desarrollo por el generador, no por git.

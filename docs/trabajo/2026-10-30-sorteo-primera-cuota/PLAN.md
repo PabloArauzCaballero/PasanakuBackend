@@ -73,7 +73,7 @@
 | H4.S1.M3 | `REPORTE.md` con evidencia por microtarea | — | `REPORTE.md` en disco (regla 40) | HECHO |
 
 ## Estado de los hitos
-H1 HECHO · H2 HECHO · H3 HECHO (regresión completa de `grupos` 513/513) · H4 HECHO. Las regresiones de módulo de ambos servicios en verde con `spotlessCheck` (`evidencia/grupos-regresion-2.txt`, `evidencia/aportes-regresion-3.txt`).
+H1 HECHO · H2 HECHO · H3 HECHO (regresión completa de `grupos` 513/513) · H4 HECHO · H5 HECHO · H6 EN CURSO (9/10: falta que los checks de #369 confirmen; ver REPORTE, anexo H6). Las regresiones de módulo de ambos servicios en verde con `spotlessCheck` (`evidencia/grupos-regresion-2.txt`, `evidencia/aportes-regresion-3.txt`).
 
 ## H5 — `grupos` emite `grupos.grupo_iniciado` al iniciar (tomado de `pasanaku-c1` a su pedido, 2026-10-30 22:40)
 **Alcance ampliado con permiso del dueño del carril:** solo `servicios/grupos/.../aplicacion/CU69IniciarGrupo.java` y su test,
@@ -112,17 +112,21 @@ monto y moneda); un reintento con la misma clave no emite un segundo evento.
 ### H6.S1 — Gates de contratos y bóveda
 | ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
 |---|---|---|---|---|
-| H6.S1.M1 | Regenerar colecciones Postman de `aportes` (el OpenAPI ganó `/primera-cuota`) | `postman/` sin diff tras generar | `python3 scripts/generar_postman.py && git diff --exit-code -- postman/` → exit 0 | EN CURSO |
-| H6.S1.M2 | CU-60: documentar `AP-CU60-06..10`, que ya existen en `CU60Sortear`/`SorteoDelGrupo`, para que 01..12 sean correlativos (el verificador exige `range(1, N+1)` y una fila por nombre) | sin FALLA «correlativos» | `python3 scripts/verificar_boveda.py` → sin `FALLA · códigos de error correlativos` | TODO |
-| H6.S1.M3 | `planes/00`, `05` y `06`: «174 restricciones» → 175 (`R-GRP-20` es la 175.ª tras el merge con `test`) | sin FALLA «cifra desfasada» | `python3 scripts/verificar_boveda.py` → `TODO OK` | TODO |
+| H6.S1.M1 | Regenerar colecciones Postman de `aportes` (el OpenAPI ganó `/primera-cuota`) | `postman/` sin diff tras generar | `python3 scripts/generar_postman.py && git diff --exit-code -- postman/` → exit 0 | HECHO |
+| H6.S1.M2 | CU-60: documentar `AP-CU60-06..10`, que ya existen en `CU60Sortear`/`SorteoDelGrupo`, para que 01..12 sean correlativos (el verificador exige `range(1, N+1)` y una fila por nombre) | sin FALLA «correlativos» | `python3 scripts/verificar_boveda.py` → sin `FALLA · códigos de error correlativos` | HECHO |
+| H6.S1.M3 | `planes/00`, `05` y `06`: «174 restricciones» → 175 (`R-GRP-20` es la 175.ª tras el merge con `test`) | sin FALLA «cifra desfasada» | `python3 scripts/verificar_boveda.py` → `TODO OK` | HECHO |
+| H6.S1.M4 | CU-21 (`docs/CasosDeUso`): los 8 `DisplayName` de `CU21PrimeraCuotaTest` como escenarios Gherkin (el gate `verificar_criterios.py`, paso 6d del CI, exige uno por prueba; antes lo tapaba el fallo del paso 6) | sin FALLA para CU-21 | `python3 scripts/verificar_criterios.py` → `Sin divergencias entre la boveda y el codigo.` | HECHO |
+| H6.S1.M5 | `docs/Seguridad.md`: «174 restricciones» → 175 (paso 6b `verificar_seguridad.py`) | sin FALLA | `python3 scripts/verificar_seguridad.py` → `TODO OK` | HECHO |
+| H6.S1.M6 | Catálogo de datos regenerado (paso 6i): la entrada CU-60 con sus tres endpoints aparece por los cambios en el documento | sin diff tras regenerar | `python3 -I scripts/catalogo_de_datos.py --escribir && git diff --exit-code -- docs/catalogo-de-datos.md servicios/auditoria/src/main/resources/catalogo/catalogo-datos.json` → exit 0 | HECHO |
+| H6.S1.M7 | `scripts/generar_compose.py`: `GRUPO_INICIADO_CONSUMO_HABILITADO` en `DE_DESARROLLO` (`true`) y `DE_ENTORNO` (`${…:-true}`); Compose de Coolify regenerado (paso 6h) | el generador no acusa variable sin valor y el Compose generado no tiene diff | `python3 scripts/generar_compose.py --coolify && python3 scripts/auditoria/verificar_limites_compose.py && git diff --exit-code -- docker-compose.coolify.yml despliegue/coolify/` → exit 0 | HECHO |
 
 ### H6.S2 — Barrido de 300 líneas en `grupos`
 | ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
 |---|---|---|---|---|
-| H6.S2.M1 | `CU60Sortear.java` (311) < 300: extraer los requisitos previos al compromiso (`AP-CU60-05`, `11`, `12`) a `aplicacion/RequisitosDelSorteo` (ayudante estático, sin tocar el constructor que c1 y las pruebas construyen a mano) | `wc -l` < 300 y mismo comportamiento | `./gradlew :servicios:grupos:testBarrido` exit 0 · `:servicios:grupos:integrationTest --tests '*CU60*'` verde | TODO |
-| H6.S2.M2 | `CU60Test.java` (368) < 300: mover las cuatro pruebas de R-GRP-20 y versión vigente a `CU60RequisitosTest extends BaseDeCU60` | `wc -l` < 300; mismas pruebas, mismos `DisplayName` | ídem | TODO |
+| H6.S2.M1 | `CU60Sortear.java` (311) < 300: extraer los requisitos previos al compromiso (`AP-CU60-05`, `11`, `12`) a `aplicacion/RequisitosDelSorteo` (ayudante estático, sin tocar el constructor que c1 y las pruebas construyen a mano) | `wc -l` < 300 y mismo comportamiento | `./gradlew :servicios:grupos:testBarrido` exit 0 · `:servicios:grupos:integrationTest --tests '*CU60*'` verde | HECHO |
+| H6.S2.M2 | `CU60Test.java` (368) < 300: mover las cuatro pruebas de R-GRP-20 y versión vigente a `CU60RequisitosTest extends BaseDeCU60` | `wc -l` < 300; mismas pruebas, mismos `DisplayName` | ídem | HECHO |
 
 ### H6.S3 — Cierre
 | ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
 |---|---|---|---|---|
-| H6.S3.M1 | Regresión completa de `grupos` + `spotlessCheck` + push; checks de #369 | verde salvo rojos ajenos declarados | XML tests=N fallos=0 · `gh pr checks 369` | TODO |
+| H6.S3.M1 | Regresión completa de `grupos` + `spotlessCheck` + push; checks de #369 | verde salvo rojos ajenos declarados | XML tests=N fallos=0 · `gh pr checks 369` | EN CURSO |
