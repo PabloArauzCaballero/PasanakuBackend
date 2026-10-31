@@ -50,6 +50,11 @@ aportaya:
     # pendiente. ENCENDIDO por omision: es el camino normal de un aporte sin saldo; apagado, la obligacion queda PAGADA sin
     # que el dinero se haya movido.
     consumo-habilitado: ${COMPENSACION_CONSUMO_HABILITADO:true}
+  grupo-iniciado:
+    # grupos.grupo_iniciado (el organizador inicio el grupo): se abre la obligacion de la cuota 1 de cada cupo ocupado,
+    # que el sorteo exige pagada (R-GRP-20). ENCENDIDO por omision: es el camino normal de todo grupo que arranca;
+    # apagado, ningun grupo nuevo puede llegar al sorteo.
+    consumo-habilitado: ${GRUPO_INICIADO_CONSUMO_HABILITADO:true}
   reembolso:
     # Lo que el titular tiene para disputar un cargo. Es politica comercial, no un
     # numero del codigo (invariante 10).

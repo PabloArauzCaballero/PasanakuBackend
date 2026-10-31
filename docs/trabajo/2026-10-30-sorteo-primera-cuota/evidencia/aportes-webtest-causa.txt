@@ -1,0 +1,3 @@
+bo.aportaya.aportes.web.CalendarioWebTest.xml
+bo.aportaya.aportes.web.AportesConsultasWebTest$Consultas.xml
+bo.aportaya.aportes.web.SeguridadWebTest.xml

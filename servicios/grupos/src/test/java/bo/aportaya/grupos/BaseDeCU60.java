@@ -1,6 +1,8 @@
 package bo.aportaya.grupos;
 
 import bo.aportaya.grupos.aplicacion.CU60Sortear;
+import bo.aportaya.grupos.dominio.puertos.PrimerAporteDelCupo;
+import bo.aportaya.grupos.infraestructura.AceptacionVigenteRepositorio;
 import bo.aportaya.grupos.infraestructura.SorteoRepositorio;
 import bo.aportaya.plataforma.datos.Datos;
 import bo.aportaya.plataforma.dominio.ContextoSesion;
@@ -10,11 +12,16 @@ import bo.aportaya.plataforma.dominio.Traza;
 import bo.aportaya.plataforma.mensajeria.Consumidos;
 import bo.aportaya.plataforma.mensajeria.Outbox;
 import bo.aportaya.plataforma.pruebas.BaseDePrueba;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import javax.sql.DataSource;
 import org.jooq.DSLContext;
 import org.jooq.SQLDialect;
 import org.jooq.impl.DSL;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
@@ -31,6 +38,42 @@ abstract class BaseDeCU60 {
     protected static SorteoRepositorio sorteos;
     protected static Consumidos consumidos;
     protected static UUID organizador;
+    protected static AportesDoble aportes;
+
+    /**
+     * El doble de `aportes` (R-GRP-20): por omision todos los cupos ocupados pagaron la cuota 1; cada prueba marca los
+     * que no, o lo deja caido para que no conteste. Lee los cupos por su propia conexion, fuera de la transaccion.
+     */
+    protected static final class AportesDoble implements PrimerAporteDelCupo {
+        private final DSLContext dsl;
+        final Set<UUID> sinPagar = new HashSet<>();
+        boolean caido;
+
+        AportesDoble(DSLContext dsl) {
+            this.dsl = dsl;
+        }
+
+        @Override
+        public Optional<Set<UUID>> cuposConPrimeraCuotaPagada(UUID grupoId) {
+            if (caido) return Optional.empty();
+            return Optional.of(dsl
+                    .fetch("SELECT id FROM grupos.cupo WHERE grupo_id = ? AND estado = 'OCUPADO'", grupoId)
+                    .map(f -> f.get("id", UUID.class))
+                    .stream()
+                    .filter(id -> !sinPagar.contains(id))
+                    .collect(Collectors.toSet()));
+        }
+
+        void reiniciar() {
+            sinPagar.clear();
+            caido = false;
+        }
+    }
+
+    @AfterEach
+    void aportesSano() {
+        aportes.reiniciar();
+    }
 
     @BeforeAll
     static void armar() {
@@ -44,7 +87,15 @@ abstract class BaseDeCU60 {
         DSLContext dslFixtura = DSL.using(fuente, SQLDialect.POSTGRES);
         transaccion = new TransactionTemplate(new DataSourceTransactionManager(fuente));
         sorteos = new SorteoRepositorio();
-        sortear = new CU60Sortear(new Datos(dsl), sorteos, new Outbox("grupos"), Reloj.delSistema(), Ids.seguros());
+        aportes = new AportesDoble(dslFixtura);
+        sortear = new CU60Sortear(
+                new Datos(dsl),
+                sorteos,
+                new Outbox("grupos"),
+                Reloj.delSistema(),
+                Ids.seguros(),
+                aportes,
+                new AceptacionVigenteRepositorio());
         fixtura = new FixturaDeGrupos(dslFixtura);
         consumidos = new Consumidos("grupos");
         // Fuera de toda transaccion: creado dentro de una que despues revierte, la

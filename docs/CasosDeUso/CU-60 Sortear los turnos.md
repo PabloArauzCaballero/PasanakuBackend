@@ -19,15 +19,25 @@ normas: [Transparencia con el consumidor, RF-19]
 
 - **Actor principal:** el sistema, cuando el grupo se completa.
 - **Actores secundarios:** organizador (convoca), participantes (aportan entropía).
-- **Disparador:** el grupo alcanza `cupos_ocupados = cupos_totales` y todos
-  firmaron el reglamento.
+- **Disparador:** el grupo queda `CONFORMADO` —porque alcanzó
+  `cupos_ocupados = cupos_totales`, o porque el organizador lo inició con al menos el
+  75 % de los cupos (`ceil(0,75 × cupos_totales)`) y el grupo se achicó a los ocupados—,
+  todos firmaron el reglamento **y cada cupo ocupado tiene su primer aporte acreditado**
+  (`R-GRP-20`, decisión del dueño 2026-10-30).
 
 ## Precondiciones
 
 1. [[grupo]] en estado `CONFORMADO` y `modalidad_turnos = 'SORTEO_ALEATORIO'`.
 2. Todos los [[cupo]] están `OCUPADO` y cada [[participante]] tiene
-   [[aceptacion_reglamento]].
+   [[aceptacion_reglamento]]. Un grupo iniciado al 75 % ya se achicó, así que acá
+   «todos» es el 100 % de su tamaño nuevo.
 3. No existe [[sorteo_turnos]] previo para el grupo (`R-GRP-05`).
+4. Cada [[cupo]] `OCUPADO` tiene la [[obligacion_aporte]] del primer período en
+   `ACREDITADO` ([[CU-21 Cobrar el aporte del período]]). El sorteo se hace con plata
+   cobrada, no prometida (`R-GRP-20`). La primera obligación **nace al iniciar el grupo**: la
+   operación de inicio (`POST /grupos/{grupoId}/inicio`, carril «arenas e inicio 75») abre el
+   cobro del período 1 para cada cupo del grupo ya achicado, y el sorteo se habilita cuando todas
+   están `ACREDITADO` por webhook verificado (decisión del dueño 2026-10-30).
 
 ## Flujo principal
 
@@ -66,6 +76,7 @@ normas: [Transparencia con el consumidor, RF-19]
 | 3a | Un participante no aporta entropía | El sorteo sigue: la entropía de los participantes **suma**, no condiciona |
 | 4a | La verificación del hash falla | **El sorteo se anula**: se registra el incidente ([[incidente_operativo]]), se notifica a todos y se recomienza con semilla nueva. Jamás se publica un resultado cuyo hash no cierra |
 | 4b | Se cae el proceso a mitad | La transacción revierte entera: o hay turnos completos o no hay ninguno |
+| 1b | Un cupo ocupado no pagó la primera cuota | El compromiso se rechaza con `PRIMER_APORTE_PENDIENTE`; el organizador ve qué cupos faltan y el sorteo espera. No se sortea con plata prometida (`R-GRP-20`) |
 | — | Alguien pide repetir el sorteo | Solo por [[acuerdo]] del grupo con quórum ([[CU-63 Proponer y votar un acuerdo]]), y queda el sorteo anterior visible |
 
 ## Postcondiciones
@@ -98,7 +109,14 @@ export const ErroresCU60 = {
   SORTEO_YA_EXISTE:         'AP-CU60-02',
   FECHA_DE_REVELADO_FUTURA: 'AP-CU60-03',
   HASH_NO_VERIFICA:         'AP-CU60-04',   // aborta y notifica
-  REGLAMENTO_SIN_FIRMAR:    'AP-CU60-05',
+  REGLAMENTO_SIN_FIRMAR:    'AP-CU60-05',   // version vigente del reglamento
+  PLANTEL_O_CALENDARIO_CAMBIO: 'AP-CU60-06', // al revelar: no se sortea sobre otra cosa
+  YA_REVELADO:              'AP-CU60-07',   // el reintento HTTP devuelve el original
+  SORTEO_ANULADO:           'AP-CU60-08',
+  CALENDARIO_AUSENTE:       'AP-CU60-09',
+  NO_ADMINISTRA_EL_GRUPO:   'AP-CU60-10',
+  PRIMER_APORTE_PENDIENTE:  'AP-CU60-11',   // R-GRP-20
+  APORTES_SIN_RESPUESTA:    'AP-CU60-12',   // R-GRP-20, fallo cerrado
 } as const
 ```
 
@@ -108,7 +126,14 @@ export const ErroresCU60 = {
 | `SORTEO_YA_EXISTE` | El grupo ya tiene un sorteo comprometido; no se vuelve a comprometer |
 | `FECHA_DE_REVELADO_FUTURA` | Se pidió revelar antes de la fecha comprometida: el compromiso sería inútil |
 | `HASH_NO_VERIFICA` | La semilla revelada no reproduce el hash. **Aborta, no asigna turnos y abre incidente** |
-| `REGLAMENTO_SIN_FIRMAR` | Algún participante no aceptó el reglamento que fija el método de sorteo |
+| `REGLAMENTO_SIN_FIRMAR` | Algún ocupante no aceptó la **versión vigente** del reglamento (al iniciar el grupo se publica una nueva; la firma de la anterior no vale). `detalle.cuposSinFirma` trae los números de cupo |
+| `PLANTEL_O_CALENDARIO_CAMBIO` | `AP-CU60-06` · Al revelar, el plantel ocupado o el calendario ya no son los congelados en el compromiso: se rechaza sin anular y el sorteo sigue `COMPROMETIDO` |
+| `YA_REVELADO` | `AP-CU60-07` · El sorteo ya tiene su resultado vigente; revelar de nuevo no sortea otra vez (el reintento HTTP devuelve el original) |
+| `SORTEO_ANULADO` | `AP-CU60-08` · El sorteo quedó anulado por un hash que no verificó; no se repite sin una decisión de backoffice |
+| `CALENDARIO_AUSENTE` | `AP-CU60-09` · Falta el calendario del grupo: cada cupo necesita su período para crear los turnos |
+| `NO_ADMINISTRA_EL_GRUPO` | `AP-CU60-10` · Quien llama no administra el grupo de la ruta |
+| `PRIMER_APORTE_PENDIENTE` | `AP-CU60-11` · Algún cupo ocupado no tiene la obligación de la cuota 1 en `PAGADO` (`R-GRP-20`). `detalle.cuposPendientes` trae los números de cupo. Lo afirma `aportes` (`GET /aportes/grupos/{grupoId}/primera-cuota`), nunca quien sortea |
+| `APORTES_SIN_RESPUESTA` | `AP-CU60-12` · `aportes` no contestó (caído, circuito abierto o respuesta ilegible). Se deniega: lo único que no se puede suponer es que la plata está (`R-GRP-20`) |
 
 ## Descomposición atómica
 
@@ -202,6 +227,23 @@ Dado un sorteo comprometido en un grupo sin calendario
 Cuando se intenta revelar
 Entonces se rechaza pero el sorteo sigue vivo en COMPROMETIDO
 Y al existir el calendario la revelación procede y se crean los turnos
+
+Dado un grupo conformado con un cupo que no pagó la cuota 1
+Cuando se intenta comprometer el sorteo
+Entonces se rechaza con AP-CU60-11 y el detalle nombra el cupo pendiente
+Y no existe sorteo
+
+Dado que aportes no responde
+Cuando se intenta comprometer el sorteo
+Entonces se rechaza con AP-CU60-12: sin confirmar la plata no se sortea
+
+Dado un grupo cuyos tres participantes firmaron la versión vigente del reglamento
+Cuando se compromete el sorteo
+Entonces procede: la firma vigente alcanza
+
+Dado un grupo cuyo reglamento firmado fue reemplazado por una versión nueva que nadie firmó
+Cuando se intenta comprometer el sorteo
+Entonces se rechaza con AP-CU60-05 y nombra los cupos sin firma: la firma de la versión anterior no vale
 ```
 
 ## Ver también

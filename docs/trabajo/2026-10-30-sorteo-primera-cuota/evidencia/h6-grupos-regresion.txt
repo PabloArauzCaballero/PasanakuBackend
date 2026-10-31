@@ -1,0 +1,10 @@
+# 2026-10-31T07:13:17Z · HEAD 5f4998131 + H6 sin commitear
+> Task :servicios:grupos:spotlessCheck
+> Task :servicios:grupos:testClasses UP-TO-DATE
+> Task :servicios:grupos:test
+> Task :servicios:grupos:webTest
+> Task :servicios:grupos:integrationTest
+> Task :servicios:grupos:testBarrido UP-TO-DATE
+BUILD SUCCESSFUL in 1m 16s
+exit=0
+grupos XML: tests=623 fallos=0 errores=0 saltados=0

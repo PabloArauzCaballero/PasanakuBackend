@@ -350,6 +350,29 @@ paths:
             application/json:
               schema: { $ref: '#/components/schemas/Morosos' }
 
+  /aportes/grupos/{grupoId}/primera-cuota:
+    get:
+      operationId: consultarPrimeraCuota
+      summary: Que cupos del grupo ya pagaron la cuota 1 y cuales no
+      description: >-
+        La usa CU-60 antes de comprometer el sorteo: no se sortea con plata prometida
+        (R-GRP-20). La cuota 1 es la obligacion del periodo con el vencimiento mas
+        temprano del grupo; nace al iniciarse el grupo (evento grupos.grupo_iniciado).
+        Un cupo cuenta como pagado solo con su obligacion en PAGADO. Sin obligaciones
+        todavia, las dos listas vienen vacias y periodoId es nulo: quien pregunta
+        trata eso como «no se puede sortear».
+      parameters:
+        - name: grupoId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: Los cupos con la cuota 1 pagada y los que faltan
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PrimeraCuota' }
+
   /aportes/periodos/{periodoId}/recaudo:
     get:
       operationId: consultarRecaudoDelPeriodo
@@ -552,6 +575,24 @@ components:
       properties:
         grupoId: { type: string, format: uuid }
         morosos: { type: integer }
+    PrimeraCuota:
+      type: object
+      additionalProperties: false
+      required: [grupoId, cuposPagados, cuposPendientes]
+      properties:
+        grupoId: { type: string, format: uuid }
+        periodoId:
+          type: string
+          format: uuid
+          nullable: true
+          description: El periodo de la cuota 1; nulo si el grupo todavia no tiene obligaciones
+        cuposPagados:
+          type: array
+          items: { type: string, format: uuid }
+        cuposPendientes:
+          type: array
+          items: { type: string, format: uuid }
+
     EntradaCobro:
       type: object
       additionalProperties: false

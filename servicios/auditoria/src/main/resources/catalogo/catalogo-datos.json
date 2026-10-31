@@ -2887,6 +2887,30 @@
      ]
     },
     {
+     "casoDeUso": "CU-60",
+     "titulo": "Sortear los turnos",
+     "endpoints": [
+      {
+       "servicio": "grupos",
+       "metodo": "POST",
+       "ruta": "/grupos/{grupoId}/sorteo",
+       "operationId": "comprometerSorteo"
+      },
+      {
+       "servicio": "grupos",
+       "metodo": "POST",
+       "ruta": "/grupos/{grupoId}/sorteo/revelacion",
+       "operationId": "revelarSorteo"
+      },
+      {
+       "servicio": "transparencia",
+       "metodo": "GET",
+       "ruta": "/publico/sorteos/{sorteoId}/verificacion",
+       "operationId": "verificarSorteo"
+      }
+     ]
+    },
+    {
      "casoDeUso": "CU-64",
      "titulo": "Traspasar un cupo",
      "endpoints": [

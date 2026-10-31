@@ -1,0 +1,4 @@
+# 2026-10-31T07:16:18Z · 756b9ae7c
+$ ./gradlew :servicios:grupos:check -x test -x jacocoTestCoverageVerification -x jacocoTestReport
+BUILD SUCCESSFUL in 1s
+exit=0

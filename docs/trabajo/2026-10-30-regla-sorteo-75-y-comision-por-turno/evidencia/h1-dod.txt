@@ -1,0 +1,5 @@
+$ grep -n "R-GRP-20" docs/Restricciones.md
+1909:| R-GRP-20 | El sorteo se compromete solo con el grupo `CONFORMADO` —todos los cupos ocupados, o iniciado por el organizador con al menos el 75 % (`ceil(0,75 × cupos_totales)`) y achicado a los ocupados— y con el primer aporte **acreditado** en cada cupo ocupado. Plata prometida no habilita el sorteo | Confianza · Decisión del dueño 2026-10-30 | [[CU-60 Sortear los turnos]] · [[CU-21 Cobrar el aporte del período]] |
+
+$ grep -c -E "75 ?%|primer aporte|PRIMER_APORTE_PENDIENTE" "docs/CasosDeUso/CU-60 Sortear los turnos.md"
+5
