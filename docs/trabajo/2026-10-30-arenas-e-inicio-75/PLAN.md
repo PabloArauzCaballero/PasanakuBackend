@@ -64,40 +64,40 @@ Desbloqueos por arena (`cupos_max`, `aporte_max` + `moneda`): mecanismo implemen
 ### H1.S0 — Contrato (un agente, antes de los carriles)
 | ID | Microtarea | CA | DoD | Estado |
 |---|---|---|---|---|
-| H1.S0.M1 | OpenAPI: `iniciarGrupo`, `arenaMinima` en crear/detalle, `GET /reputacion/arenas`, `arena` en el puntaje, códigos de error nuevos | Los contratos validan y el código generado compila | `./gradlew :servicios:grupos:compileJava :servicios:transparencia:compileJava` → BUILD SUCCESSFUL | TODO |
+| H1.S0.M1 | OpenAPI: `iniciarGrupo`, `arenaMinima` en crear/detalle, `GET /reputacion/arenas`, `arena` en el puntaje, códigos de error nuevos | Los contratos validan y el código generado compila | `./gradlew :servicios:grupos:compileJava :servicios:transparencia:compileJava` → BUILD SUCCESSFUL | HECHO — evidencia en REPORTE.md |
 
 ### H1.S1 — Carril A · transparencia (backend)
 | ID | Microtarea | CA | DoD | Estado |
 |---|---|---|---|---|
-| H1.S1.M1 | Esquema `arena` + `desbloqueo_arena` desde la fuente de verdad, semilla idempotente con procedencia | Tablas creadas; segunda corrida no inserta | aplicar + deriva + segunda corrida (salida pegada) | TODO |
-| H1.S1.M1b | Corrección del revisor: RLS con `Datos.comoSistema`, tests con el rol `svc_transparencia`, semillas con `actualizar` | 7/17 fallan sin el arreglo; segunda corrida sin cambios | `evidencia/h1-s1-a-*.txt` | HECHO |
-| H1.S2.M0 | Corrección del revisor B: autorizar antes de consultar la arena (proponer/resolver/traspaso), reintento idempotente antes de la arena | Tests `ArenaMinima*`, `CU68AdmisionTest`, `CU20ArenaMinimaTest` | `./gradlew :servicios:grupos:test` → 573 tests, 0 fallas | HECHO |
-| H1.S2.M2 | `GET /reputacion/arenas` y `arena` en `consultarPuntaje` | Puntaje 549,99 → SEMILLA; 550 → BROTE; 1000 → INTI | `./gradlew :servicios:transparencia:test --tests '*Arena*'` | TODO |
+| H1.S1.M1 | Esquema `arena` + `desbloqueo_arena` desde la fuente de verdad, semilla idempotente con procedencia | Tablas creadas; segunda corrida no inserta | aplicar + deriva + segunda corrida (salida pegada) | HECHO — evidencia en REPORTE.md |
+| H1.S1.M1b | Corrección del revisor: RLS con `Datos.comoSistema`, tests con el rol `svc_transparencia`, semillas con `actualizar` | 7/17 fallan sin el arreglo; segunda corrida sin cambios | `evidencia/h1-s1-a-*.txt` | HECHO — evidencia en REPORTE.md |
+| H1.S2.M0 | Corrección del revisor B: autorizar antes de consultar la arena (proponer/resolver/traspaso), reintento idempotente antes de la arena | Tests `ArenaMinima*`, `CU68AdmisionTest`, `CU20ArenaMinimaTest` | `./gradlew :servicios:grupos:test` → 573 tests, 0 fallas | HECHO — evidencia en REPORTE.md |
+| H1.S2.M2 | `GET /reputacion/arenas` y `arena` en `consultarPuntaje` | Puntaje 549,99 → SEMILLA; 550 → BROTE; 1000 → INTI | `./gradlew :servicios:transparencia:test --tests '*Arena*'` | HECHO — evidencia en REPORTE.md |
 
 ### H1.S2 — Carril B · grupos (backend)
 | ID | Microtarea | CA | DoD | Estado |
 |---|---|---|---|---|
-| H1.S2.M1 | `iniciarGrupo` (HECHO, 573 tests en verde): organizador, ≥75 %, achique, historial, idempotente | 7/10 → 422; 8/10 → 8 cupos/8 periodos; repetir → mismo resultado | `./gradlew :servicios:grupos:test --tests '*Iniciar*'` | TODO |
-| H1.S2.M2 | Cierre de ingresos tras iniciar en todos los caminos | Cada camino responde 422 sobre un grupo `CONFORMADO` | `--tests '*IngresoCerrado*'` | TODO |
-| H1.S2.M3 | Arena mínima en todos los caminos + desbloqueos `VIGENTE` al crear y entrar | Puntaje bajo la mínima → 422 `AP-CU68-03` en cada camino | `--tests '*ArenaMinima*'` | TODO |
+| H1.S2.M1 | `iniciarGrupo` (HECHO, 573 tests en verde): organizador, ≥75 %, achique, historial, idempotente | 7/10 → 422; 8/10 → 8 cupos/8 periodos; repetir → mismo resultado | `./gradlew :servicios:grupos:test --tests '*Iniciar*'` | HECHO — evidencia en REPORTE.md |
+| H1.S2.M2 | Cierre de ingresos tras iniciar en todos los caminos | Cada camino responde 422 sobre un grupo `CONFORMADO` | `--tests '*IngresoCerrado*'` | HECHO — evidencia en REPORTE.md |
+| H1.S2.M3 | Arena mínima en todos los caminos + desbloqueos `VIGENTE` al crear y entrar | Puntaje bajo la mínima → 422 `AP-CU68-03` en cada camino | `--tests '*ArenaMinima*'` | HECHO — evidencia en REPORTE.md |
 
 ### H1.S3 — Carril C · app, grupos
 | ID | Microtarea | CA | DoD | Estado |
 |---|---|---|---|---|
-| H1.S3.M1 | Selector de arena mínima en crear grupo | Por omisión la propia; no deja elegir por encima de la propia | `flutter test test/widget/crear_grupo_arena_test.dart` | TODO |
-| H1.S3.M2 | Progreso al 75 % y botón Iniciar con confirmación | Bloqueado con «faltan N» antes del umbral | `flutter test test/widget/iniciar_grupo_test.dart` | TODO |
+| H1.S3.M1 | Selector de arena mínima en crear grupo | Por omisión la propia; no deja elegir por encima de la propia | `flutter test test/widget/crear_grupo_arena_test.dart` | HECHO — evidencia en REPORTE.md |
+| H1.S3.M2 | Progreso al 75 % y botón Iniciar con confirmación | Bloqueado con «faltan N» antes del umbral | `flutter test test/widget/iniciar_grupo_test.dart` | HECHO — evidencia en REPORTE.md |
 
 ### H1.S4 — Carril D · app, gamificación
 | ID | Microtarea | CA | DoD | Estado |
 |---|---|---|---|---|
-| H1.S4.M1 | Arena actual + barra continua hacia la siguiente + camino de arenas | Puntaje 575 → Brote, 50 % hacia Aguayo | `flutter test test/widget/camino_de_arenas_test.dart` | TODO |
-| H1.S4.M2 | Insignia de arena en la tarjeta de integrante | Se ve el nombre de la arena con nombre accesible | mismo test | TODO — desbloqueado por decisión de Pablo; depende de H1.S4.M3 |
-| H1.S4.M3 | Contrato y backend: `IntegranteDelGrupo.arena` (código + nombre, nunca puntaje), solo para quien comparte el grupo | El detalle trae la arena de cada ocupante; un no integrante no la ve | `./gradlew :servicios:grupos:test --tests '*Detalle*'` | TODO — después de que cierre el carril B |
+| H1.S4.M1 | Arena actual + barra continua hacia la siguiente + camino de arenas | Puntaje 575 → Brote, 50 % hacia Aguayo | `flutter test test/widget/camino_de_arenas_test.dart` | HECHO — evidencia en REPORTE.md |
+| H1.S4.M2 | Insignia de arena en la tarjeta de integrante | Se ve el nombre de la arena con nombre accesible | mismo test | HECHO — evidencia en REPORTE.md |
+| H1.S4.M3 | Contrato y backend: `IntegranteDelGrupo.arena` (código + nombre, nunca puntaje), solo para quien comparte el grupo | El detalle trae la arena de cada ocupante; un no integrante no la ve | `./gradlew :servicios:grupos:test --tests '*Detalle*'` | HECHO — evidencia en REPORTE.md |
 
 ### H1.S5 — Integración (sesión principal)
 | ID | Microtarea | CA | DoD | Estado |
 |---|---|---|---|---|
-| H1.S5.M1 | Generadores compartidos (errores, postman, clientes) y suites en serie | CI local equivalente en verde salvo preexistentes | salidas en `evidencia/` | TODO |
+| H1.S5.M1 | Generadores compartidos (errores, postman, clientes) y suites en serie | CI local equivalente en verde salvo preexistentes | salidas en `evidencia/` | HECHO — evidencia en REPORTE.md |
 
 ## Reparto de archivos (regla 70.4.9)
 | Carril | Puede escribir | No toca |
@@ -169,17 +169,17 @@ Se evitan «Confiable» y «Referente» para no chocar con `nivel_confianza`.
 
 | ID | Microtarea | CA (binario) | DoD | Estado |
 |---|---|---|---|---|
-| H1.S6.M1 | Renombre en contrato, esquema, semillas, Java y Dart (`arena`→`etapa`, `listarArenas`→`listarEtapas`, `/reputacion/arenas`→`/reputacion/etapas`, `arenaMinima`→`etapaMinima`) | `git grep -i arena` en lo tocado no devuelve nada | `git grep -niw 'arena\|arenas' -- servicios/grupos servicios/transparencia apps/movil/lib packages/diseno_flutter/lib sql seeders` vacío + tests de ambos servicios + `flutter test` dirigidos | TODO |
-| H1.S6.M2 | Textos de la app: «Etapa N · Nombre», sin vocabulario de juego | Ningún texto visible dice «arena» | test de widget + captura | TODO |
+| H1.S6.M1 | Renombre en contrato, esquema, semillas, Java y Dart (`arena`→`etapa`, `listarArenas`→`listarEtapas`, `/reputacion/arenas`→`/reputacion/etapas`, `arenaMinima`→`etapaMinima`) | `git grep -i arena` en lo tocado no devuelve nada | `git grep -niw 'arena\|arenas' -- servicios/grupos servicios/transparencia apps/movil/lib packages/diseno_flutter/lib sql seeders` vacío + tests de ambos servicios + `flutter test` dirigidos | HECHO — evidencia en REPORTE.md |
+| H1.S6.M2 | Textos de la app: «Etapa N · Nombre», sin vocabulario de juego | Ningún texto visible dice «arena» | test de widget + captura | A MEDIAS — tests de widget y goldens en verde; falta la captura en dispositivo contra el backend real (necesita SERVICIO_GRUPOS aprovisionado en TEST) |
 
 
 ## H1.S7 — Ronda 3: renombre a etapa + privacidad + re-firma (2026-10-30)
 | ID | Microtarea | CA (binario) | DoD | Estado |
 |---|---|---|---|---|
-| H1.S7.M1 | Contrato: renombre arena→etapa en ambos YAML; `IntegranteDelGrupo.etapa` (código + nombre); `consultarPuntaje` solo propio; lectura de etapa para servicios; re-firma pendiente en el detalle | Compila y los clientes se regeneran | `./gradlew :servicios:grupos:compileJava :servicios:transparencia:compileJava` exit 0 | TODO |
-| H1.S7.M2 | Transparencia: renombre + privacidad + permiso de backoffice en el catálogo | Otro participante → 403 sobre el puntaje ajeno; servicio → etapa; backoffice → catálogo | `./gradlew :servicios:transparencia:test` | TODO |
-| H1.S7.M3 | Grupos: renombre + token de servicio + etapa por integrante + versión nueva del reglamento al iniciar | Al iniciar existe la versión N+1 con los números reales y nadie la tiene aceptada | `./gradlew :servicios:grupos:test` | TODO |
-| H1.S7.M4 | App: renombre a «Etapa N · Nombre», insignia por integrante, re-firma después de iniciar | Ningún texto dice «arena»; se ve la insignia; aparece «Firmá la versión nueva» | `flutter test` dirigidos + `flutter analyze` | TODO |
+| H1.S7.M1 | Contrato: renombre arena→etapa en ambos YAML; `IntegranteDelGrupo.etapa` (código + nombre); `consultarPuntaje` solo propio; lectura de etapa para servicios; re-firma pendiente en el detalle | Compila y los clientes se regeneran | `./gradlew :servicios:grupos:compileJava :servicios:transparencia:compileJava` exit 0 | HECHO — evidencia en REPORTE.md |
+| H1.S7.M2 | Transparencia: renombre + privacidad + permiso de backoffice en el catálogo | Otro participante → 403 sobre el puntaje ajeno; servicio → etapa; backoffice → catálogo | `./gradlew :servicios:transparencia:test` | HECHO — evidencia en REPORTE.md |
+| H1.S7.M3 | Grupos: renombre + token de servicio + etapa por integrante + versión nueva del reglamento al iniciar | Al iniciar existe la versión N+1 con los números reales y nadie la tiene aceptada | `./gradlew :servicios:grupos:test` | HECHO — evidencia en REPORTE.md |
+| H1.S7.M4 | App: renombre a «Etapa N · Nombre», insignia por integrante, re-firma después de iniciar | Ningún texto dice «arena»; se ve la insignia; aparece «Firmá la versión nueva» | `flutter test` dirigidos + `flutter analyze` | HECHO — evidencia en REPORTE.md |
 
 ## H1.S8 — Integración con `test` (descubierto 2026-10-30 con `git merge-tree HEAD origin/test`)
 - `origin/test` va 65 commits adelante. Conflictos previstos: `scripts/metadata_enriquecida.json` y `servicios/grupos/src/test/java/bo/aportaya/grupos/web/GruposDetalleYFirmaWebTest.java`.
@@ -187,8 +187,8 @@ Se evitan «Confiable» y «Referente» para no chocar con `nivel_confianza`.
 
 | ID | Microtarea | CA (binario) | DoD | Estado |
 |---|---|---|---|---|
-| H1.S8.M1 | Rebase sobre `origin/test` resolviendo los 2 conflictos | Compila y la suite de grupos queda en verde | `./gradlew :servicios:grupos:test` | TODO |
-| H1.S8.M2 | Etapa mínima en la subasta del cupo: no se puede pujar ni adjudicar por debajo (`AP-CU64-04`, igual que el traspaso) | Puja de alguien bajo la mínima → 422 antes de retener plata; adjudicación revalida | test dirigido en `CU64SubastaTest` contra Postgres | TODO |
+| H1.S8.M1 | Rebase sobre `origin/test` resolviendo los 2 conflictos | Compila y la suite de grupos queda en verde | `./gradlew :servicios:grupos:test` | HECHO — evidencia en REPORTE.md |
+| H1.S8.M2 | Etapa mínima en la subasta del cupo: no se puede pujar ni adjudicar por debajo (`AP-CU64-04`, igual que el traspaso) | Puja de alguien bajo la mínima → 422 antes de retener plata; adjudicación revalida | test dirigido en `CU64SubastaTest` contra Postgres | HECHO — evidencia en REPORTE.md |
 
 ### H3 — contrato acordado con pasanaku-1f (2026-10-30, rama `claude/sorteo-primera-cuota-20261030`)
 - **Evento que emite esta rama** por outbox, en la transacción de `CU69IniciarGrupo` y después de que exista el periodo 1: `EventoDominio(tipo="grupos.grupo_iniciado", agregado="grupo", agregadoId=grupoId)`, tema `aportaya.grupos.grupo_iniciado`, clave `grupoId`. Carga: `{grupoId, moneda, cuposTotales, iniciadoEn, periodo{periodoId, numero:1, fechaInicio, fechaLimitePago, fechaFinGracia, fechaEntregaPrevista}, cupos[{cupoId, numero 1..N, participanteId, montoAporte "500.00"}]}`, con solo los cupos OCUPADO renumerados. Si el inicio ya ocurrió, no se reemite: es idempotente por el renglón del historial.
