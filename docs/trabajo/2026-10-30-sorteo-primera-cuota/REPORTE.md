@@ -1,6 +1,6 @@
 # Reporte — El sorteo exige la primera cuota pagada (R-GRP-20): lado `aportes` + precondición en `grupos`
 
-> **AVANCE: 13 / 13 — 100 %.**
+> **AVANCE: 19 / 19 — 100 %.** (H1–H4: 13 · H5, emisión del evento tomada de `pasanaku-c1` a su pedido: 6)
 
 - Fecha: 2026-10-30 · Plan: [PLAN.md](./PLAN.md) · Rama: `claude/sorteo-primera-cuota-20261030` desde `origin/test` (worktree `Pasanaku-wt-sorteo`)
 - Peldaño de evidencia alcanzado: **`TESTED` + regresión de módulo** en los dos servicios (`grupos` 513/513, `aportes` 236/236, contra PostgreSQL real con Testcontainers y dobles declarados para lo remoto). **No es `VERIFIED`**: el camino real Kafka → `aportes` y `grupos` → HTTP → `aportes` con los dos procesos levantados no se ejercitó, y el evento que dispara todo lo emite el carril de `pasanaku-c1`, que todavía no lo publicó. Ver «No cubierto».
@@ -23,6 +23,12 @@
 | H4.S1.M1 | CU-60 documenta `AP-CU60-05/11/12`; README de `aportes` documenta consumidor y endpoint | `grep -c "AP-CU60-1[12]" "docs/CasosDeUso/CU-60 Sortear los turnos.md"` | PASS → 4 |
 | H4.S1.M2 | Contrato del evento acordado y confirmado por `pasanaku-c1` | `SendMessage` | PASS · `evidencia/coordinacion-c1.md` |
 | H4.S1.M3 | Este reporte | — | en disco |
+| H5.S1.M1 | Verificado en `9505875e`: `iniciarGrupo` genera el calendario (`CU69IniciarGrupo.java:128`), no tenía `Outbox`; dos tests lo construyen a mano | lectura | `evidencia/evento-cu69-dirigido-1.txt` (el primer compile falló por `CU69IngresoCerradoTest:76`) |
+| H5.S1.M2 | `CU69IniciarGrupo.emitirInicio`: `grupos.grupo_iniciado` por outbox, misma transacción, con período 1 y cupos OCUPADO 1..N, aporte como cadena `500.00` | `./gradlew :servicios:grupos:integrationTest --tests 'bo.aportaya.grupos.CU69*'` | PASS · `CU69EventoDeInicioTest` 3/3 · `evidencia/evento-cu69-dirigido-2.txt` |
+| H5.S1.M3 | Reintento con la misma clave no re-emite; otra clave → `AP-CU69-17` sin emitir | ídem («limiteIdempotente») | PASS |
+| H5.S1.M4 | 7 de 10 → `AP-CU69-16`, cero eventos | ídem («invalidoSinMinimo») | PASS |
+| H5.S1.M5 | Regresión de `grupos` sobre la rama de c1 + formato; commit `bd7280d9` publicado en `origin/claude/evento-grupo-iniciado-20261030` y avisado | `./gradlew :servicios:grupos:spotlessCheck :servicios:grupos:test :servicios:grupos:webTest :servicios:grupos:integrationTest` | PASS · **611/611** · `evidencia/evento-grupos-regresion.txt`, `evento-resumen.txt` |
+| H5.S1.M6 | Pacto `contratos/pactos/grupos-aportes-grupo-iniciado.json` (en las dos ramas) + `PactoGrupoIniciadoTest` en `aportes` lee su `ejemplo` | `./gradlew :servicios:aportes:test --tests '*PactoGrupoIniciadoTest'` | ver «Evidencia» (`evidencia/aportes-pacto.txt`) |
 
 **Regresión de módulo (regla 80.1.6) y gate de formato:**
 
@@ -42,8 +48,8 @@ ninguna
 
 | ID | Estado | Qué lo destraba |
 |---|---|---|
-| Emisión de `grupos.grupo_iniciado` por outbox en `CU69IniciarGrupo` | **De `pasanaku-c1`** (H3 de su plan), confirmado | Que c1 lo publique; sin el evento, ningún grupo llega a tener la cuota 1 y el sorteo responde `AP-CU60-11` siempre |
-| `puedeSortear` en el detalle del grupo y botón/re-firma en la app | De `pasanaku-c1` | ídem |
+| Absorber `bd7280d9` (emisión del evento) en los PR #364/#365 de c1 | De `pasanaku-c1` (acordado: «mandame el commit y lo absorbo») | Un `cherry-pick bd7280d9` sobre su rama |
+| `puedeSortear` en el detalle del grupo y botón/re-firma en la app | De `pasanaku-c1` | — |
 | Abrir el período 1 (`PROGRAMADO → ABIERTO`) para que `CU21CobrarAporte` acepte el cobro de la cuota 1 | `DECISION_REQUIRED` si cambia una regla; c1 dijo que lo verifica y, si hace falta, se lo pregunta a Pablo | Decisión de Pablo |
 | PR a `dev` y `test` | TODO | Integrar junto con la rama de c1 (toca `CU60Sortear` del lado de ellos no, pero sí `grupos.yaml` y el evento); un PR solo de esta rama deja el sorteo bloqueado en `AP-CU60-11` hasta que llegue el evento |
 | Comentario del 422 en `grupos.yaml` (`AP-CU60-11/12`) | De `pasanaku-c1` (el archivo es suyo) | — |
@@ -66,7 +72,7 @@ ninguna
 - **Kafka real**: el consumidor se probó por su `leer()` y su caso de uso; nadie publicó un mensaje real en `aportaya.grupos.grupo_iniciado` (el productor no existe todavía). Como el README ya dice de su hermano: «NO verificado con Kafka y los dos procesos reales».
 - **HTTP real entre `grupos` y `aportes`**: el adaptador se probó contra un servidor del JDK con el cuerpo del contrato; no contra `aportes` levantado. Regla 98.8.4 («apagar el contenedor cuenta; mockearlo no»): no se hizo.
 - **Traza `correlationId` cruzando servicios** (98.8.5): no se observó.
-- **Prueba de contrato productor ↔ consumidor** (98.1.4): no hay pacto en `contratos/pactos/` para `grupo_iniciado` ni para `primera-cuota`; se definió el contrato en el plan y c1 lo confirmó por mensaje, no por test.
+- **Prueba de contrato** (98.1.4): para `grupo_iniciado` ahora hay pacto en `contratos/pactos/` con las dos mitades (`CU69EventoDeInicioTest` produce la forma; `PactoGrupoIniciadoTest` la lee), pero ninguna de las dos verifica contra el JSON del productor real en Kafka. Para `GET /primera-cuota` **no** hay pacto: el adaptador de `grupos` se probó contra un cuerpo escrito a mano con la forma del contrato.
 - Autorización a nivel de objeto en `GET /primera-cuota`: `BILLETERA_VER` sin chequeo de pertenencia al grupo (igual que `contarMorosos`); solo expone UUIDs de cupo.
 - `scripts/generar_compose.py` y `docker-compose.coolify.yml` no declaran `GRUPO_INICIADO_CONSUMO_HABILITADO`; el flag nace encendido por `matchIfMissing`.
 - Los dos commits de docs del trabajo anterior (`R-GRP-20`, análisis de comisión) se trajeron por cherry-pick; su contenido no cambió.
@@ -82,7 +88,8 @@ ninguna
 ## Riesgos residuales
 
 - **Hallazgo fuera de alcance, no corregido**: `SorteoRepositorio.todosAceptaronElReglamento` aceptaba cualquier aceptación y los tests previos de CU-60 lo pasaban en vacío (cupos sin participante). CU-60 ya no lo usa; el método sigue existiendo por si otro lo usa (c1 avisado).
-- Hasta que c1 emita el evento, un grupo iniciado **no puede sortear** (`AP-CU60-11` con todos los cupos). Es el comportamiento pedido (plata prometida no habilita), pero en TEST hoy no hay productor: desplegar esta rama sola bloquea el sorteo.
+- La emisión existe (`bd7280d9`) pero vive en una rama aparte hasta que c1 la absorba en #364/#365; desplegar **solo** esta rama deja todo sorteo en `AP-CU60-11` (plata prometida no habilita, que es lo pedido, pero sin productor nadie llega a pagar la cuota 1 por la app).
+- La emisión se hizo sobre el `CU69IniciarGrupo` de c1 con su permiso explícito; si c1 cambia ese archivo antes de absorber, el cherry-pick puede pedir resolución (el método `emitirInicio` es autocontenido; el punto de inserción es la línea siguiente a `calendario.generar`).
 - Si el calendario de feriados del año del vencimiento no está cargado, el consumidor lanza `AP-CU21-09` y Kafka reintenta hasta agotar: la cuota 1 no se abre y nadie se entera salvo por la bitácora. Mismo riesgo que CU-21 hoy.
 - «Período 1» en `aportes` = obligación con menor `fecha_vencimiento`; si algún día se abre un período fuera de orden, la consulta apuntaría mal. Alternativa documentada en el plan: que `grupos` pase el `periodoId`.
 

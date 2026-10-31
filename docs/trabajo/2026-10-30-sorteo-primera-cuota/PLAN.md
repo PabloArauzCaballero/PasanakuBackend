@@ -84,15 +84,16 @@ hoy `iniciarGrupo` **no** genera calendario ni período 1.
 outbox hay exactamente un evento `grupos.grupo_iniciado` con la carga del contrato (período 1, cupos ocupados renumerados 1..N,
 monto y moneda); un reintento con la misma clave no emite un segundo evento.
 **DoD:** `./gradlew :servicios:grupos:integrationTest --tests '*CU69Iniciar*'` en verde con los casos nuevos + regresión de `grupos`.
-**Estado:** TODO
+**Estado:** HECHO (611/611 sobre `9505875e`; commit `bd7280d9` entregado a c1)
 
 | ID | Microtarea | CA (binario) | DoD | Estado |
 |---|---|---|---|---|
-| H5.S1.M1 | Verificar en `9505875e` qué hace `iniciarGrupo` (calendario, período 1, outbox disponible) y cómo emite `CU69FirmarReglamento` | Hechos con `ruta:línea` en el reporte | lectura registrada | TODO |
-| H5.S1.M2 | `CU69IniciarGrupo`: generar el calendario (período 1..N) si no existe, leer período 1 y cupos OCUPADO, `outbox.emitir(...)` con la carga del contrato, en la misma transacción y después del `UPDATE` del grupo | Evento en `grupos.evento_dominio` con la carga exacta | caso «correcto» del test | TODO |
-| H5.S1.M3 | Idempotencia: la misma clave no re-emite; otra clave sobre un grupo ya iniciado responde `AP-CU69-17` sin emitir | 1 evento tras dos llamadas | casos «límite» del test | TODO |
-| H5.S1.M4 | Carga inválida imposible por construcción (sin cupos ocupados no se inicia: `AP-CU69-16`); prueba de que con 0 ocupados no hay evento | 0 eventos | caso «inválido» del test | TODO |
-| H5.S1.M5 | Regresión de `grupos` en la rama sobre `9505875e` + `spotlessCheck`; push; commit a c1 | verde | salida pegada | TODO |
+| H5.S1.M1 | Verificar en `9505875e` qué hace `iniciarGrupo` (calendario, período 1, outbox disponible) y cómo emite `CU69FirmarReglamento` | Hechos con `ruta:línea` en el reporte | `CU69IniciarGrupo.java:128` **sí** genera el calendario (c1 creía que no); no tenía `Outbox`; `BaseDeInicio:26` y `CU69IngresoCerradoTest:76` lo construyen a mano | HECHO |
+| H5.S1.M2 | `CU69IniciarGrupo.emitirInicio` después de `calendario.generar`: lee período 1 y cupos OCUPADO, `outbox.emitir(...)` con la carga del contrato, misma transacción | Evento en `grupos.evento_dominio` con la carga exacta | `CU69EventoDeInicioTest` «correcto» (8 cupos, período 1, `500.00`, BOB) · `evidencia/evento-cu69-dirigido-2.txt` | HECHO |
+| H5.S1.M3 | Idempotencia: la misma clave no re-emite; otra clave sobre un grupo ya iniciado responde `AP-CU69-17` sin emitir | 1 evento tras dos llamadas | «limiteIdempotente» · ídem | HECHO |
+| H5.S1.M4 | Sin el mínimo (`AP-CU69-16`) no hay inicio ni evento | 0 eventos | «invalidoSinMinimo» · ídem | HECHO |
+| H5.S1.M5 | Regresión de `grupos` en la rama sobre `9505875e` + `spotlessCheck`; push; commit a c1 | verde | **611/611**, `exit=0` · `evidencia/evento-grupos-regresion.txt` · commit `bd7280d9` en `origin/claude/evento-grupo-iniciado-20261030`, avisado a c1 (msg `9b4abfde…`) | HECHO |
+| H5.S1.M6 | Pacto `contratos/pactos/grupos-aportes-grupo-iniciado.json` en las dos ramas + `PactoGrupoIniciadoTest` (aportes lee el `ejemplo`) | Prueba de contrato consumidor (98.1.4) | `./gradlew :servicios:aportes:test --tests '*PactoGrupoIniciadoTest'` → 1/1, `exit=0` · `evidencia/aportes-pacto.txt` | HECHO |
 
 ## Riesgos y bloqueos previstos
 | Riesgo | Impacto | Mitigación |
