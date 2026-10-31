@@ -10689,6 +10689,849 @@
     }
   },
   {
+    "id": "src-abrirSubastaDeCupo",
+    "servicio": "src",
+    "metodo": "POST",
+    "ruta": "/entregas/subastas",
+    "operationId": "abrirSubastaDeCupo",
+    "modulo": "src",
+    "cu": null,
+    "proposito": "Poner mi cupo en subasta",
+    "explicacionNegocio": "El titular del cupo (lo confirma `grupos`, nunca el cliente) lo ofrece con un precio base y un plazo de 24, 48 o 72 horas. A todos los usuarios les llega el aviso (`entregas.subasta_abierta`). Al cierre gana la puja mas alta: el cupo pasa al ganador y el saliente cobra la puja, sin votacion del grupo (decision del dueno, 2026-10-30). Un cupo tiene a lo sumo una subasta viva. Reintentar con la misma clave devuelve la misma subasta.",
+    "explicacionSistema": "Servicio `src`, controlador Spring `@RestController`. Implementa la interfaz generada `SrcApi`. Transaccionalidad garantizada en organismo jOOQ.",
+    "permiso": "REQUIERE_SESION",
+    "riesgo": "MEDIO",
+    "sensible": false,
+    "pideSesion": true,
+    "idempotencia": true,
+    "tablasImpactadas": [
+      {
+        "esquema": "src",
+        "tabla": "outbox_evento",
+        "operacion": "INSERT",
+        "impacto": "Registra el evento transaccional correspondiente para mensajería asíncrona hacia Kafka.",
+        "principal": false,
+        "auditoria": true
+      }
+    ],
+    "dtoEntrada": {
+      "nombre": "EntradaSubasta",
+      "campos": [
+        {
+          "nombre": "grupoId",
+          "tipo": "string (uuid)",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido",
+          "descripcion": "Campo grupoId de la operación"
+        },
+        {
+          "nombre": "cupoId",
+          "tipo": "string (uuid)",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido",
+          "descripcion": "Campo cupoId de la operación"
+        },
+        {
+          "nombre": "montoBase",
+          "tipo": "Dinero",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido",
+          "descripcion": "Campo montoBase de la operación"
+        },
+        {
+          "nombre": "horas",
+          "tipo": "integer",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido; Valores: 24, 48, 72",
+          "descripcion": "Campo horas de la operación"
+        }
+      ]
+    },
+    "dtoSalida": {
+      "nombre": "VistaDeSubasta",
+      "campos": [
+        {
+          "nombre": "subastaId",
+          "tipo": "string (uuid)",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido",
+          "descripcion": "Campo subastaId de la operación"
+        },
+        {
+          "nombre": "grupoId",
+          "tipo": "string (uuid)",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido",
+          "descripcion": "Campo grupoId de la operación"
+        },
+        {
+          "nombre": "cupoId",
+          "tipo": "string (uuid)",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido",
+          "descripcion": "Campo cupoId de la operación"
+        },
+        {
+          "nombre": "nombreDelGrupo",
+          "tipo": "string",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido; Máx: 120",
+          "descripcion": "Campo nombreDelGrupo de la operación"
+        },
+        {
+          "nombre": "periodicidad",
+          "tipo": "string",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido; Máx: 15",
+          "descripcion": "Campo periodicidad de la operación"
+        },
+        {
+          "nombre": "montoAporte",
+          "tipo": "Dinero",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido",
+          "descripcion": "Campo montoAporte de la operación"
+        },
+        {
+          "nombre": "montoBase",
+          "tipo": "Dinero",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido",
+          "descripcion": "Campo montoBase de la operación"
+        },
+        {
+          "nombre": "montoMasAlto",
+          "tipo": "string",
+          "requerido": false,
+          "validacion": "Validación estándar de tipo",
+          "descripcion": "la puja vigente mas alta; vacio si nadie pujo"
+        },
+        {
+          "nombre": "montoMinimo",
+          "tipo": "Dinero",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido",
+          "descripcion": "Campo montoMinimo de la operación"
+        },
+        {
+          "nombre": "estado",
+          "tipo": "string",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido; Valores: ABIERTA, ADJUDICADA, LIQUIDANDO, VENDIDA",
+          "descripcion": "Campo estado de la operación"
+        },
+        {
+          "nombre": "cierraEn",
+          "tipo": "string (date-time)",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido",
+          "descripcion": "Campo cierraEn de la operación"
+        },
+        {
+          "nombre": "cantidadDePujas",
+          "tipo": "integer",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido; Mín: 0",
+          "descripcion": "Campo cantidadDePujas de la operación"
+        },
+        {
+          "nombre": "soyElSaliente",
+          "tipo": "boolean",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido",
+          "descripcion": "Campo soyElSaliente de la operación"
+        },
+        {
+          "nombre": "miPuja",
+          "tipo": "string",
+          "requerido": false,
+          "validacion": "Validación estándar de tipo",
+          "descripcion": "Campo miPuja de la operación"
+        }
+      ]
+    },
+    "payloadEjemplo": {
+      "grupoId": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+      "cupoId": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+      "montoBase": {
+        "monto": {},
+        "moneda": {}
+      },
+      "horas": 24
+    },
+    "payloadRespuesta": {
+      "subastaId": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+      "grupoId": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+      "cupoId": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+      "nombreDelGrupo": "Ejemplo de texto",
+      "periodicidad": "Ejemplo de texto",
+      "montoAporte": {
+        "monto": {},
+        "moneda": {}
+      },
+      "montoBase": {
+        "monto": {},
+        "moneda": {}
+      },
+      "montoMasAlto": "Ejemplo de texto",
+      "montoMinimo": {
+        "monto": {},
+        "moneda": {}
+      },
+      "estado": "ABIERTA",
+      "cierraEn": "2026-10-20T14:30:00Z",
+      "cantidadDePujas": 0,
+      "soyElSaliente": true,
+      "miPuja": "Ejemplo de texto"
+    },
+    "flujo": {
+      "id": "administracion-usuarios-y-permisos",
+      "nombre": "Gobierno de identidades internas, roles de backoffice y sesiones",
+      "paso": "Paso operativo `abrirSubastaDeCupo`",
+      "precondicion": "El servicio src debe validar la existencia y vigencia de las entidades involucradas.",
+      "exito": "Se completa la transacción de negocio y se dispara la notificación u outbox correspondiente.",
+      "decisiones": [
+        {
+          "codigo": "EXITO",
+          "http": 201,
+          "condicion": "Petición válida y autorizada. Precondiciones cumplidas.",
+          "siguiente": "Transición exitosa al siguiente paso del flujo o persistencia."
+        },
+        {
+          "codigo": "AP-SISTEMA-01",
+          "http": 422,
+          "condicion": "Violación de regla de negocio o estado no válido.",
+          "siguiente": "Rechazo controlado con mensaje explicativo."
+        },
+        {
+          "codigo": "NO_AUTORIZADO",
+          "http": 401,
+          "condicion": "Token ausente, vencido o firma inválida.",
+          "siguiente": "Exige reautenticación en pantalla de ingreso."
+        },
+        {
+          "codigo": "ACCESO_DENEGADO",
+          "http": 403,
+          "condicion": "Rol o permiso insuficiente para esta operación.",
+          "siguiente": "Bloqueo por seguridad RBAC."
+        }
+      ]
+    }
+  },
+  {
+    "id": "src-listarSubastasDeCupo",
+    "servicio": "src",
+    "metodo": "GET",
+    "ruta": "/entregas/subastas",
+    "operationId": "listarSubastasDeCupo",
+    "modulo": "src",
+    "cu": null,
+    "proposito": "Los cupos en subasta",
+    "explicacionNegocio": "Para cualquier usuario: las subastas ABIERTAS, con lo que hace falta para decidir (grupo, aporte, periodicidad, base, puja mas alta, cierre). Nunca el saliente ni los postores. Con `cupoId` devuelve la ultima subasta de ese cupo en cualquier estado (lo usa la pantalla del grupo). Paginado, con orden estable (cierre, id).",
+    "explicacionSistema": "Servicio `src`, controlador Spring `@RestController`. Implementa la interfaz generada `SrcApi`. Transaccionalidad garantizada en organismo jOOQ.",
+    "permiso": "REQUIERE_SESION",
+    "riesgo": "BAJO",
+    "sensible": false,
+    "pideSesion": true,
+    "idempotencia": false,
+    "tablasImpactadas": [],
+    "dtoEntrada": {
+      "nombre": "Parametros_listarSubastasDeCupo",
+      "campos": [
+        {
+          "nombre": "cupoId",
+          "tipo": "string",
+          "requerido": false,
+          "validacion": "Ubicación: query",
+          "descripcion": "Parámetro cupoId"
+        },
+        {
+          "nombre": "limite",
+          "tipo": "integer",
+          "requerido": false,
+          "validacion": "Ubicación: query",
+          "descripcion": "Parámetro limite"
+        },
+        {
+          "nombre": "pagina",
+          "tipo": "integer",
+          "requerido": false,
+          "validacion": "Ubicación: query",
+          "descripcion": "Parámetro pagina"
+        }
+      ]
+    },
+    "dtoSalida": {
+      "nombre": "PaginaDeSubastas",
+      "campos": [
+        {
+          "nombre": "pagina",
+          "tipo": "integer",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido",
+          "descripcion": "Campo pagina de la operación"
+        },
+        {
+          "nombre": "subastas",
+          "tipo": "array",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido",
+          "descripcion": "Campo subastas de la operación"
+        }
+      ]
+    },
+    "payloadEjemplo": {
+      "cupoId": "ejemplo-uuid",
+      "limite": "1",
+      "pagina": "1"
+    },
+    "payloadRespuesta": {
+      "pagina": 1,
+      "subastas": [
+        {}
+      ]
+    },
+    "flujo": {
+      "id": "administracion-usuarios-y-permisos",
+      "nombre": "Gobierno de identidades internas, roles de backoffice y sesiones",
+      "paso": "Paso operativo `listarSubastasDeCupo`",
+      "precondicion": "El servicio src debe validar la existencia y vigencia de las entidades involucradas.",
+      "exito": "Se completa la transacción de negocio y se dispara la notificación u outbox correspondiente.",
+      "decisiones": [
+        {
+          "codigo": "EXITO",
+          "http": 200,
+          "condicion": "Petición válida y autorizada. Precondiciones cumplidas.",
+          "siguiente": "Transición exitosa al siguiente paso del flujo o persistencia."
+        },
+        {
+          "codigo": "AP-SISTEMA-01",
+          "http": 422,
+          "condicion": "Violación de regla de negocio o estado no válido.",
+          "siguiente": "Rechazo controlado con mensaje explicativo."
+        },
+        {
+          "codigo": "NO_AUTORIZADO",
+          "http": 401,
+          "condicion": "Token ausente, vencido o firma inválida.",
+          "siguiente": "Exige reautenticación en pantalla de ingreso."
+        },
+        {
+          "codigo": "ACCESO_DENEGADO",
+          "http": 403,
+          "condicion": "Rol o permiso insuficiente para esta operación.",
+          "siguiente": "Bloqueo por seguridad RBAC."
+        }
+      ]
+    }
+  },
+  {
+    "id": "src-consultarSubastaDeCupo",
+    "servicio": "src",
+    "metodo": "GET",
+    "ruta": "/entregas/subastas/{subastaId}",
+    "operationId": "consultarSubastaDeCupo",
+    "modulo": "src",
+    "cu": null,
+    "proposito": "Una subasta, con la puja mas alta y la mia",
+    "explicacionNegocio": "Una subasta, con la puja mas alta y la mia",
+    "explicacionSistema": "Servicio `src`, controlador Spring `@RestController`. Implementa la interfaz generada `SrcApi`. Transaccionalidad garantizada en organismo jOOQ.",
+    "permiso": "REQUIERE_SESION",
+    "riesgo": "BAJO",
+    "sensible": false,
+    "pideSesion": true,
+    "idempotencia": false,
+    "tablasImpactadas": [],
+    "dtoEntrada": {
+      "nombre": "Parametros_consultarSubastaDeCupo",
+      "campos": [
+        {
+          "nombre": "subastaId",
+          "tipo": "string",
+          "requerido": true,
+          "validacion": "Ubicación: path",
+          "descripcion": "Parámetro subastaId"
+        }
+      ]
+    },
+    "dtoSalida": {
+      "nombre": "VistaDeSubasta",
+      "campos": [
+        {
+          "nombre": "subastaId",
+          "tipo": "string (uuid)",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido",
+          "descripcion": "Campo subastaId de la operación"
+        },
+        {
+          "nombre": "grupoId",
+          "tipo": "string (uuid)",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido",
+          "descripcion": "Campo grupoId de la operación"
+        },
+        {
+          "nombre": "cupoId",
+          "tipo": "string (uuid)",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido",
+          "descripcion": "Campo cupoId de la operación"
+        },
+        {
+          "nombre": "nombreDelGrupo",
+          "tipo": "string",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido; Máx: 120",
+          "descripcion": "Campo nombreDelGrupo de la operación"
+        },
+        {
+          "nombre": "periodicidad",
+          "tipo": "string",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido; Máx: 15",
+          "descripcion": "Campo periodicidad de la operación"
+        },
+        {
+          "nombre": "montoAporte",
+          "tipo": "Dinero",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido",
+          "descripcion": "Campo montoAporte de la operación"
+        },
+        {
+          "nombre": "montoBase",
+          "tipo": "Dinero",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido",
+          "descripcion": "Campo montoBase de la operación"
+        },
+        {
+          "nombre": "montoMasAlto",
+          "tipo": "string",
+          "requerido": false,
+          "validacion": "Validación estándar de tipo",
+          "descripcion": "la puja vigente mas alta; vacio si nadie pujo"
+        },
+        {
+          "nombre": "montoMinimo",
+          "tipo": "Dinero",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido",
+          "descripcion": "Campo montoMinimo de la operación"
+        },
+        {
+          "nombre": "estado",
+          "tipo": "string",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido; Valores: ABIERTA, ADJUDICADA, LIQUIDANDO, VENDIDA",
+          "descripcion": "Campo estado de la operación"
+        },
+        {
+          "nombre": "cierraEn",
+          "tipo": "string (date-time)",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido",
+          "descripcion": "Campo cierraEn de la operación"
+        },
+        {
+          "nombre": "cantidadDePujas",
+          "tipo": "integer",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido; Mín: 0",
+          "descripcion": "Campo cantidadDePujas de la operación"
+        },
+        {
+          "nombre": "soyElSaliente",
+          "tipo": "boolean",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido",
+          "descripcion": "Campo soyElSaliente de la operación"
+        },
+        {
+          "nombre": "miPuja",
+          "tipo": "string",
+          "requerido": false,
+          "validacion": "Validación estándar de tipo",
+          "descripcion": "Campo miPuja de la operación"
+        }
+      ]
+    },
+    "payloadEjemplo": {
+      "subastaId": "ejemplo-uuid"
+    },
+    "payloadRespuesta": {
+      "subastaId": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+      "grupoId": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+      "cupoId": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+      "nombreDelGrupo": "Ejemplo de texto",
+      "periodicidad": "Ejemplo de texto",
+      "montoAporte": {
+        "monto": {},
+        "moneda": {}
+      },
+      "montoBase": {
+        "monto": {},
+        "moneda": {}
+      },
+      "montoMasAlto": "Ejemplo de texto",
+      "montoMinimo": {
+        "monto": {},
+        "moneda": {}
+      },
+      "estado": "ABIERTA",
+      "cierraEn": "2026-10-20T14:30:00Z",
+      "cantidadDePujas": 0,
+      "soyElSaliente": true,
+      "miPuja": "Ejemplo de texto"
+    },
+    "flujo": {
+      "id": "administracion-usuarios-y-permisos",
+      "nombre": "Gobierno de identidades internas, roles de backoffice y sesiones",
+      "paso": "Paso operativo `consultarSubastaDeCupo`",
+      "precondicion": "El servicio src debe validar la existencia y vigencia de las entidades involucradas.",
+      "exito": "Se completa la transacción de negocio y se dispara la notificación u outbox correspondiente.",
+      "decisiones": [
+        {
+          "codigo": "EXITO",
+          "http": 200,
+          "condicion": "Petición válida y autorizada. Precondiciones cumplidas.",
+          "siguiente": "Transición exitosa al siguiente paso del flujo o persistencia."
+        },
+        {
+          "codigo": "AP-SISTEMA-01",
+          "http": 422,
+          "condicion": "Violación de regla de negocio o estado no válido.",
+          "siguiente": "Rechazo controlado con mensaje explicativo."
+        },
+        {
+          "codigo": "NO_AUTORIZADO",
+          "http": 401,
+          "condicion": "Token ausente, vencido o firma inválida.",
+          "siguiente": "Exige reautenticación en pantalla de ingreso."
+        },
+        {
+          "codigo": "ACCESO_DENEGADO",
+          "http": 403,
+          "condicion": "Rol o permiso insuficiente para esta operación.",
+          "siguiente": "Bloqueo por seguridad RBAC."
+        }
+      ]
+    }
+  },
+  {
+    "id": "src-pujarEnSubasta",
+    "servicio": "src",
+    "metodo": "POST",
+    "ruta": "/entregas/subastas/{subastaId}/pujas",
+    "operationId": "pujarEnSubasta",
+    "modulo": "src",
+    "cu": null,
+    "proposito": "Ofrecer un monto por el cupo",
+    "explicacionNegocio": "El monto queda RETENIDO de la billetera de quien puja hasta que lo superen (vuelve al instante) o gane (se le paga al saliente cuando el cupo ya es suyo). Tiene que ser al menos la base y mayor que la puja mas alta. Quien puja tiene que cumplir lo que pide el grupo (`grupos` lo confirma) y aceptar su reglamento. El saliente no puja. Dos pujas a la vez por el mismo monto: gana la primera en quedar firme, la otra recibe AP-CU136-04 y su saldo vuelve. Reintentar con la misma clave no retiene dos veces.",
+    "explicacionSistema": "Servicio `src`, controlador Spring `@RestController`. Implementa la interfaz generada `SrcApi`. Transaccionalidad garantizada en organismo jOOQ.",
+    "permiso": "REQUIERE_SESION",
+    "riesgo": "MEDIO",
+    "sensible": false,
+    "pideSesion": true,
+    "idempotencia": true,
+    "tablasImpactadas": [
+      {
+        "esquema": "src",
+        "tabla": "outbox_evento",
+        "operacion": "INSERT",
+        "impacto": "Registra el evento transaccional correspondiente para mensajería asíncrona hacia Kafka.",
+        "principal": false,
+        "auditoria": true
+      }
+    ],
+    "dtoEntrada": {
+      "nombre": "EntradaPuja",
+      "campos": [
+        {
+          "nombre": "monto",
+          "tipo": "Dinero",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido",
+          "descripcion": "Campo monto de la operación"
+        },
+        {
+          "nombre": "aceptoReglamento",
+          "tipo": "boolean",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido",
+          "descripcion": "si gana entra al grupo con sus reglas; tiene que ser true (AP-CU136-06 si no)"
+        }
+      ]
+    },
+    "dtoSalida": {
+      "nombre": "SalidaPuja",
+      "campos": [
+        {
+          "nombre": "pujaId",
+          "tipo": "string (uuid)",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido",
+          "descripcion": "Campo pujaId de la operación"
+        },
+        {
+          "nombre": "estado",
+          "tipo": "string",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido; Valores: PENDIENTE, VIGENTE, SUPERADA, LIBERADA",
+          "descripcion": "Campo estado de la operación"
+        }
+      ]
+    },
+    "payloadEjemplo": {
+      "monto": {
+        "monto": {},
+        "moneda": {}
+      },
+      "aceptoReglamento": true
+    },
+    "payloadRespuesta": {
+      "pujaId": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+      "estado": "PENDIENTE"
+    },
+    "flujo": {
+      "id": "administracion-usuarios-y-permisos",
+      "nombre": "Gobierno de identidades internas, roles de backoffice y sesiones",
+      "paso": "Paso operativo `pujarEnSubasta`",
+      "precondicion": "El servicio src debe validar la existencia y vigencia de las entidades involucradas.",
+      "exito": "Se completa la transacción de negocio y se dispara la notificación u outbox correspondiente.",
+      "decisiones": [
+        {
+          "codigo": "EXITO",
+          "http": 201,
+          "condicion": "Petición válida y autorizada. Precondiciones cumplidas.",
+          "siguiente": "Transición exitosa al siguiente paso del flujo o persistencia."
+        },
+        {
+          "codigo": "AP-SISTEMA-01",
+          "http": 422,
+          "condicion": "Violación de regla de negocio o estado no válido.",
+          "siguiente": "Rechazo controlado con mensaje explicativo."
+        },
+        {
+          "codigo": "NO_AUTORIZADO",
+          "http": 401,
+          "condicion": "Token ausente, vencido o firma inválida.",
+          "siguiente": "Exige reautenticación en pantalla de ingreso."
+        },
+        {
+          "codigo": "ACCESO_DENEGADO",
+          "http": 403,
+          "condicion": "Rol o permiso insuficiente para esta operación.",
+          "siguiente": "Bloqueo por seguridad RBAC."
+        }
+      ]
+    }
+  },
+  {
+    "id": "src-cancelarSubastaDeCupo",
+    "servicio": "src",
+    "metodo": "POST",
+    "ruta": "/entregas/subastas/{subastaId}/cancelacion",
+    "operationId": "cancelarSubastaDeCupo",
+    "modulo": "src",
+    "cu": null,
+    "proposito": "Retirar mi cupo de la subasta mientras nadie pujo",
+    "explicacionNegocio": "Retirar mi cupo de la subasta mientras nadie pujo",
+    "explicacionSistema": "Servicio `src`, controlador Spring `@RestController`. Implementa la interfaz generada `SrcApi`. Transaccionalidad garantizada en organismo jOOQ.",
+    "permiso": "REQUIERE_SESION",
+    "riesgo": "MEDIO",
+    "sensible": false,
+    "pideSesion": true,
+    "idempotencia": false,
+    "tablasImpactadas": [
+      {
+        "esquema": "src",
+        "tabla": "outbox_evento",
+        "operacion": "INSERT",
+        "impacto": "Registra el evento transaccional correspondiente para mensajería asíncrona hacia Kafka.",
+        "principal": false,
+        "auditoria": true
+      }
+    ],
+    "dtoEntrada": {
+      "nombre": "Parametros_cancelarSubastaDeCupo",
+      "campos": [
+        {
+          "nombre": "subastaId",
+          "tipo": "string",
+          "requerido": true,
+          "validacion": "Ubicación: path",
+          "descripcion": "Parámetro subastaId"
+        }
+      ]
+    },
+    "dtoSalida": {
+      "nombre": "VistaDeSubasta",
+      "campos": [
+        {
+          "nombre": "subastaId",
+          "tipo": "string (uuid)",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido",
+          "descripcion": "Campo subastaId de la operación"
+        },
+        {
+          "nombre": "grupoId",
+          "tipo": "string (uuid)",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido",
+          "descripcion": "Campo grupoId de la operación"
+        },
+        {
+          "nombre": "cupoId",
+          "tipo": "string (uuid)",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido",
+          "descripcion": "Campo cupoId de la operación"
+        },
+        {
+          "nombre": "nombreDelGrupo",
+          "tipo": "string",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido; Máx: 120",
+          "descripcion": "Campo nombreDelGrupo de la operación"
+        },
+        {
+          "nombre": "periodicidad",
+          "tipo": "string",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido; Máx: 15",
+          "descripcion": "Campo periodicidad de la operación"
+        },
+        {
+          "nombre": "montoAporte",
+          "tipo": "Dinero",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido",
+          "descripcion": "Campo montoAporte de la operación"
+        },
+        {
+          "nombre": "montoBase",
+          "tipo": "Dinero",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido",
+          "descripcion": "Campo montoBase de la operación"
+        },
+        {
+          "nombre": "montoMasAlto",
+          "tipo": "string",
+          "requerido": false,
+          "validacion": "Validación estándar de tipo",
+          "descripcion": "la puja vigente mas alta; vacio si nadie pujo"
+        },
+        {
+          "nombre": "montoMinimo",
+          "tipo": "Dinero",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido",
+          "descripcion": "Campo montoMinimo de la operación"
+        },
+        {
+          "nombre": "estado",
+          "tipo": "string",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido; Valores: ABIERTA, ADJUDICADA, LIQUIDANDO, VENDIDA",
+          "descripcion": "Campo estado de la operación"
+        },
+        {
+          "nombre": "cierraEn",
+          "tipo": "string (date-time)",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido",
+          "descripcion": "Campo cierraEn de la operación"
+        },
+        {
+          "nombre": "cantidadDePujas",
+          "tipo": "integer",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido; Mín: 0",
+          "descripcion": "Campo cantidadDePujas de la operación"
+        },
+        {
+          "nombre": "soyElSaliente",
+          "tipo": "boolean",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido",
+          "descripcion": "Campo soyElSaliente de la operación"
+        },
+        {
+          "nombre": "miPuja",
+          "tipo": "string",
+          "requerido": false,
+          "validacion": "Validación estándar de tipo",
+          "descripcion": "Campo miPuja de la operación"
+        }
+      ]
+    },
+    "payloadEjemplo": {
+      "subastaId": "ejemplo-uuid"
+    },
+    "payloadRespuesta": {
+      "subastaId": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+      "grupoId": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+      "cupoId": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+      "nombreDelGrupo": "Ejemplo de texto",
+      "periodicidad": "Ejemplo de texto",
+      "montoAporte": {
+        "monto": {},
+        "moneda": {}
+      },
+      "montoBase": {
+        "monto": {},
+        "moneda": {}
+      },
+      "montoMasAlto": "Ejemplo de texto",
+      "montoMinimo": {
+        "monto": {},
+        "moneda": {}
+      },
+      "estado": "ABIERTA",
+      "cierraEn": "2026-10-20T14:30:00Z",
+      "cantidadDePujas": 0,
+      "soyElSaliente": true,
+      "miPuja": "Ejemplo de texto"
+    },
+    "flujo": {
+      "id": "administracion-usuarios-y-permisos",
+      "nombre": "Gobierno de identidades internas, roles de backoffice y sesiones",
+      "paso": "Paso operativo `cancelarSubastaDeCupo`",
+      "precondicion": "El servicio src debe validar la existencia y vigencia de las entidades involucradas.",
+      "exito": "Se completa la transacción de negocio y se dispara la notificación u outbox correspondiente.",
+      "decisiones": [
+        {
+          "codigo": "EXITO",
+          "http": 201,
+          "condicion": "Petición válida y autorizada. Precondiciones cumplidas.",
+          "siguiente": "Transición exitosa al siguiente paso del flujo o persistencia."
+        },
+        {
+          "codigo": "AP-SISTEMA-01",
+          "http": 422,
+          "condicion": "Violación de regla de negocio o estado no válido.",
+          "siguiente": "Rechazo controlado con mensaje explicativo."
+        },
+        {
+          "codigo": "NO_AUTORIZADO",
+          "http": 401,
+          "condicion": "Token ausente, vencido o firma inválida.",
+          "siguiente": "Exige reautenticación en pantalla de ingreso."
+        },
+        {
+          "codigo": "ACCESO_DENEGADO",
+          "http": 403,
+          "condicion": "Rol o permiso insuficiente para esta operación.",
+          "siguiente": "Bloqueo por seguridad RBAC."
+        }
+      ]
+    }
+  },
+  {
     "id": "src-listarEjerciciosFiscales",
     "servicio": "src",
     "metodo": "GET",
@@ -16702,6 +17545,200 @@
     }
   },
   {
+    "id": "src-listarGruposDeBackoffice",
+    "servicio": "src",
+    "metodo": "GET",
+    "ruta": "/grupos/backoffice",
+    "operationId": "listarGruposDeBackoffice",
+    "modulo": "src",
+    "cu": null,
+    "proposito": "Todos los grupos, para el backoffice",
+    "explicacionNegocio": "Solo lectura. Para quien opera la plataforma (ADMIN_PLATAFORMA) o la audita (AUDITORIA_LEER). Datos del grupo, nunca de una persona: sin organizador, telefono ni correo. Acotada a `limite` filas (maximo 200). Orden: primero los que aun no tienen fecha de inicio (se estan armando), despues por fecha de inicio de la mas reciente a la mas vieja, y el codigo como desempate estable (la tabla no guarda fecha de creacion).",
+    "explicacionSistema": "Servicio `src`, controlador Spring `@RestController`. Implementa la interfaz generada `SrcApi`. Transaccionalidad garantizada en organismo jOOQ.",
+    "permiso": "REQUIERE_SESION",
+    "riesgo": "BAJO",
+    "sensible": false,
+    "pideSesion": true,
+    "idempotencia": false,
+    "tablasImpactadas": [],
+    "dtoEntrada": {
+      "nombre": "Parametros_listarGruposDeBackoffice",
+      "campos": [
+        {
+          "nombre": "estado",
+          "tipo": "string",
+          "requerido": false,
+          "validacion": "Ubicación: query",
+          "descripcion": "Parámetro estado"
+        },
+        {
+          "nombre": "limite",
+          "tipo": "integer",
+          "requerido": false,
+          "validacion": "Ubicación: query",
+          "descripcion": "Parámetro limite"
+        }
+      ]
+    },
+    "dtoSalida": {
+      "nombre": "ResponsePayload",
+      "campos": []
+    },
+    "payloadEjemplo": {
+      "estado": "1",
+      "limite": "1"
+    },
+    "payloadRespuesta": [
+      {
+        "grupoId": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+        "codigo": "Ejemplo de texto",
+        "nombre": "Ejemplo de texto",
+        "estado": "Ejemplo de texto",
+        "montoAporte": "150.00",
+        "moneda": "Ejemplo de texto",
+        "periodicidad": "Ejemplo de texto",
+        "cuposTotales": 1,
+        "cuposOcupados": 1,
+        "fechaInicio": "2026-10-20"
+      }
+    ],
+    "flujo": {
+      "id": "administracion-usuarios-y-permisos",
+      "nombre": "Gobierno de identidades internas, roles de backoffice y sesiones",
+      "paso": "Paso operativo `listarGruposDeBackoffice`",
+      "precondicion": "El servicio src debe validar la existencia y vigencia de las entidades involucradas.",
+      "exito": "Se completa la transacción de negocio y se dispara la notificación u outbox correspondiente.",
+      "decisiones": [
+        {
+          "codigo": "EXITO",
+          "http": 200,
+          "condicion": "Petición válida y autorizada. Precondiciones cumplidas.",
+          "siguiente": "Transición exitosa al siguiente paso del flujo o persistencia."
+        },
+        {
+          "codigo": "AP-SISTEMA-01",
+          "http": 422,
+          "condicion": "Violación de regla de negocio o estado no válido.",
+          "siguiente": "Rechazo controlado con mensaje explicativo."
+        },
+        {
+          "codigo": "NO_AUTORIZADO",
+          "http": 401,
+          "condicion": "Token ausente, vencido o firma inválida.",
+          "siguiente": "Exige reautenticación en pantalla de ingreso."
+        },
+        {
+          "codigo": "ACCESO_DENEGADO",
+          "http": 403,
+          "condicion": "Rol o permiso insuficiente para esta operación.",
+          "siguiente": "Bloqueo por seguridad RBAC."
+        }
+      ]
+    }
+  },
+  {
+    "id": "src-consultarGrupoDeBackoffice",
+    "servicio": "src",
+    "metodo": "GET",
+    "ruta": "/grupos/backoffice/{grupoId}",
+    "operationId": "consultarGrupoDeBackoffice",
+    "modulo": "src",
+    "cu": null,
+    "proposito": "Un grupo con sus cupos y quien ocupa cada uno, para el backoffice",
+    "explicacionNegocio": "Solo lectura, mismos permisos que el listado. Por cupo: numero, estado, el alias con que la persona se presento al grupo y si es quien lo organiza. Sin importes atribuibles a una persona ni datos de contacto. AP-CU64-01 el grupo no existe.",
+    "explicacionSistema": "Servicio `src`, controlador Spring `@RestController`. Implementa la interfaz generada `SrcApi`. Transaccionalidad garantizada en organismo jOOQ.",
+    "permiso": "REQUIERE_SESION",
+    "riesgo": "BAJO",
+    "sensible": false,
+    "pideSesion": true,
+    "idempotencia": false,
+    "tablasImpactadas": [],
+    "dtoEntrada": {
+      "nombre": "Parametros_consultarGrupoDeBackoffice",
+      "campos": [
+        {
+          "nombre": "grupoId",
+          "tipo": "string",
+          "requerido": true,
+          "validacion": "Ubicación: path",
+          "descripcion": "Parámetro grupoId"
+        }
+      ]
+    },
+    "dtoSalida": {
+      "nombre": "DetalleDeGrupoDeBackoffice",
+      "campos": [
+        {
+          "nombre": "grupo",
+          "tipo": "GrupoDeBackoffice",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido",
+          "descripcion": "Campo grupo de la operación"
+        },
+        {
+          "nombre": "cupos",
+          "tipo": "array",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido",
+          "descripcion": "Campo cupos de la operación"
+        }
+      ]
+    },
+    "payloadEjemplo": {
+      "grupoId": "ejemplo-uuid"
+    },
+    "payloadRespuesta": {
+      "grupo": {
+        "grupoId": {},
+        "codigo": {},
+        "nombre": {},
+        "estado": {},
+        "montoAporte": {},
+        "moneda": {},
+        "periodicidad": {},
+        "cuposTotales": {},
+        "cuposOcupados": {},
+        "fechaInicio": {}
+      },
+      "cupos": [
+        {}
+      ]
+    },
+    "flujo": {
+      "id": "administracion-usuarios-y-permisos",
+      "nombre": "Gobierno de identidades internas, roles de backoffice y sesiones",
+      "paso": "Paso operativo `consultarGrupoDeBackoffice`",
+      "precondicion": "El servicio src debe validar la existencia y vigencia de las entidades involucradas.",
+      "exito": "Se completa la transacción de negocio y se dispara la notificación u outbox correspondiente.",
+      "decisiones": [
+        {
+          "codigo": "EXITO",
+          "http": 200,
+          "condicion": "Petición válida y autorizada. Precondiciones cumplidas.",
+          "siguiente": "Transición exitosa al siguiente paso del flujo o persistencia."
+        },
+        {
+          "codigo": "AP-SISTEMA-01",
+          "http": 422,
+          "condicion": "Violación de regla de negocio o estado no válido.",
+          "siguiente": "Rechazo controlado con mensaje explicativo."
+        },
+        {
+          "codigo": "NO_AUTORIZADO",
+          "http": 401,
+          "condicion": "Token ausente, vencido o firma inválida.",
+          "siguiente": "Exige reautenticación en pantalla de ingreso."
+        },
+        {
+          "codigo": "ACCESO_DENEGADO",
+          "http": 403,
+          "condicion": "Rol o permiso insuficiente para esta operación.",
+          "siguiente": "Bloqueo por seguridad RBAC."
+        }
+      ]
+    }
+  },
+  {
     "id": "src-proponerAdmision",
     "servicio": "src",
     "metodo": "POST",
@@ -17659,6 +18696,128 @@
     }
   },
   {
+    "id": "src-iniciarGrupo",
+    "servicio": "src",
+    "metodo": "POST",
+    "ruta": "/grupos/{grupoId}/inicio",
+    "operationId": "iniciarGrupo",
+    "modulo": "src",
+    "cu": null,
+    "proposito": "El organizador inicia el grupo con al menos el 75 % de los cupos ocupados",
+    "explicacionNegocio": "Transicion ABIERTO_A_INSCRIPCION → CONFORMADO pedida por quien organiza el grupo, con su renglon en el historial de estados. Se puede iniciar con ceil(0,75 × cuposTotales) cupos OCUPADO (reglamento firmado) o mas; antes responde 422 `AP-CU69-16` con el conteo. La precondicion va en la escritura: el UPDATE exige el estado ABIERTO_A_INSCRIPCION y el conteo, asi dos inicios a la vez no achican dos veces.\nAl iniciar, el grupo SE ACHICA: los cupos LIBRE dejan de existir para el ciclo y `cuposTotales` y `numPeriodos` pasan a ser los ocupados (nunca menos de 3). Desde ese momento no entra nadie mas por ningun camino (`AP-CU69-17`). Con cupos RESERVADO (alguien aceptado que todavia no firmo) no se inicia (`AP-CU69-19`): achicar le quitaria el lugar a quien ya fue aceptado.\nReglamento al achicar (decision del dueño 2026-10-30): en la misma transaccion se publica una version NUEVA del reglamento (`version` + 1 en `reglamento_grupo`, con su hash) con los numeros reales del grupo achicado. Nadie la tiene aceptada al nacer: cada integrante la acepta con `POST /grupos/{grupoId}/reglamento/firma` antes del sorteo, y el detalle le dice a cada uno si le falta (`reglamentoPendienteDeAceptar`).\nIdempotente por clave: repetir con la misma `Idempotency-Key` devuelve el resultado original; una clave nueva sobre un grupo ya iniciado responde `AP-CU69-17`.",
+    "explicacionSistema": "Servicio `src`, controlador Spring `@RestController`. Implementa la interfaz generada `SrcApi`. Transaccionalidad garantizada en organismo jOOQ.",
+    "permiso": "REQUIERE_SESION",
+    "riesgo": "MEDIO",
+    "sensible": false,
+    "pideSesion": true,
+    "idempotencia": true,
+    "tablasImpactadas": [
+      {
+        "esquema": "src",
+        "tabla": "outbox_evento",
+        "operacion": "INSERT",
+        "impacto": "Registra el evento transaccional correspondiente para mensajería asíncrona hacia Kafka.",
+        "principal": false,
+        "auditoria": true
+      }
+    ],
+    "dtoEntrada": {
+      "nombre": "Parametros_iniciarGrupo",
+      "campos": [
+        {
+          "nombre": "grupoId",
+          "tipo": "string",
+          "requerido": true,
+          "validacion": "Ubicación: path",
+          "descripcion": "Parámetro grupoId"
+        },
+        {
+          "nombre": "param",
+          "tipo": "string",
+          "requerido": false,
+          "validacion": "Ubicación: None",
+          "descripcion": "Parámetro None"
+        }
+      ]
+    },
+    "dtoSalida": {
+      "nombre": "GrupoIniciado",
+      "campos": [
+        {
+          "nombre": "grupoId",
+          "tipo": "string (uuid)",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido",
+          "descripcion": "Campo grupoId de la operación"
+        },
+        {
+          "nombre": "estado",
+          "tipo": "string",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido; Valores: CONFORMADO",
+          "descripcion": "Campo estado de la operación"
+        },
+        {
+          "nombre": "cuposTotales",
+          "tipo": "integer",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido; Mín: 3",
+          "descripcion": "Los cupos ocupados al iniciar; los libres dejaron de existir"
+        },
+        {
+          "nombre": "numPeriodos",
+          "tipo": "integer",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido; Mín: 3",
+          "descripcion": "Igual a cuposTotales despues del achique"
+        }
+      ]
+    },
+    "payloadEjemplo": {
+      "grupoId": "ejemplo-uuid",
+      "null": "1"
+    },
+    "payloadRespuesta": {
+      "grupoId": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+      "estado": "CONFORMADO",
+      "cuposTotales": 3,
+      "numPeriodos": 3
+    },
+    "flujo": {
+      "id": "administracion-usuarios-y-permisos",
+      "nombre": "Gobierno de identidades internas, roles de backoffice y sesiones",
+      "paso": "Paso operativo `iniciarGrupo`",
+      "precondicion": "El servicio src debe validar la existencia y vigencia de las entidades involucradas.",
+      "exito": "Se completa la transacción de negocio y se dispara la notificación u outbox correspondiente.",
+      "decisiones": [
+        {
+          "codigo": "EXITO",
+          "http": 201,
+          "condicion": "Petición válida y autorizada. Precondiciones cumplidas.",
+          "siguiente": "Transición exitosa al siguiente paso del flujo o persistencia."
+        },
+        {
+          "codigo": "AP-SISTEMA-01",
+          "http": 422,
+          "condicion": "Violación de regla de negocio o estado no válido.",
+          "siguiente": "Rechazo controlado con mensaje explicativo."
+        },
+        {
+          "codigo": "NO_AUTORIZADO",
+          "http": 401,
+          "condicion": "Token ausente, vencido o firma inválida.",
+          "siguiente": "Exige reautenticación en pantalla de ingreso."
+        },
+        {
+          "codigo": "ACCESO_DENEGADO",
+          "http": 403,
+          "condicion": "Rol o permiso insuficiente para esta operación.",
+          "siguiente": "Bloqueo por seguridad RBAC."
+        }
+      ]
+    }
+  },
+  {
     "id": "src-comprometerSorteo",
     "servicio": "src",
     "metodo": "POST",
@@ -17901,6 +19060,111 @@
     }
   },
   {
+    "id": "src-listarAcuerdos",
+    "servicio": "src",
+    "metodo": "GET",
+    "ruta": "/acuerdos",
+    "operationId": "listarAcuerdos",
+    "modulo": "src",
+    "cu": "CU-64",
+    "proposito": "Los acuerdos de un grupo, filtrados",
+    "explicacionNegocio": "Para que quien pidio un traspaso (CU-64) encuentre la votacion de SU cupo y, aprobada, la adjunte. Solo para participantes del grupo. Los mas nuevos primero, hasta 50.",
+    "explicacionSistema": "Servicio `src`, controlador Spring `@RestController`. Implementa la interfaz generada `SrcApi`. Transaccionalidad garantizada en organismo jOOQ.",
+    "permiso": "REQUIERE_SESION",
+    "riesgo": "BAJO",
+    "sensible": false,
+    "pideSesion": true,
+    "idempotencia": false,
+    "tablasImpactadas": [],
+    "dtoEntrada": {
+      "nombre": "Parametros_listarAcuerdos",
+      "campos": [
+        {
+          "nombre": "grupoId",
+          "tipo": "string",
+          "requerido": true,
+          "validacion": "Ubicación: query",
+          "descripcion": "Parámetro grupoId"
+        },
+        {
+          "nombre": "tipo",
+          "tipo": "string",
+          "requerido": false,
+          "validacion": "Ubicación: query",
+          "descripcion": "Parámetro tipo"
+        },
+        {
+          "nombre": "estado",
+          "tipo": "string",
+          "requerido": false,
+          "validacion": "Ubicación: query",
+          "descripcion": "Parámetro estado"
+        },
+        {
+          "nombre": "referenciaAfectadaId",
+          "tipo": "string",
+          "requerido": false,
+          "validacion": "Ubicación: query",
+          "descripcion": "Parámetro referenciaAfectadaId"
+        }
+      ]
+    },
+    "dtoSalida": {
+      "nombre": "ResponsePayload",
+      "campos": []
+    },
+    "payloadEjemplo": {
+      "grupoId": "ejemplo-uuid",
+      "tipo": "1",
+      "estado": "1",
+      "referenciaAfectadaId": "ejemplo-uuid"
+    },
+    "payloadRespuesta": [
+      {
+        "acuerdoId": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+        "tipo": "Ejemplo de texto",
+        "estado": "ABIERTO",
+        "descripcion": "Ejemplo de texto",
+        "referenciaAfectadaId": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+        "usuarioEntranteId": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+        "cierraEn": "2026-10-20T14:30:00Z"
+      }
+    ],
+    "flujo": {
+      "id": "administracion-usuarios-y-permisos",
+      "nombre": "Gobierno de identidades internas, roles de backoffice y sesiones",
+      "paso": "Paso operativo `listarAcuerdos`",
+      "precondicion": "El servicio src debe validar la existencia y vigencia de las entidades involucradas.",
+      "exito": "Se completa la transacción de negocio y se dispara la notificación u outbox correspondiente.",
+      "decisiones": [
+        {
+          "codigo": "EXITO",
+          "http": 200,
+          "condicion": "Petición válida y autorizada. Precondiciones cumplidas.",
+          "siguiente": "Transición exitosa al siguiente paso del flujo o persistencia."
+        },
+        {
+          "codigo": "AP-CU-64-01",
+          "http": 422,
+          "condicion": "Violación de regla de negocio o estado no válido.",
+          "siguiente": "Rechazo controlado con mensaje explicativo."
+        },
+        {
+          "codigo": "NO_AUTORIZADO",
+          "http": 401,
+          "condicion": "Token ausente, vencido o firma inválida.",
+          "siguiente": "Exige reautenticación en pantalla de ingreso."
+        },
+        {
+          "codigo": "ACCESO_DENEGADO",
+          "http": 403,
+          "condicion": "Rol o permiso insuficiente para esta operación.",
+          "siguiente": "Bloqueo por seguridad RBAC."
+        }
+      ]
+    }
+  },
+  {
     "id": "src-proponerAcuerdo",
     "servicio": "src",
     "metodo": "POST",
@@ -17958,6 +19222,13 @@
           "descripcion": "Campo referenciaAfectadaId de la operación"
         },
         {
+          "nombre": "usuarioEntranteId",
+          "tipo": "['string', 'null'] (uuid)",
+          "requerido": false,
+          "validacion": "Validación estándar de tipo",
+          "descripcion": "Solo en TRASPASO_CUPO, y ahi obligatorio: quien entra al cupo. El grupo vota el traspaso a ESA persona, y CU-64 solo acepta el acuerdo para ella."
+        },
+        {
           "nombre": "diasVotacion",
           "tipo": "integer",
           "requerido": false,
@@ -17990,6 +19261,7 @@
       "tipo": "CONDONACION",
       "descripcion": "Ejemplo de texto",
       "referenciaAfectadaId": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+      "usuarioEntranteId": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
       "diasVotacion": 1
     },
     "payloadRespuesta": {
@@ -18373,7 +19645,7 @@
     "modulo": "src",
     "cu": null,
     "proposito": "Traspasar un cupo a otro participante",
-    "explicacionNegocio": "El TURNO no se toca: la posicion en el calendario es del cupo, no de la persona. Si se moviera, traspasar seria una forma de adelantar el propio turno y el sorteo dejaria de significar nada.\nY la deuda no viaja con el cupo: las obligaciones vencidas se quedan con quien las genero. Sin eso, un cupo seria una forma de venderle a alguien la deuda de otro.",
+    "explicacionNegocio": "Lo ejecuta quien tiene el cupo, con la votacion del grupo APROBADA sobre ese cupo (acuerdo TRASPASO_CUPO con referenciaAfectadaId = cupoId; siempre se exige, decision 2026-10-30). El acuerdo se usa una sola vez.\nEl TURNO no se toca: la posicion en el calendario es del cupo, no de la persona. Si se moviera, traspasar seria una forma de adelantar el propio turno y el sorteo dejaria de significar nada.\nY la deuda no viaja con el cupo: las obligaciones vencidas se quedan con quien las genero. Sin eso, un cupo seria una forma de venderle a alguien la deuda de otro.",
     "explicacionSistema": "Servicio `src`, controlador Spring `@RestController`. Implementa la interfaz generada `SrcApi`. Transaccionalidad garantizada en organismo jOOQ.",
     "permiso": "REQUIERE_SESION",
     "riesgo": "MEDIO",
@@ -18440,6 +19712,363 @@
       "id": "administracion-usuarios-y-permisos",
       "nombre": "Gobierno de identidades internas, roles de backoffice y sesiones",
       "paso": "Paso operativo `traspasarCupo`",
+      "precondicion": "El servicio src debe validar la existencia y vigencia de las entidades involucradas.",
+      "exito": "Se completa la transacción de negocio y se dispara la notificación u outbox correspondiente.",
+      "decisiones": [
+        {
+          "codigo": "EXITO",
+          "http": 201,
+          "condicion": "Petición válida y autorizada. Precondiciones cumplidas.",
+          "siguiente": "Transición exitosa al siguiente paso del flujo o persistencia."
+        },
+        {
+          "codigo": "AP-SISTEMA-01",
+          "http": 422,
+          "condicion": "Violación de regla de negocio o estado no válido.",
+          "siguiente": "Rechazo controlado con mensaje explicativo."
+        },
+        {
+          "codigo": "NO_AUTORIZADO",
+          "http": 401,
+          "condicion": "Token ausente, vencido o firma inválida.",
+          "siguiente": "Exige reautenticación en pantalla de ingreso."
+        },
+        {
+          "codigo": "ACCESO_DENEGADO",
+          "http": 403,
+          "condicion": "Rol o permiso insuficiente para esta operación.",
+          "siguiente": "Bloqueo por seguridad RBAC."
+        }
+      ]
+    }
+  },
+  {
+    "id": "src-consultarSubastabilidadDelCupo",
+    "servicio": "src",
+    "metodo": "GET",
+    "ruta": "/grupos/{grupoId}/cupos/{cupoId}/subastabilidad",
+    "operationId": "consultarSubastabilidadDelCupo",
+    "modulo": "src",
+    "cu": null,
+    "proposito": "Si quien llama puede poner su cupo en subasta, y lo que entregas necesita saber",
+    "explicacionNegocio": "Lo pregunta `entregas` ANTES de abrir una subasta, con el token de quien subasta. Solo contesta al titular del cupo (AP-CU64-06 a cualquier otro). `subastable` es falso con su `motivo` cuando el cupo no esta OCUPADO, su turno ya se cobro o el titular tiene deuda vencida: la deuda no viaja con el cupo (R-GRP-11).",
+    "explicacionSistema": "Servicio `src`, controlador Spring `@RestController`. Implementa la interfaz generada `SrcApi`. Transaccionalidad garantizada en organismo jOOQ.",
+    "permiso": "REQUIERE_SESION",
+    "riesgo": "BAJO",
+    "sensible": false,
+    "pideSesion": true,
+    "idempotencia": false,
+    "tablasImpactadas": [],
+    "dtoEntrada": {
+      "nombre": "Parametros_consultarSubastabilidadDelCupo",
+      "campos": [
+        {
+          "nombre": "grupoId",
+          "tipo": "string",
+          "requerido": true,
+          "validacion": "Ubicación: path",
+          "descripcion": "Parámetro grupoId"
+        },
+        {
+          "nombre": "cupoId",
+          "tipo": "string",
+          "requerido": true,
+          "validacion": "Ubicación: path",
+          "descripcion": "Parámetro cupoId"
+        }
+      ]
+    },
+    "dtoSalida": {
+      "nombre": "SubastabilidadDelCupo",
+      "campos": [
+        {
+          "nombre": "grupoId",
+          "tipo": "string (uuid)",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido",
+          "descripcion": "Campo grupoId de la operación"
+        },
+        {
+          "nombre": "nombreDelGrupo",
+          "tipo": "string",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido; Máx: 120",
+          "descripcion": "Campo nombreDelGrupo de la operación"
+        },
+        {
+          "nombre": "periodicidad",
+          "tipo": "string",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido; Máx: 15",
+          "descripcion": "Campo periodicidad de la operación"
+        },
+        {
+          "nombre": "cupoId",
+          "tipo": "string (uuid)",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido",
+          "descripcion": "Campo cupoId de la operación"
+        },
+        {
+          "nombre": "participanteId",
+          "tipo": "string (uuid)",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido",
+          "descripcion": "Campo participanteId de la operación"
+        },
+        {
+          "nombre": "subastable",
+          "tipo": "boolean",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido",
+          "descripcion": "Campo subastable de la operación"
+        },
+        {
+          "nombre": "motivo",
+          "tipo": [
+            "string",
+            "null"
+          ],
+          "requerido": false,
+          "validacion": "Valores: CUPO_NO_TRASPASABLE, SALIENTE_CON_DEUDA, None",
+          "descripcion": "Campo motivo de la operación"
+        },
+        {
+          "nombre": "montoAporte",
+          "tipo": "Dinero",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido",
+          "descripcion": "Campo montoAporte de la operación"
+        }
+      ]
+    },
+    "payloadEjemplo": {
+      "grupoId": "ejemplo-uuid",
+      "cupoId": "ejemplo-uuid"
+    },
+    "payloadRespuesta": {
+      "grupoId": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+      "nombreDelGrupo": "Ejemplo de texto",
+      "periodicidad": "Ejemplo de texto",
+      "cupoId": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+      "participanteId": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+      "subastable": true,
+      "motivo": "CUPO_NO_TRASPASABLE",
+      "montoAporte": {
+        "monto": {},
+        "moneda": {}
+      }
+    },
+    "flujo": {
+      "id": "administracion-usuarios-y-permisos",
+      "nombre": "Gobierno de identidades internas, roles de backoffice y sesiones",
+      "paso": "Paso operativo `consultarSubastabilidadDelCupo`",
+      "precondicion": "El servicio src debe validar la existencia y vigencia de las entidades involucradas.",
+      "exito": "Se completa la transacción de negocio y se dispara la notificación u outbox correspondiente.",
+      "decisiones": [
+        {
+          "codigo": "EXITO",
+          "http": 200,
+          "condicion": "Petición válida y autorizada. Precondiciones cumplidas.",
+          "siguiente": "Transición exitosa al siguiente paso del flujo o persistencia."
+        },
+        {
+          "codigo": "AP-SISTEMA-01",
+          "http": 422,
+          "condicion": "Violación de regla de negocio o estado no válido.",
+          "siguiente": "Rechazo controlado con mensaje explicativo."
+        },
+        {
+          "codigo": "NO_AUTORIZADO",
+          "http": 401,
+          "condicion": "Token ausente, vencido o firma inválida.",
+          "siguiente": "Exige reautenticación en pantalla de ingreso."
+        },
+        {
+          "codigo": "ACCESO_DENEGADO",
+          "http": 403,
+          "condicion": "Rol o permiso insuficiente para esta operación.",
+          "siguiente": "Bloqueo por seguridad RBAC."
+        }
+      ]
+    }
+  },
+  {
+    "id": "src-consultarElegibilidadParaSubasta",
+    "servicio": "src",
+    "metodo": "GET",
+    "ruta": "/grupos/{grupoId}/elegibilidad-para-subasta",
+    "operationId": "consultarElegibilidadParaSubasta",
+    "modulo": "src",
+    "cu": null,
+    "proposito": "Si quien llama puede pujar por un cupo de ese grupo",
+    "explicacionNegocio": "Lo pregunta `entregas` antes de aceptar una puja, con el token de quien puja. Mira lo mismo que una postulacion (restriccion vigente, KYC minimo del grupo, reputacion minima si hay historial, maximo de grupos) y nada del grupo que no sea su politica.",
+    "explicacionSistema": "Servicio `src`, controlador Spring `@RestController`. Implementa la interfaz generada `SrcApi`. Transaccionalidad garantizada en organismo jOOQ.",
+    "permiso": "REQUIERE_SESION",
+    "riesgo": "BAJO",
+    "sensible": false,
+    "pideSesion": true,
+    "idempotencia": false,
+    "tablasImpactadas": [],
+    "dtoEntrada": {
+      "nombre": "Parametros_consultarElegibilidadParaSubasta",
+      "campos": [
+        {
+          "nombre": "grupoId",
+          "tipo": "string",
+          "requerido": true,
+          "validacion": "Ubicación: path",
+          "descripcion": "Parámetro grupoId"
+        }
+      ]
+    },
+    "dtoSalida": {
+      "nombre": "ElegibilidadParaSubasta",
+      "campos": [
+        {
+          "nombre": "elegible",
+          "tipo": "boolean",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido",
+          "descripcion": "Campo elegible de la operación"
+        },
+        {
+          "nombre": "motivo",
+          "tipo": [
+            "string",
+            "null"
+          ],
+          "requerido": false,
+          "validacion": "Valores: RESTRICCION_VIGENTE, KYC_INSUFICIENTE, REPUTACION_INSUFICIENTE, MAXIMO_DE_GRUPOS",
+          "descripcion": "Campo motivo de la operación"
+        }
+      ]
+    },
+    "payloadEjemplo": {
+      "grupoId": "ejemplo-uuid"
+    },
+    "payloadRespuesta": {
+      "elegible": true,
+      "motivo": "RESTRICCION_VIGENTE"
+    },
+    "flujo": {
+      "id": "administracion-usuarios-y-permisos",
+      "nombre": "Gobierno de identidades internas, roles de backoffice y sesiones",
+      "paso": "Paso operativo `consultarElegibilidadParaSubasta`",
+      "precondicion": "El servicio src debe validar la existencia y vigencia de las entidades involucradas.",
+      "exito": "Se completa la transacción de negocio y se dispara la notificación u outbox correspondiente.",
+      "decisiones": [
+        {
+          "codigo": "EXITO",
+          "http": 200,
+          "condicion": "Petición válida y autorizada. Precondiciones cumplidas.",
+          "siguiente": "Transición exitosa al siguiente paso del flujo o persistencia."
+        },
+        {
+          "codigo": "AP-SISTEMA-01",
+          "http": 422,
+          "condicion": "Violación de regla de negocio o estado no válido.",
+          "siguiente": "Rechazo controlado con mensaje explicativo."
+        },
+        {
+          "codigo": "NO_AUTORIZADO",
+          "http": 401,
+          "condicion": "Token ausente, vencido o firma inválida.",
+          "siguiente": "Exige reautenticación en pantalla de ingreso."
+        },
+        {
+          "codigo": "ACCESO_DENEGADO",
+          "http": 403,
+          "condicion": "Rol o permiso insuficiente para esta operación.",
+          "siguiente": "Bloqueo por seguridad RBAC."
+        }
+      ]
+    }
+  },
+  {
+    "id": "src-traspasarCupoPorSubasta",
+    "servicio": "src",
+    "metodo": "POST",
+    "ruta": "/grupos/{grupoId}/cupos/{cupoId}/traspasos-por-subasta",
+    "operationId": "traspasarCupoPorSubasta",
+    "modulo": "src",
+    "cu": null,
+    "proposito": "El cupo pasa al ganador de una subasta cerrada",
+    "explicacionNegocio": "[CONTRATO · SOLO SERVICIO] Lo pide `entregas` (`SERVICIO_ENTREGAS`) al cerrar la subasta, ANTES de pagarle al saliente: lo compensable va primero (regla 98.3.5). En una sola transaccion da de alta al ganador como participante ACTIVO (si no lo era), le pasa el cupo y deja al saliente RETIRADO. Sin votacion (decision del dueno, 2026-10-30). El turno no se mueve y la deuda vencida se queda con el saliente. Idempotente: si el cupo ya es del ganador, devuelve ese mismo traspaso. Si el cupo ya no es del saliente, AP-CU64-01.",
+    "explicacionSistema": "Servicio `src`, controlador Spring `@RestController`. Implementa la interfaz generada `SrcApi`. Transaccionalidad garantizada en organismo jOOQ.",
+    "permiso": "REQUIERE_SESION",
+    "riesgo": "MEDIO",
+    "sensible": false,
+    "pideSesion": true,
+    "idempotencia": true,
+    "tablasImpactadas": [
+      {
+        "esquema": "src",
+        "tabla": "outbox_evento",
+        "operacion": "INSERT",
+        "impacto": "Registra el evento transaccional correspondiente para mensajería asíncrona hacia Kafka.",
+        "principal": false,
+        "auditoria": true
+      }
+    ],
+    "dtoEntrada": {
+      "nombre": "EntradaTraspasoPorSubasta",
+      "campos": [
+        {
+          "nombre": "subastaId",
+          "tipo": "string (uuid)",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido",
+          "descripcion": "Campo subastaId de la operación"
+        },
+        {
+          "nombre": "ganadorUsuarioId",
+          "tipo": "string (uuid)",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido",
+          "descripcion": "Campo ganadorUsuarioId de la operación"
+        },
+        {
+          "nombre": "salienteParticipanteId",
+          "tipo": "string (uuid)",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido",
+          "descripcion": "Campo salienteParticipanteId de la operación"
+        }
+      ]
+    },
+    "dtoSalida": {
+      "nombre": "SalidaTraspasoPorSubasta",
+      "campos": [
+        {
+          "nombre": "traspasoId",
+          "tipo": "string (uuid)",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido",
+          "descripcion": "Campo traspasoId de la operación"
+        },
+        {
+          "nombre": "participanteEntranteId",
+          "tipo": "string (uuid)",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido",
+          "descripcion": "Campo participanteEntranteId de la operación"
+        }
+      ]
+    },
+    "payloadEjemplo": {
+      "subastaId": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+      "ganadorUsuarioId": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+      "salienteParticipanteId": "7c9e6679-7425-40de-944b-e07fc1f90ae7"
+    },
+    "payloadRespuesta": {
+      "traspasoId": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+      "participanteEntranteId": "7c9e6679-7425-40de-944b-e07fc1f90ae7"
+    },
+    "flujo": {
+      "id": "administracion-usuarios-y-permisos",
+      "nombre": "Gobierno de identidades internas, roles de backoffice y sesiones",
+      "paso": "Paso operativo `traspasarCupoPorSubasta`",
       "precondicion": "El servicio src debe validar la existencia y vigencia de las entidades involucradas.",
       "exito": "Se completa la transacción de negocio y se dispara la notificación u outbox correspondiente.",
       "decisiones": [
@@ -19811,7 +21440,7 @@
     "modulo": "src",
     "cu": null,
     "proposito": "El grupo visto por uno de sus integrantes",
-    "explicacionNegocio": "Resumen del grupo y una fila por cupo: quien lo ocupa (nombre visible), si ya firmo el reglamento y su turno cuando hubo sorteo. Solo para integrantes del grupo. No lleva telefono ni correo de nadie (decision del dueño 2026-10-20). Dice ademas si quien consulta tiene que firmar y si puede iniciar el sorteo.",
+    "explicacionNegocio": "Resumen del grupo y una fila por cupo: quien lo ocupa (nombre visible), si ya firmo el reglamento y su turno cuando hubo sorteo. Solo para integrantes del grupo. No lleva telefono ni correo de nadie (decision del dueño 2026-10-20). Dice ademas si quien consulta tiene que firmar y si puede iniciar el sorteo.\nEtapa de cada ocupante (decision del dueño 2026-10-30): solo la etapa (codigo y nombre), nunca el puntaje, y solo a quien integra el grupo (la misma barrera de `AP-CU69-14`). Grupos la lee de `transparencia` con su identidad de servicio `SERVICIO_GRUPOS` (`GET /reputacion/etapas/de-personas`); ya no usa `GET /reputacion/{usuarioId}/puntaje` para otra persona, que ahora responde 403. Si transparencia no contesta, el detalle sale igual sin `etapa` en cada integrante (la etapa aca es informativa; para decidir un ingreso se falla cerrado).",
     "explicacionSistema": "Servicio `src`, controlador Spring `@RestController`. Implementa la interfaz generada `SrcApi`. Transaccionalidad garantizada en organismo jOOQ.",
     "permiso": "REQUIERE_SESION",
     "riesgo": "BAJO",
@@ -19909,7 +21538,38 @@
           "tipo": "boolean",
           "requerido": true,
           "validacion": "@NotNull / Requerido",
-          "descripcion": "Quien consulta organiza el grupo, todos firmaron y todavia no hubo sorteo"
+          "descripcion": "Quien consulta organiza el grupo, todos firmaron, todos aceptaron la version vigente del reglamento y todavia no hubo sorteo"
+        },
+        {
+          "nombre": "reglamentoPendienteDeAceptar",
+          "tipo": "boolean",
+          "requerido": false,
+          "validacion": "Validación estándar de tipo",
+          "descripcion": "Quien consulta ya es integrante ACTIVO y no acepto la version vigente del reglamento (la nueva que publica `iniciarGrupo` al achicar). La acepta con `firmarReglamentoDelGrupo` enviando `reglamento.hash`. Distinto de `debeFirmar`, que es la primera firma de quien fue aceptado y todavia tiene el cupo RESERVADO."
+        },
+        {
+          "nombre": "etapaMinima",
+          "tipo": [
+            "string",
+            "null"
+          ],
+          "requerido": false,
+          "validacion": "Patrón: ^[A-Z][A-Z_]{1,29}$",
+          "descripcion": "Codigo de la etapa minima para entrar; nula si el grupo no la pide"
+        },
+        {
+          "nombre": "minimoParaIniciar",
+          "tipo": "integer",
+          "requerido": false,
+          "validacion": "Mín: 1",
+          "descripcion": "Cupos OCUPADO que hacen falta para iniciar: ceil(0,75 × cuposTotales). Solo tiene sentido en ABIERTO_A_INSCRIPCION; «faltan N» es minimoParaIniciar − cuposOcupados."
+        },
+        {
+          "nombre": "puedoIniciar",
+          "tipo": "boolean",
+          "requerido": false,
+          "validacion": "Validación estándar de tipo",
+          "descripcion": "Quien consulta organiza el grupo, el grupo esta en ABIERTO_A_INSCRIPCION, alcanza minimoParaIniciar y no hay cupos RESERVADO. Lo que decide es el servidor al iniciar."
         },
         {
           "nombre": "reglamento",
@@ -19949,9 +21609,14 @@
       "soyOrganizador": true,
       "debeFirmar": true,
       "puedeSortear": true,
+      "reglamentoPendienteDeAceptar": true,
+      "etapaMinima": "valor",
+      "minimoParaIniciar": 1,
+      "puedoIniciar": true,
       "reglamento": {
         "texto": {},
-        "hash": {}
+        "hash": {},
+        "version": {}
       },
       "sorteo": {
         "sorteoId": {},
@@ -20093,7 +21758,7 @@
     "modulo": "src",
     "cu": null,
     "proposito": "Firmar el reglamento y ocupar el cupo reservado",
-    "explicacionNegocio": "Quien fue aceptado (o el organizador) firma el texto EXACTO del reglamento, identificado por su hash: queda ACTIVO y su cupo pasa de RESERVADO a OCUPADO. Con la ultima firma, si todos los cupos estan ocupados, el grupo pasa a CONFORMADO y se arma su calendario de periodos, que es lo que el sorteo necesita. Firmar otra vez no repite nada.",
+    "explicacionNegocio": "Quien fue aceptado (o el organizador) firma el texto EXACTO del reglamento, identificado por su hash: queda ACTIVO y su cupo pasa de RESERVADO a OCUPADO. Con la ultima firma, si todos los cupos estan ocupados, el grupo pasa a CONFORMADO y se arma su calendario de periodos, que es lo que el sorteo necesita. Firmar otra vez no repite nada.\nVersion nueva (2026-10-30): la misma operacion acepta la version vigente cuando quien ya es integrante ACTIVO no la tiene aceptada (la que publica `iniciarGrupo` al achicar). Manda el hash de esa version (`DetalleDelGrupo.reglamento.hash`): se registra su aceptacion para esa version y el cupo no cambia. Un hash que no es el de la version vigente responde `AP-CU69-05`. Con la version vigente ya aceptada es un reintento: devuelve lo mismo, sin otra aceptacion. `AP-CU69-13` queda para quien no integra el grupo, o lo integra y no tiene nada que firmar ni aceptar.",
     "explicacionSistema": "Servicio `src`, controlador Spring `@RestController`. Implementa la interfaz generada `SrcApi`. Transaccionalidad garantizada en organismo jOOQ.",
     "permiso": "REQUIERE_SESION",
     "riesgo": "MEDIO",
@@ -20533,6 +22198,16 @@
           "requerido": false,
           "validacion": "Validación estándar de tipo",
           "descripcion": "Campo permitePermutaDeTurnos de la operación"
+        },
+        {
+          "nombre": "etapaMinima",
+          "tipo": [
+            "string",
+            "null"
+          ],
+          "requerido": false,
+          "validacion": "Patrón: ^[A-Z][A-Z_]{1,29}$",
+          "descripcion": "Codigo de la etapa minima para entrar (catalogo `GET /reputacion/etapas` de `transparencia`). Entra quien tiene un puntaje mayor o igual al `desde` de esa etapa. Omitida o nula: la etapa actual del organizador; sin organizador, sin etapa minima. No puede estar por encima de la etapa del organizador (AP-CU20-08)."
         }
       ]
     },
@@ -20549,7 +22224,8 @@
       "modalidadTurnos": "SORTEO_ALEATORIO",
       "fechaDeInicio": "2026-10-20",
       "organizadorId": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
-      "permitePermutaDeTurnos": true
+      "permitePermutaDeTurnos": true,
+      "etapaMinima": "valor"
     },
     "payloadRespuesta": null,
     "flujo": {
@@ -23915,6 +25591,13 @@
           "descripcion": "Telefono E.164 de la propia cuenta. Null si todavia no lo cargo."
         },
         {
+          "nombre": "tieneFotoDePerfil",
+          "tipo": "boolean",
+          "requerido": false,
+          "validacion": "Validación estándar de tipo",
+          "descripcion": "Si la cuenta tiene foto de perfil. Los bytes se piden aparte con `verMiFotoDePerfil`. Opcional para no romper a quien ya consume `MiPerfil`."
+        },
+        {
           "nombre": "estadoDeCuenta",
           "tipo": "string",
           "requerido": true,
@@ -23931,12 +25614,138 @@
       "nombreVisible": "valor",
       "nombreCompleto": "valor",
       "telefono": "valor",
+      "tieneFotoDePerfil": true,
       "estadoDeCuenta": "ACTIVO"
     },
     "flujo": {
       "id": "administracion-usuarios-y-permisos",
       "nombre": "Gobierno de identidades internas, roles de backoffice y sesiones",
       "paso": "Paso operativo `consultarMiPerfil`",
+      "precondicion": "El servicio src debe validar la existencia y vigencia de las entidades involucradas.",
+      "exito": "Se completa la transacción de negocio y se dispara la notificación u outbox correspondiente.",
+      "decisiones": [
+        {
+          "codigo": "EXITO",
+          "http": 200,
+          "condicion": "Petición válida y autorizada. Precondiciones cumplidas.",
+          "siguiente": "Transición exitosa al siguiente paso del flujo o persistencia."
+        },
+        {
+          "codigo": "AP-SISTEMA-01",
+          "http": 422,
+          "condicion": "Violación de regla de negocio o estado no válido.",
+          "siguiente": "Rechazo controlado con mensaje explicativo."
+        },
+        {
+          "codigo": "NO_AUTORIZADO",
+          "http": 401,
+          "condicion": "Token ausente, vencido o firma inválida.",
+          "siguiente": "Exige reautenticación en pantalla de ingreso."
+        },
+        {
+          "codigo": "ACCESO_DENEGADO",
+          "http": 403,
+          "condicion": "Rol o permiso insuficiente para esta operación.",
+          "siguiente": "Bloqueo por seguridad RBAC."
+        }
+      ]
+    }
+  },
+  {
+    "id": "src-cambiarMiFotoDePerfil",
+    "servicio": "src",
+    "metodo": "PUT",
+    "ruta": "/usuarios/yo/foto-de-perfil",
+    "operationId": "cambiarMiFotoDePerfil",
+    "modulo": "src",
+    "cu": null,
+    "proposito": "Sube la foto de perfil de la cuenta de la sesion y la deja vigente",
+    "explicacionNegocio": "La foto va al servidor de archivos y en `usuario.url_avatar` queda la clave del objeto, nunca una URL publica (ADR-034). El tipo se decide por los primeros bytes: JPEG o PNG, hasta 5 MB. Es un reemplazo: repetir la subida deja vigente la ultima foto, por eso no pide `Idempotency-Key`. Sin id en la ruta: sale de la sesion.",
+    "explicacionSistema": "Servicio `src`, controlador Spring `@RestController`. Implementa la interfaz generada `SrcApi`. Transaccionalidad garantizada en organismo jOOQ.",
+    "permiso": "REQUIERE_SESION",
+    "riesgo": "MEDIO",
+    "sensible": false,
+    "pideSesion": true,
+    "idempotencia": false,
+    "tablasImpactadas": [
+      {
+        "esquema": "src",
+        "tabla": "outbox_evento",
+        "operacion": "INSERT",
+        "impacto": "Registra el evento transaccional correspondiente para mensajería asíncrona hacia Kafka.",
+        "principal": false,
+        "auditoria": true
+      }
+    ],
+    "dtoEntrada": {
+      "nombre": "RequestPayload",
+      "campos": []
+    },
+    "dtoSalida": null,
+    "payloadEjemplo": "Ejemplo de texto",
+    "payloadRespuesta": null,
+    "flujo": {
+      "id": "administracion-usuarios-y-permisos",
+      "nombre": "Gobierno de identidades internas, roles de backoffice y sesiones",
+      "paso": "Paso operativo `cambiarMiFotoDePerfil`",
+      "precondicion": "El servicio src debe validar la existencia y vigencia de las entidades involucradas.",
+      "exito": "Se completa la transacción de negocio y se dispara la notificación u outbox correspondiente.",
+      "decisiones": [
+        {
+          "codigo": "EXITO",
+          "http": 200,
+          "condicion": "Petición válida y autorizada. Precondiciones cumplidas.",
+          "siguiente": "Transición exitosa al siguiente paso del flujo o persistencia."
+        },
+        {
+          "codigo": "AP-SISTEMA-01",
+          "http": 422,
+          "condicion": "Violación de regla de negocio o estado no válido.",
+          "siguiente": "Rechazo controlado con mensaje explicativo."
+        },
+        {
+          "codigo": "NO_AUTORIZADO",
+          "http": 401,
+          "condicion": "Token ausente, vencido o firma inválida.",
+          "siguiente": "Exige reautenticación en pantalla de ingreso."
+        },
+        {
+          "codigo": "ACCESO_DENEGADO",
+          "http": 403,
+          "condicion": "Rol o permiso insuficiente para esta operación.",
+          "siguiente": "Bloqueo por seguridad RBAC."
+        }
+      ]
+    }
+  },
+  {
+    "id": "src-verMiFotoDePerfil",
+    "servicio": "src",
+    "metodo": "GET",
+    "ruta": "/usuarios/yo/foto-de-perfil",
+    "operationId": "verMiFotoDePerfil",
+    "modulo": "src",
+    "cu": null,
+    "proposito": "Los bytes de la foto de perfil de la cuenta de la sesion",
+    "explicacionNegocio": "El binario y no un enlace: el almacen vive en la red interna (ADR-034), igual que `verContenidoDeFoto`. 404 si la cuenta todavia no tiene foto; la app muestra las iniciales. `Cache-Control: private, no-store`.",
+    "explicacionSistema": "Servicio `src`, controlador Spring `@RestController`. Implementa la interfaz generada `SrcApi`. Transaccionalidad garantizada en organismo jOOQ.",
+    "permiso": "REQUIERE_SESION",
+    "riesgo": "BAJO",
+    "sensible": false,
+    "pideSesion": true,
+    "idempotencia": false,
+    "tablasImpactadas": [],
+    "dtoEntrada": null,
+    "dtoSalida": {
+      "nombre": "ResponsePayload",
+      "campos": []
+    },
+    "payloadEjemplo": null,
+    "payloadRespuesta": "Ejemplo de texto",
+    "flujo": {
+      "id": "administracion-usuarios-y-permisos",
+      "nombre": "Gobierno de identidades internas, roles de backoffice y sesiones",
+      "paso": "Paso operativo `verMiFotoDePerfil`",
       "precondicion": "El servicio src debe validar la existencia y vigencia de las entidades involucradas.",
       "exito": "Se completa la transacción de negocio y se dispara la notificación u outbox correspondiente.",
       "decisiones": [
@@ -30223,6 +32032,13 @@
           "requerido": true,
           "validacion": "@NotNull / Requerido",
           "descripcion": "Campo acreditara de la operación"
+        },
+        {
+          "nombre": "cobroQr",
+          "tipo": "CobroQrRecarga",
+          "requerido": false,
+          "validacion": "Validación estándar de tipo",
+          "descripcion": "El QR dinamico que paga ESTA orden, tal como lo emitio el proveedor. Ausente si el proveedor no emite QR. `origen` PRUEBA es un QR de ambiente de prueba que ningun banco puede pagar: la app lo muestra con un sello y ofrece «Simular pago»."
         }
       ]
     },
@@ -30247,6 +32063,10 @@
       "acreditara": {
         "monto": {},
         "moneda": {}
+      },
+      "cobroQr": {
+        "contenido": {},
+        "origen": {}
       }
     },
     "flujo": {
@@ -30370,6 +32190,123 @@
       "id": "administracion-usuarios-y-permisos",
       "nombre": "Gobierno de identidades internas, roles de backoffice y sesiones",
       "paso": "Paso operativo `acreditarRecarga`",
+      "precondicion": "El servicio src debe validar la existencia y vigencia de las entidades involucradas.",
+      "exito": "Se completa la transacción de negocio y se dispara la notificación u outbox correspondiente.",
+      "decisiones": [
+        {
+          "codigo": "EXITO",
+          "http": 201,
+          "condicion": "Petición válida y autorizada. Precondiciones cumplidas.",
+          "siguiente": "Transición exitosa al siguiente paso del flujo o persistencia."
+        },
+        {
+          "codigo": "AP-SISTEMA-01",
+          "http": 422,
+          "condicion": "Violación de regla de negocio o estado no válido.",
+          "siguiente": "Rechazo controlado con mensaje explicativo."
+        },
+        {
+          "codigo": "NO_AUTORIZADO",
+          "http": 401,
+          "condicion": "Token ausente, vencido o firma inválida.",
+          "siguiente": "Exige reautenticación en pantalla de ingreso."
+        },
+        {
+          "codigo": "ACCESO_DENEGADO",
+          "http": 403,
+          "condicion": "Rol o permiso insuficiente para esta operación.",
+          "siguiente": "Bloqueo por seguridad RBAC."
+        }
+      ]
+    }
+  },
+  {
+    "id": "src-pagarRecargaDePrueba",
+    "servicio": "src",
+    "metodo": "POST",
+    "ruta": "/recargas-de-prueba/{ordenId}/pago",
+    "operationId": "pagarRecargaDePrueba",
+    "modulo": "src",
+    "cu": null,
+    "proposito": "Da por pagado el QR de prueba de una orden propia y la acredita",
+    "explicacionNegocio": "[CONTRATO] Existe SOLO donde el proveedor de recargas es el doble de prueba (perfil local/test con `aportaya.recarga.qr.modo=prueba`). En cualquier otro ambiente responde 404, igual que una ruta inexistente. Vive bajo `/recargas-de-prueba` para que la ruta misma diga que no es una operacion de produccion.\nNo es un segundo camino para mover saldo: el doble pasa a decir CONFIRMADO para esa orden y la acreditacion es la misma de `acreditarRecarga` (mismo asiento, idempotente por orden). Solo el titular, y solo si el QR guardado de la orden es de origen PRUEBA. Repetirlo devuelve la misma transaccion.",
+    "explicacionSistema": "Servicio `src`, controlador Spring `@RestController`. Implementa la interfaz generada `SrcApi`. Transaccionalidad garantizada en organismo jOOQ.",
+    "permiso": "REQUIERE_SESION",
+    "riesgo": "CRITICO",
+    "sensible": true,
+    "pideSesion": true,
+    "idempotencia": true,
+    "tablasImpactadas": [
+      {
+        "esquema": "src",
+        "tabla": "outbox_evento",
+        "operacion": "INSERT",
+        "impacto": "Registra el evento transaccional correspondiente para mensajería asíncrona hacia Kafka.",
+        "principal": false,
+        "auditoria": true
+      }
+    ],
+    "dtoEntrada": {
+      "nombre": "Parametros_pagarRecargaDePrueba",
+      "campos": [
+        {
+          "nombre": "ordenId",
+          "tipo": "string",
+          "requerido": true,
+          "validacion": "Ubicación: path",
+          "descripcion": "Parámetro ordenId"
+        },
+        {
+          "nombre": "param",
+          "tipo": "string",
+          "requerido": false,
+          "validacion": "Ubicación: None",
+          "descripcion": "Parámetro None"
+        }
+      ]
+    },
+    "dtoSalida": {
+      "nombre": "SalidaAcreditacion",
+      "campos": [
+        {
+          "nombre": "ordenRecargaId",
+          "tipo": "string (uuid)",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido",
+          "descripcion": "Campo ordenRecargaId de la operación"
+        },
+        {
+          "nombre": "transaccionId",
+          "tipo": "string (uuid)",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido",
+          "descripcion": "Campo transaccionId de la operación"
+        },
+        {
+          "nombre": "saldoDespues",
+          "tipo": "Dinero",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido",
+          "descripcion": "Campo saldoDespues de la operación"
+        }
+      ]
+    },
+    "payloadEjemplo": {
+      "ordenId": "ejemplo-uuid",
+      "null": "1"
+    },
+    "payloadRespuesta": {
+      "ordenRecargaId": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+      "transaccionId": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+      "saldoDespues": {
+        "monto": {},
+        "moneda": {}
+      }
+    },
+    "flujo": {
+      "id": "administracion-usuarios-y-permisos",
+      "nombre": "Gobierno de identidades internas, roles de backoffice y sesiones",
+      "paso": "Paso operativo `pagarRecargaDePrueba`",
       "precondicion": "El servicio src debe validar la existencia y vigencia de las entidades involucradas.",
       "exito": "Se completa la transacción de negocio y se dispara la notificación u outbox correspondiente.",
       "decisiones": [
@@ -30781,6 +32718,134 @@
       "id": "administracion-usuarios-y-permisos",
       "nombre": "Gobierno de identidades internas, roles de backoffice y sesiones",
       "paso": "Paso operativo `pagarAlTercero`",
+      "precondicion": "El servicio src debe validar la existencia y vigencia de las entidades involucradas.",
+      "exito": "Se completa la transacción de negocio y se dispara la notificación u outbox correspondiente.",
+      "decisiones": [
+        {
+          "codigo": "EXITO",
+          "http": 201,
+          "condicion": "Petición válida y autorizada. Precondiciones cumplidas.",
+          "siguiente": "Transición exitosa al siguiente paso del flujo o persistencia."
+        },
+        {
+          "codigo": "AP-SISTEMA-01",
+          "http": 422,
+          "condicion": "Violación de regla de negocio o estado no válido.",
+          "siguiente": "Rechazo controlado con mensaje explicativo."
+        },
+        {
+          "codigo": "NO_AUTORIZADO",
+          "http": 401,
+          "condicion": "Token ausente, vencido o firma inválida.",
+          "siguiente": "Exige reautenticación en pantalla de ingreso."
+        },
+        {
+          "codigo": "ACCESO_DENEGADO",
+          "http": 403,
+          "condicion": "Rol o permiso insuficiente para esta operación.",
+          "siguiente": "Bloqueo por seguridad RBAC."
+        }
+      ]
+    }
+  },
+  {
+    "id": "src-liberarRetencionDelMercado",
+    "servicio": "src",
+    "metodo": "POST",
+    "ruta": "/billetera/retenciones/{retencionId}/liberacion-de-mercado",
+    "operationId": "liberarRetencionDelMercado",
+    "modulo": "src",
+    "cu": null,
+    "proposito": "Devuelve al postor el saldo de una puja superada o de una compra que no se completo",
+    "explicacionNegocio": "[CONTRATO · SOLO SERVICIO] Lo pide `entregas` (`SERVICIO_ENTREGAS`; una sesion de usuario final recibe 403 aunque tenga `BILLETERA_OPERAR`). Existe porque al postor lo supera OTRA persona, en su sesion, o la subasta cierra en un trabajo programado: el dueno de la retencion no esta para liberarla. Solo para retenciones `COMPRA_EN_MERCADO` (AP-CU13-08 si no) y solo LIBERA: la plata vuelve a su dueno, nunca va a otro. Una retencion ya cerrada responde AP-CU13-03 con su estado, igual que el cierre del titular: liberada dos veces es el resultado que se queria. Sin cuerpo.",
+    "explicacionSistema": "Servicio `src`, controlador Spring `@RestController`. Implementa la interfaz generada `SrcApi`. Transaccionalidad garantizada en organismo jOOQ.",
+    "permiso": "REQUIERE_SESION",
+    "riesgo": "MEDIO",
+    "sensible": false,
+    "pideSesion": true,
+    "idempotencia": true,
+    "tablasImpactadas": [
+      {
+        "esquema": "src",
+        "tabla": "outbox_evento",
+        "operacion": "INSERT",
+        "impacto": "Registra el evento transaccional correspondiente para mensajería asíncrona hacia Kafka.",
+        "principal": false,
+        "auditoria": true
+      }
+    ],
+    "dtoEntrada": {
+      "nombre": "Parametros_liberarRetencionDelMercado",
+      "campos": [
+        {
+          "nombre": "retencionId",
+          "tipo": "string",
+          "requerido": true,
+          "validacion": "Ubicación: path",
+          "descripcion": "Parámetro retencionId"
+        },
+        {
+          "nombre": "param",
+          "tipo": "string",
+          "requerido": false,
+          "validacion": "Ubicación: None",
+          "descripcion": "Parámetro None"
+        }
+      ]
+    },
+    "dtoSalida": {
+      "nombre": "SalidaCierreRetencion",
+      "campos": [
+        {
+          "nombre": "retencionId",
+          "tipo": "string (uuid)",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido",
+          "descripcion": "Campo retencionId de la operación"
+        },
+        {
+          "nombre": "estado",
+          "tipo": "string",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido; Máx: 20",
+          "descripcion": "Campo estado de la operación"
+        },
+        {
+          "nombre": "saldoDisponible",
+          "tipo": "Dinero",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido",
+          "descripcion": "Campo saldoDisponible de la operación"
+        },
+        {
+          "nombre": "saldoRetenido",
+          "tipo": "Dinero",
+          "requerido": true,
+          "validacion": "@NotNull / Requerido",
+          "descripcion": "Campo saldoRetenido de la operación"
+        }
+      ]
+    },
+    "payloadEjemplo": {
+      "retencionId": "ejemplo-uuid",
+      "null": "1"
+    },
+    "payloadRespuesta": {
+      "retencionId": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+      "estado": "Ejemplo de texto",
+      "saldoDisponible": {
+        "monto": {},
+        "moneda": {}
+      },
+      "saldoRetenido": {
+        "monto": {},
+        "moneda": {}
+      }
+    },
+    "flujo": {
+      "id": "administracion-usuarios-y-permisos",
+      "nombre": "Gobierno de identidades internas, roles de backoffice y sesiones",
+      "paso": "Paso operativo `liberarRetencionDelMercado`",
       "precondicion": "El servicio src debe validar la existencia y vigencia de las entidades involucradas.",
       "exito": "Se completa la transacción de negocio y se dispara la notificación u outbox correspondiente.",
       "decisiones": [
@@ -34720,7 +36785,7 @@
     "modulo": "src",
     "cu": "CU-20",
     "proposito": "Si el organizador esta habilitado, y hasta donde",
-    "explicacionNegocio": "La pregunta CU-20 antes de dejar crear un grupo: un organizador suspendido no abre pasanakus nuevos. `grupos` no puede leer este esquema (invariante 11).\nDevuelve tambien los limites del nivel porque quien crea el grupo los necesita en el mismo momento, y dos viajes para dos datos del mismo renglon es un viaje de mas.",
+    "explicacionNegocio": "La pregunta CU-20 antes de dejar crear un grupo: un organizador suspendido no abre pasanakus nuevos. `grupos` no puede leer este esquema (invariante 11). Tambien la lee backoffice (ADMIN_PLATAFORMA) para decidir si habilita (`habilitarOrganizador`).\nDevuelve tambien los limites del nivel porque quien crea el grupo los necesita en el mismo momento, y dos viajes para dos datos del mismo renglon es un viaje de mas.",
     "explicacionSistema": "Servicio `src`, controlador Spring `@RestController`. Implementa la interfaz generada `SrcApi`. Transaccionalidad garantizada en organismo jOOQ.",
     "permiso": "REQUIERE_SESION",
     "riesgo": "BAJO",
@@ -42996,15 +45061,159 @@
     }
   },
   {
+    "id": "src-listarEtapas",
+    "servicio": "src",
+    "metodo": "GET",
+    "ruta": "/reputacion/etapas",
+    "operationId": "listarEtapas",
+    "modulo": "src",
+    "cu": null,
+    "proposito": "El catalogo de etapas, de la mas baja a la mas alta, con lo que desbloquea cada una",
+    "explicacionNegocio": "Las etapas son tramos CONTINUOS del puntaje de reputacion (modelo v1, escala 0–1000): no se ganan ni se escriben a mano, salen del puntaje (regla 91.4.2). Cada tramo va de `desde` (incluido) a `hasta` (excluido), salvo la ultima, que incluye su `hasta`. Catalogo interno y cerrado: viaja entero y ordenado por `orden`, sin paginar (son pocas filas fijas). No dice nada de ninguna persona.\n`desbloqueo` dice cuantos cupos tiene como maximo un grupo y cuanto aporte por periodo como maximo puede crear o integrar quien esta en esa etapa. Solo se APLICA el que esta VIGENTE; uno PROPUESTO se muestra pero todavia no limita nada (sus valores esperan confirmacion de negocio, regla 97.5.4). Sin desbloqueo, la etapa no limita.",
+    "explicacionSistema": "Servicio `src`, controlador Spring `@RestController`. Implementa la interfaz generada `SrcApi`. Transaccionalidad garantizada en organismo jOOQ.",
+    "permiso": "REQUIERE_SESION",
+    "riesgo": "BAJO",
+    "sensible": false,
+    "pideSesion": true,
+    "idempotencia": false,
+    "tablasImpactadas": [],
+    "dtoEntrada": null,
+    "dtoSalida": {
+      "nombre": "ResponsePayload",
+      "campos": []
+    },
+    "payloadEjemplo": null,
+    "payloadRespuesta": [
+      {
+        "codigo": "Ejemplo de texto",
+        "nombre": "Ejemplo de texto",
+        "orden": 0,
+        "desde": {},
+        "hasta": {},
+        "desbloqueo": {}
+      }
+    ],
+    "flujo": {
+      "id": "administracion-usuarios-y-permisos",
+      "nombre": "Gobierno de identidades internas, roles de backoffice y sesiones",
+      "paso": "Paso operativo `listarEtapas`",
+      "precondicion": "El servicio src debe validar la existencia y vigencia de las entidades involucradas.",
+      "exito": "Se completa la transacción de negocio y se dispara la notificación u outbox correspondiente.",
+      "decisiones": [
+        {
+          "codigo": "EXITO",
+          "http": 200,
+          "condicion": "Petición válida y autorizada. Precondiciones cumplidas.",
+          "siguiente": "Transición exitosa al siguiente paso del flujo o persistencia."
+        },
+        {
+          "codigo": "AP-SISTEMA-01",
+          "http": 422,
+          "condicion": "Violación de regla de negocio o estado no válido.",
+          "siguiente": "Rechazo controlado con mensaje explicativo."
+        },
+        {
+          "codigo": "NO_AUTORIZADO",
+          "http": 401,
+          "condicion": "Token ausente, vencido o firma inválida.",
+          "siguiente": "Exige reautenticación en pantalla de ingreso."
+        },
+        {
+          "codigo": "ACCESO_DENEGADO",
+          "http": 403,
+          "condicion": "Rol o permiso insuficiente para esta operación.",
+          "siguiente": "Bloqueo por seguridad RBAC."
+        }
+      ]
+    }
+  },
+  {
+    "id": "src-consultarEtapasDePersonas",
+    "servicio": "src",
+    "metodo": "GET",
+    "ruta": "/reputacion/etapas/de-personas",
+    "operationId": "consultarEtapasDePersonas",
+    "modulo": "src",
+    "cu": "CU-68",
+    "proposito": "La etapa de una o varias personas, sin su puntaje (solo para el servicio grupos)",
+    "explicacionNegocio": "[CONTRATO · SOLO SERVICIO] Lo pide `grupos` cuando necesita la reputacion de OTRA persona: la etapa minima de un ingreso que decide otro (CU-68 al aceptar una solicitud o resolver una admision, CU-64 con el entrante de un traspaso) y la etapa de cada ocupante en `GET /grupos/{grupoId}/detalle`. Exige la identidad de servicio `SERVICIO_GRUPOS` (el token de la cuenta de servicio de grupos, emitido por identidad, el mismo mecanismo de `SERVICIO_ENTREGAS` y `SERVICIO_INVERSIONES`); una sesion de persona, aunque comparta el grupo, recibe 403. Grupos ya NO usa `GET /reputacion/{usuarioId}/puntaje` para otra persona: esa ruta es solo para la propia.\nRespuesta minima (decision del dueño 2026-10-30, regla 90.2.8): la etapa, nunca el puntaje. Para la etapa minima alcanza con comparar: el grupo guarda el `desde` de su etapa minima, y como los tramos son contiguos, `etapa.desde >= desde de la minima` equivale a «puntaje >= minima». Quien no tiene historial NO tiene cero: `tieneHistorial=false` y la etapa del puntaje BASE del modelo vigente (Inicial con el modelo v1). Una persona sin cuenta en este servicio viaja igual que sin historial. Cada `usuarioId` repetido se responde una vez; el orden de la respuesta sigue al de la peticion.",
+    "explicacionSistema": "Servicio `src`, controlador Spring `@RestController`. Implementa la interfaz generada `SrcApi`. Transaccionalidad garantizada en organismo jOOQ.",
+    "permiso": "REQUIERE_SESION",
+    "riesgo": "BAJO",
+    "sensible": false,
+    "pideSesion": true,
+    "idempotencia": false,
+    "tablasImpactadas": [],
+    "dtoEntrada": {
+      "nombre": "Parametros_consultarEtapasDePersonas",
+      "campos": [
+        {
+          "nombre": "usuarioId",
+          "tipo": "array",
+          "requerido": true,
+          "validacion": "Ubicación: query",
+          "descripcion": "Parámetro usuarioId"
+        }
+      ]
+    },
+    "dtoSalida": {
+      "nombre": "ResponsePayload",
+      "campos": []
+    },
+    "payloadEjemplo": {
+      "usuarioId": "1"
+    },
+    "payloadRespuesta": [
+      {
+        "usuarioId": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+        "tieneHistorial": true,
+        "etapa": {}
+      }
+    ],
+    "flujo": {
+      "id": "administracion-usuarios-y-permisos",
+      "nombre": "Gobierno de identidades internas, roles de backoffice y sesiones",
+      "paso": "Paso operativo `consultarEtapasDePersonas`",
+      "precondicion": "El servicio src debe validar la existencia y vigencia de las entidades involucradas.",
+      "exito": "Se completa la transacción de negocio y se dispara la notificación u outbox correspondiente.",
+      "decisiones": [
+        {
+          "codigo": "EXITO",
+          "http": 200,
+          "condicion": "Petición válida y autorizada. Precondiciones cumplidas.",
+          "siguiente": "Transición exitosa al siguiente paso del flujo o persistencia."
+        },
+        {
+          "codigo": "AP-CU-68-01",
+          "http": 422,
+          "condicion": "Violación de regla de negocio o estado no válido.",
+          "siguiente": "Rechazo controlado con mensaje explicativo."
+        },
+        {
+          "codigo": "NO_AUTORIZADO",
+          "http": 401,
+          "condicion": "Token ausente, vencido o firma inválida.",
+          "siguiente": "Exige reautenticación en pantalla de ingreso."
+        },
+        {
+          "codigo": "ACCESO_DENEGADO",
+          "http": 403,
+          "condicion": "Rol o permiso insuficiente para esta operación.",
+          "siguiente": "Bloqueo por seguridad RBAC."
+        }
+      ]
+    }
+  },
+  {
     "id": "src-consultarPuntaje",
     "servicio": "src",
     "metodo": "GET",
     "ruta": "/reputacion/{usuarioId}/puntaje",
     "operationId": "consultarPuntaje",
     "modulo": "src",
-    "cu": "CU-64",
-    "proposito": "El puntaje de reputacion de alguien",
-    "explicacionNegocio": "Lo preguntan CU-64 y CU-68 de `grupos`: aceptar a alguien o dejarle tomar un cupo depende de su historial, y el historial es de este servicio.\nQuien todavia no tiene puntaje NO tiene cero. Cero seria el peor puntaje posible y quien recien llega no hizo nada malo: se responde SIN_HISTORIAL y quien pregunta decide. Confundir «no se sabe» con «malo» le cierra la puerta a todo el que empieza.",
+    "cu": null,
+    "proposito": "Mi puntaje de reputacion exacto, con mi etapa",
+    "explicacionNegocio": "El puntaje EXACTO es solo de su dueño (decision del dueño 2026-10-30, regla 90.2.8): si `usuarioId` no es el de la sesion, 403, aunque quien pregunta comparta un grupo con esa persona. La etapa de otro integrante la expone `grupos` en el detalle del grupo, y la que `grupos` necesita para decidir un ingreso la lee por `GET /reputacion/etapas/de-personas` con su identidad de servicio; ya no por esta ruta.\nQuien todavia no tiene puntaje NO tiene cero. Cero seria el peor puntaje posible y quien recien llega no hizo nada malo: se responde SIN_HISTORIAL y quien pregunta decide. Confundir «no se sabe» con «malo» le cierra la puerta a todo el que empieza.",
     "explicacionSistema": "Servicio `src`, controlador Spring `@RestController`. Implementa la interfaz generada `SrcApi`. Transaccionalidad garantizada en organismo jOOQ.",
     "permiso": "REQUIERE_SESION",
     "riesgo": "BAJO",
@@ -43047,6 +45256,13 @@
           "requerido": true,
           "validacion": "@NotNull / Requerido",
           "descripcion": "Campo nivelDeConfianza de la operación"
+        },
+        {
+          "nombre": "etapa",
+          "tipo": "EtapaDelPuntaje",
+          "requerido": false,
+          "validacion": "Validación estándar de tipo",
+          "descripcion": "Campo etapa de la operación"
         }
       ]
     },
@@ -43056,7 +45272,16 @@
     "payloadRespuesta": {
       "tieneHistorial": true,
       "puntaje": "Ejemplo de texto",
-      "nivelDeConfianza": "Ejemplo de texto"
+      "nivelDeConfianza": "Ejemplo de texto",
+      "etapa": {
+        "codigo": {},
+        "nombre": {},
+        "orden": {},
+        "desde": {},
+        "hasta": {},
+        "siguiente": {},
+        "progreso": {}
+      }
     },
     "flujo": {
       "id": "administracion-usuarios-y-permisos",
@@ -43072,7 +45297,7 @@
           "siguiente": "Transición exitosa al siguiente paso del flujo o persistencia."
         },
         {
-          "codigo": "AP-CU-64-01",
+          "codigo": "AP-SISTEMA-01",
           "http": 422,
           "condicion": "Violación de regla de negocio o estado no válido.",
           "siguiente": "Rechazo controlado con mensaje explicativo."

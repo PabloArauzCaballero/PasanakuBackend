@@ -59,10 +59,21 @@ import org.springframework.test.web.servlet.ResultActions;
         })
 @MockitoBean(
         types = {
-            CanjearInvitacion.class, CU59CalcularPlazo.class, CU64TraspasarCupo.class, CU65Retirarse.class,
-            CU68Postular.class, CU68AceptarIngreso.class, InvitacionesWeb.class, AdmisionDelGrupo.class,
-            CU69Invitar.class, RespuestasAOtrosServicios.class, SorteoDelGrupo.class, CU69EnlaceDeGrupo.class,
-            Consultas.class, GruposDeBackoffice.class
+            bo.aportaya.grupos.aplicacion.CU64TraspasoPorSubasta.class,
+            CanjearInvitacion.class,
+            CU59CalcularPlazo.class,
+            CU64TraspasarCupo.class,
+            CU65Retirarse.class,
+            CU68Postular.class,
+            CU68AceptarIngreso.class,
+            InvitacionesWeb.class,
+            AdmisionDelGrupo.class,
+            CU69Invitar.class,
+            RespuestasAOtrosServicios.class,
+            SorteoDelGrupo.class,
+            CU69EnlaceDeGrupo.class,
+            Consultas.class,
+            GruposDeBackoffice.class
         })
 class GruposInicioYEtapaWebTest {
 

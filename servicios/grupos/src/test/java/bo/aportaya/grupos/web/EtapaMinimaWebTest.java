@@ -58,8 +58,15 @@ import org.springframework.test.web.servlet.ResultActions;
         })
 @MockitoBean(
         types = {
-            CU59CalcularPlazo.class, CU65Retirarse.class, InvitacionesWeb.class, AdmisionDelGrupo.class,
-            RespuestasAOtrosServicios.class, SorteoDelGrupo.class, IntegrantesDelGrupo.class, GruposDeBackoffice.class
+            bo.aportaya.grupos.aplicacion.CU64TraspasoPorSubasta.class,
+            CU59CalcularPlazo.class,
+            CU65Retirarse.class,
+            InvitacionesWeb.class,
+            AdmisionDelGrupo.class,
+            RespuestasAOtrosServicios.class,
+            SorteoDelGrupo.class,
+            IntegrantesDelGrupo.class,
+            GruposDeBackoffice.class
         })
 class EtapaMinimaWebTest {
 

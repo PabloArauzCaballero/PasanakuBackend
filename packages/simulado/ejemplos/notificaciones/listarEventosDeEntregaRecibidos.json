@@ -1,0 +1,49 @@
+{
+  "servicio": "notificaciones",
+  "operacion": "listarEventosDeEntregaRecibidos",
+  "metodo": "get",
+  "ruta": "/notificaciones/webhooks-recibidos",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": [
+        {
+          "id": "7a12d72c-fcab-4138-8794-699ec76be886",
+          "proveedorCodigo": "proveedorCodigo",
+          "canal": "canal",
+          "tipoEvento": "ENTREGADO",
+          "recibidoEn": "2026-01-15T10:30:00Z",
+          "fechaHoraProveedor": "2026-01-15T10:30:00Z",
+          "codigoError": "codigoError"
+        }
+      ]
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": []
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": [
+        {
+          "id": "7a12d72c-fcab-4138-8794-699ec76be886",
+          "proveedorCodigo": "proveedorCodigo",
+          "canal": "canal",
+          "tipoEvento": "ENTREGADO",
+          "recibidoEn": "2026-01-15T10:30:00Z",
+          "fechaHoraProveedor": "2026-01-15T10:30:00Z",
+          "codigoError": "codigoError"
+        }
+      ]
+    },
+    "rechazo": {
+      "estado": 400,
+      "cuerpo": {
+        "codigo": "AP-CU82-01",
+        "mensaje": "Firma invalida",
+        "detalle": {},
+        "trazaId": "traza-listarEventosDeEntregaRecibidos-rechazo"
+      }
+    }
+  }
+}

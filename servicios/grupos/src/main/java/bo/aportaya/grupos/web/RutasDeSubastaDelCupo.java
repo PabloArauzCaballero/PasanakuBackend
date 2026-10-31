@@ -102,10 +102,9 @@ abstract class RutasDeSubastaDelCupo extends RutasDelGrupo {
         var politica = consultas
                 .politicaDelGrupo(grupoId, ctx)
                 .orElseThrow(() -> new ErrorDeNegocio(CodigoError.de(68, 4), "Ese grupo no existe."));
-        var reputacion = afuera.reputacion(ctx.usuarioId());
-        // Como en CU-68 2a: la reputacion minima se le exige a quien TIENE historial; sin historial no es cero.
+        // La etapa minima y el desbloqueo, con la misma regla que cualquier ingreso (antes de retener la plata).
         boolean alcanza =
-                !reputacion.tieneHistorial() || reputacion.puntaje().intValue() >= politica.reputacionMinima();
+                EtapaDelIngreso.alcanzaParaPujar(afuera, consultas.condicionesDeIngreso(grupoId, ctx), ctx.usuarioId());
         var motivo = porSubasta.elegibilidad(
                 grupoId,
                 afuera.restriccion(ctx.usuarioId()).vigente(),

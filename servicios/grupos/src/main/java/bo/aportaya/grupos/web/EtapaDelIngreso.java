@@ -60,6 +60,22 @@ public final class EtapaDelIngreso {
     }
 
     /**
+     * CU-64 por subasta: si quien quiere pujar alcanza la etapa minima y el desbloqueo del grupo. {@code entregas} lo
+     * pregunta ANTES de aceptar la puja y retener la plata, asi que la regla es la misma que la de cualquier ingreso:
+     * sin historial se esta en la etapa del puntaje base, no se saltea la minima. Sin etapa (transparencia no contesto)
+     * falla cerrado. Sin grupo no hay nada que comparar: la elegibilidad responde que no existe.
+     */
+    static boolean alcanzaParaPujar(
+            HechosDeOtrosServicios afuera, Optional<CondicionesDeIngreso> condiciones, UUID quienPuja) {
+        if (condiciones.isEmpty()) return true;
+        CondicionesDeIngreso c = condiciones.get();
+        Etapas.DeLaPersona persona = afuera.etapaDe(quienPuja).orElseThrow(EtapaDelIngreso::sinEtapa);
+        return Etapas.alcanza(persona, c.reputacionMinima())
+                && Etapas.excedido(persona.etapa(), c.cuposTotales(), c.montoAporte(), c.moneda())
+                        .isEmpty();
+    }
+
+    /**
      * Lo que se le pasa a CU-64 cuando no hace falta preguntar (el reintento del mismo traspaso o un grupo que no
      * existe): CU-64 responde antes de mirar la reputacion, asi que no se lee la de nadie.
      */

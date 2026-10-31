@@ -1,0 +1,71 @@
+{
+  "servicio": "auditoria",
+  "operacion": "listarIncidentesOperativos",
+  "metodo": "get",
+  "ruta": "/indicadores/operacion/incidentes",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "items": [
+          {
+            "id": "12d37b0f-f1ab-4f43-81c8-79bb4047e9a5",
+            "codigo": "codigo",
+            "titulo": "titulo",
+            "severidad": "SEV1",
+            "sistemaAfectado": "sistemaAfectado",
+            "estado": "DETECTADO",
+            "detectadoEn": "2026-01-15T10:30:00Z",
+            "resueltoEn": "2026-01-15T10:30:00Z",
+            "impactoUsuarios": 0
+          }
+        ],
+        "pagina": 1,
+        "limite": 1,
+        "total": 0,
+        "totalPaginas": 0
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "items": [],
+        "pagina": 1,
+        "limite": 1,
+        "total": 0,
+        "totalPaginas": 0
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "items": [
+          {
+            "id": "12d37b0f-f1ab-4f43-81c8-79bb4047e9a5",
+            "codigo": "codigo",
+            "titulo": "titulo",
+            "severidad": "SEV1",
+            "sistemaAfectado": "sistemaAfectado",
+            "estado": "DETECTADO",
+            "detectadoEn": "2026-01-15T10:30:00Z",
+            "resueltoEn": "2026-01-15T10:30:00Z",
+            "impactoUsuarios": 0
+          }
+        ],
+        "pagina": 1,
+        "limite": 1,
+        "total": 0,
+        "totalPaginas": 0
+      }
+    },
+    "rechazo": {
+      "estado": 400,
+      "cuerpo": {
+        "codigo": "AP-CU07-01",
+        "mensaje": "Identidad no verificada",
+        "detalle": {},
+        "trazaId": "traza-listarIncidentesOperativos-rechazo"
+      }
+    }
+  }
+}

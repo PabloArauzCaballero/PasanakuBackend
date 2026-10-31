@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "AportaYa · transparencia",
-    "description": "# AportaYa · transparencia\n\nGenerado por `scripts/generar_postman.py` desde `servicios/*/src/main/resources/openapi/`.\n**No se edita a mano**: la proxima generacion lo pisa, y una coleccion editada a mano\nprueba una API que ya no existe.\n\n**19 operaciones.** Cada peticion trae su cuerpo de ejemplo derivado del\nesquema, la clave de idempotencia donde el contrato la exige, el permiso que pide\n—leido de los `@Permiso` del codigo— y los rechazos `AP-CU` que declara.\n\nElegi un entorno de `postman/entornos/` antes de disparar nada.\n",
+    "description": "# AportaYa · transparencia\n\nGenerado por `scripts/generar_postman.py` desde `servicios/*/src/main/resources/openapi/`.\n**No se edita a mano**: la proxima generacion lo pisa, y una coleccion editada a mano\nprueba una API que ya no existe.\n\n**21 operaciones.** Cada peticion trae su cuerpo de ejemplo derivado del\nesquema, la clave de idempotencia donde el contrato la exige, el permiso que pide\n—leido de los `@Permiso` del codigo— y los rechazos `AP-CU` que declara.\n\nElegi un entorno de `postman/entornos/` antes de disparar nada.\n",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
@@ -1464,7 +1464,148 @@
       ]
     },
     {
-      "name": "consultarPuntaje · El puntaje de reputacion de alguien",
+      "name": "listarEtapas · El catalogo de etapas, de la mas baja a la mas alta, con lo que desbloquea cada una",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}{{prefijo_api}}/reputacion/etapas",
+          "host": [
+            "{{base_url}}{{prefijo_api}}"
+          ],
+          "path": [
+            "reputacion",
+            "etapas"
+          ],
+          "variable": []
+        },
+        "description": "## El catalogo de etapas, de la mas baja a la mas alta, con lo que desbloquea cada una\n\nLas etapas son tramos CONTINUOS del puntaje de reputacion (modelo v1, escala 0–1000): no se ganan ni se escriben a mano, salen del puntaje (regla 91.4.2). Cada tramo va de `desde` (incluido) a `hasta` (excluido), salvo la ultima, que incluye su `hasta`. Catalogo interno y cerrado: viaja entero y ordenado por `orden`, sin paginar (son pocas filas fijas). No dice nada de ninguna persona.\n`desbloqueo` dice cuantos cupos tiene como maximo un grupo y cuanto aporte por periodo como maximo puede crear o integrar quien esta en esa etapa. Solo se APLICA el que esta VIGENTE; uno PROPUESTO se muestra pero todavia no limita nada (sus valores esperan confirmacion de negocio, regla 97.5.4). Sin desbloqueo, la etapa no limita.\n\n| | |\n| --- | --- |\n| **Servicio** | `transparencia` |\n| **Operacion** | `listarEtapas` |\n| **Ruta** | `GET /api/v1/reputacion/etapas` |\n| **Permiso** | `PARTICIPANTE` |\n| **Respuestas** | `200` |\n\n### Rechazos que declara el contrato\n\n_El contrato no declara rechazos de negocio para esta operacion._\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos."
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// Lo que se le exige a TODA respuesta del sistema, sin excepcion.",
+              "const esperadas = [200];",
+              "",
+              "pm.test(\"responde con un codigo que el contrato declara\", () => {",
+              "    pm.expect(esperadas).to.include(pm.response.code);",
+              "});",
+              "",
+              "pm.test(\"no filtra la traza al cliente\", () => {",
+              "    const cuerpo = pm.response.text();",
+              "    // Un stack trace en la respuesta le cuenta al atacante como esta hecho el",
+              "    // servidor. Es una de las dieciocho prohibiciones del contrato.",
+              "    pm.expect(cuerpo).to.not.match(/at bo\\.aportaya\\./);",
+              "    pm.expect(cuerpo).to.not.include(\"java.lang.\");",
+              "});",
+              "",
+              "if (pm.response.code === 422) {",
+              "    pm.test(\"el rechazo trae su codigo AP-CU\", () => {",
+              "        pm.expect(pm.response.json()).to.have.property(\"codigo\").that.matches(/^AP-CU\\d+-\\d+$/);",
+              "    });",
+              "}",
+              "",
+              "// Encadena: lo que devuelve esta peticion queda disponible para la siguiente.",
+              "if (pm.response.code < 300) {",
+              "    const cuerpo = pm.response.json();",
+              "    for (const [clave, valor] of Object.entries(cuerpo || {})) {",
+              "        if (typeof valor === \"string\" && /^[0-9a-f]{8}-[0-9a-f]{4}-/i.test(valor)) {",
+              "            pm.collectionVariables.set(clave, valor);",
+              "        }",
+              "    }",
+              "}",
+              ""
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "consultarEtapasDePersonas · La etapa de una o varias personas, sin su puntaje (solo para el servicio grupos)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}{{prefijo_api}}/reputacion/etapas/de-personas",
+          "host": [
+            "{{base_url}}{{prefijo_api}}"
+          ],
+          "path": [
+            "reputacion",
+            "etapas",
+            "de-personas"
+          ],
+          "variable": [],
+          "query": [
+            {
+              "key": "usuarioId",
+              "value": "['{{usuarioId}}']",
+              "description": "",
+              "disabled": false
+            }
+          ]
+        },
+        "description": "## La etapa de una o varias personas, sin su puntaje (solo para el servicio grupos)\n\n[CONTRATO · SOLO SERVICIO] Lo pide `grupos` cuando necesita la reputacion de OTRA persona: la etapa minima de un ingreso que decide otro (CU-68 al aceptar una solicitud o resolver una admision, CU-64 con el entrante de un traspaso) y la etapa de cada ocupante en `GET /grupos/{grupoId}/detalle`. Exige la identidad de servicio `SERVICIO_GRUPOS` (el token de la cuenta de servicio de grupos, emitido por identidad, el mismo mecanismo de `SERVICIO_ENTREGAS` y `SERVICIO_INVERSIONES`); una sesion de persona, aunque comparta el grupo, recibe 403. Grupos ya NO usa `GET /reputacion/{usuarioId}/puntaje` para otra persona: esa ruta es solo para la propia.\nRespuesta minima (decision del dueño 2026-10-30, regla 90.2.8): la etapa, nunca el puntaje. Para la etapa minima alcanza con comparar: el grupo guarda el `desde` de su etapa minima, y como los tramos son contiguos, `etapa.desde >= desde de la minima` equivale a «puntaje >= minima». Quien no tiene historial NO tiene cero: `tieneHistorial=false` y la etapa del puntaje BASE del modelo vigente (Inicial con el modelo v1). Una persona sin cuenta en este servicio viaja igual que sin historial. Cada `usuarioId` repetido se responde una vez; el orden de la respuesta sigue al de la peticion.\n\n| | |\n| --- | --- |\n| **Servicio** | `transparencia` |\n| **Operacion** | `consultarEtapasDePersonas` |\n| **Ruta** | `GET /api/v1/reputacion/etapas/de-personas` |\n| **Permiso** | `SERVICIO_GRUPOS` |\n| **Respuestas** | `200`, `403` |\n\n### Rechazos que declara el contrato\n\n_El contrato no declara rechazos de negocio para esta operacion._\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos."
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// Lo que se le exige a TODA respuesta del sistema, sin excepcion.",
+              "const esperadas = [200, 403];",
+              "",
+              "pm.test(\"responde con un codigo que el contrato declara\", () => {",
+              "    pm.expect(esperadas).to.include(pm.response.code);",
+              "});",
+              "",
+              "pm.test(\"no filtra la traza al cliente\", () => {",
+              "    const cuerpo = pm.response.text();",
+              "    // Un stack trace en la respuesta le cuenta al atacante como esta hecho el",
+              "    // servidor. Es una de las dieciocho prohibiciones del contrato.",
+              "    pm.expect(cuerpo).to.not.match(/at bo\\.aportaya\\./);",
+              "    pm.expect(cuerpo).to.not.include(\"java.lang.\");",
+              "});",
+              "",
+              "if (pm.response.code === 422) {",
+              "    pm.test(\"el rechazo trae su codigo AP-CU\", () => {",
+              "        pm.expect(pm.response.json()).to.have.property(\"codigo\").that.matches(/^AP-CU\\d+-\\d+$/);",
+              "    });",
+              "}",
+              "",
+              "// Encadena: lo que devuelve esta peticion queda disponible para la siguiente.",
+              "if (pm.response.code < 300) {",
+              "    const cuerpo = pm.response.json();",
+              "    for (const [clave, valor] of Object.entries(cuerpo || {})) {",
+              "        if (typeof valor === \"string\" && /^[0-9a-f]{8}-[0-9a-f]{4}-/i.test(valor)) {",
+              "            pm.collectionVariables.set(clave, valor);",
+              "        }",
+              "    }",
+              "}",
+              ""
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "consultarPuntaje · Mi puntaje de reputacion exacto, con mi etapa",
       "request": {
         "method": "GET",
         "header": [
@@ -1491,7 +1632,7 @@
             }
           ]
         },
-        "description": "## El puntaje de reputacion de alguien\n\nLo preguntan CU-64 y CU-68 de `grupos`: aceptar a alguien o dejarle tomar un cupo depende de su historial, y el historial es de este servicio.\nQuien todavia no tiene puntaje NO tiene cero. Cero seria el peor puntaje posible y quien recien llega no hizo nada malo: se responde SIN_HISTORIAL y quien pregunta decide. Confundir «no se sabe» con «malo» le cierra la puerta a todo el que empieza.\n\n| | |\n| --- | --- |\n| **Servicio** | `transparencia` |\n| **Operacion** | `consultarPuntaje` |\n| **Ruta** | `GET /api/v1/reputacion/{usuarioId}/puntaje` |\n| **Permiso** | `PARTICIPANTE` |\n| **Respuestas** | `200` |\n\n### Rechazos que declara el contrato\n\n_El contrato no declara rechazos de negocio para esta operacion._\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos."
+        "description": "## Mi puntaje de reputacion exacto, con mi etapa\n\nEl puntaje EXACTO es solo de su dueño (decision del dueño 2026-10-30, regla 90.2.8): si `usuarioId` no es el de la sesion, 403, aunque quien pregunta comparta un grupo con esa persona. La etapa de otro integrante la expone `grupos` en el detalle del grupo, y la que `grupos` necesita para decidir un ingreso la lee por `GET /reputacion/etapas/de-personas` con su identidad de servicio; ya no por esta ruta.\nQuien todavia no tiene puntaje NO tiene cero. Cero seria el peor puntaje posible y quien recien llega no hizo nada malo: se responde SIN_HISTORIAL y quien pregunta decide. Confundir «no se sabe» con «malo» le cierra la puerta a todo el que empieza.\n\n| | |\n| --- | --- |\n| **Servicio** | `transparencia` |\n| **Operacion** | `consultarPuntaje` |\n| **Ruta** | `GET /api/v1/reputacion/{usuarioId}/puntaje` |\n| **Permiso** | `PARTICIPANTE` |\n| **Respuestas** | `200`, `403` |\n\n### Rechazos que declara el contrato\n\n_El contrato no declara rechazos de negocio para esta operacion._\n\n> Los importes viajan como **cadena decimal** (`\"100.00\"`), nunca como numero:\n> un `number` de JSON es un doble, y un doble pierde centavos."
       },
       "response": [],
       "event": [
@@ -1501,7 +1642,7 @@
             "type": "text/javascript",
             "exec": [
               "// Lo que se le exige a TODA respuesta del sistema, sin excepcion.",
-              "const esperadas = [200];",
+              "const esperadas = [200, 403];",
               "",
               "pm.test(\"responde con un codigo que el contrato declara\", () => {",
               "    pm.expect(esperadas).to.include(pm.response.code);",

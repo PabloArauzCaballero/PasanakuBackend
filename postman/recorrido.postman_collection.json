@@ -317,7 +317,7 @@
         "description": "Paso 6 del recorrido. Servicio `grupos`, operacion `crearGrupo`.",
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"nombre\": \"nombre-de-prueba\",\n  \"montoAporte\": {\n    \"monto\": \"100.00\",\n    \"moneda\": \"BOB\"\n  },\n  \"periodicidad\": \"SEMANAL\",\n  \"cupos\": 3,\n  \"diaCobro\": 1,\n  \"modalidadTurnos\": \"SORTEO_ALEATORIO\",\n  \"fechaDeInicio\": \"{{fecha_hoy}}\",\n  \"organizadorId\": \"{{organizadorId}}\",\n  \"permitePermutaDeTurnos\": true\n}",
+          "raw": "{\n  \"nombre\": \"nombre-de-prueba\",\n  \"montoAporte\": {\n    \"monto\": \"100.00\",\n    \"moneda\": \"BOB\"\n  },\n  \"periodicidad\": \"SEMANAL\",\n  \"cupos\": 3,\n  \"diaCobro\": 1,\n  \"modalidadTurnos\": \"SORTEO_ALEATORIO\",\n  \"fechaDeInicio\": \"{{fecha_hoy}}\",\n  \"organizadorId\": \"{{organizadorId}}\",\n  \"permitePermutaDeTurnos\": true,\n  \"etapaMinima\": \"AA\"\n}",
           "options": {
             "raw": {
               "language": "json"
