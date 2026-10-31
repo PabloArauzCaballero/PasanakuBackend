@@ -19,12 +19,12 @@
 ## H1 — iOS con Vision
 **CA:** Dado un iPhone, cuando hace la prueba de vida, entonces se detecta la cara con Vision y el build de simulador arm64 enlaza.
 **DoD:** build simulador `TEST BUILD SUCCEEDED` · `flutter build ipa` OK · tests Dart del lector en verde · `flutter analyze` limpio · regresión sin fallos nuevos.
-**Estado:** EN CURSO
+**Estado:** HECHO
 
 | ID | Microtarea | CA | DoD | Estado |
 |---|---|---|---|---|
 | H1.S1.M1 | Plugins ML Kit solo Android (copia local + overrides) | `pod install` ya no instala MLKit* | `grep -c MLKit ios/Podfile.lock` → 0 | HECHO (0) |
 | H1.S1.M2 | Lector Vision en Swift + canal `bo.aportaya/lector_de_rostro` | compila | build simulador | HECHO |
 | H1.S1.M3 | Lector Dart para iOS + selección por plataforma | mapea la respuesta del canal a `LecturaDeRostro` | test unitario con canal simulado (correcto, sin cara, error) | HECHO (3/3) |
-| H1.S1.M4 | Build simulador arm64 e ipa | ambos compilan | `xcodebuild build-for-testing` · `flutter build ipa` | A MEDIAS: simulador OK; ipa va con el TestFlight |
-| H1.S1.M5 | Regresión + PRs test/dev | sin fallos nuevos | `flutter test` vs línea base | A MEDIAS: regresión OK; PRs #372/#373 abiertos |
+| H1.S1.M4 | Build simulador arm64 e ipa | ambos compilan | `xcodebuild build-for-testing` · `flutter build ipa` | HECHO (simulador OK; ipa 202610310124) |
+| H1.S1.M5 | Regresión + PRs test/dev | sin fallos nuevos | `flutter test` vs línea base | HECHO (#372/#373 MERGED) |
