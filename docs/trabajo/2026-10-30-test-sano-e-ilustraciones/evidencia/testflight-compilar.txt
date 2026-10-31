@@ -1,0 +1,433 @@
+
+== 0) Verificando el entorno
+xcode: Xcode 26.6 | flutter: 3.44.8 | build: 202610302027
+API: https://api.aportaya.161.97.85.216.sslip.io/api/v1
+commit: e945c723 rama: 
+AVISO: hay cambios sin commitear; el IPA los llevara (el commit de arriba no los refleja).
+
+== 1) Dependencias, tokens de diseno y clientes Dart (mismo orden que ci.yml)
+➤ YN0000: · Yarn 4.18.0
+➤ YN0000: ┌ Resolution step
+➤ YN0000: └ Completed
+➤ YN0000: ┌ Post-resolution validation
+➤ YN0002: │ @aportaya/tutoriales@workspace:packages/tutoriales doesn't provide @angular/platform-browser (p7b6c36), requested by @angular/router.
+➤ YN0002: │ @aportaya/ui@workspace:packages/ui [ef9e4] doesn't provide @angular/forms (p3273b1), requested by @angular/cdk.
+➤ YN0002: │ @aportaya/ui@workspace:packages/ui doesn't provide @angular/forms (p2c0ff9), requested by @angular/cdk.
+➤ YN0086: │ Some peer dependencies are incorrectly met by your project; run yarn explain peer-requirements <hash> for details, where <hash> is the six-letter p-prefixed code.
+➤ YN0086: │ Some peer dependencies are incorrectly met by dependencies; run yarn explain peer-requirements for details.
+➤ YN0000: └ Completed
+➤ YN0000: ┌ Fetch step
+➤ YN0000: └ Completed in 0s 385ms
+➤ YN0000: ┌ Link step
+➤ YN0000: └ Completed in 0s 211ms
+➤ YN0000: · Done with warnings in 0s 744ms
+clientes Dart: ya generados
+generado/tokens.css · 464 lineas
+generado/tokens.dart · 549 lineas
+vectores/monto.json · 5006 casos
+Formatted lib/tokens/tokens.dart
+Formatted 1 file (1 changed) in 0.01 seconds.
+Resolving dependencies...
+Downloading packages...
+  accessibility_tools 2.8.0 (3.0.0 available)
+  clock 1.1.2 (1.1.3 available)
+  crypto 3.0.7 (3.0.8 available)
+  lucide_icons_flutter 3.1.20 (4.0.1 available)
+  matcher 0.12.19 (0.12.20 available)
+  material_color_utilities 0.13.0 (0.13.1 available)
+  meta 1.18.0 (1.19.0 available)
+  qr 3.0.2 (4.0.0 available)
+  stack_trace 1.12.1 (1.12.2 available)
+  test_api 0.7.11 (0.7.15 available)
+  url_launcher 6.3.2 (6.3.3 available)
+  vector_math 2.2.0 (2.4.4 available)
+  vm_service 15.3.0 (15.4.0 available)
+  web 1.1.1 (1.1.2 available)
+Got dependencies!
+14 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
+Resolving dependencies...
+Downloading packages...
+  accessibility_tools 2.8.0 (3.0.0 available)
+  app_settings 9.0.0 (9.0.1 available)
+  camera 0.12.1 (0.12.2 available)
+  camera_android_camerax 0.7.5+1 (0.7.6 available)
+  camera_avfoundation 0.10.3+1 (0.11.1 available)
+  camera_platform_interface 2.14.0 (2.15.0 available)
+  camera_web 0.3.5+6 (0.3.5+7 available)
+  clock 1.1.2 (1.1.3 available)
+  code_assets 1.2.1 (2.1.0 available)
+  connectivity_plus 7.3.1 (7.3.2 available)
+  cross_file 0.3.5+5 (0.4.0 available)
+  crypto 3.0.7 (3.0.8 available)
+  cunning_document_scanner 3.0.3 (3.0.4 available)
+  dbus 0.7.15 (0.8.0 available)
+  equatable 2.1.0 (3.0.0 available)
+  file_selector_macos 0.9.5+1 (0.9.5+2 available)
+  flutter_secure_storage 10.3.2 (11.2.0 available)
+  flutter_secure_storage_darwin 0.3.2 (0.4.3 available)
+  flutter_secure_storage_linux 3.0.2 (3.0.3 available)
+  flutter_secure_storage_platform_interface 2.1.0 (2.1.1 available)
+  go_router 17.5.0 (18.1.1 available)
+  hooks 2.0.2 (2.2.0 available)
+  image_picker 1.2.3 (1.2.4 available)
+  image_picker_android 0.8.13+23 (0.8.13+25 available)
+  image_picker_ios 0.8.13+7 (0.8.13+13 available)
+  image_picker_platform_interface 2.11.1 (2.11.2 available)
+  intl 0.20.2 (0.20.3 available)
+  jni 1.0.3 (1.1.1 available)
+  jni_flutter 1.0.3 (1.0.4+1 available)
+  lucide_icons_flutter 3.1.20 (4.0.1 available)
+  matcher 0.12.19 (0.12.20 available)
+  material_color_utilities 0.13.0 (0.13.1 available)
+  meta 1.18.0 (1.19.0 available)
+  mobile_scanner 7.4.1 (7.4.2 available)
+  nm 0.5.0 (0.6.0 available)
+  objective_c 9.5.0 (9.6.2 available)
+  patrol 3.20.0 (4.10.0 available)
+  patrol_finders 2.9.0 (3.6.0 available)
+  patrol_log 0.5.0 (0.10.1 available)
+  permission_handler_android 14.1.0 (14.1.1 available)
+  permission_handler_apple 9.6.2 (9.6.4 available)
+  petitparser 7.0.2 (7.1.0 available)
+  qr 3.0.2 (4.0.0 available)
+  record_use 0.6.0 (1.1.1 available)
+  shelf 1.4.2 (1.4.3 available)
+  stack_trace 1.12.1 (1.12.2 available)
+  test_api 0.7.11 (0.7.15 available)
+  url_launcher 6.3.2 (6.3.3 available)
+  vector_math 2.2.0 (2.4.4 available)
+  vm_service 15.3.0 (15.4.0 available)
+  web 1.1.1 (1.1.2 available)
+  xml 7.0.1 (7.1.0 available)
+Got dependencies!
+52 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
+== identidad ==
+Resolving dependencies...
+Downloading packages...
+  _fe_analyzer_shared 109.0.0 (111.0.0 available)
+  analyzer 14.5.0 (14.7.0 available)
+  build 4.0.11 (5.0.0 available)
+  build_config 1.3.3 (1.4.0 available)
+  build_runner 2.16.2 (2.17.1 available)
+  built_collection 5.1.2 (6.0.0 available)
+  frontend_server_client 4.1.0 (4.2.0 available)
+! json_serializable 6.14.1 (overridden in ./pubspec_overrides.yaml) (6.15.2 available)
+! source_helper 1.3.13 (overridden in ./pubspec_overrides.yaml) (1.4.0 available)
+  web 1.1.1 (1.1.2 available)
+Got dependencies!
+10 packages have newer versions incompatible with dependency constraints.
+Try `dart pub outdated` for more information.
+W These options have been removed and were ignored: --delete-conflicting-outputs
+  0s json_serializable on 112 inputs; lib/aportaya_cliente_identidad.dart
+  0s json_serializable on 112 inputs: 112 skipped
+  0s source_gen:combining_builder on 112 inputs; lib/aportaya_cliente_identidad.dart
+  0s source_gen:combining_builder on 112 inputs: 112 skipped
+  Built with build_runner/aot in 0s; wrote 0 outputs.
+== nucleo-financiero ==
+Resolving dependencies...
+Downloading packages...
+  _fe_analyzer_shared 109.0.0 (111.0.0 available)
+  analyzer 14.5.0 (14.7.0 available)
+  build 4.0.11 (5.0.0 available)
+  build_config 1.3.3 (1.4.0 available)
+  build_runner 2.16.2 (2.17.1 available)
+  built_collection 5.1.2 (6.0.0 available)
+  frontend_server_client 4.1.0 (4.2.0 available)
+! json_serializable 6.14.1 (overridden in ./pubspec_overrides.yaml) (6.15.2 available)
+! source_helper 1.3.13 (overridden in ./pubspec_overrides.yaml) (1.4.0 available)
+  web 1.1.1 (1.1.2 available)
+Got dependencies!
+10 packages have newer versions incompatible with dependency constraints.
+Try `dart pub outdated` for more information.
+W These options have been removed and were ignored: --delete-conflicting-outputs
+  0s json_serializable on 116 inputs; lib/aportaya_cliente_nucleofinanciero.dart
+  0s json_serializable on 116 inputs: 116 skipped
+  0s source_gen:combining_builder on 116 inputs; lib/aportaya_cliente_nucleofinanciero.dart
+  0s source_gen:combining_builder on 116 inputs: 116 skipped
+  Built with build_runner/aot in 0s; wrote 0 outputs.
+== tarifas ==
+Resolving dependencies...
+Downloading packages...
+  _fe_analyzer_shared 109.0.0 (111.0.0 available)
+  analyzer 14.5.0 (14.7.0 available)
+  build 4.0.11 (5.0.0 available)
+  build_config 1.3.3 (1.4.0 available)
+  build_runner 2.16.2 (2.17.1 available)
+  built_collection 5.1.2 (6.0.0 available)
+  frontend_server_client 4.1.0 (4.2.0 available)
+! json_serializable 6.14.1 (overridden in ./pubspec_overrides.yaml) (6.15.2 available)
+! source_helper 1.3.13 (overridden in ./pubspec_overrides.yaml) (1.4.0 available)
+  web 1.1.1 (1.1.2 available)
+Got dependencies!
+10 packages have newer versions incompatible with dependency constraints.
+Try `dart pub outdated` for more information.
+W These options have been removed and were ignored: --delete-conflicting-outputs
+  0s json_serializable on 68 inputs; lib/aportaya_cliente_tarifas.dart
+  0s json_serializable on 68 inputs: 68 skipped
+  0s source_gen:combining_builder on 68 inputs; lib/aportaya_cliente_tarifas.dart
+  0s source_gen:combining_builder on 68 inputs: 68 skipped
+  Built with build_runner/aot in 0s; wrote 0 outputs.
+== grupos ==
+Resolving dependencies...
+Downloading packages...
+  _fe_analyzer_shared 109.0.0 (111.0.0 available)
+  analyzer 14.5.0 (14.7.0 available)
+  build 4.0.11 (5.0.0 available)
+  build_config 1.3.3 (1.4.0 available)
+  build_runner 2.16.2 (2.17.1 available)
+  built_collection 5.1.2 (6.0.0 available)
+  frontend_server_client 4.1.0 (4.2.0 available)
+! json_serializable 6.14.1 (overridden in ./pubspec_overrides.yaml) (6.15.2 available)
+! source_helper 1.3.13 (overridden in ./pubspec_overrides.yaml) (1.4.0 available)
+  web 1.1.1 (1.1.2 available)
+Got dependencies!
+10 packages have newer versions incompatible with dependency constraints.
+Try `dart pub outdated` for more information.
+W These options have been removed and were ignored: --delete-conflicting-outputs
+  0s json_serializable on 142 inputs; lib/aportaya_cliente_grupos.dart
+  0s json_serializable on 142 inputs: 142 skipped
+  0s source_gen:combining_builder on 142 inputs; lib/aportaya_cliente_grupos.dart
+  0s source_gen:combining_builder on 142 inputs: 142 skipped
+  Built with build_runner/aot in 0s; wrote 0 outputs.
+== aportes ==
+Resolving dependencies...
+Downloading packages...
+  _fe_analyzer_shared 109.0.0 (111.0.0 available)
+  analyzer 14.5.0 (14.7.0 available)
+  build 4.0.11 (5.0.0 available)
+  build_config 1.3.3 (1.4.0 available)
+  build_runner 2.16.2 (2.17.1 available)
+  built_collection 5.1.2 (6.0.0 available)
+  frontend_server_client 4.1.0 (4.2.0 available)
+! json_serializable 6.14.1 (overridden in ./pubspec_overrides.yaml) (6.15.2 available)
+! source_helper 1.3.13 (overridden in ./pubspec_overrides.yaml) (1.4.0 available)
+  web 1.1.1 (1.1.2 available)
+Got dependencies!
+10 packages have newer versions incompatible with dependency constraints.
+Try `dart pub outdated` for more information.
+W These options have been removed and were ignored: --delete-conflicting-outputs
+  0s json_serializable on 60 inputs; lib/aportaya_cliente_aportes.dart
+  0s json_serializable on 60 inputs: 60 skipped
+  0s source_gen:combining_builder on 60 inputs; lib/aportaya_cliente_aportes.dart
+  0s source_gen:combining_builder on 60 inputs: 60 skipped
+  Built with build_runner/aot in 0s; wrote 0 outputs.
+== transparencia ==
+Resolving dependencies...
+Downloading packages...
+  _fe_analyzer_shared 109.0.0 (111.0.0 available)
+  analyzer 14.5.0 (14.7.0 available)
+  build 4.0.11 (5.0.0 available)
+  build_config 1.3.3 (1.4.0 available)
+  build_runner 2.16.2 (2.17.1 available)
+  built_collection 5.1.2 (6.0.0 available)
+  frontend_server_client 4.1.0 (4.2.0 available)
+! json_serializable 6.14.1 (overridden in ./pubspec_overrides.yaml) (6.15.2 available)
+! source_helper 1.3.13 (overridden in ./pubspec_overrides.yaml) (1.4.0 available)
+  web 1.1.1 (1.1.2 available)
+Got dependencies!
+10 packages have newer versions incompatible with dependency constraints.
+Try `dart pub outdated` for more information.
+W These options have been removed and were ignored: --delete-conflicting-outputs
+  0s json_serializable on 84 inputs; lib/aportaya_cliente_transparencia.dart
+  0s json_serializable on 84 inputs: 84 skipped
+  0s source_gen:combining_builder on 84 inputs; lib/aportaya_cliente_transparencia.dart
+  0s source_gen:combining_builder on 84 inputs: 84 skipped
+  Built with build_runner/aot in 0s; wrote 0 outputs.
+== entregas ==
+Resolving dependencies...
+Downloading packages...
+  _fe_analyzer_shared 109.0.0 (111.0.0 available)
+  analyzer 14.5.0 (14.7.0 available)
+  build 4.0.11 (5.0.0 available)
+  build_config 1.3.3 (1.4.0 available)
+  build_runner 2.16.2 (2.17.1 available)
+  built_collection 5.1.2 (6.0.0 available)
+  frontend_server_client 4.1.0 (4.2.0 available)
+! json_serializable 6.14.1 (overridden in ./pubspec_overrides.yaml) (6.15.2 available)
+! source_helper 1.3.13 (overridden in ./pubspec_overrides.yaml) (1.4.0 available)
+  web 1.1.1 (1.1.2 available)
+Got dependencies!
+10 packages have newer versions incompatible with dependency constraints.
+Try `dart pub outdated` for more information.
+W These options have been removed and were ignored: --delete-conflicting-outputs
+  0s json_serializable on 80 inputs; lib/aportaya_cliente_entregas.dart
+  0s json_serializable on 80 inputs: 80 skipped
+  0s source_gen:combining_builder on 80 inputs; lib/aportaya_cliente_entregas.dart
+  0s source_gen:combining_builder on 80 inputs: 80 skipped
+  Built with build_runner/aot in 0s; wrote 0 outputs.
+== garantia ==
+Resolving dependencies...
+Downloading packages...
+  _fe_analyzer_shared 109.0.0 (111.0.0 available)
+  analyzer 14.5.0 (14.7.0 available)
+  build 4.0.11 (5.0.0 available)
+  build_config 1.3.3 (1.4.0 available)
+  build_runner 2.16.2 (2.17.1 available)
+  built_collection 5.1.2 (6.0.0 available)
+  frontend_server_client 4.1.0 (4.2.0 available)
+! json_serializable 6.14.1 (overridden in ./pubspec_overrides.yaml) (6.15.2 available)
+! source_helper 1.3.13 (overridden in ./pubspec_overrides.yaml) (1.4.0 available)
+  web 1.1.1 (1.1.2 available)
+Got dependencies!
+10 packages have newer versions incompatible with dependency constraints.
+Try `dart pub outdated` for more information.
+W These options have been removed and were ignored: --delete-conflicting-outputs
+  0s json_serializable on 88 inputs; lib/aportaya_cliente_garantia.dart
+  0s json_serializable on 88 inputs: 88 skipped
+  0s source_gen:combining_builder on 88 inputs; lib/aportaya_cliente_garantia.dart
+  0s source_gen:combining_builder on 88 inputs: 88 skipped
+  Built with build_runner/aot in 0s; wrote 0 outputs.
+== organizador ==
+Resolving dependencies...
+Downloading packages...
+  _fe_analyzer_shared 109.0.0 (111.0.0 available)
+  analyzer 14.5.0 (14.7.0 available)
+  build 4.0.11 (5.0.0 available)
+  build_config 1.3.3 (1.4.0 available)
+  build_runner 2.16.2 (2.17.1 available)
+  built_collection 5.1.2 (6.0.0 available)
+  frontend_server_client 4.1.0 (4.2.0 available)
+! json_serializable 6.14.1 (overridden in ./pubspec_overrides.yaml) (6.15.2 available)
+! source_helper 1.3.13 (overridden in ./pubspec_overrides.yaml) (1.4.0 available)
+  web 1.1.1 (1.1.2 available)
+Got dependencies!
+10 packages have newer versions incompatible with dependency constraints.
+Try `dart pub outdated` for more information.
+W These options have been removed and were ignored: --delete-conflicting-outputs
+  0s json_serializable on 92 inputs; lib/aportaya_cliente_organizador.dart
+  0s json_serializable on 92 inputs: 92 skipped
+  0s source_gen:combining_builder on 92 inputs; lib/aportaya_cliente_organizador.dart
+  0s source_gen:combining_builder on 92 inputs: 92 skipped
+  Built with build_runner/aot in 0s; wrote 0 outputs.
+== notificaciones ==
+Resolving dependencies...
+Downloading packages...
+  _fe_analyzer_shared 109.0.0 (111.0.0 available)
+  analyzer 14.5.0 (14.7.0 available)
+  build 4.0.11 (5.0.0 available)
+  build_config 1.3.3 (1.4.0 available)
+  build_runner 2.16.2 (2.17.1 available)
+  built_collection 5.1.2 (6.0.0 available)
+  frontend_server_client 4.1.0 (4.2.0 available)
+! json_serializable 6.14.1 (overridden in ./pubspec_overrides.yaml) (6.15.2 available)
+! source_helper 1.3.13 (overridden in ./pubspec_overrides.yaml) (1.4.0 available)
+  web 1.1.1 (1.1.2 available)
+Got dependencies!
+10 packages have newer versions incompatible with dependency constraints.
+Try `dart pub outdated` for more information.
+W These options have been removed and were ignored: --delete-conflicting-outputs
+  0s json_serializable on 48 inputs; lib/aportaya_cliente_notificaciones.dart
+  0s json_serializable on 48 inputs: 48 skipped
+  0s source_gen:combining_builder on 48 inputs; lib/aportaya_cliente_notificaciones.dart
+  0s source_gen:combining_builder on 48 inputs: 48 skipped
+  Built with build_runner/aot in 0s; wrote 0 outputs.
+== cumplimiento ==
+Resolving dependencies...
+Downloading packages...
+  _fe_analyzer_shared 109.0.0 (111.0.0 available)
+  analyzer 14.5.0 (14.7.0 available)
+  build 4.0.11 (5.0.0 available)
+  build_config 1.3.3 (1.4.0 available)
+  build_runner 2.16.2 (2.17.1 available)
+  built_collection 5.1.2 (6.0.0 available)
+  frontend_server_client 4.1.0 (4.2.0 available)
+! json_serializable 6.14.1 (overridden in ./pubspec_overrides.yaml) (6.15.2 available)
+! source_helper 1.3.13 (overridden in ./pubspec_overrides.yaml) (1.4.0 available)
+  web 1.1.1 (1.1.2 available)
+Got dependencies!
+10 packages have newer versions incompatible with dependency constraints.
+Try `dart pub outdated` for more information.
+W These options have been removed and were ignored: --delete-conflicting-outputs
+  0s json_serializable on 116 inputs; lib/aportaya_cliente_cumplimiento.dart
+  0s json_serializable on 116 inputs: 116 skipped
+  0s source_gen:combining_builder on 116 inputs; lib/aportaya_cliente_cumplimiento.dart
+  0s source_gen:combining_builder on 116 inputs: 116 skipped
+  Built with build_runner/aot in 0s; wrote 0 outputs.
+
+== 2) Compilando el archivo de iOS (sin firmar: la firma va en el paso 3)
+Resolving dependencies...
+Downloading packages...
+  accessibility_tools 2.8.0 (3.0.0 available)
+  app_settings 9.0.0 (9.0.1 available)
+  camera 0.12.1 (0.12.2 available)
+  camera_android_camerax 0.7.5+1 (0.7.6 available)
+  camera_avfoundation 0.10.3+1 (0.11.1 available)
+  camera_platform_interface 2.14.0 (2.15.0 available)
+  camera_web 0.3.5+6 (0.3.5+7 available)
+  clock 1.1.2 (1.1.3 available)
+  code_assets 1.2.1 (2.1.0 available)
+  connectivity_plus 7.3.1 (7.3.2 available)
+  cross_file 0.3.5+5 (0.4.0 available)
+  crypto 3.0.7 (3.0.8 available)
+  cunning_document_scanner 3.0.3 (3.0.4 available)
+  dbus 0.7.15 (0.8.0 available)
+  equatable 2.1.0 (3.0.0 available)
+  file_selector_macos 0.9.5+1 (0.9.5+2 available)
+  flutter_secure_storage 10.3.2 (11.2.0 available)
+  flutter_secure_storage_darwin 0.3.2 (0.4.3 available)
+  flutter_secure_storage_linux 3.0.2 (3.0.3 available)
+  flutter_secure_storage_platform_interface 2.1.0 (2.1.1 available)
+  go_router 17.5.0 (18.1.1 available)
+  hooks 2.0.2 (2.2.0 available)
+  image_picker 1.2.3 (1.2.4 available)
+  image_picker_android 0.8.13+23 (0.8.13+25 available)
+  image_picker_ios 0.8.13+7 (0.8.13+13 available)
+  image_picker_platform_interface 2.11.1 (2.11.2 available)
+  intl 0.20.2 (0.20.3 available)
+  jni 1.0.3 (1.1.1 available)
+  jni_flutter 1.0.3 (1.0.4+1 available)
+  lucide_icons_flutter 3.1.20 (4.0.1 available)
+  matcher 0.12.19 (0.12.20 available)
+  material_color_utilities 0.13.0 (0.13.1 available)
+  meta 1.18.0 (1.19.0 available)
+  mobile_scanner 7.4.1 (7.4.2 available)
+  nm 0.5.0 (0.6.0 available)
+  objective_c 9.5.0 (9.6.2 available)
+  patrol 3.20.0 (4.10.0 available)
+  patrol_finders 2.9.0 (3.6.0 available)
+  patrol_log 0.5.0 (0.10.1 available)
+  permission_handler_android 14.1.0 (14.1.1 available)
+  permission_handler_apple 9.6.2 (9.6.4 available)
+  petitparser 7.0.2 (7.1.0 available)
+  qr 3.0.2 (4.0.0 available)
+  record_use 0.6.0 (1.1.1 available)
+  shelf 1.4.2 (1.4.3 available)
+  stack_trace 1.12.1 (1.12.2 available)
+  test_api 0.7.11 (0.7.15 available)
+  url_launcher 6.3.2 (6.3.3 available)
+  vector_math 2.2.0 (2.4.4 available)
+  vm_service 15.3.0 (15.4.0 available)
+  web 1.1.1 (1.1.2 available)
+  xml 7.0.1 (7.1.0 available)
+Got dependencies!
+52 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
+Warning: Building for device with codesigning disabled. You will have to manually codesign before deploying to device.
+Archiving bo.aportaya.aportayaMovil...
+The following plugins do not support Swift Package Manager for ios:
+  - google_mlkit_commons
+  - google_mlkit_face_detection
+  - patrol
+This will become an error in a future version of Flutter. Please contact the plugin maintainers to request Swift Package Manager adoption.
+Running pod install...                                           1.222ms
+Running Xcode build...                                          
+Xcode archive done.                                         63,3s
+✓ Built build/ios/archive/Runner.xcarchive (250.3MB)
+
+[✓] App Settings Validation
+    • Version Number: 0.1.0
+    • Build Number: 202610302027
+    • Display Name: Aporteo
+    • Deployment Target: 15.5
+    • Bundle Identifier: bo.aportaya.aportayaMovil
+
+[!] App Icon and Launch Image Assets Validation
+    ! Launch image is set to the default placeholder icon. Replace with unique launch image.
+
+To update the settings, please refer to https://flutter.dev/to/ios-deploy
+
+Codesigning disabled with --no-codesign, skipping IPA.
+archivo: /Users/pablo/Documents/GitHub/Pasanaku-test-ilustraciones/apps/movil/build/ios/archive/Runner.xcarchive
+Listo (--solo-compilar): no se subio nada.
