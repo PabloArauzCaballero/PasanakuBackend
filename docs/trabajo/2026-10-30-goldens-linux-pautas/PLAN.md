@@ -16,14 +16,14 @@
 - OUT: cualquier otro golden; el código de las ilustraciones.
 
 ## H1 — CI en verde
-**CA:** Dado un PR con los goldens nuevos, cuando corre el CI, entonces «Frontend — Flutter y Angular» pasa. **DoD:** checks del PR. **Estado:** TODO
+**CA:** Dado un PR con los goldens nuevos, cuando corre el CI, entonces «Frontend — Flutter y Angular» pasa. **DoD:** checks del PR. **Estado:** HECHO
 
 | ID | Microtarea | CA (binario) | DoD (comando) | Estado |
 |---|---|---|---|---|
 | H1.S1.M1 | Regenerar los 2 goldens en el contenedor Linux | dos corridas sin `--update-goldens` pasan (determinista) | `docker run --platform linux/amd64 pasanaku-flutter-linux:3.44.8 flutter test <2 tests>` ×2 | HECHO |
 | H1.S1.M2 | Inspeccionar los 2 PNG nuevos | se ven el carnet y la persona detallados | lectura de los PNG | HECHO |
-| H1.S1.M3 | PR a test con el CI esperado en verde y mergeado | «Frontend — Flutter y Angular» = pass; `MERGED` | `gh pr checks <n> --watch` · `gh pr view` | TODO |
-| H1.S1.M4 | Gemelo a dev con el CI en verde y mergeado | ídem; `git diff origin/dev origin/test` vacío | ídem | TODO |
+| H1.S1.M3 | PR a test con el CI esperado en verde y mergeado | «Frontend — Flutter y Angular» = pass; `MERGED` | `gh pr checks <n> --watch` · `gh pr view` | HECHO |
+| H1.S1.M4 | Gemelo a dev con el CI en verde y mergeado | ídem; `git diff origin/dev origin/test` vacío | ídem | HECHO |
 
 ## Riesgos y bloqueos previstos
 | Riesgo | Impacto | Mitigación |
