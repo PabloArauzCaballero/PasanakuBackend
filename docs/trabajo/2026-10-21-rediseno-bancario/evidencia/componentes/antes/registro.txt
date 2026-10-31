@@ -12,3 +12,5 @@ Organismos · claro	A RenderFlex overflowed by 22 pixels on the right.
 Organismos · oscuro	A RenderFlex overflowed by 22 pixels on the right.
 Móviles · claro	sin-excepcion
 Móviles · oscuro	sin-excepcion
+Reputación · etapas · claro	sin-excepcion
+Reputación · etapas · oscuro	sin-excepcion

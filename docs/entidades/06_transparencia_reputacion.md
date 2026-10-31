@@ -260,6 +260,58 @@ sostenible.
 
 ---
 
+### `Etapa` / `etapa`
+
+**Qué es.** Los tramos con nombre en que se parte la escala del puntaje de un modelo
+(con el v1: En recuperación, Etapa 1 · Inicial, Etapa 2 · En marcha… hasta Etapa 10 · Pilar). Cada etapa es un intervalo
+[`desde`, `hasta`) del puntaje; la última incluye su `hasta`.
+
+**Para qué sirve (negocio).** El puntaje es un número continuo y abstracto; la etapa lo
+vuelve un tramo con nombre, con una barra continua hacia la siguiente, y le da al
+organizador una frontera que entiende («este grupo es desde la Etapa 3 · Constante»). La etapa **no se
+gana ni se escribe**: se deriva del puntaje, que a su vez se deriva de eventos. Nadie
+sube de etapa a mano (regla 91.4.2).
+
+`desde` es incluido y `hasta` excluido, salvo en la última etapa del modelo, que incluye
+su `hasta` (el máximo). Las etapas cuelgan del modelo: si un modelo nuevo cambia la
+escala, trae sus propias etapas en vez de reinterpretar las del anterior.
+
+**Por qué debe existir.** Sin etapas, la «etapa mínima» de un grupo sería un número
+suelto (`reputacion_minima`) que nadie entiende, y cada pantalla inventaría sus propios
+cortes. Con el catálogo en la base, la app, grupos y transparencia leen el mismo corte.
+
+- `codigo`: Código estable de la etapa dentro de su modelo (`INICIAL`, `EN_MARCHA`…). Es lo que viaja entre servicios y lo que guarda un grupo como etapa mínima.
+- `orden`: Posición de la etapa en la escala, de la más baja (0) a la más alta. Ordena el camino de etapas en la app.
+- `desde`: Puntaje desde el que se está en esta etapa, incluido.
+- `hasta`: Puntaje donde empieza la siguiente, excluido; en la última etapa, el máximo del modelo, incluido.
+
+---
+
+### `DesbloqueoEtapa` / `desbloqueo_etapa`
+
+**Qué es.** Lo que desbloquea una etapa (a lo sumo uno por etapa): cuántos cupos
+totales puede tener como máximo un grupo y cuánto aporte por periodo como máximo, con
+su moneda, puede crear o integrar quien está en esa etapa. Lleva un `estado`: solo el
+`VIGENTE` limita.
+
+**Para qué sirve (negocio).** El desbloqueo es un **parámetro financiero**: limita cuánto
+dinero ajeno puede comprometer alguien según su historial, y crece a medida que la
+persona sube de etapa. Por eso se siembra `PROPUESTO` y solo limita cuando está
+`VIGENTE` (regla 97.5.4); mientras tanto se muestra, pero no rechaza. Pasar a `VIGENTE`
+se hace en el seeder (`seeders/minimos/16-reputacion-y-scoring.json`, que actualiza la
+fila existente por su etapa), nunca con un `UPDATE` a mano sobre la base.
+
+**Por qué debe existir.** Sin un tope por etapa, quien recién llega podría crear o entrar
+a un grupo de cuarenta cupos y aportes altos sin historial que lo respalde. Separarlo de
+`etapa` deja que el tramo exista sin límite (una etapa sin desbloqueo no limita) y que el
+límite se confirme por separado.
+
+- `cupos_max`: Cupos totales máximos del grupo que puede crear o integrar quien está en la etapa.
+- `aporte_max`: Aporte máximo por periodo, en `moneda`, del grupo que puede crear o integrar quien está en la etapa.
+- `estado`: `PROPUESTO` se muestra pero no limita; solo `VIGENTE` se aplica.
+
+---
+
 ### `ServicioReputacion` — Servicio de dominio
 
 **Qué es.** El orquestador: registra eventos, recalcula usuarios, recalcula en

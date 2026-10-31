@@ -132,3 +132,14 @@ SELECT c.id FROM capacidad_respaldo c
         SELECT SUM(r.monto_reservado - r.monto_liberado) AS vivo
           FROM reserva_respaldo r WHERE r.capacidad_respaldo_id = c.id) l ON TRUE
  WHERE c.monto_comprometido <> COALESCE(l.vivo, 0);
+
+-- R-REP-07 · huecos entre etapas consecutivas de un mismo modelo
+--     La restriccion impide el solape; el hueco solo se ve mirando la vecina. Un
+--     puntaje que cae en un hueco se queda sin etapa.
+SELECT a.modelo_id, a.codigo, a.hasta, s.codigo AS siguiente, s.desde
+  FROM etapa a
+  JOIN LATERAL (
+        SELECT b.codigo, b.desde FROM etapa b
+         WHERE b.modelo_id = a.modelo_id AND b.orden > a.orden
+         ORDER BY b.orden LIMIT 1) s ON TRUE
+ WHERE s.desde <> a.hasta;

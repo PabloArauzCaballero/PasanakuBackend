@@ -1,7 +1,7 @@
 package bo.aportaya.grupos.infraestructura.clientes;
 
 import bo.aportaya.grupos.dominio.puertos.HechosDeOtrosServicios;
-import bo.aportaya.plataforma.web.clientes.ClienteDeServicio;
+import bo.aportaya.plataforma.web.clientes.CredencialDeServicio;
 import java.math.BigDecimal;
 import java.util.Map;
 import java.util.Optional;
@@ -35,6 +35,8 @@ public class HechosPorHttp implements HechosDeOtrosServicios {
     private final ClienteConCircuito notificaciones;
     private final ClienteConCircuito identidad;
     private final TokensDeInvitacionPorHttp tokens;
+    private final EtapasPorHttp etapas;
+    private final PersonasPorHttp personas;
 
     @Autowired
     @SuppressWarnings("checkstyle:ParameterNumber")
@@ -48,7 +50,9 @@ public class HechosPorHttp implements HechosDeOtrosServicios {
             @Value("${aportaya.servicios.garantia}") String urlGarantia,
             @Value("${aportaya.servicios.notificaciones}") String urlNotificaciones,
             @Value("${aportaya.servicios.identidad}") String urlIdentidad,
-            ConfiguracionDeCircuito circuito) {
+            ConfiguracionDeCircuito circuito,
+            CredencialDeServicio servicio,
+            @Value("${aportaya.grupos.transparencia.maximo-por-consulta:60}") int maximoPorConsulta) {
         this.organizadores = new ClienteConCircuito(constructor, urlOrganizador, "organizador", circuito);
         this.tarifas = new ClienteConCircuito(constructor, urlTarifas, "tarifas", circuito);
         this.cumplimiento = new ClienteConCircuito(constructor, urlCumplimiento, "cumplimiento", circuito);
@@ -58,6 +62,8 @@ public class HechosPorHttp implements HechosDeOtrosServicios {
         this.notificaciones = new ClienteConCircuito(constructor, urlNotificaciones, "notificaciones", circuito);
         this.identidad = new ClienteConCircuito(constructor, urlIdentidad, "identidad", circuito);
         this.tokens = new TokensDeInvitacionPorHttp(identidad);
+        this.etapas = new EtapasPorHttp(this.transparencia, servicio, maximoPorConsulta);
+        this.personas = new PersonasPorHttp(this.identidad);
     }
 
     /** Con los parametros del plan de resiliencia: la usan las pruebas del adaptador. */
@@ -82,7 +88,36 @@ public class HechosPorHttp implements HechosDeOtrosServicios {
                 urlGarantia,
                 urlNotificaciones,
                 urlIdentidad,
-                ConfiguracionDeCircuito.porOmision());
+                CredencialDeServicio.ninguna());
+    }
+
+    /** Con los parametros del plan de resiliencia y una credencial de servicio a medida: pruebas del adaptador. */
+    @SuppressWarnings("checkstyle:ParameterNumber")
+    HechosPorHttp(
+            RestClient.Builder constructor,
+            String urlOrganizador,
+            String urlTarifas,
+            String urlCumplimiento,
+            String urlAportes,
+            String urlTransparencia,
+            String urlGarantia,
+            String urlNotificaciones,
+            String urlIdentidad,
+            CredencialDeServicio servicio) {
+        this(
+                constructor,
+                urlOrganizador,
+                urlTarifas,
+                urlCumplimiento,
+                urlAportes,
+                urlTransparencia,
+                urlGarantia,
+                urlNotificaciones,
+                urlIdentidad,
+                ConfiguracionDeCircuito.porOmision(),
+                servicio,
+                // El de application.yml (aportaya.grupos.transparencia.maximo-por-consulta), como porOmision().
+                60);
     }
 
     @Override
@@ -162,6 +197,22 @@ public class HechosPorHttp implements HechosDeOtrosServicios {
     }
 
     @Override
+    public Optional<bo.aportaya.grupos.dominio.Etapas.DeLaPersona> etapaDe(UUID usuarioId) {
+        return etapas.de(usuarioId);
+    }
+
+    @Override
+    public Optional<Map<UUID, bo.aportaya.grupos.dominio.Etapas.Visible>> etapasDe(
+            java.util.Collection<UUID> usuarios) {
+        return etapas.visibles(usuarios);
+    }
+
+    @Override
+    public Optional<java.util.List<bo.aportaya.grupos.dominio.Etapas.Etapa>> catalogoDeEtapas() {
+        return etapas.catalogo();
+    }
+
+    @Override
     public Restriccion restriccion(UUID usuarioId) {
         return garantia.consultar("/cobranza/restricciones/vigentes/" + usuarioId, Restringido.class)
                 .map(r -> new Restriccion(r.vigente(), new BigDecimal(r.montoQueLaLevanta())))
@@ -204,47 +255,19 @@ public class HechosPorHttp implements HechosDeOtrosServicios {
 
     @Override
     public String nivelDeKyc(UUID usuarioId) {
-        return identidad
-                .consultar("/usuarios/" + usuarioId + "/kyc", Kyc.class)
-                .map(Kyc::nivel)
-                .orElse("NINGUNO");
+        return personas.nivelDeKyc(usuarioId);
     }
-
-    private record Kyc(String nivel) {}
 
     @Override
     public Optional<Contacto> contactoDeLaSesion() {
-        return identidad
-                .consultar("/usuarios/yo/perfil", Perfil.class)
-                .map(p -> new Contacto(
-                        p.nombreCompleto() != null ? p.nombreCompleto() : p.nombreVisible(), p.telefono(), p.correo()));
+        return personas.contactoDeLaSesion();
     }
 
-    @com.fasterxml.jackson.annotation.JsonIgnoreProperties(ignoreUnknown = true)
-    private record Perfil(String nombreVisible, String nombreCompleto, String telefono, String correo) {}
-
-    /**
-     * El telefono viaja en el CUERPO de {@code POST /usuarios/busquedas/por-telefono}, no en la URL (regla 90.2.2).
-     * Reemplaza al {@code GET /usuarios/por-telefono}, deprecado por {@code identidad}.
-     */
+    /** El telefono viaja en el CUERPO, no en la URL (regla 90.2.2): {@link PersonasPorHttp#usuarioDelTelefono}. */
     @Override
     public Optional<UUID> usuarioDelTelefono(String telefonoE164) {
-        try {
-            var encontrado = identidad.ejecutar(rest -> rest.post()
-                    .uri("/usuarios/busquedas/por-telefono")
-                    .headers(ClienteDeServicio::propagarElToken)
-                    .body(Map.of("telefono", telefonoE164))
-                    .retrieve()
-                    .body(Encontrado.class));
-            return encontrado != null && encontrado.existe()
-                    ? Optional.ofNullable(encontrado.usuarioId())
-                    : Optional.empty();
-        } catch (RuntimeException noSePudo) {
-            throw new IllegalStateException("No se pudo verificar al destinatario de la invitacion", noSePudo);
-        }
+        return personas.usuarioDelTelefono(telefonoE164);
     }
-
-    private record Encontrado(boolean existe, UUID usuarioId) {}
 
     @com.fasterxml.jackson.annotation.JsonIgnoreProperties(ignoreUnknown = true)
     private record Habilitacion(boolean habilitado, Integer limiteDeGrupos) {}

@@ -96,7 +96,7 @@ public class AdmisionRepositorio {
     public UUID reservarAdmision(DSLContext dsl, Solicitud solicitud) {
         var grupo = dsl.fetchOne("SELECT estado FROM grupos.grupo WHERE id=?", solicitud.grupoId());
         if (!"ABIERTO_A_INSCRIPCION".equals(grupo.get("estado", String.class))) {
-            throw error("El grupo no está abierto a inscripciones.");
+            throw new ErrorDeNegocio(CodigoError.de(69, 17), "Este grupo ya inicio y no recibe a nadie mas.");
         }
         if (solicitud.cupos() < 1
                 || dsl.fetchOne(

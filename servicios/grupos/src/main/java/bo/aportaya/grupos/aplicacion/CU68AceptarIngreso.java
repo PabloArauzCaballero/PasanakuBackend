@@ -7,7 +7,6 @@ import bo.aportaya.plataforma.dominio.CodigoError;
 import bo.aportaya.plataforma.dominio.ContextoSesion;
 import bo.aportaya.plataforma.dominio.ErrorDeNegocio;
 import bo.aportaya.plataforma.dominio.Reloj;
-import bo.aportaya.plataforma.dominio.Traza;
 import bo.aportaya.plataforma.mensajeria.EventoDominio;
 import bo.aportaya.plataforma.mensajeria.Outbox;
 import java.time.OffsetDateTime;
@@ -41,6 +40,7 @@ public class CU68AceptarIngreso {
     private final Outbox outbox;
     private final Reloj reloj;
     private final OrganizadorDecideIngreso directo;
+    private final BandejaDeAdmisiones bandeja;
 
     @Autowired
     public CU68AceptarIngreso(
@@ -54,6 +54,7 @@ public class CU68AceptarIngreso {
         this.outbox = outbox;
         this.reloj = reloj;
         this.directo = new OrganizadorDecideIngreso(datos, outbox, emparejamientos);
+        this.bandeja = new BandejaDeAdmisiones(datos);
     }
 
     /** Sin tope de participaciones: para las pruebas que no miran esa regla. */
@@ -73,10 +74,37 @@ public class CU68AceptarIngreso {
 
     @Transactional
     public DecisionDeIngreso resolver(Entrada entrada, ContextoSesion ctx) {
+        exigirBackoffice(ctx);
+        return decidir(entrada, ctx, true);
+    }
+
+    /**
+     * Si aceptar esta solicitud exige mirar la etapa del solicitante. Autoriza PRIMERO, con las mismas reglas que
+     * {@link #proponer}/{@link #resolver}: sin esto, quien organiza otro grupo usaba la respuesta de la etapa como
+     * oraculo de la reputacion ajena (regla 90.2.8, BOLA). Falso cuando la clave ya registro su decision: el
+     * reintento devuelve la original sin volver a preguntarle a {@code transparencia} (regla 96.3.3). Sin escribir y
+     * fuera de la transaccion de decidir (invariante 6); {@link #decidir} vuelve a comprobar todo con las filas
+     * tomadas.
+     */
+    @Transactional(readOnly = true)
+    public boolean exigeEtapaAlAceptar(UUID solicitudId, UUID clave, ContextoSesion ctx, boolean definitiva) {
+        if (definitiva) exigirBackoffice(ctx);
+        return datos.conContexto(ctx, dsl -> {
+            var solicitud = admision.ver(dsl, solicitudId);
+            if (!definitiva && !admision.esAdministrador(dsl, solicitud.grupoId(), ctx.usuarioId())) {
+                throw error("Solo el administrador de este grupo puede proponer la admisión.");
+            }
+            if (solicitud.usuarioId().equals(ctx.usuarioId())) {
+                throw error("Nadie puede decidir su propia admisión.");
+            }
+            return clave == null || admision.porClave(dsl, clave).isEmpty();
+        });
+    }
+
+    private static void exigirBackoffice(ContextoSesion ctx) {
         if (!"BACKOFFICE".equals(ctx.rol()) && !"ADMIN_PLATAFORMA".equals(ctx.rol())) {
             throw error("Solo backoffice puede resolver la admisión.");
         }
-        return decidir(entrada, ctx, true);
     }
 
     private DecisionDeIngreso decidir(Entrada entrada, ContextoSesion ctx, boolean definitiva) {
@@ -128,6 +156,7 @@ public class CU68AceptarIngreso {
             } else if (entrada.propuestaId() != null) {
                 throw error("Una propuesta no puede suplantar una resolución.");
             }
+            if ("ACEPTAR".equals(entrada.decision())) GrupoAbierto.exigir(dsl, solicitud.grupoId());
             UUID participante = null;
             if (definitiva && "ACEPTAR".equals(entrada.decision())) {
                 participante = admision.reservarAdmision(dsl, solicitud);
@@ -198,49 +227,10 @@ public class CU68AceptarIngreso {
         return directo.pendientes(grupoId, ctx);
     }
 
-    /**
-     * La bandeja general del backoffice (H4.B.M1): solicitudes de TODOS los grupos, las mas nuevas
-     * primero, con el codigo del grupo. Corre con contexto de sistema, igual que la cola del
-     * organizador, porque la RLS de {@code solicitud_ingreso} solo deja pasar a BACKOFFICE,
-     * CUMPLIMIENTO y AUDITOR y los roles sembrados del backoffice son otros: la puerta es el permiso
-     * {@code SOLICITUD_INGRESO_VER} del controlador. Sin telefono ni correo (no hay catalogo de
-     * propositos para la bitacora de lectura, R-SEG-02).
-     *
-     * <p>{@code estado} usa los nombres de la pantalla ({@code ACEPTADA} es {@code APROBADA} en la
-     * base); uno que no existe no coincide con ninguna fila. {@code limite} se acota a 1..200.
-     */
+    /** La bandeja general del backoffice (H4.B.M1), de todos los grupos: {@link BandejaDeAdmisiones}. */
     @Transactional(readOnly = true)
     public List<FilaDeBandeja> bandeja(String estado, Integer limite, ContextoSesion ctx) {
-        String enBase = estado == null ? null : "ACEPTADA".equals(estado) ? "APROBADA" : estado;
-        int tope = limite == null ? FILAS_DE_LA_BANDEJA : Math.max(1, Math.min(limite, FILAS_DE_LA_BANDEJA));
-        var sistema =
-                ContextoSesion.deSistema(ctx.usuarioId(), new Traza(ctx.traza().id()));
-        return datos.conContexto(sistema, dsl -> dsl.fetch(
-                        """
-                        SELECT s.id, s.usuario_id, s.grupo_id, g.codigo_publico, s.cupos_solicitados, s.mensaje,
-                               s.puntaje_compatibilidad, s.estado, s.fecha_solicitud, s.nombre_visible,
-                               s.enlace_grupo_id IS NOT NULL AS por_enlace
-                          FROM grupos.solicitud_ingreso s
-                          JOIN grupos.grupo g ON g.id = s.grupo_id
-                         WHERE (?::varchar IS NULL OR s.estado = ?::varchar)
-                         ORDER BY s.fecha_solicitud DESC, s.id
-                         LIMIT ?
-                        """,
-                        enBase,
-                        enBase,
-                        tope)
-                .map(r -> new FilaDeBandeja(
-                        r.get("id", UUID.class),
-                        r.get("usuario_id", UUID.class),
-                        r.get("grupo_id", UUID.class),
-                        r.get("codigo_publico", String.class),
-                        r.get("cupos_solicitados", Integer.class),
-                        r.get("mensaje", String.class),
-                        r.get("puntaje_compatibilidad", java.math.BigDecimal.class),
-                        "APROBADA".equals(r.get("estado", String.class)) ? "ACEPTADA" : r.get("estado", String.class),
-                        r.get("fecha_solicitud", OffsetDateTime.class),
-                        r.get("nombre_visible", String.class),
-                        Boolean.TRUE.equals(r.get("por_enlace", Boolean.class)))));
+        return bandeja.leer(estado, limite, ctx);
     }
 
     @Transactional
@@ -279,8 +269,6 @@ public class CU68AceptarIngreso {
             OffsetDateTime fecha,
             String nombreVisible,
             boolean porEnlace) {}
-
-    private static final int FILAS_DE_LA_BANDEJA = 200;
 
     public record Resultado(UUID solicitudId, String estado, UUID participanteId, UUID cupoId) {}
 

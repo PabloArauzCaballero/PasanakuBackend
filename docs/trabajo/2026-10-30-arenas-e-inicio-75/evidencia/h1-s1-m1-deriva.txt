@@ -1,0 +1,40 @@
+# H1.S1.M1 — verificación de deriva (regla 97.2), tres fronteras
+## 1) modelo -> DDL: regenerar sobre el árbol ya generado no cambia nada (generadores deterministas)
+$ (hash de sql/ + seeders/) ; python3 scripts/generar_ddl.py ; (hash otra vez)
+generar_ddl exit=0
+generar_semillas exit=0
+hash antes=f8da1286680cd8d0 despues=f8da1286680cd8d0 -> IGUALES
+## 2) DDL -> base (tabla-ausente, columna-ausente, columna-obligatoria-no-mapeada, nulabilidad-divergente, FK, índices, nombres truncados)
+$ python3 -I verificar_deriva.py <repo> pg-arenas
+DDL: 345 tablas · 3757 columnas · 688 FK · 791 indices (sql/10_tablas, 20_claves, 30_indices)
+base: 445 tablas en esos esquemas · FK del DDL presentes 688/688 · indices del DDL presentes 791/791
+SIN DERIVA
+exit=0
+(las tablas de más en la base son infraestructura que no sale de 10_tablas: outbox/consumidos por esquema y particiones de bitácora)
+## 4) datos: consultas de verificación del catálogo de arenas (todas deben dar 0 filas)
+$ psql -c "<R-REP-07 huecos>" ; "<huérfanos desbloqueo>" ; "<arena sin desbloqueo>" ; "<duplicados>" ; "<desde>=hasta>"
+huecos R-REP-07 | 0
+desbloqueos huerfanos | 0
+arenas sin desbloqueo | 0
+codigos duplicados | 0
+tramos invalidos | 0
+desbloqueos VIGENTE (deben ser 0: nada financiero sin confirmar) | 0
+escala cubierta (min desde, max hasta) = 0..1000 | 0
+exit=0
+## 3) base -> ORM (jOOQ por introspección de la base viva pg-arenas:5433, ADR-016)
+$ bash candado.sh ./gradlew :servicios:transparencia:generateJooq --rerun
+BUILD SUCCESSFUL (1 executed) · exit=0
+$ grep "TableField" build/generated/jooq/.../tables/{Arena,DesbloqueoArena}.java  (columna, tipo, nulabilidad)
+id UUID SQLDataType.UUID .nullable(false)
+arena_id UUID SQLDataType.UUID .nullable(false)
+cupos_max Short SQLDataType.SMALLINT .nullable(false)
+aporte_max BigDecimal SQLDataType.NUMERIC(14, 2) .nullable(false)
+moneda String SQLDataType.CHAR(3) .nullable(false)
+estado String SQLDataType.VARCHAR(10) .nullable(false)
+id UUID SQLDataType.UUID .nullable(false)
+modelo_id UUID SQLDataType.UUID .nullable(false)
+codigo String SQLDataType.VARCHAR(30) .nullable(false)
+nombre String SQLDataType.VARCHAR(40) .nullable(false)
+orden Short SQLDataType.SMALLINT .nullable(false)
+desde BigDecimal SQLDataType.NUMERIC(6, 2) .nullable(false)
+hasta BigDecimal SQLDataType.NUMERIC(6, 2) .nullable(false)

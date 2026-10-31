@@ -1,0 +1,23 @@
+# H1.S1.M1 — esquema generado aplicado sobre PostgreSQL 16 limpio (contenedor pg-arenas, 127.0.0.1:5433, el que lee generateJooq)
+$ psql -q -c "ALTER DATABASE pasanaku SET search_path TO <los 17 esquemas, igual que BaseDePrueba>"
+exit=0
+$ psql -v ON_ERROR_STOP=1 -q -f /sql/aplicar.sql
+lineas NOTICE: 1209  ·  lineas ERROR: 17
+psql:/sql/15_infra/mensajeria.sql:46: NOTICE:  column "ultimo_error" of relation "evento_dominio" already exists, skipping
+psql:/sql/15_infra/mensajeria.sql:135: NOTICE:  column "ultimo_error" of relation "evento_dominio" already exists, skipping
+psql:/sql/15_infra/mensajeria.sql:205: NOTICE:  column "ultimo_error" of relation "evento_dominio" already exists, skipping
+psql:/sql/15_infra/mensajeria.sql:275: NOTICE:  column "ultimo_error" of relation "evento_dominio" already exists, skipping
+psql:/sql/15_infra/mensajeria.sql:364: NOTICE:  column "ultimo_error" of relation "evento_dominio" already exists, skipping
+psql:/sql/15_infra/mensajeria.sql:434: NOTICE:  column "ultimo_error" of relation "evento_dominio" already exists, skipping
+psql:/sql/15_infra/mensajeria.sql:523: NOTICE:  column "ultimo_error" of relation "evento_dominio" already exists, skipping
+psql:/sql/15_infra/mensajeria.sql:593: NOTICE:  column "ultimo_error" of relation "evento_dominio" already exists, skipping
+psql:/sql/15_infra/mensajeria.sql:663: NOTICE:  column "ultimo_error" of relation "evento_dominio" already exists, skipping
+psql:/sql/15_infra/mensajeria.sql:733: NOTICE:  column "ultimo_error" of relation "evento_dominio" already exists, skipping
+psql:/sql/15_infra/mensajeria.sql:803: NOTICE:  column "ultimo_error" of relation "evento_dominio" already exists, skipping
+psql:/sql/15_infra/mensajeria.sql:873: NOTICE:  column "ultimo_error" of relation "evento_dominio" already exists, skipping
+psql:/sql/15_infra/mensajeria.sql:943: NOTICE:  column "ultimo_error" of relation "evento_dominio" already exists, skipping
+psql:/sql/15_infra/mensajeria.sql:1013: NOTICE:  column "ultimo_error" of relation "evento_dominio" already exists, skipping
+psql:/sql/15_infra/mensajeria.sql:1102: NOTICE:  column "ultimo_error" of relation "evento_dominio" already exists, skipping
+psql:/sql/40_reglas/restricciones.sql:2790: NOTICE:  constraint "ck_ejecucion_tarea_error" of relation "ejecucion_tarea" does not exist, skipping
+psql:/sql/40_reglas/restricciones.sql:3427: NOTICE:  constraint "ck_corrida_trabajo_error" of relation "corrida_trabajo" does not exist, skipping
+exit=0

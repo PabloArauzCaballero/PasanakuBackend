@@ -56,6 +56,7 @@ const ESPERADO: Record<string, string[]> = {
   ANUNCIANTE: [],
   // Identidades de servicio: no son personas ni abren pantallas del backoffice.
   SERVICIO_ENTREGAS: [],
+  SERVICIO_GRUPOS: [],
   SERVICIO_INVERSIONES: [],
   // Roles internos de Atlas adaptados a Pasanaku (H6):
   INTERNAL_IDENTITY_ADMIN: ['sistemas'],
@@ -73,8 +74,8 @@ const ESPERADO: Record<string, string[]> = {
 }
 
 describe('matriz de roles · qué secciones abre cada rol del catálogo', () => {
-  it('el catálogo parseado tiene los treinta roles y la prueba cubre cada uno (si se agrega un rol, hay que decidir qué ve)', () => {
-    expect(CATALOGO.roles.size).toBe(30)
+  it('el catálogo parseado tiene los treinta y un roles y la prueba cubre cada uno (si se agrega un rol, hay que decidir qué ve)', () => {
+    expect(CATALOGO.roles.size).toBe(31)
     expect([...CATALOGO.roles].sort()).toEqual(Object.keys(ESPERADO).sort())
   })
 

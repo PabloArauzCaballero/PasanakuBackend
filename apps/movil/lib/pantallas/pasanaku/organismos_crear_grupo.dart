@@ -17,6 +17,7 @@ import 'grupo_creado.dart';
 import 'opciones_de_grupo.dart';
 import 'pantalla_crear_grupo.dart';
 import 'rechazo_al_crear.dart';
+import 'selector_de_etapa_minima.dart';
 import 'textos_de_conversion.dart';
 import 'textos.dart';
 
@@ -114,6 +115,8 @@ class FormularioCrearGrupo extends StatelessWidget {
                       onElegir: (v) => setState(() => controles.modalidad = v),
                     ),
                   ),
+                  const SizedBox(height: Espacio.s5),
+                  const SelectorDeEtapaMinima(),
                   const SizedBox(height: Espacio.s5),
                   Casilla(
                     etiqueta: TextosPasanaku.permitePermutas,

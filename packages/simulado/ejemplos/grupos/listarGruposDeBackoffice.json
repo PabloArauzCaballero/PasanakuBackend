@@ -1,0 +1,55 @@
+{
+  "servicio": "grupos",
+  "operacion": "listarGruposDeBackoffice",
+  "metodo": "get",
+  "ruta": "/grupos/backoffice",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": [
+        {
+          "grupoId": "f6e72c60-43e1-4f90-84af-9fc103ac85bf",
+          "codigo": "codigo",
+          "nombre": "nombre",
+          "estado": "estado",
+          "montoAporte": "4.44",
+          "moneda": "mon",
+          "periodicidad": "periodicidad",
+          "cuposTotales": 1,
+          "cuposOcupados": 1,
+          "fechaInicio": "2026-01-15"
+        }
+      ]
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": []
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": [
+        {
+          "grupoId": "f6e72c60-43e1-4f90-84af-9fc103ac85bf",
+          "codigo": "codigo",
+          "nombre": "nombre",
+          "estado": "estado",
+          "montoAporte": "4.44",
+          "moneda": "mon",
+          "periodicidad": "periodicidad",
+          "cuposTotales": 1,
+          "cuposOcupados": 1,
+          "fechaInicio": "2026-01-15"
+        }
+      ]
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU69-17",
+        "mensaje": "Grupo ya iniciado",
+        "detalle": {},
+        "trazaId": "traza-listarGruposDeBackoffice-rechazo"
+      }
+    }
+  }
+}

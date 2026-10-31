@@ -63,4 +63,13 @@ final class MapeoDePostulacion {
                 !reputacion.tieneHistorial(),
                 moroso == HechosDeOtrosServicios.SIN_DATO_DE_MOROSOS);
     }
+
+    /**
+     * Etapa minima y desbloqueo (2026-10-30) de quien postula, canjea una invitacion o pide por el enlace del grupo.
+     * Cada camino la llama DESPUES de descartar su reintento idempotente: repetir un ingreso ya hecho devuelve el
+     * original aunque {@code transparencia} no conteste o el puntaje haya cambiado (regla 96.3.3).
+     */
+    static void exigirEtapa(UUID grupoId, Consultas consultas, HechosDeOtrosServicios afuera, ContextoSesion ctx) {
+        EtapaDelIngreso.exigir(afuera, consultas.condicionesDeIngreso(grupoId, ctx), ctx.usuarioId());
+    }
 }

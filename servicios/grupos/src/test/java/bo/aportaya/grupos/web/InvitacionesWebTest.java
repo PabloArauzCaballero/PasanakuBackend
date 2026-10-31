@@ -118,11 +118,19 @@ class InvitacionesWebTest {
                 .hasMessageContaining("restricción");
 
         when(afuera.restriccion(usuarioId)).thenReturn(new HechosDeOtrosServicios.Restriccion(false, BigDecimal.ZERO));
-        when(afuera.reputacion(usuarioId)).thenReturn(new HechosDeOtrosServicios.Reputacion(true, BigDecimal.ONE));
+        // Etapa minima del grupo (2026-10-30): MEDIA. Con 499.99 se esta en BAJA y no se entra.
+        when(consultas.condicionesDeIngreso(grupoId, ctx))
+                .thenReturn(EtapasDePrueba.grupo(grupoId, EtapasDePrueba.MEDIA, 3, "10.00"));
+        when(afuera.etapaDe(usuarioId)).thenReturn(EtapasDePrueba.con("499.99"));
         assertThatThrownBy(() -> web.aceptar(CLAVE, cuerpo))
                 .isInstanceOf(ErrorDeNegocio.class)
-                .hasMessageContaining("reputación");
+                .hasMessageContaining("etapa")
+                .satisfies(e -> {
+                    assertThat(((ErrorDeNegocio) e).codigo().valor()).isEqualTo("AP-CU68-03");
+                    assertThat(((ErrorDeNegocio) e).detalle()).containsEntry("etapaMinima", "MEDIA");
+                });
 
+        when(afuera.etapaDe(usuarioId)).thenReturn(EtapasDePrueba.con("500.00"));
         when(afuera.reputacion(usuarioId)).thenReturn(new HechosDeOtrosServicios.Reputacion(true, BigDecimal.TEN));
         cuerpo.setAceptaReglamento(false);
         assertThatThrownBy(() -> web.aceptar(CLAVE, cuerpo))

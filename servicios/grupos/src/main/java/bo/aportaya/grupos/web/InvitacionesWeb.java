@@ -146,10 +146,11 @@ public class InvitacionesWeb {
         if (afuera.restriccion(ctx.usuarioId()).vigente()) {
             throw new ErrorDeNegocio(CodigoError.de(68, 1), "Tenés una restricción vigente.");
         }
+        // La etapa minima del grupo y el desbloqueo de la etapa propia (2026-10-30): sin historial cuenta la etapa del
+        // puntaje base, no un cero. Reemplaza la comparacion directa con el puntaje, que tomaba «sin historial» por
+        // cero.
+        EtapaDelIngreso.exigir(afuera, consultas.condicionesDeIngreso(datos.grupoId(), ctx), ctx.usuarioId());
         var reputacion = afuera.reputacion(ctx.usuarioId());
-        if (reputacion.puntaje().compareTo(datos.reputacionMinima()) < 0) {
-            throw new ErrorDeNegocio(CodigoError.de(68, 3), "Tu reputación todavía no alcanza para este grupo.");
-        }
         if (!Boolean.TRUE.equals(cuerpo.getAceptaReglamento())) {
             throw new ErrorDeNegocio(CodigoError.de(69, 5), "Tenés que aceptar el reglamento del grupo.");
         }

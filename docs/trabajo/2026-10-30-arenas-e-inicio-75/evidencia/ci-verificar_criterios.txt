@@ -1,0 +1,41 @@
+casos de uso implementados y verificados: 108
+pendientes de implementar (3): CU-05 (identidad), CU-51 (aportes), CU-57 (nucleo-financiero)
+
+37 FALLAS:
+  - CU-20 · grupos: prueba sin criterio en la boveda — «CU-20 · el desde de la etapa minima llega a reputacion_minima y lo lee quien todavia no es integrante»
+  - CU-20 · grupos: prueba sin criterio en la boveda — «CU-20 · sin etapa minima resuelta (la forma de antes) el grupo nace con 0: no pide nada»
+  - CU-20 · grupos: prueba sin criterio en la boveda — «CU-20 · un grupo que no existe no tiene condiciones: el caso de uso responde que no existe»
+  - CU-20 · grupos: prueba sin criterio en la boveda — «CU-20 · misma clave con otra etapa minima PEDIDA no es un reintento: AP-CU20-02, sin segundo grupo»
+  - CU-20 · grupos: prueba sin criterio en la boveda — «CU-20 · reintento con la misma clave: el organizador cambio de etapa (la minima derivada pasa de 500 a 550) y vuelve el MISMO grupo; yaCreado lo reconoce antes de preguntar la etapa»
+  - CU-68 · grupos: prueba sin criterio en la boveda — «etapa al aceptar (2026-10-30): autoriza ANTES de que la API mire la etapa del solicitante, con el rol del servicio; el reintento de la misma clave no la vuelve a pedir»
+  - CU-69 · grupos: prueba sin criterio en la boveda — «CU-69 · iniciado: aceptar por el enlace de invitacion responde AP-CU69-17 y nadie entra»
+  - CU-69 · grupos: prueba sin criterio en la boveda — «CU-69 · iniciado: el canje responde AP-CU69-17 ANTES de consumir el enlace en identidad»
+  - CU-69 · grupos: prueba sin criterio en la boveda — «CU-69 · iniciado: postular y pedir por el enlace del grupo responden AP-CU69-17, sin solicitud nueva»
+  - CU-69 · grupos: prueba sin criterio en la boveda — «CU-69 · iniciado: no se invita (ni se pide el enlace a identidad) y no se genera otro enlace del grupo»
+  - CU-69 · grupos: prueba sin criterio en la boveda — «CU-69 · iniciado: aceptar una solicitud (organizador, propuesta o resolucion) responde AP-CU69-17»
+  - CU-69 · grupos: prueba sin criterio en la boveda — «CU-69 · iniciado: rechazar una solicitud pendiente sigue permitido (cerrar no deja colgados)»
+  - CU-69 · grupos: prueba sin criterio en la boveda — «CU-69 · iniciar 8/10 publica la version 2 con 8 participantes y el fondo real; nadie la tiene aceptada»
+  - CU-69 · grupos: prueba sin criterio en la boveda — «CU-69 · el reintento del inicio con la misma clave no publica otra version»
+  - CU-69 · grupos: prueba sin criterio en la boveda — «CU-69 · sin reglamento previo (grupo de antes), iniciar publica la version 1»
+  - CU-69 · grupos: prueba sin criterio en la boveda — «CU-69 · el detalle dice a cada integrante que le falta aceptar la version vigente, y el sorteo espera»
+  - CU-69 · grupos: prueba sin criterio en la boveda — «CU-69 · aceptar la version nueva dos veces deja UNA aceptacion; el cupo no cambia»
+  - CU-69 · grupos: prueba sin criterio en la boveda — «CU-69 · aceptar con un hash que no es el de la version vigente: AP-CU69-05, sin aceptacion»
+  - CU-69 · grupos: prueba sin criterio en la boveda — «CU-69 · cuando los 8 aceptan la version vigente, el organizador puede sortear»
+  - CU-69 · grupos: prueba sin criterio en la boveda — «CU-60 · el servidor no compromete el sorteo con la version nueva sin aceptar (AP-CU60-05), aunque todos tengan la anterior; con los 8 aceptados, si»
+  - CU-69 · grupos: prueba sin criterio en la boveda — «CU-69 · quien no integra el grupo no ve el detalle (AP-CU69-14), ni las etapas de nadie»
+  - CU-69 · grupos: prueba sin criterio en la boveda — «CU-69 · 7 de 10 ocupados: 422 AP-CU69-16 con el conteo, y el grupo no cambia»
+  - CU-69 · grupos: prueba sin criterio en la boveda — «CU-69 · 8 de 10: CONFORMADO con 8 cupos y 8 periodos, historial y calendario»
+  - CU-69 · grupos: prueba sin criterio en la boveda — «CU-69 · los ocupados quedan numerados 1..N en su orden y el organizador sigue en el cupo 1»
+  - CU-69 · grupos: prueba sin criterio en la boveda — «CU-69 · idempotente: la misma clave devuelve lo mismo y no repite; otra clave responde AP-CU69-17»
+  - CU-69 · grupos: prueba sin criterio en la boveda — «CU-69 · 422 AP-CU69-07: un integrante que no organiza, el organizador de otro grupo, un grupo que no existe»
+  - CU-69 · grupos: prueba sin criterio en la boveda — «CU-69 · con alguien aceptado sin firmar: 422 AP-CU69-19 con cuantos son; en BORRADOR: AP-CU69-12»
+  - CU-69 · grupos: prueba sin criterio en la boveda — «CU-69 · 8 de 10 iniciado: un solo grupos.grupo_iniciado con el periodo 1 (id y fechas), los 8 cupos OCUPADO numerados 1..8 con titular y Bs 500,00, la moneda y el total achicado»
+  - CU-69 · grupos: prueba sin criterio en la boveda — «CU-69 · limite: el reintento con la misma clave no re-emite, y otra clave sobre el grupo iniciado responde AP-CU69-17 sin emitir»
+  - CU-69 · grupos: prueba sin criterio en la boveda — «CU-69 · invalido: 7 de 10 no alcanza (AP-CU69-16) y no se emite nada»
+  - CU-69 · grupos: prueba sin criterio en la boveda — «CU-69 · dos inicios a la vez con claves distintas: uno inicia, el otro AP-CU69-17, un solo achique»
+  - CU-69 · grupos: prueba sin criterio en la boveda — «CU-69 · con el rol de base del servicio (svc_grupos): inicia sin necesitar borrar filas»
+  - CU-69 · grupos: prueba sin criterio en la boveda — «correcto: quien esta en MEDIA entra (su etapa la dio transparencia por la ruta de servicio)»
+  - CU-69 · grupos: prueba sin criterio en la boveda — «limite: quien esta en BAJA (una etapa por debajo) no entra: AP-CU68-03 con detalle.etapaMinima»
+  - CU-69 · grupos: prueba sin criterio en la boveda — «invalido: transparencia caida → el ingreso se rechaza (falla cerrado), no se supone ninguna etapa»
+  - CU-69 · grupos: prueba sin criterio en la boveda — «invalido: transparencia responde 403 a la ruta de servicio → el ingreso se rechaza»
+  - CU-71 · transparencia: R-REP-07 citado sin prueba de rechazo

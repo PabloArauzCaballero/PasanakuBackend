@@ -2741,6 +2741,64 @@
               }
             }
           ]
+        },
+        {
+          "name": "3 · error · sin sesion",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}",
+                "description": "Uno nuevo por intento. Repetir el mismo debe devolver la MISMA respuesta y un solo efecto (invariante 7)."
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}{{prefijo_api}}/billetera/retenciones/:retencionId/liberacion-de-mercado",
+              "host": [
+                "{{base_url}}{{prefijo_api}}"
+              ],
+              "path": [
+                "billetera",
+                "retenciones",
+                ":retencionId",
+                "liberacion-de-mercado"
+              ],
+              "variable": [
+                {
+                  "key": "retencionId",
+                  "value": "{{retencionId}}",
+                  "description": "Identificador; se encadena desde una peticion anterior."
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// CASO DE ERROR — la misma peticion, SIN token.",
+                  "// Denegar por omision (invariante 9): una ruta que contesta sin sesion es una ruta",
+                  "// abierta, y no hay ninguna abierta fuera de /publico y /verificar de transparencia.",
+                  "pm.test(\"sin sesion no se pasa\", () => {",
+                  "    pm.expect(pm.response.code, \"una ruta con permiso contesto sin token\")",
+                  "        .to.be.oneOf([401, 403]);",
+                  "});",
+                  "",
+                  "pm.test(\"el 401 no cuenta de mas\", () => {",
+                  "    const cuerpo = pm.response.text();",
+                  "    // Ni el nombre de la clase, ni la consulta, ni si el usuario existe.",
+                  "    pm.expect(cuerpo).to.not.match(/at bo\\.aportaya\\./);",
+                  "    pm.expect(cuerpo.toLowerCase()).to.not.include(\"select \");",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
         }
       ],
       "description": "Humo de `liberarRetencionDelMercado`. **Valido**, **limite** y **error** son tres preguntas distintas: una operacion puede contestar bien la primera y fallar las otras dos, y es justo ahi donde estan los defectos que llegan a produccion."
