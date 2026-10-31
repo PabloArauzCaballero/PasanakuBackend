@@ -94,6 +94,8 @@ Archivos en `evidencia/`: `h1-s1-a-*`, `h1-s7-t-*` (RLS, mutación de privacidad
 - Al regenerar, el catálogo de operaciones del backoffice sumó 18 operaciones, entre ellas las de subasta y foto de perfil, que ya faltaban en `test`.
 - Un carril se cortó por una falla de red y se relanzó para continuar su trabajo, no desde cero (ronda 1b).
 - Integración con la rama de pasanaku-1f: se acordó el contrato del evento, pero la emisión queda para H3.
+- CI de `78ad9abf` falló en «App — goldens (Linux)»: `reputacion_etapas_claro/oscuro.png` dieron 1,34 % de diferencia porque se habían generado en la Mac. Se regeneraron en `pasanaku-flutter-linux:3.44.8` (`flutter test test/goldens/` → `+20: All tests passed!`) en `b26d2df7`.
+- «Release iOS» y «navegación en simulador iOS» fallan con `ld: framework 'Pods_Runner' not found`. Clase `ENVIRONMENT`, anterior a esta rama: el mismo fallo aparece en #366 y #368, ya mergeados, y esta rama no toca `apps/movil/ios` ni `pubspec`. Queda registrado, no se corrige acá.
 
 ## Riesgos residuales
 0. Intermitente sin explicar: `AdmisionDelGrupoSustitucionTest.entranteHabilitadoDelegaYDevuelveElRegistro` falló una vez por `armar() timed out after 5 seconds`. El test solo arma dobles y ninguna clase de esta rama lo toca. Corrido solo, pasó 3 de 3, y también en la corrida completa siguiente. Por la regla 80.5.3 es un bug hasta que se demuestre lo contrario.
