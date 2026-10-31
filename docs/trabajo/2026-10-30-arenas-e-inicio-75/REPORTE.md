@@ -1,6 +1,6 @@
 # Reporte — Etapas de reputación, inicio al 75 % y cierre de ingresos
 
-> **AVANCE: 21 / 35 — 60,0 %.** H1 quedó en código y probado, con un bloqueante de despliegue: falta aprovisionar la cuenta de servicio `SERVICIO_GRUPOS` en TEST. H2 (gamificación, ronda 2) y H3 (primera cuota antes del sorteo) no se empezaron.
+> **AVANCE: 25 / 35 — 71,4 % (1 DESCARTADO).** H1 quedó en código y probado, con un bloqueante de despliegue: falta aprovisionar la cuenta de servicio `SERVICIO_GRUPOS` en TEST. H2 (gamificación, ronda 2) y H3 (primera cuota antes del sorteo) no se empezaron.
 
 - Fecha: 2026-10-30 · Plan: [PLAN.md](./PLAN.md) · Rama: `claude/arenas-y-inicio-75-20261030` (commits `3e94c14a`, `f7801563`, merge de `origin/test` `b64e073d`, `a8080faa`)
 - Peldaño de evidencia alcanzado: **TESTED**. Los tests de grupos y transparencia corren contra Postgres real con el rol de la aplicación. Lo que cruza servicios (grupos → transparencia con token de servicio) solo se probó contra un doble HTTP. La app solo se probó contra dobles de su cliente. No hay prueba de punta a punta en TEST ni captura en dispositivo.
@@ -29,7 +29,9 @@
 |---|---|---|
 | H2.S1.M1–M5 | TODO | Ronda 2 de gamificación, diseño en [GAMIFICACION.md](./GAMIFICACION.md); se lanza después de este PR |
 | H2.S2.M1 | TODO — DECISION_REQUIRED | Pablo: ¿endpoint agregado por etapa y resumen de cierre? |
-| H3.S1.M1–M6, H3.S2.M1 | TODO | Emitir `grupos.grupo_iniciado` al iniciar y sumar `puedeSortear` con la primera cuota; el lado de aportes está listo en `claude/sorteo-primera-cuota-20261030 @ 20f874d0` (pasanaku-1f). **Esa rama no se mergea sola: deja todos los sorteos en `AP-CU60-11`** |
+| H3.S1.M4 | A MEDIAS | Test que genere el periodo 1 dos veces y demuestre una sola obligación (la base ya lo impide por `uq_obligacion_periodo_cupo`) |
+| H3.S2.M1 | TODO | Pantalla «esperando la primera cuota de N» y botón de sorteo bloqueado con motivo |
+| H3 (resto) | ver PLAN | Emitir `grupos.grupo_iniciado` al iniciar y sumar `puedeSortear` con la primera cuota; el lado de aportes está listo en `claude/sorteo-primera-cuota-20261030 @ 20f874d0` (pasanaku-1f). **Esa rama no se mergea sola: deja todos los sorteos en `AP-CU60-11`** |
 
 ## Evidencia
 ```text
@@ -77,6 +79,7 @@ Archivos en `evidencia/`: `h1-s1-a-*`, `h1-s7-t-*` (RLS, mutación de privacidad
 - Capturas en dispositivo (H1.S6.M2).
 
 ## Desvíos del plan
+- H3: la emisión de `grupos.grupo_iniciado` la escribió pasanaku-1f (`bd7280d9`) y se absorbió acá después de revisarla. `CU60Sortear` y aportes quedan en la rama de pasanaku-1f, que se mergea **junto** con esta.
 - Se integró `origin/test` con **merge** y no con rebase, porque la rama ya estaba publicada. Hubo 5 conflictos: 3 de imports en la app, la lista de dobles de un WebTest y `metadata_enriquecida.json`, que se regeneró.
 - Renombre arena → etapa a pedido de Pablo (H1.S6), con catálogo nuevo: códigos `RECUPERACION…PILAR`.
 - Se agregó H1.S8.M2 (subasta), descubierta al integrar `test`.

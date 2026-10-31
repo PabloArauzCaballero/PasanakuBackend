@@ -141,10 +141,10 @@ Hecho a verificar antes de diseñar: hoy `obligacion_aporte` nace al abrir el pe
 
 | ID | Microtarea | CA (binario) | DoD | Estado |
 |---|---|---|---|---|
-| H3.S1.M1 | Descubrimiento: cómo nacen periodo 1 y obligación hoy (CU-21) y qué contrato tiene aportes | Hechos con archivo:línea en este plan | lectura + `grep` pegado | TODO |
-| H3.S1.M2 | Al iniciar se emite el evento (outbox) que abre la obligación de la cuota 1 por cupo | Una obligación por cupo; reenviar el evento no duplica | test de integración de duplicado | TODO |
-| H3.S1.M3 | `comprometerSorteo` exige el primer aporte acreditado por cupo ocupado (`AP-CU60-11`) | 7/8 → 422; 8/8 → 2xx | `./gradlew :servicios:grupos:test --tests '*CU60*'` | TODO |
-| H3.S1.M4 | Imputar la cuota 1 al periodo 1 cuando se genera el calendario | Sin doble cobro del periodo 1 | test + asientos pegados | TODO |
+| H3.S1.M1 | Descubrimiento: cómo nacen periodo 1 y obligación hoy (CU-21) y qué contrato tiene aportes | Hechos con archivo:línea en este plan | lectura + `grep` pegado | HECHO — el periodo 1 lo genera CU69IniciarGrupo:128; obligación por cupo vía RegistroDelCalendario (pasanaku-1f) |
+| H3.S1.M2 | Al iniciar se emite el evento (outbox) que abre la obligación de la cuota 1 por cupo | Una obligación por cupo; reenviar el evento no duplica | test de integración de duplicado | HECHO — evento grupos.grupo_iniciado (bd7280d9 de pasanaku-1f, absorbido): CU69EventoDeInicioTest 3/0, grupos 613/0 |
+| H3.S1.M3 | `comprometerSorteo` exige el primer aporte acreditado por cupo ocupado (`AP-CU60-11`) | 7/8 → 422; 8/8 → 2xx | `./gradlew :servicios:grupos:test --tests '*CU60*'` | HECHO en la rama de pasanaku-1f (claude/sorteo-primera-cuota-20261030, su evidencia: grupos 513/513) — no está en esta rama |
+| H3.S1.M4 | Imputar la cuota 1 al periodo 1 cuando se genera el calendario | Sin doble cobro del periodo 1 | test + asientos pegados | A MEDIAS — la base lo impide (uq_obligacion_periodo_cupo, restricciones.sql:1867, y ON CONFLICT DO NOTHING); falta un test ejecutado que genere el periodo 1 dos veces |
 | H3.S2.M1 | App: estado «esperando la primera cuota de N» y botón de sorteo bloqueado con motivo | Se ve quién falta, sin montos de otros | `flutter test` dirigido | TODO |
 
 ## H1.S6 — Renombre «arena» → «etapa» (decisión de Pablo 2026-10-30: «que no suene demasiado fantasioso»)
@@ -198,8 +198,8 @@ Se evitan «Confiable» y «Referente» para no chocar con `nivel_confianza`.
 
 | ID | Microtarea | CA (binario) | DoD | Estado |
 |---|---|---|---|---|
-| H3.S1.M5 | Verificar (a) y (b) | Hechos con archivo:línea en este plan | `git grep` pegado | TODO |
-| H3.S1.M6 | Si el cobro choca con PROGRAMADO: abrir el periodo 1 al iniciar, sin pasar el grupo a EN_CURSO | Se cobra la cuota 1 de un grupo CONFORMADO | test de integración de cobro | TODO — si abrir el periodo antes del sorteo cambia una regla de negocio, DECISION_REQUIRED |
+| H3.S1.M5 | Verificar (a) y (b) | Hechos con archivo:línea en este plan | `git grep` pegado | HECHO — (a) sí genera el calendario; (b) PROGRAMADO admite el pago: ConsultasRepositorio.java:256 y grupos.yaml:895 |
+| H3.S1.M6 | Si el cobro choca con PROGRAMADO: abrir el periodo 1 al iniciar, sin pasar el grupo a EN_CURSO | Se cobra la cuota 1 de un grupo CONFORMADO | test de integración de cobro | DESCARTADO — no hace falta abrir el periodo: PROGRAMADO ya admite el cobro (H3.S1.M5) |
 - Estado de pasanaku-1f (2026-10-30): grupos 513/513 en su rama. Aportes consume `grupos.grupo_iniciado` con `CU21AbrirPrimeraCuota`, que funciona aunque el periodo 1 esté PROGRAMADO pero **exige el calendario de feriados del año del vencimiento** (`AP-CU21-09`). `CU60Sortear` tiene un constructor nuevo (`PrimerAporteDelCupo`, `AceptacionVigenteRepositorio`), y `AP-CU60-05` se calcula con `reglamento_grupo WHERE vigente_hasta IS NULL`.
 - **Para verificar en H1.S7.M3:** la versión N+1 del reglamento que se publica al iniciar tiene que **cerrar la anterior** (`vigente_hasta` con valor). Si no se cierra, la consulta de pasanaku-1f ve dos versiones vigentes y la re-firma no se exige. Hay que demostrarlo con un test.
 - pasanaku-1f publicó `origin/claude/sorteo-primera-cuota-20261030 @ 20f874d0` (grupos 513/513, aportes 236/236). **Su rama sola deja todos los sorteos en `AP-CU60-11`** hasta que exista el evento `grupos.grupo_iniciado`, así que **no se mergea antes que la emisión de esta rama**. Los PRs de las dos ramas salen juntos. Al integrar: `CU60Sortear` tiene 7 parámetros y cualquier test que lo construya a mano necesita el doble de `PrimerAporteDelCupo` y `new AceptacionVigenteRepositorio()`.
