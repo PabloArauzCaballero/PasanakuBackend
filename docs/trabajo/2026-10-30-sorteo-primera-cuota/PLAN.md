@@ -103,3 +103,26 @@ monto y moneda); un reintento con la misma clave no emite un segundo evento.
 | Autorización del endpoint por `BILLETERA_VER` sin chequeo de pertenencia en `aportes` | Un usuario podría consultar cupos pagados de un grupo ajeno (solo UUIDs) | Mismo riesgo que `contarMorosos`; registrado para `authz` |
 | Nadie abre el período 1 (`PROGRAMADO`) ni pasa el grupo a `EN_CURSO` | El cobro de la cuota 1 (CU-21) puede exigir período `ABIERTO` | Fuera de alcance; se registra para c1/Pablo en el reporte |
 | `RegistroDelCalendario` puede ser `@Transactional` y exigir sesión | Anidar dentro de mi transacción | Leer su firma antes de escribir (M1) |
+
+## H6 — CI de #369 en verde (abierto 2026-10-31 07:10 UTC tras leer la corrida 41163590299 sobre `9eb51b85`)
+**CA:** Dado el PR #369 contra `test` con #364 adentro, cuando corre el CI, entonces «Formato, reglas propias y compilacion», «Contratos y clientes generados» y «La boveda y el esquema no divergen» pasan (los rojos ajenos declarados por c1, «Release iOS» y OSV/minimatch, no son de este trabajo).
+**DoD:** los tres gates reproducidos en local en verde + regresión de `grupos` + push + checks del PR.
+**Estado:** EN CURSO
+
+### H6.S1 — Gates de contratos y bóveda
+| ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
+|---|---|---|---|---|
+| H6.S1.M1 | Regenerar colecciones Postman de `aportes` (el OpenAPI ganó `/primera-cuota`) | `postman/` sin diff tras generar | `python3 scripts/generar_postman.py && git diff --exit-code -- postman/` → exit 0 | EN CURSO |
+| H6.S1.M2 | CU-60: documentar `AP-CU60-06..10`, que ya existen en `CU60Sortear`/`SorteoDelGrupo`, para que 01..12 sean correlativos (el verificador exige `range(1, N+1)` y una fila por nombre) | sin FALLA «correlativos» | `python3 scripts/verificar_boveda.py` → sin `FALLA · códigos de error correlativos` | TODO |
+| H6.S1.M3 | `planes/00`, `05` y `06`: «174 restricciones» → 175 (`R-GRP-20` es la 175.ª tras el merge con `test`) | sin FALLA «cifra desfasada» | `python3 scripts/verificar_boveda.py` → `TODO OK` | TODO |
+
+### H6.S2 — Barrido de 300 líneas en `grupos`
+| ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
+|---|---|---|---|---|
+| H6.S2.M1 | `CU60Sortear.java` (311) < 300: extraer los requisitos previos al compromiso (`AP-CU60-05`, `11`, `12`) a `aplicacion/RequisitosDelSorteo` (ayudante estático, sin tocar el constructor que c1 y las pruebas construyen a mano) | `wc -l` < 300 y mismo comportamiento | `./gradlew :servicios:grupos:testBarrido` exit 0 · `:servicios:grupos:integrationTest --tests '*CU60*'` verde | TODO |
+| H6.S2.M2 | `CU60Test.java` (368) < 300: mover las cuatro pruebas de R-GRP-20 y versión vigente a `CU60RequisitosTest extends BaseDeCU60` | `wc -l` < 300; mismas pruebas, mismos `DisplayName` | ídem | TODO |
+
+### H6.S3 — Cierre
+| ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
+|---|---|---|---|---|
+| H6.S3.M1 | Regresión completa de `grupos` + `spotlessCheck` + push; checks de #369 | verde salvo rojos ajenos declarados | XML tests=N fallos=0 · `gh pr checks 369` | TODO |

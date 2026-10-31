@@ -387,7 +387,9 @@ paths:
         '422':
           $ref: '#/components/responses/ReglaDeNegocio'
           # AP-CU60-01 GRUPO_NO_CONFORMADO · AP-CU60-02 SORTEO_YA_EXISTE
-          # AP-CU60-05 REGLAMENTO_SIN_FIRMAR
+          # AP-CU60-05 REGLAMENTO_SIN_FIRMAR (version vigente del reglamento)
+          # AP-CU60-11 PRIMER_APORTE_PENDIENTE · AP-CU60-12 APORTES_SIN_RESPUESTA (R-GRP-20: la cuota 1 la afirma
+          # `aportes` por GET /aportes/grupos/{grupoId}/primera-cuota; sin respuesta se deniega, no se supone)
 
   /grupos/{grupoId}/sorteo/revelacion:
     post:

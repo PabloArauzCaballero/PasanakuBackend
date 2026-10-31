@@ -90,37 +90,15 @@ public class CU60Sortear {
                 throw new ErrorDeNegocio(
                         CodigoError.de(60, 1), "Todavia quedan cupos libres: el grupo no esta conformado.");
             }
-            // AP-CU60-05: cada ocupante con la version VIGENTE del reglamento aceptada. Al iniciar el grupo se publica
-            // una version nueva con el plantel real: la firma de la anterior es la firma de otro contrato.
-            List<Integer> sinFirma = aceptaciones.cuposSinAceptacionVigente(dsl, grupoId);
-            if (!sinFirma.isEmpty()) {
-                throw new ErrorDeNegocio(
-                        CodigoError.de(60, 5),
-                        "Falta que alguien acepte el reglamento del grupo.",
-                        Map.of("cuposSinFirma", sinFirma));
-            }
+            // AP-CU60-05: la firma de la version VIGENTE del reglamento (ver RequisitosDelSorteo).
+            RequisitosDelSorteo.exigirFirmaVigente(aceptaciones.cuposSinAceptacionVigente(dsl, grupoId));
             // AP-CU60-02: el compromiso se publica una sola vez.
             if (sorteos.yaHuboSorteo(dsl, grupoId)) {
                 throw new ErrorDeNegocio(CodigoError.de(60, 2), "Este grupo ya tiene su sorteo.");
             }
-            // AP-CU60-12 y AP-CU60-11 (R-GRP-20): el sorteo se hace con plata cobrada, no prometida. Si `aportes` no
-            // contesto, se deniega: lo unico que no se puede suponer es que todos pagaron.
-            if (conCuotaPagada.isEmpty()) {
-                throw new ErrorDeNegocio(
-                        CodigoError.de(60, 12),
-                        "No pudimos confirmar los aportes del grupo. Proba de nuevo en unos minutos.");
-            }
+            // AP-CU60-12 y AP-CU60-11 (R-GRP-20): con plata cobrada, no prometida (ver RequisitosDelSorteo).
             List<SnapshotDeSorteo.CupoCongelado> plantel = sorteos.plantelOcupado(dsl, grupoId);
-            List<Integer> sinCuota = plantel.stream()
-                    .filter(c -> !conCuotaPagada.get().contains(c.cupoId()))
-                    .map(SnapshotDeSorteo.CupoCongelado::numero)
-                    .toList();
-            if (!sinCuota.isEmpty()) {
-                throw new ErrorDeNegocio(
-                        CodigoError.de(60, 11),
-                        "Falta que algunos cupos paguen su primera cuota antes del sorteo.",
-                        Map.of("cuposPendientes", sinCuota));
-            }
+            RequisitosDelSorteo.exigirPrimeraCuota(conCuotaPagada, plantel);
             var snapshot = new SnapshotDeSorteo(
                     plantel, sorteos.calendarioDelGrupo(dsl, grupoId), sorteos.reglasDelGrupo(dsl, grupoId));
             List<String> completas = conSnapshot(entropias, snapshot);

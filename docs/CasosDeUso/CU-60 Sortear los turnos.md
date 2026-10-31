@@ -110,6 +110,11 @@ export const ErroresCU60 = {
   FECHA_DE_REVELADO_FUTURA: 'AP-CU60-03',
   HASH_NO_VERIFICA:         'AP-CU60-04',   // aborta y notifica
   REGLAMENTO_SIN_FIRMAR:    'AP-CU60-05',   // version vigente del reglamento
+  PLANTEL_O_CALENDARIO_CAMBIO: 'AP-CU60-06', // al revelar: no se sortea sobre otra cosa
+  YA_REVELADO:              'AP-CU60-07',   // el reintento HTTP devuelve el original
+  SORTEO_ANULADO:           'AP-CU60-08',
+  CALENDARIO_AUSENTE:       'AP-CU60-09',
+  NO_ADMINISTRA_EL_GRUPO:   'AP-CU60-10',
   PRIMER_APORTE_PENDIENTE:  'AP-CU60-11',   // R-GRP-20
   APORTES_SIN_RESPUESTA:    'AP-CU60-12',   // R-GRP-20, fallo cerrado
 } as const
@@ -122,6 +127,11 @@ export const ErroresCU60 = {
 | `FECHA_DE_REVELADO_FUTURA` | Se pidió revelar antes de la fecha comprometida: el compromiso sería inútil |
 | `HASH_NO_VERIFICA` | La semilla revelada no reproduce el hash. **Aborta, no asigna turnos y abre incidente** |
 | `REGLAMENTO_SIN_FIRMAR` | Algún ocupante no aceptó la **versión vigente** del reglamento (al iniciar el grupo se publica una nueva; la firma de la anterior no vale). `detalle.cuposSinFirma` trae los números de cupo |
+| `PLANTEL_O_CALENDARIO_CAMBIO` | `AP-CU60-06` · Al revelar, el plantel ocupado o el calendario ya no son los congelados en el compromiso: se rechaza sin anular y el sorteo sigue `COMPROMETIDO` |
+| `YA_REVELADO` | `AP-CU60-07` · El sorteo ya tiene su resultado vigente; revelar de nuevo no sortea otra vez (el reintento HTTP devuelve el original) |
+| `SORTEO_ANULADO` | `AP-CU60-08` · El sorteo quedó anulado por un hash que no verificó; no se repite sin una decisión de backoffice |
+| `CALENDARIO_AUSENTE` | `AP-CU60-09` · Falta el calendario del grupo: cada cupo necesita su período para crear los turnos |
+| `NO_ADMINISTRA_EL_GRUPO` | `AP-CU60-10` · Quien llama no administra el grupo de la ruta |
 | `PRIMER_APORTE_PENDIENTE` | `AP-CU60-11` · Algún cupo ocupado no tiene la obligación de la cuota 1 en `PAGADO` (`R-GRP-20`). `detalle.cuposPendientes` trae los números de cupo. Lo afirma `aportes` (`GET /aportes/grupos/{grupoId}/primera-cuota`), nunca quien sortea |
 | `APORTES_SIN_RESPUESTA` | `AP-CU60-12` · `aportes` no contestó (caído, circuito abierto o respuesta ilegible). Se deniega: lo único que no se puede suponer es que la plata está (`R-GRP-20`) |
 
@@ -217,6 +227,23 @@ Dado un sorteo comprometido en un grupo sin calendario
 Cuando se intenta revelar
 Entonces se rechaza pero el sorteo sigue vivo en COMPROMETIDO
 Y al existir el calendario la revelación procede y se crean los turnos
+
+Dado un grupo conformado con un cupo que no pagó la cuota 1
+Cuando se intenta comprometer el sorteo
+Entonces se rechaza con AP-CU60-11 y el detalle nombra el cupo pendiente
+Y no existe sorteo
+
+Dado que aportes no responde
+Cuando se intenta comprometer el sorteo
+Entonces se rechaza con AP-CU60-12: sin confirmar la plata no se sortea
+
+Dado un grupo cuyos tres participantes firmaron la versión vigente del reglamento
+Cuando se compromete el sorteo
+Entonces procede: la firma vigente alcanza
+
+Dado un grupo cuyo reglamento firmado fue reemplazado por una versión nueva que nadie firmó
+Cuando se intenta comprometer el sorteo
+Entonces se rechaza con AP-CU60-05 y nombra los cupos sin firma: la firma de la versión anterior no vale
 ```
 
 ## Ver también
