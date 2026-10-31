@@ -1,7 +1,6 @@
 package bo.aportaya.transparencia.web;
 
 import bo.aportaya.plataforma.web.seguridad.Permiso;
-import bo.aportaya.plataforma.web.seguridad.PermisoAlternativo;
 import bo.aportaya.plataforma.web.seguridad.SesionDeLaPeticion;
 import bo.aportaya.plataforma.web.traza.Traza;
 import bo.aportaya.transparencia.aplicacion.CU70RegistrarEventoReputacion;
@@ -26,9 +25,6 @@ import bo.aportaya.transparencia.web.generado.modelo.EntradaRevocacionCertificad
 import bo.aportaya.transparencia.web.generado.modelo.EntradaRevocacionInsignia;
 import bo.aportaya.transparencia.web.generado.modelo.EntradaSellado;
 import bo.aportaya.transparencia.web.generado.modelo.EntradaSnapshot;
-import bo.aportaya.transparencia.web.generado.modelo.EtapaDePersona;
-import bo.aportaya.transparencia.web.generado.modelo.EtapaDelCatalogo;
-import bo.aportaya.transparencia.web.generado.modelo.PuntajeDelUsuario;
 import bo.aportaya.transparencia.web.generado.modelo.SalidaCertificado;
 import bo.aportaya.transparencia.web.generado.modelo.SalidaEvaluacionRiesgo;
 import bo.aportaya.transparencia.web.generado.modelo.SalidaEventoReputacion;
@@ -37,26 +33,22 @@ import bo.aportaya.transparencia.web.generado.modelo.SalidaPuntaje;
 import bo.aportaya.transparencia.web.generado.modelo.SalidaResena;
 import bo.aportaya.transparencia.web.generado.modelo.SalidaSellado;
 import bo.aportaya.transparencia.web.generado.modelo.SalidaSnapshot;
-import java.util.List;
 import java.util.UUID;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
  * Las paginas de {@code /reputacion}.
  *
  * <p>Una sola clase porque el generador agrupa por el primer tramo de la ruta, y las
- * doce operaciones caen bajo {@code /reputacion}. La traduccion vive en
- * {@link MapeoDeTransparencia} y {@link MapeoDeReputacion}.
+ * doce operaciones caen bajo {@code /reputacion}. El puntaje propio y las etapas viven en
+ * {@link RutasDeEtapas}, y el perfil en el grupo en {@link RutasDePerfilEnGrupo}. La traduccion
+ * vive en {@link MapeoDeTransparencia} y {@link MapeoDeReputacion}.
  */
 @RestController
-public class ReputacionController extends RutasDePerfilEnGrupo {
+public class ReputacionController extends RutasDeEtapas {
 
-    private final ConsultarPuntaje puntajes;
-    private final ListarEtapas etapas;
-    private final ConsultarEtapasDePersonas etapasDePersonas;
     private final CU70RegistrarEventoReputacion cu70;
     private final CU71RecalcularPuntaje cu71;
     private final CU72SellarBloque cu72;
@@ -78,10 +70,7 @@ public class ReputacionController extends RutasDePerfilEnGrupo {
             CU76PublicarResena cu76,
             CU97EvaluarRiesgo cu97,
             SesionDeLaPeticion sesion) {
-        super(sesion);
-        this.puntajes = puntajes;
-        this.etapas = etapas;
-        this.etapasDePersonas = etapasDePersonas;
+        super(sesion, puntajes, etapas, etapasDePersonas);
         this.cu70 = cu70;
         this.cu71 = cu71;
         this.cu72 = cu72;
@@ -90,82 +79,6 @@ public class ReputacionController extends RutasDePerfilEnGrupo {
         this.cu76 = cu76;
         this.cu97 = cu97;
         this.sesion = sesion;
-    }
-
-    /**
-     * Mi puntaje exacto, con mi etapa. Solo el propio (decision del dueño 2026-10-30, regla
-     * 90.2.8): otro {@code usuarioId} es 403 antes de llegar al caso, aunque quien pregunta comparta
-     * un grupo con esa persona. {@link ConsultarPuntaje} lo vuelve a exigir: la ruta no es la unica
-     * forma de llamarlo.
-     *
-     * <p>Quien no tiene historial no tiene cero: se responde SIN_HISTORIAL. Confundir
-     * «no se sabe» con «malo» le cerraria la puerta a todo el que empieza.
-     */
-    @Override
-    @Permiso("PARTICIPANTE")
-    public ResponseEntity<PuntajeDelUsuario> consultarPuntaje(UUID usuarioId) {
-        Traza.marcarCasoDeUso("CU-71", usuarioId.toString());
-        if (!usuarioId.equals(sesion.actual().usuarioId())) {
-            throw new AccessDeniedException("el puntaje exacto solo lo ve su dueño");
-        }
-
-        var puntaje = puntajes.ejecutar(usuarioId, sesion.actual());
-
-        var respuesta = new PuntajeDelUsuario();
-        respuesta.setTieneHistorial(puntaje.tieneHistorial());
-        respuesta.setPuntaje(puntaje.puntaje().toPlainString());
-        respuesta.setNivelDeConfianza(puntaje.nivelDeConfianza());
-        if (puntaje.etapa() != null) {
-            respuesta.setEtapa(MapeoDeReputacion.etapaDelPuntaje(puntaje.etapa()));
-        }
-        return ResponseEntity.ok(respuesta);
-    }
-
-    /**
-     * El catalogo de etapas del modelo vigente, de la mas baja a la mas alta. No dice nada de
-     * ninguna persona.
-     *
-     * <p>Lo leen tres poblaciones, y cada puerta tiene su motivo:
-     * <ul>
-     *   <li>{@code PARTICIPANTE}: la app dibuja el camino de etapas y la etapa minima al crear un grupo.
-     *   <li>Backoffice: {@code SOPORTE} (el rol que ya opera la reputacion en este controlador),
-     *       {@code SOLICITUD_INGRESO_VER} y {@code SOLICITUD_INGRESO_RESOLVER} (la bandeja de ingresos
-     *       decide con la etapa minima del grupo) y {@code AUDITORIA_LEER}. Antes solo PARTICIPANTE: el
-     *       backoffice recibia 403 y grupos, que reenvia su sesion, fallaba cerrado.
-     *   <li>{@code SERVICIO_GRUPOS}: grupos valida la etapa minima y los desbloqueos con su identidad de
-     *       servicio cuando quien decide no es la persona que entra.
-     * </ul>
-     */
-    @Override
-    @Permiso("PARTICIPANTE")
-    @PermisoAlternativo({
-        "SOPORTE",
-        "SOLICITUD_INGRESO_VER",
-        "SOLICITUD_INGRESO_RESOLVER",
-        "AUDITORIA_LEER",
-        "SERVICIO_GRUPOS"
-    })
-    public ResponseEntity<List<EtapaDelCatalogo>> listarEtapas() {
-        Traza.marcarCasoDeUso("ETAPAS", "catalogo");
-
-        return ResponseEntity.ok(etapas.ejecutar(sesion.actual()).stream()
-                .map(MapeoDeReputacion::etapa)
-                .toList());
-    }
-
-    /**
-     * [CONTRATO · SOLO SERVICIO] La etapa de otras personas, sin su puntaje. Solo la identidad de
-     * servicio de {@code grupos}: una sesion de persona —aunque comparta el grupo— recibe 403. El
-     * tamaño (1 a 60) lo valida el contrato en la ruta, y el caso lo vuelve a exigir.
-     */
-    @Override
-    @Permiso("SERVICIO_GRUPOS")
-    public ResponseEntity<List<EtapaDePersona>> consultarEtapasDePersonas(List<UUID> usuarioId) {
-        Traza.marcarCasoDeUso("ETAPAS", "de-personas");
-
-        return ResponseEntity.ok(etapasDePersonas.ejecutar(usuarioId, sesion.actual()).stream()
-                .map(MapeoDeReputacion::etapaDePersona)
-                .toList());
     }
 
     @Override

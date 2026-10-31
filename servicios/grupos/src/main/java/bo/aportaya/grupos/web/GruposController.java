@@ -8,9 +8,7 @@ import bo.aportaya.grupos.aplicacion.CU68Postular;
 import bo.aportaya.grupos.aplicacion.CU69Invitar;
 import bo.aportaya.grupos.aplicacion.Consultas;
 import bo.aportaya.grupos.dominio.puertos.HechosDeOtrosServicios;
-import bo.aportaya.grupos.web.generado.modelo.ActividadEnGrupos;
 import bo.aportaya.grupos.web.generado.modelo.AdmisibilidadDePago;
-import bo.aportaya.grupos.web.generado.modelo.AliasResuelto;
 import bo.aportaya.grupos.web.generado.modelo.CompromisoDeSorteo;
 import bo.aportaya.grupos.web.generado.modelo.EntradaCompromiso;
 import bo.aportaya.grupos.web.generado.modelo.EntradaGrupo;
@@ -18,7 +16,6 @@ import bo.aportaya.grupos.web.generado.modelo.EntradaPostulacion;
 import bo.aportaya.grupos.web.generado.modelo.EntradaRetiro;
 import bo.aportaya.grupos.web.generado.modelo.EntradaRevelacion;
 import bo.aportaya.grupos.web.generado.modelo.EntradaTraspaso;
-import bo.aportaya.grupos.web.generado.modelo.PaqueteDelSorteo;
 import bo.aportaya.grupos.web.generado.modelo.RevelacionDeSorteo;
 import bo.aportaya.grupos.web.generado.modelo.SalidaGrupo;
 import bo.aportaya.grupos.web.generado.modelo.SalidaPlazoHabil;
@@ -29,7 +26,6 @@ import bo.aportaya.grupos.web.generado.modelo.SalidaVencimientoLocal;
 import bo.aportaya.plataforma.dominio.CodigoError;
 import bo.aportaya.plataforma.dominio.ErrorDeNegocio;
 import bo.aportaya.plataforma.web.seguridad.Permiso;
-import bo.aportaya.plataforma.web.seguridad.Publico;
 import bo.aportaya.plataforma.web.seguridad.SesionDeLaPeticion;
 import bo.aportaya.plataforma.web.traza.Traza;
 import java.time.LocalDate;
@@ -50,14 +46,10 @@ import org.springframework.web.bind.annotation.RestController;
  * ninguno vive en este esquema. Todos se preguntan por contrato (invariante 11) y
  * **antes** de abrir la transaccion (invariante 6).
  *
- * <p>Las tres ultimas operaciones no son casos de uso: son lo que este servicio le
- * contesta a los demas para que ellos tampoco tengan que leer su esquema.
+ * <p>Lo que este servicio le contesta a los demas vive en {@link RutasAOtrosServicios}.
  */
 @RestController
-public class GruposController extends RutasDeSubastaDelCupo {
-
-    /** El proceso que atiende lo publico: fijo, para poder leerlo en la bitacora. */
-    private static final UUID PROCESO_PUBLICO = UUID.fromString("00000000-0000-0000-0000-0000000000f1");
+public class GruposController extends RutasAOtrosServicios {
 
     private final CU20CrearGrupo cu20;
     private final CU59CalcularPlazo cu59;
@@ -70,7 +62,6 @@ public class GruposController extends RutasDeSubastaDelCupo {
     private final String codigoTarifario;
     private final String servicioDeLicencia;
     private final java.math.BigDecimal afinidadNeutra;
-    private final RespuestasAOtrosServicios respuestas;
     private final SorteoDelGrupo sorteo;
 
     @SuppressWarnings("checkstyle:ParameterNumber")
@@ -94,7 +85,18 @@ public class GruposController extends RutasDeSubastaDelCupo {
             AdmisionDelGrupo admision,
             bo.aportaya.grupos.aplicacion.CanjearInvitacion canjes,
             bo.aportaya.grupos.aplicacion.CU69EnlaceDeGrupo enlace) {
-        super(admision, sesion, cu68Decision, invitaciones, cu69, canjes, consultas, afuera, afinidadNeutra, enlace);
+        super(
+                admision,
+                sesion,
+                cu68Decision,
+                invitaciones,
+                cu69,
+                canjes,
+                consultas,
+                afuera,
+                afinidadNeutra,
+                enlace,
+                respuestas);
         this.cu20 = cu20;
         this.cu59 = cu59;
         this.cu64 = cu64;
@@ -106,7 +108,6 @@ public class GruposController extends RutasDeSubastaDelCupo {
         this.codigoTarifario = codigoTarifario;
         this.servicioDeLicencia = servicioDeLicencia;
         this.afinidadNeutra = afinidadNeutra;
-        this.respuestas = respuestas;
         this.sorteo = sorteo;
     }
 
@@ -278,32 +279,5 @@ public class GruposController extends RutasDeSubastaDelCupo {
         respuesta.setPuntaje(salida.puntaje().toPlainString());
         respuesta.setMotivos(salida.motivos());
         return ResponseEntity.status(HttpStatus.CREATED).body(respuesta);
-    }
-
-    // ------------------------------------- lo que este servicio le contesta a otros --
-
-    @Override
-    @Permiso("BILLETERA_OPERAR")
-    public ResponseEntity<AliasResuelto> resolverAlias(String alias) {
-        Traza.marcarCasoDeUso("CU-12", alias);
-        return respuestas.resolverAlias(alias, sesion.actual());
-    }
-
-    @Override
-    @Permiso("BILLETERA_VER")
-    public ResponseEntity<ActividadEnGrupos> consultarActividad(UUID usuarioId) {
-        Traza.marcarCasoDeUso("CU-16", usuarioId.toString());
-        return respuestas.consultarActividad(usuarioId, sesion.actual());
-    }
-
-    @Override
-    @Publico("CU-61: el paquete del sorteo es publico por diseno; poder recomputarlo desde afuera es su sentido")
-    public ResponseEntity<PaqueteDelSorteo> consultarPaqueteDelSorteo(UUID sorteoId) {
-        Traza.marcarCasoDeUso("CU-61", sorteoId.toString());
-        // Sin sesion: lo atiende el proceso publico, con rol de sistema (lectura de un sorteo).
-        var contextoPublico = bo.aportaya.plataforma.dominio.ContextoSesion.deSistema(
-                PROCESO_PUBLICO,
-                new bo.aportaya.plataforma.dominio.Traza(UUID.randomUUID().toString()));
-        return respuestas.consultarPaqueteDelSorteo(sorteoId, contextoPublico);
     }
 }

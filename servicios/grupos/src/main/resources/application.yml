@@ -88,6 +88,9 @@ aportaya:
       porcentaje: 75
     transparencia:
       timeout: PT3S
+      # Cuantas personas por peticion a `GET /reputacion/etapas/de-personas`: lo que acepta el contrato de
+      # transparencia (`maxItems: 60`). Configuracion, nunca una constante en el codigo (invariante 10).
+      maximo-por-consulta: 60
       # Identidad de SERVICIO con que grupos lee la ETAPA de otra persona (2026-10-30): transparencia acepta
       # `GET /reputacion/etapas/de-personas` solo del rol SERVICIO_GRUPOS; el puntaje exacto ya no se lee de nadie mas
       # que de la sesion (regla 90.2.8). Mismo mecanismo que entregas e inversiones; secretas y por entorno:

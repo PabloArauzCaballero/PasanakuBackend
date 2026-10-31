@@ -191,7 +191,9 @@ class CU69IngresoCerradoTest extends BaseDeCU68 {
     }
 
     @Test
-    @DisplayName("CU-69 · iniciado: aceptar por el enlace de invitacion responde AP-CU69-17 y nadie entra")
+    @DisplayName("Dado un grupo iniciado con una invitacion vigente emitida antes de iniciar · "
+            + "Cuando el invitado la acepta por el enlace de invitacion · "
+            + "Entonces recibe AP-CU69-17, nadie entra y la invitacion sigue ENVIADA")
     void aceptarPorEnlaceDeInvitacion() {
         UUID token = (UUID) dsl.fetchValue("SELECT token_id FROM grupos.invitacion WHERE id = ?", invitacion);
         UUID invitado = fixtura.usuario();
@@ -206,7 +208,9 @@ class CU69IngresoCerradoTest extends BaseDeCU68 {
     }
 
     @Test
-    @DisplayName("CU-69 · iniciado: el canje responde AP-CU69-17 ANTES de consumir el enlace en identidad")
+    @DisplayName("Dado un grupo iniciado con una invitacion vigente · "
+            + "Cuando el invitado la canjea · "
+            + "Entonces la comprobacion previa responde AP-CU69-17 ANTES de consumir el enlace en identidad")
     void canjeAntesDeConsumir() {
         UUID invitado = fixtura.usuario();
         cerrado(() -> transaccion.executeWithoutResult(
@@ -214,7 +218,9 @@ class CU69IngresoCerradoTest extends BaseDeCU68 {
     }
 
     @Test
-    @DisplayName("CU-69 · iniciado: postular y pedir por el enlace del grupo responden AP-CU69-17, sin solicitud nueva")
+    @DisplayName("Dado un grupo iniciado con un enlace del grupo generado antes de iniciar · "
+            + "Cuando alguien postula o pide unirse por ese enlace · "
+            + "Entonces los dos caminos responden AP-CU69-17 y no hay solicitud nueva")
     void postularYEnlaceDelGrupo() {
         int solicitudes = contar("SELECT count(*) FROM grupos.solicitud_ingreso WHERE grupo_id = ?", grupo);
         UUID alguien = fixtura.usuario();
@@ -228,8 +234,10 @@ class CU69IngresoCerradoTest extends BaseDeCU68 {
     }
 
     @Test
-    @DisplayName(
-            "CU-69 · iniciado: no se invita (ni se pide el enlace a identidad) y no se genera otro enlace del grupo")
+    @DisplayName("Dado un grupo iniciado · "
+            + "Cuando el organizador intenta invitar o generar otro enlace del grupo · "
+            + "Entonces la comprobacion del emisor, antes de pedir el enlace a identidad, y la invitacion responden AP-CU69-17 · "
+            + "Y generar otro enlace del grupo responde AP-CU69-01 porque no le queda ningun cupo")
     void invitarYGenerarEnlace() {
         cerrado(() -> transaccion.executeWithoutResult(t -> invitar.comprobarEmisor(grupo, de(organizador))));
         cerrado(() -> transaccion.execute(t -> invitar.invitar(
@@ -251,7 +259,10 @@ class CU69IngresoCerradoTest extends BaseDeCU68 {
     }
 
     @Test
-    @DisplayName("CU-69 · iniciado: aceptar una solicitud (organizador, propuesta o resolucion) responde AP-CU69-17")
+    @DisplayName(
+            "Dado un grupo iniciado con una solicitud PENDIENTE sin propuesta y otra con la propuesta de aceptarla · "
+                    + "Cuando el organizador acepta o propone aceptar, o backoffice resuelve la propuesta · "
+                    + "Entonces cada camino responde AP-CU69-17, nadie entra y no queda ningun cupo RESERVADO")
     void decidirAceptar() {
         cerrado(() ->
                 transaccion.execute(t -> admision.decidir(sinPropuesta, true, null, BigDecimal.ZERO, de(organizador))));
@@ -270,7 +281,9 @@ class CU69IngresoCerradoTest extends BaseDeCU68 {
     }
 
     @Test
-    @DisplayName("CU-69 · iniciado: rechazar una solicitud pendiente sigue permitido (cerrar no deja colgados)")
+    @DisplayName("Dado un grupo iniciado con una solicitud PENDIENTE · "
+            + "Cuando el organizador la rechaza · "
+            + "Entonces queda RECHAZADA, porque cerrar el ingreso no deja solicitudes colgadas")
     void rechazarSigue() {
         var r = transaccion.execute(
                 t -> admision.decidir(sinPropuesta, false, "El grupo ya inicio.", BigDecimal.ZERO, de(organizador)));

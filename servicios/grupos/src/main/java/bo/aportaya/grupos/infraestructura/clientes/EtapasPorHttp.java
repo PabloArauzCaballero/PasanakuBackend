@@ -38,17 +38,21 @@ final class EtapasPorHttp {
 
     private static final Logger BITACORA = LoggerFactory.getLogger(EtapasPorHttp.class);
 
-    /** Lo que acepta el contrato por peticion ({@code maxItems: 60}). */
-    static final int MAXIMO_POR_CONSULTA = 60;
-
     private static final String DE_PERSONAS = "/reputacion/etapas/de-personas";
 
     private final ClienteConCircuito transparencia;
     private final CredencialDeServicio servicio;
 
-    EtapasPorHttp(ClienteConCircuito transparencia, CredencialDeServicio servicio) {
+    /**
+     * Lo que acepta el contrato por peticion ({@code maxItems: 60}). De configuracion
+     * ({@code aportaya.grupos.transparencia.maximo-por-consulta}), no una constante (invariante 10).
+     */
+    private final int maximoPorConsulta;
+
+    EtapasPorHttp(ClienteConCircuito transparencia, CredencialDeServicio servicio, int maximoPorConsulta) {
         this.transparencia = transparencia;
         this.servicio = servicio;
+        this.maximoPorConsulta = maximoPorConsulta;
     }
 
     /** La etapa de una persona, con lo que desbloquea y el catalogo, para decidir un ingreso o un alta. */
@@ -86,7 +90,7 @@ final class EtapasPorHttp {
     }
 
     /**
-     * La ruta de servicio, de a {@link #MAXIMO_POR_CONSULTA} personas: un detalle de 40 cupos es UNA llamada, no
+     * La ruta de servicio, de a {@code maximoPorConsulta} personas: un detalle de 40 cupos es UNA llamada, no
      * cuarenta. Cada persona pedida sin etapa en la respuesta queda afuera del mapa; una respuesta que trae a alguien
      * que no se pidio no se usa (no es la respuesta a esta pregunta).
      */
@@ -100,8 +104,8 @@ final class EtapasPorHttp {
             return Optional.empty();
         }
         Map<UUID, EtapaParaServicio> salida = new LinkedHashMap<>();
-        for (int desde = 0; desde < pedidos.size(); desde += MAXIMO_POR_CONSULTA) {
-            List<UUID> tanda = pedidos.subList(desde, Math.min(pedidos.size(), desde + MAXIMO_POR_CONSULTA));
+        for (int desde = 0; desde < pedidos.size(); desde += maximoPorConsulta) {
+            List<UUID> tanda = pedidos.subList(desde, Math.min(pedidos.size(), desde + maximoPorConsulta));
             Optional<EtapaDePersona[]> respuesta = consultar(tanda, token.get());
             if (respuesta.isEmpty()) return Optional.empty();
             for (EtapaDePersona p : respuesta.get()) {

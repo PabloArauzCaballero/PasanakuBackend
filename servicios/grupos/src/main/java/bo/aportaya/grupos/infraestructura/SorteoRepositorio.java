@@ -6,9 +6,6 @@ import static bo.aportaya.grupos.generado.Tables.SORTEO_TURNOS;
 import static bo.aportaya.grupos.generado.Tables.TURNO;
 
 import bo.aportaya.grupos.dominio.SnapshotDeSorteo;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -89,7 +86,9 @@ public class SorteoRepositorio {
                 .set(SORTEO_TURNOS.HASH_SEMILLA_PREVIO, hash)
                 .set(SORTEO_TURNOS.FECHA_COMPROMISO, ahora)
                 .set(SORTEO_TURNOS.FECHA_REVELADO_PREVISTA, fechaPrevista.orElse(null))
-                .set(SORTEO_TURNOS.APORTES_ENTROPIA, org.jooq.JSONB.valueOf(comoJson(entropiasComprometidas)))
+                .set(
+                        SORTEO_TURNOS.APORTES_ENTROPIA,
+                        org.jooq.JSONB.valueOf(ListasDeSorteo.comoJson(entropiasComprometidas)))
                 .set(SORTEO_TURNOS.SEMILLA_PUBLICA, "")
                 .set(SORTEO_TURNOS.RESULTADO, org.jooq.JSONB.valueOf("[]"))
                 .set(SORTEO_TURNOS.EJECUTADO_POR, ejecutadoPor)
@@ -216,28 +215,9 @@ public class SorteoRepositorio {
                 f.get("grupo_id", UUID.class),
                 f.get("estado", String.class),
                 f.get("hash_semilla_previo", String.class),
-                leerLista(f.get("aportes_entropia", org.jooq.JSONB.class)),
-                leerLista(f.get("resultado", org.jooq.JSONB.class)),
+                ListasDeSorteo.leerLista(f.get("aportes_entropia", org.jooq.JSONB.class)),
+                ListasDeSorteo.leerLista(f.get("resultado", org.jooq.JSONB.class)),
                 f.get("semilla_publica", String.class));
-    }
-
-    private static final ObjectMapper JSON = new ObjectMapper();
-
-    public static String comoJson(List<String> valores) {
-        try {
-            return JSON.writeValueAsString(valores);
-        } catch (JsonProcessingException e) {
-            throw new IllegalStateException(e);
-        }
-    }
-
-    public static List<String> leerLista(org.jooq.JSONB json) {
-        if (json == null) return List.of();
-        try {
-            return JSON.readValue(json.data(), new TypeReference<List<String>>() {});
-        } catch (JsonProcessingException e) {
-            throw new IllegalStateException("JSON de sorteo ilegible", e);
-        }
     }
 
     /** Congela el plantel, el calendario y las reglas junto con la semilla sellada. Una sola vez por sorteo. */

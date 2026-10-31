@@ -48,6 +48,10 @@ aportaya:
     # Los cortes de confianza, de mayor a menor. El nombre es lo que ve un tercero en
     # un certificado: moverlos cambia lo que significa «confiable» para todos a la vez.
     cortes: "REFERENTE:90, MUY_CONFIABLE:75, CONFIABLE:60, BASICO:40, EN_OBSERVACION:25"
+  etapas:
+    # Cuantas personas distintas puede pedir grupos de una vez: el maxItems del contrato
+    # (transparencia.yaml, consultarEtapasDePersonas). Moverlo exige mover los dos.
+    maximo-de-personas: 60
   riesgo:
     # De cuanto se paso una metrica sale la severidad, no de una tabla de humor.
     hasta-alto: 60

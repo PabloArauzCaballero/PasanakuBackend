@@ -94,7 +94,10 @@ class CU69EtapaContraTransparenciaTest {
     }
 
     @Test
-    @DisplayName("correcto: quien esta en MEDIA entra (su etapa la dio transparencia por la ruta de servicio)")
+    @DisplayName(
+            "Dado el caso correcto de un grupo que pide la etapa MEDIA · "
+                    + "Cuando quiere entrar alguien que esta en MEDIA · "
+                    + "Entonces entra con la etapa que dio transparencia por la ruta de servicio, con el token del servicio y sin pedir el puntaje exacto")
     void alcanzaLaMinima() {
         UUID entrante = UUID.randomUUID();
         transparencia.etapaDe(entrante, "MEDIA", "500.00");
@@ -106,7 +109,9 @@ class CU69EtapaContraTransparenciaTest {
     }
 
     @Test
-    @DisplayName("limite: quien esta en BAJA (una etapa por debajo) no entra: AP-CU68-03 con detalle.etapaMinima")
+    @DisplayName("Dado el caso limite de un grupo que pide la etapa MEDIA · "
+            + "Cuando quiere entrar alguien que esta en BAJA, una etapa por debajo · "
+            + "Entonces no entra y recibe AP-CU68-03 con detalle.etapaMinima MEDIA")
     void noAlcanzaLaMinima() {
         UUID entrante = UUID.randomUUID();
         transparencia.etapaDe(entrante, "BAJA", "0.00");
@@ -121,7 +126,9 @@ class CU69EtapaContraTransparenciaTest {
     }
 
     @Test
-    @DisplayName("invalido: transparencia caida → el ingreso se rechaza (falla cerrado), no se supone ninguna etapa")
+    @DisplayName("Dado el caso invalido de un grupo que pide la etapa MEDIA con transparencia caido · "
+            + "Cuando quiere entrar alguien que esta en MEDIA · "
+            + "Entonces el ingreso se rechaza (falla cerrado) y no se supone ninguna etapa")
     void transparenciaCaidaRechazaElIngreso() {
         UUID entrante = UUID.randomUUID();
         transparencia.etapaDe(entrante, "MEDIA", "500.00");
@@ -131,7 +138,10 @@ class CU69EtapaContraTransparenciaTest {
     }
 
     @Test
-    @DisplayName("invalido: transparencia responde 403 a la ruta de servicio → el ingreso se rechaza")
+    @DisplayName(
+            "Dado el caso invalido de un grupo que pide la etapa MEDIA con transparencia respondiendo 403 a la ruta de servicio · "
+                    + "Cuando quiere entrar alguien que esta en MEDIA · "
+                    + "Entonces el ingreso se rechaza")
     void sinIdentidadDeServicioRechazaElIngreso() {
         UUID entrante = UUID.randomUUID();
         transparencia.etapaDe(entrante, "MEDIA", "500.00");

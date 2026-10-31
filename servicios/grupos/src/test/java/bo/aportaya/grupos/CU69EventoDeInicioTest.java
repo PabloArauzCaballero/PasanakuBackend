@@ -35,7 +35,9 @@ class CU69EventoDeInicioTest extends BaseDeInicio {
 
     @Test
     @DisplayName(
-            "CU-69 · 8 de 10 iniciado: un solo grupos.grupo_iniciado con el periodo 1 (id y fechas), los 8 cupos OCUPADO numerados 1..8 con titular y Bs 500,00, la moneda y el total achicado")
+            "Dado el caso correcto de un grupo con 8 de 10 cupos ocupados · "
+                    + "Cuando el organizador lo inicia · "
+                    + "Entonces se emite un solo grupos.grupo_iniciado con el periodo 1 (id y fechas), los 8 cupos OCUPADO numerados del 1 al 8 con titular y Bs 500,00, la moneda y el total achicado")
     void correcto() {
         UUID grupo = grupoAbierto(10, del1Al(8), Set.of());
 
@@ -82,7 +84,9 @@ class CU69EventoDeInicioTest extends BaseDeInicio {
 
     @Test
     @DisplayName(
-            "CU-69 · limite: el reintento con la misma clave no re-emite, y otra clave sobre el grupo iniciado responde AP-CU69-17 sin emitir")
+            "Dado el caso limite de un grupo ya iniciado con una clave · "
+                    + "Cuando el inicio se repite con la misma clave y despues con otra · "
+                    + "Entonces la misma clave no re-emite, la otra responde AP-CU69-17 sin emitir y queda un solo grupos.grupo_iniciado")
     void limiteIdempotente() {
         UUID grupo = grupoAbierto(4, del1Al(3), Set.of());
         UUID clave = UUID.randomUUID();
@@ -97,7 +101,9 @@ class CU69EventoDeInicioTest extends BaseDeInicio {
     }
 
     @Test
-    @DisplayName("CU-69 · invalido: 7 de 10 no alcanza (AP-CU69-16) y no se emite nada")
+    @DisplayName("Dado el caso invalido de un grupo con 7 de 10 cupos ocupados · "
+            + "Cuando el organizador lo inicia · "
+            + "Entonces recibe AP-CU69-16 y no se emite ningun grupos.grupo_iniciado")
     void invalidoSinMinimo() {
         UUID grupo = grupoAbierto(10, del1Al(7), Set.of());
 

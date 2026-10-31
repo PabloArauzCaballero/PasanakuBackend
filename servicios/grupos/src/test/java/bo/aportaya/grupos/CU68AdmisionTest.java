@@ -221,8 +221,11 @@ class CU68AdmisionTest extends BaseDeCU68 {
     }
 
     @Test
-    @DisplayName("etapa al aceptar (2026-10-30): autoriza ANTES de que la API mire la etapa del solicitante, con el rol"
-            + " del servicio; el reintento de la misma clave no la vuelve a pedir")
+    @DisplayName("Dada una solicitud PENDIENTE que alguien quiere aceptar, con el rol del servicio · "
+            + "Cuando lo pide el organizador de otro grupo, o un organizador por la resolucion de backoffice · "
+            + "Entonces recibe AP-CU68-06 antes de que la API mire la etapa del solicitante · "
+            + "Y para el administrador del grupo con una clave nueva si hay que mirar la etapa · "
+            + "Y con la misma clave ya registrada no se la vuelve a pedir y proponer devuelve la decision original")
     void exigeEtapaAlAceptarAutorizaPrimeroYReconoceElReintento() {
         // El organizador de OTRO grupo: rechazado sin saber nada del solicitante (no hay oraculo de reputacion).
         UUID otroGrupo = grupoConCupoLibre();

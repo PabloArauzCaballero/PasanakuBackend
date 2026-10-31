@@ -210,6 +210,12 @@ Entonces solo ve las PENDIENTES de SU grupo
 Dado un grupo con reputacion minima y dos postulantes, uno con historial por debajo del minimo y otro nuevo
 Cuando postulan
 Entonces se excluye a quien TIENE historial y no llega, pero no a quien es nuevo (B24)
+
+Dada una solicitud PENDIENTE que alguien quiere aceptar, con el rol del servicio
+Cuando lo pide el organizador de otro grupo, o un organizador por la resolucion de backoffice
+Entonces recibe AP-CU68-06 antes de que la API mire la etapa del solicitante
+Y para el administrador del grupo con una clave nueva si hay que mirar la etapa
+Y con la misma clave ya registrada no se la vuelve a pedir y proponer devuelve la decision original
 ```
 
 ## Ver también

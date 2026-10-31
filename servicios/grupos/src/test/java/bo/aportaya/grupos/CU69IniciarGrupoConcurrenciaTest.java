@@ -20,7 +20,9 @@ import org.junit.jupiter.api.Test;
 class CU69IniciarGrupoConcurrenciaTest extends BaseDeInicio {
 
     @Test
-    @DisplayName("CU-69 · dos inicios a la vez con claves distintas: uno inicia, el otro AP-CU69-17, un solo achique")
+    @DisplayName("Dado un grupo con 8 de 10 cupos ocupados · "
+            + "Cuando se piden dos inicios a la vez con claves distintas · "
+            + "Entonces uno queda CONFORMADO, el otro recibe AP-CU69-17 y hay un solo achique")
     void dosALaVez() throws Exception {
         UUID grupo = grupoAbierto(10, del1Al(8), Set.of());
         var hilos = Executors.newFixedThreadPool(2);
@@ -47,7 +49,9 @@ class CU69IniciarGrupoConcurrenciaTest extends BaseDeInicio {
     }
 
     @Test
-    @DisplayName("CU-69 · con el rol de base del servicio (svc_grupos): inicia sin necesitar borrar filas")
+    @DisplayName("Dado un grupo con 8 de 10 cupos ocupados · "
+            + "Cuando el organizador lo inicia con el rol de base del servicio (svc_grupos) · "
+            + "Entonces queda con 8 cupos sin necesitar borrar filas y los 10 cupos siguen existiendo")
     void conElRolDelServicio() {
         UUID grupo = grupoAbierto(10, del1Al(8), Set.of());
 

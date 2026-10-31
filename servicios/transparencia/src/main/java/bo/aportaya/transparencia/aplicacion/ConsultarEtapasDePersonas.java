@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,14 +32,11 @@ import org.springframework.transaction.annotation.Transactional;
  * transparencia no sabe quien existe en identidad, y no tiene por que.
  *
  * <p>Cada identificador repetido se responde una vez, en el orden en que aparecio por primera vez.
- * El tope de 60 lo hace cumplir el contrato en la ruta; aca se vuelve a exigir, porque esta clase
- * no sabe quien la llama.
+ * El tope (60, el {@code maxItems} del contrato) lo hace cumplir el contrato en la ruta; aca se vuelve
+ * a exigir, porque esta clase no sabe quien la llama.
  */
 @Service
 public class ConsultarEtapasDePersonas {
-
-    /** {@code maxItems} del contrato ({@code transparencia.yaml}, {@code consultarEtapasDePersonas}). */
-    static final int MAXIMO_DE_PERSONAS = 60;
 
     private final Datos datos;
     private final ReputacionRepositorio reputaciones;
@@ -46,27 +44,35 @@ public class ConsultarEtapasDePersonas {
     private final EtapaRepositorio etapas;
     private final Reloj reloj;
 
+    /**
+     * El {@code maxItems} del contrato ({@code transparencia.yaml}, {@code consultarEtapasDePersonas}).
+     * Llega como dato (invariante 10): si el contrato lo mueve, se mueve la configuracion, no el codigo.
+     */
+    private final int maximoDePersonas;
+
     public ConsultarEtapasDePersonas(
             Datos datos,
             ReputacionRepositorio reputaciones,
             ModeloRepositorio modelos,
             EtapaRepositorio etapas,
-            Reloj reloj) {
+            Reloj reloj,
+            @Value("${aportaya.etapas.maximo-de-personas:60}") int maximoDePersonas) {
         this.datos = datos;
         this.reputaciones = reputaciones;
         this.modelos = modelos;
         this.etapas = etapas;
         this.reloj = reloj;
+        this.maximoDePersonas = maximoDePersonas;
     }
 
     @Transactional(readOnly = true)
     public List<EtapaDePersona> ejecutar(List<UUID> usuarios, ContextoSesion ctx) {
         var unicos = new LinkedHashSet<>(usuarios);
-        if (unicos.isEmpty() || unicos.size() > MAXIMO_DE_PERSONAS || unicos.contains(null)) {
+        if (unicos.isEmpty() || unicos.size() > maximoDePersonas || unicos.contains(null)) {
             // ConstraintViolationException y no IllegalArgumentException: sale 400 por el manejador
             // global, como la misma violacion detectada en la ruta (regla 96.2.4: nunca un 500).
             throw new ConstraintViolationException(
-                    "usuarioId: entre 1 y " + MAXIMO_DE_PERSONAS + " personas distintas", Set.of());
+                    "usuarioId: entre 1 y " + maximoDePersonas + " personas distintas", Set.of());
         }
         return datos.conContexto(ctx, dsl -> {
             // La del puntaje base se calcula una sola vez: es la misma para todos los que no tienen historial.

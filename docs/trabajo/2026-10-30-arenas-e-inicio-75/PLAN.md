@@ -203,3 +203,12 @@ Se evitan «Confiable» y «Referente» para no chocar con `nivel_confianza`.
 - Estado de pasanaku-1f (2026-10-30): grupos 513/513 en su rama. Aportes consume `grupos.grupo_iniciado` con `CU21AbrirPrimeraCuota`, que funciona aunque el periodo 1 esté PROGRAMADO pero **exige el calendario de feriados del año del vencimiento** (`AP-CU21-09`). `CU60Sortear` tiene un constructor nuevo (`PrimerAporteDelCupo`, `AceptacionVigenteRepositorio`), y `AP-CU60-05` se calcula con `reglamento_grupo WHERE vigente_hasta IS NULL`.
 - **Para verificar en H1.S7.M3:** la versión N+1 del reglamento que se publica al iniciar tiene que **cerrar la anterior** (`vigente_hasta` con valor). Si no se cierra, la consulta de pasanaku-1f ve dos versiones vigentes y la re-firma no se exige. Hay que demostrarlo con un test.
 - pasanaku-1f publicó `origin/claude/sorteo-primera-cuota-20261030 @ 20f874d0` (grupos 513/513, aportes 236/236). **Su rama sola deja todos los sorteos en `AP-CU60-11`** hasta que exista el evento `grupos.grupo_iniciado`, así que **no se mergea antes que la emisión de esta rama**. Los PRs de las dos ramas salen juntos. Al integrar: `CU60Sortear` tiene 7 parámetros y cualquier test que lo construya a mano necesita el doble de `PrimerAporteDelCupo` y `new AceptacionVigenteRepositorio()`.
+
+## H1.S9 — Aprovisionar `SERVICIO_GRUPOS` en TEST (OK de Pablo 2026-10-30, por AskUserQuestion)
+Hecho descubierto: en TEST tampoco están aprovisionadas las cuentas de servicio de entregas e inversiones (sus variables están vacías en Coolify, app 13). No hay precedente operativo que copiar. El camino oficial es la API de identidad: `crearUsuarioInterno` (clave provisional) y `asignarRolesUsuarioInterno`. Nada se escribe a mano en la base (regla 97.1.5). Requisito: esta rama mergeada y desplegada, porque el rol recién existe después de sembrar.
+
+| ID | Microtarea | CA (binario) | DoD | Estado |
+|---|---|---|---|---|
+| H1.S9.M1 | Usuario interno con rol SERVICIO_GRUPOS creado por la API, con la clave cambiada y el segundo factor del perfil local | `POST /sesiones` de la cuenta devuelve un token con `SERVICIO_GRUPOS` | salida del inicio de sesión (sin el token) | TODO |
+| H1.S9.M2 | Variables `GRUPOS_SERVICIO_*` cargadas en Coolify y grupos redesplegado | grupos arranca sano y lee etapas | log de arranque + healthcheck | TODO |
+| H1.S9.M3 | Prueba real en TEST: crear un grupo y entrar a uno | 201 y 2xx sin `AP-DOM-01` | salida de `curl` enmascarada | TODO |

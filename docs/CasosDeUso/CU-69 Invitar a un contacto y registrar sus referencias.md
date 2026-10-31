@@ -346,6 +346,129 @@ Y la nueva queda ENVIADA
 Dado un invitado con una postulación pendiente en el grupo
 Cuando canjea una invitación vigente de ese grupo
 Entonces se rechaza con AP-CU68-06 y el enlace no se consume en identidad
+
+Dado un grupo iniciado con una invitacion vigente emitida antes de iniciar
+Cuando el invitado la acepta por el enlace de invitacion
+Entonces recibe AP-CU69-17, nadie entra y la invitacion sigue ENVIADA
+
+Dado un grupo iniciado con una invitacion vigente
+Cuando el invitado la canjea
+Entonces la comprobacion previa responde AP-CU69-17 ANTES de consumir el enlace en identidad
+
+Dado un grupo iniciado con un enlace del grupo generado antes de iniciar
+Cuando alguien postula o pide unirse por ese enlace
+Entonces los dos caminos responden AP-CU69-17 y no hay solicitud nueva
+
+Dado un grupo iniciado
+Cuando el organizador intenta invitar o generar otro enlace del grupo
+Entonces la comprobacion del emisor, antes de pedir el enlace a identidad, y la invitacion responden AP-CU69-17
+Y generar otro enlace del grupo responde AP-CU69-01 porque no le queda ningun cupo
+
+Dado un grupo iniciado con una solicitud PENDIENTE sin propuesta y otra con la propuesta de aceptarla
+Cuando el organizador acepta o propone aceptar, o backoffice resuelve la propuesta
+Entonces cada camino responde AP-CU69-17, nadie entra y no queda ningun cupo RESERVADO
+
+Dado un grupo iniciado con una solicitud PENDIENTE
+Cuando el organizador la rechaza
+Entonces queda RECHAZADA, porque cerrar el ingreso no deja solicitudes colgadas
+
+Dado un grupo de 10 cupos con 8 integrantes que firmaron la version 1 del reglamento
+Cuando el organizador lo inicia
+Entonces se publica la version 2 con 8 participantes y el fondo real, la version 1 deja de regir y nadie tiene aceptada la version 2
+
+Dado un grupo con la version 1 del reglamento
+Cuando el inicio se repite con la misma clave
+Entonces no se publica otra version y el grupo tiene dos
+
+Dado un grupo de antes sin reglamento previo y 8 de 10 cupos ocupados
+Cuando el organizador lo inicia
+Entonces se publica la version 1 del reglamento
+
+Dado un grupo recien iniciado con la version 2 del reglamento sin aceptar
+Cuando un integrante y el organizador abren el detalle
+Entonces al integrante le dice que le falta aceptar la version vigente sin pedirle la primera firma
+Y al organizador le dice que el grupo esta CONFORMADO pero todavia no puede sortear
+
+Dada una persona que no integra el grupo
+Cuando pide el detalle o intenta aceptar el reglamento vigente
+Entonces el detalle responde AP-CU69-14 y la aceptacion responde AP-CU69-13
+
+Dado un grupo con 7 de 10 cupos ocupados
+Cuando el organizador lo inicia
+Entonces recibe AP-CU69-16 con los ocupados, el minimo requerido y los cupos totales, y el grupo no cambia
+
+Dado un grupo con 8 de 10 cupos ocupados
+Cuando el organizador lo inicia
+Entonces queda CONFORMADO con 8 cupos y 8 periodos, un renglon en el historial y los dos libres fuera del ciclo
+
+Dado un grupo de 10 cupos con el 3 y el 10 libres
+Cuando el organizador lo inicia
+Entonces los ocupados quedan numerados del 1 al 8 en su orden y el organizador sigue en el cupo 1
+
+Dado un grupo iniciado con una clave
+Cuando el organizador repite el inicio con la misma clave y despues con otra
+Entonces la misma clave devuelve lo mismo sin repetir historial ni periodos y la otra responde AP-CU69-17
+
+Dado un grupo abierto con 8 de 10 cupos ocupados
+Cuando lo intenta iniciar un integrante que no organiza o el organizador de otro grupo, o se inicia un grupo que no existe
+Entonces cada intento recibe AP-CU69-07 y el grupo sigue ABIERTO_A_INSCRIPCION
+
+Dado un grupo con alguien aceptado sin firmar y otro grupo en BORRADOR
+Cuando el organizador intenta iniciarlos
+Entonces el primero recibe AP-CU69-19 con cuantos reservados hay y el BORRADOR recibe AP-CU69-12
+
+Dado el caso correcto de un grupo con 8 de 10 cupos ocupados
+Cuando el organizador lo inicia
+Entonces se emite un solo grupos.grupo_iniciado con el periodo 1 (id y fechas), los 8 cupos OCUPADO numerados del 1 al 8 con titular y Bs 500,00, la moneda y el total achicado
+
+Dado el caso limite de un grupo ya iniciado con una clave
+Cuando el inicio se repite con la misma clave y despues con otra
+Entonces la misma clave no re-emite, la otra responde AP-CU69-17 sin emitir y queda un solo grupos.grupo_iniciado
+
+Dado el caso invalido de un grupo con 7 de 10 cupos ocupados
+Cuando el organizador lo inicia
+Entonces recibe AP-CU69-16 y no se emite ningun grupos.grupo_iniciado
+
+Dado un grupo recien iniciado con la version 2 del reglamento vigente
+Cuando un integrante la acepta dos veces
+Entonces queda UNA aceptacion, el cupo no cambia y el detalle ya no se la pide
+
+Dado un grupo recien iniciado con la version 2 del reglamento vigente
+Cuando un integrante acepta con el hash de la version 1
+Entonces recibe AP-CU69-05 y no queda ninguna aceptacion de la version 2
+
+Dado un grupo recien iniciado con 8 integrantes y la version 2 del reglamento vigente
+Cuando la aceptan 7 y despues el octavo
+Entonces con 7 el organizador todavia no puede sortear y con los 8 si
+
+Dado un grupo recien iniciado donde todos tienen la version 1 y solo 7 de 8 aceptaron la version 2
+Cuando el organizador compromete el sorteo
+Entonces el servidor responde AP-CU60-05 y no hay sorteo
+Y con los 8 aceptados el sorteo se compromete
+
+Dado un grupo con 8 de 10 cupos ocupados
+Cuando se piden dos inicios a la vez con claves distintas
+Entonces uno queda CONFORMADO, el otro recibe AP-CU69-17 y hay un solo achique
+
+Dado un grupo con 8 de 10 cupos ocupados
+Cuando el organizador lo inicia con el rol de base del servicio (svc_grupos)
+Entonces queda con 8 cupos sin necesitar borrar filas y los 10 cupos siguen existiendo
+
+Dado el caso correcto de un grupo que pide la etapa MEDIA
+Cuando quiere entrar alguien que esta en MEDIA
+Entonces entra con la etapa que dio transparencia por la ruta de servicio, con el token del servicio y sin pedir el puntaje exacto
+
+Dado el caso limite de un grupo que pide la etapa MEDIA
+Cuando quiere entrar alguien que esta en BAJA, una etapa por debajo
+Entonces no entra y recibe AP-CU68-03 con detalle.etapaMinima MEDIA
+
+Dado el caso invalido de un grupo que pide la etapa MEDIA con transparencia caido
+Cuando quiere entrar alguien que esta en MEDIA
+Entonces el ingreso se rechaza (falla cerrado) y no se supone ninguna etapa
+
+Dado el caso invalido de un grupo que pide la etapa MEDIA con transparencia respondiendo 403 a la ruta de servicio
+Cuando quiere entrar alguien que esta en MEDIA
+Entonces el ingreso se rechaza
 ```
 
 ## Ver también

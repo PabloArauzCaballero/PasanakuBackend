@@ -19,7 +19,10 @@ import org.junit.jupiter.api.Test;
 class CU69IniciarGrupoTest extends BaseDeInicio {
 
     @Test
-    @DisplayName("CU-69 · 7 de 10 ocupados: 422 AP-CU69-16 con el conteo, y el grupo no cambia")
+    @DisplayName(
+            "Dado un grupo con 7 de 10 cupos ocupados · "
+                    + "Cuando el organizador lo inicia · "
+                    + "Entonces recibe AP-CU69-16 con los ocupados, el minimo requerido y los cupos totales, y el grupo no cambia")
     void sieteDeDiezNoAlcanza() {
         UUID grupo = grupoAbierto(10, del1Al(7), Set.of());
 
@@ -40,7 +43,10 @@ class CU69IniciarGrupoTest extends BaseDeInicio {
     }
 
     @Test
-    @DisplayName("CU-69 · 8 de 10: CONFORMADO con 8 cupos y 8 periodos, historial y calendario")
+    @DisplayName(
+            "Dado un grupo con 8 de 10 cupos ocupados · "
+                    + "Cuando el organizador lo inicia · "
+                    + "Entonces queda CONFORMADO con 8 cupos y 8 periodos, un renglon en el historial y los dos libres fuera del ciclo")
     void ochoDeDiezInicia() {
         UUID grupo = grupoAbierto(10, del1Al(8), Set.of());
 
@@ -74,7 +80,9 @@ class CU69IniciarGrupoTest extends BaseDeInicio {
     }
 
     @Test
-    @DisplayName("CU-69 · los ocupados quedan numerados 1..N en su orden y el organizador sigue en el cupo 1")
+    @DisplayName("Dado un grupo de 10 cupos con el 3 y el 10 libres · "
+            + "Cuando el organizador lo inicia · "
+            + "Entonces los ocupados quedan numerados del 1 al 8 en su orden y el organizador sigue en el cupo 1")
     void renumeraSinHuecos() {
         // Libres intercalados: el 3 y el 10.
         UUID grupo = grupoAbierto(10, Set.of(1, 2, 4, 5, 6, 7, 8, 9), Set.of());
@@ -105,7 +113,10 @@ class CU69IniciarGrupoTest extends BaseDeInicio {
     }
 
     @Test
-    @DisplayName("CU-69 · idempotente: la misma clave devuelve lo mismo y no repite; otra clave responde AP-CU69-17")
+    @DisplayName(
+            "Dado un grupo iniciado con una clave · "
+                    + "Cuando el organizador repite el inicio con la misma clave y despues con otra · "
+                    + "Entonces la misma clave devuelve lo mismo sin repetir historial ni periodos y la otra responde AP-CU69-17")
     void idempotente() {
         UUID grupo = grupoAbierto(10, del1Al(9), Set.of());
         UUID clave = UUID.randomUUID();
@@ -123,8 +134,9 @@ class CU69IniciarGrupoTest extends BaseDeInicio {
     }
 
     @Test
-    @DisplayName(
-            "CU-69 · 422 AP-CU69-07: un integrante que no organiza, el organizador de otro grupo, un grupo que no existe")
+    @DisplayName("Dado un grupo abierto con 8 de 10 cupos ocupados · "
+            + "Cuando lo intenta iniciar un integrante que no organiza o el organizador de otro grupo, o se inicia un grupo que no existe · "
+            + "Entonces cada intento recibe AP-CU69-07 y el grupo sigue ABIERTO_A_INSCRIPCION")
     void soloElOrganizadorDeEseGrupo() {
         UUID grupo = grupoAbierto(10, del1Al(8), Set.of());
         UUID integrante = (UUID) dsl.fetchValue(
@@ -151,7 +163,9 @@ class CU69IniciarGrupoTest extends BaseDeInicio {
     }
 
     @Test
-    @DisplayName("CU-69 · con alguien aceptado sin firmar: 422 AP-CU69-19 con cuantos son; en BORRADOR: AP-CU69-12")
+    @DisplayName("Dado un grupo con alguien aceptado sin firmar y otro grupo en BORRADOR · "
+            + "Cuando el organizador intenta iniciarlos · "
+            + "Entonces el primero recibe AP-CU69-19 con cuantos reservados hay y el BORRADOR recibe AP-CU69-12")
     void reservadosYBorrador() {
         UUID conReservado = grupoAbierto(10, del1Al(8), Set.of(9));
         assertThatThrownBy(() -> iniciar(conReservado, UUID.randomUUID(), organizador))

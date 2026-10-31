@@ -87,7 +87,7 @@ public class ConsultasRepositorio {
         if (fila == null) {
             return Optional.empty();
         }
-        List<String> resultado = SorteoRepositorio.leerLista(fila.get("resultado", JSONB.class));
+        List<String> resultado = ListasDeSorteo.leerLista(fila.get("resultado", JSONB.class));
         var numeros = new java.util.HashMap<String, Integer>();
         if (!resultado.isEmpty()) {
             dsl.fetch("SELECT id, numero FROM grupos.cupo WHERE id = ANY(?::uuid[])", (Object)
@@ -106,7 +106,7 @@ public class ConsultasRepositorio {
                 fila.get("hash_semilla_previo", String.class),
                 semilla == null || semilla.isBlank() ? null : semilla,
                 fila.get("algoritmo", String.class),
-                SorteoRepositorio.leerLista(fila.get("aportes_entropia", JSONB.class)),
+                ListasDeSorteo.leerLista(fila.get("aportes_entropia", JSONB.class)),
                 original,
                 publicado));
     }

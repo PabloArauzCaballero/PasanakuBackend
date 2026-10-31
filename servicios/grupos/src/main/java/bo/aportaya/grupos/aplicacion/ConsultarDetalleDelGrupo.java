@@ -65,58 +65,21 @@ public class ConsultarDetalleDelGrupo {
                      ORDER BY fecha_compromiso DESC LIMIT 1
                     """,
                     grupoId);
-            List<Integrante> integrantes = dsl.fetch(
-                            """
-                            SELECT c.numero, c.id AS cupo_id, c.estado AS estado_cupo,
-                                   p.usuario_id,
-                                   coalesce(p.alias, (SELECT s.nombre_visible FROM grupos.solicitud_ingreso s
-                                                       WHERE s.grupo_id = c.grupo_id AND s.usuario_id = p.usuario_id
-                                                         AND s.nombre_visible IS NOT NULL
-                                                       ORDER BY s.fecha_solicitud DESC LIMIT 1)) AS alias,
-                                   p.estado,
-                                   coalesce(p.es_organizador, false) AS es_organizador,
-                                   coalesce(p.usuario_id = ?, false) AS soy_yo,
-                                   (SELECT t.orden_asignado FROM grupos.turno t
-                                     WHERE t.cupo_id = c.id AND t.estado <> 'ANULADO'
-                                     ORDER BY t.orden_asignado LIMIT 1) AS turno
-                              FROM grupos.cupo c
-                              JOIN grupos.grupo g ON g.id = c.grupo_id
-                              LEFT JOIN grupos.participante p ON p.id = c.participante_id
-                             -- Iniciado el grupo, los cupos libres quedaron numerados por encima de cupos_totales: no
-                             -- son del ciclo y no se muestran (CU69IniciarGrupo).
-                             WHERE c.grupo_id = ? AND c.numero <= g.cupos_totales
-                             ORDER BY c.numero
-                            """,
-                            ctx.usuarioId(),
-                            grupoId)
-                    .map(f -> new Integrante(
-                            f.get("numero", Integer.class),
-                            f.get("cupo_id", UUID.class),
-                            f.get("usuario_id", UUID.class),
-                            f.get("alias", String.class),
-                            estadoDelCupo(f.get("estado_cupo", String.class), f.get("estado", String.class)),
-                            Boolean.TRUE.equals(f.get("es_organizador", Boolean.class)),
-                            Boolean.TRUE.equals(f.get("soy_yo", Boolean.class)),
-                            f.get("turno", Integer.class)));
+            List<Integrante> integrantes = LecturasDelDetalle.integrantes(dsl, grupoId, ctx.usuarioId());
             boolean soyOrganizador = Boolean.TRUE.equals(yo.get("es_organizador", Boolean.class));
             String estado = g.get("estado", String.class);
             UUID vigente = reglamento == null ? null : reglamento.get("id", UUID.class);
             // Reglamento al achicar (2026-10-30): iniciar publica una version nueva y nadie la tiene aceptada al nacer.
             // El sorteo espera a que la acepten todos los que ocupan un cupo del ciclo.
-            boolean todosAceptaron = vigente == null || sinAceptarLaVigente(dsl, grupoId, vigente) == 0;
+            boolean todosAceptaron =
+                    vigente == null || LecturasDelDetalle.sinAceptarLaVigente(dsl, grupoId, vigente) == 0;
             boolean puedeSortear = soyOrganizador
                     && "CONFORMADO".equals(estado)
                     && "SORTEO_ALEATORIO".equals(g.get("modalidad_turnos", String.class))
                     && sorteo == null
                     && todosAceptaron;
             // Tambien firma quien quedo ACTIVO sin cupo mientras el grupo recibe integrantes: firmar le da uno.
-            boolean sinCupo = !Boolean.TRUE.equals(dsl.fetchOne(
-                            """
-                            SELECT EXISTS (SELECT 1 FROM grupos.cupo
-                                            WHERE participante_id = ? AND estado IN ('RESERVADO', 'OCUPADO')) AS si
-                            """,
-                            yo.get("id", UUID.class))
-                    .get("si", Boolean.class));
+            boolean sinCupo = !LecturasDelDetalle.tieneCupo(dsl, yo.get("id", UUID.class));
             boolean debeFirmar = "ACEPTADO_PENDIENTE_FIRMA".equals(yo.get("estado", String.class))
                     || ("ACTIVO".equals(yo.get("estado", String.class))
                             && "ABIERTO_A_INSCRIPCION".equals(estado)
@@ -128,7 +91,7 @@ public class ConsultarDetalleDelGrupo {
                     && !"ABIERTO_A_INSCRIPCION".equals(estado)
                     && "ACTIVO".equals(yo.get("estado", String.class))
                     && vigente != null
-                    && !acepto(dsl, vigente, yo.get("id", UUID.class));
+                    && !LecturasDelDetalle.acepto(dsl, vigente, yo.get("id", UUID.class));
             return new Detalle(
                     grupoId,
                     g.get("nombre", String.class),
@@ -155,33 +118,6 @@ public class ConsultarDetalleDelGrupo {
                             : reglamento.get("version", Short.class).intValue(),
                     pendienteDeAceptar);
         });
-    }
-
-    /** Si ese participante acepto esa version del reglamento (su firma, o la aceptacion de una version nueva). */
-    private static boolean acepto(org.jooq.DSLContext dsl, UUID reglamentoId, UUID participanteId) {
-        return Boolean.TRUE.equals(dsl.fetchOne(
-                        """
-                        SELECT EXISTS (SELECT 1 FROM grupos.aceptacion_reglamento
-                                        WHERE reglamento_id = ? AND participante_id = ?) AS si
-                        """,
-                        reglamentoId,
-                        participanteId)
-                .get("si", Boolean.class));
-    }
-
-    /** Cuantos de los que ocupan un cupo del ciclo todavia no aceptaron la version vigente. */
-    private static int sinAceptarLaVigente(org.jooq.DSLContext dsl, UUID grupoId, UUID reglamentoId) {
-        return dsl.fetchOne(
-                        """
-                        SELECT count(*)::int FROM grupos.cupo c
-                          JOIN grupos.grupo g ON g.id = c.grupo_id
-                         WHERE c.grupo_id = ? AND c.estado = 'OCUPADO' AND c.numero <= g.cupos_totales
-                           AND NOT EXISTS (SELECT 1 FROM grupos.aceptacion_reglamento a
-                                            WHERE a.reglamento_id = ? AND a.participante_id = c.participante_id)
-                        """,
-                        grupoId,
-                        reglamentoId)
-                .get(0, Integer.class);
     }
 
     /** Integrante de un grupo: esta y no se fue. El mismo criterio para el detalle y para {@link #comparten}. */
