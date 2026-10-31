@@ -27,8 +27,8 @@ import org.springframework.security.access.AccessDeniedException;
  * etapa ausente). Datos sinteticos.
  *
  * <p>Este archivo cubre el puntaje propio y su etapa. La etapa de otras personas vive en
- * {@link EtapasDePersonasTest}; el catalogo, la semilla y lo que la base rechaza, en
- * {@link EtapaCatalogoTest}.
+ * {@link EtapasDePersonasRepositorioTest}; el catalogo, la semilla y lo que la base rechaza, en
+ * {@link EtapaCatalogoRepositorioTest}.
  */
 class EtapaRepositorioTest extends BaseDeEtapas {
 

@@ -5,7 +5,7 @@ import java.util.UUID;
 /**
  * Lo comun a las pruebas de etapas que necesitan un puntaje escrito: lo deja como CU-71, con sus
  * componentes cuadrando (R-REP-03). Las pruebas viven en {@link EtapaRepositorioTest} (el puntaje
- * propio y sus bordes) y {@link EtapasDePersonasTest} (la etapa de otras personas, para grupos).
+ * propio y sus bordes) y {@link EtapasDePersonasRepositorioTest} (la etapa de otras personas, para grupos).
  */
 abstract class BaseDeEtapas extends BaseDeTransparencia {
 

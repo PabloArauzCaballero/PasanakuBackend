@@ -79,6 +79,14 @@ Archivos en `evidencia/`: `h1-s1-a-*`, `h1-s7-t-*` (RLS, mutación de privacidad
 - Capturas en dispositivo (H1.S6.M2).
 
 ## Desvíos del plan
+- CI de #364 en rojo por gates que no se corrieron en local (testBarrido y verificar_criterios). Se corrigieron así:
+  - archivos de 300 líneas o más, partidos sin cambiar comportamiento;
+  - los topes de 60 personas por consulta pasaron a configuración;
+  - los 36 tests de grupos se renombraron a «Dado … · Cuando … · Entonces …», con su escenario en CU-20, CU-68 y CU-69;
+  - prueba de rechazo de R-REP-07.
+- **`scripts/generar_postman.py`** ahora lee los `@Permiso` también de las clases `Rutas*`. Antes solo leía `*Controller.java`, así que partir los controladores borraba los casos «sin sesión». Además recupera 28 casos de operaciones `RutasDe*` que nunca los habían tenido. El diff de Postman toca 10 colecciones, todo salida generada.
+- Dos clases de prueba de transparencia que salieron del split caían en el corredor unitario, con 5 s de preparación, aunque usan Postgres. Se renombraron a `…RepositorioTest`.
+- H1.S9 (cuenta de servicio en TEST): en TEST tampoco están aprovisionadas las cuentas de entregas ni de inversiones. Se hace por la API de identidad, después del despliegue.
 - H3: la emisión de `grupos.grupo_iniciado` la escribió pasanaku-1f (`bd7280d9`) y se absorbió acá después de revisarla. `CU60Sortear` y aportes quedan en la rama de pasanaku-1f, que se mergea **junto** con esta.
 - Se integró `origin/test` con **merge** y no con rebase, porque la rama ya estaba publicada. Hubo 5 conflictos: 3 de imports en la app, la lista de dobles de un WebTest y `metadata_enriquecida.json`, que se regeneró.
 - Renombre arena → etapa a pedido de Pablo (H1.S6), con catálogo nuevo: códigos `RECUPERACION…PILAR`.
@@ -88,6 +96,7 @@ Archivos en `evidencia/`: `h1-s1-a-*`, `h1-s7-t-*` (RLS, mutación de privacidad
 - Integración con la rama de pasanaku-1f: se acordó el contrato del evento, pero la emisión queda para H3.
 
 ## Riesgos residuales
+0. Intermitente sin explicar: `AdmisionDelGrupoSustitucionTest.entranteHabilitadoDelegaYDevuelveElRegistro` falló una vez por `armar() timed out after 5 seconds`. El test solo arma dobles y ninguna clase de esta rama lo toca. Corrido solo, pasó 3 de 3, y también en la corrida completa siguiente. Por la regla 80.5.3 es un bug hasta que se demuestre lo contrario.
 1. **BLOQUEANTE DE DESPLIEGUE: `SERVICIO_GRUPOS` sin aprovisionar en TEST.**
    - Ya está en el repo: el rol en `seeders/minimos/10-roles-y-permisos.json` y las variables vacías en `scripts/generar_compose.py` y `docker-compose.coolify.yml`.
    - Falta en el entorno: crear en identidad una cuenta de servicio con ese rol y cargar en Coolify `GRUPOS_SERVICIO_TELEFONO`, `GRUPOS_SERVICIO_CLAVE` y `GRUPOS_SERVICIO_TOTP_SEMILLA` (o `GRUPOS_SERVICIO_FACTOR_FIJO` en TEST), igual que `SERVICIO_ENTREGAS`.

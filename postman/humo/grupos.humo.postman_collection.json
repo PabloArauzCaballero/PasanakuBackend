@@ -275,6 +275,83 @@
           ]
         },
         {
+          "name": "3 · error · sin sesion",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}",
+                "description": "Uno nuevo por intento. Repetir el mismo debe devolver la MISMA respuesta y un solo efecto (invariante 7)."
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}{{prefijo_api}}/grupos/:grupoId/invitaciones/:invitacionId/canje",
+              "host": [
+                "{{base_url}}{{prefijo_api}}"
+              ],
+              "path": [
+                "grupos",
+                ":grupoId",
+                "invitaciones",
+                ":invitacionId",
+                "canje"
+              ],
+              "variable": [
+                {
+                  "key": "grupoId",
+                  "value": "{{grupoId}}",
+                  "description": "Identificador; se encadena desde una peticion anterior."
+                },
+                {
+                  "key": "invitacionId",
+                  "value": "{{invitacionId}}",
+                  "description": "Identificador; se encadena desde una peticion anterior."
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"0000000000000000000000000000000000000000000000000000000000000000\",\n  \"cuposSolicitados\": 1,\n  \"mensaje\": \"mensaje-de-prueba\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// CASO DE ERROR — la misma peticion, SIN token.",
+                  "// Denegar por omision (invariante 9): una ruta que contesta sin sesion es una ruta",
+                  "// abierta, y no hay ninguna abierta fuera de /publico y /verificar de transparencia.",
+                  "pm.test(\"sin sesion no se pasa\", () => {",
+                  "    pm.expect(pm.response.code, \"una ruta con permiso contesto sin token\")",
+                  "        .to.be.oneOf([401, 403]);",
+                  "});",
+                  "",
+                  "pm.test(\"el 401 no cuenta de mas\", () => {",
+                  "    const cuerpo = pm.response.text();",
+                  "    // Ni el nombre de la clase, ni la consulta, ni si el usuario existe.",
+                  "    pm.expect(cuerpo).to.not.match(/at bo\\.aportaya\\./);",
+                  "    pm.expect(cuerpo.toLowerCase()).to.not.include(\"select \");",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
           "name": "4 · error · cuerpo invalido",
           "request": {
             "method": "POST",
@@ -515,6 +592,64 @@
               }
             }
           ]
+        },
+        {
+          "name": "3 · error · sin sesion",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}{{prefijo_api}}/grupos/:grupoId/invitaciones/:invitacionId/revocacion",
+              "host": [
+                "{{base_url}}{{prefijo_api}}"
+              ],
+              "path": [
+                "grupos",
+                ":grupoId",
+                "invitaciones",
+                ":invitacionId",
+                "revocacion"
+              ],
+              "variable": [
+                {
+                  "key": "grupoId",
+                  "value": "{{grupoId}}",
+                  "description": "Identificador; se encadena desde una peticion anterior."
+                },
+                {
+                  "key": "invitacionId",
+                  "value": "{{invitacionId}}",
+                  "description": "Identificador; se encadena desde una peticion anterior."
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// CASO DE ERROR — la misma peticion, SIN token.",
+                  "// Denegar por omision (invariante 9): una ruta que contesta sin sesion es una ruta",
+                  "// abierta, y no hay ninguna abierta fuera de /publico y /verificar de transparencia.",
+                  "pm.test(\"sin sesion no se pasa\", () => {",
+                  "    pm.expect(pm.response.code, \"una ruta con permiso contesto sin token\")",
+                  "        .to.be.oneOf([401, 403]);",
+                  "});",
+                  "",
+                  "pm.test(\"el 401 no cuenta de mas\", () => {",
+                  "    const cuerpo = pm.response.text();",
+                  "    // Ni el nombre de la clase, ni la consulta, ni si el usuario existe.",
+                  "    pm.expect(cuerpo).to.not.match(/at bo\\.aportaya\\./);",
+                  "    pm.expect(cuerpo.toLowerCase()).to.not.include(\"select \");",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
         }
       ],
       "description": "Humo de `revocarInvitacionDelGrupo`. **Valido**, **limite** y **error** son tres preguntas distintas: una operacion puede contestar bien la primera y fallar las otras dos, y es justo ahi donde estan los defectos que llegan a produccion."
@@ -671,6 +806,64 @@
                   "pm.test(\"no devuelve un importe con mas de dos decimales\", () => {",
                   "    const cuerpo = pm.response.text();",
                   "    pm.expect(cuerpo).to.not.match(/\"monto\"\\s*:\\s*\"-?\\d+\\.\\d{3,}\"/);",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "3 · error · sin sesion",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}{{prefijo_api}}/grupos/solicitudes",
+              "host": [
+                "{{base_url}}{{prefijo_api}}"
+              ],
+              "path": [
+                "grupos",
+                "solicitudes"
+              ],
+              "variable": [],
+              "query": [
+                {
+                  "key": "estado",
+                  "value": "PENDIENTE",
+                  "description": "",
+                  "disabled": false
+                },
+                {
+                  "key": "limite",
+                  "value": "1",
+                  "description": "",
+                  "disabled": false
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// CASO DE ERROR — la misma peticion, SIN token.",
+                  "// Denegar por omision (invariante 9): una ruta que contesta sin sesion es una ruta",
+                  "// abierta, y no hay ninguna abierta fuera de /publico y /verificar de transparencia.",
+                  "pm.test(\"sin sesion no se pasa\", () => {",
+                  "    pm.expect(pm.response.code, \"una ruta con permiso contesto sin token\")",
+                  "        .to.be.oneOf([401, 403]);",
+                  "});",
+                  "",
+                  "pm.test(\"el 401 no cuenta de mas\", () => {",
+                  "    const cuerpo = pm.response.text();",
+                  "    // Ni el nombre de la clase, ni la consulta, ni si el usuario existe.",
+                  "    pm.expect(cuerpo).to.not.match(/at bo\\.aportaya\\./);",
+                  "    pm.expect(cuerpo.toLowerCase()).to.not.include(\"select \");",
                   "});",
                   ""
                 ]
@@ -839,6 +1032,64 @@
               }
             }
           ]
+        },
+        {
+          "name": "3 · error · sin sesion",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}{{prefijo_api}}/grupos/backoffice",
+              "host": [
+                "{{base_url}}{{prefijo_api}}"
+              ],
+              "path": [
+                "grupos",
+                "backoffice"
+              ],
+              "variable": [],
+              "query": [
+                {
+                  "key": "estado",
+                  "value": "estado-de-prueba",
+                  "description": "",
+                  "disabled": false
+                },
+                {
+                  "key": "limite",
+                  "value": "1",
+                  "description": "",
+                  "disabled": false
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// CASO DE ERROR — la misma peticion, SIN token.",
+                  "// Denegar por omision (invariante 9): una ruta que contesta sin sesion es una ruta",
+                  "// abierta, y no hay ninguna abierta fuera de /publico y /verificar de transparencia.",
+                  "pm.test(\"sin sesion no se pasa\", () => {",
+                  "    pm.expect(pm.response.code, \"una ruta con permiso contesto sin token\")",
+                  "        .to.be.oneOf([401, 403]);",
+                  "});",
+                  "",
+                  "pm.test(\"el 401 no cuenta de mas\", () => {",
+                  "    const cuerpo = pm.response.text();",
+                  "    // Ni el nombre de la clase, ni la consulta, ni si el usuario existe.",
+                  "    pm.expect(cuerpo).to.not.match(/at bo\\.aportaya\\./);",
+                  "    pm.expect(cuerpo.toLowerCase()).to.not.include(\"select \");",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
         }
       ],
       "description": "Humo de `listarGruposDeBackoffice`. **Valido**, **limite** y **error** son tres preguntas distintas: una operacion puede contestar bien la primera y fallar las otras dos, y es justo ahi donde estan los defectos que llegan a produccion."
@@ -981,6 +1232,57 @@
                   "pm.test(\"no devuelve un importe con mas de dos decimales\", () => {",
                   "    const cuerpo = pm.response.text();",
                   "    pm.expect(cuerpo).to.not.match(/\"monto\"\\s*:\\s*\"-?\\d+\\.\\d{3,}\"/);",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "3 · error · sin sesion",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}{{prefijo_api}}/grupos/backoffice/:grupoId",
+              "host": [
+                "{{base_url}}{{prefijo_api}}"
+              ],
+              "path": [
+                "grupos",
+                "backoffice",
+                ":grupoId"
+              ],
+              "variable": [
+                {
+                  "key": "grupoId",
+                  "value": "{{grupoId}}",
+                  "description": "Identificador; se encadena desde una peticion anterior."
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// CASO DE ERROR — la misma peticion, SIN token.",
+                  "// Denegar por omision (invariante 9): una ruta que contesta sin sesion es una ruta",
+                  "// abierta, y no hay ninguna abierta fuera de /publico y /verificar de transparencia.",
+                  "pm.test(\"sin sesion no se pasa\", () => {",
+                  "    pm.expect(pm.response.code, \"una ruta con permiso contesto sin token\")",
+                  "        .to.be.oneOf([401, 403]);",
+                  "});",
+                  "",
+                  "pm.test(\"el 401 no cuenta de mas\", () => {",
+                  "    const cuerpo = pm.response.text();",
+                  "    // Ni el nombre de la clase, ni la consulta, ni si el usuario existe.",
+                  "    pm.expect(cuerpo).to.not.match(/at bo\\.aportaya\\./);",
+                  "    pm.expect(cuerpo.toLowerCase()).to.not.include(\"select \");",
                   "});",
                   ""
                 ]
@@ -1167,6 +1469,77 @@
                   "pm.test(\"no devuelve un importe con mas de dos decimales\", () => {",
                   "    const cuerpo = pm.response.text();",
                   "    pm.expect(cuerpo).to.not.match(/\"monto\"\\s*:\\s*\"-?\\d+\\.\\d{3,}\"/);",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "3 · error · sin sesion",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}",
+                "description": "Uno nuevo por intento. Repetir el mismo debe devolver la MISMA respuesta y un solo efecto (invariante 7)."
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}{{prefijo_api}}/grupos/solicitudes/:solicitudId/propuestas",
+              "host": [
+                "{{base_url}}{{prefijo_api}}"
+              ],
+              "path": [
+                "grupos",
+                "solicitudes",
+                ":solicitudId",
+                "propuestas"
+              ],
+              "variable": [
+                {
+                  "key": "solicitudId",
+                  "value": "{{solicitudId}}",
+                  "description": "Identificador; se encadena desde una peticion anterior."
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"decision\": \"ACEPTAR\",\n  \"motivo\": \"motivo-de-prueba\",\n  \"revisionEsperada\": 0,\n  \"propuestaId\": \"{{propuestaId}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// CASO DE ERROR — la misma peticion, SIN token.",
+                  "// Denegar por omision (invariante 9): una ruta que contesta sin sesion es una ruta",
+                  "// abierta, y no hay ninguna abierta fuera de /publico y /verificar de transparencia.",
+                  "pm.test(\"sin sesion no se pasa\", () => {",
+                  "    pm.expect(pm.response.code, \"una ruta con permiso contesto sin token\")",
+                  "        .to.be.oneOf([401, 403]);",
+                  "});",
+                  "",
+                  "pm.test(\"el 401 no cuenta de mas\", () => {",
+                  "    const cuerpo = pm.response.text();",
+                  "    // Ni el nombre de la clase, ni la consulta, ni si el usuario existe.",
+                  "    pm.expect(cuerpo).to.not.match(/at bo\\.aportaya\\./);",
+                  "    pm.expect(cuerpo.toLowerCase()).to.not.include(\"select \");",
                   "});",
                   ""
                 ]
@@ -1435,6 +1808,77 @@
           ]
         },
         {
+          "name": "3 · error · sin sesion",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}",
+                "description": "Uno nuevo por intento. Repetir el mismo debe devolver la MISMA respuesta y un solo efecto (invariante 7)."
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}{{prefijo_api}}/grupos/solicitudes/:solicitudId/resoluciones",
+              "host": [
+                "{{base_url}}{{prefijo_api}}"
+              ],
+              "path": [
+                "grupos",
+                "solicitudes",
+                ":solicitudId",
+                "resoluciones"
+              ],
+              "variable": [
+                {
+                  "key": "solicitudId",
+                  "value": "{{solicitudId}}",
+                  "description": "Identificador; se encadena desde una peticion anterior."
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"decision\": \"ACEPTAR\",\n  \"motivo\": \"motivo-de-prueba\",\n  \"revisionEsperada\": 0,\n  \"propuestaId\": \"{{propuestaId}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// CASO DE ERROR — la misma peticion, SIN token.",
+                  "// Denegar por omision (invariante 9): una ruta que contesta sin sesion es una ruta",
+                  "// abierta, y no hay ninguna abierta fuera de /publico y /verificar de transparencia.",
+                  "pm.test(\"sin sesion no se pasa\", () => {",
+                  "    pm.expect(pm.response.code, \"una ruta con permiso contesto sin token\")",
+                  "        .to.be.oneOf([401, 403]);",
+                  "});",
+                  "",
+                  "pm.test(\"el 401 no cuenta de mas\", () => {",
+                  "    const cuerpo = pm.response.text();",
+                  "    // Ni el nombre de la clase, ni la consulta, ni si el usuario existe.",
+                  "    pm.expect(cuerpo).to.not.match(/at bo\\.aportaya\\./);",
+                  "    pm.expect(cuerpo.toLowerCase()).to.not.include(\"select \");",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
           "name": "4 · error · cuerpo invalido",
           "request": {
             "method": "POST",
@@ -1695,6 +2139,77 @@
           ]
         },
         {
+          "name": "3 · error · sin sesion",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}",
+                "description": "Uno nuevo por intento. Repetir el mismo debe devolver la MISMA respuesta y un solo efecto (invariante 7)."
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}{{prefijo_api}}/grupos/:grupoId/administrador/sustitucion",
+              "host": [
+                "{{base_url}}{{prefijo_api}}"
+              ],
+              "path": [
+                "grupos",
+                ":grupoId",
+                "administrador",
+                "sustitucion"
+              ],
+              "variable": [
+                {
+                  "key": "grupoId",
+                  "value": "{{grupoId}}",
+                  "description": "Identificador; se encadena desde una peticion anterior."
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nuevoAdministradorId\": \"{{nuevoAdministradorId}}\",\n  \"motivo\": \"motivo-de-prueba\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// CASO DE ERROR — la misma peticion, SIN token.",
+                  "// Denegar por omision (invariante 9): una ruta que contesta sin sesion es una ruta",
+                  "// abierta, y no hay ninguna abierta fuera de /publico y /verificar de transparencia.",
+                  "pm.test(\"sin sesion no se pasa\", () => {",
+                  "    pm.expect(pm.response.code, \"una ruta con permiso contesto sin token\")",
+                  "        .to.be.oneOf([401, 403]);",
+                  "});",
+                  "",
+                  "pm.test(\"el 401 no cuenta de mas\", () => {",
+                  "    const cuerpo = pm.response.text();",
+                  "    // Ni el nombre de la clase, ni la consulta, ni si el usuario existe.",
+                  "    pm.expect(cuerpo).to.not.match(/at bo\\.aportaya\\./);",
+                  "    pm.expect(cuerpo.toLowerCase()).to.not.include(\"select \");",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
           "name": "4 · error · cuerpo invalido",
           "request": {
             "method": "POST",
@@ -1911,6 +2426,58 @@
                   "pm.test(\"no devuelve un importe con mas de dos decimales\", () => {",
                   "    const cuerpo = pm.response.text();",
                   "    pm.expect(cuerpo).to.not.match(/\"monto\"\\s*:\\s*\"-?\\d+\\.\\d{3,}\"/);",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "3 · error · sin sesion",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}{{prefijo_api}}/grupos/solicitudes/:solicitudId/decisiones",
+              "host": [
+                "{{base_url}}{{prefijo_api}}"
+              ],
+              "path": [
+                "grupos",
+                "solicitudes",
+                ":solicitudId",
+                "decisiones"
+              ],
+              "variable": [
+                {
+                  "key": "solicitudId",
+                  "value": "{{solicitudId}}",
+                  "description": "Identificador; se encadena desde una peticion anterior."
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// CASO DE ERROR — la misma peticion, SIN token.",
+                  "// Denegar por omision (invariante 9): una ruta que contesta sin sesion es una ruta",
+                  "// abierta, y no hay ninguna abierta fuera de /publico y /verificar de transparencia.",
+                  "pm.test(\"sin sesion no se pasa\", () => {",
+                  "    pm.expect(pm.response.code, \"una ruta con permiso contesto sin token\")",
+                  "        .to.be.oneOf([401, 403]);",
+                  "});",
+                  "",
+                  "pm.test(\"el 401 no cuenta de mas\", () => {",
+                  "    const cuerpo = pm.response.text();",
+                  "    // Ni el nombre de la clase, ni la consulta, ni si el usuario existe.",
+                  "    pm.expect(cuerpo).to.not.match(/at bo\\.aportaya\\./);",
+                  "    pm.expect(cuerpo.toLowerCase()).to.not.include(\"select \");",
                   "});",
                   ""
                 ]
@@ -2587,6 +3154,63 @@
                   "pm.test(\"no devuelve un importe con mas de dos decimales\", () => {",
                   "    const cuerpo = pm.response.text();",
                   "    pm.expect(cuerpo).to.not.match(/\"monto\"\\s*:\\s*\"-?\\d+\\.\\d{3,}\"/);",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "3 · error · sin sesion",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}",
+                "description": "Uno nuevo por intento. Repetir el mismo debe devolver la MISMA respuesta y un solo efecto (invariante 7)."
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}{{prefijo_api}}/grupos/:grupoId/inicio",
+              "host": [
+                "{{base_url}}{{prefijo_api}}"
+              ],
+              "path": [
+                "grupos",
+                ":grupoId",
+                "inicio"
+              ],
+              "variable": [
+                {
+                  "key": "grupoId",
+                  "value": "{{grupoId}}",
+                  "description": "Identificador; se encadena desde una peticion anterior."
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// CASO DE ERROR — la misma peticion, SIN token.",
+                  "// Denegar por omision (invariante 9): una ruta que contesta sin sesion es una ruta",
+                  "// abierta, y no hay ninguna abierta fuera de /publico y /verificar de transparencia.",
+                  "pm.test(\"sin sesion no se pasa\", () => {",
+                  "    pm.expect(pm.response.code, \"una ruta con permiso contesto sin token\")",
+                  "        .to.be.oneOf([401, 403]);",
+                  "});",
+                  "",
+                  "pm.test(\"el 401 no cuenta de mas\", () => {",
+                  "    const cuerpo = pm.response.text();",
+                  "    // Ni el nombre de la clase, ni la consulta, ni si el usuario existe.",
+                  "    pm.expect(cuerpo).to.not.match(/at bo\\.aportaya\\./);",
+                  "    pm.expect(cuerpo.toLowerCase()).to.not.include(\"select \");",
                   "});",
                   ""
                 ]
@@ -5269,6 +5893,64 @@
               }
             }
           ]
+        },
+        {
+          "name": "3 · error · sin sesion",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}{{prefijo_api}}/grupos/:grupoId/cupos/:cupoId/subastabilidad",
+              "host": [
+                "{{base_url}}{{prefijo_api}}"
+              ],
+              "path": [
+                "grupos",
+                ":grupoId",
+                "cupos",
+                ":cupoId",
+                "subastabilidad"
+              ],
+              "variable": [
+                {
+                  "key": "grupoId",
+                  "value": "{{grupoId}}",
+                  "description": "Identificador; se encadena desde una peticion anterior."
+                },
+                {
+                  "key": "cupoId",
+                  "value": "{{cupoId}}",
+                  "description": "Identificador; se encadena desde una peticion anterior."
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// CASO DE ERROR — la misma peticion, SIN token.",
+                  "// Denegar por omision (invariante 9): una ruta que contesta sin sesion es una ruta",
+                  "// abierta, y no hay ninguna abierta fuera de /publico y /verificar de transparencia.",
+                  "pm.test(\"sin sesion no se pasa\", () => {",
+                  "    pm.expect(pm.response.code, \"una ruta con permiso contesto sin token\")",
+                  "        .to.be.oneOf([401, 403]);",
+                  "});",
+                  "",
+                  "pm.test(\"el 401 no cuenta de mas\", () => {",
+                  "    const cuerpo = pm.response.text();",
+                  "    // Ni el nombre de la clase, ni la consulta, ni si el usuario existe.",
+                  "    pm.expect(cuerpo).to.not.match(/at bo\\.aportaya\\./);",
+                  "    pm.expect(cuerpo.toLowerCase()).to.not.include(\"select \");",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
         }
       ],
       "description": "Humo de `consultarSubastabilidadDelCupo`. **Valido**, **limite** y **error** son tres preguntas distintas: una operacion puede contestar bien la primera y fallar las otras dos, y es justo ahi donde estan los defectos que llegan a produccion."
@@ -5411,6 +6093,57 @@
                   "pm.test(\"no devuelve un importe con mas de dos decimales\", () => {",
                   "    const cuerpo = pm.response.text();",
                   "    pm.expect(cuerpo).to.not.match(/\"monto\"\\s*:\\s*\"-?\\d+\\.\\d{3,}\"/);",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "3 · error · sin sesion",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}{{prefijo_api}}/grupos/:grupoId/elegibilidad-para-subasta",
+              "host": [
+                "{{base_url}}{{prefijo_api}}"
+              ],
+              "path": [
+                "grupos",
+                ":grupoId",
+                "elegibilidad-para-subasta"
+              ],
+              "variable": [
+                {
+                  "key": "grupoId",
+                  "value": "{{grupoId}}",
+                  "description": "Identificador; se encadena desde una peticion anterior."
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// CASO DE ERROR — la misma peticion, SIN token.",
+                  "// Denegar por omision (invariante 9): una ruta que contesta sin sesion es una ruta",
+                  "// abierta, y no hay ninguna abierta fuera de /publico y /verificar de transparencia.",
+                  "pm.test(\"sin sesion no se pasa\", () => {",
+                  "    pm.expect(pm.response.code, \"una ruta con permiso contesto sin token\")",
+                  "        .to.be.oneOf([401, 403]);",
+                  "});",
+                  "",
+                  "pm.test(\"el 401 no cuenta de mas\", () => {",
+                  "    const cuerpo = pm.response.text();",
+                  "    // Ni el nombre de la clase, ni la consulta, ni si el usuario existe.",
+                  "    pm.expect(cuerpo).to.not.match(/at bo\\.aportaya\\./);",
+                  "    pm.expect(cuerpo.toLowerCase()).to.not.include(\"select \");",
                   "});",
                   ""
                 ]
@@ -5609,6 +6342,83 @@
                   "pm.test(\"no devuelve un importe con mas de dos decimales\", () => {",
                   "    const cuerpo = pm.response.text();",
                   "    pm.expect(cuerpo).to.not.match(/\"monto\"\\s*:\\s*\"-?\\d+\\.\\d{3,}\"/);",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "3 · error · sin sesion",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}",
+                "description": "Uno nuevo por intento. Repetir el mismo debe devolver la MISMA respuesta y un solo efecto (invariante 7)."
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}{{prefijo_api}}/grupos/:grupoId/cupos/:cupoId/traspasos-por-subasta",
+              "host": [
+                "{{base_url}}{{prefijo_api}}"
+              ],
+              "path": [
+                "grupos",
+                ":grupoId",
+                "cupos",
+                ":cupoId",
+                "traspasos-por-subasta"
+              ],
+              "variable": [
+                {
+                  "key": "grupoId",
+                  "value": "{{grupoId}}",
+                  "description": "Identificador; se encadena desde una peticion anterior."
+                },
+                {
+                  "key": "cupoId",
+                  "value": "{{cupoId}}",
+                  "description": "Identificador; se encadena desde una peticion anterior."
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"subastaId\": \"{{subastaId}}\",\n  \"ganadorUsuarioId\": \"{{ganadorUsuarioId}}\",\n  \"salienteParticipanteId\": \"{{salienteParticipanteId}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// CASO DE ERROR — la misma peticion, SIN token.",
+                  "// Denegar por omision (invariante 9): una ruta que contesta sin sesion es una ruta",
+                  "// abierta, y no hay ninguna abierta fuera de /publico y /verificar de transparencia.",
+                  "pm.test(\"sin sesion no se pasa\", () => {",
+                  "    pm.expect(pm.response.code, \"una ruta con permiso contesto sin token\")",
+                  "        .to.be.oneOf([401, 403]);",
+                  "});",
+                  "",
+                  "pm.test(\"el 401 no cuenta de mas\", () => {",
+                  "    const cuerpo = pm.response.text();",
+                  "    // Ni el nombre de la clase, ni la consulta, ni si el usuario existe.",
+                  "    pm.expect(cuerpo).to.not.match(/at bo\\.aportaya\\./);",
+                  "    pm.expect(cuerpo.toLowerCase()).to.not.include(\"select \");",
                   "});",
                   ""
                 ]
@@ -5881,6 +6691,76 @@
           ]
         },
         {
+          "name": "3 · error · sin sesion",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}",
+                "description": "Uno nuevo por intento. Repetir el mismo debe devolver la MISMA respuesta y un solo efecto (invariante 7)."
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}{{prefijo_api}}/grupos/:grupoId/invitaciones",
+              "host": [
+                "{{base_url}}{{prefijo_api}}"
+              ],
+              "path": [
+                "grupos",
+                ":grupoId",
+                "invitaciones"
+              ],
+              "variable": [
+                {
+                  "key": "grupoId",
+                  "value": "{{grupoId}}",
+                  "description": "Identificador; se encadena desde una peticion anterior."
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"telefonoInvitado\": \"+59178123456\",\n  \"nombreSugerido\": \"nombreSugerido-de-prueba\",\n  \"canal\": \"ENLACE\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// CASO DE ERROR — la misma peticion, SIN token.",
+                  "// Denegar por omision (invariante 9): una ruta que contesta sin sesion es una ruta",
+                  "// abierta, y no hay ninguna abierta fuera de /publico y /verificar de transparencia.",
+                  "pm.test(\"sin sesion no se pasa\", () => {",
+                  "    pm.expect(pm.response.code, \"una ruta con permiso contesto sin token\")",
+                  "        .to.be.oneOf([401, 403]);",
+                  "});",
+                  "",
+                  "pm.test(\"el 401 no cuenta de mas\", () => {",
+                  "    const cuerpo = pm.response.text();",
+                  "    // Ni el nombre de la clase, ni la consulta, ni si el usuario existe.",
+                  "    pm.expect(cuerpo).to.not.match(/at bo\\.aportaya\\./);",
+                  "    pm.expect(cuerpo.toLowerCase()).to.not.include(\"select \");",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
           "name": "4 · error · cuerpo invalido",
           "request": {
             "method": "POST",
@@ -6100,6 +6980,57 @@
               }
             }
           ]
+        },
+        {
+          "name": "3 · error · sin sesion",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}{{prefijo_api}}/grupos/:grupoId/enlace-del-grupo",
+              "host": [
+                "{{base_url}}{{prefijo_api}}"
+              ],
+              "path": [
+                "grupos",
+                ":grupoId",
+                "enlace-del-grupo"
+              ],
+              "variable": [
+                {
+                  "key": "grupoId",
+                  "value": "{{grupoId}}",
+                  "description": "Identificador; se encadena desde una peticion anterior."
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// CASO DE ERROR — la misma peticion, SIN token.",
+                  "// Denegar por omision (invariante 9): una ruta que contesta sin sesion es una ruta",
+                  "// abierta, y no hay ninguna abierta fuera de /publico y /verificar de transparencia.",
+                  "pm.test(\"sin sesion no se pasa\", () => {",
+                  "    pm.expect(pm.response.code, \"una ruta con permiso contesto sin token\")",
+                  "        .to.be.oneOf([401, 403]);",
+                  "});",
+                  "",
+                  "pm.test(\"el 401 no cuenta de mas\", () => {",
+                  "    const cuerpo = pm.response.text();",
+                  "    // Ni el nombre de la clase, ni la consulta, ni si el usuario existe.",
+                  "    pm.expect(cuerpo).to.not.match(/at bo\\.aportaya\\./);",
+                  "    pm.expect(cuerpo.toLowerCase()).to.not.include(\"select \");",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
         }
       ],
       "description": "Humo de `generarEnlaceDelGrupo`. **Valido**, **limite** y **error** son tres preguntas distintas: una operacion puede contestar bien la primera y fallar las otras dos, y es justo ahi donde estan los defectos que llegan a produccion."
@@ -6244,6 +7175,58 @@
                   "pm.test(\"no devuelve un importe con mas de dos decimales\", () => {",
                   "    const cuerpo = pm.response.text();",
                   "    pm.expect(cuerpo).to.not.match(/\"monto\"\\s*:\\s*\"-?\\d+\\.\\d{3,}\"/);",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "3 · error · sin sesion",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}{{prefijo_api}}/grupos/:grupoId/enlace-del-grupo/anulacion",
+              "host": [
+                "{{base_url}}{{prefijo_api}}"
+              ],
+              "path": [
+                "grupos",
+                ":grupoId",
+                "enlace-del-grupo",
+                "anulacion"
+              ],
+              "variable": [
+                {
+                  "key": "grupoId",
+                  "value": "{{grupoId}}",
+                  "description": "Identificador; se encadena desde una peticion anterior."
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// CASO DE ERROR — la misma peticion, SIN token.",
+                  "// Denegar por omision (invariante 9): una ruta que contesta sin sesion es una ruta",
+                  "// abierta, y no hay ninguna abierta fuera de /publico y /verificar de transparencia.",
+                  "pm.test(\"sin sesion no se pasa\", () => {",
+                  "    pm.expect(pm.response.code, \"una ruta con permiso contesto sin token\")",
+                  "        .to.be.oneOf([401, 403]);",
+                  "});",
+                  "",
+                  "pm.test(\"el 401 no cuenta de mas\", () => {",
+                  "    const cuerpo = pm.response.text();",
+                  "    // Ni el nombre de la clase, ni la consulta, ni si el usuario existe.",
+                  "    pm.expect(cuerpo).to.not.match(/at bo\\.aportaya\\./);",
+                  "    pm.expect(cuerpo.toLowerCase()).to.not.include(\"select \");",
                   "});",
                   ""
                 ]
@@ -6406,6 +7389,65 @@
                   "pm.test(\"no devuelve un importe con mas de dos decimales\", () => {",
                   "    const cuerpo = pm.response.text();",
                   "    pm.expect(cuerpo).to.not.match(/\"monto\"\\s*:\\s*\"-?\\d+\\.\\d{3,}\"/);",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "3 · error · sin sesion",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}{{prefijo_api}}/grupos/enlace-del-grupo/consultar",
+              "host": [
+                "{{base_url}}{{prefijo_api}}"
+              ],
+              "path": [
+                "grupos",
+                "enlace-del-grupo",
+                "consultar"
+              ],
+              "variable": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"codigo\": \"111111111111111111111111111111111111.1111111111111111111111111111111111111111111111111111111111111111\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// CASO DE ERROR — la misma peticion, SIN token.",
+                  "// Denegar por omision (invariante 9): una ruta que contesta sin sesion es una ruta",
+                  "// abierta, y no hay ninguna abierta fuera de /publico y /verificar de transparencia.",
+                  "pm.test(\"sin sesion no se pasa\", () => {",
+                  "    pm.expect(pm.response.code, \"una ruta con permiso contesto sin token\")",
+                  "        .to.be.oneOf([401, 403]);",
+                  "});",
+                  "",
+                  "pm.test(\"el 401 no cuenta de mas\", () => {",
+                  "    const cuerpo = pm.response.text();",
+                  "    // Ni el nombre de la clase, ni la consulta, ni si el usuario existe.",
+                  "    pm.expect(cuerpo).to.not.match(/at bo\\.aportaya\\./);",
+                  "    pm.expect(cuerpo.toLowerCase()).to.not.include(\"select \");",
                   "});",
                   ""
                 ]
@@ -6638,6 +7680,65 @@
           ]
         },
         {
+          "name": "3 · error · sin sesion",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}{{prefijo_api}}/grupos/enlace-del-grupo/solicitudes",
+              "host": [
+                "{{base_url}}{{prefijo_api}}"
+              ],
+              "path": [
+                "grupos",
+                "enlace-del-grupo",
+                "solicitudes"
+              ],
+              "variable": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"codigo\": \"111111111111111111111111111111111111.1111111111111111111111111111111111111111111111111111111111111111\",\n  \"mensaje\": \"mensaje-de-prueba\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// CASO DE ERROR — la misma peticion, SIN token.",
+                  "// Denegar por omision (invariante 9): una ruta que contesta sin sesion es una ruta",
+                  "// abierta, y no hay ninguna abierta fuera de /publico y /verificar de transparencia.",
+                  "pm.test(\"sin sesion no se pasa\", () => {",
+                  "    pm.expect(pm.response.code, \"una ruta con permiso contesto sin token\")",
+                  "        .to.be.oneOf([401, 403]);",
+                  "});",
+                  "",
+                  "pm.test(\"el 401 no cuenta de mas\", () => {",
+                  "    const cuerpo = pm.response.text();",
+                  "    // Ni el nombre de la clase, ni la consulta, ni si el usuario existe.",
+                  "    pm.expect(cuerpo).to.not.match(/at bo\\.aportaya\\./);",
+                  "    pm.expect(cuerpo.toLowerCase()).to.not.include(\"select \");",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
           "name": "4 · error · cuerpo invalido",
           "request": {
             "method": "POST",
@@ -6856,6 +7957,66 @@
                   "pm.test(\"no devuelve un importe con mas de dos decimales\", () => {",
                   "    const cuerpo = pm.response.text();",
                   "    pm.expect(cuerpo).to.not.match(/\"monto\"\\s*:\\s*\"-?\\d+\\.\\d{3,}\"/);",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "3 · error · sin sesion",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}{{prefijo_api}}/grupos/invitaciones/enlace/consultar",
+              "host": [
+                "{{base_url}}{{prefijo_api}}"
+              ],
+              "path": [
+                "grupos",
+                "invitaciones",
+                "enlace",
+                "consultar"
+              ],
+              "variable": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tokenId\": \"{{tokenId}}\",\n  \"token\": \"0000000000000000000000000000000000000000000000000000000000000000\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// CASO DE ERROR — la misma peticion, SIN token.",
+                  "// Denegar por omision (invariante 9): una ruta que contesta sin sesion es una ruta",
+                  "// abierta, y no hay ninguna abierta fuera de /publico y /verificar de transparencia.",
+                  "pm.test(\"sin sesion no se pasa\", () => {",
+                  "    pm.expect(pm.response.code, \"una ruta con permiso contesto sin token\")",
+                  "        .to.be.oneOf([401, 403]);",
+                  "});",
+                  "",
+                  "pm.test(\"el 401 no cuenta de mas\", () => {",
+                  "    const cuerpo = pm.response.text();",
+                  "    // Ni el nombre de la clase, ni la consulta, ni si el usuario existe.",
+                  "    pm.expect(cuerpo).to.not.match(/at bo\\.aportaya\\./);",
+                  "    pm.expect(cuerpo.toLowerCase()).to.not.include(\"select \");",
                   "});",
                   ""
                 ]
@@ -7093,6 +8254,71 @@
                   "pm.test(\"no devuelve un importe con mas de dos decimales\", () => {",
                   "    const cuerpo = pm.response.text();",
                   "    pm.expect(cuerpo).to.not.match(/\"monto\"\\s*:\\s*\"-?\\d+\\.\\d{3,}\"/);",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "3 · error · sin sesion",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}",
+                "description": "Uno nuevo por intento. Repetir el mismo debe devolver la MISMA respuesta y un solo efecto (invariante 7)."
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}{{prefijo_api}}/grupos/invitaciones/enlace/aceptar",
+              "host": [
+                "{{base_url}}{{prefijo_api}}"
+              ],
+              "path": [
+                "grupos",
+                "invitaciones",
+                "enlace",
+                "aceptar"
+              ],
+              "variable": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tokenId\": \"{{tokenId}}\",\n  \"token\": \"0000000000000000000000000000000000000000000000000000000000000000\",\n  \"hashReglamento\": \"0000000000000000000000000000000000000000000000000000000000000000\",\n  \"aceptaReglamento\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// CASO DE ERROR — la misma peticion, SIN token.",
+                  "// Denegar por omision (invariante 9): una ruta que contesta sin sesion es una ruta",
+                  "// abierta, y no hay ninguna abierta fuera de /publico y /verificar de transparencia.",
+                  "pm.test(\"sin sesion no se pasa\", () => {",
+                  "    pm.expect(pm.response.code, \"una ruta con permiso contesto sin token\")",
+                  "        .to.be.oneOf([401, 403]);",
+                  "});",
+                  "",
+                  "pm.test(\"el 401 no cuenta de mas\", () => {",
+                  "    const cuerpo = pm.response.text();",
+                  "    // Ni el nombre de la clase, ni la consulta, ni si el usuario existe.",
+                  "    pm.expect(cuerpo).to.not.match(/at bo\\.aportaya\\./);",
+                  "    pm.expect(cuerpo.toLowerCase()).to.not.include(\"select \");",
                   "});",
                   ""
                 ]
@@ -7540,6 +8766,58 @@
               }
             }
           ]
+        },
+        {
+          "name": "3 · error · sin sesion",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}{{prefijo_api}}/grupos/periodos/:periodoId/calendario-de-aportes",
+              "host": [
+                "{{base_url}}{{prefijo_api}}"
+              ],
+              "path": [
+                "grupos",
+                "periodos",
+                ":periodoId",
+                "calendario-de-aportes"
+              ],
+              "variable": [
+                {
+                  "key": "periodoId",
+                  "value": "{{periodoId}}",
+                  "description": "Identificador; se encadena desde una peticion anterior."
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// CASO DE ERROR — la misma peticion, SIN token.",
+                  "// Denegar por omision (invariante 9): una ruta que contesta sin sesion es una ruta",
+                  "// abierta, y no hay ninguna abierta fuera de /publico y /verificar de transparencia.",
+                  "pm.test(\"sin sesion no se pasa\", () => {",
+                  "    pm.expect(pm.response.code, \"una ruta con permiso contesto sin token\")",
+                  "        .to.be.oneOf([401, 403]);",
+                  "});",
+                  "",
+                  "pm.test(\"el 401 no cuenta de mas\", () => {",
+                  "    const cuerpo = pm.response.text();",
+                  "    // Ni el nombre de la clase, ni la consulta, ni si el usuario existe.",
+                  "    pm.expect(cuerpo).to.not.match(/at bo\\.aportaya\\./);",
+                  "    pm.expect(cuerpo.toLowerCase()).to.not.include(\"select \");",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
         }
       ],
       "description": "Humo de `consultarCalendarioDeAportes`. **Valido**, **limite** y **error** son tres preguntas distintas: una operacion puede contestar bien la primera y fallar las otras dos, y es justo ahi donde estan los defectos que llegan a produccion."
@@ -7674,6 +8952,50 @@
               }
             }
           ]
+        },
+        {
+          "name": "3 · error · sin sesion",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}{{prefijo_api}}/grupos/mis-limites",
+              "host": [
+                "{{base_url}}{{prefijo_api}}"
+              ],
+              "path": [
+                "grupos",
+                "mis-limites"
+              ],
+              "variable": []
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// CASO DE ERROR — la misma peticion, SIN token.",
+                  "// Denegar por omision (invariante 9): una ruta que contesta sin sesion es una ruta",
+                  "// abierta, y no hay ninguna abierta fuera de /publico y /verificar de transparencia.",
+                  "pm.test(\"sin sesion no se pasa\", () => {",
+                  "    pm.expect(pm.response.code, \"una ruta con permiso contesto sin token\")",
+                  "        .to.be.oneOf([401, 403]);",
+                  "});",
+                  "",
+                  "pm.test(\"el 401 no cuenta de mas\", () => {",
+                  "    const cuerpo = pm.response.text();",
+                  "    // Ni el nombre de la clase, ni la consulta, ni si el usuario existe.",
+                  "    pm.expect(cuerpo).to.not.match(/at bo\\.aportaya\\./);",
+                  "    pm.expect(cuerpo.toLowerCase()).to.not.include(\"select \");",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
         }
       ],
       "description": "Humo de `consultarMisLimites`. **Valido**, **limite** y **error** son tres preguntas distintas: una operacion puede contestar bien la primera y fallar las otras dos, y es justo ahi donde estan los defectos que llegan a produccion."
@@ -7802,6 +9124,50 @@
                   "pm.test(\"no devuelve un importe con mas de dos decimales\", () => {",
                   "    const cuerpo = pm.response.text();",
                   "    pm.expect(cuerpo).to.not.match(/\"monto\"\\s*:\\s*\"-?\\d+\\.\\d{3,}\"/);",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "3 · error · sin sesion",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}{{prefijo_api}}/grupos/participaciones",
+              "host": [
+                "{{base_url}}{{prefijo_api}}"
+              ],
+              "path": [
+                "grupos",
+                "participaciones"
+              ],
+              "variable": []
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// CASO DE ERROR — la misma peticion, SIN token.",
+                  "// Denegar por omision (invariante 9): una ruta que contesta sin sesion es una ruta",
+                  "// abierta, y no hay ninguna abierta fuera de /publico y /verificar de transparencia.",
+                  "pm.test(\"sin sesion no se pasa\", () => {",
+                  "    pm.expect(pm.response.code, \"una ruta con permiso contesto sin token\")",
+                  "        .to.be.oneOf([401, 403]);",
+                  "});",
+                  "",
+                  "pm.test(\"el 401 no cuenta de mas\", () => {",
+                  "    const cuerpo = pm.response.text();",
+                  "    // Ni el nombre de la clase, ni la consulta, ni si el usuario existe.",
+                  "    pm.expect(cuerpo).to.not.match(/at bo\\.aportaya\\./);",
+                  "    pm.expect(cuerpo.toLowerCase()).to.not.include(\"select \");",
                   "});",
                   ""
                 ]
@@ -7956,6 +9322,57 @@
               }
             }
           ]
+        },
+        {
+          "name": "3 · error · sin sesion",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}{{prefijo_api}}/grupos/:grupoId/solicitudes",
+              "host": [
+                "{{base_url}}{{prefijo_api}}"
+              ],
+              "path": [
+                "grupos",
+                ":grupoId",
+                "solicitudes"
+              ],
+              "variable": [
+                {
+                  "key": "grupoId",
+                  "value": "{{grupoId}}",
+                  "description": "Identificador; se encadena desde una peticion anterior."
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// CASO DE ERROR — la misma peticion, SIN token.",
+                  "// Denegar por omision (invariante 9): una ruta que contesta sin sesion es una ruta",
+                  "// abierta, y no hay ninguna abierta fuera de /publico y /verificar de transparencia.",
+                  "pm.test(\"sin sesion no se pasa\", () => {",
+                  "    pm.expect(pm.response.code, \"una ruta con permiso contesto sin token\")",
+                  "        .to.be.oneOf([401, 403]);",
+                  "});",
+                  "",
+                  "pm.test(\"el 401 no cuenta de mas\", () => {",
+                  "    const cuerpo = pm.response.text();",
+                  "    // Ni el nombre de la clase, ni la consulta, ni si el usuario existe.",
+                  "    pm.expect(cuerpo).to.not.match(/at bo\\.aportaya\\./);",
+                  "    pm.expect(cuerpo.toLowerCase()).to.not.include(\"select \");",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
         }
       ],
       "description": "Humo de `listarSolicitudesDeIngreso`. **Valido**, **limite** y **error** son tres preguntas distintas: una operacion puede contestar bien la primera y fallar las otras dos, y es justo ahi donde estan los defectos que llegan a produccion."
@@ -8098,6 +9515,57 @@
                   "pm.test(\"no devuelve un importe con mas de dos decimales\", () => {",
                   "    const cuerpo = pm.response.text();",
                   "    pm.expect(cuerpo).to.not.match(/\"monto\"\\s*:\\s*\"-?\\d+\\.\\d{3,}\"/);",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "3 · error · sin sesion",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}{{prefijo_api}}/grupos/:grupoId/detalle",
+              "host": [
+                "{{base_url}}{{prefijo_api}}"
+              ],
+              "path": [
+                "grupos",
+                ":grupoId",
+                "detalle"
+              ],
+              "variable": [
+                {
+                  "key": "grupoId",
+                  "value": "{{grupoId}}",
+                  "description": "Identificador; se encadena desde una peticion anterior."
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// CASO DE ERROR — la misma peticion, SIN token.",
+                  "// Denegar por omision (invariante 9): una ruta que contesta sin sesion es una ruta",
+                  "// abierta, y no hay ninguna abierta fuera de /publico y /verificar de transparencia.",
+                  "pm.test(\"sin sesion no se pasa\", () => {",
+                  "    pm.expect(pm.response.code, \"una ruta con permiso contesto sin token\")",
+                  "        .to.be.oneOf([401, 403]);",
+                  "});",
+                  "",
+                  "pm.test(\"el 401 no cuenta de mas\", () => {",
+                  "    const cuerpo = pm.response.text();",
+                  "    // Ni el nombre de la clase, ni la consulta, ni si el usuario existe.",
+                  "    pm.expect(cuerpo).to.not.match(/at bo\\.aportaya\\./);",
+                  "    pm.expect(cuerpo.toLowerCase()).to.not.include(\"select \");",
                   "});",
                   ""
                 ]
@@ -8260,6 +9728,64 @@
                   "pm.test(\"no devuelve un importe con mas de dos decimales\", () => {",
                   "    const cuerpo = pm.response.text();",
                   "    pm.expect(cuerpo).to.not.match(/\"monto\"\\s*:\\s*\"-?\\d+\\.\\d{3,}\"/);",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "3 · error · sin sesion",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}{{prefijo_api}}/grupos/:grupoId/integrantes/:usuarioId/comparte",
+              "host": [
+                "{{base_url}}{{prefijo_api}}"
+              ],
+              "path": [
+                "grupos",
+                ":grupoId",
+                "integrantes",
+                ":usuarioId",
+                "comparte"
+              ],
+              "variable": [
+                {
+                  "key": "grupoId",
+                  "value": "{{grupoId}}",
+                  "description": "Identificador; se encadena desde una peticion anterior."
+                },
+                {
+                  "key": "usuarioId",
+                  "value": "{{usuarioId}}",
+                  "description": "Identificador; se encadena desde una peticion anterior."
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// CASO DE ERROR — la misma peticion, SIN token.",
+                  "// Denegar por omision (invariante 9): una ruta que contesta sin sesion es una ruta",
+                  "// abierta, y no hay ninguna abierta fuera de /publico y /verificar de transparencia.",
+                  "pm.test(\"sin sesion no se pasa\", () => {",
+                  "    pm.expect(pm.response.code, \"una ruta con permiso contesto sin token\")",
+                  "        .to.be.oneOf([401, 403]);",
+                  "});",
+                  "",
+                  "pm.test(\"el 401 no cuenta de mas\", () => {",
+                  "    const cuerpo = pm.response.text();",
+                  "    // Ni el nombre de la clase, ni la consulta, ni si el usuario existe.",
+                  "    pm.expect(cuerpo).to.not.match(/at bo\\.aportaya\\./);",
+                  "    pm.expect(cuerpo.toLowerCase()).to.not.include(\"select \");",
                   "});",
                   ""
                 ]
@@ -8436,6 +9962,72 @@
                   "pm.test(\"no devuelve un importe con mas de dos decimales\", () => {",
                   "    const cuerpo = pm.response.text();",
                   "    pm.expect(cuerpo).to.not.match(/\"monto\"\\s*:\\s*\"-?\\d+\\.\\d{3,}\"/);",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "3 · error · sin sesion",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}{{prefijo_api}}/grupos/:grupoId/reglamento/firma",
+              "host": [
+                "{{base_url}}{{prefijo_api}}"
+              ],
+              "path": [
+                "grupos",
+                ":grupoId",
+                "reglamento",
+                "firma"
+              ],
+              "variable": [
+                {
+                  "key": "grupoId",
+                  "value": "{{grupoId}}",
+                  "description": "Identificador; se encadena desde una peticion anterior."
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"hashReglamento\": \"0000000000000000000000000000000000000000000000000000000000000000\",\n  \"aceptaReglamento\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// CASO DE ERROR — la misma peticion, SIN token.",
+                  "// Denegar por omision (invariante 9): una ruta que contesta sin sesion es una ruta",
+                  "// abierta, y no hay ninguna abierta fuera de /publico y /verificar de transparencia.",
+                  "pm.test(\"sin sesion no se pasa\", () => {",
+                  "    pm.expect(pm.response.code, \"una ruta con permiso contesto sin token\")",
+                  "        .to.be.oneOf([401, 403]);",
+                  "});",
+                  "",
+                  "pm.test(\"el 401 no cuenta de mas\", () => {",
+                  "    const cuerpo = pm.response.text();",
+                  "    // Ni el nombre de la clase, ni la consulta, ni si el usuario existe.",
+                  "    pm.expect(cuerpo).to.not.match(/at bo\\.aportaya\\./);",
+                  "    pm.expect(cuerpo.toLowerCase()).to.not.include(\"select \");",
                   "});",
                   ""
                 ]
@@ -8691,6 +10283,77 @@
                   "pm.test(\"no devuelve un importe con mas de dos decimales\", () => {",
                   "    const cuerpo = pm.response.text();",
                   "    pm.expect(cuerpo).to.not.match(/\"monto\"\\s*:\\s*\"-?\\d+\\.\\d{3,}\"/);",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "3 · error · sin sesion",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}",
+                "description": "Uno nuevo por intento. Repetir el mismo debe devolver la MISMA respuesta y un solo efecto (invariante 7)."
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}{{prefijo_api}}/grupos/solicitudes/:solicitudId/decision",
+              "host": [
+                "{{base_url}}{{prefijo_api}}"
+              ],
+              "path": [
+                "grupos",
+                "solicitudes",
+                ":solicitudId",
+                "decision"
+              ],
+              "variable": [
+                {
+                  "key": "solicitudId",
+                  "value": "{{solicitudId}}",
+                  "description": "Identificador; se encadena desde una peticion anterior."
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"decision\": \"ACEPTAR\",\n  \"motivo\": \"motivo-de-prueba\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// CASO DE ERROR — la misma peticion, SIN token.",
+                  "// Denegar por omision (invariante 9): una ruta que contesta sin sesion es una ruta",
+                  "// abierta, y no hay ninguna abierta fuera de /publico y /verificar de transparencia.",
+                  "pm.test(\"sin sesion no se pasa\", () => {",
+                  "    pm.expect(pm.response.code, \"una ruta con permiso contesto sin token\")",
+                  "        .to.be.oneOf([401, 403]);",
+                  "});",
+                  "",
+                  "pm.test(\"el 401 no cuenta de mas\", () => {",
+                  "    const cuerpo = pm.response.text();",
+                  "    // Ni el nombre de la clase, ni la consulta, ni si el usuario existe.",
+                  "    pm.expect(cuerpo).to.not.match(/at bo\\.aportaya\\./);",
+                  "    pm.expect(cuerpo.toLowerCase()).to.not.include(\"select \");",
                   "});",
                   ""
                 ]

@@ -25,7 +25,7 @@ import org.junit.jupiter.api.Test;
  * es idempotente y corrige una base ya sembrada, y la base rechaza solapes (R-REP-07), tramos al
  * reves, cupos, monedas y estados fuera del contrato. Datos sinteticos.
  */
-class EtapaCatalogoTest extends BaseDeTransparencia {
+class EtapaCatalogoRepositorioTest extends BaseDeTransparencia {
 
     private ListarEtapas etapas;
 

@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test;
  * real. Correcto (la etapa de otro con el rol real), limite (varias, repetidas, sin historial y 60)
  * e invalido (ninguna o mas de 60). Datos sinteticos.
  */
-class EtapasDePersonasTest extends BaseDeEtapas {
+class EtapasDePersonasRepositorioTest extends BaseDeEtapas {
 
     private ConsultarEtapasDePersonas etapasDePersonas;
 
