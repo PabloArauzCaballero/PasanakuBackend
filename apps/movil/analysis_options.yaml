@@ -11,6 +11,7 @@ analyzer:
     - android/**
     - ios/**
     - web/**
+    - terceros/**   # plugins copiados tal cual (terceros/README.md); no son código nuestro
   errors:
     missing_required_param: error
     missing_return: error
