@@ -74,7 +74,12 @@ class CU69IngresoCerradoTest extends BaseDeCU68 {
         admision = new CU68AceptarIngreso(
                 new Datos(dsl), new AdmisionRepositorio(), new Outbox("grupos"), Reloj.delSistema());
         inicio = new CU69IniciarGrupo(
-                new Datos(dsl), new AdmisionRepositorio(), new CalendarioDelGrupoRepositorio(), Reloj.delSistema(), 75);
+                new Datos(dsl),
+                new AdmisionRepositorio(),
+                new CalendarioDelGrupoRepositorio(),
+                Reloj.delSistema(),
+                new Outbox("grupos"),
+                75);
         criterioVigente();
         sembrarGrupoAbierto();
 

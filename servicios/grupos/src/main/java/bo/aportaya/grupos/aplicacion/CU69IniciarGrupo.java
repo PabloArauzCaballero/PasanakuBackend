@@ -13,11 +13,16 @@ import bo.aportaya.plataforma.dominio.ErrorDeNegocio;
 import bo.aportaya.plataforma.dominio.Moneda;
 import bo.aportaya.plataforma.dominio.Reloj;
 import bo.aportaya.plataforma.dominio.Traza;
+import bo.aportaya.plataforma.mensajeria.EventoDominio;
+import bo.aportaya.plataforma.mensajeria.Outbox;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import org.jooq.DSLContext;
@@ -52,6 +57,7 @@ public class CU69IniciarGrupo {
     private final AdmisionRepositorio admision;
     private final CalendarioDelGrupoRepositorio calendario;
     private final Reloj reloj;
+    private final Outbox outbox;
     private final int porcentaje;
 
     public CU69IniciarGrupo(
@@ -59,11 +65,13 @@ public class CU69IniciarGrupo {
             AdmisionRepositorio admision,
             CalendarioDelGrupoRepositorio calendario,
             Reloj reloj,
+            Outbox outbox,
             @Value("${aportaya.grupos.inicio.porcentaje}") int porcentaje) {
         this.datos = datos;
         this.admision = admision;
         this.calendario = calendario;
         this.reloj = reloj;
+        this.outbox = outbox;
         this.porcentaje = porcentaje;
     }
 
@@ -126,8 +134,81 @@ public class CU69IniciarGrupo {
                     ahora);
             publicarReglamento(dsl, grupoId, g, ocupados, ctx.usuarioId(), ahora);
             calendario.generar(dsl, grupoId, ahora.toLocalDate());
+            emitirInicio(dsl, grupoId, g, ocupados, ahora, ctx);
             return new Iniciado(grupoId, "CONFORMADO", ocupados, ocupados);
         });
+    }
+
+    /**
+     * R-GRP-20 (decision del dueño 2026-10-30): la cuota 1 nace al iniciar. En la MISMA transaccion, con el grupo ya
+     * achicado y su calendario armado, se publica por outbox {@code grupos.grupo_iniciado} con todo lo que {@code aportes}
+     * necesita para abrir la obligacion de la cuota 1 de cada cupo sin preguntar nada: el periodo 1 con sus fechas y los
+     * cupos OCUPADO ya renumerados 1..N con su titular y su aporte (un consumidor no tiene el token de nadie). Importes
+     * como cadena de dos decimales. El reintento con la misma clave sale antes de llegar aca: un inicio, un evento.
+     * Pacto: {@code contratos/pactos/grupos-aportes-grupo-iniciado.json}.
+     */
+    private void emitirInicio(
+            DSLContext dsl, UUID grupoId, Record g, int ocupados, OffsetDateTime ahora, ContextoSesion ctx) {
+        Record periodo = dsl.fetchOne(
+                """
+                SELECT id, fecha_inicio, fecha_limite_pago, fecha_fin_gracia, fecha_entrega_prevista
+                  FROM grupos.periodo WHERE grupo_id = ? AND numero = 1
+                """,
+                grupoId);
+        if (periodo == null) {
+            // El calendario se genero recien, en esta transaccion: sin periodo 1 el inicio no es tal.
+            throw new IllegalStateException("El grupo " + grupoId + " se inicio sin periodo 1.");
+        }
+        // NUMERIC(14,2) en la base: la escala ya es 2, UNNECESSARY lo afirma en vez de redondear en silencio (regla
+        // 91).
+        String montoAporte = g.get("monto_aporte", BigDecimal.class)
+                .setScale(2, RoundingMode.UNNECESSARY)
+                .toPlainString();
+        List<Map<String, Object>> cupos = dsl.fetch(
+                        """
+                        SELECT id, numero, participante_id FROM grupos.cupo
+                         WHERE grupo_id = ? AND estado = 'OCUPADO' ORDER BY numero
+                        """,
+                        grupoId)
+                .map(c -> {
+                    Map<String, Object> cupo = new LinkedHashMap<>();
+                    cupo.put("cupoId", c.get("id", UUID.class).toString());
+                    cupo.put("numero", c.get("numero", Integer.class));
+                    cupo.put(
+                            "participanteId",
+                            c.get("participante_id", UUID.class).toString());
+                    cupo.put("montoAporte", montoAporte);
+                    return cupo;
+                });
+        Map<String, Object> periodoUno = new LinkedHashMap<>();
+        periodoUno.put("periodoId", periodo.get("id", UUID.class).toString());
+        periodoUno.put("numero", 1);
+        periodoUno.put(
+                "fechaInicio", periodo.get("fecha_inicio", LocalDate.class).toString());
+        periodoUno.put(
+                "fechaLimitePago",
+                periodo.get("fecha_limite_pago", LocalDate.class).toString());
+        periodoUno.put(
+                "fechaFinGracia",
+                periodo.get("fecha_fin_gracia", LocalDate.class).toString());
+        periodoUno.put(
+                "fechaEntregaPrevista",
+                periodo.get("fecha_entrega_prevista", LocalDate.class).toString());
+        Map<String, Object> carga = new LinkedHashMap<>();
+        carga.put("grupoId", grupoId.toString());
+        carga.put("moneda", g.get("moneda", String.class).trim());
+        carga.put("cuposTotales", ocupados);
+        carga.put("iniciadoEn", ahora.toString());
+        carga.put("periodo", periodoUno);
+        carga.put("cupos", cupos);
+        outbox.emitir(
+                dsl,
+                new EventoDominio(
+                        "grupos.grupo_iniciado",
+                        "grupo",
+                        grupoId,
+                        carga,
+                        UUID.fromString(ctx.traza().id())));
     }
 
     /**

@@ -8,6 +8,7 @@ import bo.aportaya.plataforma.dominio.ContextoSesion;
 import bo.aportaya.plataforma.dominio.ErrorDeNegocio;
 import bo.aportaya.plataforma.dominio.Reloj;
 import bo.aportaya.plataforma.dominio.Traza;
+import bo.aportaya.plataforma.mensajeria.Outbox;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -27,6 +28,7 @@ abstract class BaseDeInicio extends BaseDeCU60 {
                 new AdmisionRepositorio(),
                 new CalendarioDelGrupoRepositorio(),
                 Reloj.delSistema(),
+                new Outbox("grupos"),
                 PORCENTAJE);
     }
 
