@@ -113,3 +113,19 @@ sin conflictos de texto (único archivo compartido: el pacto, idéntico) y regre
 `AP-CU60-05`: `CU60Sortear` usa `AceptacionVigenteRepositorio`; lo de c1 vive en `puedeSortear` y
 `SorteoRepositorio`. Queda pendiente, por acuerdo, repetir la regresión sobre `test` real después de que entre #364
 y antes de mergear #369.
+
+## Anexo — regresión sobre `test` real con #364 adentro (2026-10-31, 07:0x UTC)
+
+#364 (`claude/arenas-y-inicio-75-20261030`) entró en `test` como `5c06f9e95`. Se trajo `origin/test` a
+`claude/sorteo-primera-cuota-20261030` (merge `23fe81042`, sin conflictos) y se repitió la regresión completa,
+ya no simulada:
+
+| Servicio | Comando | Resultado | Evidencia |
+|---|---|---|---|
+| grupos | `./gradlew :servicios:grupos:spotlessCheck :servicios:grupos:test :servicios:grupos:webTest :servicios:grupos:integrationTest` | BUILD SUCCESSFUL · XML tests=621 fallos=0 errores=0 saltados=0 (94 XML regenerados en la corrida) | `evidencia/grupos-regresion-test-con-364.txt` |
+| aportes | `./gradlew :servicios:aportes:spotlessCheck :servicios:aportes:test :servicios:aportes:webTest :servicios:aportes:integrationTest` | BUILD SUCCESSFUL · XML tests=237 fallos=0 errores=0 saltados=0 | `evidencia/aportes-regresion-test-con-364.txt` |
+
+Con esto se cumple la condición acordada con `pasanaku-c1` para mergear #369 (→ `test`) y #370 (→ `dev`).
+Deuda que c1 deja registrada y sigue abierta: la regla «versión vigente del reglamento» está escrita dos veces
+(`SorteoRepositorio.todosAceptaronElReglamento`, usada por `puedeSortear`, y `AceptacionVigenteRepositorio`,
+usada por `CU60Sortear`). Unificarla queda fuera de este alcance; se anota, no se arregla.
