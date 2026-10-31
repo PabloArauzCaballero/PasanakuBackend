@@ -120,3 +120,13 @@ flutter:
           weight: 500
         - asset: packages/aportaya_diseno/fuentes/Instrument-600.ttf
           weight: 600
+
+# ML Kit solo en Android (2026-10-30, decisión de Pablo): sus pods binarios de iOS no
+# traen slice arm64 de simulador y rompían el build de simulador del CI. En iOS la
+# cara la lee Vision de Apple (`ios/Runner/LectorDeRostroVision.swift`). Las copias
+# en `terceros/` son las versiones publicadas sin la plataforma iOS; ver su README.
+dependency_overrides:
+  google_mlkit_face_detection:
+    path: terceros/google_mlkit_face_detection
+  google_mlkit_commons:
+    path: terceros/google_mlkit_commons
