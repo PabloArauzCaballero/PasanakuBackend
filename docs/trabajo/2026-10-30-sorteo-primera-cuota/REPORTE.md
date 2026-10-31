@@ -48,10 +48,10 @@ ninguna
 
 | ID | Estado | Qué lo destraba |
 |---|---|---|
-| Absorber `bd7280d9` (emisión del evento) en los PR #364/#365 de c1 | De `pasanaku-c1` (acordado: «mandame el commit y lo absorbo») | Un `cherry-pick bd7280d9` sobre su rama |
+| ~~Absorber `bd7280d9` en los PR #364/#365~~ | **Hecho por c1**: quedó como `2f154902` en `claude/arenas-y-inicio-75-20261030`; grupos 613/0, `CU69EventoDeInicioTest` 3/0 (mensaje de c1, 23:0x) | — |
 | `puedeSortear` en el detalle del grupo y botón/re-firma en la app | De `pasanaku-c1` | — |
-| Abrir el período 1 (`PROGRAMADO → ABIERTO`) para que `CU21CobrarAporte` acepte el cobro de la cuota 1 | `DECISION_REQUIRED` si cambia una regla; c1 dijo que lo verifica y, si hace falta, se lo pregunta a Pablo | Decisión de Pablo |
-| PR a `dev` y `test` | TODO | Integrar junto con la rama de c1 (toca `CU60Sortear` del lado de ellos no, pero sí `grupos.yaml` y el evento); un PR solo de esta rama deja el sorteo bloqueado en `AP-CU60-11` hasta que llegue el evento |
+| ~~Abrir el período 1 (`PROGRAMADO → ABIERTO`)~~ | **Resuelto por c1 con evidencia**: el período `PROGRAMADO` admite el pago (`ConsultasRepositorio.java:256`, `grupos.yaml:895`); el doble cobro lo impide `uq_obligacion_periodo_cupo`. No hace falta abrirlo | — |
+| PR a `test` y `dev` desde `claude/sorteo-primera-cuota-20261030` | EN CURSO al cerrar este reporte: la rama estaba 43 commits detrás de `origin/test`; se trae `origin/test`, se repiten las dos regresiones y recién ahí se abren. **Se mergean junto con #364/#365**, cuando `pasanaku-ab` mergee el arreglo de goldens (#366/#368) y el CI quede en verde | CI verde en #364/#365 |
 | Comentario del 422 en `grupos.yaml` (`AP-CU60-11/12`) | De `pasanaku-c1` (el archivo es suyo) | — |
 
 ## Evidencia
