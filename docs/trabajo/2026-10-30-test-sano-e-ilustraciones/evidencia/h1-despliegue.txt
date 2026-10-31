@@ -1,0 +1,6 @@
+origin/test=265fb807 · host /opt/aportaya/repo=008fee5d (#353) · 37 commits de test sin desplegar aún
+autodespliegue.log (hora del host, UTC-4):
+[19:37:25] listo en 8806cd7
+[19:37:26] test avanzo: 8806cd7 -> 008fee5
+[19:37:29] construyendo construir-movil-web.sh   (en curso a las 23:54Z = 19:54 host)
+procesos: reconstruir-si-cambio.sh · construir-movil-web.sh · docker build Dockerfile.movil-web
