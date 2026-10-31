@@ -96,6 +96,8 @@ Archivos en `evidencia/`: `h1-s1-a-*`, `h1-s7-t-*` (RLS, mutación de privacidad
 3. Posible inferencia del puntaje ajeno a partir de los factores que siguen visibles en el perfil del grupo. No se verificó.
 4. Al integrar la rama de pasanaku-1f: `CU60Sortear` cambia de constructor y `AP-CU60-05` se calcula de otra forma. Los dos hacen chequeos de la versión vigente del reglamento que se pisan, y hay que dejar uno solo.
 
+5. **La regla «todos aceptaron la versión vigente del reglamento» está escrita dos veces**, en `SorteoRepositorio.todosAceptaronElReglamento` (esta rama, para `puedeSortear` del detalle) y en `AceptacionVigenteRepositorio` (rama de pasanaku-1f, para bloquear `CU60Sortear`). Hoy coinciden: el merge simulado de las dos ramas da grupos 621/621, según pasanaku-1f. Si una cambia sin la otra, la app mostraría «se puede sortear» y el servidor rechazaría. Deuda: dejar una sola consulta.
+
 ## Decisiones y ambigüedades
 - Decisiones de Pablo (AskUserQuestion, 2026-10-30), en la tabla del PLAN:
   - trofeos = puntaje existente;
