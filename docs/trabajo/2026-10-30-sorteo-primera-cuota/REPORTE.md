@@ -103,3 +103,13 @@ ninguna
 | `AP-CU60-12` para «aportes sin respuesta» (fallo cerrado) | Este trabajo | Adoptado por c1 (usa 13+) |
 | La primera cuota nace en `iniciarGrupo`; versión N+1 del reglamento con re-firma | Pablo, vía c1 | Implementado del lado del sorteo; emisión pendiente en c1 |
 | Un solo subagente pese al pedido de paralelismo | Regla 70.1.2 | Registrado como conflicto |
+
+## Anexo — merge simulado con el carril de inicio al 75 % (2026-10-30, 23:2x)
+
+A pedido de `pasanaku-c1` (las dos ramas tocan el sorteo por lados distintos), se mergeó en una rama descartable
+`claude/sorteo-primera-cuota-20261030` (`74657c94`) + `origin/claude/arenas-y-inicio-75-20261030` (`5e3db02f`):
+sin conflictos de texto (único archivo compartido: el pacto, idéntico) y regresión completa de `grupos`
+**621/621**, `spotlessCheck` OK (`evidencia/grupos-merge-simulado-con-inicio-75.txt`). Sin doble chequeo de
+`AP-CU60-05`: `CU60Sortear` usa `AceptacionVigenteRepositorio`; lo de c1 vive en `puedeSortear` y
+`SorteoRepositorio`. Queda pendiente, por acuerdo, repetir la regresión sobre `test` real después de que entre #364
+y antes de mergear #369.
