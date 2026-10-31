@@ -51,3 +51,7 @@ $ xcodebuild -exportArchive … → Upload succeeded · ** EXPORT SUCCEEDED **
 ## Decisiones y ambigüedades
 - Siguen sin confirmar por Pablo: «Ultra HD» = dibujo vectorial detallado; la persona con rasgos simples (antes era un busto sin rasgos).
 - No se reconstruyó ni reinició nada en el servidor: el autodespliegue lo hizo solo.
+
+
+## Corrección (2026-10-31)
+Las cifras de «fallas en `test`» de este reporte (300+) salieron de correr en **macOS** goldens que el proyecto genera y compara en **Linux** (`.github/workflows/ci.yml:425`): son diferencias de render, no fallas. El CI real de los PRs de este trabajo terminó con el job «Frontend — Flutter y Angular» **en rojo** y se mergeó sin revisar los checks. Se corrigió en [2026-10-30-goldens-linux-pautas](../2026-10-30-goldens-linux-pautas/REPORTE.md) (#367/#371).
