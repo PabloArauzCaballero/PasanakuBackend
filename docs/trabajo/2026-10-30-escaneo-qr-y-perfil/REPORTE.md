@@ -58,3 +58,7 @@ con el cambio: 338 fallas · origin/test limpio: 353 fallas · nuevas: 0
 - Sin animación en bucle (línea de barrido): la cámara ya se mueve y la pantalla tiene que asentarse.
 - El campo «Correo» deshabilitado se mantuvo: el test de correo (2026-10-19) lo exige como contrato.
 - El mensaje de otra sesión (pasanaku-1f) sobre la regla nueva del sorteo CU-60 no aplica a este alcance.
+
+
+## Corrección (2026-10-31)
+Las cifras de «fallas en `test`» de este reporte (300+) salieron de correr en **macOS** goldens que el proyecto genera y compara en **Linux** (`.github/workflows/ci.yml:425`): son diferencias de render, no fallas. El CI real de los PRs de este trabajo terminó con el job «Frontend — Flutter y Angular» **en rojo** y se mergeó sin revisar los checks. Se corrigió en [2026-10-30-goldens-linux-pautas](../2026-10-30-goldens-linux-pautas/REPORTE.md) (#367/#371).
