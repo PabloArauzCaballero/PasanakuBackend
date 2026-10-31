@@ -45,7 +45,7 @@ alcance: servicios/* · plataforma/* · despliegue/*
 
 | Artefacto | Estado |
 | --- | --- |
-| `docs/` — bóveda | **Completa**: 111 casos de uso, 328 entidades, 665 relaciones, 173 restricciones, 51 ADR |
+| `docs/` — bóveda | **Completa**: 111 casos de uso, 328 entidades, 665 relaciones, 174 restricciones, 51 ADR |
 | `sql/` — esquema | **Generado y aplicable**: `psql -v ON_ERROR_STOP=1 -f sql/aplicar.sql` |
 | `seeders/` — catálogos | **Listos**: **20** catálogos mínimos (van a producción) + **14** de prueba |
 | `scripts/` — generadores | **Listos**: DDL, bóveda, semillas, verificador. **Falta**: asignación de esquema por servicio (Fase 1) |
@@ -564,7 +564,7 @@ cambian el gate de tres fases:
 | `R-BIL-19` | El reintento **devuelve la primera respuesta**, no un error | CU-10 | 6 |
 | `R-BIL-20` | La partida doble cuadra **también en moneda** | CU-10 | 6 |
 
-Total vigente: **173 restricciones definidas**, todas citadas por al menos un caso.
+Total vigente: **174 restricciones definidas**, todas citadas por al menos un caso.
 
 ---
 

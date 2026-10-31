@@ -25,7 +25,7 @@ import org.springframework.web.client.RestClient;
  */
 public final class HechosDeEnsayo {
 
-    public static final String TOKEN = "token-sintetico-de-servicio-de-grupos";
+    public static final String TOKEN = "demo-token-de-servicio-de-grupos";
 
     private static final String CATALOGO =
             """
