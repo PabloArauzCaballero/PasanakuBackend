@@ -4,3 +4,9 @@ autodespliegue.log (hora del host, UTC-4):
 [19:37:26] test avanzo: 8806cd7 -> 008fee5
 [19:37:29] construyendo construir-movil-web.sh   (en curso a las 23:54Z = 19:54 host)
 procesos: reconstruir-si-cambio.sh · construir-movil-web.sh · docker build Dockerfile.movil-web
+
+Relectura a las 20:32 host:
+host /opt/aportaya/repo = e945c723 = origin/test
+[20:26:31] listo en 265fb80   (la sincronización #356/#357 quedó desplegada)
+[20:26:31] test avanzo: 265fb80 -> e945c72   (reconstrucción automática en curso)
+actuator/health -> 200 · /usuarios/yo/perfil sin token -> 401

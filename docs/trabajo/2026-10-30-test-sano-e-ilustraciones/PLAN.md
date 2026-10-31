@@ -13,27 +13,27 @@
 
 ## H1 — TEST sano tras #356
 **CA:** Dado el merge #356 en `test`, cuando se consulta TEST, entonces la API responde y el despliegue corre el commit de `test` (o se informa con evidencia que no).
-**DoD:** salidas pegadas en `evidencia/`. **Estado:** TODO
+**DoD:** salidas pegadas en `evidencia/`. **Estado:** HECHO
 
 | ID | Microtarea | CA (binario) | DoD (comando) | Estado |
 |---|---|---|---|---|
-| H1.S1.M1 | La API y los frentes de TEST responden | HTTP 2xx/4xx esperado, no 5xx ni timeout | `curl` a API, web, app | TODO |
-| H1.S1.M2 | El commit desplegado coincide con `origin/test` | sha del host = `origin/test` o diferencia explicada | lectura en el host (`git -C /opt/aportaya/repo rev-parse HEAD`, log de reconstrucción) | TODO |
+| H1.S1.M1 | La API y los frentes de TEST responden | HTTP 2xx/4xx esperado, no 5xx ni timeout | `curl` a API, web, app | HECHO |
+| H1.S1.M2 | El commit desplegado coincide con `origin/test` | sha del host = `origin/test` o diferencia explicada | lectura en el host (`git -C /opt/aportaya/repo rev-parse HEAD`, log de reconstrucción) | HECHO |
 
 ## H2 — Ilustraciones HD en test y dev
-**CA:** Dado `origin/test`, cuando se abren las pautas de foto, entonces se ven el carnet y el muñeco detallados. **DoD:** tests en verde, PRs mergeados. **Estado:** TODO
+**CA:** Dado `origin/test`, cuando se abren las pautas de foto, entonces se ven el carnet y el muñeco detallados. **DoD:** tests en verde, PRs mergeados. **Estado:** HECHO
 
 | ID | Microtarea | CA (binario) | DoD (comando) | Estado |
 |---|---|---|---|---|
 | H2.S1.M1 | Copiar ilustraciones y goldens al worktree de test | analyze sin issues; goldens en verde | `flutter analyze lib/pantallas/identidad/ilustraciones` · `flutter test test/widget/ilustracion_de_pauta_golden_test.dart test/widget/pautas_publicas_test.dart test/widget/pautas_publicas_golden_test.dart` | HECHO |
 | H2.S1.M1b | Partir `ilustracion_de_pauta.dart` (452) y `persona_de_ejemplo.dart` (277) en archivos ≤ 200 líneas sin cambiar el dibujo (descubierto: el trabajo anterior no corrió `yarn lint`) | golden idéntico, sin regenerarlo | `flutter test test/widget/ilustracion_de_pauta_golden_test.dart` contra el golden ya inspeccionado · `yarn workspace @aportaya/movil lint` sin fallas nuevas | HECHO |
 | H2.S1.M2 | Regresión completa vs `origin/test` limpio | 0 fallas nuevas | `flutter test` con y sin el cambio | HECHO |
-| H2.S1.M3 | PR a test y gemelo a dev, mergeados | ambos `MERGED`; `git diff origin/dev origin/test` vacío | `gh pr view` · `git diff --stat` | TODO |
+| H2.S1.M3 | PR a test y gemelo a dev, mergeados | ambos `MERGED`; `git diff origin/dev origin/test` vacío | `gh pr view` · `git diff --stat` | HECHO |
 
 ## H3 — TestFlight con todo
 | ID | Microtarea | CA (binario) | DoD (comando) | Estado |
 |---|---|---|---|---|
-| H3.S1.M1 | Build desde `origin/test` (con ilustraciones, QR, perfil y la sincronización) subido | `EXPORT SUCCEEDED` | `scripts/testflight_ios.sh --solo-compilar` + `xcodebuild -exportArchive … -authenticationKey*` | TODO |
+| H3.S1.M1 | Build desde `origin/test` (con ilustraciones, QR, perfil y la sincronización) subido | `EXPORT SUCCEEDED` | `scripts/testflight_ios.sh --solo-compilar` + `xcodebuild -exportArchive … -authenticationKey*` | HECHO |
 
 ## Riesgos y bloqueos previstos
 | Riesgo | Impacto | Mitigación |

@@ -1,0 +1,6 @@
+Failing tests:
+  /Users/pablo/Documents/GitHub/Pasanaku/apps/movil/test/goldens/h10_camara_visual_test.dart: cámara concedida · claro · 360 dp · texto 130 %
+  /Users/pablo/Documents/GitHub/Pasanaku/apps/movil/test/goldens/h10_camara_visual_test.dart: cámara concedida · claro · 412 dp · texto 130 %
+  /Users/pablo/Documents/GitHub/Pasanaku/apps/movil/test/goldens/h10_camara_visual_test.dart: cámara concedida · claro · 600 dp · texto 130 %
+  /Users/pablo/Documents/GitHub/Pasanaku/apps/movil/test/goldens/h10_camara_visual_test.dart: cámara concedida · oscuro · 360 dp · texto 130 %
+  ... and 2 more
