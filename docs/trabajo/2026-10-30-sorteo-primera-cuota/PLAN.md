@@ -75,6 +75,25 @@
 ## Estado de los hitos
 H1 HECHO · H2 HECHO · H3 HECHO (regresión completa de `grupos` 513/513) · H4 HECHO. Las regresiones de módulo de ambos servicios en verde con `spotlessCheck` (`evidencia/grupos-regresion-2.txt`, `evidencia/aportes-regresion-3.txt`).
 
+## H5 — `grupos` emite `grupos.grupo_iniciado` al iniciar (tomado de `pasanaku-c1` a su pedido, 2026-10-30 22:40)
+**Alcance ampliado con permiso del dueño del carril:** solo `servicios/grupos/.../aplicacion/CU69IniciarGrupo.java` y su test,
+sobre `origin/claude/arenas-y-inicio-75-20261030 @ 9505875e` (no sobre `3e94c14a`, que es viejo), en una rama aparte
+`claude/evento-grupo-iniciado-20261030` que c1 absorbe en sus PR #364/#365. Hallazgo de c1 a verificar antes de escribir:
+hoy `iniciarGrupo` **no** genera calendario ni período 1.
+**CA:** Dado un organizador que inicia el grupo al ≥ 75 %, cuando la transacción confirma, entonces existe el período 1 y en el
+outbox hay exactamente un evento `grupos.grupo_iniciado` con la carga del contrato (período 1, cupos ocupados renumerados 1..N,
+monto y moneda); un reintento con la misma clave no emite un segundo evento.
+**DoD:** `./gradlew :servicios:grupos:integrationTest --tests '*CU69Iniciar*'` en verde con los casos nuevos + regresión de `grupos`.
+**Estado:** TODO
+
+| ID | Microtarea | CA (binario) | DoD | Estado |
+|---|---|---|---|---|
+| H5.S1.M1 | Verificar en `9505875e` qué hace `iniciarGrupo` (calendario, período 1, outbox disponible) y cómo emite `CU69FirmarReglamento` | Hechos con `ruta:línea` en el reporte | lectura registrada | TODO |
+| H5.S1.M2 | `CU69IniciarGrupo`: generar el calendario (período 1..N) si no existe, leer período 1 y cupos OCUPADO, `outbox.emitir(...)` con la carga del contrato, en la misma transacción y después del `UPDATE` del grupo | Evento en `grupos.evento_dominio` con la carga exacta | caso «correcto» del test | TODO |
+| H5.S1.M3 | Idempotencia: la misma clave no re-emite; otra clave sobre un grupo ya iniciado responde `AP-CU69-17` sin emitir | 1 evento tras dos llamadas | casos «límite» del test | TODO |
+| H5.S1.M4 | Carga inválida imposible por construcción (sin cupos ocupados no se inicia: `AP-CU69-16`); prueba de que con 0 ocupados no hay evento | 0 eventos | caso «inválido» del test | TODO |
+| H5.S1.M5 | Regresión de `grupos` en la rama sobre `9505875e` + `spotlessCheck`; push; commit a c1 | verde | salida pegada | TODO |
+
 ## Riesgos y bloqueos previstos
 | Riesgo | Impacto | Mitigación |
 |---|---|---|
