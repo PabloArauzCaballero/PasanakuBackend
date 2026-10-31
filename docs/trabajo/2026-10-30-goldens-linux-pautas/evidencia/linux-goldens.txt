@@ -1,0 +1,6 @@
+pub 0
+00:06 +2: All tests passed!
+00:02 +2: All tests passed!
+00:02 +2: All tests passed!
+MD5 (apps/movil/test/widget/goldens/ilustracion_de_pauta_escenas.png) = d63a4bafc20ebb96ac4be785a633eb4e
+MD5 (apps/movil/test/widget/goldens/pautas_publicas_360.png) = 733b066e1b3d0dc54b6a9a13c652ceee
