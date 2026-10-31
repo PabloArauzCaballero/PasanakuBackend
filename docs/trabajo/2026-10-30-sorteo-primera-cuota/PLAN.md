@@ -73,7 +73,7 @@
 | H4.S1.M3 | `REPORTE.md` con evidencia por microtarea | — | `REPORTE.md` en disco (regla 40) | HECHO |
 
 ## Estado de los hitos
-H1 HECHO · H2 HECHO · H3 HECHO (regresión completa de `grupos` 513/513) · H4 HECHO · H5 HECHO · H6 EN CURSO (9/10: falta que los checks de #369 confirmen; ver REPORTE, anexo H6). Las regresiones de módulo de ambos servicios en verde con `spotlessCheck` (`evidencia/grupos-regresion-2.txt`, `evidencia/aportes-regresion-3.txt`).
+H1 HECHO · H2 HECHO · H3 HECHO (regresión completa de `grupos` 513/513) · H4 HECHO · H5 HECHO · H6 HECHO (checks de #369 y #370 en verde salvo OSV-Scanner, ajeno: `minimatch` en `yarn.lock`; ver REPORTE, anexo H6). Las regresiones de módulo de ambos servicios en verde con `spotlessCheck` (`evidencia/grupos-regresion-2.txt`, `evidencia/aportes-regresion-3.txt`).
 
 ## H5 — `grupos` emite `grupos.grupo_iniciado` al iniciar (tomado de `pasanaku-c1` a su pedido, 2026-10-30 22:40)
 **Alcance ampliado con permiso del dueño del carril:** solo `servicios/grupos/.../aplicacion/CU69IniciarGrupo.java` y su test,
@@ -107,7 +107,7 @@ monto y moneda); un reintento con la misma clave no emite un segundo evento.
 ## H6 — CI de #369 en verde (abierto 2026-10-31 07:10 UTC tras leer la corrida 41163590299 sobre `9eb51b85`)
 **CA:** Dado el PR #369 contra `test` con #364 adentro, cuando corre el CI, entonces «Formato, reglas propias y compilacion», «Contratos y clientes generados» y «La boveda y el esquema no divergen» pasan (los rojos ajenos declarados por c1, «Release iOS» y OSV/minimatch, no son de este trabajo).
 **DoD:** los tres gates reproducidos en local en verde + regresión de `grupos` + push + checks del PR.
-**Estado:** EN CURSO
+**Estado:** HECHO
 
 ### H6.S1 — Gates de contratos y bóveda
 | ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
@@ -129,4 +129,4 @@ monto y moneda); un reintento con la misma clave no emite un segundo evento.
 ### H6.S3 — Cierre
 | ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
 |---|---|---|---|---|
-| H6.S3.M1 | Regresión completa de `grupos` + `spotlessCheck` + push; checks de #369 | verde salvo rojos ajenos declarados | XML tests=N fallos=0 · `gh pr checks 369` | EN CURSO |
+| H6.S3.M1 | Regresión completa de `grupos` + `spotlessCheck` + push; checks de #369 | verde salvo rojos ajenos declarados | XML tests=N fallos=0 · `gh pr checks 369` | HECHO |

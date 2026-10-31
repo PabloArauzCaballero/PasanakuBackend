@@ -1,6 +1,6 @@
 # Reporte — El sorteo exige la primera cuota pagada (R-GRP-20): lado `aportes` + precondición en `grupos`
 
-> **AVANCE: 28 / 29 — 96,6 %.** (H1–H4: 13 · H5, emisión del evento tomada de `pasanaku-c1` a su pedido: 6 · H6, CI de #369 en verde: 9 de 10; la última, los checks del PR sobre `756b9ae7c`+docs, está EN CURSO)
+> **AVANCE: 29 / 29 — 100 %.** (H1–H4: 13 · H5, emisión del evento tomada de `pasanaku-c1` a su pedido: 6 · H6, CI de #369 en verde: 10)
 
 - Fecha: 2026-10-30 · Plan: [PLAN.md](./PLAN.md) · Rama: `claude/sorteo-primera-cuota-20261030` desde `origin/test` (worktree `Pasanaku-wt-sorteo`)
 - Peldaño de evidencia alcanzado: **`TESTED` + regresión de módulo** en los dos servicios (`grupos` 513/513, `aportes` 236/236, contra PostgreSQL real con Testcontainers y dobles declarados para lo remoto). **No es `VERIFIED`**: el camino real Kafka → `aportes` y `grupos` → HTTP → `aportes` con los dos procesos levantados no se ejercitó, y el evento que dispara todo lo emite el carril de `pasanaku-c1`, que todavía no lo publicó. Ver «No cubierto».
@@ -147,7 +147,7 @@ tapaba al 6b, 6d, 6h y 6i). Se reprodujeron en local uno por uno y se corrigiero
 | H6.S1.M7 | `generar_compose.py --coolify` (6h): «aportes: GRUPO_INICIADO_CONSUMO_HABILITADO» sin valor | Bandera en `DE_DESARROLLO` (`true`) y `DE_ENTORNO` (`${…:-true}`); `docker-compose.coolify.yml` regenerado (+1 línea) | `python3 scripts/generar_compose.py --coolify && python3 scripts/auditoria/verificar_limites_compose.py && git diff --exit-code -- docker-compose.coolify.yml despliegue/coolify/` | exit 0 · `evidencia/h6-compose.txt` |
 | H6.S2.M1 | `testBarrido`: `CU60Sortear.java` 311 líneas (límite 300) | `RequisitosDelSorteo` (ayudante estático: `AP-CU60-05`, `11`, `12`); constructor intacto | `./gradlew :servicios:grupos:testBarrido` · `wc -l` | exit 0 · 289 líneas · `evidencia/h6-barrido-y-cu60.txt` |
 | H6.S2.M2 | `testBarrido`: `CU60Test.java` 368 líneas | Cuatro pruebas a `CU60RequisitosTest extends BaseDeCU60` | ídem · `:servicios:grupos:integrationTest --tests '*CU60*'` | 258 líneas · CU60RequisitosTest 4/4, CU60SnapshotTest 10/10, CU60Test 12/12 · ídem |
-| H6.S3.M1 | Regresión + checks del PR | Regresión completa de `grupos` sobre el árbol final; `check` estático; push | `./gradlew :servicios:grupos:spotlessCheck :servicios:grupos:test :servicios:grupos:webTest :servicios:grupos:integrationTest :servicios:grupos:testBarrido` | **623/623, 0 fallos** · `evidencia/h6-grupos-regresion.txt`, `h6-grupos-check-estatico.txt` · **checks de #369: EN CURSO** |
+| H6.S3.M1 | Regresión + checks del PR | Regresión completa de `grupos` sobre el árbol final; `check` estático; push | `./gradlew :servicios:grupos:spotlessCheck :servicios:grupos:test :servicios:grupos:webTest :servicios:grupos:integrationTest :servicios:grupos:testBarrido` | **623/623, 0 fallos** · `evidencia/h6-grupos-regresion.txt`, `h6-grupos-check-estatico.txt` · checks de #369 (08:21 UTC): **16 pass, 3 skipped, 1 fail = OSV-Scanner** (`minimatch` en `yarn.lock`, ajeno: la rama no toca lockfiles); #370 ídem · `evidencia/h6-checks-pr-369-370.txt` |
 
 `aportes` no cambió de código en H6 (solo Gherkin de CU-21, Postman y Compose): vale la regresión 237/237 de
 `evidencia/aportes-regresion-test-con-364.txt`. Fuera de alcance y anotado: `despliegue/compose/servicios.yml`
