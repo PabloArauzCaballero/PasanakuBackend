@@ -2,6 +2,7 @@ package bo.aportaya.grupos.infraestructura.clientes;
 
 import bo.aportaya.grupos.dominio.puertos.HechosDeOtrosServicios;
 import bo.aportaya.plataforma.web.clientes.ClienteDeServicio;
+import bo.aportaya.plataforma.web.clientes.CredencialDeServicio;
 import java.math.BigDecimal;
 import java.util.Map;
 import java.util.Optional;
@@ -35,7 +36,7 @@ public class HechosPorHttp implements HechosDeOtrosServicios {
     private final ClienteConCircuito notificaciones;
     private final ClienteConCircuito identidad;
     private final TokensDeInvitacionPorHttp tokens;
-    private final ArenasPorHttp arenas;
+    private final EtapasPorHttp etapas;
 
     @Autowired
     @SuppressWarnings("checkstyle:ParameterNumber")
@@ -49,7 +50,8 @@ public class HechosPorHttp implements HechosDeOtrosServicios {
             @Value("${aportaya.servicios.garantia}") String urlGarantia,
             @Value("${aportaya.servicios.notificaciones}") String urlNotificaciones,
             @Value("${aportaya.servicios.identidad}") String urlIdentidad,
-            ConfiguracionDeCircuito circuito) {
+            ConfiguracionDeCircuito circuito,
+            CredencialDeServicio servicio) {
         this.organizadores = new ClienteConCircuito(constructor, urlOrganizador, "organizador", circuito);
         this.tarifas = new ClienteConCircuito(constructor, urlTarifas, "tarifas", circuito);
         this.cumplimiento = new ClienteConCircuito(constructor, urlCumplimiento, "cumplimiento", circuito);
@@ -59,7 +61,7 @@ public class HechosPorHttp implements HechosDeOtrosServicios {
         this.notificaciones = new ClienteConCircuito(constructor, urlNotificaciones, "notificaciones", circuito);
         this.identidad = new ClienteConCircuito(constructor, urlIdentidad, "identidad", circuito);
         this.tokens = new TokensDeInvitacionPorHttp(identidad);
-        this.arenas = new ArenasPorHttp(this.transparencia);
+        this.etapas = new EtapasPorHttp(this.transparencia, servicio);
     }
 
     /** Con los parametros del plan de resiliencia: la usan las pruebas del adaptador. */
@@ -84,7 +86,34 @@ public class HechosPorHttp implements HechosDeOtrosServicios {
                 urlGarantia,
                 urlNotificaciones,
                 urlIdentidad,
-                ConfiguracionDeCircuito.porOmision());
+                CredencialDeServicio.ninguna());
+    }
+
+    /** Con los parametros del plan de resiliencia y una credencial de servicio a medida: pruebas del adaptador. */
+    @SuppressWarnings("checkstyle:ParameterNumber")
+    HechosPorHttp(
+            RestClient.Builder constructor,
+            String urlOrganizador,
+            String urlTarifas,
+            String urlCumplimiento,
+            String urlAportes,
+            String urlTransparencia,
+            String urlGarantia,
+            String urlNotificaciones,
+            String urlIdentidad,
+            CredencialDeServicio servicio) {
+        this(
+                constructor,
+                urlOrganizador,
+                urlTarifas,
+                urlCumplimiento,
+                urlAportes,
+                urlTransparencia,
+                urlGarantia,
+                urlNotificaciones,
+                urlIdentidad,
+                ConfiguracionDeCircuito.porOmision(),
+                servicio);
     }
 
     @Override
@@ -164,8 +193,19 @@ public class HechosPorHttp implements HechosDeOtrosServicios {
     }
 
     @Override
-    public Optional<bo.aportaya.grupos.dominio.Arenas.DeLaPersona> arenaDe(UUID usuarioId) {
-        return arenas.de(usuarioId);
+    public Optional<bo.aportaya.grupos.dominio.Etapas.DeLaPersona> etapaDe(UUID usuarioId) {
+        return etapas.de(usuarioId);
+    }
+
+    @Override
+    public Optional<Map<UUID, bo.aportaya.grupos.dominio.Etapas.Visible>> etapasDe(
+            java.util.Collection<UUID> usuarios) {
+        return etapas.visibles(usuarios);
+    }
+
+    @Override
+    public Optional<java.util.List<bo.aportaya.grupos.dominio.Etapas.Etapa>> catalogoDeEtapas() {
+        return etapas.catalogo();
     }
 
     @Override

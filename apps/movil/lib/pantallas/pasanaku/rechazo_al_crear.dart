@@ -3,7 +3,7 @@ import 'package:aportaya_diseno/errores.dart';
 import 'package:aportaya_diseno/moleculas/alerta.dart';
 import 'package:flutter/material.dart';
 
-import 'errores_de_arena_e_inicio.dart';
+import 'errores_de_etapa_e_inicio.dart';
 
 /// El rechazo de crear grupo, en lenguaje humano y con la traza para soporte.
 class RechazoAlCrear extends StatelessWidget {
@@ -17,9 +17,9 @@ class RechazoAlCrear extends StatelessWidget {
         : null;
     final traza = presentable?.trazaId;
     return Alerta(
-      // La arena mínima y sus desbloqueos (AP-CU20-07/08) dicen qué cambiar.
+      // La etapa mínima y sus desbloqueos (AP-CU20-07/08) dicen qué cambiar.
       titulo:
-          mensajeDeArenaOInicio(error) ??
+          mensajeDeEtapaOInicio(error) ??
           presentable?.mensaje ??
           'No pudimos crear el grupo. Probá de nuevo en un momento.',
       detalle: traza == null ? null : 'Código de seguimiento: $traza',

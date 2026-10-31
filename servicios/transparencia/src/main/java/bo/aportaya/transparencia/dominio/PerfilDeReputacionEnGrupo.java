@@ -14,6 +14,15 @@ import java.util.Optional;
  */
 public record PerfilDeReputacionEnGrupo(Optional<Factores> factores, List<Insignia> insignias) {
 
+    /**
+     * El mismo perfil sin el puntaje exacto, para quien no es su dueño (decision del dueño 2026-10-30, «Privacidad del
+     * puntaje»; regla 90.2.8). El resto de las cifras y las insignias siguen: son las que el perfil del integrante
+     * muestra desde el 2026-10-21.
+     */
+    public PerfilDeReputacionEnGrupo sinPuntaje() {
+        return new PerfilDeReputacionEnGrupo(factores.map(Factores::sinPuntaje), insignias);
+    }
+
     public record Factores(
             BigDecimal puntaje,
             String nivelConfianza,
@@ -21,7 +30,20 @@ public record PerfilDeReputacionEnGrupo(Optional<Factores> factores, List<Insign
             int gruposCompletados,
             int gruposAbandonados,
             int incumplimientosAbiertos,
-            int antiguedadMeses) {}
+            int antiguedadMeses) {
+
+        /** {@code puntaje} en null: el contrato lo admite ({@code [string, 'null']}) y la salida lo omite. */
+        public Factores sinPuntaje() {
+            return new Factores(
+                    null,
+                    nivelConfianza,
+                    indicePuntualidad,
+                    gruposCompletados,
+                    gruposAbandonados,
+                    incumplimientosAbiertos,
+                    antiguedadMeses);
+        }
+    }
 
     public record Insignia(String codigo, String nombre, String descripcion, OffsetDateTime otorgadaEn) {}
 }

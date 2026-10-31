@@ -9,11 +9,6 @@
 -- saltear si ya está— es lo que hace que un ON DELETE cambiado en el
 -- modelo quede corregido al reaplicar.
 
-ALTER TABLE transparencia.arena DROP CONSTRAINT IF EXISTS fk_arena_modelo_id;
-ALTER TABLE transparencia.arena
-  ADD CONSTRAINT fk_arena_modelo_id
-  FOREIGN KEY (modelo_id) REFERENCES transparencia.modelo_scoring (id) ON DELETE RESTRICT ON UPDATE CASCADE;
-
 ALTER TABLE transparencia.bloque_transparencia DROP CONSTRAINT IF EXISTS fk_bloque_transparencia_grupo_id;
 ALTER TABLE transparencia.bloque_transparencia
   ADD CONSTRAINT fk_bloque_transparencia_grupo_id
@@ -34,10 +29,15 @@ ALTER TABLE transparencia.componente_score
   ADD CONSTRAINT fk_componente_score_puntaje_id
   FOREIGN KEY (puntaje_id) REFERENCES transparencia.puntaje_reputacion (id) ON DELETE RESTRICT ON UPDATE CASCADE;
 
-ALTER TABLE transparencia.desbloqueo_arena DROP CONSTRAINT IF EXISTS fk_desbloqueo_arena_arena_id;
-ALTER TABLE transparencia.desbloqueo_arena
-  ADD CONSTRAINT fk_desbloqueo_arena_arena_id
-  FOREIGN KEY (arena_id) REFERENCES transparencia.arena (id) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE transparencia.desbloqueo_etapa DROP CONSTRAINT IF EXISTS fk_desbloqueo_etapa_etapa_id;
+ALTER TABLE transparencia.desbloqueo_etapa
+  ADD CONSTRAINT fk_desbloqueo_etapa_etapa_id
+  FOREIGN KEY (etapa_id) REFERENCES transparencia.etapa (id) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+ALTER TABLE transparencia.etapa DROP CONSTRAINT IF EXISTS fk_etapa_modelo_id;
+ALTER TABLE transparencia.etapa
+  ADD CONSTRAINT fk_etapa_modelo_id
+  FOREIGN KEY (modelo_id) REFERENCES transparencia.modelo_scoring (id) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 ALTER TABLE transparencia.evento_reputacion DROP CONSTRAINT IF EXISTS fk_evento_reputacion_grupo_id;
 ALTER TABLE transparencia.evento_reputacion

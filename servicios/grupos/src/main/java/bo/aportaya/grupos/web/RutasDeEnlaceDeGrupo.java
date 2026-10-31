@@ -91,9 +91,9 @@ abstract class RutasDeEnlaceDeGrupo extends RutasDeInvitacion {
         Traza.marcarCasoDeUso("CU-69", grupoId.toString());
         var postulacion = new EntradaPostulacion(1).mensaje(cuerpo.getMensaje());
         var entrada = MapeoDePostulacion.entrada(grupoId, postulacion, consultas, afuera, afinidad, ctx);
-        // Pedir de nuevo devuelve la solicitud PENDIENTE que ya habia: ese reintento no vuelve a mirar la arena.
+        // Pedir de nuevo devuelve la solicitud PENDIENTE que ya habia: ese reintento no vuelve a mirar la etapa.
         if (enlacesDeGrupo.pendienteDe(grupoId, ctx).isEmpty()) {
-            MapeoDePostulacion.exigirArena(grupoId, consultas, afuera, ctx);
+            MapeoDePostulacion.exigirEtapa(grupoId, consultas, afuera, ctx);
         }
         var contacto = afuera.contactoDeLaSesion().orElse(null);
         var s = enlacesDeGrupo.solicitar(cuerpo.getCodigo(), entrada, contacto, ctx);

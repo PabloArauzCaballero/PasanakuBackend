@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../atomos/aspecto_de_arena.dart';
+import '../atomos/aspecto_de_etapa.dart';
 import '../atomos/avatar.dart';
 import '../atomos/barra_de_puntos.dart';
 import '../atomos/boton.dart';
@@ -22,7 +22,7 @@ import '../atomos/esqueleto.dart';
 import '../atomos/estrellas_calificacion.dart';
 import '../atomos/fecha.dart';
 import '../atomos/girador.dart';
-import '../atomos/insignia_de_arena.dart';
+import '../atomos/insignia_de_etapa.dart';
 import '../atomos/grupo_radio.dart';
 import '../atomos/interruptor.dart';
 import '../atomos/marca.dart';
@@ -44,7 +44,7 @@ import '../moleculas/acciones_rapidas.dart';
 import '../moleculas/acordeon.dart';
 import '../moleculas/alerta.dart';
 import '../moleculas/aparicion_escalonada.dart';
-import '../moleculas/barra_de_arena.dart';
+import '../moleculas/barra_de_etapa.dart';
 import '../moleculas/barra_de_pasos.dart';
 import '../moleculas/chips_de_filtro.dart';
 import '../moleculas/desglose_de_cobro.dart';
@@ -70,7 +70,7 @@ import '../moviles/pantalla_de_onboarding.dart';
 import '../moviles/teclado_numerico.dart';
 import '../organismos/banner_de_pauta.dart';
 import '../organismos/calendario_de_cuotas.dart';
-import '../organismos/camino_de_arenas.dart';
+import '../organismos/camino_de_etapas.dart';
 import '../organismos/estado_de_cuota.dart';
 import '../organismos/estado_error.dart';
 import '../organismos/estado_vacio.dart';
@@ -1091,66 +1091,66 @@ final List<({String grupo, List<Muestra> muestras})> catalogo = [
     ],
   ),
   (
-    grupo: 'Reputación · arenas',
+    grupo: 'Reputación · etapas',
     muestras: [
       (
-        nombre: 'Insignias de arena',
+        nombre: 'Insignias de etapa',
         widget: () => Wrap(
           spacing: Espacio.s2,
           runSpacing: Espacio.s2,
           children: [
-            for (var orden = 0; orden < AspectoDeArena.cuantas; orden++)
-              InsigniaDeArena(
+            for (var orden = 0; orden < AspectoDeEtapa.cuantas; orden++)
+              InsigniaDeEtapa(
                 orden: orden,
                 estado: orden == 2
-                    ? EstadoDeArena.actual
+                    ? EstadoDeEtapa.actual
                     : orden < 2
-                    ? EstadoDeArena.alcanzada
-                    : EstadoDeArena.bloqueada,
+                    ? EstadoDeEtapa.alcanzada
+                    : EstadoDeEtapa.bloqueada,
               ),
-            for (var orden = 0; orden < AspectoDeArena.cuantas; orden++)
-              InsigniaDeArena(orden: orden, estado: EstadoDeArena.alcanzada),
+            for (var orden = 0; orden < AspectoDeEtapa.cuantas; orden++)
+              InsigniaDeEtapa(orden: orden, estado: EstadoDeEtapa.alcanzada),
           ],
         ),
       ),
       (
-        nombre: 'Barra de arena',
-        widget: () => const BarraDeArena(
-          nombre: 'Brote',
+        nombre: 'Barra de etapa',
+        widget: () => const BarraDeEtapa(
+          nombre: 'Etapa 2 · En marcha',
           orden: 2,
           avance: 5000,
-          subtitulo: 'Tu arena · 575 puntos',
-          etiquetaDeAvance: 'Avance hacia la arena Aguayo',
-          textoDeAvance: 'Te faltan 25 puntos para Aguayo',
+          subtitulo: 'Tu etapa · 575 puntos',
+          etiquetaDeAvance: 'Avance hacia Etapa 3, Constante',
+          textoDeAvance: 'Te faltan 25 puntos para Etapa 3 · Constante',
           ordenSiguiente: 3,
         ),
       ),
       (
-        nombre: 'Camino de arenas',
-        widget: () => const CaminoDeArenas(
+        nombre: 'Camino de etapas',
+        widget: () => const CaminoDeEtapas(
           peldanos: [
-            PeldanoDeArena(
-              nombre: 'Semilla',
+            PeldanoDeEtapa(
+              nombre: 'Etapa 1 · Inicial',
               orden: 1,
-              estado: EstadoDeArena.alcanzada,
+              estado: EstadoDeEtapa.alcanzada,
               detalle: 'Ya la pasaste · desde 500 puntos',
-              etiqueta: 'Arena Semilla, alcanzada',
+              etiqueta: 'Etapa 1, Inicial, ya la pasaste',
             ),
-            PeldanoDeArena(
-              nombre: 'Brote',
+            PeldanoDeEtapa(
+              nombre: 'Etapa 2 · En marcha',
               orden: 2,
-              estado: EstadoDeArena.actual,
-              marca: 'Tu arena',
+              estado: EstadoDeEtapa.actual,
+              marca: 'Tu etapa',
               detalle: 'Desde 550 puntos',
-              etiqueta: 'Arena Brote, la tuya',
+              etiqueta: 'Etapa 2, En marcha, la tuya',
             ),
-            PeldanoDeArena(
-              nombre: 'Aguayo',
+            PeldanoDeEtapa(
+              nombre: 'Etapa 3 · Constante',
               orden: 3,
-              estado: EstadoDeArena.bloqueada,
-              detalle: 'Se abre con 600 puntos',
+              estado: EstadoDeEtapa.bloqueada,
+              detalle: 'Llegás con 600 puntos',
               beneficio: 'Grupos de hasta 12 cupos',
-              etiqueta: 'Arena Aguayo, bloqueada',
+              etiqueta: 'Etapa 3, Constante, todavía por delante',
             ),
           ],
         ),

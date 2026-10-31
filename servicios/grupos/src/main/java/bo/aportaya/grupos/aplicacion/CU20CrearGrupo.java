@@ -94,11 +94,11 @@ public class CU20CrearGrupo {
         }
 
         return datos.conContexto(ctx, dsl -> {
-            // En la huella entra la arena PEDIDA, no la minima derivada: omitida, la minima sale de la arena actual del
+            // En la huella entra la etapa PEDIDA, no la minima derivada: omitida, la minima sale de la etapa actual del
             // organizador, que puede cambiar entre el alta y su reintento; y las altas de antes conservan su huella.
             String huella = hash(entrada.datos().toString() + "|" + entrada.organizador() + "|"
                     + entrada.permitePermutaDeTurnos()
-                    + (entrada.arenaMinimaPedida() != null ? "|" + entrada.arenaMinimaPedida() : ""));
+                    + (entrada.etapaMinimaPedida() != null ? "|" + entrada.etapaMinimaPedida() : ""));
             var anterior = creacion.altaAnterior(dsl, ctx.usuarioId(), entrada.claveIdempotencia());
             if (anterior.isPresent()) {
                 var alta = anterior.get();
@@ -150,8 +150,8 @@ public class CU20CrearGrupo {
     }
 
     /**
-     * Si esta clave ya creo un grupo de quien llama. Se pregunta ANTES de pedirle la arena a {@code transparencia}:
-     * el reintento de un alta hecha devuelve el grupo original aunque transparencia no conteste o la arena haya
+     * Si esta clave ya creo un grupo de quien llama. Se pregunta ANTES de pedirle la etapa a {@code transparencia}:
+     * el reintento de un alta hecha devuelve el grupo original aunque transparencia no conteste o la etapa haya
      * cambiado (regla 96.3.3). La huella la sigue comparando {@link #ejecutar}.
      */
     @Transactional(readOnly = true)
@@ -188,9 +188,10 @@ public class CU20CrearGrupo {
 
     /**
      * El texto que cada participante firma. Se guarda con su hash porque lo que se
-     * acepta es un texto EXACTO: sin el hash, «acepte el reglamento» no dice cual.
+     * acepta es un texto EXACTO: sin el hash, «acepte el reglamento» no dice cual. Lo usa tambien
+     * {@link CU69IniciarGrupo} para la version nueva con los numeros del grupo achicado (2026-10-30).
      */
-    private String textoDelReglamento(GrupoNuevo datos) {
+    static String textoDelReglamento(GrupoNuevo datos) {
         return """
                Reglamento de %s.
                Aporte: %s %s por periodo, %s, dia %d.
@@ -212,7 +213,7 @@ public class CU20CrearGrupo {
         return "GR-" + ids.nuevo().toString().substring(0, 8).toUpperCase(java.util.Locale.ROOT);
     }
 
-    private String hash(String texto) {
+    static String hash(String texto) {
         try {
             byte[] digestion = MessageDigest.getInstance("SHA-256").digest(texto.getBytes(StandardCharsets.UTF_8));
             StringBuilder hexadecimal = new StringBuilder(digestion.length * 2);
@@ -236,9 +237,9 @@ public class CU20CrearGrupo {
             int limiteDeGrupos,
             String nombreDelCreador,
             BigDecimal reputacionMinima,
-            String arenaMinimaPedida) {
+            String etapaMinimaPedida) {
 
-        /** Con la minima ya resuelta y sin arena pedida (la del organizador por omision). */
+        /** Con la minima ya resuelta y sin etapa pedida (la del organizador por omision). */
         @SuppressWarnings("checkstyle:ParameterNumber")
         public EntradaCreacion(
                 GrupoNuevo datos,
@@ -266,7 +267,7 @@ public class CU20CrearGrupo {
         }
 
         /**
-         * Sin arena minima (reputacion_minima 0): la forma de antes de las arenas, para los llamadores que no la
+         * Sin etapa minima (reputacion_minima 0): la forma de antes de las etapas, para los llamadores que no la
          * resuelven. La API siempre la resuelve ({@code MapeoDeAltaDeGrupo}).
          */
         @SuppressWarnings("checkstyle:ParameterNumber")

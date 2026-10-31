@@ -12,12 +12,9 @@ export 'package:aportaya_cliente_transparencia/src/auth/oauth.dart';
 export 'package:aportaya_cliente_transparencia/src/api/default_api.dart';
 
 export 'package:aportaya_cliente_transparencia/src/model/alerta_de_riesgo.dart';
-export 'package:aportaya_cliente_transparencia/src/model/arena_del_catalogo.dart';
-export 'package:aportaya_cliente_transparencia/src/model/arena_del_puntaje.dart';
-export 'package:aportaya_cliente_transparencia/src/model/arena_siguiente.dart';
 export 'package:aportaya_cliente_transparencia/src/model/bloque_publicado.dart';
 export 'package:aportaya_cliente_transparencia/src/model/componente.dart';
-export 'package:aportaya_cliente_transparencia/src/model/desbloqueo_de_arena.dart';
+export 'package:aportaya_cliente_transparencia/src/model/desbloqueo_de_etapa.dart';
 export 'package:aportaya_cliente_transparencia/src/model/entrada_certificado.dart';
 export 'package:aportaya_cliente_transparencia/src/model/entrada_cierre_alerta.dart';
 export 'package:aportaya_cliente_transparencia/src/model/entrada_compensacion.dart';
@@ -31,6 +28,11 @@ export 'package:aportaya_cliente_transparencia/src/model/entrada_revocacion_cert
 export 'package:aportaya_cliente_transparencia/src/model/entrada_revocacion_insignia.dart';
 export 'package:aportaya_cliente_transparencia/src/model/entrada_sellado.dart';
 export 'package:aportaya_cliente_transparencia/src/model/entrada_snapshot.dart';
+export 'package:aportaya_cliente_transparencia/src/model/etapa_de_persona.dart';
+export 'package:aportaya_cliente_transparencia/src/model/etapa_del_catalogo.dart';
+export 'package:aportaya_cliente_transparencia/src/model/etapa_del_puntaje.dart';
+export 'package:aportaya_cliente_transparencia/src/model/etapa_para_servicio.dart';
+export 'package:aportaya_cliente_transparencia/src/model/etapa_siguiente.dart';
 export 'package:aportaya_cliente_transparencia/src/model/hecho_a_sellar.dart';
 export 'package:aportaya_cliente_transparencia/src/model/hechos_del_usuario.dart';
 export 'package:aportaya_cliente_transparencia/src/model/indicadores.dart';

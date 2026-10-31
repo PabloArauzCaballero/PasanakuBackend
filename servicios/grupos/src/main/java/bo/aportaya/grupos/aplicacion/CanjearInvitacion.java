@@ -37,7 +37,7 @@ public class CanjearInvitacion {
      * {@link #ejecutar} responde la misma solicitud, que es lo que hace idempotente el reintento.
      *
      * @return verdadero si es ese reintento (la invitacion ya tiene su solicitud): quien llama tampoco vuelve a mirar
-     *     la arena.
+     *     la etapa.
      */
     @Transactional(readOnly = true)
     public boolean comprobarAntesDeConsumir(

@@ -65,15 +65,41 @@ public interface HechosDeOtrosServicios {
     /** Cuantos del grupo estan en mora. Lo dice {@code aportes}; {@link #SIN_DATO_DE_MOROSOS} si no contesta. */
     int morososDelGrupo(UUID grupoId);
 
-    /** El puntaje de reputacion. Lo dice {@code transparencia}. */
+    /**
+     * El puntaje de reputacion EXACTO de quien hace la peticion. Lo dice {@code transparencia}, con el token de la
+     * sesion, y solo para la propia persona: el de otra responde 403 (decision del dueño 2026-10-30, regla 90.2.8). La
+     * reputacion de otra persona se lee como etapa ({@link #etapaDe}).
+     */
     Reputacion reputacion(UUID usuarioId);
 
     /**
-     * La arena de una persona, con su puntaje para comparar y el catalogo de arenas (2026-10-30). Lo dice
-     * {@code transparencia}. Vacio si no contesta, o si contesta sin catalogo: quien llama NO deja entrar ni crear
-     * (falla cerrado, regla 98.2.4), porque sin la arena no se sabe si alcanza la minima ni que desbloquea.
+     * La etapa de una persona y el catalogo de etapas (2026-10-30). Lo dice {@code transparencia}: la etapa por su ruta
+     * de servicio ({@code GET /reputacion/etapas/de-personas}, identidad {@code SERVICIO_GRUPOS}), nunca el puntaje
+     * exacto, que solo ve su dueño (regla 90.2.8). El {@code puntaje} de {@link bo.aportaya.grupos.dominio.Etapas.DeLaPersona}
+     * es el {@code desde} de esa etapa: como los tramos son contiguos, compararlo con la minima del grupo equivale a
+     * comparar el puntaje. Vacio si no contesta, si contesta sin catalogo o sin etapa, o si no hay credencial de
+     * servicio: quien llama NO deja entrar ni crear (falla cerrado, regla 98.2.4).
      */
-    default java.util.Optional<bo.aportaya.grupos.dominio.Arenas.DeLaPersona> arenaDe(UUID usuarioId) {
+    default java.util.Optional<bo.aportaya.grupos.dominio.Etapas.DeLaPersona> etapaDe(UUID usuarioId) {
+        return java.util.Optional.empty();
+    }
+
+    /**
+     * La etapa (codigo y nombre, nunca el puntaje) de varias personas a la vez, para el detalle del grupo (2026-10-30):
+     * una sola consulta por detalle, no una por integrante. Lo dice {@code transparencia} por su ruta de servicio.
+     * Vacio si no contesta o no hay credencial de servicio: el detalle sale sin etapas (es informativo). Una persona
+     * sin etapa en la respuesta no esta en el mapa.
+     */
+    default java.util.Optional<java.util.Map<UUID, bo.aportaya.grupos.dominio.Etapas.Visible>> etapasDe(
+            java.util.Collection<UUID> usuarios) {
+        return java.util.Optional.empty();
+    }
+
+    /**
+     * El catalogo de etapas, de la mas baja a la mas alta ({@code GET /reputacion/etapas}). No dice nada de ninguna
+     * persona. Vacio si no contesta.
+     */
+    default java.util.Optional<java.util.List<bo.aportaya.grupos.dominio.Etapas.Etapa>> catalogoDeEtapas() {
         return java.util.Optional.empty();
     }
 

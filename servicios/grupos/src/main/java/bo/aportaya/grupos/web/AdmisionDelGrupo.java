@@ -63,14 +63,14 @@ public class AdmisionDelGrupo {
     public DecisionIngreso decidir(
             UUID solicitud, UUID clave, EntradaDecisionIngreso cuerpo, ContextoSesion ctx, boolean resolver) {
         if (cuerpo.getDecision() == EntradaDecisionIngreso.DecisionEnum.ACEPTAR
-                && admision.exigeArenaAlAceptar(solicitud, clave, ctx, resolver)) {
-            // Proponer y resolver ACEPTAR llevan a reservar un cupo: la arena del solicitante se mira antes, afuera de
+                && admision.exigeEtapaAlAceptar(solicitud, clave, ctx, resolver)) {
+            // Proponer y resolver ACEPTAR llevan a reservar un cupo: la etapa del solicitante se mira antes, afuera de
             // la transaccion (invariante 6), y SOLO despues de autorizar a quien decide (sin eso, la respuesta era un
             // oraculo de la reputacion ajena) y de descartar un reintento con la misma clave. Rechazar no pide nada.
             consultas
                     .solicitanteConCondiciones(solicitud, ctx)
                     .ifPresent(
-                            s -> ArenaDelIngreso.exigir(afuera, java.util.Optional.of(s.condiciones()), s.usuarioId()));
+                            s -> EtapaDelIngreso.exigir(afuera, java.util.Optional.of(s.condiciones()), s.usuarioId()));
         }
         var entrada = new CU68AceptarIngreso.Entrada(
                 solicitud,

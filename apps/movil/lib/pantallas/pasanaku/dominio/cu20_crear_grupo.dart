@@ -6,7 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../dominio/cliente.dart';
 import '../../../proveedores/idempotencia.dart';
 import '../../../proveedores/sesion.dart';
-import 'arena_minima.dart';
+import 'etapa_minima.dart';
 
 /// CU-20 · crear grupo y congelar tarifario. El grupo nace `BORRADOR`: esta pantalla
 /// solo dispara la creación, nunca muestra un precio propio — el que se congela lo
@@ -18,10 +18,10 @@ class CrearGrupo extends AsyncNotifier<SalidaGrupo?> {
   @override
   Future<SalidaGrupo?> build() async {
     ref.watch(generacionDeSesionProvider);
-    // La arena elegida vive lo que vive el formulario, no lo que vive su selector: el
+    // La etapa elegida vive lo que vive el formulario, no lo que vive su selector: el
     // selector está en un ListView perezoso y se desmonta al desplazarse. Sin esta
-    // escucha la elección se liberaba y `enviar` mandaba la arena propia, más alta.
-    ref.listen(arenaMinimaElegidaProvider, (_, _) {});
+    // escucha la elección se liberaba y `enviar` mandaba la etapa propia, más alta.
+    ref.listen(etapaMinimaElegidaProvider, (_, _) {});
     return null;
   }
 
@@ -40,8 +40,8 @@ class CrearGrupo extends AsyncNotifier<SalidaGrupo?> {
     state = const AsyncLoading<SalidaGrupo?>();
     final dio = ref.read(dioProvider);
     final clave = ref.read(idempotenciaProvider.notifier).claveDe(formularioId);
-    // La elige el selector del formulario; nula = la arena actual de quien organiza.
-    final arenaMinima = ref.read(arenaMinimaElegidaProvider);
+    // La elige el selector del formulario; nula = la etapa actual de quien organiza.
+    final etapaMinima = ref.read(etapaMinimaElegidaProvider);
     try {
       final r = await DefaultApi(dio).crearGrupo(
         idempotencyKey: clave,
@@ -55,7 +55,7 @@ class CrearGrupo extends AsyncNotifier<SalidaGrupo?> {
           fechaDeInicio: fechaDeInicio,
           organizadorId: organizadorId,
           permitePermutaDeTurnos: permitePermutaDeTurnos,
-          arenaMinima: arenaMinima,
+          etapaMinima: etapaMinima,
         ),
       );
       ref.read(idempotenciaProvider.notifier).cerrar(formularioId);

@@ -1,14 +1,19 @@
 package bo.aportaya.grupos.aplicacion;
 
+import bo.aportaya.grupos.dominio.GrupoNuevo;
 import bo.aportaya.grupos.dominio.InicioDelGrupo;
 import bo.aportaya.grupos.infraestructura.AdmisionRepositorio;
 import bo.aportaya.grupos.infraestructura.CalendarioDelGrupoRepositorio;
+import bo.aportaya.grupos.infraestructura.CreacionRepositorio;
 import bo.aportaya.plataforma.datos.Datos;
 import bo.aportaya.plataforma.dominio.CodigoError;
 import bo.aportaya.plataforma.dominio.ContextoSesion;
+import bo.aportaya.plataforma.dominio.Dinero;
 import bo.aportaya.plataforma.dominio.ErrorDeNegocio;
+import bo.aportaya.plataforma.dominio.Moneda;
 import bo.aportaya.plataforma.dominio.Reloj;
 import bo.aportaya.plataforma.dominio.Traza;
+import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
@@ -36,6 +41,9 @@ import org.springframework.transaction.annotation.Transactional;
  * ingreso y un inicio no pasan los dos. Ademas, la precondicion va EN la escritura (regla 96.3.2): el {@code UPDATE}
  * exige el estado, el conteo de OCUPADO y que no haya RESERVADO. Idempotente por clave: el renglon del historial lleva
  * un id derivado de grupo y clave; la misma clave devuelve el resultado original y otra clave responde AP-CU69-17.
+ *
+ * <p>Y en la misma transaccion publica la version nueva del reglamento con los numeros del grupo achicado, que nadie
+ * tiene aceptada al nacer ({@link #publicarReglamento}).
  */
 @Service
 public class CU69IniciarGrupo {
@@ -67,7 +75,11 @@ public class CU69IniciarGrupo {
                 ContextoSesion.deSistema(ctx.usuarioId(), new Traza(ctx.traza().id()));
         return datos.conContexto(interno, dsl -> {
             Record g = dsl.fetchOne(
-                    "SELECT estado, cupos_totales, num_periodos, fecha_inicio FROM grupos.grupo WHERE id = ? FOR UPDATE",
+                    """
+                    SELECT estado, cupos_totales, num_periodos, fecha_inicio, nombre, monto_aporte, moneda,
+                           periodicidad, dia_cobro
+                      FROM grupos.grupo WHERE id = ? FOR UPDATE
+                    """,
                     grupoId);
             // Un grupo ajeno y uno que no existe responden lo mismo: no se confirma la existencia de nada.
             if (g == null || !admision.esAdministrador(dsl, grupoId, ctx.usuarioId())) {
@@ -112,6 +124,7 @@ public class CU69IniciarGrupo {
                     "Iniciado por el organizador con %d de %d cupos ocupados.".formatted(ocupados, cuposTotales),
                     ctx.usuarioId(),
                     ahora);
+            publicarReglamento(dsl, grupoId, g, ocupados, ctx.usuarioId(), ahora);
             calendario.generar(dsl, grupoId, ahora.toLocalDate());
             return new Iniciado(grupoId, "CONFORMADO", ocupados, ocupados);
         });
@@ -157,6 +170,58 @@ public class CU69IniciarGrupo {
                  WHERE c.id = r.id
                 """,
                 grupoId);
+    }
+
+    /**
+     * Reglamento al achicar (decision del dueño 2026-10-30): en la MISMA transaccion del inicio se publica la version
+     * N+1 con los numeros reales del grupo achicado (participantes y fondo por periodo), armada igual que la del alta
+     * ({@link CU20CrearGrupo#textoDelReglamento}). La anterior deja de regir ahora. Nadie la tiene aceptada al nacer:
+     * cada integrante la acepta con la firma del reglamento (el detalle le dice si le falta). La fila del grupo esta
+     * tomada, asi que dos inicios no calculan la misma version; y el reintento con la misma clave sale antes, sin otra.
+     */
+    private static void publicarReglamento(
+            DSLContext dsl, UUID grupoId, Record g, int ocupados, UUID redactadoPor, OffsetDateTime ahora) {
+        var achicado = new GrupoNuevo(
+                g.get("nombre", String.class),
+                Dinero.de(
+                        g.get("monto_aporte", BigDecimal.class),
+                        Moneda.valueOf(g.get("moneda", String.class).trim())),
+                g.get("periodicidad", String.class),
+                g.get("dia_cobro", Integer.class),
+                ocupados,
+                g.get("fecha_inicio", LocalDate.class));
+        String texto = CU20CrearGrupo.textoDelReglamento(achicado);
+        Record anterior = dsl.fetchOne(
+                """
+                SELECT version, clausulas_mora, clausulas_abandono FROM grupos.reglamento_grupo
+                 WHERE grupo_id = ? ORDER BY version DESC LIMIT 1
+                """,
+                grupoId);
+        int version = anterior == null ? 1 : anterior.get("version", Integer.class) + 1;
+        dsl.execute(
+                """
+                UPDATE grupos.reglamento_grupo SET vigente_hasta = CAST(? AS timestamptz)
+                 WHERE grupo_id = ? AND vigente_hasta IS NULL
+                """,
+                ahora,
+                grupoId);
+        dsl.execute(
+                """
+                INSERT INTO grupos.reglamento_grupo
+                  (grupo_id, version, contenido, hash_contenido, clausulas_mora, clausulas_abandono,
+                   vigente_desde, redactado_por)
+                VALUES (?, ?, ?, ?, ?, ?, CAST(? AS timestamptz), ?)
+                """,
+                grupoId,
+                (short) version,
+                texto,
+                CU20CrearGrupo.hash(texto),
+                anterior == null ? CreacionRepositorio.CLAUSULAS_MORA : anterior.get("clausulas_mora", String.class),
+                anterior == null
+                        ? CreacionRepositorio.CLAUSULAS_ABANDONO
+                        : anterior.get("clausulas_abandono", String.class),
+                ahora,
+                redactadoPor);
     }
 
     private static int contar(DSLContext dsl, UUID grupoId, String estado) {

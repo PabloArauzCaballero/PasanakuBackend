@@ -78,15 +78,15 @@ public class CU68AceptarIngreso {
     }
 
     /**
-     * Si aceptar esta solicitud exige mirar la arena del solicitante. Autoriza PRIMERO, con las mismas reglas que
-     * {@link #proponer}/{@link #resolver}: sin esto, quien organiza otro grupo usaba la respuesta de la arena como
+     * Si aceptar esta solicitud exige mirar la etapa del solicitante. Autoriza PRIMERO, con las mismas reglas que
+     * {@link #proponer}/{@link #resolver}: sin esto, quien organiza otro grupo usaba la respuesta de la etapa como
      * oraculo de la reputacion ajena (regla 90.2.8, BOLA). Falso cuando la clave ya registro su decision: el
      * reintento devuelve la original sin volver a preguntarle a {@code transparencia} (regla 96.3.3). Sin escribir y
      * fuera de la transaccion de decidir (invariante 6); {@link #decidir} vuelve a comprobar todo con las filas
      * tomadas.
      */
     @Transactional(readOnly = true)
-    public boolean exigeArenaAlAceptar(UUID solicitudId, UUID clave, ContextoSesion ctx, boolean definitiva) {
+    public boolean exigeEtapaAlAceptar(UUID solicitudId, UUID clave, ContextoSesion ctx, boolean definitiva) {
         if (definitiva) exigirBackoffice(ctx);
         return datos.conContexto(ctx, dsl -> {
             var solicitud = admision.ver(dsl, solicitudId);

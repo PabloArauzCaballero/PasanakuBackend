@@ -2216,20 +2216,20 @@ CREATE TRIGGER tg_resena_convivencia
   BEFORE INSERT ON resena_participante
   FOR EACH ROW EXECUTE FUNCTION fn_rep_validar_resena();
 
--- R-REP-07 · arenas: tramos del puntaje sin solape dentro de su modelo
--- Cada arena es [desde, hasta). Dos arenas del mismo modelo que se pisan le darian
--- dos arenas a un mismo puntaje, y la arena minima de un grupo dejaria de ser una
--- frontera. El hueco entre arenas no lo impide una fila sola: lo delata la consulta
+-- R-REP-07 · etapas: tramos del puntaje sin solape dentro de su modelo
+-- Cada etapa es [desde, hasta). Dos etapas del mismo modelo que se pisan le darian
+-- dos etapas a un mismo puntaje, y la etapa minima de un grupo dejaria de ser una
+-- frontera. El hueco entre etapas no lo impide una fila sola: lo delata la consulta
 -- de verificacion R-REP-07 (abajo).
--- Se verifica AL CONFIRMAR: mover la frontera entre dos arenas son dos filas, y la
+-- Se verifica AL CONFIRMAR: mover la frontera entre dos etapas son dos filas, y la
 -- semilla las corrige en una sola sentencia (ON CONFLICT DO UPDATE). Chequeada fila
--- por fila, subir una frontera chocaba con la arena de arriba todavia sin mover y la
+-- por fila, subir una frontera chocaba con la etapa de arriba todavia sin mover y la
 -- correccion del catalogo no se podia aplicar. Al confirmar, el solape sigue sin entrar.
-ALTER TABLE arena DROP CONSTRAINT IF EXISTS ck_arena_tramo;
-ALTER TABLE arena DROP CONSTRAINT IF EXISTS ex_arena_sin_solape;
-ALTER TABLE arena
-  ADD CONSTRAINT ck_arena_tramo CHECK (desde < hasta),
-  ADD CONSTRAINT ex_arena_sin_solape
+ALTER TABLE etapa DROP CONSTRAINT IF EXISTS ck_etapa_tramo;
+ALTER TABLE etapa DROP CONSTRAINT IF EXISTS ex_etapa_sin_solape;
+ALTER TABLE etapa
+  ADD CONSTRAINT ck_etapa_tramo CHECK (desde < hasta),
+  ADD CONSTRAINT ex_etapa_sin_solape
   EXCLUDE USING gist (
     modelo_id WITH =,
     numrange(desde, hasta, '[)') WITH &&

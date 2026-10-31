@@ -10,8 +10,8 @@ import 'package:aportaya_diseno/tokens/tokens.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../reputacion/pantalla_camino_de_arenas.dart';
-import '../reputacion/tarjeta_de_arena.dart';
+import '../reputacion/pantalla_camino_de_etapas.dart';
+import '../reputacion/tarjeta_de_etapa.dart';
 import 'dominio/consultar_puntaje.dart';
 import 'textos.dart';
 
@@ -19,8 +19,8 @@ import 'textos.dart';
 /// `transparencia` los calcula. `SIN_HISTORIAL` se muestra igual que cualquier otro
 /// nivel — nunca como un error ni como un castigo (CU-71).
 ///
-/// Debajo, la arena (2026-10-30): la que el servidor asigna al puntaje, con su avance
-/// hacia la siguiente y la entrada al camino entero. Sin historial también hay arena
+/// Debajo, la etapa (2026-10-30): la que el servidor asigna al puntaje, con su avance
+/// hacia la siguiente y la entrada al camino entero. Sin historial también hay etapa
 /// —la del puntaje base—, así que solo es vacío si el servidor no manda ninguna.
 class PantallaMiPuntaje extends ConsumerWidget {
   const PantallaMiPuntaje({super.key, required this.usuarioId});
@@ -46,7 +46,7 @@ class PantallaMiPuntaje extends ConsumerWidget {
                   mensajeVacio: TextosPasanaku.sinHistorial,
                   tituloVacio: TextosPasanaku.tituloSinHistorial,
                   iconoVacio: IconosDeMarca.recienEmpiezas,
-                  vacio: (p) => !p.tieneHistorial && p.arena == null,
+                  vacio: (p) => !p.tieneHistorial && p.etapa == null,
                   reintentar: () => ref.invalidate(puntajeProvider(usuarioId)),
                   exito: (p) =>
                       _Puntaje(puntaje: p, t: t, usuarioId: usuarioId),
@@ -135,15 +135,15 @@ class _Puntaje extends StatelessWidget {
             ],
           ),
         ),
-        if (puntaje.arena != null) ...[
+        if (puntaje.etapa != null) ...[
           const SizedBox(height: Espacio.s4),
-          TarjetaDeArena(
-            arena: puntaje.arena!,
+          TarjetaDeEtapa(
+            etapa: puntaje.etapa!,
             puntaje: puntaje.puntaje,
             sinHistorial: !puntaje.tieneHistorial,
             verCamino: () => Navigator.of(context).push(
               MaterialPageRoute<void>(
-                builder: (_) => PantallaCaminoDeArenas(usuarioId: usuarioId),
+                builder: (_) => PantallaCaminoDeEtapas(usuarioId: usuarioId),
               ),
             ),
           ),

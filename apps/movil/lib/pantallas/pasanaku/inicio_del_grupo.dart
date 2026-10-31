@@ -12,8 +12,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'dominio/iniciar_grupo.dart';
-import 'errores_de_arena_e_inicio.dart';
-import 'textos_de_arena_e_inicio.dart';
+import 'errores_de_etapa_e_inicio.dart';
+import 'textos_de_etapa_e_inicio.dart';
 
 /// Cuánto falta para poder iniciar el grupo (75 % de los cupos ocupados) y, para quien
 /// organiza, el botón Iniciar. Si se puede o no lo dice el servidor (`puedoIniciar`);
@@ -40,12 +40,12 @@ class _InicioDelGrupoState extends ConsumerState<InicioDelGrupo> {
   String? _motivo() {
     final d = widget.detalle;
     if (d.puedoIniciar == true) return null;
-    if (_faltan > 0) return TextosDeArenaEInicio.motivoFaltan(_faltan);
+    if (_faltan > 0) return TextosDeEtapaEInicio.motivoFaltan(_faltan);
     final sinFirmar = d.integrantes
         .where((i) => i.estado == IntegranteDelGrupoEstadoEnum.PENDIENTE_FIRMA)
         .length;
-    if (sinFirmar > 0) return TextosDeArenaEInicio.motivoFirmas(sinFirmar);
-    return TextosDeArenaEInicio.motivoGeneral;
+    if (sinFirmar > 0) return TextosDeEtapaEInicio.motivoFirmas(sinFirmar);
+    return TextosDeEtapaEInicio.motivoGeneral;
   }
 
   Future<void> _iniciar() async {
@@ -58,7 +58,7 @@ class _InicioDelGrupoState extends ConsumerState<InicioDelGrupo> {
     try {
       final r = await ref.read(iniciarGrupoProvider)(d.grupoId);
       if (mounted) {
-        mostrarSnackbar(context, TextosDeArenaEInicio.iniciado(r.cuposTotales));
+        mostrarSnackbar(context, TextosDeEtapaEInicio.iniciado(r.cuposTotales));
       }
     } on Object catch (e) {
       if (mounted) setState(() => _error = e);
@@ -75,15 +75,15 @@ class _InicioDelGrupoState extends ConsumerState<InicioDelGrupo> {
       context,
       hoja: Builder(
         builder: (hoja) => HojaDeConfirmacion(
-          titulo: TextosDeArenaEInicio.confirmarTitulo(d.cuposOcupados),
+          titulo: TextosDeEtapaEInicio.confirmarTitulo(d.cuposOcupados),
           detalle: Alerta(
-            titulo: TextosDeArenaEInicio.confirmarDetalle(
+            titulo: TextosDeEtapaEInicio.confirmarDetalle(
               d.cuposOcupados,
               d.cuposTotales,
             ),
             tono: Tono.aviso,
           ),
-          textoConfirmar: TextosDeArenaEInicio.confirmar,
+          textoConfirmar: TextosDeEtapaEInicio.confirmar,
           onConfirmar: () {
             if (cerrada) return;
             cerrada = true;
@@ -109,7 +109,7 @@ class _InicioDelGrupoState extends ConsumerState<InicioDelGrupo> {
           Semantics(
             header: true,
             child: Text(
-              TextosDeArenaEInicio.inicioTitulo,
+              TextosDeEtapaEInicio.inicioTitulo,
               style: Tipo.titulo3.copyWith(color: t.text),
             ),
           ),
@@ -117,11 +117,11 @@ class _InicioDelGrupoState extends ConsumerState<InicioDelGrupo> {
           Progreso(
             valor: minimo == 0 ? 1 : d.cuposOcupados / minimo,
             tono: _faltan <= 0 ? Tono.ok : Tono.marca,
-            etiqueta: TextosDeArenaEInicio.inicioEtiquetaProgreso,
+            etiqueta: TextosDeEtapaEInicio.inicioEtiquetaProgreso,
           ),
           const SizedBox(height: Espacio.s2),
           Text(
-            TextosDeArenaEInicio.inicioProgreso(
+            TextosDeEtapaEInicio.inicioProgreso(
               d.cuposOcupados,
               d.cuposTotales,
               _faltan,
@@ -130,14 +130,14 @@ class _InicioDelGrupoState extends ConsumerState<InicioDelGrupo> {
           ),
           const SizedBox(height: Espacio.s1),
           Text(
-            TextosDeArenaEInicio.inicioRegla(minimo, d.cuposTotales),
+            TextosDeEtapaEInicio.inicioRegla(minimo, d.cuposTotales),
             style: Tipo.cuerpoChico.copyWith(color: t.text2),
           ),
           if (d.soyOrganizador) ...[
             const SizedBox(height: Espacio.s4),
             Boton(
               key: const ValueKey('iniciar-grupo'),
-              texto: TextosDeArenaEInicio.iniciarBoton,
+              texto: TextosDeEtapaEInicio.iniciarBoton,
               variante: BotonVariante.primario,
               expandido: true,
               cargando: _trabajando,

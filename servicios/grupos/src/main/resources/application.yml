@@ -86,6 +86,22 @@ aportaya:
       # Decision del dueño (2026-10-30): el organizador inicia el grupo con al menos este PORCENTAJE (entero) de los
       # cupos ocupados, redondeado hacia arriba: ceil(75 × 10 / 100) = 8 de 10. Contrato iniciarGrupo (AP-CU69-16).
       porcentaje: 75
+    transparencia:
+      timeout: PT3S
+      # Identidad de SERVICIO con que grupos lee la ETAPA de otra persona (2026-10-30): transparencia acepta
+      # `GET /reputacion/etapas/de-personas` solo del rol SERVICIO_GRUPOS; el puntaje exacto ya no se lee de nadie mas
+      # que de la sesion (regla 90.2.8). Mismo mecanismo que entregas e inversiones; secretas y por entorno:
+      #  - cuenta-servicio: cuenta de servicio en identidad con el rol SERVICIO_GRUPOS; se renueva sola. Es la forma de
+      #    operar.
+      #  - credencial-servicio: un token ya emitido (vive minutos): solo una prueba manual.
+      # Sin ninguna, todo ingreso y toda alta fallan cerrados (no se sabe la etapa) y el detalle sale sin etapas.
+      # Config a medias = no arranca.
+      credencial-servicio: ${GRUPOS_TRANSPARENCIA_CREDENCIAL_SERVICIO:}
+      cuenta-servicio:
+        telefono: ${GRUPOS_SERVICIO_TELEFONO:}
+        clave: ${GRUPOS_SERVICIO_CLAVE:}
+        factor-totp-semilla: ${GRUPOS_SERVICIO_TOTP_SEMILLA:}
+        factor-fijo: ${GRUPOS_SERVICIO_FACTOR_FIJO:}   # SOLO TEST: el codigo fijo del perfil local de identidad
     sustitucion:
       # DECISION PENDIENTE (negocio y cumplimiento): al revocarse la habilitacion del organizador, sustituye al
       # administrador una PERSONA de backoffice (false, supuesto vigente) o el proceso con una regla sintetica (true)?

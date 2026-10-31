@@ -76,7 +76,7 @@ public class CU69Invitar {
                             Optional.of(anterior.get("id", UUID.class)), "Invitacion disponible para compartir.");
                 }
             }
-            // Iniciado el grupo no se invita a nadie mas (2026-10-30). La arena del invitado NO se mira aca: se aplica
+            // Iniciado el grupo no se invita a nadie mas (2026-10-30). La etapa del invitado NO se mira aca: se aplica
             // cuando canjea o acepta, en su sesion; decirlo al emitir le contaria a quien invita la reputacion ajena.
             GrupoAbierto.exigir(dsl, entrada.grupoId());
             // Reemision: una sola invitacion viva por numero y grupo (indice uq_invitacion_activa).

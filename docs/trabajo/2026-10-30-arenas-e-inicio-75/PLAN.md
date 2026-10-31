@@ -180,3 +180,26 @@ Se evitan «Confiable» y «Referente» para no chocar con `nivel_confianza`.
 | H1.S7.M2 | Transparencia: renombre + privacidad + permiso de backoffice en el catálogo | Otro participante → 403 sobre el puntaje ajeno; servicio → etapa; backoffice → catálogo | `./gradlew :servicios:transparencia:test` | TODO |
 | H1.S7.M3 | Grupos: renombre + token de servicio + etapa por integrante + versión nueva del reglamento al iniciar | Al iniciar existe la versión N+1 con los números reales y nadie la tiene aceptada | `./gradlew :servicios:grupos:test` | TODO |
 | H1.S7.M4 | App: renombre a «Etapa N · Nombre», insignia por integrante, re-firma después de iniciar | Ningún texto dice «arena»; se ve la insignia; aparece «Firmá la versión nueva» | `flutter test` dirigidos + `flutter analyze` | TODO |
+
+## H1.S8 — Integración con `test` (descubierto 2026-10-30 con `git merge-tree HEAD origin/test`)
+- `origin/test` va 65 commits adelante. Conflictos previstos: `scripts/metadata_enriquecida.json` y `servicios/grupos/src/test/java/bo/aportaya/grupos/web/GruposDetalleYFirmaWebTest.java`.
+- **Camino de ingreso nuevo en `test`: traspaso de cupo por subasta** (#346, `CU64TraspasoPorSubasta.java`, `RutasDeSubastaDelCupo.java`). No existía cuando se diseñó la etapa mínima. Por la decisión de Pablo («el traspaso se permite después de iniciar, respetando la etapa mínima»), quien gana una subasta tiene que cumplir la etapa mínima del grupo.
+
+| ID | Microtarea | CA (binario) | DoD | Estado |
+|---|---|---|---|---|
+| H1.S8.M1 | Rebase sobre `origin/test` resolviendo los 2 conflictos | Compila y la suite de grupos queda en verde | `./gradlew :servicios:grupos:test` | TODO |
+| H1.S8.M2 | Etapa mínima en la subasta del cupo: no se puede pujar ni adjudicar por debajo (`AP-CU64-04`, igual que el traspaso) | Puja de alguien bajo la mínima → 422 antes de retener plata; adjudicación revalida | test dirigido en `CU64SubastaTest` contra Postgres | TODO |
+
+### H3 — contrato acordado con pasanaku-1f (2026-10-30, rama `claude/sorteo-primera-cuota-20261030`)
+- **Evento que emite esta rama** por outbox, en la transacción de `CU69IniciarGrupo` y después de que exista el periodo 1: `EventoDominio(tipo="grupos.grupo_iniciado", agregado="grupo", agregadoId=grupoId)`, tema `aportaya.grupos.grupo_iniciado`, clave `grupoId`. Carga: `{grupoId, moneda, cuposTotales, iniciadoEn, periodo{periodoId, numero:1, fechaInicio, fechaLimitePago, fechaFinGracia, fechaEntregaPrevista}, cupos[{cupoId, numero 1..N, participanteId, montoAporte "500.00"}]}`, con solo los cupos OCUPADO renumerados. Si el inicio ya ocurrió, no se reemite: es idempotente por el renglón del historial.
+- **Lo que consume `puedeSortear`**: `GET /aportes/grupos/{grupoId}/primera-cuota` → `{grupoId, periodoId|null, cuposPagados[], cuposPendientes[]}` con `@Permiso("BILLETERA_VER")`. Si no hay obligaciones, no se puede sortear.
+- Códigos: `AP-CU60-11 PRIMER_APORTE_PENDIENTE` y `AP-CU60-12` (aportes no responde → se niega). El 13 en adelante es de esta rama.
+- **Hechos que hay que verificar con archivo:línea antes de implementar:** (a) si `CU69IniciarGrupo` genera hoy el calendario y el periodo 1, porque pasanaku-1f asume que sí, después de `calendario.generar`; (b) que nadie pasa el periodo 1 de PROGRAMADO a ABIERTO, y que `CU21CobrarAporte` puede rechazar el cobro de un periodo PROGRAMADO (`AP-CU21-04`).
+
+| ID | Microtarea | CA (binario) | DoD | Estado |
+|---|---|---|---|---|
+| H3.S1.M5 | Verificar (a) y (b) | Hechos con archivo:línea en este plan | `git grep` pegado | TODO |
+| H3.S1.M6 | Si el cobro choca con PROGRAMADO: abrir el periodo 1 al iniciar, sin pasar el grupo a EN_CURSO | Se cobra la cuota 1 de un grupo CONFORMADO | test de integración de cobro | TODO — si abrir el periodo antes del sorteo cambia una regla de negocio, DECISION_REQUIRED |
+- Estado de pasanaku-1f (2026-10-30): grupos 513/513 en su rama. Aportes consume `grupos.grupo_iniciado` con `CU21AbrirPrimeraCuota`, que funciona aunque el periodo 1 esté PROGRAMADO pero **exige el calendario de feriados del año del vencimiento** (`AP-CU21-09`). `CU60Sortear` tiene un constructor nuevo (`PrimerAporteDelCupo`, `AceptacionVigenteRepositorio`), y `AP-CU60-05` se calcula con `reglamento_grupo WHERE vigente_hasta IS NULL`.
+- **Para verificar en H1.S7.M3:** la versión N+1 del reglamento que se publica al iniciar tiene que **cerrar la anterior** (`vigente_hasta` con valor). Si no se cierra, la consulta de pasanaku-1f ve dos versiones vigentes y la re-firma no se exige. Hay que demostrarlo con un test.
+- pasanaku-1f publicó `origin/claude/sorteo-primera-cuota-20261030 @ 20f874d0` (grupos 513/513, aportes 236/236). **Su rama sola deja todos los sorteos en `AP-CU60-11`** hasta que exista el evento `grupos.grupo_iniciado`, así que **no se mergea antes que la emisión de esta rama**. Los PRs de las dos ramas salen juntos. Al integrar: `CU60Sortear` tiene 7 parámetros y cualquier test que lo construya a mano necesita el doble de `PrimerAporteDelCupo` y `new AceptacionVigenteRepositorio()`.

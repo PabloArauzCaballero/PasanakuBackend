@@ -53,7 +53,7 @@ local y en QA, y no deben tocar producción jamás.
 | `13-politicas-de-token.json` | 13 políticas de token, una por propósito | listo |
 | `14-proveedores-externos.json` | 6 rieles de pago y 6 de mensajería; solo la bandeja interna nace activa | ⚠ **PROVISIONAL** |
 | `15-eventos-y-plantillas.json` | 37 eventos notificables, 122 plantillas y sus versiones (IN_APP · PUSH · CORREO en todos) | textos por aprobar |
-| `16-reputacion-y-scoring.json` | modelo v1, 6 factores, 17 reglas de impacto, 8 insignias, 11 arenas y sus 11 desbloqueos (arenas: catálogo interno PROPUESTO; desbloqueos SINTÉTICOS en estado `PROPUESTO`, no limitan) | ⚠ **PROVISIONAL** |
+| `16-reputacion-y-scoring.json` | modelo v1, 6 factores, 17 reglas de impacto, 8 insignias, 11 etapas y sus 11 desbloqueos (etapas: catálogo interno decidido por Pablo 2026-10-30; desbloqueos SINTÉTICOS en estado `PROPUESTO`, no limitan) | ⚠ **PROVISIONAL** |
 | `17-organizador-y-emparejamiento.json` | 13 requisitos de habilitación, criterio de emparejamiento, 8 reglas de automatización | revisar con riesgos |
 | `18-sanciones-y-cobranza.json` | política de sanción, 23 filas de matriz y 6 etapas de cobranza | revisar con riesgos y legal |
 | `19-reportes-y-retencion.json` | 10 definiciones de reporte, 5 programaciones, 19 políticas de retención, 11 reglas de cumplimiento, 20 umbrales, 5 listas | ⚠ **PROVISIONAL** |

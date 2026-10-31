@@ -214,12 +214,14 @@ public class GruposController extends RutasDelGrupo {
         UUID entranteParticipante = consultas
                 .participanteDeOtro(grupoId, cuerpo.getUsuarioEntranteId(), ctx)
                 .orElseThrow(() -> new ErrorDeNegocio(CodigoError.de(64, 1), "Quien entra no participa de ese grupo."));
-        // La arena del entrante se mira DESPUES de saber que quien llama integra el grupo y que el entrante tambien:
+        // La etapa del entrante se mira DESPUES de saber que quien llama integra el grupo y que el entrante tambien:
         // antes, cualquiera la usaba como oraculo de la reputacion de cualquier persona (regla 90.2.8). Y no en el
         // reintento del mismo traspaso, que devuelve el original (regla 96.3.3).
+        // La etapa del entrante es de OTRA persona: se lee con la identidad de servicio de grupos, nunca su puntaje
+        // exacto (regla 90.2.8). El reintento no pregunta nada: CU-64 devuelve el traspaso original antes de mirarla.
         var entrante = cu64.yaTraspasado(cupoId, Optional.ofNullable(cuerpo.getAcuerdoId()), entranteParticipante, ctx)
-                ? afuera.reputacion(cuerpo.getUsuarioEntranteId())
-                : ArenaDelIngreso.alTraspasar(
+                ? EtapaDelIngreso.SIN_CONSULTAR
+                : EtapaDelIngreso.alTraspasar(
                         afuera, consultas.condicionesDeIngreso(grupoId, ctx), cuerpo.getUsuarioEntranteId());
         var saliente = afuera.estadoDePagos(titular);
 
@@ -266,9 +268,9 @@ public class GruposController extends RutasDelGrupo {
         Traza.marcarCasoDeUso("CU-68", grupoId.toString());
 
         var entrada = MapeoDePostulacion.entrada(grupoId, cuerpo, consultas, afuera, afinidadNeutra, ctx);
-        // Postular no tiene reintento que devuelva lo anterior (una segunda postulacion es AP-CU68-06): la arena se
+        // Postular no tiene reintento que devuelva lo anterior (una segunda postulacion es AP-CU68-06): la etapa se
         // exige siempre.
-        MapeoDePostulacion.exigirArena(grupoId, consultas, afuera, ctx);
+        MapeoDePostulacion.exigirEtapa(grupoId, consultas, afuera, ctx);
         var salida = cu68.postular(entrada, ctx);
 
         var respuesta = new SalidaPostulacion();

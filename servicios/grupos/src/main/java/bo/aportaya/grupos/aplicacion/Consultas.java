@@ -78,7 +78,7 @@ public class Consultas {
     }
 
     /**
-     * Lo que el grupo pide a quien entra (arena minima, cupos, aporte) y su estado, para comparar con la arena del
+     * Lo que el grupo pide a quien entra (etapa minima, cupos, aporte) y su estado, para comparar con la etapa del
      * entrante ANTES de la transaccion del ingreso (2026-10-30). Con rol de sistema: quien todavia no es integrante no
      * ve la fila del grupo por su politica, y una fila invisible no puede leerse como «el grupo no pide nada». Vacio
      * solo si el grupo no existe.
@@ -91,7 +91,7 @@ public class Consultas {
                 .map(Consultas::condiciones));
     }
 
-    /** Quien pidio entrar y las condiciones de ese grupo, para decidir una solicitud con su arena a la vista. */
+    /** Quien pidio entrar y las condiciones de ese grupo, para decidir una solicitud con su etapa a la vista. */
     @Transactional(readOnly = true)
     public Optional<Solicitante> solicitanteConCondiciones(UUID solicitudId, ContextoSesion ctx) {
         ContextoSesion interno =
@@ -105,7 +105,7 @@ public class Consultas {
 
     /**
      * {@code estadoSolicitud}: una solicitud que ya no esta PENDIENTE no se vuelve a decidir; repetir la misma decision
-     * devuelve la de antes sin preguntar la arena (regla 96.3.3).
+     * devuelve la de antes sin preguntar la etapa (regla 96.3.3).
      */
     public record Solicitante(UUID usuarioId, CondicionesDeIngreso condiciones, String estadoSolicitud) {
         public Solicitante(UUID usuarioId, CondicionesDeIngreso condiciones) {

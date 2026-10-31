@@ -1,0 +1,86 @@
+$ ./gradlew :servicios:transparencia:test
+BUILD SUCCESSFUL in 4s
+33 actionable tasks: 1 executed, 32 up-to-date
+exit=0
+$ ./gradlew :servicios:transparencia:webTest :servicios:transparencia:integrationTest --rerun
+BUILD SUCCESSFUL in 14s
+34 actionable tasks: 1 executed, 33 up-to-date
+exit=0
+$ ./gradlew :servicios:transparencia:webTest --rerun
+BUILD SUCCESSFUL in 8s
+33 actionable tasks: 1 executed, 32 up-to-date
+exit=0
+$ resumen de build/test-results/*/TEST-*.xml (integrationTest contra PostgreSQL 16 real por Testcontainers, rol svc_transparencia)
+test: clases 3 · tests 24 · fallas 0 · errores 0 · omitidas 0 · corrida 2026-10-31T00:00:51.273Z..2026-10-31T00:00:51.394Z
+webTest: clases 10 · tests 50 · fallas 0 · errores 0 · omitidas 0 · corrida 2026-10-31T00:01:22.538Z..2026-10-31T00:01:28.014Z
+integrationTest: clases 21 · tests 145 · fallas 0 · errores 0 · omitidas 0 · corrida 2026-10-31T00:00:55.756Z..2026-10-31T00:01:07.507Z
+## integrationTest/TEST-bo.aportaya.transparencia.EtapaRepositorioTest.xml · 22 tests · 0 fallas · 0 errores
+   ok    etapa · el servicio de grupos lee la etapa de otra persona con el rol real (420 → RECUPERACION), sin puntaje
+   ok    etapa · inválido: ninguna persona o más de 60 distintas se rechaza antes de leer
+   ok    etapa · varias personas: sin historial es la del puntaje base, el repetido sale una vez y se respeta el orden
+   ok    499.99 -> RECUPERACION (1.0000), siguiente INICIAL
+   ok    500.00 -> INICIAL (0.0000), siguiente EN_MARCHA
+   ok    549.99 -> INICIAL (0.9998), siguiente EN_MARCHA
+   ok    550.00 -> EN_MARCHA (0.0000), siguiente CONSTANTE
+   ok    1000.00 -> PILAR (1.0000), siguiente 
+   ok    0.00 -> RECUPERACION (0.0000), siguiente INICIAL
+   ok    R-REP-07 · la base rechaza un tramo al revés o vacío
+   ok    desbloqueo · la base rechaza un estado que no es PROPUESTO ni VIGENTE
+   ok    R-REP-07 · la base rechaza una etapa que se pisa con otra del mismo modelo
+   ok    desbloqueo · la base rechaza cupos fuera de 3..40 y una moneda fuera del contrato
+   ok    puntaje · 575 está en Etapa 2 · En marcha, a mitad de camino hacia Etapa 3 · Constante
+   ok    etapas · el catálogo de la semilla: 11 etapas en orden, contiguas de 0 a 1000
+   ok    puntaje · un modelo sin etapas deja la etapa ausente, no una inventada
+   ok    puntaje · el rol de sistema dura solo la lectura: la sesión sigue siendo PARTICIPANTE
+   ok    etapas · los desbloqueos se siembran PROPUESTO en BOB: se muestran y no limitan
+   ok    puntaje · sin historial: la etapa del puntaje BASE (Etapa 1 · Inicial), nunca la del cero
+   ok    semilla · volver a sembrar una base ya sembrada no escribe ni una fila
+   ok    puntaje · otro participante pide el puntaje ajeno: 403 (AccessDenied) y no se lee nada
+   ok    semilla · un desbloqueo que pasa a VIGENTE y una frontera que sube llegan a una base ya sembrada
+## test/TEST-bo.aportaya.transparencia.EtapasDeReputacionTest.xml · 17 tests · 0 fallas · 0 errores
+   ok    -0.01 queda sin etapa
+   ok    1000.01 queda sin etapa
+   ok    etapa · inválido: sin catálogo o sin puntaje no hay etapa
+   ok    desbloqueo · solo el VIGENTE limita; el PROPUESTO espera confirmación
+   ok    etapa · el orden de la lista no importa: manda la columna orden
+   ok    etapa · inválido: un hueco en el catálogo deja al puntaje sin etapa, no en la vecina
+   ok    575.00 -> EN_MARCHA con progreso 0.5000, siguiente CONSTANTE
+   ok    812.50 -> SOLIDO con progreso 0.8750, siguiente DESTACADO
+   ok    549.99 -> INICIAL con progreso 0.9998, siguiente EN_MARCHA
+   ok    550.00 -> EN_MARCHA con progreso 0.0000, siguiente CONSTANTE
+   ok    0.00 -> RECUPERACION con progreso 0.0000, siguiente INICIAL
+   ok    500.00 -> INICIAL con progreso 0.0000, siguiente EN_MARCHA
+   ok    1000.00 -> PILAR con progreso 1.0000, siguiente 
+   ok    980.00 -> PILAR con progreso 0.0000, siguiente 
+   ok    999.99 -> PILAR con progreso 0.9995, siguiente 
+   ok    940.01 -> EJEMPLAR con progreso 0.0002, siguiente PILAR
+   ok    979.99 -> EJEMPLAR con progreso 0.9998, siguiente PILAR
+## webTest/TEST-bo.aportaya.transparencia.web.ReputacionControllerWebTest$Etapas.xml · 6 tests · 0 fallas · 0 errores
+   ok    GET /reputacion/etapas · 401 sin sesión, sin llegar al caso
+   ok    GET /reputacion/etapas · 200: tramos y aporte como cadenas con dos decimales, desbloqueo con estado
+   ok    puntaje · en la última etapa no viaja siguiente y el máximo llena la barra
+   ok    puntaje · sin catálogo de etapas la respuesta omite la etapa en vez de inventarla
+   ok    GET /reputacion/etapas · 200 con lista vacía si no hay modelo vigente
+   ok    puntaje · 549,99 en Etapa 1 · Inicial: progreso como cadena de cuatro decimales y la siguiente
+## webTest/TEST-bo.aportaya.transparencia.web.ReputacionControllerWebTest$Privacidad.xml · 10 tests · 0 fallas · 0 errores
+   ok    de-personas · 401 sin sesión
+   ok    puntaje · 403 sobre el puntaje de OTRA persona, sin llegar al caso, aunque sea PARTICIPANTE
+   ok    de-personas · SERVICIO_GRUPOS: etapa sin puntaje, sin progreso y sin hasta; el orden de la petición
+   ok    etapas · 403 para un rol de backoffice sin ninguna de esas puertas, sin llegar al caso
+   ok    de-personas · sin catálogo de etapas la persona viaja sin etapa (grupos falla cerrado)
+   ok    de-personas · 400: sin usuarioId, con uno que no es UUID, y con 61 (el contrato admite 1..60)
+   ok    puntaje · 403 también para la identidad de servicio de grupos: ya no lee el puntaje de nadie
+   ok    etapas · backoffice: SOPORTE, SOLICITUD_INGRESO_VER/RESOLVER y AUDITORIA_LEER leen el catálogo
+   ok    de-personas · 403 a una sesión de persona (PARTICIPANTE, ORGANIZADOR) y a backoffice, sin llegar al caso
+   ok    de-personas · 200 con 60, el borde de arriba del contrato
+## webTest/TEST-bo.aportaya.transparencia.web.ReputacionControllerWebTest$Etapas.xml · 6 tests · 0 fallas · 0 errores
+   ok    GET /reputacion/etapas · 401 sin sesión, sin llegar al caso
+   ok    GET /reputacion/etapas · 200: tramos y aporte como cadenas con dos decimales, desbloqueo con estado
+   ok    puntaje · en la última etapa no viaja siguiente y el máximo llena la barra
+   ok    puntaje · sin catálogo de etapas la respuesta omite la etapa en vez de inventarla
+   ok    GET /reputacion/etapas · 200 con lista vacía si no hay modelo vigente
+   ok    puntaje · 549,99 en Etapa 1 · Inicial: progreso como cadena de cuatro decimales y la siguiente
+## webTest/TEST-bo.aportaya.transparencia.web.ReputacionControllerWebTest$Puntaje.xml · 3 tests · 0 fallas · 0 errores
+   ok    CU-71 · 400: un identificador de usuario que no es un identificador
+   ok    CU-71 · quien todavía no tiene historial lo dice, y no aparenta un puntaje ganado
+   ok    CU-71 · 200 con el puntaje como cadena decimal, nunca como número

@@ -169,7 +169,7 @@ public class CU69EnlaceDeGrupo {
 
     /**
      * La solicitud PENDIENTE de quien llama en ese grupo, si ya pidio: {@link #solicitar} la devuelve en vez de crear
-     * otra. Sirve para no volver a exigir la arena en ese reintento (regla 96.3.3); {@link #solicitar} lo vuelve a
+     * otra. Sirve para no volver a exigir la etapa en ese reintento (regla 96.3.3); {@link #solicitar} lo vuelve a
      * mirar con la fila del grupo tomada.
      */
     @Transactional(readOnly = true)

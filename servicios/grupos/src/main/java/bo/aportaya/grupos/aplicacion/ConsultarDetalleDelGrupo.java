@@ -56,7 +56,7 @@ public class ConsultarDetalleDelGrupo {
                     """,
                     grupoId);
             Record reglamento = dsl.fetchOne(
-                    "SELECT contenido, hash_contenido FROM grupos.reglamento_grupo WHERE grupo_id = ? ORDER BY version DESC LIMIT 1",
+                    "SELECT id, version, contenido, hash_contenido FROM grupos.reglamento_grupo WHERE grupo_id = ? ORDER BY version DESC LIMIT 1",
                     grupoId);
             Record sorteo = dsl.fetchOne(
                     """
@@ -100,10 +100,15 @@ public class ConsultarDetalleDelGrupo {
                             f.get("turno", Integer.class)));
             boolean soyOrganizador = Boolean.TRUE.equals(yo.get("es_organizador", Boolean.class));
             String estado = g.get("estado", String.class);
+            UUID vigente = reglamento == null ? null : reglamento.get("id", UUID.class);
+            // Reglamento al achicar (2026-10-30): iniciar publica una version nueva y nadie la tiene aceptada al nacer.
+            // El sorteo espera a que la acepten todos los que ocupan un cupo del ciclo.
+            boolean todosAceptaron = vigente == null || sinAceptarLaVigente(dsl, grupoId, vigente) == 0;
             boolean puedeSortear = soyOrganizador
                     && "CONFORMADO".equals(estado)
                     && "SORTEO_ALEATORIO".equals(g.get("modalidad_turnos", String.class))
-                    && sorteo == null;
+                    && sorteo == null
+                    && todosAceptaron;
             // Tambien firma quien quedo ACTIVO sin cupo mientras el grupo recibe integrantes: firmar le da uno.
             boolean sinCupo = !Boolean.TRUE.equals(dsl.fetchOne(
                             """
@@ -116,6 +121,14 @@ public class ConsultarDetalleDelGrupo {
                     || ("ACTIVO".equals(yo.get("estado", String.class))
                             && "ABIERTO_A_INSCRIPCION".equals(estado)
                             && sinCupo);
+            // Distinto de debeFirmar (la primera firma, con el cupo RESERVADO): ya es ACTIVO y le falta aceptar la
+            // version vigente.
+            // Solo con el grupo ya iniciado: la version nueva la publica el inicio (CU69IniciarGrupo).
+            boolean pendienteDeAceptar = !debeFirmar
+                    && !"ABIERTO_A_INSCRIPCION".equals(estado)
+                    && "ACTIVO".equals(yo.get("estado", String.class))
+                    && vigente != null
+                    && !acepto(dsl, vigente, yo.get("id", UUID.class));
             return new Detalle(
                     grupoId,
                     g.get("nombre", String.class),
@@ -136,8 +149,39 @@ public class ConsultarDetalleDelGrupo {
                     new Inicio(
                             g.get("reputacion_minima", BigDecimal.class),
                             g.get("firmados", Integer.class),
-                            g.get("reservados", Integer.class)));
+                            g.get("reservados", Integer.class)),
+                    reglamento == null
+                            ? null
+                            : reglamento.get("version", Short.class).intValue(),
+                    pendienteDeAceptar);
         });
+    }
+
+    /** Si ese participante acepto esa version del reglamento (su firma, o la aceptacion de una version nueva). */
+    private static boolean acepto(org.jooq.DSLContext dsl, UUID reglamentoId, UUID participanteId) {
+        return Boolean.TRUE.equals(dsl.fetchOne(
+                        """
+                        SELECT EXISTS (SELECT 1 FROM grupos.aceptacion_reglamento
+                                        WHERE reglamento_id = ? AND participante_id = ?) AS si
+                        """,
+                        reglamentoId,
+                        participanteId)
+                .get("si", Boolean.class));
+    }
+
+    /** Cuantos de los que ocupan un cupo del ciclo todavia no aceptaron la version vigente. */
+    private static int sinAceptarLaVigente(org.jooq.DSLContext dsl, UUID grupoId, UUID reglamentoId) {
+        return dsl.fetchOne(
+                        """
+                        SELECT count(*)::int FROM grupos.cupo c
+                          JOIN grupos.grupo g ON g.id = c.grupo_id
+                         WHERE c.grupo_id = ? AND c.estado = 'OCUPADO' AND c.numero <= g.cupos_totales
+                           AND NOT EXISTS (SELECT 1 FROM grupos.aceptacion_reglamento a
+                                            WHERE a.reglamento_id = ? AND a.participante_id = c.participante_id)
+                        """,
+                        grupoId,
+                        reglamentoId)
+                .get(0, Integer.class);
     }
 
     /** Integrante de un grupo: esta y no se fue. El mismo criterio para el detalle y para {@link #comparten}. */
@@ -211,7 +255,51 @@ public class ConsultarDetalleDelGrupo {
             UUID sorteoId,
             String sorteoEstado,
             List<Integrante> integrantes,
-            Inicio inicio) {
+            Inicio inicio,
+            Integer reglamentoVersion,
+            boolean reglamentoPendienteDeAceptar) {
+
+        /** Sin la version del reglamento ni su aceptacion pendiente: la forma de la ronda 1 del 2026-10-30. */
+        @SuppressWarnings("checkstyle:ParameterNumber")
+        public Detalle(
+                UUID grupoId,
+                String nombre,
+                String estado,
+                BigDecimal montoAporte,
+                String moneda,
+                String periodicidad,
+                int cuposTotales,
+                int cuposOcupados,
+                boolean soyOrganizador,
+                boolean debeFirmar,
+                boolean puedeSortear,
+                String reglamentoTexto,
+                String reglamentoHash,
+                UUID sorteoId,
+                String sorteoEstado,
+                List<Integrante> integrantes,
+                Inicio inicio) {
+            this(
+                    grupoId,
+                    nombre,
+                    estado,
+                    montoAporte,
+                    moneda,
+                    periodicidad,
+                    cuposTotales,
+                    cuposOcupados,
+                    soyOrganizador,
+                    debeFirmar,
+                    puedeSortear,
+                    reglamentoTexto,
+                    reglamentoHash,
+                    sorteoId,
+                    sorteoEstado,
+                    integrantes,
+                    inicio,
+                    null,
+                    false);
+        }
 
         /** Sin los datos del inicio: la forma de antes del 2026-10-30. */
         @SuppressWarnings("checkstyle:ParameterNumber")
@@ -254,7 +342,7 @@ public class ConsultarDetalleDelGrupo {
     }
 
     /**
-     * Lo que hace falta para el inicio al 75 % y la arena minima (2026-10-30): el {@code desde} de la arena minima, los
+     * Lo que hace falta para el inicio al 75 % y la etapa minima (2026-10-30): el {@code desde} de la etapa minima, los
      * cupos OCUPADO (firmados) y los RESERVADO (aceptados sin firmar). {@code cuposOcupados} cuenta los dos juntos.
      */
     public record Inicio(BigDecimal reputacionMinima, int firmados, int reservados) {}

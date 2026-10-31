@@ -7,14 +7,12 @@ import bo.aportaya.transparencia.aplicacion.CU74EvaluarInsignias;
 import bo.aportaya.transparencia.aplicacion.CU75EmitirCertificado;
 import bo.aportaya.transparencia.aplicacion.CU76PublicarResena;
 import bo.aportaya.transparencia.aplicacion.CU97EvaluarRiesgo;
-import bo.aportaya.transparencia.dominio.ArenasDeReputacion;
+import bo.aportaya.transparencia.aplicacion.ConsultarEtapasDePersonas;
 import bo.aportaya.transparencia.dominio.CriterioDeInsignia;
+import bo.aportaya.transparencia.dominio.EtapasDeReputacion;
 import bo.aportaya.transparencia.dominio.IndicadoresDeReputacion;
 import bo.aportaya.transparencia.web.generado.modelo.AlertaDeRiesgo;
-import bo.aportaya.transparencia.web.generado.modelo.ArenaDelCatalogo;
-import bo.aportaya.transparencia.web.generado.modelo.ArenaDelPuntaje;
-import bo.aportaya.transparencia.web.generado.modelo.ArenaSiguiente;
-import bo.aportaya.transparencia.web.generado.modelo.DesbloqueoDeArena;
+import bo.aportaya.transparencia.web.generado.modelo.DesbloqueoDeEtapa;
 import bo.aportaya.transparencia.web.generado.modelo.EntradaCertificado;
 import bo.aportaya.transparencia.web.generado.modelo.EntradaEvaluacionInsignias;
 import bo.aportaya.transparencia.web.generado.modelo.EntradaEvaluacionRiesgo;
@@ -22,6 +20,11 @@ import bo.aportaya.transparencia.web.generado.modelo.EntradaEventoReputacion;
 import bo.aportaya.transparencia.web.generado.modelo.EntradaRecalculo;
 import bo.aportaya.transparencia.web.generado.modelo.EntradaResena;
 import bo.aportaya.transparencia.web.generado.modelo.EntradaSellado;
+import bo.aportaya.transparencia.web.generado.modelo.EtapaDePersona;
+import bo.aportaya.transparencia.web.generado.modelo.EtapaDelCatalogo;
+import bo.aportaya.transparencia.web.generado.modelo.EtapaDelPuntaje;
+import bo.aportaya.transparencia.web.generado.modelo.EtapaParaServicio;
+import bo.aportaya.transparencia.web.generado.modelo.EtapaSiguiente;
 import bo.aportaya.transparencia.web.generado.modelo.SalidaEventoReputacion;
 import bo.aportaya.transparencia.web.generado.modelo.SalidaInsignia;
 import bo.aportaya.transparencia.web.generado.modelo.SalidaResena;
@@ -195,11 +198,11 @@ final class MapeoDeReputacion {
     }
 
     /**
-     * Una arena del catalogo. Los tramos y el aporte viajan como cadena con dos decimales
+     * Una etapa del catalogo. Los tramos y el aporte viajan como cadena con dos decimales
      * (schema {@code Decimal}): nunca como numero en coma flotante (regla 91.1.1).
      */
-    static ArenaDelCatalogo arena(ArenasDeReputacion.Arena a) {
-        var salida = new ArenaDelCatalogo();
+    static EtapaDelCatalogo etapa(EtapasDeReputacion.Etapa a) {
+        var salida = new EtapaDelCatalogo();
         salida.setCodigo(a.codigo());
         salida.setNombre(a.nombre());
         salida.setOrden(a.orden());
@@ -207,30 +210,47 @@ final class MapeoDeReputacion {
         salida.setHasta(decimal(a.hasta()));
         if (a.desbloqueo() != null) {
             var d = a.desbloqueo();
-            salida.setDesbloqueo(new DesbloqueoDeArena(
+            salida.setDesbloqueo(new DesbloqueoDeEtapa(
                     d.cuposMax(),
                     decimal(d.aporteMax()),
-                    DesbloqueoDeArena.MonedaEnum.fromValue(d.moneda()),
-                    DesbloqueoDeArena.EstadoEnum.fromValue(d.estado())));
+                    DesbloqueoDeEtapa.MonedaEnum.fromValue(d.moneda()),
+                    DesbloqueoDeEtapa.EstadoEnum.fromValue(d.estado())));
         }
         return salida;
     }
 
-    /** Donde cae el puntaje: la arena, la siguiente (ausente en la ultima) y el progreso a cuatro decimales. */
-    static ArenaDelPuntaje arenaDelPuntaje(ArenasDeReputacion.Ubicacion u) {
-        var salida = new ArenaDelPuntaje();
-        salida.setCodigo(u.arena().codigo());
-        salida.setNombre(u.arena().nombre());
-        salida.setOrden(u.arena().orden());
-        salida.setDesde(decimal(u.arena().desde()));
-        salida.setHasta(decimal(u.arena().hasta()));
+    /** Donde cae el puntaje: la etapa, la siguiente (ausente en la ultima) y el progreso a cuatro decimales. */
+    static EtapaDelPuntaje etapaDelPuntaje(EtapasDeReputacion.Ubicacion u) {
+        var salida = new EtapaDelPuntaje();
+        salida.setCodigo(u.etapa().codigo());
+        salida.setNombre(u.etapa().nombre());
+        salida.setOrden(u.etapa().orden());
+        salida.setDesde(decimal(u.etapa().desde()));
+        salida.setHasta(decimal(u.etapa().hasta()));
         salida.setProgreso(u.progreso().toPlainString());
         if (u.siguiente() != null) {
-            var siguiente = new ArenaSiguiente();
+            var siguiente = new EtapaSiguiente();
             siguiente.setCodigo(u.siguiente().codigo());
             siguiente.setNombre(u.siguiente().nombre());
             siguiente.setDesde(decimal(u.siguiente().desde()));
             salida.setSiguiente(siguiente);
+        }
+        return salida;
+    }
+
+    /**
+     * La etapa de una persona para un servicio: codigo, nombre, orden y el {@code desde} del tramo.
+     * Nunca el puntaje ni el progreso (regla 90.2.8): con el progreso y el tramo se reconstruye el
+     * puntaje, asi que tampoco viaja {@code hasta}.
+     */
+    static EtapaDePersona etapaDePersona(ConsultarEtapasDePersonas.EtapaDePersona e) {
+        var salida = new EtapaDePersona(e.usuarioId(), e.tieneHistorial());
+        if (e.etapa() != null) {
+            salida.setEtapa(new EtapaParaServicio(
+                    e.etapa().codigo(),
+                    e.etapa().nombre(),
+                    e.etapa().orden(),
+                    decimal(e.etapa().desde())));
         }
         return salida;
     }

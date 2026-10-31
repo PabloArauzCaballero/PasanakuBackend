@@ -211,11 +211,11 @@ class CU69CanjeTest extends BaseDeCU68 {
         // «ya tenes una postulacion» (la que acaba de crear), porque entonces el reintento dejaria de ser idempotente.
         assertThat(transaccion.<Boolean>execute(
                         s -> canjes.comprobarAntesDeConsumir(invitacion, entrada(true), contexto())))
-                .as("antes del canje no es un reintento: la API exige la arena")
+                .as("antes del canje no es un reintento: la API exige la etapa")
                 .isFalse();
         UUID solicitud = transaccion.execute(s -> canjes.ejecutar(invitacion, recibo, entrada(true), contexto()));
 
-        // Es el reintento: la API tampoco vuelve a pedir la arena (2026-10-30, regla 96.3.3).
+        // Es el reintento: la API tampoco vuelve a pedir la etapa (2026-10-30, regla 96.3.3).
         assertThat(transaccion.<Boolean>execute(
                         s -> canjes.comprobarAntesDeConsumir(invitacion, entrada(true), contexto())))
                 .isTrue();

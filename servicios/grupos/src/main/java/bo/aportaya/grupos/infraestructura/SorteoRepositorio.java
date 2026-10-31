@@ -43,15 +43,23 @@ public class SorteoRepositorio {
         return dsl.fetchCount(CUPO, delCiclo.and(CUPO.ESTADO.ne("OCUPADO"))) == 0 && dsl.fetchCount(CUPO, delCiclo) > 0;
     }
 
-    /** Cada participante con su reglamento aceptado, o no hay sorteo. */
+    /**
+     * Cada participante del ciclo con la version VIGENTE del reglamento aceptada, o no hay sorteo. Iniciar el grupo
+     * publica una version nueva con los numeros reales (2026-10-30): la aceptacion de una version anterior no alcanza.
+     * Mismo criterio que {@code puedeSortear} del detalle: cupos OCUPADO dentro de {@code cupos_totales}.
+     */
     public boolean todosAceptaronElReglamento(DSLContext dsl, UUID grupoId) {
         Integer sinAceptar = (Integer) dsl.fetchOne(
                         """
                         SELECT count(*)::int FROM grupos.cupo c
+                          JOIN grupos.grupo g ON g.id = c.grupo_id
                          WHERE c.grupo_id = ? AND c.participante_id IS NOT NULL
+                           AND c.estado = 'OCUPADO' AND c.numero <= g.cupos_totales
                            AND NOT EXISTS (
                              SELECT 1 FROM grupos.aceptacion_reglamento a
-                              WHERE a.participante_id = c.participante_id)
+                               JOIN grupos.reglamento_grupo r ON r.id = a.reglamento_id
+                              WHERE a.participante_id = c.participante_id
+                                AND r.grupo_id = c.grupo_id AND r.vigente_hasta IS NULL)
                         """,
                         grupoId)
                 .get(0);

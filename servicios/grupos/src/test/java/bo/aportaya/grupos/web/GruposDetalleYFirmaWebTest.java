@@ -84,7 +84,7 @@ class GruposDetalleYFirmaWebTest {
     @MockitoBean
     private CU69FirmarReglamento firma;
 
-    /** La arena minima se nombra con el catalogo de transparencia (doble, catalogo SINTETICO). */
+    /** La etapa minima se nombra con el catalogo de transparencia (doble, catalogo SINTETICO). */
     @MockitoBean
     private HechosDeOtrosServicios afuera;
 
@@ -155,15 +155,15 @@ class GruposDetalleYFirmaWebTest {
     }
 
     @Test
-    @DisplayName("CU-69 · 200 (2026-10-30): minimoParaIniciar, puedoIniciar y la arena minima por su codigo")
-    void detalleConInicioYArena() throws Exception {
-        org.mockito.Mockito.when(afuera.arenaDe(any())).thenReturn(ArenasDePrueba.con("650.00"));
+    @DisplayName("CU-69 · 200 (2026-10-30): minimoParaIniciar, puedoIniciar y la etapa minima por su codigo")
+    void detalleConInicioYEtapa() throws Exception {
+        org.mockito.Mockito.when(afuera.catalogoDeEtapas()).thenReturn(java.util.Optional.of(EtapasDePrueba.CATALOGO));
         when(detalle.consultar(eq(GRUPO), any())).thenReturn(paraIniciar(8, 0));
         mvc.perform(get("/grupos/{g}/detalle", GRUPO).with(Sesiones.como("PARTICIPANTE")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.minimoParaIniciar").value(8))
                 .andExpect(jsonPath("$.puedoIniciar").value(true))
-                .andExpect(jsonPath("$.arenaMinima").value("MEDIA"));
+                .andExpect(jsonPath("$.etapaMinima").value("MEDIA"));
 
         when(detalle.consultar(eq(GRUPO), any())).thenReturn(paraIniciar(7, 0));
         mvc.perform(get("/grupos/{g}/detalle", GRUPO).with(Sesiones.como("PARTICIPANTE")))
@@ -174,24 +174,99 @@ class GruposDetalleYFirmaWebTest {
     }
 
     @Test
-    @DisplayName("CU-69 · 200: sin respuesta de transparencia el detalle sale igual, sin arenaMinima")
+    @DisplayName("CU-69 · 200: sin respuesta de transparencia el detalle sale igual, sin etapaMinima")
     void detalleSinTransparencia() throws Exception {
-        org.mockito.Mockito.when(afuera.arenaDe(any())).thenReturn(java.util.Optional.empty());
+        org.mockito.Mockito.when(afuera.catalogoDeEtapas()).thenReturn(java.util.Optional.empty());
         when(detalle.consultar(eq(GRUPO), any())).thenReturn(paraIniciar(8, 0));
         mvc.perform(get("/grupos/{g}/detalle", GRUPO).with(Sesiones.como("PARTICIPANTE")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.minimoParaIniciar").value(8))
-                .andExpect(jsonPath("$.arenaMinima").doesNotExist());
+                .andExpect(jsonPath("$.etapaMinima").doesNotExist());
     }
 
     @Test
-    @DisplayName("CU-69 · 422: quien no integra el grupo no ve su detalle")
+    @DisplayName("CU-69 · 422: quien no integra el grupo no ve su detalle ni hace preguntar la etapa de nadie")
     void ajenoNoVeElDetalle() throws Exception {
         when(detalle.consultar(eq(GRUPO), any()))
                 .thenThrow(new ErrorDeNegocio(CodigoError.de(69, 14), "No sos integrante de este grupo."));
         mvc.perform(get("/grupos/{g}/detalle", GRUPO).with(Sesiones.como("PARTICIPANTE")))
                 .andExpect(status().isUnprocessableEntity())
-                .andExpect(jsonPath("$.codigo").value("AP-CU69-14"));
+                .andExpect(jsonPath("$.codigo").value("AP-CU69-14"))
+                .andExpect(jsonPath("$.integrantes").doesNotExist());
+        verifyNoInteractions(afuera);
+    }
+
+    /** Un grupo con dos ocupantes y un cupo libre, para la etapa por integrante (2026-10-30). */
+    private static ConsultarDetalleDelGrupo.Detalle conOcupantes(UUID rosa, UUID juan, boolean pendiente) {
+        var d = unDetalle();
+        return new ConsultarDetalleDelGrupo.Detalle(
+                d.grupoId(),
+                d.nombre(),
+                "CONFORMADO",
+                d.montoAporte(),
+                d.moneda(),
+                d.periodicidad(),
+                3,
+                2,
+                false,
+                false,
+                false,
+                d.reglamentoTexto(),
+                d.reglamentoHash(),
+                null,
+                null,
+                List.of(
+                        new ConsultarDetalleDelGrupo.Integrante(
+                                1, CUPO, rosa, "Rosa Quispe", "FIRMADO", true, false, 1),
+                        new ConsultarDetalleDelGrupo.Integrante(
+                                2, UUID.randomUUID(), juan, "Juan Mamani", "FIRMADO", false, true, 2),
+                        new ConsultarDetalleDelGrupo.Integrante(
+                                3, UUID.randomUUID(), null, null, "LIBRE", false, false, null)),
+                null,
+                2,
+                pendiente);
+    }
+
+    @Test
+    @DisplayName("CU-69 · 200 (2026-10-30): cada ocupante con su etapa (codigo y nombre, nunca el puntaje), "
+            + "en UNA consulta; el cupo libre sin etapa")
+    void etapaDeCadaIntegrante() throws Exception {
+        UUID rosa = UUID.randomUUID();
+        UUID juan = UUID.randomUUID();
+        when(detalle.consultar(eq(GRUPO), any())).thenReturn(conOcupantes(rosa, juan, false));
+        when(afuera.etapasDe(any()))
+                .thenReturn(java.util.Optional.of(java.util.Map.of(
+                        rosa, new bo.aportaya.grupos.dominio.Etapas.Visible("MEDIA", "Etapa 1 · Media"),
+                        juan, new bo.aportaya.grupos.dominio.Etapas.Visible("BAJA", "En recuperacion"))));
+        mvc.perform(get("/grupos/{g}/detalle", GRUPO).with(Sesiones.como("PARTICIPANTE")))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.integrantes[0].etapa.codigo").value("MEDIA"))
+                .andExpect(jsonPath("$.integrantes[0].etapa.nombre").value("Etapa 1 · Media"))
+                .andExpect(jsonPath("$.integrantes[0].etapa.puntaje").doesNotExist())
+                .andExpect(jsonPath("$.integrantes[0].etapa.desde").doesNotExist())
+                .andExpect(jsonPath("$.integrantes[1].etapa.codigo").value("BAJA"))
+                .andExpect(jsonPath("$.integrantes[2].etapa").doesNotExist());
+        org.mockito.Mockito.verify(afuera, org.mockito.Mockito.times(1))
+                .etapasDe(org.mockito.ArgumentMatchers.argThat(
+                        pedidos -> List.copyOf(pedidos).equals(List.of(rosa, juan))));
+        org.mockito.Mockito.verify(afuera, org.mockito.Mockito.never()).etapaDe(any());
+        org.mockito.Mockito.verify(afuera, org.mockito.Mockito.never()).reputacion(any());
+    }
+
+    @Test
+    @DisplayName("CU-69 · 200 (2026-10-30): transparencia no contesta → el detalle sale igual, sin etapas")
+    void detalleSinEtapasSiTransparenciaNoContesta() throws Exception {
+        when(detalle.consultar(eq(GRUPO), any())).thenReturn(conOcupantes(UUID.randomUUID(), UUID.randomUUID(), true));
+        when(afuera.etapasDe(any())).thenReturn(java.util.Optional.empty());
+        mvc.perform(get("/grupos/{g}/detalle", GRUPO).with(Sesiones.como("PARTICIPANTE")))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.integrantes.length()").value(3))
+                .andExpect(jsonPath("$.integrantes[0].etapa").doesNotExist())
+                .andExpect(jsonPath("$.integrantes[1].etapa").doesNotExist())
+                // La version vigente y si me falta aceptarla.
+                .andExpect(jsonPath("$.reglamentoPendienteDeAceptar").value(true))
+                .andExpect(jsonPath("$.reglamento.hash").value(HASH))
+                .andExpect(jsonPath("$.reglamento.version").value(2));
     }
 
     @Test

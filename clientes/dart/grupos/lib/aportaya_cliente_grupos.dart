@@ -46,6 +46,7 @@ export 'package:aportaya_cliente_grupos/src/model/entrada_sustitucion_administra
 export 'package:aportaya_cliente_grupos/src/model/entrada_traspaso.dart';
 export 'package:aportaya_cliente_grupos/src/model/entrada_voto.dart';
 export 'package:aportaya_cliente_grupos/src/model/error.dart';
+export 'package:aportaya_cliente_grupos/src/model/etapa_del_integrante.dart';
 export 'package:aportaya_cliente_grupos/src/model/grupo_de_backoffice.dart';
 export 'package:aportaya_cliente_grupos/src/model/grupo_iniciado.dart';
 export 'package:aportaya_cliente_grupos/src/model/integrante_del_grupo.dart';

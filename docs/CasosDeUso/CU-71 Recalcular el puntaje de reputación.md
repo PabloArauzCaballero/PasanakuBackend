@@ -112,8 +112,8 @@ export const ErroresCU71 = {
 
 `R-REP-02` · `R-REP-03` · `R-REP-07` · `R-AUD-01`
 
-`R-REP-07` (2026-10-30): la arena del puntaje se deriva de `arena`, tramos sin solape dentro del
-modelo; el puntaje no guarda su arena, así que recalcular el puntaje ya la mueve.
+`R-REP-07` (2026-10-30): la etapa del puntaje se deriva de `etapa`, tramos sin solape dentro del
+modelo; el puntaje no guarda su etapa, así que recalcular el puntaje ya la mueve.
 
 ## Evidencia que deja
 

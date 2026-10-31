@@ -141,8 +141,8 @@ SET search_path TO aportes, auditoria, cumplimiento, entregas, erp, garantia, gr
 \ir 10_tablas/06_transparencia_reputacion/certificado_reputacion.sql
 \ir 10_tablas/06_transparencia_reputacion/insignia_logro.sql
 \ir 10_tablas/06_transparencia_reputacion/insignia_otorgada.sql
-\ir 10_tablas/06_transparencia_reputacion/arena.sql
-\ir 10_tablas/06_transparencia_reputacion/desbloqueo_arena.sql
+\ir 10_tablas/06_transparencia_reputacion/etapa.sql
+\ir 10_tablas/06_transparencia_reputacion/desbloqueo_etapa.sql
 \ir 10_tablas/06_transparencia_reputacion/metrica_grupo.sql
 \ir 10_tablas/06_transparencia_reputacion/bloque_transparencia.sql
 \ir 10_tablas/06_transparencia_reputacion/registro_sellado.sql

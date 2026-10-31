@@ -84,7 +84,7 @@ public class CreacionRepositorio {
         return crear(dsl, datos, codigoPublico, organizador, quorum, BigDecimal.ZERO, ahora);
     }
 
-    /** Con la arena minima ya resuelta: el {@code desde} de esa arena, o 0 si el grupo no pide ninguna. */
+    /** Con la etapa minima ya resuelta: el {@code desde} de esa etapa, o 0 si el grupo no pide ninguna. */
     @SuppressWarnings("checkstyle:ParameterNumber")
     public UUID crear(
             DSLContext dsl,
@@ -138,6 +138,11 @@ public class CreacionRepositorio {
                 .execute();
     }
 
+    /** Las clausulas con que nace el reglamento; una version nueva conserva las de la anterior. */
+    public static final String CLAUSULAS_MORA = "Recargo segun la politica de mora del grupo.";
+
+    public static final String CLAUSULAS_ABANDONO = "El retiro se rige por CU-65.";
+
     /** El reglamento se guarda con su hash: lo que se firma es un texto exacto. */
     public UUID redactarReglamento(
             DSLContext dsl, UUID grupoId, String contenido, String hash, UUID redactadoPor, OffsetDateTime ahora) {
@@ -146,8 +151,8 @@ public class CreacionRepositorio {
                 .set(REGLAMENTO_GRUPO.VERSION, (short) 1)
                 .set(REGLAMENTO_GRUPO.CONTENIDO, contenido)
                 .set(REGLAMENTO_GRUPO.HASH_CONTENIDO, hash)
-                .set(REGLAMENTO_GRUPO.CLAUSULAS_MORA, "Recargo segun la politica de mora del grupo.")
-                .set(REGLAMENTO_GRUPO.CLAUSULAS_ABANDONO, "El retiro se rige por CU-65.")
+                .set(REGLAMENTO_GRUPO.CLAUSULAS_MORA, CLAUSULAS_MORA)
+                .set(REGLAMENTO_GRUPO.CLAUSULAS_ABANDONO, CLAUSULAS_ABANDONO)
                 .set(REGLAMENTO_GRUPO.VIGENTE_DESDE, ahora)
                 .set(REGLAMENTO_GRUPO.REDACTADO_POR, redactadoPor)
                 .returning(REGLAMENTO_GRUPO.ID)
