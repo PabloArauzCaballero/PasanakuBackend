@@ -109,7 +109,9 @@ export const ErroresCU60 = {
   SORTEO_YA_EXISTE:         'AP-CU60-02',
   FECHA_DE_REVELADO_FUTURA: 'AP-CU60-03',
   HASH_NO_VERIFICA:         'AP-CU60-04',   // aborta y notifica
-  REGLAMENTO_SIN_FIRMAR:    'AP-CU60-05',
+  REGLAMENTO_SIN_FIRMAR:    'AP-CU60-05',   // version vigente del reglamento
+  PRIMER_APORTE_PENDIENTE:  'AP-CU60-11',   // R-GRP-20
+  APORTES_SIN_RESPUESTA:    'AP-CU60-12',   // R-GRP-20, fallo cerrado
 } as const
 ```
 
@@ -119,8 +121,9 @@ export const ErroresCU60 = {
 | `SORTEO_YA_EXISTE` | El grupo ya tiene un sorteo comprometido; no se vuelve a comprometer |
 | `FECHA_DE_REVELADO_FUTURA` | Se pidió revelar antes de la fecha comprometida: el compromiso sería inútil |
 | `HASH_NO_VERIFICA` | La semilla revelada no reproduce el hash. **Aborta, no asigna turnos y abre incidente** |
-| `REGLAMENTO_SIN_FIRMAR` | Algún participante no aceptó el reglamento que fija el método de sorteo |
-| `PRIMER_APORTE_PENDIENTE` | Algún cupo ocupado no tiene acreditado el aporte del primer período (`R-GRP-20`). Código propuesto `AP-CU60-11` (del 1 al 10 ya están tomados en `CodigoError.de(60, n)`); **sin implementar** al 2026-10-30 |
+| `REGLAMENTO_SIN_FIRMAR` | Algún ocupante no aceptó la **versión vigente** del reglamento (al iniciar el grupo se publica una nueva; la firma de la anterior no vale). `detalle.cuposSinFirma` trae los números de cupo |
+| `PRIMER_APORTE_PENDIENTE` | `AP-CU60-11` · Algún cupo ocupado no tiene la obligación de la cuota 1 en `PAGADO` (`R-GRP-20`). `detalle.cuposPendientes` trae los números de cupo. Lo afirma `aportes` (`GET /aportes/grupos/{grupoId}/primera-cuota`), nunca quien sortea |
+| `APORTES_SIN_RESPUESTA` | `AP-CU60-12` · `aportes` no contestó (caído, circuito abierto o respuesta ilegible). Se deniega: lo único que no se puede suponer es que la plata está (`R-GRP-20`) |
 
 ## Descomposición atómica
 

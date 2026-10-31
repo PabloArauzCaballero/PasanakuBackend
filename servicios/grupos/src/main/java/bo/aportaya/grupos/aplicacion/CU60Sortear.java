@@ -1,6 +1,8 @@
 package bo.aportaya.grupos.aplicacion;
 
 import bo.aportaya.grupos.dominio.SnapshotDeSorteo;
+import bo.aportaya.grupos.dominio.puertos.PrimerAporteDelCupo;
+import bo.aportaya.grupos.infraestructura.AceptacionVigenteRepositorio;
 import bo.aportaya.grupos.infraestructura.SorteoRepositorio;
 import bo.aportaya.plataforma.datos.Datos;
 import bo.aportaya.plataforma.dominio.CodigoError;
@@ -18,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import org.jooq.DSLContext;
 import org.springframework.stereotype.Service;
@@ -47,13 +50,24 @@ public class CU60Sortear {
     private final Outbox outbox;
     private final Reloj reloj;
     private final Ids ids;
+    private final PrimerAporteDelCupo primerAporte;
+    private final AceptacionVigenteRepositorio aceptaciones;
 
-    public CU60Sortear(Datos datos, SorteoRepositorio sorteos, Outbox outbox, Reloj reloj, Ids ids) {
+    public CU60Sortear(
+            Datos datos,
+            SorteoRepositorio sorteos,
+            Outbox outbox,
+            Reloj reloj,
+            Ids ids,
+            PrimerAporteDelCupo primerAporte,
+            AceptacionVigenteRepositorio aceptaciones) {
         this.datos = datos;
         this.sorteos = sorteos;
         this.outbox = outbox;
         this.reloj = reloj;
         this.ids = ids;
+        this.primerAporte = primerAporte;
+        this.aceptaciones = aceptaciones;
     }
 
     /** Fase 1: se publica el hash y nada mas. La semilla queda sellada junto al snapshot hasta revelar. */
@@ -64,6 +78,9 @@ public class CU60Sortear {
         // Azar criptografico: una semilla que se puede adivinar es un sorteo que se
         // puede adivinar, y el compromiso no protegeria de nada.
         String semilla = ids.nuevo().toString() + ids.nuevo();
+        // R-GRP-20: a `aportes` se le pregunta ANTES de abrir la transaccion (invariante 6: ninguna llamada remota
+        // adentro). Sin respuesta no se supone que la plata esta: se deniega mas abajo.
+        Optional<Set<UUID>> conCuotaPagada = primerAporte.cuposConPrimeraCuotaPagada(grupoId);
 
         return datos.conContexto(ctx, dsl -> {
             // Dos compromisos simultaneos del mismo grupo se serializan aca: el segundo ve al primero.
@@ -73,18 +90,39 @@ public class CU60Sortear {
                 throw new ErrorDeNegocio(
                         CodigoError.de(60, 1), "Todavia quedan cupos libres: el grupo no esta conformado.");
             }
-            // AP-CU60-05: cada participante con su reglamento aceptado.
-            if (!sorteos.todosAceptaronElReglamento(dsl, grupoId)) {
-                throw new ErrorDeNegocio(CodigoError.de(60, 5), "Falta que alguien acepte el reglamento del grupo.");
+            // AP-CU60-05: cada ocupante con la version VIGENTE del reglamento aceptada. Al iniciar el grupo se publica
+            // una version nueva con el plantel real: la firma de la anterior es la firma de otro contrato.
+            List<Integer> sinFirma = aceptaciones.cuposSinAceptacionVigente(dsl, grupoId);
+            if (!sinFirma.isEmpty()) {
+                throw new ErrorDeNegocio(
+                        CodigoError.de(60, 5),
+                        "Falta que alguien acepte el reglamento del grupo.",
+                        Map.of("cuposSinFirma", sinFirma));
             }
             // AP-CU60-02: el compromiso se publica una sola vez.
             if (sorteos.yaHuboSorteo(dsl, grupoId)) {
                 throw new ErrorDeNegocio(CodigoError.de(60, 2), "Este grupo ya tiene su sorteo.");
             }
+            // AP-CU60-12 y AP-CU60-11 (R-GRP-20): el sorteo se hace con plata cobrada, no prometida. Si `aportes` no
+            // contesto, se deniega: lo unico que no se puede suponer es que todos pagaron.
+            if (conCuotaPagada.isEmpty()) {
+                throw new ErrorDeNegocio(
+                        CodigoError.de(60, 12),
+                        "No pudimos confirmar los aportes del grupo. Proba de nuevo en unos minutos.");
+            }
+            List<SnapshotDeSorteo.CupoCongelado> plantel = sorteos.plantelOcupado(dsl, grupoId);
+            List<Integer> sinCuota = plantel.stream()
+                    .filter(c -> !conCuotaPagada.get().contains(c.cupoId()))
+                    .map(SnapshotDeSorteo.CupoCongelado::numero)
+                    .toList();
+            if (!sinCuota.isEmpty()) {
+                throw new ErrorDeNegocio(
+                        CodigoError.de(60, 11),
+                        "Falta que algunos cupos paguen su primera cuota antes del sorteo.",
+                        Map.of("cuposPendientes", sinCuota));
+            }
             var snapshot = new SnapshotDeSorteo(
-                    sorteos.plantelOcupado(dsl, grupoId),
-                    sorteos.calendarioDelGrupo(dsl, grupoId),
-                    sorteos.reglasDelGrupo(dsl, grupoId));
+                    plantel, sorteos.calendarioDelGrupo(dsl, grupoId), sorteos.reglasDelGrupo(dsl, grupoId));
             List<String> completas = conSnapshot(entropias, snapshot);
             String hash = SorteoVerificable.hashDelCompromiso(semilla, completas);
             UUID correlacion = UUID.fromString(ctx.traza().id());
