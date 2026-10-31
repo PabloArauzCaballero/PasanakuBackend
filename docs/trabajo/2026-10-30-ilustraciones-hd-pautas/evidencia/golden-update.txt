@@ -1,0 +1,4 @@
+00:01 +0 -1: Some tests failed.
+
+Failing tests:
+  /Users/pablo/Documents/GitHub/Pasanaku/apps/movil/test/widget/ilustracion_de_pauta_golden_test.dart: golden de las nueve escenas de ejemplo

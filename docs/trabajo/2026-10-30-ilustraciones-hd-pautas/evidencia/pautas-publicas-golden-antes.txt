@@ -1,0 +1,4 @@
+Golden "goldens/pautas_publicas_360.png": Pixel test failed, 34.46%, 99239px diff detected.
+#1      MatchesGoldenFile.matchAsync.<anonymous closure> (package:flutter_test/src/_matchers_io.dart:124:32)
+00:00 +0 -1: Some tests failed.
+00:00 +1: All tests passed!
