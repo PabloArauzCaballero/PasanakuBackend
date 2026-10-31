@@ -23,8 +23,8 @@
 
 | ID | Microtarea | CA | DoD | Estado |
 |---|---|---|---|---|
-| H1.S1.M1 | Plugins ML Kit solo Android (copia local + overrides) | `pod install` ya no instala MLKit* | `grep -c MLKit ios/Podfile.lock` → 0 | TODO |
-| H1.S1.M2 | Lector Vision en Swift + canal `bo.aportaya/lector_de_rostro` | compila | build simulador | TODO |
-| H1.S1.M3 | Lector Dart para iOS + selección por plataforma | mapea la respuesta del canal a `LecturaDeRostro` | test unitario con canal simulado (correcto, sin cara, error) | TODO |
-| H1.S1.M4 | Build simulador arm64 e ipa | ambos compilan | `xcodebuild build-for-testing` · `flutter build ipa` | TODO |
-| H1.S1.M5 | Regresión + PRs test/dev | sin fallos nuevos | `flutter test` vs línea base | TODO |
+| H1.S1.M1 | Plugins ML Kit solo Android (copia local + overrides) | `pod install` ya no instala MLKit* | `grep -c MLKit ios/Podfile.lock` → 0 | HECHO (0) |
+| H1.S1.M2 | Lector Vision en Swift + canal `bo.aportaya/lector_de_rostro` | compila | build simulador | HECHO |
+| H1.S1.M3 | Lector Dart para iOS + selección por plataforma | mapea la respuesta del canal a `LecturaDeRostro` | test unitario con canal simulado (correcto, sin cara, error) | HECHO (3/3) |
+| H1.S1.M4 | Build simulador arm64 e ipa | ambos compilan | `xcodebuild build-for-testing` · `flutter build ipa` | A MEDIAS: simulador OK; ipa va con el TestFlight |
+| H1.S1.M5 | Regresión + PRs test/dev | sin fallos nuevos | `flutter test` vs línea base | A MEDIAS: regresión OK; PRs #372/#373 abiertos |
