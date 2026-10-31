@@ -1,0 +1,49 @@
+{
+  "servicio": "grupos",
+  "operacion": "listarAcuerdos",
+  "metodo": "get",
+  "ruta": "/acuerdos",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": [
+        {
+          "acuerdoId": "e1cdd654-20ff-457c-83ec-d5cd802cd4bd",
+          "tipo": "tipo",
+          "estado": "ABIERTO",
+          "descripcion": "descripcion",
+          "referenciaAfectadaId": "35b58006-d409-4840-81e4-3e7ba09bf184",
+          "usuarioEntranteId": "55366ab0-f7e5-4250-85d2-c17204d1bed0",
+          "cierraEn": "2026-01-15T10:30:00Z"
+        }
+      ]
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": []
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": [
+        {
+          "acuerdoId": "e1cdd654-20ff-457c-83ec-d5cd802cd4bd",
+          "tipo": "tipo",
+          "estado": "ABIERTO",
+          "descripcion": "descripcion",
+          "referenciaAfectadaId": "35b58006-d409-4840-81e4-3e7ba09bf184",
+          "usuarioEntranteId": "55366ab0-f7e5-4250-85d2-c17204d1bed0",
+          "cierraEn": "2026-01-15T10:30:00Z"
+        }
+      ]
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU63-01",
+        "mensaje": "No participa del grupo",
+        "detalle": {},
+        "trazaId": "traza-listarAcuerdos-rechazo"
+      }
+    }
+  }
+}

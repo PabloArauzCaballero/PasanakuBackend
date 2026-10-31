@@ -98,6 +98,14 @@ DE_DESARROLLO = {
     "ENTREGAS_SERVICIO_CLAVE": "",
     "ENTREGAS_SERVICIO_TOTP_SEMILLA": "",
     "ENTREGAS_SERVICIO_FACTOR_FIJO": "",
+    # Cuenta de servicio de grupos en identidad (rol SERVICIO_GRUPOS): con ella grupos lee la etapa de reputacion de
+    # quien entra a un grupo (GET /reputacion/etapas/de-personas). Vacias en el repo: las pone quien opera el entorno;
+    # sin ellas toda alta de grupo y todo ingreso fallan cerrados.
+    "GRUPOS_TRANSPARENCIA_CREDENCIAL_SERVICIO": "",
+    "GRUPOS_SERVICIO_TELEFONO": "",
+    "GRUPOS_SERVICIO_CLAVE": "",
+    "GRUPOS_SERVICIO_TOTP_SEMILLA": "",
+    "GRUPOS_SERVICIO_FACTOR_FIJO": "",
     "NUCLEO_FINANCIERO_URL": "http://nucleo-financiero:8080",
     # El mismo literal que application-local.yml (en local el perfil lo ignora).
     "APORTAYA_CORS_ORIGENES": "http://localhost:4200",
@@ -221,6 +229,14 @@ DE_ENTORNO = {
     "ENTREGAS_SERVICIO_CLAVE": "",
     "ENTREGAS_SERVICIO_TOTP_SEMILLA": "",
     "ENTREGAS_SERVICIO_FACTOR_FIJO": "",
+    # Cuenta de servicio de grupos en identidad (rol SERVICIO_GRUPOS): con ella grupos lee la etapa de reputacion de
+    # quien entra a un grupo (GET /reputacion/etapas/de-personas). Vacias en el repo: las pone quien opera el entorno;
+    # sin ellas toda alta de grupo y todo ingreso fallan cerrados.
+    "GRUPOS_TRANSPARENCIA_CREDENCIAL_SERVICIO": "",
+    "GRUPOS_SERVICIO_TELEFONO": "",
+    "GRUPOS_SERVICIO_CLAVE": "",
+    "GRUPOS_SERVICIO_TOTP_SEMILLA": "",
+    "GRUPOS_SERVICIO_FACTOR_FIJO": "",
     "NUCLEO_FINANCIERO_URL": "http://nucleo-financiero:8080",
     # Solo la leen staging/production (application-<perfil>.yml): sin valor por omision y nunca
     # `*`; el servicio no arranca si falta. Con el perfil `local` no tiene efecto. No es un secreto.

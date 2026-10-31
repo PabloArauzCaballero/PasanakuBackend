@@ -1,0 +1,17 @@
+# H1.S7.M2 (carril T) — kill-test de la privacidad del puntaje (mutación TEMPORAL, revertida)
+# Se neutralizaron los dos chequeos de titular (`if (false && !usuarioId.equals(...))`) en
+# ConsultarPuntaje.java y ReputacionController.java, se corrieron las pruebas de puntaje ajeno,
+# y se restauraron los dos archivos desde la copia (grep 'if (false' → 0 en ambos).
+$ ./gradlew :servicios:transparencia:integrationTest --tests "*EtapaRepositorioTest.puntajeAjenoNegado" :servicios:transparencia:webTest --tests "*ReputacionControllerWebTest*puntajeAjeno*" --continue
+EtapaRepositorioTest > puntaje · otro participante pide el puntaje ajeno: 403 (AccessDenied) y no se lee nada FAILED
+    Expecting code to raise a throwable.
+> Task :servicios:transparencia:integrationTest FAILED
+ReputacionControllerWebTest > Privacidad del puntaje y lectura de etapas (2026-10-30, regla 90.2.8) > puntaje · 403 sobre el puntaje de OTRA persona, sin llegar al caso, aunque sea PARTICIPANTE FAILED
+    java.lang.AssertionError: Status expected:<403> but was:<500>
+2 tests completed, 1 failed
+> Task :servicios:transparencia:webTest FAILED
+BUILD FAILED in 12s
+# (el otro caso web, SERVICIO_GRUPOS sobre /puntaje, sigue en 403 por la guardia @Permiso("PARTICIPANTE"): no depende del chequeo de titular)
+$ grep -c 'if (false' ConsultarPuntaje.java ReputacionController.java   # después de restaurar
+ConsultarPuntaje.java:0
+ReputacionController.java:0

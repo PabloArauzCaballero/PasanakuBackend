@@ -86,6 +86,9 @@ abstract class BaseDeTransparencia {
     /** El desempeño minimo que publica el criterio de ORGANIZADOR_CONFIABLE. */
     protected static final BigDecimal DESEMPENO_MINIMO_DE_ORGANIZADOR = new BigDecimal("80");
 
+    /** Cuantas personas distintas pide grupos de una vez: el {@code maxItems} del contrato. */
+    protected static final int MAXIMO_DE_PERSONAS = 60;
+
     protected static DSLContext dsl;
     protected static DSLContext dslFixtura;
     protected static TransactionTemplate transaccion;

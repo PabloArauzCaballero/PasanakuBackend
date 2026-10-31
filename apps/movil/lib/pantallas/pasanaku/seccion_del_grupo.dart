@@ -14,8 +14,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'acceso_a_la_subasta.dart';
+import 'aviso_de_refirma.dart';
 import 'dominio/detalle_del_grupo.dart';
-import 'tarjeta_de_integrante.dart';
+import 'inicio_del_grupo.dart';
+import 'integrantes_del_grupo.dart';
 import 'textos_detalle_del_grupo.dart';
 import 'textos_enlace_del_grupo.dart';
 import 'textos_invitacion.dart';
@@ -84,6 +86,11 @@ class VistaDelGrupo extends StatelessWidget {
           ),
         ),
         const SizedBox(height: Espacio.s3),
+        // Inicio al 75 % (2026-10-30): cuánto falta y, para quien organiza, Iniciar.
+        if (InicioDelGrupo.aplica(d)) ...[
+          InicioDelGrupo(detalle: d),
+          const SizedBox(height: Espacio.s3),
+        ],
         if (d.debeFirmar) ...[
           const Alerta(
             titulo: TextosDetalleDelGrupo.debesFirmar,
@@ -100,6 +107,8 @@ class VistaDelGrupo extends StatelessWidget {
           ),
           const SizedBox(height: Espacio.s3),
         ],
+        // Versión nueva del reglamento tras iniciar (H1.S7.M4): aceptarla, no ocupar.
+        if (AvisoDeRefirma.aplica(d)) AvisoDeRefirma(detalle: d),
         if (d.puedeSortear || d.sorteo != null) ...[
           Boton(
             key: const ValueKey('iniciar-sorteo'),
@@ -123,7 +132,10 @@ class VistaDelGrupo extends StatelessWidget {
         if (d.soyOrganizador && !completo) ...[
           Boton(
             texto: TextosInvitacion.accionInvitar,
-            variante: BotonVariante.primario,
+            // Una sola acción primaria: cuando ya se puede iniciar, iniciar manda.
+            variante: d.puedoIniciar == true
+                ? BotonVariante.secundario
+                : BotonVariante.primario,
             expandido: true,
             onPressed: () => context.push(
               '/pasanaku/grupos/$id/invitar?nombre=${Uri.encodeQueryComponent(d.nombre)}',
@@ -151,14 +163,7 @@ class VistaDelGrupo extends StatelessWidget {
           style: Tipo.cuerpoChico.copyWith(color: t.text3),
         ),
         const SizedBox(height: Espacio.s3),
-        for (final integrante in d.integrantes) ...[
-          TarjetaDeIntegrante(
-            integrante: integrante,
-            grupoId: d.grupoId,
-            nombreGrupo: d.nombre,
-          ),
-          const SizedBox(height: Espacio.s2),
-        ],
+        IntegrantesDelGrupo(detalle: d),
       ],
     );
   }

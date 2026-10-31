@@ -86,6 +86,18 @@ abstract class RutasDelGrupo extends RutasDeEnlaceDeGrupo {
         return ResponseEntity.ok(integrantes.comparten(grupoId, usuarioId, sesion.actual()));
     }
 
+    /**
+     * CU-69 · iniciar al 75 % (2026-10-30). {@code GRUPO_ADMINISTRAR} es la guardia por funcion (403 sin ese
+     * permiso); que quien llama organice ESTE grupo lo decide el caso de uso sobre el recurso (AP-CU69-07).
+     */
+    @Override
+    @Permiso("GRUPO_ADMINISTRAR")
+    public ResponseEntity<bo.aportaya.grupos.web.generado.modelo.GrupoIniciado> iniciarGrupo(
+            UUID grupoId, UUID idempotencyKey) {
+        Traza.marcarCasoDeUso("CU-69", grupoId.toString());
+        return ResponseEntity.ok(integrantes.iniciar(grupoId, idempotencyKey, sesion.actual()));
+    }
+
     @Override
     @Permiso("PARTICIPANTE")
     public ResponseEntity<SalidaFirmaDeReglamento> firmarReglamentoDelGrupo(

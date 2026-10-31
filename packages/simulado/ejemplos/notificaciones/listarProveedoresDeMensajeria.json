@@ -1,0 +1,49 @@
+{
+  "servicio": "notificaciones",
+  "operacion": "listarProveedoresDeMensajeria",
+  "metodo": "get",
+  "ruta": "/notificaciones/proveedores",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": [
+        {
+          "id": "9a7e29ed-e2d4-476f-88aa-ee827d52f15c",
+          "codigo": "codigo",
+          "nombre": "nombre",
+          "canales": "canales",
+          "activo": true,
+          "prioridad": 1,
+          "saludPorcentaje": "saludPorcentaje"
+        }
+      ]
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": []
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": [
+        {
+          "id": "9a7e29ed-e2d4-476f-88aa-ee827d52f15c",
+          "codigo": "codigo",
+          "nombre": "nombre",
+          "canales": "canales",
+          "activo": true,
+          "prioridad": 1,
+          "saludPorcentaje": "saludPorcentaje"
+        }
+      ]
+    },
+    "rechazo": {
+      "estado": 401,
+      "cuerpo": {
+        "codigo": "AP-CU80-01",
+        "mensaje": "Sin plantilla aprobada",
+        "detalle": {},
+        "trazaId": "traza-listarProveedoresDeMensajeria-rechazo"
+      }
+    }
+  }
+}

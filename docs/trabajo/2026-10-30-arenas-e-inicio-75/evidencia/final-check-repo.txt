@@ -1,0 +1,616 @@
+> Task :buildSrc:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :buildSrc:generateExternalPluginSpecBuilders UP-TO-DATE
+> Task :buildSrc:extractPrecompiledScriptPluginPlugins UP-TO-DATE
+> Task :buildSrc:compilePluginsBlocks UP-TO-DATE
+> Task :buildSrc:generatePrecompiledScriptPluginAccessors UP-TO-DATE
+> Task :buildSrc:generateScriptPluginAdapters UP-TO-DATE
+> Task :buildSrc:compileKotlin UP-TO-DATE
+> Task :buildSrc:compileJava NO-SOURCE
+> Task :buildSrc:compileGroovy NO-SOURCE
+> Task :buildSrc:pluginDescriptors UP-TO-DATE
+> Task :buildSrc:processResources UP-TO-DATE
+> Task :buildSrc:classes UP-TO-DATE
+> Task :buildSrc:jar UP-TO-DATE
+> Task :servicios:auditoria:cobertura
+> Task :plataforma:comun-datos:cobertura
+> Task :plataforma:comun-web:cobertura
+> Task :plataforma:comun-archivos:cobertura
+> Task :servicios:aportes:cobertura
+> Task :spotlessInternalRegisterDependencies UP-TO-DATE
+> Task :plataforma:comun-mensajeria:cobertura
+> Task :plataforma:gateway:cobertura
+> Task :plataforma:comun-pruebas:processResources UP-TO-DATE
+> Task :plataforma:comun-pruebas:cobertura
+> Task :servicios:cumplimiento:cobertura
+> Task :servicios:aportes:sinJpa
+> Task :servicios:auditoria:sinJpa
+> Task :plataforma:gateway:sinJpa
+> Task :servicios:cumplimiento:sinJpa
+> Task :plataforma:comun-dominio:compileJava UP-TO-DATE
+> Task :plataforma:comun-dominio:processResources NO-SOURCE
+> Task :plataforma:comun-dominio:classes UP-TO-DATE
+> Task :plataforma:comun-dominio:jar UP-TO-DATE
+> Task :plataforma:comun-dominio:cobertura
+> Task :plataforma:comun-datos:spotlessJava UP-TO-DATE
+> Task :plataforma:comun-mensajeria:spotlessJava UP-TO-DATE
+> Task :plataforma:comun-dominio:spotlessJava UP-TO-DATE
+> Task :plataforma:comun-archivos:spotlessJava UP-TO-DATE
+> Task :plataforma:comun-datos:spotlessJavaCheck UP-TO-DATE
+> Task :plataforma:comun-dominio:spotlessJavaCheck UP-TO-DATE
+> Task :plataforma:gateway:spotlessJava UP-TO-DATE
+> Task :plataforma:comun-web:spotlessJava UP-TO-DATE
+> Task :plataforma:comun-pruebas:spotlessJava UP-TO-DATE
+> Task :plataforma:comun-mensajeria:spotlessJavaCheck UP-TO-DATE
+> Task :servicios:auditoria:spotlessJava UP-TO-DATE
+> Task :plataforma:comun-archivos:spotlessJavaCheck UP-TO-DATE
+> Task :plataforma:gateway:spotlessJavaCheck UP-TO-DATE
+> Task :plataforma:comun-web:spotlessJavaCheck UP-TO-DATE
+> Task :plataforma:comun-datos:spotlessKotlinGradle UP-TO-DATE
+> Task :plataforma:comun-mensajeria:spotlessKotlinGradle UP-TO-DATE
+> Task :plataforma:comun-dominio:spotlessKotlinGradle UP-TO-DATE
+> Task :plataforma:comun-web:spotlessKotlinGradle UP-TO-DATE
+> Task :plataforma:gateway:spotlessKotlinGradle UP-TO-DATE
+> Task :plataforma:comun-datos:spotlessKotlinGradleCheck UP-TO-DATE
+> Task :plataforma:comun-datos:spotlessCheck UP-TO-DATE
+> Task :plataforma:comun-archivos:spotlessKotlinGradle UP-TO-DATE
+> Task :plataforma:comun-web:spotlessKotlinGradleCheck UP-TO-DATE
+> Task :plataforma:gateway:spotlessKotlinGradleCheck UP-TO-DATE
+> Task :plataforma:comun-web:spotlessCheck UP-TO-DATE
+> Task :plataforma:gateway:spotlessCheck UP-TO-DATE
+> Task :plataforma:comun-pruebas:compileJava UP-TO-DATE
+> Task :plataforma:comun-pruebas:classes UP-TO-DATE
+> Task :servicios:cumplimiento:spotlessJava UP-TO-DATE
+> Task :servicios:auditoria:spotlessJavaCheck UP-TO-DATE
+> Task :plataforma:comun-web:erroresCatalogo UP-TO-DATE
+> Task :plataforma:comun-archivos:spotlessKotlinGradleCheck UP-TO-DATE
+> Task :plataforma:comun-archivos:spotlessCheck UP-TO-DATE
+> Task :plataforma:comun-web:processResources UP-TO-DATE
+> Task :plataforma:comun-web:processTestFixturesResources NO-SOURCE
+> Task :plataforma:comun-dominio:spotlessKotlinGradleCheck UP-TO-DATE
+> Task :plataforma:comun-pruebas:jar UP-TO-DATE
+> Task :plataforma:comun-web:processTestResources NO-SOURCE
+> Task :plataforma:comun-dominio:spotlessCheck UP-TO-DATE
+> Task :plataforma:comun-mensajeria:spotlessKotlinGradleCheck UP-TO-DATE
+> Task :servicios:auditoria:spotlessKotlinGradle UP-TO-DATE
+> Task :servicios:cumplimiento:spotlessJavaCheck UP-TO-DATE
+> Task :plataforma:comun-mensajeria:spotlessCheck UP-TO-DATE
+> Task :servicios:auditoria:spotlessKotlinGradleCheck UP-TO-DATE
+> Task :servicios:entregas:cobertura
+> Task :servicios:auditoria:spotlessCheck UP-TO-DATE
+> Task :plataforma:comun-mensajeria:processResources UP-TO-DATE
+> Task :plataforma:comun-mensajeria:processTestResources NO-SOURCE
+> Task :servicios:entregas:sinJpa
+> Task :plataforma:comun-datos:compileJava UP-TO-DATE
+> Task :servicios:cumplimiento:spotlessKotlinGradle UP-TO-DATE
+> Task :plataforma:comun-datos:processResources UP-TO-DATE
+> Task :plataforma:comun-datos:classes UP-TO-DATE
+> Task :plataforma:comun-pruebas:spotlessJavaCheck UP-TO-DATE
+> Task :servicios:aportes:spotlessJava UP-TO-DATE
+> Task :servicios:cumplimiento:spotlessKotlinGradleCheck UP-TO-DATE
+> Task :servicios:aportes:spotlessJavaCheck UP-TO-DATE
+> Task :servicios:cumplimiento:spotlessCheck UP-TO-DATE
+> Task :plataforma:comun-pruebas:spotlessKotlinGradle UP-TO-DATE
+> Task :servicios:aportes:spotlessKotlinGradle UP-TO-DATE
+> Task :plataforma:comun-pruebas:spotlessKotlinGradleCheck UP-TO-DATE
+> Task :plataforma:comun-pruebas:spotlessCheck UP-TO-DATE
+> Task :servicios:aportes:spotlessKotlinGradleCheck UP-TO-DATE
+> Task :servicios:aportes:spotlessCheck UP-TO-DATE
+> Task :plataforma:comun-datos:jar UP-TO-DATE
+> Task :plataforma:comun-mensajeria:compileJava UP-TO-DATE
+> Task :plataforma:comun-mensajeria:classes UP-TO-DATE
+> Task :plataforma:comun-pruebas:compileTestJava UP-TO-DATE
+> Task :plataforma:comun-mensajeria:jar UP-TO-DATE
+> Task :plataforma:comun-pruebas:processTestResources UP-TO-DATE
+> Task :plataforma:comun-pruebas:testClasses UP-TO-DATE
+> Task :servicios:entregas:spotlessJava UP-TO-DATE
+> Task :plataforma:comun-web:compileJava UP-TO-DATE
+> Task :plataforma:comun-web:classes UP-TO-DATE
+> Task :plataforma:comun-web:jar UP-TO-DATE
+> Task :plataforma:comun-archivos:compileJava FROM-CACHE
+> Task :plataforma:comun-web:compileTestFixturesJava UP-TO-DATE
+> Task :plataforma:comun-web:testFixturesClasses UP-TO-DATE
+> Task :plataforma:comun-archivos:processResources
+> Task :plataforma:comun-web:testFixturesJar UP-TO-DATE
+> Task :plataforma:comun-archivos:classes
+> Task :plataforma:comun-pruebas:testBarrido UP-TO-DATE
+> Task :plataforma:comun-pruebas:webTest NO-SOURCE
+> Task :plataforma:comun-pruebas:check
+> Task :servicios:entregas:spotlessJavaCheck UP-TO-DATE
+> Task :servicios:entregas:spotlessKotlinGradle UP-TO-DATE
+> Task :servicios:entregas:spotlessKotlinGradleCheck UP-TO-DATE
+> Task :servicios:entregas:spotlessCheck UP-TO-DATE
+> Task :plataforma:comun-archivos:jar
+> Task :plataforma:gateway:compileJava FROM-CACHE
+> Task :plataforma:gateway:processResources
+> Task :plataforma:gateway:classes
+> Task :plataforma:comun-archivos:compileTestJava FROM-CACHE
+> Task :plataforma:comun-archivos:processTestResources NO-SOURCE
+> Task :plataforma:comun-archivos:testClasses UP-TO-DATE
+> Task :plataforma:comun-archivos:testBarrido NO-SOURCE
+> Task :plataforma:comun-archivos:webTest NO-SOURCE
+> Task :plataforma:comun-archivos:check
+> Task :plataforma:gateway:compileTestJava FROM-CACHE
+> Task :servicios:erp:cobertura
+> Task :plataforma:gateway:processTestResources NO-SOURCE
+> Task :plataforma:gateway:testClasses UP-TO-DATE
+> Task :servicios:erp:sinJpa
+> Task :plataforma:gateway:testBarrido NO-SOURCE
+> Task :plataforma:gateway:webTest NO-SOURCE
+> Task :plataforma:gateway:check
+> Task :servicios:garantia:cobertura
+> Task :servicios:garantia:sinJpa
+> Task :servicios:erp:spotlessJava UP-TO-DATE
+> Task :servicios:erp:spotlessJavaCheck UP-TO-DATE
+> Task :servicios:garantia:spotlessJava UP-TO-DATE
+> Task :servicios:garantia:spotlessJavaCheck UP-TO-DATE
+> Task :servicios:garantia:spotlessKotlinGradle UP-TO-DATE
+> Task :servicios:garantia:spotlessKotlinGradleCheck UP-TO-DATE
+> Task :servicios:garantia:spotlessCheck UP-TO-DATE
+> Task :servicios:erp:spotlessKotlinGradle UP-TO-DATE
+> Task :servicios:erp:spotlessKotlinGradleCheck UP-TO-DATE
+> Task :servicios:erp:spotlessCheck UP-TO-DATE
+
+> Task :servicios:auditoria:generarServidorOpenApi
+OpenAPI 3.1 support is still in beta. To report an issue related to 3.1 spec, please kindly open an issue in the Github repo: https://github.com/openAPITools/openapi-generator.
+OpenAPI 3.1 support is still in beta. To report an issue related to 3.1 spec, please kindly open an issue in the Github repo: https://github.com/openAPITools/openapi-generator.
+
+> Task :plataforma:comun-datos:compileTestJava
+> Task :plataforma:comun-datos:processTestResources NO-SOURCE
+> Task :plataforma:comun-datos:testClasses
+> Task :plataforma:comun-datos:testBarrido NO-SOURCE
+> Task :plataforma:comun-datos:webTest NO-SOURCE
+> Task :plataforma:comun-datos:check
+> Task :servicios:grupos:cobertura
+
+> Task :servicios:cumplimiento:generarServidorOpenApi
+OpenAPI 3.1 support is still in beta. To report an issue related to 3.1 spec, please kindly open an issue in the Github repo: https://github.com/openAPITools/openapi-generator.
+OpenAPI 3.1 support is still in beta. To report an issue related to 3.1 spec, please kindly open an issue in the Github repo: https://github.com/openAPITools/openapi-generator.
+
+> Task :servicios:grupos:sinJpa
+
+> Task :servicios:aportes:generarServidorOpenApi
+OpenAPI 3.1 support is still in beta. To report an issue related to 3.1 spec, please kindly open an issue in the Github repo: https://github.com/openAPITools/openapi-generator.
+OpenAPI 3.1 support is still in beta. To report an issue related to 3.1 spec, please kindly open an issue in the Github repo: https://github.com/openAPITools/openapi-generator.
+
+> Task :servicios:grupos:spotlessJava UP-TO-DATE
+> Task :servicios:grupos:spotlessJavaCheck UP-TO-DATE
+> Task :servicios:grupos:spotlessKotlinGradle UP-TO-DATE
+> Task :servicios:grupos:spotlessKotlinGradleCheck UP-TO-DATE
+> Task :servicios:grupos:spotlessCheck UP-TO-DATE
+> Task :servicios:grupos:generarServidorOpenApi UP-TO-DATE
+> Task :servicios:grupos:generateJooq UP-TO-DATE
+
+> Task :servicios:entregas:generarServidorOpenApi
+OpenAPI 3.1 support is still in beta. To report an issue related to 3.1 spec, please kindly open an issue in the Github repo: https://github.com/openAPITools/openapi-generator.
+OpenAPI 3.1 support is still in beta. To report an issue related to 3.1 spec, please kindly open an issue in the Github repo: https://github.com/openAPITools/openapi-generator.
+
+> Task :servicios:grupos:compileJava UP-TO-DATE
+> Task :servicios:grupos:processResources UP-TO-DATE
+> Task :servicios:grupos:classes UP-TO-DATE
+> Task :servicios:grupos:compileTestJava UP-TO-DATE
+> Task :servicios:grupos:processTestResources UP-TO-DATE
+> Task :servicios:grupos:testClasses UP-TO-DATE
+
+> Task :servicios:garantia:generarServidorOpenApi
+OpenAPI 3.1 support is still in beta. To report an issue related to 3.1 spec, please kindly open an issue in the Github repo: https://github.com/openAPITools/openapi-generator.
+Failed to get the schema name: null
+OpenAPI 3.1 support is still in beta. To report an issue related to 3.1 spec, please kindly open an issue in the Github repo: https://github.com/openAPITools/openapi-generator.
+
+> Task :servicios:grupos:testBarrido UP-TO-DATE
+> Task :servicios:grupos:webTest UP-TO-DATE
+> Task :servicios:grupos:check
+> Task :servicios:identidad:cobertura
+> Task :servicios:identidad:sinJpa
+
+> Task :servicios:erp:generarServidorOpenApi
+OpenAPI 3.1 support is still in beta. To report an issue related to 3.1 spec, please kindly open an issue in the Github repo: https://github.com/openAPITools/openapi-generator.
+OpenAPI 3.1 support is still in beta. To report an issue related to 3.1 spec, please kindly open an issue in the Github repo: https://github.com/openAPITools/openapi-generator.
+
+> Task :servicios:identidad:spotlessJava UP-TO-DATE
+> Task :servicios:identidad:spotlessJavaCheck UP-TO-DATE
+> Task :servicios:identidad:spotlessKotlinGradle UP-TO-DATE
+> Task :servicios:identidad:spotlessKotlinGradleCheck UP-TO-DATE
+> Task :servicios:identidad:spotlessCheck UP-TO-DATE
+> Task :plataforma:comun-dominio:compileTestJava
+> Task :plataforma:comun-dominio:processTestResources NO-SOURCE
+> Task :plataforma:comun-dominio:testClasses
+> Task :plataforma:comun-dominio:testBarrido NO-SOURCE
+> Task :plataforma:comun-dominio:webTest NO-SOURCE
+> Task :plataforma:comun-dominio:check
+> Task :servicios:inversiones:cobertura
+> Task :servicios:inversiones:sinJpa
+> Task :servicios:inversiones:spotlessJava UP-TO-DATE
+> Task :servicios:inversiones:spotlessJavaCheck UP-TO-DATE
+> Task :servicios:inversiones:spotlessKotlinGradle UP-TO-DATE
+> Task :servicios:inversiones:spotlessKotlinGradleCheck UP-TO-DATE
+> Task :servicios:inversiones:spotlessCheck UP-TO-DATE
+> Task :plataforma:comun-web:compileTestJava
+> Task :plataforma:comun-web:testClasses
+> Task :plataforma:comun-mensajeria:compileTestJava
+> Task :plataforma:comun-mensajeria:testClasses
+
+> Task :servicios:aportes:generarServidorOpenApi
+############################################################################################
+# Thanks for using OpenAPI Generator.                                                      #
+# We appreciate your support! Please consider donation to help us maintain this project.   #
+# https://opencollective.com/openapi_generator/donate                                      #
+############################################################################################
+Successfully generated code to /Users/pablo/Documents/GitHub/Pasanaku-wt-datos/servicios/aportes/build/generated/openapi
+
+> Task :servicios:identidad:generarServidorOpenApi
+OpenAPI 3.1 support is still in beta. To report an issue related to 3.1 spec, please kindly open an issue in the Github repo: https://github.com/openAPITools/openapi-generator.
+OpenAPI 3.1 support is still in beta. To report an issue related to 3.1 spec, please kindly open an issue in the Github repo: https://github.com/openAPITools/openapi-generator.
+
+> Task :servicios:entregas:generarServidorOpenApi
+############################################################################################
+# Thanks for using OpenAPI Generator.                                                      #
+# We appreciate your support! Please consider donation to help us maintain this project.   #
+# https://opencollective.com/openapi_generator/donate                                      #
+############################################################################################
+Successfully generated code to /Users/pablo/Documents/GitHub/Pasanaku-wt-datos/servicios/entregas/build/generated/openapi
+
+> Task :servicios:inversiones:generarServidorOpenApi
+OpenAPI 3.1 support is still in beta. To report an issue related to 3.1 spec, please kindly open an issue in the Github repo: https://github.com/openAPITools/openapi-generator.
+OpenAPI 3.1 support is still in beta. To report an issue related to 3.1 spec, please kindly open an issue in the Github repo: https://github.com/openAPITools/openapi-generator.
+
+> Task :servicios:aportes:generateJooq
+Ambiguous key name       : The one-to-many key aportes.fk_obligacion_aporte_obligacion_origen_id generates an inbound key method name obligacionAporte on table aportes.obligacion_aporte which conflicts with the previously generated key method name for key aportes.fk_obligacion_aporte_obligacion_origen_id. Use a custom generator strategy to disambiguate the method names for ForeignKeyDefinition, InverseForeignKeyDefinition, and/or ManyToManyKeyDefinition, or simply turn off the feature. More information here:
+ - https://www.jooq.org/doc/latest/manual/code-generation/codegen-generatorstrategy/
+ - https://www.jooq.org/doc/latest/manual/code-generation/codegen-matcherstrategy/
+ - https://www.jooq.org/doc/latest/manual/code-generation/codegen-advanced/codegen-config-generate/codegen-implicit-join-paths/
+
+> Task :servicios:garantia:generarServidorOpenApi
+############################################################################################
+# Thanks for using OpenAPI Generator.                                                      #
+# We appreciate your support! Please consider donation to help us maintain this project.   #
+# https://opencollective.com/openapi_generator/donate                                      #
+############################################################################################
+Successfully generated code to /Users/pablo/Documents/GitHub/Pasanaku-wt-datos/servicios/garantia/build/generated/openapi
+
+> Task :servicios:entregas:generateJooq
+
+> Task :servicios:erp:generarServidorOpenApi
+############################################################################################
+# Thanks for using OpenAPI Generator.                                                      #
+# We appreciate your support! Please consider donation to help us maintain this project.   #
+# https://opencollective.com/openapi_generator/donate                                      #
+############################################################################################
+Successfully generated code to /Users/pablo/Documents/GitHub/Pasanaku-wt-datos/servicios/erp/build/generated/openapi
+
+> Task :servicios:garantia:generateJooq
+> Task :servicios:erp:generateJooq
+> Task :plataforma:comun-web:testBarrido
+
+> Task :servicios:auditoria:generarServidorOpenApi
+############################################################################################
+# Thanks for using OpenAPI Generator.                                                      #
+# We appreciate your support! Please consider donation to help us maintain this project.   #
+# https://opencollective.com/openapi_generator/donate                                      #
+############################################################################################
+Successfully generated code to /Users/pablo/Documents/GitHub/Pasanaku-wt-datos/servicios/auditoria/build/generated/openapi
+
+> Task :servicios:inversiones:generarServidorOpenApi
+No application/json content media type found in response. Response examples can currently only be generated for application/json media type.
+
+> Task :plataforma:comun-mensajeria:testBarrido
+> Task :plataforma:comun-mensajeria:webTest NO-SOURCE
+> Task :plataforma:comun-mensajeria:check
+> Task :servicios:notificaciones:cobertura
+> Task :servicios:notificaciones:sinJpa
+> Task :servicios:notificaciones:spotlessJava UP-TO-DATE
+> Task :servicios:notificaciones:spotlessJavaCheck UP-TO-DATE
+> Task :servicios:notificaciones:spotlessKotlinGradle UP-TO-DATE
+> Task :servicios:notificaciones:spotlessKotlinGradleCheck UP-TO-DATE
+> Task :servicios:notificaciones:spotlessCheck UP-TO-DATE
+
+> Task :servicios:inversiones:generarServidorOpenApi
+############################################################################################
+# Thanks for using OpenAPI Generator.                                                      #
+# We appreciate your support! Please consider donation to help us maintain this project.   #
+# https://opencollective.com/openapi_generator/donate                                      #
+############################################################################################
+Successfully generated code to /Users/pablo/Documents/GitHub/Pasanaku-wt-datos/servicios/inversiones/build/generated/openapi
+
+> Task :servicios:auditoria:generateJooq
+
+> Task :servicios:cumplimiento:generarServidorOpenApi
+############################################################################################
+# Thanks for using OpenAPI Generator.                                                      #
+# We appreciate your support! Please consider donation to help us maintain this project.   #
+# https://opencollective.com/openapi_generator/donate                                      #
+############################################################################################
+Successfully generated code to /Users/pablo/Documents/GitHub/Pasanaku-wt-datos/servicios/cumplimiento/build/generated/openapi
+
+> Task :servicios:inversiones:generateJooq
+
+> Task :servicios:cumplimiento:generateJooq
+Ambiguous key name       : The one-to-many key cumplimiento.fk_registro_operacion_relevante_operacion_inicio_ventana_id generates an inbound key method name registroOperacionRelevante on table cumplimiento.registro_operacion_relevante which conflicts with the previously generated key method name for key cumplimiento.fk_registro_operacion_relevante_operacion_inicio_ventana_id. Use a custom generator strategy to disambiguate the method names for ForeignKeyDefinition, InverseForeignKeyDefinition, and/or ManyToManyKeyDefinition, or simply turn off the feature. More information here:
+ - https://www.jooq.org/doc/latest/manual/code-generation/codegen-generatorstrategy/
+ - https://www.jooq.org/doc/latest/manual/code-generation/codegen-matcherstrategy/
+ - https://www.jooq.org/doc/latest/manual/code-generation/codegen-advanced/codegen-config-generate/codegen-implicit-join-paths/
+
+> Task :servicios:identidad:generarServidorOpenApi
+############################################################################################
+# Thanks for using OpenAPI Generator.                                                      #
+# We appreciate your support! Please consider donation to help us maintain this project.   #
+# https://opencollective.com/openapi_generator/donate                                      #
+############################################################################################
+Successfully generated code to /Users/pablo/Documents/GitHub/Pasanaku-wt-datos/servicios/identidad/build/generated/openapi
+
+> Task :servicios:notificaciones:generarServidorOpenApi
+OpenAPI 3.1 support is still in beta. To report an issue related to 3.1 spec, please kindly open an issue in the Github repo: https://github.com/openAPITools/openapi-generator.
+Failed to get the schema name: null
+OpenAPI 3.1 support is still in beta. To report an issue related to 3.1 spec, please kindly open an issue in the Github repo: https://github.com/openAPITools/openapi-generator.
+
+> Task :servicios:identidad:generateJooq
+Ambiguous key name       : The one-to-many key identidad.fk_token_verificacion_rotado_de_id generates an inbound key method name tokenVerificacion on table identidad.token_verificacion which conflicts with the previously generated key method name for key identidad.fk_token_verificacion_rotado_de_id. Use a custom generator strategy to disambiguate the method names for ForeignKeyDefinition, InverseForeignKeyDefinition, and/or ManyToManyKeyDefinition, or simply turn off the feature. More information here:
+ - https://www.jooq.org/doc/latest/manual/code-generation/codegen-generatorstrategy/
+ - https://www.jooq.org/doc/latest/manual/code-generation/codegen-matcherstrategy/
+ - https://www.jooq.org/doc/latest/manual/code-generation/codegen-advanced/codegen-config-generate/codegen-implicit-join-paths/
+
+> Task :servicios:notificaciones:generarServidorOpenApi
+############################################################################################
+# Thanks for using OpenAPI Generator.                                                      #
+# We appreciate your support! Please consider donation to help us maintain this project.   #
+# https://opencollective.com/openapi_generator/donate                                      #
+############################################################################################
+Successfully generated code to /Users/pablo/Documents/GitHub/Pasanaku-wt-datos/servicios/notificaciones/build/generated/openapi
+
+> Task :servicios:notificaciones:generateJooq
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+> Task :plataforma:comun-web:webTest
+> Task :plataforma:comun-web:check
+> Task :servicios:nucleo-financiero:cobertura
+> Task :servicios:nucleo-financiero:sinJpa
+> Task :servicios:nucleo-financiero:spotlessJava UP-TO-DATE
+> Task :servicios:nucleo-financiero:spotlessJavaCheck UP-TO-DATE
+> Task :servicios:nucleo-financiero:spotlessKotlinGradle UP-TO-DATE
+> Task :servicios:nucleo-financiero:spotlessKotlinGradleCheck UP-TO-DATE
+> Task :servicios:nucleo-financiero:spotlessCheck UP-TO-DATE
+
+> Task :servicios:nucleo-financiero:generarServidorOpenApi
+OpenAPI 3.1 support is still in beta. To report an issue related to 3.1 spec, please kindly open an issue in the Github repo: https://github.com/openAPITools/openapi-generator.
+Failed to get the schema name: null
+OpenAPI 3.1 support is still in beta. To report an issue related to 3.1 spec, please kindly open an issue in the Github repo: https://github.com/openAPITools/openapi-generator.
+############################################################################################
+# Thanks for using OpenAPI Generator.                                                      #
+# We appreciate your support! Please consider donation to help us maintain this project.   #
+# https://opencollective.com/openapi_generator/donate                                      #
+############################################################################################
+Successfully generated code to /Users/pablo/Documents/GitHub/Pasanaku-wt-datos/servicios/nucleo-financiero/build/generated/openapi
+
+> Task :servicios:nucleo-financiero:generateJooq
+Ambiguous key name       : The one-to-many key nucleo_financiero.fk_asiento_contable_asiento_reversa_id generates an inbound key method name asientoContable on table nucleo_financiero.asiento_contable which conflicts with the previously generated key method name for key nucleo_financiero.fk_asiento_contable_asiento_reversa_id. Use a custom generator strategy to disambiguate the method names for ForeignKeyDefinition, InverseForeignKeyDefinition, and/or ManyToManyKeyDefinition, or simply turn off the feature. More information here:
+ - https://www.jooq.org/doc/latest/manual/code-generation/codegen-generatorstrategy/
+ - https://www.jooq.org/doc/latest/manual/code-generation/codegen-matcherstrategy/
+ - https://www.jooq.org/doc/latest/manual/code-generation/codegen-advanced/codegen-config-generate/codegen-implicit-join-paths/
+Ambiguous key name       : The one-to-many key nucleo_financiero.fk_cuenta_contable_cuenta_padre_id generates an inbound key method name cuentaContable on table nucleo_financiero.cuenta_contable which conflicts with the previously generated key method name for key nucleo_financiero.fk_cuenta_contable_cuenta_padre_id. Use a custom generator strategy to disambiguate the method names for ForeignKeyDefinition, InverseForeignKeyDefinition, and/or ManyToManyKeyDefinition, or simply turn off the feature. More information here:
+ - https://www.jooq.org/doc/latest/manual/code-generation/codegen-generatorstrategy/
+ - https://www.jooq.org/doc/latest/manual/code-generation/codegen-matcherstrategy/
+ - https://www.jooq.org/doc/latest/manual/code-generation/codegen-advanced/codegen-config-generate/codegen-implicit-join-paths/
+
+> Task :servicios:aportes:compileJava
+> Task :servicios:entregas:compileJava
+> Task :servicios:garantia:compileJava
+> Task :servicios:erp:compileJava
+> Task :servicios:auditoria:compileJava
+> Task :servicios:inversiones:compileJava
+> Task :servicios:entregas:processResources
+> Task :servicios:entregas:classes
+> Task :servicios:cumplimiento:compileJava
+> Task :servicios:inversiones:processResources
+> Task :servicios:inversiones:classes
+> Task :servicios:entregas:compileTestJava FROM-CACHE
+> Task :servicios:entregas:processTestResources
+> Task :servicios:entregas:testClasses
+> Task :servicios:identidad:compileJava
+> Task :servicios:aportes:processResources
+> Task :servicios:aportes:classes
+> Task :servicios:erp:processResources
+> Task :servicios:erp:classes
+> Task :servicios:notificaciones:compileJava
+> Task :servicios:notificaciones:processResources
+> Task :servicios:notificaciones:classes
+> Task :servicios:auditoria:processResources
+> Task :servicios:auditoria:classes
+> Task :servicios:notificaciones:compileTestJava
+> Task :servicios:notificaciones:processTestResources
+> Task :servicios:notificaciones:testClasses
+> Task :servicios:entregas:testBarrido
+> Task :servicios:erp:compileTestJava
+> Task :servicios:erp:processTestResources
+> Task :servicios:erp:testClasses
+> Task :servicios:aportes:compileTestJava
+> Task :servicios:aportes:processTestResources
+> Task :servicios:aportes:testClasses
+> Task :servicios:nucleo-financiero:compileJava
+> Task :servicios:inversiones:compileTestJava
+> Task :servicios:inversiones:processTestResources
+> Task :servicios:inversiones:testClasses
+> Task :servicios:identidad:processResources
+> Task :servicios:identidad:classes
+> Task :servicios:auditoria:compileTestJava
+> Task :servicios:auditoria:processTestResources
+> Task :servicios:auditoria:testClasses
+> Task :servicios:garantia:processResources
+> Task :servicios:garantia:classes
+> Task :servicios:notificaciones:testBarrido
+> Task :servicios:erp:testBarrido
+> Task :servicios:cumplimiento:processResources
+> Task :servicios:cumplimiento:classes
+> Task :servicios:nucleo-financiero:processResources
+> Task :servicios:nucleo-financiero:classes
+> Task :servicios:identidad:compileTestJava
+> Task :servicios:identidad:processTestResources
+> Task :servicios:identidad:testClasses
+> Task :servicios:nucleo-financiero:compileTestJava FROM-CACHE
+> Task :servicios:nucleo-financiero:processTestResources
+> Task :servicios:nucleo-financiero:testClasses
+> Task :servicios:garantia:compileTestJava
+> Task :servicios:garantia:processTestResources
+> Task :servicios:garantia:testClasses
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+> Task :servicios:cumplimiento:compileTestJava
+> Task :servicios:cumplimiento:processTestResources
+> Task :servicios:cumplimiento:testClasses
+> Task :servicios:nucleo-financiero:testBarrido
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+> Task :servicios:identidad:testBarrido
+> Task :servicios:entregas:webTest
+
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+
+> Task :servicios:aportes:webTest
+> Task :servicios:inversiones:webTest
+
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+
+> Task :servicios:auditoria:webTest
+
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+
+> Task :servicios:notificaciones:webTest
+> Task :servicios:erp:webTest
+
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+
+> Task :servicios:garantia:webTest
+
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+
+> Task :servicios:cumplimiento:webTest
+> Task :servicios:nucleo-financiero:webTest
+> Task :servicios:identidad:webTest
+> Task :servicios:entregas:check
+> Task :servicios:organizador:cobertura
+> Task :servicios:organizador:sinJpa
+> Task :servicios:organizador:spotlessJava UP-TO-DATE
+> Task :servicios:organizador:spotlessJavaCheck UP-TO-DATE
+> Task :servicios:organizador:spotlessKotlinGradle UP-TO-DATE
+> Task :servicios:organizador:spotlessKotlinGradleCheck UP-TO-DATE
+> Task :servicios:organizador:spotlessCheck UP-TO-DATE
+> Task :servicios:notificaciones:check
+> Task :servicios:publicidad:cobertura
+> Task :servicios:publicidad:sinJpa
+
+> Task :servicios:organizador:generarServidorOpenApi
+OpenAPI 3.1 support is still in beta. To report an issue related to 3.1 spec, please kindly open an issue in the Github repo: https://github.com/openAPITools/openapi-generator.
+Failed to get the schema name: null
+OpenAPI 3.1 support is still in beta. To report an issue related to 3.1 spec, please kindly open an issue in the Github repo: https://github.com/openAPITools/openapi-generator.
+
+> Task :servicios:inversiones:testBarrido
+> Task :servicios:inversiones:check
+> Task :servicios:tarifas:cobertura
+> Task :servicios:tarifas:sinJpa
+> Task :servicios:publicidad:spotlessJava UP-TO-DATE
+> Task :servicios:publicidad:spotlessJavaCheck UP-TO-DATE
+> Task :servicios:publicidad:spotlessKotlinGradle UP-TO-DATE
+> Task :servicios:publicidad:spotlessKotlinGradleCheck UP-TO-DATE
+> Task :servicios:publicidad:spotlessCheck UP-TO-DATE
+> Task :servicios:tarifas:spotlessJava UP-TO-DATE
+> Task :servicios:tarifas:spotlessJavaCheck UP-TO-DATE
+> Task :servicios:tarifas:spotlessKotlinGradle UP-TO-DATE
+> Task :servicios:tarifas:spotlessKotlinGradleCheck UP-TO-DATE
+> Task :servicios:tarifas:spotlessCheck UP-TO-DATE
+> Task :servicios:erp:check
+> Task :servicios:transparencia:cobertura
+> Task :servicios:transparencia:sinJpa
+> Task :servicios:transparencia:spotlessJava UP-TO-DATE
+> Task :servicios:transparencia:spotlessJavaCheck UP-TO-DATE
+> Task :servicios:transparencia:spotlessKotlinGradle UP-TO-DATE
+> Task :servicios:transparencia:spotlessKotlinGradleCheck UP-TO-DATE
+> Task :servicios:transparencia:spotlessCheck UP-TO-DATE
+> Task :servicios:transparencia:generarServidorOpenApi UP-TO-DATE
+> Task :servicios:transparencia:generateJooq UP-TO-DATE
+> Task :servicios:transparencia:compileJava UP-TO-DATE
+> Task :servicios:transparencia:processResources UP-TO-DATE
+> Task :servicios:transparencia:classes UP-TO-DATE
+> Task :servicios:transparencia:compileTestJava UP-TO-DATE
+> Task :servicios:transparencia:processTestResources UP-TO-DATE
+> Task :servicios:transparencia:testClasses UP-TO-DATE
+> Task :servicios:transparencia:testBarrido UP-TO-DATE
+> Task :servicios:transparencia:webTest UP-TO-DATE
+> Task :servicios:transparencia:check
+
+> Task :servicios:publicidad:generarServidorOpenApi
+OpenAPI 3.1 support is still in beta. To report an issue related to 3.1 spec, please kindly open an issue in the Github repo: https://github.com/openAPITools/openapi-generator.
+OpenAPI 3.1 support is still in beta. To report an issue related to 3.1 spec, please kindly open an issue in the Github repo: https://github.com/openAPITools/openapi-generator.
+############################################################################################
+# Thanks for using OpenAPI Generator.                                                      #
+# We appreciate your support! Please consider donation to help us maintain this project.   #
+# https://opencollective.com/openapi_generator/donate                                      #
+############################################################################################
+Successfully generated code to /Users/pablo/Documents/GitHub/Pasanaku-wt-datos/servicios/publicidad/build/generated/openapi
+
+> Task :servicios:tarifas:generarServidorOpenApi
+OpenAPI 3.1 support is still in beta. To report an issue related to 3.1 spec, please kindly open an issue in the Github repo: https://github.com/openAPITools/openapi-generator.
+OpenAPI 3.1 support is still in beta. To report an issue related to 3.1 spec, please kindly open an issue in the Github repo: https://github.com/openAPITools/openapi-generator.
+
+> Task :servicios:aportes:testBarrido
+> Task :servicios:aportes:check
+
+> Task :servicios:tarifas:generarServidorOpenApi
+############################################################################################
+# Thanks for using OpenAPI Generator.                                                      #
+# We appreciate your support! Please consider donation to help us maintain this project.   #
+# https://opencollective.com/openapi_generator/donate                                      #
+############################################################################################
+Successfully generated code to /Users/pablo/Documents/GitHub/Pasanaku-wt-datos/servicios/tarifas/build/generated/openapi
+
+> Task :servicios:organizador:generarServidorOpenApi
+############################################################################################
+# Thanks for using OpenAPI Generator.                                                      #
+# We appreciate your support! Please consider donation to help us maintain this project.   #
+# https://opencollective.com/openapi_generator/donate                                      #
+############################################################################################
+Successfully generated code to /Users/pablo/Documents/GitHub/Pasanaku-wt-datos/servicios/organizador/build/generated/openapi
+
+> Task :servicios:publicidad:generateJooq
+> Task :servicios:organizador:generateJooq
+> Task :servicios:tarifas:generateJooq
+> Task :servicios:publicidad:compileJava
+> Task :servicios:publicidad:processResources
+> Task :servicios:publicidad:classes
+> Task :servicios:organizador:compileJava
+> Task :servicios:organizador:processResources
+> Task :servicios:organizador:classes
+> Task :servicios:garantia:testBarrido
+> Task :servicios:garantia:check
+> Task :servicios:publicidad:compileTestJava
+> Task :servicios:publicidad:processTestResources
+> Task :servicios:publicidad:testClasses
+> Task :servicios:auditoria:testBarrido
+> Task :servicios:auditoria:check
+> Task :servicios:organizador:compileTestJava
+> Task :servicios:organizador:processTestResources
+> Task :servicios:organizador:testClasses
+> Task :servicios:tarifas:compileJava
+> Task :servicios:tarifas:processResources
+> Task :servicios:tarifas:classes
+> Task :servicios:publicidad:testBarrido
+> Task :servicios:nucleo-financiero:check
+> Task :servicios:tarifas:compileTestJava
+> Task :servicios:tarifas:processTestResources
+> Task :servicios:tarifas:testClasses
+> Task :servicios:organizador:testBarrido
+> Task :servicios:tarifas:testBarrido
+> Task :servicios:cumplimiento:testBarrido
+> Task :servicios:cumplimiento:check
+> Task :servicios:identidad:check
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+> Task :servicios:publicidad:webTest
+> Task :servicios:publicidad:check
+> Task :servicios:organizador:webTest
+> Task :servicios:organizador:check
+> Task :servicios:tarifas:webTest
+> Task :servicios:tarifas:check
+> Task :check
+
+BUILD SUCCESSFUL in 3m 18s
+268 actionable tasks: 128 executed, 6 from cache, 134 up-to-date
+Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.7.1/userguide/configuration_cache_enabling.html

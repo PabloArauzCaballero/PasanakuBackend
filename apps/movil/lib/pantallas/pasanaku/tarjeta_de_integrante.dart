@@ -7,6 +7,7 @@ import 'package:aportaya_diseno/tokens/tokens.dart';
 import 'package:flutter/material.dart';
 
 import 'avatar_del_integrante.dart';
+import 'etapa_del_integrante.dart';
 import 'pantalla_detalle_miembro.dart';
 import 'textos_detalle_del_grupo.dart';
 
@@ -14,17 +15,22 @@ import 'textos_detalle_del_grupo.dart';
 /// Un cupo libre se ve libre, no se esconde: así se entiende cuánto falta.
 /// Tocarla abre el perfil del integrante a pantalla completa: su teléfono y su
 /// reputación real, que el servidor muestra solo a quien comparte el grupo.
+/// Debajo del nombre, su etapa (H1.S4.M2): solo la etapa, nunca el puntaje.
 class TarjetaDeIntegrante extends StatelessWidget {
   const TarjetaDeIntegrante({
     super.key,
     required this.integrante,
     this.grupoId,
     this.nombreGrupo,
+    this.ordenDeEtapa,
   });
 
   final IntegranteDelGrupo integrante;
   final String? grupoId;
   final String? nombreGrupo;
+
+  /// El orden de `integrante.etapa` en el catálogo; nulo si no se conoce.
+  final int? ordenDeEtapa;
 
   String get _nombre => integrante.nombre ?? TextosDetalleDelGrupo.sinNombre;
 
@@ -41,6 +47,7 @@ class TarjetaDeIntegrante extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = Tokens.of(context);
     final turno = integrante.turno;
+    final etapa = integrante.etapa;
     return Tarjeta(
       etiqueta: _libre
           ? '${TextosDetalleDelGrupo.cupo(integrante.numero)}, ${TextosDetalleDelGrupo.cupoLibre}'
@@ -78,6 +85,13 @@ class TarjetaDeIntegrante extends StatelessWidget {
                   ].join(' · '),
                   style: Tipo.cuerpoChico.copyWith(color: t.text3),
                 ),
+                if (!_libre && etapa != null) ...[
+                  const SizedBox(height: Espacio.s1),
+                  EtapaDelIntegranteEnTarjeta(
+                    etapa: etapa,
+                    orden: ordenDeEtapa,
+                  ),
+                ],
               ],
             ),
           ),

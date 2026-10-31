@@ -1,0 +1,114 @@
+$ DROP/CREATE DATABASE pasanaku_carril_a + search_path de los 17 esquemas
+NOTICE:  database "pasanaku_carril_a" does not exist, skipping
+exit=0
+$ psql -v ON_ERROR_STOP=1 -q -f /sql/aplicar.sql
+lineas NOTICE: 1224 · lineas con 'ERROR:': 0
+exit=0
+$ psql -v ON_ERROR_STOP=1 -f /sql/60_semillas/sembrar.sql   # corrida 1
+sentencias INSERT: 123 · con filas escritas (N>0; un DO UPDATE tambien cuenta): 123 · filas escritas en total: 979 · ERROR: 0
+exit=0
+ arenas | desbloqueos | vigentes 
+--------+-------------+----------
+     11 |          11 |        0
+(1 row)
+
+$ psql -v ON_ERROR_STOP=1 -f /sql/60_semillas/sembrar.sql   # corrida 2
+sentencias INSERT: 123 · con filas escritas (N>0; un DO UPDATE tambien cuenta): 0 · filas escritas en total: 0 · ERROR: 0
+exit=0
+ arenas | desbloqueos | vigentes 
+--------+-------------+----------
+     11 |          11 |        0
+(1 row)
+
+$ COMMENT ON TABLE de las dos tablas, leído de la base
+arena: [NEGOCIO] Los tramos con nombre en que se parte la escala del puntaje de un modelo (con el v1: Campamento, Semilla, Brote… hasta Inti). Cada arena es un intervalo [`desde`, `hasta`) del puntaje
+
+`desde` es incluido y `hasta` excluido, salvo en la última arena del modelo, que incluye su `hasta` (el máximo). Las arenas cuelgan del modelo: si un modelo nuevo cambia la escala, trae sus propias ar
+desbloqueo_arena: [NEGOCIO] Lo que desbloquea una arena (a lo sumo uno por arena): cuántos cupos totales puede tener como máximo un grupo y cuánto aporte por periodo como máximo, con su moneda, puede crear o integrar quien está en esa arena. Lleva un `estado`:
+
+## Pasar SEMILLA a VIGENTE desde el seeder, sobre la base ya sembrada (el hallazgo MAYOR de semillas)
+$ estado de partida
+   codigo   |  estado   | cupos_max | aporte_max | moneda |                  id                  
+------------+-----------+-----------+------------+--------+--------------------------------------
+ CAMPAMENTO | PROPUESTO |         5 |     100.00 | BOB    | 61faf42c-0ec7-4a86-8f79-89cd1d7b26f2
+ SEMILLA    | PROPUESTO |         6 |     200.00 | BOB    | b3f8e8a5-5852-4373-9898-87d331bb90f6
+(2 rows)
+
+$ python3: en seeders/minimos/16-reputacion-y-scoring.json, desbloqueo de SEMILLA estado PROPUESTO -> VIGENTE (cambio TEMPORAL para la prueba; se revierte abajo)
+reemplazos: 1
+$ python3 scripts/generar_semillas.py
+exit=0
+$ psql -v ON_ERROR_STOP=1 -f /sql/60_semillas/16-reputacion-y-scoring.sql
+INSERT 0 0
+INSERT 0 0
+INSERT 0 0
+INSERT 0 0
+INSERT 0 0
+INSERT 0 1
+exit=0
+   codigo   |  estado   | cupos_max | aporte_max | moneda |                  id                  
+------------+-----------+-----------+------------+--------+--------------------------------------
+ CAMPAMENTO | PROPUESTO |         5 |     100.00 | BOB    | 61faf42c-0ec7-4a86-8f79-89cd1d7b26f2
+ SEMILLA    | VIGENTE   |         6 |     200.00 | BOB    | b3f8e8a5-5852-4373-9898-87d331bb90f6
+(2 rows)
+
+$ segunda corrida con el JSON cambiado: no escribe nada
+INSERT 0 0
+INSERT 0 0
+INSERT 0 0
+INSERT 0 0
+INSERT 0 0
+INSERT 0 0
+exit=0
+$ se restaura el JSON original y se regenera: SEMILLA vuelve a PROPUESTO por el mismo camino, con el mismo id
+exit=0
+INSERT 0 0
+INSERT 0 0
+INSERT 0 0
+INSERT 0 0
+INSERT 0 0
+INSERT 0 1
+exit=0
+   codigo   |  estado   | cupos_max | aporte_max | moneda |                  id                  
+------------+-----------+-----------+------------+--------+--------------------------------------
+ CAMPAMENTO | PROPUESTO |         5 |     100.00 | BOB    | 61faf42c-0ec7-4a86-8f79-89cd1d7b26f2
+ SEMILLA    | PROPUESTO |         6 |     200.00 | BOB    | b3f8e8a5-5852-4373-9898-87d331bb90f6
+(2 rows)
+
+$ tercera corrida, ya restaurado
+INSERT 0 0
+INSERT 0 0
+INSERT 0 0
+INSERT 0 0
+INSERT 0 0
+INSERT 0 0
+exit=0
+
+## Mover una frontera de tramo con el mismo INSERT ... ON CONFLICT DO UPDATE que genera el seeder (SEMILLA hasta 560, BROTE desde 560), en BEGIN/ROLLBACK
+BEGIN
+INSERT 0 2
+SET CONSTRAINTS
+ codigo  | desde  | hasta  
+---------+--------+--------
+ SEMILLA | 500.00 | 560.00
+ BROTE   | 560.00 | 600.00
+(2 rows)
+
+ROLLBACK
+exit=0
+
+## Deriva
+$ hash(sql/+seeders/) ; python3 scripts/generar_ddl.py ; hash otra vez
+generar_ddl exit=0 · antes=0d579475daf06897 · despues=0d579475daf06897 · IGUAL (generador determinista, nada escrito a mano)
+$ python3 -I verificar_deriva_bd.py <repo> pg-arenas pasanaku_carril_a
+DDL: 345 tablas · 3757 columnas · 688 FK · 791 indices (sql/10_tablas, 20_claves, 30_indices)
+base: 445 tablas en esos esquemas · FK del DDL presentes 688/688 · indices del DDL presentes 791/791
+SIN DERIVA
+exit=0
+$ consultas de catálogo (todas deben dar 0)
+desbloqueos huerfanos | 0
+arenas sin desbloqueo | 0
+codigos duplicados | 0
+huecos entre arenas | 0
+nulos indebidos | 0
+desbloqueos VIGENTE (nada financiero sin confirmar) | 0

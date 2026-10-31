@@ -1,0 +1,29 @@
+{
+  "servicio": "identidad",
+  "operacion": "verMiFotoDePerfil",
+  "metodo": "get",
+  "ruta": "/usuarios/yo/foto-de-perfil",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": null
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": null
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": null
+    },
+    "rechazo": {
+      "estado": 404,
+      "cuerpo": {
+        "codigo": "AP-CU01-03",
+        "mensaje": "Cuenta ya existe",
+        "detalle": {},
+        "trazaId": "traza-verMiFotoDePerfil-rechazo"
+      }
+    }
+  }
+}

@@ -149,10 +149,24 @@ abstract class RutasDeSolicitudes extends RutasDeAdmision {
                     "Este grupo exige admision humana: tu decision es una propuesta (proponerAdmision) y la resuelve backoffice.");
         }
         var ctx = sesion.actual();
-        // Primero se comprueba que quien decide es el organizador y se sabe quien pidio entrar; la
-        // reputacion se pregunta afuera, ANTES de abrir la transaccion de decidir (invariante 6).
-        var solicitante = cu68Decision.solicitante(solicitudId, ctx);
-        var reputacion = afuera.reputacion(solicitante).puntaje();
+        // Primero se comprueba que quien decide es el organizador (o backoffice) de esa solicitud: sin eso la etapa
+        // del solicitante no se pregunta (seria un oraculo de la reputacion ajena). Se pregunta afuera, ANTES de abrir
+        // la transaccion de decidir (invariante 6).
+        cu68Decision.solicitante(solicitudId, ctx);
+        // Entre que pidio y que lo aceptan el puntaje pudo bajar: la etapa se mira al aceptar (2026-10-30). Una
+        // solicitud ya resuelta no: repetir la decision devuelve la de antes (regla 96.3.3). La etapa es de OTRA
+        // persona:
+        // se lee con la identidad de servicio de grupos, nunca su puntaje exacto (regla 90.2.8). Lo que queda como
+        // reputacion al ingresar es el piso de esa etapa; rechazar, o repetir, no pregunta nada.
+        var reputacion = cuerpo.getDecision() == EntradaDecisionDeIngreso.DecisionEnum.ACEPTAR
+                ? consultas
+                        .solicitanteConCondiciones(solicitudId, ctx)
+                        .filter(Consultas.Solicitante::pendiente)
+                        .flatMap(s ->
+                                EtapaDelIngreso.exigir(afuera, java.util.Optional.of(s.condiciones()), s.usuarioId()))
+                        .map(bo.aportaya.grupos.dominio.Etapas.DeLaPersona::puntaje)
+                        .orElse(java.math.BigDecimal.ZERO)
+                : java.math.BigDecimal.ZERO;
         var r = cu68Decision.decidir(
                 solicitudId,
                 cuerpo.getDecision() == EntradaDecisionDeIngreso.DecisionEnum.ACEPTAR,

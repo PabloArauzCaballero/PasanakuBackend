@@ -1,0 +1,50 @@
+# H1.S1.M2 — GET /reputacion/arenas y arena en consultarPuntaje: pruebas dirigidas + regresión del módulo
+$ bash candado.sh ./gradlew :servicios:transparencia:spotlessCheck :servicios:transparencia:test :servicios:transparencia:webTest :servicios:transparencia:integrationTest
+BUILD SUCCESSFUL in 52s · exit=0
+## corredor test (resumen de los XML de JUnit)
+  bo.aportaya.transparencia.ArenasDeReputacionTest: tests=17 skipped=0 failures=0 errors=0
+  TOTAL test: clases=3 tests=24 skipped=0 failures=0 errors=0
+## corredor webTest (resumen de los XML de JUnit)
+  bo.aportaya.transparencia.web.PerfilEnGrupoWebTest: tests=4 skipped=0 failures=0 errors=0
+  Arenas (2026-10-30) — catálogo y arena del puntaje: tests=6 skipped=0 failures=0 errors=0
+  POST /reputacion/certificados — lo que el titular decide mostrar: tests=4 skipped=0 failures=0 errors=0
+  GET /reputacion/{usuarioId}/puntaje: tests=3 skipped=0 failures=0 errors=0
+  Los permisos que separan reputación de auditoría: tests=3 skipped=0 failures=0 errors=0
+  bo.aportaya.transparencia.web.SeguridadWebTest: tests=6 skipped=0 failures=0 errors=0
+  TOTAL webTest: clases=9 tests=40 skipped=0 failures=0 errors=0
+## corredor integrationTest (resumen de los XML de JUnit)
+  bo.aportaya.transparencia.ArenaRepositorioTest: tests=13 skipped=0 failures=0 errors=0
+  bo.aportaya.transparencia.PerfilEnGrupoRepositorioTest: tests=3 skipped=0 failures=0 errors=0
+  TOTAL integrationTest: clases=21 tests=136 skipped=0 failures=0 errors=0
+## casos de ArenaRepositorioTest (PostgreSQL 16 real por Testcontainers, semilla de produccion)
+  testcase name="549.99 -> SEMILLA (0.9998), siguiente BROTE"
+  testcase name="550.00 -> BROTE (0.0000), siguiente AGUAYO"
+  testcase name="1000.00 -> INTI (1.0000), siguiente "
+  testcase name="0.00 -> CAMPAMENTO (0.0000), siguiente SEMILLA"
+  testcase name="R-REP-07 · la base rechaza un tramo al revés o vacío"
+  testcase name="desbloqueo · la base rechaza un estado que no es PROPUESTO ni VIGENTE"
+  testcase name="R-REP-07 · la base rechaza una arena que se pisa con otra del mismo modelo"
+  testcase name="desbloqueo · la base rechaza cupos fuera de 3..40 y una moneda fuera del contrato"
+  testcase name="puntaje · 575 está en Brote, a mitad de camino hacia Aguayo"
+  testcase name="puntaje · un modelo sin arenas deja la arena ausente, no una inventada"
+  testcase name="arenas · el catálogo de la semilla: 11 arenas en orden, contiguas de 0 a 1000"
+  testcase name="arenas · los desbloqueos se siembran PROPUESTO en BOB: se muestran y no limitan"
+  testcase name="puntaje · sin historial: la arena del puntaje BASE (Semilla), nunca la del cero"
+## casos de ArenasDeReputacionTest (función pura)
+  testcase name="-0.01 queda sin arena"
+  testcase name="1000.01 queda sin arena"
+  testcase name="arena · inválido: sin catálogo o sin puntaje no hay arena"
+  testcase name="desbloqueo · solo el VIGENTE limita; el PROPUESTO espera confirmación"
+  testcase name="arena · el orden de la lista no importa: manda la columna orden"
+  testcase name="arena · inválido: un hueco en el catálogo deja al puntaje sin arena, no en la vecina"
+  testcase name="575.00 -> BROTE con progreso 0.5000, siguiente AGUAYO"
+  testcase name="812.50 -> ALTIPLANO con progreso 0.8750, siguiente SALAR"
+  testcase name="549.99 -> SEMILLA con progreso 0.9998, siguiente BROTE"
+  testcase name="550.00 -> BROTE con progreso 0.0000, siguiente AGUAYO"
+  testcase name="0.00 -> CAMPAMENTO con progreso 0.0000, siguiente SEMILLA"
+  testcase name="500.00 -> SEMILLA con progreso 0.0000, siguiente BROTE"
+  testcase name="1000.00 -> INTI con progreso 1.0000, siguiente "
+  testcase name="980.00 -> INTI con progreso 0.0000, siguiente "
+  testcase name="999.99 -> INTI con progreso 0.9995, siguiente "
+  testcase name="940.01 -> CONDOR con progreso 0.0002, siguiente INTI"
+  testcase name="979.99 -> CONDOR con progreso 0.9998, siguiente INTI"

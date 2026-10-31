@@ -55,9 +55,12 @@ abstract class BaseDeCU69 {
                 usuario, "PARTICIPANTE", new Traza(UUID.randomUUID().toString()));
     }
 
-    /** Un grupo con tres cupos, uno de ellos libre. */
+    /**
+     * Un grupo con tres cupos, uno de ellos libre, que todavia recibe integrantes. Desde el 2026-10-30 un grupo
+     * CONFORMADO (iniciado) no recibe a nadie por ningun camino: eso lo prueba {@code CU69IngresoCerradoTest}.
+     */
     protected UUID grupoConCupoLibre() {
-        UUID grupo = fixtura.grupoConformado(3);
+        UUID grupo = fixtura.grupoAbierto(3);
         fixtura.participantesConCupo(grupo, 3);
         dslFixtura.execute(
                 """

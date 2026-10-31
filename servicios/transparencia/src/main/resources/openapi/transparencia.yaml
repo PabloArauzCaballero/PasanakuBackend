@@ -487,13 +487,83 @@ paths:
               schema: { $ref: '#/components/schemas/PerfilDeReputacionEnGrupo' }
         '403':
           description: Quien pregunta no comparte el grupo con esa persona, o no se pudo comprobar
+  /reputacion/etapas:
+    get:
+      operationId: listarEtapas                 # etapas de reputacion (2026-10-30)
+      summary: El catalogo de etapas, de la mas baja a la mas alta, con lo que desbloquea cada una
+      description: >-
+        Las etapas son tramos CONTINUOS del puntaje de reputacion (modelo v1, escala 0–1000): no
+        se ganan ni se escriben a mano, salen del puntaje (regla 91.4.2). Cada tramo va de `desde`
+        (incluido) a `hasta` (excluido), salvo la ultima, que incluye su `hasta`. Catalogo interno
+        y cerrado: viaja entero y ordenado por `orden`, sin paginar (son pocas filas fijas). No
+        dice nada de ninguna persona.
+
+        `desbloqueo` dice cuantos cupos tiene como maximo un grupo y cuanto aporte por periodo
+        como maximo puede crear o integrar quien esta en esa etapa. Solo se APLICA el que esta
+        VIGENTE; uno PROPUESTO se muestra pero todavia no limita nada (sus valores esperan
+        confirmacion de negocio, regla 97.5.4). Sin desbloqueo, la etapa no limita.
+      responses:
+        '200':
+          description: Las etapas en orden ascendente
+          content:
+            application/json:
+              schema:
+                type: array
+                maxItems: 50
+                items: { $ref: '#/components/schemas/EtapaDelCatalogo' }
+  /reputacion/etapas/de-personas:
+    get:
+      operationId: consultarEtapasDePersonas    # privacidad del puntaje (2026-10-30)
+      summary: La etapa de una o varias personas, sin su puntaje (solo para el servicio grupos)
+      description: >-
+        [CONTRATO · SOLO SERVICIO] Lo pide `grupos` cuando necesita la reputacion de OTRA persona:
+        la etapa minima de un ingreso que decide otro (CU-68 al aceptar una solicitud o resolver
+        una admision, CU-64 con el entrante de un traspaso) y la etapa de cada ocupante en
+        `GET /grupos/{grupoId}/detalle`. Exige la identidad de servicio `SERVICIO_GRUPOS` (el token
+        de la cuenta de servicio de grupos, emitido por identidad, el mismo mecanismo de
+        `SERVICIO_ENTREGAS` y `SERVICIO_INVERSIONES`); una sesion de persona, aunque comparta el
+        grupo, recibe 403. Grupos ya NO usa `GET /reputacion/{usuarioId}/puntaje` para otra persona:
+        esa ruta es solo para la propia.
+
+        Respuesta minima (decision del dueño 2026-10-30, regla 90.2.8): la etapa, nunca el puntaje.
+        Para la etapa minima alcanza con comparar: el grupo guarda el `desde` de su etapa minima,
+        y como los tramos son contiguos, `etapa.desde >= desde de la minima` equivale a
+        «puntaje >= minima». Quien no tiene historial NO tiene cero: `tieneHistorial=false` y la
+        etapa del puntaje BASE del modelo vigente (Inicial con el modelo v1). Una persona sin
+        cuenta en este servicio viaja igual que sin historial. Cada `usuarioId` repetido se
+        responde una vez; el orden de la respuesta sigue al de la peticion.
+      parameters:
+        - name: usuarioId
+          in: query
+          required: true
+          style: form
+          explode: true
+          schema:
+            type: array
+            minItems: 1
+            maxItems: 60
+            items: { type: string, format: uuid }
+      responses:
+        '200':
+          description: La etapa de cada persona pedida
+          content:
+            application/json:
+              schema:
+                type: array
+                maxItems: 60
+                items: { $ref: '#/components/schemas/EtapaDePersona' }
+        '403':
+          description: Quien llama no es la identidad de servicio de grupos
   /reputacion/{usuarioId}/puntaje:
     get:
       operationId: consultarPuntaje
-      summary: El puntaje de reputacion de alguien
+      summary: Mi puntaje de reputacion exacto, con mi etapa
       description: >-
-        Lo preguntan CU-64 y CU-68 de `grupos`: aceptar a alguien o dejarle tomar un
-        cupo depende de su historial, y el historial es de este servicio.
+        El puntaje EXACTO es solo de su dueño (decision del dueño 2026-10-30, regla 90.2.8): si
+        `usuarioId` no es el de la sesion, 403, aunque quien pregunta comparta un grupo con esa
+        persona. La etapa de otro integrante la expone `grupos` en el detalle del grupo, y la que
+        `grupos` necesita para decidir un ingreso la lee por
+        `GET /reputacion/etapas/de-personas` con su identidad de servicio; ya no por esta ruta.
 
         Quien todavia no tiene puntaje NO tiene cero. Cero seria el peor puntaje
         posible y quien recien llega no hizo nada malo: se responde SIN_HISTORIAL y
@@ -510,6 +580,8 @@ paths:
           content:
             application/json:
               schema: { $ref: '#/components/schemas/PuntajeDelUsuario' }
+        '403':
+          description: El usuarioId no es el de la sesion; el puntaje exacto solo lo ve su dueño
 
 components:
   parameters:
@@ -564,6 +636,83 @@ components:
         tieneHistorial:   { type: boolean }
         puntaje:          { type: string }
         nivelDeConfianza: { type: string }
+        etapa:
+          $ref: '#/components/schemas/EtapaDelPuntaje'
+          description: >-
+            La etapa que corresponde al puntaje. Sin historial es la etapa del puntaje BASE del
+            modelo vigente (Inicial con el modelo v1), nunca la del cero: «no se sabe» no es «malo».
+            Ausente solo si no hay catalogo de etapas.
+    EtapaDePersona:
+      type: object
+      additionalProperties: false
+      required: [usuarioId, tieneHistorial]
+      properties:
+        usuarioId:      { type: string, format: uuid }
+        tieneHistorial: { type: boolean }
+        etapa:
+          $ref: '#/components/schemas/EtapaParaServicio'
+          description: Ausente solo si no hay catalogo de etapas; quien llama falla cerrado (regla 98.2.4)
+    EtapaParaServicio:
+      type: object
+      additionalProperties: false
+      required: [codigo, nombre, orden, desde]
+      description: La etapa de una persona sin su puntaje ni su avance dentro del tramo
+      properties:
+        codigo: { type: string, pattern: '^[A-Z][A-Z_]{1,29}$' }
+        nombre: { type: string, maxLength: 40 }
+        orden:  { type: integer, minimum: 0 }
+        desde:  { $ref: '#/components/schemas/Decimal' }
+    EtapaDelCatalogo:
+      type: object
+      additionalProperties: false
+      required: [codigo, nombre, orden, desde, hasta]
+      properties:
+        codigo: { type: string, pattern: '^[A-Z][A-Z_]{1,29}$' }
+        nombre: { type: string, maxLength: 40 }
+        orden:  { type: integer, minimum: 0 }
+        desde:  { $ref: '#/components/schemas/Decimal' }
+        hasta:  { $ref: '#/components/schemas/Decimal' }
+        desbloqueo: { $ref: '#/components/schemas/DesbloqueoDeEtapa' }
+    DesbloqueoDeEtapa:
+      type: object
+      additionalProperties: false
+      required: [cuposMax, aporteMax, moneda, estado]
+      properties:
+        cuposMax:  { type: integer, minimum: 3, maximum: 40, description: Cupos totales maximos de un grupo }
+        aporteMax: { $ref: '#/components/schemas/Decimal' }
+        moneda:    { type: string, enum: [BOB, USD] }
+        estado:
+          type: string
+          enum: [PROPUESTO, VIGENTE]
+          description: Solo VIGENTE se aplica; PROPUESTO espera la confirmacion de negocio
+    EtapaDelPuntaje:
+      type: object
+      additionalProperties: false
+      required: [codigo, nombre, orden, desde, hasta, progreso]
+      properties:
+        codigo: { type: string, pattern: '^[A-Z][A-Z_]{1,29}$' }
+        nombre: { type: string, maxLength: 40 }
+        orden:  { type: integer, minimum: 0 }
+        desde:  { $ref: '#/components/schemas/Decimal' }
+        hasta:  { $ref: '#/components/schemas/Decimal' }
+        siguiente:
+          $ref: '#/components/schemas/EtapaSiguiente'
+          description: La etapa de arriba; ausente (null) en la ultima
+        progreso:
+          type: string
+          pattern: '^(0\.[0-9]{4}|1\.0000)$'
+          description: >-
+            Avance continuo dentro de la etapa, (puntaje − desde) / (hasta − desde), de 0.0000 a
+            1.0000, redondeo HALF_EVEN a 4 decimales. Cadena, nunca number. En la ultima etapa,
+            1.0000 solo con el puntaje maximo.
+    EtapaSiguiente:
+      type: object
+      additionalProperties: false
+      required: [codigo, nombre, desde]
+      properties:
+        codigo: { type: string, pattern: '^[A-Z][A-Z_]{1,29}$' }
+        nombre: { type: string, maxLength: 40 }
+        desde:  { $ref: '#/components/schemas/Decimal' }
     Problema:
       type: object
       additionalProperties: false

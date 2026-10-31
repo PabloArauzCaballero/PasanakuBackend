@@ -89,6 +89,14 @@
           "descripcion": "Identidad de servicio: entregas y liquidación automática"
         },
         {
+          "codigo": "SERVICIO_GRUPOS",
+          "nombre": "Identidad de servicio: grupos (lee etapas de reputación)",
+          "ambito": "GLOBAL",
+          "es_sistema": true,
+          "departamento": "SISTEMAS",
+          "descripcion": "Identidad de servicio: grupos consulta la etapa de quien entra a un grupo, nunca el puntaje"
+        },
+        {
           "codigo": "SERVICIO_INVERSIONES",
           "nombre": "Identidad de servicio: inversiones (debita y acredita)",
           "ambito": "GLOBAL",

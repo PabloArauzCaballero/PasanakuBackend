@@ -1,0 +1,53 @@
+# Corrección carril A (2026-10-30): pruebas con el rol real del servicio
+## ROJO: ConsultarPuntaje sin Datos.comoSistema (cambio TEMPORAL, restaurado después; cmp contra la copia = idéntico)
+$ bash candado.sh ./gradlew :servicios:transparencia:integrationTest --tests "*ArenaRepositorioTest*"
+ArenaRepositorioTest > puntaje · bordes: desde incluido, hasta excluido, y la última incluye el máximo > 549.99 -> SEMILLA (0.9998), siguiente BROTE FAILED
+     but was: 0
+ArenaRepositorioTest > puntaje · bordes: desde incluido, hasta excluido, y la última incluye el máximo > 550.00 -> BROTE (0.0000), siguiente AGUAYO FAILED
+     but was: 0
+ArenaRepositorioTest > puntaje · bordes: desde incluido, hasta excluido, y la última incluye el máximo > 1000.00 -> INTI (1.0000), siguiente  FAILED
+     but was: 0
+ArenaRepositorioTest > puntaje · bordes: desde incluido, hasta excluido, y la última incluye el máximo > 0.00 -> CAMPAMENTO (0.0000), siguiente SEMILLA FAILED
+     but was: "SEMILLA"
+ArenaRepositorioTest > puntaje · 575 está en Brote, a mitad de camino hacia Aguayo FAILED
+    Expecting value to be true but was false
+ArenaRepositorioTest > puntaje · con el rol real, otra persona ve la arena de quien quiere entrar (420 → Campamento) FAILED
+    Expecting value to be true but was false
+ArenaRepositorioTest > puntaje · un modelo sin arenas deja la arena ausente, no una inventada FAILED
+    Expecting value to be true but was false
+17 tests completed, 7 failed
+> Task :servicios:transparencia:integrationTest FAILED
+BUILD FAILED in 6s
+exit=1
+
+## VERDE: con la corrección
+$ bash candado.sh ./gradlew :servicios:transparencia:spotlessCheck :servicios:transparencia:test --rerun :servicios:transparencia:webTest --rerun :servicios:transparencia:integrationTest --rerun
+BUILD SUCCESSFUL in 19s
+exit=0
+Resumen de los XML de JUnit (build/test-results):
+  test: tests=24 failures=0 errors=0 skipped=0
+  webTest: tests=40 failures=0 errors=0 skipped=0
+  integrationTest: tests=140 failures=0 errors=0 skipped=0
+   TEST-bo.aportaya.transparencia.ArenaRepositorioTest.xml tests= 17 failures= 0 skipped= 0
+   TEST-bo.aportaya.transparencia.PerfilEnGrupoRepositorioTest.xml tests= 3 failures= 0 skipped= 0
+   TEST-bo.aportaya.transparencia.ArenasDeReputacionTest.xml tests= 17 failures= 0 skipped= 0
+   TEST-bo.aportaya.transparencia.web.PerfilEnGrupoWebTest.xml tests= 4 failures= 0 skipped= 0
+   TEST-bo.aportaya.transparencia.web.ReputacionControllerWebTest$Arenas.xml tests= 6 failures= 0 skipped= 0
+   TEST-bo.aportaya.transparencia.web.SeguridadWebTest.xml tests= 6 failures= 0 skipped= 0
+     PASS · 549.99 -> SEMILLA (0.9998), siguiente BROTE
+     PASS · 550.00 -> BROTE (0.0000), siguiente AGUAYO
+     PASS · 1000.00 -> INTI (1.0000), siguiente 
+     PASS · 0.00 -> CAMPAMENTO (0.0000), siguiente SEMILLA
+     PASS · R-REP-07 · la base rechaza un tramo al revés o vacío
+     PASS · desbloqueo · la base rechaza un estado que no es PROPUESTO ni VIGENTE
+     PASS · R-REP-07 · la base rechaza una arena que se pisa con otra del mismo modelo
+     PASS · desbloqueo · la base rechaza cupos fuera de 3..40 y una moneda fuera del contrato
+     PASS · puntaje · 575 está en Brote, a mitad de camino hacia Aguayo
+     PASS · puntaje · con el rol real, otra persona ve la arena de quien quiere entrar (420 → Campamento)
+     PASS · puntaje · un modelo sin arenas deja la arena ausente, no una inventada
+     PASS · arenas · el catálogo de la semilla: 11 arenas en orden, contiguas de 0 a 1000
+     PASS · puntaje · el rol de sistema dura solo la lectura: la sesión sigue siendo PARTICIPANTE
+     PASS · arenas · los desbloqueos se siembran PROPUESTO en BOB: se muestran y no limitan
+     PASS · puntaje · sin historial: la arena del puntaje BASE (Semilla), nunca la del cero
+     PASS · semilla · volver a sembrar una base ya sembrada no escribe ni una fila
+     PASS · semilla · un desbloqueo que pasa a VIGENTE y una frontera que sube llegan a una base ya sembrada

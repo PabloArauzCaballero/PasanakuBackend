@@ -1,0 +1,45 @@
+{
+  "servicio": "tarifas",
+  "operacion": "listarCostosDeProveedor",
+  "metodo": "get",
+  "ruta": "/tarifas/costos-de-proveedor",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": [
+        {
+          "proveedorId": "d8d58bf3-35db-4cb1-812f-118be0eb0f8a",
+          "periodo": "periodo",
+          "moneda": "mon",
+          "costoTotal": "costoTotal",
+          "operaciones": 0
+        }
+      ]
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": []
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": [
+        {
+          "proveedorId": "d8d58bf3-35db-4cb1-812f-118be0eb0f8a",
+          "periodo": "periodo",
+          "moneda": "mon",
+          "costoTotal": "costoTotal",
+          "operaciones": 0
+        }
+      ]
+    },
+    "rechazo": {
+      "estado": 400,
+      "cuerpo": {
+        "codigo": "AP-CU30-01",
+        "mensaje": "Sin concepto aplicable",
+        "detalle": {},
+        "trazaId": "traza-listarCostosDeProveedor-rechazo"
+      }
+    }
+  }
+}

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../atomos/aspecto_de_etapa.dart';
 import '../atomos/avatar.dart';
 import '../atomos/barra_de_puntos.dart';
 import '../atomos/boton.dart';
@@ -21,6 +22,7 @@ import '../atomos/esqueleto.dart';
 import '../atomos/estrellas_calificacion.dart';
 import '../atomos/fecha.dart';
 import '../atomos/girador.dart';
+import '../atomos/insignia_de_etapa.dart';
 import '../atomos/grupo_radio.dart';
 import '../atomos/interruptor.dart';
 import '../atomos/marca.dart';
@@ -42,6 +44,7 @@ import '../moleculas/acciones_rapidas.dart';
 import '../moleculas/acordeon.dart';
 import '../moleculas/alerta.dart';
 import '../moleculas/aparicion_escalonada.dart';
+import '../moleculas/barra_de_etapa.dart';
 import '../moleculas/barra_de_pasos.dart';
 import '../moleculas/chips_de_filtro.dart';
 import '../moleculas/desglose_de_cobro.dart';
@@ -67,6 +70,7 @@ import '../moviles/pantalla_de_onboarding.dart';
 import '../moviles/teclado_numerico.dart';
 import '../organismos/banner_de_pauta.dart';
 import '../organismos/calendario_de_cuotas.dart';
+import '../organismos/camino_de_etapas.dart';
 import '../organismos/estado_de_cuota.dart';
 import '../organismos/estado_error.dart';
 import '../organismos/estado_vacio.dart';
@@ -1082,6 +1086,73 @@ final List<({String grupo, List<Muestra> muestras})> catalogo = [
           enEspera: 2,
           onAbrir: () {},
           onCerrar: () {},
+        ),
+      ),
+    ],
+  ),
+  (
+    grupo: 'Reputación · etapas',
+    muestras: [
+      (
+        nombre: 'Insignias de etapa',
+        widget: () => Wrap(
+          spacing: Espacio.s2,
+          runSpacing: Espacio.s2,
+          children: [
+            for (var orden = 0; orden < AspectoDeEtapa.cuantas; orden++)
+              InsigniaDeEtapa(
+                orden: orden,
+                estado: orden == 2
+                    ? EstadoDeEtapa.actual
+                    : orden < 2
+                    ? EstadoDeEtapa.alcanzada
+                    : EstadoDeEtapa.bloqueada,
+              ),
+            for (var orden = 0; orden < AspectoDeEtapa.cuantas; orden++)
+              InsigniaDeEtapa(orden: orden, estado: EstadoDeEtapa.alcanzada),
+          ],
+        ),
+      ),
+      (
+        nombre: 'Barra de etapa',
+        widget: () => const BarraDeEtapa(
+          nombre: 'Etapa 2 · En marcha',
+          orden: 2,
+          avance: 5000,
+          subtitulo: 'Tu etapa · 575 puntos',
+          etiquetaDeAvance: 'Avance hacia Etapa 3, Constante',
+          textoDeAvance: 'Te faltan 25 puntos para Etapa 3 · Constante',
+          ordenSiguiente: 3,
+        ),
+      ),
+      (
+        nombre: 'Camino de etapas',
+        widget: () => const CaminoDeEtapas(
+          peldanos: [
+            PeldanoDeEtapa(
+              nombre: 'Etapa 1 · Inicial',
+              orden: 1,
+              estado: EstadoDeEtapa.alcanzada,
+              detalle: 'Ya la pasaste · desde 500 puntos',
+              etiqueta: 'Etapa 1, Inicial, ya la pasaste',
+            ),
+            PeldanoDeEtapa(
+              nombre: 'Etapa 2 · En marcha',
+              orden: 2,
+              estado: EstadoDeEtapa.actual,
+              marca: 'Tu etapa',
+              detalle: 'Desde 550 puntos',
+              etiqueta: 'Etapa 2, En marcha, la tuya',
+            ),
+            PeldanoDeEtapa(
+              nombre: 'Etapa 3 · Constante',
+              orden: 3,
+              estado: EstadoDeEtapa.bloqueada,
+              detalle: 'Llegás con 600 puntos',
+              beneficio: 'Grupos de hasta 12 cupos',
+              etiqueta: 'Etapa 3, Constante, todavía por delante',
+            ),
+          ],
         ),
       ),
     ],

@@ -11,9 +11,6 @@ import bo.aportaya.plataforma.dominio.Reloj;
 import bo.aportaya.plataforma.mensajeria.EventoDominio;
 import bo.aportaya.plataforma.mensajeria.Outbox;
 import java.math.BigDecimal;
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.Map;
@@ -94,8 +91,11 @@ public class CU20CrearGrupo {
         }
 
         return datos.conContexto(ctx, dsl -> {
-            String huella = hash(
-                    entrada.datos().toString() + "|" + entrada.organizador() + "|" + entrada.permitePermutaDeTurnos());
+            // En la huella entra la etapa PEDIDA, no la minima derivada: omitida, la minima sale de la etapa actual del
+            // organizador, que puede cambiar entre el alta y su reintento; y las altas de antes conservan su huella.
+            String huella = TextoDelReglamento.hash(entrada.datos().toString() + "|" + entrada.organizador() + "|"
+                    + entrada.permitePermutaDeTurnos()
+                    + (entrada.etapaMinimaPedida() != null ? "|" + entrada.etapaMinimaPedida() : ""));
             var anterior = creacion.altaAnterior(dsl, ctx.usuarioId(), entrada.claveIdempotencia());
             if (anterior.isPresent()) {
                 var alta = anterior.get();
@@ -107,11 +107,18 @@ public class CU20CrearGrupo {
             }
             exigirCupoDeOrganizador(dsl, entrada.organizador().orElseThrow(), entrada.limiteDeGrupos());
             UUID grupo = creacion.crear(
-                    dsl, entrada.datos(), codigoPublico(), entrada.organizador(), quorumPorOmision, ahora);
+                    dsl,
+                    entrada.datos(),
+                    codigoPublico(),
+                    entrada.organizador(),
+                    quorumPorOmision,
+                    entrada.reputacionMinima(),
+                    ahora);
             creacion.configurar(dsl, grupo, entrada.permitePermutaDeTurnos());
 
-            String reglamento = textoDelReglamento(entrada.datos());
-            creacion.redactarReglamento(dsl, grupo, reglamento, hash(reglamento), ctx.usuarioId(), ahora);
+            String reglamento = TextoDelReglamento.de(entrada.datos());
+            creacion.redactarReglamento(
+                    dsl, grupo, reglamento, TextoDelReglamento.hash(reglamento), ctx.usuarioId(), ahora);
             creacion.abrirCupos(dsl, grupo, entrada.datos().cupos(), ahora);
             creacion.guardarAlta(
                     dsl,
@@ -141,6 +148,18 @@ public class CU20CrearGrupo {
     }
 
     /**
+     * Si esta clave ya creo un grupo de quien llama. Se pregunta ANTES de pedirle la etapa a {@code transparencia}:
+     * el reintento de un alta hecha devuelve el grupo original aunque transparencia no conteste o la etapa haya
+     * cambiado (regla 96.3.3). La huella la sigue comparando {@link #ejecutar}.
+     */
+    @Transactional(readOnly = true)
+    public boolean yaCreado(UUID claveIdempotencia, ContextoSesion ctx) {
+        if (claveIdempotencia == null) return false;
+        return datos.conContexto(ctx, dsl -> creacion.altaAnterior(dsl, ctx.usuarioId(), claveIdempotencia)
+                .isPresent());
+    }
+
+    /**
      * Limite de grupos simultaneos de la habilitacion (CU-20, {@code AP-CU20-06}). Cuentan los
      * grupos que siguen vivos; los finalizados, cancelados o disueltos no. Un candado por organizador dentro de la
      * transaccion: sin el, dos altas al mismo tiempo cuentan lo mismo y pasan las dos.
@@ -165,43 +184,8 @@ public class CU20CrearGrupo {
         }
     }
 
-    /**
-     * El texto que cada participante firma. Se guarda con su hash porque lo que se
-     * acepta es un texto EXACTO: sin el hash, «acepte el reglamento» no dice cual.
-     */
-    private String textoDelReglamento(GrupoNuevo datos) {
-        return """
-               Reglamento de %s.
-               Aporte: %s %s por periodo, %s, dia %d.
-               Participantes: %d. Cada uno cobra una vez.
-               Fondo de cada periodo: %s %s.
-               """
-                .formatted(
-                        datos.nombre(),
-                        datos.montoDelAporte().moneda(),
-                        datos.montoDelAporte(),
-                        datos.periodicidad().toLowerCase(java.util.Locale.ROOT),
-                        datos.diaDeCobro(),
-                        datos.cupos(),
-                        datos.montoDelAporte().moneda(),
-                        datos.fondoPorPeriodo());
-    }
-
     private String codigoPublico() {
         return "GR-" + ids.nuevo().toString().substring(0, 8).toUpperCase(java.util.Locale.ROOT);
-    }
-
-    private String hash(String texto) {
-        try {
-            byte[] digestion = MessageDigest.getInstance("SHA-256").digest(texto.getBytes(StandardCharsets.UTF_8));
-            StringBuilder hexadecimal = new StringBuilder(digestion.length * 2);
-            for (byte b : digestion) {
-                hexadecimal.append("%02x".formatted(b));
-            }
-            return hexadecimal.toString();
-        } catch (NoSuchAlgorithmException e) {
-            throw new IllegalStateException("SHA-256 tiene que existir en cualquier JVM", e);
-        }
     }
 
     public record EntradaCreacion(
@@ -213,7 +197,66 @@ public class CU20CrearGrupo {
             boolean permitePermutaDeTurnos,
             UUID claveIdempotencia,
             int limiteDeGrupos,
-            String nombreDelCreador) {}
+            String nombreDelCreador,
+            BigDecimal reputacionMinima,
+            String etapaMinimaPedida) {
+
+        /** Con la minima ya resuelta y sin etapa pedida (la del organizador por omision). */
+        @SuppressWarnings("checkstyle:ParameterNumber")
+        public EntradaCreacion(
+                GrupoNuevo datos,
+                Optional<UUID> organizador,
+                boolean organizadorHabilitado,
+                Optional<UUID> tarifarioVigenteId,
+                boolean licenciaHabilitaElServicio,
+                boolean permitePermutaDeTurnos,
+                UUID claveIdempotencia,
+                int limiteDeGrupos,
+                String nombreDelCreador,
+                BigDecimal reputacionMinima) {
+            this(
+                    datos,
+                    organizador,
+                    organizadorHabilitado,
+                    tarifarioVigenteId,
+                    licenciaHabilitaElServicio,
+                    permitePermutaDeTurnos,
+                    claveIdempotencia,
+                    limiteDeGrupos,
+                    nombreDelCreador,
+                    reputacionMinima,
+                    null);
+        }
+
+        /**
+         * Sin etapa minima (reputacion_minima 0): la forma de antes de las etapas, para los llamadores que no la
+         * resuelven. La API siempre la resuelve ({@code MapeoDeAltaDeGrupo}).
+         */
+        @SuppressWarnings("checkstyle:ParameterNumber")
+        public EntradaCreacion(
+                GrupoNuevo datos,
+                Optional<UUID> organizador,
+                boolean organizadorHabilitado,
+                Optional<UUID> tarifarioVigenteId,
+                boolean licenciaHabilitaElServicio,
+                boolean permitePermutaDeTurnos,
+                UUID claveIdempotencia,
+                int limiteDeGrupos,
+                String nombreDelCreador) {
+            this(
+                    datos,
+                    organizador,
+                    organizadorHabilitado,
+                    tarifarioVigenteId,
+                    licenciaHabilitaElServicio,
+                    permitePermutaDeTurnos,
+                    claveIdempotencia,
+                    limiteDeGrupos,
+                    nombreDelCreador,
+                    BigDecimal.ZERO,
+                    null);
+        }
+    }
 
     public record SalidaCreacion(UUID grupoId, String fondoPorPeriodo) {}
 }
