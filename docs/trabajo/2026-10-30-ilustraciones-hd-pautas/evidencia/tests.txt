@@ -1,0 +1,8 @@
+00:11 +4 -7: /Users/pablo/Documents/GitHub/Pasanaku/apps/movil/test/widget/pantalla_camara_de_respaldo_test.dart: el flujo de captura envuelve la foto aceptada en el mapa del alta
+00:11 +5 -7: /Users/pablo/Documents/GitHub/Pasanaku/apps/movil/test/widget/pantalla_camara_de_respaldo_test.dart: Cancelar cierra la cámara sin devolver una captura
+00:12 +6 -7: Some tests failed.
+Failing tests:
+  /Users/pablo/Documents/GitHub/Pasanaku/apps/movil/test/goldens/h10_camara_visual_test.dart: cámara concedida · claro · 360 dp · texto 130 %
+  /Users/pablo/Documents/GitHub/Pasanaku/apps/movil/test/goldens/h10_camara_visual_test.dart: cámara concedida · claro · 412 dp · texto 130 %
+  /Users/pablo/Documents/GitHub/Pasanaku/apps/movil/test/goldens/h10_camara_visual_test.dart: cámara concedida · claro · 600 dp · texto 130 %
+  /Users/pablo/Documents/GitHub/Pasanaku/apps/movil/test/goldens/h10_camara_visual_test.dart: cámara concedida · oscuro · 360 dp · texto 130 %
