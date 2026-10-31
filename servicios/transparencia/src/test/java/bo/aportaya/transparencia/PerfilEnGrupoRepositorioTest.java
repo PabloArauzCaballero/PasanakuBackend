@@ -107,7 +107,8 @@ class PerfilEnGrupoRepositorioTest extends BaseDeTransparencia {
 
     @Test
     @DisplayName(
-            "perfil · con historial: puntaje, nivel, puntualidad, grupos, incumplimientos, antiguedad e insignias vigentes")
+            "perfil ajeno · con historial: nivel, puntualidad, grupos, incumplimientos, antiguedad e insignias vigentes,"
+                    + " SIN el puntaje exacto")
     void conHistorial() {
         UUID beto = fixtura.usuario();
         UUID ana = fixtura.usuario();
@@ -118,7 +119,9 @@ class PerfilEnGrupoRepositorioTest extends BaseDeTransparencia {
         var perfil = consultar(true, ana, beto);
 
         var f = perfil.factores().orElseThrow();
-        assertThat(f.puntaje()).isEqualByComparingTo(new BigDecimal("812.50"));
+        assertThat(f.puntaje())
+                .as("el puntaje exacto solo lo ve su dueño (decision 2026-10-30), aunque comparta el grupo")
+                .isNull();
         assertThat(f.nivelConfianza()).isEqualTo("CONFIABLE");
         assertThat(f.indicePuntualidad()).isEqualByComparingTo(new BigDecimal("96.40"));
         assertThat(f.gruposCompletados()).isEqualTo(3);
@@ -129,6 +132,18 @@ class PerfilEnGrupoRepositorioTest extends BaseDeTransparencia {
                 .as("la revocada no aparece")
                 .extracting(PerfilDeReputacionEnGrupo.Insignia::codigo)
                 .containsExactly("PAGADOR_PUNTUAL");
+    }
+
+    @Test
+    @DisplayName("perfil propio · el dueño SI ve su puntaje exacto por esta ruta")
+    void propioConPuntaje() {
+        UUID beto = fixtura.usuario();
+        puntaje(beto);
+
+        var f = consultar(true, beto, beto).factores().orElseThrow();
+
+        assertThat(f.puntaje()).isEqualByComparingTo(new BigDecimal("812.50"));
+        assertThat(f.nivelConfianza()).isEqualTo("CONFIABLE");
     }
 
     @Test

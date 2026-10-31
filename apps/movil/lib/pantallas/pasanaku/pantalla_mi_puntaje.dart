@@ -10,12 +10,18 @@ import 'package:aportaya_diseno/tokens/tokens.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../reputacion/pantalla_camino_de_etapas.dart';
+import '../reputacion/tarjeta_de_etapa.dart';
 import 'dominio/consultar_puntaje.dart';
 import 'textos.dart';
 
 /// "Tu nivel" (D-20): el puntaje propio y el nivel de confianza, tal como
 /// `transparencia` los calcula. `SIN_HISTORIAL` se muestra igual que cualquier otro
 /// nivel — nunca como un error ni como un castigo (CU-71).
+///
+/// Debajo, la etapa (2026-10-30): la que el servidor asigna al puntaje, con su avance
+/// hacia la siguiente y la entrada al camino entero. Sin historial también hay etapa
+/// —la del puntaje base—, así que solo es vacío si el servidor no manda ninguna.
 class PantallaMiPuntaje extends ConsumerWidget {
   const PantallaMiPuntaje({super.key, required this.usuarioId});
   final String usuarioId;
@@ -40,9 +46,10 @@ class PantallaMiPuntaje extends ConsumerWidget {
                   mensajeVacio: TextosPasanaku.sinHistorial,
                   tituloVacio: TextosPasanaku.tituloSinHistorial,
                   iconoVacio: IconosDeMarca.recienEmpiezas,
-                  vacio: (p) => !p.tieneHistorial,
+                  vacio: (p) => !p.tieneHistorial && p.etapa == null,
                   reintentar: () => ref.invalidate(puntajeProvider(usuarioId)),
-                  exito: (p) => _Puntaje(puntaje: p, t: t),
+                  exito: (p) =>
+                      _Puntaje(puntaje: p, t: t, usuarioId: usuarioId),
                 ),
               ),
             ],
@@ -54,10 +61,15 @@ class PantallaMiPuntaje extends ConsumerWidget {
 }
 
 class _Puntaje extends StatelessWidget {
-  const _Puntaje({required this.puntaje, required this.t});
+  const _Puntaje({
+    required this.puntaje,
+    required this.t,
+    required this.usuarioId,
+  });
 
   final PuntajeDelUsuario puntaje;
   final Tokens t;
+  final String usuarioId;
 
   @override
   Widget build(BuildContext context) {
@@ -93,7 +105,16 @@ class _Puntaje extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: Espacio.s3),
-              if (entero == null)
+              if (!puntaje.tieneHistorial) ...[
+                Text(
+                  TextosPasanaku.tituloSinHistorial,
+                  style: Tipo.titulo2.copyWith(color: t.text),
+                ),
+                Text(
+                  TextosPasanaku.sinHistorial,
+                  style: Tipo.cuerpoChico.copyWith(color: t.text2),
+                ),
+              ] else if (entero == null)
                 Text(
                   puntaje.puntaje,
                   style: Tipo.cifraGrande.copyWith(color: t.text),
@@ -114,6 +135,19 @@ class _Puntaje extends StatelessWidget {
             ],
           ),
         ),
+        if (puntaje.etapa != null) ...[
+          const SizedBox(height: Espacio.s4),
+          TarjetaDeEtapa(
+            etapa: puntaje.etapa!,
+            puntaje: puntaje.puntaje,
+            sinHistorial: !puntaje.tieneHistorial,
+            verCamino: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (_) => PantallaCaminoDeEtapas(usuarioId: usuarioId),
+              ),
+            ),
+          ),
+        ],
       ],
     );
   }

@@ -71,7 +71,11 @@ void main() {
       expect(find.text('Turno 3'), findsOneWidget);
       expect(find.text('+59171234567'), findsOneWidget);
       expect(find.text('Confiable'), findsOneWidget);
-      expect(find.text('812.50'), findsOneWidget);
+      // Decisión 2026-10-30 (PLAN.md, «Privacidad del puntaje»): el puntaje exacto
+      // solo lo ve su dueño. Esta aserción decía findsOneWidget (regla del
+      // 2026-10-21); se invierte porque cambió el requisito, no para que pase.
+      expect(find.text('812.50'), findsNothing);
+      expect(find.text('Puntaje'), findsNothing);
       expect(find.text('96.40 %'), findsOneWidget);
       expect(find.text('14 meses'), findsOneWidget);
       expect(find.text('Pagador puntual'), findsOneWidget);

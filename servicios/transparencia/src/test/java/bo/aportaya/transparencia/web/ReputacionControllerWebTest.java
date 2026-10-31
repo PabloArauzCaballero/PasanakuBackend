@@ -18,7 +18,9 @@ import bo.aportaya.transparencia.aplicacion.CU74EvaluarInsignias;
 import bo.aportaya.transparencia.aplicacion.CU75EmitirCertificado;
 import bo.aportaya.transparencia.aplicacion.CU76PublicarResena;
 import bo.aportaya.transparencia.aplicacion.CU97EvaluarRiesgo;
+import bo.aportaya.transparencia.aplicacion.ConsultarEtapasDePersonas;
 import bo.aportaya.transparencia.aplicacion.ConsultarPuntaje;
+import bo.aportaya.transparencia.aplicacion.ListarEtapas;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -51,7 +53,12 @@ import org.springframework.test.web.servlet.MockMvc;
  * reputación no puede además sellar la cadena que los vuelve inmodificables.
  */
 @PruebaWeb(ReputacionController.class)
-@MockitoBean(types = bo.aportaya.transparencia.aplicacion.ConsultarPerfilEnGrupo.class)
+@MockitoBean(
+        types = {
+            bo.aportaya.transparencia.aplicacion.ConsultarPerfilEnGrupo.class,
+            ListarEtapas.class,
+            ConsultarEtapasDePersonas.class
+        })
 class ReputacionControllerWebTest {
 
     private static final UUID USUARIO = UUID.fromString("e1000000-0000-4000-8000-000000000001");
@@ -96,7 +103,7 @@ class ReputacionControllerWebTest {
             when(puntajes.ejecutar(any(), any()))
                     .thenReturn(new ConsultarPuntaje.Puntaje(true, new BigDecimal("87.50"), "ALTO"));
 
-            mvc.perform(get("/reputacion/{id}/puntaje", USUARIO).with(Sesiones.como("PARTICIPANTE")))
+            mvc.perform(get("/reputacion/{id}/puntaje", Sesiones.USUARIO).with(Sesiones.como("PARTICIPANTE")))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.tieneHistorial").value(true))
                     // "87.50" y no 87.5: es un numero con el que se decide sobre
@@ -111,7 +118,7 @@ class ReputacionControllerWebTest {
             when(puntajes.ejecutar(any(), any()))
                     .thenReturn(new ConsultarPuntaje.Puntaje(false, BigDecimal.ZERO, "SIN_HISTORIAL"));
 
-            mvc.perform(get("/reputacion/{id}/puntaje", USUARIO).with(Sesiones.como("PARTICIPANTE")))
+            mvc.perform(get("/reputacion/{id}/puntaje", Sesiones.USUARIO).with(Sesiones.como("PARTICIPANTE")))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.tieneHistorial").value(false))
                     .andExpect(jsonPath("$.nivelDeConfianza").value("SIN_HISTORIAL"));

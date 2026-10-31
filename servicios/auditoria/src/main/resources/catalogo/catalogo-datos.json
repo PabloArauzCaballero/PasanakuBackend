@@ -196,10 +196,10 @@
   {
    "nombre": "transparencia",
    "descripcion": "Transparencia y Reputación. Que nadie tenga que \"creerle\" al organizador.",
-   "tablas": 19,
-   "tablasDeNegocio": 16,
-   "columnas": 176,
-   "relaciones": 22,
+   "tablas": 21,
+   "tablasDeNegocio": 18,
+   "columnas": 189,
+   "relaciones": 24,
    "appendOnly": 2,
    "conDatosPersonales": 1,
    "servicio": "transparencia"
@@ -83703,6 +83703,235 @@
    ]
   },
   {
+   "tabla": "desbloqueo_etapa",
+   "esquema": "transparencia",
+   "tipo": "NEGOCIO",
+   "modulo": "06",
+   "nombreModulo": "Transparencia y Reputación",
+   "servicio": "transparencia",
+   "appendOnly": false,
+   "negocio": {
+    "queEs": "Lo que desbloquea una etapa (a lo sumo uno por etapa): cuántos cupos totales puede tener como máximo un grupo y cuánto aporte por periodo como máximo, con su moneda, puede crear o integrar quien está en esa etapa. Lleva un estado: solo el VIGENTE limita.",
+    "negocio": "El desbloqueo es un parámetro financiero: limita cuánto dinero ajeno puede comprometer alguien según su historial, y crece a medida que la persona sube de etapa. Por eso se siembra PROPUESTO y solo limita cuando está VIGENTE (regla 97.5.4); mientras tanto se muestra, pero no rechaza. Pasar a VIGENTE se hace en el seeder (seeders/minimos/16-reputacion-y-scoring.json, que actualiza la fila existente por su etapa), nunca con un UPDATE a mano sobre la base.",
+    "porQue": "Sin un tope por etapa, quien recién llega podría crear o entrar a un grupo de cuarenta cupos y aportes altos sin historial que lo respalde. Separarlo de etapa deja que el tramo exista sin límite (una etapa sin desbloqueo no limita) y que el límite se confirme por separado.\n\n- cupos_max: Cupos totales máximos del grupo que puede crear o integrar quien está en la etapa.\n- aporte_max: Aporte máximo por periodo, en moneda, del grupo que puede crear o integrar quien está en la etapa.\n- estado: PROPUESTO se muestra pero no limita; solo VIGENTE se aplica."
+   },
+   "reglas": [],
+   "columnas": [
+    {
+     "nombre": "id",
+     "tipo": "UUID",
+     "nulable": false,
+     "pk": true,
+     "negocio": "Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.",
+     "origenNegocio": "convencion",
+     "sistema": "UUID, obligatoria, clave primaria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "etapa_id",
+     "tipo": "UUID",
+     "nulable": false,
+     "pk": false,
+     "referencia": "etapa",
+     "negocio": "Referencia por clave foránea a la entidad etapa.",
+     "origenNegocio": "convencion",
+     "sistema": "UUID, obligatoria, referencia a etapa, restricción única.",
+     "sensibilidad": "NINGUNA",
+     "unica": true,
+     "esquemaReferencia": "transparencia"
+    },
+    {
+     "nombre": "cupos_max",
+     "tipo": "SMALLINT",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Cupos totales máximos del grupo que puede crear o integrar quien está en la etapa.",
+     "origenNegocio": "ficha",
+     "sistema": "SMALLINT, obligatoria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "aporte_max",
+     "tipo": "DECIMAL(14,2)",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Aporte máximo por periodo, en moneda, del grupo que puede crear o integrar quien está en la etapa.",
+     "origenNegocio": "ficha",
+     "sistema": "DECIMAL(14,2), obligatoria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "moneda",
+     "tipo": "CHAR(3)",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Moneda ISO-4217 del importe de la fila: ningún importe existe sin su moneda (regla 91.1.2).",
+     "origenNegocio": "convencion",
+     "sistema": "CHAR(3), obligatoria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "estado",
+     "tipo": "VARCHAR(10)",
+     "nulable": false,
+     "pk": false,
+     "negocio": "PROPUESTO se muestra pero no limita; solo VIGENTE se aplica.",
+     "origenNegocio": "ficha",
+     "sistema": "VARCHAR(10), obligatoria, índice b-tree.",
+     "sensibilidad": "NINGUNA"
+    }
+   ],
+   "relaciones": {
+    "salientes": [
+     {
+      "columna": "etapa_id",
+      "tabla": "etapa",
+      "esquema": "transparencia",
+      "columnaDestino": "id",
+      "restriccion": "fk_desbloqueo_etapa_etapa_id",
+      "alBorrar": "RESTRICT",
+      "cardinalidad": "1:1",
+      "obligatoria": true
+     }
+    ],
+    "entrantes": []
+   },
+   "sistema": "Vive en el esquema transparencia; la escribe y la lee solo el servicio transparencia (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de etapa.",
+   "clasificacion": {
+    "personales": 0,
+    "financieros": 0,
+    "secretos": 0,
+    "derivados": 0
+   },
+   "operaciones": []
+  },
+  {
+   "tabla": "etapa",
+   "esquema": "transparencia",
+   "tipo": "NEGOCIO",
+   "modulo": "06",
+   "nombreModulo": "Transparencia y Reputación",
+   "servicio": "transparencia",
+   "appendOnly": false,
+   "negocio": {
+    "queEs": "Los tramos con nombre en que se parte la escala del puntaje de un modelo (con el v1: En recuperación, Etapa 1 · Inicial, Etapa 2 · En marcha… hasta Etapa 10 · Pilar). Cada etapa es un intervalo [desde, hasta) del puntaje; la última incluye su hasta.",
+    "negocio": "El puntaje es un número continuo y abstracto; la etapa lo vuelve un tramo con nombre, con una barra continua hacia la siguiente, y le da al organizador una frontera que entiende («este grupo es desde la Etapa 3 · Constante»). La etapa no se gana ni se escribe: se deriva del puntaje, que a su vez se deriva de eventos. Nadie sube de etapa a mano (regla 91.4.2).\n\ndesde es incluido y hasta excluido, salvo en la última etapa del modelo, que incluye su hasta (el máximo). Las etapas cuelgan del modelo: si un modelo nuevo cambia la escala, trae sus propias etapas en vez de reinterpretar las del anterior.",
+    "porQue": "Sin etapas, la «etapa mínima» de un grupo sería un número suelto (reputacion_minima) que nadie entiende, y cada pantalla inventaría sus propios cortes. Con el catálogo en la base, la app, grupos y transparencia leen el mismo corte.\n\n- codigo: Código estable de la etapa dentro de su modelo (INICIAL, EN_MARCHA…). Es lo que viaja entre servicios y lo que guarda un grupo como etapa mínima.\n- orden: Posición de la etapa en la escala, de la más baja (0) a la más alta. Ordena el camino de etapas en la app.\n- desde: Puntaje desde el que se está en esta etapa, incluido.\n- hasta: Puntaje donde empieza la siguiente, excluido; en la última etapa, el máximo del modelo, incluido."
+   },
+   "reglas": [
+    "ck_etapa_tramo",
+    "ex_etapa_sin_solape"
+   ],
+   "columnas": [
+    {
+     "nombre": "id",
+     "tipo": "UUID",
+     "nulable": false,
+     "pk": true,
+     "negocio": "Identificador estable de la fila (UUID). Es lo único que se loguea o viaja entre servicios.",
+     "origenNegocio": "convencion",
+     "sistema": "UUID, obligatoria, clave primaria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "modelo_id",
+     "tipo": "UUID",
+     "nulable": false,
+     "pk": false,
+     "referencia": "modelo_scoring",
+     "negocio": "Referencia por clave foránea a la entidad modelo_scoring.",
+     "origenNegocio": "convencion",
+     "sistema": "UUID, obligatoria, referencia a modelo_scoring, índice b-tree.",
+     "sensibilidad": "NINGUNA",
+     "esquemaReferencia": "transparencia"
+    },
+    {
+     "nombre": "codigo",
+     "tipo": "VARCHAR(30)",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Código estable de la etapa dentro de su modelo (INICIAL, EN_MARCHA…). Es lo que viaja entre servicios y lo que guarda un grupo como etapa mínima.",
+     "origenNegocio": "ficha",
+     "sistema": "VARCHAR(30), obligatoria, restricción única.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "nombre",
+     "tipo": "VARCHAR(40)",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Nombre descriptivo de la entidad para visualización y referencia en el sistema.",
+     "origenNegocio": "convencion",
+     "sistema": "VARCHAR(40), obligatoria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "orden",
+     "tipo": "SMALLINT",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Posición de la etapa en la escala, de la más baja (0) a la más alta. Ordena el camino de etapas en la app.",
+     "origenNegocio": "ficha",
+     "sistema": "SMALLINT, obligatoria, restricción única.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "desde",
+     "tipo": "DECIMAL(6,2)",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Puntaje desde el que se está en esta etapa, incluido.",
+     "origenNegocio": "ficha",
+     "sistema": "DECIMAL(6,2), obligatoria.",
+     "sensibilidad": "NINGUNA"
+    },
+    {
+     "nombre": "hasta",
+     "tipo": "DECIMAL(6,2)",
+     "nulable": false,
+     "pk": false,
+     "negocio": "Puntaje donde empieza la siguiente, excluido; en la última etapa, el máximo del modelo, incluido.",
+     "origenNegocio": "ficha",
+     "sistema": "DECIMAL(6,2), obligatoria.",
+     "sensibilidad": "NINGUNA"
+    }
+   ],
+   "relaciones": {
+    "salientes": [
+     {
+      "columna": "modelo_id",
+      "tabla": "modelo_scoring",
+      "esquema": "transparencia",
+      "columnaDestino": "id",
+      "restriccion": "fk_etapa_modelo_id",
+      "alBorrar": "RESTRICT",
+      "cardinalidad": "N:1",
+      "obligatoria": true
+     }
+    ],
+    "entrantes": [
+     {
+      "columna": "etapa_id",
+      "tabla": "desbloqueo_etapa",
+      "esquema": "transparencia",
+      "columnaDestino": "id",
+      "restriccion": "fk_desbloqueo_etapa_etapa_id",
+      "alBorrar": "RESTRICT",
+      "cardinalidad": "1:1",
+      "obligatoria": true
+     }
+    ]
+   },
+   "sistema": "Vive en el esquema transparencia; la escribe y la lee solo el servicio transparencia (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. Depende de modelo_scoring. La referencian desbloqueo_etapa. Reglas nombradas: ck_etapa_tramo, ex_etapa_sin_solape.",
+   "clasificacion": {
+    "personales": 0,
+    "financieros": 0,
+    "secretos": 0,
+    "derivados": 0
+   },
+   "operaciones": []
+  },
+  {
    "tabla": "evento_consumido",
    "esquema": "transparencia",
    "tipo": "INFRAESTRUCTURA",
@@ -84956,10 +85185,20 @@
       "alBorrar": "RESTRICT",
       "cardinalidad": "N:1",
       "obligatoria": true
+     },
+     {
+      "columna": "modelo_id",
+      "tabla": "etapa",
+      "esquema": "transparencia",
+      "columnaDestino": "id",
+      "restriccion": "fk_etapa_modelo_id",
+      "alBorrar": "RESTRICT",
+      "cardinalidad": "N:1",
+      "obligatoria": true
      }
     ]
    },
-   "sistema": "Vive en el esquema transparencia; la escribe y la lee solo el servicio transparencia (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. La referencian peso_factor, puntaje_reputacion, regla_impacto_evento.",
+   "sistema": "Vive en el esquema transparencia; la escribe y la lee solo el servicio transparencia (regla 98.1.1): otro servicio la conoce por su API o por sus eventos. La referencian etapa, peso_factor, puntaje_reputacion, regla_impacto_evento.",
    "clasificacion": {
     "personales": 0,
     "financieros": 0,

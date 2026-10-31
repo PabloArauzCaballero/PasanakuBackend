@@ -35,9 +35,12 @@ public class CanjearInvitacion {
      *
      * <p>Si la invitacion ya tiene su solicitud (reintento de un canje que se completo) no se vuelve a comprobar:
      * {@link #ejecutar} responde la misma solicitud, que es lo que hace idempotente el reintento.
+     *
+     * @return verdadero si es ese reintento (la invitacion ya tiene su solicitud): quien llama tampoco vuelve a mirar
+     *     la etapa.
      */
     @Transactional(readOnly = true)
-    public void comprobarAntesDeConsumir(
+    public boolean comprobarAntesDeConsumir(
             UUID invitacionId, CU68Postular.EntradaPostulacion entrada, ContextoSesion ctx) {
         boolean yaCanjeada = datos.conContexto(ctx, dsl -> {
             var fila = dsl.fetchOne(
@@ -50,8 +53,9 @@ public class CanjearInvitacion {
                             .isAfter(java.time.OffsetDateTime.now())) throw invalida();
             return false;
         });
-        if (yaCanjeada) return;
+        if (yaCanjeada) return true;
         postulaciones.comprobar(entrada, ctx);
+        return false;
     }
 
     @Transactional

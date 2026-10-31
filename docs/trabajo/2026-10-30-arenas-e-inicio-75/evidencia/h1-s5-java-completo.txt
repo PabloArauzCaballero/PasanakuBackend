@@ -1,0 +1,182 @@
+> Task :buildSrc:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :buildSrc:generateExternalPluginSpecBuilders
+> Task :buildSrc:extractPrecompiledScriptPluginPlugins
+> Task :buildSrc:generateScriptPluginAdapters
+> Task :buildSrc:pluginDescriptors
+> Task :buildSrc:processResources
+> Task :buildSrc:compilePluginsBlocks
+> Task :buildSrc:generatePrecompiledScriptPluginAccessors
+> Task :buildSrc:compileKotlin
+> Task :buildSrc:compileJava NO-SOURCE
+> Task :buildSrc:compileGroovy NO-SOURCE
+> Task :buildSrc:classes
+> Task :buildSrc:jar
+> Task :plataforma:comun-datos:processResources
+> Task :plataforma:comun-mensajeria:processResources
+> Task :plataforma:comun-pruebas:processResources
+> Task :spotlessInternalRegisterDependencies
+
+> Task :plataforma:comun-web:erroresCatalogo
+catalogo de errores: 265 restricciones -> 142 reglas · errores-restricciones.properties
+mensajes de regla: 171 · errores-reglas.properties
+  AVISO: 3 reglas con restriccion y sin fila en la boveda: R-BIL-21, R-BIL-22, R-UIF-13
+
+> Task :plataforma:comun-web:processResources
+> Task :plataforma:comun-web:processTestFixturesResources NO-SOURCE
+> Task :plataforma:comun-dominio:compileJava
+> Task :plataforma:comun-dominio:processResources NO-SOURCE
+> Task :plataforma:comun-dominio:classes
+> Task :plataforma:comun-dominio:jar
+> Task :plataforma:comun-datos:compileJava
+> Task :plataforma:comun-datos:classes
+> Task :plataforma:comun-datos:jar
+> Task :plataforma:comun-pruebas:compileJava
+> Task :plataforma:comun-pruebas:classes
+> Task :plataforma:comun-pruebas:jar
+> Task :plataforma:comun-mensajeria:compileJava
+> Task :plataforma:comun-mensajeria:classes
+> Task :plataforma:comun-mensajeria:jar
+> Task :plataforma:comun-web:compileJava
+> Task :plataforma:comun-web:classes
+> Task :plataforma:comun-web:jar
+> Task :plataforma:comun-web:compileTestFixturesJava
+> Task :plataforma:comun-web:testFixturesClasses
+> Task :plataforma:comun-web:testFixturesJar
+
+> Task :servicios:transparencia:generarServidorOpenApi
+OpenAPI 3.1 support is still in beta. To report an issue related to 3.1 spec, please kindly open an issue in the Github repo: https://github.com/openAPITools/openapi-generator.
+Failed to get the schema name: null
+OpenAPI 3.1 support is still in beta. To report an issue related to 3.1 spec, please kindly open an issue in the Github repo: https://github.com/openAPITools/openapi-generator.
+No application/json content media type found in response. Response examples can currently only be generated for application/json media type.
+############################################################################################
+# Thanks for using OpenAPI Generator.                                                      #
+# We appreciate your support! Please consider donation to help us maintain this project.   #
+# https://opencollective.com/openapi_generator/donate                                      #
+############################################################################################
+Successfully generated code to /Users/pablo/Documents/GitHub/Pasanaku-wt-datos/servicios/transparencia/build/generated/openapi
+
+> Task :servicios:transparencia:generateJooq
+Ambiguous key name       : The one-to-many key transparencia.fk_evento_reputacion_revertido_por_id generates an inbound key method name eventoReputacion on table transparencia.evento_reputacion which conflicts with the previously generated key method name for key transparencia.fk_evento_reputacion_revertido_por_id. Use a custom generator strategy to disambiguate the method names for ForeignKeyDefinition, InverseForeignKeyDefinition, and/or ManyToManyKeyDefinition, or simply turn off the feature. More information here:
+ - https://www.jooq.org/doc/latest/manual/code-generation/codegen-generatorstrategy/
+ - https://www.jooq.org/doc/latest/manual/code-generation/codegen-matcherstrategy/
+ - https://www.jooq.org/doc/latest/manual/code-generation/codegen-advanced/codegen-config-generate/codegen-implicit-join-paths/
+
+> Task :servicios:grupos:generarServidorOpenApi
+OpenAPI 3.1 support is still in beta. To report an issue related to 3.1 spec, please kindly open an issue in the Github repo: https://github.com/openAPITools/openapi-generator.
+OpenAPI 3.1 support is still in beta. To report an issue related to 3.1 spec, please kindly open an issue in the Github repo: https://github.com/openAPITools/openapi-generator.
+############################################################################################
+# Thanks for using OpenAPI Generator.                                                      #
+# We appreciate your support! Please consider donation to help us maintain this project.   #
+# https://opencollective.com/openapi_generator/donate                                      #
+############################################################################################
+Successfully generated code to /Users/pablo/Documents/GitHub/Pasanaku-wt-datos/servicios/grupos/build/generated/openapi
+
+> Task :servicios:grupos:generateJooq
+Ambiguous key name       : The one-to-many key grupos.fk_decision_ingreso_propuesta generates an inbound key method name decisionIngreso on table grupos.decision_ingreso which conflicts with the previously generated key method name for key grupos.fk_decision_ingreso_propuesta. Use a custom generator strategy to disambiguate the method names for ForeignKeyDefinition, InverseForeignKeyDefinition, and/or ManyToManyKeyDefinition, or simply turn off the feature. More information here:
+ - https://www.jooq.org/doc/latest/manual/code-generation/codegen-generatorstrategy/
+ - https://www.jooq.org/doc/latest/manual/code-generation/codegen-matcherstrategy/
+ - https://www.jooq.org/doc/latest/manual/code-generation/codegen-advanced/codegen-config-generate/codegen-implicit-join-paths/
+Ambiguous key name       : The one-to-many key grupos.fk_participante_invitado_por_id generates an inbound key method name participante on table grupos.participante which conflicts with the previously generated key method name for key grupos.fk_participante_invitado_por_id. Use a custom generator strategy to disambiguate the method names for ForeignKeyDefinition, InverseForeignKeyDefinition, and/or ManyToManyKeyDefinition, or simply turn off the feature. More information here:
+ - https://www.jooq.org/doc/latest/manual/code-generation/codegen-generatorstrategy/
+ - https://www.jooq.org/doc/latest/manual/code-generation/codegen-matcherstrategy/
+ - https://www.jooq.org/doc/latest/manual/code-generation/codegen-advanced/codegen-config-generate/codegen-implicit-join-paths/
+Ambiguous key name       : The one-to-many key grupos.fk_turno_permutado_con_turno_id generates an inbound key method name turno on table grupos.turno which conflicts with the previously generated key method name for key grupos.fk_turno_permutado_con_turno_id. Use a custom generator strategy to disambiguate the method names for ForeignKeyDefinition, InverseForeignKeyDefinition, and/or ManyToManyKeyDefinition, or simply turn off the feature. More information here:
+ - https://www.jooq.org/doc/latest/manual/code-generation/codegen-generatorstrategy/
+ - https://www.jooq.org/doc/latest/manual/code-generation/codegen-matcherstrategy/
+ - https://www.jooq.org/doc/latest/manual/code-generation/codegen-advanced/codegen-config-generate/codegen-implicit-join-paths/
+
+> Task :servicios:transparencia:compileJava
+> Task :servicios:transparencia:processResources
+> Task :servicios:transparencia:classes
+> Task :servicios:transparencia:compileTestJava
+> Task :servicios:transparencia:processTestResources
+> Task :servicios:transparencia:testClasses
+> Task :servicios:grupos:compileJava
+> Task :servicios:grupos:processResources
+> Task :servicios:grupos:classes
+> Task :servicios:grupos:compileTestJava
+> Task :servicios:grupos:processTestResources
+> Task :servicios:grupos:testClasses
+> Task :servicios:transparencia:test
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+> Task :servicios:transparencia:webTest
+> Task :servicios:grupos:test
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+> Task :servicios:grupos:webTest
+> Task :servicios:transparencia:integrationTest
+> Task :servicios:grupos:integrationTest
+
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+2026-10-30T20:23:29.999-04:00  INFO 69695 --- [transparencia] [ionShutdownHook] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2026-10-30T20:23:30.010-04:00  INFO 69695 --- [transparencia] [tomcat-shutdown] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2026-10-30T20:23:30.173-04:00  INFO 69695 --- [transparencia] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-10-30T20:23:30.176-04:00  INFO 69695 --- [transparencia] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+
+> Task :servicios:transparencia:spotlessJava
+> Task :servicios:transparencia:spotlessJavaCheck
+> Task :servicios:transparencia:spotlessKotlinGradle
+> Task :servicios:transparencia:spotlessKotlinGradleCheck
+> Task :servicios:transparencia:spotlessCheck
+2026-10-30T20:24:06.417-04:00  INFO 69728 --- [grupos] [        kafka-1] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-grupos-cesiones-1, groupId=grupos-cesiones] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-10-30T20:24:06.417-04:00  INFO 69728 --- [grupos] [        kafka-2] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-grupos-apertura-2, groupId=grupos-apertura] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-10-30T20:24:06.417-04:00  INFO 69728 --- [grupos] [        kafka-1] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-grupos-cesiones-1, groupId=grupos-cesiones] Request joining group due to: consumer pro-actively leaving the group
+2026-10-30T20:24:06.417-04:00  INFO 69728 --- [grupos] [        kafka-2] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-grupos-apertura-2, groupId=grupos-apertura] Request joining group due to: consumer pro-actively leaving the group
+2026-10-30T20:24:06.417-04:00  INFO 69728 --- [grupos] [        kafka-1] [                                                 ] o.a.k.c.c.i.ClassicKafkaConsumer         : [Consumer clientId=consumer-grupos-cesiones-1, groupId=grupos-cesiones] Unsubscribed all topics or patterns and assigned partitions
+2026-10-30T20:24:06.417-04:00  INFO 69728 --- [grupos] [        kafka-2] [                                                 ] o.a.k.c.c.i.ClassicKafkaConsumer         : [Consumer clientId=consumer-grupos-apertura-2, groupId=grupos-apertura] Unsubscribed all topics or patterns and assigned partitions
+2026-10-30T20:24:06.419-04:00  INFO 69728 --- [grupos] [        kafka-2] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-grupos-apertura-2, groupId=grupos-apertura] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-10-30T20:24:06.419-04:00  INFO 69728 --- [grupos] [        kafka-2] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-grupos-apertura-2, groupId=grupos-apertura] Request joining group due to: consumer pro-actively leaving the group
+2026-10-30T20:24:06.419-04:00  INFO 69728 --- [grupos] [        kafka-1] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-grupos-cesiones-1, groupId=grupos-cesiones] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-10-30T20:24:06.419-04:00  INFO 69728 --- [grupos] [        kafka-1] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-grupos-cesiones-1, groupId=grupos-cesiones] Request joining group due to: consumer pro-actively leaving the group
+2026-10-30T20:24:06.423-04:00  INFO 69728 --- [grupos] [        kafka-1] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Metrics scheduler closed
+2026-10-30T20:24:06.423-04:00  INFO 69728 --- [grupos] [        kafka-2] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Metrics scheduler closed
+2026-10-30T20:24:06.423-04:00  INFO 69728 --- [grupos] [        kafka-1] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Closing reporter org.apache.kafka.common.metrics.JmxReporter
+2026-10-30T20:24:06.423-04:00  INFO 69728 --- [grupos] [        kafka-2] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Closing reporter org.apache.kafka.common.metrics.JmxReporter
+2026-10-30T20:24:06.423-04:00  INFO 69728 --- [grupos] [        kafka-1] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Closing reporter org.apache.kafka.common.telemetry.internals.ClientTelemetryReporter
+2026-10-30T20:24:06.423-04:00  INFO 69728 --- [grupos] [        kafka-1] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Metrics reporters closed
+2026-10-30T20:24:06.423-04:00  INFO 69728 --- [grupos] [        kafka-2] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Closing reporter org.apache.kafka.common.telemetry.internals.ClientTelemetryReporter
+2026-10-30T20:24:06.423-04:00  INFO 69728 --- [grupos] [        kafka-2] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Metrics reporters closed
+2026-10-30T20:24:06.432-04:00  INFO 69728 --- [grupos] [        kafka-2] [                                                 ] o.a.kafka.common.utils.AppInfoParser     : App info kafka.consumer for consumer-grupos-apertura-2 unregistered
+2026-10-30T20:24:06.432-04:00  INFO 69728 --- [grupos] [        kafka-1] [                                                 ] o.a.kafka.common.utils.AppInfoParser     : App info kafka.consumer for consumer-grupos-cesiones-1 unregistered
+2026-10-30T20:24:06.432-04:00  INFO 69728 --- [grupos] [        kafka-1] [                                                 ] o.s.k.l.KafkaMessageListenerContainer    : grupos-cesiones: Consumer stopped
+2026-10-30T20:24:06.432-04:00  INFO 69728 --- [grupos] [        kafka-2] [                                                 ] o.s.k.l.KafkaMessageListenerContainer    : grupos-apertura: Consumer stopped
+2026-10-30T20:24:06.434-04:00  INFO 69728 --- [grupos] [ionShutdownHook] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2026-10-30T20:24:06.436-04:00  INFO 69728 --- [grupos] [tomcat-shutdown] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2026-10-30T20:24:06.440-04:00  INFO 69728 --- [grupos] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-10-30T20:24:06.442-04:00  INFO 69728 --- [grupos] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2026-10-30T20:24:06.448-04:00  INFO 69728 --- [grupos] [        kafka-1] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-grupos-cesiones-3, groupId=grupos-cesiones] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-10-30T20:24:06.448-04:00  INFO 69728 --- [grupos] [        kafka-2] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-grupos-apertura-4, groupId=grupos-apertura] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-10-30T20:24:06.448-04:00  INFO 69728 --- [grupos] [        kafka-1] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-grupos-cesiones-3, groupId=grupos-cesiones] Request joining group due to: consumer pro-actively leaving the group
+2026-10-30T20:24:06.448-04:00  INFO 69728 --- [grupos] [        kafka-2] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-grupos-apertura-4, groupId=grupos-apertura] Request joining group due to: consumer pro-actively leaving the group
+2026-10-30T20:24:06.448-04:00  INFO 69728 --- [grupos] [        kafka-1] [                                                 ] o.a.k.c.c.i.ClassicKafkaConsumer         : [Consumer clientId=consumer-grupos-cesiones-3, groupId=grupos-cesiones] Unsubscribed all topics or patterns and assigned partitions
+2026-10-30T20:24:06.448-04:00  INFO 69728 --- [grupos] [        kafka-2] [                                                 ] o.a.k.c.c.i.ClassicKafkaConsumer         : [Consumer clientId=consumer-grupos-apertura-4, groupId=grupos-apertura] Unsubscribed all topics or patterns and assigned partitions
+2026-10-30T20:24:06.448-04:00  INFO 69728 --- [grupos] [        kafka-1] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-grupos-cesiones-3, groupId=grupos-cesiones] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-10-30T20:24:06.448-04:00  INFO 69728 --- [grupos] [        kafka-1] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-grupos-cesiones-3, groupId=grupos-cesiones] Request joining group due to: consumer pro-actively leaving the group
+2026-10-30T20:24:06.448-04:00  INFO 69728 --- [grupos] [        kafka-2] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-grupos-apertura-4, groupId=grupos-apertura] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-10-30T20:24:06.449-04:00  INFO 69728 --- [grupos] [        kafka-2] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-grupos-apertura-4, groupId=grupos-apertura] Request joining group due to: consumer pro-actively leaving the group
+2026-10-30T20:24:06.449-04:00  INFO 69728 --- [grupos] [        kafka-1] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Metrics scheduler closed
+2026-10-30T20:24:06.449-04:00  INFO 69728 --- [grupos] [        kafka-2] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Metrics scheduler closed
+2026-10-30T20:24:06.449-04:00  INFO 69728 --- [grupos] [        kafka-1] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Closing reporter org.apache.kafka.common.metrics.JmxReporter
+2026-10-30T20:24:06.449-04:00  INFO 69728 --- [grupos] [        kafka-2] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Closing reporter org.apache.kafka.common.metrics.JmxReporter
+2026-10-30T20:24:06.450-04:00  INFO 69728 --- [grupos] [        kafka-1] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Closing reporter org.apache.kafka.common.telemetry.internals.ClientTelemetryReporter
+2026-10-30T20:24:06.450-04:00  INFO 69728 --- [grupos] [        kafka-1] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Metrics reporters closed
+2026-10-30T20:24:06.450-04:00  INFO 69728 --- [grupos] [        kafka-2] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Closing reporter org.apache.kafka.common.telemetry.internals.ClientTelemetryReporter
+2026-10-30T20:24:06.450-04:00  INFO 69728 --- [grupos] [        kafka-2] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Metrics reporters closed
+2026-10-30T20:24:06.453-04:00  INFO 69728 --- [grupos] [        kafka-1] [                                                 ] o.a.kafka.common.utils.AppInfoParser     : App info kafka.consumer for consumer-grupos-cesiones-3 unregistered
+2026-10-30T20:24:06.454-04:00  INFO 69728 --- [grupos] [        kafka-1] [                                                 ] o.s.k.l.KafkaMessageListenerContainer    : grupos-cesiones: Consumer stopped
+2026-10-30T20:24:06.454-04:00  INFO 69728 --- [grupos] [        kafka-2] [                                                 ] o.a.kafka.common.utils.AppInfoParser     : App info kafka.consumer for consumer-grupos-apertura-4 unregistered
+2026-10-30T20:24:06.454-04:00  INFO 69728 --- [grupos] [        kafka-2] [                                                 ] o.s.k.l.KafkaMessageListenerContainer    : grupos-apertura: Consumer stopped
+2026-10-30T20:24:06.454-04:00  INFO 69728 --- [grupos] [ionShutdownHook] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2026-10-30T20:24:06.455-04:00  INFO 69728 --- [grupos] [tomcat-shutdown] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2026-10-30T20:24:06.457-04:00  INFO 69728 --- [grupos] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Shutdown initiated...
+2026-10-30T20:24:06.458-04:00  INFO 69728 --- [grupos] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Shutdown completed.
+> Task :servicios:grupos:spotlessJava
+> Task :servicios:grupos:spotlessJavaCheck
+> Task :servicios:grupos:spotlessKotlinGradle
+> Task :servicios:grupos:spotlessKotlinGradleCheck
+> Task :servicios:grupos:spotlessCheck
+
+BUILD SUCCESSFUL in 5m 45s
+53 actionable tasks: 53 executed
+Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.7.1/userguide/configuration_cache_enabling.html

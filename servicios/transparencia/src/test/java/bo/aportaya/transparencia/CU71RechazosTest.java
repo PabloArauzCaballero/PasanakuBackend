@@ -128,4 +128,23 @@ class CU71RechazosTest extends BaseDeTransparencia {
                         "UPDATE transparencia.puntaje_reputacion SET puntaje = 1.00 WHERE id = ?", salida.puntajeId()))
                 .contains("R-REP-03");
     }
+
+    @Test
+    @DisplayName("rechaza por R-REP-07")
+    void rechazaRREP07() {
+        // La etapa del puntaje se deriva de tramos sin solape dentro del modelo: si dos se
+        // pisaran, el mismo puntaje caeria en dos etapas y el recalculo no sabria cual dar.
+        // La base lo verifica al confirmar (ex_etapa_sin_solape es diferida).
+        assertThat(rechazaAlConfirmar(
+                        """
+                        INSERT INTO transparencia.etapa (modelo_id, codigo, nombre, orden, desde, hasta)
+                        VALUES (?, 'INTRUSA', 'Intrusa', 99, 540.00, 560.00)
+                        """,
+                        fixtura.modeloVigente()))
+                .contains("ex_etapa_sin_solape");
+        assertThat(contar(
+                        "SELECT count(*)::int FROM transparencia.etapa WHERE codigo = 'INTRUSA' AND modelo_id = ?",
+                        fixtura.modeloVigente()))
+                .isZero();
+    }
 }

@@ -1,0 +1,12 @@
+=== 1 · PANTALLAS DE LA MAQUETA EN planes/22 ===
+  OK    · toda ruta de la maqueta tiene su fila en planes/22 
+=== 2 · PIEZAS ===
+  OK    · toda pieza de planes/20 §2 está en planes/22 §6 
+  OK    · toda pieza de planes/22 §6 está en el alcance F1.9 de planes/11 
+=== 3 · MUNDOS ===
+  OK    · cada pieza de planes/22 §6 tiene al menos un mundo 
+        32 piezas · 30 Flutter · 24 Angular
+=== 4 · SIN RESTOS DEL STACK ANTERIOR ===
+  OK    · ningún plan de frontend nombra el stack anterior fuera de la transición 
+
+TODO OK

@@ -1,0 +1,59 @@
+{
+  "servicio": "auditoria",
+  "operacion": "consultarOutboxPorServicio",
+  "metodo": "get",
+  "ruta": "/indicadores/operacion/outbox",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "consultadoEn": "2026-01-15T10:30:00Z",
+        "fuenteDisponible": true,
+        "servicios": [
+          {
+            "servicio": "servicio",
+            "pendientes": 0,
+            "fallidos": 0,
+            "edadMasViejoSegundos": 0,
+            "publicados24h": 0,
+            "erroresDePublicacion24h": 0
+          }
+        ]
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "consultadoEn": "2026-01-15T10:30:00Z",
+        "fuenteDisponible": false,
+        "servicios": []
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "consultadoEn": "2026-01-15T10:30:00Z",
+        "fuenteDisponible": true,
+        "servicios": [
+          {
+            "servicio": "servicio",
+            "pendientes": 0,
+            "fallidos": 0,
+            "edadMasViejoSegundos": 0,
+            "publicados24h": 0,
+            "erroresDePublicacion24h": 0
+          }
+        ]
+      }
+    },
+    "rechazo": {
+      "estado": 401,
+      "cuerpo": {
+        "codigo": "AP-CU07-01",
+        "mensaje": "Identidad no verificada",
+        "detalle": {},
+        "trazaId": "traza-consultarOutboxPorServicio-rechazo"
+      }
+    }
+  }
+}

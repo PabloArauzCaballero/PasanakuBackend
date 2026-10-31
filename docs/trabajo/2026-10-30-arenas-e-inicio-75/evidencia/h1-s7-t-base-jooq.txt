@@ -1,0 +1,88 @@
+# H1.S7.M2 (carril T) — base pasanaku de pg-arenas (la que lee generateJooq) reconstruida con el esquema nuevo, y jOOQ regenerado
+$ dropdb --if-exists pasanaku ; createdb pasanaku ; ALTER DATABASE pasanaku SET search_path TO <los 17 esquemas, igual que BaseDePrueba>
+exit=0
+$ psql -v ON_ERROR_STOP=1 -q -f /sql/aplicar.sql
+lineas NOTICE: 1224 · lineas con 'ERROR:': 0
+exit=0
+$ tablas de la etapa y restos del nombre anterior en el esquema transparencia
+tabla: desbloqueo_etapa
+tabla: etapa
+objetos con arena en el nombre (debe ser 0): 0
+restricciones con arena en el nombre (debe ser 0): 0
+ex_etapa_sin_solape deferrable=true deferred=true
+$ psql -c "<conteos>"   # antes de sembrar
+ etapas | desbloqueos | vigentes 
+--------+-------------+----------
+      0 |           0 |        0
+(1 row)
+
+$ psql -v ON_ERROR_STOP=1 -f /sql/60_semillas/sembrar.sql   # corrida 1
+sentencias INSERT: 123 · con filas escritas (INSERT 0 N, N>0; un DO UPDATE tambien cuenta): 123 · filas escritas en total: 979 · ERROR: 0
+exit=0
+$ psql -c "<conteos>"
+ etapas | desbloqueos | vigentes 
+--------+-------------+----------
+     11 |          11 |        0
+(1 row)
+
+$ psql -v ON_ERROR_STOP=1 -f /sql/60_semillas/sembrar.sql   # corrida 2
+sentencias INSERT: 123 · con filas escritas (INSERT 0 N, N>0; un DO UPDATE tambien cuenta): 0 · filas escritas en total: 0 · ERROR: 0
+exit=0
+$ psql -c "<conteos>"
+ etapas | desbloqueos | vigentes 
+--------+-------------+----------
+     11 |          11 |        0
+(1 row)
+
+$ psql -f /sql/60_semillas/16-reputacion-y-scoring.sql   # tercera vez, solo el archivo de etapas: una etiqueta por sentencia
+INSERT 0 0
+INSERT 0 0
+INSERT 0 0
+INSERT 0 0
+INSERT 0 0
+INSERT 0 0
+exit=0
+$ psql -c "SELECT orden, codigo, nombre, desde, hasta, estado del desbloqueo"
+ orden |    codigo    |         nombre         | desde  |  hasta  | cupos_max | aporte_max | moneda |  estado   
+-------+--------------+------------------------+--------+---------+-----------+------------+--------+-----------
+     0 | RECUPERACION | En recuperación        |   0.00 |  500.00 |         5 |     100.00 | BOB    | PROPUESTO
+     1 | INICIAL      | Etapa 1 · Inicial      | 500.00 |  550.00 |         6 |     200.00 | BOB    | PROPUESTO
+     2 | EN_MARCHA    | Etapa 2 · En marcha    | 550.00 |  600.00 |         8 |     300.00 | BOB    | PROPUESTO
+     3 | CONSTANTE    | Etapa 3 · Constante    | 600.00 |  650.00 |        10 |     500.00 | BOB    | PROPUESTO
+     4 | PUNTUAL      | Etapa 4 · Puntual      | 650.00 |  700.00 |        12 |     700.00 | BOB    | PROPUESTO
+     5 | COMPROMETIDO | Etapa 5 · Comprometido | 700.00 |  760.00 |        15 |    1000.00 | BOB    | PROPUESTO
+     6 | SOLIDO       | Etapa 6 · Sólido       | 760.00 |  820.00 |        18 |    1500.00 | BOB    | PROPUESTO
+     7 | DESTACADO    | Etapa 7 · Destacado    | 820.00 |  880.00 |        20 |    2000.00 | BOB    | PROPUESTO
+     8 | EXPERTO      | Etapa 8 · Experto      | 880.00 |  940.00 |        24 |    3000.00 | BOB    | PROPUESTO
+     9 | EJEMPLAR     | Etapa 9 · Ejemplar     | 940.00 |  980.00 |        30 |    4000.00 | BOB    | PROPUESTO
+    10 | PILAR        | Etapa 10 · Pilar       | 980.00 | 1000.00 |        40 |    5000.00 | BOB    | PROPUESTO
+(11 rows)
+
+$ python3 -I verificar_deriva_bd.py <repo> pg-arenas pasanaku
+DDL: 345 tablas · 3757 columnas · 688 FK · 791 indices (sql/10_tablas, 20_claves, 30_indices)
+base: 445 tablas en esos esquemas · FK del DDL presentes 688/688 · indices del DDL presentes 791/791
+SIN DERIVA
+exit=0
+$ psql <consultas de catálogo: todas deben dar 0>
+huecos R-REP-07 | 0
+desbloqueos huerfanos | 0
+etapas sin desbloqueo | 0
+codigos duplicados | 0
+tramos invalidos | 0
+nombres nulos o vacios | 0
+desbloqueos VIGENTE (deben ser 0: nada financiero sin confirmar) | 0
+escala cubierta distinta de 0..1000 | 0
+exit=0
+$ COMMENT ON TABLE de las dos tablas, leído de la base (recortado)
+etapa: [NEGOCIO] Los tramos con nombre en que se parte la escala del puntaje de un modelo (con el v1: En recuperación, Etapa 1 · Inicial, Etapa 2 · En marcha… hasta Etapa 10 · Pilar). Cada etapa es un intervalo [`desde`,
+desbloqueo_etapa: [NEGOCIO] Lo que desbloquea una etapa (a lo sumo uno por etapa): cuántos cupos totales puede tener como máximo un grupo y cuánto aporte por periodo como máximo, con su moneda, puede crear o integrar qui
+$ RLS con el rol real: svc_transparencia + PARTICIPANTE
+BEGIN
+svc_transparencia miembro de rol_aplicacion: true
+SET
+PARTICIPANTE ve etapas: 11
+PARTICIPANTE ve desbloqueos: 11
+ROLLBACK
+exit=0
+$ ./gradlew :servicios:transparencia:generateJooq --rerun
+exit=0

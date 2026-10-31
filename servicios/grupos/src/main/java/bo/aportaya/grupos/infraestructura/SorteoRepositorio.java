@@ -1,13 +1,11 @@
 package bo.aportaya.grupos.infraestructura;
 
 import static bo.aportaya.grupos.generado.Tables.CUPO;
+import static bo.aportaya.grupos.generado.Tables.GRUPO;
 import static bo.aportaya.grupos.generado.Tables.SORTEO_TURNOS;
 import static bo.aportaya.grupos.generado.Tables.TURNO;
 
 import bo.aportaya.grupos.dominio.SnapshotDeSorteo;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -31,21 +29,34 @@ public class SorteoRepositorio {
                 .fetch(CUPO.ID);
     }
 
-    /** Un grupo a medio armar no se sortea: quedan cupos libres. */
+    /** Un grupo a medio armar no se sortea: quedan cupos libres. Los que dejo afuera el inicio al 75 % no cuentan. */
     public boolean estaConformado(DSLContext dsl, UUID grupoId) {
-        return dsl.fetchCount(CUPO, CUPO.GRUPO_ID.eq(grupoId).and(CUPO.ESTADO.ne("OCUPADO"))) == 0
-                && dsl.fetchCount(CUPO, CUPO.GRUPO_ID.eq(grupoId)) > 0;
+        var delCiclo = CUPO.GRUPO_ID
+                .eq(grupoId)
+                .and(CUPO.NUMERO.le(dsl.select(GRUPO.CUPOS_TOTALES)
+                        .from(GRUPO)
+                        .where(GRUPO.ID.eq(grupoId))
+                        .asField()));
+        return dsl.fetchCount(CUPO, delCiclo.and(CUPO.ESTADO.ne("OCUPADO"))) == 0 && dsl.fetchCount(CUPO, delCiclo) > 0;
     }
 
-    /** Cada participante con su reglamento aceptado, o no hay sorteo. */
+    /**
+     * Cada participante del ciclo con la version VIGENTE del reglamento aceptada, o no hay sorteo. Iniciar el grupo
+     * publica una version nueva con los numeros reales (2026-10-30): la aceptacion de una version anterior no alcanza.
+     * Mismo criterio que {@code puedeSortear} del detalle: cupos OCUPADO dentro de {@code cupos_totales}.
+     */
     public boolean todosAceptaronElReglamento(DSLContext dsl, UUID grupoId) {
         Integer sinAceptar = (Integer) dsl.fetchOne(
                         """
                         SELECT count(*)::int FROM grupos.cupo c
+                          JOIN grupos.grupo g ON g.id = c.grupo_id
                          WHERE c.grupo_id = ? AND c.participante_id IS NOT NULL
+                           AND c.estado = 'OCUPADO' AND c.numero <= g.cupos_totales
                            AND NOT EXISTS (
                              SELECT 1 FROM grupos.aceptacion_reglamento a
-                              WHERE a.participante_id = c.participante_id)
+                               JOIN grupos.reglamento_grupo r ON r.id = a.reglamento_id
+                              WHERE a.participante_id = c.participante_id
+                                AND r.grupo_id = c.grupo_id AND r.vigente_hasta IS NULL)
                         """,
                         grupoId)
                 .get(0);
@@ -75,7 +86,9 @@ public class SorteoRepositorio {
                 .set(SORTEO_TURNOS.HASH_SEMILLA_PREVIO, hash)
                 .set(SORTEO_TURNOS.FECHA_COMPROMISO, ahora)
                 .set(SORTEO_TURNOS.FECHA_REVELADO_PREVISTA, fechaPrevista.orElse(null))
-                .set(SORTEO_TURNOS.APORTES_ENTROPIA, org.jooq.JSONB.valueOf(comoJson(entropiasComprometidas)))
+                .set(
+                        SORTEO_TURNOS.APORTES_ENTROPIA,
+                        org.jooq.JSONB.valueOf(ListasDeSorteo.comoJson(entropiasComprometidas)))
                 .set(SORTEO_TURNOS.SEMILLA_PUBLICA, "")
                 .set(SORTEO_TURNOS.RESULTADO, org.jooq.JSONB.valueOf("[]"))
                 .set(SORTEO_TURNOS.EJECUTADO_POR, ejecutadoPor)
@@ -202,28 +215,9 @@ public class SorteoRepositorio {
                 f.get("grupo_id", UUID.class),
                 f.get("estado", String.class),
                 f.get("hash_semilla_previo", String.class),
-                leerLista(f.get("aportes_entropia", org.jooq.JSONB.class)),
-                leerLista(f.get("resultado", org.jooq.JSONB.class)),
+                ListasDeSorteo.leerLista(f.get("aportes_entropia", org.jooq.JSONB.class)),
+                ListasDeSorteo.leerLista(f.get("resultado", org.jooq.JSONB.class)),
                 f.get("semilla_publica", String.class));
-    }
-
-    private static final ObjectMapper JSON = new ObjectMapper();
-
-    public static String comoJson(List<String> valores) {
-        try {
-            return JSON.writeValueAsString(valores);
-        } catch (JsonProcessingException e) {
-            throw new IllegalStateException(e);
-        }
-    }
-
-    public static List<String> leerLista(org.jooq.JSONB json) {
-        if (json == null) return List.of();
-        try {
-            return JSON.readValue(json.data(), new TypeReference<List<String>>() {});
-        } catch (JsonProcessingException e) {
-            throw new IllegalStateException("JSON de sorteo ilegible", e);
-        }
     }
 
     /** Congela el plantel, el calendario y las reglas junto con la semilla sellada. Una sola vez por sorteo. */

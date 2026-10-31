@@ -7,9 +7,12 @@ import bo.aportaya.transparencia.aplicacion.CU74EvaluarInsignias;
 import bo.aportaya.transparencia.aplicacion.CU75EmitirCertificado;
 import bo.aportaya.transparencia.aplicacion.CU76PublicarResena;
 import bo.aportaya.transparencia.aplicacion.CU97EvaluarRiesgo;
+import bo.aportaya.transparencia.aplicacion.ConsultarEtapasDePersonas;
 import bo.aportaya.transparencia.dominio.CriterioDeInsignia;
+import bo.aportaya.transparencia.dominio.EtapasDeReputacion;
 import bo.aportaya.transparencia.dominio.IndicadoresDeReputacion;
 import bo.aportaya.transparencia.web.generado.modelo.AlertaDeRiesgo;
+import bo.aportaya.transparencia.web.generado.modelo.DesbloqueoDeEtapa;
 import bo.aportaya.transparencia.web.generado.modelo.EntradaCertificado;
 import bo.aportaya.transparencia.web.generado.modelo.EntradaEvaluacionInsignias;
 import bo.aportaya.transparencia.web.generado.modelo.EntradaEvaluacionRiesgo;
@@ -17,10 +20,16 @@ import bo.aportaya.transparencia.web.generado.modelo.EntradaEventoReputacion;
 import bo.aportaya.transparencia.web.generado.modelo.EntradaRecalculo;
 import bo.aportaya.transparencia.web.generado.modelo.EntradaResena;
 import bo.aportaya.transparencia.web.generado.modelo.EntradaSellado;
+import bo.aportaya.transparencia.web.generado.modelo.EtapaDePersona;
+import bo.aportaya.transparencia.web.generado.modelo.EtapaDelCatalogo;
+import bo.aportaya.transparencia.web.generado.modelo.EtapaDelPuntaje;
+import bo.aportaya.transparencia.web.generado.modelo.EtapaParaServicio;
+import bo.aportaya.transparencia.web.generado.modelo.EtapaSiguiente;
 import bo.aportaya.transparencia.web.generado.modelo.SalidaEventoReputacion;
 import bo.aportaya.transparencia.web.generado.modelo.SalidaInsignia;
 import bo.aportaya.transparencia.web.generado.modelo.SalidaResena;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -186,5 +195,68 @@ final class MapeoDeReputacion {
         salida.setAccionSugerida(a.accionSugerida());
         salida.setMensajeAlUsuario(a.mensajeAlUsuario());
         return salida;
+    }
+
+    /**
+     * Una etapa del catalogo. Los tramos y el aporte viajan como cadena con dos decimales
+     * (schema {@code Decimal}): nunca como numero en coma flotante (regla 91.1.1).
+     */
+    static EtapaDelCatalogo etapa(EtapasDeReputacion.Etapa a) {
+        var salida = new EtapaDelCatalogo();
+        salida.setCodigo(a.codigo());
+        salida.setNombre(a.nombre());
+        salida.setOrden(a.orden());
+        salida.setDesde(decimal(a.desde()));
+        salida.setHasta(decimal(a.hasta()));
+        if (a.desbloqueo() != null) {
+            var d = a.desbloqueo();
+            salida.setDesbloqueo(new DesbloqueoDeEtapa(
+                    d.cuposMax(),
+                    decimal(d.aporteMax()),
+                    DesbloqueoDeEtapa.MonedaEnum.fromValue(d.moneda()),
+                    DesbloqueoDeEtapa.EstadoEnum.fromValue(d.estado())));
+        }
+        return salida;
+    }
+
+    /** Donde cae el puntaje: la etapa, la siguiente (ausente en la ultima) y el progreso a cuatro decimales. */
+    static EtapaDelPuntaje etapaDelPuntaje(EtapasDeReputacion.Ubicacion u) {
+        var salida = new EtapaDelPuntaje();
+        salida.setCodigo(u.etapa().codigo());
+        salida.setNombre(u.etapa().nombre());
+        salida.setOrden(u.etapa().orden());
+        salida.setDesde(decimal(u.etapa().desde()));
+        salida.setHasta(decimal(u.etapa().hasta()));
+        salida.setProgreso(u.progreso().toPlainString());
+        if (u.siguiente() != null) {
+            var siguiente = new EtapaSiguiente();
+            siguiente.setCodigo(u.siguiente().codigo());
+            siguiente.setNombre(u.siguiente().nombre());
+            siguiente.setDesde(decimal(u.siguiente().desde()));
+            salida.setSiguiente(siguiente);
+        }
+        return salida;
+    }
+
+    /**
+     * La etapa de una persona para un servicio: codigo, nombre, orden y el {@code desde} del tramo.
+     * Nunca el puntaje ni el progreso (regla 90.2.8): con el progreso y el tramo se reconstruye el
+     * puntaje, asi que tampoco viaja {@code hasta}.
+     */
+    static EtapaDePersona etapaDePersona(ConsultarEtapasDePersonas.EtapaDePersona e) {
+        var salida = new EtapaDePersona(e.usuarioId(), e.tieneHistorial());
+        if (e.etapa() != null) {
+            salida.setEtapa(new EtapaParaServicio(
+                    e.etapa().codigo(),
+                    e.etapa().nombre(),
+                    e.etapa().orden(),
+                    decimal(e.etapa().desde())));
+        }
+        return salida;
+    }
+
+    /** {@code 500} y {@code 500.0} salen {@code "500.00"}: el patron del contrato exige dos decimales exactos. */
+    private static String decimal(BigDecimal valor) {
+        return valor.setScale(2, RoundingMode.UNNECESSARY).toPlainString();
     }
 }

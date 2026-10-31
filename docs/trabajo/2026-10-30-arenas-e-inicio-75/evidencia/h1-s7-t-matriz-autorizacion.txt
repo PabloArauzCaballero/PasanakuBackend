@@ -1,0 +1,7 @@
+$ ./gradlew :plataforma:comun-pruebas:contractTest --tests *MatrizDeAutorizacionContratoTest
+MatrizDeAutorizacionContratoTest > rechaza: todo permiso que un controlador exige existe en el catalogo sembrado FAILED
+    Expecting empty but was: ["transparencia GET /reputacion/etapas/de-personas (consultarEtapasDePersonas) exige «SERVICIO_GRUPOS», que no esta en seeders/minimos/10-roles-y-permisos.json (servicios/transparencia/src/main/java/bo/aportaya/transparencia/web/ReputacionController.java:163)"]
+8 tests completed, 1 failed
+> Task :plataforma:comun-pruebas:contractTest FAILED
+BUILD FAILED in 4s
+exit=1

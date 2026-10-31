@@ -11,9 +11,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'seccion_de_contacto.dart';
 import 'textos_perfil_del_integrante.dart';
 
-/// La reputación del integrante, tal como la calcula `transparencia`: puntaje,
-/// nivel, puntualidad, grupos, incumplimientos, antigüedad e insignias. Sin
-/// historial no hay ceros: se dice que todavía no tiene.
+/// La reputación del integrante, tal como la calcula `transparencia`: nivel,
+/// puntualidad, grupos, incumplimientos, antigüedad e insignias. Sin historial no
+/// hay ceros: se dice que todavía no tiene. El puntaje exacto NO se muestra aunque
+/// llegue (`PerfilDeReputacionEnGrupo.puntaje`): solo lo ve su dueño (decisión
+/// 2026-10-30, «Privacidad del puntaje»). Ocultarlo acá no es el control: el
+/// servidor todavía lo manda y eso queda registrado para `transparencia`.
 class SeccionDeConfianza extends StatelessWidget {
   const SeccionDeConfianza({
     super.key,
@@ -75,7 +78,6 @@ class _Reputacion extends StatelessWidget {
           Panel(
             hijo: FilasDePanel(
               filas: [
-                _fila(TextosPerfilDelIntegrante.puntaje, p.puntaje),
                 _fila(
                   TextosPerfilDelIntegrante.puntualidad,
                   p.indicePuntualidad == null

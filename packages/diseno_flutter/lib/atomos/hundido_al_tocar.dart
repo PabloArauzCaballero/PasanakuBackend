@@ -9,7 +9,7 @@ import 'movimiento.dart';
 /// La escala llega a 0,97 en 120 ms y vuelve con el resorte compartido: respuesta
 /// breve, perceptible y consistente entre botones y filas.
 ///
-/// `Listener` y no `GestureDetector`: no compite en la arena de gestos, así que el
+/// `Listener` y no `GestureDetector`: no compite con otros reconocedores de gestos, así que el
 /// botón de adentro sigue recibiendo su toque tal cual. Respeta «reducir movimiento».
 class HundidoAlTocar extends StatefulWidget {
   const HundidoAlTocar({super.key, required this.child, this.activo = true});

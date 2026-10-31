@@ -1,0 +1,87 @@
+{
+  "servicio": "grupos",
+  "operacion": "consultarGrupoDeBackoffice",
+  "metodo": "get",
+  "ruta": "/grupos/backoffice/{grupoId}",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "grupo": {
+          "grupoId": "ef9b787c-2ca1-4a72-83cc-56df21c3d62e",
+          "codigo": "codigo",
+          "nombre": "nombre",
+          "estado": "estado",
+          "montoAporte": "4.44",
+          "moneda": "mon",
+          "periodicidad": "periodicidad",
+          "cuposTotales": 1,
+          "cuposOcupados": 1,
+          "fechaInicio": "2026-01-15"
+        },
+        "cupos": [
+          {
+            "numero": 1,
+            "estado": "estado",
+            "alias": "alias",
+            "estadoParticipante": "estadoParticipante",
+            "esOrganizador": true
+          }
+        ]
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "grupo": {
+          "grupoId": "ef9b787c-2ca1-4a72-83cc-56df21c3d62e",
+          "codigo": "codigo",
+          "nombre": "nombre",
+          "estado": "estado",
+          "montoAporte": "0.00",
+          "moneda": "mon",
+          "periodicidad": "periodicidad",
+          "cuposTotales": 0,
+          "cuposOcupados": 0,
+          "fechaInicio": "2026-01-15"
+        },
+        "cupos": []
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "grupo": {
+          "grupoId": "ef9b787c-2ca1-4a72-83cc-56df21c3d62e",
+          "codigo": "codigo",
+          "nombre": "nombre",
+          "estado": "estado",
+          "montoAporte": "4.44",
+          "moneda": "mon",
+          "periodicidad": "periodicidad",
+          "cuposTotales": 1,
+          "cuposOcupados": 1,
+          "fechaInicio": "2026-01-15"
+        },
+        "cupos": [
+          {
+            "numero": 1,
+            "estado": "estado",
+            "alias": "alias",
+            "estadoParticipante": "estadoParticipante",
+            "esOrganizador": true
+          }
+        ]
+      }
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU64-01",
+        "mensaje": "Cupo no traspasable",
+        "detalle": {},
+        "trazaId": "traza-consultarGrupoDeBackoffice-rechazo"
+      }
+    }
+  }
+}
