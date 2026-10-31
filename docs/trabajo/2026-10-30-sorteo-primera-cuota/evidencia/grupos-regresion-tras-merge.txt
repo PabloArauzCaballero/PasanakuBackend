@@ -1,0 +1,118 @@
+> Task :buildSrc:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :buildSrc:generateExternalPluginSpecBuilders UP-TO-DATE
+> Task :buildSrc:extractPrecompiledScriptPluginPlugins UP-TO-DATE
+> Task :buildSrc:compilePluginsBlocks UP-TO-DATE
+> Task :buildSrc:generatePrecompiledScriptPluginAccessors UP-TO-DATE
+> Task :buildSrc:generateScriptPluginAdapters UP-TO-DATE
+> Task :buildSrc:compileKotlin UP-TO-DATE
+> Task :buildSrc:compileJava NO-SOURCE
+> Task :buildSrc:compileGroovy NO-SOURCE
+> Task :buildSrc:pluginDescriptors UP-TO-DATE
+> Task :buildSrc:processResources UP-TO-DATE
+> Task :buildSrc:classes UP-TO-DATE
+> Task :buildSrc:jar UP-TO-DATE
+> Task :spotlessInternalRegisterDependencies UP-TO-DATE
+> Task :plataforma:comun-web:erroresCatalogo UP-TO-DATE
+> Task :plataforma:comun-datos:processResources UP-TO-DATE
+> Task :plataforma:comun-pruebas:processResources UP-TO-DATE
+> Task :plataforma:comun-mensajeria:processResources UP-TO-DATE
+> Task :plataforma:comun-web:processResources UP-TO-DATE
+> Task :plataforma:comun-web:processTestFixturesResources NO-SOURCE
+> Task :plataforma:comun-dominio:compileJava UP-TO-DATE
+> Task :plataforma:comun-dominio:processResources NO-SOURCE
+> Task :plataforma:comun-dominio:classes UP-TO-DATE
+> Task :plataforma:comun-dominio:jar UP-TO-DATE
+> Task :plataforma:comun-datos:compileJava UP-TO-DATE
+> Task :plataforma:comun-datos:classes UP-TO-DATE
+> Task :plataforma:comun-datos:jar UP-TO-DATE
+> Task :plataforma:comun-pruebas:compileJava UP-TO-DATE
+> Task :plataforma:comun-pruebas:classes UP-TO-DATE
+> Task :plataforma:comun-pruebas:jar UP-TO-DATE
+> Task :plataforma:comun-mensajeria:compileJava UP-TO-DATE
+> Task :plataforma:comun-mensajeria:classes UP-TO-DATE
+> Task :plataforma:comun-mensajeria:jar UP-TO-DATE
+> Task :servicios:grupos:generarServidorOpenApi FROM-CACHE
+> Task :plataforma:comun-web:compileJava UP-TO-DATE
+> Task :plataforma:comun-web:classes UP-TO-DATE
+> Task :plataforma:comun-web:jar UP-TO-DATE
+> Task :plataforma:comun-web:compileTestFixturesJava UP-TO-DATE
+> Task :plataforma:comun-web:testFixturesClasses UP-TO-DATE
+> Task :plataforma:comun-web:testFixturesJar UP-TO-DATE
+> Task :servicios:grupos:spotlessJava FROM-CACHE
+> Task :servicios:grupos:spotlessJavaCheck UP-TO-DATE
+> Task :servicios:grupos:spotlessKotlinGradle UP-TO-DATE
+> Task :servicios:grupos:spotlessKotlinGradleCheck UP-TO-DATE
+> Task :servicios:grupos:spotlessCheck UP-TO-DATE
+> Task :servicios:grupos:generateJooq UP-TO-DATE
+> Task :servicios:grupos:compileJava FROM-CACHE
+> Task :servicios:grupos:processResources
+> Task :servicios:grupos:classes
+> Task :servicios:grupos:compileTestJava FROM-CACHE
+> Task :servicios:grupos:processTestResources UP-TO-DATE
+> Task :servicios:grupos:testClasses UP-TO-DATE
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+> Task :servicios:grupos:test
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+> Task :servicios:grupos:webTest
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+2026-10-30T23:12:31.890-04:00  INFO 89026 --- [grupos] [        kafka-2] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-grupos-apertura-2, groupId=grupos-apertura] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-10-30T23:12:31.890-04:00  INFO 89026 --- [grupos] [        kafka-1] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-grupos-cesiones-1, groupId=grupos-cesiones] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-10-30T23:12:31.890-04:00  INFO 89026 --- [grupos] [        kafka-2] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-grupos-apertura-2, groupId=grupos-apertura] Request joining group due to: consumer pro-actively leaving the group
+2026-10-30T23:12:31.890-04:00  INFO 89026 --- [grupos] [        kafka-1] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-grupos-cesiones-1, groupId=grupos-cesiones] Request joining group due to: consumer pro-actively leaving the group
+2026-10-30T23:12:31.890-04:00  INFO 89026 --- [grupos] [        kafka-2] [                                                 ] o.a.k.c.c.i.ClassicKafkaConsumer         : [Consumer clientId=consumer-grupos-apertura-2, groupId=grupos-apertura] Unsubscribed all topics or patterns and assigned partitions
+2026-10-30T23:12:31.890-04:00  INFO 89026 --- [grupos] [        kafka-1] [                                                 ] o.a.k.c.c.i.ClassicKafkaConsumer         : [Consumer clientId=consumer-grupos-cesiones-1, groupId=grupos-cesiones] Unsubscribed all topics or patterns and assigned partitions
+2026-10-30T23:12:31.891-04:00  INFO 89026 --- [grupos] [        kafka-2] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-grupos-apertura-2, groupId=grupos-apertura] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-10-30T23:12:31.891-04:00  INFO 89026 --- [grupos] [        kafka-1] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-grupos-cesiones-1, groupId=grupos-cesiones] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-10-30T23:12:31.891-04:00  INFO 89026 --- [grupos] [        kafka-2] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-grupos-apertura-2, groupId=grupos-apertura] Request joining group due to: consumer pro-actively leaving the group
+2026-10-30T23:12:31.891-04:00  INFO 89026 --- [grupos] [        kafka-1] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-grupos-cesiones-1, groupId=grupos-cesiones] Request joining group due to: consumer pro-actively leaving the group
+2026-10-30T23:12:31.893-04:00  INFO 89026 --- [grupos] [        kafka-2] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Metrics scheduler closed
+2026-10-30T23:12:31.893-04:00  INFO 89026 --- [grupos] [        kafka-2] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Closing reporter org.apache.kafka.common.metrics.JmxReporter
+2026-10-30T23:12:31.893-04:00  INFO 89026 --- [grupos] [        kafka-1] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Metrics scheduler closed
+2026-10-30T23:12:31.893-04:00  INFO 89026 --- [grupos] [        kafka-1] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Closing reporter org.apache.kafka.common.metrics.JmxReporter
+2026-10-30T23:12:31.893-04:00  INFO 89026 --- [grupos] [        kafka-2] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Closing reporter org.apache.kafka.common.telemetry.internals.ClientTelemetryReporter
+2026-10-30T23:12:31.893-04:00  INFO 89026 --- [grupos] [        kafka-2] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Metrics reporters closed
+2026-10-30T23:12:31.893-04:00  INFO 89026 --- [grupos] [        kafka-1] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Closing reporter org.apache.kafka.common.telemetry.internals.ClientTelemetryReporter
+2026-10-30T23:12:31.893-04:00  INFO 89026 --- [grupos] [        kafka-1] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Metrics reporters closed
+2026-10-30T23:12:31.898-04:00  INFO 89026 --- [grupos] [        kafka-2] [                                                 ] o.a.kafka.common.utils.AppInfoParser     : App info kafka.consumer for consumer-grupos-apertura-2 unregistered
+2026-10-30T23:12:31.898-04:00  INFO 89026 --- [grupos] [        kafka-1] [                                                 ] o.a.kafka.common.utils.AppInfoParser     : App info kafka.consumer for consumer-grupos-cesiones-1 unregistered
+2026-10-30T23:12:31.898-04:00  INFO 89026 --- [grupos] [        kafka-1] [                                                 ] o.s.k.l.KafkaMessageListenerContainer    : grupos-cesiones: Consumer stopped
+2026-10-30T23:12:31.898-04:00  INFO 89026 --- [grupos] [        kafka-2] [                                                 ] o.s.k.l.KafkaMessageListenerContainer    : grupos-apertura: Consumer stopped
+2026-10-30T23:12:31.899-04:00  INFO 89026 --- [grupos] [ionShutdownHook] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2026-10-30T23:12:31.900-04:00  INFO 89026 --- [grupos] [tomcat-shutdown] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2026-10-30T23:12:31.904-04:00  INFO 89026 --- [grupos] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-10-30T23:12:31.905-04:00  INFO 89026 --- [grupos] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2026-10-30T23:12:31.907-04:00  INFO 89026 --- [grupos] [        kafka-2] [                                                 ] org.apache.kafka.clients.NetworkClient   : [Consumer clientId=consumer-grupos-apertura-4, groupId=grupos-apertura] Node -1 disconnected.
+2026-10-30T23:12:31.907-04:00  WARN 89026 --- [grupos] [        kafka-2] [                                                 ] org.apache.kafka.clients.NetworkClient   : [Consumer clientId=consumer-grupos-apertura-4, groupId=grupos-apertura] Connection to node -1 (localhost/127.0.0.1:9092) could not be established. Node may not be available.
+2026-10-30T23:12:31.907-04:00  WARN 89026 --- [grupos] [        kafka-2] [                                                 ] org.apache.kafka.clients.NetworkClient   : [Consumer clientId=consumer-grupos-apertura-4, groupId=grupos-apertura] Bootstrap broker localhost:9092 (id: -1 rack: null) disconnected
+2026-10-30T23:12:31.909-04:00  INFO 89026 --- [grupos] [        kafka-1] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-grupos-cesiones-3, groupId=grupos-cesiones] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-10-30T23:12:31.909-04:00  INFO 89026 --- [grupos] [        kafka-2] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-grupos-apertura-4, groupId=grupos-apertura] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-10-30T23:12:31.909-04:00  INFO 89026 --- [grupos] [        kafka-1] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-grupos-cesiones-3, groupId=grupos-cesiones] Request joining group due to: consumer pro-actively leaving the group
+2026-10-30T23:12:31.909-04:00  INFO 89026 --- [grupos] [        kafka-2] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-grupos-apertura-4, groupId=grupos-apertura] Request joining group due to: consumer pro-actively leaving the group
+2026-10-30T23:12:31.909-04:00  INFO 89026 --- [grupos] [        kafka-1] [                                                 ] o.a.k.c.c.i.ClassicKafkaConsumer         : [Consumer clientId=consumer-grupos-cesiones-3, groupId=grupos-cesiones] Unsubscribed all topics or patterns and assigned partitions
+2026-10-30T23:12:31.909-04:00  INFO 89026 --- [grupos] [        kafka-2] [                                                 ] o.a.k.c.c.i.ClassicKafkaConsumer         : [Consumer clientId=consumer-grupos-apertura-4, groupId=grupos-apertura] Unsubscribed all topics or patterns and assigned partitions
+2026-10-30T23:12:31.909-04:00  INFO 89026 --- [grupos] [        kafka-1] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-grupos-cesiones-3, groupId=grupos-cesiones] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-10-30T23:12:31.909-04:00  INFO 89026 --- [grupos] [        kafka-2] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-grupos-apertura-4, groupId=grupos-apertura] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-10-30T23:12:31.909-04:00  INFO 89026 --- [grupos] [        kafka-1] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-grupos-cesiones-3, groupId=grupos-cesiones] Request joining group due to: consumer pro-actively leaving the group
+2026-10-30T23:12:31.909-04:00  INFO 89026 --- [grupos] [        kafka-2] [                                                 ] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-grupos-apertura-4, groupId=grupos-apertura] Request joining group due to: consumer pro-actively leaving the group
+2026-10-30T23:12:31.909-04:00  INFO 89026 --- [grupos] [        kafka-2] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Metrics scheduler closed
+2026-10-30T23:12:31.909-04:00  INFO 89026 --- [grupos] [        kafka-2] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Closing reporter org.apache.kafka.common.metrics.JmxReporter
+2026-10-30T23:12:31.909-04:00  INFO 89026 --- [grupos] [        kafka-2] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Closing reporter org.apache.kafka.common.telemetry.internals.ClientTelemetryReporter
+2026-10-30T23:12:31.909-04:00  INFO 89026 --- [grupos] [        kafka-2] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Metrics reporters closed
+2026-10-30T23:12:31.910-04:00  INFO 89026 --- [grupos] [        kafka-1] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Metrics scheduler closed
+2026-10-30T23:12:31.910-04:00  INFO 89026 --- [grupos] [        kafka-1] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Closing reporter org.apache.kafka.common.metrics.JmxReporter
+2026-10-30T23:12:31.910-04:00  INFO 89026 --- [grupos] [        kafka-1] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Closing reporter org.apache.kafka.common.telemetry.internals.ClientTelemetryReporter
+2026-10-30T23:12:31.910-04:00  INFO 89026 --- [grupos] [        kafka-1] [                                                 ] o.apache.kafka.common.metrics.Metrics    : Metrics reporters closed
+2026-10-30T23:12:31.912-04:00  INFO 89026 --- [grupos] [        kafka-2] [                                                 ] o.a.kafka.common.utils.AppInfoParser     : App info kafka.consumer for consumer-grupos-apertura-4 unregistered
+2026-10-30T23:12:31.912-04:00  INFO 89026 --- [grupos] [        kafka-2] [                                                 ] o.s.k.l.KafkaMessageListenerContainer    : grupos-apertura: Consumer stopped
+2026-10-30T23:12:31.913-04:00  INFO 89026 --- [grupos] [        kafka-1] [                                                 ] o.a.kafka.common.utils.AppInfoParser     : App info kafka.consumer for consumer-grupos-cesiones-3 unregistered
+2026-10-30T23:12:31.913-04:00  INFO 89026 --- [grupos] [        kafka-1] [                                                 ] o.s.k.l.KafkaMessageListenerContainer    : grupos-cesiones: Consumer stopped
+2026-10-30T23:12:31.913-04:00  INFO 89026 --- [grupos] [ionShutdownHook] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2026-10-30T23:12:31.914-04:00  INFO 89026 --- [grupos] [tomcat-shutdown] [                                                 ] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2026-10-30T23:12:31.916-04:00  INFO 89026 --- [grupos] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Shutdown initiated...
+2026-10-30T23:12:31.916-04:00  INFO 89026 --- [grupos] [ionShutdownHook] [                                                 ] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Shutdown completed.
+> Task :servicios:grupos:integrationTest
+
+BUILD SUCCESSFUL in 40s
+40 actionable tasks: 4 executed, 4 from cache, 32 up-to-date
+Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.7.1/userguide/configuration_cache_enabling.html
+exit=0

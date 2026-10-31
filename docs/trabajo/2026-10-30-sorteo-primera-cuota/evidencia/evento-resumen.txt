@@ -1,0 +1,9 @@
+$ grep -E "BUILD|exit=" evidencia/evento-grupos-regresion.txt
+BUILD SUCCESSFUL in 1m 2s
+exit=0
+XML (rama del evento, calculado en la corrida): tests=611 fallos+errores=0
+
+$ grep -E "BUILD|exit=" evidencia/evento-cu69-dirigido-2.txt
+BUILD SUCCESSFUL in 30s
+exit=0
+CU69EventoDeInicioTest tests=3 failures=0 · CU69IniciarGrupoTest 6/0 · CU69IngresoCerradoTest 6/0 · CU69ReglamentoAlIniciarTest 9/0 · Concurrencia 2/0

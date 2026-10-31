@@ -160,6 +160,9 @@ DE_DESARROLLO = {
     # EN_APERTURA la deja cerrada a toda operacion hasta que exista una senal de activacion (hoy no existe).
     # aportes (carril Q) · compensacion del aporte PAGADO que nucleo no pudo aplicar por falta de saldo: ENCENDIDA.
     "COMPENSACION_CONSUMO_HABILITADO": "true",
+    # aportes (R-GRP-20) · abre la cuota 1 de cada cupo cuando grupos emite grupo_iniciado: ENCENDIDO.
+    # Sin el, ningun grupo puede sortear (AP-CU60-11: la cuota 1 nunca llega a PAGADO).
+    "GRUPO_INICIADO_CONSUMO_HABILITADO": "true",
     "APERTURA_USUARIOS_HABILITADO": "true",
     "APERTURA_GRUPOS_HABILITADO": "true",
     "APERTURA_ESTADO_INICIAL_USUARIO": "ACTIVA",
@@ -274,6 +277,7 @@ DE_ENTORNO = {
     "APERTURA_CONSUMO_HABILITADO": "${APERTURA_CONSUMO_HABILITADO:-true}",
     "CONSUMO_DE_APORTES_HABILITADO": "${CONSUMO_DE_APORTES_HABILITADO:-true}",
     "COMPENSACION_CONSUMO_HABILITADO": "${COMPENSACION_CONSUMO_HABILITADO:-true}",
+    "GRUPO_INICIADO_CONSUMO_HABILITADO": "${GRUPO_INICIADO_CONSUMO_HABILITADO:-true}",
     "APERTURA_USUARIOS_HABILITADO": "${APERTURA_USUARIOS_HABILITADO:-true}",
     "APERTURA_GRUPOS_HABILITADO": "${APERTURA_GRUPOS_HABILITADO:-true}",
     "APERTURA_ESTADO_INICIAL_USUARIO": "${APERTURA_ESTADO_INICIAL_USUARIO:-ACTIVA}",

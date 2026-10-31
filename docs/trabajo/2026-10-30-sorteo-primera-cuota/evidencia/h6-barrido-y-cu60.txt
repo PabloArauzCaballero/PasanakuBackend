@@ -1,0 +1,14 @@
+# 2026-10-31T07:12:37Z · HEAD 5f4998131 + cambios H6 sin commitear
+> Task :servicios:grupos:spotlessApply
+> Task :servicios:grupos:testBarrido
+> Task :servicios:grupos:integrationTest
+BUILD SUCCESSFUL in 19s
+exit=0
+CU60RequisitosTest: tests=4 fallos=0 errores=0
+CU60SnapshotTest: tests=10 fallos=0 errores=0
+CU60Test: tests=12 fallos=0 errores=0
+   M servicios/grupos/src/main/java/bo/aportaya/grupos/aplicacion/CU60Sortear.java
+   M servicios/grupos/src/main/resources/openapi/grupos.yaml
+   M servicios/grupos/src/test/java/bo/aportaya/grupos/CU60Test.java
+  ?? servicios/grupos/src/main/java/bo/aportaya/grupos/aplicacion/RequisitosDelSorteo.java
+  ?? servicios/grupos/src/test/java/bo/aportaya/grupos/CU60RequisitosTest.java

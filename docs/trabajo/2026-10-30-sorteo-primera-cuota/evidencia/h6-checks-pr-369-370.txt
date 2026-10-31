@@ -1,0 +1,25 @@
+# 2026-10-31T08:21:42Z · gh pr checks 369 / 370 sobre 58e3d06c8 (CI 41180259011 success · 41180258451 pull_request)
+$ gh pr checks 369 --json name,bucket
+fail	Dependencias vulnerables (OSV-Scanner) / osv-scan
+pass	App — goldens (Linux)
+pass	App — navegación en simulador iOS (macOS)
+pass	Base efimera, semillas y permisos
+pass	Bóveda, seguridad, carriles y despliegue coherentes
+pass	Contratos y clientes generados
+pass	Dependencias, secretos e imagen
+pass	Detectar impacto del cambio
+pass	Esquema, semillas y prueba de humo sobre PostgreSQL real
+pass	Formato, reglas propias y compilacion
+pass	Frontend — Flutter y Angular (ADR-044)
+pass	La boveda y el esquema no divergen
+pass	Los cinco corredores
+pass	Release iOS (macOS)
+pass	Trivy
+pass	bootJar y docker build, multietapa y sin root
+pass	osv-scanner
+skipping	Dependencias vulnerables (OSV-Scanner)
+skipping	Punta a punta financiero — nucleo-financiero y outbox
+skipping	Punta a punta — solo en main
+$ gh pr checks 370 (fail|pending)
+fail	Dependencias vulnerables (OSV-Scanner) / osv-scan
+# OSV: GHSA-g3hv-75wg-m249 · npm minimatch 10.2.6 y 3.1.5 en yarn.lock (fix 11.0.1); git diff --stat origin/test...HEAD -- '*.lock' '*.lockfile' yarn.lock => vacio: esta rama no toca lockfiles. Aviso de c1 del 30/10, afecta tambien #372/#373.
