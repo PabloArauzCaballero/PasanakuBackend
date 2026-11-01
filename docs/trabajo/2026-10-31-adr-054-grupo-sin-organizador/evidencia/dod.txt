@@ -1,0 +1,93 @@
+## DoD H1 — 2026-10-31 11:06
+$ grep -c secciones ADR-053
+6
+$ grep -c '^| D[0-9]' ADR-053
+13
+$ grep -c 'ADR-053 Grupos sin organizador humano' _Arquitectura.md
+1
+$ python3 scripts/verificar_boveda.py (recortado a ARQUITECTURA + resumen)
+RC=1
+27:=== ARQUITECTURA ===
+28-  OK    · 51 decisiones registradas
+29-  OK    · toda decisión está en el índice 
+30-  OK    · toda decisión tiene las 6 secciones obligatorias 
+31-  OK    · toda decisión declara estado válido 
+32-  OK    · sin números de ADR repetidos 
+33-
+  FALLA · ninguna cifra desfasada en los planes ['planes/00 Plan maestro.md: dice 173 restricciones, son 174', 'planes/00 Plan maestro.md: dice 50 ADR, son 51', 'planes/05 Fases 12 a 16 · Plataforma, reputación y cumplimiento.md: dice 173 restricciones, son 174', 'planes/06 Fase 17 · Endurecimiento, E2E y despliegue.md: dice 173 restricciones, son 174']
+          cifras vigentes: 111 casos de uso · 342 tablas · 328 entidades · 174 restricciones · 51 ADR
+
+1 FALLAS
+$ python3 scripts/verificar_criterios.py
+RC=1
+2 FALLAS:
+  - CU-60 · grupos: R-GRP-20 citado sin prueba de rechazo
+  - CU-60 · grupos: AP-CU60-11 no declarado en openapi/grupos.yaml
+$ plan_status predecesor
+TOTAL: 9/9 microtareas HECHO (100.0%)
+
+## Segunda corrida de verificar_boveda tras actualizar cifras — 11:07
+$ git diff --stat -- planes
+ planes/00 Plan maestro.md                                             | 4 ++--
+ ... 12 a 16 \302\267 Plataforma, reputaci\303\263n y cumplimiento.md" | 2 +-
+ "planes/06 Fase 17 \302\267 Endurecimiento, E2E y despliegue.md"      | 2 +-
+ 3 files changed, 4 insertions(+), 4 deletions(-)
+$ python3 scripts/verificar_boveda.py; echo RC=$?
+RC=0
+          cifras vigentes: 111 casos de uso · 342 tablas · 328 entidades · 174 restricciones · 51 ADR
+
+TODO OK
+
+## Tercera corrida — DoD M1 corregido y estado del plan — 11:08
+$ grep -cE "^\| D[0-9]+ \|" ADR-053
+10
+$ git status --short -- "docs/CasosDeUso/CU-60 Sortear los turnos.md" servicios/grupos/src/main/resources/openapi/grupos.yaml  (vacío = no tocados)
+$ plan_status
+    - H1.S1.M4: A MEDIAS
+  REPORTE.md: completo
+
+TOTAL: 5/6 microtareas HECHO (83.3%)
+
+==================================================================
+## 2026-10-31 — corrida sobre la rama nueva claude/adr-054-grupos-sin-organizador-20261031 (desde origin/test 336e1e82f), ADR renumerado a 054
+$ grep -c "^## Contexto\|^## Decisión\|^## Motivo\|^## Alternativas descartadas\|^## Consecuencias\|^## Cómo se verifica" "docs/Arquitectura/ADR-054 Grupos sin organizador humano.md"
+6
+$ grep -cE "^\| D[0-9]+ \|" "docs/Arquitectura/ADR-054 Grupos sin organizador humano.md"
+10
+$ grep -c "ADR-054 Grupos sin organizador humano" docs/Arquitectura/_Arquitectura.md
+1
+$ python3 scripts/verificar_boveda.py; echo RC=$?   (recortado a la cola)
+RC=0
+=== CIFRAS CITADAS ===
+  OK    · ninguna cifra desfasada en los planes 
+          cifras vigentes: 111 casos de uso · 347 tablas · 328 entidades · 175 restricciones · 52 ADR
+
+TODO OK
+$ python3 scripts/verificar_criterios.py; echo RC=$?
+casos de uso implementados y verificados: 108
+pendientes de implementar (3): CU-05 (identidad), CU-51 (aportes), CU-57 (nucleo-financiero)
+Sin divergencias entre la boveda y el codigo.
+RC=0
+$ git diff --stat -- planes
+ planes/00 Plan maestro.md | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+$ git status --short -- servicios/grupos docs/casos-de-uso
+$ python3 .claude/hooks/plan_status.py --path docs/trabajo/2026-10-31-adr-054-grupo-sin-organizador/PLAN.md
+
+docs/trabajo/2026-10-31-adr-054-grupo-sin-organizador/PLAN.md
+  Avance: 5/6 microtareas HECHO  (83.3%)
+  Estados: HECHO=5  A MEDIAS=1
+  Sin cerrar:
+    - H1.S1.M4: A MEDIAS
+  REPORTE.md: completo
+
+TOTAL: 5/6 microtareas HECHO (83.3%)
+
+$ python3 .claude/hooks/plan_status.py --path docs/trabajo/2026-10-31-adr-054-grupo-sin-organizador/PLAN.md   (tras pasar M4 a HECHO)
+
+docs/trabajo/2026-10-31-adr-054-grupo-sin-organizador/PLAN.md
+  Avance: 6/6 microtareas HECHO  (100.0%)
+  Estados: HECHO=6
+  REPORTE.md: completo
+
+TOTAL: 6/6 microtareas HECHO (100.0%)
