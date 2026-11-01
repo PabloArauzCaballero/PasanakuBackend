@@ -14,7 +14,6 @@ import java.util.UUID;
 import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 /** Persistencia y reglas atomicas del OTP que confirma el correo del alta. */
 @Component
@@ -43,17 +42,14 @@ public class VerificacionCorreoRepositorio {
     }
 
     /** La misma pregunta que CU-01 hace al final del alta, en su propia transaccion corta. */
-    @Transactional(readOnly = true)
     public boolean correoConCuenta(String correo, ContextoSesion ctx) {
         return datos.conContexto(ctx, dsl -> registros.correoYaRegistrado(dsl, correo));
     }
 
-    @Transactional(readOnly = true)
     public boolean correoConCuentaActiva(String correo, ContextoSesion ctx) {
         return datos.conContexto(ctx, dsl -> registros.correoConCuentaActiva(dsl, correo));
     }
 
-    @Transactional
     public Preparada preparar(
             String correo, UUID claveIdempotencia, String ip, String agente, OffsetDateTime ahora, ContextoSesion ctx) {
         return datos.conContexto(ctx, dsl -> {
@@ -143,7 +139,6 @@ public class VerificacionCorreoRepositorio {
         }
     }
 
-    @Transactional
     public void marcarEnviada(UUID id, OffsetDateTime ahora, ContextoSesion ctx) {
         datos.conContexto(ctx, dsl -> {
             dsl.execute(
@@ -154,7 +149,6 @@ public class VerificacionCorreoRepositorio {
         });
     }
 
-    @Transactional
     public void invalidarPorFalloDeEnvio(UUID id, OffsetDateTime ahora, ContextoSesion ctx) {
         datos.conContexto(ctx, dsl -> {
             dsl.execute(
@@ -165,7 +159,6 @@ public class VerificacionCorreoRepositorio {
         });
     }
 
-    @Transactional(noRollbackFor = ErrorDeNegocio.class)
     public ResultadoConfirmacionCorreo confirmar(
             UUID id, String correo, String codigo, String ip, String agente, OffsetDateTime ahora, ContextoSesion ctx) {
         return datos.conContexto(ctx, dsl -> confirmarEnDsl(dsl, id, correo, codigo, ip, agente, ahora));
@@ -228,7 +221,6 @@ public class VerificacionCorreoRepositorio {
         return borradores.resolverResultado(dsl, correo, ahora);
     }
 
-    @Transactional
     public BorradorOnboardingDatos guardarBorrador(
             UUID verificacionId, BorradorOnboardingDatos datos, OffsetDateTime ahora, ContextoSesion ctx) {
         return borradores.guardar(verificacionId, datos, ahora, ctx);

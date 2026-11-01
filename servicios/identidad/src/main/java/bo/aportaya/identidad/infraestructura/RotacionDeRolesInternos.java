@@ -33,12 +33,16 @@ final class RotacionDeRolesInternos {
             OffsetDateTime ahora) {
         Set<String> resultantes = new java.util.TreeSet<>();
         List<UUID> nuevosRolIds = new ArrayList<>();
+        java.util.Map<String, UUID> mapaRoles = dsl.select(ROL.CODIGO, ROL.ID)
+                .from(ROL)
+                .where(ROL.CODIGO.in(roles))
+                .fetchMap(ROL.CODIGO, ROL.ID);
+
         for (String codRol : roles) {
-            UUID rId = dsl.select(ROL.ID)
-                    .from(ROL)
-                    .where(ROL.CODIGO.eq(codRol))
-                    .fetchOptional(ROL.ID)
-                    .orElseThrow(() -> new ErrorDeNegocio(CodigoError.de(8, 1), "El rol " + codRol + " no existe."));
+            UUID rId = mapaRoles.get(codRol);
+            if (rId == null) {
+                throw new ErrorDeNegocio(CodigoError.de(8, 1), "El rol " + codRol + " no existe.");
+            }
             nuevosRolIds.add(rId);
             resultantes.addAll(accesos.permisosDelRol(dsl, rId));
         }

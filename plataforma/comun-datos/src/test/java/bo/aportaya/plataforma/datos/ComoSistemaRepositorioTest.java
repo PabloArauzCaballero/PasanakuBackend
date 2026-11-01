@@ -90,6 +90,13 @@ class ComoSistemaRepositorioTest {
     }
 
     @Test
+    @DisplayName("sin transaccion activa falla con SinTransaccion antes de tocar la base")
+    void sinTransaccionFalla() {
+        assertThatThrownBy(() -> Datos.comoSistema(dsl, () -> null))
+                .isInstanceOf(SinTransaccion.class);
+    }
+
+    @Test
     @DisplayName("rechaza argumentos nulos antes de tocar la base")
     void rechazaNulos() {
         assertThatThrownBy(() -> Datos.comoSistema(null, () -> 1)).isInstanceOf(NullPointerException.class);

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="true" scanPeriod="30 seconds">
+
+    <conversionRule conversionWord="maskPii" converterClass="bo.aportaya.plataforma.web.observabilidad.EnmascaradorPii" />
+
+    <springProperty scope="context" name="aplicacion" source="spring.application.name" defaultValue="aportaya" />
+
+    <!-- Appender para desarrollo local y pruebas: legible en consola con color y traza -->
+    <appender name="CONSOLA" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} [app=${aplicacion} traza=%X{trazaId:-sin-traza} cu=%X{cu:-} usr=%X{usuarioId:-}] - %maskPii(%msg)%n</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <!-- Appender estructurado para producción y staging: compatible con agregadores (Loki / ELK / Promtail) -->
+    <appender name="ESTRUCTURADO" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>{"timestamp":"%d{yyyy-MM-dd'T'HH:mm:ss.SSSXXX,UTC}","servicio":"${aplicacion}","nivel":"%level","hilo":"%thread","logger":"%logger","trazaId":"%X{trazaId:-}","cu":"%X{cu:-}","usuarioId":"%X{usuarioId:-}","mensaje":"%maskPii(%msg)","excepcion":"%replace(%xEx){'\n','\t'}"}%n</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <!-- Configuración por perfiles Spring -->
+    <springProfile name="production,staging">
+        <root level="INFO">
+            <appender-ref ref="ESTRUCTURADO" />
+        </root>
+        <logger name="bo.aportaya" level="INFO" />
+        <logger name="org.springframework.web" level="WARN" />
+        <logger name="org.springframework.security" level="WARN" />
+        <logger name="org.jooq" level="WARN" />
+        <logger name="org.apache.kafka" level="WARN" />
+    </springProfile>
+
+    <springProfile name="!production &amp; !staging">
+        <root level="INFO">
+            <appender-ref ref="CONSOLA" />
+        </root>
+        <logger name="bo.aportaya" level="DEBUG" />
+        <logger name="org.springframework.web" level="INFO" />
+        <logger name="org.springframework.security" level="INFO" />
+        <logger name="org.jooq" level="INFO" />
+        <logger name="org.apache.kafka" level="WARN" />
+    </springProfile>
+
+</configuration>

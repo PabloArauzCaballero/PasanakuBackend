@@ -155,4 +155,15 @@ class RotacionDeClavesDeFirmaTest {
 
         assertThat((List<?>) emisor.jwks().get("keys")).hasSize(1);
     }
+
+    @Test
+    @DisplayName("rechaza: clave-firma vacía en perfil de producción falla al arrancar (fail closed)")
+    void claveVaciaEnProduccionFalla() {
+        var entorno = new org.springframework.mock.env.MockEnvironment();
+        entorno.setActiveProfiles("production");
+
+        assertThatThrownBy(() -> new EmisorDeAcceso("", "", entorno))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("Fail closed");
+    }
 }

@@ -61,10 +61,22 @@ public class EmisorDeAcceso {
     /** Solo se publica, nunca firma: es la ventana de solapamiento de una rotacion. */
     private final RSAKey claveAnterior;
 
+    public EmisorDeAcceso(String claveJwk, String claveAnteriorJwk) {
+        this(claveJwk, claveAnteriorJwk, null);
+    }
+
+    @org.springframework.beans.factory.annotation.Autowired
     public EmisorDeAcceso(
             @Value("${aportaya.jwt.clave-firma:}") String claveJwk,
-            @Value("${aportaya.jwt.clave-firma-anterior:}") String claveAnteriorJwk) {
+            @Value("${aportaya.jwt.clave-firma-anterior:}") String claveAnteriorJwk,
+            org.springframework.core.env.Environment entorno) {
         boolean generada = claveJwk == null || claveJwk.isBlank();
+        boolean produccion = entorno != null && entorno.acceptsProfiles(org.springframework.core.env.Profiles.of("staging", "production"));
+        if (generada && produccion) {
+            throw new IllegalStateException("aportaya.jwt.clave-firma vacía en entorno compartido/producción ("
+                    + java.util.Arrays.toString(entorno.getActiveProfiles())
+                    + "). Fail closed (ADR-024 / ADR-037): debe inyectarse JWT_CLAVE_FIRMA desde el almacén de secretos.");
+        }
         this.clave = generada ? generar() : leer(claveJwk, "aportaya.jwt.clave-firma");
         this.claveAnterior = anterior(generada, claveAnteriorJwk, clave);
         if (generada) {

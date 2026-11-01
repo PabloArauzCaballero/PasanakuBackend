@@ -65,6 +65,9 @@ public final class Datos {
     public static <T> T comoSistema(DSLContext dsl, Supplier<T> trabajo) {
         Objects.requireNonNull(dsl, "dsl");
         Objects.requireNonNull(trabajo, "trabajo");
+        if (!TransactionSynchronizationManager.isActualTransactionActive()) {
+            throw new SinTransaccion();
+        }
         String rolDeLaSesion = dsl.fetchOne("select coalesce(current_setting('app.rol', true), '')")
                 .get(0, String.class);
         dsl.execute("select set_config('app.rol', ?, true)", ContextoSesion.ROL_SISTEMA);

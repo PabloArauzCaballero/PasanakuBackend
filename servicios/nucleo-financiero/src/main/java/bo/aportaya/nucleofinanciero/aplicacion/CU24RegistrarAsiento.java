@@ -43,6 +43,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class CU24RegistrarAsiento {
 
+    private static final org.slf4j.Logger BITACORA = org.slf4j.LoggerFactory.getLogger(CU24RegistrarAsiento.class);
     private static final int LARGO_COLUMNA_DESCRIPCION = 160; // VARCHAR(160), no es umbral de negocio
 
     private final CuentaContableRepositorio cuentas;
@@ -97,6 +98,7 @@ public class CU24RegistrarAsiento {
                                 "origenId", entrada.origenId().toString()),
                         UUID.fromString(ctx.traza().id())));
 
+        BITACORA.info("CU-24 · Asiento contable registrado: id={}, numero={}, origenTipo={}, debe={}, haber={}", asiento.id(), asiento.numero(), entrada.origenTipo(), totales.debe(), totales.haber());
         return new SalidaAsiento(asiento.id(), asiento.numero(), totales.debe(), totales.haber());
     }
 
@@ -146,6 +148,7 @@ public class CU24RegistrarAsiento {
                         Map.of("asientoOriginalId", asientoOriginalId.toString()),
                         UUID.fromString(ctx.traza().id())));
 
+        BITACORA.warn("CU-24 · Asiento contable reversado: original={}, reversa={}, motivo={}", asientoOriginalId, reversa.id(), motivo);
         return new SalidaAsiento(reversa.id(), reversa.numero(), totalDebe, totalHaber);
     }
 

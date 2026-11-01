@@ -1,11 +1,11 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  DestroyRef,
   computed,
   inject,
   signal,
 } from '@angular/core'
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop'
 import { NavigationEnd, Router } from '@angular/router'
 import { filter } from 'rxjs'
 import { Icono } from '@aportaya/ui/icono/icono'
@@ -124,15 +124,18 @@ export class ExplicadorDeVistaComponent {
   protected readonly explicacion = computed(() => this.servicio.explicacion())
 
   constructor() {
-    const sub = this.router.events
-      .pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd))
+    this.router.events
+      .pipe(
+        filter((e): e is NavigationEnd => e instanceof NavigationEnd),
+        takeUntilDestroyed(),
+      )
       .subscribe(() => {
         this.abierto.set(false)
       })
-    inject(DestroyRef).onDestroy(() => sub.unsubscribe())
   }
 
   protected alternar(): void {
     this.abierto.set(!this.abierto())
   }
 }
+

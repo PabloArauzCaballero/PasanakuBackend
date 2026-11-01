@@ -160,13 +160,11 @@ public class CreacionRepositorio {
     }
 
     public void abrirCupos(DSLContext dsl, UUID grupoId, int cuantos, OffsetDateTime ahora) {
+        if (cuantos <= 0) return;
+        var paso = dsl.insertInto(CUPO, CUPO.GRUPO_ID, CUPO.NUMERO, CUPO.ESTADO, CUPO.FRACCION);
         for (int numero = 1; numero <= cuantos; numero++) {
-            dsl.insertInto(CUPO)
-                    .set(CUPO.GRUPO_ID, grupoId)
-                    .set(CUPO.NUMERO, (short) numero)
-                    .set(CUPO.ESTADO, "LIBRE")
-                    .set(CUPO.FRACCION, BigDecimal.ONE)
-                    .execute();
+            paso = paso.values(grupoId, (short) numero, "LIBRE", BigDecimal.ONE);
         }
+        paso.execute();
     }
 }
