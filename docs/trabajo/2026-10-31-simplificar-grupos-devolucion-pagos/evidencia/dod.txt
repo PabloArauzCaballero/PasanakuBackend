@@ -1,0 +1,50 @@
+$ grep -c "servicios/\|docs/\|apps/" evidencia/hallazgos.md
+30
+
+$ grep -c "CU-20\|CU-90\|CU-68\|CU-69\|CU-60" evidencia/hallazgos.md
+8
+
+$ grep -c "CU-11\|CU-18\|CU-65\|CU-67\|CU-29\|CU-19" evidencia/hallazgos.md
+6
+
+$ grep -c "CU-10\|CU-21\|CU-99\|Simulado" evidencia/hallazgos.md
+5
+
+$ grep -c "^### 1\." PROPUESTA.md
+3
+
+$ grep -c "organizadorId\|es_autogestionado" PROPUESTA.md
+3
+
+$ grep -c "^### 4\." PROPUESTA.md
+5
+
+$ grep -c "example.bo\|ClienteProveedorSimulado" PROPUESTA.md
+1
+
+$ grep -c "^| D[0-9]" PROPUESTA.md
+10
+
+$ grep -c "DECISION_REQUIRED\|Decisión D" PROPUESTA.md
+3
+
+$ grep -c "Hipótesis\|hipótesis" PROPUESTA.md
+6
+
+## Segunda corrida (DoD corregidos) — 2026-10-31
+$ grep -c "^| [0-9]" evidencia/hallazgos.md
+18
+
+$ grep -c "^| D[0-9]" PROPUESTA.md
+10
+
+## Tercera corrida (H3 cerrado)
+$ grep -c '^| D[0-9]' ADR-053 → 13
+
+## cuarta corrida (2026-10-31, ADR renumerado a 054)
+$ grep -c "^| D[0-9]" "docs/Arquitectura/ADR-054 Grupos sin organizador humano.md"
+13
+
+## quinta corrida (2026-10-31, DoD de H3 con patrón exacto)
+$ grep -cE "^\| D[0-9]+ \|" "docs/Arquitectura/ADR-054 Grupos sin organizador humano.md"
+10
