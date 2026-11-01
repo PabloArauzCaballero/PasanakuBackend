@@ -168,9 +168,7 @@ class _PantallaSorteoState extends ConsumerState<PantallaSorteo>
         if (puedeGirar && orden.isEmpty)
           Boton(
             key: const ValueKey('girar-ruleta'),
-            texto: _sorteando
-                ? TextosDetalleDelGrupo.girando
-                : TextosDetalleDelGrupo.girar,
+            texto: _sorteando ? TextosDetalleDelGrupo.girando : TextosDetalleDelGrupo.girar,
             variante: BotonVariante.primario,
             expandido: true,
             cargando: _sorteando,
@@ -180,10 +178,7 @@ class _PantallaSorteoState extends ConsumerState<PantallaSorteo>
           OrdenDeCobro(
             puestos: [
               for (final cupo in orden)
-                (
-                  nombre: nombres[cupo] ?? TextosDetalleDelGrupo.sinNombre,
-                  soyYo: yo == cupo,
-                ),
+                (nombre: nombres[cupo] ?? TextosDetalleDelGrupo.sinNombre, soyYo: yo == cupo),
             ],
           ),
           if (!_sorteando) ...[

@@ -1,6 +1,6 @@
 import { Injectable, computed, inject, signal } from '@angular/core'
 import { NavigationEnd, Router } from '@angular/router'
-import { toSignal } from '@angular/core/rxjs-interop'
+import { toSignal, takeUntilDestroyed } from '@angular/core/rxjs-interop'
 import { filter, map, startWith } from 'rxjs'
 import { resolverExplicacion, type ExplicacionResuelta } from './explicaciones'
 
@@ -37,9 +37,14 @@ export class ExplicadorDeVista {
   )
 
   constructor() {
-    this.router.events.pipe(filter((e) => e instanceof NavigationEnd)).subscribe(() => {
-      this.texto.set(null)
-    })
+    this.router.events
+      .pipe(
+        filter((e) => e instanceof NavigationEnd),
+        takeUntilDestroyed(),
+      )
+      .subscribe(() => {
+        this.texto.set(null)
+      })
   }
 
   /** Fija una nota manual complementaria para la vista activa. */
