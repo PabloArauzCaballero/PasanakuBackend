@@ -1,0 +1,13 @@
+== Árbol compartido (con cambios ajenos sin commitear en packages/ui): yarn test:front
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL   backoffice  src/app/rutas/configuracion/mensajeria/pantalla-de-mensajeria.spec.ts > PantallaDeMensajeria · plantillas y envíos de solo lectura > correcto: pinta plantilla y envío sin ningún dato de destinatario; ausente = «no disponible»
+ FAIL   backoffice  src/app/rutas/configuracion/reportes/pantalla-de-reportes.spec.ts > PantallaDeReportes · catálogo e historial de solo lectura > correcto: catálogo con sensibilidad; ejecución con el nombre del catálogo, cero filas real y sin quién la pidió
+ FAIL   backoffice  src/app/rutas/configuracion/tarifario/pantalla-de-tarifario.spec.ts > PantallaDeTarifario · historial de solo lectura > correcto: pinta la versión con su estado y dice «no disponible» donde el contrato no trajo el campo
+ FAIL   backoffice  src/app/rutas/configuracion/tarifario/pantalla-de-tarifario.spec.ts > PantallaDeTarifario · historial de solo lectura > inválido: 403 → «No tenés acceso a esto.» con traza, sin tabla; reintentar vuelve a pedir
+ Test Files  3 failed | 147 passed (150)
+      Tests  4 failed | 936 passed (940)
+
+== Worktree limpio en HEAD 676df14b + solo los archivos de este trabajo: configuracion/** + menu-lateral + guardia
+ Test Files  9 passed (9)
+      Tests  38 passed (38)
+Clasificación: TEST rojo por cambios ajenos en packages/ui/src/tabla-de-datos (no de este trabajo).

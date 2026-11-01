@@ -15,6 +15,8 @@ import {
 } from '@angular/core'
 import { DOCUMENT, NgTemplateOutlet } from '@angular/common'
 import { Casilla } from '@aportaya/ui/casilla/casilla'; import { Icono } from '@aportaya/ui/icono/icono'; import { Paginacion } from '@aportaya/ui/paginacion/paginacion'
+import { Esqueleto } from '@aportaya/ui/esqueleto/esqueleto'
+import { Girador } from '@aportaya/ui/girador/girador'
 import type { CargadorDePagina, ColumnaVirtual, OrdenVirtual } from './tipos'
 import { accionParaTecla, enfocarFilaPorId } from './navegacion-por-teclado'
 
@@ -28,12 +30,17 @@ import { accionParaTecla, enfocarFilaPorId } from './navegacion-por-teclado'
 @Component({
   selector: 'ap-tabla-de-datos-virtualizada',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ScrollingModule, Casilla, Icono, Paginacion, NgTemplateOutlet],
+  imports: [ScrollingModule, Casilla, Icono, Paginacion, NgTemplateOutlet, Girador, Esqueleto],
   host: { class: 'ap-tdv' },
   template: `
     <div class="cabecera-tabla">
       <h2>{{ titulo() }}</h2>
-      @if (cargando()) { <span role="status" aria-live="polite" class="cargando">Cargando…</span> }
+      @if (cargando()) {
+        <div class="indicador-carga" role="status" aria-live="polite">
+          <ap-girador tamano="s4" etiqueta="Cargando" />
+          <span class="cargando">Cargando…</span>
+        </div>
+      }
     </div>
     @if (error()) { <p role="alert" class="error">{{ error() }}</p> }
 
@@ -55,54 +62,45 @@ import { accionParaTecla, enfocarFilaPorId } from './navegacion-por-teclado'
           </div>
         }
       </div>
-      <cdk-virtual-scroll-viewport [itemSize]="alturaDeFila()" class="viewport" [style.height.px]="alturaDeViewport()">
-        <div
-          *cdkVirtualFor="let f of filas(); let i = index; trackBy: identidadDeIndice"
-          class="fila"
-          role="row"
-          [attr.aria-rowindex]="i + 2"
-          [tabindex]="i === focoIndice() ? 0 : -1"
-          [class.marcada]="elegidas().includes(identidad()(f))"
-          [class.con-foco]="i === focoIndice()"
-          [attr.data-fila-id]="identidad()(f)"
-          (focus)="focoIndice.set(i)"
-          (keydown)="onKeydown($event, i)"
-        >
-          @if (seleccionable()) {
-            <div class="celda marca" role="cell"><ap-casilla [marcada]="elegidas().includes(identidad()(f))" (marcadaChange)="marcar(identidad()(f), $event)"><span class="oculto">Seleccionar fila</span></ap-casilla></div>
-          }
-          @for (c of columnas(); track c.clave) {
-            <div class="celda" role="cell" [class.numerica]="c.numerica" [style.flex]="c.ancho ?? '1'">
-              @if (celda()) {
-                <ng-container *ngTemplateOutlet="celda()!; context: { $implicit: f, columna: c }" />
-              } @else {
-                {{ f[c.clave] }}
-              }
-            </div>
-          }
-        </div>
-      </cdk-virtual-scroll-viewport>
+      <div class="contenedor-cuerpo">
+        @if (cargando() && filas().length === 0) {
+          <div class="esqueleto-superpuesto" role="status" aria-live="polite">
+            <ap-esqueleto forma="filas" [lineas]="5" etiqueta="Cargando registros…" />
+          </div>
+        }
+        <cdk-virtual-scroll-viewport [itemSize]="alturaDeFila()" class="viewport" [style.height.px]="alturaDeViewport()">
+          <div
+            *cdkVirtualFor="let f of filas(); let i = index; trackBy: identidadDeIndice"
+            class="fila"
+            role="row"
+            [attr.aria-rowindex]="i + 2"
+            [tabindex]="i === focoIndice() ? 0 : -1"
+            [class.marcada]="elegidas().includes(identidad()(f))"
+            [class.con-foco]="i === focoIndice()"
+            [attr.data-fila-id]="identidad()(f)"
+            (focus)="focoIndice.set(i)"
+            (keydown)="onKeydown($event, i)"
+          >
+            @if (seleccionable()) {
+              <div class="celda marca" role="cell"><ap-casilla [marcada]="elegidas().includes(identidad()(f))" (marcadaChange)="marcar(identidad()(f), $event)"><span class="oculto">Seleccionar fila</span></ap-casilla></div>
+            }
+            @for (c of columnas(); track c.clave) {
+              <div class="celda" role="cell" [class.numerica]="c.numerica" [style.flex]="c.ancho ?? '1'">
+                @if (celda()) {
+                  <ng-container *ngTemplateOutlet="celda()!; context: { $implicit: f, columna: c }" />
+                } @else {
+                  {{ f[c.clave] }}
+                }
+              </div>
+            }
+          </div>
+        </cdk-virtual-scroll-viewport>
+      </div>
     </div>
 
     <ap-paginacion [(pagina)]="pagina" [totalDeFilas]="total()" [porPagina]="tamanoDePagina()" />
   `,
-  styles: `
-    :host { display: block; min-width: 0; max-width: 100%; } :host ::ng-deep .cdk-virtual-scroll-content-wrapper { width: 100%; /* sin esto, en tablet las filas crecían a su max-content y se desalineaban de la cabecera */ }
-    .cabecera-tabla { display: flex; align-items: center; justify-content: space-between; gap: var(--s3); padding-bottom: var(--s3); }
-    h2 { font: var(--t-titulo-3); font-weight: 600; color: var(--text); margin: 0; }
-    .cargando { color: var(--text-3); font-size: .85em; }
-    .error { color: var(--rojo-texto, var(--text)); background: var(--surface-2); border-radius: var(--r-md); padding: var(--s3) var(--s4); margin: 0 0 var(--s3); }
-    .marco { border: var(--borde-fino) solid var(--border); border-radius: var(--r-lg); background: var(--surface); overflow: hidden; box-shadow: var(--sombra-2); }
-    .fila { display: flex; align-items: center; border-top: var(--borde-fino) solid var(--border); transition: background-color var(--mov-micro) ease; } .fila:hover:not(.fila-cabecera) { background: color-mix(in srgb, var(--surface-2) 65%, transparent); }
-    .fila-cabecera { border-top: 0; background: color-mix(in srgb, var(--surface-2) 85%, var(--surface)); font-weight: 600; font-size: 0.8125rem; letter-spacing: 0.02em; color: var(--text-2); } .fila:first-child { border-top: 0; }
-    .celda { padding: var(--s3) var(--s4); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.875rem; }
-    .celda.numerica { text-align: right; font-variant-numeric: tabular-nums; } .celda.marca { flex: 0 0 var(--s7); }
-    .viewport { width: 100%; }
-    button { display: inline-flex; align-items: center; gap: var(--s1); min-height: var(--area-tactil); margin: calc(var(--s2) * -1) 0; padding: 0; border: 0; background: transparent; color: inherit; font: inherit; font-weight: 600; cursor: pointer; }
-    button:focus-visible, [role='row']:focus-visible, [role='row'].con-foco { outline: var(--borde-foco) solid var(--g300); outline-offset: var(--borde-desfase); }
-    [role='row'].marcada { background: var(--g100); }
-    .oculto { position: absolute; width: var(--borde-fino); height: var(--borde-fino); overflow: hidden; clip: rect(0 0 0 0); }
-  `,
+  styleUrl: './tabla-de-datos-virtualizada.css',
 })
 export class TablaDeDatosVirtualizada<T extends object> {
   readonly titulo = input.required<string>()

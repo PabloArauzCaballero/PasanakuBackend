@@ -8,6 +8,24 @@
 /* Movimiento: los mismos valores que `Movimiento` en diseno_flutter. Firme y corto. */
 :root { --mov-micro: 120ms; --mov-entrada: 220ms; --mov-brillo: 5300ms; --curva-llega: cubic-bezier(.05, .7, .1, 1); --curva-sale: cubic-bezier(.3, 0, .8, .15); }
 *, *::before, *::after { box-sizing: border-box; }
+* {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--border) 80%, transparent) transparent;
+}
+*::-webkit-scrollbar {
+  width: var(--s2);
+  height: var(--s2);
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+*::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--border) 80%, transparent);
+  border-radius: var(--r-pill);
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: var(--text-3);
+}
 body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--font-b); line-height: 1.55; -webkit-font-smoothing: antialiased; }
 h1, h2, h3 { font-family: var(--font-d); letter-spacing: -0.02em; line-height: 1.15; margin: 0; }
 :focus-visible { outline: var(--borde-foco) solid var(--g300); outline-offset: var(--borde-desfase); }

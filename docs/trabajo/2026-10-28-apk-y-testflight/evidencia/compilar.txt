@@ -1,0 +1,5 @@
+3:xcode: Xcode 26.6 | flutter: 3.44.8 | build: 202610282041
+5:commit: 5dafb0f5 rama: 
+3684:Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.7.1/userguide/configuration_cache_enabling.html
+4762:archivo: /Users/pablo/Documents/GitHub/Pasanaku-testflight/apps/movil/build/ios/archive/Runner.xcarchive
+4763:Listo (--solo-compilar): no se subio nada.
