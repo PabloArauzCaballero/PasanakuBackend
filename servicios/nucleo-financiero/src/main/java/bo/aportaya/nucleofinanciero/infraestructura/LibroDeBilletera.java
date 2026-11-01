@@ -152,23 +152,34 @@ public class LibroDeBilletera {
                 .set(DSL.field("registrada_en", OffsetDateTime.class), ahora)
                 .execute();
 
+        var insert = dsl.insertInto(
+                DSL.table(DSL.name("nucleo_financiero", "movimiento_billetera")),
+                DSL.field("id", UUID.class),
+                DSL.field("transaccion_id", UUID.class),
+                DSL.field("cuenta_billetera_id", UUID.class),
+                DSL.field("orden", Short.class),
+                DSL.field("sentido", String.class),
+                DSL.field("monto", BigDecimal.class),
+                DSL.field("saldo_disponible_posterior", BigDecimal.class),
+                DSL.field("saldo_retenido_posterior", BigDecimal.class),
+                DSL.field("glosa", String.class),
+                DSL.field("registrado_en", OffsetDateTime.class));
+
         short orden = 1;
         for (Pata pata : patas) {
-            dsl.insertInto(DSL.table(DSL.name("nucleo_financiero", "movimiento_billetera")))
-                    .set(DSL.field("id", UUID.class), UUID.randomUUID())
-                    .set(DSL.field("transaccion_id", UUID.class), id)
-                    .set(DSL.field("cuenta_billetera_id", UUID.class), pata.cuentaId())
-                    .set(DSL.field("orden", Short.class), orden++)
-                    .set(DSL.field("sentido", String.class), pata.sentido())
-                    .set(DSL.field("monto", BigDecimal.class), pata.monto().monto())
-                    // BEFORE INSERT fija ambos saldos bajo bloqueo de cuenta.
-                    // No se modifica el movimiento después de su inserción.
-                    .set(DSL.field("saldo_disponible_posterior", BigDecimal.class), BigDecimal.ZERO)
-                    .set(DSL.field("saldo_retenido_posterior", BigDecimal.class), BigDecimal.ZERO)
-                    .set(DSL.field("glosa", String.class), pata.glosa())
-                    .set(DSL.field("registrado_en", OffsetDateTime.class), ahora)
-                    .execute();
+            insert = insert.values(
+                    UUID.randomUUID(),
+                    id,
+                    pata.cuentaId(),
+                    orden++,
+                    pata.sentido(),
+                    pata.monto().monto(),
+                    BigDecimal.ZERO,
+                    BigDecimal.ZERO,
+                    pata.glosa(),
+                    ahora);
         }
+        insert.execute();
         return id;
     }
 

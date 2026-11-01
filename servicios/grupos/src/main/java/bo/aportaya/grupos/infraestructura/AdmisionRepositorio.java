@@ -9,6 +9,7 @@ import java.util.Optional;
 import java.util.UUID;
 import org.jooq.DSLContext;
 import org.jooq.Record;
+import org.jooq.impl.DSL;
 import org.springframework.stereotype.Component;
 
 /** Persistencia del expediente humano, con exclusión por grupo y solicitud. */
@@ -127,12 +128,14 @@ public class AdmisionRepositorio {
                 participante,
                 solicitud.grupoId(),
                 solicitud.usuarioId());
-        for (var cupo : cupos) {
-            dsl.execute(
-                    "UPDATE grupos.cupo SET participante_id=?, estado='RESERVADO', asignado_en=now() WHERE id=? AND estado='LIBRE'",
-                    participante,
-                    cupo.get("id", UUID.class));
-        }
+        List<UUID> cupoIds = cupos.map(c -> c.get("id", UUID.class));
+        dsl.update(DSL.table(DSL.name("grupos", "cupo")))
+                .set(DSL.field("participante_id", UUID.class), participante)
+                .set(DSL.field("estado", String.class), "RESERVADO")
+                .set(DSL.field("asignado_en"), DSL.currentTimestamp())
+                .where(DSL.field("id", UUID.class).in(cupoIds))
+                .and(DSL.field("estado", String.class).eq("LIBRE"))
+                .execute();
         dsl.execute(
                 "UPDATE grupos.grupo SET cupos_ocupados=(SELECT count(*) FROM grupos.cupo WHERE grupo_id=? AND estado IN ('OCUPADO','RESERVADO')) WHERE id=?",
                 solicitud.grupoId(),
