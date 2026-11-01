@@ -72,3 +72,9 @@ código», en el orden de D10; cada uno abre su propio `PLAN.md`.
   supuesto tomado y a quién confirmárselo: Pablo, Cumplimiento, Cumplimiento + proveedor.
 - Pablo pidió cerrar todo («cerralo absolutamente todos», 2026-10-31): se commiteó en la rama nueva y se
   abrieron PR a `dev` y a `test` (números en la sección Entrega, agregada al cerrar).
+
+## Entrega
+- Commit `558e7b4cc` en `claude/adr-054-grupos-sin-organizador-20261031` (desde `origin/test` 336e1e82f).
+- PR #378 → `test` y PR #379 → `dev`, abiertos el 2026-10-31 a pedido de Pablo («cerralo absolutamente
+  todos»). `dev` y `test` tenían el mismo árbol antes del merge (`git diff --stat origin/dev origin/test`
+  vacío).
