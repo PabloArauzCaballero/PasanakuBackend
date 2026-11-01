@@ -34,6 +34,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class CU22LiquidarEntrega {
 
+    private static final org.slf4j.Logger BITACORA = org.slf4j.LoggerFactory.getLogger(CU22LiquidarEntrega.class);
     private final Datos datos;
     private final EntregaRepositorio entregas;
     private final Outbox outbox;
@@ -101,6 +102,7 @@ public class CU22LiquidarEntrega {
                                     "neto", calculo.neto().toString()),
                             UUID.fromString(ctx.traza().id())));
 
+            BITACORA.info("CU-22 · Entrega liquidada: entrega={}, grupo={}, beneficiario={}, neto={}", entregaId, entrada.grupoId(), entrada.beneficiarioId(), calculo.neto());
             return new SalidaLiquidacion(
                     entregaId, calculo.bruto(), calculo.totalDeducciones(), calculo.neto(), "PROGRAMADA");
         });
@@ -143,6 +145,7 @@ public class CU22LiquidarEntrega {
                                     "neto", entrega.neto().toString()),
                             UUID.fromString(ctx.traza().id())));
 
+            BITACORA.info("CU-22 · Entrega autorizada: entrega={}, operador={}, neto={}", entregaId, ctx.usuarioId(), entrega.neto());
             return new SalidaAutorizacion(entregaId, "AUTORIZADA", ctx.usuarioId());
         });
     }
@@ -183,6 +186,7 @@ public class CU22LiquidarEntrega {
                                     "beneficiarioId", entrega.beneficiarioId().toString()),
                             UUID.fromString(ctx.traza().id())));
 
+            BITACORA.info("CU-22 · Entrega ejecutada: entrega={}, operador={}, entregado={}", entregaId, ctx.usuarioId(), entregado);
             return new SalidaEjecucion(entregaId, "ENTREGADA", entregado);
         });
     }
