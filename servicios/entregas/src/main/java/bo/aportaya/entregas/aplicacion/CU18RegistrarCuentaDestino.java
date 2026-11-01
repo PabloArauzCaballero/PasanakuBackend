@@ -5,6 +5,7 @@ import bo.aportaya.entregas.dominio.TitularidadDeCuenta;
 import bo.aportaya.entregas.dominio.VentanaDeEnfriamiento;
 import bo.aportaya.entregas.infraestructura.CuentaDestinoRepositorio;
 import bo.aportaya.plataforma.datos.Datos;
+import bo.aportaya.plataforma.dominio.CifradorSimetrico;
 import bo.aportaya.plataforma.dominio.CodigoError;
 import bo.aportaya.plataforma.dominio.ContextoSesion;
 import bo.aportaya.plataforma.dominio.ErrorDeNegocio;
@@ -97,12 +98,21 @@ public class CU18RegistrarCuentaDestino {
             }
 
             boolean primera = cuentas.cuantasTiene(dsl, ctx.usuarioId()) == 0;
+            String numeroCifradoReal;
+            if (entrada.numeroCifrado() != null
+                    && !entrada.numeroCifrado().isBlank()
+                    && (entrada.numeroCifrado().startsWith("cifrado:") || entrada.numeroCifrado().startsWith(CifradorSimetrico.PREFIJO))) {
+                numeroCifradoReal = entrada.numeroCifrado();
+            } else {
+                numeroCifradoReal = CifradorSimetrico.cifrar(entrada.numeroEnClaro(), pimienta);
+            }
+
             UUID cuentaId = cuentas.registrar(
                     dsl,
                     ctx.usuarioId(),
                     entrada.tipoCuenta(),
                     entrada.entidadFinanciera(),
-                    entrada.numeroCifrado(),
+                    numeroCifradoReal,
                     enmascarada,
                     entrada.titularNombre(),
                     entrada.titularDocumento(),

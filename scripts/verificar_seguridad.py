@@ -424,7 +424,11 @@ def bloque_6():
     for cu in sorted(cu_dir.glob("CU-*.md")):
         m = re.search(r"## Eventos, trabajos y permisos(.*?)(\n## )", cu.read_text(encoding="utf-8"), re.S)
         if m:
-            citados |= set(re.findall(r"`([A-Z][A-Z0-9_]{5,})`", m.group(1)))
+            for linea in m.group(1).splitlines():
+                partes = [p.strip() for p in linea.split("|")]
+                if len(partes) >= 4 and partes[1] not in ("Emite", "---", ""):
+                    exige = partes[3]
+                    citados |= set(re.findall(r"`([A-Z][A-Z0-9_]{4,})`", exige))
     # Un rol en la columna «Exige» es uso legítimo: dice quién, no qué permiso.
     huerfanos = sorted(citados - permisos - roles)
     if huerfanos:
