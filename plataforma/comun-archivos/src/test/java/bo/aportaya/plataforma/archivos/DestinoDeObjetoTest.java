@@ -62,4 +62,27 @@ class DestinoDeObjetoTest {
                         AmbitoArchivo.IDENTIDAD.prefijo(), destino.carpeta(), destino.etiqueta(), UUID.randomUUID()));
         assertThat(clave.ruta()).startsWith("identidad/" + USUARIO + "/anverso-");
     }
+
+    @Test
+    @DisplayName("La foto de perfil cae en la carpeta de la persona, fuera del expediente")
+    void fotoDePerfil() {
+        var destino = DestinoDeObjeto.deFotoDePerfil(USUARIO);
+        assertThat(destino.carpeta()).isEqualTo(USUARIO.toString());
+        assertThat(destino.etiqueta()).isEqualTo("foto");
+        assertThat(AmbitoArchivo.PERFIL.prefijo()).isEqualTo("perfil");
+        assertThatThrownBy(() -> DestinoDeObjeto.deFotoDePerfil(null)).isInstanceOf(ErrorDeDominio.class);
+    }
+
+    @Test
+    @DisplayName("La foto de perfil admite JPEG y PNG hasta 5 MB; un PDF o un archivo mas grande no")
+    void ambitoDePerfil() {
+        AmbitoArchivo.PERFIL.exigirTipoAdmitido("image/jpeg");
+        AmbitoArchivo.PERFIL.exigirTipoAdmitido("image/png");
+        AmbitoArchivo.PERFIL.exigirQueQuepa(5 * 1024 * 1024);
+        assertThatThrownBy(() -> AmbitoArchivo.PERFIL.exigirTipoAdmitido("application/pdf"))
+                .isInstanceOf(ErrorDeDominio.class);
+        assertThatThrownBy(() -> AmbitoArchivo.PERFIL.exigirQueQuepa(5 * 1024 * 1024 + 1))
+                .isInstanceOf(ErrorDeDominio.class);
+        assertThatThrownBy(() -> AmbitoArchivo.PERFIL.exigirQueQuepa(0)).isInstanceOf(ErrorDeDominio.class);
+    }
 }

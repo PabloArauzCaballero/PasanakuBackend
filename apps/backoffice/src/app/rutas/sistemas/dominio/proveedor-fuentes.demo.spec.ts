@@ -2,7 +2,7 @@ import { provideZonelessChangeDetection } from '@angular/core'
 import { TestBed } from '@angular/core/testing'
 import { describe, expect, it, vi } from 'vitest'
 import { ES_FUENTE_SIMULADA, provideFuentesDeSistemas } from './proveedor-fuentes.demo'
-import { PUERTO_SERVICIOS } from './puertos'
+import { PUERTO_DESPLIEGUES, PUERTO_SERVICIOS } from './puertos'
 
 vi.mock('@aportaya/simulado/backoffice-sistemas', () => ({
   adaptadorSimuladoSistemas: {
@@ -21,6 +21,6 @@ describe('provideFuentesDeSistemas (versión demo) · elige por modo explícito,
   it('en modo producción (aunque este archivo tenga el simulado disponible): fuente no disponible', async () => {
     TestBed.configureTestingModule({ providers: [provideZonelessChangeDetection(), ...provideFuentesDeSistemas('produccion')] })
     expect(TestBed.inject(ES_FUENTE_SIMULADA)).toBe(false)
-    await expect(TestBed.inject(PUERTO_SERVICIOS).obtener()).rejects.toMatchObject({ tipo: 'fuente-no-disponible' })
+    await expect(TestBed.inject(PUERTO_DESPLIEGUES).obtener()).rejects.toMatchObject({ tipo: 'fuente-no-disponible' })
   })
 })

@@ -1,0 +1,108 @@
+{
+  "servicio": "entregas",
+  "operacion": "listarSubastasDeCupo",
+  "metodo": "get",
+  "ruta": "/entregas/subastas",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "pagina": 1,
+        "subastas": [
+          {
+            "subastaId": "9a5cca66-f155-4314-8b09-59728bb25d7a",
+            "grupoId": "d40ae74e-2d71-40c2-8684-a874017c9810",
+            "cupoId": "657572ea-113f-45ba-844a-375076b4b8a4",
+            "nombreDelGrupo": "nombreDelGrupo",
+            "periodicidad": "periodicidad",
+            "montoAporte": {
+              "monto": "4.44",
+              "moneda": "BOB"
+            },
+            "montoBase": {
+              "monto": "4.44",
+              "moneda": "BOB"
+            },
+            "montoMasAlto": {
+              "monto": "4.44",
+              "moneda": "BOB"
+            },
+            "montoMinimo": {
+              "monto": "4.44",
+              "moneda": "BOB"
+            },
+            "estado": "ABIERTA",
+            "cierraEn": "2026-01-15T10:30:00Z",
+            "cantidadDePujas": 0,
+            "soyElSaliente": true,
+            "miPuja": {
+              "monto": {
+                "monto": "4.44",
+                "moneda": "BOB"
+              },
+              "estado": "PENDIENTE"
+            }
+          }
+        ]
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "pagina": 0,
+        "subastas": []
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "pagina": 1,
+        "subastas": [
+          {
+            "subastaId": "9a5cca66-f155-4314-8b09-59728bb25d7a",
+            "grupoId": "d40ae74e-2d71-40c2-8684-a874017c9810",
+            "cupoId": "657572ea-113f-45ba-844a-375076b4b8a4",
+            "nombreDelGrupo": "nombreDelGrupo",
+            "periodicidad": "periodicidad",
+            "montoAporte": {
+              "monto": "4.44",
+              "moneda": "BOB"
+            },
+            "montoBase": {
+              "monto": "4.44",
+              "moneda": "BOB"
+            },
+            "montoMasAlto": {
+              "monto": "4.44",
+              "moneda": "BOB"
+            },
+            "montoMinimo": {
+              "monto": "4.44",
+              "moneda": "BOB"
+            },
+            "estado": "ABIERTA",
+            "cierraEn": "2026-01-15T10:30:00Z",
+            "cantidadDePujas": 0,
+            "soyElSaliente": true,
+            "miPuja": {
+              "monto": {
+                "monto": "4.44",
+                "moneda": "BOB"
+              },
+              "estado": "PENDIENTE"
+            }
+          }
+        ]
+      }
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU64-01",
+        "mensaje": "Cupo no traspasable",
+        "detalle": {},
+        "trazaId": "traza-listarSubastasDeCupo-rechazo"
+      }
+    }
+  }
+}

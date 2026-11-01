@@ -3,22 +3,27 @@ package bo.aportaya.aportes.web;
 import bo.aportaya.aportes.aplicacion.CU100RecibirWebhookPasarela;
 import bo.aportaya.aportes.aplicacion.CU19ReembolsarPago;
 import bo.aportaya.aportes.aplicacion.CU99EnrutarProveedor;
+import bo.aportaya.aportes.aplicacion.ConsultarPlataformaDePagos;
 import bo.aportaya.aportes.web.generado.PagosApi;
 import bo.aportaya.aportes.web.generado.modelo.EntradaDisputa;
 import bo.aportaya.aportes.web.generado.modelo.EntradaEnrutamiento;
 import bo.aportaya.aportes.web.generado.modelo.EntradaProveedor;
 import bo.aportaya.aportes.web.generado.modelo.EntradaReembolso;
+import bo.aportaya.aportes.web.generado.modelo.ProveedorDePagoResumen;
 import bo.aportaya.aportes.web.generado.modelo.SalidaDisputa;
 import bo.aportaya.aportes.web.generado.modelo.SalidaEjecucionReembolso;
 import bo.aportaya.aportes.web.generado.modelo.SalidaEnrutamiento;
 import bo.aportaya.aportes.web.generado.modelo.SalidaProveedor;
 import bo.aportaya.aportes.web.generado.modelo.SalidaReembolso;
 import bo.aportaya.aportes.web.generado.modelo.SalidaWebhook;
+import bo.aportaya.aportes.web.generado.modelo.WebhookRecibido;
 import bo.aportaya.plataforma.web.seguridad.Permiso;
+import bo.aportaya.plataforma.web.seguridad.PermisoAlternativo;
 import bo.aportaya.plataforma.web.seguridad.Publico;
 import bo.aportaya.plataforma.web.seguridad.SesionDeLaPeticion;
 import bo.aportaya.plataforma.web.traza.Traza;
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.UUID;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,16 +36,19 @@ public class PagosController implements PagosApi {
     private final CU19ReembolsarPago cu19;
     private final CU99EnrutarProveedor cu99;
     private final CU100RecibirWebhookPasarela cu100;
+    private final ConsultarPlataformaDePagos plataforma;
     private final SesionDeLaPeticion sesion;
 
     public PagosController(
             CU19ReembolsarPago cu19,
             CU99EnrutarProveedor cu99,
             CU100RecibirWebhookPasarela cu100,
+            ConsultarPlataformaDePagos plataforma,
             SesionDeLaPeticion sesion) {
         this.cu19 = cu19;
         this.cu99 = cu99;
         this.cu100 = cu100;
+        this.plataforma = plataforma;
         this.sesion = sesion;
     }
 
@@ -174,5 +182,45 @@ public class PagosController implements PagosApi {
         respuesta.setEstado(
                 SalidaWebhook.EstadoEnum.fromValue(resultado.estado().name()));
         return ResponseEntity.ok(respuesta);
+    }
+
+    /** Sistemas › Proveedores: los proveedores de pago, sin credenciales. */
+    @Override
+    @Permiso("TABLERO_SISTEMAS_VER")
+    @PermisoAlternativo({"AUDITORIA_LEER"})
+    public ResponseEntity<List<ProveedorDePagoResumen>> listarProveedoresDePago() {
+        Traza.marcarCasoDeUso("TABLERO-SISTEMAS", "pagos/proveedores");
+        return ResponseEntity.ok(plataforma.proveedores(sesion.actual()).stream()
+                .map(p -> new ProveedorDePagoResumen(
+                        p.id(),
+                        p.codigo(),
+                        p.nombre(),
+                        ProveedorDePagoResumen.TipoEnum.fromValue(p.tipo()),
+                        p.activo(),
+                        p.soportaWebhook(),
+                        p.prioridad()))
+                .toList());
+    }
+
+    /** Sistemas › Webhooks: los ultimos recibidos, sin payload ni firma. */
+    @Override
+    @Permiso("TABLERO_SISTEMAS_VER")
+    @PermisoAlternativo({"AUDITORIA_LEER"})
+    public ResponseEntity<List<WebhookRecibido>> listarWebhooksRecibidos(Integer limite) {
+        Traza.marcarCasoDeUso("TABLERO-SISTEMAS", "pagos/webhooks-recibidos");
+        return ResponseEntity.ok(plataforma.webhooks(limite == null ? 50 : limite, sesion.actual()).stream()
+                .map(w -> {
+                    var salida = new WebhookRecibido(
+                            w.id(),
+                            w.proveedorCodigo(),
+                            w.evento(),
+                            WebhookRecibido.EstadoEnum.fromValue(w.estado()),
+                            w.firmaValida(),
+                            w.recibidoEn(),
+                            w.intentos());
+                    w.procesadoEn().ifPresent(salida::setProcesadoEn);
+                    return salida;
+                })
+                .toList());
     }
 }

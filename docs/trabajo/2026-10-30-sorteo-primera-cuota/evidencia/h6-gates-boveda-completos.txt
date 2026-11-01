@@ -1,0 +1,66 @@
+# 2026-10-31T07:16:44Z · 756b9ae7c + CU-21 gherkin sin commitear · pasos 5, 6, 6b, 6c, 6g, 6d, 6i del job «La boveda y el esquema no divergen»
+
+$ python3 scripts/generar_ddl.py
+Actualizado: sql/60_semillas/sembrar.sql con \ir 24-metadata-comentarios.sql
+Guardado mapa de esquemas: /Users/pablo/Documents/GitHub/Pasanaku-wt-sorteo/scripts/metadata_enriquecida.json
+sql/ generado: 347 tablas · 692 claves foráneas · 801 índices · 545 CHECK
+Sin pendientes a nivel de datos.
+exit=0
+$ git diff --exit-code --stat -- sql/
+exit=0 (sin diff)
+
+$ python3 scripts/verificar_boveda.py
+  OK    · ninguna cifra desfasada en los planes 
+          cifras vigentes: 111 casos de uso · 347 tablas · 328 entidades · 175 restricciones · 51 ADR
+
+TODO OK
+exit=0
+
+$ python3 scripts/verificar_seguridad.py
+  AVISO · servicios/nucleo-financiero/src/main/java/bo/aportaya/nucleofinanciero/infraestructura/DestinoRepositorio.java:62 — DSL.field(variable) — nombre de columna dinámico (fuera del alcance de este carril; dueño del 
+  (1043 archivos revisados; 0 bloquean, 6 son aviso)
+
+1 FALLAS
+exit=1
+
+$ python3 scripts/verificar_carriles.py
+
+AVISO · tramos con un puesto cargando 4x o más que otro: T5 4x, T7 4x. Se corrige moviendo una deuda declarada, no partiendo un carril (planes/19 §11)
+AVISO · servicio sin ficha de carril: inversiones — M18 Inversion no tiene ficha en planes/18 ni en planes/21; dueno del codigo: @PabloArauzCaballero (.github/CODEOWNERS)
+TODO OK (con avisos)
+exit=0
+
+$ python3 scripts/verificar_maqueta.py
+=== 4 · SIN RESTOS DEL STACK ANTERIOR ===
+  OK    · ningún plan de frontend nombra el stack anterior fuera de la transición 
+
+TODO OK
+exit=0
+
+$ python3 scripts/verificar_criterios.py
+casos de uso implementados y verificados: 108
+pendientes de implementar (3): CU-05 (identidad), CU-51 (aportes), CU-57 (nucleo-financiero)
+Sin divergencias entre la boveda y el codigo.
+exit=0
+
+$ python3 -I scripts/verificar_narrativas.py
+  OK    · tablas con ficha: 397/397
+  OK    · columnas con explicación de negocio: 3823/4196 (piso 3734)
+
+Sin fallas.
+exit=0
+
+$ python3 -I scripts/test_catalogo_de_datos.py
+----------------------------------------------------------------------
+Ran 13 tests in 0.120s
+
+OK
+exit=0
+
+$ python3 -I scripts/catalogo_de_datos.py --escribir
+397 tablas → docs/catalogo-de-datos.md y servicios/auditoria/src/main/resources/catalogo/catalogo-datos.json
+exit=0
+$ git diff --exit-code --stat -- docs/catalogo-de-datos.md servicios/auditoria/src/main/resources/catalogo/catalogo-datos.json
+ docs/catalogo-de-datos.md                          |  2 +-
+ .../main/resources/catalogo/catalogo-datos.json    | 24 ++++++++++++++++++++++
+ 2 files changed, 25 insertions(+), 1 deletion(-)

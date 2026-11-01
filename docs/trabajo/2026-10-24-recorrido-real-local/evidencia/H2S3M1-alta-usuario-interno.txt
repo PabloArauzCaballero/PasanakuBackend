@@ -1,0 +1,9 @@
+# POST /usuarios-internos (alta, datos sinteticos)
+{"codigo":"AP-BD-03","mensaje":"Uno de los datos no cumple las reglas del registro.","trazaId":"23b50cf4-8910-4664-9ea2-165198362ee3"}
+HTTP 422
+# reintento con la MISMA Idempotency-Key (no debe duplicar)
+{"codigo":"AP-BD-03","mensaje":"Uno de los datos no cumple las reglas del registro.","trazaId":"52f95a5a-9518-48a1-be84-bd8a3beff00c"}
+HTTP 422
+# GET /usuarios-internos
+[]
+HTTP 200

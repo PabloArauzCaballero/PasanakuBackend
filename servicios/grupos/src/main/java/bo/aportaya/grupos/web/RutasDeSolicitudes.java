@@ -7,10 +7,12 @@ import bo.aportaya.grupos.web.generado.modelo.CalendarioDeAportes;
 import bo.aportaya.grupos.web.generado.modelo.EntradaDecisionDeIngreso;
 import bo.aportaya.grupos.web.generado.modelo.Participacion;
 import bo.aportaya.grupos.web.generado.modelo.SalidaDecisionDeIngreso;
+import bo.aportaya.grupos.web.generado.modelo.SolicitudDeAdmision;
 import bo.aportaya.grupos.web.generado.modelo.SolicitudDeIngreso;
 import bo.aportaya.plataforma.dominio.CodigoError;
 import bo.aportaya.plataforma.dominio.ErrorDeNegocio;
 import bo.aportaya.plataforma.web.seguridad.Permiso;
+import bo.aportaya.plataforma.web.seguridad.PermisoAlternativo;
 import bo.aportaya.plataforma.web.seguridad.SesionDeLaPeticion;
 import bo.aportaya.plataforma.web.traza.Traza;
 import java.util.UUID;
@@ -98,8 +100,44 @@ abstract class RutasDeSolicitudes extends RutasDeAdmision {
         return ResponseEntity.ok(lista);
     }
 
+    /** H4.B.M1: la bandeja de «Admisiones» del backoffice, para quien puede VER solicitudes de ingreso. */
+    @Override
+    @Permiso("SOLICITUD_INGRESO_VER")
+    public ResponseEntity<java.util.List<SolicitudDeAdmision>> listarBandejaDeAdmisiones(
+            String estado, Integer limite) {
+        Traza.marcarCasoDeUso("CU-68", "bandeja");
+        var lista = cu68Decision.bandeja(estado, limite, sesion.actual()).stream()
+                .map(s -> {
+                    var o = new SolicitudDeAdmision();
+                    o.setSolicitudId(s.id());
+                    o.setUsuarioId(s.usuarioId());
+                    // `grupos` no lee `identidad`: sin nombre visible, el id corto identifica a la persona.
+                    o.setPostulante(
+                            s.nombreVisible() == null || s.nombreVisible().isBlank()
+                                    ? "Usuario " + s.usuarioId().toString().substring(0, 8)
+                                    : s.nombreVisible());
+                    o.setGrupoId(s.grupoId());
+                    o.setGrupoCodigo(s.grupoCodigo());
+                    o.setCuposSolicitados(s.cuposSolicitados());
+                    o.setMensaje(s.mensaje());
+                    o.setPuntaje(s.puntaje() == null ? null : s.puntaje().toPlainString());
+                    o.setPorEnlace(s.porEnlace());
+                    o.setEstado(SolicitudDeAdmision.EstadoEnum.fromValue(s.estado()));
+                    o.setFechaSolicitud(s.fecha());
+                    return o;
+                })
+                .toList();
+        return ResponseEntity.ok(lista);
+    }
+
+    /**
+     * Dos poblaciones: el organizador del grupo ({@code GRUPO_ADMINISTRAR}) y backoffice ({@code ADMIN_PLATAFORMA}),
+     * que sin propuesta del organizador no tiene expediente que resolver. El caso de uso vuelve a decidir sobre el
+     * RECURSO: un organizador de otro grupo o el propio solicitante siguen recibiendo la negativa.
+     */
     @Override
     @Permiso("GRUPO_ADMINISTRAR")
+    @PermisoAlternativo({"ADMIN_PLATAFORMA"})
     public ResponseEntity<SalidaDecisionDeIngreso> decidirSolicitudDeIngreso(
             UUID solicitudId, UUID idempotencyKey, EntradaDecisionDeIngreso cuerpo) {
         Traza.marcarCasoDeUso("CU-68", solicitudId.toString());
@@ -111,10 +149,24 @@ abstract class RutasDeSolicitudes extends RutasDeAdmision {
                     "Este grupo exige admision humana: tu decision es una propuesta (proponerAdmision) y la resuelve backoffice.");
         }
         var ctx = sesion.actual();
-        // Primero se comprueba que quien decide es el organizador y se sabe quien pidio entrar; la
-        // reputacion se pregunta afuera, ANTES de abrir la transaccion de decidir (invariante 6).
-        var solicitante = cu68Decision.solicitante(solicitudId, ctx);
-        var reputacion = afuera.reputacion(solicitante).puntaje();
+        // Primero se comprueba que quien decide es el organizador (o backoffice) de esa solicitud: sin eso la etapa
+        // del solicitante no se pregunta (seria un oraculo de la reputacion ajena). Se pregunta afuera, ANTES de abrir
+        // la transaccion de decidir (invariante 6).
+        cu68Decision.solicitante(solicitudId, ctx);
+        // Entre que pidio y que lo aceptan el puntaje pudo bajar: la etapa se mira al aceptar (2026-10-30). Una
+        // solicitud ya resuelta no: repetir la decision devuelve la de antes (regla 96.3.3). La etapa es de OTRA
+        // persona:
+        // se lee con la identidad de servicio de grupos, nunca su puntaje exacto (regla 90.2.8). Lo que queda como
+        // reputacion al ingresar es el piso de esa etapa; rechazar, o repetir, no pregunta nada.
+        var reputacion = cuerpo.getDecision() == EntradaDecisionDeIngreso.DecisionEnum.ACEPTAR
+                ? consultas
+                        .solicitanteConCondiciones(solicitudId, ctx)
+                        .filter(Consultas.Solicitante::pendiente)
+                        .flatMap(s ->
+                                EtapaDelIngreso.exigir(afuera, java.util.Optional.of(s.condiciones()), s.usuarioId()))
+                        .map(bo.aportaya.grupos.dominio.Etapas.DeLaPersona::puntaje)
+                        .orElse(java.math.BigDecimal.ZERO)
+                : java.math.BigDecimal.ZERO;
         var r = cu68Decision.decidir(
                 solicitudId,
                 cuerpo.getDecision() == EntradaDecisionDeIngreso.DecisionEnum.ACEPTAR,

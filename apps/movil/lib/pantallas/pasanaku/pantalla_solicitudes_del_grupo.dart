@@ -2,7 +2,10 @@ import 'package:aportaya_cliente_grupos/aportaya_cliente_grupos.dart';
 import 'package:aportaya_diseno/atomos/avatar.dart';
 import 'package:aportaya_diseno/atomos/boton.dart';
 import 'package:aportaya_diseno/atomos/boton_variante.dart';
+import 'package:aportaya_diseno/atomos/chip_estado.dart';
 import 'package:aportaya_diseno/atomos/fecha.dart';
+import 'package:aportaya_diseno/atomos/iconos_de_marca.dart';
+import 'package:aportaya_diseno/atomos/tono.dart';
 import 'package:aportaya_diseno/errores.dart';
 import 'package:aportaya_diseno/moleculas/cabecera.dart';
 import 'package:aportaya_diseno/moleculas/tarjeta.dart';
@@ -39,6 +42,8 @@ class PantallaSolicitudesDelGrupo extends ConsumerWidget {
               EstadoDePantalla<List<SolicitudDeIngreso>>(
                 valor: solicitudes,
                 mensajeVacio: TextosEnlaceDelGrupo.sinSolicitudes,
+                tituloVacio: TextosEnlaceDelGrupo.tituloSinSolicitudes,
+                iconoVacio: IconosDeMarca.solicitudes,
                 vacio: (l) => l.isEmpty,
                 reintentar: () =>
                     ref.invalidate(solicitudesDelGrupoProvider(grupoId)),
@@ -108,10 +113,8 @@ class _TarjetaDeSolicitudState extends ConsumerState<_TarjetaDeSolicitud> {
     final t = Tokens.of(context);
     final s = widget.solicitud;
     final nombre = s.nombreVisible ?? TextosEnlaceDelGrupo.sinNombre;
-    final cuando = Fecha.formatear(
-      s.fechaSolicitud.toUtc().toIso8601String(),
-      conHora: false,
-    );
+    // Un día de calendario: se muestra con sus propios día, mes y año.
+    final cuando = Fecha.formatearDia(s.fechaSolicitud.toLocal());
     return Tarjeta(
       etiqueta: 'Solicitud de $nombre',
       child: Column(
@@ -138,12 +141,42 @@ class _TarjetaDeSolicitudState extends ConsumerState<_TarjetaDeSolicitud> {
             ],
           ),
           const SizedBox(height: Espacio.s3),
+          Wrap(
+            spacing: Espacio.s2,
+            runSpacing: Espacio.s2,
+            children: [
+              if (s.puntaje != null)
+                ChipEstado(
+                  texto: TextosEnlaceDelGrupo.conPuntaje(s.puntaje!),
+                  tono: Tono.info,
+                ),
+              ChipEstado(
+                texto: TextosEnlaceDelGrupo.cuposPedidos(s.cuposSolicitados),
+                tono: Tono.neutro,
+              ),
+            ],
+          ),
+          if (s.mensaje != null && s.mensaje!.trim().isNotEmpty) ...[
+            const SizedBox(height: Espacio.s3),
+            Container(
+              padding: const EdgeInsets.all(Espacio.s3),
+              decoration: BoxDecoration(
+                color: t.surface2,
+                borderRadius: BorderRadius.circular(Radios.md),
+              ),
+              child: Text(
+                '«${s.mensaje!.trim()}»',
+                style: Tipo.cuerpo.copyWith(color: t.text2),
+              ),
+            ),
+          ],
+          const SizedBox(height: Espacio.s3),
           Row(
             children: [
               Expanded(
                 child: Boton(
                   texto: TextosEnlaceDelGrupo.rechazar,
-                  variante: BotonVariante.fantasma,
+                  variante: BotonVariante.secundario,
                   cargando: _decidiendo == false,
                   onPressed: _decidiendo == null ? () => _decidir(false) : null,
                 ),

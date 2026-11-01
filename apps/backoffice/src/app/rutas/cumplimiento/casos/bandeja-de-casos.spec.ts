@@ -1,6 +1,9 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import type { CasoEnBandeja } from 'clientes/angular/cumplimiento'
-import { asentar, filasDe, GW, montar, rechazar, textoDe } from '../compartido/pruebas.apoyo'
+import { Router } from '@angular/router'
+import { TestBed } from '@angular/core/testing'
+import type { Bandeja } from '../compartido/bandeja-por-cursor'
+import { asentar, bandejaDe, boton, filasDe, GW, montar, rechazar, textoDe } from '../compartido/pruebas.apoyo'
 import { BandejaDeCasos } from './bandeja-de-casos'
 
 const URL = `${GW}/cumplimiento/casos`
@@ -28,9 +31,7 @@ describe('BandejaDeCasos · CU-44 listarBandejaDeCasos', () => {
     await asentar(fixture)
     expect(filasDe<CasoEnBandeja>(fixture).map((c) => c.codigo)).toEqual(['LFT-2026-0007'])
 
-    const tabla = fixture.debugElement.query((d) => d.name === 'ap-tabla-de-datos-virtualizada').componentInstance
-    tabla.pagina.set(2)
-    fixture.detectChanges()
+    boton(fixture, 'Siguiente')!.click()
     await asentar(fixture)
     const segundo = http.expectOne((r) => r.url === URL)
     expect(segundo.request.params.get('despuesDePlazo')).toBe(CASO.plazoLimite)
@@ -40,15 +41,13 @@ describe('BandejaDeCasos · CU-44 listarBandejaDeCasos', () => {
     http.verify()
   })
 
-  it('correcto: filtro de estado con explode: false', async () => {
+  it('correcto: el filtro de estado viaja al servidor como una sola clave (explode: false)', async () => {
     const { fixture, http } = montar(BandejaDeCasos, ['CUMPLIMIENTO_CASOS'])
     http.expectOne((r) => r.url === URL).flush({ items: [] })
     await asentar(fixture)
-    fixture.componentInstance['estados'].set(['ABIERTO', 'CERRADO'])
-    fixture.detectChanges()
-    await asentar(fixture)
+    bandejaDe<Bandeja<CasoEnBandeja>>(fixture).filtrar('estados', 'CERRADO')
     const pedido = http.expectOne((r) => r.url === URL)
-    expect(pedido.request.params.get('estados')).toBe('ABIERTO,CERRADO')
+    expect(pedido.request.params.getAll('estados')).toEqual(['CERRADO'])
     pedido.flush({ items: [] })
     http.verify()
   })
@@ -77,15 +76,36 @@ describe('BandejaDeCasos · CU-44 listarBandejaDeCasos', () => {
     expect(textoDe(fixture)).toContain('traza-123')
   })
 
-  it('decidir abre el diálogo sobre el caso elegido; nunca ofrece avisar al cliente', async () => {
+  it('la acción de fila «Decidir» abre el diálogo sobre ese caso; nunca ofrece avisar al cliente', async () => {
     const { fixture, http } = montar(BandejaDeCasos, ['CUMPLIMIENTO_CASOS'])
     http.expectOne((r) => r.url === URL).flush({ items: [CASO] })
     await asentar(fixture)
-    fixture.componentInstance['decidir'](CASO as unknown as CasoEnBandeja)
+    ;(fixture.nativeElement.querySelector('[aria-label="Decidir el caso LFT-2026-0007"]') as HTMLButtonElement).click()
     fixture.detectChanges()
     expect(textoDe(fixture)).toContain('Decidir el caso LFT-2026-0007')
     expect(textoDe(fixture)).toContain('Nunca se notifica al titular')
     expect(textoDe(fixture).toLowerCase()).not.toMatch(/avisar al cliente|notificar al cliente/)
     http.verify()
+  })
+
+  it('acciones de fila: «Ver» lleva a la ficha; un caso cerrado o ya decidido no ofrece «Decidir»; nunca Editar ni Eliminar', async () => {
+    const { fixture, http } = montar(BandejaDeCasos, ['CUMPLIMIENTO_CASOS'])
+    const cerrado = { ...CASO, casoId: 'c-2', codigo: 'LFT-2026-0008', estado: 'CERRADO', decision: 'DESCARTAR' }
+    http.expectOne((r) => r.url === URL).flush({ items: [CASO, cerrado] })
+    await asentar(fixture)
+    expect(fixture.nativeElement.querySelector('[aria-label="Decidir el caso LFT-2026-0008"]')).toBeNull()
+    expect(textoDe(fixture)).not.toMatch(/Editar|Eliminar/)
+    const navegar = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true)
+    ;(fixture.nativeElement.querySelector('[aria-label="Ver caso LFT-2026-0007"]') as HTMLButtonElement).click()
+    expect(navegar).toHaveBeenCalledWith(['/cumplimiento/casos', CASO.casoId])
+    http.verify()
+  })
+
+  it('sin CUMPLIMIENTO_CASOS no hay «Decidir» (el servidor lo rechazaría igual)', async () => {
+    const { fixture, http } = montar(BandejaDeCasos, [])
+    http.expectOne((r) => r.url === URL).flush({ items: [CASO] })
+    await asentar(fixture)
+    expect(fixture.nativeElement.querySelector('[aria-label="Decidir el caso LFT-2026-0007"]')).toBeNull()
+    expect(fixture.nativeElement.querySelector('ap-decidir-caso')).toBeNull()
   })
 })

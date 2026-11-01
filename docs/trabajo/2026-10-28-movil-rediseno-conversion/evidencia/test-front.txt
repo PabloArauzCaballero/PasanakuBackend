@@ -1,0 +1,3 @@
+02:25 +795 -2: Some tests failed.                                                                                                                                                                      
++769 -1: /home/user/PasanakuBackend/apps/movil/test/pasanaku/pantallas_enlace_del_grupo_test.dart: organizador correcto: al entrar se crea el enlace y se comparte el QR como imagen [E]         
++769 -2: /home/user/PasanakuBackend/apps/movil/test/pasanaku/pantallas_enlace_del_grupo_test.dart: organizador límite: el enlace se comparte como texto y se puede copiar [E]                    

@@ -132,9 +132,12 @@ ${lerp}
 /// viviendo en tokens.json y Tokens; esta fachada evita que cada componente vuelva
 /// a decidir qué combinación construye una tarjeta, un panel destacado o una hoja.
 abstract final class Elevacion {
+  /// Siempre en dos capas (contacto + ambiente): una sombra sola se ve pegada o sucia.
+  static List<BoxShadow> fila(Tokens t) => [t.sombra1];
   static List<BoxShadow> tarjeta(Tokens t) => [t.sombra1, t.sombra2];
   static List<BoxShadow> destacada(Tokens t) => [t.sombra2];
-  static List<BoxShadow> superpuesta(Tokens t) => [t.sombra3];
+  static List<BoxShadow> heroe(Tokens t) => [t.sombra1, t.sombraHeroe];
+  static List<BoxShadow> superpuesta(Tokens t) => [t.sombra1, t.sombra3];
 }
 `
 mkdirSync(resolve(RAIZ, 'generado'), { recursive: true })

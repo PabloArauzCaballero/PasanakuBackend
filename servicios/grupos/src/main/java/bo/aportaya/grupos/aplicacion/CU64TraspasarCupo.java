@@ -50,6 +50,19 @@ public class CU64TraspasarCupo {
         this.reloj = reloj;
     }
 
+    /**
+     * Si el MISMO acuerdo ya traspaso este cupo a este entrante (el reintento que {@link #ejecutar} devuelve). La API
+     * lo pregunta antes de exigir la etapa del entrante: el reintento devuelve el traspaso original aunque
+     * {@code transparencia} no conteste o el puntaje haya cambiado (regla 96.3.3).
+     */
+    @Transactional(readOnly = true)
+    public boolean yaTraspasado(UUID cupoId, Optional<UUID> acuerdoId, UUID entranteId, ContextoSesion ctx) {
+        if (acuerdoId.isEmpty()) return false;
+        return datos.conContexto(ctx, dsl -> traspasos
+                .yaTraspasado(dsl, cupoId, acuerdoId.get(), entranteId)
+                .isPresent());
+    }
+
     @Transactional
     public UUID ejecutar(EntradaTraspaso entrada, ContextoSesion ctx) {
         OffsetDateTime ahora = reloj.ahora().atOffset(ZoneOffset.UTC);
@@ -58,6 +71,18 @@ public class CU64TraspasarCupo {
             var cupo = traspasos
                     .estadoDelCupo(dsl, entrada.cupoId())
                     .orElseThrow(() -> new ErrorDeNegocio(CodigoError.de(64, 1), "Ese cupo no existe."));
+
+            // El cupo tiene que ser del grupo de la ruta: sin esto, el id de un cupo de otro grupo
+            // pasaba con la politica del grupo de la ruta.
+            if (entrada.grupoDeLaRuta().isPresent()
+                    && !entrada.grupoDeLaRuta().get().equals(cupo.grupoId())) {
+                throw new ErrorDeNegocio(CodigoError.de(64, 1), "Ese cupo no existe.");
+            }
+            // Traspasa quien tiene el cupo (decision de Pablo, 2026-10-30): el grupo ya aprobo el traspaso
+            // por votacion, asi que no hace falta un organizador de intermediario. Nadie mas puede.
+            if (entrada.titularQueLlama().isPresent() && !cupo.participanteId().equals(entrada.titularQueLlama())) {
+                throw noEsTitular();
+            }
 
             // Reintento: el MISMO acuerdo ya traspaso ESTE cupo a ESTE entrante. Se devuelve ese traspaso; sin
             // esto repetir la peticion (la app, el usuario) creaba otro traspaso y movia el cupo de nuevo (B39).
@@ -79,6 +104,13 @@ public class CU64TraspasarCupo {
                             .filter(a -> a.grupoId().equals(cupo.grupoId()))
                             .filter(a -> TipoDeAcuerdo.ADMISION_REEMPLAZO.name().equals(a.tipo()))
                             .filter(a -> "APROBADO".equals(a.estado()))
+                            // El voto es sobre ESTE cupo: un acuerdo aprobado para otro cupo no autoriza este.
+                            .filter(a ->
+                                    a.afectado().map(entrada.cupoId()::equals).orElse(false))
+                            // Y sobre ESTA persona: el grupo voto a quien entra, no un cupo libre para cualquiera.
+                            .filter(a -> a.entrante()
+                                    .map(entrada.entranteId()::equals)
+                                    .orElse(false))
                             .isPresent();
 
             TraspasoAdmisible.impedimento(
@@ -101,6 +133,15 @@ public class CU64TraspasarCupo {
             // cada titular tocar solo lo suyo. La autorizacion (permiso, acuerdo aprobado, reglas de
             // admision) ya se comprobo arriba, asi que la escritura va con rol de sistema (B8).
             UUID traspaso = Datos.comoSistema(dsl, () -> {
+                // El acuerdo se usa una vez, y se gasta ANTES de mover nada: el UPDATE condicionado a
+                // APROBADO bloquea la fila, asi que dos pedidos simultaneos con el mismo acuerdo no
+                // traspasan los dos. El segundo espera, no encuentra la fila APROBADA y se rechaza.
+                if (entrada.acuerdoId().isPresent()
+                        && !acuerdos.marcarEjecutado(dsl, entrada.acuerdoId().get(), ahora)) {
+                    var motivo = TraspasoAdmisible.Motivo.ACUERDO_REQUERIDO;
+                    throw new ErrorDeNegocio(CodigoError.de(64, motivo.numero()), motivo.mensaje());
+                }
+
                 UUID registrado = traspasos.registrar(
                         dsl,
                         entrada.cupoId(),
@@ -134,6 +175,12 @@ public class CU64TraspasarCupo {
         });
     }
 
+    /** Quien llama no tiene el cupo: AP-CU64-06. */
+    public static ErrorDeNegocio noEsTitular() {
+        var motivo = TraspasoAdmisible.Motivo.NO_ES_TITULAR;
+        return new ErrorDeNegocio(CodigoError.de(64, motivo.numero()), motivo.mensaje());
+    }
+
     /**
      * La columna `traspaso_cupo.motivo` es un codigo cerrado (REEMPLAZO_POR_MORA | RETIRO | VENTA) y
      * el contrato recibe texto libre de 10 a 300 caracteres: guardar el texto violaba el CHECK y
@@ -153,5 +200,37 @@ public class CU64TraspasarCupo {
             int reputacionMinimaDelGrupo,
             boolean hayAcuerdoSiSeExige,
             boolean derechoDeCobroTransferido,
-            Optional<UUID> acuerdoId) {}
+            Optional<UUID> acuerdoId,
+            Optional<UUID> grupoDeLaRuta,
+            Optional<UUID> titularQueLlama) {
+
+        /** Sin grupo ni titular que comprobar: lo usan las pruebas del caso de uso y CU-66. */
+        public EntradaTraspaso(
+                UUID cupoId,
+                UUID entranteId,
+                String motivo,
+                boolean salienteAlDia,
+                String kycDelEntrante,
+                String kycMinimoDelGrupo,
+                int reputacionDelEntrante,
+                int reputacionMinimaDelGrupo,
+                boolean hayAcuerdoSiSeExige,
+                boolean derechoDeCobroTransferido,
+                Optional<UUID> acuerdoId) {
+            this(
+                    cupoId,
+                    entranteId,
+                    motivo,
+                    salienteAlDia,
+                    kycDelEntrante,
+                    kycMinimoDelGrupo,
+                    reputacionDelEntrante,
+                    reputacionMinimaDelGrupo,
+                    hayAcuerdoSiSeExige,
+                    derechoDeCobroTransferido,
+                    acuerdoId,
+                    Optional.empty(),
+                    Optional.empty());
+        }
+    }
 }

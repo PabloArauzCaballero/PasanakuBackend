@@ -1,0 +1,8 @@
+$ ./gradlew :servicios:auditoria:spotlessApply
+BUILD SUCCESSFUL in 1s
+$ ./gradlew :servicios:auditoria:spotlessCheck
+BUILD SUCCESSFUL in 1s
+$ ./gradlew :servicios:auditoria:check -x test -x jacocoTestCoverageVerification -x jacocoTestReport
+BUILD SUCCESSFUL in 19s
+$ ./gradlew :servicios:auditoria:testBarrido
+BUILD SUCCESSFUL in 2s

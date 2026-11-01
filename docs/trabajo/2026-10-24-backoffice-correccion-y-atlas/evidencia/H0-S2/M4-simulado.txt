@@ -1,0 +1,9 @@
+$ yarn workspace @aportaya/simulado build
+contratos convertidos desde /home/user/PasanakuBackend: aportes (12 rutas) · auditoria (20 rutas) · cumplimiento (22 rutas) · entregas (14 rutas) · erp (20 rutas) · garantia (20 rutas) · grupos (36 rutas) · identidad (33 rutas) · inversiones (20 rutas) · notificaciones (9 rutas) · nucleo-financiero (24 rutas) · organizador (23 rutas) · publicidad (14 rutas) · tarifas (12 rutas) · transparencia (19 rutas)
+ejemplos: 6 creados · 317 conservados (editados a mano, no se pisan) · 0 rechazos alineados al catalogo de errores
+simulado: 1690 ejemplos inyectados · 298 rutas en generado/prism/todos.yaml
+exit=0
+$ yarn workspace @aportaya/simulado test:front
+ Test Files  4 passed (4)
+      Tests  350 passed (350)
+exit=0

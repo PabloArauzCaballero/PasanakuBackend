@@ -80,8 +80,9 @@ abstract class BaseDeCU68 {
                 """);
     }
 
+    /** Abierto a inscripcion (2026-10-30): un grupo iniciado ya no recibe postulaciones (AP-CU69-17). */
     protected UUID grupoConCupoLibre() {
-        UUID grupo = fixtura.grupoConformado(3);
+        UUID grupo = fixtura.grupoAbierto(3);
         fixtura.participantesConCupo(grupo, 3);
         dslFixtura.execute(
                 """
@@ -93,7 +94,7 @@ abstract class BaseDeCU68 {
     }
 
     protected UUID grupoSinCuposLibres() {
-        UUID grupo = fixtura.grupoConformado(3);
+        UUID grupo = fixtura.grupoAbierto(3);
         fixtura.participantesConCupo(grupo, 3);
         return grupo;
     }

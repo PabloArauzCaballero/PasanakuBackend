@@ -1,0 +1,102 @@
+# Reporte — Backoffice: rediseño de la anatomía compartida y pasada pantalla por pantalla
+
+> **AVANCE: 33 / 34 — 97,1 %.** Revisión visual independiente repetida sobre la versión final: **0 pantallas rechazadas por el frontend** (89/100). Quedan 7 rechazadas solo por decisión del dueño (Sistemas sin fuente). Falta H6.M5: PR a `dev` y `test` y verificar el bundle en vivo. En TEST el servicio ERP responde 500 a todo: es del host, no del front.
+
+- Fecha: 2026-10-27 · Plan: [PLAN.md](./PLAN.md) · Doble revisión: [evidencia/doble-revision.md](./evidencia/doble-revision.md)
+- Ramas: PasanakuFrontend `claude/admiring-fermi-mdayfj` (`add44f26`, `40f66da1`) · PasanakuBackend `claude/admiring-fermi-mdayfj` (`071092e5`), PR [PabloArauzCaballero/PasanakuBackend#197](https://github.com/PabloArauzCaballero/PasanakuBackend/pull/197) a `dev`.
+- Peldaño de evidencia: **TESTED + e2e** en PasanakuFrontend (unitarias, a11y, e2e 166/166, build) contra el simulado OpenAPI. Visual: `ACEPTABLE CON RESERVAS` en general, `VERIFIED_FUNCTIONAL_ONLY` en Catálogo de datos y Usuarios internos. No llega a `REGRESSION_VERIFIED`: no hay backend real y la segunda pasada no se repitió sobre la re-captura final.
+
+## Completado
+
+| ID | Qué se logró | Comando | Resultado |
+|---|---|---|---|
+| H0.M1–M2 | `main` vuelve a compilar: TypeScript `~6.0.3` (Dependabot #41 lo había subido a 7) y `sourcemap-codec ^1.6` para `compiler-cli` | `ng serve` / `yarn workspace @aportaya/backoffice build` | «bundle generation complete», build exit 0 |
+| H1.M1–M10 | Anatomía compartida: un contenedor, ⓘ en vez de franja de notas, migas «Sección › Pantalla», H1 sin códigos internos, pestañas desplazables, filtros compactos, descargas discretas, tabla sin caption duplicado ni filas de 200 px, vacío liviano, barra lateral lisa | capturas `evidencia/despues-*` | revisadas |
+| H2.M1–M2 | Pasada por las 44 rutas y corrección de lo encontrado (ver tabla de la primera pasada en `doble-revision.md`) | capturas | revisadas |
+| H3.M1 | Gates en PasanakuFrontend | ver Evidencia | todo en verde, build sin avisos |
+| H3.M2 | e2e del backoffice | `npx playwright test --retries=0` | **166 passed (5.1m)** |
+| H3.M3 | Commit y push en PasanakuFrontend | `git push` | rama creada en origin |
+| H4.M1 | Port a PasanakuBackend (el repo que construye TEST) | typecheck, lint, test, build allí | ver Evidencia |
+| H4.M2–M3 | PRs #197–#208 a `dev` y `test`, bundle en vivo verificado | `curl` + `grep` | ver Evidencia |
+
+## A medias
+
+### H6 — Revisión visual independiente sobre la versión final
+- Qué anda: 4 rondas + cierre de `visual-reviewer` (66 → 89/100); 0 pantallas rechazadas por el frontend. Detalle en `evidencia/doble-revision.md`.
+- Qué no anda: 7 pantallas de Sistemas sin fuente quedan rechazadas por decisión de producto (mostrarlas con el aviso o sacarlas del menú).
+- Qué falta exactamente: H6.M5 (PR a `dev` y `test`, bundle en vivo) y las decisiones del dueño listadas en «Decisiones».
+- Dónde quedó: PasanakuBackend `claude/admiring-fermi-mdayfj`; compila, tests en verde.
+
+E2E completo del backoffice: 158 passed / 11 failed. 9 eran `sistemas-sin-contrato` esperando el error rojo que #203 reemplazó por el
+estado neutro (TEST_BUG; se actualizó para exigir el estado neutro y ningún `alert`: 11/11). Los otros 2 fallan igual sobre `origin/test`
+sin estos cambios (preexistentes, no tocados): `admisiones.e2e.ts:243` (pestaña «Por identificador» inexistente) y
+`f2-posiciones-y-roles.e2e.ts:140` (ADMIN_PLATAFORMA ve «Sistemas» en el menú; revisar quién debe verlo).
+
+### H5 — Errores sin rojo y botones (agregado en la sesión)
+- Hecho y verificado local: `ap-estado-de-error` neutro con ícono ámbar; 502/503/504 con texto propio; secundario y fantasma
+  neutros solo en el backoffice; ícono en todo `ap-boton`; Usuarios internos con Ver + «Más»; «Actualizar» oculto sin fuente;
+  «Abrir caso» sin «con 0 alertas»; sin códigos CU en la descripción de Admisiones.
+- Evidencia: `evidencia/h5/` (error 503 forzado claro/oscuro, menú «Más» claro/oscuro, botones). Salidas abajo.
+- En vivo: `main-TYZJDBS4.js` contiene «Más acciones para», «Este servicio no está disponible» y la regla neutra de `ap-boton.v-secundario`.
+
+## Pendiente
+
+| ID | Estado | Qué lo destraba |
+|---|---|---|
+| ERP en TEST | Fuera de este repo de front | `/api/v1/erp/**` responde 500 sin sesión: el contenedor `erp` no contesta en el host. Lo destraba quien opera el VPS (`docker ps`, log de `erp`) |
+
+## Evidencia
+
+```text
+PasanakuFrontend (código final)
+backoffice typecheck exit=0 · ui typecheck exit=0
+backoffice lint exit=0 All files pass linting. · ui lint exit=0 All files pass linting.
+ui test:front Tests 196 passed (196) · ui test:a11y 9 passed (9) · tutoriales 9 passed (9)
+backoffice test:front Tests 1221 passed (1221) · backoffice test:a11y Tests 92 passed (92)
+backoffice build Initial total 451.42 kB (sin avisos)
+e2e 166 passed (5.1m) --retries=0
+
+PasanakuBackend (rama del PR #197)
+backoffice/ui typecheck exit=0 · lint All files pass linting.
+ui test:front 196 passed · backoffice test:front 1230 passed + entrada-estricta 10 passed (tras generar el simulado)
+backoffice test:a11y 92 passed · build exit 0, aviso: bundle inicial 502.25 kB / 500 kB (en dev ya estaba en 500.59 kB)
+
+Servidor de TEST antes del merge
+curl https://backoffice.aportaya.161.97.85.216.sslip.io/admisiones → 200; main-B7OY5X42.js contiene «Notas de la vista»
+```
+
+```text
+H5 (PasanakuBackend)
+backoffice typecheck exit=0 · lint exit=0 · test:front 175 archivos, 1254 passed · test:a11y 92 passed
+backoffice build exit 0 · Initial total 502.62 kB (mismo aviso de presupuesto que antes)
+ui test:front 196 passed
+e2e admisiones + tableros-por-rol + sistemas*: 25 passed (2.5m) --retries=0
+Sondeo de TEST sin sesión (138 rutas GET del backoffice): 89×401, 45×500 que a los minutos pasaron a 401,
+/api/v1/erp/** 500 estable, /api/v1/extraccion/accesos 404 (no se llama)
+Bundle en vivo main-KUQ5N3ML.js (17:26 UTC) contiene «sin datos conectados»; main-DBKGXQCQ.js (17:43 UTC) trae #206
+```
+
+Capturas: `evidencia/antes/`, `evidencia/despues-1280/`, `despues-oscuro/`, `despues-768/`, `despues-375/`.
+
+## No cubierto
+- Persistencia real: todo contra el simulado OpenAPI (el cambio es de presentación; no toca mutaciones ni contratos).
+- La segunda pasada visual no se repitió sobre la re-captura final.
+- e2e no se corrió en PasanakuBackend (sí en PasanakuFrontend, mismo código salvo los conflictos resueltos).
+- Lector de pantalla real; solo Chromium.
+
+## Desvíos del plan
+- La franja «Notas de la vista» no se eliminó: pasó a un botón ⓘ (`ap-nota-de-la-vista`) para no perder texto que en algunas pantallas no repite la cabecera (A2).
+- Se agregó H4 (desplegar a TEST) por pedido en la sesión: el host construye desde PasanakuBackend, no desde este repo.
+- Las acciones de la cabecera de página se envuelven en el celular en vez de usar un carril desplazable.
+
+## Riesgos residuales
+- Columna fija de acciones con muchas acciones tapa columnas vecinas (ver A medias).
+- Los dos repos tienen `apps/backoffice` divergidos (128 archivos distintos antes de este trabajo): cada cambio hay que portarlo.
+- Presupuesto del bundle inicial de PasanakuBackend excedido (aviso, no error).
+- El cliente generado versionado `clientes/angular/publicidad/model/entradaAnunciante.ts` quedó desactualizado respecto de su contrato; no se tocó.
+
+## Decisiones y ambigüedades
+- A1: «Rediseñemos» sin dirección visual. Se mantuvo la identidad AportaYa (tokens, verde de marca) y se corrigió jerarquía, densidad y consistencia. Confirmar con el dueño del producto.
+- A2: notas de la vista en ⓘ. Confirmar con quien escribe los textos.
+- A3: botones verdes rellenos («Volver a intentar», «Ver ejercicios anteriores») conviven con el primario negro: es la paleta del sistema de diseño; no se cambió el componente `ap-boton`. Decisión de diseño pendiente.
+- El enlace a `coreyhaines31/marketingskills` son skills de marketing; se aplicaron solo a la microcopia (códigos internos fuera, plurales, textos de vacío).

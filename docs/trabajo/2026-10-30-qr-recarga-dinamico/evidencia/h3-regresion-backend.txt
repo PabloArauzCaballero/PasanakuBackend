@@ -1,0 +1,8 @@
+$ ./gradlew :servicios:nucleo-financiero:test :servicios:nucleo-financiero:integrationTest :servicios:nucleo-financiero:webTest --continue
+BUILD SUCCESSFUL in 3m 2s (exit=0)
+test: clases=19 tests=94 skipped=0 failures=0 errors=0
+integrationTest: clases=87 tests=500 skipped=0 failures=0 errors=0
+webTest: clases=15 tests=82 skipped=0 failures=0 errors=0
+  TEST-bo.aportaya.nucleofinanciero.ArranqueProduccionTest$ConAdaptadorReal.xml tests="1" skipped="0" failures="0" errors="0"
+  TEST-bo.aportaya.nucleofinanciero.ArranqueProduccionTest$ConDobleLocalForzado.xml tests="1" skipped="0" failures="0" errors="0"
+  TEST-bo.aportaya.nucleofinanciero.ArranqueTest.xml tests="1" skipped="0" failures="0" errors="0"

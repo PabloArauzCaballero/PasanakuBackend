@@ -9,6 +9,7 @@ import '../dominio/validaciones.dart';
 import '../textos_del_alta.dart';
 import 'bloque_clave_de_cuenta.dart';
 import 'bloque_contacto_de_cuenta.dart';
+import '../continuar_alta.dart';
 import 'tarjeta_de_confianza.dart';
 
 /// Fase 1 — contacto y contraseña en el paso «cuenta» (CU-01).
@@ -21,7 +22,8 @@ import 'tarjeta_de_confianza.dart';
 /// primer paso ya se puede contrastar la clave con el teléfono; si el CI aún no se
 /// ingresó, su relación con la clave se valida al final en el servidor.
 class PasoCuenta extends ConsumerStatefulWidget {
-  const PasoCuenta({super.key});
+  const PasoCuenta({super.key, this.continuar = false});
+  final bool continuar;
 
   @override
   ConsumerState<PasoCuenta> createState() => _PasoCuentaState();
@@ -43,7 +45,6 @@ class _PasoCuentaState extends ConsumerState<PasoCuenta> {
   final _contactoTocado = <String>{};
   var _intentoContacto = false;
   late final TextEditingController _clave;
-  late final TextEditingController _repetida;
   final _focoClave = FocusNode();
   var _intentado = false;
 
@@ -58,7 +59,6 @@ class _PasoCuentaState extends ConsumerState<PasoCuenta> {
     super.initState();
     final estado = ref.read(altaProvider);
     _clave = TextEditingController(text: estado.contrasena);
-    _repetida = TextEditingController(text: estado.contrasena);
     if (estado.campoError == CampoDeErrorApi.contrasena) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) _focoClave.requestFocus();
@@ -73,7 +73,6 @@ class _PasoCuentaState extends ConsumerState<PasoCuenta> {
     _focoTelefono.dispose();
     _focoCorreo.dispose();
     _clave.dispose();
-    _repetida.dispose();
     _focoClave.dispose();
     super.dispose();
   }
@@ -97,9 +96,6 @@ class _PasoCuentaState extends ConsumerState<PasoCuenta> {
     }
     return null;
   }
-
-  String? get _errorRepetida =>
-      _repetida.text == _clave.text ? null : TextosDelAlta.clavesNoCoinciden;
 
   String? _visible(String? error) => _intentado ? error : null;
 
@@ -145,10 +141,13 @@ class _PasoCuentaState extends ConsumerState<PasoCuenta> {
       return;
     }
     setState(() => _intentado = true);
-    if (_errorClave != null || _errorRepetida != null) return;
+    if (_errorClave != null) return;
     final notifier = ref.read(altaProvider.notifier);
     notifier.elegirContrasena(_clave.text);
-    final enviado = await notifier.solicitarCodigoCorreo();
+    // Continuar siempre pide un código: confirmarlo es lo que trae el borrador.
+    final enviado = await notifier.solicitarCodigoCorreo(
+      nuevo: widget.continuar,
+    );
     if (enviado) notifier.siguiente();
   }
 
@@ -160,6 +159,7 @@ class _PasoCuentaState extends ConsumerState<PasoCuenta> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          if (widget.continuar) const AvisoDeContinuarAlta(),
           BloqueContactoDeCuenta(
             telefono: _telefono,
             correo: _correo,
@@ -173,13 +173,11 @@ class _PasoCuentaState extends ConsumerState<PasoCuenta> {
           const SizedBox(height: Espacio.s3),
           BloqueClaveDeCuenta(
             clave: _clave,
-            repetida: _repetida,
             focoClave: _focoClave,
             // Los espacios se avisan al instante, sin esperar a «Continuar».
             errorClave: tieneEspacios(_clave.text)
                 ? _errorClave
                 : _visible(_errorClave),
-            errorRepetida: _visible(_errorRepetida),
             errorRemoto: _errorRemoto(alta),
             trazaId: alta.trazaId,
             errorCodigo: alta.errorCodigo,
@@ -188,7 +186,6 @@ class _PasoCuentaState extends ConsumerState<PasoCuenta> {
               ref.read(altaProvider.notifier).elegirContrasena(valor);
               setState(() {});
             },
-            onCambioRepetida: (_) => setState(() {}),
             onContinuar: _continuar,
           ),
           const SizedBox(height: Espacio.s4),

@@ -4,6 +4,7 @@ import type { ResourceRef, ResourceStatus } from '@angular/core'
 import { EstadoVacio } from '../estado-vacio/estado-vacio'
 import { EstadoDeError } from '../estado-de-error/estado-de-error'
 import { Esqueleto } from '../esqueleto/esqueleto'
+import { Girador } from '../girador/girador'
 
 export type MotivoVacio = 'sinDatos' | 'porFiltro' | 'porPermiso'
 
@@ -30,7 +31,7 @@ export const RAMA_DE: Record<ResourceStatus, 'cargando' | 'obsoleto' | 'error' |
 @Component({
   selector: 'ap-estado-de-pantalla',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [NgTemplateOutlet, EstadoVacio, EstadoDeError, Esqueleto],
+  imports: [NgTemplateOutlet, EstadoVacio, EstadoDeError, Esqueleto, Girador],
   host: { 'aria-live': 'polite' },
   template: `
     @switch (rama()) {
@@ -47,7 +48,13 @@ export const RAMA_DE: Record<ResourceStatus, 'cargando' | 'obsoleto' | 'error' |
       </section>
     }
     @default {
-      <div [attr.aria-busy]="esObsoleto() ? 'true' : null">
+      <div [attr.aria-busy]="esObsoleto() ? 'true' : null" [class.obsoleto]="esObsoleto()">
+      @if (esObsoleto()) {
+        <div class="aviso-actualizando" role="status" aria-live="polite">
+          <ap-girador tamano="s4" etiqueta="Actualizando datos" />
+          <span>Actualizando…</span>
+        </div>
+      }
       @if (estaVacio()) {
       <section class="vacio" role="status" aria-live="polite" [class]="'vacio motivo-' + motivoVacio()">
         @if (plantillaVacio(); as tpl) {
@@ -66,9 +73,13 @@ export const RAMA_DE: Record<ResourceStatus, 'cargando' | 'obsoleto' | 'error' |
   styles: `
     :host { display: block; }
     .error { text-align: left; } .vacio { padding: var(--s5); text-align: center; }
+    /* El vacío del kit ya es una tarjeta con su relleno: sin esto quedaba metida 24 px respecto del resto de la pantalla. */
+    .vacio:has(> ap-estado-vacio) { padding: 0; }
     .mensaje { color: var(--text); margin: 0 0 var(--s2); }
     .traza { color: var(--text-3); font-size: 0.85em; margin: 0 0 var(--s4); }
     .vacio p { color: var(--text-2); margin: 0; }
+    .obsoleto { opacity: 0.75; transition: opacity var(--mov-micro) ease; }
+    .aviso-actualizando { display: inline-flex; align-items: center; gap: var(--s2); font-size: 0.85rem; color: var(--text-3); margin-bottom: var(--s2); }
     button { min-height: var(--area-tactil); padding: 0 var(--s5); border: 0; border-radius: var(--r-md); background: var(--verde-solido); color: var(--sobre-verde-solido); font: inherit; font-weight: 600; cursor: pointer; }
     button:focus-visible { outline: var(--borde-foco) solid var(--g300); outline-offset: var(--borde-desfase); }
   `,

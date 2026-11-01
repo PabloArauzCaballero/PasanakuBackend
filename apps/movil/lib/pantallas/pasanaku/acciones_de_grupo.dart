@@ -49,7 +49,9 @@ class AccionesDeGrupo extends StatelessWidget {
         Boton(
           key: const ValueKey('organizar-un-grupo'),
           texto: TextosInvitacion.accionCrearGrupo,
-          variante: BotonVariante.fantasma,
+          // Las dos puertas de entrada al pasanaku se ven como botones, no como enlaces
+          // sueltos al pie (pasada de marketing, 2026-10-29: skill `cro`).
+          variante: BotonVariante.secundario,
           expandido: true,
           onPressed: organizarAlTope
               ? null
@@ -65,7 +67,7 @@ class AccionesDeGrupo extends StatelessWidget {
         Boton(
           key: const ValueKey('unirse-a-un-grupo'),
           texto: TextosInvitacion.accionUnirseAGrupo,
-          variante: BotonVariante.fantasma,
+          variante: BotonVariante.secundario,
           expandido: true,
           onPressed: participarAlTope
               ? null

@@ -1,0 +1,8 @@
+$ python3 scripts/generar_compose.py --coolify
+  front movil -> despliegue/coolify/movil.yml
+exit=0
+$ python3 scripts/auditoria/verificar_limites_compose.py
+Límites de memoria/CPU, una réplica Java y Hikari TEST verificados en los cuatro compose.
+exit=0
+$ git diff --exit-code -- docker-compose.coolify.yml despliegue/coolify/ (contra el índice con el cambio)
+exit=0

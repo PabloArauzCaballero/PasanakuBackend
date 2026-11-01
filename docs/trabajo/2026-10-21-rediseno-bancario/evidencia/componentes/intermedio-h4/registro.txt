@@ -1,0 +1,14 @@
+Átomos · botones · claro	sin-excepcion
+Átomos · botones · oscuro	sin-excepcion
+Átomos · campos · claro	sin-excepcion
+Átomos · campos · oscuro	sin-excepcion
+Átomos · selección · claro	sin-excepcion
+Átomos · selección · oscuro	sin-excepcion
+Átomos · indicadores · claro	sin-excepcion
+Átomos · indicadores · oscuro	sin-excepcion
+Moléculas · claro	sin-excepcion
+Moléculas · oscuro	sin-excepcion
+Organismos · claro	A RenderFlex overflowed by 22 pixels on the right.
+Organismos · oscuro	A RenderFlex overflowed by 22 pixels on the right.
+Móviles · claro	sin-excepcion
+Móviles · oscuro	sin-excepcion

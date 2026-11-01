@@ -18,6 +18,10 @@ COPY apps/web apps/web
 RUN yarn workspace @aportaya/tokens build && yarn workspace @aportaya/web build
 
 FROM node:22-alpine AS ejecucion
+# La limpieza diaria de Coolify borra toda imagen sin contenedor que no lleve esta
+# etiqueta, y esta imagen la construye el host, no Coolify: sin ella el despliegue
+# siguiente falla con «No such image» (ver despliegue/TEST.md).
+LABEL coolify.managed=true
 WORKDIR /sitio
 ENV NODE_ENV=production PORT=4000
 USER node

@@ -121,8 +121,9 @@ export function conUnidad(valor: string, unidad: string): string {
 }
 
 /** «12,5 % más que el período anterior» / «sin comparación»: qué pasó, no una flecha. */
-export function variacionEnPalabras(variacion: string | undefined): string {
-  if (variacion === undefined) return 'Sin comparación con el período anterior'
+export function variacionEnPalabras(variacion: string | null | undefined): string {
+  // El contrato dice «ausente», pero el backend real serializa `null` (Jackson escribe los opcionales vacíos): los dos son «sin comparación».
+  if (variacion == null) return 'Sin comparación con el período anterior'
   const negativa = variacion.startsWith('-')
   const absoluta = decimal(negativa ? variacion.slice(1) : variacion)
   if (/^0*(\.0*)?$/.test(negativa ? variacion.slice(1) : variacion)) return 'Igual que el período anterior'

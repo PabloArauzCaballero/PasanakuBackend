@@ -270,7 +270,7 @@ void main() {
             dio,
           );
           await asentar(tester);
-          expect(find.text('Recargar'), findsOneWidget);
+          expect(encabezadoDePantalla('Recargar'), findsOneWidget);
           expect(
             find.textContaining('Tu billetera todavía no está activa'),
             findsOneWidget,

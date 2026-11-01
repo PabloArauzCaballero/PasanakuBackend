@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http_mock_adapter/http_mock_adapter.dart';
 
@@ -14,6 +15,16 @@ import 'package:aportaya_movil/dominio/puertos/almacen_seguro.dart';
 import 'package:aportaya_movil/dominio/puertos/haptica.dart';
 import 'package:aportaya_movil/proveedores/haptica.dart';
 import 'package:aportaya_movil/proveedores/sesion.dart';
+
+/// El título de una pantalla con `PantallaConCabecera` se dibuja dos veces (el grande
+/// y la copia chica que entra al compactar), pero el lector lo anuncia una sola vez:
+/// como encabezado. Esto encuentra ese único encabezado.
+Finder encabezadoDePantalla(String titulo) => find.ancestor(
+  of: find.text(titulo),
+  matching: find.byWidgetPredicate(
+    (w) => w is Semantics && (w.properties.header ?? false),
+  ),
+);
 
 /// Almacén en memoria: las pruebas no tocan el Keystore.
 class AlmacenEnMemoria implements AlmacenSeguro {
@@ -133,6 +144,7 @@ Widget conApp(
   Brightness brillo = Brightness.light,
   bool movimientoReducido = false,
   Haptica? haptica,
+  List<Override> extra = const [],
 }) => ProviderScope(
   // Igual que en main.dart: sin reintentos automáticos.
   retry: (retryCount, error) => null,
@@ -140,6 +152,7 @@ Widget conApp(
     almacenSeguroProvider.overrideWithValue(AlmacenEnMemoria()),
     dioProvider.overrideWithValue(dio),
     if (haptica != null) hapticaProvider.overrideWithValue(haptica),
+    ...extra,
   ],
   child: MaterialApp(
     theme: temaDesde(Tokens.claro, Brightness.light),

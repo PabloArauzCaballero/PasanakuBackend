@@ -46,6 +46,10 @@ class TarifariosListadoWebTest {
     @Autowired
     private MockMvc mvc;
 
+    // Sistemas › Proveedores: comparte controlador; no se llama aca.
+    @MockitoBean
+    private bo.aportaya.tarifas.aplicacion.ConsultarCostosDeProveedor consultarCostos;
+
     @MockitoBean
     private ConsultarTarifarioVigente vigentes;
 

@@ -1,0 +1,26 @@
+PASS · casos · aceptado · Decidir → POST /cumplimiento/casos/{id}/decision con Idempotency-Key (contra el doble) · 200 {"decision":"DESCARTAR","conclusion":"Las operaciones tienen respaldo documental suficiente y coherente."}
+PASS · casos · aceptado · recibo visible tras el 2xx y la bandeja se recarga
+PASS · casos · error · decisión con 500: el diálogo sigue abierto, conserva lo escrito y el botón no queda trabado
+PASS · casos · aceptado · «Ver» navega a la ficha del caso
+PASS · caso · aceptado · «Confirmar decisión» abre la decisión real con la conclusión prellenada · Causal: Fraccionamiento de operaciones. Cinco depósitos bajo el umbral el mismo día.
+PASS · caso · aceptado · POST decidirCasoLft desde la ficha (contra el doble) · 200
+PASS · alertas · aceptado · Abrir caso → POST /cumplimiento/casos con la alerta de la fila (contra el doble) · 201 {"alertaIds":["0b9b2a61-0000-4000-8000-000000000001"],"analistaId":"7c1d9e40-0000-4000-8000-0000000000aa","resumen":"Fraccionamiento en tres días seguidos."}
+PASS · reportes-uif · aceptado · Preparar → POST /uif/reportes (contra el doble) · 200 {"periodo":"2026-09","catalogoCodigo":"UIF-ROG","formulario":"ROG-01"}
+PASS · requerimientos · aceptado · Responder → POST /uif/requerimientos/{id}/respuesta (contra el doble) · 200 {"respuestaUrl":"https://docs.ejemplo.test/respuesta-of-1.pdf"}
+PASS · verificaciones · aceptado · 25 expedientes, 10 por página → Página 1 de 3
+PASS · verificaciones · aceptado · buscar «jose» encuentra 1
+PASS · verificaciones · aceptado · buscar «70000007» encuentra 1
+PASS · verificaciones · aceptado · buscar «p6@ejemplo» encuentra 1
+PASS · verificaciones · aceptado · buscar «1000012» encuentra 1
+PASS · verificaciones · aceptado · filtro «Documento vencido» deja 5
+PASS · verificaciones · aceptado · CSV de lo filtrado (5 filas + encabezado), sin ids internos · expedientes-de-identidad-2026-10-26.csv
+PASS · verificaciones · límite · Ir a 3 → última página con 5
+PASS · verificaciones · aceptado · filas por página 5 → Página 1 de 5
+PASS · verificaciones · aceptado · estado viaja al servidor (?estado=APROBADA)
+PASS · verificaciones · aceptado · Rechazar → POST /identidad/verificaciones/{id}/decision (contra el doble) · 200 {"decision":"RECHAZAR","motivo":"La foto del documento está borrosa."}
+PASS · verificaciones · límite · sin coincidencias: vacío orientado con «Quitar filtros»
+PASS · verificaciones · límite · cola vacía: explica que no hay nada esperando
+PASS · verificaciones · error · 500: error con traza y sin texto crudo
+PASS · verificaciones · error · «Volver a intentar» repite y vuelve a la cola
+PASS · habilitacion · aceptado · GET /organizadores/{id}/habilitacion · 200
+{"pass":25,"fail":0,"errores":2}

@@ -1,0 +1,26 @@
+NOTICE:  database "pasanaku_ref1" does not exist, skipping
+sed: couldn't edit /dev/null: not a regular file
+$ psql -d pasanaku_ref1 -v ON_ERROR_STOP=1 -f sql/aplicar.sql   (base vacía nº 1)
+exit=0  · líneas con 'ERROR:': 0  · tablas: 442
+NOTICE:  database "pasanaku_ref2" does not exist, skipping
+sed: couldn't edit /dev/null: not a regular file
+$ psql -d pasanaku_ref2 -v ON_ERROR_STOP=1 -f sql/aplicar.sql   (base vacía nº 2)
+exit=0  · líneas con 'ERROR:': 0  · tablas: 442
+$ \d identidad.borrador_onboarding (columnas y tipos)
+correo character varying(254)
+telefono_e164 character varying(20)
+nombres character varying(120)
+apellidos character varying(120)
+fecha_nacimiento date
+tipo_documento character varying(30)
+numero_documento character varying(40)
+lugar_expedicion character varying(60)
+fecha_expiracion date
+actividad_economica character varying(80)
+detalle_actividad character varying(500)
+origen_de_fondos character varying(80)
+detalle_del_origen character varying(500)
+monto_mensual_estimado character varying(40)
+paso_pendiente character varying(30)
+actualizado_en timestamp with time zone
+expira_en timestamp with time zone

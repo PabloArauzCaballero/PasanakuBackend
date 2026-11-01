@@ -57,13 +57,19 @@ COPY ${MODULO}/${SERVICIO} ${MODULO}/${SERVICIO}
 # El nombre `postgres` lo resuelve el DNS de Docker, que el paso RUN de buildkit NO
 # usa aunque el constructor este en la red: se le pasa la IP del contenedor por
 # --build-arg (ver README). El nombre queda como omision util para otros entornos.
+#
+# La clave de un entorno real llega como secreto (`--secret id=bd_clave_admin,…`) y no
+# como --build-arg: buildkit imprime el RUN con los ARG ya expandidos, y asi la clave de
+# TEST quedo en el log de despliegue (2026-10-30). El ARG queda para CI y el compose
+# local, que usan la clave de desarrollo.
 ARG BD_URL_ADMIN=jdbc:postgresql://postgres:5432/pasanaku
 ARG BD_USUARIO_ADMIN=pasanaku
 ARG BD_CLAVE_ADMIN=pasanaku
 RUN --mount=type=cache,target=/root/.gradle \
+    --mount=type=secret,id=bd_clave_admin,required=false \
     BD_URL_ADMIN=${BD_URL_ADMIN} \
     BD_USUARIO_ADMIN=${BD_USUARIO_ADMIN} \
-    BD_CLAVE_ADMIN=${BD_CLAVE_ADMIN} \
+    BD_CLAVE_ADMIN="$(cat /run/secrets/bd_clave_admin 2>/dev/null || echo "${BD_CLAVE_ADMIN}")" \
     ./gradlew --no-daemon --no-parallel --max-workers=2 \
       -Dorg.gradle.jvmargs="-Xmx1536m -XX:MaxMetaspaceSize=384m -Dfile.encoding=UTF-8" \
       :${MODULO}:${SERVICIO}:bootJar -x test
@@ -92,6 +98,10 @@ RUN mkdir -p /nativo /tmp/nativo && cd /tmp/nativo \
 # sano y despues devolvia 500 al intentar verificar la contrasena.
 # Fijada por digest (H2.S4.M2), mismo criterio que la etapa de construccion.
 FROM eclipse-temurin@sha256:7739f0ffce786528961eea6bf46d9610ee968ac6127c9b2e93494757bdecce9f AS runtime
+# La limpieza diaria de Coolify borra toda imagen sin contenedor que no lleve esta
+# etiqueta, y esta imagen la construye el host, no Coolify: sin ella el despliegue
+# siguiente falla con «No such image» (ver despliegue/TEST.md).
+LABEL coolify.managed=true
 ARG SERVICIO
 ENV SERVICIO=${SERVICIO}
 
@@ -100,9 +110,12 @@ ENV SERVICIO=${SERVICIO}
 # libssl3t64 se nombra para que tome el parche de seguridad de Ubuntu aunque la imagen base fijada
 # traiga una version anterior (CVE-2026-84782, HIGH, corregida en 3.0.13-0ubuntu3.16; verificado el
 # 2026-10-16 sobre este mismo digest: de ...3.15 pasa a ...3.16).
+# libbrotli1, igual: Trivy (2026-10-30) marca CVE-2026-111497 (HIGH, escritura fuera de limites en el decodificador)
+# en 1.1.0-2build2, que es la de este digest; el parche es 1.1.0-2ubuntu0.1. No se verifico la version resultante
+# construyendo la imagen (sin Docker en la sesion): lo confirma el paso 17b2 del CI.
 RUN groupadd --system app && useradd --system --gid app app \
     && apt-get update \
-    && apt-get install -y --no-install-recommends wget libssl3t64 \
+    && apt-get install -y --no-install-recommends wget libssl3t64 libbrotli1 \
     && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 

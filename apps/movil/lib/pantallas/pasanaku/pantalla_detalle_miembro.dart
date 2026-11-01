@@ -1,4 +1,3 @@
-import 'package:aportaya_diseno/atomos/avatar.dart';
 import 'package:aportaya_diseno/atomos/chip_estado.dart';
 import 'package:aportaya_diseno/atomos/tono.dart';
 import 'package:aportaya_diseno/moleculas/cabecera.dart';
@@ -8,6 +7,7 @@ import 'package:aportaya_diseno/tokens/tokens.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'avatar_del_integrante.dart';
 import 'dominio/perfil_del_integrante.dart';
 import 'seccion_de_confianza.dart';
 import 'seccion_de_contacto.dart';
@@ -124,7 +124,7 @@ class _Encabezado extends StatelessWidget {
     final turnoNum = turno;
     return Row(
       children: [
-        Avatar(nombre: nombre),
+        AvatarDelIntegrante(nombre: nombre, soyYo: soyYo),
         const SizedBox(width: Espacio.s3),
         Expanded(
           child: Column(

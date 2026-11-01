@@ -1,0 +1,14 @@
+Automatically searching for and using Vitest configuration file.
+❯ Building...
+✔ Building...
+Application bundle generation complete. [5.594 seconds] - 2026-10-27T03:58:06.396Z
+
+
+ RUN  v4.1.11 /home/user/PasanakuBackend/packages/ui
+
+
+ Test Files  38 passed (38)
+      Tests  192 passed (192)
+   Start at  03:58:06
+   Duration  4.74s (transform 1.37s, setup 452ms, import 1.69s, tests 1.98s, environment 403ms)
+

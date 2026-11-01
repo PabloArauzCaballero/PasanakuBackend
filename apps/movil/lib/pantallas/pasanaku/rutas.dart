@@ -17,11 +17,18 @@ import 'pantalla_pedir_cupo.dart';
 import 'pantalla_permuta.dart';
 import 'pantalla_reclamo_pendiente.dart';
 import 'pantalla_retiro.dart';
+import 'pantalla_subasta.dart';
+import 'pantalla_subastar_cupo.dart';
+import 'pantalla_subastas.dart';
 import 'pantalla_transparencia.dart';
+import 'pantalla_traspaso.dart';
 import 'pantalla_turno.dart';
+import 'pantalla_escanear.dart';
+import 'pantalla_unirse.dart';
 import 'pantalla_verificar_sorteo.dart';
 import 'pantalla_detalle_miembro.dart';
-export 'rutas_invitacion.dart';
+
+part 'rutas_operacion.dart';
 
 /// Las rutas del dominio pasanaku. Sigue el mismo patrón que `billetera` (M2) e
 /// `identidad` (M1): un archivo por pantalla, todo registrado acá, nada en el
@@ -40,7 +47,8 @@ final List<RouteBase> rutasPasanaku = [
   GoRoute(
     path: '/pasanaku/grupos/:grupoId/pedir-cupo',
     name: 'pasanaku.pedirCupo',
-    builder: (context, state) => PantallaPedirCupo(grupoId: state.pathParameters['grupoId']!),
+    builder: (context, state) =>
+        PantallaPedirCupo(grupoId: state.pathParameters['grupoId']!),
   ),
   // «Invitar» es el enlace del grupo con su QR (2026-10-19): sirve para cualquiera y el
   // organizador aprueba cada pedido. Invitar a un número en particular sigue abajo.
@@ -55,22 +63,26 @@ final List<RouteBase> rutasPasanaku = [
   GoRoute(
     path: '/pasanaku/grupos/:grupoId/invitar/numero',
     name: 'pasanaku.invitarANumero',
-    builder: (context, state) => PantallaInvitar(grupoId: state.pathParameters['grupoId']!),
+    builder: (context, state) =>
+        PantallaInvitar(grupoId: state.pathParameters['grupoId']!),
   ),
   GoRoute(
     path: '/pasanaku/grupos/:grupoId/solicitudes',
     name: 'pasanaku.solicitudes',
-    builder: (context, state) => PantallaSolicitudesDelGrupo(grupoId: state.pathParameters['grupoId']!),
+    builder: (context, state) =>
+        PantallaSolicitudesDelGrupo(grupoId: state.pathParameters['grupoId']!),
   ),
   GoRoute(
     path: '/pasanaku/grupos/:grupoId/reglamento',
     name: 'pasanaku.firmarReglamento',
-    builder: (context, state) => PantallaFirmarReglamento(grupoId: state.pathParameters['grupoId']!),
+    builder: (context, state) =>
+        PantallaFirmarReglamento(grupoId: state.pathParameters['grupoId']!),
   ),
   GoRoute(
     path: '/pasanaku/grupos/:grupoId/sorteo',
     name: 'pasanaku.sorteo',
-    builder: (context, state) => PantallaSorteo(grupoId: state.pathParameters['grupoId']!),
+    builder: (context, state) =>
+        PantallaSorteo(grupoId: state.pathParameters['grupoId']!),
   ),
   GoRoute(
     path: '/pasanaku/grupos/:grupoId',
@@ -112,80 +124,30 @@ final List<RouteBase> rutasPasanaku = [
   GoRoute(
     path: '/g/:codigo',
     name: 'pasanaku.unirseAlGrupo',
-    builder: (context, state) => PantallaUnirseAlGrupo(
-      key: ValueKey(state.pathParameters['codigo']!),
-      codigo: state.pathParameters['codigo']!,
-    ),
-  ),
-  GoRoute(
-    path: '/pasanaku/grupos/:grupoId/retiro',
-    name: 'pasanaku.retiro',
-    builder: (context, state) => PantallaRetiro(
-      grupoId: state.pathParameters['grupoId']!,
-      participanteId: state.uri.queryParameters['participante'] ?? '',
-    ),
-  ),
-  GoRoute(
-    path: '/pasanaku/turnos/permuta',
-    name: 'pasanaku.permuta',
-    builder: (context, state) => PantallaPermuta(
-      turnoOrigenId: state.uri.queryParameters['origen'] ?? '',
-      turnoDestinoId: state.uri.queryParameters['destino'] ?? '',
-      contraparteId: state.uri.queryParameters['contraparte'] ?? '',
-    ),
-  ),
-  GoRoute(
-    path: '/pasanaku/sorteos/:sorteoId/verificar',
-    name: 'pasanaku.verificarSorteo',
-    builder: (context, state) => PantallaVerificarSorteo(sorteoId: state.pathParameters['sorteoId']!),
-  ),
-  GoRoute(
-    path: '/pasanaku/grupos/:grupoId/transparencia',
-    name: 'pasanaku.transparencia',
-    builder: (context, state) => PantallaTransparencia(grupoId: state.pathParameters['grupoId']!),
-  ),
-  GoRoute(
-    path: '/pasanaku/mi-estado',
-    name: 'pasanaku.miEstado',
-    builder: (context, state) => PantallaMiEstadoDeLaSesion(
-      participanteId: state.uri.queryParameters['participante'],
-      usuarioId: state.uri.queryParameters['usuario'],
-      grupoId: state.uri.queryParameters['grupo'],
-      nombreDelGrupo: state.uri.queryParameters['nombre'],
-    ),
-  ),
-  GoRoute(
-    path: '/pasanaku/mi-puntaje',
-    name: 'pasanaku.miPuntaje',
-    builder: (context, state) => PantallaMiPuntaje(usuarioId: state.uri.queryParameters['usuario'] ?? ''),
-  ),
-  GoRoute(
-    path: '/pasanaku/sorteos/:sorteoId/turno',
-    name: 'pasanaku.turno',
     builder: (context, state) {
-      final q = state.uri.queryParameters;
-      return PantallaTurno(
-        sorteoId: state.pathParameters['sorteoId']!,
-        total: int.parse(q['total'] ?? '0'),
-        miTurno: int.parse(q['mio'] ?? '0'),
-        turnoActual: int.parse(q['actual'] ?? '0'),
-      );
+      final codigo = state.pathParameters['codigo']!;
+      return PantallaUnirseAlGrupo(key: ValueKey(codigo), codigo: codigo);
     },
   ),
-  GoRoute(
-    path: '/pasanaku/obligaciones/:obligacionId/aportar',
-    name: 'pasanaku.aportar',
-    builder: (context, state) => PantallaAportar(
-      obligacionId: state.pathParameters['obligacionId']!,
-      montoDelPeriodo: state.uri.queryParameters['monto'] ?? '0.00',
-    ),
-  ),
-  GoRoute(
-    path: '/pasanaku/reclamos/nuevo',
-    name: 'pasanaku.reclamo',
-    // CU-52/53: hueco de contrato declarado en el informe — `cumplimiento`
-    // reserva /reclamos pero no publica ninguna operación bajo ese prefijo.
-    builder: (context, state) => const PantallaReclamoPendiente(),
-  ),
+  ..._rutasDeOperacion,
 ];
 
+/// El enlace llega también antes de iniciar sesión, por eso vive fuera del shell.
+final List<RouteBase> rutasDeInvitacion = [
+  GoRoute(
+    path: '/pasanaku/escanear',
+    name: 'pasanaku.escanear',
+    builder: (context, state) => const PantallaEscanear(),
+  ),
+  GoRoute(
+    path: '/pasanaku/unirse/:codigo',
+    name: 'pasanaku.unirse',
+    // La clave por código: con la app ya abierta en una invitación, un segundo enlace llega a
+    // la MISMA ruta con otro parámetro y, sin clave, Flutter reutilizaba el estado y seguía
+    // mostrando la invitación anterior (hallazgo del carril H en emulador).
+    builder: (context, state) {
+      final codigo = state.pathParameters['codigo']!;
+      return PantallaUnirse(key: ValueKey(codigo), codigo: codigo);
+    },
+  ),
+];

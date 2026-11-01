@@ -1,0 +1,90 @@
+{
+ "rol": "PLATAFORMA",
+ "sinReposo": false,
+ "latencia": 150,
+ "cpu": 4,
+ "chunksAntesDeMedir": 14,
+ "chunksEnReposo": 14,
+ "medidas": [
+  {
+   "entrada": "Inicio",
+   "destino": "/tablero",
+   "url": "/tablero",
+   "ms": 78,
+   "chunksPedidosAlNavegar": 0,
+   "pinto": true
+  },
+  {
+   "entrada": "Operación",
+   "destino": "/operacion",
+   "url": "/operacion/estado",
+   "ms": 1112,
+   "chunksPedidosAlNavegar": 8,
+   "pinto": true
+  },
+  {
+   "entrada": "Admisiones",
+   "destino": "/admisiones",
+   "url": "/admisiones",
+   "ms": 681,
+   "chunksPedidosAlNavegar": 3,
+   "pinto": true
+  },
+  {
+   "entrada": "Cumplimiento",
+   "destino": "/cumplimiento",
+   "url": "/cumplimiento/verificaciones",
+   "ms": 1219,
+   "chunksPedidosAlNavegar": 7,
+   "pinto": true
+  },
+  {
+   "entrada": "Sistemas",
+   "destino": "/sistemas",
+   "url": "/sistemas/servicios",
+   "ms": 1096,
+   "chunksPedidosAlNavegar": 5,
+   "pinto": true
+  },
+  {
+   "entrada": "Catálogo de datos",
+   "destino": "/tablero/catalogo-de-datos",
+   "url": "/tablero/catalogo-de-datos",
+   "ms": 984,
+   "chunksPedidosAlNavegar": 8,
+   "pinto": true
+  },
+  {
+   "entrada": "Contabilidad",
+   "destino": "/contabilidad",
+   "url": "/contabilidad",
+   "ms": 1227,
+   "chunksPedidosAlNavegar": 7,
+   "pinto": true
+  },
+  {
+   "entrada": "Publicidad",
+   "destino": "/publicidad",
+   "url": "/publicidad/anunciantes",
+   "ms": 899,
+   "chunksPedidosAlNavegar": 5,
+   "pinto": true
+  },
+  {
+   "entrada": "Configuración",
+   "destino": "/configuracion",
+   "url": "/configuracion",
+   "ms": 669,
+   "chunksPedidosAlNavegar": 3,
+   "pinto": true
+  },
+  {
+   "entrada": "Ayuda",
+   "destino": "/ayuda",
+   "url": "/ayuda",
+   "ms": 838,
+   "chunksPedidosAlNavegar": 4,
+   "pinto": true
+  }
+ ]
+}

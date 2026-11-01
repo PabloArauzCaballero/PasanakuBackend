@@ -1,0 +1,128 @@
+{
+  "servicio": "entregas",
+  "operacion": "consultarSubastaDeCupo",
+  "metodo": "get",
+  "ruta": "/entregas/subastas/{subastaId}",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "subastaId": "81d32641-b855-41af-8986-b7ee3a28b7f0",
+        "grupoId": "b80cbd15-a3e8-40b5-8be4-1da05bf55dca",
+        "cupoId": "09ed417b-cbe9-4853-83df-b16d8d5d6e9c",
+        "nombreDelGrupo": "nombreDelGrupo",
+        "periodicidad": "periodicidad",
+        "montoAporte": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "montoBase": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "montoMasAlto": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "montoMinimo": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "estado": "ABIERTA",
+        "cierraEn": "2026-01-15T10:30:00Z",
+        "cantidadDePujas": 0,
+        "soyElSaliente": true,
+        "miPuja": {
+          "monto": {
+            "monto": "4.44",
+            "moneda": "BOB"
+          },
+          "estado": "PENDIENTE"
+        }
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "subastaId": "81d32641-b855-41af-8986-b7ee3a28b7f0",
+        "grupoId": "b80cbd15-a3e8-40b5-8be4-1da05bf55dca",
+        "cupoId": "09ed417b-cbe9-4853-83df-b16d8d5d6e9c",
+        "nombreDelGrupo": "nombreDelGrupo",
+        "periodicidad": "periodicidad",
+        "montoAporte": {
+          "monto": "0.00",
+          "moneda": "BOB"
+        },
+        "montoBase": {
+          "monto": "0.00",
+          "moneda": "BOB"
+        },
+        "montoMasAlto": {
+          "monto": "0.00",
+          "moneda": "BOB"
+        },
+        "montoMinimo": {
+          "monto": "0.00",
+          "moneda": "BOB"
+        },
+        "estado": "ABIERTA",
+        "cierraEn": "2026-01-15T10:30:00Z",
+        "cantidadDePujas": 0,
+        "soyElSaliente": false,
+        "miPuja": {
+          "monto": {
+            "monto": "0.00",
+            "moneda": "BOB"
+          },
+          "estado": "PENDIENTE"
+        }
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "subastaId": "81d32641-b855-41af-8986-b7ee3a28b7f0",
+        "grupoId": "b80cbd15-a3e8-40b5-8be4-1da05bf55dca",
+        "cupoId": "09ed417b-cbe9-4853-83df-b16d8d5d6e9c",
+        "nombreDelGrupo": "nombreDelGrupo",
+        "periodicidad": "periodicidad",
+        "montoAporte": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "montoBase": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "montoMasAlto": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "montoMinimo": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "estado": "ABIERTA",
+        "cierraEn": "2026-01-15T10:30:00Z",
+        "cantidadDePujas": 0,
+        "soyElSaliente": true,
+        "miPuja": {
+          "monto": {
+            "monto": "4.44",
+            "moneda": "BOB"
+          },
+          "estado": "PENDIENTE"
+        }
+      }
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU136-05",
+        "mensaje": "La operación fue rechazada por la regla AP-CU136-05.",
+        "detalle": {},
+        "trazaId": "traza-consultarSubastaDeCupo-rechazo"
+      }
+    }
+  }
+}

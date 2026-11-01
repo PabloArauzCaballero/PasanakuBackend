@@ -1,0 +1,11 @@
+# POST /usuarios-internos (alta, datos sinteticos)
+{"id":"d0161aa2-ab5a-4a96-bea4-140bb8fd5e37","usuarioId":"1e926d38-b145-4f81-8dcb-b39fd47f855f","codigoPublico":"OP-D2F1705F","nombres":"Prueba","apellidos":"Contable","correo":"prueba.contable@ejemplo.test","telefono":"+59171000092","departamento":"Finanzas","cargo":"Analista de pruebas","estado":"ACTIVO","debeCambiarContrasena":true,"tieneSegundoFactor":false,"bloqueadoHasta":null,"motivoBloqueo":null,"roles":["CONTABILIDAD"],"permisosEfectivos":["TABLERO_FINANCIERO_VER","CONTABILIDAD_ERP_REPORTES","CONTABILIDAD_ERP_ACTIVOS_FIJOS","CONTABILIDAD_ERP_CUENTAS_POR_PAGAR","BILLETERA_VER_TERCEROS","AUDITORIA_LEER","CONTABILIDAD_ERP_PRESUPUESTO","CONTABILIDAD_ERP_COMPRAS","CONTABILIDAD_ERP_CERRAR"],"creadoEn":"2026-10-24T16:02:15.906563Z","actualizadoEn":"2026-10-24T16:02:15.906563Z"}
+HTTP 201
+# reintento con la MISMA Idempotency-Key
+{"codigo":"AP-CU01-02","mensaje":"Ya existe un usuario registrado con ese correo.","detalle":{},"trazaId":"26a5b271-873e-458a-ad61-9255e3cc5dba"}
+HTTP 422
+# filas en la base con ese correo:
+1
+# GET /usuarios-internos
+[{"id":"d0161aa2-ab5a-4a96-bea4-140bb8fd5e37","usuarioId":"1e926d38-b145-4f81-8dcb-b39fd47f855f","codigoPublico":"OP-D2F1705F","nombres":"Prueba","apellidos":"Contable","correo":"prueba.contable@ejemplo.test","telefono":"+59171000092","departamento":"Finanzas","cargo":"Analista de pruebas","estado":"ACTIVO","debeCambiarContrasena":true,"tieneSegundoFactor":false,"bloqueadoHasta":null,"motivoBloqueo":null,"roles":["CONTABILIDAD"]}]
+HTTP 200

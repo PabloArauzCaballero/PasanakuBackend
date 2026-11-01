@@ -34,6 +34,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
             "aportaya.tarifas.codigo-tarifario=TAR-2026",
         })
 @MockitoBean(types = bo.aportaya.grupos.aplicacion.CU69EnlaceDeGrupo.class)
+@MockitoBean(types = bo.aportaya.grupos.aplicacion.CU64TraspasoPorSubasta.class)
 class SeguridadWebTest extends SabanaDeSeguridadWeb {
 
     @MockitoBean
@@ -86,4 +87,7 @@ class SeguridadWebTest extends SabanaDeSeguridadWeb {
 
     @MockitoBean
     private IntegrantesDelGrupo integrantesDelGrupo;
+
+    @MockitoBean
+    private GruposDeBackoffice gruposDeBackoffice;
 }

@@ -7,14 +7,13 @@ import { erroresInterceptor } from '../../../nucleo/errores.interceptor'
 import { GATEWAY } from '../../../nucleo/gateway'
 import { idempotenciaInterceptor, olvidarIntentos } from '../../../nucleo/idempotencia.interceptor'
 import { Sesion } from '../../../nucleo/sesion'
-import { TablaDeDatosVirtualizada } from '../../../nucleo/tabla/tabla-de-datos-virtualizada'
+import { TablaDeDatos } from '@aportaya/ui/tabla-de-datos/tabla-de-datos'
 
 /** Montaje compartido de las pruebas de las bandejas de operación (UI contra HTTP simulado). Solo lo importan specs. */
 export const GW = 'http://gw/api/v1'
 
 export function configurar(): HttpTestingController {
   olvidarIntentos()
-  if (!Element.prototype.scrollTo) Element.prototype.scrollTo = () => {}
   TestBed.configureTestingModule({
     providers: [
       provideZonelessChangeDetection(),
@@ -45,6 +44,23 @@ export async function responder(f: ComponentFixture<unknown>, p: TestRequest, cu
 
 export const texto = (f: ComponentFixture<unknown>): string => (f.nativeElement as HTMLElement).textContent ?? ''
 
-export function tablaDe<T extends object>(f: ComponentFixture<unknown>): TablaDeDatosVirtualizada<T> | null {
-  return (f.debugElement.query((d) => d.componentInstance instanceof TablaDeDatosVirtualizada)?.componentInstance as TablaDeDatosVirtualizada<T>) ?? null
+/** Las filas que la tabla del listado está pintando (la página visible), o `null` si no hay tabla. */
+export function filasDe<T extends object>(f: ComponentFixture<unknown>): T[] | null {
+  const t = f.debugElement.query((d) => d.componentInstance instanceof TablaDeDatos)?.componentInstance as TablaDeDatos<T> | undefined
+  return t ? t.filas() : null
 }
+
+/** El botón visible cuyo texto es `nombre` (ícono + nombre: se compara el texto, no el ícono). */
+export function boton(f: ComponentFixture<unknown>, nombre: string): HTMLButtonElement | undefined {
+  return [...(f.nativeElement as HTMLElement).querySelectorAll('button')].find((b) => (b.textContent ?? '').trim() === nombre)
+}
+
+/** Deja que la promesa del pedido termine y la pantalla se vuelva a pintar. */
+export async function asentar(f: ComponentFixture<unknown>): Promise<void> {
+  await new Promise((r) => setTimeout(r, 0))
+  await f.whenStable()
+  f.detectChanges()
+}
+
+export const PAGINA_VACIA_ASC = { items: [], proximoFecha: null, proximoId: null }
+export const PAGINA_VACIA_DESC = { items: [], proximoAntesDe: null, proximoAntesDeId: null }

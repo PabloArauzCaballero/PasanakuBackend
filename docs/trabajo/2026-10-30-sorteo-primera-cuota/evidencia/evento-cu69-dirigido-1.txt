@@ -1,0 +1,100 @@
+> Task :buildSrc:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :buildSrc:generateExternalPluginSpecBuilders UP-TO-DATE
+> Task :buildSrc:extractPrecompiledScriptPluginPlugins UP-TO-DATE
+> Task :buildSrc:compilePluginsBlocks UP-TO-DATE
+> Task :buildSrc:generatePrecompiledScriptPluginAccessors UP-TO-DATE
+> Task :buildSrc:generateScriptPluginAdapters UP-TO-DATE
+> Task :buildSrc:compileKotlin UP-TO-DATE
+> Task :buildSrc:compileJava NO-SOURCE
+> Task :buildSrc:compileGroovy NO-SOURCE
+> Task :buildSrc:pluginDescriptors UP-TO-DATE
+> Task :buildSrc:processResources UP-TO-DATE
+> Task :buildSrc:classes UP-TO-DATE
+> Task :buildSrc:jar UP-TO-DATE
+> Task :spotlessInternalRegisterDependencies UP-TO-DATE
+> Task :plataforma:comun-datos:processResources UP-TO-DATE
+> Task :plataforma:comun-mensajeria:processResources UP-TO-DATE
+> Task :plataforma:comun-pruebas:processResources UP-TO-DATE
+> Task :plataforma:comun-dominio:compileJava UP-TO-DATE
+> Task :plataforma:comun-dominio:processResources NO-SOURCE
+> Task :plataforma:comun-dominio:classes UP-TO-DATE
+> Task :plataforma:comun-dominio:jar UP-TO-DATE
+> Task :plataforma:comun-datos:compileJava UP-TO-DATE
+> Task :plataforma:comun-datos:classes UP-TO-DATE
+> Task :plataforma:comun-datos:jar UP-TO-DATE
+> Task :plataforma:comun-pruebas:compileJava UP-TO-DATE
+> Task :plataforma:comun-pruebas:classes UP-TO-DATE
+> Task :plataforma:comun-pruebas:jar UP-TO-DATE
+> Task :plataforma:comun-mensajeria:compileJava UP-TO-DATE
+> Task :plataforma:comun-mensajeria:classes UP-TO-DATE
+> Task :plataforma:comun-mensajeria:jar UP-TO-DATE
+
+> Task :plataforma:comun-web:erroresCatalogo
+catalogo de errores: 265 restricciones -> 142 reglas · errores-restricciones.properties
+mensajes de regla: 171 · errores-reglas.properties
+  AVISO: 3 reglas con restriccion y sin fila en la boveda: R-BIL-21, R-BIL-22, R-UIF-13
+
+> Task :plataforma:comun-web:compileJava UP-TO-DATE
+> Task :plataforma:comun-web:processResources
+> Task :plataforma:comun-web:classes
+> Task :plataforma:comun-web:jar
+> Task :plataforma:comun-web:compileTestFixturesJava UP-TO-DATE
+> Task :plataforma:comun-web:processTestFixturesResources NO-SOURCE
+> Task :plataforma:comun-web:testFixturesClasses UP-TO-DATE
+> Task :plataforma:comun-web:testFixturesJar UP-TO-DATE
+
+> Task :servicios:grupos:generarServidorOpenApi
+OpenAPI 3.1 support is still in beta. To report an issue related to 3.1 spec, please kindly open an issue in the Github repo: https://github.com/openAPITools/openapi-generator.
+Failed to get the schema name: null
+OpenAPI 3.1 support is still in beta. To report an issue related to 3.1 spec, please kindly open an issue in the Github repo: https://github.com/openAPITools/openapi-generator.
+############################################################################################
+# Thanks for using OpenAPI Generator.                                                      #
+# We appreciate your support! Please consider donation to help us maintain this project.   #
+# https://opencollective.com/openapi_generator/donate                                      #
+############################################################################################
+Successfully generated code to /Users/pablo/Documents/GitHub/Pasanaku-wt-sorteo/servicios/grupos/build/generated/openapi
+
+> Task :servicios:grupos:spotlessJava
+> Task :servicios:grupos:spotlessJavaApply
+> Task :servicios:grupos:spotlessKotlinGradle UP-TO-DATE
+> Task :servicios:grupos:spotlessKotlinGradleApply UP-TO-DATE
+> Task :servicios:grupos:spotlessApply
+> Task :servicios:grupos:spotlessJavaCheck UP-TO-DATE
+> Task :servicios:grupos:spotlessKotlinGradleCheck UP-TO-DATE
+> Task :servicios:grupos:spotlessCheck UP-TO-DATE
+> Task :servicios:grupos:generateJooq UP-TO-DATE
+> Task :servicios:grupos:compileJava
+> Task :servicios:grupos:processResources
+> Task :servicios:grupos:classes
+
+> Task :servicios:grupos:compileTestJava FAILED
+/Users/pablo/Documents/GitHub/Pasanaku-wt-sorteo/servicios/grupos/src/test/java/bo/aportaya/grupos/CU69IngresoCerradoTest.java:76: error: constructor CU69IniciarGrupo in class CU69IniciarGrupo cannot be applied to given types;
+        inicio = new CU69IniciarGrupo(
+                 ^
+  required: Datos,AdmisionRepositorio,CalendarioDelGrupoRepositorio,Reloj,Outbox,int
+  found:    Datos,AdmisionRepositorio,CalendarioDelGrupoRepositorio,Reloj,int
+  reason: actual and formal argument lists differ in length
+1 error
+
+[Incubating] Problems report is available at: file:///Users/pablo/Documents/GitHub/Pasanaku-wt-sorteo/build/reports/problems/problems-report.html
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':servicios:grupos:compileTestJava' (registered by plugin class 'org.gradle.api.plugins.JavaBasePlugin').
+> Compilation failed; see the compiler output below.
+  /Users/pablo/Documents/GitHub/Pasanaku-wt-sorteo/servicios/grupos/src/test/java/bo/aportaya/grupos/CU69IngresoCerradoTest.java:76: error: constructor CU69IniciarGrupo in class CU69IniciarGrupo cannot be applied to given types;
+          inicio = new CU69IniciarGrupo(
+                   ^
+    required: Datos,AdmisionRepositorio,CalendarioDelGrupoRepositorio,Reloj,Outbox,int
+    found:    Datos,AdmisionRepositorio,CalendarioDelGrupoRepositorio,Reloj,int
+    reason: actual and formal argument lists differ in length
+  1 error
+
+* Try:
+> Check your code and dependencies to fix the compilation error(s)
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+
+BUILD FAILED in 4s
+38 actionable tasks: 9 executed, 29 up-to-date
+exit=1

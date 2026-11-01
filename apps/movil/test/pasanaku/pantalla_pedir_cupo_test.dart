@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -73,9 +75,49 @@ void main() {
       expect(claves, hasLength(1));
       expect(find.text('Tu pedido de cupo'), findsOneWidget);
       expect(
-        find.textContaining('no lo va a mostrar hasta que te acepten'),
+        find.textContaining('aparece en tu lista recién cuando te acepte'),
         findsOneWidget,
       );
+    },
+  );
+
+  testWidgets(
+    'el cupo y el mensaje elegidos son los que viajan; el mensaje vacío no',
+    (tester) async {
+      final (:dio, :adaptador) = dioSimulado();
+      Object? cuerpo;
+      dio.interceptors.add(
+        InterceptorsWrapper(
+          onRequest: (options, handler) {
+            if (options.method == 'POST' && options.path == ruta) {
+              cuerpo = options.data;
+            }
+            handler.next(options);
+          },
+        ),
+      );
+      adaptador.onPost(
+        ruta,
+        (s) =>
+            s.reply(201, ejemplo('grupos', 'postularAlGrupo', 'ok')['cuerpo']),
+      );
+      await tester.pumpWidget(
+        conApp(const PantallaPedirCupo(grupoId: grupoId), dio: dio),
+      );
+      await tester.pump();
+
+      await tester.tap(find.text('2'));
+      await tester.pump();
+      await tester.tap(find.widgetWithText(FilledButton, 'Pedir mi cupo'));
+      await tester.pump();
+      await asentar(tester);
+
+      // En el interceptor el cuerpo ya viene serializado.
+      final enviado = jsonDecode(cuerpo! as String) as Map<String, dynamic>;
+      expect(enviado['cuposSolicitados'], 2);
+      expect(enviado.containsKey('mensaje'), isFalse);
+      // La confirmación muestra las etapas del pedido.
+      expect(find.text('Decide el organizador'), findsOneWidget);
     },
   );
 }

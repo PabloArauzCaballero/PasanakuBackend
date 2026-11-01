@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router'
-import { requierePermiso } from '../../nucleo/permisos'
+import { aterrizaje, requierePermiso } from '../../nucleo/permisos'
 
 /**
  * Las rutas del dominio publicidad. **Este archivo lo posee el carril B4** (CU-110–114);
@@ -12,7 +12,8 @@ import { requierePermiso } from '../../nucleo/permisos'
  * — quien no tiene el permiso de aprobar nunca ve ni carga el panel de aprobación.
  */
 export const rutasPublicidad: Routes = [
-  { path: '', pathMatch: 'full', redirectTo: 'anunciantes' },
+  // Quien solo modera no puede abrir Anunciantes: la raíz aterriza en la primera pestaña que la sesión puede abrir.
+  { path: '', pathMatch: 'full', redirectTo: aterrizaje('publicidad', 'anunciantes') },
   {
     path: 'anunciantes',
     canMatch: [requierePermiso('PUBLICIDAD_ANUNCIANTES')],

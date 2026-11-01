@@ -23,6 +23,10 @@ import org.springframework.transaction.annotation.Transactional;
  * <p>Se firma el texto EXACTO: el hash que manda la app tiene que ser el del reglamento vigente. Firmar deja al
  * participante ACTIVO y su cupo OCUPADO. La ultima firma, con todos los cupos ocupados, conforma el grupo y arma
  * su calendario. La fila del grupo se toma primero: dos firmas simultaneas no pueden creerse las dos ultimas.
+ *
+ * <p>Version nueva (2026-10-30): al iniciar, el grupo publica otra version del reglamento ({@link CU69IniciarGrupo}).
+ * Quien ya es ACTIVO la acepta por esta misma operacion con el hash de la vigente: queda su aceptacion para esa version
+ * y el cupo no cambia. Otro hash es AP-CU69-05; con la vigente ya aceptada, un reintento sin otra fila.
  */
 @Service
 public class CU69FirmarReglamento {
@@ -59,32 +63,32 @@ public class CU69FirmarReglamento {
             if (yo == null) throw sinFirmaPendiente();
             UUID participante = yo.get("id", UUID.class);
             String estadoDelGrupo = grupo.get("estado", String.class);
-            // Firmar dos veces es un reintento: no se repite la firma. Solo se completa lo que falte: quien firmo
-            // y quedo sin cupo (el organizador de un grupo creado antes de que se le reservara el cupo 1) lo toma.
+            Record reglamento = dsl.fetchOne(
+                    "SELECT id, hash_contenido FROM grupos.reglamento_grupo WHERE grupo_id = ? ORDER BY version DESC LIMIT 1",
+                    grupoId);
             if ("ACTIVO".equals(yo.get("estado", String.class))) {
+                // Version nueva (2026-10-30): quien ya es ACTIVO y no acepto la vigente (la que publica el inicio al
+                // achicar) la acepta con su hash; el cupo no cambia. Solo con el grupo ya iniciado: mientras recibe
+                // integrantes no hay version nueva que aceptar, y firmar otra vez sigue siendo un reintento.
+                if (reglamento != null
+                        && !"ABIERTO_A_INSCRIPCION".equals(estadoDelGrupo)
+                        && tieneCupo(dsl, participante)
+                        && !acepto(dsl, reglamento.get("id", UUID.class), participante)) {
+                    exigirElVigente(reglamento, hashReglamento);
+                    aceptar(dsl, reglamento.get("id", UUID.class), participante, ahora, hashReglamento, ip);
+                    return new Firmado(participante, estadoDelGrupo, false);
+                }
+                // Firmar dos veces es un reintento: no se repite la firma ni la aceptacion. Solo se completa lo que
+                // falte: quien firmo y quedo sin cupo (el organizador de un grupo creado antes de que se le reservara
+                // el
+                // cupo 1) lo toma.
                 if (tieneCupo(dsl, participante)) return new Firmado(participante, estadoDelGrupo, false);
                 tomarCupoLibre(dsl, grupoId, participante, estadoDelGrupo);
                 boolean conformado = conformarSiCorresponde(dsl, grupoId, estadoDelGrupo, ctx, ahora);
                 return new Firmado(participante, conformado ? "CONFORMADO" : estadoDelGrupo, conformado);
             }
-            Record reglamento = dsl.fetchOne(
-                    "SELECT id, hash_contenido FROM grupos.reglamento_grupo WHERE grupo_id = ? ORDER BY version DESC LIMIT 1",
-                    grupoId);
-            if (reglamento == null
-                    || !reglamento.get("hash_contenido", String.class).equals(hashReglamento)) {
-                throw new ErrorDeNegocio(CodigoError.de(69, 5), "El reglamento cambio. Revisalo antes de firmar.");
-            }
-            dsl.execute(
-                    """
-                    INSERT INTO grupos.aceptacion_reglamento
-                      (reglamento_id, participante_id, aceptado_en, hash_firmado, ip_origen)
-                    VALUES (?, ?, CAST(? AS timestamptz), ?, ?::inet)
-                    """,
-                    reglamento.get("id", UUID.class),
-                    participante,
-                    ahora,
-                    hashReglamento,
-                    ip);
+            exigirElVigente(reglamento, hashReglamento);
+            aceptar(dsl, reglamento.get("id", UUID.class), participante, ahora, hashReglamento, ip);
             dsl.execute(
                     "UPDATE grupos.participante SET estado = 'ACTIVO' WHERE id = ? AND estado = 'ACEPTADO_PENDIENTE_FIRMA'",
                     participante);
@@ -97,6 +101,48 @@ public class CU69FirmarReglamento {
             boolean conformado = conformarSiCorresponde(dsl, grupoId, estadoDelGrupo, ctx, ahora);
             return new Firmado(participante, conformado ? "CONFORMADO" : estadoDelGrupo, conformado);
         });
+    }
+
+    /** Se firma o se acepta el texto EXACTO de la version vigente: otro hash es que el reglamento cambio. */
+    private static void exigirElVigente(Record reglamento, String hashReglamento) {
+        if (reglamento == null
+                || !reglamento.get("hash_contenido", String.class).equals(hashReglamento)) {
+            throw new ErrorDeNegocio(CodigoError.de(69, 5), "El reglamento cambio. Revisalo antes de firmar.");
+        }
+    }
+
+    private static boolean acepto(DSLContext dsl, UUID reglamentoId, UUID participante) {
+        return Boolean.TRUE.equals(dsl.fetchOne(
+                        """
+                        SELECT EXISTS (SELECT 1 FROM grupos.aceptacion_reglamento
+                                        WHERE reglamento_id = ? AND participante_id = ?) AS si
+                        """,
+                        reglamentoId,
+                        participante)
+                .get("si", Boolean.class));
+    }
+
+    /**
+     * La aceptacion de esa version, una sola vez: la precondicion va en la escritura (regla 96.3.2) y la fila del grupo
+     * ya esta tomada, asi que dos aceptaciones a la vez de la misma persona no dejan dos filas.
+     */
+    private static void aceptar(
+            DSLContext dsl, UUID reglamentoId, UUID participante, OffsetDateTime ahora, String hash, String ip) {
+        dsl.execute(
+                """
+                INSERT INTO grupos.aceptacion_reglamento
+                  (reglamento_id, participante_id, aceptado_en, hash_firmado, ip_origen)
+                SELECT ?, ?, CAST(? AS timestamptz), ?, ?::inet
+                 WHERE NOT EXISTS (SELECT 1 FROM grupos.aceptacion_reglamento
+                                    WHERE reglamento_id = ? AND participante_id = ?)
+                """,
+                reglamentoId,
+                participante,
+                ahora,
+                hash,
+                ip,
+                reglamentoId,
+                participante);
     }
 
     private static boolean tieneCupo(DSLContext dsl, UUID participante) {

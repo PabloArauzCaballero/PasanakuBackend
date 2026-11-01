@@ -1,0 +1,21 @@
+Automatically searching for and using Vitest configuration file.
+❯ Building...
+✔ Building...
+Application bundle generation complete. [5.379 seconds] - 2026-10-31T00:51:29.395Z
+
+(!) Your Vite config uses features that are unsupported by `configLoader: 'native'`, which is planned to become the default in a future major version of Vite:
+  - ESM syntax in a file loaded as CommonJS (vitest-base.config.ts:1:1). Use a `.mjs` extension or set `"type": "module"` in the closest package.json
+Set `VITE_CONFIG_NATIVE_IGNORE_WARNING=true` to suppress this warning.
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.11 [39m[90m/Users/pablo/Documents/GitHub/Pasanaku-wt-datos/apps/backoffice[39m
+
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: Window's confirm() method
+Not implemented: Window's confirm() method
+
+[2m Test Files [22m [1m[32m186 passed[39m[22m[90m (186)[39m
+[2m      Tests [22m [1m[32m1322 passed[39m[22m[90m (1322)[39m
+[2m   Start at [22m 20:51:29
+[2m   Duration [22m 20.48s[2m (transform 1.20s, setup 232ms, import 830ms, tests 19.01s, environment 260ms)[22m
+

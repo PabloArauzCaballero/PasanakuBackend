@@ -1,0 +1,40 @@
+09:05 +2188 ~3 -353: /Users/pablo/Documents/GitHub/Pasanaku-wt-datos/apps/movil/test/unidad/ruta_del_aviso_test.dart: correcto /billetera/inicio → /billetera/inicio
+09:05 +2189 ~3 -353: /Users/pablo/Documents/GitHub/Pasanaku-wt-datos/apps/movil/test/unidad/ruta_del_aviso_test.dart: correcto /notificaciones/bandeja → /notificaciones/bandeja
+09:05 +2190 ~3 -353: /Users/pablo/Documents/GitHub/Pasanaku-wt-datos/apps/movil/test/unidad/ruta_del_aviso_test.dart: correcto aportaya://unirse/3f2a9c1e-8b47-4d21-9a66-0c5e7d1b2a34.abababababababababababababababababababababababababababababababab → /pasanaku/unirse/3f2a9c1e-8b47-4d21-9a66-0c5e7d1b2a34.abababababababababababababababababababababababababababababababab
+09:05 +2191 ~3 -353: /Users/pablo/Documents/GitHub/Pasanaku-wt-datos/apps/movil/test/unidad/ruta_del_aviso_test.dart: correcto /pasanaku/unirse/3f2a9c1e-8b47-4d21-9a66-0c5e7d1b2a34.abababababababababababababababababababababababababababababababab → /pasanaku/unirse/3f2a9c1e-8b47-4d21-9a66-0c5e7d1b2a34.abababababababababababababababababababababababababababababababab
+09:05 +2192 ~3 -353: /Users/pablo/Documents/GitHub/Pasanaku-wt-datos/apps/movil/test/unidad/ruta_del_aviso_test.dart: límite espacios alrededor se toleran
+09:05 +2193 ~3 -353: /Users/pablo/Documents/GitHub/Pasanaku-wt-datos/apps/movil/test/unidad/ruta_del_aviso_test.dart: límite justo en el tope de 300 caracteres sigue rechazando lo que no es ruta
+09:05 +2194 ~3 -353: /Users/pablo/Documents/GitHub/Pasanaku-wt-datos/apps/movil/test/unidad/ruta_del_aviso_test.dart: límite un tramo debajo de una ruta permitida pasa
+09:05 +2195 ~3 -353: /Users/pablo/Documents/GitHub/Pasanaku-wt-datos/apps/movil/test/unidad/ruta_del_aviso_test.dart: límite límite: un .. dentro de un enlace lo normaliza Uri y no sale de la lista blanca
+09:05 +2196 ~3 -353: /Users/pablo/Documents/GitHub/Pasanaku-wt-datos/apps/movil/test/unidad/ruta_del_aviso_test.dart: límite el prefijo parcial no cuenta (/billeteras no es /billetera)
+09:05 +2197 ~3 -353: /Users/pablo/Documents/GitHub/Pasanaku-wt-datos/apps/movil/test/unidad/ruta_del_aviso_test.dart: inválido nulo → null
+09:05 +2198 ~3 -353: /Users/pablo/Documents/GitHub/Pasanaku-wt-datos/apps/movil/test/unidad/ruta_del_aviso_test.dart: inválido vacío → null
+09:05 +2199 ~3 -353: /Users/pablo/Documents/GitHub/Pasanaku-wt-datos/apps/movil/test/unidad/ruta_del_aviso_test.dart: inválido sitio externo → null
+09:05 +2200 ~3 -353: /Users/pablo/Documents/GitHub/Pasanaku-wt-datos/apps/movil/test/unidad/ruta_del_aviso_test.dart: inválido http → null
+09:05 +2201 ~3 -353: /Users/pablo/Documents/GitHub/Pasanaku-wt-datos/apps/movil/test/unidad/ruta_del_aviso_test.dart: inválido protocolo relativo → null
+09:05 +2202 ~3 -353: /Users/pablo/Documents/GitHub/Pasanaku-wt-datos/apps/movil/test/unidad/ruta_del_aviso_test.dart: inválido javascript → null
+09:05 +2203 ~3 -353: /Users/pablo/Documents/GitHub/Pasanaku-wt-datos/apps/movil/test/unidad/ruta_del_aviso_test.dart: inválido intent → null
+09:05 +2204 ~3 -353: /Users/pablo/Documents/GitHub/Pasanaku-wt-datos/apps/movil/test/unidad/ruta_del_aviso_test.dart: inválido escape con .. → null
+09:05 +2205 ~3 -353: /Users/pablo/Documents/GitHub/Pasanaku-wt-datos/apps/movil/test/unidad/ruta_del_aviso_test.dart: inválido ruta interna no publicada → null
+09:05 +2206 ~3 -353: /Users/pablo/Documents/GitHub/Pasanaku-wt-datos/apps/movil/test/unidad/ruta_del_aviso_test.dart: inválido ruta de baja de cuenta → null
+09:05 +2207 ~3 -353: /Users/pablo/Documents/GitHub/Pasanaku-wt-datos/apps/movil/test/unidad/ruta_del_aviso_test.dart: inválido con consulta → null
+09:05 +2208 ~3 -353: /Users/pablo/Documents/GitHub/Pasanaku-wt-datos/apps/movil/test/unidad/ruta_del_aviso_test.dart: inválido con fragmento → null
+09:05 +2209 ~3 -353: /Users/pablo/Documents/GitHub/Pasanaku-wt-datos/apps/movil/test/unidad/ruta_del_aviso_test.dart: inválido esquema propio desconocido → null
+09:05 +2210 ~3 -353: /Users/pablo/Documents/GitHub/Pasanaku-wt-datos/apps/movil/test/unidad/ruta_del_aviso_test.dart: inválido invitación mal formada → null
+09:05 +2211 ~3 -353: /Users/pablo/Documents/GitHub/Pasanaku-wt-datos/apps/movil/test/unidad/ruta_del_aviso_test.dart: inválido invitación con hash corto → null
+09:05 +2212 ~3 -353: /Users/pablo/Documents/GitHub/Pasanaku-wt-datos/apps/movil/test/unidad/ruta_del_aviso_test.dart: inválido más largo que el tope → null
+09:05 +2213 ~3 -353: /Users/pablo/Documents/GitHub/Pasanaku-wt-datos/apps/movil/test/unidad/ruta_del_aviso_test.dart: inválido texto libre → null
+09:05 +2214 ~3 -353: loading /Users/pablo/Documents/GitHub/Pasanaku-wt-datos/apps/movil/test/navegacion/vigilante_de_aprobacion_test.dart
+09:06 +2214 ~3 -353: /Users/pablo/Documents/GitHub/Pasanaku-wt-datos/apps/movil/test/navegacion/vigilante_de_aprobacion_test.dart: correcto: cuando aprueban la identidad, activa la cuenta sola y lo avisa
+09:06 +2215 ~3 -353: /Users/pablo/Documents/GitHub/Pasanaku-wt-datos/apps/movil/test/navegacion/vigilante_de_aprobacion_test.dart: límite: mientras sigue en revisión, consulta en cada vuelta y no renueva
+09:06 +2216 ~3 -353: /Users/pablo/Documents/GitHub/Pasanaku-wt-datos/apps/movil/test/navegacion/vigilante_de_aprobacion_test.dart: inválido: sin red no rompe nada y no renueva
+API rechazo GET <ruta-omitida> HTTP 500 codigo=AP-X traza=t
+09:06 +2217 ~3 -353: /Users/pablo/Documents/GitHub/Pasanaku-wt-datos/apps/movil/test/navegacion/vigilante_de_aprobacion_test.dart: con la cuenta ya habilitada no consulta nada
+09:06 +2218 ~3 -353: Some tests failed.
+
+Failing tests:
+  /Users/pablo/Documents/GitHub/Pasanaku-wt-datos/apps/movil/test/capturas/h17_billetera_acciones_test.dart: acciones del saldo · 360 px · texto 1.0x · claro
+  /Users/pablo/Documents/GitHub/Pasanaku-wt-datos/apps/movil/test/capturas/h17_billetera_acciones_test.dart: acciones del saldo · 360 px · texto 1.0x · oscuro
+  /Users/pablo/Documents/GitHub/Pasanaku-wt-datos/apps/movil/test/capturas/h17_billetera_acciones_test.dart: acciones del saldo · 360 px · texto 1.3x · claro
+  /Users/pablo/Documents/GitHub/Pasanaku-wt-datos/apps/movil/test/capturas/h17_billetera_acciones_test.dart: acciones del saldo · 360 px · texto 1.3x · oscuro
+  ... and 349 more

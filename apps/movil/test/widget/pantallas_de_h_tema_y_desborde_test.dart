@@ -97,6 +97,8 @@ void main() {
           dio: dio,
         );
         expect(find.text('Invitación creada'), findsOneWidget);
+        // Con el QR arriba, el enlace queda más abajo y la lista lo construye al llegar.
+        await tester.scrollUntilVisible(find.text(_enlaceLargo), 200);
         expect(find.text(_enlaceLargo), findsOneWidget);
         sinDesborde(tester);
       });

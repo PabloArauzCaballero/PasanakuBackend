@@ -1,0 +1,7 @@
+LOGIN OK -> http://localhost:4200/tablero [{"metodo":"POST","ruta":"/api/v1/sesion/refrescar","estado":401},{"metodo":"POST","ruta":"/api/v1/sesiones","estado":422},{"metodo":"POST","ruta":"/api/v1/sesiones","estado":200}]
+/sistemas/bitacora -> /sistemas/bitacora | 3 pet. | malas: ninguna | consola: 0
+/sistemas/usuarios-internos -> /sistemas/usuarios-internos | 1 pet. | malas: ninguna | consola: 0
+/sistemas/roles-internos -> /sistemas/roles-internos | 1 pet. | malas: ninguna | consola: 0
+/sistemas/permisos-internos -> /sistemas/permisos-internos | 1 pet. | malas: ninguna | consola: 0
+/sistemas/catalogos-operativos -> /sistemas/catalogos-operativos | 1 pet. | malas: ninguna | consola: 0
+/configuracion/reportes -> /configuracion/reportes | 2 pet. | malas: ninguna | consola: 0

@@ -10,7 +10,7 @@ import { Boton } from '@aportaya/ui/boton/boton'
       <div class="bloque-codigo">
         <div class="codigo-cabecera">
           <span class="titulo-payload">Payload de entrada (JSON de ejemplo)</span>
-          <ap-boton variante="secundario" tamano="sm" (pulsado)="copiarEntrada()">
+          <ap-boton variante="secundario" tamano="sm" icono="copiar" (pulsado)="copiarEntrada()">
             {{ copiadoEntrada() ? '¡Copiado!' : 'Copiar JSON' }}
           </ap-boton>
         </div>
@@ -21,7 +21,7 @@ import { Boton } from '@aportaya/ui/boton/boton'
         <div class="bloque-codigo">
           <div class="codigo-cabecera">
             <span class="titulo-payload">Respuesta esperada (HTTP 200/201 JSON)</span>
-            <ap-boton variante="secundario" tamano="sm" (pulsado)="copiarRespuesta()">
+            <ap-boton variante="secundario" tamano="sm" icono="copiar" (pulsado)="copiarRespuesta()">
               {{ copiadoRespuesta() ? '¡Copiado!' : 'Copiar respuesta' }}
             </ap-boton>
           </div>

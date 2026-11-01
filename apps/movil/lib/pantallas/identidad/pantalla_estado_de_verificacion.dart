@@ -1,17 +1,15 @@
 import 'package:aportaya_cliente_identidad/aportaya_cliente_identidad.dart';
-import 'package:aportaya_diseno/atomos/boton.dart';
-import 'package:aportaya_diseno/atomos/boton_variante.dart';
+import 'package:aportaya_diseno/atomos/iconos_de_marca.dart';
+import 'package:aportaya_diseno/atomos/tono.dart';
 import 'package:aportaya_diseno/organismos/estado_de_pantalla.dart';
+import 'package:aportaya_diseno/organismos/estado_de_tramite.dart';
 import 'package:aportaya_diseno/tokens/tokens.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
-import 'dominio/estado_alta.dart';
 import 'dominio/estado_de_verificacion.dart';
-import 'activar_cuenta.dart';
+import 'acciones_de_verificacion.dart';
 import 'textos_de_verificacion.dart';
-import '../../proveedores/sesion.dart';
 
 /// El estado de la verificación, igual que Atlas: PENDIENTE/EN_REVISION siguen
 /// sondeando solas, APROBADA y RECHAZADA son finales. Siempre "Caso `&lt;id&gt;`" y
@@ -44,7 +42,6 @@ class _PantallaDeEstadoDeVerificacionState
   Widget build(BuildContext context) {
     final estado = ref.watch(verificacionProvider);
     return Scaffold(
-      appBar: AppBar(automaticallyImplyLeading: false),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(Espacio.s4),
@@ -104,84 +101,48 @@ class _Contenido extends ConsumerWidget {
         expediente.estado == EstadoDeVerificacionEstadoEnum.APROBADA;
     final rechazada =
         expediente.estado == EstadoDeVerificacionEstadoEnum.RECHAZADA;
+    // Las etapas dicen dónde está el trámite sin inventar plazos: recibido, revisándose y
+    // listo; si se rechazó, la última etapa es la que no se pudo completar.
+    final pasos = [
+      TextosDeVerificacion.pasoRecibido,
+      TextosDeVerificacion.pasoEnRevision,
+      rechazada
+          ? TextosDeVerificacion.pasoRechazado
+          : TextosDeVerificacion.pasoListo,
+    ];
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Icon(
-          aprobada
-              ? Icons.check_circle
-              : rechazada
-              ? Icons.error_outline
-              : Icons.hourglass_top,
-          size: 56,
+        Expanded(
+          child: Center(
+            child: SingleChildScrollView(
+              child: EstadoDeTramite(
+                icono: aprobada
+                    ? IconosDeMarca.tramiteListo
+                    : rechazada
+                    ? IconosDeMarca.tramiteFallido
+                    : IconosDeMarca.enEspera,
+                tono: aprobada
+                    ? Tono.ok
+                    : rechazada
+                    ? Tono.error
+                    : Tono.info,
+                titulo: titulo,
+                detalle: detalle,
+                pasos: pasos,
+                pasoActual: aprobada ? pasos.length : (rechazada ? 2 : 1),
+                fallo: rechazada,
+                caso: TextosDeVerificacion.caso(expediente.verificacionId),
+              ),
+            ),
+          ),
         ),
         const SizedBox(height: Espacio.s4),
-        Text(titulo, style: Theme.of(context).textTheme.titleLarge),
-        if (detalle.isNotEmpty) ...[
-          const SizedBox(height: Espacio.s2),
-          Text(detalle),
-        ],
-        const SizedBox(height: Espacio.s3),
-        Text(
-          TextosDeVerificacion.caso(expediente.verificacionId),
-          style: Theme.of(context).textTheme.bodySmall,
-        ),
-        const Spacer(),
-        if (sesionActiva && aprobada)
-          Boton(
-            texto: TextosDeVerificacion.activarCuenta,
-            variante: BotonVariante.primario,
-            expandido: true,
-            onPressed: () => activarCuentaAprobada(context, ref),
-          )
-        else if (sesionActiva && rechazada)
-          Boton(
-            texto: TextosDeVerificacion.salirDeCuenta,
-            variante: BotonVariante.primario,
-            expandido: true,
-            onPressed: () async {
-              await ref.read(sesionProvider).cerrar();
-              if (context.mounted) context.go('/ingreso');
-            },
-          )
-        else if (sesionActiva)
-          Boton(
-            texto: TextosDeVerificacion.irALaApp,
-            variante: BotonVariante.primario,
-            expandido: true,
-            onPressed: () => context.go('/billetera/inicio'),
-          )
-        else if (rechazada)
-          Boton(
-            texto: TextosDeVerificacion.intentarDeNuevo,
-            variante: BotonVariante.primario,
-            expandido: true,
-            onPressed: () {
-              ref.read(altaProvider.notifier).reiniciar();
-              context.go('/registro');
-            },
-          )
-        else if (aprobada)
-          Boton(
-            texto: TextosDeVerificacion.entrar,
-            variante: BotonVariante.primario,
-            expandido: true,
-            onPressed: () {
-              ref.read(altaProvider.notifier).reiniciar();
-              context.go('/ingreso?alta=lista');
-            },
-          )
-        else
-          Boton(
-            texto: TextosDeVerificacion.seguirConElRegistro,
-            variante: BotonVariante.primario,
-            expandido: true,
-            onPressed: () => context.go('/ingreso?alta=lista'),
-          ),
-        const SizedBox(height: Espacio.s2),
-        TextButton(
-          onPressed: onActualizar,
-          child: const Text(TextosDeVerificacion.actualizarEstado),
+        AccionesDeVerificacion(
+          sesionActiva: sesionActiva,
+          aprobada: aprobada,
+          rechazada: rechazada,
+          onActualizar: onActualizar,
         ),
       ],
     );

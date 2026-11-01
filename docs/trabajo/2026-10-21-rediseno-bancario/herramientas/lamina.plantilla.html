@@ -1,0 +1,305 @@
+<meta charset="utf-8">
+<title>Banca Verde Profunda</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/*FUENTES*/
+/* Lámina de dirección: arriba, Inicio en claro y oscuro lado a lado (lo que se aprueba);
+   debajo, las piezas y los tokens que lo construyen. Valores = propuesta de H2. */
+:root {
+  /* página (la lámina, no la app) */
+  --pag-fondo: #e9eeeb; --pag-tinta: #10231a; --pag-tinta-2: #4a5a51; --pag-linea: #cfd9d2; --pag-papel: #ffffff;
+  --display: "Bricolage", "Avenir Next", system-ui, sans-serif;
+  --texto: "Instrument", "Helvetica Neue", system-ui, sans-serif;
+
+  /* APP · tema claro (propuesta) */
+  --bg: #f0f4f1;
+  --halo: rgba(60, 147, 102, 0.16);
+  --surface: #ffffff;
+  --surface-2: #f5f8f6;
+  --text: #10231a;
+  --text-2: #435349;
+  --text-3: #5f6f65;
+  --border: rgba(16, 35, 26, 0.08);
+  --brand: #1c5a3a;
+  --on-brand: #f4fbf6;
+  --brand-bg: #e7f2eb;
+  --hero-a: #1c5a3a;
+  --hero-b: #0c2c1d;
+  --hero-glow: rgba(124, 190, 156, 0.38);
+  --on-hero: #f4fbf6;
+  --on-hero-2: #b9d6c5;
+  --urgencia: #b85b13;
+  --on-urgencia: #ffffff;
+  --urgencia-bg: #fdf0df;
+  --urgencia-texto: #8f4510;
+  --ok: #197c45; --ok-bg: #e7f5ec;
+  --info: #256c9e; --info-bg: #e7f1f8;
+  --vidrio: rgba(255, 255, 255, 0.72);
+  --vidrio-borde: rgba(255, 255, 255, 0.9);
+  --e1: 0 1px 2px rgba(16, 35, 26, 0.06), 0 1px 1px rgba(16, 35, 26, 0.04);
+  --e2: 0 1px 2px rgba(16, 35, 26, 0.05), 0 6px 16px rgba(16, 35, 26, 0.07);
+  --e3: 0 2px 4px rgba(12, 44, 29, 0.10), 0 18px 36px rgba(12, 44, 29, 0.24);
+  --e4: 0 4px 8px rgba(16, 35, 26, 0.08), 0 24px 48px rgba(16, 35, 26, 0.16);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --pag-fondo: #0b1510; --pag-tinta: #e6efe9; --pag-tinta-2: #a5b8ad; --pag-linea: #1f3328; --pag-papel: #10201a; color-scheme: dark; }
+}
+:root[data-theme="dark"] { --pag-fondo: #0b1510; --pag-tinta: #e6efe9; --pag-tinta-2: #a5b8ad; --pag-linea: #1f3328; --pag-papel: #10201a; color-scheme: dark; }
+
+/* APP · tema oscuro (propuesta), aplicado al teléfono de la derecha */
+.oscuro {
+  --bg: #07130d;
+  --halo: rgba(60, 147, 102, 0.20);
+  --surface: #10221a;
+  --surface-2: #142a20;
+  --text: #eaf3ed;
+  --text-2: #b7ccc0;
+  --text-3: #93a89b;
+  --border: rgba(255, 255, 255, 0.07);
+  --brand: #7cbe9c;
+  --on-brand: #0b1f15;
+  --brand-bg: #16382a;
+  --hero-a: #1c5a3a;
+  --hero-b: #0a2518;
+  --hero-glow: rgba(124, 190, 156, 0.30);
+  --on-hero: #f4fbf6;
+  --on-hero-2: #b9d6c5;
+  --urgencia: #ef9e4e;
+  --on-urgencia: #2a1503;
+  --urgencia-bg: rgba(239, 158, 78, 0.14);
+  --urgencia-texto: #f6be85;
+  --ok: #7cbe9c; --ok-bg: rgba(31, 157, 87, 0.16);
+  --info: #8fc2e4; --info-bg: rgba(46, 127, 184, 0.18);
+  --vidrio: rgba(16, 34, 26, 0.72);
+  --vidrio-borde: rgba(255, 255, 255, 0.10);
+  --e1: 0 0 0 1px rgba(255, 255, 255, 0.05);
+  --e2: 0 0 0 1px rgba(255, 255, 255, 0.06), 0 8px 20px rgba(0, 0, 0, 0.35);
+  --e3: 0 0 0 1px rgba(255, 255, 255, 0.08), 0 20px 40px rgba(0, 0, 0, 0.5);
+  --e4: 0 0 0 1px rgba(255, 255, 255, 0.08), 0 24px 48px rgba(0, 0, 0, 0.55);
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--pag-fondo); color: var(--pag-tinta); font: 15px/1.5 var(--texto);
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 32px 64px;
+}
+.envoltura { max-width: 1120px; margin: 0 auto; display: grid; gap: 48px; }
+.titular { display: grid; gap: 8px; max-width: 70ch; }
+.titular small { font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--pag-tinta-2); }
+.titular h1 { font: 700 clamp(30px, 5vw, 48px)/1.05 var(--display); letter-spacing: -0.03em; margin: 0; text-wrap: balance; }
+.titular p { margin: 0; color: var(--pag-tinta-2); }
+h2.seccion { font: 700 24px/1.2 var(--display); letter-spacing: -0.02em; margin: 0 0 16px; }
+.par { display: flex; flex-wrap: wrap; gap: 32px; justify-content: center; }
+.leyenda { text-align: center; font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--pag-tinta-2); margin-top: 10px; }
+
+/* ── El teléfono ───────────────────────────────────────── */
+.telefono {
+  width: 390px; max-width: 100%; height: 844px; border-radius: 44px; overflow: hidden; position: relative;
+  background: var(--bg); color: var(--text); font-family: var(--texto);
+  box-shadow: 0 0 0 10px #0d1a13, 0 30px 60px rgba(0, 0, 0, 0.25);
+}
+.telefono::before { /* halo de marca detrás del héroe */
+  content: ""; position: absolute; inset: -120px -80px auto -80px; height: 420px;
+  background: radial-gradient(closest-side, var(--halo), transparent); pointer-events: none;
+}
+.desplazable { position: absolute; inset: 0; overflow: hidden; padding: 54px 20px 120px; display: grid; grid-auto-rows: max-content; gap: 22px; align-content: start; }
+.cabecera { display: flex; align-items: center; gap: 12px; position: relative; }
+.avatar { width: 44px; height: 44px; border-radius: 50%; background: var(--brand-bg); color: var(--brand); display: grid; place-items: center; font: 700 15px var(--display); }
+.saludo { flex: 1; min-width: 0; line-height: 1.15; }
+.saludo span { display: block; font-size: 13px; color: var(--text-3); }
+.saludo b { font: 700 21px var(--display); letter-spacing: -0.02em; }
+.btn-ico { width: 44px; height: 44px; border-radius: 50%; background: var(--surface); box-shadow: var(--e1); display: grid; place-items: center; color: var(--text); position: relative; border: 0; }
+.btn-ico .punto { position: absolute; top: 10px; right: 11px; width: 8px; height: 8px; border-radius: 50%; background: var(--urgencia); box-shadow: 0 0 0 2px var(--surface); }
+svg.i { width: 22px; height: 22px; stroke-width: 1.9; }
+
+/* héroe */
+.heroe {
+  position: relative; border-radius: 28px; padding: 22px 22px 20px; color: var(--on-hero); overflow: hidden; isolation: isolate;
+  background: radial-gradient(120% 90% at 100% 0%, var(--hero-glow), transparent 60%), linear-gradient(150deg, var(--hero-a), var(--hero-b));
+  box-shadow: var(--e3);
+}
+.heroe::after { /* grano 2 % para que el verde no se vea plástico */
+  content: ""; position: absolute; inset: 0; z-index: -1; opacity: 0.08; mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+}
+.heroe .fila { display: flex; align-items: center; justify-content: space-between; }
+.heroe .etiqueta { font-size: 13px; color: var(--on-hero-2); display: flex; align-items: center; gap: 6px; }
+.heroe .ojo { width: 36px; height: 36px; border-radius: 50%; background: rgba(255, 255, 255, 0.12); display: grid; place-items: center; color: var(--on-hero); }
+.heroe .ojo svg { width: 18px; height: 18px; }
+.monto { font: 700 44px/1 var(--display); letter-spacing: -0.035em; margin: 10px 0 16px; font-variant-numeric: tabular-nums; }
+.monto .moneda { font-size: 22px; letter-spacing: -0.01em; margin-right: 4px; opacity: 0.9; }
+.monto .dec { font-size: 26px; color: var(--on-hero-2); }
+.chips { display: flex; gap: 8px; flex-wrap: wrap; }
+.chip-h { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 999px; background: rgba(255, 255, 255, 0.12); font-size: 12.5px; color: var(--on-hero); }
+.chip-h svg { width: 14px; height: 14px; }
+
+/* acciones */
+.acciones { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.accion { display: grid; justify-items: center; gap: 8px; font-size: 12.5px; color: var(--text-2); font-weight: 500; }
+.accion .circ { width: 58px; height: 58px; border-radius: 50%; background: var(--surface); box-shadow: var(--e2); display: grid; place-items: center; color: var(--brand); }
+.accion.principal .circ { background: var(--brand); color: var(--on-brand); }
+
+/* tarjeta de urgencia */
+.urgente { background: var(--surface); border-radius: 22px; padding: 16px; box-shadow: var(--e2); display: grid; gap: 12px; }
+.urgente .arriba { display: flex; gap: 12px; align-items: center; }
+.ic-tinta { width: 42px; height: 42px; border-radius: 50%; display: grid; place-items: center; flex: none; }
+.ic-tinta svg { width: 20px; height: 20px; }
+.t-urg { background: var(--urgencia-bg); color: var(--urgencia-texto); }
+.t-ok { background: var(--ok-bg); color: var(--ok); }
+.t-info { background: var(--info-bg); color: var(--info); }
+.t-marca { background: var(--brand-bg); color: var(--brand); }
+.urgente h3 { margin: 0; font: 600 15px var(--texto); }
+.urgente p { margin: 0; font-size: 13px; color: var(--text-3); }
+.urgente .cifra { white-space: nowrap; margin-left: auto; text-align: right; font: 700 17px var(--display); font-variant-numeric: tabular-nums; }
+.boton { height: 52px; border-radius: 999px; border: 0; font: 600 15px var(--texto); display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; }
+.boton svg { width: 18px; height: 18px; }
+.b-urg { background: var(--urgencia); color: var(--on-urgencia); }
+
+/* secciones */
+.sec { display: flex; align-items: baseline; justify-content: space-between; }
+.sec h2 { margin: 0; font: 700 18px var(--display); letter-spacing: -0.015em; }
+.sec a { font-size: 13.5px; font-weight: 600; color: var(--brand); text-decoration: none; }
+.riel { display: flex; gap: 12px; overflow: hidden; margin-right: -20px; }
+.grupo { flex: none; width: 236px; background: var(--surface); border-radius: 22px; padding: 16px; box-shadow: var(--e2); display: grid; gap: 12px; }
+.grupo .top { display: flex; gap: 12px; align-items: center; }
+.grupo h3 { margin: 0; font: 600 15px var(--texto); }
+.grupo .sub { font-size: 12.5px; color: var(--text-3); }
+.barra { height: 6px; border-radius: 999px; background: var(--surface-2); overflow: hidden; }
+.barra i { display: block; height: 100%; border-radius: inherit; background: var(--brand); }
+.pie { display: flex; align-items: center; justify-content: space-between; font-size: 12.5px; color: var(--text-2); }
+.apilados { display: flex; }
+.apilados span { width: 24px; height: 24px; border-radius: 50%; margin-left: -7px; box-shadow: 0 0 0 2px var(--surface); display: grid; place-items: center; font: 600 10px var(--texto); color: #fff; }
+.apilados span:first-child { margin-left: 0; }
+
+/* movimientos */
+.lista { background: var(--surface); border-radius: 22px; box-shadow: var(--e2); padding: 4px 16px; }
+.dia { font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-3); padding: 12px 0 4px; }
+.mov { display: flex; gap: 12px; align-items: center; padding: 10px 0; }
+.mov + .mov { border-top: 1px solid var(--border); }
+.mov .txt { flex: 1; min-width: 0; }
+.mov b { display: block; font: 600 14.5px var(--texto); }
+.mov small { font-size: 12.5px; color: var(--text-3); }
+.mov .imp { font: 600 15px var(--texto); font-variant-numeric: tabular-nums; text-align: right; }
+.imp.entra { color: var(--ok); }
+
+/* barra de pestañas de vidrio */
+.pestanas {
+  position: absolute; left: 14px; right: 14px; bottom: 18px; height: 72px; border-radius: 28px;
+  background: var(--vidrio); backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid var(--vidrio-borde); box-shadow: var(--e4);
+  display: grid; grid-template-columns: repeat(5, 1fr); align-items: center; padding: 0 6px;
+}
+.tab { display: grid; justify-items: center; gap: 3px; font-size: 11px; font-weight: 600; color: var(--text-3); }
+.tab svg { width: 22px; height: 22px; }
+.tab.activa { color: var(--brand); }
+.tab.activa .ind { background: var(--brand-bg); }
+.tab .ind { padding: 4px 14px; border-radius: 999px; display: grid; place-items: center; }
+.tab.qr .circ { width: 54px; height: 54px; border-radius: 50%; background: var(--brand); color: var(--on-brand); display: grid; place-items: center; margin-top: -26px; box-shadow: 0 8px 20px rgba(12, 44, 29, 0.35); }
+.tab.qr .circ svg { width: 24px; height: 24px; }
+
+/* ── Piezas y tokens ─────────────────────────────────── */
+.panel { background: var(--pag-papel); border: 1px solid var(--pag-linea); border-radius: 20px; padding: 24px; }
+.grilla { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr)); gap: 16px; }
+.muestra { display: grid; gap: 8px; min-width: 0; }
+.muestra .sw { height: 64px; border-radius: 14px; border: 1px solid var(--pag-linea); }
+.muestra b { font-size: 14px; }
+.muestra code { font: 12px ui-monospace, Menlo, monospace; color: var(--pag-tinta-2); }
+.tipos { display: grid; gap: 14px; }
+.tipos div { display: flex; align-items: baseline; gap: 16px; flex-wrap: wrap; border-bottom: 1px solid var(--pag-linea); padding-bottom: 12px; }
+.tipos code { font: 12px ui-monospace, Menlo, monospace; color: var(--pag-tinta-2); min-width: 210px; }
+.elev { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 200px), 1fr)); gap: 24px; padding: 12px; background: #f0f4f1; border-radius: 16px; }
+.elev div { height: 96px; background: #fff; border-radius: 20px; display: grid; place-items: center; font: 600 14px var(--texto); color: #10231a; }
+.botones { display: grid; gap: 12px; max-width: 380px; }
+.b-pri { background: var(--brand); color: var(--on-brand); }
+.b-sec { background: var(--surface); color: var(--text); box-shadow: var(--e1), inset 0 0 0 1px rgba(16, 35, 26, 0.12); }
+.b-apa { background: var(--surface-2); color: var(--text-3); box-shadow: inset 0 0 0 1.5px rgba(16, 35, 26, 0.14); }
+.motivo { font-size: 12.5px; color: var(--text-3); text-align: center; margin-top: -4px; }
+table.mov-t { width: 100%; border-collapse: collapse; font-size: 14px; }
+.tabla { overflow-x: auto; }
+table.mov-t th, table.mov-t td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--pag-linea); vertical-align: top; }
+table.mov-t th { font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--pag-tinta-2); }
+</style>
+
+<div class="envoltura">
+  <header class="titular">
+    <small>Rediseño bancario · lámina de dirección (H1.S2.M1)</small>
+    <h1>Banca Verde Profunda</h1>
+    <p>Inicio rediseñado en claro y oscuro con los valores propuestos para los tokens. El saldo pasa a ser protagonista, las acciones son circulares y la barra de pestañas flota. El naranja queda solo para la urgencia de aportar. Datos de ejemplo, sintéticos.</p>
+  </header>
+
+  <section class="par" aria-label="Inicio en claro y oscuro">
+    <!--TELEFONO:claro-->
+    <!--TELEFONO:oscuro-->
+  </section>
+
+  <section>
+    <h2 class="seccion">Botones y estados</h2>
+    <div class="panel par" style="justify-content:flex-start">
+      <div class="botones">
+        <button class="boton b-pri" type="button">{{i:plus}} Recargar</button>
+        <button class="boton b-urg" type="button">{{i:hand-coins}} Aportar Bs 250</button>
+        <button class="boton b-sec" type="button">Ver el sorteo</button>
+        <button class="boton b-apa" type="button" aria-disabled="true">Aportar</button>
+        <div class="motivo">Escribí el monto para seguir.</div>
+      </div>
+      <div class="botones oscuro" style="background:var(--bg);padding:16px;border-radius:20px">
+        <button class="boton b-pri" type="button">{{i:plus}} Recargar</button>
+        <button class="boton b-urg" type="button">{{i:hand-coins}} Aportar Bs 250</button>
+        <button class="boton b-sec" type="button" style="box-shadow:inset 0 0 0 1px rgba(255,255,255,.14)">Ver el sorteo</button>
+        <button class="boton b-apa" type="button" aria-disabled="true" style="box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.14)">Aportar</button>
+        <div class="motivo">Escribí el monto para seguir.</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2 class="seccion">Color por rol</h2>
+    <div class="panel grilla">
+      <div class="muestra"><div class="sw" style="background:linear-gradient(150deg,#1c5a3a,#0c2c1d)"></div><b>Héroe</b><code>heroInicio g600 → heroFin g900</code></div>
+      <div class="muestra"><div class="sw" style="background:#1c5a3a"></div><b>Acción principal</b><code>brand g600 · texto #F4FBF6 (7,8:1)</code></div>
+      <div class="muestra"><div class="sw" style="background:#b85b13"></div><b>Urgencia de pago</b><code>urgencia o700 · texto blanco (4,6:1)</code></div>
+      <div class="muestra"><div class="sw" style="background:#f0f4f1"></div><b>Fondo</b><code>bg #F0F4F1 + halo g400 16 %</code></div>
+      <div class="muestra"><div class="sw" style="background:#ffffff"></div><b>Superficie</b><code>surface blanco, sin borde, sombra e2</code></div>
+      <div class="muestra"><div class="sw" style="background:#07130d"></div><b>Fondo oscuro</b><code>bg #07130D · superficie #10221A</code></div>
+    </div>
+  </section>
+
+  <section>
+    <h2 class="seccion">Tipografía</h2>
+    <div class="panel tipos">
+      <div><code>saldo · Bricolage 700 · 44/1 · −3,5 %</code><span style="font:700 44px/1 var(--display);letter-spacing:-.035em;font-variant-numeric:tabular-nums">Bs 1.250,00</span></div>
+      <div><code>tituloPantalla · Bricolage 700 · 28</code><span style="font:700 28px var(--display);letter-spacing:-.025em">Tus grupos</span></div>
+      <div><code>tituloSeccion · Bricolage 700 · 18</code><span style="font:700 18px var(--display);letter-spacing:-.015em">Movimientos</span></div>
+      <div><code>cuerpoFuerte · Instrument 600 · 15</code><span style="font:600 15px var(--texto)">Aporte a Las Comadres</span></div>
+      <div><code>cuerpo · Instrument 400 · 15</code><span style="font:400 15px var(--texto)">Te avisamos cuando el banco lo confirme.</span></div>
+      <div><code>cifraFila · Instrument 600 · 15 · tabular</code><span style="font:600 15px var(--texto);font-variant-numeric:tabular-nums">−Bs 250,00</span></div>
+    </div>
+  </section>
+
+  <section>
+    <h2 class="seccion">Elevación en dos capas</h2>
+    <div class="panel"><div class="elev">
+      <div style="box-shadow:0 1px 2px rgba(16,35,26,.06),0 1px 1px rgba(16,35,26,.04)">e1 · fila</div>
+      <div style="box-shadow:0 1px 2px rgba(16,35,26,.05),0 6px 16px rgba(16,35,26,.07)">e2 · tarjeta</div>
+      <div style="box-shadow:0 2px 4px rgba(12,44,29,.10),0 18px 36px rgba(12,44,29,.24)">e3 · héroe</div>
+      <div style="box-shadow:0 4px 8px rgba(16,35,26,.08),0 24px 48px rgba(16,35,26,.16)">e4 · hoja y barra</div>
+    </div></div>
+  </section>
+
+  <section>
+    <h2 class="seccion">Movimiento</h2>
+    <div class="panel tabla"><table class="mov-t">
+      <thead><tr><th>Momento</th><th>Qué contesta</th><th>Cómo</th></tr></thead>
+      <tbody>
+        <tr><td>Abrir Inicio</td><td>¿De dónde salió esto?</td><td>Entrada escalonada: héroe, acciones y secciones, 30 ms de paso, ease-out fuerte, 220 ms</td></tr>
+        <tr><td>Tocar una acción</td><td>¿Me hizo caso?</td><td>Se hunde a 0,96 al apoyar el dedo y vuelve con resorte crítico</td></tr>
+        <tr><td>Saldo que cambia</td><td>¿Qué cambió?</td><td>Rodillo de dígitos, solo los que cambian</td></tr>
+        <tr><td>Cambiar de pestaña</td><td>¿Dónde estoy?</td><td>La píldora se desliza con resorte (amortiguación 1, respuesta 0,35 s)</td></tr>
+        <tr><td>Ocultar el saldo</td><td>¿Me hizo caso?</td><td>Desenfoque y fundido de 160 ms</td></tr>
+        <tr><td>Aporte confirmado</td><td>Cierre</td><td>Check que se dibuja y háptico medio; solo con el banco confirmado</td></tr>
+        <tr><td>Reducir movimiento</td><td>—</td><td>Todo pasa a fundidos cortos o cambios instantáneos; el contenido nunca depende de la animación</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+</div>

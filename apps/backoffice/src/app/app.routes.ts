@@ -97,6 +97,16 @@ export const routes: Routes = [
         loadChildren: () => import('./rutas/admisiones/admisiones.routes').then((m) => m.rutasAdmisiones),
       },
       {
+        path: 'postulaciones-organizador',
+        canMatch: [requierePermiso('ver:postulaciones')],
+        loadChildren: () => import('./rutas/postulaciones/postulaciones.routes').then((m) => m.rutasPostulaciones),
+      },
+      {
+        path: 'grupos',
+        canMatch: [requierePermiso('ver:grupos')],
+        loadChildren: () => import('./rutas/grupos/grupos.routes').then((m) => m.rutasGrupos),
+      },
+      {
         path: 'sistemas',
         canMatch: [requierePermiso('ver:sistemas')],
         loadChildren: () => import('./rutas/sistemas/sistemas.routes').then((m) => m.rutasSistemas),

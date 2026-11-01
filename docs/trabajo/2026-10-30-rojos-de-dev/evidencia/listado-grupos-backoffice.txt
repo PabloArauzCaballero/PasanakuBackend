@@ -1,0 +1,18 @@
+Picked up JAVA_TOOL_OPTIONS: -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStoreType=JKS -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=43073 -Dhttp.nonProxyHosts=localhost|127.0.0.1|::1|127.*|0.*|::|169.254.*|api.anthropic.com|api-staging.anthropic.com|api-pr-preview.anthropic.com|mcp-proxy.anthropic.com|mcp-proxy-staging.anthropic.com|registry.npmjs.org|jsr.io|npm.jsr.io|pypi.org|files.pythonhosted.org|index.crates.io|proxy.golang.org|host.docker.internal|10.*|172.16.*|172.17.*|172.18.*|172.19.*|172.20.*|172.21.*|172.22.*|172.23.*|172.24.*|172.25.*|172.26.*|172.27.*|172.28.*|172.29.*|172.30.*|172.31.*|192.168.*|100.64.0.0/10|*.svc.cluster.local|*.svc.cluster.local -Djdk.http.auth.tunneling.disabledSchemes= -Djdk.http.auth.proxying.disabledSchemes=
+exit=0
+
+# CI de #315 (head c6757463), job «Los cinco corredores», paso 14 · integrationTest:
+GruposDeBackofficeRepositorioTest > listado: trae el grupo con su aporte exacto y su ocupación; ... FAILED
+    java.util.NoSuchElementException: No value present
+        at java.util.Optional.orElseThrow(Optional.java:377)
+        at bo.aportaya.grupos.GruposDeBackofficeRepositorioTest.listado(GruposDeBackofficeRepositorioTest.java:37)
+# Mismo código en #316 (test): «Los cinco corredores» success. => intermitente, sin cambio de producto de por medio.
+
+# Causa (reproducida en PostgreSQL local, en transaccion con ROLLBACK; ConsultarGruposDeBackoffice.java:44-45):
+#   ORDER BY fecha_inicio DESC NULLS FIRST, codigo_publico, id LIMIT 200      (FILAS = 200)
+#   FixturaDeGrupos.grupoConformado: fecha_inicio = CURRENT_DATE, codigo_publico = 'GR-' || substr(uuid, 1, 8)
+con_fecha_hoy: de 300 grupos, fuera del listado de 200 = 100
+con_fecha_futura: el peor codigo_publico (el ultimo) esta en el listado = t
+filas_tras_rollback = 0
+# Clasificacion (regla 80.4): TEST_BUG. La prueba afirma pertenecer a un listado global con tope en una base compartida
+# y sin limpieza; cuantas mas pruebas de integracion crean grupos, mas seguido falla. Aserciones sin cambios.

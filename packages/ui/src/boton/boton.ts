@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core'
 import { Girador } from '../girador/girador'
+import { Icono, type NombreDeIcono } from '../icono/icono'
 
 export type VarianteDeBoton = 'primario' | 'secundario' | 'fantasma' | 'peligro' | 'enlace' | 'sobreVerde'
 export type TamanoDeBoton = 'sm' | 'base' | 'lg'
@@ -12,11 +13,11 @@ export type TamanoDeBoton = 'sm' | 'base' | 'lg'
 @Component({
   selector: 'ap-boton',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [Girador],
+  imports: [Girador, Icono],
   host: { '[class]': '"v-" + variante() + " t-" + tamano()', '[class.ancho]': 'ancho()' },
   template: `
     <button [type]="tipo()" [disabled]="deshabilitado() || cargando()" [attr.aria-busy]="cargando() || null" [attr.aria-pressed]="presionado() ?? null" (click)="pulsado.emit()">
-      @if (cargando()) { <ap-girador etiqueta="Procesando" tamano="s4" /> }
+      @if (cargando()) { <ap-girador etiqueta="Procesando" tamano="s4" /> } @else if (icono()) { <ap-icono [nombre]="icono()!" tamano="s4" /> }
       <span class="texto"><ng-content /></span>
     </button>
   `,
@@ -72,5 +73,7 @@ export class Boton {
   /** Botón de alternancia (un filtro, una pestaña de vista): anuncia cuál está activo sin depender del color. */
   readonly presionado = input<boolean | undefined>(undefined)
   readonly ancho = input(false)
+  /** Ícono decorativo antes del texto (ícono + nombre, nunca ícono solo): mientras carga lo reemplaza el girador. */
+  readonly icono = input<NombreDeIcono>()
   readonly pulsado = output<void>()
 }

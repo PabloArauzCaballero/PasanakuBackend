@@ -1,0 +1,287 @@
+{
+ "rol": "oficial",
+ "entradas": [
+  {
+   "texto": "Inicio",
+   "href": "/tablero"
+  },
+  {
+   "texto": "Operación",
+   "href": "/operacion/retiros"
+  },
+  {
+   "texto": "Cumplimiento",
+   "href": "/cumplimiento/verificaciones"
+  },
+  {
+   "texto": "Contabilidad",
+   "href": "/contabilidad"
+  },
+  {
+   "texto": "Publicidad",
+   "href": "/publicidad/anunciantes"
+  },
+  {
+   "texto": "Configuración",
+   "href": "/configuracion/tarifario"
+  }
+ ],
+ "medidas": [
+  {
+   "nombre": "menu:Operación",
+   "href": "/operacion/retiros",
+   "url": "/operacion/retiros",
+   "ms": 169,
+   "rebote": false,
+   "botones": 4
+  },
+  {
+   "nombre": "pestana:Operación/Desembolsos",
+   "href": "/operacion/desembolsos",
+   "url": "/operacion/desembolsos",
+   "ms": 111,
+   "rebote": false,
+   "botones": 10
+  },
+  {
+   "nombre": "pestana:Operación/Reversos",
+   "href": "/operacion/reversos",
+   "url": "/operacion/reversos",
+   "ms": 144,
+   "rebote": false,
+   "botones": 7
+  },
+  {
+   "nombre": "pestana:Operación/Reclamos",
+   "href": "/operacion/reclamos",
+   "url": "/operacion/reclamos",
+   "ms": 128,
+   "rebote": false,
+   "botones": 8
+  },
+  {
+   "nombre": "pestana:Operación/Conciliación de custodia",
+   "href": "/operacion/custodia",
+   "url": "/operacion/custodia",
+   "ms": 83,
+   "rebote": false,
+   "botones": 4
+  },
+  {
+   "nombre": "pestana:Operación/Cierres diarios",
+   "href": "/operacion/cierres-diarios",
+   "url": "/operacion/cierres-diarios",
+   "ms": 73,
+   "rebote": false,
+   "botones": 4
+  },
+  {
+   "nombre": "pestana:Operación/Admisiones a grupos",
+   "href": "/admisiones",
+   "url": "/admisiones",
+   "ms": 71,
+   "rebote": false,
+   "botones": 2
+  },
+  {
+   "nombre": "pestana:Operación/Solicitudes escaladas",
+   "href": "/operacion/solicitudes-escaladas",
+   "url": "/operacion/solicitudes-escaladas",
+   "ms": 73,
+   "rebote": false,
+   "botones": 5
+  },
+  {
+   "nombre": "menu:Cumplimiento",
+   "href": "/cumplimiento/verificaciones",
+   "url": "/cumplimiento/verificaciones",
+   "ms": 72,
+   "rebote": false,
+   "botones": 9
+  },
+  {
+   "nombre": "pestana:Cumplimiento/Alertas de monitoreo",
+   "href": "/cumplimiento/alertas",
+   "url": "/cumplimiento/alertas",
+   "ms": 95,
+   "rebote": false,
+   "botones": 12
+  },
+  {
+   "nombre": "pestana:Cumplimiento/Casos de investigación",
+   "href": "/cumplimiento/casos",
+   "url": "/cumplimiento/casos",
+   "ms": 76,
+   "rebote": false,
+   "botones": 7
+  },
+  {
+   "nombre": "pestana:Cumplimiento/Reportes a la UIF",
+   "href": "/cumplimiento/uif/reportes",
+   "url": "/cumplimiento/uif/reportes",
+   "ms": 83,
+   "rebote": false,
+   "botones": 11
+  },
+  {
+   "nombre": "pestana:Cumplimiento/Requerimientos de autoridad",
+   "href": "/cumplimiento/uif/requerimientos",
+   "url": "/cumplimiento/uif/requerimientos",
+   "ms": 93,
+   "rebote": false,
+   "botones": 9
+  },
+  {
+   "nombre": "pestana:Cumplimiento/Actas de comité",
+   "href": "/cumplimiento/actas",
+   "url": "/cumplimiento/actas",
+   "ms": 79,
+   "rebote": false,
+   "botones": 3
+  },
+  {
+   "nombre": "pestana:Cumplimiento/Riesgo y seguridad",
+   "href": "/cumplimiento/riesgos/eventos",
+   "url": "/cumplimiento/riesgos/eventos",
+   "ms": 69,
+   "rebote": false,
+   "botones": 7
+  },
+  {
+   "nombre": "subpestana:Cumplimiento/Riesgo y seguridad/Pruebas de continuidad",
+   "href": "/cumplimiento/continuidad",
+   "url": "/cumplimiento/continuidad",
+   "ms": 72,
+   "rebote": false
+  },
+  {
+   "nombre": "subpestana:Cumplimiento/Riesgo y seguridad/Incidentes de seguridad",
+   "href": "/cumplimiento/seguridad/incidentes",
+   "url": "/cumplimiento/seguridad/incidentes",
+   "ms": 96,
+   "rebote": false
+  },
+  {
+   "nombre": "menu:Contabilidad",
+   "href": "/contabilidad",
+   "url": "/contabilidad",
+   "ms": 83,
+   "rebote": false,
+   "botones": 2
+  },
+  {
+   "nombre": "pestana:Contabilidad/Presupuesto",
+   "href": "/contabilidad/presupuesto",
+   "url": "/contabilidad/presupuesto",
+   "ms": 74,
+   "rebote": false,
+   "botones": 6
+  },
+  {
+   "nombre": "pestana:Contabilidad/Compras y cuentas por pagar",
+   "href": "/contabilidad/compras",
+   "url": "/contabilidad/compras",
+   "ms": 72,
+   "rebote": false,
+   "botones": 10
+  },
+  {
+   "nombre": "pestana:Contabilidad/Cuentas por cobrar",
+   "href": "/contabilidad/cobros",
+   "url": "/contabilidad/cobros",
+   "ms": 69,
+   "rebote": false,
+   "botones": 7
+  },
+  {
+   "nombre": "menu:Publicidad",
+   "href": "/publicidad/anunciantes",
+   "url": "/publicidad/anunciantes",
+   "ms": 80,
+   "rebote": false,
+   "botones": 4
+  },
+  {
+   "nombre": "pestana:Publicidad/Campañas",
+   "href": "/publicidad/campanas",
+   "url": "/publicidad/campanas",
+   "ms": 72,
+   "rebote": false,
+   "botones": 10
+  },
+  {
+   "nombre": "pestana:Publicidad/Moderación",
+   "href": "/publicidad/moderacion",
+   "url": "/publicidad/moderacion",
+   "ms": 78,
+   "rebote": false,
+   "botones": 3
+  },
+  {
+   "nombre": "pestana:Publicidad/Desempeño",
+   "href": "/publicidad/desempeno",
+   "url": "/publicidad/desempeno",
+   "ms": 58,
+   "rebote": false,
+   "botones": 2
+  },
+  {
+   "nombre": "pestana:Publicidad/Liquidación",
+   "href": "/publicidad/liquidacion",
+   "url": "/publicidad/liquidacion",
+   "ms": 66,
+   "rebote": false,
+   "botones": 2
+  },
+  {
+   "nombre": "menu:Configuración",
+   "href": "/configuracion/tarifario",
+   "url": "/configuracion/tarifario",
+   "ms": 59,
+   "rebote": false,
+   "botones": 8
+  },
+  {
+   "nombre": "pestana:Configuración/Mensajería",
+   "href": "/configuracion/mensajeria",
+   "url": "/configuracion/mensajeria",
+   "ms": 67,
+   "rebote": false,
+   "botones": 13
+  },
+  {
+   "nombre": "pestana:Configuración/Reportes",
+   "href": "/configuracion/reportes",
+   "url": "/configuracion/reportes",
+   "ms": 73,
+   "rebote": false,
+   "botones": 10
+  },
+  {
+   "nombre": "pestana:Configuración/Catálogo de datos",
+   "href": "/tablero/catalogo-de-datos",
+   "url": "/tablero/catalogo-de-datos",
+   "ms": 83,
+   "rebote": false,
+   "botones": 9
+  }
+ ],
+ "rebotes": [],
+ "errores": [
+  {
+   "url": "http://127.0.0.1:4301/operacion/solicitudes-escaladas",
+   "tipo": "red",
+   "texto": "404 GET /api/v1/grupos/solicitudes-escaladas"
+  },
+  {
+   "url": "http://127.0.0.1:4301/operacion/solicitudes-escaladas",
+   "tipo": "consola",
+   "texto": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+  },
+  {
+   "url": "http://127.0.0.1:4301/operacion/solicitudes-escaladas",
+   "tipo": "consola",
+   "texto": "ERROR {mensaje: No encontramos lo que buscabas., codigo: undefined, estado: 404, sinConexion: false, trazaId: cfe448c61d51e670174373923a77f851}"
+  }
+ ]
+}

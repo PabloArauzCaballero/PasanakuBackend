@@ -1,0 +1,4 @@
+# H3.S1.M1 — tras @Transactional(readOnly=true) en GestionarUsuariosInternos; identidad recompilada y reiniciada
+GET /api/v1/usuarios-internos -> HTTP 200 lista de 0
+GET /api/v1/roles -> HTTP 200 lista de 30
+GET /api/v1/permisos -> HTTP 200 lista de 46

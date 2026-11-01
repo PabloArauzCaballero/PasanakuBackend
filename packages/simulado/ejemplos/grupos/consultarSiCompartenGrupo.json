@@ -1,0 +1,26 @@
+{
+  "servicio": "grupos",
+  "operacion": "consultarSiCompartenGrupo",
+  "metodo": "get",
+  "ruta": "/grupos/{grupoId}/integrantes/{usuarioId}/comparte",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "comparten": true
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "comparten": false
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "comparten": true
+      }
+    }
+  }
+}

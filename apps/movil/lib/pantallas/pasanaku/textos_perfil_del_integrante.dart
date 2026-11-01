@@ -14,7 +14,6 @@ class TextosPerfilDelIntegrante {
 
   // Confianza
   static const confianza = 'Confianza';
-  static const puntaje = 'Puntaje';
   static const nivel = 'Nivel de confianza';
   static const puntualidad = 'Aportes a tiempo';
   static const completados = 'Grupos completados';

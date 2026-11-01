@@ -1,0 +1,7 @@
+
+Sin fallas.
+narrativas=0
+
+OK
+397 tablas → docs/catalogo-de-datos.md y servicios/auditoria/src/main/resources/catalogo/catalogo-datos.json
+  organizador: listarBandejaDeHabilitaciones, consultarMiExpedienteDeHabilitacion, consultarExpedienteDeHabilitacion, resolverHabilitacion, revisarHabilitacion, consultarHabilitacion

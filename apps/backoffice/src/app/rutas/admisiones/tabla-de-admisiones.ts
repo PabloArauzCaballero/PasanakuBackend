@@ -28,18 +28,18 @@ type FilaAdmision = SolicitudDeAdmision & { acciones?: string }
       <ng-template #celda let-fila let-columna="columna">
         @switch (columna.clave) {
           @case ('solicitudId') {
-            <a [routerLink]="['/admisiones', fila.solicitudId]" class="enlace-mono" [attr.aria-label]="'Abrir solicitud ' + fila.solicitudId">
+            <a [routerLink]="['/admisiones', fila.solicitudId]" class="enlace-mono" [title]="fila.solicitudId" [attr.aria-label]="'Abrir solicitud ' + fila.solicitudId">
               <code>{{ acortarUuid(fila.solicitudId) }}</code>
             </a>
           }
           @case ('postulante') { <strong>{{ fila.postulante }}</strong> }
           @case ('grupoCodigo') { <span class="chip-grupo">{{ fila.grupoCodigo }}</span> }
           @case ('cuposSolicitados') { <span class="cupos">{{ fila.cuposSolicitados }}</span> }
-          @case ('puntaje') { <span class="puntaje">{{ fila.puntaje ?? '—' }}</span> }
+          @case ('puntaje') { <span class="puntaje">{{ puntaje(fila.puntaje) }}</span> }
           @case ('fechaSolicitud') { <time [attr.datetime]="fila.fechaSolicitud">{{ dia(fila.fechaSolicitud) }}</time> }
-          @case ('estado') { <ap-chip-estado [tono]="tonoEstado(fila.estado)">{{ fila.estado }}</ap-chip-estado> }
+          @case ('estado') { <ap-chip-estado [tono]="tonoEstado(fila.estado)">{{ estadoLegible(fila.estado) }}</ap-chip-estado> }
           @case ('acciones') {
-            <ap-boton variante="fantasma" tamano="sm" [routerLink]="['/admisiones', fila.solicitudId]">
+            <ap-boton variante="fantasma" tamano="sm" icono="ojo" [routerLink]="['/admisiones', fila.solicitudId]">
               {{ t.verExpediente }}
             </ap-boton>
           }
@@ -53,6 +53,8 @@ type FilaAdmision = SolicitudDeAdmision & { acciones?: string }
     .enlace-mono:hover { text-decoration: underline; }
     .chip-grupo { font-family: var(--f-mono, monospace); font-size: 0.85em; padding: var(--s1) var(--s2); border-radius: var(--r-sm); background: var(--surface-2); border: var(--borde-fino) solid var(--border); color: var(--text); }
     .cupos, .puntaje { font-variant-numeric: tabular-nums; font-weight: 500; }
+    /* «20 oct 2026» en un renglón: la regla global parte el texto de las celdas y la fecha corta quedaba en dos. */
+    time { white-space: nowrap; }
   `,
 })
 export class TablaDeAdmisiones {
@@ -72,6 +74,19 @@ export class TablaDeAdmisiones {
     { clave: 'estado', titulo: 'Estado' },
     { clave: 'acciones', titulo: 'Acción', fijaDerecha: true },
   ]
+
+  /** El estado en palabras («Pendiente»), nunca el código del contrato en mayúsculas. */
+  protected estadoLegible(estado: string): string {
+    const texto = (estado ?? '').toLowerCase().replace(/_/g, ' ')
+    return texto.charAt(0).toUpperCase() + texto.slice(1)
+  }
+
+  /** El puntaje con coma decimal, como el resto de las cifras («0,82»). */
+  protected puntaje(valor: number | string | null | undefined): string {
+    if (valor === null || valor === undefined || valor === '') return '—'
+    const n = Number(valor)
+    return Number.isFinite(n) ? n.toLocaleString('es-BO', { maximumFractionDigits: 2 }) : String(valor)
+  }
 
   protected tonoEstado(estado: string): Tono {
     const est = estado.toUpperCase()

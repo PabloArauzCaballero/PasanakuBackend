@@ -14,7 +14,7 @@ import { textosCumplimiento } from '../textos'
   imports: [CabeceraDePagina, PanelDeFactores],
   template: `
     <section class="pantalla">
-      <ap-cabecera-de-pagina [titulo]="t.titulo" [descripcion]="t.proposito" icono="alerta" />
+      <ap-cabecera-de-pagina [titulo]="t.titulo" [descripcion]="t.proposito" />
       <p class="aviso">{{ t.aviso }}</p>
 
       <section aria-labelledby="hechos">
@@ -29,7 +29,7 @@ import { textosCumplimiento } from '../textos'
     </section>
   `,
   styles: `
-    .pantalla { padding: var(--s5); max-width: 40rem; display: flex; flex-direction: column; gap: var(--s5); }
+    .pantalla { max-width: 40rem; display: flex; flex-direction: column; gap: var(--s5); }
     .aviso { color: var(--text-2); }
     h2 { font-size: 1em; color: var(--text-2); margin-bottom: var(--s2); }
   `,

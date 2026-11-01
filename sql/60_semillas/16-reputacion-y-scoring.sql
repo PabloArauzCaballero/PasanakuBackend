@@ -47,3 +47,35 @@ INSERT INTO insignia_logro (codigo, nombre, descripcion, criterio, icono_url) VA
   ('REFERENTE', 'Referente', 'Invitaste a personas que después cumplieron', '5 invitaciones aceptadas cuyos titulares completaron al menos un ciclo sin incumplimientos declarados.', 'https://cdn.pasanaku.bo/insignias/referente.svg'),
   ('VETERANO', 'Veterano', 'Dos años en la plataforma con la cuenta al día', '24 meses corridos con la cuenta activa, la verificación de identidad vigente y sin deuda castigada.', 'https://cdn.pasanaku.bo/insignias/veterano.svg')
 ON CONFLICT (codigo) DO NOTHING;
+
+-- Etapas del modelo v1 — catálogo INTERNO (no oficial), decidido por Pablo 2026-10-30 al reemplazar el catálogo anterior («que no suene demasiado fantasioso»); códigos y textos del PLAN.md del trabajo del 2026-10-30 en docs/trabajo (§H1.S6, renombre a etapas). Diseño de producto propio, sin fuente externa ni licencia que declarar. Tramos [desde, hasta) sobre la escala 0–1000, los mismos del catálogo anterior; la última incluye su hasta. `nombre` es el texto que muestra la app tal cual. Quien recién llega (base 500) arranca en Etapa 1 · Inicial; En recuperación es el tramo por debajo de la base. Un cambio de nombre, orden o tramo se corrige acá y `actualizar` lo aplica sobre una base ya sembrada; el id de la etapa no cambia.
+INSERT INTO etapa (modelo_id, codigo, nombre, orden, desde, hasta) VALUES
+  ((SELECT id FROM modelo_scoring WHERE version = 'v1'), 'RECUPERACION', 'En recuperación', 0, '0.00', '500.00'),
+  ((SELECT id FROM modelo_scoring WHERE version = 'v1'), 'INICIAL', 'Etapa 1 · Inicial', 1, '500.00', '550.00'),
+  ((SELECT id FROM modelo_scoring WHERE version = 'v1'), 'EN_MARCHA', 'Etapa 2 · En marcha', 2, '550.00', '600.00'),
+  ((SELECT id FROM modelo_scoring WHERE version = 'v1'), 'CONSTANTE', 'Etapa 3 · Constante', 3, '600.00', '650.00'),
+  ((SELECT id FROM modelo_scoring WHERE version = 'v1'), 'PUNTUAL', 'Etapa 4 · Puntual', 4, '650.00', '700.00'),
+  ((SELECT id FROM modelo_scoring WHERE version = 'v1'), 'COMPROMETIDO', 'Etapa 5 · Comprometido', 5, '700.00', '760.00'),
+  ((SELECT id FROM modelo_scoring WHERE version = 'v1'), 'SOLIDO', 'Etapa 6 · Sólido', 6, '760.00', '820.00'),
+  ((SELECT id FROM modelo_scoring WHERE version = 'v1'), 'DESTACADO', 'Etapa 7 · Destacado', 7, '820.00', '880.00'),
+  ((SELECT id FROM modelo_scoring WHERE version = 'v1'), 'EXPERTO', 'Etapa 8 · Experto', 8, '880.00', '940.00'),
+  ((SELECT id FROM modelo_scoring WHERE version = 'v1'), 'EJEMPLAR', 'Etapa 9 · Ejemplar', 9, '940.00', '980.00'),
+  ((SELECT id FROM modelo_scoring WHERE version = 'v1'), 'PILAR', 'Etapa 10 · Pilar', 10, '980.00', '1000.00')
+ON CONFLICT (modelo_id, codigo) DO UPDATE SET nombre = EXCLUDED.nombre, orden = EXCLUDED.orden, desde = EXCLUDED.desde, hasta = EXCLUDED.hasta
+  WHERE etapa.nombre IS DISTINCT FROM EXCLUDED.nombre OR etapa.orden IS DISTINCT FROM EXCLUDED.orden OR etapa.desde IS DISTINCT FROM EXCLUDED.desde OR etapa.hasta IS DISTINCT FROM EXCLUDED.hasta;
+
+-- Desbloqueos por etapa — valores SINTÉTICOS PROPUESTOS por Claude 2026-10-30, sin fuente ni confirmación de negocio ni de cumplimiento (regla 97.5.4). Se siembran PROPUESTO: se muestran y NO limitan. Pasar a VIGENTE exige la confirmación de Pablo y de cumplimiento, y se hace en este seeder, no en la base: `actualizar` vuelve a escribir cupos, aporte, moneda y estado sobre una base ya sembrada, y solo si cambiaron.
+INSERT INTO desbloqueo_etapa (etapa_id, cupos_max, aporte_max, moneda, estado) VALUES
+  ((SELECT id FROM etapa WHERE modelo_id = (SELECT id FROM modelo_scoring WHERE version = 'v1') AND codigo = 'RECUPERACION'), 5, '100.00', 'BOB', 'PROPUESTO'),
+  ((SELECT id FROM etapa WHERE modelo_id = (SELECT id FROM modelo_scoring WHERE version = 'v1') AND codigo = 'INICIAL'), 6, '200.00', 'BOB', 'PROPUESTO'),
+  ((SELECT id FROM etapa WHERE modelo_id = (SELECT id FROM modelo_scoring WHERE version = 'v1') AND codigo = 'EN_MARCHA'), 8, '300.00', 'BOB', 'PROPUESTO'),
+  ((SELECT id FROM etapa WHERE modelo_id = (SELECT id FROM modelo_scoring WHERE version = 'v1') AND codigo = 'CONSTANTE'), 10, '500.00', 'BOB', 'PROPUESTO'),
+  ((SELECT id FROM etapa WHERE modelo_id = (SELECT id FROM modelo_scoring WHERE version = 'v1') AND codigo = 'PUNTUAL'), 12, '700.00', 'BOB', 'PROPUESTO'),
+  ((SELECT id FROM etapa WHERE modelo_id = (SELECT id FROM modelo_scoring WHERE version = 'v1') AND codigo = 'COMPROMETIDO'), 15, '1000.00', 'BOB', 'PROPUESTO'),
+  ((SELECT id FROM etapa WHERE modelo_id = (SELECT id FROM modelo_scoring WHERE version = 'v1') AND codigo = 'SOLIDO'), 18, '1500.00', 'BOB', 'PROPUESTO'),
+  ((SELECT id FROM etapa WHERE modelo_id = (SELECT id FROM modelo_scoring WHERE version = 'v1') AND codigo = 'DESTACADO'), 20, '2000.00', 'BOB', 'PROPUESTO'),
+  ((SELECT id FROM etapa WHERE modelo_id = (SELECT id FROM modelo_scoring WHERE version = 'v1') AND codigo = 'EXPERTO'), 24, '3000.00', 'BOB', 'PROPUESTO'),
+  ((SELECT id FROM etapa WHERE modelo_id = (SELECT id FROM modelo_scoring WHERE version = 'v1') AND codigo = 'EJEMPLAR'), 30, '4000.00', 'BOB', 'PROPUESTO'),
+  ((SELECT id FROM etapa WHERE modelo_id = (SELECT id FROM modelo_scoring WHERE version = 'v1') AND codigo = 'PILAR'), 40, '5000.00', 'BOB', 'PROPUESTO')
+ON CONFLICT (etapa_id) DO UPDATE SET cupos_max = EXCLUDED.cupos_max, aporte_max = EXCLUDED.aporte_max, moneda = EXCLUDED.moneda, estado = EXCLUDED.estado
+  WHERE desbloqueo_etapa.cupos_max IS DISTINCT FROM EXCLUDED.cupos_max OR desbloqueo_etapa.aporte_max IS DISTINCT FROM EXCLUDED.aporte_max OR desbloqueo_etapa.moneda IS DISTINCT FROM EXCLUDED.moneda OR desbloqueo_etapa.estado IS DISTINCT FROM EXCLUDED.estado;

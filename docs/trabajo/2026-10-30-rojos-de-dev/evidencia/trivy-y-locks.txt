@@ -1,0 +1,10 @@
+Trivy 17b2 (CI run 40903451975, imagen aportaya/identidad:ci), HIGH con parche publicado:
+  libbrotli1   1.1.0-2build2  → 1.1.0-2ubuntu0.1   CVE-2026-111497   (paquete del sistema base)
+  guava        33.4.8-jre     → 33.7.2             CVE-2026-102554   (llega por io.minio:minio 8.6.0)
+  snappy-java  1.1.10.7       → 1.1.10.9           CVE-2026-108106, CVE-2026-93451 (llega por kafka-clients)
+Cambio: constraints en buildSrc/.../aportaya.servicio.gradle.kts + `./gradlew <modulo>:dependencies --write-locks` (15 modulos)
+  → 14 gradle.lockfile cambian: snappy-java 1.1.10.5/.7 → 1.1.10.9 (14) y, en identidad, guava 33.7.2-jre con sus transitivas
+    (error_prone_annotations 2.36.0→2.50.0, j2objc-annotations 3.0.0→3.1, jspecify 1.0.0→1.0.1). Nada mas.
+  → despliegue/Dockerfile: libbrotli1 se nombra en el apt-get install (mismo patron que libssl3t64).
+Verificado en local: identidad compileTestJava + test + webTest, notificaciones y gateway compileTestJava → BUILD SUCCESSFUL.
+No cubierto: construir la imagen y correr Trivy (no hay Docker en la sesion); lo confirma el paso 17b2 del CI.

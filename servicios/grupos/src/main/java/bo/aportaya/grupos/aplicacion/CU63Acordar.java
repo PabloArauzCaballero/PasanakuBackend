@@ -2,6 +2,7 @@ package bo.aportaya.grupos.aplicacion;
 
 import bo.aportaya.grupos.dominio.ComputoDeVotacion;
 import bo.aportaya.grupos.dominio.ComputoDeVotacion.Sentido;
+import bo.aportaya.grupos.dominio.ResumenDeAcuerdo;
 import bo.aportaya.grupos.dominio.TipoDeAcuerdo;
 import bo.aportaya.grupos.infraestructura.AcuerdoRepositorio;
 import bo.aportaya.grupos.infraestructura.AcuerdoRepositorio.ComputoResumen;
@@ -15,6 +16,7 @@ import bo.aportaya.plataforma.mensajeria.Outbox;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -64,6 +66,7 @@ public class CU63Acordar {
                     entrada.propuestoPor(),
                     entrada.quorumRequerido(),
                     entrada.afectado(),
+                    entrada.entrante(),
                     ahora,
                     entrada.cierraEn());
 
@@ -147,6 +150,22 @@ public class CU63Acordar {
         });
     }
 
+    /** Los acuerdos del grupo, filtrados: para que quien pidio un traspaso encuentre su votacion. */
+    @Transactional(readOnly = true)
+    public List<ResumenDeAcuerdo> delGrupo(
+            UUID grupoId,
+            Optional<String> tipoDelContrato,
+            Optional<String> estado,
+            Optional<UUID> afectado,
+            ContextoSesion ctx) {
+        Optional<String> tipo =
+                tipoDelContrato.map(t -> TipoDeAcuerdo.deContrato(t).name());
+        // Quien entra es OTRO participante, y la politica de fila deja ver solo la propia: la lectura va
+        // con rol de sistema. Quien llama ya se comprobo que participa del grupo (AcuerdosController).
+        return datos.conContexto(
+                ctx, dsl -> Datos.comoSistema(dsl, () -> acuerdos.delGrupo(dsl, grupoId, tipo, estado, afectado)));
+    }
+
     private ComputoResumen resumen(ComputoDeVotacion computo) {
         return new ComputoResumen(
                 computo.aFavor().shortValue(),
@@ -161,5 +180,19 @@ public class CU63Acordar {
             UUID propuestoPor,
             BigDecimal quorumRequerido,
             Optional<UUID> afectado,
-            OffsetDateTime cierraEn) {}
+            OffsetDateTime cierraEn,
+            Optional<UUID> entrante) {
+
+        /** Sin persona entrante: todo acuerdo que no es un traspaso. */
+        public EntradaPropuesta(
+                UUID grupoId,
+                String tipo,
+                String descripcion,
+                UUID propuestoPor,
+                BigDecimal quorumRequerido,
+                Optional<UUID> afectado,
+                OffsetDateTime cierraEn) {
+            this(grupoId, tipo, descripcion, propuestoPor, quorumRequerido, afectado, cierraEn, Optional.empty());
+        }
+    }
 }

@@ -1,0 +1,1023 @@
+{
+ "resultados": [
+  {
+   "vista": "alertas",
+   "nivel": "aceptado",
+   "caso": "lista con limite=25 y sin cursor",
+   "veredicto": "PASS",
+   "detalle": "/cumplimiento/alertas?limite=25"
+  },
+  {
+   "vista": "alertas",
+   "nivel": "aceptado",
+   "caso": "buscar «R-3» deja 1 fila",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "alertas",
+   "nivel": "aceptado",
+   "caso": "CSV baja lo filtrado",
+   "veredicto": "PASS",
+   "detalle": "alertas-de-monitoreo-lft-pagina-1-2026-10-26.csv · 2 líneas"
+  },
+  {
+   "vista": "alertas",
+   "nivel": "aceptado",
+   "caso": "JSON baja lo filtrado",
+   "veredicto": "PASS",
+   "detalle": "alertas-de-monitoreo-lft-pagina-1-2026-10-26.json"
+  },
+  {
+   "vista": "alertas",
+   "nivel": "límite",
+   "caso": "sin coincidencias: vacío orientado y CSV solo con encabezado",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "alertas",
+   "nivel": "límite",
+   "caso": "«Quitar filtros» vuelve a mostrar la página",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "alertas",
+   "nivel": "aceptado",
+   "caso": "Siguiente pide la página 2 con el cursor del servidor",
+   "veredicto": "PASS",
+   "detalle": "/cumplimiento/alertas?limite=25&despuesDeFecha=2026-01-01T00:00:00Z&despuesDeId=cursor-1"
+  },
+  {
+   "vista": "alertas",
+   "nivel": "aceptado",
+   "caso": "Anterior vuelve a la página 1",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "alertas",
+   "nivel": "aceptado",
+   "caso": "filas por página 10 → limite=10",
+   "veredicto": "PASS",
+   "detalle": "/cumplimiento/alertas?limite=10"
+  },
+  {
+   "vista": "alertas",
+   "nivel": "límite",
+   "caso": "Ir a 3 → última página parcial (1 fila) y Siguiente deshabilitado",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "alertas",
+   "nivel": "aceptado",
+   "caso": "filtro Estado viaja al servidor y vuelve a la página 1",
+   "veredicto": "PASS",
+   "detalle": "/cumplimiento/alertas?limite=10&estados=ESCALADA"
+  },
+  {
+   "vista": "alertas",
+   "nivel": "aceptado",
+   "caso": "«Abrir caso con la alerta R-1» abre su diálogo",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "alertas",
+   "nivel": "aceptado",
+   "caso": "sin botones Editar/Eliminar (el contrato no los tiene)",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "alertas",
+   "nivel": "límite",
+   "caso": "colección vacía: explica el porqué",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "alertas",
+   "nivel": "error",
+   "caso": "500: mensaje accionable con traza, sin el texto crudo",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "alertas",
+   "nivel": "error",
+   "caso": "«Volver a intentar» repite el pedido y vuelve a la lista",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "alertas",
+   "nivel": "error",
+   "caso": "403: sin acceso, sin tabla ni descarga",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "casos",
+   "nivel": "aceptado",
+   "caso": "lista con limite=25 y sin cursor",
+   "veredicto": "PASS",
+   "detalle": "/cumplimiento/casos?limite=25"
+  },
+  {
+   "vista": "casos",
+   "nivel": "aceptado",
+   "caso": "buscar «LFT-3» deja 1 fila",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "casos",
+   "nivel": "aceptado",
+   "caso": "CSV baja lo filtrado",
+   "veredicto": "PASS",
+   "detalle": "casos-de-investigacion-lft-pagina-1-2026-10-26.csv · 2 líneas"
+  },
+  {
+   "vista": "casos",
+   "nivel": "aceptado",
+   "caso": "JSON baja lo filtrado",
+   "veredicto": "PASS",
+   "detalle": "casos-de-investigacion-lft-pagina-1-2026-10-26.json"
+  },
+  {
+   "vista": "casos",
+   "nivel": "límite",
+   "caso": "sin coincidencias: vacío orientado y CSV solo con encabezado",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "casos",
+   "nivel": "límite",
+   "caso": "«Quitar filtros» vuelve a mostrar la página",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "casos",
+   "nivel": "aceptado",
+   "caso": "Siguiente pide la página 2 con el cursor del servidor",
+   "veredicto": "PASS",
+   "detalle": "/cumplimiento/casos?limite=25&despuesDePlazo=2026-01-01T00:00:00Z&despuesDeId=cursor-1"
+  },
+  {
+   "vista": "casos",
+   "nivel": "aceptado",
+   "caso": "Anterior vuelve a la página 1",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "casos",
+   "nivel": "aceptado",
+   "caso": "filas por página 10 → limite=10",
+   "veredicto": "PASS",
+   "detalle": "/cumplimiento/casos?limite=10"
+  },
+  {
+   "vista": "casos",
+   "nivel": "límite",
+   "caso": "Ir a 3 → última página parcial (1 fila) y Siguiente deshabilitado",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "casos",
+   "nivel": "aceptado",
+   "caso": "filtro Estado viaja al servidor y vuelve a la página 1",
+   "veredicto": "PASS",
+   "detalle": "/cumplimiento/casos?limite=10&estados=CERRADO"
+  },
+  {
+   "vista": "casos",
+   "nivel": "aceptado",
+   "caso": "«Decidir el caso LFT-1» abre su diálogo",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "casos",
+   "nivel": "aceptado",
+   "caso": "sin botones Editar/Eliminar (el contrato no los tiene)",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "casos",
+   "nivel": "límite",
+   "caso": "colección vacía: explica el porqué",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "casos",
+   "nivel": "error",
+   "caso": "500: mensaje accionable con traza, sin el texto crudo",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "casos",
+   "nivel": "error",
+   "caso": "«Volver a intentar» repite el pedido y vuelve a la lista",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "casos",
+   "nivel": "error",
+   "caso": "403: sin acceso, sin tabla ni descarga",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "reportes-uif",
+   "nivel": "aceptado",
+   "caso": "lista con limite=25 y sin cursor",
+   "veredicto": "PASS",
+   "detalle": "/uif/reportes?limite=25"
+  },
+  {
+   "vista": "reportes-uif",
+   "nivel": "aceptado",
+   "caso": "buscar «2026-03» deja 1 fila",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "reportes-uif",
+   "nivel": "aceptado",
+   "caso": "CSV baja lo filtrado",
+   "veredicto": "PASS",
+   "detalle": "reportes-regulatorios-pagina-1-2026-10-26.csv · 2 líneas"
+  },
+  {
+   "vista": "reportes-uif",
+   "nivel": "aceptado",
+   "caso": "JSON baja lo filtrado",
+   "veredicto": "PASS",
+   "detalle": "reportes-regulatorios-pagina-1-2026-10-26.json"
+  },
+  {
+   "vista": "reportes-uif",
+   "nivel": "límite",
+   "caso": "sin coincidencias: vacío orientado y CSV solo con encabezado",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "reportes-uif",
+   "nivel": "límite",
+   "caso": "«Quitar filtros» vuelve a mostrar la página",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "reportes-uif",
+   "nivel": "aceptado",
+   "caso": "Siguiente pide la página 2 con el cursor del servidor",
+   "veredicto": "PASS",
+   "detalle": "/uif/reportes?limite=25&antesDe=2026-01-01T00:00:00Z&antesDeId=cursor-1"
+  },
+  {
+   "vista": "reportes-uif",
+   "nivel": "aceptado",
+   "caso": "Anterior vuelve a la página 1",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "reportes-uif",
+   "nivel": "aceptado",
+   "caso": "filas por página 10 → limite=10",
+   "veredicto": "PASS",
+   "detalle": "/uif/reportes?limite=10"
+  },
+  {
+   "vista": "reportes-uif",
+   "nivel": "límite",
+   "caso": "Ir a 3 → última página parcial (1 fila) y Siguiente deshabilitado",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "reportes-uif",
+   "nivel": "aceptado",
+   "caso": "filtro Estado viaja al servidor y vuelve a la página 1",
+   "veredicto": "PASS",
+   "detalle": "/uif/reportes?limite=10&estados=ENVIADO"
+  },
+  {
+   "vista": "reportes-uif",
+   "nivel": "aceptado",
+   "caso": "«Aprobar y registrar envío del período 2026-01» abre su diálogo",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "reportes-uif",
+   "nivel": "aceptado",
+   "caso": "sin botones Editar/Eliminar (el contrato no los tiene)",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "reportes-uif",
+   "nivel": "límite",
+   "caso": "colección vacía: explica el porqué",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "reportes-uif",
+   "nivel": "error",
+   "caso": "500: mensaje accionable con traza, sin el texto crudo",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "reportes-uif",
+   "nivel": "error",
+   "caso": "«Volver a intentar» repite el pedido y vuelve a la lista",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "reportes-uif",
+   "nivel": "error",
+   "caso": "403: sin acceso, sin tabla ni descarga",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "requerimientos",
+   "nivel": "aceptado",
+   "caso": "lista con limite=25 y sin cursor",
+   "veredicto": "PASS",
+   "detalle": "/uif/requerimientos?limite=25"
+  },
+  {
+   "vista": "requerimientos",
+   "nivel": "aceptado",
+   "caso": "buscar «OF-3» deja 1 fila",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "requerimientos",
+   "nivel": "aceptado",
+   "caso": "CSV baja lo filtrado",
+   "veredicto": "PASS",
+   "detalle": "requerimientos-de-autoridad-pagina-1-2026-10-26.csv · 2 líneas"
+  },
+  {
+   "vista": "requerimientos",
+   "nivel": "aceptado",
+   "caso": "JSON baja lo filtrado",
+   "veredicto": "PASS",
+   "detalle": "requerimientos-de-autoridad-pagina-1-2026-10-26.json"
+  },
+  {
+   "vista": "requerimientos",
+   "nivel": "límite",
+   "caso": "sin coincidencias: vacío orientado y CSV solo con encabezado",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "requerimientos",
+   "nivel": "límite",
+   "caso": "«Quitar filtros» vuelve a mostrar la página",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "requerimientos",
+   "nivel": "aceptado",
+   "caso": "Siguiente pide la página 2 con el cursor del servidor",
+   "veredicto": "PASS",
+   "detalle": "/uif/requerimientos?limite=25&antesDe=2026-01-01T00:00:00Z&antesDeId=cursor-1"
+  },
+  {
+   "vista": "requerimientos",
+   "nivel": "aceptado",
+   "caso": "Anterior vuelve a la página 1",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "requerimientos",
+   "nivel": "aceptado",
+   "caso": "filas por página 10 → limite=10",
+   "veredicto": "PASS",
+   "detalle": "/uif/requerimientos?limite=10"
+  },
+  {
+   "vista": "requerimientos",
+   "nivel": "límite",
+   "caso": "Ir a 3 → última página parcial (1 fila) y Siguiente deshabilitado",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "requerimientos",
+   "nivel": "aceptado",
+   "caso": "filtro Estado viaja al servidor y vuelve a la página 1",
+   "veredicto": "PASS",
+   "detalle": "/uif/requerimientos?limite=10&estados=VENCIDO"
+  },
+  {
+   "vista": "requerimientos",
+   "nivel": "aceptado",
+   "caso": "«Responder el oficio OF-1» abre su diálogo",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "requerimientos",
+   "nivel": "aceptado",
+   "caso": "sin botones Editar/Eliminar (el contrato no los tiene)",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "requerimientos",
+   "nivel": "límite",
+   "caso": "colección vacía: explica el porqué",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "requerimientos",
+   "nivel": "error",
+   "caso": "500: mensaje accionable con traza, sin el texto crudo",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "requerimientos",
+   "nivel": "error",
+   "caso": "«Volver a intentar» repite el pedido y vuelve a la lista",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "requerimientos",
+   "nivel": "error",
+   "caso": "403: sin acceso, sin tabla ni descarga",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "continuidad",
+   "nivel": "aceptado",
+   "caso": "lista con limite=25 y sin cursor",
+   "veredicto": "PASS",
+   "detalle": "/cumplimiento/continuidad/pruebas?limite=25"
+  },
+  {
+   "vista": "continuidad",
+   "nivel": "aceptado",
+   "caso": "buscar «30» deja 1 fila",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "continuidad",
+   "nivel": "aceptado",
+   "caso": "CSV baja lo filtrado",
+   "veredicto": "PASS",
+   "detalle": "pruebas-de-continuidad-pagina-1-2026-10-26.csv · 2 líneas"
+  },
+  {
+   "vista": "continuidad",
+   "nivel": "aceptado",
+   "caso": "JSON baja lo filtrado",
+   "veredicto": "PASS",
+   "detalle": "pruebas-de-continuidad-pagina-1-2026-10-26.json"
+  },
+  {
+   "vista": "continuidad",
+   "nivel": "límite",
+   "caso": "sin coincidencias: vacío orientado y CSV solo con encabezado",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "continuidad",
+   "nivel": "límite",
+   "caso": "«Quitar filtros» vuelve a mostrar la página",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "continuidad",
+   "nivel": "aceptado",
+   "caso": "Siguiente pide la página 2 con el cursor del servidor",
+   "veredicto": "PASS",
+   "detalle": "/cumplimiento/continuidad/pruebas?limite=25&antesDe=2026-01-01T00:00:00Z&antesDeId=cursor-1"
+  },
+  {
+   "vista": "continuidad",
+   "nivel": "aceptado",
+   "caso": "Anterior vuelve a la página 1",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "continuidad",
+   "nivel": "aceptado",
+   "caso": "filas por página 10 → limite=10",
+   "veredicto": "PASS",
+   "detalle": "/cumplimiento/continuidad/pruebas?limite=10"
+  },
+  {
+   "vista": "continuidad",
+   "nivel": "límite",
+   "caso": "Ir a 3 → última página parcial (1 fila) y Siguiente deshabilitado",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "continuidad",
+   "nivel": "aceptado",
+   "caso": "«Registrar una prueba» abre su diálogo",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "continuidad",
+   "nivel": "aceptado",
+   "caso": "sin botones Editar/Eliminar (el contrato no los tiene)",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "continuidad",
+   "nivel": "límite",
+   "caso": "colección vacía: explica el porqué",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "continuidad",
+   "nivel": "error",
+   "caso": "500: mensaje accionable con traza, sin el texto crudo",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "continuidad",
+   "nivel": "error",
+   "caso": "«Volver a intentar» repite el pedido y vuelve a la lista",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "continuidad",
+   "nivel": "error",
+   "caso": "403: sin acceso, sin tabla ni descarga",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "actas",
+   "nivel": "aceptado",
+   "caso": "lista con limite=25 y sin cursor",
+   "veredicto": "PASS",
+   "detalle": "/cumplimiento/comites/actas?limite=25"
+  },
+  {
+   "vista": "actas",
+   "nivel": "aceptado",
+   "caso": "buscar «ACTA-3» deja 1 fila",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "actas",
+   "nivel": "aceptado",
+   "caso": "CSV baja lo filtrado",
+   "veredicto": "PASS",
+   "detalle": "actas-de-comite-pagina-1-2026-10-26.csv · 2 líneas"
+  },
+  {
+   "vista": "actas",
+   "nivel": "aceptado",
+   "caso": "JSON baja lo filtrado",
+   "veredicto": "PASS",
+   "detalle": "actas-de-comite-pagina-1-2026-10-26.json"
+  },
+  {
+   "vista": "actas",
+   "nivel": "límite",
+   "caso": "sin coincidencias: vacío orientado y CSV solo con encabezado",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "actas",
+   "nivel": "límite",
+   "caso": "«Quitar filtros» vuelve a mostrar la página",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "actas",
+   "nivel": "aceptado",
+   "caso": "Siguiente pide la página 2 con el cursor del servidor",
+   "veredicto": "PASS",
+   "detalle": "/cumplimiento/comites/actas?limite=25&antesDe=2026-01-01T00:00:00Z&antesDeId=cursor-1"
+  },
+  {
+   "vista": "actas",
+   "nivel": "aceptado",
+   "caso": "Anterior vuelve a la página 1",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "actas",
+   "nivel": "aceptado",
+   "caso": "filas por página 10 → limite=10",
+   "veredicto": "PASS",
+   "detalle": "/cumplimiento/comites/actas?limite=10"
+  },
+  {
+   "vista": "actas",
+   "nivel": "límite",
+   "caso": "Ir a 3 → última página parcial (1 fila) y Siguiente deshabilitado",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "actas",
+   "nivel": "aceptado",
+   "caso": "sin botones Editar/Eliminar (el contrato no los tiene)",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "actas",
+   "nivel": "límite",
+   "caso": "colección vacía: explica el porqué",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "actas",
+   "nivel": "error",
+   "caso": "500: mensaje accionable con traza, sin el texto crudo",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "actas",
+   "nivel": "error",
+   "caso": "«Volver a intentar» repite el pedido y vuelve a la lista",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "actas",
+   "nivel": "error",
+   "caso": "403: sin acceso, sin tabla ni descarga",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "eventos",
+   "nivel": "aceptado",
+   "caso": "lista con limite=25 y sin cursor",
+   "veredicto": "PASS",
+   "detalle": "/cumplimiento/riesgos/eventos?limite=25"
+  },
+  {
+   "vista": "eventos",
+   "nivel": "aceptado",
+   "caso": "buscar «EV-3» deja 1 fila",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "eventos",
+   "nivel": "aceptado",
+   "caso": "CSV baja lo filtrado",
+   "veredicto": "PASS",
+   "detalle": "eventos-de-riesgo-operativo-pagina-1-2026-10-26.csv · 2 líneas"
+  },
+  {
+   "vista": "eventos",
+   "nivel": "aceptado",
+   "caso": "JSON baja lo filtrado",
+   "veredicto": "PASS",
+   "detalle": "eventos-de-riesgo-operativo-pagina-1-2026-10-26.json"
+  },
+  {
+   "vista": "eventos",
+   "nivel": "límite",
+   "caso": "sin coincidencias: vacío orientado y CSV solo con encabezado",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "eventos",
+   "nivel": "límite",
+   "caso": "«Quitar filtros» vuelve a mostrar la página",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "eventos",
+   "nivel": "aceptado",
+   "caso": "Siguiente pide la página 2 con el cursor del servidor",
+   "veredicto": "PASS",
+   "detalle": "/cumplimiento/riesgos/eventos?limite=25&antesDe=2026-01-01T00:00:00Z&antesDeId=cursor-1"
+  },
+  {
+   "vista": "eventos",
+   "nivel": "aceptado",
+   "caso": "Anterior vuelve a la página 1",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "eventos",
+   "nivel": "aceptado",
+   "caso": "filas por página 10 → limite=10",
+   "veredicto": "PASS",
+   "detalle": "/cumplimiento/riesgos/eventos?limite=10"
+  },
+  {
+   "vista": "eventos",
+   "nivel": "límite",
+   "caso": "Ir a 3 → última página parcial (1 fila) y Siguiente deshabilitado",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "eventos",
+   "nivel": "aceptado",
+   "caso": "filtro Estado viaja al servidor y vuelve a la página 1",
+   "veredicto": "PASS",
+   "detalle": "/cumplimiento/riesgos/eventos?limite=10&estados=CERRADO"
+  },
+  {
+   "vista": "eventos",
+   "nivel": "aceptado",
+   "caso": "sin botones Editar/Eliminar (el contrato no los tiene)",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "eventos",
+   "nivel": "límite",
+   "caso": "colección vacía: explica el porqué",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "eventos",
+   "nivel": "error",
+   "caso": "500: mensaje accionable con traza, sin el texto crudo",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "eventos",
+   "nivel": "error",
+   "caso": "«Volver a intentar» repite el pedido y vuelve a la lista",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "eventos",
+   "nivel": "error",
+   "caso": "403: sin acceso, sin tabla ni descarga",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "incidentes",
+   "nivel": "aceptado",
+   "caso": "lista con limite=25 y sin cursor",
+   "veredicto": "PASS",
+   "detalle": "/cumplimiento/seguridad/incidentes?limite=25"
+  },
+  {
+   "vista": "incidentes",
+   "nivel": "aceptado",
+   "caso": "buscar «INC-3» deja 1 fila",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "incidentes",
+   "nivel": "aceptado",
+   "caso": "CSV baja lo filtrado",
+   "veredicto": "PASS",
+   "detalle": "incidentes-de-seguridad-pagina-1-2026-10-26.csv · 2 líneas"
+  },
+  {
+   "vista": "incidentes",
+   "nivel": "aceptado",
+   "caso": "JSON baja lo filtrado",
+   "veredicto": "PASS",
+   "detalle": "incidentes-de-seguridad-pagina-1-2026-10-26.json"
+  },
+  {
+   "vista": "incidentes",
+   "nivel": "límite",
+   "caso": "sin coincidencias: vacío orientado y CSV solo con encabezado",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "incidentes",
+   "nivel": "límite",
+   "caso": "«Quitar filtros» vuelve a mostrar la página",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "incidentes",
+   "nivel": "aceptado",
+   "caso": "Siguiente pide la página 2 con el cursor del servidor",
+   "veredicto": "PASS",
+   "detalle": "/cumplimiento/seguridad/incidentes?limite=25&antesDe=2026-01-01T00:00:00Z&antesDeId=cursor-1"
+  },
+  {
+   "vista": "incidentes",
+   "nivel": "aceptado",
+   "caso": "Anterior vuelve a la página 1",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "incidentes",
+   "nivel": "aceptado",
+   "caso": "filas por página 10 → limite=10",
+   "veredicto": "PASS",
+   "detalle": "/cumplimiento/seguridad/incidentes?limite=10"
+  },
+  {
+   "vista": "incidentes",
+   "nivel": "límite",
+   "caso": "Ir a 3 → última página parcial (1 fila) y Siguiente deshabilitado",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "incidentes",
+   "nivel": "aceptado",
+   "caso": "filtro Estado viaja al servidor y vuelve a la página 1",
+   "veredicto": "PASS",
+   "detalle": "/cumplimiento/seguridad/incidentes?limite=10&estados=CERRADO"
+  },
+  {
+   "vista": "incidentes",
+   "nivel": "aceptado",
+   "caso": "sin botones Editar/Eliminar (el contrato no los tiene)",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "incidentes",
+   "nivel": "límite",
+   "caso": "colección vacía: explica el porqué",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "incidentes",
+   "nivel": "error",
+   "caso": "500: mensaje accionable con traza, sin el texto crudo",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "incidentes",
+   "nivel": "error",
+   "caso": "«Volver a intentar» repite el pedido y vuelve a la lista",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "incidentes",
+   "nivel": "error",
+   "caso": "403: sin acceso, sin tabla ni descarga",
+   "veredicto": "PASS",
+   "detalle": ""
+  }
+ ],
+ "errores": [
+  {
+   "url": "http://127.0.0.1:4303/tablero",
+   "tipo": "consola",
+   "texto": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+  },
+  {
+   "url": "http://127.0.0.1:4303/cumplimiento/alertas",
+   "tipo": "consola",
+   "texto": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+  },
+  {
+   "url": "http://127.0.0.1:4303/tablero",
+   "tipo": "consola",
+   "texto": "Failed to load resource: the server responded with a status of 403 (Forbidden)"
+  },
+  {
+   "url": "http://127.0.0.1:4303/cumplimiento/alertas",
+   "tipo": "consola",
+   "texto": "Failed to load resource: the server responded with a status of 403 (Forbidden)"
+  },
+  {
+   "url": "http://127.0.0.1:4303/tablero",
+   "tipo": "consola",
+   "texto": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+  },
+  {
+   "url": "http://127.0.0.1:4303/cumplimiento/casos",
+   "tipo": "consola",
+   "texto": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+  },
+  {
+   "url": "http://127.0.0.1:4303/tablero",
+   "tipo": "consola",
+   "texto": "Failed to load resource: the server responded with a status of 403 (Forbidden)"
+  },
+  {
+   "url": "http://127.0.0.1:4303/cumplimiento/casos",
+   "tipo": "consola",
+   "texto": "Failed to load resource: the server responded with a status of 403 (Forbidden)"
+  },
+  {
+   "url": "http://127.0.0.1:4303/cumplimiento/uif/reportes",
+   "tipo": "consola",
+   "texto": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+  },
+  {
+   "url": "http://127.0.0.1:4303/cumplimiento/uif/reportes",
+   "tipo": "consola",
+   "texto": "Failed to load resource: the server responded with a status of 403 (Forbidden)"
+  },
+  {
+   "url": "http://127.0.0.1:4303/cumplimiento/uif/requerimientos",
+   "tipo": "consola",
+   "texto": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+  },
+  {
+   "url": "http://127.0.0.1:4303/cumplimiento/uif/requerimientos",
+   "tipo": "consola",
+   "texto": "Failed to load resource: the server responded with a status of 403 (Forbidden)"
+  },
+  {
+   "url": "http://127.0.0.1:4303/cumplimiento/continuidad",
+   "tipo": "consola",
+   "texto": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+  },
+  {
+   "url": "http://127.0.0.1:4303/cumplimiento/continuidad",
+   "tipo": "consola",
+   "texto": "Failed to load resource: the server responded with a status of 403 (Forbidden)"
+  },
+  {
+   "url": "http://127.0.0.1:4303/cumplimiento/actas",
+   "tipo": "consola",
+   "texto": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+  },
+  {
+   "url": "http://127.0.0.1:4303/cumplimiento/actas",
+   "tipo": "consola",
+   "texto": "Failed to load resource: the server responded with a status of 403 (Forbidden)"
+  },
+  {
+   "url": "http://127.0.0.1:4303/cumplimiento/riesgos/eventos",
+   "tipo": "consola",
+   "texto": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+  },
+  {
+   "url": "http://127.0.0.1:4303/cumplimiento/riesgos/eventos",
+   "tipo": "consola",
+   "texto": "Failed to load resource: the server responded with a status of 403 (Forbidden)"
+  },
+  {
+   "url": "http://127.0.0.1:4303/cumplimiento/seguridad/incidentes",
+   "tipo": "consola",
+   "texto": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+  },
+  {
+   "url": "http://127.0.0.1:4303/cumplimiento/seguridad/incidentes",
+   "tipo": "consola",
+   "texto": "Failed to load resource: the server responded with a status of 403 (Forbidden)"
+  }
+ ]
+}

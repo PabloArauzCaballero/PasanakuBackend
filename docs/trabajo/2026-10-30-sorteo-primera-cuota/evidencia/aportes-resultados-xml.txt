@@ -1,0 +1,29 @@
+== servicios/aportes/build/test-results/integrationTest/TEST-bo.aportaya.aportes.CU21PrimeraCuotaTest.xml
+bo.aportaya.aportes.CU21PrimeraCuotaTest  tests=8 skipped=0 failures=0 errors=0
+  · "Dado un evento sin cupos · Cuando se procesa · Entonces se rechaza sin tocar la base ni marcarse consumido"
+  · "Dado el mismo evento entregado dos veces · Cuando se procesa la segunda · Entonces responde DUPLICADO sin crear obligaciones ni emitir nada"
+  · "Dado un grupo iniciado con tres cupos ocupados y Bs 500 de aporte · Cuando llega grupos.grupo_iniciado · Entonces existe la obligación PENDIENTE de la cuota 1 de cada cupo · Y se emite un solo evento de generación"
+  · "Dado un grupo con la cuota 1 abierta y un cupo que ya la pagó · Cuando grupos pregunta por la primera cuota · Entonces ese cupo está en pagados y los otros dos en pendientes, con el período de la cuota 1"
+  · "Dado un inicio re-emitido con otro id de evento · Cuando se procesa · Entonces la unicidad periodo + cupo deja cero obligaciones nuevas y no se emite otro evento"
+  · "Dado un cupo con aporte en cero · Cuando se procesa · Entonces se rechaza entero: ningún cupo queda con obligación"
+  · "Dado un evento cuyo período no es el 1 · Cuando se procesa · Entonces se rechaza: el inicio del grupo abre la cuota 1 y ninguna otra"
+  · "Dado un grupo sin obligaciones · Cuando grupos pregunta por la primera cuota · Entonces las dos listas vienen vacías y no hay período"
+== servicios/aportes/build/test-results/webTest/TEST-bo.aportaya.aportes.web.PrimeraCuotaWebTest.xml
+bo.aportaya.aportes.web.PrimeraCuotaWebTest  tests=5 skipped=0 failures=0 errors=0
+  · "401 sin sesion: nadie consulta la cuota de un grupo sin identificarse"
+  · "200: el organizador ve que cupos pagaron la cuota 1 y cuales faltan, solo identificadores"
+  · "400: un identificador de grupo que no es un identificador"
+  · "200 con listas vacias y periodo nulo cuando el grupo todavia no tiene obligaciones"
+  · "403 con sesion pero sin BILLETERA_VER"
+== servicios/aportes/build/test-results/test/TEST-bo.aportaya.aportes.consumo.ConsumidorDeGrupoIniciadoKafkaTest.xml
+bo.aportaya.aportes.consumo.ConsumidorDeGrupoIniciadoKafkaTest  tests=3 skipped=0 failures=0 errors=0
+  · "Sin cabeceras de sobre se rechaza: un evento sin event_id no se puede deduplicar"
+  · "Un cuerpo sin periodo, con una fecha que no es ISO o con un importe que no es cadena de dos decimales se rechaza"
+  · "Un sobre completo se lee entero: cabeceras, periodo 1, fechas y el aporte de cada cupo con su moneda"
+== servicios/aportes/build/test-results/test/TEST-bo.aportaya.aportes.ArquitecturaTest.xml
+bo.aportaya.aportes.ArquitecturaTest  tests=5 skipped=0 failures=0 errors=0
+  · "elDominioEsPuro"
+  · "laTransaccionVivEnElOrganismo"
+  · "ningunImportCruzado"
+  · "jpaProhibido"
+  · "laWebNoTieneReglas"

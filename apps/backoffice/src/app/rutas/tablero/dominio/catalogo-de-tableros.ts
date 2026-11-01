@@ -2,6 +2,21 @@
  * Tableros por rol · el catálogo de lo que cada tablero espera ver, en su orden. Los códigos son los de las
  * definiciones de CU-98 (`seeders/minimos/23-indicadores-tableros.json`). Un código que no llegó se muestra «sin datos».
  */
+import type { NombreDeIcono } from '@aportaya/ui/icono/icono'
+
+/** El ícono de cada grupo de indicadores: la tarjeta y su título lo comparten, así se reconoce el bloque de un vistazo. */
+export const ICONO_DE_GRUPO: Readonly<Record<string, NombreDeIcono>> = {
+  'Dinero entrante': 'aporte',
+  'Dinero saliente': 'retiro',
+  'Mora y fondo de garantía': 'mora',
+  Ingresos: 'moneda',
+  'Turnos y entregas': 'entrega',
+  Personas: 'persona',
+  Grupos: 'grupo',
+  Tráfico: 'actividad',
+  Latencia: 'reloj',
+}
+
 /** Lo que cada tablero espera ver, en su orden. Un código que no llegó se muestra «sin datos», nunca como cero. */
 export type Esperado = { codigo: string; nombre: string; grupo: string }
 

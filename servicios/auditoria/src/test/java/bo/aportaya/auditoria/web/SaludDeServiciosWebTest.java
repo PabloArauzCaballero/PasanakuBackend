@@ -33,6 +33,14 @@ class SaludDeServiciosWebTest {
 
     // Catalogo de datos · H2: comparte controlador; no se llama aca.
 
+    // Sistemas › Incidentes: comparte controlador; no se llama aca.
+
+    @MockitoBean
+    private bo.aportaya.auditoria.aplicacion.ConsultarIncidentesOperativos consultarIncidentes;
+
+    @MockitoBean
+    private bo.aportaya.auditoria.aplicacion.OutboxPorServicio outboxPorServicio;
+
     @MockitoBean
     private bo.aportaya.auditoria.aplicacion.ConsultarCatalogoDeDatos consultarCatalogo;
 
@@ -65,7 +73,9 @@ class SaludDeServiciosWebTest {
                         List.of(
                                 new SaludDeServicio("identidad", Estado.ARRIBA, Optional.of(12L)),
                                 new SaludDeServicio("aportes", Estado.DEGRADADO, Optional.of(40L)),
-                                new SaludDeServicio("erp", Estado.CAIDO, Optional.empty()))));
+                                new SaludDeServicio("erp", Estado.CAIDO, Optional.empty())),
+                        java.util.Map.of(),
+                        new java.math.BigDecimal("99.5")));
 
         mvc.perform(get("/indicadores/operacion/servicios")
                         .with(Sesiones.como("ADMIN_PLATAFORMA", "TABLERO_SISTEMAS_VER")))
@@ -80,10 +90,41 @@ class SaludDeServiciosWebTest {
     }
 
     @Test
+    @DisplayName("SLO · con medición: disponibilidad, presupuesto y última interrupción; sin medición, ausentes")
+    void loMedido() throws Exception {
+        var identidad = new bo.aportaya.auditoria.dominio.DisponibilidadDelServicio(
+                "identidad", 1_000, 999, Optional.of(Instant.parse("2026-10-20T03:04:00Z")));
+        when(salud.consultar())
+                .thenReturn(new SaludDeServicios.Salida(
+                        Instant.parse("2026-10-29T15:00:00Z"),
+                        List.of(
+                                new SaludDeServicio("identidad", Estado.ARRIBA, Optional.of(12L)),
+                                new SaludDeServicio("erp", Estado.ARRIBA, Optional.of(9L))),
+                        java.util.Map.of("identidad", identidad),
+                        new java.math.BigDecimal("99.5")));
+
+        mvc.perform(get("/indicadores/operacion/servicios")
+                        .with(Sesiones.como("ADMIN_PLATAFORMA", "TABLERO_SISTEMAS_VER")))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.objetivoSlo").value("99.5"))
+                .andExpect(jsonPath("$.servicios[0].disponibilidad30d").value("99.90"))
+                .andExpect(jsonPath("$.servicios[0].presupuestoErrorRestante").value("80.0"))
+                .andExpect(jsonPath("$.servicios[0].minutosMedidos30d").value(1000))
+                .andExpect(jsonPath("$.servicios[0].ultimaInterrupcion").value("2026-10-20T03:04:00Z"))
+                .andExpect(jsonPath("$.servicios[1].disponibilidad30d").doesNotExist())
+                .andExpect(jsonPath("$.servicios[1].presupuestoErrorRestante").doesNotExist())
+                .andExpect(jsonPath("$.servicios[1].ultimaInterrupcion").doesNotExist());
+    }
+
+    @Test
     @DisplayName("estado · AUDITORIA_LEER también la ve")
     void auditor() throws Exception {
         when(salud.consultar())
-                .thenReturn(new SaludDeServicios.Salida(Instant.parse("2026-10-17T15:00:00Z"), List.of()));
+                .thenReturn(new SaludDeServicios.Salida(
+                        Instant.parse("2026-10-17T15:00:00Z"),
+                        List.of(),
+                        java.util.Map.of(),
+                        new java.math.BigDecimal("99.5")));
         mvc.perform(get("/indicadores/operacion/servicios").with(Sesiones.como("AUDITOR_INTERNO", "AUDITORIA_LEER")))
                 .andExpect(status().isOk());
     }

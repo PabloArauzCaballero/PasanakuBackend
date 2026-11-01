@@ -44,8 +44,8 @@
     "rechazo": {
       "estado": 422,
       "cuerpo": {
-        "codigo": "AP-CU69-05",
-        "mensaje": "Esa invitacion ya no es valida.",
+        "codigo": "AP-CU69-17",
+        "mensaje": "Grupo ya iniciado",
         "detalle": {},
         "trazaId": "traza-canjearInvitacion-rechazo"
       }

@@ -1,5 +1,6 @@
 package bo.aportaya.nucleofinanciero.infraestructura;
 
+import bo.aportaya.nucleofinanciero.dominio.puertos.ProveedorDeRecargas.CobroQr;
 import bo.aportaya.plataforma.dominio.Dinero;
 import bo.aportaya.plataforma.dominio.Moneda;
 import java.math.BigDecimal;
@@ -176,6 +177,31 @@ public class OrdenRecargaRepositorio {
                 .where(DSL.field("estado").eq("PENDIENTE"))
                 .and(DSL.field("expira_en", OffsetDateTime.class).lt(ahora))
                 .execute();
+    }
+
+    /**
+     * Guarda el QR del proveedor, <b>solo la primera vez</b>. El {@code qr_contenido IS NULL} en el
+     * {@code WHERE} hace que un reintento (misma clave, mismo pedido) no pise el QR que la persona ya
+     * pudo haber escaneado: se queda el primero.
+     */
+    public void guardarQr(DSLContext dsl, UUID ordenId, CobroQr cobro) {
+        dsl.update(DSL.table(DSL.name("nucleo_financiero", "orden_recarga")))
+                .set(DSL.field("qr_contenido", String.class), cobro.contenido())
+                .set(DSL.field("qr_origen", String.class), cobro.origen())
+                .where(DSL.field("id", UUID.class).eq(ordenId))
+                .and(DSL.field("qr_contenido").isNull())
+                .execute();
+    }
+
+    /** El QR guardado de la orden, si el proveedor emitio uno. */
+    public Optional<CobroQr> cobroQr(DSLContext dsl, UUID ordenId) {
+        Record fila = dsl.select(DSL.field("qr_contenido", String.class), DSL.field("qr_origen", String.class))
+                .from(DSL.table(DSL.name("nucleo_financiero", "orden_recarga")))
+                .where(DSL.field("id", UUID.class).eq(ordenId))
+                .and(DSL.field("qr_contenido").isNotNull())
+                .fetchOne();
+        return Optional.ofNullable(fila)
+                .map(f -> new CobroQr(f.get("qr_contenido", String.class), f.get("qr_origen", String.class)));
     }
 
     /** El instrumento de fondeo, si esta verificado y es del titular. */

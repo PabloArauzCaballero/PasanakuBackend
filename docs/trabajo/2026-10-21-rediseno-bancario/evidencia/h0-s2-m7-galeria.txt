@@ -1,0 +1,8 @@
+# H0.S2.M7 — Galería
+$ node herramientas/galeria_capturas.mjs
+evidencia/galeria.html · 46 pantallas · 1344 capturas
+$ node herramientas/galeria_capturas.mjs --publicar <scratchpad>/galeria-publicar
+6 paquetes (1,4–7,5 MB c/u, < 16 MB)
+Mirada con Chromium (Playwright 1.56.1): 412 px y 1280 px → 0 errores de consola, scrollWidth = ancho de la ventana (sin scroll horizontal).
+Corrección tras mirar: la barra de filtros fija tapaba media pantalla en el teléfono → fija solo desde 720 px.
+Publicada: https://claude.ai/artifact/Qr6hRkXnRFJpDS4vzqXLK5 (versión 1)

@@ -67,6 +67,21 @@ CREATE UNIQUE INDEX IF NOT EXISTS uq_insignia_logro_codigo
 CREATE INDEX IF NOT EXISTS ix_insignia_otorgada_usuario_id
   ON transparencia.insignia_otorgada (usuario_id);
 
+CREATE INDEX IF NOT EXISTS ix_etapa_modelo_id
+  ON transparencia.etapa (modelo_id);
+
+CREATE UNIQUE INDEX IF NOT EXISTS uq_etapa_modelo_id_codigo
+  ON transparencia.etapa (modelo_id, codigo);
+
+CREATE UNIQUE INDEX IF NOT EXISTS uq_etapa_modelo_id_orden
+  ON transparencia.etapa (modelo_id, orden);
+
+CREATE UNIQUE INDEX IF NOT EXISTS uq_desbloqueo_etapa_etapa_id
+  ON transparencia.desbloqueo_etapa (etapa_id);
+
+CREATE INDEX IF NOT EXISTS ix_desbloqueo_etapa_estado
+  ON transparencia.desbloqueo_etapa (estado);
+
 CREATE INDEX IF NOT EXISTS ix_metrica_grupo_grupo_id
   ON transparencia.metrica_grupo (grupo_id);
 

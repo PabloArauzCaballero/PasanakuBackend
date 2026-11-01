@@ -1,0 +1,16 @@
+# BLOQUEANTE de RLS reproducido con el rol de la aplicación (svc_transparencia, miembro de rol_aplicacion) y app.rol=PARTICIPANTE.
+# Base descartable pasanaku_carril_a (pg-arenas). Todo en BEGIN/ROLLBACK; usuario y puntaje SINTÉTICOS, UUID fijo que no es de nadie.
+# Datos.comoSistema pone app.rol = ContextoSesion.ROL_SISTEMA = "sistema" (ContextoSesion.java:17) solo durante la lectura.
+BEGIN
+svc_transparencia miembro de rol_aplicacion: true
+INSERT 0 1
+INSERT 0 1
+dueño (superusuario, saltea RLS) ve: 1
+SET
+svc_transparencia + PARTICIPANTE (el titular) ve: 0
+svc_transparencia + PARTICIPANTE ve arenas: 11
+svc_transparencia con app.rol=sistema (Datos.comoSistema) ve: 1 · puntaje 420.00
+arena de 420.00 en el catálogo: CAMPAMENTO
+de vuelta en PARTICIPANTE ve: 0
+ROLLBACK
+exit=0

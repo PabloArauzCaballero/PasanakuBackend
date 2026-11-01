@@ -1,0 +1,22 @@
+[
+  {
+    "encoladoEn": "2026-10-16T12:00:00Z",
+    "canal": "WHATSAPP",
+    "proveedor": "PROVEEDOR_B",
+    "estado": "Fallido",
+    "intentos": "3 / 3",
+    "costo": "0.0125 USD",
+    "codigoError": "E-EJEMPLO",
+    "entregadoEn": "no disponible"
+  },
+  {
+    "encoladoEn": "2026-10-16T12:00:00Z",
+    "canal": "WHATSAPP",
+    "proveedor": "PROVEEDOR_B",
+    "estado": "Fallido",
+    "intentos": "3 / 3",
+    "costo": "0.0125 USD",
+    "codigoError": "E-EJEMPLO",
+    "entregadoEn": "no disponible"
+  }
+]

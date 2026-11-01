@@ -1,0 +1,3 @@
+# SIEMBRA LOCAL (no es un camino del producto): factor TOTP para los dos operadores creados por la alta, porque no existe API de enrolamiento
+OP-14830B96 | TOTP | t
+OP-D2F1705F | TOTP | t

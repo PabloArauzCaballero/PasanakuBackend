@@ -1,0 +1,2 @@
+tsc app exit=0
+tsc spec exit=0

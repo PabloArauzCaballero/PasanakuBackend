@@ -1,0 +1,8 @@
+ ✓  backoffice  src/app/layout/menu-lateral.spec.ts > MenuLateral > correcto: solo los grupos con alguna entrada permitida; cada entrada conserva su gancho de tutorial 46ms
+ ✓  backoffice  src/app/layout/menu-lateral.spec.ts > MenuLateral > correcto: solo la sección activa muestra sus pantallas, con sus íconos 19ms
+ ✓  backoffice  src/app/layout/menu-lateral.spec.ts > MenuLateral > límite: en el inicio ninguna sección queda desplegada 12ms
+ ✓  backoffice  src/app/layout/menu-lateral.spec.ts > MenuLateral > correcto: el botón de la flecha despliega y vuelve a plegar una sección, con aria-expanded 13ms
+ ✓  backoffice  src/app/layout/menu-lateral.spec.ts > MenuLateral > correcto: al navegar a otra sección se pliega la anterior y se abre la nueva 12ms
+ ✓  backoffice  src/app/layout/menu-lateral.spec.ts > MenuLateral > límite: todas las opciones tienen ícono y solo las secciones con pantallas tienen botón de plegar 8ms
+ Test Files  1 passed (1)
+      Tests  6 passed (6)

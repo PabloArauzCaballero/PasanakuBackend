@@ -8,7 +8,7 @@ import type { SalidaConciliacionCustodia } from 'clientes/angular/nucleo-financi
 import { GATEWAY } from '../../../../nucleo/gateway'
 import { contextoIdempotente } from '../../../../nucleo/idempotencia.interceptor'
 import type { PedirPorCursor } from '../../../../nucleo/tabla/cursor'
-import { bandejaPorCursor, cursorDe, pedirJson, type Bandeja } from '../../dominio/bandeja-por-cursor'
+import { cursorDe, pedirJson } from '../../dominio/bandeja-por-cursor'
 
 export type { ConciliacionEnLista, EntradaConciliacionCustodia, SalidaConciliacionCustodia }
 
@@ -28,8 +28,9 @@ export function pedirConciliaciones(http: HttpClient, gateway: string): PedirPor
   }
 }
 
-export function bandejaDeConciliaciones(): Bandeja<ConciliacionEnLista> {
-  return bandejaPorCursor(pedirConciliaciones(inject(HttpClient), inject(GATEWAY)))
+/** Fábrica en contexto de inyección: la pantalla no importa `HttpClient`. */
+export function pedidorDeConciliaciones(): PedirPorCursor<ConciliacionEnLista, Cursor> {
+  return pedirConciliaciones(inject(HttpClient), inject(GATEWAY))
 }
 
 export function crearConciliarCustodia(): (entrada: EntradaConciliacionCustodia) => Observable<SalidaConciliacionCustodia> {

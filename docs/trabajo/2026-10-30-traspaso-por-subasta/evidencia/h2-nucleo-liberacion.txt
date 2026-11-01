@@ -1,0 +1,24 @@
+$ ./gradlew :servicios:nucleo-financiero:integrationTest --tests "*CU13LiberacionDelMercadoTest" --tests "*CU13MercadoTest"
+bo.aportaya.nucleofinanciero.CU13LiberacionDelMercadoTest tests 4 fallas 0
+   PASS Dada una retención ya liberada · Cuando entregas la vuelve a liberar · Entonces AP-CU13-03 con estado LIBERADA y el saldo no se duplica
+   PASS Dada una sesión de usuario final · Cuando intenta liberar la retención de otro por esta vía · Entonces AP-CU13-09 y la retención sigue RETENIDA
+   PASS Dada una retención que no es de una compra en el mercado · Cuando entregas la quiere liberar · Entonces AP-CU13-08 y no se toca
+   PASS Dada la puja retenida de Bs 500 de un postor con Bs 1.000 · Cuando entregas la libera con su identidad de servicio · Entonces la retención queda LIBERADA y el postor vuelve a tener Bs 1.000 disponibles
+bo.aportaya.nucleofinanciero.CU13MercadoTest tests 8 fallas 0
+   PASS rechaza la base: un segundo pago de la misma oferta (R-BIL-24)
+   PASS concurrencia: seis pagos de la misma retencion con claves distintas pagan una sola vez
+   PASS cuadre: cargos iguales al precio dejan Bs 0 para el vendedor: solo hay pata de plataforma y el reparto cuadra
+   PASS Dada una retención COMPRA_EN_MERCADO de Bs 500 para una oferta de precio Bs 500 con cargos de Bs 20 · Cuando el servicio de entregas la paga · Entonces el vendedor recibe Bs 480 y la plataforma Bs 20 · Y la retención queda EJECUTADA una sola vez
+   PASS compensa: reversar el pago devuelve al comprador lo suyo y deja el original intacto
+   PASS cuadre: una oferta sin cargos no escribe pata de plataforma
+   PASS reintento: la misma clave devuelve el mismo pago sin otro asiento, aunque la oferta ya este LIQUIDADA
+   PASS cuadre: el precio cuenta centavos, el reparto suma exactamente el precio y no sobra residuo
+$ ./gradlew :servicios:nucleo-financiero:webTest  ->  total 79 fallas 0
+# regresion completa antes del PR (tras integrar origin/test)
+nucleo-financiero integrationTest total 507 fallas 0
+  FAIL BarridoTest tamano-archivo: ningun archivo llega a 300 lineas | java.lang.AssertionError: [tamano-archivo: 300 lineas o mas bloquean — son varias piezas que nadie separo] 
+Expecting empty but was: ["main/java/bo/aportaya/nucleofinanciero/aplicacion/CU10RecargarSaldo.java  317 lineas 
+nucleo-financiero testBarrido total 2 fallas 1
+  FAIL BarridoTest tamano-archivo: ningun archivo llega a 300 lineas | java.lang.AssertionError: [tamano-archivo: 300 lineas o mas bloquean — son varias piezas que nadie separo] 
+Expecting empty but was: ["main/java/bo/aportaya/entregas/aplicacion/TransicionesDeSubasta.java  374 lineas (lim
+entregas testBarrido total 2 fallas 1

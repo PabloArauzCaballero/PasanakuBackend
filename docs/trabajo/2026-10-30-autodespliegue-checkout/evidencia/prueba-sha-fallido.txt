@@ -1,0 +1,8 @@
+== 1) mismo sha que fallo (c3fd625): no se reintenta
+exit 0
+== 2) test avanzo despues de la falla (d77dd21): compara contra el ultimo desplegado
+sigue: compara 9f642eb -> d77dd21
+== 3) sin falla previa
+sigue: compara 9f642eb -> d77dd21
+== fin del guion ante falla: ya no escribe ultimo-construido
+0

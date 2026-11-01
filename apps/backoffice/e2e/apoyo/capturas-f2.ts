@@ -51,6 +51,8 @@ export async function capturar(page: Page, prefijo: string, nombre: string, view
   // entrada de la tarjeta del ingreso daba 3,2–4,1:1 según el cuadro; en reposo el botón da 4,62:1.
   await page.addStyleTag({ content: '*,*::before,*::after{transition:none !important;animation:none !important}' })
   await page.evaluate(() => document.fonts.ready)
+  // El puntero queda donde hizo clic en otro ancho y, al cambiar el viewport, cae sobre otra pestaña: se ve «hover» como si fuera estado.
+  await page.mouse.move(0, 0)
   await page.screenshot({ path: path.join(CAPTURAS, `${prefijo}-${nombre}-${viewport}-${tema}.png`), fullPage: true })
   const desborde = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)
   expect(desborde, `${nombre} ${viewport} ${tema}: la página no desplaza en horizontal`).toBeLessThanOrEqual(0)

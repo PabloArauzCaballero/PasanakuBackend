@@ -44,4 +44,9 @@ describe('mensajeDe · decisión del expediente', () => {
   it('un código desconocido cae en el genérico por estado', () => {
     expect(mensajeDe('AP-CU99-99', 422)).toBe('Algo salió mal de nuestro lado. Probá de nuevo en un momento.')
   })
+
+  it('502, 503 y 504 dicen que el servicio no está disponible y que se puede volver a probar', () => {
+    for (const estado of [502, 503, 504]) expect(mensajeDe(undefined, estado)).toBe('Este servicio no está disponible en este momento. Probá de nuevo en unos minutos.')
+    expect(mensajeDe(undefined, 501)).toBe('Algo salió mal de nuestro lado. Probá de nuevo en un momento.')
+  })
 })

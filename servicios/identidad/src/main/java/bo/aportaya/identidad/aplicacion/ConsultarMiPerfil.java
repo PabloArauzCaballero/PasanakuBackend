@@ -28,9 +28,11 @@ public class ConsultarMiPerfil {
         return datos.conContexto(ctx, dsl -> {
             var fila = dsl.fetchOne(
                     """
-                    SELECT correo, correo_verificado_en IS NOT NULL AS verificado, estado, nombres, apellidos, telefono_e164
+                    SELECT correo, correo_verificado_en IS NOT NULL AS verificado, estado, nombres, apellidos, telefono_e164,
+                           url_avatar LIKE ? AS tiene_foto
                       FROM identidad.usuario WHERE id = ?
                     """,
+                    FotoDePerfilEnLaCuenta.PREFIJO + "%",
                     usuarioId);
             if (fila == null) {
                 throw new ErrorDeNegocio(CodigoError.de(7, 11), "No encontramos tu cuenta.");
@@ -42,7 +44,8 @@ public class ConsultarMiPerfil {
                     fila.get("estado", String.class),
                     nombreVisible(fila.get("nombres", String.class), fila.get("apellidos", String.class)),
                     nombreCompleto(fila.get("nombres", String.class), fila.get("apellidos", String.class)),
-                    fila.get("telefono_e164", String.class));
+                    fila.get("telefono_e164", String.class),
+                    Boolean.TRUE.equals(fila.get("tiene_foto", Boolean.class)));
         });
     }
 
@@ -75,5 +78,6 @@ public class ConsultarMiPerfil {
             String estadoDeCuenta,
             String nombreVisible,
             String nombreCompleto,
-            String telefono) {}
+            String telefono,
+            boolean tieneFotoDePerfil) {}
 }

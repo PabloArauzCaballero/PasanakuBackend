@@ -1,4 +1,5 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http'
+import type { NombreDeIcono } from '@aportaya/ui/icono/icono'
 import { inject } from '@angular/core'
 import { firstValueFrom } from 'rxjs'
 import { GATEWAY } from '../../../nucleo/gateway'
@@ -29,6 +30,7 @@ export type DefinicionDeBandeja = {
   ruta: string
   /** La operación del contrato, relativa al gateway. */
   recurso: string
+  icono: NombreDeIcono
 }
 
 export const BANDEJAS: readonly DefinicionDeBandeja[] = [
@@ -39,6 +41,7 @@ export const BANDEJAS: readonly DefinicionDeBandeja[] = [
     permisos: ['RETIRO_APROBAR'],
     ruta: '/operacion/retiros',
     recurso: '/billetera/retiros',
+    icono: 'retiro',
   },
   {
     id: 'reclamos',
@@ -47,6 +50,7 @@ export const BANDEJAS: readonly DefinicionDeBandeja[] = [
     permisos: ['RECLAMO_VER'],
     ruta: '/operacion/reclamos',
     recurso: '/reclamos',
+    icono: 'mensaje',
   },
   {
     id: 'alertas',
@@ -55,6 +59,7 @@ export const BANDEJAS: readonly DefinicionDeBandeja[] = [
     permisos: ['CUMPLIMIENTO_ALERTAS'],
     ruta: '/cumplimiento/alertas',
     recurso: '/cumplimiento/alertas',
+    icono: 'alerta',
   },
   {
     id: 'casos',
@@ -63,6 +68,7 @@ export const BANDEJAS: readonly DefinicionDeBandeja[] = [
     permisos: ['CUMPLIMIENTO_CASOS'],
     ruta: '/cumplimiento/casos',
     recurso: '/cumplimiento/casos',
+    icono: 'carpeta',
   },
   {
     id: 'desembolsos',
@@ -71,6 +77,7 @@ export const BANDEJAS: readonly DefinicionDeBandeja[] = [
     permisos: ['ENTREGA_EJECUTAR', 'AUDITORIA_LEER'],
     ruta: '/operacion/desembolsos',
     recurso: '/desembolsos',
+    icono: 'entrega',
   },
 ]
 

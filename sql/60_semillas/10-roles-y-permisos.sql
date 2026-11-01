@@ -12,6 +12,7 @@ INSERT INTO rol (codigo, nombre, ambito, es_sistema, departamento, descripcion) 
   ('PUNTO_RECLAMO', 'Responsable del Punto de Reclamo', 'GLOBAL', TRUE, 'CUMPLIMIENTO', 'Responsable del Punto de Reclamo ASFI y atención en segunda instancia'),
   ('TESORERIA', 'Tesorería y conciliación', 'GLOBAL', TRUE, 'FINANZAS', 'Tesorería, conciliación de custodia bancaria y desembolsos'),
   ('SERVICIO_ENTREGAS', 'Identidad de servicio: entregas (pagos del mercado)', 'GLOBAL', TRUE, 'SISTEMAS', 'Identidad de servicio: entregas y liquidación automática'),
+  ('SERVICIO_GRUPOS', 'Identidad de servicio: grupos (lee etapas de reputación)', 'GLOBAL', TRUE, 'SISTEMAS', 'Identidad de servicio: grupos consulta la etapa de quien entra a un grupo, nunca el puntaje'),
   ('SERVICIO_INVERSIONES', 'Identidad de servicio: inversiones (debita y acredita)', 'GLOBAL', TRUE, 'SISTEMAS', 'Identidad de servicio: inversiones y fondos voluntarios'),
   ('CONTABILIDAD', 'Contabilidad', 'GLOBAL', TRUE, 'FINANZAS', 'Jefatura contable, ERP, balances, proveedores y estados financieros'),
   ('ORGANIZADOR', 'Organizador de grupo', 'GRUPO', TRUE, 'OPERACIONES', 'Organizador de grupo de pasanaku'),

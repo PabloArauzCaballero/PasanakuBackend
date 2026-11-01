@@ -296,6 +296,7 @@ paths:
       description: >-
         La pregunta CU-20 antes de dejar crear un grupo: un organizador suspendido no
         abre pasanakus nuevos. `grupos` no puede leer este esquema (invariante 11).
+        Tambien la lee backoffice (ADMIN_PLATAFORMA) para decidir si habilita (`habilitarOrganizador`).
 
         Devuelve tambien los limites del nivel porque quien crea el grupo los necesita
         en el mismo momento, y dos viajes para dos datos del mismo renglon es un viaje

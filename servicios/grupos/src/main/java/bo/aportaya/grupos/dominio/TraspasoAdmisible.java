@@ -80,7 +80,8 @@ public final class TraspasoAdmisible {
         SALIENTE_CON_DEUDA(2, "Salda tus aportes pendientes antes de traspasar el cupo."),
         ENTRANTE_SIN_KYC(3, "Quien entra necesita elevar su nivel de verificacion."),
         ENTRANTE_SIN_REPUTACION(4, "Quien entra no llega a la reputacion que pide el grupo."),
-        ACUERDO_REQUERIDO(5, "Este grupo exige que el traspaso se vote.");
+        ACUERDO_REQUERIDO(5, "Este grupo exige que el traspaso se vote."),
+        NO_ES_TITULAR(6, "Solo quien tiene el cupo puede traspasarlo.");
 
         private final int numero;
         private final String mensaje;

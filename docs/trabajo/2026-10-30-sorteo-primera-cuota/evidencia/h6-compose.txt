@@ -1,0 +1,21 @@
+# 2026-10-31T07:19:23Z · paso 6h con GRUPO_INICIADO_CONSUMO_HABILITADO en generar_compose.py
+$ python3 scripts/generar_compose.py --coolify
+  front backoffice -> despliegue/coolify/backoffice.yml
+  front web -> despliegue/coolify/web.yml
+  front movil -> despliegue/coolify/movil.yml
+exit=0
+$ python3 scripts/auditoria/verificar_limites_compose.py
+Límites de memoria/CPU, una réplica Java y Hikari TEST verificados en los cuatro compose.
+exit=0
+$ git diff --stat -- docker-compose.coolify.yml despliegue/coolify/
+ docker-compose.coolify.yml | 1 +
+ 1 file changed, 1 insertion(+)
+$ git diff -- docker-compose.coolify.yml | grep '^[-+]' | grep -v '^+++\|^---'
++      GRUPO_INICIADO_CONSUMO_HABILITADO: ${GRUPO_INICIADO_CONSUMO_HABILITADO:-true}
+$ python3 scripts/generar_compose.py   (modo desarrollo)
+compose perfil `todo`: 15 servicios -> despliegue/compose/servicios.yml
+exit=0
+$ git status --short | grep -v docs/
+ M docker-compose.coolify.yml
+ M scripts/generar_compose.py
+ M servicios/auditoria/src/main/resources/catalogo/catalogo-datos.json

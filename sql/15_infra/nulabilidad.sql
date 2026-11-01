@@ -56,6 +56,7 @@ ALTER TABLE auditoria.alerta_cumplimiento ALTER COLUMN resuelta_en DROP NOT NULL
 ALTER TABLE auditoria.coincidencia_lista ALTER COLUMN revisada_en DROP NOT NULL;
 ALTER TABLE auditoria.coincidencia_lista ALTER COLUMN revisada_por DROP NOT NULL;
 ALTER TABLE auditoria.definicion_indicador ALTER COLUMN vigente_hasta DROP NOT NULL;
+ALTER TABLE auditoria.disponibilidad_servicio_dia ALTER COLUMN ultima_interrupcion_en DROP NOT NULL;
 ALTER TABLE auditoria.ejecucion_reporte ALTER COLUMN finalizada_en DROP NOT NULL;
 ALTER TABLE auditoria.ejecucion_reporte ALTER COLUMN grupo_id DROP NOT NULL;
 ALTER TABLE auditoria.ejecucion_reporte ALTER COLUMN hash_resultado DROP NOT NULL;
@@ -308,7 +309,13 @@ ALTER TABLE entregas.intento_desembolso ALTER COLUMN mensaje_proveedor DROP NOT 
 ALTER TABLE entregas.intento_desembolso ALTER COLUMN reintentable_en DROP NOT NULL;
 ALTER TABLE entregas.orden_desembolso ALTER COLUMN acreditada_en DROP NOT NULL;
 ALTER TABLE entregas.orden_desembolso ALTER COLUMN referencia_proveedor DROP NOT NULL;
+ALTER TABLE entregas.puja_subasta ALTER COLUMN retencion_ref DROP NOT NULL;
 ALTER TABLE entregas.regla_entrega ALTER COLUMN rol_que_puede_omitir DROP NOT NULL;
+ALTER TABLE entregas.subasta_cupo ALTER COLUMN liquidacion_ref DROP NOT NULL;
+ALTER TABLE entregas.subasta_cupo ALTER COLUMN monto_ganador DROP NOT NULL;
+ALTER TABLE entregas.subasta_cupo ALTER COLUMN motivo_fallo DROP NOT NULL;
+ALTER TABLE entregas.subasta_cupo ALTER COLUMN puja_ganadora_id DROP NOT NULL;
+ALTER TABLE entregas.subasta_cupo ALTER COLUMN traspaso_ref DROP NOT NULL;
 ALTER TABLE entregas.validacion_pre_entrega ALTER COLUMN justificacion_omision DROP NOT NULL;
 ALTER TABLE entregas.validacion_pre_entrega ALTER COLUMN omitida_por DROP NOT NULL;
 ALTER TABLE entregas.validacion_pre_entrega ALTER COLUMN valor_esperado DROP NOT NULL;
@@ -420,6 +427,7 @@ ALTER TABLE garantia.score_riesgo_incumplimiento ALTER COLUMN grupo_id DROP NOT 
 ALTER TABLE garantia.subrogacion ALTER COLUMN documento_respaldo_url DROP NOT NULL;
 ALTER TABLE grupos.aceptacion_reglamento ALTER COLUMN token_firma_id DROP NOT NULL;
 ALTER TABLE grupos.acuerdo ALTER COLUMN ejecutado_en DROP NOT NULL;
+ALTER TABLE grupos.acuerdo ALTER COLUMN entrante_participante_id DROP NOT NULL;
 ALTER TABLE grupos.acuerdo ALTER COLUMN referencia_afectada_id DROP NOT NULL;
 ALTER TABLE grupos.acuerdo ALTER COLUMN resuelto_en DROP NOT NULL;
 ALTER TABLE grupos.configuracion_grupo ALTER COLUMN politica_mora_id DROP NOT NULL;
@@ -650,6 +658,8 @@ ALTER TABLE nucleo_financiero.orden_recarga ALTER COLUMN instrumento_fondeo_id D
 ALTER TABLE nucleo_financiero.orden_recarga ALTER COLUMN medio DROP NOT NULL;
 ALTER TABLE nucleo_financiero.orden_recarga ALTER COLUMN pago_id DROP NOT NULL;
 ALTER TABLE nucleo_financiero.orden_recarga ALTER COLUMN proveedor_id DROP NOT NULL;
+ALTER TABLE nucleo_financiero.orden_recarga ALTER COLUMN qr_contenido DROP NOT NULL;
+ALTER TABLE nucleo_financiero.orden_recarga ALTER COLUMN qr_origen DROP NOT NULL;
 ALTER TABLE nucleo_financiero.orden_recarga ALTER COLUMN referencia_externa DROP NOT NULL;
 ALTER TABLE nucleo_financiero.orden_recarga ALTER COLUMN transaccion_id DROP NOT NULL;
 ALTER TABLE nucleo_financiero.orden_retiro ALTER COLUMN aprobada_por DROP NOT NULL;

@@ -6,6 +6,7 @@ import bo.aportaya.plataforma.dominio.Dinero;
 import bo.aportaya.plataforma.dominio.Moneda;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.Optional;
 import java.util.UUID;
 
 /** El proveedor de recargas: responde lo que el escenario dicte, o se rompe como lo haria el adaptador. */
@@ -14,8 +15,9 @@ final class ProveedorDeRecargasFalso implements ProveedorDeRecargas {
     DiscrepanciaDelProveedor falla;
 
     @Override
-    public void solicitar(UUID referencia, Dinero monto) {
+    public Optional<CobroQr> solicitar(UUID referencia, Dinero monto) {
         respuesta = new Confirmacion(referencia, UUID.randomUUID(), monto, "PENDIENTE", null);
+        return Optional.empty();
     }
 
     @Override

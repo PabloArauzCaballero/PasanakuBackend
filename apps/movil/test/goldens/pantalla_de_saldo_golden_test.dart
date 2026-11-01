@@ -47,11 +47,18 @@ void main() {
       );
       await asentar(tester);
       expect(find.textContaining('1.240,00'), findsOneWidget);
-      expect(find.text('Movimientos'), findsOneWidget);
       await expectLater(
         find.byType(PantallaDeSaldo),
         matchesGoldenFile('imagenes/pantalla_de_saldo_$nombre.png'),
       );
+      // La sección de movimientos queda bajo el pliegue de 640 dp (el vacío de pasanakus
+      // de ADR-053 es más alto): se mide después del golden, desplazando hasta ella.
+      await tester.dragUntilVisible(
+        find.text('Movimientos'),
+        find.byType(ListView).first,
+        const Offset(0, -200),
+      );
+      expect(find.text('Movimientos'), findsOneWidget);
     });
   }
 }

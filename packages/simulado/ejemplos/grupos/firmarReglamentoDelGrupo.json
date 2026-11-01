@@ -1,0 +1,58 @@
+{
+  "servicio": "grupos",
+  "operacion": "firmarReglamentoDelGrupo",
+  "metodo": "post",
+  "ruta": "/grupos/{grupoId}/reglamento/firma",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "participanteId": "0e354169-0e47-48e3-8072-198a1c7c9a4c",
+        "estadoDelGrupo": "estadoDelGrupo",
+        "grupoConformado": true
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "participanteId": "0e354169-0e47-48e3-8072-198a1c7c9a4c",
+        "estadoDelGrupo": "estadoDelGrupo",
+        "grupoConformado": false
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "participanteId": "0e354169-0e47-48e3-8072-198a1c7c9a4c",
+        "estadoDelGrupo": "estadoDelGrupo",
+        "grupoConformado": true
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "participanteId": "0e354169-0e47-48e3-8072-198a1c7c9a4c",
+        "estadoDelGrupo": "estadoDelGrupo",
+        "grupoConformado": true
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU69-05",
+        "mensaje": "Reglamento cambio",
+        "detalle": {},
+        "trazaId": "traza-firmarReglamentoDelGrupo-rechazo"
+      }
+    }
+  }
+}

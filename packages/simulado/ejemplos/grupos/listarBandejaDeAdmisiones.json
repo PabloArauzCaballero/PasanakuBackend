@@ -1,0 +1,57 @@
+{
+  "servicio": "grupos",
+  "operacion": "listarBandejaDeAdmisiones",
+  "metodo": "get",
+  "ruta": "/grupos/solicitudes",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": [
+        {
+          "solicitudId": "29a18603-3f51-4f25-86f0-692668f37528",
+          "usuarioId": "899612e1-a9da-4b6f-804c-098e33702e50",
+          "postulante": "Ana Rojas (ejemplo)",
+          "grupoId": "298ef87c-e312-404c-8356-3a7d00ca198c",
+          "grupoCodigo": "PASA-0001",
+          "cuposSolicitados": 1,
+          "mensaje": "Quiero entrar al grupo",
+          "puntaje": "0.82",
+          "porEnlace": true,
+          "estado": "PENDIENTE",
+          "fechaSolicitud": "2026-01-15T10:30:00Z"
+        }
+      ]
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": []
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": [
+        {
+          "solicitudId": "29a18603-3f51-4f25-86f0-692668f37528",
+          "usuarioId": "899612e1-a9da-4b6f-804c-098e33702e50",
+          "postulante": "Ana Rojas (ejemplo)",
+          "grupoId": "298ef87c-e312-404c-8356-3a7d00ca198c",
+          "grupoCodigo": "PASA-0001",
+          "cuposSolicitados": 1,
+          "mensaje": "Quiero entrar al grupo",
+          "puntaje": "0.82",
+          "porEnlace": true,
+          "estado": "PENDIENTE",
+          "fechaSolicitud": "2026-01-15T10:30:00Z"
+        }
+      ]
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU68-08",
+        "mensaje": "Solicitud no encontrada",
+        "detalle": {},
+        "trazaId": "traza-listarBandejaDeAdmisiones-rechazo"
+      }
+    }
+  }
+}

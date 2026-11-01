@@ -481,13 +481,62 @@ paths:
         auditoria pregunta el readiness (/actuator/health/readiness) de cada servicio por la red interna, en paralelo
         y con timeout de 2 s, y devuelve lo que contesto cada uno: ARRIBA (200), DEGRADADO (respondio con otro estado,
         tipicamente 503 OUT_OF_SERVICE) o CAIDO (no respondio a tiempo o rechazo la conexion). El resultado se reusa
-        10 s: abrir la pantalla muchas veces no multiplica las consultas. Exige TABLERO_SISTEMAS_VER o AUDITORIA_LEER.
+        10 s: abrir la pantalla muchas veces no multiplica las consultas. Ademas, auditoria mide el readiness una vez
+        por minuto y devuelve por servicio la disponibilidad de los ultimos 30 dias, el presupuesto de error restante
+        contra objetivoSlo y la ultima interrupcion. Exige TABLERO_SISTEMAS_VER o AUDITORIA_LEER.
       responses:
         '200':
           description: La salud consultada
           content:
             application/json:
               schema: { $ref: '#/components/schemas/SalidaSaludDeServicios' }
+        '403':
+          description: Sin TABLERO_SISTEMAS_VER ni AUDITORIA_LEER
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+
+  /indicadores/operacion/outbox:
+    get:
+      operationId: consultarOutboxPorServicio      # Sistemas › Outbox (2026-10-29)
+      summary: El outbox de cada servicio, ahora
+      description: >-
+        Lo que el relevo de cada servicio publica en Prometheus (comun-mensajeria, Relevo): eventos PENDIENTE y FALLIDO
+        en su outbox ahora, la edad del mas viejo tomado, y cuantas publicaciones salieron bien y mal en las ultimas 24 h
+        (increase, aproximado por la extrapolacion de Prometheus). auditoria no lee el esquema de ningun servicio (regla
+        98.1). fuenteDisponible false significa que Prometheus no respondio: no se sabe, distinto de una lista vacia.
+        Exige TABLERO_SISTEMAS_VER o AUDITORIA_LEER.
+      responses:
+        '200':
+          description: El outbox por servicio
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaOutboxPorServicio' }
+        '403':
+          description: Sin TABLERO_SISTEMAS_VER ni AUDITORIA_LEER
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+
+  /indicadores/operacion/incidentes:
+    get:
+      operationId: listarIncidentesOperativos      # Sistemas › Incidentes (2026-10-29)
+      summary: Los incidentes operativos registrados, del mas reciente al mas viejo
+      description: >-
+        Lee auditoria.incidente_operativo. Orden determinista: detectadoEn descendente y despues id. Paginado por
+        numero de pagina. No devuelve impacto_monetario: la tabla no guarda su moneda (regla 91.1.2) y un importe sin
+        moneda no se publica. Exige TABLERO_SISTEMAS_VER o AUDITORIA_LEER.
+      parameters:
+        - { name: estado, in: query, required: false, schema: { $ref: '#/components/schemas/EstadoDeIncidenteOperativo' } }
+        - { name: severidad, in: query, required: false, schema: { $ref: '#/components/schemas/SeveridadDeIncidenteOperativo' } }
+        - { name: pagina, in: query, required: false, schema: { type: integer, minimum: 1, maximum: 1000, default: 1 } }
+        - { name: limite, in: query, required: false, schema: { type: integer, minimum: 1, maximum: 100, default: 50 } }
+      responses:
+        '200':
+          description: La pagina pedida (vacia si no hay incidentes o si la pagina pasa del final)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PaginaDeIncidentesOperativos' }
+        '400':
+          description: Un filtro fuera de su dominio (AP-VAL, lo responde el manejador comun)
         '403':
           description: Sin TABLERO_SISTEMAS_VER ni AUDITORIA_LEER
         '401':
@@ -687,7 +736,7 @@ components:
     TablaDelCatalogo:
       type: object
       additionalProperties: false
-      required: [tabla, esquema, modulo, nombreModulo, appendOnly, negocio, reglas, columnas, relaciones, sistema]
+      required: [tabla, esquema, modulo, nombreModulo, appendOnly, negocio, reglas, columnas, relaciones, sistema, operaciones]
       properties:
         tabla: { type: string }
         esquema: { type: string }
@@ -703,7 +752,35 @@ components:
         columnas: { type: array, items: { $ref: '#/components/schemas/ColumnaDelCatalogo' } }
         relaciones: { $ref: '#/components/schemas/RelacionesDeTabla' }
         sistema: { type: string, description: 'Narrativa de sistema derivada del modelo' }
+        operaciones:
+          type: array
+          description: >-
+            Los casos de uso que nombran esta tabla (el [[tabla]] de docs/CasosDeUso/CU-*.md) y los endpoints que
+            los ejecutan (la columna CU de docs/catalogo-de-flujos/matriz.md). No dice que esos endpoints escriban
+            la tabla: dice que el caso de uso la involucra. Vacio en la infraestructura y en las tablas que ningun
+            caso de uso nombra.
+          items: { $ref: '#/components/schemas/OperacionDeLaTabla' }
         gobierno: { $ref: '#/components/schemas/FichaDeGobierno' }
+    OperacionDeLaTabla:
+      type: object
+      additionalProperties: false
+      required: [casoDeUso, titulo, endpoints]
+      properties:
+        casoDeUso: { type: string, pattern: '^CU-\d+$', example: CU-21 }
+        titulo: { type: string, example: Cobrar el aporte del periodo }
+        endpoints:
+          type: array
+          description: Vacio si el caso de uso todavia no tiene endpoint propio.
+          items: { $ref: '#/components/schemas/EndpointDeLaOperacion' }
+    EndpointDeLaOperacion:
+      type: object
+      additionalProperties: false
+      required: [servicio, metodo, ruta, operationId]
+      properties:
+        servicio: { type: string }
+        metodo: { type: string, enum: [GET, POST, PUT, PATCH, DELETE] }
+        ruta: { type: string, example: '/aportes/obligaciones/{obligacionId}/pagos' }
+        operationId: { type: string }
     EstadoDeTabla:
       type: string
       enum: [ACTIVA, PLANIFICADA, CANDIDATA_A_RETIRO, RETIRADA, DESHABILITADA]
@@ -957,6 +1034,55 @@ components:
           type: array
           maxItems: 100
           items: { $ref: '#/components/schemas/EndpointDelDia' }
+    SalidaOutboxPorServicio:
+      type: object
+      additionalProperties: false
+      required: [consultadoEn, fuenteDisponible, servicios]
+      properties:
+        consultadoEn: { type: string, format: date-time }
+        fuenteDisponible: { type: boolean }
+        servicios: { type: array, maxItems: 40, items: { $ref: '#/components/schemas/OutboxDeServicio' } }
+    OutboxDeServicio:
+      type: object
+      additionalProperties: false
+      required: [servicio]
+      properties:
+        servicio: { type: string, maxLength: 60 }
+        pendientes: { type: integer, format: int64, minimum: 0, description: 'Ausente si el servicio no lo publico' }
+        fallidos: { type: integer, format: int64, minimum: 0 }
+        edadMasViejoSegundos: { type: integer, format: int64, minimum: 0 }
+        publicados24h: { type: integer, format: int64, minimum: 0 }
+        erroresDePublicacion24h: { type: integer, format: int64, minimum: 0 }
+    EstadoDeIncidenteOperativo:
+      type: string
+      enum: [DETECTADO, MITIGADO, POST_MORTEM, RESUELTO]
+    SeveridadDeIncidenteOperativo:
+      type: string
+      enum: [SEV1, SEV2, SEV3]
+    IncidenteOperativo:
+      type: object
+      additionalProperties: false
+      required: [id, codigo, titulo, severidad, sistemaAfectado, estado, detectadoEn, impactoUsuarios]
+      properties:
+        id: { type: string, format: uuid }
+        codigo: { type: string, maxLength: 20 }
+        titulo: { type: string, maxLength: 160 }
+        severidad: { $ref: '#/components/schemas/SeveridadDeIncidenteOperativo' }
+        sistemaAfectado: { type: string, maxLength: 60 }
+        estado: { $ref: '#/components/schemas/EstadoDeIncidenteOperativo' }
+        detectadoEn: { type: string, format: date-time }
+        resueltoEn: { type: string, format: date-time, description: 'Ausente mientras no se resolvio' }
+        impactoUsuarios: { type: integer, minimum: 0 }
+    PaginaDeIncidentesOperativos:
+      type: object
+      additionalProperties: false
+      required: [items, pagina, limite, total, totalPaginas]
+      properties:
+        items: { type: array, maxItems: 100, items: { $ref: '#/components/schemas/IncidenteOperativo' } }
+        pagina: { type: integer, minimum: 1 }
+        limite: { type: integer, minimum: 1 }
+        total: { type: integer, minimum: 0 }
+        totalPaginas: { type: integer, minimum: 0 }
     SalidaSaludDeServicios:
       type: object
       additionalProperties: false
@@ -967,6 +1093,9 @@ components:
           type: array
           maxItems: 40
           items: { $ref: '#/components/schemas/SaludDeServicio' }
+        objetivoSlo:
+          type: string
+          description: 'El SLO de disponibilidad en porcentaje, cadena decimal (por ejemplo 99.5); el mismo para todos'
     SaludDeServicio:
       type: object
       additionalProperties: false
@@ -975,6 +1104,24 @@ components:
         servicio: { type: string, maxLength: 60 }
         estado: { type: string, enum: [ARRIBA, DEGRADADO, CAIDO] }
         latenciaMs: { type: integer, format: int64, description: 'Cuanto tardo en contestar; ausente si no contesto' }
+        disponibilidad30d:
+          type: string
+          description: >-
+            Porcentaje de minutos que contesto 200 sobre los minutos medidos en los ultimos 30 dias UTC, cadena
+            decimal truncada a dos decimales. Ausente si todavia no hay nada medido.
+        presupuestoErrorRestante:
+          type: string
+          description: >-
+            Cuanto queda del presupuesto de error contra objetivoSlo, en porcentaje con un decimal: 100 sin caidas,
+            0 agotado, negativo si el SLO ya no se cumple. Ausente si todavia no hay nada medido.
+        minutosMedidos30d:
+          type: integer
+          format: int64
+          description: 'Minutos medidos en la ventana; los minutos sin medicion no cuentan ni a favor ni en contra'
+        ultimaInterrupcion:
+          type: string
+          format: date-time
+          description: 'El ultimo minuto medido en que no contesto 200 (DEGRADADO o CAIDO); ausente si nunca'
     EndpointDelDia:
       type: object
       additionalProperties: false
@@ -1008,6 +1155,20 @@ components:
         descripcion: { type: string }
         permisoRequerido: { type: string }
         contieneDatosSensibles: { type: boolean }
+        parametrosEsperados:
+          type: array
+          description: >-
+            Los parametros que `ejecutarReporte` acepta para esta definicion (su lista blanca), para que quien lo
+            ejecuta sepa que pedir. `tipo` usa el vocabulario del validador (UUID, FECHA, ENTERO, DECIMAL, BOOLEANO,
+            TEXTO). Opcional: una definicion sin parametros lo trae vacio.
+          items:
+            type: object
+            additionalProperties: false
+            required: [nombre, tipo, obligatorio]
+            properties:
+              nombre: { type: string }
+              tipo: { type: string }
+              obligatorio: { type: boolean }
     PaginaDeEjecucionesDeReporte:
       type: object
       additionalProperties: false

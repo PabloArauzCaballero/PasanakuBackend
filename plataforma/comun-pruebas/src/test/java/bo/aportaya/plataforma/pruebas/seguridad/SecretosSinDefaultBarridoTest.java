@@ -59,7 +59,13 @@ class SecretosSinDefaultBarridoTest {
                     "entregas: vacia = sin credencial de servicio hacia el libro: pagarAlVendedor falla cerrado y la compra queda detenida y reanudable"),
             Map.entry(
                     "ENTREGAS_SERVICIO_CLAVE",
-                    "entregas: OPCIONAL por diseno: vacia = sin cuenta de servicio (no se le paga al vendedor, falla cerrado); con telefono o factor y sin ella el servicio NO arranca (CredencialDeServicioConfigurada)"));
+                    "entregas: OPCIONAL por diseno: vacia = sin cuenta de servicio (no se le paga al vendedor, falla cerrado); con telefono o factor y sin ella el servicio NO arranca (CredencialDeServicioConfigurada)"),
+            Map.entry(
+                    "GRUPOS_TRANSPARENCIA_CREDENCIAL_SERVICIO",
+                    "grupos: vacia = sin token emitido hacia transparencia (solo prueba manual); sin cuenta de servicio los ingresos fallan cerrados (EtapasPorHttp)"),
+            Map.entry(
+                    "GRUPOS_SERVICIO_CLAVE",
+                    "grupos: OPCIONAL por diseno: vacia = sin cuenta de servicio SERVICIO_GRUPOS (no se lee la etapa ajena, altas e ingresos fallan cerrados); con telefono o factor y sin ella el servicio NO arranca (CredencialDeServicioConfigurada)"));
 
     @Test
     @DisplayName(

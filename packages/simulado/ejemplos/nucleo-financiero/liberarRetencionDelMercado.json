@@ -1,0 +1,86 @@
+{
+  "servicio": "nucleo-financiero",
+  "operacion": "liberarRetencionDelMercado",
+  "metodo": "post",
+  "ruta": "/billetera/retenciones/{retencionId}/liberacion-de-mercado",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "retencionId": "df754b69-ae01-4ac3-8174-e1aa8d76f62c",
+        "estado": "estado",
+        "saldoDisponible": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "saldoRetenido": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        }
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "retencionId": "df754b69-ae01-4ac3-8174-e1aa8d76f62c",
+        "estado": "estado",
+        "saldoDisponible": {
+          "monto": "0.00",
+          "moneda": "BOB"
+        },
+        "saldoRetenido": {
+          "monto": "0.00",
+          "moneda": "BOB"
+        }
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "retencionId": "df754b69-ae01-4ac3-8174-e1aa8d76f62c",
+        "estado": "estado",
+        "saldoDisponible": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "saldoRetenido": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        }
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "retencionId": "df754b69-ae01-4ac3-8174-e1aa8d76f62c",
+        "estado": "estado",
+        "saldoDisponible": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        },
+        "saldoRetenido": {
+          "monto": "4.44",
+          "moneda": "BOB"
+        }
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU13-08",
+        "mensaje": "Destinatario invalido",
+        "detalle": {},
+        "trazaId": "traza-liberarRetencionDelMercado-rechazo"
+      }
+    }
+  }
+}

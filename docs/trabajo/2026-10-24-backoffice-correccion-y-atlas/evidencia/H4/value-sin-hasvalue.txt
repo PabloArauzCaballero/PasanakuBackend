@@ -1,0 +1,17 @@
+## 2026-10-24T05:39:15+00:00 · PRODUCT_BUG: resource.value() sin hasValue() lanza ResourceValueError al render
+$ ng test admisiones + sistemas + cumplimiento/verificaciones
+     × si el servidor falla (404/500): muestra el error accionable, no lanza al pintar y la apertura directa sigue funcionando 28ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL   backoffice  src/app/rutas/admisiones/entrada-de-admision.spec.ts > EntradaDeAdmision · Bandeja de solicitudes de ingreso > si el servidor falla (404/500): muestra el error accionable, no lanza al pintar y la apertura directa sigue funcionando
+AssertionError: expected false to be true // Object.is equality
+ Test Files  1 failed | 36 passed (37)
+      Tests  1 failed | 129 passed (130)
+$ ng test admisiones (regresión del error)
+ Test Files  5 passed (5)
+      Tests  34 passed (34)
+## prueba de mutación: sin el arreglo, la regresión debe FALLAR
+ERROR ResourceValueError: Resource is currently in an error state (see Error.cause for details): Http failure response for http://gw/api/v1/grupos/solicitudes: 500 Internal Server Error
+     × si el servidor falla (500): muestra el error accionable con «Volver a intentar», no lanza al pintar y la apertura directa sigue funcionando 28ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+ Test Files  1 failed (1)
+      Tests  1 failed | 4 passed (5)

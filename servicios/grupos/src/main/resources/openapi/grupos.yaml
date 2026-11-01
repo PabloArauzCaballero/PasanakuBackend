@@ -38,6 +38,8 @@ paths:
               schema: { $ref: '#/components/schemas/SalidaCanjeInvitacion' }
         '422':
           $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU69-17 GRUPO_YA_INICIADO · AP-CU68-03 REPUTACION_INSUFICIENTE (detalle.etapaMinima)
+          # AP-CU69-18 DESBLOQUEO_DE_ETAPA_EXCEDIDO (detalle.cuposMax, detalle.aporteMax, detalle.moneda)
   /grupos/{grupoId}/invitaciones/{invitacionId}/revocacion:
     post:
       operationId: revocarInvitacionDelGrupo     # CU-69
@@ -53,6 +55,89 @@ paths:
       responses:
         '204': { description: Invitación revocada }
         '422': { $ref: '#/components/responses/ReglaDeNegocio' }
+  /grupos/solicitudes:
+    get:
+      operationId: listarBandejaDeAdmisiones   # CU-68 · bandeja general del backoffice (H4.B.M1)
+      summary: Solicitudes de ingreso de TODOS los grupos, para el backoffice
+      description: >-
+        La bandeja de «Admisiones»: las solicitudes de cualquier grupo, las mas nuevas primero, con
+        el codigo del grupo y el nombre con que se presento quien pide entrar. Distinta de
+        `/grupos/{grupoId}/solicitudes`, que es la cola PENDIENTE de un solo grupo para su organizador.
+        Sin telefono ni correo de nadie. `estado` usa los nombres de la pantalla: `ACEPTADA` es lo que la
+        base guarda como `APROBADA`. Acotada a `limite` filas (maximo 200); la pantalla filtra y pagina
+        sobre ese arreglo.
+      parameters:
+        - name: estado
+          in: query
+          required: false
+          schema: { type: string, enum: [PENDIENTE, ACEPTADA, RECHAZADA, EXPIRADA] }
+        - name: limite
+          in: query
+          required: false
+          schema: { type: integer, minimum: 1, maximum: 200, default: 200 }
+      responses:
+        '200':
+          description: Solicitudes, la mas nueva primero
+          content:
+            application/json:
+              schema:
+                type: array
+                maxItems: 200
+                items: { $ref: '#/components/schemas/SolicitudDeAdmision' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+  /grupos/backoffice:
+    get:
+      operationId: listarGruposDeBackoffice   # Backoffice · consulta de grupos (2026-10-29)
+      summary: Todos los grupos, para el backoffice
+      description: >-
+        Solo lectura. Para quien opera la plataforma (ADMIN_PLATAFORMA) o la audita (AUDITORIA_LEER). Datos del
+        grupo, nunca de una persona: sin organizador, telefono ni correo. Acotada a `limite` filas (maximo 200).
+        Orden: primero los que aun no tienen fecha de inicio (se estan armando), despues por fecha de inicio de la
+        mas reciente a la mas vieja, y el codigo como desempate estable (la tabla no guarda fecha de creacion).
+      parameters:
+        - name: estado
+          in: query
+          required: false
+          schema: { type: string, maxLength: 30 }
+        - name: limite
+          in: query
+          required: false
+          schema: { type: integer, minimum: 1, maximum: 200, default: 200 }
+      responses:
+        '200':
+          description: Grupos, el mas nuevo primero
+          content:
+            application/json:
+              schema:
+                type: array
+                maxItems: 200
+                items: { $ref: '#/components/schemas/GrupoDeBackoffice' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+
+  /grupos/backoffice/{grupoId}:
+    get:
+      operationId: consultarGrupoDeBackoffice   # Backoffice · consulta de grupos (2026-10-29)
+      summary: Un grupo con sus cupos y quien ocupa cada uno, para el backoffice
+      description: >-
+        Solo lectura, mismos permisos que el listado. Por cupo: numero, estado, el alias con que la persona se
+        presento al grupo y si es quien lo organiza. Sin importes atribuibles a una persona ni datos de contacto.
+        AP-CU64-01 el grupo no existe.
+      parameters:
+        - name: grupoId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: El grupo y sus cupos
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DetalleDeGrupoDeBackoffice' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+
   /grupos/solicitudes/{solicitudId}/propuestas:
     post:
       operationId: proponerAdmision
@@ -71,7 +156,10 @@ paths:
           content:
             application/json:
               schema: { $ref: '#/components/schemas/DecisionIngreso' }
-        '422': { $ref: '#/components/responses/ReglaDeNegocio' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # Al proponer ACEPTAR: AP-CU69-17 GRUPO_YA_INICIADO
+          # AP-CU68-03 REPUTACION_INSUFICIENTE (detalle.etapaMinima) · AP-CU69-18 DESBLOQUEO_DE_ETAPA_EXCEDIDO
   /grupos/solicitudes/{solicitudId}/resoluciones:
     post:
       operationId: resolverAdmision
@@ -90,7 +178,10 @@ paths:
           content:
             application/json:
               schema: { $ref: '#/components/schemas/DecisionIngreso' }
-        '422': { $ref: '#/components/responses/ReglaDeNegocio' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # Al aprobar (reserva cupos, es un ingreso): AP-CU69-17 GRUPO_YA_INICIADO
+          # AP-CU68-03 REPUTACION_INSUFICIENTE (detalle.etapaMinima) · AP-CU69-18 DESBLOQUEO_DE_ETAPA_EXCEDIDO
   /grupos/{grupoId}/administrador/sustitucion:
     post:
       operationId: sustituirAdministrador
@@ -225,6 +316,49 @@ paths:
   #         '200': …
   #         '422': { $ref: '#/components/responses/ReglaDeNegocio' }
 
+  /grupos/{grupoId}/inicio:
+    post:
+      operationId: iniciarGrupo                # CU-69 · inicio al 75 % (2026-10-30)
+      summary: El organizador inicia el grupo con al menos el 75 % de los cupos ocupados
+      description: >-
+        Transicion ABIERTO_A_INSCRIPCION → CONFORMADO pedida por quien organiza el grupo, con su
+        renglon en el historial de estados. Se puede iniciar con ceil(0,75 × cuposTotales) cupos
+        OCUPADO (reglamento firmado) o mas; antes responde 422 `AP-CU69-16` con el conteo. La
+        precondicion va en la escritura: el UPDATE exige el estado ABIERTO_A_INSCRIPCION y el
+        conteo, asi dos inicios a la vez no achican dos veces.
+
+        Al iniciar, el grupo SE ACHICA: los cupos LIBRE dejan de existir para el ciclo y
+        `cuposTotales` y `numPeriodos` pasan a ser los ocupados (nunca menos de 3). Desde ese
+        momento no entra nadie mas por ningun camino (`AP-CU69-17`). Con cupos RESERVADO
+        (alguien aceptado que todavia no firmo) no se inicia (`AP-CU69-19`): achicar le quitaria
+        el lugar a quien ya fue aceptado.
+
+        Reglamento al achicar (decision del dueño 2026-10-30): en la misma transaccion se publica
+        una version NUEVA del reglamento (`version` + 1 en `reglamento_grupo`, con su hash) con los
+        numeros reales del grupo achicado. Nadie la tiene aceptada al nacer: cada integrante la
+        acepta con `POST /grupos/{grupoId}/reglamento/firma` antes del sorteo, y el detalle le dice
+        a cada uno si le falta (`reglamentoPendienteDeAceptar`).
+
+        Idempotente por clave: repetir con la misma `Idempotency-Key` devuelve el resultado
+        original; una clave nueva sobre un grupo ya iniciado responde `AP-CU69-17`.
+      parameters:
+        - name: grupoId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+        - $ref: '#/components/parameters/ClaveIdempotencia'
+      responses:
+        '200':
+          description: El grupo iniciado, ya achicado a sus cupos ocupados
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/GrupoIniciado' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU69-16 UMBRAL_DE_INICIO_NO_ALCANZADO (detalle.ocupados, detalle.minimoRequerido, detalle.cuposTotales)
+          # AP-CU69-17 GRUPO_YA_INICIADO        · AP-CU69-19 FIRMAS_PENDIENTES (detalle.reservados)
+          # AP-CU69-07 EMISOR_NO_HABILITADO (no organiza el grupo) · AP-CU69-12 GRUPO_TODAVIA_NO_ABIERTO
+
   /grupos/{grupoId}/sorteo:
     post:
       operationId: comprometerSorteo           # CU-60 fase 1
@@ -253,7 +387,9 @@ paths:
         '422':
           $ref: '#/components/responses/ReglaDeNegocio'
           # AP-CU60-01 GRUPO_NO_CONFORMADO · AP-CU60-02 SORTEO_YA_EXISTE
-          # AP-CU60-05 REGLAMENTO_SIN_FIRMAR
+          # AP-CU60-05 REGLAMENTO_SIN_FIRMAR (version vigente del reglamento)
+          # AP-CU60-11 PRIMER_APORTE_PENDIENTE · AP-CU60-12 APORTES_SIN_RESPUESTA (R-GRP-20: la cuota 1 la afirma
+          # `aportes` por GET /aportes/grupos/{grupoId}/primera-cuota; sin respuesta se deniega, no se supone)
 
   /grupos/{grupoId}/sorteo/revelacion:
     post:
@@ -289,6 +425,41 @@ paths:
           # AP-CU60-08 SORTEO_ANULADO · AP-CU60-09 CALENDARIO_AUSENTE · AP-CU60-10 NO_ADMINISTRA_EL_GRUPO
 
   /acuerdos:
+    get:
+      operationId: listarAcuerdos              # CU-63
+      summary: Los acuerdos de un grupo, filtrados
+      description: >-
+        Para que quien pidio un traspaso (CU-64) encuentre la votacion de SU cupo y,
+        aprobada, la adjunte. Solo para participantes del grupo. Los mas nuevos
+        primero, hasta 50.
+      parameters:
+        - name: grupoId
+          in: query
+          required: true
+          schema: { type: string, format: uuid }
+        - name: tipo
+          in: query
+          required: false
+          schema: { type: string, enum: [CONDONACION, EXPULSION, PERMUTA, TRASPASO_CUPO, CAMBIO_REGLAMENTO, DISOLUCION, REPETIR_SORTEO] }
+        - name: estado
+          in: query
+          required: false
+          schema: { type: string, enum: [ABIERTO, APROBADO, EJECUTADO, EXPIRADO, RECHAZADO] }
+        - name: referenciaAfectadaId
+          in: query
+          required: false
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: Acuerdos del grupo
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/AcuerdoDelGrupo' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU63-01 NO_PARTICIPA_DEL_GRUPO
     post:
       operationId: proponerAcuerdo             # CU-63
       summary: Proponer un acuerdo y abrir su votación
@@ -313,6 +484,7 @@ paths:
         '422':
           $ref: '#/components/responses/ReglaDeNegocio'
           # AP-CU63-01 PROPONENTE_NO_HABILITADO · AP-CU63-02 ACUERDO_DUPLICADO
+          # AP-CU63-06 TRASPASO_SIN_ENTRANTE (TRASPASO_CUPO sin cupo, sin quien entra, o quien entra no participa)
 
   /acuerdos/{acuerdoId}/votos:
     post:
@@ -410,6 +582,10 @@ paths:
       operationId: traspasarCupo               # CU-64
       summary: Traspasar un cupo a otro participante
       description: >-
+        Lo ejecuta quien tiene el cupo, con la votacion del grupo APROBADA sobre ese
+        cupo (acuerdo TRASPASO_CUPO con referenciaAfectadaId = cupoId; siempre se
+        exige, decision 2026-10-30). El acuerdo se usa una sola vez.
+
         El TURNO no se toca: la posicion en el calendario es del cupo, no de la
         persona. Si se moviera, traspasar seria una forma de adelantar el propio
         turno y el sorteo dejaria de significar nada.
@@ -442,7 +618,100 @@ paths:
           $ref: '#/components/responses/ReglaDeNegocio'
           # AP-CU64-01 CUPO_NO_TRASPASABLE     · AP-CU64-02 SALIENTE_CON_DEUDA
           # AP-CU64-03 ENTRANTE_SIN_KYC        · AP-CU64-04 ENTRANTE_SIN_REPUTACION
-          # AP-CU64-05 ACUERDO_REQUERIDO
+          # AP-CU64-05 ACUERDO_REQUERIDO       · AP-CU64-06 NO_ES_TITULAR
+          # Etapa minima (2026-10-30): quien entra por debajo de la etapa minima del grupo es
+          # AP-CU64-04 ENTRANTE_SIN_REPUTACION (detalle.etapaMinima): el codigo de este caso de uso
+          # para ese mismo motivo, no AP-CU68-03. Su desbloqueo excedido: AP-CU69-18.
+          # La etapa del entrante es de OTRA persona: grupos la lee con su identidad de servicio
+          # (`GET /reputacion/etapas/de-personas` de transparencia), nunca con el puntaje exacto.
+          # El traspaso NO es un ingreso nuevo: AP-CU69-17 no aplica (el cupo ya existe y sigue ocupado).
+
+  /grupos/{grupoId}/cupos/{cupoId}/subastabilidad:
+    get:
+      operationId: consultarSubastabilidadDelCupo   # CU-64 por subasta
+      summary: Si quien llama puede poner su cupo en subasta, y lo que entregas necesita saber
+      description: >-
+        Lo pregunta `entregas` ANTES de abrir una subasta, con el token de quien subasta. Solo
+        contesta al titular del cupo (AP-CU64-06 a cualquier otro). `subastable` es falso con su
+        `motivo` cuando el cupo no esta OCUPADO, su turno ya se cobro o el titular tiene deuda
+        vencida: la deuda no viaja con el cupo (R-GRP-11).
+      parameters:
+        - name: grupoId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+        - name: cupoId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: Los hechos del cupo, sin datos de nadie mas
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SubastabilidadDelCupo' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU64-01 el cupo no es de ese grupo · AP-CU64-06 NO_ES_TITULAR
+
+  /grupos/{grupoId}/elegibilidad-para-subasta:
+    get:
+      operationId: consultarElegibilidadParaSubasta   # CU-64 por subasta
+      summary: Si quien llama puede pujar por un cupo de ese grupo
+      description: >-
+        Lo pregunta `entregas` antes de aceptar una puja, con el token de quien puja. Mira lo
+        mismo que una postulacion (restriccion vigente, KYC minimo del grupo, reputacion minima
+        si hay historial, maximo de grupos) y nada del grupo que no sea su politica.
+      parameters:
+        - name: grupoId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: Elegible o no, con el motivo
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ElegibilidadParaSubasta' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU68-04 el grupo no existe
+
+  /grupos/{grupoId}/cupos/{cupoId}/traspasos-por-subasta:
+    post:
+      operationId: traspasarCupoPorSubasta   # CU-64 por subasta
+      summary: El cupo pasa al ganador de una subasta cerrada
+      description: >-
+        [CONTRATO · SOLO SERVICIO] Lo pide `entregas` (`SERVICIO_ENTREGAS`) al cerrar la subasta,
+        ANTES de pagarle al saliente: lo compensable va primero (regla 98.3.5). En una sola
+        transaccion da de alta al ganador como participante ACTIVO (si no lo era), le pasa el cupo
+        y deja al saliente RETIRADO. Sin votacion (decision del dueno, 2026-10-30). El turno no se
+        mueve y la deuda vencida se queda con el saliente. Idempotente: si el cupo ya es del
+        ganador, devuelve ese mismo traspaso. Si el cupo ya no es del saliente, AP-CU64-01.
+      parameters:
+        - name: grupoId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+        - name: cupoId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+        - $ref: '#/components/parameters/ClaveIdempotencia'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaTraspasoPorSubasta' }
+      responses:
+        '200':
+          description: Cupo traspasado (o el mismo traspaso si se repite)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaTraspasoPorSubasta' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU64-01 CUPO_NO_TRASPASABLE (ya no es del saliente, no esta OCUPADO o su turno se cobro)
 
   /grupos/{grupoId}/invitaciones:
     post:
@@ -483,6 +752,10 @@ paths:
           # AP-CU69-07 EMISOR_NO_HABILITADO
           # AP-CU69-08 LIMITE_DIARIO_DE_INVITACIONES (emitido por identidad)
           # AP-CU69-09 INVITACION_VIGENTE_EXISTENTE (revocarla antes de emitir otra)
+          # AP-CU69-17 GRUPO_YA_INICIADO (2026-10-30)
+          # La etapa minima y el desbloqueo (AP-CU68-03 · AP-CU69-18) NO se informan al emitir: decirle a
+          # quien invita que el invitado no llega a la etapa es contarle la reputacion de otra persona
+          # (regla 90.2.8). Se aplican cuando el invitado canjea o acepta, en su propia sesion.
 
   /grupos/{grupoId}/enlace-del-grupo:
     post:
@@ -565,6 +838,8 @@ paths:
           $ref: '#/components/responses/ReglaDeNegocio'
           # AP-CU69-11 ENLACE_INVALIDO · AP-CU69-03 YA_ES_PARTICIPANTE
           # AP-CU68-02 KYC_INSUFICIENTE · AP-CU68-04 SIN_CUPOS_LIBRES · AP-CU68-01 RESTRICCION_VIGENTE
+          # AP-CU69-17 GRUPO_YA_INICIADO · AP-CU68-03 REPUTACION_INSUFICIENTE (detalle.etapaMinima)
+          # AP-CU69-18 DESBLOQUEO_DE_ETAPA_EXCEDIDO (detalle.cuposMax, detalle.aporteMax, detalle.moneda)
 
   /grupos/invitaciones/enlace/consultar:
     post:
@@ -608,6 +883,9 @@ paths:
               schema: { $ref: '#/components/schemas/SalidaAceptacionInvitacion' }
         '422':
           $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU69-10 ADMISION_HUMANA_OBLIGATORIA · AP-CU69-17 GRUPO_YA_INICIADO
+          # AP-CU68-03 REPUTACION_INSUFICIENTE (detalle.etapaMinima)
+          # AP-CU69-18 DESBLOQUEO_DE_ETAPA_EXCEDIDO (detalle.cuposMax, detalle.aporteMax, detalle.moneda)
 
   /grupos/obligaciones/admisibilidad:
     get:
@@ -727,6 +1005,14 @@ paths:
         reglamento y su turno cuando hubo sorteo. Solo para integrantes del grupo. No lleva telefono
         ni correo de nadie (decision del dueño 2026-10-20). Dice ademas si quien consulta tiene que
         firmar y si puede iniciar el sorteo.
+
+        Etapa de cada ocupante (decision del dueño 2026-10-30): solo la etapa (codigo y nombre),
+        nunca el puntaje, y solo a quien integra el grupo (la misma barrera de `AP-CU69-14`). Grupos
+        la lee de `transparencia` con su identidad de servicio `SERVICIO_GRUPOS`
+        (`GET /reputacion/etapas/de-personas`); ya no usa `GET /reputacion/{usuarioId}/puntaje` para
+        otra persona, que ahora responde 403. Si transparencia no contesta, el detalle sale igual
+        sin `etapa` en cada integrante (la etapa aca es informativa; para decidir un ingreso
+        se falla cerrado).
       parameters:
         - name: grupoId
           in: path
@@ -778,6 +1064,14 @@ paths:
         su hash: queda ACTIVO y su cupo pasa de RESERVADO a OCUPADO. Con la ultima firma, si todos los
         cupos estan ocupados, el grupo pasa a CONFORMADO y se arma su calendario de periodos, que es lo
         que el sorteo necesita. Firmar otra vez no repite nada.
+
+        Version nueva (2026-10-30): la misma operacion acepta la version vigente cuando quien ya es
+        integrante ACTIVO no la tiene aceptada (la que publica `iniciarGrupo` al achicar). Manda el
+        hash de esa version (`DetalleDelGrupo.reglamento.hash`): se registra su aceptacion para esa
+        version y el cupo no cambia. Un hash que no es el de la version vigente responde
+        `AP-CU69-05`. Con la version vigente ya aceptada es un reintento: devuelve lo mismo, sin
+        otra aceptacion. `AP-CU69-13` queda para quien no integra el grupo, o lo integra y no tiene
+        nada que firmar ni aceptar.
       parameters:
         - name: grupoId
           in: path
@@ -803,7 +1097,9 @@ paths:
       operationId: decidirSolicitudDeIngreso    # CU-68
       summary: Aceptar o rechazar una solicitud de ingreso
       description: >-
-        Quien decide es el organizador del grupo. Aceptada, EN LA MISMA TRANSACCION:
+        Quien decide es el organizador del grupo o backoffice (ADMIN_PLATAFORMA): sin propuesta del organizador
+        no hay expediente que backoffice pueda resolver, y la solicitud quedaba sin nadie que la decidiera.
+        Nadie decide su propia solicitud. Aceptada, EN LA MISMA TRANSACCION:
         se reserva un cupo libre, nace el participante pendiente de firmar el
         reglamento y se emite el evento. Rechazada, queda el motivo en el evento.
 
@@ -831,6 +1127,8 @@ paths:
           $ref: '#/components/responses/ReglaDeNegocio'
           # AP-CU68-04 SIN_CUPOS_LIBRES · AP-CU68-08 SOLICITUD_NO_ENCONTRADA
           # AP-CU68-09 SOLICITUD_YA_RESUELTA · AP-CU68-10 MOTIVO_REQUERIDO
+          # Al ACEPTAR: AP-CU69-17 GRUPO_YA_INICIADO · AP-CU68-03 REPUTACION_INSUFICIENTE (detalle.etapaMinima)
+          # AP-CU69-18 DESBLOQUEO_DE_ETAPA_EXCEDIDO (el puntaje pudo bajar desde que se pidio)
 
   /grupos/{grupoId}/postulaciones:
     post:
@@ -867,6 +1165,8 @@ paths:
           # AP-CU68-03 REPUTACION_INSUFICIENTE · AP-CU68-04 SIN_CUPOS_LIBRES
           # AP-CU68-05 CONCENTRACION_DE_RIESGO · AP-CU68-06 SOLICITUD_DUPLICADA
           # AP-CU68-07 PROPUESTA_EXPIRADA
+          # AP-CU69-17 GRUPO_YA_INICIADO · AP-CU68-03 tambien por etapa minima (detalle.etapaMinima)
+          # AP-CU69-18 DESBLOQUEO_DE_ETAPA_EXCEDIDO (detalle.cuposMax, detalle.aporteMax, detalle.moneda)
 
   /grupos:
     post:
@@ -905,6 +1205,9 @@ paths:
           # AP-CU20-01 SIN_TARIFARIO_VIGENTE     · AP-CU20-02 ORGANIZADOR_NO_HABILITADO
           # AP-CU20-03 TARIFA_YA_CONGELADA       · AP-CU20-04 SERVICIO_NO_AUTORIZADO
           # AP-CU20-05 KYC_INSUFICIENTE_DEL_CREADOR · AP-CU20-06 LIMITE_DE_GRUPOS_ALCANZADO
+          # AP-CU20-07 DESBLOQUEO_DE_ETAPA_EXCEDIDO (cupos o aporte por encima de lo que desbloquea la etapa del
+          #            organizador; solo cuentan los desbloqueos VIGENTE · detalle.cuposMax, detalle.aporteMax, detalle.moneda)
+          # AP-CU20-08 ETAPA_MINIMA_INVALIDA (no esta en el catalogo, o esta por encima de la etapa del organizador)
 
   /grupos/participantes/alias/{alias}:
     get:
@@ -1054,6 +1357,14 @@ components:
             organizador lo lleva la plataforma, y entonces nadie cobra por administrarlo
             (RN-18).
         permitePermutaDeTurnos: { type: boolean, default: false }
+        etapaMinima:
+          type: [string, 'null']
+          pattern: '^[A-Z][A-Z_]{1,29}$'
+          description: >-
+            Codigo de la etapa minima para entrar (catalogo `GET /reputacion/etapas` de
+            `transparencia`). Entra quien tiene un puntaje mayor o igual al `desde` de esa etapa.
+            Omitida o nula: la etapa actual del organizador; sin organizador, sin etapa minima.
+            No puede estar por encima de la etapa del organizador (AP-CU20-08).
     SalidaGrupo:
       type: object
       additionalProperties: false
@@ -1098,6 +1409,12 @@ components:
           enum: [CONDONACION, EXPULSION, PERMUTA, TRASPASO_CUPO, CAMBIO_REGLAMENTO, DISOLUCION, REPETIR_SORTEO]
         descripcion:          { type: string, minLength: 20, maxLength: 1000 }
         referenciaAfectadaId: { type: [string, 'null'], format: uuid }
+        usuarioEntranteId:
+          type: [string, 'null']
+          format: uuid
+          description: >-
+            Solo en TRASPASO_CUPO, y ahi obligatorio: quien entra al cupo. El grupo vota el traspaso
+            a ESA persona, y CU-64 solo acepta el acuerdo para ella.
         diasVotacion:         { type: integer, minimum: 1, maximum: 15, default: 5 }
     EntradaVoto:
       type: object
@@ -1105,6 +1422,18 @@ components:
       required: [voto]
       properties:
         voto: { type: string, enum: [A_FAVOR, EN_CONTRA, ABSTENCION] }
+    AcuerdoDelGrupo:
+      type: object
+      additionalProperties: false
+      required: [acuerdoId, tipo, estado, descripcion, cierraEn]
+      properties:
+        acuerdoId:            { type: string, format: uuid }
+        tipo:                 { type: string, description: Tipo del contrato (TRASPASO_CUPO, PERMUTA, ...) }
+        estado:               { type: string, enum: [ABIERTO, APROBADO, EJECUTADO, EXPIRADO, RECHAZADO] }
+        descripcion:          { type: string }
+        referenciaAfectadaId: { type: [string, 'null'], format: uuid }
+        usuarioEntranteId:    { type: [string, 'null'], format: uuid, description: En un traspaso, quien entra al cupo }
+        cierraEn:             { type: string, format: date-time }
     SalidaAcuerdo:
       type: object
       additionalProperties: false
@@ -1157,6 +1486,45 @@ components:
       required: [traspasoId]
       properties:
         traspasoId: { type: string, format: uuid }
+    SubastabilidadDelCupo:
+      type: object
+      additionalProperties: false
+      required: [grupoId, cupoId, participanteId, subastable, montoAporte, nombreDelGrupo, periodicidad]
+      properties:
+        grupoId:        { type: string, format: uuid }
+        nombreDelGrupo: { type: string, maxLength: 120 }
+        periodicidad:   { type: string, maxLength: 15 }
+        cupoId:         { type: string, format: uuid }
+        participanteId: { type: string, format: uuid }
+        subastable:     { type: boolean }
+        motivo:
+          type: [string, 'null']
+          enum: [CUPO_NO_TRASPASABLE, SALIENTE_CON_DEUDA, null]
+        montoAporte:    { $ref: '#/components/schemas/Dinero' }
+    ElegibilidadParaSubasta:
+      type: object
+      additionalProperties: false
+      required: [elegible]
+      properties:
+        elegible: { type: boolean }
+        motivo:
+          type: [string, 'null']
+          enum: [RESTRICCION_VIGENTE, KYC_INSUFICIENTE, REPUTACION_INSUFICIENTE, MAXIMO_DE_GRUPOS, null]
+    EntradaTraspasoPorSubasta:
+      type: object
+      additionalProperties: false
+      required: [subastaId, ganadorUsuarioId, salienteParticipanteId]
+      properties:
+        subastaId:              { type: string, format: uuid }
+        ganadorUsuarioId:       { type: string, format: uuid }
+        salienteParticipanteId: { type: string, format: uuid }
+    SalidaTraspasoPorSubasta:
+      type: object
+      additionalProperties: false
+      required: [traspasoId, participanteEntranteId]
+      properties:
+        traspasoId:             { type: string, format: uuid }
+        participanteEntranteId: { type: string, format: uuid }
     EntradaInvitacion:
       type: object
       additionalProperties: false
@@ -1334,6 +1702,23 @@ components:
         porEnlace:        { type: boolean, description: 'La pidio con el enlace del grupo' }
         estado:           { type: string, enum: [PENDIENTE, APROBADA, RECHAZADA, EXPIRADA] }
         fechaSolicitud:   { type: string, format: date-time }
+    SolicitudDeAdmision:
+      type: object
+      additionalProperties: false
+      description: Una fila de la bandeja de admisiones del backoffice; no lleva telefono ni correo.
+      required: [solicitudId, usuarioId, postulante, grupoId, grupoCodigo, cuposSolicitados, estado, fechaSolicitud]
+      properties:
+        solicitudId:      { type: string, format: uuid }
+        usuarioId:        { type: string, format: uuid }
+        postulante:       { type: string, maxLength: 80, description: 'Nombre con que se presento por el enlace del grupo; si no hay, "Usuario" y los primeros 8 caracteres del id' }
+        grupoId:          { type: string, format: uuid }
+        grupoCodigo:      { type: string, maxLength: 40, description: 'Codigo publico del grupo' }
+        cuposSolicitados: { type: integer, minimum: 1 }
+        mensaje:          { type: [string, 'null'], maxLength: 500 }
+        puntaje:          { type: [string, 'null'] }
+        porEnlace:        { type: boolean, description: 'La pidio con el enlace del grupo' }
+        estado:           { type: string, enum: [PENDIENTE, ACEPTADA, RECHAZADA, EXPIRADA] }
+        fechaSolicitud:   { type: string, format: date-time }
     MisLimites:
       type: object
       additionalProperties: false
@@ -1363,20 +1748,57 @@ components:
           description: Quien consulta fue aceptado y todavia no firmo el reglamento
         puedeSortear:
           type: boolean
-          description: Quien consulta organiza el grupo, todos firmaron y todavia no hubo sorteo
-        reglamento: { $ref: '#/components/schemas/ReglamentoParaFirmar' }
+          description: >-
+            Quien consulta organiza el grupo, todos firmaron, todos aceptaron la version vigente del
+            reglamento y todavia no hubo sorteo
+        reglamentoPendienteDeAceptar:
+          type: boolean
+          default: false
+          description: >-
+            Quien consulta ya es integrante ACTIVO y no acepto la version vigente del reglamento (la
+            nueva que publica `iniciarGrupo` al achicar). La acepta con `firmarReglamentoDelGrupo`
+            enviando `reglamento.hash`. Distinto de `debeFirmar`, que es la primera firma de quien
+            fue aceptado y todavia tiene el cupo RESERVADO.
+        etapaMinima:
+          type: [string, 'null']
+          pattern: '^[A-Z][A-Z_]{1,29}$'
+          description: Codigo de la etapa minima para entrar; nula si el grupo no la pide
+        minimoParaIniciar:
+          type: integer
+          minimum: 1
+          description: >-
+            Cupos OCUPADO que hacen falta para iniciar: ceil(0,75 × cuposTotales). Solo tiene
+            sentido en ABIERTO_A_INSCRIPCION; «faltan N» es minimoParaIniciar − cuposOcupados.
+        puedoIniciar:
+          type: boolean
+          description: >-
+            Quien consulta organiza el grupo, el grupo esta en ABIERTO_A_INSCRIPCION, alcanza
+            minimoParaIniciar y no hay cupos RESERVADO. Lo que decide es el servidor al iniciar.
+        reglamento:
+          $ref: '#/components/schemas/ReglamentoParaFirmar'
+          description: La version vigente; viene cuando debeFirmar o reglamentoPendienteDeAceptar
         sorteo:     { $ref: '#/components/schemas/SorteoDelDetalle' }
         integrantes:
           type: array
           maxItems: 60
           items: { $ref: '#/components/schemas/IntegranteDelGrupo' }
+    GrupoIniciado:
+      type: object
+      additionalProperties: false
+      required: [grupoId, estado, cuposTotales, numPeriodos]
+      properties:
+        grupoId:      { type: string, format: uuid }
+        estado:       { type: string, enum: [CONFORMADO] }
+        cuposTotales: { type: integer, minimum: 3, description: Los cupos ocupados al iniciar; los libres dejaron de existir }
+        numPeriodos:  { type: integer, minimum: 3, description: Igual a cuposTotales despues del achique }
     ReglamentoParaFirmar:
       type: object
       additionalProperties: false
       required: [texto, hash]
       properties:
-        texto: { type: string }
-        hash:  { type: string, pattern: '^[0-9a-f]{64}$' }
+        texto:   { type: string }
+        hash:    { type: string, pattern: '^[0-9a-f]{64}$' }
+        version: { type: integer, minimum: 0, description: La version vigente en `reglamento_grupo` }
     SorteoDelDetalle:
       type: object
       additionalProperties: false
@@ -1403,6 +1825,18 @@ components:
         esOrganizador: { type: boolean }
         soyYo:         { type: boolean }
         turno:         { type: [integer, 'null'], minimum: 1 }
+        etapa:
+          $ref: '#/components/schemas/EtapaDelIntegrante'
+          description: >-
+            La etapa de reputacion de quien ocupa el cupo (codigo y nombre, nunca el puntaje).
+            Ausente en un cupo LIBRE o si transparencia no contesto.
+    EtapaDelIntegrante:
+      type: object
+      additionalProperties: false
+      required: [codigo, nombre]
+      properties:
+        codigo: { type: string, pattern: '^[A-Z][A-Z_]{1,29}$' }
+        nombre: { type: string, maxLength: 40 }
     EntradaFirmaDeReglamento:
       type: object
       additionalProperties: false
@@ -1425,6 +1859,40 @@ components:
       properties:
         decision: { type: string, enum: [ACEPTAR, RECHAZAR] }
         motivo:   { type: [string, 'null'], minLength: 5, maxLength: 300 }
+    GrupoDeBackoffice:
+      type: object
+      additionalProperties: false
+      required: [grupoId, codigo, nombre, estado, montoAporte, moneda, periodicidad, cuposTotales, cuposOcupados]
+      properties:
+        grupoId:       { type: string, format: uuid }
+        codigo:        { type: string }
+        nombre:        { type: string }
+        estado:        { type: string }
+        montoAporte:   { type: string, pattern: '^\d+\.\d{2}$', description: Decimal exacto en texto, nunca float }
+        moneda:        { type: string, minLength: 3, maxLength: 3 }
+        periodicidad:  { type: string }
+        cuposTotales:  { type: integer }
+        cuposOcupados: { type: integer }
+        fechaInicio:   { type: [string, 'null'], format: date }
+    CupoDeBackoffice:
+      type: object
+      additionalProperties: false
+      required: [numero, estado, esOrganizador]
+      properties:
+        numero:        { type: integer }
+        estado:        { type: string }
+        alias:         { type: [string, 'null'], description: El nombre con que la persona se presento al grupo; null si el cupo esta libre }
+        estadoParticipante: { type: [string, 'null'] }
+        esOrganizador: { type: boolean }
+    DetalleDeGrupoDeBackoffice:
+      type: object
+      additionalProperties: false
+      required: [grupo, cupos]
+      properties:
+        grupo: { $ref: '#/components/schemas/GrupoDeBackoffice' }
+        cupos:
+          type: array
+          items: { $ref: '#/components/schemas/CupoDeBackoffice' }
     SalidaDecisionDeIngreso:
       type: object
       additionalProperties: false

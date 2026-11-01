@@ -38,11 +38,14 @@ class FilaDeSubida extends StatelessWidget {
         children: [
           Text(
             tituloDeCaptura(cara),
-            style: Theme.of(context).textTheme.titleSmall,
+            style: Tipo.cuerpoFuerte.copyWith(color: Tokens.of(context).text),
           ),
           const SizedBox(height: Espacio.s1),
           switch (valor) {
-            EstadoDeUnaSubida.pendiente => const Text('—'),
+            EstadoDeUnaSubida.pendiente => Text(
+              TextosDeSubida.enEspera,
+              style: Tipo.cuerpoChico.copyWith(color: Tokens.of(context).text2),
+            ),
             EstadoDeUnaSubida.subiendo => _conDetalle(
               TextosDeSubida.subiendo(cara),
               TextosDeSubida.detalle,

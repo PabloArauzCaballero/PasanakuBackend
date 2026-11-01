@@ -1,0 +1,25 @@
+PASS retiros: primera página GET /billetera/retiros?limite=10 sin cursor
+PASS retiros: la tabla pinta la página del simulado
+PASS retiros: Siguiente pide con el cursor (despuesDeId=b0ad7675…)
+PASS retiros: Anterior vuelve a la página 1 sin cursor
+PASS retiros: Filas por página = 20 pide limite=20
+PASS retiros: filtro local Segundo factor=Con segundo factor no vuelve a pedir y deja la fila
+PASS retiros: buscar por ordenRetiroId encuentra la fila
+PASS retiros: CSV sin coincidencias baja solo el encabezado (retiros-en-revision-2026-10-26.csv)
+PASS retiros: CSV de lo filtrado con el importe como se ve («Bs 4,44») · retiros-en-revision-2026-10-26.csv
+PASS retiros: JSON con 1 fila(s) filtrada(s) · retiros-en-revision-2026-10-26.json
+PASS retiros: acción de fila — navega a /operacion/retiros/:ordenId
+PASS retiros: límite · 25 filas, 10 por página ⇒ 10 en la página 1
+PASS retiros: límite · Ir a 3 ⇒ última página parcial (5 filas) y Siguiente deshabilitado
+PASS retiros: límite · una sola fila ⇒ Página 1 de 1
+PASS retiros: límite · colección vacía ⇒ vacío explicado («No hay retiros esperando una segunda firma.»)
+PASS retiros: error · 500 ⇒ mensaje accionable con código de seguimiento, sin el crudo
+PASS retiros: error · «Volver a intentar» repite la petición y se recupera
+PASS retiros: error · 403 ⇒ «No tenés acceso a esta bandeja.»
+PASS retiros: 768px light sin desborde horizontal (scrollWidth=768)
+PASS retiros: 768px light consola sin errores
+PASS retiros: 375px light sin desborde horizontal (scrollWidth=375)
+PASS retiros: 375px light consola sin errores
+PASS retiros: 1280px dark sin desborde horizontal (scrollWidth=1280)
+PASS retiros: 1280px dark consola sin errores
+PASS retiros: consola sin errores (salvo los 403/500 provocados) []

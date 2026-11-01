@@ -1,0 +1,25 @@
+$ ./gradlew :servicios:nucleo-financiero:integrationTest --tests "*CU10QrDinamicoTest"  (exit=0)
+BUILD SUCCESSFUL in 11s
+<testsuite name="bo.aportaya.nucleofinanciero.CU10QrDinamicoTest" tests="6" skipped="0" failures="0" errors="0"
+<testcase name="simularElPagoAcreditaUnaSolaVezYElAsientoCuadra()"
+<testcase name="sinElDobleDePruebaLaOperacionNoEstaDisponible()"
+<testcase name="otraPersonaNoPuedeSimularElPagoDeUnaOrdenAjena()"
+<testcase name="reintentarConLaMismaClaveDevuelveLaMismaOrdenYElMismoQr()"
+<testcase name="unaOrdenSinQrDePruebaNoSePuedeDarPorPagada()"
+<testcase name="laOrdenDevuelveYGuardaElQrDePrueba()"
+
+$ ./gradlew :servicios:nucleo-financiero:test --tests "*RecargasProveedorLocalTest"  (exit=0)
+<testsuite name="bo.aportaya.nucleofinanciero.RecargasProveedorLocalTest$Correcto" tests="3" skipped="0" failures="0" errors="0"
+<testcase name="quedaPendienteHastaQueSeSimulaElPago()"
+<testcase name="pedirloDosVecesDevuelveElMismoQr()"
+<testcase name="emiteUnQrDePruebaQueNombraLaOrdenYElMonto()"
+<testsuite name="bo.aportaya.nucleofinanciero.RecargasProveedorLocalTest$Invalido" tests="3" skipped="0" failures="0" errors="0"
+<testcase name="noEmiteQrPorCeroNiPorUnMontoNegativo()"
+<testcase name="unQrSinContenidoDemasiadoLargoODeOrigenDesconocidoNoExiste()"
+<testcase name="unaReferenciaDesconocidaNoEstaConfirmada()"
+<testsuite name="bo.aportaya.nucleofinanciero.RecargasProveedorLocalTest$Limite" tests="3" skipped="0" failures="0" errors="0"
+<testcase name="pagarDosVecesNoCreaUnaSegundaTransaccion()"
+<testcase name="trasUnReinicioElPagoVuelveARegistrarLaReferencia()"
+<testcase name="elMontoMinimoTambienTieneQr()"
+
+Primer intento: 3/6 FAILED — SinTransaccion (TEST_BUG: el test pasaba recargaCU sin proxy transaccional). Corregido envolviendolo como flujoCon; sin cambiar aserciones.

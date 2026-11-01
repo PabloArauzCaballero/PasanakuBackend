@@ -1,0 +1,3 @@
+auditoria:test  tests=45 fallos=0 errores=0
+auditoria:webTest  tests=74 fallos=0 errores=0
+auditoria:testBarrido  tests=2 fallos=0 errores=0

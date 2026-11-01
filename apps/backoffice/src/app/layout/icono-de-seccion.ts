@@ -11,6 +11,7 @@ const TRAZOS = {
   sistemas: 'M4 4h16v6H4zM4 14h16v6H4zM8 7h.01M8 17h.01',
   contabilidad: 'M5 4h12a2 2 0 012 2v14H7a2 2 0 01-2-2zM5 18a2 2 0 012-2h12M9 8h6M9 11h4',
   publicidad: 'M4 10v4h3l6 4V6L7 10zM16 9a4 4 0 010 6M19 6a8 8 0 010 12',
+  plataforma: 'M12 3l9 5-9 5-9-5zM3 12.5l9 5 9-5M3 17l9 5 9-5',
   configuracion: 'M4 7h9M17 7h3M4 17h3M11 17h9M15 5v4M9 15v4',
   catalogo: 'M4 6c0-1.7 3.6-3 8-3s8 1.3 8 3-3.6 3-8 3-8-1.3-8-3zM4 6v12c0 1.7 3.6 3 8 3s8-1.3 8-3V6M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3',
   ayuda: 'M12 21a9 9 0 100-18 9 9 0 000 18zM9.5 9.5a2.5 2.5 0 014.6 1.3c0 1.7-2.1 2-2.1 3.7M12 17.5h.01',

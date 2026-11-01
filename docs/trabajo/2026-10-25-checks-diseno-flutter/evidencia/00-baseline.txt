@@ -1,0 +1,18 @@
+# Baseline en dev 4b6800e6 · Flutter 3.44.8
+$ python3 scripts/verificar_frontend.py diseno
+=== packages/diseno_flutter (Flutter) ===
+  OK    · sin red en el sistema de diseño 
+  FALLA · sin literal de diseño ['packages/diseno_flutter/lib/moleculas/tarjeta_riesgo_confianza.dart:36', 'packages/diseno_flutter/lib/moleculas/tarjeta_riesgo_confianza.dart:37', 'packages/diseno_flutter/lib/moleculas/tarjeta_riesgo_confianza.dart:143', 'packages/diseno_flutter/lib/moleculas/tarjeta_riesgo_confianza.dart:151', 'packages/diseno_flutter/lib/moleculas/tarjeta_riesgo_confianza.dart:212']
+  FALLA · sin formato de dinero ['packages/diseno_flutter/lib/moleculas/tarjeta_riesgo_confianza.dart:195']
+  OK    · sin plataforma 
+  OK    · sin print 
+  FALLA · ningún archivo de más de 200 líneas (catalogo/ es datos y queda fuera) ['packages/diseno_flutter/lib/moleculas/tarjeta_riesgo_confianza.dart (262)', 'packages/diseno_flutter/lib/moleculas/tarjeta_puntos_mesa.dart (210)', 'packages/diseno_flutter/lib/moleculas/grilla_metricas_miembro.dart (219)', 'packages/diseno_flutter/lib/moleculas/insignia_tile.dart (241)', 'packages/diseno_flutter/lib/organismos/celebracion_stage.dart (481)', 'packages/diseno_flutter/lib/moviles/tour_en_stages.dart (431)', 'packages/diseno_flutter/lib/moviles/barra_pestanas.dart (203)']
+
+3 FALLAS
+exit=1
+$ dart format --output=none --set-exit-if-changed lib test
+Formatted 166 files (0 changed) in 0.53 seconds.
+$ dart analyze --fatal-infos
+Analyzing diseno_flutter...
+No issues found!
+$ flutter test test/unidad test/widget  -> 00:26 +102: All tests passed!

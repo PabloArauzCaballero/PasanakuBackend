@@ -57,8 +57,8 @@ class _PantallaDeMfaState extends ConsumerState<PantallaDeMfa> {
       _avisoReenvio = !ok
           ? null
           : envioConfirmado
-          ? 'El correo de verificacion fue aceptado para envio. Revisa Recibidos y Spam.'
-          : 'El servidor no confirmo un envio al correo. Revisa el metodo configurado o contacta a soporte.';
+          ? TextosIdentidad.mfaReenvioAceptado
+          : TextosIdentidad.mfaReenvioSinConfirmar;
     });
   }
 
@@ -78,7 +78,10 @@ class _PantallaDeMfaState extends ConsumerState<PantallaDeMfa> {
                   const CabeceraDeSeccion(titulo: TextosIdentidad.tituloMfa),
                   const SizedBox(height: Espacio.s3),
                   Text(
-                    TextosIdentidad.explicacionMfa,
+                    // Solo dice «te mandamos al correo» si el servidor lo confirmó.
+                    estado.correoMfaEnviado
+                        ? TextosIdentidad.explicacionMfaCorreo
+                        : TextosIdentidad.explicacionMfa,
                     style: Tipo.cuerpo.copyWith(color: t.text2),
                   ),
                   const SizedBox(height: Espacio.s5),
@@ -93,20 +96,20 @@ class _PantallaDeMfaState extends ConsumerState<PantallaDeMfa> {
                   const SizedBox(height: Espacio.s4),
                   Text(
                     TextosIdentidad.mfaSinCodigoAyuda,
-                    style: Theme.of(context).textTheme.bodyMedium,
+                    style: Tipo.cuerpoChico.copyWith(color: t.text2),
                   ),
                   const SizedBox(height: Espacio.s2),
                   Align(
                     alignment: Alignment.centerLeft,
                     child: TextButton(
                       onPressed: estado.enviando ? null : _reenviar,
-                      child: const Text('Reenviar código por correo'),
+                      child: const Text(TextosIdentidad.mfaReenviar),
                     ),
                   ),
                   if (_avisoReenvio != null)
                     Text(
                       _avisoReenvio!,
-                      style: Tipo.cuerpo.copyWith(color: t.text2),
+                      style: Tipo.cuerpoChico.copyWith(color: t.text2),
                     ),
                 ],
               ),

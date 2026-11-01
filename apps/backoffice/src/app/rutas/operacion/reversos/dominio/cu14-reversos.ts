@@ -4,7 +4,7 @@ import type { PaginaDeReversos } from 'clientes/angular/nucleo-financiero/model/
 import type { ReversoEnLista } from 'clientes/angular/nucleo-financiero/model/reversoEnLista'
 import { GATEWAY } from '../../../../nucleo/gateway'
 import type { PedirPorCursor } from '../../../../nucleo/tabla/cursor'
-import { bandejaPorCursor, cursorDe, estadosDe, pedirJson, type Bandeja } from '../../dominio/bandeja-por-cursor'
+import { cursorDe, estadosDe, pedirJson } from '../../dominio/bandeja-por-cursor'
 
 export type { ReversoEnLista }
 
@@ -28,6 +28,7 @@ export function pedirReversos(http: HttpClient, gateway: string): PedirPorCursor
   }
 }
 
-export function bandejaDeReversos(): Bandeja<ReversoEnLista> {
-  return bandejaPorCursor(pedirReversos(inject(HttpClient), inject(GATEWAY)))
+/** Fábrica en contexto de inyección: la pantalla no importa `HttpClient`. */
+export function pedidorDeReversos(): PedirPorCursor<ReversoEnLista, Cursor> {
+  return pedirReversos(inject(HttpClient), inject(GATEWAY))
 }

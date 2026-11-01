@@ -40,7 +40,7 @@ from modelo import (MODULOS, FOCO, APPEND_ONLY, PARTICIONADAS, CK_AMPLIADOS,  # 
 
                     ESQUEMA, ESQUEMA_CATALOGO, CATALOGO, CATALOGO_ESCRITOR,
                     LIBRO_CONTABLE,
-                    ESQUEMA_COMUN, COMPARTIDAS_ESCRITURA,
+                    ESQUEMA_COMUN, COMPARTIDAS_ESCRITURA, COMPARTIDAS_LECTURA,
                     INFRA_MENSAJERIA, INFRA_ORQUESTADOR, ESQUEMAS_ORQUESTADORES,
                     esquemas_de_servicio, tablas_infra_de,
                     esquema_de, rol_de,
@@ -59,6 +59,17 @@ TABLA_ESQUEMA = {}
 # el emisor de índices únicos: un UNIQUE que incluye una columna opcional necesita
 # NULLS NOT DISTINCT o no impide el duplicado.
 OPCIONALES = {}
+
+# Columnas que se agregaron al modelo DESPUES de que existiera una base: el
+# `CREATE TABLE IF NOT EXISTS` no las crea sobre una base ya hecha, asi que se
+# emiten tambien como `ADD COLUMN IF NOT EXISTS` (15_infra/columnas_agregadas.sql).
+# Solo columnas opcionales: agregar una columna NULL no reescribe la tabla ni puede
+# fallar por datos existentes. Una columna obligatoria nueva es un trabajo aparte.
+COLUMNAS_AGREGADAS = {
+    # 2026-10-30 · CU-64: la votacion del traspaso dice a quien entra.
+    ("acuerdo", "entrante_participante_id"),
+}
+COMENTARIO_AGREGADA = {}
 
 # search_path para la sesion que APLICA el esquema y siembra: ve todos los
 # esquemas. Los roles de servicio tienen el suyo, mucho mas estrecho (02_esquemas).
@@ -442,6 +453,7 @@ def generar():
 
     pendientes = []
     opcionales = []          # (esquema.tabla, columna) que el modelo declara NULL
+    agregadas = []           # (esquema.tabla, columna, tipo) de COLUMNAS_AGREGADAS
     total_tablas = total_fks = total_indices = total_checks = 0
 
     for k, d in sorted(mods.items()):
@@ -476,6 +488,10 @@ def generar():
                         partes.append("NOT NULL")
                     elif col["nulo"] and not col["generated"] and not col["pk"]:
                         opcionales.append((f'{TABLA_ESQUEMA[tabla]}.{tabla}', n))
+                if (tabla, n) in COLUMNAS_AGREGADAS:
+                    if not col["nulo"] or col["generated"] or col["pk"]:
+                        raise SystemExit(f"{tabla}.{n}: solo se agregan columnas opcionales")
+                    agregadas.append((f'{TABLA_ESQUEMA[tabla]}.{tabla}', n, tipo))
 
                 lineas.append(" ".join(partes))
 
@@ -504,7 +520,11 @@ def generar():
 
                 ficha = narrativas.get(tabla, {}).get("columnas", {})
                 nota = ficha.get(a_camel(n)) or ficha.get(n) or CONVENCIONES.get(n)
-                if nota or col["anot"]:
+                if (nota or col["anot"]) and (tabla, n) in COLUMNAS_AGREGADAS:
+                    # Sobre una base ya hecha la columna todavia no existe cuando corre
+                    # el archivo de la tabla: el comentario va despues del ADD COLUMN.
+                    COMENTARIO_AGREGADA[(tabla, n)] = comentario(nota) if nota else col["anot"]
+                elif nota or col["anot"]:
                     comentarios.append((n, comentario(nota) if nota else col["anot"]))
 
                 if col["fk"]:
@@ -668,6 +688,9 @@ def generar():
     escribir_infra_borradores()
     escribir_permisos_finales()
     escribir_append_only()
+    if {(t.split('.', 1)[1], c) for t, c, _ in agregadas} != COLUMNAS_AGREGADAS:
+        raise SystemExit("COLUMNAS_AGREGADAS nombra columnas que el modelo no tiene")
+    escribir_columnas_agregadas(agregadas)
     escribir_convergencia(opcionales)
     escribir_orquestador(mods)
 
@@ -876,6 +899,11 @@ def escribir_permisos_finales():
               f"GRANT INSERT ON ALL TABLES IN SCHEMA {ESQUEMA_COMUN} TO {r};",
               f"GRANT USAGE ON ALL SEQUENCES IN SCHEMA {e} TO {r};",
               f"GRANT USAGE ON ALL SEQUENCES IN SCHEMA {ESQUEMA_COMUN} TO {r};"]
+    L.append("")
+    L.append("-- Lectura de las bitacoras compartidas: ademas de rol_auditor, solo el servicio que existe para")
+    L.append("-- consultarlas (modelo.py -> COMPARTIDAS_LECTURA). Los demas svc_* siguen sin leer el rastro ajeno.")
+    for tabla, duenio in sorted(COMPARTIDAS_LECTURA.items()):
+        L.append(f"GRANT SELECT ON {ESQUEMA_COMUN}.{tabla} TO {rol_de(duenio)};")
     L.append("")
     for e in esquemas:
         L.append(f"GRANT SELECT ON ALL TABLES IN SCHEMA {e} TO rol_auditor;")
@@ -1095,6 +1123,30 @@ def escribir_append_only():
     (d / "append_only.sql").write_text("\n".join(L), encoding="utf-8")
 
 
+def escribir_columnas_agregadas(agregadas):
+    """Crea, sobre una base que YA existe, las columnas opcionales nuevas del modelo.
+
+    Igual que la nulabilidad, no es un sistema de migraciones: solo agrega columnas
+    NULL listadas en COLUMNAS_AGREGADAS. Sobre una base recien creada no hace nada.
+    """
+    L = ["-- Columnas opcionales agregadas al modelo, sobre una base que ya existe.",
+         "-- Generado por scripts/generar_ddl.py — no editar a mano.",
+         "--",
+         "-- Solo agrega columnas NULL (COLUMNAS_AGREGADAS del generador): no reescribe",
+         "-- la tabla ni puede fallar por datos existentes. Sobre una base recien creada",
+         "-- no hace nada: la columna ya nace con la tabla.",
+         ""]
+    for tabla, columna, tipo in sorted(agregadas):
+        L.append(f"ALTER TABLE {tabla} ADD COLUMN IF NOT EXISTS {columna} {tipo};")
+        nota = COMENTARIO_AGREGADA.get((tabla.split('.', 1)[1], columna))
+        if nota:
+            L.append(f"COMMENT ON COLUMN {tabla}.{columna} IS '{nota}';")
+    L.append("")
+    d = OUT / "15_infra"
+    d.mkdir(parents=True, exist_ok=True)
+    (d / "columnas_agregadas.sql").write_text("\n".join(L), encoding="utf-8")
+
+
 def escribir_convergencia(opcionales):
     """Pone al dia la nulabilidad de una base que YA existe.
 
@@ -1140,47 +1192,68 @@ def escribir_convergencia(opcionales):
     return len(set(opcionales))
 
 
-def escribir_infra_borradores():
-    """identidad.borrador_onboarding: el alta incompleta para retomarla (BorradorOnboardingRepositorio).
-
-    Infraestructura del servicio, como la mensajeria: no es una entidad del modelo. aplicar.sql la incluye
-    desde 9cdf705 y el archivo tiene que salir de aca, porque cada corrida vacia sql/15_infra/."""
-    L = [
-        '-- Generado por scripts/generar_ddl.py — no editar a mano.',
-        '-- Borrador del alta incompleta (identidad): lo que la persona ya cargo para',
-        '-- retomar el alta en otro momento. Lo usa BorradorOnboardingRepositorio.',
-        '-- Una fila por correo; vence a los 7 dias (expira_en) y se borra al terminar',
-        '-- el alta. Idempotente: se puede aplicar sobre una base que ya la tiene.',
-        'CREATE TABLE IF NOT EXISTS identidad.borrador_onboarding (',
-        '  correo                  VARCHAR(254) PRIMARY KEY,',
-        '  telefono_e164           VARCHAR(20),',
-        '  nombres                 VARCHAR(120),',
-        '  apellidos               VARCHAR(120),',
-        '  fecha_nacimiento        DATE,',
-        '  tipo_documento          VARCHAR(30),',
-        '  numero_documento        VARCHAR(40),',
-        '  lugar_expedicion        VARCHAR(60),',
-        '  fecha_expiracion        DATE,',
-        '  actividad_economica     VARCHAR(80),',
-        '  detalle_actividad       VARCHAR(500),',
-        '  origen_de_fondos        VARCHAR(80),',
-        '  detalle_del_origen      VARCHAR(500),',
-        '  monto_mensual_estimado  VARCHAR(40),',
-        "  paso_pendiente          VARCHAR(30)  NOT NULL DEFAULT 'datos',",
-        '  actualizado_en          TIMESTAMPTZ  NOT NULL DEFAULT now(),',
-        '  expira_en               TIMESTAMPTZ  NOT NULL',
-        ');',
-        '',
-        'CREATE INDEX IF NOT EXISTS ix_identidad_borrador_expira',
-        '  ON identidad.borrador_onboarding (expira_en);',
-        '',
-        '-- Los permisos por defecto del esquema dan SELECT/INSERT/UPDATE; el borrador',
-        '-- ademas se borra al confirmar el alta.',
-        'GRANT SELECT, INSERT, UPDATE, DELETE ON identidad.borrador_onboarding TO svc_identidad;',
-        "",
-    ]
-    d = OUT / "15_infra"
-    d.mkdir(parents=True, exist_ok=True)
+# Columnas de `identidad.borrador_onboarding`. No es una entidad del modelo: es el respaldo de un alta a medio
+# llenar (la persona confirmó su correo y todavía no terminó). Cada columna sale de una de dos fuentes, y de
+# ninguna otra:
+#   - `servicios/identidad/src/main/resources/openapi/identidad.yaml` · schema `BorradorOnboarding`
+#     (maxLength, enums y que ningún campo es obligatorio en el contrato);
+#   - `servicios/identidad/.../BorradorOnboardingRepositorio.java` (nombres de columna, `ON CONFLICT (correo)`,
+#     `actualizado_en`/`expira_en` como timestamptz, `paso_pendiente` siempre presente, DELETE al completar).
+# Donde el contrato no fija longitud (montoMensualEstimado: `type: string` sin maxLength) se usa TEXT y no se
+# inventa un tope. Los DEFAULT y el índice por vencimiento vienen del repositorio (barrido de borradores vencidos).
+BORRADOR_COLUMNAS = [
+    ("correo", "VARCHAR(150) PRIMARY KEY", "Correo ya confirmado de quien está dándose de alta; identifica el borrador."),
+    ("telefono_e164", "VARCHAR(20)", "Teléfono en formato E.164 que la persona cargó."),
+    ("nombres", "VARCHAR(80)", "Nombres tal como los escribió la persona."),
+    ("apellidos", "VARCHAR(80)", "Apellidos tal como los escribió la persona."),
+    ("fecha_nacimiento", "DATE", "Fecha de nacimiento declarada."),
+    ("tipo_documento", "VARCHAR(25)", "Tipo de documento elegido."),
+    ("numero_documento", "VARCHAR(30)", "Número de documento que la persona cargó."),
+    ("lugar_expedicion", "VARCHAR(5)", "Lugar de expedición del documento."),
+    ("fecha_expiracion", "DATE", "Vencimiento del documento."),
+    ("actividad_economica", "VARCHAR(10)", "Código de actividad económica elegido."),
+    ("detalle_actividad", "VARCHAR(100)", "Detalle libre de la actividad."),
+    ("origen_de_fondos", "VARCHAR(20)", "Origen de fondos elegido."),
+    ("detalle_del_origen", "VARCHAR(100)", "Detalle libre del origen de fondos."),
+    ("monto_mensual_estimado", "TEXT", "Monto mensual estimado tal como llegó en el contrato (texto, sin tope declarado)."),
+    ("paso_pendiente", "VARCHAR(10) NOT NULL DEFAULT 'datos'", "Paso del alta donde la persona retoma."),
+    ("actualizado_en", "TIMESTAMPTZ NOT NULL DEFAULT now()", "Último guardado del borrador."),
+    ("expira_en", "TIMESTAMPTZ NOT NULL", "Desde aquí el borrador ya no se ofrece para retomar (siete días desde el último guardado)."),
+]
+BORRADOR_ENUMS = {
+    "tipo_documento": ["CI", "PASAPORTE", "CARNET_EXTRANJERO"],
+    "paso_pendiente": ["cuenta", "correo", "documento", "datos", "actividad", "contrato"],
+}
+
+
+def escribir_infra_borradores():
+    """identidad.borrador_onboarding: el alta incompleta para retomarla (ver BORRADOR_COLUMNAS).
+
+    Infraestructura del servicio, como la mensajeria: no es una entidad del modelo. aplicar.sql la incluye
+    desde el commit 9cdf705 y el archivo tiene que salir de aca, porque cada corrida vacia sql/15_infra/.
+    Idempotente (IF NOT EXISTS): sobre una base que ya la tiene con otros anchos no cambia nada; el tope real
+    lo pone el contrato."""
+    q, ancho = "identidad.borrador_onboarding", max(len(n) for n, _, _ in BORRADOR_COLUMNAS)
+    L = ["-- Generado por scripts/generar_ddl.py — no editar a mano.",
+         "-- Borrador del alta incompleta (identidad): lo que la persona ya cargo para retomar el alta en otro",
+         "-- momento. Lo usa BorradorOnboardingRepositorio. Una fila por correo; vence a los 7 dias (expira_en) y",
+         "-- se borra al terminar el alta. Anchos y enumerados: contrato BorradorOnboarding (identidad.yaml).",
+         f"CREATE TABLE IF NOT EXISTS {q} ("]
+    filas = [f"  {n.ljust(ancho)} {t}" for n, t, _ in BORRADOR_COLUMNAS]
+    for col, valores in BORRADOR_ENUMS.items():
+        lista = ", ".join(f"'{v}'" for v in valores)
+        filas.append(f"  CONSTRAINT {ident('ck', 'identidad', 'borrador', col)} CHECK ({col} IN ({lista}))")
+    L += [",\n".join(filas), ");", "",
+          "CREATE INDEX IF NOT EXISTS ix_identidad_borrador_expira",
+          f"  ON {q} (expira_en);", "",
+          f"COMMENT ON TABLE {q} IS 'Datos de un alta a medio llenar para retomarla; se borra al completar el alta.';"]
+    for n, _, comentario in BORRADOR_COLUMNAS:
+        L.append(f"COMMENT ON COLUMN {q}.{n} IS '{comentario}';")
+    L += ["", "-- Los permisos por defecto del esquema dan SELECT/INSERT/UPDATE; el borrador ademas se borra al",
+          "-- confirmar el alta (BorradorOnboardingRepositorio.eliminar).",
+          f"GRANT SELECT, INSERT, UPDATE, DELETE ON {q} TO svc_identidad;", ""]
+    d = OUT / "15_infra"
+    d.mkdir(parents=True, exist_ok=True)
     (d / "borradores.sql").write_text("\n".join(L), encoding="utf-8")
 
 
@@ -1213,6 +1286,8 @@ def escribir_orquestador(mods):
             L.append(f"\\ir 10_tablas/{carpeta}/{d['entidades'][alias]['tabla']}.sql")
     L += ["", "-- 2b) Infraestructura de mensajería por esquema (ADR-027)",
           "\\ir 15_infra/mensajeria.sql"]
+    L += ["", "-- 2b') Columnas opcionales nuevas sobre una base que ya existe.",
+          "\\ir 15_infra/columnas_agregadas.sql"]
     L += ["", "-- 2c) Nulabilidad al día sobre una base que ya existe.",
           "--     Solo afloja lo que el modelo declara opcional; no es un sistema de",
           "--     migraciones. Sobre una base recién creada no hace nada.",

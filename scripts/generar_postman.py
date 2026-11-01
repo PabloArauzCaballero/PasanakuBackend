@@ -58,10 +58,17 @@ def permisos_del_codigo(servicio: str) -> dict[str, str]:
     lo que no tenga uno propio, igual que en Spring.
     """
     permisos: dict[str, str] = {}
-    for java in (RAIZ / "servicios" / servicio / "src/main/java").rglob("*Controller.java"):
+    raiz_java = RAIZ / "servicios" / servicio / "src/main/java"
+    # Un controlador grande reparte sus rutas en una cadena de clases `Rutas*` que extiende
+    # (RutasDelGrupo, RutasDeEtapas, ...): sus `@Permiso` cuentan igual. Sin leerlas, la
+    # operacion quedaba «sin @Permiso hallado» y perdia su caso «sin sesion».
+    fuentes = sorted({*raiz_java.rglob("*Controller.java"), *raiz_java.rglob("Rutas*.java")})
+    for java in fuentes:
         texto = java.read_text(encoding="utf-8")
         de_clase = None
-        cabecera = texto.split("public class", 1)[0]
+        # Hasta la declaracion de la clase, sea `public class` o `abstract class`: si no, una
+        # clase de rutas abstracta tomaria como suyo el primer `@Permiso` de un metodo.
+        cabecera = re.split(r"\bclass\s", texto, maxsplit=1)[0]
         if (m := re.search(r'@Permiso\("([A-Z_]+)"\)', cabecera)):
             de_clase = m.group(1)
         if "@Publico" in cabecera:

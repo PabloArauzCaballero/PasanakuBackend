@@ -1,0 +1,20 @@
+:host { display: grid; gap: var(--s5); width: 100%; min-width: 0; padding-top: var(--s4); }
+.directas { display: grid; gap: var(--s3); grid-template-columns: minmax(0, 1fr); min-width: 0; }
+.col-ruta { display: flex; flex-direction: column; gap: calc(var(--s1) / 2); min-width: 0; white-space: normal; overflow-wrap: break-word; }
+.enlace-op { font: var(--t-cuerpo-chico); font-family: var(--mono); font-weight: 600; color: var(--brand-texto); text-decoration: underline; text-underline-offset: 0.2em; }
+.enlace-op:hover { text-decoration-thickness: var(--borde-foco); }
+.sub-op { font: var(--t-etiqueta); color: var(--text-3); }
+.texto-impacto { display: block; max-width: 36rem; white-space: normal; font: var(--t-cuerpo-chico); color: var(--text); }
+    .casos-de-uso { display: grid; gap: var(--s3); grid-template-columns: minmax(0, 1fr); min-width: 0; }
+.casos { list-style: none; margin: 0; padding: 0; display: grid; align-items: start; gap: var(--s3); grid-template-columns: repeat(auto-fill, minmax(min(100%, 26rem), 1fr)); }
+.caso { display: grid; align-content: start; gap: var(--s2); min-width: 0; padding: var(--s4); border: var(--borde-fino) solid var(--border); border-radius: var(--r-lg); background: var(--surface); box-shadow: var(--sombra-1); }
+h3 { margin: 0; font: var(--t-cuerpo-fuerte); color: var(--text); overflow-wrap: anywhere; }
+.codigo { font-family: var(--mono); color: var(--text-2); }
+.endpoints { list-style: none; margin: 0; padding: 0; display: grid; }
+.endpoints li { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: var(--s2); align-items: baseline; padding: var(--s2) 0; border-top: var(--borde-fino) solid var(--border); }
+code { font-family: var(--mono); font-size: .92em; }
+.metodo { min-width: 5ch; text-align: center; padding: 0 var(--s1); border: var(--borde-fino) solid var(--border); border-radius: var(--r-sm); background: var(--surface-2); }
+.destino { display: grid; gap: calc(var(--s1) / 2); min-width: 0; }
+.ruta { overflow-wrap: break-word; }
+.detalle { font: var(--t-etiqueta); color: var(--text-3); overflow-wrap: anywhere; }
+.tenue { margin: 0; font: var(--t-cuerpo-chico); color: var(--text-3); }

@@ -32,11 +32,13 @@ import { coloresDe, Tono } from '../tono/tono'
     :host(:hover) .loseta { transform: scale(1.08); }
     .textos { min-width: 0; }
     p { margin: 0; }
-    .rotulo { font: var(--t-etiqueta); letter-spacing: var(--t-etiqueta-track); text-transform: uppercase; color: var(--text-3); }
+    .rotulo { font: var(--t-etiqueta); letter-spacing: var(--t-etiqueta-track); text-transform: uppercase; color: var(--text-3); overflow-wrap: break-word; }
     .valor { margin-top: var(--s1); font: var(--t-cifra); letter-spacing: var(--t-cifra-track); color: var(--text); font-variant-numeric: tabular-nums; }
     :host(.con-tono) .valor { color: var(--frente); }
     .pista, .variacion { margin-top: var(--s1); font: var(--t-ayuda); color: var(--text-3); }
     @media (prefers-reduced-motion: reduce) { :host(:hover), :host(:hover) .loseta { transform: none; } }
+    /* En el celular el ícono va arriba: al lado, el rótulo quedaba en ~85 px y «SUSPENDIDOS» se partía. */
+    @media (max-width: 40em) { :host { flex-direction: column; gap: var(--s2); } }
   `,
 })
 export class TarjetaKPI {

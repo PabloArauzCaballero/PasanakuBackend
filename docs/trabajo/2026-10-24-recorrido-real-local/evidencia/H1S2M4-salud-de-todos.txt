@@ -1,0 +1,17 @@
+servicio           readiness    arranque
+aportes            "status":"UP" Started Aplicacion in 22.011 seconds
+auditoria          "status":"UP" Started Aplicacion in 24.202 seconds
+cumplimiento       "status":"UP" Started Aplicacion in 34.333 seconds
+entregas           "status":"UP" Started Aplicacion in 34.137 seconds
+erp                "status":"UP" Started Aplicacion in 32.707 seconds
+garantia           "status":"UP" Started Aplicacion in 37.327 seconds
+grupos             "status":"UP" Started Aplicacion in 19.627 seconds
+identidad          "status":"UP" Started Aplicacion in 7.075 seconds
+inversiones        "status":"UP" Started Aplicacion in 16.45 seconds
+notificaciones     "status":"UP" Started Aplicacion in 18.962 seconds
+nucleo-financiero  "status":"UP" Started Aplicacion in 24.041 seconds
+organizador        "status":"UP" Started Aplicacion in 15.326 seconds
+publicidad         "status":"UP" Started Aplicacion in 15.284 seconds
+tarifas            "status":"UP" Started Aplicacion in 14.556 seconds
+transparencia      "status":"UP" Started Aplicacion in 6.433 seconds
+gateway            {"status":"UP"}

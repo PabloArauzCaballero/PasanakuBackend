@@ -28,10 +28,10 @@ class CabeceraDeFase extends StatelessWidget {
         children: [
           Text(
             'FASE $numero DE $total',
-            style: Tipo.etiqueta.copyWith(color: t.text2),
+            style: Tipo.etiqueta.copyWith(color: t.brandTexto),
           ),
           const SizedBox(height: Espacio.s1),
-          Text(titulo, style: Tipo.titulo2.copyWith(color: t.text)),
+          Text(titulo, style: Tipo.tituloPantalla.copyWith(color: t.text)),
           const SizedBox(height: Espacio.s3),
           ClipRRect(
             borderRadius: BorderRadius.circular(Radios.pill),
@@ -41,7 +41,7 @@ class CabeceraDeFase extends StatelessWidget {
               curve: Movimiento.llega,
               builder: (context, progreso, _) => LinearProgressIndicator(
                 value: progreso,
-                minHeight: Espacio.s1,
+                minHeight: Espacio.s2,
                 backgroundColor: t.border,
                 color: t.brand,
               ),

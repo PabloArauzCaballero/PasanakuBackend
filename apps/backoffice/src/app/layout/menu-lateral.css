@@ -1,0 +1,123 @@
+/* El menú lateral: grupos, secciones plegables y sus pantallas. Sin literales: todo por tokens. */
+:host { display: grid; align-content: start; gap: var(--s3); color: var(--text); }
+.grupo { display: grid; gap: var(--s1); }
+.rotulo {
+  display: flex;
+  align-items: center;
+  padding: var(--s2) var(--s3) var(--s1);
+  color: var(--text-3);
+  font: var(--t-eyebrow);
+  letter-spacing: var(--t-eyebrow-track);
+  text-transform: uppercase;
+  user-select: none;
+}
+ul { list-style: none; margin: 0; padding: 0; display: grid; gap: calc(var(--s1) / 2); }
+.entrada-fila { display: flex; align-items: center; width: 100%; border-radius: var(--r-md); position: relative; }
+.entrada-fila a { flex: 1; min-width: 0; padding-right: calc(var(--s3) + 1.75rem); }
+.plegar {
+  position: absolute;
+  right: var(--s1);
+  top: 50%;
+  display: grid;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  padding: 0;
+  border: 0;
+  border-radius: var(--r-sm);
+  background: transparent;
+  color: var(--text-3);
+  cursor: pointer;
+  transform: translateY(-50%);
+  transition: background-color var(--mov-micro) ease-out, color var(--mov-micro) ease-out, transform var(--mov-micro) var(--curva-llega);
+}
+.plegar ap-icono { display: grid; transition: transform var(--mov-entrada) var(--curva-llega); }
+.plegar.abierto ap-icono { transform: rotate(90deg); }
+.plegar:hover { background: var(--surface-2); color: var(--text); }
+.plegar:active { transform: translateY(-50%) scale(0.92); }
+.plegar:focus-visible { outline: var(--borde-foco) solid var(--g300); outline-offset: calc(var(--borde-desfase) * -1); }
+.plegable {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transition: grid-template-rows var(--mov-entrada) var(--curva-llega), opacity var(--mov-entrada) ease-out;
+}
+.plegable.abierto { grid-template-rows: 1fr; opacity: 1; }
+.plegable > .hijos { min-height: 0; overflow: hidden; }
+.plegable:not(.abierto) > .hijos { visibility: hidden; margin-block: 0; transition: visibility 0s linear var(--mov-entrada), margin-block var(--mov-entrada) var(--curva-llega); }
+a {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  min-height: calc(var(--area-tactil) - var(--s2));
+  padding: var(--s2) var(--s3);
+  border-radius: var(--r-md);
+  font: var(--t-cuerpo-chico);
+  font-weight: 500;
+  color: var(--text-2);
+  text-decoration: none;
+  transition: background-color var(--mov-micro) cubic-bezier(0.16, 1, 0.3, 1),
+              color var(--mov-micro) cubic-bezier(0.16, 1, 0.3, 1),
+              transform var(--mov-micro) cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+}
+a:hover {
+  background: var(--surface-2);
+  color: var(--text);
+  transform: translateX(calc(var(--s1) / 2));
+}
+a.activo {
+  background: color-mix(in srgb, var(--verde-solido) 10%, transparent);
+  color: var(--verde-solido);
+  font-weight: 600;
+  box-shadow: inset var(--borde-foco) 0 0 var(--verde-solido);
+}
+a.activo .icono-padre,
+a.activo .icono-hijo {
+  color: var(--verde-solido);
+  opacity: 1;
+}
+a:active { transform: scale(0.98); transition-duration: 60ms; }
+a:focus-visible { outline: var(--borde-foco) solid var(--g300); outline-offset: var(--borde-desfase); }
+.texto-entrada { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.icono-padre { flex: none; width: 1.25rem; height: 1.25rem; opacity: 0.75; transition: transform var(--mov-micro) ease; }
+a:hover .icono-padre { opacity: 1; transform: scale(1.08); }
+
+.hijos {
+  margin: calc(var(--s1) / 2) 0 var(--s2) var(--s3);
+  padding-left: var(--s2);
+  border-left: var(--borde-fino) solid var(--border);
+  display: grid;
+  gap: calc(var(--s1) / 2);
+}
+.hijos a {
+  min-height: 2.125rem;
+  padding: var(--s1) var(--s2);
+  gap: var(--s2);
+  font-size: 0.8125rem;
+  color: var(--text-3);
+}
+.hijos a:active { transform: scale(0.98); }
+.hijos a:hover {
+  color: var(--text);
+  background: var(--surface-2);
+  transform: translateX(calc(var(--s1) / 2));
+}
+.hijos a.activo {
+  color: var(--verde-solido);
+  background: color-mix(in srgb, var(--verde-solido) 8%, transparent);
+  font-weight: 600;
+  box-shadow: inset var(--borde-desfase) 0 0 var(--verde-solido);
+}
+.texto-hijo { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.icono-hijo {
+  flex: none;
+  width: 1rem;
+  height: 1rem;
+  opacity: 0.75;
+  transition: transform var(--mov-micro) ease, opacity var(--mov-micro) ease;
+}
+.hijos a:hover .icono-hijo,
+.hijos a.activo .icono-hijo {
+  opacity: 1;
+}

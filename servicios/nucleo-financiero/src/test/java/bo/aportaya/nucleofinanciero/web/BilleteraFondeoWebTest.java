@@ -15,6 +15,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import bo.aportaya.nucleofinanciero.aplicacion.CU10RecargarSaldo;
 import bo.aportaya.nucleofinanciero.aplicacion.CU11RetirarSaldo;
 import bo.aportaya.nucleofinanciero.aplicacion.CotizarOperacion;
+import bo.aportaya.nucleofinanciero.aplicacion.RecargasConProveedor;
+import bo.aportaya.nucleofinanciero.dominio.puertos.ProveedorDeRecargas.CobroQr;
 import bo.aportaya.plataforma.pruebas.web.PruebaWeb;
 import bo.aportaya.plataforma.pruebas.web.Sesiones;
 import java.time.OffsetDateTime;
@@ -35,6 +37,8 @@ import org.springframework.http.MediaType;
         value = BilleteraController.class,
         properties = {"aportaya.retiro.doble-aprobacion-desde=5000.00"})
 @org.springframework.context.annotation.Import(FondeoDeLaBilletera.class)
+@org.springframework.test.context.bean.override.mockito.MockitoBean(
+        types = bo.aportaya.nucleofinanciero.aplicacion.CU13LiberarRetencionDelMercado.class)
 class BilleteraFondeoWebTest extends BaseDeOperacionesWeb {
 
     private static final String RECARGA =
@@ -43,23 +47,41 @@ class BilleteraFondeoWebTest extends BaseDeOperacionesWeb {
                     .formatted(CUENTA);
 
     @Test
-    @DisplayName("recarga · 201 con lo que se acreditará, y la Idempotency-Key llega como clave del caso de uso")
+    @DisplayName("recarga · 201 con lo que se acreditará y el QR dinámico; la Idempotency-Key llega como clave")
     void recarga() throws Exception {
-        when(recargas.solicitar(any(), any()))
-                .thenReturn(new CU10RecargarSaldo.SalidaSolicitud(
-                        UUID.randomUUID(),
-                        "PENDIENTE",
-                        OffsetDateTime.of(2026, 10, 17, 12, 0, 0, 0, ZoneOffset.UTC),
-                        bob("500.00")));
+        when(recargas.solicitarConQr(any(), any()))
+                .thenReturn(solicitada(Optional.of(new CobroQr("PASANAKU-PRUEBA|NO-PAGABLE|ref=x", "PRUEBA"))));
 
         mvc.perform(operar(post("/billetera/recargas"), RECARGA, "BILLETERA_OPERAR"))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.acreditara.monto").value("500.00"))
-                .andExpect(jsonPath("$.estado").value("PENDIENTE"));
+                .andExpect(jsonPath("$.estado").value("PENDIENTE"))
+                .andExpect(jsonPath("$.cobroQr.contenido").value("PASANAKU-PRUEBA|NO-PAGABLE|ref=x"))
+                .andExpect(jsonPath("$.cobroQr.origen").value("PRUEBA"));
 
         var entrada = ArgumentCaptor.forClass(CU10RecargarSaldo.EntradaSolicitud.class);
-        verify(recargas).solicitar(entrada.capture(), any());
+        verify(recargas).solicitarConQr(entrada.capture(), any());
         assertThat(entrada.getValue().claveIdempotencia()).isEqualTo(CLAVE);
+    }
+
+    @Test
+    @DisplayName("recarga · si el proveedor no emite QR, cobroQr no viaja")
+    void recargaSinQr() throws Exception {
+        when(recargas.solicitarConQr(any(), any())).thenReturn(solicitada(Optional.empty()));
+
+        mvc.perform(operar(post("/billetera/recargas"), RECARGA, "BILLETERA_OPERAR"))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.cobroQr").doesNotExist());
+    }
+
+    private static RecargasConProveedor.Solicitada solicitada(Optional<CobroQr> qr) {
+        return new RecargasConProveedor.Solicitada(
+                new CU10RecargarSaldo.SalidaSolicitud(
+                        UUID.randomUUID(),
+                        "PENDIENTE",
+                        OffsetDateTime.of(2026, 10, 17, 12, 0, 0, 0, ZoneOffset.UTC),
+                        bob("500.00")),
+                qr);
     }
 
     @Test

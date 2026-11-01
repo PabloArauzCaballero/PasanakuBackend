@@ -2,6 +2,7 @@ import { provideHttpClient, withInterceptors } from '@angular/common/http'
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing'
 import { provideZonelessChangeDetection } from '@angular/core'
 import { TestBed } from '@angular/core/testing'
+import { provideRouter } from '@angular/router'
 import { ejemploDe } from '@aportaya/simulado'
 import { axe } from 'vitest-axe'
 import { beforeEach, describe, expect, it } from 'vitest'
@@ -16,7 +17,8 @@ describe('PantallaDeBilletera · accesibilidad', () => {
   let http: HttpTestingController
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [provideZonelessChangeDetection(), provideHttpClient(withInterceptors([erroresInterceptor])), provideHttpClientTesting(), { provide: GATEWAY, useValue: 'http://gw/api/v1' }],
+      providers: [provideZonelessChangeDetection(),
+        provideRouter([]), provideHttpClient(withInterceptors([erroresInterceptor])), provideHttpClientTesting(), { provide: GATEWAY, useValue: 'http://gw/api/v1' }],
     })
     http = TestBed.inject(HttpTestingController)
   })

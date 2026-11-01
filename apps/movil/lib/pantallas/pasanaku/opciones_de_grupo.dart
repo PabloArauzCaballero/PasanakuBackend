@@ -12,7 +12,7 @@ const periodicidades = {
 const modalidades = {
   'SORTEO_ALEATORIO': (
     nombre: 'Sorteo al azar',
-    detalle: 'Nadie elige: el orden sale sorteado y verificable',
+    detalle: 'El orden sale de un sorteo que el grupo puede comprobar',
   ),
   'ORDEN_DE_INGRESO': (
     nombre: 'Orden de ingreso',

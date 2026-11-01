@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http'
 import { inject } from '@angular/core'
+import type { Observable } from 'rxjs'
 import type { TarifarioEnLista } from 'clientes/angular/tarifas/model/tarifarioEnLista'
 import { GATEWAY } from '../../../nucleo/gateway'
 import type { CargadorDePagina } from '../../../nucleo/tabla/tipos'
@@ -17,3 +18,17 @@ export const cargarTarifarios = (http: HttpClient, gateway: string): CargadorDeP
 
 /** Fábrica en contexto de inyección: la pantalla no importa `HttpClient`. */
 export const cargadorDeTarifarios = (): CargadorDePagina<TarifarioEnLista> => cargarTarifarios(inject(HttpClient), inject(GATEWAY))
+
+/** Lo que responde `ponerTarifarioVigente`. */
+export type TarifarioPuestoEnVigencia = { tarifarioId: string; estado: 'VIGENTE'; desde: string }
+
+/**
+ * `POST /tarifas/tarifarios/{id}/vigencia` (`ponerTarifarioVigente`, CU-34): pone en vigencia una versión cuyo preaviso
+ * ya se cumplió; la anterior queda SUSTITUIDA. Sin cuerpo ni clave en el contrato: repetirla sobre una versión ya
+ * vigente la rechaza el servidor (AP-CU34-02), no la duplica. Si el preaviso vence, también lo decide el servidor.
+ */
+export function crearPonerVigente(): (tarifarioId: string) => Observable<TarifarioPuestoEnVigencia> {
+  const http = inject(HttpClient)
+  const gateway = inject(GATEWAY)
+  return (tarifarioId) => http.post<TarifarioPuestoEnVigencia>(`${gateway}/tarifas/tarifarios/${tarifarioId}/vigencia`, null)
+}

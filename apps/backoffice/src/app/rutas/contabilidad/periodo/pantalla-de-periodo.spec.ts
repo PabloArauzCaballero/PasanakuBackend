@@ -19,14 +19,16 @@ describe('PantallaDePeriodo · un período CERRADO no ofrece asentar', () => {
     expect(fixture.nativeElement.textContent).toContain('Período cerrado: no se puede asentar en él')
   })
 
-  it('sobre un período abierto sí aparece el botón de asentar', async () => {
+  it('sobre un período abierto se dice que admite asientos, sin un botón «Asentar» que no tiene operación detrás', async () => {
     const fixture = await montar(http, { vigente: HOY, periodos: periodos('e-2026', [mes(1, 'ABIERTO')]) })
-    expect(textosDeBotones(fixture).some((texto) => texto.includes('Asentar'))).toBe(true)
+    expect(fixture.nativeElement.textContent).toContain('Admite asientos')
+    expect(textosDeBotones(fixture).some((texto) => texto.includes('Asentar'))).toBe(false)
   })
 
-  it('con un mes cerrado y el siguiente abierto, solo el abierto ofrece asentar', async () => {
+  it('con un mes cerrado y el siguiente abierto, solo el abierto admite asientos', async () => {
     const fixture = await montar(http, { vigente: HOY, periodos: periodos('e-2026', [mes(1, 'CERRADO'), mes(2, 'ABIERTO')]) })
-    expect(textosDeBotones(fixture).filter((texto) => texto.includes('Asentar'))).toHaveLength(1)
+    expect(fixture.nativeElement.querySelectorAll('.admite')).toHaveLength(1)
+    expect(fixture.nativeElement.textContent).toContain('Período cerrado: no se puede asentar en él')
   })
 
   it('solo el período más antiguo abierto ofrece cerrarse: los períodos se cierran en orden', async () => {

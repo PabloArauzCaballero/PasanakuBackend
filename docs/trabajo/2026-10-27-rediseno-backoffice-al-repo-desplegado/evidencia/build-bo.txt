@@ -1,0 +1,33 @@
+❯ Building...
+✔ Building...
+Initial chunk files | Names                      |  Raw size | Estimated transfer size
+main-IW2JDADU.js    | main                       | 187.20 kB |                48.43 kB
+chunk-ClTk9wxt.js   | -                          | 165.73 kB |                49.26 kB
+chunk-B6Wg98ne.js   | -                          | 132.98 kB |                34.91 kB
+styles-GDOL4DWR.css | styles                     |  10.32 kB |                 1.87 kB
+chunk-6hRO0rGA.js   | -                          |   1.92 kB |               792 bytes
+
+                    | Initial total              | 498.17 kB |               135.27 kB
+
+Lazy chunk files    | Names                      |  Raw size | Estimated transfer size
+chunk-CZKb6_5I.js   | -                          |   1.03 MB |                77.59 kB
+chunk-CSo2lGPA.js   | -                          |  37.81 kB |                 3.89 kB
+chunk-IJ157Mry.js   | ficha-de-tabla             |  37.04 kB |                 8.99 kB
+chunk-Dvmk2-3y.js   | -                          |  30.79 kB |                 3.74 kB
+chunk-BEZ-XDAF.js   | pantalla-de-conciliaciones |  21.67 kB |                 6.24 kB
+chunk-H8DdscCH.js   | pantalla-operacion-detalle |  21.07 kB |                 5.29 kB
+chunk-COhGW2nK.js   | tablero-por-rol            |  20.78 kB |                 6.17 kB
+chunk-e1wKr_Lo.js   | pantalla-de-compras        |  19.94 kB |                 5.40 kB
+chunk-aSbs428b.js   | pantalla-de-expedientes    |  19.05 kB |                 5.61 kB
+chunk-DsZG8OrK.js   | pantalla-de-campanas       |  16.90 kB |                 5.00 kB
+chunk-D8qee5Gb.js   | pantalla-de-admision       |  16.86 kB |                 4.71 kB
+chunk-Bxj9hELH.js   | pantalla-bitacora          |  16.78 kB |                 5.43 kB
+chunk-DpQomMVv.js   | bandeja-de-reclamos        |  16.48 kB |                 5.64 kB
+chunk-Cfd9ht57.js   | pantalla-de-cierres        |  16.45 kB |                 5.14 kB
+chunk-BNjSpoVl.js   | pantalla-de-ingreso        |  16.13 kB |                 5.05 kB
+...and 146 more lazy chunks files. Use "--verbose" to show all the files.
+
+Application bundle generation complete. [24.732 seconds] - 2026-10-27T03:54:34.785Z
+
+Output location: /home/user/PasanakuBackend/apps/backoffice/dist/backoffice
+

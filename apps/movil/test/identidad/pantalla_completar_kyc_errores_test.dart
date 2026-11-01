@@ -65,7 +65,13 @@ void main() {
     final campoFecha = tester.widget<CampoDeFecha>(find.byType(CampoDeFecha));
     campoFecha.onElegida(DateTime(2031, 12, 17));
     await tester.pump();
-    await tester.ensureVisible(find.text('Guardar fecha'));
+    // La lista construye solo lo visible: se desplaza hasta el botón como lo haría
+    // la persona (con la entrada y las secciones, queda debajo del pliegue).
+    await tester.scrollUntilVisible(
+      find.text('Guardar fecha'),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
     await tester.tap(find.text('Guardar fecha'));
     await tester.pumpAndSettle();
 
@@ -73,6 +79,11 @@ void main() {
       find.text('Esta acción todavía no está disponible para tu cuenta.'),
       findsOneWidget,
     );
+    // La alerta empuja el contenido: la referencia queda justo debajo, a un desplazamiento.
+    await tester.ensureVisible(
+      find.text('Referencia: traza-sintetica', skipOffstage: false),
+    );
+    await tester.pumpAndSettle();
     expect(find.text('Referencia: traza-sintetica'), findsOneWidget);
     expect(find.textContaining('ingreso'), findsNothing);
     expect(tester.takeException(), isNull);

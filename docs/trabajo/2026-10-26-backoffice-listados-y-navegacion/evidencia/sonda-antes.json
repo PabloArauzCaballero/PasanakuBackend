@@ -1,0 +1,302 @@
+{
+ "medidas": [
+  {
+   "nombre": "menu:Inicio",
+   "url": "/tablero",
+   "ms": 8060
+  },
+  {
+   "nombre": "menu:Operación",
+   "url": "/operacion/estado",
+   "ms": 192
+  },
+  {
+   "nombre": "pestana:Operación/Arquitectura y estado",
+   "url": "/operacion/estado",
+   "ms": 8072,
+   "botones": 11
+  },
+  {
+   "nombre": "pestana:Operación/Retiros en revisión",
+   "url": "/operacion/retiros",
+   "ms": 141,
+   "botones": 4
+  },
+  {
+   "nombre": "pestana:Operación/Reclamos",
+   "url": "/operacion/reclamos",
+   "ms": 108,
+   "botones": 8
+  },
+  {
+   "nombre": "pestana:Operación/Solicitudes escaladas",
+   "url": "/operacion/solicitudes-escaladas",
+   "ms": 101,
+   "botones": 5
+  },
+  {
+   "nombre": "pestana:Operación/Conciliación de custodia",
+   "url": "/operacion/custodia",
+   "ms": 125,
+   "botones": 4
+  },
+  {
+   "nombre": "pestana:Operación/Cierres diarios",
+   "url": "/operacion/cierres-diarios",
+   "ms": 94,
+   "botones": 4
+  },
+  {
+   "nombre": "pestana:Operación/Reversos",
+   "url": "/operacion/reversos",
+   "ms": 93,
+   "botones": 7
+  },
+  {
+   "nombre": "pestana:Operación/Desembolsos",
+   "url": "/operacion/desembolsos",
+   "ms": 97,
+   "botones": 10
+  },
+  {
+   "nombre": "menu:Admisiones",
+   "url": "/admisiones",
+   "ms": 95
+  },
+  {
+   "nombre": "menu:Cumplimiento",
+   "url": "/cumplimiento/verificaciones",
+   "ms": 160
+  },
+  {
+   "nombre": "pestana:Cumplimiento/Verificación de identidad",
+   "url": "/cumplimiento/verificaciones",
+   "ms": 8052,
+   "botones": 9
+  },
+  {
+   "nombre": "pestana:Cumplimiento/Alertas de monitoreo",
+   "url": "/cumplimiento/alertas",
+   "ms": 134,
+   "botones": 12
+  },
+  {
+   "nombre": "pestana:Cumplimiento/Casos de investigación",
+   "url": "/cumplimiento/casos",
+   "ms": 102,
+   "botones": 7
+  },
+  {
+   "nombre": "pestana:Cumplimiento/Reportes a la UIF",
+   "url": "/cumplimiento/uif/reportes",
+   "ms": 135,
+   "botones": 11
+  },
+  {
+   "nombre": "pestana:Cumplimiento/Requerimientos de autoridad",
+   "url": "/cumplimiento/uif/requerimientos",
+   "ms": 111,
+   "botones": 10
+  },
+  {
+   "nombre": "pestana:Cumplimiento/Pruebas de continuidad",
+   "url": "/cumplimiento/continuidad",
+   "ms": 93,
+   "botones": 4
+  },
+  {
+   "nombre": "pestana:Cumplimiento/Actas de comité",
+   "url": "/cumplimiento/actas",
+   "ms": 98,
+   "botones": 3
+  },
+  {
+   "nombre": "pestana:Cumplimiento/Eventos de riesgo operativo",
+   "url": "/cumplimiento/riesgos/eventos",
+   "ms": 107,
+   "botones": 7
+  },
+  {
+   "nombre": "pestana:Cumplimiento/Incidentes de seguridad",
+   "url": "/cumplimiento/seguridad/incidentes",
+   "ms": 98,
+   "botones": 8
+  },
+  {
+   "nombre": "menu:Sistemas",
+   "url": "/operacion/estado",
+   "ms": 130
+  },
+  {
+   "nombre": "pestana:Sistemas/Arquitectura y estado",
+   "url": "/operacion/estado",
+   "ms": 8070,
+   "botones": 11
+  },
+  {
+   "nombre": "pestana:Sistemas/Retiros en revisión",
+   "url": "/operacion/retiros",
+   "ms": 68,
+   "botones": 3
+  },
+  {
+   "nombre": "pestana:Sistemas/Reclamos",
+   "url": "/operacion/reclamos",
+   "ms": 63,
+   "botones": 8
+  },
+  {
+   "nombre": "pestana:Sistemas/Solicitudes escaladas",
+   "url": "/operacion/solicitudes-escaladas",
+   "ms": 62,
+   "botones": 5
+  },
+  {
+   "nombre": "pestana:Sistemas/Conciliación de custodia",
+   "url": "/operacion/custodia",
+   "ms": 65,
+   "botones": 4
+  },
+  {
+   "nombre": "pestana:Sistemas/Cierres diarios",
+   "url": "/operacion/cierres-diarios",
+   "ms": 92,
+   "botones": 4
+  },
+  {
+   "nombre": "pestana:Sistemas/Reversos",
+   "url": "/operacion/reversos",
+   "ms": 69,
+   "botones": 7
+  },
+  {
+   "nombre": "pestana:Sistemas/Desembolsos",
+   "url": "/operacion/desembolsos",
+   "ms": 71,
+   "botones": 10
+  },
+  {
+   "nombre": "menu:Catálogo de datos",
+   "url": "/tablero/catalogo-de-datos",
+   "ms": 140
+  },
+  {
+   "nombre": "menu:Contabilidad",
+   "url": "/contabilidad",
+   "ms": 150
+  },
+  {
+   "nombre": "pestana:Contabilidad/Presupuesto",
+   "url": "/contabilidad/presupuesto",
+   "ms": 113,
+   "botones": 6
+  },
+  {
+   "nombre": "pestana:Contabilidad/Compras y cuentas por pagar",
+   "url": "/contabilidad/compras",
+   "ms": 113,
+   "botones": 10
+  },
+  {
+   "nombre": "pestana:Contabilidad/Cuentas por cobrar",
+   "url": "/contabilidad/cobros",
+   "ms": 98,
+   "botones": 7
+  },
+  {
+   "nombre": "menu:Publicidad",
+   "url": "/publicidad/anunciantes",
+   "ms": 113
+  },
+  {
+   "nombre": "pestana:Publicidad/Anunciantes",
+   "url": "/publicidad/anunciantes",
+   "ms": 8059,
+   "botones": 4
+  },
+  {
+   "nombre": "pestana:Publicidad/Campañas",
+   "url": "/publicidad/campanas",
+   "ms": 84,
+   "botones": 10
+  },
+  {
+   "nombre": "pestana:Publicidad/Moderación",
+   "url": "/publicidad/moderacion",
+   "ms": 97,
+   "botones": 5
+  },
+  {
+   "nombre": "pestana:Publicidad/Desempeño",
+   "url": "/publicidad/desempeno",
+   "ms": 108,
+   "botones": 2
+  },
+  {
+   "nombre": "pestana:Publicidad/Liquidación",
+   "url": "/publicidad/liquidacion",
+   "ms": 91,
+   "botones": 2
+  },
+  {
+   "nombre": "menu:Configuración",
+   "url": "/configuracion",
+   "ms": 82
+  },
+  {
+   "nombre": "pestana:Configuración/Tarifario",
+   "url": "/configuracion/tarifario",
+   "ms": 85,
+   "botones": 8
+  },
+  {
+   "nombre": "pestana:Configuración/Mensajería",
+   "url": "/configuracion/mensajeria",
+   "ms": 93,
+   "botones": 13
+  },
+  {
+   "nombre": "pestana:Configuración/Reportes",
+   "url": "/configuracion/reportes",
+   "ms": 91,
+   "botones": 10
+  },
+  {
+   "nombre": "menu:Ayuda",
+   "url": "/ayuda",
+   "ms": 99
+  }
+ ],
+ "errores": [
+  {
+   "url": "http://127.0.0.1:4300/operacion/solicitudes-escaladas",
+   "tipo": "red",
+   "texto": "404 GET /api/v1/grupos/solicitudes-escaladas"
+  },
+  {
+   "url": "http://127.0.0.1:4300/operacion/solicitudes-escaladas",
+   "tipo": "consola",
+   "texto": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+  },
+  {
+   "url": "http://127.0.0.1:4300/operacion/solicitudes-escaladas",
+   "tipo": "consola",
+   "texto": "ERROR {mensaje: No encontramos lo que buscabas., codigo: undefined, estado: 404, sinConexion: false, trazaId: 9246ff03c8c41980eef8b40c3ad36778}"
+  },
+  {
+   "url": "http://127.0.0.1:4300/operacion/solicitudes-escaladas",
+   "tipo": "red",
+   "texto": "404 GET /api/v1/grupos/solicitudes-escaladas"
+  },
+  {
+   "url": "http://127.0.0.1:4300/operacion/solicitudes-escaladas",
+   "tipo": "consola",
+   "texto": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+  },
+  {
+   "url": "http://127.0.0.1:4300/operacion/solicitudes-escaladas",
+   "tipo": "consola",
+   "texto": "ERROR {mensaje: No encontramos lo que buscabas., codigo: undefined, estado: 404, sinConexion: false, trazaId: bc4d23fedc31069ac5f98261ed86e2ba}"
+  }
+ ]
+}

@@ -1,8 +1,10 @@
 import 'package:aportaya_diseno/atomos/boton.dart';
 import 'package:aportaya_diseno/atomos/boton_variante.dart';
 import 'package:aportaya_diseno/atomos/campo.dart';
-import 'package:aportaya_diseno/atomos/campo_monto.dart';
-import 'package:aportaya_diseno/atomos/monto.dart';
+import 'package:aportaya_diseno/atomos/campo_monto_grande.dart';
+import 'package:aportaya_diseno/moleculas/alerta.dart';
+import 'package:aportaya_diseno/moleculas/cabecera.dart';
+import 'package:aportaya_diseno/moleculas/tarjeta.dart';
 import 'package:aportaya_diseno/organismos/estado_error.dart';
 import 'package:aportaya_diseno/tokens/tokens.dart';
 import 'package:flutter/material.dart';
@@ -10,6 +12,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../dominio/cu11_retirar_saldo.dart';
 import '../../dominio/proteccion_de_pantalla_dinero.dart';
+import 'comprobante_de_retiro.dart';
 import 'textos.dart';
 
 /// CU-11 — retirar saldo. **Hueco declarado:** CU-18 (registrar y verificar cuenta
@@ -43,70 +46,92 @@ class _PantallaRetirarState extends ConsumerState<PantallaRetirar>
     final notifier = ref.read(retirarSaldoProvider.notifier);
     final resultado = estado.value;
     return Scaffold(
-      appBar: AppBar(title: const Text(TextosBilletera.retirar)),
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(Espacio.s4),
-          child: resultado != null
-              ? Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(Icons.check_circle_outline, size: Espacio.s7),
-                    const SizedBox(height: Espacio.s3),
-                    const Text(
-                      TextosBilletera.retiroInstruido,
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: Espacio.s3),
-                    Monto(
-                      monto: resultado.montoNeto.monto,
-                      moneda: resultado.montoNeto.moneda.value,
-                      etiqueta: TextosBilletera.monto,
-                    ),
-                  ],
-                )
-              : Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    CampoMonto(
-                      etiqueta: TextosBilletera.monto,
-                      onChanged: (v) => setState(() => _monto = v),
-                    ),
-                    const SizedBox(height: Espacio.s3),
-                    Campo(
-                      etiqueta: TextosBilletera.cuentaDestino,
-                      onChanged: (v) =>
-                          setState(() => _instrumentoDestinoId = v),
-                    ),
-                    const SizedBox(height: Espacio.s3),
-                    Campo(
-                      etiqueta: TextosBilletera.factorMfa,
-                      tipoDeTeclado: TextInputType.number,
-                      onChanged: (v) => setState(() => _factorMfa = v),
-                    ),
-                    const SizedBox(height: Espacio.s4),
-                    if (estado.hasError)
-                      EstadoError(
-                        error: estado.error!,
-                        reintentar: () => ref.invalidate(retirarSaldoProvider),
+          padding: const EdgeInsets.symmetric(horizontal: Espacio.s4),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const CabeceraDeSeccion(titulo: TextosBilletera.retirar),
+              Expanded(
+                child: resultado != null
+                    ? Center(child: ComprobanteDeRetiro(resultado: resultado))
+                    : SingleChildScrollView(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            const SizedBox(height: Espacio.s5),
+                            CampoMontoGrande(
+                              etiqueta: TextosBilletera.montoARetirar,
+                              onChanged: (v) => setState(() => _monto = v),
+                            ),
+                            const SizedBox(height: Espacio.s6),
+                            Tarjeta(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  Campo(
+                                    etiqueta: TextosBilletera.cuentaDestino,
+                                    ayuda: TextosBilletera.ayudaCuentaDestino,
+                                    onChanged: (v) => setState(
+                                      () => _instrumentoDestinoId = v,
+                                    ),
+                                  ),
+                                  const SizedBox(height: Espacio.s3),
+                                  Campo(
+                                    etiqueta: TextosBilletera.factorMfa,
+                                    ayuda: TextosBilletera.ayudaFactorMfa,
+                                    tipoDeTeclado: TextInputType.number,
+                                    onChanged: (v) =>
+                                        setState(() => _factorMfa = v),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: Espacio.s4),
+                            const Alerta(
+                              titulo: TextosBilletera.comoSigueElRetiro,
+                              detalle: TextosBilletera.comoSigueElRetiroDetalle,
+                            ),
+                            const SizedBox(height: Espacio.s4),
+                            if (estado.hasError)
+                              EstadoError(
+                                error: estado.error!,
+                                reintentar: () =>
+                                    ref.invalidate(retirarSaldoProvider),
+                              ),
+                          ],
+                        ),
                       ),
-                    const Spacer(),
-                    Boton(
-                      texto: TextosBilletera.retirar,
-                      variante: BotonVariante.primario,
-                      expandido: true,
-                      cargando: estado.isLoading,
-                      onPressed: _puedeEnviar
-                          ? () => notifier.enviar(
-                              cuentaId: widget.cuentaId,
-                              monto: _monto!,
-                              instrumentoDestinoId: _instrumentoDestinoId,
-                              factorMfa: _factorMfa,
-                            )
-                          : null,
+              ),
+              if (resultado == null)
+                Padding(
+                  padding: const EdgeInsets.only(
+                    top: Espacio.s3,
+                    bottom: Espacio.s4,
+                  ),
+                  child: Boton(
+                    texto: TextosBilletera.retirar,
+                    variante: BotonVariante.primario,
+                    expandido: true,
+                    cargando: estado.isLoading,
+                    motivoDeBloqueo: TextosBilletera.motivoRetiro(
+                      hayMonto: _monto != null,
+                      hayCuenta: _instrumentoDestinoId.isNotEmpty,
+                      factorCompleto: _factorMfa.length == 6,
                     ),
-                  ],
+                    onPressed: _puedeEnviar
+                        ? () => notifier.enviar(
+                            cuentaId: widget.cuentaId,
+                            monto: _monto!,
+                            instrumentoDestinoId: _instrumentoDestinoId,
+                            factorMfa: _factorMfa,
+                          )
+                        : null,
+                  ),
                 ),
+            ],
+          ),
         ),
       ),
     );

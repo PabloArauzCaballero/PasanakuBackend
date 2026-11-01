@@ -219,4 +219,50 @@ class CU68AdmisionTest extends BaseDeCU68 {
                         .get(0))
                 .isEqualTo("PENDIENTE");
     }
+
+    @Test
+    @DisplayName("Dada una solicitud PENDIENTE que alguien quiere aceptar, con el rol del servicio · "
+            + "Cuando lo pide el organizador de otro grupo, o un organizador por la resolucion de backoffice · "
+            + "Entonces recibe AP-CU68-06 antes de que la API mire la etapa del solicitante · "
+            + "Y para el administrador del grupo con una clave nueva si hay que mirar la etapa · "
+            + "Y con la misma clave ya registrada no se la vuelve a pedir y proponer devuelve la decision original")
+    void exigeEtapaAlAceptarAutorizaPrimeroYReconoceElReintento() {
+        // El organizador de OTRO grupo: rechazado sin saber nada del solicitante (no hay oraculo de reputacion).
+        UUID otroGrupo = grupoConCupoLibre();
+        var otro = dslFixtura.fetchOne(
+                "SELECT id, usuario_id FROM grupos.participante WHERE grupo_id=? ORDER BY id LIMIT 1", otroGrupo);
+        dslFixtura.execute("UPDATE grupos.participante SET es_organizador=true WHERE id=?", otro.get("id", UUID.class));
+        var organizadorAjeno = sesion(otro.get("usuario_id", UUID.class), "ORGANIZADOR");
+        assertThatThrownBy(() -> transaccion.execute(tx -> {
+                    dsl.execute("SET LOCAL ROLE svc_grupos");
+                    return admision.exigeEtapaAlAceptar(solicitud, UUID.randomUUID(), organizadorAjeno, false);
+                }))
+                .isInstanceOf(ErrorDeNegocio.class)
+                .extracting(e -> ((ErrorDeNegocio) e).codigo().valor())
+                .isEqualTo("AP-CU68-06");
+        // Resolver es de backoffice: un organizador no llega a la etapa por esa puerta.
+        assertThatThrownBy(() -> transaccion.execute(
+                        tx -> admision.exigeEtapaAlAceptar(solicitud, UUID.randomUUID(), administrador, true)))
+                .isInstanceOf(ErrorDeNegocio.class)
+                .extracting(e -> ((ErrorDeNegocio) e).codigo().valor())
+                .isEqualTo("AP-CU68-06");
+
+        // El administrador del grupo, con una clave nueva: hay que mirar la etapa.
+        var entrada = propuesta("ACEPTAR", 0);
+        assertThat(transaccion.<Boolean>execute(tx -> {
+                    dsl.execute("SET LOCAL ROLE svc_grupos");
+                    return admision.exigeEtapaAlAceptar(solicitud, entrada.clave(), administrador, false);
+                }))
+                .isTrue();
+        var original = transaccion.execute(tx -> admision.proponer(entrada, administrador));
+        // Con la misma clave ya registrada: no se pregunta, y proponer devuelve la original.
+        assertThat(transaccion.<Boolean>execute(tx -> {
+                    dsl.execute("SET LOCAL ROLE svc_grupos");
+                    return admision.exigeEtapaAlAceptar(solicitud, entrada.clave(), administrador, false);
+                }))
+                .isFalse();
+        assertThat(transaccion.<bo.aportaya.grupos.dominio.DecisionDeIngreso>execute(
+                        tx -> admision.proponer(entrada, administrador)))
+                .isEqualTo(original);
+    }
 }

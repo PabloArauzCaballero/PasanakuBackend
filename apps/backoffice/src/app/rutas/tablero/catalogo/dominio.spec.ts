@@ -34,7 +34,7 @@ describe('filas · la tabla recibe texto', () => {
 
   it('correcto: la columna de convención lo aclara, la que no tiene nota lo dice y la sensibilidad va en palabras', () => {
     const [id, monto, grupo] = filasDeColumnas(OBLIGACION)
-    expect(id!.negocio).toBe('Identificador estable (convención)')
+    expect(id!.negocio).toBe('Identificador estable')
     expect(monto).toMatchObject({ negocio: 'Lo que se pactó', sensibilidad: 'Dato financiero' })
     expect(grupo!.negocio).toBe('Sin nota de negocio')
   })

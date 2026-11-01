@@ -163,6 +163,8 @@ class FixturaDeEntregas {
             {"entregas", "historial_estado_entrega"},
             {"entregas", "cesion_derecho"},
             {"entregas", "oferta_turno"},
+            {"entregas", "puja_subasta"},
+            {"entregas", "subasta_cupo"},
             {"entregas", "fondeo_entrega"},
             {"entregas", "entrega_fondo"},
             {"entregas", "regla_entrega"},

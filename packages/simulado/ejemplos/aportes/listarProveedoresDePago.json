@@ -1,0 +1,49 @@
+{
+  "servicio": "aportes",
+  "operacion": "listarProveedoresDePago",
+  "metodo": "get",
+  "ruta": "/pagos/proveedores",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": [
+        {
+          "id": "c21f0497-4d65-4eed-8708-5c5860f84438",
+          "codigo": "codigo",
+          "nombre": "nombre",
+          "tipo": "BANCO",
+          "activo": true,
+          "soportaWebhook": true,
+          "prioridad": 1
+        }
+      ]
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": []
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": [
+        {
+          "id": "c21f0497-4d65-4eed-8708-5c5860f84438",
+          "codigo": "codigo",
+          "nombre": "nombre",
+          "tipo": "BANCO",
+          "activo": true,
+          "soportaWebhook": true,
+          "prioridad": 1
+        }
+      ]
+    },
+    "rechazo": {
+      "estado": 401,
+      "cuerpo": {
+        "codigo": "AP-CU21-01",
+        "mensaje": "Obligacion no vigente",
+        "detalle": {},
+        "trazaId": "traza-listarProveedoresDePago-rechazo"
+      }
+    }
+  }
+}

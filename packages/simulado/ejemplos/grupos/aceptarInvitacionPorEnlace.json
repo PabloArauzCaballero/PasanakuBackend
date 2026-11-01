@@ -44,8 +44,8 @@
     "rechazo": {
       "estado": 422,
       "cuerpo": {
-        "codigo": "AP-CU68-08",
-        "mensaje": "Solicitud no encontrada",
+        "codigo": "AP-CU69-10",
+        "mensaje": "Admision humana obligatoria",
         "detalle": {},
         "trazaId": "traza-aceptarInvitacionPorEnlace-rechazo"
       }

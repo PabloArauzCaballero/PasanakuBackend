@@ -4,7 +4,7 @@ import type { PaginaRetirosEnRevision } from 'clientes/angular/nucleo-financiero
 import type { RetiroEnRevision } from 'clientes/angular/nucleo-financiero/model/retiroEnRevision'
 import { GATEWAY } from '../../../../nucleo/gateway'
 import type { PedirPorCursor } from '../../../../nucleo/tabla/cursor'
-import { bandejaPorCursor, cursorDe, pedirJson, type Bandeja } from '../../dominio/bandeja-por-cursor'
+import { cursorDe, pedirJson } from '../../dominio/bandeja-por-cursor'
 
 export type { RetiroEnRevision }
 
@@ -28,6 +28,6 @@ export function pedirRetirosEnRevision(http: HttpClient, gateway: string): Pedir
 }
 
 /** Fábrica en contexto de inyección: la pantalla no importa `HttpClient` (checker «sin red en vista»). */
-export function bandejaDeRetiros(): Bandeja<RetiroEnRevision> {
-  return bandejaPorCursor(pedirRetirosEnRevision(inject(HttpClient), inject(GATEWAY)))
+export function pedidorDeRetirosEnRevision(): PedirPorCursor<RetiroEnRevision, Cursor> {
+  return pedirRetirosEnRevision(inject(HttpClient), inject(GATEWAY))
 }

@@ -5,6 +5,7 @@ import { GATEWAY } from '../../../nucleo/gateway'
 import { contextoIdempotente } from '../../../nucleo/idempotencia.interceptor'
 import type { CargadorDePagina } from '../../../nucleo/tabla/tipos'
 import { cargadorPublicidadPorCursor, type Dinero } from './contrato-publicidad'
+import { lotesPorCursor } from './lotes-por-cursor'
 import type { EntradaCampana } from 'clientes/angular/publicidad/model/entradaCampana'
 import type { SalidaCampana } from 'clientes/angular/publicidad/model/salidaCampana'
 import type { EntradaRechazo } from 'clientes/angular/publicidad/model/entradaRechazo'
@@ -52,6 +53,16 @@ export function cargarCampanas(http: HttpClient, gateway: string): CargadorDePag
 
 export function cargadorDeCampanas(): CargadorDePagina<Campana> {
   return cargarCampanas(inject(HttpClient), inject(GATEWAY))
+}
+
+export const ESTADOS_DE_CAMPANA: readonly EstadoCampana[] = ['BORRADOR', 'EN_REVISION', 'ACTIVA', 'PAUSADA', 'RECHAZADA', 'FINALIZADA']
+
+/**
+ * El listado por lotes de 100. Sin `estados` el contrato devuelve solo EN_REVISION: por eso «Todos» manda los seis
+ * explícitos (es lo que el selector promete), y un estado elegido viaja solo.
+ */
+export function lotesDeCampanas() {
+  return lotesPorCursor<Campana>('/publicidad/campanas', (filtros, params) => params.set('estados', filtros['estado'] || ESTADOS_DE_CAMPANA.join(',')))
 }
 
 export async function crearCampana(http: HttpClient, gateway: string, entrada: EntradaCampana): Promise<SalidaCampana> {

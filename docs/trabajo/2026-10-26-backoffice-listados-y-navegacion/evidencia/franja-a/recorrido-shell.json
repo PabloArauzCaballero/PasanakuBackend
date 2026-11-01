@@ -1,0 +1,211 @@
+{
+ "resultados": [
+  {
+   "nombre": "ingreso · límite · campos vacíos marcan 2 campos y no piden nada",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "nombre": "ingreso · error 401 AP-CU04-01 → «no coinciden», conserva lo escrito, botón habilitado",
+   "veredicto": "PASS",
+   "detalle": "El correo, el teléfono o la contraseña no coinciden."
+  },
+  {
+   "nombre": "ingreso · error 401 sin código → «no coinciden», conserva lo escrito, botón habilitado",
+   "veredicto": "PASS",
+   "detalle": "El correo, el teléfono o la contraseña no coinciden."
+  },
+  {
+   "nombre": "ingreso · error 500 X → «Probá de nuevo», conserva lo escrito, botón habilitado",
+   "veredicto": "PASS",
+   "detalle": "Algo salió mal de nuestro lado. Probá de nuevo en un momento."
+  },
+  {
+   "nombre": "ingreso · límite · tres envíos mientras espera = 1 pedido",
+   "veredicto": "PASS",
+   "detalle": "pedidos=1"
+  },
+  {
+   "nombre": "ingreso · límite · código de 3 dígitos se marca en el campo",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "nombre": "ingreso · aceptado · código completo → /tablero",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "nombre": "menú · 7 entradas con ícono, rol PLATAFORMA",
+   "veredicto": "PASS",
+   "detalle": "Inicio→/tablero | Operación→/operacion/retiros | Cumplimiento→/cumplimiento/verificaciones | Contabilidad→/contabilidad | Publicidad→/publicidad/anunciantes | Sistemas→/sistemas/servicios | Configuración→/configuracion/tarifario"
+  },
+  {
+   "nombre": "menú · Sistemas abre /sistemas/servicios (F1)",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "nombre": "pestañas · Sistemas ≤ 8 y todas con ícono",
+   "veredicto": "PASS",
+   "detalle": "Servicios y SLO | Despliegues | Base de datos | Respaldos | Integraciones | Personal y accesos | Registro del sistema"
+  },
+  {
+   "nombre": "pestañas · grupo Integraciones → subpestaña Outbox",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "nombre": "1280 · la cabecera entra entera (menú de usuario visible)",
+   "veredicto": "PASS",
+   "detalle": "borde derecho=1256px"
+  },
+  {
+   "nombre": "buscador · aceptado · «retir» → Enter abre /operacion/retiros",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "nombre": "buscador · límite · sin coincidencias lo dice",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "nombre": "buscador · Escape cierra la lista",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "nombre": "campana · con datos del simulado lista avisos",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "nombre": "campana · vacía orienta",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "nombre": "campana · error 500 → mensaje + «Volver a intentar» recupera",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "nombre": "menú de usuario · Centro de ayuda y Salir, con ícono; foco en la primera opción",
+   "veredicto": "PASS",
+   "detalle": "Centro de ayuda|Salir · icono=true · foco=Centro de ayuda"
+  },
+  {
+   "nombre": "menú de usuario · flecha recorre; Escape cierra y devuelve el foco",
+   "veredicto": "PASS",
+   "detalle": "segundo=Salir · foco=true · cerró=true"
+  },
+  {
+   "nombre": "menú de usuario · Centro de ayuda abre /ayuda",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "nombre": "ayuda · hay tarjetas con botón",
+   "veredicto": "PASS",
+   "detalle": "Todos | Pendientes | En progreso | Completados | Obligatorios | Todos | Primeros pasos | Operación"
+  },
+  {
+   "nombre": "ayuda · cada «Comenzar» abre su tutorial",
+   "veredicto": "PASS",
+   "detalle": "11/11"
+  },
+  {
+   "nombre": "lanzador · abre el tutorial de la vista",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "nombre": "Salir · 200 → /ingreso",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "nombre": "Salir · 500 del servidor → igual /ingreso",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "nombre": "F1 · rol oficial con todos los permisos: Sistemas no aparece",
+   "veredicto": "PASS",
+   "detalle": "Inicio | Operación | Cumplimiento | Contabilidad | Publicidad | Configuración"
+  },
+  {
+   "nombre": "F1 · rol oficial: Configuración sin «Catálogos operativos» (exige el rol de sistemas)",
+   "veredicto": "PASS",
+   "detalle": "Tarifario | Mensajería | Reportes | Catálogo de datos"
+  },
+  {
+   "nombre": "375 · hamburguesa abre el cajón; una entrada navega y lo cierra",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "nombre": "375 · sin desplazamiento horizontal de la página",
+   "veredicto": "PASS",
+   "detalle": "desborde=0px"
+  },
+  {
+   "nombre": "375 · Salir desde el cajón → /ingreso",
+   "veredicto": "PASS",
+   "detalle": ""
+  }
+ ],
+ "errores": [
+  {
+   "url": "/ingreso",
+   "tipo": "consola",
+   "texto": "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+  },
+  {
+   "url": "/ingreso",
+   "tipo": "consola",
+   "texto": "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+  },
+  {
+   "url": "/ingreso",
+   "tipo": "consola",
+   "texto": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+  },
+  {
+   "url": "/ingreso",
+   "tipo": "consola",
+   "texto": "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+  },
+  {
+   "url": "/operacion/retiros",
+   "tipo": "consola",
+   "texto": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+  },
+  {
+   "url": "/operacion/reclamos",
+   "tipo": "consola",
+   "texto": "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+  },
+  {
+   "url": "/operacion/reclamos",
+   "tipo": "consola",
+   "texto": "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+  },
+  {
+   "url": "/tablero",
+   "tipo": "consola",
+   "texto": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+  },
+  {
+   "url": "/sistemas/outbox",
+   "tipo": "consola",
+   "texto": "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+  },
+  {
+   "url": "/sistemas/outbox",
+   "tipo": "consola",
+   "texto": "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+  }
+ ]
+}

@@ -1,0 +1,51 @@
+{
+  "productor": "grupos",
+  "consumidor": "aportes",
+  "version": 1,
+  "descripcion": "R-GRP-20 (decision del dueño 2026-10-30): la cuota 1 nace al iniciar el grupo y el sorteo exige que todos la hayan pagado. Productor: CU69IniciarGrupo (grupos) lo emite por su outbox en la MISMA transaccion que achica el grupo, publica la version N+1 del reglamento y genera el calendario (periodo 1..N). Consumidor: CU21AbrirPrimeraCuota (aportes) via ConsumidorDeGrupoIniciadoKafka abre la obligacion APORTE_PERIODICO de la cuota 1 de cada cupo reutilizando RegistroDelCalendario. El evento trae TODO (periodo, cupos, montos) porque un consumidor no tiene el token de nadie para preguntarle a grupos. Lo comparten dos pruebas: CU69EventoDeInicioTest (grupos, el productor emite al menos estos campos) y ConsumidorDeGrupoIniciadoKafkaTest (aportes, el consumidor lee este ejemplo). NO existe todavia una prueba contra Kafka y los dos procesos reales juntos.",
+  "topico": "aportaya.grupos.grupo_iniciado",
+  "tipo": "grupos.grupo_iniciado",
+  "agregado": "grupo",
+  "cabeceras": ["event_id", "correlation_id"],
+  "campos": {
+    "grupoId": "uuid del grupo (clave del mensaje)",
+    "moneda": "ISO-4217 del aporte (BOB)",
+    "cuposTotales": "entero: los cupos del grupo ya achicado (= cupos OCUPADO = periodos)",
+    "iniciadoEn": "ISO-8601 con zona, UTC",
+    "periodo.periodoId": "uuid de grupos.periodo numero 1",
+    "periodo.numero": "siempre 1: el inicio abre la cuota 1 y ninguna otra; el consumidor rechaza otro valor",
+    "periodo.fechaInicio": "AAAA-MM-DD",
+    "periodo.fechaLimitePago": "AAAA-MM-DD, vencimiento contractual de la cuota 1",
+    "periodo.fechaFinGracia": "AAAA-MM-DD, no anterior al vencimiento",
+    "periodo.fechaEntregaPrevista": "AAAA-MM-DD",
+    "cupos[].cupoId": "uuid del cupo OCUPADO, renumerado 1..N",
+    "cupos[].numero": "entero 1..N (el organizador es el 1)",
+    "cupos[].participanteId": "uuid del titular del cupo",
+    "cupos[].montoAporte": "cadena decimal con dos decimales (dinero-decimal); positivo o el consumidor rechaza"
+  },
+  "consumidorExige": ["grupoId", "moneda", "periodo.periodoId", "periodo.numero", "periodo.fechaLimitePago", "periodo.fechaFinGracia", "cupos (no vacio)", "cupos[].cupoId", "cupos[].participanteId", "cupos[].montoAporte"],
+  "ejemplo": {
+    "grupoId": "d0000000-0000-4000-8000-000000000001",
+    "moneda": "BOB",
+    "cuposTotales": 2,
+    "iniciadoEn": "2026-10-30T15:00:00Z",
+    "periodo": {
+      "periodoId": "d0000000-0000-4000-8000-000000000002",
+      "numero": 1,
+      "fechaInicio": "2026-11-01",
+      "fechaLimitePago": "2026-11-30",
+      "fechaFinGracia": "2026-12-03",
+      "fechaEntregaPrevista": "2026-12-04"
+    },
+    "cupos": [
+      { "cupoId": "d0000000-0000-4000-8000-000000000011", "numero": 1, "participanteId": "d0000000-0000-4000-8000-000000000021", "montoAporte": "500.00" },
+      { "cupoId": "d0000000-0000-4000-8000-000000000012", "numero": 2, "participanteId": "d0000000-0000-4000-8000-000000000022", "montoAporte": "500.00" }
+    ]
+  },
+  "garantias": [
+    "grupos emite el evento UNA vez por inicio: el reintento con la misma clave de idempotencia devuelve el resultado original sin re-emitir, y otra clave sobre un grupo iniciado responde AP-CU69-17",
+    "aportes abre la cuota 1 UNA vez por evento (evento_consumido) y UNA vez por periodo + cupo (uq_obligacion_periodo_cupo), aunque el inicio llegue re-emitido con otro id",
+    "aportes rechaza sin tocar la base una carga sin cupos, con un aporte no positivo o con un periodo distinto de 1; el mensaje no se marca consumido",
+    "grupos no compromete el sorteo (CU-60) hasta que aportes afirme que todos los cupos tienen la cuota 1 en PAGADO (AP-CU60-11); si aportes no responde, deniega (AP-CU60-12)"
+  ]
+}

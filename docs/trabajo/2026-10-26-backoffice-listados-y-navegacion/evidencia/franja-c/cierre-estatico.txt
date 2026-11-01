@@ -1,0 +1,18 @@
+++ npx tsc -p tsconfig.app.json --noEmit
+++ echo 'tsc app exit 0'
+tsc app exit 0
+++ npx tsc -p tsconfig.spec.json --noEmit
+++ echo 'tsc spec exit 0'
+tsc spec exit 0
+++ npx ng lint
+++ grep -v 'MODULE_TYPELESS\|Reparsing\|eliminate\|trace-warnings'
+
+Linting "backoffice"...
+
+All files pass linting.
+
+++ python3 ../../scripts/verificar_frontend.py backoffice
+++ tail -3
+  OK    · sin literal de diseño en @aportaya/ui 
+
+TODO OK

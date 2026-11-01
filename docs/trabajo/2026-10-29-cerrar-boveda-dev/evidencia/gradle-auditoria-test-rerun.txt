@@ -1,0 +1,7 @@
+$ ./gradlew :servicios:auditoria:test :servicios:auditoria:webTest --rerun   (fuerza la ejecución, sin caché)
+> Task :servicios:auditoria:testClasses UP-TO-DATE
+> Task :servicios:auditoria:test UP-TO-DATE
+> Task :servicios:auditoria:webTest
+BUILD SUCCESSFUL in 15s
+test: 58 pruebas · 0 fallos · 0 errores · resultados escritos hace 47 s
+webTest: 82 pruebas · 0 fallos · 0 errores · resultados escritos hace 0 s

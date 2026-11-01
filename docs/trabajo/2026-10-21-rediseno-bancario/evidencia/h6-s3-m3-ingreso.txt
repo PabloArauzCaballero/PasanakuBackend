@@ -1,0 +1,10 @@
+# H6.S3.M3 (parcial) — Ingreso con banda de marca (2026-10-21) · TESTED + prueba visual
+Origen: roast-pantallas-hoy.md («un formulario sin un momento de marca»).
+BandaDeIngreso: degradado y brillo del saldo, marca en heroTexto, saludo y titular; va dentro del
+scroll (con teclado se corre). Sin SafeArea arriba: la banda cubre la barra de estado.
+$ python3 scripts/verificar_frontend.py movil → TODO OK · dart analyze --fatal-infos → No issues found!
+$ flutter test test/unidad test/widget test/contrato test/identidad test/pasanaku test/a11y → 03:33 +771: All tests passed!
+$ flutter test test/goldens --update-goldens → +274 ; flutter test test/goldens → 01:42 +274: All tests passed!
+Rojos: 2 goldens dentro de test/identidad (motivo_de_salida_en_ingreso) por cambio visual intencional → regenerados y mirados.
+Goldens cambiados: 22, mirados (360/412/600, 130 % y 200 %, avisos de sesión caducada/cerrada, claro/oscuro).
+No cubierto: teclado real abierto en dispositivo; MFA.

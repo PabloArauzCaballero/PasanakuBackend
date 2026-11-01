@@ -1,13 +1,19 @@
 import 'package:aportaya_cliente_identidad/aportaya_cliente_identidad.dart';
 import 'package:aportaya_diseno/atomos/boton.dart';
 import 'package:aportaya_diseno/atomos/boton_variante.dart';
+import 'package:aportaya_diseno/atomos/iconos_de_marca.dart';
 import 'package:aportaya_diseno/atomos/tono.dart';
 import 'package:aportaya_diseno/moleculas/alerta.dart';
 import 'package:aportaya_diseno/moleculas/campo_de_fecha.dart';
+import 'package:aportaya_diseno/moleculas/intro_de_pantalla.dart';
 import 'package:aportaya_diseno/moleculas/referencia_de_error.dart';
+import 'package:aportaya_diseno/moleculas/tarjeta.dart';
+import 'package:aportaya_diseno/organismos/estado_de_pantalla.dart';
+import 'package:aportaya_diseno/organismos/estado_vacio.dart';
 import 'package:aportaya_diseno/tokens/tokens.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:aportaya_diseno/organismos/pantalla_con_cabecera.dart';
 
 import 'dominio/cu02_actualizar_fecha_expiracion.dart';
 import 'dominio/capturas_del_expediente.dart';
@@ -32,8 +38,7 @@ class _PantallaCompletarKycState extends ConsumerState<PantallaCompletarKyc> {
   DateTime? _fecha;
   bool _guardandoFecha = false;
   final Set<CaraDelCarril> _subiendo = {};
-  String? _error;
-  String? _trazaId;
+  String? _error, _trazaId;
 
   void _mostrarError(Object error, {required String mensajeDesconocido}) {
     if (!mounted) return;
@@ -48,8 +53,7 @@ class _PantallaCompletarKycState extends ConsumerState<PantallaCompletarKyc> {
     if (fecha == null || _guardandoFecha) return;
     setState(() {
       _guardandoFecha = true;
-      _error = null;
-      _trazaId = null;
+      _error = _trazaId = null;
     });
     try {
       await ref
@@ -57,11 +61,7 @@ class _PantallaCompletarKycState extends ConsumerState<PantallaCompletarKyc> {
           .ejecutar(usuarioId: widget.usuarioId, fecha: fecha);
       ref.invalidate(kycDelTitularProvider(widget.usuarioId));
     } on Object catch (error) {
-      _mostrarError(
-        error,
-        mensajeDesconocido:
-            'No pudimos guardar la fecha del documento. Probá de nuevo en un momento.',
-      );
+      _mostrarError(error, mensajeDesconocido: TextoCompletarKyc.errorFecha);
     } finally {
       if (mounted) setState(() => _guardandoFecha = false);
     }
@@ -75,8 +75,7 @@ class _PantallaCompletarKycState extends ConsumerState<PantallaCompletarKyc> {
     if (captura == null) return;
     setState(() {
       _subiendo.add(cara);
-      _error = null;
-      _trazaId = null;
+      _error = _trazaId = null;
     });
     try {
       await ref
@@ -90,11 +89,7 @@ class _PantallaCompletarKycState extends ConsumerState<PantallaCompletarKyc> {
       await captura.eliminarArchivoLocal();
       ref.invalidate(kycDelTitularProvider(widget.usuarioId));
     } on Object catch (error) {
-      _mostrarError(
-        error,
-        mensajeDesconocido:
-            'No pudimos subir la foto. Probá de nuevo en un momento.',
-      );
+      _mostrarError(error, mensajeDesconocido: TextoCompletarKyc.errorFoto);
     } finally {
       if (mounted) setState(() => _subiendo.remove(cara));
     }
@@ -102,20 +97,20 @@ class _PantallaCompletarKycState extends ConsumerState<PantallaCompletarKyc> {
 
   @override
   Widget build(BuildContext context) {
-    final resultado = ref.watch(kycDelTitularProvider(widget.usuarioId));
+    final kyc = kycDelTitularProvider(widget.usuarioId);
     return Scaffold(
-      appBar: AppBar(title: const Text('Completar verificación KYC')),
-      body: SafeArea(
-        child: resultado.when(
-          loading: () => const Center(child: CircularProgressIndicator()),
-          error: (_, _) => Center(
-            child: TextButton(
-              onPressed: () =>
-                  ref.invalidate(kycDelTitularProvider(widget.usuarioId)),
-              child: const Text('No pudimos cargar tu expediente. Reintentar'),
-            ),
+      // Cabecera grande que se compacta al desplazar (ADR-053, H4.S2.M6).
+      body: PantallaConCabecera(
+        titulo: TextoCompletarKyc.titulo,
+        cuerpo: SafeArea(
+          top: false,
+          child: EstadoDePantalla<EstadoDeVerificacion>(
+            valor: ref.watch(kyc),
+            etiquetaDeCarga: TextoCompletarKyc.cargando,
+            mensajeVacio: TextoCompletarKyc.revisionTerminada,
+            reintentar: () => ref.invalidate(kyc),
+            exito: _contenido,
           ),
-          data: _contenido,
         ),
       ),
     );
@@ -123,75 +118,80 @@ class _PantallaCompletarKycState extends ConsumerState<PantallaCompletarKyc> {
 
   Widget _contenido(EstadoDeVerificacion expediente) {
     if (!kycAdmiteCorreccion(expediente)) {
-      return const Center(
-        child: Padding(
-          padding: EdgeInsets.all(Espacio.s4),
-          child: Text(
-            'La revisión ya terminó. No se pueden modificar estos datos desde aquí.',
-          ),
-        ),
+      return const EstadoVacio(
+        icono: IconosDeMarca.expediente,
+        titulo: TextoCompletarKyc.revisionTerminadaTitulo,
+        mensaje: TextoCompletarKyc.revisionTerminada,
       );
     }
-    final faltanIzquierda = !expediente.fotos.contains(
-      CaraDelExpediente.PERFIL_IZQUIERDO,
-    );
-    final faltanDerecha = !expediente.fotos.contains(
-      CaraDelExpediente.PERFIL_DERECHO,
-    );
+    final fotos = expediente.fotos;
+    final faltanIzquierda = !fotos.contains(CaraDelExpediente.PERFIL_IZQUIERDO);
+    final faltanDerecha = !fotos.contains(CaraDelExpediente.PERFIL_DERECHO);
     final faltaFecha = expediente.fechaExpiracionDocumento == null;
     final hoy = DateTime.now();
     final fechaVisible = _fecha ?? expediente.fechaExpiracionDocumento;
-    final todoCompleto = !faltanIzquierda && !faltanDerecha && !faltaFecha;
+    final seccion = Tipo.titulo3.copyWith(color: Tokens.of(context).text);
     return ListView(
       padding: const EdgeInsets.all(Espacio.s4),
       children: [
-        Text(
-          'Completá solo lo que falta. La aprobación la decide una persona después de revisar el documento.',
-          style: Theme.of(context).textTheme.bodyLarge,
+        const IntroDePantalla(
+          icono: IconosDeMarca.expediente,
+          titulo: TextoCompletarKyc.introTitulo,
+          explicacion: TextoCompletarKyc.introExplicacion,
         ),
-        const SizedBox(height: Espacio.s3),
-        if (faltanIzquierda)
-          FotoPendienteKyc(
-            titulo: TextoCompletarKyc.perfilIzquierdo,
-            cargando: _subiendo.contains(CaraDelCarril.perfilIzquierdo),
-            onPressed: () => _capturar(CaraDelCarril.perfilIzquierdo),
-          ),
-        if (faltanDerecha)
-          FotoPendienteKyc(
-            titulo: TextoCompletarKyc.perfilDerecho,
-            cargando: _subiendo.contains(CaraDelCarril.perfilDerecho),
-            onPressed: () => _capturar(CaraDelCarril.perfilDerecho),
-          ),
-        if (faltaFecha || fechaVisible != null) ...[
+        if (faltanIzquierda || faltanDerecha) ...[
+          const SizedBox(height: Espacio.s5),
+          Text(TextoCompletarKyc.fotosQueFaltan, style: seccion),
           const SizedBox(height: Espacio.s3),
-          CampoDeFecha(
-            etiqueta: 'Vencimiento del documento',
-            valor: fechaVisible,
-            primera: DateTime(1950),
-            ultima: DateTime(2100, 12, 31),
-            inicial: DateTime(hoy.year + 1, hoy.month, hoy.day),
-            ayuda: 'Ingresá la fecha que aparece en tu documento.',
-            icono: Icons.event_available_outlined,
-            onElegida: (fecha) => setState(() => _fecha = fecha),
+          FotosPendientesKyc(
+            caras: [
+              if (faltanIzquierda) CaraDelCarril.perfilIzquierdo,
+              if (faltanDerecha) CaraDelCarril.perfilDerecho,
+            ],
+            subiendo: _subiendo,
+            onCapturar: _capturar,
           ),
-          const SizedBox(height: Espacio.s2),
+        ],
+        if (faltaFecha || fechaVisible != null) ...[
+          const SizedBox(height: Espacio.s5),
+          Text(TextoCompletarKyc.tuDocumento, style: seccion),
+          const SizedBox(height: Espacio.s3),
+          Tarjeta(
+            child: CampoDeFecha(
+              etiqueta: TextoCompletarKyc.vencimiento,
+              valor: fechaVisible,
+              primera: DateTime(1950),
+              ultima: DateTime(2100, 12, 31),
+              inicial: DateTime(hoy.year + 1, hoy.month, hoy.day),
+              ayuda: TextoCompletarKyc.ayudaVencimiento,
+              icono: Icons.event_available_outlined,
+              onElegida: (fecha) => setState(() => _fecha = fecha),
+            ),
+          ),
+          // El error queda pegado al botón que se tocó, no debajo del pliegue.
+          if (_error != null) ...[
+            const SizedBox(height: Espacio.s3),
+            Alerta(tono: Tono.error, titulo: _error!),
+            ReferenciaDeError(trazaId: _trazaId),
+          ],
+          const SizedBox(height: Espacio.s3),
           Boton(
-            texto: _guardandoFecha ? 'Guardando fecha…' : 'Guardar fecha',
+            texto: _guardandoFecha
+                ? TextoCompletarKyc.guardandoFecha
+                : TextoCompletarKyc.guardarFecha,
             variante: BotonVariante.primario,
             expandido: true,
             cargando: _guardandoFecha,
+            motivoDeBloqueo: TextoCompletarKyc.elegiFecha,
             onPressed: _fecha == null ? null : _guardarFecha,
           ),
         ],
-        if (_error != null) ...[
-          const SizedBox(height: Espacio.s2),
-          Alerta(tono: Tono.error, titulo: _error!),
-          ReferenciaDeError(trazaId: _trazaId),
-        ],
-        if (todoCompleto) ...[
+        if (!faltanIzquierda && !faltanDerecha && !faltaFecha) ...[
           const SizedBox(height: Espacio.s4),
-          const Text(
-            'Los datos faltantes están enviados. La revisión de identidad sigue siendo manual.',
+          const Alerta(
+            tono: Tono.ok,
+            titulo: TextoCompletarKyc.todoEnviado,
+            detalle: TextoCompletarKyc.todoEnviadoDetalle,
           ),
         ],
       ],

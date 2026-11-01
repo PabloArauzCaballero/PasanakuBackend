@@ -50,7 +50,9 @@ class HechosCaidaTest {
                 url,
                 url,
                 url,
-                new ConfiguracionDeCircuito(ventana, 50, Duration.ofMillis(ESPERA_MS), 3));
+                new ConfiguracionDeCircuito(ventana, 50, Duration.ofMillis(ESPERA_MS), 3),
+                bo.aportaya.plataforma.web.clientes.CredencialDeServicio.ninguna(),
+                60); // aportaya.grupos.transparencia.maximo-por-consulta
     }
 
     /** Una vuelta por las nueve preguntas que se resuelven con «lo que no deja pasar» cuando el dependido no contesta. */
@@ -157,7 +159,9 @@ class HechosCaidaTest {
                     tarifas.urlBase(),
                     tarifas.urlBase(),
                     tarifas.urlBase(),
-                    new ConfiguracionDeCircuito(VENTANA, 50, Duration.ofMillis(ESPERA_MS), 3));
+                    new ConfiguracionDeCircuito(VENTANA, 50, Duration.ofMillis(ESPERA_MS), 3),
+                    bo.aportaya.plataforma.web.clientes.CredencialDeServicio.ninguna(),
+                    60); // aportaya.grupos.transparencia.maximo-por-consulta
             organizador.caer();
             for (int i = 0; i < VENTANA; i++) {
                 hechos.organizadorHabilitado(USUARIO);

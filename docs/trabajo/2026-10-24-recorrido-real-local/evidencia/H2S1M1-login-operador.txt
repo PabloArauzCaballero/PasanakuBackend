@@ -1,0 +1,8 @@
+# 1) dispositivo de confianza (huella conocida), plataforma WEB
+422 {"codigo": "AP-CU04-03", "mensaje": "Confirma el codigo que te enviamos para terminar de entrar.", "detalle": {}, "trazaId": "5089f045-8f10-46b9-93fa-2b125c77d2b5"}
+# 2) dispositivo desconocido: debe pedir segundo factor
+422 {"codigo": "AP-CU04-03", "mensaje": "Confirma el codigo que te enviamos para terminar de entrar.", "detalle": {}, "trazaId": "61667012-6f8e-4cd0-862f-385c257e537c"}
+# 3) mismo dispositivo desconocido con el codigo de desarrollo 000000
+200 {"sesionId": "961057ab-db87-4d2c-8179-a0a595ccbfe2", "expiraEn": "2026-10-24T23:21:12.03728Z", "requiereFactorAdicional": false, "dispositivoConfiable": false, "tokenAcceso": "<jwt enmascarado, 1386 chars>", "tokenRefresco": null}
+# 4) credencial incorrecta
+422 {"codigo": "AP-CU04-01", "mensaje": "El telefono, el correo o la contrasena no coinciden.", "detalle": {}, "trazaId": "b535eea2-6824-4274-9b76-45cb7c499597"}

@@ -1,0 +1,2 @@
+# alta de un segundo operador (OPERADOR_PUBLICIDAD)
+{'codigoPublico': 'OP-14830B96', 'roles': ['OPERADOR_PUBLICIDAD'], 'estado': 'ACTIVO'} permisos: 3 HTTP 201

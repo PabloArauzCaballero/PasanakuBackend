@@ -19,6 +19,7 @@ import { BannerDatosDeEjemplo } from '../../rutas/sistemas/banner-datos-de-ejemp
     <ap-banner-datos-de-ejemplo />
     <router-outlet />
   `,
-  styles: `:host { display: grid; gap: var(--s4); }`,
+  // Sin datos de ejemplo el banner no pinta nada: vacío no cuenta como fila de la grilla (antes sumaba un hueco).
+  styles: `:host { display: grid; gap: var(--s4); } ap-banner-datos-de-ejemplo:empty { display: none; }`,
 })
 export class ShellSistemas {}

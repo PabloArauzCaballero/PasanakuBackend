@@ -1,0 +1,8 @@
+verificar_seguridad exit=0 :: TODO OK · 6 aviso(s)
+verificar_criterios exit=0 :: Sin divergencias entre la boveda y el codigo.
+verificar_pruebas_web exit=0 :: La capa web esta cubierta segun ADR-043.
+verificar_contratos_limites exit=0 :: Los contratos de request en el alcance de este gate declaran limites y additionalProperties: false.
+verificar_frontend exit=1 :: 1 FALLAS
+verificar_boveda exit=0 :: TODO OK
+verificar_narrativas exit=0 :: Sin fallas.
+TODO OK

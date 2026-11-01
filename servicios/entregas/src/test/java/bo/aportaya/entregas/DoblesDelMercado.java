@@ -213,5 +213,11 @@ final class DoblesDelMercado {
             porClave.put(clave, new Referencia(Resultado.OK, retencionRef));
             return Resultado.OK;
         }
+
+        /** El servicio libera igual que el titular: la plata vuelve a su dueno, y liberar dos veces es OK. */
+        @Override
+        public synchronized Resultado devolver(UUID retencionRef, String clave) {
+            return liberar(retencionRef, clave);
+        }
     }
 }

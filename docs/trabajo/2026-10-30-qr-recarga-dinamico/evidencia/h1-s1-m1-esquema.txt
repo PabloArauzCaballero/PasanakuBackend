@@ -1,0 +1,12 @@
+$ docker exec pg-qr-recarga psql -c "\d nucleo_financiero.orden_recarga" (columnas qr_ y CHECK)
+ column_name  |     data_type     | character_maximum_length | is_nullable 
+--------------+-------------------+--------------------------+-------------
+ qr_contenido | character varying |                      512 | YES
+ qr_origen    | character varying |                       10 | YES
+(2 rows)
+
+          conname           |                                             pg_get_constraintdef                                             
+----------------------------+--------------------------------------------------------------------------------------------------------------
+ ck_orden_recarga_qr_origen | CHECK (((qr_origen)::text = ANY ((ARRAY['BANCO'::character varying, 'PRUEBA'::character varying])::text[])))
+(1 row)
+

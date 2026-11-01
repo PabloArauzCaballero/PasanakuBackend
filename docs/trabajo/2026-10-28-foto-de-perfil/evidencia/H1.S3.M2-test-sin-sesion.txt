@@ -1,0 +1,5 @@
+# 2026-10-29T12:39:27Z contra TEST, sin sesion
+GET /usuarios/yo/foto-de-perfil -> 401 
+PUT /usuarios/yo/foto-de-perfil -> 401 
+GET /usuarios/yo/perfil -> 401 
+GET /usuarios/yo/ruta-que-no-existe -> 401 

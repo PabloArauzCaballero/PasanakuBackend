@@ -17,8 +17,10 @@ import bo.aportaya.transparencia.aplicacion.CU74EvaluarInsignias;
 import bo.aportaya.transparencia.aplicacion.CU75EmitirCertificado;
 import bo.aportaya.transparencia.aplicacion.CU76PublicarResena;
 import bo.aportaya.transparencia.aplicacion.CU97EvaluarRiesgo;
+import bo.aportaya.transparencia.aplicacion.ConsultarEtapasDePersonas;
 import bo.aportaya.transparencia.aplicacion.ConsultarPerfilEnGrupo;
 import bo.aportaya.transparencia.aplicacion.ConsultarPuntaje;
+import bo.aportaya.transparencia.aplicacion.ListarEtapas;
 import bo.aportaya.transparencia.dominio.PerfilDeReputacionEnGrupo;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
@@ -39,7 +41,8 @@ import org.springframework.test.web.servlet.MockMvc;
         types = {
             ConsultarPuntaje.class, CU70RegistrarEventoReputacion.class, CU71RecalcularPuntaje.class,
             CU72SellarBloque.class, CU74EvaluarInsignias.class, CU75EmitirCertificado.class,
-            CU76PublicarResena.class, CU97EvaluarRiesgo.class
+            CU76PublicarResena.class, CU97EvaluarRiesgo.class, ListarEtapas.class,
+            ConsultarEtapasDePersonas.class
         })
 class PerfilEnGrupoWebTest {
 
@@ -75,6 +78,32 @@ class PerfilEnGrupoWebTest {
                 .andExpect(jsonPath("$.antiguedadMeses").value(14))
                 .andExpect(jsonPath("$.insignias[0].codigo").value("PAGADOR_PUNTUAL"))
                 .andExpect(jsonPath("$.montoTotalAportado").doesNotExist());
+    }
+
+    @Test
+    @DisplayName("perfil ajeno · 200 sin el campo puntaje cuando el caso lo quito (solo lo ve su dueño)")
+    void ajenoSinPuntaje() throws Exception {
+        when(perfiles.ejecutar(eq(GRUPO), eq(USUARIO), any()))
+                .thenReturn(new PerfilDeReputacionEnGrupo(
+                        Optional.of(new PerfilDeReputacionEnGrupo.Factores(
+                                        new BigDecimal("420.00"),
+                                        "EN_OBSERVACION",
+                                        new BigDecimal("71.00"),
+                                        1,
+                                        0,
+                                        2,
+                                        5))
+                                .map(PerfilDeReputacionEnGrupo.Factores::sinPuntaje),
+                        List.of()));
+        String cuerpo = mvc.perform(get(RUTA, USUARIO, GRUPO).with(Sesiones.como("PARTICIPANTE")))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.tieneHistorial").value(true))
+                .andExpect(jsonPath("$.puntaje").doesNotExist())
+                .andExpect(jsonPath("$.indicePuntualidad").value("71.00"))
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+        org.assertj.core.api.Assertions.assertThat(cuerpo).doesNotContain("420");
     }
 
     @Test

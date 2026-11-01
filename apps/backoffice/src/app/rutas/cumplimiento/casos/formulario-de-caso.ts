@@ -35,7 +35,7 @@ import { GrupoRadio, type OpcionDeRadio } from '@aportaya/ui/grupo-radio/grupo-r
       <p class="aviso">{{ textoBorradorRecuperado() }}</p>
     }
 
-    <ap-boton variante="primario" [deshabilitado]="!puedeConfirmar()" (pulsado)="seQuiereConfirmar.emit()">
+    <ap-boton variante="primario" icono="balanza" [deshabilitado]="!puedeConfirmar()" (pulsado)="seQuiereConfirmar.emit()">
       {{ textoConfirmar() }}
     </ap-boton>
   `,

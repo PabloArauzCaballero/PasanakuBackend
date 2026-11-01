@@ -1,0 +1,2 @@
+$ grep -rn "alVerSolicitudes" apps/movil/lib
+(sin salida, exit=1)

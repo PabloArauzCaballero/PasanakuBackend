@@ -16,6 +16,8 @@ public enum AmbitoArchivo {
     IDENTIDAD(8 * 1024 * 1024, List.of("image/jpeg", "image/png", "application/pdf")),
     /** Comprobante de pago que carga quien aporta. */
     COMPROBANTE(5 * 1024 * 1024, List.of("image/jpeg", "image/png", "application/pdf")),
+    /** Foto de perfil de la cuenta ({@code usuario.url_avatar}). Solo imagen: un PDF no es una cara. */
+    PERFIL(5 * 1024 * 1024, List.of("image/jpeg", "image/png")),
     /** Reportes exportados y presentados al regulador. */
     REPORTE(50 * 1024 * 1024, List.of("application/pdf", "text/csv"));
 

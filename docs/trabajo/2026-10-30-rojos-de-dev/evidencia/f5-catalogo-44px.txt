@@ -1,0 +1,20 @@
+f5 · apps/web e2e (Playwright 1 worker, chromium v1243, build local de apps/web)
+ANTES (dev ae38c444, reproducido en local; mismo resultado que la CI):
+  catalogo.spec.ts:48 «todo lo que se toca mide al menos 44 píxeles de alto» FALLA con 11 elementos:
+  a «Inicio», a «Sistemas», button «Notas de la vista», button «Ayuda sobre Buscar tabla, colu»,
+  button «Ayuda sobre Estado» x2, button «Ayuda sobre Buscar», button «Vista general»,
+  button «Columnas 18», button «Gobierno», button «Ayuda sobre Nota de revisión»
+DESPUES (packages/ui: migas, pestanas, nota-de-vista, campo, lista-de-opciones, area-de-texto, barra-de-filtros):
+  yarn workspace @aportaya/web test:e2e  →  36 passed (34.3s)   [incluye el de 44 px]
+Click en la franja de solape del boton de ayuda (44 px) con el control de abajo:
+  select (lista de opciones)  → recibe el clic el select      (antes de position:relative: el boton)
+  textarea (area de texto)    → recibe el clic el textarea
+Barra de filtros, geometria medida: ap-campo-busqueda y .ayuda terminan en x=325.3; .ayuda 44x44;
+  chip ::before inset 4px 4px 4px 4px, radio 8px, fondo rgb(243,246,242).
+Migas: la fila sigue midiendo 19 px de alto (el relleno vertical y el margen negativo se compensan).
+Otros pasos del job Frontend corridos en local con el mismo codigo:
+  yarn lint (raiz, con dart 3.12.2 en el PATH)      → 10 tareas OK
+  ui: typecheck OK · test:front 39 archivos/196 pruebas · test:a11y 2 archivos/9 pruebas
+  backoffice: build (aviso de presupuesto preexistente: 502,05 kB sin mis cambios, 502,20 kB con ellos) ·
+              test:front 186 archivos/1321 pruebas · test:a11y 45/94 · typecheck OK
+  web: test:front 16 archivos/74 pruebas · test:a11y 4/8

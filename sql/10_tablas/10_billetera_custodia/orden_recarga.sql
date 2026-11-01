@@ -21,9 +21,12 @@ CREATE TABLE IF NOT EXISTS nucleo_financiero.orden_recarga (
   solicitada_en                      TIMESTAMPTZ DEFAULT now() NOT NULL,
   acreditada_en                      TIMESTAMPTZ,
   expira_en                          TIMESTAMPTZ,
+  qr_contenido                       VARCHAR(512),
+  qr_origen                          VARCHAR(10),
   CONSTRAINT pk_orden_recarga PRIMARY KEY (id),
   CONSTRAINT ck_orden_recarga_monto_bruto CHECK (monto_bruto > 0),
-  CONSTRAINT ck_orden_recarga_estado CHECK (estado IN ('ACREDITADA', 'EXPIRADA', 'PENDIENTE', 'RECHAZADA', 'REVERSADA'))
+  CONSTRAINT ck_orden_recarga_estado CHECK (estado IN ('ACREDITADA', 'EXPIRADA', 'PENDIENTE', 'RECHAZADA', 'REVERSADA')),
+  CONSTRAINT ck_orden_recarga_qr_origen CHECK (qr_origen IN ('BANCO', 'PRUEBA'))
 );
 
 COMMENT ON TABLE nucleo_financiero.orden_recarga IS 'Módulo 10 — Billetera, Custodia y Dinero Electrónico. El *cash-in* y el *cash-out*: los dos puntos donde el dinero cruza la frontera entre el mundo bancario y el saldo de la app.';
@@ -42,3 +45,5 @@ COMMENT ON COLUMN nucleo_financiero.orden_recarga.referencia_externa IS 'NULL';
 COMMENT ON COLUMN nucleo_financiero.orden_recarga.clave_idempotencia IS 'Clave que vuelve idempotente la operación: un reintento con la misma clave no repite el efecto (regla 91.1.4).';
 COMMENT ON COLUMN nucleo_financiero.orden_recarga.acreditada_en IS 'NULL';
 COMMENT ON COLUMN nucleo_financiero.orden_recarga.expira_en IS 'NULL';
+COMMENT ON COLUMN nucleo_financiero.orden_recarga.qr_contenido IS 'NULL';
+COMMENT ON COLUMN nucleo_financiero.orden_recarga.qr_origen IS 'CK, NULL';

@@ -141,3 +141,6 @@ CREATE INDEX IF NOT EXISTS ix_ticket_soporte_estado
 
 CREATE UNIQUE INDEX IF NOT EXISTS uq_incidente_operativo_codigo
   ON auditoria.incidente_operativo (codigo);
+
+CREATE UNIQUE INDEX IF NOT EXISTS uq_disponibilidad_servicio_dia_dia_servicio
+  ON auditoria.disponibilidad_servicio_dia (dia, servicio);

@@ -1,0 +1,6 @@
+00:01 +6: /Users/pablo/Documents/GitHub/Pasanaku-qr-perfil/apps/movil/test/widget/pantalla_escanear_test.dart: correcto: cámara denegada ofrece Abrir ajustes y lo abre
+00:01 +7: /Users/pablo/Documents/GitHub/Pasanaku-qr-perfil/apps/movil/test/widget/pantalla_escanear_test.dart: límite: si el sistema no abre los ajustes, la pantalla sigue en pie
+00:01 +8: /Users/pablo/Documents/GitHub/Pasanaku-qr-perfil/apps/movil/test/widget/pantalla_escanear_test.dart: inválido: ProblemaDeCamara.noDisponible no ofrece Abrir ajustes (no ayudaría)
+00:01 +9: /Users/pablo/Documents/GitHub/Pasanaku-qr-perfil/apps/movil/test/widget/pantalla_escanear_test.dart: inválido: ProblemaDeCamara.otro no ofrece Abrir ajustes (no ayudaría)
+00:02 +10: /Users/pablo/Documents/GitHub/Pasanaku-qr-perfil/apps/movil/test/widget/acceso_escanear_test.dart: correcto: el botón del medio de la barra abre el escáner de invitaciones (ADR-053, A6: escanear dejó la cabecera del inicio)
+00:03 +11: All tests passed!

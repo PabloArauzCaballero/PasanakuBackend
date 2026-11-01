@@ -4,7 +4,7 @@
   "apto_produccion": false,
   "estado": "SINTETICO en lo contable — el mapeo de cuentas logicas (9.x) es una decision de contabilidad abierta (A5 del carril C). Las cuentas 9.x existen para que el consumidor de asientos de nucleo-financiero pueda encenderse en TEST; en produccion el arranque se niega mientras CUENTAS_LOGICAS_APTO_PRODUCCION no sea true. Las cuentas de billetera de sistema (custodia de inversion, ingresos, puente) NO son sinteticas: son las que el libro necesita, sin saldo inicial.",
   "revisar_con": "contabilidad (plan de cuentas definitivo para respaldo, caja de empresa y pozo) y tesoreria (cuenta bancaria real detras de la custodia de inversion)",
-  "nota": "No hay datos de personas ni credenciales aqui. Las credenciales de servicio (SERVICIO_INVERSIONES, SERVICIO_ENTREGAS) son roles de 10-roles-y-permisos.json; la cuenta de usuario que los porta y su clave se aprovisionan en el entorno (ver servicios/inversiones/README.md), nunca en el repositorio.",
+  "nota": "No hay datos de personas ni credenciales aqui. Las credenciales de servicio (SERVICIO_INVERSIONES, SERVICIO_ENTREGAS, SERVICIO_GRUPOS) son roles de 10-roles-y-permisos.json; la cuenta de usuario que los porta y su clave se aprovisionan en el entorno (ver servicios/inversiones/README.md), nunca en el repositorio.",
   "bloques": [
     {
       "tabla": "cuenta_contable",

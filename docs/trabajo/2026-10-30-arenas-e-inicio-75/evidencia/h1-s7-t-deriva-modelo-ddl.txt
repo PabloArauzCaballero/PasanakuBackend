@@ -1,0 +1,8 @@
+# H1.S7.M2 (carril T) — deriva modelo -> DDL: regenerar sobre el árbol ya generado no cambia nada
+$ (hash de sql/ + seeders/) ; python3 scripts/generar_ddl.py ; (hash otra vez)
+generar_ddl exit=0
+sql/ generado: 345 tablas · 688 claves foráneas · 791 índices · 540 CHECK
+Sin pendientes a nivel de datos.
+hash antes=51050118c9274a44 despues=51050118c9274a44 -> IGUALES
+$ git grep -n -i arena -- servicios/transparencia sql seeders docs/entidades/06_transparencia_reputacion.{md,puml} docs/Restricciones.md docs/CasosDeUso/CU-71*
+coincidencias: 0

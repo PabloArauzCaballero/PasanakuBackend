@@ -1,0 +1,51 @@
+{
+  "servicio": "transparencia",
+  "operacion": "consultarEtapasDePersonas",
+  "metodo": "get",
+  "ruta": "/reputacion/etapas/de-personas",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": [
+        {
+          "usuarioId": "5f28c23b-5fab-416d-8083-b356bed433a8",
+          "tieneHistorial": true,
+          "etapa": {
+            "codigo": "MNNNNNNNNNNNNNNN",
+            "nombre": "nombre",
+            "orden": 0,
+            "desde": "4.44"
+          }
+        }
+      ]
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": []
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": [
+        {
+          "usuarioId": "5f28c23b-5fab-416d-8083-b356bed433a8",
+          "tieneHistorial": true,
+          "etapa": {
+            "codigo": "MNNNNNNNNNNNNNNN",
+            "nombre": "nombre",
+            "orden": 0,
+            "desde": "4.44"
+          }
+        }
+      ]
+    },
+    "rechazo": {
+      "estado": 403,
+      "cuerpo": {
+        "codigo": "AP-CU61-01",
+        "mensaje": "Sorteo no revelado",
+        "detalle": {},
+        "trazaId": "traza-consultarEtapasDePersonas-rechazo"
+      }
+    }
+  }
+}

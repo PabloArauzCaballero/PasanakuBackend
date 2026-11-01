@@ -1,0 +1,51 @@
+{
+  "servicio": "aportes",
+  "operacion": "listarWebhooksRecibidos",
+  "metodo": "get",
+  "ruta": "/pagos/webhooks-recibidos",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": [
+        {
+          "id": "352b3bef-d9cf-481b-8131-bbc0c0efab40",
+          "proveedorCodigo": "proveedorCodigo",
+          "evento": "evento",
+          "estado": "DESCARTADO",
+          "firmaValida": true,
+          "recibidoEn": "2026-01-15T10:30:00Z",
+          "procesadoEn": "2026-01-15T10:30:00Z",
+          "intentos": 0
+        }
+      ]
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": []
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": [
+        {
+          "id": "352b3bef-d9cf-481b-8131-bbc0c0efab40",
+          "proveedorCodigo": "proveedorCodigo",
+          "evento": "evento",
+          "estado": "DESCARTADO",
+          "firmaValida": true,
+          "recibidoEn": "2026-01-15T10:30:00Z",
+          "procesadoEn": "2026-01-15T10:30:00Z",
+          "intentos": 0
+        }
+      ]
+    },
+    "rechazo": {
+      "estado": 400,
+      "cuerpo": {
+        "codigo": "AP-CU21-01",
+        "mensaje": "Obligacion no vigente",
+        "detalle": {},
+        "trazaId": "traza-listarWebhooksRecibidos-rechazo"
+      }
+    }
+  }
+}

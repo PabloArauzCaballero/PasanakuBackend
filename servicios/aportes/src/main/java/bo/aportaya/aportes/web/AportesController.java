@@ -2,6 +2,7 @@ package bo.aportaya.aportes.web;
 
 import bo.aportaya.aportes.aplicacion.CU21CobrarAporte;
 import bo.aportaya.aportes.aplicacion.ConsultarEstadoDelParticipante;
+import bo.aportaya.aportes.aplicacion.ConsultarPrimeraCuota;
 import bo.aportaya.aportes.aplicacion.ConsultarRecaudoDelPeriodo;
 import bo.aportaya.aportes.aplicacion.ConsultarRecaudoDiario;
 import bo.aportaya.aportes.aplicacion.GenerarObligacionesDelPeriodo;
@@ -13,6 +14,7 @@ import bo.aportaya.aportes.web.generado.modelo.EstadoDelParticipante;
 import bo.aportaya.aportes.web.generado.modelo.LineaDelCalendario;
 import bo.aportaya.aportes.web.generado.modelo.Morosos;
 import bo.aportaya.aportes.web.generado.modelo.ObligacionPendiente;
+import bo.aportaya.aportes.web.generado.modelo.PrimeraCuota;
 import bo.aportaya.aportes.web.generado.modelo.RecaudoDelPeriodo;
 import bo.aportaya.aportes.web.generado.modelo.RecaudoDiario;
 import bo.aportaya.aportes.web.generado.modelo.RecaudoDiarioPorMoneda;
@@ -48,6 +50,7 @@ public class AportesController implements AportesApi {
     private final SesionDeLaPeticion sesion;
     private final ConsultarRecaudoDiario recaudosDiarios;
     private final bo.aportaya.aportes.aplicacion.HechosDeGrupos grupos;
+    private final ConsultarPrimeraCuota primeraCuota;
 
     public AportesController(
             CU21CobrarAporte cu21,
@@ -56,9 +59,11 @@ public class AportesController implements AportesApi {
             GenerarObligacionesDelPeriodo calendario,
             SesionDeLaPeticion sesion,
             bo.aportaya.aportes.aplicacion.HechosDeGrupos grupos,
-            ConsultarRecaudoDiario recaudosDiarios) {
+            ConsultarRecaudoDiario recaudosDiarios,
+            ConsultarPrimeraCuota primeraCuota) {
         this.grupos = grupos;
         this.recaudosDiarios = recaudosDiarios;
+        this.primeraCuota = primeraCuota;
         this.cu21 = cu21;
         this.estados = estados;
         this.recaudos = recaudos;
@@ -97,6 +102,24 @@ public class AportesController implements AportesApi {
         var respuesta = new Morosos();
         respuesta.setGrupoId(grupoId);
         respuesta.setMorosos(estados.morososDelGrupo(grupoId, sesion.actual()));
+        return ResponseEntity.ok(respuesta);
+    }
+
+    /**
+     * Que cupos pagaron la cuota 1. Lo pregunta CU-60 antes de comprometer el sorteo (R-GRP-20): sin leer este esquema
+     * y sin que lo afirme quien quiere sortear. Solo identificadores de cupo: nada de personas ni importes.
+     */
+    @Override
+    @Permiso("BILLETERA_VER")
+    public ResponseEntity<PrimeraCuota> consultarPrimeraCuota(UUID grupoId) {
+        Traza.marcarCasoDeUso("CU-60", grupoId.toString());
+
+        var estado = primeraCuota.delGrupo(grupoId, sesion.actual());
+        var respuesta = new PrimeraCuota();
+        respuesta.setGrupoId(grupoId);
+        respuesta.setPeriodoId(estado.periodoId().orElse(null));
+        respuesta.setCuposPagados(estado.cuposPagados());
+        respuesta.setCuposPendientes(estado.cuposPendientes());
         return ResponseEntity.ok(respuesta);
     }
 

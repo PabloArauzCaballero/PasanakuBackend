@@ -155,4 +155,8 @@ class AportesConsultasWebTest {
     // El controlador tambien responde el recaudo diario (CU-51, carril A · H8): sin este doble no carga.
     @org.springframework.test.context.bean.override.mockito.MockitoBean
     private bo.aportaya.aportes.aplicacion.ConsultarRecaudoDiario recaudosDiarios;
+
+    // El controlador tambien responde la primera cuota (R-GRP-20): sin este doble no carga.
+    @org.springframework.test.context.bean.override.mockito.MockitoBean
+    private bo.aportaya.aportes.aplicacion.ConsultarPrimeraCuota primeraCuota;
 }

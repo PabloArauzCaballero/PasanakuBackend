@@ -2,10 +2,12 @@ package bo.aportaya.grupos.infraestructura;
 
 import static bo.aportaya.grupos.generado.Tables.ACUERDO;
 import static bo.aportaya.grupos.generado.Tables.CUPO;
+import static bo.aportaya.grupos.generado.Tables.PARTICIPANTE;
 import static bo.aportaya.grupos.generado.Tables.VOTO_PARTICIPANTE;
 
 import bo.aportaya.grupos.dominio.ComputoDeVotacion.Sentido;
 import bo.aportaya.grupos.dominio.ComputoDeVotacion.VotoPonderado;
+import bo.aportaya.grupos.dominio.ResumenDeAcuerdo;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -35,6 +37,7 @@ public class AcuerdoRepositorio {
             UUID propuestoPor,
             BigDecimal quorum,
             Optional<UUID> afectado,
+            Optional<UUID> entrante,
             OffsetDateTime abiertoEn,
             OffsetDateTime cierraEn) {
         return dsl.insertInto(ACUERDO)
@@ -48,6 +51,7 @@ public class AcuerdoRepositorio {
                 .set(ACUERDO.ABSTENCIONES, (short) 0)
                 .set(ACUERDO.ESTADO, "ABIERTO")
                 .set(ACUERDO.REFERENCIA_AFECTADA_ID, afectado.orElse(null))
+                .set(ACUERDO.ENTRANTE_PARTICIPANTE_ID, entrante.orElse(null))
                 .set(ACUERDO.ABIERTO_EN, abiertoEn)
                 .set(ACUERDO.CIERRA_EN, cierraEn)
                 .returning(ACUERDO.ID)
@@ -61,6 +65,7 @@ public class AcuerdoRepositorio {
                         ACUERDO.ESTADO,
                         ACUERDO.QUORUM_REQUERIDO,
                         ACUERDO.REFERENCIA_AFECTADA_ID,
+                        ACUERDO.ENTRANTE_PARTICIPANTE_ID,
                         ACUERDO.CIERRA_EN)
                 .from(ACUERDO)
                 .where(ACUERDO.ID.eq(acuerdoId))
@@ -73,6 +78,7 @@ public class AcuerdoRepositorio {
                         fila.get(ACUERDO.ESTADO),
                         fila.get(ACUERDO.QUORUM_REQUERIDO),
                         Optional.ofNullable(fila.get(ACUERDO.REFERENCIA_AFECTADA_ID)),
+                        Optional.ofNullable(fila.get(ACUERDO.ENTRANTE_PARTICIPANTE_ID)),
                         fila.get(ACUERDO.CIERRA_EN)));
     }
 
@@ -135,12 +141,56 @@ public class AcuerdoRepositorio {
                 .execute();
     }
 
+    /** El acuerdo ya produjo su efecto: no vuelve a autorizar nada. */
+    public boolean marcarEjecutado(DSLContext dsl, UUID acuerdoId, OffsetDateTime ahora) {
+        return dsl.update(ACUERDO)
+                        .set(ACUERDO.ESTADO, "EJECUTADO")
+                        .set(ACUERDO.EJECUTADO_EN, ahora)
+                        .where(ACUERDO.ID.eq(acuerdoId))
+                        .and(ACUERDO.ESTADO.eq("APROBADO"))
+                        .execute()
+                == 1;
+    }
+
+    /** Los acuerdos del grupo, filtrados; los mas nuevos primero. */
+    public List<ResumenDeAcuerdo> delGrupo(
+            DSLContext dsl, UUID grupoId, Optional<String> tipo, Optional<String> estado, Optional<UUID> afectado) {
+        var condicion = ACUERDO.GRUPO_ID.eq(grupoId);
+        if (tipo.isPresent()) condicion = condicion.and(ACUERDO.TIPO.eq(tipo.get()));
+        if (estado.isPresent()) condicion = condicion.and(ACUERDO.ESTADO.eq(estado.get()));
+        if (afectado.isPresent()) condicion = condicion.and(ACUERDO.REFERENCIA_AFECTADA_ID.eq(afectado.get()));
+        return dsl.select(
+                        ACUERDO.ID,
+                        ACUERDO.TIPO,
+                        ACUERDO.ESTADO,
+                        ACUERDO.DESCRIPCION,
+                        ACUERDO.REFERENCIA_AFECTADA_ID,
+                        PARTICIPANTE.USUARIO_ID,
+                        ACUERDO.CIERRA_EN)
+                .from(ACUERDO)
+                // Quien entra, como usuario: es lo que la app conoce de cada integrante.
+                .leftJoin(PARTICIPANTE)
+                .on(PARTICIPANTE.ID.eq(ACUERDO.ENTRANTE_PARTICIPANTE_ID))
+                .where(condicion)
+                .orderBy(ACUERDO.ABIERTO_EN.desc(), ACUERDO.ID)
+                .limit(50)
+                .fetch(r -> new ResumenDeAcuerdo(
+                        r.get(ACUERDO.ID),
+                        r.get(ACUERDO.TIPO),
+                        r.get(ACUERDO.ESTADO),
+                        r.get(ACUERDO.DESCRIPCION),
+                        Optional.ofNullable(r.get(ACUERDO.REFERENCIA_AFECTADA_ID)),
+                        Optional.ofNullable(r.get(PARTICIPANTE.USUARIO_ID)),
+                        r.get(ACUERDO.CIERRA_EN)));
+    }
+
     public record Acuerdo(
             UUID grupoId,
             String tipo,
             String estado,
             BigDecimal quorum,
             Optional<UUID> afectado,
+            Optional<UUID> entrante,
             OffsetDateTime cierraEn) {}
 
     public record ComputoResumen(short aFavor, short enContra, short abstenciones) {}

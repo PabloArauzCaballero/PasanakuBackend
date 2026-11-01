@@ -10,6 +10,7 @@ import 'package:flutter_test/flutter_test.dart';
 import '../comun.dart';
 
 void main() {
+  mainCentral();
   testWidgets(
     'hundido cubre icono, insignia y etiqueta sin perder semántica ni área táctil',
     (tester) async {
@@ -89,4 +90,82 @@ void main() {
       expect(destinoElegido, 1);
     },
   );
+}
+
+void _sinAccion(int _) {}
+
+/// ADR-053 (A6): el botón del medio no es una pestaña. Se anuncia con su acción, no
+/// cuenta como destino y no cambia la pestaña activa.
+void mainCentral() {
+  testWidgets('el botón central se anuncia por lo que hace y no es un destino', (
+    tester,
+  ) async {
+    var tocado = 0;
+    final semantica = tester.ensureSemantics();
+    await tester.pumpWidget(
+      conTema(
+        BarraPestanas(
+          destinos: const [
+            (
+              texto: 'Inicio',
+              icono: Icons.home,
+              iconoActivo: Icons.home,
+              novedades: 0,
+            ),
+            (
+              texto: 'Grupos',
+              icono: Icons.group,
+              iconoActivo: Icons.group,
+              novedades: 0,
+            ),
+            (
+              texto: 'Movimientos',
+              icono: Icons.swap_horiz,
+              iconoActivo: Icons.swap_horiz,
+              novedades: 0,
+            ),
+            (
+              texto: 'Perfil',
+              icono: Icons.person,
+              iconoActivo: Icons.person,
+              novedades: 0,
+            ),
+          ],
+          actual: 0,
+          onChanged: _sinAccion,
+          central: (
+            icono: Icons.qr_code,
+            etiqueta: 'Escanear invitación',
+            alTocar: () => tocado++,
+          ),
+        ),
+        pantallaEntera: true,
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final nodo = tester.getSemantics(
+      find.bySemanticsLabel('Escanear invitación'),
+    );
+    expect(nodo.flagsCollection.isButton, isTrue);
+    expect(nodo.flagsCollection.isSelected, isNot(ui.Tristate.isTrue));
+    await tester.tap(find.byKey(const ValueKey('accion-central')));
+    expect(tocado, 1);
+    // Los cuatro destinos y el botón quedan en orden: Inicio, Grupos, [QR], Movimientos, Perfil.
+    final xs = [
+      for (final k in [
+        'destino-Inicio',
+        'destino-Grupos',
+        'accion-central',
+        'destino-Movimientos',
+        'destino-Perfil',
+      ])
+        tester.getCenter(find.byKey(ValueKey(k))).dx,
+    ];
+    expect(xs, orderedEquals([...xs]..sort()));
+    // «Movimientos» entra entero, sin «Movimien…».
+    expect(find.text('Movimientos'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+    semantica.dispose();
+  });
 }

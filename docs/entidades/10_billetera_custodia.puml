@@ -283,6 +283,8 @@ package "Entrada y salida de dinero" {
     - pagoId: UUID <<M3>>
     - claveIdempotencia: String
     - expiraEn: DateTime
+    - qrContenido: String
+    - qrOrigen: String <<PRUEBA | BANCO>>
     --
     + acreditar(referencia): TransaccionBilletera
     + rechazar(motivo)
@@ -757,6 +759,8 @@ entity "orden_recarga" as orecarga {
   solicitada_en : TIMESTAMPTZ
   acreditada_en : TIMESTAMPTZ <<NULL>>
   expira_en : TIMESTAMPTZ <<NULL>>
+  qr_contenido : VARCHAR(512) <<NULL>>
+  qr_origen : VARCHAR(10) <<CK, NULL>>
 }
 
 entity "orden_retiro" as oretiro {

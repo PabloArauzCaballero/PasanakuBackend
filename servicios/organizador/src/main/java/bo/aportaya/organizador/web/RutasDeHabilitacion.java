@@ -2,14 +2,18 @@ package bo.aportaya.organizador.web;
 
 import bo.aportaya.organizador.aplicacion.CU90ConsultarBandeja;
 import bo.aportaya.organizador.aplicacion.CU90ResolverHabilitacion;
+import bo.aportaya.organizador.aplicacion.ConsultarHabilitacion;
 import bo.aportaya.organizador.web.generado.OrganizadoresApi;
 import bo.aportaya.organizador.web.generado.modelo.DecisionDeHabilitacion;
 import bo.aportaya.organizador.web.generado.modelo.EntradaResolucionDeHabilitacion;
 import bo.aportaya.organizador.web.generado.modelo.EntradaRevisionDeHabilitacion;
 import bo.aportaya.organizador.web.generado.modelo.ExpedienteDeHabilitacion;
+import bo.aportaya.organizador.web.generado.modelo.Habilitacion;
 import bo.aportaya.organizador.web.generado.modelo.PaginaDeBandeja;
 import bo.aportaya.plataforma.web.seguridad.Permiso;
+import bo.aportaya.plataforma.web.seguridad.PermisoAlternativo;
 import bo.aportaya.plataforma.web.seguridad.SesionDeLaPeticion;
+import bo.aportaya.plataforma.web.traza.Traza;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
@@ -26,12 +30,49 @@ abstract class RutasDeHabilitacion implements OrganizadoresApi {
     private final CU90ResolverHabilitacion resolutor;
     private final CU90ConsultarBandeja bandeja;
     private final SesionDeLaPeticion sesion;
+    private ConsultarHabilitacion habilitaciones;
 
     protected RutasDeHabilitacion(
             CU90ResolverHabilitacion resolutor, CU90ConsultarBandeja bandeja, SesionDeLaPeticion sesion) {
         this.resolutor = resolutor;
         this.bandeja = bandeja;
         this.sesion = sesion;
+    }
+
+    /**
+     * Por setter y no por constructor: sumar un parametro arrastra la cadena de constructores hasta el controlador, que
+     * esta al limite de largo del archivo (testBarrido, 300 lineas). Spring lo inyecta antes de atender peticiones.
+     */
+    @org.springframework.beans.factory.annotation.Autowired
+    void conConsultaDeHabilitacion(ConsultarHabilitacion habilitaciones) {
+        this.habilitaciones = habilitaciones;
+    }
+
+    /**
+     * Si el organizador esta habilitado, y hasta donde.
+     *
+     * <p>La pregunta {@code grupos} antes de dejar crear un grupo. Existe para que no
+     * tenga que leer este esquema (invariante 11) ni creerle al que pide. Backoffice ({@code ADMIN_PLATAFORMA}) la
+     * lee para decidir si habilita (es quien llama a {@code habilitarOrganizador}): sin esto, su pantalla no podia
+     * ofrecer la accion.
+     */
+    @Override
+    @Permiso("GRUPO_CREAR")
+    @PermisoAlternativo({"ADMIN_PLATAFORMA"})
+    public ResponseEntity<Habilitacion> consultarHabilitacion(UUID organizadorId) {
+        Traza.marcarCasoDeUso("CU-90", organizadorId.toString());
+
+        var estado = habilitaciones.ejecutar(organizadorId, sesion.actual());
+
+        var respuesta = new Habilitacion();
+        respuesta.setHabilitado(estado.habilitado());
+        respuesta.setNivel(estado.nivel());
+        respuesta.setLimiteDeGrupos(estado.limiteDeGrupos());
+        respuesta.setLimiteDeMonto(estado.limiteDeMonto()
+                .setScale(2, java.math.RoundingMode.HALF_EVEN)
+                .toPlainString());
+        respuesta.setGruposActivos(estado.gruposActivos());
+        return ResponseEntity.ok(respuesta);
     }
 
     @Override

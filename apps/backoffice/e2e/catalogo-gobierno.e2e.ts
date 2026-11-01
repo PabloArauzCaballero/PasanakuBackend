@@ -101,6 +101,45 @@ test('ficha: la narrativa de negocio conserva sus viñetas', async ({ page }) =>
   await todas(page, P, 'ficha-narrativa')
 })
 
+test('ficha: «Operaciones» conserva las directas y lista los casos de uso que nombran la tabla con sus endpoints', async ({ page }) => {
+  await abrir(page, ['TABLERO_SISTEMAS_VER'], '/tablero/catalogo-de-datos/aportes/pago')
+  await page.getByRole('tab', { name: /Operaciones/ }).click()
+  await expect(page).toHaveURL(/vista=operaciones/)
+  // Las dos fuentes, una debajo de la otra: el catálogo de operaciones (directas) y los casos de uso de la bóveda.
+  await expect(page.getByRole('region', { name: 'Operaciones que usan la tabla' })).toBeVisible()
+  const cu21 = page.getByRole('list', { name: 'Casos de uso que la nombran' }).getByRole('listitem').filter({ has: page.getByRole('heading', { name: /CU-21/ }) })
+  const cobrar = cu21.getByRole('list', { name: 'Endpoints de CU-21' }).getByRole('listitem').filter({ hasText: 'cobrarAporte' })
+  await expect(cobrar).toContainText('/aportes/obligaciones/{obligacionId}/pagos')
+  await expect(cobrar.getByText('POST', { exact: true })).toBeVisible()
+  await todas(page, P, 'ficha-operaciones')
+})
+
+test('ficha: «Operaciones directas» con filas: la tabla se ve sin desborde (tabla SINTÉTICA declarada, nombrada como la nombra el inventario empaquetado)', async ({ page }) => {
+  // DOBLE declarado: el inventario de operaciones empaquetado solo nombra una tabla, `outbox_evento`, que no existe en el
+  // catálogo real; se agrega una copia sintética de `evento_dominio` con ese nombre para ver la sección con datos.
+  const base = (CATALOGO.tablas as Tabla[]).find((t) => t.tabla === 'evento_dominio')!
+  await servirCatalogo(page, { ...CON_GOBIERNO, tablas: [...(CON_GOBIERNO.tablas as Tabla[]), { ...base, tabla: 'outbox_evento', operaciones: [] }] })
+  await iniciarSesionDePrueba(page, ['TABLERO_SISTEMAS_VER'])
+  await navegarSinRecargar(page, '/tablero/catalogo-de-datos/aportes/outbox_evento?vista=operaciones')
+  const directas = page.getByRole('region', { name: 'Operaciones que usan la tabla' })
+  await expect(directas.getByRole('table')).toBeVisible()
+  await expect(directas.getByRole('row').nth(1)).toBeVisible()
+  await expect(directas.getByText('Sin operaciones directas registradas')).toHaveCount(0)
+  await todas(page, P, 'ficha-operaciones-directas')
+})
+
+test('ficha de infraestructura: «Operaciones» muestra los dos vacíos y los dos dicen por qué y qué hacer', async ({ page }) => {
+  await abrir(page, ['TABLERO_SISTEMAS_VER'], '/tablero/catalogo-de-datos/aportes/evento_dominio')
+  await page.getByRole('tab', { name: /Operaciones/ }).click()
+  await expect(page).toHaveURL(/vista=operaciones/)
+  const directas = page.getByRole('region', { name: 'Operaciones que usan la tabla' })
+  await expect(directas.getByText('Sin operaciones directas registradas')).toBeVisible()
+  await expect(directas.getByText(/inventario parcial/)).toBeVisible()
+  await expect(page.getByText('Ningún caso de uso la nombra')).toBeVisible()
+  await expect(page.getByText(/falta enlazarla en el caso de uso que la toca/)).toBeVisible()
+  await todas(page, P, 'ficha-operaciones-infra')
+})
+
 test('columnas: revisar desde el cajón exige motivo al rechazar y guarda con la versión leída', async ({ page }) => {
   const cuerpo = await capturarPut(page, /\/catalogo-de-datos\/aportes\/pago\/columnas\/id\/revision$/, { decision: 'RECHAZADA', motivo: 'No es un identificador de negocio', version: 1 })
   await abrir(page, ['TABLERO_SISTEMAS_VER', 'CATALOGO_DATOS_EDITAR'], '/tablero/catalogo-de-datos/aportes/pago?vista=columnas')

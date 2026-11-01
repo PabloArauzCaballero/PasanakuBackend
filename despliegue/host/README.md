@@ -12,6 +12,22 @@ Aca se versiona lo que se pudo auditar linea por linea. Los demas (`construir.sh
 host: pasan credenciales de base por `--build-arg` y no entran a un repositorio sin
 separarlas antes. **Eso queda pendiente.**
 
+## Avisa cuando la copia del host quedo vieja (desde 2026-10-28)
+
+`reconstruir-si-cambio.sh` **no se instala solo**: corre como root y `test` no exige
+revision, asi que instalarse desde la rama seria una consola root para cualquiera que
+empuje ahi. Al final de cada corrida compara su copia con la del repo y, si difieren,
+deja `AVISO: el guion del host difiere…` en `/opt/aportaya/logs/autodespliegue.log`.
+Ademas etiqueta las imagenes de backoffice y web con `aportaya.commit=<sha>` y no despliega
+si la etiqueta no es la del commit.
+
+Ver que esta al dia:
+
+```bash
+ssh root@161.97.85.216 'grep -c actualizar_guion /opt/aportaya/bin/reconstruir-si-cambio.sh; \
+  docker image inspect -f "{{index .Config.Labels \"aportaya.commit\"}}" aportaya/backoffice:test aportaya/web:test'
+```
+
 ## Instalar
 
 ```bash
@@ -27,6 +43,7 @@ y toma la version nueva en la corrida siguiente.
 | # | Antes | Ahora |
 | --- | --- | --- |
 | 1 | El esquema se reconstruia solo si el commit tocaba `sql/` | Tambien si la imagen no esta en el host (`docker image inspect`) |
+| 1b | Solo el esquema se reponia si faltaba (2026-10-29) | Cualquier imagen faltante (gateway, los quince servicios, backoffice, web, movil-web) se reconstruye, y antes de desplegar se verifica que esten las veinte |
 | 2 | El movil se construia con `docker build` pelado | Va por `construir-movil-web.sh`, que regenera `clientes/dart` primero |
 | 3 | Una falla marcaba el log y **desplegaba igual** | Con una falla no se despliega, y el log dice cuales fueron |
 | 4 | Los fronts no conocian `packages/tutoriales` | Entra en el disparador, junto con `ui` y `tokens` |

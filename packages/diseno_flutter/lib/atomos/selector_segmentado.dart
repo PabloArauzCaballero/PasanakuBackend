@@ -81,10 +81,15 @@ class SelectorSegmentado<T> extends StatelessWidget {
                       child: AnimatedDefaultTextStyle(
                         duration: duracion(context, Movimiento.cambioDeEstado),
                         curve: Movimiento.llega,
-                        style: (Theme.of(context).textTheme.labelLarge ?? Tipo.boton).copyWith(
-                          color: e.key == valor ? t.sobreVerdeSolido : t.text2,
-                          fontWeight: FontWeight.w600,
-                        ),
+                        style:
+                            (Theme.of(context).textTheme.labelLarge ??
+                                    Tipo.boton)
+                                .copyWith(
+                                  color: e.key == valor
+                                      ? t.sobreVerdeSolido
+                                      : t.text2,
+                                  fontWeight: FontWeight.w600,
+                                ),
                         child: Text(
                           e.value,
                           textAlign: TextAlign.center,

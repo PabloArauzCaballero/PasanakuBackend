@@ -10,6 +10,7 @@ import bo.aportaya.grupos.web.generado.modelo.DetalleDelGrupo;
 import bo.aportaya.grupos.web.generado.modelo.EntradaFirmaDeReglamento;
 import bo.aportaya.grupos.web.generado.modelo.SalidaFirmaDeReglamento;
 import bo.aportaya.plataforma.web.seguridad.Permiso;
+import bo.aportaya.plataforma.web.seguridad.PermisoAlternativo;
 import bo.aportaya.plataforma.web.seguridad.SesionDeLaPeticion;
 import bo.aportaya.plataforma.web.traza.Traza;
 import java.math.BigDecimal;
@@ -20,6 +21,7 @@ import org.springframework.http.ResponseEntity;
 abstract class RutasDelGrupo extends RutasDeEnlaceDeGrupo {
     private final SesionDeLaPeticion sesion;
     private IntegrantesDelGrupo integrantes;
+    private GruposDeBackoffice deBackoffice;
 
     @SuppressWarnings("checkstyle:ParameterNumber")
     protected RutasDelGrupo(
@@ -56,6 +58,12 @@ abstract class RutasDelGrupo extends RutasDeEnlaceDeGrupo {
         this.integrantes = integrantes;
     }
 
+    /** Por setter, por la misma razon que {@link #conIntegrantes}. */
+    @org.springframework.beans.factory.annotation.Autowired
+    void conGruposDeBackoffice(GruposDeBackoffice deBackoffice) {
+        this.deBackoffice = deBackoffice;
+    }
+
     @Override
     @Permiso("PARTICIPANTE")
     public ResponseEntity<bo.aportaya.grupos.web.generado.modelo.MisLimites> consultarMisLimites() {
@@ -78,11 +86,45 @@ abstract class RutasDelGrupo extends RutasDeEnlaceDeGrupo {
         return ResponseEntity.ok(integrantes.comparten(grupoId, usuarioId, sesion.actual()));
     }
 
+    /**
+     * CU-69 · iniciar al 75 % (2026-10-30). {@code GRUPO_ADMINISTRAR} es la guardia por funcion (403 sin ese
+     * permiso); que quien llama organice ESTE grupo lo decide el caso de uso sobre el recurso (AP-CU69-07).
+     */
+    @Override
+    @Permiso("GRUPO_ADMINISTRAR")
+    public ResponseEntity<bo.aportaya.grupos.web.generado.modelo.GrupoIniciado> iniciarGrupo(
+            UUID grupoId, UUID idempotencyKey) {
+        Traza.marcarCasoDeUso("CU-69", grupoId.toString());
+        return ResponseEntity.ok(integrantes.iniciar(grupoId, idempotencyKey, sesion.actual()));
+    }
+
     @Override
     @Permiso("PARTICIPANTE")
     public ResponseEntity<SalidaFirmaDeReglamento> firmarReglamentoDelGrupo(
             UUID grupoId, EntradaFirmaDeReglamento cuerpo) {
         Traza.marcarCasoDeUso("CU-69", grupoId.toString());
         return ResponseEntity.ok(integrantes.firmar(grupoId, cuerpo, sesion.actual()));
+    }
+
+    /**
+     * El backoffice consulta los grupos: quien opera la plataforma o quien la audita. Solo lectura; un participante,
+     * un organizador o quien no tiene ninguno de los dos codigos recibe la negativa de la guardia.
+     */
+    @Override
+    @Permiso("ADMIN_PLATAFORMA")
+    @PermisoAlternativo({"AUDITORIA_LEER"})
+    public ResponseEntity<java.util.List<bo.aportaya.grupos.web.generado.modelo.GrupoDeBackoffice>>
+            listarGruposDeBackoffice(String estado, Integer limite) {
+        Traza.marcarCasoDeUso("BACKOFFICE-GRUPOS", "listado");
+        return ResponseEntity.ok(deBackoffice.listar(estado, limite, sesion.actual()));
+    }
+
+    @Override
+    @Permiso("ADMIN_PLATAFORMA")
+    @PermisoAlternativo({"AUDITORIA_LEER"})
+    public ResponseEntity<bo.aportaya.grupos.web.generado.modelo.DetalleDeGrupoDeBackoffice> consultarGrupoDeBackoffice(
+            UUID grupoId) {
+        Traza.marcarCasoDeUso("BACKOFFICE-GRUPOS", grupoId.toString());
+        return ResponseEntity.ok(deBackoffice.detalle(grupoId, sesion.actual()));
     }
 }

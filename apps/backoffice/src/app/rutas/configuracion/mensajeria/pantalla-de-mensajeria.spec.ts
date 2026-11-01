@@ -10,14 +10,15 @@ import { PantallaDeMensajeria } from './pantalla-de-mensajeria'
 const GW = 'http://gw/api/v1'
 const PLANTILLAS = `${GW}/notificaciones/plantillas`
 const ENVIOS = `${GW}/notificaciones/envios`
-// Sintéticos con la forma de PlantillaEnLista / EnvioEnLista (notificaciones.yaml). Ninguno es un mensaje real.
+// H5.S2.M2 · Doble de `HttpTestingController` (regla 65). Sintéticos con la forma de PlantillaEnLista / EnvioEnLista (notificaciones.yaml). Ninguno es un mensaje real.
 const PLANTILLA = { plantillaId: 'p-1', codigo: 'PLANTILLA_EJEMPLO', evento: 'EVENTO_EJEMPLO', canal: 'WHATSAPP', categoriaProveedor: 'UTILITY', estadoAprobacion: 'APROBADA', activa: true, versionId: 'v-1', version: 2, idioma: 'es', vigenteDesde: '2026-09-01T04:00:00Z' }
 const ENVIO = { envioId: 'e-1', notificacionId: 'n-1', proveedorId: 'pr-1', proveedor: 'PROVEEDOR_EJEMPLO', versionPlantillaId: 'v-1', canal: 'SMS', estado: 'FALLIDO', orden: 1, intentos: 3, maxIntentos: 3, costo: '0.0000', moneda: 'USD', codigoError: 'E-EJEMPLO', encoladoEn: '2026-10-16T12:00:00Z' }
 
-async function montar() {
+async function montar(url = '/') {
   TestBed.configureTestingModule({
     providers: [provideZonelessChangeDetection(), provideHttpClient(), provideHttpClientTesting(), provideRouter([]), { provide: GATEWAY, useValue: GW }],
   })
+  await TestBed.inject(Router).navigateByUrl(url)
   const fixture = TestBed.createComponent(PantallaDeMensajeria)
   fixture.detectChanges()
   await fixture.whenStable()
@@ -31,51 +32,77 @@ async function pintar(fixture: { whenStable: () => Promise<unknown>; detectChang
   fixture.detectChanges()
 }
 
-describe('PantallaDeMensajeria · plantillas y envíos de solo lectura', () => {
-  it('correcto: pinta plantilla y envío sin ningún dato de destinatario; ausente = «no disponible»', async () => {
+async function irA(fixture: Parameters<typeof pintar>[0], raiz: HTMLElement, pestana: string) {
+  ;(Array.from(raiz.querySelectorAll('[role="tab"]')).find((b) => b.textContent?.includes(pestana)) as HTMLElement).click()
+  await pintar(fixture)
+}
+
+describe('PantallaDeMensajeria · plantillas y envíos de solo lectura, en pestañas', () => {
+  it('aceptado: pinta plantilla y envío sin ningún dato de destinatario; ausente = «no disponible»; costo exacto con su moneda', async () => {
     const { fixture, http, raiz } = await montar()
     http.expectOne((r) => r.url === PLANTILLAS).flush({ items: [PLANTILLA] })
+    await pintar(fixture)
+    expect(raiz.textContent).toContain('PLANTILLA_EJEMPLO')
+    expect(raiz.textContent).toContain('Aprobada')
+    expect(raiz.textContent).toContain('no disponible') // vigenteHasta ausente
+    await irA(fixture, raiz, 'Envíos')
     http.expectOne((r) => r.url === ENVIOS).flush({ items: [ENVIO] })
     await pintar(fixture)
     const texto = raiz.textContent ?? ''
-    expect(texto).toContain('PLANTILLA_EJEMPLO')
-    expect(texto).toContain('Aprobada')
     expect(texto).toContain('Fallido')
     expect(texto).toContain('3 / 3')
     expect(texto).toContain('0.0000 USD')
-    expect(texto).toContain('no disponible') // vigenteHasta y entregadoEn ausentes
-    // Las tablas (cabeceras y celdas) no tienen dónde mostrar a la persona ni lo que se le mandó.
-    const tablas = Array.from(raiz.querySelectorAll('ap-tabla-de-datos-virtualizada')).map((t) => t.textContent ?? '').join(' ').toLowerCase()
-    expect(tablas).toContain('plantilla_ejemplo')
-    for (const prohibido of ['destinatario', 'telefono', 'teléfono', 'correo electrónico', 'contenido', 'n-1', 'pr-1']) expect(tablas).not.toContain(prohibido)
+    expect(texto).toContain('no disponible') // entregadoEn ausente
+    // La tabla (cabeceras y celdas) no tiene dónde mostrar a la persona ni lo que se le mandó.
+    const tabla = (raiz.querySelector('table')?.textContent ?? '').toLowerCase()
+    for (const prohibido of ['destinatario', 'telefono', 'teléfono', 'correo electrónico', 'contenido', 'n-1', 'pr-1']) expect(tabla).not.toContain(prohibido)
+    expect(raiz.querySelector('ap-acciones-de-fila')).toBeNull()
     http.verify()
   })
 
-  it('límite: el filtro de estado de la URL viaja como `estados` solo a envíos; vacío lo dice', async () => {
+  it('aceptado: canal filtra la página de envíos y el estado viaja como `estados`', async () => {
     const { fixture, http, raiz } = await montar()
     http.expectOne((r) => r.url === PLANTILLAS).flush({ items: [] })
-    http.expectOne((r) => r.url === ENVIOS).flush({ items: [ENVIO] })
+    await irA(fixture, raiz, 'Envíos')
+    http.expectOne((r) => r.url === ENVIOS).flush({ items: [ENVIO, { ...ENVIO, envioId: 'e-2', canal: 'WHATSAPP', estado: 'ENTREGADO' }] })
     await pintar(fixture)
-    await TestBed.inject(Router).navigate([], { queryParams: { filtro: 'EXPIRADO,INVENTADO' } })
+    const tabla = fixture.debugElement.query((d) => d.name === 'ap-tabla-de-envios').componentInstance as { listado: { filtrar(n: string, v: string): void } }
+    tabla.listado.filtrar('canal', 'WHATSAPP')
     await pintar(fixture)
+    expect(raiz.querySelectorAll('tbody tr')).toHaveLength(1)
+    tabla.listado.filtrar('estado', 'FALLIDO')
+    await pintar(fixture)
+    expect(http.expectOne((r) => r.url === ENVIOS).request.params.getAll('estados')).toEqual(['FALLIDO'])
+  })
+
+  it('límite: un enlace con `?filtro=EXPIRADO,INVENTADO` abre Envíos filtrado solo por el valor del contrato; vacío lo dice', async () => {
+    const { fixture, http, raiz } = await montar('/?filtro=EXPIRADO,INVENTADO')
     const req = http.expectOne((r) => r.url === ENVIOS)
     expect(req.request.params.getAll('estados')).toEqual(['EXPIRADO'])
     req.flush({ items: [] })
     await pintar(fixture)
-    expect(raiz.textContent).toContain('Todavía no hay plantillas cargadas.')
-    expect(raiz.textContent).toContain('Nada coincide con ese filtro.')
+    expect(raiz.querySelector('[role="tab"][aria-selected="true"]')?.textContent).toContain('Envíos')
+    expect(raiz.textContent).toContain('Ningún registro de esta página coincide')
     http.verify()
   })
 
-  it('inválido: 403 en envíos y 500 en plantillas → cada tabla en error, sin filas', async () => {
+  it('límite: sin plantillas, el vacío lo dice', async () => {
+    const { fixture, http, raiz } = await montar()
+    http.expectOne((r) => r.url === PLANTILLAS).flush({ items: [] })
+    await pintar(fixture)
+    expect(raiz.textContent).toContain('Todavía no hay plantillas cargadas.')
+  })
+
+  it('error: 500 en plantillas y 403 en envíos → error accionable en cada pestaña, sin el crudo', async () => {
     const { fixture, http, raiz } = await montar()
     http.expectOne((r) => r.url === PLANTILLAS).flush({ mensaje: 'SQLException' }, { status: 500, statusText: 'Error' })
+    await pintar(fixture)
+    expect(raiz.querySelector('[role="alert"]')).not.toBeNull()
+    expect(raiz.textContent).not.toContain('SQLException')
+    await irA(fixture, raiz, 'Envíos')
     http.expectOne((r) => r.url === ENVIOS).flush({ codigo: 'AP-SEG-01' }, { status: 403, statusText: 'Forbidden' })
     await pintar(fixture)
-    const alertas = Array.from(raiz.querySelectorAll('[role="alert"]')).map((a) => a.textContent ?? '')
-    expect(alertas).toHaveLength(2)
-    expect(alertas.join(' ')).toContain('No tenés acceso a esto.')
-    expect(raiz.textContent).not.toContain('SQLException')
-    expect(raiz.querySelector('ap-tabla-de-datos-virtualizada')).toBeNull()
+    expect(raiz.querySelector('[role="alert"]')?.textContent).toContain('No tenés acceso a esto.')
+    expect(raiz.querySelector('tbody')).toBeNull()
   })
 })

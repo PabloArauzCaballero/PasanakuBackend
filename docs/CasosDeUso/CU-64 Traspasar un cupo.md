@@ -90,6 +90,7 @@ export const ErroresCU64 = {
   ENTRANTE_SIN_KYC:       'AP-CU64-03',
   ENTRANTE_SIN_REPUTACION:'AP-CU64-04',
   ACUERDO_REQUERIDO:      'AP-CU64-05',
+  NO_ES_TITULAR:          'AP-CU64-06',
 } as const
 ```
 
@@ -100,6 +101,7 @@ export const ErroresCU64 = {
 | `ENTRANTE_SIN_KYC` | El entrante no alcanza el `requiere_kyc_minimo` del grupo |
 | `ENTRANTE_SIN_REPUTACION` | El entrante no alcanza la `reputacion_minima` fijada en el reglamento |
 | `ACUERDO_REQUERIDO` | El reglamento exige aprobación del grupo y no hay acuerdo aprobado |
+| `NO_ES_TITULAR` | Quien pide el traspaso no tiene el cupo |
 
 ## Descomposición atómica
 
@@ -155,7 +157,50 @@ Entonces se rechaza con SALIENTE_CON_DEUDA
 Dado un entrante con KYC por debajo del mínimo del grupo
 Cuando acepta la invitación
 Entonces se rechaza con ENTRANTE_SIN_KYC y se le ofrece elevar su nivel
+
+# Traspaso por el titular, con la votación del grupo
+Dado un cupo con turno futuro y la votación aprobada de ese cupo
+Cuando su titular traspasa al entrante
+Entonces el cupo cambia de participante y el acuerdo queda EJECUTADO
+
+Dado el titular al día
+Cuando pregunta si puede subastar su cupo
+Entonces es subastable y ve el aporte del grupo
+
+Dado otro integrante
+Cuando pregunta por un cupo que no es suyo
+Entonces AP-CU64-06 y no se dice de quién es
+
+Dado un titular con deuda o un turno ya cobrado
+Cuando pregunta
+Entonces no es subastable y dice por qué
+
+Dado un ganador de afuera del grupo
+Cuando entregas pide el traspaso
+Entonces entra ACTIVO, el cupo es suyo, el saliente queda RETIRADO y el turno no se mueve
+
+Dado un traspaso por subasta ya aplicado
+Cuando entregas lo repite
+Entonces devuelve el mismo traspaso y no hay un segundo
+
+Dado un cupo que ya no es del saliente
+Cuando entregas pide el traspaso
+Entonces AP-CU64-01 y nada cambia
+
+Dados dos cierres simultáneos del mismo cupo con ganadores distintos
+Entonces uno solo se lleva el cupo y el otro recibe AP-CU64-01
+
+Dado quien quiere pujar
+Cuando tiene restricción, KYC o reputación insuficiente
+Entonces no es elegible y se dice el motivo, en ese orden
+
+Dado alguien que ya llegó al máximo de grupos
+Cuando quiere pujar en otro
+Entonces MAXIMO_DE_GRUPOS; si ya está en este grupo, puede
 ```
+
+La votación es sobre el cupo **y** la persona que entra (decisión 2026-10-30): una votación
+aprobada para otra persona, o que no dice quién entra, se rechaza con `ACUERDO_REQUERIDO`.
 
 ## Ver también
 

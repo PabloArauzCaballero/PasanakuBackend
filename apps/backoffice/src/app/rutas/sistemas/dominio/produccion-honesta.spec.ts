@@ -5,7 +5,7 @@ import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { afterEach, describe, expect, it } from 'vitest'
 import { BannerDatosDeEjemplo } from '../banner-datos-de-ejemplo/banner-datos-de-ejemplo'
-import { PantallaServicios } from '../servicios/pantalla-servicios'
+import { PantallaDespliegues } from '../despliegues/pantalla-despliegues'
 import { detectarModoFuentesDeSistemas, provideFuentesDeSistemas } from './proveedor-fuentes'
 
 /**
@@ -51,11 +51,13 @@ describe('detectarModoFuentesDeSistemas · solo la etiqueta exacta enciende el m
   })
 })
 
-@Component({ imports: [BannerDatosDeEjemplo, PantallaServicios], template: `<ap-banner-datos-de-ejemplo /><ap-pantalla-servicios />` })
+// Despliegues todavía no tiene contrato real: es la que ejercita la indisponibilidad honesta. Servicios ya lee de
+// auditoria (`salud-de-servicios.spec.ts`).
+@Component({ imports: [BannerDatosDeEjemplo, PantallaDespliegues], template: `<ap-banner-datos-de-ejemplo /><ap-pantalla-despliegues />` })
 class SeccionComoEnProduccion {}
 
 describe('pantalla de sistemas con el proveedor de producción · indisponibilidad honesta', () => {
-  it('aun con la etiqueta demo encendida: sin banner de ejemplo, con error accionable y sin cifras de ejemplo', async () => {
+  it('aun con la etiqueta demo encendida: sin banner de ejemplo, con el estado «todavía no hay datos para mostrar» y sin cifras de ejemplo', async () => {
     TestBed.configureTestingModule({ providers: [provideZonelessChangeDetection(), ...provideFuentesDeSistemas('demo')] })
     const fixture = TestBed.createComponent(SeccionComoEnProduccion)
     fixture.detectChanges()
@@ -63,7 +65,7 @@ describe('pantalla de sistemas con el proveedor de producción · indisponibilid
     fixture.detectChanges()
     const raiz = fixture.nativeElement as HTMLElement
     expect(raiz.textContent).not.toContain('Datos de ejemplo.')
-    expect(raiz.querySelector('[role="alert"]')).toBeTruthy()
+    expect(raiz.querySelector('ap-estado-vacio')?.textContent).toContain('todavía no hay datos para mostrar')
     expect(raiz.textContent).not.toMatch(/\d+(\.\d+)?%/)
   })
 })

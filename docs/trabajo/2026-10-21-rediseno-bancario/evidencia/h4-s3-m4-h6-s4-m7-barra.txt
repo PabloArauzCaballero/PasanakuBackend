@@ -1,0 +1,52 @@
+# H4.S3.M4 · H6.S4.M7 · H6.S4.M8 · H6.S1.M1 (parcial) — barra flotante con QR, cabecera en círculos, vacío con acción (2026-10-21)
+
+Peldaño: TESTED + prueba visual (despues/billetera, grupos, perfil).
+Origen: roast-pantallas-hoy.md (Inicio: cabecera en baldosas, barra vieja con «Movimien…», vacío mudo).
+
+Cambios
+- BarraPestanas: cápsula flotante (franja propia, sin tapar contenido), píldora activa que crece,
+  botón central QR levantado (A6) que no cuenta como destino, etiquetas de 11 px sin tracking.
+- Shell: Inicio · Grupos · [QR] · Movimientos · Perfil; Ayuda sale de la barra y pasa a la cabecera
+  del inicio y a una fila del perfil. «Perfil» queda encendido cuando se está en Ayuda.
+- H6.S4.M8 (bug real de H0): toda pestaña navega con `context.go(ruta)`; con `goBranch(rama,
+  initialLocation)` «Movimientos» desde otra rama caía en Inicio.
+- BotonDeCabecera: círculo con sombra (borde solo en oscuro).
+- EstadoVacio: círculo de marca + título + ícono propio + acción. Inicio: «Armá tu primer
+  pasanaku» con Crear un grupo / Entrar con un enlace o QR.
+
+Mutante: con el `goBranch` viejo restaurado, el test nuevo falla (Actual: '/billetera/inicio');
+con el arreglo, pasa.
+
+Clasificación de rojos (regla 80.4)
+- 17 goldens (h10_billetera_visual, h8_break_ui, pantalla_de_saldo) no encontraban «Recarga» /
+  «Movimientos» / «Todavía no tenés movimientos»: TEST_BUG de entorno. El vacío con acción es más
+  alto y el `ListView` no construye lo que está bajo el pliegue. Se mide DESPUÉS del golden y
+  desplazando HASTA el elemento (`dragUntilVisible`) en vez de 560 dp fijos. Mismas aserciones.
+- Error mío al reestructurar: «vacío» caía en las aserciones de «error» (6 rojos «Volver a
+  intentar»). PRODUCT_BUG de test mío, corregido con `break`.
+- acceso_escanear_test montaba PantallaDeSaldo sola y buscaba el ícono que ya no está en la
+  cabecera: TEST_BUG por A6; ahora monta el enrutador real y toca el botón del medio de la barra.
+
+$ (packages/diseno_flutter) dart analyze --fatal-infos → No issues found!
+$ (packages/diseno_flutter) flutter test test/unidad test/widget test/a11y --timeout 60s → 00:17 +128: All tests passed!
+$ (packages/diseno_flutter) flutter test test/goldens --update-goldens → 00:04 +18: All tests passed!
+$ (apps/movil) dart analyze --fatal-infos → No issues found!
+$ (apps/movil) flutter test test/unidad test/widget test/contrato test/identidad test/pasanaku test/a11y --timeout 60s → 01:55 +771: All tests passed!
+$ (apps/movil) flutter test test/goldens --update-goldens → 00:52 +274 ; flutter test test/goldens → 00:50 +274: All tests passed!
+$ flutter test test/capturas/rediseno --update-goldens --dart-define=FASE=despues --dart-define=FLUJOS=billetera → 00:28 +156
+Goldens cambiados: 73, mirados en 5 hojas antes|después (3 vistas a fondo, 2 por patrón repetido).
+No cubierto: barra con lector de pantalla real y TalkBack; QR central con la cámara real; MP4 de
+la píldora; EstadoError con el tratamiento nuevo.
+
+## Token nuevo para la etiqueta de la barra
+El gate «sin literal de diseño» rechazó el `fontSize: 11` de la etiqueta. Se agregó `tipo.pestana`
+(11 px, peso 500, sin tracking) en packages/tokens/tokens.json y en estilos.css (espejo);
+regenerados tokens.dart y css.
+$ (packages/tokens) npx vitest run → Test Files 3 passed · Tests 15 passed (incluye tokens-contra-boveda)
+$ python3 scripts/verificar_frontend.py diseno → TODO OK · movil → TODO OK
+$ (packages/diseno_flutter) flutter test test/unidad test/widget test/a11y test/goldens → 00:22 +146: All tests passed!
+$ (apps/movil) flutter test test/unidad test/widget test/contrato test/identidad test/pasanaku test/a11y test/goldens → 02:53 +1045: All tests passed!
+Incidente de proceso: un reemplazo con una rebanada vacía insertó un comentario entre cada carácter de
+barra_pestanas_destino.dart (archivo nuevo, sin copia en git). Se revirtió quitando la cadena insertada
+y se verificó: 191 líneas, mismas que antes, analyzer limpio y tests verdes. También se revirtió un
+reformateo accidental de apps/movil/lib/infraestructura/camara_en_vivo_plugin.dart (fuera de alcance).

@@ -43,11 +43,22 @@ class CatalogoPorPartesWebTest {
              "relaciones":{"salientes":[{"columna":"obligacion_id","tabla":"obligacion_aporte","esquema":"aportes",
                "columnaDestino":"id","restriccion":"fk_pago_obligacion_id","alBorrar":"RESTRICT",
                "cardinalidad":"N:1","obligatoria":true}],"entrantes":[]},
-             "sistema":"Vive en el esquema `aportes`."}
+             "sistema":"Vive en el esquema `aportes`.",
+             "operaciones":[{"casoDeUso":"CU-21","titulo":"Cobrar el aporte del período","endpoints":[
+               {"servicio":"aportes","metodo":"POST","ruta":"/aportes/obligaciones/{obligacionId}/pagos",
+                "operationId":"cobrarAporte"}]}]}
             """;
 
     @Autowired
     private MockMvc mvc;
+
+    // Sistemas › Incidentes: comparte controlador; no se llama aca.
+
+    @MockitoBean
+    private bo.aportaya.auditoria.aplicacion.ConsultarIncidentesOperativos consultarIncidentes;
+
+    @MockitoBean
+    private bo.aportaya.auditoria.aplicacion.OutboxPorServicio outboxPorServicio;
 
     @MockitoBean
     private ConsultarCatalogoDeDatos consultarCatalogo;
@@ -212,7 +223,9 @@ class CatalogoPorPartesWebTest {
                 .andExpect(jsonPath("$.relaciones.salientes[0].alBorrar").value("RESTRICT"))
                 .andExpect(jsonPath("$.relaciones.salientes[0].cardinalidad").value("N:1"))
                 .andExpect(jsonPath("$.columnas[0].esquemaReferencia").value("aportes"))
-                .andExpect(jsonPath("$.gobierno.estadoRevision").value("DETECTADA"));
+                .andExpect(jsonPath("$.gobierno.estadoRevision").value("DETECTADA"))
+                .andExpect(jsonPath("$.operaciones[0].casoDeUso").value("CU-21"))
+                .andExpect(jsonPath("$.operaciones[0].endpoints[0].operationId").value("cobrarAporte"));
     }
 
     @Test

@@ -1,0 +1,25 @@
+# H1.S2.M1 — Lámina de dirección
+$ python3 -I herramientas/lamina.py <lucide-static 1.47.0>/icons
+docs/trabajo/2026-10-21-rediseno-bancario/evidencia/direccion/lamina.html · 566 KB
+PASS   7.76:1  claro · texto sobre héroe (g600)
+PASS   5.24:1  claro · texto 2 sobre héroe (g600)
+PASS   7.76:1  claro · botón principal
+PASS   4.62:1  claro · botón urgencia
+PASS   4.71:1  claro · texto 3 sobre fondo
+PASS   5.32:1  claro · texto 3 sobre superficie
+PASS   6.18:1  claro · urgencia-texto sobre urgencia-bg
+PASS   5.24:1  claro · ok sobre superficie
+PASS   7.22:1  claro · marca sobre fondo (enlaces)
+PASS  16.73:1  oscuro · texto sobre fondo
+PASS   6.57:1  oscuro · texto 3 sobre superficie
+PASS   5.24:1  oscuro · texto 2 sobre héroe (g600)
+PASS   7.95:1  oscuro · botón principal
+PASS   8.01:1  oscuro · botón urgencia
+PASS   8.76:1  oscuro · marca sobre fondo (enlaces)
+
+Capturas (Chromium): lamina-escritorio-claro, lamina-escritorio-oscuro, lamina-telefono-claro, lamina-inicio-par → 0 errores de consola, sin scroll horizontal.
+Correcciones tras mirar: 1 par en FAIL (texto 2 sobre héroe oscuro, 4,21:1) → héroe g600 en ambos temas; charset; ítems de grid con overflow encogidos (grid-auto-rows: max-content); cifra partida; iniciales encimadas.
+Publicada: https://claude.ai/artifact/3Z2ippfvEfTY3UJAcPk2FG
+
+# H1.S2.M2 — docs/Arquitectura/ADR-053 Rediseño bancario de la app.md (ADR-045 ya estaba tomado)
+# H1.S2.M3 — A1–A4 y A6 resueltas en PLAN §3 (A5 sigue abierta: no es diseño)

@@ -1,0 +1,33 @@
+$ python3 -I scripts/generar_ddl.py
+sql/ generado: 342 tablas · 686 claves foráneas · 785 índices · 532 CHECK
+Sin pendientes a nivel de datos.
+exit=0
+$ git diff --stat -- sql/
+ sql/15_infra/borradores.sql | 66 +++++++++++++++++++++++++++++----------------
+ 1 file changed, 43 insertions(+), 23 deletions(-)
+$ head -8 sql/15_infra/borradores.sql
+-- Generado por scripts/generar_ddl.py — no editar a mano.
+-- Borrador del alta incompleta (identidad): lo que la persona ya cargo para retomar el alta en otro
+-- momento. Lo usa BorradorOnboardingRepositorio. Una fila por correo; vence a los 7 dias (expira_en) y
+-- se borra al terminar el alta. Anchos y enumerados: contrato BorradorOnboarding (identidad.yaml).
+CREATE TABLE IF NOT EXISTS identidad.borrador_onboarding (
+  correo                 VARCHAR(150) PRIMARY KEY,
+  telefono_e164          VARCHAR(20),
+  nombres                VARCHAR(80),
+COMMENT ON: 18
+$ python3 -I scripts/test_catalogo_de_datos.py
+Ran 13 tests in 0.149s
+
+FAILED (failures=1)
+$ psql -d pasanaku_ref3 -v ON_ERROR_STOP=1 -f sql/aplicar.sql   (base vacía nº 3, DDL regenerado)
+exit=0 · líneas ERROR: 0 · tablas: 442
+$ psql -d pasanaku_ref4 -v ON_ERROR_STOP=1 -f sql/aplicar.sql   (base vacía nº 4, DDL regenerado)
+exit=0 · líneas ERROR: 0 · tablas: 442
+$ columnas de identidad.borrador_onboarding
+correo character varying(150);telefono_e164 character varying(20);nombres character varying(80);apellidos character varying(80);fecha_nacimiento date;tipo_documento character varying(25);numero_documento character varying(30);lugar_expedicion character varying(5);fecha_expiracion date;actividad_economica character varying(10);detalle_actividad character varying(100);origen_de_fondos character varying(20);detalle_del_origen character varying(100);monto_mensual_estimado text;paso_pendiente character varying(10);actualizado_en timestamp with time zone;expira_en timestamp with time zone
+$ comentarios de columna aplicados
+18
+$ 2.ª aplicación de borradores.sql sobre la misma base (idempotencia)
+psql:sql/15_infra/borradores.sql:25: NOTICE:  relation "borrador_onboarding" already exists, skipping
+psql:sql/15_infra/borradores.sql:28: NOTICE:  relation "ix_identidad_borrador_expira" already exists, skipping
+exit=0

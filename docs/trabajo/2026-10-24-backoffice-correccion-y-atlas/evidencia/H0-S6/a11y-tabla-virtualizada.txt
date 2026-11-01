@@ -1,0 +1,21 @@
+## 2026-10-24T05:26:58+00:00 · Node v22.23.4 · defecto: status dentro de role=table (aria-required-children)
+$ yarn test:a11y
+ Test Files  42 passed (42)
+      Tests  78 passed (78)
+$ ng test tabla + virtualizada
+     × mientras carga: el aviso «Cargando…» está en la cabecera y el esqueleto no mete un status dentro de la tabla 35ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL   backoffice  src/app/nucleo/tabla/tabla-de-datos-virtualizada.spec.ts > TablaDeDatosVirtualizada · dataset grande paginado del servidor > mientras carga: el aviso «Cargando…» está en la cabecera y el esqueleto no mete un status dentro de la tabla
+AssertionError: expected <ap-esqueleto …(8)>…(5)</ap-esqueleto> to be null
+ Test Files  1 failed | 2 passed (3)
+      Tests  1 failed | 17 passed (18)
+$ ng test src/app/nucleo/tabla
+     × mientras carga: el aviso «Cargando…» está en la cabecera y el esqueleto no mete un status dentro de la tabla 39ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL   backoffice  src/app/nucleo/tabla/tabla-de-datos-virtualizada.spec.ts > TablaDeDatosVirtualizada · dataset grande paginado del servidor > mientras carga: el aviso «Cargando…» está en la cabecera y el esqueleto no mete un status dentro de la tabla
+AssertionError: expected <div _ngcontent-a-c3633199679 …(2)>…(1)</div> to be null
+ Test Files  1 failed | 2 passed (3)
+      Tests  1 failed | 17 passed (18)
+$ ng test src/app/nucleo/tabla  (con detectChanges tras resolver)
+ Test Files  3 passed (3)
+      Tests  18 passed (18)

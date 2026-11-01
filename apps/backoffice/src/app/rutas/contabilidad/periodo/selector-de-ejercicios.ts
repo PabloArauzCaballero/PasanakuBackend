@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, input, signal } from '@angular/core
 import { RouterLink } from '@angular/router'
 import { Alerta } from '@aportaya/ui/alerta/alerta'
 import { Boton } from '@aportaya/ui/boton/boton'
+import { Icono } from '@aportaya/ui/icono/icono'
 import type { ErrorTraducido } from '../../../nucleo/errores'
 import { crearListadoDeEjercicios, type EjercicioFiscal } from '../dominio/cu100-periodos'
 import { textosContabilidad } from '../textos'
@@ -14,10 +15,10 @@ import { textosContabilidad } from '../textos'
 @Component({
   selector: 'ap-selector-de-ejercicios',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [Alerta, Boton, RouterLink],
+  imports: [Alerta, Boton, Icono, RouterLink],
   template: `
     <nav [attr.aria-label]="t.ejercicios">
-      <h2>{{ t.ejercicios }}</h2>
+      <h2><ap-icono nombre="libro" tamano="s4" />{{ t.ejercicios }}</h2>
       @if (error(); as e) {
         <ap-alerta tono="error">
           {{ e.mensaje }}
@@ -28,7 +29,7 @@ import { textosContabilidad } from '../textos'
         <ul>
           @for (e of ejercicios(); track e.ejercicioId) {
             <li>
-              <a [routerLink]="'/contabilidad/periodo/' + e.ejercicioId" [attr.aria-current]="e.ejercicioId === elegido() ? 'page' : null">{{
+              <a [routerLink]="'/contabilidad/periodo/' + e.ejercicioId" [attr.aria-current]="e.ejercicioId === elegido() ? 'page' : null"><ap-icono nombre="calendario" tamano="s4" />{{
                 t.ejercicio(e.anio, t.estados[e.estado])
               }}</a>
             </li>
@@ -40,16 +41,16 @@ import { textosContabilidad } from '../textos'
         <p class="nota">{{ t.sinEjercicios }}</p>
       }
       @if (proximoAntesDeAnio() !== null) {
-        <ap-boton [cargando]="cargando()" (pulsado)="cargar()">{{ t.masEjercicios }}</ap-boton>
+        <ap-boton icono="historial" [cargando]="cargando()" (pulsado)="cargar()">{{ t.masEjercicios }}</ap-boton>
       }
     </nav>
   `,
   styles: `
     nav { display: grid; gap: var(--s3); }
-    h2 { margin: 0; font-size: 1.05em; }
+    h2 { display: flex; align-items: center; gap: var(--s2); margin: 0; font-size: 1.05em; }
     ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: var(--s2) var(--s4); }
-    a { display: inline-flex; align-items: center; min-height: var(--area-tactil); color: var(--text); }
-    a[aria-current='page'] { font-weight: 600; }
+    a { display: inline-flex; align-items: center; gap: var(--s1); min-height: var(--area-tactil); padding: 0 var(--s3); border: var(--borde-fino) solid var(--border); border-radius: var(--r-pill); color: var(--text); text-decoration: none; }
+    a[aria-current='page'] { font-weight: 600; border-color: var(--brand); background: var(--brand-bg); color: var(--brand-texto); }
     a:focus-visible { outline: var(--borde-foco) solid var(--g300); outline-offset: var(--borde-desfase); }
     .nota { color: var(--text-2); margin: 0; }
     .traza { display: block; margin-top: var(--s1); color: var(--text-2); font-size: .85em; }

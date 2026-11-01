@@ -17,38 +17,58 @@ class PantallaDeBienvenida extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = Tokens.of(context);
     return Scaffold(
-      appBar: AppBar(title: const Text(TextosIdentidad.tituloBienvenida)),
       body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(Espacio.s4),
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 480),
-              child: PanelBienvenida(
-                nombre: datos.nombres.isEmpty ? 'nueva cuenta' : datos.nombres,
-                // Hueco: el monto del bono lo define el catálogo del backend
-                // (`servicios/identidad` o promociones); no está en la bóveda de
-                // pantallas todavía. Va `null` —la frase del bono no se muestra— en vez
-                // de un `'—'`, que no es un importe del contrato `Dinero` y hacía que la
-                // pantalla entera reventara al construirse.
-                bono: null,
-                moneda: 'BOB',
-                pasos: [
-                  (
-                    texto: 'Ir a tu billetera',
-                    hecho: false,
-                    onTap: () => context.go('/billetera/inicio'),
-                  ),
-                  (
-                    texto: 'Completar tu perfil',
-                    hecho: false,
-                    onTap: () => context.push('/identidad/perfil'),
-                  ),
-                ],
+        // Arriba, no centrado: centrado dejaba media pantalla vacía sobre el panel y
+        // los pasos lejos del pulgar se leían como un aviso, no como el próximo paso.
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // El título de la pantalla, sin barra de fábrica: una línea arriba.
+            Padding(
+              padding: const EdgeInsets.all(Espacio.s4),
+              child: Text(
+                TextosIdentidad.tituloBienvenida,
+                style: Tipo.cuerpoChico.copyWith(color: t.text2),
               ),
             ),
-          ),
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(Espacio.s4),
+                child: Align(
+                  alignment: Alignment.topCenter,
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 480),
+                    child: PanelBienvenida(
+                      nombre: datos.nombres.isEmpty
+                          ? TextosIdentidad.bienvenidaSinNombre
+                          : datos.nombres,
+                      // Hueco: el monto del bono lo define el catálogo del backend
+                      // (`servicios/identidad` o promociones); no está en la bóveda de
+                      // pantallas todavía. Va `null` —la frase del bono no se muestra— en
+                      // vez de un `'—'`, que no es un importe del contrato `Dinero` y hacía
+                      // que la pantalla entera reventara al construirse.
+                      bono: null,
+                      moneda: 'BOB',
+                      pasos: [
+                        (
+                          texto: TextosIdentidad.bienvenidaIrABilletera,
+                          hecho: false,
+                          onTap: () => context.go('/billetera/inicio'),
+                        ),
+                        (
+                          texto: TextosIdentidad.bienvenidaCompletarPerfil,
+                          hecho: false,
+                          onTap: () => context.push('/identidad/perfil'),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

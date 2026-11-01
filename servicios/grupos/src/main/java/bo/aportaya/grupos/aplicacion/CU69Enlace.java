@@ -76,6 +76,8 @@ public class CU69Enlace {
             // Un reintento concurrente llega aca cuando el primero ya terminó: es el mismo pedido, no otro.
             Optional<Aceptada> repetida = repeticion(dsl, tokenId, clave, ctx.usuarioId());
             if (repetida.isPresent()) return repetida.get();
+            // Con la fila del grupo tomada: un grupo iniciado ya no recibe a nadie (AP-CU69-17).
+            GrupoAbierto.exigir(dsl, grupo.get("id", UUID.class));
 
             Detalle vigente = detalle(dsl, tokenId);
             if (!vigente.hashReglamento().equals(hashReglamento)) {

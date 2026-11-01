@@ -5,12 +5,16 @@ export const textosCierres = {
   vacio: 'Todavía no hay días cerrados.',
   explicacionVacio: 'Contabilidad cierra el primero eligiendo un día ya terminado.',
   denegado: 'Los cierres los consulta quien tiene el permiso de auditoría.',
+  historial: 'Historial de cierres',
+  ayudaBusqueda: 'Busca en la página cargada por día, recaudado, resultado o quién cerró.',
   cuadrado: 'Cuadrado',
   conObservaciones: 'Con observaciones',
   reabierto: 'Reabierto',
-  columnas: { fecha: 'Día', totalRecaudado: 'Recaudado', totalConciliado: 'Conciliado', totalExcepciones: 'Excepciones', cantidadPagos: 'Pagos', cuadrado: 'Resultado', cerradoEn: 'Cerrado el' },
+  columnas: { cierreId: 'Cierre', fecha: 'Día', totalRecaudado: 'Recaudado', totalConciliado: 'Conciliado', totalExcepciones: 'Excepciones', cantidadPagos: 'Pagos', cuadrado: 'Resultado', cerradoEn: 'Cerrado el' },
   formulario: {
     titulo: 'Cerrar un día',
+    abrir: 'Cerrar un día',
+    cerrar: 'Cerrar el formulario',
     soloContabilidad: 'Cerrar un día es de Contabilidad. Podés consultar el historial.',
     requisitos: [
       'Solo se cierra un día ya terminado en La Paz: hoy y los días futuros se rechazan.',

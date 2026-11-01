@@ -17,6 +17,7 @@ import '../../navegacion/acceso_a_rutas.dart';
 import '../../proveedores/sesion.dart';
 import 'dominio/enlace_del_grupo.dart';
 import 'dominio/mis_grupos.dart';
+import 'textos_de_conversion.dart';
 import 'textos_enlace_del_grupo.dart';
 
 /// Quien abre el enlace del grupo (o escanea su QR) ve el grupo —sin datos de sus
@@ -106,7 +107,8 @@ class _PantallaUnirseAlGrupoState extends ConsumerState<PantallaUnirseAlGrupo> {
                       ),
                     ] else ...[
                       const Alerta(
-                        titulo: TextosEnlaceDelGrupo.avisoDeDatos,
+                        titulo: TextosDeConversion.alPedirTitulo,
+                        detalle: TextosEnlaceDelGrupo.avisoDeDatos,
                         tono: Tono.info,
                       ),
                       const SizedBox(height: Espacio.s3),

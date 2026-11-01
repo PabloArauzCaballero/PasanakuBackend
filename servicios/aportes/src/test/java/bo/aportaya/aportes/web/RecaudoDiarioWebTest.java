@@ -112,4 +112,8 @@ class RecaudoDiarioWebTest {
                 .andExpect(status().isBadRequest());
         verifyNoInteractions(recaudosDiarios);
     }
+
+    // El controlador tambien responde la primera cuota (R-GRP-20): sin este doble no carga.
+    @org.springframework.test.context.bean.override.mockito.MockitoBean
+    private bo.aportaya.aportes.aplicacion.ConsultarPrimeraCuota primeraCuota;
 }

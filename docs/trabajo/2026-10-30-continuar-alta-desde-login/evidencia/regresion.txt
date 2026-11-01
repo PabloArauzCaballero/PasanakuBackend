@@ -1,0 +1,3 @@
+regresión (unidad widget contrato identidad pasanaku billetera navegacion a11y goldens): fallos línea base      283 · con cambios      282 · nuevos: ninguno
+279d278
+< test/unidad/gate_del_shell_test.dart: el paquete shared_preferences no se usa (ni se importa) en lib/ [E]

@@ -96,3 +96,8 @@ String montoParaLectura({
   final texto = formatearMonto(monto: monto, moneda: moneda);
   return etiqueta == null ? texto : '$etiqueta: $texto';
 }
+
+/// `99.8` → `'99.8%'`. Un porcentaje no es un importe: solo se redondea para
+/// mostrarlo, con los decimales que pida quien lo pinta.
+String formatearPorcentaje(double valor, {int decimales = 1}) =>
+    '${valor.toStringAsFixed(decimales)}%';

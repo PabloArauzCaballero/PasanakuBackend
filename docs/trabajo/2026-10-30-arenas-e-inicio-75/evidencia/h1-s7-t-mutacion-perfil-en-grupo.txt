@@ -1,0 +1,8 @@
+# Mutacion: ConsultarPerfilEnGrupo devuelve el perfil sin quitar el puntaje (chequeo de dueño neutralizado)
+$ ./gradlew :servicios:transparencia:integrationTest --tests "*PerfilEnGrupoRepositorioTest" --rerun
+PerfilEnGrupoRepositorioTest > perfil ajeno · con historial: nivel, puntualidad, grupos, incumplimientos, antiguedad e insignias vigentes, SIN el puntaje exacto FAILED
+    expected: null
+4 tests completed, 1 failed
+> Task :servicios:transparencia:integrationTest FAILED
+BUILD FAILED in 8s
+# restaurado: grep MUTACION -> 0

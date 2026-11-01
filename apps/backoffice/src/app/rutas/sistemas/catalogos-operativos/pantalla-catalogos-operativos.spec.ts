@@ -7,6 +7,8 @@ import { CatalogoOperativoResumenEstadoEnum } from 'clientes/angular/auditoria'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { GATEWAY } from '../../../nucleo/gateway'
 import type { CatalogoOperativoResumen } from '../dominio/catalogos-operativos'
+import { GW_DE_PRUEBA, probarListadoHttp } from '../compartido/pruebas-http.apoyo'
+import { listadoDe } from '../compartido/pruebas.apoyo'
 import { PantallaCatalogosOperativos } from './pantalla-catalogos-operativos'
 
 const CATALOGOS_EJEMPLO: CatalogoOperativoResumen[] = [
@@ -77,7 +79,7 @@ describe('PantallaCatalogosOperativos', () => {
     await fixture.whenStable()
     fixture.detectChanges()
 
-    fixture.componentInstance.busqueda.set('UIF')
+    listadoDe(fixture).buscar('UIF')
     await fixture.whenStable()
     fixture.detectChanges()
 
@@ -96,5 +98,16 @@ describe('PantallaCatalogosOperativos', () => {
 
     const texto = (fixture.nativeElement as HTMLElement).textContent ?? ''
     expect(texto).toContain('No se encontraron catálogos operativos')
+  })
+})
+
+describe('PantallaCatalogosOperativos · listado del kit en los tres niveles', () => {
+  probarListadoHttp<CatalogoOperativoResumen>({
+    componente: PantallaCatalogosOperativos,
+    url: `${GW_DE_PRUEBA}/auditoria/catalogos`,
+    filas: (n) => Array.from({ length: n }, (_, i) => ({ codigo: i === 6 ? 'FERIADOS_BANCARIOS' : `CATALOGO_${i + 1}`, nombre: `Catálogo ${i + 1}`, dueno: i % 5 === 0 ? 'Tesorería' : 'Cumplimiento', version: '1.0.0', totalElementos: 4, elementosActivos: 3, vigenteDesde: '2026-01-01', estado: i % 2 ? CatalogoOperativoResumenEstadoEnum.EnRevision : CatalogoOperativoResumenEstadoEnum.Vigente, descripcion: 'Catálogo sintético de prueba' })),
+    textoVacio: 'No se encontraron catálogos operativos.',
+    busqueda: { termino: 'feriados', esperadas: 1 },
+    filtro: { etiqueta: 'Dueño', valor: 'Tesorería', esperadas: 5 },
   })
 })

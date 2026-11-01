@@ -81,6 +81,14 @@ describe('FormularioDeConciliacion · [UI contra HTTP simulado] CU-50', () => {
     http.expectNone(URL)
   })
 
+  it('límite: corregir un campo marcado le saca el error a ese campo y deja el resto marcado', () => {
+    const f = montar()
+    llenar(f, 'no-es-uuid', '', null, 'abc', '1,234')
+    f.componentInstance['cuenta'].set(CUENTA)
+    f.detectChanges()
+    expect(Object.keys(f.componentInstance['errores']()).sort()).toEqual(['custodia', 'fecha', 'moneda', 'transito'])
+  })
+
   it('inválido: 422 AP-CU50-03 no muestra recibo y conserva lo escrito; 403 dice «sin acceso»', () => {
     const f = montar()
     llenar(f)

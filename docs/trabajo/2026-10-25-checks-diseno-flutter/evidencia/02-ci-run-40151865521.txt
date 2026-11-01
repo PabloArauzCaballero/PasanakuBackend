@@ -1,0 +1,57 @@
+# CI real · run 40151865521 · workflow_dispatch sobre claude/awesome-turing-5wmr4r @ c8135f31 (base dev 4b6800e6)
+# https://github.com/PabloArauzCaballero/PasanakuBackend/actions/runs/40151865521
+success  Detectar impacto del cambio
+success  Base efimera, semillas y permisos
+success  Formato, reglas propias y compilacion
+failure  Dependencias, secretos e imagen
+    skipped  19a · el catalogo de versiones no cambia en una rama de carril
+    failure  19b · escaneo de secretos
+    skipped  19d · SBOM CycloneDX por modulo desplegable (H2.S3)
+    skipped  Run set -e
+success  Contratos y clientes generados
+success  La boveda y el esquema no divergen
+failure  Dependencias vulnerables (OSV-Scanner) / osv-scan
+    success  Pull ghcr.io/google/osv-scanner-action:v2.6.0
+    skipped  Download custom artifact if specified
+    success  Run scanner
+    success  Check that the scan completed
+    failure  Run osv-scanner-reporter
+    skipped  Export results
+    success  Upload artifact
+    success  Upload to code-scanning
+    success  Print Code Scanning URL
+    skipped  Error troubleshooter
+failure  Frontend — Flutter y Angular (ADR-044)
+    success  f0a · compartir clientes Dart con los trabajos de macOS
+    success  f0b · el plan coincide con la maqueta
+    success  f0c · yarn install (nunca npm ni pnpm)
+    success  f0d · tokens, simulado y clientes Dart (build_runner)
+    success  f1 · lint y tipos — angular-eslint, flutter analyze y el barrido de reglas propias
+    success  f2 · test:front — vitest (unidad, componente, contrato) + flutter test (unidad, widget, contrato)
+    success  f3 · test:a11y — vitest-axe + meetsGuideline
+    success  app · formato (dart format)
+    success  app · analisis estatico (dart analyze --fatal-infos)
+    success  app · pruebas (unidad, widget, contrato, identidad, pasanaku)
+    success  app · accesibilidad
+    success  f4 · las dos apps Angular compilan bajo presupuesto
+    failure  f5 · el catalogo de @aportaya/ui en el navegador — prerenderizado, noindex, area tactil y capturas e
+    skipped  f6 · e2e del backoffice — el mock y el servidor los levanta Playwright, un worker
+    skipped  f7 · humo (Postman CLI) contra un backend real, si hay uno vivo
+success  Punta a punta financiero — nucleo-financiero y outbox
+success  bootJar y docker build, multietapa y sin root
+success  Los cinco corredores
+skipped  App — goldens (Linux)
+skipped  App — navegación en simulador iOS (macOS)
+skipped  Release iOS (macOS)
+skipped  Punta a punta — solo en main
+
+# Rojos de ese run que NO vienen de este cambio
+#  - f5 · catalogo de @aportaya/ui en el navegador (apps/web/pruebas/e2e/catalogo.spec.ts:48, «todo lo que se toca mide al menos 44 píxeles de alto»):
+#    9 elementos de menos de 44 px de alto: a «Inicio», a «Sistemas», button «Notas de la vista», button «Ayuda sobre Estado» (x2),
+#    button «Vista general», button «Columnas 18», button «Gobierno», button «Ayuda sobre Nota de revisión». "1 failed · 35 passed".
+#    Antes quedaba oculto porque f1 cortaba el job. Este cambio solo movió tipos TypeScript en packages/ui (sin efecto en ejecución).
+#  - 19b · escaneo de secretos y OSV-Scanner: el run se lanzó con workflow_dispatch, que escanea TODO el historial (`git log -p --all`)
+#    y corre OSV siempre; en PR/push el rango es el del cambio. Los hallazgos de gitleaks (regla generic-api-key) son cadenas de 36
+#    caracteres con forma de UUID en `payloadEjemplo` de apps/backoffice/.../operaciones.json (commit 2489cacf); valores no copiados aquí.
+# Intermitente confirmado: «Los cinco corredores» → 13 · test pasó en este run; en el run de dev (4b6800e6) había caído en
+#    AdmisionDelGrupoSustitucionTest.entranteHabilitadoDelegaYDevuelveElRegistro («armar() timed out after 5 seconds»).

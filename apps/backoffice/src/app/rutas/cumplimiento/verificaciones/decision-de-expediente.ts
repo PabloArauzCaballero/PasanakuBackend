@@ -19,13 +19,15 @@ export type Decision = { decision: DecisionDeVerificacionDecisionEnum; motivo?: 
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [Alerta, Boton, Campo],
   template: `
-    @if (!completo()) {
-      <p class="aviso">{{ t.expedienteIncompleto }}</p>
-    }
-    @if (vencimiento() === 'vencido') {
-      <p class="aviso">{{ t.avisoVencido }}</p>
-    } @else if (vencimiento() === 'sin-fecha') {
-      <p class="aviso">{{ t.avisoSinVencimiento }}</p>
+    @if (conAvisos()) {
+      @if (!completo()) {
+        <p class="aviso">{{ t.expedienteIncompleto }}</p>
+      }
+      @if (vencimiento() === 'vencido') {
+        <p class="aviso">{{ t.avisoVencido }}</p>
+      } @else if (vencimiento() === 'sin-fecha') {
+        <p class="aviso">{{ t.avisoSinVencimiento }}</p>
+      }
     }
     <ap-campo [etiqueta]="t.motivo" [ayuda]="t.motivoAyuda" [(valor)]="motivo" [id]="'motivo-' + verificacionId()" />
     @if (error(); as e) {
@@ -34,6 +36,7 @@ export type Decision = { decision: DecisionDeVerificacionDecisionEnum; motivo?: 
     <div class="acciones">
       <ap-boton
         variante="primario"
+        icono="aprobar"
         [deshabilitado]="!aprobable() || ocupado()"
         [cargando]="enCurso() === decisiones.Aprobar"
         (pulsado)="decidir.emit({ decision: decisiones.Aprobar })"
@@ -42,6 +45,7 @@ export type Decision = { decision: DecisionDeVerificacionDecisionEnum; motivo?: 
       </ap-boton>
       <ap-boton
         variante="peligro"
+        icono="rechazar"
         [deshabilitado]="!motivo().trim() || ocupado()"
         [cargando]="enCurso() === decisiones.Rechazar"
         (pulsado)="decidir.emit({ decision: decisiones.Rechazar, motivo: motivo().trim() })"
@@ -69,6 +73,8 @@ export class DecisionDeExpediente {
    * barrera — si alguien lo esquiva, el servidor rechaza igual.
    */
   readonly vencimiento = input.required<Vencimiento>()
+  /** Sin avisos propios cuando quien lo aloja ya enumera lo que impide aprobar (la ficha): decirlo dos veces es ruido. */
+  readonly conAvisos = input(true)
   /** Hay una decisión en vuelo (de este u otro expediente): no se dispara otra. */
   readonly ocupado = input(false)
   /** La decisión de ESTE expediente que está en vuelo, para mostrar su botón cargando. */

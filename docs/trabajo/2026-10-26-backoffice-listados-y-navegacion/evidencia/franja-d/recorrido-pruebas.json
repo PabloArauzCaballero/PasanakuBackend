@@ -1,0 +1,301 @@
+{
+ "resultados": [
+  {
+   "vista": "Usuarios internos",
+   "nivel": "aceptado",
+   "caso": "GET real al simulado 4010 pinta la fila del contrato",
+   "veredicto": "PASS",
+   "detalle": "GET /api/v1/usuarios-internos → 200, 1 fila"
+  },
+  {
+   "vista": "Usuarios internos",
+   "nivel": "aceptado",
+   "caso": "Actualizar repite el GET; 25 filas paginan a 10 (Página 1 de 3)",
+   "veredicto": "PASS",
+   "detalle": "Página 1 de 3 · 25 usuarios"
+  },
+  {
+   "vista": "Usuarios internos",
+   "nivel": "aceptado",
+   "caso": "Siguiente, Ir a 3 (5 filas), Anterior y filas por página 20",
+   "veredicto": "PASS",
+   "detalle": "p2 → Ir a 3 (5 filas) → p2 → 20/pág = 2 páginas"
+  },
+  {
+   "vista": "Usuarios internos",
+   "nivel": "aceptado",
+   "caso": "buscar «jose» (sin acento) encuentra 1 y el CSV baja solo esa fila",
+   "veredicto": "PASS",
+   "detalle": "usuarios-internos-2026-10-26.csv: 2 líneas · encabezado «Código,Nombre,Correo,Departamento,Cargo,Roles,Segundo factor…»"
+  },
+  {
+   "vista": "Usuarios internos",
+   "nivel": "aceptado",
+   "caso": "filtro Estado=SUSPENDIDO deja 5 y el JSON baja esas 5",
+   "veredicto": "PASS",
+   "detalle": "usuarios-internos-2026-10-26.json: 5 objetos, todos «Suspendido»"
+  },
+  {
+   "vista": "Usuarios internos",
+   "nivel": "límite",
+   "caso": "búsqueda sin coincidencias: vacío con «Quitar filtros»; CSV con solo encabezado",
+   "veredicto": "PASS",
+   "detalle": "CSV: 1 línea (encabezado)"
+  },
+  {
+   "vista": "Usuarios internos",
+   "nivel": "aceptado",
+   "caso": "Editar → PATCH /usuarios-internos/{id} al simulado con departamento, cargo y motivo; cierra y recarga",
+   "veredicto": "PASS",
+   "detalle": "PATCH {\"departamento\":\"RIESGOS\",\"cargo\":\"Jefa de riesgos\",\"motivo\":\"Ascenso aprobado por RRHH\"} → 200 (doble sin estado: no persiste)"
+  },
+  {
+   "vista": "Usuarios internos",
+   "nivel": "aceptado",
+   "caso": "Roles → GET /roles y PUT /usuarios-internos/{id}/roles con la selección y el motivo",
+   "veredicto": "PASS",
+   "detalle": "PUT {\"roles\":[\"RISK_ANALYST\",\"codigo\"],\"motivo\":\"Rota a auditoría por seis meses\"} → 200"
+  },
+  {
+   "vista": "Usuarios internos",
+   "nivel": "error",
+   "caso": "Suspender con 500: el diálogo queda, conserva el motivo, muestra el código de seguimiento y el botón queda libre; Escape devuelve el foco",
+   "veredicto": "PASS",
+   "detalle": "error visible con traza; foco vuelve a «Suspender a Nombre3 Prueba»"
+  },
+  {
+   "vista": "Usuarios internos",
+   "nivel": "aceptado",
+   "caso": "Desbloquear solo aparece en la fila bloqueada y manda POST /desbloquear",
+   "veredicto": "PASS",
+   "detalle": "POST /desbloquear → 200 · con «ok» el botón estaba deshabilitado"
+  },
+  {
+   "vista": "Usuarios internos",
+   "nivel": "aceptado",
+   "caso": "Nuevo usuario interno → POST con Idempotency-Key y rol inicial del catálogo",
+   "veredicto": "PASS",
+   "detalle": "POST rolCodigo=codigo · Idempotency-Key presente → 201"
+  },
+  {
+   "vista": "Usuarios internos",
+   "nivel": "aceptado",
+   "caso": "Ver navega a la ficha y la ficha pide GET /usuarios-internos/{id}",
+   "veredicto": "PASS",
+   "detalle": "GET ficha → 200"
+  },
+  {
+   "vista": "Ficha de usuario interno",
+   "nivel": "aceptado",
+   "caso": "Suspender/Reactivar cuenta abre diálogo (no prompt) y manda PATCH estado",
+   "veredicto": "PASS",
+   "detalle": "PATCH {\"estado\":\"ACTIVO\",\"motivo\":\"Licencia prolongada\"} (ruta de la ficha abierta)"
+  },
+  {
+   "vista": "Usuarios internos",
+   "nivel": "límite",
+   "caso": "colección vacía: vacío orientado con «Dar de alta»",
+   "veredicto": "PASS",
+   "detalle": "vacío + Dar de alta"
+  },
+  {
+   "vista": "Usuarios internos",
+   "nivel": "error",
+   "caso": "403 al listar: mensaje traducido sin cuerpo crudo y «Volver a intentar» repite el GET",
+   "veredicto": "PASS",
+   "detalle": "«No se pudo cargar usuarios internos. No tenés acceso a esto. Código de seguimiento: traza-» · reintento → 200"
+  },
+  {
+   "vista": "Roles internos",
+   "nivel": "aceptado",
+   "caso": "25 roles: buscar por permiso, filtro Departamento, Ver permisos en cajón, CSV",
+   "veredicto": "PASS",
+   "detalle": "buscar 1/25 · AUDITORIA 5/25 · CSV 5 filas · cajón con permisos · sin Editar/Eliminar"
+  },
+  {
+   "vista": "Permisos internos",
+   "nivel": "aceptado",
+   "caso": "filtro Riesgo=CRITICO y JSON de lo filtrado",
+   "veredicto": "PASS",
+   "detalle": "CRITICO 6/25 · JSON 6 objetos"
+  },
+  {
+   "vista": "Catálogos operativos",
+   "nivel": "aceptado",
+   "caso": "25 catálogos, filtro Dueño, Ver elementos navega a la ficha",
+   "veredicto": "PASS",
+   "detalle": "ficha GET → 200 (simulado)"
+  },
+  {
+   "vista": "Ficha de catálogo",
+   "nivel": "aceptado",
+   "caso": "elementos paginan (14 → 2 páginas); Desactivar manda PATCH {activo:false, motivo}",
+   "veredicto": "PASS",
+   "detalle": "PATCH {\"activo\":false,\"motivo\":\"Resolución del comité de riesgos\"} → 200"
+  },
+  {
+   "vista": "Ficha de catálogo",
+   "nivel": "error",
+   "caso": "PATCH con 403: conserva el motivo y muestra el error",
+   "veredicto": "PASS",
+   "detalle": "error con traza, motivo intacto"
+  },
+  {
+   "vista": "Registro del sistema",
+   "nivel": "aceptado",
+   "caso": "Siguiente manda antesDe/antesDeId; Ir a 3 recorre la 2 y llega a la 3 (10 eventos)",
+   "veredicto": "PASS",
+   "detalle": "1ª: limite=25 · Siguiente: antesDeId=c-25 · Ir a 3: antesDeId=c-50"
+  },
+  {
+   "vista": "Registro del sistema",
+   "nivel": "aceptado",
+   "caso": "filtro Entidad viaja como entidad= y vuelve a la página 1; Ver detalle abre el cajón; sin Eliminar",
+   "veredicto": "PASS",
+   "detalle": "entidad=USUARIO&limite=25 · cajón ok · CSV 25 filas"
+  },
+  {
+   "vista": "Registro del sistema",
+   "nivel": "error",
+   "caso": "500: error traducido y Volver a intentar repite el GET",
+   "veredicto": "PASS",
+   "detalle": "reintento → 200 (simulado)"
+  },
+  {
+   "vista": "Servicios y SLO",
+   "nivel": "error",
+   "caso": "sin fuente real: error accionable «todavía no existe un origen de datos real» con Volver a intentar",
+   "veredicto": "PASS",
+   "detalle": "No se pudo cargar estado de servicios. No pudimos traer «Estado de servicios»: todavía no existe un origen de datos real"
+  },
+  {
+   "vista": "Estado de servicios",
+   "nivel": "aceptado",
+   "caso": "modo demo: banner de datos de ejemplo, cifras y listado con filas, CSV de lo visible",
+   "veredicto": "PASS",
+   "detalle": "4 filas · CSV 4 filas · cifras: SERVICIOS 4 OPERATIVOS 3 DEGRADADOS 1 CAÍDOS 0"
+  },
+  {
+   "vista": "Despliegues e interruptores",
+   "nivel": "aceptado",
+   "caso": "modo demo: banner de datos de ejemplo, cifras y listado con filas, CSV de lo visible",
+   "veredicto": "PASS",
+   "detalle": "2 filas · CSV 2 filas · cifras: DESPLIEGUES 2 EXITOSOS 1 REVERTIDOS 1 INTERRUPTORES ACTIVOS 1"
+  },
+  {
+   "vista": "Base y migraciones",
+   "nivel": "aceptado",
+   "caso": "modo demo: banner de datos de ejemplo, cifras y listado con filas, CSV de lo visible",
+   "veredicto": "PASS",
+   "detalle": "2 filas · CSV 2 filas · cifras: MIGRACIONES 2 APLICADAS 1 PENDIENTES 1"
+  },
+  {
+   "vista": "Respaldos",
+   "nivel": "aceptado",
+   "caso": "modo demo: banner de datos de ejemplo, cifras y listado con filas, CSV de lo visible",
+   "veredicto": "PASS",
+   "detalle": "3 filas · CSV 3 filas · cifras: RESPALDOS 3 RESTAURACIÓN AL DÍA 0 RESTAURACIÓN VENCIDA 3 Más de 30 días sin prob"
+  },
+  {
+   "vista": "Proveedores",
+   "nivel": "aceptado",
+   "caso": "modo demo: banner de datos de ejemplo, cifras y listado con filas, CSV de lo visible",
+   "veredicto": "PASS",
+   "detalle": "2 filas · CSV 2 filas · cifras: PROVEEDORES 2 CATEGORÍAS 2 MONEDAS 1 Los costos no se suman entre monedas."
+  },
+  {
+   "vista": "Outbox y descartados",
+   "nivel": "aceptado",
+   "caso": "modo demo: banner de datos de ejemplo, cifras y listado con filas, CSV de lo visible",
+   "veredicto": "PASS",
+   "detalle": "2 filas · CSV 2 filas · cifras: MENSAJES 2 PENDIENTES 1 ENTREGADOS 1 DESCARTADOS 2"
+  },
+  {
+   "vista": "Webhooks",
+   "nivel": "aceptado",
+   "caso": "modo demo: banner de datos de ejemplo, cifras y listado con filas, CSV de lo visible",
+   "veredicto": "PASS",
+   "detalle": "2 filas · CSV 2 filas · cifras: WEBHOOKS 2 ENTRANTES 1 SALIENTES 1 CON ERROR 1"
+  },
+  {
+   "vista": "Accesos",
+   "nivel": "aceptado",
+   "caso": "modo demo: banner de datos de ejemplo, cifras y listado con filas, CSV de lo visible",
+   "veredicto": "PASS",
+   "detalle": "2 filas · CSV 2 filas · cifras: ACCESOS 2 PERSONAS 2 ROLES DISTINTOS 2"
+  },
+  {
+   "vista": "Incidentes",
+   "nivel": "aceptado",
+   "caso": "modo demo: banner de datos de ejemplo, cifras y listado con filas, CSV de lo visible",
+   "veredicto": "PASS",
+   "detalle": "2 filas · CSV 2 filas · cifras: INCIDENTES 2 ABIERTOS 1 SEV-1 ABIERTOS 0 CERRADOS 1"
+  },
+  {
+   "vista": "Despliegues e interruptores",
+   "nivel": "aceptado",
+   "caso": "interruptor que toca dinero: no se activa directo; pedirlo abre la doble confirmación, el mismo correo no confirma",
+   "veredicto": "PASS",
+   "detalle": "confirmar deshabilitado con el mismo correo"
+  },
+  {
+   "vista": "Respaldos",
+   "nivel": "aceptado",
+   "caso": "filtro Restauración=Vencida deja solo los VENCIDA",
+   "veredicto": "PASS",
+   "detalle": "3 filas, todas VENCIDA"
+  },
+  {
+   "vista": "Outbox y descartados",
+   "nivel": "aceptado",
+   "caso": "dos listados con nombres distintos; descartados con su motivo; sin Editar/Eliminar",
+   "veredicto": "PASS",
+   "detalle": "EventoWebhookProveedor Firma inválida: la clave del proveedor rotó y no se actualizó el secreto. 202"
+  }
+ ],
+ "consola": [
+  {
+   "url": "/sistemas/usuarios-internos",
+   "texto": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+  },
+  {
+   "url": "/sistemas/usuarios-internos",
+   "texto": "Failed to load resource: the server responded with a status of 403 (Forbidden)"
+  },
+  {
+   "url": "/sistemas/catalogos-operativos/UMBRALES_UIF",
+   "texto": "Failed to load resource: the server responded with a status of 403 (Forbidden)"
+  },
+  {
+   "url": "/sistemas/bitacora",
+   "texto": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+  }
+ ],
+ "red_4xx_5xx": [
+  {
+   "m": "PATCH",
+   "url": "/api/v1/usuarios-internos/00000000-0000-4000-8000-000000000003",
+   "s": 500,
+   "vista": "/sistemas/usuarios-internos"
+  },
+  {
+   "m": "GET",
+   "url": "/api/v1/usuarios-internos",
+   "s": 403,
+   "vista": "/sistemas/usuarios-internos"
+  },
+  {
+   "m": "PATCH",
+   "url": "/api/v1/auditoria/catalogos/UMBRALES_UIF/elementos/elem-1",
+   "s": 403,
+   "vista": "/sistemas/catalogos-operativos/UMBRALES_UIF"
+  },
+  {
+   "m": "GET",
+   "url": "/api/v1/auditoria/bitacora?entidad=GRUPO&limite=25",
+   "s": 500,
+   "vista": "/sistemas/bitacora"
+  }
+ ],
+ "peticiones": 52
+}

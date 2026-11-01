@@ -82,8 +82,8 @@
     "rechazo": {
       "estado": 422,
       "cuerpo": {
-        "codigo": "AP-CU68-06",
-        "mensaje": "La resolución requiere la propuesta vigente y otro responsable humano.",
+        "codigo": "AP-CU69-17",
+        "mensaje": "Grupo ya iniciado",
         "detalle": {},
         "trazaId": "traza-resolverAdmision-rechazo"
       }

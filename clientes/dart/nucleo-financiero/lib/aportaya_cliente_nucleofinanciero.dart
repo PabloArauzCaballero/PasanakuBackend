@@ -13,6 +13,7 @@ export 'package:aportaya_cliente_nucleofinanciero/src/api/default_api.dart';
 export 'package:aportaya_cliente_nucleofinanciero/src/api/qr_api.dart';
 
 export 'package:aportaya_cliente_nucleofinanciero/src/model/cierre_diario_en_lista.dart';
+export 'package:aportaya_cliente_nucleofinanciero/src/model/cobro_qr_recarga.dart';
 export 'package:aportaya_cliente_nucleofinanciero/src/model/conciliacion_en_lista.dart';
 export 'package:aportaya_cliente_nucleofinanciero/src/model/cuenta_de_la_sesion.dart';
 export 'package:aportaya_cliente_nucleofinanciero/src/model/dinero.dart';

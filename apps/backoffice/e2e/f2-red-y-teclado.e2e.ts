@@ -40,16 +40,18 @@ async function simular(page: Page, mundo: Mundo): Promise<void> {
   })
 }
 
+// «Registrar el cobro» es una acción de fila (nombre accesible con la fila) y el confirmar del diálogo se llama igual:
+// cada uno se busca dentro de su contenedor.
 async function abrirElCobro(page: Page, mundo: Mundo): Promise<void> {
   await simular(page, mundo)
   await iniciarSesionDePrueba(page, ['CONTABILIDAD', 'CONTABILIDAD_ERP_COBRAR'], 'CONTABILIDAD')
   await navegarSinRecargar(page, '/contabilidad/cobros')
   await expect(page.getByRole('heading', { name: 'Cuentas por cobrar', level: 1 })).toBeVisible()
-  await page.getByRole('button', { name: 'Registrar el cobro', exact: true }).click()
+  await page.getByRole('table').getByRole('button', { name: 'Registrar el cobro de Tercero de prueba' }).click()
   await expect(page.getByRole('dialog')).toBeVisible()
 }
 const escribirMonto = (page: Page, monto: string) => page.getByLabel('Monto cobrado').fill(monto)
-const confirmar = (page: Page) => page.getByRole('button', { name: 'Registrar el cobro de Tercero de prueba' }).click()
+const confirmar = (page: Page) => page.getByRole('dialog').getByRole('button', { name: 'Registrar el cobro de Tercero de prueba' }).click()
 
 test.describe('[doble del servidor] cobro: éxito no confirmado, corte, sin conexión y plazo vencido', () => {
   const consola: string[] = []
@@ -89,7 +91,7 @@ test.describe('[doble del servidor] cobro: éxito no confirmado, corte, sin cone
     await confirmar(page)
     await expect.poll(() => mundo.llamadas.length).toBe(1)
     // Con la primera en curso el botón queda bloqueado: no hay forma de mandar otra (regla 95.3.4).
-    await expect(page.getByRole('button', { name: 'Registrar el cobro de Tercero de prueba' })).toBeDisabled()
+    await expect(page.getByRole('dialog').getByRole('button', { name: 'Registrar el cobro de Tercero de prueba' })).toBeDisabled()
     expect(mundo.llamadas, 'con la primera en curso no sale otra').toHaveLength(1)
   })
 
@@ -151,7 +153,7 @@ test.describe('teclado y foco en los flujos críticos del backoffice', () => {
     await simular(page, mundo)
     await iniciarSesionDePrueba(page, ['CONTABILIDAD', 'CONTABILIDAD_ERP_COBRAR'], 'CONTABILIDAD')
     await navegarSinRecargar(page, '/contabilidad/cobros')
-    const boton = page.getByRole('button', { name: 'Registrar el cobro', exact: true })
+    const boton = page.getByRole('table').getByRole('button', { name: 'Registrar el cobro de Tercero de prueba' })
     await expect(boton).toBeVisible()
     await boton.focus()
     await page.keyboard.press('Enter')

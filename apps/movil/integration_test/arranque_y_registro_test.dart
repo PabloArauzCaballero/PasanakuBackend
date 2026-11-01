@@ -6,14 +6,17 @@ import 'package:patrol/patrol.dart';
 import '_soporte.dart';
 
 void main() {
-  patrolTest('portada, tour y formulario de registro', ($) async {
+  // Desde 2026-10-28 «Crear mi cuenta» abre el alta directo, sin el tour (el tour
+  // queda en «¿Cómo funciona?»), y el paso 1 pide contacto y contraseña; los nombres
+  // van en un paso posterior.
+  patrolTest('portada y formulario de registro', ($) async {
     await arrancarApp($);
 
     await $('Crear mi cuenta').tap();
-    await $('Saltar').tap();
 
     await $('Crear cuenta').waitUntilVisible();
-    await $('Nombres').waitUntilVisible();
+    await $('Celular').waitUntilVisible();
     await $('Correo electrónico').waitUntilVisible();
+    await $('Contraseña').waitUntilVisible();
   });
 }

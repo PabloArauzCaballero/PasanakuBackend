@@ -37,8 +37,9 @@ target 'Runner' do
   flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
 end
 
-# ML Kit (detección de rostro de la prueba de vida) exige iOS 15.5 y no trae armv7:
-# lo pide el README de google_mlkit_face_detection 0.15.1 («Requirements · iOS»).
+# iOS 15.5 y sin armv7. Lo pedía ML Kit, que desde 2026-10-30 es solo de Android
+# (`terceros/README.md`); se mantiene porque Vision necesita iOS 15 para dar `yaw` y
+# `pitch` (VNDetectFaceRectanglesRequestRevision3).
 $iOSVersion = '15.5'
 
 post_install do |installer|

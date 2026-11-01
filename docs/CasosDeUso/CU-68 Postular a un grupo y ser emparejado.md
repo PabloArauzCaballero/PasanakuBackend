@@ -195,6 +195,14 @@ Dada una solicitud de ingreso PENDIENTE con un cupo libre
 Cuando el organizador del grupo la acepta
 Entonces reserva el cupo, crea al participante pendiente de firma y deja el evento
 
+Dada una solicitud PENDIENTE sin propuesta
+Cuando backoffice la acepta
+Entonces reserva el cupo y queda APROBADA a su nombre
+
+Dado un grupo sin cupos libres
+Cuando backoffice acepta una solicitud PENDIENTE
+Entonces recibe el mismo «ya no hay cupos» que el organizador
+
 Dado un grupo con solicitudes en distintos estados y otras de otros grupos
 Cuando su organizador pide la cola
 Entonces solo ve las PENDIENTES de SU grupo
@@ -202,6 +210,12 @@ Entonces solo ve las PENDIENTES de SU grupo
 Dado un grupo con reputacion minima y dos postulantes, uno con historial por debajo del minimo y otro nuevo
 Cuando postulan
 Entonces se excluye a quien TIENE historial y no llega, pero no a quien es nuevo (B24)
+
+Dada una solicitud PENDIENTE que alguien quiere aceptar, con el rol del servicio
+Cuando lo pide el organizador de otro grupo, o un organizador por la resolucion de backoffice
+Entonces recibe AP-CU68-06 antes de que la API mire la etapa del solicitante
+Y para el administrador del grupo con una clave nueva si hay que mirar la etapa
+Y con la misma clave ya registrada no se la vuelve a pedir y proponer devuelve la decision original
 ```
 
 ## Ver también

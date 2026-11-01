@@ -313,6 +313,40 @@ docker exec coolify php artisan tinker --execute='$d=\App\Models\ApplicationDepl
 > solo muestra las dos últimas aplicaciones encoladas. Que `aportaya-api` no aparezca
 > en el log **no** significa que no se encoló.
 
+## La limpieza de Coolify borra las imágenes que construye el host (2026-10-29)
+
+El servidor tiene la limpieza forzada de Docker todos los días a las 00:00 UTC (20:00 en
+Bolivia): `server_settings.docker_cleanup_frequency = '0 0 * * *'`,
+`force_docker_cleanup = true`. Según `app/Actions/Server/CleanupDocker.php`
+(`buildImagePruneCommand`), hace `docker rmi` de **toda imagen con tag que no use ningún
+contenedor**, salvo las de aplicaciones que construye Coolify y las que llevan la etiqueta
+`coolify.managed=true`. Las nuestras no son de ninguno de los dos casos: las construye el
+host y el compose las pide con `pull_policy: never`.
+
+Así que una imagen construida antes de las 20:00 y desplegada después **se pierde**. El
+29-10 el temporizador construyó `aportaya/backoffice:test` a las 19:55, se puso a
+construir la app móvil (12 min), la limpieza la borró a las 20:00 y el despliegue de las
+20:18 falló con `No such image: aportaya/backoffice:test`. El backoffice quedó caído.
+`aportaya/web:test` había corrido la misma suerte.
+
+**El arreglo:** los cinco Dockerfile que se construyen en el host llevan
+`LABEL coolify.managed=true` en la etapa final. Las imágenes que se reemplazan quedan
+sin tag, y esas sí se borran (`docker image prune -f`), así que el disco no crece.
+
+Para levantarlo a mano cuando ya pasó:
+
+```bash
+cd /opt/aportaya/repo
+docker build -f apps/backoffice/docker/Dockerfile.backoffice \
+  --build-arg CONF_NGINX=apps/backoffice/docker/nginx.desplegado.conf -t aportaya/backoffice:test .
+docker build -f apps/web/docker/Dockerfile.web -t aportaya/web:test .
+/opt/aportaya/bin/disparar-despliegue.sh
+```
+
+Para ver si pasó: `docker exec coolify-db psql -U coolify -d coolify -Atc "select created_at,
+message from docker_cleanup_executions order by id desc limit 3"` y comparar la hora con la
+del build en `logs/autodespliegue.log`.
+
 ## La API en 504 con todo sano: el enrutado quedó viejo (2026-09-18)
 
 Síntoma engañoso: los quince contenedores `healthy`, el backoffice y el sitio en 200, y

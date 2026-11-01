@@ -1,0 +1,8 @@
+# H4.S1.M1 Boton · H4.S1.M2 BotonIcono (+ BotonFlotante, reintento de EstadoError)
+- Boton: píldora, alto 52 (base), primario verde, variante nueva «urgencia» (naranja: pagar o aportar), secundario sobre surface con contorno, fantasma con contorno, enlace en brandTexto, apagado con contorno (T3).
+- Causa raíz del fantasma sin contorno: Material prioriza ButtonStyle.side (el tema da BorderSide.none) sobre el side de la forma → el átomo declara su side.
+- BotonIcono: círculo sobre surface, ícono en tinta. BotonFlotante: círculo verde. Reintento de EstadoError: verde.
+$ (packages/diseno_flutter) flutter test test/unidad test/widget test/a11y → 00:15 +119: All tests passed!
+  · roles_de_color_accion_test y roles_de_color_no_estado_test: TEST_BUG por requisito nuevo (A2) → expectativas nuevas + caso «urgencia».
+$ (apps/movil) 3 goldens con cambio intencional regenerados (capturas_peek cambió de alto: botón 48 → 52); anverso-360 mirado.
+$ flutter test test/capturas --update-goldens --dart-define=FASE=despues → 14 capturas del catálogo en evidencia/componentes/despues/

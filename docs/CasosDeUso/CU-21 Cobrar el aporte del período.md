@@ -225,6 +225,39 @@ Dadas las obligaciones generadas de un período con pagos acreditados y un extra
 Cuando se concilia el lote
 Entonces lo conciliado coincide con el recaudo confirmado del período
 Y las diferencias quedan con su causa y su responsable, sin crear ni mover ningún pago
+
+Dado un grupo iniciado con tres cupos ocupados y Bs 500 de aporte
+Cuando llega grupos.grupo_iniciado
+Entonces existe la obligación PENDIENTE de la cuota 1 de cada cupo
+Y se emite un solo evento de generación
+
+Dado el mismo evento entregado dos veces
+Cuando se procesa la segunda
+Entonces responde DUPLICADO sin crear obligaciones ni emitir nada
+
+Dado un inicio re-emitido con otro id de evento
+Cuando se procesa
+Entonces la unicidad periodo + cupo deja cero obligaciones nuevas y no se emite otro evento
+
+Dado un grupo con la cuota 1 abierta y un cupo que ya la pagó
+Cuando grupos pregunta por la primera cuota
+Entonces ese cupo está en pagados y los otros dos en pendientes, con el período de la cuota 1
+
+Dado un grupo sin obligaciones
+Cuando grupos pregunta por la primera cuota
+Entonces las dos listas vienen vacías y no hay período
+
+Dado un evento sin cupos
+Cuando se procesa
+Entonces se rechaza sin tocar la base ni marcarse consumido
+
+Dado un cupo con aporte en cero
+Cuando se procesa
+Entonces se rechaza entero: ningún cupo queda con obligación
+
+Dado un evento cuyo período no es el 1
+Cuando se procesa
+Entonces se rechaza: el inicio del grupo abre la cuota 1 y ninguna otra
 ```
 
 ## Ver también

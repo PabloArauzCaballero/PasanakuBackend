@@ -1,0 +1,13 @@
+[
+  {
+    "codigo": "TAR-1",
+    "version": 1,
+    "nombre": "Tarifa general",
+    "estado": "En preaviso",
+    "monedaBase": "USD",
+    "vigenteDesde": "2026-11-01T04:00:00Z",
+    "vigenteHasta": "no disponible",
+    "diasPreaviso": 30,
+    "simulacion": "no disponible"
+  }
+]

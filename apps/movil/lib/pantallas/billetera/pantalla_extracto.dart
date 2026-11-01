@@ -1,6 +1,10 @@
+import 'package:aportaya_cliente_nucleofinanciero/aportaya_cliente_nucleofinanciero.dart'
+    show SalidaExtracto;
 import 'package:aportaya_diseno/atomos/boton.dart';
 import 'package:aportaya_diseno/atomos/boton_variante.dart';
-import 'package:aportaya_diseno/atomos/monto.dart';
+import 'package:aportaya_diseno/atomos/iconos_de_marca.dart';
+import 'package:aportaya_diseno/moleculas/cabecera.dart';
+import 'package:aportaya_diseno/organismos/estado_vacio.dart';
 import 'package:aportaya_diseno/organismos/estado_de_pantalla.dart';
 import 'package:aportaya_diseno/tokens/tokens.dart';
 import 'package:flutter/material.dart';
@@ -9,14 +13,24 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../dominio/cu15_emitir_extracto.dart';
 import '../../dominio/proteccion_de_pantalla_dinero.dart';
 import 'recargable.dart';
+import 'boton_de_certificado.dart';
+import 'lista_del_extracto.dart';
+import 'tarjeta_de_extracto.dart';
 import 'textos.dart';
 import 'package:aportaya_diseno/moviles/anclas_de_tutorial.dart';
 
 /// CU-15 — extracto y certificado de saldo del período elegido. El importe final se
 /// pinta con el átomo `Monto`, nunca con formato implementado localmente.
 class PantallaExtracto extends ConsumerStatefulWidget {
-  const PantallaExtracto({super.key, required this.cuentaId});
+  const PantallaExtracto({
+    super.key,
+    required this.cuentaId,
+    this.rangoInicial,
+  });
   final String cuentaId;
+
+  /// El período con el que abre; sin él, la pantalla pide elegirlo.
+  final DateTimeRange? rangoInicial;
 
   @override
   ConsumerState<PantallaExtracto> createState() => _PantallaExtractoState();
@@ -24,39 +38,55 @@ class PantallaExtracto extends ConsumerStatefulWidget {
 
 class _PantallaExtractoState extends ConsumerState<PantallaExtracto>
     with ConProteccionDePantalla<PantallaExtracto> {
-  DateTimeRange? _rango;
+  late DateTimeRange? _rango = widget.rangoInicial;
+
+  Future<void> _elegirPeriodo() async {
+    final ahora = DateTime.now();
+    final elegido = await showDateRangePicker(
+      context: context,
+      firstDate: ahora.subtract(const Duration(days: 365)),
+      lastDate: ahora,
+    );
+    if (elegido != null) setState(() => _rango = elegido);
+  }
+
+  /// La acción de elegir fechas. Sin período es la única acción de la pantalla y va dentro
+  /// del vacío que la explica; con período pasa arriba, en tono menor. La guía la señala
+  /// en los dos casos.
+  Widget _botonDePeriodo({required bool primario}) => MarcaDeTutorial(
+    id: 'billetera.extracto',
+    hijo: Boton(
+      texto: primario
+          ? TextosBilletera.generarExtracto
+          : TextosBilletera.elegirOtroPeriodo,
+      variante: primario ? BotonVariante.primario : BotonVariante.secundario,
+      expandido: true,
+      onPressed: _elegirPeriodo,
+    ),
+  );
 
   @override
   Widget build(BuildContext context) {
     final rango = _rango;
     return Scaffold(
-      appBar: AppBar(title: const Text(TextosBilletera.extracto)),
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(Espacio.s4),
+          padding: const EdgeInsets.symmetric(horizontal: Espacio.s4),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              MarcaDeTutorial(
-                id: 'billetera.extracto',
-                hijo: Boton(
-                  texto: TextosBilletera.generarExtracto,
-                  variante: BotonVariante.secundario,
-                  onPressed: () async {
-                    final ahora = DateTime.now();
-                    final elegido = await showDateRangePicker(
-                      context: context,
-                      firstDate: ahora.subtract(const Duration(days: 365)),
-                      lastDate: ahora,
-                    );
-                    if (elegido != null) setState(() => _rango = elegido);
-                  },
-                ),
-              ),
+              const CabeceraDeSeccion(titulo: TextosBilletera.extracto),
+              if (rango != null) ...[
+                const SizedBox(height: Espacio.s2),
+                _botonDePeriodo(primario: false),
+              ],
               const SizedBox(height: Espacio.s4),
               // Deslizar hacia abajo vuelve a pedir el extracto elegido (2026-10-19).
               Expanded(
                 child: Recargable(
+                  alineacion: rango == null
+                      ? Alignment.center
+                      : Alignment.topCenter,
                   alRecargar: () async {
                     if (rango == null) return;
                     final parametros = ParametrosExtracto(
@@ -72,7 +102,12 @@ class _PantallaExtractoState extends ConsumerState<PantallaExtracto>
                     }
                   },
                   hijo: rango == null
-                      ? const Text(TextosBilletera.sinExtracto)
+                      ? EstadoVacio(
+                          icono: IconosDeMarca.periodo,
+                          titulo: TextosBilletera.elegiUnPeriodo,
+                          mensaje: TextosBilletera.sinExtractoDetalle,
+                          accion: _botonDePeriodo(primario: true),
+                        )
                       : EstadoDePantalla(
                           valor: ref.watch(
                             extractoProvider(
@@ -83,8 +118,9 @@ class _PantallaExtractoState extends ConsumerState<PantallaExtracto>
                               ),
                             ),
                           ),
-                          etiquetaDeCarga: TextosBilletera.cargandoSaldo,
-                          mensajeVacio: TextosBilletera.sinMovimientos,
+                          etiquetaDeCarga: TextosBilletera.generandoExtracto,
+                          mensajeVacio:
+                              TextosBilletera.sinMovimientosEnElPeriodo,
                           vacio: (e) => (e.cantidadMovimientos ?? 0) == 0,
                           reintentar: () => ref.invalidate(
                             extractoProvider(
@@ -95,27 +131,49 @@ class _PantallaExtractoState extends ConsumerState<PantallaExtracto>
                               ),
                             ),
                           ),
-                          exito: (e) => Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                '${TextosBilletera.desde} ${e.desde.toLocal()} · '
-                                '${TextosBilletera.hasta} ${e.hasta.toLocal()}',
-                              ),
-                              const SizedBox(height: Espacio.s2),
-                              Monto(
-                                monto: e.saldoFinal.monto,
-                                moneda: e.saldoFinal.moneda.value,
-                                etiqueta: TextosBilletera.saldoDisponible,
-                              ),
-                            ],
-                          ),
+                          exito: (e) =>
+                              _Extracto(cuentaId: widget.cuentaId, extracto: e),
                         ),
                 ),
               ),
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _Extracto extends StatelessWidget {
+  const _Extracto({required this.cuentaId, required this.extracto});
+  final String cuentaId;
+  final SalidaExtracto extracto;
+
+  @override
+  Widget build(BuildContext context) {
+    final e = extracto;
+    return SizedBox(
+      width: double.infinity,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          TarjetaDeExtracto(
+            desde: e.desde,
+            hasta: e.hasta,
+            saldoFinal: e.saldoFinal.monto,
+            moneda: e.saldoFinal.moneda.value,
+            cantidadMovimientos: e.cantidadMovimientos,
+          ),
+          const SizedBox(height: Espacio.s3),
+          BotonDeCertificado(
+            periodo: TarjetaDeExtracto.textoDelPeriodo(e.desde, e.hasta),
+            moneda: e.saldoFinal.moneda.value,
+            saldo: e.saldoFinal.monto,
+          ),
+          const SizedBox(height: Espacio.s5),
+          ListaDelExtracto(cuentaId: cuentaId, desde: e.desde, hasta: e.hasta),
+          const SizedBox(height: Espacio.s5),
+        ],
       ),
     );
   }

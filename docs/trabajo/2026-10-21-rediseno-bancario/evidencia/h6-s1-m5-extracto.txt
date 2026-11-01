@@ -1,0 +1,23 @@
+H6.S1.M5 — Extracto (peldaño TESTED)
+
+Cambio: CabeceraDeSeccion en vez de AppBar; sin período, EstadoVacio con ícono y texto que orienta + botón primario «Generar extracto»;
+con período, TarjetaDeExtracto (período, saldo al cierre como cifra protagonista en FittedBox, cantidad de movimientos solo si el servidor la manda).
+Se conserva: ConProteccionDePantalla, Recargable, MarcaDeTutorial, showDateRangePicker.
+
+Comandos (salida real de esta sesión):
+  python3 scripts/verificar_frontend.py movil  -> TODO OK
+  python3 scripts/verificar_frontend.py diseno -> TODO OK
+  dart analyze --fatal-infos (apps/movil)      -> No issues found!
+  flutter test test/widget/pestanas_test.dart test/unidad test/billetera -> 379 tests, All tests passed
+  flutter test test/widget/tarjeta_de_extracto_test.dart -> 4 tests, All tests passed (claro/oscuro, sin cantidad, 200 % a 320 px)
+Capturas: evidencia/despues/billetera/extracto__{cargando,vacio,error,peorCaso,datos}__{360,412,600}__{claro,oscuro}.png (vistas: vacío en claro/oscuro, 360 y 412).
+
+Cierre completo (segunda pasada): filtros Todos/Entradas/Salidas, lista por día (movimientos_del_periodo.dart; lectura del libro, últimos 100, recortada al período, con aviso si pudo quedar corta),
+«Compartir certificado de saldo» (texto con período y saldo; sin cuenta ni nombre) y Recargable con alineación superior.
+Bug propio hallado por test: el encabezado del día pasaba por Fecha.formatear (resta 4 h a UTC) y corría el día en otras zonas; ahora Fecha.formatearDia (PRODUCT_BUG, corregido; igual en la tarjeta del período).
+TEST_BUG propio: esperaba isFalse donde la lectura sí quedaba corta; y Riverpod 3 reintenta proveedores fallidos (se prueba con retry: null).
+Tests: movimientos_del_periodo_test (5), lista_del_extracto_test (5), pantalla_extracto_test (3, pantalla completa), tarjeta_de_extracto_test (4).
+  flutter test test/unidad test/widget test/contrato test/identidad test/pasanaku test/a11y test/billetera -> 799, All tests passed
+  dart analyze --fatal-infos (apps/movil, packages/diseno_flutter) -> No issues found!; verificar_frontend movil|diseno -> TODO OK
+  capturas FLUJOS=billetera,grupos -> 666, All tests passed
+No cubierto: no se ejercitó contra backend real; el estado con datos se vio con fuente de bloques (el arnés de capturas no elige el rango); con más de 100 movimientos solo aparece lo que llegó (con aviso).

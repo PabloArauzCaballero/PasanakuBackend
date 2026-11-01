@@ -1,0 +1,14 @@
+# test_catalogo_de_datos.py -> Ran 13 tests in 0.169s
+
+OK
+
+# base vacia 'pasanaku_verif': aplicar.sql + sembrar + verificaciones.sql (como el job 7-11 del CI)
+NOTICE:  database "pasanaku_verif" does not exist, skipping
+aplicar.sql exit=0
+sembrar exit=0
+verificaciones.sql exit=0
+----
+(0 rows)
+
+svc_auditoria SELECT bitacora=true / svc_grupos=false
+base de verificacion eliminada

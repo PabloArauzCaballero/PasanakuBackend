@@ -1,3 +1,4 @@
+import 'package:aportaya_diseno/atomos/iconos_de_marca.dart';
 import 'package:aportaya_diseno/tokens/tokens.dart';
 import 'package:aportaya_diseno/tema.dart';
 import 'package:aportaya_cliente_nucleofinanciero/aportaya_cliente_nucleofinanciero.dart';
@@ -79,7 +80,7 @@ void main() {
       );
 
       expect(
-        tester.widget<Icon>(find.byIcon(Icons.south_west)).color,
+        tester.widget<Icon>(find.byIcon(IconosDeMarca.entra)).color,
         tokens.text2,
       );
     });

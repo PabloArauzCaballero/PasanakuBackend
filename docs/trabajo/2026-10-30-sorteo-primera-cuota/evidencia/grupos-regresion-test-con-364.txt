@@ -1,0 +1,9 @@
+# 2026-10-31T07:01:03Z · rama claude/sorteo-primera-cuota-20261030 · HEAD 23fe81042 · origin/test 5c06f9e95
+> Task :servicios:grupos:spotlessCheck
+> Task :servicios:grupos:testClasses
+> Task :servicios:grupos:test
+> Task :servicios:grupos:webTest
+> Task :servicios:grupos:integrationTest
+BUILD SUCCESSFUL in 1m 29s
+exit=0
+grupos XML: tests=621 fallos=0 errores=0 saltados=0

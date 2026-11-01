@@ -102,3 +102,33 @@ CREATE INDEX IF NOT EXISTS ix_cesion_derecho_estado
 
 CREATE UNIQUE INDEX IF NOT EXISTS uq_cesion_derecho_clave_idempotencia
   ON entregas.cesion_derecho (clave_idempotencia);
+
+CREATE INDEX IF NOT EXISTS ix_subasta_cupo_grupo_id
+  ON entregas.subasta_cupo (grupo_id);
+
+CREATE INDEX IF NOT EXISTS ix_subasta_cupo_cupo_id
+  ON entregas.subasta_cupo (cupo_id);
+
+CREATE INDEX IF NOT EXISTS ix_subasta_cupo_vendedor_usuario_id
+  ON entregas.subasta_cupo (vendedor_usuario_id);
+
+CREATE INDEX IF NOT EXISTS ix_subasta_cupo_estado
+  ON entregas.subasta_cupo (estado);
+
+CREATE INDEX IF NOT EXISTS ix_subasta_cupo_cierra_en
+  ON entregas.subasta_cupo (cierra_en);
+
+CREATE UNIQUE INDEX IF NOT EXISTS uq_subasta_cupo_clave_idempotencia
+  ON entregas.subasta_cupo (clave_idempotencia);
+
+CREATE INDEX IF NOT EXISTS ix_puja_subasta_subasta_cupo_id
+  ON entregas.puja_subasta (subasta_cupo_id);
+
+CREATE INDEX IF NOT EXISTS ix_puja_subasta_postor_usuario_id
+  ON entregas.puja_subasta (postor_usuario_id);
+
+CREATE INDEX IF NOT EXISTS ix_puja_subasta_estado
+  ON entregas.puja_subasta (estado);
+
+CREATE UNIQUE INDEX IF NOT EXISTS uq_puja_subasta_clave_idempotencia
+  ON entregas.puja_subasta (clave_idempotencia);

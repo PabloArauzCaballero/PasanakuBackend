@@ -76,8 +76,8 @@
     "rechazo": {
       "estado": 422,
       "cuerpo": {
-        "codigo": "AP-CU68-06",
-        "mensaje": "Solo el administrador de este grupo puede proponer la admisión.",
+        "codigo": "AP-CU69-17",
+        "mensaje": "Grupo ya iniciado",
         "detalle": {},
         "trazaId": "traza-proponerAdmision-rechazo"
       }

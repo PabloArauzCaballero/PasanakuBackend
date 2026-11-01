@@ -113,6 +113,8 @@ SET search_path TO aportes, auditoria, cumplimiento, entregas, erp, garantia, gr
 \ir 10_tablas/04_entregas_fondo/fondeo_entrega.sql
 \ir 10_tablas/04_entregas_fondo/oferta_turno.sql
 \ir 10_tablas/04_entregas_fondo/cesion_derecho.sql
+\ir 10_tablas/04_entregas_fondo/subasta_cupo.sql
+\ir 10_tablas/04_entregas_fondo/puja_subasta.sql
 --    módulo 05 — Notificaciones y Comunicaciones
 \ir 10_tablas/05_notificaciones/evento_notificable.sql
 \ir 10_tablas/05_notificaciones/plantilla_mensaje.sql
@@ -141,6 +143,8 @@ SET search_path TO aportes, auditoria, cumplimiento, entregas, erp, garantia, gr
 \ir 10_tablas/06_transparencia_reputacion/certificado_reputacion.sql
 \ir 10_tablas/06_transparencia_reputacion/insignia_logro.sql
 \ir 10_tablas/06_transparencia_reputacion/insignia_otorgada.sql
+\ir 10_tablas/06_transparencia_reputacion/etapa.sql
+\ir 10_tablas/06_transparencia_reputacion/desbloqueo_etapa.sql
 \ir 10_tablas/06_transparencia_reputacion/metrica_grupo.sql
 \ir 10_tablas/06_transparencia_reputacion/bloque_transparencia.sql
 \ir 10_tablas/06_transparencia_reputacion/registro_sellado.sql
@@ -223,6 +227,7 @@ SET search_path TO aportes, auditoria, cumplimiento, entregas, erp, garantia, gr
 \ir 10_tablas/09_auditoria_reportes/proceso_anonimizacion.sql
 \ir 10_tablas/09_auditoria_reportes/ticket_soporte.sql
 \ir 10_tablas/09_auditoria_reportes/incidente_operativo.sql
+\ir 10_tablas/09_auditoria_reportes/disponibilidad_servicio_dia.sql
 --    módulo 10 — Billetera, Custodia y Dinero Electrónico
 \ir 10_tablas/10_billetera_custodia/politica_billetera.sql
 \ir 10_tablas/10_billetera_custodia/cuenta_billetera.sql
@@ -379,6 +384,9 @@ SET search_path TO aportes, auditoria, cumplimiento, entregas, erp, garantia, gr
 
 -- 2b) Infraestructura de mensajería por esquema (ADR-027)
 \ir 15_infra/mensajeria.sql
+
+-- 2b') Columnas opcionales nuevas sobre una base que ya existe.
+\ir 15_infra/columnas_agregadas.sql
 
 -- 2c) Nulabilidad al día sobre una base que ya existe.
 --     Solo afloja lo que el modelo declara opcional; no es un sistema de

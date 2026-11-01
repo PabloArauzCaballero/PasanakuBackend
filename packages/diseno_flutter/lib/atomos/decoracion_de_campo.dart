@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'borde_con_halo.dart';
 import 'movimiento.dart';
 import '../tokens/tokens.dart';
 
@@ -34,7 +35,9 @@ abstract final class DecoracionDeCampo {
     );
     return InputDecoration(
       filled: true,
-      fillColor: habilitado ? t.field : t.surface2,
+      // Relleno suave (H4.S1.M8): el campo se lee como un hueco para escribir, no
+      // como otra tarjeta blanca. Deshabilitado se funde con el fondo: se apaga.
+      fillColor: habilitado ? t.surface2 : t.bg,
       // El prefijo va DENTRO del adorno, no en `prefixText`: Flutter esconde
       // `prefixText` hasta que el campo tiene foco, y un `+591` que aparece recién al
       // tocar no le sirve a nadie — quien no lo ve lo escribe a mano y termina con
@@ -81,9 +84,15 @@ abstract final class DecoracionDeCampo {
         vertical: Espacio.s4,
       ),
       enabledBorder: borde(colorBorde, Borde.fino),
-      focusedBorder: borde(
-        error != null ? t.err : t.brand,
-        Borde.foco - Borde.fino,
+      // Foco: línea de marca de 2 px y anillo suave por fuera; con error, en rojo.
+      focusedBorder: BordeConHalo(
+        borderRadius: BorderRadius.circular(Radios.md),
+        borderSide: BorderSide(
+          color: error != null ? t.err : t.brand,
+          width: Borde.desfase,
+        ),
+        halo: error != null ? t.errBg : t.halo,
+        anchoDeHalo: Borde.foco,
       ),
       disabledBorder: borde(t.border, Borde.fino),
       errorText: error,

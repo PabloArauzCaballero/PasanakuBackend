@@ -203,7 +203,7 @@ suyas está trabajando de memoria.
 | `F0.T` troncal del frontend | `entorno-monorepo` · `contratos-api` · `ci-calidad` · `decisiones-adr` |
 | `F0-M` `F0-B` `F0-W` andamiajes | `decisiones-adr` · `ci-calidad` · `entorno-monorepo` |
 | `F1-W` sistema de diseño web | `disenar-frontend` **completa**, `web-angular` · `animate` · `animation-vocabulary` · `apple-design` · `break-ui` · `emil-design-eng` · `find-animation-opportunities` · `fixing-accessibility` · `fixing-motion-performance` · `frontend-design` · `improve-animations` · `improve-ui` · `mobile-native` · `review-animations` · `web-design-guidelines` |
-| `F1-M` sistema de diseño móvil | `disenar-frontend` **completa**, `movil-flutter` · `pasanaku-app-movil-ux` · `pasanaku-diseno` · `pasanaku-movimiento` · `pasanaku-ui-componentes` |
+| `F1-M` sistema de diseño móvil | `disenar-frontend` **completa**, `movil-flutter` · `pasanaku-app-movil-ux` · `pasanaku-diseno` · `pasanaku-movimiento` · `pasanaku-ui-componentes`· `fintech-ux` · `mobile-app-ui-design` · `roast-my-ui` *(de terceros, instaladas para el rediseño bancario, ADR-053)* · `product-marketing` · `copywriting` · `copy-editing` · `marketing-psychology` · `marketing-ideas` · `onboarding` · `signup` · `cro` · `referrals` · `aso` *(de terceros, instaladas para la voz y el microcopy del rediseño; asignación **supuesta**, pendiente de confirmar por el dueño del repositorio)* |
 | `F2` shell móvil | `movil-flutter` · `autenticacion-jwt` *(de lectura: `proveedorSesion`, refresh y `401`)* · `resiliencia-rendimiento` *(offline e intermitencia)* · `proveedores-externos` *(Shorebird, FCM)* |
 | `F3` móvil identidad | `kyc-onboarding` · `autenticacion-jwt` |
 | `F4` móvil billetera | `qr-pagos` · `dinero-decimal` |

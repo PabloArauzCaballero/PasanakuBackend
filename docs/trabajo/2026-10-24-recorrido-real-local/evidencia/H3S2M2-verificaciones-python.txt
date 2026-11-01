@@ -1,0 +1,20 @@
+# generar_ddl.py idempotente: segunda corrida sin diff nuevo
+idempotente: OK
+
+# python3 scripts/verificar_boveda.py -> exit=0
+
+TODO OK
+
+# python3 scripts/verificar_seguridad.py -> exit=0
+
+TODO OK · 6 aviso(s)
+
+# python3 scripts/verificar_narrativas.py -> exit=0
+
+Sin fallas.
+
+# python3 scripts/verificar_carriles.py -> exit=0
+AVISO · servicio sin ficha de carril: inversiones — M18 Inversion no tiene ficha en planes/18 ni en planes/21; dueno del codigo: @PabloArauzCaballero (.githu
+TODO OK (con avisos)
+
+# test_catalogo_de_datos.py -> /usr/bin/python3: No module named pytest

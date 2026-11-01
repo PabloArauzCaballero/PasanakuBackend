@@ -1,4 +1,5 @@
 import 'package:aportaya_diseno/atomos/boton_icono.dart';
+import 'package:aportaya_diseno/atomos/iconos_de_marca.dart';
 import 'package:aportaya_diseno/atomos/avatar.dart';
 import 'package:aportaya_diseno/atomos/marca.dart';
 import 'package:aportaya_diseno/atomos/pintor_de_marca.dart';
@@ -92,9 +93,11 @@ void main() {
           brillo: brillo,
         ),
       );
+      // ADR-053: el botón de ícono es neutro (tinta sobre superficie), como en las
+      // cabeceras de las apps bancarias; ni verde ni naranja.
       expect(
         tester.widget<IconButton>(find.byType(IconButton)).color,
-        tokens.accentTexto,
+        tokens.text,
       );
 
       await tester.pumpWidget(
@@ -124,7 +127,9 @@ void main() {
       await tester.pumpWidget(
         conTema(
           const AccionesRapidas(
+            destacada: 0,
             acciones: [
+              (texto: 'Aportar', icono: Icons.savings, onTap: _sinAccion),
               (texto: 'Recargar', icono: Icons.refresh, onTap: _sinAccion),
               (texto: 'Retirar', icono: Icons.north_east, onTap: _sinAccion),
             ],
@@ -132,20 +137,33 @@ void main() {
           brillo: brillo,
         ),
       );
+      BoxDecoration circuloDe(IconData icono) =>
+          tester
+                  .widget<DecoratedBox>(
+                    find
+                        .ancestor(
+                          of: find.byIcon(icono),
+                          matching: find.byType(DecoratedBox),
+                        )
+                        .first,
+                  )
+                  .decoration
+              as BoxDecoration;
+      // ADR-053 (A2): las acciones comunes son verde de marca sobre superficie; la
+      // destacada, verde sólido. El naranja no aparece: no hay nada que venza.
       for (final icono in [Icons.refresh, Icons.north_east]) {
         expect(
           tester.widget<Icon>(find.byIcon(icono)).color,
-          tokens.accentTexto,
+          tokens.brandTexto,
         );
-        final mosaico = find
-            .ancestor(of: find.byIcon(icono), matching: find.byType(Container))
-            .first;
-        expect(
-          (tester.widget<Container>(mosaico).decoration! as BoxDecoration)
-              .color,
-          tokens.surface2,
-        );
+        expect(circuloDe(icono).color, tokens.surface);
+        expect(circuloDe(icono).shape, BoxShape.circle);
       }
+      expect(
+        tester.widget<Icon>(find.byIcon(Icons.savings)).color,
+        tokens.sobreVerdeSolido,
+      );
+      expect(circuloDe(Icons.savings).color, tokens.verdeSolido);
 
       await tester.pumpWidget(
         conTema(
@@ -180,7 +198,7 @@ void main() {
         ),
       );
       expect(
-        tester.widget<Icon>(find.byIcon(Icons.groups_outlined)).color,
+        tester.widget<Icon>(find.byIcon(IconosDeMarca.aportar)).color,
         tokens.text2,
       );
       expect(

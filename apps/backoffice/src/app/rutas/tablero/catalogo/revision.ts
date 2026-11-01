@@ -41,7 +41,7 @@ export function filasDeColumnas(t: TablaDelCatalogo): FilaDeColumna[] {
     id: c.nombre,
     nombre: c.nombre,
     tipo: c.tipo,
-    negocio: c.negocio ? (c.origenNegocio === 'convencion' ? `${c.negocio} (convención)` : c.negocio) : 'Sin nota de negocio',
+    negocio: c.negocio || 'Sin nota de negocio',
     sistema: c.sistema,
     sensibilidad: sensibilidadEnPalabras(c),
     tonoSensibilidad: tonoDeSensibilidad(c),

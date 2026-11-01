@@ -1,0 +1,64 @@
+$ dropdb --if-exists pasanaku_carril_a ; createdb pasanaku_carril_a
+NOTICE:  database "pasanaku_carril_a" does not exist, skipping
+exit=0
+$ psql -q -c 'ALTER DATABASE pasanaku_carril_a SET search_path TO <los 17 esquemas, igual que BaseDePrueba>'
+exit=0
+$ psql -v ON_ERROR_STOP=1 -q -f /sql/aplicar.sql
+lineas NOTICE: 1224 · lineas con 'ERROR:': 0
+exit=0
+$ psql -c "SELECT condeferrable, condeferred FROM pg_constraint WHERE conname='ex_arena_sin_solape'"
+ex_arena_sin_solape deferrable=true deferred=true
+$ psql -c "<conteos>"   # antes de sembrar
+ arenas | desbloqueos | vigentes 
+--------+-------------+----------
+      0 |           0 |        0
+(1 row)
+
+$ psql -v ON_ERROR_STOP=1 -f /sql/60_semillas/sembrar.sql   # corrida 1
+sentencias INSERT: 123 · con filas escritas (INSERT 0 N, N>0; un DO UPDATE tambien cuenta): 123 · filas escritas en total: 979 · ERROR: 0
+exit=0
+$ psql -c "<conteos>"
+ arenas | desbloqueos | vigentes 
+--------+-------------+----------
+     11 |          11 |        0
+(1 row)
+
+$ psql -v ON_ERROR_STOP=1 -f /sql/60_semillas/sembrar.sql   # corrida 2
+sentencias INSERT: 123 · con filas escritas (INSERT 0 N, N>0; un DO UPDATE tambien cuenta): 0 · filas escritas en total: 0 · ERROR: 0
+exit=0
+$ psql -c "<conteos>"
+ arenas | desbloqueos | vigentes 
+--------+-------------+----------
+     11 |          11 |        0
+(1 row)
+
+$ psql -f /sql/60_semillas/16-reputacion-y-scoring.sql   # tercera vez, solo el de arenas
+INSERT 0 0
+INSERT 0 0
+INSERT 0 0
+INSERT 0 0
+INSERT 0 0
+INSERT 0 0
+exit=0
+$ python3 -I verificar_deriva_bd.py <repo> pg-arenas pasanaku_carril_a
+DDL: 345 tablas · 3757 columnas · 688 FK · 791 indices (sql/10_tablas, 20_claves, 30_indices)
+base: 445 tablas en esos esquemas · FK del DDL presentes 688/688 · indices del DDL presentes 791/791
+SIN DERIVA
+exit=0
+$ psql <consultas de catálogo: todas deben dar 0>
+huecos R-REP-07 | 0
+desbloqueos huerfanos | 0
+arenas sin desbloqueo | 0
+codigos duplicados | 0
+tramos invalidos | 0
+desbloqueos VIGENTE (deben ser 0: nada financiero sin confirmar) | 0
+exit=0
+$ RLS con el rol real: svc_transparencia + PARTICIPANTE (lo que obliga a leer el puntaje con rol de sistema)
+BEGIN
+svc_transparencia miembro de rol_aplicacion: true
+politica: pol_puntaje_reputacion_titular USING (fn_seg_rol_privilegiado() OR fn_seg_es_sistema())
+SET
+PARTICIPANTE ve arenas: 11
+con app.rol=sistema la politica deja leer puntaje_reputacion (filas visibles >= 0, sin error): true
+ROLLBACK
+exit=0

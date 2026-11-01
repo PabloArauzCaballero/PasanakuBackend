@@ -1,0 +1,32 @@
+# H0.S2 — Arnés de capturas (apps/movil/test/capturas/rediseno/)
+
+## M1 fuentes reales · M2 matriz: ver evidencia/antes/billetera/inicio__datos__360__claro.png (Instrument real, shell con pestañas)
+
+## M3 doble por contrato (regla 65: correcto / límite / inválido) · M4 inventario contra rutas
+$ flutter test test/capturas/rediseno/adaptador_por_contrato_test.dart test/capturas/rediseno/inventario_test.dart -r expanded
+00:00 +0: loading /home/user/pasanakufrontend/apps/movil/test/capturas/rediseno/adaptador_por_contrato_test.dart
+00:00 +0: /home/user/pasanakufrontend/apps/movil/test/capturas/rediseno/adaptador_por_contrato_test.dart: correcto: datos devuelve el ejemplo ok del contrato
+00:00 +1: /home/user/pasanakufrontend/apps/movil/test/capturas/rediseno/adaptador_por_contrato_test.dart: límite: vacío y peor caso salen de sus escenarios, con su código
+00:00 +2: /home/user/pasanakufrontend/apps/movil/test/capturas/rediseno/adaptador_por_contrato_test.dart: límite: cargando nunca responde
+00:00 +3: /home/user/pasanakufrontend/apps/movil/test/capturas/rediseno/adaptador_por_contrato_test.dart: límite: cargando nunca responde
+00:00 +4: /home/user/pasanakufrontend/apps/movil/test/capturas/rediseno/adaptador_por_contrato_test.dart: inválido: error responde 503 a todo GET
+00:00 +5: /home/user/pasanakufrontend/apps/movil/test/capturas/rediseno/adaptador_por_contrato_test.dart: inválido: una ruta sin contrato da 404 y queda anotada
+00:00 +6: All tests passed!
+
+# H0.S3 — Capturas ANTES
+$ flutter test test/capturas/rediseno/capturas_test.dart --update-goldens --dart-define=FASE=antes --dart-define=FLUJOS=<flujo>
+entrada 120 · alta 324 · billetera 150 · grupos 510 · perfil 180 · sistema 60 → All tests passed (cada flujo)
+PNG: 1344 · registro.tsv: 1344 líneas
+Excepciones al montar: 0
+Pedidos sin contrato: grupos/mi-puntaje → GET /api/v1/reputacion/puntaje
+
+$ python3 -I herramientas/comprimir_capturas.py evidencia/antes
+1344 capturas · 57.1 MB → 20.5 MB
+
+## Por flujo (pantallas × estados × 3 viewports × 2 temas)
+alta: 324 PNG, 12 pantallas
+billetera: 150 PNG, 5 pantallas
+entrada: 120 PNG, 4 pantallas
+grupos: 510 PNG, 17 pantallas
+perfil: 180 PNG, 6 pantallas
+sistema: 60 PNG, 2 pantallas

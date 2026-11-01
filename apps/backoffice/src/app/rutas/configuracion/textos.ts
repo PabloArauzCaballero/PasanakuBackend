@@ -1,3 +1,5 @@
+import type { NombreDeIcono } from '@aportaya/ui/icono/icono'
+
 /** Los textos de configuración (tarifario, mensajería, reportes), en voz de marca. Todo de solo lectura. */
 export const textosConfiguracion = {
   comun: {
@@ -12,23 +14,30 @@ export const textosConfiguracion = {
     titulo: 'Configuración',
     proposito: 'Consultar cómo está configurada la plataforma: tarifas, mensajes y reportes. Nada de esto se edita desde acá.',
     secciones: [
-      { ruta: 'tarifario', texto: 'Tarifario', descripcion: 'Versiones publicadas, vigencia, preaviso y simulación de impacto.', permisos: ['TARIFARIO_PUBLICAR', 'AUDITORIA_LEER'] },
-      { ruta: 'mensajeria', texto: 'Mensajería', descripcion: 'Plantillas vigentes y auditoría de envíos, sin destinatarios.', permisos: ['AUDITORIA_LEER'] },
-      { ruta: 'reportes', texto: 'Reportes', descripcion: 'Catálogo de reportes e historial de ejecuciones.', permisos: ['AUDITORIA_LEER'] },
+      { ruta: 'tarifario', texto: 'Tarifario', descripcion: 'Versiones publicadas, vigencia, preaviso y simulación de impacto.', permisos: ['TARIFARIO_PUBLICAR', 'AUDITORIA_LEER'], icono: 'etiqueta' as NombreDeIcono },
+      { ruta: 'mensajeria', texto: 'Mensajería', descripcion: 'Plantillas vigentes y auditoría de envíos, sin destinatarios.', permisos: ['AUDITORIA_LEER'], icono: 'mensaje' as NombreDeIcono },
+      { ruta: 'reportes', texto: 'Reportes', descripcion: 'Catálogo de reportes e historial de ejecuciones.', permisos: ['AUDITORIA_LEER'], icono: 'documento' as NombreDeIcono },
     ],
     sinSecciones: 'Tu rol no tiene acceso a ninguna parte de la configuración.',
   },
   tarifario: {
     titulo: 'Historial del tarifario',
-    proposito: 'Cada versión del tarifario con su vigencia, el preaviso y la última simulación de impacto (CU-34).',
+    proposito: 'Cada versión del tarifario con su vigencia, el preaviso y la última simulación de impacto.',
     vacio: 'Todavía no hay tarifarios publicados.',
-    deltaSinMoneda: 'sin moneda en el contrato',
-    usuarios: 'usuarios',
+    deltaSinMoneda: 'sin moneda',
+    usuarios: (n: number) => (n === 1 ? '1 usuario' : `${n} usuarios`),
     estados: { ARCHIVADO: 'Archivado', BORRADOR: 'Borrador', EN_PREAVISO: 'En preaviso', SUSTITUIDO: 'Sustituido', VIGENTE: 'Vigente' },
+    ayudaDeAcciones: 'Las versiones en preaviso se ponen en vigencia acá cuando vence su preaviso. Publicar una versión nueva no se hace desde esta pantalla.',
+    ponerVigente: 'Poner en vigencia',
+    confirmarTitulo: (codigo: string, version: number) => `¿Poner en vigencia ${codigo} v${version}?`,
+    confirmarDescripcion: 'La versión vigente hoy queda sustituida y deja de aplicarse desde ahora. No se puede deshacer: para volver atrás hay que publicar otra versión.',
+    confirmar: 'Poner en vigencia',
+    puesto: (codigo: string, version: number) => `${codigo} v${version} quedó vigente. La versión anterior quedó sustituida.`,
   },
   mensajeria: {
+    canales: <Record<string, string>>{ CORREO: 'Correo', SMS: 'SMS', WHATSAPP: 'WhatsApp', PUSH: 'Notificación push', IN_APP: 'En la app' },
     titulo: 'Mensajería',
-    proposito: 'Qué plantilla rige cada mensaje y cómo salieron los envíos (CU-80, CU-83). No se muestran destinatarios ni contenido.',
+    proposito: 'Qué plantilla rige cada mensaje y cómo salieron los envíos. No se muestran destinatarios ni contenido.',
     plantillas: { titulo: 'Plantillas', vacio: 'Todavía no hay plantillas cargadas.' },
     envios: { titulo: 'Envíos', vacio: 'Todavía no hay envíos registrados.' },
     activa: 'Activa',
@@ -47,7 +56,7 @@ export const textosConfiguracion = {
   },
   reportes: {
     titulo: 'Reportes',
-    proposito: 'Qué reportes ofrece el backoffice y quién ejecutó cuál, cuándo y con qué resultado (CU-58).',
+    proposito: 'Qué reportes ofrece el backoffice y quién ejecutó cuál, cuándo y con qué resultado.',
     definiciones: { titulo: 'Catálogo de reportes', vacio: 'No hay reportes activos en el catálogo.' },
     ejecuciones: {
       titulo: 'Historial de ejecuciones',
@@ -57,5 +66,24 @@ export const textosConfiguracion = {
     sensible: 'Datos sensibles: pide justificación',
     noSensible: 'Sin datos sensibles',
     estados: { EN_COLA: 'En cola', EJECUTANDO: 'Ejecutando', COMPLETADA: 'Completada', FALLIDA: 'Fallida', EXPIRADA: 'Expirada' },
+    ayudaDeAcciones: 'Los reportes que tu permiso alcanza se pueden ejecutar acá; cada ejecución queda en el historial con su huella.',
+    ejecutar: 'Ejecutar',
+    requiere: (permiso: string) => `Requiere ${permiso}`,
+    ejecutarTitulo: (nombre: string) => `Ejecutar «${nombre}»`,
+    sinParametros: 'Este reporte no pide parámetros.',
+    opcional: '(opcional)',
+    formato: 'Exportar como',
+    sinExportar: 'Sin exportar',
+    justificacion: 'Justificación',
+    justificacionAyuda: 'Obligatoria: el reporte tiene datos sensibles. Entre 10 y 300 caracteres; queda registrada con tu nombre.',
+    faltaParametro: 'Completá este dato.',
+    justificacionCorta: 'La justificación necesita al menos 10 caracteres.',
+    justificacionLarga: 'La justificación admite hasta 300 caracteres.',
+    enviar: 'Ejecutar reporte',
+    enviando: 'Ejecutando…',
+    cancelar: 'Cancelar',
+    resultado: (estado: string, filas: number) => `Ejecución ${estado.toLowerCase()}: ${filas === 0 ? 'sin filas (cero también es una respuesta)' : filas === 1 ? '1 fila' : `${filas} filas`}.`,
+    huella: 'Huella del resultado',
+    exportacion: 'Exportación',
   },
 }

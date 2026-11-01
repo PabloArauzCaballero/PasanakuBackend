@@ -5,26 +5,29 @@ import bo.aportaya.auditoria.aplicacion.CU131RevisarColumna;
 import bo.aportaya.auditoria.aplicacion.CU98PublicarTablero;
 import bo.aportaya.auditoria.aplicacion.CatalogoDeDatosVigente;
 import bo.aportaya.auditoria.aplicacion.ConsultarCatalogoDeDatos;
+import bo.aportaya.auditoria.aplicacion.ConsultarIncidentesOperativos;
 import bo.aportaya.auditoria.aplicacion.EndpointsDelDia;
+import bo.aportaya.auditoria.aplicacion.OutboxPorServicio;
 import bo.aportaya.auditoria.aplicacion.SaludDeServicios;
 import bo.aportaya.auditoria.dominio.FamiliasVisibles;
 import bo.aportaya.auditoria.web.generado.IndicadoresApi;
 import bo.aportaya.auditoria.web.generado.modelo.CatalogoDeDatos;
-import bo.aportaya.auditoria.web.generado.modelo.EndpointDelDia;
 import bo.aportaya.auditoria.web.generado.modelo.EntradaFichaDeGobierno;
 import bo.aportaya.auditoria.web.generado.modelo.EntradaRevisionDeColumna;
+import bo.aportaya.auditoria.web.generado.modelo.EstadoDeIncidenteOperativo;
 import bo.aportaya.auditoria.web.generado.modelo.EstadoDeRevision;
 import bo.aportaya.auditoria.web.generado.modelo.EstadoDeTabla;
 import bo.aportaya.auditoria.web.generado.modelo.FichaDeGobierno;
-import bo.aportaya.auditoria.web.generado.modelo.Indicador;
-import bo.aportaya.auditoria.web.generado.modelo.IndicadorSerieInner;
+import bo.aportaya.auditoria.web.generado.modelo.PaginaDeIncidentesOperativos;
 import bo.aportaya.auditoria.web.generado.modelo.PaginaDeTablasDelCatalogo;
 import bo.aportaya.auditoria.web.generado.modelo.ResumenDelCatalogo;
 import bo.aportaya.auditoria.web.generado.modelo.RevisionDeColumna;
 import bo.aportaya.auditoria.web.generado.modelo.SalidaEndpointsDelDia;
+import bo.aportaya.auditoria.web.generado.modelo.SalidaOutboxPorServicio;
 import bo.aportaya.auditoria.web.generado.modelo.SalidaSaludDeServicios;
 import bo.aportaya.auditoria.web.generado.modelo.SalidaTablero;
 import bo.aportaya.auditoria.web.generado.modelo.SensibilidadDeTabla;
+import bo.aportaya.auditoria.web.generado.modelo.SeveridadDeIncidenteOperativo;
 import bo.aportaya.auditoria.web.generado.modelo.TablaDelCatalogo;
 import bo.aportaya.auditoria.web.generado.modelo.TipoDeTabla;
 import bo.aportaya.plataforma.web.seguridad.Permiso;
@@ -33,8 +36,6 @@ import bo.aportaya.plataforma.web.seguridad.SesionDeLaPeticion;
 import bo.aportaya.plataforma.web.traza.Traza;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.math.BigDecimal;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.http.ResponseEntity;
@@ -60,6 +61,8 @@ public class IndicadoresController implements IndicadoresApi {
     private final CU130GobernarFichaDeTabla cu130;
     private final CU131RevisarColumna cu131;
     private final ConsultarCatalogoDeDatos catalogo;
+    private final ConsultarIncidentesOperativos incidentes;
+    private final OutboxPorServicio outbox;
 
     public IndicadoresController(
             CU98PublicarTablero cu98,
@@ -70,7 +73,9 @@ public class IndicadoresController implements IndicadoresApi {
             SesionDeLaPeticion sesion,
             CU130GobernarFichaDeTabla cu130,
             CU131RevisarColumna cu131,
-            ConsultarCatalogoDeDatos catalogo) {
+            ConsultarCatalogoDeDatos catalogo,
+            ConsultarIncidentesOperativos incidentes,
+            OutboxPorServicio outbox) {
         this.cu98 = cu98;
         this.endpointsDelDia = endpointsDelDia;
         this.catalogoDeDatos = catalogoDeDatos;
@@ -80,6 +85,8 @@ public class IndicadoresController implements IndicadoresApi {
         this.cu130 = cu130;
         this.cu131 = cu131;
         this.catalogo = catalogo;
+        this.incidentes = incidentes;
+        this.outbox = outbox;
     }
 
     @Override
@@ -101,7 +108,7 @@ public class IndicadoresController implements IndicadoresApi {
                 // El permiso dejo pasar; QUE familias ve lo decide el servidor, no la pestaña del backoffice.
                 FamiliasVisibles.para(contexto.rol(), sesion.permisos()));
 
-        return ResponseEntity.ok(mapear(salida));
+        return ResponseEntity.ok(MapeoDeTablero.aContrato(salida));
     }
 
     @Override
@@ -110,24 +117,7 @@ public class IndicadoresController implements IndicadoresApi {
     public ResponseEntity<SalidaEndpointsDelDia> listarEndpointsDelDia(Integer limite) {
         Traza.marcarCasoDeUso("TABLERO-SISTEMAS", "endpoints-del-dia");
         var salida = endpointsDelDia.consultar(limite == null ? 25 : limite);
-        var cuerpo = new SalidaEndpointsDelDia(
-                salida.desde().atOffset(java.time.ZoneOffset.UTC),
-                salida.hasta().atOffset(java.time.ZoneOffset.UTC),
-                salida.fuenteDisponible(),
-                salida.endpoints().stream()
-                        .map(e -> {
-                            var fila = new EndpointDelDia(
-                                    e.servicio(),
-                                    e.metodo(),
-                                    e.ruta(),
-                                    e.solicitudes(),
-                                    e.errores4xx(),
-                                    e.errores5xx());
-                            e.p95Ms().map(BigDecimal::toPlainString).ifPresent(fila::setP95Ms);
-                            return fila;
-                        })
-                        .toList());
-        return ResponseEntity.ok(cuerpo);
+        return ResponseEntity.ok(MapeoDeSistemas.aContrato(salida));
     }
 
     /** operacion/estado · la salud de cada servicio, preguntada ahora (o hace menos de 10 s). */
@@ -137,19 +127,7 @@ public class IndicadoresController implements IndicadoresApi {
     public ResponseEntity<SalidaSaludDeServicios> consultarSaludDeServicios() {
         Traza.marcarCasoDeUso("TABLERO-SISTEMAS", "salud-de-servicios");
         var salida = saludDeServicios.consultar();
-        var cuerpo = new SalidaSaludDeServicios(
-                salida.consultadoEn().atOffset(java.time.ZoneOffset.UTC),
-                salida.servicios().stream()
-                        .map(r -> {
-                            var fila = new bo.aportaya.auditoria.web.generado.modelo.SaludDeServicio(
-                                    r.servicio(),
-                                    bo.aportaya.auditoria.web.generado.modelo.SaludDeServicio.EstadoEnum.fromValue(
-                                            r.estado().name()));
-                            r.latenciaMs().ifPresent(fila::setLatenciaMs);
-                            return fila;
-                        })
-                        .toList());
-        return ResponseEntity.ok(cuerpo);
+        return ResponseEntity.ok(MapeoDeSistemas.aContrato(salida));
     }
 
     /**
@@ -175,6 +153,35 @@ public class IndicadoresController implements IndicadoresApi {
         } catch (JsonProcessingException e) {
             throw new IllegalStateException("El catalogo de datos no cumple el contrato CatalogoDeDatos", e);
         }
+    }
+
+    /** Sistemas › Outbox: lo que cada relevo publica en Prometheus. Traduce y delega. */
+    @Override
+    @Permiso("TABLERO_SISTEMAS_VER")
+    @PermisoAlternativo({"AUDITORIA_LEER"})
+    public ResponseEntity<SalidaOutboxPorServicio> consultarOutboxPorServicio() {
+        Traza.marcarCasoDeUso("TABLERO-SISTEMAS", "operacion/outbox");
+        var salida = outbox.consultar();
+        return ResponseEntity.ok(MapeoDeSistemas.aContrato(salida));
+    }
+
+    /** Sistemas › Incidentes: una pagina de auditoria.incidente_operativo. Traduce y delega. */
+    @Override
+    @Permiso("TABLERO_SISTEMAS_VER")
+    @PermisoAlternativo({"AUDITORIA_LEER"})
+    public ResponseEntity<PaginaDeIncidentesOperativos> listarIncidentesOperativos(
+            EstadoDeIncidenteOperativo estado,
+            SeveridadDeIncidenteOperativo severidad,
+            Integer pagina,
+            Integer limite) {
+        Traza.marcarCasoDeUso("TABLERO-SISTEMAS", "operacion/incidentes");
+        var resultado = incidentes.listar(
+                Optional.ofNullable(estado).map(EstadoDeIncidenteOperativo::getValue),
+                Optional.ofNullable(severidad).map(SeveridadDeIncidenteOperativo::getValue),
+                pagina == null ? 1 : pagina,
+                limite == null ? 50 : limite,
+                sesion.actual());
+        return ResponseEntity.ok(MapeoDeSistemas.aContrato(resultado));
     }
 
     /** Catalogo de datos · H2 — las cifras, los esquemas y los modulos, sin una columna. Traduce y delega. */
@@ -243,53 +250,5 @@ public class IndicadoresController implements IndicadoresApi {
         Traza.marcarCasoDeUso("CU-131", esquema + "." + tabla + "." + columna);
         var guardada = cu131.guardar(esquema, tabla, columna, MapeoDeCatalogo.aDominio(cuerpo), sesion.actual());
         return ResponseEntity.ok(MapeoDeCatalogo.aContrato(guardada));
-    }
-
-    private static SalidaTablero mapear(CU98PublicarTablero.SalidaTablero salida) {
-        SalidaTablero cuerpo = new SalidaTablero(
-                salida.periodo(),
-                salida.provisorio(),
-                SalidaTablero.DimensionEnum.fromValue(salida.dimension()),
-                salida.indicadores().stream().map(IndicadoresController::mapear).toList());
-        salida.dimensionId().ifPresent(cuerpo::setDimensionId);
-        return cuerpo;
-    }
-
-    private static Indicador mapear(CU98PublicarTablero.Indicador indicador) {
-        Indicador cuerpo = new Indicador(
-                indicador.codigo(),
-                indicador.nombre(),
-                indicador.unidad(),
-                Indicador.FamiliaEnum.fromValue(indicador.familia()),
-                indicador.duenoFamilia(),
-                indicador.definicionVersion(),
-                indicador.suprimidoPorPrivacidad(),
-                indicador.calculadoEn());
-
-        indicador.valor().map(IndicadoresController::comoCadena).ifPresent(cuerpo::setValor);
-        indicador.casos().ifPresent(cuerpo::setCasos);
-        cuerpo.setMinimoCasos(indicador.minimoCasos());
-        indicador.meta().map(IndicadoresController::comoCadena).ifPresent(cuerpo::setMeta);
-        indicador.cumpleMeta().ifPresent(cuerpo::setCumpleMeta);
-        indicador
-                .variacionPeriodoAnterior()
-                .map(IndicadoresController::comoCadena)
-                .ifPresent(cuerpo::setVariacionPeriodoAnterior);
-        cuerpo.setSerie(mapearSerie(indicador.serie()));
-        return cuerpo;
-    }
-
-    private static List<IndicadorSerieInner> mapearSerie(List<CU98PublicarTablero.PuntoDeSerie> serie) {
-        return serie.stream()
-                .map(punto -> new IndicadorSerieInner(punto.periodo(), comoCadena(punto.valor())))
-                .toList();
-    }
-
-    /**
-     * `toPlainString` y no `toString`: para un valor chico o muy grande, `toString`
-     * usa notacion cientifica —`1E+3`— y en un tablero eso no se lee, se adivina.
-     */
-    private static String comoCadena(BigDecimal valor) {
-        return valor.toPlainString();
     }
 }

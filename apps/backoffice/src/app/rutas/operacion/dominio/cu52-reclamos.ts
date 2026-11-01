@@ -9,7 +9,7 @@ import type { SalidaRespuestaReclamo } from 'clientes/angular/cumplimiento/model
 import { GATEWAY } from '../../../nucleo/gateway'
 import { contextoIdempotente } from '../../../nucleo/idempotencia.interceptor'
 import type { PedirPorCursor } from '../../../nucleo/tabla/cursor'
-import { bandejaPorCursor, cursorDe, estadosDe, pedirJson, type Bandeja } from './bandeja-por-cursor'
+import { cursorDe, estadosDe, pedirJson } from './bandeja-por-cursor'
 
 export type { EntradaRespuestaReclamo, FichaDeReclamo, ReclamoEnBandeja, SalidaRespuestaReclamo }
 export type EstadoReclamo = `${ReclamoEnBandejaEstadoEnum}`
@@ -43,8 +43,8 @@ export function pedirReclamos(http: HttpClient, gateway: string): PedirPorCursor
 }
 
 /** Fábrica en contexto de inyección: la pantalla no importa `HttpClient` (checker «sin red en vista»). */
-export function bandejaDeReclamos(): Bandeja<ReclamoEnBandeja> {
-  return bandejaPorCursor(pedirReclamos(inject(HttpClient), inject(GATEWAY)))
+export function pedidorDeReclamos(): PedirPorCursor<ReclamoEnBandeja, Cursor> {
+  return pedirReclamos(inject(HttpClient), inject(GATEWAY))
 }
 
 export function crearConsultarReclamo(): (reclamoId: string) => Observable<FichaDeReclamo> {

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, output, signal } from '@angular/core'
+import { ChangeDetectionStrategy, Component, effect, output, signal, untracked, type Signal } from '@angular/core'
 import { aCadenaDelContrato } from '@aportaya/ui/campo-monto/campo-monto'
 import type { OpcionDeRadio } from '@aportaya/ui/grupo-radio/grupo-radio'
 import type { ErrorTraducido } from '../../../nucleo/errores'
@@ -76,7 +76,21 @@ export class FormularioDeConciliacion {
   protected readonly sinConfirmar = signal(false)
   protected readonly recibo = signal<SalidaConciliacionCustodia | null>(null)
 
+  constructor() {
+    // Un error marcado se va en cuanto la persona corrige ESE campo: no queda pegado a un valor ya válido.
+    const campos: [string, Signal<unknown>][] = [['cuenta', this.cuenta], ['fecha', this.fecha], ['moneda', this.moneda], ['custodia', this.custodia], ['transito', this.transito]]
+    for (const [nombre, valor] of campos) {
+      effect(() => {
+        const ahora = valor()
+        untracked(() => this.errores()[nombre] && ahora !== this.revisado[nombre] && this.errores.update((e) => Object.fromEntries(Object.entries(e).filter(([k]) => k !== nombre))))
+      })
+    }
+  }
+  /** Los valores tal como estaban al revisar: el error de un campo vale mientras su valor no cambie. */
+  private revisado: Record<string, unknown> = {}
+
   protected revisar(): void {
+    this.revisado = { cuenta: this.cuenta(), fecha: this.fecha(), moneda: this.moneda(), custodia: this.custodia(), transito: this.transito() }
     const cuenta = this.cuenta().trim().toLowerCase()
     const moneda = this.moneda() as EntradaConciliacionCustodia['saldoCustodia']['moneda'] | null
     const custodia = aCadenaDelContrato(this.custodia())

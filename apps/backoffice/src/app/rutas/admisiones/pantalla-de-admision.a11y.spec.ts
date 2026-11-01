@@ -14,6 +14,8 @@ import { PantallaDeAdmision } from './pantalla-de-admision'
 
 const SOLICITUD = '9f1c2b7e-3a54-4d0e-8a61-5b7d2c9e4f10'
 const URL = `http://gw/api/v1/grupos/solicitudes/${SOLICITUD}/decisiones`
+/** La pantalla pide también la bandeja para conocer el estado de la solicitud. */
+const URL_BANDEJA = 'http://gw/api/v1/grupos/solicitudes'
 
 describe('PantallaDeAdmision · accesibilidad (axe, [UI contra HTTP simulado])', () => {
   let http: HttpTestingController
@@ -36,6 +38,7 @@ describe('PantallaDeAdmision · accesibilidad (axe, [UI contra HTTP simulado])',
       fixture.componentRef.setInput('solicitudId', SOLICITUD)
       fixture.detectChanges()
       respuesta()
+      http.expectOne(URL_BANDEJA).flush([])
       await fixture.whenStable()
       fixture.detectChanges()
       expect(await axe(fixture.nativeElement)).toHaveNoViolations()

@@ -30,6 +30,10 @@ class TextosDeCaptura {
 
   static const necesitamosTuCamara = 'Necesitamos tu cámara';
   static const soloParaTuPrueba = 'Solo se usa para tu prueba de vida.';
+  // Para qué se pide la cámara también en el carnet (`pasanaku-app-movil-ux` §5).
+  static const soloParaTuCarnet = 'Solo se usa para sacarle foto a tu carnet.';
+  static const oDeLaGaleria =
+      'Si ya tenés una foto, podés elegirla de la galería.';
   static const privacidadDeVida =
       'La foto queda asociada únicamente a tu expediente. No accedemos a tu galería.';
   static const permitirCamara = 'Permitir cámara';

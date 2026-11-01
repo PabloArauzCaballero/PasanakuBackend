@@ -42,4 +42,15 @@ describe('pedirPagina · familia H9 (antesDe / antesDeId, estados con explode: t
     backend.expectOne((r) => r.url === URL).flush({ items: [{ id: 'r-1' }], proximoAntesDe: '2026-08-31' })
     expect((await promesa).siguiente).toBeNull()
   })
+
+  it('correcto (familia H5, explode: false): varios valores viajan en UNA clave con comas', async () => {
+    const { backend } = preparar()
+    const forma = { parametroFecha: 'despuesDeFecha', parametroId: 'despuesDeId', campoFecha: 'proximoFecha', campoId: 'proximoId', multiplesConComa: true }
+    const pedir = pedirPagina<{ id: string }>(TestBed.inject(HttpClient), URL, forma, ['estados'])
+    const promesa = pedir({ limite: 25, cursor: null, filtros: { estados: 'ABIERTA,ESCALADA' } })
+    const pedido = backend.expectOne((r) => r.url === URL)
+    expect(pedido.request.params.getAll('estados')).toEqual(['ABIERTA,ESCALADA'])
+    pedido.flush({ items: [] })
+    await promesa
+  })
 })

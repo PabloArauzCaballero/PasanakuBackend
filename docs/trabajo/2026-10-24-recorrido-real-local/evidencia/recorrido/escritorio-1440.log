@@ -1,0 +1,58 @@
+LOGIN OK -> http://localhost:4200/tablero [{"metodo":"POST","ruta":"/api/v1/sesion/refrescar","estado":401},{"metodo":"POST","ruta":"/api/v1/sesiones","estado":422},{"metodo":"POST","ruta":"/api/v1/sesiones","estado":200}]
+/tablero -> /tablero | 2 pet. | malas: ninguna | consola: 0
+/tablero/financiero -> /tablero | 0 pet. | malas: ninguna | consola: 0
+/tablero/sistemas -> /tablero/sistemas | 2 pet. | malas: ninguna | consola: 0
+/tablero/catalogo-de-datos -> /tablero/catalogo-de-datos | 2 pet. | malas: ninguna | consola: 0
+/tablero/comercial -> /tablero | 2 pet. | malas: ninguna | consola: 0
+/operacion -> /operacion/estado | 1 pet. | malas: ninguna | consola: 0
+/operacion/reclamos -> /operacion/reclamos | 1 pet. | malas: ninguna | consola: 0
+/operacion/solicitudes-escaladas -> /operacion/solicitudes-escaladas | 1 pet. | malas: GET /api/v1/grupos/solicitudes-escaladas 404 | consola: 2
+/operacion/retiros -> /tablero | 2 pet. | malas: ninguna | consola: 0
+/operacion/custodia -> /operacion/custodia | 1 pet. | malas: ninguna | consola: 0
+/operacion/cierres-diarios -> /operacion/cierres-diarios | 1 pet. | malas: ninguna | consola: 0
+/operacion/reversos -> /operacion/reversos | 1 pet. | malas: ninguna | consola: 0
+/operacion/desembolsos -> /operacion/desembolsos | 1 pet. | malas: ninguna | consola: 0
+/operacion/estado -> /operacion/estado | 1 pet. | malas: ninguna | consola: 0
+/cumplimiento -> /cumplimiento/verificaciones | 1 pet. | malas: ninguna | consola: 0
+/cumplimiento/verificaciones -> /cumplimiento/verificaciones | 0 pet. | malas: ninguna | consola: 0
+/cumplimiento/alertas -> /tablero | 2 pet. | malas: ninguna | consola: 0
+/cumplimiento/casos -> /tablero | 0 pet. | malas: ninguna | consola: 0
+/cumplimiento/uif/reportes -> /cumplimiento/uif/reportes | 1 pet. | malas: ninguna | consola: 0
+/cumplimiento/uif/requerimientos -> /cumplimiento/uif/requerimientos | 1 pet. | malas: ninguna | consola: 0
+/cumplimiento/continuidad -> /cumplimiento/continuidad | 1 pet. | malas: ninguna | consola: 0
+/cumplimiento/actas -> /cumplimiento/actas | 1 pet. | malas: ninguna | consola: 0
+/cumplimiento/riesgos/eventos -> /cumplimiento/riesgos/eventos | 1 pet. | malas: ninguna | consola: 0
+/cumplimiento/seguridad/incidentes -> /cumplimiento/seguridad/incidentes | 1 pet. | malas: ninguna | consola: 0
+/admisiones -> /admisiones | 1 pet. | malas: GET /api/v1/grupos/solicitudes 404 | consola: 1
+/sistemas -> /sistemas/servicios | 0 pet. | malas: ninguna | consola: 0
+/sistemas/servicios -> /sistemas/servicios | 0 pet. | malas: ninguna | consola: 0
+/sistemas/despliegues -> /sistemas/despliegues | 0 pet. | malas: ninguna | consola: 0
+/sistemas/base-de-datos -> /sistemas/base-de-datos | 0 pet. | malas: ninguna | consola: 0
+/sistemas/respaldos -> /sistemas/respaldos | 0 pet. | malas: ninguna | consola: 0
+/sistemas/proveedores -> /sistemas/proveedores | 0 pet. | malas: ninguna | consola: 0
+/sistemas/outbox -> /sistemas/outbox | 0 pet. | malas: ninguna | consola: 0
+/sistemas/webhooks -> /sistemas/webhooks | 0 pet. | malas: ninguna | consola: 0
+/sistemas/accesos -> /sistemas/accesos | 0 pet. | malas: ninguna | consola: 0
+/sistemas/incidentes -> /sistemas/incidentes | 0 pet. | malas: ninguna | consola: 0
+/sistemas/usuarios-internos -> /sistemas/usuarios-internos | 1 pet. | malas: GET /api/v1/usuarios-internos 422 | consola: 1
+/sistemas/roles-internos -> /sistemas/roles-internos | 1 pet. | malas: GET /api/v1/roles 422 | consola: 1
+/sistemas/permisos-internos -> /sistemas/permisos-internos | 1 pet. | malas: GET /api/v1/permisos 422 | consola: 1
+/sistemas/operaciones -> /sistemas/operaciones | 0 pet. | malas: ninguna | consola: 0
+/sistemas/flujos -> /sistemas/flujos | 0 pet. | malas: ninguna | consola: 0
+/sistemas/bitacora -> /sistemas/bitacora | 1 pet. | malas: GET /api/v1/auditoria/bitacora 500 | consola: 1
+/sistemas/catalogos-operativos -> /sistemas/catalogos-operativos | 1 pet. | malas: ninguna | consola: 0
+/contabilidad -> /tablero | 2 pet. | malas: ninguna | consola: 0
+/contabilidad/presupuesto -> /tablero | 0 pet. | malas: ninguna | consola: 0
+/contabilidad/compras -> /tablero | 0 pet. | malas: ninguna | consola: 0
+/contabilidad/cobros -> /tablero | 0 pet. | malas: ninguna | consola: 0
+/ayuda -> /ayuda | 0 pet. | malas: ninguna | consola: 0
+/publicidad -> /tablero | 2 pet. | malas: ninguna | consola: 0
+/publicidad/anunciantes -> /tablero | 0 pet. | malas: ninguna | consola: 0
+/publicidad/campanas -> /tablero | 0 pet. | malas: ninguna | consola: 0
+/publicidad/moderacion -> /tablero | 0 pet. | malas: ninguna | consola: 0
+/publicidad/desempeno -> /tablero | 0 pet. | malas: ninguna | consola: 0
+/publicidad/liquidacion -> /tablero | 0 pet. | malas: ninguna | consola: 0
+/configuracion -> /configuracion | 0 pet. | malas: ninguna | consola: 0
+/configuracion/tarifario -> /configuracion/tarifario | 1 pet. | malas: ninguna | consola: 0
+/configuracion/mensajeria -> /configuracion/mensajeria | 2 pet. | malas: ninguna | consola: 0
+/configuracion/reportes -> /configuracion/reportes | 2 pet. | malas: ninguna | consola: 0

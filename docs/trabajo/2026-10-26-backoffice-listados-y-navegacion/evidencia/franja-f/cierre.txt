@@ -1,0 +1,44 @@
+$ npx tsc -p tsconfig.app.json --noEmit && npx tsc -p tsconfig.spec.json --noEmit
+exit 0
+$ npx ng lint
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+All files pass linting.
+
+exit 0
+$ python3 ../../scripts/verificar_frontend.py backoffice
+=== packages/tutoriales (Angular) ===
+  OK    · sin red fuera del puerto 
+  OK    · sin literal de diseño 
+  OK    · sin console 
+  OK    · ningún archivo de más de 200 líneas 
+  OK    · sin literal de diseño en @aportaya/ui 
+
+TODO OK
+exit 0
+$ npx ng test --include='src/app/rutas/publicidad/**/*.spec.ts' --exclude='src/**/*.a11y.spec.ts'
+ Test Files  10 passed (10)
+      Tests  62 passed (62)
+exit 0
+$ npx ng test --include='src/app/rutas/publicidad/**/*.a11y.spec.ts'
+ Test Files  3 passed (3)
+      Tests  3 passed (3)
+exit 0
+$ npx ng test --include='src/app/rutas/tablero/**/*.spec.ts' --exclude='src/**/*.a11y.spec.ts'
+ Test Files  12 passed (12)
+      Tests  84 passed (84)
+exit 0
+$ npx ng test --include='src/app/rutas/tablero/**/*.a11y.spec.ts'
+ Test Files  2 passed (2)
+      Tests  5 passed (5)
+exit 0
+$ npx ng test --include='src/app/rutas/admisiones/**/*.spec.ts' --exclude='src/**/*.a11y.spec.ts'
+ Test Files  4 passed (4)
+      Tests  28 passed (28)
+exit 0
+$ npx ng test --include='src/app/rutas/admisiones/**/*.a11y.spec.ts'
+ Test Files  1 passed (1)
+      Tests  5 passed (5)
+exit 0
+$ npx playwright test (5 e2e de la franja, contra :4306)
+  42 passed (2.4m)

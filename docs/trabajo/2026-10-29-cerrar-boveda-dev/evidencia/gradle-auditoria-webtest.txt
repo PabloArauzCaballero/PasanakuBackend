@@ -1,0 +1,6 @@
+$ ./gradlew :servicios:auditoria:webTest
+BUILD SUCCESSFUL in 2s
+auditoria/webTest: 82 pruebas · 0 fallos · 0 errores · 0 omitidas
+  IndicadoresControllerWebTest: 14 pruebas, 0 fallos, 0 errores
+  OutboxPorServicioWebTest: 3 pruebas, 0 fallos, 0 errores
+  SaludDeServiciosWebTest: 4 pruebas, 0 fallos, 0 errores

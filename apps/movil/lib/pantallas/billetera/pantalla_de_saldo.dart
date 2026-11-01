@@ -8,7 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../dominio/cu13_consultar_saldo.dart';
 import '../../navegacion/accion_de_avisos.dart';
-import '../../navegacion/accion_de_escanear.dart';
+import '../../navegacion/accion_de_ayuda.dart';
 import '../soporte/autolanzador_de_guia.dart';
 import 'cuerpo_de_saldo.dart';
 import 'resolver_cuenta.dart';
@@ -37,10 +37,11 @@ class PantallaDeSaldo extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                // Sin «Hola» suelto: sin el nombre de la persona se leía como un dato
+                // que faltaba cargar.
                 const CabeceraDeInicio(
-                  saludo: 'Hola',
                   titulo: TextosBilletera.titulo,
-                  acciones: [AccionDeEscanear(), AccionDeAvisos()],
+                  acciones: [AccionDeAyuda(), AccionDeAvisos()],
                 ),
                 Expanded(
                   child: ResolverCuenta(

@@ -1,0 +1,85 @@
+Starting a Gradle Daemon, 1 busy Daemon could not be reused, use --status for details
+> Task :buildSrc:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :buildSrc:generateExternalPluginSpecBuilders UP-TO-DATE
+> Task :buildSrc:extractPrecompiledScriptPluginPlugins UP-TO-DATE
+> Task :buildSrc:compilePluginsBlocks UP-TO-DATE
+> Task :buildSrc:generatePrecompiledScriptPluginAccessors UP-TO-DATE
+> Task :buildSrc:generateScriptPluginAdapters UP-TO-DATE
+> Task :buildSrc:compileKotlin UP-TO-DATE
+> Task :buildSrc:compileJava NO-SOURCE
+> Task :buildSrc:compileGroovy NO-SOURCE
+> Task :buildSrc:pluginDescriptors UP-TO-DATE
+> Task :buildSrc:processResources UP-TO-DATE
+> Task :buildSrc:classes UP-TO-DATE
+> Task :buildSrc:jar UP-TO-DATE
+> Task :servicios:aportes:generarServidorOpenApi UP-TO-DATE
+> Task :servicios:aportes:generateJooq UP-TO-DATE
+> Task :servicios:aportes:processResources UP-TO-DATE
+> Task :servicios:aportes:processTestResources
+> Task :plataforma:comun-pruebas:processResources
+> Task :plataforma:comun-datos:processResources
+> Task :plataforma:comun-mensajeria:processResources
+> Task :plataforma:comun-dominio:compileJava UP-TO-DATE
+> Task :plataforma:comun-dominio:processResources NO-SOURCE
+> Task :plataforma:comun-dominio:classes UP-TO-DATE
+> Task :plataforma:comun-datos:compileJava UP-TO-DATE
+> Task :plataforma:comun-datos:classes
+> Task :plataforma:comun-pruebas:compileJava UP-TO-DATE
+> Task :plataforma:comun-pruebas:classes
+
+> Task :plataforma:comun-web:erroresCatalogo
+catalogo de errores: 263 restricciones -> 141 reglas · errores-restricciones.properties
+mensajes de regla: 170 · errores-reglas.properties
+  AVISO: 3 reglas con restriccion y sin fila en la boveda: R-BIL-21, R-BIL-22, R-UIF-13
+
+> Task :plataforma:comun-mensajeria:compileJava UP-TO-DATE
+> Task :plataforma:comun-mensajeria:classes
+> Task :plataforma:comun-web:processResources
+> Task :plataforma:comun-datos:jar
+> Task :plataforma:comun-mensajeria:jar
+> Task :plataforma:comun-dominio:jar
+> Task :plataforma:comun-pruebas:jar
+> Task :plataforma:comun-web:compileJava UP-TO-DATE
+> Task :plataforma:comun-web:classes
+> Task :plataforma:comun-web:jar
+> Task :plataforma:comun-web:compileTestFixturesJava UP-TO-DATE
+> Task :plataforma:comun-web:processTestFixturesResources NO-SOURCE
+> Task :plataforma:comun-web:testFixturesClasses UP-TO-DATE
+> Task :plataforma:comun-web:testFixturesJar
+> Task :servicios:aportes:compileJava UP-TO-DATE
+> Task :servicios:aportes:classes UP-TO-DATE
+> Task :servicios:aportes:compileTestJava
+> Task :servicios:aportes:testClasses
+
+> Task :servicios:aportes:test FAILED
+
+ArquitecturaTest > laWebNoTieneReglas FAILED
+    java.lang.AssertionError: Architecture Violation [Priority: MEDIUM] - Rule 'no classes that reside in a package '..web..' should depend on classes that reside in a package '..infraestructura..'' was violated (5 times):
+    Method <bo.aportaya.aportes.web.AportesController.consultarPrimeraCuota(java.util.UUID)> calls method <bo.aportaya.aportes.infraestructura.PrimeraCuotaRepositorio$PrimeraCuota.cuposPagados()> in (AportesController.java:121)
+    Method <bo.aportaya.aportes.web.AportesController.consultarPrimeraCuota(java.util.UUID)> calls method <bo.aportaya.aportes.infraestructura.PrimeraCuotaRepositorio$PrimeraCuota.cuposPendientes()> in (AportesController.java:122)
+    Method <bo.aportaya.aportes.web.AportesController.consultarPrimeraCuota(java.util.UUID)> calls method <bo.aportaya.aportes.infraestructura.PrimeraCuotaRepositorio$PrimeraCuota.periodoId()> in (AportesController.java:120)
+    Method <bo.aportaya.aportes.web.PrimeraCuotaWebTest.organizador()> calls constructor <bo.aportaya.aportes.infraestructura.PrimeraCuotaRepositorio$PrimeraCuota.<init>(java.util.Optional, java.util.List, java.util.List)> in (PrimeraCuotaWebTest.java:66)
+    Method <bo.aportaya.aportes.web.PrimeraCuotaWebTest.sinObligaciones()> calls constructor <bo.aportaya.aportes.infraestructura.PrimeraCuotaRepositorio$PrimeraCuota.<init>(java.util.Optional, java.util.List, java.util.List)> in (PrimeraCuotaWebTest.java:79)
+        at com.tngtech.archunit.lang.ArchRule$Assertions.assertNoViolation(ArchRule.java:94)
+        at com.tngtech.archunit.lang.ArchRule$Assertions.check(ArchRule.java:86)
+        at com.tngtech.archunit.lang.ArchRule$Factory$SimpleArchRule.check(ArchRule.java:165)
+        at com.tngtech.archunit.lang.syntax.ObjectsShouldInternal.check(ObjectsShouldInternal.java:81)
+        at com.tngtech.archunit.junit.internal.ArchUnitTestDescriptor$ArchUnitRuleDescriptor.execute(ArchUnitTestDescriptor.java:168)
+        at com.tngtech.archunit.junit.internal.ArchUnitTestDescriptor$ArchUnitRuleDescriptor.execute(ArchUnitTestDescriptor.java:151)
+        at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+        at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+
+8 tests completed, 1 failed
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':servicios:aportes:test'.
+> There were failing tests. See the report at: file:///Users/pablo/Documents/GitHub/Pasanaku-wt-sorteo/servicios/aportes/build/reports/tests/test/index.html
+
+* Try:
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+
+BUILD FAILED in 10s
+33 actionable tasks: 14 executed, 19 up-to-date
+exit=1

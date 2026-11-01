@@ -1,7 +1,8 @@
 import { provideZonelessChangeDetection } from '@angular/core'
 import { TestBed } from '@angular/core/testing'
 import { describe, expect, it } from 'vitest'
-import { PUERTO_DESPLIEGUES, type DespliguesEInterruptores } from '../dominio/puertos'
+import { probarVistaDePuerto } from '../compartido/pruebas.apoyo'
+import { PUERTO_DESPLIEGUES, type Despliegue, type DespliguesEInterruptores } from '../dominio/puertos'
 import { PantallaDespliegues } from './pantalla-despliegues'
 
 const DATOS: DespliguesEInterruptores = {
@@ -58,5 +59,17 @@ describe('PantallaDespliegues · doble confirmación del interruptor que toca di
     instancia.confirmar()
     fixture.detectChanges()
     expect(instancia.interruptores().find((i) => i.id === 'i-1')?.activo).toBe(true)
+  })
+})
+
+describe('PantallaDespliegues · listado de despliegues en los tres niveles (contra un doble del puerto)', () => {
+  probarVistaDePuerto<Despliegue>({
+    componente: PantallaDespliegues,
+    puerto: PUERTO_DESPLIEGUES,
+    respuesta: (despliegues) => ({ despliegues, interruptores: [] }),
+    filas: (n) => Array.from({ length: n }, (_, i) => ({ id: `d-${i + 1}`, servicio: i % 2 ? 'aportes' : 'entregas', version: `1.${i}.0`, desplegadoEl: '2026-10-25', desplegadoPor: i === 11 ? 'María Ríos' : 'ci', estado: i % 5 === 0 ? 'revertido' : 'exitoso' })),
+    textoVacio: 'No hay despliegues ni interruptores registrados.',
+    busqueda: { termino: 'maria', esperadas: 1 },
+    filtro: { etiqueta: 'Estado', valor: 'revertido', esperadas: 5 },
   })
 })

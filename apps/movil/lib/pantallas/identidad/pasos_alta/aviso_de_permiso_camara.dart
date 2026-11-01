@@ -38,6 +38,17 @@ class AvisoDePermisoCamara extends StatelessWidget {
               textAlign: TextAlign.center,
               style: Tipo.titulo2.copyWith(color: Paleta.white),
             ),
+            if (!soloPruebaDeVida && !bloqueadoParaSiempre) ...[
+              const SizedBox(height: Espacio.s2),
+              Text(
+                onElegirDeLasFotos == null
+                    ? TextosDeCaptura.soloParaTuCarnet
+                    : '${TextosDeCaptura.soloParaTuCarnet} '
+                          '${TextosDeCaptura.oDeLaGaleria}',
+                textAlign: TextAlign.center,
+                style: Tipo.cuerpoChico.copyWith(color: Paleta.white),
+              ),
+            ],
             if (soloPruebaDeVida) ...[
               const SizedBox(height: Espacio.s2),
               Text(

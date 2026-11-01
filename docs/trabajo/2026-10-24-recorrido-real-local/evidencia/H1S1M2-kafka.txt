@@ -1,0 +1,5 @@
+kafka 3.9.1 KRaft nativo en 127.0.0.1:9092
+crear topico prueba-local: Created topic prueba-local.
+producir "mensaje-1" y consumir con --from-beginning --max-messages 1:
+mensaje-1
+Processed a total of 1 messages

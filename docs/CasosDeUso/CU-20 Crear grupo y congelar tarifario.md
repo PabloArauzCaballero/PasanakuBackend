@@ -173,6 +173,27 @@ Entonces recibe AP-CU20-06 y no se crea nada
 Dado un organizador con un lugar libre en su limite
 Cuando crea un grupo
 Entonces se crea y el siguiente ya no entra
+
+Dado un tarifario vigente y un organizador que pide una etapa minima cuyo desde es 550,00
+Cuando crea el grupo y alguien que todavia no es integrante lee sus condiciones de ingreso
+Entonces reputacion_minima guarda 550,00 y esa persona la lee junto con los cupos, el aporte, la moneda y el estado BORRADOR
+
+Dado un organizador que crea un grupo sin etapa minima resuelta (la forma de antes)
+Cuando se crea el grupo
+Entonces reputacion_minima queda en 0 y el grupo no pide ninguna etapa
+
+Dado un grupo que no existe
+Cuando se piden sus condiciones de ingreso
+Entonces no hay condiciones y el caso de uso responde que no existe
+
+Dado un grupo creado con una clave pidiendo la etapa MEDIA
+Cuando se repite la misma clave pidiendo la etapa ALTA
+Entonces no es un reintento y recibe AP-CU20-02
+
+Dado un grupo creado con una clave cuando la minima derivada de la etapa del organizador era 500
+Cuando el organizador cambio de etapa y repite la misma clave con la minima en 0 o en 550
+Entonces yaCreado lo reconoce antes de preguntar la etapa, vuelve el MISMO grupo y reputacion_minima sigue en 500
+Y la misma clave pidiendo otra etapa recibe AP-CU20-02
 ```
 
 ## Ver también

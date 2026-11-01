@@ -7,6 +7,7 @@ import 'package:permission_handler/permission_handler.dart';
 
 import '../dominio/puertos/camara_en_vivo.dart';
 import 'lector_de_rostro_mlkit.dart';
+import 'lector_de_rostro_vision.dart';
 
 /// El adaptador real sobre el plugin `camera`. Un `CamaraEnVivoPlugin` es de un solo
 /// uso: se crea al entrar a la pantalla de cámara y se tira al salir — no se
@@ -14,7 +15,12 @@ import 'lector_de_rostro_mlkit.dart';
 class CamaraEnVivoPlugin implements CamaraEnVivo {
   CameraController? _controlador;
   CameraDescription? _descripcion;
-  LectorDeRostroMlKit? _lector;
+  // ML Kit en Android, Vision en iOS (`terceros/README.md`).
+  ({
+    Future<LecturaDeRostro?> Function(CameraImage) leer,
+    Future<void> Function() cerrar,
+  })?
+  _lector;
 
   @override
   Future<EstadoDePermiso> pedirPermiso() async {
@@ -87,7 +93,7 @@ class CamaraEnVivoPlugin implements CamaraEnVivo {
     final controlador = _controlador;
     final descripcion = _descripcion;
     if (kIsWeb || controlador == null || descripcion == null) return false;
-    final lector = _lector ??= LectorDeRostroMlKit(descripcion, controlador);
+    final lector = _lector ??= _crearLector(descripcion, controlador);
     var ocupado = false;
     var ultimoProcesamiento = DateTime.fromMillisecondsSinceEpoch(0);
     const intervaloMinimo = Duration(milliseconds: 180);
@@ -134,5 +140,18 @@ class CamaraEnVivoPlugin implements CamaraEnVivo {
     await _lector?.cerrar();
     _lector = null;
     await controlador?.dispose();
+  }
+
+  static ({
+    Future<LecturaDeRostro?> Function(CameraImage) leer,
+    Future<void> Function() cerrar,
+  })
+  _crearLector(CameraDescription descripcion, CameraController controlador) {
+    if (Platform.isIOS) {
+      final vision = LectorDeRostroVision(descripcion);
+      return (leer: vision.leer, cerrar: vision.cerrar);
+    }
+    final mlKit = LectorDeRostroMlKit(descripcion, controlador);
+    return (leer: mlKit.leer, cerrar: mlKit.cerrar);
   }
 }

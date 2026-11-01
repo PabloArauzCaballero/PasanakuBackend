@@ -1,6 +1,8 @@
+import 'package:aportaya_diseno/atomos/iconos_de_marca.dart';
 import 'package:aportaya_diseno/atomos/tono.dart';
 import 'package:aportaya_diseno/moleculas/alerta.dart';
 import 'package:aportaya_diseno/moleculas/cabecera.dart';
+import 'package:aportaya_diseno/moleculas/intro_de_pantalla.dart';
 import 'package:aportaya_diseno/moviles/hoja_de_confirmacion.dart';
 import 'package:aportaya_diseno/moviles/mostrar_snackbar.dart';
 import 'package:aportaya_diseno/organismos/estado_de_pantalla.dart';
@@ -8,11 +10,11 @@ import 'package:aportaya_diseno/tokens/tokens.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
 import 'package:aportaya_diseno/errores.dart';
 import 'compartir_invitacion.dart';
 import 'dominio/enlace_del_grupo.dart';
+import 'textos_de_conversion.dart';
 import 'textos_enlace_del_grupo.dart';
 import 'vista_enlace_del_grupo.dart';
 
@@ -109,6 +111,12 @@ class _PantallaEnlaceDelGrupoState
           padding: const EdgeInsets.symmetric(horizontal: Espacio.s4),
           children: [
             const CabeceraDeSeccion(titulo: TextosEnlaceDelGrupo.titulo),
+            // El trato, arriba y siempre: quien abre el enlace pide, vos decidís.
+            const IntroDePantalla(
+              icono: IconosDeMarca.compartir,
+              titulo: TextosDeConversion.invitarTitulo,
+              explicacion: TextosDeConversion.invitarExplicacion,
+            ),
             if (error != null) ...[
               Alerta(titulo: _texto(error), tono: Tono.error),
               const SizedBox(height: Espacio.s3),
@@ -156,9 +164,6 @@ class _PantallaEnlaceDelGrupoState
                         );
                       }
                     }),
-                  ),
-                  alVerSolicitudes: () => context.push(
-                    '/pasanaku/grupos/${widget.grupoId}/solicitudes',
                   ),
                 );
               },

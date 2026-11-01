@@ -1,0 +1,14 @@
+❯ Building...
+✔ Building...
+Application bundle generation complete. [1.477 seconds] - 2026-10-31T00:52:25.971Z
+
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.11 [39m[90m/Users/pablo/Documents/GitHub/Pasanaku-wt-datos/apps/web[39m
+
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+
+[2m Test Files [22m [1m[32m16 passed[39m[22m[90m (16)[39m
+[2m      Tests [22m [1m[32m74 passed[39m[22m[90m (74)[39m
+[2m   Start at [22m 20:52:26
+[2m   Duration [22m 1.38s[2m (transform 435ms, setup 2.30s, import 774ms, tests 551ms, environment 10.06s)[22m
+

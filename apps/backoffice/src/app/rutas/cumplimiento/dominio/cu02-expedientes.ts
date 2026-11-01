@@ -1,5 +1,5 @@
 import { HttpClient, httpResource } from '@angular/common/http'
-import { inject, Signal } from '@angular/core'
+import { computed, inject, Signal } from '@angular/core'
 import type { Observable } from 'rxjs'
 import {
   ExpedienteEnRevisionEstadoEnum,
@@ -29,6 +29,18 @@ export function expedientesEnEstado(estado: Signal<string>) {
       ? `${gateway}/identidad/verificaciones`
       : `${gateway}/identidad/verificaciones?estado=${e}`
   })
+}
+
+/**
+ * Un expediente por su `verificacionId`, para la ficha. El contrato no publica «consultar un expediente»: se pide la
+ * cola **sin filtro de estado** (trae los cuatro) y se elige el pedido. `undefined` = no está en la cola: o el id no
+ * existe, o no es visible para esta sesión — la ficha lo dice así, sin adivinar cuál de los dos.
+ */
+export function expedienteDe(verificacionId: Signal<string>) {
+  const gateway = inject(GATEWAY)
+  const recurso = httpResource<ExpedienteEnRevision[]>(() => (verificacionId() ? `${gateway}/identidad/verificaciones` : undefined))
+  const expediente = computed(() => (recurso.hasValue() ? (recurso.value() ?? []).find((e) => e.verificacionId === verificacionId()) : undefined))
+  return { recurso, expediente }
 }
 
 /**

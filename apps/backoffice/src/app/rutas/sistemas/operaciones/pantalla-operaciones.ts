@@ -14,7 +14,6 @@ import { TablaOperaciones } from './tabla-operaciones'
   template: `
     <section class="pantalla-ops">
       <ap-cabecera-de-pagina
-        icono="baseDeDatos"
         eyebrow="Sistemas · Catálogo"
         titulo="Operaciones del sistema"
         descripcion="Catálogo exhaustivo de las operaciones y contratos de todos los microservicios de AportaYa: tablas que afectan, DTOs, validaciones, payloads y árbol de decisiones por flujo."

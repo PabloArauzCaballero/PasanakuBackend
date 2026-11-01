@@ -1,0 +1,9 @@
+00:25 +125 -1: /Users/pablo/Documents/GitHub/Pasanaku-foto/apps/movil/test/widget/pautas_publicas_golden_test.dart: captura pautas públicas en 360 dp [E]
+00:26 +125 -2: /Users/pablo/Documents/GitHub/Pasanaku-foto/apps/movil/test/widget/paso_capturas_test.dart: cinco láminas, avance tras guardar y puntos tocables [E]
+00:26 +125 -3: /Users/pablo/Documents/GitHub/Pasanaku-foto/apps/movil/test/widget/paso_capturas_test.dart: el marco conserva las dos elevaciones tokenizadas [E]
+00:30 +164 -4: /Users/pablo/Documents/GitHub/Pasanaku-foto/apps/movil/test/widget/ilustracion_de_pauta_golden_test.dart: golden de las nueve escenas de ejemplo [E]
+00:40 +213 -4: Some tests failed.
+
+# Linea base sin la foto (2189e607, mismo commit base de la rama), mismos 3 archivos:
+# 00:03 +2 -4: Some tests failed.  -> las 4 MISMAS fallas: pautas_publicas_golden, ilustracion_de_pauta_golden,
+#   paso_capturas (2). Preexistentes; no las introduce este cambio.

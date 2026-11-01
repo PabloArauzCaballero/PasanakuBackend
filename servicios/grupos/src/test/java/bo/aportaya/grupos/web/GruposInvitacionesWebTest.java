@@ -50,6 +50,7 @@ import org.springframework.test.web.servlet.MockMvc;
         })
 @Import(InvitacionesWeb.class)
 @MockitoBean(types = bo.aportaya.grupos.aplicacion.CU69EnlaceDeGrupo.class)
+@MockitoBean(types = bo.aportaya.grupos.aplicacion.CU64TraspasoPorSubasta.class)
 class GruposInvitacionesWebTest {
 
     private static final UUID GRUPO = UUID.fromString("c9000000-0000-4000-8000-000000000001");
@@ -106,6 +107,9 @@ class GruposInvitacionesWebTest {
 
     @MockitoBean
     private IntegrantesDelGrupo integrantesDelGrupo;
+
+    @MockitoBean
+    private GruposDeBackoffice gruposDeBackoffice;
 
     private InvitacionRegistrada invitacion(UUID emisor, UUID grupo) {
         return new InvitacionRegistrada(

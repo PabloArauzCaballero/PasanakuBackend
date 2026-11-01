@@ -1,0 +1,125 @@
+[
+  {
+    "ruta": "/operacion",
+    "final": "/operacion/estado",
+    "controles": 11,
+    "pulsados": 9,
+    "saltados": [],
+    "hallazgos": [],
+    "deshabilitados": [
+      "Anterior",
+      "Siguiente"
+    ]
+  },
+  {
+    "ruta": "/operacion/custodia",
+    "final": "/operacion/custodia",
+    "controles": 3,
+    "pulsados": 1,
+    "saltados": [],
+    "hallazgos": [],
+    "deshabilitados": [
+      "Anterior",
+      "Siguiente"
+    ]
+  },
+  {
+    "ruta": "/configuracion/reportes",
+    "final": "/configuracion/reportes",
+    "controles": 8,
+    "pulsados": 6,
+    "saltados": [],
+    "hallazgos": [],
+    "deshabilitados": [
+      "Anterior",
+      "Siguiente"
+    ]
+  },
+  {
+    "ruta": "/tablero/catalogo-de-datos",
+    "final": "/tablero",
+    "controles": 0,
+    "pulsados": 0,
+    "saltados": [],
+    "hallazgos": [],
+    "redirigida": true
+  },
+  {
+    "ruta": "/cumplimiento/uif/reportes",
+    "final": "/cumplimiento/uif/reportes",
+    "controles": 12,
+    "pulsados": 2,
+    "saltados": [
+      "Aprobar y registrar envío 2026-07"
+    ],
+    "hallazgos": [
+      {
+        "control": "Pendiente",
+        "problema": "no se pudo pulsar: locator.click: Timeout 2500ms exceeded."
+      },
+      {
+        "control": "Generado",
+        "problema": "no se pudo pulsar: locator.click: Timeout 2500ms exceeded."
+      },
+      {
+        "control": "Revisado",
+        "problema": "no se pudo pulsar: locator.click: Timeout 2500ms exceeded."
+      },
+      {
+        "control": "Aprobado",
+        "problema": "no se pudo pulsar: locator.click: Timeout 2500ms exceeded."
+      },
+      {
+        "control": "Enviado",
+        "problema": "no se pudo pulsar: locator.click: Timeout 2500ms exceeded."
+      },
+      {
+        "control": "Observado",
+        "problema": "no se pudo pulsar: locator.click: Timeout 2500ms exceeded."
+      },
+      {
+        "control": "Rechazado",
+        "problema": "no se pudo pulsar: locator.click: Timeout 2500ms exceeded."
+      }
+    ],
+    "deshabilitados": [
+      "Anterior",
+      "Siguiente"
+    ]
+  },
+  {
+    "ruta": "/cumplimiento/alertas",
+    "final": "/cumplimiento/alertas",
+    "controles": 10,
+    "pulsados": 9,
+    "saltados": [],
+    "hallazgos": [],
+    "deshabilitados": [
+      "Abrir caso con 0 alertas"
+    ]
+  },
+  {
+    "ruta": "/cumplimiento/casos",
+    "final": "/cumplimiento/casos",
+    "controles": 8,
+    "pulsados": 6,
+    "saltados": [],
+    "hallazgos": [],
+    "deshabilitados": [
+      "Anterior",
+      "Siguiente"
+    ]
+  },
+  {
+    "ruta": "/cumplimiento/actas",
+    "final": "/cumplimiento/actas",
+    "controles": 3,
+    "pulsados": 1,
+    "saltados": [],
+    "hallazgos": [],
+    "deshabilitados": [
+      "Anterior",
+      "Siguiente"
+    ]
+  }
+]

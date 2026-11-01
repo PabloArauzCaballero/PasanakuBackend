@@ -50,6 +50,8 @@ export class FichaDeCobro {
   protected readonly t = textosContabilidad.cobros
   readonly cuenta = input.required<CuentaPorCobrar>()
   readonly cerrada = output<void>()
+  /** Solo tras el 2xx del servidor: quien aloja la ficha recarga la lista y lo dice. */
+  readonly cobrado = output<void>()
   protected readonly abierto = signal(true)
   protected readonly enviando = signal(false)
   protected readonly errorDeEnvio = signal<ErrorTraducido | null>(null)
@@ -110,6 +112,7 @@ export class FichaDeCobro {
     this.enviarCobro(this.cuenta().cuentaPorCobrarId, { monto: this.montoDelContrato()!, formaCobro: this.forma() as FormaDeCobro }).subscribe({
       next: () => {
         this.enviando.set(false)
+        this.cobrado.emit()
         this.cambiarApertura(false)
       },
       error: (e: ErrorTraducido) => {

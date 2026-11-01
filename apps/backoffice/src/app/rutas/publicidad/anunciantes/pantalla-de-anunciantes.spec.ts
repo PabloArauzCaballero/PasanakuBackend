@@ -1,152 +1,173 @@
-import { provideHttpClient, withInterceptors } from '@angular/common/http'
-import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing'
-import { provideZonelessChangeDetection } from '@angular/core'
-import { TestBed, type ComponentFixture } from '@angular/core/testing'
-import { provideRouter } from '@angular/router'
-import { beforeEach, describe, expect, it } from 'vitest'
-import { GATEWAY } from '../../../nucleo/gateway'
-import { erroresInterceptor } from '../../../nucleo/errores.interceptor'
-import { trazaInterceptor } from '../../../nucleo/traza.interceptor'
-import { Sesion } from '../../../nucleo/sesion'
+import { Router } from '@angular/router'
+import { TestBed } from '@angular/core/testing'
+import { describe, expect, it, vi } from 'vitest'
 import { PantallaDeAnunciantes } from './pantalla-de-anunciantes'
-import { anunciante, pagina } from '../publicidad.apoyo'
+import { anunciante, boton, buscar, configurar, elegir, esperar, GW, montar, pagina, texto } from '../publicidad.apoyo'
 
-const URL = 'http://gw/api/v1/publicidad/anunciantes?limite=50'
-
-/**
- * Deja correr la cola de microtareas (el `await` encadenado de `cargar`, HTTP incluido) sin
- * usar `whenStable()`: con una petición deliberadamente sin resolver — como en la prueba de
- * la #H2.S2.M3 — `whenStable()` no resuelve nunca, porque `HttpClient` la mantiene como tarea
- * pendiente para la app zoneless hasta que se resuelve. Un `setTimeout` de macrotarea garantiza
- * que toda la cola de microtareas ya corrió antes de seguir.
- */
-async function esperarMicrotareas(fixture: ComponentFixture<unknown>): Promise<void> {
-  await new Promise((resolve) => setTimeout(resolve, 0))
-  fixture.detectChanges()
-}
+const URL = `${GW}/publicidad/anunciantes?limite=100`
+const veinticinco = Array.from({ length: 25 }, (_, i) => anunciante({ anuncianteId: `a-${i}`, cuentaPublicitariaId: `cp-${i}`, razonSocialFacturacion: `Anunciante ${i + 1}`, tipo: i % 2 ? 'ORGANIZADOR' : 'SOCIO_COMERCIAL' }))
+const filas = (f: { nativeElement: HTMLElement }) => f.nativeElement.querySelectorAll('ap-tabla-de-datos tbody tr').length
 
 /**
- * Migrada de `TablaDeDatosVirtualizada` al organismo canónico (PR7 §H4.S1.M2). Estas
- * pruebas cubren lo propio de esta pantalla: la guarda de permiso del botón de alta y,
- * sobre todo, que una respuesta HTTP atrasada nunca pisa una más nueva (PR7 §H2.S2.M3) —
- * la pieza del contrato de selección/estado más fácil de romper en un refactor así.
+ * CU-110 · Anunciantes con la anatomía única del listado (2026-10-26), contra el doble del gateway
+ * (`HttpTestingController`, regla 65): lotes de 100 por cursor, búsqueda/filtros/paginación en lo cargado, estado en el
+ * servidor, acciones de fila de lo que el contrato tiene (desempeño y liquidación de la cuenta) y el alta.
  */
-describe('PantallaDeAnunciantes', () => {
-  let http: HttpTestingController
-
-  function montarProviders() {
-    return [
-      provideZonelessChangeDetection(),
-      provideRouter([]),
-      provideHttpClient(withInterceptors([trazaInterceptor, erroresInterceptor])),
-      provideHttpClientTesting(),
-      { provide: GATEWAY, useValue: 'http://gw/api/v1' },
-    ]
-  }
-
-  beforeEach(() => {
-    TestBed.configureTestingModule({ providers: montarProviders() })
-    http = TestBed.inject(HttpTestingController)
+describe('PantallaDeAnunciantes · CU-110', () => {
+  it('aceptado · pide el primer lote de 100, pagina de a 10 y busca sin acentos', async () => {
+    const http = configurar(['PUBLICIDAD_ANUNCIANTES'])
+    const f = await montar(PantallaDeAnunciantes)
+    http.expectOne(URL).flush(pagina(veinticinco))
+    await esperar(f)
+    expect(texto(f)).toContain('Página 1 de 3')
+    expect(filas(f)).toBe(10)
+    boton(f.nativeElement, 'Siguiente')!.click()
+    await esperar(f)
+    expect(texto(f)).toContain('Página 2 de 3')
+    await buscar(f, 'anunciante 25')
+    expect(texto(f)).toContain('1 de 25 anunciantes')
   })
 
-  it('sin el permiso PUBLICIDAD_ANUNCIANTES, el botón de alta no aparece', async () => {
-    TestBed.inject(Sesion).abrir('t', [], 'lector')
-    const fixture = TestBed.createComponent(PantallaDeAnunciantes)
-    fixture.detectChanges()
-    await esperarMicrotareas(fixture)
+  it('aceptado · el estado viaja al servidor como `estados` y reinicia los lotes', async () => {
+    const http = configurar(['PUBLICIDAD_ANUNCIANTES'])
+    const f = await montar(PantallaDeAnunciantes)
     http.expectOne(URL).flush(pagina([anunciante()]))
-    await fixture.whenStable()
-    expect(fixture.nativeElement.querySelector('header ap-boton')).toBeNull()
+    await esperar(f)
+    await elegir(f, 'Estado', 'SUSPENDIDO')
+    http.expectOne(`${URL}&estados=SUSPENDIDO`).flush(pagina([anunciante({ estado: 'SUSPENDIDO', razonSocialFacturacion: 'Suspendida SA' })]))
+    await esperar(f)
+    expect(texto(f)).toContain('Suspendida SA')
   })
 
-  it('con el permiso, la lista cargada se muestra en la tabla canónica', async () => {
-    TestBed.inject(Sesion).abrir('t', ['PUBLICIDAD_ANUNCIANTES'], 'oficial')
-    const fixture = TestBed.createComponent(PantallaDeAnunciantes)
-    fixture.detectChanges()
-    await esperarMicrotareas(fixture)
-    http.expectOne(URL).flush(pagina([anunciante({ anuncianteId: 'a-1', razonSocialFacturacion: 'Primero SA' })]))
-    await fixture.whenStable()
-    expect(fixture.nativeElement.textContent).toContain('Primero SA')
-  })
-
-  it('una respuesta atrasada de una página vieja no reemplaza a la vigente de una página más nueva (PR7 §H2.S2.M3)', async () => {
-    TestBed.inject(Sesion).abrir('t', [], 'lector')
-    const fixture = TestBed.createComponent(PantallaDeAnunciantes)
-    fixture.detectChanges()
-
-    // Petición #1 (pedido inicial): queda pendiente, todavía no se resuelve.
-    await esperarMicrotareas(fixture)
-    const primera = http.expectOne(URL)
-
-    // Cambia el orden antes de que la #1 responda: se emite la petición #2 con un pedido
-    // distinto. Se usa `orden` y no `pagina` porque con cursor la página 2 necesita el cursor
-    // que devuelve la 1 (todavía pendiente): cambiar el orden reinicia los cursores y vuelve a
-    // pedir la primera página, que es exactamente una petición nueva que compite con la vieja. No se usa `whenStable()` acá: mientras la #1 sigue sin
-    // resolver, HttpClient la mantiene como tarea pendiente (para que la app zoneless no se dé
-    // por estable con una petición en vuelo) y `whenStable()` nunca resolvería.
-    // `esperarMicrotareas` avanza la cola sin depender de esa estabilidad global.
-    fixture.componentInstance['orden'].set({ clave: 'razonSocialFacturacion', sentido: 'asc' })
-    await esperarMicrotareas(fixture)
-    const segunda = http.expectOne(URL)
-
-    // La #2 (más nueva) responde primero.
-    segunda.flush(pagina([anunciante({ anuncianteId: 'b-1', razonSocialFacturacion: 'Segundo SA' })]))
-    await esperarMicrotareas(fixture)
-    expect(fixture.nativeElement.textContent).toContain('Segundo SA')
-
-    // La #1 (más vieja) responde tarde: no debe pisar el resultado de la #2 ya aplicado.
-    primera.flush(pagina([anunciante({ anuncianteId: 'a-1', razonSocialFacturacion: 'Primero SA' })]))
-    await esperarMicrotareas(fixture)
-    expect(fixture.nativeElement.textContent).toContain('Segundo SA')
-    expect(fixture.nativeElement.textContent).not.toContain('Primero SA')
-  })
-
-  it('un error 403 se traduce a "sin-permiso" y no deja la tabla en un estado mudo', async () => {
-    TestBed.inject(Sesion).abrir('t', [], 'lector')
-    const fixture = TestBed.createComponent(PantallaDeAnunciantes)
-    fixture.detectChanges()
-    await esperarMicrotareas(fixture)
-    http.expectOne(URL).flush({ codigo: undefined }, { status: 403, statusText: 'Forbidden' })
-    await fixture.whenStable()
-    expect(fixture.nativeElement.querySelector('[role="alert"]')?.textContent).toContain('No tenés acceso')
-  })
-
-  it('límite · el límite mensual es Dinero con su moneda; sin límite lo dice; el estado se nombra', async () => {
-    TestBed.inject(Sesion).abrir('t', ['PUBLICIDAD_ANUNCIANTES'], 'oficial')
-    const fixture = TestBed.createComponent(PantallaDeAnunciantes)
-    fixture.detectChanges()
-    await esperarMicrotareas(fixture)
-    http.expectOne(URL).flush(
-      pagina([anunciante({ limiteGastoMensual: { monto: '1500.00', moneda: 'USD' } }), anunciante({ anuncianteId: 'a-2', estado: 'SUSPENDIDO' })]),
-    )
-    await fixture.whenStable()
-    const texto = fixture.nativeElement.textContent as string
-    expect(fixture.nativeElement.querySelector('ap-monto')?.getAttribute('aria-label')).toContain('Límite mensual')
-    expect(texto).toContain('Sin límite')
-    expect(texto).toContain('Suspendido')
-  })
-
-  it('cursor · con próxima página, la paginación ofrece avanzar y la página 2 va con despuesDeFecha + despuesDeId', async () => {
-    TestBed.inject(Sesion).abrir('t', [], 'lector')
-    const fixture = TestBed.createComponent(PantallaDeAnunciantes)
-    fixture.detectChanges()
-    await esperarMicrotareas(fixture)
+  it('aceptado · «Cargar 100 más» pide el lote siguiente con las dos mitades del cursor y suma las filas', async () => {
+    const http = configurar([])
+    const f = await montar(PantallaDeAnunciantes)
     http.expectOne(URL).flush(pagina([anunciante()], '2026-09-01T12:00:00Z', 'a-1'))
-    await fixture.whenStable()
-    fixture.componentInstance['pagina'].set(2)
-    await esperarMicrotareas(fixture)
+    await esperar(f)
+    boton(f.nativeElement, 'Cargar 100 más')!.click()
+    await esperar(f)
     http.expectOne(`${URL}&despuesDeFecha=2026-09-01T12:00:00Z&despuesDeId=a-1`).flush(pagina([anunciante({ anuncianteId: 'a-2', razonSocialFacturacion: 'Segunda SA' })]))
-    await fixture.whenStable()
-    expect(fixture.nativeElement.textContent).toContain('Segunda SA')
+    await esperar(f)
+    expect(texto(f)).toContain('Segunda SA')
+    expect(texto(f)).toContain('2 anunciantes')
+    expect(boton(f.nativeElement, 'Cargar 100 más')).toBeUndefined()
   })
 
-  it('inválido · 422 AP-CU110-04 se dice con el texto del dominio', async () => {
-    TestBed.inject(Sesion).abrir('t', [], 'lector')
-    const fixture = TestBed.createComponent(PantallaDeAnunciantes)
-    fixture.detectChanges()
-    await esperarMicrotareas(fixture)
+  it('aceptado · la fila lleva al desempeño de su cuenta; el contrato no tiene editar ni eliminar', async () => {
+    const http = configurar([])
+    const f = await montar(PantallaDeAnunciantes)
+    http.expectOne(URL).flush(pagina([anunciante()]))
+    await esperar(f)
+    const navegar = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true)
+    boton(f.nativeElement, 'Desempeño de Anunciante SA')!.click()
+    expect(navegar).toHaveBeenCalledWith(['/publicidad', 'desempeno'], { queryParams: { cuenta: 'cp-1' } })
+    expect(boton(f.nativeElement, /^Editar/)).toBeUndefined()
+    expect(boton(f.nativeElement, /^Eliminar/)).toBeUndefined()
+  })
+
+  it('aceptado · el alta manda el identificador que exige R-PUB-01 y recarga; sin permiso no hay botón', async () => {
+    const http = configurar(['PUBLICIDAD_ANUNCIANTES'])
+    const f = await montar(PantallaDeAnunciantes)
+    http.expectOne(URL).flush(pagina([]))
+    await esperar(f)
+    boton(f.nativeElement, 'Dar de alta anunciante')!.click()
+    await esperar(f)
+    const campos = [...document.querySelectorAll('ap-formulario-de-anunciante ap-campo input')] as HTMLInputElement[]
+    campos[0]!.value = '6e7a3f12-8b4c-4d2e-9f1a-0c5b7d9e2a41'
+    campos[0]!.dispatchEvent(new Event('input'))
+    campos[1]!.value = 'Socio Sintético SRL'
+    campos[1]!.dispatchEvent(new Event('input'))
+    boton(document, 'Guardar')!.click()
+    await esperar(f)
+    const alta = http.expectOne({ method: 'POST', url: `${GW}/publicidad/anunciantes` })
+    expect(alta.request.body).toEqual({ tipo: 'SOCIO_COMERCIAL', socioComercialId: '6e7a3f12-8b4c-4d2e-9f1a-0c5b7d9e2a41', razonSocialFacturacion: 'Socio Sintético SRL', moneda: 'BOB' })
+    alta.flush({ anuncianteId: 'a-9', cuentaPublicitariaId: 'cp-9' }, { status: 201, statusText: 'Created' })
+    await esperar(f)
+    http.expectOne(URL).flush(pagina([anunciante({ razonSocialFacturacion: 'Socio Sintético SRL' })]))
+    await esperar(f)
+    expect(texto(f)).toContain('Anunciante dado de alta')
+    expect(texto(f)).toContain('Socio Sintético SRL')
+  })
+
+  it('límite · vacío sin datos orienta; búsqueda sin coincidencias ofrece «Quitar filtros» y lo restablece', async () => {
+    const http = configurar([])
+    const f = await montar(PantallaDeAnunciantes)
+    http.expectOne(URL).flush(pagina([]))
+    await esperar(f)
+    expect(texto(f)).toContain('No hay anunciantes dados de alta todavía.')
+    f.destroy()
+    const g = await montar(PantallaDeAnunciantes)
+    http.expectOne(URL).flush(pagina([anunciante()]))
+    await esperar(g)
+    await buscar(g, 'nada parecido')
+    boton(g.nativeElement, 'Quitar filtros')!.click()
+    await esperar(g)
+    expect(texto(g)).toContain('Anunciante SA')
+  })
+
+  it('límite · el alta sin identificador válido no envía nada y lo dice en el campo', async () => {
+    const http = configurar(['PUBLICIDAD_ANUNCIANTES'])
+    const f = await montar(PantallaDeAnunciantes)
+    http.expectOne(URL).flush(pagina([]))
+    await esperar(f)
+    boton(f.nativeElement, 'Dar de alta anunciante')!.click()
+    await esperar(f)
+    const id = document.querySelector('ap-formulario-de-anunciante ap-campo input') as HTMLInputElement
+    id.value = 'no-es-uuid'
+    id.dispatchEvent(new Event('input'))
+    boton(document, 'Guardar')!.click()
+    await esperar(f)
+    expect(http.match({ method: 'POST' })).toHaveLength(0)
+    expect(document.body.textContent).toContain('Ese identificador no tiene la forma 8-4-4-4-12.')
+  })
+
+  it('error · 500 con su código de seguimiento; «Volver a intentar» repite la petición', async () => {
+    const http = configurar([])
+    const f = await montar(PantallaDeAnunciantes)
+    http.expectOne(URL).flush({ codigo: 'AP-X', mensaje: 'crudo', trazaId: 'tz-500' }, { status: 500, statusText: 'x' })
+    await esperar(f)
+    const alerta = f.nativeElement.querySelector('[role="alert"]') as HTMLElement
+    expect(alerta.textContent).toContain('tz-500')
+    expect(alerta.textContent).not.toContain('crudo')
+    boton(f.nativeElement, /Volver a intentar|Reintentar/)!.click()
+    await esperar(f)
+    http.expectOne(URL).flush(pagina([anunciante()]))
+    await esperar(f)
+    expect(texto(f)).toContain('Anunciante SA')
+  })
+
+  it('error · 403 se traduce; 422 AP-CU110-04 dice el texto del dominio', async () => {
+    const http = configurar([])
+    const f = await montar(PantallaDeAnunciantes)
+    http.expectOne(URL).flush({}, { status: 403, statusText: 'Forbidden' })
+    await esperar(f)
+    expect(f.nativeElement.querySelector('[role="alert"]')?.textContent).toContain('No tenés acceso')
+    boton(f.nativeElement, /Volver a intentar|Reintentar/)!.click()
+    await esperar(f)
     http.expectOne(URL).flush({ codigo: 'AP-CU110-04', mensaje: 'x', trazaId: 'tz' }, { status: 422, statusText: 'x' })
-    await fixture.whenStable()
-    expect(fixture.nativeElement.querySelector('[role="alert"]')?.textContent).toContain('El filtro de la lista no es válido')
+    await esperar(f)
+    expect(f.nativeElement.querySelector('[role="alert"]')?.textContent).toContain('El filtro de la lista no es válido')
+  })
+
+  it('error · el alta rechazada deja el diálogo abierto con lo escrito y el botón libre', async () => {
+    const http = configurar(['PUBLICIDAD_ANUNCIANTES'])
+    const f = await montar(PantallaDeAnunciantes)
+    http.expectOne(URL).flush(pagina([]))
+    await esperar(f)
+    boton(f.nativeElement, 'Dar de alta anunciante')!.click()
+    await esperar(f)
+    const campos = [...document.querySelectorAll('ap-formulario-de-anunciante ap-campo input')] as HTMLInputElement[]
+    campos[0]!.value = '6e7a3f12-8b4c-4d2e-9f1a-0c5b7d9e2a41'
+    campos[0]!.dispatchEvent(new Event('input'))
+    campos[1]!.value = 'Rechazada SRL'
+    campos[1]!.dispatchEvent(new Event('input'))
+    boton(document, 'Guardar')!.click()
+    await esperar(f)
+    http.expectOne({ method: 'POST', url: `${GW}/publicidad/anunciantes` }).flush({ codigo: 'AP-CU110-01', mensaje: 'Regla', trazaId: 'tz-1' }, { status: 422, statusText: 'x' })
+    await esperar(f)
+    expect((document.querySelector('ap-formulario-de-anunciante dialog') as HTMLDialogElement).open).toBe(true)
+    expect(campos[1]!.value).toBe('Rechazada SRL')
+    expect(document.querySelector('ap-formulario-de-anunciante ap-error-de-envio')?.textContent?.trim().length).toBeGreaterThan(0)
+    expect(boton(document, 'Guardar')!.disabled).toBe(false)
   })
 })

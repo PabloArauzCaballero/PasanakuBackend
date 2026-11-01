@@ -1,0 +1,21 @@
+[t-ui]  Test Files  39 passed (39)
+[t-ui]       Tests  196 passed (196)
+[t-bo] Set `VITE_CONFIG_NATIVE_IGNORE_WARNING=true` to suppress this warning.
+[t-bo]  Test Files  170 passed (170)
+[t-bo]       Tests  1218 passed (1218)
+[a-ui]  Test Files  2 passed (2)
+[a-ui]       Tests  9 passed (9)
+[a-bo] Set `VITE_CONFIG_NATIVE_IGNORE_WARNING=true` to suppress this warning.
+[a-bo]  Test Files  45 passed (45)
+[a-bo]       Tests  92 passed (92)
+[t-tutoriales]  Test Files  1 passed (1)
+[t-tutoriales]       Tests  9 passed (9)
+[t-layout] Set `VITE_CONFIG_NATIVE_IGNORE_WARNING=true` to suppress this warning.
+[t-layout]  Test Files  11 passed (11)
+[t-layout]       Tests  41 passed (41)
+[lint] All files pass linting.
+[lint] TODO OK
+[lint-ui] All files pass linting.
+[lint-ui] TODO OK
+[build]                     | Initial total              | 450.87 kB |               119.82 kB
+[e2e]   166 passed (5.0m)

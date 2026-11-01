@@ -81,6 +81,57 @@ void main() {
     },
   );
 
+  testWidgets(
+    '«Movimientos» desde otra pestaña abre el extracto, no Inicio (H6.S4.M8)',
+    (tester) async {
+      final router = crearEnrutador(
+        inicial: '/billetera/inicio',
+        sesion: await sesionActivaDePrueba(),
+      );
+      await tester.pumpWidget(appCon(router));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Grupos'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Movimientos'));
+      await tester.pumpAndSettle();
+      expect(router.state.uri.toString(), startsWith('/billetera/extracto'));
+    },
+  );
+
+  testWidgets(
+    'Ayuda dejó la barra (A6) y se llega desde el perfil, con «Perfil» encendido',
+    (tester) async {
+      // Un teléfono, no los 800×600 de fábrica: el botón del medio de la barra sobresale 12 dp
+      // sobre el cuerpo y a ese tamaño la fila quedaba justo debajo de él.
+      tester.view.physicalSize = const Size(1080, 2280);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      final router = crearEnrutador(
+        inicial: '/billetera/inicio',
+        sesion: await sesionActivaDePrueba(),
+      );
+      await tester.pumpWidget(appCon(router));
+      await tester.pumpAndSettle();
+      expect(
+        find.descendant(
+          of: find.byType(BarraPestanas),
+          matching: find.text('Ayuda'),
+        ),
+        findsNothing,
+      );
+
+      await tester.tap(find.text('Perfil'));
+      await tester.pumpAndSettle();
+      await tester.ensureVisible(find.text('Ayuda'));
+      await tester.tap(find.text('Ayuda'));
+      await tester.pumpAndSettle();
+      expect(router.state.uri.toString(), '/soporte/ayuda');
+      final barra = tester.widget<BarraPestanas>(find.byType(BarraPestanas));
+      expect(barra.actual, 3, reason: 'Perfil, de donde cuelga Ayuda');
+    },
+  );
+
   /// **Las pantallas de antes de tener sesión no llevan barra de pestañas.**
   ///
   /// El contrato de adhesión es el octavo paso de crear una cuenta, y vivía dentro del

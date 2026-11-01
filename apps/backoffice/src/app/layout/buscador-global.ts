@@ -23,7 +23,7 @@ const CLAVE = 'ap-buscador:recientes'
         type="search"
         role="combobox"
         aria-label="Buscar en el backoffice"
-        placeholder="Buscar pantalla o tabla…"
+        placeholder="Buscar…"
         [attr.aria-expanded]="abierto()"
         [attr.aria-controls]="id"
         [attr.aria-activedescendant]="activo() >= 0 ? id + '-' + activo() : null"
@@ -44,6 +44,7 @@ const CLAVE = 'ap-buscador:recientes'
         } @else {
           @for (r of resultados(); track r.ruta; let i = $index) {
             <li role="option" [id]="id + '-' + i" [attr.aria-selected]="activo() === i" (mousedown)="$event.preventDefault(); abrir(r)">
+              <ap-icono [nombre]="r.tipo === 'tabla' ? 'baseDeDatos' : 'lista'" tamano="s4" />
               <span class="texto">{{ r.texto }}</span><span class="detalle">{{ r.detalle }}</span>
             </li>
           } @empty { <li class="nada">Nada coincide con «{{ consulta() }}».</li> }

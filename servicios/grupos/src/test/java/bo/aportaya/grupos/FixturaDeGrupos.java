@@ -68,6 +68,16 @@ final class FixturaDeGrupos {
         return id;
     }
 
+    /**
+     * Un grupo que todavia recibe integrantes ({@code ABIERTO_A_INSCRIPCION}). Desde el 2026-10-30 es el UNICO estado en
+     * el que se entra por cualquier camino: un CONFORMADO ya inicio y responde AP-CU69-17.
+     */
+    UUID grupoAbierto(int cupos) {
+        UUID id = grupoConformado(cupos);
+        dsl.execute("UPDATE grupos.grupo SET estado = 'ABIERTO_A_INSCRIPCION' WHERE id = ?", id);
+        return id;
+    }
+
     List<UUID> cuposOcupados(UUID grupoId, int cuantos) {
         List<UUID> creados = new ArrayList<>();
         for (int numero = 1; numero <= cuantos; numero++) {

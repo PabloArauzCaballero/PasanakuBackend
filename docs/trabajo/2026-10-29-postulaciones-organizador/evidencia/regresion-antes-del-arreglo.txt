@@ -1,0 +1,3 @@
+      Tests  1 failed | 1284 passed (1285)
+ FAIL   backoffice  src/app/nucleo/menu.spec.ts > menú del backoffice > correcto: seis entradas de primer nivel (sin «Inicio»: se vuelve con el logo, 2026-10-28), ninguna sección con más de ocho pestañas, todas con ícono y ruta absoluta
+ Test Files  1 failed | 181 passed (182)

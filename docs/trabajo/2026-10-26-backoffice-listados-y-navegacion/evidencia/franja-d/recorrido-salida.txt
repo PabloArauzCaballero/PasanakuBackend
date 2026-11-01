@@ -1,0 +1,37 @@
+PASS · Usuarios internos · aceptado · GET real al simulado 4010 pinta la fila del contrato · GET /api/v1/usuarios-internos → 200, 1 fila
+PASS · Usuarios internos · aceptado · Actualizar repite el GET; 25 filas paginan a 10 (Página 1 de 3) · Página 1 de 3 · 25 usuarios
+PASS · Usuarios internos · aceptado · Siguiente, Ir a 3 (5 filas), Anterior y filas por página 20 · p2 → Ir a 3 (5 filas) → p2 → 20/pág = 2 páginas
+PASS · Usuarios internos · aceptado · buscar «jose» (sin acento) encuentra 1 y el CSV baja solo esa fila · usuarios-internos-2026-10-26.csv: 2 líneas · encabezado «Código,Nombre,Correo,Departamento,Cargo,Roles,Segundo factor…»
+PASS · Usuarios internos · aceptado · filtro Estado=SUSPENDIDO deja 5 y el JSON baja esas 5 · usuarios-internos-2026-10-26.json: 5 objetos, todos «Suspendido»
+PASS · Usuarios internos · límite · búsqueda sin coincidencias: vacío con «Quitar filtros»; CSV con solo encabezado · CSV: 1 línea (encabezado)
+PASS · Usuarios internos · aceptado · Editar → PATCH /usuarios-internos/{id} al simulado con departamento, cargo y motivo; cierra y recarga · PATCH {"departamento":"RIESGOS","cargo":"Jefa de riesgos","motivo":"Ascenso aprobado por RRHH"} → 200 (doble sin estado: no persiste)
+PASS · Usuarios internos · aceptado · Roles → GET /roles y PUT /usuarios-internos/{id}/roles con la selección y el motivo · PUT {"roles":["RISK_ANALYST","codigo"],"motivo":"Rota a auditoría por seis meses"} → 200
+PASS · Usuarios internos · error · Suspender con 500: el diálogo queda, conserva el motivo, muestra el código de seguimiento y el botón queda libre; Escape devuelve el foco · error visible con traza; foco vuelve a «Suspender a Nombre3 Prueba»
+PASS · Usuarios internos · aceptado · Desbloquear solo aparece en la fila bloqueada y manda POST /desbloquear · POST /desbloquear → 200 · con «ok» el botón estaba deshabilitado
+PASS · Usuarios internos · aceptado · Nuevo usuario interno → POST con Idempotency-Key y rol inicial del catálogo · POST rolCodigo=codigo · Idempotency-Key presente → 201
+PASS · Usuarios internos · aceptado · Ver navega a la ficha y la ficha pide GET /usuarios-internos/{id} · GET ficha → 200
+PASS · Ficha de usuario interno · aceptado · Suspender/Reactivar cuenta abre diálogo (no prompt) y manda PATCH estado · PATCH {"estado":"ACTIVO","motivo":"Licencia prolongada"} (ruta de la ficha abierta)
+PASS · Usuarios internos · límite · colección vacía: vacío orientado con «Dar de alta» · vacío + Dar de alta
+PASS · Usuarios internos · error · 403 al listar: mensaje traducido sin cuerpo crudo y «Volver a intentar» repite el GET · «No se pudo cargar usuarios internos. No tenés acceso a esto. Código de seguimiento: traza-» · reintento → 200
+PASS · Roles internos · aceptado · 25 roles: buscar por permiso, filtro Departamento, Ver permisos en cajón, CSV · buscar 1/25 · AUDITORIA 5/25 · CSV 5 filas · cajón con permisos · sin Editar/Eliminar
+PASS · Permisos internos · aceptado · filtro Riesgo=CRITICO y JSON de lo filtrado · CRITICO 6/25 · JSON 6 objetos
+PASS · Catálogos operativos · aceptado · 25 catálogos, filtro Dueño, Ver elementos navega a la ficha · ficha GET → 200 (simulado)
+PASS · Ficha de catálogo · aceptado · elementos paginan (14 → 2 páginas); Desactivar manda PATCH {activo:false, motivo} · PATCH {"activo":false,"motivo":"Resolución del comité de riesgos"} → 200
+PASS · Ficha de catálogo · error · PATCH con 403: conserva el motivo y muestra el error · error con traza, motivo intacto
+PASS · Registro del sistema · aceptado · Siguiente manda antesDe/antesDeId; Ir a 3 recorre la 2 y llega a la 3 (10 eventos) · 1ª: limite=25 · Siguiente: antesDeId=c-25 · Ir a 3: antesDeId=c-50
+PASS · Registro del sistema · aceptado · filtro Entidad viaja como entidad= y vuelve a la página 1; Ver detalle abre el cajón; sin Eliminar · entidad=USUARIO&limite=25 · cajón ok · CSV 25 filas
+PASS · Registro del sistema · error · 500: error traducido y Volver a intentar repite el GET · reintento → 200 (simulado)
+PASS · Servicios y SLO · error · sin fuente real: error accionable «todavía no existe un origen de datos real» con Volver a intentar · No se pudo cargar estado de servicios. No pudimos traer «Estado de servicios»: todavía no existe un origen de datos real
+PASS · Estado de servicios · aceptado · modo demo: banner de datos de ejemplo, cifras y listado con filas, CSV de lo visible · 4 filas · CSV 4 filas · cifras: SERVICIOS 4 OPERATIVOS 3 DEGRADADOS 1 CAÍDOS 0
+PASS · Despliegues e interruptores · aceptado · modo demo: banner de datos de ejemplo, cifras y listado con filas, CSV de lo visible · 2 filas · CSV 2 filas · cifras: DESPLIEGUES 2 EXITOSOS 1 REVERTIDOS 1 INTERRUPTORES ACTIVOS 1
+PASS · Base y migraciones · aceptado · modo demo: banner de datos de ejemplo, cifras y listado con filas, CSV de lo visible · 2 filas · CSV 2 filas · cifras: MIGRACIONES 2 APLICADAS 1 PENDIENTES 1
+PASS · Respaldos · aceptado · modo demo: banner de datos de ejemplo, cifras y listado con filas, CSV de lo visible · 3 filas · CSV 3 filas · cifras: RESPALDOS 3 RESTAURACIÓN AL DÍA 0 RESTAURACIÓN VENCIDA 3 Más de 30 días sin prob
+PASS · Proveedores · aceptado · modo demo: banner de datos de ejemplo, cifras y listado con filas, CSV de lo visible · 2 filas · CSV 2 filas · cifras: PROVEEDORES 2 CATEGORÍAS 2 MONEDAS 1 Los costos no se suman entre monedas.
+PASS · Outbox y descartados · aceptado · modo demo: banner de datos de ejemplo, cifras y listado con filas, CSV de lo visible · 2 filas · CSV 2 filas · cifras: MENSAJES 2 PENDIENTES 1 ENTREGADOS 1 DESCARTADOS 2
+PASS · Webhooks · aceptado · modo demo: banner de datos de ejemplo, cifras y listado con filas, CSV de lo visible · 2 filas · CSV 2 filas · cifras: WEBHOOKS 2 ENTRANTES 1 SALIENTES 1 CON ERROR 1
+PASS · Accesos · aceptado · modo demo: banner de datos de ejemplo, cifras y listado con filas, CSV de lo visible · 2 filas · CSV 2 filas · cifras: ACCESOS 2 PERSONAS 2 ROLES DISTINTOS 2
+PASS · Incidentes · aceptado · modo demo: banner de datos de ejemplo, cifras y listado con filas, CSV de lo visible · 2 filas · CSV 2 filas · cifras: INCIDENTES 2 ABIERTOS 1 SEV-1 ABIERTOS 0 CERRADOS 1
+PASS · Despliegues e interruptores · aceptado · interruptor que toca dinero: no se activa directo; pedirlo abre la doble confirmación, el mismo correo no confirma · confirmar deshabilitado con el mismo correo
+PASS · Respaldos · aceptado · filtro Restauración=Vencida deja solo los VENCIDA · 3 filas, todas VENCIDA
+PASS · Outbox y descartados · aceptado · dos listados con nombres distintos; descartados con su motivo; sin Editar/Eliminar · EventoWebhookProveedor Firma inválida: la clave del proveedor rotó y no se actualizó el secreto. 202
+{"casos":36,"pass":36,"fail":0,"consola":4,"red4xx5xx":4}

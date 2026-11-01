@@ -1,0 +1,8 @@
+# Comprobaciones del backoffice sobre el head de la rama (6d75d41d), con Node 22.23.4
+base: dev 46d285dd, ya contenida en la rama (sin conflictos)
+yarn typecheck   exit=0
+yarn lint        exit=0 · "TODO OK"
+yarn test:front  exit=0 · 151 archivos · 948 pruebas pasadas
+yarn test:a11y   exit=0 · 42 archivos · 78 pruebas pasadas
+yarn build       exit=0 · Initial total 462.46 kB (122.80 kB transferidos)
+NO corrido aqui: e2e de Playwright del backoffice contra Prism, comun-pruebas/identidad/auditoria en integracionTest (sin Docker), CI de GitHub.

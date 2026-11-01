@@ -47,7 +47,7 @@ export interface ComprobanteCierreVm {
     </ap-alerta>
     @if (permitirOtro()) {
       <div class="acciones">
-        <ap-boton (pulsado)="otro.emit()">{{ t.formulario.otro }}</ap-boton>
+        <ap-boton icono="calendario" (pulsado)="otro.emit()">{{ t.formulario.otro }}</ap-boton>
       </div>
     }
   `,

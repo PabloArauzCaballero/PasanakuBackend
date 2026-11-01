@@ -1,0 +1,7 @@
+$ flutter test test/unidad test/widget test/contrato test/identidad test/pasanaku test/a11y test/goldens test/billetera test/navegacion --timeout 90s
+LINEA BASE (sin la subasta): total 1147 · pasan 865 · fallan 282
+CON LA SUBASTA: total 1160 · pasan 878 · fallan 282
+fallan con la subasta y NO en la base (regresiones): 0
+fallan en la base y ya no: 0
+pruebas nuevas: 13 · fallan: 0
+todas las fallas restantes estan en la base (ENVIRONMENT: goldens y pruebas de identidad/capturas que fallan igual en esta maquina sin la subasta): True

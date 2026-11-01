@@ -11,9 +11,11 @@ import bo.aportaya.notificaciones.web.generado.modelo.EntradaAvisoInterno;
 import bo.aportaya.notificaciones.web.generado.modelo.EntradaConsultaSupresion;
 import bo.aportaya.notificaciones.web.generado.modelo.EntradaNotificacion;
 import bo.aportaya.notificaciones.web.generado.modelo.EntradaRespuesta;
+import bo.aportaya.notificaciones.web.generado.modelo.EventoDeEntregaRecibido;
 import bo.aportaya.notificaciones.web.generado.modelo.PaginaDeAvisosInternos;
 import bo.aportaya.notificaciones.web.generado.modelo.PaginaDeEnvios;
 import bo.aportaya.notificaciones.web.generado.modelo.PaginaDePlantillas;
+import bo.aportaya.notificaciones.web.generado.modelo.ProveedorDeMensajeriaResumen;
 import bo.aportaya.notificaciones.web.generado.modelo.SalidaMarcarTodosLeidos;
 import bo.aportaya.notificaciones.web.generado.modelo.SalidaNotificacion;
 import bo.aportaya.notificaciones.web.generado.modelo.SalidaRespuesta;
@@ -188,6 +190,45 @@ public class NotificacionesController implements NotificacionesApi {
         var pagina = mensajeria.envios(
                 estados, Optional.ofNullable(antesDe), Optional.ofNullable(antesDeId), limite, sesion.actual());
         return ResponseEntity.ok(MapeoDeMensajeria.envios(pagina));
+    }
+
+    /** Sistemas › Proveedores: los proveedores de mensajeria. */
+    @Override
+    @Permiso("TABLERO_SISTEMAS_VER")
+    @PermisoAlternativo({"AUDITORIA_LEER"})
+    public ResponseEntity<List<ProveedorDeMensajeriaResumen>> listarProveedoresDeMensajeria() {
+        Traza.marcarCasoDeUso("TABLERO-SISTEMAS", "notificaciones/proveedores");
+        return ResponseEntity.ok(mensajeria.proveedores(sesion.actual()).stream()
+                .map(p -> new ProveedorDeMensajeriaResumen(
+                        p.id(),
+                        p.codigo(),
+                        p.nombre(),
+                        p.canales(),
+                        p.activo(),
+                        p.prioridad(),
+                        p.salud().toPlainString()))
+                .toList());
+    }
+
+    /** Sistemas › Webhooks: los ultimos avisos de entrega de los proveedores. */
+    @Override
+    @Permiso("TABLERO_SISTEMAS_VER")
+    @PermisoAlternativo({"AUDITORIA_LEER"})
+    public ResponseEntity<List<EventoDeEntregaRecibido>> listarEventosDeEntregaRecibidos(Integer limite) {
+        Traza.marcarCasoDeUso("TABLERO-SISTEMAS", "notificaciones/webhooks-recibidos");
+        return ResponseEntity.ok(mensajeria.eventosDeEntrega(limite == null ? 50 : limite, sesion.actual()).stream()
+                .map(e -> {
+                    var salida = new EventoDeEntregaRecibido(
+                            e.id(),
+                            e.proveedorCodigo(),
+                            e.canal(),
+                            EventoDeEntregaRecibido.TipoEventoEnum.fromValue(e.tipoEvento()),
+                            e.recibidoEn(),
+                            e.fechaHoraProveedor());
+                    e.codigoError().ifPresent(salida::setCodigoError);
+                    return salida;
+                })
+                .toList());
     }
 
     @Override

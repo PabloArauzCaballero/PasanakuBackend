@@ -90,6 +90,10 @@ void main() {
 
   testWidgets('inválido: si la consulta falla el perfil sigue usable y el '
       'campo queda para escribir', (tester) async {
+    // «Cerrar sesión» queda bajo los 600 dp del lienzo por omisión (ADR-053): teléfono.
+    tester.view.physicalSize = const Size(1080, 2280);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
     final (:dio, :adaptador) = dioSimulado();
     adaptador.onGet(
       _ruta,

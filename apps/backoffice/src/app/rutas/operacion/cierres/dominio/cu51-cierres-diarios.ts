@@ -8,7 +8,7 @@ import type { SalidaCierreDiario } from 'clientes/angular/nucleo-financiero/mode
 import { GATEWAY } from '../../../../nucleo/gateway'
 import { contextoIdempotente } from '../../../../nucleo/idempotencia.interceptor'
 import type { PedirPorCursor } from '../../../../nucleo/tabla/cursor'
-import { bandejaPorCursor, cursorDe, pedirJson, type Bandeja } from '../../dominio/bandeja-por-cursor'
+import { cursorDe, pedirJson } from '../../dominio/bandeja-por-cursor'
 
 export type { CierreDiarioEnLista, EntradaCierreDiario, SalidaCierreDiario }
 
@@ -29,8 +29,9 @@ export function pedirCierresDiarios(http: HttpClient, gateway: string): PedirPor
   }
 }
 
-export function bandejaDeCierresDiarios(): Bandeja<CierreDiarioEnLista> {
-  return bandejaPorCursor(pedirCierresDiarios(inject(HttpClient), inject(GATEWAY)))
+/** Fábrica en contexto de inyección: la pantalla no importa `HttpClient`. */
+export function pedidorDeCierresDiarios(): PedirPorCursor<CierreDiarioEnLista, Cursor> {
+  return pedirCierresDiarios(inject(HttpClient), inject(GATEWAY))
 }
 
 export function crearEjecutarCierreDiario(): (entrada: EntradaCierreDiario) => Observable<SalidaCierreDiario> {

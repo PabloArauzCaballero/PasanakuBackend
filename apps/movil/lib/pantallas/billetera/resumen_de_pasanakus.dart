@@ -2,9 +2,11 @@ import 'package:aportaya_diseno/atomos/boton.dart';
 import 'package:aportaya_diseno/atomos/boton_variante.dart';
 import 'package:aportaya_diseno/atomos/tono.dart';
 import 'package:aportaya_diseno/atomos/chip_estado.dart';
+import 'package:aportaya_diseno/atomos/iconos_de_marca.dart';
 import 'package:aportaya_diseno/moleculas/seccion.dart';
 import 'package:aportaya_diseno/moleculas/tarjeta.dart';
 import 'package:aportaya_diseno/organismos/estado_de_pantalla.dart';
+import 'package:aportaya_diseno/organismos/estado_vacio.dart';
 import 'package:aportaya_diseno/tokens/tokens.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -123,38 +125,35 @@ class _Aviso extends ConsumerWidget {
   }
 }
 
+/// Sin grupos todavía: el vacío vende la primera acción (ADR-053, rediseño bancario).
+/// Unirse va primero: casi todo el que llega lo hace porque alguien lo invitó.
 class _SinGrupos extends StatelessWidget {
   const _SinGrupos();
 
   @override
-  Widget build(BuildContext context) {
-    final t = Tokens.of(context);
-    return Panel(
-      hijo: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+  Widget build(BuildContext context) => Tarjeta(
+    child: EstadoVacio(
+      icono: IconosDeMarca.grupos,
+      titulo: TextosBilletera.tituloSinPasanakus,
+      mensaje: TextosBilletera.sinPasanakus,
+      accion: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(
-            TextosBilletera.sinPasanakus,
-            style: Tipo.cuerpoChico.copyWith(color: t.text2),
+          Boton(
+            texto: TextosBilletera.unirmeAUnGrupo,
+            variante: BotonVariante.primario,
+            expandido: true,
+            onPressed: () => context.push('/pasanaku/unirse-a-un-grupo'),
           ),
-          const SizedBox(height: Espacio.s3),
-          Wrap(
-            spacing: Espacio.s2,
-            runSpacing: Espacio.s2,
-            children: [
-              Boton(
-                texto: TextosBilletera.unirmeAUnGrupo,
-                onPressed: () => context.push('/pasanaku/unirse-a-un-grupo'),
-              ),
-              Boton(
-                texto: TextosBilletera.crearUnGrupo,
-                variante: BotonVariante.fantasma,
-                onPressed: () => context.push('/pasanaku/grupos/nuevo'),
-              ),
-            ],
+          const SizedBox(height: Espacio.s2),
+          Boton(
+            texto: TextosBilletera.crearUnGrupo,
+            variante: BotonVariante.secundario,
+            expandido: true,
+            onPressed: () => context.push('/pasanaku/grupos/nuevo'),
           ),
         ],
       ),
-    );
-  }
+    ),
+  );
 }

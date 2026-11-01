@@ -76,6 +76,9 @@ public class CU69Invitar {
                             Optional.of(anterior.get("id", UUID.class)), "Invitacion disponible para compartir.");
                 }
             }
+            // Iniciado el grupo no se invita a nadie mas (2026-10-30). La etapa del invitado NO se mira aca: se aplica
+            // cuando canjea o acepta, en su sesion; decirlo al emitir le contaria a quien invita la reputacion ajena.
+            GrupoAbierto.exigir(dsl, entrada.grupoId());
             // Reemision: una sola invitacion viva por numero y grupo (indice uq_invitacion_activa).
             // La anterior se CONSERVA: emitir otra exige revocarla antes, de forma explicita. Las
             // vencidas se cierran aca para que no estorben.
@@ -234,6 +237,8 @@ public class CU69Invitar {
         datos.conContexto(interno(ctx), dsl -> {
             if (!invitaciones.emisorHabilitado(dsl, grupoId, ctx.usuarioId()))
                 throw new ErrorDeNegocio(CodigoError.de(69, 7), "No podes invitar a este grupo.");
+            // Antes de pedirle el enlace a identidad: un grupo iniciado no deja un token emitido sin invitacion.
+            GrupoAbierto.exigir(dsl, grupoId);
             return null;
         });
     }

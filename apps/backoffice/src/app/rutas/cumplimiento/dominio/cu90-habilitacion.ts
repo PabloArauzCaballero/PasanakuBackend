@@ -1,7 +1,7 @@
 import { HttpClient, httpResource } from '@angular/common/http'
 import { inject, Signal } from '@angular/core'
 import type { Observable } from 'rxjs'
-import type { Habilitacion } from 'clientes/angular/organizador'
+import type { Habilitacion, SalidaHabilitacion } from 'clientes/angular/organizador/model/models'
 import { GATEWAY } from '../../../nucleo/gateway'
 import { contextoIdempotente } from '../../../nucleo/idempotencia.interceptor'
 
@@ -24,16 +24,17 @@ export function habilitacionDe(organizadorId: Signal<string>) {
 export const habilitacionVacia = (): boolean => false
 
 /**
- * `POST .../habilitacion` (`habilitarOrganizador`, CU-90). Clave de idempotencia
+ * `POST .../habilitacion` (`habilitarOrganizador`, CU-90). Responde `SalidaHabilitacion`: el estado que quedó y, si no
+ * se habilitó, lo que falta (`faltantes`). Clave de idempotencia
  * nueva por intento (invariante 7); el HTTP vive acá, nunca en la pantalla
  * (`scripts/verificar_frontend.py`: "sin red en vista"). Se llama en un campo de la
  * clase (contexto de inyección) y devuelve la función que de verdad dispara el POST.
  */
-export function crearHabilitar(): (organizadorId: string) => Observable<Habilitacion> {
+export function crearHabilitar(): (organizadorId: string) => Observable<SalidaHabilitacion> {
   const http = inject(HttpClient)
   const gateway = inject(GATEWAY)
   return (organizadorId: string) => {
     const contexto = contextoIdempotente()
-    return http.post<Habilitacion>(`${gateway}/organizadores/${organizadorId}/habilitacion`, {}, { context: contexto })
+    return http.post<SalidaHabilitacion>(`${gateway}/organizadores/${organizadorId}/habilitacion`, {}, { context: contexto })
   }
 }

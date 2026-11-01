@@ -1,0 +1,8 @@
+$ ./gradlew :servicios:nucleo-financiero:generarClienteDart --no-build-cache --rerun-tasks  (exit=0)
+$ dart run build_runner build --delete-conflicting-outputs  (exit=0)
+  Built with build_runner/aot in 13s; wrote 104 outputs.
+$ grep cobroQr / pagarRecargaDePrueba / enum
+90:  final CobroQrRecarga? cobroQr;
+1597:  Future<Response<SalidaAcreditacion>> pagarRecargaDePrueba({ 
+75:@JsonValue(r'PRUEBA')
+77:@JsonValue(r'BANCO')

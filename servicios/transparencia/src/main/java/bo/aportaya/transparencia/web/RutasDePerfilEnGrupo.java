@@ -50,7 +50,8 @@ abstract class RutasDePerfilEnGrupo implements ReputacionApi {
         return perfil.factores()
                 .map(f -> new bo.aportaya.transparencia.web.generado.modelo.PerfilDeReputacionEnGrupo(
                                 true, f.nivelConfianza(), insignias)
-                        .puntaje(f.puntaje().toPlainString())
+                        // Null cuando quien pregunta no es el dueño (ConsultarPerfilEnGrupo): el campo se omite.
+                        .puntaje(f.puntaje() == null ? null : f.puntaje().toPlainString())
                         .indicePuntualidad(f.indicePuntualidad().toPlainString())
                         .gruposCompletados(f.gruposCompletados())
                         .gruposAbandonados(f.gruposAbandonados())

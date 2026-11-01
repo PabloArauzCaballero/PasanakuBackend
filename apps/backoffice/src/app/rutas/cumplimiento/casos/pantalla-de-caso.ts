@@ -1,22 +1,36 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input, OnInit, signal } from '@angular/core'
+import { RouterLink } from '@angular/router'
+import { Alerta } from '@aportaya/ui/alerta/alerta'
+import { Icono } from '@aportaya/ui/icono/icono'
+import type { CasoEnBandeja, SalidaDecisionCasoLft } from 'clientes/angular/cumplimiento'
 import { CabeceraDePagina } from '@aportaya/ui/cabecera-de-pagina/cabecera-de-pagina'
 import { ExplicadorDeVista } from '../../../nucleo/explicador-de-vista'
 import { ServicioBorrador } from '../../../nucleo/borrador'
 import { CATALOGO_DE_CAUSALES, etapasDelCaso, puedeConfirmar, type CasoDeCumplimiento } from '../dominio/cu44-caso'
 import { textosCumplimiento } from '../textos'
+import { textosLft } from '../textos-lft'
+import { DecidirCaso } from './decidir-caso'
 import { FormularioDeCaso } from './formulario-de-caso'
 
 /**
  * CU-44 · De alerta de monitoreo a reporte de operación sospechosa, con el patrón de
  * `debido-proceso` completo.
+ *
+ * «Confirmar decisión» antes solo borraba el borrador local: era un botón que no hacía nada
+ * (2026-10-26). Ahora abre la decisión real del caso (`decidirCasoLft`, `DecidirCaso`) con la
+ * causal y la narrativa como punto de partida de la conclusión; el borrador se borra recién
+ * cuando el servidor registró la decisión. Quién puede decidir lo resuelve el servidor (403).
  */
 @Component({
   selector: 'ap-pantalla-de-caso',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CabeceraDePagina, FormularioDeCaso],
+  imports: [CabeceraDePagina, FormularioDeCaso, DecidirCaso, Alerta, Icono, RouterLink],
   template: `
     <section class="pantalla">
-      <ap-cabecera-de-pagina [titulo]="t.titulo" [descripcion]="t.proposito" icono="candado" />
+      <a class="volver" routerLink="/cumplimiento/casos"><ap-icono nombre="flechaIzquierda" tamano="s4" />Volver a los casos</a>
+      <ap-cabecera-de-pagina [eyebrow]="'Cumplimiento · caso ' + casoId()" [titulo]="t.titulo" [descripcion]="t.proposito" />
+      @if (recibo()) { <ap-alerta tono="ok">{{ recibo() }}</ap-alerta> }
+      <div class="tarjeta">
       <ap-formulario-de-caso
         [etapas]="progreso().etapas"
         [etapaActual]="progreso().actual"
@@ -33,10 +47,15 @@ import { FormularioDeCaso } from './formulario-de-caso'
         (seEscribioNarrativa)="alEscribirNarrativa($event)"
         (seQuiereConfirmar)="confirmar()"
       />
+      </div>
+      <ap-decidir-caso [(abierto)]="decidiendo" [caso]="casoParaDecidir()" [conclusionInicial]="conclusionInicial()" (decidio)="alDecidir($event)" />
     </section>
   `,
   styles: `
-    .pantalla { padding: var(--s5); max-width: 40rem; display: flex; flex-direction: column; gap: var(--s4); }
+    .pantalla { display: flex; flex-direction: column; gap: var(--s4); min-width: 0; }
+    .tarjeta { padding: var(--s5); border: var(--borde-fino) solid var(--border); border-radius: var(--r-lg); background: var(--surface); box-shadow: var(--sombra-1); }
+    .volver { display: inline-flex; align-items: center; gap: var(--s1); align-self: flex-start; min-height: var(--area-tactil); color: var(--brand-texto); font: var(--t-cuerpo-chico); font-weight: 600; text-decoration: none; }
+    .volver:focus-visible { outline: var(--borde-foco) solid var(--g300); outline-offset: var(--borde-desfase); }
   `,
 })
 export class PantallaDeCaso implements OnInit {
@@ -100,8 +119,24 @@ export class PantallaDeCaso implements OnInit {
     void this.servicioBorrador.guardar(this.claveBorrador(), valor)
   }
 
+  protected readonly decidiendo = signal(false)
+  protected readonly recibo = signal<string | null>(null)
+  /** La bandeja no viaja hasta acá: el diálogo solo necesita el id y cómo nombrar el caso. */
+  protected readonly casoParaDecidir = computed(() => ({ casoId: this.casoId(), codigo: this.casoId() }) as CasoEnBandeja)
+  protected readonly conclusionInicial = computed(() => {
+    const causal = CATALOGO_DE_CAUSALES.find((c) => c.valor === this.causal())?.texto
+    return [causal ? `Causal: ${causal}.` : '', this.narrativa().trim()].filter(Boolean).join(' ')
+  })
+
   protected confirmar(): void {
     if (!this.puedeConfirmarComputado()) return
+    this.decidiendo.set(true)
+  }
+
+  protected alDecidir(salida: SalidaDecisionCasoLft): void {
     void this.servicioBorrador.borrar(this.claveBorrador())
+    this.borradorRecuperado.set(false)
+    const decisiones = textosLft.decisiones
+    this.recibo.set(textosLft.decision.recibo(decisiones[salida.decision] ?? salida.decision, salida.alertasCerradas, salida.fueraDePlazo))
   }
 }

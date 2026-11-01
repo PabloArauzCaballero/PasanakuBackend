@@ -1,0 +1,19 @@
+$ npx ng test --include='src/app/rutas/contabilidad/**/*.spec.ts' --exclude='src/**/*.a11y.spec.ts'
+ Test Files  18 passed (18)
+      Tests  185 passed (185)
+exit=0
+$ npx ng test --include='src/app/rutas/contabilidad/**/*.a11y.spec.ts'
+ Test Files  6 passed (6)
+      Tests  9 passed (9)
+exit=0
+$ npx ng test --include='src/app/rutas/configuracion/**/*.spec.ts' --exclude='src/**/*.a11y.spec.ts'
+ Test Files  7 passed (7)
+      Tests  29 passed (29)
+exit=0
+$ npx ng test --include='src/app/rutas/configuracion/**/*.a11y.spec.ts'
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+exit=0
+$ npx ng test --include=src/app/rutas/publicidad/**/*.spec.ts  (consumidor de estado-de-listado y listado.apoyo)
+ Test Files  11 passed (11)
+      Tests  50 passed (50)

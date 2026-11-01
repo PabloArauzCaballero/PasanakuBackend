@@ -16,7 +16,7 @@ class TextosInvitacion {
   static const telefonoInvitado = 'Celular de la persona';
   static const nombreSugerido = 'Cómo la conocés (opcional)';
   static const canalInvitacion = 'Por dónde se la vas a mandar';
-  static const enviarInvitacion = 'Invitar';
+  static const enviarInvitacion = 'Crear la invitación';
   static const invitacionCreadaTitulo = 'Invitación creada';
   // AportaYa no manda SMS ni WhatsApp por su cuenta: el enlace sale del teléfono de
   // quien invita (2026-10-18). Decir «le va a llegar» prometía un envío que no existe.
@@ -28,6 +28,9 @@ class TextosInvitacion {
   static const noSePudoAbrir =
       'No pudimos abrir esa app. Copiá el enlace y pegalo en el chat que quieras.';
   static String invitacionVence(String cuando) => 'Vence el $cuando.';
+  static const qrEtiqueta = 'Código QR de la invitación';
+  static const mostrarElQr =
+      'Si está con vos, mostrale este QR: lo lee desde «Escanear invitación».';
   static const enlaceDeInvitacion = 'Enlace de la invitación';
   static const copiarEnlace = 'Copiar enlace';
   static const copiado = 'Copiado';
@@ -48,14 +51,14 @@ class TextosInvitacion {
   static const verMisGrupos = 'Ver mis grupos';
   static const reintentar = 'Reintentar';
   static const enviandoInvitacion = 'Enviando la invitación…';
-  static const invitacionEnviada =
-      'Listo. Le avisamos, con quién y a qué grupo.';
 
   // Escanear una invitación
   static const tituloEscanear = 'Escanear invitación';
   static const escanearAyuda =
       'Apuntá la cámara al QR de la invitación que te mandó el organizador.';
   static const escanearAbriendo = 'Abriendo la cámara…';
+  static const escanearPista = 'Centrá el QR dentro del marco';
+  static const sinCamaraTitulo = '¿No podés escanear?';
   static const escanearRechazo =
       'Ese QR no es una invitación de AportaYa. Probá con otro.';
   static const camaraDenegadaTitulo = 'No podemos usar la cámara';

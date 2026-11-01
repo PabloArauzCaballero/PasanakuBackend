@@ -56,7 +56,7 @@ fn_<dominio>_<accion>  función
 | `R-LIC` | Licencia y gobierno | 4 |
 | `R-GRP` | Circuito del pasanaku y gobernanza | 16 |
 | `R-RIS` | Riesgo operativo y continuidad | 3 |
-| `R-REP` | Reputación y transparencia | 6 |
+| `R-REP` | Reputación y transparencia | 7 |
 | `R-NOT` | Notificaciones | 3 |
 | `R-GAR` | Garantía, incumplimiento y cobranza | 13 |
 | `R-DES` | Desembolsos y entregas | 5 |
@@ -2164,6 +2164,7 @@ ALTER TABLE prueba_continuidad
 | R-REP-04 | La cadena de bloques es única y encadenada por grupo | Integridad de la evidencia | [[CU-72 Sellar el bloque de transparencia]] |
 | R-REP-05 | Una insignia por usuario, y la revocación no la borra | Transparencia | [[CU-74 Otorgar y revocar una insignia]] |
 | R-REP-06 | Una reseña por autor, evaluado, grupo y dimensión; nadie se reseña | No discriminación arbitraria | [[CU-76 Reseñar a un participante y moderar la reseña]] |
+| R-REP-07 | Las etapas son tramos del puntaje sin solape dentro de su modelo | Transparencia · una sola etapa por puntaje | [[CU-71 Recalcular el puntaje de reputación]] |
 
 ```sql
 -- R-REP-01 · un hecho puntúa una sola vez
@@ -2257,6 +2258,23 @@ END $$ LANGUAGE plpgsql;
 CREATE TRIGGER tg_resena_convivencia
   BEFORE INSERT ON resena_participante
   FOR EACH ROW EXECUTE FUNCTION fn_rep_validar_resena();
+
+-- R-REP-07 · etapas: tramos del puntaje sin solape dentro de su modelo
+-- Cada etapa es [desde, hasta). Dos etapas del mismo modelo que se pisan le darian
+-- dos etapas a un mismo puntaje, y la etapa minima de un grupo dejaria de ser una
+-- frontera. El hueco entre etapas no lo impide una fila sola: lo delata la consulta
+-- de verificacion R-REP-07 (abajo).
+-- Se verifica AL CONFIRMAR: mover la frontera entre dos etapas son dos filas, y la
+-- semilla las corrige en una sola sentencia (ON CONFLICT DO UPDATE). Chequeada fila
+-- por fila, subir una frontera chocaba con la etapa de arriba todavia sin mover y la
+-- correccion del catalogo no se podia aplicar. Al confirmar, el solape sigue sin entrar.
+ALTER TABLE etapa
+  ADD CONSTRAINT ck_etapa_tramo CHECK (desde < hasta),
+  ADD CONSTRAINT ex_etapa_sin_solape
+  EXCLUDE USING gist (
+    modelo_id WITH =,
+    numrange(desde, hasta, '[)') WITH &&
+  ) DEFERRABLE INITIALLY DEFERRED;
 ```
 
 ---
@@ -3630,6 +3648,17 @@ SELECT c.id FROM capacidad_respaldo c
         SELECT SUM(r.monto_reservado - r.monto_liberado) AS vivo
           FROM reserva_respaldo r WHERE r.capacidad_respaldo_id = c.id) l ON TRUE
  WHERE c.monto_comprometido <> COALESCE(l.vivo, 0);
+
+-- R-REP-07 · huecos entre etapas consecutivas de un mismo modelo
+--     La restriccion impide el solape; el hueco solo se ve mirando la vecina. Un
+--     puntaje que cae en un hueco se queda sin etapa.
+SELECT a.modelo_id, a.codigo, a.hasta, s.codigo AS siguiente, s.desde
+  FROM etapa a
+  JOIN LATERAL (
+        SELECT b.codigo, b.desde FROM etapa b
+         WHERE b.modelo_id = a.modelo_id AND b.orden > a.orden
+         ORDER BY b.orden LIMIT 1) s ON TRUE
+ WHERE s.desde <> a.hasta;
 ```
 
 ## Cómo se aplica

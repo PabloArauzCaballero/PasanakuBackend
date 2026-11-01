@@ -6,6 +6,7 @@ import 'package:aportaya_diseno/organismos/estado_vacio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:aportaya_diseno/organismos/pantalla_con_cabecera.dart';
 
 import '../../dominio/cu13_cuenta_propia.dart';
 import '../../dominio/errores.dart';
@@ -149,8 +150,10 @@ Widget _estadoSinAcceso(
 }
 
 /// Lo mismo para las pantallas interiores (recargar, retirar, transferir, extracto): mientras la
-/// cuenta no está resuelta, un marco con el título y el estado; resuelta, la pantalla real.
-class PantallaConCuenta extends StatelessWidget {
+/// cuenta no está resuelta, un marco con el título y el estado; resuelta, **la pantalla real sin
+/// el marco**. Antes el marco seguía puesto y la pantalla de adentro traía su propia barra: el
+/// título aparecía dos veces, apilado.
+class PantallaConCuenta extends ConsumerWidget {
   const PantallaConCuenta({
     super.key,
     required this.titulo,
@@ -163,11 +166,20 @@ class PantallaConCuenta extends StatelessWidget {
   final Widget Function(String cuentaId) construir;
 
   @override
-  Widget build(BuildContext context) {
-    if (cuentaId != null && cuentaId!.isNotEmpty) return construir(cuentaId!);
+  Widget build(BuildContext context, WidgetRef ref) {
+    final conocida = cuentaId;
+    if (conocida != null && conocida.isNotEmpty) return construir(conocida);
+    final resuelta = ref.watch(cuentaPropiaProvider).asData?.value;
+    if (resuelta != null) return construir(resuelta.cuentaId);
     return Scaffold(
-      appBar: AppBar(title: Text(titulo)),
-      body: SafeArea(child: ResolverCuenta(construir: construir)),
+      // Cabecera grande que se compacta al desplazar (ADR-053, H4.S2.M6).
+      body: PantallaConCabecera(
+        titulo: titulo,
+        cuerpo: SafeArea(
+          top: false,
+          child: ResolverCuenta(construir: construir),
+        ),
+      ),
     );
   }
 }

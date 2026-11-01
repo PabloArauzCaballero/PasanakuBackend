@@ -1,0 +1,41 @@
+## 1. Segunda corrida del generador
+$ python3 scripts/generar_ddl.py && git diff --stat -- sql docs/entidades
+Sin pendientes a nivel de datos.
+ 4 files changed, 14 insertions(+), 1 deletion(-)
+
+## 2. jOOQ generado desde la base viva conoce las columnas
+$ grep -c "QR_CONTENIDO\|QR_ORIGEN" build/generated/jooq/**/OrdenRecarga.java
+   1 QR_CONTENIDO
+   1 QR_ORIGEN
+
+## 3. Despliegue sobre la base VIEJA (esquema de origin/test ebe0ceb0, sin columnas qr_)
+$ bash /aplicar-esquema.sh   (PGHOST=localhost PGDATABASE=aportaya, sql/ nuevo)  — corrida 1
+esquema: esperando a localhost
+esquema: columnas expandidas: 2
+esquema: restricciones CHECK actualizadas: 1
+esquema:   + columna agregada nucleo_financiero.orden_recarga.qr_contenido
+esquema:   + columna agregada nucleo_financiero.orden_recarga.qr_origen
+esquema:   + restriccion actualizada nucleo_financiero.orden_recarga.ck_orden_recarga_qr_origen
+esquema: aplicando sql/aplicar.sql
+esquema: catalogos minimos (sql/60_semillas)
+esquema: 443 tablas en aportaya
+esquema: listo
+exit=0
+
+$ corrida 2 (idempotencia)
+esquema: columnas expandidas: 0
+esquema: restricciones CHECK actualizadas: 0
+esquema: listo
+
+$ psql: columnas y CHECK resultantes
+ column_name  |     data_type     | character_maximum_length | is_nullable 
+--------------+-------------------+--------------------------+-------------
+ qr_contenido | character varying |                      512 | YES
+ qr_origen    | character varying |                       10 | YES
+(2 rows)
+
+          conname           
+----------------------------
+ ck_orden_recarga_qr_origen
+(1 row)
+

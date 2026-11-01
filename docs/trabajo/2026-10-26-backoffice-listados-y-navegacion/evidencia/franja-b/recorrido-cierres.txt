@@ -1,0 +1,24 @@
+PASS cierres: primera página GET /contabilidad/cierres-diarios?limite=10 sin cursor
+PASS cierres: la tabla pinta la página del simulado
+PASS cierres: Siguiente pide con el cursor (antesDeId=e5309fbb…)
+PASS cierres: Anterior vuelve a la página 1 sin cursor
+PASS cierres: Filas por página = 20 pide limite=20
+PASS cierres: filtro local Resultado=Cuadrado no vuelve a pedir y deja la fila
+PASS cierres: buscar por cierreId encuentra la fila
+PASS cierres: CSV sin coincidencias baja solo el encabezado (historial-de-cierres-2026-10-26.csv)
+PASS cierres: CSV de lo filtrado con el importe como se ve («4,44 (moneda no registrada)») · historial-de-cierres-2026-10-26.csv
+PASS cierres: JSON con 1 fila(s) filtrada(s) · historial-de-cierres-2026-10-26.json
+PASS cierres: límite · 25 filas, 10 por página ⇒ 10 en la página 1
+PASS cierres: límite · Ir a 3 ⇒ última página parcial (5 filas) y Siguiente deshabilitado
+PASS cierres: límite · una sola fila ⇒ Página 1 de 1
+PASS cierres: límite · colección vacía ⇒ vacío explicado («Todavía no hay días cerrados.»)
+PASS cierres: error · 500 ⇒ mensaje accionable con código de seguimiento, sin el crudo
+PASS cierres: error · «Volver a intentar» repite la petición y se recupera
+PASS cierres: error · 403 ⇒ «No tenés acceso a esta bandeja.»
+PASS cierres: 768px light sin desborde horizontal (scrollWidth=768)
+PASS cierres: 768px light consola sin errores
+PASS cierres: 375px light sin desborde horizontal (scrollWidth=375)
+PASS cierres: 375px light consola sin errores
+PASS cierres: 1280px dark sin desborde horizontal (scrollWidth=1280)
+PASS cierres: 1280px dark consola sin errores
+PASS cierres: consola sin errores (salvo los 403/500 provocados) []

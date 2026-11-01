@@ -1,0 +1,66 @@
+{
+ "rol": "PLATAFORMA",
+ "sinReposo": true,
+ "latencia": 150,
+ "cpu": 4,
+ "chunksAntesDeMedir": 21,
+ "chunksEnReposo": 21,
+ "medidas": [
+  {
+   "entrada": "Inicio",
+   "destino": "/tablero",
+   "url": "/tablero",
+   "ms": 251,
+   "chunksPedidosAlNavegar": 4,
+   "pinto": true
+  },
+  {
+   "entrada": "Operación",
+   "destino": "/operacion/retiros",
+   "url": "/operacion/retiros",
+   "ms": 1229,
+   "chunksPedidosAlNavegar": 18,
+   "pinto": true
+  },
+  {
+   "entrada": "Cumplimiento",
+   "destino": "/cumplimiento/verificaciones",
+   "url": "/cumplimiento/verificaciones",
+   "ms": 873,
+   "chunksPedidosAlNavegar": 5,
+   "pinto": true
+  },
+  {
+   "entrada": "Contabilidad",
+   "destino": "/contabilidad",
+   "url": "/contabilidad",
+   "ms": 1024,
+   "chunksPedidosAlNavegar": 6,
+   "pinto": true
+  },
+  {
+   "entrada": "Publicidad",
+   "destino": "/publicidad/anunciantes",
+   "url": "/publicidad/anunciantes",
+   "ms": 857,
+   "chunksPedidosAlNavegar": 6,
+   "pinto": true
+  },
+  {
+   "entrada": "Sistemas",
+   "destino": "/sistemas/servicios",
+   "url": "/sistemas/servicios",
+   "ms": 2413,
+   "chunksPedidosAlNavegar": 61,
+   "pinto": true
+  },
+  {
+   "entrada": "Configuración",
+   "destino": "/configuracion/tarifario",
+   "url": "/configuracion/tarifario",
+   "ms": 487,
+   "chunksPedidosAlNavegar": 6,
+   "pinto": true
+  }
+ ]
+}

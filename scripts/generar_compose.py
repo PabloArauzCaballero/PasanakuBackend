@@ -40,6 +40,8 @@ COMUNES = {
     # Tableros: relleno de indicadores al arrancar (meses y dias cerrados hacia atras).
     "INDICADORES_RELLENO_MESES": "13",
     "INDICADORES_RELLENO_DIAS": "35",
+    # SLO de disponibilidad de todos los servicios (decision del 2026-10-29); el mismo default que application.yml.
+    "SALUD_OBJETIVO_SLO": "99.5",
     "PROMETHEUS_URL": "http://prometheus:9090",
     "BD_URL": "jdbc:postgresql://pgbouncer:6432/pasanaku",
     "BD_CLAVE": "pasanaku",
@@ -96,6 +98,14 @@ DE_DESARROLLO = {
     "ENTREGAS_SERVICIO_CLAVE": "",
     "ENTREGAS_SERVICIO_TOTP_SEMILLA": "",
     "ENTREGAS_SERVICIO_FACTOR_FIJO": "",
+    # Cuenta de servicio de grupos en identidad (rol SERVICIO_GRUPOS): con ella grupos lee la etapa de reputacion de
+    # quien entra a un grupo (GET /reputacion/etapas/de-personas). Vacias en el repo: las pone quien opera el entorno;
+    # sin ellas toda alta de grupo y todo ingreso fallan cerrados.
+    "GRUPOS_TRANSPARENCIA_CREDENCIAL_SERVICIO": "",
+    "GRUPOS_SERVICIO_TELEFONO": "",
+    "GRUPOS_SERVICIO_CLAVE": "",
+    "GRUPOS_SERVICIO_TOTP_SEMILLA": "",
+    "GRUPOS_SERVICIO_FACTOR_FIJO": "",
     "NUCLEO_FINANCIERO_URL": "http://nucleo-financiero:8080",
     # El mismo literal que application-local.yml (en local el perfil lo ignora).
     "APORTAYA_CORS_ORIGENES": "http://localhost:4200",
@@ -150,6 +160,9 @@ DE_DESARROLLO = {
     # EN_APERTURA la deja cerrada a toda operacion hasta que exista una senal de activacion (hoy no existe).
     # aportes (carril Q) · compensacion del aporte PAGADO que nucleo no pudo aplicar por falta de saldo: ENCENDIDA.
     "COMPENSACION_CONSUMO_HABILITADO": "true",
+    # aportes (R-GRP-20) · abre la cuota 1 de cada cupo cuando grupos emite grupo_iniciado: ENCENDIDO.
+    # Sin el, ningun grupo puede sortear (AP-CU60-11: la cuota 1 nunca llega a PAGADO).
+    "GRUPO_INICIADO_CONSUMO_HABILITADO": "true",
     "APERTURA_USUARIOS_HABILITADO": "true",
     "APERTURA_GRUPOS_HABILITADO": "true",
     "APERTURA_ESTADO_INICIAL_USUARIO": "ACTIVA",
@@ -164,6 +177,7 @@ DE_DESARROLLO = {
 COMUNES_DESPLEGADO = {
     "INDICADORES_RELLENO_MESES": "${INDICADORES_RELLENO_MESES:-13}",
     "INDICADORES_RELLENO_DIAS": "${INDICADORES_RELLENO_DIAS:-35}",
+    "SALUD_OBJETIVO_SLO": "${SALUD_OBJETIVO_SLO:-99.5}",
     # Vacio por omision en TEST: sin Prometheus en el host, el tablero de sistemas dice «fuente no disponible».
     "PROMETHEUS_URL": "${PROMETHEUS_URL:-}",
     "BD_URL": "jdbc:postgresql://pgbouncer:6432/pasanaku",
@@ -218,6 +232,14 @@ DE_ENTORNO = {
     "ENTREGAS_SERVICIO_CLAVE": "",
     "ENTREGAS_SERVICIO_TOTP_SEMILLA": "",
     "ENTREGAS_SERVICIO_FACTOR_FIJO": "",
+    # Cuenta de servicio de grupos en identidad (rol SERVICIO_GRUPOS): con ella grupos lee la etapa de reputacion de
+    # quien entra a un grupo (GET /reputacion/etapas/de-personas). Vacias en el repo: las pone quien opera el entorno;
+    # sin ellas toda alta de grupo y todo ingreso fallan cerrados.
+    "GRUPOS_TRANSPARENCIA_CREDENCIAL_SERVICIO": "",
+    "GRUPOS_SERVICIO_TELEFONO": "",
+    "GRUPOS_SERVICIO_CLAVE": "",
+    "GRUPOS_SERVICIO_TOTP_SEMILLA": "",
+    "GRUPOS_SERVICIO_FACTOR_FIJO": "",
     "NUCLEO_FINANCIERO_URL": "http://nucleo-financiero:8080",
     # Solo la leen staging/production (application-<perfil>.yml): sin valor por omision y nunca
     # `*`; el servicio no arranca si falta. Con el perfil `local` no tiene efecto. No es un secreto.
@@ -255,6 +277,7 @@ DE_ENTORNO = {
     "APERTURA_CONSUMO_HABILITADO": "${APERTURA_CONSUMO_HABILITADO:-true}",
     "CONSUMO_DE_APORTES_HABILITADO": "${CONSUMO_DE_APORTES_HABILITADO:-true}",
     "COMPENSACION_CONSUMO_HABILITADO": "${COMPENSACION_CONSUMO_HABILITADO:-true}",
+    "GRUPO_INICIADO_CONSUMO_HABILITADO": "${GRUPO_INICIADO_CONSUMO_HABILITADO:-true}",
     "APERTURA_USUARIOS_HABILITADO": "${APERTURA_USUARIOS_HABILITADO:-true}",
     "APERTURA_GRUPOS_HABILITADO": "${APERTURA_GRUPOS_HABILITADO:-true}",
     "APERTURA_ESTADO_INICIAL_USUARIO": "${APERTURA_ESTADO_INICIAL_USUARIO:-ACTIVA}",

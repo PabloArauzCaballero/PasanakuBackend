@@ -99,6 +99,54 @@ paths:
   # Sus codigos quedan declarados igual: el catalogo de errores es del contrato, no
   # del transporte.
 
+  /notificaciones/proveedores:
+    get:
+      operationId: listarProveedoresDeMensajeria      # Sistemas › Proveedores (2026-10-29)
+      summary: Los proveedores de mensajeria dados de alta, por prioridad
+      description: >-
+        Solo lectura de notificaciones.proveedor_mensajeria. Nunca devuelve referencia_credenciales ni url_base, y
+        tampoco costo_por_mensaje: la tabla no guarda su moneda (regla 91.1.2). Exige TABLERO_SISTEMAS_VER o
+        AUDITORIA_LEER.
+      responses:
+        '200':
+          description: Los proveedores
+          content:
+            application/json:
+              schema:
+                type: array
+                maxItems: 200
+                items: { $ref: '#/components/schemas/ProveedorDeMensajeriaResumen' }
+        '403':
+          description: Sin TABLERO_SISTEMAS_VER ni AUDITORIA_LEER
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+
+  /notificaciones/webhooks-recibidos:
+    get:
+      operationId: listarEventosDeEntregaRecibidos      # Sistemas › Webhooks (2026-10-29)
+      summary: Los ultimos avisos de entrega que mandaron los proveedores de mensajeria
+      description: >-
+        Solo lectura de notificaciones.evento_entrega_mensaje con el proveedor y el canal de su envio, del mas
+        reciente al mas viejo (recibido_en desc, id). Nunca devuelve el payload ni la clave de idempotencia, ni nada
+        que identifique a quien recibio el mensaje. Exige TABLERO_SISTEMAS_VER o AUDITORIA_LEER.
+      parameters:
+        - { name: limite, in: query, required: false, schema: { type: integer, minimum: 1, maximum: 100, default: 50 } }
+      responses:
+        '200':
+          description: Los avisos
+          content:
+            application/json:
+              schema:
+                type: array
+                maxItems: 100
+                items: { $ref: '#/components/schemas/EventoDeEntregaRecibido' }
+        '400':
+          description: limite fuera de su dominio
+        '403':
+          description: Sin TABLERO_SISTEMAS_VER ni AUDITORIA_LEER
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+
   /notificaciones/plantillas:
     get:
       operationId: listarPlantillas             # CU-80 (backoffice carril A · A6)
@@ -449,6 +497,30 @@ components:
         moneda:
           type: string
           enum: [BOB, USD]
+    ProveedorDeMensajeriaResumen:
+      type: object
+      additionalProperties: false
+      required: [id, codigo, nombre, canales, activo, prioridad, saludPorcentaje]
+      properties:
+        id: { type: string, format: uuid }
+        codigo: { type: string, maxLength: 30 }
+        nombre: { type: string, maxLength: 80 }
+        canales: { type: string, maxLength: 120, description: 'Los canales que soporta, tal como los declara el proveedor' }
+        activo: { type: boolean }
+        prioridad: { type: integer }
+        saludPorcentaje: { type: string, description: 'Decimal exacto en texto (NUMERIC(5,2))' }
+    EventoDeEntregaRecibido:
+      type: object
+      additionalProperties: false
+      required: [id, proveedorCodigo, canal, tipoEvento, recibidoEn, fechaHoraProveedor]
+      properties:
+        id: { type: string, format: uuid }
+        proveedorCodigo: { type: string, maxLength: 30 }
+        canal: { type: string, maxLength: 15 }
+        tipoEvento: { type: string, enum: [ENTREGADO, ENVIADO, EXPIRADO, FALLIDO, LEIDO, RECHAZADO] }
+        recibidoEn: { type: string, format: date-time }
+        fechaHoraProveedor: { type: string, format: date-time }
+        codigoError: { type: string, maxLength: 40 }
     Error:
       type: object
       additionalProperties: false

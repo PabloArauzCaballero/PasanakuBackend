@@ -1,0 +1,3 @@
+Golden "imagenes/escanear_denegado_movil_claro.png": Pixel test failed, 31.29%, 72102px diff
+Golden "imagenes/escanear_denegado_tableta_claro.png": Pixel test failed, 18.82%, 147977px diff
+Golden "imagenes/escanear_denegado_escritorio_claro.png": Pixel test failed, 23.75%, 243204px diff

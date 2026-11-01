@@ -40,6 +40,7 @@ public class CU68AceptarIngreso {
     private final Outbox outbox;
     private final Reloj reloj;
     private final OrganizadorDecideIngreso directo;
+    private final BandejaDeAdmisiones bandeja;
 
     @Autowired
     public CU68AceptarIngreso(
@@ -53,6 +54,7 @@ public class CU68AceptarIngreso {
         this.outbox = outbox;
         this.reloj = reloj;
         this.directo = new OrganizadorDecideIngreso(datos, outbox, emparejamientos);
+        this.bandeja = new BandejaDeAdmisiones(datos);
     }
 
     /** Sin tope de participaciones: para las pruebas que no miran esa regla. */
@@ -72,10 +74,37 @@ public class CU68AceptarIngreso {
 
     @Transactional
     public DecisionDeIngreso resolver(Entrada entrada, ContextoSesion ctx) {
+        exigirBackoffice(ctx);
+        return decidir(entrada, ctx, true);
+    }
+
+    /**
+     * Si aceptar esta solicitud exige mirar la etapa del solicitante. Autoriza PRIMERO, con las mismas reglas que
+     * {@link #proponer}/{@link #resolver}: sin esto, quien organiza otro grupo usaba la respuesta de la etapa como
+     * oraculo de la reputacion ajena (regla 90.2.8, BOLA). Falso cuando la clave ya registro su decision: el
+     * reintento devuelve la original sin volver a preguntarle a {@code transparencia} (regla 96.3.3). Sin escribir y
+     * fuera de la transaccion de decidir (invariante 6); {@link #decidir} vuelve a comprobar todo con las filas
+     * tomadas.
+     */
+    @Transactional(readOnly = true)
+    public boolean exigeEtapaAlAceptar(UUID solicitudId, UUID clave, ContextoSesion ctx, boolean definitiva) {
+        if (definitiva) exigirBackoffice(ctx);
+        return datos.conContexto(ctx, dsl -> {
+            var solicitud = admision.ver(dsl, solicitudId);
+            if (!definitiva && !admision.esAdministrador(dsl, solicitud.grupoId(), ctx.usuarioId())) {
+                throw error("Solo el administrador de este grupo puede proponer la admisión.");
+            }
+            if (solicitud.usuarioId().equals(ctx.usuarioId())) {
+                throw error("Nadie puede decidir su propia admisión.");
+            }
+            return clave == null || admision.porClave(dsl, clave).isEmpty();
+        });
+    }
+
+    private static void exigirBackoffice(ContextoSesion ctx) {
         if (!"BACKOFFICE".equals(ctx.rol()) && !"ADMIN_PLATAFORMA".equals(ctx.rol())) {
             throw error("Solo backoffice puede resolver la admisión.");
         }
-        return decidir(entrada, ctx, true);
     }
 
     private DecisionDeIngreso decidir(Entrada entrada, ContextoSesion ctx, boolean definitiva) {
@@ -127,6 +156,7 @@ public class CU68AceptarIngreso {
             } else if (entrada.propuestaId() != null) {
                 throw error("Una propuesta no puede suplantar una resolución.");
             }
+            if ("ACEPTAR".equals(entrada.decision())) GrupoAbierto.exigir(dsl, solicitud.grupoId());
             UUID participante = null;
             if (definitiva && "ACEPTAR".equals(entrada.decision())) {
                 participante = admision.reservarAdmision(dsl, solicitud);
@@ -197,6 +227,12 @@ public class CU68AceptarIngreso {
         return directo.pendientes(grupoId, ctx);
     }
 
+    /** La bandeja general del backoffice (H4.B.M1), de todos los grupos: {@link BandejaDeAdmisiones}. */
+    @Transactional(readOnly = true)
+    public List<FilaDeBandeja> bandeja(String estado, Integer limite, ContextoSesion ctx) {
+        return bandeja.leer(estado, limite, ctx);
+    }
+
     @Transactional
     public Resultado decidir(
             UUID solicitudId, boolean aceptar, String motivo, java.math.BigDecimal reputacion, ContextoSesion ctx) {
@@ -212,6 +248,20 @@ public class CU68AceptarIngreso {
     public record Solicitud(
             UUID id,
             UUID usuarioId,
+            int cuposSolicitados,
+            String mensaje,
+            java.math.BigDecimal puntaje,
+            String estado,
+            OffsetDateTime fecha,
+            String nombreVisible,
+            boolean porEnlace) {}
+
+    /** Una fila de la bandeja del backoffice; {@code estado} ya viene con los nombres de la pantalla. */
+    public record FilaDeBandeja(
+            UUID id,
+            UUID usuarioId,
+            UUID grupoId,
+            String grupoCodigo,
             int cuposSolicitados,
             String mensaje,
             java.math.BigDecimal puntaje,

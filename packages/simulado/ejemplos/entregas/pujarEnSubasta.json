@@ -1,0 +1,54 @@
+{
+  "servicio": "entregas",
+  "operacion": "pujarEnSubasta",
+  "metodo": "post",
+  "ruta": "/entregas/subastas/{subastaId}/pujas",
+  "escenarios": {
+    "ok": {
+      "estado": 201,
+      "cuerpo": {
+        "pujaId": "2cd0857f-c56e-4929-8164-1f3aaf23f0ea",
+        "estado": "PENDIENTE"
+      }
+    },
+    "vacio": {
+      "estado": 201,
+      "cuerpo": {
+        "pujaId": "2cd0857f-c56e-4929-8164-1f3aaf23f0ea",
+        "estado": "PENDIENTE"
+      }
+    },
+    "adverso": {
+      "estado": 201,
+      "cuerpo": {
+        "pujaId": "2cd0857f-c56e-4929-8164-1f3aaf23f0ea",
+        "estado": "PENDIENTE"
+      }
+    },
+    "aceptado": {
+      "estado": 202,
+      "cuerpo": {
+        "pujaId": "2cd0857f-c56e-4929-8164-1f3aaf23f0ea",
+        "estado": "PENDIENTE"
+      }
+    },
+    "intermitente": {
+      "estado": 503,
+      "cuerpo": {
+        "codigo": "AP-GW-503",
+        "mensaje": "El servicio no respondió",
+        "trazaId": "traza-intermitente"
+      },
+      "luego": "ok"
+    },
+    "rechazo": {
+      "estado": 422,
+      "cuerpo": {
+        "codigo": "AP-CU136-04",
+        "mensaje": "La operación fue rechazada por la regla AP-CU136-04.",
+        "detalle": {},
+        "trazaId": "traza-pujarEnSubasta-rechazo"
+      }
+    }
+  }
+}

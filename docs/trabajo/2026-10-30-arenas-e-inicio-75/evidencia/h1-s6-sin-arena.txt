@@ -1,0 +1,6 @@
+$ grep -rniw -E "arena|arenas|arenaMinima" (código, contratos, esquema, semillas, app)
+apps/movil/test/widget/camino_de_etapas_test.dart
+apps/movil/test/widget/etapa_y_refirma_del_grupo_test.dart
+apps/movil/test/widget/pantalla_recargar_test.dart
+clientes/dart/transparencia/lib/src/model/arena_del_puntaje.dart
+grep_exit=0

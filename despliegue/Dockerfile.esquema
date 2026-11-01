@@ -11,6 +11,10 @@
 # este marcada `app.entorno = 'dev'`, y un entorno de pruebas con datos reales no lo
 # esta.
 FROM postgres:16
+# La limpieza diaria de Coolify borra toda imagen sin contenedor que no lleve esta
+# etiqueta, y esta imagen la construye el host, no Coolify: sin ella el despliegue
+# siguiente falla con «No such image» (ver despliegue/TEST.md).
+LABEL coolify.managed=true
 
 COPY sql /sql
 COPY despliegue/aplicar-esquema.sh /aplicar-esquema.sh

@@ -1,0 +1,6 @@
+$ flutter test test/pasanaku
+00:17 +90: All tests passed!
+
+$ flutter build apk --release --dart-define=API=<TEST> --dart-define=HOSTS_PERMITIDOS=<TEST>
+Running Gradle task 'assembleRelease'...                          763,7s
+√ Built build\app\outputs\flutter-apk\app-release.apk (110.0MB)

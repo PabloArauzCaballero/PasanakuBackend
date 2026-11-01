@@ -90,13 +90,29 @@ class CatalogoDeDatosTest(unittest.TestCase):
         self.assertEqual(b["tipo"], "INFRAESTRUCTURA")
         self.assertEqual(b["servicio"], "identidad")
         self.assertTrue(b["negocio"]["negocio"])
-        self.assertTrue(b["negocio"]["queEs"].startswith("Borrador del alta incompleta"))
+        # «Qué es» sale del COMMENT ON TABLE que el generador del DDL escribe: la descripción oficial, no un encabezado.
+        self.assertEqual(b["negocio"]["queEs"], "Datos de un alta a medio llenar para retomarla; se borra al completar el alta.")
         self.assertGreater(b["clasificacion"]["personales"], 0)
         columnas = {c["nombre"]: c for c in b["columnas"]}
         self.assertEqual([n for n, c in columnas.items() if c["pk"]], ["correo"])
         self.assertEqual(columnas["fecha_nacimiento"]["tipo"], "DATE")
         self.assertFalse(columnas["paso_pendiente"]["nulable"])
         self.assertTrue(columnas["nombres"]["nulable"])
+
+    def test_operaciones_salen_de_los_casos_de_uso_y_la_matriz(self):
+        pago = self.por_nombre[("aportes", "pago")]["operaciones"]
+        codigos = [o["casoDeUso"] for o in pago]
+        self.assertIn("CU-21", codigos)
+        self.assertEqual(codigos, sorted(codigos, key=lambda c: int(c.split("-")[1])))
+        cu21 = next(o for o in pago if o["casoDeUso"] == "CU-21")
+        self.assertTrue(cu21["titulo"])
+        texto = next(cat.CASOS.glob("CU-21 *.md")).read_text(encoding="utf-8")
+        self.assertIn("[[pago", texto)  # la tabla figura porque el CU la enlaza, no por inferencia
+        matriz = cat.MATRIZ.read_text(encoding="utf-8")
+        for e in cu21["endpoints"]:
+            self.assertIn(f"| {e['servicio']} | {e['metodo']} | `{e['ruta']}` | `{e['operationId']}` |", matriz)
+        # Las de infraestructura no las nombra ningún caso de uso: sin operaciones.
+        self.assertEqual(self.por_nombre[("aportes", "evento_dominio")]["operaciones"], [])
 
     def test_narrativa_conserva_parrafos_y_vinetas(self):
         ficha = cat._ficha("### `x`\n**Para qué sirve (negocio).** Resuelve problemas\nprácticos:\n\n"

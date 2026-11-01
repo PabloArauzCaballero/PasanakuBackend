@@ -40,6 +40,10 @@ describe('CU-103 · segregación de funciones sobre el pago (R-CTB-05 · AP-CU10
     expect(motivoParaNoPagar(factura({ estado: 'ANULADA' }), true)).toContain('anulada')
   })
 
+  it('una factura registrada y todavía sin aprobar dice eso, no que no tiene saldo', () => {
+    expect(motivoParaNoPagar(factura({ estado: 'REGISTRADA' }), true)).toContain('todavía no está aprobada')
+  })
+
   it('una factura sin saldo pendiente no admite pago', () => {
     expect(admitePago(factura({ estado: 'PAGADA', saldoPendiente: { monto: '0.00', moneda: 'BOB' } }))).toBe(false)
   })

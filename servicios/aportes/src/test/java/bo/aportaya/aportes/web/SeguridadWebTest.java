@@ -25,6 +25,10 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 @PruebaWeb
 class SeguridadWebTest extends SabanaDeSeguridadWeb {
 
+    // Sistemas › Proveedores y Webhooks: comparte controlador.
+    @MockitoBean
+    private bo.aportaya.aportes.aplicacion.ConsultarPlataformaDePagos consultarPlataforma;
+
     @MockitoBean
     private CU19ReembolsarPago cu19ReembolsarPago;
 
@@ -52,4 +56,8 @@ class SeguridadWebTest extends SabanaDeSeguridadWeb {
     // El controlador tambien responde el recaudo diario (CU-51, carril A · H8): sin este doble no carga.
     @org.springframework.test.context.bean.override.mockito.MockitoBean
     private bo.aportaya.aportes.aplicacion.ConsultarRecaudoDiario recaudosDiarios;
+
+    // El controlador tambien responde la primera cuota (R-GRP-20): sin este doble no carga.
+    @org.springframework.test.context.bean.override.mockito.MockitoBean
+    private bo.aportaya.aportes.aplicacion.ConsultarPrimeraCuota primeraCuota;
 }

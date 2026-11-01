@@ -1,0 +1,132 @@
+PASS · alertas · aceptado · lista con limite=25 y sin cursor · /cumplimiento/alertas?limite=25
+PASS · alertas · aceptado · buscar «R-3» deja 1 fila
+PASS · alertas · aceptado · CSV baja lo filtrado · alertas-de-monitoreo-lft-pagina-1-2026-10-26.csv · 2 líneas
+PASS · alertas · aceptado · JSON baja lo filtrado · alertas-de-monitoreo-lft-pagina-1-2026-10-26.json
+PASS · alertas · límite · sin coincidencias: vacío orientado y CSV solo con encabezado
+PASS · alertas · límite · «Quitar filtros» vuelve a mostrar la página
+PASS · alertas · aceptado · Siguiente pide la página 2 con el cursor del servidor · /cumplimiento/alertas?limite=25&despuesDeFecha=2026-01-01T00:00:00Z&despuesDeId=cursor-1
+PASS · alertas · aceptado · Anterior vuelve a la página 1
+PASS · alertas · aceptado · filas por página 10 → limite=10 · /cumplimiento/alertas?limite=10
+PASS · alertas · límite · Ir a 3 → última página parcial (1 fila) y Siguiente deshabilitado
+PASS · alertas · aceptado · filtro Estado viaja al servidor y vuelve a la página 1 · /cumplimiento/alertas?limite=10&estados=ESCALADA
+PASS · alertas · aceptado · «Abrir caso con la alerta R-1» abre su diálogo
+PASS · alertas · aceptado · sin botones Editar/Eliminar (el contrato no los tiene)
+PASS · alertas · límite · colección vacía: explica el porqué
+PASS · alertas · error · 500: mensaje accionable con traza, sin el texto crudo
+PASS · alertas · error · «Volver a intentar» repite el pedido y vuelve a la lista
+PASS · alertas · error · 403: sin acceso, sin tabla ni descarga
+PASS · casos · aceptado · lista con limite=25 y sin cursor · /cumplimiento/casos?limite=25
+PASS · casos · aceptado · buscar «LFT-3» deja 1 fila
+PASS · casos · aceptado · CSV baja lo filtrado · casos-de-investigacion-lft-pagina-1-2026-10-26.csv · 2 líneas
+PASS · casos · aceptado · JSON baja lo filtrado · casos-de-investigacion-lft-pagina-1-2026-10-26.json
+PASS · casos · límite · sin coincidencias: vacío orientado y CSV solo con encabezado
+PASS · casos · límite · «Quitar filtros» vuelve a mostrar la página
+PASS · casos · aceptado · Siguiente pide la página 2 con el cursor del servidor · /cumplimiento/casos?limite=25&despuesDePlazo=2026-01-01T00:00:00Z&despuesDeId=cursor-1
+PASS · casos · aceptado · Anterior vuelve a la página 1
+PASS · casos · aceptado · filas por página 10 → limite=10 · /cumplimiento/casos?limite=10
+PASS · casos · límite · Ir a 3 → última página parcial (1 fila) y Siguiente deshabilitado
+PASS · casos · aceptado · filtro Estado viaja al servidor y vuelve a la página 1 · /cumplimiento/casos?limite=10&estados=CERRADO
+PASS · casos · aceptado · «Decidir el caso LFT-1» abre su diálogo
+PASS · casos · aceptado · sin botones Editar/Eliminar (el contrato no los tiene)
+PASS · casos · límite · colección vacía: explica el porqué
+PASS · casos · error · 500: mensaje accionable con traza, sin el texto crudo
+PASS · casos · error · «Volver a intentar» repite el pedido y vuelve a la lista
+PASS · casos · error · 403: sin acceso, sin tabla ni descarga
+PASS · reportes-uif · aceptado · lista con limite=25 y sin cursor · /uif/reportes?limite=25
+PASS · reportes-uif · aceptado · buscar «2026-03» deja 1 fila
+PASS · reportes-uif · aceptado · CSV baja lo filtrado · reportes-regulatorios-pagina-1-2026-10-26.csv · 2 líneas
+PASS · reportes-uif · aceptado · JSON baja lo filtrado · reportes-regulatorios-pagina-1-2026-10-26.json
+PASS · reportes-uif · límite · sin coincidencias: vacío orientado y CSV solo con encabezado
+PASS · reportes-uif · límite · «Quitar filtros» vuelve a mostrar la página
+PASS · reportes-uif · aceptado · Siguiente pide la página 2 con el cursor del servidor · /uif/reportes?limite=25&antesDe=2026-01-01T00:00:00Z&antesDeId=cursor-1
+PASS · reportes-uif · aceptado · Anterior vuelve a la página 1
+PASS · reportes-uif · aceptado · filas por página 10 → limite=10 · /uif/reportes?limite=10
+PASS · reportes-uif · límite · Ir a 3 → última página parcial (1 fila) y Siguiente deshabilitado
+PASS · reportes-uif · aceptado · filtro Estado viaja al servidor y vuelve a la página 1 · /uif/reportes?limite=10&estados=ENVIADO
+PASS · reportes-uif · aceptado · «Aprobar y registrar envío del período 2026-01» abre su diálogo
+PASS · reportes-uif · aceptado · sin botones Editar/Eliminar (el contrato no los tiene)
+PASS · reportes-uif · límite · colección vacía: explica el porqué
+PASS · reportes-uif · error · 500: mensaje accionable con traza, sin el texto crudo
+PASS · reportes-uif · error · «Volver a intentar» repite el pedido y vuelve a la lista
+PASS · reportes-uif · error · 403: sin acceso, sin tabla ni descarga
+PASS · requerimientos · aceptado · lista con limite=25 y sin cursor · /uif/requerimientos?limite=25
+PASS · requerimientos · aceptado · buscar «OF-3» deja 1 fila
+PASS · requerimientos · aceptado · CSV baja lo filtrado · requerimientos-de-autoridad-pagina-1-2026-10-26.csv · 2 líneas
+PASS · requerimientos · aceptado · JSON baja lo filtrado · requerimientos-de-autoridad-pagina-1-2026-10-26.json
+PASS · requerimientos · límite · sin coincidencias: vacío orientado y CSV solo con encabezado
+PASS · requerimientos · límite · «Quitar filtros» vuelve a mostrar la página
+PASS · requerimientos · aceptado · Siguiente pide la página 2 con el cursor del servidor · /uif/requerimientos?limite=25&antesDe=2026-01-01T00:00:00Z&antesDeId=cursor-1
+PASS · requerimientos · aceptado · Anterior vuelve a la página 1
+PASS · requerimientos · aceptado · filas por página 10 → limite=10 · /uif/requerimientos?limite=10
+PASS · requerimientos · límite · Ir a 3 → última página parcial (1 fila) y Siguiente deshabilitado
+PASS · requerimientos · aceptado · filtro Estado viaja al servidor y vuelve a la página 1 · /uif/requerimientos?limite=10&estados=VENCIDO
+PASS · requerimientos · aceptado · «Responder el oficio OF-1» abre su diálogo
+PASS · requerimientos · aceptado · sin botones Editar/Eliminar (el contrato no los tiene)
+PASS · requerimientos · límite · colección vacía: explica el porqué
+PASS · requerimientos · error · 500: mensaje accionable con traza, sin el texto crudo
+PASS · requerimientos · error · «Volver a intentar» repite el pedido y vuelve a la lista
+PASS · requerimientos · error · 403: sin acceso, sin tabla ni descarga
+PASS · continuidad · aceptado · lista con limite=25 y sin cursor · /cumplimiento/continuidad/pruebas?limite=25
+PASS · continuidad · aceptado · buscar «30» deja 1 fila
+PASS · continuidad · aceptado · CSV baja lo filtrado · pruebas-de-continuidad-pagina-1-2026-10-26.csv · 2 líneas
+PASS · continuidad · aceptado · JSON baja lo filtrado · pruebas-de-continuidad-pagina-1-2026-10-26.json
+PASS · continuidad · límite · sin coincidencias: vacío orientado y CSV solo con encabezado
+PASS · continuidad · límite · «Quitar filtros» vuelve a mostrar la página
+PASS · continuidad · aceptado · Siguiente pide la página 2 con el cursor del servidor · /cumplimiento/continuidad/pruebas?limite=25&antesDe=2026-01-01T00:00:00Z&antesDeId=cursor-1
+PASS · continuidad · aceptado · Anterior vuelve a la página 1
+PASS · continuidad · aceptado · filas por página 10 → limite=10 · /cumplimiento/continuidad/pruebas?limite=10
+PASS · continuidad · límite · Ir a 3 → última página parcial (1 fila) y Siguiente deshabilitado
+PASS · continuidad · aceptado · «Registrar una prueba» abre su diálogo
+PASS · continuidad · aceptado · sin botones Editar/Eliminar (el contrato no los tiene)
+PASS · continuidad · límite · colección vacía: explica el porqué
+PASS · continuidad · error · 500: mensaje accionable con traza, sin el texto crudo
+PASS · continuidad · error · «Volver a intentar» repite el pedido y vuelve a la lista
+PASS · continuidad · error · 403: sin acceso, sin tabla ni descarga
+PASS · actas · aceptado · lista con limite=25 y sin cursor · /cumplimiento/comites/actas?limite=25
+PASS · actas · aceptado · buscar «ACTA-3» deja 1 fila
+PASS · actas · aceptado · CSV baja lo filtrado · actas-de-comite-pagina-1-2026-10-26.csv · 2 líneas
+PASS · actas · aceptado · JSON baja lo filtrado · actas-de-comite-pagina-1-2026-10-26.json
+PASS · actas · límite · sin coincidencias: vacío orientado y CSV solo con encabezado
+PASS · actas · límite · «Quitar filtros» vuelve a mostrar la página
+PASS · actas · aceptado · Siguiente pide la página 2 con el cursor del servidor · /cumplimiento/comites/actas?limite=25&antesDe=2026-01-01T00:00:00Z&antesDeId=cursor-1
+PASS · actas · aceptado · Anterior vuelve a la página 1
+PASS · actas · aceptado · filas por página 10 → limite=10 · /cumplimiento/comites/actas?limite=10
+PASS · actas · límite · Ir a 3 → última página parcial (1 fila) y Siguiente deshabilitado
+PASS · actas · aceptado · sin botones Editar/Eliminar (el contrato no los tiene)
+PASS · actas · límite · colección vacía: explica el porqué
+PASS · actas · error · 500: mensaje accionable con traza, sin el texto crudo
+PASS · actas · error · «Volver a intentar» repite el pedido y vuelve a la lista
+PASS · actas · error · 403: sin acceso, sin tabla ni descarga
+PASS · eventos · aceptado · lista con limite=25 y sin cursor · /cumplimiento/riesgos/eventos?limite=25
+PASS · eventos · aceptado · buscar «EV-3» deja 1 fila
+PASS · eventos · aceptado · CSV baja lo filtrado · eventos-de-riesgo-operativo-pagina-1-2026-10-26.csv · 2 líneas
+PASS · eventos · aceptado · JSON baja lo filtrado · eventos-de-riesgo-operativo-pagina-1-2026-10-26.json
+PASS · eventos · límite · sin coincidencias: vacío orientado y CSV solo con encabezado
+PASS · eventos · límite · «Quitar filtros» vuelve a mostrar la página
+PASS · eventos · aceptado · Siguiente pide la página 2 con el cursor del servidor · /cumplimiento/riesgos/eventos?limite=25&antesDe=2026-01-01T00:00:00Z&antesDeId=cursor-1
+PASS · eventos · aceptado · Anterior vuelve a la página 1
+PASS · eventos · aceptado · filas por página 10 → limite=10 · /cumplimiento/riesgos/eventos?limite=10
+PASS · eventos · límite · Ir a 3 → última página parcial (1 fila) y Siguiente deshabilitado
+PASS · eventos · aceptado · filtro Estado viaja al servidor y vuelve a la página 1 · /cumplimiento/riesgos/eventos?limite=10&estados=CERRADO
+PASS · eventos · aceptado · sin botones Editar/Eliminar (el contrato no los tiene)
+PASS · eventos · límite · colección vacía: explica el porqué
+PASS · eventos · error · 500: mensaje accionable con traza, sin el texto crudo
+PASS · eventos · error · «Volver a intentar» repite el pedido y vuelve a la lista
+PASS · eventos · error · 403: sin acceso, sin tabla ni descarga
+PASS · incidentes · aceptado · lista con limite=25 y sin cursor · /cumplimiento/seguridad/incidentes?limite=25
+PASS · incidentes · aceptado · buscar «INC-3» deja 1 fila
+PASS · incidentes · aceptado · CSV baja lo filtrado · incidentes-de-seguridad-pagina-1-2026-10-26.csv · 2 líneas
+PASS · incidentes · aceptado · JSON baja lo filtrado · incidentes-de-seguridad-pagina-1-2026-10-26.json
+PASS · incidentes · límite · sin coincidencias: vacío orientado y CSV solo con encabezado
+PASS · incidentes · límite · «Quitar filtros» vuelve a mostrar la página
+PASS · incidentes · aceptado · Siguiente pide la página 2 con el cursor del servidor · /cumplimiento/seguridad/incidentes?limite=25&antesDe=2026-01-01T00:00:00Z&antesDeId=cursor-1
+PASS · incidentes · aceptado · Anterior vuelve a la página 1
+PASS · incidentes · aceptado · filas por página 10 → limite=10 · /cumplimiento/seguridad/incidentes?limite=10
+PASS · incidentes · límite · Ir a 3 → última página parcial (1 fila) y Siguiente deshabilitado
+PASS · incidentes · aceptado · filtro Estado viaja al servidor y vuelve a la página 1 · /cumplimiento/seguridad/incidentes?limite=10&estados=CERRADO
+PASS · incidentes · aceptado · sin botones Editar/Eliminar (el contrato no los tiene)
+PASS · incidentes · límite · colección vacía: explica el porqué
+PASS · incidentes · error · 500: mensaje accionable con traza, sin el texto crudo
+PASS · incidentes · error · «Volver a intentar» repite el pedido y vuelve a la lista
+PASS · incidentes · error · 403: sin acceso, sin tabla ni descarga
+{"pass":131,"fail":0,"errores":20}

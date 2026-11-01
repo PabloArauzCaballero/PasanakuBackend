@@ -41,6 +41,25 @@ describe('cargadorPorCursor', () => {
     expect(await cargar(pedido(3))).toEqual({ filas: [4], total: 5 })
   })
 
+  it('volver de la última a la primera no achica el total: las páginas recorridas siguen alcanzables', async () => {
+    const s = servidor(5)
+    const cargar = cargadorPorCursor(s.pedir)
+    await cargar(pedido(1))
+    await cargar(pedido(2))
+    await cargar(pedido(3))
+    expect((await cargar(pedido(2))).total).toBe(5)
+    expect(await cargar(pedido(1))).toEqual({ filas: [0, 1], total: 5 })
+  })
+
+  it('sin el final conocido, volver atrás sigue ofreciendo todas las páginas con cursor', async () => {
+    const s = servidor(9)
+    const cargar = cargadorPorCursor(s.pedir)
+    await cargar(pedido(1))
+    await cargar(pedido(2))
+    await cargar(pedido(3))
+    expect((await cargar(pedido(1))).total).toBe(8)
+  })
+
   it('saltar a una página sin cursor conocido recorre desde la última conocida', async () => {
     const s = servidor(5)
     const r = await cargadorPorCursor(s.pedir)(pedido(3))

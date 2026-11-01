@@ -1,0 +1,10 @@
+contenedores que las usan: 0
+antes:
+aportaya/prueba-limpieza:sin-etiqueta
+aportaya/prueba-limpieza:con-etiqueta
+# paso de borrado de CleanupDocker.php::buildImagePruneCommand, acotado a las dos imagenes de prueba
+Untagged: aportaya/prueba-limpieza:sin-etiqueta
+despues:
+aportaya/prueba-limpieza:con-etiqueta
+limpieza de prueba: 0 restantes
+aportaya/backoffice:test intacta: sha256:609de6dd45f2

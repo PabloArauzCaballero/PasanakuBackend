@@ -13,16 +13,16 @@
 | entregas | 16 | 16 | 11 | 11 | 5 |
 | erp | 24 | 16 | 24 | 24 | 0 |
 | garantia | 20 | 20 | 14 | 13 | 5 |
-| grupos | 35 | 23 | 17 | 13 | 0 |
-| identidad | 35 | 32 | 17 | 16 | 0 |
+| grupos | 36 | 24 | 17 | 13 | 0 |
+| identidad | 36 | 33 | 17 | 16 | 0 |
 | inversiones | 20 | 16 | 20 | 20 | 0 |
 | notificaciones | 10 | 10 | 10 | 9 | 0 |
 | nucleo-financiero | 27 | 27 | 24 | 23 | 4 |
 | organizador | 25 | 18 | 19 | 18 | 0 |
 | publicidad | 17 | 9 | 14 | 14 | 0 |
 | tarifas | 13 | 9 | 13 | 13 | 0 |
-| transparencia | 18 | 9 | 18 | 15 | 0 |
-| **Total** | 320 | 251 | 237 | 223 | 16 |
+| transparencia | 19 | 10 | 18 | 15 | 0 |
+| **Total** | 323 | 254 | 237 | 223 | 16 |
 
 ## Por endpoint
 
@@ -173,6 +173,7 @@
 | grupos | GET | `/grupos/{grupoId}/detalle` | `consultarDetalleDelGrupo` | sí | — | — | — |
 | grupos | POST | `/grupos/{grupoId}/enlace-del-grupo` | `generarEnlaceDelGrupo` | sí | CU-68 | sí | — |
 | grupos | POST | `/grupos/{grupoId}/enlace-del-grupo/anulacion` | `anularEnlaceDelGrupo` | sí | — | — | — |
+| grupos | GET | `/grupos/{grupoId}/integrantes/{usuarioId}/comparte` | `consultarSiCompartenGrupo` | sí | — | — | — |
 | grupos | POST | `/grupos/{grupoId}/invitaciones` | `invitarAlGrupo` | sí | — | — | — |
 | grupos | POST | `/grupos/{grupoId}/invitaciones/{invitacionId}/canje` | `canjearInvitacion` | sí | — | — | — |
 | grupos | POST | `/grupos/{grupoId}/invitaciones/{invitacionId}/revocacion` | `revocarInvitacionDelGrupo` | sí | — | — | — |
@@ -183,6 +184,7 @@
 | grupos | POST | `/grupos/{grupoId}/sorteo` | `comprometerSorteo` | **no** | CU-60 | sí | — |
 | grupos | POST | `/grupos/{grupoId}/sorteo/revelacion` | `revelarSorteo` | **no** | CU-60 | sí | — |
 | grupos | POST | `/turnos/permutas` | `solicitarPermuta` | sí | CU-62 | sí | — |
+| identidad | GET | `/identidad/contactos/grupos/{grupoId}/integrantes/{usuarioId}` | `consultarContactoEnGrupo` | sí | — | — | — |
 | identidad | GET | `/identidad/verificaciones` | `listarVerificaciones` | sí | — | — | — |
 | identidad | POST | `/identidad/verificaciones/{verificacionId}/decision` | `resolverVerificacion` | sí | — | — | — |
 | identidad | GET | `/identidad/verificaciones/{verificacionId}/fotos/{cara}` | `verFotoDelExpediente` | sí | — | — | — |
@@ -346,5 +348,6 @@
 | transparencia | POST | `/reputacion/riesgo/alertas/{alertaId}/cierre` | `cerrarAlertaRiesgo` | **no** | CU-97 | sí | — |
 | transparencia | POST | `/reputacion/riesgo/evaluacion` | `evaluarRiesgo` | sí | CU-97 | sí | — |
 | transparencia | POST | `/reputacion/snapshots` | `tomarSnapshotReputacion` | **no** | CU-71 | sí | — |
+| transparencia | GET | `/reputacion/{usuarioId}/perfil-en-grupo/{grupoId}` | `consultarPerfilEnGrupo` | sí | — | — | — |
 | transparencia | GET | `/reputacion/{usuarioId}/puntaje` | `consultarPuntaje` | sí | CU-64 | **no** | — |
 | transparencia | GET | `/verificar/{codigo}` | `verificarCertificado` | sí | CU-75 | sí | — |

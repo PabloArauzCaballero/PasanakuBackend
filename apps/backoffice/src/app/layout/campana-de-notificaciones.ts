@@ -7,6 +7,10 @@ import { AvisosInternosServicio } from '../nucleo/avisos-internos'
  * H5.S0 · Campana de notificaciones y avisos internos para operadores.
  * Muestra el globo con el conteo de no leídos, el panel desplegable con la lista
  * de avisos y permite marcar avisos individuales o todos como leídos.
+ *
+ * El panel resuelve sus cuatro estados (95.2): cargando, con avisos, vacío y error con reintento — antes un 500 se
+ * pintaba como «no hay avisos», que es mentir. Cada acción lleva ícono y texto; «Ver detalle» solo para enlaces
+ * internos (empiezan con `/`): un enlace de otro origen no se sigue desde acá.
  */
 @Component({
   selector: 'ap-campana-de-notificaciones',
@@ -37,12 +41,19 @@ import { AvisosInternosServicio } from '../nucleo/avisos-internos'
             }
           </div>
           @if (noLeidos() > 0) {
-            <button type="button" class="accion-todos" (click)="marcarTodos()">
-              Marcar leídos
-            </button>
+            <button type="button" class="accion-todos" (click)="marcarTodos()"><ap-icono nombre="aprobar" tamano="s4" />Marcar leídos</button>
           }
         </div>
 
+        @if (servicio.error() && !avisos().length) {
+          <div class="estado-panel" role="alert">
+            <ap-icono nombre="advertencia" tamano="s6" />
+            <p>No pudimos traer los avisos. Puede ser la conexión o el servicio de notificaciones.</p>
+            <button type="button" class="accion-todos" (click)="recargar()"><ap-icono nombre="deshacer" tamano="s4" />Volver a intentar</button>
+          </div>
+        } @else if (servicio.cargando() && !avisos().length) {
+          <p class="estado-panel" role="status">Cargando avisos…</p>
+        } @else {
         <ul class="lista-avisos" role="list">
           @for (aviso of avisos(); track aviso.id) {
             <li class="item-aviso" [class.no-leido]="!aviso.leidoEn">
@@ -54,15 +65,11 @@ import { AvisosInternosServicio } from '../nucleo/avisos-internos'
                 <strong class="titulo-aviso">{{ aviso.titulo }}</strong>
                 <p class="mensaje-aviso">{{ aviso.mensaje }}</p>
                 <div class="acciones-item">
-                  @if (aviso.enlace) {
-                    <button type="button" class="enlace-accion" (click)="navegar(aviso.enlace)">
-                      Ver detalle →
-                    </button>
+                  @if (aviso.enlace?.startsWith('/')) {
+                    <button type="button" class="enlace-accion" (click)="navegar(aviso.enlace!)"><ap-icono nombre="flechaDerecha" tamano="s4" />Ver detalle</button>
                   }
                   @if (!aviso.leidoEn) {
-                    <button type="button" class="accion-leido" (click)="marcarUno(aviso.id)">
-                      Marcar leído
-                    </button>
+                    <button type="button" class="accion-leido" (click)="marcarUno(aviso.id)"><ap-icono nombre="ojo" tamano="s4" />Marcar leído</button>
                   }
                 </div>
               </div>
@@ -70,10 +77,11 @@ import { AvisosInternosServicio } from '../nucleo/avisos-internos'
           } @empty {
             <li class="sin-avisos">
               <ap-icono nombre="verificado" tamano="s6" />
-              <p>No tienes avisos pendientes</p>
+              <p>No tenés avisos pendientes. Cuando el sistema necesite tu atención, aparece acá.</p>
             </li>
           }
         </ul>
+        }
       </div>
     }
   `,
@@ -87,6 +95,8 @@ import { AvisosInternosServicio } from '../nucleo/avisos-internos'
     .cabecera-panel { display: flex; align-items: center; justify-content: space-between; padding: var(--s2) var(--s3); border-bottom: var(--borde-fino) solid var(--border); background: var(--surface-2); font: var(--t-cuerpo-chico); }
     .titulo-con-conteo { display: flex; align-items: center; gap: var(--s1); }
     .conteo-texto { color: var(--text-3); }
+    .estado-panel { display: grid; justify-items: center; gap: var(--s2); margin: 0; padding: var(--s5) var(--s3); color: var(--text-2); font: var(--t-cuerpo-chico); text-align: center; }
+    .accion-todos, .enlace-accion, .accion-leido { display: inline-flex; align-items: center; gap: var(--s1); }
     .accion-todos { border: 0; background: transparent; color: var(--brand); font: var(--t-etiqueta); cursor: pointer; text-decoration: underline; }
     .accion-todos:hover { color: var(--text); }
     .lista-avisos { list-style: none; margin: 0; padding: 0; }
@@ -110,7 +120,7 @@ export class CampanaDeNotificaciones {
   private static secuencia = 0
   readonly id = `ap-campana-${++CampanaDeNotificaciones.secuencia}`
 
-  private readonly servicio = inject(AvisosInternosServicio)
+  protected readonly servicio = inject(AvisosInternosServicio)
   private readonly router = inject(Router)
   private readonly el = inject(ElementRef)
 
@@ -135,6 +145,10 @@ export class CampanaDeNotificaciones {
     if (this.abierto() && e.target instanceof Node && !this.el.nativeElement.contains(e.target)) {
       this.abierto.set(false)
     }
+  }
+
+  recargar(): void {
+    this.servicio.cargar().subscribe({ error: () => undefined })
   }
 
   marcarUno(id: string): void {

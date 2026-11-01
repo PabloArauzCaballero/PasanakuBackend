@@ -11,7 +11,7 @@ import { Sesion } from '../../../nucleo/sesion'
 import { PantallaDeCampanas } from './pantalla-de-campanas'
 import { campana, pagina } from '../publicidad.apoyo'
 
-const URL = 'http://gw/api/v1/publicidad/campanas?limite=50'
+const URL = 'http://gw/api/v1/publicidad/campanas?limite=100&estados=EN_REVISION'
 
 describe('PantallaDeCampanas · accesibilidad', () => {
   let http: HttpTestingController

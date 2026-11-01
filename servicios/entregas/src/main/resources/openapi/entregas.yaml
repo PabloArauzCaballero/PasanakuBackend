@@ -473,6 +473,144 @@ paths:
               schema: { $ref: '#/components/schemas/SalidaCompra' }
         '422': { $ref: '#/components/responses/ReglaDeNegocio' }
 
+  /entregas/subastas:
+    post:
+      operationId: abrirSubastaDeCupo           # CU-64 por subasta
+      summary: Poner mi cupo en subasta
+      description: >-
+        El titular del cupo (lo confirma `grupos`, nunca el cliente) lo ofrece con un precio base y un
+        plazo de 24, 48 o 72 horas. A todos los usuarios les llega el aviso (`entregas.subasta_abierta`).
+        Al cierre gana la puja mas alta: el cupo pasa al ganador y el saliente cobra la puja, sin
+        votacion del grupo (decision del dueno, 2026-10-30). Un cupo tiene a lo sumo una subasta viva.
+        Reintentar con la misma clave devuelve la misma subasta.
+      parameters:
+        - $ref: '#/components/parameters/ClaveIdempotencia'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaSubasta' }
+      responses:
+        '201':
+          description: Subasta abierta
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/VistaDeSubasta' }
+        '200':
+          description: La misma clave ya habia abierto esta subasta
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/VistaDeSubasta' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU136-01 cupo no subastable (motivo en detalle) · AP-CU136-02 ya hay una subasta viva
+          # AP-CU136-03 base o plazo invalidos · AP-CU136-08 grupos no respondio
+    get:
+      operationId: listarSubastasDeCupo         # CU-64 por subasta
+      summary: Los cupos en subasta
+      description: >-
+        Para cualquier usuario: las subastas ABIERTAS, con lo que hace falta para decidir (grupo,
+        aporte, periodicidad, base, puja mas alta, cierre). Nunca el saliente ni los postores. Con
+        `cupoId` devuelve la ultima subasta de ese cupo en cualquier estado (lo usa la pantalla del
+        grupo). Paginado, con orden estable (cierre, id).
+      parameters:
+        - name: cupoId
+          in: query
+          required: false
+          schema: { type: string, format: uuid }
+        - name: limite
+          in: query
+          required: false
+          schema: { type: integer, minimum: 1, maximum: 50, default: 20 }
+        - name: pagina
+          in: query
+          required: false
+          schema: { type: integer, minimum: 0, maximum: 10000, default: 0 }
+      responses:
+        '200':
+          description: La pagina de subastas
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PaginaDeSubastas' }
+        '422': { $ref: '#/components/responses/ReglaDeNegocio' }
+
+  /entregas/subastas/{subastaId}:
+    get:
+      operationId: consultarSubastaDeCupo        # CU-64 por subasta
+      summary: Una subasta, con la puja mas alta y la mia
+      parameters:
+        - name: subastaId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: La subasta
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/VistaDeSubasta' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU136-05 no existe
+
+  /entregas/subastas/{subastaId}/pujas:
+    post:
+      operationId: pujarEnSubasta                # CU-64 por subasta
+      summary: Ofrecer un monto por el cupo
+      description: >-
+        El monto queda RETENIDO de la billetera de quien puja hasta que lo superen (vuelve al
+        instante) o gane (se le paga al saliente cuando el cupo ya es suyo). Tiene que ser al menos
+        la base y mayor que la puja mas alta. Quien puja tiene que cumplir lo que pide el grupo
+        (`grupos` lo confirma) y aceptar su reglamento. El saliente no puja. Dos pujas a la vez por
+        el mismo monto: gana la primera en quedar firme, la otra recibe AP-CU136-04 y su saldo vuelve.
+        Reintentar con la misma clave no retiene dos veces.
+      parameters:
+        - name: subastaId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+        - $ref: '#/components/parameters/ClaveIdempotencia'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EntradaPuja' }
+      responses:
+        '201':
+          description: Tu puja es la mas alta
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaPuja' }
+        '202':
+          description: La billetera no respondio; reintenta con la MISMA clave
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SalidaPuja' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU136-04 alguien ofrecio mas (detalle.montoMasAlto) · AP-CU136-05 subasta cerrada o inexistente
+          # AP-CU136-06 no podes pujar (detalle.motivo) · AP-CU136-07 saldo insuficiente
+          # AP-CU136-03 monto por debajo de la base · AP-CU136-08 grupos no respondio
+
+  /entregas/subastas/{subastaId}/cancelacion:
+    post:
+      operationId: cancelarSubastaDeCupo         # CU-64 por subasta
+      summary: Retirar mi cupo de la subasta mientras nadie pujo
+      parameters:
+        - name: subastaId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: Cancelada (o ya lo estaba)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/VistaDeSubasta' }
+        '422':
+          $ref: '#/components/responses/ReglaDeNegocio'
+          # AP-CU136-05 no es tuya o no existe · AP-CU136-02 ya tiene pujas
+
 components:
   parameters:
     ClaveIdempotencia:
@@ -502,6 +640,84 @@ components:
       properties:
         ofertaId: { type: string, format: uuid }
         esNueva:  { type: boolean }
+    EntradaSubasta:
+      type: object
+      additionalProperties: false
+      required: [grupoId, cupoId, montoBase, horas]
+      properties:
+        grupoId:   { type: string, format: uuid }
+        cupoId:    { type: string, format: uuid }
+        montoBase: { $ref: '#/components/schemas/Dinero' }
+        horas:     { type: integer, enum: [24, 48, 72] }
+    VistaDeSubasta:
+      type: object
+      additionalProperties: false
+      required: [subastaId, grupoId, cupoId, nombreDelGrupo, periodicidad, montoAporte, montoBase,
+                 montoMinimo, estado, cierraEn, cantidadDePujas, soyElSaliente]
+      properties:
+        subastaId:       { type: string, format: uuid }
+        grupoId:         { type: string, format: uuid }
+        cupoId:          { type: string, format: uuid }
+        nombreDelGrupo:  { type: string, maxLength: 120 }
+        periodicidad:    { type: string, maxLength: 15 }
+        montoAporte:     { $ref: '#/components/schemas/Dinero' }
+        montoBase:       { $ref: '#/components/schemas/Dinero' }
+        montoMasAlto:
+          description: la puja vigente mas alta; vacio si nadie pujo
+          oneOf:
+            - { $ref: '#/components/schemas/Dinero' }
+            - { type: 'null' }
+        montoMinimo:
+          $ref: '#/components/schemas/Dinero'
+          description: lo minimo que hoy se acepta (la base, o un centavo mas que la mas alta)
+        estado:
+          type: string
+          enum: [ABIERTA, ADJUDICADA, LIQUIDANDO, VENDIDA, DESIERTA, CANCELADA, FALLIDA]
+        cierraEn:        { type: string, format: date-time }
+        cantidadDePujas: { type: integer, minimum: 0 }
+        soyElSaliente:   { type: boolean }
+        miPuja:
+          oneOf:
+            - { $ref: '#/components/schemas/MiPuja' }
+            - { type: 'null' }
+    MiPuja:
+      type: object
+      additionalProperties: false
+      required: [monto, estado]
+      properties:
+        monto:  { $ref: '#/components/schemas/Dinero' }
+        estado:
+          type: string
+          enum: [PENDIENTE, VIGENTE, SUPERADA, LIBERADA, GANADORA, RECHAZADA]
+    PaginaDeSubastas:
+      type: object
+      additionalProperties: false
+      required: [subastas, pagina]
+      properties:
+        pagina: { type: integer }
+        subastas:
+          type: array
+          maxItems: 50
+          items: { $ref: '#/components/schemas/VistaDeSubasta' }
+    EntradaPuja:
+      type: object
+      additionalProperties: false
+      required: [monto, aceptoReglamento]
+      properties:
+        monto:            { $ref: '#/components/schemas/Dinero' }
+        aceptoReglamento:
+          type: boolean
+          description: >-
+            si gana entra al grupo con sus reglas; tiene que ser true (AP-CU136-06 si no)
+    SalidaPuja:
+      type: object
+      additionalProperties: false
+      required: [pujaId, estado]
+      properties:
+        pujaId: { type: string, format: uuid }
+        estado:
+          type: string
+          enum: [PENDIENTE, VIGENTE, SUPERADA, LIBERADA, GANADORA, RECHAZADA]
     VistaDeOferta:
       type: object
       additionalProperties: false

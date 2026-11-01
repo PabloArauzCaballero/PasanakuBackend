@@ -1,0 +1,154 @@
+# Reporte — El sorteo exige la primera cuota pagada (R-GRP-20): lado `aportes` + precondición en `grupos`
+
+> **AVANCE: 29 / 29 — 100 %.** (H1–H4: 13 · H5, emisión del evento tomada de `pasanaku-c1` a su pedido: 6 · H6, CI de #369 en verde: 10)
+
+- Fecha: 2026-10-30 · Plan: [PLAN.md](./PLAN.md) · Rama: `claude/sorteo-primera-cuota-20261030` desde `origin/test` (worktree `Pasanaku-wt-sorteo`)
+- Peldaño de evidencia alcanzado: **`TESTED` + regresión de módulo** en los dos servicios (`grupos` 513/513, `aportes` 236/236, contra PostgreSQL real con Testcontainers y dobles declarados para lo remoto). **No es `VERIFIED`**: el camino real Kafka → `aportes` y `grupos` → HTTP → `aportes` con los dos procesos levantados no se ejercitó, y el evento que dispara todo lo emite el carril de `pasanaku-c1`, que todavía no lo publicó. Ver «No cubierto».
+- Carril hermano: `pasanaku-c1` (`iniciarGrupo`, emisión del evento, `puedeSortear`, app). Coordinación en `evidencia/coordinacion-c1.md`.
+
+## Completado
+
+| ID | Qué se logró | Comando | Resultado |
+|---|---|---|---|
+| H1.S1.M1 | `CU21AbrirPrimeraCuota`: al llegar `grupos.grupo_iniciado` abre la obligación `APORTE_PERIODICO`/`PENDIENTE` de la cuota 1 por cupo, reutilizando `RegistroDelCalendario`; dedup por `evento_consumido` en la misma transacción | `./gradlew :servicios:aportes:integrationTest --tests '*CU21PrimeraCuotaTest'` | PASS 8/8 · `evidencia/aportes-resultados-xml.txt` |
+| H1.S1.M2 | `ConsumidorDeGrupoIniciadoKafka` (tema `aportaya.grupos.grupo_iniciado`, flag `GRUPO_INICIADO_CONSUMO_HABILITADO`, por omisión encendido) con parseo estricto del sobre | `./gradlew :servicios:aportes:test --tests '*ConsumidorDeGrupoIniciadoKafkaTest'` | PASS 3/3 · ídem |
+| H1.S1.M3 | Carga inválida (sin cupos, aporte en cero, período ≠ 1) rechazada sin tocar la base ni marcarse consumida | casos «invalido*» de `CU21PrimeraCuotaTest` | PASS 3/3 · ídem |
+| H2.S1.M1 | `aportes.yaml`: `GET /aportes/grupos/{grupoId}/primera-cuota` (`consultarPrimeraCuota`, schema `PrimeraCuota`, `additionalProperties: false`) | `./gradlew :servicios:aportes:compileJava` | PASS · `evidencia/aportes-suite-2.txt` |
+| H2.S1.M2 | `PrimeraCuotaRepositorio` + `ConsultarPrimeraCuota` + método del controlador (`BILLETERA_VER`); el record vive en `dominio/PrimeraCuotaDelGrupo` por la regla de arquitectura web ↛ infraestructura | casos «consultaTrasUnCobro» y «consultaSinObligaciones» + `ArquitecturaTest` | PASS · `evidencia/aportes-resultados-xml.txt` |
+| H2.S1.M3 | `PrimeraCuotaWebTest`: 200 organizador, 200 vacío, 401 sin sesión, 403 sin permiso, 400 id inválido | `./gradlew :servicios:aportes:webTest --tests '*PrimeraCuotaWebTest'` | PASS 5/5 · ídem |
+| H3.S1.M1 | Puerto `PrimerAporteDelCupo` + adaptador `PrimerAportePorHttp` (`ClienteConCircuito`, fallo cerrado) | `./gradlew :servicios:grupos:test --tests '*PrimerAportePorHttpTest'` | PASS 6/6 · `evidencia/grupos-resultados-xml.txt` |
+| H3.S1.M2 | `CU60Sortear.comprometer`: consulta a `aportes` **antes** de la transacción; `AP-CU60-11` con `detalle.cuposPendientes`, `AP-CU60-12` si `aportes` no responde | `CU60Test` «rechazaSinPrimeraCuota», «rechazaSinRespuestaDeAportes» | PASS · `evidencia/grupos-suite-2.txt` |
+| H3.S1.M3 | `BaseDeCU60` con doble de `aportes` («todos pagaron» por omisión); la suite previa de CU-60 intacta | `./gradlew :servicios:grupos:integrationTest --tests 'bo.aportaya.grupos.CU60*'` | PASS 26/26 (`CU60Test` 16, `CU60SnapshotTest` 10) |
+| H3.S1.M4 | `AP-CU60-05` mira la versión **vigente** del reglamento (`AceptacionVigenteRepositorio`, `detalle.cuposSinFirma`) | `CU60Test` «aceptaFirmaDeLaVersionVigente», «rechazaFirmaDeVersionAnterior» | PASS · `evidencia/grupos-suite-2.txt` |
+| H4.S1.M1 | CU-60 documenta `AP-CU60-05/11/12`; README de `aportes` documenta consumidor y endpoint | `grep -c "AP-CU60-1[12]" "docs/CasosDeUso/CU-60 Sortear los turnos.md"` | PASS → 4 |
+| H4.S1.M2 | Contrato del evento acordado y confirmado por `pasanaku-c1` | `SendMessage` | PASS · `evidencia/coordinacion-c1.md` |
+| H4.S1.M3 | Este reporte | — | en disco |
+| H5.S1.M1 | Verificado en `9505875e`: `iniciarGrupo` genera el calendario (`CU69IniciarGrupo.java:128`), no tenía `Outbox`; dos tests lo construyen a mano | lectura | `evidencia/evento-cu69-dirigido-1.txt` (el primer compile falló por `CU69IngresoCerradoTest:76`) |
+| H5.S1.M2 | `CU69IniciarGrupo.emitirInicio`: `grupos.grupo_iniciado` por outbox, misma transacción, con período 1 y cupos OCUPADO 1..N, aporte como cadena `500.00` | `./gradlew :servicios:grupos:integrationTest --tests 'bo.aportaya.grupos.CU69*'` | PASS · `CU69EventoDeInicioTest` 3/3 · `evidencia/evento-cu69-dirigido-2.txt` |
+| H5.S1.M3 | Reintento con la misma clave no re-emite; otra clave → `AP-CU69-17` sin emitir | ídem («limiteIdempotente») | PASS |
+| H5.S1.M4 | 7 de 10 → `AP-CU69-16`, cero eventos | ídem («invalidoSinMinimo») | PASS |
+| H5.S1.M5 | Regresión de `grupos` sobre la rama de c1 + formato; commit `bd7280d9` publicado en `origin/claude/evento-grupo-iniciado-20261030` y avisado | `./gradlew :servicios:grupos:spotlessCheck :servicios:grupos:test :servicios:grupos:webTest :servicios:grupos:integrationTest` | PASS · **611/611** · `evidencia/evento-grupos-regresion.txt`, `evento-resumen.txt` |
+| H5.S1.M6 | Pacto `contratos/pactos/grupos-aportes-grupo-iniciado.json` (en las dos ramas) + `PactoGrupoIniciadoTest` en `aportes` lee su `ejemplo` | `./gradlew :servicios:aportes:test --tests '*PactoGrupoIniciadoTest'` | ver «Evidencia» (`evidencia/aportes-pacto.txt`) |
+
+**Regresión de módulo (regla 80.1.6) y gate de formato:**
+
+```text
+$ ./gradlew :servicios:grupos:spotlessCheck :servicios:grupos:test :servicios:grupos:webTest :servicios:grupos:integrationTest
+BUILD SUCCESSFUL in 2m 45s · exit=0 · grupos XML: tests=513 fallos+errores=0        (evidencia/grupos-regresion-2.txt)
+
+$ ./gradlew :servicios:aportes:spotlessApply :servicios:aportes:spotlessCheck :servicios:aportes:test :servicios:aportes:webTest :servicios:aportes:integrationTest
+BUILD SUCCESSFUL in 44s · exit=0 · aportes XML: tests=236 fallos+errores=0          (evidencia/aportes-regresion-3.txt)
+```
+
+## A medias
+
+ninguna
+
+## Pendiente
+
+| ID | Estado | Qué lo destraba |
+|---|---|---|
+| ~~Absorber `bd7280d9` en los PR #364/#365~~ | **Hecho por c1**: quedó como `2f154902` en `claude/arenas-y-inicio-75-20261030`; grupos 613/0, `CU69EventoDeInicioTest` 3/0 (mensaje de c1, 23:0x) | — |
+| `puedeSortear` en el detalle del grupo y botón/re-firma en la app | De `pasanaku-c1` | — |
+| ~~Abrir el período 1 (`PROGRAMADO → ABIERTO`)~~ | **Resuelto por c1 con evidencia**: el período `PROGRAMADO` admite el pago (`ConsultasRepositorio.java:256`, `grupos.yaml:895`); el doble cobro lo impide `uq_obligacion_periodo_cupo`. No hace falta abrirlo | — |
+| PR a `test` y `dev` desde `claude/sorteo-primera-cuota-20261030` | EN CURSO al cerrar este reporte: la rama estaba 43 commits detrás de `origin/test`; se trae `origin/test`, se repiten las dos regresiones y recién ahí se abren. **Se mergean junto con #364/#365**, cuando `pasanaku-ab` mergee el arreglo de goldens (#366/#368) y el CI quede en verde | CI verde en #364/#365 |
+| Comentario del 422 en `grupos.yaml` (`AP-CU60-11/12`) | De `pasanaku-c1` (el archivo es suyo) | — |
+
+## Evidencia
+
+- `evidencia/aportes-suite-1.txt` — primera corrida: `ArquitecturaTest` rojo por web → infraestructura (causa del movimiento del record a `dominio`).
+- `evidencia/aportes-suite-2.txt` — corrida dirigida en verde.
+- `evidencia/aportes-resultados-xml.txt` — conteos por clase desde los XML de JUnit (8 + 5 + 3 + 5).
+- `evidencia/grupos-suite-1.txt` — 24/25: el caso de versión del reglamento no lanzaba (fixture sin participantes).
+- `evidencia/grupos-suite-2.txt` + `grupos-resultados-xml.txt` — 32/32 dirigidos.
+- `evidencia/grupos-regresion.txt` + `grupos-arranque-causa.txt` — regresión 513 con 3 fallos de arranque: «No default constructor found» en `PrimerAportePorHttp` (dos constructores).
+- `evidencia/grupos-regresion-2.txt` — 513/513 tras `@Autowired`.
+- `evidencia/aportes-regresion.txt` + `aportes-webtest-causa.txt` — 33 fallos en slice tests: `ConsultarPrimeraCuota` sin doble.
+- `evidencia/aportes-regresion-2.txt` (23 fallos, parche parcial) y `aportes-regresion-3.txt` (236/236).
+- `evidencia/coordinacion-c1.md` — reparto, contrato del evento y decisiones de Pablo recibidas vía c1.
+
+## No cubierto
+
+- **Kafka real**: el consumidor se probó por su `leer()` y su caso de uso; nadie publicó un mensaje real en `aportaya.grupos.grupo_iniciado` (el productor no existe todavía). Como el README ya dice de su hermano: «NO verificado con Kafka y los dos procesos reales».
+- **HTTP real entre `grupos` y `aportes`**: el adaptador se probó contra un servidor del JDK con el cuerpo del contrato; no contra `aportes` levantado. Regla 98.8.4 («apagar el contenedor cuenta; mockearlo no»): no se hizo.
+- **Traza `correlationId` cruzando servicios** (98.8.5): no se observó.
+- **Prueba de contrato** (98.1.4): para `grupo_iniciado` ahora hay pacto en `contratos/pactos/` con las dos mitades (`CU69EventoDeInicioTest` produce la forma; `PactoGrupoIniciadoTest` la lee), pero ninguna de las dos verifica contra el JSON del productor real en Kafka. Para `GET /primera-cuota` **no** hay pacto: el adaptador de `grupos` se probó contra un cuerpo escrito a mano con la forma del contrato.
+- Autorización a nivel de objeto en `GET /primera-cuota`: `BILLETERA_VER` sin chequeo de pertenencia al grupo (igual que `contarMorosos`); solo expone UUIDs de cupo.
+- `scripts/generar_compose.py` y `docker-compose.coolify.yml` no declaran `GRUPO_INICIADO_CONSUMO_HABILITADO`; el flag nace encendido por `matchIfMissing`.
+- Los dos commits de docs del trabajo anterior (`R-GRP-20`, análisis de comisión) se trajeron por cherry-pick; su contenido no cambió.
+
+## Desvíos del plan
+
+- El record de respuesta de la consulta se movió de `infraestructura` a `dominio` (`PrimeraCuotaDelGrupo`) porque `ArquitecturaTest` prohíbe web → infraestructura. No estaba previsto.
+- `PrimerAportePorHttp` necesitó `@Autowired` explícito (dos constructores) — detectado por la regresión, no por el test dirigido.
+- Seis `WebTest` existentes de `AportesController` recibieron el doble `ConsultarPrimeraCuota` (el controlador ganó una dependencia). Cambio mínimo, en la forma del precedente `ConsultarRecaudoDiario`.
+- `CU60Test`: el caso de versión del reglamento se reescribió en dos (vigente → procede; cerrada → `AP-CU60-05`) sembrando `participantesConCupo` + `reglamento_grupo` + `aceptacion_reglamento`, porque la fixtura `cuposOcupados` no asigna participante.
+- Pablo pidió lanzar varios agentes en paralelo; la regla 70.1.2 fija un subagente simultáneo salvo autorización del `CLAUDE.md` del proyecto (no la hay). Se usó un solo agente de descubrimiento y paralelismo de llamadas propias. Conflicto registrado (regla 00).
+
+## Riesgos residuales
+
+- **Hallazgo fuera de alcance, no corregido**: `SorteoRepositorio.todosAceptaronElReglamento` aceptaba cualquier aceptación y los tests previos de CU-60 lo pasaban en vacío (cupos sin participante). CU-60 ya no lo usa; el método sigue existiendo por si otro lo usa (c1 avisado).
+- La emisión existe (`bd7280d9`) pero vive en una rama aparte hasta que c1 la absorba en #364/#365; desplegar **solo** esta rama deja todo sorteo en `AP-CU60-11` (plata prometida no habilita, que es lo pedido, pero sin productor nadie llega a pagar la cuota 1 por la app).
+- La emisión se hizo sobre el `CU69IniciarGrupo` de c1 con su permiso explícito; si c1 cambia ese archivo antes de absorber, el cherry-pick puede pedir resolución (el método `emitirInicio` es autocontenido; el punto de inserción es la línea siguiente a `calendario.generar`).
+- Si el calendario de feriados del año del vencimiento no está cargado, el consumidor lanza `AP-CU21-09` y Kafka reintenta hasta agotar: la cuota 1 no se abre y nadie se entera salvo por la bitácora. Mismo riesgo que CU-21 hoy.
+- «Período 1» en `aportes` = obligación con menor `fecha_vencimiento`; si algún día se abre un período fuera de orden, la consulta apuntaría mal. Alternativa documentada en el plan: que `grupos` pase el `periodoId`.
+
+## Decisiones y ambigüedades
+
+| Qué | Decidido por | Estado |
+|---|---|---|
+| «Acreditada» = obligación `PAGADO` (la obligación no tiene estado `ACREDITADO`) | Supuesto de este trabajo | Confirmar: Pablo |
+| El evento trae todo (período, cupos, montos) en vez de credencial de servicio | Este trabajo, por el hallazgo del agente (el consumidor no tiene token) | Confirmado por c1 |
+| `BILLETERA_VER` para la consulta (lo tienen ORGANIZADOR y PARTICIPANTE) | Este trabajo, precedente `contarMorosos` | Revisar en gate `authz` |
+| `AP-CU60-12` para «aportes sin respuesta» (fallo cerrado) | Este trabajo | Adoptado por c1 (usa 13+) |
+| La primera cuota nace en `iniciarGrupo`; versión N+1 del reglamento con re-firma | Pablo, vía c1 | Implementado del lado del sorteo; emisión pendiente en c1 |
+| Un solo subagente pese al pedido de paralelismo | Regla 70.1.2 | Registrado como conflicto |
+
+## Anexo — merge simulado con el carril de inicio al 75 % (2026-10-30, 23:2x)
+
+A pedido de `pasanaku-c1` (las dos ramas tocan el sorteo por lados distintos), se mergeó en una rama descartable
+`claude/sorteo-primera-cuota-20261030` (`74657c94`) + `origin/claude/arenas-y-inicio-75-20261030` (`5e3db02f`):
+sin conflictos de texto (único archivo compartido: el pacto, idéntico) y regresión completa de `grupos`
+**621/621**, `spotlessCheck` OK (`evidencia/grupos-merge-simulado-con-inicio-75.txt`). Sin doble chequeo de
+`AP-CU60-05`: `CU60Sortear` usa `AceptacionVigenteRepositorio`; lo de c1 vive en `puedeSortear` y
+`SorteoRepositorio`. Queda pendiente, por acuerdo, repetir la regresión sobre `test` real después de que entre #364
+y antes de mergear #369.
+
+## Anexo — regresión sobre `test` real con #364 adentro (2026-10-31, 07:0x UTC)
+
+#364 (`claude/arenas-y-inicio-75-20261030`) entró en `test` como `5c06f9e95`. Se trajo `origin/test` a
+`claude/sorteo-primera-cuota-20261030` (merge `23fe81042`, sin conflictos) y se repitió la regresión completa,
+ya no simulada:
+
+| Servicio | Comando | Resultado | Evidencia |
+|---|---|---|---|
+| grupos | `./gradlew :servicios:grupos:spotlessCheck :servicios:grupos:test :servicios:grupos:webTest :servicios:grupos:integrationTest` | BUILD SUCCESSFUL · XML tests=621 fallos=0 errores=0 saltados=0 (94 XML regenerados en la corrida) | `evidencia/grupos-regresion-test-con-364.txt` |
+| aportes | `./gradlew :servicios:aportes:spotlessCheck :servicios:aportes:test :servicios:aportes:webTest :servicios:aportes:integrationTest` | BUILD SUCCESSFUL · XML tests=237 fallos=0 errores=0 saltados=0 | `evidencia/aportes-regresion-test-con-364.txt` |
+
+Con esto se cumple la condición acordada con `pasanaku-c1` para mergear #369 (→ `test`) y #370 (→ `dev`).
+Deuda que c1 deja registrada y sigue abierta: la regla «versión vigente del reglamento» está escrita dos veces
+(`SorteoRepositorio.todosAceptaronElReglamento`, usada por `puedeSortear`, y `AceptacionVigenteRepositorio`,
+usada por `CU60Sortear`). Unificarla queda fuera de este alcance; se anota, no se arregla.
+
+## Anexo — H6 · CI de #369 en verde (2026-10-31, 07:0x–07:2x UTC)
+
+El primer CI del PR (corridas `41163590299`/`41163590150` sobre `9eb51b85`) tenía tres jobs en rojo. Ninguno era de
+c1 ni del merge: todos salían de este trabajo y no se habían visto porque los gates fallaban en cascada (el paso 6
+tapaba al 6b, 6d, 6h y 6i). Se reprodujeron en local uno por uno y se corrigieron:
+
+| ID | Qué fallaba | Qué se hizo | Comando | Resultado · evidencia |
+|---|---|---|---|---|
+| H6.S1.M1 | «Contratos y clientes generados»: `postman/` con diff (el OpenAPI de `aportes` ganó `/primera-cuota`) | Colecciones regeneradas (`aportes` y, por el comentario de códigos, `grupos`) | `python3 scripts/generar_postman.py && git diff --exit-code -- postman/` | exit 0 · `evidencia/h6-regenerar-sin-diff.txt` |
+| H6.S1.M2 | `verificar_boveda.py`: «códigos de error correlativos ['CU-60']» (el bloque iba 01..05, 11, 12) | `AP-CU60-06..10`, que ya existían en código, documentados en el CU-60 con nombre y fila | `python3 scripts/verificar_boveda.py` | `OK · códigos de error correlativos` · `evidencia/h6-gates-boveda.txt` |
+| H6.S1.M3 | `verificar_boveda.py`: planes dicen 174 restricciones, son 175 (`R-GRP-20`) | `planes/00`, `05`, `06` → 175 | ídem | `TODO OK` · ídem |
+| H6.S1.M4 | `verificar_criterios.py` (paso 6d, antes tapado): 8 pruebas de `CU21PrimeraCuotaTest` y 4 de CU-60 sin escenario Gherkin; `AP-CU60-11/12` sin declarar en `grupos.yaml` | 12 escenarios en los Gherkin de CU-21 y CU-60 (texto = `DisplayName`, unido por « · »); comentario de 11/12 en `grupos.yaml` | `python3 scripts/verificar_criterios.py` | `Sin divergencias entre la boveda y el codigo.` · `evidencia/h6-gates-boveda-completos.txt` |
+| H6.S1.M5 | `verificar_seguridad.py` (6b): `docs/Seguridad.md` dice 174 | → 175 | `python3 scripts/verificar_seguridad.py` | `TODO OK · 8 aviso(s)` · `evidencia/h6-regenerar-sin-diff.txt` |
+| H6.S1.M6 | Catálogo de datos (6i) desactualizado: la entrada CU-60 con sus tres endpoints aparece por los cambios del documento | Regenerado y commiteado | `python3 -I scripts/catalogo_de_datos.py --escribir && git diff --exit-code -- …` | exit 0 · ídem |
+| H6.S1.M7 | `generar_compose.py --coolify` (6h): «aportes: GRUPO_INICIADO_CONSUMO_HABILITADO» sin valor | Bandera en `DE_DESARROLLO` (`true`) y `DE_ENTORNO` (`${…:-true}`); `docker-compose.coolify.yml` regenerado (+1 línea) | `python3 scripts/generar_compose.py --coolify && python3 scripts/auditoria/verificar_limites_compose.py && git diff --exit-code -- docker-compose.coolify.yml despliegue/coolify/` | exit 0 · `evidencia/h6-compose.txt` |
+| H6.S2.M1 | `testBarrido`: `CU60Sortear.java` 311 líneas (límite 300) | `RequisitosDelSorteo` (ayudante estático: `AP-CU60-05`, `11`, `12`); constructor intacto | `./gradlew :servicios:grupos:testBarrido` · `wc -l` | exit 0 · 289 líneas · `evidencia/h6-barrido-y-cu60.txt` |
+| H6.S2.M2 | `testBarrido`: `CU60Test.java` 368 líneas | Cuatro pruebas a `CU60RequisitosTest extends BaseDeCU60` | ídem · `:servicios:grupos:integrationTest --tests '*CU60*'` | 258 líneas · CU60RequisitosTest 4/4, CU60SnapshotTest 10/10, CU60Test 12/12 · ídem |
+| H6.S3.M1 | Regresión + checks del PR | Regresión completa de `grupos` sobre el árbol final; `check` estático; push | `./gradlew :servicios:grupos:spotlessCheck :servicios:grupos:test :servicios:grupos:webTest :servicios:grupos:integrationTest :servicios:grupos:testBarrido` | **623/623, 0 fallos** · `evidencia/h6-grupos-regresion.txt`, `h6-grupos-check-estatico.txt` · checks de #369 (08:21 UTC): **16 pass, 3 skipped, 1 fail = OSV-Scanner** (`minimatch` en `yarn.lock`, ajeno: la rama no toca lockfiles); #370 ídem · `evidencia/h6-checks-pr-369-370.txt` |
+
+`aportes` no cambió de código en H6 (solo Gherkin de CU-21, Postman y Compose): vale la regresión 237/237 de
+`evidencia/aportes-regresion-test-con-364.txt`. Fuera de alcance y anotado: `despliegue/compose/servicios.yml`
+está en `.gitignore` (se regenera en cada máquina), así que la bandera llega a desarrollo por el generador, no por git.

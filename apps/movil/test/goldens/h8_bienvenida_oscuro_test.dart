@@ -26,7 +26,7 @@ void main() {
     expect(Theme.of(contexto).brightness, Brightness.dark);
     expect(MediaQuery.textScalerOf(contexto).scale(10), closeTo(13, 0.001));
     expect(find.text(TextosIdentidad.tituloBienvenida), findsOneWidget);
-    expect(find.text('Ir a tu billetera'), findsOneWidget);
+    expect(find.text('Ver mi billetera'), findsOneWidget);
     expect(tester.takeException(), isNull);
     await expectLater(
       find.byType(PantallaDeBienvenida),

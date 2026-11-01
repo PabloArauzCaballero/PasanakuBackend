@@ -1,0 +1,2 @@
+semilla vieja: EXIT=1 tests="3" skipped="0" failures="2" non-array
+semilla nueva: EXIT=0 tests="3" skipped="0" failures="0"

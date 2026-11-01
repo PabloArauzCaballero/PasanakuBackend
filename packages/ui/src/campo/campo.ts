@@ -41,9 +41,11 @@ let secuencia = 0
     :host { display: block; }
     .rotulo { display: flex; align-items: center; gap: var(--s1); margin-bottom: var(--s1); }
     label { display: block; font-weight: 600; color: var(--text-2); }
-    .ayuda-boton { display: inline-flex; align-items: center; justify-content: center; width: var(--s5); height: var(--s5); padding: 0; border: 0; border-radius: var(--r-pill); background: transparent; color: var(--text-3); cursor: help; }
-    .ayuda-boton:focus-visible { outline: var(--borde-foco) solid var(--g300); outline-offset: var(--borde-desfase); }
-    .caja { display: flex; align-items: center; gap: var(--s2); min-height: var(--area-tactil); padding: 0 var(--s3); border: var(--borde-fino) solid var(--borde-control); border-radius: var(--r-md); background: var(--field); color: var(--text); }
+    .ayuda-boton { display: inline-flex; align-items: center; justify-content: center; width: var(--area-tactil); height: var(--area-tactil); margin: calc((var(--s5) - var(--area-tactil)) / 2); padding: 0; border: 0; border-radius: var(--r-pill); background: transparent; color: var(--text-3); cursor: help; }
+    /* El botón mide el área táctil (44 px); el margen negativo conserva el hueco de 24 px y el anillo de foco rodea el mismo círculo de siempre. */
+    .ayuda-boton:focus-visible { outline: var(--borde-foco) solid var(--g300); outline-offset: calc(var(--borde-desfase) - (var(--area-tactil) - var(--s5)) / 2); }
+    /* Posicionada: pinta (y recibe el clic) por encima de los 10 px que el botón de ayuda, ya de 44 px, le solapa. */
+    .caja { position: relative; display: flex; align-items: center; gap: var(--s2); min-height: var(--area-tactil); padding: 0 var(--s3); border: var(--borde-fino) solid var(--borde-control); border-radius: var(--r-md); background: var(--field); color: var(--text); }
     .caja:focus-within { border-color: var(--brand); box-shadow: 0 0 0 var(--borde-foco) var(--g300); }
     :host(.con-error) .caja { border-color: var(--err); }
     :host(.con-exito) .caja { border-color: var(--ok); }

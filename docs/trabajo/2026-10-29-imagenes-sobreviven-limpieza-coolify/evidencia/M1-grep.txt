@@ -1,0 +1,5 @@
+apps/backoffice/docker/Dockerfile.backoffice:1
+apps/movil/docker/Dockerfile.movil-web:1
+apps/web/docker/Dockerfile.web:1
+despliegue/Dockerfile:1
+despliegue/Dockerfile.esquema:1

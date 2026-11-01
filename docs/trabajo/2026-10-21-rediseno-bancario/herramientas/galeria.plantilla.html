@@ -1,0 +1,192 @@
+<title>Rediseño Aporteo · Capturas</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Instrument+Sans:wght@400;500;600&display=swap">
+<style>
+/* Mesa de revisión: barra de filtros fija arriba; debajo, una fila por pantalla con el
+   antes y el después lado a lado (o los cinco estados de una fase). Paleta de la app. */
+:root {
+  --fondo: #f4f6f5;
+  --papel: #ffffff;
+  --tinta: #10231a;
+  --tinta-2: #4a5a51;
+  --linea: #dce4de;
+  --marca: #1c5a3a;
+  --marca-suave: #e7f2eb;
+  --aviso: #8a5a00;
+  --aviso-fondo: #fdf3dc;
+  --display: "Bricolage Grotesque", "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  --texto: "Instrument Sans", "Helvetica Neue", "Segoe UI", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --fondo: #07130d; --papel: #0f2b1d; --tinta: #eaf3ed; --tinta-2: #a9bdb1;
+    --linea: #1c3a2a; --marca: #7fc79d; --marca-suave: #143524;
+    --aviso: #f3c76b; --aviso-fondo: #3a2c0c; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --fondo: #07130d; --papel: #0f2b1d; --tinta: #eaf3ed; --tinta-2: #a9bdb1;
+  --linea: #1c3a2a; --marca: #7fc79d; --marca-suave: #143524;
+  --aviso: #f3c76b; --aviso-fondo: #3a2c0c; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--fondo); color: var(--tinta); font: 15px/1.5 var(--texto);
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 0 48px;
+}
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--fondo); }
+.cabecera { max-width: 1240px; margin: 0 auto; padding-block: 28px 12px; display: grid; gap: 6px; }
+.cabecera h1 { font: 700 clamp(26px, 5vw, 38px)/1.1 var(--display); margin: 0; letter-spacing: -0.02em; text-wrap: balance; }
+.cabecera p { margin: 0; color: var(--tinta-2); max-width: 65ch; }
+.cifras { display: flex; flex-wrap: wrap; gap: 8px 20px; color: var(--tinta-2); font-size: 13px; font-variant-numeric: tabular-nums; }
+.cifras b { color: var(--tinta); font-weight: 600; }
+.filtros {
+  background: var(--fondo);
+  border-bottom: 1px solid var(--linea); max-width: 1240px; margin: 0 auto; padding-block: 10px;
+  display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center;
+}
+@media (min-width: 720px) { .filtros { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; } }
+.grupo { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
+.grupo > span { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--tinta-2); margin-right: 4px; }
+button.chip {
+  font: 500 13px/1 var(--texto); color: var(--tinta); background: var(--papel); border: 1px solid var(--linea);
+  border-radius: 999px; padding: 8px 12px; min-height: 36px; cursor: pointer;
+}
+button.chip[aria-pressed="true"] { background: var(--marca); border-color: var(--marca); color: var(--papel); }
+button.chip:focus-visible { outline: 2px solid var(--marca); outline-offset: 2px; }
+main { max-width: 1240px; margin: 0 auto; display: grid; gap: 28px; padding-top: 20px; }
+.flujo h2 { font: 700 22px/1.2 var(--display); margin: 0 0 12px; text-transform: capitalize; }
+.flujo > .filas { display: grid; gap: 18px; }
+.fila { background: var(--papel); border: 1px solid var(--linea); border-radius: 14px; padding: 14px; display: grid; gap: 10px; min-width: 0; }
+.fila h3 { margin: 0; font: 600 16px/1.3 var(--texto); }
+.fila h3 code { font: 500 12px/1 ui-monospace, "SF Mono", Menlo, monospace; color: var(--tinta-2); margin-left: 6px; }
+.tira { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(150px, 260px); gap: 12px; overflow-x: auto; padding-bottom: 4px; }
+figure { margin: 0; display: grid; gap: 6px; align-content: start; }
+figcaption { font-size: 12px; color: var(--tinta-2); text-transform: uppercase; letter-spacing: 0.06em; }
+figure img { width: 100%; height: auto; border-radius: 10px; border: 1px solid var(--linea); background: var(--fondo); display: block; }
+.falta { aspect-ratio: 9 / 19; border: 1px dashed var(--linea); border-radius: 10px; display: grid; place-items: center; color: var(--tinta-2); font-size: 13px; text-align: center; padding: 12px; }
+.nota { font-size: 12px; background: var(--aviso-fondo); color: var(--aviso); border-radius: 8px; padding: 6px 8px; }
+.vacio { color: var(--tinta-2); }
+@media (prefers-reduced-motion: no-preference) { button.chip { transition: background 120ms, color 120ms; } }
+</style>
+
+<header class="cabecera">
+  <h1>Rediseño bancario de la app</h1>
+  <p>Cada pantalla de la app móvil antes y después del rediseño, con datos sintéticos del contrato. Elegí estado, tamaño y tema arriba.</p>
+  <div class="cifras" id="cifras"></div>
+</header>
+
+<nav class="filtros" aria-label="Filtros">
+  <div class="grupo" id="f-vista"><span>Ver</span></div>
+  <div class="grupo" id="f-flujo"><span>Flujo</span></div>
+  <div class="grupo" id="f-estado"><span>Estado</span></div>
+  <div class="grupo" id="f-vp"><span>Ancho</span></div>
+  <div class="grupo" id="f-tema"><span>Tema</span></div>
+</nav>
+
+<main id="lista"></main>
+
+<script>
+const INDICE = /*INDICE*/[];
+// 'archivos': los PNG están al lado. 'paquetes': vienen en paquetes/<fase>-<flujo>.json.
+const MODO = /*MODO*/'archivos';
+const paquetes = {};
+const pedidos = {};
+function asegurarPaquete(fase, flujo) {
+  const nombre = `${fase}-${flujo}`;
+  if (paquetes[nombre] || pedidos[nombre]) return;
+  pedidos[nombre] = fetch(`paquetes/${nombre}.json`)
+    .then((r) => (r.ok ? r.json() : {}))
+    .catch(() => ({}))
+    .then((j) => { paquetes[nombre] = j; pintar(); });
+}
+function fuente(foto, fase, flujo) {
+  if (MODO === 'archivos') return foto.src;
+  const paquete = paquetes[`${fase}-${flujo}`];
+  if (!paquete) { asegurarPaquete(fase, flujo); return null; }
+  return paquete[foto.src] ? `data:image/png;base64,${paquete[foto.src]}` : null;
+}
+const ESTADOS = { datos: 'Con datos', vacio: 'Vacío', peorCaso: 'Adverso', error: 'Error', cargando: 'Cargando' };
+const VISTAS = { comparar: 'Antes y después', estados: 'Todos los estados' };
+const FLUJOS = ['todos', ...new Set(INDICE.map((p) => p.flujo))];
+const estado = { vista: 'comparar', flujo: 'todos', est: 'datos', vp: '412', tema: 'claro', fase: 'antes' };
+try { Object.assign(estado, JSON.parse(localStorage.getItem('galeria') || '{}')); } catch (_) {}
+if (/^[a-z]+$/.test(location.hash.slice(1)) && FLUJOS.includes(location.hash.slice(1))) estado.flujo = location.hash.slice(1);
+
+function chips(id, opciones, clave) {
+  const g = document.getElementById(id);
+  g.querySelectorAll('button').forEach((b) => b.remove());
+  for (const [valor, texto] of Object.entries(opciones)) {
+    const b = document.createElement('button');
+    b.className = 'chip'; b.type = 'button'; b.textContent = texto;
+    b.setAttribute('aria-pressed', String(estado[clave] === valor));
+    b.addEventListener('click', () => { estado[clave] = valor; guardar(); pintar(); });
+    g.append(b);
+  }
+}
+function guardar() { try { localStorage.setItem('galeria', JSON.stringify(estado)); } catch (_) {} }
+
+function figura(p, fase, est, rotulo) {
+  const f = document.createElement('figure');
+  const foto = p.fotos[`${fase}|${est}|${estado.vp}|${estado.tema}`];
+  const cap = document.createElement('figcaption'); cap.textContent = rotulo; f.append(cap);
+  const src = foto && fuente(foto, fase, p.flujo);
+  if (foto && !src) {
+    const d = document.createElement('div'); d.className = 'falta'; d.textContent = 'Cargando captura…';
+    f.append(d);
+  } else if (foto) {
+    const img = document.createElement('img');
+    img.loading = 'lazy'; img.decoding = 'async'; img.src = src;
+    img.alt = `${p.pantalla}, ${rotulo.toLowerCase()}, ${estado.vp} dp, tema ${estado.tema}`;
+    f.append(img);
+    if (foto.nota) { const n = document.createElement('div'); n.className = 'nota'; n.textContent = foto.nota; f.append(n); }
+  } else {
+    const d = document.createElement('div'); d.className = 'falta';
+    d.textContent = fase === 'despues' ? 'Todavía sin rediseñar' : 'Este estado no se puede ejercitar en el arnés';
+    f.append(d);
+  }
+  return f;
+}
+
+function pintar() {
+  chips('f-vista', VISTAS, 'vista');
+  chips('f-flujo', Object.fromEntries(FLUJOS.map((f) => [f, f === 'todos' ? 'Todos' : f[0].toUpperCase() + f.slice(1)])), 'flujo');
+  chips('f-estado', estado.vista === 'comparar' ? ESTADOS : { antes: 'Antes', despues: 'Después' }, estado.vista === 'comparar' ? 'est' : 'fase');
+  chips('f-vp', { 360: '360', 412: '412', 600: '600' }, 'vp');
+  chips('f-tema', { claro: 'Claro', oscuro: 'Oscuro' }, 'tema');
+  document.querySelector('#f-estado > span').textContent = estado.vista === 'comparar' ? 'Estado' : 'Fase';
+
+  const lista = document.getElementById('lista'); lista.replaceChildren();
+  const visibles = INDICE.filter((p) => estado.flujo === 'todos' || p.flujo === estado.flujo);
+  for (const flujo of new Set(visibles.map((p) => p.flujo))) {
+    const sec = document.createElement('section'); sec.className = 'flujo'; sec.id = flujo;
+    const h = document.createElement('h2'); h.textContent = flujo; sec.append(h);
+    const filas = document.createElement('div'); filas.className = 'filas'; sec.append(filas);
+    for (const p of visibles.filter((x) => x.flujo === flujo)) {
+      const fila = document.createElement('article'); fila.className = 'fila';
+      const t = document.createElement('h3'); t.textContent = p.pantalla.replaceAll('-', ' ');
+      fila.append(t);
+      const tira = document.createElement('div'); tira.className = 'tira';
+      if (estado.vista === 'comparar') {
+        tira.append(figura(p, 'antes', estado.est, 'Antes'), figura(p, 'despues', estado.est, 'Después'));
+      } else {
+        for (const [e, r] of Object.entries(ESTADOS)) tira.append(figura(p, estado.fase, e, r));
+      }
+      fila.append(tira); filas.append(fila);
+    }
+    lista.append(sec);
+  }
+  if (!visibles.length) { const v = document.createElement('p'); v.className = 'vacio'; v.textContent = 'No hay capturas para este flujo todavía.'; lista.append(v); }
+}
+
+const total = (fase) => INDICE.reduce((n, p) => n + Object.keys(p.fotos).filter((k) => k.startsWith(fase + '|')).length, 0);
+const rediseñadas = INDICE.filter((p) => Object.keys(p.fotos).some((k) => k.startsWith('despues|'))).length;
+document.getElementById('cifras').innerHTML =
+  `<span><b>${INDICE.length}</b> pantallas</span><span><b>${total('antes')}</b> capturas antes</span>` +
+  `<span><b>${total('despues')}</b> capturas después</span><span><b>${rediseñadas}</b> de ${INDICE.length} rediseñadas</span>`;
+pintar();
+</script>

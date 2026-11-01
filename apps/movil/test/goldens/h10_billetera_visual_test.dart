@@ -117,17 +117,14 @@ void main() {
                   reason: 'la etiqueta "$etiqueta" debe verse completa',
                 );
               }
-              expect(find.text('Recarga'), findsOneWidget);
             case _Fixture.cargando:
               expect(
                 find.bySemanticsLabel('Cargando tu saldo'),
                 findsOneWidget,
               );
             case _Fixture.vacio:
-              expect(
-                find.textContaining('Todavía no tenés movimientos'),
-                findsOneWidget,
-              );
+              // Lo que dice el vacío queda bajo el pliegue: se mide después del golden.
+              break;
             case _Fixture.error:
               expect(find.text('Volver a intentar'), findsOneWidget);
               expect(find.text('detalle interno no visible'), findsNothing);
@@ -141,6 +138,28 @@ void main() {
               'h10-billetera-$estado-$tema-$ancho-130.png',
             ),
           );
+
+          // Lo que queda bajo el pliegue se mide DESPUÉS del golden (que es la pantalla
+          // como se abre): con el estado vacío de pasanakus de ADR-053 los movimientos ya
+          // no entran en la primera pantalla y el `ListView` no los construye hasta que
+          // se desplaza.
+          Future<void> verHasta(Finder f) => tester.dragUntilVisible(
+            f,
+            find.byType(ListView).first,
+            const Offset(0, -200),
+          );
+          if (fixture == _Fixture.principal) {
+            await verHasta(find.text('Recarga'));
+            expect(find.text('Recarga'), findsOneWidget);
+          }
+          if (fixture == _Fixture.vacio) {
+            await verHasta(find.textContaining('Todavía no tenés movimientos'));
+            expect(
+              find.textContaining('Todavía no tenés movimientos'),
+              findsOneWidget,
+            );
+          }
+          expect(tester.takeException(), isNull);
         });
       }
     }

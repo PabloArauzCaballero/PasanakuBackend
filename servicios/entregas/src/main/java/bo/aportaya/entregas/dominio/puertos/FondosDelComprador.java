@@ -35,4 +35,11 @@ public interface FondosDelComprador {
             UUID retencionRef, UUID vendedorUsuarioId, Dinero paraElVendedor, Dinero cargos, String clave);
 
     Resultado liberar(UUID retencionRef, String clave);
+
+    /**
+     * Devuelve al postor una retencion del mercado con la identidad de servicio de {@code entregas}: la puja superada
+     * se libera en la sesion de OTRA persona o en el cierre programado, donde el dueno no esta. {@code OK} tambien si
+     * ya estaba liberada (es el resultado que se queria).
+     */
+    Resultado devolver(UUID retencionRef, String clave);
 }

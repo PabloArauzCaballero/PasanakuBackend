@@ -1,0 +1,10 @@
+Ran 13 tests in 0.084s
+
+OK
+393 tablas → docs/catalogo-de-datos.md y servicios/auditoria/src/main/resources/catalogo/catalogo-datos.json
+generar_ddl segunda corrida, diff contra lo commiteable:
+ M sql/15_infra/nulabilidad.sql
+ M sql/30_indices/09_auditoria_reportes.sql
+ M sql/60_semillas/24-metadata-comentarios.sql
+ M sql/aplicar.sql
+?? sql/10_tablas/09_auditoria_reportes/disponibilidad_servicio_dia.sql

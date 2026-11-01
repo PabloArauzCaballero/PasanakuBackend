@@ -1,0 +1,191 @@
+{
+ "resultados": [
+  {
+   "vista": "casos",
+   "nivel": "aceptado",
+   "caso": "Decidir → POST /cumplimiento/casos/{id}/decision con Idempotency-Key (contra el doble)",
+   "veredicto": "PASS",
+   "detalle": "200 {\"decision\":\"DESCARTAR\",\"conclusion\":\"Las operaciones tienen respaldo documental suficiente y coherente.\"}"
+  },
+  {
+   "vista": "casos",
+   "nivel": "aceptado",
+   "caso": "recibo visible tras el 2xx y la bandeja se recarga",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "casos",
+   "nivel": "error",
+   "caso": "decisión con 500: el diálogo sigue abierto, conserva lo escrito y el botón no queda trabado",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "casos",
+   "nivel": "aceptado",
+   "caso": "«Ver» navega a la ficha del caso",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "caso",
+   "nivel": "aceptado",
+   "caso": "«Confirmar decisión» abre la decisión real con la conclusión prellenada",
+   "veredicto": "PASS",
+   "detalle": "Causal: Fraccionamiento de operaciones. Cinco depósitos bajo el umbral el mismo día."
+  },
+  {
+   "vista": "caso",
+   "nivel": "aceptado",
+   "caso": "POST decidirCasoLft desde la ficha (contra el doble)",
+   "veredicto": "PASS",
+   "detalle": "200"
+  },
+  {
+   "vista": "alertas",
+   "nivel": "aceptado",
+   "caso": "Abrir caso → POST /cumplimiento/casos con la alerta de la fila (contra el doble)",
+   "veredicto": "PASS",
+   "detalle": "201 {\"alertaIds\":[\"0b9b2a61-0000-4000-8000-000000000001\"],\"analistaId\":\"7c1d9e40-0000-4000-8000-0000000000aa\",\"resumen\":\"Fraccionamiento en tres días seguidos.\"}"
+  },
+  {
+   "vista": "reportes-uif",
+   "nivel": "aceptado",
+   "caso": "Preparar → POST /uif/reportes (contra el doble)",
+   "veredicto": "PASS",
+   "detalle": "200 {\"periodo\":\"2026-09\",\"catalogoCodigo\":\"UIF-ROG\",\"formulario\":\"ROG-01\"}"
+  },
+  {
+   "vista": "requerimientos",
+   "nivel": "aceptado",
+   "caso": "Responder → POST /uif/requerimientos/{id}/respuesta (contra el doble)",
+   "veredicto": "PASS",
+   "detalle": "200 {\"respuestaUrl\":\"https://docs.ejemplo.test/respuesta-of-1.pdf\"}"
+  },
+  {
+   "vista": "verificaciones",
+   "nivel": "aceptado",
+   "caso": "25 expedientes, 10 por página → Página 1 de 3",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "verificaciones",
+   "nivel": "aceptado",
+   "caso": "buscar «jose» encuentra 1",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "verificaciones",
+   "nivel": "aceptado",
+   "caso": "buscar «70000007» encuentra 1",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "verificaciones",
+   "nivel": "aceptado",
+   "caso": "buscar «p6@ejemplo» encuentra 1",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "verificaciones",
+   "nivel": "aceptado",
+   "caso": "buscar «1000012» encuentra 1",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "verificaciones",
+   "nivel": "aceptado",
+   "caso": "filtro «Documento vencido» deja 5",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "verificaciones",
+   "nivel": "aceptado",
+   "caso": "CSV de lo filtrado (5 filas + encabezado), sin ids internos",
+   "veredicto": "PASS",
+   "detalle": "expedientes-de-identidad-2026-10-26.csv"
+  },
+  {
+   "vista": "verificaciones",
+   "nivel": "límite",
+   "caso": "Ir a 3 → última página con 5",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "verificaciones",
+   "nivel": "aceptado",
+   "caso": "filas por página 5 → Página 1 de 5",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "verificaciones",
+   "nivel": "aceptado",
+   "caso": "estado viaja al servidor (?estado=APROBADA)",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "verificaciones",
+   "nivel": "aceptado",
+   "caso": "Rechazar → POST /identidad/verificaciones/{id}/decision (contra el doble)",
+   "veredicto": "PASS",
+   "detalle": "200 {\"decision\":\"RECHAZAR\",\"motivo\":\"La foto del documento está borrosa.\"}"
+  },
+  {
+   "vista": "verificaciones",
+   "nivel": "límite",
+   "caso": "sin coincidencias: vacío orientado con «Quitar filtros»",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "verificaciones",
+   "nivel": "límite",
+   "caso": "cola vacía: explica que no hay nada esperando",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "verificaciones",
+   "nivel": "error",
+   "caso": "500: error con traza y sin texto crudo",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "verificaciones",
+   "nivel": "error",
+   "caso": "«Volver a intentar» repite y vuelve a la cola",
+   "veredicto": "PASS",
+   "detalle": ""
+  },
+  {
+   "vista": "habilitacion",
+   "nivel": "aceptado",
+   "caso": "GET /organizadores/{id}/habilitacion",
+   "veredicto": "PASS",
+   "detalle": "200"
+  }
+ ],
+ "errores": [
+  {
+   "url": "http://127.0.0.1:4303/cumplimiento/casos",
+   "tipo": "consola",
+   "texto": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+  },
+  {
+   "url": "http://127.0.0.1:4303/cumplimiento/verificaciones",
+   "tipo": "consola",
+   "texto": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+  }
+ ]
+}

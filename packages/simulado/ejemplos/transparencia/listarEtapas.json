@@ -1,0 +1,48 @@
+{
+  "servicio": "transparencia",
+  "operacion": "listarEtapas",
+  "metodo": "get",
+  "ruta": "/reputacion/etapas",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": [
+        {
+          "codigo": "MNNNNNNNNNNNNNNN",
+          "nombre": "nombre",
+          "orden": 0,
+          "desde": "4.44",
+          "hasta": "4.44",
+          "desbloqueo": {
+            "cuposMax": 3,
+            "aporteMax": "4.44",
+            "moneda": "BOB",
+            "estado": "PROPUESTO"
+          }
+        }
+      ]
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": []
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": [
+        {
+          "codigo": "MNNNNNNNNNNNNNNN",
+          "nombre": "nombre",
+          "orden": 0,
+          "desde": "4.44",
+          "hasta": "4.44",
+          "desbloqueo": {
+            "cuposMax": 3,
+            "aporteMax": "4.44",
+            "moneda": "BOB",
+            "estado": "PROPUESTO"
+          }
+        }
+      ]
+    }
+  }
+}

@@ -56,6 +56,7 @@ const ESPERADO: Record<string, string[]> = {
   ANUNCIANTE: [],
   // Identidades de servicio: no son personas ni abren pantallas del backoffice.
   SERVICIO_ENTREGAS: [],
+  SERVICIO_GRUPOS: [],
   SERVICIO_INVERSIONES: [],
   // Roles internos de Atlas adaptados a Pasanaku (H6):
   INTERNAL_IDENTITY_ADMIN: ['sistemas'],
@@ -73,8 +74,8 @@ const ESPERADO: Record<string, string[]> = {
 }
 
 describe('matriz de roles · qué secciones abre cada rol del catálogo', () => {
-  it('el catálogo parseado tiene los treinta roles y la prueba cubre cada uno (si se agrega un rol, hay que decidir qué ve)', () => {
-    expect(CATALOGO.roles.size).toBe(30)
+  it('el catálogo parseado tiene los treinta y un roles y la prueba cubre cada uno (si se agrega un rol, hay que decidir qué ve)', () => {
+    expect(CATALOGO.roles.size).toBe(31)
     expect([...CATALOGO.roles].sort()).toEqual(Object.keys(ESPERADO).sort())
   })
 
@@ -106,6 +107,10 @@ describe('matriz de roles · qué secciones abre cada rol del catálogo', () => 
     expect(alcanza('BILLETERA_VER_TERCEROS', admin, true)).toBe(false)
     expect(alcanza('ADMIN_PLATAFORMA', tokenDe('SOPORTE'), true)).toBe(false)
     expect(alcanza('ver:admisiones', tokenDe('SOPORTE'), true)).toBe(false)
+    expect(alcanza('ver:postulaciones', tokenDe('SOPORTE'), true)).toBe(false)
+    expect(alcanza('ver:postulaciones', admin, true)).toBe(true)
+    expect(alcanza('ver:grupos', admin, true)).toBe(true)
+    expect(alcanza('ver:grupos', tokenDe('SOPORTE'), true)).toBe(false)
   })
 
   it('billetera de un tercero: solo la ven los roles que el catálogo habilita, y quien solo atiende reclamos por otra vía no', () => {

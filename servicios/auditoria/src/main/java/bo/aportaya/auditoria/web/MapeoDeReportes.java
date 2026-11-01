@@ -2,6 +2,7 @@ package bo.aportaya.auditoria.web;
 
 import bo.aportaya.auditoria.aplicacion.ConsultarHistorialDeReportes;
 import bo.aportaya.auditoria.web.generado.modelo.DefinicionDeReporteEnLista;
+import bo.aportaya.auditoria.web.generado.modelo.DefinicionDeReporteEnListaParametrosEsperadosInner;
 import bo.aportaya.auditoria.web.generado.modelo.EjecucionDeReporteEnLista;
 
 /** Del catalogo y el historial de reportes (CU-58) al contrato. */
@@ -17,6 +18,9 @@ final class MapeoDeReportes {
         r.setDescripcion(d.descripcion());
         r.setPermisoRequerido(d.permisoRequerido());
         r.setContieneDatosSensibles(d.sensible());
+        r.setParametrosEsperados(d.esperados().stream()
+                .map(e -> new DefinicionDeReporteEnListaParametrosEsperadosInner(e.nombre(), e.tipo(), e.obligatorio()))
+                .toList());
         return r;
     }
 

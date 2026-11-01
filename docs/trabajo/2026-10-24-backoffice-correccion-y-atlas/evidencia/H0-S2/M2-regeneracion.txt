@@ -1,0 +1,28 @@
+$ python3 -I scripts/catalogo_de_datos.py --escribir  (con el DDL regenerado)
+392 tablas → docs/catalogo-de-datos.md y servicios/auditoria/src/main/resources/catalogo/catalogo-datos.json
+idempotente: 2.ª corrida, bytes idénticos (json y md)
+$ python3 -I scripts/test_catalogo_de_datos.py
+Ran 13 tests in 0.145s
+
+OK
+$ python3 -I scripts/verificar_narrativas.py
+  OK    · tablas con ficha: 392/392
+  OK    · columnas con explicación de negocio: 3770/4143 (piso 3734)
+
+Sin fallas.
+$ python3 scripts/matriz_de_pruebas.py && git diff --exit-code -- docs/catalogo-de-flujos/matriz.md
+
+323 endpoints → docs/catalogo-de-flujos/matriz.md
+ docs/catalogo-de-flujos/matriz.md | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
+matriz sin cambios: exit=1
+tablas 392 · con operaciones 328 · con endpoints 306
+$ python3 scripts/matriz_de_pruebas.py  (2 corridas) y luego el catálogo
+323 endpoints → docs/catalogo-de-flujos/matriz.md
+matriz idempotente
+392 tablas → docs/catalogo-de-datos.md y servicios/auditoria/src/main/resources/catalogo/catalogo-datos.json
+catálogo idempotente tras la matriz nueva
+
+OK
+
+Sin fallas.

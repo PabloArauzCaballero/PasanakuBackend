@@ -81,6 +81,16 @@ class _CapaDeBloqueoState extends ConsumerState<CapaDeBloqueo>
     if (mounted) setState(() {});
   }
 
+  /// Si «reducir movimiento» se activa con la capa animándose, la capa salta a su
+  /// estado final: el candado nunca depende de una animación para verse.
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_bloqueadaAnteriormente != null) {
+      _sincronizarAnimacion(ref.read(bloqueoProvider).bloqueada);
+    }
+  }
+
   @override
   void dispose() {
     _animacion.dispose();

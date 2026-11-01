@@ -1,0 +1,12 @@
+Sin pendientes a nivel de datos.
+ddl: sin diff
+Límites de memoria/CPU, una réplica Java y Hikari TEST verificados en los cuatro compose.
+compose: sin diff
+catalogo: sin diff
+postman: CON DIFF
+verificar_boveda exit=0
+verificar_seguridad exit=1
+verificar_carriles exit=0
+verificar_maqueta exit=0
+verificar_criterios exit=0
+verificar_narrativas exit=0

@@ -1,0 +1,13 @@
+PASS custodia: validación en el campo antes de enviar (cuenta vacía)
+PASS custodia: 500 al registrar ⇒ aviso «sin confirmar», lo escrito se conserva y el botón queda usable
+PASS custodia: el POST lleva exactamente el contrato (montos en cadena del contrato) y Idempotency-Key
+PASS custodia: POST /custodia/conciliaciones → 201 (simulado sin estado) ⇒ recibo y el historial se vuelve a pedir [verificado contra el doble]
+PASS cierres: 500 al cerrar ⇒ aviso, el día elegido se conserva y el botón queda usable
+PASS cierres: el POST manda solo { fecha } (las cifras las informa aportes)
+PASS cierres: POST → 2xx ⇒ comprobante del día [verificado contra el doble]
+PASS reclamos: 500 al responder ⇒ aviso, la respuesta escrita se conserva y el botón queda usable
+PASS reclamos: POST /reclamos/:id/respuesta con el cuerpo del contrato ⇒ «Respuesta registrada» [verificado contra el doble]
+PASS retiros: 500 al decidir ⇒ aviso y el motivo se conserva
+PASS retiros: POST /billetera/retiros/:id/aprobacion → 2xx con desenlace RECHAZADA [verificado contra el doble]
+PASS retiros: «Volver a la bandeja de retiros» navega a /operacion/retiros
+PASS formularios: consola sin errores salvo los 500 provocados []

@@ -40,10 +40,10 @@ import { textosCatalogo } from './textos'
         </div>
       }
       @if (columna() && puedeEditar()) {
-        <ap-boton acciones variante="fantasma" (pulsado)="abierto.set(false)">Cancelar</ap-boton>
+        <ap-boton acciones variante="fantasma" icono="cerrar" (pulsado)="abierto.set(false)">Cancelar</ap-boton>
       }
       @if (columna() && puedeEditar()) {
-        <ap-boton acciones variante="primario" [cargando]="guardando()" [deshabilitado]="guardando()" (pulsado)="guardar()">{{ guardando() ? t.guardando : t.guardar }}</ap-boton>
+        <ap-boton acciones variante="primario" icono="guardar" [cargando]="guardando()" [deshabilitado]="guardando()" (pulsado)="guardar()">{{ guardando() ? t.guardando : t.guardar }}</ap-boton>
       }
     </ap-cajon-lateral>
   `,

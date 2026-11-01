@@ -1,8 +1,9 @@
-import { HttpClient } from '@angular/common/http'
+import { HttpClient, HttpContext } from '@angular/common/http'
 import { inject } from '@angular/core'
 import type { Observable } from 'rxjs'
 import type { EntradaAutenticacion, SalidaAutenticacion } from 'clientes/angular/identidad'
 import { GATEWAY } from '../../../nucleo/gateway'
+import { YA_REINTENTADA } from '../../../nucleo/sesion.interceptor'
 
 /**
  * CU-04 · Autenticar con MFA. Contrato real: `POST /sesiones` (`autenticar`).
@@ -12,11 +13,14 @@ import { GATEWAY } from '../../../nucleo/gateway'
  *
  * Se llama en un campo de la clase (contexto de inyección) y devuelve la función que de
  * verdad dispara el POST; la red no vive en la vista.
+ *
+ * Va marcada `YA_REINTENTADA`: el `401` del ingreso es «credenciales que no coinciden», no un token vencido. Sin la
+ * marca, el interceptor de sesión intentaba un refresco con la cookie de una sesión anterior en medio del login.
  */
 export function crearAutenticar(): (entrada: EntradaAutenticacion) => Observable<SalidaAutenticacion> {
   const http = inject(HttpClient)
   const gateway = inject(GATEWAY)
-  return (entrada) => http.post<SalidaAutenticacion>(`${gateway}/sesiones`, entrada)
+  return (entrada) => http.post<SalidaAutenticacion>(`${gateway}/sesiones`, entrada, { context: new HttpContext().set(YA_REINTENTADA, true) })
 }
 
 /**

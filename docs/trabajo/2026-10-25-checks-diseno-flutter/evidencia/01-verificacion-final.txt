@@ -1,0 +1,85 @@
+# Verificación final · base dev 4b6800e6 · Flutter 3.44.8 · Node 22.22.3
+
+$ python3 scripts/verificar_frontend.py diseno
+=== packages/diseno_flutter (Flutter) ===
+  OK    · sin red en el sistema de diseño 
+  OK    · sin literal de diseño 
+  OK    · sin formato de dinero 
+  OK    · sin plataforma 
+  OK    · sin print 
+  OK    · ningún archivo de más de 200 líneas (catalogo/ es datos y queda fuera) 
+TODO OK
+
+$ python3 scripts/verificar_frontend.py movil
+=== apps/movil (Flutter) ===
+  OK    · sin red en vista 
+  OK    · sin literal de diseño 
+  OK    · sin formato de dinero 
+  OK    · sin plataforma en vista 
+  OK    · sin print 
+  OK    · selects y fechas solo con el sistema de diseño 
+  OK    · selects con hoja también en diseno_flutter 
+  OK    · ningún archivo de más de 200 líneas (texto_del_contrato.dart es dato y queda fuera) 
+  OK    · el shell tiene navegacion/rutas.dart
+  OK    · el shell tiene dominio/cliente.dart
+  OK    · el shell tiene proveedores/sesion.dart
+TODO OK
+
+$ python3 scripts/verificar_frontend.py ui
+=== packages/ui (Angular) ===
+  OK    · sin red en el sistema de diseño 
+  OK    · sin literal de diseño 
+  OK    · sin formato de dinero 
+  OK    · sin console 
+  OK    · ningún archivo de más de 200 líneas (catalogo/ es datos y queda fuera) 
+  OK    · cada pieza tiene su archivo con el mismo nombre 
+TODO OK
+
+$ python3 scripts/verificar_frontend.py web
+=== apps/web (Angular) ===
+  OK    · sin red en vista 
+  OK    · sin literal de diseño 
+  OK    · sin formato de dinero 
+  OK    · sin console 
+  OK    · ningún archivo de más de 200 líneas 
+=== packages/tutoriales (Angular) ===
+  OK    · sin red fuera del puerto 
+  OK    · sin literal de diseño 
+  OK    · sin console 
+  OK    · ningún archivo de más de 200 líneas 
+  OK    · sin literal de diseño en @aportaya/ui 
+TODO OK
+
+$ python3 scripts/verificar_frontend.py backoffice
+=== apps/backoffice (Angular) ===
+  OK    · sin red en vista 
+  OK    · sin literal de diseño 
+  OK    · sin formato de dinero 
+  OK    · sin console 
+  OK    · ningún archivo de más de 200 líneas 
+=== packages/tutoriales (Angular) ===
+  OK    · sin red fuera del puerto 
+  OK    · sin literal de diseño 
+  OK    · sin console 
+  OK    · ningún archivo de más de 200 líneas 
+  OK    · sin literal de diseño en @aportaya/ui 
+TODO OK
+
+$ (packages/diseno_flutter) dart format --output=none --set-exit-if-changed lib test
+Formatted 178 files (0 changed) in 0.50 seconds.
+$ (packages/diseno_flutter) dart analyze --fatal-infos
+Analyzing diseno_flutter...
+No issues found!
+$ (packages/diseno_flutter) flutter test test/unidad test/widget  -> 00:17 +104: All tests passed!
+$ (packages/diseno_flutter) flutter test test/a11y      -> 00:05 +14: All tests passed!
+$ (packages/diseno_flutter) flutter test test/goldens  -> 00:05 +18: All tests passed!
+$ (apps/movil) dart format --output=none --set-exit-if-changed lib test
+Formatted 560 files (0 changed) in 1.24 seconds.
+$ yarn workspace @aportaya/ui lint       -> lint_exit=0 (ng lint + barrido: TODO OK)
+$ yarn workspace @aportaya/ui typecheck  -> exit 0
+$ ng test --include='src/tabla-de-datos/**/*.spec.ts'  -> Test Files 1 passed (1) · Tests 15 passed (15)
+$ yarn workspace @aportaya/backoffice lint -> lint_exit=0 (ng lint + barrido: TODO OK)
+
+# NO se pudo ejecutar aquí (ver REPORTE · No cubierto):
+#  - generateOpenApiClients (Maven Central responde 429 al proxy): sin clientes Dart/Angular -> dart analyze de apps/movil (457 errores) y tsc de backoffice (121 errores) no son comparables; ninguno nombra un archivo tocado.
+#  - flutter test de apps/movil; las goldens de macOS; los e2e; los workflows reales del CI.

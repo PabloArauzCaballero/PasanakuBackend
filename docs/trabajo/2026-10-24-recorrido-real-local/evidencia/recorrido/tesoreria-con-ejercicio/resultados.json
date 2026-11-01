@@ -1,0 +1,62 @@
+[
+  {
+    "ruta": "/contabilidad",
+    "url": "/contabilidad",
+    "titulo": "Períodos contables",
+    "carga": false,
+    "error": false,
+    "vacio": false,
+    "filas": 0,
+    "texto": "Contabilidad ERP—qué es este módulo y esta vista (para qué sirve y cómo funciona) Períodos contables Fijar el mes: una vez cerrado, nadie puede asentar hacia at",
+    "desborda": false,
+    "redirigida": false,
+    "peticiones": 5,
+    "malas": [],
+    "consola": []
+  },
+  {
+    "ruta": "/contabilidad/cobros",
+    "url": "/contabilidad/cobros",
+    "titulo": "Cuentas por cobrar",
+    "carga": false,
+    "error": false,
+    "vacio": true,
+    "filas": 0,
+    "texto": "Contabilidad ERP—qué es este módulo y esta vista (para qué sirve y cómo funciona) Cuentas por cobrar Que toda plata que un tercero le debe a la empresa tenga es",
+    "desborda": false,
+    "redirigida": false,
+    "peticiones": 1,
+    "malas": [],
+    "consola": []
+  },
+  {
+    "ruta": "/operacion/retiros",
+    "url": "/operacion/retiros",
+    "titulo": "Retiros en revisión",
+    "carga": false,
+    "error": false,
+    "vacio": false,
+    "filas": 2,
+    "texto": "Operación—qué es este módulo y esta vista (para qué sirve y cómo funciona) Retiros en revisión Los retiros que superan el umbral esperan una segunda firma. Van ",
+    "desborda": false,
+    "redirigida": false,
+    "peticiones": 1,
+    "malas": [],
+    "consola": []
+  },
+  {
+    "ruta": "/tablero/financiero",
+    "url": "/tablero/financiero",
+    "titulo": "Tablero financiero",
+    "carga": false,
+    "error": false,
+    "vacio": true,
+    "filas": 0,
+    "texto": "Inicio y Tableros—qué es este módulo y esta vista (para qué sirve y cómo funciona) Tablero financiero Lo que entró, lo que salió, la mora y el fondo de garantía",
+    "desborda": false,
+    "redirigida": false,
+    "peticiones": 1,
+    "malas": [],
+    "consola": []
+  }
+]

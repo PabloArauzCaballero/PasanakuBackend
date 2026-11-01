@@ -6,7 +6,7 @@ tabla: acuerdo
 clase: Acuerdo
 modulo: "02 — Grupos, Cupos, Turnos y Gobernanza"
 clave_primaria: [id]
-columnas: 15
+columnas: 16
 fk_salientes: 2
 fk_entrantes: 8
 append_only: false
@@ -31,6 +31,7 @@ append_only: false
 | `abstenciones` | SMALLINT | — | no | — |
 | `estado` | VARCHAR(15) | — | no | CK |
 | `referencia_afectada_id` | UUID | — | sí | NULL, polimorfica |
+| `entrante_participante_id` | UUID | — | sí | NULL |
 | `abierto_en` | TIMESTAMPTZ | — | no | — |
 | `cierra_en` | TIMESTAMPTZ | — | no | — |
 | `resuelto_en` | TIMESTAMPTZ | — | sí | NULL |
@@ -73,6 +74,9 @@ append_only: false
 > referencia_afectada_id es polimorfica segun
 > "tipo": participante.id, turno.id o
 > registro_incumplimiento.id (M8).
+> entrante_participante_id: en un traspaso
+> (ADMISION_REEMPLAZO), quien entra al cupo;
+> NULL en los demas tipos.
 
 ## Ver también
 

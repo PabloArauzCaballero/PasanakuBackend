@@ -229,6 +229,28 @@ package "Motor de Reputacion" {
     - motivoRevocacion: String
   }
 
+  class Etapa {
+    - id: UUID
+    - modeloId: UUID
+    - codigo: String
+    - nombre: String
+    - orden: Integer
+    - desde: Decimal <<incluido>>
+    - hasta: Decimal <<excluido, salvo en la ultima etapa>>
+    --
+    + contiene(puntaje): Boolean
+    + progreso(puntaje): Decimal
+  }
+
+  class DesbloqueoEtapa {
+    - id: UUID
+    - etapaId: UUID
+    - cuposMax: Integer
+    - aporteMax: Decimal
+    - moneda: String
+    - estado: String <<PROPUESTO | VIGENTE>>
+  }
+
   class ServicioReputacion <<Svc>> {
     --
     + registrarEvento(tipo, contexto): EventoReputacion
@@ -383,6 +405,8 @@ PuntajeReputacion ..> ContribucionFactor : explica con >
 PuntajeReputacion "1" *-- "0..*" SnapshotReputacion
 SnapshotReputacion "1" *-- "0..1" CertificadoReputacion
 InsigniaLogro "1" *-- "0..*" InsigniaOtorgada
+ModeloScoring "1" *-- "1..*" Etapa : tramos de su escala >
+Etapa "1" *-- "0..1" DesbloqueoEtapa
 ServicioReputacion ..> EventoReputacion : registra >
 ServicioReputacion ..> PuntajeReputacion : recalcula >
 
@@ -607,6 +631,27 @@ entity "insignia_otorgada" as insigot {
   motivo_revocacion : VARCHAR(160) <<NULL>>
 }
 
+entity "etapa" as etapa {
+  * id : UUID <<PK>>
+  --
+  # modelo_id : UUID <<FK, IDX>>
+  codigo : VARCHAR(30) <<UQ+modelo_id>>
+  nombre : VARCHAR(40)
+  orden : SMALLINT <<UQ+modelo_id, CK: >= 0>>
+  desde : DECIMAL(6,2) <<CK: >= 0>>
+  hasta : DECIMAL(6,2) <<CK: > 0>>
+}
+
+entity "desbloqueo_etapa" as desbetapa {
+  * id : UUID <<PK>>
+  --
+  # etapa_id : UUID <<FK, UQ>>
+  cupos_max : SMALLINT <<CK: 3-40>>
+  aporte_max : DECIMAL(14,2) <<CK: > 0>>
+  moneda : CHAR(3) <<CK: BOB|USD>>
+  estado : VARCHAR(10) <<CK, IDX>>
+}
+
 entity "metrica_grupo" as metr {
   * id : UUID <<PK>>
   --
@@ -695,6 +740,8 @@ puntaje ||--|{ compscore : "descompone en"
 puntaje ||--o{ snap : "fotografia"
 snap ||--o| certif : "certifica"
 insig ||--o{ insigot : "se otorga como"
+modelo ||--|{ etapa : "parte su escala en"
+etapa ||--o| desbetapa : "desbloquea"
 bloque ||--|{ regsell : "sella"
 regsell }o--|| verpub : "se verifica por"
 resena }o--o{ evtrep : "impacta"
@@ -723,6 +770,15 @@ note bottom of bloque
       raiz_merkle || periodo_cubierto_hasta).
   Romper la cadena en un bloque invalida todos
   los siguientes: manipular un pago viejo se nota.
+end note
+
+note bottom of etapa
+  Tramos CONTINUOS del puntaje de su modelo:
+  [desde, hasta), y la ultima incluye su hasta.
+  Sin solape por modelo (R-REP-07); un hueco
+  entre dos etapas lo delata la verificacion.
+  La etapa no se guarda en el puntaje: se deriva.
+  El desbloqueo solo limita en estado VIGENTE.
 end note
 
 note bottom of metr

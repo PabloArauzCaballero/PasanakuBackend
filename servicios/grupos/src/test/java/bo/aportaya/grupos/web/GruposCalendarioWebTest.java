@@ -46,6 +46,7 @@ import org.springframework.test.web.servlet.MockMvc;
             "aportaya.grupo.tope-de-reenvios-de-invitacion=3",
         })
 @MockitoBean(types = bo.aportaya.grupos.aplicacion.CU69EnlaceDeGrupo.class)
+@MockitoBean(types = bo.aportaya.grupos.aplicacion.CU64TraspasoPorSubasta.class)
 class GruposCalendarioWebTest {
 
     private static final String RUTA = "/grupos/calendario/vencimiento";
@@ -97,6 +98,9 @@ class GruposCalendarioWebTest {
 
     @MockitoBean
     private IntegrantesDelGrupo integrantesDelGrupo;
+
+    @MockitoBean
+    private GruposDeBackoffice gruposDeBackoffice;
 
     private static CU59CalcularPlazo.SalidaVencimiento delPrimeroDeMayo() {
         return new CU59CalcularPlazo.SalidaVencimiento(

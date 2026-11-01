@@ -4,14 +4,17 @@ import 'package:aportaya_diseno/tokens/tokens.dart';
 import 'package:flutter/material.dart';
 
 import '../dominio/pautas_de_fotos.dart';
+import 'carnet_de_ejemplo.dart';
 import 'escena_de_rostro.dart';
 
-/// Ilustración geométrica original: no contiene ni depende de fotos personales.
+/// Ilustración vectorial original: no contiene ni depende de fotos personales, y se
+/// ve nítida a cualquier densidad de pantalla.
 ///
 /// Es una «foto de ejemplo», así que usa colores fijos de la paleta, iguales en tema
 /// claro y oscuro, como el visor de la cámara. El carnet tiene la proporción ID-1
 /// real (85,6 × 54 mm) y cada defecto se dibuja como se ve en una foto: oscuridad,
-/// una franja de reflejo, desenfoque de verdad y perspectiva de verdad.
+/// una franja de reflejo, desenfoque de verdad y perspectiva de verdad. El carnet es
+/// genérico: no copia el diseño de ningún documento real.
 class IlustracionDePauta extends StatelessWidget {
   const IlustracionDePauta({super.key, required this.escena});
 
@@ -49,8 +52,16 @@ class _PintorDePauta extends CustomPainter {
   }
 
   void _pintarEscenaDeCarnet(Canvas canvas, Size size) {
-    // La mesa oscura y lisa que pide «Antes de escanear».
-    canvas.drawRect(Offset.zero & size, Paint()..color = Paleta.slate);
+    // La mesa oscura y lisa que pide «Antes de escanear», con la luz al centro.
+    final mesa = Offset.zero & size;
+    canvas.drawRect(
+      mesa,
+      Paint()
+        ..shader = ui.Gradient.radial(mesa.center, size.longestSide * 0.6, [
+          Paleta.slate,
+          Paleta.g900,
+        ]),
+    );
     var ancho = size.width * 0.62;
     if (ancho / _proporcionId1 > size.height * 0.78) {
       ancho = size.height * 0.78 * _proporcionId1;
@@ -72,7 +83,7 @@ class _PintorDePauta extends CustomPainter {
               sigmaY: ancho * 0.022,
             ),
         );
-        _pintarCarnet(canvas, carnet);
+        pintarCarnet(canvas, carnet);
         canvas.restore();
       case EscenaDePauta.carnetInclinado:
         // Fotografiado de costado: el borde lejano se achica.
@@ -83,34 +94,15 @@ class _PintorDePauta extends CustomPainter {
                 ..rotateZ(-0.1))
               .storage,
         );
-        _pintarCarnet(canvas, carnet);
+        pintarCarnet(canvas, carnet);
       default:
-        _pintarCarnet(canvas, carnet);
+        pintarCarnet(canvas, carnet);
     }
-    if (escena == EscenaDePauta.carnetReflejo) {
-      canvas.save();
-      canvas.clipRRect(_contorno(carnet));
-      canvas.drawRect(
-        carnet,
-        Paint()
-          ..shader = ui.Gradient.linear(
-            Offset(carnet.left + ancho * 0.25, carnet.top),
-            Offset(carnet.left + ancho * 0.65, carnet.bottom),
-            [
-              Paleta.white.withValues(alpha: 0),
-              Paleta.white.withValues(alpha: 0.95),
-              Paleta.white.withValues(alpha: 0.95),
-              Paleta.white.withValues(alpha: 0),
-            ],
-            const [0.3, 0.45, 0.55, 0.7],
-          ),
-      );
-      canvas.restore();
-    }
+    if (escena == EscenaDePauta.carnetReflejo) _pintarReflejo(canvas, carnet);
     canvas.restore();
     if (escena == EscenaDePauta.carnetOscuro) {
       canvas.drawRect(
-        Offset.zero & size,
+        mesa,
         Paint()..color = Paleta.ink.withValues(alpha: 0.78),
       );
     }
@@ -118,78 +110,43 @@ class _PintorDePauta extends CustomPainter {
 
   static const _proporcionId1 = 85.6 / 54;
 
-  RRect _contorno(Rect carnet) => RRect.fromRectAndRadius(
-    carnet,
-    Radius.circular(carnet.width * 3.18 / 85.6),
-  );
-
-  /// Anverso esquemático: franja de encabezado, foto con busto y renglones de datos.
-  void _pintarCarnet(Canvas canvas, Rect carnet) {
-    final u = carnet.width / 100;
-    final contorno = _contorno(carnet);
-    canvas.drawRRect(contorno, Paint()..color = Paleta.cloud);
+  /// Una franja de luz quemada y el punto de la lámpara que la provoca.
+  void _pintarReflejo(Canvas canvas, Rect carnet) {
     canvas.save();
-    canvas.clipRRect(contorno);
+    canvas.clipRRect(contornoDeCarnet(carnet));
     canvas.drawRect(
-      Rect.fromLTWH(carnet.left, carnet.top, carnet.width, 11 * u),
-      Paint()..color = Paleta.g200,
-    );
-    canvas.restore();
-    final foto = Rect.fromLTWH(
-      carnet.left + 6 * u,
-      carnet.top + 17 * u,
-      25 * u,
-      32 * u,
-    );
-    canvas.drawRRect(
-      RRect.fromRectAndRadius(foto, Radius.circular(1.5 * u)),
-      Paint()..color = Paleta.line,
-    );
-    final busto = Paint()..color = Paleta.muted;
-    canvas.drawOval(
-      Rect.fromCenter(
-        center: Offset(foto.center.dx, foto.top + 12 * u),
-        width: 10 * u,
-        height: 12.5 * u,
-      ),
-      busto,
-    );
-    canvas.save();
-    canvas.clipRect(foto);
-    canvas.drawOval(
-      Rect.fromCenter(
-        center: Offset(foto.center.dx, foto.bottom + 2 * u),
-        width: 21 * u,
-        height: 17 * u,
-      ),
-      busto,
-    );
-    canvas.restore();
-    final x = foto.right + 6 * u;
-    final renglones = [(18.0, 34.0), (25.0, 52.0), (35.0, 26.0), (42.0, 44.0)];
-    for (final (i, (y, largo)) in renglones.indexed) {
-      canvas.drawRRect(
-        RRect.fromLTRBR(
-          x,
-          carnet.top + y * u,
-          x + largo * u,
-          carnet.top + (y + 3) * u,
-          Radius.circular(1.5 * u),
+      carnet,
+      Paint()
+        ..shader = ui.Gradient.linear(
+          Offset(carnet.left + carnet.width * 0.25, carnet.top),
+          Offset(carnet.left + carnet.width * 0.65, carnet.bottom),
+          [
+            Paleta.white.withValues(alpha: 0),
+            Paleta.white.withValues(alpha: 0.95),
+            Paleta.white.withValues(alpha: 0.95),
+            Paleta.white.withValues(alpha: 0),
+          ],
+          const [0.3, 0.45, 0.55, 0.7],
         ),
-        Paint()..color = i.isEven ? Paleta.muted : Paleta.slate,
-      );
-    }
-    canvas.drawRRect(
-      RRect.fromLTRBR(
-        carnet.left + 6 * u,
-        carnet.bottom - 9 * u,
-        carnet.right - 6 * u,
-        carnet.bottom - 6 * u,
-        Radius.circular(1.5 * u),
-      ),
-      Paint()..color = Paleta.line,
     );
+    final foco = Offset(
+      carnet.left + carnet.width * 0.5,
+      carnet.top + carnet.height * 0.42,
+    );
+    canvas.drawCircle(
+      foco,
+      carnet.width * 0.16,
+      Paint()
+        ..shader = ui.Gradient.radial(foco, carnet.width * 0.16, [
+          Paleta.white,
+          Paleta.white.withValues(alpha: 0),
+        ]),
+    );
+    canvas.restore();
   }
+
+  /// Anverso genérico: encabezado, foto de la persona, chip, datos con su rótulo,
+  /// firma, holograma y la zona de lectura mecánica al pie.
 
   @override
   bool shouldRepaint(_PintorDePauta oldDelegate) =>

@@ -1,0 +1,46 @@
+## 2026-10-24T06:24:03+00:00 · gates de CI reproducidos localmente tras el fallo «Contratos y clientes generados»
+$ python3 scripts/generar_postman.py
+exit=0
+  transparencia: consultarPerfilEnGrupo
+  organizador: listarBandejaDeHabilitaciones, consultarMiExpedienteDeHabilitacion, consultarExpedienteDeHabilitacion, resolverHabilitacion, revisarHabilitacion
+$ python3 scripts/verificar_boveda.py
+exit=0
+
+TODO OK
+$ python3 scripts/verificar_seguridad.py
+exit=0
+
+TODO OK · 6 aviso(s)
+$ python3 scripts/verificar_carriles.py
+exit=0
+AVISO · servicio sin ficha de carril: inversiones — M18 Inversion no tiene ficha en planes/18 ni en planes/21; dueno del codigo: @PabloArauzCaballero (.githu
+TODO OK (con avisos)
+$ python3 scripts/verificar_maqueta.py
+exit=0
+
+TODO OK
+$ python3 scripts/verificar_criterios.py
+exit=0
+pendientes de implementar (3): CU-05 (identidad), CU-51 (aportes), CU-57 (nucleo-financiero)
+Sin divergencias entre la boveda y el codigo.
+$ python3 scripts/verificar_pruebas_web.py
+exit=0
+servicios con sabana de seguridad: 15
+La capa web esta cubierta segun ADR-043.
+$ python3 scripts/validar_flujos.py
+exit=0
+
+Sin fallas.
+$ python3 scripts/generar_compose.py --coolify
+exit=0
+  front web -> despliegue/coolify/web.yml
+  front movil -> despliegue/coolify/movil.yml
+$ python3 scripts/auditoria/verificar_limites_compose.py
+exit=0
+Límites de memoria/CPU, una réplica Java y Hikari TEST verificados en los cuatro compose.
+$ python3 scripts/generar_semillas.py
+exit=0
+Actualizado: sql/60_semillas/sembrar.sql con \ir 24-metadata-comentarios.sql
+Guardado mapa de esquemas: /home/user/PasanakuBackend/scripts/metadata_enriquecida.json
+$ git status --short (deriva respecto de lo commiteado)
+ M postman/humo/auditoria.humo.postman_collection.json

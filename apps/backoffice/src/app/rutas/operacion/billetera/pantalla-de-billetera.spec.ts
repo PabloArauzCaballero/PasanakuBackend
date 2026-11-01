@@ -2,8 +2,9 @@ import { provideHttpClient, withInterceptors } from '@angular/common/http'
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing'
 import { provideZonelessChangeDetection } from '@angular/core'
 import { TestBed } from '@angular/core/testing'
+import { provideRouter, Router } from '@angular/router'
 import { ejemploDe } from '@aportaya/simulado'
-import { beforeEach, describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { GATEWAY } from '../../../nucleo/gateway'
 import { erroresInterceptor } from '../../../nucleo/errores.interceptor'
 import { trazaInterceptor } from '../../../nucleo/traza.interceptor'
@@ -33,6 +34,7 @@ describe('PantallaDeBilletera · los cuatro estados', () => {
     TestBed.configureTestingModule({
       providers: [
         provideZonelessChangeDetection(),
+        provideRouter([]),
         provideHttpClient(withInterceptors([trazaInterceptor, erroresInterceptor])),
         provideHttpClientTesting(),
         { provide: GATEWAY, useValue: 'http://gw/api/v1' },
@@ -43,7 +45,7 @@ describe('PantallaDeBilletera · los cuatro estados', () => {
 
   it('cargando: lo dice mientras espera, sin pantalla en blanco', async () => {
     const fixture = await montar()
-    const estado = fixture.nativeElement.querySelector('[role="status"]') as HTMLElement
+    const estado = fixture.nativeElement.querySelector('ap-estado-de-pantalla [role="status"]') as HTMLElement
     expect(estado?.getAttribute('aria-label')).toBe('Cargando el saldo de la cuenta')
     http.expectOne(URL).flush(ejemploDe('nucleo-financiero', 'consultarSaldo', 'ok').cuerpo as object)
   })
@@ -69,7 +71,7 @@ describe('PantallaDeBilletera · los cuatro estados', () => {
     const fixture = await montar()
     http.expectOne(URL).flush({ codigo: 'AP-CU04-01', mensaje: 'tecnico', trazaId: 'traza-401' }, { status: 401, statusText: 'Unauthorized' })
     await fixture.whenStable()
-    const boton = fixture.nativeElement.querySelector('button') as HTMLButtonElement
+    const boton = fixture.nativeElement.querySelector('ap-estado-de-pantalla button') as HTMLButtonElement
     expect(boton.textContent?.trim()).toBe('Volver a intentar')
     expect(fixture.nativeElement.textContent).toContain('Código de seguimiento: traza-401')
     expect(fixture.nativeElement.textContent).not.toContain('tecnico')
@@ -80,7 +82,7 @@ describe('PantallaDeBilletera · los cuatro estados', () => {
     http.expectOne(URL).error(new ProgressEvent('error'), { status: 0 })
     await fixture.whenStable()
     expect(fixture.nativeElement.textContent).toContain('No hay conexión')
-    expect(fixture.nativeElement.querySelector('button')?.textContent?.trim()).toBe('Volver a intentar')
+    expect(fixture.nativeElement.querySelector('ap-estado-de-pantalla button')?.textContent?.trim()).toBe('Volver a intentar')
   })
 
   it('un 403 no dice más que «no tenés acceso»: detallarlo confirma que el recurso existe', async () => {
@@ -95,11 +97,57 @@ describe('PantallaDeBilletera · los cuatro estados', () => {
     const fixture = await montar()
     http.expectOne(URL).flush({ codigo: 'AP-GW-503', mensaje: '', trazaId: 't' }, { status: 503, statusText: 'Service Unavailable' })
     await fixture.whenStable()
-    ;(fixture.nativeElement.querySelector('button') as HTMLButtonElement).click()
+    ;(fixture.nativeElement.querySelector('ap-estado-de-pantalla button') as HTMLButtonElement).click()
     fixture.detectChanges()
     await Promise.resolve()
     http.expectOne(URL).flush(ejemploDe('nucleo-financiero', 'consultarSaldo', 'ok').cuerpo as object)
     await fixture.whenStable()
     expect(fixture.nativeElement.querySelector('ap-monto')).not.toBeNull()
+  })
+})
+
+describe('PantallaDeBilletera · actualizar y consultar otra cuenta (2026-10-26)', () => {
+  let http: HttpTestingController
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      providers: [provideZonelessChangeDetection(), provideRouter([]), provideHttpClient(withInterceptors([erroresInterceptor])), provideHttpClientTesting(), { provide: GATEWAY, useValue: 'http://gw/api/v1' }],
+    })
+    http = TestBed.inject(HttpTestingController)
+  })
+  const botonDe = (f: { nativeElement: HTMLElement }, nombre: string) => [...f.nativeElement.querySelectorAll('button')].find((b) => b.textContent?.trim() === nombre)!
+
+  it('aceptado: «Actualizar saldo» vuelve a pedir el saldo al servidor', async () => {
+    const f = await montar()
+    http.expectOne(URL).flush(ejemploDe('nucleo-financiero', 'consultarSaldo', 'ok').cuerpo as object)
+    await f.whenStable()
+    f.detectChanges()
+    botonDe(f, 'Actualizar saldo').click()
+    f.detectChanges()
+    await Promise.resolve()
+    http.expectOne(URL).flush(ejemploDe('nucleo-financiero', 'consultarSaldo', 'ok').cuerpo as object)
+  })
+
+  it('aceptado: «Consultar saldo» con un identificador válido navega a la billetera de esa cuenta (la ruta vuelve a decidir el permiso)', async () => {
+    const f = await montar()
+    http.expectOne(URL).flush(ejemploDe('nucleo-financiero', 'consultarSaldo', 'ok').cuerpo as object)
+    const navegar = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true)
+    const otra = '22222222-2222-4222-8222-222222222222'
+    f.componentInstance['otra'].set(` ${otra.toUpperCase()}`)
+    f.detectChanges()
+    botonDe(f, 'Consultar saldo').click()
+    expect(navegar).toHaveBeenCalledWith(['/operacion/billetera', otra])
+  })
+
+  it('error: un identificador mal formado se marca en el campo, conserva lo escrito y no navega ni pide', async () => {
+    const f = await montar()
+    http.expectOne(URL).flush(ejemploDe('nucleo-financiero', 'consultarSaldo', 'ok').cuerpo as object)
+    const navegar = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true)
+    f.componentInstance['otra'].set('cuenta-1')
+    botonDe(f, 'Consultar saldo').click()
+    f.detectChanges()
+    expect(f.nativeElement.textContent).toContain('Ese identificador no tiene el formato de una cuenta de billetera.')
+    expect(f.componentInstance['otra']()).toBe('cuenta-1')
+    expect(navegar).not.toHaveBeenCalled()
+    http.expectNone(() => true)
   })
 })

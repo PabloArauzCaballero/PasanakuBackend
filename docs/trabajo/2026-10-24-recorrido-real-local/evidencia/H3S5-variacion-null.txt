@@ -1,0 +1,8 @@
+# H3.S5 variacionEnPalabras(null)
+con el arreglo: indicadores.spec.ts -> 14 passed (14)
+
+mutacion (volver a 'variacion === undefined'): la suite NO compila — el parametro ahora admite null y el cuerpo lo lee sin guardia:
+✘ [ERROR] TS18047: 'variacion' is possibly 'null'. [plugin angular-compiler]
+✘ [ERROR] TS2345: Argument of type 'string | null' is not assignable to parameter of type 'string'.
+
+(el defecto original era solo de ejecucion: los tipos decian string|undefined y el backend real manda null)

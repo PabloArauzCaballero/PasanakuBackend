@@ -1,0 +1,35 @@
+{
+  "servicio": "grupos",
+  "operacion": "consultarMisLimites",
+  "metodo": "get",
+  "ruta": "/grupos/mis-limites",
+  "escenarios": {
+    "ok": {
+      "estado": 200,
+      "cuerpo": {
+        "organizados": 0,
+        "limiteDeOrganizar": 0,
+        "participaciones": 0,
+        "limiteDeParticipar": 0
+      }
+    },
+    "vacio": {
+      "estado": 200,
+      "cuerpo": {
+        "organizados": 0,
+        "limiteDeOrganizar": 0,
+        "participaciones": 0,
+        "limiteDeParticipar": 0
+      }
+    },
+    "adverso": {
+      "estado": 200,
+      "cuerpo": {
+        "organizados": 0,
+        "limiteDeOrganizar": 0,
+        "participaciones": 0,
+        "limiteDeParticipar": 0
+      }
+    }
+  }
+}

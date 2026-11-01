@@ -1,0 +1,33 @@
+# H1.S1.M1 — semillas mínimas: primera y SEGUNDA corrida (idempotencia, regla 97.4.3)
+$ psql -c "<conteos>"   # antes de sembrar
+ arenas | desbloqueos | vigentes | modelos | insignias 
+--------+-------------+----------+---------+-----------
+      0 |           0 |        0 |       0 |         0
+(1 row)
+
+$ psql -v ON_ERROR_STOP=1 -f /sql/60_semillas/sembrar.sql   # corrida 1
+sentencias INSERT: 123 · con filas insertadas (INSERT 0 N, N>0): 123 · filas insertadas en total: 979 · ERROR: 0
+exit=0
+$ psql -c "<conteos>"
+ arenas | desbloqueos | vigentes | modelos | insignias 
+--------+-------------+----------+---------+-----------
+     11 |          11 |        0 |       1 |         8
+(1 row)
+
+$ psql -v ON_ERROR_STOP=1 -f /sql/60_semillas/sembrar.sql   # corrida 2
+sentencias INSERT: 123 · con filas insertadas (INSERT 0 N, N>0): 0 · filas insertadas en total: 0 · ERROR: 0
+exit=0
+$ psql -c "<conteos>"
+ arenas | desbloqueos | vigentes | modelos | insignias 
+--------+-------------+----------+---------+-----------
+     11 |          11 |        0 |       1 |         8
+(1 row)
+
+$ psql -f /sql/60_semillas/16-reputacion-y-scoring.sql   # el archivo de arenas solo, tercera vez: una etiqueta por sentencia
+INSERT 0 0
+INSERT 0 0
+INSERT 0 0
+INSERT 0 0
+INSERT 0 0
+INSERT 0 0
+exit=0

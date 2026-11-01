@@ -1,0 +1,14 @@
+$ yarn workspace @aportaya/tokens build
+generado/tokens.css · 412 lineas
+generado/tokens.dart · 475 lineas
+vectores/monto.json · 5006 casos
+exit=0
+$ grep -c "data-producto='backoffice'" packages/tokens/generado/tokens.css
+4
+$ grep -c data-producto apps/backoffice/src/index*.html
+apps/backoffice/src/index.html:1
+apps/backoffice/src/index.desarrollo.html:1
+$ yarn workspace @aportaya/tokens test:front
+ Test Files  3 passed (3)
+      Tests  15 passed (15)
+exit=0

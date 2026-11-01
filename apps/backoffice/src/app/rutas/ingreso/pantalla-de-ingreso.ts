@@ -15,6 +15,7 @@ import { SimboloDeMarca } from '../../layout/simbolo-de-marca'
 import { PanelDeMarca } from './panel-de-marca'
 
 type Paso = 'credencial' | 'codigo'
+const MENSAJE_CREDENCIAL = 'El correo, el teléfono o la contraseña no coinciden.'
 
 /**
  * CU-04 · El ingreso de un operador al backoffice, con la anatomía del portal interno
@@ -63,17 +64,17 @@ type Paso = 'credencial' | 'codigo'
                 [(valor)]="identificador"
                 [error]="errorIdentificador()"
               />
-              <ap-campo-contrasena [(valor)]="credencial" />
+              <ap-campo-contrasena [(valor)]="credencial" [error]="errorCredencial()" />
             } @else {
-              <ap-campo-otp [(valor)]="codigo" (completado)="enviar()" />
+              <ap-campo-otp [(valor)]="codigo" [error]="errorCodigo()" (completado)="enviar()" />
             }
 
-            <ap-boton variante="primario" tipo="submit" [ancho]="true" [cargando]="enviando()" [deshabilitado]="enviando()">
+            <ap-boton variante="primario" tipo="submit" [icono]="paso() === 'credencial' ? 'flechaDerecha' : 'candado'" [ancho]="true" [cargando]="enviando()" [deshabilitado]="enviando()">
               {{ paso() === 'credencial' ? 'Continuar' : 'Entrar' }}
             </ap-boton>
 
             @if (paso() === 'codigo') {
-              <ap-boton variante="enlace" [ancho]="true" (pulsado)="volver()">Usar otra cuenta</ap-boton>
+              <ap-boton variante="enlace" icono="flechaIzquierda" [ancho]="true" (pulsado)="volver()">Usar otra cuenta</ap-boton>
             }
           </form>
 
@@ -126,25 +127,19 @@ export class PantallaDeIngreso {
   protected readonly enviando = signal(false)
   protected readonly error = signal<string | null>(null)
   protected readonly errorIdentificador = signal<string | undefined>(undefined)
+  // Cada error de forma va con su campo (95.3.1); el del servidor, que no dice qué dato falló, va en la alerta.
+  protected readonly errorCredencial = signal<string | undefined>(undefined)
+  protected readonly errorCodigo = signal<string | undefined>(undefined)
 
   protected enviar(): void {
     if (this.enviando()) return
     this.error.set(null)
 
     const lectura = leerIdentificador(this.identificador())
-    if (!lectura.ok) {
-      this.errorIdentificador.set(lectura.error)
-      return
-    }
-    this.errorIdentificador.set(undefined)
-    if (this.credencial().length < 8) {
-      this.error.set('La contraseña tiene al menos 8 caracteres.')
-      return
-    }
-    if (this.paso() === 'codigo' && this.codigo().length !== 6) {
-      this.error.set('El código tiene 6 dígitos.')
-      return
-    }
+    this.errorIdentificador.set(lectura.ok ? undefined : lectura.error)
+    this.errorCredencial.set(this.credencial().length < 8 ? 'La contraseña tiene al menos 8 caracteres.' : undefined)
+    this.errorCodigo.set(this.paso() === 'codigo' && this.codigo().length !== 6 ? 'El código tiene 6 dígitos: completalo para entrar.' : undefined)
+    if (!lectura.ok || this.errorCredencial() || this.errorCodigo()) return
 
     this.enviando.set(true)
     this.autenticar({
@@ -172,7 +167,8 @@ export class PantallaDeIngreso {
           return
         }
         if (this.paso() === 'codigo') this.codigo.set('')
-        this.error.set(e.mensaje)
+        // Un 401 sin código en el ingreso no es «tu sesión venció»: es la credencial (sin decir cuál dato falló).
+        this.error.set(e.estado === 401 && !e.codigo ? MENSAJE_CREDENCIAL : e.mensaje)
       },
     })
   }
@@ -182,6 +178,7 @@ export class PantallaDeIngreso {
     this.credencial.set('')
     this.codigo.set('')
     this.error.set(null)
+    this.errorCodigo.set(undefined)
   }
 
   private pedirCodigo(): void {

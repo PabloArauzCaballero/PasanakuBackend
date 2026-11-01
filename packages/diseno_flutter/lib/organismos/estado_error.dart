@@ -97,8 +97,9 @@ class _BotonDeReintentoState extends State<_BotonDeReintento>
     onPressed: _tocar,
     style: FilledButton.styleFrom(
       minimumSize: const Size(Tactil.minimo * 3, Tactil.minimo),
-      backgroundColor: Tokens.of(context).accent,
-      foregroundColor: Tokens.of(context).accentInk,
+      // Reintentar es la acción principal de un error: verde (ADR-053, A2).
+      backgroundColor: Tokens.of(context).verdeSolido,
+      foregroundColor: Tokens.of(context).sobreVerdeSolido,
     ),
     icon: RotationTransition(
       turns: Tween<double>(begin: 0, end: 1).animate(_control),

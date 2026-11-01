@@ -1,0 +1,11 @@
+# 2026-10-31T07:20:04Z · tras git add: regenerar no cambia nada (lo que miden 6h, 6i y el job de contratos)
+$ git diff --exit-code -- postman/
+exit=0
+$ git diff --exit-code -- docs/catalogo-de-datos.md servicios/auditoria/.../catalogo-datos.json
+exit=0
+$ git diff --exit-code -- docker-compose.coolify.yml despliegue/coolify/
+exit=0
+$ python3 scripts/verificar_seguridad.py | tail -1
+TODO OK · 8 aviso(s)
+$ python3 scripts/verificar_criterios.py | tail -1
+Sin divergencias entre la boveda y el codigo.

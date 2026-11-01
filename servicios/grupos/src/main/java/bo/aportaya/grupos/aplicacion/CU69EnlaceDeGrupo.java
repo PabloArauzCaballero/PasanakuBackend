@@ -72,10 +72,14 @@ public class CU69EnlaceDeGrupo {
             String estado = dsl.fetchValue("SELECT estado FROM grupos.grupo WHERE id = ?", grupoId) instanceof String s
                     ? s
                     : null;
-            if (!"CONFORMADO".equals(estado) && !"ABIERTO_A_INSCRIPCION".equals(estado)) {
+            if ("BORRADOR".equals(estado) || estado == null) {
                 throw new ErrorDeNegocio(
                         CodigoError.de(69, 12),
                         "Tu grupo todavia se esta abriendo para inscripciones. Proba de nuevo en unos segundos.");
+            }
+            // Iniciado (2026-10-30), el grupo se achico a sus cupos ocupados: no le queda ningun cupo para compartir.
+            if (!"ABIERTO_A_INSCRIPCION".equals(estado)) {
+                throw new ErrorDeNegocio(CodigoError.de(69, 1), "El grupo ya inicio: no le quedan cupos libres.");
             }
             if (!emparejamientos.hayCuposLibres(dsl, grupoId)) {
                 throw new ErrorDeNegocio(CodigoError.de(69, 1), "El grupo ya no tiene cupos libres.");
@@ -163,6 +167,16 @@ public class CU69EnlaceDeGrupo {
         });
     }
 
+    /**
+     * La solicitud PENDIENTE de quien llama en ese grupo, si ya pidio: {@link #solicitar} la devuelve en vez de crear
+     * otra. Sirve para no volver a exigir la etapa en ese reintento (regla 96.3.3); {@link #solicitar} lo vuelve a
+     * mirar con la fila del grupo tomada.
+     */
+    @Transactional(readOnly = true)
+    public Optional<UUID> pendienteDe(UUID grupoId, ContextoSesion ctx) {
+        return datos.conContexto(ctx, dsl -> pendienteDe(dsl, grupoId, ctx.usuarioId()));
+    }
+
     /** El grupo de un codigo vigente, para armar la postulacion (con hechos de otros servicios) antes de pedir. */
     @Transactional(readOnly = true)
     public UUID grupoDe(String codigo, ContextoSesion ctx) {
@@ -189,7 +203,9 @@ public class CU69EnlaceDeGrupo {
                 """
                 SELECT e.id, e.grupo_id, e.token_hash, e.fecha_expiracion,
                        g.nombre, g.monto_aporte, g.moneda, g.periodicidad,
-                       (SELECT count(*) FROM grupos.cupo c WHERE c.grupo_id = g.id AND c.estado = 'LIBRE')::int AS cupos_libres
+                       CASE WHEN g.estado = 'ABIERTO_A_INSCRIPCION'
+                            THEN (SELECT count(*) FROM grupos.cupo c WHERE c.grupo_id = g.id AND c.estado = 'LIBRE')
+                            ELSE 0 END::int AS cupos_libres
                   FROM grupos.enlace_grupo e
                   JOIN grupos.grupo g ON g.id = e.grupo_id
                  WHERE e.id = ? AND e.estado = 'ACTIVO' AND e.fecha_expiracion > CAST(? AS timestamptz)

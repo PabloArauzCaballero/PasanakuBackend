@@ -1,0 +1,22 @@
+== 1) semilla VIEJA (forma de TEST hoy)
+object|10
+-- consulta del motor:
+ERROR:  cannot call jsonb_to_recordset on a non-array
+== 2) semilla NUEVA, primera corrida
+INSERT 0 10
+INSERT 0 0
+INSERT 0 0
+INSERT 0 0
+INSERT 0 0
+array|10
+== 3) semilla NUEVA, segunda corrida (idempotencia)
+INSERT 0 0
+INSERT 0 0
+INSERT 0 0
+INSERT 0 0
+INSERT 0 0
+== 4) consulta del motor
+CARTERA_EN_MORA|grupo_id|UUID|f
+CONCILIACION_DIARIA|fecha|FECHA|t
+== 5) conteo
+10

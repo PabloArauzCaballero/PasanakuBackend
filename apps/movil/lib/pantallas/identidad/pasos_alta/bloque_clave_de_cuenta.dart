@@ -11,35 +11,30 @@ import '../textos.dart';
 import '../textos_del_alta.dart';
 import 'bloque_de_formulario.dart';
 
-/// Clave y envío del código de confirmación del correo.
+/// Clave y envío del código de confirmación del correo. Una sola vez la contraseña, con el
+/// botón para verla: pedirla dos veces no evita errores y frena el alta (decisión 2026-10-30).
 class BloqueClaveDeCuenta extends StatelessWidget {
   const BloqueClaveDeCuenta({
     super.key,
     required this.clave,
-    required this.repetida,
     required this.focoClave,
     required this.errorClave,
-    required this.errorRepetida,
     required this.errorRemoto,
     required this.trazaId,
     required this.errorCodigo,
     required this.cargando,
     required this.onCambioClave,
-    required this.onCambioRepetida,
     required this.onContinuar,
   });
 
   final TextEditingController clave;
-  final TextEditingController repetida;
   final FocusNode focoClave;
   final String? errorClave;
-  final String? errorRepetida;
   final String? errorRemoto;
   final String? trazaId;
   final String? errorCodigo;
   final bool cargando;
   final ValueChanged<String> onCambioClave;
-  final ValueChanged<String> onCambioRepetida;
   final VoidCallback onContinuar;
 
   @override
@@ -65,14 +60,6 @@ class BloqueClaveDeCuenta extends StatelessWidget {
             onChanged: onCambioClave,
           ),
           if (errorRemoto != null) ReferenciaDeError(trazaId: trazaId),
-          const SizedBox(height: Espacio.s4),
-          CampoContrasena(
-            etiqueta: TextosDelAlta.claveRepetir,
-            ejemplo: TextosDelAlta.ejemploRepetirContrasena,
-            controlador: repetida,
-            error: errorRepetida,
-            onChanged: onCambioRepetida,
-          ),
           const SizedBox(height: Espacio.s4),
           const Alerta(
             tono: Tono.info,

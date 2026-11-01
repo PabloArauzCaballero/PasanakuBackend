@@ -1,0 +1,6 @@
+2026-10-30T23:54Z
+https://api.aportaya.161.97.85.216.sslip.io/api/v1/usuarios/yo/perfil -> 401 1.098008s
+https://api.aportaya.161.97.85.216.sslip.io/actuator/health -> 200 0.891281s
+http://aportaya.161.97.85.216.sslip.io -> 302 0.780426s
+http://backoffice.aportaya.161.97.85.216.sslip.io -> 302 0.756075s
+http://app.aportaya.161.97.85.216.sslip.io -> 302 0.840862s

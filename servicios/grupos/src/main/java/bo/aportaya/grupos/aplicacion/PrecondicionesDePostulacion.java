@@ -28,6 +28,8 @@ final class PrecondicionesDePostulacion {
             CU68Postular.EntradaPostulacion entrada,
             UUID usuarioId,
             OffsetDateTime ahora) {
+        // Iniciado el grupo no se pide entrar (2026-10-30): ni la postulacion, ni el canje, ni el enlace del grupo.
+        GrupoAbierto.exigir(dsl, entrada.grupoId());
         // La restriccion se responde diciendo QUE la levanta: rechazar sin decir
         // como salir deja a alguien fuera sin camino de vuelta.
         if (entrada.tieneRestriccionVigente()) {

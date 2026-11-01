@@ -68,8 +68,9 @@ export function mismoAprobadorYPagador(factura: FacturaDeProveedor): boolean {
 /** Por qué esta cuenta no puede pagar esta factura. `null` si sí puede. */
 export function motivoParaNoPagar(factura: FacturaDeProveedor, tienePermisoDePago: boolean): string | null {
   if (!tienePermisoDePago) return 'Registrar el pago es de Tesorería: esta cuenta no tiene CONTABILIDAD_ERP_PAGAR.'
-  if (mismoAprobadorYPagador(factura)) return 'Quien aprobó la factura no puede autorizar su pago (R-CTB-05). Esta cuenta aprobó esta factura.'
+  if (mismoAprobadorYPagador(factura)) return 'Quien aprobó la factura no puede autorizar su pago. Esta cuenta aprobó esta factura.'
   if (factura.estado === 'ANULADA') return 'La factura está anulada: no admite pagos.'
+  if (factura.estado === 'REGISTRADA') return 'La factura todavía no está aprobada: se paga después de aprobarla.'
   if (!admitePago(factura)) return 'La factura no tiene saldo pendiente que pagar.'
   return null
 }

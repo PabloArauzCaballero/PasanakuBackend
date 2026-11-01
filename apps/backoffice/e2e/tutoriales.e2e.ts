@@ -21,6 +21,8 @@ import { sesionDeOperador } from './sesion-de-operador'
  * ingreso. Es el comportamiento correcto, y la prueba tiene que respetarlo.
  */
 async function irAAyuda(page: Page): Promise<void> {
+  // Desde el 2026-10-26 la ayuda está en el menú de quien opera, no en el menú lateral.
+  await page.locator('ap-menu-de-usuario .disparador').click()
   await page.locator('[data-tutorial-id="menu-ayuda"]').click()
   await expect(page).toHaveURL(/\/ayuda/)
 }

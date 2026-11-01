@@ -1,0 +1,71 @@
+# Carril A — revisión independiente: reproducción y corrección (2026-10-30)
+## Reproducción ANTES del arreglo (las pruebas ya con SET LOCAL ROLE svc_transparencia, ConsultarPuntaje sin comoSistema)
+$ bash candado.sh ./gradlew :servicios:transparencia:integrationTest --tests "*ArenaRepositorioTest*"
+ArenaRepositorioTest > puntaje · bordes: desde incluido, hasta excluido, y la última incluye el máximo > 549.99 -> SEMILLA (0.9998), siguiente BROTE FAILED
+    expected: 549.99
+     but was: 0
+ArenaRepositorioTest > puntaje · bordes: desde incluido, hasta excluido, y la última incluye el máximo > 550.00 -> BROTE (0.0000), siguiente AGUAYO FAILED
+    expected: 550.00
+     but was: 0
+ArenaRepositorioTest > puntaje · bordes: desde incluido, hasta excluido, y la última incluye el máximo > 1000.00 -> INTI (1.0000), siguiente  FAILED
+    expected: 1000.00
+     but was: 0
+ArenaRepositorioTest > puntaje · bordes: desde incluido, hasta excluido, y la última incluye el máximo > 0.00 -> CAMPAMENTO (0.0000), siguiente SEMILLA FAILED
+    expected: "CAMPAMENTO"
+     but was: "SEMILLA"
+ArenaRepositorioTest > puntaje · 575 está en Brote, a mitad de camino hacia Aguayo FAILED
+    Expecting value to be true but was false
+ArenaRepositorioTest > puntaje · con el rol real, otra persona ve la arena de quien quiere entrar (420 → Campamento) FAILED
+    Expecting value to be true but was false
+ArenaRepositorioTest > puntaje · un modelo sin arenas deja la arena ausente, no una inventada FAILED
+    Expecting value to be true but was false
+15 tests completed, 7 failed
+> Task :servicios:transparencia:integrationTest FAILED
+BUILD FAILED in 12s
+
+## Experimento sobre base ya sembrada (pg-arenas, en BEGIN…ROLLBACK): Semilla a VIGENTE y frontera Semilla/Brote movida
+### con ex_arena_sin_solape inmediata (antes): subir la frontera falla
+psql:/tmp/16-sube.sql:65: ERROR:  conflicting key value violates exclusion constraint "ex_arena_sin_solape"
+### con ex_arena_sin_solape DEFERRABLE INITIALLY DEFERRED y ON CONFLICT DO UPDATE (después)
+== 16-sube
+ codigo  | desde  | hasta  |  estado   
+---------+--------+--------+-----------
+ SEMILLA | 500.00 | 560.00 | VIGENTE
+ BROTE   | 560.00 | 600.00 | PROPUESTO
+(2 rows)
+
+== 16-baja
+ codigo  | desde  | hasta  |  estado   
+---------+--------+--------+-----------
+ SEMILLA | 500.00 | 540.00 | PROPUESTO
+ BROTE   | 540.00 | 600.00 | PROPUESTO
+(2 rows)
+
+ERROR:  conflicting key value violates exclusion constraint "ex_arena_sin_solape"
+DETAIL:  Key (modelo_id, numrange(desde, hasta, '[)'::text))=(210cba8c-be56-4b08-a968-7a1f7abcb19e, [540.00,560.00)) conflicts with existing key (modelo_id, numrange(desde, hasta, '[)'::text))=(210cba8c-be56-4b08-a968-7a1f7abcb19e, [500.00,550.00)).
+intrusas=0
+
+## DESPUÉS del arreglo
+$ bash candado.sh ./gradlew :servicios:transparencia:spotlessCheck :servicios:transparencia:test :servicios:transparencia:webTest :servicios:transparencia:integrationTest
+BUILD SUCCESSFUL in 45s
+test: tests=24 failures=0 errors=0 skipped=0
+webTest: tests=40 failures=0 errors=0 skipped=0
+integrationTest: tests=140 failures=0 errors=0 skipped=0
+ArenaRepositorioTest: tests="17" skipped="0" failures="0" errors="0" 
+"549.99 -> SEMILLA (0.9998), siguiente BROTE"
+"550.00 -> BROTE (0.0000), siguiente AGUAYO"
+"1000.00 -> INTI (1.0000), siguiente "
+"0.00 -> CAMPAMENTO (0.0000), siguiente SEMILLA"
+"R-REP-07 · la base rechaza un tramo al revés o vacío"
+"desbloqueo · la base rechaza un estado que no es PROPUESTO ni VIGENTE"
+"R-REP-07 · la base rechaza una arena que se pisa con otra del mismo modelo"
+"desbloqueo · la base rechaza cupos fuera de 3..40 y una moneda fuera del contrato"
+"puntaje · 575 está en Brote, a mitad de camino hacia Aguayo"
+"puntaje · con el rol real, otra persona ve la arena de quien quiere entrar (420 → Campamento)"
+"puntaje · un modelo sin arenas deja la arena ausente, no una inventada"
+"arenas · el catálogo de la semilla: 11 arenas en orden, contiguas de 0 a 1000"
+"puntaje · el rol de sistema dura solo la lectura: la sesión sigue siendo PARTICIPANTE"
+"arenas · los desbloqueos se siembran PROPUESTO en BOB: se muestran y no limitan"
+"puntaje · sin historial: la arena del puntaje BASE (Semilla), nunca la del cero"
+"semilla · volver a sembrar una base ya sembrada no escribe ni una fila"
+"semilla · un desbloqueo que pasa a VIGENTE y una frontera que sube llegan a una base ya sembrada"

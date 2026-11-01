@@ -1,0 +1,722 @@
+[
+  {
+    "ruta": "/tablero",
+    "final": "/tablero",
+    "controles": 7,
+    "pulsados": 7,
+    "saltados": [],
+    "hallazgos": [
+      {
+        "control": "Cumplimiento UIF, alertas, casos y gobierno.",
+        "malas": [
+          "GET /identidad/verificaciones 403"
+        ],
+        "consola": [
+          "Failed to load resource: the server responded with a status of 403 (Forbidden)"
+        ]
+      }
+    ]
+  },
+  {
+    "ruta": "/tablero/financiero",
+    "final": "/tablero",
+    "controles": 0,
+    "pulsados": 0,
+    "saltados": [],
+    "hallazgos": [],
+    "redirigida": true
+  },
+  {
+    "ruta": "/tablero/sistemas",
+    "final": "/tablero",
+    "controles": 0,
+    "pulsados": 0,
+    "saltados": [],
+    "hallazgos": [],
+    "redirigida": true
+  },
+  {
+    "ruta": "/tablero/catalogo-de-datos",
+    "final": "/tablero",
+    "controles": 0,
+    "pulsados": 0,
+    "saltados": [],
+    "hallazgos": [],
+    "redirigida": true
+  },
+  {
+    "ruta": "/tablero/comercial",
+    "final": "/tablero",
+    "controles": 0,
+    "pulsados": 0,
+    "saltados": [],
+    "hallazgos": [],
+    "redirigida": true
+  },
+  {
+    "ruta": "/operacion",
+    "final": "/operacion/estado",
+    "controles": 11,
+    "pulsados": 9,
+    "saltados": [],
+    "hallazgos": [
+      {
+        "control": "Anterior",
+        "problema": "no se pudo pulsar: locator.click: Timeout 2500ms exceeded."
+      },
+      {
+        "control": "Siguiente",
+        "problema": "no se pudo pulsar: locator.click: Timeout 2500ms exceeded."
+      }
+    ]
+  },
+  {
+    "ruta": "/operacion/reclamos",
+    "final": "/tablero",
+    "controles": 0,
+    "pulsados": 0,
+    "saltados": [],
+    "hallazgos": [],
+    "redirigida": true
+  },
+  {
+    "ruta": "/operacion/solicitudes-escaladas",
+    "final": "/tablero",
+    "controles": 0,
+    "pulsados": 0,
+    "saltados": [],
+    "hallazgos": [],
+    "redirigida": true
+  },
+  {
+    "ruta": "/operacion/retiros",
+    "final": "/tablero",
+    "controles": 0,
+    "pulsados": 0,
+    "saltados": [],
+    "hallazgos": [],
+    "redirigida": true
+  },
+  {
+    "ruta": "/operacion/custodia",
+    "final": "/operacion/custodia",
+    "controles": 3,
+    "pulsados": 1,
+    "saltados": [],
+    "hallazgos": [
+      {
+        "control": "Anterior",
+        "problema": "no se pudo pulsar: locator.click: Timeout 2500ms exceeded."
+      },
+      {
+        "control": "Siguiente",
+        "problema": "no se pudo pulsar: locator.click: Timeout 2500ms exceeded."
+      }
+    ]
+  },
+  {
+    "ruta": "/operacion/cierres-diarios",
+    "final": "/operacion/cierres-diarios",
+    "controles": 3,
+    "pulsados": 1,
+    "saltados": [],
+    "hallazgos": [
+      {
+        "control": "Anterior",
+        "problema": "no se pudo pulsar: locator.click: Timeout 2500ms exceeded."
+      },
+      {
+        "control": "Siguiente",
+        "problema": "no se pudo pulsar: locator.click: Timeout 2500ms exceeded."
+      }
+    ]
+  },
+  {
+    "ruta": "/operacion/reversos",
+    "final": "/operacion/reversos",
+    "controles": 5,
+    "pulsados": 5,
+    "saltados": [],
+    "hallazgos": []
+  },
+  {
+    "ruta": "/operacion/desembolsos",
+    "final": "/operacion/desembolsos",
+    "controles": 10,
+    "pulsados": 9,
+    "saltados": [],
+    "hallazgos": []
+  },
+  {
+    "ruta": "/operacion/estado",
+    "final": "/operacion/estado",
+    "controles": 11,
+    "pulsados": 9,
+    "saltados": [],
+    "hallazgos": [
+      {
+        "control": "Anterior",
+        "problema": "no se pudo pulsar: locator.click: Timeout 2500ms exceeded."
+      },
+      {
+        "control": "Siguiente",
+        "problema": "no se pudo pulsar: locator.click: Timeout 2500ms exceeded."
+      }
+    ]
+  },
+  {
+    "ruta": "/cumplimiento",
+    "final": "/cumplimiento/verificaciones",
+    "controles": 7,
+    "pulsados": 7,
+    "saltados": [],
+    "hallazgos": [
+      {
+        "control": "PENDIENTE",
+        "malas": [
+          "GET /identidad/verificaciones 403"
+        ],
+        "consola": [
+          "Failed to load resource: the server responded with a status of 403 (Forbidden)"
+        ]
+      },
+      {
+        "control": "EN_REVISION",
+        "malas": [
+          "GET /identidad/verificaciones 403"
+        ],
+        "consola": [
+          "Failed to load resource: the server responded with a status of 403 (Forbidden)"
+        ]
+      },
+      {
+        "control": "APROBADA",
+        "malas": [
+          "GET /identidad/verificaciones 403"
+        ],
+        "consola": [
+          "Failed to load resource: the server responded with a status of 403 (Forbidden)"
+        ]
+      },
+      {
+        "control": "RECHAZADA",
+        "malas": [
+          "GET /identidad/verificaciones 403"
+        ],
+        "consola": [
+          "Failed to load resource: the server responded with a status of 403 (Forbidden)"
+        ]
+      },
+      {
+        "control": "Volver a intentar",
+        "malas": [
+          "GET /identidad/verificaciones 403"
+        ],
+        "consola": [
+          "Failed to load resource: the server responded with a status of 403 (Forbidden)"
+        ]
+      }
+    ]
+  },
+  {
+    "ruta": "/cumplimiento/verificaciones",
+    "final": "/cumplimiento/verificaciones",
+    "controles": 7,
+    "pulsados": 7,
+    "saltados": [],
+    "hallazgos": [
+      {
+        "control": "Por decidir",
+        "malas": [
+          "GET /identidad/verificaciones 403"
+        ],
+        "consola": [
+          "Failed to load resource: the server responded with a status of 403 (Forbidden)"
+        ]
+      },
+      {
+        "control": "PENDIENTE",
+        "malas": [
+          "GET /identidad/verificaciones 403"
+        ],
+        "consola": [
+          "Failed to load resource: the server responded with a status of 403 (Forbidden)"
+        ]
+      },
+      {
+        "control": "EN_REVISION",
+        "malas": [
+          "GET /identidad/verificaciones 403"
+        ],
+        "consola": [
+          "Failed to load resource: the server responded with a status of 403 (Forbidden)"
+        ]
+      },
+      {
+        "control": "APROBADA",
+        "malas": [
+          "GET /identidad/verificaciones 403"
+        ],
+        "consola": [
+          "Failed to load resource: the server responded with a status of 403 (Forbidden)"
+        ]
+      },
+      {
+        "control": "RECHAZADA",
+        "malas": [
+          "GET /identidad/verificaciones 403"
+        ],
+        "consola": [
+          "Failed to load resource: the server responded with a status of 403 (Forbidden)"
+        ]
+      },
+      {
+        "control": "Volver a intentar",
+        "malas": [
+          "GET /identidad/verificaciones 403"
+        ],
+        "consola": [
+          "Failed to load resource: the server responded with a status of 403 (Forbidden)"
+        ]
+      }
+    ]
+  },
+  {
+    "ruta": "/cumplimiento/alertas",
+    "final": "/tablero",
+    "controles": 0,
+    "pulsados": 0,
+    "saltados": [],
+    "hallazgos": [],
+    "redirigida": true
+  },
+  {
+    "ruta": "/cumplimiento/casos",
+    "final": "/tablero",
+    "controles": 0,
+    "pulsados": 0,
+    "saltados": [],
+    "hallazgos": [],
+    "redirigida": true
+  },
+  {
+    "ruta": "/cumplimiento/uif/reportes",
+    "final": "/cumplimiento/uif/reportes",
+    "controles": 10,
+    "pulsados": 8,
+    "saltados": [],
+    "hallazgos": [
+      {
+        "control": "Anterior",
+        "problema": "no se pudo pulsar: locator.click: Timeout 2500ms exceeded."
+      },
+      {
+        "control": "Siguiente",
+        "problema": "no se pudo pulsar: locator.click: Timeout 2500ms exceeded."
+      }
+    ]
+  },
+  {
+    "ruta": "/cumplimiento/uif/requerimientos",
+    "final": "/cumplimiento/uif/requerimientos",
+    "controles": 6,
+    "pulsados": 6,
+    "saltados": [],
+    "hallazgos": []
+  },
+  {
+    "ruta": "/cumplimiento/continuidad",
+    "final": "/cumplimiento/continuidad",
+    "controles": 2,
+    "pulsados": 1,
+    "saltados": [
+      "Registrar una prueba"
+    ],
+    "hallazgos": []
+  },
+  {
+    "ruta": "/cumplimiento/actas",
+    "final": "/cumplimiento/actas",
+    "controles": 3,
+    "pulsados": 1,
+    "saltados": [],
+    "hallazgos": [
+      {
+        "control": "Anterior",
+        "problema": "no se pudo pulsar: locator.click: Timeout 2500ms exceeded."
+      },
+      {
+        "control": "Siguiente",
+        "problema": "no se pudo pulsar: locator.click: Timeout 2500ms exceeded."
+      }
+    ]
+  },
+  {
+    "ruta": "/cumplimiento/riesgos/eventos",
+    "final": "/cumplimiento/riesgos/eventos",
+    "controles": 7,
+    "pulsados": 5,
+    "saltados": [],
+    "hallazgos": [
+      {
+        "control": "Anterior",
+        "problema": "no se pudo pulsar: locator.click: Timeout 2500ms exceeded."
+      },
+      {
+        "control": "Siguiente",
+        "problema": "no se pudo pulsar: locator.click: Timeout 2500ms exceeded."
+      }
+    ]
+  },
+  {
+    "ruta": "/cumplimiento/seguridad/incidentes",
+    "final": "/cumplimiento/seguridad/incidentes",
+    "controles": 6,
+    "pulsados": 6,
+    "saltados": [],
+    "hallazgos": []
+  },
+  {
+    "ruta": "/admisiones",
+    "final": "/tablero",
+    "controles": 0,
+    "pulsados": 0,
+    "saltados": [],
+    "hallazgos": [],
+    "redirigida": true
+  },
+  {
+    "ruta": "/sistemas",
+    "final": "/tablero",
+    "controles": 7,
+    "pulsados": 7,
+    "saltados": [],
+    "hallazgos": [
+      {
+        "control": "Cumplimiento UIF, alertas, casos y gobierno.",
+        "malas": [
+          "GET /identidad/verificaciones 403"
+        ],
+        "consola": [
+          "Failed to load resource: the server responded with a status of 403 (Forbidden)"
+        ]
+      }
+    ]
+  },
+  {
+    "ruta": "/sistemas/servicios",
+    "final": "/tablero",
+    "controles": 0,
+    "pulsados": 0,
+    "saltados": [],
+    "hallazgos": [],
+    "redirigida": true
+  },
+  {
+    "ruta": "/sistemas/despliegues",
+    "final": "/tablero",
+    "controles": 0,
+    "pulsados": 0,
+    "saltados": [],
+    "hallazgos": [],
+    "redirigida": true
+  },
+  {
+    "ruta": "/sistemas/base-de-datos",
+    "final": "/tablero",
+    "controles": 0,
+    "pulsados": 0,
+    "saltados": [],
+    "hallazgos": [],
+    "redirigida": true
+  },
+  {
+    "ruta": "/sistemas/respaldos",
+    "final": "/tablero",
+    "controles": 0,
+    "pulsados": 0,
+    "saltados": [],
+    "hallazgos": [],
+    "redirigida": true
+  },
+  {
+    "ruta": "/sistemas/proveedores",
+    "final": "/tablero",
+    "controles": 0,
+    "pulsados": 0,
+    "saltados": [],
+    "hallazgos": [],
+    "redirigida": true
+  },
+  {
+    "ruta": "/sistemas/outbox",
+    "final": "/tablero",
+    "controles": 0,
+    "pulsados": 0,
+    "saltados": [],
+    "hallazgos": [],
+    "redirigida": true
+  },
+  {
+    "ruta": "/sistemas/webhooks",
+    "final": "/tablero",
+    "controles": 0,
+    "pulsados": 0,
+    "saltados": [],
+    "hallazgos": [],
+    "redirigida": true
+  },
+  {
+    "ruta": "/sistemas/accesos",
+    "final": "/tablero",
+    "controles": 0,
+    "pulsados": 0,
+    "saltados": [],
+    "hallazgos": [],
+    "redirigida": true
+  },
+  {
+    "ruta": "/sistemas/incidentes",
+    "final": "/tablero",
+    "controles": 0,
+    "pulsados": 0,
+    "saltados": [],
+    "hallazgos": [],
+    "redirigida": true
+  },
+  {
+    "ruta": "/sistemas/usuarios-internos",
+    "final": "/tablero",
+    "controles": 0,
+    "pulsados": 0,
+    "saltados": [],
+    "hallazgos": [],
+    "redirigida": true
+  },
+  {
+    "ruta": "/sistemas/roles-internos",
+    "final": "/tablero",
+    "controles": 0,
+    "pulsados": 0,
+    "saltados": [],
+    "hallazgos": [],
+    "redirigida": true
+  },
+  {
+    "ruta": "/sistemas/permisos-internos",
+    "final": "/tablero",
+    "controles": 0,
+    "pulsados": 0,
+    "saltados": [],
+    "hallazgos": [],
+    "redirigida": true
+  },
+  {
+    "ruta": "/sistemas/operaciones",
+    "final": "/tablero",
+    "controles": 0,
+    "pulsados": 0,
+    "saltados": [],
+    "hallazgos": [],
+    "redirigida": true
+  },
+  {
+    "ruta": "/sistemas/flujos",
+    "final": "/tablero",
+    "controles": 0,
+    "pulsados": 0,
+    "saltados": [],
+    "hallazgos": [],
+    "redirigida": true
+  },
+  {
+    "ruta": "/sistemas/bitacora",
+    "final": "/tablero",
+    "controles": 0,
+    "pulsados": 0,
+    "saltados": [],
+    "hallazgos": [],
+    "redirigida": true
+  },
+  {
+    "ruta": "/sistemas/catalogos-operativos",
+    "final": "/tablero",
+    "controles": 0,
+    "pulsados": 0,
+    "saltados": [],
+    "hallazgos": [],
+    "redirigida": true
+  },
+  {
+    "ruta": "/contabilidad",
+    "final": "/tablero",
+    "controles": 0,
+    "pulsados": 0,
+    "saltados": [],
+    "hallazgos": [],
+    "redirigida": true
+  },
+  {
+    "ruta": "/contabilidad/presupuesto",
+    "final": "/tablero",
+    "controles": 0,
+    "pulsados": 0,
+    "saltados": [],
+    "hallazgos": [],
+    "redirigida": true
+  },
+  {
+    "ruta": "/contabilidad/compras",
+    "final": "/tablero",
+    "controles": 0,
+    "pulsados": 0,
+    "saltados": [],
+    "hallazgos": [],
+    "redirigida": true
+  },
+  {
+    "ruta": "/contabilidad/cobros",
+    "final": "/tablero",
+    "controles": 0,
+    "pulsados": 0,
+    "saltados": [],
+    "hallazgos": [],
+    "redirigida": true
+  },
+  {
+    "ruta": "/ayuda",
+    "final": "/ayuda",
+    "controles": 17,
+    "pulsados": 17,
+    "saltados": [],
+    "hallazgos": [
+      {
+        "control": "Comenzar",
+        "malas": [
+          "GET /identidad/verificaciones 403"
+        ],
+        "consola": [
+          "Failed to load resource: the server responded with a status of 403 (Forbidden)"
+        ]
+      },
+      {
+        "control": "Comenzar",
+        "malas": [
+          "GET /identidad/verificaciones 403"
+        ],
+        "consola": [
+          "Failed to load resource: the server responded with a status of 403 (Forbidden)"
+        ]
+      }
+    ]
+  },
+  {
+    "ruta": "/publicidad",
+    "final": "/tablero",
+    "controles": 7,
+    "pulsados": 7,
+    "saltados": [],
+    "hallazgos": [
+      {
+        "control": "Cumplimiento UIF, alertas, casos y gobierno.",
+        "malas": [
+          "GET /identidad/verificaciones 403"
+        ],
+        "consola": [
+          "Failed to load resource: the server responded with a status of 403 (Forbidden)"
+        ]
+      }
+    ]
+  },
+  {
+    "ruta": "/publicidad/anunciantes",
+    "final": "/tablero",
+    "controles": 0,
+    "pulsados": 0,
+    "saltados": [],
+    "hallazgos": [],
+    "redirigida": true
+  },
+  {
+    "ruta": "/publicidad/campanas",
+    "final": "/tablero",
+    "controles": 0,
+    "pulsados": 0,
+    "saltados": [],
+    "hallazgos": [],
+    "redirigida": true
+  },
+  {
+    "ruta": "/publicidad/moderacion",
+    "final": "/tablero",
+    "controles": 0,
+    "pulsados": 0,
+    "saltados": [],
+    "hallazgos": [],
+    "redirigida": true
+  },
+  {
+    "ruta": "/publicidad/desempeno",
+    "final": "/tablero",
+    "controles": 0,
+    "pulsados": 0,
+    "saltados": [],
+    "hallazgos": [],
+    "redirigida": true
+  },
+  {
+    "ruta": "/publicidad/liquidacion",
+    "final": "/tablero",
+    "controles": 0,
+    "pulsados": 0,
+    "saltados": [],
+    "hallazgos": [],
+    "redirigida": true
+  },
+  {
+    "ruta": "/configuracion",
+    "final": "/configuracion",
+    "controles": 4,
+    "pulsados": 4,
+    "saltados": [],
+    "hallazgos": []
+  },
+  {
+    "ruta": "/configuracion/tarifario",
+    "final": "/configuracion/tarifario",
+    "controles": 8,
+    "pulsados": 7,
+    "saltados": [],
+    "hallazgos": []
+  },
+  {
+    "ruta": "/configuracion/mensajeria",
+    "final": "/configuracion/mensajeria",
+    "controles": 13,
+    "pulsados": 11,
+    "saltados": [],
+    "hallazgos": [
+      {
+        "control": "Anterior",
+        "problema": "no se pudo pulsar: locator.click: Timeout 2500ms exceeded."
+      }
+    ]
+  },
+  {
+    "ruta": "/configuracion/reportes",
+    "final": "/configuracion/reportes",
+    "controles": 8,
+    "pulsados": 6,
+    "saltados": [],
+    "hallazgos": [
+      {
+        "control": "Anterior",
+        "problema": "no se pudo pulsar: locator.click: Timeout 2500ms exceeded."
+      },
+      {
+        "control": "Siguiente",
+        "problema": "no se pudo pulsar: locator.click: Timeout 2500ms exceeded."
+      }
+    ]
+  }
+]

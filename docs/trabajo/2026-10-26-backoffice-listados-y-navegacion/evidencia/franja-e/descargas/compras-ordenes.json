@@ -1,0 +1,11 @@
+[
+  {
+    "numero": "OC-0005",
+    "proveedor": "Proveedor Andino SRL",
+    "centroCosto": "Tecnología",
+    "creadaEn": "2026-09-01T12:00:00Z",
+    "monto": "BOB 805.00",
+    "estado": "Borrador",
+    "facturable": "La orden sigue en borrador: hay que aprobarla antes de poder facturarla."
+  }
+]

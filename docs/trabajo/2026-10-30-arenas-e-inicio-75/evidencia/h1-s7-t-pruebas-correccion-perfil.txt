@@ -1,0 +1,11 @@
+$ candado.sh ./gradlew :servicios:transparencia:test :servicios:transparencia:webTest :servicios:transparencia:integrationTest --rerun
+> Task :servicios:transparencia:testClasses UP-TO-DATE
+> Task :servicios:transparencia:test
+> Task :servicios:transparencia:webTest
+> Task :servicios:transparencia:integrationTest
+BUILD SUCCESSFUL in 44s
+exit=0
+# conteo por tarea (XML de resultados)
+test: tests=24 failures=0 errors=0 skipped=0
+webTest: tests=51 failures=0 errors=0 skipped=0
+integrationTest: tests=146 failures=0 errors=0 skipped=0

@@ -27,6 +27,10 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 @PruebaWeb
 class SeguridadWebTest extends SabanaDeSeguridadWeb {
 
+    // Sistemas › Proveedores: comparte controlador; no se llama aca.
+    @MockitoBean
+    private bo.aportaya.tarifas.aplicacion.ConsultarCostosDeProveedor consultarCostos;
+
     @MockitoBean
     private CU30CotizarComision cu30CotizarComision;
 
