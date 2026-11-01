@@ -1,5 +1,6 @@
 package bo.aportaya.nucleofinanciero.infraestructura;
 
+import bo.aportaya.nucleofinanciero.aplicacion.ConsumoDeEvidenciaMfa;
 import bo.aportaya.nucleofinanciero.dominio.puertos.SegundoFactor;
 import java.time.Instant;
 import java.util.List;

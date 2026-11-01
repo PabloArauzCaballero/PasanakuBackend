@@ -38,6 +38,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class CU12TransferirSaldo {
 
+    private static final org.slf4j.Logger BITACORA = org.slf4j.LoggerFactory.getLogger(CU12TransferirSaldo.class);
     private static final String CONCEPTO = "TRANSFERENCIA";
     private static final String ORIGEN = "TRANSFERENCIA_P2P";
 
@@ -182,6 +183,7 @@ public class CU12TransferirSaldo {
                             UUID.fromString(ctx.traza().id())));
 
             var despues = cuentas.ver(dsl, origen.id()).orElseThrow();
+            BITACORA.info("CU-12 · Transferencia P2P ejecutada: transaccion={}, origen={}, destino={}, monto={}", transaccionId, origen.id(), destino.id(), entrada.monto());
             return new SalidaTransferencia(
                     transaccionId,
                     despues.disponible(),
@@ -196,6 +198,7 @@ public class CU12TransferirSaldo {
      * el comprobante viejo como si fuera de esta peticion.
      */
     private SalidaTransferencia repetida(DSLContext dsl, UUID transaccionId, EntradaTransferencia entrada) {
+        BITACORA.info("CU-12 · Transferencia P2P reintento idempotente: clave={}", entrada.claveIdempotencia());
         var previa = transferencias.porTransaccion(dsl, transaccionId).orElseThrow();
         boolean igual = previa.origenId().equals(entrada.cuentaOrigenId())
                 && previa.destinoId().equals(entrada.destinoId())

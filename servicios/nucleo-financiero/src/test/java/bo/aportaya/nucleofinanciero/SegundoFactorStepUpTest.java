@@ -2,7 +2,7 @@ package bo.aportaya.nucleofinanciero;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import bo.aportaya.nucleofinanciero.infraestructura.ConsumoDeEvidenciaMfa;
+import bo.aportaya.nucleofinanciero.aplicacion.ConsumoDeEvidenciaMfa;
 import bo.aportaya.nucleofinanciero.infraestructura.EmisorDeEvidenciaDePrueba;
 import bo.aportaya.nucleofinanciero.infraestructura.EvidenciaMfaConsumidaRepositorio;
 import bo.aportaya.nucleofinanciero.infraestructura.SegundoFactorStepUp;

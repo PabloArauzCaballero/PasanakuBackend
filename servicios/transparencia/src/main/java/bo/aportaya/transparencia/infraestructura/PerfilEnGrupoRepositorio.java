@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * La reputacion de un integrante para el perfil del grupo (2026-10-21): el puntaje vigente con sus factores y las
@@ -26,7 +25,6 @@ public class PerfilEnGrupoRepositorio {
         this.datos = datos;
     }
 
-    @Transactional(readOnly = true)
     public PerfilDeReputacionEnGrupo de(UUID usuarioId, ContextoSesion ctx) {
         ContextoSesion interno =
                 ContextoSesion.deSistema(ctx.usuarioId(), new Traza(ctx.traza().id()));
