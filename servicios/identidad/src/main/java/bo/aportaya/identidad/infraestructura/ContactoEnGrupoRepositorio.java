@@ -6,7 +6,6 @@ import bo.aportaya.plataforma.dominio.Traza;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * El telefono de un integrante para el perfil del grupo (2026-10-21). Lo lee el proceso interno porque la politica de
@@ -22,7 +21,6 @@ public class ContactoEnGrupoRepositorio {
         this.datos = datos;
     }
 
-    @Transactional(readOnly = true)
     public Optional<String> telefono(UUID usuarioId, ContextoSesion ctx) {
         ContextoSesion interno =
                 ContextoSesion.deSistema(ctx.usuarioId(), new Traza(ctx.traza().id()));

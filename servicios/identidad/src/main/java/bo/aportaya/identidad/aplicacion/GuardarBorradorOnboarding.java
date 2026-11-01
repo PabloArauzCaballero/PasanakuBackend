@@ -7,6 +7,7 @@ import bo.aportaya.plataforma.dominio.Reloj;
 import java.time.ZoneOffset;
 import java.util.UUID;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /** Guarda o actualiza el avance de los formularios del alta incompleto. */
 @Service
@@ -20,6 +21,7 @@ public class GuardarBorradorOnboarding {
         this.reloj = reloj;
     }
 
+    @Transactional
     public BorradorOnboardingDatos ejecutar(UUID verificacionId, BorradorOnboardingDatos borrador, ContextoSesion ctx) {
         return repositorio.guardarBorrador(
                 verificacionId, borrador, reloj.ahora().atOffset(ZoneOffset.UTC), ctx);

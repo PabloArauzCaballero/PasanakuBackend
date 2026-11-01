@@ -7,6 +7,8 @@ import bo.aportaya.plataforma.dominio.Reloj;
 import java.time.ZoneOffset;
 import java.util.UUID;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import bo.aportaya.plataforma.dominio.ErrorDeNegocio;
 
 /** Valida el OTP exacto y lo consume para que pueda respaldar una sola alta. */
 @Service
@@ -20,6 +22,7 @@ public class ConfirmarVerificacionCorreo {
         this.reloj = reloj;
     }
 
+    @Transactional(noRollbackFor = ErrorDeNegocio.class)
     public ResultadoConfirmacionCorreo ejecutar(
             UUID id, String correo, String codigo, String ip, String agente, ContextoSesion ctx) {
         return repositorio.confirmar(

@@ -12,6 +12,7 @@ import java.time.ZoneOffset;
 import java.util.Map;
 import java.util.UUID;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.support.TransactionTemplate;
 
 /** Prepara y entrega por Gmail el OTP de correo previo al alta. */
 @Service
@@ -20,36 +21,46 @@ public class SolicitarVerificacionCorreo {
     private final VerificacionCorreoRepositorio repositorio;
     private final CorreoDeVerificacion correo;
     private final Reloj reloj;
+    private final TransactionTemplate transaccion;
 
     public SolicitarVerificacionCorreo(
-            VerificacionCorreoRepositorio repositorio, CorreoDeVerificacion correo, Reloj reloj) {
+            VerificacionCorreoRepositorio repositorio,
+            CorreoDeVerificacion correo,
+            Reloj reloj,
+            TransactionTemplate transaccion) {
         this.repositorio = repositorio;
         this.correo = correo;
         this.reloj = reloj;
+        this.transaccion = transaccion;
     }
 
     public Resultado ejecutar(String destino, UUID idempotencia, String ip, String agente, ContextoSesion ctx) {
         // El mismo rechazo que da CU-01 al final del alta (AP-CU01-03 con el campo), pero
         // en el paso donde se escribe el correo: mandar un codigo a un correo que ya
         // tiene cuenta hace llenar el formulario entero para rebotar en el ultimo boton.
-        if (repositorio.correoConCuentaActiva(destino, ctx)) {
+        boolean yaActiva = Boolean.TRUE.equals(
+                transaccion.execute(s -> repositorio.correoConCuentaActiva(destino, ctx)));
+        if (yaActiva) {
             throw new ErrorDeNegocio(
                     CodigoError.de(1, 3),
                     "Ya hay una cuenta con ese correo. Usa otro o recupera el acceso.",
                     Map.of("campo", "correo"));
         }
         OffsetDateTime ahora = reloj.ahora().atOffset(ZoneOffset.UTC);
-        var preparada = repositorio.preparar(destino, idempotencia, ip, agente, ahora, ctx);
-        if (!preparada.nueva()) {
-            return resultado(preparada.salida());
+        var preparada = transaccion.execute(
+                s -> repositorio.preparar(destino, idempotencia, ip, agente, ahora, ctx));
+        if (preparada == null || !preparada.nueva()) {
+            return resultado(preparada != null ? preparada.salida() : null);
         }
         Duration vigencia = Duration.between(ahora, preparada.salida().expiraEn());
         try {
             correo.enviarCodigo(destino, preparada.codigo(), vigencia);
-            repositorio.marcarEnviada(preparada.salida().verificacionId(), ahora, ctx);
+            transaccion.executeWithoutResult(
+                    s -> repositorio.marcarEnviada(preparada.salida().verificacionId(), ahora, ctx));
             return resultado(preparada.salida());
         } catch (RuntimeException fallo) {
-            repositorio.invalidarPorFalloDeEnvio(preparada.salida().verificacionId(), ahora, ctx);
+            transaccion.executeWithoutResult(
+                    s -> repositorio.invalidarPorFalloDeEnvio(preparada.salida().verificacionId(), ahora, ctx));
             throw new ErrorDeNegocio(CodigoError.de(1, 7), "No pudimos enviar el correo. Intenta nuevamente.");
         }
     }

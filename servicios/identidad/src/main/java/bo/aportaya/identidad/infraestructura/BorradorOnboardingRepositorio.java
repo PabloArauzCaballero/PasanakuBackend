@@ -12,7 +12,6 @@ import java.util.UUID;
 import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Persistencia del borrador de onboarding y resolucion del resultado post-confirmacion.
@@ -70,7 +69,6 @@ public class BorradorOnboardingRepositorio {
         return new ResultadoConfirmacionCorreo(true, false, null);
     }
 
-    @Transactional
     public BorradorOnboardingDatos guardar(
             UUID verificacionId, BorradorOnboardingDatos datosBorrador, OffsetDateTime ahora, ContextoSesion ctx) {
         return datos.conContexto(ctx, dsl -> guardarEnDsl(dsl, verificacionId, datosBorrador, ahora));
