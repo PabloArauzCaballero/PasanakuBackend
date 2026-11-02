@@ -18,7 +18,7 @@ ninguna
 | ID | Estado | Qué lo destraba |
 |---|---|---|
 | Prueba visual en un dispositivo | TODO | Correr la app y abrir un grupo (regla 95.7) |
-| Commit y push | TODO | Confirmación de Pablo |
+| Commit y push | HECHO (fuera del conteo) | PR #228 → `test` (merge `6d5f610e`) y PR #229 → `dev` (merge `e1ed4ae2`), ambos MERGED |
 
 ## Evidencia
 ```text
