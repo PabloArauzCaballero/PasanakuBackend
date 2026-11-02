@@ -1,0 +1,15 @@
+$ xcodebuild -exportArchive -archivePath …/Runner.xcarchive … -allowProvisioningUpdates -authenticationKey*  (clave e emisor ASC no se pegan)
+error: exportArchive No signing certificate "iOS Distribution" found
+error: exportArchive Unable to process request - PLA Update available
+error: exportArchive No signing certificate "iOS Distribution" found
+** EXPORT FAILED **
+
+# Reintento 2026-10-28 (tras "ya estuvo?")
+error: exportArchive Unable to process request - PLA Update available
+error: exportArchive No signing certificate "iOS Distribution" found
+** EXPORT FAILED **
+
+# Tras aceptar el PLA (API ASC GET /v1/certificates -> 200)
+Progress 100%: Upload succeeded.
+Uploaded Runner
+** EXPORT SUCCEEDED **
