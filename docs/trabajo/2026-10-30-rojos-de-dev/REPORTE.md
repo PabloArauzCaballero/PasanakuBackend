@@ -1,9 +1,9 @@
-> **AVANCE: 17 / 24 — 70,8 %.** #315 y #316 las mergeó PabloArauzCaballero a las 02:33 UTC con dos rojos sin resolver: `14 · integrationTest` (una prueba intermitente de `grupos`: la corrección hizo pasar `14` en la CI de #322/#323, pero esa CI además marcó un SQL concatenado mío, ya corregido en local y pendiente de la CI) y los dos jobs de iOS (H2.S9: BLOQUEADO, no reproducible sin macOS). Frontend, Postman, OSV-Scanner, la imagen y Trivy pasaron en la CI de esas PR.
+> **AVANCE: 23 / 25 — 92,0 %.** Las dos microtareas que no cuentan como hechas (H3.S1.M1/M2) son la entrega de #315/#316, que se mergearon con `14 · integrationTest` y los jobs de iOS en rojo: el primero lo cerraron #322/#323 (CI en verde) y el segundo lo cerró otro trabajo (#372/#373, 2026-10-31), no este. El Podfile de iOS no necesitó ningún cambio mío.
 
 # Reporte — Dejar en verde los rojos que quedaron en `dev`
 
 - Fecha: 2026-10-30 · Plan: [PLAN.md](./PLAN.md) · Rama: `claude/modest-bell-jz1x9e` (desde `origin/dev` ae38c444)
-- Peldaño de evidencia alcanzado: **TESTED** en local para cada cambio (comandos y salidas en `evidencia/`) y **observado en la CI** para el job Frontend, Postman, OSV-Scanner, la imagen, Trivy y (en #316) los cinco corredores, medidos sobre la cabeza c6757463; el CSS de `ui` además tiene **prueba visual real** (capturas por viewport y tema, miradas en dos pasadas). No es `REGRESSION_VERIFIED`: la corrección de H2.S8 todavía no corrió en la CI y esta cabeza reinicia los checks.
+- Peldaño de evidencia alcanzado: **TESTED** en local y **observado en la CI** (cada ítem de «Completado» cita el run). `14 · integrationTest`, el verificador de seguridad, Frontend, Postman, OSV-Scanner, imagen y Trivy en success sobre las cabezas de #322/#323 y de #315/#316; los dos jobs de iOS en success sobre #373 (otro trabajo). El CSS de `ui` tiene **prueba visual real** (capturas por viewport y tema, miradas en dos pasadas). Sin `REGRESSION_VERIFIED`: la regresión completa del módulo no se corrió en local (sin Docker) y `dev` actual no se volvió a medir de punta a punta tras todos los merges.
 
 ## Completado
 | ID | Qué se logró | Comando | Resultado |
@@ -21,25 +21,20 @@
 | H2.S3.M2 | Los 4 hallazgos de Trivy desaparecen (guava, snappy-java, libbrotli1) | CI de #315 y #316: «bootJar y docker build» y check «Trivy» | success en ambas, cabeza c6757463 |
 | H2.S7.M1–M2 | OpenTelemetry 1.67.0 y los 28 paquetes npm sin avisos de OSV | CI de #315 y #316: «Dependencias vulnerables (OSV-Scanner) / osv-scan» | success en ambas, cabeza c6757463 |
 | H2.S8.M1 | Causa de la prueba intermitente demostrada | SQL contra PostgreSQL local en transacción con `ROLLBACK` | 100 de 300 grupos de hoy quedan fuera del `LIMIT 200` · `evidencia/listado-grupos-backoffice.txt` |
+| H2.S8.M2–M3 | `listado` ya no depende del azar y la corrección no concatena SQL | CI de #322 (head 8a0df572, run 41000895739) y #323 (head d89387ff, run 41000899017) | «Los cinco corredores» (con `14`), «La boveda y el esquema no divergen» y «Bóveda, seguridad, carriles y despliegue coherentes» en success · mergeadas: `dev` 0d9481f2, `test` c3fd6259 |
+| H2.S9.M1 | Los dos jobs de iOS (`Release iOS`, `navegación en simulador iOS`) pasan | CI de #373 (head 77c30eae, run 41171213164) | success en ambos. **Lo resolvió otro trabajo** (f70d6683, #373 → `dev` y #372 → `test`, 2026-10-31): sacó ML Kit de iOS porque sus pods binarios no traen arm64 de simulador, Pods-Runner excluía arm64 y Xcode 26 terminaba en `framework 'Pods_Runner' not found`. Mi clasificación `ENVIRONMENT` fue errónea: la causa estaba en el Podfile y sus pods |
+| H2.S9.M2 | Pedido «arregla lo de iOS en el Podfile» (2026-11-06): ¿`dev` y `test` siguen necesitando un cambio? | `git show origin/{dev,test}:apps/movil/ios/Podfile.lock \| grep -ci mlkit` · `git ls-tree` de `terceros/` | 0 y 0 · sin carpeta `ios` en `terceros/` en ambas ramas · **no se cambió el Podfile**: una edición mía habría sido una conjetura sobre un problema ya resuelto |
+| H3.S2.M1–M2 | Corrección de H2.S8 entregada en `dev` y `test` | `pull_request_read` de #322 y #323 antes de mergear | `mergeable_state: clean`, checks en success o skipped · mergeadas |
 
 ## A medias
-### H2.S8.M2 — `GruposDeBackofficeRepositorioTest.listado` intermitente (`14 · integrationTest`)
-- Qué anda: la causa está demostrada (el listado ordena por `fecha_inicio DESC NULLS FIRST, codigo_publico, id` con `LIMIT 200`; la fixture pone `fecha_inicio = hoy` y un código aleatorio en una base compartida sin limpieza, así que con más de 200 grupos el de la prueba entra o no al azar). La prueba ahora fija la `fecha_inicio` de su grupo en el futuro antes de listar; las aserciones no cambiaron. `spotlessCheck` y `compileTestJava` de `grupos`: exit 0. Falló en #315 y pasó en #316 con el mismo código (clasificación `TEST_BUG`, regla 80.4).
-- Qué no anda / no se probó: no corrí `integrationTest` (necesita Docker, que la sesión no tiene), así que la corrección no se observó en ejecución.
-- Qué falta exactamente: que `14 · integrationTest` pase en la CI de las dos PR con esta cabeza.
-- Dónde quedó: rama `claude/modest-bell-jz1x9e`; solo `servicios/grupos/src/test/.../GruposDeBackofficeRepositorioTest.java`, que compila.
-
 ### H3.S1.M1 / M2 — entrega de #315 (`dev`) y #316 (`test`)
 - Qué anda: las dos PR se abrieron, quedaron sin conflictos y las mergeó PabloArauzCaballero a las 02:33 UTC. Con ese merge `dev` y `test` ganan el arreglo de `f1`, `f5`, `f6`, `contractTest`, los criterios de CU-58/CU-64, Postman, OSV y Trivy (todos observados en verde en la CI de las PR).
 - Qué no anda: se mergearon con `mergeable_state: unstable`: `14 · integrationTest` (H2.S8) y los jobs de iOS (H2.S9) estaban en rojo. El CA «checks sin fallos» (regla 35.2) no se cumplió.
-- Qué falta exactamente: H3.S2 (la corrección de H2.S8 en `dev` y `test`) y H2.S9.
-- Dónde quedó: `dev` y `test` ya contienen las PR; la corrección de H2.S8 y las actualizaciones de plan y reporte están en la rama `claude/modest-bell-jz1x9e` (+ merge de `dev`), sin mergear.
+- Qué falta exactamente: nada por hacer; los dos rojos quedaron cerrados después (H2.S8 con #322/#323, H2.S9 con #372/#373). Se deja `A MEDIAS` porque el CA «checks sin fallos» no se cumplió **en el momento del merge**, y eso no se corrige con el tiempo.
+- Dónde quedó: `dev` y `test` contienen todo.
 
 ## Pendiente
-| ID | Estado | Qué lo destraba |
-|---|---|---|
-| H2.S9.M1 | BLOQUEADO | Jobs de iOS: `ld: framework 'Pods_Runner' not found` al compilar con `patrol test` (Xcode 26.3, macos-15). Hace falta reproducirlo en un Mac con Xcode (`pod install` + `xcodebuild build-for-testing` de `apps/movil/ios`); lo destraba el dueño de la app móvil. En el run base de `dev` estaban `skipped`, no verdes |
-| H3.S2.M1 / M2 | TODO | abrir el PR de seguimiento a `dev` y su gemelo a `test`, y que sus checks reales queden verdes antes de mergear |
+ninguna
 
 ## Evidencia
 Ver `evidencia/`: `dart-format.txt`, `f5-catalogo-44px.txt`, `f6-e2e-backoffice.txt`, `trivy-y-locks.txt`, `java-y-boveda.txt`, `listado-grupos-backoffice.txt` y `visual/` (escritorio y teléfono, claro y oscuro, antes | después; más foco y hover de los botones de ayuda). Extracto del cambio de `f5`:
@@ -51,7 +46,7 @@ Solape del botón de ayuda (44 px) sobre el control de abajo: elementFromPoint �
 
 ## No cubierto
 - `f7` (se saltea sin backend vivo); el job Frontend completo terminó en success en la CI, pero no leí paso por paso su salida.
-- `integrationTest`, `sagaTest`, el build de la imagen y Trivy no corren en la sesión (no hay Docker): solo los vi en la CI. La corrección de H2.S8 no tiene aún ninguna corrida.
+- `integrationTest`, `sagaTest`, el build de la imagen y Trivy no corren en la sesión (no hay Docker): solo los vi en la CI. La corrección de H2.S8 sí corrió en la CI (#322/#323, ver «Completado»); en local solo se compiló y formateó.
 - `GruposDeBackofficeRepositorioTest.listado` no es la única prueba que cuenta con una base compartida sin limpieza: no revisé las demás.
 - `flutter analyze` y `flutter test` (no hay SDK de Flutter; solo se bajó `dart` para el formato). Las goldens y los simuladores iOS son de otros jobs.
 - Estados de hover/foco del resto de componentes tocados (solo se capturaron los de la ayuda de la lista y de la barra de filtros); no se probó en un dispositivo táctil real.
