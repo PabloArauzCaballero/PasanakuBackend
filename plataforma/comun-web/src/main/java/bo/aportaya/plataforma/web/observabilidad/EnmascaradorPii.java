@@ -21,11 +21,10 @@ public class EnmascaradorPii extends CompositeConverter<ILoggingEvent> {
             "(?i)(password|contrasena|contraseña|clave|token|secreto|jwt|pin|bearer|authorization)[\"':\\s=]+([^\"\\s,;}{]+)",
             Pattern.CASE_INSENSITIVE);
 
-    private static final Pattern PATRON_TARJETAS_CUENTAS = Pattern.compile(
-            "\\b(\\d{6,16})(\\d{4})\\b");
+    private static final Pattern PATRON_TARJETAS_CUENTAS = Pattern.compile("\\b(\\d{6,16})(\\d{4})\\b");
 
-    private static final Pattern PATRON_CORREOS = Pattern.compile(
-            "\\b([A-Za-z0-9._%+-])[A-Za-z0-9._%+-]*@([A-Za-z0-9.-]+\\.[A-Za-z]{2,})\\b");
+    private static final Pattern PATRON_CORREOS =
+            Pattern.compile("\\b([A-Za-z0-9._%+-])[A-Za-z0-9._%+-]*@([A-Za-z0-9.-]+\\.[A-Za-z]{2,})\\b");
 
     @Override
     protected String transform(ILoggingEvent evento, String texto) {

@@ -1,0 +1,32 @@
+# Evidencia — formato de Java en dev (palantirJavaFormat vía Spotless 7.0.4)
+# Árbol: origin/dev 708f5909. Base local: PostgreSQL 16 efímero con sql/aplicar.sql del mismo árbol.
+
+## ANTES: ./gradlew spotlessCheck --continue   → exit 1; archivos con violaciones (14):
+:plataforma:comun-datos  src/test/java/bo/aportaya/plataforma/datos/ComoSistemaRepositorioTest.java
+:plataforma:comun-dominio  src/main/java/bo/aportaya/plataforma/dominio/CifradorSimetrico.java
+:plataforma:comun-dominio  src/test/java/bo/aportaya/plataforma/dominio/CifradorSimetricoTest.java
+:plataforma:comun-web  src/main/java/bo/aportaya/plataforma/web/observabilidad/EnmascaradorPii.java
+:servicios:aportes  src/main/java/bo/aportaya/aportes/aplicacion/CU21CobrarAporte.java
+:servicios:entregas  src/main/java/bo/aportaya/entregas/aplicacion/CU18RegistrarCuentaDestino.java
+:servicios:entregas  src/main/java/bo/aportaya/entregas/aplicacion/CU22LiquidarEntrega.java
+:servicios:entregas  src/main/java/bo/aportaya/entregas/aplicacion/CU28EmitirDesembolso.java
+:servicios:identidad  src/main/java/bo/aportaya/identidad/aplicacion/ConfirmarVerificacionCorreo.java
+:servicios:identidad  src/main/java/bo/aportaya/identidad/aplicacion/SolicitarVerificacionCorreo.java
+:servicios:identidad  src/main/java/bo/aportaya/identidad/infraestructura/EmisorDeAcceso.java
+:servicios:nucleo-financiero  src/main/java/bo/aportaya/nucleofinanciero/aplicacion/CU10RecargarSaldo.java
+:servicios:nucleo-financiero  src/main/java/bo/aportaya/nucleofinanciero/aplicacion/CU12TransferirSaldo.java
+:servicios:nucleo-financiero  src/main/java/bo/aportaya/nucleofinanciero/aplicacion/CU24RegistrarAsiento.java
+
+La CI solo mostraba el primero (comun-datos): el paso 2 corta en el primer módulo que falla.
+Origen: commits del 2026-11-01 (07956b99, 69b265e9, d2d8c26b: «seguridad…», «observabilidad…») que entraron sin formatear; la configuración de Spotless no cambia desde 2026-10-16.
+
+## APLICAR: ./gradlew spotlessApply --continue → exit 0
+
+## DESPUÉS: ./gradlew spotlessCheck (todo el repo) → exit 0
+## compileJava + compileTestJava de los 7 módulos tocados (jOOQ regenerado) → exit 0
+## test de los 7 módulos (comun-datos, comun-dominio, comun-web, aportes, entregas, identidad, nucleo-financiero) → BUILD SUCCESSFUL, exit 0
+
+## ¿Solo formato? git diff --stat → 14 archivos, 96 inserciones, 35 eliminaciones
+Comparación del contenido sin espacios en blanco, archivo por archivo (antes vs después):
+  13 archivos idénticos; 1 distinto: servicios/identidad/.../ConfirmarVerificacionCorreo.java
+  → solo reordena un import (ErrorDeNegocio pasa a su lugar alfabético); sin cambio de comportamiento.
