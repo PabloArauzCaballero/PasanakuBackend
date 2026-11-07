@@ -64,8 +64,7 @@ class CifradorSimetricoTest {
         assertThat(CifradorSimetrico.cifrar(null, SECRETO)).isNull();
         assertThat(CifradorSimetrico.descifrar(null, SECRETO)).isNull();
 
-        assertThatThrownBy(() -> CifradorSimetrico.cifrar("algo", null))
-                .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> CifradorSimetrico.cifrar("algo", null)).isInstanceOf(IllegalArgumentException.class);
         assertThatThrownBy(() -> CifradorSimetrico.descifrar("enc:v1:algo", ""))
                 .isInstanceOf(IllegalArgumentException.class);
     }
