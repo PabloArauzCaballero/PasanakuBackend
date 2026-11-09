@@ -23,7 +23,7 @@
     "postman": "python3 scripts/generar_postman.py"
   },
   "devDependencies": {
-    "postman-cli": "1.82.0",
+    "postman-cli": "1.86.0",
     "turbo": "^2.11.10",
     "typescript": "~7.0.2"
   },
