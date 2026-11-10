@@ -12,14 +12,14 @@
 spring-boot        = "4.1.2"
 spring-dep-mgmt    = "1.1.7"
 spring-cloud       = "2025.1.4"
-minio              = "9.0.3"
+minio              = "9.0.4"
 shedlock           = "7.10.1"       # bloqueo de trabajos programados entre replicas
 resilience4j       = "2.4.0"       # timeout y cortacircuitos en cada cliente
 argon2             = "2.12"        # contrasenas y PIN (nunca un hash rapido)
 archunit           = "1.5.1"       # la direccion de dependencia se verifica
 jqwik              = "1.10.2"       # propiedades: cuadre de dinero
-spotless           = "8.10.4"
-openapi-generator  = "7.26.0"
+spotless           = "8.11.0"
+openapi-generator  = "7.27.0"
 jooq               = "3.21.9"      # generador Y libreria: separarlos genera codigo que no compila
 driver-postgresql  = "42.7.14"     # solo para el generador y los contenedores
 cyclonedx          = "3.5.1"       # SBOM por modulo desplegable (H2.S3), verificado contra
