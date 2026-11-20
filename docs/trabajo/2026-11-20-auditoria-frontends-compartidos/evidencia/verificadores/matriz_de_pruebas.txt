@@ -1,0 +1,6 @@
+| Servicio | Endpoints | Con prueba web | Con CU | CU con prueba de integración | En algún flujo |
+|---|---:|---:|---:|---:|---:|
+| aportes | 15 | 15 | 12 | 10 | 2 |
+| **Total** | 15 | 15 | 12 | 10 | 2 |
+
+Sin prueba web (0):

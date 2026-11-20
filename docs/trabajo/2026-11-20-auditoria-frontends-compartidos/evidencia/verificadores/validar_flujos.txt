@@ -1,0 +1,6 @@
+  OK    · aporte-mora-cobertura.yaml: 12 pasos, 6 validos, 7 limite, 7 invalidos
+  OK    · entrega-del-turno.yaml: 7 pasos, 4 validos, 5 limite, 6 invalidos
+  OK    · recarga-y-retiro.yaml: 6 pasos, 3 validos, 5 limite, 6 invalidos
+  AVISO · recarga-y-retiro.yaml: paso `instruir-pago` SIN CABLEAR — H8-01 · Ningún trabajo, endpoint ni consumidor llama a RetirosConProveedor.despachar ni a CU11RetirarSaldo.instruirPago en producción; el evento nucleo_financiero.retiro_autorizado se publica y nadie lo consume. Una orden AUTORIZADA queda retenida sin instruirse. Decisión pendiente (A9): instrucción automática o de un operador.
+
+Sin fallas.
