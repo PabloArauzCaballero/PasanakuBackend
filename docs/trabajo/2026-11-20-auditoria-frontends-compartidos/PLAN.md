@@ -18,7 +18,7 @@
 | ID | Microtarea (fase §8) | CA (binario) | DoD | Estado |
 |---|---|---|---|---|
 | H1.S1.M0 | Fase 0 — preparación | commit anotado, historial completo, reglas leídas | `git rev-parse HEAD`; `git rev-parse --is-shallow-repository` → false | HECHO (07fc697; false tras `git fetch --unshallow`) |
-| H1.S1.M1 | Fase 1 — huella y mapa de conexiones | sección 3 del informe escrita | inspección del informe | EN CURSO |
+| H1.S1.M1 | Fase 1 — huella y mapa de conexiones | sección 3 del informe escrita | inspección del informe | A MEDIAS — huella medida y verificadores corridos; falta integrar lectura de los 4 lotes |
 | H1.S1.M2 | Fase 2 — lectura con registro de cobertura | anexo con una fila por archivo | conteo de filas vs `git ls-files` | TODO |
 | H1.S1.M3 | Fase 3 — inventarios APROB / RESPALDO | tablas 4a/4b/4c escritas | `grep` de términos documentado | TODO |
 | H1.S1.M4 | Fase 4 — vista de conjunto | hallazgos DUP/REESCRITURA/FRAGIL | inspección | TODO |
