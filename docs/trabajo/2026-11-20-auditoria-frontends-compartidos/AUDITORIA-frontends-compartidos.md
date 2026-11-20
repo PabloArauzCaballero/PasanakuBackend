@@ -515,6 +515,104 @@
 - Estándares y normas: ISO 8601; regla 91.1.5; ISO/IEC 25010 — corrección
 - Esfuerzo estimado: medio
 
+### frontends-compartidos-FLUJO-QR-003 — La portada ofrece aportar «en efectivo en un punto de atención» y recargar por transferencia o efectivo
+- Clase / Severidad / Confianza: FLUJO-QR (también COHERENCIA) / S2 / confirmado
+- Ubicaciones: `apps/web/src/app/paginas/inicio/secciones/producto.ts:67,71`
+- Evidencia: «Aportá cada período — Desde tu saldo, con QR o en efectivo en un punto de atención.»; «Recargás por QR, transferencia o efectivo».
+- Cómo se comprobó: lectura (lector C, re-verificado).
+- Impacto: promesa pública de caminos de pago que, con R-NUEVA-1, no mueven el flujo. No se encontró en el alcance un camino de efectivo implementado (lo confirma L1). Quien pague en efectivo creyendo en la portada queda en mora.
+- Causa de fondo: textos de marketing sin fuente única frente al catálogo de medios de pago.
+- Solución de fondo: los medios de pago visibles se publican desde el contrato de `aportes` (medios habilitados) y no desde texto fijo.
+- Relación con el flujo nuevo: FLUJO-QR
+- Conexiones y módulos afectados: L1
+- Estándares y normas: R-NUEVA-1; protección al consumidor: norma a identificar por Cumplimiento
+- Esfuerzo estimado: chico
+
+### frontends-compartidos-SEG-002 — El SSR del sitio no emite cabeceras de seguridad y su proxy `/api` reenvía cabeceras del cliente sin timeout
+- Clase / Severidad / Confianza: SEG (también RESILIENCIA) / S2 / probable (confirmado en el código; no se comprobó si un proxy de borde de Coolify agrega cabeceras)
+- Ubicaciones: `apps/web/src/server.ts:55-85` (proxy `/api`), `:112-119` (respuesta HTML); `apps/web/docker/Dockerfile.web:1,20-33`; backoffice: `apps/backoffice/docker/nginx.conf:9` frente a `apps/backoffice/docker/nginx.desplegado.conf:23` (CSP distintas)
+- Evidencia: el comentario de `Dockerfile.web:1` dice «servido por Node detrás de NGINX», pero la imagen es `node:22-alpine` con `CMD ["node", "./dist/server/server.mjs"]` y sin NGINX. `grep -n -i "Content-Security|X-Frame|Strict-Transport|timeout|AbortSignal" apps/web/src/server.ts` no da resultados. El proxy copia `req.headers` salvo una lista negra (`SIN_REENVIO`) y hace `fetch(gatewayInterno + req.originalUrl, …)` sin señal de aborto.
+- Cómo se comprobó: lectura y `grep`.
+- Impacto: la página pública (verificadores, invitaciones) queda sin CSP, `frame-ancestors` ni HSTS, expuesta a clickjacking e inyección. Un gateway lento cuelga conexiones del SSR. La lista negra deja pasar cabeceras que el cliente no debería poder fijar ante el gateway.
+- Causa de fondo: se asumió un NGINX que no existe en la imagen. Reenvío por lista negra en lugar de lista blanca.
+- Solución de fondo: cabeceras de seguridad en `server.ts` o un NGINX real; lista blanca de cabeceras; `AbortSignal.timeout(...)` en el `fetch`; una sola CSP versionada para el backoffice.
+- Relación con el flujo nuevo: ninguna · Conexiones: gateway (L5)
+- Estándares y normas: OWASP ASVS V14 (configuración); OWASP Top 10 A05; regla 98.2.1 (timeout explícito)
+- Esfuerzo estimado: chico
+
+### frontends-compartidos-SEG-003 — `ap-listado` exporta CSV/JSON desde el navegador por omisión, sin rastro y con valores sin enmascarar
+- Clase / Severidad / Confianza: SEG (también TRAZA) / S2 / confirmado en el componente; el conteo de 30/32 listados es del lector C (probable)
+- Ubicaciones: `packages/ui/src/listado/listado.ts:50,98,102` (`readonly exportable = input(true)`); canal auditado `apps/backoffice/src/app/nucleo/exportador.ts` → `POST /extraccion/exportaciones`, sin contrato (CONTRATO-001)
+- Evidencia: `readonly exportable = input(true)`.
+- Cómo se comprobó: lectura del componente; el lector C contó 30 de 32 listados del backoffice con exportación local.
+- Impacto: cualquier operador con vista de un listado descarga datos de participantes sin que quede registro (regla 90.2.7) y sin el enmascarado de la vista. La exportación auditada no existe en el servidor.
+- Causa de fondo: valor por omisión inseguro en un componente compartido. El canal auditado depende de un servicio inexistente.
+- Solución de fondo: `exportable` en `false` por omisión. Exportaciones de datos personales solo por el servidor, con permiso `exportar:*` y bitácora.
+- Relación con el flujo nuevo: ninguna · Conexiones: L5 (auditoría), todas las pantallas de backoffice
+- Estándares y normas: regla 90.2.1/90.2.7, 95.6.5; OWASP API3:2023 (exposición excesiva)
+- Esfuerzo estimado: medio
+
+### frontends-compartidos-DEFECTO-006 — Al restaurar o refrescar la sesión del backoffice se pierde el `sujeto`, y el avance de tutoriales de todos los operadores comparte la clave `anonimo`
+- Clase / Severidad / Confianza: DEFECTO / S3 / confirmado
+- Ubicaciones: `apps/backoffice/src/app/nucleo/auth-bootstrap.ts:35`, `apps/backoffice/src/app/nucleo/sesion.interceptor.ts:27` (llaman `sesion.abrir(…)` sin el cuarto parámetro); `apps/backoffice/src/app/nucleo/sesion.ts:50` (`sujeto: string | null = null`); `packages/tutoriales/src/almacen-local.ts:70`
+- Evidencia: `sesion.abrir(resultado.acceso, resultado.permisos, resultado.rol)` · `return PREFIJO + huella(this.identidad.sujeto() ?? 'anonimo')`.
+- Cómo se comprobó: lectura de los cuatro archivos.
+- Impacto: tras un F5 o un refresco por 401, el shell ya no sabe quién es el operador. El progreso de tutoriales de un operador lo ve el siguiente en el mismo navegador, y todo lo que dependa de `sujeto` queda nulo.
+- Causa de fondo: `abrirConToken` lee los claims y `abrir` no. Hay dos caminos de apertura de sesión.
+- Solución de fondo: un solo método que derive `sujeto` del token en todos los caminos.
+- Relación con el flujo nuevo: ninguna · Conexiones: L4 (sesiones)
+- Estándares y normas: ISO/IEC 25010 — corrección
+- Esfuerzo estimado: chico
+
+### frontends-compartidos-DINERO-003 — El backoffice promete «si la repetís igual, no se duplica», pero la clave de idempotencia solo sale si cada pantalla la marca
+- Clase / Severidad / Confianza: DINERO (también CONTRATO) / S2 / probable (falta el inventario de escrituras sin `contextoIdempotente()`)
+- Ubicaciones: `apps/backoffice/src/app/nucleo/errores.ts:104-108`; `apps/backoffice/src/app/nucleo/idempotencia.interceptor.ts:58-81` (sin marca de contexto, no agrega cabecera)
+- Evidencia: «La respuesta tardó demasiado y no sabemos si la operación quedó registrada. Antes de repetirla, revisá su estado: si la repetís igual, no se duplica.»; el interceptor devuelve `next(req)` sin cabecera si no hay `CLAVE_POR_CONTENIDO` ni `CLAVE_IDEMPOTENCIA`.
+- Cómo se comprobó: lectura; en `rutas/` hay 21 archivos con `contextoIdempotente` y 3 con clave por formulario. El resto de las escrituras no se inventarió (pantallas de módulo).
+- Impacto: en una escritura sin marca, el texto invita a repetir y la repetición puede duplicar un cobro, un cierre o un desembolso.
+- Causa de fondo: la idempotencia es opcional por pantalla y el texto es global.
+- Solución de fondo: que el interceptor agregue la clave por contenido a TODO `POST/PUT/PATCH/DELETE` por omisión, con exclusión explícita, y que el texto solo aparezca cuando la petición llevó clave.
+- Relación con el flujo nuevo: ninguna · Conexiones: L1, L2 (pantallas de dinero del backoffice)
+- Estándares y normas: regla 91.1.4, 96.3.3
+- Esfuerzo estimado: chico
+
+### frontends-compartidos-DUP-X-002 — Núcleo de red clonado entre backoffice y web, con divergencias
+- Clase / Severidad / Confianza: DUP-X / S3 / confirmado
+- Ubicaciones: `apps/backoffice/src/app/nucleo/{gateway,errores,errores.interceptor,timeout.interceptor,traza.interceptor,configuracion-invalida}.ts` frente a `apps/web/src/app/nucleo/` con los mismos nombres
+- Evidencia: `diff` de `timeout.interceptor.ts` muestra cuerpos distintos (lectura y escritura en el backoffice, solo lectura en la web). Según el lector C, la web no traduce 502/503/504 y `ErrorTraducido` está definido cuatro veces.
+- Cómo se comprobó: `diff` (normalizado sin espacios) del interceptor de timeout; el resto, informe del lector C.
+- Impacto: un arreglo de red en una app no llega a la otra. Mismo error, distinto mensaje.
+- Causa de fondo: no hay un paquete Angular de infraestructura de red compartida (`packages/ui` es solo presentación).
+- Solución de fondo: mover interceptores, traducción de errores y gateway a un paquete compartido (p. ej. `packages/red-angular`), parametrizado.
+- Relación con el flujo nuevo: ninguna · Conexiones: backoffice, web
+- Estándares y normas: ISO/IEC 25010 — mantenibilidad
+- Esfuerzo estimado: medio
+
+### frontends-compartidos-PRUEBAS-003 — Playwright del backoffice con `retries: 1`
+- Clase / Severidad / Confianza: PRUEBAS / S3 / confirmado
+- Ubicaciones: `apps/backoffice/playwright.config.ts:30`
+- Evidencia: `retries: 1,`
+- Cómo se comprobó: `grep`.
+- Impacto: un E2E intermitente se reporta verde. La regla 80.5.3 prohíbe reintentos sin causa demostrada.
+- Causa de fondo: falta un triaje de las pruebas inestables.
+- Solución de fondo: `retries: 0` en desarrollo y en la CI, con cuarentena con dueño y fecha para las inestables.
+- Relación con el flujo nuevo: ninguna · Conexiones: ninguna
+- Estándares y normas: regla 80.5.3
+- Esfuerzo estimado: chico
+
+### frontends-compartidos-REESCRITURA-002 — Código muerto o solo de catálogo en el shell del backoffice y en `packages/ui`, incluido un explicador con un endpoint inventado
+- Clase / Severidad / Confianza: REESCRITURA (también DOC) / S3 / probable (búsquedas de referencias del lector C; muestra re-verificada: `ExplicadorDeVistaComponent`)
+- Ubicaciones: `apps/backoffice/src/app/nucleo/tabla/tabla-de-datos-virtualizada.ts`, `apps/backoffice/src/app/layout/pestanas-de-seccion.ts`, `apps/backoffice/src/app/nucleo/filtros/barra-de-filtros.ts`, `apps/backoffice/src/app/nucleo/evidencia/panel-de-evidencia.ts`, `apps/backoffice/src/app/nucleo/explicador-de-vista.component.ts` y `nucleo/explicaciones/*` (~560 líneas); en `packages/ui`, unos 22 componentes usados solo por `src/catalogo` (tarjeta-saldo, lista-de-movimientos, tarjeta-de-solicitud…)
+- Evidencia: según el lector C, el explicador menciona `/operaciones/retiros/{id}/aprobar`, que no existe en ningún contrato.
+- Cómo se comprobó: informe del lector C (búsquedas `git grep` de selectores e imports).
+- Impacto: código que se mantiene y empaqueta sin uso, con textos de aprobación y respaldo (RE-07) que siguen el flujo viejo.
+- Causa de fondo: reescrituras de agentes sin retirar las versiones previas.
+- Solución de fondo: borrar lo que no tiene consumidor real, o moverlo al catálogo con su marca.
+- Relación con el flujo nuevo: APROB/RESPALDO (textos)
+- Conexiones y módulos afectados: backoffice
+- Estándares y normas: ISO/IEC 5055; ISO/IEC 25010 — mantenibilidad
+- Esfuerzo estimado: chico
+
 ## 6. Matriz de contratos
 
 (se completa al cerrar)
