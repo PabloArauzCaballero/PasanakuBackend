@@ -2046,6 +2046,461 @@ Rutas sin prefijo: relativas a `servicios/cumplimiento/src/main/java/bo/aportaya
 - Conexiones y módulos afectados: ver evidencia y ubicaciones.
 - Estándares y normas: ver evidencia y ubicaciones.
 
+#### Tanda 6 — backoffice (cumplimiento, accesos, retiros) y web (lote 5)
+
+Rutas sin prefijo: relativas a `apps/backoffice/src/app/rutas/`. Peldaño: DISCOVERED (yarn no corrió). El hallazgo del lote sobre los tipos escritos a mano de la aprobación de retiro se fusionó en IDCU-DOC-006.
+
+### IDCU-DATOS-144 — Ficha de caso LFT enrutada con datos de ejemplo, catálogo de causales inventado y "debido proceso" con notificación al titular
+- Clase / Severidad / Confianza: DATOS / S2 / confirmado
+- Ubicaciones: `cumplimiento/casos/pantalla-de-caso.ts:37,79-91,93,125-129`; `cumplimiento/dominio/cu44-caso.ts:10-15,17-33,35-46`; `cumplimiento/cumplimiento.routes.ts:64-68`; `cumplimiento/textos.ts:163`
+- Evidencia: `this.caso() ?? { id: 'demo', causal: null, ...}`; `CATALOGO_DE_CAUSALES ... 'PATRON_FRACCIONAMIENTO' ...`; etapa `'Notificación' ... 'Probada con el acuse del canal'`, `'Descargo'`, `'Apelación'`
+- Cómo se comprobó: lectura; `casos/:casoId` carga `PantallaDeCaso` (routes:64-68); el contrato no tiene GET de caso, así que `caso` siempre es `undefined` y se usa el objeto `demo`. El catálogo de causales no existe en `cumplimiento.yaml` (EntradaDecisionCasoLft solo tiene decision/conclusion/reporteSospechosoId). La conclusión enviada al servidor se pre-rellena con `Causal: <texto inventado>` (pantalla-de-caso.ts:126-129).
+- Nota del orquestador: re-verificado `cumplimiento/casos/pantalla-de-caso.ts:79-91` (caso por omisión `id: 'demo'`) y `cumplimiento/cumplimiento.routes.ts:64-68` (ruta `casos/:casoId` sin `canMatch`, mientras la bandeja tiene `canMatch: [guardiaDe('casos')]`).
+- Impacto: pantalla real del build final que muestra una escalera de etapas ficticia; en un caso LFT/ROS la "notificación", "descargo" y "apelación" al titular contradicen el deber de reserva que la misma sección declara (`textos-lft.ts:111,148`, `decidir-caso.ts:25-26`). Causales sin procedencia (regla 97.4.1/00.2.1) terminan dentro de la conclusión registrada.
+- Causa de fondo: se mezcló el patrón `debido-proceso` (sanciones) con el caso LFT, y se dejó un tipo de dominio "listo para conectarse" a un contrato que ya cambió.
+- Solución de fondo: eliminar `CasoDeCumplimiento`/`CATALOGO_DE_CAUSALES`/`etapasDelCaso` o reemplazarlos por un `GET /cumplimiento/casos/{id}` real (sin persona) en el contrato; la ficha sin contrato debe ser `ap-indisponible` como alertas/actas; si las causales son necesarias, catálogo codificado en el servidor con procedencia.
+- Relación con el flujo nuevo: APROB
+- Conexiones y módulos afectados: `decidirCasoLft`
+- Regla: 97.4.1, 00.2.1, 95 (datos simulados), aml deber de reserva
+- Esfuerzo estimado: medio
+- Estándares y normas: ver evidencia y ubicaciones.
+
+### IDCU-SEG-145 — Narrativa del caso LFT persistida en IndexedDB del navegador, por caso y no por usuario, sin purga al salir, en ruta sin guardia
+- Clase / Severidad / Confianza: SEG / S2 / probable
+- Ubicaciones: `cumplimiento/casos/pantalla-de-caso.ts:101-120,136-138`; `cumplimiento/cumplimiento.routes.ts:64-68`; (soporte fuera de lote) `nucleo/borrador.ts:3-16,28-36`
+- Evidencia: `` `cumplimiento:caso:${this.casoId()}:narrativa` ``; `servicioBorrador.guardar(...)` en cada tecla; `grep ServicioBorrador` no encuentra purga en cierre de sesión
+- Cómo se comprobó: lectura + grep de usos de `ServicioBorrador` (solo pantalla-de-caso y pantalla-de-reclamo); la ruta `casos/:casoId` no tiene `canMatch`.
+- Nota del orquestador: re-verificado `cumplimiento/casos/pantalla-de-caso.ts:101-120` (`servicioBorrador.guardar(this.claveBorrador(), valor)`) y la ruta sin guardia (`cumplimiento.routes.ts:64-68`). La guardia de ruta no es seguridad (95.6.1), pero el borrador local sí es un dato que queda en el equipo.
+- Impacto: información sujeta a reserva UIF (narrativa de sospecha) queda en claro en el perfil del navegador; otro operador del mismo equipo que abra `/cumplimiento/casos/<id>` (sin `CUMPLIMIENTO_CASOS`) ve el borrador recuperado. IndexedDB es tan legible por script/extensión como localStorage (el comentario de `borrador.ts` afirma lo contrario).
+- Causa de fondo: borrador genérico del shell reutilizado para datos reservados sin clave por sesión ni cifrado.
+- Solución de fondo: no persistir narrativas LFT en el cliente (o en memoria de sesión), o clave por usuario + purga en logout + guardia de ruta; si se exige borrador, guardarlo en el servidor con control de acceso.
+- Relación con el flujo nuevo: ninguna
+- Conexiones y módulos afectados: ninguna remota
+- Regla: 90.2.1, 95.6.2/95.6.4
+- Esfuerzo estimado: chico
+- Estándares y normas: ver evidencia y ubicaciones.
+
+### IDCU-DINERO-146 — Aprobación de retiro "a ciegas" por enlace profundo: se autoriza sin ver monto, destino ni titular
+- Clase / Severidad / Confianza: DINERO / S2 / confirmado
+- Ubicaciones: `operacion/retiros/pantalla-de-aprobacion-de-retiro.ts:39-47,118-119`; `operacion/retiros/dominio/cu11-aprobacion-de-retiro.ts:10-13`; `nucleo-financiero.yaml:462-466`
+- Evidencia: `resumen = (this.router.currentNavigation()?.extras.state?.['retiro'] ?? null)`; `@if (!resumen) { <p class="aviso">{{ t.sinListado }}</p> }` y el formulario sigue habilitado
+- Cómo se comprobó: lectura; el contrato dice que destino y nombre "se ven en la ficha de la orden" pero no existe operación de consulta de orden. Al recargar o abrir por enlace, `resumen` es null y el botón "Registrar mi decisión" queda operativo.
+- Nota del orquestador: re-verificado `operacion/retiros/pantalla-de-aprobacion-de-retiro.ts:39-47`: sin `resumen` se muestra el aviso `t.sinListado` y el formulario de decisión sigue disponible.
+- Impacto: la segunda firma (control antifraude ADR-049) se puede dar sin ver importe ni cuenta destino ni ventana de enfriamiento; la doble aprobación pierde su valor de control.
+- Causa de fondo: el contrato no publica `GET /billetera/retiros/{id}`; la UI depende del estado de navegación.
+- Solución de fondo: agregar consulta de la orden (importe, moneda, destino enmascarado, enfriamiento, MFA del solicitante) y bloquear la decisión hasta tenerla; o retirar la doble aprobación si R-NUEVA-1 la elimina (A-1).
+- Relación con el flujo nuevo: APROB
+- Conexiones y módulos afectados: `aprobarRetiro`, `listarRetirosEnRevision`
+- Regla: 91.3.3, 90.5
+- Esfuerzo estimado: medio
+- Estándares y normas: ver evidencia y ubicaciones.
+
+### IDCU-DEFECTO-147 — "Aprobar y enviar" un reporte UIF identifica el reporte por un código tecleado, no por la fila elegida; y arrastra datos del reporte anterior
+- Clase / Severidad / Confianza: DEFECTO / S2 / confirmado
+- Ubicaciones: `cumplimiento/uif/aprobar-y-enviar.ts:27,47-51,56-62,68-75`; `cumplimiento/dominio/cu43-reportes.ts:89-98`; `cumplimiento.yaml:1512-1518,1660-1670`
+- Evidencia: `catalogoCodigo: this.catalogoCodigo()` (tecleado); la fila trae `catalogoReporteId` (uuid), no el código; el `effect` dice "lo cargado para un período no se arrastra a otro" pero solo limpia `errores`/`errorGeneral`
+- Cómo se comprobó: lectura de componente y esquemas `ReporteRegulatorioEnLista` / `EntradaEnvioReporte`.
+- Re-verificación del orquestador: ubicaciones re-abiertas y confirmadas (lectura/grep).
+- Impacto: el aprobador hace clic en la fila del reporte A y puede aprobar/registrar el envío del reporte B del mismo período (otro catálogo) si escribe otro código; canal, constancia, "aceptado por el organismo" y reintentos de un reporte previo quedan precargados al abrir otro.
+- Causa de fondo: contrato identifica por (periodo, catalogoCodigo) en vez de `reporteId`; el componente no resetea su estado.
+- Solución de fondo: cambiar el contrato a `POST /uif/reportes/{reporteId}/envios` o incluir `catalogoCodigo` en la fila y no editable; resetear todos los signals al cambiar `reporte()`.
+- Relación con el flujo nuevo: APROB
+- Conexiones y módulos afectados: `aprobarYEnviarReporte`
+- Regla: 95.3.3 (inverso: datos de otro registro), 96.4
+- Esfuerzo estimado: medio
+- Estándares y normas: ver evidencia y ubicaciones.
+
+### IDCU-DATOS-148 — La ficha KYC descarga la cola completa (todos los estados y personas) para mostrar un expediente; la cola no pagina
+- Clase / Severidad / Confianza: DATOS / S2 / confirmado
+- Ubicaciones: `cumplimiento/dominio/cu02-expedientes.ts:21-32,34-44`; `cumplimiento/verificaciones/ficha-de-expediente.ts:74`; `identidad.yaml:271-291`
+- Evidencia: `httpResource<ExpedienteEnRevision[]>(() => (verificacionId() ? \`${gateway}/identidad/verificaciones\` : undefined))` y `.find(...)`
+- Cómo se comprobó: lectura; `listarVerificaciones` devuelve array sin `limite` ni cursor.
+- Re-verificación del orquestador: ubicaciones re-abiertas y confirmadas (lectura/grep).
+- Impacto: cada apertura de ficha trae nombre, teléfono, correo y estado de TODAS las verificaciones históricas (incluidas aprobadas/rechazadas) al navegador; crece sin límite (96.6.1) y viola respuesta mínima (90.1.8). Además "Por decidir" también pide la colección completa.
+- Causa de fondo: contrato sin `GET /identidad/verificaciones/{id}` ni paginación.
+- Solución de fondo: agregar consulta por id y cursor/limite al listado; filtro multi-estado en servidor.
+- Relación con el flujo nuevo: APROB (pantalla de aprobación KYC)
+- Conexiones y módulos afectados: `listarVerificaciones`
+- Regla: 96.6.1, 90.1.8, 96.5.3
+- Esfuerzo estimado: medio
+- Estándares y normas: ver evidencia y ubicaciones.
+
+### IDCU-HUECO-149 — Alta de usuario interno sin forma de entregar la contraseña provisional ni de enrolar el segundo factor
+- Clase / Severidad / Confianza: HUECO / S2 / confirmado
+- Ubicaciones: `sistemas/usuarios-internos/modal-alta-usuario-interno.ts:32`; `servicios/identidad/.../infraestructura/UsuariosInternosRepositorio.java:181-183`; `servicios/identidad/.../aplicacion/CU04Autenticar.java:141-149`; `identidad.yaml:830-990` (sin endpoint de cambio de contraseña ni de enrolamiento TOTP)
+- Evidencia: UI: "Se le asigna una contraseña provisional que tiene que cambiar en su primer ingreso."; backend: `String provisional = generarContrasenaProvisional(); String hash = hasheador.hashear(...)` y la variable no se devuelve ni se envía; operador sin factor → `AP-CU04-06 FACTOR_NO_ENROLADO`
+- Cómo se comprobó: lectura del backend y grep de `enrol|totp|cambiar-contrasena` en backoffice (sin pantallas) y en `identidad.yaml`.
+- Nota del orquestador: re-verificado `servicios/identidad/src/main/java/bo/aportaya/identidad/infraestructura/UsuariosInternosRepositorio.java:181-183`: la contraseña provisional se genera y se hashea; `grep -n provisional` no encuentra otro uso (no se devuelve ni se envía). Relacionado con IDCU-HUECO-077 (sin enrolamiento MFA).
+- Impacto: un operador nuevo nunca puede ingresar; la pantalla afirma algo que no ocurre. Empuja a soluciones manuales en base (prohibidas 97.1.5).
+- Causa de fondo: CU-08 implementado a medias (alta sin canal de entrega ni primer ingreso).
+- Solución de fondo: invitación con token de un solo uso (hash con pepper) para fijar contraseña + enrolar TOTP; endpoint y pantalla de primer ingreso.
+- Relación con el flujo nuevo: ninguna
+- Conexiones y módulos afectados: `crearUsuarioInterno`, `autenticar`
+- Regla: 90.2.9, 00.6.2
+- Esfuerzo estimado: grande
+- Estándares y normas: ver evidencia y ubicaciones.
+
+### IDCU-DINERO-150 — Importes sin moneda en contratos consumidos por el lote
+- Clase / Severidad / Confianza: DINERO / S2 / confirmado
+- Ubicaciones: `cumplimiento.yaml:1525` (`montoTotal` string sin moneda) → `cumplimiento/uif/bandeja-de-reportes.ts:29,40,65`; `organizador.yaml:697` (`limiteDeMonto`) → `cumplimiento/organizadores/pantalla-de-habilitacion.ts:75`; `cumplimiento.yaml:1720` (`perdidaCuantificada`) → `cu56-continuidad.ts:23-24`
+- Evidencia: `montoTotal: { type: string, pattern: '^-?\d+\.\d{2}$' }`; `{ nombre: this.t.limiteDeMonto, valor: h.limiteDeMonto }`
+- Cómo se comprobó: contraste UI ↔ OpenAPI. La bandeja UIF lo declara ("moneda sin especificar"); la habilitación del organizador muestra el número pelado.
+- Impacto: límites y totales de dinero sin moneda (91.1.2); el límite de monto del organizador se lee como si fuera en una moneda implícita.
+- Causa de fondo: tablas/contratos sin `moneda CHAR(3)`.
+- Solución de fondo: agregar moneda al esquema y al contrato; mostrar con `ap-monto`.
+- Relación con el flujo nuevo: ninguna
+- Conexiones y módulos afectados: `listarReportesRegulatorios`, `consultarHabilitacion`, `registrarPruebaDeContinuidad`
+- Regla: 91.1.2
+- Esfuerzo estimado: medio
+- Estándares y normas: ver evidencia y ubicaciones.
+
+### IDCU-SEG-151 — Revisión de accesos exportable sin permiso de exportación (lista de quién no tiene segundo factor)
+- Clase / Severidad / Confianza: SEG / S3 / confirmado
+- Ubicaciones: `sistemas/accesos/pantalla-accesos.ts:27`; `packages/ui/src/listado/listado.ts:50,98`; también `sistemas/roles-internos/pantalla-roles-internos.ts:34`, `sistemas/permisos-internos/pantalla-permisos-internos.ts:35`
+- Evidencia: `<ap-listado ...>` sin `[exportable]`; `readonly exportable = input(true)`
+- Cómo se comprobó: lectura; usuarios internos sí lo condiciona (`pantalla-usuarios-internos.ts:45`).
+- Impacto: cualquiera que entre a Sistemas descarga persona×rol×"Segundo factor: No" — un mapa de cuentas débiles con privilegios.
+- Solución de fondo: `[exportable]="exportador.puedeExportar('accesos')"` y default `false` en el kit.
+- Relación con el flujo nuevo: ninguna · Conexiones: ninguna · Regla: 90.2.1 · Esfuerzo: chico
+- Causa de fondo: ver evidencia y ubicaciones.
+- Conexiones y módulos afectados: ver evidencia y ubicaciones.
+- Estándares y normas: ver evidencia y ubicaciones.
+- Esfuerzo estimado: ver evidencia y ubicaciones.
+
+### IDCU-FRAGIL-152 — Fotos de cédula: suscripciones sin cancelar crean `blob:` después de soltar/destruir
+- Clase / Severidad / Confianza: FRAGIL / S3 / confirmado (por lectura)
+- Ubicaciones: `cumplimiento/verificaciones/tira-de-fotos.ts:88-99,105-125`
+- Evidencia: `this.pedirContenido(...).subscribe({ next: (bytes) => this.url.update(... URL.createObjectURL(bytes) ...) })` sin `takeUntilDestroyed`
+- Cómo se comprobó: lectura: `soltar()` revoca lo que hay en ese momento; una respuesta que llega luego de cerrar la tira o de salir de la ficha crea un objeto URL nuevo que nadie revoca.
+- Impacto: exactamente la fuga que el comentario dice evitar ("cada apertura deja una cédula viva en la memoria"); además abrir/cerrar rápido dispara lecturas duplicadas auditadas.
+- Solución de fondo: `takeUntilDestroyed` + cancelar en `soltar()`; descartar respuestas si `abierto()` es falso.
+- Relación: APROB (pantalla KYC) · Regla: 90.2 · Esfuerzo: chico
+- Causa de fondo: ver evidencia y ubicaciones.
+- Relación con el flujo nuevo: ver evidencia y ubicaciones.
+- Conexiones y módulos afectados: ver evidencia y ubicaciones.
+- Estándares y normas: ver evidencia y ubicaciones.
+- Esfuerzo estimado: ver evidencia y ubicaciones.
+
+### IDCU-UX-A11Y-153 — Decisión KYC sin confirmación, motivo sin tope del contrato y error del servidor no asociado al campo
+- Clase / Severidad / Confianza: UX-A11Y / S3 / confirmado
+- Ubicaciones: `cumplimiento/verificaciones/decision-de-expediente.ts:32,37-54`; `vista-decision-del-expediente.ts:68-82`; `identidad.yaml:1344`
+- Evidencia: `<ap-campo [etiqueta]="t.motivo" ... [(valor)]="motivo" />` sin máximo (contrato `maxLength: 160`); `(pulsado)="decidir.emit(...)"` directo
+- Impacto: un clic aprueba o rechaza de forma irreversible (AP-CU01-08); un motivo >160 vuelve como error general (`ap-error-de-envio`), no en el campo (95.3.2).
+- Solución de fondo: diálogo de confirmación con consecuencia; `maximo=160`; mapear 422 al campo.
+- Relación: APROB · Regla: 95.3.1/95.3.2 · Esfuerzo: chico
+- Cómo se comprobó: ver evidencia y ubicaciones.
+- Causa de fondo: ver evidencia y ubicaciones.
+- Relación con el flujo nuevo: ver evidencia y ubicaciones.
+- Conexiones y módulos afectados: ver evidencia y ubicaciones.
+- Estándares y normas: ver evidencia y ubicaciones.
+- Esfuerzo estimado: ver evidencia y ubicaciones.
+
+### IDCU-SEG-154 — La bandeja KYC muestra teléfono y correo de cada persona en la fila
+- Clase / Severidad / Confianza: PII / S3 / confirmado
+- Ubicaciones: `cumplimiento/verificaciones/pantalla-de-expedientes.ts:70-74,139`; `identidad.yaml:1306-1312`
+- Evidencia: `<span class="tenue">{{ e.telefono }} · {{ correo(e) }}</span>`
+- Impacto: para decidir en la ficha no hace falta el contacto en la lista (respuesta mínima 90.1.8/96.5.3); expone PII en pantalla compartida y en capturas.
+- Solución de fondo: enmascarar en la lista; contacto solo en la ficha.
+- Relación: APROB · Esfuerzo: chico
+- Cómo se comprobó: ver evidencia y ubicaciones.
+- Causa de fondo: ver evidencia y ubicaciones.
+- Relación con el flujo nuevo: ver evidencia y ubicaciones.
+- Conexiones y módulos afectados: ver evidencia y ubicaciones.
+- Estándares y normas: ver evidencia y ubicaciones.
+- Esfuerzo estimado: ver evidencia y ubicaciones.
+
+### IDCU-DEFECTO-155 — "Responder requerimiento" conserva el enlace escrito para otro oficio
+- Clase / Severidad / Confianza: DEFECTO / S3 / confirmado
+- Ubicaciones: `cumplimiento/uif/responder-requerimiento.ts:36-58`
+- Evidencia: `respuestaUrl` solo se limpia tras éxito; al cancelar y abrir otro oficio el valor anterior sigue.
+- Impacto: respuesta de un oficio adjuntada a otro (dato de autoridad mal registrado, no editable luego).
+- Solución de fondo: resetear al cambiar `requerimiento()` y al cancelar.
+- Relación: APROB · Esfuerzo: chico
+- Cómo se comprobó: ver evidencia y ubicaciones.
+- Causa de fondo: ver evidencia y ubicaciones.
+- Relación con el flujo nuevo: ver evidencia y ubicaciones.
+- Conexiones y módulos afectados: ver evidencia y ubicaciones.
+- Estándares y normas: ver evidencia y ubicaciones.
+- Esfuerzo estimado: ver evidencia y ubicaciones.
+
+### IDCU-HUECO-156 — Abrir caso: "marcá alertas de un mismo titular" pero la fila no trae titular; el analista se pega como UUID
+- Clase / Severidad / Confianza: HUECO / S3 / confirmado
+- Ubicaciones: `cumplimiento/alertas/bandeja-de-alertas.ts:61`; `textos-lft.ts:100,112-113`; `alertas/abrir-caso.ts:29`; `cumplimiento.yaml:1393-1406`
+- Evidencia: `elegirAlertas: 'Marcá las alertas de un mismo titular...'`; `AlertaEnBandeja` no tiene titular; `analistaId` campo de texto UUID
+- Impacto: el operador agrupa a ciegas y se entera por AP-CU44-08; pegar UUIDs a mano es frágil y no muestra quién es el analista.
+- Solución de fondo: identificador opaco de titular (seudónimo) en la fila o agrupación asistida por servidor; selector de analistas con `CUMPLIMIENTO_ALERTAS`.
+- Relación: APROB · Esfuerzo: medio
+- Cómo se comprobó: ver evidencia y ubicaciones.
+- Causa de fondo: ver evidencia y ubicaciones.
+- Relación con el flujo nuevo: ver evidencia y ubicaciones.
+- Conexiones y módulos afectados: ver evidencia y ubicaciones.
+- Estándares y normas: ver evidencia y ubicaciones.
+- Esfuerzo estimado: ver evidencia y ubicaciones.
+
+### IDCU-REG-157 — Asignación de roles privilegiados sin doble control
+- Clase / Severidad / Confianza: REG / S3 / sospecha
+- Ubicaciones: `sistemas/usuarios-internos/modal-asignar-roles.ts:73-88`; `UsuariosInternosRepositorio.java:249`
+- Evidencia: solo se bloquea la auto-ampliación (`"Nadie se amplia sus propios permisos."`); un único administrador otorga `OFICIAL_CUMPLIMIENTO` o `RETIRO_APROBAR` a otra persona.
+- Impacto: la segregación R-SEG-04 de retiros y casos se puede sortear con dos cuentas coludidas y un único administrador.
+- Solución de fondo: maker-checker para roles marcados `CRITICO`/`requiereMfa`.
+- Relación: APROB (decisión A-1 condiciona) · Esfuerzo: medio
+- Cómo se comprobó: ver evidencia y ubicaciones.
+- Causa de fondo: ver evidencia y ubicaciones.
+- Relación con el flujo nuevo: ver evidencia y ubicaciones.
+- Conexiones y módulos afectados: ver evidencia y ubicaciones.
+- Estándares y normas: ver evidencia y ubicaciones.
+- Esfuerzo estimado: ver evidencia y ubicaciones.
+
+### IDCU-CONTRATO-158 — Mutaciones de usuarios internos sin Idempotency-Key; listado sin paginación; 403 mal tipado
+- Clase / Severidad / Confianza: CONTRATO / S3 / confirmado
+- Ubicaciones: `sistemas/dominio/usuarios-internos.ts:62-88`; `identidad.yaml:858,891-956`; `sistemas/usuarios-internos/pantalla-usuarios-internos.ts:116-118`
+- Evidencia: `http.patch<...>(\`${gateway}/usuarios-internos/${id}\`, entrada)` sin `context`; `'403': { $ref: '#/components/responses/ReglaDeNegocio' }`
+- Impacto: reintentos duplican eventos de auditoría (suspender/desbloquear); colección completa sin límite (96.6.1).
+- Solución de fondo: Idempotency-Key en contrato y cliente; cursor/limite.
+- Relación: ninguna · Regla: 96.3.3, 96.6.1 · Esfuerzo: chico
+- Cómo se comprobó: ver evidencia y ubicaciones.
+- Causa de fondo: ver evidencia y ubicaciones.
+- Relación con el flujo nuevo: ver evidencia y ubicaciones.
+- Conexiones y módulos afectados: ver evidencia y ubicaciones.
+- Estándares y normas: ver evidencia y ubicaciones.
+- Esfuerzo estimado: ver evidencia y ubicaciones.
+
+### IDCU-APROB-159 — Habilitar organizador: botón para cualquiera, ruta sin guardia, sin bloqueo de doble envío, contrato sin idempotencia
+- Clase / Severidad / Confianza: APROB / S3 / confirmado
+- Ubicaciones: `cumplimiento/organizadores/pantalla-de-habilitacion.ts:43-45,80-95`; `cumplimiento/cumplimiento.routes.ts:117-121`; `cu90-habilitacion.ts:33-39`; `organizador.yaml:313-326`
+- Evidencia: `habilitar()` no verifica `habilitando()` antes de enviar; el contrato no declara `Idempotency-Key` aunque el cliente la manda
+- Impacto: punto de aprobación humana del circuito (organizador) con UX débil; el servidor sí exige `ADMIN_PLATAFORMA` (`OrganizadoresController.java:128`).
+- Solución: guardia de ruta/botón por permiso, `if (habilitando()) return`, Idempotency-Key en contrato. Decidir A-1.
+- Relación: APROB · Esfuerzo: chico
+- Cómo se comprobó: ver evidencia y ubicaciones.
+- Causa de fondo: ver evidencia y ubicaciones.
+- Solución de fondo: ver evidencia y ubicaciones.
+- Relación con el flujo nuevo: ver evidencia y ubicaciones.
+- Conexiones y módulos afectados: ver evidencia y ubicaciones.
+- Estándares y normas: ver evidencia y ubicaciones.
+- Esfuerzo estimado: ver evidencia y ubicaciones.
+
+### IDCU-FRAGIL-160 — Rutas de detalle sin `canMatch` mientras las bandejas sí lo tienen
+- Clase / Severidad / Confianza: FRAGIL / S3 / confirmado
+- Ubicaciones: `cumplimiento/cumplimiento.routes.ts:51-56,64-68,95-99,112-121`
+- Evidencia: `{ path: 'casos/:casoId', loadComponent: ... }` sin guardia
+- Impacto: no es seguridad (95.6.1, el servidor decide), pero `casos/:casoId` monta datos locales reservados (ver hallazgo de IndexedDB) y `organizadores/.../habilitacion` ofrece el POST a cualquiera.
+- Solución: `canMatch: [guardiaDe('casos')]`, etc. · Esfuerzo: chico
+- Cómo se comprobó: ver evidencia y ubicaciones.
+- Causa de fondo: ver evidencia y ubicaciones.
+- Solución de fondo: ver evidencia y ubicaciones.
+- Relación con el flujo nuevo: ver evidencia y ubicaciones.
+- Conexiones y módulos afectados: ver evidencia y ubicaciones.
+- Estándares y normas: ver evidencia y ubicaciones.
+- Esfuerzo estimado: ver evidencia y ubicaciones.
+
+### IDCU-CLEAN-161 — Código muerto (componentes y funciones sin uso) cubierto por tests que inflan la cobertura
+- Clase / Severidad / Confianza: CLEAN / S4 / confirmado (grep de usos)
+- Ubicaciones: `alertas/pantalla-de-alertas.ts` (todo), `actas/pantalla-de-acta.ts` (todo; `cerrar()` solo pone `this.cerrada = true`, 67-70), `reclamos/pantalla-de-reclamo.ts` (todo; `enviar()` solo borra el borrador, 56-58), `verificaciones/vencimiento-del-documento.ts`, `compartido/navegacion.ts:19-42` (componente), `dominio/cu02-expedientes.ts:96,99-111,127-132` (`colaVacia`, `coincideConBusqueda`, `crearPedirFoto`), `dominio/cu97-alertas.ts:29-32`, `textos.ts:124-125`
+- Impacto: botones que "no hacen nada" listos para volver a enrutarse; tests (`pantalla-de-acta.spec.ts`, `pantalla-de-reclamo.spec.ts`, `pantalla-de-alertas.spec.ts`) verifican componentes que el producto no usa (PRUEBAS).
+- Solución: borrar o mover a un paquete de prototipos excluido del build. · Esfuerzo: chico
+- Cómo se comprobó: ver evidencia y ubicaciones.
+- Causa de fondo: ver evidencia y ubicaciones.
+- Solución de fondo: ver evidencia y ubicaciones.
+- Relación con el flujo nuevo: ver evidencia y ubicaciones.
+- Conexiones y módulos afectados: ver evidencia y ubicaciones.
+- Estándares y normas: ver evidencia y ubicaciones.
+- Esfuerzo estimado: ver evidencia y ubicaciones.
+
+### IDCU-DOC-162 — Comentarios que contradicen el contrato actual
+- Clase / Severidad / Confianza: DOC / S4 / confirmado
+- Ubicaciones: `dominio/cu44-caso.ts:10-15` ("no declara una ruta HTTP para el caso" — existe `/cumplimiento/casos`, `cumplimiento.yaml:618-715`); `dominio/cu52-reclamo.ts:9-12` (existe `/reclamos`, yaml:468-569); `dominio/cu94-acta.ts:9-11` (existe la lista, yaml:897); `cumplimiento.routes.ts:18-25` (párrafo partido); `dominio/cu90-habilitacion.ts:9-12`; `retiros/dominio/cu11-aprobacion-de-retiro.ts:10-13`; `nucleo/borrador.ts:7-9` (IndexedDB "no lo lee cualquier extensión")
+- Solución: actualizar. · Esfuerzo: chico
+- Cómo se comprobó: ver evidencia y ubicaciones.
+- Impacto: ver evidencia y ubicaciones.
+- Causa de fondo: ver evidencia y ubicaciones.
+- Solución de fondo: ver evidencia y ubicaciones.
+- Relación con el flujo nuevo: ver evidencia y ubicaciones.
+- Conexiones y módulos afectados: ver evidencia y ubicaciones.
+- Estándares y normas: ver evidencia y ubicaciones.
+- Esfuerzo estimado: ver evidencia y ubicaciones.
+
+### IDCU-CONTRATO-163 — Mensajes para códigos que el contrato no declara o con otra semántica
+- Clase / Severidad / Confianza: CONTRATO / S4 / probable
+- Ubicaciones: `compartido/errores-de-cumplimiento.ts:15,19,20`; `cumplimiento.yaml:708-709,775-776,948-950`
+- Evidencia: `'AP-CU43-04'`, `'AP-CU44-04'` no figuran en las respuestas; contrato `AP-CU44-03 REPORTE_SIN_NARRATIVA` vs texto UI "el ROS tiene que estar radicado"
+- Solución: generar el catálogo de errores desde el contrato; un solo CATALOGO en `nucleo/errores.ts`. · Esfuerzo: chico
+- Cómo se comprobó: ver evidencia y ubicaciones.
+- Impacto: ver evidencia y ubicaciones.
+- Causa de fondo: ver evidencia y ubicaciones.
+- Solución de fondo: ver evidencia y ubicaciones.
+- Relación con el flujo nuevo: ver evidencia y ubicaciones.
+- Conexiones y módulos afectados: ver evidencia y ubicaciones.
+- Estándares y normas: ver evidencia y ubicaciones.
+- Esfuerzo estimado: ver evidencia y ubicaciones.
+
+### IDCU-DUP-INT-164 — Diccionarios de estados/enums copiados a mano en varios lugares
+- Clase / Severidad / Confianza: DUP-INT / S4 / confirmado
+- Ubicaciones: `textos-uif.ts:16-26,65-66` vs enums generados usados en `cu43-reportes.ts:52-53` y `cu45-requerimientos.ts:44`; `textos-lft.ts:105-106,131-138`; `dominio/cu02-presentacion.ts:13-30` vs `textos.ts:124-125`; `sistemas/dominio/accesos.ts:10-19` vs `pantalla-usuarios-internos.ts:24`; `errores-de-cumplimiento.ts` vs `nucleo/errores.ts`
+- Impacto: un valor nuevo del contrato aparece en el filtro sólo si alguien edita el texto.
+- Solución: derivar opciones de los enums generados y mapear solo etiquetas. · Esfuerzo: chico
+- Cómo se comprobó: ver evidencia y ubicaciones.
+- Causa de fondo: ver evidencia y ubicaciones.
+- Solución de fondo: ver evidencia y ubicaciones.
+- Relación con el flujo nuevo: ver evidencia y ubicaciones.
+- Conexiones y módulos afectados: ver evidencia y ubicaciones.
+- Estándares y normas: ver evidencia y ubicaciones.
+- Esfuerzo estimado: ver evidencia y ubicaciones.
+
+### IDCU-UX-A11Y-165 — Menú «Más» de usuarios internos hecho a mano
+- Clase / Severidad / Confianza: UX-A11Y / S3 / probable
+- Ubicaciones: `sistemas/usuarios-internos/pantalla-usuarios-internos.ts:60-70,84,165-183`
+- Evidencia: `<details class="mas">` + `position: fixed` calculado con `window.innerHeight`; cierre por `document:click`/`window:scroll`; `separacion = 4` (px literal)
+- Impacto: sin `role="menu"`/flechas, el foco no vuelve al `summary` tras acción; cierra al hacer scroll dentro de la tabla. Duplica un overlay que el kit debería proveer (95.1.1).
+- Solución: componente de menú del kit (CDK overlay) con foco gestionado. · Esfuerzo: medio
+- Cómo se comprobó: ver evidencia y ubicaciones.
+- Causa de fondo: ver evidencia y ubicaciones.
+- Solución de fondo: ver evidencia y ubicaciones.
+- Relación con el flujo nuevo: ver evidencia y ubicaciones.
+- Conexiones y módulos afectados: ver evidencia y ubicaciones.
+- Estándares y normas: ver evidencia y ubicaciones.
+- Esfuerzo estimado: ver evidencia y ubicaciones.
+
+### IDCU-UX-A11Y-166 — Ficha de usuario interno muestra códigos y fechas crudos; id por snapshot
+- Clase / Severidad / Confianza: UX-A11Y / S4 / confirmado
+- Ubicaciones: `sistemas/usuarios-internos/pantalla-usuario-interno-detalle.ts:39,46,85,103-105`
+- Evidencia: `{{ u.estado }}` (ACTIVO), `hasta {{ u.bloqueadoHasta }}` (ISO), `valor: u.debeCambiarContrasena` (boolean), `this.route.snapshot.paramMap.get('id')`
+- Solución: formatear como en el listado; `input()` con binding de ruta. · Esfuerzo: chico
+- Cómo se comprobó: ver evidencia y ubicaciones.
+- Impacto: ver evidencia y ubicaciones.
+- Causa de fondo: ver evidencia y ubicaciones.
+- Solución de fondo: ver evidencia y ubicaciones.
+- Relación con el flujo nuevo: ver evidencia y ubicaciones.
+- Conexiones y módulos afectados: ver evidencia y ubicaciones.
+- Estándares y normas: ver evidencia y ubicaciones.
+- Esfuerzo estimado: ver evidencia y ubicaciones.
+
+### IDCU-UX-A11Y-167 — Literales de tipografía, tiempos y medidas en lugar de tokens
+- Clase / Severidad / Confianza: UX-A11Y / S4 / confirmado
+- Ubicaciones: `verificaciones/tira-de-fotos.ts:61,65,66`; `verificaciones/decision-de-expediente.ts:59`; `verificaciones/vencimiento-del-documento.ts:28`; `casos/formulario-de-caso.ts:45-46`; `actas/pantalla-de-acta.ts:43`; `retiros/pantalla-de-aprobacion-de-retiro.ts:103,106`; `ingreso/pantalla-de-ingreso.ts:100,113`; `ingreso/panel-de-marca.ts:69,75,78`; `alertas/pantalla-de-alertas.ts:34`
+- Evidencia: `font-size: .875rem`, `font-size: 2.1rem`, `animation: aparecer .45s cubic-bezier(...)`
+- Regla: 95.1.5 · Esfuerzo: chico
+- Cómo se comprobó: ver evidencia y ubicaciones.
+- Impacto: ver evidencia y ubicaciones.
+- Causa de fondo: ver evidencia y ubicaciones.
+- Solución de fondo: ver evidencia y ubicaciones.
+- Relación con el flujo nuevo: ver evidencia y ubicaciones.
+- Conexiones y módulos afectados: ver evidencia y ubicaciones.
+- Estándares y normas: ver evidencia y ubicaciones.
+- Esfuerzo estimado: ver evidencia y ubicaciones.
+
+### IDCU-CLEAN-168 — `$any` y `as` en el borde del contrato
+- Clase / Severidad / Confianza: CLEAN / S4 / confirmado
+- Ubicaciones: `compartido/campos.ts:29`; `casos/decidir-caso.ts:36`; `casos/formulario-de-caso.ts:33`; `casos/pantalla-de-caso.ts:125` (`({ casoId, codigo: casoId }) as CasoEnBandeja`); `dominio/cu43-reportes.ts:44`; `dominio/cu45-requerimientos.ts:35`; `dominio/cu56-continuidad.ts:36` (`r.body as ...`); `dominio/paginas.ts:51`; `retiros/pantalla-de-aprobacion-de-retiro.ts:119,153`
+- Impacto: un 201 sin cuerpo o un cuerpo distinto pasa como tipo correcto. · Esfuerzo: chico
+- Cómo se comprobó: ver evidencia y ubicaciones.
+- Causa de fondo: ver evidencia y ubicaciones.
+- Solución de fondo: ver evidencia y ubicaciones.
+- Relación con el flujo nuevo: ver evidencia y ubicaciones.
+- Conexiones y módulos afectados: ver evidencia y ubicaciones.
+- Estándares y normas: ver evidencia y ubicaciones.
+- Esfuerzo estimado: ver evidencia y ubicaciones.
+
+### IDCU-SEG-169 — Parámetros de ruta y query sin codificar; enlaces sin validar esquema
+- Clase / Severidad / Confianza: SEG / S4 / confirmado
+- Ubicaciones: `dominio/cu02-expedientes.ts:30,131,149,163`; `dominio/cu90-habilitacion.ts:16,38`; `sistemas/dominio/usuarios-internos.ts:38,68,77,87`; `dominio/cu45-requerimientos.ts:66,85-86`; `dominio/cu56-continuidad.ts:66`
+- Evidencia: `` `${gateway}/identidad/verificaciones?estado=${e}` ``; `documentoUrl` solo valida longitud (acepta `javascript:`)
+- Impacto: bajo (ids son UUID del servidor), pero los enlaces guardados se renderizan en otras pantallas. · Esfuerzo: chico
+- Cómo se comprobó: ver evidencia y ubicaciones.
+- Causa de fondo: ver evidencia y ubicaciones.
+- Solución de fondo: ver evidencia y ubicaciones.
+- Relación con el flujo nuevo: ver evidencia y ubicaciones.
+- Conexiones y módulos afectados: ver evidencia y ubicaciones.
+- Estándares y normas: ver evidencia y ubicaciones.
+- Esfuerzo estimado: ver evidencia y ubicaciones.
+
+### IDCU-ACOPLE-170 — Importaciones cruzadas entre dominios del backoffice
+- Clase / Severidad / Confianza: ACOPLE / S4 / confirmado
+- Ubicaciones: `verificaciones/pantalla-de-expedientes.ts:16` (`../../sistemas/compartido/carga`); `uif/bandeja-de-reportes.ts:20` (`../../operacion/comun/importe-sin-moneda`)
+- Solución: mover a `nucleo/` o al kit. · Esfuerzo: chico
+- Cómo se comprobó: ver evidencia y ubicaciones.
+- Impacto: ver evidencia y ubicaciones.
+- Causa de fondo: ver evidencia y ubicaciones.
+- Solución de fondo: ver evidencia y ubicaciones.
+- Relación con el flujo nuevo: ver evidencia y ubicaciones.
+- Conexiones y módulos afectados: ver evidencia y ubicaciones.
+- Estándares y normas: ver evidencia y ubicaciones.
+- Esfuerzo estimado: ver evidencia y ubicaciones.
+
+### IDCU-SEG-171 — Exportación con un único permiso para cuatro colas distintas
+- Clase / Severidad / Confianza: SEG / S4 / confirmado
+- Ubicaciones: `colas/cola-de-lectura.ts:42` (`recursoDeExportacion="cumplimiento-colas"`)
+- Impacto: quien puede exportar incidentes puede exportar eventos con pérdidas y continuidad. · Esfuerzo: chico
+- Cómo se comprobó: ver evidencia y ubicaciones.
+- Causa de fondo: ver evidencia y ubicaciones.
+- Solución de fondo: ver evidencia y ubicaciones.
+- Relación con el flujo nuevo: ver evidencia y ubicaciones.
+- Conexiones y módulos afectados: ver evidencia y ubicaciones.
+- Estándares y normas: ver evidencia y ubicaciones.
+- Esfuerzo estimado: ver evidencia y ubicaciones.
+
+### IDCU-OBSERV-172 — Huella de dispositivo aleatoria por pestaña en el ingreso
+- Clase / Severidad / Confianza: OBSERV / S4 / confirmado
+- Ubicaciones: `ingreso/dominio/cu04-autenticar.ts:26-37`; `ingreso/pantalla-de-ingreso.ts:121`
+- Impacto: cada ingreso es "dispositivo nuevo" para `dispositivoPorHuella` (`CU04Autenticar.java:128`): la señal de dispositivo confiable/nuevo queda inútil para operadores y la tabla crece por pestaña.
+- Solución: decisión explícita (ADR) o huella estable no identificante. · Esfuerzo: chico
+- Cómo se comprobó: ver evidencia y ubicaciones.
+- Causa de fondo: ver evidencia y ubicaciones.
+- Solución de fondo: ver evidencia y ubicaciones.
+- Relación con el flujo nuevo: ver evidencia y ubicaciones.
+- Conexiones y módulos afectados: ver evidencia y ubicaciones.
+- Estándares y normas: ver evidencia y ubicaciones.
+- Esfuerzo estimado: ver evidencia y ubicaciones.
+
+### IDCU-UX-A11Y-173 — Ingreso: `AP-CU04-06` (sin factor enrolado) se muestra como texto del servidor, sin camino
+- Clase / Severidad / Confianza: UX-A11Y / S4 / confirmado
+- Ubicaciones: `ingreso/pantalla-de-ingreso.ts:163-172`
+- Impacto: ligado al HUECO de alta: el operador recibe "Tenés que enrolar tu segundo factor" sin dónde hacerlo. · Esfuerzo: chico (tras el hallazgo de alta)
+- Cómo se comprobó: ver evidencia y ubicaciones.
+- Causa de fondo: ver evidencia y ubicaciones.
+- Solución de fondo: ver evidencia y ubicaciones.
+- Relación con el flujo nuevo: ver evidencia y ubicaciones.
+- Conexiones y módulos afectados: ver evidencia y ubicaciones.
+- Estándares y normas: ver evidencia y ubicaciones.
+- Esfuerzo estimado: ver evidencia y ubicaciones.
+
+### IDCU-FLUJO-FALTANTE-174 — Web: el secreto de invitación se retira de la URL y se guarda en memoria, pero nunca se usa ni se entrega a la app
+- Clase / Severidad / Confianza: FLUJO-FALTANTE / S2 / probable
+- Ubicaciones: `apps/web/src/app/paginas/invitacion/token-de-invitacion.ts:44-60`; `invitacion.ts:101-109`; `apps/web/src/app/layout/enlace-a-la-app.ts:27-32`
+- Evidencia: `grep SecretoDeInvitacionEnMemoria|.tomar()` → solo declaración e inyección; el botón lleva a la URL de tienda (`meta` http/https) sin token
+- Impacto: quien abre el enlace en el navegador pierde el token (ya no está en la barra) y la app no lo recibe; queda sin forma de canjear salvo pedir otro enlace.
+- Causa de fondo: la web no tiene sesión de participante y no se diseñó el traspaso (deep link con token).
+- Solución de fondo: deep link/universal link `aportaya://invitacion#t=...` construido desde memoria, o no retirar el fragmento hasta el traspaso.
+- Relación con el flujo nuevo: FLUJO-QR indirecto (alta de integrantes) / APROB (texto de admisión humana)
+- Esfuerzo estimado: medio
+- Cómo se comprobó: ver evidencia y ubicaciones.
+- Conexiones y módulos afectados: ver evidencia y ubicaciones.
+- Estándares y normas: ver evidencia y ubicaciones.
+
+### IDCU-PRUEBAS-175 — Espera fija y dobles declarados
+- Clase / Severidad / Confianza: PRUEBAS / S4 / confirmado
+- Ubicaciones: `cumplimiento/casos/pantalla-de-caso.spec.ts:66` (`setTimeout(r, 50)`); todas las specs del lote usan `HttpTestingController` (declarado en `compartido/pruebas.apoyo.ts:14-18`, `retiros/*.spec.ts` "[UI contra HTTP simulado]")
+- Impacto: 80.3.4; ningún test del lote prueba integración real con identidad/cumplimiento/nucleo-financiero.
+- Esfuerzo estimado: chico
+- Cómo se comprobó: ver evidencia y ubicaciones.
+- Causa de fondo: ver evidencia y ubicaciones.
+- Solución de fondo: ver evidencia y ubicaciones.
+- Relación con el flujo nuevo: ver evidencia y ubicaciones.
+- Conexiones y módulos afectados: ver evidencia y ubicaciones.
+- Estándares y normas: ver evidencia y ubicaciones.
+
+### IDCU-RENDIMIENTO-176 — Funciones en plantilla recalculadas por celda
+- Clase / Severidad / Confianza: RENDIMIENTO / S4 / confirmado
+- Ubicaciones: `verificaciones/pantalla-de-expedientes.ts:87,129` (`new Date()` por fila y ciclo); `colas/cola-de-lectura.ts:43-46,70-78` (celda calculada dos veces); `retiros/bandeja-de-retiros.ts:58`
+- Esfuerzo estimado: chico
+- Cómo se comprobó: ver evidencia y ubicaciones.
+- Impacto: ver evidencia y ubicaciones.
+- Causa de fondo: ver evidencia y ubicaciones.
+- Solución de fondo: ver evidencia y ubicaciones.
+- Relación con el flujo nuevo: ver evidencia y ubicaciones.
+- Conexiones y módulos afectados: ver evidencia y ubicaciones.
+- Estándares y normas: ver evidencia y ubicaciones.
+
 ## 6. Matriz de contratos
 
 Las columnas «pacto», «cliente generado», «modelo del front» y «esquema» se resumen en 6.3, porque para la gran mayoría de filas el valor es el mismo (sin pacto; cliente Dart generado desde el mismo OpenAPI; tabla del propio esquema). Las referencias «F0x» dentro de las tablas son números de trabajo del lote; su ficha está en §5 (tanda 4 para identidad, tanda 5 para cumplimiento).
