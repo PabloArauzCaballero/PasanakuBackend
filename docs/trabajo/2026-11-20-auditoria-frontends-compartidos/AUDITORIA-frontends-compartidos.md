@@ -190,6 +190,110 @@
 - Estándares y normas: ISO/IEC 25010 — seguridad (integridad); regla 91.3.1
 - Esfuerzo estimado: chico
 
+### frontends-compartidos-DEFECTO-002 — App móvil: la clave de idempotencia de recarga, retiro y transferencia es fija por cuenta y sobrevive al rechazo; corregir el importe choca con la clave vieja
+- Clase / Severidad / Confianza: DEFECTO (también DINERO) / S2 / confirmado (lectura de cliente y servidor); el bloqueo en ejecución NO COMPROBADO
+- Ubicaciones: `apps/movil/lib/dominio/cu10_recargar_saldo.dart:17,33-35,45`, `apps/movil/lib/dominio/cu11_retirar_saldo.dart:12,29-31,42`, `apps/movil/lib/dominio/cu12_transferir_saldo.dart:12,30-32,46-48`, `apps/movil/lib/proveedores/idempotencia.dart:11-17,26-28,31-32`; servidor: `plataforma/comun-web/src/main/java/bo/aportaya/plataforma/web/idempotencia/Idempotencia.java:70,153`
+- Evidencia: `static String formularioId(String cuentaId) => 'cu10-recarga-$cuentaId';` · la clave solo se libera en el camino feliz (`…cerrar(formularioId(cuentaId))` tras la respuesta 2xx) y el `catch` no la cierra · `idempotenciaProvider` es `NotifierProvider` (no `autoDispose`) · servidor: «Si habia una con OTRO cuerpo, lanza `IdempotenciaConflicto`».
+- Cómo se comprobó: lectura completa de los cuatro archivos y del punto de contacto en `comun-web` (hallazgo del lector D, re-verificado).
+- Impacto: tras un rechazo (422 por monto, MFA o destino inválido), la persona corrige y reenvía con la MISMA clave y otro cuerpo. El servidor responde conflicto de idempotencia, y la operación no se puede repetir con el dato correcto en toda la sesión de la app para esa cuenta. No duplica dinero, porque el servidor lo protege, pero bloquea la recarga o el retiro. Además, el comentario `cu10_recargar_saldo.dart:12-15` promete «un provider por pantalla», cosa que la clave por cuenta no cumple.
+- Causa de fondo: la identidad del intento se ata a la cuenta y no al contenido. No se distingue el rechazo definitivo (4xx, que debería liberar la clave) del resultado desconocido (timeout o 5xx, que debe conservarla). El backoffice resolvió lo mismo de otra forma (DEFECTO-001): dos políticas de idempotencia en el mismo producto.
+- Solución de fondo: una sola política para web y móvil. Clave por intento de negocio, liberada ante un 4xx definitivo y conservada ante un resultado desconocido. Prueba de unidad del ciclo rechazo → corrección → reenvío.
+- Relación con el flujo nuevo: FLUJO-QR (la recarga es la entrada de dinero por QR)
+- Conexiones y módulos afectados: L1 (nucleo-financiero); DUP-X con `apps/backoffice/src/app/nucleo/idempotencia.interceptor.ts`
+- Estándares y normas: ISO/IEC 25010 — fiabilidad (recuperabilidad); regla 91.1.4, 96.3.3
+- Esfuerzo estimado: medio
+
+### frontends-compartidos-DEFECTO-003 — Tres instancias de `Refrescador`: el «un solo refresco en vuelo» no es global
+- Clase / Severidad / Confianza: DEFECTO (también RESILIENCIA) / S2 / probable (estructura confirmada; la carrera y la revocación por reuso del refresh NO COMPROBADAS en ejecución)
+- Ubicaciones: `apps/movil/lib/dominio/refrescador.dart:5-17` (single-flight por instancia), `apps/movil/lib/dominio/cliente.dart:90`, `apps/movil/lib/dominio/renovar_acceso.dart:13-17` (instancia nueva en cada llamada), `apps/movil/lib/pantallas/pasanaku/dominio/habilitacion_basica.dart:101` (otra más); disparo periódico en `apps/movil/lib/navegacion/vigilante_de_aprobacion.dart:63,77`
+- Evidencia: `Future<bool> refrescar() => _enVuelo ??= _hacerRefresco()…` con `_enVuelo` como campo de instancia; `renovar_acceso.dart:16` → `return Refrescador(ref.read(sesionProvider), sinInterceptores).refrescar();`
+- Cómo se comprobó: `git grep -n "Refrescador(" -- apps/movil/lib` → 3 construcciones; lectura de las tres.
+- Impacto: si el vigilante (cada 30 s) renueva mientras el interceptor también refresca por un 401, salen dos `POST /sesion/refrescar` con el mismo refresh. Si el servidor rota y detecta reuso (ADR-024/030), revoca la familia y la persona queda deslogueada. El refresco sale además sin `x-request-id` (Dio sin interceptores).
+- Causa de fondo: el single-flight vive en la instancia y no en un proveedor único de la sesión.
+- Solución de fondo: un único `Refrescador` provisto por Riverpod (`Provider` ligado a la sesión) que usen interceptor, vigilante y habilitación. Propagar la correlación al refresco.
+- Relación con el flujo nuevo: APROB (A-1, lo dispara la espera de la aprobación KYC)
+- Conexiones y módulos afectados: L4 (identidad, sesiones)
+- Estándares y normas: ISO/IEC 25010 — fiabilidad; OWASP ASVS (gestión de sesión)
+- Esfuerzo estimado: chico
+
+### frontends-compartidos-PRUEBAS-001 — `test:front` de la app no corre `test/billetera` ni `test/navegacion`
+- Clase / Severidad / Confianza: PRUEBAS / S3 / confirmado
+- Ubicaciones: `apps/movil/package.json:12`; huérfanas: `apps/movil/test/navegacion/vigilante_de_aprobacion_test.dart`, `apps/movil/test/billetera/*_test.dart` (4); CI: `.github/workflows/ci.yml:340` (usa `test:front`), `:609`, `:646` (archivos sueltos)
+- Evidencia: `"test:front": "flutter test test/unidad test/widget test/contrato test/identidad test/pasanaku --timeout 60s"`
+- Cómo se comprobó: `ls apps/movil/test` muestra `billetera` y `navegacion`; `git grep "test/billetera\|test/navegacion" -- .github` no da resultados.
+- Impacto: las pruebas de las pantallas de dinero de la billetera y del vigilante de aprobación pueden romperse sin que nadie se entere.
+- Causa de fondo: la lista de carpetas está escrita a mano en el script.
+- Solución de fondo: `flutter test test --exclude-tags goldens,a11y` o un verificador que falle si hay una carpeta de pruebas fuera de algún script.
+- Relación con el flujo nuevo: ninguna
+- Conexiones y módulos afectados: L1 (pantallas de billetera)
+- Estándares y normas: ISO/IEC 25010 — mantenibilidad (capacidad de prueba); regla 80.1
+- Esfuerzo estimado: chico
+
+### frontends-compartidos-CONFIG-001 — Android: el release se firma con la clave de depuración y los App Links apuntan por omisión a TEST
+- Clase / Severidad / Confianza: CONFIG (también SEG) / S3 / confirmado
+- Ubicaciones: `apps/movil/android/app/build.gradle.kts:36-40`, `:26-27`; `apps/movil/android/app/src/main/AndroidManifest.xml:49-55`; `.github/workflows/apk-de-prueba.yml:77-92`
+- Evidencia: `// TODO: Add your own signing config for the release build.` / `signingConfig = signingConfigs.getByName("debug")`; `?: "app.aportaya.161.97.85.216.sslip.io"`.
+- Cómo se comprobó: lectura. El workflow `apk-de-prueba` re-firma con una keystore de depuración guardada como secreto, y se documenta como APK de prueba.
+- Impacto: no hay configuración de firma de producción, y un `flutter build apk --release` sin parámetros sale firmado con la clave de depuración y con App Links hacia TEST. El `TODO` sustituye una implementación (regla 00 §5.4). Se baja a S3 porque hoy solo se distribuye el APK de prueba.
+- Causa de fondo: la plantilla de Flutter quedó sin completar.
+- Solución de fondo: `signingConfigs.release` desde secretos de CI, y que el build de release falle sin ella y sin `hostDeLaAppWeb` explícito.
+- Relación con el flujo nuevo: ninguna
+- Conexiones y módulos afectados: despliegue
+- Estándares y normas: OWASP MASVS (resiliencia / configuración); ISO/IEC 25010 — seguridad
+- Esfuerzo estimado: chico
+
+### frontends-compartidos-HUECO-001 — Enlace profundo `aportaya://aporte` lleva a `/billetera/aportes`, que no existe
+- Clase / Severidad / Confianza: HUECO / S3 / confirmado
+- Ubicaciones: `apps/movil/lib/navegacion/enlaces_profundos.dart:16`; aceptado también por avisos push en `apps/movil/lib/navegacion/ruta_del_aviso.dart:46-48`
+- Evidencia: `'aporte': '/billetera/aportes',`
+- Cómo se comprobó: `git grep -n "'/billetera/aportes'\|path: 'aportes'" -- apps/movil/lib` → solo la línea del mapa.
+- Impacto: el recordatorio de aporte (el enlace que lleva a pagar por QR) termina en una ruta inexistente. Es justo el camino que, con R-NUEVA-1, debe mover el flujo.
+- Causa de fondo: mapa de prefijos escrito a mano, sin prueba contra el árbol de rutas.
+- Solución de fondo: generar el mapa desde `rutas.dart`, o una prueba que resuelva cada prefijo contra el router.
+- Relación con el flujo nuevo: FLUJO-QR
+- Conexiones y módulos afectados: L1 (aportes), L5 (notificaciones)
+- Estándares y normas: ISO/IEC 25010 — adecuación funcional
+- Esfuerzo estimado: chico
+
+### frontends-compartidos-UX-A11Y-001 — La guardia de identidad cubre solo parte de las rutas de dinero
+- Clase / Severidad / Confianza: UX-A11Y (no SEG: la autorización la decide el servidor, regla 95.6.1) / S3 / confirmado en cliente
+- Ubicaciones: `apps/movil/lib/navegacion/acceso_a_rutas.dart:17-22`; rutas no listadas en `apps/movil/lib/pantallas/pasanaku/rutas_operacion.dart:7,15,25,44`
+- Evidencia: `_exigenIdentidad` solo lista `recargar|retirar|transferir`, `grupos/nuevo`, `pedir-cupo` y `obligaciones/…/aportar`.
+- Cómo se comprobó: lectura; el lector D listó las rutas de retiro del grupo, traspaso, subasta y permuta.
+- Impacto: en esas rutas la persona sin identidad verificada llena el formulario y recién al enviar recibe un 403. Lo esperable es que se la lleve antes a verificar.
+- Causa de fondo: lista de expresiones regulares paralela al árbol de rutas.
+- Solución de fondo: marcar en la definición de cada ruta si exige identidad.
+- Relación con el flujo nuevo: APROB (A-1)
+- Conexiones y módulos afectados: L3, L4
+- Estándares y normas: ISO/IEC 25010 — usabilidad
+- Esfuerzo estimado: chico
+
+### frontends-compartidos-DEFECTO-004 — Protección de captura de pantallas de dinero por mixin sin contador
+- Clase / Severidad / Confianza: DEFECTO (también SEG) / S3 / probable (falta ejercitar el apilado en un dispositivo)
+- Ubicaciones: `apps/movil/lib/dominio/proteccion_de_pantalla_dinero.dart:11-27`; implementación `apps/movil/lib/infraestructura/android/proteccion_pantalla_android.dart:14-28`; 5 usuarios (sesión, retirar, extracto, recargar, transferir)
+- Evidencia: `initState → _proteccion.activar()` / `dispose → _proteccion.desactivar()`, sin conteo de referencias.
+- Cómo se comprobó: lectura.
+- Impacto: si una pantalla protegida se apila sobre otra protegida (p. ej. extracto sobre retirar) y luego se cierra, se desactiva la protección de la que queda visible: saldo y datos bancarios capturables.
+- Causa de fondo: estado global (FLAG_SECURE) manejado como si fuera local de la pantalla.
+- Solución de fondo: contador en el puerto (`activar` incrementa, `desactivar` decrementa).
+- Relación con el flujo nuevo: ninguna
+- Conexiones y módulos afectados: L1 (billetera), L4 (sesión)
+- Estándares y normas: OWASP MASVS-PLATFORM; ISO/IEC 25010 — seguridad (confidencialidad)
+- Esfuerzo estimado: chico
+
+### frontends-compartidos-FLUJO-QR-002 — El catálogo de la app contempla cobrar el aporte contra el saldo de la billetera
+- Clase / Severidad / Confianza: FLUJO-QR (también COHERENCIA) / S3 / sospecha (el camino de cobro lo audita L1)
+- Ubicaciones: `apps/movil/lib/dominio/errores.dart:88`
+- Evidencia: `'AP-CU21-03': 'No pudimos cobrar. Revisá tu saldo e intentá de nuevo.',`
+- Cómo se comprobó: lectura del catálogo.
+- Impacto: existe, al menos en el contrato de errores, un camino de aporte por débito de saldo distinto del QR. R-NUEVA-1 dice que lo único que mueve el flujo es el pago por QR, así que hay que decidir si el débito de saldo (fondeado antes por QR) cuenta como pago.
+- Causa de fondo: R-NUEVA-1 no define si «pago por QR» incluye el saldo ya recargado por QR.
+- Solución de fondo: decisión de Pablo (se agrega a A-2/A-4 como pregunta) y alinear L1.
+- Relación con el flujo nuevo: FLUJO-QR
+- Conexiones y módulos afectados: L1
+- Estándares y normas: regla 00 §1.7 (ambigüedad registrada)
+- Esfuerzo estimado: chico (decisión)
+
 ## 6. Matriz de contratos
 
 (se completa al cerrar)
