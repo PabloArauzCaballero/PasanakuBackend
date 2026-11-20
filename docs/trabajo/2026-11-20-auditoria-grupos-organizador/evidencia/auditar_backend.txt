@@ -1,0 +1,96 @@
+$ python3 scripts/auditar_backend.py
+==============================================================================
+AUDITORIA DEL BACKEND · nota global 9.64/10
+==============================================================================
+
+Alcance           8.63/10  peso 3  ·  350 revisadas  ·  48 hallazgo(s)
+  Una operacion declarada y no implementada es una promesa rota: el cliente la genera, programa contra ella y recibe un 501.
+    - cumplimiento: `listarEventosDeRiesgo` declarada sin implementar
+    - cumplimiento: `listarIncidentesDeSeguridad` declarada sin implementar
+    - cumplimiento: `listarPruebasDeContinuidad` declarada sin implementar
+    - cumplimiento: `registrarPruebaDeContinuidad` declarada sin implementar
+    - cumplimiento: `listarActasDeComite` declarada sin implementar
+    - grupos: `canjearInvitacion` declarada sin implementar
+    - grupos: `revocarInvitacionDelGrupo` declarada sin implementar
+    - grupos: `listarBandejaDeAdmisiones` declarada sin implementar
+    - grupos: `listarGruposDeBackoffice` declarada sin implementar
+    - grupos: `consultarGrupoDeBackoffice` declarada sin implementar
+    - grupos: `proponerAdmision` declarada sin implementar
+    - grupos: `resolverAdmision` declarada sin implementar
+    … y 36 mas
+
+Seguridad        10.00/10  peso 5  ·  317 revisadas  ·  OK
+  Denegar por omision (invariante 9). Un endpoint sin decision de acceso, un permiso que el catalogo no tiene o un secreto versionado son fallos de una sola linea con consecuencia total.
+
+Invariantes      10.00/10  peso 5  ·  942 revisadas  ·  OK
+  Los doce de `planes/00`. Si el codigo viola uno esta mal aunque pase las pruebas: son las reglas que hacen que el dinero cuadre.
+
+Contratos         9.97/10  peso 3  ·  997 revisadas  ·  3 hallazgo(s)
+  El contrato se escribe primero (ADR-020). Una operacion sin cuerpo declarado, sin respuestas o con un `$ref` roto es un contrato que no se puede generar.
+    - identidad: `consumirInvitacion` sin resumen
+    - identidad: `revocarInvitacion` sin resumen
+    - notificaciones: `marcarTodosAvisosLeidos` sin cuerpo ni parametros: no recibe nada
+
+Pruebas           9.61/10  peso 4  ·  228 revisadas  ·  9 hallazgo(s)
+  Un caso de uso sin prueba de rechazo prueba que el camino feliz funciona, que es lo unico que nunca falla en produccion. OJO: esta dimension mide que el archivo EXISTA, no que pase — escribir un archivo sube la nota sin probar nada. La evidencia de ejecucion se reporta aparte, abajo.
+    - aportes: CU100 sin prueba de caso de uso
+    - aportes: CU100 sin ninguna prueba `rechaza por R-…`
+    - auditoria: CU130 sin ninguna prueba `rechaza por R-…`
+    - auditoria: CU131 sin ninguna prueba `rechaza por R-…`
+    - identidad: CU02 sin prueba de caso de uso
+    - identidad: CU02 sin ninguna prueba `rechaza por R-…`
+    - identidad: CU07 sin prueba de caso de uso
+    - identidad: CU07 sin ninguna prueba `rechaza por R-…`
+    - inversiones: CU129 sin ninguna prueba `rechaza por R-…`
+
+Cableado          8.74/10  peso 4  ·  269 revisadas  ·  34 hallazgo(s)
+  Lo que esta escrito pero no conectado no existe: un puerto sin adaptador, una clave `@Value` que ningun `application.yml` define, un cliente sin URL.
+    - servicios/aportes/src/main/java/bo/aportaya/aportes/infraestructura/SecretoWebhookDeDesarrollo.java: `aportaya.aportes.webhook.secreto-de-prueba` es un secreto y solo tiene valor por omision
+    - servicios/auditoria/src/main/java/bo/aportaya/auditoria/infraestructura/SondaDeSalud.java: `aportaya.salud.timeout` solo existe como valor por omision (`PT2S`): es una constante, no configuracion (invariante 10)
+    - servicios/auditoria/src/main/java/bo/aportaya/auditoria/aplicacion/ConsultasDeTrafico.java: `aportaya.prometheus.metrica-http` solo existe como valor por omision (`http_server_requests_seconds`): es una constante, no configuracion (invariante 10)
+    - servicios/auditoria/src/main/java/bo/aportaya/auditoria/aplicacion/OutboxPorServicio.java: `aportaya.prometheus.metrica-outbox-pendientes` solo existe como valor por omision (`aportaya_outbox_pendientes`): es una constante, no configuracion (invariante 10)
+    - servicios/auditoria/src/main/java/bo/aportaya/auditoria/aplicacion/OutboxPorServicio.java: `aportaya.prometheus.metrica-outbox-fallidos` solo existe como valor por omision (`aportaya_outbox_fallidos`): es una constante, no configuracion (invariante 10)
+    - servicios/auditoria/src/main/java/bo/aportaya/auditoria/aplicacion/OutboxPorServicio.java: `aportaya.prometheus.metrica-outbox-edad` solo existe como valor por omision (`aportaya_outbox_edad_mas_viejo_segundos`): es una constante, no configuracion (invariante 10)
+    - servicios/auditoria/src/main/java/bo/aportaya/auditoria/aplicacion/OutboxPorServicio.java: `aportaya.prometheus.metrica-outbox-publicaciones` solo existe como valor por omision (`aportaya_outbox_publicaciones_total`): es una constante, no configuracion (invariante 10)
+    - servicios/identidad/src/main/java/bo/aportaya/identidad/web/CookieDeRefresco.java: `aportaya.sesion.cookie-ruta` solo existe como valor por omision (`/api/v1/sesion`): es una constante, no configuracion (invariante 10)
+    - servicios/identidad/src/main/java/bo/aportaya/identidad/web/UsuariosController.java: `identidad.alta.vigencia-token` es un secreto y solo tiene valor por omision
+    - servicios/identidad/src/main/java/bo/aportaya/identidad/aplicacion/CU01RegistrarUsuario.java: `identidad.clave.largo-minimo` es un secreto y solo tiene valor por omision
+    - servicios/identidad/src/main/java/bo/aportaya/identidad/aplicacion/CU01RegistrarUsuario.java: `identidad.clave.no-se-repiten` es un secreto y solo tiene valor por omision
+    - servicios/identidad/src/main/java/bo/aportaya/identidad/aplicacion/CU04StepUp.java: `aportaya.mfa.vigencia-evidencia` solo existe como valor por omision (`PT5M`): es una constante, no configuracion (invariante 10)
+    … y 22 mas
+
+Prohibiciones    10.00/10  peso 6  ·  6594 revisadas  ·  OK
+  Las dieciocho del contrato. No son estilo: cada una es un incidente que ya le paso a alguien.
+
+DIVERGENCIAS DECLARADAS (10)  ·  no bajan la nota, y se revisan igual
+  El modelo pone la clave del otro lado, o el bloqueo tiene que pasar dentro
+  de la transaccion. Cerrarlas exige tocar `sql/` o romper el invariante 6.
+    - servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/infraestructura/LimiteRepositorio.java:67: tabla del esquema `nucleo_financiero` (invariante 11)
+    - servicios/cumplimiento/src/main/java/bo/aportaya/cumplimiento/infraestructura/LimiteRepositorio.java:99: tabla del esquema `nucleo_financiero` (invariante 11)
+    - servicios/erp/src/main/java/bo/aportaya/erp/infraestructura/PeriodoRepositorio.java:149: tabla del esquema `nucleo_financiero` (invariante 11)
+    - servicios/erp/src/main/java/bo/aportaya/erp/infraestructura/PeriodoRepositorio.java:150: tabla del esquema `nucleo_financiero` (invariante 11)
+    - servicios/erp/src/main/java/bo/aportaya/erp/infraestructura/PresupuestoRepositorio.java:113: tabla del esquema `nucleo_financiero` (invariante 11)
+    - servicios/erp/src/main/java/bo/aportaya/erp/infraestructura/PresupuestoRepositorio.java:114: tabla del esquema `nucleo_financiero` (invariante 11)
+    - servicios/erp/src/main/java/bo/aportaya/erp/infraestructura/PresupuestoRepositorio.java:115: tabla del esquema `nucleo_financiero` (invariante 11)
+    - servicios/erp/src/main/java/bo/aportaya/erp/infraestructura/PresupuestoRepositorio.java:172: tabla del esquema `nucleo_financiero` (invariante 11)
+    - servicios/publicidad/src/main/java/bo/aportaya/publicidad/infraestructura/CreativaRepositorio.java:89: tabla del esquema `organizador` (invariante 11)
+    - servicios/publicidad/src/main/java/bo/aportaya/publicidad/aplicacion/CU110AltaDeAnunciante.java:158: SQL contra el esquema `organizador` (invariante 11)
+
+EVIDENCIA DE EJECUCION  ·  0/393 clases de prueba corrieron y pasaron
+  Existir no es pasar. La nota de «Pruebas» cuenta archivos; esto cuenta corridas.
+  Sin evidencia en build/test-results (393):
+    - aportes: CU132RecaudoTest
+    - aportes: CU99RechazosTest
+    - aportes: CU21RechazosTest
+    - aportes: CU21ReintentoConcurrenteTest
+    - aportes: CU21PrimeraCuotaTest
+    - aportes: CUIndicadoresComercialesDeAportesTest
+    - aportes: CU19Test
+    - aportes: CU21RecargosDiariosTest
+    - aportes: CU21ZonaHorariaTest
+    - aportes: CU100WebhookTest
+    … y 383 mas
+
+==============================================================================
+NOTA GLOBAL: 9.64/10   ·   con 0/393 pruebas verificadas
+[exit 0]

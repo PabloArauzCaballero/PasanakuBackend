@@ -1,0 +1,2 @@
+$ find servicios/{grupos,organizador}/src/main -name "*.java" | xargs wc -l | awk "$1>300"
+[exit 0]

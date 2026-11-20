@@ -1,0 +1,2 @@
+$ python3 scripts/idempotencia.py
+[exit 0]

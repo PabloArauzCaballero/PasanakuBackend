@@ -1,0 +1,12 @@
+$ python3 scripts/verificar_rutas_frontend.py
+rutas distintas que usa el frontend: 104 · con contrato: 98 · sin contrato: 6
+  [conocida] DELETE /identidad/tutoriales/progreso/{x}  (progreso de tutoriales en servidor: sin operación en identidad.yaml (ADR-045))
+  [conocida] GET /identidad/tutoriales/progreso  (progreso de tutoriales en servidor: sin operación en identidad.yaml (ADR-045))
+  [conocida] GET /publicidad/socios-comerciales/{x}  (consulta de un socio: publicidad.yaml solo publica postular y verificar)
+  [conocida] POST /extraccion/accesos  (registro de lecturas del backoffice: sin servicio `extraccion` en este repositorio)
+  [conocida] POST /extraccion/exportaciones  (exportaciones: sin servicio `extraccion` en este repositorio)
+  [conocida] PUT /identidad/tutoriales/progreso/{x}  (progreso de tutoriales en servidor: sin operación en identidad.yaml (ADR-045))
+FALLA · la lista de conocidas se pudrió: estas rutas YA tienen contrato (sacalas de CONOCIDAS_SIN_CONTRATO):
+   - GET /grupos/solicitudes-escaladas
+FALLAS
+[exit 1]

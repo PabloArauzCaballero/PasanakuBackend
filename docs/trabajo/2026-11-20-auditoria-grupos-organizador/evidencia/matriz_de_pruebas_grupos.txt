@@ -1,0 +1,21 @@
+$ python3 scripts/matriz_de_pruebas.py --servicio grupos
+| Servicio | Endpoints | Con prueba web | Con CU | CU con prueba de integración | En algún flujo |
+|---|---:|---:|---:|---:|---:|
+| grupos | 44 | 31 | 18 | 14 | 0 |
+| **Total** | 44 | 31 | 18 | 14 | 0 |
+
+Sin prueba web (13):
+  POST /grupos/invitaciones/enlace/aceptar  (aceptarInvitacionPorEnlace)
+  POST /grupos/invitaciones/enlace/consultar  (consultarInvitacionPorEnlace)
+  GET /grupos/obligaciones/admisibilidad  (consultarAdmisibilidadDePago)
+  GET /grupos/participantes/{usuarioId}/actividad  (consultarActividad)
+  POST /grupos/solicitudes/{solicitudId}/resoluciones  (resolverAdmision)
+  GET /grupos/sorteos/{sorteoId}/paquete  (consultarPaqueteDelSorteo)
+  POST /grupos/{grupoId}/administrador/sustitucion  (sustituirAdministrador)
+  POST /grupos/{grupoId}/cupos/{cupoId}/traspasos  (traspasarCupo)
+  POST /grupos/{grupoId}/cupos/{cupoId}/traspasos-por-subasta  (traspasarCupoPorSubasta)
+  POST /grupos/{grupoId}/retiros  (solicitarRetiro)
+  GET /grupos/{grupoId}/solicitudes  (listarSolicitudesDeIngreso)
+  POST /grupos/{grupoId}/sorteo  (comprometerSorteo)
+  POST /grupos/{grupoId}/sorteo/revelacion  (revelarSorteo)
+[exit 0]

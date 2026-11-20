@@ -1,0 +1,15 @@
+$ python3 scripts/matriz_de_pruebas.py --servicio organizador
+| Servicio | Endpoints | Con prueba web | Con CU | CU con prueba de integración | En algún flujo |
+|---|---:|---:|---:|---:|---:|
+| organizador | 25 | 18 | 19 | 18 | 0 |
+| **Total** | 25 | 18 | 19 | 18 | 0 |
+
+Sin prueba web (7):
+  POST /automatizacion/tareas/{tareaId}/aprobacion  (aprobarTarea)
+  POST /organizadores/contratos/{contratoId}/rescision  (rescindirContrato)
+  POST /organizadores/postulaciones/{solicitudId}/revision  (revisarHabilitacion)
+  GET /organizadores/usuarios/{usuarioId}/habilitacion  (consultarHabilitacionPersonal)
+  POST /organizadores/{organizadorId}/contratos  (emitirContrato)
+  POST /organizadores/{organizadorId}/evaluaciones  (evaluarDesempeno)
+  POST /organizadores/{organizadorId}/habilitacion  (habilitarOrganizador)
+[exit 0]

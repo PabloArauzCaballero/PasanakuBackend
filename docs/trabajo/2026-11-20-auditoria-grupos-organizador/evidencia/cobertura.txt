@@ -1,0 +1,4 @@
+$ python3 scripts/cobertura.py
+Sin informes. Corré primero:
+  ./gradlew test webTest integrationTest && ./gradlew jacocoTestReport
+[exit 0]

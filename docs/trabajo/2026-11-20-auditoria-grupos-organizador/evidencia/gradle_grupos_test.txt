@@ -1,0 +1,42 @@
+$ ./gradlew :servicios:grupos:test --console=plain
+                  > Could not resolve org.apache.commons:commons-parent:98.
+                     > Could not parse POM https://plugins.gradle.org/m2/org/apache/commons/commons-parent/98/commons-parent-98.pom
+                        > Could not resolve org.junit:junit-bom:5.14.2.
+                           > Could not resolve org.junit:junit-bom:5.14.2.
+                              > Could not get resource 'https://plugins.gradle.org/m2/org/junit/junit-bom/5.14.2/junit-bom-5.14.2.module'.
+                                 > Could not GET 'https://repo.maven.apache.org/maven2/org/junit/junit-bom/5.14.2/junit-bom-5.14.2.module'. Received status code 429 from server: Too Many Requests
+      > Could not resolve org.apache.commons:commons-lang3:3.20.0.
+        Required by:
+            project ':buildSrc' > org.cyclonedx.bom:org.cyclonedx.bom.gradle.plugin:3.4.1 > org.cyclonedx:cyclonedx-gradle-plugin:3.4.1 > org.cyclonedx:cyclonedx-core-java:13.1.0
+         > Could not resolve org.apache.commons:commons-lang3:3.20.0.
+            > Could not get resource 'https://plugins.gradle.org/m2/org/apache/commons/commons-lang3/3.20.0/commons-lang3-3.20.0.pom'.
+               > Could not GET 'https://repo.maven.apache.org/maven2/org/apache/commons/commons-lang3/3.20.0/commons-lang3-3.20.0.pom'. Received status code 429 from server: Too Many Requests
+      > Could not resolve org.apache.commons:commons-collections4:4.5.0.
+        Required by:
+            project ':buildSrc' > org.cyclonedx.bom:org.cyclonedx.bom.gradle.plugin:3.4.1 > org.cyclonedx:cyclonedx-gradle-plugin:3.4.1 > org.cyclonedx:cyclonedx-core-java:13.1.0
+         > Could not resolve org.apache.commons:commons-collections4:4.5.0.
+            > Could not parse POM https://plugins.gradle.org/m2/org/apache/commons/commons-collections4/4.5.0/commons-collections4-4.5.0.pom
+               > Could not resolve org.apache.commons:commons-parent:81.
+                  > Could not resolve org.apache.commons:commons-parent:81.
+                     > Could not parse POM https://plugins.gradle.org/m2/org/apache/commons/commons-parent/81/commons-parent-81.pom
+                        > Could not resolve org.junit:junit-bom:5.11.4.
+                           > Could not resolve org.junit:junit-bom:5.11.4.
+                              > Could not get resource 'https://plugins.gradle.org/m2/org/junit/junit-bom/5.11.4/junit-bom-5.11.4.module'.
+                                 > Could not GET 'https://repo.maven.apache.org/maven2/org/junit/junit-bom/5.11.4/junit-bom-5.11.4.module'. Received status code 429 from server: Too Many Requests
+      > Could not resolve com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.22.1.
+        Required by:
+            project ':buildSrc' > org.cyclonedx.bom:org.cyclonedx.bom.gradle.plugin:3.4.1 > org.cyclonedx:cyclonedx-gradle-plugin:3.4.1 > org.cyclonedx:cyclonedx-core-java:13.1.0
+         > Could not resolve com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.22.1.
+            > Could not get resource 'https://plugins.gradle.org/m2/com/fasterxml/jackson/dataformat/jackson-dataformat-xml/2.22.1/jackson-dataformat-xml-2.22.1.pom'.
+               > Could not GET 'https://repo.maven.apache.org/maven2/com/fasterxml/jackson/dataformat/jackson-dataformat-xml/2.22.1/jackson-dataformat-xml-2.22.1.pom'. Received status code 429 from server: Too Many Requests
+> There are 6 more failures with identical causes.
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 1m 1s
+1 actionable task: 1 executed
+[exit 1]
