@@ -294,6 +294,56 @@
 - Estándares y normas: regla 00 §1.7 (ambigüedad registrada)
 - Esfuerzo estimado: chico (decisión)
 
+### frontends-compartidos-FRAGIL-001 — Catálogos de errores escritos a mano en cada cliente; los códigos con dos significados se desambiguan por la URL
+- Clase / Severidad / Confianza: FRAGIL (también DUP-X) / S3 / confirmado
+- Ubicaciones: `apps/movil/lib/dominio/errores.dart:14-90` (50 códigos `AP-`), `apps/movil/lib/dominio/errores_catalogados.dart:10-29`, `apps/movil/lib/dominio/traduccion_de_errores.dart:50-68`; `apps/backoffice/src/app/nucleo/errores.ts` (74 códigos `AP-`); `apps/backoffice/src/app/nucleo/errores.ts:22-23` («Algunos números los reutilizan operaciones distintas del servidor»)
+- Evidencia: `if (path.startsWith('/recargas-de-prueba/')) { return ContextoErrorApi.pagoDeRecargaDePrueba; }` y otras cuatro coincidencias por subcadena de ruta.
+- Cómo se comprobó: lectura; `grep -c "'AP-"` en ambos catálogos.
+- Impacto: si el servidor renombra una ruta o reutiliza un código, el texto que ve la persona cambia de significado sin que falle ninguna prueba. Es la cadena «código del servicio → texto del cliente» que el metaprompt pide señalar (FRAGIL).
+- Causa de fondo: los códigos de error no se publican como catálogo versionado en el contrato (RFC 9457 `type`). Cada cliente los copia.
+- Solución de fondo: códigos únicos por significado en el servidor, publicados en el OpenAPI, y catálogos de cliente generados o verificados contra él.
+- Relación con el flujo nuevo: ninguna
+- Conexiones y módulos afectados: todos los servicios
+- Estándares y normas: RFC 9457; ISO/IEC 25010 — mantenibilidad; regla 96.4.4
+- Esfuerzo estimado: medio
+
+### frontends-compartidos-REESCRITURA-001 — Código sin referencias en el shell móvil, parte de él presentado como control
+- Clase / Severidad / Confianza: REESCRITURA (también CLEAN) / S3 / confirmado
+- Ubicaciones: `apps/movil/lib/navegacion/guardias.dart` (redirige a `/identidad/aumentar-limite` y `/soporte/servicio-no-habilitado`, l.17 y 24; ninguna existe), `apps/movil/lib/proveedores/conexion.dart:11-18` (`hayConexionProvider`), `apps/movil/lib/dominio/validacion.dart` (`montoValido`, `carnetValido`), `apps/movil/lib/proveedores/dispositivo.dart` (`dispositivoIdProvider`), `apps/movil/lib/main_h6_s3_m8_profile.dart` (149 líneas, punto de entrada de una microtarea de perfil)
+- Evidencia: `hayConexionProvider` documenta «para bloquear operaciones de dinero con motivo visible (regla 1 del shell)».
+- Cómo se comprobó: `git grep -l <símbolo> -- lib test integration_test test_driver` devuelve solo el archivo que lo define (para `guardias.dart`, ningún import).
+- Impacto: quien lea el shell cree que las operaciones de dinero se bloquean sin red y que hay guardias de límite. Ninguna de las dos cosas pasa.
+- Causa de fondo: reescrituras de agentes que dejaron la versión vieja.
+- Solución de fondo: borrar o conectar, con su prueba. Si el bloqueo sin conexión es requisito (regla 95.2.4), implementarlo.
+- Relación con el flujo nuevo: ninguna
+- Conexiones y módulos afectados: ninguno fuera del shell
+- Estándares y normas: ISO/IEC 25010 — mantenibilidad (analizabilidad); ISO/IEC 5055 (código muerto)
+- Esfuerzo estimado: chico
+
+### frontends-compartidos-DUP-INT-001 — Dos configuraciones de idioma; la prueba valida la que la app no usa
+- Clase / Severidad / Confianza: DUP-INT (también PRUEBAS) / S4 / confirmado
+- Ubicaciones: `apps/movil/lib/localizacion.dart:10-15` (`es_BO` + `es`, solo `GlobalMaterialLocalizations.delegates`) frente a `apps/movil/lib/app_real.dart:18-24` (solo `es_BO`, tres delegados); prueba `apps/movil/test/widget/idioma_test.dart:4`
+- Evidencia: `const idiomasDeLaApp = <Locale>[Locale('es', 'BO'), Locale('es')];` frente a `const localesDeAportaYa = <Locale>[localeDeAportaYa];`
+- Cómo se comprobó: `git grep -n "localizacion.dart" -- lib test` → solo pruebas y capturas lo importan.
+- Impacto: la prueba de idioma pasa aunque la app real cambie de configuración.
+- Causa de fondo: clon divergente.
+- Solución de fondo: una sola constante usada por la app y por la prueba.
+- Relación con el flujo nuevo: ninguna · Conexiones: ninguna
+- Estándares y normas: ISO/IEC 25010 — mantenibilidad
+- Esfuerzo estimado: chico
+
+### frontends-compartidos-DOC-001 — El avance de tutoriales no se borra al cerrar sesión aunque el comentario dice que sí
+- Clase / Severidad / Confianza: DOC (también TRAZA y privacidad) / S4 / confirmado
+- Ubicaciones: `apps/movil/lib/infraestructura/almacen_de_progreso_seguro.dart:14-16`; `apps/movil/lib/proveedores/sesion.dart:143-147`
+- Evidencia: «el almacén seguro se limpia junto con la sesión — el avance de los tutoriales de una persona no queda en el teléfono después de que se fue»; `_borrarTokens` borra solo `_claveAcceso`, `_claveRefresco` y `_claveInicio`.
+- Cómo se comprobó: lectura de ambos.
+- Impacto: en un teléfono compartido queda el rastro de uso de la persona anterior. Es dato de comportamiento, no financiero.
+- Causa de fondo: el comentario describe una intención que no se implementó.
+- Solución de fondo: borrar las claves de progreso en el cierre de sesión, con su prueba.
+- Relación con el flujo nuevo: ninguna · Conexiones: ninguna
+- Estándares y normas: ISO/IEC 25010 — seguridad (confidencialidad); regla 90.2
+- Esfuerzo estimado: chico
+
 ## 6. Matriz de contratos
 
 (se completa al cerrar)
