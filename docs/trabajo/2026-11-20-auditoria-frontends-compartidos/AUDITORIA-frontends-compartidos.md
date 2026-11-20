@@ -344,6 +344,111 @@
 - Estándares y normas: ISO/IEC 25010 — seguridad (confidencialidad); regla 90.2
 - Esfuerzo estimado: chico
 
+### frontends-compartidos-RESPALDO-002 — El mock y los clientes generados publican y normalizan la cobertura empresarial del pozo (`cubiertoEmpresa`) y toda la familia de respaldo
+- Clase / Severidad / Confianza: RESPALDO / S2 en este alcance (el camino vivo del servidor es S1 y lo audita L2) / confirmado
+- Ubicaciones: `packages/simulado/ejemplos/entregas/fondearPozo.json:5,25` (`POST /entregas/pozo-completo`, `cubiertoEmpresa`, `cubiertoMutual`); `packages/simulado/ejemplos/garantia/{cubrirConRespaldo,reservarRespaldo,ampliarRespaldo,liberarRespaldo,recuperarRespaldo,reversarCoberturaRespaldo,cubrirIncumplimiento}.json`; `packages/simulado/ejemplos/aportes/consultarRecaudoDelPeriodo.json` (`cubiertoMutual`, `faltante`); `clientes/dart/entregas/lib/aportaya_cliente_entregas.dart:20,38`; `clientes/dart/garantia/lib/aportaya_cliente_garantia.dart:13,18` (`respaldo_api.dart`, `entrada_ampliacion_respaldo.dart`); catálogo de operaciones del backoffice `apps/backoffice/src/app/rutas/sistemas/operaciones/dominio/operaciones.json:9917-10102,16804-16957`; fuente `servicios/entregas/…/openapi/entregas.yaml:792,800`
+- Evidencia: `"ruta": "/entregas/pozo-completo"` … `"cubiertoEmpresa": { "monto": "4.44", "moneda": "BOB" }`.
+- Cómo se comprobó: lectura de los ejemplos; `ls packages/simulado/ejemplos/garantia | grep -i respaldo` → 6 archivos; `git grep -n -i "fondearPozo|cubiertoEmpresa|cubrirConRespaldo|RespaldoApi" -- apps` → ninguna pantalla llama a esas operaciones; solo aparecen en el catálogo `operaciones.json`.
+- Impacto: el entorno simulado (`yarn dev:mock`) y los clientes enseñan como normal un flujo que R-NUEVA-2 prohíbe. Cualquier pantalla nueva construida contra el mock nace con el respaldo empresarial. Cuando L2 retire la operación, el mock, los clientes y el catálogo quedan desalineados si no se regeneran.
+- Causa de fondo: el mock y los clientes se generan del OpenAPI vigente. El problema es de la fuente (L2) y se propaga sin una lista de operaciones retiradas.
+- Solución de fondo: depende de A-2/A-3 (Pablo). Retirar o versionar la operación en `entregas.yaml`/`garantia.yaml` y regenerar mock, clientes y `operaciones.json` en el mismo cambio.
+- Relación con el flujo nuevo: RESPALDO
+- Conexiones y módulos afectados: L2 (entregas, garantía), L1 (aportes)
+- Estándares y normas: regla 91.5 y R-NUEVA-2; ISO/IEC 25010 — adecuación funcional
+- Esfuerzo estimado: chico aquí (regenerar) tras la decisión
+
+### frontends-compartidos-APROB-002 — El mock sirve pasos de aprobación humana como camino normal
+- Clase / Severidad / Confianza: APROB / S3 / confirmado
+- Ubicaciones: `packages/simulado/ejemplos/grupos/canjearInvitacion.json:11` (`PENDIENTE_BACKOFFICE`), `grupos/decidirSolicitudDeIngreso.json`, `garantia/cubrirIncumplimiento.json:17,31,45,59` (`requiereAprobacion`), `aportes/aprobarReembolso.json`, `nucleo-financiero/aprobarRetiro.json`, `garantia/aprobarReemplazo.json`, `organizador/{aprobarPostulacion,revisarHabilitacion,resolverHabilitacion,aprobarTarea}.json`
+- Evidencia: `"requiereAprobacion": true` (`cubrirIncumplimiento.json:17`).
+- Cómo se comprobó: `git grep -n -E "requiereAprobacion|PENDIENTE_BACKOFFICE" -- packages/simulado/ejemplos` y lectura (lector B, re-verificado).
+- Impacto: igual que RESPALDO-002, pero para R-NUEVA-1. El inventario por operación lo cierran L1–L4.
+- Causa de fondo, solución y conexiones: como RESPALDO-002, con fuente en cada `openapi/*.yaml`.
+- Relación con el flujo nuevo: APROB
+- Estándares y normas: R-NUEVA-1
+- Esfuerzo estimado: chico tras decisión
+
+### frontends-compartidos-SEG-001 — El validador del gateway acepta `/\host-ajeno/api/v1` como ruta relativa, y el navegador lo resuelve a otro host
+- Clase / Severidad / Confianza: SEG / S3 (la URL sale de una meta inyectada por NGINX: explotarlo exige alterar la configuración o el HTML servido) / confirmado por ejecución
+- Ubicaciones: `packages/dominio-cliente/src/configuracion.ts:52,80-89`; consumidores `apps/backoffice/src/app/nucleo/gateway.ts:2,33`, `apps/web/src/app/nucleo/gateway.ts:2,43`
+- Evidencia: `if (cruda.startsWith('//')) return { valida: false … }` y luego `if (cruda.startsWith('/')) { … return { valida: true, url: ruta } }`, con `RUTA_VERSIONADA = /\/v\d+\/?$/`.
+- Cómo se comprobó:
+  ```text
+  $ node -e 'console.log(new URL("/\\evil.example.com/api/v1","https://app.aportaya.bo/x").href)'
+  https://evil.example.com/api/v1
+  ```
+- Impacto: el control que impide mandar el `Bearer` del operador a un host ajeno se saltea con una barra invertida. Toda petición del backoffice o de la web saldría a ese host, incluido el token.
+- Causa de fondo: se validó la cadena con prefijos, en lugar de resolver la URL con `new URL(cruda, origen)` y comparar el `origin`.
+- Solución de fondo: resolver siempre contra el origen propio y exigir `origin === origenPropio` o un host de la lista blanca. Agregar a `configuracion.spec.ts` los casos `/\`, `/%5C` y `\\`.
+- Relación con el flujo nuevo: ninguna
+- Conexiones y módulos afectados: backoffice, web
+- Estándares y normas: CWE-601 / CWE-20; OWASP ASVS (validación de configuración); ISO/IEC 25010 — seguridad
+- Esfuerzo estimado: chico
+
+### frontends-compartidos-CONTRATO-003 — El patrón de importe de `cumplimiento.yaml` está mal escapado; el mock lo «cumple» con basura y una respuesta real lo violaría
+- Clase / Severidad / Confianza: CONTRATO (también DINERO) / S2 / confirmado
+- Ubicaciones: `servicios/cumplimiento/src/main/resources/openapi/cumplimiento.yaml:1251,1339` (fuente, L4); `packages/simulado/ejemplos/cumplimiento/elevarDiligencia.json:18`, `verificarAlcance.json:14`
+- Evidencia: `monto: { type: string, pattern: '^-?\\d+\\.\\d{2}$' }`. En YAML con comillas simples, `\\` son dos barras literales: el patrón exige una barra invertida antes de cada dígito. El mock trae `"monto": "\\d\\O\\dd"`.
+- Cómo se comprobó: lectura del YAML y del ejemplo; el lector B validó los 349 ejemplos con jsonschema (0 inválidos). Que pasen es el síntoma: el mock satisface el patrón roto.
+- Impacto: un validador de contrato o un cliente que aplique el patrón rechaza `"100.00"`. Las pruebas contra el mock no lo detectan. Además, el patrón admite importes negativos (`-?`), contra la regla 91.2.2 para coberturas y deducciones.
+- Causa de fondo: el escape de YAML no se verificó. Ninguna prueba contrasta el contrato con un valor real.
+- Solución de fondo: (L4) corregir a `"^\\d+\\.\\d{2}$"` (comillas dobles) o `'^\d+\.\d{2}$'`. Que el generador del mock use ejemplos reales del contrato y agregar a la CI un caso real por patrón.
+- Relación con el flujo nuevo: ninguna
+- Conexiones y módulos afectados: L4 (cumplimiento)
+- Estándares y normas: OpenAPI 3 / JSON Schema; ISO/IEC 25010 — compatibilidad
+- Esfuerzo estimado: chico
+
+### frontends-compartidos-DINERO-001 — El cliente compartido calcula «gastable» y recorta en silencio lo comprometido que excede lo disponible
+- Clase / Severidad / Confianza: DINERO (también DDD) / S3 / confirmado
+- Ubicaciones: `packages/dominio-cliente/src/posiciones.ts:4-14,80-101`; consumidor `apps/backoffice/src/app/rutas/operacion/dominio/cu13-consultar-saldo.ts`
+- Evidencia: `const comprometido = excede ? disponible : informado` · `gastable: aCadena(disponible - comprometido)` · `advertencias: excede ? ['comprometido-excede-disponible'] : []`; comentario l.7 «(el productor todavía NO implementa) agrega … `comprometidoEnPozos`», cuando `nucleo-financiero.yaml:1513-1515` ya lo publica.
+- Cómo se comprobó: lectura del archivo y `git grep comprometidoEnPozos` en el OpenAPI.
+- Impacto: la cifra «gastable» que ve el operador no viene del mayor sino de una resta en el navegador (regla 91.1.5). Cuando el servidor informa un comprometido mayor al disponible, que es un estado incoherente del libro, el cliente lo recorta y solo deja una advertencia. Lo hace en enteros de centavos, sin `float`.
+- Causa de fondo: el contrato no entrega `gastable` y el cliente lo deduce.
+- Solución de fondo: que `nucleo-financiero` devuelva `gastable` calculado desde el mayor. Ante la incoherencia, el cliente muestra error y no un número recortado. Actualizar el comentario.
+- Relación con el flujo nuevo: ninguna
+- Conexiones y módulos afectados: L1 (nucleo-financiero)
+- Estándares y normas: regla 91.1.5, 98.4.2; ISO/IEC 25010 — adecuación funcional (corrección)
+- Esfuerzo estimado: chico
+
+### frontends-compartidos-DUP-X-001 — `dominio-cliente/cadena.ts` es un clon divergente del hash de bloque de `transparencia`
+- Clase / Severidad / Confianza: DUP-X (también DOC) / S3 / confirmado
+- Ubicaciones: `packages/dominio-cliente/src/cadena.ts:17-28`, exportado en `packages/dominio-cliente/src/index.ts:3-4`; servidor `servicios/transparencia/src/main/java/bo/aportaya/transparencia/dominio/CadenaDeBloques.java:71-75`
+- Evidencia: Java → `sha256("%d|%s|%s|%s|%s".formatted(numero, hashAnterior, raizMerkle, desde, hasta))`; el cliente encadena `hash_anterior || hash_contenido` con otro material y otro génesis. El comentario del cliente dice que el backend no tiene implementación propia.
+- Cómo se comprobó: lectura de ambos; `git grep -n "recorrerCadena|hashDeBloque" -- apps` → ningún uso en ejecución (solo comentarios en `verificador-de-cadena.ts:12,37`).
+- Impacto: el día que la web use el verificador del paquete, ninguna cadena real va a verificar: las personas verán «cadena rota» sobre datos íntegros. Hoy está latente.
+- Causa de fondo: el cliente se escribió antes que la clase del servidor y no se reconcilió.
+- Solución de fondo: vectores de prueba compartidos generados desde `CadenaDeBloques` (como ya se hace con `sorteo.vectores.json`) y alinear el algoritmo, o retirar el código del paquete.
+- Relación con el flujo nuevo: ninguna
+- Conexiones y módulos afectados: L5 (transparencia)
+- Estándares y normas: ISO/IEC 25010 — compatibilidad / corrección
+- Esfuerzo estimado: medio
+
+### frontends-compartidos-DATOS-001 — El mock trae monedas inválidas, importes idénticos en todos los campos y escenarios «adverso» que copian a «ok»
+- Clase / Severidad / Confianza: DATOS (también PRUEBAS) / S3 / confirmado
+- Ubicaciones: `packages/simulado/ejemplos/aportes/consultarRecaudoDiario.json:14,40` (`"moneda": "MMM"`), `packages/simulado/ejemplos/grupos/consultarDetalleDelGrupo.json:14` (`"mon"`); `"4.44"` en 117 archivos de ejemplos; generador `packages/simulado/scripts/generar-ejemplos.mjs:107-109` (`adverso` = mismo cuerpo `representativo` que `ok`)
+- Evidencia: `adverso: { estado: exito, cuerpo: cuerpo(documento, operacion, exito, 'representativo') },`
+- Cómo se comprobó: `git grep -n -E '"moneda": "(MMM|mon|moneda)"'`; `grep -l "4.44" -r packages/simulado/ejemplos | wc -l` → 117; lectura del generador.
+- Impacto: con pozo = confirmado = faltante = neto = bruto, ninguna pantalla probada contra el mock detecta un intercambio de campos de dinero. «Adverso» no ejercita nada adverso, y las monedas inválidas no son ISO-4217 (regla 91.1.2) y pasan porque el contrato no las restringe a un enum.
+- Causa de fondo: generación por esquema sin semántica de dominio. El contrato `Dinero.moneda` no tiene `enum`/`pattern` en todos los servicios.
+- Solución de fondo: ejemplos con importes distintos y coherentes (pozo = confirmado + faltante), escenarios adversos reales y `moneda` con `pattern: '^[A-Z]{3}$'` en el contrato.
+- Relación con el flujo nuevo: ninguna
+- Conexiones y módulos afectados: todos los servicios (contratos)
+- Estándares y normas: ISO 4217; regla 97.6.2 (datos de prueba realistas); 80.3
+- Esfuerzo estimado: medio
+
+### frontends-compartidos-PRUEBAS-002 — Las pruebas de contraste WCAG de los tokens no corren
+- Clase / Severidad / Confianza: PRUEBAS (también UX-A11Y) / S3 / confirmado
+- Ubicaciones: `packages/tokens/vitest.config.ts:2` (`include: ['pruebas/**/*.spec.ts']`); no incluidas: `packages/tokens/pruebas/roles-contraste.test.mjs`, `packages/tokens/pruebas/texto-de-ejemplo-contraste.test.mjs`
+- Evidencia: el `include` solo toma `*.spec.ts`, y los dos archivos son `*.test.mjs`. `git grep "\.test\.mjs|contraste" -- .github/workflows` no da resultados.
+- Cómo se comprobó: lectura de `vitest.config.ts` y `package.json:17`.
+- Impacto: un cambio de color que rompa el contraste AA pasa la CI. La regla 80.7 exige contraste.
+- Causa de fondo: convención de nombres mezclada (`.spec.ts` frente a `.test.mjs`).
+- Solución de fondo: incluir `pruebas/**/*.test.mjs` o renombrar.
+- Relación con el flujo nuevo: ninguna · Conexiones: todas las apps (tokens)
+- Estándares y normas: WCAG 2.2 AA (1.4.3); regla 80.7
+- Esfuerzo estimado: chico
+
 ## 6. Matriz de contratos
 
 (se completa al cerrar)
