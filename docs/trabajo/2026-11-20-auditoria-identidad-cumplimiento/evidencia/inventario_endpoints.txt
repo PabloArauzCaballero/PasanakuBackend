@@ -1,0 +1,2 @@
+endpoints relevados: 350 · hallazgos: 0
+El inventario esta alineado: todo lo implementado tiene contrato y viceversa.

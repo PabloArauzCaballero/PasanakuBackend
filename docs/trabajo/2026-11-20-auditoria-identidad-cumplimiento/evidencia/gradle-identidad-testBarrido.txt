@@ -1,0 +1,85 @@
+Picked up JAVA_TOOL_OPTIONS: -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStoreType=JKS -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=41727 -Dhttp.nonProxyHosts=localhost|127.0.0.1|::1|127.*|0.*|::|169.254.*|api.anthropic.com|api-staging.anthropic.com|api-pr-preview.anthropic.com|mcp-proxy.anthropic.com|mcp-proxy-staging.anthropic.com|registry.npmjs.org|jsr.io|npm.jsr.io|pypi.org|files.pythonhosted.org|index.crates.io|proxy.golang.org|host.docker.internal|10.*|172.16.*|172.17.*|172.18.*|172.19.*|172.20.*|172.21.*|172.22.*|172.23.*|172.24.*|172.25.*|172.26.*|172.27.*|172.28.*|172.29.*|172.30.*|172.31.*|192.168.*|100.64.0.0/10|*.svc.cluster.local|*.svc.cluster.local -Djdk.http.auth.tunneling.disabledSchemes= -Djdk.http.auth.proxying.disabledSchemes=
+Picked up _JAVA_OPTIONS: -XX:+UnlockDiagnosticVMOptions -XX:DisableIntrinsic=_base64_encodeBlock,_base64_decodeBlock
+Fetching distribution.
+Downloading https://services.gradle.org/distributions/gradle-9.7.1-bin.zip
+..............10%..............20%...............30%..............40%...............50%..............60%...............70%..............80%..............90%...............100%
+
+Welcome to Gradle 9.7.1!
+
+Here are the highlights of this release:
+ - Isolated Projects graduates to incubating
+ - Broader Configuration Cache compatibility
+ - Resilient Sync helps you fix broken builds
+ - More source locations in problem reports
+
+For more details see https://docs.gradle.org/9.7.1/release-notes.html
+
+Starting a Gradle Daemon (subsequent builds will be faster)
+> Task :buildSrc:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :buildSrc:generateExternalPluginSpecBuilders FAILED
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':buildSrc:generateExternalPluginSpecBuilders' (registered by plugin class 'org.gradle.kotlin.dsl.plugins.precompiled.PrecompiledScriptPlugins').
+> Error while evaluating property 'pluginEntries' of task ':buildSrc:generateExternalPluginSpecBuilders'.
+   > Could not resolve all files for configuration ':buildSrc:compileClasspath'.
+      > Could not resolve commons-codec:commons-codec:1.22.1.
+        Required by:
+            project ':buildSrc' > org.cyclonedx.bom:org.cyclonedx.bom.gradle.plugin:3.4.1 > org.cyclonedx:cyclonedx-gradle-plugin:3.4.1 > org.cyclonedx:cyclonedx-core-java:13.1.0
+         > Could not resolve commons-codec:commons-codec:1.22.1.
+            > Could not parse POM https://plugins.gradle.org/m2/commons-codec/commons-codec/1.22.1/commons-codec-1.22.1.pom
+               > Could not resolve org.apache.commons:commons-parent:103.
+                  > Could not resolve org.apache.commons:commons-parent:103.
+                     > Could not parse POM https://plugins.gradle.org/m2/org/apache/commons/commons-parent/103/commons-parent-103.pom
+                        > Could not resolve org.junit:junit-bom:5.14.3.
+                           > Could not resolve org.junit:junit-bom:5.14.3.
+                              > Could not get resource 'https://plugins.gradle.org/m2/org/junit/junit-bom/5.14.3/junit-bom-5.14.3.module'.
+                                 > Could not GET 'https://repo.maven.apache.org/maven2/org/junit/junit-bom/5.14.3/junit-bom-5.14.3.module'. Received status code 429 from server: Too Many Requests
+      > Could not resolve commons-io:commons-io:2.22.0.
+        Required by:
+            project ':buildSrc' > org.cyclonedx.bom:org.cyclonedx.bom.gradle.plugin:3.4.1 > org.cyclonedx:cyclonedx-gradle-plugin:3.4.1 > org.cyclonedx:cyclonedx-core-java:13.1.0
+         > Could not resolve commons-io:commons-io:2.22.0.
+            > Could not parse POM https://plugins.gradle.org/m2/commons-io/commons-io/2.22.0/commons-io-2.22.0.pom
+               > Could not resolve org.apache.commons:commons-parent:98.
+                  > Could not resolve org.apache.commons:commons-parent:98.
+                     > Could not parse POM https://plugins.gradle.org/m2/org/apache/commons/commons-parent/98/commons-parent-98.pom
+                        > Could not resolve org.apache:apache:37.
+                           > Could not resolve org.apache:apache:37.
+                              > Could not get resource 'https://plugins.gradle.org/m2/org/apache/apache/37/apache-37.pom'.
+                                 > Could not GET 'https://repo.maven.apache.org/maven2/org/apache/apache/37/apache-37.pom'. Received status code 429 from server: Too Many Requests
+      > Could not resolve org.apache.commons:commons-lang3:3.20.0.
+        Required by:
+            project ':buildSrc' > org.cyclonedx.bom:org.cyclonedx.bom.gradle.plugin:3.4.1 > org.cyclonedx:cyclonedx-gradle-plugin:3.4.1 > org.cyclonedx:cyclonedx-core-java:13.1.0
+         > Could not resolve org.apache.commons:commons-lang3:3.20.0.
+            > Could not parse POM https://plugins.gradle.org/m2/org/apache/commons/commons-lang3/3.20.0/commons-lang3-3.20.0.pom
+               > Could not resolve org.apache.commons:commons-parent:92.
+                  > Could not resolve org.apache.commons:commons-parent:92.
+                     > Could not parse POM https://plugins.gradle.org/m2/org/apache/commons/commons-parent/92/commons-parent-92.pom
+                        > Could not resolve org.apache:apache:35.
+                           > Could not resolve org.apache:apache:35.
+                              > Could not get resource 'https://plugins.gradle.org/m2/org/apache/apache/35/apache-35.pom'.
+                                 > Could not GET 'https://repo.maven.apache.org/maven2/org/apache/apache/35/apache-35.pom'. Received status code 429 from server: Too Many Requests
+      > Could not resolve org.apache.commons:commons-collections4:4.5.0.
+        Required by:
+            project ':buildSrc' > org.cyclonedx.bom:org.cyclonedx.bom.gradle.plugin:3.4.1 > org.cyclonedx:cyclonedx-gradle-plugin:3.4.1 > org.cyclonedx:cyclonedx-core-java:13.1.0
+         > Could not resolve org.apache.commons:commons-collections4:4.5.0.
+            > Could not parse POM https://plugins.gradle.org/m2/org/apache/commons/commons-collections4/4.5.0/commons-collections4-4.5.0.pom
+               > Could not resolve org.apache.commons:commons-parent:81.
+                  > Could not resolve org.apache.commons:commons-parent:81.
+                     > Could not parse POM https://plugins.gradle.org/m2/org/apache/commons/commons-parent/81/commons-parent-81.pom
+                        > Could not resolve org.apache:apache:33.
+                           > Repository Gradle Central Plugin Repository is disabled due to earlier error below:
+                              > Could not resolve com.networknt:json-schema-validator:2.0.4.
+                                 > Could not get resource 'https://plugins.gradle.org/m2/com/networknt/json-schema-validator/2.0.4/json-schema-validator-2.0.4.pom'.
+                                    > Could not GET 'https://repo.maven.apache.org/maven2/com/networknt/json-schema-validator/2.0.4/json-schema-validator-2.0.4.pom'. Received status code 429 from server: Too Many Requests
+> There are 4 more failures with identical causes.
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 1m 1s
+1 actionable task: 1 executed

@@ -1,0 +1,2 @@
+Sin informes. Corré primero:
+  ./gradlew test webTest integrationTest && ./gradlew jacocoTestReport
