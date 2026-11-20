@@ -1,0 +1,72 @@
+
+Welcome to Gradle 9.7.1!
+
+Here are the highlights of this release:
+ - Isolated Projects graduates to incubating
+ - Broader Configuration Cache compatibility
+ - Resilient Sync helps you fix broken builds
+ - More source locations in problem reports
+
+For more details see https://docs.gradle.org/9.7.1/release-notes.html
+
+> Task :buildSrc:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :buildSrc:generateExternalPluginSpecBuilders UP-TO-DATE
+> Task :buildSrc:extractPrecompiledScriptPluginPlugins UP-TO-DATE
+> Task :buildSrc:compilePluginsBlocks UP-TO-DATE
+> Task :buildSrc:generatePrecompiledScriptPluginAccessors UP-TO-DATE
+> Task :buildSrc:generateScriptPluginAdapters UP-TO-DATE
+> Task :buildSrc:compileKotlin UP-TO-DATE
+> Task :buildSrc:compileJava NO-SOURCE
+> Task :buildSrc:compileGroovy NO-SOURCE
+> Task :buildSrc:pluginDescriptors UP-TO-DATE
+> Task :buildSrc:processResources UP-TO-DATE
+> Task :buildSrc:classes UP-TO-DATE
+> Task :buildSrc:jar UP-TO-DATE
+> Task :plataforma:comun-pruebas:processResources UP-TO-DATE
+> Task :plataforma:comun-web:erroresCatalogo UP-TO-DATE
+> Task :plataforma:comun-datos:processResources UP-TO-DATE
+> Task :plataforma:comun-mensajeria:processResources UP-TO-DATE
+> Task :plataforma:comun-web:processResources UP-TO-DATE
+> Task :plataforma:comun-web:processTestFixturesResources NO-SOURCE
+> Task :servicios:transparencia:generarServidorOpenApi UP-TO-DATE
+> Task :plataforma:comun-dominio:compileJava UP-TO-DATE
+> Task :plataforma:comun-dominio:processResources NO-SOURCE
+> Task :plataforma:comun-dominio:classes UP-TO-DATE
+> Task :plataforma:comun-dominio:jar UP-TO-DATE
+> Task :plataforma:comun-datos:compileJava UP-TO-DATE
+> Task :plataforma:comun-pruebas:compileJava UP-TO-DATE
+> Task :plataforma:comun-datos:classes UP-TO-DATE
+> Task :plataforma:comun-pruebas:classes UP-TO-DATE
+> Task :plataforma:comun-datos:jar
+> Task :plataforma:comun-pruebas:jar
+
+> Task :servicios:transparencia:generateJooq
+Version mismatch         : Database version is older than what dialect POSTGRES supports: 16.15 (Ubuntu 16.15-0ubuntu0.24.04.1). Consider https://www.jooq.org/download/support-matrix to see what jOOQ version and edition supports which RDBMS versions.
+Ambiguous key name       : The one-to-many key transparencia.fk_evento_reputacion_revertido_por_id generates an inbound key method name eventoReputacion on table transparencia.evento_reputacion which conflicts with the previously generated key method name for key transparencia.fk_evento_reputacion_revertido_por_id. Use a custom generator strategy to disambiguate the method names for ForeignKeyDefinition, InverseForeignKeyDefinition, and/or ManyToManyKeyDefinition, or simply turn off the feature. More information here:
+ - https://www.jooq.org/doc/latest/manual/code-generation/codegen-generatorstrategy/
+ - https://www.jooq.org/doc/latest/manual/code-generation/codegen-matcherstrategy/
+ - https://www.jooq.org/doc/latest/manual/code-generation/codegen-advanced/codegen-config-generate/codegen-implicit-join-paths/
+
+> Task :servicios:transparencia:processResources
+> Task :servicios:transparencia:processTestResources
+> Task :plataforma:comun-mensajeria:compileJava
+> Task :plataforma:comun-mensajeria:classes
+> Task :plataforma:comun-mensajeria:jar
+> Task :plataforma:comun-web:compileJava
+> Task :plataforma:comun-web:classes
+> Task :plataforma:comun-web:jar
+> Task :plataforma:comun-web:compileTestFixturesJava
+> Task :plataforma:comun-web:testFixturesClasses
+> Task :plataforma:comun-web:testFixturesJar
+> Task :servicios:transparencia:compileJava
+> Task :servicios:transparencia:classes
+> Task :servicios:transparencia:compileTestJava
+> Task :servicios:transparencia:testClasses
+
+> Task :servicios:transparencia:test
+
+> Task :servicios:transparencia:testBarrido
+
+BUILD SUCCESSFUL in 28s
+34 actionable tasks: 15 executed, 19 up-to-date
+Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.7.1/userguide/configuration_cache_enabling.html

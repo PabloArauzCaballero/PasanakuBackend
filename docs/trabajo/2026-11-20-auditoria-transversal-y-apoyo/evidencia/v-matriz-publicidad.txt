@@ -1,0 +1,14 @@
+| Servicio | Endpoints | Con prueba web | Con CU | CU con prueba de integración | En algún flujo |
+|---|---:|---:|---:|---:|---:|
+| publicidad | 17 | 9 | 14 | 14 | 0 |
+| **Total** | 17 | 9 | 14 | 14 | 0 |
+
+Sin prueba web (8):
+  POST /publicidad/anunciantes  (darDeAltaAnunciante)
+  POST /publicidad/anuncios  (programarAnuncio)
+  POST /publicidad/campanas  (crearCampana)
+  POST /publicidad/campanas/{campanaId}/rechazo  (rechazarCampana)
+  POST /publicidad/conversiones  (registrarConversion)
+  POST /publicidad/piezas-creativas  (subirPiezaCreativa)
+  POST /publicidad/socios-comerciales  (postularSocioComercial)
+  POST /publicidad/socios-comerciales/{socioId}/verificacion  (verificarSocioComercial)

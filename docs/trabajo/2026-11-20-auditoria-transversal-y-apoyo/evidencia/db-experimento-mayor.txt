@@ -1,0 +1,36 @@
+## Experimento de mayor (base local efimera, datos sinteticos)
+-- E1: asiento CONFIRMADO cuadrado (100/100)
+BEGIN
+INSERT 0 1
+INSERT 0 2
+COMMIT
+-- E2: en otra transaccion, se agrega una linea suelta de debe 50 al asiento ya confirmado
+BEGIN
+INSERT 0 1
+COMMIT
+                ?column?                
+----------------------------------------
+ E2 resultado: debe=150.00 haber=100.00
+(1 row)
+
+-- E3: asiento con importes negativos (-100/-100)
+BEGIN
+INSERT 0 1
+INSERT 0 2
+COMMIT
+  ?column?   
+-------------
+ E3 filas: 2
+(1 row)
+
+-- E4: asiento descuadrado en una sola transaccion (control: debe rechazarse)
+BEGIN
+INSERT 0 1
+INSERT 0 1
+psql:/tmp/pg-l5/exp.sql:24: ERROR:  R-AUD-05: asiento aaaaaaaa-0000-0000-0000-000000000004 descuadrado (debe=100.00, haber=0.00)
+CONTEXT:  PL/pgSQL function fn_aud_asiento_cuadrado() line 8 at RAISE
+  ?column?   
+-------------
+ E4 filas: 0
+(1 row)
+

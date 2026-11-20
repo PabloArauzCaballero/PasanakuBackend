@@ -1,0 +1,240 @@
+> Task :buildSrc:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :buildSrc:generateExternalPluginSpecBuilders UP-TO-DATE
+> Task :buildSrc:extractPrecompiledScriptPluginPlugins UP-TO-DATE
+> Task :buildSrc:compilePluginsBlocks UP-TO-DATE
+> Task :buildSrc:generatePrecompiledScriptPluginAccessors UP-TO-DATE
+> Task :buildSrc:generateScriptPluginAdapters UP-TO-DATE
+> Task :buildSrc:compileKotlin UP-TO-DATE
+> Task :buildSrc:compileJava NO-SOURCE
+> Task :buildSrc:compileGroovy NO-SOURCE
+> Task :buildSrc:pluginDescriptors UP-TO-DATE
+> Task :buildSrc:processResources UP-TO-DATE
+> Task :buildSrc:classes UP-TO-DATE
+> Task :buildSrc:jar UP-TO-DATE
+> Task :plataforma:comun-pruebas:processResources UP-TO-DATE
+> Task :plataforma:comun-web:erroresCatalogo UP-TO-DATE
+> Task :plataforma:comun-web:processResources UP-TO-DATE
+> Task :plataforma:comun-mensajeria:processResources UP-TO-DATE
+> Task :plataforma:comun-datos:processResources UP-TO-DATE
+> Task :plataforma:comun-web:processTestFixturesResources NO-SOURCE
+> Task :plataforma:comun-dominio:compileJava UP-TO-DATE
+> Task :plataforma:comun-dominio:processResources NO-SOURCE
+> Task :plataforma:comun-dominio:classes UP-TO-DATE
+> Task :plataforma:comun-dominio:jar UP-TO-DATE
+> Task :plataforma:comun-mensajeria:processTestResources NO-SOURCE
+> Task :plataforma:comun-web:processTestResources NO-SOURCE
+> Task :plataforma:comun-datos:processTestResources NO-SOURCE
+> Task :plataforma:comun-datos:compileJava UP-TO-DATE
+> Task :plataforma:comun-datos:classes UP-TO-DATE
+> Task :plataforma:comun-datos:jar UP-TO-DATE
+> Task :plataforma:comun-pruebas:compileJava UP-TO-DATE
+> Task :plataforma:comun-archivos:compileJava FAILED
+> Task :plataforma:comun-pruebas:classes UP-TO-DATE
+> Task :plataforma:comun-pruebas:jar UP-TO-DATE
+> Task :plataforma:comun-mensajeria:compileJava UP-TO-DATE
+> Task :plataforma:comun-mensajeria:classes UP-TO-DATE
+> Task :plataforma:comun-mensajeria:jar UP-TO-DATE
+> Task :plataforma:comun-archivos:processResources
+> Task :plataforma:comun-web:compileJava UP-TO-DATE
+> Task :plataforma:comun-web:classes UP-TO-DATE
+> Task :plataforma:comun-web:jar UP-TO-DATE
+> Task :plataforma:comun-web:compileTestFixturesJava UP-TO-DATE
+> Task :plataforma:comun-web:testFixturesClasses UP-TO-DATE
+> Task :plataforma:comun-web:testFixturesJar UP-TO-DATE
+> Task :plataforma:comun-datos:compileTestJava
+> Task :plataforma:comun-datos:testClasses
+> Task :plataforma:comun-datos:test FAILED
+> Task :plataforma:comun-archivos:processTestResources NO-SOURCE
+> Task :plataforma:comun-dominio:compileTestJava
+> Task :plataforma:comun-dominio:processTestResources NO-SOURCE
+> Task :plataforma:comun-dominio:testClasses
+> Task :plataforma:comun-web:compileTestJava
+> Task :plataforma:comun-web:testClasses
+> Task :plataforma:comun-web:test FAILED
+> Task :plataforma:comun-mensajeria:compileTestJava
+> Task :plataforma:comun-mensajeria:testClasses
+> Task :plataforma:comun-mensajeria:test FAILED
+> Task :plataforma:gateway:compileJava FAILED
+> Task :plataforma:gateway:processResources
+> Task :plataforma:gateway:processTestResources NO-SOURCE
+> Task :plataforma:comun-pruebas:compileTestJava
+> Task :plataforma:comun-pruebas:processTestResources
+> Task :plataforma:comun-pruebas:testClasses
+> Task :plataforma:comun-pruebas:test FAILED
+
+> Task :plataforma:comun-dominio:test
+
+FAILURE: Build completed with 6 failures.
+
+1: Task failed with an exception.
+-----------
+* What went wrong:
+Execution failed for task ':plataforma:comun-archivos:compileJava' (registered by plugin class 'org.gradle.api.plugins.JavaBasePlugin').
+> Could not resolve all files for configuration ':plataforma:comun-archivos:compileClasspath'.
+   > Could not resolve com.github.spotbugs:spotbugs-annotations:4.9.6.
+     Required by:
+         project ':plataforma:comun-archivos'
+      > Repository MavenRepo is disabled due to earlier error below:
+         > Could not resolve io.minio:minio:8.6.0.
+            > Could not get resource 'https://repo.maven.apache.org/maven2/io/minio/minio/8.6.0/minio-8.6.0.pom'.
+               > Could not GET 'https://repo.maven.apache.org/maven2/io/minio/minio/8.6.0/minio-8.6.0.pom'. Received status code 429 from server: Too Many Requests
+> There is 1 more failure with an identical cause.
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+> Get more help at https://help.gradle.org.
+==============================================================================
+
+2: Task failed with an exception.
+-----------
+* What went wrong:
+Execution failed for task ':plataforma:comun-datos:test' (registered by plugin 'org.gradle.jvm-test-suite').
+> Could not resolve all files for configuration ':plataforma:comun-datos:testRuntimeClasspath'.
+   > Could not download postgresql-42.7.11.jar (org.postgresql:postgresql:42.7.11): Repository MavenRepo is disabled due to earlier error below:
+      > Could not resolve io.minio:minio:8.6.0.
+         > Could not get resource 'https://repo.maven.apache.org/maven2/io/minio/minio/8.6.0/minio-8.6.0.pom'.
+            > Could not GET 'https://repo.maven.apache.org/maven2/io/minio/minio/8.6.0/minio-8.6.0.pom'. Received status code 429 from server: Too Many Requests
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+> Get more help at https://help.gradle.org.
+==============================================================================
+
+3: Task failed with an exception.
+-----------
+* What went wrong:
+Execution failed for task ':plataforma:comun-web:test' (registered by plugin 'org.gradle.jvm-test-suite').
+> Could not resolve all files for configuration ':plataforma:comun-web:testRuntimeClasspath'.
+   > Could not download postgresql-42.7.11.jar (org.postgresql:postgresql:42.7.11): Repository MavenRepo is disabled due to earlier error below:
+      > Could not resolve io.minio:minio:8.6.0.
+         > Could not get resource 'https://repo.maven.apache.org/maven2/io/minio/minio/8.6.0/minio-8.6.0.pom'.
+            > Could not GET 'https://repo.maven.apache.org/maven2/io/minio/minio/8.6.0/minio-8.6.0.pom'. Received status code 429 from server: Too Many Requests
+> There are 8 more failures with identical causes.
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+> Get more help at https://help.gradle.org.
+==============================================================================
+
+4: Task failed with an exception.
+-----------
+* What went wrong:
+Execution failed for task ':plataforma:comun-mensajeria:test' (registered by plugin 'org.gradle.jvm-test-suite').
+> Could not resolve all files for configuration ':plataforma:comun-mensajeria:testRuntimeClasspath'.
+   > Could not download postgresql-42.7.11.jar (org.postgresql:postgresql:42.7.11): Repository MavenRepo is disabled due to earlier error below:
+      > Could not resolve io.minio:minio:8.6.0.
+         > Could not get resource 'https://repo.maven.apache.org/maven2/io/minio/minio/8.6.0/minio-8.6.0.pom'.
+            > Could not GET 'https://repo.maven.apache.org/maven2/io/minio/minio/8.6.0/minio-8.6.0.pom'. Received status code 429 from server: Too Many Requests
+> There are 2 more failures with identical causes.
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+> Get more help at https://help.gradle.org.
+==============================================================================
+
+5: Task failed with an exception.
+-----------
+* What went wrong:
+Execution failed for task ':plataforma:gateway:compileJava' (registered by plugin class 'org.gradle.api.plugins.JavaBasePlugin').
+> Could not resolve all files for configuration ':plataforma:gateway:compileClasspath'.
+   > Did not resolve 'org.springframework:spring-oxm:6.2.19' which is part of the dependency lock state
+   > Did not resolve 'org.springframework:spring-web:6.2.19' which is part of the dependency lock state
+   > Did not resolve 'io.netty:netty-handler:4.1.138.Final' which is part of the dependency lock state
+   > Did not resolve 'org.bouncycastle:bcprov-jdk18on:1.85.2' which is part of the dependency lock state
+   > Did not resolve 'com.fasterxml.jackson.core:jackson-annotations:2.21' which is part of the dependency lock state
+   > Did not resolve 'io.netty:netty-resolver-dns-native-macos:4.1.138.Final' which is part of the dependency lock state
+   > Did not resolve 'com.fasterxml.jackson.core:jackson-core:2.21.7' which is part of the dependency lock state
+   > Did not resolve 'org.springframework.cloud:spring-cloud-commons:4.3.3' which is part of the dependency lock state
+   > Did not resolve 'org.springframework.cloud:spring-cloud-starter-gateway:4.3.5' which is part of the dependency lock state
+   > Did not resolve 'io.netty:netty-transport-classes-epoll:4.1.138.Final' which is part of the dependency lock state
+   > Did not resolve 'org.springframework.boot:spring-boot-starter-validation:3.5.16' which is part of the dependency lock state
+   > Did not resolve 'io.netty:netty-codec-socks:4.1.138.Final' which is part of the dependency lock state
+   > Did not resolve 'redis.clients.authentication:redis-authx-core:0.1.1-beta2' which is part of the dependency lock state
+   > Did not resolve 'org.springframework.data:spring-data-keyvalue:3.5.13' which is part of the dependency lock state
+   > Did not resolve 'org.springframework.data:spring-data-commons:3.5.13' which is part of the dependency lock state
+   > Did not resolve 'org.springframework.data:spring-data-redis:3.5.13' which is part of the dependency lock state
+   > Did not resolve 'org.springframework.cloud:spring-cloud-gateway-server:4.3.5' which is part of the dependency lock state
+   > Did not resolve 'io.netty:netty-codec-http:4.1.138.Final' which is part of the dependency lock state
+   > Did not resolve 'io.netty:netty-transport-native-unix-common:4.1.138.Final' which is part of the dependency lock state
+   > Did not resolve 'org.jboss.logging:jboss-logging:3.6.3.Final' which is part of the dependency lock state
+   > Did not resolve 'org.reactivestreams:reactive-streams:1.0.4' which is part of the dependency lock state
+   > Did not resolve 'com.fasterxml.jackson:jackson-bom:2.21.7' which is part of the dependency lock state
+   > Did not resolve 'io.projectreactor.netty:reactor-netty-http:1.2.18' which is part of the dependency lock state
+   > Did not resolve 'io.netty:netty-resolver:4.1.138.Final' which is part of the dependency lock state
+   > Did not resolve 'io.netty:netty-resolver-dns:4.1.138.Final' which is part of the dependency lock state
+   > Did not resolve 'org.hibernate.validator:hibernate-validator:8.0.3.Final' which is part of the dependency lock state
+   > Did not resolve 'io.netty:netty-transport:4.1.138.Final' which is part of the dependency lock state
+   > Did not resolve 'org.springframework.boot:spring-boot-starter-webflux:3.5.16' which is part of the dependency lock state
+   > Did not resolve 'io.lettuce:lettuce-core:6.6.0.RELEASE' which is part of the dependency lock state
+   > Did not resolve 'org.springframework.cloud:spring-cloud-starter:4.3.3' which is part of the dependency lock state
+   > Did not resolve 'org.springframework.boot:spring-boot-starter-json:3.5.16' which is part of the dependency lock state
+   > Did not resolve 'io.netty:netty-codec-http2:4.1.138.Final' which is part of the dependency lock state
+   > Did not resolve 'org.springframework.cloud:spring-cloud-context:4.3.3' which is part of the dependency lock state
+   > Did not resolve 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.21.7' which is part of the dependency lock state
+   > Did not resolve 'io.netty:netty-common:4.1.138.Final' which is part of the dependency lock state
+   > Did not resolve 'com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.21.7' which is part of the dependency lock state
+   > Did not resolve 'org.apache.tomcat.embed:tomcat-embed-el:10.1.60' which is part of the dependency lock state
+   > Did not resolve 'com.fasterxml:classmate:1.7.3' which is part of the dependency lock state
+   > Did not resolve 'org.springframework:spring-tx:6.2.19' which is part of the dependency lock state
+   > Did not resolve 'org.springframework.cloud:spring-cloud-dependencies:2025.0.3' which is part of the dependency lock state
+   > Did not resolve 'io.netty:netty-resolver-dns-classes-macos:4.1.138.Final' which is part of the dependency lock state
+   > Did not resolve 'org.springframework:spring-context-support:6.2.19' which is part of the dependency lock state
+   > Did not resolve 'io.netty:netty-buffer:4.1.138.Final' which is part of the dependency lock state
+   > Did not resolve 'org.springframework.security:spring-security-crypto:6.5.11' which is part of the dependency lock state
+   > Did not resolve 'io.projectreactor.addons:reactor-extra:3.5.5' which is part of the dependency lock state
+   > Did not resolve 'io.projectreactor.netty:reactor-netty-core:1.2.18' which is part of the dependency lock state
+   > Did not resolve 'org.springframework.boot:spring-boot-properties-migrator:3.5.16' which is part of the dependency lock state
+   > Did not resolve 'jakarta.validation:jakarta.validation-api:3.0.2' which is part of the dependency lock state
+   > Did not resolve 'com.fasterxml.jackson.core:jackson-databind:2.21.7' which is part of the dependency lock state
+   > Did not resolve 'org.springframework:spring-webflux:6.2.19' which is part of the dependency lock state
+   > Did not resolve 'com.fasterxml.jackson.module:jackson-module-parameter-names:2.21.7' which is part of the dependency lock state
+   > Did not resolve 'io.netty:netty-codec:4.1.138.Final' which is part of the dependency lock state
+   > Did not resolve 'io.netty:netty-transport-native-epoll:4.1.138.Final' which is part of the dependency lock state
+   > Did not resolve 'io.projectreactor:reactor-core:3.7.19' which is part of the dependency lock state
+   > Did not resolve 'io.netty:netty-handler-proxy:4.1.138.Final' which is part of the dependency lock state
+   > Did not resolve 'io.netty:netty-codec-dns:4.1.138.Final' which is part of the dependency lock state
+   > Did not resolve 'org.springframework.boot:spring-boot-starter-reactor-netty:3.5.16' which is part of the dependency lock state
+   > Did not resolve 'org.springframework.boot:spring-boot-starter-data-redis-reactive:3.5.16' which is part of the dependency lock state
+   > Could not resolve org.springframework.cloud:spring-cloud-dependencies:2025.0.3.
+     Required by:
+         project ':plataforma:gateway'
+      > Repository MavenRepo is disabled due to earlier error below:
+         > Could not resolve io.minio:minio:8.6.0.
+            > Could not get resource 'https://repo.maven.apache.org/maven2/io/minio/minio/8.6.0/minio-8.6.0.pom'.
+               > Could not GET 'https://repo.maven.apache.org/maven2/io/minio/minio/8.6.0/minio-8.6.0.pom'. Received status code 429 from server: Too Many Requests
+> There are 5 more failures with identical causes.
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+> Get more help at https://help.gradle.org.
+==============================================================================
+
+6: Task failed with an exception.
+-----------
+* What went wrong:
+Execution failed for task ':plataforma:comun-pruebas:test' (registered by plugin 'org.gradle.jvm-test-suite').
+> Could not resolve all files for configuration ':plataforma:comun-pruebas:testRuntimeClasspath'.
+   > Could not download postgresql-42.7.11.jar (org.postgresql:postgresql:42.7.11): Repository MavenRepo is disabled due to earlier error below:
+      > Could not resolve io.minio:minio:8.6.0.
+         > Could not get resource 'https://repo.maven.apache.org/maven2/io/minio/minio/8.6.0/minio-8.6.0.pom'.
+            > Could not GET 'https://repo.maven.apache.org/maven2/io/minio/minio/8.6.0/minio-8.6.0.pom'. Received status code 429 from server: Too Many Requests
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+> Get more help at https://help.gradle.org.
+==============================================================================
+
+BUILD FAILED in 8s
+41 actionable tasks: 15 executed, 26 up-to-date

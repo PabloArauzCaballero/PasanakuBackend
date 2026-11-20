@@ -1,0 +1,65 @@
+SET
+ id 
+----
+(0 rows)
+
+ id | saldo_disponible | calculado 
+----+------------------+-----------
+(0 rows)
+
+ fecha | ratio_cobertura 
+-------+-----------------
+(0 rows)
+
+ codigo | periodo | fecha_limite 
+--------+---------+--------------
+(0 rows)
+
+ id 
+----
+(0 rows)
+
+ codigo 
+--------
+(0 rows)
+
+ id | secuencia | hash_anterior | esperado 
+----+-----------+---------------+----------
+(0 rows)
+
+ id | secuencia | hash_anterior | esperado 
+----+-----------+---------------+----------
+(0 rows)
+
+ movimiento_huerfano | transaccion_sin_patas 
+---------------------+-----------------------
+(0 rows)
+
+ id | moneda | moneda_cuenta 
+----+--------+---------------
+(0 rows)
+
+ ?column? 
+----------
+(0 rows)
+
+ id | codigo | cacheado | derivado 
+----+--------+----------+----------
+(0 rows)
+
+ id | numero | estado | asiento_reversa_id 
+----+--------+--------+--------------------
+(0 rows)
+
+ id 
+----
+(0 rows)
+
+ id 
+----
+(0 rows)
+
+ modelo_id | codigo | hasta | siguiente | desde 
+-----------+--------+-------+-----------+-------
+(0 rows)
+

@@ -1,0 +1,10 @@
+| Servicio | Endpoints | Con prueba web | Con CU | CU con prueba de integración | En algún flujo |
+|---|---:|---:|---:|---:|---:|
+| inversiones | 20 | 16 | 20 | 20 | 0 |
+| **Total** | 20 | 16 | 20 | 20 | 0 |
+
+Sin prueba web (4):
+  GET /inversiones/posiciones  (listarPosicionesDeInversion)
+  GET /inversiones/posiciones/{posicionId}/comprobantes  (listarComprobantesDeInversion)
+  GET /inversiones/productos  (listarProductosDeInversion)
+  POST /inversiones/valores-cuota/sincronizacion  (sincronizarValoresDeCuota)

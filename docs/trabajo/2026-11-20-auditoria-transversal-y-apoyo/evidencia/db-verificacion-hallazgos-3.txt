@@ -1,0 +1,21 @@
+## RLS (tabla|rowsecurity|forzada)
+aportes.webhook_pasarela|f|f
+aportes.pago|f|f
+aportes.obligacion_aporte|f|f
+aportes.qr_cobro|f|f
+entregas.entrega_fondo|f|f
+erp.tercero_comercial|f|f
+identidad.borrador_onboarding|f|f
+publicidad.socio_comercial|f|f
+## append-only (trigger *_append_only) en tablas de evidencia
+aportes.webhook_pasarela 0
+aportes.pago 0
+entregas.deduccion_entrega 0
+transparencia.snapshot_reputacion 0
+transparencia.evento_reputacion 1
+transparencia.puntaje_reputacion 0
+comun.bitacora_evento 1
+## tablas con RLS activo / total
+103|447
+## tablas append-only (triggers)
+97

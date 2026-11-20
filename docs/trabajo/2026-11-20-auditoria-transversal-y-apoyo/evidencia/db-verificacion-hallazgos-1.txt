@@ -1,0 +1,27 @@
+## ck_pago_canal
+CHECK (((canal)::text = ANY ((ARRAY['BILLETERA_MOVIL'::character varying, 'COMPENSACION_INTERNA'::character varying, 'EFECTIVO_AL_ORGANIZADOR'::character varying, 'FONDO_GARANTIA'::character varying, 'QR_INTEROPERABLE'::character varying, 'TARJETA'::character varying, 'TRANSFERENCIA_BANCARIA'::character varying])::text[])))
+## checks webhook_pasarela
+ck_webhook_pasarela_estado|CHECK (((estado)::text = ANY ((ARRAY['DESCARTADO'::character varying, 'DUPLICADO'::character varying, 'FALLIDO'::character varying, 'PROCESADO'::character varying, 'RECIBIDO'::character varying])::text[])))
+## checks movimiento_contable
+## triggers movimiento_contable/asiento
+nucleo_financiero.asiento_contable|tg_asiento_contable_append_only
+nucleo_financiero.movimiento_contable|tg_movimiento_contable_append_only
+nucleo_financiero.asiento_contable|tg_asiento_cuadrado
+nucleo_financiero.asiento_contable|tg_asiento_una_moneda
+nucleo_financiero.asiento_contable|tg_asiento_periodo_abierto
+nucleo_financiero.movimiento_contable|tg_movimiento_cuenta_de_movimiento
+nucleo_financiero.movimiento_contable|tg_movimiento_contable_sincroniza_saldo
+nucleo_financiero.movimiento_contable|tg_movimiento_contable_moneda
+## cross-schema usage
+svc_erp nucleo_financiero f
+svc_erp organizador f
+svc_erp aportes t
+svc_publicidad nucleo_financiero f
+svc_publicidad organizador f
+svc_publicidad aportes t
+svc_cumplimiento nucleo_financiero f
+svc_cumplimiento organizador f
+svc_cumplimiento aportes t
+svc_auditoria nucleo_financiero f
+svc_auditoria organizador f
+svc_auditoria aportes t

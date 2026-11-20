@@ -1,0 +1,10 @@
+| Servicio | Endpoints | Con prueba web | Con CU | CU con prueba de integración | En algún flujo |
+|---|---:|---:|---:|---:|---:|
+| tarifas | 14 | 10 | 13 | 13 | 0 |
+| **Total** | 14 | 10 | 13 | 13 | 0 |
+
+Sin prueba web (4):
+  POST /comisiones/devengos  (devengarComision)
+  POST /comisiones/devengos/{devengoId}/cobros  (anotarCobroDeComision)
+  POST /tarifas/liquidaciones/{periodo}/cierre  (cerrarLiquidacion)
+  POST /tarifas/segmentos  (crearSegmento)

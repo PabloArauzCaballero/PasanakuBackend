@@ -1,0 +1,26 @@
+Fetching distribution.
+Downloading https://services.gradle.org/distributions/gradle-9.7.1-bin.zip
+..............10%..............20%...............30%..............40%...............50%..............60%...............70%..............80%..............90%...............100%
+catalogo de errores: 265 restricciones -> 142 reglas · errores-restricciones.properties
+mensajes de regla: 172 · errores-reglas.properties
+  AVISO: 3 reglas con restriccion y sin fila en la boveda: R-BIL-21, R-BIL-22, R-UIF-13
+############################################################################################
+# Thanks for using OpenAPI Generator.                                                      #
+# We appreciate your support! Please consider donation to help us maintain this project.   #
+# https://opencollective.com/openapi_generator/donate                                      #
+############################################################################################
+Successfully generated code to /home/user/PasanakuBackend/servicios/transparencia/build/generated/openapi
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':servicios:transparencia:generateJooq' (registered by plugin 'aportaya.jooq').
+> org.postgresql.util.PSQLException: Connection to 127.0.0.1:5433 refused. Check that the hostname and port are correct and that the postmaster is accepting TCP/IP connections.
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 2m 57s

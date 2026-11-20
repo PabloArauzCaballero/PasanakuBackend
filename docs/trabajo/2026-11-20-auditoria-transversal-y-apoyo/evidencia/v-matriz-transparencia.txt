@@ -1,0 +1,15 @@
+| Servicio | Endpoints | Con prueba web | Con CU | CU con prueba de integración | En algún flujo |
+|---|---:|---:|---:|---:|---:|
+| transparencia | 21 | 12 | 18 | 15 | 0 |
+| **Total** | 21 | 12 | 18 | 15 | 0 |
+
+Sin prueba web (9):
+  POST /reputacion/certificados/{codigo}/revocacion  (revocarCertificado)
+  POST /reputacion/eventos  (registrarEventoReputacion)
+  POST /reputacion/eventos/{eventoId}/compensacion  (compensarEventoReputacion)
+  POST /reputacion/insignias/evaluacion  (evaluarInsignias)
+  POST /reputacion/insignias/{otorgadaId}/revocacion  (revocarInsignia)
+  POST /reputacion/puntajes  (recalcularPuntaje)
+  POST /reputacion/resenas  (publicarResena)
+  POST /reputacion/riesgo/alertas/{alertaId}/cierre  (cerrarAlertaRiesgo)
+  POST /reputacion/snapshots  (tomarSnapshotReputacion)

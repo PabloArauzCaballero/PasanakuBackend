@@ -1,0 +1,19 @@
+## svc_erp lee el mayor de nucleo
+SET
+ERROR:  permission denied for schema nucleo_financiero
+LINE 1: set role svc_erp; select count(*) from nucleo_financiero.asi...
+                                               ^
+## svc_publicidad lee organizador
+SET
+ERROR:  permission denied for schema organizador
+LINE 1: set role svc_publicidad; select count(*) from organizador.or...
+                                                      ^
+## funciones SECURITY DEFINER en aportes con EXECUTE para PUBLIC
+63|63
+fn_bil_recalcular_saldos|t|(default: PUBLIC EXECUTE)
+fn_ctb_recalcular_saldo|t|(default: PUBLIC EXECUTE)
+fn_uif_registrar_operacion|t|(default: PUBLIC EXECUTE)
+fn_uif_titular|t|(default: PUBLIC EXECUTE)
+## svc_publicidad invoca fn_uif_titular
+SET
+

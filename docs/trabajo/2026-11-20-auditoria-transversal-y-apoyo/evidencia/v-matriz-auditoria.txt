@@ -1,0 +1,12 @@
+| Servicio | Endpoints | Con prueba web | Con CU | CU con prueba de integración | En algún flujo |
+|---|---:|---:|---:|---:|---:|
+| auditoria | 22 | 16 | 11 | 11 | 0 |
+| **Total** | 22 | 16 | 11 | 11 | 0 |
+
+Sin prueba web (6):
+  GET /auditoria/catalogos/{codigo}  (consultarCatalogoOperativo)
+  GET /auditoria/catalogos/{codigo}/elementos  (listarElementosCatalogo)
+  PATCH /auditoria/catalogos/{codigo}/elementos/{id}  (actualizarEstadoElementoCatalogo)
+  GET /indicadores/catalogo-de-datos/tablas/{esquema}/{tabla}  (obtenerTablaDelCatalogo)
+  PUT /indicadores/catalogo-de-datos/{esquema}/{tabla}/columnas/{columna}/revision  (revisarColumna)
+  PUT /indicadores/catalogo-de-datos/{esquema}/{tabla}/gobierno  (guardarFichaDeGobierno)

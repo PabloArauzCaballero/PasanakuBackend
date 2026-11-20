@@ -1,0 +1,6 @@
+| Servicio | Endpoints | Con prueba web | Con CU | CU con prueba de integración | En algún flujo |
+|---|---:|---:|---:|---:|---:|
+| notificaciones | 12 | 12 | 10 | 9 | 0 |
+| **Total** | 12 | 12 | 10 | 9 | 0 |
+
+Sin prueba web (0):

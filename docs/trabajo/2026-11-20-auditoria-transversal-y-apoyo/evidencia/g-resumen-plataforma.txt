@@ -1,0 +1,6 @@
+comun-dominio/test: tests=78 skipped=0 failures=0 errors=0
+comun-datos/test: tests=2 skipped=0 failures=0 errors=0
+comun-mensajeria/test: tests=17 skipped=0 failures=0 errors=0
+comun-web/test: tests=18 skipped=0 failures=0 errors=0
+comun-archivos/test: tests=7 skipped=0 failures=0 errors=0
+comun-pruebas/test: tests=64 skipped=0 failures=0 errors=0

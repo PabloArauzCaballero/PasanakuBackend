@@ -1,0 +1,14 @@
+| Servicio | Endpoints | Con prueba web | Con CU | CU con prueba de integración | En algún flujo |
+|---|---:|---:|---:|---:|---:|
+| erp | 24 | 16 | 24 | 24 | 0 |
+| **Total** | 24 | 16 | 24 | 24 | 0 |
+
+Sin prueba web (8):
+  POST /erp/activos/{activoId}/depreciaciones  (depreciarActivo)
+  POST /erp/cuentas-por-cobrar  (abrirCuentaPorCobrar)
+  POST /erp/cuentas-por-cobrar/{cuentaId}/cobros  (registrarCobro)
+  POST /erp/ordenes-de-compra  (crearOrdenDeCompra)
+  POST /erp/ordenes-de-compra/{ordenId}/aprobacion  (aprobarOrdenDeCompra)
+  GET /erp/plantillas-de-asiento/{plantillaId}/validacion  (validarPlantillaDeAsiento)
+  POST /erp/presupuestos/{presupuestoId}/aprobacion  (aprobarPresupuesto)
+  POST /erp/terceros  (darDeAltaTercero)

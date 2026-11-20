@@ -1,0 +1,37 @@
+== transparencia
+  contractTest: 1 clases; tests=4 skipped=0 failures=0 errors=0
+  integrationTest: 23 clases; tests=23 skipped=0 failures=23 errors=0
+  test: 3 clases; tests=24 skipped=0 failures=0 errors=0
+  testBarrido: 1 clases; tests=2 skipped=0 failures=0 errors=0
+  webTest: 10 clases; tests=51 skipped=0 failures=0 errors=0
+== notificaciones
+  integrationTest: 12 clases; tests=12 skipped=0 failures=12 errors=0
+  test: 1 clases; tests=5 skipped=0 failures=0 errors=0
+  testBarrido: 1 clases; tests=2 skipped=0 failures=0 errors=0
+  webTest: 9 clases; tests=46 skipped=0 failures=0 errors=0
+== tarifas
+  integrationTest: 18 clases; tests=18 skipped=0 failures=18 errors=0
+  test: 2 clases; tests=7 skipped=0 failures=0 errors=0
+  testBarrido: 1 clases; tests=2 skipped=0 failures=0 errors=0
+  webTest: 9 clases; tests=37 skipped=0 failures=0 errors=0
+== publicidad
+  integrationTest: 14 clases; tests=14 skipped=0 failures=14 errors=0
+  test: 1 clases; tests=5 skipped=0 failures=0 errors=0
+  testBarrido: 1 clases; tests=2 skipped=0 failures=0 errors=0
+  webTest: 5 clases; tests=21 skipped=0 failures=0 errors=0
+== inversiones
+  contractTest: 5 clases; tests=23 skipped=0 failures=0 errors=0
+  integrationTest: 22 clases; tests=150 skipped=0 failures=136 errors=0
+  test: 4 clases; tests=36 skipped=0 failures=0 errors=0
+  testBarrido: 1 clases; tests=2 skipped=0 failures=0 errors=0
+  webTest: 3 clases; tests=33 skipped=0 failures=0 errors=0
+== erp
+  integrationTest: 23 clases; tests=23 skipped=0 failures=23 errors=0
+  test: 1 clases; tests=5 skipped=0 failures=0 errors=0
+  testBarrido: 1 clases; tests=2 skipped=0 failures=0 errors=0
+  webTest: 7 clases; tests=52 skipped=0 failures=0 errors=0
+== auditoria
+  integrationTest: 16 clases; tests=16 skipped=0 failures=16 errors=0
+  test: 13 clases; tests=58 skipped=0 failures=0 errors=0
+  testBarrido: 1 clases; tests=2 skipped=0 failures=0 errors=0
+  webTest: 15 clases; tests=82 skipped=0 failures=0 errors=0
