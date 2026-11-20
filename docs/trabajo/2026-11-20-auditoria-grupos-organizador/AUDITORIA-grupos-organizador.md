@@ -29,8 +29,11 @@
 
 | ID | Dónde | Qué aprueba y quién | Estado · endpoint · permiso · pantalla · evento | Clasificación | Qué se rompe aguas abajo si se quita |
 |---|---|---|---|---|---|
-| APR-01 | `servicios/grupos/src/main/resources/application.yml:79-84`; `servicios/grupos/src/main/java/bo/aportaya/grupos/web/RutasDeSolicitudes.java:141-150`; `.../web/InvitacionesWeb.java:127-133`; `.../web/RutasDeAdmision.java:25-37` | Ingreso de un integrante: el organizador **propone** y backoffice (`ADMIN_PLATAFORMA`) **resuelve** | Solicitud `PENDIENTE` → decisión `PROPUESTA` → `RESOLUCION`; `POST /grupos/solicitudes/{id}/propuestas` (`GRUPO_ADMINISTRAR`), `POST /grupos/solicitudes/{id}/resoluciones` (`ADMIN_PLATAFORMA`); pantallas backoffice `rutas/admisiones`, `rutas/operacion/solicitudes-escaladas`; eventos `aportaya.grupos.admision_propuesta`, `aportaya.grupos.admision_resuelta` | ELIMINABLE desde producto (el propio `application.yml:79` la declara «DECISION PENDIENTE (negocio y cumplimiento)»); queda DECISIÓN REQUERIDA solo si Cumplimiento la exige (A-1) | Las puertas «aceptar por enlace» y «decisión directa del organizador» hoy devuelven 422 (`CodigoError 69-10` y `68-15`) con el interruptor encendido; apagarlo reabre esos caminos, que crean participante sin expediente; la bandeja de backoffice y sus pruebas quedan sin uso |
+| APR-01 | `servicios/grupos/src/main/resources/application.yml:73-78`; `servicios/grupos/src/main/java/bo/aportaya/grupos/web/RutasDeSolicitudes.java:141-150`; `.../web/InvitacionesWeb.java:127-133`; `.../web/RutasDeAdmision.java:25-37` | Ingreso de un integrante: el organizador **propone** y backoffice (`ADMIN_PLATAFORMA`) **resuelve** | Solicitud `PENDIENTE` → decisión `PROPUESTA` → `RESOLUCION`; `POST /grupos/solicitudes/{id}/propuestas` (`GRUPO_ADMINISTRAR`), `POST /grupos/solicitudes/{id}/resoluciones` (`ADMIN_PLATAFORMA`); pantallas backoffice `rutas/admisiones`, `rutas/operacion/solicitudes-escaladas`; eventos `aportaya.grupos.admision_propuesta`, `aportaya.grupos.admision_resuelta` | ELIMINABLE desde producto (el propio `application.yml:74` la declara «DECISION PENDIENTE (negocio y cumplimiento)»); queda DECISIÓN REQUERIDA solo si Cumplimiento la exige (A-1) | Las puertas «aceptar por enlace» y «decisión directa del organizador» hoy devuelven 422 (`CodigoError 69-10` y `68-15`) con el interruptor encendido; apagarlo reabre esos caminos, que crean participante sin expediente; la bandeja de backoffice y sus pruebas quedan sin uso |
 | APR-02 | `servicios/grupos/src/main/java/bo/aportaya/grupos/web/RutasDelGrupo.java:94-95`; `.../aplicacion/CU69IniciarGrupo.java:89-91`; `.../web/GruposController.java:164-173` | Inicio del grupo y compromiso/revelación del sorteo: los dispara el administrador del grupo | `ABIERTO_A_INSCRIPCION → CONFORMADO`; `POST /grupos/{id}/inicio`, `POST /grupos/{id}/sorteo`, `POST /grupos/{id}/sorteo/revelacion`, todos `GRUPO_ADMINISTRAR`; app `inicio_del_grupo.dart`, `pantalla_sorteo_*`; eventos `grupo_iniciado`, `sorteo_comprometido`, `sorteo_revelado` | ELIMINABLE (ADR-054 D3 ya decidió que sean automáticos) | Sin el disparo manual hoy no hay ningún otro camino (0 `@Scheduled`): quitarlo sin el trabajo programado deja todo grupo detenido |
+| APR-03 | `servicios/organizador/src/main/java/bo/aportaya/organizador/web/OrganizadoresController.java:116-129`; `.../web/RutasDeHabilitacion.java:106-129`; backoffice `apps/backoffice/src/app/rutas/postulaciones/`, `apps/backoffice/src/app/rutas/cumplimiento/organizadores/pantalla-de-habilitacion.ts` | Habilitación del organizador «profesional»: backoffice aprueba o rechaza la postulación, la confirma o revoca y habilita tras capacitación | `POST /organizadores/postulaciones/{id}/aprobacion`, `.../resolucion`, `.../revision`, `POST /organizadores/{id}/habilitacion`, todos `ADMIN_PLATAFORMA`; eventos `organizador.postulacion_aprobada`, `habilitacion_resuelta`, `habilitado` | DECISIÓN REQUERIDA (A-1): ADR-054 D6 la deja fuera del camino principal, pero sigue siendo puerta para organizar si no existe el grupo autogestionado (COHERENCIA-002) | Nadie llega a organizador profesional; la vía básica (APR-05) sigue |
+| APR-04 | `servicios/organizador/src/main/java/bo/aportaya/organizador/web/AutomatizacionController.java:89-93`; `.../aplicacion/CU96EjecutarTarea.java:30-31,79-80,108-124` | Tarea automatizada «sensible»: nace en `REQUIERE_APROBACION` y la confirma una persona con rol `ORGANIZADOR` | `REQUIERE_APROBACION → PROGRAMADA`; `POST /automatizacion/tareas/{id}/aprobacion`; evento `organizador.tarea_aprobada` | CONSERVAR POR NORMA interna: R-ORG-06 «Las acciones sensibles exigen confirmación humana» (`docs/Restricciones.md:2667`) y regla 91.4 (sanciones). Confirmar con Pablo que R-NUEVA-1 no la alcanza | Una regla configurada que sanciona o mueve dinero se ejecutaría sin confirmación humana |
+| APR-05 | `servicios/organizador/src/main/java/bo/aportaya/organizador/aplicacion/CU90HabilitacionBasica.java:28-43`; app `contrato_de_organizador.dart` | Habilitación «Aprendiz»: el propio participante acepta y firma el contrato; **no** aprueba nadie | `POST /organizadores/yo/habilitacion-basica` (`PARTICIPANTE`) | No es aprobación de un tercero; queda como puerta previa al alta mientras exista COHERENCIA-002 | Sin ella, hoy nadie puede crear un grupo (`AP-CU20-02`) |
 
 ### 4b. Inventario de respaldo y cobertura
 
@@ -44,7 +47,7 @@
 
 ### grupos-organizador-APROB-001 — La admisión humana de backoffice está encendida por omisión y bloquea todo ingreso sin aprobación
 - Clase / Severidad / Confianza: APROB / S2 / confirmado
-- Ubicaciones: `servicios/grupos/src/main/resources/application.yml:79-84`; `servicios/grupos/src/main/java/bo/aportaya/grupos/web/RutasDeSolicitudes.java:30-31,141-150`; `servicios/grupos/src/main/java/bo/aportaya/grupos/web/InvitacionesWeb.java:55-56,127-133`; `servicios/grupos/src/main/java/bo/aportaya/grupos/web/RutasDeAdmision.java:25-37`
+- Ubicaciones: `servicios/grupos/src/main/resources/application.yml:73-78`; `servicios/grupos/src/main/java/bo/aportaya/grupos/web/RutasDeSolicitudes.java:30-31,141-150`; `servicios/grupos/src/main/java/bo/aportaya/grupos/web/InvitacionesWeb.java:55-56,127-133`; `servicios/grupos/src/main/java/bo/aportaya/grupos/web/RutasDeAdmision.java:25-37`
 - Evidencia:
   ```yaml
   # DECISION PENDIENTE (negocio y cumplimiento): toda entrada al grupo pasa por admision humana de backoffice?
@@ -160,7 +163,7 @@
 
 ### grupos-organizador-COHERENCIA-001 — El interruptor de admisión humana es global; ADR-054 lo quiere por tipo de conformación y sin admisión en el grupo de confianza
 - Clase / Severidad / Confianza: COHERENCIA / S3 / confirmado
-- Ubicaciones: `servicios/grupos/src/main/resources/application.yml:84`; `servicios/grupos/src/main/java/bo/aportaya/grupos/web/RutasDeSolicitudes.java:30-31`; `docs/Arquitectura/ADR-054 Grupos sin organizador humano.md:58-59,76,79,93`
+- Ubicaciones: `servicios/grupos/src/main/resources/application.yml:78`; `servicios/grupos/src/main/java/bo/aportaya/grupos/web/RutasDeSolicitudes.java:30-31`; `docs/Arquitectura/ADR-054 Grupos sin organizador humano.md:58-59,76,79,93`
 - Evidencia: ADR-054 D2 «El enlace es la admisión … Nadie aprueba a nadie»; D5 «El interruptor pasa de global a **por `tipo_conformacion`**». En el código, `@Value("${aportaya.grupos.admision.humana-obligatoria}") private boolean admisionHumanaObligatoria;` es un único booleano.
 - Cómo se comprobó: `grep -rn 'tipo_conformacion' servicios/grupos/src/main` → 0 usos en lógica de admisión.
 - Impacto: tres fuentes dicen tres cosas sobre la admisión: ADR-054 (sin aprobación en el grupo de confianza), `application.yml` (aprobación humana en todos) y R-NUEVA-1 (sin aprobación en ninguno). Manda el código, que es la más restrictiva.
@@ -170,6 +173,110 @@
 - Conexiones y módulos afectados: ninguno adicional a APROB-001.
 - Estándares y normas: ISO/IEC 25010 corrección funcional; regla 00 §8 (prioridad de evidencia).
 - Esfuerzo estimado: chico (si se decide quitar)
+
+### grupos-organizador-COHERENCIA-002 — El alta de un grupo exige un organizador habilitado; ADR-054 D1 admite grupos sin organizador
+- Clase / Severidad / Confianza: COHERENCIA / S2 / confirmado
+- Ubicaciones: `servicios/grupos/src/main/java/bo/aportaya/grupos/aplicacion/CU20CrearGrupo.java:86-88`; `servicios/grupos/src/main/java/bo/aportaya/grupos/web/GruposController.java:115`; `servicios/grupos/src/main/java/bo/aportaya/grupos/infraestructura/CreacionRepositorio.java:116`; `docs/Arquitectura/ADR-054 Grupos sin organizador humano.md:75`; `apps/movil/lib/pantallas/pasanaku/pantalla_crear_grupo.dart:42-44`
+- Evidencia:
+  ```java
+  if (entrada.organizador().isEmpty() || !entrada.organizadorHabilitado()) {
+      throw new ErrorDeNegocio(CodigoError.de(20, 2), "Ese organizador no esta habilitado.");
+  ```
+  ```java
+  .set(GRUPO.ES_AUTOGESTIONADO, organizador.isEmpty())   // nunca true: la línea 86 ya rechazó el vacío
+  ```
+  ADR-054 D1: «Existen grupos sin organizador humano … el organizador humano habilitado es una opción, no un requisito».
+- Cómo se comprobó: lectura de las ubicaciones. `CreacionRepositorio.java:116` solo se alcanza después de `CU20CrearGrupo.java:86`, así que `es_autogestionado` siempre queda `false`. La app comenta lo contrario («Nulo … lo administra la plataforma (RN-18)», informado por el subagente de frontend y abierto por mí).
+- Impacto: toda persona que quiere crear un pasanaku tiene que hacerse organizador primero. Hoy pasa por un autoservicio (`CU90HabilitacionBasica`: KYC + contrato firmado, sin aprobación humana; ver APR-05). El grupo autogestionado de ADR-054 no se puede crear. Además, la creación queda acoplada a `organizador` por HTTP en el camino crítico.
+- Causa de fondo: ADR-054 aceptado sin su carril de código; quedaron rama muerta (`ES_AUTOGESTIONADO`) y comentario que miente.
+- Solución de fondo: decidir si R-NUEVA-1 alcanza a la habilitación del creador (A-1). Si no la alcanza, implementar ADR-054 D1: sin organizador, `es_autogestionado = true`, creador como anfitrión.
+- Relación con el flujo nuevo: APROB (puerta previa al circuito)
+- Conexiones y módulos afectados: `organizador` (`GET /organizadores/usuarios/{id}/habilitacion`), app móvil (`contrato_de_organizador.dart`, `pantalla_crear_grupo.dart`).
+- Estándares y normas: ISO/IEC 25010 corrección funcional; regla 00 §8; ADR-054 D1.
+- Esfuerzo estimado: medio
+
+### grupos-organizador-CONTRATO-001 — La app móvil usa dos puertas de admisión que el contrato cierra en producción y no tiene las que las reemplazan
+- Clase / Severidad / Confianza: CONTRATO / S2 / confirmado (código); probable (el valor real de producción no se pudo ver)
+- Ubicaciones: `apps/movil/lib/pantallas/pasanaku/dominio/solicitudes_del_grupo.dart:24-47`; `apps/movil/lib/pantallas/pasanaku/dominio/cu69_unirse_por_enlace.dart:38-56`; `servicios/grupos/src/main/java/bo/aportaya/grupos/web/RutasDeSolicitudes.java:144-150`; `servicios/grupos/src/main/java/bo/aportaya/grupos/web/InvitacionesWeb.java:127-133`; `servicios/grupos/src/main/resources/openapi/grupos.yaml:886`; `docker-compose.coolify.yml:377`; `apps/movil/lib/dominio/errores.dart:76`
+- Evidencia:
+  ```dart
+  await DefaultApi(ref.read(dioProvider)).decidirSolicitudDeIngreso(
+    ... motivo: aceptar ? null : 'El organizador no aceptó la solicitud.',
+  ```
+  ```dart
+  final r = await dio.post<Map<String, dynamic>>('/grupos/invitaciones/enlace/aceptar', data: {...});
+  ```
+  ```yaml
+  ADMISION_HUMANA_OBLIGATORIA: ${ADMISION_HUMANA_OBLIGATORIA:-false}   # docker-compose.coolify.yml:377 (TEST)
+  humana-obligatoria: ${ADMISION_HUMANA_OBLIGATORIA:true}              # application.yml:78 (por omisión)
+  ```
+- Cómo se comprobó: `grep -rnE 'proponerAdmision|/propuestas|canjearInvitacion|/canje' apps/movil/lib` → 0 resultados. `grep -nE "AP-CU68|AP-CU60" apps/movil/lib/dominio/errores.dart` → 0; solo existe `'AP-CU69-10'` en la línea 76.
+- Impacto: en TEST el interruptor está en `false` y la app funciona. Donde rija el valor por omisión `true`, la aceptación del organizador responde 422 `AP-CU68-15` (sin texto propio: genérico) y la invitación por número responde 422 `AP-CU69-10`. El participante invitado no puede entrar desde la app. Se considera discrepancia latente (S2) y no S1 porque en el entorno vivo auditado el camino funciona.
+- Causa de fondo: el contrato cambió de comportamiento por un interruptor de entorno sin versión ni cliente actualizado (regla 98.1.3); ver también FRAGIL-001.
+- Solución de fondo: resolver A-1. Si la admisión queda sin aprobación, retirar el interruptor y conservar las puertas que la app usa. Si no, la app implementa `proponerAdmision` y `canjearInvitacion` y su catálogo de errores.
+- Relación con el flujo nuevo: APROB
+- Conexiones y módulos afectados: app móvil, `grupos`.
+- Estándares y normas: ISO/IEC 25010 compatibilidad (interoperabilidad); RFC 9110 (422); reglas 96.4.1, 98.1.3, 95.2.3.
+- Esfuerzo estimado: medio
+
+### grupos-organizador-FRAGIL-001 — El mismo interruptor tiene valor por omisión distinto en TEST y en producción
+- Clase / Severidad / Confianza: FRAGIL / S2 / confirmado
+- Ubicaciones: `servicios/grupos/src/main/resources/application.yml:78`; `docker-compose.coolify.yml:377`
+- Evidencia: `humana-obligatoria: ${ADMISION_HUMANA_OBLIGATORIA:true}` frente a `ADMISION_HUMANA_OBLIGATORIA: ${ADMISION_HUMANA_OBLIGATORIA:-false}`.
+- Cómo se comprobó: `grep -rn 'ADMISION_HUMANA_OBLIGATORIA' --include=*.yml --include=*.yaml .` → solo esas dos definiciones.
+- Impacto: todo lo que se prueba en TEST (E2E, pruebas manuales, app) ejercita las puertas que producción cierra. Si cambia una variable de entorno en el despliegue, se rompe la admisión en la app (CONTRATO-001) y ninguna prueba de TEST lo detecta.
+- Causa de fondo: una decisión de negocio pendiente (`application.yml:74`) resuelta por configuración, distinta por entorno.
+- Solución de fondo: la de APROB-001. Mientras exista el interruptor, el mismo valor en todos los entornos de prueba que el de producción.
+- Relación con el flujo nuevo: APROB
+- Conexiones y módulos afectados: despliegue (L5), app móvil.
+- Estándares y normas: ISO/IEC 25010 fiabilidad (madurez); regla 90.3.4.
+- Esfuerzo estimado: chico
+
+### grupos-organizador-HUECO-003 — El catálogo de errores de la app no tiene los códigos de admisión ni de sorteo
+- Clase / Severidad / Confianza: HUECO / S3 / confirmado
+- Ubicaciones: `apps/movil/lib/dominio/errores.dart:54-78`; consumidores `apps/movil/lib/pantallas/pasanaku/pantalla_pedir_cupo.dart:136`, `pantalla_sorteo.dart:127-131`
+- Evidencia: `grep -nE "AP-CU68|AP-CU60" apps/movil/lib/dominio/errores.dart` → sin resultados; el archivo solo tiene `'AP-CU69-10'` del módulo.
+- Cómo se comprobó: búsqueda citada; las pantallas consumidoras las listó el subagente de frontend y se abrió `errores.dart`.
+- Impacto: rechazos de negocio de admisión y sorteo (`AP-CU68-*`, `AP-CU60-*`) se muestran con texto genérico; la persona no sabe qué hacer (regla 95.2.3).
+- Causa de fondo: el catálogo de errores del cliente se escribe a mano y no se genera del contrato (que sí lista los códigos, p. ej. `grupos.yaml:886,1167`).
+- Solución de fondo: generar el catálogo desde la tabla de errores del contrato.
+- Relación con el flujo nuevo: ninguna
+- Conexiones y módulos afectados: app móvil.
+- Estándares y normas: ISO/IEC 25010 usabilidad (protección frente a errores); RFC 9457; regla 95.2.3.
+- Esfuerzo estimado: chico
+
+### grupos-organizador-DOC-001 — Tres superficies dicen tres cosas distintas sobre quién decide la admisión, y ninguna coincide con R-NUEVA-1
+- Clase / Severidad / Confianza: DOC / S3 / confirmado
+- Ubicaciones: `apps/movil/lib/pantallas/pasanaku/textos.dart:35-39`; `apps/web/src/app/paginas/invitacion/invitacion.ts:53`; `apps/backoffice/src/app/rutas/admisiones/textos.ts:4-5`
+- Evidencia: app «Decide el organizador»; web «Una persona del equipo de AportaYa revisa tu solicitud y te avisa.»; backoffice «El administrador propone y el algoritmo solo recomienda: la decisión final es de backoffice.»
+- Cómo se comprobó: `grep` de cada texto en su archivo.
+- Impacto: el participante recibe promesas contradictorias sobre el mismo trámite; con R-NUEVA-1 las tres quedan obsoletas.
+- Causa de fondo: la decisión de admisión (A-1) nunca se tomó; cada superficie escribió su supuesto.
+- Solución de fondo: después de A-1, un solo texto de producto para el trámite, en el catálogo de textos compartido.
+- Relación con el flujo nuevo: APROB
+- Conexiones y módulos afectados: app, web, backoffice.
+- Estándares y normas: ISO/IEC 25010 usabilidad (reconocibilidad de la adecuación); regla 95.2.
+- Esfuerzo estimado: chico
+
+### grupos-organizador-FRAGIL-002 — El estado aceptado de una solicitud tiene dos nombres (`APROBADA`/`ACEPTADA`) en el mismo contrato
+- Clase / Severidad / Confianza: FRAGIL / S3 / confirmado
+- Ubicaciones: `servicios/grupos/src/main/resources/openapi/grupos.yaml:1703,1720`; `sql/10_tablas/02_grupos_turnos/solicitud_ingreso.sql:21`; `servicios/grupos/src/main/java/bo/aportaya/grupos/aplicacion/BandejaDeAdmisiones.java:35,61`; `apps/backoffice/src/app/rutas/admisiones/pantalla-de-admision.ts:52`; `apps/backoffice/src/app/rutas/admisiones/entrada-de-admision.ts:152`
+- Evidencia:
+  ```yaml
+  SolicitudDeIngreso:  estado: { enum: [PENDIENTE, APROBADA, RECHAZADA, EXPIRADA] }
+  SolicitudDeAdmision: estado: { enum: [PENDIENTE, ACEPTADA, RECHAZADA, EXPIRADA] }
+  ```
+  ```java
+  String enBase = estado == null ? null : "ACEPTADA".equals(estado) ? "APROBADA" : estado;
+  ```
+- Cómo se comprobó: lectura; además el filtro del backoffice ofrece `'ESCALADA'` (`entrada-de-admision.ts:152`), que no está en ningún enum del contrato ni en el `CHECK` de la tabla: ese filtro siempre devuelve vacío.
+- Impacto: si alguien agrega un estado o cambia la traducción de `BandejaDeAdmisiones`, la bandeja o la pantalla de admisión muestran estados falsos. El backoffice ya compara contra los dos nombres. Ninguna prueba de contrato lo detecta (no hay pacto para estas operaciones).
+- Causa de fondo: lenguaje ubicuo roto entre esquema y contrato; la traducción vive en un caso de uso.
+- Solución de fondo: un solo nombre de estado en esquema, contrato y clientes, con versión del contrato si cambia.
+- Relación con el flujo nuevo: ninguna
+- Conexiones y módulos afectados: backoffice.
+- Estándares y normas: ISO/IEC 25010 mantenibilidad (modificabilidad); reglas 96.4.1, 98.1.3.
+- Esfuerzo estimado: chico
 
 ## 6. Matriz de contratos
 
