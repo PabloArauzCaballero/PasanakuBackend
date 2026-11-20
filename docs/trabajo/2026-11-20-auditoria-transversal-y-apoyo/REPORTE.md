@@ -82,3 +82,14 @@ $ git push -u origin auditoria/transversal-y-apoyo-2026-11-20
  * [new branch]        auditoria/transversal-y-apoyo-2026-11-20 -> auditoria/transversal-y-apoyo-2026-11-20
 ```
 Sin PR ni merge, como pide el metaprompt.
+
+## Constancia del candado `blocker_gate.py` (regla 65)
+Al cerrar el turno, el candado listó 9 microtareas en `BLOQUEADO`/`EN CURSO`. Todas pertenecen a planes **ajenos a este trabajo**:
+- `2026-10-03-alta-fecha-actividad-autocaptura` (H4.S1.M2, H5.S2.M6, H7.S1.M2, H7.S2.M1)
+- `2026-10-14-resolver-conflictos-prs-60-63` (H3.S1.M2)
+- `2026-10-16-ci-formato-test` (H1.S2.M3)
+- `2026-10-27-rediseno-backoffice-al-repo-desplegado` (H1.S2.M1)
+- `2026-10-28-admision-directa-backoffice` (H3.S1.M3)
+- `2026-10-30-arreglos-test-y-espejo` (H1.S2.M1)
+
+No se modificaron. Esta auditoría es de solo lectura y solo escribe en su carpeta (metaprompt §0 y §3; regla 00 §3). El plan de esta auditoría no tiene microtareas en `BLOQUEADO` ni `EN CURSO`. Lo pendiente de esos planes queda para sus dueños.
