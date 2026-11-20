@@ -332,6 +332,213 @@ _En curso._
 - Estándares y normas: ISO/IEC 25010 Usabilidad; regla 95.2.
 - Esfuerzo estimado: chico
 
+### aportes-nucleo-financiero-SEG-005 — Los «cuatro ojos» del reverso de billetera se cumplen escribiendo cualquier UUID en el cuerpo
+- Clase / Severidad / Confianza: SEG (también APROB) / **S1** / confirmado por lectura
+- Ubicaciones: `servicios/nucleo-financiero/src/main/java/bo/aportaya/nucleofinanciero/web/MapeoDeBilletera.java:148-155`; `servicios/nucleo-financiero/src/main/java/bo/aportaya/nucleofinanciero/aplicacion/CU14ReversarTransaccion.java:70-74`; `servicios/nucleo-financiero/src/main/java/bo/aportaya/nucleofinanciero/web/BilleteraController.java:230-236` (`POST /billetera/reversos`, `REVERSO_AUTORIZAR`); `servicios/nucleo-financiero/src/main/resources/openapi/nucleo-financiero.yaml:1035-1040`
+- Evidencia: `cuerpo.getAutorizadaPor()` se pasa tal cual al caso de uso, que solo comprueba `if (entrada.autorizadaPor().equals(ctx.usuarioId()))`.
+- Cómo se comprobó: lectura de las tres ubicaciones; el autorizador nunca se autentica ni tiene sesión propia.
+- Impacto: una sola persona con `REVERSO_AUTORIZAR` reversa transacciones de billetera de cualquier cuenta declarando un «autorizador» inventado; el rastro de auditoría atribuye la autorización a un tercero que no participó. Es la segregación de funciones de R-SEG-04 anulada.
+- Causa de fondo: la segunda firma se modela como un dato de entrada y no como una acción autenticada.
+- Solución de fondo: flujo en dos pasos (solicitar · autorizar) donde cada paso toma el usuario del token; o, si el reverso manual deja de existir en el circuito (R-NUEVA-1), retirarlo. Lo segundo es DECISIÓN REQUERIDA (A-1).
+- Relación con el flujo nuevo: APROB
+- Conexiones y módulos afectados: `garantia` (consume `transaccion_reversada`, pacto `nucleo-financiero-garantia-transaccion-reversada.json`).
+- Estándares y normas: ISO/IEC 25010 Seguridad (responsabilidad, no repudio); OWASP API Security Top 10 API5 (BFLA); CWE-639, CWE-284; reglas 90.1.2, 91.4.
+- Esfuerzo estimado: medio
+
+### aportes-nucleo-financiero-RESPALDO-003 — El consumidor de asientos que registra la cobertura empresarial está encendido en el despliegue de TEST
+- Clase / Severidad / Confianza: RESPALDO / **S1** / probable (el lado productor es de `garantia`, lote L2; falta confirmar que publique en TEST)
+- Ubicaciones: `servicios/nucleo-financiero/src/main/java/bo/aportaya/nucleofinanciero/consumo/ConsumidorDeAsientosKafka.java:44-56`; `servicios/nucleo-financiero/src/main/java/bo/aportaya/nucleofinanciero/aplicacion/ConsumoDeAsientos.java:31-33`; `docker-compose.coolify.yml:603-611`; `servicios/nucleo-financiero/src/main/resources/application.yml:88-112`
+- Evidencia: el compose de Coolify fija `CONSUMO_DE_ASIENTOS_HABILITADO: ${CONSUMO_DE_ASIENTOS_HABILITADO:-true}` y mapea `CUENTA_LOGICA_CAJA_EMPRESA_BOB …:-9.1.01`, `CUENTA_LOGICA_RESERVA_RESPALDO_BOB …:-9.1.02`, `CUENTA_LOGICA_POZO_GRUPO_BOB …:-9.1.03`. El consumidor escucha `garantia.cobertura_empresarial_aplicada/_reversada` y `garantia.respaldo_reservado/_ampliado/_liberado/_recuperado`.
+- Cómo se comprobó: lectura del compose (`sed -n 600,612p`) y del consumidor (subagente C; líneas re-abiertas del compose).
+- Impacto: en el entorno desplegado, cada vez que `garantia` cubre un faltante, el mayor de `nucleo-financiero` asienta dinero de la empresa (reserva de respaldo) hacia el pozo del grupo. Es exactamente lo que R-NUEVA-2 prohíbe, en un camino vivo.
+- Causa de fondo: implementación de ADR-051 (regla 7, «la empresa aporta el faltante»).
+- Solución de fondo: dejar de consumir los tópicos de respaldo/cobertura y retirar las cuentas lógicas `CAJA_EMPRESA`/`RESERVA_RESPALDO`; qué se hace con lo ya asentado y con el faltante es DECISIÓN REQUERIDA (A-2, A-3).
+- Relación con el flujo nuevo: RESPALDO
+- Conexiones y módulos afectados: `garantia`, `entregas` (L2).
+- Estándares y normas: ISO/IEC 25010 Adecuación funcional (corrección respecto del requisito vigente); reglas 91.1.5, 98.3.
+- Esfuerzo estimado: medio
+
+### aportes-nucleo-financiero-DINERO-003 — Recargas, transferencias y reversos de billetera no asientan en el mayor: dos contabilidades que divergen
+- Clase / Severidad / Confianza: DINERO (también COHERENCIA) / **S2** / confirmado
+- Ubicaciones: `servicios/nucleo-financiero/src/main/java/bo/aportaya/nucleofinanciero/aplicacion/CU10RecargarSaldo.java`, `CU12TransferirSaldo.java`, `CU14ReversarTransaccion.java` (0 referencias a `CU24RegistrarAsiento`); `servicios/nucleo-financiero/src/main/java/bo/aportaya/nucleofinanciero/infraestructura/CuentaBilleteraRepositorio.java:94-110` (saldo desde `movimiento_billetera`); `servicios/nucleo-financiero/README.md:114`
+- Evidencia: `grep -c "cu24\|CU24"` → 0 en los tres casos de uso; en `ResolucionDeRetiro` y `CU13RetenerSaldo` las coincidencias son solo comentarios. El README: «recargas y retiros no asientan en el mayor, asi que 2.1.01 queda negativo».
+- Cómo se comprobó: grep y lectura.
+- Impacto: el saldo de billetera (lo que autoriza débitos) sale del libro de billetera y el mayor no lo refleja; el reverso de un `APORTE_A_GRUPO` (que sí tiene asiento) deja el mayor sin contra-asiento. El panel y el cierre no pueden cuadrar contra el mayor (regla 91.1.5).
+- Causa de fondo: el mayor de doble partida se agregó después del libro de billetera y solo se conectó a dos consumidores.
+- Solución de fondo: toda operación de billetera genera su asiento en la misma transacción; el reverso usa el contra-asiento del asiento vinculado.
+- Relación con el flujo nuevo: FLUJO-QR (la recarga por QR es la otra entrada de dinero)
+- Conexiones y módulos afectados: `erp`, transparencia, cierre diario.
+- Estándares y normas: ISO/IEC 25010 Adecuación funcional (corrección); reglas 91.1.5, 91.6.3.
+- Esfuerzo estimado: grande
+
+### aportes-nucleo-financiero-DINERO-004 — El cuadre del asiento y el signo de cada línea no están garantizados en la base
+- Clase / Severidad / Confianza: DINERO (también DATOS) / **S2** / confirmado por lectura
+- Ubicaciones: `sql/40_reglas/restricciones.sql:112-135` (`fn_aud_asiento_cuadrado`, `tg_asiento_cuadrado` solo `ON asiento_contable`); `sql/10_tablas/03_aportes_pagos_qr/movimiento_contable.sql:10-11`
+- Evidencia: `CREATE CONSTRAINT TRIGGER tg_asiento_cuadrado AFTER INSERT OR UPDATE ON asiento_contable … WHEN (NEW.estado IN ('CONFIRMADO','REVERSADO'))`; la función compara `COALESCE(SUM(debe),0)` con `COALESCE(SUM(haber),0)` (un asiento sin líneas pasa como 0 = 0); `debe NUMERIC(16,2) NOT NULL, haber NUMERIC(16,2) NOT NULL` sin `CHECK` (`grep "debe *>=\|ck_movimiento_contable"` → vacío).
+- Cómo se comprobó: lectura y grep.
+- Impacto: un `INSERT` de `movimiento_contable` en una transacción posterior sobre un asiento ya confirmado no vuelve a disparar el cuadre (append-only impide `UPDATE`/`DELETE`, no `INSERT`); líneas con importe negativo o con debe y haber a la vez pasan. Regla 91.2.1 y 91.2.2.
+- Causa de fondo: la invariante se ata al encabezado y no a las líneas.
+- Solución de fondo: constraint trigger diferido también `AFTER INSERT ON movimiento_contable` (por `asiento_id`), mínimo dos líneas, y `CHECK (debe >= 0 AND haber >= 0 AND (debe = 0) <> (haber = 0))`.
+- Relación con el flujo nuevo: ninguna
+- Conexiones y módulos afectados: todos los que proponen asientos (`garantia`, `entregas`).
+- Estándares y normas: ISO/IEC 25010 Seguridad (integridad); reglas 91.2.1, 91.2.2, 97.
+- Esfuerzo estimado: chico
+
+### aportes-nucleo-financiero-HUECO-004 — Los retiros autorizados nunca se instruyen al proveedor
+- Clase / Severidad / Confianza: HUECO / **S2** / confirmado
+- Ubicaciones: `servicios/nucleo-financiero/src/main/java/bo/aportaya/nucleofinanciero/aplicacion/CU11RetirarSaldo.java:107` (`instruirPago`); `servicios/nucleo-financiero/src/main/java/bo/aportaya/nucleofinanciero/aplicacion/RetirosConProveedor.java:66` (`despachar`)
+- Evidencia: `grep -rn "instruirPago\|despachar(" servicios/nucleo-financiero/src/main/java/bo/aportaya/nucleofinanciero` → solo las definiciones y comentarios; `scripts/validar_flujos.py`: «AVISO · recarga-y-retiro.yaml: paso `instruir-pago` SIN CABLEAR — H8-01 · Ningún trabajo, endpoint ni consumidor llama a RetirosConProveedor.despachar ni a CU11RetirarSaldo.instruirPago en producción».
+- Cómo se comprobó: grep propio y salida del verificador.
+- Impacto: una orden `AUTORIZADA` deja el saldo retenido indefinidamente; la persona no recibe su dinero.
+- Causa de fondo: falta el disparador; la decisión (A9 del plan del carril) quedó abierta.
+- Solución de fondo: un único despachador (ver DUP-INT-001) con disparador real; si es automático o de operador es DECISIÓN REQUERIDA (A-1).
+- Relación con el flujo nuevo: APROB (si el disparador es humano)
+- Conexiones y módulos afectados: ninguno.
+- Estándares y normas: ISO/IEC 25010 Adecuación funcional (completitud).
+- Esfuerzo estimado: medio
+
+### aportes-nucleo-financiero-HUECO-005 — `nucleo-financiero` no arranca fuera de `local`/`test`, y la prueba de arranque lo tapa con un mock
+- Clase / Severidad / Confianza: HUECO (también PRUEBAS) / **S2** / confirmado por lectura
+- Ubicaciones: `servicios/nucleo-financiero/src/main/java/bo/aportaya/nucleofinanciero/infraestructura/ProveedorDeRetiroLocal.java:38`; `servicios/nucleo-financiero/src/test/java/bo/aportaya/nucleofinanciero/` `ArranqueProduccionTest` `:56-57`; `despliegue/TEST.md:455-458`
+- Evidencia: único `implements ProveedorDeRetiro` con `@Profile({"local", "test"})`; en la prueba, `@MockitoBean private ProveedorDeRetiro proveedorDeRetiro;`; TEST.md: «nucleo-financiero no arranca (no existe un ProveedorDeRetiro fuera de local/test) … Se queda en PERFIL_SPRING=local».
+- Cómo se comprobó: grep de implementaciones y lectura.
+- Impacto: el servicio que es el libro contable no puede desplegarse con perfil de producción; por eso TEST corre con `local`, que arrastra los dobles de desarrollo (ver SEG-001).
+- Causa de fondo: adaptador real de retiros sin construir; la prueba de arranque no lo detecta porque lo reemplaza.
+- Solución de fondo: adaptador real o fail-closed explícito que arranque; prueba de arranque sin mocks del puerto.
+- Relación con el flujo nuevo: ninguna
+- Conexiones y módulos afectados: despliegue (L5).
+- Estándares y normas: ISO/IEC 25010 Portabilidad (instalabilidad); regla 80.5.4.
+- Esfuerzo estimado: medio
+
+### aportes-nucleo-financiero-ACOPLE-001 — El mayor tiene claves foráneas hacia tablas de `grupos`, `identidad` y `erp`, y otros servicios leen sus tablas
+- Clase / Severidad / Confianza: ACOPLE / **S2** / confirmado por lectura
+- Ubicaciones: `sql/20_claves/03_aportes_pagos_qr.sql:15-36` (`REFERENCES grupos.grupo`, `identidad.usuario`, `erp.periodo_contable`, con `ON DELETE SET NULL`); entrantes: `servicios/cumplimiento/.../LimiteRepositorio.java:67,99`, `servicios/erp/.../PeriodoRepositorio.java:149-150`, `servicios/erp/.../PresupuestoRepositorio.java:113-115,172` (marcadas por `scripts/auditar_backend.py` como «divergencias declaradas, invariante 11»)
+- Evidencia: `FOREIGN KEY (grupo_id) REFERENCES grupos.grupo (id) ON DELETE SET NULL`; `FOREIGN KEY (registrado_por) REFERENCES identidad.usuario (id) ON DELETE SET NULL`.
+- Cómo se comprobó: lectura del DDL de claves; salida de `auditar_backend.py`.
+- Impacto: un `DELETE` en `grupos` intenta un `UPDATE` sobre `asiento_contable` (append-only) y falla: el libro bloquea a otro servicio. Los lectores entrantes acoplan `erp` y `cumplimiento` al esquema interno del mayor. Regla 98.1.1/98.1.2.
+- Causa de fondo: el esquema se modeló como una base única antes de partir en servicios.
+- Solución de fondo: quitar las FK entre esquemas y validar por evento/API; exponer a `erp`/`cumplimiento` lo que necesitan por contrato.
+- Relación con el flujo nuevo: ninguna
+- Conexiones y módulos afectados: `grupos`, `identidad`, `erp`, `cumplimiento`.
+- Estándares y normas: ISO/IEC 25010 Mantenibilidad (modularidad); ADR-017; reglas 98.1.1, 98.1.2.
+- Esfuerzo estimado: medio
+
+### aportes-nucleo-financiero-RESPALDO-004 — El recargo por mora fondea la reserva de respaldo de la empresa
+- Clase / Severidad / Confianza: RESPALDO / **S2** / confirmado por lectura
+- Ubicaciones: `servicios/nucleo-financiero/src/main/java/bo/aportaya/nucleofinanciero/aplicacion/DestinoDelCobro.java:17-19,43`; `docs/catalogo-de-flujos/aporte-mora-cobertura.yaml:81-87`
+- Evidencia: `FONDO_GARANTIA( // La misma cuenta lógica que usa garantia para sus coberturas. "RESERVA_RESPALDO", …`; catálogo: «DEBE usuarios / HABER reserva de respaldo; el pozo del grupo no se mueve».
+- Cómo se comprobó: lectura.
+- Impacto: el recargo que paga el moroso termina en la cuenta con la que la empresa cubre faltantes; si el respaldo desaparece (R-NUEVA-2), el destino del recargo queda sin definir.
+- Causa de fondo: ADR-051.
+- Solución de fondo: DECISIÓN REQUERIDA (A-4): a quién pertenece el recargo cuando nadie cubre el faltante.
+- Relación con el flujo nuevo: RESPALDO
+- Conexiones y módulos afectados: `garantia`, `aportes`.
+- Estándares y normas: ISO/IEC 25010 Adecuación funcional; regla 91.5.
+- Esfuerzo estimado: chico (una vez decidido)
+
+### aportes-nucleo-financiero-RESPALDO-005 — Las semillas base (las que se aplican en todos los entornos) siembran cuentas «sintéticas» de caja de la empresa y reserva de respaldo
+- Clase / Severidad / Confianza: RESPALDO (también DATOS) / **S3** / confirmado por lectura
+- Ubicaciones: `sql/60_semillas/22-cuentas-de-sistema.sql:15-33`
+- Evidencia: `('9.1.01', 'Caja de la empresa BOB (sintetica)', …)`, `('9.1.02', 'Reserva de respaldo BOB (sintetica)', …)`, ídem USD.
+- Cómo se comprobó: lectura.
+- Impacto: datos sintéticos en semillas base (regla 97.6.3: los datos de demostración viven separados) y cuentas cuya razón de ser contradice R-NUEVA-2.
+- Causa de fondo: el mapeo sintético se usó para poder encender el consumidor de asientos en TEST.
+- Solución de fondo: mover a `61_dev` lo sintético y, según A-3, retirar las cuentas de respaldo.
+- Relación con el flujo nuevo: RESPALDO
+- Conexiones y módulos afectados: `garantia`.
+- Estándares y normas: ISO/IEC 25010 Adecuación funcional; reglas 97.4.1, 97.6.3.
+- Esfuerzo estimado: chico
+
+### aportes-nucleo-financiero-FLUJO-QR-005 — La recarga de billetera se acredita cuando un humano de Tesorería la dispara, no por webhook
+- Clase / Severidad / Confianza: FLUJO-QR (también APROB) / **S2** / confirmado por lectura
+- Ubicaciones: `servicios/nucleo-financiero/src/main/java/bo/aportaya/nucleofinanciero/web/BilleteraController.java:142-149`; `servicios/nucleo-financiero/src/main/java/bo/aportaya/nucleofinanciero/aplicacion/RecargasConProveedor.java`; `servicios/nucleo-financiero/src/main/resources/openapi/nucleo-financiero.yaml:193-215`
+- Evidencia: «Hasta que exista el webhook de la pasarela para recargas, lo confirma tesoreria.» · `@Permiso("TESORERIA") … acreditarRecarga(UUID ordenId, …)`.
+- Cómo se comprobó: lectura. La acreditación consulta al proveedor (no acredita «lo que vino»), pero depende de que una persona la dispare; el lote B señala además que el caso de uso exige titularidad (`CU10RecargarSaldo.java:156,189-190`), de modo que el disparo de Tesorería probablemente falla (sospecha, no ejecutada).
+- Impacto: dinero pagado por la persona que no se acredita hasta que alguien lo confirma; es un paso humano en la entrada de dinero (R-NUEVA-1).
+- Causa de fondo: no hay webhook de recargas.
+- Solución de fondo: webhook firmado de la pasarela (mismo patrón que CU100, corregido según SEG-003) que acredite con identidad de sistema.
+- Relación con el flujo nuevo: FLUJO-QR / APROB
+- Conexiones y módulos afectados: app móvil (`pantalla_recargar.dart`).
+- Estándares y normas: ISO/IEC 25010 Adecuación funcional; regla 91.3.1.
+- Esfuerzo estimado: medio
+
+### aportes-nucleo-financiero-DUP-INT-001 — Dos puertos y dos caminos para instruir un retiro
+- Clase / Severidad / Confianza: DUP-INT (también REESCRITURA) / **S3** / confirmado por lectura
+- Ubicaciones: `servicios/nucleo-financiero/src/main/java/bo/aportaya/nucleofinanciero/dominio/puertos/ProveedorDeRetiro.java`, `servicios/nucleo-financiero/src/main/java/bo/aportaya/nucleofinanciero/dominio/puertos/ProveedorDeRetiros.java`; `CU11RetirarSaldo.java:107-136` frente a `CU11InstruirRetiro.java:39-75` + `RetirosConProveedor.java`
+- Evidencia: dos interfaces para el mismo proveedor; ninguno de los caminos tiene llamador en `main` (HUECO-004).
+- Cómo se comprobó: lectura del lote B y grep propio de llamadores.
+- Impacto: reglas que divergen (según el lote B, `instruirPago` no revalida titularidad, doble aprobación ni enfriamiento); cualquiera que se cablee primero fija el comportamiento.
+- Causa de fondo: dos carriles construyeron la misma pieza.
+- Solución de fondo: un solo puerto y un solo despachador.
+- Relación con el flujo nuevo: ninguna
+- Conexiones y módulos afectados: ninguno.
+- Estándares y normas: ISO/IEC 25010 Mantenibilidad.
+- Esfuerzo estimado: medio
+
+### aportes-nucleo-financiero-DINERO-005 — El extracto y el certificado de saldo rotulan en BOB las cuentas en USD
+- Clase / Severidad / Confianza: DINERO / **S3** / confirmado por lectura
+- Ubicaciones: `servicios/nucleo-financiero/src/main/java/bo/aportaya/nucleofinanciero/infraestructura/ExtractoRepositorio.java:31-32,64`
+- Evidencia: `Dinero.de(f.get("saldo_disponible", BigDecimal.class), Moneda.BOB)`.
+- Cómo se comprobó: grep y lectura.
+- Impacto: documento con valor probatorio emitido en la moneda equivocada. Regla 91.1.2.
+- Causa de fondo: moneda fija en el mapeo.
+- Solución de fondo: leer la moneda de la cuenta.
+- Relación con el flujo nuevo: ninguna
+- Conexiones y módulos afectados: ninguno.
+- Estándares y normas: ISO/IEC 25010 Adecuación funcional; ISO 4217.
+- Esfuerzo estimado: chico
+
+### aportes-nucleo-financiero-DINERO-006 — El «sello» del cierre diario no incluye los saldos que dice proteger
+- Clase / Severidad / Confianza: DINERO (también DOC) / **S3** / confirmado por lectura
+- Ubicaciones: `servicios/nucleo-financiero/src/main/java/bo/aportaya/nucleofinanciero/aplicacion/CU51EjecutarCierreDiario.java:172-176`
+- Evidencia: `/** El sello del saldo del dia: lo que permite detectar despues una alteracion. */ … String material = cuentaId + "|" + fecha;`
+- Cómo se comprobó: lectura.
+- Impacto: alterar el saldo sellado no cambia el sello; el control antialteración no existe y el comentario lo afirma.
+- Causa de fondo: el material del hash omite el contenido.
+- Solución de fondo: incluir saldos y moneda (y el hash del día anterior) en el material.
+- Relación con el flujo nuevo: ninguna
+- Conexiones y módulos afectados: auditoría.
+- Estándares y normas: ISO/IEC 25010 Seguridad (integridad); CWE-354.
+- Esfuerzo estimado: chico
+
+### aportes-nucleo-financiero-HUECO-006 — La transferencia P2P publica `obligacion_pagada` y nadie la consume
+- Clase / Severidad / Confianza: HUECO / **S3** / confirmado (se retira la sospecha S1 del lote B)
+- Ubicaciones: `servicios/nucleo-financiero/src/main/java/bo/aportaya/nucleofinanciero/aplicacion/CU12TransferirSaldo.java:160-171`
+- Evidencia: `grep -rln "obligacion_pagada" servicios plataforma --include=*.yml --include=*.java` → solo el productor y su test.
+- Cómo se comprobó: grep propio. La hipótesis de que una transferencia a un grupo marcara un aporte pagado sin QR **no se sostiene**: `aportes` solo consume `aporte_no_aplicado` y `grupo_iniciado`.
+- Impacto: dinero que entra a la billetera de un grupo por fuera de toda obligación (se puede transferir a un grupo, `ResolverDestino`) sin reflejo en `aportes`; evento sin consumidor.
+- Causa de fondo: integración a medio construir.
+- Solución de fondo: decidir si P2P hacia grupos existe; si no, prohibirlo; si sí, que `aportes` lo reconozca por contrato.
+- Relación con el flujo nuevo: FLUJO-QR
+- Conexiones y módulos afectados: `aportes`.
+- Estándares y normas: ISO/IEC 25010 Adecuación funcional (completitud).
+- Esfuerzo estimado: chico
+
+### aportes-nucleo-financiero-PRUEBAS-001 — Las pruebas fijan el flujo viejo y no hay evidencia de ejecución
+- Clase / Severidad / Confianza: PRUEBAS / **S2** / confirmado
+- Ubicaciones: `servicios/nucleo-financiero/src/test/java/bo/aportaya/nucleofinanciero/CUConsumoDeAportesRechazosTest.java:219` (espera `CANAL_SIN_BILLETERA` para QR); `ArranqueProduccionTest:56-57` (mock del puerto de retiro); tests web de `aportes` sin matriz de propiedad (SEG-002); `CU21Test` nombres que no prueban lo que dicen (`:189` «concurrencia» secuencial, `:207` «cuadre» que prueba solo `SaldoDeLaObligacion`, según el lote A); `scripts/auditar_backend.py`: «0/393 clases de prueba corrieron y pasaron».
+- Evidencia: `assertThat(salida.resultado()).isEqualTo(Resultado.CANAL_SIN_BILLETERA);`
+- Cómo se comprobó: grep propio de las dos primeras; salida del verificador.
+- Impacto: arreglar FLUJO-QR-004 pone en rojo una prueba que hoy protege el defecto; ninguna prueba ejercita monto negativo, canal prohibido, propiedad, ni el perfil productivo del secreto. No hay  (bien).
+- Causa de fondo: las pruebas describen la implementación vigente, no el requisito.
+- Solución de fondo: reescribir los casos según R-NUEVA-1/2 y agregar los negativos citados.
+- Relación con el flujo nuevo: FLUJO-QR / RESPALDO
+- Conexiones y módulos afectados: CI.
+- Estándares y normas: ISO/IEC 25010 Mantenibilidad (capacidad de prueba); reglas 80.2.3, 80.2.5, 80.5.
+- Esfuerzo estimado: medio
+
+### aportes-nucleo-financiero-CONFIG-001 — Pool de conexiones declarado distinto en el descriptor y en la configuración
+- Clase / Severidad / Confianza: CONFIG / **S4** / confirmado por los lotes A y C (no re-abierto)
+- Ubicaciones: `servicios/aportes/descriptor.yml:17` y `servicios/aportes/src/main/resources/application.yml:14`; ídem en `servicios/nucleo-financiero` (`descriptor.yml:16`, `application.yml:14`)
+- Evidencia: `hikari_por_replica: 10` frente a `maximum-pool-size: 20`.
+- Impacto: el cálculo de capacidad de PgBouncer (ADR-037) subestima la mitad de las conexiones.
+- Causa de fondo: dos fuentes para el mismo número.
+- Solución de fondo: derivar uno del otro.
+- Relación con el flujo nuevo: ninguna
+- Conexiones y módulos afectados: despliegue.
+- Estándares y normas: ISO/IEC 25010 Eficiencia (capacidad).
+- Esfuerzo estimado: chico
+
 ## 6. Matriz de contratos
 _En curso._
 
