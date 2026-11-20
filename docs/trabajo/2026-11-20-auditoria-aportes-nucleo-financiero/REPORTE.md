@@ -1,6 +1,6 @@
 # Reporte — Auditoría de solo lectura L1: aportes + núcleo financiero
 
-> **AVANCE: 8 / 9 — 88,9 %.** (H1.S1.M9, la entrega, se cierra con este mismo push; ver «Pendiente»)
+> **AVANCE: 9 / 9 — 100 %.** Entregado como auditoría documental (peldaño `DISCOVERED`). La ejecución de pruebas quedó BLOCKED por el entorno.
 
 - Fecha: 2026-11-20 · Plan: [PLAN.md](./PLAN.md) · Informe: [AUDITORIA-aportes-nucleo-financiero.md](./AUDITORIA-aportes-nucleo-financiero.md)
 - Rama: `auditoria/aportes-nucleo-financiero-2026-11-20` (desde `origin/test` @ `07fc69719287b0dadd152d0293a054948df69ead`; `origin/dev` @ `850e0f51` sin diferencias en el módulo)
@@ -16,15 +16,14 @@
 | H1.S1.M5 | Vista de conjunto (duplicación, reescrituras, inconsistencias por fallo a mitad) | sección 4e y fila de clases en la sección 8 | PASS |
 | H1.S1.M6 | Matriz de contratos y salidas de verificadores (Gradle, yarn y Flutter declarados NO COMPROBADO) | secciones 6 y 7 | PASS (con lo bloqueado declarado) |
 | H1.S1.M7 | Cada hallazgo con característica ISO/IEC 25010 | `grep -c 'ISO/IEC 25010' AUDITORIA-*.md` ≥ 45 | PASS |
+| H1.S1.M9 | Commit y push a la rama de entrega | `git push -u origin auditoria/aportes-nucleo-financiero-2026-11-20` | PASS → `7d7e836f..9d57ffa6` |
 | H1.S1.M8 | Refutación de S1/S2: 4 hallazgos retirados o rebajados | sección 11, «Refutación» | PASS |
 
 ## A medias
 Ninguna.
 
 ## Pendiente
-| ID | Estado | Qué lo destraba |
-|---|---|---|
-| H1.S1.M9 | TODO hasta que el push termine | `git push -u origin auditoria/aportes-nucleo-financiero-2026-11-20`; el resultado se pega en el mensaje final de la sesión |
+Ninguna dentro del alcance. Las decisiones A-1 a A-4 son de Pablo y de Cumplimiento (`DECISION_REQUIRED`).
 
 ## Evidencia
 ```text

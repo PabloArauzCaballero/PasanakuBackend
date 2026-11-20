@@ -13,7 +13,7 @@
 ## H1 — Informe de auditoría L1 entregado en la rama
 **CA:** Dado el commit auditado, cuando se abre el informe, entonces tiene las 12 secciones de la §9 del metaprompt, sin datos personales ni secretos, y cada S1/S2 resistió la refutación.
 **DoD:** `git status --short` muestra solo esta carpeta · commit y push a `auditoria/aportes-nucleo-financiero-2026-11-20`.
-**Estado:** EN CURSO (falta solo la entrega H1.S1.M9)
+**Estado:** HECHO (peldaño `DISCOVERED`: auditoría documental; ejecución de pruebas BLOCKED por entorno)
 
 ### H1.S1 — Fases del método (§8)
 | ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
@@ -26,7 +26,7 @@
 | H1.S1.M6 | Fase 5 conexiones, contratos, verificadores | Matriz de contratos + salidas de verificadores | sección 6 y 7 con salida pegada o NO COMPROBADO | HECHO |
 | H1.S1.M7 | Fase 6 estándares | Cada hallazgo con ISO 25010 | `grep -c 'ISO/IEC 25010'` = nº hallazgos | HECHO |
 | H1.S1.M8 | Fase 7 refutación | S1/S2 re-abiertos y confirmados | sección «Refutación» en el informe | HECHO |
-| H1.S1.M9 | Entrega | Commit + push | `git push` exit 0 | TODO |
+| H1.S1.M9 | Entrega | Commit + push | `git push` exit 0 | HECHO |
 
 ## Riesgos y bloqueos previstos
 | Riesgo | Impacto | Mitigación |
