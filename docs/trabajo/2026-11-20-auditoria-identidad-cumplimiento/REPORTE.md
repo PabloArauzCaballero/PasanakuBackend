@@ -27,7 +27,9 @@ ver `evidencia/`
 pendiente de cierre
 
 ## Desvíos del plan
-ninguno
+- El candado `blocker_gate.py` (regla 65) bloqueó el cierre de turno por 9 microtareas BLOQUEADO/EN CURSO de **otros** trabajos
+  (`docs/trabajo/2026-10-03-…`, `2026-10-14-…`, `2026-10-16-…`, `2026-10-27-…`, `2026-10-28-…`, `2026-10-30-…`). Esta auditoría es de solo
+  lectura y solo puede escribir en su carpeta (metaprompt §3): no se tocaron esos planes. Queda registrado para que sus dueños los cierren.
 
 ## Riesgos residuales
 pendiente de cierre
