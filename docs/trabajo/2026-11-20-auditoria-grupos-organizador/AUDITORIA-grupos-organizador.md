@@ -30,6 +30,7 @@
 | ID | Dónde | Qué aprueba y quién | Estado · endpoint · permiso · pantalla · evento | Clasificación | Qué se rompe aguas abajo si se quita |
 |---|---|---|---|---|---|
 | APR-01 | `servicios/grupos/src/main/resources/application.yml:79-84`; `servicios/grupos/src/main/java/bo/aportaya/grupos/web/RutasDeSolicitudes.java:141-150`; `.../web/InvitacionesWeb.java:127-133`; `.../web/RutasDeAdmision.java:25-37` | Ingreso de un integrante: el organizador **propone** y backoffice (`ADMIN_PLATAFORMA`) **resuelve** | Solicitud `PENDIENTE` → decisión `PROPUESTA` → `RESOLUCION`; `POST /grupos/solicitudes/{id}/propuestas` (`GRUPO_ADMINISTRAR`), `POST /grupos/solicitudes/{id}/resoluciones` (`ADMIN_PLATAFORMA`); pantallas backoffice `rutas/admisiones`, `rutas/operacion/solicitudes-escaladas`; eventos `aportaya.grupos.admision_propuesta`, `aportaya.grupos.admision_resuelta` | ELIMINABLE desde producto (el propio `application.yml:79` la declara «DECISION PENDIENTE (negocio y cumplimiento)»); queda DECISIÓN REQUERIDA solo si Cumplimiento la exige (A-1) | Las puertas «aceptar por enlace» y «decisión directa del organizador» hoy devuelven 422 (`CodigoError 69-10` y `68-15`) con el interruptor encendido; apagarlo reabre esos caminos, que crean participante sin expediente; la bandeja de backoffice y sus pruebas quedan sin uso |
+| APR-02 | `servicios/grupos/src/main/java/bo/aportaya/grupos/web/RutasDelGrupo.java:94-95`; `.../aplicacion/CU69IniciarGrupo.java:89-91`; `.../web/GruposController.java:164-173` | Inicio del grupo y compromiso/revelación del sorteo: los dispara el administrador del grupo | `ABIERTO_A_INSCRIPCION → CONFORMADO`; `POST /grupos/{id}/inicio`, `POST /grupos/{id}/sorteo`, `POST /grupos/{id}/sorteo/revelacion`, todos `GRUPO_ADMINISTRAR`; app `inicio_del_grupo.dart`, `pantalla_sorteo_*`; eventos `grupo_iniciado`, `sorteo_comprometido`, `sorteo_revelado` | ELIMINABLE (ADR-054 D3 ya decidió que sean automáticos) | Sin el disparo manual hoy no hay ningún otro camino (0 `@Scheduled`): quitarlo sin el trabajo programado deja todo grupo detenido |
 
 ### 4b. Inventario de respaldo y cobertura
 
@@ -121,6 +122,54 @@
 - Conexiones y módulos afectados: herramienta transversal `scripts/`.
 - Estándares y normas: ISO/IEC 25010 fiabilidad (madurez del proceso de verificación); regla 80.5.
 - Esfuerzo estimado: chico
+
+### grupos-organizador-APROB-002 — El inicio del grupo y las dos fases del sorteo solo ocurren si el administrador las dispara a mano
+- Clase / Severidad / Confianza: APROB / S2 / confirmado
+- Ubicaciones: `servicios/grupos/src/main/java/bo/aportaya/grupos/web/RutasDelGrupo.java:94-95`; `.../web/GruposController.java:164-173`; `.../aplicacion/CU69IniciarGrupo.java:89-91`; `.../web/SorteoDelGrupo.java:88-92`; `.../infraestructura/AdmisionRepositorio.java:40-46`; `docs/Arquitectura/ADR-054 Grupos sin organizador humano.md:77`
+- Evidencia:
+  ```java
+  if (g == null || !admision.esAdministrador(dsl, grupoId, ctx.usuarioId())) {
+      throw new ErrorDeNegocio(CodigoError.de(69, 7), "Solo quien organiza el grupo puede iniciarlo.");
+  ```
+  ```java
+  @Permiso("GRUPO_ADMINISTRAR")
+  public ResponseEntity<CompromisoDeSorteo> comprometerSorteo(
+  ```
+  ADR-054 D3 (aceptada 2026-10-31): «**Inicio y sorteo automáticos.** El grupo se conforma al firmarse el último cupo, o en la **fecha límite** …».
+- Cómo se comprobó: lectura de las ubicaciones; `grep -rn '@Scheduled' servicios/grupos servicios/organizador` → **0 resultados**. No hay trabajo programado que conforme el grupo ni que comprometa o revele el sorteo. `esAdministrador` exige un participante con `es_organizador`.
+- Impacto: un grupo lleno con las primeras cuotas cobradas por QR no avanza si quien lo administra no aprieta «iniciar», «sortear» y «revelar». Es un paso humano en el circuito, contra R-NUEVA-1, y una decisión ya aceptada (ADR-054 D3) sin implementar. Los participantes ven su dinero cobrado sin turno asignado.
+- Causa de fondo: ADR-054 se aceptó sin que su carril «`grupos` — inicio y sorteo» (ADR-054 §«Lo que falta en el código», fila 2-3) llegara al código.
+- Solución de fondo: trabajo programado en `grupos`, con lock distribuido, que conforme el grupo al completarse o en `fecha_inicio`, y comprometa o revele el sorteo cuando todas las primeras cuotas estén acreditadas. El endpoint manual queda, como mucho, de respaldo operativo.
+- Relación con el flujo nuevo: APROB / FLUJO-QR (el pago confirmado no mueve el grupo por sí solo)
+- Conexiones y módulos afectados: `aportes` (primera cuota, `PrimerAportePorHttp`), app móvil (`inicio_del_grupo.dart`, `pantalla_sorteo_*`), evento `aportaya.grupos.grupo_iniciado` → `aportes` (pacto `grupos-aportes-grupo-iniciado.json`).
+- Estándares y normas: ISO/IEC 25010 completitud funcional; regla 00 §6.2; ADR-054 D3.
+- Esfuerzo estimado: grande
+
+### grupos-organizador-HUECO-002 — No existe la cancelación con devolución de un grupo que no llega al 75 % (ADR-054 D4)
+- Clase / Severidad / Confianza: HUECO / S2 / confirmado
+- Ubicaciones: `docs/Arquitectura/ADR-054 Grupos sin organizador humano.md:78`; ausencia en `servicios/grupos/src/main/java/**`
+- Evidencia: ADR-054 D4: «Si no llega al 75 % en la fecha límite, se cancela y devuelve solo: `estado = CANCELADO` … evento `grupo.cancelado_sin_inicio`».
+- Cómo se comprobó: `grep -rln 'cancelado_sin_inicio' --include=*.java --include=*.yaml --include=*.sql --include=*.json .` → 0 archivos; `grep -rn '@Scheduled' servicios/grupos` → 0. Las menciones de `CANCELADO` en `grupos` son solo filtros de lectura (`ConsultasRepositorio.java:55`, `ConsultarMisLimites.java:43`, `CU20CrearGrupo.java:174`).
+- Impacto: un grupo que nunca alcanza el 75 % queda `ABIERTO_A_INSCRIPCION` para siempre. Si alguno ya pagó su primera cuota por QR (la regla de inicio la exige), ese dinero no tiene devolución automática.
+- Causa de fondo: la misma de APROB-002, el carril de ADR-054 sin implementar.
+- Solución de fondo: transición `ABIERTO_A_INSCRIPCION → CANCELADO` en `grupos`, con evento por outbox, y saga de devolución en el servicio dueño del dinero (L1). No requiere decisión nueva: D4 ya la tomó.
+- Relación con el flujo nuevo: FLUJO-QR (dinero cobrado sin destino)
+- Conexiones y módulos afectados: `aportes`/`nucleo-financiero` (devolución), notificaciones.
+- Estándares y normas: ISO/IEC 25010 completitud funcional; regla 91.3, 98.3.2.
+- Esfuerzo estimado: grande
+
+### grupos-organizador-COHERENCIA-001 — El interruptor de admisión humana es global; ADR-054 lo quiere por tipo de conformación y sin admisión en el grupo de confianza
+- Clase / Severidad / Confianza: COHERENCIA / S3 / confirmado
+- Ubicaciones: `servicios/grupos/src/main/resources/application.yml:84`; `servicios/grupos/src/main/java/bo/aportaya/grupos/web/RutasDeSolicitudes.java:30-31`; `docs/Arquitectura/ADR-054 Grupos sin organizador humano.md:58-59,76,79,93`
+- Evidencia: ADR-054 D2 «El enlace es la admisión … Nadie aprueba a nadie»; D5 «El interruptor pasa de global a **por `tipo_conformacion`**». En el código, `@Value("${aportaya.grupos.admision.humana-obligatoria}") private boolean admisionHumanaObligatoria;` es un único booleano.
+- Cómo se comprobó: `grep -rn 'tipo_conformacion' servicios/grupos/src/main` → 0 usos en lógica de admisión.
+- Impacto: tres fuentes dicen tres cosas sobre la admisión: ADR-054 (sin aprobación en el grupo de confianza), `application.yml` (aprobación humana en todos) y R-NUEVA-1 (sin aprobación en ninguno). Manda el código, que es la más restrictiva.
+- Causa de fondo: decisiones de producto aceptadas sin el cambio de código que las materializa.
+- Solución de fondo: Pablo confirma R-NUEVA-1 sobre ADR-054 D5 (A-1). Después se actualiza el ADR y el interruptor desaparece.
+- Relación con el flujo nuevo: APROB
+- Conexiones y módulos afectados: ninguno adicional a APROB-001.
+- Estándares y normas: ISO/IEC 25010 corrección funcional; regla 00 §8 (prioridad de evidencia).
+- Esfuerzo estimado: chico (si se decide quitar)
 
 ## 6. Matriz de contratos
 
