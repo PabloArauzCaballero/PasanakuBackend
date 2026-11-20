@@ -442,6 +442,461 @@
 - Estándares y normas: ISO/IEC 25010 corrección funcional; ISO 4217; reglas 91.1.2, 97.5.4, 91.4.
 - Esfuerzo estimado: medio
 
+### grupos-organizador-DINERO-002 — El destino de una transferencia por «alias» se resuelve con un nombre visible no único y `LIMIT 1` sin orden
+- Clase / Severidad / Confianza: DINERO / S1 / probable (falta comprobar si CU-12 muestra y hace confirmar el destinatario antes de mover el dinero)
+- Ubicaciones: `servicios/grupos/src/main/java/bo/aportaya/grupos/infraestructura/ConsultasRepositorio.java:30-45`; `servicios/grupos/src/main/java/bo/aportaya/grupos/infraestructura/CreacionRepositorio.java:44-57`; `servicios/grupos/src/main/java/bo/aportaya/grupos/aplicacion/OrganizadorDecideIngreso.java:126-130`; `sql/10_tablas/02_grupos_turnos/participante.sql:9`; consumidor `servicios/nucleo-financiero/src/main/java/bo/aportaya/nucleofinanciero/aplicacion/ResolverDestino.java:12-15,41`
+- Evidencia:
+  ```java
+  SELECT p.usuario_id AS usuario FROM grupos.participante p
+   WHERE p.alias = ? AND p.estado = 'ACTIVO'
+   LIMIT 1
+  ```
+  ```java
+  VALUES (?, ?, ?, (SELECT nombre_visible FROM grupos.solicitud_ingreso WHERE id = ?), ...   // alias = nombre visible
+  ```
+  ```java
+  return afuera.usuarioDelAlias(valor).flatMap(usuario -> cuentas.deUsuario(usuario, ctx));  // nucleo-financiero
+  ```
+- Cómo se comprobó: lectura de las ubicaciones; `grep -rn alias sql/30_indices/02_grupos_turnos.sql sql/40_reglas/restricciones.sql` → ningún índice único sobre `participante.alias`. La consulta corre con rol de sistema (`Datos.comoSistema`), sobre todos los grupos.
+- Impacto: dos participantes con el mismo nombre visible en cualquier grupo hacen que una transferencia de billetera (CU-12) vaya a cualquiera de los dos, según el plan de ejecución de PostgreSQL. El dinero de un participante puede acreditarse a otra persona.
+- Causa de fondo: se usa un dato de presentación (nombre) como identificador de destino de dinero.
+- Solución de fondo: alias único y explícito (elegido por su titular, con índice `UNIQUE`), o resolver el destino por identificador. Si hay más de una coincidencia, rechazar.
+- Relación con el flujo nuevo: ninguna
+- Conexiones y módulos afectados: `nucleo-financiero` (CU-12, lote L1).
+- Estándares y normas: ISO/IEC 25010 corrección funcional, integridad; CWE-706 (uso de nombre resuelto incorrectamente); regla 91.
+- Esfuerzo estimado: medio
+
+### grupos-organizador-FLUJO-QR-001 — Un grupo que se llena por firmas queda `CONFORMADO` sin publicar `grupo_iniciado`, así que nunca se abre la primera cuota
+- Clase / Severidad / Confianza: FLUJO-QR / S2 / confirmado
+- Ubicaciones: `servicios/grupos/src/main/java/bo/aportaya/grupos/aplicacion/CU69FirmarReglamento.java:193-216`; `servicios/grupos/src/main/java/bo/aportaya/grupos/aplicacion/CU69IniciarGrupo.java:101,140,200-207`; `servicios/aportes/src/main/java/bo/aportaya/aportes/consumo/ConsumidorDeGrupoIniciadoKafka.java:25,44-50`; `servicios/grupos/src/main/java/bo/aportaya/grupos/aplicacion/RequisitosDelSorteo.java:41-53`
+- Evidencia:
+  ```java
+  "UPDATE grupos.grupo SET estado = 'CONFORMADO' WHERE id = ? AND estado = 'ABIERTO_A_INSCRIPCION'"
+  ... calendario.generar(dsl, grupoId, ahora.toLocalDate());
+  return true;            // sin outbox: no hay grupo_iniciado en este camino
+  ```
+- Cómo se comprobó: `grep -n 'grupo_iniciado\|outbox' CU69FirmarReglamento.java CU69IniciarGrupo.java` → solo `CU69IniciarGrupo` emite. En `aportes`, `CU21AbrirPrimeraCuota` solo se invoca desde `ConsumidorDeGrupoIniciadoKafka`. `CU69IniciarGrupo` exige estado `ABIERTO` (`:101`), así que un grupo ya `CONFORMADO` no se puede «iniciar» para recuperar el evento.
+- Impacto: el camino más natural (todos firman) deja el grupo sin primera cuota, sin QR que pagar y sin sorteo, porque el sorteo exige la cuota 1 acreditada. El grupo queda detenido para siempre sin error visible.
+- Causa de fondo: dos caminos de conformación (DUP-INT divergente) y solo uno publica el hecho que el resto del flujo necesita.
+- Solución de fondo: un único método de conformación en el dominio del grupo que siempre publique `grupo_iniciado` por outbox, y un trabajo de reparación para los grupos ya conformados sin evento.
+- Relación con el flujo nuevo: FLUJO-QR (el cobro por QR no puede empezar)
+- Conexiones y módulos afectados: `aportes` (primera cuota), app (pantalla de aportar).
+- Estándares y normas: ISO/IEC 25010 corrección funcional; reglas 98.3.3, 96.7.2.
+- Esfuerzo estimado: chico
+
+### grupos-organizador-HUECO-006 — Ningún servicio avanza el grupo a `EN_CURSO`/`FINALIZADO` ni el turno a `COBRADO`: las guardas que dependen de eso están muertas
+- Clase / Severidad / Confianza: HUECO / S2 / confirmado (código); probable (efecto en dinero, depende de L2)
+- Ubicaciones: `sql/10_tablas/02_grupos_turnos/grupo.sql:37`; `servicios/grupos/src/main/java/bo/aportaya/grupos/aplicacion/CU65Retirarse.java:58`; `servicios/grupos/src/main/java/bo/aportaya/grupos/dominio/PosicionAlRetirarse.java:29-31`; `servicios/grupos/src/main/java/bo/aportaya/grupos/infraestructura/TraspasoRepositorio.java:27-28`; `servicios/grupos/src/main/java/bo/aportaya/grupos/infraestructura/SorteoRepositorio.java:155`
+- Evidencia:
+  ```java
+  boolean arranco = "EN_CURSO".equals(retiros.estadoDelGrupoDe(dsl, entrada.participanteId()));
+  if (!elGrupoArranco) { return new PosicionAlRetirarse(Tipo.ACREEDORA, totalAportado, Momento.INMEDIATO); }
+  boolean cobrado = dsl.fetchExists(... TURNO.ESTADO.eq("COBRADO"));
+  ```
+- Cómo se comprobó: `grep -rnE "UPDATE grupos\.(grupo|turno|periodo)" servicios plataforma sql/40_reglas` fuera de `servicios/grupos` → 0. Dentro de `grupos`, las únicas escrituras de estado del grupo son `BORRADOR`, `ABIERTO_A_INSCRIPCION` y `CONFORMADO`; el turno solo nace `PROGRAMADO` (`SorteoRepositorio.java:155`).
+- Impacto: todo retiro se calcula como «acreedor, devolver íntegro, inmediato» aunque el ciclo esté corriendo. La guarda «cupo con turno ya cobrado no se traspasa» nunca bloquea: quien ya cobró el pozo puede traspasar o subastar su cupo y dejar al comprador con los aportes restantes sin turno que cobrar. Los indicadores de turnos dan cero.
+- Causa de fondo: el ciclo de vida del grupo después del sorteo no tiene dueño en el código; `entregas` no puede escribir este esquema (regla 98.1) y no hay evento que `grupos` consuma.
+- Solución de fondo: `grupos` consume los hechos de cobro del turno (`entregas`) y de cierre de periodo, y mueve sus estados con precondición en el `UPDATE`.
+- Relación con el flujo nuevo: FLUJO-FALTANTE (con el grupo sin estado, la rama de cierre de turno no existe en `grupos`)
+- Conexiones y módulos afectados: `entregas` (L2), `aportes` (L1).
+- Estándares y normas: ISO/IEC 25010 corrección funcional; reglas 96.3.2, 98.3.
+- Esfuerzo estimado: grande
+
+### grupos-organizador-DEFECTO-002 — «En cuántos grupos vivos participa» usa estados que no existen, y decide si una persona puede cerrar su billetera
+- Clase / Severidad / Confianza: DEFECTO / S2 / confirmado
+- Ubicaciones: `servicios/grupos/src/main/java/bo/aportaya/grupos/infraestructura/ConsultasRepositorio.java:46-58`; `servicios/grupos/src/main/java/bo/aportaya/grupos/web/RespuestasAOtrosServicios.java:50-53`; `sql/10_tablas/02_grupos_turnos/grupo.sql:37`
+- Evidencia: `AND g.estado NOT IN ('CERRADO', 'CANCELADO', 'DISUELTO')` frente al `CHECK` `('ABIERTO_A_INSCRIPCION','ACTIVO','BORRADOR','CANCELADO','CONFORMADO','DISUELTO_ANTICIPADAMENTE','EN_CURSO','FINALIZADO','SUSPENDIDO')`; comentario del consumidor: «Cero significa que puede cerrar su billetera».
+- Cómo se comprobó: comparación de la lista con el `CHECK`; además solo cuenta `p.estado = 'ACTIVO'`, así que un participante `EN_MORA` o `SUSPENDIDO` cuenta cero.
+- Impacto: una persona en mora en un grupo vivo aparece con «0 grupos activos» y puede cerrar su billetera debiendo al grupo. A la vez, grupos `FINALIZADO` cuentan como vivos.
+- Causa de fondo: cadenas mágicas de estado repetidas en varias consultas, cada una con su propia lista (ver FRAGIL-004).
+- Solución de fondo: un único conjunto «estados terminales» en el dominio, usado por todas las consultas; contar participantes no retirados.
+- Relación con el flujo nuevo: ninguna
+- Conexiones y módulos afectados: `nucleo-financiero`/`identidad` (cierre de billetera, consumidor de `consultarActividad`).
+- Estándares y normas: ISO/IEC 25010 corrección funcional; regla 91.
+- Esfuerzo estimado: chico
+
+### grupos-organizador-SEG-002 — El organizador recibe el puntaje de reputación exacto del postulante
+- Clase / Severidad / Confianza: SEG / S2 / confirmado
+- Ubicaciones: `servicios/grupos/src/main/java/bo/aportaya/grupos/aplicacion/MotorDeRecomendacion.java:46-53`; `servicios/grupos/src/main/java/bo/aportaya/grupos/aplicacion/CU68Postular.java:81-90`; `servicios/grupos/src/main/java/bo/aportaya/grupos/infraestructura/AdmisionRepositorio.java:66-74`; `servicios/grupos/src/main/java/bo/aportaya/grupos/aplicacion/CU68AceptarIngreso.java:164`; `servicios/grupos/src/main/java/bo/aportaya/grupos/web/AdmisionDelGrupo.java:102`
+- Evidencia:
+  ```java
+  return Map.of("reputacion", Integer.toString(e.reputacion()), ...);      // entradas del motor
+  Map.entry("entradas", MotorDeRecomendacion.entradas(entrada)),            // payload de ingreso_solicitado
+  salida.setEvidenciaAlgoritmo(decision.evidenciaAlgoritmo());              // respuesta de proponer/historial
+  ```
+- Cómo se comprobó: lectura de la cadena completa. `MapeoDePostulacion.java:44,56` toma `reputacion.puntaje()` de la sesión del postulante; `AdmisionRepositorio.evidencia` lee el payload del outbox y lo devuelve.
+- Impacto: el puntaje exacto, que la casa decidió que solo ve su titular (regla 90.2.8; `application.yml` de grupos, comentario de `transparencia.credencial-servicio`), le llega al organizador y viaja en un evento de Kafka.
+- Causa de fondo: la evidencia del algoritmo se guarda cruda en el evento y se reutiliza como respuesta.
+- Solución de fondo: guardar en la evidencia la etapa, no el puntaje, y una vista de respuesta mínima por rol.
+- Relación con el flujo nuevo: APROB (la evidencia existe para que un humano decida)
+- Conexiones y módulos afectados: `transparencia` (dueño del puntaje), backoffice.
+- Estándares y normas: ISO/IEC 25010 seguridad (confidencialidad); OWASP API Security API3 (exposición excesiva de propiedades); reglas 90.1.8, 90.2.8.
+- Esfuerzo estimado: chico
+
+### grupos-organizador-OBSERV-001 — El alias (nombre de una persona) viaja en la URL y entra a todas las líneas de log de la petición
+- Clase / Severidad / Confianza: OBSERV / S2 / confirmado
+- Ubicaciones: `servicios/grupos/src/main/java/bo/aportaya/grupos/web/RutasAOtrosServicios.java:60-65`; `servicios/grupos/src/main/resources/openapi/grupos.yaml:1212-1214` (`/grupos/participantes/alias/{alias}`)
+- Evidencia: `Traza.marcarCasoDeUso("CU-12", alias);`
+- Cómo se comprobó: lectura; el alias es el nombre visible (DINERO-002). `marcarCasoDeUso` pone el segundo argumento en el contexto de traza del log (informado por el subagente en `plataforma/.../Traza.java:66-68`; no se abrió el enmascarador de PII, ver Límites).
+- Impacto: nombres de personas en logs de acceso del gateway, de cada salto y del servicio, ligados a una transferencia.
+- Causa de fondo: identificador de dinero que es dato personal, pasado en el path.
+- Solución de fondo: la resolución va en el cuerpo de un `POST` y la traza registra solo un identificador opaco.
+- Relación con el flujo nuevo: ninguna
+- Conexiones y módulos afectados: gateway, `nucleo-financiero`.
+- Estándares y normas: ISO/IEC 25010 seguridad (confidencialidad); CWE-532; reglas 90.2.1, 90.2.2, 98.5.2.
+- Esfuerzo estimado: chico
+
+### grupos-organizador-RESILIENCIA-002 — Los consumidores de Kafka de `grupos` no tienen cola de muertos: una cesión ya pagada se puede descartar
+- Clase / Severidad / Confianza: RESILIENCIA / S2 / confirmado
+- Ubicaciones: `servicios/grupos/src/main/java/bo/aportaya/grupos/consumo/ConsumidorDeCesionesKafka.java:25-31`; `servicios/grupos/src/main/java/bo/aportaya/grupos/consumo/ConsumidorDePreciosCongeladosKafka.java`; `servicios/grupos/src/main/java/bo/aportaya/grupos/consumo/ConsumidorDeRevocacionesKafka.java`
+- Evidencia: «El manejo de errores es el del contenedor de Spring Kafka (reintentos y descarte tras agotarlos); una cola de mensajes muertos con alerta es la decisión pendiente de operaciones.»
+- Cómo se comprobó: lectura del comentario y de los tres consumidores (sin `DeadLetterPublishingRecoverer` ni manejador propio).
+- Impacto: si `entregas` ya cobró la venta de un turno y `grupos` rechaza la cesión (comprador no activo, orden de llegada), el evento se descarta tras los reintentos: el dinero se movió y el cupo sigue con el vendedor, sin alerta.
+- Causa de fondo: decisión operativa pendiente, sin degradación declarada (regla 98.2.4).
+- Solución de fondo: DLQ con alerta y reproceso, más compensación en `entregas` si la cesión es definitivamente inválida.
+- Relación con el flujo nuevo: ninguna
+- Conexiones y módulos afectados: `entregas` (L2), `tarifas`, `organizador`.
+- Estándares y normas: ISO/IEC 25010 fiabilidad (recuperabilidad); reglas 96.7.3, 98.3.4.
+- Esfuerzo estimado: medio
+
+### grupos-organizador-DATOS-001 — Cuatro restricciones de la base comparan contra estados que su propia tabla no admite: nunca se disparan (y una bloquea las apelaciones)
+- Clase / Severidad / Confianza: DATOS / S2 / confirmado
+- Ubicaciones: `sql/40_reglas/restricciones.sql:1940-1943` (`uq_acuerdo_abierto … WHERE estado = 'EN_VOTACION'`) vs `sql/10_tablas/02_grupos_turnos/acuerdo.sql:24` (`'ABIERTO'`); `restricciones.sql:1945-1951` (`estado <> 'APROBADO'`) vs `solicitud_retiro.sql:16` (`'APROBADA'`); `restricciones.sql:2741-2746` (`estado = 'PENDIENTE' OR (resuelta_en IS NOT NULL …)`) vs `apelacion_sancion_org.sql:15` (`'ACEPTADA','DESISTIDA','EN_REVISION','PRESENTADA','RECHAZADA'`); `restricciones.sql:2772-2778` (`accion NOT IN ('PROPONER_COBRO','PROPONER_ENTREGA',…)`) vs `regla_automatizacion.sql:18` (`'APLICAR_MORA','EJECUTAR_ENTREGA',…`)
+- Evidencia: fragmentos citados en Ubicaciones.
+- Cómo se comprobó: comparación de cada condición con el `CHECK` de dominio de la tabla. Además `sql/50_verificacion/prueba_humo.sql:720-800` solo verifica que el nombre de la restricción exista (informado por el subagente de datos, abierto el rango).
+- Impacto: (1) R-GRP-09 no impide dos votaciones abiertas iguales (expulsión, condonación) y el código hace `SELECT` y luego `INSERT` (`AcuerdoRepositorio.java:24-30`): carrera. (2) R-GRP-12 no exige plan a un retiro deudor. (3) Una apelación abierta (`PRESENTADA`, sin `resuelta_en`) viola el `CHECK`: por eso `CU93` solo escribe la apelación al resolverla (causa de DEBIDO-PROCESO-002). (4) R-ORG-06 no obliga a confirmar acciones de dinero. Las cuatro reglas están declaradas como invariantes de la base y ninguna está en vigor.
+- Causa de fondo: el DDL de dominio se genera del modelo y las reglas de `40_reglas` se escriben a mano con otro vocabulario; ninguna prueba ejercita la restricción.
+- Solución de fondo: corregir las reglas en su fuente (`docs/Restricciones.md` → `40_reglas`) y agregar a la verificación una prueba que intente violar cada una. Para R-ORG-06, antes decidir A-1.
+- Relación con el flujo nuevo: APROB (R-ORG-06, apelación)
+- Conexiones y módulos afectados: ninguna externa.
+- Estándares y normas: ISO/IEC 25010 integridad; reglas 91.2, 97.2, 91.4.3.
+- Esfuerzo estimado: chico
+
+### grupos-organizador-DEFECTO-003 — Resolver un acuerdo escribe el estado sin precondición: dos votos simultáneos lo resuelven dos veces
+- Clase / Severidad / Confianza: DEFECTO / S2 / probable (falta la prueba concurrente)
+- Ubicaciones: `servicios/grupos/src/main/java/bo/aportaya/grupos/infraestructura/AcuerdoRepositorio.java:133-141`; `servicios/grupos/src/main/java/bo/aportaya/grupos/aplicacion/CU63Acordar.java:114-150`
+- Evidencia:
+  ```java
+  dsl.update(ACUERDO).set(ACUERDO.ESTADO, estado) ... .where(ACUERDO.ID.eq(acuerdoId)).execute();   // sin AND estado='ABIERTO'
+  ```
+- Cómo se comprobó: lectura; `resolver` lee los votos, decide y escribe sin `FOR UPDATE` ni condición de estado; además devuelve `"EN_VOTACION"`, que no es un estado del `CHECK` (`ABIERTO`).
+- Impacto: dos `acuerdo_resuelto` para el mismo acuerdo, o un acuerdo `EJECUTADO` que vuelve a `APROBADO` y se reutiliza para otro traspaso de cupo.
+- Causa de fondo: precondición en un `if` en lugar de en la escritura (regla 96.3.2).
+- Solución de fondo: `UPDATE … WHERE id = ? AND estado = 'ABIERTO'` y tratar 0 filas como «ya resuelto».
+- Relación con el flujo nuevo: APROB (votación del grupo)
+- Conexiones y módulos afectados: CU-64 traspaso.
+- Estándares y normas: ISO/IEC 25010 fiabilidad; CWE-362; reglas 96.3.1, 96.3.2.
+- Esfuerzo estimado: chico
+
+### grupos-organizador-HUECO-007 — Los acuerdos del grupo se votan pero no tienen efecto: condonar, expulsar, disolver o cambiar el reglamento no hace nada
+- Clase / Severidad / Confianza: HUECO / S2 / confirmado
+- Ubicaciones: `servicios/grupos/src/main/java/bo/aportaya/grupos/aplicacion/CU63Acordar.java:29-32,114-150`; `servicios/grupos/src/main/resources/openapi/grupos.yaml:466-470`
+- Evidencia: `resolver` solo hace `acuerdos.resolver(...)` y `outbox.emitir("grupos.acuerdo_resuelto", …)`; no hay rama por tipo.
+- Cómo se comprobó: lectura del método; `grep -n 'EXPULSION\|CONDONACION\|DISOLUCION' CU63Acordar.java` → 0. Según el subagente, nadie consume `acuerdo_resuelto` (búsqueda de `@KafkaListener` en `servicios/`).
+- Impacto: el grupo cree que decidió (expulsar a un moroso, condonar una deuda, disolverse) y nada cambia. Con R-NUEVA-2, la disolución por mora es justamente una salida al faltante (A-2), y no existe.
+- Causa de fondo: caso de uso que promete ejecutar «en la misma transacción» y solo registra.
+- Solución de fondo: efecto por tipo en el servicio dueño, o retirar del contrato los tipos sin efecto. Depende de A-1 (¿siguen existiendo votaciones?) y A-2.
+- Relación con el flujo nuevo: APROB / FLUJO-FALTANTE
+- Conexiones y módulos afectados: `aportes`/`garantia` (condonación), `entregas` (disolución).
+- Estándares y normas: ISO/IEC 25010 completitud funcional; regla 00 §6.2.
+- Esfuerzo estimado: grande
+
+### grupos-organizador-ACOPLE-001 — Las tablas de `grupos` y `organizador` tienen claves foráneas y un disparador hacia los esquemas de otros servicios
+- Clase / Severidad / Confianza: ACOPLE / S2 / confirmado
+- Ubicaciones: `sql/20_claves/02_grupos_turnos.sql:25,35,45,50,70,80,85,95,105,120` (hacia `identidad`, `aportes`, `garantia`, `organizador`); `sql/20_claves/07_organizador_automatizacion.sql:87-90` (`tarea_automatizada → grupos.grupo`); `sql/40_reglas/restricciones.sql:2686-2701` (`grupos.fn_org_validar_contrato_grupo` lee `organizador.contrato_organizador`, `SECURITY DEFINER`)
+- Evidencia:
+  ```sql
+  FOREIGN KEY (politica_mora_id) REFERENCES aportes.politica_mora (id) ...
+  FOREIGN KEY (organizador_id) REFERENCES organizador.organizador (id) ...
+  SELECT 1 FROM organizador.contrato_organizador c WHERE c.organizador_id = NEW.organizador_id ...
+  ```
+- Cómo se comprobó: `grep -nE 'REFERENCES (identidad|aportes|garantia|organizador|nucleo_financiero)\.' sql/20_claves/02_grupos_turnos.sql sql/20_claves/07_organizador_automatizacion.sql`. El código Java no consulta esquemas ajenos (bien); el acople está en la base.
+- Impacto: ningún servicio puede tener su propia base; un cambio de esquema en `organizador` o `aportes` rompe inserciones de `grupos` (alta de grupo vía disparador). La regla R-ORG-02 se aplica en un esquema ajeno a su dueño.
+- Causa de fondo: modelo único generado para todos los esquemas (base compartida).
+- Solución de fondo: validar contra el servicio dueño por contrato (ya existe `GET /organizadores/{id}/habilitacion`) y retirar FK y disparador entre esquemas, en un plan de expansión y contracción.
+- Relación con el flujo nuevo: ninguna
+- Conexiones y módulos afectados: `identidad`, `aportes`, `garantia`, `organizador`.
+- Estándares y normas: ISO/IEC 25010 mantenibilidad (modularidad); reglas 98.1.1, 98.1.2; ADR-017.
+- Esfuerzo estimado: grande
+
+### grupos-organizador-SEG-003 — Cualquier persona con rol `ORGANIZADOR` puede programar, aprobar o dar por ejecutada la tarea automatizada de cualquier grupo
+- Clase / Severidad / Confianza: SEG / S2 / confirmado
+- Ubicaciones: `servicios/organizador/src/main/java/bo/aportaya/organizador/web/AutomatizacionController.java:74-117`; `servicios/organizador/src/main/java/bo/aportaya/organizador/aplicacion/CU96EjecutarTarea.java:108-131`
+- Evidencia:
+  ```java
+  @Permiso("ORGANIZADOR")
+  public ResponseEntity<SalidaProgramacion> aprobarTarea(UUID tareaId) { ... cu96.aprobar(tareaId, sesion.actual()) }
+  // aprobar(): bloquea la tarea y cambia REQUIERE_APROBACION → PROGRAMADA; no mira grupo ni actor
+  ```
+- Cómo se comprobó: lectura; `tarea_automatizada` no tiene `usuario_id` ni `cuenta_billetera_id`, así que queda fuera de RLS (`restricciones.sql:1409-1418`). No hay control «quien aprueba ≠ quien programa».
+- Impacto: hoy bajo, porque ningún planificador ejecuta tareas ni hay consumidor de `tarea_aprobada` (por eso S2 y no S1). El día que se cablee CU-96, un organizador podría liberar `EJECUTAR_ENTREGA` o `APLICAR_MORA` en el grupo de otro.
+- Causa de fondo: autorización solo por rol (BFLA), sin propiedad del recurso.
+- Solución de fondo: comprobar que quien opera administra el `grupoId` de la tarea, y separar funciones entre quien programa y quien aprueba. Antes, decidir A-1 sobre R-ORG-06.
+- Relación con el flujo nuevo: APROB
+- Conexiones y módulos afectados: `grupos` (administración del grupo).
+- Estándares y normas: OWASP API Security API1 y API5; CWE-639; reglas 90.1.2, 90.1.3, 90.1.4.
+- Esfuerzo estimado: chico
+
+### grupos-organizador-DUP-INT-001 — Admitir a una persona tiene cuatro implementaciones con efectos distintos
+- Clase / Severidad / Confianza: DUP-INT / S2 / confirmado
+- Ubicaciones: `servicios/grupos/src/main/java/bo/aportaya/grupos/aplicacion/OrganizadorDecideIngreso.java:105-149`; `servicios/grupos/src/main/java/bo/aportaya/grupos/infraestructura/AdmisionRepositorio.java:97-143`; `servicios/grupos/src/main/java/bo/aportaya/grupos/aplicacion/CU69Enlace.java:126-149`; `servicios/grupos/src/main/java/bo/aportaya/grupos/infraestructura/SubastaDeCupoRepositorio.java:49-60`
+- Evidencia: el camino del organizador reserva 1 cupo e ignora `cupos_solicitados`; el de backoffice reserva N y mira `max_cupos_por_persona`; aceptar por enlace crea al participante `ACTIVO` con cupo `OCUPADO` sin pasar por `RESERVADO`; la subasta crea `ACTIVO` con reputación 0. Cada uno emite un evento distinto (`ingreso_aceptado`, `admision_resuelta`, `invitacion_aceptada`).
+- Cómo se comprobó: lectura de los cuatro bloques (los inserts de participante y cupo); el subagente de `grupos` los listó y se abrieron.
+- Impacto: la misma regla de negocio (quién entra y con cuántos cupos) responde distinto según la puerta; un consumidor que escuche un solo evento pierde ingresos. Con R-NUEVA-1 sobrevive una sola puerta y no está claro cuál.
+- Causa de fondo: reescrituras sucesivas sin retirar las anteriores (agentes en paralelo; ver REESCRITURA-001).
+- Solución de fondo: una sola operación de dominio «admitir» con un solo evento; las puertas solo cambian el disparador.
+- Relación con el flujo nuevo: APROB
+- Conexiones y módulos afectados: `aportes` (cupos que cobran), app, backoffice.
+- Estándares y normas: ISO/IEC 25010 mantenibilidad, corrección funcional; regla 96.1.
+- Esfuerzo estimado: grande
+
+### grupos-organizador-REESCRITURA-001 — La habilitación de organizador tiene un camino heredado de aprobación que convive con el nuevo, y la «habilitación tras capacitación» nunca puede tener éxito
+- Clase / Severidad / Confianza: REESCRITURA / S3 / confirmado
+- Ubicaciones: `servicios/organizador/src/main/java/bo/aportaya/organizador/aplicacion/CU90PostularOrganizador.java:116-185,203-206`; `servicios/organizador/src/main/java/bo/aportaya/organizador/aplicacion/CU90ResolverHabilitacion.java:68-134`; `servicios/organizador/src/main/java/bo/aportaya/organizador/infraestructura/OrganizadorRepositorio.java:222-233`
+- Evidencia: `aprobar(EntradaAprobacion, ctx)` (heredado: sin `Backoffice.exigir`, sin clave de idempotencia, sin revisión esperada) frente a `CU90ResolverHabilitacion` (con las tres). `capacitacionesAprobadas` cuenta filas de `organizador.capacitacion_organizador`.
+- Cómo se comprobó: `grep -rn 'Backoffice\.' CU90PostularOrganizador.java` → 0; `grep -rn 'INSERT INTO organizador.capacitacion' servicios` → solo `servicios/organizador/src/test/java/bo/aportaya/organizador/FixturaDeOrganizador.java:135`.
+- Impacto: dos puertas para lo mismo con controles distintos; el backoffice llama `POST /organizadores/{id}/habilitacion` y esa operación nunca encuentra capacitaciones en producción: el organizador aprobado por bandeja queda en `CAPACITACION_PENDIENTE`.
+- Causa de fondo: el flujo nuevo se agregó sin retirar el viejo.
+- Solución de fondo: retirar `aprobar` heredado (y su ruta) con versión del contrato; decidir si la capacitación existe (A-1) y, si existe, quién la registra.
+- Relación con el flujo nuevo: APROB
+- Conexiones y módulos afectados: backoffice `postulaciones/`, `cumplimiento/organizadores`.
+- Estándares y normas: ISO/IEC 25010 mantenibilidad; reglas 96.1, 98.1.3.
+- Esfuerzo estimado: medio
+
+### grupos-organizador-RESPALDO-001 — Los documentos de decisión y los datos de ejemplo siguen prometiendo que la empresa cubre el faltante; el código de `grupos` no lo hace
+- Clase / Severidad / Confianza: RESPALDO / S3 / confirmado
+- Ubicaciones: `docs/Arquitectura/ADR-051 Garantía del pozo, comisión y autogestión.md:34,53-54`; `docs/Arquitectura/ADR-054 Grupos sin organizador humano.md:95,110,158,178`; `docs/catalogo-de-flujos/aporte-mora-cobertura.yaml:108-127`; `servicios/grupos/src/main/java/bo/aportaya/grupos/infraestructura/CreacionRepositorio.java:121-122`
+- Evidencia: ADR-051 «Recibir mesa es recibir el pozo completo del turno; la empresa aporta el faltante»; ADR-054:178 «El riesgo de mora no cambia de dueño por este ADR: ya era de la reserva empresarial»; catálogo `cubrir-faltante … operacion: cubrirConRespaldo`; en código `.set(GRUPO.USA_FONDO_GARANTIA, false)`.
+- Cómo se comprobó: `grep -rniE 'respaldo|cobertura|garantia|faltante|pozo completo' servicios/grupos/src/main servicios/organizador/src/main` → ninguna llamada a respaldo en el módulo; las únicas trazas son las columnas de `grupo` puestas en `false`/0 y la métrica `coberturas_consumidas` de la evaluación de organizador (`CU92EvaluarDesempeno.java:97`).
+- Impacto: quien lea los ADR vigentes diseñará (o explicará a un participante) un pozo garantizado por la empresa que R-NUEVA-2 prohíbe. ADR-051 D-03 dice que «sin capacidad se deniega la activación»: `grupos` no lo consulta, lo que coincide con R-NUEVA-2 pero contradice al ADR.
+- Causa de fondo: R-NUEVA-2 no está escrita todavía en un ADR.
+- Solución de fondo: ADR nuevo que registre R-NUEVA-2 y marque como superadas ADR-051 D-02/D-03/D-15 y las frases de ADR-054; decisión A-2/A-3.
+- Relación con el flujo nuevo: RESPALDO
+- Conexiones y módulos afectados: `garantia`, `entregas` (L2), catálogo de flujos.
+- Estándares y normas: ISO/IEC 25010 (adecuación de la documentación); regla 00 §8.
+- Esfuerzo estimado: chico
+
+### grupos-organizador-DOC-002 — El comentario del esquema `organizador` dice que liquida comisiones de los organizadores (RN-18 lo prohíbe)
+- Clase / Severidad / Confianza: DOC / S3 / confirmado
+- Ubicaciones: `sql/60_semillas/24-metadata-comentarios.sql:25`
+- Evidencia: «Habilitación, capacitación, evaluación de reputación, liquidación de comisiones y control de conducta de los organizadores comunitarios».
+- Cómo se comprobó: lectura; `grep -rniE 'comision' servicios/organizador/src/main` no muestra cálculo de comisión (no hay hallazgo DINERO por RN-18 en el código).
+- Impacto: el catálogo de metadatos describe una función prohibida por la regla 91.5.1.
+- Causa de fondo: texto heredado de un modelo anterior.
+- Solución de fondo: corregir el comentario en su fuente.
+- Relación con el flujo nuevo: ninguna
+- Conexiones y módulos afectados: ninguna.
+- Estándares y normas: regla 91.5.
+- Esfuerzo estimado: chico
+
+### grupos-organizador-DEFECTO-004 — Fechas del calendario: el día de hoy se toma en UTC y la fecha de fin ignora la periodicidad
+- Clase / Severidad / Confianza: DEFECTO / S3 / confirmado
+- Ubicaciones: `servicios/grupos/src/main/java/bo/aportaya/grupos/aplicacion/CU69IniciarGrupo.java:132`; `servicios/grupos/src/main/java/bo/aportaya/grupos/aplicacion/CU69FirmarReglamento.java:214`; `servicios/grupos/src/main/java/bo/aportaya/grupos/infraestructura/CreacionRepositorio.java:110`; `CU69IniciarGrupo.java:230`; `servicios/grupos/src/main/java/bo/aportaya/grupos/aplicacion/CanjearInvitacion.java:53`
+- Evidencia: `calendario.generar(dsl, grupoId, ahora.toLocalDate());` con `ahora` en `ZoneOffset.UTC`; `.set(GRUPO.FECHA_FIN_ESTIMADA, datos.fechaDeInicio().plusMonths(datos.cupos()))`; `.isAfter(java.time.OffsetDateTime.now())`.
+- Cómo se comprobó: lectura; `application.yml` declara `zona-horaria: America/La_Paz`.
+- Impacto: un grupo iniciado entre las 20:00 y las 24:00 de La Paz arma su periodo 1 un día después. Un grupo semanal de 10 cupos muestra fin estimado a 10 meses. `CanjearInvitacion` usa el reloj del sistema y no el inyectado (las pruebas no lo controlan).
+- Causa de fondo: conversión de zona no centralizada.
+- Solución de fondo: `Reloj.hoyEnLaPaz()` único y fecha fin calculada con la misma función que el calendario.
+- Relación con el flujo nuevo: ninguna
+- Conexiones y módulos afectados: `aportes` (vencimientos).
+- Estándares y normas: ISO 8601; ISO/IEC 25010 corrección funcional.
+- Esfuerzo estimado: chico
+
+### grupos-organizador-DUP-X-001 — El cliente HTTP con circuito está copiado en cinco servicios con contenidos distintos
+- Clase / Severidad / Confianza: DUP-X / S3 / confirmado
+- Ubicaciones: `servicios/{grupos,organizador,aportes,entregas,garantia}/src/main/java/bo/aportaya/*/infraestructura/clientes/ClienteConCircuito.java`
+- Evidencia: `md5sum` → cinco sumas distintas (`621e2d01…` grupos, `52135020…` organizador, `a1c51408…` aportes, `b91c5601…` entregas, `7e3d990c…` garantia).
+- Cómo se comprobó: comando citado. Además `grupos` tiene una segunda instancia del circuito hacia `aportes` en `PrimerAportePorHttp`.
+- Impacto: un arreglo de resiliencia se aplica en una copia y no en las otras; el comportamiento ante caída difiere por servicio.
+- Causa de fondo: agentes que copiaron en lugar de extraer a `plataforma/comun-web`.
+- Solución de fondo: una sola implementación en `plataforma/comun-web`.
+- Relación con el flujo nuevo: ninguna
+- Conexiones y módulos afectados: L1, L2, L5.
+- Estándares y normas: ISO/IEC 25010 mantenibilidad (reusabilidad); regla 96.1.
+- Esfuerzo estimado: medio
+
+### grupos-organizador-FRAGIL-004 — Estados y roles como cadenas sueltas repetidas en muchas clases, con listas distintas
+- Clase / Severidad / Confianza: FRAGIL / S3 / confirmado
+- Ubicaciones: `servicios/grupos/src/main/java/bo/aportaya/grupos/aplicacion/Consultas.java:208-211`; `servicios/grupos/src/main/java/bo/aportaya/grupos/infraestructura/ConsultasRepositorio.java:55`; `servicios/grupos/src/main/java/bo/aportaya/grupos/infraestructura/EmparejamientoRepositorio.java:56`; `servicios/grupos/src/main/java/bo/aportaya/grupos/aplicacion/ConsultarMisLimites.java:43`; `servicios/grupos/src/main/java/bo/aportaya/grupos/aplicacion/CU20CrearGrupo.java:174`
+- Evidencia: `return "BACKOFFICE".equals(ctx.rol()) || …` (omite `ADMIN_PLATAFORMA`, que el resto del servicio usa); listas de estados terminales `('CERRADO','CANCELADO','DISUELTO')`, `('FINALIZADO','CANCELADO','DISUELTO_ANTICIPADAMENTE')`.
+- Cómo se comprobó: `grep` de cada lista; comparación con `grupo.sql:37`.
+- Impacto: si cambia un estado o un rol, unas consultas lo reconocen y otras no (DEFECTO-002 es un caso ya roto). Ninguna prueba compara las listas.
+- Causa de fondo: falta un enumerado de dominio para estados y roles.
+- Solución de fondo: enumerados de dominio generados del modelo y usados en el SQL por parámetro.
+- Relación con el flujo nuevo: ninguna
+- Conexiones y módulos afectados: ninguna.
+- Estándares y normas: ISO/IEC 25010 mantenibilidad (modificabilidad).
+- Esfuerzo estimado: medio
+
+### grupos-organizador-RESILIENCIA-003 — La `Idempotency-Key` que exige el contrato se ignora en sorteo, retiro, permuta, acuerdos y traspaso por subasta
+- Clase / Severidad / Confianza: RESILIENCIA / S3 / confirmado
+- Ubicaciones: `servicios/grupos/src/main/java/bo/aportaya/grupos/web/GruposController.java:165-177,181-190`; `servicios/grupos/src/main/java/bo/aportaya/grupos/web/RutasDeSubastaDelCupo.java:123`; `servicios/grupos/src/main/java/bo/aportaya/grupos/web/TurnosController.java:43`; `servicios/grupos/src/main/java/bo/aportaya/grupos/web/AcuerdosController.java:49,103`
+- Evidencia: `comprometerSorteo(UUID grupoId, UUID idempotencyKey, EntradaCompromiso cuerpo)` y el cuerpo nunca usa `idempotencyKey`.
+- Cómo se comprobó: lectura de las firmas y de las llamadas al caso de uso.
+- Impacto: un reintento del cliente devuelve un error de negocio («ya tiene su sorteo») en vez de la respuesta original, o inserta un segundo `PENDIENTE` (retiro, permuta) que choca con un índice parcial y sale como 500.
+- Causa de fondo: el contrato declara la cabecera pero el patrón de idempotencia no es transversal.
+- Solución de fondo: guardar la respuesta por clave en una tabla con `UNIQUE` y devolverla en el reintento, como ya hace CU-20.
+- Relación con el flujo nuevo: ninguna
+- Conexiones y módulos afectados: app (reintentos).
+- Estándares y normas: ISO/IEC 25010 fiabilidad; reglas 96.3.3, 91.1.4.
+- Esfuerzo estimado: medio
+
+### grupos-organizador-DINERO-003 — Importes del módulo sin moneda al lado, sin `CHECK >= 0`, y uno guardado como texto
+- Clase / Severidad / Confianza: DINERO / S3 / confirmado
+- Ubicaciones: `sql/10_tablas/02_grupos_turnos/{periodo,turno,solicitud_retiro,traspaso_cupo,solicitud_permuta,postulacion_emparejamiento,propuesta_grupo,alta_grupo}.sql`; `sql/10_tablas/07_organizador_automatizacion/{organizador,requisito_habilitacion}.sql`; `servicios/grupos/src/main/resources/openapi/grupos.yaml:1368-1374,2002-2008`
+- Evidencia: `monto_recaudado NUMERIC(14,2) DEFAULT 0 NOT NULL` (sin `moneda`); `fondo_por_periodo VARCHAR(60)`; contrato `pattern: '^-?\d+\.\d{2}$'` para un monto de salida.
+- Cómo se comprobó: lectura del DDL (subagente de datos, tabla de inventario; se abrieron `periodo.sql`, `alta_grupo.sql` y el patrón del contrato).
+- Impacto: la moneda se infiere del grupo; el día que un grupo opere en USD (el contrato lo admite) los importes derivados quedan ambiguos. `periodo.monto_recaudado` se inserta en 0 y nunca se actualiza (`CalendarioDelGrupoRepositorio.java:43-47`): segunda fuente para un número de dinero que no es el mayor (regla 91.1.5).
+- Causa de fondo: modelo de datos sin objeto de valor Dinero.
+- Solución de fondo: `moneda CHAR(3)` junto a cada importe, `CHECK >= 0`, retirar `monto_recaudado` y leerlo del mayor.
+- Relación con el flujo nuevo: ninguna
+- Conexiones y módulos afectados: `nucleo-financiero` (mayor).
+- Estándares y normas: ISO 4217; reglas 91.1.2, 91.1.5, 91.2.2.
+- Esfuerzo estimado: medio
+
+### grupos-organizador-SEG-004 — En el traspaso de cupo (CU-64) el nivel de KYC del entrante se reemplaza por el mínimo del grupo
+- Clase / Severidad / Confianza: SEG / S3 / confirmado
+- Ubicaciones: `servicios/grupos/src/main/java/bo/aportaya/grupos/web/GruposController.java:234-240`
+- Evidencia: `politica.kycMinimo(), politica.kycMinimo(),` — el mismo valor como «KYC del entrante» y como «mínimo».
+- Cómo se comprobó: lectura; el comentario dice que lo decide cumplimiento al aceptar la postulación, pero el traspaso no pasa por postulación.
+- Impacto: la comprobación de debida diligencia del que entra siempre aprueba.
+- Causa de fondo: se dejó un marcador en lugar de la consulta a `identidad`/`cumplimiento`.
+- Solución de fondo: consultar el nivel real del entrante (ya existe `PersonasPorHttp` con `GET /usuarios/{u}/kyc`).
+- Relación con el flujo nuevo: ninguna (A-1 si KYC deja de exigirse)
+- Conexiones y módulos afectados: `identidad`, `cumplimiento` (L4).
+- Estándares y normas: OWASP ASVS (lógica de negocio); regla 90.1.
+- Esfuerzo estimado: chico
+
+### grupos-organizador-PRUEBAS-002 — Las pruebas validan el flujo viejo (aprobación humana, organizador obligatorio) y ninguna cubre el grupo sin organizador
+- Clase / Severidad / Confianza: PRUEBAS / S3 / confirmado
+- Ubicaciones: `servicios/grupos/src/test/java/bo/aportaya/grupos/**/{GruposAdmisionHumanaWebTest,InvitacionesAdmisionHumanaWebTest,CU69IniciarGrupoTest,CU69EventoDeInicioTest}.java` y las listadas en el anexo; `servicios/organizador/src/test/java/bo/aportaya/organizador/` (CU96Test.criterio2, CU96RechazosTest)
+- Evidencia: nombres de clase citados (verificados con `ls -R`); según el subagente de pruebas, 591 pruebas en 90 clases de `grupos` y ninguna con `organizadorId` vacío ni con inicio o sorteo automáticos. No hay `@Disabled`, `skip` ni pruebas comentadas.
+- Cómo se comprobó: listado de archivos; la lectura línea a línea de cada clase no se hizo (ver Límites).
+- Impacto: cualquier cambio hacia R-NUEVA-1 rompe decenas de pruebas que defienden la aprobación, y ninguna prueba defiende el comportamiento nuevo.
+- Causa de fondo: el producto cambió de decisión antes de que el código cambiara.
+- Solución de fondo: después de A-1, reescribir las pruebas que afirman la aprobación como pruebas del flujo nuevo, sin borrar ninguna sin registro (regla 80.5.5).
+- Relación con el flujo nuevo: APROB
+- Conexiones y módulos afectados: ninguna.
+- Estándares y normas: regla 80.
+- Esfuerzo estimado: grande
+
+### grupos-organizador-PRUEBAS-003 — No hay prueba de contrato del lado productor para los pactos que `grupos` cumple
+- Clase / Severidad / Confianza: PRUEBAS / S3 / confirmado
+- Ubicaciones: `contratos/pactos/identidad-grupos-pertenencia.json`; `contratos/pactos/transparencia-grupos-pertenencia.json`; `contratos/pactos/grupos-aportes-grupo-iniciado.json`
+- Evidencia: el propio pacto lo dice: «NO existe todavia una prueba contra el proceso real de grupos» (citado por el subagente de datos; verificado con `grep -n 'NO existe todavia' contratos/pactos/*pertenencia.json`).
+- Cómo se comprobó: búsqueda de los nombres de pacto en `servicios/grupos/src/test` (subagente) y lectura del texto del pacto.
+- Impacto: un cambio de `consultarSiCompartenGrupo` o del payload de `grupo_iniciado` rompe a `identidad`, `transparencia` o `aportes` sin aviso (regla 98.1.4).
+- Causa de fondo: verificación de pactos solo del lado consumidor.
+- Solución de fondo: verificación del pacto contra el proveedor real en CI.
+- Relación con el flujo nuevo: FLUJO-QR (`grupo_iniciado` abre el cobro)
+- Conexiones y módulos afectados: `identidad`, `transparencia`, `aportes`.
+- Estándares y normas: regla 98.1.4.
+- Esfuerzo estimado: medio
+
+### grupos-organizador-UX-A11Y-001 — Pantallas del módulo con estados vacíos mudos, textos y tipografía fuera del sistema, y la marca escrita de dos formas
+- Clase / Severidad / Confianza: UX-A11Y / S4 / confirmado (muestra)
+- Ubicaciones: vacíos `mensajeVacio: ''` en `apps/movil/lib/pantallas/pasanaku/{seccion_del_grupo.dart:36,pantalla_sorteo.dart:150,pantalla_unirse_al_grupo.dart:79,pantalla_enlace_del_grupo.dart:122}`; tipografía literal `font-size` en `apps/backoffice/src/app/rutas/admisiones/{entrada-de-admision.ts:87-91,historial-de-admision.ts:55-56,tabla-de-admisiones.ts:54}`; marca «Aporteo» en `apps/movil/lib/pantallas/pasanaku/textos_enlace_del_grupo.dart:216,220,228,310,313` y `dominio/enlace_del_grupo.dart:27`
+- Evidencia: `grep -rn 'Aporteo' apps/movil/lib | wc -l` → 8.
+- Cómo se comprobó: muestra verificada (marca); el resto lo informó el subagente de frontend con ruta y línea. `scripts/verificar_frontend.py backoffice` da «sin literal de diseño» (no detecta `font-size` en rem dentro de `styles`).
+- Impacto: estados vacíos que no orientan (regla 95.2.2), marca inconsistente frente al participante.
+- Causa de fondo: pantallas escritas por agentes distintos sin catálogo de textos común.
+- Solución de fondo: textos al catálogo, tokens tipográficos, vacíos con explicación.
+- Relación con el flujo nuevo: ninguna
+- Conexiones y módulos afectados: ninguna.
+- Estándares y normas: WCAG 2.2 (información y relaciones); reglas 95.1.5, 95.2.2.
+- Esfuerzo estimado: chico
+
+### grupos-organizador-DEFECTO-005 — La pantalla de invitar por número comparte su estado entre todos los grupos
+- Clase / Severidad / Confianza: DEFECTO / S3 / confirmado (código; no ejecutado)
+- Ubicaciones: `apps/movil/lib/pantallas/pasanaku/dominio/cu69_invitar_al_grupo.dart:50-53`
+- Evidencia: `final invitarAlGrupoProvider = AsyncNotifierProvider<InvitarAlGrupo, SalidaInvitacion?>(InvitarAlGrupo.new);` (sin `.family` ni `autoDispose`).
+- Cómo se comprobó: lectura.
+- Impacto: tras invitar a alguien al grupo A, abrir «invitar» del grupo B muestra el resultado de A.
+- Causa de fondo: proveedor global para un estado que es por grupo.
+- Solución de fondo: proveedor `family` por `grupoId` y `autoDispose`.
+- Relación con el flujo nuevo: ninguna
+- Conexiones y módulos afectados: ninguna.
+- Estándares y normas: ISO/IEC 25010 corrección funcional.
+- Esfuerzo estimado: chico
+
+### grupos-organizador-SEG-005 — El código secreto del enlace del grupo va en el path de la URL y el token de invitación termina en un parámetro de login
+- Clase / Severidad / Confianza: SEG / S3 / confirmado
+- Ubicaciones: `apps/movil/lib/pantallas/pasanaku/dominio/enlace_del_grupo.dart:15-21`; `apps/movil/lib/pantallas/pasanaku/vistas_de_unirse.dart:62,69`
+- Evidencia: `return '$base/g/$codigo';` y `context.go('/ingreso?volver=$retorno')`.
+- Cómo se comprobó: lectura; el contrato marca el código como «no registrar» (`grupos.yaml:1546-1552`, informado por el subagente). La página web de invitación sí usa el fragmento y `replaceState` (bien).
+- Impacto: el secreto queda en logs de servidor web, proxies e historial; quien lo vea puede pedir ingreso al grupo.
+- Causa de fondo: el enlace web reutiliza el path para el secreto.
+- Solución de fondo: secreto en el fragmento (`#`), como ya hace `apps/web`.
+- Relación con el flujo nuevo: ninguna
+- Conexiones y módulos afectados: `apps/web`.
+- Estándares y normas: CWE-598; regla 90.2.2.
+- Esfuerzo estimado: chico
+
+### grupos-organizador-HUECO-008 — La ruta de la app para postular a un grupo (`pedir-cupo`) existe pero nada navega a ella
+- Clase / Severidad / Confianza: HUECO / S3 / confirmado
+- Ubicaciones: `apps/movil/lib/pantallas/pasanaku/rutas.dart:47-52`
+- Evidencia: `path: '/pasanaku/grupos/:grupoId/pedir-cupo', name: 'pasanaku.pedirCupo'`.
+- Cómo se comprobó: `grep -rn 'pedir-cupo\|pedirCupo' apps/movil/lib` → solo la definición, la lista de acceso y el texto del botón dentro de la propia pantalla.
+- Impacto: CU-68 «postular» no es alcanzable desde la app.
+- Causa de fondo: pantalla construida sin punto de entrada.
+- Solución de fondo: decidir si la postulación existe con R-NUEVA-1; si existe, enlazarla; si no, retirarla.
+- Relación con el flujo nuevo: APROB (la postulación termina en decisión humana)
+- Conexiones y módulos afectados: ninguna.
+- Estándares y normas: ISO/IEC 25010 completitud funcional.
+- Esfuerzo estimado: chico
+
+### grupos-organizador-ACOPLE-002 — La app fija en el cliente parámetros que el contrato deja elegir (10 cupos, día de cobro 5, BOB)
+- Clase / Severidad / Confianza: ACOPLE / S3 / confirmado
+- Ubicaciones: `apps/movil/lib/pantallas/pasanaku/pantalla_crear_grupo.dart:20,60-61`; `apps/movil/lib/pantallas/pasanaku/organismos_crear_grupo.dart:154-158,170-177`; `apps/movil/lib/pantallas/pasanaku/dominio/cu20_crear_grupo.dart:50`
+- Evidencia: `const cuposPorDefecto = 10;`, `final int _diaCobro = 5;`, `moneda: DineroMonedaEnum.BOB`.
+- Cómo se comprobó: lectura de las líneas citadas por el subagente de frontend.
+- Impacto: la persona no puede crear un grupo de otro tamaño, otra fecha de cobro ni en USD, aunque el servicio lo admite.
+- Causa de fondo: decisiones de producto escritas como constantes de pantalla.
+- Solución de fondo: formulario con los campos del contrato, o regla de producto documentada que el servicio aplique.
+- Relación con el flujo nuevo: ninguna
+- Conexiones y módulos afectados: ninguna.
+- Estándares y normas: regla 95.1; ISO/IEC 25010 adecuación funcional.
+- Esfuerzo estimado: chico
+
+### grupos-organizador-CONTRATO-002 — El contrato acepta tipos de acuerdo que el servicio no sabe leer y campos que ignora
+- Clase / Severidad / Confianza: CONTRATO / S3 / confirmado
+- Ubicaciones: `servicios/grupos/src/main/resources/openapi/grupos.yaml:443,1409`; `servicios/grupos/src/main/java/bo/aportaya/grupos/dominio/TipoDeAcuerdo.java:13-21,32-39`; `servicios/grupos/src/main/java/bo/aportaya/grupos/infraestructura/CreacionRepositorio.java:113`
+- Evidencia: el contrato enumera `REPETIR_SORTEO`; el enum Java no lo tiene y `deContrato` cae en `valueOf(valor)` → `IllegalArgumentException`. `EntradaGrupo.modalidadTurnos` es obligatorio y el alta lo fija en `SORTEO_ALEATORIO`.
+- Cómo se comprobó: lectura de ambos archivos.
+- Impacto: proponer un acuerdo `REPETIR_SORTEO` responde con error interno en lugar de un 422 del contrato; el cliente cree que elige la modalidad de turnos y no.
+- Causa de fondo: el contrato y el modelo crecieron por separado.
+- Solución de fondo: alinear el enum del contrato con el modelo (versión nueva si se quita un valor).
+- Relación con el flujo nuevo: ninguna
+- Conexiones y módulos afectados: app, backoffice.
+- Estándares y normas: RFC 9110; reglas 96.2.4, 96.4.1.
+- Esfuerzo estimado: chico
+
+### grupos-organizador-DATOS-002 — El historial de estados del grupo se puede modificar
+- Clase / Severidad / Confianza: DATOS / S3 / confirmado
+- Ubicaciones: `sql/35_append_only/append_only.sql` (sin `historial_estado_grupo`); `sql/00_base/03_permisos.sql` (`GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA grupos TO svc_grupos`)
+- Evidencia: `grep -n 'historial_estado_grupo' sql/35_append_only/append_only.sql` → 0.
+- Cómo se comprobó: búsqueda citada; `alta_grupo`, `decision_ingreso`, `snapshot_sorteo` y `sustitucion_administrador` sí están protegidas (bien).
+- Impacto: el rastro de quién inició, conformó o canceló un grupo se puede reescribir con el rol de la aplicación.
+- Causa de fondo: tabla de auditoría no incluida en la lista append-only.
+- Solución de fondo: agregarla a `35_append_only` (disparador + `REVOKE UPDATE, DELETE`).
+- Relación con el flujo nuevo: ninguna
+- Conexiones y módulos afectados: auditoría (L5).
+- Estándares y normas: reglas 91.1.3, 90.2.7.
+- Esfuerzo estimado: chico
+
+### grupos-organizador-CLEAN-001 — Código muerto y duplicado en `grupos` y en la app
+- Clase / Severidad / Confianza: CLEAN / S4 / confirmado (muestra)
+- Ubicaciones: `servicios/grupos/src/main/java/bo/aportaya/grupos/dominio/EstadoDeSorteo.java`; `.../infraestructura/clientes/HechosPorHttp.java:123-128` (`organizadorHabilitado`, superado por `organizadorHabilitadoDelUsuario`); `.../aplicacion/CU68Postular.java:112-152` (`responder`, solo pruebas); `apps/movil/lib/pantallas/pasanaku/dominio/cu60_sortear_turnos.dart:11-91` (`ComprometerSorteo`, `RevelarSorteo` sin uso); `apps/backoffice/src/app/rutas/admisiones/solicitudes-del-grupo.ts`; `servicios/grupos/src/main/resources/application.yml:107` (`factor-fijo` «SOLO TEST» en la configuración principal)
+- Evidencia: `grep -rn 'ComprometerSorteo\|RevelarSorteo\b' apps/movil/lib apps/movil/test` fuera de su archivo → 0.
+- Cómo se comprobó: búsqueda de referencias (muestra); el resto lo listó el subagente de `grupos` con su conteo de referencias.
+- Impacto: ruido que confunde sobre qué camino está vivo.
+- Causa de fondo: reescrituras sin limpieza.
+- Solución de fondo: retirar lo que no tiene referencias, con su prueba si la hay.
+- Relación con el flujo nuevo: ninguna
+- Conexiones y módulos afectados: ninguna.
+- Estándares y normas: ISO/IEC 25010 mantenibilidad.
+- Esfuerzo estimado: chico
+
 ## 6. Matriz de contratos
 
 (pendiente)
