@@ -12,23 +12,27 @@
 ## H1 — Informe de auditoría del módulo garantia-entregas
 **CA:** Dado el commit de `origin/test`, cuando una persona abre el informe, entonces encuentra las 12 secciones de la §9 del metaprompt, cada hallazgo con ficha completa, y ningún dato personal ni secreto.
 **DoD:** `grep -c '^### garantia-entregas-' AUDITORIA-garantia-entregas.md` coincide con la tabla del resumen · `git status --short` solo muestra esta carpeta · commit pusheado a `auditoria/garantia-entregas-2026-11-20`.
-**Estado:** TODO
+**Estado:** EN CURSO (falta M9)
 
 ### H1.S1 — Fases 0 a 7 del método
 | ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
 |---|---|---|---|---|
-| H1.S1.M1 | Fase 0: preparación (rama, commit, historial, lectura de reglas/ADR/auditorías previas) | commit y estado de historial anotados | `git rev-parse HEAD` + `git rev-parse --is-shallow-repository` pegados en evidencia | TODO |
-| H1.S1.M2 | Fase 1: huella y mapa de conexiones | sección 3 del informe escrita | `grep -n '^## 3' AUDITORIA-*.md` | TODO |
-| H1.S1.M3 | Fase 2: lectura completa con registro de cobertura | anexo con una fila por archivo | `grep -c '^| `' ` sobre el anexo ≥ nº de archivos de la huella | TODO |
-| H1.S1.M4 | Fase 3: inventarios de aprobación y respaldo | tablas 4a/4b/4c presentes | `grep -n '^### 4' AUDITORIA-*.md` | TODO |
-| H1.S1.M5 | Fase 4: vista de conjunto | hallazgos de DUP/REESCRITURA/FRAGIL registrados o "ninguno" con búsqueda | lectura de la sección 8 | TODO |
-| H1.S1.M6 | Fase 5: conexiones, contratos y verificadores | matriz de contratos + salida de verificadores en `evidencia/` | `ls evidencia/` | TODO |
-| H1.S1.M7 | Fase 6: estándares y normativa | cada hallazgo con ISO 25010 y regla | `grep -c 'Estándares y normas' AUDITORIA-*.md` = nº hallazgos | TODO |
-| H1.S1.M8 | Fase 7: refutación de S1/S2 | cada S1/S2 re-abierto y confirmado o bajado | sección de refutación en evidencia | TODO |
-| H1.S1.M9 | Entrega: REPORTE.md, commit y push | rama remota con el commit | `git log origin/auditoria/garantia-entregas-2026-11-20 -1` | TODO |
+| H1.S1.M1 | Fase 0: preparación (rama, commit, historial, lectura de reglas/ADR/auditorías previas) | commit y estado de historial anotados | `git rev-parse HEAD` + `git rev-parse --is-shallow-repository` pegados en evidencia | HECHO — `evidencia/00-preparacion.txt`, `evidencia/09-dod.txt` |
+| H1.S1.M2 | Fase 1: huella y mapa de conexiones | sección 3 del informe escrita | `grep -n '^## 3' AUDITORIA-*.md` | HECHO — §3 en línea 83 (`evidencia/09-dod.txt`) |
+| H1.S1.M3 | Fase 2: lectura completa con registro de cobertura | anexo con una fila por archivo | `grep -c '^| `' ` sobre el anexo ≥ nº de archivos de la huella | HECHO — anexo §12 con 275 filas de huella + 12.b (`grep -c` → 325 filas con ruta) |
+| H1.S1.M4 | Fase 3: inventarios de aprobación y respaldo | tablas 4a/4b/4c presentes | `grep -n '^### 4' AUDITORIA-*.md` | HECHO — §4.a–4.d (`evidencia/09-dod.txt`) |
+| H1.S1.M5 | Fase 4: vista de conjunto | hallazgos de DUP/REESCRITURA/FRAGIL registrados o "ninguno" con búsqueda | lectura de la sección 8 | HECHO — §8 con fila por clase; DUP-X/REESCRITURA/FRAGIL/PISADA registrados |
+| H1.S1.M6 | Fase 5: conexiones, contratos y verificadores | matriz de contratos + salida de verificadores en `evidencia/` | `ls evidencia/` | HECHO — §6 + `evidencia/05*.txt` (Gradle BLOCKED por entorno: `05c`) |
+| H1.S1.M7 | Fase 6: estándares y normativa | cada hallazgo con ISO 25010 y regla | `grep -c 'Estándares y normas' AUDITORIA-*.md` = nº hallazgos | HECHO — 68/68 (`evidencia/09-dod.txt`, re-ejecución) |
+| H1.S1.M8 | Fase 7: refutación de S1/S2 | cada S1/S2 re-abierto y confirmado o bajado | sección de refutación en evidencia | HECHO — `evidencia/07-refutacion.md` |
+| H1.S1.M9 | Entrega: REPORTE.md, commit y push | rama remota con el commit | `git log origin/auditoria/garantia-entregas-2026-11-20 -1` | EN CURSO — falta push y verificación del remoto |
 
 ## Riesgos y bloqueos previstos
 | Riesgo | Impacto | Mitigación |
 |---|---|---|
 | Sin Gradle/Flutter/Node con dependencias en la nube | verificadores sin correr | se prueba una vez, se pega el error y se marca NO COMPROBADO |
 | Volumen (~31 k líneas en la huella) | cobertura parcial | subagentes de solo lectura con lotes disjuntos; verificación de S1/S2 por el agente principal; cobertura declarada |
+
+## Desvíos registrados
+- Indicación de Pablo retransmitida por la sesión coordinadora (2026-11-20): catalogar cada hallazgo al identificarlo y hacer commit + push por tanda. Se aplicó (4 tandas).
+- Los hallazgos se escribieron por tandas y se reordenaron por clase/severidad al armar el documento final.

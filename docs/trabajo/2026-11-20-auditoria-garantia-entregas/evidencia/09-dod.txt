@@ -1,0 +1,43 @@
+$ git rev-parse HEAD origin/test; git rev-parse --is-shallow-repository
+bedcc6b3b4a131bd8c89fb999ad52ff7d96f377f
+07fc69719287b0dadd152d0293a054948df69ead
+false
+
+$ grep -n '^## ' AUDITORIA-garantia-entregas.md
+3:## 1. Ficha
+18:## 2. Resumen
+83:## 3. Huella y mapa de conexiones
+120:## 4. Distancia al flujo nuevo
+195:## 5. Hallazgos
+986:## 6. Matriz de contratos
+1036:## 7. Evidencia obligatoria del módulo (91.6, 98.8, 90.6)
+1051:## 8. Cobertura por clase
+1088:## 9. Lo que está bien
+1104:## 10. Observado fuera de alcance
+1117:## 11. Límites de esta auditoría
+1129:## 12. Anexo de cobertura de archivos
+
+$ grep -c '^| `' AUDITORIA-garantia-entregas.md  (filas de anexo y tablas con ruta)
+325
+$ grep -c '^### garantia-entregas-' AUDITORIA-garantia-entregas.md
+68
+$ grep -c 'Estándares y normas' AUDITORIA-garantia-entregas.md
+31
+$ grep -n '^### 4' AUDITORIA-garantia-entregas.md
+122:### 4.a Inventario de aprobaciones
+150:### 4.b Inventario de respaldo y cobertura
+169:### 4.c Ambigüedades A-1 a A-4
+178:### 4.d Ramas del faltante al corte (FLUJO-FALTANTE)
+$ ls evidencia/
+00-preparacion.txt
+05-verificadores.txt
+05b-verificadores-filtrado-modulo.txt
+05c-gradle-garantia-test.txt
+09-dod.txt
+$ git status --short
+ M docs/trabajo/2026-11-20-auditoria-garantia-entregas/AUDITORIA-garantia-entregas.md
+?? docs/trabajo/2026-11-20-auditoria-garantia-entregas/evidencia/09-dod.txt
+
+# Re-ejecución tras normalizar la etiqueta (2026-11-20)
+$ grep -c 'Estándares y normas' AUDITORIA-garantia-entregas.md
+68
