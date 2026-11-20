@@ -21,11 +21,94 @@ Pendiente de cierre. Tabla de severidades y diez más graves se completan al ter
 
 ## 3. Huella y mapa de conexiones
 
-Pendiente.
+### 3.1 Huella
+
+| Capa | Ubicación | Volumen | Cómo se leyó |
+|---|---|---|---|
+| Servicio Java `identidad` | `servicios/identidad/` (main 108 archivos, test 81) | ~21 000 líneas Java | lote 1 (main completo; 6 pruebas completas, resto inventariado) |
+| Servicio Java `cumplimiento` | `servicios/cumplimiento/` (main 98, test 80) | ~25 300 líneas Java | lote 2 (main completo; pruebas de autorización/UIF/PEP completas, resto inventariado) |
+| OpenAPI | `servicios/identidad/src/main/resources/openapi/identidad.yaml`, `servicios/cumplimiento/src/main/resources/openapi/*.yaml` | 39 rutas identidad; ~50 operaciones cumplimiento | lotes 1–3 |
+| Esquema | `sql/10_tablas/01_identidad_usuarios/` (27 tablas), `sql/10_tablas/12_cumplimiento_asfi/` (47 tablas); sentencias de esas tablas en `sql/20_claves`, `30_indices`, `35_append_only`, `40_reglas/restricciones.sql`, `60_semillas`, `61_dev`, `62_volumen` | — | lote 3 |
+| Retiros con doble aprobación (ADR-049) | `servicios/nucleo-financiero/.../{ResolucionDeRetiro,BandejaDeRetiros,ReglasDeRetiro,CU11RetirarSaldo,SolicitudDeRetiro,AprobacionDeRetiroRepositorio,OrdenRetiroRepositorio,SegundoFactorStepUp}.java`, `BilleteraController` (endpoints de retiro), `sql/10_tablas/10_billetera_custodia/orden_retiro.sql` | — | lote 3 (solo el circuito de retiro; el resto de nucleo-financiero es del lote L1) |
+| Pactos y clientes | `contratos/pactos/identidad-grupos-pertenencia.json`; `clientes/dart/{identidad,cumplimiento}` (barrel versionado, `src/` ignorado por `.gitignore:51`); `clientes/angular/*` | — | lote 3 (inventario, comparación por operación con el OpenAPI) |
+| App móvil | `apps/movil/lib/pantallas/identidad/**` | 154 archivos, 15 288 líneas Dart | lote 4 (completo) |
+| Backoffice / web | `apps/backoffice/src/app/rutas/{cumplimiento,sistemas/{accesos,usuarios-internos,roles-internos,permisos-internos},ingreso,operacion/retiros}`, pantallas de identidad de `apps/web` | ~9 700 líneas TS | lote 5 |
+| Documentación de contraste | `docs/Arquitectura/ADR-049`, `ADR-051`, `ADR-054`, `docs/Cumplimiento.md`, `docs/catalogo-de-flujos/recarga-y-retiro.yaml` | — | orquestador y lote 3 |
+
+Supuesto de frontera (registrado en §11): las pantallas de grupos/admisiones/postulaciones del backoffice son del lote L3; el resto de `nucleo-financiero` (recarga, mayor, QR) es del lote L1.
+
+### 3.2 Conexiones
+
+| Desde | Hacia | Mecanismo | Punto exacto | Observaciones |
+|---|---|---|---|---|
+| los 13 servicios | identidad | JWKS `GET /.well-known/jwks.json` | `servicios/identidad/.../web/JwksController.java:32-35`; `plataforma/comun-web/.../ConfiguracionDelDecodificador.java:27-28` | sin `iss`/`aud` (IDCU-SEG-005) |
+| gateway | identidad | rutas `/api/v1/{identidad,permisos,roles,sesion,sesiones,usuarios,usuarios-internos}/**` | `plataforma/gateway/src/main/resources/rutas.yml:21-42,107-112` | rate limit solo en `/sesiones/**` y `/usuarios/**` |
+| identidad | grupos | HTTP `GET /grupos/{g}/integrantes/{u}/comparte` + pacto | `servicios/identidad/.../infraestructura/clientes/GruposPorHttp.java:28-37`; `contratos/pactos/identidad-grupos-pertenencia.json:14` | timeout global 1 s/3 s; falla cerrado; pacto sin prueba de productor |
+| identidad | organizador | HTTP habilitación básica | `servicios/identidad/.../infraestructura/clientes/OrganizadorPorHttp.java:69-84` | resultado de `firmar` descartado |
+| identidad | Gmail API | HTTPS | `servicios/identidad/.../infraestructura/GmailApiCorreoDeVerificacion.java:57-88` | envío dentro de transacción en CU-04 |
+| identidad | almacén de archivos | `comun-archivos` | `CU02GuardarFotoDelExpediente.java:121`, `CU02RevisarExpediente.java:64,70` | objeto antes que fila |
+| identidad | Kafka | outbox `identidad.*` (10 tópicos) | `CU01RegistrarUsuario.java:240-247`, `CU04Autenticar.java:116,195` | la decisión KYC no emite evento |
+| grupos | identidad | HTTP tokens de invitación, `/usuarios/{id}/kyc`, `/usuarios/busquedas/por-telefono` | `servicios/grupos/.../TokensDeInvitacionPorHttp.java:46,68,86,103`; `PersonasPorHttp.java:25,32,44` | identidad no valida que el emisor administre el grupo |
+| entregas | identidad | HTTP `/usuarios/{id}/titularidad/verificacion` (`SERVICIO_ENTREGAS`) | `servicios/entregas/.../TitularPorHttp.java:68` | tope por réplica |
+| nucleo-financiero | identidad | JWT de evidencia step-up | `servicios/nucleo-financiero/.../SegundoFactorStepUp.java:118-169` | no liga monto ni destino |
+| garantia, organizador | cumplimiento | HTTP `GET /reclamos/usuarios/{id}/efecto` | `servicios/garantia/.../EfectoDeReclamosPorHttp.java:52`; `servicios/organizador/.../EfectoDeReclamosPorHttp.java:51` | token del usuario vs permiso `RECLAMO_VER` |
+| grupos | cumplimiento | HTTP `GET /licencia/alcance` | `servicios/grupos/.../HechosPorHttp.java:157-162` | cada rechazo escribe outbox |
+| cumplimiento | `nucleo_financiero.consumo_limite`, `cuenta_billetera` | SELECT cruzado | `servicios/cumplimiento/.../LimiteRepositorio.java:83-84,113-118` | IDCU-ACOPLE-002 |
+| cumplimiento | `catalogo.*` (tarifario, licencia, límites, umbral UIF) | SELECT (ADR-029) | `ContratoRepositorio.java:113-123`, `LicenciaRepositorio.java:32-53` | admitido por ADR |
+| nucleo-financiero | `cumplimiento.registro_operacion_relevante` | trigger diferido SECURITY DEFINER | `sql/40_reglas/restricciones.sql:1052-1056` | ADR-017 lo admite; idempotente por `uq_operelev_tx_umbral` |
+| cumplimiento | Kafka | outbox, ~30 tópicos `cumplimiento.*` | `evidencia/listar_topicos.txt` | ninguno con consumidor |
+| cumplimiento | identidad / nucleo-financiero | eventos `consentimiento_registrado`, limitar cuenta, bloqueo por oficio | `CU05AceptarContrato.java:120-131`, `CU06RevisarConocimiento.java:403-421`, `CU45AtenderRequerimiento.java:370-385` | sin consumidor |
+| app móvil | identidad / cumplimiento | Dio + cliente generado | ver tabla de conexiones del lote 4 en IDCU-CONTRATO-017 | seis operaciones por Dio crudo |
+| backoffice | identidad / cumplimiento / nucleo-financiero | HttpClient | ver tanda 6 | — |
+
+### 3.3 Saltos del dinero que toca este módulo (98.8.1)
+
+Retiro: app → `nucleo-financiero POST /billetera/retiros` → `cumplimiento`? **no**: los límites los evalúa la copia de nucleo-financiero (IDCU-REESCRITURA-001) → `identidad` (evidencia step-up, JWT) → `orden_retiro` EN_REVISION/AUTORIZADA → (si ≥ umbral) backoffice `POST /billetera/retiros/{id}/aprobacion` → evento `retiro_autorizado` → **sin consumidor**: nadie instruye el pago (IDCU-FLUJO-FALTANTE-036).
 
 ## 4. Distancia al flujo nuevo
 
-Pendiente (inventarios a, b y tabla c de ambigüedades A-1 a A-4).
+### 4.a Inventario de aprobaciones
+
+Clasificación según §9.4.a del metaprompt. «Norma» = fuente del repo citada; la determinación legal la hace Cumplimiento.
+
+| ID | Dónde (`ruta:línea`) | Qué aprueba y quién | Estado · endpoint · permiso · pantalla · evento | Clasificación | Qué se rompe aguas abajo si se quita |
+|---|---|---|---|---|---|
+| APR-01 | `servicios/identidad/.../web/VerificacionesController.java:97` → `aplicacion/CU02RevisarExpediente.java:83-128`; `identidad.yaml:350-352,458` («la aprobacion sigue siendo manual») | Revisión KYC manual: operador con `VERIFICACION_RESOLVER` (ADMIN_PLATAFORMA, OFICIAL/ANALISTA_CUMPLIMIENTO) aprueba o rechaza el expediente | `verificacion_kyc` PENDIENTE/EN_REVISION→APROBADA/RECHAZADA; `POST /identidad/verificaciones/{id}/decision`; backoffice `rutas/cumplimiento/verificaciones`; **sin evento** | DECISIÓN REQUERIDA (A-1) | Único camino a ACTIVO y rol PARTICIPANTE; gating de la app (APR-12); cumplimiento no se entera |
+| APR-02 | `servicios/identidad/.../infraestructura/UsuariosInternosRepositorio.java:221-233` | Operador cambia `usuario.estado` (ACTIVO/SUSPENDIDO) de cualquier usuario | `PATCH /usuarios-internos/{id}`; `USUARIOS_INTERNOS_GESTIONAR`; evento `usuario_interno_actualizado` | ELIMINABLE como camino de activación (debería quedar solo para internos); la suspensión es control de seguridad | Segundo camino paralelo a APR-01 (IDCU-SEG-076) |
+| APR-03 | `servicios/identidad/.../aplicacion/ActivarRolOrganizador.java:40-58`; `OrganizadorPorHttp.java:69-84` | CU-90: rol ORGANIZADOR exige KYC aprobado + habilitación confirmada por el servicio organizador | `POST /usuarios/{id}/roles/organizador`; `asignacion_rol` | DECISIÓN REQUERIDA (A-1; además ADR-054 quitó al organizador humano del alta y el inicio) | Creación de grupos con organizador |
+| APR-04 | `servicios/identidad/.../aplicacion/CU08AsignarRol.java:248-300`; `UsuariosInternosController.java:44,72` | Asignación humana de roles internos (otorgante ≠ titular) | `POST/PUT /usuarios-internos`, `/roles`; `ck_asignacion_no_autoasignada` | CONSERVAR (control de acceso del backoffice; no es circuito del pasanaku) | Sin operadores |
+| APR-05 | `servicios/identidad/.../aplicacion/CU09CambiarCredencial.java:85-92` | Restablecimiento asistido de credencial con `aprobadoPor` | sin endpoint | NO APLICA hoy (código muerto) | nada |
+| APR-06 | `servicios/identidad/.../aplicacion/CU04StepUp.java:33-117` | Evidencia de segundo factor del propio titular para RETIRO / CAMBIO_CUENTA / ADMIN | `POST /sesiones/desafios`, `/verificacion` | CONSERVAR (no es aprobación de terceros: es autenticación del titular) | retiros sin MFA |
+| APR-07 | `servicios/nucleo-financiero/.../web/BilleteraController.java:158-174`; `ResolucionDeRetiro.java:188-290`; `ck_retiro_doble_aprobacion`; `application.yml:58-61` (umbral 5000.00) | Doble aprobación de retiro ≥ umbral: TESORERIA u OPERATIONS_MANAGER ≠ solicitante | `orden_retiro` EN_REVISION→AUTORIZADA/RECHAZADA; `GET /billetera/retiros`, `POST /billetera/retiros/{id}/aprobacion`; `RETIRO_APROBAR`; backoffice `rutas/operacion/retiros`; evento `retiro_autorizado` | DECISIÓN REQUERIDA (A-1). Insumo: `docs/Cumplimiento.md:170-176` sostiene que la norma «no exige aprobación humana operación por operación», sino niveles y montos de autorización definidos y aprobados por el Directorio (candidata a ELIMINABLE si se reemplaza por política de umbrales) | Bandeja, endpoint, permiso, pruebas `BilleteraAprobacionWebTest`/`BilleteraBandejaWebTest`, paso del catálogo `recarga-y-retiro.yaml`; el CHECK no estorba si `requiere_doble_aprobacion=false` |
+| APR-08 | `servicios/cumplimiento/.../aplicacion/CU02ElevarDiligencia.java:125-133`; `web/AdhesionController.java:158-165`; trigger `restricciones.sql:1103-1124` | Elevar debida diligencia; PEP con cuatro ojos | `POST /cumplimiento/usuarios/{id}/diligencia`; `ANALISTA_CUMPLIMIENTO` | CONSERVAR POR NORMA (`docs/Cumplimiento.md` §2.3: «Doble revisión en DDD reforzada»); confirmar con Cumplimiento (A-1) | topes por nivel |
+| APR-09 | `servicios/cumplimiento/.../aplicacion/CU43RemitirReportes.java:147-166`; `ck_reporte_segregacion` | Aprobar y enviar reporte mensual UIF/ASFI (aprobador ≠ generador) | `POST /uif/reportes/envios`; `CUMPLIMIENTO_REPORTAR` | CONSERVAR POR NORMA (obligación de reporte UIF, `docs/Cumplimiento.md` §2.1–2.2; la segregación es R-SEG-04 interna) | remisión regulatoria |
+| APR-10 | `servicios/cumplimiento/.../web/CumplimientoController.java:78-114`; `CU44DecidirComoRevisor.java:327-389` | Caso LFT: analista investiga, oficial distinto decide | `POST /cumplimiento/casos`, `/casos/{id}/decision`; `CUMPLIMIENTO_CASOS` | CONSERVAR POR NORMA (`docs/Cumplimiento.md:183-185`: «la UIF obliga a que la alerta la analice un analista y a que el reporte lo revise otra identidad») | ROS |
+| APR-11 | `servicios/cumplimiento/.../aplicacion/CU45AtenderRequerimiento.java:329-444` | Oficial registra y responde oficios de autoridad | `POST /uif/requerimientos`, `/respuesta` | CONSERVAR POR NORMA (atención de requerimientos, `docs/Cumplimiento.md` §2.3 «Congelamiento y atención de requerimientos») | — |
+| APR-12 | `apps/movil/lib/pantallas/identidad/pantalla_identidad_requerida.dart:15-18,91-111`; `textos_de_verificacion.dart:6-21,42-81`; `dominio/estado_de_verificacion.dart:10-23`; `apps/movil/lib/proveedores/sesion.dart:149-159` | Compuerta de la app: sin KYC aprobado por una persona no hay dinero ni pasanaku; textos «una persona los revise» | pantallas de estado/sondeo; claim `billeteraPermitida` | sigue a APR-01 (DECISIÓN REQUERIDA A-1) | rediseño de compuerta y textos |
+| APR-13 | `servicios/cumplimiento/.../aplicacion/CU52AtenderReclamo.java:173-238` | Punto de reclamo responde; alimenta `EfectoDelReclamo` | `POST /reclamos/{id}/respuesta`; `RECLAMO_ATENDER` | CONSERVAR POR NORMA (protección del consumidor, `docs/Cumplimiento.md` §1.3) | debido proceso (91.4) |
+| APR-14 | `CU47EvaluarRiesgoDeProducto.java:149-190`, `CU48CalibrarReglas.java:131-164`, `CU49DesignarOficial.java:68-162`, `CU53ElevarReclamo.java:116-157`, `CU55GestionarIncidente.java:145-204`, `CU56EjecutarPruebaDeContinuidad.java:73-78` | Gobierno: comité, reglas LFT, oficial, segunda instancia, incidentes, continuidad | varios sin endpoint | CONSERVAR (gobierno interno; fuera del circuito del pasanaku) | — |
+| APR-15 | `sql/60_semillas/10-roles-y-permisos.sql` | Permisos de aprobación de otros módulos sembrados acá: `ENTREGA_AUTORIZAR`, `SOLICITUD_INGRESO_RESOLVER`, `REVERSO_AUTORIZAR` | — | DECISIÓN REQUERIDA en los lotes L2/L3 (tocan el circuito) | `SegregacionDeFunciones` ya no los reconoce (IDCU-DEFECTO-079) |
+
+Total: **15 filas** (≈ 30 puntos de código). DECISIÓN REQUERIDA: APR-01, APR-03, APR-07, APR-12, APR-15 (5). CONSERVAR / CONSERVAR POR NORMA: 9. ELIMINABLE: APR-02 como vía de activación (1). Las filas de backoffice se completan en la tanda 6.
+
+### 4.b Inventario de respaldo y cobertura
+
+| ID | Dónde | Qué pone la empresa y cuándo | Asiento | Clasificación | Qué depende de ello |
+|---|---|---|---|---|---|
+| RSP-01 | `apps/movil/lib/pantallas/identidad/textos.dart:42-46`; `laminas_del_tour.dart:44-50`; arte `ArteFondoDeGarantia` (`packages/diseno_flutter`) | Promesa de pantalla: «un fondo de garantía cubre la cuota para que el turno se entregue igual» (no mueve dinero) | ninguno | CONTRADICE R-NUEVA-2 en su promesa; el origen del fondo es DECISIÓN REQUERIDA (A-2/A-3) | primera pantalla del tour; IDCU-RESPALDO-007 |
+| RSP-02 | `sql/60_semillas/10-roles-y-permisos.sql:94,241-242` | Permiso `FONDO_ADMINISTRAR` (fondo de garantía, CU-29) para ADMIN_PLATAFORMA y TESORERIA | — | DECISIÓN REQUERIDA (A-3; semántica en el lote L2) | lote L2 |
+| RSP-03 | `sql/10_tablas/01_identidad_usuarios/referencia_personal.sql:13` (`acepta_ser_avalista`) | Aval de una persona, no de la empresa | — | NO APLICA (aval entre participantes, A-3) | — |
+
+Búsquedas que sustentan «nada más»: `grep -rniE "respaldo|cobertura|garant|fondo|subsid|anticip"` sobre `servicios/identidad/src/main`, `servicios/cumplimiento/src/main`, tablas y semillas del módulo y `apps/movil/lib/pantallas/identidad` (lotes 1–4). Identidad y cumplimiento no escriben el mayor.
+
+### 4.c Ambigüedades A-1 a A-4
+
+| ID | Qué muestra el código hoy | Supuesto de trabajo | A quién confirmar |
+|---|---|---|---|
+| A-1 | KYC con revisión humana obligatoria (APR-01, APR-12); diligencia PEP con cuatro ojos (APR-08); caso LFT analista/revisor (APR-10); doble aprobación de retiros ≥ 5000.00 sin moneda ni fuente (APR-07). `docs/Cumplimiento.md:170-185` distingue: la norma no exige aprobación por operación de desembolsos, sí analista + revisor en la vía del sospechoso | No se elimina ninguna; se listan como DECISIÓN REQUERIDA o CONSERVAR POR NORMA | Pablo (producto) y Cumplimiento (legal) |
+| A-2 | En este módulo no hay rama de entrega con faltante. Sí hay una promesa de pantalla (RSP-01) de que «el turno se entrega igual» | No se inventa la regla | Pablo |
+| A-3 | `FONDO_ADMINISTRAR` sembrado (RSP-02); aval entre personas en `referencia_personal` (RSP-03) | El aval entre participantes no entra en R-NUEVA-2 | Pablo |
+| A-4 | Cumplimiento no calcula mora ni recargos. `EfectoDelReclamo` (`servicios/cumplimiento/.../dominio/EfectoDelReclamo.java:65-99`) frena deuda o sanción firme mientras haya reclamo abierto; consumido por garantía y organizador con un permiso que el llamador no tiene (ver tanda 5) | Sin supuesto: no hay regla en este módulo | Pablo |
 
 ## 5. Hallazgos
 
